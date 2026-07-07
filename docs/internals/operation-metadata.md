@@ -1,0 +1,11 @@
+# Operation Metadata
+
+Operation DefinitionはAttributeで、安定Type ID、入力Value、Handler、成功Outcome、Execution Strategyを宣言する。
+
+必須AttributeはOperationType、Accepts、HandledBy、Returnsである。ExecuteWithはOptionalで、未指定時はInlineへ解決される。
+
+Internal Compilerは明示されたDefinition ClassをReflectionし、各Attributeが正確に一つ存在することと、参照Classが必要なMarker／Handler Contractを実装することを検証する。
+
+解決結果はOperationMetadataへ保存する。MetadataはType IDとClass名だけを保持し、Object、Closure、Handler Instance、Credentialを含めない。
+
+Filesystem探索、Manifest永続化、Runtime Registry索引は別の責務として後続実装へ分離する。

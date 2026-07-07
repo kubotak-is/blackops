@@ -1,0 +1,35 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        UID: ${HOST_UID:-1000}
+        GID: ${HOST_GID:-1000}
+    image: blackops/framework:dev
+    user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
+    working_dir: /app
+    volumes:
+      - .:/app
+    environment:
+      POSTGRES_HOST: ${POSTGRES_HOST:-postgres}
+      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+      POSTGRES_DB: ${POSTGRES_DB:-blackops}
+      POSTGRES_USER: ${POSTGRES_USER:-blackops}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-blackops}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    tty: true
+
+  postgres:
+    image: postgres:18
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-blackops}
+      POSTGRES_USER: ${POSTGRES_USER:-blackops}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-blackops}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-blackops} -d ${POSTGRES_DB:-blackops}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10

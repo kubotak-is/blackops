@@ -1,0 +1,9 @@
+# Inline Dispatcher
+
+Public DispatcherはOperation DefinitionとOperationValueを受け取り、OperationResultを返す。PSR-11 ContainerやInternal Factoryは公開Signatureへ露出しない。
+
+Internal InlineDispatcherはRegistryからMetadataを解決し、受信Contextと最初のAttemptを生成してOperationEnvelopeを構築する。HandlerResolverだけがPSR-11 Containerへアクセスする。
+
+Inline実行はHandlerを一度だけ呼び、自動Retryしない。Handler例外はResultへ変換せず、後続のLifecycle／Supervision境界へ伝播する。
+
+InlineDispatcherはExecution Scope内でLifecycleStateを保持し、Journal RecordをWriterへ渡す前にState Machineで遷移を検証する。正常完了ではReceived、Running、Finalizing、Completedへ進み、業務拒否ではRunningからRejectedへ進む。

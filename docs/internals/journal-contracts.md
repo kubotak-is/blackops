@@ -1,0 +1,7 @@
+# Journal Contracts
+
+JournalEventは標準Lifecycle Eventと安定したDot-separated Wire Nameを対応付けるString-backed Enumである。
+
+Event固有DataはJournalData Marker Interfaceを実装する。追加Dataを持たないEventにはEmptyJournalDataを使用し、Codecは空Objectとして表現する。
+
+JournalRecord、Event固有Data、Codec、Factoryは後続実装で追加する。

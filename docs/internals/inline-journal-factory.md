@@ -1,0 +1,7 @@
+# Inline Journal Factory
+
+JournalRecordFactoryはInline LifecycleのReceived、Attempt Started、Attempt Succeeded、Operation Completed、Operation Rejectedを目的別Methodで生成する。
+
+ReceivedはCanonical OperationValue、CompletedはOutcome、RejectedはRejectionReasonを型付きDataとして保持する。StartedとSucceededはEmptyJournalDataを使用する。
+
+FactoryはRecord IDと時刻を注入Portから取得し、MetadataとEnvelopeのDefinitionおよびStrategyが一致することを検証する。Sequenceの割当とWriterへの配送は別責務とする。

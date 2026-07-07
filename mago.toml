@@ -1,0 +1,12 @@
+[source]
+paths = ["src"]
+# Composer依存のThird-partyコードを型解決のためparseするが分析・Lint・Format対象外。
+# これにより src/ が Psr\Clock\ClockInterface と Symfony\Uid を型正しく参照できる。
+includes = ["vendor/psr/clock", "vendor/psr/container", "vendor/symfony/uid"]
+
+[analyzer]
+[linter]
+[linter.rules.excessive-parameter-list]
+# 確定済みの不変Envelopeに合わせ、Constructorの閾値だけ緩める。
+constructor-threshold = 8
+[formatter]

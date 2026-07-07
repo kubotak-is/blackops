@@ -1,0 +1,9 @@
+# Journal Record
+
+JournalRecordはLifecycle Eventの共通Envelopeであり、Record情報、JournalOperation、Optional JournalAttempt、型付きJournalDataを保持する。
+
+Schema Version、Sequence、Attempt番号は1以上とし、時刻はUTCへ正規化する。Operation TypeとStrategyは安定したWire識別子として検証する。
+
+Actor、Trace、Event固有Data、Factory、Codecは後続Taskで追加する。
+
+LifecycleStateはOperationの現在状態を表す。InternalのState MachineはJournalEventごとの許可遷移を検証し、不正なEventではJournal Recordを出力する前にLifecycleTransitionExceptionを投げる。

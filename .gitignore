@@ -1,0 +1,5 @@
+vendor
+*.log
+.phpunit.cache/
+.deptrac.cache
+.env

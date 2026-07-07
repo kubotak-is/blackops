@@ -1,0 +1,42 @@
+# Data Retention and Deletion
+
+## Retention Policy
+
+次を別々のPolicyで管理する。
+
+```text
+transportPayloadRetention
+journalRetention
+outcomeRetention
+deadLetterRetention
+```
+
+Operation Typeまたは監査区分で上書き可能とする。具体的な既定期間はConfig仕様で定める。
+
+## Tombstone
+
+Terminal OperationのTransport Payload保持期限が切れた場合、Operations行のStateと識別情報は残し、Encoded PayloadとContextだけを消去する。
+
+```text
+encoded_payload    nullable
+encoded_context    nullable
+payload_purged_at  timestamptz nullable
+```
+
+未完了Operationの実行Payloadは削除しない。
+
+Tombstone化後のOperationはReplayできず、追跡と監査だけが可能である。
+
+## 外部キー
+
+子TableからOperationsへの外部キーは `ON DELETE RESTRICT` とする。
+
+Cascade Deleteは使用しない。Retention Serviceが各Policyと依存関係に従って、明示的な順序で削除する。
+
+## Legal Hold
+
+Operation単位のLegal Holdを設ける。
+
+Hold中はTransport Payload、Canonical Journal、Outcome、Dead Letterを含むすべてのRetention削除を停止する。
+
+MVPでは管理UIを作らず、SchemaとPortを用意する。

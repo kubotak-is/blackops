@@ -1,0 +1,5 @@
+# Journal Ports
+
+CanonicalJournalWriterとCanonicalJournalReaderは書き込みと読み取りの責務を分離する。両方を提供するAdapterはCanonicalJournalStoreを実装する。
+
+Writerは成功時にvoidを返し、失敗時はJournalWriteFailedを投げる。InlineSequenceは一つのExecution Scope内で1から始まる単調増加Sequenceを割り当てる。

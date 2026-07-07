@@ -1,0 +1,75 @@
+deptrac:
+  paths:
+    - ./src
+  layers:
+    - name: Core
+      collectors:
+        - type: classNameRegex
+          value: '/^BlackOps\\Core(\\|$)/'
+    - name: Journal
+      collectors:
+        - type: classNameRegex
+          value: '/^BlackOps\\Journal(\\|$)/'
+    - name: Execution
+      collectors:
+        - type: classNameRegex
+          value: '/^BlackOps\\Execution(\\|$)/'
+    - name: Transport
+      collectors:
+        - type: classNameRegex
+          value: '/^BlackOps\\Transport(\\|$)/'
+    - name: Http
+      collectors:
+        - type: classNameRegex
+          value: '/^BlackOps\\Http(\\|$)/'
+    - name: Logging
+      collectors:
+        - type: classNameRegex
+          value: '/^BlackOps\\Logging(\\|$)/'
+    - name: Console
+      collectors:
+        - type: classNameRegex
+          value: '/^BlackOps\\Console(\\|$)/'
+    - name: Internal
+      collectors:
+        - type: classNameRegex
+          value: '/^BlackOps\\Internal(\\|$)/'
+    - name: Library
+      collectors:
+        - type: classNameRegex
+          value: '/^Psr\\Clock(\\|$)/'
+        - type: classNameRegex
+          value: '/^Psr\\Container(\\|$)/'
+        - type: classNameRegex
+          value: '/^Symfony\\Component\\Uid(\\|$)/'
+  ruleset:
+    Core: ~
+    Journal:
+      - Core
+    Execution:
+      - Core
+      - Journal
+    Transport:
+      - Core
+      - Journal
+      - Execution
+    Http:
+      - Core
+      - Execution
+    Logging:
+      - Core
+      - Journal
+    Console:
+      - Core
+      - Journal
+      - Execution
+      - Transport
+    Internal:
+      - Core
+      - Journal
+      - Execution
+      - Transport
+      - Http
+      - Logging
+      - Console
+      - Library

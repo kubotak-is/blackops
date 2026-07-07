@@ -1,0 +1,12 @@
+.git
+.gitignore
+docker/
+docs/
+orchestration/
+scripts/
+decisions/
+spec/
+TODO.md
+DOCS.md
+AGENTS.md
+*.md

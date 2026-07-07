@@ -1,0 +1,204 @@
+<?php
+
+declare(strict_types=1);
+
+namespace BlackOps\Tests\Transport\PostgreSql;
+
+use BlackOps\Core\Identifier\AttemptId;
+use BlackOps\Core\Identifier\CorrelationId;
+use BlackOps\Core\Identifier\JournalRecordId;
+use BlackOps\Core\Identifier\OperationId;
+use BlackOps\Core\OperationValue;
+use BlackOps\Core\Outcome;
+use BlackOps\Core\Rejection\RejectionCategory;
+use BlackOps\Core\Rejection\RejectionReason;
+use BlackOps\Journal\Data\OperationCompletedData;
+use BlackOps\Journal\Data\OperationReceivedData;
+use BlackOps\Journal\Data\OperationRejectedData;
+use BlackOps\Journal\JournalAttempt;
+use BlackOps\Journal\JournalEvent;
+use BlackOps\Journal\JournalOperation;
+use BlackOps\Journal\JournalRecord;
+use BlackOps\Transport\PostgreSql\PostgreSqlCanonicalJournalStore;
+use DateTimeImmutable;
+use PDO;
+use PHPUnit\Framework\TestCase;
+
+final class PostgreSqlCanonicalJournalStoreTest extends TestCase
+{
+    private const SCHEMA = 'blackops_p1_015';
+    private const OPERATION_ID = '019f32ab-2be0-7b38-a0a7-1ab2f9687697';
+    private const ATTEMPT_ID = '019f32ab-2be0-7b38-a0a7-1ab2f9687698';
+    private const CORRELATION_ID = '019f32ab-2be0-7b38-a0a7-1ab2f9687699';
+    private const RECORD_ID_1 = '019f32ab-2be0-7b38-a0a7-1ab2f968769a';
+    private const RECORD_ID_2 = '019f32ab-2be0-7b38-a0a7-1ab2f968769b';
+    private const RECORD_ID_3 = '019f32ab-2be0-7b38-a0a7-1ab2f968769c';
+
+    private PDO $pdo;
+    private PostgreSqlCanonicalJournalStore $store;
+
+    protected function setUp(): void
+    {
+        $this->pdo = $this->pdo();
+        $this->pdo->exec('DROP SCHEMA IF EXISTS ' . self::SCHEMA . ' CASCADE');
+        $this->store = new PostgreSqlCanonicalJournalStore($this->pdo, self::SCHEMA);
+        $this->store->migrate();
+    }
+
+    public function testMigrationCreatesJournalTableWithExpectedShape(): void
+    {
+        $encodedRecordType = $this->pdo->query("SELECT data_type
+            FROM information_schema.columns
+            WHERE table_schema = '"
+        . self::SCHEMA
+        . "'
+              AND table_name = 'journal'
+              AND column_name = 'encoded_record'")->fetchColumn();
+
+        $primaryKeyCount = $this->pdo->query("SELECT count(*)
+            FROM information_schema.table_constraints
+            WHERE table_schema = '"
+        . self::SCHEMA
+        . "'
+              AND table_name = 'journal'
+              AND constraint_type = 'PRIMARY KEY'")->fetchColumn();
+
+        $uniqueCount = $this->pdo->query("SELECT count(*)
+            FROM information_schema.table_constraints
+            WHERE table_schema = '"
+        . self::SCHEMA
+        . "'
+              AND table_name = 'journal'
+              AND constraint_type = 'UNIQUE'")->fetchColumn();
+
+        self::assertSame('bytea', $encodedRecordType);
+        self::assertSame(1, (int) $primaryKeyCount);
+        self::assertSame(1, (int) $uniqueCount);
+    }
+
+    public function testAppendsAndReadsRecordsInSequenceOrder(): void
+    {
+        $first = $this->record(
+            self::RECORD_ID_1,
+            JournalEvent::OperationReceived,
+            1,
+            new OperationReceivedData(new StoredJournalValue('hello')),
+            null,
+        );
+        $second = $this->record(
+            self::RECORD_ID_2,
+            JournalEvent::OperationCompleted,
+            2,
+            new OperationCompletedData(new StoredJournalOutcome('done')),
+            new JournalAttempt(
+                AttemptId::fromString(self::ATTEMPT_ID),
+                1,
+                new DateTimeImmutable('2026-07-08T00:00:01.000000Z'),
+            ),
+        );
+
+        $this->store->append($second);
+        $this->store->append($first);
+
+        $records = array_values(iterator_to_array($this->store->records(OperationId::fromString(self::OPERATION_ID))));
+
+        self::assertCount(2, $records);
+        self::assertSame([1, 2], array_column($records, 'sequence'));
+        self::assertSame(JournalEvent::OperationReceived, $records[0]->event);
+        self::assertSame(JournalEvent::OperationCompleted, $records[1]->event);
+        self::assertInstanceOf(OperationReceivedData::class, $records[0]->data);
+        self::assertInstanceOf(StoredJournalValue::class, $records[0]->data->value);
+        self::assertSame('hello', $records[0]->data->value->message);
+        self::assertInstanceOf(OperationCompletedData::class, $records[1]->data);
+        self::assertInstanceOf(StoredJournalOutcome::class, $records[1]->data->outcome);
+        self::assertSame('done', $records[1]->data->outcome->message);
+    }
+
+    public function testAppendsAndReadsRejectedData(): void
+    {
+        $this->store->append($this->record(
+            self::RECORD_ID_3,
+            JournalEvent::OperationRejected,
+            1,
+            new OperationRejectedData(RejectionReason::conflict('postgres_rejected')),
+        ));
+
+        $records = array_values(iterator_to_array($this->store->records(OperationId::fromString(self::OPERATION_ID))));
+
+        self::assertCount(1, $records);
+        self::assertInstanceOf(OperationRejectedData::class, $records[0]->data);
+        self::assertSame(RejectionCategory::Conflict, $records[0]->data->reason->category());
+        self::assertSame('postgres_rejected', $records[0]->data->reason->code());
+    }
+
+    public function testDuplicateRecordIdFails(): void
+    {
+        $this->store->append($this->record(self::RECORD_ID_1, JournalEvent::OperationReceived, 1));
+
+        $this->expectException(\BlackOps\Journal\Exception\JournalWriteFailed::class);
+
+        $this->store->append($this->record(self::RECORD_ID_1, JournalEvent::AttemptStarted, 2));
+    }
+
+    public function testDuplicateOperationSequenceFails(): void
+    {
+        $this->store->append($this->record(self::RECORD_ID_1, JournalEvent::OperationReceived, 1));
+
+        $this->expectException(\BlackOps\Journal\Exception\JournalWriteFailed::class);
+
+        $this->store->append($this->record(self::RECORD_ID_2, JournalEvent::AttemptStarted, 1));
+    }
+
+    private function pdo(): PDO
+    {
+        $host = (string) (getenv('POSTGRES_HOST') ?: 'postgres');
+        $port = (string) (getenv('POSTGRES_PORT') ?: '5432');
+        $db = (string) (getenv('POSTGRES_DB') ?: 'blackops');
+        $user = (string) (getenv('POSTGRES_USER') ?: 'blackops');
+        $password = (string) (getenv('POSTGRES_PASSWORD') ?: 'blackops');
+
+        return new PDO("pgsql:host={$host};port={$port};dbname={$db}", $user, $password, [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_TIMEOUT => 5,
+        ]);
+    }
+
+    private function record(
+        string $recordId,
+        JournalEvent $event,
+        int $sequence,
+        ?\BlackOps\Journal\JournalData $data = null,
+        ?JournalAttempt $attempt = null,
+    ): JournalRecord {
+        return new JournalRecord(
+            JournalRecordId::fromString($recordId),
+            1,
+            $event,
+            new DateTimeImmutable('2026-07-08T00:00:00.123456Z'),
+            $sequence,
+            new JournalOperation(
+                OperationId::fromString(self::OPERATION_ID),
+                'postgres.test',
+                1,
+                'inline',
+                CorrelationId::fromString(self::CORRELATION_ID),
+            ),
+            $attempt,
+            $data ?? new \BlackOps\Journal\EmptyJournalData(),
+        );
+    }
+}
+
+final readonly class StoredJournalValue implements OperationValue
+{
+    public function __construct(
+        public string $message,
+    ) {}
+}
+
+final readonly class StoredJournalOutcome implements Outcome
+{
+    public function __construct(
+        public string $message,
+    ) {}
+}

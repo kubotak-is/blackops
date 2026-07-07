@@ -1,0 +1,7 @@
+# Operation Registry
+
+OperationRegistryはCompile済みOperationMetadataをType IDとDefinition Classで索引する読み取り専用Runtime値である。
+
+検索失敗は通常分岐としてnullを返す。重複Type IDまたはDefinition ClassはRegistry構築時に拒否し、曖昧なHandler解決を防ぐ。
+
+RegistryはMetadataだけを保持し、HandlerやService Instanceを保持しない。実際のService解決はDI境界で行う。
