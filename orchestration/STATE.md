@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-08T01:43:38+09:00
+Updated At: 2026-07-08T01:49:48+09:00
 
 ## Current Phase
 
@@ -8,21 +8,21 @@ Phase 1: Journal付きInline Vertical Slice
 
 ## Current Task
 
-Task ID: P1-015-postgresql-canonical-journal-store
+Task ID: P1-016-inline-dispatcher-postgresql-journal-integration
 
-Task Packet: `orchestration/tasks/P1-015-postgresql-canonical-journal-store.md`
+Task Packet: `orchestration/tasks/P1-016-inline-dispatcher-postgresql-journal-integration.md`
 
-Report: `orchestration/reports/P1-015-postgresql-canonical-journal-store.md`
+Report: `orchestration/reports/P1-016-inline-dispatcher-postgresql-journal-integration.md`
 
 ## Task Status
 
 Accepted
 
-P1-015をCodexが実装・ReviewしAcceptedとした。PostgreSQL Canonical Journal Store、Journal Table DDL、JSON bytea Codec、DB統合Testを追加した。
+P1-016をCodexが実装・ReviewしAcceptedとした。InlineDispatcherへPostgreSQL Canonical Journal Storeを注入し、Completed／RejectedのLifecycle Journal列がDBへ永続化されることを統合Testで確認した。
 
 ## Last Accepted Task
 
-P1-015-postgresql-canonical-journal-store
+P1-016-inline-dispatcher-postgresql-journal-integration
 
 ## Pending Decisions
 
@@ -34,9 +34,9 @@ P1-015-postgresql-canonical-journal-store
 
 ## Required Next Action
 
-1. InlineDispatcherへPostgreSQL Canonical Journal Storeを注入した統合Testを追加する。
-2. Inline Completed／RejectedのLifecycle Journal列がDBへ永続化されることを検証する。
-3. HTTP `GET /welcome` Vertical Sliceへ進む前のRuntime wiringを整理する。
+1. HTTP `GET /welcome` Vertical Sliceへ進む。
+2. Route／Binding／Responderの最小API-only実装を追加する。
+3. Inline Dispatcher + PostgreSQL Journal Storeを使い、HTTP経由でLifecycle JournalがDBへ残ることを検証する。
 
 ## P1-001 Verification Commands and Results
 
