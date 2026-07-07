@@ -2,7 +2,14 @@
 paths = ["src"]
 # Composer依存のThird-partyコードを型解決のためparseするが分析・Lint・Format対象外。
 # これにより src/ が Psr\Clock\ClockInterface と Symfony\Uid を型正しく参照できる。
-includes = ["vendor/psr/clock", "vendor/psr/container", "vendor/symfony/uid"]
+includes = [
+  "vendor/psr/clock",
+  "vendor/psr/container",
+  "vendor/psr/http-factory",
+  "vendor/psr/http-message",
+  "vendor/psr/http-server-handler",
+  "vendor/symfony/uid",
+]
 
 [analyzer]
 [linter]

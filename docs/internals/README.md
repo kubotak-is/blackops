@@ -24,5 +24,6 @@ Framework実装者向けのArchitectureと実装ガイドを管理する。
 - Journal and Transaction Flow
 - PostgreSQL Adapter
 - [PostgreSQL Journal Store](postgresql-journal-store.md)
+- [HTTP API Slice](http-api-slice.md)
 - Worker and Recovery
 - Testing and Architecture Verification

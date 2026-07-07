@@ -41,6 +41,8 @@ deptrac:
         - type: classNameRegex
           value: '/^Psr\\Container(\\|$)/'
         - type: classNameRegex
+          value: '/^Psr\\Http(\\|$)/'
+        - type: classNameRegex
           value: '/^Symfony\\Component\\Uid(\\|$)/'
   ruleset:
     Core: ~
@@ -56,6 +58,7 @@ deptrac:
     Http:
       - Core
       - Execution
+      - Library
     Logging:
       - Core
       - Journal

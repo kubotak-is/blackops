@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-08T01:49:48+09:00
+Updated At: 2026-07-08T01:56:59+09:00
 
 ## Current Phase
 
@@ -8,21 +8,21 @@ Phase 1: Journal付きInline Vertical Slice
 
 ## Current Task
 
-Task ID: P1-016-inline-dispatcher-postgresql-journal-integration
+Task ID: P1-017-http-welcome-api-slice
 
-Task Packet: `orchestration/tasks/P1-016-inline-dispatcher-postgresql-journal-integration.md`
+Task Packet: `orchestration/tasks/P1-017-http-welcome-api-slice.md`
 
-Report: `orchestration/reports/P1-016-inline-dispatcher-postgresql-journal-integration.md`
+Report: `orchestration/reports/P1-017-http-welcome-api-slice.md`
 
 ## Task Status
 
 Accepted
 
-P1-016をCodexが実装・ReviewしAcceptedとした。InlineDispatcherへPostgreSQL Canonical Journal Storeを注入し、Completed／RejectedのLifecycle Journal列がDBへ永続化されることを統合Testで確認した。
+P1-017をCodexが実装・ReviewしAcceptedとした。HTTP `GET /welcome` API-only Vertical Sliceを追加し、HTTP経由実行でPostgreSQL JournalへCompleted Lifecycleが保存されることを確認した。
 
 ## Last Accepted Task
 
-P1-016-inline-dispatcher-postgresql-journal-integration
+P1-017-http-welcome-api-slice
 
 ## Pending Decisions
 
@@ -34,9 +34,9 @@ P1-016-inline-dispatcher-postgresql-journal-integration
 
 ## Required Next Action
 
-1. HTTP `GET /welcome` Vertical Sliceへ進む。
-2. Route／Binding／Responderの最小API-only実装を追加する。
-3. Inline Dispatcher + PostgreSQL Journal Storeを使い、HTTP経由でLifecycle JournalがDBへ残ることを検証する。
+1. HTTP Binding AttributeとRoute Manifestの土台を追加する。
+2. Dynamic Path ParameterとBody/Header Bindingの対応範囲を整理する。
+3. Runtime DI Container Compileへ進む前にHTTP構成の境界を固める。
 
 ## P1-001 Verification Commands and Results
 
