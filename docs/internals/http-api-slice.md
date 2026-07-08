@@ -18,3 +18,5 @@ The first supported path is API-only:
 The `GET /welcome` vertical slice demonstrates the full path from HTTP request to Operation Handler and PostgreSQL Canonical Journal persistence.
 
 Route compilation can also produce an in-memory manifest array with route and operation metadata. The current manifest is a runtime structure only; PHP file generation and loading are intentionally left to a later compiler task.
+
+The manifest file boundary writes that in-memory structure as a PHP array file. The writer first writes a temporary file in the target directory, validates that the file can be loaded, and then renames it into place. The loader rejects missing files and files that do not return the expected manifest array shape.
