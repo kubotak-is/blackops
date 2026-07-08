@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-08T23:26:47+09:00
+Updated At: 2026-07-08T23:32:42+09:00
 
 ## Current Phase
 
@@ -8,21 +8,21 @@ Phase 1: Journal付きInline Vertical Slice
 
 ## Current Task
 
-Task ID: P1-021-runtime-container-compile
+Task ID: P1-022-runtime-container-dump
 
-Task Packet: `orchestration/tasks/P1-021-runtime-container-compile.md`
+Task Packet: `orchestration/tasks/P1-022-runtime-container-dump.md`
 
-Report: `orchestration/reports/P1-021-runtime-container-compile.md`
+Report: `orchestration/reports/P1-022-runtime-container-dump.md`
 
 ## Task Status
 
 Accepted
 
-P1-021をCodexが実装・ReviewしAcceptedとした。Symfony ContainerBuilderをCompileし、PSR-11 ContainerとしてRuntime境界へ渡せる最小実装を追加した。
+P1-022をCodexが実装・ReviewしAcceptedとした。Compile済みSymfony ContainerをProduction向けPHP fileへatomic writeし、読み込んでPSR-11 Containerとして利用できる最小実装を追加した。
 
 ## Last Accepted Task
 
-P1-021-runtime-container-compile
+P1-022-runtime-container-dump
 
 ## Pending Decisions
 
@@ -34,8 +34,36 @@ P1-021-runtime-container-compile
 
 ## Required Next Action
 
-1. Public Service Provider／Config Loader境界、またはProduction PHP Container Dumpへ進む。
-2. 次Task Packetを作成し、Runtime DIの拡張境界を決める。
+1. Public Service Provider／Config Loader境界へ進む。
+2. 次Task Packetを作成し、ApplicationやPackageがRuntime Container BuildへService定義を登録する方法を決める。
+
+## P1-022 Verification Commands and Results
+
+```text
+docker compose run --rm app vendor/bin/phpunit --filter RuntimeContainerDumperTest
+Result: OK (2 tests, 5 assertions).
+
+docker compose run --rm app mago format --check src tests
+Result: INFO All files are already formatted.
+
+docker compose run --rm app composer validate --strict
+Result: ./composer.json is valid.
+
+docker compose run --rm app mago lint
+Result: INFO No issues found.
+
+docker compose run --rm app mago analyze
+Result: INFO No issues found.
+
+docker compose run --rm app vendor/bin/phpunit
+Result: OK (204 tests, 497 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app vendor/bin/deptrac
+Result: Violations 0 / Skipped 0 / Uncovered 0 / Allowed 283 / Warnings 0 / Errors 0.
+
+rg -n 'Spec(ification)?[[:space:]]*[0-9]+|D[0-9]{3}|P[0-9]+-[0-9]+|TODO\.md:[0-9]+' src tests --glob '*.php'
+Result: No matches.
+```
 
 ## P1-021 Verification Commands and Results
 

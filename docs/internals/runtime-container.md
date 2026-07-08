@@ -7,3 +7,5 @@ The internal runtime container compiler creates a Symfony `ContainerBuilder`, le
 The container is used at framework composition boundaries such as handler resolution and console command registration. Operation handlers receive their own dependencies through constructor injection; the container is not passed into handlers, envelopes, or domain services.
 
 The first compile slice supports dynamic development and CI verification. PHP container dumping, public service provider APIs, config loading, and production bootstrap are left to later tasks.
+
+The PHP dump boundary writes a compiled Symfony container to a single PHP file for production-style runtime loading. The dumper writes into a temporary file in the target directory and then renames it into place. Multi-file dumps, preload tuning, cache invalidation, and production bootstrap wiring remain separate concerns.
