@@ -2,7 +2,7 @@
 
 Status: Decided
 
-> D047でFrontend接合仕様を確定するまで、HTTP Vertical SliceのResponse Contractは未確定とする。D048で実装主体をOpenCode／GLM-5.2、CodexをOrchestrator兼Reviewerとする。
+> D047でFrontend接合仕様を確定するまで、HTTP Vertical SliceのResponse Contractは未確定とする。D048でCodexをOrchestrator兼Reviewer、Codex GPT-5.4-mini workerを実装依頼先とする。
 
 ## Context
 

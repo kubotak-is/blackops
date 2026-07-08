@@ -21,7 +21,18 @@ final readonly class HttpRouteCompiler
      */
     public function compile(iterable $definitions): HttpRouteRegistry
     {
+        $definitionList = $this->definitionList($definitions);
+
+        return $this->compileManifest($definitionList)->toRegistry($definitionList);
+    }
+
+    /**
+     * @param iterable<Operation> $definitions
+     */
+    public function compileManifest(iterable $definitions): HttpOperationManifest
+    {
         $routes = [];
+        $operations = [];
 
         foreach ($definitions as $definition) {
             $metadata = $this->operations->findByDefinition($definition::class);
@@ -33,11 +44,33 @@ final readonly class HttpRouteCompiler
             $route = $this->route($definition);
 
             if ($route !== null) {
-                $routes[] = new HttpOperationRoute($route->method, $route->path, $definition, $metadata->value);
+                $routes[$route->method][$route->path] = $metadata->typeId;
             }
+
+            $operations[$metadata->typeId] = [
+                'definition' => $metadata->definition,
+                'value' => $metadata->value,
+                'handler' => $metadata->handler,
+                'outcome' => $metadata->outcome,
+                'strategy' => $metadata->strategy,
+            ];
         }
 
-        return new HttpRouteRegistry($routes);
+        return new HttpOperationManifest($routes, $operations);
+    }
+
+    /**
+     * @param iterable<Operation> $definitions
+     *
+     * @return list<Operation>
+     */
+    private function definitionList(iterable $definitions): array
+    {
+        if (is_array($definitions)) {
+            return array_values($definitions);
+        }
+
+        return iterator_to_array($definitions, preserve_keys: false);
     }
 
     private function route(Operation $definition): ?Route

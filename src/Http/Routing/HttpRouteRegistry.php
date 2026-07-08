@@ -11,28 +11,65 @@ final readonly class HttpRouteRegistry
     /**
      * @var array<string, HttpOperationRoute>
      */
-    private array $routes;
+    private array $staticRoutes;
+
+    /**
+     * @var list<array{method: string, pattern: HttpPathPattern, route: HttpOperationRoute}>
+     */
+    private array $dynamicRoutes;
 
     /**
      * @param iterable<HttpOperationRoute> $routes
      */
     public function __construct(iterable $routes)
     {
-        $indexed = [];
+        $staticRoutes = [];
+        $dynamicRoutes = [];
 
         foreach ($routes as $route) {
-            if (array_key_exists($route->key(), $indexed)) {
+            if (array_key_exists($route->key(), $staticRoutes)) {
                 throw new InvalidArgumentException('HTTP route registry requires unique method and path pairs.');
             }
 
-            $indexed[$route->key()] = $route;
+            if (str_contains($route->path, '{')) {
+                $dynamicRoutes[] = [
+                    'method' => strtoupper($route->method),
+                    'pattern' => new HttpPathPattern($route->path),
+                    'route' => $route,
+                ];
+                continue;
+            }
+
+            $staticRoutes[$route->key()] = $route;
         }
 
-        $this->routes = $indexed;
+        $this->staticRoutes = $staticRoutes;
+        $this->dynamicRoutes = $dynamicRoutes;
     }
 
-    public function match(string $method, string $path): ?HttpOperationRoute
+    public function match(string $method, string $path): ?HttpRouteMatch
     {
-        return $this->routes[strtoupper($method) . ' ' . $path] ?? null;
+        $normalized = strtoupper($method);
+        $route = $this->staticRoutes[$normalized . ' ' . $path] ?? null;
+
+        if ($route !== null) {
+            return new HttpRouteMatch($route, []);
+        }
+
+        foreach ($this->dynamicRoutes as $candidate) {
+            if ($candidate['method'] !== $normalized) {
+                continue;
+            }
+
+            $pathParameters = $candidate['pattern']->match($path);
+
+            if ($pathParameters === null) {
+                continue;
+            }
+
+            return new HttpRouteMatch($candidate['route'], $pathParameters);
+        }
+
+        return null;
     }
 }

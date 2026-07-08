@@ -11,10 +11,16 @@ use ReflectionClass;
 
 final readonly class OperationValueBinder
 {
+    public function __construct(
+        private JsonRequestBody $body = new JsonRequestBody(),
+        private HttpParameterBinder $parameters = new HttpParameterBinder(),
+    ) {}
+
     /**
      * @param class-string<OperationValue> $value
+     * @param array<string, string> $pathParameters
      */
-    public function bind(string $value, ServerRequestInterface $request): OperationValue
+    public function bind(string $value, ServerRequestInterface $request, array $pathParameters = []): OperationValue
     {
         $reflection = new ReflectionClass($value);
         $constructor = $reflection->getConstructor();
@@ -24,13 +30,14 @@ final readonly class OperationValueBinder
         }
 
         $query = $request->getQueryParams();
+        $body = $this->body->decode($request);
         $arguments = [];
 
         foreach ($constructor->getParameters() as $parameter) {
-            $name = $parameter->getName();
+            $bound = $this->parameters->bind($parameter, $request, $pathParameters, $query, $body);
 
-            if (array_key_exists($name, $query) && is_scalar($query[$name])) {
-                $arguments[] = (string) $query[$name];
+            if ($bound->found) {
+                $arguments[] = $bound->value;
                 continue;
             }
 

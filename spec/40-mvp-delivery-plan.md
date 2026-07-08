@@ -65,9 +65,9 @@ D046以後はMVP実装へ移る。
 
 ## Implementation Orchestration
 
-CodexをOrchestrator兼Reviewer、OpenCode／GLM-5.2を実装主体とする。
+CodexをOrchestrator兼Reviewer、Codex GPT-5.4-mini workerを実装依頼先とする。
 
-実装はWSL2内の `/home/kubotak/projects/blackops` で行う。CodexがTask Packetを作成し、OpenCodeが実装、Test、Reportを行い、CodexのReview完了後にCommitする。
+実装はWSL2内の `/home/kubotak/projects/blackops` で行う。Orchestrator CodexがTask Packetを作成し、GPT-5.4-mini workerまたは実装担当Codexが実装、Test、Reportを行い、Orchestrator CodexのReview完了後にCommitする。
 
 進行状態は `orchestration/STATE.md` に保存する。再開時は `AGENTS.md`、Checkpoint、現在のTask Packet、Reportの順に確認する。
 

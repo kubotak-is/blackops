@@ -6,28 +6,19 @@ BlackOpsの実装環境はWSL2 Ubuntu内へ構築する。CommandはRepository R
 /home/kubotak/projects/blackops
 ```
 
-## OpenCode Go
+## Codex Implementation Delegation
 
-OpenCode GoのCredentialを登録する。
+Production Codeの実装は、Orchestrator CodexがTask Packetを作成し、Codex GPT-5.4-mini workerへ依頼する。
 
-```bash
-opencode providers login
-```
-
-Providerは `OpenCode Go` を選択し、API KeyをTerminalへ入力する。API KeyをRepository内のFile、Task Packet、Reportへ記載しない。
-
-認証後、ProviderとModelを確認する。
-
-```bash
-opencode providers list
-opencode models opencode-go
-```
-
-実装Orchestrationで使用するModel IDは次とする。
+実装依頼で使用するModelは次とする。
 
 ```text
-opencode-go/glm-5.2
+Codex GPT-5.4-mini
 ```
+
+Task Packet、Report、STATEはRepository内へ保存する。Credential、Token、Secret、外部ServiceのAPI KeyはRepository内のFile、Task Packet、Reportへ記載しない。
+
+GPT-5.4-mini workerは、Task Packetで許可されたFileだけを変更し、必須Command結果をReportへ記録し、Review前にCommitしない。
 
 ## Docker Compose
 

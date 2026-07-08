@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-08T01:56:59+09:00
+Updated At: 2026-07-08T23:10:11+09:00
 
 ## Current Phase
 
@@ -8,21 +8,21 @@ Phase 1: Journal付きInline Vertical Slice
 
 ## Current Task
 
-Task ID: P1-017-http-welcome-api-slice
+Task ID: P1-018-http-binding-and-route-manifest-foundation
 
-Task Packet: `orchestration/tasks/P1-017-http-welcome-api-slice.md`
+Task Packet: `orchestration/tasks/P1-018-http-binding-and-route-manifest-foundation.md`
 
-Report: `orchestration/reports/P1-017-http-welcome-api-slice.md`
+Report: `orchestration/reports/P1-018-http-binding-and-route-manifest-foundation.md`
 
 ## Task Status
 
 Accepted
 
-P1-017をCodexが実装・ReviewしAcceptedとした。HTTP `GET /welcome` API-only Vertical Sliceを追加し、HTTP経由実行でPostgreSQL JournalへCompleted Lifecycleが保存されることを確認した。
+P1-018をCodexが実装・ReviewしAcceptedとした。HTTP Binding Attribute、JSON Body Binding、最小Dynamic Path Matching、In-memory Route Manifest foundationを追加した。
 
 ## Last Accepted Task
 
-P1-017-http-welcome-api-slice
+P1-018-http-binding-and-route-manifest-foundation
 
 ## Pending Decisions
 
@@ -30,13 +30,37 @@ P1-017-http-welcome-api-slice
 
 ## Known Blockers
 
-- CodexからOpenCode Goへの自動送信はTenant Policyにより禁止されている。
+- None.
 
 ## Required Next Action
 
-1. HTTP Binding AttributeとRoute Manifestの土台を追加する。
-2. Dynamic Path ParameterとBody/Header Bindingの対応範囲を整理する。
-3. Runtime DI Container Compileへ進む前にHTTP構成の境界を固める。
+1. Manifest file output/loader、またはRuntime DI Container Compileへ進む。
+2. 次Task Packetを作成し、Codex GPT-5.4-mini workerへの実装依頼単位を決める。
+
+## P1-018 Verification Commands and Results
+
+```text
+docker compose run --rm app mago format --check src tests
+Result: INFO All files are already formatted.
+
+docker compose run --rm app composer validate --strict
+Result: ./composer.json is valid.
+
+docker compose run --rm app mago lint
+Result: INFO No issues found.
+
+docker compose run --rm app mago analyze
+Result: INFO No issues found.
+
+docker compose run --rm app vendor/bin/phpunit
+Result: OK (194 tests, 477 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app vendor/bin/deptrac
+Result: Violations 0 / Skipped 0 / Uncovered 0 / Allowed 265 / Warnings 0 / Errors 0.
+
+rg -n 'Spec(ification)?[[:space:]]*[0-9]+|D[0-9]{3}|P[0-9]+-[0-9]+|TODO\.md:[0-9]+' src tests --glob '*.php'
+Result: No matches.
+```
 
 ## P1-001 Verification Commands and Results
 

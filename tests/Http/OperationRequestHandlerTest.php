@@ -17,6 +17,10 @@ use BlackOps\Core\Registry\OperationRegistry;
 use BlackOps\Core\Rejection\RejectionCategory;
 use BlackOps\Core\Rejection\RejectionReason;
 use BlackOps\Execution\Dispatcher;
+use BlackOps\Http\Attribute\FromBody;
+use BlackOps\Http\Attribute\FromHeader;
+use BlackOps\Http\Attribute\FromPath;
+use BlackOps\Http\Attribute\FromQuery;
 use BlackOps\Http\Attribute\Route;
 use BlackOps\Http\Binding\OperationValueBinder;
 use BlackOps\Http\OperationRequestHandler;
@@ -133,6 +137,54 @@ final class OperationRequestHandlerTest extends TestCase
         self::assertNotNull($routes->match('GET', '/welcome'));
     }
 
+    public function testRouteCompilerBuildsManifestArray(): void
+    {
+        $registry = new OperationRegistry([$this->metadata()]);
+
+        $manifest = new HttpRouteCompiler($registry)->compileManifest([new ShowWelcome()])->toArray();
+
+        self::assertSame('welcome.show', $manifest['routes']['GET']['/welcome']);
+        self::assertSame(ShowWelcome::class, $manifest['operations']['welcome.show']['definition']);
+        self::assertSame(WelcomeValue::class, $manifest['operations']['welcome.show']['value']);
+    }
+
+    public function testBindingAttributesReadPathQueryHeaderAndBody(): void
+    {
+        $request = $this
+            ->request('POST', '/items/42?ignored=1', '{"name":"Ada","note":"hello"}')
+            ->withQueryParams(['search' => 'term'])
+            ->withHeader('X-Trace', 'trace-1');
+
+        $value = new OperationValueBinder()->bind(BoundHttpValueFixture::class, $request, ['id' => '42']);
+
+        self::assertInstanceOf(BoundHttpValueFixture::class, $value);
+        self::assertSame('42', $value->id);
+        self::assertSame('term', $value->search);
+        self::assertSame('trace-1', $value->trace);
+        self::assertSame('Ada', $value->name);
+        self::assertSame('hello', $value->note);
+    }
+
+    public function testDynamicPathRoutePassesPathParametersToBinder(): void
+    {
+        $dispatcher = new RecordingDispatcher(OperationResult::completed(new WelcomeShown('ok')));
+        $handler = new OperationRequestHandler(
+            new HttpRouteRegistry([
+                new HttpOperationRoute('GET', '/welcome/{name}', new ShowWelcome(), PathWelcomeValue::class),
+            ]),
+            new OperationValueBinder(),
+            $dispatcher,
+            new JsonOperationResponder($this->psr17, $this->psr17),
+            $this->psr17,
+        );
+
+        $response = $handler->handle($this->request('GET', '/welcome/Ada'));
+
+        self::assertSame(200, $response->getStatusCode());
+        self::assertInstanceOf(PathWelcomeValue::class, $dispatcher->value);
+        self::assertSame('Ada', $dispatcher->value->name);
+    }
+
     private function httpHandler(Dispatcher $dispatcher): OperationRequestHandler
     {
         return new OperationRequestHandler(
@@ -233,6 +285,29 @@ final readonly class ShowWelcome implements Operation {}
 
 final readonly class WelcomeValue implements OperationValue {}
 
+final readonly class PathWelcomeValue implements OperationValue
+{
+    public function __construct(
+        #[FromPath]
+        public string $name,
+    ) {}
+}
+
+final readonly class BoundHttpValueFixture implements OperationValue
+{
+    public function __construct(
+        #[FromPath]
+        public string $id,
+        #[FromQuery]
+        public string $search,
+        #[FromHeader('X-Trace')]
+        public string $trace,
+        #[FromBody]
+        public string $name,
+        public string $note,
+    ) {}
+}
+
 final readonly class WelcomeShown implements Outcome
 {
     public function __construct(
@@ -266,6 +341,22 @@ final readonly class FailingDispatcher implements Dispatcher
     public function dispatch(Operation $definition, OperationValue $value): OperationResult
     {
         self::fail('Dispatcher should not be called.');
+    }
+}
+
+final class RecordingDispatcher implements Dispatcher
+{
+    public ?OperationValue $value = null;
+
+    public function __construct(
+        private readonly OperationResult $result,
+    ) {}
+
+    public function dispatch(Operation $definition, OperationValue $value): OperationResult
+    {
+        $this->value = $value;
+
+        return $this->result;
     }
 }
 

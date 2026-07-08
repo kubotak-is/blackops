@@ -260,17 +260,16 @@
 - [x] Phase 0: Foundationを実装する
 - [ ] Phase 1: Journal付きInline Vertical Sliceを実装する
 - [ ] Frontend接合方式をD047で確定する
-- [x] OpenCode／GLM-5.2とのOrchestration方式を確定する
-- [x] OpenCode／GLM-5.2との実行Bridgeを準備する
-- [x] CodexからOpenCodeへ渡すTask Packet Templateを作成する
+- [x] Codex GPT-5.4-mini workerへの実装依頼方式へOrchestrationを更新する
+- [x] Codex GPT-5.4-mini workerへ渡すTask Packet Templateを維持する
 - [x] `orchestration/STATE.md` のCheckpoint Templateを作成する
-- [x] Codex／OpenCode共通規約をRootの `AGENTS.md` に記述する
+- [x] Orchestrator Codex／GPT-5.4-mini worker共通規約をRootの `AGENTS.md` に記述する
 - [~] Framework実装者向けの `docs/internals/` を整備する
 - [~] Framework利用者向けの `docs/guide/` を整備する
 - [x] WSL2 Distributionを導入する
 - [x] WSL2の `/home/kubotak/projects/blackops` に実装Repositoryを準備する
-- [x] WSL2内へOpenCode CLIを導入する
-- [ ] WSL2内のOpenCode CLIへGLM-5.2 Providerを設定し、非対話実行を確認する
+- [x] WSL2内のOpenCode CLI導入は旧方式の履歴として保持する
+- [x] GLM-5.2 Provider非対話実行確認は新方式では不要とする
 - [x] Docker ComposeでPHP 8.5、Composer、Mago、PHPUnit、Deptrac、PostgreSQL環境を準備する
 - [ ] InMemory TransportをUnit Test向けに実装する
 - [ ] SQLite AdapterをMVP後の候補として検討する

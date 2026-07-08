@@ -25,9 +25,9 @@ final readonly class OperationRequestHandler implements RequestHandlerInterface
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $route = $this->routes->match($request->getMethod(), $request->getUri()->getPath());
+        $match = $this->routes->match($request->getMethod(), $request->getUri()->getPath());
 
-        if ($route === null) {
+        if ($match === null) {
             return $this->responses->createResponse(404);
         }
 
@@ -35,8 +35,8 @@ final readonly class OperationRequestHandler implements RequestHandlerInterface
             return $this->responses->createResponse(400);
         }
 
-        $value = $this->binder->bind($route->value, $request);
-        $result = $this->dispatcher->dispatch($route->operation, $value);
+        $value = $this->binder->bind($match->route->value, $request, $match->pathParameters);
+        $result = $this->dispatcher->dispatch($match->route->operation, $value);
 
         return $this->responder->respond($result);
     }

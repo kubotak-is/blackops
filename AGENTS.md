@@ -1,6 +1,6 @@
 # Agent Instructions
 
-このRepositoryでは、CodexがOrchestrator兼Reviewer、OpenCode／GLM-5.2がProduction Codeの実装主体となる。
+このRepositoryでは、CodexがOrchestrator兼Reviewerとなり、Production Codeの実装はTask Packet単位でCodex GPT-5.4-mini workerへ依頼する。
 
 ## Source of Truth
 
@@ -14,7 +14,7 @@
 
 確定仕様の正本は `spec/` である。`decisions/` は判断経緯、`TODO.md` は未決事項と作業、`docs/` は読者向けの説明を扱う。
 
-仕様と実装が矛盾する場合、Production Codeだけで解決しない。Reportへ記録し、Codexへ判断を返す。
+仕様と実装が矛盾する場合、Production Codeだけで解決しない。Reportへ記録し、Orchestrator Codexへ判断を返す。
 
 ## Workspace
 
@@ -33,9 +33,9 @@ Windows側や `/mnt/c` に別のWorking Treeを作らない。Credential、Token
 3. 必須Testと品質Commandを実行する
 4. `orchestration/reports/<task-id>.md` を作成または更新する
 5. `orchestration/STATE.md` を更新する
-6. CodexのReviewを待つ
+6. Orchestrator CodexのReviewを待つ
 
-OpenCodeはReview前にCommitしない。範囲外の修正が必要な場合は実装を広げず、ReportのBlockerとして返す。
+GPT-5.4-mini workerはReview前にCommitしない。範囲外の修正が必要な場合は実装を広げず、ReportのBlockerとして返す。
 
 ## Checkpoint
 

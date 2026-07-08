@@ -1,6 +1,6 @@
 # Implementation Orchestration
 
-このDirectoryは、D048で決定したCodexとOpenCode／GLM-5.2の実装進行を管理する。
+このDirectoryは、D048で決定したCodex OrchestratorとCodex GPT-5.4-mini workerの実装進行を管理する。
 
 ```text
 orchestration/
@@ -11,7 +11,7 @@ orchestration/
     TEMPLATE.md
 ```
 
-`STATE.md` は再開地点の正本、`tasks/` はCodexが発行するTask Packet、`reports/` はOpenCodeの実装報告を保存する。
+`STATE.md` は再開地点の正本、`tasks/` はOrchestrator Codexが発行するTask Packet、`reports/` はGPT-5.4-mini workerまたは実装担当Codexの実装報告を保存する。
 
 `STATE.md` の `Updated At` は秒とUTC Offsetを含むISO 8601形式で更新する。
 
