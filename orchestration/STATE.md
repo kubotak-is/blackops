@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-08T23:15:41+09:00
+Updated At: 2026-07-08T23:21:42+09:00
 
 ## Current Phase
 
@@ -8,21 +8,21 @@ Phase 1: Journal付きInline Vertical Slice
 
 ## Current Task
 
-Task ID: P1-019-http-manifest-file-loader
+Task ID: P1-020-http-manifest-cli
 
-Task Packet: `orchestration/tasks/P1-019-http-manifest-file-loader.md`
+Task Packet: `orchestration/tasks/P1-020-http-manifest-cli.md`
 
-Report: `orchestration/reports/P1-019-http-manifest-file-loader.md`
+Report: `orchestration/reports/P1-020-http-manifest-cli.md`
 
 ## Task Status
 
 Accepted
 
-P1-019をCodexが実装・ReviewしAcceptedとした。HTTP Operation ManifestをPHP array fileへatomic writeし、RuntimeでloadしてRoute Registryへ復元できる最小境界を追加した。
+P1-020をCodexが実装・ReviewしAcceptedとした。HTTP Operation ManifestをSymfony Console CommandからPHP array fileへ出力できる最小導線を追加した。
 
 ## Last Accepted Task
 
-P1-019-http-manifest-file-loader
+P1-020-http-manifest-cli
 
 ## Pending Decisions
 
@@ -34,8 +34,36 @@ P1-019-http-manifest-file-loader
 
 ## Required Next Action
 
-1. Runtime DI Container Compile、またはManifest CLI taskへ進む。
-2. 次Task Packetを作成し、Codex GPT-5.4-mini workerへの実装依頼単位を決める。
+1. Runtime DI Container Compileへ進む。
+2. 次Task Packetを作成し、Command登録とContainer Build境界を決める。
+
+## P1-020 Verification Commands and Results
+
+```text
+docker compose run --rm app vendor/bin/phpunit --filter DumpHttpManifestCommandTest
+Result: OK (2 tests, 5 assertions).
+
+docker compose run --rm app mago format --check src tests
+Result: INFO All files are already formatted.
+
+docker compose run --rm app composer validate --strict
+Result: ./composer.json is valid.
+
+docker compose run --rm app mago lint
+Result: INFO No issues found.
+
+docker compose run --rm app mago analyze
+Result: INFO No issues found.
+
+docker compose run --rm app vendor/bin/phpunit
+Result: OK (200 tests, 489 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app vendor/bin/deptrac
+Result: Violations 0 / Skipped 0 / Uncovered 0 / Allowed 277 / Warnings 0 / Errors 0.
+
+rg -n 'Spec(ification)?[[:space:]]*[0-9]+|D[0-9]{3}|P[0-9]+-[0-9]+|TODO\.md:[0-9]+' src tests --glob '*.php'
+Result: No matches.
+```
 
 ## P1-019 Verification Commands and Results
 

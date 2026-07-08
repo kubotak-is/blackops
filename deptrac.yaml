@@ -43,6 +43,8 @@ deptrac:
         - type: classNameRegex
           value: '/^Psr\\Http(\\|$)/'
         - type: classNameRegex
+          value: '/^Symfony\\Component\\Console(\\|$)/'
+        - type: classNameRegex
           value: '/^Symfony\\Component\\Uid(\\|$)/'
   ruleset:
     Core: ~
