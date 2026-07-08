@@ -45,6 +45,8 @@ deptrac:
         - type: classNameRegex
           value: '/^Symfony\\Component\\Console(\\|$)/'
         - type: classNameRegex
+          value: '/^Symfony\\Component\\DependencyInjection(\\|$)/'
+        - type: classNameRegex
           value: '/^Symfony\\Component\\Uid(\\|$)/'
   ruleset:
     Core: ~

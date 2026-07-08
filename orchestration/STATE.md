@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-08T23:21:42+09:00
+Updated At: 2026-07-08T23:26:47+09:00
 
 ## Current Phase
 
@@ -8,21 +8,21 @@ Phase 1: Journal付きInline Vertical Slice
 
 ## Current Task
 
-Task ID: P1-020-http-manifest-cli
+Task ID: P1-021-runtime-container-compile
 
-Task Packet: `orchestration/tasks/P1-020-http-manifest-cli.md`
+Task Packet: `orchestration/tasks/P1-021-runtime-container-compile.md`
 
-Report: `orchestration/reports/P1-020-http-manifest-cli.md`
+Report: `orchestration/reports/P1-021-runtime-container-compile.md`
 
 ## Task Status
 
 Accepted
 
-P1-020をCodexが実装・ReviewしAcceptedとした。HTTP Operation ManifestをSymfony Console CommandからPHP array fileへ出力できる最小導線を追加した。
+P1-021をCodexが実装・ReviewしAcceptedとした。Symfony ContainerBuilderをCompileし、PSR-11 ContainerとしてRuntime境界へ渡せる最小実装を追加した。
 
 ## Last Accepted Task
 
-P1-020-http-manifest-cli
+P1-021-runtime-container-compile
 
 ## Pending Decisions
 
@@ -34,8 +34,36 @@ P1-020-http-manifest-cli
 
 ## Required Next Action
 
-1. Runtime DI Container Compileへ進む。
-2. 次Task Packetを作成し、Command登録とContainer Build境界を決める。
+1. Public Service Provider／Config Loader境界、またはProduction PHP Container Dumpへ進む。
+2. 次Task Packetを作成し、Runtime DIの拡張境界を決める。
+
+## P1-021 Verification Commands and Results
+
+```text
+docker compose run --rm app vendor/bin/phpunit --filter RuntimeContainerCompilerTest
+Result: OK (2 tests, 3 assertions).
+
+docker compose run --rm app mago format --check src tests
+Result: INFO All files are already formatted.
+
+docker compose run --rm app composer validate --strict
+Result: ./composer.json is valid.
+
+docker compose run --rm app mago lint
+Result: INFO No issues found.
+
+docker compose run --rm app mago analyze
+Result: INFO No issues found.
+
+docker compose run --rm app vendor/bin/phpunit
+Result: OK (202 tests, 492 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app vendor/bin/deptrac
+Result: Violations 0 / Skipped 0 / Uncovered 0 / Allowed 281 / Warnings 0 / Errors 0.
+
+rg -n 'Spec(ification)?[[:space:]]*[0-9]+|D[0-9]{3}|P[0-9]+-[0-9]+|TODO\.md:[0-9]+' src tests --glob '*.php'
+Result: No matches.
+```
 
 ## P1-020 Verification Commands and Results
 
