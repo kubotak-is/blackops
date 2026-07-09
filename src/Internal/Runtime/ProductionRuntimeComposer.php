@@ -32,13 +32,26 @@ final readonly class ProductionRuntimeComposer
         ResponseFactoryInterface $responses,
         StreamFactoryInterface $streams,
     ): ProductionRuntimeComposition {
-        $identifiers = new IdentifierFactory(new SymfonyUuidv7Generator(), $clock);
+        return $this->composeWithDependencies(
+            $artifacts,
+            new ProductionRuntimeDependencies($clock, $journal, $responses, $streams),
+        );
+    }
+
+    public function composeWithDependencies(
+        ProductionRuntimeArtifacts $artifacts,
+        ProductionRuntimeDependencies $dependencies,
+    ): ProductionRuntimeComposition {
+        $identifiers = new IdentifierFactory(new SymfonyUuidv7Generator(), $dependencies->clock);
+        $scope = $dependencies->executionScope ?? new \BlackOps\Internal\Execution\ExecutionScopeProvider();
         $dispatcher = new InlineDispatcher(
             $artifacts->operations,
-            new ExecutionContextFactory($identifiers, $clock),
+            new ExecutionContextFactory($identifiers, $dependencies->clock),
             new HandlerResolver($artifacts->container),
-            new JournalRecordFactory($identifiers, $clock),
-            $journal,
+            new JournalRecordFactory($identifiers, $dependencies->clock),
+            $dependencies->journal,
+            observations: $dependencies->journalObservations,
+            scope: $scope,
         );
         $routes = $artifacts->http->toRegistry($this->definitions->fromRegistry($artifacts->operations));
 
@@ -49,9 +62,10 @@ final readonly class ProductionRuntimeComposer
                 $routes,
                 new OperationValueBinder(),
                 $dispatcher,
-                new JsonOperationResponder($responses, $streams),
-                $responses,
+                new JsonOperationResponder($dependencies->responses, $dependencies->streams),
+                $dependencies->responses,
             ),
+            $scope,
         );
     }
 }

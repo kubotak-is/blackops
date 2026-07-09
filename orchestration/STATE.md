@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-10T01:51:09+09:00
+Updated At: 2026-07-10T01:56:09+09:00
 
 ## Current Phase
 
@@ -8,21 +8,21 @@ Phase 2: Projection and Logging
 
 ## Current Task
 
-Task ID: P2-007-execution-scoped-logger
+Task ID: P2-008-runtime-logging-composition
 
-Task Packet: `orchestration/tasks/P2-007-execution-scoped-logger.md`
+Task Packet: `orchestration/tasks/P2-008-runtime-logging-composition.md`
 
-Report: `orchestration/reports/P2-007-execution-scoped-logger.md`
+Report: `orchestration/reports/P2-008-runtime-logging-composition.md`
 
 ## Task Status
 
 Accepted
 
-P2-007をCodexが実装し、検証完了。PSR-3 Loggerへ委譲しつつ、Execution Scope ProviderからOperation metadataを自動contextとして付与するInternal Logger decoratorを追加した。
+P2-008をCodexが実装し、検証完了。Production Runtime ComposerでExecution Scope ProviderとJournal Observation Pipelineを共有できる入口を追加した。
 
 ## Last Accepted Task
 
-P2-007-execution-scoped-logger
+P2-008-runtime-logging-composition
 
 ## Pending Decisions
 
@@ -34,8 +34,39 @@ P2-007-execution-scoped-logger
 
 ## Required Next Action
 
-1. Runtime compositionでExecution Scope ProviderとExecutionScopedLoggerを共有できる入口を追加する。
-2. HandlerへPSR-3 Loggerを注入できる配線に進む。
+1. Phase 2 closeoutとしてProjection/Loggingの実装・docs・STATEを照合する。
+2. 最終検証を行い、Phase 3へ進める状態にする。
+
+## P2-008 Verification Commands and Results
+
+```text
+docker compose run --rm app vendor/bin/phpunit --filter ProductionRuntimeComposerTest
+Result: OK (2 tests, 9 assertions).
+
+docker compose run --rm app mago format --check src tests
+Result: INFO All files are already formatted.
+
+docker compose run --rm app composer validate --strict
+Result: ./composer.json is valid.
+
+docker compose run --rm app mago lint
+Result: INFO No issues found.
+
+docker compose run --rm app mago analyze
+Result: INFO No issues found.
+
+docker compose run --rm app vendor/bin/phpunit
+Result: OK (304 tests, 707 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app vendor/bin/deptrac
+Result: Violations 0 / Skipped 0 / Uncovered 0 / Allowed 474 / Warnings 0 / Errors 0.
+
+rg -n 'Spec(ification)?[[:space:]]*[0-9]+|D[0-9]{3}|P[0-9]+-[0-9]+|TODO\.md:[0-9]+' src tests --glob '*.php'
+Result: No matches.
+
+git diff --check
+Result: No output.
+```
 
 ## P2-007 Verification Commands and Results
 

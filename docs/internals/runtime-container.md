@@ -29,3 +29,5 @@ Installed Composer provider discovery can read service provider class names from
 The production runtime artifact loader is the internal bootstrap boundary for generated artifacts. It loads the operation manifest, HTTP manifest, and dumped runtime container file, then verifies that the configured container class implements PSR-11. It does not perform dynamic operation scan or rebuild artifacts at runtime.
 
 The production runtime composer uses the loaded artifacts to build the inline dispatcher and HTTP request handler. Application-owned runtime resources such as the clock, journal writer, response factory, and stream factory are provided explicitly by the composition root.
+
+The composer also accepts optional execution scope and journal observation pipeline instances. This lets an application share the same ExecutionScopeProvider between the inline dispatcher and a logger service that was registered in the runtime container, while keeping handler construction owned by the container.
