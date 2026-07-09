@@ -17,3 +17,5 @@ Service provider config loading is an internal bootstrap concern. A PHP config f
 The runtime container compile command ties the internal loader, compiler, and dumper together for build-time verification. It reads a provider config file, applies the providers to a fresh builder, compiles the container, and writes a PHP container file. Command registration in an application console remains a bootstrap concern.
 
 The internal build artifacts command can run container compilation together with operation and HTTP manifest generation. It is a build-time orchestration boundary and does not change the runtime rule that handlers and domain services receive dependencies through constructor injection rather than a container reference.
+
+Build artifact generation can be guarded by a local build lock so concurrent compile processes do not write the same artifact set at the same time.

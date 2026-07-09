@@ -48,6 +48,7 @@ final class CompileBuildArtifactsCommandTest extends TestCase
             'container' => $containerPath,
             '--container-class' => $class,
             '--container-namespace' => $namespace,
+            '--lock' => $this->path('build-lock'),
         ]);
 
         $operationRegistry = new OperationManifestFile()->load($operationManifest);

@@ -6,6 +6,7 @@ namespace BlackOps\Internal\Console;
 
 use BlackOps\Http\Routing\HttpOperationManifestFile;
 use BlackOps\Http\Routing\HttpRouteCompiler;
+use BlackOps\Internal\Build\BuildLock;
 use BlackOps\Internal\DependencyInjection\RuntimeContainerCompiler;
 use BlackOps\Internal\DependencyInjection\RuntimeContainerDumper;
 use BlackOps\Internal\DependencyInjection\ServiceProviderConfigLoader;
@@ -62,10 +63,31 @@ final class CompileBuildArtifactsCommand extends Command
                 'Generated container class name.',
                 'CompiledContainer',
             )
-            ->addOption('container-namespace', null, InputOption::VALUE_REQUIRED, 'Generated container namespace.', '');
+            ->addOption('container-namespace', null, InputOption::VALUE_REQUIRED, 'Generated container namespace.', '')
+            ->addOption('lock', null, InputOption::VALUE_REQUIRED, 'Path to the build lock file.');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
+    {
+        $lock = $this->nullableStringOption($input, 'lock');
+
+        if ($lock !== null) {
+            new BuildLock()->run($lock, function () use ($input): void {
+                $this->compile($input);
+            });
+
+            $output->writeln('Build artifacts written.');
+
+            return Command::SUCCESS;
+        }
+
+        $this->compile($input);
+        $output->writeln('Build artifacts written.');
+
+        return Command::SUCCESS;
+    }
+
+    private function compile(InputInterface $input): void
     {
         $providers = $this->operationProviders->load($this->stringArgument($input, 'operation-providers'));
         $registry = $this->operationCompiler->compile($providers);
@@ -88,10 +110,6 @@ final class CompileBuildArtifactsCommand extends Command
             $this->stringOption($input, 'container-class'),
             $this->stringOption($input, 'container-namespace'),
         );
-
-        $output->writeln('Build artifacts written.');
-
-        return Command::SUCCESS;
     }
 
     private function stringArgument(InputInterface $input, string $name): string
@@ -107,6 +125,19 @@ final class CompileBuildArtifactsCommand extends Command
     {
         if (!is_string($input->getOption($name))) {
             throw new InvalidArgumentException('Build command option must be a string.');
+        }
+
+        return (string) $input->getOption($name);
+    }
+
+    private function nullableStringOption(InputInterface $input, string $name): ?string
+    {
+        if ($input->getOption($name) === null) {
+            return null;
+        }
+
+        if (!is_string($input->getOption($name)) || $input->getOption($name) === '') {
+            throw new InvalidArgumentException('Build command option must be a non-empty string.');
         }
 
         return (string) $input->getOption($name);
