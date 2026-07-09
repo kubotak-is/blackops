@@ -18,6 +18,11 @@ final readonly class JournalObserverAggregator
         private array $observers,
     ) {}
 
+    public function isEmpty(): bool
+    {
+        return $this->observers === [];
+    }
+
     public function observe(ObservedJournalRecord $record): JournalObservationResult
     {
         return $this->dispatch(static function (JournalObserverBinding $binding) use ($record): void {

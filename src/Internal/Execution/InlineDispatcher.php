@@ -13,8 +13,11 @@ use BlackOps\Core\Registry\OperationRegistry;
 use BlackOps\Execution\Dispatcher;
 use BlackOps\Internal\ExecutionContext\ExecutionContextFactory;
 use BlackOps\Internal\Journal\InlineSequence;
+use BlackOps\Internal\Journal\JournalObserverAggregator;
 use BlackOps\Internal\Journal\JournalRecordFactory;
 use BlackOps\Internal\Journal\LifecycleStateMachine;
+use BlackOps\Internal\Projection\ObservedJournalRecordProjector;
+use BlackOps\Internal\Projection\SensitiveProjectionFilter;
 use BlackOps\Journal\CanonicalJournalWriter;
 use BlackOps\Journal\JournalEvent;
 use BlackOps\Journal\JournalRecord;
@@ -24,6 +27,10 @@ use LogicException;
 
 final readonly class InlineDispatcher implements Dispatcher
 {
+    private ObservedJournalRecordProjector $observedRecords;
+
+    private JournalObserverAggregator $observers;
+
     public function __construct(
         private OperationRegistry $registry,
         private ExecutionContextFactory $contexts,
@@ -31,7 +38,14 @@ final readonly class InlineDispatcher implements Dispatcher
         private JournalRecordFactory $journalRecords,
         private CanonicalJournalWriter $journal,
         private LifecycleStateMachine $lifecycle = new LifecycleStateMachine(),
-    ) {}
+        ?ObservedJournalRecordProjector $observedRecords = null,
+        ?JournalObserverAggregator $observers = null,
+    ) {
+        $this->observedRecords = $observedRecords ?? new ObservedJournalRecordProjector(
+            new SensitiveProjectionFilter(),
+        );
+        $this->observers = $observers ?? new JournalObserverAggregator([]);
+    }
 
     public function dispatch(Operation $definition, OperationValue $value): OperationResult
     {
@@ -119,7 +133,17 @@ final readonly class InlineDispatcher implements Dispatcher
         $next = $this->lifecycle->next($state, $event);
         $record = $createRecord();
         $this->journal->append($record);
+        $this->observe($record);
 
         return $next;
+    }
+
+    private function observe(JournalRecord $record): void
+    {
+        if ($this->observers->isEmpty()) {
+            return;
+        }
+
+        $this->observers->observe($this->observedRecords->project($record));
     }
 }

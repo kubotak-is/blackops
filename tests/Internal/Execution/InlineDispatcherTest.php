@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace BlackOps\Tests\Internal\Execution;
 
+use BlackOps\Core\Attribute\Sensitive;
+use BlackOps\Core\Attribute\SensitiveMode;
 use BlackOps\Core\EmptyOutcome;
 use BlackOps\Core\Execution\Inline;
 use BlackOps\Core\Operation;
@@ -19,14 +21,21 @@ use BlackOps\Internal\Execution\InlineDispatcher;
 use BlackOps\Internal\ExecutionContext\ExecutionContextFactory;
 use BlackOps\Internal\Identifier\IdentifierFactory;
 use BlackOps\Internal\Identifier\Uuidv7Generator;
+use BlackOps\Internal\Journal\JournalObserverAggregator;
+use BlackOps\Internal\Journal\JournalObserverBinding;
 use BlackOps\Internal\Journal\JournalRecordFactory;
 use BlackOps\Internal\Journal\LifecycleStateMachine;
+use BlackOps\Internal\Projection\ObservedJournalRecordProjector;
+use BlackOps\Internal\Projection\SensitiveProjectionFilter;
 use BlackOps\Journal\CanonicalJournalWriter;
+use BlackOps\Journal\Exception\JournalObservationFailed;
 use BlackOps\Journal\Exception\JournalWriteFailed;
 use BlackOps\Journal\Exception\LifecycleTransitionException;
 use BlackOps\Journal\JournalEvent;
+use BlackOps\Journal\JournalObserver;
 use BlackOps\Journal\JournalRecord;
 use BlackOps\Journal\LifecycleState;
+use BlackOps\Journal\ObservedJournalRecord;
 use DateTimeImmutable;
 use LogicException;
 use PHPUnit\Framework\TestCase;
@@ -95,6 +104,66 @@ final class InlineDispatcherTest extends TestCase
         );
     }
 
+    public function testObservedRecordsAreDeliveredAfterCanonicalAppend(): void
+    {
+        $observer = new RecordingJournalObserver();
+        $journal = new RecordingJournalWriter();
+
+        $this->dispatcher(
+            new DispatchHandler(),
+            $journal,
+            observers: new JournalObserverAggregator([new JournalObserverBinding('observer', $observer)]),
+            observedRecords: new ObservedJournalRecordProjector(new SensitiveProjectionFilter('projection-key')),
+        )->dispatch(new DispatchOperation(), new DispatchValue('hello', 'secret'));
+
+        self::assertCount(4, $journal->records);
+        self::assertCount(4, $observer->records);
+        self::assertSame('hello', $observer->records[0]->data['value']['message']);
+        self::assertArrayNotHasKey('password', $observer->records[0]->data['value']);
+        self::assertStringStartsWith('hmac-sha256:', $observer->records[0]->data['value']['customerId']);
+    }
+
+    public function testBestEffortObserverFailureDoesNotBlockDispatch(): void
+    {
+        $result = $this->dispatcher(
+            new DispatchHandler(),
+            observers: new JournalObserverAggregator([new JournalObserverBinding(
+                'observer',
+                new FailingJournalObserver(),
+            )]),
+            observedRecords: new ObservedJournalRecordProjector(new SensitiveProjectionFilter('projection-key')),
+        )->dispatch(new DispatchOperation(), new DispatchValue('hello'));
+
+        self::assertTrue($result->isCompleted());
+    }
+
+    public function testCanonicalAppendFailurePreventsObserverDelivery(): void
+    {
+        $observer = new RecordingJournalObserver();
+
+        try {
+            $this->dispatcher(
+                new DispatchHandler(),
+                new FailingJournalWriter(),
+                observers: new JournalObserverAggregator([new JournalObserverBinding('observer', $observer)]),
+            )->dispatch(new DispatchOperation(), new DispatchValue('hello'));
+            self::fail('Expected journal write failure.');
+        } catch (JournalWriteFailed) {
+        }
+
+        self::assertSame([], $observer->records);
+    }
+
+    public function testObserverlessDispatcherDoesNotProjectJournalData(): void
+    {
+        $result = $this->dispatcher(new DispatchHandler())->dispatch(
+            new DispatchOperation(),
+            new DispatchValue('hello', 'secret', 'customer-1'),
+        );
+
+        self::assertTrue($result->isCompleted());
+    }
+
     public function testInvalidLifecycleTransitionPreventsTerminalRecordAppend(): void
     {
         $journal = new RecordingJournalWriter();
@@ -118,6 +187,8 @@ final class InlineDispatcherTest extends TestCase
         OperationHandler $handler,
         ?CanonicalJournalWriter $journal = null,
         ?LifecycleStateMachine $lifecycle = null,
+        ?JournalObserverAggregator $observers = null,
+        ?ObservedJournalRecordProjector $observedRecords = null,
     ): InlineDispatcher {
         $metadata = new OperationMetadata(
             'dispatch.test',
@@ -163,6 +234,8 @@ final class InlineDispatcherTest extends TestCase
             new JournalRecordFactory($identifiers, $clock),
             $journal ?? new RecordingJournalWriter(),
             $lifecycle ?? new LifecycleStateMachine(),
+            $observedRecords ?? new ObservedJournalRecordProjector(new SensitiveProjectionFilter()),
+            $observers,
         );
     }
 }
@@ -173,6 +246,10 @@ final readonly class DispatchValue implements OperationValue
 {
     public function __construct(
         public string $message,
+        #[Sensitive]
+        public string $password = 'secret',
+        #[Sensitive(SensitiveMode::Hash)]
+        public string $customerId = '',
     ) {}
 }
 
@@ -224,6 +301,25 @@ final readonly class FailingJournalWriter implements CanonicalJournalWriter
     public function append(JournalRecord $record): void
     {
         throw new JournalWriteFailed('journal unavailable');
+    }
+}
+
+final class RecordingJournalObserver implements JournalObserver
+{
+    /** @var list<ObservedJournalRecord> */
+    public array $records = [];
+
+    public function observe(ObservedJournalRecord $record): void
+    {
+        $this->records[] = $record;
+    }
+}
+
+final readonly class FailingJournalObserver implements JournalObserver
+{
+    public function observe(ObservedJournalRecord $record): void
+    {
+        throw new JournalObservationFailed('observer unavailable');
     }
 }
 

@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-10T01:30:25+09:00
+Updated At: 2026-07-10T01:35:11+09:00
 
 ## Current Phase
 
@@ -8,21 +8,21 @@ Phase 2: Projection and Logging
 
 ## Current Task
 
-Task ID: P2-003-observer-aggregator
+Task ID: P2-004-inline-observer-delivery
 
-Task Packet: `orchestration/tasks/P2-003-observer-aggregator.md`
+Task Packet: `orchestration/tasks/P2-004-inline-observer-delivery.md`
 
-Report: `orchestration/reports/P2-003-observer-aggregator.md`
+Report: `orchestration/reports/P2-004-inline-observer-delivery.md`
 
 ## Task Status
 
 Accepted
 
-P2-003をCodexが実装し、検証完了。複数JournalObserverを独立して実行し、Delivery Policyに従ってObserver失敗を扱うInternal Aggregatorを追加した。
+P2-004をCodexが実装し、検証完了。Inline Journal生成後に、Canonical append成功後だけObservedJournalRecordへprojectしてObserver Aggregatorへ配送する接続を追加した。
 
 ## Last Accepted Task
 
-P2-003-observer-aggregator
+P2-004-inline-observer-delivery
 
 ## Pending Decisions
 
@@ -34,8 +34,39 @@ P2-003-observer-aggregator
 
 ## Required Next Action
 
-1. Inline Journal生成後にObserver AggregatorへBestEffort配送する接続を追加する。
-2. Canonical append成功後にObservedJournalRecordへprojectしてObserverへ渡す。
+1. JSONL structured journal observerを追加する。
+2. ObservedJournalRecordをline-delimited JSONへ変換できるLogging adapter foundationを作る。
+
+## P2-004 Verification Commands and Results
+
+```text
+docker compose run --rm app vendor/bin/phpunit --filter InlineDispatcherTest
+Result: OK (10 tests, 19 assertions).
+
+docker compose run --rm app mago format --check src tests
+Result: INFO All files are already formatted.
+
+docker compose run --rm app composer validate --strict
+Result: ./composer.json is valid.
+
+docker compose run --rm app mago lint
+Result: INFO No issues found.
+
+docker compose run --rm app mago analyze
+Result: INFO No issues found.
+
+docker compose run --rm app vendor/bin/phpunit
+Result: OK (293 tests, 660 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app vendor/bin/deptrac
+Result: Violations 0 / Skipped 0 / Uncovered 0 / Allowed 446 / Warnings 0 / Errors 0.
+
+rg -n 'Spec(ification)?[[:space:]]*[0-9]+|D[0-9]{3}|P[0-9]+-[0-9]+|TODO\.md:[0-9]+' src tests --glob '*.php'
+Result: No matches.
+
+git diff --check
+Result: No output.
+```
 
 ## P2-003 Verification Commands and Results
 
