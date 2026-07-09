@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-09T10:04:34+09:00
+Updated At: 2026-07-09T10:08:51+09:00
 
 ## Current Phase
 
@@ -8,21 +8,21 @@ Phase 1: Journal付きInline Vertical Slice
 
 ## Current Task
 
-Task ID: P1-024-service-provider-config-loader
+Task ID: P1-025-runtime-container-compile-command
 
-Task Packet: `orchestration/tasks/P1-024-service-provider-config-loader.md`
+Task Packet: `orchestration/tasks/P1-025-runtime-container-compile-command.md`
 
-Report: `orchestration/reports/P1-024-service-provider-config-loader.md`
+Report: `orchestration/reports/P1-025-runtime-container-compile-command.md`
 
 ## Task Status
 
 Accepted
 
-P1-024をCodexが実装・ReviewしAcceptedとした。Runtime Container Buildへ適用するService Provider群をPHP Config fileから読み込むInternal Loaderを追加した。
+P1-025をCodexが実装・ReviewしAcceptedとした。Service Provider Config fileを読み込み、Runtime ContainerをCompileしてPHP fileへ出力するInternal CLI Commandを追加した。
 
 ## Last Accepted Task
 
-P1-024-service-provider-config-loader
+P1-025-runtime-container-compile-command
 
 ## Pending Decisions
 
@@ -34,8 +34,36 @@ P1-024-service-provider-config-loader
 
 ## Required Next Action
 
-1. Production Container Compile Command、Provider Discovery、または richer Service Registry DSL へ進む。
+1. Provider Discovery、Operation/Container Build Orchestration、または richer Service Registry DSL へ進む。
 2. 次Task Packetを作成し、Runtime統合の次の拡張境界を決める。
+
+## P1-025 Verification Commands and Results
+
+```text
+docker compose run --rm app vendor/bin/phpunit --filter CompileRuntimeContainerCommandTest
+Result: OK (2 tests, 5 assertions).
+
+docker compose run --rm app mago format --check src tests
+Result: INFO All files are already formatted.
+
+docker compose run --rm app composer validate --strict
+Result: ./composer.json is valid.
+
+docker compose run --rm app mago lint
+Result: INFO No issues found.
+
+docker compose run --rm app mago analyze
+Result: INFO No issues found.
+
+docker compose run --rm app vendor/bin/phpunit
+Result: OK (217 tests, 519 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app vendor/bin/deptrac
+Result: Violations 0 / Skipped 0 / Uncovered 0 / Allowed 307 / Warnings 0 / Errors 0.
+
+rg -n 'Spec(ification)?[[:space:]]*[0-9]+|D[0-9]{3}|P[0-9]+-[0-9]+|TODO\.md:[0-9]+' src tests --glob '*.php'
+Result: No matches.
+```
 
 ## P1-024 Verification Commands and Results
 
