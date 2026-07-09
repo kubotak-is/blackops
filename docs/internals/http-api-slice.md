@@ -24,3 +24,5 @@ The manifest file boundary writes that in-memory structure as a PHP array file. 
 The HTTP manifest dump command is a thin Symfony Console boundary around the route compiler and manifest file writer. It receives an already-built operation registry and a definition list from the application bootstrap, then writes the HTTP manifest to the requested path. Discovery, operation providers, and container compilation remain separate build steps.
 
 The internal HTTP manifest compile command reads operation providers from a PHP config file, compiles the operation registry, creates no-argument operation definition instances, and writes the HTTP manifest. Runtime container compilation and Composer package discovery remain separate build steps.
+
+The internal build artifacts command can generate the HTTP manifest together with the operation manifest and runtime container file when both operation provider config and service provider config are available.

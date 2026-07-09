@@ -1,0 +1,121 @@
+<?php
+
+declare(strict_types=1);
+
+namespace BlackOps\Tests\Internal\Console;
+
+use BlackOps\Core\Attribute\Accepts;
+use BlackOps\Core\Attribute\HandledBy;
+use BlackOps\Core\Attribute\OperationType;
+use BlackOps\Core\Attribute\Returns;
+use BlackOps\Core\DependencyInjection\ServiceProvider;
+use BlackOps\Core\DependencyInjection\ServiceRegistry;
+use BlackOps\Core\EmptyOutcome;
+use BlackOps\Core\Operation;
+use BlackOps\Core\OperationEnvelope;
+use BlackOps\Core\OperationHandler;
+use BlackOps\Core\OperationResult;
+use BlackOps\Core\OperationValue;
+use BlackOps\Core\Registry\OperationProvider;
+use BlackOps\Http\Attribute\Route;
+use BlackOps\Http\Routing\HttpOperationManifestFile;
+use BlackOps\Internal\Console\CompileBuildArtifactsCommand;
+use BlackOps\Internal\Registry\OperationManifestFile;
+use InvalidArgumentException;
+use PHPUnit\Framework\TestCase;
+use Psr\Container\ContainerInterface;
+use Symfony\Component\Console\Tester\CommandTester;
+
+final class CompileBuildArtifactsCommandTest extends TestCase
+{
+    public function testCompilesBuildArtifactsFromProviderConfigs(): void
+    {
+        $operationProviders = $this->path('operation-providers');
+        $serviceProviders = $this->path('service-providers');
+        $operationManifest = $this->path('operation-manifest');
+        $httpManifest = $this->path('http-manifest');
+        $containerPath = $this->path('container');
+        $class = 'BuildContainer' . bin2hex(random_bytes(8));
+        $namespace = __NAMESPACE__ . '\\Generated';
+        file_put_contents($operationProviders, '<?php return [\\' . BuildOperationProvider::class . '::class];');
+        file_put_contents($serviceProviders, '<?php return [\\' . BuildServiceProvider::class . '::class];');
+
+        $status = new CommandTester(new CompileBuildArtifactsCommand())->execute([
+            'operation-providers' => $operationProviders,
+            'service-providers' => $serviceProviders,
+            'operation-manifest' => $operationManifest,
+            'http-manifest' => $httpManifest,
+            'container' => $containerPath,
+            '--container-class' => $class,
+            '--container-namespace' => $namespace,
+        ]);
+
+        $operationRegistry = new OperationManifestFile()->load($operationManifest);
+        $httpMatch = new HttpOperationManifestFile()
+            ->load($httpManifest)
+            ->toRegistry([new BuildOperation()])
+            ->match('GET', '/build');
+        require_once $containerPath;
+        $containerClass = $namespace . '\\' . $class;
+        $container = new $containerClass();
+
+        self::assertSame(0, $status);
+        self::assertSame(BuildOperation::class, $operationRegistry->findByTypeId('build.operation')?->definition);
+        self::assertNotNull($httpMatch);
+        self::assertInstanceOf(ContainerInterface::class, $container);
+        self::assertInstanceOf(BuildService::class, $container->get(BuildService::class));
+    }
+
+    public function testRejectsMissingOperationProviderConfig(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        new CommandTester(new CompileBuildArtifactsCommand())->execute([
+            'operation-providers' => $this->path('missing-operations'),
+            'service-providers' => $this->path('service-providers'),
+            'operation-manifest' => $this->path('operation-manifest'),
+            'http-manifest' => $this->path('http-manifest'),
+            'container' => $this->path('container'),
+        ]);
+    }
+
+    private function path(string $name): string
+    {
+        return sys_get_temp_dir() . '/blackops-build-' . $name . '-' . bin2hex(random_bytes(8)) . '.php';
+    }
+}
+
+final readonly class BuildOperationProvider implements OperationProvider
+{
+    public function definitions(): iterable
+    {
+        return [BuildOperation::class];
+    }
+}
+
+final readonly class BuildServiceProvider implements ServiceProvider
+{
+    public function register(ServiceRegistry $services): void
+    {
+        $services->autowire(BuildService::class);
+    }
+}
+
+#[Route('GET', '/build')]
+#[OperationType('build.operation')]
+#[Accepts(BuildValue::class)]
+#[HandledBy(BuildHandler::class)]
+#[Returns(EmptyOutcome::class)]
+final readonly class BuildOperation implements Operation {}
+
+final readonly class BuildValue implements OperationValue {}
+
+final readonly class BuildHandler implements OperationHandler
+{
+    public function handle(OperationEnvelope $operation): OperationResult
+    {
+        return OperationResult::completed();
+    }
+}
+
+final readonly class BuildService {}

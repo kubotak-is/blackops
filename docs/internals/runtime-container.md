@@ -15,3 +15,5 @@ Service providers are the public extension boundary for adding services to the r
 Service provider config loading is an internal bootstrap concern. A PHP config file may return a single `ServiceProvider`, a list of provider instances, or a list of provider class names that can be instantiated without constructor arguments. The loader returns provider instances that are then applied through the existing runtime container compiler.
 
 The runtime container compile command ties the internal loader, compiler, and dumper together for build-time verification. It reads a provider config file, applies the providers to a fresh builder, compiles the container, and writes a PHP container file. Command registration in an application console remains a bootstrap concern.
+
+The internal build artifacts command can run container compilation together with operation and HTTP manifest generation. It is a build-time orchestration boundary and does not change the runtime rule that handlers and domain services receive dependencies through constructor injection rather than a container reference.

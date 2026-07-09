@@ -15,3 +15,5 @@ The operation manifest file boundary writes registry metadata to a PHP array fil
 The operation manifest compile command ties the internal provider config loader, provider compiler, and manifest file writer together for build-time verification. It reads an operation provider config file and writes a PHP operation manifest file. HTTP route manifest generation and runtime container compilation remain separate build steps.
 
 The internal operation definition factory can instantiate no-argument operation definitions returned by providers for build steps that need attributes from definition instances, such as HTTP route manifest compilation. Definitions that need constructor arguments are rejected at this boundary.
+
+The internal build artifacts command coordinates operation provider config loading, operation manifest generation, HTTP route manifest generation, and runtime container dumping in one build step. It still relies on explicit config files; Composer discovery, locking, and cache invalidation are separate concerns.
