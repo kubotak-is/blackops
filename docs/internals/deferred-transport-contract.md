@@ -52,12 +52,38 @@ ExecutionTransport     all ports
 
 HTTP Processは`OperationSender`だけへ依存できる。Worker RuntimeはReceiver、Heartbeat、Settlementへ依存する。PostgreSQLなどの総合Adapterは`ExecutionTransport`を実装できる。
 
+## PostgreSQL Sender
+
+PostgreSQL Senderは`DeferredOperationMessage`を`operations` tableへ保存し、保存成功時に`DeferredAcknowledgement`を返す。
+
+保存する主な情報は次のとおり。
+
+```text
+operation_id
+operation_type
+schema_version
+encoded_payload
+encoded_context
+content_type
+encoding
+key_id
+state
+state_version
+next_sequence
+available_at
+accepted_at
+```
+
+PayloadとContextは不透明な`bytea`として保存する。Transportは内部構造を検索しない。初期Stateは`accepted`、初期Versionは`1`、初期Sequenceは`1`とする。
+
+PostgreSQL Senderは低レベルTransportであり、Canonical Journalは生成しない。Deferred受付の上位OrchestratorがOperation State保存とCanonical Journal記録を同一Transactionへ統合する。
+
 ## Current Scope
 
-このContractはPhase 3の最初の土台であり、まだ次を実装しない。
+現在のDeferred Transport実装では、まだ次を実装しない。
 
-- PostgreSQL Transport
 - Deferred Dispatcher
 - Worker Runtime
 - Retry、Crash Recovery、Dead Letter
 - HTTP 202 Response変換
+- Canonical JournalとOperation Stateの同一Transaction受付

@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-10T02:19:14+09:00
+Updated At: 2026-07-10T02:28:32+09:00
 
 ## Current Phase
 
@@ -8,21 +8,21 @@ Phase 3: Deferred Vertical Slice
 
 ## Current Task
 
-Task ID: P3-001-deferred-transport-contracts
+Task ID: P3-002-postgresql-deferred-sender
 
-Task Packet: `orchestration/tasks/P3-001-deferred-transport-contracts.md`
+Task Packet: `orchestration/tasks/P3-002-postgresql-deferred-sender.md`
 
-Report: `orchestration/reports/P3-001-deferred-transport-contracts.md`
+Report: `orchestration/reports/P3-002-postgresql-deferred-sender.md`
 
 ## Task Status
 
 Accepted
 
-P3-001をCodexが実施し、検証完了。Deferred Vertical Sliceの土台として、Deferred Strategy、Durable受付Acknowledgement、Transport Message、Claim、Transport PortのPublic Contractを追加した。
+P3-002をCodexが実施し、検証完了。PostgreSQLへDeferred Operation MessageをDurable保存し、保存成功時に`DeferredAcknowledgement`を返すOperationSender実装を追加した。
 
 ## Last Accepted Task
 
-P3-001-deferred-transport-contracts
+P3-002-postgresql-deferred-sender
 
 ## Pending Decisions
 
@@ -34,8 +34,39 @@ P3-001-deferred-transport-contracts
 
 ## Required Next Action
 
-1. P3-002のTask Packetを作成する。
-2. PostgreSQL Deferred受付Store／Transportを実装し、Durable保存成功時に`DeferredAcknowledgement`を返せるようにする。
+1. P3-003のTask Packetを作成する。
+2. Deferred受付OrchestratorでOperation State保存とCanonical Journal記録を同一Transactionへ統合する。
+
+## P3-002 Verification Commands and Results
+
+```text
+docker compose run --rm app vendor/bin/phpunit --filter PostgreSqlDeferredOperationSenderTest
+Result: OK (3 tests, 29 assertions).
+
+docker compose run --rm app mago format --check src tests
+Result: INFO All files are already formatted.
+
+docker compose run --rm app composer validate --strict
+Result: ./composer.json is valid.
+
+docker compose run --rm app mago lint
+Result: INFO No issues found.
+
+docker compose run --rm app mago analyze
+Result: INFO No issues found.
+
+docker compose run --rm app vendor/bin/phpunit
+Result: OK (327 tests, 788 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app vendor/bin/deptrac
+Result: Violations 0 / Skipped 0 / Uncovered 0 / Allowed 483 / Warnings 0 / Errors 0.
+
+rg -n 'Spec(ification)?[[:space:]]*[0-9]+|D[0-9]{3}|P[0-9]+-[0-9]+|TODO\.md:[0-9]+' src tests --glob '*.php'
+Result: No matches.
+
+git diff --check
+Result: No output.
+```
 
 ## P3-001 Verification Commands and Results
 
