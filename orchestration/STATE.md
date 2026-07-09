@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-10T01:21:25+09:00
+Updated At: 2026-07-10T01:25:50+09:00
 
 ## Current Phase
 
@@ -8,21 +8,21 @@ Phase 2: Projection and Logging
 
 ## Current Task
 
-Task ID: P2-001-sensitive-projection-foundation
+Task ID: P2-002-observed-journal-ports
 
-Task Packet: `orchestration/tasks/P2-001-sensitive-projection-foundation.md`
+Task Packet: `orchestration/tasks/P2-002-observed-journal-ports.md`
 
-Report: `orchestration/reports/P2-001-sensitive-projection-foundation.md`
+Report: `orchestration/reports/P2-002-observed-journal-ports.md`
 
 ## Task Status
 
 Accepted
 
-P2-001をCodexが実装し、検証完了。Observer/Loggingへ渡す前の最低安全基準としてSensitive metadataとInternal Sensitive Projection Filterを追加した。
+P2-002をCodexが実装し、検証完了。Canonical JournalRecordとは別に、Observerへ渡す安全なProjection専用RecordとObserver Portを追加した。
 
 ## Last Accepted Task
 
-P2-001-sensitive-projection-foundation
+P2-002-observed-journal-ports
 
 ## Pending Decisions
 
@@ -34,8 +34,39 @@ P2-001-sensitive-projection-foundation
 
 ## Required Next Action
 
-1. ObservedJournalRecordとJournalObserver portsを追加する。
-2. Sensitive Projection FilterをObserver projection boundaryへ接続する。
+1. Observer Aggregatorを追加する。
+2. JournalObserverの失敗をDelivery Policyに従って扱う内部境界を作る。
+
+## P2-002 Verification Commands and Results
+
+```text
+docker compose run --rm app vendor/bin/phpunit --filter 'ObservedJournalRecordTest|JournalPortTest|ObservedJournalRecordProjectorTest'
+Result: OK (5 tests, 20 assertions).
+
+docker compose run --rm app mago format --check src tests
+Result: INFO All files are already formatted.
+
+docker compose run --rm app composer validate --strict
+Result: ./composer.json is valid.
+
+docker compose run --rm app mago lint
+Result: INFO No issues found.
+
+docker compose run --rm app mago analyze
+Result: INFO No issues found.
+
+docker compose run --rm app vendor/bin/phpunit
+Result: OK (285 tests, 641 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app vendor/bin/deptrac
+Result: Violations 0 / Skipped 0 / Uncovered 0 / Allowed 428 / Warnings 0 / Errors 0.
+
+rg -n 'Spec(ification)?[[:space:]]*[0-9]+|D[0-9]{3}|P[0-9]+-[0-9]+|TODO\.md:[0-9]+' src tests --glob '*.php'
+Result: No matches.
+
+git diff --check
+Result: No output.
+```
 
 ## P2-001 Verification Commands and Results
 
