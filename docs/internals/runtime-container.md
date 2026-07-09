@@ -23,3 +23,5 @@ Build artifact generation can be guarded by a local build lock so concurrent com
 Build artifact generation can store a lightweight fingerprint of explicit input files. When the fingerprint still matches and the operation manifest, HTTP manifest, and container file all exist, generation can be skipped.
 
 Composer provider discovery can read service provider class names from Composer metadata. It does not instantiate providers or compile the container by itself. The build artifacts command can pass discovered service provider class names through the same provider instantiation boundary used by explicit config files.
+
+Installed Composer provider discovery can read service provider class names from installed package metadata. The build artifacts command can merge those service providers with explicit config and root Composer metadata before compiling the runtime container.

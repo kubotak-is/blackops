@@ -143,6 +143,57 @@ final class CompileBuildArtifactsCommandTest extends TestCase
         self::assertInstanceOf(ComposerBuildService::class, $container->get(ComposerBuildService::class));
     }
 
+    public function testCompilesBuildArtifactsWithInstalledComposerMetadataProviders(): void
+    {
+        $operationProviders = $this->path('operation-providers');
+        $serviceProviders = $this->path('service-providers');
+        $installedComposerMetadata = $this->path('installed-composer-metadata');
+        $operationManifest = $this->path('operation-manifest');
+        $httpManifest = $this->path('http-manifest');
+        $containerPath = $this->path('container');
+        $class = 'InstalledBuildContainer' . bin2hex(random_bytes(8));
+        $namespace = __NAMESPACE__ . '\\Generated';
+        file_put_contents($operationProviders, '<?php return [\\' . BuildOperationProvider::class . '::class];');
+        file_put_contents($serviceProviders, '<?php return [\\' . BuildServiceProvider::class . '::class];');
+        file_put_contents($installedComposerMetadata, json_encode([
+            'packages' => [
+                ['name' => 'vendor/empty'],
+                [
+                    'name' => 'vendor/with-providers',
+                    'extra' => [
+                        'blackops' => [
+                            'operation-providers' => [ComposerBuildOperationProvider::class],
+                            'service-providers' => [ComposerBuildServiceProvider::class],
+                        ],
+                    ],
+                ],
+            ],
+        ], JSON_THROW_ON_ERROR));
+
+        $status = new CommandTester(new CompileBuildArtifactsCommand())->execute([
+            'operation-providers' => $operationProviders,
+            'service-providers' => $serviceProviders,
+            'operation-manifest' => $operationManifest,
+            'http-manifest' => $httpManifest,
+            'container' => $containerPath,
+            '--container-class' => $class,
+            '--container-namespace' => $namespace,
+            '--installed-composer-metadata' => $installedComposerMetadata,
+        ]);
+
+        $operationRegistry = new OperationManifestFile()->load($operationManifest);
+        require_once $containerPath;
+        $containerClass = $namespace . '\\' . $class;
+        $container = new $containerClass();
+
+        self::assertSame(0, $status);
+        self::assertSame(
+            ComposerBuildOperation::class,
+            $operationRegistry->findByTypeId('composer.build.operation')?->definition,
+        );
+        self::assertInstanceOf(ComposerBuildService::class, $container->get(ComposerBuildService::class));
+    }
+
     public function testComposerMetadataParticipatesInBuildFingerprint(): void
     {
         $operationProviders = $this->path('operation-providers');
@@ -170,6 +221,50 @@ final class CompileBuildArtifactsCommandTest extends TestCase
             'extra' => [
                 'blackops' => [
                     'operation-providers' => [ComposerBuildOperationProvider::class],
+                ],
+            ],
+        ], JSON_THROW_ON_ERROR));
+        new CommandTester(new CompileBuildArtifactsCommand())->execute($arguments);
+
+        $operationRegistry = new OperationManifestFile()->load($operationManifest);
+
+        self::assertSame(
+            ComposerBuildOperation::class,
+            $operationRegistry->findByTypeId('composer.build.operation')?->definition,
+        );
+    }
+
+    public function testInstalledComposerMetadataParticipatesInBuildFingerprint(): void
+    {
+        $operationProviders = $this->path('operation-providers');
+        $serviceProviders = $this->path('service-providers');
+        $installedComposerMetadata = $this->path('installed-composer-metadata');
+        $operationManifest = $this->path('operation-manifest');
+        $httpManifest = $this->path('http-manifest');
+        $containerPath = $this->path('container');
+        $fingerprint = $this->path('fingerprint');
+        file_put_contents($operationProviders, '<?php return [\\' . BuildOperationProvider::class . '::class];');
+        file_put_contents($serviceProviders, '<?php return [\\' . BuildServiceProvider::class . '::class];');
+        file_put_contents($installedComposerMetadata, json_encode(['packages' => []], JSON_THROW_ON_ERROR));
+        $arguments = [
+            'operation-providers' => $operationProviders,
+            'service-providers' => $serviceProviders,
+            'operation-manifest' => $operationManifest,
+            'http-manifest' => $httpManifest,
+            'container' => $containerPath,
+            '--fingerprint' => $fingerprint,
+            '--installed-composer-metadata' => $installedComposerMetadata,
+        ];
+
+        new CommandTester(new CompileBuildArtifactsCommand())->execute($arguments);
+        file_put_contents($installedComposerMetadata, json_encode([
+            'packages' => [
+                [
+                    'extra' => [
+                        'blackops' => [
+                            'operation-providers' => [ComposerBuildOperationProvider::class],
+                        ],
+                    ],
                 ],
             ],
         ], JSON_THROW_ON_ERROR));

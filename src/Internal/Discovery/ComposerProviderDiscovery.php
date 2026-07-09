@@ -18,10 +18,23 @@ final readonly class ComposerProviderDiscovery
         }
 
         try {
-            return $this->providersFrom($this->decode($path));
+            return $this->discoverMetadata($this->decode($path));
         } catch (JsonException $exception) {
             throw new InvalidArgumentException('Composer metadata file must contain valid JSON.', previous: $exception);
         }
+    }
+
+    /**
+     * @param array<array-key, mixed> $data
+     */
+    public function discoverMetadata(array $data): DiscoveredComposerProviders
+    {
+        $extra = $this->extra($data);
+
+        return new DiscoveredComposerProviders(
+            $this->providerClasses($extra, 'operation-providers', OperationProvider::class),
+            $this->providerClasses($extra, 'service-providers', ServiceProvider::class),
+        );
     }
 
     /**
@@ -50,19 +63,6 @@ final readonly class ComposerProviderDiscovery
         }
 
         return $data;
-    }
-
-    /**
-     * @param array<array-key, mixed> $data
-     */
-    private function providersFrom(array $data): DiscoveredComposerProviders
-    {
-        $extra = $this->extra($data);
-
-        return new DiscoveredComposerProviders(
-            $this->providerClasses($extra, 'operation-providers', OperationProvider::class),
-            $this->providerClasses($extra, 'service-providers', ServiceProvider::class),
-        );
     }
 
     /**

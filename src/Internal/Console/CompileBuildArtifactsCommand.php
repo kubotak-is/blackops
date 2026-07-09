@@ -76,6 +76,12 @@ final class CompileBuildArtifactsCommand extends Command
                 null,
                 InputOption::VALUE_REQUIRED,
                 'Path to a Composer JSON metadata file exposing BlackOps providers.',
+            )
+            ->addOption(
+                'installed-composer-metadata',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'Path to a Composer installed packages JSON metadata file exposing BlackOps providers.',
             );
     }
 
@@ -118,6 +124,7 @@ final class CompileBuildArtifactsCommand extends Command
             $this->stringArgument($input, 'operation-providers'),
             $this->stringArgument($input, 'service-providers'),
             $this->nullableStringOption($input, 'composer-metadata'),
+            $this->nullableStringOption($input, 'installed-composer-metadata'),
         );
         $registry = $this->operationCompiler->compile($providers->operationProviders);
         $definitions = $this->definitions->fromProviders($providers->operationProviders);
@@ -186,6 +193,12 @@ final class CompileBuildArtifactsCommand extends Command
 
         if ($composerMetadata !== null) {
             $paths[] = $composerMetadata;
+        }
+
+        $installedComposerMetadata = $this->nullableStringOption($input, 'installed-composer-metadata');
+
+        if ($installedComposerMetadata !== null) {
+            $paths[] = $installedComposerMetadata;
         }
 
         return [

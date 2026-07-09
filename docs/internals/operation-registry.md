@@ -23,3 +23,5 @@ The build artifacts command can run inside an internal build lock. The lock uses
 The build artifacts command can also store a lightweight fingerprint for explicit input files. When the fingerprint matches and all output artifacts exist, the command skips regeneration.
 
 Composer provider discovery reads explicit provider class names from Composer metadata under `extra.blackops.operation-providers` and `extra.blackops.service-providers`. The discovery boundary returns provider class names only. The build artifacts command can accept a Composer metadata file and pass discovered operation provider class names through the same provider instantiation boundary used by explicit config files.
+
+Installed Composer provider discovery reads the same package metadata from `vendor/composer/installed.json`. It supports the Composer package list wrapped in a `packages` key and the older root package-list shape. The build artifacts command can accept installed package metadata and merge discovered operation providers with explicit config and root Composer metadata.

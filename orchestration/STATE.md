@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-10T00:39:43+09:00
+Updated At: 2026-07-10T00:45:40+09:00
 
 ## Current Phase
 
@@ -8,21 +8,21 @@ Phase 1: Journal付きInline Vertical Slice
 
 ## Current Task
 
-Task ID: P1-034-composer-provider-build-integration
+Task ID: P1-035-installed-composer-provider-discovery
 
-Task Packet: `orchestration/tasks/P1-034-composer-provider-build-integration.md`
+Task Packet: `orchestration/tasks/P1-035-installed-composer-provider-discovery.md`
 
-Report: `orchestration/reports/P1-034-composer-provider-build-integration.md`
+Report: `orchestration/reports/P1-035-installed-composer-provider-discovery.md`
 
 ## Task Status
 
 Accepted
 
-P1-034をCodexが実装・ReviewしAcceptedとした。Composer metadataで発見したProvider class-stringをBuild Artifacts compileへ統合した。
+P1-035をCodexが実装・ReviewしAcceptedとした。Composer installed packages metadataからProvider class-stringを発見し、Build Artifacts compileへ統合した。
 
 ## Last Accepted Task
 
-P1-034-composer-provider-build-integration
+P1-035-installed-composer-provider-discovery
 
 ## Pending Decisions
 
@@ -34,8 +34,36 @@ P1-034-composer-provider-build-integration
 
 ## Required Next Action
 
-1. Installed Packages Provider Discovery、Production Bootstrap Wrapper、またはCommand Registration Bootstrap Documentationへ進む。
+1. Production Bootstrap WrapperまたはCommand Registration Bootstrap Documentationへ進む。
 2. 次Task Packetを作成し、Runtime統合の次の拡張境界を決める。
+
+## P1-035 Verification Commands and Results
+
+```text
+docker compose run --rm app vendor/bin/phpunit --filter 'InstalledComposerProviderDiscoveryTest|CompileBuildArtifactsCommandTest'
+Result: OK (13 tests, 26 assertions).
+
+docker compose run --rm app mago format --check src tests
+Result: INFO All files are already formatted.
+
+docker compose run --rm app composer validate --strict
+Result: ./composer.json is valid.
+
+docker compose run --rm app mago lint
+Result: INFO No issues found.
+
+docker compose run --rm app mago analyze
+Result: INFO No issues found.
+
+docker compose run --rm app vendor/bin/phpunit
+Result: OK (268 tests, 598 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app vendor/bin/deptrac
+Result: Violations 0 / Skipped 0 / Uncovered 0 / Allowed 393 / Warnings 0 / Errors 0.
+
+rg -n 'Spec(ification)?[[:space:]]*[0-9]+|D[0-9]{3}|P[0-9]+-[0-9]+|TODO\.md:[0-9]+' src tests --glob '*.php'
+Result: No matches.
+```
 
 ## P1-034 Verification Commands and Results
 
