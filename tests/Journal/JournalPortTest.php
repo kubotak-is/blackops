@@ -11,6 +11,7 @@ use BlackOps\Journal\CanonicalJournalWriter;
 use BlackOps\Journal\Exception\JournalObservationFailed;
 use BlackOps\Journal\Exception\JournalWriteFailed;
 use BlackOps\Journal\FlushableJournalObserver;
+use BlackOps\Journal\JournalDeliveryPolicy;
 use BlackOps\Journal\JournalObserver;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
@@ -25,6 +26,7 @@ final class JournalPortTest extends TestCase
             CanonicalJournalStore::class,
             JournalObserver::class,
             FlushableJournalObserver::class,
+            JournalDeliveryPolicy::class,
             JournalObservationFailed::class,
             JournalWriteFailed::class,
         ] as $type) {
@@ -37,5 +39,13 @@ final class JournalPortTest extends TestCase
 
         $flushable = new ReflectionClass(FlushableJournalObserver::class);
         self::assertTrue($flushable->implementsInterface(JournalObserver::class));
+
+        self::assertSame(
+            ['BestEffort', 'Required', 'Durable'],
+            array_map(
+                static fn(JournalDeliveryPolicy $policy): string => $policy->name,
+                JournalDeliveryPolicy::cases(),
+            ),
+        );
     }
 }
