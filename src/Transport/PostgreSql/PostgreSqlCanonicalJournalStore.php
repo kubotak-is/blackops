@@ -9,8 +9,7 @@ use BlackOps\Journal\CanonicalJournalStore;
 use BlackOps\Journal\Exception\JournalReadFailed;
 use BlackOps\Journal\Exception\JournalWriteFailed;
 use BlackOps\Journal\JournalRecord;
-use PDO;
-use PDOException;
+use Doctrine\DBAL\Connection;
 use RuntimeException;
 use Throwable;
 
@@ -20,7 +19,7 @@ final readonly class PostgreSqlCanonicalJournalStore implements CanonicalJournal
     private PostgreSqlJournalRecordCodec $codec;
 
     public function __construct(
-        private PDO $pdo,
+        private Connection $connection,
         string $schema = 'blackops',
         ?PostgreSqlJournalRecordCodec $codec = null,
     ) {
@@ -32,9 +31,9 @@ final readonly class PostgreSqlCanonicalJournalStore implements CanonicalJournal
     {
         try {
             foreach ($this->schema->statements() as $statement) {
-                $this->pdo->exec($statement);
+                $this->connection->executeStatement($statement);
             }
-        } catch (PDOException $exception) {
+        } catch (Throwable $exception) {
             throw new JournalWriteFailed('Failed to migrate PostgreSQL journal schema.', previous: $exception);
         }
     }
@@ -63,13 +62,7 @@ final readonly class PostgreSqlCanonicalJournalStore implements CanonicalJournal
         )";
 
         try {
-            $statement = $this->pdo->prepare($sql);
-
-            if ($statement === false) {
-                throw new RuntimeException('Failed to prepare PostgreSQL journal insert.');
-            }
-
-            $statement->execute([
+            $this->connection->executeStatement($sql, [
                 'record_id' => $record->recordId->toString(),
                 'operation_id' => $record->operation->id->toString(),
                 'sequence' => $record->sequence,
@@ -93,28 +86,11 @@ final readonly class PostgreSqlCanonicalJournalStore implements CanonicalJournal
             ORDER BY sequence ASC";
 
         try {
-            $statement = $this->pdo->prepare($sql);
-
-            if ($statement === false) {
-                throw new RuntimeException('Failed to prepare PostgreSQL journal read.');
-            }
-
-            $statement->execute([
+            $rows = $this->connection->iterateAssociative($sql, [
                 'operation_id' => $operationId->toString(),
             ]);
 
-            while (true) {
-                /** @var mixed $row */
-                $row = $statement->fetch(PDO::FETCH_ASSOC);
-
-                if ($row === false) {
-                    break;
-                }
-
-                if (!is_array($row)) {
-                    throw new RuntimeException('PostgreSQL journal row was not an array.');
-                }
-
+            foreach ($rows as $row) {
                 /** @var mixed $payload */
                 $payload = $row['encoded_record'] ?? null;
 

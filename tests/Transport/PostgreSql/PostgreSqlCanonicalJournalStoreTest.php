@@ -21,7 +21,8 @@ use BlackOps\Journal\JournalOperation;
 use BlackOps\Journal\JournalRecord;
 use BlackOps\Transport\PostgreSql\PostgreSqlCanonicalJournalStore;
 use DateTimeImmutable;
-use PDO;
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DriverManager;
 use PHPUnit\Framework\TestCase;
 
 final class PostgreSqlCanonicalJournalStoreTest extends TestCase
@@ -34,42 +35,42 @@ final class PostgreSqlCanonicalJournalStoreTest extends TestCase
     private const RECORD_ID_2 = '019f32ab-2be0-7b38-a0a7-1ab2f968769b';
     private const RECORD_ID_3 = '019f32ab-2be0-7b38-a0a7-1ab2f968769c';
 
-    private PDO $pdo;
+    private Connection $connection;
     private PostgreSqlCanonicalJournalStore $store;
 
     protected function setUp(): void
     {
-        $this->pdo = $this->pdo();
-        $this->pdo->exec('DROP SCHEMA IF EXISTS ' . self::SCHEMA . ' CASCADE');
-        $this->store = new PostgreSqlCanonicalJournalStore($this->pdo, self::SCHEMA);
+        $this->connection = $this->connection();
+        $this->connection->executeStatement('DROP SCHEMA IF EXISTS ' . self::SCHEMA . ' CASCADE');
+        $this->store = new PostgreSqlCanonicalJournalStore($this->connection, self::SCHEMA);
         $this->store->migrate();
     }
 
     public function testMigrationCreatesJournalTableWithExpectedShape(): void
     {
-        $encodedRecordType = $this->pdo->query("SELECT data_type
+        $encodedRecordType = $this->connection->fetchOne("SELECT data_type
             FROM information_schema.columns
             WHERE table_schema = '"
         . self::SCHEMA
         . "'
               AND table_name = 'journal'
-              AND column_name = 'encoded_record'")->fetchColumn();
+              AND column_name = 'encoded_record'");
 
-        $primaryKeyCount = $this->pdo->query("SELECT count(*)
+        $primaryKeyCount = $this->connection->fetchOne("SELECT count(*)
             FROM information_schema.table_constraints
             WHERE table_schema = '"
         . self::SCHEMA
         . "'
               AND table_name = 'journal'
-              AND constraint_type = 'PRIMARY KEY'")->fetchColumn();
+              AND constraint_type = 'PRIMARY KEY'");
 
-        $uniqueCount = $this->pdo->query("SELECT count(*)
+        $uniqueCount = $this->connection->fetchOne("SELECT count(*)
             FROM information_schema.table_constraints
             WHERE table_schema = '"
         . self::SCHEMA
         . "'
               AND table_name = 'journal'
-              AND constraint_type = 'UNIQUE'")->fetchColumn();
+              AND constraint_type = 'UNIQUE'");
 
         self::assertSame('bytea', $encodedRecordType);
         self::assertSame(1, (int) $primaryKeyCount);
@@ -149,17 +150,21 @@ final class PostgreSqlCanonicalJournalStoreTest extends TestCase
         $this->store->append($this->record(self::RECORD_ID_2, JournalEvent::AttemptStarted, 1));
     }
 
-    private function pdo(): PDO
+    private function connection(): Connection
     {
         $host = (string) (getenv('POSTGRES_HOST') ?: 'postgres');
-        $port = (string) (getenv('POSTGRES_PORT') ?: '5432');
+        $port = (int) (getenv('POSTGRES_PORT') ?: '5432');
         $db = (string) (getenv('POSTGRES_DB') ?: 'blackops');
         $user = (string) (getenv('POSTGRES_USER') ?: 'blackops');
         $password = (string) (getenv('POSTGRES_PASSWORD') ?: 'blackops');
 
-        return new PDO("pgsql:host={$host};port={$port};dbname={$db}", $user, $password, [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_TIMEOUT => 5,
+        return DriverManager::getConnection([
+            'driver' => 'pdo_pgsql',
+            'host' => $host,
+            'port' => $port,
+            'dbname' => $db,
+            'user' => $user,
+            'password' => $password,
         ]);
     }
 

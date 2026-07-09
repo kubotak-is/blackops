@@ -9,7 +9,8 @@ use BlackOps\Core\Execution\DeferredOperationMessage;
 use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationSender;
 use DateTimeImmutable;
-use PDO;
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DriverManager;
 use PHPUnit\Framework\TestCase;
 
 final class PostgreSqlDeferredOperationSenderTest extends TestCase
@@ -17,15 +18,15 @@ final class PostgreSqlDeferredOperationSenderTest extends TestCase
     private const SCHEMA = 'blackops_p3_002';
     private const OPERATION_ID = '019f32ab-2be0-7b38-a0a7-1ab2f9687697';
 
-    private PDO $pdo;
+    private Connection $connection;
     private PostgreSqlDeferredOperationSender $sender;
 
     protected function setUp(): void
     {
-        $this->pdo = $this->pdo();
-        $this->pdo->exec('DROP SCHEMA IF EXISTS ' . self::SCHEMA . ' CASCADE');
+        $this->connection = $this->connection();
+        $this->connection->executeStatement('DROP SCHEMA IF EXISTS ' . self::SCHEMA . ' CASCADE');
         $this->sender = new PostgreSqlDeferredOperationSender(
-            $this->pdo,
+            $this->connection,
             self::SCHEMA,
             new DateTimeImmutable('2026-07-10T00:00:01.123456Z'),
         );
@@ -34,13 +35,13 @@ final class PostgreSqlDeferredOperationSenderTest extends TestCase
 
     public function testMigrationCreatesOperationsTableWithExpectedShape(): void
     {
-        $columns = $this->pdo->query("SELECT column_name, data_type
+        $columns = $this->connection->fetchAllKeyValue("SELECT column_name, data_type
             FROM information_schema.columns
             WHERE table_schema = '"
         . self::SCHEMA
         . "'
               AND table_name = 'operations'
-            ORDER BY ordinal_position")->fetchAll(PDO::FETCH_KEY_PAIR);
+            ORDER BY ordinal_position");
 
         self::assertSame('uuid', $columns['operation_id']);
         self::assertSame('text', $columns['operation_type']);
@@ -63,7 +64,7 @@ final class PostgreSqlDeferredOperationSenderTest extends TestCase
 
         $acknowledgement = $this->sender->enqueue($message);
 
-        $row = $this->pdo->query("SELECT
+        $row = $this->connection->fetchAssociative("SELECT
                 operation_id::text,
                 operation_type,
                 schema_version,
@@ -77,8 +78,9 @@ final class PostgreSqlDeferredOperationSenderTest extends TestCase
                 next_sequence,
                 to_char(available_at AT TIME ZONE 'UTC', 'YYYY-MM-DD\"T\"HH24:MI:SS.US\"Z\"') AS available_at,
                 to_char(accepted_at AT TIME ZONE 'UTC', 'YYYY-MM-DD\"T\"HH24:MI:SS.US\"Z\"') AS accepted_at
-            FROM " . self::SCHEMA . '.operations')->fetch(PDO::FETCH_ASSOC);
+            FROM " . self::SCHEMA . '.operations');
 
+        self::assertIsArray($row);
         self::assertSame($message->operationId(), $acknowledgement->operationId());
         self::assertSame('2026-07-10T00:00:01.123456+00:00', $acknowledgement->acceptedAt()->format('Y-m-d\TH:i:s.uP'));
         self::assertSame(self::OPERATION_ID, $row['operation_id']);
@@ -117,17 +119,21 @@ final class PostgreSqlDeferredOperationSenderTest extends TestCase
         );
     }
 
-    private function pdo(): PDO
+    private function connection(): Connection
     {
         $host = (string) (getenv('POSTGRES_HOST') ?: 'postgres');
-        $port = (string) (getenv('POSTGRES_PORT') ?: '5432');
+        $port = (int) (getenv('POSTGRES_PORT') ?: '5432');
         $db = (string) (getenv('POSTGRES_DB') ?: 'blackops');
         $user = (string) (getenv('POSTGRES_USER') ?: 'blackops');
         $password = (string) (getenv('POSTGRES_PASSWORD') ?: 'blackops');
 
-        return new PDO("pgsql:host={$host};port={$port};dbname={$db}", $user, $password, [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_TIMEOUT => 5,
+        return DriverManager::getConnection([
+            'driver' => 'pdo_pgsql',
+            'host' => $host,
+            'port' => $port,
+            'dbname' => $db,
+            'user' => $user,
+            'password' => $password,
         ]);
     }
 }

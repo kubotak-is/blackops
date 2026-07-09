@@ -9,9 +9,7 @@ use BlackOps\Core\Execution\DeferredAcknowledgement;
 use BlackOps\Core\Execution\DeferredOperationMessage;
 use BlackOps\Core\Execution\OperationSender;
 use DateTimeImmutable;
-use PDO;
-use PDOException;
-use RuntimeException;
+use Doctrine\DBAL\Connection;
 use Throwable;
 
 final readonly class PostgreSqlDeferredOperationSender implements OperationSender
@@ -22,7 +20,7 @@ final readonly class PostgreSqlDeferredOperationSender implements OperationSende
     private PostgreSqlDeferredOperationSchema $schema;
 
     public function __construct(
-        private PDO $pdo,
+        private Connection $connection,
         string $schema = 'blackops',
         private ?DateTimeImmutable $fixedAcceptedAt = null,
     ) {
@@ -33,9 +31,9 @@ final readonly class PostgreSqlDeferredOperationSender implements OperationSende
     {
         try {
             foreach ($this->schema->statements() as $statement) {
-                $this->pdo->exec($statement);
+                $this->connection->executeStatement($statement);
             }
-        } catch (PDOException $exception) {
+        } catch (Throwable $exception) {
             throw new DeferredTransportException(
                 'Failed to migrate PostgreSQL deferred operation schema.',
                 previous: $exception,
@@ -78,13 +76,7 @@ final readonly class PostgreSqlDeferredOperationSender implements OperationSende
         )";
 
         try {
-            $statement = $this->pdo->prepare($sql);
-
-            if ($statement === false) {
-                throw new RuntimeException('Failed to prepare PostgreSQL deferred enqueue.');
-            }
-
-            $statement->execute([
+            $this->connection->executeStatement($sql, [
                 'operation_id' => $message->operationId()->toString(),
                 'operation_type' => $message->operationType(),
                 'schema_version' => $message->schemaVersion(),

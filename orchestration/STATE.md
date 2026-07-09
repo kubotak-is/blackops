@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-10T02:36:02+09:00
+Updated At: 2026-07-10T02:48:57+09:00
 
 ## Current Phase
 
@@ -8,21 +8,21 @@ Phase 3: Deferred Vertical Slice
 
 ## Current Task
 
-Task ID: P3-003-database-access-and-migration-library
+Task ID: P3-004-postgresql-dbal-adapter-foundation
 
-Task Packet: `orchestration/tasks/P3-003-database-access-and-migration-library.md`
+Task Packet: `orchestration/tasks/P3-004-postgresql-dbal-adapter-foundation.md`
 
-Report: `orchestration/reports/P3-003-database-access-and-migration-library.md`
+Report: `orchestration/reports/P3-004-postgresql-dbal-adapter-foundation.md`
 
 ## Task Status
 
 Accepted
 
-P3-003をCodexが実施し、検証完了。Framework-owned PostgreSQL AdapterのDatabase接続とMigration管理にDoctrine DBAL / Doctrine Migrationsを採用し、依存関係とArchitecture Guardを更新した。
+P3-004をCodexが実施し、検証完了。既存PostgreSQL AdapterをDoctrine DBAL Connectionへ移行し、Deferred受付Orchestratorで同一Transactionを扱うためのDatabase Access基盤を整えた。
 
 ## Last Accepted Task
 
-P3-003-database-access-and-migration-library
+P3-004-postgresql-dbal-adapter-foundation
 
 ## Pending Decisions
 
@@ -34,8 +34,39 @@ P3-003-database-access-and-migration-library
 
 ## Required Next Action
 
-1. P3-004のTask Packetを作成する。
-2. PostgreSQL AdapterをDBAL Connectionへ移行し、Deferred受付OrchestratorでOperation State保存とCanonical Journal記録を同一Transactionへ統合する。
+1. P3-005のTask Packetを作成する。
+2. Deferred受付OrchestratorでOperation State保存とCanonical Journal記録を同一Transactionへ統合する。
+
+## P3-004 Verification Commands and Results
+
+```text
+docker compose run --rm app vendor/bin/phpunit --filter 'PostgreSqlCanonicalJournalStoreTest|PostgreSqlDeferredOperationSenderTest|PostgreSqlInlineDispatcherIntegrationTest|OperationRequestHandlerTest'
+Result: OK (19 tests, 92 assertions).
+
+docker compose run --rm app mago format --check src tests
+Result: INFO All files are already formatted.
+
+docker compose run --rm app composer validate --strict
+Result: ./composer.json is valid.
+
+docker compose run --rm app mago lint
+Result: INFO No issues found.
+
+docker compose run --rm app mago analyze
+Result: INFO No issues found.
+
+docker compose run --rm app vendor/bin/phpunit
+Result: OK (327 tests, 789 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app vendor/bin/deptrac
+Result: Violations 0 / Skipped 0 / Uncovered 0 / Allowed 485 / Warnings 0 / Errors 0.
+
+rg -n 'Spec(ification)?[[:space:]]*[0-9]+|D[0-9]{3}|P[0-9]+-[0-9]+|TODO\.md:[0-9]+' src tests --glob '*.php'
+Result: No matches.
+
+git diff --check
+Result: No output.
+```
 
 ## P3-003 Verification Commands and Results
 

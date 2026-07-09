@@ -56,6 +56,8 @@ HTTP Processは`OperationSender`だけへ依存できる。Worker RuntimeはRece
 
 PostgreSQL Senderは`DeferredOperationMessage`を`operations` tableへ保存し、保存成功時に`DeferredAcknowledgement`を返す。
 
+SenderはDoctrine DBAL `Connection` を受け取る。これにより、後続のDeferred受付OrchestratorはOperation State保存とCanonical Journal記録を同じConnection / Transactionへ載せられる。
+
 保存する主な情報は次のとおり。
 
 ```text

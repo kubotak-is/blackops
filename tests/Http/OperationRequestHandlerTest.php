@@ -38,8 +38,9 @@ use BlackOps\Journal\JournalEvent;
 use BlackOps\Journal\JournalRecord;
 use BlackOps\Transport\PostgreSql\PostgreSqlCanonicalJournalStore;
 use DateTimeImmutable;
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DriverManager;
 use Nyholm\Psr7\Factory\Psr17Factory;
-use PDO;
 use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
 use Psr\Container\ContainerInterface;
@@ -58,9 +59,9 @@ final class OperationRequestHandlerTest extends TestCase
 
     public function testWelcomeRequestReturnsJsonAndPersistsCompletedLifecycleJournal(): void
     {
-        $pdo = $this->pdo();
-        $pdo->exec('DROP SCHEMA IF EXISTS ' . self::SCHEMA . ' CASCADE');
-        $journal = new PostgreSqlCanonicalJournalStore($pdo, self::SCHEMA);
+        $connection = $this->connection();
+        $connection->executeStatement('DROP SCHEMA IF EXISTS ' . self::SCHEMA . ' CASCADE');
+        $journal = new PostgreSqlCanonicalJournalStore($connection, self::SCHEMA);
         $journal->migrate();
         $handler = $this->httpHandler($this->inlineDispatcher(new WelcomeHandler(), $journal));
 
@@ -70,7 +71,7 @@ final class OperationRequestHandlerTest extends TestCase
         self::assertSame('application/json', $response->getHeaderLine('Content-Type'));
         self::assertSame('{"message":"Welcome to BlackOps"}', (string) $response->getBody());
 
-        $records = $this->recordsForOnlyOperation($pdo, $journal);
+        $records = $this->recordsForOnlyOperation($connection, $journal);
 
         self::assertSame(
             [
@@ -247,11 +248,9 @@ final class OperationRequestHandlerTest extends TestCase
     /**
      * @return list<JournalRecord>
      */
-    private function recordsForOnlyOperation(PDO $pdo, PostgreSqlCanonicalJournalStore $journal): array
+    private function recordsForOnlyOperation(Connection $connection, PostgreSqlCanonicalJournalStore $journal): array
     {
-        $operationId = $pdo->query(
-            'SELECT operation_id::text FROM ' . self::SCHEMA . '.journal LIMIT 1',
-        )->fetchColumn();
+        $operationId = $connection->fetchOne('SELECT operation_id::text FROM ' . self::SCHEMA . '.journal LIMIT 1');
 
         self::assertIsString($operationId);
 
@@ -265,17 +264,21 @@ final class OperationRequestHandlerTest extends TestCase
         return $this->psr17->createServerRequest($method, $path)->withBody($this->psr17->createStream($body));
     }
 
-    private function pdo(): PDO
+    private function connection(): Connection
     {
         $host = (string) (getenv('POSTGRES_HOST') ?: 'postgres');
-        $port = (string) (getenv('POSTGRES_PORT') ?: '5432');
+        $port = (int) (getenv('POSTGRES_PORT') ?: '5432');
         $db = (string) (getenv('POSTGRES_DB') ?: 'blackops');
         $user = (string) (getenv('POSTGRES_USER') ?: 'blackops');
         $password = (string) (getenv('POSTGRES_PASSWORD') ?: 'blackops');
 
-        return new PDO("pgsql:host={$host};port={$port};dbname={$db}", $user, $password, [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_TIMEOUT => 5,
+        return DriverManager::getConnection([
+            'driver' => 'pdo_pgsql',
+            'host' => $host,
+            'port' => $port,
+            'dbname' => $db,
+            'user' => $user,
+            'password' => $password,
         ]);
     }
 }

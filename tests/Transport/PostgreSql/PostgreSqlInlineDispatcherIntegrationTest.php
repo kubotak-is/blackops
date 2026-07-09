@@ -29,7 +29,8 @@ use BlackOps\Journal\JournalEvent;
 use BlackOps\Journal\JournalRecord;
 use BlackOps\Transport\PostgreSql\PostgreSqlCanonicalJournalStore;
 use DateTimeImmutable;
-use PDO;
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DriverManager;
 use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
 use Psr\Container\ContainerInterface;
@@ -38,14 +39,14 @@ final class PostgreSqlInlineDispatcherIntegrationTest extends TestCase
 {
     private const SCHEMA = 'blackops_p1_016';
 
-    private PDO $pdo;
+    private Connection $connection;
     private PostgreSqlCanonicalJournalStore $store;
 
     protected function setUp(): void
     {
-        $this->pdo = $this->pdo();
-        $this->pdo->exec('DROP SCHEMA IF EXISTS ' . self::SCHEMA . ' CASCADE');
-        $this->store = new PostgreSqlCanonicalJournalStore($this->pdo, self::SCHEMA);
+        $this->connection = $this->connection();
+        $this->connection->executeStatement('DROP SCHEMA IF EXISTS ' . self::SCHEMA . ' CASCADE');
+        $this->store = new PostgreSqlCanonicalJournalStore($this->connection, self::SCHEMA);
         $this->store->migrate();
     }
 
@@ -147,26 +148,30 @@ final class PostgreSqlInlineDispatcherIntegrationTest extends TestCase
      */
     private function recordsForOnlyOperation(): array
     {
-        $operationId = $this->pdo
-            ->query('SELECT operation_id::text FROM ' . self::SCHEMA . '.journal LIMIT 1')
-            ->fetchColumn();
+        $operationId = $this->connection->fetchOne(
+            'SELECT operation_id::text FROM ' . self::SCHEMA . '.journal LIMIT 1',
+        );
 
         self::assertIsString($operationId);
 
         return array_values(iterator_to_array($this->store->records(OperationId::fromString($operationId))));
     }
 
-    private function pdo(): PDO
+    private function connection(): Connection
     {
         $host = (string) (getenv('POSTGRES_HOST') ?: 'postgres');
-        $port = (string) (getenv('POSTGRES_PORT') ?: '5432');
+        $port = (int) (getenv('POSTGRES_PORT') ?: '5432');
         $db = (string) (getenv('POSTGRES_DB') ?: 'blackops');
         $user = (string) (getenv('POSTGRES_USER') ?: 'blackops');
         $password = (string) (getenv('POSTGRES_PASSWORD') ?: 'blackops');
 
-        return new PDO("pgsql:host={$host};port={$port};dbname={$db}", $user, $password, [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_TIMEOUT => 5,
+        return DriverManager::getConnection([
+            'driver' => 'pdo_pgsql',
+            'host' => $host,
+            'port' => $port,
+            'dbname' => $db,
+            'user' => $user,
+            'password' => $password,
         ]);
     }
 }
