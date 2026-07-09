@@ -85,7 +85,11 @@ final readonly class InlineDispatcher implements Dispatcher
             fn(): JournalRecord => $this->journalRecords->attemptStarted($envelope, $metadata, $sequence->next()),
         );
         $handler = $this->handlers->resolve($metadata->handler);
-        $result = $this->scope->run($envelope, static fn(): OperationResult => $handler->handle($envelope));
+        $result = $this->scope->run(
+            $envelope,
+            static fn(): OperationResult => $handler->handle($envelope),
+            $metadata->typeId,
+        );
 
         if ($result->isCompleted()) {
             $state = $this->appendLifecycleRecord(

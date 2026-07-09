@@ -14,6 +14,11 @@ final class ExecutionScopeProvider
      */
     private array $stack = [];
 
+    /**
+     * @var list<string|null>
+     */
+    private array $operationTypes = [];
+
     public function current(): ?OperationEnvelope
     {
         $index = array_key_last($this->stack);
@@ -25,6 +30,17 @@ final class ExecutionScopeProvider
         return $this->stack[$index];
     }
 
+    public function currentOperationTypeId(): ?string
+    {
+        $index = array_key_last($this->operationTypes);
+
+        if ($index === null) {
+            return null;
+        }
+
+        return $this->operationTypes[$index];
+    }
+
     /**
      * @template TResult
      *
@@ -32,14 +48,16 @@ final class ExecutionScopeProvider
      *
      * @return TResult
      */
-    public function run(OperationEnvelope $envelope, Closure $callback): mixed
+    public function run(OperationEnvelope $envelope, Closure $callback, ?string $operationTypeId = null): mixed
     {
         $this->stack[] = $envelope;
+        $this->operationTypes[] = $operationTypeId;
 
         try {
             return $callback();
         } finally {
             array_pop($this->stack);
+            array_pop($this->operationTypes);
         }
     }
 }

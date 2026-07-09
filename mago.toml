@@ -8,6 +8,7 @@ includes = [
   "vendor/psr/http-factory",
   "vendor/psr/http-message",
   "vendor/psr/http-server-handler",
+  "vendor/psr/log",
   "vendor/symfony/console",
   "vendor/symfony/dependency-injection",
   "vendor/symfony/uid",
