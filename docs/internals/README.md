@@ -7,6 +7,7 @@ Framework実装者向けのArchitectureと実装ガイドを管理する。
 ## Planned Topics
 
 - [Development Setup](development-setup.md)
+- [Bootstrap](bootstrap.md)
 - [Runtime Dependencies](runtime-dependencies.md)
 - [Core Contracts](core-contracts.md)
 - [Execution Context](execution-context.md)
