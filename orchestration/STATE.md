@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-10T03:07:07+09:00
+Updated At: 2026-07-10T03:17:19+09:00
 
 ## Current Phase
 
@@ -8,21 +8,21 @@ Phase 3: Deferred Vertical Slice
 
 ## Current Task
 
-Task ID: P3-005-frankenphp-runtime-premise
+Task ID: P3-006-deferred-acceptance-orchestrator
 
-Task Packet: `orchestration/tasks/P3-005-frankenphp-runtime-premise.md`
+Task Packet: `orchestration/tasks/P3-006-deferred-acceptance-orchestrator.md`
 
-Report: `orchestration/reports/P3-005-frankenphp-runtime-premise.md`
+Report: `orchestration/reports/P3-006-deferred-acceptance-orchestrator.md`
 
 ## Task Status
 
 Accepted
 
-P3-005をCodexが実施し、検証完了。BlackOpsのMVPおよび公式Reference EnvironmentをFrankenPHP前提とする方針をDecisionとSpecへ記録した。
+P3-006をCodexが完了。Deferred受付時にOperation State保存、`operation.received` Journal、`operation.accepted` Journal、次Sequence更新を同一DBAL TransactionでCommitするInternal Orchestratorを追加した。
 
 ## Last Accepted Task
 
-P3-005-frankenphp-runtime-premise
+P3-006-deferred-acceptance-orchestrator
 
 ## Pending Decisions
 
@@ -34,8 +34,39 @@ P3-005-frankenphp-runtime-premise
 
 ## Required Next Action
 
-1. P3-006のTask Packetを作成する。
-2. Deferred受付OrchestratorでOperation State保存とCanonical Journal記録を同一Transactionへ統合する。
+1. P3-007 Task Packetを作成する。
+2. HTTP入口からDeferred Operationを受け付け、Orchestratorへ渡して`DeferredAcknowledgement`をHTTP 202 Responseへ変換する。
+
+## P3-006 Verification Commands and Results
+
+```text
+docker compose run --rm app vendor/bin/phpunit --filter 'PostgreSqlDeferredAcceptanceOrchestratorTest|JournalRecordFactoryTest'
+Result: OK (4 tests, 23 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app mago format --check src tests
+Result: INFO All files are already formatted.
+
+docker compose run --rm app composer validate --strict
+Result: ./composer.json is valid.
+
+docker compose run --rm app mago lint
+Result: INFO No issues found.
+
+docker compose run --rm app mago analyze
+Result: INFO No issues found.
+
+docker compose run --rm app vendor/bin/phpunit
+Result: OK (330 tests, 807 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app vendor/bin/deptrac
+Result: Violations 0 / Skipped 0 / Uncovered 0 / Allowed 513 / Warnings 0 / Errors 0.
+
+rg -n 'Spec(ification)?[[:space:]]*[0-9]+|D[0-9]{3}|P[0-9]+-[0-9]+|TODO\.md:[0-9]+' src tests --glob '*.php'
+Result: No matches.
+
+git diff --check
+Result: No output.
+```
 
 ## P3-005 Verification Commands and Results
 

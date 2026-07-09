@@ -101,6 +101,35 @@ final readonly class PostgreSqlDeferredOperationSender implements OperationSende
         return new DeferredAcknowledgement($message->operationId(), $acceptedAt);
     }
 
+    public function advanceNextSequence(DeferredOperationMessage $message, int $nextSequence): void
+    {
+        if ($nextSequence < 1) {
+            throw new DeferredTransportException('Deferred operation next sequence must be positive.');
+        }
+
+        $table = $this->schema->operationsTable();
+        $sql = "UPDATE {$table}
+            SET next_sequence = :next_sequence,
+                state_version = state_version + 1
+            WHERE operation_id = :operation_id";
+
+        try {
+            $updated = $this->connection->executeStatement($sql, [
+                'operation_id' => $message->operationId()->toString(),
+                'next_sequence' => $nextSequence,
+            ]);
+        } catch (Throwable $exception) {
+            throw new DeferredTransportException(
+                'Failed to advance PostgreSQL deferred operation sequence.',
+                previous: $exception,
+            );
+        }
+
+        if ((int) $updated !== 1) {
+            throw new DeferredTransportException('Deferred operation sequence advance did not update exactly one row.');
+        }
+    }
+
     private function formatTimestamp(DateTimeImmutable $time): string
     {
         return $time->format('Y-m-d H:i:s.uP');

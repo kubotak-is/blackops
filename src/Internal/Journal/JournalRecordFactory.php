@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BlackOps\Internal\Journal;
 
+use BlackOps\Core\Execution\Deferred;
 use BlackOps\Core\Execution\Inline;
 use BlackOps\Core\OperationEnvelope;
 use BlackOps\Core\Outcome;
@@ -41,6 +42,14 @@ final readonly class JournalRecordFactory
             JournalEvent::OperationReceived,
             new OperationReceivedData($envelope->value()),
         );
+    }
+
+    public function operationAccepted(
+        OperationEnvelope $envelope,
+        OperationMetadata $metadata,
+        int $sequence,
+    ): JournalRecord {
+        return $this->create($envelope, $metadata, $sequence, JournalEvent::OperationAccepted, new EmptyJournalData());
     }
 
     public function attemptStarted(
@@ -96,8 +105,14 @@ final readonly class JournalRecordFactory
         JournalEvent $event,
         JournalData $data,
     ): JournalRecord {
-        if ($metadata->definition !== $envelope->definition()::class || $metadata->strategy !== Inline::class) {
-            throw new LogicException('Journal metadata does not match the inline operation envelope.');
+        if ($metadata->definition !== $envelope->definition()::class) {
+            throw new LogicException('Journal metadata does not match the operation envelope definition.');
+        }
+
+        $strategy = $this->strategyWireName($envelope);
+
+        if ($metadata->strategy !== $envelope->strategy()::class) {
+            throw new LogicException('Journal metadata does not match the operation envelope strategy.');
         }
         $context = $envelope->context();
         $attempt = $context->attempt();
@@ -111,12 +126,21 @@ final readonly class JournalRecordFactory
                 $context->operationId(),
                 $metadata->typeId,
                 1,
-                'inline',
+                $strategy,
                 $context->correlationId(),
                 $context->causationId(),
             ),
             $attempt === null ? null : new JournalAttempt($attempt->id(), $attempt->number(), $attempt->startedAt()),
             $data,
         );
+    }
+
+    private function strategyWireName(OperationEnvelope $envelope): string
+    {
+        return match ($envelope->strategy()::class) {
+            Inline::class => 'inline',
+            Deferred::class => 'deferred',
+            default => throw new LogicException('Unsupported journal operation strategy.'),
+        };
     }
 }
