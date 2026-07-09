@@ -6,6 +6,7 @@ namespace BlackOps\Internal\Registry;
 
 use BlackOps\Core\Operation;
 use BlackOps\Core\Registry\OperationProvider;
+use BlackOps\Core\Registry\OperationRegistry;
 use InvalidArgumentException;
 use ReflectionClass;
 
@@ -27,6 +28,14 @@ final readonly class OperationDefinitionFactory
         }
 
         return $definitions;
+    }
+
+    /**
+     * @return list<Operation>
+     */
+    public function fromRegistry(OperationRegistry $registry): array
+    {
+        return array_map(fn($metadata): Operation => $this->create($metadata->definition), $registry->all());
     }
 
     /**

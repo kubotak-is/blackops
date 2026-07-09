@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-10T00:55:11+09:00
+Updated At: 2026-07-10T01:00:49+09:00
 
 ## Current Phase
 
@@ -8,21 +8,21 @@ Phase 1: Journal付きInline Vertical Slice
 
 ## Current Task
 
-Task ID: P1-037-command-registration-bootstrap-documentation
+Task ID: P1-038-full-runtime-composition-wrapper
 
-Task Packet: `orchestration/tasks/P1-037-command-registration-bootstrap-documentation.md`
+Task Packet: `orchestration/tasks/P1-038-full-runtime-composition-wrapper.md`
 
-Report: `orchestration/reports/P1-037-command-registration-bootstrap-documentation.md`
+Report: `orchestration/reports/P1-038-full-runtime-composition-wrapper.md`
 
 ## Task Status
 
 Accepted
 
-P1-037をCodexが実装・ReviewしAcceptedとした。Build command registrationとProduction artifact bootstrapのInternal Documentationを整備した。
+P1-038をCodexが実装・ReviewしAcceptedとした。Production Runtime ArtifactsからHTTP Request HandlerとInline Dispatcherを構成するInternal Composition Wrapperを追加した。
 
 ## Last Accepted Task
 
-P1-037-command-registration-bootstrap-documentation
+P1-038-full-runtime-composition-wrapper
 
 ## Pending Decisions
 
@@ -34,8 +34,36 @@ P1-037-command-registration-bootstrap-documentation
 
 ## Required Next Action
 
-1. Full Runtime Composition Wrapperへ進む。
-2. 次Task Packetを作成し、HTTP request handling、dispatcher、journal store、transport dependencyのRuntime統合境界を決める。
+1. Application-facing Runtime Bootstrap Guidance、PostgreSQL Runtime Composition Convenience、またはDeferred/Worker Runtime Compositionへ進む。
+2. 次Task Packetを作成し、Runtime統合の次の拡張境界を決める。
+
+## P1-038 Verification Commands and Results
+
+```text
+docker compose run --rm app vendor/bin/phpunit --filter ProductionRuntimeComposerTest
+Result: OK (1 test, 3 assertions).
+
+docker compose run --rm app mago format --check src tests
+Result: INFO All files are already formatted.
+
+docker compose run --rm app composer validate --strict
+Result: ./composer.json is valid.
+
+docker compose run --rm app mago lint
+Result: INFO No issues found.
+
+docker compose run --rm app mago analyze
+Result: INFO No issues found.
+
+docker compose run --rm app vendor/bin/phpunit
+Result: OK (274 tests, 609 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app vendor/bin/deptrac
+Result: Violations 0 / Skipped 0 / Uncovered 0 / Allowed 413 / Warnings 0 / Errors 0.
+
+rg -n 'Spec(ification)?[[:space:]]*[0-9]+|D[0-9]{3}|P[0-9]+-[0-9]+|TODO\.md:[0-9]+' src tests --glob '*.php'
+Result: No matches.
+```
 
 ## P1-037 Verification Commands and Results
 

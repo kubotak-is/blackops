@@ -147,4 +147,12 @@ The bootstrap layer is a composition root. It may work with the container, gener
 
 Handlers, operation envelopes, operation values, and domain services must not receive the container as a dependency. Handlers should receive their own constructor dependencies from the compiled container.
 
-The current production artifact loader does not build a complete HTTP front controller. Wiring request handling, dispatching, journal stores, and transport adapters remains a separate runtime composition step.
+The production runtime composer can take loaded artifacts plus runtime dependencies and build the current HTTP execution boundary:
+
+- HTTP route registry
+- inline dispatcher
+- HTTP request handler
+
+The application must still provide runtime resources such as the clock, canonical journal writer, response factory, and stream factory. The composer uses the generated container to resolve operation handlers, but it does not pass the container into handlers, envelopes, values, or domain services.
+
+The current composition wrapper is still internal. It does not create a complete front controller, choose a transport adapter, create database connections, or load environment variables.
