@@ -19,3 +19,5 @@ The internal operation definition factory can instantiate no-argument operation 
 The internal build artifacts command coordinates operation provider config loading, operation manifest generation, HTTP route manifest generation, and runtime container dumping in one build step. It still relies on explicit config files; Composer discovery, locking, and cache invalidation are separate concerns.
 
 The build artifacts command can run inside an internal build lock. The lock uses a local lock file and fails fast if another process already holds it.
+
+The build artifacts command can also store a lightweight fingerprint for explicit input files. When the fingerprint matches and all output artifacts exist, the command skips regeneration.

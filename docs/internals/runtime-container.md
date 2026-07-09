@@ -19,3 +19,5 @@ The runtime container compile command ties the internal loader, compiler, and du
 The internal build artifacts command can run container compilation together with operation and HTTP manifest generation. It is a build-time orchestration boundary and does not change the runtime rule that handlers and domain services receive dependencies through constructor injection rather than a container reference.
 
 Build artifact generation can be guarded by a local build lock so concurrent compile processes do not write the same artifact set at the same time.
+
+Build artifact generation can store a lightweight fingerprint of explicit input files. When the fingerprint still matches and the operation manifest, HTTP manifest, and container file all exist, generation can be skipped.

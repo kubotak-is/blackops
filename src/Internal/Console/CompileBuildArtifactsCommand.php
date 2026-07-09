@@ -6,6 +6,7 @@ namespace BlackOps\Internal\Console;
 
 use BlackOps\Http\Routing\HttpOperationManifestFile;
 use BlackOps\Http\Routing\HttpRouteCompiler;
+use BlackOps\Internal\Build\BuildArtifactFingerprintGuard;
 use BlackOps\Internal\Build\BuildLock;
 use BlackOps\Internal\DependencyInjection\RuntimeContainerCompiler;
 use BlackOps\Internal\DependencyInjection\RuntimeContainerDumper;
@@ -64,7 +65,14 @@ final class CompileBuildArtifactsCommand extends Command
                 'CompiledContainer',
             )
             ->addOption('container-namespace', null, InputOption::VALUE_REQUIRED, 'Generated container namespace.', '')
-            ->addOption('lock', null, InputOption::VALUE_REQUIRED, 'Path to the build lock file.');
+            ->addOption('lock', null, InputOption::VALUE_REQUIRED, 'Path to the build lock file.')
+            ->addOption('fingerprint', null, InputOption::VALUE_REQUIRED, 'Path to the build fingerprint file.')
+            ->addOption(
+                'fingerprint-input',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'Additional input file paths included in the build fingerprint, separated by PATH_SEPARATOR.',
+            );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -89,6 +97,19 @@ final class CompileBuildArtifactsCommand extends Command
 
     private function compile(InputInterface $input): void
     {
+        $fingerprint = $this->nullableStringOption($input, 'fingerprint');
+
+        if (
+            $fingerprint !== null
+            && new BuildArtifactFingerprintGuard()->isFresh(
+                $fingerprint,
+                $this->fingerprintInputs($input),
+                $this->artifactOutputs($input),
+            )
+        ) {
+            return;
+        }
+
         $providers = $this->operationProviders->load($this->stringArgument($input, 'operation-providers'));
         $registry = $this->operationCompiler->compile($providers);
         $definitions = $this->definitions->fromProviders($providers);
@@ -110,6 +131,10 @@ final class CompileBuildArtifactsCommand extends Command
             $this->stringOption($input, 'container-class'),
             $this->stringOption($input, 'container-namespace'),
         );
+
+        if ($fingerprint !== null) {
+            new BuildArtifactFingerprintGuard()->update($fingerprint, $this->fingerprintInputs($input));
+        }
     }
 
     private function stringArgument(InputInterface $input, string $name): string
@@ -141,5 +166,57 @@ final class CompileBuildArtifactsCommand extends Command
         }
 
         return (string) $input->getOption($name);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function fingerprintInputs(InputInterface $input): array
+    {
+        $paths = [
+            $this->stringArgument($input, 'operation-providers'),
+            $this->stringArgument($input, 'service-providers'),
+        ];
+
+        return [
+            ...$paths,
+            ...$this->extraFingerprintInputs($input),
+        ];
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function artifactOutputs(InputInterface $input): array
+    {
+        return [
+            $this->stringArgument($input, 'operation-manifest'),
+            $this->stringArgument($input, 'http-manifest'),
+            $this->stringArgument($input, 'container'),
+        ];
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function extraFingerprintInputs(InputInterface $input): array
+    {
+        $extra = $this->nullableStringOption($input, 'fingerprint-input');
+
+        if ($extra === null) {
+            return [];
+        }
+
+        $paths = explode(PATH_SEPARATOR, $extra);
+
+        foreach ($paths as $path) {
+            if ($path === '') {
+                throw new InvalidArgumentException(
+                    'Build command fingerprint input option must contain non-empty paths.',
+                );
+            }
+        }
+
+        return $paths;
     }
 }

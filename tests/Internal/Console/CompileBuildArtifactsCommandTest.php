@@ -35,6 +35,7 @@ final class CompileBuildArtifactsCommandTest extends TestCase
         $operationManifest = $this->path('operation-manifest');
         $httpManifest = $this->path('http-manifest');
         $containerPath = $this->path('container');
+        $fingerprint = $this->path('fingerprint');
         $class = 'BuildContainer' . bin2hex(random_bytes(8));
         $namespace = __NAMESPACE__ . '\\Generated';
         file_put_contents($operationProviders, '<?php return [\\' . BuildOperationProvider::class . '::class];');
@@ -49,6 +50,7 @@ final class CompileBuildArtifactsCommandTest extends TestCase
             '--container-class' => $class,
             '--container-namespace' => $namespace,
             '--lock' => $this->path('build-lock'),
+            '--fingerprint' => $fingerprint,
         ]);
 
         $operationRegistry = new OperationManifestFile()->load($operationManifest);
@@ -65,6 +67,33 @@ final class CompileBuildArtifactsCommandTest extends TestCase
         self::assertNotNull($httpMatch);
         self::assertInstanceOf(ContainerInterface::class, $container);
         self::assertInstanceOf(BuildService::class, $container->get(BuildService::class));
+        self::assertFileExists($fingerprint);
+    }
+
+    public function testSkipsBuildArtifactsWhenFingerprintMatchesAndOutputsExist(): void
+    {
+        $operationProviders = $this->path('operation-providers');
+        $serviceProviders = $this->path('service-providers');
+        $operationManifest = $this->path('operation-manifest');
+        $httpManifest = $this->path('http-manifest');
+        $containerPath = $this->path('container');
+        $fingerprint = $this->path('fingerprint');
+        file_put_contents($operationProviders, '<?php return [\\' . BuildOperationProvider::class . '::class];');
+        file_put_contents($serviceProviders, '<?php return [\\' . BuildServiceProvider::class . '::class];');
+        $arguments = [
+            'operation-providers' => $operationProviders,
+            'service-providers' => $serviceProviders,
+            'operation-manifest' => $operationManifest,
+            'http-manifest' => $httpManifest,
+            'container' => $containerPath,
+            '--fingerprint' => $fingerprint,
+        ];
+
+        new CommandTester(new CompileBuildArtifactsCommand())->execute($arguments);
+        $operationManifestTime = filemtime($operationManifest);
+        new CommandTester(new CompileBuildArtifactsCommand())->execute($arguments);
+
+        self::assertSame($operationManifestTime, filemtime($operationManifest));
     }
 
     public function testRejectsMissingOperationProviderConfig(): void
