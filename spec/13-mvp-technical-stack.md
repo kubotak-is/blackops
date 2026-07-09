@@ -10,6 +10,8 @@ Unit TestにはDatabase非依存のInMemory Transportを提供する。SQLiteは
 
 ## HTTP
 
+公式Reference RuntimeにはFrankenPHPを採用する。
+
 Contract：
 
 - PSR-7：HTTP Message
@@ -19,6 +21,8 @@ Contract：
 `HttpMiddleware` はPSR-15 `MiddlewareInterface` を継承するmarker interfaceとする。
 
 標準PSR-7／PSR-17実装にはNyholm PSR-7を採用する。FW内部はPSR Interfaceへ依存し、具体実装を交換可能にする。
+
+FrankenPHP固有のServer設定、Front Controller、Worker設定はRuntime CompositionまたはAdapter層へ閉じ、CoreとOperation APIへ露出しない。
 
 ## Router
 

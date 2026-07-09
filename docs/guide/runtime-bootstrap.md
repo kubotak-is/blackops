@@ -20,6 +20,8 @@ The Phase 1 runtime does not yet provide:
 
 Applications still own their HTTP server entrypoint, database connection setup, environment loading, and deployment layout.
 
+BlackOpsのMVPおよび公式Reference EnvironmentはFrankenPHPを前提にする。Core APIはPSR境界を維持するため、FrankenPHP固有のServer設定やWorker設定はBootstrap / Adapter層へ閉じ込める。
+
 ## Define Providers
 
 Create an operation provider config file:

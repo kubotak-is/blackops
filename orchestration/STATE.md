@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-10T02:48:57+09:00
+Updated At: 2026-07-10T03:07:07+09:00
 
 ## Current Phase
 
@@ -8,21 +8,21 @@ Phase 3: Deferred Vertical Slice
 
 ## Current Task
 
-Task ID: P3-004-postgresql-dbal-adapter-foundation
+Task ID: P3-005-frankenphp-runtime-premise
 
-Task Packet: `orchestration/tasks/P3-004-postgresql-dbal-adapter-foundation.md`
+Task Packet: `orchestration/tasks/P3-005-frankenphp-runtime-premise.md`
 
-Report: `orchestration/reports/P3-004-postgresql-dbal-adapter-foundation.md`
+Report: `orchestration/reports/P3-005-frankenphp-runtime-premise.md`
 
 ## Task Status
 
 Accepted
 
-P3-004をCodexが実施し、検証完了。既存PostgreSQL AdapterをDoctrine DBAL Connectionへ移行し、Deferred受付Orchestratorで同一Transactionを扱うためのDatabase Access基盤を整えた。
+P3-005をCodexが実施し、検証完了。BlackOpsのMVPおよび公式Reference EnvironmentをFrankenPHP前提とする方針をDecisionとSpecへ記録した。
 
 ## Last Accepted Task
 
-P3-004-postgresql-dbal-adapter-foundation
+P3-005-frankenphp-runtime-premise
 
 ## Pending Decisions
 
@@ -34,8 +34,15 @@ P3-004-postgresql-dbal-adapter-foundation
 
 ## Required Next Action
 
-1. P3-005のTask Packetを作成する。
+1. P3-006のTask Packetを作成する。
 2. Deferred受付OrchestratorでOperation State保存とCanonical Journal記録を同一Transactionへ統合する。
+
+## P3-005 Verification Commands and Results
+
+```text
+git diff --check
+Result: No output.
+```
 
 ## P3-004 Verification Commands and Results
 

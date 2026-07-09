@@ -117,3 +117,4 @@
 | [D055](../decisions/055-inline-dispatcher-api.md) | Inline Dispatcher API | Decided |
 | [D056](../decisions/056-journal-record-public-api.md) | Journal Record Public API | Decided |
 | [D057](../decisions/057-database-access-and-migration-library.md) | Database Access and Migration Library | Decided |
+| [D058](../decisions/058-frankenphp-runtime-premise.md) | FrankenPHP Runtime Premise | Decided |

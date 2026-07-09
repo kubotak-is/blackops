@@ -4,6 +4,12 @@
 
 初期バージョンはPHP 8.5以上を要求する。
 
+MVPおよび公式Reference EnvironmentはFrankenPHPを前提にする。
+
+Core、Operation、HTTP、Journal、TransportのContractはFrankenPHP固有APIへ直接依存しない。Framework境界はPSR-7、PSR-15、PSR-17、PSR-11を維持し、FrankenPHP固有のBootstrap、Worker設定、Server設定はRuntime CompositionまたはAdapter層で扱う。
+
+PHP-FPM、RoadRunner、Swoole等は将来のCompatibility TargetまたはAdapter候補とし、MVPの主要検証対象にはしない。
+
 ## Container Contract
 
 FWがRuntimeで依存するDI Container ContractはPSR-11 `ContainerInterface` とする。
@@ -46,3 +52,5 @@ Operation ProviderはOperation DefinitionをManifestへ登録し、Service Provi
 Workerで再利用されるServiceは原則Statelessとする。
 
 Operation固有状態はOperation EnvelopeまたはMethod Localへ保持する。DB接続など再利用ResourceはWorker Lifecycle HookによってHealth CheckおよびResetできるようにする。
+
+FrankenPHPを含むLong-running Processでは、Operation Scope、Logger Scope、Observer Buffer、Database ConnectionをOperation境界またはProcess Lifecycleで明示的にreset / flush / health-checkできる設計を必須とする。
