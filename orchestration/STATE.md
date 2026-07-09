@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-10T01:59:06+09:00
+Updated At: 2026-07-10T02:12:28+09:00
 
 ## Current Phase
 
@@ -26,7 +26,7 @@ P2-009-phase-2-closeout
 
 ## Pending Decisions
 
-- D047 Frontend Integration is still discussing.
+- None.
 
 ## Known Blockers
 
@@ -35,7 +35,7 @@ P2-009-phase-2-closeout
 ## Required Next Action
 
 1. Phase 3最初のTask Packetを作成する。
-2. Deferred transport/store foundationから開始し、HTTP 202 + Operation IDのDeferred Vertical Sliceへ進める。
+2. D047で決定したBFF／OpenAPI前提をPhase 3のHTTP Contractへ反映しながら、Deferred transport/store foundationから開始し、HTTP 202 + Operation IDのDeferred Vertical Sliceへ進める。
 
 ## P2-009 Final Phase 2 Verification Commands and Results
 

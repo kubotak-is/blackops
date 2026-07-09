@@ -106,7 +106,7 @@
 | [D044](../decisions/044-data-retention-and-deletion.md) | Data Retention and Deletion | Decided |
 | [D045](../decisions/045-retention-mvp-scope.md) | Retention MVP Scope | Decided |
 | [D046](../decisions/046-mvp-delivery-plan.md) | MVP Delivery Plan | Decided |
-| [D047](../decisions/047-frontend-integration.md) | Frontend Integration | Discussing |
+| [D047](../decisions/047-frontend-integration.md) | Frontend Integration | Decided |
 | [D048](../decisions/048-implementation-orchestration.md) | Implementation Orchestration | Decided |
 | [D049](../decisions/049-identifier-public-api.md) | Identifier Public API | Decided |
 | [D050](../decisions/050-execution-context-public-api.md) | ExecutionContext Public API | Decided |
