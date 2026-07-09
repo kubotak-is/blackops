@@ -18,7 +18,10 @@
         "symfony/console": "^7.4",
         "symfony/dependency-injection": "^7.4",
         "symfony/config": "^7.4",
-        "monolog/monolog": "^3.10"
+        "monolog/monolog": "^3.10",
+        "doctrine/dbal": "^4.4",
+        "doctrine/migrations": "^3.9",
+        "symfony/stopwatch": "^7.4"
     },
     "require-dev": {
         "carthage-software/mago": "1.42.0",

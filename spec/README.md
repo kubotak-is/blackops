@@ -116,3 +116,4 @@
 | [D054](../decisions/054-runtime-operation-registry-api.md) | Runtime Operation Registry API | Decided |
 | [D055](../decisions/055-inline-dispatcher-api.md) | Inline Dispatcher API | Decided |
 | [D056](../decisions/056-journal-record-public-api.md) | Journal Record Public API | Decided |
+| [D057](../decisions/057-database-access-and-migration-library.md) | Database Access and Migration Library | Decided |

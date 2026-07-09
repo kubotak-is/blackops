@@ -37,7 +37,13 @@ deptrac:
     - name: Library
       collectors:
         - type: classNameRegex
+          value: '/^Doctrine\\DBAL(\\|$)/'
+        - type: classNameRegex
+          value: '/^Doctrine\\Migrations(\\|$)/'
+        - type: classNameRegex
           value: '/^Psr\\Clock(\\|$)/'
+        - type: classNameRegex
+          value: '/^Psr\\Cache(\\|$)/'
         - type: classNameRegex
           value: '/^Psr\\Container(\\|$)/'
         - type: classNameRegex
@@ -48,6 +54,8 @@ deptrac:
           value: '/^Symfony\\Component\\Console(\\|$)/'
         - type: classNameRegex
           value: '/^Symfony\\Component\\DependencyInjection(\\|$)/'
+        - type: classNameRegex
+          value: '/^Symfony\\Component\\Stopwatch(\\|$)/'
         - type: classNameRegex
           value: '/^Symfony\\Component\\Uid(\\|$)/'
   ruleset:
@@ -61,6 +69,7 @@ deptrac:
       - Core
       - Journal
       - Execution
+      - Library
     Http:
       - Core
       - Execution
@@ -74,6 +83,7 @@ deptrac:
       - Journal
       - Execution
       - Transport
+      - Library
     Internal:
       - Core
       - Journal
