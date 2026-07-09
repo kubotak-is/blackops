@@ -122,6 +122,14 @@ final readonly class ExecutionContextFactory
 - 公開APIのSignatureへ `BlackOps\Internal` の型を露出させない。`ExecutionContextFactory` はConstructor、戻り値ともCore型と外部Library型のみで完結する。
 - Symfony UID型は公開APIへ露出しない。
 
+## Internal Execution Scope Provider
+
+`BlackOps\Internal\Execution\ExecutionScopeProvider` はOperation実行中のcurrent envelopeを保持するInternal serviceである。
+
+Scopeはstackとして管理する。nested executionではchild scopeを一時的にcurrentにし、child終了後はparent scopeを復元する。callbackが例外を投げた場合でも `finally` でscopeを閉じる。
+
+Inline DispatcherはHandler実行境界でscopeを開始し、Handlerから戻るか例外で抜けた時点でscopeを終了する。これにより、後続のLogger decoratorはHandler実行中だけcurrent Operation contextを参照でき、Operation外のLogはcurrentなしとして扱える。
+
 ## 品質検査
 
 P1-002のAcceptance Criteriaに基づき次の検査を実施し、すべて成功した。結果の詳細は `orchestration/reports/P1-002-execution-context.md` に記録する。

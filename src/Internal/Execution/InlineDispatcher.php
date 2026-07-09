@@ -13,6 +13,7 @@ use BlackOps\Core\Registry\OperationRegistry;
 use BlackOps\Execution\Dispatcher;
 use BlackOps\Internal\ExecutionContext\ExecutionContextFactory;
 use BlackOps\Internal\Journal\InlineSequence;
+use BlackOps\Internal\Journal\JournalObservationPipeline;
 use BlackOps\Internal\Journal\JournalObserverAggregator;
 use BlackOps\Internal\Journal\JournalRecordFactory;
 use BlackOps\Internal\Journal\LifecycleStateMachine;
@@ -27,9 +28,7 @@ use LogicException;
 
 final readonly class InlineDispatcher implements Dispatcher
 {
-    private ObservedJournalRecordProjector $observedRecords;
-
-    private JournalObserverAggregator $observers;
+    private JournalObservationPipeline $observations;
 
     public function __construct(
         private OperationRegistry $registry,
@@ -38,13 +37,13 @@ final readonly class InlineDispatcher implements Dispatcher
         private JournalRecordFactory $journalRecords,
         private CanonicalJournalWriter $journal,
         private LifecycleStateMachine $lifecycle = new LifecycleStateMachine(),
-        ?ObservedJournalRecordProjector $observedRecords = null,
-        ?JournalObserverAggregator $observers = null,
+        ?JournalObservationPipeline $observations = null,
+        private ExecutionScopeProvider $scope = new ExecutionScopeProvider(),
     ) {
-        $this->observedRecords = $observedRecords ?? new ObservedJournalRecordProjector(
-            new SensitiveProjectionFilter(),
+        $this->observations = $observations ?? new JournalObservationPipeline(
+            new ObservedJournalRecordProjector(new SensitiveProjectionFilter()),
+            new JournalObserverAggregator([]),
         );
-        $this->observers = $observers ?? new JournalObserverAggregator([]);
     }
 
     public function dispatch(Operation $definition, OperationValue $value): OperationResult
@@ -86,7 +85,7 @@ final readonly class InlineDispatcher implements Dispatcher
             fn(): JournalRecord => $this->journalRecords->attemptStarted($envelope, $metadata, $sequence->next()),
         );
         $handler = $this->handlers->resolve($metadata->handler);
-        $result = $handler->handle($envelope);
+        $result = $this->scope->run($envelope, static fn(): OperationResult => $handler->handle($envelope));
 
         if ($result->isCompleted()) {
             $state = $this->appendLifecycleRecord(
@@ -140,10 +139,6 @@ final readonly class InlineDispatcher implements Dispatcher
 
     private function observe(JournalRecord $record): void
     {
-        if ($this->observers->isEmpty()) {
-            return;
-        }
-
-        $this->observers->observe($this->observedRecords->project($record));
+        $this->observations->observe($record);
     }
 }

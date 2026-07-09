@@ -16,11 +16,13 @@ use BlackOps\Core\OperationValue;
 use BlackOps\Core\Registry\OperationMetadata;
 use BlackOps\Core\Registry\OperationRegistry;
 use BlackOps\Core\Rejection\RejectionReason;
+use BlackOps\Internal\Execution\ExecutionScopeProvider;
 use BlackOps\Internal\Execution\HandlerResolver;
 use BlackOps\Internal\Execution\InlineDispatcher;
 use BlackOps\Internal\ExecutionContext\ExecutionContextFactory;
 use BlackOps\Internal\Identifier\IdentifierFactory;
 use BlackOps\Internal\Identifier\Uuidv7Generator;
+use BlackOps\Internal\Journal\JournalObservationPipeline;
 use BlackOps\Internal\Journal\JournalObserverAggregator;
 use BlackOps\Internal\Journal\JournalObserverBinding;
 use BlackOps\Internal\Journal\JournalRecordFactory;
@@ -112,8 +114,10 @@ final class InlineDispatcherTest extends TestCase
         $this->dispatcher(
             new DispatchHandler(),
             $journal,
-            observers: new JournalObserverAggregator([new JournalObserverBinding('observer', $observer)]),
-            observedRecords: new ObservedJournalRecordProjector(new SensitiveProjectionFilter('projection-key')),
+            observations: new JournalObservationPipeline(
+                new ObservedJournalRecordProjector(new SensitiveProjectionFilter('projection-key')),
+                new JournalObserverAggregator([new JournalObserverBinding('observer', $observer)]),
+            ),
         )->dispatch(new DispatchOperation(), new DispatchValue('hello', 'secret'));
 
         self::assertCount(4, $journal->records);
@@ -127,14 +131,24 @@ final class InlineDispatcherTest extends TestCase
     {
         $result = $this->dispatcher(
             new DispatchHandler(),
-            observers: new JournalObserverAggregator([new JournalObserverBinding(
-                'observer',
-                new FailingJournalObserver(),
-            )]),
-            observedRecords: new ObservedJournalRecordProjector(new SensitiveProjectionFilter('projection-key')),
+            observations: new JournalObservationPipeline(
+                new ObservedJournalRecordProjector(new SensitiveProjectionFilter('projection-key')),
+                new JournalObserverAggregator([new JournalObserverBinding('observer', new FailingJournalObserver())]),
+            ),
         )->dispatch(new DispatchOperation(), new DispatchValue('hello'));
 
         self::assertTrue($result->isCompleted());
+    }
+
+    public function testHandlerRunsInsideExecutionScope(): void
+    {
+        $scope = new ExecutionScopeProvider();
+        $handler = new ScopedDispatchHandler($scope);
+
+        $this->dispatcher($handler, scope: $scope)->dispatch(new DispatchOperation(), new DispatchValue('hello'));
+
+        self::assertTrue($handler->sawCurrentEnvelope);
+        self::assertNull($scope->current());
     }
 
     public function testCanonicalAppendFailurePreventsObserverDelivery(): void
@@ -145,7 +159,10 @@ final class InlineDispatcherTest extends TestCase
             $this->dispatcher(
                 new DispatchHandler(),
                 new FailingJournalWriter(),
-                observers: new JournalObserverAggregator([new JournalObserverBinding('observer', $observer)]),
+                observations: new JournalObservationPipeline(
+                    new ObservedJournalRecordProjector(new SensitiveProjectionFilter('projection-key')),
+                    new JournalObserverAggregator([new JournalObserverBinding('observer', $observer)]),
+                ),
             )->dispatch(new DispatchOperation(), new DispatchValue('hello'));
             self::fail('Expected journal write failure.');
         } catch (JournalWriteFailed) {
@@ -187,8 +204,8 @@ final class InlineDispatcherTest extends TestCase
         OperationHandler $handler,
         ?CanonicalJournalWriter $journal = null,
         ?LifecycleStateMachine $lifecycle = null,
-        ?JournalObserverAggregator $observers = null,
-        ?ObservedJournalRecordProjector $observedRecords = null,
+        ?JournalObservationPipeline $observations = null,
+        ?ExecutionScopeProvider $scope = null,
     ): InlineDispatcher {
         $metadata = new OperationMetadata(
             'dispatch.test',
@@ -234,8 +251,8 @@ final class InlineDispatcherTest extends TestCase
             new JournalRecordFactory($identifiers, $clock),
             $journal ?? new RecordingJournalWriter(),
             $lifecycle ?? new LifecycleStateMachine(),
-            $observedRecords ?? new ObservedJournalRecordProjector(new SensitiveProjectionFilter()),
-            $observers,
+            $observations,
+            $scope ?? new ExecutionScopeProvider(),
         );
     }
 }
@@ -282,6 +299,29 @@ final readonly class RejectingDispatchHandler implements OperationHandler
     public function handle(OperationEnvelope $operation): OperationResult
     {
         return OperationResult::rejected(RejectionReason::conflict('dispatch_rejected'));
+    }
+}
+
+/** @implements OperationHandler<DispatchValue, EmptyOutcome> */
+final class ScopedDispatchHandler implements OperationHandler
+{
+    public bool $sawCurrentEnvelope = false;
+
+    public function __construct(
+        private readonly ExecutionScopeProvider $scope,
+    ) {}
+
+    public function handle(OperationEnvelope $operation): OperationResult
+    {
+        $current = $this->scope->current();
+
+        if ($current === null) {
+            throw new LogicException('Execution scope is required.');
+        }
+
+        $this->sawCurrentEnvelope = $current === $operation && $current->context()->attempt() !== null;
+
+        return OperationResult::completed();
     }
 }
 
