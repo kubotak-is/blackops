@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-10T02:12:28+09:00
+Updated At: 2026-07-10T02:19:14+09:00
 
 ## Current Phase
 
@@ -8,21 +8,21 @@ Phase 3: Deferred Vertical Slice
 
 ## Current Task
 
-Task ID: P2-009-phase-2-closeout
+Task ID: P3-001-deferred-transport-contracts
 
-Task Packet: `orchestration/tasks/P2-009-phase-2-closeout.md`
+Task Packet: `orchestration/tasks/P3-001-deferred-transport-contracts.md`
 
-Report: `orchestration/reports/P2-009-phase-2-closeout.md`
+Report: `orchestration/reports/P3-001-deferred-transport-contracts.md`
 
 ## Task Status
 
 Accepted
 
-P2-009をCodexが実施し、検証完了。Phase 2: Projection and Loggingの成果を照合し、最終検証を実行してPhase 3へ進める状態にした。
+P3-001をCodexが実施し、検証完了。Deferred Vertical Sliceの土台として、Deferred Strategy、Durable受付Acknowledgement、Transport Message、Claim、Transport PortのPublic Contractを追加した。
 
 ## Last Accepted Task
 
-P2-009-phase-2-closeout
+P3-001-deferred-transport-contracts
 
 ## Pending Decisions
 
@@ -34,8 +34,39 @@ P2-009-phase-2-closeout
 
 ## Required Next Action
 
-1. Phase 3最初のTask Packetを作成する。
-2. D047で決定したBFF／OpenAPI前提をPhase 3のHTTP Contractへ反映しながら、Deferred transport/store foundationから開始し、HTTP 202 + Operation IDのDeferred Vertical Sliceへ進める。
+1. P3-002のTask Packetを作成する。
+2. PostgreSQL Deferred受付Store／Transportを実装し、Durable保存成功時に`DeferredAcknowledgement`を返せるようにする。
+
+## P3-001 Verification Commands and Results
+
+```text
+docker compose run --rm app vendor/bin/phpunit --filter 'ExecutionStrategyTest|DeferredTransportContractTest'
+Result: OK (22 tests, 59 assertions).
+
+docker compose run --rm app mago format --check src tests
+Result: INFO All files are already formatted.
+
+docker compose run --rm app composer validate --strict
+Result: ./composer.json is valid.
+
+docker compose run --rm app mago lint
+Result: INFO No issues found.
+
+docker compose run --rm app mago analyze
+Result: INFO No issues found.
+
+docker compose run --rm app vendor/bin/phpunit
+Result: OK (324 tests, 759 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app vendor/bin/deptrac
+Result: Violations 0 / Skipped 0 / Uncovered 0 / Allowed 474 / Warnings 0 / Errors 0.
+
+rg -n 'Spec(ification)?[[:space:]]*[0-9]+|D[0-9]{3}|P[0-9]+-[0-9]+|TODO\.md:[0-9]+' src tests --glob '*.php'
+Result: No matches.
+
+git diff --check
+Result: No output.
+```
 
 ## P2-009 Final Phase 2 Verification Commands and Results
 
