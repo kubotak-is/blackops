@@ -6,6 +6,7 @@ BlackOpsを利用してApplicationを作る開発者向けのガイドを管理�
 
 ## Planned Topics
 
+- [Runtime Bootstrap](runtime-bootstrap.md)
 - Installation
 - Creating an Operation
 - Implementing a Handler
