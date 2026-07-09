@@ -20,6 +20,7 @@ Framework実装者向けのArchitectureと実装ガイドを管理する。
 - [Journal Record](journal-record.md)
 - [Inline Journal Factory](inline-journal-factory.md)
 - [Journal Ports](journal-ports.md)
+- [Sensitive Projection](sensitive-projection.md)
 - Package and Namespace Architecture
 - Operation Dispatch Flow
 - Journal and Transaction Flow

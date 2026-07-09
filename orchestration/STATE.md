@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-10T01:13:23+09:00
+Updated At: 2026-07-10T01:21:25+09:00
 
 ## Current Phase
 
@@ -8,21 +8,21 @@ Phase 2: Projection and Logging
 
 ## Current Task
 
-Task ID: P1-041-phase-1-closeout
+Task ID: P2-001-sensitive-projection-foundation
 
-Task Packet: `orchestration/tasks/P1-041-phase-1-closeout.md`
+Task Packet: `orchestration/tasks/P2-001-sensitive-projection-foundation.md`
 
-Report: `orchestration/reports/P1-041-phase-1-closeout.md`
+Report: `orchestration/reports/P2-001-sensitive-projection-foundation.md`
 
 ## Task Status
 
 Accepted
 
-P1-041をCodexが実装・ReviewしAcceptedとした。Phase 1: Journal付きInline Vertical SliceをCloseoutし、Phase 2へ移行できる状態を記録した。
+P2-001をCodexが実装し、検証完了。Observer/Loggingへ渡す前の最低安全基準としてSensitive metadataとInternal Sensitive Projection Filterを追加した。
 
 ## Last Accepted Task
 
-P1-041-phase-1-closeout
+P2-001-sensitive-projection-foundation
 
 ## Pending Decisions
 
@@ -34,8 +34,39 @@ P1-041-phase-1-closeout
 
 ## Required Next Action
 
-1. Phase 2最初のTask Packetを作成する。
-2. Sensitive Projection foundationから開始し、Observer projection portsとLoggingへ接続する。
+1. ObservedJournalRecordとJournalObserver portsを追加する。
+2. Sensitive Projection FilterをObserver projection boundaryへ接続する。
+
+## P2-001 Verification Commands and Results
+
+```text
+docker compose run --rm app vendor/bin/phpunit --filter 'SensitiveAttributeTest|SensitiveProjectionFilterTest'
+Result: OK (6 tests, 14 assertions).
+
+docker compose run --rm app mago format --check src tests
+Result: INFO All files are already formatted.
+
+docker compose run --rm app composer validate --strict
+Result: ./composer.json is valid.
+
+docker compose run --rm app mago lint
+Result: INFO No issues found.
+
+docker compose run --rm app mago analyze
+Result: INFO No issues found.
+
+docker compose run --rm app vendor/bin/phpunit
+Result: OK (281 tests, 627 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app vendor/bin/deptrac
+Result: Violations 0 / Skipped 0 / Uncovered 0 / Allowed 419 / Warnings 0 / Errors 0.
+
+rg -n 'Spec(ification)?[[:space:]]*[0-9]+|D[0-9]{3}|P[0-9]+-[0-9]+|TODO\.md:[0-9]+' src tests --glob '*.php'
+Result: No matches.
+
+git diff --check
+Result: No output.
+```
 
 ## P1-041 Final Phase 1 Verification Commands and Results
 
