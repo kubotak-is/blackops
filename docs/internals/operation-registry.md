@@ -1,7 +1,9 @@
 # Operation Registry
 
-OperationRegistryはCompile済みOperationMetadataをType IDとDefinition Classで索引する読み取り専用Runtime値である。
+Operation providers are the public build-time extension boundary for package and application operations.
 
-検索失敗は通常分岐としてnullを返す。重複Type IDまたはDefinition ClassはRegistry構築時に拒否し、曖昧なHandler解決を防ぐ。
+A provider returns operation definition class names only. It does not create handlers, values, outcomes, service instances, or runtime dependencies. Handler and infrastructure service construction remains a runtime container responsibility.
 
-RegistryはMetadataだけを保持し、HandlerやService Instanceを保持しない。実際のService解決はDI境界で行う。
+The internal provider compiler reads one or more providers, compiles each returned operation definition through the metadata compiler, and builds the read-only operation registry. Duplicate type IDs or definition classes are rejected by the registry.
+
+Config loading, Composer package discovery, file scanning, token scanning, and manifest file orchestration are separate bootstrap/build concerns.
