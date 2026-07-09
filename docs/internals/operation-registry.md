@@ -21,3 +21,5 @@ The internal build artifacts command coordinates operation provider config loadi
 The build artifacts command can run inside an internal build lock. The lock uses a local lock file and fails fast if another process already holds it.
 
 The build artifacts command can also store a lightweight fingerprint for explicit input files. When the fingerprint matches and all output artifacts exist, the command skips regeneration.
+
+Composer provider discovery reads explicit provider class names from Composer metadata under `extra.blackops.operation-providers` and `extra.blackops.service-providers`. The discovery boundary returns provider class names only; provider instantiation and build command integration remain separate steps.

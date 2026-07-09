@@ -21,3 +21,5 @@ The internal build artifacts command can run container compilation together with
 Build artifact generation can be guarded by a local build lock so concurrent compile processes do not write the same artifact set at the same time.
 
 Build artifact generation can store a lightweight fingerprint of explicit input files. When the fingerprint still matches and the operation manifest, HTTP manifest, and container file all exist, generation can be skipped.
+
+Composer provider discovery can read service provider class names from Composer metadata. It does not instantiate providers or compile the container by itself.
