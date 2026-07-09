@@ -7,14 +7,13 @@ namespace BlackOps\Internal\Console;
 use BlackOps\Http\Routing\HttpOperationManifestFile;
 use BlackOps\Http\Routing\HttpRouteCompiler;
 use BlackOps\Internal\Build\BuildArtifactFingerprintGuard;
+use BlackOps\Internal\Build\BuildArtifactProviderLoader;
 use BlackOps\Internal\Build\BuildLock;
 use BlackOps\Internal\DependencyInjection\RuntimeContainerCompiler;
 use BlackOps\Internal\DependencyInjection\RuntimeContainerDumper;
-use BlackOps\Internal\DependencyInjection\ServiceProviderConfigLoader;
 use BlackOps\Internal\Registry\OperationDefinitionFactory;
 use BlackOps\Internal\Registry\OperationManifestFile;
 use BlackOps\Internal\Registry\OperationProviderCompiler;
-use BlackOps\Internal\Registry\OperationProviderConfigLoader;
 use InvalidArgumentException;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -29,12 +28,11 @@ final class CompileBuildArtifactsCommand extends Command
     public const NAME = 'blackops:build:compile';
 
     public function __construct(
-        private readonly OperationProviderConfigLoader $operationProviders = new OperationProviderConfigLoader(),
+        private readonly BuildArtifactProviderLoader $providers = new BuildArtifactProviderLoader(),
         private readonly OperationProviderCompiler $operationCompiler = new OperationProviderCompiler(),
         private readonly OperationDefinitionFactory $definitions = new OperationDefinitionFactory(),
         private readonly OperationManifestFile $operationManifests = new OperationManifestFile(),
         private readonly HttpOperationManifestFile $httpManifests = new HttpOperationManifestFile(),
-        private readonly ServiceProviderConfigLoader $serviceProviders = new ServiceProviderConfigLoader(),
         private readonly RuntimeContainerCompiler $containerCompiler = new RuntimeContainerCompiler(),
         private readonly RuntimeContainerDumper $containerDumper = new RuntimeContainerDumper(),
     ) {
@@ -72,6 +70,12 @@ final class CompileBuildArtifactsCommand extends Command
                 null,
                 InputOption::VALUE_REQUIRED,
                 'Additional input file paths included in the build fingerprint, separated by PATH_SEPARATOR.',
+            )
+            ->addOption(
+                'composer-metadata',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'Path to a Composer JSON metadata file exposing BlackOps providers.',
             );
     }
 
@@ -110,9 +114,13 @@ final class CompileBuildArtifactsCommand extends Command
             return;
         }
 
-        $providers = $this->operationProviders->load($this->stringArgument($input, 'operation-providers'));
-        $registry = $this->operationCompiler->compile($providers);
-        $definitions = $this->definitions->fromProviders($providers);
+        $providers = $this->providers->load(
+            $this->stringArgument($input, 'operation-providers'),
+            $this->stringArgument($input, 'service-providers'),
+            $this->nullableStringOption($input, 'composer-metadata'),
+        );
+        $registry = $this->operationCompiler->compile($providers->operationProviders);
+        $definitions = $this->definitions->fromProviders($providers->operationProviders);
         $this->operationManifests->write($registry, $this->stringArgument($input, 'operation-manifest'));
         $this->httpManifests->write(
             new HttpRouteCompiler($registry)->compileManifest($definitions),
@@ -120,10 +128,7 @@ final class CompileBuildArtifactsCommand extends Command
         );
 
         $builder = $this->containerCompiler->builder();
-        $this->containerCompiler->apply(
-            $builder,
-            $this->serviceProviders->load($this->stringArgument($input, 'service-providers')),
-        );
+        $this->containerCompiler->apply($builder, $providers->serviceProviders);
         $this->containerCompiler->compile($builder);
         $this->containerDumper->dump(
             $builder,
@@ -177,6 +182,11 @@ final class CompileBuildArtifactsCommand extends Command
             $this->stringArgument($input, 'operation-providers'),
             $this->stringArgument($input, 'service-providers'),
         ];
+        $composerMetadata = $this->nullableStringOption($input, 'composer-metadata');
+
+        if ($composerMetadata !== null) {
+            $paths[] = $composerMetadata;
+        }
 
         return [
             ...$paths,

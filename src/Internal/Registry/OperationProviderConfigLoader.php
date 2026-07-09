@@ -19,7 +19,17 @@ final readonly class OperationProviderConfigLoader
             throw new InvalidArgumentException('Operation provider config file does not exist.');
         }
 
-        return $this->providersFrom($this->requireFile($path));
+        return $this->providersFromValue($this->requireFile($path));
+    }
+
+    /**
+     * @param iterable<array-key, mixed> $entries
+     *
+     * @return list<OperationProvider>
+     */
+    public function fromEntries(iterable $entries): array
+    {
+        return array_map($this->providerFrom(...), [...$entries]);
     }
 
     private function requireFile(string $path): mixed
@@ -30,7 +40,7 @@ final readonly class OperationProviderConfigLoader
     /**
      * @return list<OperationProvider>
      */
-    private function providersFrom(mixed $value): array
+    private function providersFromValue(mixed $value): array
     {
         if ($value instanceof OperationProvider) {
             return [$value];
@@ -42,7 +52,7 @@ final readonly class OperationProviderConfigLoader
             );
         }
 
-        return array_map($this->providerFrom(...), array_values($value));
+        return $this->fromEntries(array_values($value));
     }
 
     private function providerFrom(mixed $entry): OperationProvider

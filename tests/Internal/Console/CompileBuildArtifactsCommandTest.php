@@ -96,6 +96,93 @@ final class CompileBuildArtifactsCommandTest extends TestCase
         self::assertSame($operationManifestTime, filemtime($operationManifest));
     }
 
+    public function testCompilesBuildArtifactsWithComposerMetadataProviders(): void
+    {
+        $operationProviders = $this->path('operation-providers');
+        $serviceProviders = $this->path('service-providers');
+        $composerMetadata = $this->path('composer-metadata');
+        $operationManifest = $this->path('operation-manifest');
+        $httpManifest = $this->path('http-manifest');
+        $containerPath = $this->path('container');
+        $class = 'ComposerBuildContainer' . bin2hex(random_bytes(8));
+        $namespace = __NAMESPACE__ . '\\Generated';
+        file_put_contents($operationProviders, '<?php return [\\' . BuildOperationProvider::class . '::class];');
+        file_put_contents($serviceProviders, '<?php return [\\' . BuildServiceProvider::class . '::class];');
+        file_put_contents($composerMetadata, json_encode([
+            'extra' => [
+                'blackops' => [
+                    'operation-providers' => [ComposerBuildOperationProvider::class],
+                    'service-providers' => [ComposerBuildServiceProvider::class],
+                ],
+            ],
+        ], JSON_THROW_ON_ERROR));
+
+        $status = new CommandTester(new CompileBuildArtifactsCommand())->execute([
+            'operation-providers' => $operationProviders,
+            'service-providers' => $serviceProviders,
+            'operation-manifest' => $operationManifest,
+            'http-manifest' => $httpManifest,
+            'container' => $containerPath,
+            '--container-class' => $class,
+            '--container-namespace' => $namespace,
+            '--composer-metadata' => $composerMetadata,
+        ]);
+
+        $operationRegistry = new OperationManifestFile()->load($operationManifest);
+        require_once $containerPath;
+        $containerClass = $namespace . '\\' . $class;
+        $container = new $containerClass();
+
+        self::assertSame(0, $status);
+        self::assertSame(BuildOperation::class, $operationRegistry->findByTypeId('build.operation')?->definition);
+        self::assertSame(
+            ComposerBuildOperation::class,
+            $operationRegistry->findByTypeId('composer.build.operation')?->definition,
+        );
+        self::assertInstanceOf(BuildService::class, $container->get(BuildService::class));
+        self::assertInstanceOf(ComposerBuildService::class, $container->get(ComposerBuildService::class));
+    }
+
+    public function testComposerMetadataParticipatesInBuildFingerprint(): void
+    {
+        $operationProviders = $this->path('operation-providers');
+        $serviceProviders = $this->path('service-providers');
+        $composerMetadata = $this->path('composer-metadata');
+        $operationManifest = $this->path('operation-manifest');
+        $httpManifest = $this->path('http-manifest');
+        $containerPath = $this->path('container');
+        $fingerprint = $this->path('fingerprint');
+        file_put_contents($operationProviders, '<?php return [\\' . BuildOperationProvider::class . '::class];');
+        file_put_contents($serviceProviders, '<?php return [\\' . BuildServiceProvider::class . '::class];');
+        file_put_contents($composerMetadata, json_encode(['extra' => ['blackops' => []]], JSON_THROW_ON_ERROR));
+        $arguments = [
+            'operation-providers' => $operationProviders,
+            'service-providers' => $serviceProviders,
+            'operation-manifest' => $operationManifest,
+            'http-manifest' => $httpManifest,
+            'container' => $containerPath,
+            '--fingerprint' => $fingerprint,
+            '--composer-metadata' => $composerMetadata,
+        ];
+
+        new CommandTester(new CompileBuildArtifactsCommand())->execute($arguments);
+        file_put_contents($composerMetadata, json_encode([
+            'extra' => [
+                'blackops' => [
+                    'operation-providers' => [ComposerBuildOperationProvider::class],
+                ],
+            ],
+        ], JSON_THROW_ON_ERROR));
+        new CommandTester(new CompileBuildArtifactsCommand())->execute($arguments);
+
+        $operationRegistry = new OperationManifestFile()->load($operationManifest);
+
+        self::assertSame(
+            ComposerBuildOperation::class,
+            $operationRegistry->findByTypeId('composer.build.operation')?->definition,
+        );
+    }
+
     public function testRejectsMissingOperationProviderConfig(): void
     {
         $this->expectException(InvalidArgumentException::class);
@@ -131,6 +218,22 @@ final readonly class BuildServiceProvider implements ServiceProvider
     }
 }
 
+final readonly class ComposerBuildOperationProvider implements OperationProvider
+{
+    public function definitions(): iterable
+    {
+        return [ComposerBuildOperation::class];
+    }
+}
+
+final readonly class ComposerBuildServiceProvider implements ServiceProvider
+{
+    public function register(ServiceRegistry $services): void
+    {
+        $services->autowire(ComposerBuildService::class);
+    }
+}
+
 #[Route('GET', '/build')]
 #[OperationType('build.operation')]
 #[Accepts(BuildValue::class)]
@@ -149,3 +252,22 @@ final readonly class BuildHandler implements OperationHandler
 }
 
 final readonly class BuildService {}
+
+#[Route('GET', '/composer-build')]
+#[OperationType('composer.build.operation')]
+#[Accepts(ComposerBuildValue::class)]
+#[HandledBy(ComposerBuildHandler::class)]
+#[Returns(EmptyOutcome::class)]
+final readonly class ComposerBuildOperation implements Operation {}
+
+final readonly class ComposerBuildValue implements OperationValue {}
+
+final readonly class ComposerBuildHandler implements OperationHandler
+{
+    public function handle(OperationEnvelope $operation): OperationResult
+    {
+        return OperationResult::completed();
+    }
+}
+
+final readonly class ComposerBuildService {}
