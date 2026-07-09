@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-10T01:08:00+09:00
+Updated At: 2026-07-10T01:11:22+09:00
 
 ## Current Phase
 
@@ -8,21 +8,21 @@ Phase 1: Journal付きInline Vertical Slice
 
 ## Current Task
 
-Task ID: P1-039-application-runtime-bootstrap-guide
+Task ID: P1-040-production-runtime-smoke-scenario
 
-Task Packet: `orchestration/tasks/P1-039-application-runtime-bootstrap-guide.md`
+Task Packet: `orchestration/tasks/P1-040-production-runtime-smoke-scenario.md`
 
-Report: `orchestration/reports/P1-039-application-runtime-bootstrap-guide.md`
+Report: `orchestration/reports/P1-040-production-runtime-smoke-scenario.md`
 
 ## Task Status
 
 Accepted
 
-P1-039をCodexが実装・ReviewしAcceptedとした。Phase 1で利用可能なBuildからProduction Runtime起動までの利用者向けGuideを追加した。
+P1-040をCodexが実装・ReviewしAcceptedとした。Build artifacts compileからProduction artifact loading、Runtime composition、HTTP request handlingまでのPhase 1導線をEnd-to-Endで検証した。
 
 ## Last Accepted Task
 
-P1-039-application-runtime-bootstrap-guide
+P1-040-production-runtime-smoke-scenario
 
 ## Pending Decisions
 
@@ -34,8 +34,36 @@ P1-039-application-runtime-bootstrap-guide
 
 ## Required Next Action
 
-1. Minimal Example Application / Smoke Scenarioへ進む。
-2. Guideに記載したBuildからRuntime compositionまでの導線をEnd-to-Endで検証する。
+1. Phase 1 Closeout Reportへ進む。
+2. Phase 1完了範囲、残課題、Phase 2への移行条件を整理する。
+
+## P1-040 Verification Commands and Results
+
+```text
+docker compose run --rm app vendor/bin/phpunit --filter ProductionRuntimeSmokeTest
+Result: OK (1 test, 4 assertions).
+
+docker compose run --rm app mago format --check src tests
+Result: INFO All files are already formatted.
+
+docker compose run --rm app composer validate --strict
+Result: ./composer.json is valid.
+
+docker compose run --rm app mago lint
+Result: INFO No issues found.
+
+docker compose run --rm app mago analyze
+Result: INFO No issues found.
+
+docker compose run --rm app vendor/bin/phpunit
+Result: OK (275 tests, 613 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app vendor/bin/deptrac
+Result: Violations 0 / Skipped 0 / Uncovered 0 / Allowed 413 / Warnings 0 / Errors 0.
+
+rg -n 'Spec(ification)?[[:space:]]*[0-9]+|D[0-9]{3}|P[0-9]+-[0-9]+|TODO\.md:[0-9]+' src tests --glob '*.php'
+Result: No matches.
+```
 
 ## P1-039 Verification Commands and Results
 
