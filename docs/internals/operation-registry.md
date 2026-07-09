@@ -9,3 +9,7 @@ The internal provider compiler reads one or more providers, compiles each return
 Config loading, Composer package discovery, file scanning, token scanning, and manifest file orchestration are separate bootstrap/build concerns.
 
 Operation provider config loading is an internal bootstrap concern. A PHP config file may return a single `OperationProvider`, a list of provider instances, or a list of provider class names that can be instantiated without constructor arguments. The loader returns provider instances that can be passed to the internal provider compiler.
+
+The operation manifest file boundary writes registry metadata to a PHP array file and loads it back into an operation registry. The manifest contains scalar values and class names only.
+
+The operation manifest compile command ties the internal provider config loader, provider compiler, and manifest file writer together for build-time verification. It reads an operation provider config file and writes a PHP operation manifest file. HTTP route manifest generation and runtime container compilation remain separate build steps.
