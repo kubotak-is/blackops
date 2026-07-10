@@ -12,22 +12,19 @@ use ReflectionClass;
 
 final readonly class OperationDefinitionFactory
 {
+    public function __construct(
+        private OperationDefinitionCollector $definitions = new OperationDefinitionCollector(),
+    ) {}
+
     /**
      * @param iterable<OperationProvider> $providers
+     * @param iterable<class-string<Operation>> $discovered
      *
      * @return list<Operation>
      */
-    public function fromProviders(iterable $providers): array
+    public function fromProviders(iterable $providers, iterable $discovered = []): array
     {
-        $definitions = [];
-
-        foreach ($providers as $provider) {
-            foreach ($provider->definitions() as $definition) {
-                $definitions[] = $this->create($definition);
-            }
-        }
-
-        return $definitions;
+        return array_map($this->create(...), $this->definitions->collect($providers, $discovered));
     }
 
     /**

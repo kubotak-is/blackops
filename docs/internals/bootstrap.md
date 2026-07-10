@@ -32,7 +32,9 @@ The current command set is:
 | Command | Class | Responsibility |
 | --- | --- | --- |
 | `blackops:build:compile` | `BlackOps\Internal\Console\CompileBuildArtifactsCommand` | Compile operation manifest, HTTP manifest, and runtime container together. |
-| `blackops:operation-manifest:compile` | `BlackOps\Internal\Console\CompileOperationManifestCommand` | Compile only the operation manifest from explicit operation provider config. |
+| `blackops:operation:list` | `BlackOps\Internal\Console\ListOperationsCommand` | Discover development operations and list their type ID, definition, and execution strategy. |
+| `blackops:operation-manifest:compile` | `BlackOps\Internal\Console\CompileOperationManifestCommand` | Compile the operation manifest from explicit providers and optional development discovery. |
+| `blackops:http-manifest:compile` | `BlackOps\Internal\Console\CompileHttpManifestCommand` | Compile the HTTP manifest from explicit providers and optional development discovery. |
 | `blackops:container:compile` | `BlackOps\Internal\Console\CompileRuntimeContainerCommand` | Compile only the runtime container from explicit service provider config. |
 | `blackops:http-manifest:dump` | `BlackOps\Http\Console\DumpHttpManifestCommand` | Dump HTTP route metadata from an already-built operation registry and operation definitions. |
 | `blackops:retention:plan` | `BlackOps\Internal\Console\RetentionPlanCommand` | Print a retention purge plan without applying it. |
@@ -41,6 +43,63 @@ The current command set is:
 | `blackops:scheduler:daemon` | `BlackOps\Internal\Console\SchedulerDaemonCommand` | Run registered maintenance tasks repeatedly with an explicit interval. |
 
 For normal build pipelines, prefer the unified build command so operation metadata, HTTP route metadata, and container definitions are generated from the same provider set.
+
+## Development Discovery Commands
+
+The operation list and standalone operation/HTTP manifest commands can discover application operations directly from source. Register the commands in the application console entrypoint:
+
+```php
+use BlackOps\Internal\Console\CompileHttpManifestCommand;
+use BlackOps\Internal\Console\CompileOperationManifestCommand;
+use BlackOps\Internal\Console\ListOperationsCommand;
+
+$application->add(new ListOperationsCommand());
+$application->add(new CompileOperationManifestCommand());
+$application->add(new CompileHttpManifestCommand());
+```
+
+All development discovery inputs are explicit:
+
+- `--discovery-root` is repeatable and limits source scanning to application-owned roots.
+- `--composer-base` resolves relative paths returned by Composer metadata.
+- `--composer-psr4` points to a generated PHP file returning the Composer PSR-4 array.
+- `--composer-classmap` points to a generated PHP file returning the Composer classmap array.
+
+The PSR-4 and classmap files must return arrays. When any discovery option is supplied, all metadata options and at least one root are required. The list command always requires the complete discovery input:
+
+```bash
+php bin/console blackops:operation:list \
+  --discovery-root=src \
+  --composer-base=. \
+  --composer-psr4=vendor/composer/autoload_psr4.php \
+  --composer-classmap=vendor/composer/autoload_classmap.php
+```
+
+The standalone compile commands retain their provider-only invocation. Supplying the same four discovery options merges source definitions with the explicit providers:
+
+```bash
+php bin/console blackops:operation-manifest:compile \
+  config/blackops/operations.php \
+  var/cache/blackops/operations.php \
+  --application-build-id=development-local \
+  --discovery-root=src \
+  --composer-base=. \
+  --composer-psr4=vendor/composer/autoload_psr4.php \
+  --composer-classmap=vendor/composer/autoload_classmap.php
+
+php bin/console blackops:http-manifest:compile \
+  config/blackops/operations.php \
+  var/cache/blackops/http.php \
+  --application-build-id=development-local \
+  --discovery-root=src \
+  --composer-base=. \
+  --composer-psr4=vendor/composer/autoload_psr4.php \
+  --composer-classmap=vendor/composer/autoload_classmap.php
+```
+
+An exact definition returned by both a provider and discovery is compiled once. Different definitions with the same type ID remain an error, as do invalid operation attributes. Operation list output is sorted by type ID.
+
+Dynamic discovery is intentionally absent from `blackops:build:compile`. The unified build command and production runtime continue to use explicit provider inputs and generated artifacts only; neither falls back to source scanning.
 
 ## Provider Inputs
 

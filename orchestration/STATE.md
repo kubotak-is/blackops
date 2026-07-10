@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-11T02:37:40+09:00
+Updated At: 2026-07-11T02:51:27+09:00
 
 ## Current Phase
 
@@ -8,21 +8,21 @@ Phase 6: Compile and Polish
 
 ## Current Task
 
-Task ID: P6-004-development-operation-discovery
+Task ID: P6-005-operation-list-and-development-compile
 
-Task Packet: `orchestration/tasks/P6-004-development-operation-discovery.md`
+Task Packet: `orchestration/tasks/P6-005-operation-list-and-development-compile.md`
 
-Report: `orchestration/reports/P6-004-development-operation-discovery.md`
+Report: `orchestration/reports/P6-005-operation-list-and-development-compile.md`
 
 ## Task Status
 
 Accepted
 
-P6-004のDevelopment Operation Discoveryを実装し、Controlled Load修正後にOrchestrator Reviewで受け入れた。
+P6-005のOperation ListとDevelopment Manifest Compile接続を実装し、Orchestrator Reviewで受け入れた。
 
 ## Last Accepted Task
 
-P6-004-development-operation-discovery
+P6-005-operation-list-and-development-compile
 
 ## Pending Decisions
 
@@ -34,7 +34,38 @@ P6-004-development-operation-discovery
 
 ## Required Next Action
 
-1. Development Discoveryを`operation:list`と開発用Manifest Compileへ接続するTask Packetを作成する。
+1. Unit Test向けInMemory Execution Transportを実装するTask Packetを作成する。
+
+## P6-005 Verification Commands and Results
+
+```text
+docker compose run --rm app vendor/bin/phpunit --filter 'ListOperationsCommandTest|CompileOperationManifestCommandTest|CompileHttpManifestCommandTest|ComposerAutoloadMetadataFile'
+Result: OK (15 tests, 44 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app composer validate --strict
+Result: ./composer.json is valid.
+
+docker compose run --rm app mago format --check src tests
+Result: INFO All files are already formatted.
+
+docker compose run --rm app mago lint
+Result: INFO No issues found.
+
+docker compose run --rm app mago analyze
+Result: INFO No issues found.
+
+docker compose run --rm app vendor/bin/phpunit
+Result: OK (491 tests, 1471 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app vendor/bin/deptrac
+Result: Violations 0 / Skipped violations 0 / Uncovered 0 / Allowed 1087 / Warnings 0 / Errors 0.
+
+! rg -n 'Spec(ification)?[[:space:]]*[0-9]+|D[0-9]{3}|P[0-9]+-[0-9]+|TODO\.md:[0-9]+' src tests --glob '*.php'
+Result: No matches (negated command exited 0).
+
+git diff --check
+Result: No output.
+```
 
 ## P6-004 Verification Commands and Results
 

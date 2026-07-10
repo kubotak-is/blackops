@@ -27,6 +27,7 @@ final class CompileHttpManifestCommand extends Command
         private readonly OperationProviderCompiler $operations = new OperationProviderCompiler(),
         private readonly OperationDefinitionFactory $definitions = new OperationDefinitionFactory(),
         private readonly HttpOperationManifestFile $files = new HttpOperationManifestFile(),
+        private readonly DevelopmentDiscoveryInput $discovery = new DevelopmentDiscoveryInput(),
     ) {
         parent::__construct(self::NAME);
     }
@@ -42,13 +43,15 @@ final class CompileHttpManifestCommand extends Command
                 InputOption::VALUE_REQUIRED,
                 'Application build identifier stored in the manifest.',
             );
+        $this->discovery->configure($this);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $providers = $this->providers->load($this->stringArgument($input, 'config'));
-        $registry = $this->operations->compile($providers);
-        $definitions = $this->definitions->fromProviders($providers);
+        $discovered = $this->discovery->optionalDefinitions($input);
+        $registry = $this->operations->compile($providers, $discovered);
+        $definitions = $this->definitions->fromProviders($providers, $discovered);
         $manifest = new HttpRouteCompiler($registry)->compileManifest($definitions);
         $this->files->write(
             $manifest,

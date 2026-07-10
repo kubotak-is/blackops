@@ -24,6 +24,7 @@ final class CompileOperationManifestCommand extends Command
         private readonly OperationProviderConfigLoader $providers = new OperationProviderConfigLoader(),
         private readonly OperationProviderCompiler $compiler = new OperationProviderCompiler(),
         private readonly OperationManifestFile $files = new OperationManifestFile(),
+        private readonly DevelopmentDiscoveryInput $discovery = new DevelopmentDiscoveryInput(),
     ) {
         parent::__construct(self::NAME);
     }
@@ -39,11 +40,15 @@ final class CompileOperationManifestCommand extends Command
                 InputOption::VALUE_REQUIRED,
                 'Application build identifier stored in the manifest.',
             );
+        $this->discovery->configure($this);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $registry = $this->compiler->compile($this->providers->load($this->stringArgument($input, 'config')));
+        $registry = $this->compiler->compile(
+            $this->providers->load($this->stringArgument($input, 'config')),
+            $this->discovery->optionalDefinitions($input),
+        );
         $this->files->write(
             $registry,
             $this->stringArgument($input, 'output'),

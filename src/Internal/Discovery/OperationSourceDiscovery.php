@@ -43,7 +43,7 @@ final readonly class OperationSourceDiscovery
         $definitions = [];
 
         foreach ($candidates as $class => $candidateFile) {
-            if (!class_exists($class)) {
+            if (!class_exists($class, false)) {
                 continue;
             }
 
