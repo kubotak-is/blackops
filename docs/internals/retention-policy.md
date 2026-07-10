@@ -48,3 +48,9 @@ payload_purged_at nullable
 ```
 
 未完了OperationはPayloadを必要とするため、Schema ConstraintでTombstone化をTerminal Stateだけに制限する。
+
+## PostgreSQL Purge Audit
+
+Purge Auditは `retention_purge_audits` TableへPayloadなしで保存する。
+
+Audit TableはOperationを `ON DELETE RESTRICT` で参照し、Audit Record自身はPayload、Context、Error本文を持たない。System Logへの配送はPurge Service側で行う。

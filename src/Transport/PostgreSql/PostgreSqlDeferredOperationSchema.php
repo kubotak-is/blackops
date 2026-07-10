@@ -22,6 +22,7 @@ final readonly class PostgreSqlDeferredOperationSchema
         $operations = $this->identifier->qualify('operations');
         $deadLetters = $this->identifier->qualify('dead_letters');
         $retentionHolds = $this->identifier->qualify('retention_holds');
+        $retentionPurgeAudits = $this->identifier->qualify('retention_purge_audits');
 
         return [
             "CREATE SCHEMA IF NOT EXISTS {$schema}",
@@ -153,6 +154,32 @@ final readonly class PostgreSqlDeferredOperationSchema
             "CREATE INDEX IF NOT EXISTS retention_holds_operation_active_idx
                 ON {$retentionHolds} (operation_id, placed_at)
                 WHERE released_at IS NULL",
+            "CREATE TABLE IF NOT EXISTS {$retentionPurgeAudits} (
+                audit_id uuid PRIMARY KEY,
+                operation_id uuid NOT NULL,
+                target text NOT NULL CHECK (target IN (
+                    'transport_payload',
+                    'journal',
+                    'outcome',
+                    'dead_letter'
+                )),
+                affected_count integer NOT NULL CHECK (affected_count >= 1),
+                policy text NOT NULL CHECK (policy <> ''),
+                purged_at timestamptz NOT NULL,
+                purged_by text NOT NULL CHECK (purged_by <> ''),
+                created_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP
+            )",
+            "ALTER TABLE {$retentionPurgeAudits}
+                DROP CONSTRAINT IF EXISTS retention_purge_audits_operation_id_fkey",
+            "ALTER TABLE {$retentionPurgeAudits}
+                ADD CONSTRAINT retention_purge_audits_operation_id_fkey
+                FOREIGN KEY (operation_id)
+                REFERENCES {$operations} (operation_id)
+                ON DELETE RESTRICT",
+            "CREATE INDEX IF NOT EXISTS retention_purge_audits_operation_idx
+                ON {$retentionPurgeAudits} (operation_id, purged_at)",
+            "CREATE INDEX IF NOT EXISTS retention_purge_audits_purged_at_idx
+                ON {$retentionPurgeAudits} (purged_at, audit_id)",
         ];
     }
 
@@ -169,5 +196,10 @@ final readonly class PostgreSqlDeferredOperationSchema
     public function retentionHoldsTable(): string
     {
         return $this->identifier->qualify('retention_holds');
+    }
+
+    public function retentionPurgeAuditsTable(): string
+    {
+        return $this->identifier->qualify('retention_purge_audits');
     }
 }

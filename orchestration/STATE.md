@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-10T21:58:13+09:00
+Updated At: 2026-07-10T22:03:34+09:00
 
 ## Current Phase
 
@@ -8,17 +8,17 @@ Phase 5: Retention
 
 ## Current Task
 
-Task ID: P5-005-purge-audit-contract
+Task ID: P5-006-postgresql-purge-audit-store
 
-Task Packet: `orchestration/tasks/P5-005-purge-audit-contract.md`
+Task Packet: `orchestration/tasks/P5-006-postgresql-purge-audit-store.md`
 
-Report: `orchestration/reports/P5-005-purge-audit-contract.md`
+Report: `orchestration/reports/P5-006-postgresql-purge-audit-store.md`
 
 ## Task Status
 
 Completed
 
-P5-005は完了。Payloadを含まないPurge Audit Contractを実装した。
+P5-006は完了。PostgreSQL Purge Audit TableとStoreを実装した。
 
 ## Last Accepted Task
 
@@ -34,8 +34,39 @@ P5-005-purge-audit-contract
 
 ## Required Next Action
 
-1. P5-005をCommitする。
-2. P5-006へ進む。
+1. P5-006をCommitする。
+2. P5-007へ進む。
+
+## P5-006 Verification Commands and Results
+
+```text
+docker compose run --rm app vendor/bin/phpunit --filter PostgreSqlRetentionPurgeAuditStoreTest
+Result: OK (4 tests, 13 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app composer validate --strict
+Result: ./composer.json is valid.
+
+docker compose run --rm app mago format --check src tests
+Result: INFO All files are already formatted.
+
+docker compose run --rm app mago lint
+Result: INFO No issues found.
+
+docker compose run --rm app mago analyze
+Result: INFO No issues found.
+
+docker compose run --rm app vendor/bin/phpunit
+Result: OK (419 tests, 1248 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app vendor/bin/deptrac
+Result: Violations 0 / Skipped violations 0 / Uncovered 0 / Allowed 903 / Warnings 0 / Errors 0.
+
+rg -n 'Spec(ification)?[[:space:]]*[0-9]+|D[0-9]{3}|P[0-9]+-[0-9]+|TODO\.md:[0-9]+' src tests --glob '*.php'
+Result: No matches.
+
+git diff --check
+Result: No output.
+```
 
 ## P5-005 Verification Commands and Results
 

@@ -56,3 +56,22 @@ record
 ```
 
 PostgreSQL Store、Purge Service、CLI、Scheduler Workerとの接続は後続Taskで扱う。System Logへも同じ事実を出力する場合は、Purge Service側でAudit StoreとLoggerへ別配送する。
+
+## PostgreSQL Schema
+
+`retention_purge_audits` TableはPurge結果をPayloadなしで保存する。
+
+```text
+audit_id
+operation_id
+target
+affected_count
+policy
+purged_at
+purged_by
+created_at
+```
+
+`operation_id` はOperations Tableへ `ON DELETE RESTRICT` で参照する。削除対象Operationが消える場合でもAudit Recordの意味が壊れないよう、Cascade Deleteは使わない。
+
+`PostgreSqlRetentionPurgeAuditStore` は `RetentionPurgeAuditPort` を実装し、Recordの各Fieldをそのまま保存する。StoreはPayloadやContextを受け取らず、System Logへの配送も担当しない。
