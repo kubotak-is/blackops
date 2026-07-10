@@ -72,3 +72,19 @@ Serviceは実行時にも次を再確認する。
 Serviceは実行時にもActive Holdが存在しないことを再確認する。条件を満たしたDead Letter Recordだけを削除し、Operations行は削除しない。
 
 成功した削除ごとにPayloadなしのPurge Auditを記録する。Plan生成後にHoldが設定された場合や、既に削除済みになった場合は、実行時の再確認で安全側にスキップする。
+
+## Purge Service Facade
+
+`PostgreSqlRetentionPurgeService` はCLIとScheduler Workerが呼び出すための薄いFacadeである。
+
+Facadeは次の順で処理する。
+
+```text
+plan
+transport payload tombstone
+dead letter delete
+```
+
+ResultはPlanと対象別の実行件数だけを返す。Payload、Context、Dead Letter本文、Journal本文は返さない。
+
+Canonical Journal、Outcome、System Log配送は後続Taskで接続する。
