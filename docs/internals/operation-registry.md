@@ -8,6 +8,20 @@ The internal provider compiler reads one or more providers, compiles each return
 
 Config loading, Composer package discovery, file scanning, token scanning, and manifest file orchestration are separate bootstrap/build concerns.
 
+## Development Operation Discovery
+
+Development discovery accepts one or more application-owned source roots. Every root is resolved with `realpath`, must be a readable directory, and is deduplicated before scanning. Source files are accepted only when their resolved path remains inside a configured root. A PHP file symlink that resolves outside every root fails discovery instead of widening the scan boundary.
+
+Composer PSR-4 metadata supplies namespace prefixes and source directories. Conventional PSR-4 paths become initial class candidates. Composer classmap metadata supplies exact class-to-file candidates. Entries whose files are outside the configured discovery roots are ignored because one Composer autoloader normally contains application, framework, and vendor classes together. Invalid metadata shapes and unreadable referenced paths fail fast.
+
+The Token Scan fallback parses every PHP file inside the roots without executing it. It obtains fully qualified named class declarations without requiring the file name to match the class name. Interface, trait, enum, anonymous class, and `::class` tokens are not class candidates.
+
+After token parsing completes, discovery loads each source file that declared at least one named class exactly once through a controlled loader. Files with no named class candidates are not executed. This allows a class whose file name differs from its class name to be reflected while preventing a side-effect-only PHP file from being indiscriminately required. An already loaded class must resolve to the same candidate source file or discovery fails.
+
+Reflection is the final filter. A result must be a concrete, instantiable class implementing `Operation`, and its reflected source file must still resolve inside the configured roots and equal the candidate file. Duplicate PSR-4, classmap, and Token Scan candidates collapse by class name; conflicting file mappings fail. The resulting definition class names are sorted deterministically.
+
+This boundary is development/build tooling. It does not run during request handling. Production startup requires versioned generated manifests and fails when they are missing or invalid; it never invokes development discovery as a fallback.
+
 Operation provider config loading is an internal bootstrap concern. A PHP config file may return a single `OperationProvider`, a list of provider instances, or a list of provider class names that can be instantiated without constructor arguments. The loader returns provider instances that can be passed to the internal provider compiler.
 
 The operation manifest file boundary writes registry metadata to a PHP array file and loads it back into an operation registry. The manifest contains scalar values and class names only.
