@@ -42,13 +42,34 @@ final readonly class PostgreSqlDeferredOperationSchema
                     'dead_lettered'
                 )),
                 state_version bigint NOT NULL CHECK (state_version >= 1),
+                attempt_number integer NOT NULL DEFAULT 0 CHECK (attempt_number >= 0),
                 next_sequence bigint NOT NULL CHECK (next_sequence >= 1),
                 available_at timestamptz NOT NULL,
-                accepted_at timestamptz NOT NULL
+                accepted_at timestamptz NOT NULL,
+                lease_owner text NULL,
+                lease_expires_at timestamptz NULL,
+                fencing_token bigint NOT NULL DEFAULT 0 CHECK (fencing_token >= 0),
+                created_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                updated_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP
             )",
+            "ALTER TABLE {$operations}
+                ADD COLUMN IF NOT EXISTS attempt_number integer NOT NULL DEFAULT 0 CHECK (attempt_number >= 0)",
+            "ALTER TABLE {$operations}
+                ADD COLUMN IF NOT EXISTS lease_owner text NULL",
+            "ALTER TABLE {$operations}
+                ADD COLUMN IF NOT EXISTS lease_expires_at timestamptz NULL",
+            "ALTER TABLE {$operations}
+                ADD COLUMN IF NOT EXISTS fencing_token bigint NOT NULL DEFAULT 0 CHECK (fencing_token >= 0)",
+            "ALTER TABLE {$operations}
+                ADD COLUMN IF NOT EXISTS created_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP",
+            "ALTER TABLE {$operations}
+                ADD COLUMN IF NOT EXISTS updated_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP",
             "CREATE INDEX IF NOT EXISTS operations_eligible_idx
                 ON {$operations} (available_at, operation_id)
                 WHERE state IN ('accepted', 'retry_scheduled')",
+            "CREATE INDEX IF NOT EXISTS operations_running_lease_idx
+                ON {$operations} (lease_expires_at, operation_id)
+                WHERE state = 'running' AND lease_expires_at IS NOT NULL",
         ];
     }
 

@@ -74,6 +74,12 @@ state_version
 next_sequence
 available_at
 accepted_at
+attempt_number
+lease_owner
+lease_expires_at
+fencing_token
+created_at
+updated_at
 ```
 
 PayloadとContextは不透明な`bytea`として保存する。Transportは内部構造を検索しない。初期Stateは`accepted`、初期Versionは`1`、初期Sequenceは`1`とする。
@@ -111,10 +117,26 @@ HTTP AdapterはRouteを持つDeferred Operationを受け付け、Operation Codec
 
 HTTP層はDeferred受付用のPortへ依存し、具体的なRegistry、Codec、PostgreSQL Transaction構成はInternal実装へ閉じる。
 
+## PostgreSQL Worker Claim
+
+PostgreSQL Receiverは、EligibleなOperationを短いTransaction内で1件Claimする。
+
+Claim対象は次の条件を満たすOperationである。
+
+```text
+state IN ('accepted', 'retry_scheduled')
+available_at <= claimedAt
+```
+
+Receiverは`FOR UPDATE SKIP LOCKED`で行Lockを取得し、同じTransactionでStateを`running`へ更新する。併せてLease Owner、Lease期限、Fencing Token、State Versionを更新し、Codec済みMessageと不透明なClaim Tokenを持つ`OperationClaim`を返す。
+
+Lease OwnerとLease DurationはPostgreSQL Receiverの構成値であり、ExecutionContextや業務Handlerへ公開しない。Handler実行中にDatabase Transactionは保持しない。
+
 ## Current Scope
 
 現在のDeferred Transport実装では、まだ次を実装しない。
 
 - Deferred Dispatcher
 - Worker Runtime
+- Heartbeat / Settlement
 - Retry、Crash Recovery、Dead Letter

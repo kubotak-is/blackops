@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-10T10:13:50+09:00
+Updated At: 2026-07-10T10:20:18+09:00
 
 ## Current Phase
 
@@ -8,21 +8,21 @@ Phase 3: Deferred Vertical Slice
 
 ## Current Task
 
-Task ID: P3-008-http-deferred-acceptance
+Task ID: P3-009-postgresql-worker-claim
 
-Task Packet: `orchestration/tasks/P3-008-http-deferred-acceptance.md`
+Task Packet: `orchestration/tasks/P3-009-postgresql-worker-claim.md`
 
-Report: `orchestration/reports/P3-008-http-deferred-acceptance.md`
+Report: `orchestration/reports/P3-009-postgresql-worker-claim.md`
 
 ## Task Status
 
 Accepted
 
-P3-008をCodexが完了。Routeを持つDeferred OperationをHTTPから受け付け、Operation CodecでMessage化し、Deferred Acceptance Orchestratorへ渡してHTTP 202 Acknowledgement Responseを返す経路を追加した。
+P3-009をCodexが完了。PostgreSQL TransportへWorker Claimを追加し、EligibleなAccepted Operationを`FOR UPDATE SKIP LOCKED`で1件取得してRunning State、Lease、Fencing Tokenを同一Transactionで更新できるようにした。
 
 ## Last Accepted Task
 
-P3-008-http-deferred-acceptance
+P3-009-postgresql-worker-claim
 
 ## Pending Decisions
 
@@ -34,8 +34,39 @@ P3-008-http-deferred-acceptance
 
 ## Required Next Action
 
-1. P3-009 Task Packetを作成する。
-2. PostgreSQL TransportへWorker Claimを追加し、Accepted OperationをWorker Processが取得できるようにする。
+1. P3-010 Task Packetを作成する。
+2. WorkerがClaim済みOperationをOperationValue / ExecutionContextへDecodeし、Attemptを開始してHandlerを実行するRuntimeを追加する。
+
+## P3-009 Verification Commands and Results
+
+```text
+docker compose run --rm app vendor/bin/phpunit --filter PostgreSqlDeferredOperationReceiverTest
+Result: OK (3 tests, 22 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app mago format --check src tests
+Result: INFO All files are already formatted.
+
+docker compose run --rm app composer validate --strict
+Result: ./composer.json is valid.
+
+docker compose run --rm app mago lint
+Result: INFO No issues found.
+
+docker compose run --rm app mago analyze
+Result: INFO No issues found.
+
+docker compose run --rm app vendor/bin/phpunit
+Result: OK (345 tests, 880 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app vendor/bin/deptrac
+Result: Violations 0 / Skipped 0 / Uncovered 0 / Allowed 620 / Warnings 0 / Errors 0.
+
+rg -n 'Spec(ification)?[[:space:]]*[0-9]+|D[0-9]{3}|P[0-9]+-[0-9]+|TODO\.md:[0-9]+' src tests --glob '*.php'
+Result: No matches.
+
+git diff --check
+Result: No output.
+```
 
 ## P3-008 Verification Commands and Results
 
