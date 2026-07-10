@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-10T14:08:42+09:00
+Updated At: 2026-07-10T14:21:12+09:00
 
 ## Current Phase
 
@@ -8,21 +8,21 @@ Phase 4: Resilience
 
 ## Current Task
 
-Task ID: P4-002-supervision-policy-contract
+Task ID: P4-003-dead-letter-boundary
 
-Task Packet: `orchestration/tasks/P4-002-supervision-policy-contract.md`
+Task Packet: `orchestration/tasks/P4-003-dead-letter-boundary.md`
 
-Report: `orchestration/reports/P4-002-supervision-policy-contract.md`
+Report: `orchestration/reports/P4-003-dead-letter-boundary.md`
 
 ## Task Status
 
 Accepted
 
-P4-002をCodexが完了。Supervision Policy Contract、Supervision Decision、Retry Scheduling Dataを実装し、Deferred Worker RuntimeがHandler例外後に`attempt.retry_scheduled`または`operation.failed`へ遷移できるようにした。
+P4-003をCodexが完了。PostgreSQL Dead Letters Table、`OperationDeadLetteredData`、Dead Letter予約処理、Runtime連携を実装した。Dead Lettered Operationへ`operation.failed`は併記しない。
 
 ## Last Accepted Task
 
-P4-002-supervision-policy-contract
+P4-003-dead-letter-boundary
 
 ## Pending Decisions
 
@@ -34,8 +34,39 @@ P4-002-supervision-policy-contract
 
 ## Required Next Action
 
-1. P4-003 Task Packetを作成する。
-2. Dead Letter TransportまたはLease Expired Recoveryのどちらを先に実装するか決めて進める。
+1. P4-004 Task Packetを作成する。
+2. Lease Expired RecoveryまたはHeartbeat / Settlementの実装へ進む。
+
+## P4-003 Verification Commands and Results
+
+```text
+docker compose run --rm app vendor/bin/phpunit --filter 'DeferredWorkerRuntimeTest|PostgreSqlCanonicalJournalStoreTest|PostgreSqlDeferredOperationSenderTest|JournalContractTest'
+Result: OK (21 tests, 193 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app composer validate --strict
+Result: ./composer.json is valid.
+
+docker compose run --rm app mago format --check src tests
+Result: INFO All files are already formatted.
+
+docker compose run --rm app mago lint
+Result: INFO No issues found.
+
+docker compose run --rm app mago analyze
+Result: INFO No issues found.
+
+docker compose run --rm app vendor/bin/phpunit
+Result: OK (365 tests, 1041 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app vendor/bin/deptrac
+Result: Violations 0 / Skipped 0 / Uncovered 0 / Allowed 771 / Warnings 0 / Errors 0.
+
+rg -n 'Spec(ification)?[[:space:]]*[0-9]+|D[0-9]{3}|P[0-9]+-[0-9]+|TODO\.md:[0-9]+' src tests --glob '*.php'
+Result: No matches.
+
+git diff --check
+Result: No output.
+```
 
 ## P4-002 Verification Commands and Results
 

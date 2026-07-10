@@ -161,11 +161,11 @@ Handlerが業務Rejectを返した場合は、同じBoundaryでStateを`rejected
 
 Handler例外が発生した場合、Worker Runtimeは例外を捕捉し、Failure BoundaryでFencing Tokenを検証して`attempt.failed` Journalを保存する。Operation Stateは一度`supervising`へ進め、Lease情報は解除する。例外は記録後に再throwする。
 
-その後、Supervision Policyの判断に基づいて、同じTransaction内で`attempt.retry_scheduled`または`operation.failed`を保存する。Retry予定時はStateを`retry_scheduled`へ遷移させ、`available_at`を次回実行予定時刻へ更新する。Retry不能または上限到達時はStateを`failed`へ遷移させる。
+その後、Supervision Policyの判断に基づいて、同じTransaction内で`attempt.retry_scheduled`、`operation.failed`、または`operation.dead_lettered`を保存する。Retry予定時はStateを`retry_scheduled`へ遷移させ、`available_at`を次回実行予定時刻へ更新する。Retry不能または上限到達時はStateを`failed`へ遷移させる。Dead Letter時はStateを`dead_lettered`へ遷移させ、Dead Letters Tableへ調査用Recordを保存する。
 
 `attempt.failed` Dataは、例外型、例外Message、現時点のRetryable判定を保持する。
 
-Dead Letter、Heartbeat、Claim Settlementは後続Phaseの責務として残す。
+Heartbeat、Claim Settlementは後続Phaseの責務として残す。
 
 ## Current Scope
 
@@ -173,4 +173,4 @@ Dead Letter、Heartbeat、Claim Settlementは後続Phaseの責務として残す
 
 - Deferred Dispatcher
 - Heartbeat / Settlement
-- Crash Recovery、Dead Letter
+- Crash Recovery

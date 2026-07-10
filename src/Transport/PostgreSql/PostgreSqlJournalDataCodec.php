@@ -9,10 +9,8 @@ use BlackOps\Core\OperationValue;
 use BlackOps\Core\Outcome;
 use BlackOps\Core\Rejection\RejectionCategory;
 use BlackOps\Core\Rejection\RejectionReason;
-use BlackOps\Journal\Data\AttemptFailedData;
 use BlackOps\Journal\Data\AttemptRetryScheduledData;
 use BlackOps\Journal\Data\OperationCompletedData;
-use BlackOps\Journal\Data\OperationFailedData;
 use BlackOps\Journal\Data\OperationReceivedData;
 use BlackOps\Journal\Data\OperationRejectedData;
 use BlackOps\Journal\EmptyJournalData;
@@ -25,6 +23,7 @@ final readonly class PostgreSqlJournalDataCodec
     public function __construct(
         private PostgreSqlJournalValueCodec $values = new PostgreSqlJournalValueCodec(),
         private PostgreSqlJson $json = new PostgreSqlJson(),
+        private PostgreSqlFailureJournalDataCodec $failures = new PostgreSqlFailureJournalDataCodec(),
     ) {}
 
     /**
@@ -44,10 +43,6 @@ final readonly class PostgreSqlJournalDataCodec
             return ['class' => OperationCompletedData::class, 'value' => $this->values->encode($data->outcome)];
         }
 
-        if ($data instanceof AttemptFailedData) {
-            return ['class' => AttemptFailedData::class, 'value' => $this->failure($data)];
-        }
-
         if ($data instanceof AttemptRetryScheduledData) {
             return [
                 'class' => AttemptRetryScheduledData::class,
@@ -60,15 +55,17 @@ final readonly class PostgreSqlJournalDataCodec
             ];
         }
 
-        if ($data instanceof OperationFailedData) {
-            return ['class' => OperationFailedData::class, 'value' => $this->failure($data)];
-        }
-
         if ($data instanceof OperationRejectedData) {
             return [
                 'class' => OperationRejectedData::class,
                 'value' => ['category' => $data->reason->category()->value, 'code' => $data->reason->code()],
             ];
+        }
+
+        $failure = $this->failures->encode($data);
+
+        if ($failure !== null) {
+            return $failure;
         }
 
         throw new RuntimeException('Unsupported journal data type.');
@@ -80,9 +77,17 @@ final readonly class PostgreSqlJournalDataCodec
             EmptyJournalData::class => new EmptyJournalData(),
             OperationReceivedData::class => $this->received($data),
             OperationCompletedData::class => $this->completed($data),
-            AttemptFailedData::class => $this->attemptFailed($this->json->array($data, 'value')),
+            \BlackOps\Journal\Data\AttemptFailedData::class => $this->failures->attemptFailed($this->json->array(
+                $data,
+                'value',
+            )),
             AttemptRetryScheduledData::class => $this->attemptRetryScheduled($this->json->array($data, 'value')),
-            OperationFailedData::class => $this->operationFailed($this->json->array($data, 'value')),
+            \BlackOps\Journal\Data\OperationFailedData::class => $this->failures->operationFailed($this->json->array(
+                $data,
+                'value',
+            )),
+            \BlackOps\Journal\Data\OperationDeadLetteredData::class
+                => $this->failures->operationDeadLettered($this->json->array($data, 'value')),
             OperationRejectedData::class => new OperationRejectedData($this->rejection($this->json->array(
                 $data,
                 'value',
@@ -127,15 +132,6 @@ final readonly class PostgreSqlJournalDataCodec
         };
     }
 
-    private function attemptFailed(array $value): AttemptFailedData
-    {
-        return new AttemptFailedData(
-            $this->json->string($value, 'error_type'),
-            $this->json->string($value, 'error_message'),
-            $this->json->bool($value, 'retryable'),
-        );
-    }
-
     /**
      * @param array<array-key, mixed> $value
      */
@@ -147,29 +143,5 @@ final readonly class PostgreSqlJournalDataCodec
             new DateTimeImmutable($this->json->string($value, 'scheduled_at')),
             $this->json->int($value, 'delay_milliseconds'),
         );
-    }
-
-    /**
-     * @param array<array-key, mixed> $value
-     */
-    private function operationFailed(array $value): OperationFailedData
-    {
-        return new OperationFailedData(
-            $this->json->string($value, 'error_type'),
-            $this->json->string($value, 'error_message'),
-            $this->json->bool($value, 'retryable'),
-        );
-    }
-
-    /**
-     * @return array{error_type: string, error_message: string, retryable: bool}
-     */
-    private function failure(AttemptFailedData|OperationFailedData $data): array
-    {
-        return [
-            'error_type' => $data->errorType,
-            'error_message' => $data->errorMessage,
-            'retryable' => $data->retryable,
-        ];
     }
 }

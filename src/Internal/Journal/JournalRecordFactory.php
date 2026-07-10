@@ -12,7 +12,6 @@ use BlackOps\Internal\Identifier\IdentifierFactory;
 use BlackOps\Journal\Data\AttemptFailedData;
 use BlackOps\Journal\Data\AttemptRetryScheduledData;
 use BlackOps\Journal\Data\OperationCompletedData;
-use BlackOps\Journal\Data\OperationFailedData;
 use BlackOps\Journal\Data\OperationReceivedData;
 use BlackOps\Journal\Data\OperationRejectedData;
 use BlackOps\Journal\EmptyJournalData;
@@ -23,10 +22,17 @@ use Psr\Clock\ClockInterface;
 final readonly class JournalRecordFactory
 {
     private JournalRecordBuilder $builder;
+    private JournalTerminalRecordFactory $terminal;
 
     public function __construct(IdentifierFactory $identifiers, ClockInterface $clock)
     {
         $this->builder = new JournalRecordBuilder($identifiers, $clock);
+        $this->terminal = new JournalTerminalRecordFactory($this->builder);
+    }
+
+    public function terminal(): JournalTerminalRecordFactory
+    {
+        return $this->terminal;
     }
 
     public function operationReceived(
@@ -131,14 +137,5 @@ final readonly class JournalRecordFactory
             JournalEvent::OperationRejected,
             new OperationRejectedData($reason),
         );
-    }
-
-    public function operationFailed(
-        OperationEnvelope $envelope,
-        OperationMetadata $metadata,
-        int $sequence,
-        OperationFailedData $data,
-    ): JournalRecord {
-        return $this->builder->build($envelope, $metadata, $sequence, JournalEvent::OperationFailed, $data);
     }
 }

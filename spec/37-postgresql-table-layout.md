@@ -66,3 +66,16 @@ Canonical JournalにもOutcomeを保持する。Outcomes TableはDeferred Outcom
 Dead Letter時もOperationsの行を移動しない。
 
 OperationsをDead Lettered Terminal Stateとして残し、調査用IndexとなるDead Letters Tableへ一対一Recordを追加する。手動Replayは元Operationを変更せず、新しいOperation IDを発行する。
+
+```text
+dead_letters
+  operation_id            uuid primary key
+  final_attempt_id        uuid nullable
+  final_attempt_number    integer nullable
+  reason_type             text not null
+  reason_message          text not null
+  moved_at                timestamptz not null
+  created_at              timestamptz not null default current_timestamp
+```
+
+`operation.dead_lettered` Journal Dataは同じ安全な理由情報、最終Attempt ID、最終Attempt番号、移動時刻を保持する。

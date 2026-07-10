@@ -8,6 +8,7 @@ use BlackOps\Core\Attribute\PublicApi;
 use BlackOps\Journal\Data\AttemptFailedData;
 use BlackOps\Journal\Data\AttemptRetryScheduledData;
 use BlackOps\Journal\Data\OperationCompletedData;
+use BlackOps\Journal\Data\OperationDeadLetteredData;
 use BlackOps\Journal\Data\OperationFailedData;
 use BlackOps\Journal\Data\OperationReceivedData;
 use BlackOps\Journal\Data\OperationRejectedData;
@@ -60,6 +61,7 @@ final class JournalContractTest extends TestCase
             AttemptFailedData::class,
             AttemptRetryScheduledData::class,
             OperationCompletedData::class,
+            OperationDeadLetteredData::class,
             OperationFailedData::class,
             OperationReceivedData::class,
             OperationRejectedData::class,

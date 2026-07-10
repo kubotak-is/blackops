@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BlackOps\Tests\Internal\Execution;
 
+use BlackOps\Core\AttemptContext;
 use BlackOps\Core\EmptyOutcome;
 use BlackOps\Core\Exception\DeferredTransportException;
 use BlackOps\Core\Execution\Deferred;
@@ -23,6 +24,8 @@ use BlackOps\Core\Registry\OperationRegistry;
 use BlackOps\Core\Rejection\RejectionReason;
 use BlackOps\Core\Supervision\ExponentialBackoffSupervisionPolicy;
 use BlackOps\Core\Supervision\RetryableException;
+use BlackOps\Core\Supervision\SupervisionDecision;
+use BlackOps\Core\Supervision\SupervisionPolicy;
 use BlackOps\Internal\Codec\ReflectionJsonOperationCodec;
 use BlackOps\Internal\Execution\DeferredAcceptanceOrchestrator;
 use BlackOps\Internal\Execution\DeferredWorkerRuntime;
@@ -35,6 +38,7 @@ use BlackOps\Internal\Identifier\Uuidv7Generator;
 use BlackOps\Internal\Journal\JournalRecordFactory;
 use BlackOps\Journal\Data\AttemptFailedData;
 use BlackOps\Journal\Data\AttemptRetryScheduledData;
+use BlackOps\Journal\Data\OperationDeadLetteredData;
 use BlackOps\Journal\Data\OperationFailedData;
 use BlackOps\Journal\JournalEvent;
 use BlackOps\Journal\JournalRecord;
@@ -241,6 +245,54 @@ final class DeferredWorkerRuntimeTest extends TestCase
         self::assertSame(1_000, $records[4]->data->delayMilliseconds);
     }
 
+    public function testWorkerDeadLettersOperationWithoutOperationFailedEvent(): void
+    {
+        $handler = new ThrowingWorkerReportHandler();
+        $this->accept();
+        $claim = $this->receiver->claim(new \BlackOps\Core\Execution\ClaimRequest(
+            new DateTimeImmutable('2026-07-10T00:01:00.000000Z'),
+        ));
+
+        self::assertNotNull($claim);
+
+        try {
+            $this->runtime($handler, new AlwaysDeadLetterSupervisionPolicy())->run($claim);
+            self::fail('Expected handler exception to be rethrown.');
+        } catch (RuntimeException $exception) {
+            self::assertSame('boom', $exception->getMessage());
+        }
+
+        $row = $this->operationRow();
+        $deadLetter = $this->deadLetterRow();
+        $records = $this->records();
+
+        self::assertSame('dead_lettered', $row['state']);
+        self::assertSame(1, (int) $row['attempt_number']);
+        self::assertSame(6, (int) $row['next_sequence']);
+        self::assertSame(self::OPERATION_ID, $deadLetter['operation_id']);
+        self::assertSame($records[3]->attempt?->id->toString(), $deadLetter['final_attempt_id']);
+        self::assertSame(1, (int) $deadLetter['final_attempt_number']);
+        self::assertSame(RuntimeException::class, $deadLetter['reason_type']);
+        self::assertSame('boom', $deadLetter['reason_message']);
+        self::assertSame('2026-07-10T00:02:00.000000Z', $deadLetter['moved_at']);
+        self::assertSame(
+            [
+                JournalEvent::OperationReceived,
+                JournalEvent::OperationAccepted,
+                JournalEvent::AttemptStarted,
+                JournalEvent::AttemptFailed,
+                JournalEvent::OperationDeadLettered,
+            ],
+            array_map(static fn(JournalRecord $record): JournalEvent => $record->event, $records),
+        );
+        self::assertInstanceOf(OperationDeadLetteredData::class, $records[4]->data);
+        self::assertSame($records[3]->attempt?->id->toString(), $records[4]->data->finalAttemptId?->toString());
+        self::assertSame(1, $records[4]->data->finalAttemptNumber);
+        self::assertSame(RuntimeException::class, $records[4]->data->reasonType);
+        self::assertSame('boom', $records[4]->data->reasonMessage);
+        self::assertSame('2026-07-10T00:02:00+00:00', $records[4]->data->movedAt->format(DATE_ATOM));
+    }
+
     public function testFailureReservationRejectsStaleFencingToken(): void
     {
         $this->accept();
@@ -293,7 +345,7 @@ final class DeferredWorkerRuntimeTest extends TestCase
         );
     }
 
-    private function runtime(OperationHandler $handler): DeferredWorkerRuntime
+    private function runtime(OperationHandler $handler, ?SupervisionPolicy $policy = null): DeferredWorkerRuntime
     {
         $clock = new DeferredWorkerClock();
         $identifiers = new IdentifierFactory(new DeferredWorkerRuntimeUuidv7Generator(), $clock);
@@ -304,7 +356,7 @@ final class DeferredWorkerRuntimeTest extends TestCase
                 $this->codec,
                 new ExecutionContextFactory($identifiers, $clock),
                 new HandlerResolver(new DeferredWorkerContainer($handler)),
-                new ExponentialBackoffSupervisionPolicy(jitterRatio: 0.0),
+                $policy ?? new ExponentialBackoffSupervisionPolicy(jitterRatio: 0.0),
             ),
             new DeferredWorkerRuntimeStorage(
                 $this->connection,
@@ -334,6 +386,25 @@ final class DeferredWorkerRuntimeTest extends TestCase
     private function operationRow(): array
     {
         $row = $this->connection->fetchAssociative('SELECT * FROM ' . self::SCHEMA . '.operations');
+
+        self::assertIsArray($row);
+
+        return $row;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function deadLetterRow(): array
+    {
+        $row = $this->connection->fetchAssociative('SELECT
+                operation_id::text AS operation_id,
+                final_attempt_id::text AS final_attempt_id,
+                final_attempt_number,
+                reason_type,
+                reason_message,
+                to_char(moved_at AT TIME ZONE \'UTC\', \'YYYY-MM-DD"T"HH24:MI:SS.US"Z"\') AS moved_at
+            FROM ' . self::SCHEMA . '.dead_letters');
 
         self::assertIsArray($row);
 
@@ -425,6 +496,14 @@ final class RetryableThrowingWorkerReportHandler extends WorkerReportHandler
 }
 
 final class RetryableWorkerRuntimeException extends RuntimeException implements RetryableException {}
+
+final readonly class AlwaysDeadLetterSupervisionPolicy implements SupervisionPolicy
+{
+    public function decide(\Throwable $error, AttemptContext $attempt): SupervisionDecision
+    {
+        return SupervisionDecision::deadLetter();
+    }
+}
 
 final readonly class DeferredWorkerContainer implements ContainerInterface
 {

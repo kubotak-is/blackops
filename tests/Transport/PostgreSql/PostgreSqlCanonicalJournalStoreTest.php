@@ -14,6 +14,7 @@ use BlackOps\Core\Rejection\RejectionCategory;
 use BlackOps\Core\Rejection\RejectionReason;
 use BlackOps\Journal\Data\AttemptRetryScheduledData;
 use BlackOps\Journal\Data\OperationCompletedData;
+use BlackOps\Journal\Data\OperationDeadLetteredData;
 use BlackOps\Journal\Data\OperationFailedData;
 use BlackOps\Journal\Data\OperationReceivedData;
 use BlackOps\Journal\Data\OperationRejectedData;
@@ -174,6 +175,32 @@ final class PostgreSqlCanonicalJournalStoreTest extends TestCase
         self::assertSame(\RuntimeException::class, $records[0]->data->errorType);
         self::assertSame('boom', $records[0]->data->errorMessage);
         self::assertFalse($records[0]->data->retryable);
+    }
+
+    public function testAppendsAndReadsOperationDeadLetteredData(): void
+    {
+        $this->store->append($this->record(
+            self::RECORD_ID_3,
+            JournalEvent::OperationDeadLettered,
+            1,
+            new OperationDeadLetteredData(
+                AttemptId::fromString(self::ATTEMPT_ID),
+                1,
+                \RuntimeException::class,
+                'boom',
+                new DateTimeImmutable('2026-07-08T00:00:03.000000Z'),
+            ),
+        ));
+
+        $records = array_values(iterator_to_array($this->store->records(OperationId::fromString(self::OPERATION_ID))));
+
+        self::assertCount(1, $records);
+        self::assertInstanceOf(OperationDeadLetteredData::class, $records[0]->data);
+        self::assertSame(self::ATTEMPT_ID, $records[0]->data->finalAttemptId?->toString());
+        self::assertSame(1, $records[0]->data->finalAttemptNumber);
+        self::assertSame(\RuntimeException::class, $records[0]->data->reasonType);
+        self::assertSame('boom', $records[0]->data->reasonMessage);
+        self::assertSame('2026-07-08T00:00:03+00:00', $records[0]->data->movedAt->format(DATE_ATOM));
     }
 
     public function testDuplicateRecordIdFails(): void

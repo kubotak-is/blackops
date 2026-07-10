@@ -58,6 +58,34 @@ final class PostgreSqlDeferredOperationSenderTest extends TestCase
         self::assertSame('timestamp with time zone', $columns['accepted_at']);
     }
 
+    public function testMigrationCreatesDeadLettersTableWithExpectedShape(): void
+    {
+        $columns = $this->connection->fetchAllKeyValue("SELECT column_name, data_type
+            FROM information_schema.columns
+            WHERE table_schema = '"
+        . self::SCHEMA
+        . "'
+              AND table_name = 'dead_letters'
+            ORDER BY ordinal_position");
+
+        $primaryKeyCount = $this->connection->fetchOne("SELECT count(*)
+            FROM information_schema.table_constraints
+            WHERE table_schema = '"
+        . self::SCHEMA
+        . "'
+              AND table_name = 'dead_letters'
+              AND constraint_type = 'PRIMARY KEY'");
+
+        self::assertSame('uuid', $columns['operation_id']);
+        self::assertSame('uuid', $columns['final_attempt_id']);
+        self::assertSame('integer', $columns['final_attempt_number']);
+        self::assertSame('text', $columns['reason_type']);
+        self::assertSame('text', $columns['reason_message']);
+        self::assertSame('timestamp with time zone', $columns['moved_at']);
+        self::assertSame('timestamp with time zone', $columns['created_at']);
+        self::assertSame(1, (int) $primaryKeyCount);
+    }
+
     public function testEnqueueStoresMessageAndReturnsAcknowledgement(): void
     {
         $message = $this->message();

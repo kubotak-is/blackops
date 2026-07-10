@@ -68,7 +68,7 @@ Retry可能な例外を、上限回数付き指数BackoffとJitterでRetryする
 
 Retry不能または上限到達したOperationはDead Letter Transportへ移し、`OperationDeadLettered` を記録する。手動Replayは新しいOperation IDで行う。
 
-Dead Letter Transport未実装の間は、Retry不能または上限到達したOperationを `OperationFailed` へ遷移させる。
+Dead Letterへ隔離せず最終失敗させる場合は、`OperationFailed` を記録する。
 
 ## 冪等性
 

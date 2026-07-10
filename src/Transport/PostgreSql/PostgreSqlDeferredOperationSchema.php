@@ -20,6 +20,7 @@ final readonly class PostgreSqlDeferredOperationSchema
     {
         $schema = $this->identifier->quoted();
         $operations = $this->identifier->qualify('operations');
+        $deadLetters = $this->identifier->qualify('dead_letters');
 
         return [
             "CREATE SCHEMA IF NOT EXISTS {$schema}",
@@ -84,11 +85,29 @@ final readonly class PostgreSqlDeferredOperationSchema
             "CREATE INDEX IF NOT EXISTS operations_running_lease_idx
                 ON {$operations} (lease_expires_at, operation_id)
                 WHERE state = 'running' AND lease_expires_at IS NOT NULL",
+            "CREATE TABLE IF NOT EXISTS {$deadLetters} (
+                operation_id uuid PRIMARY KEY,
+                final_attempt_id uuid NULL,
+                final_attempt_number integer NULL CHECK (
+                    final_attempt_number IS NULL OR final_attempt_number >= 1
+                ),
+                reason_type text NOT NULL CHECK (reason_type <> ''),
+                reason_message text NOT NULL,
+                moved_at timestamptz NOT NULL,
+                created_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP
+            )",
+            "CREATE INDEX IF NOT EXISTS dead_letters_moved_at_idx
+                ON {$deadLetters} (moved_at, operation_id)",
         ];
     }
 
     public function operationsTable(): string
     {
         return $this->identifier->qualify('operations');
+    }
+
+    public function deadLettersTable(): string
+    {
+        return $this->identifier->qualify('dead_letters');
     }
 }

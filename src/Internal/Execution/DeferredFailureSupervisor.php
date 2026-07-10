@@ -10,6 +10,7 @@ use BlackOps\Core\Registry\OperationMetadata;
 use BlackOps\Core\Supervision\SupervisionAction;
 use BlackOps\Journal\Data\AttemptFailedData;
 use BlackOps\Journal\Data\AttemptRetryScheduledData;
+use BlackOps\Journal\Data\OperationDeadLetteredData;
 use BlackOps\Journal\Data\OperationFailedData;
 use BlackOps\Journal\JournalEvent;
 use BlackOps\Journal\LifecycleState;
@@ -58,12 +59,8 @@ final readonly class DeferredFailureSupervisor
                     $decision->delayMilliseconds(),
                     $now,
                 ),
-                SupervisionAction::Fail, SupervisionAction::DeadLetter => $this->failOperation(
-                    $claim,
-                    $metadata,
-                    $envelope,
-                    $exception,
-                ),
+                SupervisionAction::Fail => $this->failOperation($claim, $metadata, $envelope, $exception),
+                SupervisionAction::DeadLetter => $this->deadLetterOperation($claim, $metadata, $envelope, $exception),
             };
         });
     }
@@ -100,12 +97,42 @@ final readonly class DeferredFailureSupervisor
     ): void {
         $reservation = $this->storage->state->reserveOperationFailed($claim, $this->storage->clock->now());
         $this->storage->lifecycle->next(LifecycleState::Supervising, JournalEvent::OperationFailed);
-        $this->storage->journal->append($this->storage->records->operationFailed(
-            $envelope,
-            $metadata,
-            $reservation->sequence,
-            new OperationFailedData($exception::class, $exception->getMessage(), false),
-        ));
+        $this->storage->journal->append(
+            $this->storage
+                ->records
+                ->terminal()
+                ->operationFailed(
+                    $envelope,
+                    $metadata,
+                    $reservation->sequence,
+                    new OperationFailedData($exception::class, $exception->getMessage(), false),
+                ),
+        );
+    }
+
+    private function deadLetterOperation(
+        OperationClaim $claim,
+        OperationMetadata $metadata,
+        OperationEnvelope $envelope,
+        Throwable $exception,
+    ): void {
+        $attempt = $envelope->context()->attempt();
+        $movedAt = $this->storage->clock->now();
+        $data = new OperationDeadLetteredData(
+            $attempt?->id(),
+            $attempt?->number(),
+            $exception::class,
+            $exception->getMessage(),
+            $movedAt,
+        );
+        $reservation = $this->storage->state->reserveDeadLettered($claim, $data, $movedAt);
+        $this->storage->lifecycle->next(LifecycleState::Supervising, JournalEvent::OperationDeadLettered);
+        $this->storage->journal->append(
+            $this->storage
+                ->records
+                ->terminal()
+                ->operationDeadLettered($envelope, $metadata, $reservation->sequence, $data),
+        );
     }
 
     private function addMilliseconds(DateTimeImmutable $time, int $milliseconds): DateTimeImmutable

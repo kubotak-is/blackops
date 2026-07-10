@@ -68,10 +68,10 @@
   - [ ] Completed
 - [x] 業務上の拒否とAttempt/Operationの失敗を区別する
   - [ ] Rejected
-  - [ ] Attempt Failed
-  - [ ] Retry Scheduled
-  - [ ] Operation Failed
-  - [ ] Dead Lettered
+  - [x] Attempt Failed
+  - [x] Retry Scheduled
+  - [x] Operation Failed
+  - [x] Dead Lettered
   - [ ] Cancelled
   - [ ] Expired
 - [ ] 不正な状態遷移をどう扱うか決める

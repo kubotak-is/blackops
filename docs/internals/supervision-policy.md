@@ -12,6 +12,8 @@ Deferred実行の既定Policyは、Retry可能な例外だけを指数Backoffと
 
 Retry予定は `attempt.retry_scheduled` としてJournalへ記録される。Dataには失敗したAttempt ID、次Attempt番号、予定時刻、Delay Millisecondsを保存する。
 
-Retry不能な例外、または最大Attempt回数に到達した例外はOperation全体の失敗として扱う。Dead Letter Transportが実装されるまでは `operation.failed` へ遷移する。
+Retry不能な例外、または最大Attempt回数に到達した例外はOperation全体の失敗として扱う。PolicyがDead Letterを返した場合は、Operationを`dead_lettered`へ遷移させ、Dead Letters Tableへ調査用Recordを保存し、`operation.dead_lettered` Journalを記録する。
+
+Dead LetteredとなるOperationへ`operation.failed`は併記しない。
 
 Jitterは多数のOperationが同じ時刻に再試行されることを避けるため、基準Delayへランダムな揺らぎを加える仕組みである。たとえば1秒のDelayに±20%のJitterを適用すると、実際のDelayはおおむね0.8秒から1.2秒の範囲に分散する。
