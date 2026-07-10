@@ -7,17 +7,19 @@ namespace BlackOps\Transport\PostgreSql;
 use BlackOps\Core\Exception\DeferredTransportException;
 use BlackOps\Core\Execution\ClaimHeartbeat;
 use BlackOps\Core\Execution\ClaimRequest;
+use BlackOps\Core\Execution\ClaimSettlement;
 use BlackOps\Core\Execution\OperationClaim;
 use BlackOps\Core\Execution\OperationReceiver;
 use BlackOps\Core\Identifier\OperationId;
 use DateInterval;
+use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 use InvalidArgumentException;
 use Psr\Clock\ClockInterface;
 use SensitiveParameter;
 use Throwable;
 
-final readonly class PostgreSqlDeferredOperationReceiver implements OperationReceiver, ClaimHeartbeat
+final readonly class PostgreSqlDeferredOperationReceiver implements OperationReceiver, ClaimHeartbeat, ClaimSettlement
 {
     private PostgreSqlDeferredOperationSchema $schema;
     private DateInterval $leaseDuration;
@@ -108,6 +110,38 @@ final readonly class PostgreSqlDeferredOperationReceiver implements OperationRec
                 'Failed to heartbeat PostgreSQL deferred operation claim.',
                 previous: $exception,
             );
+        }
+    }
+
+    public function acknowledge(OperationClaim $claim): void
+    {
+        $this->settle(function () use ($claim): void {
+            $this->leases->acknowledgeTerminal($claim->message()->operationId(), $this->parseToken($claim));
+        }, 'Failed to acknowledge PostgreSQL deferred operation claim.');
+    }
+
+    public function release(OperationClaim $claim, DateTimeImmutable $availableAt): void
+    {
+        $this->settle(function () use ($claim, $availableAt): void {
+            $this->leases->releaseBeforeAttempt(
+                $claim->message()->operationId(),
+                $this->parseToken($claim),
+                $availableAt,
+                $this->clock->now(),
+            );
+        }, 'Failed to release PostgreSQL deferred operation claim.');
+    }
+
+    private function settle(callable $operation, string $message): void
+    {
+        try {
+            $operation();
+        } catch (Throwable $exception) {
+            if ($exception instanceof DeferredTransportException) {
+                throw $exception;
+            }
+
+            throw new DeferredTransportException($message, previous: $exception);
         }
     }
 

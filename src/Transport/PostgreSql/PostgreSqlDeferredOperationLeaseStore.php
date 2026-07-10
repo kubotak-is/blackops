@@ -101,6 +101,63 @@ final readonly class PostgreSqlDeferredOperationLeaseStore
         $this->assertUpdated($updated, 'Deferred operation heartbeat claim is stale or not running.');
     }
 
+    public function acknowledgeTerminal(OperationId $operationId, #[SensitiveParameter] int $fencingToken): void
+    {
+        $table = $this->schema->operationsTable();
+        $acknowledged = $this->connection->fetchOne(
+            "SELECT 1
+                FROM {$table}
+                WHERE operation_id = :operation_id
+                    AND fencing_token = :fencing_token
+                    AND state IN ('completed', 'rejected', 'failed', 'dead_lettered')
+                    AND lease_owner IS NULL
+                    AND lease_expires_at IS NULL
+                    AND current_attempt_id IS NULL
+                    AND current_attempt_started_at IS NULL
+                FOR UPDATE",
+            [
+                'operation_id' => $operationId->toString(),
+                'fencing_token' => $fencingToken,
+            ],
+        );
+
+        if ($acknowledged === false) {
+            throw new DeferredTransportException('Deferred operation acknowledge claim is stale or not terminal.');
+        }
+    }
+
+    public function releaseBeforeAttempt(
+        OperationId $operationId,
+        #[SensitiveParameter]
+        int $fencingToken,
+        DateTimeImmutable $availableAt,
+        DateTimeImmutable $updatedAt,
+    ): void {
+        $table = $this->schema->operationsTable();
+        $updated = $this->connection->executeStatement(
+            "UPDATE {$table}
+                SET state = 'accepted',
+                    state_version = state_version + 1,
+                    available_at = :available_at,
+                    lease_owner = NULL,
+                    lease_expires_at = NULL,
+                    updated_at = :updated_at
+                WHERE operation_id = :operation_id
+                    AND fencing_token = :fencing_token
+                    AND state = 'running'
+                    AND current_attempt_id IS NULL
+                    AND current_attempt_started_at IS NULL",
+            [
+                'operation_id' => $operationId->toString(),
+                'fencing_token' => $fencingToken,
+                'available_at' => $this->formatTimestamp($availableAt),
+                'updated_at' => $this->formatTimestamp($updatedAt),
+            ],
+        );
+
+        $this->assertUpdated($updated, 'Deferred operation release claim is stale or already started.');
+    }
+
     private function assertUpdated(int|string $updated, string $message): void
     {
         if ((int) $updated !== 1) {

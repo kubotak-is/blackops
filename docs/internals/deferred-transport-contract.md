@@ -174,6 +174,14 @@ Handler例外が発生した場合、Worker Runtimeは例外を捕捉し、Failu
 
 WorkerはHandler実行中にHeartbeatを送り、Running OperationのLease期限を延長できる。HeartbeatはClaim Token内のOperation IDとFencing Tokenを検証し、Running State以外または古いFencing Tokenを拒否する。
 
+## Claim Settlement
+
+Claim Settlementは低レベルTransport Portであり、Lifecycle Journal Eventを発行しない。Worker Runtimeの成功、Reject、Failure、Retry、Dead Letterの確定はLifecycle StoreがJournal込みで処理する。
+
+`acknowledge()` はClaim Token内のOperation IDとFencing Tokenを検証し、OperationがTerminal Stateであり、Lease情報と現在Attempt情報が解除済みであることを確認する。Stateを変更しない。
+
+`release()` はAttempt開始前のRunning Claimだけを`accepted`へ戻し、`available_at`を引数の時刻へ更新する。Lease情報は解除する。現在Attempt情報が保存済みのRunning OperationはHandler実行開始後とみなし、`release()`を拒否する。
+
 ## Lease Expired Recovery
 
 Lease Expired Recoveryは、Lease期限を過ぎたRunning Operationを短いTransactionで1件予約する。対象は次の条件を満たすOperationである。
@@ -188,8 +196,6 @@ current_attempt_started_at IS NOT NULL
 予約時にOperation Stateを`supervising`へ進め、Lease情報と現在Attempt情報を解除する。Recoveryは保存済みの現在Attempt情報からAttempt Contextを復元し、`lease_expired`の`attempt.failed`をJournalへ保存する。
 
 `lease_expired`はFramework内部のRetryableな構造化Errorとして扱う。Recovery後は通常のFailure Boundaryと同じくSupervision Policyへ渡し、Policyの判断に基づいてRetry、Fail、Dead Letterのいずれかへ遷移させる。
-
-Claim Settlementは後続Phaseの責務として残す。
 
 ## Current Scope
 

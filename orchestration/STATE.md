@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-10T15:21:19+09:00
+Updated At: 2026-07-10T16:58:51+09:00
 
 ## Current Phase
 
@@ -8,21 +8,21 @@ Phase 4: Resilience
 
 ## Current Task
 
-Task ID: P4-005-lease-expired-recovery
+Task ID: P4-006-claim-settlement
 
-Task Packet: `orchestration/tasks/P4-005-lease-expired-recovery.md`
+Task Packet: `orchestration/tasks/P4-006-claim-settlement.md`
 
-Report: `orchestration/reports/P4-005-lease-expired-recovery.md`
+Report: `orchestration/reports/P4-006-claim-settlement.md`
 
 ## Task Status
 
 Completed
 
-P4-005は完了。Current Attempt保存方式に基づき、Lease期限切れRunning Operationを`lease_expired`の`attempt.failed`として閉じ、Supervision Policyへ接続した。
+P4-006は完了。PostgreSQL Claim Settlementを低レベルTransport Portとして実装し、acknowledge / releaseでClaim TokenとFencing Tokenを検証する。
 
 ## Last Accepted Task
 
-P4-005-lease-expired-recovery
+P4-006-claim-settlement
 
 ## Pending Decisions
 
@@ -34,8 +34,39 @@ P4-005-lease-expired-recovery
 
 ## Required Next Action
 
-1. P4-005をCommitする。
-2. P4-006へ進む。
+1. P4-006をCommitする。
+2. P4-007へ進む。
+
+## P4-006 Verification Commands and Results
+
+```text
+docker compose run --rm app vendor/bin/phpunit --filter PostgreSqlDeferredOperationReceiverTest
+Result: OK (10 tests, 51 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app composer validate --strict
+Result: ./composer.json is valid.
+
+docker compose run --rm app mago format --check src tests
+Result: INFO All files are already formatted.
+
+docker compose run --rm app mago lint
+Result: INFO No issues found.
+
+docker compose run --rm app mago analyze
+Result: INFO No issues found.
+
+docker compose run --rm app vendor/bin/phpunit
+Result: OK (373 tests, 1093 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app vendor/bin/deptrac
+Result: Violations 0 / Skipped violations 0 / Uncovered 0 / Allowed 852 / Warnings 0 / Errors 0.
+
+rg -n 'Spec(ification)?[[:space:]]*[0-9]+|D[0-9]{3}|P[0-9]+-[0-9]+|TODO\.md:[0-9]+' src tests --glob '*.php'
+Result: No matches.
+
+git diff --check
+Result: No output.
+```
 
 ## P4-005 Verification Commands and Results
 
