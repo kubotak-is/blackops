@@ -21,6 +21,8 @@ use BlackOps\Core\Outcome;
 use BlackOps\Core\Registry\OperationMetadata;
 use BlackOps\Core\Registry\OperationRegistry;
 use BlackOps\Core\Rejection\RejectionReason;
+use BlackOps\Core\Supervision\ExponentialBackoffSupervisionPolicy;
+use BlackOps\Core\Supervision\RetryableException;
 use BlackOps\Internal\Codec\ReflectionJsonOperationCodec;
 use BlackOps\Internal\Execution\DeferredAcceptanceOrchestrator;
 use BlackOps\Internal\Execution\DeferredWorkerRuntime;
@@ -32,6 +34,8 @@ use BlackOps\Internal\Identifier\IdentifierFactory;
 use BlackOps\Internal\Identifier\Uuidv7Generator;
 use BlackOps\Internal\Journal\JournalRecordFactory;
 use BlackOps\Journal\Data\AttemptFailedData;
+use BlackOps\Journal\Data\AttemptRetryScheduledData;
+use BlackOps\Journal\Data\OperationFailedData;
 use BlackOps\Journal\JournalEvent;
 use BlackOps\Journal\JournalRecord;
 use BlackOps\Transport\PostgreSql\PostgreSqlCanonicalJournalStore;
@@ -144,7 +148,7 @@ final class DeferredWorkerRuntimeTest extends TestCase
         self::assertSame([1, 2, 3, 4], array_column($records, 'sequence'));
     }
 
-    public function testWorkerRecordsAttemptFailureAndRethrowsHandlerException(): void
+    public function testWorkerRecordsOperationFailureAndRethrowsNonRetryableHandlerException(): void
     {
         $handler = new ThrowingWorkerReportHandler();
         $this->accept();
@@ -164,9 +168,9 @@ final class DeferredWorkerRuntimeTest extends TestCase
         $row = $this->operationRow();
         $records = $this->records();
 
-        self::assertSame('supervising', $row['state']);
+        self::assertSame('failed', $row['state']);
         self::assertSame(1, (int) $row['attempt_number']);
-        self::assertSame(5, (int) $row['next_sequence']);
+        self::assertSame(6, (int) $row['next_sequence']);
         self::assertNull($row['lease_owner']);
         self::assertNull($row['lease_expires_at']);
         self::assertSame(
@@ -175,14 +179,66 @@ final class DeferredWorkerRuntimeTest extends TestCase
                 JournalEvent::OperationAccepted,
                 JournalEvent::AttemptStarted,
                 JournalEvent::AttemptFailed,
+                JournalEvent::OperationFailed,
             ],
             array_map(static fn(JournalRecord $record): JournalEvent => $record->event, $records),
         );
-        self::assertSame([1, 2, 3, 4], array_column($records, 'sequence'));
+        self::assertSame([1, 2, 3, 4, 5], array_column($records, 'sequence'));
         self::assertInstanceOf(AttemptFailedData::class, $records[3]->data);
         self::assertSame(RuntimeException::class, $records[3]->data->errorType);
         self::assertSame('boom', $records[3]->data->errorMessage);
         self::assertFalse($records[3]->data->retryable);
+        self::assertInstanceOf(OperationFailedData::class, $records[4]->data);
+        self::assertSame(RuntimeException::class, $records[4]->data->errorType);
+        self::assertSame('boom', $records[4]->data->errorMessage);
+        self::assertFalse($records[4]->data->retryable);
+    }
+
+    public function testWorkerSchedulesRetryAndRethrowsRetryableHandlerException(): void
+    {
+        $handler = new RetryableThrowingWorkerReportHandler();
+        $this->accept();
+        $claim = $this->receiver->claim(new \BlackOps\Core\Execution\ClaimRequest(
+            new DateTimeImmutable('2026-07-10T00:01:00.000000Z'),
+        ));
+
+        self::assertNotNull($claim);
+
+        try {
+            $this->runtime($handler)->run($claim);
+            self::fail('Expected handler exception to be rethrown.');
+        } catch (RetryableWorkerRuntimeException $exception) {
+            self::assertSame('temporary boom', $exception->getMessage());
+        }
+
+        $row = $this->operationRow();
+        $records = $this->records();
+
+        self::assertSame('retry_scheduled', $row['state']);
+        self::assertSame(1, (int) $row['attempt_number']);
+        self::assertSame(6, (int) $row['next_sequence']);
+        self::assertNull($row['lease_owner']);
+        self::assertNull($row['lease_expires_at']);
+        self::assertSame(
+            [
+                JournalEvent::OperationReceived,
+                JournalEvent::OperationAccepted,
+                JournalEvent::AttemptStarted,
+                JournalEvent::AttemptFailed,
+                JournalEvent::AttemptRetryScheduled,
+            ],
+            array_map(static fn(JournalRecord $record): JournalEvent => $record->event, $records),
+        );
+        self::assertSame([1, 2, 3, 4, 5], array_column($records, 'sequence'));
+        self::assertInstanceOf(AttemptFailedData::class, $records[3]->data);
+        self::assertSame(RetryableWorkerRuntimeException::class, $records[3]->data->errorType);
+        self::assertSame('temporary boom', $records[3]->data->errorMessage);
+        self::assertTrue($records[3]->data->retryable);
+        self::assertInstanceOf(AttemptRetryScheduledData::class, $records[4]->data);
+        self::assertSame($records[3]->attempt?->id->toString(), $records[4]->data->failedAttemptId->toString());
+        self::assertSame(2, $records[4]->data->nextAttemptNumber);
+        self::assertSame('2026-07-10T00:02:01+00:00', $records[4]->data->scheduledAt->format(DATE_ATOM));
+        self::assertSame(1_000, $records[4]->data->delayMilliseconds);
     }
 
     public function testFailureReservationRejectsStaleFencingToken(): void
@@ -248,6 +304,7 @@ final class DeferredWorkerRuntimeTest extends TestCase
                 $this->codec,
                 new ExecutionContextFactory($identifiers, $clock),
                 new HandlerResolver(new DeferredWorkerContainer($handler)),
+                new ExponentialBackoffSupervisionPolicy(jitterRatio: 0.0),
             ),
             new DeferredWorkerRuntimeStorage(
                 $this->connection,
@@ -358,6 +415,16 @@ final class ThrowingWorkerReportHandler extends WorkerReportHandler
         throw new RuntimeException('boom');
     }
 }
+
+final class RetryableThrowingWorkerReportHandler extends WorkerReportHandler
+{
+    public function handle(OperationEnvelope $operation): OperationResult
+    {
+        throw new RetryableWorkerRuntimeException('temporary boom');
+    }
+}
+
+final class RetryableWorkerRuntimeException extends RuntimeException implements RetryableException {}
 
 final readonly class DeferredWorkerContainer implements ContainerInterface
 {

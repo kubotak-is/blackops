@@ -12,7 +12,9 @@ use BlackOps\Core\OperationValue;
 use BlackOps\Core\Outcome;
 use BlackOps\Core\Rejection\RejectionCategory;
 use BlackOps\Core\Rejection\RejectionReason;
+use BlackOps\Journal\Data\AttemptRetryScheduledData;
 use BlackOps\Journal\Data\OperationCompletedData;
+use BlackOps\Journal\Data\OperationFailedData;
 use BlackOps\Journal\Data\OperationReceivedData;
 use BlackOps\Journal\Data\OperationRejectedData;
 use BlackOps\Journal\JournalAttempt;
@@ -130,6 +132,48 @@ final class PostgreSqlCanonicalJournalStoreTest extends TestCase
         self::assertInstanceOf(OperationRejectedData::class, $records[0]->data);
         self::assertSame(RejectionCategory::Conflict, $records[0]->data->reason->category());
         self::assertSame('postgres_rejected', $records[0]->data->reason->code());
+    }
+
+    public function testAppendsAndReadsRetryScheduledData(): void
+    {
+        $this->store->append($this->record(
+            self::RECORD_ID_3,
+            JournalEvent::AttemptRetryScheduled,
+            1,
+            new AttemptRetryScheduledData(
+                AttemptId::fromString(self::ATTEMPT_ID),
+                2,
+                new DateTimeImmutable('2026-07-08T00:00:02.000000Z'),
+                1_000,
+            ),
+        ));
+
+        $records = array_values(iterator_to_array($this->store->records(OperationId::fromString(self::OPERATION_ID))));
+
+        self::assertCount(1, $records);
+        self::assertInstanceOf(AttemptRetryScheduledData::class, $records[0]->data);
+        self::assertSame(self::ATTEMPT_ID, $records[0]->data->failedAttemptId->toString());
+        self::assertSame(2, $records[0]->data->nextAttemptNumber);
+        self::assertSame('2026-07-08T00:00:02+00:00', $records[0]->data->scheduledAt->format(DATE_ATOM));
+        self::assertSame(1_000, $records[0]->data->delayMilliseconds);
+    }
+
+    public function testAppendsAndReadsOperationFailedData(): void
+    {
+        $this->store->append($this->record(
+            self::RECORD_ID_3,
+            JournalEvent::OperationFailed,
+            1,
+            new OperationFailedData(\RuntimeException::class, 'boom', false),
+        ));
+
+        $records = array_values(iterator_to_array($this->store->records(OperationId::fromString(self::OPERATION_ID))));
+
+        self::assertCount(1, $records);
+        self::assertInstanceOf(OperationFailedData::class, $records[0]->data);
+        self::assertSame(\RuntimeException::class, $records[0]->data->errorType);
+        self::assertSame('boom', $records[0]->data->errorMessage);
+        self::assertFalse($records[0]->data->retryable);
     }
 
     public function testDuplicateRecordIdFails(): void

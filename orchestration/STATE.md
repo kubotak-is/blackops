@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-10T12:40:13+09:00
+Updated At: 2026-07-10T14:08:42+09:00
 
 ## Current Phase
 
@@ -8,21 +8,21 @@ Phase 4: Resilience
 
 ## Current Task
 
-Task ID: P4-001-attempt-failed-boundary
+Task ID: P4-002-supervision-policy-contract
 
-Task Packet: `orchestration/tasks/P4-001-attempt-failed-boundary.md`
+Task Packet: `orchestration/tasks/P4-002-supervision-policy-contract.md`
 
-Report: `orchestration/reports/P4-001-attempt-failed-boundary.md`
+Report: `orchestration/reports/P4-002-supervision-policy-contract.md`
 
 ## Task Status
 
 Accepted
 
-P4-001をCodexが完了。Deferred WorkerのHandler例外を捕捉し、`attempt.failed` JournalとOperation State更新を同一Transactionで記録して、OperationをSupervising Stateへ進めるFailure Boundaryを追加した。
+P4-002をCodexが完了。Supervision Policy Contract、Supervision Decision、Retry Scheduling Dataを実装し、Deferred Worker RuntimeがHandler例外後に`attempt.retry_scheduled`または`operation.failed`へ遷移できるようにした。
 
 ## Last Accepted Task
 
-P4-001-attempt-failed-boundary
+P4-002-supervision-policy-contract
 
 ## Pending Decisions
 
@@ -34,8 +34,39 @@ P4-001-attempt-failed-boundary
 
 ## Required Next Action
 
-1. P4-002 Task Packetを作成する。
-2. Supervision Policy Contract、Supervision Decision、Retry Scheduling Dataを確定して実装する。既定Backoff値や最大Attempt回数が未確定なら、実装前に判断を仰ぐ。
+1. P4-003 Task Packetを作成する。
+2. Dead Letter TransportまたはLease Expired Recoveryのどちらを先に実装するか決めて進める。
+
+## P4-002 Verification Commands and Results
+
+```text
+docker compose run --rm app vendor/bin/phpunit --filter 'SupervisionPolicyTest|DeferredWorkerRuntimeTest|JournalRecordFactoryTest|PostgreSqlCanonicalJournalStoreTest|JournalContractTest'
+Result: OK (26 tests, 159 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app mago format --check src tests
+Result: INFO All files are already formatted.
+
+docker compose run --rm app composer validate --strict
+Result: ./composer.json is valid.
+
+docker compose run --rm app mago lint
+Result: INFO No issues found.
+
+docker compose run --rm app mago analyze
+Result: INFO No issues found.
+
+docker compose run --rm app vendor/bin/phpunit
+Result: OK (362 tests, 1002 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app vendor/bin/deptrac
+Result: Violations 0 / Skipped 0 / Uncovered 0 / Allowed 745 / Warnings 0 / Errors 0.
+
+rg -n 'Spec(ification)?[[:space:]]*[0-9]+|D[0-9]{3}|P[0-9]+-[0-9]+|TODO\.md:[0-9]+' src tests --glob '*.php'
+Result: No matches.
+
+git diff --check
+Result: No output.
+```
 
 ## P4-001 Verification Commands and Results
 

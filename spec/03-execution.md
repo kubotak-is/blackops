@@ -64,7 +64,11 @@ interface SupervisionPolicy
 
 Retry可能な例外を、上限回数付き指数BackoffとJitterでRetryする。
 
+既定値は最大3 Attempt、初期Delay 1秒、倍率2.0、最大Delay 60秒、Jitter ±20% とする。Attempt Timeoutは後続のConfig仕様で定義する。
+
 Retry不能または上限到達したOperationはDead Letter Transportへ移し、`OperationDeadLettered` を記録する。手動Replayは新しいOperation IDで行う。
+
+Dead Letter Transport未実装の間は、Retry不能または上限到達したOperationを `OperationFailed` へ遷移させる。
 
 ## 冪等性
 

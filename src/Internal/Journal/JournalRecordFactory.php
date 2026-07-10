@@ -4,39 +4,37 @@ declare(strict_types=1);
 
 namespace BlackOps\Internal\Journal;
 
-use BlackOps\Core\Execution\Deferred;
-use BlackOps\Core\Execution\Inline;
 use BlackOps\Core\OperationEnvelope;
 use BlackOps\Core\Outcome;
 use BlackOps\Core\Registry\OperationMetadata;
 use BlackOps\Core\Rejection\RejectionReason;
 use BlackOps\Internal\Identifier\IdentifierFactory;
 use BlackOps\Journal\Data\AttemptFailedData;
+use BlackOps\Journal\Data\AttemptRetryScheduledData;
 use BlackOps\Journal\Data\OperationCompletedData;
+use BlackOps\Journal\Data\OperationFailedData;
 use BlackOps\Journal\Data\OperationReceivedData;
 use BlackOps\Journal\Data\OperationRejectedData;
 use BlackOps\Journal\EmptyJournalData;
-use BlackOps\Journal\JournalAttempt;
-use BlackOps\Journal\JournalData;
 use BlackOps\Journal\JournalEvent;
-use BlackOps\Journal\JournalOperation;
 use BlackOps\Journal\JournalRecord;
-use LogicException;
 use Psr\Clock\ClockInterface;
 
 final readonly class JournalRecordFactory
 {
-    public function __construct(
-        private IdentifierFactory $identifiers,
-        private ClockInterface $clock,
-    ) {}
+    private JournalRecordBuilder $builder;
+
+    public function __construct(IdentifierFactory $identifiers, ClockInterface $clock)
+    {
+        $this->builder = new JournalRecordBuilder($identifiers, $clock);
+    }
 
     public function operationReceived(
         OperationEnvelope $envelope,
         OperationMetadata $metadata,
         int $sequence,
     ): JournalRecord {
-        return $this->create(
+        return $this->builder->build(
             $envelope,
             $metadata,
             $sequence,
@@ -50,7 +48,13 @@ final readonly class JournalRecordFactory
         OperationMetadata $metadata,
         int $sequence,
     ): JournalRecord {
-        return $this->create($envelope, $metadata, $sequence, JournalEvent::OperationAccepted, new EmptyJournalData());
+        return $this->builder->build(
+            $envelope,
+            $metadata,
+            $sequence,
+            JournalEvent::OperationAccepted,
+            new EmptyJournalData(),
+        );
     }
 
     public function attemptStarted(
@@ -58,7 +62,13 @@ final readonly class JournalRecordFactory
         OperationMetadata $metadata,
         int $sequence,
     ): JournalRecord {
-        return $this->create($envelope, $metadata, $sequence, JournalEvent::AttemptStarted, new EmptyJournalData());
+        return $this->builder->build(
+            $envelope,
+            $metadata,
+            $sequence,
+            JournalEvent::AttemptStarted,
+            new EmptyJournalData(),
+        );
     }
 
     public function attemptSucceeded(
@@ -66,7 +76,13 @@ final readonly class JournalRecordFactory
         OperationMetadata $metadata,
         int $sequence,
     ): JournalRecord {
-        return $this->create($envelope, $metadata, $sequence, JournalEvent::AttemptSucceeded, new EmptyJournalData());
+        return $this->builder->build(
+            $envelope,
+            $metadata,
+            $sequence,
+            JournalEvent::AttemptSucceeded,
+            new EmptyJournalData(),
+        );
     }
 
     public function attemptFailed(
@@ -75,7 +91,16 @@ final readonly class JournalRecordFactory
         int $sequence,
         AttemptFailedData $data,
     ): JournalRecord {
-        return $this->create($envelope, $metadata, $sequence, JournalEvent::AttemptFailed, $data);
+        return $this->builder->build($envelope, $metadata, $sequence, JournalEvent::AttemptFailed, $data);
+    }
+
+    public function attemptRetryScheduled(
+        OperationEnvelope $envelope,
+        OperationMetadata $metadata,
+        int $sequence,
+        AttemptRetryScheduledData $data,
+    ): JournalRecord {
+        return $this->builder->build($envelope, $metadata, $sequence, JournalEvent::AttemptRetryScheduled, $data);
     }
 
     public function operationCompleted(
@@ -84,7 +109,7 @@ final readonly class JournalRecordFactory
         int $sequence,
         Outcome $outcome,
     ): JournalRecord {
-        return $this->create(
+        return $this->builder->build(
             $envelope,
             $metadata,
             $sequence,
@@ -99,7 +124,7 @@ final readonly class JournalRecordFactory
         int $sequence,
         RejectionReason $reason,
     ): JournalRecord {
-        return $this->create(
+        return $this->builder->build(
             $envelope,
             $metadata,
             $sequence,
@@ -108,49 +133,12 @@ final readonly class JournalRecordFactory
         );
     }
 
-    private function create(
+    public function operationFailed(
         OperationEnvelope $envelope,
         OperationMetadata $metadata,
         int $sequence,
-        JournalEvent $event,
-        JournalData $data,
+        OperationFailedData $data,
     ): JournalRecord {
-        if ($metadata->definition !== $envelope->definition()::class) {
-            throw new LogicException('Journal metadata does not match the operation envelope definition.');
-        }
-
-        $strategy = $this->strategyWireName($envelope);
-
-        if ($metadata->strategy !== $envelope->strategy()::class) {
-            throw new LogicException('Journal metadata does not match the operation envelope strategy.');
-        }
-        $context = $envelope->context();
-        $attempt = $context->attempt();
-        return new JournalRecord(
-            $this->identifiers->newJournalRecordId(),
-            1,
-            $event,
-            $this->clock->now(),
-            $sequence,
-            new JournalOperation(
-                $context->operationId(),
-                $metadata->typeId,
-                1,
-                $strategy,
-                $context->correlationId(),
-                $context->causationId(),
-            ),
-            $attempt === null ? null : new JournalAttempt($attempt->id(), $attempt->number(), $attempt->startedAt()),
-            $data,
-        );
-    }
-
-    private function strategyWireName(OperationEnvelope $envelope): string
-    {
-        return match ($envelope->strategy()::class) {
-            Inline::class => 'inline',
-            Deferred::class => 'deferred',
-            default => throw new LogicException('Unsupported journal operation strategy.'),
-        };
+        return $this->builder->build($envelope, $metadata, $sequence, JournalEvent::OperationFailed, $data);
     }
 }

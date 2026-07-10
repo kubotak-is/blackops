@@ -8,6 +8,7 @@ use BlackOps\Core\EmptyOutcome;
 use BlackOps\Core\Execution\Deferred;
 use BlackOps\Core\Execution\Inline;
 use BlackOps\Core\ExecutionContext;
+use BlackOps\Core\Identifier\AttemptId;
 use BlackOps\Core\Identifier\CorrelationId;
 use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Core\Operation;
@@ -18,6 +19,7 @@ use BlackOps\Core\Registry\OperationMetadata;
 use BlackOps\Internal\Identifier\IdentifierFactory;
 use BlackOps\Internal\Identifier\Uuidv7Generator;
 use BlackOps\Internal\Journal\JournalRecordFactory;
+use BlackOps\Journal\Data\AttemptRetryScheduledData;
 use BlackOps\Journal\Data\OperationReceivedData;
 use BlackOps\Journal\EmptyJournalData;
 use BlackOps\Journal\JournalEvent;
@@ -116,6 +118,61 @@ final class JournalRecordFactoryTest extends TestCase
         self::assertSame(2, $record->sequence);
         self::assertInstanceOf(EmptyJournalData::class, $record->data);
         self::assertSame('deferred', $record->operation->strategy);
+    }
+
+    public function testCreatesRetryScheduledRecordForCurrentAttempt(): void
+    {
+        $clock = new class implements ClockInterface {
+            public function now(): DateTimeImmutable
+            {
+                return new DateTimeImmutable('2026-07-06T12:00:00.123456Z');
+            }
+        };
+        $generator = new class implements Uuidv7Generator {
+            public function generate(DateTimeImmutable $time): string
+            {
+                return JournalRecordFactoryTest::ID;
+            }
+        };
+        $context = new ExecutionContext(
+            OperationId::fromString(self::ID),
+            $clock->now(),
+            CorrelationId::fromString(self::ID),
+            attempt: new \BlackOps\Core\AttemptContext(AttemptId::fromString(self::ID), 1, $clock->now()),
+        );
+        $envelope = new OperationEnvelope(
+            new JournalOperationFixture(),
+            new JournalValueFixture('hello'),
+            $context,
+            new Deferred(),
+        );
+        $metadata = new OperationMetadata(
+            'journal.test',
+            JournalOperationFixture::class,
+            JournalValueFixture::class,
+            JournalHandlerFixture::class,
+            EmptyOutcome::class,
+            Deferred::class,
+        );
+        $data = new AttemptRetryScheduledData(
+            AttemptId::fromString(self::ID),
+            2,
+            new DateTimeImmutable('2026-07-06T12:00:01Z'),
+            1_000,
+        );
+
+        $record = new JournalRecordFactory(new IdentifierFactory($generator, $clock), $clock)->attemptRetryScheduled(
+            $envelope,
+            $metadata,
+            5,
+            $data,
+        );
+
+        self::assertSame(JournalEvent::AttemptRetryScheduled, $record->event);
+        self::assertSame(5, $record->sequence);
+        self::assertSame($data, $record->data);
+        self::assertNotNull($record->attempt);
+        self::assertSame(1, $record->attempt?->number);
     }
 }
 

@@ -5,6 +5,12 @@ declare(strict_types=1);
 namespace BlackOps\Tests\Journal;
 
 use BlackOps\Core\Attribute\PublicApi;
+use BlackOps\Journal\Data\AttemptFailedData;
+use BlackOps\Journal\Data\AttemptRetryScheduledData;
+use BlackOps\Journal\Data\OperationCompletedData;
+use BlackOps\Journal\Data\OperationFailedData;
+use BlackOps\Journal\Data\OperationReceivedData;
+use BlackOps\Journal\Data\OperationRejectedData;
 use BlackOps\Journal\EmptyJournalData;
 use BlackOps\Journal\JournalData;
 use BlackOps\Journal\JournalEvent;
@@ -46,5 +52,24 @@ final class JournalContractTest extends TestCase
         self::assertTrue($empty->isReadOnly());
         self::assertTrue($empty->implementsInterface(JournalData::class));
         self::assertCount(1, $empty->getAttributes(PublicApi::class));
+    }
+
+    public function testDataClassesArePublicApi(): void
+    {
+        foreach ([
+            AttemptFailedData::class,
+            AttemptRetryScheduledData::class,
+            OperationCompletedData::class,
+            OperationFailedData::class,
+            OperationReceivedData::class,
+            OperationRejectedData::class,
+        ] as $type) {
+            $reflection = new ReflectionClass($type);
+
+            self::assertTrue($reflection->isFinal());
+            self::assertTrue($reflection->isReadOnly());
+            self::assertTrue($reflection->implementsInterface(JournalData::class));
+            self::assertCount(1, $reflection->getAttributes(PublicApi::class));
+        }
     }
 }

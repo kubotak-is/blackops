@@ -12,7 +12,6 @@ use BlackOps\Core\OperationEnvelope;
 use BlackOps\Core\OperationResult;
 use BlackOps\Core\OperationValue;
 use BlackOps\Core\Registry\OperationMetadata;
-use BlackOps\Journal\Data\AttemptFailedData;
 use BlackOps\Journal\JournalEvent;
 use BlackOps\Journal\LifecycleState;
 use LogicException;
@@ -147,16 +146,12 @@ final readonly class DeferredWorkerRuntime
         OperationEnvelope $envelope,
         Throwable $exception,
     ): void {
-        $this->storage->connection->transactional(function () use ($claim, $metadata, $envelope, $exception): void {
-            $reservation = $this->storage->state->reserveFailed($claim, $this->storage->clock->now());
-            $this->storage->lifecycle->next(LifecycleState::Running, JournalEvent::AttemptFailed);
-            $this->storage->journal->append($this->storage->records->attemptFailed(
-                $envelope,
-                $metadata,
-                $reservation->sequence,
-                new AttemptFailedData($exception::class, $exception->getMessage(), false),
-            ));
-        });
+        new DeferredFailureSupervisor($this->services, $this->storage)->record(
+            $claim,
+            $metadata,
+            $envelope,
+            $exception,
+        );
     }
 
     private function metadata(OperationClaim $claim): OperationMetadata

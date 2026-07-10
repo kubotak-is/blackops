@@ -108,7 +108,7 @@
 - [ ] 配送保証を定義する
 - [x] Deferred実行は重複し得るものとしExactly Onceを保証しない
 - [x] Operation IDによるInbox/Deduplication機構を提供する
-- [ ] 既定のリトライ回数を定義する
+- [x] 既定のリトライ回数を定義する
 - [x] 指数BackoffとJitterを採用する
 - [ ] タイムアウトを定義する
 - [ ] Leaseと可視性タイムアウトを定義する
