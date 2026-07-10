@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace BlackOps\Http\Responder;
 
 use BlackOps\Core\EmptyOutcome;
+use BlackOps\Core\Execution\DeferredAcknowledgement;
 use BlackOps\Core\OperationResult;
 use BlackOps\Core\Outcome;
 use BlackOps\Core\Rejection\RejectionCategory;
+use BlackOps\Core\Time\TimeCodec;
 use JsonException;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -20,6 +22,7 @@ final readonly class JsonOperationResponder
     public function __construct(
         private ResponseFactoryInterface $responses,
         private StreamFactoryInterface $streams,
+        private TimeCodec $time = new TimeCodec(),
     ) {}
 
     public function respond(OperationResult $result): ResponseInterface
@@ -41,6 +44,15 @@ final readonly class JsonOperationResponder
         }
 
         return $this->json(200, $this->normalizeOutcome($outcome));
+    }
+
+    public function respondAcknowledgement(DeferredAcknowledgement $acknowledgement): ResponseInterface
+    {
+        return $this->json(202, [
+            'status' => 'accepted',
+            'operationId' => $acknowledgement->operationId()->toString(),
+            'acceptedAt' => $this->time->format($acknowledgement->acceptedAt()),
+        ]);
     }
 
     /**

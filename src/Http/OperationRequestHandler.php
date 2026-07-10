@@ -21,6 +21,7 @@ final readonly class OperationRequestHandler implements RequestHandlerInterface
         private Dispatcher $dispatcher,
         private JsonOperationResponder $responder,
         private ResponseFactoryInterface $responses,
+        private ?DeferredOperationAcceptor $deferred = null,
     ) {}
 
     public function handle(ServerRequestInterface $request): ResponseInterface
@@ -36,6 +37,11 @@ final readonly class OperationRequestHandler implements RequestHandlerInterface
         }
 
         $value = $this->binder->bind($match->route->value, $request, $match->pathParameters);
+
+        if ($this->deferred !== null && $this->deferred->accepts($match->route->operation)) {
+            return $this->responder->respondAcknowledgement($this->deferred->accept($match->route->operation, $value));
+        }
+
         $result = $this->dispatcher->dispatch($match->route->operation, $value);
 
         return $this->responder->respond($result);

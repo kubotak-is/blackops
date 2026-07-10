@@ -93,7 +93,23 @@ operations.next_sequence update
 
 受付時のJournal Sequenceは`1`と`2`を使う。受付完了後のOperation Stateは`accepted`で、次にWorkerが予約するSequenceは`3`になる。
 
-このOrchestratorはHandlerを実行しない。HTTP 202 Response変換、Deferred Dispatcher、Worker Claimは後続Runtime層で扱う。
+このOrchestratorはHandlerを実行しない。Deferred Dispatcher、Worker Claimは後続Runtime層で扱う。
+
+## HTTP Deferred Acceptance
+
+HTTP AdapterはRouteを持つDeferred Operationを受け付け、Operation CodecでPayloadとExecutionContextをMessage化し、Deferred Acceptance Orchestratorへ渡す。
+
+受付成功時はHandler完了を待たずにHTTP 202を返す。既定JSON Responseは次を含む。
+
+```json
+{
+  "status": "accepted",
+  "operationId": "...",
+  "acceptedAt": "2026-07-10T00:00:01.123456Z"
+}
+```
+
+HTTP層はDeferred受付用のPortへ依存し、具体的なRegistry、Codec、PostgreSQL Transaction構成はInternal実装へ閉じる。
 
 ## Current Scope
 
@@ -102,4 +118,3 @@ operations.next_sequence update
 - Deferred Dispatcher
 - Worker Runtime
 - Retry、Crash Recovery、Dead Letter
-- HTTP 202 Response変換
