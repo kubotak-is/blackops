@@ -37,6 +37,8 @@ The current command set is:
 | `blackops:http-manifest:dump` | `BlackOps\Http\Console\DumpHttpManifestCommand` | Dump HTTP route metadata from an already-built operation registry and operation definitions. |
 | `blackops:retention:plan` | `BlackOps\Internal\Console\RetentionPlanCommand` | Print a retention purge plan without applying it. |
 | `blackops:retention:purge` | `BlackOps\Internal\Console\RetentionPurgeCommand` | Dry-run or apply retention purge through injected services. |
+| `blackops:scheduler:run` | `BlackOps\Internal\Console\SchedulerRunCommand` | Run registered maintenance tasks once and exit. |
+| `blackops:scheduler:daemon` | `BlackOps\Internal\Console\SchedulerDaemonCommand` | Run registered maintenance tasks repeatedly with an explicit interval. |
 
 For normal build pipelines, prefer the unified build command so operation metadata, HTTP route metadata, and container definitions are generated from the same provider set.
 

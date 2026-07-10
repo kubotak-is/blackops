@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-11T00:23:45+09:00
+Updated At: 2026-07-11T00:39:23+09:00
 
 ## Current Phase
 
@@ -16,28 +16,57 @@ Report: `orchestration/reports/P5-013-framework-maintenance-scheduler-worker.md`
 
 ## Task Status
 
-Blocked
+Completed
 
-P5-013はScheduler Workerの実行方式、多重起動制御、Retention Task登録境界の判断待ち。
+P5-013はFramework Maintenance Scheduler Workerを実装し、必須Commandがすべて成功した。
 
 ## Last Accepted Task
 
-P5-012-retention-purge-cli
+P5-013-framework-maintenance-scheduler-worker
 
 ## Pending Decisions
 
-- Scheduler Workerの実行方式。
-- Scheduler Workerの多重起動制御。
-- Retention Taskの既定登録方法。
+- なし。
 
 ## Known Blockers
 
-- P5-013は実装前判断待ち。
+- なし。
 
 ## Required Next Action
 
-1. P5-013の推奨案を採用するか判断する。
-2. 採用後、Scheduler Worker実装を開始する。
+1. P5-013をCommitする。
+2. P5-014またはPhase 5 closeoutへ進む。
+
+## P5-013 Verification Commands and Results
+
+```text
+docker compose run --rm app vendor/bin/phpunit --filter 'MaintenanceSchedulerTest|SchedulerRunCommandTest|SchedulerDaemonCommandTest'
+Result: OK (6 tests, 27 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app composer validate --strict
+Result: ./composer.json is valid.
+
+docker compose run --rm app mago format --check src tests
+Result: INFO All files are already formatted.
+
+docker compose run --rm app mago lint
+Result: INFO No issues found.
+
+docker compose run --rm app mago analyze
+Result: INFO No issues found.
+
+docker compose run --rm app vendor/bin/phpunit
+Result: OK (444 tests, 1368 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app vendor/bin/deptrac
+Result: Violations 0 / Skipped violations 0 / Uncovered 0 / Allowed 1043 / Warnings 0 / Errors 0.
+
+rg -n 'Spec(ification)?[[:space:]]*[0-9]+|D[0-9]{3}|P[0-9]+-[0-9]+|TODO\.md:[0-9]+' src tests --glob '*.php'
+Result: No matches.
+
+git diff --check
+Result: No output.
+```
 
 ## P5-012 Verification Commands and Results
 
