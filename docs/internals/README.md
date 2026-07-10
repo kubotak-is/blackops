@@ -35,4 +35,4 @@ Framework実装者向けのArchitectureと実装ガイドを管理する。
 - [Retention Plan](retention-plan.md)
 - [Maintenance Scheduler](maintenance-scheduler.md)
 - Worker and Recovery
-- Testing and Architecture Verification
+- [Testing and Architecture Verification](core-contracts.md#public-api-architecture-guard)

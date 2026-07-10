@@ -290,7 +290,7 @@
 - [x] Operation、OperationValue、OutcomeをMarker Interfaceとする
 - [x] Handlerを単一の `handle()` Contractとする
 - [x] 互換性を保証するPHP Public APIへ `#[PublicApi]` を付ける
-- [ ] `#[PublicApi]` の付与とInternal型露出をCI検証する
+- [x] `#[PublicApi]` の付与とInternal型露出をCI検証する
 - [x] Operation EnvelopeをFramework管理の `final readonly class` とする
 - [x] Envelopeの識別情報はExecutionContextを正本とする
 - [x] Operation Envelopeを実装する

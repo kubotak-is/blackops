@@ -32,6 +32,17 @@ final readonly class PublicApi
 - `#[PublicApi]` が付いた型は後方互換性の対象、付かない型は保証対象外とする。
 - 公開APIのSignatureへ `BlackOps\Internal` の型を露出させない。
 
+### Public API Architecture Guard
+
+通常のPHPUnit Test Suiteは、`src/` 配下の全PHP FileをComposerのPSR-4配置から型名へ変換し、すべての型をReflectionで検査する。
+
+- `BlackOps\Internal` Namespaceの型へ `#[PublicApi]` を付与してはならない。
+- `#[PublicApi]` 型のPublic Constructor、Method、Property、親Class、実装Interfaceへ `BlackOps\Internal` 型を露出させてはならない。
+- Nullable、Union、Intersection Typeは構成するNamed Typeまで再帰的に検査する。
+- PHPDoc GenericはこのGuardの対象外とし、MagoのStatic AnalysisとManifest Compilerで検証する。
+
+DeptracとPublic API Architecture Guardは異なる境界を検査する。Deptracは実装本体のNamespace間依存方向と循環を静的に検査する。一方、Public API Architecture Guardは`#[PublicApi]`を互換性境界として、ReflectionでPHP SignatureとInternal Namespaceへの誤った公開指定を検査する。どちらか一方で他方を代替せず、`vendor/bin/deptrac`と通常の`vendor/bin/phpunit`を継続して実行する。
+
 ## 識別子Value Object
 
 `OperationId`、`AttemptId`、`JournalRecordId`、`CorrelationId`、`CausationId` は、それぞれ独立した `final readonly class` とする（Spec 20、D026、D049）。公開型に共通の継承階層を設けず、異なる意味のIDをPHPの型検査で区別する。
