@@ -356,17 +356,19 @@
 - [x] Lease MetadataをTransport内部へ限定する
 - [x] Attempt Started記録後にHandlerを呼び出す
 - [x] Claimへ単調増加Fencing Tokenを付与する
-- [ ] Deferred Claim、Attempt開始、Fencing検証を実装する
+- [x] Deferred Claim、Attempt開始、Fencing検証を実装する
 - [x] Handler実行中にHeartbeatでLeaseを延長する
 - [x] CrashしたRunning AttemptをLease Expired Failureとして閉じる
 - [x] Heartbeat失敗後の完了更新を禁止する
 - [x] Graceful Shutdown時はLeaseを自然失効させる
-- [ ] Worker Heartbeat、Crash Recovery、Signal処理を実装する
+- [x] Worker Heartbeatを実装する
+- [x] Crash Recoveryを実装する
+- [ ] Signal処理を実装する
 - [x] Transport境界をCodec済みDeferredOperationMessageとする
 - [x] Durable受付結果をDeferredAcknowledgementとする
 - [x] MVPのClaimを一件単位とする
 - [x] Execution Transportを責務別Portへ分割する
-- [ ] Execution Transport PortとMessage型を実装する
+- [x] Execution Transport PortとMessage型を実装する
 - [ ] `Operation` を実装する
 - [ ] `OperationId` を実装する
 - [ ] `OperationValue` を実装する
