@@ -12,6 +12,7 @@ use BlackOps\Core\Identifier\CorrelationId;
 use BlackOps\Core\Identifier\IdentifierBehavior;
 use BlackOps\Core\Identifier\JournalRecordId;
 use BlackOps\Core\Identifier\OperationId;
+use BlackOps\Core\Identifier\RetentionHoldId;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
@@ -28,6 +29,7 @@ final class IdentifierTest extends TestCase
             'JournalRecordId' => [JournalRecordId::class],
             'CorrelationId' => [CorrelationId::class],
             'CausationId' => [CausationId::class],
+            'RetentionHoldId' => [RetentionHoldId::class],
         ];
     }
 
@@ -185,7 +187,7 @@ final class IdentifierTest extends TestCase
         );
     }
 
-    public function testAllFiveIdentifierTypesAreDistinctPhpTypes(): void
+    public function testAllIdentifierTypesAreDistinctPhpTypes(): void
     {
         $types = [
             OperationId::class,
@@ -193,6 +195,7 @@ final class IdentifierTest extends TestCase
             JournalRecordId::class,
             CorrelationId::class,
             CausationId::class,
+            RetentionHoldId::class,
         ];
 
         self::assertSameSize(array_unique($types), $types, 'Identifier types must be distinct.');

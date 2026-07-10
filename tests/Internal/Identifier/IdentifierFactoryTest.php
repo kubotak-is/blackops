@@ -9,6 +9,7 @@ use BlackOps\Core\Identifier\CausationId;
 use BlackOps\Core\Identifier\CorrelationId;
 use BlackOps\Core\Identifier\JournalRecordId;
 use BlackOps\Core\Identifier\OperationId;
+use BlackOps\Core\Identifier\RetentionHoldId;
 use BlackOps\Internal\Identifier\IdentifierFactory;
 use BlackOps\Internal\Identifier\SymfonyUuidv7Generator;
 use BlackOps\Internal\Identifier\Uuidv7Generator;
@@ -31,14 +32,16 @@ final class IdentifierFactoryTest extends TestCase
         $journal = $factory->newJournalRecordId();
         $correlation = $factory->newCorrelationId();
         $causation = $factory->newCausationId();
+        $retentionHold = $factory->newRetentionHoldId();
 
         self::assertInstanceOf(OperationId::class, $operation);
         self::assertInstanceOf(AttemptId::class, $attempt);
         self::assertInstanceOf(JournalRecordId::class, $journal);
         self::assertInstanceOf(CorrelationId::class, $correlation);
         self::assertInstanceOf(CausationId::class, $causation);
+        self::assertInstanceOf(RetentionHoldId::class, $retentionHold);
 
-        foreach ([$operation, $attempt, $journal, $correlation, $causation] as $id) {
+        foreach ([$operation, $attempt, $journal, $correlation, $causation, $retentionHold] as $id) {
             $value = $id->toString();
             self::assertMatchesRegularExpression(
                 '/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/',
@@ -99,6 +102,7 @@ final class IdentifierFactoryTest extends TestCase
         self::assertSame($fixed, $factory->newOperationId()->toString());
         self::assertSame($fixed, $factory->newAttemptId()->toString());
         self::assertSame($fixed, $factory->newCausationId()->toString());
+        self::assertSame($fixed, $factory->newRetentionHoldId()->toString());
     }
 
     private function fixedClock(string $time): ClockInterface

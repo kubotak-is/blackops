@@ -250,7 +250,7 @@
 - [x] Operation単位のLegal Holdを設ける
 - [x] Retention Policy Contractを実装する
 - [ ] Retention Serviceを設計・実装する
-- [ ] Retention Hold Portを設計・実装する
+- [x] Retention Hold Portを設計・実装する
 - [x] Retention SchedulerをMVPへ含める
 - [x] Retention期間はProductionで明示設定を要求する
 - [x] Holdを `retention_holds` として一般化する
