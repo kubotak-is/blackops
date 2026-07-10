@@ -64,3 +64,11 @@ Serviceは実行時にも次を再確認する。
 条件を満たしたOperationだけ、Encoded PayloadとEncoded ContextをNULL化し、`payload_purged_at` を記録する。Operations行自体は削除しない。
 
 成功したTombstoneごとにPayloadなしのPurge Auditを記録する。Plan生成後にHoldが設定された場合や、既にTombstone済みになった場合は、実行時の再確認で安全側にスキップする。
+
+## Dead Letter Delete
+
+`PostgreSqlDeadLetterRetentionDeleteService` はPlan内の `dead_letter` 候補だけを処理する。
+
+Serviceは実行時にもActive Holdが存在しないことを再確認する。条件を満たしたDead Letter Recordだけを削除し、Operations行は削除しない。
+
+成功した削除ごとにPayloadなしのPurge Auditを記録する。Plan生成後にHoldが設定された場合や、既に削除済みになった場合は、実行時の再確認で安全側にスキップする。

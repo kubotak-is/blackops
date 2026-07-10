@@ -62,3 +62,5 @@ Retention PlanはPolicyと現在時刻から削除候補を副作用なしで抽
 PostgreSQL Plannerは、Terminal OperationのTransport Payload Tombstone候補とDead Letter候補を返す。Active Holdが存在するOperationはPlanから除外する。
 
 Transport Payload Tombstone Serviceは、Plan内のTransport Payload候補を実行時に再確認してから、Encoded PayloadとEncoded ContextだけをNULL化する。成功分だけPurge Auditへ記録する。
+
+Dead Letter Retention Delete Serviceは、Plan内のDead Letter候補を実行時に再確認してから、Dead Letter Recordだけを削除する。Operations行は残し、成功分だけPurge Auditへ記録する。
