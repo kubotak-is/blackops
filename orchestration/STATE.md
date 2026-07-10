@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-11T00:22:10+09:00
+Updated At: 2026-07-11T00:23:45+09:00
 
 ## Current Phase
 
@@ -8,34 +8,36 @@ Phase 5: Retention
 
 ## Current Task
 
-Task ID: P5-012-retention-purge-cli
+Task ID: P5-013-framework-maintenance-scheduler-worker
 
-Task Packet: `orchestration/tasks/P5-012-retention-purge-cli.md`
+Task Packet: `orchestration/tasks/P5-013-framework-maintenance-scheduler-worker.md`
 
-Report: `orchestration/reports/P5-012-retention-purge-cli.md`
+Report: `orchestration/reports/P5-013-framework-maintenance-scheduler-worker.md`
 
 ## Task Status
 
-Completed
+Blocked
 
-P5-012は完了。Retention Purge CLIを実装した。
+P5-013はScheduler Workerの実行方式、多重起動制御、Retention Task登録境界の判断待ち。
 
 ## Last Accepted Task
 
-P5-011-retention-plan-cli
+P5-012-retention-purge-cli
 
 ## Pending Decisions
 
-- None.
+- Scheduler Workerの実行方式。
+- Scheduler Workerの多重起動制御。
+- Retention Taskの既定登録方法。
 
 ## Known Blockers
 
-- None.
+- P5-013は実装前判断待ち。
 
 ## Required Next Action
 
-1. P5-012をCommitする。
-2. P5-013へ進む。
+1. P5-013の推奨案を採用するか判断する。
+2. 採用後、Scheduler Worker実装を開始する。
 
 ## P5-012 Verification Commands and Results
 
