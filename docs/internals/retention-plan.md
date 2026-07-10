@@ -106,3 +106,37 @@ CommandはDB接続を生成しない。ApplicationのComposition Rootが `Retent
 4対象すべてのRetention期間を明示Optionで受け取る。暗黙の既定値は持たない。
 
 Purge実行CommandとPolicy Config File Loaderは後続Taskで扱う。
+
+## Purge CLI
+
+`blackops:retention:purge` はDry RunまたはConfirm実行を行うSymfony Console Commandである。
+
+Dry Run:
+
+```text
+blackops:retention:purge
+  --dry-run
+  --transport-payload-days=7
+  --journal-days=30
+  --outcome-days=14
+  --dead-letter-days=90
+```
+
+Confirm:
+
+```text
+blackops:retention:purge
+  --confirm
+  --transport-payload-days=7
+  --journal-days=30
+  --outcome-days=14
+  --dead-letter-days=90
+  --policy-ref=production-retention-v1
+  --actor=system:retention
+```
+
+`--dry-run` と `--confirm` は同時指定できない。どちらも指定しない場合も拒否する。
+
+CommandはDB接続を生成しない。ApplicationのComposition Rootが `RetentionPlanner` と `RetentionPurgeService` を組み立て、Commandへ注入する。
+
+Confirm実行ではPolicy ReferenceとActor Referenceを明示的に要求する。Purge Auditは実行Service側で記録する。

@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-11T00:16:15+09:00
+Updated At: 2026-07-11T00:22:10+09:00
 
 ## Current Phase
 
@@ -8,21 +8,21 @@ Phase 5: Retention
 
 ## Current Task
 
-Task ID: P5-011-retention-plan-cli
+Task ID: P5-012-retention-purge-cli
 
-Task Packet: `orchestration/tasks/P5-011-retention-plan-cli.md`
+Task Packet: `orchestration/tasks/P5-012-retention-purge-cli.md`
 
-Report: `orchestration/reports/P5-011-retention-plan-cli.md`
+Report: `orchestration/reports/P5-012-retention-purge-cli.md`
 
 ## Task Status
 
 Completed
 
-P5-011は完了。Retention Plan CLIを実装した。
+P5-012は完了。Retention Purge CLIを実装した。
 
 ## Last Accepted Task
 
-P5-010-retention-purge-service-facade
+P5-011-retention-plan-cli
 
 ## Pending Decisions
 
@@ -34,8 +34,39 @@ P5-010-retention-purge-service-facade
 
 ## Required Next Action
 
-1. P5-011をCommitする。
-2. P5-012へ進む。
+1. P5-012をCommitする。
+2. P5-013へ進む。
+
+## P5-012 Verification Commands and Results
+
+```text
+docker compose run --rm app vendor/bin/phpunit --filter 'RetentionPurgeCommandTest|RetentionPurgeResultTest|PostgreSqlRetentionPurgeServiceTest'
+Result: OK (8 tests, 28 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app composer validate --strict
+Result: ./composer.json is valid.
+
+docker compose run --rm app mago format --check src tests
+Result: INFO All files are already formatted.
+
+docker compose run --rm app mago lint
+Result: INFO No issues found.
+
+docker compose run --rm app mago analyze
+Result: INFO No issues found.
+
+docker compose run --rm app vendor/bin/phpunit
+Result: OK (438 tests, 1341 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app vendor/bin/deptrac
+Result: Violations 0 / Skipped violations 0 / Uncovered 0 / Allowed 1021 / Warnings 0 / Errors 0.
+
+rg -n 'Spec(ification)?[[:space:]]*[0-9]+|D[0-9]{3}|P[0-9]+-[0-9]+|TODO\.md:[0-9]+' src tests --glob '*.php'
+Result: No matches.
+
+git diff --check
+Result: No output.
+```
 
 ## P5-011 Verification Commands and Results
 

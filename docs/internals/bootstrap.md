@@ -36,6 +36,7 @@ The current command set is:
 | `blackops:container:compile` | `BlackOps\Internal\Console\CompileRuntimeContainerCommand` | Compile only the runtime container from explicit service provider config. |
 | `blackops:http-manifest:dump` | `BlackOps\Http\Console\DumpHttpManifestCommand` | Dump HTTP route metadata from an already-built operation registry and operation definitions. |
 | `blackops:retention:plan` | `BlackOps\Internal\Console\RetentionPlanCommand` | Print a retention purge plan without applying it. |
+| `blackops:retention:purge` | `BlackOps\Internal\Console\RetentionPurgeCommand` | Dry-run or apply retention purge through injected services. |
 
 For normal build pipelines, prefer the unified build command so operation metadata, HTTP route metadata, and container definitions are generated from the same provider set.
 

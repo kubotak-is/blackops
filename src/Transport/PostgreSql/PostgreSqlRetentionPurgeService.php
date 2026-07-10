@@ -9,9 +9,10 @@ use BlackOps\Core\Retention\RetentionPlanner;
 use BlackOps\Core\Retention\RetentionPolicy;
 use BlackOps\Core\Retention\RetentionPolicyRef;
 use BlackOps\Core\Retention\RetentionPurgeResult;
+use BlackOps\Core\Retention\RetentionPurgeService as RetentionPurgeServicePort;
 use DateTimeImmutable;
 
-final readonly class PostgreSqlRetentionPurgeService
+final readonly class PostgreSqlRetentionPurgeService implements RetentionPurgeServicePort
 {
     public function __construct(
         private RetentionPlanner $planner,
