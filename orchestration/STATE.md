@@ -1,28 +1,28 @@
 # Orchestration State
 
-Updated At: 2026-07-10T10:31:10+09:00
+Updated At: 2026-07-10T10:33:53+09:00
 
 ## Current Phase
 
-Phase 3: Deferred Vertical Slice
+Phase 4: Resilience
 
 ## Current Task
 
-Task ID: P3-010-deferred-worker-runtime
+Task ID: P3-011-phase-3-closeout
 
-Task Packet: `orchestration/tasks/P3-010-deferred-worker-runtime.md`
+Task Packet: `orchestration/tasks/P3-011-phase-3-closeout.md`
 
-Report: `orchestration/reports/P3-010-deferred-worker-runtime.md`
+Report: `orchestration/reports/P3-011-phase-3-closeout.md`
 
 ## Task Status
 
 Accepted
 
-P3-010をCodexが完了。WorkerがClaim済みOperationをDecodeし、Attemptを開始してHandlerを実行し、成功または業務RejectをOperation StateとCanonical Journalへ反映できるようにした。
+P3-011をCodexが完了。Phase 3: Deferred Vertical Sliceの実装到達点を確認し、最終検証を実行して、残作業をPhase 4以降へ明確に引き継いだ。
 
 ## Last Accepted Task
 
-P3-010-deferred-worker-runtime
+P3-011-phase-3-closeout
 
 ## Pending Decisions
 
@@ -34,8 +34,36 @@ P3-010-deferred-worker-runtime
 
 ## Required Next Action
 
-1. P3-011 Phase 3 Closeout Task Packetを作成する。
-2. Deferred Vertical Sliceの達成範囲を確認し、Retry / Heartbeat / Crash Recovery / Dead LetterをPhase 4へ引き継ぐ。
+1. P4-001 Task Packetを作成する。
+2. Handler例外時の`attempt.failed`、Fencing検証、Retry Schedulingの実装方針を確認してPhase 4を開始する。
+
+## P3-011 Final Phase 3 Verification Commands and Results
+
+```text
+docker compose run --rm app mago format --check src tests
+Result: INFO All files are already formatted.
+
+docker compose run --rm app composer validate --strict
+Result: ./composer.json is valid.
+
+docker compose run --rm app mago lint
+Result: INFO No issues found.
+
+docker compose run --rm app mago analyze
+Result: INFO No issues found.
+
+docker compose run --rm app vendor/bin/phpunit
+Result: OK (347 tests, 902 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app vendor/bin/deptrac
+Result: Violations 0 / Skipped 0 / Uncovered 0 / Allowed 673 / Warnings 0 / Errors 0.
+
+rg -n 'Spec(ification)?[[:space:]]*[0-9]+|D[0-9]{3}|P[0-9]+-[0-9]+|TODO\.md:[0-9]+' src tests --glob '*.php'
+Result: No matches.
+
+git diff --check
+Result: No output.
+```
 
 ## P3-010 Verification Commands and Results
 
