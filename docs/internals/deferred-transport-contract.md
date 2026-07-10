@@ -132,11 +132,39 @@ Receiverは`FOR UPDATE SKIP LOCKED`で行Lockを取得し、同じTransactionで
 
 Lease OwnerとLease DurationはPostgreSQL Receiverの構成値であり、ExecutionContextや業務Handlerへ公開しない。Handler実行中にDatabase Transactionは保持しない。
 
+## Deferred Worker Runtime
+
+Internal Worker RuntimeはClaim済みMessageをOperationValueとExecutionContextへDecodeし、Operation MetadataからOperation Definitionを復元する。
+
+Attempt開始Boundaryでは、同じDBAL Transaction内で次をCommitする。
+
+```text
+attempt_number update
+next_sequence update
+state_version update
+attempt.started journal record
+```
+
+その後、Handler実行中はDatabase Transactionを保持しない。
+
+Handlerが成功した場合、Result反映BoundaryではFencing Tokenを検証し、同じDBAL Transaction内で次をCommitする。
+
+```text
+state = completed
+next_sequence update
+state_version update
+attempt.succeeded journal record
+operation.completed journal record
+```
+
+Handlerが業務Rejectを返した場合は、同じBoundaryでStateを`rejected`へ更新し、`operation.rejected` Journalを保存する。
+
+Handler例外、Retry、Dead Letter、Heartbeat、Claim Settlementは後続Phaseの責務として残す。
+
 ## Current Scope
 
 現在のDeferred Transport実装では、まだ次を実装しない。
 
 - Deferred Dispatcher
-- Worker Runtime
 - Heartbeat / Settlement
 - Retry、Crash Recovery、Dead Letter

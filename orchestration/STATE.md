@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-10T10:20:18+09:00
+Updated At: 2026-07-10T10:31:10+09:00
 
 ## Current Phase
 
@@ -8,21 +8,21 @@ Phase 3: Deferred Vertical Slice
 
 ## Current Task
 
-Task ID: P3-009-postgresql-worker-claim
+Task ID: P3-010-deferred-worker-runtime
 
-Task Packet: `orchestration/tasks/P3-009-postgresql-worker-claim.md`
+Task Packet: `orchestration/tasks/P3-010-deferred-worker-runtime.md`
 
-Report: `orchestration/reports/P3-009-postgresql-worker-claim.md`
+Report: `orchestration/reports/P3-010-deferred-worker-runtime.md`
 
 ## Task Status
 
 Accepted
 
-P3-009をCodexが完了。PostgreSQL TransportへWorker Claimを追加し、EligibleなAccepted Operationを`FOR UPDATE SKIP LOCKED`で1件取得してRunning State、Lease、Fencing Tokenを同一Transactionで更新できるようにした。
+P3-010をCodexが完了。WorkerがClaim済みOperationをDecodeし、Attemptを開始してHandlerを実行し、成功または業務RejectをOperation StateとCanonical Journalへ反映できるようにした。
 
 ## Last Accepted Task
 
-P3-009-postgresql-worker-claim
+P3-010-deferred-worker-runtime
 
 ## Pending Decisions
 
@@ -34,8 +34,39 @@ P3-009-postgresql-worker-claim
 
 ## Required Next Action
 
-1. P3-010 Task Packetを作成する。
-2. WorkerがClaim済みOperationをOperationValue / ExecutionContextへDecodeし、Attemptを開始してHandlerを実行するRuntimeを追加する。
+1. P3-011 Phase 3 Closeout Task Packetを作成する。
+2. Deferred Vertical Sliceの達成範囲を確認し、Retry / Heartbeat / Crash Recovery / Dead LetterをPhase 4へ引き継ぐ。
+
+## P3-010 Verification Commands and Results
+
+```text
+docker compose run --rm app vendor/bin/phpunit --filter DeferredWorkerRuntimeTest
+Result: OK (2 tests, 22 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app mago format --check src tests
+Result: INFO All files are already formatted.
+
+docker compose run --rm app composer validate --strict
+Result: ./composer.json is valid.
+
+docker compose run --rm app mago lint
+Result: INFO No issues found.
+
+docker compose run --rm app mago analyze
+Result: INFO No issues found.
+
+docker compose run --rm app vendor/bin/phpunit
+Result: OK (347 tests, 902 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app vendor/bin/deptrac
+Result: Violations 0 / Skipped 0 / Uncovered 0 / Allowed 673 / Warnings 0 / Errors 0.
+
+rg -n 'Spec(ification)?[[:space:]]*[0-9]+|D[0-9]{3}|P[0-9]+-[0-9]+|TODO\.md:[0-9]+' src tests --glob '*.php'
+Result: No matches.
+
+git diff --check
+Result: No output.
+```
 
 ## P3-009 Verification Commands and Results
 
