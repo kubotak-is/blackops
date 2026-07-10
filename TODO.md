@@ -248,7 +248,9 @@
 - [x] Terminal OperationのPayloadをTombstone化可能にする
 - [x] Retention対象外部キーを `ON DELETE RESTRICT` とする
 - [x] Operation単位のLegal Holdを設ける
-- [ ] Retention Service、Policy、Legal Hold Portを設計・実装する
+- [x] Retention Policy Contractを実装する
+- [ ] Retention Serviceを設計・実装する
+- [ ] Retention Hold Portを設計・実装する
 - [x] Retention SchedulerをMVPへ含める
 - [x] Retention期間はProductionで明示設定を要求する
 - [x] Holdを `retention_holds` として一般化する
