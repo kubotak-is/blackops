@@ -10,6 +10,7 @@ use BlackOps\Core\Identifier\CorrelationId;
 use BlackOps\Core\Identifier\JournalRecordId;
 use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Core\Identifier\RetentionHoldId;
+use BlackOps\Core\Identifier\RetentionPurgeAuditId;
 use BlackOps\Internal\Identifier\IdentifierFactory;
 use BlackOps\Internal\Identifier\SymfonyUuidv7Generator;
 use BlackOps\Internal\Identifier\Uuidv7Generator;
@@ -33,6 +34,7 @@ final class IdentifierFactoryTest extends TestCase
         $correlation = $factory->newCorrelationId();
         $causation = $factory->newCausationId();
         $retentionHold = $factory->newRetentionHoldId();
+        $retentionPurgeAudit = $factory->newRetentionPurgeAuditId();
 
         self::assertInstanceOf(OperationId::class, $operation);
         self::assertInstanceOf(AttemptId::class, $attempt);
@@ -40,8 +42,17 @@ final class IdentifierFactoryTest extends TestCase
         self::assertInstanceOf(CorrelationId::class, $correlation);
         self::assertInstanceOf(CausationId::class, $causation);
         self::assertInstanceOf(RetentionHoldId::class, $retentionHold);
+        self::assertInstanceOf(RetentionPurgeAuditId::class, $retentionPurgeAudit);
 
-        foreach ([$operation, $attempt, $journal, $correlation, $causation, $retentionHold] as $id) {
+        foreach ([
+            $operation,
+            $attempt,
+            $journal,
+            $correlation,
+            $causation,
+            $retentionHold,
+            $retentionPurgeAudit,
+        ] as $id) {
             $value = $id->toString();
             self::assertMatchesRegularExpression(
                 '/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/',
@@ -103,6 +114,7 @@ final class IdentifierFactoryTest extends TestCase
         self::assertSame($fixed, $factory->newAttemptId()->toString());
         self::assertSame($fixed, $factory->newCausationId()->toString());
         self::assertSame($fixed, $factory->newRetentionHoldId()->toString());
+        self::assertSame($fixed, $factory->newRetentionPurgeAuditId()->toString());
     }
 
     private function fixedClock(string $time): ClockInterface

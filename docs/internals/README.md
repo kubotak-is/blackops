@@ -29,5 +29,8 @@ Framework実装者向けのArchitectureと実装ガイドを管理する。
 - PostgreSQL Adapter
 - [PostgreSQL Journal Store](postgresql-journal-store.md)
 - [HTTP API Slice](http-api-slice.md)
+- [Retention Policy](retention-policy.md)
+- [Retention Hold](retention-hold.md)
+- [Retention Purge Audit](retention-purge-audit.md)
 - Worker and Recovery
 - Testing and Architecture Verification
