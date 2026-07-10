@@ -54,3 +54,9 @@ payload_purged_at nullable
 Purge Auditは `retention_purge_audits` TableへPayloadなしで保存する。
 
 Audit TableはOperationを `ON DELETE RESTRICT` で参照し、Audit Record自身はPayload、Context、Error本文を持たない。System Logへの配送はPurge Service側で行う。
+
+## Retention Plan
+
+Retention PlanはPolicyと現在時刻から削除候補を副作用なしで抽出する。
+
+PostgreSQL Plannerは、Terminal OperationのTransport Payload Tombstone候補とDead Letter候補を返す。Active Holdが存在するOperationはPlanから除外する。

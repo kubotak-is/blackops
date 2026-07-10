@@ -32,5 +32,6 @@ Framework実装者向けのArchitectureと実装ガイドを管理する。
 - [Retention Policy](retention-policy.md)
 - [Retention Hold](retention-hold.md)
 - [Retention Purge Audit](retention-purge-audit.md)
+- [Retention Plan](retention-plan.md)
 - Worker and Recovery
 - Testing and Architecture Verification
