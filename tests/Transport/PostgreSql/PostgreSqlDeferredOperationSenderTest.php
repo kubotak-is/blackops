@@ -53,9 +53,12 @@ final class PostgreSqlDeferredOperationSenderTest extends TestCase
         self::assertSame('text', $columns['key_id']);
         self::assertSame('text', $columns['state']);
         self::assertSame('bigint', $columns['state_version']);
+        self::assertSame('integer', $columns['attempt_number']);
         self::assertSame('bigint', $columns['next_sequence']);
         self::assertSame('timestamp with time zone', $columns['available_at']);
         self::assertSame('timestamp with time zone', $columns['accepted_at']);
+        self::assertSame('uuid', $columns['current_attempt_id']);
+        self::assertSame('timestamp with time zone', $columns['current_attempt_started_at']);
     }
 
     public function testMigrationCreatesDeadLettersTableWithExpectedShape(): void

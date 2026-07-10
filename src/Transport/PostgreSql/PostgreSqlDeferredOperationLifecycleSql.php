@@ -54,6 +54,8 @@ final readonly class PostgreSqlDeferredOperationLifecycleSql
                     state_version = state_version + 1,
                     lease_owner = NULL,
                     lease_expires_at = NULL,
+                    current_attempt_id = NULL,
+                    current_attempt_started_at = NULL,
                     updated_at = :updated_at
                 WHERE operation_id = :operation_id
                     AND fencing_token = :fencing_token

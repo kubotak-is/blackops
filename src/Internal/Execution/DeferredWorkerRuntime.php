@@ -80,6 +80,13 @@ final readonly class DeferredWorkerRuntime
                     new Deferred(),
                 );
 
+                $attempt = $envelope->context()->attempt();
+
+                if ($attempt === null) {
+                    throw new LogicException('Deferred worker attempt context was not created.');
+                }
+
+                $this->storage->state->recordCurrentAttempt($claim, $attempt, $this->storage->clock->now());
                 $this->storage->lifecycle->next(LifecycleState::Accepted, JournalEvent::AttemptStarted);
                 $this->storage->journal->append($this->storage->records->attemptStarted(
                     $envelope,

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BlackOps\Transport\PostgreSql;
 
+use BlackOps\Core\AttemptContext;
 use BlackOps\Core\Execution\OperationClaim;
 use BlackOps\Journal\Data\OperationDeadLetteredData;
 use DateTimeImmutable;
@@ -13,6 +14,8 @@ final readonly class PostgreSqlDeferredOperationLifecycleStore
 {
     private PostgreSqlDeferredOperationSchema $schema;
     private PostgreSqlDeferredOperationLifecycleSql $sql;
+    private PostgreSqlDeadLetterStore $deadLetters;
+    private PostgreSqlLeaseExpiredRecoveryStore $leaseExpired;
 
     public function __construct(
         private Connection $connection,
@@ -20,6 +23,8 @@ final readonly class PostgreSqlDeferredOperationLifecycleStore
     ) {
         $this->schema = new PostgreSqlDeferredOperationSchema($schema);
         $this->sql = new PostgreSqlDeferredOperationLifecycleSql($connection, $this->schema);
+        $this->deadLetters = new PostgreSqlDeadLetterStore($connection, $this->schema, $this->sql);
+        $this->leaseExpired = new PostgreSqlLeaseExpiredRecoveryStore($connection, $this->schema, $this->sql);
     }
 
     public function reserveAttemptStarted(
@@ -52,6 +57,35 @@ final readonly class PostgreSqlDeferredOperationLifecycleStore
         $this->sql->assertUpdated($updated);
 
         return new PostgreSqlAttemptStartedReservation($sequence, $attemptNumber);
+    }
+
+    public function recordCurrentAttempt(
+        OperationClaim $claim,
+        AttemptContext $attempt,
+        DateTimeImmutable $updatedAt,
+    ): void {
+        $token = $this->sql->parseToken($claim);
+        $table = $this->schema->operationsTable();
+        $updated = $this->connection->executeStatement(
+            "UPDATE {$table}
+                SET current_attempt_id = :current_attempt_id,
+                    current_attempt_started_at = :current_attempt_started_at,
+                    updated_at = :updated_at
+                WHERE operation_id = :operation_id
+                    AND fencing_token = :fencing_token
+                    AND attempt_number = :attempt_number
+                    AND state = 'running'",
+            [
+                'operation_id' => $claim->message()->operationId()->toString(),
+                'fencing_token' => $token,
+                'attempt_number' => $attempt->number(),
+                'current_attempt_id' => $attempt->id()->toString(),
+                'current_attempt_started_at' => $this->sql->formatTimestamp($attempt->startedAt()),
+                'updated_at' => $this->sql->formatTimestamp($updatedAt),
+            ],
+        );
+
+        $this->sql->assertUpdated($updated);
     }
 
     public function reserveCompleted(
@@ -109,6 +143,8 @@ final readonly class PostgreSqlDeferredOperationLifecycleStore
                     state_version = state_version + 1,
                     lease_owner = NULL,
                     lease_expires_at = NULL,
+                    current_attempt_id = NULL,
+                    current_attempt_started_at = NULL,
                     updated_at = :updated_at
                 WHERE operation_id = :operation_id
                     AND fencing_token = :fencing_token
@@ -143,6 +179,8 @@ final readonly class PostgreSqlDeferredOperationLifecycleStore
                     available_at = :available_at,
                     lease_owner = NULL,
                     lease_expires_at = NULL,
+                    current_attempt_id = NULL,
+                    current_attempt_started_at = NULL,
                     updated_at = :updated_at
                 WHERE operation_id = :operation_id
                     AND fencing_token = :fencing_token
@@ -203,38 +241,13 @@ final readonly class PostgreSqlDeferredOperationLifecycleStore
             ),
         );
 
-        $this->insertDeadLetter($claim, $data);
+        $this->deadLetters->insert($claim, $data);
 
         return new PostgreSqlDeadLetteredReservation($sequence);
     }
 
-    private function insertDeadLetter(OperationClaim $claim, OperationDeadLetteredData $data): void
+    public function reserveLeaseExpired(DateTimeImmutable $expiredAt): ?PostgreSqlLeaseExpiredReservation
     {
-        $deadLetters = $this->schema->deadLettersTable();
-        $this->connection->executeStatement(
-            "INSERT INTO {$deadLetters} (
-                operation_id,
-                final_attempt_id,
-                final_attempt_number,
-                reason_type,
-                reason_message,
-                moved_at
-            ) VALUES (
-                :operation_id,
-                :final_attempt_id,
-                :final_attempt_number,
-                :reason_type,
-                :reason_message,
-                :moved_at
-            )",
-            [
-                'operation_id' => $claim->message()->operationId()->toString(),
-                'final_attempt_id' => $data->finalAttemptId?->toString(),
-                'final_attempt_number' => $data->finalAttemptNumber,
-                'reason_type' => $data->reasonType,
-                'reason_message' => $data->reasonMessage,
-                'moved_at' => $this->sql->formatTimestamp($data->movedAt),
-            ],
-        );
+        return $this->leaseExpired->reserve($expiredAt);
     }
 }

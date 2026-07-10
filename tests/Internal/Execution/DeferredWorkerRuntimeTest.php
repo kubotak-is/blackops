@@ -28,6 +28,7 @@ use BlackOps\Core\Supervision\SupervisionDecision;
 use BlackOps\Core\Supervision\SupervisionPolicy;
 use BlackOps\Internal\Codec\ReflectionJsonOperationCodec;
 use BlackOps\Internal\Execution\DeferredAcceptanceOrchestrator;
+use BlackOps\Internal\Execution\DeferredLeaseExpiredRecovery;
 use BlackOps\Internal\Execution\DeferredWorkerRuntime;
 use BlackOps\Internal\Execution\DeferredWorkerRuntimeServices;
 use BlackOps\Internal\Execution\DeferredWorkerRuntimeStorage;
@@ -245,6 +246,49 @@ final class DeferredWorkerRuntimeTest extends TestCase
         self::assertSame(1_000, $records[4]->data->delayMilliseconds);
     }
 
+    public function testLeaseExpiredRecoveryRecordsAttemptFailureAndSchedulesRetry(): void
+    {
+        $this->accept();
+        $claim = $this->receiver->claim(new \BlackOps\Core\Execution\ClaimRequest(
+            new DateTimeImmutable('2026-07-10T00:01:00.000000Z'),
+        ));
+
+        self::assertNotNull($claim);
+
+        $this->startAttemptWithoutCompleting($claim);
+
+        $recovered = $this->recovery()->recoverOne(new DateTimeImmutable('2026-07-10T00:02:00.000000Z'));
+        $row = $this->operationRow();
+        $records = $this->records();
+
+        self::assertTrue($recovered);
+        self::assertSame('retry_scheduled', $row['state']);
+        self::assertSame(1, (int) $row['attempt_number']);
+        self::assertSame(6, (int) $row['next_sequence']);
+        self::assertNull($row['lease_owner']);
+        self::assertNull($row['lease_expires_at']);
+        self::assertNull($row['current_attempt_id']);
+        self::assertNull($row['current_attempt_started_at']);
+        self::assertSame(
+            [
+                JournalEvent::OperationReceived,
+                JournalEvent::OperationAccepted,
+                JournalEvent::AttemptStarted,
+                JournalEvent::AttemptFailed,
+                JournalEvent::AttemptRetryScheduled,
+            ],
+            array_map(static fn(JournalRecord $record): JournalEvent => $record->event, $records),
+        );
+        self::assertInstanceOf(AttemptFailedData::class, $records[3]->data);
+        self::assertSame('lease_expired', $records[3]->data->errorType);
+        self::assertSame('Deferred operation lease expired.', $records[3]->data->errorMessage);
+        self::assertTrue($records[3]->data->retryable);
+        self::assertInstanceOf(AttemptRetryScheduledData::class, $records[4]->data);
+        self::assertSame($records[2]->attempt?->id->toString(), $records[4]->data->failedAttemptId->toString());
+        self::assertSame(2, $records[4]->data->nextAttemptNumber);
+        self::assertSame('2026-07-10T00:02:01+00:00', $records[4]->data->scheduledAt->format(DATE_ATOM));
+    }
+
     public function testWorkerDeadLettersOperationWithoutOperationFailedEvent(): void
     {
         $handler = new ThrowingWorkerReportHandler();
@@ -368,6 +412,56 @@ final class DeferredWorkerRuntimeTest extends TestCase
         );
     }
 
+    private function recovery(): DeferredLeaseExpiredRecovery
+    {
+        $clock = new DeferredWorkerClock();
+        $identifiers = new IdentifierFactory(new DeferredWorkerRecoveryUuidv7Generator(), $clock);
+
+        return new DeferredLeaseExpiredRecovery(
+            new DeferredWorkerRuntimeServices(
+                new OperationRegistry([$this->metadata()]),
+                $this->codec,
+                new ExecutionContextFactory($identifiers, $clock),
+                new HandlerResolver(new DeferredWorkerContainer(new CompletingWorkerReportHandler())),
+                new ExponentialBackoffSupervisionPolicy(jitterRatio: 0.0),
+            ),
+            new DeferredWorkerRuntimeStorage(
+                $this->connection,
+                new JournalRecordFactory($identifiers, $clock),
+                $this->journal,
+                new PostgreSqlDeferredOperationLifecycleStore($this->connection, self::SCHEMA),
+                $clock,
+            ),
+        );
+    }
+
+    private function startAttemptWithoutCompleting(OperationClaim $claim): void
+    {
+        $clock = new DeferredWorkerClock();
+        $identifiers = new IdentifierFactory(new DeferredWorkerRuntimeUuidv7Generator(), $clock);
+        $metadata = $this->metadata();
+        $state = new PostgreSqlDeferredOperationLifecycleStore($this->connection, self::SCHEMA);
+        $records = new JournalRecordFactory($identifiers, $clock);
+        $context = $this->codec->decodeContext($claim->message()->schemaVersion(), $claim->message()->encodedContext());
+        $reservation = $state->reserveAttemptStarted($claim, $clock->now());
+        $envelope = new OperationEnvelope(
+            new WorkerReportOperation(),
+            $this->codec->decodeValue(
+                $metadata,
+                $claim->message()->schemaVersion(),
+                $claim->message()->encodedPayload(),
+            ),
+            new ExecutionContextFactory($identifiers, $clock)->startAttempt($context, $reservation->attemptNumber),
+            new Deferred(),
+        );
+        $attempt = $envelope->context()->attempt();
+
+        self::assertNotNull($attempt);
+
+        $state->recordCurrentAttempt($claim, $attempt, $clock->now());
+        $this->journal->append($records->attemptStarted($envelope, $metadata, $reservation->sequence));
+    }
+
     private function metadata(): OperationMetadata
     {
         return new OperationMetadata(
@@ -385,7 +479,11 @@ final class DeferredWorkerRuntimeTest extends TestCase
      */
     private function operationRow(): array
     {
-        $row = $this->connection->fetchAssociative('SELECT * FROM ' . self::SCHEMA . '.operations');
+        $row = $this->connection->fetchAssociative('SELECT
+                *,
+                current_attempt_id::text AS current_attempt_id,
+                to_char(current_attempt_started_at AT TIME ZONE \'UTC\', \'YYYY-MM-DD"T"HH24:MI:SS.US"Z"\') AS current_attempt_started_at
+            FROM ' . self::SCHEMA . '.operations');
 
         self::assertIsArray($row);
 
@@ -558,6 +656,23 @@ final class DeferredWorkerRuntimeUuidv7Generator implements Uuidv7Generator
         '019f32ab-2be0-7b38-a0a7-1ab2f9687738',
         '019f32ab-2be0-7b38-a0a7-1ab2f9687739',
         '019f32ab-2be0-7b38-a0a7-1ab2f968773a',
+    ];
+
+    public function generate(DateTimeImmutable $time): string
+    {
+        return $this->values[$this->index++];
+    }
+}
+
+final class DeferredWorkerRecoveryUuidv7Generator implements Uuidv7Generator
+{
+    private int $index = 0;
+
+    /** @var list<string> */
+    private array $values = [
+        '019f32ab-2be0-7b38-a0a7-1ab2f9687740',
+        '019f32ab-2be0-7b38-a0a7-1ab2f9687741',
+        '019f32ab-2be0-7b38-a0a7-1ab2f9687742',
     ];
 
     public function generate(DateTimeImmutable $time): string

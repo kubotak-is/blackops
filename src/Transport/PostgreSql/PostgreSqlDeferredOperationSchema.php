@@ -51,6 +51,8 @@ final readonly class PostgreSqlDeferredOperationSchema
                 lease_owner text NULL,
                 lease_expires_at timestamptz NULL,
                 fencing_token bigint NOT NULL DEFAULT 0 CHECK (fencing_token >= 0),
+                current_attempt_id uuid NULL,
+                current_attempt_started_at timestamptz NULL,
                 created_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 updated_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP
             )",
@@ -62,6 +64,10 @@ final readonly class PostgreSqlDeferredOperationSchema
                 ADD COLUMN IF NOT EXISTS lease_expires_at timestamptz NULL",
             "ALTER TABLE {$operations}
                 ADD COLUMN IF NOT EXISTS fencing_token bigint NOT NULL DEFAULT 0 CHECK (fencing_token >= 0)",
+            "ALTER TABLE {$operations}
+                ADD COLUMN IF NOT EXISTS current_attempt_id uuid NULL",
+            "ALTER TABLE {$operations}
+                ADD COLUMN IF NOT EXISTS current_attempt_started_at timestamptz NULL",
             "ALTER TABLE {$operations}
                 ADD COLUMN IF NOT EXISTS created_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP",
             "ALTER TABLE {$operations}
