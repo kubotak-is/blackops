@@ -58,6 +58,25 @@ final class TimeCodecTest extends TestCase
         self::assertSame('2026-07-02T03:34:56.123456Z', $codec->format($tokyo));
     }
 
+    public function testParseReadsCanonicalUtcMicrosecondFormat(): void
+    {
+        $codec = new TimeCodec();
+
+        $parsed = $codec->parse('2026-07-02T03:34:56.123456Z');
+
+        self::assertSame('UTC', $parsed->getTimezone()->getName());
+        self::assertSame('2026-07-02T03:34:56.123456Z', $codec->format($parsed));
+    }
+
+    public function testParseRejectsNonCanonicalFormat(): void
+    {
+        $codec = new TimeCodec();
+
+        $this->expectException(\InvalidArgumentException::class);
+
+        $codec->parse('2026-07-02T03:34:56Z');
+    }
+
     public function testClockDerivedTimeCanBeNormalizedToUtcAndFormatted(): void
     {
         $codec = new TimeCodec();
