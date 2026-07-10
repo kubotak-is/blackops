@@ -88,3 +88,21 @@ dead letter delete
 ResultはPlanと対象別の実行件数だけを返す。Payload、Context、Dead Letter本文、Journal本文は返さない。
 
 Canonical Journal、Outcome、System Log配送は後続Taskで接続する。
+
+## Plan CLI
+
+`blackops:retention:plan` はPlanを表示するだけのSymfony Console Commandである。
+
+```text
+blackops:retention:plan
+  --transport-payload-days=7
+  --journal-days=30
+  --outcome-days=14
+  --dead-letter-days=90
+```
+
+CommandはDB接続を生成しない。ApplicationのComposition Rootが `RetentionPlanner` を組み立て、Commandへ注入する。
+
+4対象すべてのRetention期間を明示Optionで受け取る。暗黙の既定値は持たない。
+
+Purge実行CommandとPolicy Config File Loaderは後続Taskで扱う。
