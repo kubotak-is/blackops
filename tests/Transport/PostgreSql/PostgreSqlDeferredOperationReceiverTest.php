@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace BlackOps\Tests\Transport\PostgreSql;
 
+use BlackOps\Core\Execution\ClaimHeartbeat;
 use BlackOps\Core\Execution\ClaimRequest;
 use BlackOps\Core\Execution\DeferredOperationMessage;
+use BlackOps\Core\Execution\OperationClaim;
 use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationReceiver;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationSender;
@@ -13,6 +15,7 @@ use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use PHPUnit\Framework\TestCase;
+use Psr\Clock\ClockInterface;
 
 final class PostgreSqlDeferredOperationReceiverTest extends TestCase
 {
@@ -33,7 +36,13 @@ final class PostgreSqlDeferredOperationReceiverTest extends TestCase
             self::SCHEMA,
             new DateTimeImmutable('2026-07-10T00:00:01.000000Z'),
         );
-        $this->receiver = new PostgreSqlDeferredOperationReceiver($this->connection, self::SCHEMA, 'worker-a', 30);
+        $this->receiver = new PostgreSqlDeferredOperationReceiver(
+            $this->connection,
+            self::SCHEMA,
+            'worker-a',
+            30,
+            new FixedReceiverClock('2026-07-10T00:01:20.000000Z'),
+        );
         $this->sender->migrate();
         $this->receiver->migrate();
     }
@@ -84,6 +93,47 @@ final class PostgreSqlDeferredOperationReceiverTest extends TestCase
         self::assertSame('accepted', $this->operationRow(self::SECOND_OPERATION_ID)['state']);
     }
 
+    public function testHeartbeatExtendsRunningLease(): void
+    {
+        $this->sender->enqueue($this->message(self::OPERATION_ID, '2026-07-10T00:00:00.000000Z'));
+        $claim = $this->receiver->claim(new ClaimRequest(new DateTimeImmutable('2026-07-10T00:01:00.000000Z')));
+
+        self::assertNotNull($claim);
+        self::assertInstanceOf(ClaimHeartbeat::class, $this->receiver);
+
+        $returned = $this->receiver->heartbeat($claim);
+        $row = $this->operationRow(self::OPERATION_ID);
+
+        self::assertSame($claim, $returned);
+        self::assertSame('running', $row['state']);
+        self::assertSame('worker-a', $row['lease_owner']);
+        self::assertSame('2026-07-10T00:01:50.000000Z', $row['lease_expires_at']);
+        self::assertSame('2026-07-10T00:01:20.000000Z', $row['updated_at']);
+        self::assertSame(1, (int) $row['fencing_token']);
+    }
+
+    public function testHeartbeatRejectsStaleFencingToken(): void
+    {
+        $this->sender->enqueue($this->message(self::OPERATION_ID, '2026-07-10T00:00:00.000000Z'));
+        $claim = $this->receiver->claim(new ClaimRequest(new DateTimeImmutable('2026-07-10T00:01:00.000000Z')));
+
+        self::assertNotNull($claim);
+
+        $this->expectException(\BlackOps\Core\Exception\DeferredTransportException::class);
+
+        $this->receiver->heartbeat(new OperationClaim($claim->message(), self::OPERATION_ID . ':999'));
+    }
+
+    public function testHeartbeatRejectsNonRunningOperation(): void
+    {
+        $message = $this->message(self::OPERATION_ID, '2026-07-10T00:00:00.000000Z');
+        $this->sender->enqueue($message);
+
+        $this->expectException(\BlackOps\Core\Exception\DeferredTransportException::class);
+
+        $this->receiver->heartbeat(new OperationClaim($message, self::OPERATION_ID . ':1'));
+    }
+
     private function message(string $operationId, string $availableAt): DeferredOperationMessage
     {
         return new DeferredOperationMessage(
@@ -108,7 +158,8 @@ final class PostgreSqlDeferredOperationReceiverTest extends TestCase
                 state_version,
                 lease_owner,
                 to_char(lease_expires_at AT TIME ZONE \'UTC\', \'YYYY-MM-DD"T"HH24:MI:SS.US"Z"\') AS lease_expires_at,
-                fencing_token
+                fencing_token,
+                to_char(updated_at AT TIME ZONE \'UTC\', \'YYYY-MM-DD"T"HH24:MI:SS.US"Z"\') AS updated_at
             FROM ' . self::SCHEMA . '.operations
             WHERE operation_id = :operation_id',
             ['operation_id' => $operationId],
@@ -135,5 +186,17 @@ final class PostgreSqlDeferredOperationReceiverTest extends TestCase
             'user' => $user,
             'password' => $password,
         ]);
+    }
+}
+
+final readonly class FixedReceiverClock implements ClockInterface
+{
+    public function __construct(
+        private string $time,
+    ) {}
+
+    public function now(): DateTimeImmutable
+    {
+        return new DateTimeImmutable($this->time);
     }
 }

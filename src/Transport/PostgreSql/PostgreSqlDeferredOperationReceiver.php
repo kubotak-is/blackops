@@ -5,28 +5,31 @@ declare(strict_types=1);
 namespace BlackOps\Transport\PostgreSql;
 
 use BlackOps\Core\Exception\DeferredTransportException;
+use BlackOps\Core\Execution\ClaimHeartbeat;
 use BlackOps\Core\Execution\ClaimRequest;
-use BlackOps\Core\Execution\DeferredOperationMessage;
 use BlackOps\Core\Execution\OperationClaim;
 use BlackOps\Core\Execution\OperationReceiver;
 use BlackOps\Core\Identifier\OperationId;
 use DateInterval;
-use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 use InvalidArgumentException;
+use Psr\Clock\ClockInterface;
 use SensitiveParameter;
 use Throwable;
 
-final readonly class PostgreSqlDeferredOperationReceiver implements OperationReceiver
+final readonly class PostgreSqlDeferredOperationReceiver implements OperationReceiver, ClaimHeartbeat
 {
     private PostgreSqlDeferredOperationSchema $schema;
     private DateInterval $leaseDuration;
+    private PostgreSqlDeferredOperationLeaseStore $leases;
+    private PostgreSqlDeferredOperationMessageCodec $messages;
 
     public function __construct(
         private Connection $connection,
         string $schema = 'blackops',
-        private string $leaseOwner = 'blackops-worker',
+        string $leaseOwner = 'blackops-worker',
         int $leaseSeconds = 60,
+        private ClockInterface $clock = new PostgreSqlSystemClock(),
     ) {
         if ($leaseOwner === '') {
             throw new InvalidArgumentException('Lease owner must not be empty.');
@@ -38,6 +41,8 @@ final readonly class PostgreSqlDeferredOperationReceiver implements OperationRec
 
         $this->schema = new PostgreSqlDeferredOperationSchema($schema);
         $this->leaseDuration = new DateInterval('PT' . $leaseSeconds . 'S');
+        $this->leases = new PostgreSqlDeferredOperationLeaseStore($connection, $this->schema, $leaseOwner);
+        $this->messages = new PostgreSqlDeferredOperationMessageCodec();
     }
 
     public function migrate(): void
@@ -58,7 +63,7 @@ final readonly class PostgreSqlDeferredOperationReceiver implements OperationRec
     {
         try {
             return $this->connection->transactional(function () use ($request): ?OperationClaim {
-                $row = $this->selectEligible($request->claimedAt());
+                $row = $this->leases->selectEligible($request->claimedAt());
 
                 if ($row === null) {
                     return null;
@@ -66,9 +71,9 @@ final readonly class PostgreSqlDeferredOperationReceiver implements OperationRec
 
                 $fencingToken = (int) $row['fencing_token'] + 1;
                 $leaseExpiresAt = $request->claimedAt()->add($this->leaseDuration);
-                $message = $this->messageFromRow($row);
+                $message = $this->messages->fromRow($row);
 
-                $this->markRunning($message->operationId(), $fencingToken, $leaseExpiresAt);
+                $this->leases->markRunning($message->operationId(), $fencingToken, $leaseExpiresAt);
 
                 return new OperationClaim($message, $this->claimToken($message->operationId(), $fencingToken));
             });
@@ -84,100 +89,26 @@ final readonly class PostgreSqlDeferredOperationReceiver implements OperationRec
         }
     }
 
-    /**
-     * @return array<string, mixed>|null
-     */
-    private function selectEligible(DateTimeImmutable $claimedAt): ?array
+    public function heartbeat(OperationClaim $claim): OperationClaim
     {
-        $table = $this->schema->operationsTable();
-        $sql = "SELECT
-                operation_id::text AS operation_id,
-                operation_type,
-                schema_version,
-                convert_from(encoded_payload, 'UTF8') AS encoded_payload,
-                convert_from(encoded_context, 'UTF8') AS encoded_context,
-                available_at,
-                fencing_token
-            FROM {$table}
-            WHERE state IN ('accepted', 'retry_scheduled')
-                AND available_at <= :claimed_at
-            ORDER BY available_at, operation_id
-            FOR UPDATE SKIP LOCKED
-            LIMIT 1";
+        try {
+            $token = $this->parseToken($claim);
+            $heartbeatAt = $this->clock->now();
+            $leaseExpiresAt = $heartbeatAt->add($this->leaseDuration);
 
-        $row = $this->connection->fetchAssociative($sql, [
-            'claimed_at' => $this->formatTimestamp($claimedAt),
-        ]);
+            $this->leases->heartbeat($claim->message()->operationId(), $token, $leaseExpiresAt, $heartbeatAt);
 
-        return is_array($row) ? $row : null;
-    }
+            return $claim;
+        } catch (Throwable $exception) {
+            if ($exception instanceof DeferredTransportException) {
+                throw $exception;
+            }
 
-    private function markRunning(
-        OperationId $operationId,
-        #[SensitiveParameter]
-        int $fencingToken,
-        DateTimeImmutable $leaseExpiresAt,
-    ): void {
-        $table = $this->schema->operationsTable();
-        $sql = "UPDATE {$table}
-            SET state = 'running',
-                state_version = state_version + 1,
-                lease_owner = :lease_owner,
-                lease_expires_at = :lease_expires_at,
-                fencing_token = :fencing_token,
-                updated_at = :updated_at
-            WHERE operation_id = :operation_id";
-
-        $updated = $this->connection->executeStatement($sql, [
-            'operation_id' => $operationId->toString(),
-            'lease_owner' => $this->leaseOwner,
-            'lease_expires_at' => $this->formatTimestamp($leaseExpiresAt),
-            'fencing_token' => $fencingToken,
-            'updated_at' => $this->formatTimestamp($leaseExpiresAt),
-        ]);
-
-        if ((int) $updated !== 1) {
-            throw new DeferredTransportException('Deferred operation claim did not update exactly one row.');
+            throw new DeferredTransportException(
+                'Failed to heartbeat PostgreSQL deferred operation claim.',
+                previous: $exception,
+            );
         }
-    }
-
-    /**
-     * @param array<string, mixed> $row
-     */
-    private function messageFromRow(array $row): DeferredOperationMessage
-    {
-        return new DeferredOperationMessage(
-            OperationId::fromString($this->string($row, 'operation_id')),
-            $this->string($row, 'operation_type'),
-            $this->integer($row, 'schema_version'),
-            $this->string($row, 'encoded_payload'),
-            $this->string($row, 'encoded_context'),
-            new DateTimeImmutable($this->string($row, 'available_at')),
-        );
-    }
-
-    /**
-     * @param array<string, mixed> $row
-     */
-    private function string(array $row, string $key): string
-    {
-        if (!array_key_exists($key, $row) || !is_string($row[$key]) || $row[$key] === '') {
-            throw new DeferredTransportException('Claimed operation row contains an invalid string field.');
-        }
-
-        return $row[$key];
-    }
-
-    /**
-     * @param array<string, mixed> $row
-     */
-    private function integer(array $row, string $key): int
-    {
-        if (!array_key_exists($key, $row) || !is_int($row[$key])) {
-            throw new DeferredTransportException('Claimed operation row contains an invalid integer field.');
-        }
-
-        return $row[$key];
     }
 
     private function claimToken(OperationId $operationId, #[SensitiveParameter] int $fencingToken): string
@@ -185,8 +116,18 @@ final readonly class PostgreSqlDeferredOperationReceiver implements OperationRec
         return $operationId->toString() . ':' . $fencingToken;
     }
 
-    private function formatTimestamp(DateTimeImmutable $time): string
+    private function parseToken(OperationClaim $claim): int
     {
-        return $time->format('Y-m-d H:i:s.uP');
+        $parts = explode(':', $claim->claimToken(), limit: 2);
+
+        if (count($parts) !== 2 || $parts[0] !== $claim->message()->operationId()->toString()) {
+            throw new DeferredTransportException('Deferred operation claim token does not match the operation.');
+        }
+
+        if (!ctype_digit($parts[1]) || $parts[1] === '0') {
+            throw new DeferredTransportException('Deferred operation claim token has an invalid fencing token.');
+        }
+
+        return (int) $parts[1];
     }
 }

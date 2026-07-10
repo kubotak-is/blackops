@@ -165,12 +165,14 @@ Handler例外が発生した場合、Worker Runtimeは例外を捕捉し、Failu
 
 `attempt.failed` Dataは、例外型、例外Message、現時点のRetryable判定を保持する。
 
-Heartbeat、Claim Settlementは後続Phaseの責務として残す。
+WorkerはHandler実行中にHeartbeatを送り、Running OperationのLease期限を延長できる。HeartbeatはClaim Token内のOperation IDとFencing Tokenを検証し、Running State以外または古いFencing Tokenを拒否する。
+
+Claim Settlementは後続Phaseの責務として残す。
 
 ## Current Scope
 
 現在のDeferred Transport実装では、まだ次を実装しない。
 
 - Deferred Dispatcher
-- Heartbeat / Settlement
+- Settlement
 - Crash Recovery

@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-10T14:21:12+09:00
+Updated At: 2026-07-10T14:26:50+09:00
 
 ## Current Phase
 
@@ -8,21 +8,21 @@ Phase 4: Resilience
 
 ## Current Task
 
-Task ID: P4-003-dead-letter-boundary
+Task ID: P4-004-postgresql-worker-heartbeat
 
-Task Packet: `orchestration/tasks/P4-003-dead-letter-boundary.md`
+Task Packet: `orchestration/tasks/P4-004-postgresql-worker-heartbeat.md`
 
-Report: `orchestration/reports/P4-003-dead-letter-boundary.md`
+Report: `orchestration/reports/P4-004-postgresql-worker-heartbeat.md`
 
 ## Task Status
 
 Accepted
 
-P4-003をCodexが完了。PostgreSQL Dead Letters Table、`OperationDeadLetteredData`、Dead Letter予約処理、Runtime連携を実装した。Dead Lettered Operationへ`operation.failed`は併記しない。
+P4-004をCodexが完了。PostgreSQL Deferred Operation Receiverが`ClaimHeartbeat`を実装し、Running LeaseをWorker Heartbeatで延長できるようにした。Stale Fencing TokenとRunning以外のOperationは拒否する。
 
 ## Last Accepted Task
 
-P4-003-dead-letter-boundary
+P4-004-postgresql-worker-heartbeat
 
 ## Pending Decisions
 
@@ -34,8 +34,39 @@ P4-003-dead-letter-boundary
 
 ## Required Next Action
 
-1. P4-004 Task Packetを作成する。
-2. Lease Expired RecoveryまたはHeartbeat / Settlementの実装へ進む。
+1. P4-005 Task Packetを作成する。
+2. Lease Expired RecoveryまたはClaim Settlementの実装へ進む。
+
+## P4-004 Verification Commands and Results
+
+```text
+docker compose run --rm app vendor/bin/phpunit --filter PostgreSqlDeferredOperationReceiverTest
+Result: OK (6 tests, 34 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app composer validate --strict
+Result: ./composer.json is valid.
+
+docker compose run --rm app mago format --check src tests
+Result: INFO All files are already formatted.
+
+docker compose run --rm app mago lint
+Result: INFO No issues found.
+
+docker compose run --rm app mago analyze
+Result: INFO No issues found.
+
+docker compose run --rm app vendor/bin/phpunit
+Result: OK (368 tests, 1053 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app vendor/bin/deptrac
+Result: Violations 0 / Skipped 0 / Uncovered 0 / Allowed 786 / Warnings 0 / Errors 0.
+
+rg -n 'Spec(ification)?[[:space:]]*[0-9]+|D[0-9]{3}|P[0-9]+-[0-9]+|TODO\.md:[0-9]+' src tests --glob '*.php'
+Result: No matches.
+
+git diff --check
+Result: No output.
+```
 
 ## P4-003 Verification Commands and Results
 
