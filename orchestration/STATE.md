@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-10T21:37:08+09:00
+Updated At: 2026-07-10T21:42:31+09:00
 
 ## Current Phase
 
@@ -8,21 +8,21 @@ Phase 5: Retention
 
 ## Current Task
 
-Task ID: P5-002-retention-hold-contract
+Task ID: P5-003-postgresql-retention-schema
 
-Task Packet: `orchestration/tasks/P5-002-retention-hold-contract.md`
+Task Packet: `orchestration/tasks/P5-003-postgresql-retention-schema.md`
 
-Report: `orchestration/reports/P5-002-retention-hold-contract.md`
+Report: `orchestration/reports/P5-003-postgresql-retention-schema.md`
 
 ## Task Status
 
 Completed
 
-P5-002は完了。Retention Hold ID、Actor Reference、Hold Contract、Portを実装した。
+P5-003は完了。PostgreSQL Retention SchemaとしてPayload Tombstone列とRetention Hold Tableを実装した。
 
 ## Last Accepted Task
 
-P5-002-retention-hold-contract
+P5-003-postgresql-retention-schema
 
 ## Pending Decisions
 
@@ -34,8 +34,39 @@ P5-002-retention-hold-contract
 
 ## Required Next Action
 
-1. P5-002をCommitする。
-2. P5-003へ進む。
+1. P5-003をCommitする。
+2. P5-004へ進む。
+
+## P5-003 Verification Commands and Results
+
+```text
+docker compose run --rm app vendor/bin/phpunit --filter PostgreSqlDeferredOperationSenderTest
+Result: OK (9 tests, 62 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app composer validate --strict
+Result: ./composer.json is valid.
+
+docker compose run --rm app mago format --check src tests
+Result: INFO All files are already formatted.
+
+docker compose run --rm app mago lint
+Result: INFO No issues found.
+
+docker compose run --rm app mago analyze
+Result: INFO No issues found.
+
+docker compose run --rm app vendor/bin/phpunit
+Result: OK (399 tests, 1177 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app vendor/bin/deptrac
+Result: Violations 0 / Skipped violations 0 / Uncovered 0 / Allowed 854 / Warnings 0 / Errors 0.
+
+rg -n 'Spec(ification)?[[:space:]]*[0-9]+|D[0-9]{3}|P[0-9]+-[0-9]+|TODO\.md:[0-9]+' src tests --glob '*.php'
+Result: No matches.
+
+git diff --check
+Result: No output.
+```
 
 ## P5-002 Verification Commands and Results
 

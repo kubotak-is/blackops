@@ -21,6 +21,7 @@ final readonly class PostgreSqlDeferredOperationSchema
         $schema = $this->identifier->quoted();
         $operations = $this->identifier->qualify('operations');
         $deadLetters = $this->identifier->qualify('dead_letters');
+        $retentionHolds = $this->identifier->qualify('retention_holds');
 
         return [
             "CREATE SCHEMA IF NOT EXISTS {$schema}",
@@ -28,8 +29,9 @@ final readonly class PostgreSqlDeferredOperationSchema
                 operation_id uuid PRIMARY KEY,
                 operation_type text NOT NULL CHECK (operation_type <> ''),
                 schema_version integer NOT NULL CHECK (schema_version >= 1),
-                encoded_payload bytea NOT NULL,
-                encoded_context bytea NOT NULL,
+                encoded_payload bytea NULL,
+                encoded_context bytea NULL,
+                payload_purged_at timestamptz NULL,
                 content_type text NOT NULL CHECK (content_type <> ''),
                 encoding text NOT NULL CHECK (encoding <> ''),
                 key_id text NULL,
@@ -56,6 +58,12 @@ final readonly class PostgreSqlDeferredOperationSchema
                 created_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 updated_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP
             )",
+            "ALTER TABLE {$operations}
+                ALTER COLUMN encoded_payload DROP NOT NULL",
+            "ALTER TABLE {$operations}
+                ALTER COLUMN encoded_context DROP NOT NULL",
+            "ALTER TABLE {$operations}
+                ADD COLUMN IF NOT EXISTS payload_purged_at timestamptz NULL",
             "ALTER TABLE {$operations}
                 ADD COLUMN IF NOT EXISTS attempt_number integer NOT NULL DEFAULT 0 CHECK (attempt_number >= 0)",
             "ALTER TABLE {$operations}
@@ -85,6 +93,22 @@ final readonly class PostgreSqlDeferredOperationSchema
                     'failed',
                     'dead_lettered'
                 ))",
+            "ALTER TABLE {$operations}
+                DROP CONSTRAINT IF EXISTS operations_payload_tombstone_check",
+            "ALTER TABLE {$operations}
+                ADD CONSTRAINT operations_payload_tombstone_check CHECK (
+                    (
+                        encoded_payload IS NOT NULL
+                        AND encoded_context IS NOT NULL
+                        AND payload_purged_at IS NULL
+                    )
+                    OR (
+                        state IN ('completed', 'rejected', 'failed', 'dead_lettered')
+                        AND encoded_payload IS NULL
+                        AND encoded_context IS NULL
+                        AND payload_purged_at IS NOT NULL
+                    )
+                )",
             "CREATE INDEX IF NOT EXISTS operations_eligible_idx
                 ON {$operations} (available_at, operation_id)
                 WHERE state IN ('accepted', 'retry_scheduled')",
@@ -104,6 +128,31 @@ final readonly class PostgreSqlDeferredOperationSchema
             )",
             "CREATE INDEX IF NOT EXISTS dead_letters_moved_at_idx
                 ON {$deadLetters} (moved_at, operation_id)",
+            "CREATE TABLE IF NOT EXISTS {$retentionHolds} (
+                hold_id uuid PRIMARY KEY,
+                operation_id uuid NOT NULL,
+                category text NOT NULL CHECK (category IN ('legal', 'security', 'audit', 'support', 'other')),
+                reason text NOT NULL CHECK (reason <> ''),
+                placed_at timestamptz NOT NULL,
+                placed_by text NOT NULL CHECK (placed_by <> ''),
+                released_at timestamptz NULL,
+                released_by text NULL CHECK (released_by IS NULL OR released_by <> ''),
+                created_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                CHECK (
+                    (released_at IS NULL AND released_by IS NULL)
+                    OR (released_at IS NOT NULL AND released_by IS NOT NULL AND released_at >= placed_at)
+                )
+            )",
+            "ALTER TABLE {$retentionHolds}
+                DROP CONSTRAINT IF EXISTS retention_holds_operation_id_fkey",
+            "ALTER TABLE {$retentionHolds}
+                ADD CONSTRAINT retention_holds_operation_id_fkey
+                FOREIGN KEY (operation_id)
+                REFERENCES {$operations} (operation_id)
+                ON DELETE RESTRICT",
+            "CREATE INDEX IF NOT EXISTS retention_holds_operation_active_idx
+                ON {$retentionHolds} (operation_id, placed_at)
+                WHERE released_at IS NULL",
         ];
     }
 
@@ -115,5 +164,10 @@ final readonly class PostgreSqlDeferredOperationSchema
     public function deadLettersTable(): string
     {
         return $this->identifier->qualify('dead_letters');
+    }
+
+    public function retentionHoldsTable(): string
+    {
+        return $this->identifier->qualify('retention_holds');
     }
 }

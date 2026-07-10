@@ -46,3 +46,23 @@ activeFor
 ```
 
 PostgreSQL Store、CLI、Purge Serviceとの接続は後続Taskで扱う。
+
+## PostgreSQL Schema
+
+`retention_holds` TableはOperationごとのHold設定と解除履歴を保持する。
+
+```text
+hold_id
+operation_id
+category
+reason
+placed_at
+placed_by
+released_at nullable
+released_by nullable
+created_at
+```
+
+`operation_id` はOperations Tableへ `ON DELETE RESTRICT` で参照する。Cascade Deleteは使わない。
+
+Active Holdは `released_at IS NULL` で判定できる。解除済みHoldも履歴として残す。

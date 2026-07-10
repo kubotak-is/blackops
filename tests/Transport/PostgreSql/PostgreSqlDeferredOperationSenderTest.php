@@ -11,6 +11,7 @@ use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationSender;
 use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Exception;
 use PHPUnit\Framework\TestCase;
 
 final class PostgreSqlDeferredOperationSenderTest extends TestCase
@@ -48,6 +49,7 @@ final class PostgreSqlDeferredOperationSenderTest extends TestCase
         self::assertSame('integer', $columns['schema_version']);
         self::assertSame('bytea', $columns['encoded_payload']);
         self::assertSame('bytea', $columns['encoded_context']);
+        self::assertSame('timestamp with time zone', $columns['payload_purged_at']);
         self::assertSame('text', $columns['content_type']);
         self::assertSame('text', $columns['encoding']);
         self::assertSame('text', $columns['key_id']);
@@ -59,6 +61,23 @@ final class PostgreSqlDeferredOperationSenderTest extends TestCase
         self::assertSame('timestamp with time zone', $columns['accepted_at']);
         self::assertSame('uuid', $columns['current_attempt_id']);
         self::assertSame('timestamp with time zone', $columns['current_attempt_started_at']);
+    }
+
+    public function testMigrationMakesPayloadColumnsNullableForTerminalTombstones(): void
+    {
+        $columns = $this->connection->fetchAllAssociativeIndexed(
+            "SELECT column_name, is_nullable
+            FROM information_schema.columns
+            WHERE table_schema = '"
+            . self::SCHEMA
+            . "'
+              AND table_name = 'operations'
+              AND column_name IN ('encoded_payload', 'encoded_context', 'payload_purged_at')",
+        );
+
+        self::assertSame('YES', $columns['encoded_payload']['is_nullable']);
+        self::assertSame('YES', $columns['encoded_context']['is_nullable']);
+        self::assertSame('YES', $columns['payload_purged_at']['is_nullable']);
     }
 
     public function testMigrationCreatesDeadLettersTableWithExpectedShape(): void
@@ -87,6 +106,122 @@ final class PostgreSqlDeferredOperationSenderTest extends TestCase
         self::assertSame('timestamp with time zone', $columns['moved_at']);
         self::assertSame('timestamp with time zone', $columns['created_at']);
         self::assertSame(1, (int) $primaryKeyCount);
+    }
+
+    public function testMigrationCreatesRetentionHoldsTableWithRestrictForeignKey(): void
+    {
+        $columns = $this->connection->fetchAllKeyValue("SELECT column_name, data_type
+            FROM information_schema.columns
+            WHERE table_schema = '"
+        . self::SCHEMA
+        . "'
+              AND table_name = 'retention_holds'
+            ORDER BY ordinal_position");
+        $deleteRule = $this->connection->fetchOne(
+            "SELECT rc.delete_rule
+            FROM information_schema.referential_constraints rc
+            JOIN information_schema.table_constraints tc
+                ON tc.constraint_catalog = rc.constraint_catalog
+                AND tc.constraint_schema = rc.constraint_schema
+                AND tc.constraint_name = rc.constraint_name
+            WHERE tc.table_schema = '"
+            . self::SCHEMA
+            . "'
+              AND tc.table_name = 'retention_holds'
+              AND tc.constraint_name = 'retention_holds_operation_id_fkey'",
+        );
+
+        self::assertSame('uuid', $columns['hold_id']);
+        self::assertSame('uuid', $columns['operation_id']);
+        self::assertSame('text', $columns['category']);
+        self::assertSame('text', $columns['reason']);
+        self::assertSame('timestamp with time zone', $columns['placed_at']);
+        self::assertSame('text', $columns['placed_by']);
+        self::assertSame('timestamp with time zone', $columns['released_at']);
+        self::assertSame('text', $columns['released_by']);
+        self::assertSame('timestamp with time zone', $columns['created_at']);
+        self::assertSame('RESTRICT', $deleteRule);
+    }
+
+    public function testTerminalOperationCanBeTombstoned(): void
+    {
+        $this->sender->enqueue($this->message());
+        $updated = $this->connection->executeStatement(
+            'UPDATE ' . self::SCHEMA . ".operations
+            SET state = 'completed',
+                encoded_payload = NULL,
+                encoded_context = NULL,
+                payload_purged_at = :purged_at
+            WHERE operation_id = :operation_id",
+            [
+                'operation_id' => self::OPERATION_ID,
+                'purged_at' => '2026-07-12 00:00:00+00:00',
+            ],
+        );
+
+        $row = $this->connection->fetchAssociative('SELECT
+                encoded_payload,
+                encoded_context,
+                to_char(payload_purged_at AT TIME ZONE \'UTC\', \'YYYY-MM-DD"T"HH24:MI:SS.US"Z"\') AS payload_purged_at
+            FROM ' . self::SCHEMA . '.operations');
+
+        self::assertSame(1, $updated);
+        self::assertIsArray($row);
+        self::assertNull($row['encoded_payload']);
+        self::assertNull($row['encoded_context']);
+        self::assertSame('2026-07-12T00:00:00.000000Z', $row['payload_purged_at']);
+    }
+
+    public function testNonTerminalOperationCannotBeTombstoned(): void
+    {
+        $this->sender->enqueue($this->message());
+
+        $this->expectException(Exception::class);
+
+        $this->connection->executeStatement(
+            'UPDATE ' . self::SCHEMA . '.operations
+            SET encoded_payload = NULL,
+                encoded_context = NULL,
+                payload_purged_at = :purged_at
+            WHERE operation_id = :operation_id',
+            [
+                'operation_id' => self::OPERATION_ID,
+                'purged_at' => '2026-07-12 00:00:00+00:00',
+            ],
+        );
+    }
+
+    public function testRetentionHoldRestrictsOperationDelete(): void
+    {
+        $this->sender->enqueue($this->message());
+        $this->connection->executeStatement('INSERT INTO ' . self::SCHEMA . '.retention_holds (
+                hold_id,
+                operation_id,
+                category,
+                reason,
+                placed_at,
+                placed_by
+            ) VALUES (
+                :hold_id,
+                :operation_id,
+                :category,
+                :reason,
+                :placed_at,
+                :placed_by
+            )', [
+            'hold_id' => '019f32ab-2be0-7b38-a0a7-1ab2f9688811',
+            'operation_id' => self::OPERATION_ID,
+            'category' => 'legal',
+            'reason' => 'legal request',
+            'placed_at' => '2026-07-10 00:00:00+00:00',
+            'placed_by' => 'legal-team',
+        ]);
+
+        $this->expectException(Exception::class);
+
+        $this->connection->executeStatement('DELETE FROM '
+        . self::SCHEMA
+        . '.operations WHERE operation_id = :operation_id', ['operation_id' => self::OPERATION_ID]);
     }
 
     public function testEnqueueStoresMessageAndReturnsAcknowledgement(): void
