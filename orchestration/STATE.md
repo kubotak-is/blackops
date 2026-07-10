@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-10T23:56:04+09:00
+Updated At: 2026-07-11T00:01:17+09:00
 
 ## Current Phase
 
@@ -8,21 +8,21 @@ Phase 5: Retention
 
 ## Current Task
 
-Task ID: P5-007-retention-plan-contract-and-postgresql-planner
+Task ID: P5-008-postgresql-transport-payload-tombstone
 
-Task Packet: `orchestration/tasks/P5-007-retention-plan-contract-and-postgresql-planner.md`
+Task Packet: `orchestration/tasks/P5-008-postgresql-transport-payload-tombstone.md`
 
-Report: `orchestration/reports/P5-007-retention-plan-contract-and-postgresql-planner.md`
+Report: `orchestration/reports/P5-008-postgresql-transport-payload-tombstone.md`
 
 ## Task Status
 
 Completed
 
-P5-007は完了。Retention Plan ContractとPostgreSQL Plannerを実装した。
+P5-008は完了。PostgreSQL Transport Payload Tombstone実行Serviceを実装した。
 
 ## Last Accepted Task
 
-P5-006-postgresql-purge-audit-store
+P5-007-retention-plan-contract-and-postgresql-planner
 
 ## Pending Decisions
 
@@ -34,8 +34,39 @@ P5-006-postgresql-purge-audit-store
 
 ## Required Next Action
 
-1. P5-007をCommitする。
-2. P5-008へ進む。
+1. P5-008をCommitする。
+2. P5-009へ進む。
+
+## P5-008 Verification Commands and Results
+
+```text
+docker compose run --rm app vendor/bin/phpunit --filter PostgreSqlTransportPayloadTombstoneServiceTest
+Result: OK (1 test, 18 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app composer validate --strict
+Result: ./composer.json is valid.
+
+docker compose run --rm app mago format --check src tests
+Result: INFO All files are already formatted.
+
+docker compose run --rm app mago lint
+Result: INFO No issues found.
+
+docker compose run --rm app mago analyze
+Result: INFO No issues found.
+
+docker compose run --rm app vendor/bin/phpunit
+Result: OK (427 tests, 1292 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app vendor/bin/deptrac
+Result: Violations 0 / Skipped violations 0 / Uncovered 0 / Allowed 942 / Warnings 0 / Errors 0.
+
+rg -n 'Spec(ification)?[[:space:]]*[0-9]+|D[0-9]{3}|P[0-9]+-[0-9]+|TODO\.md:[0-9]+' src tests --glob '*.php'
+Result: No matches.
+
+git diff --check
+Result: No output.
+```
 
 ## P5-007 Verification Commands and Results
 
