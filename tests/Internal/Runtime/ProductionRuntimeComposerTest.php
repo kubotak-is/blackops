@@ -16,6 +16,7 @@ use BlackOps\Core\OperationHandler;
 use BlackOps\Core\OperationResult;
 use BlackOps\Core\OperationValue;
 use BlackOps\Core\Registry\OperationRegistry;
+use BlackOps\Http\Routing\FastRouteDispatcherDataCompiler;
 use BlackOps\Http\Routing\HttpOperationManifest;
 use BlackOps\Internal\Execution\ExecutionScopeProvider;
 use BlackOps\Internal\Journal\JournalObservationPipeline;
@@ -113,21 +114,27 @@ final class ProductionRuntimeComposerTest extends TestCase
 
     private function artifacts(?OperationHandler $handler = null): ProductionRuntimeArtifacts
     {
+        $routes = [
+            'GET' => [
+                '/composition' => 'runtime.composition',
+            ],
+        ];
+
         return new ProductionRuntimeArtifacts(
             new OperationRegistry([new OperationMetadataCompiler()->compile(RuntimeCompositionOperation::class)]),
-            new HttpOperationManifest([
-                'GET' => [
-                    '/composition' => 'runtime.composition',
+            new HttpOperationManifest(
+                $routes,
+                [
+                    'runtime.composition' => [
+                        'definition' => RuntimeCompositionOperation::class,
+                        'value' => RuntimeCompositionValue::class,
+                        'handler' => RuntimeCompositionHandler::class,
+                        'outcome' => EmptyOutcome::class,
+                        'strategy' => Inline::class,
+                    ],
                 ],
-            ], [
-                'runtime.composition' => [
-                    'definition' => RuntimeCompositionOperation::class,
-                    'value' => RuntimeCompositionValue::class,
-                    'handler' => RuntimeCompositionHandler::class,
-                    'outcome' => EmptyOutcome::class,
-                    'strategy' => Inline::class,
-                ],
-            ]),
+                new FastRouteDispatcherDataCompiler()->compile($routes),
+            ),
             new RuntimeCompositionContainer($handler ?? new RuntimeCompositionHandler()),
         );
     }

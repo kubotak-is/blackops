@@ -41,7 +41,9 @@ final class CompileHttpManifestCommandTest extends TestCase
 
         self::assertSame(0, $status);
         self::assertFileExists($output);
+        self::assertSame(2, $artifact->schemaVersion);
         self::assertSame('build-http-command', $artifact->applicationBuildId);
+        self::assertSame('command.http', $artifact->manifest->dispatcherData[0]['GET']['/command-http']);
         self::assertNotNull($match);
         self::assertSame(HttpCommandValue::class, $match->route->value);
     }

@@ -11,6 +11,7 @@ use BlackOps\Core\OperationEnvelope;
 use BlackOps\Core\OperationHandler;
 use BlackOps\Core\OperationResult;
 use BlackOps\Core\OperationValue;
+use BlackOps\Http\Routing\FastRouteDispatcherDataCompiler;
 use BlackOps\Http\Routing\HttpOperationManifest;
 use BlackOps\Http\Routing\HttpOperationManifestFile;
 use InvalidArgumentException;
@@ -29,9 +30,11 @@ final class HttpOperationManifestFileTest extends TestCase
 
         self::assertFileExists($path);
         self::assertStringStartsWith('<?php', (string) file_get_contents($path));
+        self::assertSame(2, HttpOperationManifestFile::SCHEMA_VERSION);
         self::assertSame(HttpOperationManifestFile::SCHEMA_VERSION, $artifact->schemaVersion);
         self::assertSame('build-http-123', $artifact->applicationBuildId);
         self::assertSame($manifest->toArray(), $artifact->manifest->toArray());
+        self::assertSame('manifest.show', $artifact->manifest->dispatcherData[0]['GET']['/manifest']);
     }
 
     public function testLoadedManifestCanRebuildRouteRegistry(): void
@@ -82,7 +85,7 @@ final class HttpOperationManifestFileTest extends TestCase
         $path = $this->manifestPath();
         file_put_contents(
             $path,
-            "<?php return ['schemaVersion' => 2, 'applicationBuildId' => 'build-1', 'payload' => ['routes' => [], 'operations' => []]];",
+            "<?php return ['schemaVersion' => 1, 'applicationBuildId' => 'build-1', 'payload' => ['routes' => [], 'operations' => [], 'dispatcherData' => [[], []]]];",
         );
 
         $this->expectException(InvalidArgumentException::class);
@@ -95,7 +98,7 @@ final class HttpOperationManifestFileTest extends TestCase
         $path = $this->manifestPath();
         file_put_contents(
             $path,
-            "<?php return ['schemaVersion' => 1, 'payload' => ['routes' => [], 'operations' => []]];",
+            "<?php return ['schemaVersion' => 2, 'payload' => ['routes' => [], 'operations' => [], 'dispatcherData' => [[], []]]];",
         );
 
         $this->expectException(InvalidArgumentException::class);
@@ -108,10 +111,52 @@ final class HttpOperationManifestFileTest extends TestCase
         $path = $this->manifestPath();
         file_put_contents(
             $path,
-            "<?php return ['schemaVersion' => 1, 'applicationBuildId' => 'build-1', 'payload' => ['routes' => []]];",
+            "<?php return ['schemaVersion' => 2, 'applicationBuildId' => 'build-1', 'payload' => ['routes' => []]];",
         );
 
         $this->expectException(InvalidArgumentException::class);
+
+        new HttpOperationManifestFile()->load($path);
+    }
+
+    public function testRejectsPayloadWithoutDispatcherData(): void
+    {
+        $path = $this->manifestPath();
+        file_put_contents(
+            $path,
+            "<?php return ['schemaVersion' => 2, 'applicationBuildId' => 'build-1', 'payload' => ['routes' => [], 'operations' => []]];",
+        );
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('dispatcher data is missing or invalid');
+
+        new HttpOperationManifestFile()->load($path);
+    }
+
+    public function testRejectsMalformedDispatcherData(): void
+    {
+        $path = $this->manifestPath();
+        file_put_contents(
+            $path,
+            "<?php return ['schemaVersion' => 2, 'applicationBuildId' => 'build-1', 'payload' => ['routes' => [], 'operations' => [], 'dispatcherData' => ['invalid']]];",
+        );
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('dispatcher data is missing or invalid');
+
+        new HttpOperationManifestFile()->load($path);
+    }
+
+    public function testRejectsDispatcherHandlersThatDoNotMatchRouteMetadata(): void
+    {
+        $path = $this->manifestPath();
+        file_put_contents(
+            $path,
+            "<?php return ['schemaVersion' => 2, 'applicationBuildId' => 'build-1', 'payload' => ['routes' => [], 'operations' => [], 'dispatcherData' => [['GET' => ['/unexpected' => 'unexpected']], []]]];",
+        );
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('dispatcher routes do not match route metadata');
 
         new HttpOperationManifestFile()->load($path);
     }
@@ -125,19 +170,25 @@ final class HttpOperationManifestFileTest extends TestCase
 
     private function manifest(): HttpOperationManifest
     {
-        return new HttpOperationManifest([
+        $routes = [
             'GET' => [
                 '/manifest' => 'manifest.show',
             ],
-        ], [
-            'manifest.show' => [
-                'definition' => ManifestFileOperation::class,
-                'value' => ManifestFileValue::class,
-                'handler' => ManifestFileHandler::class,
-                'outcome' => EmptyOutcome::class,
-                'strategy' => Inline::class,
+        ];
+
+        return new HttpOperationManifest(
+            $routes,
+            [
+                'manifest.show' => [
+                    'definition' => ManifestFileOperation::class,
+                    'value' => ManifestFileValue::class,
+                    'handler' => ManifestFileHandler::class,
+                    'outcome' => EmptyOutcome::class,
+                    'strategy' => Inline::class,
+                ],
             ],
-        ]);
+            new FastRouteDispatcherDataCompiler()->compile($routes),
+        );
     }
 
     private function manifestPath(): string

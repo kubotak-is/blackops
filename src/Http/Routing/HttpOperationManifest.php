@@ -13,20 +13,39 @@ final readonly class HttpOperationManifest
     /**
      * @param array<string, array<string, string>> $routes
      * @param array<string, array<string, string>> $operations
+     * @param array{
+     *     0: array<string, array<string, string>>,
+     *     1: array<string, list<array{
+     *         regex: string,
+     *         routeMap: array<int, array{0: string, 1: array<string, string>}>
+     *     }>>
+     * } $dispatcherData
      */
     public function __construct(
         public array $routes,
         public array $operations,
+        public array $dispatcherData,
     ) {}
 
     /**
-     * @return array{routes: array<string, array<string, string>>, operations: array<string, array<string, string>>}
+     * @return array{
+     *     routes: array<string, array<string, string>>,
+     *     operations: array<string, array<string, string>>,
+     *     dispatcherData: array{
+     *         0: array<string, array<string, string>>,
+     *         1: array<string, list<array{
+     *             regex: string,
+     *             routeMap: array<int, array{0: string, 1: array<string, string>}>
+     *         }>>
+     *     }
+     * }
      */
     public function toArray(): array
     {
         return [
             'routes' => $this->routes,
             'operations' => $this->operations,
+            'dispatcherData' => $this->dispatcherData,
         ];
     }
 
@@ -63,10 +82,10 @@ final readonly class HttpOperationManifest
                     throw new InvalidArgumentException('HTTP manifest operation value class is invalid.');
                 }
 
-                $routes[] = new HttpOperationRoute($method, $path, $definition, $value);
+                $routes[$typeId] = new HttpOperationRoute($method, $path, $definition, $value);
             }
         }
 
-        return new HttpRouteRegistry($routes);
+        return new HttpRouteRegistry($routes, $this->dispatcherData);
     }
 }

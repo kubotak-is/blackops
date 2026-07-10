@@ -8,13 +8,26 @@ use InvalidArgumentException;
 
 final readonly class HttpOperationManifestPayloadCodec
 {
+    public function __construct(
+        private HttpDispatcherDataCodec $dispatcherData = new HttpDispatcherDataCodec(),
+        private HttpManifestRouteHandlerSet $routeHandlers = new HttpManifestRouteHandlerSet(),
+    ) {}
+
     public function decode(mixed $data): HttpOperationManifest
     {
         if (!is_array($data)) {
             throw new InvalidArgumentException('HTTP manifest payload is missing or invalid.');
         }
 
-        return new HttpOperationManifest($this->section($data, 'routes'), $this->section($data, 'operations'));
+        $routes = $this->section($data, 'routes');
+        $operations = $this->section($data, 'operations');
+        $routeHandlers = $this->routeHandlers->extract($routes, $operations);
+
+        return new HttpOperationManifest(
+            $routes,
+            $operations,
+            $this->dispatcherData->decode($data['dispatcherData'] ?? null, $routeHandlers),
+        );
     }
 
     /**

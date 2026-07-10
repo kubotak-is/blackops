@@ -14,6 +14,7 @@ final readonly class HttpRouteCompiler
 {
     public function __construct(
         private OperationRegistry $operations,
+        private FastRouteDispatcherDataCompiler $dispatcherData = new FastRouteDispatcherDataCompiler(),
     ) {}
 
     /**
@@ -44,6 +45,12 @@ final readonly class HttpRouteCompiler
             $route = $this->route($definition);
 
             if ($route !== null) {
+                if (
+                    array_key_exists($route->method, $routes) && array_key_exists($route->path, $routes[$route->method])
+                ) {
+                    throw new InvalidArgumentException('HTTP route compilation requires unique method and path pairs.');
+                }
+
                 $routes[$route->method][$route->path] = $metadata->typeId;
             }
 
@@ -56,7 +63,7 @@ final readonly class HttpRouteCompiler
             ];
         }
 
-        return new HttpOperationManifest($routes, $operations);
+        return new HttpOperationManifest($routes, $operations, $this->dispatcherData->compile($routes));
     }
 
     /**

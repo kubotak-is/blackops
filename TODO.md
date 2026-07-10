@@ -276,7 +276,7 @@
 - [ ] InMemory TransportをUnit Test向けに実装する
 - [ ] SQLite AdapterをMVP後の候補として検討する
 - [x] HTTP ContractにPSR-7／15／17を採用する
-- [x] RouterにFastRouteを採用する
+- [x] RouterにFastRouteを採用し、Compile済みDispatcher DataをHTTP Manifestへ保存する
 - [x] UUIDv7生成にSymfony UIDを採用する
 - [x] CLIにSymfony Consoleを採用する
 - [x] Logger BackendにMonolog 3を採用する

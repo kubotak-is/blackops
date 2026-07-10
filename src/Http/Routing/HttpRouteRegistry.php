@@ -4,72 +4,96 @@ declare(strict_types=1);
 
 namespace BlackOps\Http\Routing;
 
+use FastRoute\Dispatcher;
+use FastRoute\Dispatcher\GroupCountBased;
 use InvalidArgumentException;
+use UnexpectedValueException;
 
 final readonly class HttpRouteRegistry
 {
     /**
      * @var array<string, HttpOperationRoute>
      */
-    private array $staticRoutes;
+    private array $routes;
+
+    private Dispatcher $dispatcher;
 
     /**
-     * @var list<array{method: string, pattern: HttpPathPattern, route: HttpOperationRoute}>
+     * @param iterable<array-key, HttpOperationRoute> $routes
+     * @param array{
+     *     0: array<string, array<string, string>>,
+     *     1: array<string, list<array{
+     *         regex: string,
+     *         routeMap: array<int, array{0: string, 1: array<string, string>}>
+     *     }>>
+     * }|null $dispatcherData
      */
-    private array $dynamicRoutes;
-
-    /**
-     * @param iterable<HttpOperationRoute> $routes
-     */
-    public function __construct(iterable $routes)
+    public function __construct(iterable $routes, ?array $dispatcherData = null)
     {
-        $staticRoutes = [];
-        $dynamicRoutes = [];
+        $byHandler = [];
+        $routeDefinitions = [];
+        $routeKeys = [];
 
-        foreach ($routes as $route) {
-            if (array_key_exists($route->key(), $staticRoutes)) {
+        foreach ($routes as $handler => $route) {
+            if (array_key_exists($route->key(), $routeKeys)) {
                 throw new InvalidArgumentException('HTTP route registry requires unique method and path pairs.');
             }
 
-            if (str_contains($route->path, '{')) {
-                $dynamicRoutes[] = [
-                    'method' => strtoupper($route->method),
-                    'pattern' => new HttpPathPattern($route->path),
-                    'route' => $route,
-                ];
-                continue;
+            $handler = is_string($handler) ? $handler : $route->key();
+
+            if (array_key_exists($handler, $byHandler)) {
+                throw new InvalidArgumentException('HTTP route registry requires unique dispatcher handlers.');
             }
 
-            $staticRoutes[$route->key()] = $route;
+            $routeKeys[$route->key()] = true;
+            $byHandler[$handler] = $route;
+            $routeDefinitions[strtoupper($route->method)][$route->path] = $handler;
         }
 
-        $this->staticRoutes = $staticRoutes;
-        $this->dynamicRoutes = $dynamicRoutes;
+        $this->routes = $byHandler;
+        $this->dispatcher = new GroupCountBased(
+            $dispatcherData ?? new FastRouteDispatcherDataCompiler()->compile($routeDefinitions),
+        );
     }
 
     public function match(string $method, string $path): ?HttpRouteMatch
     {
-        $normalized = strtoupper($method);
-        $route = $this->staticRoutes[$normalized . ' ' . $path] ?? null;
+        $result = $this->dispatcher->dispatch(strtoupper($method), $path);
 
-        if ($route !== null) {
-            return new HttpRouteMatch($route, []);
+        if (($result[0] ?? null) !== Dispatcher::FOUND) {
+            return null;
         }
 
-        foreach ($this->dynamicRoutes as $candidate) {
-            if ($candidate['method'] !== $normalized) {
-                continue;
-            }
-
-            $pathParameters = $candidate['pattern']->match($path);
-
-            if ($pathParameters === null) {
-                continue;
-            }
-
-            return new HttpRouteMatch($candidate['route'], $pathParameters);
+        if (
+            !array_key_exists(1, $result)
+            || !is_string($result[1])
+            || !array_key_exists($result[1], $this->routes)
+            || !array_key_exists(2, $result)
+            || !is_array($result[2])
+        ) {
+            throw new UnexpectedValueException('FastRoute dispatcher returned invalid route data.');
         }
 
-        return null;
+        return new HttpRouteMatch($this->routes[$result[1]], $this->pathParameters($result[2]));
+    }
+
+    /**
+     * @param array<array-key, mixed> $parameters
+     *
+     * @return array<string, string>
+     */
+    private function pathParameters(array $parameters): array
+    {
+        $result = [];
+
+        foreach (array_keys($parameters) as $name) {
+            if (!is_string($name) || !is_string($parameters[$name])) {
+                throw new UnexpectedValueException('FastRoute dispatcher returned invalid path parameters.');
+            }
+
+            $result[$name] = rawurldecode($parameters[$name]);
+        }
+
+        return $result;
     }
 }

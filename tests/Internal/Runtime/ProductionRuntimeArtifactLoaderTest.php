@@ -16,6 +16,7 @@ use BlackOps\Core\OperationHandler;
 use BlackOps\Core\OperationResult;
 use BlackOps\Core\OperationValue;
 use BlackOps\Core\Registry\OperationRegistry;
+use BlackOps\Http\Routing\FastRouteDispatcherDataCompiler;
 use BlackOps\Http\Routing\HttpOperationManifest;
 use BlackOps\Http\Routing\HttpOperationManifestFile;
 use BlackOps\Internal\DependencyInjection\RuntimeContainerCompiler;
@@ -136,6 +137,27 @@ final class ProductionRuntimeArtifactLoaderTest extends TestCase
         );
     }
 
+    public function testRejectsInvalidHttpDispatcherDataBeforeLoadingContainer(): void
+    {
+        $operationManifest = $this->path('operation-manifest');
+        $httpManifest = $this->path('http-manifest');
+        $this->writeOperationManifest($operationManifest);
+        file_put_contents(
+            $httpManifest,
+            "<?php return ['schemaVersion' => 2, 'applicationBuildId' => 'build-runtime-artifact', 'payload' => ['routes' => [], 'operations' => [], 'dispatcherData' => ['invalid']]];",
+        );
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('dispatcher data is missing or invalid');
+
+        new ProductionRuntimeArtifactLoader()->load(
+            $operationManifest,
+            $httpManifest,
+            $this->path('missing-container'),
+            'MissingContainer',
+        );
+    }
+
     private function writeOperationManifest(string $path, string $applicationBuildId = 'build-runtime-artifact'): void
     {
         $metadata = new OperationMetadataCompiler()->compile(RuntimeArtifactOperation::class);
@@ -144,20 +166,26 @@ final class ProductionRuntimeArtifactLoaderTest extends TestCase
 
     private function writeHttpManifest(string $path, string $applicationBuildId = 'build-runtime-artifact'): void
     {
+        $routes = [
+            'GET' => [
+                '/runtime-artifact' => 'runtime.artifact',
+            ],
+        ];
+
         new HttpOperationManifestFile()->write(
-            new HttpOperationManifest([
-                'GET' => [
-                    '/runtime-artifact' => 'runtime.artifact',
+            new HttpOperationManifest(
+                $routes,
+                [
+                    'runtime.artifact' => [
+                        'definition' => RuntimeArtifactOperation::class,
+                        'value' => RuntimeArtifactValue::class,
+                        'handler' => RuntimeArtifactHandler::class,
+                        'outcome' => EmptyOutcome::class,
+                        'strategy' => Inline::class,
+                    ],
                 ],
-            ], [
-                'runtime.artifact' => [
-                    'definition' => RuntimeArtifactOperation::class,
-                    'value' => RuntimeArtifactValue::class,
-                    'handler' => RuntimeArtifactHandler::class,
-                    'outcome' => EmptyOutcome::class,
-                    'strategy' => Inline::class,
-                ],
-            ]),
+                new FastRouteDispatcherDataCompiler()->compile($routes),
+            ),
             $path,
             $applicationBuildId,
         );

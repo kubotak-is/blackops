@@ -40,6 +40,7 @@ use BlackOps\Transport\PostgreSql\PostgreSqlCanonicalJournalStore;
 use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
+use InvalidArgumentException;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
@@ -129,6 +130,15 @@ final class OperationRequestHandlerTest extends TestCase
         self::assertSame(404, $response->getStatusCode());
     }
 
+    public function testMethodNotAllowedReturnsNotFound(): void
+    {
+        $handler = $this->httpHandler(new FailingDispatcher());
+
+        $response = $handler->handle($this->request('POST', '/welcome'));
+
+        self::assertSame(404, $response->getStatusCode());
+    }
+
     public function testRouteCompilerReadsRouteAttribute(): void
     {
         $registry = new OperationRegistry([$this->metadata()]);
@@ -145,8 +155,52 @@ final class OperationRequestHandlerTest extends TestCase
         $manifest = new HttpRouteCompiler($registry)->compileManifest([new ShowWelcome()])->toArray();
 
         self::assertSame('welcome.show', $manifest['routes']['GET']['/welcome']);
+        self::assertSame('welcome.show', $manifest['dispatcherData'][0]['GET']['/welcome']);
         self::assertSame(ShowWelcome::class, $manifest['operations']['welcome.show']['definition']);
         self::assertSame(WelcomeValue::class, $manifest['operations']['welcome.show']['value']);
+    }
+
+    public function testRouteCompilerBuildsFastRouteDynamicDispatcherData(): void
+    {
+        $registry = new OperationRegistry([$this->pathMetadata('welcome.path', PathWelcomeOperation::class)]);
+        $routes = new HttpRouteCompiler($registry)->compile([new PathWelcomeOperation()]);
+
+        $match = $routes->match('GET', '/welcome/Ada%20Lovelace');
+
+        self::assertNotNull($match);
+        self::assertSame('/welcome/{name}', $match->route->path);
+        self::assertSame(['name' => 'Ada Lovelace'], $match->pathParameters);
+    }
+
+    public function testRouteCompilerRejectsDuplicateRoutes(): void
+    {
+        $registry = new OperationRegistry([
+            $this->pathMetadata('welcome.duplicate.first', DuplicateWelcomeOperation::class),
+            $this->pathMetadata('welcome.duplicate.second', SecondDuplicateWelcomeOperation::class),
+        ]);
+
+        $this->expectException(InvalidArgumentException::class);
+
+        new HttpRouteCompiler($registry)->compileManifest([
+            new DuplicateWelcomeOperation(),
+            new SecondDuplicateWelcomeOperation(),
+        ]);
+    }
+
+    public function testRouteCompilerRejectsConflictingDynamicRoutes(): void
+    {
+        $registry = new OperationRegistry([
+            $this->pathMetadata('welcome.path', PathWelcomeOperation::class),
+            $this->pathMetadata('welcome.conflict', ConflictingWelcomeOperation::class),
+        ]);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('duplicate or conflicting route');
+
+        new HttpRouteCompiler($registry)->compileManifest([
+            new PathWelcomeOperation(),
+            new ConflictingWelcomeOperation(),
+        ]);
     }
 
     public function testBindingAttributesReadPathQueryHeaderAndBody(): void
@@ -245,6 +299,19 @@ final class OperationRequestHandlerTest extends TestCase
         );
     }
 
+    /** @param class-string<Operation> $definition */
+    private function pathMetadata(string $typeId, string $definition): OperationMetadata
+    {
+        return new OperationMetadata(
+            $typeId,
+            $definition,
+            PathWelcomeValue::class,
+            WelcomeHandler::class,
+            WelcomeShown::class,
+            Inline::class,
+        );
+    }
+
     /**
      * @return list<JournalRecord>
      */
@@ -285,6 +352,18 @@ final class OperationRequestHandlerTest extends TestCase
 
 #[Route(method: 'GET', path: '/welcome')]
 final readonly class ShowWelcome implements Operation {}
+
+#[Route(method: 'GET', path: '/welcome/{name}')]
+final readonly class PathWelcomeOperation implements Operation {}
+
+#[Route(method: 'GET', path: '/welcome/{id}')]
+final readonly class ConflictingWelcomeOperation implements Operation {}
+
+#[Route(method: 'GET', path: '/duplicate')]
+final readonly class DuplicateWelcomeOperation implements Operation {}
+
+#[Route(method: 'GET', path: '/duplicate')]
+final readonly class SecondDuplicateWelcomeOperation implements Operation {}
 
 final readonly class WelcomeValue implements OperationValue {}
 

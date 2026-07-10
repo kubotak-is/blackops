@@ -5,7 +5,7 @@ This guide shows the current Phase 1 path for building and running an HTTP inlin
 The Phase 1 runtime supports:
 
 - operation metadata compiled into generated PHP artifacts
-- HTTP route metadata compiled into generated PHP artifacts
+- HTTP route metadata and FastRoute Dispatcher Data compiled into generated PHP artifacts
 - a compiled PSR-11 runtime container
 - inline dispatch with lifecycle journal records
 - production startup from generated artifacts
@@ -95,10 +95,12 @@ The command writes:
 number. The command stores the same value in both manifests. Do not reuse a build ID for artifacts produced from
 different application revisions.
 
-Both manifest PHP files return an envelope containing schema version `1`, the application build ID, and the manifest
-payload. The runtime validates the complete envelope instead of treating the payload as an unversioned array.
+Both manifest PHP files return an envelope containing a schema version, the application build ID, and the manifest
+payload. The Operation Manifest currently uses Schema Version `1`; the HTTP Manifest uses Schema Version `2` because
+its payload includes Compile済みFastRoute Dispatcher Data. Each manifest evolves independently while the shared build ID
+proves that both artifacts belong to the same application build.
 
-The generated artifacts are PHP files containing arrays, scalar metadata, class names, and a compiled container class. Do not store credentials, tokens, environment secrets, or live service instances in provider metadata.
+The generated artifacts are PHP files containing arrays, scalar metadata, class names, FastRoute Dispatcher arrays, and a compiled container class. They contain no FastRoute objects or closures. Do not store credentials, tokens, environment secrets, or live service instances in provider metadata.
 
 Use `--lock` when concurrent build processes could write the same artifact files.
 
@@ -121,9 +123,9 @@ $artifacts = new ProductionRuntimeArtifactLoader()->load(
 ```
 
 Startup fails if a manifest is missing, uses an unsupported or missing schema version, has a missing or empty build ID,
-contains an invalid payload, or belongs to a different application build than the other manifest. These checks happen
-before the generated container is loaded. Runtime startup never falls back to scanning application classes or rebuilding
-artifacts.
+contains an invalid payload, has missing or malformed HTTP Dispatcher Data, or belongs to a different application build
+than the other manifest. These checks happen before the generated container is loaded. Runtime startup never falls back
+to scanning application classes, compiling routes, or rebuilding artifacts.
 
 ## Compose the HTTP Runtime
 
@@ -161,7 +163,7 @@ The runtime exposes:
 $response = $runtime->httpHandler->handle($serverRequest);
 ```
 
-For inline operations, the request handler binds the HTTP request into an operation value, dispatches the operation, invokes the handler from the compiled container, and records the inline lifecycle journal.
+For inline operations, the request handler matches against the Compile済みFastRoute Dispatcher Data, binds the HTTP request and decoded path parameters into an operation value, dispatches the operation, invokes the handler from the compiled container, and records the inline lifecycle journal. Unknown routes and requests using a disallowed method both return HTTP 404 in the current compatibility contract.
 
 ## Runtime Boundary
 

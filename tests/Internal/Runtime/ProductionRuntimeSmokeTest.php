@@ -17,6 +17,7 @@ use BlackOps\Core\OperationResult;
 use BlackOps\Core\OperationValue;
 use BlackOps\Core\Outcome;
 use BlackOps\Core\Registry\OperationProvider;
+use BlackOps\Http\Attribute\FromPath;
 use BlackOps\Http\Attribute\Route;
 use BlackOps\Internal\Console\CompileBuildArtifactsCommand;
 use BlackOps\Internal\Runtime\ProductionRuntimeArtifactLoader;
@@ -65,11 +66,11 @@ final class ProductionRuntimeSmokeTest extends TestCase
         $psr17 = new Psr17Factory();
         $runtime = new ProductionRuntimeComposer()->compose($artifacts, new SmokeClock(), $journal, $psr17, $psr17);
 
-        $response = $runtime->httpHandler->handle($psr17->createServerRequest('GET', '/smoke'));
+        $response = $runtime->httpHandler->handle($psr17->createServerRequest('GET', '/smoke/Ada'));
 
         self::assertSame(0, $status);
         self::assertSame(200, $response->getStatusCode());
-        self::assertSame('{"message":"Phase 1 smoke ready"}', (string) $response->getBody());
+        self::assertSame('{"message":"Phase 1 smoke ready for Ada"}', (string) $response->getBody());
         self::assertSame(
             [
                 JournalEvent::OperationReceived,
@@ -124,14 +125,20 @@ final readonly class SmokeServiceProvider implements ServiceProvider
     }
 }
 
-#[Route('GET', '/smoke')]
+#[Route('GET', '/smoke/{name}')]
 #[OperationType('runtime.smoke')]
 #[Accepts(SmokeValue::class)]
 #[HandledBy(SmokeHandler::class)]
 #[Returns(SmokeOutcome::class)]
 final readonly class SmokeOperation implements Operation {}
 
-final readonly class SmokeValue implements OperationValue {}
+final readonly class SmokeValue implements OperationValue
+{
+    public function __construct(
+        #[FromPath]
+        public string $name,
+    ) {}
+}
 
 final readonly class SmokeOutcome implements Outcome
 {
@@ -144,6 +151,12 @@ final readonly class SmokeHandler implements OperationHandler
 {
     public function handle(OperationEnvelope $operation): OperationResult
     {
-        return OperationResult::completed(new SmokeOutcome('Phase 1 smoke ready'));
+        $value = $operation->value();
+
+        if (!$value instanceof SmokeValue) {
+            throw new \LogicException('Smoke handler requires SmokeValue.');
+        }
+
+        return OperationResult::completed(new SmokeOutcome('Phase 1 smoke ready for ' . $value->name));
     }
 }

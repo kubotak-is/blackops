@@ -8,14 +8,14 @@ use InvalidArgumentException;
 
 final readonly class HttpOperationManifestArtifactCodec
 {
-    public const SCHEMA_VERSION = 1;
+    public const SCHEMA_VERSION = 2;
 
     public function __construct(
         private HttpOperationManifestPayloadCodec $payloads = new HttpOperationManifestPayloadCodec(),
     ) {}
 
     /**
-     * @return array{schemaVersion: int, applicationBuildId: string, payload: array{routes: array<string, array<string, string>>, operations: array<string, array<string, string>>}}
+     * @return array{schemaVersion: int, applicationBuildId: string, payload: array<string, mixed>}
      */
     public function encode(HttpOperationManifest $manifest, string $applicationBuildId): array
     {
