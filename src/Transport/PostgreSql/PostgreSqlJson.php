@@ -73,4 +73,16 @@ final readonly class PostgreSqlJson
 
         return $data[$key];
     }
+
+    /**
+     * @param array<array-key, mixed> $data
+     */
+    public function bool(array $data, string $key): bool
+    {
+        if (!array_key_exists($key, $data) || !is_bool($data[$key])) {
+            throw new RuntimeException("Stored journal field '{$key}' must be a boolean.");
+        }
+
+        return $data[$key];
+    }
 }

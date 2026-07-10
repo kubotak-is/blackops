@@ -12,6 +12,7 @@ use BlackOps\Core\OperationEnvelope;
 use BlackOps\Core\OperationResult;
 use BlackOps\Core\OperationValue;
 use BlackOps\Core\Registry\OperationMetadata;
+use BlackOps\Journal\Data\AttemptFailedData;
 use BlackOps\Journal\JournalEvent;
 use BlackOps\Journal\LifecycleState;
 use LogicException;
@@ -32,11 +33,17 @@ final readonly class DeferredWorkerRuntime
         $value = $this->value($metadata, $claim);
         $envelope = $this->startAttempt($claim, $metadata, $definition, $value);
         $handler = $this->services->handlers->resolve($metadata->handler);
-        $result = $this->storage->scope->run(
-            $envelope,
-            static fn(): OperationResult => $handler->handle($envelope),
-            $metadata->typeId,
-        );
+        try {
+            $result = $this->storage->scope->run(
+                $envelope,
+                static fn(): OperationResult => $handler->handle($envelope),
+                $metadata->typeId,
+            );
+        } catch (Throwable $exception) {
+            $this->fail($claim, $metadata, $envelope, $exception);
+
+            throw $exception;
+        }
 
         if ($result->isCompleted()) {
             $this->complete($claim, $metadata, $envelope, $result);
@@ -130,6 +137,24 @@ final readonly class DeferredWorkerRuntime
                 $metadata,
                 $reservation->sequence,
                 $result->rejectionReason(),
+            ));
+        });
+    }
+
+    private function fail(
+        OperationClaim $claim,
+        OperationMetadata $metadata,
+        OperationEnvelope $envelope,
+        Throwable $exception,
+    ): void {
+        $this->storage->connection->transactional(function () use ($claim, $metadata, $envelope, $exception): void {
+            $reservation = $this->storage->state->reserveFailed($claim, $this->storage->clock->now());
+            $this->storage->lifecycle->next(LifecycleState::Running, JournalEvent::AttemptFailed);
+            $this->storage->journal->append($this->storage->records->attemptFailed(
+                $envelope,
+                $metadata,
+                $reservation->sequence,
+                new AttemptFailedData($exception::class, $exception->getMessage(), false),
             ));
         });
     }

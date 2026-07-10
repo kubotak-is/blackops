@@ -11,6 +11,7 @@ use BlackOps\Core\Outcome;
 use BlackOps\Core\Registry\OperationMetadata;
 use BlackOps\Core\Rejection\RejectionReason;
 use BlackOps\Internal\Identifier\IdentifierFactory;
+use BlackOps\Journal\Data\AttemptFailedData;
 use BlackOps\Journal\Data\OperationCompletedData;
 use BlackOps\Journal\Data\OperationReceivedData;
 use BlackOps\Journal\Data\OperationRejectedData;
@@ -66,6 +67,15 @@ final readonly class JournalRecordFactory
         int $sequence,
     ): JournalRecord {
         return $this->create($envelope, $metadata, $sequence, JournalEvent::AttemptSucceeded, new EmptyJournalData());
+    }
+
+    public function attemptFailed(
+        OperationEnvelope $envelope,
+        OperationMetadata $metadata,
+        int $sequence,
+        AttemptFailedData $data,
+    ): JournalRecord {
+        return $this->create($envelope, $metadata, $sequence, JournalEvent::AttemptFailed, $data);
     }
 
     public function operationCompleted(

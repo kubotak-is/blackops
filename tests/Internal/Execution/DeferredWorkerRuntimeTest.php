@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace BlackOps\Tests\Internal\Execution;
 
 use BlackOps\Core\EmptyOutcome;
+use BlackOps\Core\Exception\DeferredTransportException;
 use BlackOps\Core\Execution\Deferred;
 use BlackOps\Core\Execution\DeferredOperationMessage;
+use BlackOps\Core\Execution\OperationClaim;
 use BlackOps\Core\ExecutionContext;
 use BlackOps\Core\Identifier\CorrelationId;
 use BlackOps\Core\Identifier\OperationId;
@@ -29,6 +31,7 @@ use BlackOps\Internal\ExecutionContext\ExecutionContextFactory;
 use BlackOps\Internal\Identifier\IdentifierFactory;
 use BlackOps\Internal\Identifier\Uuidv7Generator;
 use BlackOps\Internal\Journal\JournalRecordFactory;
+use BlackOps\Journal\Data\AttemptFailedData;
 use BlackOps\Journal\JournalEvent;
 use BlackOps\Journal\JournalRecord;
 use BlackOps\Transport\PostgreSql\PostgreSqlCanonicalJournalStore;
@@ -41,6 +44,7 @@ use Doctrine\DBAL\DriverManager;
 use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
 use Psr\Container\ContainerInterface;
+use RuntimeException;
 
 final class DeferredWorkerRuntimeTest extends TestCase
 {
@@ -138,6 +142,66 @@ final class DeferredWorkerRuntimeTest extends TestCase
             array_map(static fn(JournalRecord $record): JournalEvent => $record->event, $records),
         );
         self::assertSame([1, 2, 3, 4], array_column($records, 'sequence'));
+    }
+
+    public function testWorkerRecordsAttemptFailureAndRethrowsHandlerException(): void
+    {
+        $handler = new ThrowingWorkerReportHandler();
+        $this->accept();
+        $claim = $this->receiver->claim(new \BlackOps\Core\Execution\ClaimRequest(
+            new DateTimeImmutable('2026-07-10T00:01:00.000000Z'),
+        ));
+
+        self::assertNotNull($claim);
+
+        try {
+            $this->runtime($handler)->run($claim);
+            self::fail('Expected handler exception to be rethrown.');
+        } catch (RuntimeException $exception) {
+            self::assertSame('boom', $exception->getMessage());
+        }
+
+        $row = $this->operationRow();
+        $records = $this->records();
+
+        self::assertSame('supervising', $row['state']);
+        self::assertSame(1, (int) $row['attempt_number']);
+        self::assertSame(5, (int) $row['next_sequence']);
+        self::assertNull($row['lease_owner']);
+        self::assertNull($row['lease_expires_at']);
+        self::assertSame(
+            [
+                JournalEvent::OperationReceived,
+                JournalEvent::OperationAccepted,
+                JournalEvent::AttemptStarted,
+                JournalEvent::AttemptFailed,
+            ],
+            array_map(static fn(JournalRecord $record): JournalEvent => $record->event, $records),
+        );
+        self::assertSame([1, 2, 3, 4], array_column($records, 'sequence'));
+        self::assertInstanceOf(AttemptFailedData::class, $records[3]->data);
+        self::assertSame(RuntimeException::class, $records[3]->data->errorType);
+        self::assertSame('boom', $records[3]->data->errorMessage);
+        self::assertFalse($records[3]->data->retryable);
+    }
+
+    public function testFailureReservationRejectsStaleFencingToken(): void
+    {
+        $this->accept();
+        $claim = $this->receiver->claim(new \BlackOps\Core\Execution\ClaimRequest(
+            new DateTimeImmutable('2026-07-10T00:01:00.000000Z'),
+        ));
+
+        self::assertNotNull($claim);
+
+        $stale = new OperationClaim($claim->message(), self::OPERATION_ID . ':999');
+
+        $this->expectException(DeferredTransportException::class);
+
+        new PostgreSqlDeferredOperationLifecycleStore($this->connection, self::SCHEMA)->reserveFailed(
+            $stale,
+            new DateTimeImmutable('2026-07-10T00:02:00.000000Z'),
+        );
     }
 
     private function accept(): void
@@ -284,6 +348,14 @@ final class RejectingWorkerReportHandler extends WorkerReportHandler
     public function handle(OperationEnvelope $operation): OperationResult
     {
         return OperationResult::rejected(RejectionReason::businessRule('report_rejected'));
+    }
+}
+
+final class ThrowingWorkerReportHandler extends WorkerReportHandler
+{
+    public function handle(OperationEnvelope $operation): OperationResult
+    {
+        throw new RuntimeException('boom');
     }
 }
 

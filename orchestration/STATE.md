@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-10T10:33:53+09:00
+Updated At: 2026-07-10T12:40:13+09:00
 
 ## Current Phase
 
@@ -8,21 +8,21 @@ Phase 4: Resilience
 
 ## Current Task
 
-Task ID: P3-011-phase-3-closeout
+Task ID: P4-001-attempt-failed-boundary
 
-Task Packet: `orchestration/tasks/P3-011-phase-3-closeout.md`
+Task Packet: `orchestration/tasks/P4-001-attempt-failed-boundary.md`
 
-Report: `orchestration/reports/P3-011-phase-3-closeout.md`
+Report: `orchestration/reports/P4-001-attempt-failed-boundary.md`
 
 ## Task Status
 
 Accepted
 
-P3-011をCodexが完了。Phase 3: Deferred Vertical Sliceの実装到達点を確認し、最終検証を実行して、残作業をPhase 4以降へ明確に引き継いだ。
+P4-001をCodexが完了。Deferred WorkerのHandler例外を捕捉し、`attempt.failed` JournalとOperation State更新を同一Transactionで記録して、OperationをSupervising Stateへ進めるFailure Boundaryを追加した。
 
 ## Last Accepted Task
 
-P3-011-phase-3-closeout
+P4-001-attempt-failed-boundary
 
 ## Pending Decisions
 
@@ -34,8 +34,39 @@ P3-011-phase-3-closeout
 
 ## Required Next Action
 
-1. P4-001 Task Packetを作成する。
-2. Handler例外時の`attempt.failed`、Fencing検証、Retry Schedulingの実装方針を確認してPhase 4を開始する。
+1. P4-002 Task Packetを作成する。
+2. Supervision Policy Contract、Supervision Decision、Retry Scheduling Dataを確定して実装する。既定Backoff値や最大Attempt回数が未確定なら、実装前に判断を仰ぐ。
+
+## P4-001 Verification Commands and Results
+
+```text
+docker compose run --rm app vendor/bin/phpunit --filter 'DeferredWorkerRuntimeTest|JournalRecordFactoryTest'
+Result: OK (6 tests, 47 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app mago format --check src tests
+Result: INFO All files are already formatted.
+
+docker compose run --rm app composer validate --strict
+Result: ./composer.json is valid.
+
+docker compose run --rm app mago lint
+Result: INFO No issues found.
+
+docker compose run --rm app mago analyze
+Result: INFO No issues found.
+
+docker compose run --rm app vendor/bin/phpunit
+Result: OK (349 tests, 918 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app vendor/bin/deptrac
+Result: Violations 0 / Skipped 0 / Uncovered 0 / Allowed 692 / Warnings 0 / Errors 0.
+
+rg -n 'Spec(ification)?[[:space:]]*[0-9]+|D[0-9]{3}|P[0-9]+-[0-9]+|TODO\.md:[0-9]+' src tests --glob '*.php'
+Result: No matches.
+
+git diff --check
+Result: No output.
+```
 
 ## P3-011 Final Phase 3 Verification Commands and Results
 

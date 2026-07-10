@@ -78,6 +78,36 @@ final readonly class PostgreSqlDeferredOperationLifecycleStore
         return new PostgreSqlRejectionReservation($sequence);
     }
 
+    public function reserveFailed(OperationClaim $claim, DateTimeImmutable $updatedAt): PostgreSqlFailureReservation
+    {
+        $token = $this->parseToken($claim);
+        $row = $this->lockedRunningRow($claim->message()->operationId(), $token);
+        $sequence = (int) $row['next_sequence'];
+        $table = $this->schema->operationsTable();
+        $updated = $this->connection->executeStatement(
+            "UPDATE {$table}
+                SET state = 'supervising',
+                    next_sequence = :next_sequence,
+                    state_version = state_version + 1,
+                    lease_owner = NULL,
+                    lease_expires_at = NULL,
+                    updated_at = :updated_at
+                WHERE operation_id = :operation_id
+                    AND fencing_token = :fencing_token
+                    AND state = 'running'",
+            [
+                'operation_id' => $claim->message()->operationId()->toString(),
+                'fencing_token' => $token,
+                'next_sequence' => $sequence + 1,
+                'updated_at' => $this->formatTimestamp($updatedAt),
+            ],
+        );
+
+        $this->assertUpdated($updated);
+
+        return new PostgreSqlFailureReservation($sequence);
+    }
+
     /**
      * @return array<string, mixed>
      */

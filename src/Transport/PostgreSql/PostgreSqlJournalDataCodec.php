@@ -8,6 +8,7 @@ use BlackOps\Core\OperationValue;
 use BlackOps\Core\Outcome;
 use BlackOps\Core\Rejection\RejectionCategory;
 use BlackOps\Core\Rejection\RejectionReason;
+use BlackOps\Journal\Data\AttemptFailedData;
 use BlackOps\Journal\Data\OperationCompletedData;
 use BlackOps\Journal\Data\OperationReceivedData;
 use BlackOps\Journal\Data\OperationRejectedData;
@@ -39,6 +40,17 @@ final readonly class PostgreSqlJournalDataCodec
             return ['class' => OperationCompletedData::class, 'value' => $this->values->encode($data->outcome)];
         }
 
+        if ($data instanceof AttemptFailedData) {
+            return [
+                'class' => AttemptFailedData::class,
+                'value' => [
+                    'error_type' => $data->errorType,
+                    'error_message' => $data->errorMessage,
+                    'retryable' => $data->retryable,
+                ],
+            ];
+        }
+
         if ($data instanceof OperationRejectedData) {
             return [
                 'class' => OperationRejectedData::class,
@@ -55,6 +67,7 @@ final readonly class PostgreSqlJournalDataCodec
             EmptyJournalData::class => new EmptyJournalData(),
             OperationReceivedData::class => $this->received($data),
             OperationCompletedData::class => $this->completed($data),
+            AttemptFailedData::class => $this->attemptFailed($this->json->array($data, 'value')),
             OperationRejectedData::class => new OperationRejectedData($this->rejection($this->json->array(
                 $data,
                 'value',
@@ -97,5 +110,14 @@ final readonly class PostgreSqlJournalDataCodec
             RejectionCategory::Conflict => RejectionReason::conflict($code),
             RejectionCategory::BusinessRule => RejectionReason::businessRule($code),
         };
+    }
+
+    private function attemptFailed(array $value): AttemptFailedData
+    {
+        return new AttemptFailedData(
+            $this->json->string($value, 'error_type'),
+            $this->json->string($value, 'error_message'),
+            $this->json->bool($value, 'retryable'),
+        );
     }
 }

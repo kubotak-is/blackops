@@ -35,6 +35,7 @@ final readonly class PostgreSqlDeferredOperationSchema
                 state text NOT NULL CHECK (state IN (
                     'accepted',
                     'running',
+                    'supervising',
                     'retry_scheduled',
                     'completed',
                     'rejected',
@@ -64,6 +65,19 @@ final readonly class PostgreSqlDeferredOperationSchema
                 ADD COLUMN IF NOT EXISTS created_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP",
             "ALTER TABLE {$operations}
                 ADD COLUMN IF NOT EXISTS updated_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP",
+            "ALTER TABLE {$operations}
+                DROP CONSTRAINT IF EXISTS operations_state_check",
+            "ALTER TABLE {$operations}
+                ADD CONSTRAINT operations_state_check CHECK (state IN (
+                    'accepted',
+                    'running',
+                    'supervising',
+                    'retry_scheduled',
+                    'completed',
+                    'rejected',
+                    'failed',
+                    'dead_lettered'
+                ))",
             "CREATE INDEX IF NOT EXISTS operations_eligible_idx
                 ON {$operations} (available_at, operation_id)
                 WHERE state IN ('accepted', 'retry_scheduled')",

@@ -159,7 +159,11 @@ operation.completed journal record
 
 Handlerが業務Rejectを返した場合は、同じBoundaryでStateを`rejected`へ更新し、`operation.rejected` Journalを保存する。
 
-Handler例外、Retry、Dead Letter、Heartbeat、Claim Settlementは後続Phaseの責務として残す。
+Handler例外が発生した場合、Worker Runtimeは例外を捕捉し、Failure BoundaryでFencing Tokenを検証して`attempt.failed` Journalを保存する。Operation Stateは`supervising`へ進め、Lease情報は解除する。例外は記録後に再throwする。
+
+`attempt.failed` Dataは、例外型、例外Message、現時点のRetryable判定を保持する。Retryable判定はSupervision Policy導入まで既定で`false`とする。
+
+Retry、Dead Letter、Heartbeat、Claim Settlementは後続Phaseの責務として残す。
 
 ## Current Scope
 
