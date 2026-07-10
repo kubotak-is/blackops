@@ -118,13 +118,31 @@ final class ProductionRuntimeArtifactLoaderTest extends TestCase
         new ProductionRuntimeArtifactLoader()->load($operationManifest, $httpManifest, $container, $class);
     }
 
-    private function writeOperationManifest(string $path): void
+    public function testRejectsMismatchedManifestBuildIdsBeforeLoadingContainer(): void
     {
-        $metadata = new OperationMetadataCompiler()->compile(RuntimeArtifactOperation::class);
-        new OperationManifestFile()->write(new OperationRegistry([$metadata]), $path);
+        $operationManifest = $this->path('operation-manifest');
+        $httpManifest = $this->path('http-manifest');
+        $this->writeOperationManifest($operationManifest, 'build-operation');
+        $this->writeHttpManifest($httpManifest, 'build-http');
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('application build IDs do not match');
+
+        new ProductionRuntimeArtifactLoader()->load(
+            $operationManifest,
+            $httpManifest,
+            $this->path('missing-container'),
+            'MissingContainer',
+        );
     }
 
-    private function writeHttpManifest(string $path): void
+    private function writeOperationManifest(string $path, string $applicationBuildId = 'build-runtime-artifact'): void
+    {
+        $metadata = new OperationMetadataCompiler()->compile(RuntimeArtifactOperation::class);
+        new OperationManifestFile()->write(new OperationRegistry([$metadata]), $path, $applicationBuildId);
+    }
+
+    private function writeHttpManifest(string $path, string $applicationBuildId = 'build-runtime-artifact'): void
     {
         new HttpOperationManifestFile()->write(
             new HttpOperationManifest([
@@ -141,6 +159,7 @@ final class ProductionRuntimeArtifactLoaderTest extends TestCase
                 ],
             ]),
             $path,
+            $applicationBuildId,
         );
     }
 

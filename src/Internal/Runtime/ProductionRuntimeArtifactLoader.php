@@ -24,9 +24,16 @@ final readonly class ProductionRuntimeArtifactLoader
         string $containerClass,
         string $containerNamespace = '',
     ): ProductionRuntimeArtifacts {
+        $operations = $this->operations->loadArtifact($operationManifest);
+        $http = $this->http->loadArtifact($httpManifest);
+
+        if ($operations->applicationBuildId !== $http->applicationBuildId) {
+            throw new InvalidArgumentException('Production runtime manifest application build IDs do not match.');
+        }
+
         return new ProductionRuntimeArtifacts(
-            $this->operations->load($operationManifest),
-            $this->http->load($httpManifest),
+            $operations->operations,
+            $http->manifest,
             $this->container($container, $containerClass, $containerNamespace),
         );
     }

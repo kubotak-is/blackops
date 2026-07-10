@@ -35,6 +35,7 @@ final class CompileBuildArtifactsCommand extends Command
         private readonly HttpOperationManifestFile $httpManifests = new HttpOperationManifestFile(),
         private readonly RuntimeContainerCompiler $containerCompiler = new RuntimeContainerCompiler(),
         private readonly RuntimeContainerDumper $containerDumper = new RuntimeContainerDumper(),
+        private readonly BuildArtifactFreshnessChecker $freshness = new BuildArtifactFreshnessChecker(),
     ) {
         parent::__construct(self::NAME);
     }
@@ -55,6 +56,12 @@ final class CompileBuildArtifactsCommand extends Command
             )
             ->addArgument('http-manifest', InputArgument::REQUIRED, 'Path to the generated PHP HTTP manifest file.')
             ->addArgument('container', InputArgument::REQUIRED, 'Path to the generated PHP container file.')
+            ->addOption(
+                'application-build-id',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'Application build identifier stored in both manifests.',
+            )
             ->addOption(
                 'container-class',
                 null,
@@ -107,16 +114,26 @@ final class CompileBuildArtifactsCommand extends Command
 
     private function compile(InputInterface $input): void
     {
+        $applicationBuildId = $this->requiredStringOption($input, 'application-build-id');
         $fingerprint = $this->nullableStringOption($input, 'fingerprint');
+        $fingerprintInputs = new BuildArtifactFingerprintInputs()->collect(
+            $this->stringArgument($input, 'operation-providers'),
+            $this->stringArgument($input, 'service-providers'),
+            $this->nullableStringOption($input, 'composer-metadata'),
+            $this->nullableStringOption($input, 'installed-composer-metadata'),
+            $this->nullableStringOption($input, 'fingerprint-input'),
+        );
+        $operationManifest = $this->stringArgument($input, 'operation-manifest');
+        $httpManifest = $this->stringArgument($input, 'http-manifest');
+        $container = $this->stringArgument($input, 'container');
 
-        if (
-            $fingerprint !== null
-            && new BuildArtifactFingerprintGuard()->isFresh(
-                $fingerprint,
-                $this->fingerprintInputs($input),
-                $this->artifactOutputs($input),
-            )
-        ) {
+        if ($this->freshness->isFresh(
+            $fingerprint,
+            $fingerprintInputs,
+            [$operationManifest, $httpManifest, $container],
+            ['operation' => $operationManifest, 'http' => $httpManifest],
+            $applicationBuildId,
+        )) {
             return;
         }
 
@@ -128,10 +145,11 @@ final class CompileBuildArtifactsCommand extends Command
         );
         $registry = $this->operationCompiler->compile($providers->operationProviders);
         $definitions = $this->definitions->fromProviders($providers->operationProviders);
-        $this->operationManifests->write($registry, $this->stringArgument($input, 'operation-manifest'));
+        $this->operationManifests->write($registry, $operationManifest, $applicationBuildId);
         $this->httpManifests->write(
             new HttpRouteCompiler($registry)->compileManifest($definitions),
-            $this->stringArgument($input, 'http-manifest'),
+            $httpManifest,
+            $applicationBuildId,
         );
 
         $builder = $this->containerCompiler->builder();
@@ -139,13 +157,13 @@ final class CompileBuildArtifactsCommand extends Command
         $this->containerCompiler->compile($builder);
         $this->containerDumper->dump(
             $builder,
-            $this->stringArgument($input, 'container'),
+            $container,
             $this->stringOption($input, 'container-class'),
             $this->stringOption($input, 'container-namespace'),
         );
 
         if ($fingerprint !== null) {
-            new BuildArtifactFingerprintGuard()->update($fingerprint, $this->fingerprintInputs($input));
+            new BuildArtifactFingerprintGuard()->update($fingerprint, $fingerprintInputs);
         }
     }
 
@@ -167,6 +185,17 @@ final class CompileBuildArtifactsCommand extends Command
         return (string) $input->getOption($name);
     }
 
+    private function requiredStringOption(InputInterface $input, string $name): string
+    {
+        $value = $this->stringOption($input, $name);
+
+        if (trim($value) === '') {
+            throw new InvalidArgumentException('Build command option must be a non-empty string.');
+        }
+
+        return $value;
+    }
+
     private function nullableStringOption(InputInterface $input, string $name): ?string
     {
         if ($input->getOption($name) === null) {
@@ -178,68 +207,5 @@ final class CompileBuildArtifactsCommand extends Command
         }
 
         return (string) $input->getOption($name);
-    }
-
-    /**
-     * @return list<string>
-     */
-    private function fingerprintInputs(InputInterface $input): array
-    {
-        $paths = [
-            $this->stringArgument($input, 'operation-providers'),
-            $this->stringArgument($input, 'service-providers'),
-        ];
-        $composerMetadata = $this->nullableStringOption($input, 'composer-metadata');
-
-        if ($composerMetadata !== null) {
-            $paths[] = $composerMetadata;
-        }
-
-        $installedComposerMetadata = $this->nullableStringOption($input, 'installed-composer-metadata');
-
-        if ($installedComposerMetadata !== null) {
-            $paths[] = $installedComposerMetadata;
-        }
-
-        return [
-            ...$paths,
-            ...$this->extraFingerprintInputs($input),
-        ];
-    }
-
-    /**
-     * @return list<string>
-     */
-    private function artifactOutputs(InputInterface $input): array
-    {
-        return [
-            $this->stringArgument($input, 'operation-manifest'),
-            $this->stringArgument($input, 'http-manifest'),
-            $this->stringArgument($input, 'container'),
-        ];
-    }
-
-    /**
-     * @return list<string>
-     */
-    private function extraFingerprintInputs(InputInterface $input): array
-    {
-        $extra = $this->nullableStringOption($input, 'fingerprint-input');
-
-        if ($extra === null) {
-            return [];
-        }
-
-        $paths = explode(PATH_SEPARATOR, $extra);
-
-        foreach ($paths as $path) {
-            if ($path === '') {
-                throw new InvalidArgumentException(
-                    'Build command fingerprint input option must contain non-empty paths.',
-                );
-            }
-        }
-
-        return $paths;
     }
 }

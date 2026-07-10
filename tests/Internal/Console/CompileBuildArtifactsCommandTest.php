@@ -47,23 +47,27 @@ final class CompileBuildArtifactsCommandTest extends TestCase
             'operation-manifest' => $operationManifest,
             'http-manifest' => $httpManifest,
             'container' => $containerPath,
+            '--application-build-id' => 'build-artifacts-123',
             '--container-class' => $class,
             '--container-namespace' => $namespace,
             '--lock' => $this->path('build-lock'),
             '--fingerprint' => $fingerprint,
         ]);
 
-        $operationRegistry = new OperationManifestFile()->load($operationManifest);
-        $httpMatch = new HttpOperationManifestFile()
-            ->load($httpManifest)
-            ->toRegistry([new BuildOperation()])
-            ->match('GET', '/build');
+        $operationArtifact = new OperationManifestFile()->loadArtifact($operationManifest);
+        $httpArtifact = new HttpOperationManifestFile()->loadArtifact($httpManifest);
+        $httpMatch = $httpArtifact->manifest->toRegistry([new BuildOperation()])->match('GET', '/build');
         require_once $containerPath;
         $containerClass = $namespace . '\\' . $class;
         $container = new $containerClass();
 
         self::assertSame(0, $status);
-        self::assertSame(BuildOperation::class, $operationRegistry->findByTypeId('build.operation')?->definition);
+        self::assertSame('build-artifacts-123', $operationArtifact->applicationBuildId);
+        self::assertSame($operationArtifact->applicationBuildId, $httpArtifact->applicationBuildId);
+        self::assertSame(
+            BuildOperation::class,
+            $operationArtifact->operations->findByTypeId('build.operation')?->definition,
+        );
         self::assertNotNull($httpMatch);
         self::assertInstanceOf(ContainerInterface::class, $container);
         self::assertInstanceOf(BuildService::class, $container->get(BuildService::class));
@@ -86,6 +90,7 @@ final class CompileBuildArtifactsCommandTest extends TestCase
             'operation-manifest' => $operationManifest,
             'http-manifest' => $httpManifest,
             'container' => $containerPath,
+            '--application-build-id' => 'build-fingerprint-123',
             '--fingerprint' => $fingerprint,
         ];
 
@@ -94,6 +99,68 @@ final class CompileBuildArtifactsCommandTest extends TestCase
         new CommandTester(new CompileBuildArtifactsCommand())->execute($arguments);
 
         self::assertSame($operationManifestTime, filemtime($operationManifest));
+    }
+
+    public function testRecompilesFreshFingerprintWhenRequestedBuildIdChanges(): void
+    {
+        $operationProviders = $this->path('operation-providers');
+        $serviceProviders = $this->path('service-providers');
+        $operationManifest = $this->path('operation-manifest');
+        $httpManifest = $this->path('http-manifest');
+        $containerPath = $this->path('container');
+        $fingerprint = $this->path('fingerprint');
+        file_put_contents($operationProviders, '<?php return [\\' . BuildOperationProvider::class . '::class];');
+        file_put_contents($serviceProviders, '<?php return [\\' . BuildServiceProvider::class . '::class];');
+        $arguments = [
+            'operation-providers' => $operationProviders,
+            'service-providers' => $serviceProviders,
+            'operation-manifest' => $operationManifest,
+            'http-manifest' => $httpManifest,
+            'container' => $containerPath,
+            '--application-build-id' => 'build-fingerprint-first',
+            '--fingerprint' => $fingerprint,
+        ];
+
+        new CommandTester(new CompileBuildArtifactsCommand())->execute($arguments);
+        $arguments['--application-build-id'] = 'build-fingerprint-second';
+        new CommandTester(new CompileBuildArtifactsCommand())->execute($arguments);
+
+        self::assertSame(
+            'build-fingerprint-second',
+            new OperationManifestFile()->loadArtifact($operationManifest)->applicationBuildId,
+        );
+        self::assertSame(
+            'build-fingerprint-second',
+            new HttpOperationManifestFile()->loadArtifact($httpManifest)->applicationBuildId,
+        );
+    }
+
+    public function testRecompilesFreshFingerprintWhenExistingManifestBuildIdsDiffer(): void
+    {
+        $operationProviders = $this->path('operation-providers');
+        $serviceProviders = $this->path('service-providers');
+        $operationManifest = $this->path('operation-manifest');
+        $httpManifest = $this->path('http-manifest');
+        $containerPath = $this->path('container');
+        $fingerprint = $this->path('fingerprint');
+        file_put_contents($operationProviders, '<?php return [\\' . BuildOperationProvider::class . '::class];');
+        file_put_contents($serviceProviders, '<?php return [\\' . BuildServiceProvider::class . '::class];');
+        $arguments = [
+            'operation-providers' => $operationProviders,
+            'service-providers' => $serviceProviders,
+            'operation-manifest' => $operationManifest,
+            'http-manifest' => $httpManifest,
+            'container' => $containerPath,
+            '--application-build-id' => 'build-fingerprint-match',
+            '--fingerprint' => $fingerprint,
+        ];
+
+        new CommandTester(new CompileBuildArtifactsCommand())->execute($arguments);
+        $httpFiles = new HttpOperationManifestFile();
+        $httpFiles->write($httpFiles->load($httpManifest), $httpManifest, 'build-fingerprint-other');
+        new CommandTester(new CompileBuildArtifactsCommand())->execute($arguments);
+
+        self::assertSame('build-fingerprint-match', $httpFiles->loadArtifact($httpManifest)->applicationBuildId);
     }
 
     public function testCompilesBuildArtifactsWithComposerMetadataProviders(): void
@@ -123,6 +190,7 @@ final class CompileBuildArtifactsCommandTest extends TestCase
             'operation-manifest' => $operationManifest,
             'http-manifest' => $httpManifest,
             'container' => $containerPath,
+            '--application-build-id' => 'build-composer-123',
             '--container-class' => $class,
             '--container-namespace' => $namespace,
             '--composer-metadata' => $composerMetadata,
@@ -176,6 +244,7 @@ final class CompileBuildArtifactsCommandTest extends TestCase
             'operation-manifest' => $operationManifest,
             'http-manifest' => $httpManifest,
             'container' => $containerPath,
+            '--application-build-id' => 'build-installed-123',
             '--container-class' => $class,
             '--container-namespace' => $namespace,
             '--installed-composer-metadata' => $installedComposerMetadata,
@@ -212,6 +281,7 @@ final class CompileBuildArtifactsCommandTest extends TestCase
             'operation-manifest' => $operationManifest,
             'http-manifest' => $httpManifest,
             'container' => $containerPath,
+            '--application-build-id' => 'build-composer-fingerprint',
             '--fingerprint' => $fingerprint,
             '--composer-metadata' => $composerMetadata,
         ];
@@ -252,6 +322,7 @@ final class CompileBuildArtifactsCommandTest extends TestCase
             'operation-manifest' => $operationManifest,
             'http-manifest' => $httpManifest,
             'container' => $containerPath,
+            '--application-build-id' => 'build-installed-fingerprint',
             '--fingerprint' => $fingerprint,
             '--installed-composer-metadata' => $installedComposerMetadata,
         ];
@@ -285,6 +356,25 @@ final class CompileBuildArtifactsCommandTest extends TestCase
         new CommandTester(new CompileBuildArtifactsCommand())->execute([
             'operation-providers' => $this->path('missing-operations'),
             'service-providers' => $this->path('service-providers'),
+            'operation-manifest' => $this->path('operation-manifest'),
+            'http-manifest' => $this->path('http-manifest'),
+            'container' => $this->path('container'),
+            '--application-build-id' => 'build-missing-config',
+        ]);
+    }
+
+    public function testRejectsMissingApplicationBuildId(): void
+    {
+        $operationProviders = $this->path('operation-providers');
+        $serviceProviders = $this->path('service-providers');
+        file_put_contents($operationProviders, '<?php return [\\' . BuildOperationProvider::class . '::class];');
+        file_put_contents($serviceProviders, '<?php return [\\' . BuildServiceProvider::class . '::class];');
+
+        $this->expectException(InvalidArgumentException::class);
+
+        new CommandTester(new CompileBuildArtifactsCommand())->execute([
+            'operation-providers' => $operationProviders,
+            'service-providers' => $serviceProviders,
             'operation-manifest' => $this->path('operation-manifest'),
             'http-manifest' => $this->path('http-manifest'),
             'container' => $this->path('container'),

@@ -32,13 +32,18 @@ final class CompileOperationManifestCommandTest extends TestCase
         $status = new CommandTester(new CompileOperationManifestCommand())->execute([
             'config' => $config,
             'output' => $output,
+            '--application-build-id' => 'build-operation-command',
         ]);
 
-        $registry = new OperationManifestFile()->load($output);
+        $artifact = new OperationManifestFile()->loadArtifact($output);
 
         self::assertSame(0, $status);
         self::assertFileExists($output);
-        self::assertSame(CommandOperation::class, $registry->findByTypeId('command.operation')?->definition);
+        self::assertSame('build-operation-command', $artifact->applicationBuildId);
+        self::assertSame(
+            CommandOperation::class,
+            $artifact->operations->findByTypeId('command.operation')?->definition,
+        );
     }
 
     public function testRejectsMissingProviderConfig(): void
@@ -47,6 +52,20 @@ final class CompileOperationManifestCommandTest extends TestCase
 
         new CommandTester(new CompileOperationManifestCommand())->execute([
             'config' => $this->configPath(),
+            'output' => $this->manifestPath(),
+            '--application-build-id' => 'build-operation-command',
+        ]);
+    }
+
+    public function testRejectsMissingApplicationBuildId(): void
+    {
+        $config = $this->configPath();
+        file_put_contents($config, '<?php return [\\' . CommandOperationProvider::class . '::class];');
+
+        $this->expectException(InvalidArgumentException::class);
+
+        new CommandTester(new CompileOperationManifestCommand())->execute([
+            'config' => $config,
             'output' => $this->manifestPath(),
         ]);
     }

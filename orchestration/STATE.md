@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-11T00:44:13+09:00
+Updated At: 2026-07-11T01:07:37+09:00
 
 ## Current Phase
 
@@ -8,21 +8,21 @@ Phase 6: Compile and Polish
 
 ## Current Task
 
-Task ID: P5-014-phase-5-closeout
+Task ID: P6-001-versioned-build-manifests
 
-Task Packet: `orchestration/tasks/P5-014-phase-5-closeout.md`
+Task Packet: `orchestration/tasks/P6-001-versioned-build-manifests.md`
 
-Report: `orchestration/reports/P5-014-phase-5-closeout.md`
+Report: `orchestration/reports/P6-001-versioned-build-manifests.md`
 
 ## Task Status
 
-Completed
+Accepted
 
-P5-014はPhase 5: RetentionのCloseoutを完了し、Phase 6開始準備が整った。
+P6-001でOperation / HTTP ManifestのVersioned Envelope、Build ID一致検証、Build Command入力、Documentationを実装し、Orchestrator Reviewで受け入れた。
 
 ## Last Accepted Task
 
-P5-014-phase-5-closeout
+P6-001-versioned-build-manifests
 
 ## Pending Decisions
 
@@ -34,7 +34,38 @@ P5-014-phase-5-closeout
 
 ## Required Next Action
 
-1. Phase 6: Compile and Polishの最初のTask Packetを作成する。
+1. Phase 6の次Task PacketとしてPublic API Architecture Guardを作成する。
+
+## P6-001 Verification Commands and Results
+
+```text
+docker compose run --rm app vendor/bin/phpunit --filter 'OperationManifestFileTest|HttpOperationManifestFileTest|CompileOperationManifestCommandTest|CompileHttpManifestCommandTest|CompileBuildArtifactsCommandTest|ProductionRuntimeArtifactLoaderTest|ProductionRuntimeSmokeTest'
+Result: OK (40 tests, 76 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app composer validate --strict
+Result: ./composer.json is valid.
+
+docker compose run --rm app mago format --check src tests
+Result: INFO All files are already formatted.
+
+docker compose run --rm app mago lint
+Result: INFO No issues found.
+
+docker compose run --rm app mago analyze
+Result: INFO No issues found.
+
+docker compose run --rm app vendor/bin/phpunit
+Result: OK (459 tests, 1393 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app vendor/bin/deptrac
+Result: Violations 0 / Skipped violations 0 / Uncovered 0 / Allowed 1049 / Warnings 0 / Errors 0.
+
+! rg -n 'Spec(ification)?[[:space:]]*[0-9]+|D[0-9]{3}|P[0-9]+-[0-9]+|TODO\.md:[0-9]+' src tests --glob '*.php'
+Result: No matches (negated command exited 0).
+
+git diff --check
+Result: No output.
+```
 
 ## P5-014 Verification Commands and Results
 

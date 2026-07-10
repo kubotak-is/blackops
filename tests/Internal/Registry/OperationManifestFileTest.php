@@ -25,10 +25,16 @@ final class OperationManifestFileTest extends TestCase
         $file = new OperationManifestFile();
         $registry = new OperationRegistry([$this->metadata()]);
 
-        $file->write($registry, $path);
+        $file->write($registry, $path, 'build-operation-123');
+        $artifact = $file->loadArtifact($path);
 
         self::assertFileExists($path);
-        self::assertSame(ManifestFileOperation::class, $file->load($path)->findByTypeId('manifest.file')?->definition);
+        self::assertSame(OperationManifestFile::SCHEMA_VERSION, $artifact->schemaVersion);
+        self::assertSame('build-operation-123', $artifact->applicationBuildId);
+        self::assertSame(
+            ManifestFileOperation::class,
+            $artifact->operations->findByTypeId('manifest.file')?->definition,
+        );
     }
 
     public function testRejectsMissingManifestFile(): void
@@ -51,11 +57,57 @@ final class OperationManifestFileTest extends TestCase
     public function testRejectsInvalidMetadataShape(): void
     {
         $path = $this->manifestPath();
-        file_put_contents($path, "<?php return ['operations' => [['typeId' => 'broken']]];");
+        file_put_contents(
+            $path,
+            "<?php return ['schemaVersion' => 1, 'applicationBuildId' => 'build-1', 'payload' => ['operations' => [['typeId' => 'broken']]]];",
+        );
 
         $this->expectException(InvalidArgumentException::class);
 
         new OperationManifestFile()->load($path);
+    }
+
+    public function testRejectsManifestWithoutSchemaVersion(): void
+    {
+        $path = $this->manifestPath();
+        file_put_contents(
+            $path,
+            "<?php return ['applicationBuildId' => 'build-1', 'payload' => ['operations' => []]];",
+        );
+
+        $this->expectException(InvalidArgumentException::class);
+
+        new OperationManifestFile()->load($path);
+    }
+
+    public function testRejectsManifestWithUnsupportedSchemaVersion(): void
+    {
+        $path = $this->manifestPath();
+        file_put_contents(
+            $path,
+            "<?php return ['schemaVersion' => 2, 'applicationBuildId' => 'build-1', 'payload' => ['operations' => []]];",
+        );
+
+        $this->expectException(InvalidArgumentException::class);
+
+        new OperationManifestFile()->load($path);
+    }
+
+    public function testRejectsManifestWithoutApplicationBuildId(): void
+    {
+        $path = $this->manifestPath();
+        file_put_contents($path, "<?php return ['schemaVersion' => 1, 'payload' => ['operations' => []]];");
+
+        $this->expectException(InvalidArgumentException::class);
+
+        new OperationManifestFile()->load($path);
+    }
+
+    public function testRejectsEmptyApplicationBuildIdWhenWriting(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        new OperationManifestFile()->write(new OperationRegistry([$this->metadata()]), $this->manifestPath(), '');
     }
 
     private function metadata(): OperationMetadata

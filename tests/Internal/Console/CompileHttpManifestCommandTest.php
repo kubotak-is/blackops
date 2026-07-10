@@ -33,13 +33,15 @@ final class CompileHttpManifestCommandTest extends TestCase
         $status = new CommandTester(new CompileHttpManifestCommand())->execute([
             'config' => $config,
             'output' => $output,
+            '--application-build-id' => 'build-http-command',
         ]);
 
-        $manifest = new HttpOperationManifestFile()->load($output);
-        $match = $manifest->toRegistry([new HttpCommandOperation()])->match('GET', '/command-http');
+        $artifact = new HttpOperationManifestFile()->loadArtifact($output);
+        $match = $artifact->manifest->toRegistry([new HttpCommandOperation()])->match('GET', '/command-http');
 
         self::assertSame(0, $status);
         self::assertFileExists($output);
+        self::assertSame('build-http-command', $artifact->applicationBuildId);
         self::assertNotNull($match);
         self::assertSame(HttpCommandValue::class, $match->route->value);
     }
@@ -50,6 +52,20 @@ final class CompileHttpManifestCommandTest extends TestCase
 
         new CommandTester(new CompileHttpManifestCommand())->execute([
             'config' => $this->configPath(),
+            'output' => $this->manifestPath(),
+            '--application-build-id' => 'build-http-command',
+        ]);
+    }
+
+    public function testRejectsMissingApplicationBuildId(): void
+    {
+        $config = $this->configPath();
+        file_put_contents($config, '<?php return [\\' . HttpCommandOperationProvider::class . '::class];');
+
+        $this->expectException(InvalidArgumentException::class);
+
+        new CommandTester(new CompileHttpManifestCommand())->execute([
+            'config' => $config,
             'output' => $this->manifestPath(),
         ]);
     }

@@ -24,11 +24,14 @@ final class HttpOperationManifestFileTest extends TestCase
         $manifest = $this->manifest();
         $file = new HttpOperationManifestFile();
 
-        $file->write($manifest, $path);
+        $file->write($manifest, $path, 'build-http-123');
+        $artifact = $file->loadArtifact($path);
 
         self::assertFileExists($path);
         self::assertStringStartsWith('<?php', (string) file_get_contents($path));
-        self::assertSame($manifest->toArray(), $file->load($path)->toArray());
+        self::assertSame(HttpOperationManifestFile::SCHEMA_VERSION, $artifact->schemaVersion);
+        self::assertSame('build-http-123', $artifact->applicationBuildId);
+        self::assertSame($manifest->toArray(), $artifact->manifest->toArray());
     }
 
     public function testLoadedManifestCanRebuildRouteRegistry(): void
@@ -59,6 +62,65 @@ final class HttpOperationManifestFileTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
 
         new HttpOperationManifestFile()->load($path);
+    }
+
+    public function testRejectsManifestWithoutSchemaVersion(): void
+    {
+        $path = $this->manifestPath();
+        file_put_contents(
+            $path,
+            "<?php return ['applicationBuildId' => 'build-1', 'payload' => ['routes' => [], 'operations' => []]];",
+        );
+
+        $this->expectException(InvalidArgumentException::class);
+
+        new HttpOperationManifestFile()->load($path);
+    }
+
+    public function testRejectsManifestWithUnsupportedSchemaVersion(): void
+    {
+        $path = $this->manifestPath();
+        file_put_contents(
+            $path,
+            "<?php return ['schemaVersion' => 2, 'applicationBuildId' => 'build-1', 'payload' => ['routes' => [], 'operations' => []]];",
+        );
+
+        $this->expectException(InvalidArgumentException::class);
+
+        new HttpOperationManifestFile()->load($path);
+    }
+
+    public function testRejectsManifestWithoutApplicationBuildId(): void
+    {
+        $path = $this->manifestPath();
+        file_put_contents(
+            $path,
+            "<?php return ['schemaVersion' => 1, 'payload' => ['routes' => [], 'operations' => []]];",
+        );
+
+        $this->expectException(InvalidArgumentException::class);
+
+        new HttpOperationManifestFile()->load($path);
+    }
+
+    public function testRejectsInvalidPayloadShape(): void
+    {
+        $path = $this->manifestPath();
+        file_put_contents(
+            $path,
+            "<?php return ['schemaVersion' => 1, 'applicationBuildId' => 'build-1', 'payload' => ['routes' => []]];",
+        );
+
+        $this->expectException(InvalidArgumentException::class);
+
+        new HttpOperationManifestFile()->load($path);
+    }
+
+    public function testRejectsEmptyApplicationBuildIdWhenWriting(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        new HttpOperationManifestFile()->write($this->manifest(), $this->manifestPath(), '');
     }
 
     private function manifest(): HttpOperationManifest

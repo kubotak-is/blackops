@@ -88,6 +88,7 @@ blackops:build:compile \
   var/cache/blackops/operations.php \
   var/cache/blackops/http.php \
   var/cache/blackops/container.php \
+  --application-build-id=release-2026-07-11.1 \
   --container-class=CompiledContainer \
   --container-namespace=App\\BlackOps\\Generated \
   --composer-metadata=composer.json \
@@ -101,6 +102,23 @@ The positional outputs are:
 - operation manifest PHP file
 - HTTP manifest PHP file
 - dumped runtime container PHP file
+
+`--application-build-id` is required. Build pipelines should supply an immutable identifier for the application
+release, such as a source revision or deployment build number. The command writes the exact same identifier to the
+operation and HTTP manifests. Changing the requested build ID also invalidates a matching development fingerprint,
+so an earlier release's manifests are not reused.
+
+Each manifest is a PHP array with a versioned envelope:
+
+```php
+return [
+    'schemaVersion' => 1,
+    'applicationBuildId' => 'release-2026-07-11.1',
+    'payload' => [
+        // Operation or HTTP metadata.
+    ],
+];
+```
 
 The generated artifacts contain scalar values, arrays, and class names. They must not contain credentials, tokens, environment secrets, closures, or live service instances.
 
@@ -143,7 +161,10 @@ The loader returns:
 - HTTP operation manifest
 - PSR-11 container
 
-If any artifact is missing or invalid, startup fails. Production startup does not fall back to Composer discovery, operation scanning, token scanning, or container compilation.
+Startup fails before the generated container is loaded when either manifest is missing, does not use the supported
+schema version, has an empty application build ID, has an invalid payload, or the operation and HTTP application build
+IDs differ. Production startup does not fall back to Composer discovery, operation scanning, token scanning, or
+container compilation.
 
 ## Boundary Notes
 

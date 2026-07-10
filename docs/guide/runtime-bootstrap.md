@@ -76,6 +76,7 @@ php bin/console blackops:build:compile \
   var/cache/blackops/operations.php \
   var/cache/blackops/http.php \
   var/cache/blackops/container.php \
+  --application-build-id=release-2026-07-11.1 \
   --container-class=CompiledContainer \
   --container-namespace=App\\BlackOps\\Generated \
   --composer-metadata=composer.json \
@@ -89,6 +90,13 @@ The command writes:
 - operation manifest
 - HTTP manifest
 - compiled runtime container
+
+`--application-build-id` is required. Pass one immutable release identifier, such as the source revision or CI build
+number. The command stores the same value in both manifests. Do not reuse a build ID for artifacts produced from
+different application revisions.
+
+Both manifest PHP files return an envelope containing schema version `1`, the application build ID, and the manifest
+payload. The runtime validates the complete envelope instead of treating the payload as an unversioned array.
 
 The generated artifacts are PHP files containing arrays, scalar metadata, class names, and a compiled container class. Do not store credentials, tokens, environment secrets, or live service instances in provider metadata.
 
@@ -112,7 +120,10 @@ $artifacts = new ProductionRuntimeArtifactLoader()->load(
 );
 ```
 
-If a generated artifact is missing or invalid, startup fails.
+Startup fails if a manifest is missing, uses an unsupported or missing schema version, has a missing or empty build ID,
+contains an invalid payload, or belongs to a different application build than the other manifest. These checks happen
+before the generated container is loaded. Runtime startup never falls back to scanning application classes or rebuilding
+artifacts.
 
 ## Compose the HTTP Runtime
 

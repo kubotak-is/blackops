@@ -50,6 +50,7 @@ final class ProductionRuntimeSmokeTest extends TestCase
             'operation-manifest' => $operationManifest,
             'http-manifest' => $httpManifest,
             'container' => $containerPath,
+            '--application-build-id' => 'build-runtime-smoke',
             '--container-class' => $containerClass,
             '--container-namespace' => $containerNamespace,
         ]);
