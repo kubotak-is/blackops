@@ -249,13 +249,13 @@
 - [x] Retention対象外部キーを `ON DELETE RESTRICT` とする
 - [x] Operation単位のLegal Holdを設ける
 - [x] Retention Policy Contractを実装する
-- [ ] Retention Serviceを設計・実装する
+- [x] Retention Serviceを設計・実装する
 - [x] Retention Hold Portを設計・実装する
 - [x] Retention SchedulerをMVPへ含める
 - [x] Retention期間はProductionで明示設定を要求する
 - [x] Holdを `retention_holds` として一般化する
 - [x] Purge Auditを別TableとSystem Logへ記録する
-- [ ] Retention CLIとFramework Maintenance Scheduler Workerを実装する
+- [x] Retention CLIとFramework Maintenance Scheduler Workerを実装する
 - [x] MVP実装Phaseと最初のVertical Sliceを確定する
 - [x] LintとStatic AnalysisにMagoを採用する
 - [x] Test RunnerにPHPUnitを採用する
