@@ -47,6 +47,10 @@ activeFor
 
 PostgreSQL Store、CLI、Purge Serviceとの接続は後続Taskで扱う。
 
+`PostgreSqlRetentionHoldStore` は `RetentionHoldPort` を実装し、`retention_holds` TableへHoldを保存する。
+
+Hold ID生成はTransport配下の小さなPortへ分離する。Transport LayerはInternal IdentifierFactoryへ依存しない。
+
 ## PostgreSQL Schema
 
 `retention_holds` TableはOperationごとのHold設定と解除履歴を保持する。

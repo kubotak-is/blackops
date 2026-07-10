@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-10T21:42:31+09:00
+Updated At: 2026-07-10T21:49:06+09:00
 
 ## Current Phase
 
@@ -8,21 +8,21 @@ Phase 5: Retention
 
 ## Current Task
 
-Task ID: P5-003-postgresql-retention-schema
+Task ID: P5-004-postgresql-retention-hold-store
 
-Task Packet: `orchestration/tasks/P5-003-postgresql-retention-schema.md`
+Task Packet: `orchestration/tasks/P5-004-postgresql-retention-hold-store.md`
 
-Report: `orchestration/reports/P5-003-postgresql-retention-schema.md`
+Report: `orchestration/reports/P5-004-postgresql-retention-hold-store.md`
 
 ## Task Status
 
 Completed
 
-P5-003は完了。PostgreSQL Retention SchemaとしてPayload Tombstone列とRetention Hold Tableを実装した。
+P5-004は完了。PostgreSQL Retention Hold Storeを実装した。
 
 ## Last Accepted Task
 
-P5-003-postgresql-retention-schema
+P5-004-postgresql-retention-hold-store
 
 ## Pending Decisions
 
@@ -34,8 +34,39 @@ P5-003-postgresql-retention-schema
 
 ## Required Next Action
 
-1. P5-003をCommitする。
-2. P5-004へ進む。
+1. P5-004をCommitする。
+2. P5-005へ進む。
+
+## P5-004 Verification Commands and Results
+
+```text
+docker compose run --rm app vendor/bin/phpunit --filter PostgreSqlRetentionHoldStoreTest
+Result: OK (5 tests, 23 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app composer validate --strict
+Result: ./composer.json is valid.
+
+docker compose run --rm app mago format --check src tests
+Result: INFO All files are already formatted.
+
+docker compose run --rm app mago lint
+Result: INFO No issues found.
+
+docker compose run --rm app mago analyze
+Result: INFO No issues found.
+
+docker compose run --rm app vendor/bin/phpunit
+Result: OK (404 tests, 1200 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app vendor/bin/deptrac
+Result: Violations 0 / Skipped violations 0 / Uncovered 0 / Allowed 894 / Warnings 0 / Errors 0.
+
+rg -n 'Spec(ification)?[[:space:]]*[0-9]+|D[0-9]{3}|P[0-9]+-[0-9]+|TODO\.md:[0-9]+' src tests --glob '*.php'
+Result: No matches.
+
+git diff --check
+Result: No output.
+```
 
 ## P5-003 Verification Commands and Results
 
