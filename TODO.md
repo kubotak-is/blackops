@@ -273,7 +273,7 @@
 - [x] WSL2内のOpenCode CLI導入は旧方式の履歴として保持する
 - [x] GLM-5.2 Provider非対話実行確認は新方式では不要とする
 - [x] Docker ComposeでPHP 8.5、Composer、Mago、PHPUnit、Deptrac、PostgreSQL環境を準備する
-- [ ] InMemory TransportをUnit Test向けに実装する
+- [x] InMemory TransportをUnit Test向けに実装する
 - [ ] SQLite AdapterをMVP後の候補として検討する
 - [x] HTTP ContractにPSR-7／15／17を採用する
 - [x] RouterにFastRouteを採用し、Compile済みDispatcher DataをHTTP Manifestへ保存する

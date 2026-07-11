@@ -52,6 +52,12 @@ ExecutionTransport     all ports
 
 HTTP Processは`OperationSender`だけへ依存できる。Worker RuntimeはReceiver、Heartbeat、Settlementへ依存する。PostgreSQLなどの総合Adapterは`ExecutionTransport`を実装できる。
 
+## In-Memory Test Adapter
+
+[`InMemoryExecutionTransport`](in-memory-execution-transport.md) は全Transport Portを一つにまとめたUnit Test用Adapterである。PSR Clockと明示Lease Durationを受け取り、`availableAt`、一件Claim、決定的Sort、Lease、Heartbeat、Fencing、Acknowledge、ReleaseをDatabaseなしで検証できる。
+
+Stateは一つのPHP Object内だけに保持される。Durable Storage、Process間共有、並行Worker排他、Canonical Journal、Outcome、Attempt Lifecycleを提供しないため、Production Runtimeへ登録しない。
+
 ## PostgreSQL Sender
 
 PostgreSQL Senderは`DeferredOperationMessage`を`operations` tableへ保存し、保存成功時に`DeferredAcknowledgement`を返す。
@@ -199,8 +205,9 @@ current_attempt_started_at IS NOT NULL
 
 ## Current Scope
 
-現在のDeferred Transport実装では、まだ次を実装しない。
+現在の低レベルTransport PortはEnqueue、Claim、Heartbeat、Acknowledge、Releaseを提供する。InMemory AdapterはUnit Test用のQueue Semanticsだけを提供し、PostgreSQL側のLifecycle StoreはAttempt、Journal、Outcome、Recoveryを担う。
+
+現在も次を低レベルTransport自身では実装しない。
 
 - Deferred Dispatcher
-- Settlement
 - Attempt開始前Crashの自動復旧

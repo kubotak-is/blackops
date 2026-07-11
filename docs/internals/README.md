@@ -15,6 +15,7 @@ Framework実装者向けのArchitectureと実装ガイドを管理する。
 - [Handler and Result](handler-result.md)
 - [Operation Metadata](operation-metadata.md)
 - [Operation Registry](operation-registry.md)
+- [In-Memory Execution Transport](in-memory-execution-transport.md)
 - [Inline Dispatcher](inline-dispatcher.md)
 - [Journal Contracts](journal-contracts.md)
 - [Journal Record](journal-record.md)
