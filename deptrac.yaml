@@ -37,6 +37,8 @@ deptrac:
     - name: Library
       collectors:
         - type: classNameRegex
+          value: '/^Monolog(\\|$)/'
+        - type: classNameRegex
           value: '/^FastRoute(\\|$)/'
         - type: classNameRegex
           value: '/^Doctrine\\DBAL(\\|$)/'

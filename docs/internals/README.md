@@ -24,6 +24,7 @@ Framework実装者向けのArchitectureと実装ガイドを管理する。
 - [Sensitive Projection](sensitive-projection.md)
 - [JSONL Journal Observer](jsonl-journal-observer.md)
 - [Execution Scoped Logger](execution-scoped-logger.md)
+- [Monolog JSONL Backend](monolog-jsonl-backend.md)
 - Package and Namespace Architecture
 - Operation Dispatch Flow
 - Journal and Transaction Flow

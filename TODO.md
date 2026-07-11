@@ -282,6 +282,7 @@
 - [x] UUIDv7生成にSymfony UIDを採用する
 - [x] CLIにSymfony Consoleを採用する
 - [x] Logger BackendにMonolog 3を採用する
+- [x] Monolog 3をExecutionScopedLogger向けJSONL Backendとして構成する
 - [x] Test FrameworkにPHPUnitを採用する
 - [x] MVPは `blackops/framework` 単一Composer Packageとする
 - [x] 単一Package内を責務別Namespaceへ分割する
