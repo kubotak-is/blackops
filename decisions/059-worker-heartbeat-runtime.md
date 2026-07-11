@@ -1,0 +1,40 @@
+# D059: Worker Heartbeat Runtime
+
+Status: Decided
+
+## Context
+
+Deferred Workerは同期PHP Handlerを実行する。確定済みのCrash Recovery仕様では、Handler実行中もLease期間より短い間隔でHeartbeatを送り、SIGTERM後は新しいClaimを停止し、Grace Period超過時にLeaseを早期解放せず自然失効へ委ねる必要がある。
+
+同期HandlerがFrameworkへ制御を返さない間もHeartbeatを発火させる方式として、同一ProcessのPCNTL Signal、Handler Child Process分離、MVP Handler時間制限を比較した。Reference Docker Runtimeには現時点でPCNTLが含まれていない。
+
+## Decision
+
+[DECISION]
+
+MVP Reference WorkerはPCNTL asynchronous signalと`SIGALRM`を使い、同期Handler実行中の定期Heartbeatを駆動する。
+
+Heartbeat用`ClaimHeartbeat`はClaim／Lifecycle処理のDoctrine DBAL Connectionとは別の専用Connectionで構成する。Signal HandlerからHandlerまたはFramework Transactionが使用中のConnectionへ再入しない。
+
+PCNTLはFramework Package全体の必須Composer Extensionにはしない。Reference Docker RuntimeではPCNTLを有効化し、Worker Signal実装を構成または実行する時点で必要FunctionがなければFail Fastする。HTTP Runtime、Build Command、Library利用だけではPCNTLを要求しない。
+
+Heartbeat失敗後はClaimを失ったものとしてHandler実行を中断し、Framework State、Outcome、完了Journal、Settlementを更新しない。通常Handler例外のSupervision経路へ変換しない。
+
+SIGTERMまたはSIGINTを受けたWorkerは新規Claimを停止する。実行中HandlerはGrace Period内で完了可能とする。Grace Periodを超えた場合は実行を中断し、ClaimをReleaseせずProcessを終了してLeaseの自然失効と次WorkerのCrash Recoveryへ委ねる。
+
+Signal Handlerの登録、Alarm、以前のHandlerおよびasynchronous signal設定はOperation境界で復元し、長期Processへ状態を漏らさない。
+
+[/DECISION]
+
+## Consequences
+
+[CONSEQUENCES]
+
+- 同期HandlerがFrameworkへ制御を返さない間もLeaseを延長できる。
+- Heartbeat専用Connectionが必要になり、Application／Reference BootstrapはConnectionを二つ構成する。
+- Worker機能はPCNTLを利用できないRuntimeでFail Fastするが、FrameworkのHTTP／Library利用は継続できる。
+- Signal中のDatabase操作をHandler側Connectionから分離し、同一DBAL Connectionへの再入を避けられる。
+- Heartbeat失敗とGrace Period超過を通常Handler失敗として記録しないため、古いFencing TokenからStateを更新しない。
+- Child Process／IPC方式はMVP後により強いIsolationが必要になった場合の代替候補として残る。
+
+[/CONSEQUENCES]

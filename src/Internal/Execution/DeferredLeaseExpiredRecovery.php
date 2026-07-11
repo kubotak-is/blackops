@@ -23,7 +23,7 @@ use DateTimeImmutable;
 use LogicException;
 use ReflectionClass;
 
-final readonly class DeferredLeaseExpiredRecovery
+final readonly class DeferredLeaseExpiredRecovery implements ExpiredAttemptRecovery
 {
     public function __construct(
         private DeferredWorkerRuntimeServices $services,

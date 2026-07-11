@@ -36,5 +36,5 @@ Framework実装者向けのArchitectureと実装ガイドを管理する。
 - [Retention Purge Audit](retention-purge-audit.md)
 - [Retention Plan](retention-plan.md)
 - [Maintenance Scheduler](maintenance-scheduler.md)
-- Worker and Recovery
+- [Worker and Recovery](worker-runtime.md)
 - [Testing and Architecture Verification](core-contracts.md#public-api-architecture-guard)

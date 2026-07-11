@@ -112,7 +112,7 @@
 - [x] 指数BackoffとJitterを採用する
 - [ ] タイムアウトを定義する
 - [ ] Leaseと可視性タイムアウトを定義する
-- [ ] Worker停止時の処理回収方法を決める
+- [x] Worker停止時は新規Claimを止め、Grace超過時はLease Expired Recoveryへ委ねる
 - [x] Dead Letter Transportへ隔離しJournalへ記録する
 - [ ] 順序保証の有無と単位を決める
 - [ ] 並列実行の単位を決める
@@ -368,7 +368,7 @@
 - [x] Graceful Shutdown時はLeaseを自然失効させる
 - [x] Worker Heartbeatを実装する
 - [x] Crash Recoveryを実装する
-- [ ] Signal処理を実装する
+- [x] Signal処理を実装する
 - [x] Transport境界をCodec済みDeferredOperationMessageとする
 - [x] Durable受付結果をDeferredAcknowledgementとする
 - [x] MVPのClaimを一件単位とする
@@ -386,7 +386,7 @@
 - [ ] インメモリExecution Transportを実装する
 - [ ] Inline Strategyを実装する
 - [ ] Deferred Strategyを実装する
-- [ ] 最小Workerを実装する
+- [x] 最小Workerを実装する
 - [ ] 冪等性の基本機構を実装する
 
 ## 11. 検証用ユースケース

@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-11T12:47:48+09:00
+Updated At: 2026-07-11T23:25:38+09:00
 
 ## Current Phase
 
@@ -8,21 +8,21 @@ Phase 6: Compile and Polish
 
 ## Current Task
 
-Task ID: P6-007-monolog-jsonl-backend
+Task ID: P6-008-worker-run-signal-heartbeat
 
-Task Packet: `orchestration/tasks/P6-007-monolog-jsonl-backend.md`
+Task Packet: `orchestration/tasks/P6-008-worker-run-signal-heartbeat.md`
 
-Report: `orchestration/reports/P6-007-monolog-jsonl-backend.md`
+Report: `orchestration/reports/P6-008-worker-run-signal-heartbeat.md`
 
 ## Task Status
 
 Accepted
 
-P6-007のMonolog 3 JSONL Backend、ExecutionScopedLogger Composition Test、Documentation、必須CommandをOrchestrator Reviewで受け入れた。
+PCNTL SIGALRM、Heartbeat専用DB Connection構成境界、Graceful Shutdown、Crash Recoveryを接続した最小Worker Runtime／CLIをOrchestrator Reviewで受け入れた。
 
 ## Last Accepted Task
 
-P6-007-monolog-jsonl-backend
+P6-008-worker-run-signal-heartbeat
 
 ## Pending Decisions
 
@@ -35,6 +35,43 @@ P6-007-monolog-jsonl-backend
 ## Required Next Action
 
 1. MVP残作業の次Task Packetを作成する。
+
+## P6-008 Verification Commands and Results
+
+```text
+docker compose build app
+Result: Image blackops/framework:dev Built.
+
+docker compose run --rm app php -r 'exit(extension_loaded("pcntl") ? 0 : 1);'
+Result: Exit 0. PCNTL is enabled in the reference app image.
+
+docker compose run --rm app vendor/bin/phpunit --filter 'WorkerRun|SignalHeartbeat|DeferredWorkerLoop'
+Result: OK (26 tests, 162 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app composer validate --strict
+Result: ./composer.json is valid.
+
+docker compose run --rm app mago format --check src tests
+Result: INFO All files are already formatted.
+
+docker compose run --rm app mago lint
+Result: INFO No issues found.
+
+docker compose run --rm app mago analyze
+Result: INFO No issues found.
+
+docker compose run --rm app vendor/bin/phpunit
+Result: OK (531 tests, 1647 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app vendor/bin/deptrac
+Result: Violations 0 / Skipped violations 0 / Uncovered 0 / Allowed 1170 / Warnings 0 / Errors 0.
+
+! rg -n 'Spec(ification)?[[:space:]]*[0-9]+|D[0-9]{3}|P[0-9]+-[0-9]+|TODO\.md:[0-9]+' src tests --glob '*.php'
+Result: No matches (negated command exited 0).
+
+git diff --check
+Result: No output.
+```
 
 ## P6-007 Verification Commands and Results
 

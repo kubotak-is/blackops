@@ -9,6 +9,7 @@ use BlackOps\Core\Execution\Deferred;
 use BlackOps\Core\Execution\OperationClaim;
 use BlackOps\Core\Operation;
 use BlackOps\Core\OperationEnvelope;
+use BlackOps\Core\OperationHandler;
 use BlackOps\Core\OperationResult;
 use BlackOps\Core\OperationValue;
 use BlackOps\Core\Registry\OperationMetadata;
@@ -18,11 +19,12 @@ use LogicException;
 use ReflectionClass;
 use Throwable;
 
-final readonly class DeferredWorkerRuntime
+final readonly class DeferredWorkerRuntime implements DeferredClaimRuntime
 {
     public function __construct(
         private DeferredWorkerRuntimeServices $services,
         private DeferredWorkerRuntimeStorage $storage,
+        private ClaimExecutionGuard $guard = new DirectClaimExecutionGuard(),
     ) {}
 
     public function run(OperationClaim $claim): OperationResult
@@ -33,15 +35,14 @@ final readonly class DeferredWorkerRuntime
         $envelope = $this->startAttempt($claim, $metadata, $definition, $value);
         $handler = $this->services->handlers->resolve($metadata->handler);
         try {
-            $result = $this->storage->scope->run(
-                $envelope,
-                static fn(): OperationResult => $handler->handle($envelope),
-                $metadata->typeId,
-            );
-        } catch (Throwable $exception) {
-            $this->fail($claim, $metadata, $envelope, $exception);
+            $result = $this->executeHandler($claim, $envelope, $handler, $metadata->typeId);
+        } catch (HandlerInvocationFailedException $exception) {
+            $this->fail($claim, $metadata, $envelope, $exception->failure);
 
-            throw $exception;
+            throw new SupervisedHandlerFailureException(
+                'Deferred handler failure was recorded by supervision.',
+                previous: $exception->failure,
+            );
         }
 
         if ($result->isCompleted()) {
@@ -53,6 +54,27 @@ final readonly class DeferredWorkerRuntime
         $this->reject($claim, $metadata, $envelope, $result);
 
         return $result;
+    }
+
+    private function executeHandler(
+        OperationClaim $claim,
+        OperationEnvelope $envelope,
+        OperationHandler $handler,
+        string $operationTypeId,
+    ): OperationResult {
+        return $this->guard->run($claim, fn(): OperationResult => $this->storage->scope->run(
+            $envelope,
+            static function () use ($handler, $envelope): OperationResult {
+                try {
+                    return $handler->handle($envelope);
+                } catch (WorkerExecutionInterruptedException $exception) {
+                    throw $exception;
+                } catch (Throwable $exception) {
+                    throw new HandlerInvocationFailedException($exception);
+                }
+            },
+            $operationTypeId,
+        ));
     }
 
     private function startAttempt(

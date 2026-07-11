@@ -41,8 +41,11 @@ The current command set is:
 | `blackops:retention:purge` | `BlackOps\Internal\Console\RetentionPurgeCommand` | Dry-run or apply retention purge through injected services. |
 | `blackops:scheduler:run` | `BlackOps\Internal\Console\SchedulerRunCommand` | Run registered maintenance tasks once and exit. |
 | `blackops:scheduler:daemon` | `BlackOps\Internal\Console\SchedulerDaemonCommand` | Run registered maintenance tasks repeatedly with an explicit interval. |
+| `blackops:worker:run` | `BlackOps\Internal\Console\WorkerRunCommand` | Run the single-claim deferred worker with recovery, heartbeat, and graceful shutdown. |
 
 For normal build pipelines, prefer the unified build command so operation metadata, HTTP route metadata, and container definitions are generated from the same provider set.
+
+The worker command requires an application-composed `WorkerLoop`. Its signal heartbeat must be shared with the handler guard and must use a dedicated DBAL connection. See [Deferred Worker Runtime](worker-runtime.md) for the composition and shutdown contract.
 
 ## Development Discovery Commands
 

@@ -1,8 +1,8 @@
 # Runtime Bootstrap
 
-This guide shows the current Phase 1 path for building and running an HTTP inline BlackOps application.
+This guide shows the current path for building and running an HTTP inline BlackOps application and a deferred worker.
 
-The Phase 1 runtime supports:
+The current runtime supports:
 
 - operation metadata compiled into generated PHP artifacts
 - HTTP route metadata and FastRoute Dispatcher Data compiled into generated PHP artifacts
@@ -10,13 +10,7 @@ The Phase 1 runtime supports:
 - inline dispatch with lifecycle journal records
 - production startup from generated artifacts
 
-The Phase 1 runtime does not yet provide:
-
-- deferred operation acceptance
-- worker execution
-- retry, lease, heartbeat, or dead letter handling
-- retention purge and hold workflows
-- a generated front controller
+Applications compose deferred acceptance and worker infrastructure from the framework's execution ports and PostgreSQL adapters. BlackOps still does not generate an application front controller or process-supervisor configuration.
 
 Applications still own their HTTP server entrypoint, database connection setup, environment loading, and deployment layout.
 
@@ -196,6 +190,22 @@ Do not pass the container into:
 
 Handlers should receive their dependencies through constructor injection from the compiled container.
 
+## Run a deferred worker
+
+Register `WorkerRunCommand` with an application-composed `DeferredWorkerLoop`, then run:
+
+```bash
+php bin/console blackops:worker:run --idle-sleep-milliseconds=1000
+```
+
+The worker recovers one expired attempt before each claim and processes at most one claim at a time. `--iterations=N` limits the loop for smoke tests; omit it for a supervised production process.
+
+The PCNTL heartbeat is installed only around handler execution. Configure a positive heartbeat interval shorter than the claim lease. The `ClaimHeartbeat` adapter must have its own DBAL connection, separate from the connection used for claim, lifecycle, recovery, journal, and settlement work. Reusing the worker connection is unsafe because a signal may interrupt synchronous application code while that connection is already active.
+
+Send `SIGTERM` or `SIGINT` for shutdown. The worker stops taking new claims and lets an active handler finish during its grace period. If heartbeat fails or the grace period expires, the process exits with failure without completing, acknowledging, or releasing that claim; lease expiry and crash recovery make it eligible for supervised recovery.
+
+The reference Docker image includes PCNTL. An application image running this command must also enable PCNTL; otherwise worker construction fails immediately while HTTP and build paths remain unaffected. Detailed composition guidance is in the internal [Deferred Worker Runtime](../internals/worker-runtime.md) document.
+
 ## Next Capabilities
 
-The next runtime capabilities after Phase 1 are deferred operation acceptance, worker execution, retry and recovery behavior, and retention workflows. Those are not available from the Phase 1 HTTP inline runtime.
+Applications can extend the current runtime with deployment-specific process supervision and operational monitoring. These remain application and platform concerns rather than generated framework artifacts.

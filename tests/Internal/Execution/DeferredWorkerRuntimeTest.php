@@ -27,12 +27,15 @@ use BlackOps\Core\Supervision\RetryableException;
 use BlackOps\Core\Supervision\SupervisionDecision;
 use BlackOps\Core\Supervision\SupervisionPolicy;
 use BlackOps\Internal\Codec\ReflectionJsonOperationCodec;
+use BlackOps\Internal\Execution\ClaimExecutionGuard;
 use BlackOps\Internal\Execution\DeferredAcceptanceOrchestrator;
 use BlackOps\Internal\Execution\DeferredLeaseExpiredRecovery;
 use BlackOps\Internal\Execution\DeferredWorkerRuntime;
 use BlackOps\Internal\Execution\DeferredWorkerRuntimeServices;
 use BlackOps\Internal\Execution\DeferredWorkerRuntimeStorage;
 use BlackOps\Internal\Execution\HandlerResolver;
+use BlackOps\Internal\Execution\SupervisedHandlerFailureException;
+use BlackOps\Internal\Execution\WorkerClaimLostException;
 use BlackOps\Internal\ExecutionContext\ExecutionContextFactory;
 use BlackOps\Internal\Identifier\IdentifierFactory;
 use BlackOps\Internal\Identifier\Uuidv7Generator;
@@ -47,6 +50,7 @@ use BlackOps\Transport\PostgreSql\PostgreSqlCanonicalJournalStore;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationLifecycleStore;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationReceiver;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationSender;
+use Closure;
 use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
@@ -153,7 +157,7 @@ final class DeferredWorkerRuntimeTest extends TestCase
         self::assertSame([1, 2, 3, 4], array_column($records, 'sequence'));
     }
 
-    public function testWorkerRecordsOperationFailureAndRethrowsNonRetryableHandlerException(): void
+    public function testWorkerRecordsOperationFailureAndWrapsNonRetryableHandlerException(): void
     {
         $handler = new ThrowingWorkerReportHandler();
         $this->accept();
@@ -166,8 +170,9 @@ final class DeferredWorkerRuntimeTest extends TestCase
         try {
             $this->runtime($handler)->run($claim);
             self::fail('Expected handler exception to be rethrown.');
-        } catch (RuntimeException $exception) {
-            self::assertSame('boom', $exception->getMessage());
+        } catch (SupervisedHandlerFailureException $exception) {
+            self::assertInstanceOf(RuntimeException::class, $exception->getPrevious());
+            self::assertSame('boom', $exception->getPrevious()->getMessage());
         }
 
         $row = $this->operationRow();
@@ -199,7 +204,7 @@ final class DeferredWorkerRuntimeTest extends TestCase
         self::assertFalse($records[4]->data->retryable);
     }
 
-    public function testWorkerSchedulesRetryAndRethrowsRetryableHandlerException(): void
+    public function testWorkerSchedulesRetryAndWrapsRetryableHandlerException(): void
     {
         $handler = new RetryableThrowingWorkerReportHandler();
         $this->accept();
@@ -212,8 +217,9 @@ final class DeferredWorkerRuntimeTest extends TestCase
         try {
             $this->runtime($handler)->run($claim);
             self::fail('Expected handler exception to be rethrown.');
-        } catch (RetryableWorkerRuntimeException $exception) {
-            self::assertSame('temporary boom', $exception->getMessage());
+        } catch (SupervisedHandlerFailureException $exception) {
+            self::assertInstanceOf(RetryableWorkerRuntimeException::class, $exception->getPrevious());
+            self::assertSame('temporary boom', $exception->getPrevious()->getMessage());
         }
 
         $row = $this->operationRow();
@@ -244,6 +250,51 @@ final class DeferredWorkerRuntimeTest extends TestCase
         self::assertSame(2, $records[4]->data->nextAttemptNumber);
         self::assertSame('2026-07-10T00:02:01+00:00', $records[4]->data->scheduledAt->format(DATE_ATOM));
         self::assertSame(1_000, $records[4]->data->delayMilliseconds);
+    }
+
+    public function testSignalHeartbeatClaimLossSkipsFailureSupervisionAndCompletionUpdates(): void
+    {
+        $this->accept();
+        $claim = $this->receiver->claim(new \BlackOps\Core\Execution\ClaimRequest(
+            new DateTimeImmutable('2026-07-10T00:01:00.000000Z'),
+        ));
+        self::assertNotNull($claim);
+
+        try {
+            $this->runtime(new ClaimLostWorkerReportHandler())->run($claim);
+            self::fail('Expected claim loss interruption.');
+        } catch (WorkerClaimLostException $exception) {
+            self::assertSame('claim lost', $exception->getMessage());
+        }
+
+        $row = $this->operationRow();
+        $records = $this->records();
+        self::assertSame('running', $row['state']);
+        self::assertSame(1, (int) $row['attempt_number']);
+        self::assertSame(4, (int) $row['next_sequence']);
+        self::assertNotNull($row['lease_owner']);
+        self::assertSame(
+            [JournalEvent::OperationReceived, JournalEvent::OperationAccepted, JournalEvent::AttemptStarted],
+            array_map(static fn(JournalRecord $record): JournalEvent => $record->event, $records),
+        );
+    }
+
+    public function testSignalHeartbeatGuardWrapsOnlyHandlerBetweenAttemptAndCompletionTransactions(): void
+    {
+        $this->accept();
+        $claim = $this->receiver->claim(new \BlackOps\Core\Execution\ClaimRequest(
+            new DateTimeImmutable('2026-07-10T00:01:00.000000Z'),
+        ));
+        self::assertNotNull($claim);
+        $guard = new ObservingWorkerClaimExecutionGuard($this->connection, self::SCHEMA);
+
+        $result = $this->runtime(new CompletingWorkerReportHandler(), guard: $guard)->run($claim);
+
+        self::assertTrue($result->isCompleted());
+        self::assertSame(['running', 'running'], $guard->states);
+        self::assertSame([3, 3], $guard->journalCounts);
+        self::assertSame('completed', $this->operationRow()['state']);
+        self::assertCount(5, $this->records());
     }
 
     public function testLeaseExpiredRecoveryRecordsAttemptFailureAndSchedulesRetry(): void
@@ -302,8 +353,9 @@ final class DeferredWorkerRuntimeTest extends TestCase
         try {
             $this->runtime($handler, new AlwaysDeadLetterSupervisionPolicy())->run($claim);
             self::fail('Expected handler exception to be rethrown.');
-        } catch (RuntimeException $exception) {
-            self::assertSame('boom', $exception->getMessage());
+        } catch (SupervisedHandlerFailureException $exception) {
+            self::assertInstanceOf(RuntimeException::class, $exception->getPrevious());
+            self::assertSame('boom', $exception->getPrevious()->getMessage());
         }
 
         $row = $this->operationRow();
@@ -389,8 +441,11 @@ final class DeferredWorkerRuntimeTest extends TestCase
         );
     }
 
-    private function runtime(OperationHandler $handler, ?SupervisionPolicy $policy = null): DeferredWorkerRuntime
-    {
+    private function runtime(
+        OperationHandler $handler,
+        ?SupervisionPolicy $policy = null,
+        ?ClaimExecutionGuard $guard = null,
+    ): DeferredWorkerRuntime {
         $clock = new DeferredWorkerClock();
         $identifiers = new IdentifierFactory(new DeferredWorkerRuntimeUuidv7Generator(), $clock);
 
@@ -409,6 +464,7 @@ final class DeferredWorkerRuntimeTest extends TestCase
                 new PostgreSqlDeferredOperationLifecycleStore($this->connection, self::SCHEMA),
                 $clock,
             ),
+            $guard ?? new \BlackOps\Internal\Execution\DirectClaimExecutionGuard(),
         );
     }
 
@@ -590,6 +646,45 @@ final class RetryableThrowingWorkerReportHandler extends WorkerReportHandler
     public function handle(OperationEnvelope $operation): OperationResult
     {
         throw new RetryableWorkerRuntimeException('temporary boom');
+    }
+}
+
+final class ClaimLostWorkerReportHandler extends WorkerReportHandler
+{
+    public function handle(OperationEnvelope $operation): OperationResult
+    {
+        throw new WorkerClaimLostException('claim lost');
+    }
+}
+
+final class ObservingWorkerClaimExecutionGuard implements ClaimExecutionGuard
+{
+    /** @var list<string> */
+    public array $states = [];
+
+    /** @var list<int> */
+    public array $journalCounts = [];
+
+    public function __construct(
+        private Connection $connection,
+        private string $schema,
+    ) {}
+
+    public function run(OperationClaim $claim, Closure $operation): mixed
+    {
+        $this->observe();
+        $result = $operation();
+        $this->observe();
+
+        return $result;
+    }
+
+    private function observe(): void
+    {
+        $this->states[] = (string) $this->connection->fetchOne('SELECT state FROM ' . $this->schema . '.operations');
+        $this->journalCounts[] = (int) $this->connection->fetchOne(
+            'SELECT count(*) FROM ' . $this->schema . '.journal',
+        );
     }
 }
 
