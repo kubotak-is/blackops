@@ -20,6 +20,7 @@ final readonly class PostgreSqlDeferredOperationSchema
     {
         $schema = $this->identifier->quoted();
         $operations = $this->identifier->qualify('operations');
+        $outcomes = $this->identifier->qualify('outcomes');
         $deadLetters = $this->identifier->qualify('dead_letters');
         $retentionHolds = $this->identifier->qualify('retention_holds');
         $retentionPurgeAudits = $this->identifier->qualify('retention_purge_audits');
@@ -116,6 +117,22 @@ final readonly class PostgreSqlDeferredOperationSchema
             "CREATE INDEX IF NOT EXISTS operations_running_lease_idx
                 ON {$operations} (lease_expires_at, operation_id)
                 WHERE state = 'running' AND lease_expires_at IS NOT NULL",
+            "CREATE TABLE IF NOT EXISTS {$outcomes} (
+                operation_id uuid PRIMARY KEY,
+                outcome_type text NOT NULL CHECK (outcome_type <> ''),
+                schema_version integer NOT NULL CHECK (schema_version >= 1),
+                encoded_payload bytea NOT NULL,
+                completed_at timestamptz NOT NULL
+            )",
+            "ALTER TABLE {$outcomes}
+                DROP CONSTRAINT IF EXISTS outcomes_operation_id_fkey",
+            "ALTER TABLE {$outcomes}
+                ADD CONSTRAINT outcomes_operation_id_fkey
+                FOREIGN KEY (operation_id)
+                REFERENCES {$operations} (operation_id)
+                ON DELETE RESTRICT",
+            "CREATE INDEX IF NOT EXISTS outcomes_completed_at_idx
+                ON {$outcomes} (completed_at, operation_id)",
             "CREATE TABLE IF NOT EXISTS {$deadLetters} (
                 operation_id uuid PRIMARY KEY,
                 final_attempt_id uuid NULL,
@@ -191,6 +208,11 @@ final readonly class PostgreSqlDeferredOperationSchema
     public function deadLettersTable(): string
     {
         return $this->identifier->qualify('dead_letters');
+    }
+
+    public function outcomesTable(): string
+    {
+        return $this->identifier->qualify('outcomes');
     }
 
     public function retentionHoldsTable(): string

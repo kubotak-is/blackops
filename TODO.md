@@ -116,7 +116,7 @@
 - [x] Dead Letter Transportへ隔離しJournalへ記録する
 - [ ] 順序保証の有無と単位を決める
 - [ ] 並列実行の単位を決める
-- [ ] 非同期Outcomeの保存と取得方法を決める
+- [x] 非同期OutcomeをTyped Outcome Storeへ保存しOperation IDで取得する
 
 ## 6. トランザクションと整合性
 
@@ -126,7 +126,7 @@
 - [ ] Inboxパターンを採用するか検討する
 - [ ] Handlerに冪等性を要求するか決める
 - [ ] Frameworkが提供する冪等性支援を決める
-- [ ] Outcome保存失敗時の回復方法を決める
+- [x] Outcome保存失敗時はWorker完了Transaction全体をRollbackする
 - [ ] Journal保存後、実行登録前に障害が起きた場合の回復方法を決める
 
 ## 7. セキュリティとプライバシー
@@ -147,7 +147,7 @@
 - [x] 遅延配送を担う抽象を `Execution Transport` とする
 - [ ] `Journal Observer` インターフェースを設計する
 - [ ] `Execution Transport` インターフェースを設計する
-- [ ] `Outcome Store` インターフェースを設計する
+- [x] `Outcome Store` インターフェースを設計する
 - [ ] `Journal Observer` インターフェースを設計する
 - [ ] DBアダプタの候補を決める
 - [ ] KVSアダプタの候補を決める
@@ -400,7 +400,7 @@
 - [ ] Handler失敗後に再試行する
 - [ ] 同一Operationの重複実行を防止する
 - [ ] 再試行上限後にデッドレターへ移動する
-- [ ] 非同期Outcomeを取得する
+- [x] 非同期Outcomeを取得する
 - [ ] 機密値がJournalへ露出しないことを確認する
 
 ## 12. ドキュメント

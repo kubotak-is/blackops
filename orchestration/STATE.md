@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-11T23:51:58+09:00
+Updated At: 2026-07-12T00:15:46+09:00
 
 ## Current Phase
 
@@ -8,21 +8,21 @@ Phase 6: Compile and Polish
 
 ## Current Task
 
-Task ID: P6-009-frankenphp-reference-runtime
+Task ID: P6-010-typed-postgresql-outcome-store
 
-Task Packet: `orchestration/tasks/P6-009-frankenphp-reference-runtime.md`
+Task Packet: `orchestration/tasks/P6-010-typed-postgresql-outcome-store.md`
 
-Report: `orchestration/reports/P6-009-frankenphp-reference-runtime.md`
+Report: `orchestration/reports/P6-010-typed-postgresql-outcome-store.md`
 
 ## Task Status
 
 Accepted
 
-FrankenPHP 1／PHP 8.5 Reference HTTP Runtime、PSR Adapter、Front Controller、Actual `/healthz` SmokeをOrchestrator Reviewで受け入れた。
+Typed Public Outcome Store、PostgreSQL保存／取得、Worker同一Transaction、Outcome Retention／AuditをOrchestrator Reviewで受け入れた。
 
 ## Last Accepted Task
 
-P6-009-frankenphp-reference-runtime
+P6-010-typed-postgresql-outcome-store
 
 ## Pending Decisions
 
@@ -35,6 +35,37 @@ P6-009-frankenphp-reference-runtime
 ## Required Next Action
 
 1. MVP残作業の次Task Packetを作成する。
+
+## P6-010 Verification Commands and Results
+
+```text
+docker compose run --rm app vendor/bin/phpunit --filter 'OutcomeRecord|OutcomeStore|DeferredWorkerRuntime|RetentionPlanner|RetentionPurge'
+Result: OK (48 tests, 258 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app composer validate --strict
+Result: ./composer.json is valid.
+
+docker compose run --rm app mago format --check src tests
+Result: INFO All files are already formatted.
+
+docker compose run --rm app mago lint
+Result: INFO No issues found.
+
+docker compose run --rm app mago analyze
+Result: INFO No issues found.
+
+docker compose run --rm app vendor/bin/phpunit
+Result: OK (560 tests, 1754 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app vendor/bin/deptrac
+Result: 307 files / Violations 0 / Skipped violations 0 / Uncovered 0 / Allowed 1244 / Warnings 0 / Errors 0.
+
+! rg -n 'Spec(ification)?[[:space:]]*[0-9]+|D[0-9]{3}|P[0-9]+-[0-9]+|TODO\.md:[0-9]+' src tests --glob '*.php'
+Result: No matches (negated command exited 0).
+
+git diff --check
+Result: No output.
+```
 
 ## P6-009 Verification Commands and Results
 

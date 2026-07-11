@@ -6,6 +6,8 @@ The deferred worker processes one claim at a time. Each loop iteration first att
 
 A heartbeat failure or grace-period timeout throws a `WorkerExecutionInterruptedException`; the runtime deliberately bypasses normal handler supervision, and the loop performs no acknowledge or release. The running claim is left for lease-expiry recovery by another worker.
 
+Successful completion also saves an `OutcomeRecord` through the `OutcomeWriter` in `DeferredWorkerRuntimeStorage`. The writer must use the same DBAL connection as lifecycle state and canonical journal storage. State, completion journal records, and the typed outcome then commit atomically; an outcome failure rolls back all three. Rejected and supervised failure paths do not write outcomes.
+
 ## Signal and heartbeat composition
 
 `PcntlSignalHeartbeat` serves two roles and the same instance must be supplied to both boundaries:

@@ -13,6 +13,7 @@ use BlackOps\Core\Retention\RetentionPolicy;
 use BlackOps\Core\Retention\RetentionPolicyRef;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeadLetterRetentionDeleteService;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationSender;
+use BlackOps\Transport\PostgreSql\PostgreSqlOutcomeRetentionDeleteService;
 use BlackOps\Transport\PostgreSql\PostgreSqlRetentionPlanner;
 use BlackOps\Transport\PostgreSql\PostgreSqlRetentionPurgeAuditIdGenerator;
 use BlackOps\Transport\PostgreSql\PostgreSqlRetentionPurgeAuditStore;
@@ -50,12 +51,14 @@ final class PostgreSqlRetentionPurgeServiceTest extends TestCase
             '019f32ab-2be0-7b38-a0a7-1ab2f9688e11',
             '019f32ab-2be0-7b38-a0a7-1ab2f9688e12',
             '019f32ab-2be0-7b38-a0a7-1ab2f9688e13',
+            '019f32ab-2be0-7b38-a0a7-1ab2f9688e14',
         ]);
         $clock = new FixedPurgeServiceClock('2026-07-12T00:00:00.000000Z');
 
         $this->service = new PostgreSqlRetentionPurgeService(
             new PostgreSqlRetentionPlanner($this->connection, self::SCHEMA),
             new PostgreSqlTransportPayloadTombstoneService($this->connection, $audit, self::SCHEMA, $clock, $ids),
+            new PostgreSqlOutcomeRetentionDeleteService($this->connection, $audit, self::SCHEMA, $clock, $ids),
             new PostgreSqlDeadLetterRetentionDeleteService($this->connection, $audit, self::SCHEMA, $clock, $ids),
         );
     }
@@ -76,14 +79,16 @@ final class PostgreSqlRetentionPurgeServiceTest extends TestCase
             new DateTimeImmutable('2026-07-11T00:00:00Z'),
         );
 
-        self::assertSame(3, $result->plan()->count());
+        self::assertSame(4, $result->plan()->count());
         self::assertSame(2, $result->transportPayloadsPurged());
+        self::assertSame(1, $result->outcomesDeleted());
         self::assertSame(1, $result->deadLettersDeleted());
-        self::assertSame(3, $result->totalAffected());
+        self::assertSame(4, $result->totalAffected());
         self::assertNull($this->operationPayload(self::PAYLOAD_OPERATION));
         self::assertNull($this->operationPayload(self::DEAD_LETTER_OPERATION));
         self::assertFalse($this->deadLetterExists(self::DEAD_LETTER_OPERATION));
-        self::assertSame(3, $this->auditCount());
+        self::assertFalse($this->outcomeExists(self::PAYLOAD_OPERATION));
+        self::assertSame(4, $this->auditCount());
     }
 
     private function seedRows(): void
@@ -91,6 +96,7 @@ final class PostgreSqlRetentionPurgeServiceTest extends TestCase
         $this->operation(self::PAYLOAD_OPERATION, 'completed', '2026-07-09 00:00:00+00:00');
         $this->operation(self::DEAD_LETTER_OPERATION, 'dead_lettered', '2026-07-08 00:00:00+00:00');
         $this->deadLetter(self::DEAD_LETTER_OPERATION, '2026-07-08 00:00:00+00:00');
+        $this->outcome(self::PAYLOAD_OPERATION, '2026-06-20 00:00:00+00:00');
     }
 
     private function operation(string $operationId, string $state, string $updatedAt): void
@@ -143,6 +149,29 @@ final class PostgreSqlRetentionPurgeServiceTest extends TestCase
         );
 
         return is_string($payload) ? $payload : null;
+    }
+
+    private function outcome(string $operationId, string $completedAt): void
+    {
+        $this->connection->executeStatement('INSERT INTO ' . self::SCHEMA . '.outcomes (
+            operation_id, outcome_type, schema_version, encoded_payload, completed_at
+        ) VALUES (
+            :operation_id, :outcome_type, 1, convert_to(:payload, \'UTF8\'), :completed_at
+        )', [
+            'operation_id' => $operationId,
+            'outcome_type' => 'retention.test',
+            'payload' => '{}',
+            'completed_at' => $completedAt,
+        ]);
+    }
+
+    private function outcomeExists(string $operationId): bool
+    {
+        return (bool) $this->connection->fetchOne('SELECT EXISTS (
+            SELECT 1 FROM ' . self::SCHEMA . '.outcomes WHERE operation_id = :operation_id
+        )', [
+            'operation_id' => $operationId,
+        ]);
     }
 
     private function deadLetterExists(string $operationId): bool

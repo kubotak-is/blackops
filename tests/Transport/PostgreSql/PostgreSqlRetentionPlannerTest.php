@@ -27,6 +27,8 @@ final class PostgreSqlRetentionPlannerTest extends TestCase
     private const PAYLOAD_ALREADY_PURGED = '019f32ab-2be0-7b38-a0a7-1ab2f9688b04';
     private const DEAD_LETTER_ELIGIBLE = '019f32ab-2be0-7b38-a0a7-1ab2f9688b05';
     private const DEAD_LETTER_HELD = '019f32ab-2be0-7b38-a0a7-1ab2f9688b06';
+    private const OUTCOME_ELIGIBLE = '019f32ab-2be0-7b38-a0a7-1ab2f9688b07';
+    private const OUTCOME_HELD = '019f32ab-2be0-7b38-a0a7-1ab2f9688b08';
 
     private Connection $connection;
     private PostgreSqlDeferredOperationSender $sender;
@@ -57,7 +59,7 @@ final class PostgreSqlRetentionPlannerTest extends TestCase
         $plan = $this->planner->plan($this->policy(), new DateTimeImmutable('2026-07-10T00:00:00Z'));
 
         self::assertInstanceOf(RetentionPlan::class, $plan);
-        self::assertSame(3, $plan->count());
+        self::assertSame(4, $plan->count());
         self::assertSame(
             [self::DEAD_LETTER_ELIGIBLE, self::PAYLOAD_ELIGIBLE],
             array_map(
@@ -72,14 +74,24 @@ final class PostgreSqlRetentionPlannerTest extends TestCase
                 $plan->forTarget(RetentionTarget::DeadLetter),
             ),
         );
+        self::assertSame(
+            [self::OUTCOME_ELIGIBLE],
+            array_map(
+                static fn($item): string => $item->operationId()->toString(),
+                $plan->forTarget(RetentionTarget::Outcome),
+            ),
+        );
 
         $payload = $plan->forTarget(RetentionTarget::TransportPayload)[1];
         $deadLetter = $plan->forTarget(RetentionTarget::DeadLetter)[0];
+        $outcome = $plan->forTarget(RetentionTarget::Outcome)[0];
 
         self::assertSame('2026-07-08T00:00:00+00:00', $payload->basisAt()->format(DATE_ATOM));
         self::assertSame('2026-07-09T00:00:00+00:00', $payload->eligibleAt()->format(DATE_ATOM));
         self::assertSame('2026-07-07T00:00:00+00:00', $deadLetter->basisAt()->format(DATE_ATOM));
         self::assertSame('2026-07-09T00:00:00+00:00', $deadLetter->eligibleAt()->format(DATE_ATOM));
+        self::assertSame('2026-06-20T00:00:00+00:00', $outcome->basisAt()->format(DATE_ATOM));
+        self::assertSame('2026-07-04T00:00:00+00:00', $outcome->eligibleAt()->format(DATE_ATOM));
     }
 
     public function testPlannerHasNoSideEffects(): void
@@ -112,6 +124,8 @@ final class PostgreSqlRetentionPlannerTest extends TestCase
         $this->terminalOperation(self::PAYLOAD_ALREADY_PURGED, 'completed', '2026-07-08 00:00:00+00:00');
         $this->terminalOperation(self::DEAD_LETTER_ELIGIBLE, 'dead_lettered', '2026-07-07 00:00:00+00:00');
         $this->terminalOperation(self::DEAD_LETTER_HELD, 'dead_lettered', '2026-07-07 00:00:00+00:00');
+        $this->terminalOperation(self::OUTCOME_ELIGIBLE, 'completed', '2026-07-09 12:00:00+00:00');
+        $this->terminalOperation(self::OUTCOME_HELD, 'completed', '2026-07-09 12:00:00+00:00');
 
         $this->connection->executeStatement(
             'UPDATE ' . self::SCHEMA . '.operations
@@ -127,8 +141,11 @@ final class PostgreSqlRetentionPlannerTest extends TestCase
 
         $this->hold(self::PAYLOAD_HELD, '019f32ab-2be0-7b38-a0a7-1ab2f9688b11');
         $this->hold(self::DEAD_LETTER_HELD, '019f32ab-2be0-7b38-a0a7-1ab2f9688b12');
+        $this->hold(self::OUTCOME_HELD, '019f32ab-2be0-7b38-a0a7-1ab2f9688b13');
         $this->deadLetter(self::DEAD_LETTER_ELIGIBLE, '2026-07-07 00:00:00+00:00');
         $this->deadLetter(self::DEAD_LETTER_HELD, '2026-07-07 00:00:00+00:00');
+        $this->outcome(self::OUTCOME_ELIGIBLE, '2026-06-20 00:00:00+00:00');
+        $this->outcome(self::OUTCOME_HELD, '2026-06-20 00:00:00+00:00');
     }
 
     private function terminalOperation(string $operationId, string $state, string $updatedAt): void
@@ -194,6 +211,20 @@ final class PostgreSqlRetentionPlannerTest extends TestCase
             'reason_type' => \RuntimeException::class,
             'reason_message' => 'boom',
             'moved_at' => $movedAt,
+        ]);
+    }
+
+    private function outcome(string $operationId, string $completedAt): void
+    {
+        $this->connection->executeStatement('INSERT INTO ' . self::SCHEMA . '.outcomes (
+            operation_id, outcome_type, schema_version, encoded_payload, completed_at
+        ) VALUES (
+            :operation_id, :outcome_type, 1, convert_to(:payload, \'UTF8\'), :completed_at
+        )', [
+            'operation_id' => $operationId,
+            'outcome_type' => 'retention.test',
+            'payload' => '{}',
+            'completed_at' => $completedAt,
         ]);
     }
 

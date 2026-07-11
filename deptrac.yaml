@@ -18,6 +18,10 @@ deptrac:
       collectors:
         - type: classNameRegex
           value: '/^BlackOps\\Transport(\\|$)/'
+    - name: Outcome
+      collectors:
+        - type: classNameRegex
+          value: '/^BlackOps\\Outcome(\\|$)/'
     - name: Http
       collectors:
         - type: classNameRegex
@@ -73,7 +77,10 @@ deptrac:
       - Core
       - Journal
       - Execution
+      - Outcome
       - Library
+    Outcome:
+      - Core
     Http:
       - Core
       - Execution
@@ -96,4 +103,5 @@ deptrac:
       - Http
       - Logging
       - Console
+      - Outcome
       - Library

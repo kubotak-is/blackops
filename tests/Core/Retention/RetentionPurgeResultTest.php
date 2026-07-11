@@ -21,12 +21,13 @@ final class RetentionPurgeResultTest extends TestCase
     public function testResultCarriesPlanAndCountsWithoutPayload(): void
     {
         $plan = new RetentionPlan([]);
-        $result = new RetentionPurgeResult($plan, 2, 3);
+        $result = new RetentionPurgeResult($plan, 2, 3, 4);
 
         self::assertSame($plan, $result->plan());
         self::assertSame(2, $result->transportPayloadsPurged());
         self::assertSame(3, $result->deadLettersDeleted());
-        self::assertSame(5, $result->totalAffected());
+        self::assertSame(4, $result->outcomesDeleted());
+        self::assertSame(9, $result->totalAffected());
     }
 
     public function testResultRejectsNegativeCounts(): void

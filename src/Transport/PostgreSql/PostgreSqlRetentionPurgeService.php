@@ -17,6 +17,7 @@ final readonly class PostgreSqlRetentionPurgeService implements RetentionPurgeSe
     public function __construct(
         private RetentionPlanner $planner,
         private PostgreSqlTransportPayloadTombstoneService $transportPayloads,
+        private PostgreSqlOutcomeRetentionDeleteService $outcomes,
         private PostgreSqlDeadLetterRetentionDeleteService $deadLetters,
     ) {}
 
@@ -32,6 +33,7 @@ final readonly class PostgreSqlRetentionPurgeService implements RetentionPurgeSe
             $plan,
             $this->transportPayloads->tombstone($plan, $policyRef, $actor),
             $this->deadLetters->delete($plan, $policyRef, $actor),
+            $this->outcomes->delete($plan, $policyRef, $actor),
         );
     }
 }

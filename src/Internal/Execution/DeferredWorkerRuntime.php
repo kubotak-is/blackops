@@ -15,6 +15,7 @@ use BlackOps\Core\OperationValue;
 use BlackOps\Core\Registry\OperationMetadata;
 use BlackOps\Journal\JournalEvent;
 use BlackOps\Journal\LifecycleState;
+use BlackOps\Outcome\OutcomeRecord;
 use LogicException;
 use ReflectionClass;
 use Throwable;
@@ -134,7 +135,8 @@ final readonly class DeferredWorkerRuntime implements DeferredClaimRuntime
         OperationResult $result,
     ): void {
         $this->storage->connection->transactional(function () use ($claim, $metadata, $envelope, $result): void {
-            $reservation = $this->storage->state->reserveCompleted($claim, $this->storage->clock->now());
+            $completedAt = $this->storage->clock->now();
+            $reservation = $this->storage->state->reserveCompleted($claim, $completedAt);
             $finalizing = $this->storage->lifecycle->next(LifecycleState::Running, JournalEvent::AttemptSucceeded);
             $this->storage->lifecycle->next($finalizing, JournalEvent::OperationCompleted);
             $this->storage->journal->append($this->storage->records->attemptSucceeded(
@@ -148,6 +150,9 @@ final readonly class DeferredWorkerRuntime implements DeferredClaimRuntime
                 $reservation->operationCompletedSequence,
                 $result->outcome(),
             ));
+            $this->storage->outcomes->save(
+                new OutcomeRecord($claim->message()->operationId(), $result->outcome(), $completedAt),
+            );
         });
     }
 

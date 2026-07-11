@@ -7,6 +7,7 @@ namespace BlackOps\Internal\Execution;
 use BlackOps\Internal\Journal\JournalRecordFactory;
 use BlackOps\Internal\Journal\LifecycleStateMachine;
 use BlackOps\Journal\CanonicalJournalWriter;
+use BlackOps\Outcome\OutcomeWriter;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationLifecycleStore;
 use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
@@ -19,6 +20,7 @@ final readonly class DeferredWorkerRuntimeStorage
         public CanonicalJournalWriter $journal,
         public PostgreSqlDeferredOperationLifecycleStore $state,
         public ClockInterface $clock,
+        public OutcomeWriter $outcomes,
         public LifecycleStateMachine $lifecycle = new LifecycleStateMachine(),
         public ExecutionScopeProvider $scope = new ExecutionScopeProvider(),
     ) {}

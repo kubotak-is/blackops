@@ -32,6 +32,7 @@ final readonly class PostgreSqlRetentionPlanner implements RetentionPlanner
         try {
             return new RetentionPlan([
                 ...$this->transportPayloadItems($policy, $now),
+                ...$this->outcomeItems($policy, $now),
                 ...$this->deadLetterItems($policy, $now),
             ]);
         } catch (Throwable $exception) {
@@ -109,6 +110,37 @@ final readonly class PostgreSqlRetentionPlanner implements RetentionPlanner
         return array_map(fn(array $row): RetentionPlanItem => $this->item(
             $row,
             RetentionTarget::DeadLetter,
+            $period->secondsValue(),
+        ), $rows);
+    }
+
+    /** @return list<RetentionPlanItem> */
+    private function outcomeItems(RetentionPolicy $policy, DateTimeImmutable $now): array
+    {
+        $outcomes = $this->schema->outcomesTable();
+        $holds = $this->schema->retentionHoldsTable();
+        $period = $policy->outcomeRetention();
+        $cutoff = $now->modify('-' . $period->secondsValue() . ' seconds');
+        $rows = $this->connection->fetchAllAssociative(
+            "SELECT
+                operation_id::text AS operation_id,
+                completed_at::text AS basis_at
+            FROM {$outcomes} o
+            WHERE o.completed_at <= :cutoff
+                AND NOT EXISTS (
+                    SELECT 1
+                    FROM {$holds} h
+                    WHERE h.operation_id = o.operation_id
+                        AND h.released_at IS NULL
+                )
+            ORDER BY o.completed_at, o.operation_id
+            LIMIT {$this->limitPerTarget}",
+            ['cutoff' => $this->formatTimestamp($cutoff)],
+        );
+
+        return array_map(fn(array $row): RetentionPlanItem => $this->item(
+            $row,
+            RetentionTarget::Outcome,
             $period->secondsValue(),
         ), $rows);
     }

@@ -46,10 +46,14 @@ use BlackOps\Journal\Data\OperationDeadLetteredData;
 use BlackOps\Journal\Data\OperationFailedData;
 use BlackOps\Journal\JournalEvent;
 use BlackOps\Journal\JournalRecord;
+use BlackOps\Outcome\Exception\OutcomeStoreException;
+use BlackOps\Outcome\OutcomeRecord;
+use BlackOps\Outcome\OutcomeWriter;
 use BlackOps\Transport\PostgreSql\PostgreSqlCanonicalJournalStore;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationLifecycleStore;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationReceiver;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationSender;
+use BlackOps\Transport\PostgreSql\PostgreSqlOutcomeStore;
 use Closure;
 use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
@@ -69,6 +73,7 @@ final class DeferredWorkerRuntimeTest extends TestCase
     private PostgreSqlDeferredOperationSender $sender;
     private PostgreSqlDeferredOperationReceiver $receiver;
     private PostgreSqlCanonicalJournalStore $journal;
+    private PostgreSqlOutcomeStore $outcomes;
     private ReflectionJsonOperationCodec $codec;
 
     protected function setUp(): void
@@ -82,6 +87,7 @@ final class DeferredWorkerRuntimeTest extends TestCase
         );
         $this->receiver = new PostgreSqlDeferredOperationReceiver($this->connection, self::SCHEMA, 'worker-a', 30);
         $this->journal = new PostgreSqlCanonicalJournalStore($this->connection, self::SCHEMA);
+        $this->outcomes = new PostgreSqlOutcomeStore($this->connection, self::SCHEMA);
         $this->codec = new ReflectionJsonOperationCodec();
         $this->sender->migrate();
         $this->receiver->migrate();
@@ -124,6 +130,10 @@ final class DeferredWorkerRuntimeTest extends TestCase
         self::assertSame([1, 2, 3, 4, 5], array_column($records, 'sequence'));
         self::assertNotNull($records[2]->attempt);
         self::assertSame(1, $records[2]->attempt?->number);
+        $storedOutcome = $this->outcomes->find(OperationId::fromString(self::OPERATION_ID));
+        self::assertNotNull($storedOutcome);
+        self::assertInstanceOf(WorkerReportDone::class, $storedOutcome->outcome());
+        self::assertSame('done-weekly', $storedOutcome->outcome()->message);
     }
 
     public function testWorkerRecordsBusinessRejection(): void
@@ -155,6 +165,7 @@ final class DeferredWorkerRuntimeTest extends TestCase
             array_map(static fn(JournalRecord $record): JournalEvent => $record->event, $records),
         );
         self::assertSame([1, 2, 3, 4], array_column($records, 'sequence'));
+        self::assertNull($this->outcomes->find(OperationId::fromString(self::OPERATION_ID)));
     }
 
     public function testWorkerRecordsOperationFailureAndWrapsNonRetryableHandlerException(): void
@@ -202,6 +213,7 @@ final class DeferredWorkerRuntimeTest extends TestCase
         self::assertSame(RuntimeException::class, $records[4]->data->errorType);
         self::assertSame('boom', $records[4]->data->errorMessage);
         self::assertFalse($records[4]->data->retryable);
+        self::assertNull($this->outcomes->find(OperationId::fromString(self::OPERATION_ID)));
     }
 
     public function testWorkerSchedulesRetryAndWrapsRetryableHandlerException(): void
@@ -250,6 +262,7 @@ final class DeferredWorkerRuntimeTest extends TestCase
         self::assertSame(2, $records[4]->data->nextAttemptNumber);
         self::assertSame('2026-07-10T00:02:01+00:00', $records[4]->data->scheduledAt->format(DATE_ATOM));
         self::assertSame(1_000, $records[4]->data->delayMilliseconds);
+        self::assertNull($this->outcomes->find(OperationId::fromString(self::OPERATION_ID)));
     }
 
     public function testSignalHeartbeatClaimLossSkipsFailureSupervisionAndCompletionUpdates(): void
@@ -295,6 +308,34 @@ final class DeferredWorkerRuntimeTest extends TestCase
         self::assertSame([3, 3], $guard->journalCounts);
         self::assertSame('completed', $this->operationRow()['state']);
         self::assertCount(5, $this->records());
+    }
+
+    public function testOutcomeSaveFailureRollsBackCompletedStateAndJournal(): void
+    {
+        $this->accept();
+        $claim = $this->receiver->claim(new \BlackOps\Core\Execution\ClaimRequest(
+            new DateTimeImmutable('2026-07-10T00:01:00.000000Z'),
+        ));
+        self::assertNotNull($claim);
+
+        try {
+            $this->runtime(new CompletingWorkerReportHandler(), outcomes: new FailingWorkerOutcomeWriter())->run(
+                $claim,
+            );
+            self::fail('Expected outcome save failure.');
+        } catch (OutcomeStoreException $exception) {
+            self::assertSame('outcome unavailable', $exception->getMessage());
+        }
+
+        $row = $this->operationRow();
+        self::assertSame('running', $row['state']);
+        self::assertSame(4, (int) $row['next_sequence']);
+        self::assertNotNull($row['current_attempt_id']);
+        self::assertSame(
+            [JournalEvent::OperationReceived, JournalEvent::OperationAccepted, JournalEvent::AttemptStarted],
+            array_map(static fn(JournalRecord $record): JournalEvent => $record->event, $this->records()),
+        );
+        self::assertNull($this->outcomes->find(OperationId::fromString(self::OPERATION_ID)));
     }
 
     public function testLeaseExpiredRecoveryRecordsAttemptFailureAndSchedulesRetry(): void
@@ -387,6 +428,7 @@ final class DeferredWorkerRuntimeTest extends TestCase
         self::assertSame(RuntimeException::class, $records[4]->data->reasonType);
         self::assertSame('boom', $records[4]->data->reasonMessage);
         self::assertSame('2026-07-10T00:02:00+00:00', $records[4]->data->movedAt->format(DATE_ATOM));
+        self::assertNull($this->outcomes->find(OperationId::fromString(self::OPERATION_ID)));
     }
 
     public function testFailureReservationRejectsStaleFencingToken(): void
@@ -445,6 +487,7 @@ final class DeferredWorkerRuntimeTest extends TestCase
         OperationHandler $handler,
         ?SupervisionPolicy $policy = null,
         ?ClaimExecutionGuard $guard = null,
+        ?OutcomeWriter $outcomes = null,
     ): DeferredWorkerRuntime {
         $clock = new DeferredWorkerClock();
         $identifiers = new IdentifierFactory(new DeferredWorkerRuntimeUuidv7Generator(), $clock);
@@ -463,6 +506,7 @@ final class DeferredWorkerRuntimeTest extends TestCase
                 $this->journal,
                 new PostgreSqlDeferredOperationLifecycleStore($this->connection, self::SCHEMA),
                 $clock,
+                $outcomes ?? $this->outcomes,
             ),
             $guard ?? new \BlackOps\Internal\Execution\DirectClaimExecutionGuard(),
         );
@@ -487,6 +531,7 @@ final class DeferredWorkerRuntimeTest extends TestCase
                 $this->journal,
                 new PostgreSqlDeferredOperationLifecycleStore($this->connection, self::SCHEMA),
                 $clock,
+                $this->outcomes,
             ),
         );
     }
@@ -685,6 +730,14 @@ final class ObservingWorkerClaimExecutionGuard implements ClaimExecutionGuard
         $this->journalCounts[] = (int) $this->connection->fetchOne(
             'SELECT count(*) FROM ' . $this->schema . '.journal',
         );
+    }
+}
+
+final readonly class FailingWorkerOutcomeWriter implements OutcomeWriter
+{
+    public function save(OutcomeRecord $record): void
+    {
+        throw new OutcomeStoreException('outcome unavailable');
     }
 }
 
