@@ -10,6 +10,8 @@ BlackOps keeps build-time discovery and production runtime startup as separate s
 
 Production startup does not scan application source files or rebuild artifacts.
 
+The reference HTTP entrypoint is documented in [FrankenPHP Reference Runtime](frankenphp-runtime.md). It loads an application-owned bootstrap that returns a PSR-15 handler; it does not compile or discover application code at request time.
+
 ## Command Registration
 
 Applications register BlackOps commands in their own console entrypoint. The framework supplies command classes, but it does not own the application console process.

@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-11T23:25:38+09:00
+Updated At: 2026-07-11T23:51:58+09:00
 
 ## Current Phase
 
@@ -8,21 +8,21 @@ Phase 6: Compile and Polish
 
 ## Current Task
 
-Task ID: P6-008-worker-run-signal-heartbeat
+Task ID: P6-009-frankenphp-reference-runtime
 
-Task Packet: `orchestration/tasks/P6-008-worker-run-signal-heartbeat.md`
+Task Packet: `orchestration/tasks/P6-009-frankenphp-reference-runtime.md`
 
-Report: `orchestration/reports/P6-008-worker-run-signal-heartbeat.md`
+Report: `orchestration/reports/P6-009-frankenphp-reference-runtime.md`
 
 ## Task Status
 
 Accepted
 
-PCNTL SIGALRM、Heartbeat専用DB Connection構成境界、Graceful Shutdown、Crash Recoveryを接続した最小Worker Runtime／CLIをOrchestrator Reviewで受け入れた。
+FrankenPHP 1／PHP 8.5 Reference HTTP Runtime、PSR Adapter、Front Controller、Actual `/healthz` SmokeをOrchestrator Reviewで受け入れた。
 
 ## Last Accepted Task
 
-P6-008-worker-run-signal-heartbeat
+P6-009-frankenphp-reference-runtime
 
 ## Pending Decisions
 
@@ -35,6 +35,49 @@ P6-008-worker-run-signal-heartbeat
 ## Required Next Action
 
 1. MVP残作業の次Task Packetを作成する。
+
+## P6-009 Verification Commands and Results
+
+```text
+docker compose --profile runtime build http
+Result: Image blackops/framework-http:reference Built from dunglas/frankenphp:1-php8.5-trixie. Authoritative autoload contains 1598 classes.
+
+docker compose --profile runtime up -d http
+Result: PostgreSQL healthy; blackops-http-1 started.
+
+docker compose run --rm app php -r '$body = file_get_contents("http://http/healthz"); exit(is_string($body) && str_contains($body, "\"status\":\"ok\"") ? 0 : 1);'
+Result: Exit 0. Actual FrankenPHP /healthz returned JSON containing status ok.
+
+docker compose stop http
+Result: blackops-http-1 stopped.
+
+docker compose run --rm app vendor/bin/phpunit --filter FrankenPhp
+Result: OK (14 tests, 43 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app composer validate --strict
+Result: ./composer.json is valid.
+
+docker compose run --rm app mago format --check src tests
+Result: INFO All files are already formatted.
+
+docker compose run --rm app mago lint
+Result: INFO No issues found.
+
+docker compose run --rm app mago analyze
+Result: INFO No issues found.
+
+docker compose run --rm app vendor/bin/phpunit
+Result: OK (545 tests, 1690 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app vendor/bin/deptrac
+Result: 297 files / Violations 0 / Skipped violations 0 / Uncovered 0 / Allowed 1179 / Warnings 0 / Errors 0.
+
+! rg -n 'Spec(ification)?[[:space:]]*[0-9]+|D[0-9]{3}|P[0-9]+-[0-9]+|TODO\.md:[0-9]+' src tests --glob '*.php'
+Result: No matches (negated command exited 0).
+
+git diff --check
+Result: No output.
+```
 
 ## P6-008 Verification Commands and Results
 

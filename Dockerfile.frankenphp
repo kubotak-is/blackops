@@ -1,0 +1,20 @@
+FROM dunglas/frankenphp:1-php8.5-trixie
+
+ENV COMPOSER_ALLOW_SUPERUSER=1
+ENV COMPOSER_HOME=/tmp/composer
+ENV BLACKOPS_APPLICATION_BOOTSTRAP=/app/runtime/frankenphp/bootstrap.php
+
+RUN install-php-extensions pcntl pdo_pgsql zip
+
+COPY --from=composer:2.10 /usr/bin/composer /usr/bin/composer
+
+WORKDIR /app
+
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --no-interaction --no-progress --prefer-dist --no-autoloader
+
+COPY src ./src
+RUN composer dump-autoload --no-dev --classmap-authoritative
+
+COPY runtime/frankenphp ./runtime/frankenphp
+COPY runtime/frankenphp/Caddyfile /etc/frankenphp/Caddyfile

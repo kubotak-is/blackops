@@ -10,11 +10,32 @@ The current runtime supports:
 - inline dispatch with lifecycle journal records
 - production startup from generated artifacts
 
-Applications compose deferred acceptance and worker infrastructure from the framework's execution ports and PostgreSQL adapters. BlackOps still does not generate an application front controller or process-supervisor configuration.
+Applications compose deferred acceptance and worker infrastructure from the framework's execution ports and PostgreSQL adapters. BlackOps provides a reference FrankenPHP front controller, but it does not generate application-specific bootstrap or process-supervisor configuration.
 
-Applications still own their HTTP server entrypoint, database connection setup, environment loading, and deployment layout.
+Applications own their bootstrap composition, database connection setup, environment loading, and deployment layout. The framework-owned reference entrypoint only adapts the SAPI request and response around the PSR-15 handler returned by that bootstrap.
 
 BlackOpsのMVPおよび公式Reference EnvironmentはFrankenPHPを前提にする。Core APIはPSR境界を維持するため、FrankenPHP固有のServer設定やWorker設定はBootstrap / Adapter層へ閉じ込める。
+
+## Start the reference HTTP runtime
+
+Build and start the profile-scoped FrankenPHP service:
+
+```bash
+docker compose --profile runtime build http
+docker compose --profile runtime up -d http
+```
+
+The health endpoint is available from the host at `http://localhost:8080/healthz`. Set `BLACKOPS_HTTP_PORT` to change the host port. Stop the reference process after use:
+
+```bash
+docker compose stop http
+```
+
+The `http` service uses the official FrankenPHP 1 / PHP 8.5 Debian image and runs Caddy on plain HTTP port 80 inside the development network. The host mapping defaults to port 8080. TLS certificates and production domain configuration belong to the deployment environment.
+
+The repository's `runtime/frankenphp/bootstrap.php` returns a minimal PSR-15 health handler. In an application image, set `BLACKOPS_APPLICATION_BOOTSTRAP` to a readable PHP file that returns the application-composed `RequestHandlerInterface`, normally the `httpHandler` from `ProductionRuntimeComposer`. Returning any other value fails startup for that request; the front controller never falls back to discovery or compilation.
+
+The reference starts in FrankenPHP classic mode. If an application later opts into worker mode, it must reset execution scopes, logger state, observer buffers, and database connection state at every request boundary. Worker-mode tuning is outside the MVP reference runtime.
 
 ## Define Providers
 

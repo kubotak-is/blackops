@@ -33,3 +33,25 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+
+  http:
+    profiles: ["runtime"]
+    build:
+      context: .
+      dockerfile: Dockerfile.frankenphp
+    image: blackops/framework-http:reference
+    working_dir: /app
+    environment:
+      BLACKOPS_APPLICATION_BOOTSTRAP: /app/runtime/frankenphp/bootstrap.php
+      POSTGRES_HOST: ${POSTGRES_HOST:-postgres}
+      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+      POSTGRES_DB: ${POSTGRES_DB:-blackops}
+      POSTGRES_USER: ${POSTGRES_USER:-blackops}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-blackops}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    expose:
+      - "80"
+    ports:
+      - "${BLACKOPS_HTTP_PORT:-8080}:80"

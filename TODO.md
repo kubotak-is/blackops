@@ -276,6 +276,7 @@
 - [x] InMemory TransportをUnit Test向けに実装する
 - [ ] SQLite AdapterをMVP後の候補として検討する
 - [x] HTTP ContractにPSR-7／15／17を採用する
+- [x] FrankenPHP 1／PHP 8.5のReference HTTP RuntimeとPSR-15 Front Controllerを実装する
 - [x] RouterにFastRouteを採用し、Compile済みDispatcher DataをHTTP Manifestへ保存する
 - [x] 開発用Dynamic Operation DiscoveryでPSR-4、Classmap、Token Scanを統合する
 - [x] `operation:list`と開発用Operation／HTTP Manifest CompileへDynamic Discoveryを接続する

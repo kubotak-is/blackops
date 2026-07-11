@@ -1,0 +1,9 @@
+{
+	auto_https off
+	admin off
+}
+
+http://:80 {
+	root * /app/runtime/frankenphp/public
+	php_server
+}
