@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-12T00:15:46+09:00
+Updated At: 2026-07-12T00:35:45+09:00
 
 ## Current Phase
 
@@ -8,21 +8,21 @@ Phase 6: Compile and Polish
 
 ## Current Task
 
-Task ID: P6-010-typed-postgresql-outcome-store
+Task ID: P6-011-doctrine-versioned-migrations
 
-Task Packet: `orchestration/tasks/P6-010-typed-postgresql-outcome-store.md`
+Task Packet: `orchestration/tasks/P6-011-doctrine-versioned-migrations.md`
 
-Report: `orchestration/reports/P6-010-typed-postgresql-outcome-store.md`
+Report: `orchestration/reports/P6-011-doctrine-versioned-migrations.md`
 
 ## Task Status
 
 Accepted
 
-Typed Public Outcome Store、PostgreSQL保存／取得、Worker同一Transaction、Outcome Retention／AuditをOrchestrator Reviewで受け入れた。
+P6-011のDoctrine Versioned Baseline、Migration Apply／Status／Dry Run CommandをOrchestrator Reviewで受け入れた。
 
 ## Last Accepted Task
 
-P6-010-typed-postgresql-outcome-store
+P6-011-doctrine-versioned-migrations
 
 ## Pending Decisions
 
@@ -34,7 +34,39 @@ P6-010-typed-postgresql-outcome-store
 
 ## Required Next Action
 
-1. MVP残作業の次Task Packetを作成する。
+1. P6-011をTask単位でCommitする。
+2. MVP E2EとPhase 6 closeoutの次Task Packetを準備する。
+
+## P6-011 Verification Commands and Results
+
+```text
+docker compose run --rm app vendor/bin/phpunit --filter 'DatabaseMigration|PostgreSqlCanonicalJournalStore'
+Result: OK (20 tests, 90 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app composer validate --strict
+Result: ./composer.json is valid.
+
+docker compose run --rm app mago format --check src tests
+Result: INFO All files are already formatted.
+
+docker compose run --rm app mago lint
+Result: INFO No issues found.
+
+docker compose run --rm app mago analyze
+Result: INFO No issues found.
+
+docker compose run --rm app vendor/bin/phpunit
+Result: OK (572 tests, 1807 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app vendor/bin/deptrac
+Result: 316 files / Violations 0 / Skipped violations 0 / Uncovered 0 / Allowed 1285 / Warnings 0 / Errors 0.
+
+! rg -n 'Spec(ification)?[[:space:]]*[0-9]+|D[0-9]{3}|P[0-9]+-[0-9]+|TODO\.md:[0-9]+' src tests --glob '*.php'
+Result: No matches (negated command exited 0).
+
+git diff --check
+Result: No output.
+```
 
 ## P6-010 Verification Commands and Results
 

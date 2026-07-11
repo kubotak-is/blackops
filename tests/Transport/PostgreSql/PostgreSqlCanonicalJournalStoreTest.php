@@ -12,6 +12,7 @@ use BlackOps\Core\OperationValue;
 use BlackOps\Core\Outcome;
 use BlackOps\Core\Rejection\RejectionCategory;
 use BlackOps\Core\Rejection\RejectionReason;
+use BlackOps\Internal\Migration\DoctrineMigrationDependencyFactory;
 use BlackOps\Journal\Data\AttemptRetryScheduledData;
 use BlackOps\Journal\Data\OperationCompletedData;
 use BlackOps\Journal\Data\OperationDeadLetteredData;
@@ -78,6 +79,39 @@ final class PostgreSqlCanonicalJournalStoreTest extends TestCase
         self::assertSame('bytea', $encodedRecordType);
         self::assertSame(1, (int) $primaryKeyCount);
         self::assertSame(1, (int) $uniqueCount);
+    }
+
+    public function testProgrammaticMigrationCreatesDoctrineCompatibleMetadataStorage(): void
+    {
+        $columns = $this->connection->fetchAllKeyValue("SELECT column_name, data_type
+            FROM information_schema.columns
+            WHERE table_schema = '"
+        . self::SCHEMA
+        . "'
+              AND table_name = 'schema_migrations'
+            ORDER BY column_name");
+        $versionLength = $this->connection->fetchOne("SELECT character_maximum_length
+            FROM information_schema.columns
+            WHERE table_schema = '"
+        . self::SCHEMA
+        . "'
+              AND table_name = 'schema_migrations'
+              AND column_name = 'version'");
+
+        self::assertSame(
+            [
+                'executed_at' => 'timestamp without time zone',
+                'execution_time' => 'integer',
+                'version' => 'character varying',
+            ],
+            $columns,
+        );
+        self::assertSame(191, (int) $versionLength);
+
+        $metadata = DoctrineMigrationDependencyFactory::create($this->connection, self::SCHEMA)->getMetadataStorage();
+        $metadata->ensureInitialized();
+
+        self::assertCount(0, $metadata->getExecutedMigrations());
     }
 
     public function testAppendsAndReadsRecordsInSequenceOrder(): void

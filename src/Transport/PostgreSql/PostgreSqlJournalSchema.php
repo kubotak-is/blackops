@@ -7,10 +7,12 @@ namespace BlackOps\Transport\PostgreSql;
 final readonly class PostgreSqlJournalSchema
 {
     private PostgreSqlIdentifier $identifier;
+    private string $schemaName;
 
     public function __construct(string $schema = 'blackops')
     {
         $this->identifier = PostgreSqlIdentifier::schema($schema);
+        $this->schemaName = $schema;
     }
 
     /**
@@ -25,9 +27,34 @@ final readonly class PostgreSqlJournalSchema
         return [
             "CREATE SCHEMA IF NOT EXISTS {$schema}",
             "CREATE TABLE IF NOT EXISTS {$migrations} (
-                version text PRIMARY KEY,
-                applied_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP
+                version varchar(191) PRIMARY KEY,
+                executed_at timestamp(0) without time zone NULL,
+                execution_time integer NULL
             )",
+            "DO \$blackops_metadata\$
+            BEGIN
+                IF EXISTS (
+                    SELECT 1
+                    FROM information_schema.columns
+                    WHERE table_schema = '{$this->schemaName}'
+                      AND table_name = 'schema_migrations'
+                      AND column_name = 'applied_at'
+                ) THEN
+                    ALTER TABLE {$migrations}
+                        ADD COLUMN IF NOT EXISTS executed_at timestamp(0) without time zone NULL;
+                    UPDATE {$migrations}
+                        SET executed_at = applied_at AT TIME ZONE 'UTC'
+                        WHERE executed_at IS NULL;
+                    ALTER TABLE {$migrations} DROP COLUMN applied_at;
+                END IF;
+            END
+            \$blackops_metadata\$",
+            "ALTER TABLE {$migrations}
+                ADD COLUMN IF NOT EXISTS executed_at timestamp(0) without time zone NULL",
+            "ALTER TABLE {$migrations}
+                ADD COLUMN IF NOT EXISTS execution_time integer NULL",
+            "ALTER TABLE {$migrations}
+                ALTER COLUMN version TYPE varchar(191)",
             "CREATE TABLE IF NOT EXISTS {$journal} (
                 record_id uuid PRIMARY KEY,
                 operation_id uuid NOT NULL,

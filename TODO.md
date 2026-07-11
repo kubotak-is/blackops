@@ -228,12 +228,12 @@
 - [x] 対象をPHP 8.5以上とする
 - [x] MVPのReference Execution TransportをPostgreSQLへ変更する
 - [x] 公式開発環境にDocker Composeを採用する
-- [ ] PostgreSQL TransportのSchema、Index、Migrationを定義する
+- [x] PostgreSQL TransportのSchema、Index、Migrationを定義する
 - [x] PostgreSQL PayloadとContextをCodec済み `bytea` で保存する
 - [x] StateをTEXT + CHECK、時刻をTIMESTAMPTZとする
 - [x] Claimへ `FOR UPDATE SKIP LOCKED` を採用する
 - [x] Framework管理のVersion付きMigration CLIを提供する
-- [ ] PostgreSQL Table、Partial Index、Migration SQLを実装する
+- [x] PostgreSQL Table、Partial Index、Migration SQLを実装する
 - [x] PostgreSQL AdapterへCanonical Journal Storeを含める
 - [x] Deferred受付のStateとJournalを同一Transactionで保存する
 - [x] WorkerのLifecycle境界を短いTransactionへ分割する

@@ -31,6 +31,7 @@ Framework実装者向けのArchitectureと実装ガイドを管理する。
 - Journal and Transaction Flow
 - PostgreSQL Adapter
 - [PostgreSQL Journal Store](postgresql-journal-store.md)
+- [Database Migrations](database-migrations.md)
 - [Typed Outcome Store](outcome-store.md)
 - [HTTP API Slice](http-api-slice.md)
 - [Retention Policy](retention-policy.md)

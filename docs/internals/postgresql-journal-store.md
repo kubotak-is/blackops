@@ -13,6 +13,6 @@ MVPでは次の責務だけを扱う。
 
 `encoded_record` は `bytea` Columnへ保存する。現時点の内部CodecはUTF-8 JSON bytesを使用し、PHPの `serialize()` は使わない。暗号化、Upcaster Chain、Sensitive Projectionは後続実装で追加する。
 
-Runtimeは暗黙にDDLを実行せず、Adapterの `migrate()` はTestや明示的なMigration Commandから呼び出すための入口として扱う。Production向けのVersioned Migration CommandはDoctrine Migrationsを使う後続実装で追加する。
+Runtimeは暗黙にDDLを実行しない。Adapterの `migrate()` はIntegration Test helperとして維持し、Production DeploymentではDoctrine Migrationsを使う `blackops:database:migrate` を明示実行する。Programmatic helperが作る `schema_migrations` もDoctrineのMetadata列形状と互換である。詳細は [Database Migrations](database-migrations.md) を参照する。
 
 InlineDispatcherへこのStoreを `CanonicalJournalWriter` として注入すると、Inline実行のLifecycle RecordはそのままPostgreSQLへ保存される。Completedでは4件、Rejectedでは3件のRecordが同一Operation ID配下へSequence順で保存される。

@@ -8,6 +8,7 @@ BlackOpsを利用してApplicationを作る開発者向けのガイドを管理�
 
 - [Runtime Bootstrap](runtime-bootstrap.md)
 - [Outcome Retrieval](outcome-retrieval.md)
+- [Database Migrations](database-migrations.md)
 - Installation
 - Creating an Operation
 - Implementing a Handler
