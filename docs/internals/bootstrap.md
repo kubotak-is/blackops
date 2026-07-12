@@ -14,20 +14,15 @@ The reference HTTP entrypoint is documented in [FrankenPHP Reference Runtime](fr
 
 ## Command Registration
 
-Applications register BlackOps commands in their own console entrypoint. The framework supplies command classes, but it does not own the application console process.
+Installed Applications obtain the framework-owned command set through `$application->console()`. The project entrypoint owns only autoloading, bootstrap loading, and returning the kernel exit code.
 
 The main build command is:
 
 ```php
-use BlackOps\Internal\Console\CompileBuildArtifactsCommand;
-use Symfony\Component\Console\Application;
-
-$application = new Application();
-$application->add(new CompileBuildArtifactsCommand());
-$application->run();
+exit($application->console()->run());
 ```
 
-The command class is internal. It is intended for framework-managed bootstrap and project build scripts, not as a long-term public extension contract.
+Command classes remain internal. Lazy descriptors keep names and help available without constructing Runtime dependencies.
 
 The current command set is:
 

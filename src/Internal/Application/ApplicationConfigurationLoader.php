@@ -9,7 +9,7 @@ use InvalidArgumentException;
 final readonly class ApplicationConfigurationLoader
 {
     /** @var list<string> */
-    private const FILES = ['app', 'database', 'operations', 'execution', 'journal'];
+    private const FILES = ['app', 'database', 'operations', 'execution', 'journal', 'retention'];
 
     /** @return array<string, array<array-key, mixed>> */
     public function load(string $directory): array

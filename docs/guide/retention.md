@@ -2,6 +2,8 @@
 
 BlackOpsはTransport Payload、Canonical Journal、Outcome、Dead Letterを独立した保持期間で管理する。Productionでは4つの期間を明示し、未設定のPolicyでPurgeを実行しない。
 
+Public Console Kernelは `config/retention.php` の4期間、`policy_ref`、`actor` をRetention Plan／PurgeとSchedulerで共有する。Command Optionを省略した場合はこのAccepted Policyを使う。
+
 候補確認には副作用のないPlan Commandを使う。
 
 ```text
@@ -24,6 +26,8 @@ blackops:retention:purge
   --policy-ref=production-retention-v1
   --actor=system:retention
 ```
+
+Kernel構成、`list`、`help` ではRetention ConnectionやPurge Serviceを構成せず、Purgeも実行しない。変更は `blackops:retention:purge --confirm` または明示的なScheduler Commandだけが開始する。
 
 ## Journal Retention
 

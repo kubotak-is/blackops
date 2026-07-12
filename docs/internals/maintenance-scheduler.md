@@ -4,8 +4,8 @@ The maintenance scheduler runs framework maintenance tasks that are not part of
 normal operation dispatch. Retention purge is the first task shape supported by
 this runtime.
 
-The scheduler is internal. Applications wire it from their composition root and
-choose how to run it.
+The scheduler is internal. The Public Console Kernel composes it lazily from the
+same Accepted Retention Policy used by manual Plan and Purge Commands.
 
 ## Execution Modes
 
@@ -42,6 +42,9 @@ $scheduler = new MaintenanceScheduler([
 
 This keeps retention policy choice, policy reference, actor identity, database
 connections, and process ownership in the application bootstrap boundary.
+
+The Kernel does not instantiate or execute the task during construction, `list`,
+or `help`. Only explicit scheduler command execution invokes the task.
 
 ## Retention Task
 

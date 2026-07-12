@@ -7,6 +7,7 @@ namespace BlackOps\Tests\Application;
 use BlackOps\Application\Application;
 use BlackOps\Application\ApplicationBootstrapException;
 use BlackOps\Application\ApplicationBuilder;
+use BlackOps\Application\ConsoleKernel;
 use BlackOps\Core\Attribute\PublicApi;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -18,7 +19,12 @@ final class ApplicationTest extends TestCase
 {
     public function testPublicBootstrapTypesAreMarkedAndExposeRequiredFluentShape(): void
     {
-        foreach ([Application::class, ApplicationBuilder::class, ApplicationBootstrapException::class] as $type) {
+        foreach ([
+            Application::class,
+            ApplicationBuilder::class,
+            ApplicationBootstrapException::class,
+            ConsoleKernel::class,
+        ] as $type) {
             self::assertCount(1, new ReflectionClass($type)->getAttributes(PublicApi::class));
         }
 
@@ -41,7 +47,7 @@ final class ApplicationTest extends TestCase
 
         self::assertSame(Application::class, (string) $builder->getMethod('create')->getReturnType());
         self::assertSame(RequestHandlerInterface::class, (string) $application->getMethod('http')->getReturnType());
-        self::assertFalse($application->hasMethod('console'));
+        self::assertSame(ConsoleKernel::class, (string) $application->getMethod('console')->getReturnType());
         self::assertFalse($application->hasMethod('container'));
 
         $applicationMethods = array_map(
@@ -49,7 +55,7 @@ final class ApplicationTest extends TestCase
             $application->getMethods(ReflectionMethod::IS_PUBLIC),
         );
         sort($applicationMethods);
-        self::assertSame(['configure', 'http'], $applicationMethods);
+        self::assertSame(['configure', 'console', 'http'], $applicationMethods);
 
         $publicMethods = array_map(
             static fn(ReflectionMethod $method): string => $method->getName(),
@@ -60,6 +66,19 @@ final class ApplicationTest extends TestCase
             ['create', 'withCommands', 'withConfiguration', 'withEnvironment', 'withOperations', 'withServices'],
             $publicMethods,
         );
+    }
+
+    public function testConsoleKernelHasOnlyRunAsPublicMethod(): void
+    {
+        $kernel = new ReflectionClass(ConsoleKernel::class);
+        self::assertTrue($kernel->isFinal());
+        self::assertTrue($kernel->getConstructor()?->isPrivate());
+        $methods = array_map(
+            static fn(ReflectionMethod $method): string => $method->getName(),
+            $kernel->getMethods(ReflectionMethod::IS_PUBLIC),
+        );
+
+        self::assertSame(['run'], $methods);
     }
 
     public function testBuilderCannotBeConstructedWithAnInjectedFactory(): void

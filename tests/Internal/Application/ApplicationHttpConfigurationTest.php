@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace BlackOps\Tests\Internal\Application;
 
 use BlackOps\Internal\Application\ApplicationBuildConfiguration;
+use BlackOps\Internal\Application\ApplicationBuildId;
 use BlackOps\Internal\Application\ApplicationDatabaseConfiguration;
+use BlackOps\Internal\Application\ApplicationRetentionConfiguration;
+use BlackOps\Internal\Application\ApplicationWorkerConfiguration;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -78,6 +81,61 @@ final class ApplicationHttpConfigurationTest extends TestCase
 
         self::assertSame(['driver' => 'pdo_pgsql'], $configuration->connection);
         self::assertSame('blackops_runtime', $configuration->schema);
+    }
+
+    public function testValidatesApplicationBuildId(): void
+    {
+        $configuration = self::configuration();
+        $configuration['app']['build']['application_build_id'] = 'release-1';
+
+        self::assertSame('release-1', ApplicationBuildId::fromConfiguration($configuration));
+
+        $this->expectException(InvalidArgumentException::class);
+        ApplicationBuildId::fromConfiguration(self::configuration());
+    }
+
+    public function testValidatesWorkerDefaultsAndTiming(): void
+    {
+        $worker = ApplicationWorkerConfiguration::fromConfiguration([
+            'execution' => ['worker' => ['id' => 'worker-1']],
+        ]);
+        self::assertSame(60, $worker->leaseSeconds);
+        self::assertSame(10, $worker->heartbeatSeconds);
+        self::assertSame(20, $worker->graceSeconds);
+        self::assertTrue($worker->continueAfterHandlerFailure);
+
+        $this->expectException(InvalidArgumentException::class);
+        ApplicationWorkerConfiguration::fromConfiguration([
+            'execution' => ['worker' => ['id' => 'worker-1', 'lease_seconds' => 10, 'heartbeat_seconds' => 10]],
+        ]);
+    }
+
+    public function testValidatesRetentionPolicyConfiguration(): void
+    {
+        $retention = ApplicationRetentionConfiguration::fromConfiguration([
+            'retention' => [
+                'transport_payload_days' => 30,
+                'journal_days' => 90,
+                'outcome_days' => 30,
+                'dead_letter_days' => 90,
+                'policy_ref' => 'default-v1',
+                'actor' => 'maintenance',
+            ],
+        ]);
+        self::assertSame('default-v1', $retention->policyRef->toString());
+        self::assertSame('maintenance', $retention->actor->toString());
+
+        $this->expectException(InvalidArgumentException::class);
+        ApplicationRetentionConfiguration::fromConfiguration([
+            'retention' => [
+                'transport_payload_days' => 0,
+                'journal_days' => 90,
+                'outcome_days' => 30,
+                'dead_letter_days' => 90,
+                'policy_ref' => 'default-v1',
+                'actor' => 'maintenance',
+            ],
+        ]);
     }
 
     /**

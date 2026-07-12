@@ -39,6 +39,7 @@ Frameworkは `.env` を読まず、Dotenvも提供しない。Process Manager、
 - `operations.php`
 - `execution.php`
 - `journal.php`
+- `retention.php`
 
 未知のFileは読み込まない。読み込みは `withConfiguration()` の時点で一度だけ行われ、`create()` 後にFile変更を自動反映しない。
 
@@ -59,4 +60,12 @@ $response = $handler->handle($serverRequest);
 
 HTTP構成はArtifact Compile、Source Discovery、Database Migration、DDLを行わない。Deployment StepでBuildとMigrationを明示的に完了させてからProcessを開始する。Artifact不足、Format不正、Build ID不一致ではFallbackせず `ApplicationBootstrapException` で失敗する。
 
-Console Runtime、Container Getter、Config Getterはまだ提供しない。
+## Console Kernel
+
+`Application::console()` は同じSnapshotからPublic `ConsoleKernel` を遅延構成する。同じApplicationでは同じKernel Instanceを返す。
+
+```php
+exit($application->console()->run());
+```
+
+KernelはBuild、Operation List、Migration、Worker、Retention、Schedulerの9 Commandを常に表示する。Database、Artifact、PCNTL、Retention設定は対象Commandの実行時まで構成しないため、`list` と `help` は不完全なRuntime環境でも利用できる。Symfony Application、Container、Connection、ConfigのGetterは提供しない。

@@ -1,0 +1,104 @@
+<?php
+
+declare(strict_types=1);
+
+namespace BlackOps\Internal\Application;
+
+use BlackOps\Core\Supervision\ExponentialBackoffSupervisionPolicy;
+use BlackOps\Internal\Codec\ReflectionJsonOperationCodec;
+use BlackOps\Internal\Execution\DeferredLeaseExpiredRecovery;
+use BlackOps\Internal\Execution\DeferredWorkerLoop;
+use BlackOps\Internal\Execution\DeferredWorkerRuntime;
+use BlackOps\Internal\Execution\DeferredWorkerRuntimeServices;
+use BlackOps\Internal\Execution\DeferredWorkerRuntimeStorage;
+use BlackOps\Internal\Execution\HandlerResolver;
+use BlackOps\Internal\Execution\PcntlSignalHeartbeat;
+use BlackOps\Internal\ExecutionContext\ExecutionContextFactory;
+use BlackOps\Internal\Identifier\IdentifierFactory;
+use BlackOps\Internal\Identifier\SymfonyUuidv7Generator;
+use BlackOps\Internal\Journal\JournalRecordFactory;
+use BlackOps\Internal\Runtime\ProductionRuntimeArtifactLoader;
+use BlackOps\Transport\PostgreSql\PostgreSqlCanonicalJournalStore;
+use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationLifecycleStore;
+use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationReceiver;
+use BlackOps\Transport\PostgreSql\PostgreSqlOutcomeStore;
+use BlackOps\Transport\PostgreSql\PostgreSqlSystemClock;
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DriverManager;
+
+final readonly class ApplicationWorkerComposer
+{
+    public function compose(ApplicationConfigurationSnapshot $configuration): ApplicationWorkerComposition
+    {
+        $build = ApplicationBuildConfiguration::fromConfiguration($configuration->configuration());
+        $database = ApplicationDatabaseConfiguration::fromConfiguration($configuration->configuration());
+        $worker = ApplicationWorkerConfiguration::fromConfiguration($configuration->configuration());
+        $artifacts = new ProductionRuntimeArtifactLoader()->load(
+            $build->operationManifest,
+            $build->httpManifest,
+            $build->container,
+            $build->containerClass,
+            $build->containerNamespace,
+        );
+        $main = $this->connection($database->connection);
+        $heartbeat = $this->connection($database->connection);
+        $clock = new PostgreSqlSystemClock();
+        $identifiers = new IdentifierFactory(new SymfonyUuidv7Generator(), $clock);
+        $services = new DeferredWorkerRuntimeServices(
+            $artifacts->operations,
+            new ReflectionJsonOperationCodec(),
+            new ExecutionContextFactory($identifiers, $clock),
+            new HandlerResolver($artifacts->container),
+            new ExponentialBackoffSupervisionPolicy(),
+        );
+        $storage = new DeferredWorkerRuntimeStorage(
+            $main,
+            new JournalRecordFactory($identifiers, $clock),
+            new PostgreSqlCanonicalJournalStore($main, $database->schema),
+            new PostgreSqlDeferredOperationLifecycleStore($main, $database->schema),
+            $clock,
+            new PostgreSqlOutcomeStore($main, $database->schema),
+        );
+        $receiver = new PostgreSqlDeferredOperationReceiver(
+            $main,
+            $database->schema,
+            $worker->id,
+            $worker->leaseSeconds,
+            $clock,
+        );
+        $heartbeatReceiver = new PostgreSqlDeferredOperationReceiver(
+            $heartbeat,
+            $database->schema,
+            $worker->id,
+            $worker->leaseSeconds,
+            $clock,
+        );
+        $signals = new PcntlSignalHeartbeat(
+            $heartbeatReceiver,
+            $worker->heartbeatSeconds,
+            $worker->leaseSeconds,
+            $worker->graceSeconds,
+        );
+        $runtime = new DeferredWorkerRuntime($services, $storage, $signals);
+        $loop = new DeferredWorkerLoop(
+            new DeferredLeaseExpiredRecovery($services, $storage),
+            $receiver,
+            $runtime,
+            $receiver,
+            $signals,
+            $clock,
+            continueAfterHandlerFailure: $worker->continueAfterHandlerFailure,
+        );
+
+        return new ApplicationWorkerComposition($loop, $main, $heartbeat, $signals);
+    }
+
+    /** @param array<string, mixed> $parameters */
+    private function connection(array $parameters): Connection
+    {
+        /** @var callable(array<string, mixed>): Connection $factory */
+        $factory = [DriverManager::class, 'getConnection'];
+
+        return $factory($parameters);
+    }
+}

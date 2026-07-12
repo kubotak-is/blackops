@@ -207,10 +207,10 @@ Handlers should receive their dependencies through constructor injection from th
 
 ## Run a deferred worker
 
-Register `WorkerRunCommand` with an application-composed `DeferredWorkerLoop`, then run:
+Use the Public Console Kernel to run the lazily composed worker:
 
 ```bash
-php bin/console blackops:worker:run --idle-sleep-milliseconds=1000
+php bin/blackops blackops:worker:run --idle-sleep-milliseconds=1000
 ```
 
 The worker recovers one expired attempt before each claim and processes at most one claim at a time. `--iterations=N` limits the loop for smoke tests; omit it for a supervised production process.

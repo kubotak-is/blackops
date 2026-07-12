@@ -1,6 +1,6 @@
 # P7-004: Public Console Kernel Composition
 
-Status: Ready
+Status: Accepted
 
 ## Goal
 
@@ -170,20 +170,20 @@ actor                   non-empty string
 
 ## Acceptance Criteria
 
-- [ ] Public ConsoleKernel ContractとInstance Cacheが成立する
-- [ ] Public APIへInternal／Symfony Application／Connection／Raw Configを露出しない
-- [ ] 9 Framework CommandをDB／Artifact／PCNTLなしで一覧表示できる
-- [ ] Application Commandを実行でき、Framework Command名競合を拒否する
-- [ ] Application-aware BuildがSnapshot ProviderとBuild Configから3 Artifactを生成する
-- [ ] Operation ListがSnapshot Providerを表示する
-- [ ] Migration Status／Migrateが明示Commandとして動作する
-- [ ] Workerが別Heartbeat Connectionと同一Signal Instanceを使う
-- [ ] WorkerがCompile済みArtifactからDeferred Operationを処理する
-- [ ] Retention Plan／Purge／Schedulerが同一Config Policyを使う
-- [ ] Kernel／List／Build／WorkerがMigrationやPurgeを暗黙実行しない
-- [ ] Config／Runtime ErrorへCredentialを露出しない
-- [ ] Focused／Full Test、Mago、Deptrac、Composer Validationが成功する
-- [ ] Guide、Internals、Report、Checkpointが更新される
+- [x] Public ConsoleKernel ContractとInstance Cacheが成立する
+- [x] Public APIへInternal／Symfony Application／Connection／Raw Configを露出しない
+- [x] 9 Framework CommandをDB／Artifact／PCNTLなしで一覧表示できる
+- [x] Application Commandを実行でき、Framework Command名競合を拒否する
+- [x] Application-aware BuildがSnapshot ProviderとBuild Configから3 Artifactを生成する
+- [x] Operation ListがSnapshot Providerを表示する
+- [x] Migration Status／Migrateが明示Commandとして動作する
+- [x] Workerが別Heartbeat Connectionと同一Signal Instanceを使う
+- [x] WorkerがCompile済みArtifactからDeferred Operationを処理する
+- [x] Retention Plan／Purge／Schedulerが同一Config Policyを使う
+- [x] Kernel／List／Build／WorkerがMigrationやPurgeを暗黙実行しない
+- [x] Config／Runtime ErrorへCredentialを露出しない
+- [x] Focused／Full Test、Mago、Deptrac、Composer Validationが成功する
+- [x] Guide、Internals、Report、Checkpointが更新される
 
 ## Required Commands
 
