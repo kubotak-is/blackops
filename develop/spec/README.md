@@ -66,6 +66,7 @@
 | [49-feature-first-quickstart-application.md](49-feature-first-quickstart-application.md) | Install直後と同じFeature-first Quickstart Application |
 | [50-operation-authoring-and-build-discovery.md](50-operation-authoring-and-build-discovery.md) | Self-handled Operation、Build-time Discovery、Handler自動DI登録 |
 | [51-local-runtime-and-consumer-e2e.md](51-local-runtime-and-consumer-e2e.md) | Quickstart Docker Runtime、JSONL Journal、独立Consumer E2E |
+| [52-phase-8-delivery-plan.md](52-phase-8-delivery-plan.md) | Post-createからDistribution PublicationまでのPhase 8 Task順序 |
 
 ## 決定の参照
 
