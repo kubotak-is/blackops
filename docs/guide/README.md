@@ -8,6 +8,7 @@ BlackOpsを利用してApplicationを作る開発者向けのガイドを管理�
 
 - [MVP Status](mvp-status.md)
 - [Runtime Bootstrap](runtime-bootstrap.md)
+- [Application Bootstrap](application-bootstrap.md)
 - [Outcome Retrieval](outcome-retrieval.md)
 - [Database Migrations](database-migrations.md)
 - [MVP Sample](mvp-sample.md)

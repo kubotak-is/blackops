@@ -1,6 +1,6 @@
 # P7-002: Public Application Bootstrap Foundation
 
-Status: Ready
+Status: Accepted
 
 ## Goal
 
@@ -105,19 +105,19 @@ ApplicationBuilder::create(): Application
 
 ## Acceptance Criteria
 
-- [ ] `Application::configure()` が検証済みBase PathからBuilderを返す
-- [ ] 不正なBase PathをPublic Bootstrap Exceptionで拒否する
-- [ ] Environmentを明示入力またはProcessから一度だけCaptureできる
-- [ ] Defaultまたは明示Config Directoryから責務別Configを読み込める
-- [ ] Configの非配列戻り値と無効なProvider／Commandを安全に拒否する
-- [ ] Operation Provider、Service Provider、Application Commandを追加できる
-- [ ] 同一Provider／Commandを二重登録せず、Command Name競合を拒否する
-- [ ] `create()` が以後再読込しないConfiguration Snapshotを持つ `Application` を返す
-- [ ] 全Public Typeに `#[PublicApi]` が付き、Public SignatureにInternal型がない
-- [ ] Container Service Locator、Dotenv読込、Runtime Placeholderを追加していない
-- [ ] GuideとInternalsがApplication責務、Framework責務、未実装のProcess Boundaryを正しく説明する
-- [ ] Required Commandsがすべて成功する
-- [ ] Reportと`develop/STATE.md`が更新される
+- [x] `Application::configure()` が検証済みBase PathからBuilderを返す
+- [x] 不正なBase PathをPublic Bootstrap Exceptionで拒否する
+- [x] Environmentを明示入力またはProcessから一度だけCaptureできる
+- [x] Defaultまたは明示Config Directoryから責務別Configを読み込める
+- [x] Configの非配列戻り値と無効なProvider／Commandを安全に拒否する
+- [x] Operation Provider、Service Provider、Application Commandを追加できる
+- [x] 同一Provider／Commandを二重登録せず、Command Name競合を拒否する
+- [x] `create()` が以後再読込しないConfiguration Snapshotを持つ `Application` を返す
+- [x] 全Public Typeに `#[PublicApi]` が付き、Public SignatureにInternal型がない
+- [x] Container Service Locator、Dotenv読込、Runtime Placeholderを追加していない
+- [x] GuideとInternalsがApplication責務、Framework責務、未実装のProcess Boundaryを正しく説明する
+- [x] Required Commandsがすべて成功する
+- [x] Reportと`develop/STATE.md`が更新される
 
 ## Required Commands
 

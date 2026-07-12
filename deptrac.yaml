@@ -6,6 +6,10 @@ deptrac:
       collectors:
         - type: classNameRegex
           value: '/^BlackOps\\Core(\\|$)/'
+    - name: Application
+      collectors:
+        - type: classNameRegex
+          value: '/^BlackOps\\Application(\\|$)/'
     - name: Journal
       collectors:
         - type: classNameRegex
@@ -68,6 +72,10 @@ deptrac:
           value: '/^Symfony\\Component\\Uid(\\|$)/'
   ruleset:
     Core: ~
+    Application:
+      - Core
+      - Internal
+      - Library
     Journal:
       - Core
     Execution:
