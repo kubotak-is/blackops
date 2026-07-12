@@ -129,3 +129,4 @@
 | [D062](../decisions/062-retention-audit-log-delivery.md) | Retention Audit Log Delivery | Decided |
 | [D063](../decisions/063-developer-experience-roadmap.md) | Developer Experience Roadmap | Decided |
 | [D064](../decisions/064-installed-application-layout-and-bootstrap.md) | Installed Application Layout and Bootstrap | Decided |
+| [D065](../decisions/065-composer-skeleton-publication.md) | Composer Skeleton Publication | Awaiting Answer |
