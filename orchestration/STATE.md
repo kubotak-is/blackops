@@ -1,26 +1,24 @@
 # Orchestration State
 
-Updated At: 2026-07-12T21:34:31+09:00
+Updated At: 2026-07-12T21:36:27+09:00
 
 ## Current Phase
 
-Phase 7 Planning: Public Application Bootstrap
+Phase 7 Implementation: Public Application Bootstrap
 
 ## Current Task
 
-Decision ID: D064-installed-application-layout-and-bootstrap
+Task ID: P7-002-public-application-bootstrap-foundation
 
-Decision: `decisions/064-installed-application-layout-and-bootstrap.md`
+Task Packet: `orchestration/tasks/P7-002-public-application-bootstrap-foundation.md`
 
-Specification: `spec/43-installed-application-layout-and-bootstrap.md`
-
-Public API Specification: `spec/44-public-application-bootstrap-api.md`
+Specification: `spec/44-public-application-bootstrap-api.md`
 
 ## Task Status
 
-Ready for Task Packet
+Ready
 
-D064を反映し、Application Builder、Config Precedence、HTTP／Consoleの遅延Composition、Failure ContractをPublic API仕様として確定した。利用者Applicationへ `Internal` やFramework名のDirectoryを要求しない。
+Public Application Builder FoundationのProduction実装範囲、Public Contract、変更可能File、Acceptance Criteria、品質CommandをP7-002へ確定した。
 
 ## Last Accepted Task
 
@@ -36,8 +34,9 @@ P7-001-installed-application-composition-audit
 
 ## Required Next Action
 
-1. P7-002 Public Application Bootstrap Foundation Task Packetを作成する。
-2. Foundation受入後、HTTP／Console Runtime Composition、Quickstart Application、Local Runtime／Consumer E2Eを順次Task化する。
+1. GPT-5.4-mini workerがP7-002を実装し、ReportとCheckpointを更新する。
+2. Orchestrator CodexがScope、Public API、Test、全品質CommandをReviewする。
+3. P7-002受入後、HTTP／Console Runtime CompositionをP7-003としてTask化する。
 
 ## P6-015 MVP Closeout Verification Commands and Results
 
