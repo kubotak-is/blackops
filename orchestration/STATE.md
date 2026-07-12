@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-12T21:30:57+09:00
+Updated At: 2026-07-12T21:34:31+09:00
 
 ## Current Phase
 
@@ -14,11 +14,13 @@ Decision: `decisions/064-installed-application-layout-and-bootstrap.md`
 
 Specification: `spec/43-installed-application-layout-and-bootstrap.md`
 
+Public API Specification: `spec/44-public-application-bootstrap-api.md`
+
 ## Task Status
 
-Decision Accepted
+Ready for Task Packet
 
-D064をDecidedとし、Feature-first Skeleton、共有Application Builder、Inline／Deferred Starter Feature、Docker Compose Quickstart、Skeleton所有のDotenv Loadingを確定した。利用者Applicationへ `Internal` やFramework名のDirectoryを要求しない。
+D064を反映し、Application Builder、Config Precedence、HTTP／Consoleの遅延Composition、Failure ContractをPublic API仕様として確定した。利用者Applicationへ `Internal` やFramework名のDirectoryを要求しない。
 
 ## Last Accepted Task
 
@@ -34,8 +36,8 @@ P7-001-installed-application-composition-audit
 
 ## Required Next Action
 
-1. Public Application Bootstrap APIのProduction実装Taskを作成する。
-2. Quickstart Application、Local Runtime、Consumer E2Eを後続Taskへ分割する。
+1. P7-002 Public Application Bootstrap Foundation Task Packetを作成する。
+2. Foundation受入後、HTTP／Console Runtime Composition、Quickstart Application、Local Runtime／Consumer E2Eを順次Task化する。
 
 ## P6-015 MVP Closeout Verification Commands and Results
 
