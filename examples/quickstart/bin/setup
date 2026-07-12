@@ -1,0 +1,139 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+function setupFailure(string $responsibility): never
+{
+    fwrite(STDERR, "Setup failed: {$responsibility}.\n");
+    exit(1);
+}
+
+function rawFilesystemOperation(callable $operation): mixed
+{
+    set_error_handler(static function (): never {
+        throw new RuntimeException('Filesystem operation failed.');
+    });
+
+    try {
+        return $operation();
+    } finally {
+        restore_error_handler();
+    }
+}
+
+function filesystemOperation(callable $operation, string $responsibility): mixed
+{
+    try {
+        return rawFilesystemOperation($operation);
+    } catch (Throwable) {
+        setupFailure($responsibility);
+    }
+}
+
+function copyEnvironment(string $source, string $target): void
+{
+    $handle = null;
+    $created = false;
+
+    try {
+        $contents = rawFilesystemOperation(static fn(): string|false => file_get_contents($source));
+        if (!is_string($contents)) {
+            throw new RuntimeException('Environment example could not be read.');
+        }
+
+        $handle = rawFilesystemOperation(static fn() => fopen($target, 'xb'));
+        if (!is_resource($handle)) {
+            throw new RuntimeException('Environment file could not be created.');
+        }
+        $created = true;
+
+        $offset = 0;
+        $length = strlen($contents);
+        while ($offset < $length) {
+            $written = rawFilesystemOperation(static fn(): int|false => fwrite($handle, substr($contents, $offset)));
+            if (!is_int($written) || $written === 0) {
+                throw new RuntimeException('Environment file could not be written.');
+            }
+            $offset += $written;
+        }
+
+        $closed = rawFilesystemOperation(static fn(): bool => fclose($handle));
+        $handle = null;
+        if ($closed !== true) {
+            throw new RuntimeException('Environment file could not be closed.');
+        }
+    } catch (Throwable) {
+        if (is_resource($handle)) {
+            try {
+                rawFilesystemOperation(static fn(): bool => fclose($handle));
+            } catch (Throwable) {
+            }
+        }
+
+        if ($created && file_exists($target)) {
+            try {
+                rawFilesystemOperation(static fn(): bool => unlink($target));
+            } catch (Throwable) {
+            }
+        }
+
+        $cleanupFailed = $created && file_exists($target);
+
+        setupFailure(
+            $cleanupFailed
+                ? '.env copy failed and the incomplete file could not be removed'
+                : '.env could not be copied from .env.example',
+        );
+    }
+}
+
+$projectRoot = dirname(__DIR__);
+$environmentExample = $projectRoot . '/.env.example';
+$environment = $projectRoot . '/.env';
+
+if (!file_exists($environment)) {
+    if (!is_file($environmentExample) || !is_readable($environmentExample)) {
+        setupFailure('.env.example must be a readable file');
+    }
+
+    copyEnvironment($environmentExample, $environment);
+
+    fwrite(STDOUT, "Created .env from .env.example.\n");
+} else {
+    fwrite(STDOUT, "Kept existing .env unchanged.\n");
+}
+
+foreach (['var/build', 'var/log'] as $relativeDirectory) {
+    $directory = $projectRoot . '/' . $relativeDirectory;
+    if (file_exists($directory)) {
+        if (!is_dir($directory)) {
+            setupFailure("{$relativeDirectory} must be a directory");
+        }
+
+        fwrite(STDOUT, "Kept existing {$relativeDirectory}/ directory.\n");
+        continue;
+    }
+
+    $created = filesystemOperation(static fn(): bool => mkdir(
+        $directory,
+        0775,
+        recursive: true,
+    ), "{$relativeDirectory} directory could not be created");
+    if ($created !== true) {
+        setupFailure("{$relativeDirectory} directory could not be created");
+    }
+    fwrite(STDOUT, "Created {$relativeDirectory}/ directory.\n");
+}
+
+fwrite(STDOUT, <<<'STEPS'
+
+    Next steps:
+      docker compose build app http
+      docker compose run --rm app composer install
+      docker compose run --rm app php bin/blackops blackops:build:compile
+      docker compose run --rm app php bin/blackops blackops:database:status
+      docker compose run --rm app php bin/blackops blackops:database:migrate
+      docker compose up -d
+
+    STEPS);

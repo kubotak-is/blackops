@@ -24,6 +24,7 @@ final class QuickstartApplicationArchitectureTest extends TestCase
             'app/Feature/Report/GenerateReport/ReportGenerated.php',
             'app/Feature/Report/GenerateReport/ReportGenerationTemporarilyUnavailable.php',
             'bin/blackops',
+            'bin/setup',
             'bootstrap/app.php',
             'config/app.php',
             'config/database.php',
@@ -49,6 +50,7 @@ final class QuickstartApplicationArchitectureTest extends TestCase
         self::assertFileDoesNotExist($root . '/composer.lock');
         self::assertDirectoryDoesNotExist($root . '/vendor');
         self::assertTrue(is_executable($root . '/bin/blackops'));
+        self::assertTrue(is_executable($root . '/bin/setup'));
         self::assertFileDoesNotExist($root . '/app/ApplicationOperationProvider.php');
         self::assertFileDoesNotExist($root . '/app/ApplicationServiceProvider.php');
         self::assertFileDoesNotExist($root . '/app/Feature/Welcome/ShowWelcome/ShowWelcomeHandler.php');
@@ -70,6 +72,7 @@ final class QuickstartApplicationArchitectureTest extends TestCase
         self::assertSame(['App\\' => 'app/'], $composer['autoload']['psr-4']);
         self::assertSame(['App\\Tests\\' => 'tests/'], $composer['autoload-dev']['psr-4']);
         self::assertArrayNotHasKey('repositories', $composer);
+        self::assertSame('@php bin/setup', $composer['scripts']['post-create-project-cmd']);
         self::assertSame('>=8.5', $composer['require']['php']);
         foreach ([
             'blackops/framework',
