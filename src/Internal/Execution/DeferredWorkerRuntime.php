@@ -9,7 +9,6 @@ use BlackOps\Core\Execution\Deferred;
 use BlackOps\Core\Execution\OperationClaim;
 use BlackOps\Core\Operation;
 use BlackOps\Core\OperationEnvelope;
-use BlackOps\Core\OperationHandler;
 use BlackOps\Core\OperationResult;
 use BlackOps\Core\OperationValue;
 use BlackOps\Core\Registry\OperationMetadata;
@@ -26,6 +25,7 @@ final readonly class DeferredWorkerRuntime implements DeferredClaimRuntime
         private DeferredWorkerRuntimeServices $services,
         private DeferredWorkerRuntimeStorage $storage,
         private ClaimExecutionGuard $guard = new DirectClaimExecutionGuard(),
+        private HandlerInvoker $invoker = new HandlerInvoker(),
     ) {}
 
     public function run(OperationClaim $claim): OperationResult
@@ -36,7 +36,7 @@ final readonly class DeferredWorkerRuntime implements DeferredClaimRuntime
         $value = $this->value($metadata, $claim);
         $envelope = $this->startAttempt($claim, $metadata, $definition, $value);
         try {
-            $result = $this->executeHandler($claim, $envelope, $handler, $metadata->typeId);
+            $result = $this->executeHandler($claim, $envelope, $handler, $metadata, $metadata->typeId);
         } catch (HandlerInvocationFailedException $exception) {
             $this->fail($claim, $metadata, $envelope, $exception->failure);
 
@@ -60,14 +60,15 @@ final readonly class DeferredWorkerRuntime implements DeferredClaimRuntime
     private function executeHandler(
         OperationClaim $claim,
         OperationEnvelope $envelope,
-        OperationHandler $handler,
+        object $handler,
+        OperationMetadata $metadata,
         string $operationTypeId,
     ): OperationResult {
         return $this->guard->run($claim, fn(): OperationResult => $this->storage->scope->run(
             $envelope,
-            static function () use ($handler, $envelope): OperationResult {
+            function () use ($handler, $envelope, $metadata): OperationResult {
                 try {
-                    return $handler->handle($envelope);
+                    return $this->invoker->invoke($metadata, $handler, $envelope);
                 } catch (WorkerExecutionInterruptedException $exception) {
                     throw $exception;
                 } catch (Throwable $exception) {
@@ -199,7 +200,7 @@ final readonly class DeferredWorkerRuntime implements DeferredClaimRuntime
         return $metadata;
     }
 
-    private function definition(OperationMetadata $metadata, OperationHandler $handler): Operation
+    private function definition(OperationMetadata $metadata, object $handler): Operation
     {
         if (strcmp($metadata->definition, $metadata->handler) === 0) {
             if (!$handler instanceof Operation) {

@@ -15,6 +15,7 @@ use BlackOps\Core\OperationEnvelope;
 use BlackOps\Core\OperationHandler;
 use BlackOps\Core\OperationResult;
 use BlackOps\Core\OperationValue;
+use BlackOps\Core\Registry\OperationMetadata;
 use BlackOps\Core\Registry\OperationRegistry;
 use BlackOps\Http\Routing\FastRouteDispatcherDataCompiler;
 use BlackOps\Http\Routing\HttpOperationManifest;
@@ -154,6 +155,7 @@ final class ProductionRuntimeComposerTest extends TestCase
 
     private function artifacts(?OperationHandler $handler = null): ProductionRuntimeArtifacts
     {
+        $handler ??= new RuntimeCompositionHandler();
         $routes = [
             'GET' => [
                 '/composition' => 'runtime.composition',
@@ -161,21 +163,28 @@ final class ProductionRuntimeComposerTest extends TestCase
         ];
 
         return new ProductionRuntimeArtifacts(
-            new OperationRegistry([new OperationMetadataCompiler()->compile(RuntimeCompositionOperation::class)]),
+            new OperationRegistry([new OperationMetadata(
+                'runtime.composition',
+                RuntimeCompositionOperation::class,
+                RuntimeCompositionValue::class,
+                $handler::class,
+                EmptyOutcome::class,
+                Inline::class,
+            )]),
             new HttpOperationManifest(
                 $routes,
                 [
                     'runtime.composition' => [
                         'definition' => RuntimeCompositionOperation::class,
                         'value' => RuntimeCompositionValue::class,
-                        'handler' => RuntimeCompositionHandler::class,
+                        'handler' => $handler::class,
                         'outcome' => EmptyOutcome::class,
                         'strategy' => Inline::class,
                     ],
                 ],
                 new FastRouteDispatcherDataCompiler()->compile($routes),
             ),
-            new RuntimeCompositionContainer($handler ?? new RuntimeCompositionHandler()),
+            new RuntimeCompositionContainer($handler),
         );
     }
 

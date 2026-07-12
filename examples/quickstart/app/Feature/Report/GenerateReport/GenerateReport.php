@@ -9,9 +9,8 @@ use BlackOps\Core\Attribute\ExecuteWith;
 use BlackOps\Core\Attribute\OperationType;
 use BlackOps\Core\Attribute\Returns;
 use BlackOps\Core\Execution\Deferred;
+use BlackOps\Core\ExecutionContext;
 use BlackOps\Core\Operation;
-use BlackOps\Core\OperationEnvelope;
-use BlackOps\Core\OperationHandler;
 use BlackOps\Core\OperationResult;
 use BlackOps\Http\Attribute\Route;
 use LogicException;
@@ -21,16 +20,14 @@ use LogicException;
 #[Accepts(GenerateReportValue::class)]
 #[Returns(ReportGenerated::class)]
 #[ExecuteWith(Deferred::class)]
-/** @implements OperationHandler<GenerateReportValue, ReportGenerated> */
-final readonly class GenerateReport implements Operation, OperationHandler
+final readonly class GenerateReport implements Operation
 {
-    public function handle(OperationEnvelope $operation): OperationResult
+    public function handle(GenerateReportValue $value, ExecutionContext $context): OperationResult
     {
-        $value = $operation->value();
-        $attempt = $operation->context()->attempt();
+        $attempt = $context->attempt();
 
-        if (!$value instanceof GenerateReportValue || $attempt === null) {
-            throw new LogicException('Report handler requires a deferred report attempt.');
+        if ($attempt === null) {
+            throw new LogicException('Report handler requires a deferred attempt.');
         }
 
         if ($attempt->number() === 1) {

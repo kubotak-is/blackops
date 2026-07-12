@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace BlackOps\Internal\Registry;
 
 use BlackOps\Core\Operation;
-use BlackOps\Core\OperationHandler;
 use BlackOps\Core\Registry\OperationProvider;
 use BlackOps\Core\Registry\OperationRegistry;
 use InvalidArgumentException;
@@ -46,7 +45,7 @@ final readonly class OperationDefinitionFactory
     }
 
     /**
-     * @param (callable(class-string<OperationHandler>): object)|null $handlerResolver
+     * @param (callable(class-string): object)|null $handlerResolver
      * @return list<Operation>
      */
     public function fromRegistry(OperationRegistry $registry, ?callable $handlerResolver = null): array

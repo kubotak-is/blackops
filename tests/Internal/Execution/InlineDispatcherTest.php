@@ -8,6 +8,7 @@ use BlackOps\Core\Attribute\Sensitive;
 use BlackOps\Core\Attribute\SensitiveMode;
 use BlackOps\Core\EmptyOutcome;
 use BlackOps\Core\Execution\Inline;
+use BlackOps\Core\ExecutionContext;
 use BlackOps\Core\Operation;
 use BlackOps\Core\OperationEnvelope;
 use BlackOps\Core\OperationHandler;
@@ -66,6 +67,26 @@ final class InlineDispatcherTest extends TestCase
             array_map(static fn(JournalRecord $record): JournalEvent => $record->event, $journal->records),
         );
         self::assertSame([1, 2, 3, 4], array_column($journal->records, 'sequence'));
+    }
+
+    public function testTypedHandlerReceivesInlineContextWithoutAttempt(): void
+    {
+        $handler = new TypedContextDispatchOperation();
+        $metadata = new OperationMetadata(
+            'dispatch.typed',
+            TypedContextDispatchOperation::class,
+            DispatchValue::class,
+            TypedContextDispatchOperation::class,
+            EmptyOutcome::class,
+            Inline::class,
+            true,
+            true,
+        );
+
+        $this->dispatcher($handler, metadata: $metadata)->dispatch($handler, new DispatchValue('typed'));
+
+        self::assertSame('019f32ab-2be0-7b38-a0a7-1ab2f9687697', $handler->context?->operationId()->toString());
+        self::assertNull($handler->context?->attempt());
     }
 
     public function testMismatchedValueIsRejected(): void
@@ -201,13 +222,14 @@ final class InlineDispatcherTest extends TestCase
     }
 
     private function dispatcher(
-        OperationHandler $handler,
+        object $handler,
         ?CanonicalJournalWriter $journal = null,
         ?LifecycleStateMachine $lifecycle = null,
         ?JournalObservationPipeline $observations = null,
         ?ExecutionScopeProvider $scope = null,
+        ?OperationMetadata $metadata = null,
     ): InlineDispatcher {
-        $metadata = new OperationMetadata(
+        $metadata ??= new OperationMetadata(
             'dispatch.test',
             DispatchOperation::class,
             DispatchValue::class,
@@ -258,6 +280,18 @@ final class InlineDispatcherTest extends TestCase
 }
 
 final readonly class DispatchOperation implements Operation {}
+
+final class TypedContextDispatchOperation implements Operation
+{
+    public ?ExecutionContext $context = null;
+
+    public function handle(DispatchValue $value, ExecutionContext $context): OperationResult
+    {
+        $this->context = $context;
+
+        return OperationResult::completed();
+    }
+}
 
 final readonly class DispatchValue implements OperationValue
 {

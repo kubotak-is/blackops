@@ -7,12 +7,14 @@ namespace App\Feature\Report\GenerateReport;
 use BlackOps\Core\Attribute\Sensitive;
 use BlackOps\Core\Attribute\SensitiveMode;
 use BlackOps\Core\OperationValue;
+use SensitiveParameter;
 
 final readonly class GenerateReportValue implements OperationValue
 {
     public function __construct(
         public string $reportName,
         #[Sensitive(SensitiveMode::Mask)]
+        #[SensitiveParameter]
         public string $apiToken,
     ) {}
 }

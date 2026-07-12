@@ -39,6 +39,7 @@ final readonly class InlineDispatcher implements Dispatcher
         private LifecycleStateMachine $lifecycle = new LifecycleStateMachine(),
         ?JournalObservationPipeline $observations = null,
         private ExecutionScopeProvider $scope = new ExecutionScopeProvider(),
+        private HandlerInvoker $invoker = new HandlerInvoker(),
     ) {
         $this->observations = $observations ?? new JournalObservationPipeline(
             new ObservedJournalRecordProjector(new SensitiveProjectionFilter()),
@@ -87,7 +88,12 @@ final readonly class InlineDispatcher implements Dispatcher
         $handler = $this->handlers->resolve($metadata->handler);
         $result = $this->scope->run(
             $envelope,
-            static fn(): OperationResult => $handler->handle($envelope),
+            fn(): OperationResult => $this->invoker->invoke(
+                $metadata,
+                $handler,
+                $envelope,
+                $receivedEnvelope->context(),
+            ),
             $metadata->typeId,
         );
 

@@ -100,6 +100,7 @@ final class RuntimeContainerCompilerTest extends TestCase
             RepositoryBackedOperation::class,
             EmptyOutcome::class,
             Inline::class,
+            true,
         )]);
         $compiler->apply($builder, [new RepositoryBindingProvider()]);
         $compiler->registerHandlers($builder, $registry);
@@ -108,6 +109,26 @@ final class RuntimeContainerCompilerTest extends TestCase
 
         self::assertInstanceOf(RepositoryBackedOperation::class, $handler);
         self::assertSame('repository-ready', $handler->repository->value());
+    }
+
+    public function testExplicitTypedSelfHandledBindingWinsOverAutomaticRegistration(): void
+    {
+        $compiler = new RuntimeContainerCompiler();
+        $builder = $compiler->builder();
+        $expected = new RepositoryBackedOperation(new ContainerRepositoryImplementation());
+        $metadata = new OperationMetadata(
+            'container.self.handled.explicit',
+            RepositoryBackedOperation::class,
+            ContainerValue::class,
+            RepositoryBackedOperation::class,
+            EmptyOutcome::class,
+            Inline::class,
+            true,
+        );
+        $compiler->apply($builder, [new ExplicitTypedHandlerProvider($expected)]);
+        $compiler->registerHandlers($builder, new OperationRegistry([$metadata]));
+
+        self::assertSame($expected, $compiler->compile($builder)->get(RepositoryBackedOperation::class));
     }
 
     private function metadata(): OperationMetadata
@@ -194,13 +215,25 @@ final readonly class RepositoryBindingProvider implements ServiceProvider
     }
 }
 
-final readonly class RepositoryBackedOperation implements Operation, OperationHandler
+final readonly class ExplicitTypedHandlerProvider implements ServiceProvider
+{
+    public function __construct(
+        private RepositoryBackedOperation $handler,
+    ) {}
+
+    public function register(ServiceRegistry $services): void
+    {
+        $services->set(RepositoryBackedOperation::class, $this->handler);
+    }
+}
+
+final readonly class RepositoryBackedOperation implements Operation
 {
     public function __construct(
         public ContainerRepository $repository,
     ) {}
 
-    public function handle(OperationEnvelope $operation): OperationResult
+    public function handle(ContainerValue $value): OperationResult
     {
         return OperationResult::completed();
     }

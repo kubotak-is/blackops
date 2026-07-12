@@ -7,7 +7,6 @@ namespace BlackOps\Core\Registry;
 use BlackOps\Core\Attribute\PublicApi;
 use BlackOps\Core\Execution\ExecutionStrategy;
 use BlackOps\Core\Operation;
-use BlackOps\Core\OperationHandler;
 use BlackOps\Core\OperationValue;
 use BlackOps\Core\Outcome;
 
@@ -17,7 +16,7 @@ final readonly class OperationMetadata
     /**
      * @param class-string<Operation> $definition
      * @param class-string<OperationValue> $value
-     * @param class-string<OperationHandler> $handler
+     * @param class-string $handler
      * @param class-string<Outcome> $outcome
      * @param class-string<ExecutionStrategy> $strategy
      */
@@ -28,5 +27,7 @@ final readonly class OperationMetadata
         public string $handler,
         public string $outcome,
         public string $strategy,
+        public bool $typedSelfHandled = false,
+        public bool $typedSelfHandledContext = false,
     ) {}
 }

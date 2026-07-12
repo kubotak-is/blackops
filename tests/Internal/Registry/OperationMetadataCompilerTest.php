@@ -12,6 +12,7 @@ use BlackOps\Core\Attribute\Returns;
 use BlackOps\Core\EmptyOutcome;
 use BlackOps\Core\Execution\ExecutionStrategy;
 use BlackOps\Core\Execution\Inline;
+use BlackOps\Core\ExecutionContext;
 use BlackOps\Core\Operation;
 use BlackOps\Core\OperationEnvelope;
 use BlackOps\Core\OperationHandler;
@@ -54,6 +55,24 @@ final class OperationMetadataCompilerTest extends TestCase
 
         self::assertSame(SelfHandledOperationFixture::class, $metadata->handler);
         self::assertSame(SelfHandledOperationFixture::class, $metadata->definition);
+        self::assertFalse($metadata->typedSelfHandled);
+    }
+
+    public function testCompilesTypedSelfHandledValueOnly(): void
+    {
+        $metadata = new OperationMetadataCompiler()->compile(TypedSelfHandledOperationFixture::class);
+
+        self::assertSame(TypedSelfHandledOperationFixture::class, $metadata->handler);
+        self::assertTrue($metadata->typedSelfHandled);
+        self::assertFalse($metadata->typedSelfHandledContext);
+    }
+
+    public function testCompilesTypedSelfHandledValueAndContext(): void
+    {
+        $metadata = new OperationMetadataCompiler()->compile(TypedContextSelfHandledOperationFixture::class);
+
+        self::assertTrue($metadata->typedSelfHandled);
+        self::assertTrue($metadata->typedSelfHandledContext);
     }
 
     public function testRejectsSelfHandledOperationWithHandledBy(): void
@@ -64,10 +83,26 @@ final class OperationMetadataCompilerTest extends TestCase
         new OperationMetadataCompiler()->compile(AmbiguousHandlerOperationFixture::class);
     }
 
+    public function testRejectsTypedSelfHandledOperationWithHandledBy(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Typed self-handled');
+
+        new OperationMetadataCompiler()->compile(AmbiguousTypedHandlerOperationFixture::class);
+    }
+
+    public function testRejectsAbstractTypedSelfHandledOperation(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('instantiable');
+
+        new OperationMetadataCompiler()->compile(AbstractTypedSelfHandledOperationFixture::class);
+    }
+
     public function testRejectsOperationWithoutHandler(): void
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('requires a handler');
+        $this->expectExceptionMessage('requires a handle method');
 
         new OperationMetadataCompiler()->compile(MissingHandlerOperationFixture::class);
     }
@@ -141,6 +176,36 @@ final readonly class SelfHandledOperationFixture implements Operation, Operation
     }
 }
 
+#[OperationType('welcome.typed')]
+#[Accepts(MetadataValueFixture::class)]
+#[Returns(EmptyOutcome::class)]
+final readonly class TypedSelfHandledOperationFixture implements Operation
+{
+    public function handle(MetadataValueFixture $value): OperationResult
+    {
+        return OperationResult::completed();
+    }
+}
+
+#[OperationType('welcome.typed.context')]
+#[Accepts(MetadataValueFixture::class)]
+#[Returns(EmptyOutcome::class)]
+final readonly class TypedContextSelfHandledOperationFixture implements Operation
+{
+    public function handle(MetadataValueFixture $value, ExecutionContext $context): OperationResult
+    {
+        return OperationResult::completed();
+    }
+}
+
+#[OperationType('welcome.typed.abstract')]
+#[Accepts(MetadataValueFixture::class)]
+#[Returns(EmptyOutcome::class)]
+abstract class AbstractTypedSelfHandledOperationFixture implements Operation
+{
+    abstract public function handle(MetadataValueFixture $value): OperationResult;
+}
+
 #[OperationType('welcome.ambiguous')]
 #[Accepts(MetadataValueFixture::class)]
 #[HandledBy(MetadataHandlerFixture::class)]
@@ -148,6 +213,18 @@ final readonly class SelfHandledOperationFixture implements Operation, Operation
 final readonly class AmbiguousHandlerOperationFixture implements Operation, OperationHandler
 {
     public function handle(OperationEnvelope $operation): OperationResult
+    {
+        return OperationResult::completed();
+    }
+}
+
+#[OperationType('welcome.ambiguous.typed')]
+#[Accepts(MetadataValueFixture::class)]
+#[HandledBy(MetadataHandlerFixture::class)]
+#[Returns(EmptyOutcome::class)]
+final readonly class AmbiguousTypedHandlerOperationFixture implements Operation
+{
+    public function handle(MetadataValueFixture $value): OperationResult
     {
         return OperationResult::completed();
     }

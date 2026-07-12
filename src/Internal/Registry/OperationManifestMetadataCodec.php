@@ -6,7 +6,6 @@ namespace BlackOps\Internal\Registry;
 
 use BlackOps\Core\Execution\ExecutionStrategy;
 use BlackOps\Core\Operation;
-use BlackOps\Core\OperationHandler;
 use BlackOps\Core\OperationValue;
 use BlackOps\Core\Outcome;
 use BlackOps\Core\Registry\OperationMetadata;
@@ -15,8 +14,12 @@ use InvalidArgumentException;
 
 final readonly class OperationManifestMetadataCodec
 {
+    public function __construct(
+        private OperationManifestHandlerDecoder $handlers = new OperationManifestHandlerDecoder(),
+    ) {}
+
     /**
-     * @return array{operations: list<array<string, string>>}
+     * @return array{operations: list<array<string, string|bool>>}
      */
     public function encode(OperationRegistry $registry): array
     {
@@ -28,6 +31,8 @@ final readonly class OperationManifestMetadataCodec
                 'handler' => $metadata->handler,
                 'outcome' => $metadata->outcome,
                 'strategy' => $metadata->strategy,
+                'typedSelfHandled' => $metadata->typedSelfHandled,
+                'typedSelfHandledContext' => $metadata->typedSelfHandledContext,
             ], $registry->all()),
         ];
     }
@@ -50,13 +55,20 @@ final readonly class OperationManifestMetadataCodec
             throw new InvalidArgumentException('Operation manifest metadata entry is invalid.');
         }
 
+        $definition = $this->classField($entry, 'definition', Operation::class);
+        $value = $this->classField($entry, 'value', OperationValue::class);
+        $handler = $this->objectClassField($entry, 'handler');
+        [$typedSelfHandled, $typedSelfHandledContext] = $this->handlers->decode($entry, $definition, $value, $handler);
+
         return new OperationMetadata(
             $this->stringField($entry, 'typeId'),
-            $this->classField($entry, 'definition', Operation::class),
-            $this->classField($entry, 'value', OperationValue::class),
-            $this->classField($entry, 'handler', OperationHandler::class),
+            $definition,
+            $value,
+            $handler,
             $this->classField($entry, 'outcome', Outcome::class),
             $this->classField($entry, 'strategy', ExecutionStrategy::class),
+            $typedSelfHandled,
+            $typedSelfHandledContext,
         );
     }
 
@@ -85,6 +97,20 @@ final readonly class OperationManifestMetadataCodec
         $class = $this->stringField($entry, $key);
 
         if (!is_a($class, $interface, allow_string: true)) {
+            throw new InvalidArgumentException('Operation manifest metadata entry is invalid.');
+        }
+
+        return $class;
+    }
+
+    /**
+     * @param array<array-key, mixed> $entry
+     * @return class-string
+     */
+    private function objectClassField(array $entry, string $key): string
+    {
+        $class = $this->stringField($entry, $key);
+        if (!class_exists($class)) {
             throw new InvalidArgumentException('Operation manifest metadata entry is invalid.');
         }
 

@@ -131,8 +131,15 @@ final class QuickstartApplicationArchitectureTest extends TestCase
         $bootstrap = (string) file_get_contents($root . '/bootstrap/app.php');
         $operations = (string) file_get_contents($root . '/config/operations.php');
 
-        self::assertStringContainsString('implements Operation, OperationHandler', $welcome);
-        self::assertStringContainsString('implements Operation, OperationHandler', $report);
+        self::assertStringContainsString('implements Operation', $welcome);
+        self::assertStringContainsString('handle(WelcomeValue $value)', $welcome);
+        self::assertStringContainsString('implements Operation', $report);
+        self::assertStringContainsString('handle(GenerateReportValue $value, ExecutionContext $context)', $report);
+        self::assertStringNotContainsString('OperationHandler', $welcome . $report);
+        self::assertStringNotContainsString('OperationEnvelope', $welcome . $report);
+        self::assertStringNotContainsString('@implements', $welcome . $report);
+        self::assertStringNotContainsString('instanceof WelcomeValue', $welcome);
+        self::assertStringNotContainsString('instanceof GenerateReportValue', $report);
         self::assertStringNotContainsString('HandledBy', $welcome . $report);
         self::assertStringNotContainsString('withOperations', $bootstrap);
         self::assertStringNotContainsString('withServices', $bootstrap);

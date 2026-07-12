@@ -150,6 +150,8 @@ final class DeferredWorkerRuntimeTest extends TestCase
 
         self::assertTrue($result->isCompleted());
         self::assertSame('resolved', $handler->handledWith);
+        self::assertSame(self::OPERATION_ID, $handler->operationId);
+        self::assertSame(1, $handler->attemptNumber);
     }
 
     public function testLeaseRecoveryUsesContainerResolvedSelfHandledOperationWithRequiredDependency(): void
@@ -517,7 +519,7 @@ final class DeferredWorkerRuntimeTest extends TestCase
     }
 
     private function runtime(
-        OperationHandler $handler,
+        object $handler,
         ?SupervisionPolicy $policy = null,
         ?ClaimExecutionGuard $guard = null,
         ?OutcomeWriter $outcomes = null,
@@ -548,7 +550,7 @@ final class DeferredWorkerRuntimeTest extends TestCase
 
     private function recovery(
         ?OperationMetadata $metadata = null,
-        ?OperationHandler $handler = null,
+        ?object $handler = null,
     ): DeferredLeaseExpiredRecovery {
         $clock = new DeferredWorkerClock();
         $identifiers = new IdentifierFactory(new DeferredWorkerRecoveryUuidv7Generator(), $clock);
@@ -623,6 +625,8 @@ final class DeferredWorkerRuntimeTest extends TestCase
             RequiredSelfHandledWorkerOperation::class,
             WorkerReportDone::class,
             Deferred::class,
+            true,
+            true,
         );
     }
 
@@ -711,22 +715,21 @@ final readonly class WorkerOperationDependency
     ) {}
 }
 
-final class RequiredSelfHandledWorkerOperation implements Operation, OperationHandler
+final class RequiredSelfHandledWorkerOperation implements Operation
 {
     public ?string $handledWith = null;
+    public ?string $operationId = null;
+    public ?int $attemptNumber = null;
 
     public function __construct(
         private WorkerOperationDependency $dependency,
     ) {}
 
-    public function handle(OperationEnvelope $operation): OperationResult
+    public function handle(WorkerReportValue $value, ExecutionContext $context): OperationResult
     {
-        $value = $operation->value();
-        if (!$value instanceof WorkerReportValue) {
-            throw new \LogicException('Worker report handler requires WorkerReportValue.');
-        }
-
         $this->handledWith = $this->dependency->value;
+        $this->operationId = $context->operationId()->toString();
+        $this->attemptNumber = $context->attempt()?->number();
 
         return OperationResult::completed(new WorkerReportDone('done-' . $value->reportName));
     }
@@ -833,7 +836,7 @@ final readonly class AlwaysDeadLetterSupervisionPolicy implements SupervisionPol
 final readonly class DeferredWorkerContainer implements ContainerInterface
 {
     public function __construct(
-        private OperationHandler $handler,
+        private object $handler,
     ) {}
 
     public function get(string $id): mixed
