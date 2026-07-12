@@ -10,13 +10,29 @@
 - 重要な設計判断は、結論だけでなく理由もREADMEまたは設計文書へ残す
 - 用語の変更時は、コードと文書をまとめて更新する
 
+## MVP Closeout
+
+MVP Definition of Doneは [MVP Status](docs/guide/mvp-status.md) と [Closeout Report](orchestration/reports/P6-015-mvp-closeout.md) で実装・Test証拠に対応付ける。MVP CompleteはProduction ReadyやStable Releaseを意味しない。
+
+MVP後に残す主要項目:
+
+- [ ] Transactional OutboxのPersistence AdapterとRelay
+- [ ] Canonical JournalからObserver Projectionを再送するCLI
+- [ ] Authentication／AuthorizationとJournal参照制御
+- [ ] Deferred Status／Outcome HTTP EndpointとClient SDK
+- [ ] Canonical PayloadとTransportの暗号化
+- [ ] OpenTelemetry／CloudWatch／Remote Log Adapter
+- [ ] SQLite／MySQL／SQS／Kafka Adapter
+- [ ] Generator／Admin UI／Scheduled Operation Strategy
+- [ ] Packagist公開／Git Tag／Stable Release
+
 ## 現在の優先事項
 
-- [ ] Operationの定義と責務を決める
-- [ ] Operationのライフサイクルを決める
-- [ ] InlineとDeferred Strategyの実行保証を決める
-- [ ] Journalの役割と記録形式を決める
-- [ ] 一つのユースケースを使って処理全体を検証する
+- [x] Operationの定義と責務を決める
+- [x] Operationのライフサイクルを決める
+- [x] InlineとDeferred Strategyの実行保証を決める
+- [x] Journalの役割と記録形式を決める
+- [x] MVP SampleでInline／Deferredの処理全体を検証する
 
 ## 1. ユビキタス言語
 
@@ -25,7 +41,7 @@
 - [x] 追跡識別子の正式名称を `Operation ID` とする
 - [x] 型付けされた業務入力を `OperationValue` とする
 - [x] 成功時の業務結果を `Outcome` とする
-- [ ] Deferred処理の受付結果を `Acknowledgement` と呼ぶか決める
+- [x] Deferred処理の受付結果を `DeferredAcknowledgement` とする
 - [x] 固定的なDispatch ModeではなくExecution Strategyを使用する
 - [x] 個々の実行試行を `Attempt` とする
 - [x] Journalに記録する一件を `Journal Entry` とする
@@ -33,11 +49,11 @@
 ## 2. Operation
 
 - [x] Operationは要求から最終結果まで続く論理的な処理単位とする
-- [ ] Operationが最低限保持する値を決める
-  - [ ] Operation ID
-  - [ ] 発生日時
-  - [ ] 入力値
-  - [ ] 実行方式
+- [x] Operation Envelopeが最低限保持する値を決める
+  - [x] Operation ID
+  - [x] 発生日時
+  - [x] 入力値
+  - [x] Execution Strategy
 - [x] Operation IDはFWがUUIDv7で発行する
 - [ ] Operationを不変オブジェクトとするか決める
 - [x] 初期設計ではCommandとQueryを区別せずOperationとして扱う
@@ -57,39 +73,39 @@
 ## 3. ライフサイクル
 
 - [x] OperationとAttemptの基本ライフサイクルを定義する
-- [ ] Inline Strategyの正常系を詳細化する
-  - [ ] Received
-  - [ ] Started
-  - [ ] Completed
-- [ ] Deferred Strategyの正常系を詳細化する
-  - [ ] Received
-  - [ ] Accepted
-  - [ ] Started
-  - [ ] Completed
+- [x] Inline Strategyの正常系を詳細化する
+  - [x] Received
+  - [x] Started
+  - [x] Completed
+- [x] Deferred Strategyの正常系を詳細化する
+  - [x] Received
+  - [x] Accepted
+  - [x] Started
+  - [x] Completed
 - [x] 業務上の拒否とAttempt/Operationの失敗を区別する
-  - [ ] Rejected
+  - [x] Rejected
   - [x] Attempt Failed
   - [x] Retry Scheduled
   - [x] Operation Failed
   - [x] Dead Lettered
   - [ ] Cancelled
   - [ ] Expired
-- [ ] 不正な状態遷移をどう扱うか決める
+- [x] 不正な状態遷移をJournal生成前に拒否する
 - [ ] 現在状態をJournal Entryから導出するか決める
 - [ ] 状態スナップショットを保持するか決める
 
 ## 4. Journal
 
-- [ ] Journalを追記専用とするか決める
-- [ ] Journal Entryの共通スキーマを定義する
-- [ ] Journal Entryに記録する時刻の意味を定義する
-- [ ] Operationの入力値をどの時点で記録するか決める
-- [ ] Inline実行時のJournal Observer失敗をどう扱うか決める
+- [x] Journal RecordをRetention削除まで不変の追記記録とする
+- [x] Journal Recordの共通スキーマを定義する
+- [x] Journal Recordに記録する時刻の意味を定義する
+- [x] Operation入力を `operation.received` でCanonical記録する
+- [x] Inline実行時のJournal Observer失敗をDelivery Policyで扱う
 - [x] 正規Journal形式を共有し、Journal ObserverとExecution Transportを分離する
-- [ ] Journalと監査ログの責務を分離する
+- [x] Canonical JournalとObserved／Purge Auditの責務を分離する
 - [ ] JournalとDomain Eventの関係を定義する
 - [x] schema versionとUpcasterによるJournal Recordのバージョニングを採用する
-- [ ] 保持期間と削除方針を決める
+- [x] 保持期間と削除方針を決める
 - [ ] 改ざん検知が必要か検討する
 - [ ] 個人情報の削除要求と不変記録の両立方法を検討する
 
@@ -97,21 +113,21 @@
 
 ### Inline Strategy
 
-- [ ] Handlerの戻り値と例外の扱いを決める
+- [x] Handlerの戻り値と例外の扱いを決める
 - [ ] タイムアウトの扱いを決める
-- [ ] Journalへの記録失敗時に処理を続行するか決める
+- [x] Canonical Journal失敗とObserver Delivery Policyの継続条件を決める
 - [ ] HTTP接続切断時のOperationの扱いを決める
 
 ### Deferred Strategy
 
-- [ ] 保存成功を受付完了とみなす境界を決める
-- [ ] 配送保証を定義する
+- [x] StateとReceived／Accepted JournalのCommit成功をDeferred受付完了とする
+- [x] Deferred配送はat-least-onceで重複実行し得ると定義する
 - [x] Deferred実行は重複し得るものとしExactly Onceを保証しない
 - [x] Operation IDによるInbox/Deduplication機構を提供する
 - [x] 既定のリトライ回数を定義する
 - [x] 指数BackoffとJitterを採用する
 - [ ] タイムアウトを定義する
-- [ ] Leaseと可視性タイムアウトを定義する
+- [x] Lease、Heartbeat、可視性タイムアウト、Fencingを定義する
 - [x] Worker停止時は新規Claimを止め、Grace超過時はLease Expired Recoveryへ委ねる
 - [x] Dead Letter Transportへ隔離しJournalへ記録する
 - [ ] 順序保証の有無と単位を決める
@@ -127,7 +143,7 @@
 - [ ] Handlerに冪等性を要求するか決める
 - [ ] Frameworkが提供する冪等性支援を決める
 - [x] Outcome保存失敗時はWorker完了Transaction全体をRollbackする
-- [ ] Journal保存後、実行登録前に障害が起きた場合の回復方法を決める
+- [x] Deferred受付のStateとJournalを同一Transactionで保存する
 
 ## 7. セキュリティとプライバシー
 
@@ -145,14 +161,14 @@
 
 - [x] Journal ObserverとExecution Transportの責務を分離する
 - [x] 遅延配送を担う抽象を `Execution Transport` とする
-- [ ] `Journal Observer` インターフェースを設計する
-- [ ] `Execution Transport` インターフェースを設計する
+- [x] `Journal Observer` インターフェースを設計する
+- [x] `Execution Transport` を責務別Portとして設計する
 - [x] `Outcome Store` インターフェースを設計する
-- [ ] `Journal Observer` インターフェースを設計する
-- [ ] DBアダプタの候補を決める
+- [x] `FlushableJournalObserver` を追加Capabilityとして設計する
+- [x] MVP Reference DB AdapterをPostgreSQLとする
 - [ ] KVSアダプタの候補を決める
 - [ ] Queueアダプタの候補を決める
-- [ ] PSR-3ログアダプタを検討する
+- [x] PSR-3ログアダプタにMonolog JSONL Backendを採用する
 - [ ] OpenTelemetryアダプタを検討する
 - [ ] CloudWatchアダプタを検討する
 
@@ -173,7 +189,7 @@
 - [x] PHP-FPM、長期Worker、Fiber対応のExecution Scopeを採用する
 - [x] Application Log障害時はOperationを継続する
 - [x] Journal DeliveryをBestEffort／Required／Durableに分ける
-- [ ] PSR-3 Logger Adapterを実装する
+- [x] PSR-3 Logger AdapterとMonolog JSONL Backendを実装する
 - [x] OTel IDをOperation IDと分離し構造化Logで関連付ける
 - [ ] CloudWatch向け構造化ログAdapterを設計する
 - [x] Application LogだけをSampling可能としLifecycle JournalはSamplingしない
@@ -215,7 +231,7 @@
 - [x] Adapter Middlewareで認証しCredentialを除いたActorContextを生成する
 - [x] Adapter MiddlewareとOperation Middlewareを玉ねぎ構造として分離する
 - [x] origin、execution、authorizationのActor責務を分離する
-- [ ] HTTPリクエストからOperationへの変換方法を決める
+- [x] HTTPリクエストからOperationValueへのBindingとValidationを定義する
 - [x] Operation Definitionの `#[Route]` でHTTPルートを宣言する
 - [x] BindingとOperationValue Validationの境界を定義する
 - [x] WebアダプタのResponderがOutcomeをHTTPレスポンスへ変換する
@@ -263,13 +279,13 @@
 - [x] Test RunnerにPHPUnitを採用する
 - [x] Phase 0: Foundationを実装する
 - [x] Phase 1: Journal付きInline Vertical Sliceを実装する
-- [ ] Frontend接合方式をD047で確定する
+- [x] Frontend接合方式をD047で確定する
 - [x] Codex GPT-5.4-mini workerへの実装依頼方式へOrchestrationを更新する
 - [x] Codex GPT-5.4-mini workerへ渡すTask Packet Templateを維持する
 - [x] `orchestration/STATE.md` のCheckpoint Templateを作成する
 - [x] Orchestrator Codex／GPT-5.4-mini worker共通規約をRootの `AGENTS.md` に記述する
-- [~] Framework実装者向けの `docs/internals/` を整備する
-- [~] Framework利用者向けの `docs/guide/` を整備する
+- [x] MVP範囲のFramework実装者向け `docs/internals/` を整備する
+- [x] MVP範囲のFramework利用者向け `docs/guide/` を整備する
 - [x] WSL2 Distributionを導入する
 - [x] WSL2の `/home/kubotak/projects/blackops` に実装Repositoryを準備する
 - [x] WSL2内のOpenCode CLI導入は旧方式の履歴として保持する
@@ -292,7 +308,7 @@
 - [x] 内部専用実装を `BlackOps\Internal` へ配置する
 - [x] Namespace間の依存方向を定義する
 - [x] Deptracで依存違反をCI検証する
-- [ ] `deptrac.yaml` を実装する
+- [x] `deptrac.yaml` を実装する
 - [x] Operation、OperationValue、OutcomeをMarker Interfaceとする
 - [x] Handlerを単一の `handle()` Contractとする
 - [x] 互換性を保証するPHP Public APIへ `#[PublicApi]` を付ける
@@ -319,17 +335,17 @@
 - [x] Operationごとの単調増加SequenceをJournal Recordへ必須化する
 - [x] Event固有Fieldを型付き `data` Objectへ格納する
 - [ ] Journal Record共通SchemaのJSON Schemaを定義する
-- [ ] Sequenceの永続割当と競合制御を設計する
+- [x] Sequenceの永続割当と競合制御を設計する
 - [x] Journal Recordを共通の `final readonly class` とする
 - [x] Lifecycle EventをString-backed Enumで表す
 - [x] Event Dataを型付き `JournalData` とする
 - [x] Journal Record生成を内部Factoryへ限定する
-- [~] JournalRecord、JournalEvent、JournalDataを実装済み。Factoryは後続Task
+- [x] JournalRecord、JournalEvent、JournalData、内部Factoryを実装する
 - [x] Received Journalへ再現可能なCanonical Payloadを保持する
 - [x] Completed JournalへCanonical Outcomeを保持する
 - [x] Failure Journalの安全な構造化Errorを定義する
 - [x] DataなしEventを `EmptyJournalData` として表す
-- [ ] Lifecycle EventごとのData ClassとCodec Schemaを実装する
+- [x] Lifecycle EventごとのData ClassとCodecを実装する
 - [x] Canonical JournalからObserver ProjectionをFW共通Pipelineで生成する
 - [x] `#[Sensitive]` にOmit、Mask、HMACを定義する
 - [x] 予約Key Patternによる防御的Omitを行う
@@ -340,7 +356,7 @@
 - [x] Journal Port失敗を専用Exceptionで表す
 - [x] Flushを追加Capabilityとして分離する
 - [x] Canonical JournalのWriterとReaderを分離する
-- [ ] Journal Port InterfaceとExceptionを実装する
+- [x] Journal Port InterfaceとExceptionを実装する
 - [x] InlineとDeferredのSequence管理場所を定義する
 - [x] Deferred SequenceをTransactionで原子的に予約する
 - [x] Sequenceの欠番を許容し監視対象とする
@@ -350,7 +366,7 @@
 - [x] `operation.accepted` をDeferredのDurable受付に限定する
 - [x] Attempt SucceededとOperation Completedを区別する
 - [x] FailedとDead Letteredを排他的なTerminal Eventとする
-- [ ] Lifecycle状態遷移表と検証器を設計する
+- [x] Lifecycle状態遷移表と検証器を設計する
 - [x] Handlerの戻り値を `OperationResult<TOutcome>` に統一する
 - [x] OperationResultの生成をStatic Factoryへ限定する
 - [x] 値のない成功を `EmptyOutcome` として扱う
@@ -359,7 +375,8 @@
 - [x] Lifecycle状態遷移をMermaid図で記録する
 - [x] 不正遷移をJournal生成前に拒否する
 - [x] Terminal後の新規EventとHandler実行を拒否する
-- [ ] Lifecycle Transition Table、検証器、再構築器を実装する
+- [x] Lifecycle Transition Tableと検証器を実装する
+- [ ] JournalからLifecycle Stateを再構築する専用Readerを実装する
 - [x] AttemptContextへID、番号、開始時刻を保持する
 - [x] Lease MetadataをTransport内部へ限定する
 - [x] Attempt Started記録後にHandlerを呼び出す
@@ -377,16 +394,16 @@
 - [x] MVPのClaimを一件単位とする
 - [x] Execution Transportを責務別Portへ分割する
 - [x] Execution Transport PortとMessage型を実装する
-- [ ] `Operation` を実装する
-- [ ] `OperationId` を実装する
-- [ ] `OperationValue` を実装する
-- [ ] `Outcome` を実装する
-- [ ] `Handler` を実装する
+- [x] `Operation` を実装する
+- [x] `OperationId` を実装する
+- [x] `OperationValue` を実装する
+- [x] `Outcome` を実装する
+- [x] `OperationHandler` を実装する
 - [x] `Dispatcher` を実装する
-- [ ] `DispatchMode` を実装する
-- [ ] `Journal Entry` を実装する
+- [x] `DispatchMode`の確定名称である `ExecutionStrategy` を実装する
+- [x] `Journal Entry`の確定名称である `JournalRecord` を実装する
 - [ ] インメモリJournal Observerを実装する
-- [ ] インメモリExecution Transportを実装する
+- [x] Unit Test用InMemory Execution Transportを実装する
 - [x] Inline Strategyを実装する
 - [x] Deferred Strategyを実装する
 - [x] 最小Workerを実装する
@@ -394,28 +411,28 @@
 
 ## 11. 検証用ユースケース
 
-- [ ] `CreateOrder` Operationを定義する
+- [x] MVP検証用の `ShowWelcome`／`GenerateReport` Operationを定義する
 - [x] HTTP入力からOperationを生成する
 - [x] Inline Strategyで正常終了させる
 - [x] Deferred Strategyで受付後にWorkerから実行する
 - [x] Journalからライフサイクルを確認する
 - [x] Handler失敗後に再試行する
-- [ ] 同一Operationの重複実行を防止する
-- [ ] 再試行上限後にデッドレターへ移動する
+- [x] Operation IDの一意制約とFencingで重複受付／Stale更新を防止する
+- [x] 再試行上限後にデッドレターへ移動する
 - [x] 非同期Outcomeを取得する
-- [ ] 機密値がJournalへ露出しないことを確認する
+- [x] Canonical Journalが再現用の値を保持し、Observed Projection／JSONLで機密値を安全化する境界を確認する
 
 ## 12. ドキュメント
 
 - [x] `SPECIFICATION.md` を分野別仕様への入口として維持する
 - [x] 確定仕様を分野別の `spec/` 文書へ分割する
 - [x] READMEの用語を `Operation` と新しい `Journal` の定義へ更新する
-- [ ] アーキテクチャ概要を作成する
-- [ ] Operationのライフサイクル図を作成する
-- [ ] Inline Strategyのシーケンス図を作成する
-- [ ] Deferred Strategyのシーケンス図を作成する
-- [ ] 障害時のシーケンス図を作成する
-- [ ] 設計判断を記録するADRの形式を決める
+- [x] アーキテクチャ概要を作成する
+- [x] Operationのライフサイクル図を作成する
+- [x] Inline Strategyのシーケンス図を作成する
+- [x] Deferred Strategyのシーケンス図を作成する
+- [x] 障害時のシーケンス図を作成する
+- [x] `decisions/` の設計対話形式で判断履歴を記録する
 - [ ] Welcome Pageと初期Application Skeletonを後工程で設計する
 
 ## 後で検討すること

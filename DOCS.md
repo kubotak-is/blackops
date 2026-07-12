@@ -1,7 +1,34 @@
 # Operation-driven PHP Framework
 
-> この文書は、フレームワークの思想と概念を育てるための設計ノートである。
-> 名称や仕様は現時点では仮であり、議論に応じて更新する。
+> この文書の本文は、フレームワークの思想と概念を育てた歴史的な設計ノートである。
+> 現行仕様の正本は `spec/`、MVPの実装状態は `docs/guide/mvp-status.md`、現行Architectureは `docs/internals/architecture.md` を参照する。
+
+## Current Documentation
+
+- [MVP Status and Definition of Done](docs/guide/mvp-status.md)
+- [MVP Sample](docs/guide/mvp-sample.md)
+- [Runtime Bootstrap](docs/guide/runtime-bootstrap.md)
+- [Data Retention](docs/guide/retention.md)
+- [Architecture and Sequences](docs/internals/architecture.md)
+- [Framework Specification Index](spec/README.md)
+- [Guide Index](docs/guide/README.md)
+- [Internals Index](docs/internals/README.md)
+- [Current Orchestration Checkpoint](orchestration/STATE.md)
+
+## Legacy Terminology Note
+
+以下の歴史的本文には設計初期の仮称が残る。これらは現行API名ではない。
+
+| 初期の仮称 | 現行名称／境界 |
+| --- | --- |
+| Immediate | Inline Execution Strategy |
+| Durable | Deferred Execution Strategy |
+| Dispatch Mode / `DispatchMode` | Execution Strategy / `Inline` / `Deferred` |
+| Journal Entry | `JournalRecord` |
+| Durable acknowledgement | `DeferredAcknowledgement` |
+| SQLite／Filesystem Local Transport | PostgreSQL Reference Execution Transport |
+
+初期サンプルの `CreateOrder` は実装仕様ではない。MVPの実サンプルは `ShowWelcome` と `GenerateReport` である。以下の説明と現行仕様が矛盾する場合は `spec/`を優先する。
 
 設計上の未決事項と実装タスクは [TODO.md](TODO.md) で管理する。
 

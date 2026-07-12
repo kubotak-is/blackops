@@ -6,6 +6,7 @@ Framework実装者向けのArchitectureと実装ガイドを管理する。
 
 ## Planned Topics
 
+- [Architecture](architecture.md)
 - [Development Setup](development-setup.md)
 - [Bootstrap](bootstrap.md)
 - [FrankenPHP Reference Runtime](frankenphp-runtime.md)
