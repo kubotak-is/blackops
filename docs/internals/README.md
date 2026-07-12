@@ -2,7 +2,7 @@
 
 Framework実装者向けのArchitectureと実装ガイドを管理する。
 
-確定仕様の正本は `spec/`、判断経緯は `decisions/` である。このDirectoryでは、それらを実装へ落とし込むための構造、主要な処理フロー、Extension Point、Adapter実装上の注意を説明する。
+確定仕様の正本は `develop/spec/`、判断経緯は `develop/decisions/` である。このDirectoryでは、それらを実装へ落とし込むための構造、主要な処理フロー、Extension Point、Adapter実装上の注意を説明する。
 
 ## Planned Topics
 

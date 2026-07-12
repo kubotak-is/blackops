@@ -1,6 +1,6 @@
 # Core Contracts
 
-BlackOps Phase 1 の土台となる Core 契約、識別子Value Object、時刻Codecの実装を記録する。確定仕様の正本は `spec/`、判断経緯は `decisions/` である。本文書は実装上のPublic APIと不変条件をFramework実装者向けに整理する。
+BlackOps Phase 1 の土台となる Core 契約、識別子Value Object、時刻Codecの実装を記録する。確定仕様の正本は `develop/spec/`、判断経緯は `develop/decisions/` である。本文書は実装上のPublic APIと不変条件をFramework実装者向けに整理する。
 
 ## Marker Interface
 
@@ -135,7 +135,7 @@ final readonly class TimeCodec
 
 ## Namespaceと依存方向
 
-Namespace別Layerと依存方向は `spec/16-namespace-dependencies.md` に従い `deptrac.yaml` で検査する。
+Namespace別Layerと依存方向は `develop/spec/16-namespace-dependencies.md` に従い `deptrac.yaml` で検査する。
 
 P1-001で追加した型の所属：
 - Core Layer：`BlackOps\Core\Operation`、`BlackOps\Core\OperationValue`、`BlackOps\Core\Outcome`、`BlackOps\Core\Attribute\PublicApi`、`BlackOps\Core\Identifier\*`、`BlackOps\Core\Exception\InvalidIdentifierException`、`BlackOps\Core\Time\TimeCodec`
@@ -148,7 +148,7 @@ P1-001で追加した型の所属：
 
 ## 品質検査
 
-P1-001のAcceptance Criteriaに基づき次の検査を実施し、すべて成功した。結果の詳細は `orchestration/reports/P1-001-core-contracts-and-identifiers.md` に記録する。
+P1-001のAcceptance Criteriaに基づき次の検査を実施し、すべて成功した。結果の詳細は `develop/orchestration/reports/P1-001-core-contracts-and-identifiers.md` に記録する。
 
 - `composer validate --strict`
 - `mago lint`

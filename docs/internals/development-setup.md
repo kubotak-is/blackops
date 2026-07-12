@@ -121,4 +121,4 @@ docker compose down
 
 ## Resume
 
-環境構築を中断した場合は `orchestration/STATE.md` の `Known Blockers` と `Required Next Action` から再開する。
+環境構築を中断した場合は `develop/STATE.md` の `Known Blockers` と `Required Next Action` から再開する。

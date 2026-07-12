@@ -2,11 +2,7 @@
 .gitignore
 docker/
 docs/
-orchestration/
 scripts/
-decisions/
-spec/
-TODO.md
-DOCS.md
+develop/
 AGENTS.md
 *.md
