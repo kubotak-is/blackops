@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-12T23:30:07+09:00
+Updated At: 2026-07-12T23:32:06+09:00
 
 ## Current Phase
 
@@ -26,7 +26,7 @@ P7-004-public-console-kernel-composition
 
 ## Pending Decisions
 
-- なし。
+- `develop/decisions/069-skeleton-http-entrypoint-adapters.md`: Skeleton HTTP EntrypointのPSR-7 Request／SAPI Emit所有境界の回答待ち。
 
 ## Known Blockers
 
@@ -34,9 +34,9 @@ P7-004-public-console-kernel-composition
 
 ## Required Next Action
 
-1. Feature-first Quickstart Applicationの既存LayoutとPublic API要件を照合する。
-2. P7-005 Task Packetを作成する。
-3. GPT-5.4-mini workerへP7-005のProduction実装を依頼する。
+1. UserがD069へ回答する。
+2. 回答をDecisionとQuickstart仕様へ確定する。
+3. P7-005 Task Packetを作成し、GPT-5.4-mini workerへProduction実装を依頼する。
 
 ## P6-015 MVP Closeout Verification Commands and Results
 
