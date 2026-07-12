@@ -11,13 +11,11 @@ app/
       GenerateReport/
         GenerateReport.php
         GenerateReportValue.php
-        GenerateReportHandler.php
         ReportGenerated.php
     Welcome/
       ShowWelcome/
         ShowWelcome.php
         WelcomeValue.php
-        ShowWelcomeHandler.php
         WelcomeShown.php
   Infrastructure/
 bin/
@@ -47,13 +45,13 @@ Dockerfile.frankenphp
 README.md
 ```
 
-`app/Feature/<Feature>/<Action>/` は、Operation Definition、Value、Handler、Outcome、Responder等、同じ変更理由を持つFileをまとめる。
+`app/Feature/<Feature>/<Action>/` は、Self-handled Operation、Value、Outcome、Responder等、同じ変更理由を持つFileをまとめる。別Handlerが必要な場合も同じAction Directoryへ置く。
 
 Skeletonへ `Internal` Directoryを設けない。HTTPから直接開始しないOperationも、それが属するFeatureへ置く。HTTP、Deferred等の実行経路はDirectoryではなくOperation MetadataとApplication Configurationで決定する。
 
 `app/Infrastructure/` はApplicationが必要とするPersistence、External Service、Clock等の技術実装を置く任意のDirectoryである。Frameworkは `Infrastructure/BlackOps` その他のFramework名を含むDirectoryを要求しない。
 
-このLayoutは公式推奨であり、Frameworkの実行要件ではない。ApplicationはOperation ProviderとConfigurationにより別のDirectory Layoutを使用できる。
+このLayoutは公式推奨であり、Frameworkの実行要件ではない。ApplicationはBuild-time Discovery Root、Operation Provider、Configurationにより別のDirectory Layoutを使用できる。
 
 ## Starter Features
 
@@ -96,7 +94,7 @@ Skeletonは責務別のPHP Config Fileを持つ。
 
 - `config/app.php`: Application名、Environment、Debug等
 - `config/database.php`: PostgreSQL ConnectionとFramework Schema
-- `config/operations.php`: Operation Providerと探索対象
+- `config/operations.php`: Build-time Discovery RootとOptional Operation Provider
 - `config/execution.php`: Inline／Deferred、Worker、Supervision設定
 - `config/journal.php`: Canonical Journal、Observer設定
 - `config/retention.php`: 保持期間、Policy Ref、Maintenance Actor設定

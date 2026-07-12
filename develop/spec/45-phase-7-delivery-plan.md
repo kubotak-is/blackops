@@ -59,6 +59,16 @@ Phase 7ではLocal Path Repository等を使い、Remote Packagist公開を前提
 
 Default Compose起動でWorker、Scheduler、Migration、Purgeを自動実行しない。
 
+### P7-005A: Operation Authoring Conventions
+
+- Self-handled Operation
+- Optional `#[HandledBy]` とSeparate Handler互換
+- Build-time Operation Discovery
+- HandlerのDI Container自動登録
+- Quickstartから定型Provider／Handler Fileを削減
+
+P7-005受入後、P7-006 Local Runtime着手前に実施する。
+
 ### P7-007: Phase 7 Closeout
 
 - Installed Treeと実Fileの一致確認
@@ -74,8 +84,9 @@ P7-002 Bootstrap Foundation
   -> P7-003 HTTP Composition
     -> P7-004 Console Composition
       -> P7-005 Quickstart Application
-        -> P7-006 Local Runtime and Consumer E2E
-          -> P7-007 Phase Closeout
+        -> P7-005A Operation Authoring Conventions
+          -> P7-006 Local Runtime and Consumer E2E
+            -> P7-007 Phase Closeout
 ```
 
 一つのTaskがAcceptedになる前に、後続Taskの変更可能FileとConstructor Signatureを最終確定しない。後続Taskは本仕様のGoalとScopeを維持しつつ、Accepted APIへ合わせてPacketを作成する。

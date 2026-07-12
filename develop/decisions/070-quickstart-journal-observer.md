@@ -1,6 +1,6 @@
 # D070: Quickstart Journal Observer
 
-Status: Proposed
+Status: Decided
 
 ## Context
 
@@ -30,7 +30,7 @@ Install直後のLocal RuntimeでMask結果を直接確認でき、QuickstartにI
 
 [ANSWER]
 
-
+A
 
 [/ANSWER]
 
@@ -54,7 +54,7 @@ Configは将来Requiredを選べる形にできるが、P7-006のQuickstart Defa
 
 [ANSWER]
 
-
+A
 
 [/ANSWER]
 
@@ -82,7 +82,18 @@ Worker側Observed ProjectionのProcess LifecycleとFlushは、必要な場合に
 
 [DECISION]
 
-回答待ち。
+1. QuickstartのObserved Journal BackendとしてJSONL Fileを採用する。
+2. `config/journal.php` でJSONLの有効化、絶対Path、Delivery Policyを設定する。
+3. Quickstartの既定Pathは `var/log/journal.jsonl` とする。
+4. Quickstartの既定Delivery PolicyはBest Effortとする。
+5. Canonical JournalはPostgreSQLを正本とし、Local JSONL障害でCanonical Operationを失敗させない。
+6. FrameworkはAccepted ConfigからJSONL Observer、Sensitive Projection、Observation Pipelineを内部構成する。
+7. Application／QuickstartはInternal Pipeline Classを生成しない。
+8. JSONLへ渡す前にSensitive Projectionを適用し、Sensitive Header、API Token、PasswordのRaw値を出力しない。
+9. JSONL FileはAppend Modeで開く。
+10. FrameworkはLog Directoryを暗黙作成せず、Deployment／Post-create／手動Setupが準備する。
+11. P7-006のSensitive Projection E2EはInline Welcome HeaderのMaskを検証する。
+12. Worker側Observer Lifecycle／Flushの拡張はP7-006の必須範囲に含めない。
 
 [/DECISION]
 
@@ -90,7 +101,12 @@ Worker側Observed ProjectionのProcess LifecycleとFlushは、必要な場合に
 
 [CONSEQUENCES]
 
-回答後に確定する。
+- Install直後のLocal RuntimeでMask済みObserved JournalをFileから確認できる。
+- QuickstartにInternal Journal Compositionを持ち込まずPublic Application Configだけで有効化できる。
+- JSONL障害はBest EffortとしてCanonical Operationを止めない。
+- Required Deliveryが必要なApplicationは同じConfig Contractで明示選択できる。
+- Log Directoryがない、Pathが不正、Fileを開けない等のBootstrap時Config／Resource Errorは安全なMessageでFail-fastする必要がある。
+- HTTP RuntimeはObserver ResourceをProcess Lifetime保持する。Worker ProcessでのObserver共有とFlushは別途Lifecycle設計が必要になる。
 
 [/CONSEQUENCES]
 
