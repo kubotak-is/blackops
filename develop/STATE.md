@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-13T02:12:46+09:00
+Updated At: 2026-07-13T02:42:18+09:00
 
 ## Current Phase
 
@@ -8,17 +8,17 @@ Phase 8: Composer Project Bootstrap
 
 ## Current Task
 
-Task ID: D073-skeleton-distribution-publication-boundary
+Task ID: P8-002A-typed-self-handled-invocation
 
-Task Packet: なし（Decision回答待ち）
+Task Packet: `develop/orchestration/tasks/P8-002A-typed-self-handled-invocation.md`
 
-Specification: `develop/spec/46-composer-skeleton-publication.md`
+Specification: `develop/spec/53-typed-self-handled-operation-invocation.md`
 
 ## Task Status
 
-Awaiting User Decision
+Ready
 
-P8-002を受け入れた。P8-003は外部Distribution Repository、Cross-repository Credential、Packagist更新方法を必要とするためD073を作成し、ユーザー回答待ちとした。
+D074でNative Value／Optional ExecutionContextのTyped Self-handled Signatureを確定した。D073のPublication回答待ちは保持し、Authoring改善をP8-002Aとして先に実装する。
 
 ## Last Accepted Task
 
@@ -30,14 +30,14 @@ P8-002-local-split-create-project-smoke
 
 ## Known Blockers
 
-- Distribution Repositoryの実URL／Default Branch／Visibilityが未確定。
-- Cross-repository Write CredentialとPackagist更新方法が未確定。
+- P8-002Aの実装Blockerはなし。
+- P8-003はDistribution Repositoryの実URL／Default Branch／Visibility、Write Credential、Packagist更新方法が未確定。
 
 ## Required Next Action
 
-1. D073の3つのANSWERへ回答する。
-2. 回答をDecision／Specへ反映してP8-003 Task Packetを確定する。
-3. External Push前にWorkflowをLocal／Dry-run検証する。
+1. P8-002AでTyped Self-handled Build／Manifest／Runtime Invocationを実装する。
+2. QuickstartをNative Value／Optional Contextへ移行しMagoで検証する。
+3. 受入後はD073回答を待ってP8-003へ進む。
 
 ## P8-002 Local Split and Create-project Smoke Verification Commands and Results
 
