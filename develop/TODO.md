@@ -33,21 +33,21 @@ MVP後に残す主要項目:
 ### Phase 7: Installed Application Example and Skeleton Layout
 
 - [x] Public Composition APIをFramework外のConsumer視点でAuditする
-- [ ] `examples/quickstart/` をInstall直後と同じApplication Layoutへ更新する
+- [x] `examples/quickstart/` をInstall直後と同じApplication Layoutへ更新する
 - [ ] Inline／Deferred／Worker／Migration／RetentionのConsumer E2Eを整備する
-- [ ] Exampleと `blackops/skeleton` の共通Sourceとして配布可能にする
+- [x] Exampleと `blackops/skeleton` の共通Sourceとして配布可能にする
 
 ### Phase 8: Composer Project Bootstrap
 
-- [ ] `examples/quickstart/` を `blackops/skeleton` Composer Project Packageとして定義する
+- [x] `examples/quickstart/` を `blackops/skeleton` Composer Project Packageとして定義する
 - [ ] `composer create-project blackops/skeleton my-app` を提供する
 - [ ] Install後Smoke Testを整備する
 
 ### Phase 9: Project BlackOps CLI
 
-- [ ] Project所有の薄い `bin/blackops` とFramework Console Kernelを設計する
+- [x] Project所有の薄い `bin/blackops` とFramework Console Kernelを設計する
 - [ ] `make:operation` と `make:migration` を提供する
-- [ ] Migration／Worker／Build／Retention／Scheduler CommandをApplicationから構成する
+- [x] Migration／Worker／Build／Retention／Scheduler CommandをApplicationから構成する
 - [ ] Framework UpdateでCommand実装とGenerator Stubが更新されることを検証する
 
 ### Phase 10: Documentation Website

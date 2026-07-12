@@ -10,6 +10,8 @@ BlackOps keeps build-time discovery and production runtime startup as separate s
 
 Production startup does not scan application source files or rebuild artifacts.
 
+`examples/quickstart/` は独立 `blackops/skeleton` Composer Metadataと `App\` PSR-4を所有する。Root Framework ComposerのDev AutoloadへApplication Namespaceを追加せず、Repository Integration TestはQuickstart Sourceを明示的に読み込む。
+
 The reference HTTP entrypoint is documented in [FrankenPHP Reference Runtime](frankenphp-runtime.md). It loads an application-owned bootstrap that returns a PSR-15 handler; it does not compile or discover application code at request time.
 
 ## Command Registration

@@ -2,6 +2,8 @@
 
 This guide shows the current path for building and running an HTTP inline BlackOps application and a deferred worker.
 
+Installed Application向けの公式導線は `examples/quickstart/` のPublic `Application` Bootstrapと薄い `public/index.php`／`bin/blackops` である。Repository内部Toolingの例はFramework実装者向けであり、QuickstartからInternal型を参照しない。
+
 The current runtime supports:
 
 - operation metadata compiled into generated PHP artifacts

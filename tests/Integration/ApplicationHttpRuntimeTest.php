@@ -139,9 +139,22 @@ final class ApplicationHttpRuntimeTest extends TestCase
             'namespace' => $namespace,
         ];
         $root = dirname(__DIR__, levels: 2);
+        $source = new RecursiveIteratorIterator(new RecursiveDirectoryIterator(
+            $root . '/examples/quickstart/app',
+            FilesystemIterator::SKIP_DOTS | FilesystemIterator::CURRENT_AS_FILEINFO,
+        ));
+        foreach ($source as $file) {
+            if ($file->isFile() && $file->getExtension() === 'php') {
+                require_once $file->getPathname();
+            }
+        }
+        $operationProviders = $directory . '/operation-providers.php';
+        $serviceProviders = $directory . '/service-providers.php';
+        file_put_contents($operationProviders, "<?php return [\\App\\ApplicationOperationProvider::class];\n");
+        file_put_contents($serviceProviders, "<?php return [\\App\\ApplicationServiceProvider::class];\n");
         $status = new CommandTester(new CompileBuildArtifactsCommand())->execute([
-            'operation-providers' => $root . '/examples/mvp/operation-providers.php',
-            'service-providers' => $root . '/examples/mvp/service-providers.php',
+            'operation-providers' => $operationProviders,
+            'service-providers' => $serviceProviders,
             'operation-manifest' => $paths['operation'],
             'http-manifest' => $paths['http'],
             'container' => $paths['container'],

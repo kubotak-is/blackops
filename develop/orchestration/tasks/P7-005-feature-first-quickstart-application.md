@@ -1,6 +1,6 @@
 # P7-005: Feature-first Quickstart Application
 
-Status: Ready
+Status: Accepted
 
 ## Goal
 
@@ -140,19 +140,19 @@ Skeletonが直接Classを参照する `vlucas/phpdotenv`、`nyholm/psr7`、`nyho
 
 ## Acceptance Criteria
 
-- [ ] Spec 49のP7-005 Treeが実Fileとして存在する
-- [ ] `examples/quickstart/composer.json` が独立Projectとしてstrict validation可能
-- [ ] Composer Lock、Path Repository、Vendor、Generated StateがSourceにない
-- [ ] Application CodeとProcess BoundaryにInternal Importがない
-- [ ] Laminas型がHTTP Emitter境界だけにある
-- [ ] Thin Bootstrap、HTTP Entrypoint、Console EntrypointがPublic APIだけを使う
-- [ ] Welcome／Report FeatureがAction Directory単位で分離される
-- [ ] Sensitive MaskとDeferred Retry Sampleを維持する
-- [ ] Existing Integration TestがQuickstart Sourceへ移行し成功する
-- [ ] Root Dev Autoloadへ依存しないことをArchitecture Testで検証する
-- [ ] READMEが手動Setupと明示Build／Migration／Worker／Retention導線を説明する
-- [ ] Focused／Full Test、Mago、Composer Validation、管理ID、Diff Checkが成功する
-- [ ] Report、Checkpoint、TODOが更新される
+- [x] Spec 49のP7-005 Treeが実Fileとして存在する
+- [x] `examples/quickstart/composer.json` が独立Projectとしてstrict validation可能
+- [x] Composer Lock、Path Repository、Vendor、Generated StateがSourceにない
+- [x] Application CodeとProcess BoundaryにInternal Importがない
+- [x] Laminas型がHTTP Emitter境界だけにある
+- [x] Thin Bootstrap、HTTP Entrypoint、Console EntrypointがPublic APIだけを使う
+- [x] Welcome／Report FeatureがAction Directory単位で分離される
+- [x] Sensitive MaskとDeferred Retry Sampleを維持する
+- [x] Existing Integration TestがQuickstart Sourceへ移行し成功する
+- [x] Root Dev Autoloadへ依存しないことをArchitecture Testで検証する
+- [x] READMEが手動Setupと明示Build／Migration／Worker／Retention導線を説明する
+- [x] Focused／Full Test、Mago、Composer Validation、管理ID、Diff Checkが成功する
+- [x] Report、Checkpoint、TODOが更新される
 
 ## Required Commands
 

@@ -7,9 +7,6 @@ namespace BlackOps\Tests\Integration;
 use BlackOps\Core\Execution\ClaimRequest;
 use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Core\Supervision\ExponentialBackoffSupervisionPolicy;
-use BlackOps\Examples\Mvp\GenerateReport;
-use BlackOps\Examples\Mvp\ReportGenerated;
-use BlackOps\Examples\Mvp\WelcomeShown;
 use BlackOps\Http\Binding\OperationValueBinder;
 use BlackOps\Http\OperationRequestHandler;
 use BlackOps\Http\Responder\JsonOperationResponder;
@@ -49,9 +46,12 @@ use BlackOps\Transport\PostgreSql\PostgreSqlOutcomeStore;
 use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
+use FilesystemIterator;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 use RuntimeException;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -59,6 +59,9 @@ final class MvpSampleEndToEndTest extends TestCase
 {
     private const SCHEMA = 'blackops_mvp_sample';
     private const BUILD_ID = 'mvp-sample-e2e';
+    private const GENERATE_REPORT = 'App\\Feature\\Report\\GenerateReport\\GenerateReport';
+    private const REPORT_GENERATED = 'App\\Feature\\Report\\GenerateReport\\ReportGenerated';
+    private const WELCOME_SHOWN = 'App\\Feature\\Welcome\\ShowWelcome\\WelcomeShown';
 
     public function testCompiledSampleRunsInlineAndDeferredAcrossWorkerRestart(): void
     {
@@ -71,7 +74,7 @@ final class MvpSampleEndToEndTest extends TestCase
         $httpArtifacts = $this->loadArtifacts($paths);
         self::assertCount(2, $httpArtifacts->operations->all());
         self::assertSame(
-            GenerateReport::class,
+            self::GENERATE_REPORT,
             $httpArtifacts->operations->findByTypeId('report.generate')?->definition,
         );
         self::assertSame('/reports', array_key_first($httpArtifacts->http->routes['POST']));
@@ -134,7 +137,7 @@ final class MvpSampleEndToEndTest extends TestCase
         );
         self::assertInstanceOf(OperationReceivedData::class, $welcomeRecords[0]->data);
         self::assertSame($sensitiveToken, $welcomeRecords[0]->data->value->sampleToken);
-        self::assertInstanceOf(WelcomeShown::class, $welcomeRecords[3]->data->outcome);
+        self::assertInstanceOf(self::WELCOME_SHOWN, $welcomeRecords[3]->data->outcome);
         rewind($jsonl);
         $observedJsonl = stream_get_contents($jsonl);
         self::assertIsString($observedJsonl);
@@ -209,7 +212,7 @@ final class MvpSampleEndToEndTest extends TestCase
         $result = $this->workerRuntime($secondWorkerConnection, $secondWorkerArtifacts, $clock)->run($secondClaim);
 
         self::assertTrue($result->isCompleted());
-        self::assertInstanceOf(ReportGenerated::class, $result->outcome());
+        self::assertInstanceOf(self::REPORT_GENERATED, $result->outcome());
         self::assertSame('weekly', $result->outcome()->reportName);
         self::assertSame('completed', $this->operationState($secondWorkerConnection, $reportOperationId));
         self::assertSame(
@@ -231,7 +234,7 @@ final class MvpSampleEndToEndTest extends TestCase
 
         $outcome = new PostgreSqlOutcomeStore($this->connection(), self::SCHEMA)->find($reportOperationId);
         self::assertInstanceOf(OutcomeRecord::class, $outcome);
-        self::assertInstanceOf(ReportGenerated::class, $outcome->outcome());
+        self::assertInstanceOf(self::REPORT_GENERATED, $outcome->outcome());
         self::assertSame('/reports/generated/weekly.json', $outcome->outcome()->location);
     }
 
@@ -239,6 +242,7 @@ final class MvpSampleEndToEndTest extends TestCase
     private function compileArtifacts(): array
     {
         $root = dirname(__DIR__, levels: 2);
+        $this->requireQuickstartSource($root);
         $directory = sys_get_temp_dir() . '/blackops-mvp-sample-' . bin2hex(random_bytes(8));
         if (!mkdir($directory) && !is_dir($directory)) {
             throw new RuntimeException('Could not create the MVP sample artifact directory.');
@@ -252,10 +256,14 @@ final class MvpSampleEndToEndTest extends TestCase
             'class' => $class,
             'namespace' => $namespace,
         ];
+        $operationProviders = $directory . '/operation-providers.php';
+        $serviceProviders = $directory . '/service-providers.php';
+        file_put_contents($operationProviders, "<?php return [\\App\\ApplicationOperationProvider::class];\n");
+        file_put_contents($serviceProviders, "<?php return [\\App\\ApplicationServiceProvider::class];\n");
 
         $status = new CommandTester(new CompileBuildArtifactsCommand())->execute([
-            'operation-providers' => $root . '/examples/mvp/operation-providers.php',
-            'service-providers' => $root . '/examples/mvp/service-providers.php',
+            'operation-providers' => $operationProviders,
+            'service-providers' => $serviceProviders,
             'operation-manifest' => $paths['operation'],
             'http-manifest' => $paths['http'],
             'container' => $paths['container'],
@@ -267,6 +275,20 @@ final class MvpSampleEndToEndTest extends TestCase
         self::assertSame(0, $status);
 
         return $paths;
+    }
+
+    private function requireQuickstartSource(string $root): void
+    {
+        $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator(
+            $root . '/examples/quickstart/app',
+            FilesystemIterator::SKIP_DOTS | FilesystemIterator::CURRENT_AS_FILEINFO,
+        ));
+
+        foreach ($files as $file) {
+            if ($file->isFile() && $file->getExtension() === 'php') {
+                require_once $file->getPathname();
+            }
+        }
     }
 
     /**

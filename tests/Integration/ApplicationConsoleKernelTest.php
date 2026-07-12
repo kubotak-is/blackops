@@ -6,8 +6,6 @@ namespace BlackOps\Tests\Integration;
 
 use BlackOps\Application\Application;
 use BlackOps\Core\Identifier\OperationId;
-use BlackOps\Examples\Mvp\MvpOperationProvider;
-use BlackOps\Examples\Mvp\MvpServiceProvider;
 use BlackOps\Internal\Application\ApplicationConfigurationSnapshot;
 use BlackOps\Internal\Application\ApplicationWorkerComposer;
 use BlackOps\Internal\Execution\DeferredWorkerRuntime;
@@ -110,7 +108,16 @@ final class ApplicationConsoleKernelTest extends TestCase
 
     private function application(string $directory): Application
     {
-        require_once dirname(__DIR__, levels: 2) . '/examples/mvp/src/MvpSample.php';
+        $root = dirname(__DIR__, levels: 2);
+        $source = new RecursiveIteratorIterator(new RecursiveDirectoryIterator(
+            $root . '/examples/quickstart/app',
+            FilesystemIterator::SKIP_DOTS | FilesystemIterator::CURRENT_AS_FILEINFO,
+        ));
+        foreach ($source as $file) {
+            if ($file->isFile() && $file->getExtension() === 'php') {
+                require_once $file->getPathname();
+            }
+        }
         $config = $directory . '/config';
         mkdir($config);
         mkdir($directory . '/var');
@@ -141,8 +148,8 @@ final class ApplicationConsoleKernelTest extends TestCase
 
         return Application::configure($directory)
             ->withConfiguration()
-            ->withOperations([MvpOperationProvider::class])
-            ->withServices([MvpServiceProvider::class])
+            ->withOperations(['App\\ApplicationOperationProvider'])
+            ->withServices(['App\\ApplicationServiceProvider'])
             ->create();
     }
 

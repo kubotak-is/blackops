@@ -2,6 +2,8 @@
 
 Installed Applicationは、Application Rootを起点にPublic Builderで起動設定を組み立てる。
 
+Feature-firstの完全なSource例は `examples/quickstart/` にあり、Application Code、Bootstrap、Config、Entrypointは `BlackOps\Internal` を参照しない。
+
 ```php
 use BlackOps\Application\Application;
 

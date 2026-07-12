@@ -1,0 +1,6 @@
+/.env
+/vendor/
+/var/build/*
+!/var/build/.gitignore
+/var/log/*
+!/var/log/.gitignore
