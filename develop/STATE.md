@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-12T23:04:16+09:00
+Updated At: 2026-07-12T23:06:13+09:00
 
 ## Current Phase
 
@@ -8,17 +8,17 @@ Phase 7 Planning: Public Console Kernel Composition
 
 ## Current Task
 
-Task ID: P7-003-public-http-runtime-composition
+Task ID: P7-004-public-console-kernel-composition
 
-Task Packet: `develop/orchestration/tasks/P7-003-public-http-runtime-composition.md`
+Task Packet: `develop/orchestration/tasks/P7-004-public-console-kernel-composition.md`
 
 Specification: `develop/spec/48-public-console-kernel-composition.md`
 
 ## Task Status
 
-Planning
+Ready
 
-D068の全回答をAとして確定し、Public Console Kernel、Lazy Command、Application-aware Build、Worker／Retention Configの正本をSpec 48へ記録した。
+Public Console Kernel、Lazy Command、Application-aware Build、Migration、Worker、Retention、SchedulerのScopeとAcceptance CriteriaをP7-004へ確定した。
 
 ## Last Accepted Task
 
@@ -34,9 +34,9 @@ P7-003-public-http-runtime-composition
 
 ## Required Next Action
 
-1. P7-004 Task Packetを作成する。
-2. GPT-5.4-mini workerへProduction実装を依頼する。
-3. Orchestrator CodexがLazy Command Boundaryと各Runtime CompositionをReviewする。
+1. GPT-5.4-mini workerがP7-004を実装し、ReportとCheckpointを更新する。
+2. Orchestrator CodexがLazy Command Boundaryと各Runtime CompositionをReviewする。
+3. P7-004受入後、Feature-first Quickstart ApplicationをP7-005としてTask化する。
 
 ## P6-015 MVP Closeout Verification Commands and Results
 
