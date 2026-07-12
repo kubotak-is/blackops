@@ -4,20 +4,12 @@
 
 FWはアプリケーション全体のディレクトリ構造を強制しない。
 
-ConfigでHttp、Console、Internalなど入口種別ごとのOperation探索ディレクトリを指定する。Manifest Scannerは設定された範囲だけを対象とする。
+ConfigでOperation Providerと探索対象を指定する。Manifest Scannerは設定された範囲だけを対象とし、特定のApplication DirectoryをHard Codeしない。
 
 ```php
 return [
     'discovery' => [
-        'http' => [
-            app_path('UserInterface/Http/Operation'),
-        ],
-        'console' => [
-            app_path('UserInterface/Console/Operation'),
-        ],
-        'internal' => [
-            app_path('Application/Operation/Internal'),
-        ],
+        'paths' => [app_path('Feature')],
     ],
 ];
 ```
@@ -29,30 +21,23 @@ return [
 Operationに関連するDefinition、Value、Handler、Outcome、Responderは、FeatureとAction単位で近くへ配置することを推奨する。
 
 ```text
-Http/
-  Operation/
-    Order/
-      CreateOrder/
-        CreateOrder.php
-        CreateOrderValue.php
-        CreateOrderHandler.php
-        OrderCreated.php
-        CreateOrderResponder.php
+Feature/
+  Order/
+    CreateOrder/
+      CreateOrder.php
+      CreateOrderValue.php
+      CreateOrderHandler.php
+      OrderCreated.php
+      CreateOrderResponder.php
 ```
 
 これは公式推奨であり、FWの実行要件ではない。
 
-## Internal Operation
+## Operation Entry Point
 
-Internal OperationはUserInterfaceではなくApplication層へ置くことを推奨する。
+SkeletonはHTTP／Console／Internal等の入口種別をDirectory名で分類しない。Operationが属するFeatureへ配置し、HTTP Route、Execution Strategy、Provider等のMetadataとApplication Configurationで実行経路を決定する。
 
-```text
-Application/
-  Operation/
-    Internal/
-      Notification/
-        SendNotification/
-```
+公式Skeletonへ `Internal` Directoryを設けない。利用者がApplication都合で独自のLayerやDirectoryを追加することは妨げない。
 
 ## CommandとQuery
 
@@ -90,8 +75,6 @@ config/
 
 SecretをConfigファイルへ直書きせず、環境変数またはSecret Managerへの参照として扱う。
 
-## 未決定事項
+## Official Skeleton
 
-公式Application Skeletonの完全な構造は現時点では決定しない。
-
-Welcome Page、初期Operation、起動方法などの初期体験を設計する段階で改めて決定する。`Shared` ディレクトリは公式構造へ含めない。
+公式Application Skeletonの完全な構造、Starter Feature、Bootstrap、Local Runtimeは [Installed Application Layout and Bootstrap](43-installed-application-layout-and-bootstrap.md) で定める。`Shared` とFramework名を持つInfrastructure Subdirectoryは公式構造へ含めない。

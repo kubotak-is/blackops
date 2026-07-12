@@ -1,10 +1,10 @@
 # Orchestration State
 
-Updated At: 2026-07-12T19:54:04+09:00
+Updated At: 2026-07-12T21:30:57+09:00
 
 ## Current Phase
 
-Phase 7 Design: Installed Application Layout and Bootstrap
+Phase 7 Planning: Public Application Bootstrap
 
 ## Current Task
 
@@ -12,13 +12,13 @@ Decision ID: D064-installed-application-layout-and-bootstrap
 
 Decision: `decisions/064-installed-application-layout-and-bootstrap.md`
 
-Specification: `spec/42-installed-application-boundary.md`
+Specification: `spec/43-installed-application-layout-and-bootstrap.md`
 
 ## Task Status
 
-Awaiting User Decision
+Decision Accepted
 
-P7-001の監査結果をもとに、Installed Application Layout、Public Bootstrap、Starter Feature、Local Runtime、Environment Loadingの選択肢と推奨案をD064へ記録した。
+D064をDecidedとし、Feature-first Skeleton、共有Application Builder、Inline／Deferred Starter Feature、Docker Compose Quickstart、Skeleton所有のDotenv Loadingを確定した。利用者Applicationへ `Internal` やFramework名のDirectoryを要求しない。
 
 ## Last Accepted Task
 
@@ -26,7 +26,7 @@ P7-001-installed-application-composition-audit
 
 ## Pending Decisions
 
-- D064 Question 1から5の回答待ち。
+- なし。
 
 ## Known Blockers
 
@@ -34,8 +34,8 @@ P7-001-installed-application-composition-audit
 
 ## Required Next Action
 
-1. ユーザーがD064 Question 1から5へ回答する。
-2. 回答を確定仕様へ反映し、Public Composition APIと `examples/quickstart/` のProduction実装Taskを分割する。
+1. Public Application Bootstrap APIのProduction実装Taskを作成する。
+2. Quickstart Application、Local Runtime、Consumer E2Eを後続Taskへ分割する。
 
 ## P6-015 MVP Closeout Verification Commands and Results
 

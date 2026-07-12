@@ -2,6 +2,10 @@
 
 Status: Decided
 
+Updated by: [D064 Installed Application Layout and Bootstrap](064-installed-application-layout-and-bootstrap.md)
+
+D064は、Decision項目2と6の入口別／Internal Directory推奨、および項目13と14のSkeleton未決定状態をFeature-first Skeletonで更新する。Directoryを強制しない原則、FeatureとAction単位で関連Fileを近くへ置く原則、Config／Providerで探索対象を指定する原則は維持する。
+
 ## Context
 
 初期バージョンではHttp、Console、InternalのOperationを扱う。

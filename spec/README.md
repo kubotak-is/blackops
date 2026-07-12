@@ -57,6 +57,7 @@
 | [40-mvp-delivery-plan.md](40-mvp-delivery-plan.md) | 実装Phase、最初のVertical Slice、品質Tool |
 | [41-developer-experience-roadmap.md](41-developer-experience-roadmap.md) | Installed Example、Composer Skeleton、Project CLI、Documentation Website |
 | [42-installed-application-boundary.md](42-installed-application-boundary.md) | 独立Consumer Package、Public Composition、Process Boundary |
+| [43-installed-application-layout-and-bootstrap.md](43-installed-application-layout-and-bootstrap.md) | Feature-first Skeleton、Application Bootstrap、Local Runtime |
 
 ## 決定の参照
 
@@ -125,4 +126,4 @@
 | [D061](../decisions/061-retention-operation-reference.md) | Retention Operation Reference | Decided |
 | [D062](../decisions/062-retention-audit-log-delivery.md) | Retention Audit Log Delivery | Decided |
 | [D063](../decisions/063-developer-experience-roadmap.md) | Developer Experience Roadmap | Decided |
-| [D064](../decisions/064-installed-application-layout-and-bootstrap.md) | Installed Application Layout and Bootstrap | Awaiting Answer |
+| [D064](../decisions/064-installed-application-layout-and-bootstrap.md) | Installed Application Layout and Bootstrap | Decided |
