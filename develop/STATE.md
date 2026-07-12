@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-13T00:00:34+09:00
+Updated At: 2026-07-13T00:04:23+09:00
 
 ## Current Phase
 
@@ -26,7 +26,7 @@ P7-005-feature-first-quickstart-application
 
 ## Pending Decisions
 
-- なし。
+- `develop/decisions/070-quickstart-journal-observer.md`: Quickstart Observed Journal BackendとDelivery Failure Policyの回答待ち。
 
 ## Known Blockers
 
@@ -34,9 +34,9 @@ P7-005-feature-first-quickstart-application
 
 ## Required Next Action
 
-1. Quickstart Local RuntimeとConsumer Install境界を仕様化する。
-2. P7-006 Task Packetを作成する。
-3. GPT-5.4-mini workerへDocker／Compose／Consumer E2E実装を依頼する。
+1. UserがD070の2問へ回答する。
+2. 回答をJournal CompositionとLocal Runtime仕様へ確定する。
+3. P7-006 Task Packetを作成し、GPT-5.4-mini workerへ実装を依頼する。
 
 ## P6-015 MVP Closeout Verification Commands and Results
 
