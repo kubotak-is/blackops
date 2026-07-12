@@ -17,7 +17,6 @@ app/
         ShowWelcome.php
         WelcomeValue.php
         WelcomeShown.php
-  Infrastructure/
 bin/
   blackops
 bootstrap/
@@ -29,7 +28,6 @@ config/
   journal.php
   operations.php
   retention.php
-migrations/
 public/
   index.php
 tests/
@@ -51,6 +49,8 @@ README.md
 Skeletonへ `Internal` Directoryを設けない。HTTPから直接開始しないOperationも、それが属するFeatureへ置く。HTTP、Deferred等の実行経路はDirectoryではなくOperation MetadataとApplication Configurationで決定する。
 
 `app/Infrastructure/` はApplicationが必要とするPersistence、External Service、Clock等の技術実装を置く任意のDirectoryである。Frameworkは `Infrastructure/BlackOps` その他のFramework名を含むDirectoryを要求しない。
+
+Starter FeatureがInfrastructure Adapterを必要としない場合、空の `app/Infrastructure/` は配布しない。Application固有Migrationの `migrations/` も任意Directoryであり、Migrationを持たないSkeletonへ空Directoryを配布しない。Framework-owned MigrationはFramework Package内部からPublic Database Migration Commandが実行する。
 
 このLayoutは公式推奨であり、Frameworkの実行要件ではない。ApplicationはBuild-time Discovery Root、Operation Provider、Configurationにより別のDirectory Layoutを使用できる。
 
@@ -139,3 +139,4 @@ Database Migrationは明示Commandで実行し、HTTP／Worker起動時には実
 - Decision: [D064 Installed Application Layout and Bootstrap](../decisions/064-installed-application-layout-and-bootstrap.md)
 - Boundary: [Installed Application Boundary](42-installed-application-boundary.md)
 - Audit: [P7-001 Installed Application Composition Audit](../orchestration/reports/P7-001-installed-application-composition-audit.md)
+- Empty Directory Policy: [D072 Skeleton Empty Directory Policy](../decisions/072-skeleton-empty-directory-policy.md)
