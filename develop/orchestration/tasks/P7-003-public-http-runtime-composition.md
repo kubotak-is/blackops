@@ -1,6 +1,6 @@
 # P7-003: Public HTTP Runtime Composition
 
-Status: Ready
+Status: Accepted
 
 ## Goal
 
@@ -132,19 +132,19 @@ schema      non-empty valid PostgreSQL schema identifier
 
 ## Acceptance Criteria
 
-- [ ] `Application::http()` がPSR-15 Handlerを返す
-- [ ] 同一Applicationで複数回呼び出すと同じHandler Instanceを返す
-- [ ] Build ConfigのMissing／型／空値／相対Pathを安全に拒否する
-- [ ] Database ConfigのMissing／型／SchemaをCredential非露出で拒否する
-- [ ] Missing／Invalid／Build ID不一致ArtifactをFallbackせず拒否する
-- [ ] Compile済みContainerのHandlerでInline Routeが200 Responseを返す
-- [ ] Deferred Routeが202とOperation IDを返す
-- [ ] Deferred AcceptanceがState、Received、Accepted、Next Sequenceを一Transactionで保存する
-- [ ] Inline／Deferredが同じCompile済みRegistryとHTTP Manifestを使う
-- [ ] HTTP構成時にMigration、DDL、Build、Workerを実行しない
-- [ ] Public SignatureへInternal型、Container、Connection、Raw Configを露出しない
-- [ ] Focused／Full Test、Mago、Deptrac、Composer Validationが成功する
-- [ ] Guide、Internals、Report、Checkpointが更新される
+- [x] `Application::http()` がPSR-15 Handlerを返す
+- [x] 同一Applicationで複数回呼び出すと同じHandler Instanceを返す
+- [x] Build ConfigのMissing／型／空値／相対Pathを安全に拒否する
+- [x] Database ConfigのMissing／型／SchemaをCredential非露出で拒否する
+- [x] Missing／Invalid／Build ID不一致ArtifactをFallbackせず拒否する
+- [x] Compile済みContainerのHandlerでInline Routeが200 Responseを返す
+- [x] Deferred Routeが202とOperation IDを返す
+- [x] Deferred AcceptanceがState、Received、Accepted、Next Sequenceを一Transactionで保存する
+- [x] Inline／Deferredが同じCompile済みRegistryとHTTP Manifestを使う
+- [x] HTTP構成時にMigration、DDL、Build、Workerを実行しない
+- [x] Public SignatureへInternal型、Container、Connection、Raw Configを露出しない
+- [x] Focused／Full Test、Mago、Deptrac、Composer Validationが成功する
+- [x] Guide、Internals、Report、Checkpointが更新される
 
 ## Required Commands
 

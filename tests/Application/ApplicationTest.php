@@ -9,6 +9,7 @@ use BlackOps\Application\ApplicationBootstrapException;
 use BlackOps\Application\ApplicationBuilder;
 use BlackOps\Core\Attribute\PublicApi;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Server\RequestHandlerInterface;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
@@ -39,9 +40,16 @@ final class ApplicationTest extends TestCase
         }
 
         self::assertSame(Application::class, (string) $builder->getMethod('create')->getReturnType());
-        self::assertFalse($application->hasMethod('http'));
+        self::assertSame(RequestHandlerInterface::class, (string) $application->getMethod('http')->getReturnType());
         self::assertFalse($application->hasMethod('console'));
         self::assertFalse($application->hasMethod('container'));
+
+        $applicationMethods = array_map(
+            static fn(ReflectionMethod $method): string => $method->getName(),
+            $application->getMethods(ReflectionMethod::IS_PUBLIC),
+        );
+        sort($applicationMethods);
+        self::assertSame(['configure', 'http'], $applicationMethods);
 
         $publicMethods = array_map(
             static fn(ReflectionMethod $method): string => $method->getName(),

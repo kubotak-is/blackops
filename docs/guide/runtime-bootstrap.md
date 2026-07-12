@@ -10,7 +10,7 @@ The current runtime supports:
 - inline dispatch with lifecycle journal records
 - production startup from generated artifacts
 
-Applications compose deferred acceptance and worker infrastructure from the framework's execution ports and PostgreSQL adapters. BlackOps provides a reference FrankenPHP front controller, but it does not generate application-specific bootstrap or process-supervisor configuration.
+`Application::http()` composes inline and deferred HTTP acceptance from the accepted application configuration. BlackOps provides a reference FrankenPHP front controller, but it does not generate application-specific bootstrap or process-supervisor configuration.
 
 Applications own their bootstrap composition, database connection setup, environment loading, and deployment layout. The framework-owned reference entrypoint only adapts the SAPI request and response around the PSR-15 handler returned by that bootstrap.
 
@@ -139,20 +139,20 @@ Use `--lock` when concurrent build processes could write the same artifact files
 
 Use `--fingerprint` for faster local rebuilds. Production and CI can force a full rebuild by using a clean workspace or deleting the fingerprint file.
 
-## Load Production Artifacts
+## Configure Production Artifacts
 
-Production runtime should load generated artifacts. It should not scan source files or rebuild artifacts during request handling.
+Production runtime loads generated artifacts from application configuration. It does not scan source files or rebuild artifacts during request handling.
 
 ```php
-use BlackOps\Internal\Runtime\ProductionRuntimeArtifactLoader;
-
-$artifacts = new ProductionRuntimeArtifactLoader()->load(
-    operationManifest: __DIR__ . '/../var/cache/blackops/operations.php',
-    httpManifest: __DIR__ . '/../var/cache/blackops/http.php',
-    container: __DIR__ . '/../var/cache/blackops/container.php',
-    containerClass: 'CompiledContainer',
-    containerNamespace: 'App\\BlackOps\\Generated',
-);
+return [
+    'build' => [
+        'operation_manifest' => dirname(__DIR__) . '/var/build/operations.php',
+        'http_manifest' => dirname(__DIR__) . '/var/build/http.php',
+        'container' => dirname(__DIR__) . '/var/build/container.php',
+        'container_class' => 'CompiledContainer',
+        'container_namespace' => 'App\\Generated',
+    ],
+];
 ```
 
 Startup fails if a manifest is missing, uses an unsupported or missing schema version, has a missing or empty build ID,
@@ -162,38 +162,32 @@ to scanning application classes, compiling routes, or rebuilding artifacts.
 
 ## Compose the HTTP Runtime
 
-The current runtime composer builds the HTTP inline execution boundary from loaded artifacts and application-owned runtime resources.
+The public Application boundary builds inline dispatch and deferred acceptance from the same loaded artifacts and one shared DBAL connection.
 
 ```php
-use BlackOps\Internal\Runtime\ProductionRuntimeComposer;
-use Nyholm\Psr7\Factory\Psr17Factory;
+use BlackOps\Application\Application;
 
-$psr17 = new Psr17Factory();
+$application = Application::configure(dirname(__DIR__))
+    ->withConfiguration()
+    ->create();
 
-$runtime = new ProductionRuntimeComposer()->compose(
-    artifacts: $artifacts,
-    clock: $clock,
-    journal: $journal,
-    responses: $psr17,
-    streams: $psr17,
-);
+$http = $application->http();
 ```
 
-The application provides:
+`config/database.php` provides resolved DBAL parameters and the framework schema:
 
-- a PSR-20 clock
-- a canonical journal writer
-- a PSR-17 response factory
-- a PSR-17 stream factory
+- `connection`: DBAL connection parameter array
+- `schema`: non-empty PostgreSQL identifier
 
-The runtime exposes:
+The framework internally composes:
 
-- HTTP route registry
-- inline dispatcher
-- HTTP request handler
+- the compiled HTTP route registry and container-backed inline dispatcher
+- PostgreSQL canonical journal and deferred sender sharing one connection
+- transactional deferred acceptance
+- system clock, UUIDv7 identifiers, reflection JSON codec, and Nyholm PSR-17 factories
 
 ```php
-$response = $runtime->httpHandler->handle($serverRequest);
+$response = $http->handle($serverRequest);
 ```
 
 For inline operations, the request handler matches against the Compile済みFastRoute Dispatcher Data, binds the HTTP request and decoded path parameters into an operation value, dispatches the operation, invokes the handler from the compiled container, and records the inline lifecycle journal. Unknown routes and requests using a disallowed method both return HTTP 404 in the current compatibility contract.

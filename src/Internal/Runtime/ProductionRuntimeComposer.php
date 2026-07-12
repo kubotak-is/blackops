@@ -64,6 +64,7 @@ final readonly class ProductionRuntimeComposer
                 $dispatcher,
                 new JsonOperationResponder($dependencies->responses, $dependencies->streams),
                 $dependencies->responses,
+                $dependencies->deferredOperationAcceptor,
             ),
             $scope,
         );

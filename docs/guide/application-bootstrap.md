@@ -46,6 +46,17 @@ Frameworkは `.env` を読まず、Dotenvも提供しない。Process Manager、
 
 Providerは対応するPublic ContractのInstanceまたは引数なしで生成できるClass Name、CommandはSymfony Console CommandのInstanceまたは引数なしで生成できるClass Nameを指定する。同一Classは一度だけ登録され、異なるCommandが同じCommand Nameを使う場合は起動エラーになる。
 
-## Current Boundary
+## HTTP Runtime
 
-この段階の `Application` は検証済みConfiguration Snapshotを保持するBootstrap Foundationである。HTTP RuntimeとConsole Runtimeの構成はまだPublic APIではなく、`http()`、`console()`、Container Getterは提供しない。
+`Application::http()` は初回呼出時にCompile済みArtifactとDatabase設定を検証し、PSR-15 Handlerを遅延構成する。同じApplicationから繰り返し取得した場合は同じHandler Instanceを返す。
+
+```php
+$handler = $application->http();
+$response = $handler->handle($serverRequest);
+```
+
+`config/app.php` の `build` には `operation_manifest`、`http_manifest`、`container` の絶対Path、`container_class`、`container_namespace` を指定する。`config/database.php` には解決済みDoctrine DBAL `connection` Parameter配列と安全なPostgreSQL `schema` Identifierを指定する。Environment Variable名と値の解決はApplication側が所有する。
+
+HTTP構成はArtifact Compile、Source Discovery、Database Migration、DDLを行わない。Deployment StepでBuildとMigrationを明示的に完了させてからProcessを開始する。Artifact不足、Format不正、Build ID不一致ではFallbackせず `ApplicationBootstrapException` で失敗する。
+
+Console Runtime、Container Getter、Config Getterはまだ提供しない。

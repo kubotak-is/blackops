@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BlackOps\Internal\Runtime;
 
+use BlackOps\Http\DeferredOperationAcceptor;
 use BlackOps\Internal\Execution\ExecutionScopeProvider;
 use BlackOps\Internal\Journal\JournalObservationPipeline;
 use BlackOps\Journal\CanonicalJournalWriter;
@@ -20,5 +21,6 @@ final readonly class ProductionRuntimeDependencies
         public StreamFactoryInterface $streams,
         public ?ExecutionScopeProvider $executionScope = null,
         public ?JournalObservationPipeline $journalObservations = null,
+        public ?DeferredOperationAcceptor $deferredOperationAcceptor = null,
     ) {}
 }

@@ -53,4 +53,35 @@ final class ApplicationConfigurationTest extends TestCase
             self::assertStringNotContainsString('plain-secret', $exception->getMessage());
         }
     }
+
+    public function testHttpRejectsInvalidDatabaseConfigurationWithoutCredentialExposure(): void
+    {
+        $directory = $this->directory();
+        $config = $directory . '/config';
+        $credential = 'credential-that-must-not-appear';
+        mkdir($config);
+        $this->writeConfig(
+            $config,
+            'app',
+            sprintf(
+                "return ['build' => ['operation_manifest' => '%s', 'http_manifest' => '%s', 'container' => '%s', 'container_class' => 'Container', 'container_namespace' => '']];",
+                $directory . '/operations.php',
+                $directory . '/http.php',
+                $directory . '/container.php',
+            ),
+        );
+        $this->writeConfig(
+            $config,
+            'database',
+            sprintf("return ['connection' => ['password' => '%s'], 'schema' => 'invalid-schema'];", $credential),
+        );
+
+        try {
+            Application::configure($directory)->withConfiguration()->create()->http();
+            self::fail('Expected invalid database configuration.');
+        } catch (ApplicationBootstrapException $exception) {
+            self::assertStringContainsString('database.schema', $exception->getMessage());
+            self::assertStringNotContainsString($credential, $exception->getMessage());
+        }
+    }
 }
