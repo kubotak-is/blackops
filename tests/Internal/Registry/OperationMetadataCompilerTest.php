@@ -48,10 +48,41 @@ final class OperationMetadataCompilerTest extends TestCase
         self::assertSame(MetadataStrategyFixture::class, $metadata->strategy);
     }
 
+    public function testCompilesSelfHandledOperationWithoutHandledBy(): void
+    {
+        $metadata = new OperationMetadataCompiler()->compile(SelfHandledOperationFixture::class);
+
+        self::assertSame(SelfHandledOperationFixture::class, $metadata->handler);
+        self::assertSame(SelfHandledOperationFixture::class, $metadata->definition);
+    }
+
+    public function testRejectsSelfHandledOperationWithHandledBy(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('must not declare HandledBy');
+
+        new OperationMetadataCompiler()->compile(AmbiguousHandlerOperationFixture::class);
+    }
+
+    public function testRejectsOperationWithoutHandler(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('requires a handler');
+
+        new OperationMetadataCompiler()->compile(MissingHandlerOperationFixture::class);
+    }
+
     public function testInvalidContractClassIsRejected(): void
     {
         $this->expectException(InvalidArgumentException::class);
         new OperationMetadataCompiler()->compile(InvalidValueOperationFixture::class);
+    }
+
+    public function testInvalidSeparateHandlerContractIsRejected(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        new OperationMetadataCompiler()->compile(InvalidHandlerOperationFixture::class);
     }
 }
 
@@ -88,3 +119,41 @@ final readonly class ExplicitStrategyOperationFixture implements Operation {}
 #[HandledBy(MetadataHandlerFixture::class)]
 #[Returns(EmptyOutcome::class)]
 final readonly class InvalidValueOperationFixture implements Operation {}
+
+#[OperationType('welcome.invalid.handler')]
+#[Accepts(MetadataValueFixture::class)]
+#[HandledBy(\stdClass::class)]
+#[Returns(EmptyOutcome::class)]
+final readonly class InvalidHandlerOperationFixture implements Operation {}
+
+#[OperationType('welcome.self.handled')]
+#[Accepts(MetadataValueFixture::class)]
+#[Returns(EmptyOutcome::class)]
+final readonly class SelfHandledOperationFixture implements Operation, OperationHandler
+{
+    public function __construct(
+        private string $dependency,
+    ) {}
+
+    public function handle(OperationEnvelope $operation): OperationResult
+    {
+        return OperationResult::completed();
+    }
+}
+
+#[OperationType('welcome.ambiguous')]
+#[Accepts(MetadataValueFixture::class)]
+#[HandledBy(MetadataHandlerFixture::class)]
+#[Returns(EmptyOutcome::class)]
+final readonly class AmbiguousHandlerOperationFixture implements Operation, OperationHandler
+{
+    public function handle(OperationEnvelope $operation): OperationResult
+    {
+        return OperationResult::completed();
+    }
+}
+
+#[OperationType('welcome.missing.handler')]
+#[Accepts(MetadataValueFixture::class)]
+#[Returns(EmptyOutcome::class)]
+final readonly class MissingHandlerOperationFixture implements Operation {}

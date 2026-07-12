@@ -112,6 +112,46 @@ final class ProductionRuntimeComposerTest extends TestCase
         );
     }
 
+    public function testUsesContainerResolvedSelfHandledOperationAsHttpDefinition(): void
+    {
+        $dependency = new RuntimeCompositionDependency('container-resolved');
+        $handler = new RequiredRuntimeCompositionOperation($dependency);
+        $routes = ['GET' => ['/required' => 'runtime.required']];
+        $artifacts = new ProductionRuntimeArtifacts(
+            new OperationRegistry([new OperationMetadataCompiler()->compile(RequiredRuntimeCompositionOperation::class)]),
+            new HttpOperationManifest(
+                $routes,
+                [
+                    'runtime.required' => [
+                        'definition' => RequiredRuntimeCompositionOperation::class,
+                        'value' => RuntimeCompositionValue::class,
+                        'handler' => RequiredRuntimeCompositionOperation::class,
+                        'outcome' => EmptyOutcome::class,
+                        'strategy' => Inline::class,
+                    ],
+                ],
+                new FastRouteDispatcherDataCompiler()->compile($routes),
+            ),
+            new RuntimeCompositionContainer($handler),
+        );
+        $psr17 = new Psr17Factory();
+
+        $composition = new ProductionRuntimeComposer()->compose(
+            $artifacts,
+            new RuntimeCompositionClock(),
+            new RuntimeCompositionJournalWriter(),
+            $psr17,
+            $psr17,
+        );
+        $match = $composition->httpRoutes->match('GET', '/required');
+        $response = $composition->httpHandler->handle($psr17->createServerRequest('GET', '/required'));
+
+        self::assertNotNull($match);
+        self::assertSame($handler, $match->route->operation);
+        self::assertSame(204, $response->getStatusCode());
+        self::assertSame('container-resolved', $handler->handledWith);
+    }
+
     private function artifacts(?OperationHandler $handler = null): ProductionRuntimeArtifacts
     {
         $routes = [
@@ -183,7 +223,7 @@ final readonly class RuntimeCompositionContainer implements ContainerInterface
 
     public function has(string $id): bool
     {
-        return $id === RuntimeCompositionHandler::class;
+        return $id === $this->handler::class;
     }
 }
 
@@ -212,6 +252,32 @@ final readonly class RuntimeLoggingCompositionHandler implements OperationHandle
     public function handle(OperationEnvelope $operation): OperationResult
     {
         $this->logger->info('runtime handler', ['safe' => 'ok']);
+
+        return OperationResult::completed();
+    }
+}
+
+final readonly class RuntimeCompositionDependency
+{
+    public function __construct(
+        public string $value,
+    ) {}
+}
+
+#[OperationType('runtime.required')]
+#[Accepts(RuntimeCompositionValue::class)]
+#[Returns(EmptyOutcome::class)]
+final class RequiredRuntimeCompositionOperation implements Operation, OperationHandler
+{
+    public ?string $handledWith = null;
+
+    public function __construct(
+        private RuntimeCompositionDependency $dependency,
+    ) {}
+
+    public function handle(OperationEnvelope $operation): OperationResult
+    {
+        $this->handledWith = $this->dependency->value;
 
         return OperationResult::completed();
     }

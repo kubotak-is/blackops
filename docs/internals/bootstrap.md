@@ -105,7 +105,7 @@ php bin/console blackops:http-manifest:compile \
 
 An exact definition returned by both a provider and discovery is compiled once. Different definitions with the same type ID remain an error, as do invalid operation attributes. Operation list output is sorted by type ID.
 
-Dynamic discovery is intentionally absent from `blackops:build:compile`. The unified build command and production runtime continue to use explicit provider inputs and generated artifacts only; neither falls back to source scanning.
+The public Application-aware `blackops:build:compile` and `blackops:operation:list` read `operations.discovery` and scan only while those commands execute. The legacy standalone unified command retains its explicit provider inputs. Production HTTP and Worker runtime continue to use generated artifacts only and never fall back to source scanning.
 
 ## Provider Inputs
 

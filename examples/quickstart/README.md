@@ -59,7 +59,7 @@ Workerを明示的に実行する。
 php bin/blackops blackops:worker:run --idle-sleep-milliseconds=1000
 ```
 
-Sample Report Handlerは最初のAttemptでRetryable Failureを返し、次のAttemptで成功する。
+Self-handledなSample Report Operationは最初のAttemptでRetryable Failureを返し、次のAttemptで成功する。
 
 ## Retention
 
@@ -72,6 +72,8 @@ php bin/blackops blackops:retention:purge --dry-run
 
 ## Removing Starter Features
 
-FeatureはAction Directory単位で独立している。Welcomeを削除する場合は `app/Feature/Welcome/` と `ApplicationOperationProvider`／`ApplicationServiceProvider` のWelcome登録を削除する。Reportも同様に `app/Feature/Report/` と対応するProvider登録だけを削除でき、もう一方のFeature、Bootstrap、Configは変更不要である。
+FeatureはAction Directory単位で独立している。Welcomeを削除する場合は `app/Feature/Welcome/` を削除する。Reportも `app/Feature/Report/` を削除するだけでよく、Provider一覧、もう一方のFeature、Bootstrap、Configは変更不要である。`config/operations.php` のDiscovery Rootに追加したOperationは次のBuildで自動検出される。
+
+Operation自身が `OperationHandler` を実装するのが標準形である。Repository InterfaceやExternal Client等のConstructor Dependencyが必要な場合だけ、`ServiceProvider` を作り `config/app.php` の `services` へ登録する。Interface BindingはProviderが所有し、Operation自身はContainerを受け取らない。
 
 Docker／ComposeによるLocal Runtimeは後続Taskで追加する。

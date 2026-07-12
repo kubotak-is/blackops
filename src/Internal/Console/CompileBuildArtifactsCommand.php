@@ -144,7 +144,7 @@ final class CompileBuildArtifactsCommand extends Command
             $this->nullableStringOption($input, 'installed-composer-metadata'),
         );
         $registry = $this->operationCompiler->compile($providers->operationProviders);
-        $definitions = $this->definitions->fromProviders($providers->operationProviders);
+        $definitions = $this->definitions->classNamesFromProviders($providers->operationProviders);
         $this->operationManifests->write($registry, $operationManifest, $applicationBuildId);
         $this->httpManifests->write(
             new HttpRouteCompiler($registry)->compileManifest($definitions),
@@ -154,6 +154,7 @@ final class CompileBuildArtifactsCommand extends Command
 
         $builder = $this->containerCompiler->builder();
         $this->containerCompiler->apply($builder, $providers->serviceProviders);
+        $this->containerCompiler->registerHandlers($builder, $registry);
         $this->containerCompiler->compile($builder);
         $this->containerDumper->dump(
             $builder,

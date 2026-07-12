@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-use App\ApplicationOperationProvider;
-use App\ApplicationServiceProvider;
 use BlackOps\Application\Application;
 use Dotenv\Dotenv;
 
@@ -25,9 +23,4 @@ foreach ($_ENV as $name => $value) {
     }
 }
 
-return Application::configure($basePath)
-    ->withEnvironment($environment)
-    ->withConfiguration()
-    ->withOperations([ApplicationOperationProvider::class])
-    ->withServices([ApplicationServiceProvider::class])
-    ->create();
+return Application::configure($basePath)->withEnvironment($environment)->withConfiguration()->create();

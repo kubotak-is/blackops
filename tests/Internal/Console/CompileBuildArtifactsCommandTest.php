@@ -28,6 +28,44 @@ use Symfony\Component\Console\Tester\CommandTester;
 
 final class CompileBuildArtifactsCommandTest extends TestCase
 {
+    public function testCompilesRequiredConstructorSelfHandledOperationAndRegistersHandler(): void
+    {
+        $operationProviders = $this->path('required-operation-providers');
+        $serviceProviders = $this->path('required-service-providers');
+        $operationManifest = $this->path('required-operation-manifest');
+        $httpManifest = $this->path('required-http-manifest');
+        $containerPath = $this->path('required-container');
+        $class = 'RequiredBuildContainer' . bin2hex(random_bytes(8));
+        $namespace = __NAMESPACE__ . '\\Generated';
+        file_put_contents(
+            $operationProviders,
+            '<?php return [\\' . RequiredBuildOperationProvider::class . '::class];',
+        );
+        file_put_contents($serviceProviders, '<?php return [\\' . RequiredBuildServiceProvider::class . '::class];');
+
+        $status = new CommandTester(new CompileBuildArtifactsCommand())->execute([
+            'operation-providers' => $operationProviders,
+            'service-providers' => $serviceProviders,
+            'operation-manifest' => $operationManifest,
+            'http-manifest' => $httpManifest,
+            'container' => $containerPath,
+            '--application-build-id' => 'build-required-self-handled',
+            '--container-class' => $class,
+            '--container-namespace' => $namespace,
+        ]);
+        require_once $containerPath;
+        $containerClass = $namespace . '\\' . $class;
+        $container = new $containerClass();
+        $metadata = new OperationManifestFile()
+            ->load($operationManifest)
+            ->findByTypeId('build.required');
+
+        self::assertSame(0, $status);
+        self::assertSame(RequiredBuildOperation::class, $metadata?->handler);
+        self::assertInstanceOf(RequiredBuildOperation::class, $container->get(RequiredBuildOperation::class));
+        self::assertSame('required-ready', $container->get(RequiredBuildOperation::class)->dependency->value);
+    }
+
     public function testCompilesBuildArtifactsFromProviderConfigs(): void
     {
         $operationProviders = $this->path('operation-providers');
@@ -397,6 +435,22 @@ final readonly class BuildOperationProvider implements OperationProvider
     }
 }
 
+final readonly class RequiredBuildOperationProvider implements OperationProvider
+{
+    public function definitions(): iterable
+    {
+        return [RequiredBuildOperation::class];
+    }
+}
+
+final readonly class RequiredBuildServiceProvider implements ServiceProvider
+{
+    public function register(ServiceRegistry $services): void
+    {
+        $services->autowire(RequiredBuildDependency::class);
+    }
+}
+
 final readonly class BuildServiceProvider implements ServiceProvider
 {
     public function register(ServiceRegistry $services): void
@@ -439,6 +493,29 @@ final readonly class BuildHandler implements OperationHandler
 }
 
 final readonly class BuildService {}
+
+final readonly class RequiredBuildDependency
+{
+    public function __construct(
+        public string $value = 'required-ready',
+    ) {}
+}
+
+#[Route('GET', '/required-build')]
+#[OperationType('build.required')]
+#[Accepts(BuildValue::class)]
+#[Returns(EmptyOutcome::class)]
+final readonly class RequiredBuildOperation implements Operation, OperationHandler
+{
+    public function __construct(
+        public RequiredBuildDependency $dependency,
+    ) {}
+
+    public function handle(OperationEnvelope $operation): OperationResult
+    {
+        return OperationResult::completed();
+    }
+}
 
 #[Route('GET', '/composer-build')]
 #[OperationType('composer.build.operation')]

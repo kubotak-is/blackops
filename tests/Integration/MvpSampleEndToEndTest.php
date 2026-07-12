@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BlackOps\Tests\Integration;
 
+use BlackOps\Application\Application;
 use BlackOps\Core\Execution\ClaimRequest;
 use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Core\Supervision\ExponentialBackoffSupervisionPolicy;
@@ -11,7 +12,6 @@ use BlackOps\Http\Binding\OperationValueBinder;
 use BlackOps\Http\OperationRequestHandler;
 use BlackOps\Http\Responder\JsonOperationResponder;
 use BlackOps\Internal\Codec\ReflectionJsonOperationCodec;
-use BlackOps\Internal\Console\CompileBuildArtifactsCommand;
 use BlackOps\Internal\Execution\DeferredAcceptanceOrchestrator;
 use BlackOps\Internal\Execution\DeferredWorkerRuntime;
 use BlackOps\Internal\Execution\DeferredWorkerRuntimeServices;
@@ -53,7 +53,8 @@ use Psr\Clock\ClockInterface;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RuntimeException;
-use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Output\BufferedOutput;
 
 final class MvpSampleEndToEndTest extends TestCase
 {
@@ -256,25 +257,38 @@ final class MvpSampleEndToEndTest extends TestCase
             'class' => $class,
             'namespace' => $namespace,
         ];
-        $operationProviders = $directory . '/operation-providers.php';
-        $serviceProviders = $directory . '/service-providers.php';
-        file_put_contents($operationProviders, "<?php return [\\App\\ApplicationOperationProvider::class];\n");
-        file_put_contents($serviceProviders, "<?php return [\\App\\ApplicationServiceProvider::class];\n");
-
-        $status = new CommandTester(new CompileBuildArtifactsCommand())->execute([
-            'operation-providers' => $operationProviders,
-            'service-providers' => $serviceProviders,
-            'operation-manifest' => $paths['operation'],
-            'http-manifest' => $paths['http'],
+        $config = $directory . '/config';
+        mkdir($config);
+        $this->writeConfig($config, 'app', ['build' => [
+            'application_build_id' => self::BUILD_ID,
+            'operation_manifest' => $paths['operation'],
+            'http_manifest' => $paths['http'],
             'container' => $paths['container'],
-            '--application-build-id' => self::BUILD_ID,
-            '--container-class' => $class,
-            '--container-namespace' => $namespace,
+            'container_class' => $class,
+            'container_namespace' => $namespace,
+        ]]);
+        $this->writeConfig($config, 'operations', [
+            'discovery' => [$root . '/examples/quickstart/app/Feature'],
+            'providers' => [],
         ]);
+        $status = Application::configure($directory)
+            ->withConfiguration()
+            ->create()
+            ->console()
+            ->run(new ArrayInput(['command' => 'blackops:build:compile']), new BufferedOutput());
 
         self::assertSame(0, $status);
 
         return $paths;
+    }
+
+    /** @param array<array-key, mixed> $configuration */
+    private function writeConfig(string $directory, string $name, array $configuration): void
+    {
+        file_put_contents(
+            $directory . '/' . $name . '.php',
+            "<?php\n\ndeclare(strict_types=1);\n\nreturn " . var_export($configuration, return: true) . ";\n",
+        );
     }
 
     private function requireQuickstartSource(string $root): void

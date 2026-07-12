@@ -22,13 +22,15 @@ final readonly class HttpRouteCompiler
      */
     public function compile(iterable $definitions): HttpRouteRegistry
     {
-        $definitionList = $this->definitionList($definitions);
+        $definitionList = is_array($definitions)
+            ? array_values($definitions)
+            : iterator_to_array($definitions, preserve_keys: false);
 
         return $this->compileManifest($definitionList)->toRegistry($definitionList);
     }
 
     /**
-     * @param iterable<Operation> $definitions
+     * @param iterable<Operation|class-string<Operation>> $definitions
      */
     public function compileManifest(iterable $definitions): HttpOperationManifest
     {
@@ -36,13 +38,14 @@ final readonly class HttpRouteCompiler
         $operations = [];
 
         foreach ($definitions as $definition) {
-            $metadata = $this->operations->findByDefinition($definition::class);
+            $definitionClass = is_string($definition) ? $definition : $definition::class;
+            $metadata = $this->operations->findByDefinition($definitionClass);
 
             if ($metadata === null) {
                 throw new InvalidArgumentException('HTTP operation definition is not registered.');
             }
 
-            $route = $this->route($definition);
+            $route = $this->route($definitionClass);
 
             if ($route !== null) {
                 if (
@@ -66,21 +69,8 @@ final readonly class HttpRouteCompiler
         return new HttpOperationManifest($routes, $operations, $this->dispatcherData->compile($routes));
     }
 
-    /**
-     * @param iterable<Operation> $definitions
-     *
-     * @return list<Operation>
-     */
-    private function definitionList(iterable $definitions): array
-    {
-        if (is_array($definitions)) {
-            return array_values($definitions);
-        }
-
-        return iterator_to_array($definitions, preserve_keys: false);
-    }
-
-    private function route(Operation $definition): ?Route
+    /** @param class-string<Operation> $definition */
+    private function route(string $definition): ?Route
     {
         $attributes = new ReflectionClass($definition)->getAttributes(Route::class);
 

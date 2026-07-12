@@ -51,7 +51,7 @@ final class CompileHttpManifestCommand extends Command
         $providers = $this->providers->load($this->stringArgument($input, 'config'));
         $discovered = $this->discovery->optionalDefinitions($input);
         $registry = $this->operations->compile($providers, $discovered);
-        $definitions = $this->definitions->fromProviders($providers, $discovered);
+        $definitions = $this->definitions->classNamesFromProviders($providers, $discovered);
         $manifest = new HttpRouteCompiler($registry)->compileManifest($definitions);
         $this->files->write(
             $manifest,

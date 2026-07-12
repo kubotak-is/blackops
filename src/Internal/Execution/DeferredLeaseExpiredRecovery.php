@@ -182,6 +182,16 @@ final readonly class DeferredLeaseExpiredRecovery implements ExpiredAttemptRecov
 
     private function definition(OperationMetadata $metadata): Operation
     {
+        if (strcmp($metadata->definition, $metadata->handler) === 0) {
+            $handler = $this->services->handlers->resolve($metadata->handler);
+
+            if (!$handler instanceof Operation) {
+                throw new LogicException('Self-handled service must implement Operation.');
+            }
+
+            return $handler;
+        }
+
         $reflection = new ReflectionClass($metadata->definition);
 
         if (!$reflection->isInstantiable()) {

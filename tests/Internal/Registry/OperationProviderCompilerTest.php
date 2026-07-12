@@ -45,6 +45,19 @@ final class OperationProviderCompilerTest extends TestCase
             new DuplicateRegistryOperationProvider(),
         ]);
     }
+
+    public function testMergesProviderBeforeDiscoveryAndDeduplicatesSameDefinition(): void
+    {
+        $registry = new OperationProviderCompiler()->compile([new RegistryOperationProvider()], [
+            RegistryProviderOperation::class,
+            DiscoveredRegistryOperation::class,
+        ]);
+
+        self::assertSame(
+            [RegistryProviderOperation::class, DiscoveredRegistryOperation::class],
+            array_map(static fn($metadata): string => $metadata->definition, $registry->all()),
+        );
+    }
 }
 
 final readonly class RegistryOperationProvider implements OperationProvider
@@ -82,6 +95,12 @@ final readonly class RegistryProviderOperation implements Operation {}
 #[HandledBy(RegistryProviderHandler::class)]
 #[Returns(EmptyOutcome::class)]
 final readonly class DuplicateRegistryProviderOperation implements Operation {}
+
+#[OperationType('provider.discovered')]
+#[Accepts(RegistryProviderValue::class)]
+#[HandledBy(RegistryProviderHandler::class)]
+#[Returns(EmptyOutcome::class)]
+final readonly class DiscoveredRegistryOperation implements Operation {}
 
 final readonly class IncompleteRegistryProviderOperation implements Operation {}
 

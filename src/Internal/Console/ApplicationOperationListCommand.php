@@ -6,6 +6,7 @@ namespace BlackOps\Internal\Console;
 
 use BlackOps\Core\Registry\OperationMetadata;
 use BlackOps\Internal\Application\ApplicationConfigurationSnapshot;
+use BlackOps\Internal\Application\ApplicationOperationDiscovery;
 use BlackOps\Internal\Registry\OperationProviderCompiler;
 use BlackOps\Internal\Registry\OperationProviderConfigLoader;
 use Symfony\Component\Console\Command\Command;
@@ -28,7 +29,10 @@ final class ApplicationOperationListCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $providers = $this->providers->fromEntries($this->configuration->operationProviders());
-        $metadata = $this->compiler->compile($providers)->all();
+        $metadata = $this->compiler->compile(
+            $providers,
+            new ApplicationOperationDiscovery()->discover($this->configuration),
+        )->all();
         usort($metadata, static fn(OperationMetadata $left, OperationMetadata $right): int => strcmp(
             $left->typeId,
             $right->typeId,

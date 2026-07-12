@@ -137,6 +137,10 @@ final class ApplicationConsoleKernelTest extends TestCase
             'schema' => self::SCHEMA,
         ]);
         $this->writeConfig($config, 'execution', ['worker' => ['id' => 'console-worker']]);
+        $this->writeConfig($config, 'operations', [
+            'discovery' => [$root . '/examples/quickstart/app/Feature'],
+            'providers' => [],
+        ]);
         $this->writeConfig($config, 'retention', [
             'transport_payload_days' => 30,
             'journal_days' => 90,
@@ -146,11 +150,7 @@ final class ApplicationConsoleKernelTest extends TestCase
             'actor' => 'console-maintenance',
         ]);
 
-        return Application::configure($directory)
-            ->withConfiguration()
-            ->withOperations(['App\\ApplicationOperationProvider'])
-            ->withServices(['App\\ApplicationServiceProvider'])
-            ->create();
+        return Application::configure($directory)->withConfiguration()->create();
     }
 
     /** @param array<string, mixed> $options */

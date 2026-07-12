@@ -22,6 +22,10 @@ final readonly class DiscoveryRootNormalizer
                 throw new InvalidArgumentException('Operation discovery root must be a non-empty directory path.');
             }
 
+            if (!$this->isAbsolute($root)) {
+                throw new InvalidArgumentException('Operation discovery root must be an absolute directory path.');
+            }
+
             $resolved = realpath($root);
 
             if ($resolved === false || !is_dir($resolved) || !is_readable($resolved)) {
@@ -39,5 +43,10 @@ final readonly class DiscoveryRootNormalizer
         sort($result);
 
         return $result;
+    }
+
+    private function isAbsolute(string $path): bool
+    {
+        return str_starts_with($path, DIRECTORY_SEPARATOR) || preg_match('/^[A-Za-z]:[\\\\\/]/', $path) === 1;
     }
 }

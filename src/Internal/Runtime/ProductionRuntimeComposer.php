@@ -53,7 +53,11 @@ final readonly class ProductionRuntimeComposer
             observations: $dependencies->journalObservations,
             scope: $scope,
         );
-        $routes = $artifacts->http->toRegistry($this->definitions->fromRegistry($artifacts->operations));
+        $handlers = new HandlerResolver($artifacts->container);
+        $routes = $artifacts->http->toRegistry($this->definitions->fromRegistry(
+            $artifacts->operations,
+            $handlers->resolve(...),
+        ));
 
         return new ProductionRuntimeComposition(
             $dispatcher,

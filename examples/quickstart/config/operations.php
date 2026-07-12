@@ -2,8 +2,7 @@
 
 declare(strict_types=1);
 
-use App\ApplicationOperationProvider;
-
 return [
-    'providers' => [ApplicationOperationProvider::class],
+    'discovery' => [dirname(__DIR__) . '/app/Feature'],
+    'providers' => [],
 ];

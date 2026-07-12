@@ -7,7 +7,6 @@ namespace BlackOps\Tests\Integration;
 use BlackOps\Application\Application;
 use BlackOps\Application\ApplicationBootstrapException;
 use BlackOps\Core\Identifier\OperationId;
-use BlackOps\Internal\Console\CompileBuildArtifactsCommand;
 use BlackOps\Internal\Migration\DatabaseMigrationRunner;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
@@ -17,7 +16,8 @@ use PHPUnit\Framework\TestCase;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RuntimeException;
-use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Output\BufferedOutput;
 
 final class ApplicationHttpRuntimeTest extends TestCase
 {
@@ -139,29 +139,25 @@ final class ApplicationHttpRuntimeTest extends TestCase
             'namespace' => $namespace,
         ];
         $root = dirname(__DIR__, levels: 2);
-        $source = new RecursiveIteratorIterator(new RecursiveDirectoryIterator(
-            $root . '/examples/quickstart/app',
-            FilesystemIterator::SKIP_DOTS | FilesystemIterator::CURRENT_AS_FILEINFO,
-        ));
-        foreach ($source as $file) {
-            if ($file->isFile() && $file->getExtension() === 'php') {
-                require_once $file->getPathname();
-            }
-        }
-        $operationProviders = $directory . '/operation-providers.php';
-        $serviceProviders = $directory . '/service-providers.php';
-        file_put_contents($operationProviders, "<?php return [\\App\\ApplicationOperationProvider::class];\n");
-        file_put_contents($serviceProviders, "<?php return [\\App\\ApplicationServiceProvider::class];\n");
-        $status = new CommandTester(new CompileBuildArtifactsCommand())->execute([
-            'operation-providers' => $operationProviders,
-            'service-providers' => $serviceProviders,
-            'operation-manifest' => $paths['operation'],
-            'http-manifest' => $paths['http'],
+        $config = $directory . '/config';
+        mkdir($config);
+        $this->writeConfig($config, 'app', ['build' => [
+            'application_build_id' => self::BUILD_ID,
+            'operation_manifest' => $paths['operation'],
+            'http_manifest' => $paths['http'],
             'container' => $paths['container'],
-            '--application-build-id' => self::BUILD_ID,
-            '--container-class' => $class,
-            '--container-namespace' => $namespace,
+            'container_class' => $class,
+            'container_namespace' => $namespace,
+        ]]);
+        $this->writeConfig($config, 'operations', [
+            'discovery' => [$root . '/examples/quickstart/app/Feature'],
+            'providers' => [],
         ]);
+        $status = Application::configure($directory)
+            ->withConfiguration()
+            ->create()
+            ->console()
+            ->run(new ArrayInput(['command' => 'blackops:build:compile']), new BufferedOutput());
         self::assertSame(0, $status);
 
         return $paths;

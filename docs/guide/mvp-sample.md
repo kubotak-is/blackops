@@ -14,7 +14,7 @@ X-Sample-Token: local-example-token
 {"message":"Welcome to BlackOps"}
 ```
 
-Requestは `ShowWelcome` と `WelcomeValue` へbindされ、`ShowWelcomeHandler` がtyped `WelcomeShown`を返す。同じOperation IDへ次のCanonical Journalが永続化される。
+Requestは `ShowWelcome` と `WelcomeValue` へbindされ、Self-handledな `ShowWelcome` がtyped `WelcomeShown`を返す。同じOperation IDへ次のCanonical Journalが永続化される。
 
 ```text
 operation.received

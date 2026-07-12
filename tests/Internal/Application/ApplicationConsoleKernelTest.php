@@ -6,6 +6,17 @@ namespace BlackOps\Tests\Internal\Application;
 
 use BlackOps\Application\Application;
 use BlackOps\Application\ApplicationBootstrapException;
+use BlackOps\Core\Attribute\Accepts;
+use BlackOps\Core\Attribute\HandledBy;
+use BlackOps\Core\Attribute\OperationType;
+use BlackOps\Core\Attribute\Returns;
+use BlackOps\Core\EmptyOutcome;
+use BlackOps\Core\Operation;
+use BlackOps\Core\OperationEnvelope;
+use BlackOps\Core\OperationHandler;
+use BlackOps\Core\OperationResult;
+use BlackOps\Core\OperationValue;
+use BlackOps\Core\Registry\OperationProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -60,6 +71,19 @@ final class ApplicationConsoleKernelTest extends TestCase
             'command' => 'application:greet',
         ]), $output));
         self::assertSame("hello\n", $output->fetch());
+    }
+
+    public function testOperationListRetainsProviderOnlyConfigurationWithoutDiscovery(): void
+    {
+        $application = Application::configure($this->directory())
+            ->withOperations([ConsoleKernelOperationProvider::class])
+            ->create();
+        $output = new BufferedOutput();
+
+        self::assertSame(0, $application->console()->run(new ArrayInput([
+            'command' => 'blackops:operation:list',
+        ]), $output));
+        self::assertStringContainsString('console.provider.operation', $output->fetch());
     }
 
     public function testRejectsApplicationCommandThatConflictsWithFrameworkCommand(): void
@@ -120,5 +144,29 @@ final class ConsoleKernelConflictingCommand extends Command
     public function __construct()
     {
         parent::__construct('blackops:worker:run');
+    }
+}
+
+final readonly class ConsoleKernelOperationProvider implements OperationProvider
+{
+    public function definitions(): iterable
+    {
+        return [ConsoleKernelProviderOperation::class];
+    }
+}
+
+#[OperationType('console.provider.operation')]
+#[Accepts(ConsoleKernelProviderValue::class)]
+#[HandledBy(ConsoleKernelProviderHandler::class)]
+#[Returns(EmptyOutcome::class)]
+final readonly class ConsoleKernelProviderOperation implements Operation {}
+
+final readonly class ConsoleKernelProviderValue implements OperationValue {}
+
+final readonly class ConsoleKernelProviderHandler implements OperationHandler
+{
+    public function handle(OperationEnvelope $operation): OperationResult
+    {
+        return OperationResult::completed();
     }
 }

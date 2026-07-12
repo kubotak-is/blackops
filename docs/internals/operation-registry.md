@@ -1,6 +1,8 @@
 # Operation Registry
 
-Operation providers are the public build-time extension boundary for package and application operations.
+Self-handled operations are the default application authoring form. A definition that implements both `Operation` and `OperationHandler` and omits `HandledBy` compiles itself as the handler. Separate handlers remain supported through one `HandledBy` attribute. Combining both forms or providing neither is rejected.
+
+Operation providers remain the public build-time extension boundary for packages and operations outside configured application discovery roots.
 
 A provider returns operation definition class names only. It does not create handlers, values, outcomes, service instances, or runtime dependencies. Handler and infrastructure service construction remains a runtime container responsibility.
 
@@ -36,7 +38,9 @@ The operation manifest file boundary writes registry metadata to a PHP array fil
 
 The operation manifest compile command ties the internal provider config loader, provider compiler, and manifest file writer together for build-time verification. It reads an operation provider config file and writes a PHP operation manifest file. HTTP route manifest generation and runtime container compilation remain separate build steps.
 
-The internal operation definition factory can instantiate no-argument operation definitions returned by providers for build steps that need attributes from definition instances, such as HTTP route manifest compilation. Definitions that need constructor arguments are rejected at this boundary.
+Metadata and HTTP route compilation operate on definition class names and Reflection; they do not instantiate definitions. This permits Self-handled definitions with required constructor dependencies. Runtime resolves a Self-handled definition from the compiled handler container and uses that same instance as both definition and handler. Separate-handler definitions retain the existing no-argument construction contract.
+
+Application-aware Build and Operation List read absolute, existing discovery roots from `operations.discovery`. Provider definitions are merged first, discovered definitions are sorted by class name, and the same definition is compiled once. This discovery path is not connected to HTTP or Worker artifact loading.
 
 The internal build artifacts command coordinates operation provider config loading, operation manifest generation, HTTP route manifest generation, and runtime container dumping in one build step. It can merge explicit operation provider config with provider class names discovered from Composer metadata.
 

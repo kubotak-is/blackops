@@ -59,6 +59,14 @@ final class OperationSourceDiscoveryTest extends TestCase
         new OperationSourceDiscovery()->discover([], $this->metadata());
     }
 
+    public function testRejectsRelativeRoot(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('absolute');
+
+        new OperationSourceDiscovery()->discover(['tests/Internal/Discovery/Fixture/DiscoveryRoot'], $this->metadata());
+    }
+
     public function testRejectsSourceSymlinkThatEscapesRoot(): void
     {
         $root = sys_get_temp_dir() . '/blackops-discovery-root-' . bin2hex(random_bytes(8));

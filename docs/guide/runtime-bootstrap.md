@@ -98,7 +98,7 @@ The table is sorted by operation type ID and includes the definition and executi
 
 The standalone `blackops:operation-manifest:compile` and `blackops:http-manifest:compile` commands accept the same four discovery options in addition to their existing provider config, output, and build ID inputs. Definitions returned by the provider and found in source are merged. The same definition is emitted once; conflicting type IDs and invalid attributes fail compilation.
 
-These options are for development tooling. Production build pipelines should use `blackops:build:compile`, whose inputs remain provider-based and which does not dynamically scan source. Production startup loads generated artifacts and never falls back to discovery.
+These options are for standalone development tooling. The Application-aware `blackops:build:compile` and `blackops:operation:list` read the absolute roots in `config/operations.php`, merge optional provider definitions first, and discover source only while the command runs. Production HTTP and Worker startup load generated artifacts and never fall back to discovery.
 
 ## Compile Build Artifacts
 

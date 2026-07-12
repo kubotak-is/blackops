@@ -31,10 +31,10 @@ final readonly class DeferredWorkerRuntime implements DeferredClaimRuntime
     public function run(OperationClaim $claim): OperationResult
     {
         $metadata = $this->metadata($claim);
-        $definition = $this->definition($metadata);
+        $handler = $this->services->handlers->resolve($metadata->handler);
+        $definition = $this->definition($metadata, $handler);
         $value = $this->value($metadata, $claim);
         $envelope = $this->startAttempt($claim, $metadata, $definition, $value);
-        $handler = $this->services->handlers->resolve($metadata->handler);
         try {
             $result = $this->executeHandler($claim, $envelope, $handler, $metadata->typeId);
         } catch (HandlerInvocationFailedException $exception) {
@@ -199,8 +199,16 @@ final readonly class DeferredWorkerRuntime implements DeferredClaimRuntime
         return $metadata;
     }
 
-    private function definition(OperationMetadata $metadata): Operation
+    private function definition(OperationMetadata $metadata, OperationHandler $handler): Operation
     {
+        if (strcmp($metadata->definition, $metadata->handler) === 0) {
+            if (!$handler instanceof Operation) {
+                throw new LogicException('Self-handled service must implement Operation.');
+            }
+
+            return $handler;
+        }
+
         $class = $metadata->definition;
         $reflection = new ReflectionClass($class);
 

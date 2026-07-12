@@ -136,6 +136,39 @@ final class DeferredWorkerRuntimeTest extends TestCase
         self::assertSame('done-weekly', $storedOutcome->outcome()->message);
     }
 
+    public function testWorkerUsesContainerResolvedSelfHandledOperationWithRequiredDependency(): void
+    {
+        $handler = new RequiredSelfHandledWorkerOperation(new WorkerOperationDependency('resolved'));
+        $metadata = $this->selfHandledMetadata();
+        $this->accept($metadata, $handler);
+        $claim = $this->receiver->claim(new \BlackOps\Core\Execution\ClaimRequest(
+            new DateTimeImmutable('2026-07-10T00:01:00.000000Z'),
+        ));
+
+        self::assertNotNull($claim);
+        $result = $this->runtime($handler, metadata: $metadata)->run($claim);
+
+        self::assertTrue($result->isCompleted());
+        self::assertSame('resolved', $handler->handledWith);
+    }
+
+    public function testLeaseRecoveryUsesContainerResolvedSelfHandledOperationWithRequiredDependency(): void
+    {
+        $handler = new RequiredSelfHandledWorkerOperation(new WorkerOperationDependency('recovery'));
+        $metadata = $this->selfHandledMetadata();
+        $this->accept($metadata, $handler);
+        $claim = $this->receiver->claim(new \BlackOps\Core\Execution\ClaimRequest(
+            new DateTimeImmutable('2026-07-10T00:01:00.000000Z'),
+        ));
+
+        self::assertNotNull($claim);
+        $this->startAttemptWithoutCompleting($claim, $metadata, $handler);
+
+        self::assertTrue($this->recovery($metadata, $handler)->recoverOne(
+            new DateTimeImmutable('2026-07-10T00:02:00.000000Z'),
+        ));
+    }
+
     public function testWorkerRecordsBusinessRejection(): void
     {
         $handler = new RejectingWorkerReportHandler();
@@ -450,9 +483,9 @@ final class DeferredWorkerRuntimeTest extends TestCase
         );
     }
 
-    private function accept(): void
+    private function accept(?OperationMetadata $metadata = null, ?Operation $definition = null): void
     {
-        $metadata = $this->metadata();
+        $metadata ??= $this->metadata();
         $context = new ExecutionContext(
             OperationId::fromString(self::OPERATION_ID),
             new DateTimeImmutable('2026-07-10T00:00:00.000000Z'),
@@ -460,7 +493,7 @@ final class DeferredWorkerRuntimeTest extends TestCase
         );
         $value = new WorkerReportValue('weekly');
         $encoded = $this->codec->encode($metadata, $value, $context);
-        $envelope = new OperationEnvelope(new WorkerReportOperation(), $value, $context, new Deferred());
+        $envelope = new OperationEnvelope($definition ?? new WorkerReportOperation(), $value, $context, new Deferred());
         $identifiers = new IdentifierFactory(new DeferredWorkerAcceptanceUuidv7Generator(), new DeferredWorkerClock());
         $orchestrator = new DeferredAcceptanceOrchestrator(
             $this->connection,
@@ -488,13 +521,14 @@ final class DeferredWorkerRuntimeTest extends TestCase
         ?SupervisionPolicy $policy = null,
         ?ClaimExecutionGuard $guard = null,
         ?OutcomeWriter $outcomes = null,
+        ?OperationMetadata $metadata = null,
     ): DeferredWorkerRuntime {
         $clock = new DeferredWorkerClock();
         $identifiers = new IdentifierFactory(new DeferredWorkerRuntimeUuidv7Generator(), $clock);
 
         return new DeferredWorkerRuntime(
             new DeferredWorkerRuntimeServices(
-                new OperationRegistry([$this->metadata()]),
+                new OperationRegistry([$metadata ?? $this->metadata()]),
                 $this->codec,
                 new ExecutionContextFactory($identifiers, $clock),
                 new HandlerResolver(new DeferredWorkerContainer($handler)),
@@ -512,17 +546,19 @@ final class DeferredWorkerRuntimeTest extends TestCase
         );
     }
 
-    private function recovery(): DeferredLeaseExpiredRecovery
-    {
+    private function recovery(
+        ?OperationMetadata $metadata = null,
+        ?OperationHandler $handler = null,
+    ): DeferredLeaseExpiredRecovery {
         $clock = new DeferredWorkerClock();
         $identifiers = new IdentifierFactory(new DeferredWorkerRecoveryUuidv7Generator(), $clock);
 
         return new DeferredLeaseExpiredRecovery(
             new DeferredWorkerRuntimeServices(
-                new OperationRegistry([$this->metadata()]),
+                new OperationRegistry([$metadata ?? $this->metadata()]),
                 $this->codec,
                 new ExecutionContextFactory($identifiers, $clock),
-                new HandlerResolver(new DeferredWorkerContainer(new CompletingWorkerReportHandler())),
+                new HandlerResolver(new DeferredWorkerContainer($handler ?? new CompletingWorkerReportHandler())),
                 new ExponentialBackoffSupervisionPolicy(jitterRatio: 0.0),
             ),
             new DeferredWorkerRuntimeStorage(
@@ -536,17 +572,20 @@ final class DeferredWorkerRuntimeTest extends TestCase
         );
     }
 
-    private function startAttemptWithoutCompleting(OperationClaim $claim): void
-    {
+    private function startAttemptWithoutCompleting(
+        OperationClaim $claim,
+        ?OperationMetadata $metadata = null,
+        ?Operation $definition = null,
+    ): void {
         $clock = new DeferredWorkerClock();
         $identifiers = new IdentifierFactory(new DeferredWorkerRuntimeUuidv7Generator(), $clock);
-        $metadata = $this->metadata();
+        $metadata ??= $this->metadata();
         $state = new PostgreSqlDeferredOperationLifecycleStore($this->connection, self::SCHEMA);
         $records = new JournalRecordFactory($identifiers, $clock);
         $context = $this->codec->decodeContext($claim->message()->schemaVersion(), $claim->message()->encodedContext());
         $reservation = $state->reserveAttemptStarted($claim, $clock->now());
         $envelope = new OperationEnvelope(
-            new WorkerReportOperation(),
+            $definition ?? new WorkerReportOperation(),
             $this->codec->decodeValue(
                 $metadata,
                 $claim->message()->schemaVersion(),
@@ -570,6 +609,18 @@ final class DeferredWorkerRuntimeTest extends TestCase
             WorkerReportOperation::class,
             WorkerReportValue::class,
             WorkerReportHandler::class,
+            WorkerReportDone::class,
+            Deferred::class,
+        );
+    }
+
+    private function selfHandledMetadata(): OperationMetadata
+    {
+        return new OperationMetadata(
+            'report.generate',
+            RequiredSelfHandledWorkerOperation::class,
+            WorkerReportValue::class,
+            RequiredSelfHandledWorkerOperation::class,
             WorkerReportDone::class,
             Deferred::class,
         );
@@ -651,6 +702,34 @@ final readonly class WorkerReportDone implements Outcome
     public function __construct(
         public string $message,
     ) {}
+}
+
+final readonly class WorkerOperationDependency
+{
+    public function __construct(
+        public string $value,
+    ) {}
+}
+
+final class RequiredSelfHandledWorkerOperation implements Operation, OperationHandler
+{
+    public ?string $handledWith = null;
+
+    public function __construct(
+        private WorkerOperationDependency $dependency,
+    ) {}
+
+    public function handle(OperationEnvelope $operation): OperationResult
+    {
+        $value = $operation->value();
+        if (!$value instanceof WorkerReportValue) {
+            throw new \LogicException('Worker report handler requires WorkerReportValue.');
+        }
+
+        $this->handledWith = $this->dependency->value;
+
+        return OperationResult::completed(new WorkerReportDone('done-' . $value->reportName));
+    }
 }
 
 /** @implements OperationHandler<WorkerReportValue, WorkerReportDone> */

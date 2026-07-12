@@ -106,10 +106,72 @@ final class CompileHttpManifestCommandTest extends TestCase
         self::assertNotNull($registry->match('POST', '/discovered-deferred'));
     }
 
+    public function testCompilesRequiredConstructorSelfHandledProviderWithoutInstantiatingDefinition(): void
+    {
+        $config = $this->configPath();
+        $output = $this->manifestPath();
+        file_put_contents($config, '<?php return [\\' . RequiredHttpOperationProvider::class . '::class];');
+
+        $status = new CommandTester(new CompileHttpManifestCommand())->execute([
+            'config' => $config,
+            'output' => $output,
+            '--application-build-id' => 'build-required-http-provider',
+        ]);
+
+        $operation = new HttpOperationManifestFile()
+            ->loadArtifact($output)
+            ->manifest
+            ->operations['command.required.provider'];
+
+        self::assertSame(0, $status);
+        self::assertSame(RequiredHttpCommandOperation::class, $operation['definition']);
+        self::assertSame(RequiredHttpCommandOperation::class, $operation['handler']);
+    }
+
+    public function testCompilesRequiredConstructorSelfHandledDiscoveryWithoutInstantiatingDefinition(): void
+    {
+        $config = $this->configPath();
+        $output = $this->manifestPath();
+        $root = sys_get_temp_dir() . '/blackops-required-http-discovery-' . bin2hex(random_bytes(8));
+        mkdir($root);
+        file_put_contents($config, '<?php return [];');
+        file_put_contents($root . '/RequiredDiscoveredOperation.php', implode("\n", [
+            '<?php',
+            'declare(strict_types=1);',
+            'namespace BlackOps\\Tests\\Internal\\Console\\DynamicStandalone;',
+            '#[\\BlackOps\\Http\\Attribute\\Route(\'GET\', \'/required-discovered\')]',
+            '#[\\BlackOps\\Core\\Attribute\\OperationType(\'standalone.discovery.required\')]',
+            '#[\\BlackOps\\Core\\Attribute\\Accepts(RequiredDiscoveredValue::class)]',
+            '#[\\BlackOps\\Core\\Attribute\\Returns(\\BlackOps\\Core\\EmptyOutcome::class)]',
+            'final readonly class RequiredDiscoveredOperation implements \\BlackOps\\Core\\Operation, \\BlackOps\\Core\\OperationHandler {',
+            'public function __construct(private \\stdClass $dependency) {}',
+            'public function handle(\\BlackOps\\Core\\OperationEnvelope $operation): \\BlackOps\\Core\\OperationResult {',
+            'return \\BlackOps\\Core\\OperationResult::completed();',
+            '}',
+            '}',
+            'final readonly class RequiredDiscoveredValue implements \\BlackOps\\Core\\OperationValue {}',
+        ]));
+
+        $status = new CommandTester(new CompileHttpManifestCommand())->execute([
+            'config' => $config,
+            'output' => $output,
+            '--application-build-id' => 'build-required-http-discovery',
+            ...$this->discoveryOptions($root),
+        ]);
+
+        $operation = new HttpOperationManifestFile()
+            ->loadArtifact($output)
+            ->manifest
+            ->operations['standalone.discovery.required'];
+
+        self::assertSame(0, $status);
+        self::assertSame($operation['definition'], $operation['handler']);
+    }
+
     /**
      * @return array<string, string|list<string>>
      */
-    private function discoveryOptions(): array
+    private function discoveryOptions(?string $root = null): array
     {
         $directory = sys_get_temp_dir() . '/blackops-http-command-discovery-' . bin2hex(random_bytes(8));
         mkdir($directory);
@@ -119,7 +181,7 @@ final class CompileHttpManifestCommandTest extends TestCase
         file_put_contents($classmap, '<?php return [];');
 
         return [
-            '--discovery-root' => [$this->fixtureRoot()],
+            '--discovery-root' => [$root ?? $this->fixtureRoot()],
             '--composer-base' => dirname(__DIR__, 3),
             '--composer-psr4' => $psr4,
             '--composer-classmap' => $classmap,
@@ -158,12 +220,36 @@ final readonly class DevelopmentHttpOperationProvider implements OperationProvid
     }
 }
 
+final readonly class RequiredHttpOperationProvider implements OperationProvider
+{
+    public function definitions(): iterable
+    {
+        return [RequiredHttpCommandOperation::class];
+    }
+}
+
 #[Route('GET', '/command-http')]
 #[OperationType('command.http')]
 #[Accepts(HttpCommandValue::class)]
 #[HandledBy(HttpCommandHandler::class)]
 #[Returns(EmptyOutcome::class)]
 final readonly class HttpCommandOperation implements Operation {}
+
+#[Route('GET', '/required-provider')]
+#[OperationType('command.required.provider')]
+#[Accepts(HttpCommandValue::class)]
+#[Returns(EmptyOutcome::class)]
+final readonly class RequiredHttpCommandOperation implements Operation, OperationHandler
+{
+    public function __construct(
+        private \stdClass $dependency,
+    ) {}
+
+    public function handle(OperationEnvelope $operation): OperationResult
+    {
+        return OperationResult::completed();
+    }
+}
 
 final readonly class HttpCommandValue implements OperationValue {}
 

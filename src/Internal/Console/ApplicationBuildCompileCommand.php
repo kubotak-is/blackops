@@ -9,6 +9,7 @@ use BlackOps\Http\Routing\HttpRouteCompiler;
 use BlackOps\Internal\Application\ApplicationBuildConfiguration;
 use BlackOps\Internal\Application\ApplicationBuildId;
 use BlackOps\Internal\Application\ApplicationConfigurationSnapshot;
+use BlackOps\Internal\Application\ApplicationOperationDiscovery;
 use BlackOps\Internal\DependencyInjection\RuntimeContainerCompiler;
 use BlackOps\Internal\DependencyInjection\RuntimeContainerDumper;
 use BlackOps\Internal\DependencyInjection\ServiceProviderConfigLoader;
@@ -36,8 +37,9 @@ final class ApplicationBuildCompileCommand extends Command
         $buildId = ApplicationBuildId::fromConfiguration($this->configuration->configuration());
         $operations = new OperationProviderConfigLoader()->fromEntries($this->configuration->operationProviders());
         $services = new ServiceProviderConfigLoader()->fromEntries($this->configuration->serviceProviders());
-        $registry = new OperationProviderCompiler()->compile($operations);
-        $definitions = new OperationDefinitionFactory()->fromProviders($operations);
+        $discovered = new ApplicationOperationDiscovery()->discover($this->configuration);
+        $registry = new OperationProviderCompiler()->compile($operations, $discovered);
+        $definitions = new OperationDefinitionFactory()->classNamesFromProviders($operations, $discovered);
 
         new OperationManifestFile()->write($registry, $build->operationManifest, $buildId);
         new HttpOperationManifestFile()->write(
@@ -49,6 +51,7 @@ final class ApplicationBuildCompileCommand extends Command
         $compiler = new RuntimeContainerCompiler();
         $container = $compiler->builder();
         $compiler->apply($container, $services);
+        $compiler->registerHandlers($container, $registry);
         $compiler->compile($container);
         new RuntimeContainerDumper()->dump(
             $container,

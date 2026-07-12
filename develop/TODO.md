@@ -90,6 +90,9 @@ MVP後に残す主要項目:
 - [x] 初期設計ではCommandとQueryを区別せずOperationとして扱う
 - [x] Operation DefinitionとOutcome型を `#[Returns]` で関連付ける
 - [x] Operation DefinitionとHandlerを `#[HandledBy]` で関連付ける
+- [x] Self-handled OperationとOptional `#[HandledBy]` 互換を実装する
+- [x] Application Build／Operation ListへBuild-time Discoveryを接続する
+- [x] Compiled HandlerをRuntime Containerへ自動登録する
 - [x] Operation DefinitionとOperationValue型を `#[Accepts]` で関連付ける
 - [x] Handlerは読み取り専用Operation Envelopeを一つだけ受け取る
 - [x] ContextなどのメタデータをOperation Envelopeへ分離する

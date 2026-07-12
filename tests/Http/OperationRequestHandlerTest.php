@@ -160,6 +160,25 @@ final class OperationRequestHandlerTest extends TestCase
         self::assertSame(WelcomeValue::class, $manifest['operations']['welcome.show']['value']);
     }
 
+    public function testRouteCompilerReflectsRequiredConstructorDefinitionWithoutInstantiatingIt(): void
+    {
+        $metadata = new OperationMetadata(
+            'welcome.required',
+            RequiredWelcomeOperation::class,
+            WelcomeValue::class,
+            RequiredWelcomeOperation::class,
+            WelcomeShown::class,
+            Inline::class,
+        );
+
+        $manifest = new HttpRouteCompiler(new OperationRegistry([$metadata]))->compileManifest([
+            RequiredWelcomeOperation::class,
+        ]);
+
+        self::assertSame('welcome.required', $manifest->routes['GET']['/required']);
+        self::assertSame(RequiredWelcomeOperation::class, $manifest->operations['welcome.required']['handler']);
+    }
+
     public function testRouteCompilerBuildsFastRouteDynamicDispatcherData(): void
     {
         $registry = new OperationRegistry([$this->pathMetadata('welcome.path', PathWelcomeOperation::class)]);
@@ -364,6 +383,19 @@ final readonly class DuplicateWelcomeOperation implements Operation {}
 
 #[Route(method: 'GET', path: '/duplicate')]
 final readonly class SecondDuplicateWelcomeOperation implements Operation {}
+
+#[Route(method: 'GET', path: '/required')]
+final readonly class RequiredWelcomeOperation implements Operation, OperationHandler
+{
+    public function __construct(
+        private string $dependency,
+    ) {}
+
+    public function handle(OperationEnvelope $operation): OperationResult
+    {
+        return OperationResult::completed(new WelcomeShown($this->dependency));
+    }
+}
 
 final readonly class WelcomeValue implements OperationValue {}
 

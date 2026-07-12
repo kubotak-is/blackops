@@ -10,8 +10,6 @@ use BlackOps\Application\Application;
 $application = Application::configure(dirname(__DIR__))
     ->withEnvironment()
     ->withConfiguration()
-    ->withOperations([$operationProvider])
-    ->withServices([$serviceProvider])
     ->withCommands([$command])
     ->create();
 ```
@@ -45,7 +43,9 @@ Frameworkは `.env` を読まず、Dotenvも提供しない。Process Manager、
 
 未知のFileは読み込まない。読み込みは `withConfiguration()` の時点で一度だけ行われ、`create()` 後にFile変更を自動反映しない。
 
-`operations.php` はProviderのList、または `providers` Keyを持つ配列を返せる。`app.php` の `services` と `commands` からService ProviderとApplication Commandを登録できる。Builderで明示した登録はConfig由来の登録の後へ追加される。
+`operations.php` は絶対Directoryの `discovery` ListとOptionalな `providers` Listを返す。Application-aware BuildとOperation ListだけがSourceを探索する。PackageやApplication外SourceはProviderで追加できる。`app.php` の `services` と `commands` からService ProviderとApplication Commandを登録でき、Builderで明示した登録はConfig由来の登録の後へ追加される。
+
+Operation自身が `OperationHandler` を実装し `#[HandledBy]` を省略する形が標準である。責務を分ける場合は従来どおりSeparate Handlerを `#[HandledBy]` で指定できる。Buildは両方のHandlerをContainerへ自動登録するため、Service ProviderはRepository Interface、External Client、Factory等のApplication固有Dependencyだけを登録する。
 
 Providerは対応するPublic ContractのInstanceまたは引数なしで生成できるClass Name、CommandはSymfony Console CommandのInstanceまたは引数なしで生成できるClass Nameを指定する。同一Classは一度だけ登録され、異なるCommandが同じCommand Nameを使う場合は起動エラーになる。
 

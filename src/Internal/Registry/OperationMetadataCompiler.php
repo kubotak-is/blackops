@@ -32,35 +32,36 @@ final readonly class OperationMetadataCompiler
         $acceptsAttributes = $reflection->getAttributes(Accepts::class);
         $handlerAttributes = $reflection->getAttributes(HandledBy::class);
         $returnsAttributes = $reflection->getAttributes(Returns::class);
-        if (
-            count($typeAttributes) !== 1
-            || count($acceptsAttributes) !== 1
-            || count($handlerAttributes) !== 1
-            || count($returnsAttributes) !== 1
-        ) {
+        if (count($typeAttributes) !== 1 || count($acceptsAttributes) !== 1 || count($returnsAttributes) !== 1) {
             throw new InvalidArgumentException('Operation definition requires each metadata attribute exactly once.');
+        }
+        if (count($handlerAttributes) > 1) {
+            throw new InvalidArgumentException('Operation definition must not repeat HandledBy.');
         }
         $type = $typeAttributes[0]->newInstance();
         $accepts = $acceptsAttributes[0]->newInstance();
-        $handledBy = $handlerAttributes[0]->newInstance();
         $returns = $returnsAttributes[0]->newInstance();
+        $selfHandled = $reflection->implementsInterface(OperationHandler::class);
+
+        if ($selfHandled && $handlerAttributes !== []) {
+            throw new InvalidArgumentException('Self-handled operation must not declare HandledBy.');
+        }
+        if (!$selfHandled && $handlerAttributes === []) {
+            throw new InvalidArgumentException('Operation definition requires a handler.');
+        }
+
+        /** @var class-string<OperationHandler> $handler */
+        $handler = $selfHandled ? $definition : $handlerAttributes[0]->newInstance()->handler;
         $strategyAttributes = $reflection->getAttributes(ExecuteWith::class);
         if (count($strategyAttributes) > 1) {
             throw new InvalidArgumentException('Operation definition must not repeat ExecuteWith.');
         }
         $strategy = $strategyAttributes === [] ? Inline::class : $strategyAttributes[0]->newInstance()->strategy;
         $this->assertImplements($accepts->value, OperationValue::class);
-        $this->assertImplements($handledBy->handler, OperationHandler::class);
+        $this->assertImplements($handler, OperationHandler::class);
         $this->assertImplements($returns->outcome, Outcome::class);
         $this->assertImplements($strategy, ExecutionStrategy::class);
-        return new OperationMetadata(
-            $type->id,
-            $definition,
-            $accepts->value,
-            $handledBy->handler,
-            $returns->outcome,
-            $strategy,
-        );
+        return new OperationMetadata($type->id, $definition, $accepts->value, $handler, $returns->outcome, $strategy);
     }
 
     /** @param class-string $class @param class-string $interface */

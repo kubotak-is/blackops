@@ -16,15 +16,11 @@ final class QuickstartApplicationArchitectureTest extends TestCase
         $root = $this->quickstart();
 
         foreach ([
-            'app/ApplicationOperationProvider.php',
-            'app/ApplicationServiceProvider.php',
             'app/Feature/Welcome/ShowWelcome/ShowWelcome.php',
             'app/Feature/Welcome/ShowWelcome/WelcomeValue.php',
-            'app/Feature/Welcome/ShowWelcome/ShowWelcomeHandler.php',
             'app/Feature/Welcome/ShowWelcome/WelcomeShown.php',
             'app/Feature/Report/GenerateReport/GenerateReport.php',
             'app/Feature/Report/GenerateReport/GenerateReportValue.php',
-            'app/Feature/Report/GenerateReport/GenerateReportHandler.php',
             'app/Feature/Report/GenerateReport/ReportGenerated.php',
             'app/Feature/Report/GenerateReport/ReportGenerationTemporarilyUnavailable.php',
             'bin/blackops',
@@ -51,6 +47,10 @@ final class QuickstartApplicationArchitectureTest extends TestCase
         self::assertTrue(is_executable($root . '/bin/blackops'));
         self::assertFileDoesNotExist($root . '/compose.yaml');
         self::assertFileDoesNotExist($root . '/Dockerfile');
+        self::assertFileDoesNotExist($root . '/app/ApplicationOperationProvider.php');
+        self::assertFileDoesNotExist($root . '/app/ApplicationServiceProvider.php');
+        self::assertFileDoesNotExist($root . '/app/Feature/Welcome/ShowWelcome/ShowWelcomeHandler.php');
+        self::assertFileDoesNotExist($root . '/app/Feature/Report/GenerateReport/GenerateReportHandler.php');
         self::assertSame(['.gitignore'], $this->files($root . '/var/build'));
         self::assertSame(['.gitignore'], $this->files($root . '/var/log'));
     }
@@ -115,6 +115,23 @@ final class QuickstartApplicationArchitectureTest extends TestCase
         foreach ($this->phpFiles($this->quickstart() . '/app/Feature/Report') as $path) {
             self::assertStringNotContainsString('App\\Feature\\Welcome', (string) file_get_contents($path), $path);
         }
+    }
+
+    public function testOperationsAreSelfHandledAndBootstrapUsesDiscovery(): void
+    {
+        $root = $this->quickstart();
+        $welcome = (string) file_get_contents($root . '/app/Feature/Welcome/ShowWelcome/ShowWelcome.php');
+        $report = (string) file_get_contents($root . '/app/Feature/Report/GenerateReport/GenerateReport.php');
+        $bootstrap = (string) file_get_contents($root . '/bootstrap/app.php');
+        $operations = (string) file_get_contents($root . '/config/operations.php');
+
+        self::assertStringContainsString('implements Operation, OperationHandler', $welcome);
+        self::assertStringContainsString('implements Operation, OperationHandler', $report);
+        self::assertStringNotContainsString('HandledBy', $welcome . $report);
+        self::assertStringNotContainsString('withOperations', $bootstrap);
+        self::assertStringNotContainsString('withServices', $bootstrap);
+        self::assertStringContainsString("'discovery'", $operations);
+        self::assertStringContainsString("'providers' => []", $operations);
     }
 
     private function quickstart(): string
