@@ -131,3 +131,4 @@
 | [D064](../decisions/064-installed-application-layout-and-bootstrap.md) | Installed Application Layout and Bootstrap | Decided |
 | [D065](../decisions/065-composer-skeleton-publication.md) | Composer Skeleton Publication | Awaiting Answer |
 | [D066](../decisions/066-development-metadata-layout.md) | Development Metadata Layout | Decided |
+| [D067](../decisions/067-legacy-setup-helper-removal.md) | Legacy Setup Helper Removal | Decided |

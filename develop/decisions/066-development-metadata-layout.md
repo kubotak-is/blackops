@@ -2,6 +2,10 @@
 
 Status: Decided
 
+Updated by: [D067 Legacy Setup Helper Removal](067-legacy-setup-helper-removal.md)
+
+D067はDecision項目10と11、および「DB Smoke TestとDocker Install Scriptは使用中」というConsequenceを更新する。`docker/` と `scripts/` は通常のBuild、Test、Runtimeから利用されていないため削除した。
+
 ## Context
 
 Framework利用者向けのRuntime／Guideと、Framework開発時だけ利用する仕様、Decision、Task Packet、CheckpointがRepository Rootに混在していた。

@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-12T21:49:02+09:00
+Updated At: 2026-07-12T21:55:33+09:00
 
 ## Current Phase
 
@@ -18,7 +18,7 @@ Specification: `develop/spec/44-public-application-bootstrap-api.md`
 
 Ready
 
-Public Application Builder FoundationのProduction実装範囲はReady。D066に従い、開発Metadataを `develop/` へ集約し、AGENTS、Task／Report、仕様、Documentationの参照を同期した。
+Public Application Builder FoundationのProduction実装範囲はReady。D067に従い、通常のBuild／Test／Runtimeで使われていない `docker/` と `scripts/` のLegacy Helperを削除した。
 
 ## Last Accepted Task
 

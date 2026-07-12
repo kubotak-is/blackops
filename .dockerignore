@@ -1,8 +1,6 @@
 .git
 .gitignore
-docker/
 docs/
-scripts/
 develop/
 AGENTS.md
 *.md
