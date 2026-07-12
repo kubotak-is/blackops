@@ -55,6 +55,7 @@
 | [38-data-retention-and-deletion.md](38-data-retention-and-deletion.md) | Retention、Tombstone、削除制約、Legal Hold |
 | [39-retention-runtime.md](39-retention-runtime.md) | Retention CLI、Scheduler、Hold、Audit |
 | [40-mvp-delivery-plan.md](40-mvp-delivery-plan.md) | 実装Phase、最初のVertical Slice、品質Tool |
+| [41-developer-experience-roadmap.md](41-developer-experience-roadmap.md) | Installed Example、Composer Skeleton、Project CLI、Documentation Website |
 
 ## 決定の参照
 
@@ -122,3 +123,4 @@
 | [D060](../decisions/060-typed-outcome-store-contract.md) | Typed Outcome Store Contract | Decided |
 | [D061](../decisions/061-retention-operation-reference.md) | Retention Operation Reference | Decided |
 | [D062](../decisions/062-retention-audit-log-delivery.md) | Retention Audit Log Delivery | Decided |
+| [D063](../decisions/063-developer-experience-roadmap.md) | Developer Experience Roadmap | Decided |

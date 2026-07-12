@@ -1,24 +1,26 @@
 # Orchestration State
 
-Updated At: 2026-07-12T17:37:20+09:00
+Updated At: 2026-07-12T19:46:48+09:00
 
 ## Current Phase
 
-MVP Complete
+Phase 7 Planning: Installed Application Example
 
 ## Current Task
 
-Task ID: P6-015-mvp-closeout
+Decision ID: D063-developer-experience-roadmap
 
-Task Packet: `orchestration/tasks/P6-015-mvp-closeout.md`
+Decision: `decisions/063-developer-experience-roadmap.md`
 
-Report: `orchestration/reports/P6-015-mvp-closeout.md`
+Specification: `spec/41-developer-experience-roadmap.md`
+
+Task Packet: 次の作業単位としてP7-001を作成する。
 
 ## Task Status
 
-Accepted
+Ready for Task Packet
 
-D017 Definition of Doneの10項目、Sample E2E、全品質Command、TODO分類、Architecture／GuideをOrchestrator Reviewで受け入れた。MVP Complete。
+D063をDecidedとし、Installed Application Example、Composer Project Bootstrap、Project CLI、Documentation Websiteの順序と配布境界を確定した。MVP完了状態は維持する。
 
 ## Last Accepted Task
 
@@ -34,8 +36,8 @@ P6-015-mvp-closeout
 
 ## Required Next Action
 
-1. 必須Actionはなし。
-2. 任意でRelease準備またはPost-MVP Backlogの新規Milestoneを開始する。
+1. Phase 7のPublic Composition API Consumer Auditを行うP7-001 Task Packetを作成する。
+2. P7-001で現在のExample、Public API、Composer Package境界を調査し、変更可能FileとAcceptance Criteriaを確定する。
 
 ## P6-015 MVP Closeout Verification Commands and Results
 
