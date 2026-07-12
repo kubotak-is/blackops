@@ -27,6 +27,8 @@ final class ApplicationHttpRuntimeTest extends TestCase
     /** @var list<string> */
     private array $directories = [];
 
+    private ?string $journalPath = null;
+
     protected function tearDown(): void
     {
         $this->connection()->executeStatement('DROP SCHEMA IF EXISTS ' . self::SCHEMA . ' CASCADE');
@@ -68,6 +70,10 @@ final class ApplicationHttpRuntimeTest extends TestCase
         ));
         self::assertSame(200, $welcome->getStatusCode());
         self::assertSame('{"message":"Welcome to BlackOps"}', (string) $welcome->getBody());
+        self::assertNotNull($this->journalPath);
+        $observed = (string) file_get_contents($this->journalPath);
+        self::assertStringContainsString('[masked]', $observed);
+        self::assertStringNotContainsString('sample-token', $observed);
 
         $report = $http->handle(
             $psr17
@@ -141,6 +147,8 @@ final class ApplicationHttpRuntimeTest extends TestCase
         $root = dirname(__DIR__, levels: 2);
         $config = $directory . '/config';
         mkdir($config);
+        mkdir($directory . '/log');
+        $this->journalPath = $directory . '/log/journal.jsonl';
         $this->writeConfig($config, 'app', ['build' => [
             'application_build_id' => self::BUILD_ID,
             'operation_manifest' => $paths['operation'],
@@ -182,6 +190,11 @@ final class ApplicationHttpRuntimeTest extends TestCase
             'connection' => $this->connectionParameters(),
             'schema' => self::SCHEMA,
         ]);
+        $this->writeConfig($config, 'journal', ['jsonl' => [
+            'enabled' => true,
+            'path' => $this->journalPath,
+            'delivery' => 'best_effort',
+        ]]);
 
         return Application::configure($directory)->withConfiguration()->create();
     }

@@ -55,10 +55,18 @@ final readonly class ApplicationHttpRuntimeComposer
             ),
         );
         $psr17 = $this->psr17();
+        $observations = new ApplicationJournalObservationFactory()->create($configuration->configuration());
 
         return new ProductionRuntimeComposer()->composeWithDependencies(
             $artifacts,
-            new ProductionRuntimeDependencies($clock, $journal, $psr17, $psr17, deferredOperationAcceptor: $acceptor),
+            new ProductionRuntimeDependencies(
+                $clock,
+                $journal,
+                $psr17,
+                $psr17,
+                journalObservations: $observations,
+                deferredOperationAcceptor: $acceptor,
+            ),
         )->httpHandler;
     }
 

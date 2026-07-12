@@ -246,3 +246,5 @@ The production runtime composer can take loaded artifacts plus runtime dependenc
 The application must still provide runtime resources such as the clock, canonical journal writer, response factory, and stream factory. The composer uses the generated container to resolve operation handlers, but it does not pass the container into handlers, envelopes, values, or domain services.
 
 The current composition wrapper is still internal. It does not create a complete front controller, choose a transport adapter, create database connections, or load environment variables.
+
+Application HTTP composition may add the configured JSONL observation pipeline. Configuration validation and stream opening happen during HTTP composition; source discovery, build, migration, and directory creation do not. The open stream remains owned by the observer referenced from the composed handler graph.

@@ -71,3 +71,5 @@ exit($application->console()->run());
 ```
 
 KernelはBuild、Operation List、Migration、Worker、Retention、Schedulerの9 Commandを常に表示する。Database、Artifact、PCNTL、Retention設定は対象Commandの実行時まで構成しないため、`list` と `help` は不完全なRuntime環境でも利用できる。Symfony Application、Container、Connection、ConfigのGetterは提供しない。
+
+`journal.php` の `jsonl` SectionでInline Observed Journalを構成できる。`enabled=true` では絶対Path、書込可能な既存Parent Directory、`best_effort` または `required` Deliveryを指定する。FrameworkはDirectoryを作らず、Sensitive Projection後のRecordだけをJSONLへappendする。

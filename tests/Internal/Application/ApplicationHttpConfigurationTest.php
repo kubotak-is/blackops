@@ -7,6 +7,8 @@ namespace BlackOps\Tests\Internal\Application;
 use BlackOps\Internal\Application\ApplicationBuildConfiguration;
 use BlackOps\Internal\Application\ApplicationBuildId;
 use BlackOps\Internal\Application\ApplicationDatabaseConfiguration;
+use BlackOps\Internal\Application\ApplicationJournalConfiguration;
+use BlackOps\Internal\Application\ApplicationJournalObservationFactory;
 use BlackOps\Internal\Application\ApplicationRetentionConfiguration;
 use BlackOps\Internal\Application\ApplicationWorkerConfiguration;
 use InvalidArgumentException;
@@ -136,6 +138,61 @@ final class ApplicationHttpConfigurationTest extends TestCase
                 'actor' => 'maintenance',
             ],
         ]);
+    }
+
+    public function testValidatesJsonlJournalConfigurationAndDisabledDefault(): void
+    {
+        $disabled = ApplicationJournalConfiguration::fromConfiguration([]);
+        self::assertFalse($disabled->enabled);
+        self::assertNull(new ApplicationJournalObservationFactory()->create([]));
+
+        $directory = sys_get_temp_dir() . '/blackops-jsonl-config-' . bin2hex(random_bytes(8));
+        mkdir($directory);
+        $required = ApplicationJournalConfiguration::fromConfiguration([
+            'journal' => ['jsonl' => [
+                'enabled' => true,
+                'path' => $directory . '/journal.jsonl',
+                'delivery' => 'required',
+            ]],
+        ]);
+
+        self::assertTrue($required->enabled);
+        self::assertSame($directory . '/journal.jsonl', $required->path);
+        self::assertSame(\BlackOps\Journal\JournalDeliveryPolicy::Required, $required->delivery);
+        file_put_contents($required->path, "existing\n");
+        self::assertNotNull(new ApplicationJournalObservationFactory()->create([
+            'journal' => ['jsonl' => [
+                'enabled' => true,
+                'path' => $required->path,
+                'delivery' => 'best_effort',
+            ]],
+        ]));
+        self::assertSame("existing\n", file_get_contents($required->path));
+        unlink($required->path);
+        rmdir($directory);
+    }
+
+    public function testRejectsInvalidJsonlJournalConfiguration(): void
+    {
+        foreach ([
+            ['journal' => ['jsonl' => 'invalid']],
+            ['journal' => ['jsonl' => ['enabled' => 'yes']]],
+            ['journal' => ['jsonl' => ['enabled' => true, 'path' => 'relative.jsonl', 'delivery' => 'best_effort']]],
+            [
+                'journal' => ['jsonl' => [
+                    'enabled' => true,
+                    'path' => '/missing/journal.jsonl',
+                    'delivery' => 'required',
+                ]],
+            ],
+        ] as $configuration) {
+            try {
+                ApplicationJournalConfiguration::fromConfiguration($configuration);
+                self::fail('Expected invalid JSONL journal configuration.');
+            } catch (InvalidArgumentException $exception) {
+                self::assertStringContainsString('journal.jsonl', $exception->getMessage());
+            }
+        }
     }
 
     /**
