@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-12T22:52:58+09:00
+Updated At: 2026-07-12T22:55:30+09:00
 
 ## Current Phase
 
@@ -26,7 +26,7 @@ P7-003-public-http-runtime-composition
 
 ## Pending Decisions
 
-- なし。
+- `develop/decisions/068-public-console-kernel-composition.md`: Public Kernel API、遅延Command Composition、Build UX、Worker／Retention Configの回答待ち。
 
 ## Known Blockers
 
@@ -34,9 +34,9 @@ P7-003-public-http-runtime-composition
 
 ## Required Next Action
 
-1. Public Console Kernel CompositionのContractを仕様化する。
-2. P7-004 Task Packetを作成する。
-3. GPT-5.4-mini workerへP7-004のProduction実装を依頼する。
+1. UserがD068の5問へ回答する。
+2. 回答をDecision／Specificationへ確定する。
+3. P7-004 Task Packetを作成し、GPT-5.4-mini workerへProduction実装を依頼する。
 
 ## P6-015 MVP Closeout Verification Commands and Results
 
