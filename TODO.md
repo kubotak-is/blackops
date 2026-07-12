@@ -32,7 +32,7 @@ MVP後に残す主要項目:
 
 ### Phase 7: Installed Application Example and Skeleton Layout
 
-- [ ] Public Composition APIをFramework外のConsumer視点でAuditする
+- [x] Public Composition APIをFramework外のConsumer視点でAuditする
 - [ ] `examples/quickstart/` をInstall直後と同じApplication Layoutへ更新する
 - [ ] Inline／Deferred／Worker／Migration／RetentionのConsumer E2Eを整備する
 - [ ] Exampleと `blackops/skeleton` の共通Sourceとして配布可能にする

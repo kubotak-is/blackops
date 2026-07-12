@@ -1,30 +1,30 @@
 # Orchestration State
 
-Updated At: 2026-07-12T19:46:48+09:00
+Updated At: 2026-07-12T19:50:11+09:00
 
 ## Current Phase
 
-Phase 7 Planning: Installed Application Example
+Phase 7 Design: Installed Application Boundary
 
 ## Current Task
 
-Decision ID: D063-developer-experience-roadmap
+Task ID: P7-001-installed-application-composition-audit
 
-Decision: `decisions/063-developer-experience-roadmap.md`
+Task Packet: `orchestration/tasks/P7-001-installed-application-composition-audit.md`
 
-Specification: `spec/41-developer-experience-roadmap.md`
+Report: `orchestration/reports/P7-001-installed-application-composition-audit.md`
 
-Task Packet: 次の作業単位としてP7-001を作成する。
+Specification: `spec/42-installed-application-boundary.md`
 
 ## Task Status
 
-Ready for Task Packet
+Completed
 
-D063をDecidedとし、Installed Application Example、Composer Project Bootstrap、Project CLI、Documentation Websiteの順序と配布境界を確定した。MVP完了状態は維持する。
+現在のMVP SampleとConsumer E2Eを監査し、Installed Applicationに不足するPackage／Directory／Entrypointと24種類のInternal Bootstrap依存を特定した。D063から確定済みの独立Consumer要件を仕様化した。
 
 ## Last Accepted Task
 
-P6-015-mvp-closeout
+P7-001-installed-application-composition-audit
 
 ## Pending Decisions
 
@@ -36,8 +36,8 @@ P6-015-mvp-closeout
 
 ## Required Next Action
 
-1. Phase 7のPublic Composition API Consumer Auditを行うP7-001 Task Packetを作成する。
-2. P7-001で現在のExample、Public API、Composer Package境界を調査し、変更可能FileとAcceptance Criteriaを確定する。
+1. D064でInstalled Application Layout、Public Bootstrap Object、Environment Contract、Starter Featureを決定する。
+2. D064確定後にPublic Composition APIと `examples/quickstart/` のProduction実装Taskを分割する。
 
 ## P6-015 MVP Closeout Verification Commands and Results
 
