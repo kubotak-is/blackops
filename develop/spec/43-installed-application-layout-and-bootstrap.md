@@ -30,6 +30,7 @@ config/
   execution.php
   journal.php
   operations.php
+  retention.php
 migrations/
 public/
   index.php
@@ -97,7 +98,8 @@ Skeletonは責務別のPHP Config Fileを持つ。
 - `config/database.php`: PostgreSQL ConnectionとFramework Schema
 - `config/operations.php`: Operation Providerと探索対象
 - `config/execution.php`: Inline／Deferred、Worker、Supervision設定
-- `config/journal.php`: Canonical Journal、Observer、Retention設定
+- `config/journal.php`: Canonical Journal、Observer設定
+- `config/retention.php`: 保持期間、Policy Ref、Maintenance Actor設定
 
 SecretをConfig Fileへ直書きせず、Process Environmentから取得する。
 
