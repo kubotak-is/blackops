@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-13T01:43:13+09:00
+Updated At: 2026-07-13T01:45:49+09:00
 
 ## Current Phase
 
@@ -8,17 +8,17 @@ Phase 8: Composer Project Bootstrap
 
 ## Current Task
 
-Task ID: P8-001-post-create-initialization
+Task ID: P8-001A-signal-heartbeat-test-stability
 
-Task Packet: `develop/orchestration/tasks/P8-001-post-create-initialization.md`
+Task Packet: `develop/orchestration/tasks/P8-001A-signal-heartbeat-test-stability.md`
 
-Specification: `develop/spec/52-phase-8-delivery-plan.md`
+Specification: `develop/spec/32-worker-crash-recovery.md`
 
 ## Task Status
 
-Accepted
+Ready
 
-OrchestratorがSetupの初回／冪等性／CWD非依存／Failure／all-or-cleanup／Side Effect BoundaryをReviewした。Composer、Focused Architecture、Consumer Setup、Full PHPUnitを一度ずつ再実行して成功し、P8-001を受け入れた。
+P8-001を受け入れた。Full Suiteで既存Signal heartbeat Testの実時間依存Flakeが観測されたため、Production Contractを変更せずTestを決定的にするP8-001Aを準備した。
 
 ## Last Accepted Task
 
@@ -35,9 +35,9 @@ P8-001-post-create-initialization
 
 ## Required Next Action
 
-1. P8-001AでSignal heartbeat timing testの間欠Failureを診断・安定化する。
-2. P8-002でLocal Split／Create-project Smokeを実装する。
-3. Distribution Repository情報が必要になる前にP8-003の外部境界を確認する。
+1. P8-001AでSignal heartbeat Testを決定的にする。
+2. Focused反復20回とFull Suite 2回で安定性を確認する。
+3. 受入後にP8-002 Local Split／Create-project Smokeへ進む。
 
 ## P8-001 Post-create Initialization Verification Commands and Results
 
