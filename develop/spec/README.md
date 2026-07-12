@@ -61,6 +61,7 @@
 | [44-public-application-bootstrap-api.md](44-public-application-bootstrap-api.md) | Application Builder、HTTP／Console Composition、Failure Contract |
 | [45-phase-7-delivery-plan.md](45-phase-7-delivery-plan.md) | Public BootstrapからQuickstart Consumer E2EまでのTask順序 |
 | [46-composer-skeleton-publication.md](46-composer-skeleton-publication.md) | Split Repository、Version、Lock、Post-create、Release Pipeline |
+| [47-public-http-runtime-configuration.md](47-public-http-runtime-configuration.md) | Build／Database Config、Inline／Deferred HTTP Composition、Fail-fast |
 
 ## 決定の参照
 

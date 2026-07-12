@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-12T22:34:45+09:00
+Updated At: 2026-07-12T22:36:59+09:00
 
 ## Current Phase
 
@@ -14,11 +14,13 @@ Task Packet: `develop/orchestration/tasks/P7-002-public-application-bootstrap-fo
 
 Specification: `develop/spec/44-public-application-bootstrap-api.md`
 
+Next Specification: `develop/spec/47-public-http-runtime-configuration.md`
+
 ## Task Status
 
-Accepted
+Accepted; P7-003 Packet Pending
 
-Public Application Builder FoundationをOrchestratorが再検証しAccepted。Public surfaceは `Application::configure()` と指定Fluent Methodだけで、Internal Snapshot、Raw Config、Container、未実装Runtimeを公開しない。
+Public Application Builder FoundationをAccepted。P7-003向けにBuild／Database Config、Inline／Deferred Composition、`Application::http()`、Process Safetyを仕様化した。
 
 ## Last Accepted Task
 
