@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-13T01:57:25+09:00
+Updated At: 2026-07-13T02:10:27+09:00
 
 ## Current Phase
 
@@ -16,13 +16,13 @@ Specification: `develop/spec/52-phase-8-delivery-plan.md`
 
 ## Task Status
 
-Ready
+Accepted
 
-P8-001Aを受け入れた。Committed QuickstartからLocal Skeleton Packageを抽出し、通常／no-scripts create-projectを検証するP8-002 Task Packetを確定した。
+OrchestratorがCommitted Archive、Version／Repository Isolation、通常／no-scripts Local Create-project、Copy Install、Post-create／Manual Setup、Autoload、Side Effect／CleanupをReviewした。ArchitectureとCreate-project Smokeを再実行して成功しP8-002を受け入れた。
 
 ## Last Accepted Task
 
-P8-001A-signal-heartbeat-test-stability
+P8-002-local-split-create-project-smoke
 
 ## Pending Decisions
 
@@ -34,9 +34,48 @@ P8-001A-signal-heartbeat-test-stability
 
 ## Required Next Action
 
-1. Committed QuickstartからCleanなLocal Package Rootを抽出する。
-2. 通常／`--no-scripts` Local Create-project Smokeを実装する。
-3. 受入後、P8-003 Distribution Publicationの外部Repository境界を確認する。
+1. P8-003 Distribution Publicationの外部Repository／Default Branchを確認する。
+2. Framework／Skeleton TagとConstraint同期Workflowを確定する。
+3. Push／Packagist Credential境界を確認してPublication Taskを実行する。
+
+## P8-002 Local Split and Create-project Smoke Verification Commands and Results
+
+```text
+docker compose run --rm app composer validate --strict
+Result: ./composer.json is valid.
+
+docker compose run --rm app composer validate --strict examples/quickstart/composer.json
+Result: examples/quickstart/composer.json is valid.
+
+docker compose run --rm app mago format --check src tests examples
+Result: INFO All files are already formatted.
+
+docker compose run --rm app mago lint
+Result: INFO No issues found.
+
+docker compose run --rm app mago analyze
+Result: INFO No issues found.
+
+docker compose run --rm app vendor/bin/phpunit tests/Architecture/QuickstartApplicationArchitectureTest.php
+Result: OK (6 tests, 94 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app vendor/bin/phpunit
+Result: OK (647 tests, 2197 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app vendor/bin/deptrac
+Result: 350 files / Violations 0 / Skipped 0 / Uncovered 0 / Allowed 1489 / Warnings 0 / Errors 0.
+
+bash tests/Consumer/skeleton-create-project.sh
+Result: Skeleton create-project smoke passed.
+
+Checked-in repository/version, lock/vendor, Internal import, and management ID guards
+Result: No matches or forbidden paths; all negated commands exited 0.
+
+git diff --check
+Result: No output.
+```
+
+Orchestrator Review後、通常／no-scripts両Targetの`composer.json`に`repositories`／`version` Keyがないことと、両Lockが`blackops/framework` `1.0.0`を記録することをSmokeへ追加した。Smoke、Architecture `6 tests / 94 assertions`、全Guard、`git diff --check`は再成功した。
 
 ## P8-001A Signal Heartbeat Test Stability Verification Commands and Results
 

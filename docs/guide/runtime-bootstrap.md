@@ -17,6 +17,8 @@ php my-app/bin/setup
 
 Remote CommandはSkeleton Package公開後に利用可能になる。Setup自身はComposer Install、Network、Docker、Database、Migration、Artifact Compile、Worker、Scheduler、Retentionを実行しない。
 
+RepositoryのRelease前SmokeはCommitted `examples/quickstart/`をClean Package Rootへ抽出し、Local Repositoryから通常／`--no-scripts` Create-projectを実行する。これはPackage Source、Version Constraint、Copy Install、AutoloadとSetup境界の検証であり、Remote Packagist Packageの可用性を示すものではない。
+
 The current runtime supports:
 
 - operation metadata compiled into generated PHP artifacts

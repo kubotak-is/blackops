@@ -10,6 +10,8 @@ ScriptはBuild、明示Migration、FrankenPHP HTTP、Sensitive JSONL、Deferred 
 
 `tests/Consumer/quickstart-setup.sh` はQuickstartを一時ProjectへCopyし、`bin/setup`の直接実行、Composer Script実行、Project Root外からの実行、再実行、Failureを検証する。直接実行ではPHPの外部Process関数を無効化し、Setup前後のFile差分が`.env`と生成Directoryだけであることを確認する。これにより表示された次手順が実行されず、Network／Docker／Database／Build Side EffectがないProcess Boundaryを検証する。
 
+`tests/Consumer/skeleton-create-project.sh` は`git archive HEAD:examples/quickstart`からCommitted Sourceだけを抽出する。SkeletonとFrameworkへ別々のLocal Path Repositoryとversion `1.0.0`を一時Composer Homeで与え、両方を`symlink=false`で通常／`--no-scripts` Create-projectする。Package SourceへRepository設定やVersionを戻さず、Lock、Vendor、Autoload、Post-create／Manual Setup、Generated State不在、Docker Resource不変、Source不変、Temp Cleanupを機械検証する。
+
 ## Build and Load
 
 `CompileBuildArtifactsCommand` がSampleのOperation ProviderとService Providerから次を同じApplication Build IDで生成する。

@@ -1,6 +1,6 @@
 # Installed Application Status
 
-Status: Phase 7 Complete; Phase 8 Post-create Implemented
+Status: Phase 7 Complete; Phase 8 Local Create-project Verified
 
 `examples/quickstart/` は、Feature-firstのInstalled Application Exampleと将来の `blackops/skeleton` Package Source Boundaryとして成立している。Phase 7 CompleteはPackagist公開、Production Ready、Stable Releaseを意味しない。
 
@@ -55,9 +55,11 @@ Default Compose ServiceはPostgreSQLとHTTPだけである。Composer Install、
 
 Skeletonには再実行可能な`bin/setup`とComposer `post-create-project-cmd`が実装済みである。Setupは未作成`.env`のCopyとLocal生成Directoryの準備だけを行い、既存`.env`を変更せず、外部ProcessやRuntime Side Effectを起動しない。`--no-scripts`利用時も`php bin/setup`で同じ準備を行える。
 
+Committed Quickstartから`git archive`で抽出したClean Packageを使い、Local Skeleton／Framework Repositoryから通常と`--no-scripts`のCreate-projectが成功している。両PackageはCopy Installで、Lock、Vendor、Autoload、Post-create、Manual Setup、Source Cleanliness、Side Effect不在、Cleanupを検証済みである。
+
 Phase 8はこのDirectoryを `blackops/skeleton` の配布Sourceとして扱い、次を実施する。
 
-- Skeleton Distribution RepositoryまたはPackage生成境界を確定する
+- Skeleton Distribution Repositoryへの自動Split境界を確定する
 - Framework Release VersionとSkeleton Constraintを同期する
 - PackagistへPackageを公開する
 - `composer create-project blackops/skeleton my-app` を提供する
