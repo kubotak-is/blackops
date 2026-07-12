@@ -72,6 +72,7 @@ final class QuickstartApplicationArchitectureTest extends TestCase
         self::assertSame(['App\\' => 'app/'], $composer['autoload']['psr-4']);
         self::assertSame(['App\\Tests\\' => 'tests/'], $composer['autoload-dev']['psr-4']);
         self::assertArrayNotHasKey('repositories', $composer);
+        self::assertArrayNotHasKey('version', $composer);
         self::assertSame('@php bin/setup', $composer['scripts']['post-create-project-cmd']);
         self::assertSame('>=8.5', $composer['require']['php']);
         foreach ([
