@@ -260,7 +260,7 @@
 - [x] LintとStatic AnalysisにMagoを採用する
 - [x] Test RunnerにPHPUnitを採用する
 - [x] Phase 0: Foundationを実装する
-- [ ] Phase 1: Journal付きInline Vertical Sliceを実装する
+- [x] Phase 1: Journal付きInline Vertical Sliceを実装する
 - [ ] Frontend接合方式をD047で確定する
 - [x] Codex GPT-5.4-mini workerへの実装依頼方式へOrchestrationを更新する
 - [x] Codex GPT-5.4-mini workerへ渡すTask Packet Templateを維持する
@@ -332,7 +332,7 @@
 - [x] `#[Sensitive]` にOmit、Mask、HMACを定義する
 - [x] 予約Key Patternによる防御的Omitを行う
 - [x] ObserverとCanonicalJournalStoreを型レベルで分離する
-- [ ] Sensitive FilterとObserver Projectionを実装する
+- [x] Sensitive FilterとObserver Projectionを実装する
 - [ ] Canonical StoreのCapability検証を設計する
 - [x] Observer専用の `ObservedJournalRecord` を定義する
 - [x] Journal Port失敗を専用Exceptionで表す
@@ -343,7 +343,7 @@
 - [x] Deferred SequenceをTransactionで原子的に予約する
 - [x] Sequenceの欠番を許容し監視対象とする
 - [x] 再配送時にRecord IDとSequenceを維持する
-- [ ] Deferred Operation StateのVersionと `next_sequence` を実装する
+- [x] Deferred Operation StateのVersionと `next_sequence` を実装する
 - [x] `attempt.retry_scheduled` を標準Lifecycle Eventへ追加する
 - [x] `operation.accepted` をDeferredのDurable受付に限定する
 - [x] Attempt SucceededとOperation Completedを区別する
@@ -385,19 +385,19 @@
 - [ ] `Journal Entry` を実装する
 - [ ] インメモリJournal Observerを実装する
 - [ ] インメモリExecution Transportを実装する
-- [ ] Inline Strategyを実装する
-- [ ] Deferred Strategyを実装する
+- [x] Inline Strategyを実装する
+- [x] Deferred Strategyを実装する
 - [x] 最小Workerを実装する
 - [ ] 冪等性の基本機構を実装する
 
 ## 11. 検証用ユースケース
 
 - [ ] `CreateOrder` Operationを定義する
-- [ ] HTTP入力からOperationを生成する
-- [ ] Inline Strategyで正常終了させる
-- [ ] Deferred Strategyで受付後にWorkerから実行する
-- [ ] Journalからライフサイクルを確認する
-- [ ] Handler失敗後に再試行する
+- [x] HTTP入力からOperationを生成する
+- [x] Inline Strategyで正常終了させる
+- [x] Deferred Strategyで受付後にWorkerから実行する
+- [x] Journalからライフサイクルを確認する
+- [x] Handler失敗後に再試行する
 - [ ] 同一Operationの重複実行を防止する
 - [ ] 再試行上限後にデッドレターへ移動する
 - [x] 非同期Outcomeを取得する

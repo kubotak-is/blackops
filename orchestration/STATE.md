@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-12T00:35:45+09:00
+Updated At: 2026-07-12T00:48:35+09:00
 
 ## Current Phase
 
@@ -8,21 +8,21 @@ Phase 6: Compile and Polish
 
 ## Current Task
 
-Task ID: P6-011-doctrine-versioned-migrations
+Task ID: P6-012-mvp-sample-e2e
 
-Task Packet: `orchestration/tasks/P6-011-doctrine-versioned-migrations.md`
+Task Packet: `orchestration/tasks/P6-012-mvp-sample-e2e.md`
 
-Report: `orchestration/reports/P6-011-doctrine-versioned-migrations.md`
+Report: `orchestration/reports/P6-012-mvp-sample-e2e.md`
 
 ## Task Status
 
 Accepted
 
-P6-011のDoctrine Versioned Baseline、Migration Apply／Status／Dry Run CommandをOrchestrator Reviewで受け入れた。
+P6-012のMVP Sample Inline／Deferred／Retry／Outcome／Sensitive／Compile E2EをOrchestrator Reviewで受け入れた。
 
 ## Last Accepted Task
 
-P6-011-doctrine-versioned-migrations
+P6-012-mvp-sample-e2e
 
 ## Pending Decisions
 
@@ -34,8 +34,39 @@ P6-011-doctrine-versioned-migrations
 
 ## Required Next Action
 
-1. P6-011をTask単位でCommitする。
-2. MVP E2EとPhase 6 closeoutの次Task Packetを準備する。
+1. P6-012をTask単位でCommitする。
+2. MVP Definition of DoneとTODO／Documentation／STATEを最終監査し、Phase 6 Closeoutへ進む。
+
+## P6-012 Verification Commands and Results
+
+```text
+docker compose run --rm app vendor/bin/phpunit --filter MvpSample
+Result: OK (1 test, 34 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app composer validate --strict
+Result: ./composer.json is valid.
+
+docker compose run --rm app mago format --check src tests examples
+Result: INFO All files are already formatted.
+
+docker compose run --rm app mago lint
+Result: INFO No issues found.
+
+docker compose run --rm app mago analyze
+Result: INFO No issues found.
+
+docker compose run --rm app vendor/bin/phpunit
+Result: OK (573 tests, 1841 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app vendor/bin/deptrac
+Result: 316 files / Violations 0 / Skipped violations 0 / Uncovered 0 / Allowed 1285 / Warnings 0 / Errors 0.
+
+! rg -n 'Spec(ification)?[[:space:]]*[0-9]+|D[0-9]{3}|P[0-9]+-[0-9]+|TODO\.md:[0-9]+' src tests examples --glob '*.php'
+Result: No matches (negated command exited 0).
+
+git diff --check
+Result: No output.
+```
 
 ## P6-011 Verification Commands and Results
 
