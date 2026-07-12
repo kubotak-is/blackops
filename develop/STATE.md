@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-13T01:55:43+09:00
+Updated At: 2026-07-13T01:57:25+09:00
 
 ## Current Phase
 
@@ -8,17 +8,17 @@ Phase 8: Composer Project Bootstrap
 
 ## Current Task
 
-Task ID: P8-001A-signal-heartbeat-test-stability
+Task ID: P8-002-local-split-create-project-smoke
 
-Task Packet: `develop/orchestration/tasks/P8-001A-signal-heartbeat-test-stability.md`
+Task Packet: `develop/orchestration/tasks/P8-002-local-split-create-project-smoke.md`
 
-Specification: `develop/spec/32-worker-crash-recovery.md`
+Specification: `develop/spec/52-phase-8-delivery-plan.md`
 
 ## Task Status
 
-Accepted
+Ready
 
-Orchestratorが明示SIGALRM、initial／re-arm Alarm、同期Heartbeat／Failure、Signal State restoreをReviewした。workerのFocused 20回／Full 2回に加え、Focused 5回／Full 1回を再実行して全Run成功しP8-001Aを受け入れた。
+P8-001Aを受け入れた。Committed QuickstartからLocal Skeleton Packageを抽出し、通常／no-scripts create-projectを検証するP8-002 Task Packetを確定した。
 
 ## Last Accepted Task
 
@@ -34,9 +34,9 @@ P8-001A-signal-heartbeat-test-stability
 
 ## Required Next Action
 
-1. P8-002 Local Split／Create-project SmokeのTask Packetを確定する。
-2. Split結果とFramework／Skeleton Version Policyを機械検証する。
-3. 通常／`--no-scripts` Local Create-project Smokeを実装する。
+1. Committed QuickstartからCleanなLocal Package Rootを抽出する。
+2. 通常／`--no-scripts` Local Create-project Smokeを実装する。
+3. 受入後、P8-003 Distribution Publicationの外部Repository境界を確認する。
 
 ## P8-001A Signal Heartbeat Test Stability Verification Commands and Results
 
