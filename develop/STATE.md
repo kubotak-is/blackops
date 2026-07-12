@@ -1,24 +1,24 @@
 # Orchestration State
 
-Updated At: 2026-07-13T00:04:23+09:00
+Updated At: 2026-07-13T00:13:14+09:00
 
 ## Current Phase
 
-Phase 7 Planning: Local Runtime and Consumer E2E
+Phase 7 Implementation: Operation Authoring Conventions
 
 ## Current Task
 
-Task ID: P7-005-feature-first-quickstart-application
+Task ID: P7-005A-operation-authoring-conventions
 
-Task Packet: `develop/orchestration/tasks/P7-005-feature-first-quickstart-application.md`
+Task Packet: `develop/orchestration/tasks/P7-005A-operation-authoring-conventions.md`
 
-Specification: `develop/spec/49-feature-first-quickstart-application.md`
+Specification: `develop/spec/50-operation-authoring-and-build-discovery.md`
 
 ## Task Status
 
-Accepted
+Ready
 
-Feature-first Quickstart Tree、独立Composer Metadata、Public Bootstrap／Entrypoint、Config、Integration／Architecture Test移行をOrchestratorがReviewし、全必須品質Commandの再実行に成功。P7-005を受け入れた。
+D071でSelf-handled Operation、Build-time Discovery、Handler自動DI登録を確定し、P7-006前提TaskとしてP7-005Aを準備した。
 
 ## Last Accepted Task
 
@@ -26,7 +26,7 @@ P7-005-feature-first-quickstart-application
 
 ## Pending Decisions
 
-- `develop/decisions/070-quickstart-journal-observer.md`: Quickstart Observed Journal BackendとDelivery Failure Policyの回答待ち。
+- なし。
 
 ## Known Blockers
 
@@ -34,9 +34,9 @@ P7-005-feature-first-quickstart-application
 
 ## Required Next Action
 
-1. UserがD070の2問へ回答する。
-2. 回答をJournal CompositionとLocal Runtime仕様へ確定する。
-3. P7-006 Task Packetを作成し、GPT-5.4-mini workerへ実装を依頼する。
+1. GPT-5.4-mini workerがP7-005Aを実装し、ReportとCheckpointを更新する。
+2. Orchestrator CodexがSelf-handled／Discovery／DI互換性をReviewする。
+3. P7-005A受入後、D070を反映したP7-006 Journal／Local Runtime仕様を確定する。
 
 ## P6-015 MVP Closeout Verification Commands and Results
 
