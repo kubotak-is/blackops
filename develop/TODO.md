@@ -42,6 +42,7 @@ MVP後に残す主要項目:
 - [x] `examples/quickstart/` を `blackops/skeleton` Composer Project Packageとして定義する
 - [x] 再実行可能なPost-create Setupと `--no-scripts` Manual Setupを提供する
 - [x] Committed QuickstartからLocal通常／`--no-scripts` Create-project Smokeを実行する
+- [ ] Distribution Repository／Credential／Packagist更新境界を確定する
 - [ ] `composer create-project blackops/skeleton my-app` を提供する
 - [ ] Install後Smoke Testを整備する
 

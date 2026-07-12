@@ -144,3 +144,4 @@
 | [D070](../decisions/070-quickstart-journal-observer.md) | Quickstart Journal Observer | Decided |
 | [D071](../decisions/071-operation-authoring-and-discovery.md) | Operation Authoring and Discovery | Decided |
 | [D072](../decisions/072-skeleton-empty-directory-policy.md) | Skeleton Empty Directory Policy | Decided |
+| [D073](../decisions/073-skeleton-distribution-publication-boundary.md) | Skeleton Distribution Publication Boundary | Awaiting Answer |

@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-13T02:10:27+09:00
+Updated At: 2026-07-13T02:12:46+09:00
 
 ## Current Phase
 
@@ -8,17 +8,17 @@ Phase 8: Composer Project Bootstrap
 
 ## Current Task
 
-Task ID: P8-002-local-split-create-project-smoke
+Task ID: D073-skeleton-distribution-publication-boundary
 
-Task Packet: `develop/orchestration/tasks/P8-002-local-split-create-project-smoke.md`
+Task Packet: なし（Decision回答待ち）
 
-Specification: `develop/spec/52-phase-8-delivery-plan.md`
+Specification: `develop/spec/46-composer-skeleton-publication.md`
 
 ## Task Status
 
-Accepted
+Awaiting User Decision
 
-OrchestratorがCommitted Archive、Version／Repository Isolation、通常／no-scripts Local Create-project、Copy Install、Post-create／Manual Setup、Autoload、Side Effect／CleanupをReviewした。ArchitectureとCreate-project Smokeを再実行して成功しP8-002を受け入れた。
+P8-002を受け入れた。P8-003は外部Distribution Repository、Cross-repository Credential、Packagist更新方法を必要とするためD073を作成し、ユーザー回答待ちとした。
 
 ## Last Accepted Task
 
@@ -26,17 +26,18 @@ P8-002-local-split-create-project-smoke
 
 ## Pending Decisions
 
-- なし。
+- `develop/decisions/073-skeleton-distribution-publication-boundary.md`
 
 ## Known Blockers
 
-- なし。
+- Distribution Repositoryの実URL／Default Branch／Visibilityが未確定。
+- Cross-repository Write CredentialとPackagist更新方法が未確定。
 
 ## Required Next Action
 
-1. P8-003 Distribution Publicationの外部Repository／Default Branchを確認する。
-2. Framework／Skeleton TagとConstraint同期Workflowを確定する。
-3. Push／Packagist Credential境界を確認してPublication Taskを実行する。
+1. D073の3つのANSWERへ回答する。
+2. 回答をDecision／Specへ反映してP8-003 Task Packetを確定する。
+3. External Push前にWorkflowをLocal／Dry-run検証する。
 
 ## P8-002 Local Split and Create-project Smoke Verification Commands and Results
 
