@@ -45,7 +45,7 @@ Frameworkは `.env` を読まず、Dotenvも提供しない。Process Manager、
 
 `operations.php` は絶対Directoryの `discovery` ListとOptionalな `providers` Listを返す。Application-aware BuildとOperation ListだけがSourceを探索する。PackageやApplication外SourceはProviderで追加できる。`app.php` の `services` と `commands` からService ProviderとApplication Commandを登録でき、Builderで明示した登録はConfig由来の登録の後へ追加される。
 
-Operation自身が `OperationHandler` を実装し `#[HandledBy]` を省略する形が標準である。責務を分ける場合は従来どおりSeparate Handlerを `#[HandledBy]` で指定できる。Buildは両方のHandlerをContainerへ自動登録するため、Service ProviderはRepository Interface、External Client、Factory等のApplication固有Dependencyだけを登録する。
+Operation自身に `handle(OperationValue): OperationResult` または `handle(OperationValue, ExecutionContext): OperationResult` を定義し、`#[HandledBy]` を省略するTyped Self-handledが標準である。Inlineの `ExecutionContext` はOperation IDを持ちAttemptを持たず、Deferred Workerでは現在のAttemptを持つ。従来の `OperationHandler` によるSelf-handledと、責務を分けるSeparate Handlerの `#[HandledBy]` は互換性のため引き続き利用できる。BuildはHandler Signatureを検証してContainerへ自動登録するため、Service ProviderはRepository Interface、External Client、Factory等のApplication固有Dependencyだけを登録する。
 
 Providerは対応するPublic ContractのInstanceまたは引数なしで生成できるClass Name、CommandはSymfony Console CommandのInstanceまたは引数なしで生成できるClass Nameを指定する。同一Classは一度だけ登録され、異なるCommandが同じCommand Nameを使う場合は起動エラーになる。
 

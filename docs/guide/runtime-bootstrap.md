@@ -150,6 +150,11 @@ payload. The Operation Manifest currently uses Schema Version `1`; the HTTP Mani
 its payload includes Compile済みFastRoute Dispatcher Data. Each manifest evolves independently while the shared build ID
 proves that both artifacts belong to the same application build.
 
+Operation compilation validates Typed Self-handled signatures before writing artifacts. A typed handler accepts exactly
+the declared `OperationValue`, optionally followed by a required `ExecutionContext`, and returns `OperationResult`.
+The manifest stores this invocation mode while retaining the existing handler fields. Manifest loading validates the
+stored mode against the current class signature; runtime does not discover a replacement handler from source.
+
 The generated artifacts are PHP files containing arrays, scalar metadata, class names, FastRoute Dispatcher arrays, and a compiled container class. They contain no FastRoute objects or closures. Do not store credentials, tokens, environment secrets, or live service instances in provider metadata.
 
 Use `--lock` when concurrent build processes could write the same artifact files.
@@ -207,7 +212,7 @@ The framework internally composes:
 $response = $http->handle($serverRequest);
 ```
 
-For inline operations, the request handler matches against the Compile済みFastRoute Dispatcher Data, binds the HTTP request and decoded path parameters into an operation value, dispatches the operation, invokes the handler from the compiled container, and records the inline lifecycle journal. Unknown routes and requests using a disallowed method both return HTTP 404 in the current compatibility contract.
+For inline operations, the request handler matches against the Compile済みFastRoute Dispatcher Data, binds the HTTP request and decoded path parameters into an operation value, dispatches the operation, invokes the handler from the compiled container, and records the inline lifecycle journal. A Typed Self-handled Context receives the Operation ID and has no Attempt. Unknown routes and requests using a disallowed method both return HTTP 404 in the current compatibility contract.
 
 ## Runtime Boundary
 

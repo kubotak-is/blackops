@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-13T02:42:18+09:00
+Updated At: 2026-07-13T03:20:38+09:00
 
 ## Current Phase
 
@@ -16,13 +16,13 @@ Specification: `develop/spec/53-typed-self-handled-operation-invocation.md`
 
 ## Task Status
 
-Ready
+Completed
 
-D074でNative Value／Optional ExecutionContextのTyped Self-handled Signatureを確定した。D073のPublication回答待ちは保持し、Authoring改善をP8-002Aとして先に実装する。
+P8-002AのTyped Self-handled Signature Validation、Manifest、共通Runtime Invoker、Quickstart移行、Docs、全必須検証が完了した。Review指摘のInstantiable検証、不正Invoker Mode防御、Inline Invoker注入も補強し、Orchestratorが受け入れた。
 
 ## Last Accepted Task
 
-P8-002-local-split-create-project-smoke
+P8-002A-typed-self-handled-invocation
 
 ## Pending Decisions
 
@@ -30,14 +30,51 @@ P8-002-local-split-create-project-smoke
 
 ## Known Blockers
 
-- P8-002Aの実装Blockerはなし。
 - P8-003はDistribution Repositoryの実URL／Default Branch／Visibility、Write Credential、Packagist更新方法が未確定。
 
 ## Required Next Action
 
-1. P8-002AでTyped Self-handled Build／Manifest／Runtime Invocationを実装する。
-2. QuickstartをNative Value／Optional Contextへ移行しMagoで検証する。
-3. 受入後はD073回答を待ってP8-003へ進む。
+1. D073回答を待ってP8-003へ進む。
+
+## P8-002A Typed Self-handled Invocation Verification Commands and Results
+
+```text
+docker compose run --rm app composer validate --strict
+Result: ./composer.json is valid.
+
+docker compose run --rm app composer validate --strict examples/quickstart/composer.json
+Result: examples/quickstart/composer.json is valid.
+
+docker compose run --rm app mago format --check src tests examples
+Result: INFO All files are already formatted.
+
+docker compose run --rm app mago lint
+Result: INFO No issues found.
+
+docker compose run --rm app mago analyze
+docker compose run --rm app mago analyze examples/quickstart/app
+Result: Both commands completed with INFO No issues found.
+
+docker compose run --rm app vendor/bin/phpunit tests/Internal/Registry tests/Internal/Execution tests/Internal/DependencyInjection tests/Internal/Runtime tests/Internal/Application/ApplicationConsoleKernelTest.php tests/Internal/Console tests/Http tests/Integration tests/Architecture/QuickstartApplicationArchitectureTest.php
+Result: OK (245 tests, 871 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app vendor/bin/phpunit
+Result: OK (693 tests, 2299 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app vendor/bin/deptrac
+Result: 355 files / Violations 0 / Skipped 0 / Uncovered 0 / Allowed 1508 / Warnings 0 / Errors 0.
+
+bash tests/Consumer/quickstart-e2e.sh
+Result: Quickstart consumer E2E passed.
+
+Quickstart legacy／Internal import、management ID guards
+Result: No matches; all negated commands exited 0.
+
+git diff --check
+Result: No output.
+```
+
+Orchestrator Review後、Abstract Typed DefinitionをBuild／Manifestで拒否し、Context-only Flag、Typed Separate偽装、非Operation Typed ObjectをInvokerで拒否する防御を追加した。Inline DispatcherはInvokerをConstructor Dependencyとして保持する。最終Focused `245 tests / 871 assertions`、Full `693 tests / 2299 assertions`、Deptrac `Allowed 1508 / Violations 0 / Errors 0`、Quickstart Consumer E2E、Mago 3種、全Guard、`git diff --check`が成功し、P8-002Aを受け入れた。
 
 ## P8-002 Local Split and Create-project Smoke Verification Commands and Results
 

@@ -16,7 +16,7 @@ X-Sample-Token: local-example-token
 {"message":"Welcome to BlackOps"}
 ```
 
-Requestは `ShowWelcome` と `WelcomeValue` へbindされ、Self-handledな `ShowWelcome` がtyped `WelcomeShown`を返す。同じOperation IDへ次のCanonical Journalが永続化される。
+Requestは `ShowWelcome` と `WelcomeValue` へbindされ、Self-handledな `ShowWelcome::handle(WelcomeValue)` がtyped `WelcomeShown`を返す。同じOperation IDへ次のCanonical Journalが永続化される。
 
 ```text
 operation.received
@@ -44,7 +44,7 @@ Content-Type: application/json
 }
 ```
 
-HTTP ProcessはHandlerを実行しない。別のWorker compositionがPostgreSQLからOperationをclaimする。Sample HandlerはAttempt 1でretryable exceptionを投げ、`attempt.failed` と `attempt.retry_scheduled` を記録する。再起動相当の新しいWorker／DBAL Connection／DI ContainerがAttempt 2をclaimし、typed `ReportGenerated`をOutcomes Tableへ保存する。
+HTTP ProcessはHandlerを実行しない。別のWorker compositionがPostgreSQLからOperationをclaimする。Sampleの `GenerateReport::handle(GenerateReportValue, ExecutionContext)` はContextからAttemptを取得し、Attempt 1でretryable exceptionを投げ、`attempt.failed` と `attempt.retry_scheduled` を記録する。再起動相当の新しいWorker／DBAL Connection／DI ContainerがAttempt 2をclaimし、typed `ReportGenerated`をOutcomes Tableへ保存する。
 
 OutcomeはPHPの `OutcomeReader`からOperation IDで取得する。MVP SampleはDeferred Outcome取得用HTTP Endpointを追加しない。
 
@@ -57,7 +57,7 @@ cd examples/quickstart
 php bin/blackops blackops:build:compile
 ```
 
-Production Runtimeはこの3 Artifactを同じBuild IDでloadする。Request時やWorker起動時にOperation Discovery、Container Compile、Database Migrationは実行しない。
+BuildはTyped Self-handledのValue型、Optional Context型、Return型を検証してManifestへInvocation Modeを保存する。Production Runtimeはこの3 Artifactを同じBuild IDでloadし、Manifestと現在のSignatureの不整合を拒否する。Request時やWorker起動時にOperation Discovery、Container Compile、Database Migrationは実行しない。
 
 Database SchemaはDeployment時に先に適用する。
 

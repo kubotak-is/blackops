@@ -1,6 +1,6 @@
 # Operation Registry
 
-Self-handled operations are the default application authoring form. A definition that implements both `Operation` and `OperationHandler` and omits `HandledBy` compiles itself as the handler. Separate handlers remain supported through one `HandledBy` attribute. Combining both forms or providing neither is rejected.
+Typed Self-handled operations are the default application authoring form. A definition that implements `Operation`, declares a valid typed `handle`, and omits `HandledBy` compiles itself as the handler. Legacy definitions implementing both `Operation` and `OperationHandler` remain compatible. Separate `OperationHandler` implementations remain supported through one `HandledBy` attribute; Typed Self-handled and `HandledBy` cannot be combined.
 
 Operation providers remain the public build-time extension boundary for packages and operations outside configured application discovery roots.
 
@@ -34,11 +34,11 @@ The production unified build command does not accept source discovery input. Pro
 
 Operation provider config loading is an internal bootstrap concern. A PHP config file may return a single `OperationProvider`, a list of provider instances, or a list of provider class names that can be instantiated without constructor arguments. The loader returns provider instances that can be passed to the internal provider compiler.
 
-The operation manifest file boundary writes registry metadata to a PHP array file and loads it back into an operation registry. The manifest contains scalar values and class names only.
+The operation manifest file boundary writes registry metadata to a PHP array file and loads it back into an operation registry. The manifest contains scalar values, class names, and Typed Self-handled invocation flags only. Loading revalidates Typed Self-handled signatures and rejects Value or Context mode drift without scanning source for alternatives.
 
 The operation manifest compile command ties the internal provider config loader, provider compiler, and manifest file writer together for build-time verification. It reads an operation provider config file and writes a PHP operation manifest file. HTTP route manifest generation and runtime container compilation remain separate build steps.
 
-Metadata and HTTP route compilation operate on definition class names and Reflection; they do not instantiate definitions. This permits Self-handled definitions with required constructor dependencies. Runtime resolves a Self-handled definition from the compiled handler container and uses that same instance as both definition and handler. Separate-handler definitions retain the existing no-argument construction contract.
+Metadata and HTTP route compilation operate on definition class names and Reflection; they do not instantiate definitions. Typed Self-handled compilation requires a public non-static `handle` accepting the declared Value, optionally a required `ExecutionContext`, and returning `OperationResult`. This permits Self-handled definitions with required constructor dependencies. Runtime resolves a Self-handled definition from the compiled handler container and uses that same instance as both definition and handler. Legacy Self-handled and Separate `OperationHandler` definitions retain their existing Envelope invocation contract; Separate definitions retain the no-argument construction contract.
 
 Application-aware Build and Operation List read absolute, existing discovery roots from `operations.discovery`. Provider definitions are merged first, discovered definitions are sorted by class name, and the same definition is compiled once. This discovery path is not connected to HTTP or Worker artifact loading.
 

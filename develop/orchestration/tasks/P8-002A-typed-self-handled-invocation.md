@@ -1,6 +1,6 @@
 # P8-002A: Typed Self-handled Invocation
 
-Status: Ready
+Status: Completed
 
 ## Goal
 
@@ -56,7 +56,9 @@ Self-handled OperationがNative Typed `OperationValue` とOptional `ExecutionCon
 - `tests/Integration/**`
 - `tests/Architecture/QuickstartApplicationArchitectureTest.php`
 - `examples/quickstart/app/Feature/Welcome/ShowWelcome/ShowWelcome.php`
+- `examples/quickstart/app/Feature/Welcome/ShowWelcome/WelcomeValue.php`
 - `examples/quickstart/app/Feature/Report/GenerateReport/GenerateReport.php`
+- `examples/quickstart/app/Feature/Report/GenerateReport/GenerateReportValue.php`
 - `examples/quickstart/README.md`
 - `mago.toml`
 - `docs/guide/application-bootstrap.md`
@@ -140,20 +142,20 @@ public function handle(GenerateReportValue $value, ExecutionContext $context): O
 
 ## Acceptance Criteria
 
-- [ ] Value-only Typed Self-handledをCompile／Invokeできる
-- [ ] Value＋Context Typed Self-handledをInline／DeferredでInvokeできる
-- [ ] Inline ContextのOperation IDとnull Attemptを取得できる
-- [ ] Deferred ContextのOperation IDとAttemptを取得できる
-- [ ] 全Invalid SignatureをBuild時に拒否する
-- [ ] Manifest LoadがTyped Signature／Value不整合を拒否する
-- [ ] Runtime Value／Result不整合を安全に拒否する
-- [ ] Legacy Self-handled／Separate Handlerが回帰しない
-- [ ] Container AutowireとExplicit Service BindingがTyped Handlerで成立する
-- [ ] QuickstartからInterface／Generic DocBlock／Value Guardがなくなる
-- [ ] Quickstart HTTP／Worker／Retry／Outcome／Consumer E2Eが成功する
-- [ ] 通常Mago AnalysisがQuickstart appを含み成功する
-- [ ] Focused／Full Test、Deptrac、Composer、Guardが成功する
-- [ ] Docs、Report、Checkpointが更新される
+- [x] Value-only Typed Self-handledをCompile／Invokeできる
+- [x] Value＋Context Typed Self-handledをInline／DeferredでInvokeできる
+- [x] Inline ContextのOperation IDとnull Attemptを取得できる
+- [x] Deferred ContextのOperation IDとAttemptを取得できる
+- [x] 全Invalid SignatureをBuild時に拒否する
+- [x] Manifest LoadがTyped Signature／Value不整合を拒否する
+- [x] Runtime Value／Result不整合を安全に拒否する
+- [x] Legacy Self-handled／Separate Handlerが回帰しない
+- [x] Container AutowireとExplicit Service BindingがTyped Handlerで成立する
+- [x] QuickstartからInterface／Generic DocBlock／Value Guardがなくなる
+- [x] Quickstart HTTP／Worker／Retry／Outcome／Consumer E2Eが成功する
+- [x] 通常Mago AnalysisがQuickstart appを含み成功する
+- [x] Focused／Full Test、Deptrac、Composer、Guardが成功する
+- [x] Docs、Report、Checkpointが更新される
 
 ## Required Commands
 
