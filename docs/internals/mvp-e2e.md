@@ -2,6 +2,10 @@
 
 MVP Sample E2EはProduction CodeへSample専用の近道を追加せず、既存のCompile、HTTP、PostgreSQL、Worker、Outcome、Projection境界を組み合わせる。
 
+`tests/Consumer/quickstart-e2e.sh` はChecked-in Quickstartを一時DirectoryへCopyし、`symlink=false` とversion `1.0.0` の一時Composer Path RepositoryからFrameworkをConsumer Vendorへmirror installする。RuntimeはConsumerのAutoloaderだけを使う。
+
+ScriptはBuild、明示Migration、FrankenPHP HTTP、Sensitive JSONL、Deferred Retry／Completion、Encoded Outcome、Retention Plan／Dry Runを機械検証する。Trapは成功／失敗の両方でCompose Project、Container、Named Volume、Local Image、一時Consumerを削除する。
+
 ## Build and Load
 
 `CompileBuildArtifactsCommand` がSampleのOperation ProviderとService Providerから次を同じApplication Build IDで生成する。

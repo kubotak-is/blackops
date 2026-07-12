@@ -1,6 +1,6 @@
 # P7-006: Local Runtime and Consumer End-to-End
 
-Status: Ready
+Status: Completed
 
 ## Goal
 
@@ -157,20 +157,20 @@ return [
 
 ## Acceptance Criteria
 
-- [ ] Public Journal ConfigをValidationし、無効時はObserverを構成しない
-- [ ] JSONLをAppendし、Best Effort／Required Policyを選択できる
-- [ ] Inline WelcomeのSensitive Raw値をJSONLへ出さない
-- [ ] Quickstart Compose ConfigがValidation成功する
-- [ ] Default Compose Service SetがPostgreSQL／HTTPだけである
-- [ ] PHP 8.5 CLI／FrankenPHP 1 HTTP／PostgreSQL 18 Runtimeが構成される
-- [ ] Build／Migration／Worker／MaintenanceがExplicit Commandでのみ実行される
-- [ ] Temp ConsumerへFrameworkがCopy Installされる
-- [ ] Consumer RuntimeがRoot Dev Autoloadへ依存しない
-- [ ] Inline／Deferred／Retry／Outcome／Retention E2Eが成功する
-- [ ] E2E失敗時を含めContainer／Volume／Image／TempをCleanupする
-- [ ] Test後にSourceへVendor、Lock、Artifact、Log、Path Repositoryが残らない
-- [ ] Focused／Full Test、Mago、Deptrac、Composer Validation、境界Guardが成功する
-- [ ] Docs、Report、Checkpointが更新される
+- [x] Public Journal ConfigをValidationし、無効時はObserverを構成しない
+- [x] JSONLをAppendし、Best Effort／Required Policyを選択できる
+- [x] Inline WelcomeのSensitive Raw値をJSONLへ出さない
+- [x] Quickstart Compose ConfigがValidation成功する
+- [x] Default Compose Service SetがPostgreSQL／HTTPだけである
+- [x] PHP 8.5 CLI／FrankenPHP 1 HTTP／PostgreSQL 18 Runtimeが構成される
+- [x] Build／Migration／Worker／MaintenanceがExplicit Commandでのみ実行される
+- [x] Temp ConsumerへFrameworkがCopy Installされる
+- [x] Consumer RuntimeがRoot Dev Autoloadへ依存しない
+- [x] Inline／Deferred／Retry／Outcome／Retention E2Eが成功する
+- [x] E2E失敗時を含めContainer／Volume／Image／TempをCleanupする
+- [x] Test後にSourceへVendor、Lock、Artifact、Log、Path Repositoryが残らない
+- [x] Focused／Full Test、Mago、Deptrac、Composer Validation、境界Guardが成功する
+- [x] Docs、Report、Checkpointが更新される
 
 ## Required Commands
 
@@ -187,7 +187,7 @@ docker compose run --rm app vendor/bin/phpunit
 docker compose run --rm app vendor/bin/deptrac
 bash tests/Consumer/quickstart-e2e.sh
 ! rg -n 'BlackOps\\Internal' examples/quickstart --glob '*.php'
-! rg -n '"type"[[:space:]]*:[[:space:]]*"path"|/framework|repositories' examples/quickstart/composer.json
+! rg -n '"type"[[:space:]]*:[[:space:]]*"path"|"url"[[:space:]]*:[[:space:]]*"/framework"|"repositories"[[:space:]]*:' examples/quickstart/composer.json
 ! test -e examples/quickstart/composer.lock
 ! test -d examples/quickstart/vendor
 ! rg -n 'Spec(ification)?[[:space:]]*[0-9]+|D[0-9]{3}|P[0-9]+-[0-9]+|TODO\.md:[0-9]+' src tests examples/quickstart --glob '*.php'

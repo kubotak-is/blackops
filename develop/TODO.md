@@ -93,6 +93,9 @@ MVP後に残す主要項目:
 - [x] Self-handled OperationとOptional `#[HandledBy]` 互換を実装する
 - [x] Application Build／Operation ListへBuild-time Discoveryを接続する
 - [x] Compiled HandlerをRuntime Containerへ自動登録する
+- [x] Public JSONL Journal設定をApplication HTTP Compositionへ接続する
+- [x] QuickstartへPHP 8.5／FrankenPHP 1／PostgreSQL 18 Compose Runtimeを追加する
+- [x] Temp Consumer copy installとInline／Deferred／Retention E2Eを自動検証する
 - [x] Operation DefinitionとOperationValue型を `#[Accepts]` で関連付ける
 - [x] Handlerは読み取り専用Operation Envelopeを一つだけ受け取る
 - [x] ContextなどのメタデータをOperation Envelopeへ分離する
