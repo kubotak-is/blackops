@@ -1,6 +1,6 @@
 # P8-001: Post-create Initialization
 
-Status: Ready
+Status: Completed
 
 ## Goal
 
@@ -67,16 +67,16 @@ Skeletonへ安全で再実行可能なProject Setup Entrypointを追加し、Com
 
 ## Acceptance Criteria
 
-- [ ] Composer Metadataに `post-create-project-cmd` が定義される
-- [ ] 初回Setupが `.env` とLocal Directoryを準備する
-- [ ] 再実行して既存 `.env` を変更しない
-- [ ] Project Root以外のWorking Directoryから実行できる
-- [ ] Invalid Directory Path／Copy Failureが非0で安全に失敗する
-- [ ] Setupが外部ProcessやRuntime Side Effectを実行しない
-- [ ] Composer ScriptとDirect Manual Setupの両方が成功する
-- [ ] `--no-scripts` Manual SetupがREADMEに記載される
-- [ ] Composer、Focused／Full Test、Mago、Deptrac、Guardが成功する
-- [ ] Docs、Report、Checkpointが更新される
+- [x] Composer Metadataに `post-create-project-cmd` が定義される
+- [x] 初回Setupが `.env` とLocal Directoryを準備する
+- [x] 再実行して既存 `.env` を変更しない
+- [x] Project Root以外のWorking Directoryから実行できる
+- [x] Invalid Directory Path／Copy Failureが非0で安全に失敗する
+- [x] Setupが外部ProcessやRuntime Side Effectを実行しない
+- [x] Composer ScriptとDirect Manual Setupの両方が成功する
+- [x] `--no-scripts` Manual SetupがREADMEに記載される
+- [x] Composer、Focused／Full Test、Mago、Deptrac、Guardが成功する
+- [x] Docs、Report、Checkpointが更新される
 
 ## Required Commands
 

@@ -40,6 +40,7 @@ MVP後に残す主要項目:
 ### Phase 8: Composer Project Bootstrap
 
 - [x] `examples/quickstart/` を `blackops/skeleton` Composer Project Packageとして定義する
+- [x] 再実行可能なPost-create Setupと `--no-scripts` Manual Setupを提供する
 - [ ] `composer create-project blackops/skeleton my-app` を提供する
 - [ ] Install後Smoke Testを整備する
 

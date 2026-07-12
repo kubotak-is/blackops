@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-13T01:27:16+09:00
+Updated At: 2026-07-13T01:43:13+09:00
 
 ## Current Phase
 
@@ -16,13 +16,13 @@ Specification: `develop/spec/52-phase-8-delivery-plan.md`
 
 ## Task Status
 
-Ready
+Accepted
 
-Phase 8 Delivery PlanとP8-001 Post-create Initialization Task Packetを確定した。外部Repositoryを必要としない安全なProject Setupから着手できる。
+OrchestratorがSetupの初回／冪等性／CWD非依存／Failure／all-or-cleanup／Side Effect BoundaryをReviewした。Composer、Focused Architecture、Consumer Setup、Full PHPUnitを一度ずつ再実行して成功し、P8-001を受け入れた。
 
 ## Last Accepted Task
 
-P7-007-phase-7-closeout
+P8-001-post-create-initialization
 
 ## Pending Decisions
 
@@ -30,13 +30,53 @@ P7-007-phase-7-closeout
 
 ## Known Blockers
 
-- なし。
+- Setup実装のBlockerはない。
+- 既存Signal heartbeat timing testに間欠Failureがある。P8-001変更との関連はなく、P8-001Aで独立して安定化する。
 
 ## Required Next Action
 
-1. P8-001でSkeleton Setup EntrypointとComposer Post-createを実装する。
+1. P8-001AでSignal heartbeat timing testの間欠Failureを診断・安定化する。
 2. P8-002でLocal Split／Create-project Smokeを実装する。
 3. Distribution Repository情報が必要になる前にP8-003の外部境界を確認する。
+
+## P8-001 Post-create Initialization Verification Commands and Results
+
+```text
+docker compose run --rm app composer validate --strict
+Result: ./composer.json is valid.
+
+docker compose run --rm app composer validate --strict examples/quickstart/composer.json
+Result: examples/quickstart/composer.json is valid.
+
+docker compose run --rm app mago format --check src tests examples
+Result: INFO All files are already formatted.
+
+docker compose run --rm app mago lint
+Result: INFO No issues found.
+
+docker compose run --rm app mago analyze
+Result: INFO No issues found.
+
+docker compose run --rm app vendor/bin/phpunit tests/Architecture/QuickstartApplicationArchitectureTest.php
+Result: OK (6 tests, 93 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app vendor/bin/phpunit
+Result: OK (647 tests, 2190 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app vendor/bin/deptrac
+Result: 350 files / Violations 0 / Skipped 0 / Uncovered 0 / Allowed 1489 / Warnings 0 / Errors 0.
+
+bash tests/Consumer/quickstart-setup.sh
+Result: Quickstart setup tests passed.
+
+Internal import, lock/vendor, and management ID guards
+Result: No matches or forbidden paths; all negated commands exited 0.
+
+git diff --check
+Result: No output.
+```
+
+Review修正後の再検証ではFocused Architecture `6 tests / 93 assertions`、Consumer Setup、Mago 3種、全Guardが成功した。Full Suiteは一度 `647 tests / 2190 assertions`で成功した後、既存`SignalHeartbeatTest::testSigalrmHeartbeatsDuringSynchronousHandlerAndRestoresSignalState`が2回の別Runでheartbeat count 0となった。Focused Signal Suiteは`7 tests / 15 assertions`で成功し、Setup変更との関連はない。反復実行による回避は行わずOrchestrator判断へ返す。
 
 ## P7-007 Phase 7 Closeout Verification Commands and Results
 

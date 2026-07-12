@@ -1,6 +1,6 @@
 # Installed Application Status
 
-Status: Phase 7 Complete
+Status: Phase 7 Complete; Phase 8 Post-create Implemented
 
 `examples/quickstart/` は、Feature-firstのInstalled Application Exampleと将来の `blackops/skeleton` Package Source Boundaryとして成立している。Phase 7 CompleteはPackagist公開、Production Ready、Stable Releaseを意味しない。
 
@@ -27,6 +27,7 @@ examples/quickstart/
   app/Feature/Welcome/ShowWelcome/
   app/Feature/Report/GenerateReport/
   bin/blackops
+  bin/setup
   bootstrap/app.php
   config/{app,database,execution,journal,operations,retention}.php
   public/index.php
@@ -51,6 +52,8 @@ Operation自身がHandlerを兼ねるSelf-handled形式を標準とする。Cons
 Default Compose ServiceはPostgreSQLとHTTPだけである。Composer Install、Artifact Build、Migration、Worker、Scheduler、Retention Purgeは明示CommandまたはProfileで実行する。変更を伴うPurgeは追加の`--confirm`を要求する。
 
 ## Phase 8 Handoff
+
+Skeletonには再実行可能な`bin/setup`とComposer `post-create-project-cmd`が実装済みである。Setupは未作成`.env`のCopyとLocal生成Directoryの準備だけを行い、既存`.env`を変更せず、外部ProcessやRuntime Side Effectを起動しない。`--no-scripts`利用時も`php bin/setup`で同じ準備を行える。
 
 Phase 8はこのDirectoryを `blackops/skeleton` の配布Sourceとして扱い、次を実施する。
 

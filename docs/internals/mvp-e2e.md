@@ -8,6 +8,8 @@ ScriptはBuild、明示Migration、FrankenPHP HTTP、Sensitive JSONL、Deferred 
 
 このConsumer検証はLocal Package Source Boundaryの証拠であり、PackagistやRemote `composer create-project` の証拠ではない。Phase 7の完了状態と9項目の対応表は [Installed Application Status](../guide/installed-application-status.md) を参照する。
 
+`tests/Consumer/quickstart-setup.sh` はQuickstartを一時ProjectへCopyし、`bin/setup`の直接実行、Composer Script実行、Project Root外からの実行、再実行、Failureを検証する。直接実行ではPHPの外部Process関数を無効化し、Setup前後のFile差分が`.env`と生成Directoryだけであることを確認する。これにより表示された次手順が実行されず、Network／Docker／Database／Build Side EffectがないProcess Boundaryを検証する。
+
 ## Build and Load
 
 `CompileBuildArtifactsCommand` がSampleのOperation ProviderとService Providerから次を同じApplication Build IDで生成する。

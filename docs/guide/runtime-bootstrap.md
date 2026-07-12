@@ -4,6 +4,19 @@ This guide shows the current path for building and running an HTTP inline BlackO
 
 Installed Application向けの公式導線は `examples/quickstart/` のPublic `Application` Bootstrapと薄い `public/index.php`／`bin/blackops` である。Repository内部Toolingの例はFramework実装者向けであり、QuickstartからInternal型を参照しない。
 
+## Initialize an installed project
+
+Composer `create-project`はSkeletonの`post-create-project-cmd`からProject所有の`bin/setup`を実行する。Setupは未作成の`.env`を`.env.example`からCopyし、`var/build/`と`var/log/`を準備して、明示的な次手順を表示する。再実行しても既存`.env`を上書きしない。
+
+`--no-scripts`を選んだ場合は同じEntrypointを手動実行する。
+
+```bash
+composer create-project --no-scripts blackops/skeleton my-app
+php my-app/bin/setup
+```
+
+Remote CommandはSkeleton Package公開後に利用可能になる。Setup自身はComposer Install、Network、Docker、Database、Migration、Artifact Compile、Worker、Scheduler、Retentionを実行しない。
+
 The current runtime supports:
 
 - operation metadata compiled into generated PHP artifacts
