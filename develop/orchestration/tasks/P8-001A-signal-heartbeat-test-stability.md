@@ -1,6 +1,6 @@
 # P8-001A: Signal Heartbeat Test Stability
 
-Status: Ready
+Status: Completed
 
 ## Goal
 
@@ -48,14 +48,14 @@ Full PHPUnitで間欠的にheartbeat count 0となる既存Signal heartbeat Test
 
 ## Acceptance Criteria
 
-- [ ] Flaky Testが実時間Deadlineへ依存しない
-- [ ] Alarmがarmされたことを検証する
-- [ ] 同期Operation中のSIGALRMがHeartbeatを実行する
-- [ ] Signal State restoreを維持する
-- [ ] Focused Signal Suiteを20回連続実行して成功する
-- [ ] Full PHPUnitを2回連続実行して成功する
-- [ ] Mago、Deptrac、管理ID Guard、Diff Checkが成功する
-- [ ] ReportとSTATEが更新される
+- [x] Flaky Testが実時間Deadlineへ依存しない
+- [x] Alarmがarmされたことを検証する
+- [x] 同期Operation中のSIGALRMがHeartbeatを実行する
+- [x] Signal State restoreを維持する
+- [x] Focused Signal Suiteを20回連続実行して成功する
+- [x] Full PHPUnitを2回連続実行して成功する
+- [x] Mago、Deptrac、管理ID Guard、Diff Checkが成功する
+- [x] ReportとSTATEが更新される
 
 ## Required Commands
 

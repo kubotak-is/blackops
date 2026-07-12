@@ -22,27 +22,44 @@ final class SignalHeartbeatTest extends TestCase
 {
     public function testSigalrmHeartbeatsDuringSynchronousHandlerAndRestoresSignalState(): void
     {
+        if (!function_exists('posix_kill')) {
+            self::markTestSkipped('POSIX signal sending is unavailable.');
+        }
+
         $heartbeat = new RecordingSignalHeartbeat();
-        $signals = new PcntlSignalHeartbeat($heartbeat, 1, 3, 2);
+        $signals = new PcntlSignalHeartbeat($heartbeat, 30, 60, 2);
         $previousAsync = pcntl_async_signals();
         $previousAlarm = pcntl_signal_get_handler(SIGALRM);
         $previousTerm = pcntl_signal_get_handler(SIGTERM);
         $previousInt = pcntl_signal_get_handler(SIGINT);
+        $armedSeconds = null;
+        $rearmedSeconds = null;
 
-        $result = $signals->runLoop(fn(): string => $signals->run(self::claim(), static function () use (
-            $heartbeat,
-        ): string {
-            $deadline = microtime(true) + 2.5;
+        $result = $signals->runLoop(function () use ($signals, $heartbeat, &$armedSeconds, &$rearmedSeconds): string {
+            return $signals->run(self::claim(), static function () use (
+                $heartbeat,
+                &$armedSeconds,
+                &$rearmedSeconds,
+            ): string {
+                $armedSeconds = pcntl_alarm(0);
+                if (!posix_kill(getmypid(), SIGALRM)) {
+                    throw new RuntimeException('SIGALRM could not be sent to the test process.');
+                }
+                pcntl_signal_dispatch();
+                $rearmedSeconds = pcntl_alarm(0);
 
-            while ($heartbeat->calls === 0 && microtime(true) < $deadline) {
-                usleep(10_000);
-            }
+                self::assertSame(1, $heartbeat->calls);
 
-            return 'completed';
-        }));
+                return 'completed';
+            });
+        });
 
         self::assertSame('completed', $result);
-        self::assertGreaterThanOrEqual(1, $heartbeat->calls);
+        self::assertGreaterThan(0, $armedSeconds);
+        self::assertLessThanOrEqual(30, $armedSeconds);
+        self::assertGreaterThan(0, $rearmedSeconds);
+        self::assertLessThanOrEqual(30, $rearmedSeconds);
+        self::assertSame(1, $heartbeat->calls);
         self::assertSame($previousAsync, pcntl_async_signals());
         self::assertSame($previousAlarm, pcntl_signal_get_handler(SIGALRM));
         self::assertSame($previousTerm, pcntl_signal_get_handler(SIGTERM));
@@ -51,14 +68,21 @@ final class SignalHeartbeatTest extends TestCase
 
     public function testHeartbeatFailureInterruptsHandlerAsClaimLost(): void
     {
+        if (!function_exists('posix_kill')) {
+            self::markTestSkipped('POSIX signal sending is unavailable.');
+        }
+
         $signals = new PcntlSignalHeartbeat(new RecordingSignalHeartbeat(fail: true), 1, 3, 2);
 
         $this->expectException(WorkerClaimLostException::class);
 
         $signals->runLoop(fn(): mixed => $signals->run(self::claim(), static function (): never {
-            while (true) {
-                usleep(10_000);
+            if (!posix_kill(getmypid(), SIGALRM)) {
+                throw new RuntimeException('SIGALRM could not be sent to the test process.');
             }
+            pcntl_signal_dispatch();
+
+            throw new RuntimeException('SIGALRM was not dispatched.');
         }));
     }
 

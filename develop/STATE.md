@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-13T01:45:49+09:00
+Updated At: 2026-07-13T01:55:43+09:00
 
 ## Current Phase
 
@@ -16,13 +16,13 @@ Specification: `develop/spec/32-worker-crash-recovery.md`
 
 ## Task Status
 
-Ready
+Accepted
 
-P8-001を受け入れた。Full Suiteで既存Signal heartbeat Testの実時間依存Flakeが観測されたため、Production Contractを変更せずTestを決定的にするP8-001Aを準備した。
+Orchestratorが明示SIGALRM、initial／re-arm Alarm、同期Heartbeat／Failure、Signal State restoreをReviewした。workerのFocused 20回／Full 2回に加え、Focused 5回／Full 1回を再実行して全Run成功しP8-001Aを受け入れた。
 
 ## Last Accepted Task
 
-P8-001-post-create-initialization
+P8-001A-signal-heartbeat-test-stability
 
 ## Pending Decisions
 
@@ -30,14 +30,44 @@ P8-001-post-create-initialization
 
 ## Known Blockers
 
-- Setup実装のBlockerはない。
-- 既存Signal heartbeat timing testに間欠Failureがある。P8-001変更との関連はなく、P8-001Aで独立して安定化する。
+- なし。
 
 ## Required Next Action
 
-1. P8-001AでSignal heartbeat Testを決定的にする。
-2. Focused反復20回とFull Suite 2回で安定性を確認する。
-3. 受入後にP8-002 Local Split／Create-project Smokeへ進む。
+1. P8-002 Local Split／Create-project SmokeのTask Packetを確定する。
+2. Split結果とFramework／Skeleton Version Policyを機械検証する。
+3. 通常／`--no-scripts` Local Create-project Smokeを実装する。
+
+## P8-001A Signal Heartbeat Test Stability Verification Commands and Results
+
+```text
+for run in $(seq 1 20); do docker compose run --rm app vendor/bin/phpunit tests/Internal/Execution/SignalHeartbeatTest.php; done
+Result: 20/20 runs passed. Each run OK (7 tests, 21 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app vendor/bin/phpunit
+Result: Run 1 OK (647 tests, 2196 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app vendor/bin/phpunit
+Result: Run 2 OK (647 tests, 2196 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app mago format --check src tests examples
+Result: INFO All files are already formatted.
+
+docker compose run --rm app mago lint
+Result: INFO No issues found.
+
+docker compose run --rm app mago analyze
+Result: INFO No issues found.
+
+docker compose run --rm app vendor/bin/deptrac
+Result: 350 files / Violations 0 / Skipped 0 / Uncovered 0 / Allowed 1489 / Warnings 0 / Errors 0.
+
+Management ID guard
+Result: No matches; negated command exited 0.
+
+git diff --check
+Result: No output.
+```
 
 ## P8-001 Post-create Initialization Verification Commands and Results
 
