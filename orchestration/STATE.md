@@ -1,26 +1,24 @@
 # Orchestration State
 
-Updated At: 2026-07-12T19:50:11+09:00
+Updated At: 2026-07-12T19:54:04+09:00
 
 ## Current Phase
 
-Phase 7 Design: Installed Application Boundary
+Phase 7 Design: Installed Application Layout and Bootstrap
 
 ## Current Task
 
-Task ID: P7-001-installed-application-composition-audit
+Decision ID: D064-installed-application-layout-and-bootstrap
 
-Task Packet: `orchestration/tasks/P7-001-installed-application-composition-audit.md`
-
-Report: `orchestration/reports/P7-001-installed-application-composition-audit.md`
+Decision: `decisions/064-installed-application-layout-and-bootstrap.md`
 
 Specification: `spec/42-installed-application-boundary.md`
 
 ## Task Status
 
-Completed
+Awaiting User Decision
 
-現在のMVP SampleとConsumer E2Eを監査し、Installed Applicationに不足するPackage／Directory／Entrypointと24種類のInternal Bootstrap依存を特定した。D063から確定済みの独立Consumer要件を仕様化した。
+P7-001の監査結果をもとに、Installed Application Layout、Public Bootstrap、Starter Feature、Local Runtime、Environment Loadingの選択肢と推奨案をD064へ記録した。
 
 ## Last Accepted Task
 
@@ -28,7 +26,7 @@ P7-001-installed-application-composition-audit
 
 ## Pending Decisions
 
-- なし。
+- D064 Question 1から5の回答待ち。
 
 ## Known Blockers
 
@@ -36,8 +34,8 @@ P7-001-installed-application-composition-audit
 
 ## Required Next Action
 
-1. D064でInstalled Application Layout、Public Bootstrap Object、Environment Contract、Starter Featureを決定する。
-2. D064確定後にPublic Composition APIと `examples/quickstart/` のProduction実装Taskを分割する。
+1. ユーザーがD064 Question 1から5へ回答する。
+2. 回答を確定仕様へ反映し、Public Composition APIと `examples/quickstart/` のProduction実装Taskを分割する。
 
 ## P6-015 MVP Closeout Verification Commands and Results
 

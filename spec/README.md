@@ -125,3 +125,4 @@
 | [D061](../decisions/061-retention-operation-reference.md) | Retention Operation Reference | Decided |
 | [D062](../decisions/062-retention-audit-log-delivery.md) | Retention Audit Log Delivery | Decided |
 | [D063](../decisions/063-developer-experience-roadmap.md) | Developer Experience Roadmap | Decided |
+| [D064](../decisions/064-installed-application-layout-and-bootstrap.md) | Installed Application Layout and Bootstrap | Awaiting Answer |
