@@ -14,6 +14,7 @@ use BlackOps\Core\Retention\RetentionPolicyRef;
 use BlackOps\Core\Retention\RetentionPurgeAuditPort;
 use BlackOps\Core\Retention\RetentionPurgeAuditRecord;
 use BlackOps\Core\Retention\RetentionTarget;
+use BlackOps\Internal\Retention\LoggingRetentionPurgeAuditPort;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationSender;
 use BlackOps\Transport\PostgreSql\PostgreSqlJournalRetentionDeleteService;
 use BlackOps\Transport\PostgreSql\PostgreSqlJournalSchema;
@@ -24,7 +25,10 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
+use Psr\Log\AbstractLogger;
 use RuntimeException;
+use Stringable;
+use UnexpectedValueException;
 
 final class PostgreSqlJournalRetentionDeleteServiceTest extends TestCase
 {
@@ -135,6 +139,31 @@ final class PostgreSqlJournalRetentionDeleteServiceTest extends TestCase
             self::fail('Expected the audit failure to abort the purge.');
         } catch (DeferredTransportException $exception) {
             self::assertStringContainsString('journal', $exception->getMessage());
+        }
+
+        self::assertSame(1, $this->journalCount(self::INLINE_OPERATION));
+        self::assertSame(0, $this->auditCount());
+    }
+
+    public function testSystemLogFailureRollsBackJournalDeletionAndDatabaseAudit(): void
+    {
+        $this->journal(self::INLINE_OPERATION, 1, '2026-06-01 00:00:00+00:00');
+        $audit = new LoggingRetentionPurgeAuditPort(
+            new PostgreSqlRetentionPurgeAuditStore($this->connection, self::SCHEMA),
+            new FailingJournalRetentionLogger(),
+        );
+
+        try {
+            $this->service($audit)->delete(
+                $this->plan(self::INLINE_OPERATION, '2026-06-01T00:00:00Z'),
+                $this->policy(),
+                $this->actor(),
+            );
+            self::fail('Expected the system log failure to abort the purge.');
+        } catch (DeferredTransportException $exception) {
+            self::assertStringContainsString('journal', $exception->getMessage());
+            self::assertSame('system log unavailable', $exception->getPrevious()?->getMessage());
+            self::assertInstanceOf(UnexpectedValueException::class, $exception->getPrevious());
         }
 
         self::assertSame(1, $this->journalCount(self::INLINE_OPERATION));
@@ -254,5 +283,13 @@ final readonly class FailingJournalRetentionAudit implements RetentionPurgeAudit
     public function record(RetentionPurgeAuditRecord $record): void
     {
         throw new RuntimeException('audit unavailable');
+    }
+}
+
+final class FailingJournalRetentionLogger extends AbstractLogger
+{
+    public function log($level, string|Stringable $message, array $context = []): void
+    {
+        throw new UnexpectedValueException('system log unavailable');
     }
 }

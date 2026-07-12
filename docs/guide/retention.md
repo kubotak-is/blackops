@@ -38,3 +38,7 @@ HoldはOperation IDを指定して保持期間による削除を止める。Inli
 ## Purge Audit
 
 実際に変更または削除した件数は、対象とは独立したPurge Auditへ保存される。AuditはOperation ID、対象、件数、Policy、実行時刻、Actorだけを持ち、Journal Payload、Outcome、Error本文を含まない。Journal削除とAudit保存は同じDatabase Transactionで行われ、Audit保存に失敗すると削除もRollbackされる。
+
+ApplicationはDatabase Audit Storeをprimaryとし、System Logを付加するfail-closed Audit PortをPurge Serviceへ渡す。Database AuditまたはSystem Logのどちらかが失敗した場合、Purgeは失敗してDatabase変更をRollbackする。SchedulerまたはCLIは障害を成功扱いせず、Log Backendの復旧後にPlanから再実行する。
+
+System Log書き込み後のDatabase Commit失敗ではLogだけが残る可能性がある。Audit IDを用いて過剰Logを識別し、データ削除が成功したと推測しない。

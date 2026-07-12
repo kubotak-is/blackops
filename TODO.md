@@ -254,7 +254,7 @@
 - [x] Retention SchedulerをMVPへ含める
 - [x] Retention期間はProductionで明示設定を要求する
 - [x] Holdを `retention_holds` として一般化する
-- [x] Purge Auditを別TableとSystem Logへ記録する
+- [x] Purge Auditを別Tableとfail-closed System Logへ記録する
 - [x] Retention CLIとFramework Maintenance Scheduler Workerを実装する
 - [x] Inline／Deferred Canonical JournalのRetention削除を実装する
 - [x] Inline OperationへRetention HoldとPurge Auditを保存可能にする

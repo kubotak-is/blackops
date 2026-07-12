@@ -55,7 +55,34 @@ purged_by
 record
 ```
 
-PostgreSQL Storeは各Purge Serviceから呼ばれる。削除またはTombstone化とAudit保存は同じConnection Transactionへ含め、Audit失敗時は対象変更もRollbackする。System Logへも同じ事実を出力する場合は、Purge Service側でAudit StoreとLoggerへ別配送する。
+PostgreSQL Storeは各Purge Serviceから呼ばれる。削除またはTombstone化とAudit保存は同じConnection Transactionへ含め、Audit失敗時は対象変更もRollbackする。
+
+## System Log Decorator
+
+`LoggingRetentionPurgeAuditPort` はprimaryのDatabase Audit PortとPSR-3 Loggerを組み合わせる内部Decoratorである。配送順序は次のとおりである。
+
+```text
+primary database audit
+system log
+```
+
+Primary失敗時はLoggerを呼ばない。Logger例外もcatchして成功扱いせず、元の例外のままPurge Transactionへ伝播する。Purge ServiceのTransaction内でDecoratorを使うことにより、System Log失敗時に対象削除とDatabase Auditの両方をRollbackする。
+
+Log Messageは `Retention purge audit recorded.`、Levelは `info`とし、次の構造化Contextだけを配送する。
+
+```text
+audit_id
+operation_id
+target
+affected_count
+policy
+purged_at
+purged_by
+```
+
+`purged_at` はUTCのマイクロ秒付きRFC 3339である。Payload、Context、Journal本文、Outcome、Error本文、Credentialは配送しない。
+
+DatabaseとSystem Logは分散Transactionではない。Log成功後にDatabase Commitが失敗すると過剰Logが残る可能性があるが、Audit IDで照合できる。ログなし削除は許容しない。
 
 ## PostgreSQL Schema
 

@@ -38,6 +38,8 @@ The Factory does not implement file opening, writes, level comparison, or JSON e
 
 Stream initialization and write exceptions are not caught or replaced by the Factory. Composition code therefore sees the original Monolog exception and can apply its own application-log delivery policy.
 
+Retention audit logging composes this same backend directly with `LoggingRetentionPurgeAuditPort`. The decorator emits one `info` record whose context contains only the typed purge-audit metadata, so its backend must accept the `info` level; the Factory default does. Unlike ordinary application logging, this audit path is fail-closed: a backend exception propagates into the purge transaction so the database audit and deletion roll back together. Do not place `ExecutionScopedLogger` around this system-audit path because its operation scope is unrelated to maintenance execution and the audit record already carries the target Operation ID explicitly.
+
 ## Execution Scope and Sensitive Filtering
 
 The Monolog backend is an output sink. Application and handler logging should compose it inside `ExecutionScopedLogger`:

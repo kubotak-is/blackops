@@ -121,3 +121,4 @@
 | [D059](../decisions/059-worker-heartbeat-runtime.md) | Worker Heartbeat Runtime | Decided |
 | [D060](../decisions/060-typed-outcome-store-contract.md) | Typed Outcome Store Contract | Decided |
 | [D061](../decisions/061-retention-operation-reference.md) | Retention Operation Reference | Decided |
+| [D062](../decisions/062-retention-audit-log-delivery.md) | Retention Audit Log Delivery | Decided |
