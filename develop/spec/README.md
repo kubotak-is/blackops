@@ -60,6 +60,7 @@
 | [43-installed-application-layout-and-bootstrap.md](43-installed-application-layout-and-bootstrap.md) | Feature-first Skeleton、Application Bootstrap、Local Runtime |
 | [44-public-application-bootstrap-api.md](44-public-application-bootstrap-api.md) | Application Builder、HTTP／Console Composition、Failure Contract |
 | [45-phase-7-delivery-plan.md](45-phase-7-delivery-plan.md) | Public BootstrapからQuickstart Consumer E2EまでのTask順序 |
+| [46-composer-skeleton-publication.md](46-composer-skeleton-publication.md) | Split Repository、Version、Lock、Post-create、Release Pipeline |
 
 ## 決定の参照
 
@@ -129,6 +130,6 @@
 | [D062](../decisions/062-retention-audit-log-delivery.md) | Retention Audit Log Delivery | Decided |
 | [D063](../decisions/063-developer-experience-roadmap.md) | Developer Experience Roadmap | Decided |
 | [D064](../decisions/064-installed-application-layout-and-bootstrap.md) | Installed Application Layout and Bootstrap | Decided |
-| [D065](../decisions/065-composer-skeleton-publication.md) | Composer Skeleton Publication | Awaiting Answer |
+| [D065](../decisions/065-composer-skeleton-publication.md) | Composer Skeleton Publication | Decided |
 | [D066](../decisions/066-development-metadata-layout.md) | Development Metadata Layout | Decided |
 | [D067](../decisions/067-legacy-setup-helper-removal.md) | Legacy Setup Helper Removal | Decided |

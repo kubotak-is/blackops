@@ -1,6 +1,6 @@
 # D065: Composer Skeleton Publication
 
-Status: Awaiting Answer
+Status: Decided
 
 ## Context
 
@@ -132,7 +132,18 @@ A
 
 [DECISION]
 
-<!-- Answers確定後に記録する -->
+1. `examples/quickstart/` をSkeletonのSource of TruthとしてMain Repositoryで開発する。
+2. Release Tagから `examples/quickstart/` だけを自動Splitし、Read-onlyの `blackops/skeleton` Distribution RepositoryへPushする。
+3. Packagistの `blackops/skeleton` はDistribution Repositoryを参照する。Main RepositoryのSubdirectoryを直接Package Sourceにしない。
+4. FrameworkとSkeletonへ同じRelease Version Tagを付ける。
+5. Skeletonは同じMajor／Minorの `blackops/framework` をComposer ConstraintでRequireする。
+6. Skeletonの配布Sourceへ `composer.lock` を含めない。生成されたApplicationが `create-project` 時に自身のLock Fileを生成して所有する。
+7. 生成後もComposer Package Nameは `blackops/skeleton`、PHP Root Namespaceは `App\` のまま維持する。
+8. Install時にComposer Package Name、PHP Namespace、Source Codeの自動置換または対話入力を行わない。
+9. `post-create-project-cmd` は `.env` が存在しない場合の `.env.example` Copy、Local生成Directoryの準備、次に実行するCommandの表示だけを行う。
+10. Post-create処理は再実行可能とし、既存 `.env` を上書きしない。
+11. Post-create処理からSecret生成、Network Access、Docker起動、Database接続、Migration、Artifact Build、Worker、Retentionを実行しない。
+12. `composer create-project --no-scripts` でもSource TreeとComposer Autoloadが成立し、READMEの手動手順で同じLocal準備を行えるようにする。
 
 [/DECISION]
 
@@ -140,7 +151,29 @@ A
 
 [CONSEQUENCES]
 
-<!-- Answers確定後に記録する -->
+### Benefits
+
+- FrameworkとSkeletonをMain RepositoryでAtomicに変更し、Consumer E2Eを通してから同じVersionとして配布できる。
+- Distribution RepositoryのRootにSkeletonの `composer.json` が置かれ、Packagistの標準Package境界に適合する。
+- 手動Copyや独立開発によるFramework／Skeleton Driftを避けられる。
+- 生成Applicationは自身のDependency Resolution結果を `composer.lock` として所有できる。
+- Post-createがDocker、Database、Networkへ依存しないため、Install成功とRuntime Setupを分離できる。
+- Namespace一括置換を行わず、Install結果を決定的に保てる。
+
+### Constraints
+
+- SkeletonだけをFrameworkと異なるVersionでReleaseできない。独立Releaseが必要になった場合は新しいDecisionを行う。
+- Release AutomationはFramework Tag、Split Commit、Skeleton Tagの対応が同一であることを検証しなければならない。
+- `blackops/skeleton` というComposer Nameは生成Applicationにも残る。利用者がApplicationをComposer Packageとして公開する場合は自身で変更する。
+- Lock Fileを同梱しないため、同じSkeleton VersionでもInstall日時により許容範囲内のDependency Patch Versionが異なり得る。
+- `--no-scripts` 利用時は `.env` CopyとLocal Directory準備を利用者が手動で行う必要がある。
+
+### Follow-up Work
+
+- Phase 8でSplit Workflow、Tag整合性Check、Packagist更新境界を実装する。
+- SkeletonのComposer MetadataへFramework互換ConstraintとPost-create Scriptを定義する。
+- Release前にSplit結果から `composer create-project` 相当のInstall Smoke Testを実行する。
+- Direct Commitを受け付けないDistribution Repository運用をDocumentationへ記載する。
 
 [/CONSEQUENCES]
 

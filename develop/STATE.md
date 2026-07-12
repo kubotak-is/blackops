@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-12T21:55:33+09:00
+Updated At: 2026-07-12T21:58:46+09:00
 
 ## Current Phase
 
@@ -18,7 +18,7 @@ Specification: `develop/spec/44-public-application-bootstrap-api.md`
 
 Ready
 
-Public Application Builder FoundationのProduction実装範囲はReady。D067に従い、通常のBuild／Test／Runtimeで使われていない `docker/` と `scripts/` のLegacy Helperを削除した。
+Public Application Builder FoundationのProduction実装範囲はReady。D065をDecidedとし、Skeleton Split Repository、Frameworkと同一Version、Lock非同梱、固定Project Identity、最小Post-create処理を仕様化した。
 
 ## Last Accepted Task
 
@@ -26,7 +26,7 @@ P7-001-installed-application-composition-audit
 
 ## Pending Decisions
 
-- D065 Question 1から5の回答待ち。P7-002の開始はBlockしない。
+- なし。
 
 ## Known Blockers
 
