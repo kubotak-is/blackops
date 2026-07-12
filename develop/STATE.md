@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-12T23:32:06+09:00
+Updated At: 2026-07-12T23:38:43+09:00
 
 ## Current Phase
 
@@ -26,7 +26,7 @@ P7-004-public-console-kernel-composition
 
 ## Pending Decisions
 
-- `develop/decisions/069-skeleton-http-entrypoint-adapters.md`: Skeleton HTTP EntrypointのPSR-7 Request／SAPI Emit所有境界の回答待ち。
+- `develop/decisions/069-skeleton-http-entrypoint-adapters.md`: Skeleton所有は確定。Direct PSR-7 EmitterとSymfony HttpFoundation Bridgeの選択待ち。
 
 ## Known Blockers
 
@@ -34,7 +34,7 @@ P7-004-public-console-kernel-composition
 
 ## Required Next Action
 
-1. UserがD069へ回答する。
+1. UserがD069 Question 2へ回答する。
 2. 回答をDecisionとQuickstart仕様へ確定する。
 3. P7-005 Task Packetを作成し、GPT-5.4-mini workerへProduction実装を依頼する。
 

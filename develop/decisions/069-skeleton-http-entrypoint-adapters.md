@@ -41,6 +41,47 @@ laminas/laminas-httphandlerrunner ^2.13
 
 [ANSWER]
 
+A
+一つだけlaminasパッケージに依存するのが気になる。laminasしかないの？Symfonyは？
+
+[/ANSWER]
+
+## Question 2: Response Emitter Implementation
+
+Question 1の回答Aにより、HTTP Entrypoint AdapterはSkeleton所有とする。Response Emitの実装Packageをどれにするか。
+
+### Option A: Direct PSR-7 Emit with Laminas
+
+```text
+nyholm/psr7-server
+laminas/laminas-httphandlerrunner
+```
+
+SuperglobalからPSR-7 Requestを生成し、Frameworkが返したPSR-7 Responseを変換せずSAPIへEmitする。Laminas PackageはEmitter境界だけで使用し、Application／Feature CodeへLaminas型を持ち込まない。
+
+### Option B: Symfony HttpFoundation Bridge
+
+```text
+symfony/http-foundation
+symfony/psr-http-message-bridge
+```
+
+`Request::createFromGlobals()` をPSR-7 Requestへ変換し、Frameworkが返したPSR-7 ResponseをHttpFoundation Responseへ戻して `send()` する。Frameworkが既に利用するSymfony Ecosystemへ統一できるが、RequestとResponseの両方に変換層が入る。
+
+### Option C: Alternative Direct Emitter
+
+`zaphyr-org/http-emitter` 等の小規模なPSR-7 Emitterを採用する。Laminas依存は避けられるが、導入実績とFramework Ecosystemとの整合性はA／Bより小さい。
+
+### Recommendation
+
+Aを推奨する。
+
+Laminasしか選択肢がないわけではなく、Symfony Bridgeでも実装できる。ただしSymfonyの公式PSR-7 ComponentはHttpFoundationとの相互変換Bridgeであり、PSR-7 Responseの直接Emitterではない。BlackOpsのHTTP BoundaryはPSR-7／PSR-15であるため、Responseを別Modelへ変換せずEmitするAの方が境界が単純で、Body StreamもPSR-7のまま扱える。
+
+Laminasへの依存は `public/index.php` のSAPI Emitだけに閉じる。将来Emitterを交換してもApplication Bootstrap、Feature、Handler、Framework Public APIには影響しない。
+
+[ANSWER]
+
 
 
 [/ANSWER]
@@ -49,7 +90,7 @@ laminas/laminas-httphandlerrunner ^2.13
 
 [DECISION]
 
-回答待ち。
+Question 1はAで確定。Question 2の回答待ち。
 
 [/DECISION]
 
@@ -69,3 +110,6 @@ laminas/laminas-httphandlerrunner ^2.13
 - [vlucas/phpdotenv](https://packagist.org/packages/vlucas/phpdotenv)
 - [nyholm/psr7-server](https://packagist.org/packages/nyholm/psr7-server)
 - [laminas/laminas-httphandlerrunner](https://packagist.org/packages/laminas/laminas-httphandlerrunner)
+- [Symfony PSR-7 Bridge](https://symfony.com/doc/current/components/psr7.html)
+- [symfony/psr-http-message-bridge](https://packagist.org/packages/symfony/psr-http-message-bridge)
+- [symfony/http-foundation](https://packagist.org/packages/symfony/http-foundation)
