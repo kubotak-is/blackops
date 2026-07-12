@@ -38,6 +38,7 @@ var/
   log/
 .env.example
 .gitignore
+Caddyfile
 compose.yaml
 composer.json
 Dockerfile

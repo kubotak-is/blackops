@@ -62,6 +62,10 @@
 | [45-phase-7-delivery-plan.md](45-phase-7-delivery-plan.md) | Public BootstrapからQuickstart Consumer E2EまでのTask順序 |
 | [46-composer-skeleton-publication.md](46-composer-skeleton-publication.md) | Split Repository、Version、Lock、Post-create、Release Pipeline |
 | [47-public-http-runtime-configuration.md](47-public-http-runtime-configuration.md) | Build／Database Config、Inline／Deferred HTTP Composition、Fail-fast |
+| [48-public-console-kernel-composition.md](48-public-console-kernel-composition.md) | Public Console Kernel、Application Command Composition、Exit Contract |
+| [49-feature-first-quickstart-application.md](49-feature-first-quickstart-application.md) | Install直後と同じFeature-first Quickstart Application |
+| [50-operation-authoring-and-build-discovery.md](50-operation-authoring-and-build-discovery.md) | Self-handled Operation、Build-time Discovery、Handler自動DI登録 |
+| [51-local-runtime-and-consumer-e2e.md](51-local-runtime-and-consumer-e2e.md) | Quickstart Docker Runtime、JSONL Journal、独立Consumer E2E |
 
 ## 決定の参照
 
@@ -134,3 +138,7 @@
 | [D065](../decisions/065-composer-skeleton-publication.md) | Composer Skeleton Publication | Decided |
 | [D066](../decisions/066-development-metadata-layout.md) | Development Metadata Layout | Decided |
 | [D067](../decisions/067-legacy-setup-helper-removal.md) | Legacy Setup Helper Removal | Decided |
+| [D068](../decisions/068-public-console-kernel-composition.md) | Public Console Kernel Composition | Decided |
+| [D069](../decisions/069-skeleton-http-entrypoint-adapters.md) | Skeleton HTTP Entrypoint Adapters | Decided |
+| [D070](../decisions/070-quickstart-journal-observer.md) | Quickstart Journal Observer | Decided |
+| [D071](../decisions/071-operation-authoring-and-discovery.md) | Operation Authoring and Discovery | Decided |
