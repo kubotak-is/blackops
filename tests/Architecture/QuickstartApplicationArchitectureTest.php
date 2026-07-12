@@ -38,6 +38,10 @@ final class QuickstartApplicationArchitectureTest extends TestCase
             '.gitignore',
             'composer.json',
             'README.md',
+            'Caddyfile',
+            'Dockerfile',
+            'Dockerfile.frankenphp',
+            'compose.yaml',
         ] as $path) {
             self::assertFileExists($root . '/' . $path);
         }
@@ -45,8 +49,6 @@ final class QuickstartApplicationArchitectureTest extends TestCase
         self::assertFileDoesNotExist($root . '/composer.lock');
         self::assertDirectoryDoesNotExist($root . '/vendor');
         self::assertTrue(is_executable($root . '/bin/blackops'));
-        self::assertFileDoesNotExist($root . '/compose.yaml');
-        self::assertFileDoesNotExist($root . '/Dockerfile');
         self::assertFileDoesNotExist($root . '/app/ApplicationOperationProvider.php');
         self::assertFileDoesNotExist($root . '/app/ApplicationServiceProvider.php');
         self::assertFileDoesNotExist($root . '/app/Feature/Welcome/ShowWelcome/ShowWelcomeHandler.php');
@@ -132,6 +134,27 @@ final class QuickstartApplicationArchitectureTest extends TestCase
         self::assertStringNotContainsString('withServices', $bootstrap);
         self::assertStringContainsString("'discovery'", $operations);
         self::assertStringContainsString("'providers' => []", $operations);
+    }
+
+    public function testLocalRuntimeKeepsBackgroundProcessesExplicit(): void
+    {
+        $root = $this->quickstart();
+        $compose = (string) file_get_contents($root . '/compose.yaml');
+        $cli = (string) file_get_contents($root . '/Dockerfile');
+        $http = (string) file_get_contents($root . '/Dockerfile.frankenphp');
+        $journal = (string) file_get_contents($root . '/config/journal.php');
+
+        self::assertStringContainsString('postgres:18', $compose);
+        self::assertStringContainsString('pg_isready', $compose);
+        self::assertStringContainsString('profiles: ["worker"]', $compose);
+        self::assertStringContainsString('profiles: ["maintenance"]', $compose);
+        self::assertStringContainsString('postgres_data:', $compose);
+        self::assertStringContainsString('php:8.5-cli-bookworm', $cli);
+        self::assertStringContainsString('docker-php-ext-install pcntl pdo_pgsql zip', $cli);
+        self::assertStringContainsString('dunglas/frankenphp:1-php8.5-bookworm', $http);
+        self::assertStringNotContainsString('composer install', $compose . $cli . $http);
+        self::assertStringNotContainsString('database:migrate', $compose . $cli . $http);
+        self::assertStringContainsString("'delivery' => 'best_effort'", $journal);
     }
 
     private function quickstart(): string

@@ -1,0 +1,68 @@
+services:
+  postgres:
+    image: postgres:18
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-blackops}
+      POSTGRES_USER: ${POSTGRES_USER:-blackops}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-blackops}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-blackops} -d ${POSTGRES_DB:-blackops}"]
+      interval: 2s
+      timeout: 5s
+      retries: 20
+    volumes:
+      - postgres_data:/var/lib/postgresql
+
+  http:
+    build:
+      context: .
+      dockerfile: Dockerfile.frankenphp
+    working_dir: /app
+    volumes:
+      - .:/app
+      - ./Caddyfile:/etc/frankenphp/Caddyfile:ro
+    environment: &application-environment
+      APP_BUILD_ID: ${APP_BUILD_ID:-quickstart-local}
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:-blackops}
+      POSTGRES_USER: ${POSTGRES_USER:-blackops}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-blackops}
+      BLACKOPS_SCHEMA: ${BLACKOPS_SCHEMA:-blackops}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "${HTTP_PORT:-8080}:80"
+
+  app:
+    profiles: ["tools"]
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        UID: ${HOST_UID:-1000}
+        GID: ${HOST_GID:-1000}
+    user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
+    working_dir: /app
+    volumes:
+      - .:/app
+    environment: *application-environment
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  worker:
+    profiles: ["worker"]
+    extends:
+      service: app
+    command: ["php", "bin/blackops", "blackops:worker:run"]
+
+  scheduler:
+    profiles: ["maintenance"]
+    extends:
+      service: app
+    command: ["php", "bin/blackops", "blackops:scheduler:daemon"]
+
+volumes:
+  postgres_data:

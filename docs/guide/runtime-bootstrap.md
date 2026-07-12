@@ -226,3 +226,5 @@ The reference Docker image includes PCNTL. An application image running this com
 ## Next Capabilities
 
 Applications can extend the current runtime with deployment-specific process supervision and operational monitoring. These remain application and platform concerns rather than generated framework artifacts.
+
+The Quickstart Compose default contains only PostgreSQL and FrankenPHP HTTP. Composer install, artifact build, migration, worker, scheduler, and retention commands remain explicit CLI steps. The CLI image supplies PHP 8.5, Composer, PCNTL, PDO PostgreSQL, and ZIP; the HTTP image uses FrankenPHP 1 with PHP 8.5 in classic mode.
