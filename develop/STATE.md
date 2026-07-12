@@ -1,24 +1,24 @@
 # Orchestration State
 
-Updated At: 2026-07-13T01:23:41+09:00
+Updated At: 2026-07-13T01:27:16+09:00
 
 ## Current Phase
 
-Phase 7 Complete: Installed Application Example and Skeleton Layout
+Phase 8: Composer Project Bootstrap
 
 ## Current Task
 
-Task ID: P7-007-phase-7-closeout
+Task ID: P8-001-post-create-initialization
 
-Task Packet: `develop/orchestration/tasks/P7-007-phase-7-closeout.md`
+Task Packet: `develop/orchestration/tasks/P8-001-post-create-initialization.md`
 
-Specification: `develop/spec/45-phase-7-delivery-plan.md`
+Specification: `develop/spec/52-phase-8-delivery-plan.md`
 
 ## Task Status
 
-Accepted
+Ready
 
-OrchestratorがPhase 7の9項目Evidence、Installed Tree、Public Boundary、Documentation、Phase 8 package source handoffをReviewした。D072で任意のInfrastructure／Application Migration Directoryを必須Treeから除外し、Spec 43／49と実Treeを同期した。全品質Commandと独立Consumer E2Eの成功を確認しP7-007を受け入れた。
+Phase 8 Delivery PlanとP8-001 Post-create Initialization Task Packetを確定した。外部Repositoryを必要としない安全なProject Setupから着手できる。
 
 ## Last Accepted Task
 
@@ -34,9 +34,9 @@ P7-007-phase-7-closeout
 
 ## Required Next Action
 
-1. Phase 8 Skeleton PublicationのTask Packetを確定する。
-2. Skeleton Package生成／Split境界を実装する。
-3. Framework Release Version同期、Remote Create-project、公開後Smokeを順に整備する。
+1. P8-001でSkeleton Setup EntrypointとComposer Post-createを実装する。
+2. P8-002でLocal Split／Create-project Smokeを実装する。
+3. Distribution Repository情報が必要になる前にP8-003の外部境界を確認する。
 
 ## P7-007 Phase 7 Closeout Verification Commands and Results
 
