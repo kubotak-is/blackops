@@ -93,15 +93,17 @@ P7-002 Bootstrap Foundation
 
 ## Phase Acceptance Criteria
 
-- [ ] Quickstartが独立Composer Projectとして成立する
-- [ ] Application CodeとBootstrapに `BlackOps\Internal` Importがない
-- [ ] Feature-firstのWelcome／ReportをDirectory単位で削除できる
-- [ ] Public BuilderからHTTPとConsoleを同じConfiguration Snapshotで構成できる
-- [ ] Project所有の `bin/blackops` がFramework所有Command実装を起動する
-- [ ] BuildとMigrationが明示Commandであり、HTTP／Worker起動時に暗黙実行されない
-- [ ] Local RuntimeでInline／Deferred／Worker／Retry／Outcome／Retentionを検証できる
-- [ ] Root Dev Autoloadへ依存しないConsumer E2Eが成功する
-- [ ] Full PHPUnit、Mago、Deptrac、Public API Guardが成功する
+- [x] Quickstartが独立Composer Projectとして成立する
+- [x] Application CodeとBootstrapに `BlackOps\Internal` Importがない
+- [x] Feature-firstのWelcome／ReportをDirectory単位で削除できる
+- [x] Public BuilderからHTTPとConsoleを同じConfiguration Snapshotで構成できる
+- [x] Project所有の `bin/blackops` がFramework所有Command実装を起動する
+- [x] BuildとMigrationが明示Commandであり、HTTP／Worker起動時に暗黙実行されない
+- [x] Local RuntimeでInline／Deferred／Worker／Retry／Outcome／Retentionを検証できる
+- [x] Root Dev Autoloadへ依存しないConsumer E2Eが成功する
+- [x] Full PHPUnit、Mago、Deptrac、Public API Guardが成功する
+
+完了証拠は [Installed Application Status](../../docs/guide/installed-application-status.md) と [P7-007 Closeout Report](../orchestration/reports/P7-007-phase-7-closeout.md) に記録する。Phase 7 CompleteはPackage公開またはStable Releaseを意味しない。
 
 ## Traceability
 

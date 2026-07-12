@@ -35,6 +35,7 @@ Framework実装者向けのArchitectureと実装ガイドを管理する。
 - [PostgreSQL Journal Store](postgresql-journal-store.md)
 - [Database Migrations](database-migrations.md)
 - [MVP End-to-End](mvp-e2e.md)
+- [Installed Application Status and Phase 7 Evidence](../guide/installed-application-status.md)
 - [Typed Outcome Store](outcome-store.md)
 - [HTTP API Slice](http-api-slice.md)
 - [Retention Policy](retention-policy.md)

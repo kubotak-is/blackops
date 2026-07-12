@@ -2,6 +2,10 @@
 
 Feature-firstのBlackOps Application Skeletonである。Inline `GET /welcome` とDeferred `POST /reports`、PostgreSQL 18、FrankenPHP 1、PHP 8.5 CLIを含む。
 
+## Distribution Status
+
+このDirectoryは `blackops/skeleton` のPackage Source Boundaryであり、現時点ではFramework Repository内のLocal Quickstartである。Packagist公開、Remote `composer create-project blackops/skeleton my-app`、公開PackageからのInstall Smoke TestはPhase 8で行う。
+
 ## Setup
 
 ```bash

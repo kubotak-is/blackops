@@ -1,10 +1,10 @@
 # Orchestration State
 
-Updated At: 2026-07-13T01:14:28+09:00
+Updated At: 2026-07-13T01:23:41+09:00
 
 ## Current Phase
 
-Phase 7 Closeout
+Phase 7 Complete: Installed Application Example and Skeleton Layout
 
 ## Current Task
 
@@ -16,13 +16,13 @@ Specification: `develop/spec/45-phase-7-delivery-plan.md`
 
 ## Task Status
 
-Ready
+Accepted
 
-P7-006を受け入れ、Phase Acceptance Criteriaを証拠へ対応付けるP7-007 Task Packetを確定した。
+OrchestratorがPhase 7の9項目Evidence、Installed Tree、Public Boundary、Documentation、Phase 8 package source handoffをReviewした。D072で任意のInfrastructure／Application Migration Directoryを必須Treeから除外し、Spec 43／49と実Treeを同期した。全品質Commandと独立Consumer E2Eの成功を確認しP7-007を受け入れた。
 
 ## Last Accepted Task
 
-P7-006-local-runtime-and-consumer-e2e
+P7-007-phase-7-closeout
 
 ## Pending Decisions
 
@@ -34,9 +34,49 @@ P7-006-local-runtime-and-consumer-e2e
 
 ## Required Next Action
 
-1. Phase 7 Acceptance Criteriaを実File／Accepted Report／Commandへ対応付ける。
-2. Full Quality Suiteと独立Consumer E2Eを再実行する。
-3. Phase 7 Complete Checkpointを作成し、Phase 8 Skeleton Publicationへ渡す。
+1. Phase 8 Skeleton PublicationのTask Packetを確定する。
+2. Skeleton Package生成／Split境界を実装する。
+3. Framework Release Version同期、Remote Create-project、公開後Smokeを順に整備する。
+
+## P7-007 Phase 7 Closeout Verification Commands and Results
+
+```text
+docker compose run --rm app composer validate --strict
+Result: ./composer.json is valid.
+
+docker compose run --rm app composer validate --strict examples/quickstart/composer.json
+Result: examples/quickstart/composer.json is valid.
+
+docker compose -f examples/quickstart/compose.yaml config
+Result: Valid configuration.
+
+docker compose -f examples/quickstart/compose.yaml config --services
+Result: postgres, http. Worker and scheduler are not default services.
+
+docker compose run --rm app mago format --check src tests examples
+Result: INFO All files are already formatted.
+
+docker compose run --rm app mago lint
+Result: INFO No issues found.
+
+docker compose run --rm app mago analyze
+Result: INFO No issues found.
+
+docker compose run --rm app vendor/bin/phpunit
+Result: OK (647 tests, 2187 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app vendor/bin/deptrac
+Result: 350 files / Violations 0 / Skipped 0 / Uncovered 0 / Allowed 1489 / Warnings 0 / Errors 0.
+
+bash tests/Consumer/quickstart-e2e.sh
+Result: Quickstart consumer E2E passed. Framework mirror install, scenario, and cleanup succeeded.
+
+Internal import, checked-in Path Repository, lock/vendor, and management ID guards
+Result: No matches or forbidden paths; all negated commands exited 0.
+
+git diff --check
+Result: No output.
+```
 
 ## P6-015 MVP Closeout Verification Commands and Results
 

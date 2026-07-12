@@ -7,13 +7,14 @@ BlackOpsを利用してApplicationを作る開発者向けのガイドを管理�
 ## Planned Topics
 
 - [MVP Status](mvp-status.md)
+- [Installed Application Status](installed-application-status.md)
 - [Runtime Bootstrap](runtime-bootstrap.md)
 - [Application Bootstrap](application-bootstrap.md)
 - [Outcome Retrieval](outcome-retrieval.md)
 - [Database Migrations](database-migrations.md)
 - [MVP Sample](mvp-sample.md)
 - [Data Retention](retention.md)
-- Installation
+- Remote Installation and `composer create-project` (Phase 8)
 - Creating an Operation
 - Implementing a Handler
 - HTTP Routing and Responses

@@ -6,6 +6,8 @@ MVP Sample E2EはProduction CodeへSample専用の近道を追加せず、既存
 
 ScriptはBuild、明示Migration、FrankenPHP HTTP、Sensitive JSONL、Deferred Retry／Completion、Encoded Outcome、Retention Plan／Dry Runを機械検証する。Trapは成功／失敗の両方でCompose Project、Container、Named Volume、Local Image、一時Consumerを削除する。
 
+このConsumer検証はLocal Package Source Boundaryの証拠であり、PackagistやRemote `composer create-project` の証拠ではない。Phase 7の完了状態と9項目の対応表は [Installed Application Status](../guide/installed-application-status.md) を参照する。
+
 ## Build and Load
 
 `CompileBuildArtifactsCommand` がSampleのOperation ProviderとService Providerから次を同じApplication Build IDで生成する。

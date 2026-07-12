@@ -6,10 +6,12 @@
 ## Current Documentation
 
 - [MVP Status and Definition of Done](../docs/guide/mvp-status.md)
+- [Installed Application Status](../docs/guide/installed-application-status.md)
 - [MVP Sample](../docs/guide/mvp-sample.md)
 - [Runtime Bootstrap](../docs/guide/runtime-bootstrap.md)
 - [Data Retention](../docs/guide/retention.md)
 - [Architecture and Sequences](../docs/internals/architecture.md)
+- [MVP and Consumer End-to-End](../docs/internals/mvp-e2e.md)
 - [Framework Specification Index](spec/README.md)
 - [Guide Index](../docs/guide/README.md)
 - [Internals Index](../docs/internals/README.md)

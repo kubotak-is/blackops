@@ -34,7 +34,7 @@ MVP後に残す主要項目:
 
 - [x] Public Composition APIをFramework外のConsumer視点でAuditする
 - [x] `examples/quickstart/` をInstall直後と同じApplication Layoutへ更新する
-- [ ] Inline／Deferred／Worker／Migration／RetentionのConsumer E2Eを整備する
+- [x] Inline／Deferred／Worker／Migration／RetentionのConsumer E2Eを整備する
 - [x] Exampleと `blackops/skeleton` の共通Sourceとして配布可能にする
 
 ### Phase 8: Composer Project Bootstrap

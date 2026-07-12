@@ -1,6 +1,6 @@
 # P7-007: Phase 7 Closeout
 
-Status: Ready
+Status: Completed
 
 ## Goal
 
@@ -39,6 +39,7 @@ Phase 7のInstalled Application Example and Skeleton Layoutを、現行Quickstar
 - `develop/decisions/069-skeleton-http-entrypoint-adapters.md`
 - `develop/decisions/070-quickstart-journal-observer.md`
 - `develop/decisions/071-operation-authoring-and-discovery.md`
+- `develop/decisions/072-skeleton-empty-directory-policy.md`
 - `develop/spec/41-developer-experience-roadmap.md`
 - `develop/spec/42-installed-application-boundary.md`
 - `develop/spec/43-installed-application-layout-and-bootstrap.md`
@@ -52,6 +53,9 @@ Phase 7のInstalled Application Example and Skeleton Layoutを、現行Quickstar
 
 - `develop/TODO.md`
 - `develop/DOCS.md`
+- `develop/decisions/072-skeleton-empty-directory-policy.md`
+- `develop/spec/README.md`
+- `develop/spec/43-installed-application-layout-and-bootstrap.md`
 - `develop/spec/45-phase-7-delivery-plan.md`
 - `docs/guide/README.md`
 - `docs/guide/installed-application-status.md`
@@ -76,16 +80,16 @@ Phase 7のInstalled Application Example and Skeleton Layoutを、現行Quickstar
 
 ## Acceptance Criteria
 
-- [ ] Phase Acceptance Criteria 9項目がEvidence付きでSatisfiedになる
-- [ ] Installed Tree仕様とQuickstart実Fileの一致が確認される
-- [ ] Public API BoundaryとInternal Import不在が確認される
-- [ ] Feature-first削除単位とSelf-handled Authoring導線が文書化される
-- [ ] Default／Explicit Process Boundaryが現行Compose／READMEと一致する
-- [ ] Independent Consumer copy-install E2Eが成功する
-- [ ] Phase 8 Package Source Boundaryと未公開範囲が明記される
-- [ ] Guide／Internals／DOCSからPhase 7 Statusへ到達できる
-- [ ] Full Quality Suite、Composer、Compose、Guardが成功する
-- [ ] TODO、Phase Plan、Report、STATEがPhase 7 Completeへ更新される
+- [x] Phase Acceptance Criteria 9項目がEvidence付きでSatisfiedになる
+- [x] Installed Tree仕様とQuickstart実Fileの一致が確認される
+- [x] Public API BoundaryとInternal Import不在が確認される
+- [x] Feature-first削除単位とSelf-handled Authoring導線が文書化される
+- [x] Default／Explicit Process Boundaryが現行Compose／READMEと一致する
+- [x] Independent Consumer copy-install E2Eが成功する
+- [x] Phase 8 Package Source Boundaryと未公開範囲が明記される
+- [x] Guide／Internals／DOCSからPhase 7 Statusへ到達できる
+- [x] Full Quality Suite、Composer、Compose、Guardが成功する
+- [x] TODO、Phase Plan、Report、STATEがPhase 7 Completeへ更新される
 
 ## Required Commands
 
