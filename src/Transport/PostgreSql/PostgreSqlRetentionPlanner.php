@@ -18,6 +18,7 @@ use Throwable;
 final readonly class PostgreSqlRetentionPlanner implements RetentionPlanner
 {
     private PostgreSqlDeferredOperationSchema $schema;
+    private PostgreSqlJournalSchema $journalSchema;
 
     public function __construct(
         private Connection $connection,
@@ -25,6 +26,7 @@ final readonly class PostgreSqlRetentionPlanner implements RetentionPlanner
         private int $limitPerTarget = 1_000,
     ) {
         $this->schema = new PostgreSqlDeferredOperationSchema($schema);
+        $this->journalSchema = new PostgreSqlJournalSchema($schema);
     }
 
     public function plan(RetentionPolicy $policy, DateTimeImmutable $now): RetentionPlan
@@ -32,6 +34,7 @@ final readonly class PostgreSqlRetentionPlanner implements RetentionPlanner
         try {
             return new RetentionPlan([
                 ...$this->transportPayloadItems($policy, $now),
+                ...$this->journalItems($policy, $now),
                 ...$this->outcomeItems($policy, $now),
                 ...$this->deadLetterItems($policy, $now),
             ]);
@@ -42,6 +45,38 @@ final readonly class PostgreSqlRetentionPlanner implements RetentionPlanner
 
             throw new DeferredTransportException('Failed to plan PostgreSQL retention purge.', previous: $exception);
         }
+    }
+
+    /** @return list<RetentionPlanItem> */
+    private function journalItems(RetentionPolicy $policy, DateTimeImmutable $now): array
+    {
+        $journal = $this->journalSchema->journalTable();
+        $holds = $this->schema->retentionHoldsTable();
+        $period = $policy->journalRetention();
+        $cutoff = $now->modify('-' . $period->secondsValue() . ' seconds');
+        $rows = $this->connection->fetchAllAssociative(
+            "SELECT
+                j.operation_id::text AS operation_id,
+                MAX(j.occurred_at)::text AS basis_at
+            FROM {$journal} j
+            WHERE NOT EXISTS (
+                SELECT 1
+                FROM {$holds} h
+                WHERE h.operation_id = j.operation_id
+                    AND h.released_at IS NULL
+            )
+            GROUP BY j.operation_id
+            HAVING MAX(j.occurred_at) <= :cutoff
+            ORDER BY MAX(j.occurred_at), j.operation_id
+            LIMIT {$this->limitPerTarget}",
+            ['cutoff' => $this->formatTimestamp($cutoff)],
+        );
+
+        return array_map(fn(array $row): RetentionPlanItem => $this->item(
+            $row,
+            RetentionTarget::Journal,
+            $period->secondsValue(),
+        ), $rows);
     }
 
     /**

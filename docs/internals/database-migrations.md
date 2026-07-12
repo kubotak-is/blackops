@@ -1,6 +1,6 @@
 # Database Migrations
 
-Framework-owned PostgreSQL SchemaはDoctrine Migrations 3.9の一件のVersioned Baselineで管理する。ORM、DoctrineBundle、Symfony Kernelには依存しない。
+Framework-owned PostgreSQL SchemaはDoctrine Migrations 3.9のVersioned Migrationで管理する。ORM、DoctrineBundle、Symfony Kernelには依存しない。
 
 ## Composition
 
@@ -11,6 +11,8 @@ Framework-owned PostgreSQL SchemaはDoctrine Migrations 3.9の一件のVersioned
 - Transactional／All-or-nothingを有効にする
 - Metadata Tableをconfigurable Schema内の `schema_migrations` に設定する
 - custom `ConfigurablePostgreSqlMigrationFactory`からSchema名をMigration constructorへ注入する
+
+Migration FactoryはFrameworkのPostgreSQL Migration Namespaceに属する `AbstractMigration` subclassだけを受け入れる。新しいVersionにも同じconfigurable Schema名を注入し、Namespace外のClassは拒否する。
 
 Schema名は `PostgreSqlMigrationSchema` が検証し、Table名を引用する。MigrationへCredentialやConnection設定は渡さない。
 
@@ -47,6 +49,8 @@ BaselineはOperations、Journal、Outcomes、Dead Letters、Retention Holds、Re
 現在のprogrammatic test helperが先に空Tableを作成している場合に限りadoptできるよう、Baselineは `IF NOT EXISTS` を使用する。これは任意のSchema driftを修復する仕組みではない。Productionは最初からVersioned Migrationを使用する。
 
 Baseline downはData Lossを避けるため常にIrreversibleとして拒否する。
+
+Baseline後の追加VersionはRetention HoldとPurge AuditのOperation参照外部キーを削除する。どちらもOperations行を持たないInline Operation IDを保存するための独立した識別Tableであり、IndexとUUID列は維持する。このMigrationも既存Inline参照を失わずにdownできないためIrreversibleである。
 
 ## Transaction Boundary
 

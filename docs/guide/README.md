@@ -10,6 +10,7 @@ BlackOpsを利用してApplicationを作る開発者向けのガイドを管理�
 - [Outcome Retrieval](outcome-retrieval.md)
 - [Database Migrations](database-migrations.md)
 - [MVP Sample](mvp-sample.md)
+- [Data Retention](retention.md)
 - Installation
 - Creating an Operation
 - Implementing a Handler

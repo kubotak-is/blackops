@@ -163,11 +163,6 @@ final readonly class PostgreSqlDeferredOperationSchema
             )",
             "ALTER TABLE {$retentionHolds}
                 DROP CONSTRAINT IF EXISTS retention_holds_operation_id_fkey",
-            "ALTER TABLE {$retentionHolds}
-                ADD CONSTRAINT retention_holds_operation_id_fkey
-                FOREIGN KEY (operation_id)
-                REFERENCES {$operations} (operation_id)
-                ON DELETE RESTRICT",
             "CREATE INDEX IF NOT EXISTS retention_holds_operation_active_idx
                 ON {$retentionHolds} (operation_id, placed_at)
                 WHERE released_at IS NULL",
@@ -188,11 +183,6 @@ final readonly class PostgreSqlDeferredOperationSchema
             )",
             "ALTER TABLE {$retentionPurgeAudits}
                 DROP CONSTRAINT IF EXISTS retention_purge_audits_operation_id_fkey",
-            "ALTER TABLE {$retentionPurgeAudits}
-                ADD CONSTRAINT retention_purge_audits_operation_id_fkey
-                FOREIGN KEY (operation_id)
-                REFERENCES {$operations} (operation_id)
-                ON DELETE RESTRICT",
             "CREATE INDEX IF NOT EXISTS retention_purge_audits_operation_idx
                 ON {$retentionPurgeAudits} (operation_id, purged_at)",
             "CREATE INDEX IF NOT EXISTS retention_purge_audits_purged_at_idx

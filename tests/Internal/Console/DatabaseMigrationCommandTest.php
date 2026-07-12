@@ -38,16 +38,16 @@ final class DatabaseMigrationCommandTest extends TestCase
         $pending = new CommandTester(new DatabaseMigrationStatusCommand($this->runner));
         self::assertSame(0, $pending->execute([]));
         self::assertStringContainsString('applied: 0', $pending->getDisplay());
-        self::assertStringContainsString('pending: 1', $pending->getDisplay());
+        self::assertStringContainsString('pending: 2', $pending->getDisplay());
 
         $migrate = new CommandTester(new DatabaseMigrationMigrateCommand($this->runner));
         self::assertSame(0, $migrate->execute([], ['interactive' => false]));
         self::assertStringContainsString('Database migrations applied', $migrate->getDisplay());
-        self::assertStringContainsString('migrations: 1', $migrate->getDisplay());
+        self::assertStringContainsString('migrations: 2', $migrate->getDisplay());
 
         $applied = new CommandTester(new DatabaseMigrationStatusCommand($this->runner));
         self::assertSame(0, $applied->execute([]));
-        self::assertStringContainsString('applied: 1', $applied->getDisplay());
+        self::assertStringContainsString('applied: 2', $applied->getDisplay());
         self::assertStringContainsString('pending: 0', $applied->getDisplay());
     }
 

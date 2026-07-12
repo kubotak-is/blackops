@@ -26,6 +26,7 @@ final class PostgreSqlRetentionHoldStoreTest extends TestCase
     private const OPERATION_ID = '019f32ab-2be0-7b38-a0a7-1ab2f9688901';
     private const HOLD_ID = '019f32ab-2be0-7b38-a0a7-1ab2f9688902';
     private const SECOND_HOLD_ID = '019f32ab-2be0-7b38-a0a7-1ab2f9688903';
+    private const INLINE_OPERATION_ID = '019f32ab-2be0-7b38-a0a7-1ab2f9688904';
 
     private Connection $connection;
     private PostgreSqlDeferredOperationSender $sender;
@@ -125,6 +126,28 @@ final class PostgreSqlRetentionHoldStoreTest extends TestCase
             RetentionActorRef::fromString('audit-lead'),
             new DateTimeImmutable('2026-07-12T00:00:00Z'),
         );
+    }
+
+    public function testPlaceAndReleaseInlineOperationWithoutOperationsRow(): void
+    {
+        $operationId = OperationId::fromString(self::INLINE_OPERATION_ID);
+        $hold = $this->store->place(
+            $operationId,
+            RetentionHoldCategory::Audit,
+            'inline journal review',
+            RetentionActorRef::fromString('audit-team'),
+            new DateTimeImmutable('2026-07-10T00:00:00Z'),
+        );
+
+        self::assertCount(1, $this->store->activeFor($operationId));
+        $released = $this->store->release(
+            $hold->id(),
+            RetentionActorRef::fromString('audit-lead'),
+            new DateTimeImmutable('2026-07-11T00:00:00Z'),
+        );
+
+        self::assertFalse($released->isActive());
+        self::assertSame([], $this->store->activeFor($operationId));
     }
 
     public function testActiveForReturnsOnlyUnreleasedHolds(): void

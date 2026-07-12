@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace BlackOps\Tests\Transport\PostgreSql;
 
-use BlackOps\Core\Exception\DeferredTransportException;
 use BlackOps\Core\Execution\DeferredOperationMessage;
 use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Core\Identifier\RetentionPurgeAuditId;
@@ -92,10 +91,8 @@ final class PostgreSqlRetentionPurgeAuditStoreTest extends TestCase
         );
     }
 
-    public function testRecordRejectsUnknownOperationId(): void
+    public function testRecordPersistsInlineOperationWithoutOperationsRow(): void
     {
-        $this->expectException(DeferredTransportException::class);
-
         $this->store->record(
             new RetentionPurgeAuditRecord(
                 RetentionPurgeAuditId::fromString(self::AUDIT_ID),
@@ -107,6 +104,10 @@ final class PostgreSqlRetentionPurgeAuditStoreTest extends TestCase
                 RetentionActorRef::fromString('system:retention'),
             ),
         );
+
+        $row = $this->auditRow(self::AUDIT_ID);
+        self::assertSame(self::UNKNOWN_OPERATION_ID, $row['operation_id']);
+        self::assertSame('journal', $row['target']);
     }
 
     /**

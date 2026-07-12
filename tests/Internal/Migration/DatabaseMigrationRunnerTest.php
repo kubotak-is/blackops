@@ -27,12 +27,12 @@ final class DatabaseMigrationRunnerTest extends TestCase
         $this->connection->executeStatement('DROP SCHEMA IF EXISTS ' . self::LEGACY_SCHEMA . ' CASCADE');
     }
 
-    public function testDependencyFactoryRecognizesOneSchemaConfiguredBaseline(): void
+    public function testDependencyFactoryRecognizesSchemaConfiguredMigrations(): void
     {
         $runner = new DatabaseMigrationRunner($this->connection, self::SCHEMA);
         $migrations = $runner->dependencyFactory()->getMigrationPlanCalculator()->getMigrations();
 
-        self::assertCount(1, $migrations);
+        self::assertCount(2, $migrations);
         self::assertSame(
             'BlackOps\\Migrations\\PostgreSql\\Version20260712000000',
             (string) $migrations->getFirst()->getVersion(),
@@ -46,7 +46,13 @@ final class DatabaseMigrationRunnerTest extends TestCase
         $status = $runner->status();
 
         self::assertSame([], $status->appliedVersions);
-        self::assertSame(['BlackOps\\Migrations\\PostgreSql\\Version20260712000000'], $status->pendingVersions);
+        self::assertSame(
+            [
+                'BlackOps\\Migrations\\PostgreSql\\Version20260712000000',
+                'BlackOps\\Migrations\\PostgreSql\\Version20260712010000',
+            ],
+            $status->pendingVersions,
+        );
         self::assertFalse($this->schemaExists(self::SCHEMA));
     }
 
@@ -57,7 +63,7 @@ final class DatabaseMigrationRunnerTest extends TestCase
         $result = $runner->dryRun();
 
         self::assertTrue($result->dryRun);
-        self::assertSame(1, $result->migrations);
+        self::assertSame(2, $result->migrations);
         self::assertNotEmpty($result->sql);
         self::assertStringContainsString('CREATE TABLE IF NOT EXISTS "' . self::SCHEMA . '"."operations"', implode(
             "\n",
@@ -67,6 +73,14 @@ final class DatabaseMigrationRunnerTest extends TestCase
         . self::SCHEMA
         . '"."retention_purge_audits"', implode("\n", $result->sql));
         self::assertStringContainsString('schema_migrations', implode("\n", $result->sql));
+        self::assertStringContainsString('DROP CONSTRAINT IF EXISTS retention_holds_operation_id_fkey', implode(
+            "\n",
+            $result->sql,
+        ));
+        self::assertStringContainsString('DROP CONSTRAINT IF EXISTS retention_purge_audits_operation_id_fkey', implode(
+            "\n",
+            $result->sql,
+        ));
         self::assertFalse($this->schemaExists(self::SCHEMA));
     }
 
@@ -77,7 +91,7 @@ final class DatabaseMigrationRunnerTest extends TestCase
         $result = $runner->migrate();
 
         self::assertFalse($result->dryRun);
-        self::assertSame(1, $result->migrations);
+        self::assertSame(2, $result->migrations);
         self::assertSame(
             [
                 'dead_letters',
@@ -108,16 +122,23 @@ final class DatabaseMigrationRunnerTest extends TestCase
             'column' => 'version',
         ]));
         self::assertSame(
-            1,
+            2,
             (int) $this->connection->fetchOne('SELECT count(*) FROM ' . self::SCHEMA . '.schema_migrations'),
         );
-        self::assertSame(3, (int) $this->connection->fetchOne('SELECT count(*)
+        self::assertSame(1, (int) $this->connection->fetchOne('SELECT count(*)
             FROM information_schema.referential_constraints
             WHERE constraint_schema = :schema
               AND delete_rule = :delete_rule', [
             'schema' => self::SCHEMA,
             'delete_rule' => 'RESTRICT',
         ]));
+        self::assertSame(0, (int) $this->connection->fetchOne('SELECT count(*)
+            FROM information_schema.table_constraints
+            WHERE constraint_schema = :schema
+              AND constraint_name IN (
+                \'retention_holds_operation_id_fkey\',
+                \'retention_purge_audits_operation_id_fkey\'
+              )', ['schema' => self::SCHEMA]));
         self::assertSame(10, (int) $this->connection->fetchOne('SELECT count(*)
             FROM pg_indexes
             WHERE schemaname = :schema
@@ -136,7 +157,7 @@ final class DatabaseMigrationRunnerTest extends TestCase
 
         $metadata = $runner->dependencyFactory()->getMetadataStorage();
         $metadata->ensureInitialized();
-        self::assertCount(1, $metadata->getExecutedMigrations());
+        self::assertCount(2, $metadata->getExecutedMigrations());
     }
 
     public function testApplyWithNoPendingMigrationSucceedsWithoutChangingVersionRows(): void
@@ -149,10 +170,10 @@ final class DatabaseMigrationRunnerTest extends TestCase
 
         self::assertSame(0, $result->migrations);
         self::assertSame([], $result->sql);
-        self::assertCount(1, $status->appliedVersions);
+        self::assertCount(2, $status->appliedVersions);
         self::assertSame([], $status->pendingVersions);
         self::assertSame(
-            1,
+            2,
             (int) $this->connection->fetchOne('SELECT count(*) FROM ' . self::SCHEMA . '.schema_migrations'),
         );
     }
@@ -169,9 +190,9 @@ final class DatabaseMigrationRunnerTest extends TestCase
 
         $result = $runner->migrate();
 
-        self::assertSame(1, $result->migrations);
+        self::assertSame(2, $result->migrations);
         self::assertSame(
-            1,
+            2,
             (int) $this->connection->fetchOne('SELECT count(*) FROM ' . self::SCHEMA . '.schema_migrations'),
         );
         self::assertSame([], $runner->status()->pendingVersions);
@@ -219,7 +240,7 @@ final class DatabaseMigrationRunnerTest extends TestCase
                 WHERE version = :version',
             ['version' => 'LegacyVersion'],
         ));
-        self::assertCount(2, $runner->dependencyFactory()->getMetadataStorage()->getExecutedMigrations());
+        self::assertCount(3, $runner->dependencyFactory()->getMetadataStorage()->getExecutedMigrations());
     }
 
     public function testBaselineDownIsIrreversible(): void
@@ -230,6 +251,21 @@ final class DatabaseMigrationRunnerTest extends TestCase
             ->getMigrationPlanCalculator()
             ->getMigrations()
             ->getFirst()
+            ->getMigration();
+
+        $this->expectException(IrreversibleMigration::class);
+
+        $migration->down(new Schema());
+    }
+
+    public function testOperationReferenceMigrationDownIsIrreversible(): void
+    {
+        $runner = new DatabaseMigrationRunner($this->connection, self::SCHEMA);
+        $migration = $runner
+            ->dependencyFactory()
+            ->getMigrationPlanCalculator()
+            ->getMigrations()
+            ->getLast()
             ->getMigration();
 
         $this->expectException(IrreversibleMigration::class);

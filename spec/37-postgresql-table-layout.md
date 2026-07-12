@@ -9,6 +9,8 @@ blackops.operations
 blackops.journal
 blackops.outcomes
 blackops.dead_letters
+blackops.retention_holds
+blackops.retention_purge_audits
 blackops.schema_migrations
 ```
 
@@ -24,6 +26,8 @@ Database非依存の論理Table名を共通化し、Adapterが物理名へ変換
 | Journal | `blackops.journal` | `blackops_journal` |
 | Outcomes | `blackops.outcomes` | `blackops_outcomes` |
 | Dead Letters | `blackops.dead_letters` | `blackops_dead_letters` |
+| Retention Holds | `blackops.retention_holds` | `blackops_retention_holds` |
+| Retention Purge Audits | `blackops.retention_purge_audits` | `blackops_retention_purge_audits` |
 | Migrations | `blackops.schema_migrations` | `blackops_schema_migrations` |
 
 PHP PortへDatabase固有の物理名を露出させない。
@@ -79,3 +83,9 @@ dead_letters
 ```
 
 `operation.dead_lettered` Journal Dataは同じ安全な理由情報、最終Attempt ID、最終Attempt番号、移動時刻を保持する。
+
+## Retention References
+
+`outcomes.operation_id` はDeferred Operationsへ `ON DELETE RESTRICT` で参照する。
+
+`retention_holds.operation_id` と `retention_purge_audits.operation_id` はUUIDの型付き識別値だが、Operationsへの外部キーは持たない。Inline OperationはOperations行を作成せず、Journal、Hold、Purge Auditが同じOperation IDを使う。

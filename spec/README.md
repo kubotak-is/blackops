@@ -118,3 +118,6 @@
 | [D056](../decisions/056-journal-record-public-api.md) | Journal Record Public API | Decided |
 | [D057](../decisions/057-database-access-and-migration-library.md) | Database Access and Migration Library | Decided |
 | [D058](../decisions/058-frankenphp-runtime-premise.md) | FrankenPHP Runtime Premise | Decided |
+| [D059](../decisions/059-worker-heartbeat-runtime.md) | Worker Heartbeat Runtime | Decided |
+| [D060](../decisions/060-typed-outcome-store-contract.md) | Typed Outcome Store Contract | Decided |
+| [D061](../decisions/061-retention-operation-reference.md) | Retention Operation Reference | Decided |

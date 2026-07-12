@@ -15,8 +15,9 @@ final readonly class RetentionPurgeResult
         private int $transportPayloadsPurged,
         private int $deadLettersDeleted,
         private int $outcomesDeleted = 0,
+        private int $journalsDeleted = 0,
     ) {
-        if ($transportPayloadsPurged < 0 || $deadLettersDeleted < 0 || $outcomesDeleted < 0) {
+        if ($transportPayloadsPurged < 0 || $deadLettersDeleted < 0 || $outcomesDeleted < 0 || $journalsDeleted < 0) {
             throw new InvalidArgumentException('Retention purge result counts must not be negative.');
         }
     }
@@ -41,8 +42,15 @@ final readonly class RetentionPurgeResult
         return $this->outcomesDeleted;
     }
 
+    public function journalsDeleted(): int
+    {
+        return $this->journalsDeleted;
+    }
+
     public function totalAffected(): int
     {
-        return $this->transportPayloadsPurged + $this->deadLettersDeleted + $this->outcomesDeleted;
+        return (
+            $this->transportPayloadsPurged + $this->deadLettersDeleted + $this->outcomesDeleted + $this->journalsDeleted
+        );
     }
 }

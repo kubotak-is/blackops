@@ -108,7 +108,7 @@ final class PostgreSqlDeferredOperationSenderTest extends TestCase
         self::assertSame(1, (int) $primaryKeyCount);
     }
 
-    public function testMigrationCreatesRetentionHoldsTableWithRestrictForeignKey(): void
+    public function testMigrationCreatesRetentionHoldsTableWithoutOperationsForeignKey(): void
     {
         $columns = $this->connection->fetchAllKeyValue("SELECT column_name, data_type
             FROM information_schema.columns
@@ -140,7 +140,7 @@ final class PostgreSqlDeferredOperationSenderTest extends TestCase
         self::assertSame('timestamp with time zone', $columns['released_at']);
         self::assertSame('text', $columns['released_by']);
         self::assertSame('timestamp with time zone', $columns['created_at']);
-        self::assertSame('RESTRICT', $deleteRule);
+        self::assertFalse($deleteRule);
     }
 
     public function testTerminalOperationCanBeTombstoned(): void
@@ -191,7 +191,7 @@ final class PostgreSqlDeferredOperationSenderTest extends TestCase
         );
     }
 
-    public function testRetentionHoldRestrictsOperationDelete(): void
+    public function testRetentionHoldRemainsIndependentAfterOperationDelete(): void
     {
         $this->sender->enqueue($this->message());
         $this->connection->executeStatement('INSERT INTO ' . self::SCHEMA . '.retention_holds (
@@ -217,11 +217,17 @@ final class PostgreSqlDeferredOperationSenderTest extends TestCase
             'placed_by' => 'legal-team',
         ]);
 
-        $this->expectException(Exception::class);
-
-        $this->connection->executeStatement('DELETE FROM '
+        $deleted = $this->connection->executeStatement('DELETE FROM '
         . self::SCHEMA
         . '.operations WHERE operation_id = :operation_id', ['operation_id' => self::OPERATION_ID]);
+
+        self::assertSame(1, $deleted);
+        self::assertSame(
+            1,
+            (int) $this->connection->fetchOne('SELECT count(*) FROM '
+            . self::SCHEMA
+            . '.retention_holds WHERE operation_id = :operation_id', ['operation_id' => self::OPERATION_ID]),
+        );
     }
 
     public function testEnqueueStoresMessageAndReturnsAcknowledgement(): void

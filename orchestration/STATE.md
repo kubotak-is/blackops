@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-12T00:48:35+09:00
+Updated At: 2026-07-12T10:38:21+09:00
 
 ## Current Phase
 
@@ -8,21 +8,21 @@ Phase 6: Compile and Polish
 
 ## Current Task
 
-Task ID: P6-012-mvp-sample-e2e
+Task ID: P6-013-postgresql-journal-retention
 
-Task Packet: `orchestration/tasks/P6-012-mvp-sample-e2e.md`
+Task Packet: `orchestration/tasks/P6-013-postgresql-journal-retention.md`
 
-Report: `orchestration/reports/P6-012-mvp-sample-e2e.md`
+Report: `orchestration/reports/P6-013-postgresql-journal-retention.md`
 
 ## Task Status
 
 Accepted
 
-P6-012のMVP Sample Inline／Deferred／Retry／Outcome／Sensitive／Compile E2EをOrchestrator Reviewで受け入れた。
+P6-013のInline／Deferred Canonical Journal Retention、独立Hold／Purge Audit、追加MigrationをOrchestrator Reviewで受け入れた。
 
 ## Last Accepted Task
 
-P6-012-mvp-sample-e2e
+P6-013-postgresql-journal-retention
 
 ## Pending Decisions
 
@@ -34,8 +34,39 @@ P6-012-mvp-sample-e2e
 
 ## Required Next Action
 
-1. P6-012をTask単位でCommitする。
-2. MVP Definition of DoneとTODO／Documentation／STATEを最終監査し、Phase 6 Closeoutへ進む。
+1. P6-013をTask単位でCommitする。
+2. Purge Audit System Log配送とMVP Closeoutを最終監査する。
+
+## P6-013 Verification Commands and Results
+
+```text
+docker compose run --rm app vendor/bin/phpunit --filter 'JournalRetention|RetentionPlanner|RetentionPurgeService|RetentionPurgeResult|DatabaseMigration'
+Result: OK (24 tests, 107 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app composer validate --strict
+Result: ./composer.json is valid.
+
+docker compose run --rm app mago format --check src tests
+Result: INFO All files are already formatted.
+
+docker compose run --rm app mago lint
+Result: INFO No issues found.
+
+docker compose run --rm app mago analyze
+Result: INFO No issues found.
+
+docker compose run --rm app vendor/bin/phpunit
+Result: OK (581 tests, 1872 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app vendor/bin/deptrac
+Result: 317 files / Violations 0 / Skipped violations 0 / Uncovered 0 / Allowed 1301 / Warnings 0 / Errors 0.
+
+! rg -n 'Spec(ification)?[[:space:]]*[0-9]+|D[0-9]{3}|P[0-9]+-[0-9]+|TODO\.md:[0-9]+' src tests --glob '*.php'
+Result: No matches (negated command exited 0).
+
+git diff --check
+Result: No output.
+```
 
 ## P6-012 Verification Commands and Results
 

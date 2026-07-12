@@ -12,6 +12,7 @@ use BlackOps\Core\Retention\RetentionPlanner;
 use BlackOps\Core\Retention\RetentionPolicy;
 use BlackOps\Core\Retention\RetentionTarget;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationSender;
+use BlackOps\Transport\PostgreSql\PostgreSqlJournalSchema;
 use BlackOps\Transport\PostgreSql\PostgreSqlRetentionPlanner;
 use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
@@ -29,6 +30,9 @@ final class PostgreSqlRetentionPlannerTest extends TestCase
     private const DEAD_LETTER_HELD = '019f32ab-2be0-7b38-a0a7-1ab2f9688b06';
     private const OUTCOME_ELIGIBLE = '019f32ab-2be0-7b38-a0a7-1ab2f9688b07';
     private const OUTCOME_HELD = '019f32ab-2be0-7b38-a0a7-1ab2f9688b08';
+    private const JOURNAL_ELIGIBLE = '019f32ab-2be0-7b38-a0a7-1ab2f9688b09';
+    private const JOURNAL_FRESH = '019f32ab-2be0-7b38-a0a7-1ab2f9688b0a';
+    private const JOURNAL_HELD = '019f32ab-2be0-7b38-a0a7-1ab2f9688b0b';
 
     private Connection $connection;
     private PostgreSqlDeferredOperationSender $sender;
@@ -45,6 +49,9 @@ final class PostgreSqlRetentionPlannerTest extends TestCase
         );
         $this->planner = new PostgreSqlRetentionPlanner($this->connection, self::SCHEMA);
         $this->sender->migrate();
+        foreach (new PostgreSqlJournalSchema(self::SCHEMA)->statements() as $statement) {
+            $this->connection->executeStatement($statement);
+        }
     }
 
     public function testPlannerImplementsRetentionPlannerPort(): void
@@ -59,7 +66,7 @@ final class PostgreSqlRetentionPlannerTest extends TestCase
         $plan = $this->planner->plan($this->policy(), new DateTimeImmutable('2026-07-10T00:00:00Z'));
 
         self::assertInstanceOf(RetentionPlan::class, $plan);
-        self::assertSame(4, $plan->count());
+        self::assertSame(5, $plan->count());
         self::assertSame(
             [self::DEAD_LETTER_ELIGIBLE, self::PAYLOAD_ELIGIBLE],
             array_map(
@@ -81,10 +88,18 @@ final class PostgreSqlRetentionPlannerTest extends TestCase
                 $plan->forTarget(RetentionTarget::Outcome),
             ),
         );
+        self::assertSame(
+            [self::JOURNAL_ELIGIBLE],
+            array_map(
+                static fn($item): string => $item->operationId()->toString(),
+                $plan->forTarget(RetentionTarget::Journal),
+            ),
+        );
 
         $payload = $plan->forTarget(RetentionTarget::TransportPayload)[1];
         $deadLetter = $plan->forTarget(RetentionTarget::DeadLetter)[0];
         $outcome = $plan->forTarget(RetentionTarget::Outcome)[0];
+        $journal = $plan->forTarget(RetentionTarget::Journal)[0];
 
         self::assertSame('2026-07-08T00:00:00+00:00', $payload->basisAt()->format(DATE_ATOM));
         self::assertSame('2026-07-09T00:00:00+00:00', $payload->eligibleAt()->format(DATE_ATOM));
@@ -92,6 +107,8 @@ final class PostgreSqlRetentionPlannerTest extends TestCase
         self::assertSame('2026-07-09T00:00:00+00:00', $deadLetter->eligibleAt()->format(DATE_ATOM));
         self::assertSame('2026-06-20T00:00:00+00:00', $outcome->basisAt()->format(DATE_ATOM));
         self::assertSame('2026-07-04T00:00:00+00:00', $outcome->eligibleAt()->format(DATE_ATOM));
+        self::assertSame('2026-06-09T00:00:00+00:00', $journal->basisAt()->format(DATE_ATOM));
+        self::assertSame('2026-07-09T00:00:00+00:00', $journal->eligibleAt()->format(DATE_ATOM));
     }
 
     public function testPlannerHasNoSideEffects(): void
@@ -146,6 +163,45 @@ final class PostgreSqlRetentionPlannerTest extends TestCase
         $this->deadLetter(self::DEAD_LETTER_HELD, '2026-07-07 00:00:00+00:00');
         $this->outcome(self::OUTCOME_ELIGIBLE, '2026-06-20 00:00:00+00:00');
         $this->outcome(self::OUTCOME_HELD, '2026-06-20 00:00:00+00:00');
+        $this->journal(self::JOURNAL_ELIGIBLE, 1, '2026-06-01 00:00:00+00:00');
+        $this->journal(self::JOURNAL_ELIGIBLE, 2, '2026-06-09 00:00:00+00:00');
+        $this->journal(self::JOURNAL_FRESH, 1, '2026-06-11 00:00:00+00:00');
+        $this->journal(self::JOURNAL_HELD, 1, '2026-06-01 00:00:00+00:00');
+        $this->hold(self::JOURNAL_HELD, '019f32ab-2be0-7b38-a0a7-1ab2f9688b14');
+    }
+
+    private function journal(string $operationId, int $sequence, string $occurredAt): void
+    {
+        $recordId = $this->recordId($operationId, $sequence);
+        $this->connection->executeStatement('INSERT INTO ' . self::SCHEMA . '.journal (
+            record_id, operation_id, sequence, event, schema_version, occurred_at, encoded_record
+        ) VALUES (
+            :record_id, :operation_id, :sequence, :event, 1, :occurred_at, convert_to(:record, \'UTF8\')
+        )', [
+            'record_id' => $recordId,
+            'operation_id' => $operationId,
+            'sequence' => $sequence,
+            'event' => 'operation.tested',
+            'occurred_at' => $occurredAt,
+            'record' => '{}',
+        ]);
+    }
+
+    private function recordId(string $operationId, int $sequence): string
+    {
+        $hex = md5($operationId . ':' . $sequence);
+
+        return (
+            substr($hex, 0, 8)
+            . '-'
+            . substr($hex, 8, 4)
+            . '-'
+            . substr($hex, 12, 4)
+            . '-'
+            . substr($hex, 16, 4)
+            . '-'
+            . substr($hex, 20, 12)
+        );
     }
 
     private function terminalOperation(string $operationId, string $state, string $updatedAt): void

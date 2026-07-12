@@ -55,7 +55,7 @@ purged_by
 record
 ```
 
-PostgreSQL Store、Purge Service、CLI、Scheduler Workerとの接続は後続Taskで扱う。System Logへも同じ事実を出力する場合は、Purge Service側でAudit StoreとLoggerへ別配送する。
+PostgreSQL Storeは各Purge Serviceから呼ばれる。削除またはTombstone化とAudit保存は同じConnection Transactionへ含め、Audit失敗時は対象変更もRollbackする。System Logへも同じ事実を出力する場合は、Purge Service側でAudit StoreとLoggerへ別配送する。
 
 ## PostgreSQL Schema
 
@@ -72,6 +72,8 @@ purged_by
 created_at
 ```
 
-`operation_id` はOperations Tableへ `ON DELETE RESTRICT` で参照する。削除対象Operationが消える場合でもAudit Recordの意味が壊れないよう、Cascade Deleteは使わない。
+`operation_id` は型付き識別値として保持し、Operations Tableへの外部キーを持たない。これによりOperations行を作らないInline OperationのJournal Purgeも監査できる。Audit Recordは削除対象から独立して残る。
 
 `PostgreSqlRetentionPurgeAuditStore` は `RetentionPurgeAuditPort` を実装し、Recordの各Fieldをそのまま保存する。StoreはPayloadやContextを受け取らず、System Logへの配送も担当しない。
+
+Journal PurgeではOperation ID単位の削除Record数を `affected_count` とする。Plan後のHoldやJournal追加でSkipした0件処理はAuditへ保存しない。

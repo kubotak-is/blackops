@@ -13,7 +13,7 @@ use ReflectionClass;
 
 final readonly class ConfigurablePostgreSqlMigrationFactory implements MigrationFactory
 {
-    private const BASELINE = 'BlackOps\\Migrations\\PostgreSql\\Version20260712000000';
+    private const NAMESPACE_PREFIX = 'BlackOps\\Migrations\\PostgreSql\\';
 
     public function __construct(
         private Connection $connection,
@@ -23,7 +23,10 @@ final readonly class ConfigurablePostgreSqlMigrationFactory implements Migration
 
     public function createVersion(string $migrationClassName): AbstractMigration
     {
-        if ($migrationClassName !== self::BASELINE || !is_subclass_of($migrationClassName, AbstractMigration::class)) {
+        if (
+            !str_starts_with($migrationClassName, self::NAMESPACE_PREFIX)
+            || !is_subclass_of($migrationClassName, AbstractMigration::class)
+        ) {
             throw MigrationClassNotFound::new($migrationClassName);
         }
 

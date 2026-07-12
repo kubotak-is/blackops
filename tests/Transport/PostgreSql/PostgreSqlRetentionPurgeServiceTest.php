@@ -13,6 +13,8 @@ use BlackOps\Core\Retention\RetentionPolicy;
 use BlackOps\Core\Retention\RetentionPolicyRef;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeadLetterRetentionDeleteService;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationSender;
+use BlackOps\Transport\PostgreSql\PostgreSqlJournalRetentionDeleteService;
+use BlackOps\Transport\PostgreSql\PostgreSqlJournalSchema;
 use BlackOps\Transport\PostgreSql\PostgreSqlOutcomeRetentionDeleteService;
 use BlackOps\Transport\PostgreSql\PostgreSqlRetentionPlanner;
 use BlackOps\Transport\PostgreSql\PostgreSqlRetentionPurgeAuditIdGenerator;
@@ -45,6 +47,9 @@ final class PostgreSqlRetentionPurgeServiceTest extends TestCase
             new DateTimeImmutable('2026-07-10T00:00:01.000000Z'),
         );
         $this->sender->migrate();
+        foreach (new PostgreSqlJournalSchema(self::SCHEMA)->statements() as $statement) {
+            $this->connection->executeStatement($statement);
+        }
 
         $audit = new PostgreSqlRetentionPurgeAuditStore($this->connection, self::SCHEMA);
         $ids = new FixedPurgeServiceAuditIdGenerator([
@@ -52,6 +57,7 @@ final class PostgreSqlRetentionPurgeServiceTest extends TestCase
             '019f32ab-2be0-7b38-a0a7-1ab2f9688e12',
             '019f32ab-2be0-7b38-a0a7-1ab2f9688e13',
             '019f32ab-2be0-7b38-a0a7-1ab2f9688e14',
+            '019f32ab-2be0-7b38-a0a7-1ab2f9688e15',
         ]);
         $clock = new FixedPurgeServiceClock('2026-07-12T00:00:00.000000Z');
 
@@ -60,6 +66,7 @@ final class PostgreSqlRetentionPurgeServiceTest extends TestCase
             new PostgreSqlTransportPayloadTombstoneService($this->connection, $audit, self::SCHEMA, $clock, $ids),
             new PostgreSqlOutcomeRetentionDeleteService($this->connection, $audit, self::SCHEMA, $clock, $ids),
             new PostgreSqlDeadLetterRetentionDeleteService($this->connection, $audit, self::SCHEMA, $clock, $ids),
+            new PostgreSqlJournalRetentionDeleteService($this->connection, $audit, self::SCHEMA, $clock, $ids),
         );
     }
 
@@ -79,16 +86,17 @@ final class PostgreSqlRetentionPurgeServiceTest extends TestCase
             new DateTimeImmutable('2026-07-11T00:00:00Z'),
         );
 
-        self::assertSame(4, $result->plan()->count());
+        self::assertSame(5, $result->plan()->count());
         self::assertSame(2, $result->transportPayloadsPurged());
         self::assertSame(1, $result->outcomesDeleted());
         self::assertSame(1, $result->deadLettersDeleted());
-        self::assertSame(4, $result->totalAffected());
+        self::assertSame(2, $result->journalsDeleted());
+        self::assertSame(6, $result->totalAffected());
         self::assertNull($this->operationPayload(self::PAYLOAD_OPERATION));
         self::assertNull($this->operationPayload(self::DEAD_LETTER_OPERATION));
         self::assertFalse($this->deadLetterExists(self::DEAD_LETTER_OPERATION));
         self::assertFalse($this->outcomeExists(self::PAYLOAD_OPERATION));
-        self::assertSame(4, $this->auditCount());
+        self::assertSame(5, $this->auditCount());
     }
 
     private function seedRows(): void
@@ -97,6 +105,42 @@ final class PostgreSqlRetentionPurgeServiceTest extends TestCase
         $this->operation(self::DEAD_LETTER_OPERATION, 'dead_lettered', '2026-07-08 00:00:00+00:00');
         $this->deadLetter(self::DEAD_LETTER_OPERATION, '2026-07-08 00:00:00+00:00');
         $this->outcome(self::PAYLOAD_OPERATION, '2026-06-20 00:00:00+00:00');
+        $this->journal(self::PAYLOAD_OPERATION, 1, '2026-05-01 00:00:00+00:00');
+        $this->journal(self::PAYLOAD_OPERATION, 2, '2026-05-02 00:00:00+00:00');
+    }
+
+    private function journal(string $operationId, int $sequence, string $occurredAt): void
+    {
+        $recordId = $this->recordId($operationId, $sequence);
+        $this->connection->executeStatement('INSERT INTO ' . self::SCHEMA . '.journal (
+            record_id, operation_id, sequence, event, schema_version, occurred_at, encoded_record
+        ) VALUES (
+            :record_id, :operation_id, :sequence, :event, 1, :occurred_at, convert_to(:record, \'UTF8\')
+        )', [
+            'record_id' => $recordId,
+            'operation_id' => $operationId,
+            'sequence' => $sequence,
+            'event' => 'operation.tested',
+            'occurred_at' => $occurredAt,
+            'record' => '{}',
+        ]);
+    }
+
+    private function recordId(string $operationId, int $sequence): string
+    {
+        $hex = md5($operationId . ':' . $sequence);
+
+        return (
+            substr($hex, 0, 8)
+            . '-'
+            . substr($hex, 8, 4)
+            . '-'
+            . substr($hex, 12, 4)
+            . '-'
+            . substr($hex, 16, 4)
+            . '-'
+            . substr($hex, 20, 12)
+        );
     }
 
     private function operation(string $operationId, string $state, string $updatedAt): void
