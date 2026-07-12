@@ -25,7 +25,9 @@ interface Outcome
 
 ## Operation Handler
 
-Handlerは `OperationHandler` を実装し、単一の `handle()` Methodを持つ。
+標準Self-handled Operationは、`Operation` を実装し、`#[Accepts]` と一致する具象 `OperationValue` を第一引数に持つPublic `handle()` Methodを定義する。必要な場合は第二引数で `ExecutionContext` を受け取る。Build CompilerがNative Signatureを検証するため、Generic DocBlockとValue Narrowing Guardは不要である。
+
+`OperationHandler` はSeparate HandlerとLegacy Self-handled Operationの後方互換Contractとして維持する。Legacy Handlerは `OperationHandler` を実装し、単一の `handle()` Methodを持つ。
 
 ```php
 /**
@@ -43,7 +45,7 @@ interface OperationHandler
 }
 ```
 
-Handlerは成功または業務拒否を `OperationResult` で返す。具体的なOperationValue型とOutcome型はPHPDoc Genericで表現する。Manifest CompilerとStatic Analysisは、Operation DefinitionのAttributeを含めて型の整合性を検証する。
+Handlerは成功または業務拒否を `OperationResult` で返す。Typed Self-handled OperationはNative Parameter、Legacy HandlerはPHPDoc GenericでValue型を表現する。Manifest CompilerとStatic AnalysisはOperation DefinitionのAttributeを含めて型の整合性を検証する。
 
 ## PHP Public API
 
