@@ -54,14 +54,16 @@ Laravel／Symfonyからの対応表は、次を最低限含む。
 
 ## Diagrams
 
-MermaidをVersion固定したLocal DependencyとしてBuildへ組み込み、外部CDNを使用しない。少なくとも次のDiagramを描画する。
+MermaidとStarlight IntegrationをVersion固定したLocal DependencyとしてBuildへ組み込み、外部CDNを使用しない。少なくとも次のDiagramを描画する。
 
 1. Core Concept Relationship
 2. Inline vs Deferred Sequence
 3. Lifecycle State Transition
 4. Operation ID、Attempt ID、Correlation ID、Causation ID Relationship
 
-各Diagramは`accTitle`／`accDescr`または同等のAccessible Nameと説明を持ち、本文またはTableでも同じ関係を説明する。Static Build後にDiagramがSVGまたは実際の描画要素へ変換され、Mermaid Source Textだけが表示されていないことを検証する。
+各Diagramは`accTitle`／`accDescr`または同等のAccessible Nameと説明を持ち、本文またはTableでも同じ関係を説明する。Build前に全Diagram SyntaxをParseして不正Diagramを拒否する。Static ArtifactはLocal Renderer Bundleと全DiagramのRender Targetを持ち、外部Scriptへ依存しない。BrowserではTargetをSVGへ変換し、通常のSource Code Blockとして表示し続けない。Light／Dark Themeの変更へ追従する。
+
+Build-time SVG生成のためだけにPlaywright BrowserやHost OS共有Libraryを導入しない。図を読めない環境でも隣接するText Alternativeから同じ意味を取得できるようにする。
 
 Lifecycle図は少なくともReceived、Accepted、Running、Completed、Rejected、Failed、Retry Scheduled、Dead Letterの適用関係を示す。InlineはAcceptedを通らずAttemptを開始し、DeferredだけがDurable受付後にAcceptedとなる差を本文で補足する。
 
@@ -130,7 +132,8 @@ Attributes Pageは全利用者向けPublic AttributeをSourceと照合し、Name
 ## Verification
 
 - Why BlackOpsとCore ConceptsがGetting Startedより前にNavigationへ配置される
-- 4 DiagramがStatic Artifactで描画され、Accessible DescriptionとText Alternativeを持つ
+- 4 DiagramのSyntaxがBuild前に検証され、Static ArtifactがLocal Renderer／Render Targetを持ち、BrowserでSVG描画される
+- 4 DiagramがAccessible DescriptionとText Alternativeを持つ
 - Laravel／Symfony Mental Model Tableが一対一対応でない注意を含む
 - First OperationのSourceがQuickstart Sourceと一致し、Command／Input／Outputが対になっている
 - Journal例がParse可能で、Sensitive Input Literalを含まずMaskを含む
@@ -144,4 +147,3 @@ Attributes Pageは全利用者向けPublic AttributeをSourceと照合し、Name
 - Decision: [D082 Documentation Reader Experience](../decisions/082-documentation-reader-experience.md)
 - Website Contract: [Documentation Website Delivery Contract](57-documentation-website-delivery-contract.md)
 - Phase Plan: [Phase 10 Delivery Plan](58-phase-10-delivery-plan.md)
-

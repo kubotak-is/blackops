@@ -31,7 +31,8 @@ Userは2026-07-13に、初見読者向けの導線、概念図、完全なFirst 
 [CONSEQUENCES]
 
 - 公開Page数とNavigationが増えるため、Content Map、Sidebar、Link、Search、Artifact Testを同じ変更単位で更新する。
-- MermaidはVersionを固定したBuild Dependencyとして導入し、外部CDNへ依存しない。Diagram Sourceだけを表示する状態を成功扱いにしない。
+- MermaidとStarlight IntegrationはVersionを固定したLocal Dependencyとして導入し、外部CDNへ依存しない。Build前に全Diagram Syntaxを検証し、Static ArtifactへLocal RendererとRender Targetを含める。BrowserではSource Code BlockのままではなくSVGとして描画する。
+- Build-time SVG案はPlaywright Chromiumに加えてHost OS共有Libraryを必要とし、Fresh WSL／CIへSystem Package変更を要求したため採用しない。Starlight公式Resources掲載のClient-side Integrationを使い、Dark Mode追従とBuild再現性を優先する。
 - Code／CLI／JSONL例は見た目より再現性を優先し、Quickstart Source、Public API、実行結果と照合する。
 - 全GuideのTone調整は仕様を簡略化して消す作業ではない。詳細をGlossaryやReferenceへ移した場合もLinkで到達可能にする。
 - Reader Experience改善はP10-005A／P10-005Bの二つのReview／Commit単位に分け、P10-006 Closeoutより先に完了する。
@@ -43,4 +44,3 @@ Userは2026-07-13に、初見読者向けの導線、概念図、完全なFirst 
 - [D081 Documentation Website Delivery Contract](081-documentation-website-delivery-contract.md)
 - [Documentation Website Delivery Contract](../spec/57-documentation-website-delivery-contract.md)
 - [Documentation Reader Experience](../spec/59-documentation-reader-experience.md)
-

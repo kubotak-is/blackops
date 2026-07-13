@@ -49,7 +49,8 @@ Status: Ready
 - 原則としてGPT-5.6 Luna High workerが実装し、Review前にCommitしない
 - Userは2026-07-13の回答「Y」により、Phase 10に限り、Model／Profileを明示できない現在利用可能なWorkerで進めることを承認済みである
 - Mermaid Integrationは実装時点のCurrent Versionを確認してExact Pinし、外部CDNを使用しない
-- DiagramはSource Fence表示だけでなくStatic Artifactで描画する
+- Diagram SyntaxをBuild前に検証し、Static ArtifactへLocal RendererとRender Targetを含め、BrowserでSVG描画する
+- Build-time SVGのためにPlaywright Browser／Host OS Packageを追加しない
 - DiagramにはAccessible Descriptionと本文によるText Alternativeを付ける
 - Public Guideだけを変更し、`docs/internal/`／`develop/`をArtifactへ含めない
 - Stable／main BannerとCurrent Statusを維持する
@@ -60,7 +61,8 @@ Status: Ready
 - [ ] Headless、統一Operation Model、No operation stays in the darkを正確に説明する
 - [ ] Operation／Value／Outcome／Journal／ExecutionContext／Strategyを一枚の図と短い定義で示す
 - [ ] Laravel／Symfony Mental Model Tableと非一対一の注意がある
-- [ ] 指定された4 Mermaid DiagramがStatic Artifactで描画される
+- [ ] 指定された4 Mermaid DiagramのSyntaxがBuild前に検証される
+- [ ] Static Artifactが外部CDNなしのLocal Rendererと4 Render Targetを持ち、BrowserでSVG描画する
 - [ ] 各DiagramにAccessible DescriptionとText Alternativeがある
 - [ ] Glossaryが指定Termを定義しNavigation／Searchへ含まれる
 - [ ] Mermaid Dependency、Content Map、Sidebar、Build Guardが決定的である
@@ -73,7 +75,8 @@ mise exec -- pnpm --dir docs/website install --frozen-lockfile
 mise exec -- pnpm --dir docs/website run test
 mise exec -- pnpm --dir docs/website run check
 mise exec -- pnpm --dir docs/website run build
-! rg -n '```mermaid' docs/website/dist
+rg -n 'mermaid' docs/website/dist
+! rg -n 'https://cdn|unpkg\.com|jsdelivr\.net' docs/website/dist
 rg -n 'Why BlackOps|Core Concepts|No operation stays in the dark|Claim|Fencing|Dead Letter' docs/website/dist
 ! rg -n 'docs/internal|develop/' docs/website/dist
 docker compose run --rm app mago format --check src tests
@@ -84,4 +87,3 @@ git diff --check
 ## Expected Report
 
 `develop/orchestration/reports/P10-005A-reader-orientation-and-diagrams.md`へSummary、Information Architecture、Diagram Evidence、Accessibility Evidence、Dependency Decision、Changed Files、Commands and Results、Acceptance Criteria、Remaining Issues、Suggested Next Actionを記録する。
-
