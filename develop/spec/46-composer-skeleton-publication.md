@@ -93,6 +93,10 @@ Push、Packagist Credential、TokenはRepositoryへ保存しない。Release Pip
 
 Cross-repository PushはDistribution RepositoryだけへWrite可能なDeploy Keyを使用し、Private KeyはMain Repository Secret `SKELETON_DEPLOY_KEY` で管理する。PackagistはDistribution RepositoryのGitHub連携でTag Pushを検知し、Release WorkflowからPackagist APIを呼ばない。
 
+通常のTriggerはFramework Tag Pushとする。Tag Commit内のWorkflowがPublication完了前に失敗した場合、Main Branch上の修正版WorkflowをManual Dispatchし、既存bare SemVer Tagを`release_version`として再処理できる。Manual DispatchはTagの存在、bare SemVer、Checkout Commitとの一致を検証し、通常と同じ全Gateを実行する。公開済みTagを移動または削除して復旧しない。
+
+GitHub-hosted RunnerではRunnerのUID／GIDをComposeの`HOST_UID`／`HOST_GID`へ渡し、bind-mounted Workspaceの所有者とContainer Userを一致させる。Publication SourceはEvent SHAではなく、検証済みTag Checkoutの`HEAD`とする。
+
 ## Verification
 
 - Main Repository内のConsumer E2EがFrameworkとQuickstartをAtomicに検証する
@@ -108,5 +112,6 @@ Cross-repository PushはDistribution RepositoryだけへWrite可能なDeploy Key
 - Decision: [D065 Composer Skeleton Publication](../decisions/065-composer-skeleton-publication.md)
 - Repository Naming: [D076 Framework and Skeleton Repository Naming](../decisions/076-framework-and-skeleton-repository-naming.md)
 - Initial Stable Version: [D078 Initial Stable Release Version](../decisions/078-initial-stable-release-version.md)
+- Publication Recovery: [D079 Immutable Release Publication Recovery](../decisions/079-immutable-release-publication-recovery.md)
 - Roadmap: [Developer Experience Roadmap](41-developer-experience-roadmap.md)
 - Installed Layout: [Installed Application Layout and Bootstrap](43-installed-application-layout-and-bootstrap.md)
