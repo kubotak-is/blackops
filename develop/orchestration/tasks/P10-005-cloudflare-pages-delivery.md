@@ -37,6 +37,7 @@ Status: In Progress
 - `.github/workflows/docs.yml`
 - `docs/website/package.json`
 - `docs/website/pnpm-lock.yaml`
+- `docs/website/pnpm-workspace.yaml`
 - `docs/website/README.md`
 - `docs/internal/documentation-website.md`
 - `docs/internal/README.md`

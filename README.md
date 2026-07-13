@@ -88,6 +88,7 @@ docker compose run --rm app vendor/bin/deptrac
 - [First Typed Self-handled Operation](docs/guide/first-operation.md)
 - [Local Runtime](docs/guide/runtime-bootstrap.md)
 - [Framework実装者向けInternals](docs/internal/README.md)
+- [Documentation Website Delivery](docs/internal/documentation-website.md)
 - [Application Bootstrap](docs/guide/application-bootstrap.md)
 - [Project Generators and Framework Updates](docs/guide/project-generators.md)
 - [Database Migrations](docs/guide/database-migrations.md)

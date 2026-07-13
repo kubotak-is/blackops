@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-13T18:45:16+09:00
+Updated At: 2026-07-13T19:04:50+09:00
 
 ## Current Phase
 
@@ -16,9 +16,9 @@ Specification: `develop/spec/57-documentation-website-delivery-contract.md`
 
 ## Task Status
 
-P10-005 In Progress
+P10-005 Orchestrator Reviewed - Pending Remote Workflow Verification
 
-検証済みDocumentation ArtifactをPull Request Previewと`main` Productionへ安全にDirect UploadするWorkflow、Secret／Fork境界、Setup Guideを実装する。Phase 10限定のUser承認に基づき、Model／Profileを明示できない現在利用可能なWorkerへTask Packet単位で委譲する。
+検証済みDocumentation ArtifactをPull Request Previewと`main` Productionへ安全にDirect UploadするWorkflow、Secret／Fork境界、Setup Guideを実装した。Local Test／Check／Build、Workflow構文、Artifact／Credential Guard、PHP Format／管理ID Guardは成功した。Phase 10限定のUser承認に基づき、Model／Profileを明示できない現在利用可能なWorkerがTask Packet単位で実装した。
 
 ## Last Accepted Task
 
@@ -26,17 +26,49 @@ P10-004-user-documentation-information-architecture
 
 ## Pending Decisions
 
-Cloudflare Pages Project `blackops-docs`とGitHub Secretsの外部設定状況は未確認。Repository内実装後、Remote Deployに必要な時点で推測せずUserへ確認する。
+Cloudflare Pages Project `blackops-docs`とPreview／Production用Tokenの外部設定状況は未確認。OrchestratorのGitHub API確認では`docs-preview`／`docs-production` Environment Endpointが404で、Environmentと必要Secretは未作成／未登録だった。Remote Deployに必要な時点で推測せずUserへ確認する。
 
 ## Known Blockers
 
-Repository内のWorkflow／Documentation実装に既知のBlockerはない。Cloudflare Pages Project／GitHub Secretsが未設定の場合はRemote DeployのみExternal Blockerとなる。
+Repository内実装に既知のBlockerはない。GitHub Environments／Secretsは未設定と確認済みであり、Cloudflare Pages Projectも未設定の場合はRemote Preview／Production DeployとLive VerificationがExternal Blockerとなる。
 
 ## Required Next Action
 
-1. P10-005を承認済みWorkerへ委譲する。
-2. OrchestratorがWorkflow Security Boundaryと検証結果をReviewする。
-3. Repository内実装をCommit／Pushし、External Configurationが必要な時点でUserへ確認する。
+1. Repository内実装をTask単位でCommit／Pushする。
+2. GitHub ActionsがWorkflowを受理し、Environment Secret未登録時にProduction DeployをSafe Skipすることを確認する。
+3. External Configurationが必要な時点でUserへ確認し、完了後にP10-006でPreview／Production／Live EvidenceをCloseする。
+
+## P10-005 Cloudflare Pages Delivery Worker Verification Commands and Results
+
+```text
+mise exec -- npm view wrangler@latest version dist-tags --json
+Result: Live npm RegistryでWrangler latest 4.110.0を確認しExact Pinした。
+
+mise exec -- pnpm --dir docs/website install --frozen-lockfile
+Result: pnpm 11.12.0のFrozen Installに成功し、許可したsharp／workerd postinstallが完了した。
+
+env XDG_CONFIG_HOME=/tmp/blackops-wrangler bash -lc 'test "$(mise exec -- pnpm --dir docs/website exec wrangler --version)" = "4.110.0"'
+Result: package／lockから実行したWranglerとWorkflow固定値が一致した。WorkflowもFrozen Install直後、Secretなしで同じ照合を行う。
+
+mise exec -- pnpm --dir docs/website run test
+Result: 16 tests / 16 passed / 0 failed.
+
+mise exec -- pnpm --dir docs/website run check
+Result: Content determinism成功、Astro check 14 files / 0 errors / 0 warnings / 0 hints.
+
+mise exec -- pnpm --dir docs/website run build
+Result: 18 public pages plus 404、Pagefind、sitemap、artifact／site checkが成功した。
+
+Wrangler version／Pages deploy help、Workflow YAML parse、Trigger／Project／Secret／Concurrency grep、Literal Credential／Artifact boundary Guard
+Result: Wrangler 4.110.0とDirectory／project-name／branch引数を確認し、全Guardが成功した。
+
+docker compose run --rm app mago format --check src tests
+PHP management ID guard
+git diff --check
+Result: すべて成功した。
+```
+
+Cloudflare ProjectはUser所有のExternal Configurationであり未確認。GitHub APIでは`docs-preview`／`docs-production` Environment未作成とEnvironment Secret未登録を確認した。Remote Deployは未実行である。
 
 ## P10-004 GitHub Actions Evidence
 

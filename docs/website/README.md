@@ -29,3 +29,9 @@ GeneratorはTitle、Slug、内部Link、Source境界を検証する。`docs/inte
 `content-map.mjs`はSource Relative Pathから公開Slug／Page MetadataへのMapping、`site-navigation.mjs`は5つの利用者向けSidebarを管理する。Source追加時は両方を更新する。未登録Source、欠落Source、重複Slug、Sidebar未配置／重複／未知SlugはBuild前に拒否される。
 
 Static Build後の`site:check`はLanding CTA、InstallからLocal Runtimeまでの連続Link、全PageのVersion Notice、Starlight標準Skip Link／Mobile Menu／Search Shortcut／Theme Selector、Pagefind日本語Indexと実Searchを検証する。独自Color／Navigation Componentは追加せず、Starlight標準のContrastとKeyboard Interactionを維持する。
+
+## Delivery
+
+`.github/workflows/docs.yml`はPull Requestと`main`で同じTest／Check／Buildを実行し、検証済みの`dist/`だけをCloudflare Pages Project `blackops-docs`へDirect Uploadする。Fork Pull RequestはSecretなしでBuildまで実行し、DeployだけをSkipする。Cloudflare Project、GitHub Environment、Secret、Rollbackの設定は[Documentation Website Delivery](../internal/documentation-website.md)を参照する。
+
+Wranglerは`package.json`とLockfileでExact Pinする。`pnpm-workspace.yaml`の`allowBuilds`は、Astroが使う`esbuild`に加え、Wranglerの実行Dependencyである`sharp`と`workerd`のInstall Scriptだけを許可する。
