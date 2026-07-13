@@ -1,6 +1,6 @@
 # P8-003: Skeleton Distribution Publication
 
-Status: In Progress
+Status: Completed
 
 ## Goal
 

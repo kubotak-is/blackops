@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-13T14:36:44+09:00
+Updated At: 2026-07-13T14:43:08+09:00
 
 ## Current Phase
 
@@ -8,25 +8,25 @@ Phase 8: Composer Project Bootstrap
 
 ## Current Task
 
-Task ID: P8-003-skeleton-distribution-publication
+Task ID: P8-004-phase-8-closeout
 
-Task Packet: `develop/orchestration/tasks/P8-003-skeleton-distribution-publication.md`
+Task Packet: `develop/orchestration/tasks/P8-004-phase-8-closeout.md`
 
-Specification: `develop/spec/46-composer-skeleton-publication.md`
+Specification: `develop/spec/52-phase-8-delivery-plan.md`
 
 ## Task Status
 
-Framework and Skeleton 1.0.0 Published; Packagist Skeleton Registration Blocker
+P8-004 Started; Remote Packagist Create-project Smoke
 
-D078をCommit／Pushし、Framework annotated Tag `1.0.0`をCommit `279716f904f17be9341f3fdaae30156ab17d8a62`へ作成・Pushした。初回Run `29226110632`のPermission Failureに対してD079 Recoveryを実装し、Manual Run `29226590005`が全GateとPublicationに成功した。Public Distribution `main`／`1.0.0`は同じSplit Commit `da573f3190e5e855a9c09e275980c6ddc5cce028`を指し、Default Branch、Root Composer Metadata、必須File、Executable Bitを検証した。Packagistの`blackops/framework` Stable `1.0.0`は公開済みで、`blackops/skeleton`は未登録である。
+P8-003を受け入れた。Framework Stable `1.0.0`はCommit `279716f904f17be9341f3fdaae30156ab17d8a62`、Skeleton Stable `1.0.0`はSplit Commit `da573f3190e5e855a9c09e275980c6ddc5cce028`としてGitHub／Packagistへ公開済みである。P8-004は空Composer Homeと一時DirectoryからRemote通常／`--no-scripts` Create-projectを実行し、Phase 8をCloseする。
 
 ## Last Accepted Task
 
-P8-002B-native-outcome-invocation
+P8-003-skeleton-distribution-publication
 
 ## Pending Decisions
 
-- Packagist Accountで`blackops/skeleton`を`https://github.com/kubotak-is/blackops-skeleton`から登録する必要がある。Packagist認証はOrchestratorに提供されていない。
+なし。
 
 ## Known Blockers
 
@@ -34,10 +34,10 @@ P8-002B-native-outcome-invocation
 
 ## Required Next Action
 
-1. Live Publication結果をReport／STATEへCommit／Pushする。
-2. UserがPackagistに`blackops/skeleton` Source `https://github.com/kubotak-is/blackops-skeleton`を登録する。
-3. Packagist MetadataでStable `1.0.0`を検証する。
-4. P8-003をCloseし、P8-004 Remote Smokeへ進む。
+1. P8-003 CloseoutとP8-004 Task Packet／CheckpointをCommit／Pushする。
+2. Remote通常／`--no-scripts` Create-project Smokeを実行する。
+3. Full Quality Suiteと既存Consumer／Publication Gateを実行する。
+4. Documentation、TODO、Phase Acceptance、Report、STATEを同期してPhase 8をCloseする。
 
 ## P8-003 Skeleton Distribution Publication Worker Verification Commands and Results
 
