@@ -1,6 +1,6 @@
 # P10-005C: Project Root CLI Entrypoint
 
-Status: Blocked
+Status: Ready
 
 ## Goal
 
@@ -45,7 +45,8 @@ Status: Blocked
 
 ## Constraints
 
-- GPT-5.6 Luna High workerが実装し、Review前にCommitしない
+- 原則GPT-5.6 Luna High workerが実装し、Review前にCommitしない
+- Userは2026-07-13の回答`Y`により、本TaskでModel／Profile Metadataを確認できない現在利用可能なWorkerを使う例外を承認済み
 - Root `blackops`はApplication所有の薄いEntrypointに保つ
 - Framework Command／StubをSkeletonへ複製しない
 - 新Skeletonに`bin/blackops` Aliasを残さない

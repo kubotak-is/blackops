@@ -1,6 +1,6 @@
 # P10-005E1: OperationValue Validation Core
 
-Status: Blocked by Worker Constraint
+Status: Blocked by P10-005C
 
 ## Goal
 
@@ -48,7 +48,8 @@ BlackOps所有の7つのValidation Attribute、Raw Valueを保持しないViolat
 
 ## Constraints
 
-- GPT-5.6 Luna High workerが実装し、Review前にCommitしない
+- 原則GPT-5.6 Luna High workerが実装し、Review前にCommitしない
+- Userは2026-07-13の回答`Y`により、本TaskでModel／Profile Metadataを確認できない現在利用可能なWorkerを使う例外を承認済み
 - `Range`は数値、`Length`は文字列、`Count`は配列要素数だけを扱う
 - 曖昧な`Min`／`Max` Attributeを追加しない
 - ViolationへRaw／Normalized Input Valueを保持しない
@@ -80,4 +81,3 @@ git diff --check
 ## Expected Report
 
 `develop/orchestration/reports/P10-005E1-operation-value-validation-core.md`へSummary、Public API、Rule Matrix、Sensitive Boundary、Changed Files、Commands and Results、Acceptance Criteria、Remaining Issues、Suggested Next Actionを記録する。
-

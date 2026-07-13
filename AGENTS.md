@@ -37,6 +37,8 @@ Windows側や `/mnt/c` に別のWorking Treeを作らない。Credential、Token
 
 GPT-5.6 Luna High workerはReview前にCommitしない。範囲外の修正が必要な場合は実装を広げず、ReportのBlockerとして返す。実行環境でこのModel／Profileを指定できない場合、別Modelへ黙ってFallbackせずOrchestratorがBlockerとして返す。
 
+2026-07-13のUser回答`Y`により、Phase 10のP10-005C、P10-005E1、P10-005E2、P10-005F、P10-005Dに限り、実行環境からModel／Profile Metadataを確認できない現在利用可能なWorkerで進める例外を承認済みとする。この例外は他Phase／Taskへ拡張しない。
+
 ## Checkpoint
 
 次の時点で `develop/STATE.md` を更新する。
