@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Mago, PHPUnit, and Deptrac
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Configure container user
+        run: |
+          set -euo pipefail
+          printf 'HOST_UID=%s\n' "$(id -u)" >> "${GITHUB_ENV}"
+          printf 'HOST_GID=%s\n' "$(id -g)" >> "${GITHUB_ENV}"
+
+      - name: Build development image
+        run: docker compose build app
+
+      - name: Install dependencies
+        run: docker compose run --rm app composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Validate Composer packages
+        run: |
+          set -euo pipefail
+          docker compose run --rm app composer validate --strict
+          docker compose run --rm app composer validate --strict examples/quickstart/composer.json
+
+      - name: Run Mago
+        run: |
+          set -euo pipefail
+          docker compose run --rm app mago format --check src tests examples
+          docker compose run --rm app mago lint
+          docker compose run --rm app mago analyze
+
+      - name: Run PHPUnit
+        run: docker compose run --rm app vendor/bin/phpunit
+
+      - name: Run Deptrac
+        run: docker compose run --rm app vendor/bin/deptrac
+
+      - name: Clean up Docker resources
+        if: always()
+        run: docker compose down --volumes --remove-orphans
