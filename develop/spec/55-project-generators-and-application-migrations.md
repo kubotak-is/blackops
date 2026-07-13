@@ -2,7 +2,7 @@
 
 ## Scope
 
-Installed ApplicationのProject所有`bin/blackops`から、Framework Package所有のOperation／Migration Generatorを実行する。生成物はApplication所有Sourceとなり、生成後の編集と保守はApplicationが行う。
+Installed ApplicationのProject RootにあるProject所有`blackops`から、Framework Package所有のOperation／Migration Generatorを実行する。生成物はApplication所有Sourceとなり、生成後の編集と保守はApplicationが行う。
 
 ## Framework Commands
 
@@ -13,7 +13,7 @@ make:operation
 make:migration
 ```
 
-Command Class、入力検証、File生成、StubはFramework Packageが所有する。Projectの`bin/blackops`と`bootstrap/app.php`はGenerator実装を持たない。Kernelの`list`／`help`はSource Scan、Migration Directory Scan、Database接続、Buildを行わない。
+Command Class、入力検証、File生成、StubはFramework Packageが所有する。Projectの`blackops`と`bootstrap/app.php`はGenerator実装を持たない。Kernelの`list`／`help`はSource Scan、Migration Directory Scan、Database接続、Buildを行わない。
 
 Application独自Commandはこの2つの名前を上書きできない。
 
@@ -22,7 +22,7 @@ Application独自Commandはこの2つの名前を上書きできない。
 公式形式は次とする。
 
 ```bash
-php bin/blackops make:operation Welcome/ShowWelcome --type=welcome.show
+php blackops make:operation Welcome/ShowWelcome --type=welcome.show
 ```
 
 第一引数は`<Feature>/<Action>`の2 Segmentで、各Segmentは有効なPascalCase PHP Class名でなければならない。Absolute Path、`.`、`..`、空Segment、追加Segment、Backslash、制御文字は拒否する。`--type`は必須で、`OperationType`と同じlowercase dot-separated ID Contractを満たす。
@@ -51,7 +51,7 @@ app/Feature/Welcome/ShowWelcome/ShowWelcomeOutcome.php
 公式形式は次とする。
 
 ```bash
-php bin/blackops make:migration CreateOrdersTable
+php blackops make:migration CreateOrdersTable
 ```
 
 Descriptionは有効なPascalCase Identifierとする。Target DirectoryはApplication Rootの`migrations/`であり、存在しない場合だけ作成する。File／Class名はClockから得たUTC時刻による`VersionYYYYMMDDHHMMSS`とする。同一秒のVersionが存在する場合は上書きせず失敗する。
@@ -93,7 +93,7 @@ Error MessageはApplication Absolute Path、Credential、Stub内部Pathを不必
 
 ## Stub Ownership and Updates
 
-StubはFramework Package内の配布Resourceであり、Skeletonへ複製しない。Framework Update後、既存Projectの変更されていない`bin/blackops`は更新済みCommandとStubを使用する。
+StubはFramework Package内の配布Resourceであり、Skeletonへ複製しない。Framework Update後、既存Projectの変更されていない`blackops`は更新済みCommandとStubを使用する。
 
 Framework Updateは生成済みOperation／Migrationを変更しない。新StubはUpdate後に新規生成するFileだけへ反映される。Stub Contract変更はFramework ReleaseのCompatibility管理対象とし、必要に応じUpgrade Guideを提供する。
 
@@ -113,6 +113,7 @@ Framework Updateは生成済みOperation／Migrationを変更しない。新Stub
 ## Traceability
 
 - Decision: [D080 Project Generator Command Contract](../decisions/080-project-generator-command-contract.md)
+- Entrypoint: [D083 Project Root BlackOps Entrypoint](../decisions/083-project-root-blackops-entrypoint.md)
 - Roadmap: [Developer Experience Roadmap](41-developer-experience-roadmap.md)
 - Console: [Public Console Kernel Composition](48-public-console-kernel-composition.md)
 - Operation: [Operation Authoring and Build Discovery](50-operation-authoring-and-build-discovery.md)

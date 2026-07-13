@@ -111,7 +111,7 @@ Laminas型はこのFileだけに置く。HTTP EntrypointはInternal Runtime、Co
 
 ## Console Entrypoint
 
-`bin/blackops` はExecutable PHP Scriptとし、Composer Autoloaderと `bootstrap/app.php` を読み、次だけを行う。
+Project Rootの`blackops`はExecutable PHP Scriptとし、Composer Autoloaderと`bootstrap/app.php`を読み、次だけを行う。
 
 ```php
 exit($application->console()->run());
@@ -189,6 +189,7 @@ P7-005ではDocker Compose Commandを完成手順として記載しない。P7-0
 ## Traceability
 
 - Layout Decision: [Installed Application Layout and Bootstrap](../decisions/064-installed-application-layout-and-bootstrap.md)
+- Entrypoint Decision: [Project Root BlackOps Entrypoint](../decisions/083-project-root-blackops-entrypoint.md)
 - HTTP Adapter Decision: [Skeleton HTTP Entrypoint Adapters](../decisions/069-skeleton-http-entrypoint-adapters.md)
 - Installed Layout: [Installed Application Layout and Bootstrap](43-installed-application-layout-and-bootstrap.md)
 - Skeleton Publication: [Composer Skeleton Publication](46-composer-skeleton-publication.md)

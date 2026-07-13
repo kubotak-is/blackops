@@ -161,3 +161,6 @@
 | [D080](../decisions/080-project-generator-command-contract.md) | Project Generator Command Contract | Decided |
 | [D081](../decisions/081-documentation-website-delivery-contract.md) | Documentation Website Delivery Contract | Decided |
 | [D082](../decisions/082-documentation-reader-experience.md) | Documentation Reader Experience | Decided |
+| [D083](../decisions/083-project-root-blackops-entrypoint.md) | Project Root BlackOps Entrypoint | Decided |
+| [D084](../decisions/084-documentation-reader-journey-corrections.md) | Documentation Reader Journey Corrections | Decided |
+| [D085](../decisions/085-http-configuration-snapshot-lifecycle.md) | HTTP Configuration Snapshot Lifecycle | Discussing |

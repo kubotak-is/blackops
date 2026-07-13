@@ -82,7 +82,7 @@ return Application::configure(basePath: dirname(__DIR__))
 Application Objectは次のProcess Boundaryからのみ利用するComposition Rootである。
 
 - `public/index.php`: PSR-7 RequestをPSR-15 HTTP Handlerへ渡す
-- `bin/blackops`: FrameworkとApplicationのConsole Commandを起動する
+- `blackops`: FrameworkとApplicationのConsole Commandを起動する
 - Deferred Worker／Scheduler: Console CommandからApplication Runtimeを起動する
 
 業務CodeへApplication Objectを注入してService Locatorとして利用してはならない。業務DependencyはService ProviderからContainerへ登録し、HandlerへConstructor Injectionする。

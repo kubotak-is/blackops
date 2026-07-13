@@ -2,7 +2,7 @@
 
 ## Goal
 
-Project所有の薄い`bin/blackops`を維持したまま、Framework Package所有のOperation／Migration Generator、Application Migration Runtime、Framework Update追従を完成させる。
+Project所有の薄い`blackops`を維持したまま、Framework Package所有のOperation／Migration Generator、Application Migration Runtime、Framework Update追従を完成させる。
 
 ## P9-001: Project Generator Command Contract
 

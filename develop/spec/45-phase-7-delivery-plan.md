@@ -32,7 +32,7 @@ P7-002受入後にTask Packetを確定する。
 - `Application::console()` とPublic `ConsoleKernel`
 - Build、Migration、Worker、Retention、Scheduler Command登録
 - Application Command追加
-- Project所有の薄い `bin/blackops`
+- Project所有の薄い `blackops`
 
 Generator CommandはPhase 9へ残す。
 
@@ -41,7 +41,7 @@ P7-003受入後にTask Packetを確定する。
 ### P7-005: Feature-first Quickstart Application
 
 - `examples/quickstart/` の独立Composer Project Boundary
-- `bootstrap/app.php`、`public/index.php`、`bin/blackops`
+- `bootstrap/app.php`、`public/index.php`、`blackops`
 - Welcome Inline Feature
 - Report Deferred FeatureとRetry例
 - Config、Environment Example、Build／Log Directory
@@ -97,7 +97,7 @@ P7-002 Bootstrap Foundation
 - [x] Application CodeとBootstrapに `BlackOps\Internal` Importがない
 - [x] Feature-firstのWelcome／ReportをDirectory単位で削除できる
 - [x] Public BuilderからHTTPとConsoleを同じConfiguration Snapshotで構成できる
-- [x] Project所有の `bin/blackops` がFramework所有Command実装を起動する
+- [x] Project所有の `blackops` がFramework所有Command実装を起動する
 - [x] BuildとMigrationが明示Commandであり、HTTP／Worker起動時に暗黙実行されない
 - [x] Local RuntimeでInline／Deferred／Worker／Retry／Outcome／Retentionを検証できる
 - [x] Root Dev Autoloadへ依存しないConsumer E2Eが成功する

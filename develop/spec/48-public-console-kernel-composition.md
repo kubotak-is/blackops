@@ -23,7 +23,7 @@ public function run(
 ): int;
 ```
 
-Symfony Console Application、Command Loader、Container、Connection、Raw ConfigのGetterは公開しない。Projectの `bin/blackops` は `$application->console()->run()` の終了CodeをProcess終了Codeとして返す。
+Symfony Console Application、Command Loader、Container、Connection、Raw ConfigのGetterは公開しない。Projectの `blackops` は `$application->console()->run()` の終了CodeをProcess終了Codeとして返す。
 
 ## Lazy Command Boundary
 

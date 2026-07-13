@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-13T21:25:10+09:00
+Updated At: 2026-07-13T22:26:01+09:00
 
 ## Current Phase
 
@@ -8,17 +8,17 @@ Phase 10: Documentation Website
 
 ## Current Task
 
-Task ID: P10-005B-guides-security-and-reference
+Task ID: P10-005C-project-root-cli-entrypoint
 
-Task Packet: `develop/orchestration/tasks/P10-005B-guides-security-and-reference.md`
+Task Packet: `develop/orchestration/tasks/P10-005C-project-root-cli-entrypoint.md`
 
-Specification: `develop/spec/59-documentation-reader-experience.md`
+Specifications: `develop/spec/41-developer-experience-roadmap.md`、`develop/spec/55-project-generators-and-application-migrations.md`
 
 ## Task Status
 
-P10-005B Accepted
+P10-005C In Progress
 
-First OperationをQuickstartのDeferred Report Source作成、Build、HTTP 202、Sensitive Mask済みJSONL、Worker Retry／完了、Public `OutcomeReader`によるOutcome取得まで一Page化した。Troubleshooting、Security責任分界、111 Public API型、11 Public AttributeのReferenceを追加し、全25公開Guideの日本語主体／能動態を監査した。390 px Edge Browser ReviewではHeadless ScreenshotのCrop制約をDOM実測で特定し、実ViewportでDocument Level Overflowがなく、通常Code／Tableだけが要素内Scrollすることを確認した。Website Test／Check／Build、Quickstart Mago Analyze、独立Consumer E2E、Artifact Guardが成功し、Worker ReportをReady for Reviewで作成した。
+Website Reviewを受け、D083で次回SkeletonのProject CLIをRoot `blackops`へ移すこと、D084でLanding／Quickstart／Tutorial／Diagram／Validation Guideを修正することを決定した。P10-005CはSkeleton、Compose、Setup、Consumer／Publication Testを`php blackops`へ移行する。P10-005DはP10-005C受入後にWebsite Reader Journeyを修正する。HTTP ConfigurationはClassic ModeでRequestごとに再構成される実装Gapを確認し、D085でUser判断待ちとした。
 
 ## Last Accepted Task
 
@@ -26,17 +26,20 @@ P10-005B-guides-security-and-reference
 
 ## Pending Decisions
 
-Cloudflare External Configuration待ちは継続するが、Repository内Reader Experience改善は独立して進行できる。P10-005A／P10-005B完了後、P10-006 CloseoutでExternal Deploy証拠と統合する。
+1. D085 Question 1: HTTP Configuration再利用をCompiled Artifact、FrankenPHP Worker Mode、部分Cache、現状維持のどれにするか。
+2. Declarative Value Validation Attributeは仕様にあるが未実装であり、P10-005Dでは現行の手動Validationを正直に文書化する。Attribute実装は別Taskとして設計判断が必要。
+3. Cloudflare External Configuration待ちは継続するが、Repository内Reader Experience改善は独立して進行できる。
 
 ## Known Blockers
 
-P10-005B Repository実装に既知のBlockerはない。Cloudflare Project／Token／GitHub Environment SecretsとProtection Ruleの未設定はRemote DeployだけのExternal Blockerであり、P10-005Bを妨げない。
+P10-005Cに既知のBlockerはない。P10-005DはP10-005CのRoot Entrypoint移行完了を待つ。D085はUser回答待ちだが、P10-005C／P10-005Dを妨げない。Cloudflare Project／Token／GitHub Environment SecretsとProtection Ruleの未設定はRemote DeployだけのExternal Blockerである。
 
 ## Required Next Action
 
-1. Cloudflare Project／GitHub Environment Secret／Protection RuleのExternal Configurationを完了する。
-2. P10-006でPreview／Production DeployとLive Website EvidenceをCloseする。
-3. External Configuration待ちの間は、P10-005A／P10-005BのRepository実装を変更せず維持する。
+1. GPT-5.6 Luna High workerがP10-005Cを実装し、OrchestratorがReview／Commitする。
+2. P10-005C受入後、P10-005DでLanding、Quickstart、Tutorial、Diagram、Validation Guideを修正する。
+3. UserはD085 Question 1へ回答する。
+4. Repository内修正後、Cloudflare External ConfigurationとP10-006 Closeoutへ進む。
 
 ## P10-005B GitHub Actions Evidence
 

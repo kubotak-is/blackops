@@ -61,7 +61,7 @@ MermaidとStarlight IntegrationをVersion固定したLocal DependencyとしてBu
 3. Lifecycle State Transition
 4. Operation ID、Attempt ID、Correlation ID、Causation ID Relationship
 
-各Diagramは`accTitle`／`accDescr`または同等のAccessible Nameと説明を持ち、本文またはTableでも同じ関係を説明する。Build前に全Diagram SyntaxをParseして不正Diagramを拒否する。Static ArtifactはLocal Renderer Bundleと全DiagramのRender Targetを持ち、外部Scriptへ依存しない。BrowserではTargetをSVGへ変換し、通常のSource Code Blockとして表示し続けない。Light／Dark Themeの変更へ追従する。
+各Diagramは`accTitle`／`accDescr`または同等のAccessible Nameと説明を持ち、本文またはTableでも同じ関係を説明する。同等本文へ「図のテキスト代替」という機械的な表示見出しを付けず、自然な説明として配置する。Build前に全Diagram SyntaxをParseして不正Diagramを拒否する。Static ArtifactはLocal Renderer Bundleと全DiagramのRender Targetを持ち、外部Scriptへ依存しない。BrowserではTargetをSVGへ変換し、通常のSource Code Blockとして表示し続けない。Light／Dark Themeの変更へ追従する。
 
 Build-time SVG生成のためだけにPlaywright BrowserやHost OS共有Libraryを導入しない。図を読めない環境でも隣接するText Alternativeから同じ意味を取得できるようにする。
 
@@ -69,19 +69,38 @@ Lifecycle図は少なくともReceived、Accepted、Running、Completed、Reject
 
 ## End-to-end First Operation
 
-First Operation TutorialはInstall済みQuickstartと現在のPublic APIを正とし、次を一つのPageで順に実行する。
+First Operation TutorialはProject Generatorと現在のPublic APIを正とし、次を一つのPageで順に実行する。
 
-1. 完全なOperation／OperationValue／Outcome Sourceを書く
-2. Project CLIでCompile／Buildする
-3. Local HTTP Runtimeを起動する
-4. Header／Bodyを含む`curl` Inputを送る
-5. HTTP StatusとResponse JSON Outputを示す
-6. `journal.jsonl`の実Recordを示し、`#[Sensitive]`対象値がMaskされRaw Secretが含まれないことを示す
-7. Operation IDを使ったOutcome取得InputとOutputを示す
+1. `make:operation`でOperation／OperationValue／Outcome Sourceを生成する
+2. 生成SourceへValue、Outcome、Route、Execution Strategyを実装する
+3. Project CLIでCompile／Buildする
+4. Local HTTP Runtimeを起動する
+5. Header／Bodyを含む`curl` Inputを送る
+6. HTTP StatusとResponse JSON Outputを示す
+7. `journal.jsonl`の実Recordを示し、`#[Sensitive]`対象値がMaskされRaw Secretが含まれないことを示す
+8. Operation IDを使ったOutcome取得InputとOutputを示す
 
 各Commandは直後に期待Outputを置く。Dynamic ID／Timestampを固定例として掲載する場合は、実行ごとに変わるFieldであることを注記する。掲載JSON／JSONLはSyntaxとしてParse可能にし、Secret Input LiteralがJournal例へ出現しないことをTestする。
 
-Stable `1.0.0`に存在しないGenerator、Migration Runtime等をTutorialの必須手順にしない。main限定Commandを補足する場合は未Releaseであることを明示する。
+Tutorialは`main`のGeneratorを学ぶPageとして明示し、Stable `1.0.0`に存在しないことを冒頭で示す。Stableだけで完走する経路はInstall込みQuickstartへ分離する。
+
+## Landing and Quickstart
+
+LandingはHero直後に4つのFeature Link Blockを置き、統一Operation Model、Generator、Lifecycle Journal、Durable Deferred Executionから詳細Guideへ進めるようにする。Primary CTAはInstall込みQuickstartとする。
+
+Quickstartは空Directoryから`composer create-project blackops/skeleton my-app`を実行し、Dependency Install、Build、Migration、HTTP起動、Inline Request、Deferred Request、Worker実行までを一Pageで扱う。Installation Pageを先に読んだことを前提にしない。
+
+## Validation Guide
+
+Validation Guideは現行実装を次の三つへ分ける。
+
+| Boundary | Current capability |
+| --- | --- |
+| Binding | JSON Object、必須Constructor Parameter、Default、Scalar／null、Native Type、FromPath／Query／Header／Body |
+| Value Validation | 現行Releaseでは宣言的Attribute未実装。Operationの`handle()`で値を検証し、`OperationRejectedException::validation()`をthrowする |
+| Business Validation | Repository／Domain Service等で外部状態を照合し、適切なRejected Factoryをthrowする |
+
+Guideは成功Input／OutputとValidation Failure Input／HTTP Output／Journal Resultを対にした完全例を示す。実装されていない`NotBlank`、`Length`、`Range`等を利用可能なAttributeとして掲載しない。Current Statusにも仕様と実装のGapを明示する。
 
 ## Glossary and First-use Notes
 
@@ -132,18 +151,22 @@ Attributes Pageは全利用者向けPublic AttributeをSourceと照合し、Name
 ## Verification
 
 - Why BlackOpsとCore ConceptsがGetting Startedより前にNavigationへ配置される
+- Landingが4 Feature Link BlockとInstall込みQuickstartへのPrimary CTAを持つ
+- QuickstartがComposer InstallからInline／Deferred／Workerまで自己完結する
 - 4 DiagramのSyntaxがBuild前に検証され、Static ArtifactがLocal Renderer／Render Targetを持ち、BrowserでSVG描画される
 - 4 DiagramがAccessible DescriptionとText Alternativeを持つ
 - Laravel／Symfony Mental Model Tableが一対一対応でない注意を含む
-- First OperationのSourceがQuickstart Sourceと一致し、Command／Input／Outputが対になっている
+- First Operationが`make:operation`から始まり、生成Sourceと編集箇所、Command／Input／Outputが対になっている
 - Journal例がParse可能で、Sensitive Input Literalを含まずMaskを含む
 - Glossary、Troubleshooting、Security、Core API、AttributesがNavigationとSearchへ含まれる
 - Public API／Attribute Tableが現在のSourceと一致し、Internal Namespaceを利用者へ要求しない
+- Validation Guideが現在利用できるBinding／Rejected APIと未実装Attributeを区別する
 - 全PageがVersion Bannerを維持し、Current StatusのStable／main差と既知制約を保持する
 - Content Test、Astro Check、Static Build、Link／Artifact Guard、Quickstart Mago Analyzeが成功する
 
 ## Traceability
 
 - Decision: [D082 Documentation Reader Experience](../decisions/082-documentation-reader-experience.md)
+- Corrections: [D084 Documentation Reader Journey Corrections](../decisions/084-documentation-reader-journey-corrections.md)
 - Website Contract: [Documentation Website Delivery Contract](57-documentation-website-delivery-contract.md)
 - Phase Plan: [Phase 10 Delivery Plan](58-phase-10-delivery-plan.md)

@@ -36,7 +36,7 @@ composer create-project blackops/skeleton my-app
 
 ## Project BlackOps CLI
 
-生成されたApplicationは、Project所有の薄い `bin/blackops` Entrypointを持つ。
+生成されたApplicationは、Project RootにProject所有の薄い `blackops` Entrypointを持つ。公式実行形式は`php blackops <command>`とする。
 
 Project Entrypointの責務は次に限定する。
 
@@ -51,7 +51,7 @@ Framework Packageは次を所有する。
 - Generator Stub
 - Command Registration APIとConsole Kernel
 
-Project EntrypointはCommand実装を複製しない。Framework Package Update後は、既存Projectの `bin/blackops` も更新済みのFramework Command実装とGenerator Stubを読み込む。
+Project EntrypointはCommand実装を複製しない。Framework Package Update後は、既存Projectの `blackops` も更新済みのFramework Command実装とGenerator Stubを読み込む。
 
 Entrypointが利用するPublic Bootstrap Contractの互換性を破る変更には、Backward CompatibilityまたはUpgrade Guideを必要とする。
 
@@ -90,7 +90,7 @@ Website Contentを別に複製せず、公開対象である`docs/guide/`のMark
 
 ### Phase 9
 
-- Project所有の `bin/blackops`
+- Project所有の `blackops`
 - Console KernelとCommand Registration API
 - `make:operation`、`make:migration`
 - Runtime／Maintenance CommandのApplication構成
@@ -106,4 +106,5 @@ Website Contentを別に複製せず、公開対象である`docs/guide/`のMark
 ## Traceability
 
 - Decision: [D063 Developer Experience Roadmap](../decisions/063-developer-experience-roadmap.md)
+- Entrypoint: [D083 Project Root BlackOps Entrypoint](../decisions/083-project-root-blackops-entrypoint.md)
 - Website Audience: [D081 Documentation Website Delivery Contract](../decisions/081-documentation-website-delivery-contract.md)
