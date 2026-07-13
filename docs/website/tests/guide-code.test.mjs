@@ -122,5 +122,5 @@ test('guide keeps Stable install and unreleased main capabilities distinct', asy
   assert.match(tutorial, /Latest Stable `1\.0\.0`にはまだ含まれません/);
   assert.match(generators, /Latest Stable `1\.0\.0`には`make:operation`／`make:migration`がまだ含まれません/);
   assert.match(status, /7 Value Validation Attribute／422 Lifecycle \| Not included \| Implemented; unreleased/);
-  assert.match(status, /FrankenPHP Worker Mode \| Not included \| Opt-in Profile implemented; unreleased/);
+  assert.match(status, /FrankenPHP Worker Mode \| Not included \| Default Runtime implemented; unreleased/);
 });

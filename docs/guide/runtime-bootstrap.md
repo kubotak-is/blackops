@@ -11,7 +11,7 @@ docker compose build app http
 docker compose run --rm app composer install
 ```
 
-Defaultの`docker compose up`はPostgreSQLとHTTPだけを継続起動します。Worker、Scheduler、Migration、Retention Purgeは自動開始しません。
+Defaultの`docker compose up`はPostgreSQLとWorker Mode HTTPだけを継続起動します。Deferred Worker、Scheduler、Migration、Retention Purgeは自動開始しません。
 
 ## OperationとArtifact
 
@@ -54,29 +54,28 @@ unset SAMPLE_TOKEN
 {"message":"Welcome to BlackOps"}
 ```
 
-FrankenPHPはLocalではplain HTTPのClassic Modeで動作します。TLS、Domain、Process SupervisionはDeployment環境が所有します。
+FrankenPHPはLocalではplain HTTPのWorker Modeで動作します。TLS、Domain、Process SupervisionはDeployment環境が所有します。
 
-### Worker Modeを明示的に試す
+### Worker ModeのRequest境界
 
-Worker ModeはApplication、Environment、Configuration、Compile済みRuntimeをProcess起動時に一度だけ構成するOpt-inです。DefaultのClassic Modeを停止し、専用Profileを起動します。
+Default Worker ModeはApplication、Environment、Configuration、Compile済みRuntimeをProcess起動時に一度だけ構成します。
 
 ```bash
-docker compose stop http
-docker compose --profile worker-mode up -d http-worker
-curl -H 'X-Sample-Token: local-example' http://127.0.0.1:8081/welcome
+docker compose up -d http
+curl -H 'X-Sample-Token: local-example' http://127.0.0.1:8080/welcome
 ```
 
-Worker ModeのPortは既定8081で、`WORKER_HTTP_PORT`から変更できます。1 WorkerあたりのRequest上限は`FRANKENPHP_MAX_REQUESTS`で指定し、既定1000に達するとFrankenPHPがWorker Threadを再起動します。
+Worker ModeのPortは既定8080で、`HTTP_PORT`から変更できます。1 WorkerあたりのRequest上限は`FRANKENPHP_MAX_REQUESTS`で指定し、既定1000に達するとFrankenPHPがWorker Threadを再起動します。
 
 Frameworkは各Request前にDatabase Connectionを確認し、Stale Connectionをcloseして一度だけ再接続します。再接続できないRequest、Throwableが発生したRequest、未完了Transactionを残したRequestは500となり、次RequestへConnectionを持ち越しません。Operation ScopeはRequest終了時に空であることを確認し、JSONL Journalは毎Request flushします。
 
 Worker ModeではApplication ServiceもRequest間で再利用されます。Request Body、Actor、Tenant、PSR-7 Request等をService propertyやstaticへ保存せず、Operation ValueまたはExecution Contextから受け取ります。FrankenPHPが自動resetしない`$_ENV`はEntrypointがProcess開始時の値へ復元します。
 
-Classic Modeへ戻す場合はWorker serviceを停止し、Default HTTPを起動します。同じ`config/`、Build Artifact、Database Configurationを使うため、Application Codeの別実装は不要です。
+Classic Modeは明示Fallbackとして`classic-mode` Profileから起動します。同じ`config/`、Build Artifact、Database Configurationを使うため、Application Codeの別実装は不要です。既定Portは8081で、`CLASSIC_HTTP_PORT`から変更できます。
 
 ```bash
-docker compose --profile worker-mode stop http-worker
-docker compose up -d http
+docker compose --profile classic-mode up -d http-classic
+curl -H 'X-Sample-Token: local-example' http://127.0.0.1:8081/welcome
 ```
 
 ## WorkerとMaintenance

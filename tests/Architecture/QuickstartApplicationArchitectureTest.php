@@ -32,6 +32,7 @@ final class QuickstartApplicationArchitectureTest extends TestCase
             'config/journal.php',
             'config/operations.php',
             'config/retention.php',
+            'public/worker.php',
             'tests/.gitignore',
             'var/build/.gitignore',
             'var/log/.gitignore',
@@ -40,7 +41,7 @@ final class QuickstartApplicationArchitectureTest extends TestCase
             'composer.json',
             'README.md',
             'Caddyfile',
-            'Caddyfile.worker',
+            'Caddyfile.classic',
             'Dockerfile',
             'Dockerfile.frankenphp',
             'compose.yaml',
@@ -170,14 +171,36 @@ final class QuickstartApplicationArchitectureTest extends TestCase
         $compose = (string) file_get_contents($root . '/compose.yaml');
         $cli = (string) file_get_contents($root . '/Dockerfile');
         $http = (string) file_get_contents($root . '/Dockerfile.frankenphp');
+        $caddy = (string) file_get_contents($root . '/Caddyfile');
+        $classicCaddy = (string) file_get_contents($root . '/Caddyfile.classic');
+        $readme = (string) file_get_contents($root . '/README.md');
         $journal = (string) file_get_contents($root . '/config/journal.php');
 
         self::assertStringContainsString('postgres:18', $compose);
         self::assertStringContainsString('pg_isready', $compose);
         self::assertStringContainsString('profiles: ["worker"]', $compose);
-        self::assertStringContainsString('profiles: ["worker-mode"]', $compose);
+        self::assertStringContainsString('profiles: ["classic-mode"]', $compose);
         self::assertStringContainsString('profiles: ["maintenance"]', $compose);
-        self::assertStringContainsString('./Caddyfile.worker:/etc/frankenphp/Caddyfile:ro', $compose);
+        self::assertStringContainsString('./Caddyfile:/etc/frankenphp/Caddyfile:ro', $compose);
+        self::assertStringContainsString('./Caddyfile.classic:/etc/frankenphp/Caddyfile:ro', $compose);
+        self::assertStringContainsString('${HTTP_PORT:-8080}:80', $compose);
+        self::assertStringContainsString('${CLASSIC_HTTP_PORT:-8081}:80', $compose);
+        self::assertStringContainsString('${FRANKENPHP_MAX_REQUESTS:-1000}', $compose);
+        self::assertStringNotContainsString('worker-mode', $compose);
+        self::assertStringNotContainsString('http-worker', $compose);
+        self::assertStringNotContainsString('Caddyfile.worker', $compose);
+        self::assertStringContainsString('file /app/public/worker.php', $caddy);
+        self::assertStringContainsString('max_requests {$FRANKENPHP_MAX_REQUESTS:1000}', $caddy);
+        self::assertStringNotContainsString('worker {', $classicCaddy);
+        self::assertStringContainsString('php_server', $classicCaddy);
+        self::assertStringContainsString(
+            "curl -H 'X-Sample-Token: local-example' http://127.0.0.1:8080/welcome",
+            $readme,
+        );
+        self::assertStringContainsString(
+            "curl -H 'X-Sample-Token: local-example' http://127.0.0.1:8081/welcome",
+            $readme,
+        );
         self::assertStringContainsString('postgres_data:', $compose);
         self::assertStringContainsString('php:8.5-cli-bookworm', $cli);
         self::assertStringContainsString('docker-php-ext-install pcntl pdo_pgsql zip', $cli);

@@ -86,6 +86,13 @@ Framework利用者向けMarkdownをSingle SourceとするAstro Starlight Website
 - Diagram可読性
 - Validation／Worker Mode Guide
 
+## P10-005G: FrankenPHP Worker Mode Default Promotion
+
+- Install直後のDefault HTTPをWorker Modeへ昇格
+- Default Service Setと8080 Portの維持
+- Classic Modeの明示Fallback
+- State／Flush／Reconnect／Memory／`max_requests`の継続検証
+
 ## P10-006: Phase 10 Closeout
 
 - Full Website Quality Suite
@@ -109,7 +116,8 @@ P10-001 Website Contract
                   -> P10-005E2 HTTP Validation Lifecycle
                     -> P10-005F FrankenPHP Worker Mode
                       -> P10-005D Reader Journey Corrections
-                        -> P10-006 Phase 10 Closeout
+                        -> P10-005G Worker Mode Default Promotion
+                          -> P10-006 Phase 10 Closeout
 ```
 
 ## Commit Boundaries

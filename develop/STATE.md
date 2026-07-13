@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-14T03:33:24+09:00
+Updated At: 2026-07-14T03:55:32+09:00
 
 ## Current Phase
 
@@ -8,31 +8,31 @@ Phase 10: Documentation Website
 
 ## Current Task
 
-Task ID: Worker Mode Default Promotion Decision
+Task ID: P10-006-phase-10-closeout
 
-Task Packet: 未作成。P10-005D Accepted後のDecisionを先に確定する。
+Task Packet: 未作成。P10-005G Accepted後に確定する。
 
-Specifications: `develop/spec/04-handler-and-result.md`、`develop/spec/50-operation-authoring-and-build-discovery.md`、`develop/spec/54-native-outcome-and-rejection-exception.md`、`develop/spec/55-project-generators-and-application-migrations.md`、`develop/spec/59-documentation-reader-experience.md`
+Specifications: `develop/spec/44-public-application-bootstrap-api.md`、`develop/spec/49-feature-first-quickstart-application.md`、`develop/spec/51-local-runtime-and-consumer-e2e.md`、`develop/spec/58-phase-10-delivery-plan.md`
 
 ## Task Status
 
-Decision Required
+P10-005G Accepted／P10-006 Pending
 
-P10-005DはOrchestrator Review、独立再検証、Desktop／390 px Browser Reviewを完了しAcceptedとした。Worker ModeをDefault HTTPへ昇格するか、Opt-inを維持するかをUser判断として確定した後、P10-006 Closeoutへ進む。
+P10-005GはOrchestrator Reviewと独立再検証を完了しAcceptedとした。Default `http`はWorker Mode／8080、Classic Modeは`classic-mode` Profileの`http-classic`／8081である。次はP10-006でRepository内Phase 10 AcceptanceとExternal Cloudflare Evidenceを整理する。
 
 ## Last Accepted Task
 
-P10-005D-reader-journey-corrections
+P10-005G-worker-mode-default-promotion
 
 ## Pending Decisions
 
-1. D085はBで確定。FrankenPHP Worker ModeをOpt-inで検証後にDefaultへ昇格する。
+1. D085はBで確定し実装済み。FrankenPHP Worker ModeをDefaultへ昇格し、Classic Fallbackを維持する。
 2. D086はA／A／Aで確定。BlackOps所有の7 RuleとProtocol 400／Operation ID付き422境界を実装する。`Range`は数値、`Length`は文字数、`Count`は要素数を扱う。
 3. Phase 10対象TaskのWorker例外承認は回答`Y`で解決済み。他Phaseへは適用しない。
 4. D087はAで確定。Binding FailureはReceivedなしのSequence 1 Rejectedとする。
 5. D088はSymfony Validator Backend採用で確定。
 6. D089はAで確定。Canonical ReceivedとObserved／Error SurfaceのSensitive境界を分離する。
-7. P10-005DはAccepted。Worker Mode Default昇格は未決で、User判断が必要である。
+7. P10-005DとP10-005GはAccepted。Reader JourneyとDefault Worker Runtimeは同期済みである。
 8. Cloudflare External Configuration待ちは継続するが、Repository内Closeoutは独立して進行できる。
 
 ## Known Blockers
@@ -41,9 +41,44 @@ Repository内実装のBlockerはない。Cloudflare Project／Token／GitHub Env
 
 ## Required Next Action
 
-1. Worker ModeをDefault HTTPへ昇格するか、Opt-inを維持するかUser判断を得る。
-2. 判断をDecisionと確定仕様へ反映する。
-3. P10-006でPhase 10をCloseoutし、Cloudflare External Configurationを外部Blockerとして分離する。
+1. P10-005Gを単独Commitする。
+2. P10-006 Task Packetを作成し、Full Website Quality Suite、README／TODO／STATEを同期する。
+3. Production／Preview Evidenceを確認し、外部設定未完了なら明示Blockerとして分離する。
+
+## P10-005G Worker Mode Default Promotion Worker Verification Commands and Results
+
+```text
+docker compose --project-directory examples/quickstart -f examples/quickstart/compose.yaml config
+docker compose --project-directory examples/quickstart -f examples/quickstart/compose.yaml --profile classic-mode config
+Result: Defaultはhttp／postgresのみ。Classic Profile追加時だけhttp-classicが加わり、Port 8080／8081とCaddyfile境界を確認。
+
+docker compose run --rm app composer validate --strict examples/quickstart/composer.json
+Result: examples/quickstart/composer.json is valid.
+
+docker compose run --rm app mago format --check src tests examples
+Result: INFO All files are already formatted.
+
+docker compose run --rm app vendor/bin/phpunit tests/Architecture/QuickstartApplicationArchitectureTest.php
+Result: OK (8 tests, 142 assertions).
+
+bash tests/Consumer/frankenphp-worker-mode.sh
+Result: Default WorkerでBootstrap、Flush、Rejected、DB 500／Reconnect、32 Request、Memory、max_requests Restartを検証し、Classic Fallbackも成功。
+
+bash tests/Consumer/quickstart-e2e.sh
+Result: Quickstart consumer E2E passed.
+
+bash tests/Consumer/skeleton-create-project.sh
+Result: Skeleton create-project smoke passed.
+
+bash tests/Consumer/skeleton-publication.sh --dry-run
+Result: Skeleton publication dry run passed. version=1.0.1、split=working-tree。
+
+mise exec -- pnpm --dir docs/website run test
+Result: Reviewer修正後の最終Runも33 tests / 33 passed / 0 failed。Stable／main Status、Default Worker／Classic Fallback、Application ServiceのRequest State責務を説明するRuntime Guideを検証。
+
+Stale Worker Layout Guard、PHP Management ID Guard、Shell Syntax、git diff --check
+Result: すべて成功。
+```
 
 ## P10-005D Reader Journey Corrections Worker Verification Commands and Results
 

@@ -24,7 +24,7 @@ docker compose run --rm app php blackops blackops:database:migrate
 docker compose up -d
 ```
 
-BuildはSourceからOperationとHTTP Manifest、DI Containerを生成します。MigrationとBuildはHTTP起動時に暗黙実行されません。`docker compose up -d`はHealthyなPostgreSQLとClassic HTTPだけを起動し、WorkerやSchedulerを勝手に常駐させません。
+BuildはSourceからOperationとHTTP Manifest、DI Containerを生成します。MigrationとBuildはHTTP起動時に暗黙実行されません。`docker compose up -d`はHealthyなPostgreSQLとWorker Mode HTTPだけを起動し、Deferred WorkerやSchedulerを勝手に常駐させません。Classic Modeは`classic-mode` Profileの明示Fallbackです。
 
 ## 3. Inline Operationを呼ぶ
 

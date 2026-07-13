@@ -19,7 +19,7 @@ MVP CompleteとProduction Readyは同じ意味ではありません。Applicatio
 | `make:operation`／`make:migration` | Not included | Implemented; unreleased |
 | Application Migration Runtime | Not included | Implemented; unreleased |
 | 7 Value Validation Attribute／422 Lifecycle | Not included | Implemented; unreleased |
-| FrankenPHP Worker Mode | Not included | Opt-in Profile implemented; unreleased |
+| FrankenPHP Worker Mode | Not included | Default Runtime implemented; unreleased |
 
 Stable Applicationを作る場合はVersionを明示します。
 

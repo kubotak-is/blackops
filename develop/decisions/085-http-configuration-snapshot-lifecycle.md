@@ -64,3 +64,9 @@ B
 - 部分Cacheは採用しない。
 
 [/CONSEQUENCES]
+
+## Default Promotion Evidence
+
+P10-005Fで、複数RequestのState Isolation、Rejected／Throwable後の継続、Request単位Journal Flush、PostgreSQL停止時500と再起動後Reconnect、32 RequestのSecret／State非Leak、Process単位Memory Growth、`max_requests=8`によるRestart、Classic FallbackをConsumer E2Eで検証した。
+
+この安全性Evidenceに基づき、P10-005GでSkeletonのDefault `http`をFrankenPHP Worker Modeへ昇格する。Default Service名とPortは`http`／8080を維持する。Classic Modeは`http-classic` Serviceと`classic-mode` Profile、`Caddyfile.classic`による明示Fallbackとして維持し、Default Service Setへ含めない。

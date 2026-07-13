@@ -239,18 +239,20 @@ test('validation guide matches declarative and rejection lifecycle boundaries', 
   assert.match(validation, /Count.*現行HTTP Binder.*binding\.type/s);
 });
 
-test('runtime guide keeps Worker Mode opt-in with request safety and Classic fallback', async () => {
+test('runtime guide keeps Worker Mode default with request safety and Classic fallback', async () => {
   const runtime = await guide('runtime-bootstrap.md');
 
-  assert.match(runtime, /worker-mode/);
-  assert.match(runtime, /Opt-in/);
+  assert.match(runtime, /Default Worker Mode/);
+  assert.match(runtime, /docker compose up -d/);
   assert.match(runtime, /Application、Environment、Configuration、Compile済みRuntime/);
   assert.match(runtime, /Database Connection/);
   assert.match(runtime, /Operation Scope/);
   assert.match(runtime, /JSONL Journal.*flush/);
   assert.match(runtime, /\$_ENV/);
   assert.match(runtime, /FRANKENPHP_MAX_REQUESTS/);
-  assert.match(runtime, /Classic Modeへ戻す/);
+  assert.match(runtime, /classic-mode/);
+  assert.match(runtime, /http-classic/);
+  assert.match(runtime, /Classic Modeは明示Fallback/);
 });
 
 test('every public guide uses Japanese prose and avoids specification-style sentence endings', async () => {

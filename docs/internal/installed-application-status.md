@@ -54,6 +54,7 @@ examples/quickstart/
   .env.example
   .gitignore
   Caddyfile
+  Caddyfile.classic
   compose.yaml
   composer.json
   Dockerfile
@@ -67,7 +68,7 @@ examples/quickstart/
 
 Operation自身がHandlerを兼ねるSelf-handled形式を標準とする。Constructor Dependencyなどで責務を分ける場合はOptional `#[HandledBy]` とSeparate Handlerを利用できる。Operation DiscoveryとDI Container生成はBuild時だけに行われ、Production HTTP／Worker RuntimeはCompile済みArtifactへFail-fastする。
 
-Default Compose ServiceはPostgreSQLとHTTPだけである。Composer Install、Artifact Build、Migration、Worker、Scheduler、Retention Purgeは明示CommandまたはProfileで実行する。変更を伴うPurgeは追加の`--confirm`を要求する。
+Default Compose ServiceはPostgreSQLとWorker Mode HTTPだけである。Composer Install、Artifact Build、Migration、Deferred Worker、Scheduler、Retention Purgeは明示CommandまたはProfileで実行する。Classic HTTPは`classic-mode` ProfileのFallbackである。変更を伴うPurgeは追加の`--confirm`を要求する。
 
 ## Phase 8 Publication Evidence
 

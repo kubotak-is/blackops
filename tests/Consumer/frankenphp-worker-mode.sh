@@ -18,17 +18,17 @@ cleanup() {
             curl --silent --show-error --include --max-time 5 \
                 -H 'X-Sample-Token: worker-diagnostic-token' \
                 "http://127.0.0.1:${WORKER_PORT}/welcome" >&2 || true
-            docker compose --project-directory "${CONSUMER}" --project-name "${PROJECT}" --profile worker-mode \
-                -f "${CONSUMER}/compose.yaml" exec -T --workdir /app http-worker \
+            docker compose --project-directory "${CONSUMER}" --project-name "${PROJECT}" --profile classic-mode \
+                -f "${CONSUMER}/compose.yaml" exec -T --workdir /app http \
                 sh -lc 'php -l public/worker.php; ls -la public/worker.php var/build var/log' >&2 || true
-            docker compose --project-directory "${CONSUMER}" --project-name "${PROJECT}" --profile worker-mode \
-                -f "${CONSUMER}/compose.yaml" logs --no-color http-worker >&2 || true
+            docker compose --project-directory "${CONSUMER}" --project-name "${PROJECT}" --profile classic-mode \
+                -f "${CONSUMER}/compose.yaml" logs --no-color http >&2 || true
             if test "${BLACKOPS_E2E_KEEP_FAILED:-0}" = "1"; then
                 printf 'Preserved failed worker E2E at %s (project %s).\n' "${CONSUMER}" "${PROJECT}" >&2
                 return
             fi
         fi
-        docker compose --project-directory "${CONSUMER}" --project-name "${PROJECT}" --profile worker-mode \
+        docker compose --project-directory "${CONSUMER}" --project-name "${PROJECT}" --profile classic-mode \
             -f "${CONSUMER}/compose.yaml" down --volumes --remove-orphans --rmi local >/dev/null 2>&1 || true
     fi
     rm -rf "${TEMP}"
@@ -45,8 +45,8 @@ services:
       - ${ROOT}:/framework:ro
 YAML
 
-export HTTP_PORT="${CLASSIC_PORT}"
-export WORKER_HTTP_PORT="${WORKER_PORT}"
+export HTTP_PORT="${WORKER_PORT}"
+export CLASSIC_HTTP_PORT="${CLASSIC_PORT}"
 export FRANKENPHP_MAX_REQUESTS=8
 export BLACKOPS_WORKER_BOOT_EVIDENCE_FILE=/app/var/log/worker-boots.log
 export BLACKOPS_WORKER_MEMORY_EVIDENCE_FILE=/app/var/log/worker-memory.jsonl
@@ -57,12 +57,15 @@ install_compose=("${compose[@]}" -f "${INSTALL_OVERRIDE}")
 docker run --rm -v "${CONSUMER}:/app" -v "${ROOT}:/framework:ro" -w /app composer:2 \
     composer config repositories.framework '{"type":"path","url":"/framework","options":{"symlink":false,"versions":{"blackops/framework":"1.0.0"}}}'
 
-"${compose[@]}" --profile worker-mode build app http http-worker
+test "$("${compose[@]}" config --services | sort)" = $'http\npostgres'
+test "$("${compose[@]}" --profile classic-mode config --services | sort)" = $'http\nhttp-classic\npostgres'
+
+"${compose[@]}" --profile classic-mode build app http http-classic
 "${compose[@]}" up -d postgres
 "${install_compose[@]}" run --rm app composer install --no-interaction --prefer-dist
 "${compose[@]}" run --rm app php blackops blackops:build:compile
 "${compose[@]}" run --rm app php blackops blackops:database:migrate
-"${compose[@]}" --profile worker-mode up -d http-worker
+"${compose[@]}" up -d http
 
 for _ in $(seq 1 "${BLACKOPS_E2E_READY_ATTEMPTS:-30}"); do
     if curl --fail --silent --max-time 5 -H 'X-Sample-Token: worker-ready-token' \
@@ -176,7 +179,7 @@ echo "Restart and memory bounds verified."
 ! grep -Fq "${rejected_secret}" "${CONSUMER}/var/log/journal.jsonl"
 ! grep -q 'sensitive' "${CONSUMER}/var/log/worker-memory.jsonl"
 
-"${compose[@]}" up -d http
+"${compose[@]}" --profile classic-mode up -d http-classic
 for _ in $(seq 1 30); do
     if curl --fail --silent --max-time 5 -H 'X-Sample-Token: classic-fallback-token' \
         "http://127.0.0.1:${CLASSIC_PORT}/welcome" >"${TEMP}/classic.json"; then
