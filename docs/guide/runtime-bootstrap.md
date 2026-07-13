@@ -15,7 +15,13 @@ composer create-project --no-scripts blackops/skeleton my-app
 php my-app/bin/setup
 ```
 
-Remote CommandはSkeleton Package公開後に利用可能になる。Setup自身はComposer Install、Network、Docker、Database、Migration、Artifact Compile、Worker、Scheduler、Retentionを実行しない。
+公式Remote Commandは次の形であり、Distribution Repository、Release Tag、Packagist連携の外部設定完了後に利用可能になる。
+
+```bash
+composer create-project blackops/skeleton my-app
+```
+
+現在はPublication WorkflowとLocal Dry Runまでが実装済みで、Remote Packageの可用性は未検証である。Setup自身はComposer Install、Network、Docker、Database、Migration、Artifact Compile、Worker、Scheduler、Retentionを実行しない。
 
 RepositoryのRelease前SmokeはCommitted `examples/quickstart/`をClean Package Rootへ抽出し、Local Repositoryから通常／`--no-scripts` Create-projectを実行する。これはPackage Source、Version Constraint、Copy Install、AutoloadとSetup境界の検証であり、Remote Packagist Packageの可用性を示すものではない。
 

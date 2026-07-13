@@ -1,6 +1,6 @@
 # Installed Application Status
 
-Status: Phase 7 Complete; Phase 8 Local Create-project Verified
+Status: Phase 7 Complete; Phase 8 Local Publication Verified
 
 `examples/quickstart/` は、Feature-firstのInstalled Application Exampleと将来の `blackops/skeleton` Package Source Boundaryとして成立している。Phase 7 CompleteはPackagist公開、Production Ready、Stable Releaseを意味しない。
 
@@ -57,10 +57,12 @@ Skeletonには再実行可能な`bin/setup`とComposer `post-create-project-cmd`
 
 Committed Quickstartから`git archive`で抽出したClean Packageを使い、Local Skeleton／Framework Repositoryから通常と`--no-scripts`のCreate-projectが成功している。両PackageはCopy Installで、Lock、Vendor、Autoload、Post-create、Manual Setup、Source Cleanliness、Side Effect不在、Cleanupを検証済みである。
 
+Framework Source RefからQuickstartだけを決定的にSubtree Splitし、同一Version Tagを付けられるLocal Publication Dry Runも成功している。GitHub Actions WorkflowはFull Quality、Consumer、Create-project、Publication Gateの後だけDeploy Keyを展開し、Remote `main`とTagをfail-closedで更新する。Distribution Repository、Deploy Key、Actions Secret、Packagist連携は外部設定待ちであり、Remote Installはまだ利用可能性を保証しない。
+
 Phase 8はこのDirectoryを `blackops/skeleton` の配布Sourceとして扱い、次を実施する。
 
-- Skeleton Distribution Repositoryへの自動Split境界を確定する
-- Framework Release VersionとSkeleton Constraintを同期する
+- Public Skeleton Distribution RepositoryとDeploy Key境界を外部設定する
+- Framework Release TagからPublication Workflowを初回実行する
 - PackagistへPackageを公開する
 - `composer create-project blackops/skeleton my-app` を提供する
 - 公開PackageからのInstall後Smoke Testを整備する

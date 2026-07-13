@@ -107,3 +107,13 @@ docker compose down
 ## Resume
 
 環境構築を中断した場合は `develop/STATE.md` の `Known Blockers` と `Required Next Action` から再開する。
+
+## Skeleton publication validation
+
+Framework Release TagからSkeleton DistributionへPublishする前に、Local Dry Runを実行する。
+
+```bash
+bash tests/Consumer/skeleton-publication.sh 1.0.0 HEAD
+```
+
+このCommandはCommitted QuickstartのSplit、Version／Constraint、配布Root、Composer Metadata、Generated State不在、Temporary State Cleanupを検証する。Remote PushやCredential参照は行わない。Release Workflow、Deploy Key、Remote Divergence、Packagist連携の運用境界は [Skeleton Publication](skeleton-publication.md) を参照する。
