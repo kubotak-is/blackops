@@ -44,6 +44,21 @@ Framework利用者向けMarkdownをSingle SourceとするAstro Starlight Website
 - Secret／Artifact／Concurrency Guard
 - Deployment Setup Guide
 
+## P10-005A: Reader Orientation and Diagrams
+
+- Why BlackOpsとCore Concepts
+- Laravel／Symfony Mental Model
+- Core／Execution／Lifecycle／Identifier Mermaid Diagram
+- Glossaryと初見導線
+
+## P10-005B: Guided Tutorial, Security, and Reference
+
+- First Operation一気通貫Tutorial
+- Troubleshooting／FAQ
+- Security責任分界
+- Core API／Attribute Reference
+- 全公開GuideのTone／用語統一
+
 ## P10-006: Phase 10 Closeout
 
 - Full Website Quality Suite
@@ -60,12 +75,14 @@ P10-001 Website Contract
     -> P10-003 Starlight Single-source Foundation
       -> P10-004 User Documentation Information Architecture
         -> P10-005 Cloudflare Pages Delivery
-          -> P10-006 Phase 10 Closeout
+          -> P10-005A Reader Orientation and Diagrams
+            -> P10-005B Guided Tutorial, Security, and Reference
+              -> P10-006 Phase 10 Closeout
 ```
 
 ## Commit Boundaries
 
-各Taskを一つのReview／Commit単位とする。P10-005はWorkflow実装CommitとExternal Cloudflare Setupの証拠を分離できる。User CredentialまたはDashboard操作待ちになった場合、実装済みLocal変更を先にReview／Commitし、STATEへ明示して停止する。
+各Taskを一つのReview／Commit単位とする。P10-005はWorkflow実装CommitとExternal Cloudflare Setupの証拠を分離できる。User CredentialまたはDashboard操作待ちになった場合、Reader ExperienceのP10-005A／P10-005Bを先に進められる。External Deploy証拠はP10-006までに取得する。
 
 ## Phase Acceptance Criteria
 
@@ -75,6 +92,11 @@ P10-001 Website Contract
 - [ ] mise、Node.js 24 LTS、pnpm 11、Lockfileが再現可能に固定される
 - [ ] Content生成、Title／Slug／Link Guard、Astro Check、Static Buildが成功する
 - [ ] Landingと利用者目的別Navigationが完成している
+- [ ] Why BlackOps、Core Concepts、Mental Model、Glossaryが初見導線を構成する
+- [ ] Mermaid DiagramがCore、Execution、Lifecycle、IdentifierをAccessibleに説明する
+- [ ] First OperationがCompileからHTTP、Journal、Outcomeまで完走する
+- [ ] Troubleshooting、Security責任分界、Core API、Attribute Referenceが揃う
+- [ ] 全公開Guideが日本語主体の能動態と統一用語を使用する
 - [ ] `main` DocumentとStable Versionの差が表示される
 - [ ] Mobile、Keyboard、Accessibility、Searchを検証している
 - [ ] Pull Request Previewと`main` Production Deployが成功する

@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-13T19:07:12+09:00
+Updated At: 2026-07-13T19:51:45+09:00
 
 ## Current Phase
 
@@ -8,17 +8,17 @@ Phase 10: Documentation Website
 
 ## Current Task
 
-Task ID: P10-005-cloudflare-pages-delivery
+Task ID: P10-005A-reader-orientation-and-diagrams
 
-Task Packet: `develop/orchestration/tasks/P10-005-cloudflare-pages-delivery.md`
+Task Packet: `develop/orchestration/tasks/P10-005A-reader-orientation-and-diagrams.md`
 
-Specification: `develop/spec/57-documentation-website-delivery-contract.md`
+Specification: `develop/spec/59-documentation-reader-experience.md`
 
 ## Task Status
 
-P10-005 Accepted - Pending External Configuration
+P10-005A Ready
 
-検証済みDocumentation ArtifactをPull Request Previewと`main` Productionへ安全にDirect UploadするWorkflow、Secret／Fork境界、Setup Guideを実装した。Local Test／Check／Build、Workflow構文、Artifact／Credential Guard、PHP Format／管理ID Guardは成功した。Phase 10限定のUser承認に基づき、Model／Profileを明示できない現在利用可能なWorkerがTask Packet単位で実装した。
+初見読者向けのWhy BlackOps、Core Concepts、Laravel／Symfony Mental Model、4 Mermaid Diagram、Glossaryを追加し、Getting Startedより前の理解導線を構築する。User要求をD082とSpec 59へ確定し、P10-005A／P10-005Bの二つのReview／Commit単位へ分割した。
 
 ## Last Accepted Task
 
@@ -26,16 +26,17 @@ P10-005-cloudflare-pages-delivery
 
 ## Pending Decisions
 
-Cloudflare Pages Project `blackops-docs`とPreview／Production用Tokenの外部設定状況は未確認。Run `29241502353`により`docs-production` Environmentは自動作成されたがSecret／Protection Ruleは未設定で、`docs-preview`は未作成である。Remote Deployに必要なためUserへ確認する。
+Cloudflare External Configuration待ちは継続するが、Repository内Reader Experience改善は独立して進行できる。P10-005A／P10-005B完了後、P10-006 CloseoutでExternal Deploy証拠と統合する。
 
 ## Known Blockers
 
-Repository内実装に既知のBlockerはない。Cloudflare Project／Token／GitHub Environment SecretsとProtection Ruleが未設定であり、Remote Preview／Production DeployとLive VerificationのExternal Blockerとなる。
+P10-005A Repository実装に既知のBlockerはない。Cloudflare Project／Token／GitHub Environment SecretsとProtection Ruleの未設定はRemote DeployだけのExternal Blockerであり、P10-005A／P10-005Bを妨げない。
 
 ## Required Next Action
 
-1. UserへCloudflare Project／Token／GitHub Environment設定を依頼する。
-2. 設定完了後、P10-006でPreview／Production／Live EvidenceをCloseする。
+1. P10-005AをPhase 10限定承認済みWorkerへ委譲する。
+2. Orchestrator Review／Commit後、P10-005Bへ進む。
+3. External Configuration完了後、P10-006でPreview／Production／Live EvidenceをCloseする。
 
 ## P10-005 GitHub Actions Evidence
 
