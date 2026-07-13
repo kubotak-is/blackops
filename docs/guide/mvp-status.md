@@ -17,7 +17,7 @@ MVP Complete is not the same as Production Ready. Framework／Skeleton Stable `1
 | 最低一回のRetryを実行できる | Satisfied | SampleがAttempt 1のretryable failure後に `attempt.retry_scheduled` を記録し、Attempt 2で完了する。 |
 | Sensitive Filterの最小実装がある | Satisfied | SampleはCanonical Received Recordに再現用tokenを保持し、Observed Projection／JSONLでは平文をmaskする。`SensitiveProjectionFilterTest`もOmit／Mask／HMACを検証する。 |
 | Manifest／Container Compileが成功する | Satisfied | Sample E2EがOperation Manifest、HTTP Manifest、Symfony DI Containerを同じBuild IDでcompileし、Production Artifact Loaderからのみ起動する。 |
-| Unit TestとIntegration Testが通る | Satisfied | MVP CloseoutでSample E2E、全PHPUnit、Mago、Deptrac、Composer validationを再実行する。結果はCloseout Reportと`develop/STATE.md`に保存する。 |
+| Unit TestとIntegration Testが通る | Satisfied | MVP CloseoutでSample E2E、全PHPUnit、Mago、Deptrac、Composer validationを継続実行する。 |
 
 ## Implemented MVP Surface
 
@@ -50,7 +50,6 @@ Build, migration, worker, and runtime composition are described in:
 - [Runtime Bootstrap](runtime-bootstrap.md)
 - [Database Migrations](database-migrations.md)
 - [Data Retention](retention.md)
-- [Architecture](../internal/architecture.md)
 
 ## Sensitive Data Boundary
 

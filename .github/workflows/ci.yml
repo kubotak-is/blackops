@@ -16,6 +16,53 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  website:
+    name: Documentation website
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Install pinned website toolchain
+        uses: jdx/mise-action@v4
+        with:
+          install: true
+          cache: true
+
+      - name: Verify toolchain versions
+        run: |
+          set -euo pipefail
+          test "$(node --version)" = "v24.18.0"
+          test "$(pnpm --version)" = "11.12.0"
+
+      - name: Install website dependencies
+        run: pnpm --dir docs/website install --frozen-lockfile
+
+      - name: Test website content pipeline
+        run: pnpm --dir docs/website run test
+
+      - name: Check website
+        run: pnpm --dir docs/website run check
+
+      - name: Build website
+        run: pnpm --dir docs/website run build
+
+      - name: Guard generated and public boundaries
+        run: |
+          set -euo pipefail
+          if git ls-files docs/website/src/content/docs docs/website/.generated docs/website/dist | grep -q .; then
+            echo "Generated website content must not be tracked." >&2
+            exit 1
+          fi
+          if rg -n 'docs/internal|develop/' docs/website/dist docs/website/.generated; then
+            echo "Website artifact contains non-public documentation." >&2
+            exit 1
+          fi
+
   quality:
     name: Mago, PHPUnit, and Deptrac
     runs-on: ubuntu-latest

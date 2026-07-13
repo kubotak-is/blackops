@@ -3,3 +3,8 @@ vendor
 .phpunit.cache/
 .deptrac.cache
 .env
+/docs/website/.astro/
+/docs/website/.generated/
+/docs/website/dist/
+/docs/website/node_modules/
+/docs/website/src/content/docs/

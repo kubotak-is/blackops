@@ -1,6 +1,6 @@
 # P10-003: Starlight Single-source Foundation
 
-Status: In Progress
+Status: Accepted
 
 ## Goal
 
@@ -15,6 +15,7 @@ mise／pnpmで再現可能なAstro Starlight Projectを構築し、`docs/guide/`
 - Astro Type Check、Static Build、Node Unit Test
 - `.gitignore`とWebsite Development README
 - 通常CIへのWebsite Check／Build Job追加
+- 現行Guideに残る`docs/internal/`向けLink 2件と`develop/`向け参照1件の公開境界修正
 - Report／STATE更新
 
 ## Out of Scope
@@ -37,6 +38,8 @@ mise／pnpmで再現可能なAstro Starlight Projectを構築し、`docs/guide/`
 - `mise.toml`
 - `.gitignore`
 - `.github/workflows/ci.yml`
+- `docs/guide/mvp-status.md`
+- `docs/guide/runtime-bootstrap.md`
 - `docs/website/**`
 - `develop/orchestration/reports/P10-003-starlight-single-source-foundation.md`
 - `develop/STATE.md`
@@ -54,6 +57,7 @@ mise／pnpmで再現可能なAstro Starlight Projectを構築し、`docs/guide/`
 - Generated Contentと`dist/`をCommitしない
 - `docs/internal/`、`develop/`、Repository Absolute PathをContentへ取り込まない
 - Source Markdownを生成処理から変更しない
+- Guide本文の変更は、公開対象外の`docs/internal/`を参照する既存Link 2件の除去と`develop/`を参照する既存Evidence 1件の利用者向け表現への置換だけに限定する
 - Website用本文を手動複製しない
 
 ## Acceptance Criteria

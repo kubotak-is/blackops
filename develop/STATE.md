@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-13T17:48:12+09:00
+Updated At: 2026-07-13T18:13:39+09:00
 
 ## Current Phase
 
@@ -16,13 +16,13 @@ Specification: `develop/spec/57-documentation-website-delivery-contract.md`
 
 ## Task Status
 
-P10-003 In Progress
+P10-003 Accepted
 
-Userは2026-07-13の回答「Y」により、Phase 10に限り、Model／Profileを明示できない現在利用可能なWorkerで進めることを承認した。P10-003のmise／pnpm／Starlight Single-source Foundation実装を開始する。
+Node.js 24.18.0／pnpm 11.12.0をExact Pinし、`docs/guide/`だけから未追跡Starlight Content／Manifestを決定的に生成するFoundationを受け入れた。Orchestrator再検証でNode Test 9件、Content Determinism、Astro Check、Static Build、Artifact Boundary、Frozen Lockfile、CI YAML、PHP Format／Management ID Guard、`git diff --check`が成功した。mise-actionは公式現行Majorの`v4`へ補強した。
 
 ## Last Accepted Task
 
-P10-002-documentation-directory-migration
+P10-003-starlight-single-source-foundation
 
 ## Pending Decisions
 
@@ -30,13 +30,33 @@ P10-002-documentation-directory-migration
 
 ## Known Blockers
 
-P10-003に既知のBlockerはない。Phase 10限定のUser承認により、現在利用可能なWorkerへ委譲できる。
+P10-003に既知のBlockerはない。
 
 ## Required Next Action
 
-1. 現在利用可能なWorkerへP10-003を委譲する。
-2. WorkerはTask Packetの範囲で実装・検証し、ReportとSTATEを更新する。Review前にCommitしない。
-3. Orchestratorが差分Reviewと最終検証を行い、受入後にCommit／Pushする。
+1. P10-003をCommit／Pushする。
+2. GitHub ActionsのWebsite／PHP Quality Jobを確認する。
+3. P10-004 User Documentation Information Architectureへ進む。
+
+## P10-003 Starlight Single-source Foundation Worker Verification Commands and Results
+
+```text
+mise install
+mise exec -- pnpm --dir docs/website install --frozen-lockfile
+Result: Fixed Node.js 24.18.0 / pnpm 11.12.0 toolchain and frozen install succeeded.
+
+mise exec -- pnpm --dir docs/website run test
+Result: 9 tests / 9 passed / 0 failed.
+
+mise exec -- pnpm --dir docs/website run check
+Result: Determinism checks passed; Astro check 9 files / 0 errors / 0 warnings / 0 hints.
+
+mise exec -- pnpm --dir docs/website run build
+Result: 10 pages, Pagefind, sitemap, and artifact boundary check passed.
+
+Generated／tracked／public boundary guards, CI YAML parse, PHP format／management ID guards, git diff --check
+Result: All passed.
+```
 
 ## P9-004 Framework Update Generator Smoke Worker Verification Commands and Results
 
