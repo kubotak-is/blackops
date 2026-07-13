@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-13T14:18:05+09:00
+Updated At: 2026-07-13T14:23:51+09:00
 
 ## Current Phase
 
@@ -16,9 +16,9 @@ Specification: `develop/spec/46-composer-skeleton-publication.md`
 
 ## Task Status
 
-Initial Stable 1.0.0 Approved; Recording Release Contract
+Framework 1.0.0 Published; Skeleton Workflow Recovery Decision Blocker
 
-D076のMain／Distribution分離、Workflow追従、Public Distribution Repository、Write-enabled Deploy Key、Main Actions Secret登録、一時Key削除を完了した。Packagistの`blackops/framework`登録と`dev-main` Metadataを確認した。UserはD078としてFramework／Skeletonの初回Public Stable Version `1.0.0`を承認した。Release Contractを記録後、Framework TagをPushしてWorkflowを実行する。
+D078をCommit／Pushし、Framework annotated Tag `1.0.0`をCommit `279716f904f17be9341f3fdaae30156ab17d8a62`へ作成・Pushした。Packagistで`blackops/framework` Stable `1.0.0`の同Commit参照を確認した。Publication Workflow Run `29226110632`はContainer Userがbind-mounted `/app`へ`vendor/`を作成できず、Install Stepで失敗した。Credential／Publication Stepは未実行で、Distribution `main`／`1.0.0` Tagは存在しない。
 
 ## Last Accepted Task
 
@@ -26,19 +26,19 @@ P8-002B-native-outcome-invocation
 
 ## Pending Decisions
 
-なし。
+- 公開済みFramework Tagを移動せず、Main上の修正版Workflowを手動実行して既存`1.0.0`を復旧できるRecovery Pathを追加するか。
 
 ## Known Blockers
 
-なし。
+- Tag Push WorkflowはTag Commit内のWorkflowを使用するため、Main上でPermission FixだけをCommitして既存Runを再実行しても修正版を使用できない。Manual Dispatchから既存bare SemVer Tagを明示CheckoutするRecovery Pathが必要である。
 
 ## Required Next Action
 
-1. D078／Specification／Task Packet更新をCommit／Pushする。
-2. Framework `1.0.0` TagをPushしてPublication Workflowを実行する。
-3. WorkflowとDistribution `main`／`1.0.0` Tagを検証する。
-4. Packagistに`blackops/skeleton` Source `https://github.com/kubotak-is/blackops-skeleton`を登録する。
-5. P8-004 Remote Smokeへ進む。
+1. UserがWorkflow Permission FixとManual Recovery Path追加を承認する。
+2. GitHub Runner UID／GIDをComposeへ渡し、既存bare SemVer Tagを入力してCheckout・検証・Publishできる`workflow_dispatch`を追加する。
+3. Local Validation後にCommit／Pushし、`1.0.0` Recovery Runを実行する。
+4. WorkflowとDistribution `main`／`1.0.0` Tagを検証する。
+5. Packagistに`blackops/skeleton` Source `https://github.com/kubotak-is/blackops-skeleton`を登録し、P8-004 Remote Smokeへ進む。
 
 ## P8-003 Skeleton Distribution Publication Worker Verification Commands and Results
 
