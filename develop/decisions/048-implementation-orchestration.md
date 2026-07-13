@@ -2,6 +2,8 @@
 
 Status: Decided
 
+Worker Modelの選定はD077で更新した。本Decision内のGPT-5.4-mini記載は2026-07-08時点の判断履歴として保持する。現行WorkerはD077を正本とする。
+
 ## Context
 
 MVP実装では、Orchestrator Codexが指示出し、Task Packet作成、Review、Acceptance判定を担当し、Production Codeの実装はTask Packet単位でCodex GPT-5.4-mini workerへ依頼する。
@@ -263,3 +265,7 @@ docs/
 - Credential、Token、SecretはRepositoryへ保存しない。
 
 [/CONSEQUENCES]
+
+## References
+
+- [D077 Implementation Worker Model Upgrade](077-implementation-worker-model-upgrade.md)

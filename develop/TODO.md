@@ -326,6 +326,7 @@ MVP後に残す主要項目:
 - [x] Codex GPT-5.4-mini workerへ渡すTask Packet Templateを維持する
 - [x] `develop/STATE.md` のCheckpoint Templateを作成する
 - [x] Orchestrator Codex／GPT-5.4-mini worker共通規約をRootの `AGENTS.md` に記述する
+- [x] Implementation WorkerをGPT-5.6 Luna Highへ更新し、別Modelへの黙示Fallbackを禁止する
 - [x] MVP範囲のFramework実装者向け `docs/internals/` を整備する
 - [x] MVP範囲のFramework利用者向け `docs/guide/` を整備する
 - [x] WSL2 Distributionを導入する

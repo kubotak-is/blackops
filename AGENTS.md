@@ -1,6 +1,6 @@
 # Agent Instructions
 
-このRepositoryでは、CodexがOrchestrator兼Reviewerとなり、Production Codeの実装はTask Packet単位でCodex GPT-5.4-mini workerへ依頼する。
+このRepositoryでは、CodexがOrchestrator兼Reviewerとなり、Production Codeの実装はTask Packet単位でCodex GPT-5.6 Luna High workerへ依頼する。
 
 ## Source of Truth
 
@@ -35,7 +35,7 @@ Windows側や `/mnt/c` に別のWorking Treeを作らない。Credential、Token
 5. `develop/STATE.md` を更新する
 6. Orchestrator CodexのReviewを待つ
 
-GPT-5.4-mini workerはReview前にCommitしない。範囲外の修正が必要な場合は実装を広げず、ReportのBlockerとして返す。
+GPT-5.6 Luna High workerはReview前にCommitしない。範囲外の修正が必要な場合は実装を広げず、ReportのBlockerとして返す。実行環境でこのModel／Profileを指定できない場合、別Modelへ黙ってFallbackせずOrchestratorがBlockerとして返す。
 
 ## Checkpoint
 

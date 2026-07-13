@@ -65,9 +65,9 @@ D046以後はMVP実装へ移る。
 
 ## Implementation Orchestration
 
-CodexをOrchestrator兼Reviewer、Codex GPT-5.4-mini workerを実装依頼先とする。
+CodexをOrchestrator兼Reviewer、Codex GPT-5.6 Luna High workerを実装依頼先とする。
 
-実装はWSL2内の `/home/kubotak/projects/blackops` で行う。Orchestrator CodexがTask Packetを作成し、GPT-5.4-mini workerまたは実装担当Codexが実装、Test、Reportを行い、Orchestrator CodexのReview完了後にCommitする。
+実装はWSL2内の `/home/kubotak/projects/blackops` で行う。Orchestrator CodexがTask Packetを作成し、GPT-5.6 Luna High workerが実装、Test、Reportを行い、Orchestrator CodexのReview完了後にCommitする。Model／Profileを指定できない場合は別Modelへ黙ってFallbackしない。
 
 進行状態は `develop/STATE.md` に保存する。再開時は `AGENTS.md`、Checkpoint、現在のTask Packet、Reportの順に確認する。
 
