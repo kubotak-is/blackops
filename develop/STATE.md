@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-13T13:26:06+09:00
+Updated At: 2026-07-13T14:01:07+09:00
 
 ## Current Phase
 
@@ -16,9 +16,9 @@ Specification: `develop/spec/46-composer-skeleton-publication.md`
 
 ## Task Status
 
-Distribution Repository Initialization Blocker
+Local Revision Accepted; Main History Push Pending
 
-D073に基づくLocal Publication実装を受け入れた。GitHub CLIの`kubotak-is`再認証は成功した。Public `kubotak-is/blackops`はDefault Branch `main`で作成済みだが、`LICENSE`だけを含む`Initial commit` (`9c213ddd214c`)が存在し、生成Skeleton Split HistoryとFast-forward互換ではない。現行WorkflowはこのRemote `main`をfail closedで拒否する。Repository Historyの初期化方法とMain Framework Repository URLのユーザー判断待ち。
+D076でMain Framework Repositoryを`kubotak-is/blackops`、生成専用Distribution Repositoryを`kubotak-is/blackops-skeleton`とする構成を確定した。Workflow・Documentation追従をOrchestratorがReview・再検証し、受け入れた。Distribution Repository作成、Write-enabled Deploy Key、Main Actions Secret登録、一時Key削除も完了。Main Framework HistoryのGitHub接続待ち。
 
 ## Last Accepted Task
 
@@ -30,20 +30,24 @@ P8-002B-native-outcome-invocation
 
 ## Known Blockers
 
-- Distribution Repositoryの`main`にSkeleton Split Historyと無関係な`LICENSE` Initial Commitがあり、現行WorkflowでFast-forwardできない。Repositoryの削除・空での再作成は破壊的なためユーザ承認が必要。
-- Main Framework RepositoryのGitHub URLが未確定で、Actions Secret `SKELETON_DEPLOY_KEY`の登録先とPublication Workflowの実行元を特定できない。
+- なし。
 
 ## Required Next Action
 
-1. `kubotak-is/blackops`を削除し、Initial Commitなしの空Public Repositoryとして再作成するかユーザが判断する。
-2. Main Framework RepositoryのGitHub URLを確定する。
-3. Deploy Keyと`SKELETON_DEPLOY_KEY`を設定する。
-4. Packagist `blackops/skeleton`のGitHub連携を設定する。
-5. 初回Publication Workflowを検証し、P8-004 Remote Smokeへ進む。
+1. D076追従Workflow／Documentation／Report／STATEをCommitする。
+2. Main Repositoryの`LICENSE` Initial CommitをLocal Historyへ取り込み、`main`へPushする。
+3. Packagist `blackops/skeleton`のGitHub連携を設定する。
+4. 初回Publication WorkflowとDistribution `main`を検証し、P8-004 Remote Smokeへ進む。
 
 ## P8-003 Skeleton Distribution Publication Worker Verification Commands and Results
 
 ```text
+D076 repository naming follow-up:
+Workflow Remote: git@github.com:kubotak-is/blackops-skeleton.git
+Composer root／Quickstart, Mago format／lint／analyze, Publication Dry Run, Workflow YAML, stale URL／credential／management guards, git diff --check: passed.
+Publication Source a45ca120f03eb776e75e16b9a7bb56e9207698c3, split da573f3190e5e855a9c09e275980c6ddc5cce028.
+Full PHPUnit／Deptrac／Consumer E2E／Create-project were not rerun because this follow-up changes only Repository references and Documentation; the immediately preceding accepted P8-003 results below remain applicable.
+
 docker compose run --rm app composer validate --strict
 docker compose run --rm app composer validate --strict examples/quickstart/composer.json
 Result: Both Composer files are valid.
