@@ -50,6 +50,27 @@ curl -X POST -H 'Content-Type: application/json' \
 
 Inline JournalのSensitive値は `var/log/journal.jsonl` へMask済みで追記される。既定Deliveryは `best_effort` である。
 
+### FrankenPHP Worker Mode
+
+Default HTTPはRequestごとにApplicationを構成するClassic Modeである。Process単位でApplication、Environment、Configuration、Compile済みRuntimeを一度だけ構成するWorker Modeは明示Profileで起動する。
+
+```bash
+docker compose stop http
+docker compose --profile worker-mode up -d http-worker
+curl http://127.0.0.1:8081/welcome
+```
+
+Worker Modeの既定Portは8081で、`WORKER_HTTP_PORT`から変更できる。`FRANKENPHP_MAX_REQUESTS`はWorker Threadを安全に再起動するRequest上限で、既定は1000である。Frameworkは各Request前にDatabase Connectionをhealth-checkし、Stale Connectionをcloseして一度再接続する。再接続できない場合は500として失敗し、成功Responseとして扱わない。Request終了時はOperation Scopeを検査し、JSONL Observerをflushする。Throwableまたは未完了TransactionのConnectionは次Requestへ持ち越さずcloseする。
+
+FrankenPHPはWorker callback終了後にRequest Superglobalをcleanupするが、`$_ENV`はRequest間でresetしない。EntrypointはProcess開始時の`$_ENV`へ毎Request復元する。Application ServiceはRequest Body、Actor、Tenant、PSR-7 Request等のRequest固有Stateをpropertyやstaticへ保持せず、Operation ValueまたはExecution Contextから受け取る。
+
+Classic Modeへ戻す場合はWorker serviceを停止し、Default HTTPを起動する。
+
+```bash
+docker compose --profile worker-mode stop http-worker
+docker compose up -d http
+```
+
 ## Worker and Maintenance
 
 ```bash

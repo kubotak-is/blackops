@@ -4,7 +4,7 @@ The reference HTTP runtime uses the official `dunglas/frankenphp:1-php8.5-trixie
 
 The image installs PCNTL, PDO PostgreSQL, and Zip through the base image's `install-php-extensions` helper. Composer dependencies are installed without an autoloader first; framework source is then copied and an authoritative production autoloader is generated. Production startup never discovers operations or compiles artifacts.
 
-The tag pattern, Debian recommendation, PHP 8.5 availability, and extension helper follow the [official FrankenPHP Docker guide](https://frankenphp.dev/docs/docker/). The reference starts in classic mode, the safe migration baseline described by the [official migration guide](https://frankenphp.dev/docs/migrate/). Worker mode optimization is intentionally not part of this runtime.
+The tag pattern, Debian recommendation, PHP 8.5 availability, and extension helper follow the [official FrankenPHP Docker guide](https://frankenphp.dev/docs/docker/). The standalone reference starts in classic mode, the safe migration baseline described by the [official migration guide](https://frankenphp.dev/docs/migrate/). The installed Quickstart additionally exposes Worker Mode as an explicit opt-in profile.
 
 ## Runtime flow
 
@@ -55,6 +55,23 @@ return new ProductionRuntimeComposer()->compose(
 
 Database credentials are supplied through `POSTGRES_*` environment variables. The reference `http` service waits for the Compose PostgreSQL health check, but the health endpoint itself does not open a database connection.
 
-## Process lifecycle
+## Quickstart Worker Mode
 
-Classic mode rebuilds application state for each request and is the MVP baseline. If an application later enables FrankenPHP worker mode, it must explicitly close every operation scope and flush or reset scoped loggers, observer buffers, database connections, and other mutable process state after each request. A worker-mode switch requires its own runtime verification; do not assume request-process cleanup.
+`examples/quickstart/public/worker.php` loads Composer, the application bootstrap, the configuration snapshot, compiled manifests and container, and the public PSR-15 handler before entering `frankenphp_handle_request()`. The request callback only creates a PSR-7 request, invokes the cached handler, and emits its PSR-7 response. It catches `Throwable` inside the callback so one failed request does not terminate the worker. This follows the [official Worker Mode lifecycle](https://frankenphp.dev/docs/worker/).
+
+`ApplicationHttpRequestHandler` owns the reusable runtime's request boundary:
+
+1. execute `SELECT 1` before handling; on failure close the DBAL connection and retry once
+2. invoke the operation HTTP handler
+3. close a connection after `Throwable`
+4. close and reject a nominally successful response if a transaction remains active
+5. verify that the operation scope is empty
+6. flush the application journal observers
+
+The execution scope itself uses `finally`, so completed, rejected, and thrown operation paths all pop their envelope and operation type. Application observers share an aggregator with the execution pipeline; the request boundary calls that aggregator's flush operation rather than maintaining a second buffer.
+
+FrankenPHP resets request superglobals after the callback, but its documentation explicitly excludes `$_ENV`. The entrypoint snapshots `$_ENV` after process bootstrap and restores it after every callback. Application services must still be stateless with respect to request values: request bodies, actors, tenants, and PSR-7 objects belong in local variables, operation values, or execution context, not singleton or static properties.
+
+`Caddyfile.worker` sets one worker thread for deterministic local behavior and delegates restart to FrankenPHP's global `max_requests` option. `FRANKENPHP_MAX_REQUESTS` defaults to 1000. Reaching that limit restarts the worker thread and therefore repeats process bootstrap; it is a bounded lifecycle, not a substitute for request cleanup. See the [official configuration reference](https://frankenphp.dev/docs/config/).
+
+The `worker-mode` Compose profile is intentionally not a default service. Classic `http` remains the fallback until the opt-in has sufficient deployment evidence. The Consumer E2E uses optional boot and memory evidence file variables, forces multiple restarts, checks bounded per-boot memory growth and unique operation IDs, verifies immediate JSONL visibility, stops and restarts PostgreSQL around a 500 response, and finally starts Classic Mode successfully.

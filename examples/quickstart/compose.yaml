@@ -35,6 +35,26 @@ services:
     ports:
       - "${HTTP_PORT:-8080}:80"
 
+  http-worker:
+    profiles: ["worker-mode"]
+    build:
+      context: .
+      dockerfile: Dockerfile.frankenphp
+    working_dir: /app
+    volumes:
+      - .:/app
+      - ./Caddyfile.worker:/etc/frankenphp/Caddyfile:ro
+    environment:
+      <<: *application-environment
+      FRANKENPHP_MAX_REQUESTS: ${FRANKENPHP_MAX_REQUESTS:-1000}
+      BLACKOPS_WORKER_BOOT_EVIDENCE_FILE: ${BLACKOPS_WORKER_BOOT_EVIDENCE_FILE:-}
+      BLACKOPS_WORKER_MEMORY_EVIDENCE_FILE: ${BLACKOPS_WORKER_MEMORY_EVIDENCE_FILE:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "${WORKER_HTTP_PORT:-8081}:80"
+
   app:
     profiles: ["tools"]
     build:

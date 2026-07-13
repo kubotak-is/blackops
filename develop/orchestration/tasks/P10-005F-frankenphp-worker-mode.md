@@ -1,6 +1,6 @@
 # P10-005F: FrankenPHP Worker Mode
 
-Status: Blocked by P10-005E2
+Status: Accepted
 
 ## Goal
 
@@ -43,12 +43,14 @@ Application、Environment、Configuration、Compiled RuntimeをProcess起動時�
 - `src/Journal/**`
 - `src/Transport/PostgreSql/**`
 - `examples/quickstart/Caddyfile`
+- `examples/quickstart/Caddyfile.worker`
 - `examples/quickstart/public/**`
 - `examples/quickstart/bootstrap/**`
 - `examples/quickstart/compose.yaml`
 - `examples/quickstart/Dockerfile.frankenphp`
 - `examples/quickstart/README.md`
 - `tests/Application/**`
+- `tests/Architecture/QuickstartApplicationArchitectureTest.php`
 - `tests/Internal/Application/**`
 - `tests/Internal/Runtime/**`
 - `tests/Consumer/**`

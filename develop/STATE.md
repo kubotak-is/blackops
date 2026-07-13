@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-14T02:23:32+09:00
+Updated At: 2026-07-14T03:01:51+09:00
 
 ## Current Phase
 
@@ -8,21 +8,21 @@ Phase 10: Documentation Website
 
 ## Current Task
 
-Task ID: P10-005F-frankenphp-worker-mode
+Task ID: P10-005D-reader-journey-corrections
 
-Task Packet: `develop/orchestration/tasks/P10-005F-frankenphp-worker-mode.md`
+Task Packet: `develop/orchestration/tasks/P10-005D-reader-journey-corrections.md`
 
-Specifications: `develop/spec/44-public-application-bootstrap-api.md`、`develop/spec/49-feature-first-quickstart-application.md`
+Specifications: `develop/spec/04-handler-and-result.md`、`develop/spec/50-operation-authoring-and-build-discovery.md`、`develop/spec/54-native-outcome-and-rejection-exception.md`、`develop/spec/55-project-generators-and-application-migrations.md`、`develop/spec/59-documentation-reader-experience.md`
 
 ## Task Status
 
-P10-005F Ready to Start
+P10-005D Ready to Start
 
-P10-005E2はOrchestrator Reviewと独立再検証を完了しAcceptedとした。次はD085どおりFrankenPHP Worker Modeを明示Opt-inで実装し、Process単位BootstrapとRequest間State Safetyを検証する。
+P10-005FはOrchestrator Reviewと独立再検証を完了しAcceptedとした。FrankenPHP Worker Modeは明示Opt-inとしてProcess単位Bootstrap、Request Lifecycle、DB Reconnect、Restart／Isolationを実証した。次はP10-005DでReader Journeyを現行実装へ同期する。
 
 ## Last Accepted Task
 
-P10-005E2-http-validation-lifecycle
+P10-005F-frankenphp-worker-mode
 
 ## Pending Decisions
 
@@ -36,14 +36,43 @@ P10-005E2-http-validation-lifecycle
 
 ## Known Blockers
 
-P10-005Fに既知のBlockerはない。P10-005DはP10-005F完了待ち。Cloudflare Project／Token／GitHub Environment SecretsとProtection Ruleの未設定はRemote DeployだけのExternal Blockerである。
+P10-005Dに既知のBlockerはない。Cloudflare Project／Token／GitHub Environment SecretsとProtection Ruleの未設定はRemote DeployだけのExternal Blockerである。
 
 ## Required Next Action
 
-1. P10-005FをWorkerへ割り当て、FrankenPHP Worker Modeを明示Opt-inで実装する。
-2. Process単位Bootstrap、Request Isolation、Flush／Reconnect／Restart、Classic Fallbackを検証する。
-3. P10-005Dで全Reader Journeyを最終実装へ同期する。
-4. Repository内修正後、Cloudflare External ConfigurationとP10-006 Closeoutへ進む。
+1. P10-005DをWorkerへ割り当て、全Reader Journeyを最終実装へ同期する。
+2. Landing、Install込みQuickstart、Generator Tutorial、Diagram、Validation、Worker Mode GuideをBrowser Reviewする。
+3. Repository内修正後、Cloudflare External ConfigurationとP10-006 Closeoutへ進む。
+
+## P10-005F FrankenPHP Worker Mode Worker Verification Commands and Results
+
+```text
+docker compose run --rm app composer validate --strict
+Result: ./composer.json is valid.
+
+docker compose run --rm app mago format --check src tests examples
+docker compose run --rm app mago lint
+docker compose run --rm app mago analyze
+Result: Format済み、Lint／AnalyzeともにNo issues found.
+
+docker compose run --rm app vendor/bin/phpunit
+Result: OK (869 tests, 2800 assertions).
+
+docker compose run --rm app vendor/bin/deptrac
+Result: Violations 0 / Skipped 0 / Uncovered 0 / Allowed 1712 / Warnings 0 / Errors 0.
+
+bash tests/Consumer/quickstart-e2e.sh
+Result: Quickstart consumer E2E passed.
+
+bash tests/Consumer/frankenphp-worker-mode.sh
+Result: FrankenPHP worker mode consumer E2E passed. Bootstrap reuse、per-request Flush、Rejected／Throwable後継続、DB停止500→再起動Reconnect、32 Request Isolation、Secret／State Leak、Memory、max_requests=8 Restart、Classic Fallbackを検証。
+
+bash tests/Consumer/skeleton-publication.sh --dry-run
+Result: Skeleton publication dry run passed.
+
+docker compose config、PHP Management ID Guard、Shell Syntax、git diff --check
+Result: すべて成功。
+```
 
 ## P10-005E2 HTTP Validation Lifecycle Worker Verification Commands and Results
 

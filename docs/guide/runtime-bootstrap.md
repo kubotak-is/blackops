@@ -54,7 +54,30 @@ unset SAMPLE_TOKEN
 {"message":"Welcome to BlackOps"}
 ```
 
-FrankenPHPはLocalではplain HTTPのclassic modeで動作します。TLS、Domain、Process SupervisionはDeployment環境が所有します。
+FrankenPHPはLocalではplain HTTPのClassic Modeで動作します。TLS、Domain、Process SupervisionはDeployment環境が所有します。
+
+### Worker Modeを明示的に試す
+
+Worker ModeはApplication、Environment、Configuration、Compile済みRuntimeをProcess起動時に一度だけ構成するOpt-inである。DefaultのClassic Modeを停止し、専用Profileを起動する。
+
+```bash
+docker compose stop http
+docker compose --profile worker-mode up -d http-worker
+curl http://127.0.0.1:8081/welcome
+```
+
+Worker ModeのPortは既定8081で、`WORKER_HTTP_PORT`から変更できる。1 WorkerあたりのRequest上限は`FRANKENPHP_MAX_REQUESTS`で指定し、既定1000に達するとFrankenPHPがWorker Threadを再起動する。
+
+Frameworkは各Request前にDatabase Connectionを確認し、Stale Connectionをcloseして一度だけ再接続する。再接続できないRequest、Throwableが発生したRequest、未完了Transactionを残したRequestは500となり、次RequestへConnectionを持ち越さない。Operation ScopeはRequest終了時に空であることを確認し、JSONL Journalは毎Request flushする。
+
+Worker ModeではApplication ServiceもProcess間で再利用される。Request Body、Actor、Tenant、PSR-7 Request等をService propertyやstaticへ保存せず、Operation ValueまたはExecution Contextから受け取る。FrankenPHPが自動resetしない`$_ENV`はEntrypointがProcess開始時の値へ復元する。
+
+Classic Modeへ戻す場合はWorker serviceを停止し、Default HTTPを起動する。
+
+```bash
+docker compose --profile worker-mode stop http-worker
+docker compose up -d http
+```
 
 ## WorkerとMaintenance
 

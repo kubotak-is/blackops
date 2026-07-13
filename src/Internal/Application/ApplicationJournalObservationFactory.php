@@ -15,7 +15,7 @@ use InvalidArgumentException;
 final readonly class ApplicationJournalObservationFactory
 {
     /** @param array<string, array<array-key, mixed>> $configuration */
-    public function create(array $configuration): ?JournalObservationPipeline
+    public function create(array $configuration): ?ApplicationJournalObservations
     {
         $jsonl = ApplicationJournalConfiguration::fromConfiguration($configuration);
         if (!$jsonl->enabled) {
@@ -34,11 +34,16 @@ final readonly class ApplicationJournalObservationFactory
             );
         }
 
-        return new JournalObservationPipeline(
-            new ObservedJournalRecordProjector(new SensitiveProjectionFilter()),
-            new JournalObserverAggregator([
-                new JournalObserverBinding('application-jsonl', new JsonlJournalObserver($stream), $jsonl->delivery),
-            ]),
+        $observers = new JournalObserverAggregator([
+            new JournalObserverBinding('application-jsonl', new JsonlJournalObserver($stream), $jsonl->delivery),
+        ]);
+
+        return new ApplicationJournalObservations(
+            new JournalObservationPipeline(
+                new ObservedJournalRecordProjector(new SensitiveProjectionFilter()),
+                $observers,
+            ),
+            $observers,
         );
     }
 }

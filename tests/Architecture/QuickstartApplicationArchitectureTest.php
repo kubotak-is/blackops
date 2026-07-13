@@ -40,6 +40,7 @@ final class QuickstartApplicationArchitectureTest extends TestCase
             'composer.json',
             'README.md',
             'Caddyfile',
+            'Caddyfile.worker',
             'Dockerfile',
             'Dockerfile.frankenphp',
             'compose.yaml',
@@ -108,7 +109,10 @@ final class QuickstartApplicationArchitectureTest extends TestCase
             self::assertStringNotContainsString('BlackOps\\Internal', $source, $path);
 
             if (str_contains($source, 'Laminas\\')) {
-                self::assertSame($this->quickstart() . '/public/index.php', $path);
+                self::assertContains($path, [
+                    $this->quickstart() . '/public/index.php',
+                    $this->quickstart() . '/public/worker.php',
+                ]);
             }
         }
     }
@@ -171,7 +175,9 @@ final class QuickstartApplicationArchitectureTest extends TestCase
         self::assertStringContainsString('postgres:18', $compose);
         self::assertStringContainsString('pg_isready', $compose);
         self::assertStringContainsString('profiles: ["worker"]', $compose);
+        self::assertStringContainsString('profiles: ["worker-mode"]', $compose);
         self::assertStringContainsString('profiles: ["maintenance"]', $compose);
+        self::assertStringContainsString('./Caddyfile.worker:/etc/frankenphp/Caddyfile:ro', $compose);
         self::assertStringContainsString('postgres_data:', $compose);
         self::assertStringContainsString('php:8.5-cli-bookworm', $cli);
         self::assertStringContainsString('docker-php-ext-install pcntl pdo_pgsql zip', $cli);

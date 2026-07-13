@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace BlackOps\Internal\Application;
 
-use BlackOps\Http\OperationRequestHandler;
 use BlackOps\Internal\Codec\ReflectionJsonOperationCodec;
 use BlackOps\Internal\Execution\DeferredAcceptanceOrchestrator;
 use BlackOps\Internal\ExecutionContext\ExecutionContextFactory;
@@ -23,11 +22,12 @@ use Doctrine\DBAL\DriverManager;
 use LogicException;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\StreamFactoryInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use ReflectionClass;
 
 final readonly class ApplicationHttpRuntimeComposer
 {
-    public function compose(ApplicationConfigurationSnapshot $configuration): OperationRequestHandler
+    public function compose(ApplicationConfigurationSnapshot $configuration): RequestHandlerInterface
     {
         $build = ApplicationBuildConfiguration::fromConfiguration($configuration->configuration());
         $database = ApplicationDatabaseConfiguration::fromConfiguration($configuration->configuration());
@@ -57,17 +57,24 @@ final readonly class ApplicationHttpRuntimeComposer
         $psr17 = $this->psr17();
         $observations = new ApplicationJournalObservationFactory()->create($configuration->configuration());
 
-        return new ProductionRuntimeComposer()->composeWithDependencies(
+        $runtime = new ProductionRuntimeComposer()->composeWithDependencies(
             $artifacts,
             new ProductionRuntimeDependencies(
                 $clock,
                 $journal,
                 $psr17,
                 $psr17,
-                journalObservations: $observations,
+                journalObservations: $observations?->pipeline(),
                 deferredOperationAcceptor: $acceptor,
             ),
-        )->httpHandler;
+        );
+
+        return new ApplicationHttpRequestHandler(
+            $runtime->httpHandler,
+            $runtime->executionScope,
+            new ApplicationDatabaseConnectionLifecycle($connection),
+            $observations,
+        );
     }
 
     /** @param array<string, mixed> $parameters */

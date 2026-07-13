@@ -1,0 +1,86 @@
+<?php
+
+declare(strict_types=1);
+
+namespace BlackOps\Internal\Application;
+
+use BlackOps\Internal\Execution\ExecutionScopeProvider;
+use LogicException;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
+use Throwable;
+
+final readonly class ApplicationHttpRequestHandler implements RequestHandlerInterface
+{
+    public function __construct(
+        private RequestHandlerInterface $handler,
+        private ExecutionScopeProvider $scope,
+        private ApplicationDatabaseConnectionLifecycle $connection,
+        private ?ApplicationJournalObservations $observations,
+    ) {}
+
+    public function handle(ServerRequestInterface $request): ResponseInterface
+    {
+        $response = null;
+        $failure = null;
+
+        try {
+            $this->connection->prepare();
+            $response = $this->handler->handle($request);
+        } catch (Throwable $exception) {
+            $failure = $exception;
+        }
+
+        $cleanupFailure = null;
+
+        try {
+            if ($failure !== null) {
+                $this->connection->finishFailedRequest();
+            }
+
+            if ($failure === null) {
+                $this->connection->finishSuccessfulRequest();
+            }
+        } catch (Throwable $exception) {
+            $cleanupFailure = $exception;
+        }
+
+        try {
+            $this->finishRequestState();
+        } catch (Throwable $exception) {
+            $cleanupFailure ??= $exception;
+        }
+
+        $failure ??= $cleanupFailure;
+
+        if ($failure !== null) {
+            throw $failure;
+        }
+
+        if (!$response instanceof ResponseInterface) {
+            throw new LogicException('Application HTTP handler did not return a response.');
+        }
+
+        return $response;
+    }
+
+    private function finishRequestState(): void
+    {
+        $failure = null;
+
+        if ($this->scope->current() !== null || $this->scope->currentOperationTypeId() !== null) {
+            $failure = new LogicException('Application HTTP request left an operation scope active.');
+        }
+
+        try {
+            $this->observations?->flush();
+        } catch (Throwable $exception) {
+            $failure ??= $exception;
+        }
+
+        if ($failure !== null) {
+            throw $failure;
+        }
+    }
+}

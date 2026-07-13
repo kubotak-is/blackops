@@ -79,7 +79,7 @@ test -x "${distribution_root}/bin/setup" || fail 'bin/setup is not executable'
 test -x "${distribution_root}/blackops" || fail 'blackops is not executable'
 test ! -e "${distribution_root}/bin/"'blackops' || fail 'legacy CLI entrypoint is present'
 
-allowed_roots=$'.env.example\n.gitignore\nCaddyfile\nDockerfile\nDockerfile.frankenphp\nREADME.md\napp\nbin\nblackops\nbootstrap\ncompose.yaml\ncomposer.json\nconfig\npublic\ntests\nvar'
+allowed_roots=$'.env.example\n.gitignore\nCaddyfile\nCaddyfile.worker\nDockerfile\nDockerfile.frankenphp\nREADME.md\napp\nbin\nblackops\nbootstrap\ncompose.yaml\ncomposer.json\nconfig\npublic\ntests\nvar'
 actual_roots="$(find "${distribution_root}" -mindepth 1 -maxdepth 1 -printf '%f\n' | sort)"
 test "${actual_roots}" = "${allowed_roots}" || fail 'distribution root allowlist does not match'
 
