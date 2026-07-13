@@ -1,6 +1,6 @@
 # P9-005: Continuous Integration and Root README
 
-Status: Follow-up CI In Progress
+Status: Accepted
 
 ## Goal
 
