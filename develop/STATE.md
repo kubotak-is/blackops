@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-13T22:26:01+09:00
+Updated At: 2026-07-13T22:31:39+09:00
 
 ## Current Phase
 
@@ -16,9 +16,9 @@ Specifications: `develop/spec/41-developer-experience-roadmap.md`、`develop/spe
 
 ## Task Status
 
-P10-005C In Progress
+P10-005C Blocked
 
-Website Reviewを受け、D083で次回SkeletonのProject CLIをRoot `blackops`へ移すこと、D084でLanding／Quickstart／Tutorial／Diagram／Validation Guideを修正することを決定した。P10-005CはSkeleton、Compose、Setup、Consumer／Publication Testを`php blackops`へ移行する。P10-005DはP10-005C受入後にWebsite Reader Journeyを修正する。HTTP ConfigurationはClassic ModeでRequestごとに再構成される実装Gapを確認し、D085でUser判断待ちとした。
+Website Reviewを受け、D083で次回SkeletonのProject CLIをRoot `blackops`へ移すこと、D084でLanding／Quickstart／Tutorial／Diagram／Validation Guideを修正することを決定した。P10-005CをWorkerへ割り当てたが、現在のWorker APIではGPT-5.6 Luna High Model／Profileを明示または確認できない。AGENTS.mdのFallback禁止に従ってWorkerは変更せずBlockerを返した。P10-005Dも同じWorker Constraintにより未着手。HTTP ConfigurationはClassic ModeでRequestごとに再構成される実装Gapを確認し、D085でUser判断待ちとした。
 
 ## Last Accepted Task
 
@@ -32,14 +32,15 @@ P10-005B-guides-security-and-reference
 
 ## Known Blockers
 
-P10-005Cに既知のBlockerはない。P10-005DはP10-005CのRoot Entrypoint移行完了を待つ。D085はUser回答待ちだが、P10-005C／P10-005Dを妨げない。Cloudflare Project／Token／GitHub Environment SecretsとProtection Ruleの未設定はRemote DeployだけのExternal Blockerである。
+P10-005C／P10-005DはGPT-5.6 Luna Highを明示または確認できるWorkerがないためBlock中。D085はUser回答待ち。Cloudflare Project／Token／GitHub Environment SecretsとProtection Ruleの未設定はRemote DeployだけのExternal Blockerである。
 
 ## Required Next Action
 
-1. GPT-5.6 Luna High workerがP10-005Cを実装し、OrchestratorがReview／Commitする。
-2. P10-005C受入後、P10-005DでLanding、Quickstart、Tutorial、Diagram、Validation Guideを修正する。
-3. UserはD085 Question 1へ回答する。
-4. Repository内修正後、Cloudflare External ConfigurationとP10-006 Closeoutへ進む。
+1. UserがGPT-5.6 Luna High Worker環境を用意するか、現在利用可能なWorkerでPhase 10を実装する例外を明示する。
+2. Worker Constraint解消後、P10-005Cを実装し、OrchestratorがReview／Commitする。
+3. P10-005C受入後、P10-005DでLanding、Quickstart、Tutorial、Diagram、Validation Guideを修正する。
+4. UserはD085 Question 1へ回答する。
+5. Repository内修正後、Cloudflare External ConfigurationとP10-006 Closeoutへ進む。
 
 ## P10-005B GitHub Actions Evidence
 

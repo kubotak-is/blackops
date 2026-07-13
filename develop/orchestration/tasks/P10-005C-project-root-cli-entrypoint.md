@@ -1,6 +1,6 @@
 # P10-005C: Project Root CLI Entrypoint
 
-Status: Ready
+Status: Blocked
 
 ## Goal
 
@@ -80,4 +80,3 @@ git diff --check
 ## Expected Report
 
 `develop/orchestration/reports/P10-005C-project-root-cli-entrypoint.md`へSummary、Changed Files、Compatibility Boundary、Commands and Results、Acceptance Criteria、Remaining Issues、Suggested Next Actionを記録する。
-
