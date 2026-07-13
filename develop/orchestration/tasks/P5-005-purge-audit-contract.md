@@ -35,7 +35,7 @@ Retention Purge結果をPayloadなしで監査記録として残すためのCont
 - `tests/Core/Retention/**`
 - `tests/Core/Identifier/**`
 - `tests/Internal/Identifier/**`
-- `docs/internals/**`
+- `docs/internal/**`
 - `develop/orchestration/tasks/P5-005-purge-audit-contract.md`
 - `develop/orchestration/reports/P5-005-purge-audit-contract.md`
 - `develop/STATE.md`

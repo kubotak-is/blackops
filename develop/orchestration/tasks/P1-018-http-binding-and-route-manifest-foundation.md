@@ -34,7 +34,7 @@ HTTP Binding AttributeとRoute Manifestの土台を追加し、Runtime DI Contai
 
 - `src/Http/**`
 - `tests/Http/**`
-- `docs/internals/**`
+- `docs/internal/**`
 - `develop/orchestration/tasks/P1-018-http-binding-and-route-manifest-foundation.md`
 - `develop/orchestration/reports/P1-018-http-binding-and-route-manifest-foundation.md`
 - `develop/STATE.md`

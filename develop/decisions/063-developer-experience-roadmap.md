@@ -137,7 +137,7 @@ WebsiteとRepository Markdownの内容をどう管理するか。
 
 ### Options
 
-- A: 現在の `docs/guide/` と `docs/internals/` を正本とし、`docs-website/` のBuildが読み込むまたは検証付きで同期する
+- A: 現在の `docs/guide/` と `docs/internal/` を正本とし、`docs-website/` のBuildが読み込むまたは検証付きで同期する
 - B: Documentationの正本を `docs-website/src/content/docs/` へ移す
 - C: Repository MarkdownとWebsite Contentを別々に編集する
 

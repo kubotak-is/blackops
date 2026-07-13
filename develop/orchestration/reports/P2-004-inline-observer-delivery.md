@@ -13,7 +13,7 @@ Observerが設定されている場合だけSensitive Projectionを実行し、O
 - `src/Internal/Execution/InlineDispatcher.php`
 - `src/Internal/Journal/JournalObserverAggregator.php`
 - `tests/Internal/Execution/InlineDispatcherTest.php`
-- `docs/internals/journal-ports.md`
+- `docs/internal/journal-ports.md`
 - `develop/orchestration/tasks/P2-004-inline-observer-delivery.md`
 - `develop/STATE.md`
 

@@ -32,7 +32,7 @@ PostgreSQL Deferred OperationのRunning LeaseをWorkerがHeartbeatで延長で�
 
 - `src/Transport/PostgreSql/**`
 - `tests/Transport/PostgreSql/**`
-- `docs/internals/**`
+- `docs/internal/**`
 - `develop/TODO.md`
 - `develop/orchestration/tasks/P4-004-postgresql-worker-heartbeat.md`
 - `develop/orchestration/reports/P4-004-postgresql-worker-heartbeat.md`

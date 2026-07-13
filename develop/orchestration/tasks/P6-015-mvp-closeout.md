@@ -46,8 +46,8 @@ MVP Definition of Doneを実装・Test・Runtime証拠と対応付け、TODOとD
 - `develop/DOCS.md`
 - `docs/guide/README.md`
 - `docs/guide/mvp-status.md`
-- `docs/internals/README.md`
-- `docs/internals/architecture.md`
+- `docs/internal/README.md`
+- `docs/internal/architecture.md`
 - `develop/orchestration/tasks/P6-015-mvp-closeout.md`
 - `develop/orchestration/reports/P6-015-mvp-closeout.md`
 - `develop/STATE.md`

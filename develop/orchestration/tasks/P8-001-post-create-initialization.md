@@ -43,9 +43,9 @@ Skeletonへ安全で再実行可能なProject Setup Entrypointを追加し、Com
 - `examples/quickstart/README.md`
 - `tests/Consumer/**`
 - `tests/Architecture/QuickstartApplicationArchitectureTest.php`
-- `docs/guide/installed-application-status.md`
+- `docs/internal/installed-application-status.md`
 - `docs/guide/runtime-bootstrap.md`
-- `docs/internals/mvp-e2e.md`
+- `docs/internal/mvp-e2e.md`
 - `develop/TODO.md`
 - `develop/orchestration/tasks/P8-001-post-create-initialization.md`
 - `develop/orchestration/reports/P8-001-post-create-initialization.md`

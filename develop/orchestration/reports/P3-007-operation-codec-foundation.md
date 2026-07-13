@@ -26,7 +26,7 @@ Public Contractとして`OperationCodec`、`EncodedOperationMessage`、`Operatio
 - `tests/Core/Codec/OperationCodecContractTest.php`
 - `tests/Core/Time/TimeCodecTest.php`
 - `tests/Internal/Codec/ReflectionJsonOperationCodecTest.php`
-- `docs/internals/operation-codec.md`
+- `docs/internal/operation-codec.md`
 - `develop/orchestration/tasks/P3-007-operation-codec-foundation.md`
 - `develop/orchestration/reports/P3-007-operation-codec-foundation.md`
 - `develop/STATE.md`

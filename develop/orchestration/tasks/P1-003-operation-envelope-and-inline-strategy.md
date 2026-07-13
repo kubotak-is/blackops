@@ -38,8 +38,8 @@ Inline Vertical Sliceが利用するExecutionStrategy型、Inline Strategy、Ope
 - `src/Core/OperationEnvelope.php`
 - `tests/Core/Execution/`
 - `tests/Core/OperationEnvelopeTest.php`
-- `docs/internals/operation-envelope.md`
-- `docs/internals/README.md`
+- `docs/internal/operation-envelope.md`
+- `docs/internal/README.md`
 - `develop/orchestration/reports/P1-003-operation-envelope-and-inline-strategy.md`
 - `develop/STATE.md`
 - `develop/TODO.md`

@@ -46,11 +46,11 @@ Status: Accepted
 - `docs/guide/README.md`
 - `docs/guide/project-generators.md`
 - `docs/guide/runtime-bootstrap.md`
-- `docs/guide/installed-application-status.md`
+- `docs/internal/installed-application-status.md`
 - `docs/guide/mvp-status.md`
-- `docs/internals/README.md`
-- `docs/internals/project-generators.md`
-- `docs/internals/skeleton-publication.md`
+- `docs/internal/README.md`
+- `docs/internal/project-generators.md`
+- `docs/internal/skeleton-publication.md`
 - `examples/quickstart/README.md`
 - `develop/TODO.md`
 - `develop/spec/56-phase-9-delivery-plan.md`

@@ -20,7 +20,7 @@ Phase 7のInstalled Application Example and Skeleton Layoutをcloseoutした。9
 | 8 | Root Dev Autoloadへ依存しないConsumer E2Eが成功する | Satisfied | Temp ConsumerへFrameworkを `symlink=false` でmirror installし、通常RuntimeはConsumer VendorだけでScenarioを完走した。P7-006 AcceptanceとP7-007再実行で成功した。 |
 | 9 | Full PHPUnit、Mago、Deptrac、Public API Guardが成功する | Satisfied | P7-007でMago 3種、647 tests／2187 assertions、Deptrac 350 files／0 violations、Internal／Source／管理ID Guardが成功した。 |
 
-利用者向けの状態とPhase 8境界は `docs/guide/installed-application-status.md` に同期した。
+利用者向けの状態とPhase 8境界は `docs/internal/installed-application-status.md` に同期した。
 
 ## Installed Tree and Public Boundary Evidence
 
@@ -57,9 +57,9 @@ Phase 7 Consumer E2EはLocal Path Repositoryを一時注入したcopy installで
 - `develop/spec/43-installed-application-layout-and-bootstrap.md`
 - `develop/spec/45-phase-7-delivery-plan.md`
 - `docs/guide/README.md`
-- `docs/guide/installed-application-status.md`
-- `docs/internals/README.md`
-- `docs/internals/mvp-e2e.md`
+- `docs/internal/installed-application-status.md`
+- `docs/internal/README.md`
+- `docs/internal/mvp-e2e.md`
 - `examples/quickstart/README.md`
 - `develop/orchestration/tasks/P7-007-phase-7-closeout.md`
 - `develop/orchestration/reports/P7-007-phase-7-closeout.md`

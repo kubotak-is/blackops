@@ -13,8 +13,8 @@ D051で確定したExecutionStrategy Marker、Inline Strategy、OperationEnvelop
 - `src/Core/OperationEnvelope.php`
 - `tests/Core/Execution/ExecutionStrategyTest.php`
 - `tests/Core/OperationEnvelopeTest.php`
-- `docs/internals/operation-envelope.md`
-- `docs/internals/README.md`
+- `docs/internal/operation-envelope.md`
+- `docs/internal/README.md`
 - `develop/decisions/051-operation-envelope-and-strategy-api.md`
 - `develop/spec/03-execution.md`
 - `develop/spec/18-operation-envelope.md`

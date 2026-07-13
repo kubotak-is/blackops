@@ -49,12 +49,12 @@ Status: Completed
 - `develop/spec/52-phase-8-delivery-plan.md`
 - `docs/guide/README.md`
 - `docs/guide/runtime-bootstrap.md`
-- `docs/guide/installed-application-status.md`
+- `docs/internal/installed-application-status.md`
 - `docs/guide/mvp-status.md`
 - `docs/guide/mvp-sample.md`
-- `docs/internals/README.md`
-- `docs/internals/mvp-e2e.md`
-- `docs/internals/skeleton-publication.md`
+- `docs/internal/README.md`
+- `docs/internal/mvp-e2e.md`
+- `docs/internal/skeleton-publication.md`
 - `examples/quickstart/README.md`
 - `develop/orchestration/tasks/P8-003-skeleton-distribution-publication.md`
 - `develop/orchestration/reports/P8-003-skeleton-distribution-publication.md`

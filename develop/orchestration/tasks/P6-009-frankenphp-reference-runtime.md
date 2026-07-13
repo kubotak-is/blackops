@@ -49,9 +49,9 @@ Status: Accepted
 - `src/Internal/Runtime/FrankenPhp/**`
 - `tests/Internal/Runtime/FrankenPhp/**`
 - `docs/guide/runtime-bootstrap.md`
-- `docs/internals/bootstrap.md`
-- `docs/internals/README.md`
-- `docs/internals/frankenphp-runtime.md`
+- `docs/internal/bootstrap.md`
+- `docs/internal/README.md`
+- `docs/internal/frankenphp-runtime.md`
 - `develop/TODO.md`
 - `develop/orchestration/tasks/P6-009-frankenphp-reference-runtime.md`
 - `develop/orchestration/reports/P6-009-frankenphp-reference-runtime.md`

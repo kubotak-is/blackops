@@ -37,8 +37,8 @@ OperationHandler、OperationResult、RejectionReason、EmptyOutcomeを実装す�
 - `tests/Core/OperationHandlerTest.php`
 - `tests/Core/OperationResultTest.php`
 - `tests/Core/Rejection/`
-- `docs/internals/handler-result.md`
-- `docs/internals/README.md`
+- `docs/internal/handler-result.md`
+- `docs/internal/README.md`
 - `develop/orchestration/reports/P1-004-handler-result.md`
 - `develop/STATE.md`
 - `develop/TODO.md`

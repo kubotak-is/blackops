@@ -15,7 +15,7 @@ Deferred受付時に、Operation State保存、`operation.received` Journal、`o
 - `src/Transport/PostgreSql/PostgreSqlDeferredOperationSender.php`
 - `tests/Internal/Journal/JournalRecordFactoryTest.php`
 - `tests/Transport/PostgreSql/PostgreSqlDeferredAcceptanceOrchestratorTest.php`
-- `docs/internals/deferred-transport-contract.md`
+- `docs/internal/deferred-transport-contract.md`
 - `develop/orchestration/tasks/P3-006-deferred-acceptance-orchestrator.md`
 - `develop/orchestration/reports/P3-006-deferred-acceptance-orchestrator.md`
 - `develop/STATE.md`

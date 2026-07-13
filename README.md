@@ -13,7 +13,7 @@ MVPとPhase 9 Project CLIはMain Branchで完成しています。ただし、MV
 
 Packagistで公開済みのFramework／Skeleton Stable `1.0.0`はPhase 8時点のPackageです。`make:operation`、`make:migration`、Application Migration Runtimeを含むPhase 9の変更はMain Branchへ実装済みですが、これらを含む新しいStable Releaseはまだ公開していません。
 
-詳細は[Installed Application and Project CLI Status](docs/guide/installed-application-status.md)を参照してください。
+詳細は[Installed Application and Project CLI Status](docs/internal/installed-application-status.md)を参照してください。
 
 ## Installation
 
@@ -79,12 +79,12 @@ docker compose run --rm app vendor/bin/phpunit
 docker compose run --rm app vendor/bin/deptrac
 ```
 
-同じ品質Gateは[GitHub Actions CI](.github/workflows/ci.yml)で`main`へのPushとPull Requestごとに実行されます。詳細な環境構築は[Development Setup](docs/internals/development-setup.md)を参照してください。
+同じ品質Gateは[GitHub Actions CI](.github/workflows/ci.yml)で`main`へのPushとPull Requestごとに実行されます。詳細な環境構築は[Development Setup](docs/internal/development-setup.md)を参照してください。
 
 ## Documentation
 
 - [Framework利用者向けGuide](docs/guide/README.md)
-- [Framework実装者向けInternals](docs/internals/README.md)
+- [Framework実装者向けInternals](docs/internal/README.md)
 - [Application Bootstrap](docs/guide/application-bootstrap.md)
 - [Project Generators and Framework Updates](docs/guide/project-generators.md)
 - [Database Migrations](docs/guide/database-migrations.md)

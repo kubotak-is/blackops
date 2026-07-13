@@ -44,8 +44,8 @@ Status: Accepted
 
 - `src/Internal/Discovery/**`
 - `tests/Internal/Discovery/**`
-- `docs/internals/operation-registry.md`
-- `docs/internals/README.md`
+- `docs/internal/operation-registry.md`
+- `docs/internal/README.md`
 - `develop/TODO.md`
 - `develop/orchestration/tasks/P6-004-development-operation-discovery.md`
 - `develop/orchestration/reports/P6-004-development-operation-discovery.md`

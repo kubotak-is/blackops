@@ -10,7 +10,7 @@ Implemented and accepted the runtime container compile foundation.
 
 - `src/Internal/DependencyInjection/RuntimeContainerCompiler.php`
 - `tests/Internal/DependencyInjection/RuntimeContainerCompilerTest.php`
-- `docs/internals/runtime-container.md`
+- `docs/internal/runtime-container.md`
 - `deptrac.yaml`
 - `mago.toml`
 - `develop/orchestration/tasks/P1-021-runtime-container-compile.md`

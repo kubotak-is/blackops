@@ -38,7 +38,7 @@ Status: Accepted
 
 - `src/Internal/**`
 - `tests/Internal/**`
-- `docs/internals/**`
+- `docs/internal/**`
 - `develop/orchestration/tasks/P1-032-build-fingerprint-boundary.md`
 - `develop/orchestration/reports/P1-032-build-fingerprint-boundary.md`
 - `develop/STATE.md`

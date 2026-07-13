@@ -19,9 +19,9 @@ Status: Completed
 - `develop/TODO.md`
 - `develop/decisions/059-worker-heartbeat-runtime.md`
 - `docs/guide/runtime-bootstrap.md`
-- `docs/internals/README.md`
-- `docs/internals/bootstrap.md`
-- `docs/internals/worker-runtime.md`
+- `docs/internal/README.md`
+- `docs/internal/bootstrap.md`
+- `docs/internal/worker-runtime.md`
 - `src/Internal/Console/WorkerRunCommand.php`
 - `src/Internal/Execution/ClaimExecutionGuard.php`
 - `src/Internal/Execution/DeferredClaimRuntime.php`

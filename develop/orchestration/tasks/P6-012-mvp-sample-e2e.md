@@ -50,8 +50,8 @@ MVPで約束したInline／DeferredのSample Operationを実際のPostgreSQLとC
 - `tests/Fixtures/Mvp/**`
 - `docs/guide/mvp-sample.md`
 - `docs/guide/README.md`
-- `docs/internals/mvp-e2e.md`
-- `docs/internals/README.md`
+- `docs/internal/mvp-e2e.md`
+- `docs/internal/README.md`
 - `develop/TODO.md`
 - `develop/orchestration/tasks/P6-012-mvp-sample-e2e.md`
 - `develop/orchestration/reports/P6-012-mvp-sample-e2e.md`

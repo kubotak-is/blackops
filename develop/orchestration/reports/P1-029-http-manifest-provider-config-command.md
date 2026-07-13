@@ -12,8 +12,8 @@ Build bootstrap code can now read an operation provider config file, compile the
 - `src/Internal/Registry/OperationDefinitionFactory.php`
 - `tests/Internal/Console/CompileHttpManifestCommandTest.php`
 - `tests/Internal/Registry/OperationDefinitionFactoryTest.php`
-- `docs/internals/http-api-slice.md`
-- `docs/internals/operation-registry.md`
+- `docs/internal/http-api-slice.md`
+- `docs/internal/operation-registry.md`
 - `develop/orchestration/tasks/P1-029-http-manifest-provider-config-command.md`
 - `develop/orchestration/reports/P1-029-http-manifest-provider-config-command.md`
 - `develop/STATE.md`

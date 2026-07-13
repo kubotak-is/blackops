@@ -61,10 +61,10 @@ Application Migrationを生成する`make:migration`を提供し、Framework Mig
 - `docs/guide/README.md`
 - `docs/guide/project-generators.md`
 - `docs/guide/database-migrations.md`
-- `docs/internals/README.md`
-- `docs/internals/project-generators.md`
-- `docs/internals/database-migrations.md`
-- `docs/internals/application-bootstrap.md`
+- `docs/internal/README.md`
+- `docs/internal/project-generators.md`
+- `docs/internal/database-migrations.md`
+- `docs/internal/application-bootstrap.md`
 - `examples/quickstart/README.md`
 - `develop/orchestration/reports/P9-003-application-migration-generator.md`
 - `develop/STATE.md`

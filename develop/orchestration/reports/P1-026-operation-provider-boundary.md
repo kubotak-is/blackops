@@ -12,7 +12,7 @@ Packages and applications can now implement a public `OperationProvider` contrac
 - `src/Internal/Registry/OperationProviderCompiler.php`
 - `tests/Core/Registry/OperationProviderTest.php`
 - `tests/Internal/Registry/OperationProviderCompilerTest.php`
-- `docs/internals/operation-registry.md`
+- `docs/internal/operation-registry.md`
 - `develop/orchestration/tasks/P1-026-operation-provider-boundary.md`
 - `develop/orchestration/reports/P1-026-operation-provider-boundary.md`
 - `develop/STATE.md`

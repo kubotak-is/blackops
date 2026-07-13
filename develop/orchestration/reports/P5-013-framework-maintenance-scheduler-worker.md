@@ -24,9 +24,9 @@ Retention TaskはComposition Rootが明示登録する形にし、`RetentionMain
 - `tests/Internal/Scheduler/MaintenanceSchedulerTest.php`
 - `tests/Internal/Console/SchedulerRunCommandTest.php`
 - `tests/Internal/Console/SchedulerDaemonCommandTest.php`
-- `docs/internals/maintenance-scheduler.md`
-- `docs/internals/README.md`
-- `docs/internals/bootstrap.md`
+- `docs/internal/maintenance-scheduler.md`
+- `docs/internal/README.md`
+- `docs/internal/bootstrap.md`
 - `develop/orchestration/tasks/P5-013-framework-maintenance-scheduler-worker.md`
 - `develop/orchestration/reports/P5-013-framework-maintenance-scheduler-worker.md`
 - `develop/STATE.md`

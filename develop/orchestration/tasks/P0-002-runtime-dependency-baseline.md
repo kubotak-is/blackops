@@ -38,8 +38,8 @@ Status: Accepted
 
 - `composer.json`
 - `composer.lock`
-- `docs/internals/runtime-dependencies.md`
-- `docs/internals/README.md`
+- `docs/internal/runtime-dependencies.md`
+- `docs/internal/README.md`
 - `develop/orchestration/reports/P0-002-runtime-dependency-baseline.md`
 - `develop/STATE.md`
 

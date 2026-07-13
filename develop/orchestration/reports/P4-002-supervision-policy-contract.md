@@ -14,8 +14,8 @@ Dead Letter Transportはまだ未実装のため、Retry不能または最大Att
 
 - `develop/TODO.md`
 - `develop/spec/03-execution.md`
-- `docs/internals/deferred-transport-contract.md`
-- `docs/internals/supervision-policy.md`
+- `docs/internal/deferred-transport-contract.md`
+- `docs/internal/supervision-policy.md`
 - `src/Core/Supervision/SupervisionPolicy.php`
 - `src/Core/Supervision/SupervisionAction.php`
 - `src/Core/Supervision/SupervisionDecision.php`

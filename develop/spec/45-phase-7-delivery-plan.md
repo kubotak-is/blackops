@@ -103,7 +103,7 @@ P7-002 Bootstrap Foundation
 - [x] Root Dev Autoloadへ依存しないConsumer E2Eが成功する
 - [x] Full PHPUnit、Mago、Deptrac、Public API Guardが成功する
 
-完了証拠は [Installed Application Status](../../docs/guide/installed-application-status.md) と [P7-007 Closeout Report](../orchestration/reports/P7-007-phase-7-closeout.md) に記録する。Phase 7 CompleteはPackage公開またはStable Releaseを意味しない。
+完了証拠は [Installed Application Status](../../docs/internal/installed-application-status.md) と [P7-007 Closeout Report](../orchestration/reports/P7-007-phase-7-closeout.md) に記録する。Phase 7 CompleteはPackage公開またはStable Releaseを意味しない。
 
 ## Traceability
 

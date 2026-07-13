@@ -19,8 +19,8 @@ Hash modeはHMAC-SHA-256のみを実装し、HMAC keyがない場合は失敗す
 - `src/Internal/Projection/SensitiveValueHasher.php`
 - `tests/Core/Attribute/SensitiveAttributeTest.php`
 - `tests/Internal/Projection/SensitiveProjectionFilterTest.php`
-- `docs/internals/sensitive-projection.md`
-- `docs/internals/README.md`
+- `docs/internal/sensitive-projection.md`
+- `docs/internal/README.md`
 - `develop/orchestration/tasks/P2-001-sensitive-projection-foundation.md`
 - `develop/STATE.md`
 

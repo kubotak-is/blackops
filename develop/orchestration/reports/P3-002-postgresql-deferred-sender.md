@@ -13,7 +13,7 @@ PostgreSQLへDeferred Operation MessageをDurable保存し、保存成功時に`
 - `src/Transport/PostgreSql/PostgreSqlDeferredOperationSchema.php`
 - `src/Transport/PostgreSql/PostgreSqlDeferredOperationSender.php`
 - `tests/Transport/PostgreSql/PostgreSqlDeferredOperationSenderTest.php`
-- `docs/internals/deferred-transport-contract.md`
+- `docs/internal/deferred-transport-contract.md`
 - `develop/orchestration/tasks/P3-002-postgresql-deferred-sender.md`
 - `develop/orchestration/reports/P3-002-postgresql-deferred-sender.md`
 - `develop/STATE.md`

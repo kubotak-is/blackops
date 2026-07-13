@@ -10,7 +10,7 @@ PostgreSQL Deferred Operation Receiverが`ClaimHeartbeat`を実装し、Running 
 
 ## Changed Files
 
-- `docs/internals/deferred-transport-contract.md`
+- `docs/internal/deferred-transport-contract.md`
 - `src/Transport/PostgreSql/PostgreSqlDeferredOperationReceiver.php`
 - `src/Transport/PostgreSql/PostgreSqlDeferredOperationLeaseStore.php`
 - `src/Transport/PostgreSql/PostgreSqlDeferredOperationMessageCodec.php`

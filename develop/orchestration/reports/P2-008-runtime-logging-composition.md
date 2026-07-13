@@ -14,7 +14,7 @@ Production Runtime ComposerでExecution Scope ProviderとJournal Observation Pip
 - `src/Internal/Runtime/ProductionRuntimeComposer.php`
 - `src/Internal/Runtime/ProductionRuntimeComposition.php`
 - `tests/Internal/Runtime/ProductionRuntimeComposerTest.php`
-- `docs/internals/runtime-container.md`
+- `docs/internal/runtime-container.md`
 - `develop/orchestration/tasks/P2-008-runtime-logging-composition.md`
 - `develop/STATE.md`
 

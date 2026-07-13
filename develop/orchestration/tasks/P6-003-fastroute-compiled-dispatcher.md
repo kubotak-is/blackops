@@ -50,8 +50,8 @@ HTTP Manifest CompilerがFastRoute用Dispatcher DataをBuild時に生成してMa
 - `tests/Http/**`
 - `tests/Internal/Console/**`
 - `tests/Internal/Runtime/**`
-- `docs/internals/http-api-slice.md`
-- `docs/internals/runtime-container.md`
+- `docs/internal/http-api-slice.md`
+- `docs/internal/runtime-container.md`
 - `docs/guide/runtime-bootstrap.md`
 - `develop/TODO.md`
 - `develop/orchestration/tasks/P6-003-fastroute-compiled-dispatcher.md`

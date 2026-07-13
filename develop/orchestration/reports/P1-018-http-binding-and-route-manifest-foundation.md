@@ -23,7 +23,7 @@ Added HTTP binding attributes, attribute-aware OperationValue binding, minimal d
 - `src/Http/Routing/HttpRouteMatch.php`
 - `src/Http/Routing/HttpRouteRegistry.php`
 - `tests/Http/OperationRequestHandlerTest.php`
-- `docs/internals/http-api-slice.md`
+- `docs/internal/http-api-slice.md`
 - `develop/orchestration/tasks/P1-018-http-binding-and-route-manifest-foundation.md`
 - `develop/STATE.md`
 

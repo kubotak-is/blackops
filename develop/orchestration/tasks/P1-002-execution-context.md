@@ -46,8 +46,8 @@ OperationEnvelopeとInline実行の前提となるExecutionContext、AttemptCont
 - `tests/Core/ExecutionContextTest.php`
 - `tests/Core/AttemptContextTest.php`
 - `tests/Internal/ExecutionContext/`
-- `docs/internals/execution-context.md`
-- `docs/internals/README.md`
+- `docs/internal/execution-context.md`
+- `docs/internal/README.md`
 - `deptrac.yaml`
 - `mago.toml`
 - `develop/orchestration/reports/P1-002-execution-context.md`

@@ -14,8 +14,8 @@ ServiceはPlan内の `transport_payload` 候補だけを処理し、実行時に
 - `src/Transport/PostgreSql/PostgreSqlRetentionPurgeAuditIdGenerator.php`
 - `src/Transport/PostgreSql/SymfonyRetentionPurgeAuditIdGenerator.php`
 - `tests/Transport/PostgreSql/PostgreSqlTransportPayloadTombstoneServiceTest.php`
-- `docs/internals/retention-plan.md`
-- `docs/internals/retention-policy.md`
+- `docs/internal/retention-plan.md`
+- `docs/internal/retention-policy.md`
 - `develop/orchestration/tasks/P5-008-postgresql-transport-payload-tombstone.md`
 - `develop/orchestration/reports/P5-008-postgresql-transport-payload-tombstone.md`
 - `develop/STATE.md`

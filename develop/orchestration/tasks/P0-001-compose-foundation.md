@@ -53,7 +53,7 @@ Docker ComposeだけでPHP 8.5、Composer、Mago、PHPUnit、Deptrac、PostgreSQ
 - `src/`
 - `tests/`
 - `docker/`
-- `docs/internals/development-setup.md`
+- `docs/internal/development-setup.md`
 - `develop/orchestration/reports/P0-001-compose-foundation.md`
 - `develop/STATE.md`
 - `develop/TODO.md`

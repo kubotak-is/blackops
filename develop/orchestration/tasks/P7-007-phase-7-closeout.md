@@ -58,9 +58,9 @@ Phase 7のInstalled Application Example and Skeleton Layoutを、現行Quickstar
 - `develop/spec/43-installed-application-layout-and-bootstrap.md`
 - `develop/spec/45-phase-7-delivery-plan.md`
 - `docs/guide/README.md`
-- `docs/guide/installed-application-status.md`
-- `docs/internals/README.md`
-- `docs/internals/mvp-e2e.md`
+- `docs/internal/installed-application-status.md`
+- `docs/internal/README.md`
+- `docs/internal/mvp-e2e.md`
 - `examples/quickstart/README.md`
 - `develop/orchestration/tasks/P7-007-phase-7-closeout.md`
 - `develop/orchestration/reports/P7-007-phase-7-closeout.md`

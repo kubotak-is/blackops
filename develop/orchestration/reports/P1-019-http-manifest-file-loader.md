@@ -10,7 +10,7 @@ Implemented and accepted the HTTP manifest PHP file boundary.
 
 - `src/Http/Routing/HttpOperationManifestFile.php`
 - `tests/Http/HttpOperationManifestFileTest.php`
-- `docs/internals/http-api-slice.md`
+- `docs/internal/http-api-slice.md`
 - `develop/orchestration/tasks/P1-019-http-manifest-file-loader.md`
 - `develop/orchestration/reports/P1-019-http-manifest-file-loader.md`
 - `develop/STATE.md`

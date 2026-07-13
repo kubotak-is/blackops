@@ -12,8 +12,8 @@ ServiceはPlan内の `dead_letter` 候補だけを処理し、実行時にもAct
 
 - `src/Transport/PostgreSql/PostgreSqlDeadLetterRetentionDeleteService.php`
 - `tests/Transport/PostgreSql/PostgreSqlDeadLetterRetentionDeleteServiceTest.php`
-- `docs/internals/retention-plan.md`
-- `docs/internals/retention-policy.md`
+- `docs/internal/retention-plan.md`
+- `docs/internal/retention-policy.md`
 - `develop/orchestration/tasks/P5-009-postgresql-dead-letter-retention-delete.md`
 - `develop/orchestration/reports/P5-009-postgresql-dead-letter-retention-delete.md`
 - `develop/STATE.md`

@@ -18,7 +18,7 @@ Attempt開始BoundaryとResult反映BoundaryはそれぞれDBAL Transactionで�
 - `src/Transport/PostgreSql/PostgreSqlDeferredOperationLifecycleStore.php`
 - `src/Transport/PostgreSql/PostgreSqlRejectionReservation.php`
 - `tests/Internal/Execution/DeferredWorkerRuntimeTest.php`
-- `docs/internals/deferred-transport-contract.md`
+- `docs/internal/deferred-transport-contract.md`
 - `develop/orchestration/tasks/P3-010-deferred-worker-runtime.md`
 - `develop/orchestration/reports/P3-010-deferred-worker-runtime.md`
 - `develop/STATE.md`

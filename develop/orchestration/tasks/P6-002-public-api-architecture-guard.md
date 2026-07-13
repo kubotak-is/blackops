@@ -39,8 +39,8 @@ Status: Accepted
 ## Files Allowed to Change
 
 - `tests/Architecture/**`
-- `docs/internals/core-contracts.md`
-- `docs/internals/README.md`
+- `docs/internal/core-contracts.md`
+- `docs/internal/README.md`
 - `develop/TODO.md`
 - `develop/orchestration/tasks/P6-002-public-api-architecture-guard.md`
 - `develop/orchestration/reports/P6-002-public-api-architecture-guard.md`

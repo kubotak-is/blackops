@@ -47,9 +47,9 @@ Development Operation DiscoveryをSymfony Consoleへ接続し、発見したOper
 - `tests/Internal/Console/**`
 - `tests/Internal/Discovery/**`
 - `tests/Internal/Registry/**`
-- `docs/internals/bootstrap.md`
-- `docs/internals/operation-registry.md`
-- `docs/internals/README.md`
+- `docs/internal/bootstrap.md`
+- `docs/internal/operation-registry.md`
+- `docs/internal/README.md`
 - `docs/guide/runtime-bootstrap.md`
 - `develop/TODO.md`
 - `develop/orchestration/tasks/P6-005-operation-list-and-development-compile.md`

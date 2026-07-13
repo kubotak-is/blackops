@@ -27,9 +27,9 @@ Orchestrator Review後、Filesystem Transaction内のPHP warningを捕捉し、A
 - `tests/Architecture/QuickstartApplicationArchitectureTest.php`
 - `docs/guide/README.md`
 - `docs/guide/project-generators.md`
-- `docs/internals/README.md`
-- `docs/internals/application-bootstrap.md`
-- `docs/internals/project-generators.md`
+- `docs/internal/README.md`
+- `docs/internal/application-bootstrap.md`
+- `docs/internal/project-generators.md`
 - `examples/quickstart/README.md`
 - `develop/orchestration/reports/P9-002-operation-generator.md`
 - `develop/orchestration/tasks/P9-002-operation-generator.md`

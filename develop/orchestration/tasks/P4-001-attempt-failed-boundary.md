@@ -47,7 +47,7 @@ Deferred WorkerのHandler例外を捕捉し、`attempt.failed` JournalとOperati
 - `tests/Internal/Journal/**`
 - `tests/Internal/Execution/**`
 - `tests/Transport/PostgreSql/**`
-- `docs/internals/**`
+- `docs/internal/**`
 - `develop/orchestration/tasks/P4-001-attempt-failed-boundary.md`
 - `develop/orchestration/reports/P4-001-attempt-failed-boundary.md`
 - `develop/STATE.md`

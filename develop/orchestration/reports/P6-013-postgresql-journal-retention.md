@@ -28,9 +28,9 @@ Retention HoldとPurge AuditのOperation IDをOperations行から独立させる
 - `docs/guide/README.md`
 - `docs/guide/retention.md`
 - `docs/guide/retention.md`
-- `docs/internals/database-migrations.md`
-- `docs/internals/retention-plan.md`
-- `docs/internals/retention-purge-audit.md`
+- `docs/internal/database-migrations.md`
+- `docs/internal/retention-plan.md`
+- `docs/internal/retention-purge-audit.md`
 - `develop/spec/37-postgresql-table-layout.md`
 - `develop/spec/38-data-retention-and-deletion.md`
 - `develop/spec/README.md`

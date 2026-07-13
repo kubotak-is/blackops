@@ -29,10 +29,10 @@ Metadata bootstrapは、Schemaが存在しない状態と既存の `version/appl
 - `tests/Transport/PostgreSql/PostgreSqlCanonicalJournalStoreTest.php`
 - `docs/guide/database-migrations.md`
 - `docs/guide/README.md`
-- `docs/internals/database-migrations.md`
-- `docs/internals/README.md`
-- `docs/internals/bootstrap.md`
-- `docs/internals/postgresql-journal-store.md`
+- `docs/internal/database-migrations.md`
+- `docs/internal/README.md`
+- `docs/internal/bootstrap.md`
+- `docs/internal/postgresql-journal-store.md`
 - `develop/TODO.md`
 - `develop/orchestration/tasks/P6-011-doctrine-versioned-migrations.md`
 - `develop/orchestration/reports/P6-011-doctrine-versioned-migrations.md`

@@ -14,8 +14,8 @@ The build command can now accept a Composer metadata file, merge discovered oper
 - `src/Internal/DependencyInjection/ServiceProviderConfigLoader.php`
 - `src/Internal/Registry/OperationProviderConfigLoader.php`
 - `tests/Internal/Console/CompileBuildArtifactsCommandTest.php`
-- `docs/internals/operation-registry.md`
-- `docs/internals/runtime-container.md`
+- `docs/internal/operation-registry.md`
+- `docs/internal/runtime-container.md`
 - `develop/orchestration/tasks/P1-034-composer-provider-build-integration.md`
 - `develop/orchestration/reports/P1-034-composer-provider-build-integration.md`
 - `develop/STATE.md`

@@ -45,7 +45,7 @@ Deferred受付Orchestrator実装前に、Framework-owned PostgreSQL AdapterのDa
 - `mago.toml`
 - `deptrac.yaml`
 - `develop/spec/README.md`
-- `docs/internals/runtime-dependencies.md`
+- `docs/internal/runtime-dependencies.md`
 - `develop/decisions/057-database-access-and-migration-library.md`
 - `develop/orchestration/tasks/P3-003-database-access-and-migration-library.md`
 - `develop/orchestration/reports/P3-003-database-access-and-migration-library.md`

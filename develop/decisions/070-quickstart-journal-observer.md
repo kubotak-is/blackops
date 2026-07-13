@@ -114,6 +114,6 @@ Worker側Observed ProjectionのProcess LifecycleとFlushは、必要な場合に
 
 - [Installed Application Boundary](../spec/42-installed-application-boundary.md)
 - [Phase 7 Delivery Plan](../spec/45-phase-7-delivery-plan.md)
-- [JSONL Journal Observer](../../docs/internals/jsonl-journal-observer.md)
+- [JSONL Journal Observer](../../docs/internal/jsonl-journal-observer.md)
 - [Log Delivery and Retention](015-log-delivery-and-retention.md)
 - [Journal Ports](032-journal-ports.md)

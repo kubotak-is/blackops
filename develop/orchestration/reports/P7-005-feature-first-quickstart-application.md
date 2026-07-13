@@ -64,7 +64,7 @@ Focused Testで次を維持した。
 - `docs/guide/mvp-sample.md`
 - `docs/guide/application-bootstrap.md`
 - `docs/guide/runtime-bootstrap.md`
-- `docs/internals/bootstrap.md`
+- `docs/internal/bootstrap.md`
 - `develop/TODO.md`
 - `develop/orchestration/tasks/P7-005-feature-first-quickstart-application.md`
 - `develop/orchestration/reports/P7-005-feature-first-quickstart-application.md`

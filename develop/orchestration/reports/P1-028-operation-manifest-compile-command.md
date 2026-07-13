@@ -13,7 +13,7 @@ Build bootstrap code can now read an operation provider config file, compile pro
 - `src/Internal/Registry/OperationManifestMetadataCodec.php`
 - `tests/Internal/Console/CompileOperationManifestCommandTest.php`
 - `tests/Internal/Registry/OperationManifestFileTest.php`
-- `docs/internals/operation-registry.md`
+- `docs/internal/operation-registry.md`
 - `develop/orchestration/tasks/P1-028-operation-manifest-compile-command.md`
 - `develop/orchestration/reports/P1-028-operation-manifest-compile-command.md`
 - `develop/STATE.md`

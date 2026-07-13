@@ -10,7 +10,7 @@ Implemented and accepted the runtime PHP container dump foundation.
 
 - `src/Internal/DependencyInjection/RuntimeContainerDumper.php`
 - `tests/Internal/DependencyInjection/RuntimeContainerDumperTest.php`
-- `docs/internals/runtime-container.md`
+- `docs/internal/runtime-container.md`
 - `develop/orchestration/tasks/P1-022-runtime-container-dump.md`
 - `develop/orchestration/reports/P1-022-runtime-container-dump.md`
 - `develop/STATE.md`

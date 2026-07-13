@@ -46,8 +46,8 @@ Phase 1の土台として、確定仕様どおりのPHP Public API Marker、Publ
 - `tests/Internal/Identifier/`
 - `mago.toml`
 - `deptrac.yaml`
-- `docs/internals/core-contracts.md`
-- `docs/internals/README.md`
+- `docs/internal/core-contracts.md`
+- `docs/internal/README.md`
 - `develop/orchestration/reports/P1-001-core-contracts-and-identifiers.md`
 - `develop/STATE.md`
 

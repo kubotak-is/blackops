@@ -20,7 +20,7 @@ Retention Taskを既定登録するFramework Maintenance Scheduler Workerを実�
 - `src/Internal/Scheduler/**`
 - `tests/Internal/Console/**`
 - `tests/Internal/Scheduler/**`
-- `docs/internals/**`
+- `docs/internal/**`
 - `develop/orchestration/tasks/P5-013-framework-maintenance-scheduler-worker.md`
 - `develop/orchestration/reports/P5-013-framework-maintenance-scheduler-worker.md`
 - `develop/STATE.md`

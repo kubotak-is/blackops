@@ -13,8 +13,8 @@ ObservedJournalRecordをline-delimited JSONへ変換してstreamへ出力でき�
 - `src/Logging/JsonlJournalObserver.php`
 - `src/Logging/JsonlJournalRecordEncoder.php`
 - `tests/Logging/JsonlJournalObserverTest.php`
-- `docs/internals/jsonl-journal-observer.md`
-- `docs/internals/README.md`
+- `docs/internal/jsonl-journal-observer.md`
+- `docs/internal/README.md`
 - `develop/orchestration/tasks/P2-005-jsonl-journal-observer.md`
 - `develop/STATE.md`
 

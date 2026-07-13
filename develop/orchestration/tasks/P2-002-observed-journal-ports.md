@@ -40,7 +40,7 @@ Canonical JournalRecordとは別に、Observerへ渡す安全なProjection専用
 - `src/Internal/Projection/**`
 - `tests/Journal/**`
 - `tests/Internal/Projection/**`
-- `docs/internals/**`
+- `docs/internal/**`
 - `develop/orchestration/tasks/P2-002-observed-journal-ports.md`
 - `develop/orchestration/reports/P2-002-observed-journal-ports.md`
 - `develop/STATE.md`

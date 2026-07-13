@@ -66,9 +66,9 @@ Quickstart所有のDocker／FrankenPHP／PostgreSQL RuntimeとPublic JSONL Journ
 - `docs/guide/application-bootstrap.md`
 - `docs/guide/runtime-bootstrap.md`
 - `docs/guide/mvp-sample.md`
-- `docs/internals/bootstrap.md`
-- `docs/internals/jsonl-journal-observer.md`
-- `docs/internals/mvp-e2e.md`
+- `docs/internal/bootstrap.md`
+- `docs/internal/jsonl-journal-observer.md`
+- `docs/internal/mvp-e2e.md`
 - `develop/TODO.md`
 - `develop/orchestration/tasks/P7-006-local-runtime-and-consumer-e2e.md`
 - `develop/orchestration/reports/P7-006-local-runtime-and-consumer-e2e.md`

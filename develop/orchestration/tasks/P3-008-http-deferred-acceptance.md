@@ -44,7 +44,7 @@ Routeを持つDeferred OperationをHTTPから受け付け、Operation CodecでMe
 - `src/Internal/Execution/**`
 - `tests/Http/**`
 - `tests/Internal/Http/**`
-- `docs/internals/**`
+- `docs/internal/**`
 - `develop/orchestration/tasks/P3-008-http-deferred-acceptance.md`
 - `develop/orchestration/reports/P3-008-http-deferred-acceptance.md`
 - `develop/STATE.md`

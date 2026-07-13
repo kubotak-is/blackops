@@ -44,7 +44,7 @@ PostgreSQLへDeferred Operation MessageをDurable保存し、保存成功時に`
 
 - `src/Transport/PostgreSql/**`
 - `tests/Transport/PostgreSql/**`
-- `docs/internals/**`
+- `docs/internal/**`
 - `develop/orchestration/tasks/P3-002-postgresql-deferred-sender.md`
 - `develop/orchestration/reports/P3-002-postgresql-deferred-sender.md`
 - `develop/STATE.md`

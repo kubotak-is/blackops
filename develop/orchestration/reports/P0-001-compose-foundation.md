@@ -25,7 +25,7 @@ Codex Review指摘4点をRevision 2で反映した: (1) Application Containerを
 - `tests/Database/DatabaseConnectionTest.php` (new): PostgreSQL接続Test
 - `docker/db-smoke-test.php` (new): 接続結果を標準出力へ報告
 - `.gitignore` (rev2/rev3): 既存行(`decisions`, `spec`, `develop/TODO.md`, `develop/DOCS.md`, `vendor`, `*.log`)を保持したまま `.phpunit.cache/`, `.deptrac.cache`, `.env` を追記
-- `docs/internals/development-setup.md` (edit): Phase 0の実行可能Commandを追記
+- `docs/internal/development-setup.md` (edit): Phase 0の実行可能Commandを追記
 
 ## Dependency Versions
 
@@ -86,7 +86,7 @@ Codex Review指摘4点をRevision 2で反映した: (1) Application Containerを
 - [x] PHPUnitの最小Testが成功する
 - [x] DeptracのArchitecture検査が成功する
 - [x] HostへのPHP／Composer導入なしで全Commandを再実行できる
-- [x] 実行Commandが内部向けSetup文書へ記載される（`docs/internals/development-setup.md`）
+- [x] 実行Commandが内部向けSetup文書へ記載される（`docs/internal/development-setup.md`）
 
 ## Remaining Issues
 

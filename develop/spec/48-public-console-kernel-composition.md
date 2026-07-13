@@ -168,5 +168,5 @@ Symfony ConsoleがExceptionを表示する場合もPrevious ExceptionのCredenti
 - Decision: [Public Console Kernel Composition](../decisions/068-public-console-kernel-composition.md)
 - Bootstrap API: [Public Application Bootstrap API](44-public-application-bootstrap-api.md)
 - HTTP Runtime: [Public HTTP Runtime Configuration](47-public-http-runtime-configuration.md)
-- Worker: [Worker Runtime](../../docs/internals/worker-runtime.md)
-- Scheduler: [Maintenance Scheduler](../../docs/internals/maintenance-scheduler.md)
+- Worker: [Worker Runtime](../../docs/internal/worker-runtime.md)
+- Scheduler: [Maintenance Scheduler](../../docs/internal/maintenance-scheduler.md)

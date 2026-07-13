@@ -14,8 +14,8 @@ The internal discovery boundary can now aggregate BlackOps operation and service
 - `src/Internal/Console/CompileBuildArtifactsCommand.php`
 - `tests/Internal/Discovery/InstalledComposerProviderDiscoveryTest.php`
 - `tests/Internal/Console/CompileBuildArtifactsCommandTest.php`
-- `docs/internals/operation-registry.md`
-- `docs/internals/runtime-container.md`
+- `docs/internal/operation-registry.md`
+- `docs/internal/runtime-container.md`
 - `develop/orchestration/tasks/P1-035-installed-composer-provider-discovery.md`
 - `develop/orchestration/reports/P1-035-installed-composer-provider-discovery.md`
 - `develop/STATE.md`

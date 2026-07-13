@@ -14,7 +14,7 @@ Retention Hold Contractを実装した。
 - `develop/orchestration/reports/P5-002-retention-hold-contract.md`
 - `develop/STATE.md`
 - `develop/TODO.md`
-- `docs/internals/retention-hold.md`
+- `docs/internal/retention-hold.md`
 - `src/Core/Identifier/RetentionHoldId.php`
 - `src/Core/Retention/RetentionActorRef.php`
 - `src/Core/Retention/RetentionHold.php`

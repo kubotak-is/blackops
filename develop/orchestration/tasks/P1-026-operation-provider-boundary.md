@@ -37,7 +37,7 @@ Composer PackageやApplicationが公開するOperation DefinitionをBuild時にM
 - `src/Internal/**`
 - `tests/Core/**`
 - `tests/Internal/**`
-- `docs/internals/**`
+- `docs/internal/**`
 - `develop/orchestration/tasks/P1-026-operation-provider-boundary.md`
 - `develop/orchestration/reports/P1-026-operation-provider-boundary.md`
 - `develop/STATE.md`

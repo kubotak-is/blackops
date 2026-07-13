@@ -37,7 +37,7 @@ Production Runtime ArtifactsからHTTP Request HandlerとInline Dispatcherを構
 
 - `src/Internal/**`
 - `tests/Internal/**`
-- `docs/internals/**`
+- `docs/internal/**`
 - `develop/orchestration/tasks/P1-038-full-runtime-composition-wrapper.md`
 - `develop/orchestration/reports/P1-038-full-runtime-composition-wrapper.md`
 - `develop/STATE.md`

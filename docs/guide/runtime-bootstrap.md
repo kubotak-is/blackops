@@ -251,7 +251,7 @@ The PCNTL heartbeat is installed only around handler execution. Configure a posi
 
 Send `SIGTERM` or `SIGINT` for shutdown. The worker stops taking new claims and lets an active handler finish during its grace period. If heartbeat fails or the grace period expires, the process exits with failure without completing, acknowledging, or releasing that claim; lease expiry and crash recovery make it eligible for supervised recovery.
 
-The reference Docker image includes PCNTL. An application image running this command must also enable PCNTL; otherwise worker construction fails immediately while HTTP and build paths remain unaffected. Detailed composition guidance is in the internal [Deferred Worker Runtime](../internals/worker-runtime.md) document.
+The reference Docker image includes PCNTL. An application image running this command must also enable PCNTL; otherwise worker construction fails immediately while HTTP and build paths remain unaffected. Detailed composition guidance is in the internal [Deferred Worker Runtime](../internal/worker-runtime.md) document.
 
 ## Next Capabilities
 

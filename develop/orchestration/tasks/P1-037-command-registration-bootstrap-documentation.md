@@ -8,11 +8,11 @@ Build command registrationとProduction artifact bootstrapのInternal Documentat
 
 ## In Scope
 
-- `docs/internals/bootstrap.md` を追加する
+- `docs/internal/bootstrap.md` を追加する
 - Build時に登録するInternal commandと公開HTTP commandの責務を整理する
 - Build artifacts compile commandの推奨入力、出力、optionを説明する
 - Provider discovery metadata、build lock、fingerprint、production artifact loadingの関係を説明する
-- `docs/internals/README.md` へBootstrap topicを追加する
+- `docs/internal/README.md` へBootstrap topicを追加する
 - Task Report、STATEを更新する
 
 ## Out of Scope
@@ -35,7 +35,7 @@ Build command registrationとProduction artifact bootstrapのInternal Documentat
 
 ## Files Allowed to Change
 
-- `docs/internals/**`
+- `docs/internal/**`
 - `develop/orchestration/tasks/P1-037-command-registration-bootstrap-documentation.md`
 - `develop/orchestration/reports/P1-037-command-registration-bootstrap-documentation.md`
 - `develop/STATE.md`

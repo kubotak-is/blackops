@@ -39,7 +39,7 @@ Status: Accepted
 
 - `.github/workflows/ci.yml`
 - `README.md`
-- `docs/internals/development-setup.md`
+- `docs/internal/development-setup.md`
 - `develop/orchestration/tasks/P9-005-continuous-integration-and-readme.md`
 - `develop/orchestration/reports/P9-005-continuous-integration-and-readme.md`
 - `develop/STATE.md`

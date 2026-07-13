@@ -86,11 +86,11 @@ Manual Recovery Run `29226590005`はTag Checkout／Validation、Runner User設�
 - `tests/Consumer/skeleton-publication.sh`
 - `docs/guide/README.md`
 - `docs/guide/runtime-bootstrap.md`
-- `docs/guide/installed-application-status.md`
-- `docs/internals/mvp-e2e.md`
-- `docs/internals/development-setup.md`
-- `docs/internals/skeleton-publication.md`
-- `docs/internals/README.md`
+- `docs/internal/installed-application-status.md`
+- `docs/internal/mvp-e2e.md`
+- `docs/internal/development-setup.md`
+- `docs/internal/skeleton-publication.md`
+- `docs/internal/README.md`
 - `develop/TODO.md`
 - `develop/orchestration/tasks/P8-003-skeleton-distribution-publication.md`
 - `develop/orchestration/reports/P8-003-skeleton-distribution-publication.md`

@@ -23,7 +23,7 @@ HTTP ProcessがSenderだけへ依存でき、Worker RuntimeがReceiver、Heartbe
 - `src/Core/Exception/DeferredTransportException.php`
 - `tests/Core/Execution/ExecutionStrategyTest.php`
 - `tests/Core/Execution/DeferredTransportContractTest.php`
-- `docs/internals/deferred-transport-contract.md`
+- `docs/internal/deferred-transport-contract.md`
 - `develop/orchestration/tasks/P3-001-deferred-transport-contracts.md`
 - `develop/STATE.md`
 

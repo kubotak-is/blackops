@@ -35,7 +35,7 @@ Symfony DependencyInjection ContainerをBuild/Compileし、PSR-11 Containerと�
 
 - `src/Internal/**`
 - `tests/Internal/**`
-- `docs/internals/**`
+- `docs/internal/**`
 - `mago.toml`
 - `deptrac.yaml`
 - `develop/orchestration/tasks/P1-021-runtime-container-compile.md`

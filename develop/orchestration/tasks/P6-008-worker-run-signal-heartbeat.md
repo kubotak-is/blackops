@@ -50,9 +50,9 @@ PostgreSQL Deferred Operationを継続処理する最小Worker Loopと`blackops:
 - `tests/Internal/Execution/**`
 - `tests/Internal/Console/**`
 - `Dockerfile`
-- `docs/internals/worker-runtime.md`
-- `docs/internals/README.md`
-- `docs/internals/bootstrap.md`
+- `docs/internal/worker-runtime.md`
+- `docs/internal/README.md`
+- `docs/internal/bootstrap.md`
 - `docs/guide/runtime-bootstrap.md`
 - `develop/TODO.md`
 - `develop/decisions/059-worker-heartbeat-runtime.md`

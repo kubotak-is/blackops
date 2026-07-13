@@ -45,7 +45,7 @@ Supervision Policy Contract、Supervision Decision、Retry Scheduling Dataを確
 - `tests/Internal/**`
 - `tests/Journal/**`
 - `tests/Transport/PostgreSql/**`
-- `docs/internals/**`
+- `docs/internal/**`
 - `docs/guide/**`
 - `develop/spec/03-execution.md`
 - `develop/TODO.md`

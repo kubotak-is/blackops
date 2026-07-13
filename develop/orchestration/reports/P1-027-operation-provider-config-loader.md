@@ -10,7 +10,7 @@ Build bootstrap code can now load operation providers from a PHP config file and
 
 - `src/Internal/Registry/OperationProviderConfigLoader.php`
 - `tests/Internal/Registry/OperationProviderConfigLoaderTest.php`
-- `docs/internals/operation-registry.md`
+- `docs/internal/operation-registry.md`
 - `develop/orchestration/tasks/P1-027-operation-provider-config-loader.md`
 - `develop/orchestration/reports/P1-027-operation-provider-config-loader.md`
 - `develop/STATE.md`

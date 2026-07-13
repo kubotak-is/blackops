@@ -18,7 +18,7 @@ Canonical JournalRecordとは別に、Observerへ渡す安全なProjection専用
 - `tests/Journal/ObservedJournalRecordTest.php`
 - `tests/Journal/JournalPortTest.php`
 - `tests/Internal/Projection/ObservedJournalRecordProjectorTest.php`
-- `docs/internals/journal-ports.md`
+- `docs/internal/journal-ports.md`
 - `develop/orchestration/tasks/P2-002-observed-journal-ports.md`
 - `develop/STATE.md`
 

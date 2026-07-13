@@ -19,7 +19,7 @@ Handler例外は記録後に再throwする。Retry判断はまだ行わず、Sup
 - `src/Transport/PostgreSql/PostgreSqlJournalDataCodec.php`
 - `src/Transport/PostgreSql/PostgreSqlJson.php`
 - `tests/Internal/Execution/DeferredWorkerRuntimeTest.php`
-- `docs/internals/deferred-transport-contract.md`
+- `docs/internal/deferred-transport-contract.md`
 - `develop/orchestration/tasks/P4-001-attempt-failed-boundary.md`
 - `develop/orchestration/reports/P4-001-attempt-failed-boundary.md`
 - `develop/STATE.md`

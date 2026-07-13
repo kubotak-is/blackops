@@ -64,10 +64,10 @@ Self-handled OperationがNative Typed `OperationValue` とOptional `ExecutionCon
 - `docs/guide/application-bootstrap.md`
 - `docs/guide/mvp-sample.md`
 - `docs/guide/runtime-bootstrap.md`
-- `docs/internals/bootstrap.md`
-- `docs/internals/operation-registry.md`
-- `docs/internals/runtime-container.md`
-- `docs/internals/worker-runtime.md`
+- `docs/internal/bootstrap.md`
+- `docs/internal/operation-registry.md`
+- `docs/internal/runtime-container.md`
+- `docs/internal/worker-runtime.md`
 - `develop/TODO.md`
 - `develop/orchestration/tasks/P8-002A-typed-self-handled-invocation.md`
 - `develop/orchestration/reports/P8-002A-typed-self-handled-invocation.md`

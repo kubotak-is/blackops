@@ -13,7 +13,7 @@ Claim成功時はCodec済みMessageと不透明なClaim Tokenを持つ`Operation
 - `src/Transport/PostgreSql/PostgreSqlDeferredOperationSchema.php`
 - `src/Transport/PostgreSql/PostgreSqlDeferredOperationReceiver.php`
 - `tests/Transport/PostgreSql/PostgreSqlDeferredOperationReceiverTest.php`
-- `docs/internals/deferred-transport-contract.md`
+- `docs/internal/deferred-transport-contract.md`
 - `develop/orchestration/tasks/P3-009-postgresql-worker-claim.md`
 - `develop/orchestration/reports/P3-009-postgresql-worker-claim.md`
 - `develop/STATE.md`

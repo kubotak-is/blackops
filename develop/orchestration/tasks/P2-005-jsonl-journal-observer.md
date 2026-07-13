@@ -38,7 +38,7 @@ ObservedJournalRecordをline-delimited JSONへ変換して出力できるJSONL J
 
 - `src/Logging/**`
 - `tests/Logging/**`
-- `docs/internals/**`
+- `docs/internal/**`
 - `develop/orchestration/tasks/P2-005-jsonl-journal-observer.md`
 - `develop/orchestration/reports/P2-005-jsonl-journal-observer.md`
 - `develop/STATE.md`

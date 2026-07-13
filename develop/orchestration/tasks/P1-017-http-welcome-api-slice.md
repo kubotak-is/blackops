@@ -37,7 +37,7 @@ HTTP `GET /welcome` をOperationへBindingし、HandlerとResponderを通してA
 
 - `src/Http/**`
 - `tests/Http/**`
-- `docs/internals/**`
+- `docs/internal/**`
 - `docs/guide/**`
 - `deptrac.yaml`
 - `mago.toml`

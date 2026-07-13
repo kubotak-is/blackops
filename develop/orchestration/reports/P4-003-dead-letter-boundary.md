@@ -13,8 +13,8 @@ P4-003を完了した。
 - `develop/TODO.md`
 - `develop/spec/03-execution.md`
 - `develop/spec/37-postgresql-table-layout.md`
-- `docs/internals/deferred-transport-contract.md`
-- `docs/internals/supervision-policy.md`
+- `docs/internal/deferred-transport-contract.md`
+- `docs/internal/supervision-policy.md`
 - `src/Internal/Execution/DeferredFailureSupervisor.php`
 - `src/Internal/Journal/JournalRecordFactory.php`
 - `src/Internal/Journal/JournalTerminalRecordFactory.php`

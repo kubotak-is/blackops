@@ -35,7 +35,7 @@ Production Runtime ComposerでExecution Scope ProviderとJournal Observation Pip
 
 - `src/Internal/Runtime/**`
 - `tests/Internal/Runtime/**`
-- `docs/internals/**`
+- `docs/internal/**`
 - `develop/orchestration/tasks/P2-008-runtime-logging-composition.md`
 - `develop/orchestration/reports/P2-008-runtime-logging-composition.md`
 - `develop/STATE.md`

@@ -19,8 +19,8 @@ P5-005は完了。Retention Purge結果をPayloadなしで記録するPublic Con
 - `tests/Core/Identifier/IdentifierTest.php`
 - `tests/Internal/Identifier/IdentifierFactoryTest.php`
 - `tests/Core/Retention/RetentionPurgeAuditTest.php`
-- `docs/internals/retention-purge-audit.md`
-- `docs/internals/README.md`
+- `docs/internal/retention-purge-audit.md`
+- `docs/internal/README.md`
 - `develop/orchestration/tasks/P5-005-purge-audit-contract.md`
 - `develop/orchestration/reports/P5-005-purge-audit-contract.md`
 - `develop/STATE.md`

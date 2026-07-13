@@ -38,7 +38,7 @@ Status: Accepted
 - `src/Transport/PostgreSql/**`
 - `tests/Transport/PostgreSql/**`
 - `tests/Http/**`
-- `docs/internals/**`
+- `docs/internal/**`
 - `develop/orchestration/tasks/P3-004-postgresql-dbal-adapter-foundation.md`
 - `develop/orchestration/reports/P3-004-postgresql-dbal-adapter-foundation.md`
 - `develop/STATE.md`

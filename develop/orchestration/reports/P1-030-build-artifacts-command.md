@@ -10,9 +10,9 @@ Build bootstrap code can now generate the operation manifest, HTTP route manifes
 
 - `src/Internal/Console/CompileBuildArtifactsCommand.php`
 - `tests/Internal/Console/CompileBuildArtifactsCommandTest.php`
-- `docs/internals/http-api-slice.md`
-- `docs/internals/operation-registry.md`
-- `docs/internals/runtime-container.md`
+- `docs/internal/http-api-slice.md`
+- `docs/internal/operation-registry.md`
+- `docs/internal/runtime-container.md`
 - `develop/orchestration/tasks/P1-030-build-artifacts-command.md`
 - `develop/orchestration/reports/P1-030-build-artifacts-command.md`
 - `develop/STATE.md`

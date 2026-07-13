@@ -13,8 +13,8 @@ Operations TableへTerminal Payload Tombstone用の`payload_purged_at`を追加�
 - `develop/orchestration/tasks/P5-003-postgresql-retention-schema.md`
 - `develop/orchestration/reports/P5-003-postgresql-retention-schema.md`
 - `develop/STATE.md`
-- `docs/internals/retention-hold.md`
-- `docs/internals/retention-policy.md`
+- `docs/internal/retention-hold.md`
+- `docs/internal/retention-policy.md`
 - `src/Transport/PostgreSql/PostgreSqlDeferredOperationSchema.php`
 - `tests/Transport/PostgreSql/PostgreSqlDeferredOperationSenderTest.php`
 

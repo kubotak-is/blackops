@@ -16,8 +16,8 @@ Lifecycle State Machineを実装し、InlineDispatcherがJournal RecordをWriter
 - `src/Internal/Execution/InlineDispatcher.php` (edit): Execution Scope上のState遷移をJournal append前に検証。
 - `tests/Internal/Journal/LifecycleStateMachineTest.php` (add): 許可遷移、初期状態、Terminal拒否、Terminal判定を検証。
 - `tests/Internal/Execution/InlineDispatcherTest.php` (edit): 不正Terminal追加がappendされないことを検証。
-- `docs/internals/journal-record.md` (edit): Lifecycle State Machineの責務を追記。
-- `docs/internals/inline-dispatcher.md` (edit): InlineDispatcherのState検証を追記。
+- `docs/internal/journal-record.md` (edit): Lifecycle State Machineの責務を追記。
+- `docs/internal/inline-dispatcher.md` (edit): InlineDispatcherのState検証を追記。
 - `develop/orchestration/tasks/P1-014-lifecycle-state-machine.md` (add): Task Packet。
 - `develop/STATE.md` (edit): P1-014進行・完了状態へ更新。
 

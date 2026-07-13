@@ -38,7 +38,7 @@ Operation Provider Config fileを読み込み、HTTP Route Manifest PHP fileを�
 
 - `src/Internal/**`
 - `tests/Internal/**`
-- `docs/internals/**`
+- `docs/internal/**`
 - `develop/orchestration/tasks/P1-029-http-manifest-provider-config-command.md`
 - `develop/orchestration/reports/P1-029-http-manifest-provider-config-command.md`
 - `develop/STATE.md`

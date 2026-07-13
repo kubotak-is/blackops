@@ -44,7 +44,7 @@ PostgreSQL TransportへWorker Claimを追加し、EligibleなAccepted Operation�
 
 - `src/Transport/PostgreSql/**`
 - `tests/Transport/PostgreSql/**`
-- `docs/internals/**`
+- `docs/internal/**`
 - `develop/orchestration/tasks/P3-009-postgresql-worker-claim.md`
 - `develop/orchestration/reports/P3-009-postgresql-worker-claim.md`
 - `develop/STATE.md`

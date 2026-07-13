@@ -10,7 +10,7 @@ The command reads a service provider config file, applies loaded providers to a 
 
 - `src/Internal/Console/CompileRuntimeContainerCommand.php`
 - `tests/Internal/Console/CompileRuntimeContainerCommandTest.php`
-- `docs/internals/runtime-container.md`
+- `docs/internal/runtime-container.md`
 - `develop/orchestration/tasks/P1-025-runtime-container-compile-command.md`
 - `develop/orchestration/reports/P1-025-runtime-container-compile-command.md`
 - `develop/STATE.md`

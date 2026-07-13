@@ -16,8 +16,8 @@ Status: Accepted
 - `tests/Transport/PostgreSql/PostgreSqlDeferredOperationSenderTest.php`
 - `tests/Transport/PostgreSql/PostgreSqlInlineDispatcherIntegrationTest.php`
 - `tests/Http/OperationRequestHandlerTest.php`
-- `docs/internals/postgresql-journal-store.md`
-- `docs/internals/deferred-transport-contract.md`
+- `docs/internal/postgresql-journal-store.md`
+- `docs/internal/deferred-transport-contract.md`
 - `develop/orchestration/tasks/P3-004-postgresql-dbal-adapter-foundation.md`
 - `develop/orchestration/reports/P3-004-postgresql-dbal-adapter-foundation.md`
 - `develop/STATE.md`

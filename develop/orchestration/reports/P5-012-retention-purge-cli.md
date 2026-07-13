@@ -14,8 +14,8 @@ P5-012は完了。Retention PurgeのDry RunとConfirm実行を行うSymfony Cons
 - `src/Transport/PostgreSql/PostgreSqlRetentionPurgeService.php`
 - `src/Internal/Console/RetentionPurgeCommand.php`
 - `tests/Internal/Console/RetentionPurgeCommandTest.php`
-- `docs/internals/bootstrap.md`
-- `docs/internals/retention-plan.md`
+- `docs/internal/bootstrap.md`
+- `docs/internal/retention-plan.md`
 - `develop/orchestration/tasks/P5-012-retention-purge-cli.md`
 - `develop/orchestration/reports/P5-012-retention-purge-cli.md`
 - `develop/STATE.md`

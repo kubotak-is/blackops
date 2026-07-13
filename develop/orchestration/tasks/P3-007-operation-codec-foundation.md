@@ -45,7 +45,7 @@ Deferred OperationをProcess境界へ渡すため、OperationValueとExecutionCo
 - `tests/Core/Codec/**`
 - `tests/Core/Time/TimeCodecTest.php`
 - `tests/Internal/Codec/**`
-- `docs/internals/**`
+- `docs/internal/**`
 - `develop/orchestration/tasks/P3-007-operation-codec-foundation.md`
 - `develop/orchestration/reports/P3-007-operation-codec-foundation.md`
 - `develop/STATE.md`

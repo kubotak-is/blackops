@@ -11,8 +11,8 @@ Composer metadata can now expose BlackOps operation and service provider class n
 - `src/Internal/Discovery/ComposerProviderDiscovery.php`
 - `src/Internal/Discovery/DiscoveredComposerProviders.php`
 - `tests/Internal/Discovery/ComposerProviderDiscoveryTest.php`
-- `docs/internals/operation-registry.md`
-- `docs/internals/runtime-container.md`
+- `docs/internal/operation-registry.md`
+- `docs/internal/runtime-container.md`
 - `develop/orchestration/tasks/P1-033-composer-provider-discovery.md`
 - `develop/orchestration/reports/P1-033-composer-provider-discovery.md`
 - `develop/STATE.md`

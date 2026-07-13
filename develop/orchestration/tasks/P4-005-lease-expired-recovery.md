@@ -37,7 +37,7 @@ Lease期限切れのRunning Operationを検出し、前Attemptを`lease_expired`
 - `src/Transport/PostgreSql/**`
 - `tests/Internal/**`
 - `tests/Transport/PostgreSql/**`
-- `docs/internals/**`
+- `docs/internal/**`
 - `develop/spec/32-worker-crash-recovery.md`
 - `develop/TODO.md`
 - `develop/orchestration/tasks/P4-005-lease-expired-recovery.md`

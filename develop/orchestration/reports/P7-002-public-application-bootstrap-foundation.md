@@ -44,8 +44,8 @@ ApplicationBuilder::create(): Application
 - `deptrac.yaml`
 - `docs/guide/application-bootstrap.md`
 - `docs/guide/README.md`
-- `docs/internals/application-bootstrap.md`
-- `docs/internals/README.md`
+- `docs/internal/application-bootstrap.md`
+- `docs/internal/README.md`
 - `develop/orchestration/tasks/P7-002-public-application-bootstrap-foundation.md`
 - `develop/orchestration/reports/P7-002-public-application-bootstrap-foundation.md`
 - `develop/STATE.md`

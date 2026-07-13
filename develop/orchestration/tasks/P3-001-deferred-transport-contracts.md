@@ -43,7 +43,7 @@ Deferred Vertical Sliceの土台として、Deferred Strategy、Durable受付Ack
 
 - `src/Core/**`
 - `tests/Core/**`
-- `docs/internals/**`
+- `docs/internal/**`
 - `develop/orchestration/tasks/P3-001-deferred-transport-contracts.md`
 - `develop/orchestration/reports/P3-001-deferred-transport-contracts.md`
 - `develop/STATE.md`

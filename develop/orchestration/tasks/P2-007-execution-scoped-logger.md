@@ -37,7 +37,7 @@ PSR-3 Loggerへ委譲しつつ、Execution Scope ProviderからOperation metadat
 
 - `src/Internal/Logging/**`
 - `tests/Internal/Logging/**`
-- `docs/internals/**`
+- `docs/internal/**`
 - `mago.toml`
 - `deptrac.yaml`
 - `develop/orchestration/tasks/P2-007-execution-scoped-logger.md`

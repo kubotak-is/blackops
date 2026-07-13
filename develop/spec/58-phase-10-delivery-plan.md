@@ -69,7 +69,7 @@ P10-001 Website Contract
 
 ## Phase Acceptance Criteria
 
-- [ ] `docs/internals/`が`docs/internal/`へ移行し、有効なRepository参照が同期している
+- [x] `docs/internals/`が`docs/internal/`へ移行し、有効なRepository参照が同期している
 - [ ] Websiteが`docs/guide/`だけを公開Sourceとして使用する
 - [ ] Internal／Contributor／Develop ContentがArtifactとSearchへ含まれない
 - [ ] mise、Node.js 24 LTS、pnpm 11、Lockfileが再現可能に固定される

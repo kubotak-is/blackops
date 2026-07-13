@@ -8,8 +8,8 @@ The documentation now explains how applications register BlackOps build commands
 
 ## Changed Files
 
-- `docs/internals/bootstrap.md`
-- `docs/internals/README.md`
+- `docs/internal/bootstrap.md`
+- `docs/internal/README.md`
 - `develop/orchestration/tasks/P1-037-command-registration-bootstrap-documentation.md`
 - `develop/orchestration/reports/P1-037-command-registration-bootstrap-documentation.md`
 - `develop/STATE.md`

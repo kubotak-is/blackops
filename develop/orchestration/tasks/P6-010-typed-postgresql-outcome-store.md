@@ -60,10 +60,10 @@ Typed Public Outcome Store ContractとPostgreSQL Adapterを実装し、Deferred 
 - `mago.toml`
 - `docs/guide/outcome-retrieval.md`
 - `docs/guide/README.md`
-- `docs/internals/outcome-store.md`
-- `docs/internals/README.md`
-- `docs/internals/worker-runtime.md`
-- `docs/internals/retention-plan.md`
+- `docs/internal/outcome-store.md`
+- `docs/internal/README.md`
+- `docs/internal/worker-runtime.md`
+- `docs/internal/retention-plan.md`
 - `develop/TODO.md`
 - `develop/decisions/060-typed-outcome-store-contract.md`
 - `develop/orchestration/tasks/P6-010-typed-postgresql-outcome-store.md`

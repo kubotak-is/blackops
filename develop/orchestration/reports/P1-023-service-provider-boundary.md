@@ -14,7 +14,7 @@ Applications and packages can now implement `ServiceProvider` and register servi
 - `src/Internal/DependencyInjection/RuntimeContainerCompiler.php`
 - `tests/Core/DependencyInjection/ServiceProviderTest.php`
 - `tests/Internal/DependencyInjection/ServiceProviderBoundaryTest.php`
-- `docs/internals/runtime-container.md`
+- `docs/internal/runtime-container.md`
 - `develop/orchestration/tasks/P1-023-service-provider-boundary.md`
 - `develop/orchestration/reports/P1-023-service-provider-boundary.md`
 - `develop/STATE.md`

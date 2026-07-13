@@ -35,7 +35,7 @@ Retention Planに基づき、PostgreSQL Operations TableのTransport Payloadを�
 
 - `src/Transport/PostgreSql/**`
 - `tests/Transport/PostgreSql/**`
-- `docs/internals/**`
+- `docs/internal/**`
 - `develop/orchestration/tasks/P5-008-postgresql-transport-payload-tombstone.md`
 - `develop/orchestration/reports/P5-008-postgresql-transport-payload-tombstone.md`
 - `develop/STATE.md`

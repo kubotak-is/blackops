@@ -160,5 +160,5 @@ A
 - [Public Application Bootstrap API](../spec/44-public-application-bootstrap-api.md)
 - [Phase 7 Delivery Plan](../spec/45-phase-7-delivery-plan.md)
 - [Public HTTP Runtime Configuration](../spec/47-public-http-runtime-configuration.md)
-- [Worker Runtime](../../docs/internals/worker-runtime.md)
-- [Maintenance Scheduler](../../docs/internals/maintenance-scheduler.md)
+- [Worker Runtime](../../docs/internal/worker-runtime.md)
+- [Maintenance Scheduler](../../docs/internal/maintenance-scheduler.md)

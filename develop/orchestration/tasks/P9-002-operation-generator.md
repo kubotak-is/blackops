@@ -56,9 +56,9 @@ Installed Applicationの`bin/blackops`から、Build可能なTyped Self-handled 
 - `tests/Architecture/QuickstartApplicationArchitectureTest.php`
 - `docs/guide/README.md`
 - `docs/guide/project-generators.md`
-- `docs/internals/README.md`
-- `docs/internals/application-bootstrap.md`
-- `docs/internals/project-generators.md`
+- `docs/internal/README.md`
+- `docs/internal/application-bootstrap.md`
+- `docs/internal/project-generators.md`
 - `examples/quickstart/README.md`
 - `develop/orchestration/reports/P9-002-operation-generator.md`
 - `develop/STATE.md`

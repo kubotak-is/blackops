@@ -12,8 +12,8 @@ Primary失敗時はLoggerを呼ばず、Logger失敗時も例外を隠さずPurg
 - `tests/Internal/Retention/LoggingRetentionPurgeAuditPortTest.php`
 - `tests/Transport/PostgreSql/PostgreSqlJournalRetentionDeleteServiceTest.php`
 - `docs/guide/retention.md`
-- `docs/internals/retention-purge-audit.md`
-- `docs/internals/monolog-jsonl-backend.md`
+- `docs/internal/retention-purge-audit.md`
+- `docs/internal/monolog-jsonl-backend.md`
 - `develop/TODO.md`
 - `develop/spec/README.md`
 - `develop/decisions/062-retention-audit-log-delivery.md`

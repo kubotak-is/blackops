@@ -33,7 +33,7 @@ Compile済みSymfony ContainerをProduction Runtime向けPHP fileとして出力
 
 - `src/Internal/**`
 - `tests/Internal/**`
-- `docs/internals/**`
+- `docs/internal/**`
 - `develop/orchestration/tasks/P1-022-runtime-container-dump.md`
 - `develop/orchestration/reports/P1-022-runtime-container-dump.md`
 - `develop/STATE.md`

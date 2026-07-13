@@ -16,9 +16,9 @@ PlanはPayloadを含まず、Operation ID、Target、基準時刻、期限時刻
 - `src/Transport/PostgreSql/PostgreSqlRetentionPlanner.php`
 - `tests/Core/Retention/RetentionPlanTest.php`
 - `tests/Transport/PostgreSql/PostgreSqlRetentionPlannerTest.php`
-- `docs/internals/retention-plan.md`
-- `docs/internals/retention-policy.md`
-- `docs/internals/README.md`
+- `docs/internal/retention-plan.md`
+- `docs/internal/retention-policy.md`
+- `docs/internal/README.md`
 - `develop/orchestration/tasks/P5-007-retention-plan-contract-and-postgresql-planner.md`
 - `develop/orchestration/reports/P5-007-retention-plan-contract-and-postgresql-planner.md`
 - `develop/STATE.md`

@@ -13,7 +13,7 @@ PostgreSQL Retention Hold Storeを実装した。
 - `develop/orchestration/tasks/P5-004-postgresql-retention-hold-store.md`
 - `develop/orchestration/reports/P5-004-postgresql-retention-hold-store.md`
 - `develop/STATE.md`
-- `docs/internals/retention-hold.md`
+- `docs/internal/retention-hold.md`
 - `src/Transport/PostgreSql/PostgreSqlRetentionHoldIdGenerator.php`
 - `src/Transport/PostgreSql/PostgreSqlRetentionHoldStore.php`
 - `src/Transport/PostgreSql/SymfonyRetentionHoldIdGenerator.php`

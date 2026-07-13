@@ -12,8 +12,8 @@ Build artifact generation can now be guarded by a local lock file. The build art
 - `src/Internal/Console/CompileBuildArtifactsCommand.php`
 - `tests/Internal/Build/BuildLockTest.php`
 - `tests/Internal/Console/CompileBuildArtifactsCommandTest.php`
-- `docs/internals/operation-registry.md`
-- `docs/internals/runtime-container.md`
+- `docs/internal/operation-registry.md`
+- `docs/internal/runtime-container.md`
 - `develop/orchestration/tasks/P1-031-build-lock-boundary.md`
 - `develop/orchestration/reports/P1-031-build-lock-boundary.md`
 - `develop/STATE.md`

@@ -12,8 +12,8 @@ P5-011は完了。Retention Planを副作用なしで表示するSymfony Console
 
 - `src/Internal/Console/RetentionPlanCommand.php`
 - `tests/Internal/Console/RetentionPlanCommandTest.php`
-- `docs/internals/bootstrap.md`
-- `docs/internals/retention-plan.md`
+- `docs/internal/bootstrap.md`
+- `docs/internal/retention-plan.md`
 - `develop/orchestration/tasks/P5-011-retention-plan-cli.md`
 - `develop/orchestration/reports/P5-011-retention-plan-cli.md`
 - `develop/STATE.md`

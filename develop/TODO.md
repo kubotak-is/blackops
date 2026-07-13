@@ -56,7 +56,7 @@ MVP後に残す主要項目:
 ### Phase 10: Documentation Website
 
 - [~] `docs/website/` にAstro Starlightを構築する
-- [ ] `docs/internals/` を `docs/internal/` へ移行し、Repository内参照を同期する
+- [x] Framework実装者向けDocumentationを `docs/internal/` へ移行し、Repository内参照を同期する
 - [ ] `docs/guide/` だけを公開Source of Truthとする静的Buildを整備する
 - [ ] `docs/internal/` をWebsite Artifact、Navigation、Search Indexへ含めない
 - [ ] Cloudflare PagesのPreview／Production Deployを整備する
@@ -328,7 +328,7 @@ MVP後に残す主要項目:
 - [x] `develop/STATE.md` のCheckpoint Templateを作成する
 - [x] Orchestrator Codex／GPT-5.4-mini worker共通規約をRootの `AGENTS.md` に記述する
 - [x] Implementation WorkerをGPT-5.6 Luna Highへ更新し、別Modelへの黙示Fallbackを禁止する
-- [x] MVP範囲のFramework実装者向け `docs/internals/` を整備する
+- [x] MVP範囲のFramework実装者向け `docs/internal/` を整備する
 - [x] MVP範囲のFramework利用者向け `docs/guide/` を整備する
 - [x] WSL2 Distributionを導入する
 - [x] WSL2の `/home/kubotak/projects/blackops` に実装Repositoryを準備する

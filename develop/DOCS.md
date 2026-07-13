@@ -1,23 +1,23 @@
 # Operation-driven PHP Framework
 
 > この文書の本文は、フレームワークの思想と概念を育てた歴史的な設計ノートである。
-> 現行仕様の正本は `spec/`、MVPの実装状態は `../docs/guide/mvp-status.md`、現行Architectureは `../docs/internals/architecture.md` を参照する。
+> 現行仕様の正本は `spec/`、MVPの実装状態は `../docs/guide/mvp-status.md`、現行Architectureは `../docs/internal/architecture.md` を参照する。
 
 ## Current Documentation
 
 - [MVP Status and Definition of Done](../docs/guide/mvp-status.md)
-- [Installed Application Status](../docs/guide/installed-application-status.md)
+- [Installed Application Status](../docs/internal/installed-application-status.md)
 - [Remote Installation and Runtime Bootstrap](../docs/guide/runtime-bootstrap.md)
-- [Skeleton Publication](../docs/internals/skeleton-publication.md)
+- [Skeleton Publication](../docs/internal/skeleton-publication.md)
 - [Phase 8 Closeout Report](orchestration/reports/P8-004-phase-8-closeout.md)
 - [MVP Sample](../docs/guide/mvp-sample.md)
 - [Runtime Bootstrap](../docs/guide/runtime-bootstrap.md)
 - [Data Retention](../docs/guide/retention.md)
-- [Architecture and Sequences](../docs/internals/architecture.md)
-- [MVP and Consumer End-to-End](../docs/internals/mvp-e2e.md)
+- [Architecture and Sequences](../docs/internal/architecture.md)
+- [MVP and Consumer End-to-End](../docs/internal/mvp-e2e.md)
 - [Framework Specification Index](spec/README.md)
 - [Guide Index](../docs/guide/README.md)
-- [Internals Index](../docs/internals/README.md)
+- [Internals Index](../docs/internal/README.md)
 - [Current Orchestration Checkpoint](STATE.md)
 
 ## Legacy Terminology Note

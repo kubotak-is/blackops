@@ -36,7 +36,7 @@ Build済みOperation Manifest、HTTP Manifest、Runtime Containerを本番Runtim
 
 - `src/Internal/**`
 - `tests/Internal/**`
-- `docs/internals/**`
+- `docs/internal/**`
 - `develop/orchestration/tasks/P1-036-production-runtime-artifact-loader.md`
 - `develop/orchestration/reports/P1-036-production-runtime-artifact-loader.md`
 - `develop/STATE.md`

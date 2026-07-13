@@ -39,7 +39,7 @@ Inline DispatcherでCanonical Journal append成功後に、ObservedJournalRecord
 - `src/Internal/Projection/**`
 - `tests/Internal/Execution/**`
 - `tests/Internal/Journal/**`
-- `docs/internals/**`
+- `docs/internal/**`
 - `develop/orchestration/tasks/P2-004-inline-observer-delivery.md`
 - `develop/orchestration/reports/P2-004-inline-observer-delivery.md`
 - `develop/STATE.md`

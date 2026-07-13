@@ -10,7 +10,7 @@ Runtime bootstrap code can now load service providers from a PHP config file and
 
 - `src/Internal/DependencyInjection/ServiceProviderConfigLoader.php`
 - `tests/Internal/DependencyInjection/ServiceProviderConfigLoaderTest.php`
-- `docs/internals/runtime-container.md`
+- `docs/internal/runtime-container.md`
 - `develop/orchestration/tasks/P1-024-service-provider-config-loader.md`
 - `develop/orchestration/reports/P1-024-service-provider-config-loader.md`
 - `develop/STATE.md`

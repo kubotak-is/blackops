@@ -16,8 +16,8 @@ Build artifact generation can now store a lightweight fingerprint for explicit i
 - `tests/Internal/Build/BuildFingerprintFileTest.php`
 - `tests/Internal/Build/BuildArtifactFingerprintGuardTest.php`
 - `tests/Internal/Console/CompileBuildArtifactsCommandTest.php`
-- `docs/internals/operation-registry.md`
-- `docs/internals/runtime-container.md`
+- `docs/internal/operation-registry.md`
+- `docs/internal/runtime-container.md`
 - `develop/orchestration/tasks/P1-032-build-fingerprint-boundary.md`
 - `develop/orchestration/reports/P1-032-build-fingerprint-boundary.md`
 - `develop/STATE.md`

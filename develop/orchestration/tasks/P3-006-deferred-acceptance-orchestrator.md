@@ -43,7 +43,7 @@ Deferred受付時に、Operation State保存、`operation.received` Journal、`o
 - `tests/Internal/Execution/**`
 - `tests/Internal/Journal/**`
 - `tests/Transport/PostgreSql/**`
-- `docs/internals/**`
+- `docs/internal/**`
 - `develop/orchestration/tasks/P3-006-deferred-acceptance-orchestrator.md`
 - `develop/orchestration/reports/P3-006-deferred-acceptance-orchestrator.md`
 - `develop/STATE.md`

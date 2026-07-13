@@ -13,7 +13,7 @@ Status: Completed
 - `develop/orchestration/tasks/P4-006-claim-settlement.md`
 - `develop/orchestration/reports/P4-006-claim-settlement.md`
 - `develop/STATE.md`
-- `docs/internals/deferred-transport-contract.md`
+- `docs/internal/deferred-transport-contract.md`
 - `src/Transport/PostgreSql/PostgreSqlDeferredOperationLeaseStore.php`
 - `src/Transport/PostgreSql/PostgreSqlDeferredOperationReceiver.php`
 - `tests/Transport/PostgreSql/PostgreSqlDeferredOperationReceiverTest.php`

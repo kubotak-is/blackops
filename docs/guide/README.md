@@ -7,7 +7,6 @@ BlackOpsを利用してApplicationを作る開発者向けのガイドを管理�
 ## Topics
 
 - [MVP Status](mvp-status.md)
-- [Installed Application and Project CLI Status](installed-application-status.md)
 - [Runtime Bootstrap](runtime-bootstrap.md)
 - [Application Bootstrap](application-bootstrap.md)
 - [Outcome Retrieval](outcome-retrieval.md)

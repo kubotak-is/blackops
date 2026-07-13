@@ -34,7 +34,7 @@ InlineDispatcherへPostgreSQL Canonical Journal Storeを注入し、Completed／
 ## Files Allowed to Change
 
 - `tests/Transport/**`
-- `docs/internals/**`
+- `docs/internal/**`
 - `develop/orchestration/tasks/P1-016-inline-dispatcher-postgresql-journal-integration.md`
 - `develop/orchestration/reports/P1-016-inline-dispatcher-postgresql-journal-integration.md`
 - `develop/STATE.md`

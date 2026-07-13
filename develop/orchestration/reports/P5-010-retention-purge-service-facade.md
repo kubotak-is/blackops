@@ -14,8 +14,8 @@ FacadeはPlanner、Transport Payload Tombstone Service、Dead Letter Retention D
 - `src/Transport/PostgreSql/PostgreSqlRetentionPurgeService.php`
 - `tests/Core/Retention/RetentionPurgeResultTest.php`
 - `tests/Transport/PostgreSql/PostgreSqlRetentionPurgeServiceTest.php`
-- `docs/internals/retention-plan.md`
-- `docs/internals/retention-policy.md`
+- `docs/internal/retention-plan.md`
+- `docs/internal/retention-policy.md`
 - `develop/orchestration/tasks/P5-010-retention-purge-service-facade.md`
 - `develop/orchestration/reports/P5-010-retention-purge-service-facade.md`
 - `develop/STATE.md`

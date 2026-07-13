@@ -57,10 +57,10 @@ Integration TestではConfig DefaultだけでPlan、Purge `--dry-run`、Schedule
 - `docs/guide/runtime-bootstrap.md`
 - `docs/guide/database-migrations.md`
 - `docs/guide/retention.md`
-- `docs/internals/application-bootstrap.md`
-- `docs/internals/bootstrap.md`
-- `docs/internals/worker-runtime.md`
-- `docs/internals/maintenance-scheduler.md`
+- `docs/internal/application-bootstrap.md`
+- `docs/internal/bootstrap.md`
+- `docs/internal/worker-runtime.md`
+- `docs/internal/maintenance-scheduler.md`
 - `develop/orchestration/tasks/P7-004-public-console-kernel-composition.md`
 - `develop/orchestration/reports/P7-004-public-console-kernel-composition.md`
 - `develop/STATE.md`

@@ -60,8 +60,8 @@ Integration TestはDeferred受付後に `state=accepted`、`next_sequence=3`、J
 - `tests/Integration/ApplicationHttpRuntimeTest.php`
 - `docs/guide/application-bootstrap.md`
 - `docs/guide/runtime-bootstrap.md`
-- `docs/internals/application-bootstrap.md`
-- `docs/internals/runtime-container.md`
+- `docs/internal/application-bootstrap.md`
+- `docs/internal/runtime-container.md`
 - `develop/orchestration/tasks/P7-003-public-http-runtime-composition.md`
 - `develop/orchestration/reports/P7-003-public-http-runtime-composition.md`
 - `develop/STATE.md`

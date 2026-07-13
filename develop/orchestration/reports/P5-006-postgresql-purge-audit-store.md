@@ -13,8 +13,8 @@ P5-006は完了。Retention Purge AuditをPostgreSQLへPayloadなしで保存す
 - `src/Transport/PostgreSql/PostgreSqlDeferredOperationSchema.php`
 - `src/Transport/PostgreSql/PostgreSqlRetentionPurgeAuditStore.php`
 - `tests/Transport/PostgreSql/PostgreSqlRetentionPurgeAuditStoreTest.php`
-- `docs/internals/retention-purge-audit.md`
-- `docs/internals/retention-policy.md`
+- `docs/internal/retention-purge-audit.md`
+- `docs/internal/retention-policy.md`
 - `develop/orchestration/tasks/P5-006-postgresql-purge-audit-store.md`
 - `develop/orchestration/reports/P5-006-postgresql-purge-audit-store.md`
 - `develop/STATE.md`

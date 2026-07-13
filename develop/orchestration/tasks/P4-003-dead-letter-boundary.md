@@ -42,7 +42,7 @@ Deferred OperationをDead Letterへ隔離し、Operationsを`dead_lettered` Term
 - `tests/Internal/**`
 - `tests/Journal/**`
 - `tests/Transport/PostgreSql/**`
-- `docs/internals/**`
+- `docs/internal/**`
 - `develop/spec/03-execution.md`
 - `develop/spec/37-postgresql-table-layout.md`
 - `develop/TODO.md`

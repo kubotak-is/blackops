@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-13T17:34:12+09:00
+Updated At: 2026-07-13T17:43:07+09:00
 
 ## Current Phase
 
@@ -8,21 +8,21 @@ Phase 10: Documentation Website
 
 ## Current Task
 
-Task ID: P10-001-documentation-website-contract
+Task ID: P10-002-documentation-directory-migration
 
-Task Packet: `develop/orchestration/tasks/P10-001-documentation-website-contract.md`
+Task Packet: `develop/orchestration/tasks/P10-002-documentation-directory-migration.md`
 
-Specification: `develop/spec/41-developer-experience-roadmap.md`
+Specification: `develop/spec/57-documentation-website-delivery-contract.md`
 
 ## Task Status
 
-P10-001 Completed
+P10-002 Accepted
 
-D081をDecidedとし、公開WebsiteをFramework利用者向けに限定した。`docs/guide/`だけを公開Sourceとし、`docs/internal/`はRepository内専用とする。mise／Node.js 24 LTS／pnpm 11、目的別URL、Main／Stable表示、Cloudflare Pages Direct UploadをSpec 57／58とP10-002からP10-006へ確定した。
+旧Internal Directoryの40 MarkdownとGuideのInstalled Application Statusを`docs/internal/`へ移行した。AGENTS、README、Guide、Develop、Specification、過去Task／Reportの現行PathとMarkdown Linkを同期し、Missing Link 0、旧Directory不在を確認した。
 
 ## Last Accepted Task
 
-P9-005-continuous-integration-and-readme
+P10-002-documentation-directory-migration
 
 ## Pending Decisions
 
@@ -30,13 +30,13 @@ P9-005-continuous-integration-and-readme
 
 ## Known Blockers
 
-P10-002のDocumentation RenameにBlockerはない。P10-003以降のProduction Website実装はD077に従いGPT-5.6 Luna High workerが必要だが、現在の起動InterfaceではModel／Profileを明示できない。Phase 9の代替Worker承認はPhase 9 Closeoutまでに限定されており、Phase 10へ自動継続しない。
+P10-002にBlockerはない。P10-003以降のProduction Website実装はD077に従いGPT-5.6 Luna High workerが必要だが、現在の起動InterfaceではModel／Profileを明示できない。Phase 9の代替Worker承認はPhase 9 Closeoutまでに限定されており、Phase 10へ自動継続しない。
 
 ## Required Next Action
 
-1. P10-001をReview／Commitする。
-2. P10-002で`docs/internals/`を`docs/internal/`へ移行し、Repository参照を同期する。
-3. P10-003開始前にGPT-5.6 Luna Highの選択環境またはPhase 10に限る代替Worker承認を得る。
+1. P10-002の最終検証結果をReportへ反映し、Commit／Pushする。
+2. P10-003開始前にGPT-5.6 Luna Highの選択環境またはPhase 10に限る代替Worker承認を得る。
+3. Blocker解消後、mise／pnpm／Starlight Single-source Foundationを実装する。
 
 ## P9-004 Framework Update Generator Smoke Worker Verification Commands and Results
 
@@ -2862,9 +2862,9 @@ Result: Violations 0 / Skipped 0 / Uncovered 0 / Allowed 0 / Warnings 0 / Errors
 - `develop/orchestration/reports/P0-001-compose-foundation.md`
 - `develop/orchestration/reports/P0-002-runtime-dependency-baseline.md`
 - `develop/orchestration/reports/P1-003-operation-envelope-and-inline-strategy.md`
-- `docs/internals/development-setup.md`
-- `docs/internals/runtime-dependencies.md`
-- `docs/internals/core-contracts.md`
+- `docs/internal/development-setup.md`
+- `docs/internal/runtime-dependencies.md`
+- `docs/internal/core-contracts.md`
 - `scripts/install-docker-ubuntu.sh`
 - `Dockerfile`
 - `compose.yaml`
@@ -2905,5 +2905,5 @@ Result: Violations 0 / Skipped 0 / Uncovered 0 / Allowed 0 / Warnings 0 / Errors
 - `tests/Internal/Identifier/IdentifierFactoryTest.php`
 - `tests/Internal/ExecutionContext/ExecutionContextFactoryTest.php`
 - `tests/Database/DatabaseConnectionTest.php`
-- `docs/internals/execution-context.md`
+- `docs/internal/execution-context.md`
 - `docker/db-smoke-test.php`

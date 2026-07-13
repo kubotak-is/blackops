@@ -32,7 +32,7 @@ Status: Completed
 
 - `src/Transport/PostgreSql/**`
 - `tests/Transport/PostgreSql/**`
-- `docs/internals/**`
+- `docs/internal/**`
 - `develop/orchestration/tasks/P5-004-postgresql-retention-hold-store.md`
 - `develop/orchestration/reports/P5-004-postgresql-retention-hold-store.md`
 - `develop/STATE.md`

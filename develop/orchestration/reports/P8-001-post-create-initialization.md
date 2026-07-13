@@ -45,9 +45,9 @@ Setup SourceはComposer AutoloadやFramework Runtimeを読み込まず、Filesys
 - `examples/quickstart/README.md`
 - `tests/Consumer/quickstart-setup.sh`
 - `tests/Architecture/QuickstartApplicationArchitectureTest.php`
-- `docs/guide/installed-application-status.md`
+- `docs/internal/installed-application-status.md`
 - `docs/guide/runtime-bootstrap.md`
-- `docs/internals/mvp-e2e.md`
+- `docs/internal/mvp-e2e.md`
 - `develop/TODO.md`
 - `develop/orchestration/tasks/P8-001-post-create-initialization.md`
 - `develop/orchestration/reports/P8-001-post-create-initialization.md`

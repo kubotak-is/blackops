@@ -10,7 +10,7 @@ Implemented and accepted the minimal HTTP manifest dump command.
 
 - `src/Http/Console/DumpHttpManifestCommand.php`
 - `tests/Http/DumpHttpManifestCommandTest.php`
-- `docs/internals/http-api-slice.md`
+- `docs/internal/http-api-slice.md`
 - `deptrac.yaml`
 - `mago.toml`
 - `develop/orchestration/tasks/P1-020-http-manifest-cli.md`

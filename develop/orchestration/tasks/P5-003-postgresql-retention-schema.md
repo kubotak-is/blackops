@@ -34,7 +34,7 @@ PostgreSQL Transport SchemaへRetentionの基礎Schemaを追加し、Terminal Op
 
 - `src/Transport/PostgreSql/**`
 - `tests/Transport/PostgreSql/**`
-- `docs/internals/**`
+- `docs/internal/**`
 - `develop/orchestration/tasks/P5-003-postgresql-retention-schema.md`
 - `develop/orchestration/reports/P5-003-postgresql-retention-schema.md`
 - `develop/STATE.md`

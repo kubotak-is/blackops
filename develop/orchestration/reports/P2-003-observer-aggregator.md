@@ -19,7 +19,7 @@ Flushは `FlushableJournalObserver` のみを対象にする。
 - `src/Internal/Journal/JournalObserverFailure.php`
 - `tests/Journal/JournalPortTest.php`
 - `tests/Internal/Journal/JournalObserverAggregatorTest.php`
-- `docs/internals/journal-ports.md`
+- `docs/internal/journal-ports.md`
 - `develop/orchestration/tasks/P2-003-observer-aggregator.md`
 - `develop/STATE.md`
 

@@ -36,7 +36,7 @@ Status: Completed
 - `src/Transport/PostgreSql/**`
 - `tests/Core/Execution/**`
 - `tests/Transport/PostgreSql/**`
-- `docs/internals/**`
+- `docs/internal/**`
 - `develop/spec/33-execution-transport-contract.md`
 - `develop/TODO.md`
 - `develop/orchestration/tasks/P4-006-claim-settlement.md`

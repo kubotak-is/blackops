@@ -36,7 +36,7 @@ Composer metadataで発見したOperation ProviderとService ProviderをBuild Ar
 
 - `src/Internal/**`
 - `tests/Internal/**`
-- `docs/internals/**`
+- `docs/internal/**`
 - `develop/orchestration/tasks/P1-034-composer-provider-build-integration.md`
 - `develop/orchestration/reports/P1-034-composer-provider-build-integration.md`
 - `develop/STATE.md`

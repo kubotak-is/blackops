@@ -15,7 +15,7 @@ HTTP層はDeferred受付Portへだけ依存し、Registry、Codec、PostgreSQL T
 - `src/Http/Responder/JsonOperationResponder.php`
 - `src/Internal/Http/DeferredHttpOperationAcceptor.php`
 - `tests/Http/DeferredOperationRequestHandlerTest.php`
-- `docs/internals/deferred-transport-contract.md`
+- `docs/internal/deferred-transport-contract.md`
 - `develop/orchestration/tasks/P3-008-http-deferred-acceptance.md`
 - `develop/orchestration/reports/P3-008-http-deferred-acceptance.md`
 - `develop/STATE.md`

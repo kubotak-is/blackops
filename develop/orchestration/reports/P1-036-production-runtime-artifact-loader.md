@@ -11,8 +11,8 @@ The loader reads generated operation manifest, HTTP manifest, and runtime contai
 - `src/Internal/Runtime/ProductionRuntimeArtifactLoader.php`
 - `src/Internal/Runtime/ProductionRuntimeArtifacts.php`
 - `tests/Internal/Runtime/ProductionRuntimeArtifactLoaderTest.php`
-- `docs/internals/operation-registry.md`
-- `docs/internals/runtime-container.md`
+- `docs/internal/operation-registry.md`
+- `docs/internal/runtime-container.md`
 - `develop/orchestration/tasks/P1-036-production-runtime-artifact-loader.md`
 - `develop/orchestration/reports/P1-036-production-runtime-artifact-loader.md`
 - `develop/STATE.md`

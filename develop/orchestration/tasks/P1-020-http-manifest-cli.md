@@ -34,7 +34,7 @@ P1-019で追加したHTTP Manifest File Writerを呼び出す最小Symfony Conso
 
 - `src/Http/**`
 - `tests/Http/**`
-- `docs/internals/**`
+- `docs/internal/**`
 - `mago.toml`
 - `deptrac.yaml`
 - `develop/orchestration/tasks/P1-020-http-manifest-cli.md`

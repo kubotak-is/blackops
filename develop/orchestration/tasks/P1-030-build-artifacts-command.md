@@ -39,7 +39,7 @@ Operation Provider ConfigとService Provider Configから、Operation Manifest�
 
 - `src/Internal/**`
 - `tests/Internal/**`
-- `docs/internals/**`
+- `docs/internal/**`
 - `develop/orchestration/tasks/P1-030-build-artifacts-command.md`
 - `develop/orchestration/reports/P1-030-build-artifacts-command.md`
 - `develop/STATE.md`

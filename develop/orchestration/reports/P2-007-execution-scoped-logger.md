@@ -14,8 +14,8 @@ PSR-3 Loggerへ委譲しつつ、Execution Scope ProviderからOperation metadat
 - `src/Internal/Execution/ExecutionScopeProvider.php`
 - `src/Internal/Execution/InlineDispatcher.php`
 - `tests/Internal/Logging/ExecutionScopedLoggerTest.php`
-- `docs/internals/execution-scoped-logger.md`
-- `docs/internals/README.md`
+- `docs/internal/execution-scoped-logger.md`
+- `docs/internal/README.md`
 - `mago.toml`
 - `deptrac.yaml`
 - `develop/orchestration/tasks/P2-007-execution-scoped-logger.md`

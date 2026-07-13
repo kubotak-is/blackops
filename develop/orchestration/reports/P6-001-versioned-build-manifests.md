@@ -32,8 +32,8 @@ Status: Accepted
 - `tests/Internal/Console/CompileBuildArtifactsCommandTest.php`
 - `tests/Internal/Runtime/ProductionRuntimeArtifactLoaderTest.php`
 - `tests/Internal/Runtime/ProductionRuntimeSmokeTest.php`
-- `docs/internals/bootstrap.md`
-- `docs/internals/runtime-container.md`
+- `docs/internal/bootstrap.md`
+- `docs/internal/runtime-container.md`
 - `docs/guide/runtime-bootstrap.md`
 - `develop/orchestration/tasks/P6-001-versioned-build-manifests.md`
 - `develop/orchestration/reports/P6-001-versioned-build-manifests.md`

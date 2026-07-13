@@ -18,8 +18,8 @@ PostgreSQL Canonical Journal Storeを追加した。`journal` TableのDDL、JSON
 - `src/Transport/PostgreSql/PostgreSqlJournalDataCodec.php` (add): Event DataのJSON変換。
 - `src/Transport/PostgreSql/PostgreSqlJournalValueCodec.php` (add): OperationValue／Outcomeの最小JSON変換。
 - `tests/Transport/PostgreSql/PostgreSqlCanonicalJournalStoreTest.php` (add): Migration、append/read、重複制約、Completed／Rejected Data往復を検証。
-- `docs/internals/postgresql-journal-store.md` (add): Adapterの責務と制限を記録。
-- `docs/internals/README.md` (edit): PostgreSQL Journal Store文書へのリンクを追加。
+- `docs/internal/postgresql-journal-store.md` (add): Adapterの責務と制限を記録。
+- `docs/internal/README.md` (edit): PostgreSQL Journal Store文書へのリンクを追加。
 - `develop/orchestration/tasks/P1-015-postgresql-canonical-journal-store.md` (add): Task Packet。
 - `develop/STATE.md` (edit): P1-015進行・完了状態へ更新。
 

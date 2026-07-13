@@ -21,9 +21,9 @@ Status: Completed
 - `src/Transport/InMemory/InMemoryOperationRecord.php`
 - `src/Transport/InMemory/InMemoryOperationState.php`
 - `tests/Transport/InMemory/InMemoryExecutionTransportTest.php`
-- `docs/internals/in-memory-execution-transport.md`
-- `docs/internals/deferred-transport-contract.md`
-- `docs/internals/README.md`
+- `docs/internal/in-memory-execution-transport.md`
+- `docs/internal/deferred-transport-contract.md`
+- `docs/internal/README.md`
 - `develop/TODO.md`
 - `develop/orchestration/tasks/P6-006-in-memory-execution-transport.md`
 - `develop/orchestration/reports/P6-006-in-memory-execution-transport.md`

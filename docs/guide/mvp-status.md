@@ -50,7 +50,7 @@ Build, migration, worker, and runtime composition are described in:
 - [Runtime Bootstrap](runtime-bootstrap.md)
 - [Database Migrations](database-migrations.md)
 - [Data Retention](retention.md)
-- [Architecture](../internals/architecture.md)
+- [Architecture](../internal/architecture.md)
 
 ## Sensitive Data Boundary
 

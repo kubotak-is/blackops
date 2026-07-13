@@ -10,7 +10,7 @@ Recovery後は既存のSupervision Policyへ接続し、Policy判断に基づい
 
 ## Changed Files
 
-- `docs/internals/deferred-transport-contract.md`
+- `docs/internal/deferred-transport-contract.md`
 - `develop/STATE.md`
 - `develop/orchestration/tasks/P4-005-lease-expired-recovery.md`
 - `develop/orchestration/reports/P4-005-lease-expired-recovery.md`

@@ -38,7 +38,7 @@ Status: Accepted
 - `src/Internal/Journal/**`
 - `tests/Journal/**`
 - `tests/Internal/Journal/**`
-- `docs/internals/**`
+- `docs/internal/**`
 - `develop/orchestration/tasks/P2-003-observer-aggregator.md`
 - `develop/orchestration/reports/P2-003-observer-aggregator.md`
 - `develop/STATE.md`

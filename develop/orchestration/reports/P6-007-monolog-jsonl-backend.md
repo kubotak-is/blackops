@@ -22,8 +22,8 @@ Status: Completed
 - `tests/Internal/Logging/MonologJsonlLoggerFactoryTest.php`
 - `mago.toml`
 - `deptrac.yaml`
-- `docs/internals/monolog-jsonl-backend.md`
-- `docs/internals/README.md`
+- `docs/internal/monolog-jsonl-backend.md`
+- `docs/internal/README.md`
 - `develop/TODO.md`
 - `develop/orchestration/tasks/P6-007-monolog-jsonl-backend.md`
 - `develop/orchestration/reports/P6-007-monolog-jsonl-backend.md`

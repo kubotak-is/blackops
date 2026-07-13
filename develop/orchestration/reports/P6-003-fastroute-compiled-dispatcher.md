@@ -39,8 +39,8 @@ Status: Accepted
 - `tests/Internal/Runtime/ProductionRuntimeArtifactLoaderTest.php`
 - `tests/Internal/Runtime/ProductionRuntimeComposerTest.php`
 - `tests/Internal/Runtime/ProductionRuntimeSmokeTest.php`
-- `docs/internals/http-api-slice.md`
-- `docs/internals/runtime-container.md`
+- `docs/internal/http-api-slice.md`
+- `docs/internal/runtime-container.md`
 - `docs/guide/runtime-bootstrap.md`
 - `develop/TODO.md`
 - `develop/orchestration/tasks/P6-003-fastroute-compiled-dispatcher.md`

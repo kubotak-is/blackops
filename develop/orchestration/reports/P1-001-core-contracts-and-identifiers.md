@@ -36,8 +36,8 @@ P1-001 を完了した。Phase 1 の土台として、確定仕様どおりの P
 設定・文書：
 - `mago.toml` (edit): `[source].includes` へ `vendor/psr/clock` と `vendor/symfony/uid` を追加し、mago analyze が PSR-20 と Symfony UID の型を解決できるようにした。
 - `deptrac.yaml` (edit): `type: namespace` Collector を `type: classNameRegex` へ移行済み（先行分）。再開分で `Library` Layer（`Psr\Clock`、`Symfony\Component\Uid`）を追加し、`Internal` の Ruleset へ `Library` を許可。`Core` → `Library` は禁止を維持。
-- `docs/internals/core-contracts.md` (edit): D049 適用済みの完全な実装記録へ書き換え。未実装項目を削除し、識別子 API、`InvalidIdentifierException`、`IdentifierFactory`、Library Layer を追記。
-- `docs/internals/README.md` (edit): `Core Contracts` Link は先行分で追加済み。
+- `docs/internal/core-contracts.md` (edit): D049 適用済みの完全な実装記録へ書き換え。未実装項目を削除し、識別子 API、`InvalidIdentifierException`、`IdentifierFactory`、Library Layer を追記。
+- `docs/internal/README.md` (edit): `Core Contracts` Link は先行分で追加済み。
 - `develop/STATE.md` (edit): In Progress → Completed。Timestamp 更新。
 - `develop/orchestration/reports/P1-001-core-contracts-and-identifiers.md` (edit): 本 Report。Blocked 状態から Completed へ書き換え。
 
@@ -111,7 +111,7 @@ public function equals(self $other): bool;
 - [x] Mago Lint／Analyze が成功する
 - [x] PHPUnit が成功する
 - [x] Deptrac が成功する
-- [x] 実装上の Public API と不変条件が内部文書へ記録される（`docs/internals/core-contracts.md`）
+- [x] 実装上の Public API と不変条件が内部文書へ記録される（`docs/internal/core-contracts.md`）
 
 ## Remaining Issues
 

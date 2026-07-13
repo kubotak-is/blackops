@@ -2,6 +2,8 @@
 
 Status: Phase 9 Complete in Main; Framework and Skeleton 1.0.0 Published
 
+この文書はRepositoryのPhase Acceptance Evidenceを記録するFramework実装者向け資料であり、公開Documentation WebsiteのContent Sourceには含めない。利用者向けの現行機能と制約は[Guide MVP Status](../guide/mvp-status.md)を参照する。
+
 `examples/quickstart/` はFeature-firstのInstalled Application Exampleと`blackops/skeleton`のSource of Truthである。Framework／Skeleton Stable `1.0.0`をGitHubとPackagistへ公開し、Remote `composer create-project`を検証済みである。Main BranchではPhase 9のProject GeneratorとApplication Migration Runtimeも完成した。Phase 9の実装完了は新しいPackagist Releaseの公開を意味せず、Phase 8 CompleteとStable Package公開もProduction Readyを意味しない。
 
 ## Phase 7 Acceptance Evidence

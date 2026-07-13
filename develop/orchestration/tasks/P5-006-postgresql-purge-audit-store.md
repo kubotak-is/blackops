@@ -31,7 +31,7 @@ Retention Purge Audit ContractをPostgreSQLへ保存できるようにする。
 
 - `src/Transport/PostgreSql/**`
 - `tests/Transport/PostgreSql/**`
-- `docs/internals/**`
+- `docs/internal/**`
 - `develop/orchestration/tasks/P5-006-postgresql-purge-audit-store.md`
 - `develop/orchestration/reports/P5-006-postgresql-purge-audit-store.md`
 - `develop/STATE.md`

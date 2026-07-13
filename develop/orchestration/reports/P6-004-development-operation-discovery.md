@@ -36,7 +36,7 @@ Status: Accepted
 - `tests/Internal/Discovery/Fixture/DiscoveryRoot/MismatchedOperations.php`
 - `tests/Internal/Discovery/Fixture/DiscoveryRoot/SideEffectOnly.php`
 - `tests/Internal/Discovery/Fixture/Outside/OutsideOperation.php`
-- `docs/internals/operation-registry.md`
+- `docs/internal/operation-registry.md`
 - `develop/TODO.md`
 - `develop/orchestration/tasks/P6-004-development-operation-discovery.md`
 - `develop/orchestration/reports/P6-004-development-operation-discovery.md`

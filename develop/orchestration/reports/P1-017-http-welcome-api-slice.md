@@ -16,8 +16,8 @@ HTTP `GET /welcome` のAPI-only Vertical Sliceを実装した。PSR-7 Requestを
 - `src/Http/Responder/JsonOperationResponder.php` (add): Completed／Rejected ResultをAPI-only Responseへ変換。
 - `src/Http/OperationRequestHandler.php` (add): PSR-15 Request Handler。
 - `tests/Http/OperationRequestHandlerTest.php` (add): `/welcome` Response、204、Rejected JSON、GET body拒否、404、DB Journal統合を検証。
-- `docs/internals/http-api-slice.md` (add): HTTP API Sliceの責務と制限を記録。
-- `docs/internals/README.md` (edit): HTTP API Slice文書へのリンクを追加。
+- `docs/internal/http-api-slice.md` (add): HTTP API Sliceの責務と制限を記録。
+- `docs/internal/README.md` (edit): HTTP API Slice文書へのリンクを追加。
 - `deptrac.yaml` (edit): HTTP層からPSR HTTP Libraryへの依存を許可。
 - `mago.toml` (edit): PSR HTTP関連Vendor型解決を追加。
 - `develop/orchestration/tasks/P1-017-http-welcome-api-slice.md` (add): Task Packet。

@@ -248,7 +248,7 @@ docs/
   guide/      Framework利用者向けの導入、設定、Operation作成、実行、運用情報
 ```
 
-`develop/decisions/` は判断過程、`develop/spec/` は確定仕様の正本として維持し、`docs/internals/` は実装時の理解を助ける説明、`docs/guide/` は公開APIの利用方法を扱う。
+`develop/decisions/` は判断過程、`develop/spec/` は確定仕様の正本として維持し、`docs/internal/` は実装時の理解を助ける説明、`docs/guide/` は公開APIの利用方法を扱う。
 
 [/DECISION]
 

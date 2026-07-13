@@ -45,8 +45,8 @@ Operation ManifestとHTTP ManifestへManifest Schema VersionおよびApplication
 - `tests/Http/**`
 - `tests/Internal/Console/**`
 - `tests/Internal/Runtime/**`
-- `docs/internals/bootstrap.md`
-- `docs/internals/runtime-container.md`
+- `docs/internal/bootstrap.md`
+- `docs/internal/runtime-container.md`
 - `docs/guide/runtime-bootstrap.md`
 - `develop/TODO.md`
 - `develop/orchestration/tasks/P6-001-versioned-build-manifests.md`

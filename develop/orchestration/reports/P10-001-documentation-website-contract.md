@@ -10,7 +10,7 @@ User回答に基づき、miseで固定するNode.js 24 LTS／pnpm 11、Main Docu
 
 - `docs/guide/`には10 Markdownがあり、先頭H1を持つ通常のRepository Markdownである。
 - `docs/internals/`にはFramework実装者向けのArchitecture、Bootstrap、Runtime、Adapter文書があり、AGENTS、README、Specification、Task／Reportから多数参照される。
-- `docs/guide/installed-application-status.md`はPhase Acceptance Evidence中心で、利用者向けWebsiteよりInternal Documentationに適する。
+- `docs/internal/installed-application-status.md`はPhase Acceptance Evidence中心で、利用者向けWebsiteよりInternal Documentationに適する。
 - Starlight標準ContentはFrontmatter TitleとContent Directoryを前提とするため、既存H1を維持した決定的な生成層が必要である。
 - Laravel DocumentationはGetting Started、Architecture Concepts、Basics、Database等を利用者の作業別に構成し、Symfony DocumentationもGetting Startedと機能／Referenceを利用者向けに整理している。
 - 2026-07-13時点でNode.js 24はLTS、pnpmの現行CI Documentationは11.xとNode.js 24の組合せを例示している。

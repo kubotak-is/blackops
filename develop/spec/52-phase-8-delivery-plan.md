@@ -83,4 +83,4 @@ P8-001 Post-create Initialization
 - Roadmap: [Developer Experience Roadmap](41-developer-experience-roadmap.md)
 - Publication Contract: [Composer Skeleton Publication](46-composer-skeleton-publication.md)
 - Installed Source: [Feature-first Quickstart Application](49-feature-first-quickstart-application.md)
-- Phase 7 Status: [Installed Application Status](../../docs/guide/installed-application-status.md)
+- Phase 7 Status: [Installed Application Status](../../docs/internal/installed-application-status.md)
