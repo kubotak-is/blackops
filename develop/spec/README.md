@@ -167,4 +167,4 @@
 | [D086](../decisions/086-operation-value-validation-runtime.md) | OperationValue Validation Runtime | Decided |
 | [D087](../decisions/087-pre-binding-rejection-journal.md) | Pre-binding Rejection Journal | Decided |
 | [D088](../decisions/088-validation-backend.md) | Validation Backend | Decided |
-| [D089](../decisions/089-validation-rejection-sensitive-journal.md) | Validation Rejection Sensitive Journal | Proposed |
+| [D089](../decisions/089-validation-rejection-sensitive-journal.md) | Validation Rejection Sensitive Journal | Decided |

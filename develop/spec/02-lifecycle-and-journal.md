@@ -93,11 +93,14 @@ Upcasterはデータ形式だけを扱う純粋な変換とし、業務処理や
 センシティブ値は `#[Sensitive]` Attributeを基本として宣言する。
 
 - Journal Observerには、除外またはマスクした観測用Projectionを渡す
+- Canonical `OperationReceivedData`は再現可能性のため実OperationValueを保持し、`#[Sensitive]` Propertyを含み得るRestricted Dataとして扱う
 - Execution Transportには、Operationを再現可能な完全データを暗号化して渡せるようにする
 - 安全な配送Capabilityを持たないTransportへセンシティブなOperationを割り当てた構成は拒否する
 - 構成不備は可能な限り起動時またはCIで検出し、実行時にも検証する
 
 HMACは改ざん検知には使えるが暗号化ではない。機密性には認証付き暗号を利用する。具体方式と鍵管理はInfrastructure設計で決める。
+
+Validation FailureのViolation、`OperationRejectedData`、Exception、Observed Journal ProjectionへRaw／Sensitive Valueを複製しない。Canonical JournalのAccess Control、保存時暗号化、RetentionはApplicationと運用環境の責任境界に含める。
 
 ## Observerと監査
 

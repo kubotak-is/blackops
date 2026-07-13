@@ -1,6 +1,6 @@
 # D089: Validation Rejection Sensitive Journal
 
-Status: Proposed
+Status: Decided
 
 ## Context
 
@@ -26,13 +26,32 @@ Bは`operation.received`の再現可能性を壊し、成功OperationとValidati
 
 [ANSWER]
 
+A
 
 [/ANSWER]
 
 ## Decision
 
-回答後に確定する。
+[DECISION]
+
+1. Aを採用し、Value Validation FailureでもCanonical `OperationReceivedData`は実OperationValueを保持する。
+2. Canonical Journalは再現可能性を担うRestricted Data Storeとして扱い、`#[Sensitive]` Propertyを含む場合がある。
+3. Observed Journal Projectionは従来どおり`#[Sensitive]` Propertyをマスクする。
+4. HTTP Response、Exception、`OperationRejectedData`、ViolationにはRaw／Sensitive Value、Symfony Message、Constraint設定を含めない。
+5. P10-005E2のSensitive非露出AcceptanceはObserved JournalとValidation Error Surfaceを対象とし、既存Canonical `OperationReceivedData` Contractを変更しない。
+6. Binding FailureはValue未生成のため、D087どおりCanonical JournalにもReceived Recordを作らない。
+7. Canonical JournalのField-level暗号化はKey管理、Rotation、Migrationを含む独立したSecurity Taskとして扱う。
+
+[/DECISION]
 
 ## Consequences
 
-回答後に確定する。
+[CONSEQUENCES]
+
+- 成功、Value Validation Failure、Handler Rejectionで`operation.received`の再現可能性が一貫する。
+- Validation FailureだけSafe Markerへ変える分岐を追加しない。
+- Canonical JournalへのAccess Control、保存時暗号化、RetentionはApplication／運用側の責任境界として明示する必要がある。
+- QuickstartのJSONL Observerと公開Error例ではSensitive値が必ずマスクまたは省略される。
+- TestはCanonical Recordの再現可能Valueと、Observed／Rejected／Responseの非露出を別々に検証する。
+
+[/CONSEQUENCES]

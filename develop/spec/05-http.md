@@ -29,6 +29,8 @@ Route特定後の必須Field欠落、型不一致、Binding成功後のValue Val
 
 Binding Failureは具象OperationValueが存在しないため、Sequence 1の`OperationRejected`だけを記録する。Bindingに成功したValue Validation Failureは、再現可能な`OperationReceived`、`OperationRejected`の順で記録する。どちらもDeferred Transportへ永続化せず、HTTP 202を返さない。
 
+Value Validation FailureのCanonical `OperationReceivedData`は既存Contractどおり実OperationValueを保持する。Observed Journalは`#[Sensitive]`をマスクし、422 Response、Exception、`OperationRejectedData`、ViolationへRaw／Sensitive Valueを含めない。
+
 ```php
 final readonly class UpdateOrderValue implements OperationValue
 {
