@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-13T14:01:07+09:00
+Updated At: 2026-07-13T14:07:02+09:00
 
 ## Current Phase
 
@@ -16,9 +16,9 @@ Specification: `develop/spec/46-composer-skeleton-publication.md`
 
 ## Task Status
 
-Local Revision Accepted; Main History Push Pending
+Main Published; Packagist Registration Blocker
 
-D076でMain Framework Repositoryを`kubotak-is/blackops`、生成専用Distribution Repositoryを`kubotak-is/blackops-skeleton`とする構成を確定した。Workflow・Documentation追従をOrchestratorがReview・再検証し、受け入れた。Distribution Repository作成、Write-enabled Deploy Key、Main Actions Secret登録、一時Key削除も完了。Main Framework HistoryのGitHub接続待ち。
+D076のMain／Distribution分離、Workflow追従、Public Distribution Repository、Write-enabled Deploy Key、Main Actions Secret登録、一時Key削除を完了した。GitHubの`LICENSE` Initial CommitをLocal Historyへ取り込み、Main Framework `main`を`8b2af584aeab` へforceなしでPushした。Packagistの`blackops/framework`と`blackops/skeleton`はどちらも未登録でHTTP 404。
 
 ## Last Accepted Task
 
@@ -30,14 +30,15 @@ P8-002B-native-outcome-invocation
 
 ## Known Blockers
 
-- なし。
+- Packagist Accountで`blackops/framework`を`https://github.com/kubotak-is/blackops`から登録する必要がある。Packagist認証はOrchestratorに提供されていない。
 
 ## Required Next Action
 
-1. D076追従Workflow／Documentation／Report／STATEをCommitする。
-2. Main Repositoryの`LICENSE` Initial CommitをLocal Historyへ取り込み、`main`へPushする。
-3. Packagist `blackops/skeleton`のGitHub連携を設定する。
-4. 初回Publication WorkflowとDistribution `main`を検証し、P8-004 Remote Smokeへ進む。
+1. Report／STATEのMain PushとPackagist BlockerをCommit／Pushする。
+2. UserがPackagistに`blackops/framework` Source `https://github.com/kubotak-is/blackops`を登録する。
+3. 初回bare SemVer Release TagでPublication Workflowを実行する。
+4. Distribution `main`／Tag生成後、Packagistに`blackops/skeleton` Source `https://github.com/kubotak-is/blackops-skeleton`を登録する。
+5. P8-004 Remote Smokeへ進む。
 
 ## P8-003 Skeleton Distribution Publication Worker Verification Commands and Results
 
