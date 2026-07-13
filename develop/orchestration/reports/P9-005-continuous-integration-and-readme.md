@@ -1,6 +1,6 @@
 # P9-005: Continuous Integration and Root README Report
 
-Status: Local Verified - Awaiting GitHub CI
+Status: Remote Verified - Checkout Follow-up Pending
 
 ## Summary
 
@@ -61,6 +61,22 @@ Result: All passed.
 
 GitHub-hosted CIはWorkflowを含むCommitのPush後に確認する。
 
+## GitHub Actions Evidence
+
+Commit `2d356bc`のPushでGitHub-hosted Run `29233792270`が起動し、1分15秒で成功した。
+
+- Build development image: success
+- Install dependencies: success
+- Validate Composer packages: success
+- Run Mago: success
+- Run PHPUnit: success
+- Run Deptrac: success
+- Clean up Docker resources: success
+
+Run: `https://github.com/kubotak-is/blackops/actions/runs/29233792270`
+
+成功Runに`actions/checkout@v4`のNode.js 20非推奨Annotationがあった。公式`actions/checkout` Latest Releaseが`v7.0.0`であることをGitHub APIから確認し、通常CIを`actions/checkout@v7`へ更新した。Follow-up Runで警告解消と全Gate成功を再確認する。
+
 ## Acceptance Criteria
 
 - [x] `main` PushとPull RequestでCIが起動するWorkflow定義を持つ
@@ -70,12 +86,12 @@ GitHub-hosted CIはWorkflowを含むCommitのPush後に確認する。
 - [x] READMEが公開版とMain Branchの状態差を明示する
 - [x] Development SetupのWorker ModelがAGENTS／D077と一致する
 - [x] Workflow YAMLとCI内の実コマンドがLocalで成功する
-- [ ] GitHub-hosted RunnerでCI Workflowが成功する
+- [x] GitHub-hosted RunnerでCI Workflowが成功する
 
 ## Remaining Issues
 
-GitHub Actions上の最初のCI Runは、Workflowを含むCommitのPush後に確認する必要がある。
+`actions/checkout@v7`へ更新したFollow-up CommitのGitHub-hosted CIを確認する必要がある。
 
 ## Suggested Next Action
 
-実装をCommit／Pushし、GitHub Actions CIを監視する。成功後にTask／Report／STATEをAcceptedへ更新する。
+Checkout更新をCommit／Pushし、Follow-up GitHub Actions CIを監視する。成功後にTask／Report／STATEをAcceptedへ更新する。
