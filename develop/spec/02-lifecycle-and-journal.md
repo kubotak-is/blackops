@@ -6,6 +6,10 @@
 
 業務バリデーションの失敗もOperationとしてJournalへ記録する。プロトコルとして解析不能な入力やRoute不一致は入力アダプタの責務とする。
 
+Route特定後に必須Field欠落または型不一致でBindingへ失敗した場合は、Sequence 1の`OperationRejected`を直接記録する。具象OperationValueが存在しないため`OperationReceived`を記録せず、Raw Inputや偽Valueを補わない。
+
+`OperationReceived`はOperationValueのBindingが成功し、再現可能なOperation Envelopeを構成できた境界を表す。Binding後のValue Validation Failureは`OperationReceived`から`OperationRejected`へ遷移する。
+
 ## 基本ライフサイクル
 
 初期設計では次のJournal Entryを扱う。
@@ -35,6 +39,8 @@ Dead Letterへ隔離したOperationには `OperationFailed` を併記せず、Te
 
 拒否と失敗はHTTPに依存しないReasonを持ち、Web Adapterが具体的な4xxまたは5xxへ変換する。
 
+Lifecycle State MachineはBinding Failureに限りInitial Stateから`OperationRejected`へのTerminal Transitionを許可する。通常のInline／Deferred OperationとValue Validation Failureは`OperationReceived`から開始する。
+
 最終状態へ到達したOperationを同じOperation IDで再実行しない。手動Replayは新しいOperationとして作り、元Operationとの因果関係を記録する。
 
 ## Journal
@@ -45,7 +51,7 @@ Journalの出力・保持方針はExecution Strategyと独立させる。
 
 ## 再現可能なJournal
 
-`OperationReceived` のJournal Recordには、元のOperation Envelopeを再現できる情報を含める。
+`OperationReceived` のJournal Recordには、元のOperation Envelopeを再現できる情報を含める。Binding Failureは`OperationReceived`を作らず、`OperationRejected`へ安全なViolationだけを記録する。
 
 候補となる正規情報：
 

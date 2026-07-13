@@ -1,6 +1,6 @@
 # D087: Pre-binding Rejection Journal
 
-Status: Proposed
+Status: Decided
 
 ## Context
 
@@ -26,13 +26,33 @@ Aを推奨する。
 
 [ANSWER]
 
+A
 
 [/ANSWER]
 
 ## Decision
 
-回答後に確定する。
+[DECISION]
+
+1. Binding FailureはOperation IDを発行し、Sequence 1の`operation.rejected`をTerminal Recordとして直接記録する。
+2. Binding Failureでは`operation.received`を記録しない。
+3. `operation.received`はOperationValueのBindingが成功し、再現可能なOperation Envelopeを構成できた境界を表す。
+4. Value Validation FailureはBinding済みのため、`operation.received`、`operation.rejected`の順で記録する。
+5. Binding FailureのRejected RecordはOperation Type、Execution Strategy、Category `validation`、Code `validation.failed`、Raw Valueを含まないField Violationを持つ。
+6. `OperationReceivedData`へNullable Value、偽OperationValue、Raw HTTP Inputを導入しない。
+7. 新しいJournal Eventは追加せず、既存`operation.rejected` Wire Contractを使用する。
+
+[/DECISION]
 
 ## Consequences
 
-回答後に確定する。
+[CONSEQUENCES]
+
+- Lifecycle State MachineはInitial Stateから`operation.rejected`へのTerminal Transitionを許可する。
+- Binding Failureの最初で最後のJournal Sequenceは1になる。
+- Operation IDがあるRejected Recordにより「No operation stays in the dark」を維持する。
+- OperationReceived Dataの非Nullable Public ContractとEnvelope再現可能性を維持する。
+- ObserverとPostgreSQL Canonical Journalは、先行Received RecordがないRejected Recordを正当なLifecycleとして扱う。
+- Value ValidationとHandler内のManual Rejectionは従来どおりReceived後のRejectedとなる。
+
+[/CONSEQUENCES]

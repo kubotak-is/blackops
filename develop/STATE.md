@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-13T23:35:55+09:00
+Updated At: 2026-07-14T00:34:59+09:00
 
 ## Current Phase
 
@@ -16,9 +16,9 @@ Specifications: `develop/spec/02-lifecycle-and-journal.md`、`develop/spec/04-ha
 
 ## Task Status
 
-P10-005E2 Blocked by D087
+P10-005E2 In Progress
 
-P10-005E1をAccepted／Commit／Pushした。P10-005E2のArchitecture確認で、Binding Failureは具象OperationValueを生成できず、再現可能な`operation.received`を作れない仕様矛盾を確認した。偽ValueやRaw InputをJournalへ入れず、D087でPre-binding Rejection Journal Shapeを判断するまでProduction Code実装を停止した。
+D087はAで確定した。Binding FailureはOperation ID付きSequence 1の`operation.rejected`を直接記録し、`operation.received`はBinding済みの再現可能なEnvelopeへ限定する。SpecとTask PacketへContractとInternal Journal変更範囲を追加し、P10-005E2を再開する。
 
 ## Last Accepted Task
 
@@ -29,17 +29,17 @@ P10-005E1-operation-value-validation-core
 1. D085はBで確定。FrankenPHP Worker ModeをOpt-inで検証後にDefaultへ昇格する。
 2. D086はA／A／Aで確定。BlackOps所有の7 RuleとProtocol 400／Operation ID付き422境界を実装する。`Range`は数値、`Length`は文字数、`Count`は要素数を扱う。
 3. Phase 10対象TaskのWorker例外承認は回答`Y`で解決済み。他Phaseへは適用しない。
-4. D087 Pre-binding Rejection Journalは回答待ち。
+4. D087はAで確定。Binding FailureはReceivedなしのSequence 1 Rejectedとする。
 5. Cloudflare External Configuration待ちは継続するが、Repository内Reader Experience改善は独立して進行できる。
 
 ## Known Blockers
 
-P10-005E2はD087の回答待ち。P10-005F／P10-005Dは前Task完了待ち。Cloudflare Project／Token／GitHub Environment SecretsとProtection Ruleの未設定はRemote DeployだけのExternal Blockerである。
+P10-005E2に既知のBlockerはない。P10-005F／P10-005Dは前Task完了待ち。Cloudflare Project／Token／GitHub Environment SecretsとProtection Ruleの未設定はRemote DeployだけのExternal Blockerである。
 
 ## Required Next Action
 
-1. UserがD087へ回答する。
-2. 回答に合わせてSpec／Task Packetを更新し、P10-005E2を再開する。
+1. 現在利用可能なWorkerがD087確定ContractでP10-005E2を実装する。
+2. OrchestratorがReview／Commitする。
 3. P10-005Fを実装する。
 4. P10-005Dで全Reader Journeyを最終実装へ同期する。
 5. Repository内修正後、Cloudflare External ConfigurationとP10-006 Closeoutへ進む。
