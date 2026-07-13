@@ -1,6 +1,6 @@
 # P9-001: Project Generator Command Contract
 
-Status: Awaiting Decision
+Status: Completed
 
 ## Goal
 
@@ -41,6 +41,12 @@ Status: Awaiting Decision
 - `develop/decisions/080-project-generator-command-contract.md`
 - `develop/orchestration/tasks/P9-001-project-generator-command-contract.md`
 - `develop/orchestration/reports/P9-001-project-generator-command-contract.md`
+- `develop/spec/55-project-generators-and-application-migrations.md`
+- `develop/spec/56-phase-9-delivery-plan.md`
+- `develop/spec/README.md`
+- `develop/orchestration/tasks/P9-002-operation-generator.md`
+- `develop/orchestration/tasks/P9-003-application-migration-generator.md`
+- `develop/orchestration/tasks/P9-004-framework-update-generator-smoke.md`
 - `develop/STATE.md`
 
 許可されていないFileの変更が必要な場合は変更を広げず、Reportへ記載する。
@@ -57,9 +63,9 @@ Status: Awaiting Decision
 
 - [x] 現在のOperation Layout、Console Kernel、Migration Runnerを確認している
 - [x] 実装を分岐させるUser判断がD080へOption／Recommendation付きで記録されている
-- [ ] User回答をD080へ反映し、StatusをDecidedにする
-- [ ] Phase 9の確定SpecificationとProduction Task Packetを作成する
-- [ ] Production Code実装前にWorker Model／Profileを確認する
+- [x] User回答をD080へ反映し、StatusをDecidedにする
+- [x] Phase 9の確定SpecificationとProduction Task Packetを作成する
+- [x] Production Code実装前にWorker Model／Profileを確認する
 
 ## Required Commands
 

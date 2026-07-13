@@ -1,42 +1,42 @@
 # Orchestration State
 
-Updated At: 2026-07-13T14:59:01+09:00
+Updated At: 2026-07-13T15:09:00+09:00
 
 ## Current Phase
 
-Phase 9: Project BlackOps CLI (Design Dialogue)
+Phase 9: Project BlackOps CLI
 
 ## Current Task
 
-Task ID: P9-001-project-generator-command-contract
+Task ID: P9-002-operation-generator
 
-Task Packet: `develop/orchestration/tasks/P9-001-project-generator-command-contract.md`
+Task Packet: `develop/orchestration/tasks/P9-002-operation-generator.md`
 
-Decision: `develop/decisions/080-project-generator-command-contract.md`
+Specification: `develop/spec/55-project-generators-and-application-migrations.md`
 
 ## Task Status
 
-Awaiting User Decision
+Blocked Before Worker Start
 
-既存のProject CLI、Console Kernel、Quickstart Operation Layout、Migration Runnerを確認した。`make:operation`の入力／生成File、Application Migrationの実行境界、既存File保護をD080へ記録し、User回答を待っている。Production Codeは未変更である。
+D080は4問すべてAでDecidedとなった。Generator／Application Migration Contract、Phase 9 Delivery Plan、P9-002からP9-004のTask Packetを作成し、P9-001を完了した。Production Codeは未変更である。P9-002はGPT-5.6 Luna High workerの明示選択が必要だが、現在のWorker起動InterfaceにはModel／Profile指定Parameterがないため開始していない。
 
 ## Last Accepted Task
 
-P8-004-phase-8-closeout
+P9-001-project-generator-command-contract
 
 ## Pending Decisions
 
-D080 Project Generator Command Contract（Awaiting Answer）。
+なし。
 
 ## Known Blockers
 
-D080の回答がない状態ではApplication Migration RuntimeとGenerator Contractを確定できない。
+Production CodeはGPT-5.6 Luna High workerへ依頼する必要がある。現在のWorker起動InterfaceではModel／Profileを明示指定できず、D077により別Modelへ黙ってFallbackできない。
 
 ## Required Next Action
 
-1. `develop/decisions/080-project-generator-command-contract.md`の4問へ回答する。
-2. 回答をDecision／Phase 9 Specificationへ反映し、Production Task Packetへ分割する。
-3. GPT-5.6 Luna High workerのModel／Profile指定を確認してからProduction Code実装へ進む。
+1. GPT-5.6 Luna Highを明示選択できるWorker実行環境を用意するか、今回に限る代替WorkerをUserが明示承認する。
+2. P9-002 Operation GeneratorをWorkerへ依頼し、Orchestrator Review後にCommitする。
+3. P9-003 Application Migration Generator／Runtime、P9-004 Framework Update Smoke／Closeoutの順で進める。
 
 ## P8-003 Skeleton Distribution Publication Worker Verification Commands and Results
 

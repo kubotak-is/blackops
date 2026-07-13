@@ -69,6 +69,8 @@
 | [52-phase-8-delivery-plan.md](52-phase-8-delivery-plan.md) | Post-createからDistribution PublicationまでのPhase 8 Task順序 |
 | [53-typed-self-handled-operation-invocation.md](53-typed-self-handled-operation-invocation.md) | Native Value／Optional ContextによるSelf-handled Invocation |
 | [54-native-outcome-and-rejection-exception.md](54-native-outcome-and-rejection-exception.md) | Native Outcome／Void Returnと業務拒否Exception |
+| [55-project-generators-and-application-migrations.md](55-project-generators-and-application-migrations.md) | Operation／Migration GeneratorとApplication Migration実行境界 |
+| [56-phase-9-delivery-plan.md](56-phase-9-delivery-plan.md) | Generator実装からFramework Update SmokeまでのPhase 9 Task順序 |
 
 ## 決定の参照
 
@@ -153,3 +155,4 @@
 | [D077](../decisions/077-implementation-worker-model-upgrade.md) | Implementation Worker Model Upgrade | Decided |
 | [D078](../decisions/078-initial-stable-release-version.md) | Initial Stable Release Version | Decided |
 | [D079](../decisions/079-immutable-release-publication-recovery.md) | Immutable Release Publication Recovery | Decided |
+| [D080](../decisions/080-project-generator-command-contract.md) | Project Generator Command Contract | Decided |
