@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace BlackOps\Internal\Journal;
 
+use BlackOps\Core\ExecutionContext;
+use BlackOps\Core\Operation;
 use BlackOps\Core\OperationEnvelope;
 use BlackOps\Core\Outcome;
 use BlackOps\Core\Registry\OperationMetadata;
@@ -17,6 +19,7 @@ use BlackOps\Journal\Data\OperationRejectedData;
 use BlackOps\Journal\EmptyJournalData;
 use BlackOps\Journal\JournalEvent;
 use BlackOps\Journal\JournalRecord;
+use LogicException;
 use Psr\Clock\ClockInterface;
 
 final readonly class JournalRecordFactory
@@ -137,5 +140,19 @@ final readonly class JournalRecordFactory
             JournalEvent::OperationRejected,
             new OperationRejectedData($reason),
         );
+    }
+
+    public function operationRejectedBeforeBinding(
+        Operation $definition,
+        ExecutionContext $context,
+        OperationMetadata $metadata,
+        int $sequence,
+        RejectionReason $reason,
+    ): JournalRecord {
+        if ($metadata->definition !== $definition::class) {
+            throw new LogicException('Journal metadata does not match the operation definition.');
+        }
+
+        return $this->builder->buildRejectedBeforeBinding($context, $metadata, $sequence, $reason);
     }
 }

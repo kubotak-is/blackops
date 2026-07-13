@@ -85,6 +85,36 @@ grep -q '^{"message":"Welcome to BlackOps"}$' "${TEMP}/welcome.json"
 ! grep -q 'consumer-sensitive-value' "${CONSUMER}/var/log/journal.jsonl"
 grep -q '\[masked\]' "${CONSUMER}/var/log/journal.jsonl"
 
+validation_secret='consumer-validation-sensitive-value'
+validation_status=$(curl --silent --output "${CONSUMER}/var/validation-response.json" --write-out '%{http_code}' \
+    -X POST "http://127.0.0.1:${PORT}/reports" \
+    -H 'Content-Type: application/json' \
+    --data "{\"reportName\":\"\",\"apiToken\":\"${validation_secret}\"}")
+test "${validation_status}" = "422"
+validation_operation_id=$(HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php -r '
+$data = json_decode(file_get_contents("/app/var/validation-response.json"), true, 512, JSON_THROW_ON_ERROR);
+$id = $data["operationId"] ?? null;
+$violations = $data["violations"] ?? null;
+if (($data["status"] ?? null) !== "rejected"
+    || ($data["category"] ?? null) !== "validation"
+    || ($data["code"] ?? null) !== "validation.failed"
+    || !is_string($id)
+    || $violations !== [["field" => "reportName", "rule" => "not_blank", "code" => "validation.not_blank"]]
+) {
+    exit(1);
+}
+fwrite(STDOUT, $id);
+')
+test -n "${validation_operation_id}"
+! grep -q "${validation_secret}" "${CONSUMER}/var/validation-response.json"
+! grep -q "${validation_secret}" "${CONSUMER}/var/log/journal.jsonl"
+validation_state_rows=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
+    "SELECT count(*) FROM blackops.operations WHERE operation_id = '${validation_operation_id}'::uuid")
+test "${validation_state_rows}" = "0"
+validation_events=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
+    "SELECT string_agg(event, ',' ORDER BY sequence) FROM blackops.journal WHERE operation_id = '${validation_operation_id}'::uuid")
+test "${validation_events}" = "operation.received,operation.rejected"
+
 report_status=$(curl --silent --output "${CONSUMER}/var/report-response.json" --write-out '%{http_code}' \
     -X POST "http://127.0.0.1:${PORT}/reports" \
     -H 'Content-Type: application/json' \

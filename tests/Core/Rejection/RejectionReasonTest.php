@@ -7,6 +7,7 @@ namespace BlackOps\Tests\Core\Rejection;
 use BlackOps\Core\Attribute\PublicApi;
 use BlackOps\Core\Rejection\RejectionCategory;
 use BlackOps\Core\Rejection\RejectionReason;
+use BlackOps\Core\Validation\Violation;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
@@ -58,6 +59,23 @@ final class RejectionReasonTest extends TestCase
             self::assertSame($category, $reason->category());
             self::assertNotSame('', $reason->code());
         }
+    }
+
+    public function testValidationReasonCarriesOnlyStructuredViolations(): void
+    {
+        $violations = [new Violation('email', 'email', 'validation.email')];
+        $reason = RejectionReason::validation('validation.failed', $violations);
+
+        self::assertSame($violations, $reason->violations());
+    }
+
+    public function testValidationReasonRejectsMalformedViolationList(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Rejection reason violations must be a list of validation violations.');
+
+        /** @phpstan-ignore-next-line */
+        RejectionReason::validation('validation.failed', ['raw-secret']);
     }
 
     public static function invalidCodes(): array

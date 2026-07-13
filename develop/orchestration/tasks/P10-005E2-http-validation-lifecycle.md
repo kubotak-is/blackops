@@ -1,6 +1,6 @@
 # P10-005E2: HTTP Validation Lifecycle
 
-Status: In Progress
+Status: Accepted
 
 ## Goal
 
@@ -42,12 +42,16 @@ Protocol Error、Binding Failure、Value Validation FailureをHTTP／Lifecycle�
 
 - `composer.json`
 - `composer.lock`
+- `mago.toml`
+- `deptrac.yaml`
 - `src/Core/Rejection/**`
 - `src/Core/OperationResult.php`
 - `src/Execution/**`
 - `src/Http/**`
 - `src/Internal/Execution/**`
 - `src/Internal/Journal/**`
+- `src/Internal/Projection/ObservedJournalRecordProjector.php`
+- `src/Internal/Runtime/ProductionRuntimeComposer.php`
 - `src/Internal/Validation/**`
 - `src/Journal/**`
 - `src/Transport/PostgreSql/**`

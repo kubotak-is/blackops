@@ -30,11 +30,11 @@ final readonly class HttpParameterBinder
         $name = $parameter->getName();
 
         if (($source = $this->attribute($parameter, FromPath::class)) !== null) {
-            return $this->fromArray($pathParameters, $source->name ?? $name);
+            return $this->fromArray($pathParameters, $source->name ?? $name, $name);
         }
 
         if (($source = $this->attribute($parameter, FromQuery::class)) !== null) {
-            return $this->fromArray($query, $source->name ?? $name);
+            return $this->fromArray($query, $source->name ?? $name, $name);
         }
 
         if (($source = $this->attribute($parameter, FromHeader::class)) !== null) {
@@ -42,10 +42,10 @@ final readonly class HttpParameterBinder
         }
 
         if (($source = $this->attribute($parameter, FromBody::class)) !== null) {
-            return $this->fromArray($body, $source->name ?? $name);
+            return $this->fromArray($body, $source->name ?? $name, $name);
         }
 
-        return $this->fromArray($body, $name);
+        return $this->fromArray($body, $name, $name);
     }
 
     /**
@@ -73,7 +73,7 @@ final readonly class HttpParameterBinder
     /**
      * @param array<array-key, mixed> $values
      */
-    private function fromArray(array $values, string $name): BoundHttpValue
+    private function fromArray(array $values, string $name, string $field): BoundHttpValue
     {
         if (!array_key_exists($name, $values)) {
             return BoundHttpValue::missing();
@@ -83,7 +83,7 @@ final readonly class HttpParameterBinder
         $value = $values[$name];
 
         if (!is_scalar($value) && $value !== null) {
-            throw new InvalidArgumentException('HTTP bound value must be scalar or null.');
+            throw OperationValueBindingException::type($field);
         }
 
         return BoundHttpValue::found($value);

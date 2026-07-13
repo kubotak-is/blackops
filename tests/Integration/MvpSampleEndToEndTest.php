@@ -115,6 +115,7 @@ final class MvpSampleEndToEndTest extends TestCase
             $inline->dispatcher,
             new JsonOperationResponder($psr17, $psr17),
             $psr17,
+            $inline->dispatcher,
             $acceptor,
         );
 

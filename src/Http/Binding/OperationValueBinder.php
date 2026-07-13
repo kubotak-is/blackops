@@ -14,6 +14,7 @@ final readonly class OperationValueBinder
     public function __construct(
         private JsonRequestBody $body = new JsonRequestBody(),
         private HttpParameterBinder $parameters = new HttpParameterBinder(),
+        private HttpBoundValueTypeMatcher $types = new HttpBoundValueTypeMatcher(),
     ) {}
 
     /**
@@ -37,6 +38,10 @@ final readonly class OperationValueBinder
             $bound = $this->parameters->bind($parameter, $request, $pathParameters, $query, $body);
 
             if ($bound->found) {
+                if (!$this->types->matches($bound->value, $parameter->getType())) {
+                    throw OperationValueBindingException::type($parameter->getName());
+                }
+
                 $arguments[] = $bound->value;
                 continue;
             }
@@ -46,7 +51,7 @@ final readonly class OperationValueBinder
                 continue;
             }
 
-            throw new InvalidArgumentException('HTTP request is missing an operation value field.');
+            throw OperationValueBindingException::required($parameter->getName());
         }
 
         return $this->operationValue($reflection->newInstanceArgs($arguments));

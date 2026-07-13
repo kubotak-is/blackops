@@ -7,8 +7,6 @@ namespace BlackOps\Transport\PostgreSql;
 use BlackOps\Core\Identifier\AttemptId;
 use BlackOps\Core\OperationValue;
 use BlackOps\Core\Outcome;
-use BlackOps\Core\Rejection\RejectionCategory;
-use BlackOps\Core\Rejection\RejectionReason;
 use BlackOps\Journal\Data\AttemptRetryScheduledData;
 use BlackOps\Journal\Data\OperationCompletedData;
 use BlackOps\Journal\Data\OperationReceivedData;
@@ -24,6 +22,7 @@ final readonly class PostgreSqlJournalDataCodec
         private PostgreSqlJournalValueCodec $values = new PostgreSqlJournalValueCodec(),
         private PostgreSqlJson $json = new PostgreSqlJson(),
         private PostgreSqlFailureJournalDataCodec $failures = new PostgreSqlFailureJournalDataCodec(),
+        private PostgreSqlRejectionJournalDataCodec $rejections = new PostgreSqlRejectionJournalDataCodec(),
     ) {}
 
     /**
@@ -56,10 +55,7 @@ final readonly class PostgreSqlJournalDataCodec
         }
 
         if ($data instanceof OperationRejectedData) {
-            return [
-                'class' => OperationRejectedData::class,
-                'value' => ['category' => $data->reason->category()->value, 'code' => $data->reason->code()],
-            ];
+            return $this->rejections->encode($data);
         }
 
         $failure = $this->failures->encode($data);
@@ -88,10 +84,7 @@ final readonly class PostgreSqlJournalDataCodec
             )),
             \BlackOps\Journal\Data\OperationDeadLetteredData::class
                 => $this->failures->operationDeadLettered($this->json->array($data, 'value')),
-            OperationRejectedData::class => new OperationRejectedData($this->rejection($this->json->array(
-                $data,
-                'value',
-            ))),
+            OperationRejectedData::class => $this->rejections->decode($this->json->array($data, 'value')),
             default => throw new RuntimeException('Unsupported journal data type.'),
         };
     }
@@ -116,20 +109,6 @@ final readonly class PostgreSqlJournalDataCodec
         }
 
         return new OperationCompletedData($outcome);
-    }
-
-    private function rejection(array $value): RejectionReason
-    {
-        $code = $this->json->string($value, 'code');
-
-        return match (RejectionCategory::from($this->json->string($value, 'category'))) {
-            RejectionCategory::Validation => RejectionReason::validation($code),
-            RejectionCategory::Unauthorized => RejectionReason::unauthorized($code),
-            RejectionCategory::Forbidden => RejectionReason::forbidden($code),
-            RejectionCategory::NotFound => RejectionReason::notFound($code),
-            RejectionCategory::Conflict => RejectionReason::conflict($code),
-            RejectionCategory::BusinessRule => RejectionReason::businessRule($code),
-        };
     }
 
     /**

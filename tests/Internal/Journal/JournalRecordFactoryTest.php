@@ -16,11 +16,14 @@ use BlackOps\Core\OperationEnvelope;
 use BlackOps\Core\OperationHandler;
 use BlackOps\Core\OperationValue;
 use BlackOps\Core\Registry\OperationMetadata;
+use BlackOps\Core\Rejection\RejectionReason;
+use BlackOps\Core\Validation\Violation;
 use BlackOps\Internal\Identifier\IdentifierFactory;
 use BlackOps\Internal\Identifier\Uuidv7Generator;
 use BlackOps\Internal\Journal\JournalRecordFactory;
 use BlackOps\Journal\Data\AttemptRetryScheduledData;
 use BlackOps\Journal\Data\OperationReceivedData;
+use BlackOps\Journal\Data\OperationRejectedData;
 use BlackOps\Journal\EmptyJournalData;
 use BlackOps\Journal\JournalEvent;
 use DateTimeImmutable;
@@ -118,6 +121,49 @@ final class JournalRecordFactoryTest extends TestCase
         self::assertSame(2, $record->sequence);
         self::assertInstanceOf(EmptyJournalData::class, $record->data);
         self::assertSame('deferred', $record->operation->strategy);
+    }
+
+    public function testCreatesPreBindingRejectedRecordWithoutOperationValue(): void
+    {
+        $clock = new class implements ClockInterface {
+            public function now(): DateTimeImmutable
+            {
+                return new DateTimeImmutable('2026-07-06T12:00:00.123456Z');
+            }
+        };
+        $generator = new class implements Uuidv7Generator {
+            public function generate(DateTimeImmutable $time): string
+            {
+                return JournalRecordFactoryTest::ID;
+            }
+        };
+        $context = new ExecutionContext(
+            OperationId::fromString(self::ID),
+            $clock->now(),
+            CorrelationId::fromString(self::ID),
+        );
+        $metadata = new OperationMetadata(
+            'journal.test',
+            JournalOperationFixture::class,
+            JournalValueFixture::class,
+            JournalHandlerFixture::class,
+            EmptyOutcome::class,
+            Deferred::class,
+        );
+        $reason = RejectionReason::validation('validation.failed', [
+            new Violation('message', 'required', 'binding.required'),
+        ]);
+
+        $record = new JournalRecordFactory(
+            new IdentifierFactory($generator, $clock),
+            $clock,
+        )->operationRejectedBeforeBinding(new JournalOperationFixture(), $context, $metadata, 1, $reason);
+
+        self::assertSame(JournalEvent::OperationRejected, $record->event);
+        self::assertSame(1, $record->sequence);
+        self::assertSame('deferred', $record->operation->strategy);
+        self::assertInstanceOf(OperationRejectedData::class, $record->data);
+        self::assertSame($reason, $record->data->reason);
     }
 
     public function testCreatesRetryScheduledRecordForCurrentAttempt(): void

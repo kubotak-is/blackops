@@ -32,6 +32,10 @@ final class OperationValueValidatorTest extends TestCase
             new NotBlankValue(" \t\n"),
             [new Violation('value', 'not_blank', 'validation.not_blank')],
         ];
+        yield 'not blank rejects unicode whitespace' => [
+            new NotBlankValue("\u{3000}"),
+            [new Violation('value', 'not_blank', 'validation.not_blank')],
+        ];
         yield 'length accepts minimum' => [new LengthValue('あい'), []];
         yield 'length accepts maximum' => [new LengthValue('abcd'), []];
         yield 'length rejects below minimum' => [
@@ -40,6 +44,11 @@ final class OperationValueValidatorTest extends TestCase
         ];
         yield 'length rejects above maximum' => [
             new LengthValue('abcde'),
+            [new Violation('value', 'length', 'validation.length')],
+        ];
+        yield 'zero maximum length accepts empty' => [new ZeroLengthValue(''), []];
+        yield 'zero maximum length rejects content' => [
+            new ZeroLengthValue('a'),
             [new Violation('value', 'length', 'validation.length')],
         ];
         yield 'range accepts integer minimum' => [new RangeValue(1), []];
@@ -71,6 +80,11 @@ final class OperationValueValidatorTest extends TestCase
         ];
         yield 'count rejects above maximum' => [
             new CountValue(['first', 'second', 'third']),
+            [new Violation('value', 'count', 'validation.count')],
+        ];
+        yield 'zero maximum count accepts empty' => [new ZeroCountValue([]), []];
+        yield 'zero maximum count rejects item' => [
+            new ZeroCountValue(['first']),
             [new Violation('value', 'count', 'validation.count')],
         ];
         yield 'choice accepts string strictly' => [new ChoiceValue('draft'), []];
@@ -176,6 +190,14 @@ final readonly class LengthValue implements OperationValue
     ) {}
 }
 
+final readonly class ZeroLengthValue implements OperationValue
+{
+    public function __construct(
+        #[Length(max: 0)]
+        public string $value,
+    ) {}
+}
+
 final readonly class RangeValue implements OperationValue
 {
     public function __construct(
@@ -205,6 +227,15 @@ final readonly class CountValue implements OperationValue
     /** @param list<string> $value */
     public function __construct(
         #[Count(min: 1, max: 2)]
+        public array $value,
+    ) {}
+}
+
+final readonly class ZeroCountValue implements OperationValue
+{
+    /** @param list<string> $value */
+    public function __construct(
+        #[Count(max: 0)]
         public array $value,
     ) {}
 }

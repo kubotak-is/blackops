@@ -28,6 +28,7 @@ final class LifecycleStateMachineTest extends TestCase
     public static function allowedTransitions(): iterable
     {
         yield 'initial received' => [null, JournalEvent::OperationReceived, LifecycleState::Received];
+        yield 'initial rejected' => [null, JournalEvent::OperationRejected, LifecycleState::Rejected];
         yield 'received accepted' => [
             LifecycleState::Received,
             JournalEvent::OperationAccepted,

@@ -70,6 +70,8 @@ deptrac:
           value: '/^Symfony\\Component\\Stopwatch(\\|$)/'
         - type: classNameRegex
           value: '/^Symfony\\Component\\Uid(\\|$)/'
+        - type: classNameRegex
+          value: '/^Symfony\\Component\\Validator(\\|$)/'
   ruleset:
     Core: ~
     Application:

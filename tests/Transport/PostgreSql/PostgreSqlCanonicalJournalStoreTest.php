@@ -12,6 +12,7 @@ use BlackOps\Core\OperationValue;
 use BlackOps\Core\Outcome;
 use BlackOps\Core\Rejection\RejectionCategory;
 use BlackOps\Core\Rejection\RejectionReason;
+use BlackOps\Core\Validation\Violation;
 use BlackOps\Internal\Migration\DoctrineMigrationDependencyFactory;
 use BlackOps\Journal\Data\AttemptRetryScheduledData;
 use BlackOps\Journal\Data\OperationCompletedData;
@@ -167,6 +168,28 @@ final class PostgreSqlCanonicalJournalStoreTest extends TestCase
         self::assertInstanceOf(OperationRejectedData::class, $records[0]->data);
         self::assertSame(RejectionCategory::Conflict, $records[0]->data->reason->category());
         self::assertSame('postgres_rejected', $records[0]->data->reason->code());
+        self::assertSame([], $records[0]->data->reason->violations());
+    }
+
+    public function testAppendsAndReadsValidationViolationsWithoutRawValues(): void
+    {
+        $secret = 'database-secret-must-not-be-copied';
+        $violations = [new Violation('password', 'not_blank', 'validation.not_blank')];
+        $this->store->append($this->record(
+            self::RECORD_ID_3,
+            JournalEvent::OperationRejected,
+            1,
+            new OperationRejectedData(RejectionReason::validation('validation.failed', $violations)),
+        ));
+
+        $records = array_values(iterator_to_array($this->store->records(OperationId::fromString(self::OPERATION_ID))));
+        $encoded = $this->connection->fetchOne('SELECT encoded_record::text FROM ' . self::SCHEMA . '.journal');
+
+        self::assertCount(1, $records);
+        self::assertInstanceOf(OperationRejectedData::class, $records[0]->data);
+        self::assertEquals($violations, $records[0]->data->reason->violations());
+        self::assertIsString($encoded);
+        self::assertStringNotContainsString($secret, $encoded);
     }
 
     public function testAppendsAndReadsRetryScheduledData(): void

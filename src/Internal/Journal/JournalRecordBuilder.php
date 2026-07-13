@@ -6,9 +6,12 @@ namespace BlackOps\Internal\Journal;
 
 use BlackOps\Core\Execution\Deferred;
 use BlackOps\Core\Execution\Inline;
+use BlackOps\Core\ExecutionContext;
 use BlackOps\Core\OperationEnvelope;
 use BlackOps\Core\Registry\OperationMetadata;
+use BlackOps\Core\Rejection\RejectionReason;
 use BlackOps\Internal\Identifier\IdentifierFactory;
+use BlackOps\Journal\Data\OperationRejectedData;
 use BlackOps\Journal\JournalAttempt;
 use BlackOps\Journal\JournalData;
 use BlackOps\Journal\JournalEvent;
@@ -39,7 +42,31 @@ final readonly class JournalRecordBuilder
             throw new LogicException('Journal metadata does not match the operation envelope strategy.');
         }
 
-        $context = $envelope->context();
+        return $this->buildFromContext($envelope->context(), $metadata, $sequence, $event, $data);
+    }
+
+    public function buildRejectedBeforeBinding(
+        ExecutionContext $context,
+        OperationMetadata $metadata,
+        int $sequence,
+        RejectionReason $reason,
+    ): JournalRecord {
+        return $this->buildFromContext(
+            $context,
+            $metadata,
+            $sequence,
+            JournalEvent::OperationRejected,
+            new OperationRejectedData($reason),
+        );
+    }
+
+    private function buildFromContext(
+        ExecutionContext $context,
+        OperationMetadata $metadata,
+        int $sequence,
+        JournalEvent $event,
+        JournalData $data,
+    ): JournalRecord {
         $attempt = $context->attempt();
 
         return new JournalRecord(
@@ -52,7 +79,7 @@ final readonly class JournalRecordBuilder
                 $context->operationId(),
                 $metadata->typeId,
                 1,
-                $this->strategyWireName($envelope),
+                $this->strategyWireName($metadata->strategy),
                 $context->correlationId(),
                 $context->causationId(),
             ),
@@ -61,9 +88,10 @@ final readonly class JournalRecordBuilder
         );
     }
 
-    private function strategyWireName(OperationEnvelope $envelope): string
+    /** @param class-string $strategy */
+    private function strategyWireName(string $strategy): string
     {
-        return match ($envelope->strategy()::class) {
+        return match ($strategy) {
             Inline::class => 'inline',
             Deferred::class => 'deferred',
             default => throw new LogicException('Unsupported journal operation strategy.'),

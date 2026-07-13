@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-14T01:52:39+09:00
+Updated At: 2026-07-14T02:23:32+09:00
 
 ## Current Phase
 
@@ -8,21 +8,21 @@ Phase 10: Documentation Website
 
 ## Current Task
 
-Task ID: P10-005E2-http-validation-lifecycle
+Task ID: P10-005F-frankenphp-worker-mode
 
-Task Packet: `develop/orchestration/tasks/P10-005E2-http-validation-lifecycle.md`
+Task Packet: `develop/orchestration/tasks/P10-005F-frankenphp-worker-mode.md`
 
-Specifications: `develop/spec/02-lifecycle-and-journal.md`、`develop/spec/04-handler-and-result.md`、`develop/spec/05-http.md`、`develop/spec/36-postgresql-transaction-boundaries.md`
+Specifications: `develop/spec/44-public-application-bootstrap-api.md`、`develop/spec/49-feature-first-quickstart-application.md`
 
 ## Task Status
 
-P10-005E2 In Progress
+P10-005F Ready to Start
 
-D089はAで確定した。Value Validation FailureのCanonical Receivedは再現可能な実Valueを保持し、Observed Journal、Response、Exception、Rejected Data／ViolationにはRaw／Sensitive Valueを含めない。D087／D088／D089の確定ContractでP10-005E2を再開する。
+P10-005E2はOrchestrator Reviewと独立再検証を完了しAcceptedとした。次はD085どおりFrankenPHP Worker Modeを明示Opt-inで実装し、Process単位BootstrapとRequest間State Safetyを検証する。
 
 ## Last Accepted Task
 
-P10-005E1-operation-value-validation-core
+P10-005E2-http-validation-lifecycle
 
 ## Pending Decisions
 
@@ -36,16 +36,35 @@ P10-005E1-operation-value-validation-core
 
 ## Known Blockers
 
-P10-005E2に既知のBlockerはない。P10-005F／P10-005Dは前Task完了待ち。Cloudflare Project／Token／GitHub Environment SecretsとProtection Ruleの未設定はRemote DeployだけのExternal Blockerである。
+P10-005Fに既知のBlockerはない。P10-005DはP10-005F完了待ち。Cloudflare Project／Token／GitHub Environment SecretsとProtection Ruleの未設定はRemote DeployだけのExternal Blockerである。
 
 ## Required Next Action
 
-1. 現在利用可能なWorkerがD087／D088／D089 ContractでP10-005E2を実装する。
-2. Symfony Validator BackendとSensitive境界をParity／E2E Testする。
-3. OrchestratorがReview／Commitする。
-4. P10-005Fを実装する。
-5. P10-005Dで全Reader Journeyを最終実装へ同期する。
-6. Repository内修正後、Cloudflare External ConfigurationとP10-006 Closeoutへ進む。
+1. P10-005FをWorkerへ割り当て、FrankenPHP Worker Modeを明示Opt-inで実装する。
+2. Process単位Bootstrap、Request Isolation、Flush／Reconnect／Restart、Classic Fallbackを検証する。
+3. P10-005Dで全Reader Journeyを最終実装へ同期する。
+4. Repository内修正後、Cloudflare External ConfigurationとP10-006 Closeoutへ進む。
+
+## P10-005E2 HTTP Validation Lifecycle Worker Verification Commands and Results
+
+```text
+docker compose run --rm app composer validate --strict
+Result: ./composer.json is valid.
+
+docker compose run --rm app mago format --check src tests examples
+docker compose run --rm app mago lint
+docker compose run --rm app mago analyze
+Result: Format済み、Lint／AnalyzeともにNo issues found.
+
+docker compose run --rm app vendor/bin/phpunit
+Result: OK (861 tests, 2767 assertions). Protocol／Binding／Value、Inline／Deferred、Canonical／Observed Sensitive境界、Symfony Parity、Codec BCを検証。
+
+docker compose run --rm app vendor/bin/deptrac
+Result: Violations 0 / Skipped 0 / Uncovered 0 / Allowed 1706 / Warnings 0 / Errors 0.
+
+bash tests/Consumer/quickstart-e2e.sh
+Result: Quickstart consumer E2E passed. 422、Received→Rejected、Deferred State未作成、Observed Sensitive非露出を検証。
+```
 
 ## P10-005E1 OperationValue Validation Core Worker Verification Commands and Results
 

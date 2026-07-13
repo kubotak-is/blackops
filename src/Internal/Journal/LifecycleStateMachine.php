@@ -16,6 +16,7 @@ readonly class LifecycleStateMachine
     private const TRANSITIONS = [
         'initial' => [
             'operation.received' => 'received',
+            'operation.rejected' => 'rejected',
         ],
         'received' => [
             'operation.accepted' => 'accepted',

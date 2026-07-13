@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace BlackOps\Internal\Projection;
 
+use BlackOps\Core\Validation\Violation;
+use BlackOps\Journal\Data\OperationRejectedData;
+use BlackOps\Journal\JournalData;
 use BlackOps\Journal\JournalRecord;
 use BlackOps\Journal\ObservedJournalRecord;
 
@@ -23,7 +26,29 @@ final readonly class ObservedJournalRecordProjector
             $record->sequence,
             $record->operation,
             $record->attempt,
-            $this->sensitive->projectObject($record->data),
+            $this->data($record->data),
         );
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function data(JournalData $data): array
+    {
+        if (!$data instanceof OperationRejectedData) {
+            return $this->sensitive->projectObject($data);
+        }
+
+        return [
+            'reason' => [
+                'category' => $data->reason->category()->value,
+                'code' => $data->reason->code(),
+                'violations' => array_map(static fn(Violation $violation): array => [
+                    'field' => $violation->field,
+                    'rule' => $violation->rule,
+                    'code' => $violation->code,
+                ], $data->reason->violations()),
+            ],
+        ];
     }
 }

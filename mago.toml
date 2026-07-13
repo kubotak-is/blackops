@@ -17,7 +17,9 @@ includes = [
   "vendor/symfony/console",
   "vendor/symfony/dependency-injection",
   "vendor/symfony/stopwatch",
+  "vendor/symfony/translation-contracts",
   "vendor/symfony/uid",
+  "vendor/symfony/validator",
 ]
 
 [analyzer]

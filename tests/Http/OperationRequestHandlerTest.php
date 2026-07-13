@@ -6,6 +6,7 @@ namespace BlackOps\Tests\Http;
 
 use BlackOps\Core\EmptyOutcome;
 use BlackOps\Core\Execution\Inline;
+use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Core\Operation;
 use BlackOps\Core\OperationEnvelope;
 use BlackOps\Core\OperationHandler;
@@ -16,7 +17,9 @@ use BlackOps\Core\Registry\OperationMetadata;
 use BlackOps\Core\Registry\OperationRegistry;
 use BlackOps\Core\Rejection\RejectionCategory;
 use BlackOps\Core\Rejection\RejectionReason;
+use BlackOps\Core\Validation\Violation;
 use BlackOps\Execution\Dispatcher;
+use BlackOps\Execution\ValidationRejectionRecorder;
 use BlackOps\Http\Attribute\FromBody;
 use BlackOps\Http\Attribute\FromHeader;
 use BlackOps\Http\Attribute\FromPath;
@@ -108,6 +111,21 @@ final class OperationRequestHandlerTest extends TestCase
         self::assertSame(409, $response->getStatusCode());
         self::assertSame(
             '{"status":"rejected","category":"conflict","code":"welcome_unavailable"}',
+            (string) $response->getBody(),
+        );
+    }
+
+    public function testManualValidationRejectionKeepsLegacyResponseShape(): void
+    {
+        $handler = $this->httpHandler(new FixedDispatcher(OperationResult::rejected(RejectionReason::validation(
+            'input.invalid',
+        ))));
+
+        $response = $handler->handle($this->request('GET', '/welcome'));
+
+        self::assertSame(422, $response->getStatusCode());
+        self::assertSame(
+            '{"status":"rejected","category":"validation","code":"input.invalid"}',
             (string) $response->getBody(),
         );
     }
@@ -250,6 +268,7 @@ final class OperationRequestHandlerTest extends TestCase
             $dispatcher,
             new JsonOperationResponder($this->psr17, $this->psr17),
             $this->psr17,
+            new NoopValidationRejectionRecorder(),
         );
 
         $response = $handler->handle($this->request('GET', '/welcome/Ada'));
@@ -267,6 +286,7 @@ final class OperationRequestHandlerTest extends TestCase
             $dispatcher,
             new JsonOperationResponder($this->psr17, $this->psr17),
             $this->psr17,
+            $dispatcher instanceof ValidationRejectionRecorder ? $dispatcher : new NoopValidationRejectionRecorder(),
         );
     }
 
@@ -471,6 +491,24 @@ final class RecordingDispatcher implements Dispatcher
         $this->value = $value;
 
         return $this->result;
+    }
+}
+
+final readonly class NoopValidationRejectionRecorder implements ValidationRejectionRecorder
+{
+    public function validate(OperationValue $value): array
+    {
+        return [];
+    }
+
+    public function rejectBinding(Operation $definition, array $violations): OperationId
+    {
+        self::fail('Binding rejection should not be recorded.');
+    }
+
+    public function rejectValue(Operation $definition, OperationValue $value, array $violations): OperationId
+    {
+        self::fail('Value rejection should not be recorded.');
     }
 }
 

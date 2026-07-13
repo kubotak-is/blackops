@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace BlackOps\Http\Binding;
 
-use InvalidArgumentException;
 use JsonException;
 use Psr\Http\Message\ServerRequestInterface;
+use stdClass;
 
 final readonly class JsonRequestBody
 {
@@ -23,24 +23,25 @@ final readonly class JsonRequestBody
 
         try {
             /** @var mixed $decoded */
-            $decoded = json_decode($body, associative: true, flags: JSON_THROW_ON_ERROR);
+            $decoded = json_decode($body, flags: JSON_THROW_ON_ERROR);
         } catch (JsonException $exception) {
-            throw new InvalidArgumentException('HTTP request body must contain valid JSON.', previous: $exception);
+            throw HttpProtocolException::malformedJson($exception);
         }
 
-        if (!is_array($decoded)) {
-            throw new InvalidArgumentException('HTTP request body must contain a JSON object.');
+        if (!$decoded instanceof stdClass) {
+            throw HttpProtocolException::nonObjectBody();
         }
 
         $result = [];
 
-        foreach (array_keys($decoded) as $key) {
+        $decodedValues = get_object_vars($decoded);
+        foreach (array_keys($decodedValues) as $key) {
             if (!is_string($key)) {
                 continue;
             }
 
             /** @var mixed $value */
-            $value = $decoded[$key];
+            $value = $decodedValues[$key];
             $result[$key] = $value;
         }
 

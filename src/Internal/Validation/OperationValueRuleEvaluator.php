@@ -11,45 +11,54 @@ use BlackOps\Core\Validation\Attribute\Length;
 use BlackOps\Core\Validation\Attribute\NotBlank;
 use BlackOps\Core\Validation\Attribute\Range;
 use BlackOps\Core\Validation\Attribute\Regex;
+use Symfony\Component\Validator\Validation;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 final readonly class OperationValueRuleEvaluator
 {
+    private ValidatorInterface $validator;
+
+    public function __construct(
+        ?ValidatorInterface $validator = null,
+        private SymfonyOperationValueConstraintFactory $constraints = new SymfonyOperationValueConstraintFactory(),
+    ) {
+        $this->validator = $validator ?? Validation::createValidator();
+    }
+
     public function passes(object $rule, mixed $value): bool
     {
+        if (!$this->supportsValue($rule, $value)) {
+            return false;
+        }
+
+        $constraint = $this->constraints->create($rule);
+
+        return $constraint !== null && count($this->validator->validate($value, $constraint)) === 0;
+    }
+
+    private function supportsValue(object $rule, mixed $value): bool
+    {
         return match (true) {
-            $rule instanceof NotBlank => is_string($value) && preg_match('/^\s*$/u', $value) === 0,
-            $rule instanceof Length => $this->length($value, $rule),
-            $rule instanceof Range => $this->range($value, $rule),
-            $rule instanceof Email => is_string($value) && filter_var($value, FILTER_VALIDATE_EMAIL) !== false,
-            $rule instanceof Regex => is_string($value) && preg_match($rule->pattern, $value) === 1,
-            $rule instanceof Count => is_array($value) && $this->inside(count($value), $rule->min, $rule->max),
-            $rule instanceof Choice => is_scalar($value) && in_array($value, $rule->choices, strict: true),
+            $this->isStringRule($rule) => is_string($value),
+            $rule instanceof Range => $this->isFiniteNumber($value),
+            $rule instanceof Count => is_array($value),
+            $rule instanceof Choice => $this->isFiniteScalar($value),
             default => false,
         };
     }
 
-    private function length(mixed $value, Length $rule): bool
+    private function isStringRule(object $rule): bool
     {
-        if (!is_string($value)) {
-            return false;
-        }
-
-        $length = preg_match_all('/./us', $value);
-
-        return $length !== false && $this->inside($length, $rule->min, $rule->max);
+        return $rule instanceof NotBlank || $rule instanceof Length || $rule instanceof Email || $rule instanceof Regex;
     }
 
-    private function range(mixed $value, Range $rule): bool
+    private function isFiniteNumber(mixed $value): bool
     {
-        return (
-            (is_int($value) || is_float($value))
-            && is_finite((float) $value)
-            && $this->inside($value, $rule->min, $rule->max)
-        );
+        return (is_int($value) || is_float($value)) && is_finite((float) $value);
     }
 
-    private function inside(int|float $value, int|float|null $min, int|float|null $max): bool
+    private function isFiniteScalar(mixed $value): bool
     {
-        return ($min === null || $value >= $min) && ($max === null || $value <= $max);
+        return is_scalar($value) && (!is_float($value) || is_finite($value));
     }
 }

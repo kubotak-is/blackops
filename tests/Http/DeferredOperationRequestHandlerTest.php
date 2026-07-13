@@ -10,12 +10,11 @@ use BlackOps\Core\Execution\Deferred;
 use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Core\Operation;
 use BlackOps\Core\OperationHandler;
-use BlackOps\Core\OperationResult;
 use BlackOps\Core\OperationValue;
 use BlackOps\Core\Outcome;
 use BlackOps\Core\Registry\OperationMetadata;
 use BlackOps\Core\Registry\OperationRegistry;
-use BlackOps\Execution\Dispatcher;
+use BlackOps\Core\Validation\Attribute\NotBlank;
 use BlackOps\Http\Attribute\Route;
 use BlackOps\Http\Binding\OperationValueBinder;
 use BlackOps\Http\OperationRequestHandler;
@@ -24,6 +23,8 @@ use BlackOps\Http\Routing\HttpOperationRoute;
 use BlackOps\Http\Routing\HttpRouteRegistry;
 use BlackOps\Internal\Codec\ReflectionJsonOperationCodec;
 use BlackOps\Internal\Execution\DeferredAcceptanceOrchestrator;
+use BlackOps\Internal\Execution\HandlerResolver;
+use BlackOps\Internal\Execution\InlineDispatcher;
 use BlackOps\Internal\ExecutionContext\ExecutionContextFactory;
 use BlackOps\Internal\Http\DeferredHttpOperationAcceptor;
 use BlackOps\Internal\Identifier\IdentifierFactory;
@@ -41,6 +42,7 @@ use Doctrine\DBAL\DriverManager;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
+use Psr\Container\ContainerInterface;
 
 final class DeferredOperationRequestHandlerTest extends TestCase
 {
@@ -109,6 +111,43 @@ final class DeferredOperationRequestHandlerTest extends TestCase
         self::assertSame(202, $response->getStatusCode());
     }
 
+    public function testDeferredBindingFailureRejectsWithoutPersistenceOrAcceptance(): void
+    {
+        $handler = $this->handler(new ReflectionJsonOperationCodec());
+        $request = $this->psr17->createServerRequest('POST', '/reports')->withBody($this->psr17->createStream('{}'));
+
+        $response = $handler->handle($request);
+        $records = $this->records();
+
+        self::assertSame(422, $response->getStatusCode());
+        self::assertStringContainsString('"operationId":"' . self::OPERATION_ID . '"', (string) $response->getBody());
+        self::assertSame(0, (int) $this->connection->fetchOne('SELECT count(*) FROM ' . self::SCHEMA . '.operations'));
+        self::assertSame([JournalEvent::OperationRejected], array_column($records, 'event'));
+        self::assertSame([1], array_column($records, 'sequence'));
+    }
+
+    public function testDeferredValueFailureRejectsBeforePersistenceOrAcceptance(): void
+    {
+        $handler = $this->handler(new ReflectionJsonOperationCodec());
+        $request = $this->psr17
+            ->createServerRequest('POST', '/reports')
+            ->withBody($this->psr17->createStream('{"reportName":""}'));
+
+        $response = $handler->handle($request);
+        $records = $this->records();
+
+        self::assertSame(422, $response->getStatusCode());
+        self::assertStringContainsString('"operationId":"' . self::OPERATION_ID . '"', (string) $response->getBody());
+        self::assertSame(0, (int) $this->connection->fetchOne('SELECT count(*) FROM ' . self::SCHEMA . '.operations'));
+        self::assertSame(
+            [JournalEvent::OperationReceived, JournalEvent::OperationRejected],
+            array_column($records, 'event'),
+        );
+        self::assertSame([1, 2], array_column($records, 'sequence'));
+        self::assertInstanceOf(OperationReceivedData::class, $records[0]->data);
+        self::assertSame('', $records[0]->data->value->reportName);
+    }
+
     private function handler(OperationCodec $codec): OperationRequestHandler
     {
         $clock = new DeferredHttpClock();
@@ -127,6 +166,13 @@ final class DeferredOperationRequestHandlerTest extends TestCase
             $this->journal,
             new JournalRecordFactory($identifiers, $clock),
         );
+        $dispatcher = new InlineDispatcher(
+            $registry,
+            new ExecutionContextFactory($identifiers, $clock),
+            new HandlerResolver(new DeferredHttpFailingContainer()),
+            new JournalRecordFactory($identifiers, $clock),
+            $this->journal,
+        );
 
         return new OperationRequestHandler(
             new HttpRouteRegistry([new HttpOperationRoute(
@@ -136,9 +182,10 @@ final class DeferredOperationRequestHandlerTest extends TestCase
                 ReportRequestValue::class,
             )]),
             new OperationValueBinder(),
-            new DeferredHttpFailingDispatcher(),
+            $dispatcher,
             new JsonOperationResponder($this->psr17, $this->psr17),
             $this->psr17,
+            $dispatcher,
             new DeferredHttpOperationAcceptor(
                 $registry,
                 new ExecutionContextFactory($identifiers, $clock),
@@ -211,17 +258,23 @@ final readonly class GenerateReport implements Operation {}
 final readonly class ReportRequestValue implements OperationValue
 {
     public function __construct(
+        #[NotBlank]
         public string $reportName,
     ) {}
 }
 
 abstract class GenerateReportHandler implements OperationHandler {}
 
-final readonly class DeferredHttpFailingDispatcher implements Dispatcher
+final readonly class DeferredHttpFailingContainer implements ContainerInterface
 {
-    public function dispatch(Operation $definition, OperationValue $value): OperationResult
+    public function get(string $id): mixed
     {
-        self::fail('Inline dispatcher should not be called for a deferred route.');
+        self::fail('Deferred handler resolution should not run during HTTP acceptance.');
+    }
+
+    public function has(string $id): bool
+    {
+        return true;
     }
 }
 

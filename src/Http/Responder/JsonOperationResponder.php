@@ -6,10 +6,12 @@ namespace BlackOps\Http\Responder;
 
 use BlackOps\Core\EmptyOutcome;
 use BlackOps\Core\Execution\DeferredAcknowledgement;
+use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Core\OperationResult;
 use BlackOps\Core\Outcome;
 use BlackOps\Core\Rejection\RejectionCategory;
 use BlackOps\Core\Time\TimeCodec;
+use BlackOps\Core\Validation\Violation;
 use JsonException;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -52,6 +54,32 @@ final readonly class JsonOperationResponder
             'status' => 'accepted',
             'operationId' => $acknowledgement->operationId()->toString(),
             'acceptedAt' => $this->time->format($acknowledgement->acceptedAt()),
+        ]);
+    }
+
+    public function respondProtocolError(string $code): ResponseInterface
+    {
+        return $this->json(400, [
+            'status' => 'error',
+            'code' => $code,
+        ]);
+    }
+
+    /**
+     * @param list<Violation> $violations
+     */
+    public function respondValidationRejection(OperationId $operationId, array $violations): ResponseInterface
+    {
+        return $this->json(422, [
+            'status' => 'rejected',
+            'operationId' => $operationId->toString(),
+            'category' => RejectionCategory::Validation->value,
+            'code' => 'validation.failed',
+            'violations' => array_map(static fn(Violation $violation): array => [
+                'field' => $violation->field,
+                'rule' => $violation->rule,
+                'code' => $violation->code,
+            ], $violations),
         ]);
     }
 
