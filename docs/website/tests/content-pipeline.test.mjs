@@ -8,7 +8,7 @@ import { generateContent } from '../scripts/content-pipeline.mjs';
 test('generates deterministic Starlight content and manifest without changing source', async (context) => {
   const fixture = await fixtureRoot(context);
   await sources(fixture.source, {
-    'README.md': '# Home\n\n[Guide](guide.md)\n\n```text\n# Preserved\n```\n\n| A | B |\n| - | - |\n',
+    'README.md': '# Home\n\n[Guide](guide.md)\n\n```text\n# Preserved\n```\n\n```mermaid\nflowchart LR\n    accTitle: Example\n    accDescr: Example relationship\n    A --> B\n```\n\n| A | B |\n| - | - |\n',
     'guide.md': '# Guide\n\n## Next\n',
   });
   const before = await readFile(path.join(fixture.source, 'README.md'), 'utf8');
@@ -22,6 +22,7 @@ test('generates deterministic Starlight content and manifest without changing so
   assert.doesNotMatch(first.index, /^# Home$/m);
   assert.match(first.index, /\[Guide\]\(\/guide\/\)/);
   assert.match(first.index, /```text\n# Preserved\n```/);
+  assert.match(first.index, /```mermaid\nflowchart LR\n    accTitle: Example/);
   assert.match(first.index, /\| A \| B \|/);
   assert.equal(await readFile(path.join(fixture.source, 'README.md'), 'utf8'), before);
 

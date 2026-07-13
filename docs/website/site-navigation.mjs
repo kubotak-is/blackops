@@ -1,5 +1,9 @@
 export const sidebar = [
   {
+    label: 'Overview',
+    items: ['concepts/why-blackops', 'concepts/core-concepts'],
+  },
+  {
     label: 'Getting Started',
     items: [
       'getting-started/installation',
@@ -28,15 +32,16 @@ export const sidebar = [
       'reference/application-bootstrap',
       'reference/project-cli',
       'reference/current-status',
+      'reference/glossary',
     ],
   },
 ];
 
 export function validateNavigation(contentMap, navigation = sidebar) {
   const labels = navigation.map(({ label }) => label);
-  const required = ['Getting Started', 'Operations', 'Execution', 'Database', 'Reference'];
+  const required = ['Overview', 'Getting Started', 'Operations', 'Execution', 'Database', 'Reference'];
   if (JSON.stringify(labels) !== JSON.stringify(required)) {
-    throw new Error(`Sidebar must contain the five public sections in order: ${required.join(', ')}`);
+    throw new Error(`Sidebar must contain the six public sections in order: ${required.join(', ')}`);
   }
 
   const mapped = Object.values(contentMap)

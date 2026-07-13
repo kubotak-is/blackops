@@ -11,11 +11,12 @@
   "scripts": {
     "content:generate": "node scripts/generate-content.mjs",
     "content:check": "node scripts/check-content.mjs",
+    "diagrams:check": "node scripts/check-diagrams.mjs",
     "site:check": "node scripts/check-site.mjs",
     "test": "node --test --test-isolation=none tests/*.test.mjs",
     "astro:check": "ASTRO_TELEMETRY_DISABLED=1 astro check",
-    "check": "pnpm run content:check && pnpm run astro:check",
-    "build": "pnpm run content:generate && ASTRO_TELEMETRY_DISABLED=1 astro build && node scripts/check-artifact.mjs && pnpm run site:check",
+    "check": "pnpm run content:check && pnpm run diagrams:check && pnpm run astro:check",
+    "build": "pnpm run content:generate && pnpm run diagrams:check && ASTRO_TELEMETRY_DISABLED=1 astro build && node scripts/check-artifact.mjs && pnpm run site:check",
     "dev": "pnpm run content:generate && ASTRO_TELEMETRY_DISABLED=1 astro dev"
   },
   "dependencies": {
@@ -24,6 +25,9 @@
   },
   "devDependencies": {
     "@astrojs/check": "0.9.9",
+    "astro-mermaid": "2.1.0",
+    "jsdom": "29.1.1",
+    "mermaid": "11.16.0",
     "typescript": "6.0.3",
     "wrangler": "4.110.0"
   }

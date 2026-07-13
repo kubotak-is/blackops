@@ -1,0 +1,29 @@
+.main-pane,
+.content-panel,
+.sl-container,
+.sl-markdown-content {
+  min-inline-size: 0;
+}
+
+.sl-markdown-content > pre.mermaid {
+  display: block;
+  inline-size: 100%;
+  max-inline-size: 100%;
+  min-inline-size: 0;
+  box-sizing: border-box;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.sl-markdown-content > pre.mermaid > svg {
+  display: block;
+  max-inline-size: none !important;
+  block-size: auto;
+  margin-inline: auto;
+}
+
+@media (max-width: 50rem) {
+  .sl-markdown-content > pre.mermaid > svg {
+    min-inline-size: 60rem;
+  }
+}

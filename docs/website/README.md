@@ -26,9 +26,25 @@ mise exec -- pnpm --dir docs/website run dev
 
 GeneratorはTitle、Slug、内部Link、Source境界を検証する。`docs/internal/`、`develop/`、Repository Absolute Pathは公開Contentへ取り込まない。
 
-`content-map.mjs`はSource Relative Pathから公開Slug／Page MetadataへのMapping、`site-navigation.mjs`は5つの利用者向けSidebarを管理する。Source追加時は両方を更新する。未登録Source、欠落Source、重複Slug、Sidebar未配置／重複／未知SlugはBuild前に拒否される。
+`content-map.mjs`はSource Relative Pathから公開Slug／Page MetadataへのMapping、`site-navigation.mjs`はOverview、Getting Started、Operations、Execution、Database、Referenceの6 Sectionを管理する。Source追加時は両方を更新する。未登録Source、欠落Source、重複Slug、Sidebar未配置／重複／未知SlugはBuild前に拒否される。
 
 Static Build後の`site:check`はLanding CTA、InstallからLocal Runtimeまでの連続Link、全PageのVersion Notice、Starlight標準Skip Link／Mobile Menu／Search Shortcut／Theme Selector、Pagefind日本語Indexと実Searchを検証する。独自Color／Navigation Componentは追加せず、Starlight標準のContrastとKeyboard Interactionを維持する。
+
+## Reader-facing Terminology
+
+本文は日本語の能動態を主体にし、Class、Method、Attribute、Command、JSON Field等の正確なSymbolは英語のCode表記を維持する。BlackOps固有Termは初出段落で一行定義するかGlossaryへLinkし、一般的なPHP／HTTP／SQL用語は重複定義しない。同じ概念の日本語名と英語名を無秩序に切り替えない。
+
+Reader Experienceを改善するときもStable `1.0.0`と`main`の差、Failure、未実装機能、Security／運用制約を削らない。利用者が次に行うActionと、その制約が必要な理由へ言い換える。
+
+## Mermaid Diagrams
+
+Mermaid DiagramはStarlight公式Resourcesに掲載された`astro-mermaid`と`mermaid`をExact PinしたLocal Dependencyで描画する。外部CDNへ接続せず、Static HTMLの`pre.mermaid`描画Targetを、同梱したClient RuntimeがBrowser内でSVGへ変換する。各`mermaid` Fenceは`accTitle`と`accDescr`を持ち、直後の本文またはTableに「図のテキスト代替」として同じ関係を記載する。
+
+`diagrams:check`は`check`と`build`の前に固定したMermaid Parserで4つのSourceをParseし、構文ErrorとAccessible Metadata欠落をFail-fastする。`check-artifact`と`site:check`は4つの描画Target、Local Renderer Chunk、Text Alternative、外部Diagram CDN不在を検証する。Static ArtifactにSourceとTargetだけがあり、Rendererが同梱されない状態は許可しない。
+
+`autoTheme: true`によりStarlightの`data-theme`を追跡し、LightではMermaid `default`、Darkでは`dark` Themeで再描画する。Diagramの色やClient Runtimeを変更する場合は、両Themeでの可読性、Accessible Name／Description、外部Network Request不在をBrowserで再確認する。
+
+`src/styles/diagram-responsive.css`はContent Containerの最小幅を解除し、`pre.mermaid`を本文幅へ制約する。50 rem以下のViewportではSVGの最小幅を60 remとしてNodeとLabelの可読性を保ち、Diagram Target内のHorizontal Scrollで図の全領域へ移動できるようにする。Page全体にはHorizontal Overflowを発生させない。Responsive RuleはSource Test、Artifact Guard、Site Checkで維持する。
 
 ## Delivery
 

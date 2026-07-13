@@ -2,6 +2,43 @@
 
 Operationの実行経路はDirectoryではなくMetadataで決まります。HTTP Routeを持つOperationはCompile済みHTTP Manifestへ登録され、Execution Strategyを指定しない場合はInline、`Deferred`を指定した場合はDurable受付になります。
 
+```mermaid
+sequenceDiagram
+    accTitle: InlineとDeferredの実行順序
+    accDescr: InlineはHTTP Request内でAttemptを開始してOutcomeを返す。DeferredはOperationをDurableにAcceptedとして202を返し、後でWorkerがClaimしてAttemptとOutcomeを完了する。
+    actor Client
+    participant HTTP as HTTP Adapter
+    participant Journal
+    participant Operation
+    participant Store as Durable Store
+    participant Worker
+    alt Inline
+        Client->>HTTP: Request
+        HTTP->>Journal: operation.received
+        HTTP->>Journal: attempt.started
+        HTTP->>Operation: handle(value, context)
+        Operation-->>HTTP: Outcome
+        HTTP->>Journal: attempt.succeeded / operation.completed
+        HTTP-->>Client: HTTP Response
+    else Deferred
+        Client->>HTTP: Request
+        HTTP->>Journal: operation.received
+        HTTP->>Store: Value / ContextをDurable保存
+        HTTP->>Journal: operation.accepted
+        HTTP-->>Client: 202 + Operation ID
+        Worker->>Store: Claim
+        Worker->>Journal: attempt.started
+        Worker->>Operation: handle(value, context)
+        Operation-->>Worker: Outcome
+        Worker->>Store: Outcome保存
+        Worker->>Journal: attempt.succeeded / operation.completed
+    end
+```
+
+## 図のテキスト代替
+
+InlineはHTTP Request内で`operation.received`から直接Attemptを開始し、OperationのOutcomeをHTTP Responseへ変換して返します。DeferredはValueとContextをDurable Storeへ保存し、`operation.accepted`の後にHTTP 202とOperation IDを返します。Workerは後から[Claim](glossary.md#claim)を取得し、Attempt、Outcome保存、完了Journalを実行します。
+
 ## Inline HTTP
 
 ```php
@@ -54,9 +91,9 @@ Project CLIからWorkerを起動します。
 php bin/blackops blackops:worker:run --idle-sleep-milliseconds=1000
 ```
 
-Workerは期限切れAttemptをRecoveryしてからClaimし、一度に最大1 Claimを処理します。Smoke Testでは`--iterations=N`でLoop回数を制限できます。常駐ProcessはProcess ManagerまたはCompose Worker Profileで監督してください。
+Workerは期限切れAttemptをRecoveryしてから[Claim](glossary.md#claim)し、一度に最大1 Claimを処理します。Smoke Testでは`--iterations=N`でLoop回数を制限できます。常駐ProcessはProcess ManagerまたはCompose Worker Profileで監督してください。
 
-PCNTL HeartbeatはHandler実行中だけLeaseを更新します。Heartbeat間隔はLeaseより短い正数にし、Heartbeat用DBAL ConnectionをClaim／Settlement用Connectionと分離します。
+PCNTL [Heartbeat](glossary.md#heartbeat)はHandler実行中だけ[Lease](glossary.md#lease)を更新します。Heartbeat間隔はLeaseより短い正数にし、Heartbeat用DBAL ConnectionをClaim／Settlement用Connectionと分離します。
 
 `SIGTERM`／`SIGINT`では新しいClaimを停止し、Grace Period内で実行中Handlerの完了を待ちます。Heartbeat失敗やGrace Timeout時はClaimを成功扱いせず、Lease ExpiryとRecoveryへ委ねます。
 

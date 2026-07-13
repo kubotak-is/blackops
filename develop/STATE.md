@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-13T19:51:45+09:00
+Updated At: 2026-07-13T20:41:00+09:00
 
 ## Current Phase
 
@@ -16,13 +16,13 @@ Specification: `develop/spec/59-documentation-reader-experience.md`
 
 ## Task Status
 
-P10-005A Ready
+P10-005A Accepted
 
-初見読者向けのWhy BlackOps、Core Concepts、Laravel／Symfony Mental Model、4 Mermaid Diagram、Glossaryを追加し、Getting Startedより前の理解導線を構築する。User要求をD082とSpec 59へ確定し、P10-005A／P10-005Bの二つのReview／Commit単位へ分割した。
+初見読者向けのWhy BlackOps、Core Concepts、Laravel／Symfony Mental Model、4 Mermaid Diagram、Glossaryを追加し、Getting Startedより前の理解導線を構築した。Starlight公式Resources掲載の`astro-mermaid` `2.1.0`と`mermaid` `11.16.0`をExact Pinし、構文Parse、Local Client Renderer Artifact、Light／Dark Theme、Accessible Metadata／Text AlternativeをGuardした。Browser Reviewで検出したMobile Page OverflowとSVG内部Clipは、60 remのSVGをDiagram Target内だけで横ScrollするResponsive CSSへ切り替えて解消した。
 
 ## Last Accepted Task
 
-P10-005-cloudflare-pages-delivery
+P10-005A-reader-orientation-and-diagrams
 
 ## Pending Decisions
 
@@ -30,13 +30,35 @@ Cloudflare External Configuration待ちは継続するが、Repository内Reader 
 
 ## Known Blockers
 
-P10-005A Repository実装に既知のBlockerはない。Cloudflare Project／Token／GitHub Environment SecretsとProtection Ruleの未設定はRemote DeployだけのExternal Blockerであり、P10-005A／P10-005Bを妨げない。
+P10-005A Repository実装に既知のBlockerはない。Build-time Playwright方式はOS Shared Library不足のため中止し、Fresh Installで再現可能な公式Client Integrationへ切替済み。Cloudflare Project／Token／GitHub Environment SecretsとProtection Ruleの未設定はRemote DeployだけのExternal Blockerであり、P10-005Bを妨げない。
 
 ## Required Next Action
 
-1. P10-005AをPhase 10限定承認済みWorkerへ委譲する。
-2. Orchestrator Review／Commit後、P10-005Bへ進む。
+1. P10-005Aを単独Commitする。
+2. P10-005Bを開始し、Tutorial、Troubleshooting、Security、Core API／Attribute Reference、Tone統一を実装する。
 3. External Configuration完了後、P10-006でPreview／Production／Live EvidenceをCloseする。
+
+## P10-005A Reader Orientation and Diagrams Worker Verification Commands and Results
+
+```text
+mise exec -- pnpm --dir docs/website install --frozen-lockfile
+Result: pnpm 11.12.0で成功。Browser／OS Packageの追加導入なし。
+
+mise exec -- pnpm --dir docs/website run test
+Result: 20 tests / 20 passed / 0 failed。
+
+mise exec -- pnpm --dir docs/website run check
+Result: Content、Mermaid Syntax／Accessibility Metadata、Astro Checkが成功。16 files / 0 errors / 0 warnings / 0 hints。
+
+mise exec -- pnpm --dir docs/website run build
+Result: 21 Public Pages plus 404、4 Mermaid Target、Local Renderer／Core Chunk、Responsive CSS、Pagefind、Sitemap、Artifact／Site Checkが成功。
+
+Edge headless 390 x 1000 Browser Review
+Result: 最初のResponsive修正はPage Overflowを解消したがSVG内部Clipが残ったためReview不合格。最終修正では本文をViewport内に保ち、Diagram内Horizontal Scrollbarと可読なSVG文字を確認した。
+
+Static Artifact Content／Boundary Guard、docker compose run --rm app mago format --check src tests、PHP Management ID Guard、git diff --check
+Result: すべて成功。
+```
 
 ## P10-005 GitHub Actions Evidence
 

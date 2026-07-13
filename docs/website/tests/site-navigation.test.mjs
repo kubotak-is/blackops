@@ -2,9 +2,10 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { validateNavigation } from '../site-navigation.mjs';
 
-test('accepts one placement for every mapped public page in five sections', () => {
+test('accepts one placement for every mapped public page in six sections', () => {
   const contentMap = {
     'README.md': { slug: 'index' },
+    'why.md': { slug: 'concepts/why' },
     'install.md': { slug: 'getting-started/install' },
     'operation.md': { slug: 'operations/authoring' },
     'execution.md': { slug: 'execution/http' },
@@ -12,6 +13,7 @@ test('accepts one placement for every mapped public page in five sections', () =
     'reference.md': { slug: 'reference/configuration' },
   };
   const navigation = [
+    { label: 'Overview', items: ['concepts/why'] },
     { label: 'Getting Started', items: ['getting-started/install'] },
     { label: 'Operations', items: ['operations/authoring'] },
     { label: 'Execution', items: ['execution/http'] },
@@ -28,6 +30,7 @@ test('rejects missing, duplicate, unknown, or reordered sidebar placement', () =
     'install.md': { slug: 'getting-started/install' },
   };
   const sections = (gettingStarted) => [
+    { label: 'Overview', items: [] },
     { label: 'Getting Started', items: gettingStarted },
     { label: 'Operations', items: [] },
     { label: 'Execution', items: [] },
@@ -46,6 +49,6 @@ test('rejects missing, duplicate, unknown, or reordered sidebar placement', () =
   );
   assert.throws(
     () => validateNavigation(contentMap, [...sections(['getting-started/install'])].reverse()),
-    /five public sections in order/,
+    /six public sections in order/,
   );
 });

@@ -1,10 +1,12 @@
-import { readFile } from 'node:fs/promises';
+import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { distRoot } from './website-paths.mjs';
 
 const routes = [
   '/',
+  '/concepts/why-blackops/',
+  '/concepts/core-concepts/',
   '/getting-started/installation/',
   '/getting-started/directory-structure/',
   '/getting-started/first-operation/',
@@ -22,6 +24,7 @@ const routes = [
   '/reference/application-bootstrap/',
   '/reference/project-cli/',
   '/reference/current-status/',
+  '/reference/glossary/',
 ];
 
 const pages = new Map();
@@ -30,16 +33,42 @@ for (const route of routes) {
 }
 
 const landing = pages.get('/');
+requireText(landing, 'href="/concepts/why-blackops/"', 'Landing Why BlackOps action');
 requireText(landing, 'href="/getting-started/installation/"', 'Landing install action');
-requireText(landing, 'href="/getting-started/quickstart/"', 'Landing quickstart action');
+requireJourney('/', '/concepts/why-blackops/');
+requireJourney('/concepts/why-blackops/', '/concepts/core-concepts/');
+requireJourney('/concepts/core-concepts/', '/getting-started/installation/');
 requireJourney('/getting-started/installation/', '/getting-started/directory-structure/');
 requireJourney('/getting-started/directory-structure/', '/getting-started/first-operation/');
 requireJourney('/getting-started/first-operation/', '/getting-started/local-runtime/');
 
 const documentation = pages.get('/getting-started/installation/');
-for (const section of ['Getting Started', 'Operations', 'Execution', 'Database', 'Reference']) {
+for (const section of ['Overview', 'Getting Started', 'Operations', 'Execution', 'Database', 'Reference']) {
   requireText(documentation, `>${section}<`, `Sidebar section ${section}`);
 }
+
+const diagramRoutes = [
+  '/concepts/core-concepts/',
+  '/operations/lifecycle/',
+  '/execution/http-and-deferred/',
+  '/execution/context/',
+];
+let diagramCount = 0;
+for (const route of diagramRoutes) {
+  const html = pages.get(route);
+  const count = (html.match(/<pre[^>]*class="mermaid"/g) ?? []).length;
+  if (count !== 1) {
+    throw new Error(`${route} must contain exactly one Mermaid render target; found ${count}.`);
+  }
+  diagramCount += count;
+  requireText(html, 'accTitle:', `${route} diagram accessible title source`);
+  requireText(html, 'accDescr:', `${route} diagram accessible description source`);
+  requireText(html, '図のテキスト代替', `${route} diagram text alternative`);
+}
+if (diagramCount !== 4) {
+  throw new Error(`Static site must contain four Mermaid render targets; found ${diagramCount}.`);
+}
+await verifyResponsiveDiagramStyle();
 
 for (const [route, html] of pages) {
   requireText(html, '<html lang="ja"', `${route} Japanese locale`);
@@ -91,6 +120,32 @@ function requireJourney(from, to) {
   }
 }
 
+async function verifyResponsiveDiagramStyle() {
+  const assetRoot = path.join(distRoot, '_astro');
+  const stylesheets = (await readdir(assetRoot)).filter((file) => file.endsWith('.css'));
+  const responsiveStylesheets = [];
+
+  for (const stylesheet of stylesheets) {
+    const css = await readFile(path.join(assetRoot, stylesheet), 'utf8');
+    if (
+      css.includes('pre.mermaid') &&
+      css.includes('min-inline-size:0') &&
+      css.includes('max-inline-size:100%') &&
+      css.includes('min-inline-size:60rem') &&
+      (css.includes('overflow-x:auto') || css.includes('overflow:auto hidden'))
+    ) {
+      responsiveStylesheets.push(stylesheet);
+    }
+  }
+
+  if (responsiveStylesheets.length !== 1) {
+    throw new Error(`Static site must contain one responsive Mermaid stylesheet; found ${responsiveStylesheets.length}.`);
+  }
+  for (const route of diagramRoutes) {
+    requireText(pages.get(route), `/_astro/${responsiveStylesheets[0]}`, `${route} responsive Mermaid stylesheet`);
+  }
+}
+
 async function verifySearch() {
   const originalFetch = globalThis.fetch;
   globalThis.fetch = async (input) => {
@@ -129,6 +184,14 @@ async function verifySearch() {
     const records = await Promise.all(result.results.slice(0, 5).map(({ data }) => data()));
     if (!records.some(({ url }) => url.includes('/operations/') || url.includes('/getting-started/first-operation/'))) {
       throw new Error('Pagefind did not return an Operation guide for Operation.');
+    }
+    const glossaryResult = await search.search('Fencing Token');
+    if (glossaryResult.results.length === 0) {
+      throw new Error('Pagefind returned no result for Fencing Token.');
+    }
+    const glossaryRecords = await Promise.all(glossaryResult.results.slice(0, 5).map(({ data }) => data()));
+    if (!glossaryRecords.some(({ url }) => url.includes('/reference/glossary/'))) {
+      throw new Error('Pagefind did not return the Glossary for Fencing Token.');
     }
     await search.destroy();
   } finally {

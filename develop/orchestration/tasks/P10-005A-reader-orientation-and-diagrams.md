@@ -1,6 +1,6 @@
 # P10-005A: Reader Orientation and Diagrams
 
-Status: Ready
+Status: Accepted
 
 ## Goal
 
@@ -57,16 +57,16 @@ Status: Ready
 
 ## Acceptance Criteria
 
-- [ ] Why BlackOpsとCore ConceptsがGetting Startedより前にSidebarへ配置される
-- [ ] Headless、統一Operation Model、No operation stays in the darkを正確に説明する
-- [ ] Operation／Value／Outcome／Journal／ExecutionContext／Strategyを一枚の図と短い定義で示す
-- [ ] Laravel／Symfony Mental Model Tableと非一対一の注意がある
-- [ ] 指定された4 Mermaid DiagramのSyntaxがBuild前に検証される
-- [ ] Static Artifactが外部CDNなしのLocal Rendererと4 Render Targetを持ち、BrowserでSVG描画する
-- [ ] 各DiagramにAccessible DescriptionとText Alternativeがある
-- [ ] Glossaryが指定Termを定義しNavigation／Searchへ含まれる
-- [ ] Mermaid Dependency、Content Map、Sidebar、Build Guardが決定的である
-- [ ] 全PageのVersion BannerとPublic Artifact Boundaryを維持する
+- [x] Why BlackOpsとCore ConceptsがGetting Startedより前にSidebarへ配置される
+- [x] Headless、統一Operation Model、No operation stays in the darkを正確に説明する
+- [x] Operation／Value／Outcome／Journal／ExecutionContext／Strategyを一枚の図と短い定義で示す
+- [x] Laravel／Symfony Mental Model Tableと非一対一の注意がある
+- [x] 指定された4 Mermaid DiagramのSyntaxがBuild前に検証される
+- [x] Static Artifactが外部CDNなしのLocal Rendererと4 Render Targetを持ち、BrowserでSVG描画する
+- [x] 各DiagramにAccessible DescriptionとText Alternativeがある
+- [x] Glossaryが指定Termを定義しNavigation／Searchへ含まれる
+- [x] Mermaid Dependency、Content Map、Sidebar、Build Guardが決定的である
+- [x] 全PageのVersion BannerとPublic Artifact Boundaryを維持する
 
 ## Required Commands
 

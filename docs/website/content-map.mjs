@@ -11,10 +11,18 @@ export const contentMap = {
     hero: {
       tagline: 'PHP 8.5で、同期HTTPとDeferred処理を同じOperation Modelから構築する。',
       actions: [
-        { text: 'インストール', link: '/getting-started/installation/', icon: 'rocket' },
-        { text: 'Quickstart', link: '/getting-started/quickstart/', variant: 'secondary' },
+        { text: 'Why BlackOps', link: '/concepts/why-blackops/', icon: 'open-book' },
+        { text: 'インストール', link: '/getting-started/installation/', variant: 'secondary' },
       ],
     },
+  },
+  'why-blackops.md': {
+    slug: 'concepts/why-blackops',
+    description: 'BlackOpsが解決する分断、Headless Operation Frameworkの意味、設計原則を理解する。',
+  },
+  'core-concepts.md': {
+    slug: 'concepts/core-concepts',
+    description: 'Operation、Value、Outcome、Journal、Context、Execution Strategyの関係を理解する。',
   },
   'installation.md': {
     slug: 'getting-started/installation',
@@ -83,5 +91,9 @@ export const contentMap = {
   'mvp-status.md': {
     slug: 'reference/current-status',
     description: 'main DocumentとStable 1.0.0で利用できる機能、既知の制約を確認する。',
+  },
+  'glossary.md': {
+    slug: 'reference/glossary',
+    description: 'Attempt、Claim、Lease、Fencing、Journal、Outcome等のBlackOps固有用語を確認する。',
   },
 };
