@@ -23,6 +23,10 @@ HTTP公開とExecution Strategyは独立させる。
 
 Path、Query、Header、BodyからOperationValueへのBindingは、Valueプロパティの入力元Attributeで明示する。
 
+壊れたJSONまたはJSON Object以外のBodyはOperation受理前のProtocol ErrorとしてHTTP 400を返し、Operation IDとLifecycle Journalを作らない。
+
+Route特定後の必須Field欠落、型不一致、Binding成功後のValue Validation FailureはHTTP 422を返す。FrameworkはOperation IDを発行し、Handlerを実行せず`OperationRejected`をJournalへ記録する。ResponseはCategory `validation`、Code `validation.failed`、Raw Valueを含まないField Violationを返す。
+
 ```php
 final readonly class UpdateOrderValue implements OperationValue
 {

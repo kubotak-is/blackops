@@ -104,6 +104,10 @@ HTTP RuntimeとConsole Kernelは必要になった時点で遅延構成し、同
 
 FrankenPHP Front ControllerはServer Requestの生成とResponse Emitだけを所有し、Framework Runtime Compositionを複製しない。
 
+公式HTTP RuntimeはFrankenPHP Worker Modeへ段階移行する。最初は明示Opt-inとし、ApplicationとConfiguration SnapshotをProcess起動時に一度だけ構成する。各Request終了時にOperation Scope、Observer Buffer、Connection Health、Application Service Stateを安全にreset／flushする。複数Request、例外後Request、Connection切断、Memory Growthを検証した後にSkeleton Defaultへ昇格する。
+
+Secretを含むConfiguration SnapshotをBuild Artifactへ保存しない。
+
 ## Console Boundary
 
 `console()` はFramework所有の `ConsoleKernel` を返す。`ConsoleKernel` はSymfony Consoleを内部で利用し、Projectの `blackops` から実行できる。

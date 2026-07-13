@@ -1,6 +1,6 @@
 # P10-005D: Reader Journey Corrections
 
-Status: Blocked by P10-005C
+Status: Blocked by P10-005C, P10-005E2, and P10-005F
 
 ## Goal
 
@@ -22,8 +22,7 @@ Website Reviewで判明したLanding、Quickstart、Tutorial、Diagram、Validat
 
 ## Out of Scope
 
-- Declarative Value Validation Attributeの実装
-- HTTP Configuration Lifecycle変更
+- Validation RuntimeまたはHTTP Configuration Lifecycleの追加変更
 - Stable `1.0.0`再発行
 - Cloudflare External Configuration
 
@@ -31,6 +30,8 @@ Website Reviewで判明したLanding、Quickstart、Tutorial、Diagram、Validat
 
 - `develop/decisions/083-project-root-blackops-entrypoint.md`
 - `develop/decisions/084-documentation-reader-journey-corrections.md`
+- `develop/decisions/085-http-configuration-snapshot-lifecycle.md`
+- `develop/decisions/086-operation-value-validation-runtime.md`
 - `develop/spec/04-handler-and-result.md`
 - `develop/spec/50-operation-authoring-and-build-discovery.md`
 - `develop/spec/54-native-outcome-and-rejection-exception.md`
@@ -53,8 +54,9 @@ Website Reviewで判明したLanding、Quickstart、Tutorial、Diagram、Validat
 - `main` GeneratorとStable `1.0.0`の差を隠さない
 - Text Alternative本文とMermaid `accTitle`／`accDescr`は維持する
 - DiagramはPage Level Overflowを作らず、必要なScrollをDiagram内へ閉じ込める
-- 実装されていないValidation AttributeをExampleへ書かない
+- P10-005E2で実装・検証したValidation AttributeだけをExampleへ書く
 - Validation Exampleは現在のPublic APIで動く完全なものにする
+- P10-005FのWorker ModeがOpt-inであることとClassic Fallbackを正直に示す
 
 ## Acceptance Criteria
 
@@ -65,7 +67,8 @@ Website Reviewで判明したLanding、Quickstart、Tutorial、Diagram、Validat
 - [ ] 「図のテキスト代替」という表示見出しがなく、同等本文は残る
 - [ ] HTTP／Deferred DiagramがDesktop／Mobileで読めるSizeと局所Scrollを持つ
 - [ ] Validation GuideがBinding、手動Value Validation、Business Validation、Rejected HTTP／Journalを説明する
-- [ ] Declarative Value Validation Attributeが未実装であることをCurrent StatusとGuideが明示する
+- [ ] Declarative Value Validation AttributeとBinding／Value／Business境界を完全例で説明する
+- [ ] Worker ModeのConfig再利用、Opt-in、Request Safety、Classic Fallbackを説明する
 - [ ] Stable／main Bannerと既知制約が維持される
 
 ## Required Commands
@@ -85,4 +88,3 @@ git diff --check
 ## Expected Report
 
 `develop/orchestration/reports/P10-005D-reader-journey-corrections.md`へSummary、Landing Evidence、Quickstart／Tutorial Evidence、Diagram Browser Evidence、Validation Capability Matrix、Changed Files、Commands and Results、Acceptance Criteria、Remaining Issues、Suggested Next Actionを記録する。
-

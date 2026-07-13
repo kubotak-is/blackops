@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-13T22:35:36+09:00
+Updated At: 2026-07-13T22:45:08+09:00
 
 ## Current Phase
 
@@ -18,7 +18,7 @@ Specifications: `develop/spec/41-developer-experience-roadmap.md`、`develop/spe
 
 P10-005C Blocked
 
-Website Reviewを受け、D083で次回SkeletonのProject CLIをRoot `blackops`へ移すこと、D084でLanding／Quickstart／Tutorial／Diagram／Validation Guideを修正することを決定した。P10-005CをWorkerへ割り当てたが、現在のWorker APIではGPT-5.6 Luna High Model／Profileを明示または確認できない。AGENTS.mdのFallback禁止に従ってWorkerは変更せずBlockerを返した。P10-005Dも同じWorker Constraintにより未着手。HTTP ConfigurationはClassic ModeでRequestごとに再構成される実装Gapを確認し、D085でUser判断待ちとした。
+Website Reviewを受け、D083で次回SkeletonのProject CLIをRoot `blackops`へ移すこと、D084でLanding／Quickstart／Tutorial／Diagram／Validation Guideを修正することを決定した。D085はFrankenPHP Worker Modeの段階導入、D086はBlackOps所有の7 Validation RuleとProtocol 400／Operation ID付き422境界で確定した。P10-005CをWorkerへ割り当てたが、現在のWorker APIではGPT-5.6 Luna High Model／Profileを明示または確認できない。AGENTS.mdのFallback禁止に従ってWorkerは変更せずBlockerを返した。P10-005E1／P10-005E2／P10-005F／P10-005Dも同じWorker Constraintにより未着手。
 
 ## Last Accepted Task
 
@@ -26,20 +26,21 @@ P10-005B-guides-security-and-reference
 
 ## Pending Decisions
 
-1. D085 Question 1: HTTP Configuration再利用をCompiled Artifact、FrankenPHP Worker Mode、部分Cache、現状維持のどれにするか。
-2. D086 Questions 1-3: Validation API、初期Rule、Binding Failure分類の回答待ち。P10-005Dでは回答前も現行の手動Validationと実装Gapを正直に文書化できる。
-3. Cloudflare External Configuration待ちは継続するが、Repository内Reader Experience改善は独立して進行できる。
+1. D085はBで確定。FrankenPHP Worker ModeをOpt-inで検証後にDefaultへ昇格する。
+2. D086はA／A／Aで確定。BlackOps所有の7 RuleとProtocol 400／Operation ID付き422境界を実装する。`Range`は数値、`Length`は文字数、`Count`は要素数を扱う。
+3. GPT-5.6 Luna Highを確認できない現行WorkerへPhase 10 Production Codeを委任する例外承認は未回答。
+4. Cloudflare External Configuration待ちは継続するが、Repository内Reader Experience改善は独立して進行できる。
 
 ## Known Blockers
 
-P10-005C／P10-005DはGPT-5.6 Luna Highを明示または確認できるWorkerがないためBlock中。D085はUser回答待ち。Cloudflare Project／Token／GitHub Environment SecretsとProtection Ruleの未設定はRemote DeployだけのExternal Blockerである。
+P10-005C／P10-005E1／P10-005E2／P10-005F／P10-005DはGPT-5.6 Luna Highを明示または確認できるWorkerがないためBlock中。D085／D086の設計判断は解決済み。Cloudflare Project／Token／GitHub Environment SecretsとProtection Ruleの未設定はRemote DeployだけのExternal Blockerである。
 
 ## Required Next Action
 
 1. UserがGPT-5.6 Luna High Worker環境を用意するか、現在利用可能なWorkerでPhase 10を実装する例外を明示する。
 2. Worker Constraint解消後、P10-005Cを実装し、OrchestratorがReview／Commitする。
-3. P10-005C受入後、P10-005DでLanding、Quickstart、Tutorial、Diagram、Validation Guideを修正する。
-4. UserはD085 Question 1とD086 Questions 1-3へ回答する。
+3. P10-005E1、P10-005E2、P10-005Fを順に実装する。
+4. P10-005Dで全Reader Journeyを最終実装へ同期する。
 5. Repository内修正後、Cloudflare External ConfigurationとP10-006 Closeoutへ進む。
 
 ## P10-005B GitHub Actions Evidence

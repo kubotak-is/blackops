@@ -109,6 +109,8 @@ return Application::configure(dirname(__DIR__))
 
 Laminas型はこのFileだけに置く。HTTP EntrypointはInternal Runtime、Container、DBAL Connection、Artifact Loaderを参照せず、BuildやMigrationを実行しない。
 
+FrankenPHP Worker Mode用EntrypointはApplicationをProcess起動時に一度構成し、Request LoopへPublic HTTP Handlerを渡す。Classic Front ControllerはOpt-in検証期間のFallbackとして維持できる。Worker ModeをDefaultへ昇格する前に、Request終了時のScope Cleanup、Journal Flush、Connection Recovery、例外隔離、Memory上限をConsumer E2Eで検証する。
+
 ## Console Entrypoint
 
 Project Rootの`blackops`はExecutable PHP Scriptとし、Composer Autoloaderと`bootstrap/app.php`を読み、次だけを行う。

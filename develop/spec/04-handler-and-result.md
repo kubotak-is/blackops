@@ -13,6 +13,24 @@ DB上の重複、在庫、利用権限など外部状態との照合は、ユー
 
 BindingまたはValue Validationの失敗は、Operation IDを持つ `OperationRejected` として記録する。生入力は無条件に記録せず、安全なSnapshotだけを任意で追加できる。
 
+### Declarative Value Validation
+
+OperationValueのConstructor Promotion Propertyへ`BlackOps\Core\Validation\Attribute`のRuleを付与する。
+
+| Attribute | Target value | Rule |
+| --- | --- | --- |
+| `NotBlank` | string | 空文字と空白だけの文字列を拒否する |
+| `Length` | string | 文字数の`min`／`max`を検証する |
+| `Range` | int／float | 数値の`min`／`max`を検証する |
+| `Email` | string | Email形式を検証する |
+| `Regex` | string | 指定Patternへ一致するか検証する |
+| `Count` | array | 要素数の`min`／`max`を検証する |
+| `Choice` | scalar | 許可した選択肢に含まれるか検証する |
+
+`Range`、`Length`、`Count`は対象の意味を分離する。曖昧な`Min`／`Max` Attributeは提供しない。Nested Object、DB照合、Cross-field Rule、Custom Callbackは初期Scopeへ含めない。
+
+Validatorは全Propertyを検証してViolationを集約する。ViolationはField、Rule、安定Codeだけを持ち、Raw Valueを保持しない。Value Validation FailureはHandler実行前にCategory `validation`、Code `validation.failed`のRejected Resultへ変換する。
+
 ## Handler
 
 標準形ではOperation Definition自身が業務Handlerとなる。一つのOperationは一つの `handle()` Methodを持つ。

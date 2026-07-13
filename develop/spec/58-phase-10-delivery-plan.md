@@ -59,6 +59,33 @@ Framework利用者向けMarkdownをSingle SourceとするAstro Starlight Website
 - Core API／Attribute Reference
 - 全公開GuideのTone／用語統一
 
+## P10-005C: Project Root CLI Entrypoint
+
+- Skeleton EntrypointをProject Rootの`blackops`へ移動
+- 公式Commandを`php blackops`へ統一
+- Create-project／Update／Publication Consumer Evidence
+
+## P10-005E1／P10-005E2: OperationValue Validation Runtime
+
+- BlackOps所有Validation Attribute
+- Binding／Value Validation Boundary
+- 422 Response、Violation、Rejected Journal
+- Inline／Deferred／Sensitive Test
+
+## P10-005F: FrankenPHP Worker Mode
+
+- Application／ConfigurationのProcess単位構成
+- Request Scope Reset／Observer Flush／Connection Recovery
+- Opt-in Consumer E2EとDefault昇格条件
+
+## P10-005D: Reader Journey Corrections
+
+- Landing Feature Link Block
+- Install込みQuickstart
+- Generator起点Tutorial
+- Diagram可読性
+- Validation／Worker Mode Guide
+
 ## P10-006: Phase 10 Closeout
 
 - Full Website Quality Suite
@@ -77,7 +104,12 @@ P10-001 Website Contract
         -> P10-005 Cloudflare Pages Delivery
           -> P10-005A Reader Orientation and Diagrams
             -> P10-005B Guided Tutorial, Security, and Reference
-              -> P10-006 Phase 10 Closeout
+              -> P10-005C Project Root CLI Entrypoint
+                -> P10-005E1 OperationValue Validation Core
+                  -> P10-005E2 HTTP Validation Lifecycle
+                    -> P10-005F FrankenPHP Worker Mode
+                      -> P10-005D Reader Journey Corrections
+                        -> P10-006 Phase 10 Closeout
 ```
 
 ## Commit Boundaries
