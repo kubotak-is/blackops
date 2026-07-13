@@ -151,3 +151,4 @@
 | [D075](../decisions/075-native-outcome-and-rejection-exception.md) | Native Outcome and Rejection Exception | Decided |
 | [D076](../decisions/076-framework-and-skeleton-repository-naming.md) | Framework and Skeleton Repository Naming | Decided |
 | [D077](../decisions/077-implementation-worker-model-upgrade.md) | Implementation Worker Model Upgrade | Decided |
+| [D078](../decisions/078-initial-stable-release-version.md) | Initial Stable Release Version | Decided |

@@ -35,6 +35,8 @@ Release Automationは次を失敗条件とする。
 
 Skeleton独自VersionまたはFrameworkと異なるRelease Cycleは採用しない。必要性が生じた場合はVersion Policyを再決定する。
 
+初回Public Stable Versionは`1.0.0`とする。Framework Repositoryの`1.0.0` TagをTriggerとして、Skeleton Split Commitにも同じTagを付ける。SkeletonのFramework Constraintは`^1.0`とする。
+
 ## Lock File Ownership
 
 SkeletonのSourceとDistributionへ `composer.lock` を含めない。
@@ -105,5 +107,6 @@ Cross-repository PushはDistribution RepositoryだけへWrite可能なDeploy Key
 
 - Decision: [D065 Composer Skeleton Publication](../decisions/065-composer-skeleton-publication.md)
 - Repository Naming: [D076 Framework and Skeleton Repository Naming](../decisions/076-framework-and-skeleton-repository-naming.md)
+- Initial Stable Version: [D078 Initial Stable Release Version](../decisions/078-initial-stable-release-version.md)
 - Roadmap: [Developer Experience Roadmap](41-developer-experience-roadmap.md)
 - Installed Layout: [Installed Application Layout and Bootstrap](43-installed-application-layout-and-bootstrap.md)
