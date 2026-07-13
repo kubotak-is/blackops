@@ -43,6 +43,16 @@ php bin/blackops blackops:build:compile
 
 Generator Stubは`blackops/framework` Packageが所有する。Framework Update後に新しく生成するFileには更新済みStubが使われるが、Applicationが所有する生成済みFileは変更されない。
 
+## Framework Updates
+
+Projectの`bin/blackops`はApplication所有のBootstrapであり、Framework CommandやStubのCopyではない。通常のComposer Updateで`blackops/framework`を更新すると、Entrypointを変更せずに更新後の`make:operation`／`make:migration`とStubを利用できる。
+
+```bash
+composer update blackops/framework
+```
+
+Framework Updateは既に生成したOperation／MigrationをUpgradeしない。生成済みSourceはApplication所有のままbyte-for-byte維持され、新しいStubはUpdate後に新規生成するFileだけへ反映される。Stub Contractに互換性対応が必要なReleaseでは、そのReleaseのUpgrade Guideを確認する。
+
 ## Creating a Migration
 
 Application固有のDatabase変更はPascalCaseのDescriptionから生成する。

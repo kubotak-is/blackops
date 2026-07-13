@@ -56,9 +56,9 @@ P9-001 Generator Contract
 - [x] Framework／Application Migrationを同じ明示Commandで管理できる
 - [x] Console `list`／`help`がRuntime設定なしで成功する
 - [x] Generatorが既存Sourceを上書きせず、部分生成を残さない
-- [ ] Framework Update後に既存Entrypointが新Command／Stubを使う
-- [ ] Framework Updateが生成済みSourceを変更しない
-- [ ] Consumer／Create-project SmokeとFull Quality Suiteが成功する
+- [x] Framework Update後に既存Entrypointが新Command／Stubを使う
+- [x] Framework Updateが生成済みSourceを変更しない
+- [x] Consumer／Create-project SmokeとFull Quality Suiteが成功する
 
 ## Traceability
 

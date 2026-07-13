@@ -77,7 +77,7 @@ php bin/blackops make:operation Billing/CreateInvoice --type=billing.invoice.cre
 php bin/blackops blackops:build:compile
 ```
 
-Generatorは`app/Feature/Billing/CreateInvoice/`へ3 Fileを作成する。既存Fileは上書きせず、Route、Deferred設定、Build、Database操作は行わない。生成後のSourceはApplication所有であり、Framework Updateによって書き換えられない。
+Generatorは`app/Feature/Billing/CreateInvoice/`へ3 Fileを作成する。既存Fileは上書きせず、Route、Deferred設定、Build、Database操作は行わない。生成後のSourceはApplication所有であり、Framework Updateによって書き換えられない。CommandとStubはFramework Packageが所有するため、`composer update blackops/framework`後の新規生成には更新済み実装が使われ、Projectの`bin/blackops`を置き換える必要はない。
 
 ## Creating a Migration
 

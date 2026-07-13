@@ -128,6 +128,21 @@ if (($versions["blackops/framework"] ?? null) !== "1.0.0") {
 }
 '
 
+run_php /smoke/normal/bin/blackops make:operation Smoke/CreateSmoke --type=smoke.create \
+    > "${temporary_root}/normal-operation-generator.out"
+run_php /smoke/normal/bin/blackops make:migration CreateSmokeTable \
+    > "${temporary_root}/normal-migration-generator.out"
+test -f "${normal_project}/app/Feature/Smoke/CreateSmoke/CreateSmoke.php"
+test -f "${normal_project}/app/Feature/Smoke/CreateSmoke/CreateSmokeValue.php"
+test -f "${normal_project}/app/Feature/Smoke/CreateSmoke/CreateSmokeOutcome.php"
+test -n "$(find "${normal_project}/migrations" -maxdepth 1 -type f -name 'Version*.php' -print -quit)"
+run_php /smoke/normal/bin/blackops blackops:build:compile \
+    > "${temporary_root}/normal-build.out"
+test -f "${normal_project}/var/build/operations.php"
+
+test ! -d "${package_root}/resources/stubs"
+test ! -d "${normal_project}/resources/stubs"
+
 run_composer create-project blackops/skeleton /smoke/no-scripts 1.0.0 --no-interaction --prefer-dist --no-scripts \
     > "${temporary_root}/no-scripts-install.out"
 

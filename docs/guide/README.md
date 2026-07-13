@@ -7,12 +7,12 @@ BlackOpsを利用してApplicationを作る開発者向けのガイドを管理�
 ## Topics
 
 - [MVP Status](mvp-status.md)
-- [Installed Application Status](installed-application-status.md)
+- [Installed Application and Project CLI Status](installed-application-status.md)
 - [Runtime Bootstrap](runtime-bootstrap.md)
 - [Application Bootstrap](application-bootstrap.md)
 - [Outcome Retrieval](outcome-retrieval.md)
 - [Database Migrations](database-migrations.md)
-- [Project Generators](project-generators.md)
+- [Project Generators and Framework Updates](project-generators.md)
 - [MVP Sample](mvp-sample.md)
 - [Data Retention](retention.md)
 - [Remote Installation and Runtime Bootstrap](runtime-bootstrap.md)

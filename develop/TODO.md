@@ -23,7 +23,7 @@ MVP後に残す主要項目:
 - [ ] Canonical PayloadとTransportの暗号化
 - [ ] OpenTelemetry／CloudWatch／Remote Log Adapter
 - [ ] SQLite／MySQL／SQS／Kafka Adapter
-- [ ] Generator／Admin UI／Scheduled Operation Strategy
+- [ ] Admin UI／Scheduled Operation Strategy
 - [x] Packagist公開／Git Tag／Stable Release
 
 ## Post-MVP Developer Experience Roadmap
@@ -49,9 +49,9 @@ MVP後に残す主要項目:
 ### Phase 9: Project BlackOps CLI
 
 - [x] Project所有の薄い `bin/blackops` とFramework Console Kernelを設計する
-- [ ] `make:operation` と `make:migration` を提供する
+- [x] `make:operation` と `make:migration` を提供する
 - [x] Migration／Worker／Build／Retention／Scheduler CommandをApplicationから構成する
-- [ ] Framework UpdateでCommand実装とGenerator Stubが更新されることを検証する
+- [x] Framework UpdateでCommand実装とGenerator Stubが更新されることを検証する
 
 ### Phase 10: Documentation Website
 

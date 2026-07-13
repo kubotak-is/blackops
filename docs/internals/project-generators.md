@@ -52,3 +52,20 @@ Stubへ次を追加しない。
 `migrations/`はWriterが必要時だけ作成する。入力、Stub読込、Write、Publishに失敗した場合、今回作成したFileと空DirectoryだけをRollbackする。同一秒の再実行は既存Versionを変更しない。
 
 生成Classは`App\Migrations`のDoctrine `AbstractMigration` subclassで、constructorを宣言しない。このためApplication Migration RuntimeはDBAL ConnectionとLoggerだけを渡すDoctrine標準Constructorで生成できる。GeneratorはDB Connection、Migration Runner、Build、Composer、Source Discoveryを構成しない。
+
+## Framework Update Verification
+
+Consumer SmokeはRepository History上の旧Commitを固定せず、Repository外の一時Directoryへ同じFramework Sourceから2つのLocal Composer Versionを作る。旧版相当はFramework所有Stubへ有効な識別Marker、Operation／Migration Command出力へ`Legacy Created:` Prefixを持つ。Current版はRepositoryのStubとCommand Sourceをそのまま持つ。
+
+検証順序は次のとおりである。
+
+1. 旧版相当FrameworkをConsumerへInstallし、Operation／Migrationを生成する
+2. Project `bin/blackops`と生成済みSourceのSHA-256を保存する
+3. Composer Lock内のFramework以外のPackage Version集合を保存する
+4. `blackops/framework`だけをCurrent版へUpdateする
+5. Entrypointと生成済みSourceのhash、および他Dependency集合が不変であることを確認する
+6. Vendor内Stubと2 Command SourceがCurrent Framework Sourceとbyte一致することを確認する
+7. 新規Operation／Migrationを生成し、出力がCurrent `Created:` Prefixで旧Marker不在であることを確認する
+8. 新規生成SourceのCurrent ContractとApplication Build成功を確認する
+
+一時Package、Consumer、Composer Homeは成功／失敗のどちらでもCleanupし、Main Working Tree、Remote Repository、Credentialを変更しない。

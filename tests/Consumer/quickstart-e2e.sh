@@ -42,9 +42,19 @@ test ! -L "${CONSUMER}/vendor/blackops/framework"
 test -f "${CONSUMER}/vendor/blackops/framework/src/Application/Application.php"
 ! HTTP_PORT="${PORT}" "${compose[@]}" config | grep -q '/framework'
 
+HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php bin/blackops \
+    make:operation Smoke/CreateSmoke --type=smoke.create
+HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php bin/blackops \
+    make:migration CreateSmokeTable
+test -f "${CONSUMER}/app/Feature/Smoke/CreateSmoke/CreateSmoke.php"
+test -f "${CONSUMER}/app/Feature/Smoke/CreateSmoke/CreateSmokeValue.php"
+test -f "${CONSUMER}/app/Feature/Smoke/CreateSmoke/CreateSmokeOutcome.php"
+test -n "$(find "${CONSUMER}/migrations" -maxdepth 1 -type f -name 'Version*.php' -print -quit)"
+
 operations=$(HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php bin/blackops blackops:operation:list)
 grep -q 'welcome.show' <<<"${operations}"
 grep -q 'report.generate' <<<"${operations}"
+grep -q 'smoke.create' <<<"${operations}"
 
 HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php bin/blackops blackops:build:compile
 test -f "${CONSUMER}/var/build/operations.php"

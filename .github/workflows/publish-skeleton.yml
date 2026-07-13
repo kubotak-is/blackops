@@ -68,6 +68,16 @@ jobs:
           set -euo pipefail
           bash tests/Consumer/quickstart-e2e.sh
           bash tests/Consumer/skeleton-create-project.sh
+          bash tests/Consumer/framework-update-generators.sh
+
+      - name: Verify generator resource ownership
+        run: |
+          set -euo pipefail
+          expected_stubs=$'migration.php.stub\noperation-outcome.php.stub\noperation-value.php.stub\noperation.php.stub'
+          actual_stubs="$(find resources/stubs -mindepth 1 -maxdepth 1 -type f -printf '%f\n' | sort)"
+          test "${actual_stubs}" = "${expected_stubs}"
+          git ls-files --error-unmatch resources/stubs/*.stub >/dev/null
+          ! find examples/quickstart -type f -path '*/stubs/*' -print -quit | grep .
 
       - name: Validate skeleton publication locally
         run: bash tests/Consumer/skeleton-publication.sh "${RELEASE_VERSION}" HEAD

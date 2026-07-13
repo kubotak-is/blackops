@@ -1,10 +1,10 @@
 # Orchestration State
 
-Updated At: 2026-07-13T16:25:13+09:00
+Updated At: 2026-07-13T16:45:19+09:00
 
 ## Current Phase
 
-Phase 9: Project BlackOps CLI
+Phase 9: Project BlackOps CLI (Complete)
 
 ## Current Task
 
@@ -16,13 +16,13 @@ Specification: `develop/spec/56-phase-9-delivery-plan.md`
 
 ## Task Status
 
-P9-004 In Progress
+P9-004 Accepted; Phase 9 Complete
 
-P9-003を`847c2cf feat: add application migrations`として受け入れ、origin/mainへPushした。P9-004を開始し、既存Project Entrypoint／生成済みSource不変、Framework Update後のCommand／Stub追従、Generator込みConsumer Smoke、Phase 9 Closeoutを検証する。
+P9-004を受け入れ、Phase 9をCloseした。Framework Update Consumer Smoke、Generator込みQuickstart／Create-project E2E、Publication Stub Ownership Gate、Guide／Internals／TODO／Phase Plan同期を完成した。Orchestrator Review補強として旧`Legacy Created:`／Current `Created:`出力切替とVendor 2 Command SourceのCurrent byte一致を追加した。Worker／Orchestrator双方でFull `771 tests / 2544 assertions`、Deptrac `368 files / 0 violations / 0 errors`、3 Consumer Smoke、Guard、Workflow YAML、Diff Checkが成功した。
 
 ## Last Accepted Task
 
-P9-003-application-migration-generator
+P9-004-framework-update-generator-smoke
 
 ## Pending Decisions
 
@@ -30,13 +30,44 @@ P9-003-application-migration-generator
 
 ## Known Blockers
 
-なし。Userは現在利用可能なWorkerでPhase 9を継続することを承認している。
+なし。UserはModel／Profileを明示できない現在利用可能なWorkerでPhase 9 Closeoutまで継続することを承認している。
 
 ## Required Next Action
 
-1. P9-004 Task PacketをWorkerへ依頼する。
-2. Worker Report／Diff／TestをOrchestratorがReviewする。
-3. 必要な補強と全体再検証後、Phase 9をCloseする。
+1. P9-004 Closeout ChangeをCommit／Pushする。
+2. Phase 10 Documentation Websiteの設計対話とTask Packetを準備する。
+3. Astro Starlight、Markdown Single Source Build、Cloudflare Pages境界を実装・検証する。
+
+## P9-004 Framework Update Generator Smoke Worker Verification Commands and Results
+
+```text
+docker compose run --rm app composer validate --strict
+docker compose run --rm app composer validate --strict examples/quickstart/composer.json
+Result: Both Composer files are valid.
+
+docker compose run --rm app mago format --check src tests examples
+docker compose run --rm app mago lint
+docker compose run --rm app mago analyze
+Result: Format、Lint、Analyze completed with no issues.
+
+docker compose run --rm app vendor/bin/phpunit
+Result: OK (771 tests, 2544 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app vendor/bin/deptrac
+Result: 368 files / Violations 0 / Skipped 0 / Uncovered 0 / Allowed 1578 / Warnings 0 / Errors 0.
+
+bash tests/Consumer/quickstart-e2e.sh
+Result: Quickstart consumer E2E passed. Generator Operation／Migration included; migrations 3.
+
+bash tests/Consumer/skeleton-create-project.sh
+Result: Skeleton create-project smoke passed with Generator and Build checks.
+
+bash tests/Consumer/framework-update-generators.sh
+Result: Framework update generator smoke passed. Composer updated only blackops/framework 1.0.0 -> 1.1.0; entrypoint and existing generated Source hashes remained unchanged; Legacy／Current Command output switched; Vendor 2 Command Source and Stub matched Current Framework; Current generation and Build passed.
+
+Internal import、Skeleton stub、management ID guards, Framework Stub allowlist／tracked source, Workflow YAML parse, Shell syntax, git diff --check
+Result: All passed.
+```
 
 ## P8-003 Skeleton Distribution Publication Worker Verification Commands and Results
 

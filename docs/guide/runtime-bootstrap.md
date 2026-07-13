@@ -8,6 +8,8 @@ Installed Application向けの公式導線は `examples/quickstart/` のPublic `
 
 Composer `create-project`はSkeletonの`post-create-project-cmd`からProject所有の`bin/setup`を実行する。Setupは未作成の`.env`を`.env.example`からCopyし、`var/build/`と`var/log/`を準備して、明示的な次手順を表示する。再実行しても既存`.env`を上書きしない。
 
+Project所有の`bin/blackops`はApplication固有設定をFramework Console Kernelへ渡す薄いEntrypointである。Operation／Migration GeneratorのCommand実装とStubはFramework Packageにあり、`composer update blackops/framework`後もEntrypointと生成済みSourceを変更せず、更新後のCommandと新規生成用Stubを利用する。
+
 `--no-scripts`を選んだ場合は同じEntrypointを手動実行する。
 
 ```bash

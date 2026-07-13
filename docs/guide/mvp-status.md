@@ -32,6 +32,8 @@ MVP Complete is not the same as Production Ready. Framework／Skeleton Stable `1
 - Retention plan, dry-run／confirm purge, holds, payload tombstones, journal／outcome／dead-letter deletion, audit, and maintenance scheduler
 - FrankenPHP reference HTTP runtime and explicit worker CLI
 
+MVP Closeout後のDeveloper Experience Phaseでは、Composer Skeleton、Project所有CLI、Framework所有Operation／Migration Generator、Application Migration Runtimeを追加した。これらはMVP Definition of Doneを変更せず、Installed Applicationの利用体験を拡張する。
+
 ## Reproduce
 
 From the repository root in WSL2:
@@ -61,7 +63,7 @@ Canonical Journal is the reproducible source of truth and may retain a sensitive
 - No transactional outbox persistence/relay
 - No encryption adapter for Canonical Journal or transport payloads
 - No remote OpenTelemetry, CloudWatch, SQS, Kafka, SQLite, or MySQL adapter
-- No observer replay CLI, generator, admin UI, or Scheduled Operation Strategy
+- No observer replay CLI, admin UI, or Scheduled Operation Strategy
 - No production certification or compatibility promise beyond the marked Public API and Semantic Versioning contract
 
 These remain post-MVP work. Their absence does not invalidate the agreed MVP Definition of Done.

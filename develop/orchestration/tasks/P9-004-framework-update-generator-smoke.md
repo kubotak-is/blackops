@@ -1,6 +1,6 @@
 # P9-004: Framework Update Generator Smoke and Phase 9 Closeout
 
-Status: In Progress
+Status: Accepted
 
 ## Goal
 
@@ -63,6 +63,7 @@ Status: In Progress
 ## Constraints
 
 - GPT-5.6 Luna High workerが実装し、Review前にCommitしない
+- Userの2026-07-13「進めて」を、Model／Profileを明示できない現在のWorkerでPhase 9 Closeoutまで継続する承認として扱う
 - SmokeはRepository外の一時Directoryを使い、終了時にCleanupする
 - External Package Publication／Remote Mutationを行わない
 - Credential、Token、Composer Authenticationを保存しない
