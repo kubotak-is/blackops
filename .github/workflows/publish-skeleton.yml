@@ -4,6 +4,12 @@ on:
   push:
     tags:
       - '*'
+  workflow_dispatch:
+    inputs:
+      release_version:
+        description: Existing bare SemVer framework tag to publish
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -17,6 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     env:
+      RELEASE_VERSION: ${{ inputs.release_version || github.ref_name }}
       SKELETON_REMOTE: git@github.com:kubotak-is/blackops-skeleton.git
 
     steps:
@@ -25,14 +32,19 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
+          ref: refs/tags/${{ inputs.release_version || github.ref_name }}
 
       - name: Validate release tag
-        env:
-          RELEASE_VERSION: ${{ github.ref_name }}
         run: |
           set -euo pipefail
           [[ "${RELEASE_VERSION}" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]
           test "$(git rev-parse HEAD)" = "$(git rev-list -n 1 "refs/tags/${RELEASE_VERSION}")"
+
+      - name: Configure container user
+        run: |
+          set -euo pipefail
+          printf 'HOST_UID=%s\n' "$(id -u)" >> "${GITHUB_ENV}"
+          printf 'HOST_GID=%s\n' "$(id -g)" >> "${GITHUB_ENV}"
 
       - name: Build development image
         run: docker compose build app
@@ -58,8 +70,6 @@ jobs:
           bash tests/Consumer/skeleton-create-project.sh
 
       - name: Validate skeleton publication locally
-        env:
-          RELEASE_VERSION: ${{ github.ref_name }}
         run: bash tests/Consumer/skeleton-publication.sh "${RELEASE_VERSION}" HEAD
 
       - name: Configure distribution deploy key
@@ -80,14 +90,14 @@ jobs:
 
       - name: Publish split commit and matching tag
         env:
-          RELEASE_VERSION: ${{ github.ref_name }}
           GIT_SSH_COMMAND: ssh -i ${{ runner.temp }}/skeleton-ssh/key -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=${{ runner.temp }}/skeleton-ssh/known_hosts
         run: |
           set -euo pipefail
           publication_root="$(mktemp -d "${RUNNER_TEMP}/skeleton-publication.XXXXXX")"
+          source_commit="$(git rev-parse HEAD)"
           git clone --quiet --no-hardlinks "${GITHUB_WORKSPACE}" "${publication_root}/source"
           split_commit="$(git -C "${publication_root}/source" subtree split \
-            --prefix=examples/quickstart "${GITHUB_SHA}")"
+            --prefix=examples/quickstart "${source_commit}")"
 
           remote_main="$(git ls-remote "${SKELETON_REMOTE}" refs/heads/main | awk '{print $1}')"
           remote_tag="$(git ls-remote "${SKELETON_REMOTE}" "refs/tags/${RELEASE_VERSION}" | awk '{print $1}')"

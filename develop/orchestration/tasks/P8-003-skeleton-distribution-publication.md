@@ -150,6 +150,8 @@ GitHub／Packagist認証がない場合、Local実装を完了して明確なBlo
 - [x] Local Dry RunがWorking Tree／Docker／External Stateを変更しない
 - [x] WorkflowがFull Quality／Consumer／Create-project Gate後だけPushする
 - [x] WorkflowがDeploy Key Secretを一時利用しLog／Artifactへ残さない
+- [x] Manual Recoveryが既存bare SemVer Tagを明示Checkoutし、Tag／HEAD一致を検証する
+- [x] Runner UID／GIDをComposeへ渡し、bind mountのContainer Userを一致させる
 - [x] Remote Branch／Tag Divergenceをforceせず拒否する
 - [x] Packagist API Token／直接API CallがWorkflowにない
 - [x] Public Repository／Deploy Key／Secret／Packagist境界がDocumentedである

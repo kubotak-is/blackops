@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-13T14:27:18+09:00
+Updated At: 2026-07-13T14:31:56+09:00
 
 ## Current Phase
 
@@ -16,9 +16,9 @@ Specification: `develop/spec/46-composer-skeleton-publication.md`
 
 ## Task Status
 
-Framework 1.0.0 Published; Skeleton Workflow Recovery Approved
+Framework 1.0.0 Published; Skeleton Recovery Ready for Live Run
 
-D078をCommit／Pushし、Framework annotated Tag `1.0.0`をCommit `279716f904f17be9341f3fdaae30156ab17d8a62`へ作成・Pushした。Packagistで`blackops/framework` Stable `1.0.0`の同Commit参照を確認した。Publication Workflow Run `29226110632`はContainer Userがbind-mounted `/app`へ`vendor/`を作成できず、Install Stepで失敗した。UserはD079としてRunner UID／GID接続と既存TagのManual Recovery Pathを承認した。
+D078をCommit／Pushし、Framework annotated Tag `1.0.0`をCommit `279716f904f17be9341f3fdaae30156ab17d8a62`へ作成・Pushした。Packagistで`blackops/framework` Stable `1.0.0`の同Commit参照を確認した。初回Run `29226110632`のPermission Failureに対し、D079に従ってRunner UID／GID接続と既存TagのManual Recovery Pathを実装した。YAML／Recovery Contract、Composer、Mago、Management／Credential／Force／Event SHA Guard、既存`1.0.0` TagからのPublication Dry Runが成功した。
 
 ## Last Accepted Task
 
@@ -34,11 +34,11 @@ P8-002B-native-outcome-invocation
 
 ## Required Next Action
 
-1. D079／Specification／Task PacketをCommit／Pushする。
-2. WorkflowへRunner UID／GID接続とManual Recovery Pathを実装する。
-3. Local Validation後にCommit／Pushし、`1.0.0` Recovery Runを実行する。
-4. WorkflowとDistribution `main`／`1.0.0` Tagを検証する。
-5. Packagistに`blackops/skeleton` Source `https://github.com/kubotak-is/blackops-skeleton`を登録し、P8-004 Remote Smokeへ進む。
+1. Recovery Workflow／Documentation／CheckpointをCommit／Pushする。
+2. Main上のWorkflowを`release_version=1.0.0`でManual Dispatchする。
+3. WorkflowとDistribution `main`／`1.0.0` Tagを検証する。
+4. Packagistに`blackops/skeleton` Source `https://github.com/kubotak-is/blackops-skeleton`を登録する。
+5. P8-004 Remote Smokeへ進む。
 
 ## P8-003 Skeleton Distribution Publication Worker Verification Commands and Results
 
