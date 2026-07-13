@@ -1,6 +1,6 @@
-# Operation Authoring
+# Operationを実装する
 
-BlackOpsの標準Authoringは、Operation自身がNative Typed `handle()`を持つTyped Self-handled形式です。Value、Outcome、Optional ContextをPHP Signatureで宣言し、BuildがMetadataとHandler登録を生成します。
+BlackOpsの標準Authoringは、Applicationが実行したい一つの意図である[Operation](glossary.md#operation)自身がNative Typed `handle()`を持つTyped Self-handled形式です。Value、Outcome、Optional ContextをPHP Signatureで宣言し、BuildがMetadataとHandler登録を生成します。
 
 ## 標準形
 

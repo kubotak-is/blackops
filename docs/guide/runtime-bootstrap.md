@@ -1,6 +1,6 @@
-# Local Runtime
+# Local Runtimeを起動する
 
-InstallしたApplicationは、Docker ComposeでPHP 8.5 CLI、FrankenPHP 1、PostgreSQL 18を起動できます。依存Install、Artifact Build、MigrationはImage起動へ含まれないため、順番に明示実行します。
+InstallしたApplicationは、Docker ComposeでPHP 8.5 CLI、FrankenPHP 1、PostgreSQL 18を起動できます。依存Install、Artifact Build、MigrationはImage起動へ含まれないため、順番に明示実行します。OperationのRuntime検索情報を持つ[Manifest](glossary.md#manifest)はBuildで生成します。
 
 ## ImageとDependency
 
@@ -45,7 +45,9 @@ docker compose up -d
 既定Portは`8080`です。`.env`の`HTTP_PORT`で変更できます。Welcome Operationを実行します。
 
 ```bash
-curl -H 'X-Sample-Token: local-example' http://127.0.0.1:8080/welcome
+read -rsp 'Sample token: ' SAMPLE_TOKEN && printf '\n'
+curl -H "X-Sample-Token: ${SAMPLE_TOKEN}" http://127.0.0.1:8080/welcome
+unset SAMPLE_TOKEN
 ```
 
 ```json

@@ -22,7 +22,7 @@ BlackOpsは、PHP 8.5向けのHeadless Operation Frameworkです。同期HTTPと
 - [Operations](operations.md): Operation、Value、Outcome、Generator、Lifecycle
 - [Execution](execution.md): HTTP、Inline、Deferred、Worker
 - [Database](database-migrations.md): Migration、Outcome Retrieval、Retention
-- [Reference](configuration.md): Configuration、Application Bootstrap、Project CLI、現行Status
+- [Reference](configuration.md): Configuration、Troubleshooting、Security、Core API、Attributes、現行Status
 - [Glossary](glossary.md): Attempt、Claim、Fencing、Journal等のBlackOps用語
 
 ## Document Channel

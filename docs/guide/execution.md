@@ -1,4 +1,4 @@
-# HTTP、Inline、Deferred Execution
+# HTTP、Inline、Deferredの実行
 
 Operationの実行経路はDirectoryではなくMetadataで決まります。HTTP Routeを持つOperationはCompile済みHTTP Manifestへ登録され、Execution Strategyを指定しない場合はInline、`Deferred`を指定した場合はDurable受付になります。
 

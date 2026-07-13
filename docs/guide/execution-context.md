@@ -1,6 +1,6 @@
-# Execution Context
+# 実行Context（ExecutionContext）
 
-`ExecutionContext`はOperationの追跡情報を保持するRead-onlyなPublic APIです。Operationが必要とする場合だけTyped Self-handled `handle()`の第二引数へ指定します。
+`ExecutionContext`は[Operation](glossary.md#operation)の追跡情報を保持するRead-onlyなPublic APIです。Operationが必要とする場合だけTyped Self-handled `handle()`の第二引数へ指定します。
 
 ```php
 use BlackOps\Core\ExecutionContext;

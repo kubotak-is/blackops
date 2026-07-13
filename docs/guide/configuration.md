@@ -1,4 +1,4 @@
-# Configuration Reference
+# Configuration Reference（設定一覧）
 
 Installed Applicationは責務別のPHP Configを`config/`に置きます。Frameworkは存在する既知Fileだけを読み、各Fileは配列を返す必要があります。
 

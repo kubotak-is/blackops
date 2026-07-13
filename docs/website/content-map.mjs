@@ -34,7 +34,7 @@ export const contentMap = {
   },
   'first-operation.md': {
     slug: 'getting-started/first-operation',
-    description: 'ValueとOutcomeをNative型で宣言する最初のTyped Self-handled Operationを理解する。',
+    description: 'QuickstartのSource作成からHTTP受付、Journal、Worker、Outcome取得までを完走する。',
   },
   'runtime-bootstrap.md': {
     slug: 'getting-started/local-runtime',
@@ -87,6 +87,22 @@ export const contentMap = {
   'project-cli.md': {
     slug: 'reference/project-cli',
     description: 'Project所有のbin/blackopsから利用できるBuild、Database、Worker、Retention Commandを確認する。',
+  },
+  'troubleshooting.md': {
+    slug: 'reference/troubleshooting',
+    description: 'Build、Discovery、Artifact、Worker、Database、Journal、Outcomeの問題を症状から確認して解決する。',
+  },
+  'security.md': {
+    slug: 'reference/security',
+    description: 'Sensitive ProjectionとApplication／運用が所有するSecurity責任の境界を確認する。',
+  },
+  'core-api.md': {
+    slug: 'reference/core-api',
+    description: '現在のPublic API型と通常のApplication／Adapterでの用途を確認する。',
+  },
+  'attributes.md': {
+    slug: 'reference/attributes',
+    description: '全Public Attributeの用途、付与対象、Typed Self-handled標準形での必要性を確認する。',
   },
   'mvp-status.md': {
     slug: 'reference/current-status',

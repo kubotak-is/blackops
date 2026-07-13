@@ -1,4 +1,4 @@
-# Operation Lifecycle
+# Operation Lifecycleを理解する
 
 BlackOpsはInlineとDeferredを同じLifecycle Modelで記録します。ApplicationはOperation IDを相関Keyとして受付からTerminal Stateまで追跡できます。
 

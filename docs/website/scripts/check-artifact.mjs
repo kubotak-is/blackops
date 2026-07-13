@@ -10,6 +10,7 @@ const forbidden = [
   [/Acceptance Evidence/i, 'acceptance evidence'],
   [new RegExp(escapePattern(repositoryRoot)), 'repository absolute path'],
   [/cdn\.jsdelivr\.net|unpkg\.com|cdnjs\.cloudflare\.com/i, 'external diagram CDN'],
+  [/consumer-sensitive-value|consumer-report-value|inline-secret-token|deferred-secret-token/, 'test secret literal'],
 ];
 
 let diagramCount = 0;
@@ -18,6 +19,7 @@ let accessibleDescriptionCount = 0;
 let rendererEntryCount = 0;
 let mermaidCoreCount = 0;
 let responsiveStylesheetCount = 0;
+let responsiveContentStylesheetCount = 0;
 for (const file of await files(distRoot)) {
   const content = (await readFile(file)).toString('utf8');
   for (const [pattern, label] of forbidden) {
@@ -51,6 +53,16 @@ for (const file of await files(distRoot)) {
   ) {
     responsiveStylesheetCount += 1;
   }
+  if (
+    file.endsWith('.css') &&
+    content.includes('pre:not(.mermaid)') &&
+    content.includes('overflow-wrap:anywhere') &&
+    content.includes('white-space:normal') &&
+    content.includes('inline-size:max-content') &&
+    !content.includes('overflow-x:clip')
+  ) {
+    responsiveContentStylesheetCount += 1;
+  }
 }
 
 if (diagramCount !== 4) {
@@ -68,6 +80,11 @@ if (rendererEntryCount !== 1 || mermaidCoreCount !== 1) {
 }
 if (responsiveStylesheetCount !== 1) {
   throw new Error(`Static artifact must contain one responsive Mermaid stylesheet; found ${responsiveStylesheetCount}.`);
+}
+if (responsiveContentStylesheetCount !== 1) {
+  throw new Error(
+    `Static artifact must contain one responsive prose, code, and table stylesheet; found ${responsiveContentStylesheetCount}.`,
+  );
 }
 
 function escapePattern(value) {

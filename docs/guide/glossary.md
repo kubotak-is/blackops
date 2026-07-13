@@ -1,4 +1,4 @@
-# Glossary
+# 用語集（Glossary）
 
 BlackOps固有の実行、追跡、運用用語をまとめます。各用語はApplication Codeから直接触れるPublic Conceptと、Framework／運用が管理するRuntime Conceptを区別して説明します。
 

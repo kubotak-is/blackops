@@ -1,4 +1,4 @@
-# Why BlackOps
+# BlackOpsを選ぶ理由（Why BlackOps）
 
 同期HTTPと非同期Jobを別々のModelで実装すると、同じ業務上の意図でもLifecycle、Retry、Trace、Outcomeの扱いが実行経路ごとに分かれます。障害調査ではController、Queue、Worker、Application Logを横断し、「処理を受理したのか」「何回試したのか」「最終結果は何か」を組み立て直さなければなりません。
 

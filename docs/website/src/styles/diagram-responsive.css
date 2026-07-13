@@ -5,6 +5,37 @@
   min-inline-size: 0;
 }
 
+.sl-container > h1,
+.sl-markdown-content :is(h1, h2, h3, h4, h5, h6, p, li, dt, dd, blockquote) {
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
+}
+
+.sl-markdown-content :not(pre) > code {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.sl-markdown-content > .expressive-code,
+.sl-markdown-content > .expressive-code figure,
+.sl-markdown-content pre:not(.mermaid) {
+  inline-size: 100%;
+  max-inline-size: 100%;
+  min-inline-size: 0;
+  box-sizing: border-box;
+}
+
+.sl-markdown-content pre:not(.mermaid) {
+  overflow-x: auto;
+}
+
+.sl-markdown-content > table {
+  display: block;
+  inline-size: max-content;
+  max-inline-size: 100%;
+  overflow-x: auto;
+}
+
 .sl-markdown-content > pre.mermaid {
   display: block;
   inline-size: 100%;

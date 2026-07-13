@@ -1,4 +1,4 @@
-# Core Concepts
+# 中核概念（Core Concepts）
 
 BlackOpsは、Applicationの意図を表すOperationを中心に、型付きInput／Output、Execution Strategy、追跡Context、Lifecycle Journalを組み合わせます。
 

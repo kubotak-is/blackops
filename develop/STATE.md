@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-13T20:41:00+09:00
+Updated At: 2026-07-13T21:21:50+09:00
 
 ## Current Phase
 
@@ -8,21 +8,21 @@ Phase 10: Documentation Website
 
 ## Current Task
 
-Task ID: P10-005A-reader-orientation-and-diagrams
+Task ID: P10-005B-guides-security-and-reference
 
-Task Packet: `develop/orchestration/tasks/P10-005A-reader-orientation-and-diagrams.md`
+Task Packet: `develop/orchestration/tasks/P10-005B-guides-security-and-reference.md`
 
 Specification: `develop/spec/59-documentation-reader-experience.md`
 
 ## Task Status
 
-P10-005A Accepted
+P10-005B Accepted
 
-初見読者向けのWhy BlackOps、Core Concepts、Laravel／Symfony Mental Model、4 Mermaid Diagram、Glossaryを追加し、Getting Startedより前の理解導線を構築した。Starlight公式Resources掲載の`astro-mermaid` `2.1.0`と`mermaid` `11.16.0`をExact Pinし、構文Parse、Local Client Renderer Artifact、Light／Dark Theme、Accessible Metadata／Text AlternativeをGuardした。Browser Reviewで検出したMobile Page OverflowとSVG内部Clipは、60 remのSVGをDiagram Target内だけで横ScrollするResponsive CSSへ切り替えて解消した。
+First OperationをQuickstartのDeferred Report Source作成、Build、HTTP 202、Sensitive Mask済みJSONL、Worker Retry／完了、Public `OutcomeReader`によるOutcome取得まで一Page化した。Troubleshooting、Security責任分界、111 Public API型、11 Public AttributeのReferenceを追加し、全25公開Guideの日本語主体／能動態を監査した。390 px Edge Browser ReviewではHeadless ScreenshotのCrop制約をDOM実測で特定し、実ViewportでDocument Level Overflowがなく、通常Code／Tableだけが要素内Scrollすることを確認した。Website Test／Check／Build、Quickstart Mago Analyze、独立Consumer E2E、Artifact Guardが成功し、Worker ReportをReady for Reviewで作成した。
 
 ## Last Accepted Task
 
-P10-005A-reader-orientation-and-diagrams
+P10-005B-guides-security-and-reference
 
 ## Pending Decisions
 
@@ -30,13 +30,44 @@ Cloudflare External Configuration待ちは継続するが、Repository内Reader 
 
 ## Known Blockers
 
-P10-005A Repository実装に既知のBlockerはない。Build-time Playwright方式はOS Shared Library不足のため中止し、Fresh Installで再現可能な公式Client Integrationへ切替済み。Cloudflare Project／Token／GitHub Environment SecretsとProtection Ruleの未設定はRemote DeployだけのExternal Blockerであり、P10-005Bを妨げない。
+P10-005B Repository実装に既知のBlockerはない。Cloudflare Project／Token／GitHub Environment SecretsとProtection Ruleの未設定はRemote DeployだけのExternal Blockerであり、P10-005Bを妨げない。
 
 ## Required Next Action
 
-1. P10-005Aを単独Commitする。
-2. P10-005Bを開始し、Tutorial、Troubleshooting、Security、Core API／Attribute Reference、Tone統一を実装する。
-3. External Configuration完了後、P10-006でPreview／Production／Live EvidenceをCloseする。
+1. P10-005Bを単独CommitしてGitHubへPushする。
+2. CIとDocumentation Deliveryを確認する。
+3. Cloudflare External Configuration完了後のP10-006 Closeoutへ進む。
+
+## P10-005B Guided Tutorial, Security, and Reference Worker Verification Commands and Results
+
+```text
+mise exec -- pnpm --dir docs/website install --frozen-lockfile
+Result: pnpm 11.12.0で成功。Already up to date。
+
+mise exec -- pnpm --dir docs/website run test
+Result: 26 tests / 26 passed / 0 failed。Quickstart Source、JSON／JSONL、Troubleshooting、Security、111 Public API、11 Attribute、全Guide Tone、Stable／mainを検証。
+
+mise exec -- pnpm --dir docs/website run check
+Result: Content Determinism、4 Mermaid Syntax／Accessibility Metadata、Astro Checkが成功。16 files / 0 errors / 0 warnings / 0 hints。
+
+mise exec -- pnpm --dir docs/website run build
+Result: 25 Public Pages plus 404、Pagefind 26 HTML、Sitemap、Artifact／Site／Search Guardが成功。
+
+Windows Edge Headless Browser Review
+Result: `--window-size=390,1000`が450 px CSS Viewportを390 px ScreenshotへCropする制約をDOM実測で特定。390 px固定Same-origin IframeでFirst Operation、Core API、Attributes、Troubleshooting、Securityを確認し、Document Level Horizontal Overflowなし、見出し／本文／Inline Codeの折返し、通常Code Block／Tableの要素内Scrollを確認。Mermaidの60 rem最小幅とDiagram内Scrollは維持。
+
+docker compose run --rm app mago analyze examples/quickstart/app
+Result: INFO No issues found.
+
+bash tests/Consumer/quickstart-e2e.sh
+Result: 独立ConsumerのBuild、Migration、HTTP、Sensitive JSONL、Retry、Completed State、Outcome Rowを検証し、Quickstart consumer E2E passed。初回Sandbox内実行はDocker Socket Permissionで失敗し、承認済みDocker実行で成功。
+
+docker compose run --rm app mago format --check src tests
+Result: INFO All files are already formatted.
+
+Static Artifact Public Boundary Guard、PHP Management ID Guard、git diff --check
+Result: すべて成功。
+```
 
 ## P10-005A Reader Orientation and Diagrams Worker Verification Commands and Results
 

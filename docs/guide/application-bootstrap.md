@@ -1,4 +1,4 @@
-# Application Bootstrap
+# ApplicationをBootstrapする
 
 Installed ApplicationはApplication Rootを起点にPublic `Application` BuilderからHTTPとConsoleの共通Configuration Snapshotを作ります。
 

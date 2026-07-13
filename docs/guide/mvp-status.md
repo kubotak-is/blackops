@@ -1,6 +1,8 @@
-# Current Status
+# 現在の提供状況（Current Status）
 
 BlackOpsのLatest StableはFramework／Skeleton `1.0.0`です。このWebsiteは`main` Branchの最新Documentを公開するため、Stableへまだ含まれない機能を説明する場合があります。
+
+BlackOps固有のOperation、Claim、Journal、Outcome等は[用語集](glossary.md)で確認できます。
 
 MVP CompleteとProduction Readyは同じ意味ではありません。ApplicationはDatabase Credential、Deployment、Process Supervision、Authentication／Authorization、Access Control、Encryption、Retention Policy、Operational Monitoringを所有します。
 

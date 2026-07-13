@@ -1,4 +1,4 @@
-# Project CLI Reference
+# Project CLI Reference（Command一覧）
 
 `bin/blackops`はApplication所有の薄いEntrypointです。Framework Packageが提供するCommandを、ApplicationのConfiguration Snapshotから起動します。
 

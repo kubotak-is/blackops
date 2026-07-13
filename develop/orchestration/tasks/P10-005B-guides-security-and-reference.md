@@ -1,6 +1,6 @@
 # P10-005B: Guided Tutorial, Security, and Reference
 
-Status: Ready
+Status: Accepted
 
 ## Goal
 
@@ -59,16 +59,16 @@ Status: Ready
 
 ## Acceptance Criteria
 
-- [ ] First OperationがSourceからOutcome取得まで一Pageで完走する
-- [ ] 全Commandに対応するInput／Outputがあり、HTTP StatusとJSONがParse可能である
-- [ ] `journal.jsonl`実例がSensitive Maskを含みRaw Secretを含まない
-- [ ] TroubleshootingがSignature／Discovery／Artifact／202 without Worker／DB／Journal／Outcomeを扱う
-- [ ] Security PageがFrameworkとApplication／運用の責任を表で分離する
-- [ ] Core API Types Tableが現在のPublic APIと一致する
-- [ ] Attribute Tableが用途、対象、例、Typed標準形での必要性を示す
-- [ ] Glossary Termの初出注釈とLinkが主要Pageにある
-- [ ] 全公開Guideが日本語主体の能動態と統一表記を使用する
-- [ ] Stable／main Banner、Current Status、既知制約が維持される
+- [x] First OperationがSourceからOutcome取得まで一Pageで完走する
+- [x] 全Commandに対応するInput／Outputがあり、HTTP StatusとJSONがParse可能である
+- [x] `journal.jsonl`実例がSensitive Maskを含みRaw Secretを含まない
+- [x] TroubleshootingがSignature／Discovery／Artifact／202 without Worker／DB／Journal／Outcomeを扱う
+- [x] Security PageがFrameworkとApplication／運用の責任を表で分離する
+- [x] Core API Types Tableが現在のPublic APIと一致する
+- [x] Attribute Tableが用途、対象、例、Typed標準形での必要性を示す
+- [x] Glossary Termの初出注釈とLinkが主要Pageにある
+- [x] 全公開Guideが日本語主体の能動態と統一表記を使用する
+- [x] Stable／main Banner、Current Status、既知制約が維持される
 
 ## Required Commands
 
@@ -87,4 +87,3 @@ git diff --check
 ## Expected Report
 
 `develop/orchestration/reports/P10-005B-guides-security-and-reference.md`へSummary、Tutorial Evidence、Troubleshooting Coverage、Security Boundary、API／Attribute Source Audit、Tone／Terminology Audit、Changed Files、Commands and Results、Acceptance Criteria、Remaining Issues、Suggested Next Actionを記録する。
-

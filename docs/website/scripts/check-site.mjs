@@ -23,6 +23,10 @@ const routes = [
   '/reference/configuration/',
   '/reference/application-bootstrap/',
   '/reference/project-cli/',
+  '/reference/troubleshooting/',
+  '/reference/security/',
+  '/reference/core-api/',
+  '/reference/attributes/',
   '/reference/current-status/',
   '/reference/glossary/',
 ];
@@ -52,6 +56,13 @@ const diagramRoutes = [
   '/operations/lifecycle/',
   '/execution/http-and-deferred/',
   '/execution/context/',
+];
+const responsiveContentRoutes = [
+  '/getting-started/first-operation/',
+  '/reference/core-api/',
+  '/reference/attributes/',
+  '/reference/troubleshooting/',
+  '/reference/security/',
 ];
 let diagramCount = 0;
 for (const route of diagramRoutes) {
@@ -132,6 +143,11 @@ async function verifyResponsiveDiagramStyle() {
       css.includes('min-inline-size:0') &&
       css.includes('max-inline-size:100%') &&
       css.includes('min-inline-size:60rem') &&
+      css.includes('pre:not(.mermaid)') &&
+      css.includes('overflow-wrap:anywhere') &&
+      css.includes('white-space:normal') &&
+      css.includes('inline-size:max-content') &&
+      !css.includes('overflow-x:clip') &&
       (css.includes('overflow-x:auto') || css.includes('overflow:auto hidden'))
     ) {
       responsiveStylesheets.push(stylesheet);
@@ -143,6 +159,9 @@ async function verifyResponsiveDiagramStyle() {
   }
   for (const route of diagramRoutes) {
     requireText(pages.get(route), `/_astro/${responsiveStylesheets[0]}`, `${route} responsive Mermaid stylesheet`);
+  }
+  for (const route of responsiveContentRoutes) {
+    requireText(pages.get(route), `/_astro/${responsiveStylesheets[0]}`, `${route} responsive content stylesheet`);
   }
 }
 
@@ -192,6 +211,24 @@ async function verifySearch() {
     const glossaryRecords = await Promise.all(glossaryResult.results.slice(0, 5).map(({ data }) => data()));
     if (!glossaryRecords.some(({ url }) => url.includes('/reference/glossary/'))) {
       throw new Error('Pagefind did not return the Glossary for Fencing Token.');
+    }
+    const troubleshootingResult = await search.search('Typed Self-handled Signature Error');
+    if (troubleshootingResult.results.length === 0) {
+      throw new Error('Pagefind returned no result for Typed Self-handled Signature Error.');
+    }
+    const troubleshootingRecords = await Promise.all(
+      troubleshootingResult.results.slice(0, 5).map(({ data }) => data()),
+    );
+    if (!troubleshootingRecords.some(({ url }) => url.includes('/reference/troubleshooting/'))) {
+      throw new Error('Pagefind did not return Troubleshooting for Typed Self-handled Signature Error.');
+    }
+    const securityResult = await search.search('Credential Rotation');
+    if (securityResult.results.length === 0) {
+      throw new Error('Pagefind returned no result for Credential Rotation.');
+    }
+    const securityRecords = await Promise.all(securityResult.results.slice(0, 5).map(({ data }) => data()));
+    if (!securityRecords.some(({ url }) => url.includes('/reference/security/'))) {
+      throw new Error('Pagefind did not return Security for Credential Rotation.');
     }
     await search.destroy();
   } finally {

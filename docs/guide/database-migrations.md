@@ -1,11 +1,10 @@
-# Database Migrations
+# Database Migrationを適用する
 
-BlackOpsのPostgreSQL Tableは、ApplicationのDeployment工程から明示的にMigrationを適用する。
-HTTP ServerやWorkerの起動時にはMigrationを実行しない。
+ApplicationのDeployment工程からBlackOpsのPostgreSQL TableへMigrationを明示的に適用します。HTTP ServerやWorkerの起動時にはMigrationを実行しません。
 
-## Command Registration
+## Commandの登録境界
 
-Public Console KernelがMigration Commandを常時登録し、対象Command実行時だけ `config/database.php` の解決済みConnection ParameterとSchemaからRunnerを構成する。
+Public Console KernelはMigration Commandを常時登録し、対象Commandを実行したときだけ`config/database.php`の解決済みConnection ParameterとSchemaからRunnerを構成します。
 
 ```php
 return [
@@ -14,11 +13,11 @@ return [
 ];
 ```
 
-Schema名は既定で `blackops` である。変更する場合は、先頭を小文字英字またはunderscoreとし、以降を小文字英数字またはunderscoreとする安全なPostgreSQL Identifierを指定する。
+Schema名の既定値は`blackops`です。変更する場合は、先頭を小文字英字またはunderscoreとし、以降を小文字英数字またはunderscoreとする安全なPostgreSQL Identifierを指定します。
 
-## Deployment Flow
+## Deployment手順
 
-Deployment前にstatusとdry runを確認し、その後にNon-interactiveでapplyする。
+Deployment前にStatusとDry-runを確認し、その後にNon-interactiveで適用します。
 
 ```bash
 php bin/blackops blackops:database:status --no-interaction
@@ -27,18 +26,18 @@ php bin/blackops blackops:database:migrate --no-interaction
 php bin/blackops blackops:database:status --no-interaction
 ```
 
-`status` はApplied／Pending件数とVersionを表示し、Databaseを変更しない。`--dry-run` はBaselineとMetadata更新のSQL Planを表示するが、Schema、Metadata Table、Framework Data Tableを作成・変更しない。
+`status`はApplied／Pending件数とVersionを表示し、Databaseを変更しません。`--dry-run`はBaselineとMetadata更新のSQL Planを表示しますが、Schema、Metadata Table、Framework Data Tableを作成・変更しません。
 
-Pendingがない状態で `migrate` を再実行しても成功し、`No pending migrations.` と表示する。
+Pendingがない状態で`migrate`を再実行すると、`No pending migrations.`と表示して成功します。
 
 ## Application Migrations
 
-Project Rootに`migrations/`がある場合、Database CommandはFramework Migrationに加えて`App\Migrations`の`Version*.php`を読み込む。DirectoryがないApplicationはFramework Migrationだけを扱い、空Directoryを作る必要はない。
+Project Rootに`migrations/`がある場合、Database CommandはFramework Migrationに加えて`App\Migrations`の`Version*.php`を読み込みます。DirectoryがないApplicationはFramework Migrationだけを扱うため、空Directoryを作る必要はありません。
 
-Application MigrationはFramework Migrationと同じConnection、Framework Schema内の`schema_migrations` Metadata Table、transactional／all-or-nothing設定を共有する。Framework Migrationが常に先に実行され、その後にApplication MigrationがVersion Class順で実行される。
+Application MigrationはFramework Migrationと同じConnection、Framework Schema内の`schema_migrations` Metadata Table、transactional／all-or-nothing設定を共有します。RunnerはFramework Migrationを先に実行し、その後にApplication MigrationをVersion Class順で実行します。
 
-Application MigrationはDoctrine標準Constructorを使う。Framework Schema名は自動注入されないため、Application TableのSchema選択とSQLはApplicationが明示する。
+Application MigrationはDoctrine標準Constructorを使います。FrameworkはSchema名を自動注入しないため、ApplicationがTableのSchemaとSQLを明示します。
 
-`Version*.php`はDatabase Command実行時に直接読み込まれる。Parse Error、`App\Migrations`以外のNamespace、File名と異なるClass、`AbstractMigration`でないClassは失敗する。`migrations`がFileまたはsymlinkの場合も、Framework-only状態として無視せず拒否する。
+Database Commandは実行時に`Version*.php`を直接読み込みます。Parse Error、`App\Migrations`以外のNamespace、File名と異なるClass、`AbstractMigration`でないClassを検出すると失敗します。`migrations`がFileまたはsymlinkの場合も無視せず拒否します。
 
-HTTP、Worker、Scheduler、Build、Consoleの`list`／`help`はMigration Directoryを読み込まず、MigrationやDDLを暗黙実行しない。
+HTTP、Worker、Scheduler、Build、Consoleの`list`／`help`はMigration Directoryを読み込まず、MigrationやDDLを暗黙実行しません。

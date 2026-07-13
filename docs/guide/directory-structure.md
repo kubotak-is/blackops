@@ -1,6 +1,6 @@
-# Directory Structure
+# Directory構成
 
-公式Skeletonは、同じ変更理由を持つOperation、Value、Outcome、ResponderをFeatureとActionの単位でまとめます。
+公式Skeletonは、Applicationが実行したい一つの意図である[Operation](glossary.md#operation)と、Value、Outcome、ResponderをFeatureとActionの単位でまとめます。
 
 ```text
 app/
