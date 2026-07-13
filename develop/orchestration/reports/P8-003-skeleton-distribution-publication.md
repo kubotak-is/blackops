@@ -55,10 +55,10 @@ Publication Dry Runは実行前後のMain Working Tree StatusとDocker Container
 
 | External state | Status |
 | --- | --- |
-| Public `kubotak-is/blackops` Repository | Not created; GitHub再認証待ち |
-| Default Branch `main` | Contract documented; Remote未作成 |
+| Public `kubotak-is/blackops` Repository | Created; GitHub ConnectorでPublic・Empty・Admin権限を確認 |
+| Default Branch `main` | GitHub Connectorで確認 |
 | Write-enabled Deploy Key | Not generated or registered |
-| Main Repository Secret `SKELETON_DEPLOY_KEY` | Not registered |
+| Main Repository Secret `SKELETON_DEPLOY_KEY` | Not registered; Main Repository URL未確定 |
 | Initial Split Commit／Tag Push | Not executed |
 | Packagist `blackops/skeleton` GitHub integration | Not configured |
 
@@ -155,7 +155,7 @@ Result: No output.
 ## Remaining Issues
 
 - GitHub CLIを`kubotak-is`へ再認証する必要がある。
-- Public `kubotak-is/blackops` Repositoryを空で作成する必要がある。
+- Main Framework RepositoryのGitHub URLを確定し、Workflow実行元とActions Secret登録先を特定する必要がある。
 - Write-enabled Deploy KeyとMain Repository Secretを登録する必要がある。
 - Packagist `blackops/skeleton`をGitHub連携へ登録する必要がある。
 - External状態設定後にWorkflowの初回Live RunとRemote Branch／Tagを検証する必要がある。
@@ -169,4 +169,4 @@ OrchestratorがComposer Strict Validation、Mago Format Check、Publication Dry 
 
 ## Suggested Next Action
 
-OrchestratorがLocal変更をReviewし、必要な修正と品質再検証を行う。受入後、GitHubを再認証して空のPublic Distribution Repository、Deploy Key、Actions Secretを設定し、Packagist GitHub連携を構成する。初回bare SemVer Tag Workflowが成功した後、P8-004 Remote Create-project Smokeへ進む。
+Public Distribution Repositoryは作成済み。Main Framework RepositoryのGitHub URLを確定し、WSL2のGitHub CLIを再認証してDeploy KeyとActions Secretを設定する。続いてPackagist GitHub連携を構成し、初回bare SemVer Tag WorkflowとP8-004 Remote Create-project Smokeを検証する。
