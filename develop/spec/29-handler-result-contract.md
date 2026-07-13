@@ -2,7 +2,16 @@
 
 ## OperationResult
 
-Handlerは `OperationResult<TOutcome>` を返す。
+標準Typed Self-handled Operationは具象 `Outcome` を直接返す。値のない成功は `void` とする。
+
+```php
+public function handle(CreateOrderValue $value): OrderCreated;
+public function handle(RebuildIndexValue $value): void;
+```
+
+予期された業務拒否は `OperationRejectedException` をthrowする。Framework Invocation Boundaryが内部 `OperationResult` へ正規化する。その他のThrowableはシステム障害として既存Supervisionへ伝播する。
+
+Legacy Self-handled／Separate Handlerは互換Contractとして `OperationResult<TOutcome>` を返す。
 
 ```php
 /**
@@ -19,11 +28,11 @@ interface OperationHandler
 }
 ```
 
-成功と予期された業務拒否をResultで表し、システム障害は例外としてFramework実行境界へ伝播させる。
+Legacy Handlerは成功と予期された業務拒否をResultで表し、システム障害は例外としてFramework実行境界へ伝播させる。
 
 ## 生成
 
-利用者は公開Static FactoryだけでResultを生成する。
+Legacy Handler利用者は公開Static FactoryだけでResultを生成する。
 
 ```php
 OperationResult::completed($outcome);
@@ -44,7 +53,7 @@ public function rejectionReason(): RejectionReason;
 
 ## EmptyOutcome
 
-値を返さない成功では `completed()` を許可する。
+標準Typed Self-handledでは `void`、Legacy Handlerでは `completed()` を許可する。
 
 内部およびWire Schemaでは専用の `EmptyOutcome` として扱い、`null` をOutcomeとして使用しない。
 
@@ -54,8 +63,6 @@ public function rejectionReason(): RejectionReason;
 
 Codeは小文字英数字を基本とし、`.`、`_`、`-` の区切りを許可する。自由文Messageと任意detailsは保持せず、利用者向け表現はResponderで生成する。
 
-## 置き換え
+## Compatibility
 
-D023の「Handlerが直接Outcomeを返す」という決定を置き換える。
-
-D023のMarker Interface、単一 `handle()` Method、`#[PublicApi]` の決定は維持する。
+D075により標準Typed Self-handledは直接Outcome／Void Returnへ移行した。Legacy Self-handled／Separate HandlerではD035／D052の `OperationResult` Contractを維持する。

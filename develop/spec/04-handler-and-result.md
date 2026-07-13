@@ -15,19 +15,32 @@ BindingまたはValue Validationの失敗は、Operation IDを持つ `OperationR
 
 ## Handler
 
-Operation DefinitionとHandlerは `#[HandledBy(...)]` で関連付ける。一つのOperationは一つの業務Handlerを持つ。
+標準形ではOperation Definition自身が業務Handlerとなる。一つのOperationは一つの `handle()` Methodを持つ。
 
-Handlerは、型付きOperationValueとExecutionContextを内包した読み取り専用Operation Envelopeを一つ受け取る。
+標準Handlerは型付きOperationValueとOptional `ExecutionContext` をNative Parameterで受け取る。Legacy／Separate Handlerだけが `#[HandledBy]` と読み取り専用Operation Envelopeを使用する。
 
-## OperationResult
+## Handler Result
 
-Handlerは成功または業務上の拒否をFW標準のOperationResultで返す。
+標準Typed Self-handled Operationは成功時に具象Outcomeを直接返し、値のない成功では `void` を返す。予期された業務上の拒否はFramework標準 `OperationRejectedException` をthrowする。
+
+```php
+public function handle(OrderValue $value): OrderCreated
+{
+    if (!$this->inventory->isAvailable($value->items)) {
+        throw OperationRejectedException::conflict('inventory_unavailable');
+    }
+
+    return new OrderCreated($orderId);
+}
+```
+
+Framework Invocation BoundaryはNative Outcome／Void／`OperationRejectedException` を内部 `OperationResult` へ正規化する。
+
+Legacy Self-handled／Separate Handlerは互換Contractとして次を使用する。
 
 - `OperationResult::completed($outcome)`：成功
 - `OperationResult::completed()`：返却データのない成功
 - `OperationResult::rejected($reason)`：予期された業務上の拒否
-
-Operation Definitionは `#[Returns(...)]` で成功時のOutcome型を宣言する。
 
 ```php
 public function handle(OperationEnvelope $operation): OperationResult
@@ -48,14 +61,14 @@ public function handle(OperationEnvelope $operation): OperationResult
 
 システム障害はHandlerから例外としてthrowする。FWの実行境界が捕捉し、`AttemptFailed` を記録する。その後の処置はSupervision Policyが判断する。
 
-予期された業務上の不成立を例外として扱わず、システム障害をRejected Resultとして隠さない。
+Frameworkは `OperationRejectedException` だけをRejectedへ変換する。その他のThrowableをRejected Resultとして隠さない。
 
 ## 型契約
 
-Operation Definitionには次の契約を集約する。
+標準Typed Self-handled OperationではNative Signatureへ次の契約を集約する。
 
-- `#[Accepts(...)]`：OperationValue
-- `#[HandledBy(...)]`：Handler
-- `#[Returns(...)]`：成功Outcome
+- 第一引数：OperationValue
+- Optional第二引数：ExecutionContext
+- Return Type：成功Outcomeまたはvoid
 
-Operation RegistryおよびCIは、これらとHandlerシグネチャの整合性を検証する。
+Legacy／Separate Handlerでは `#[Accepts]`、`#[HandledBy]`、`#[Returns]` を維持する。Operation RegistryおよびCIはNative Signature、Attribute、Manifestの整合性を検証する。

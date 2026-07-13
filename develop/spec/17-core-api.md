@@ -21,11 +21,11 @@ interface Outcome
 }
 ```
 
-業務Classは対応するInterfaceを実装する。Operation DefinitionとValue、Handler、Outcomeの関連付けはAttributeで宣言する。
+業務Classは対応するInterfaceを実装する。標準Typed Self-handled OperationのValueとOutcomeはNative `handle()` SignatureからBuild時に推論する。
 
 ## Operation Handler
 
-標準Self-handled Operationは、`Operation` を実装し、`#[Accepts]` と一致する具象 `OperationValue` を第一引数に持つPublic `handle()` Methodを定義する。必要な場合は第二引数で `ExecutionContext` を受け取る。Build CompilerがNative Signatureを検証するため、Generic DocBlockとValue Narrowing Guardは不要である。
+標準Self-handled Operationは、`Operation` を実装し、具象 `OperationValue` を第一引数、具象 `Outcome` または `void` をReturn Typeに持つPublic `handle()` Methodを定義する。必要な場合は第二引数で `ExecutionContext` を受け取る。Build CompilerがNative SignatureからValue／Outcomeを推論・検証するため、`#[Accepts]`、`#[Returns]`、Generic DocBlock、Value Narrowing Guard、`OperationResult::completed()`は不要である。
 
 `OperationHandler` はSeparate HandlerとLegacy Self-handled Operationの後方互換Contractとして維持する。Legacy Handlerは `OperationHandler` を実装し、単一の `handle()` Methodを持つ。
 
@@ -45,7 +45,7 @@ interface OperationHandler
 }
 ```
 
-Handlerは成功または業務拒否を `OperationResult` で返す。Typed Self-handled OperationはNative Parameter、Legacy HandlerはPHPDoc GenericでValue型を表現する。Manifest CompilerとStatic AnalysisはOperation DefinitionのAttributeを含めて型の整合性を検証する。
+標準Typed Self-handled Operationは成功Outcomeを直接返し、予期された業務拒否では `OperationRejectedException` をthrowする。Frameworkが内部 `OperationResult` へ正規化する。Legacy Handlerは成功または業務拒否を `OperationResult` で返し、PHPDoc GenericでValue型を表現する。
 
 ## PHP Public API
 

@@ -10,18 +10,16 @@ Application Authorは、単純なOperationを自己完結したUse Case Classと
 
 ```php
 #[OperationType('welcome.show')]
-#[Accepts(WelcomeValue::class)]
-#[Returns(WelcomeShown::class)]
 final readonly class ShowWelcome implements Operation
 {
-    public function handle(WelcomeValue $value): OperationResult
+    public function handle(WelcomeValue $value): WelcomeShown
     {
-        return OperationResult::completed(new WelcomeShown('Welcome to BlackOps'));
+        return new WelcomeShown('Welcome to BlackOps');
     }
 }
 ```
 
-Self-handled Operationは `OperationHandler` と `#[HandledBy]` を指定しない。CompilerはNative Signatureを検証し、Handler MetadataへDefinition Class自身を設定する。Contextが必要な場合は第二引数へ `ExecutionContext` を指定する。
+Self-handled Operationは `OperationHandler`、`#[HandledBy]`、`#[Accepts]`、`#[Returns]` を指定しない。CompilerはNative SignatureからValue／Outcomeを推論し、Handler MetadataへDefinition Class自身を設定する。Contextが必要な場合は第二引数へ `ExecutionContext` を指定する。予期された拒否は `OperationRejectedException`、値のない成功は `void` を使用する。
 
 Self-handled OperationはContainer ServiceとしてAutowireされる。ConstructorへRepository Interface等を要求する場合、ApplicationはService ProviderでInterface BindingまたはFactoryを登録する。
 
