@@ -1,6 +1,6 @@
 # P9-002: Operation Generator
 
-Status: Blocked
+Status: In Progress
 
 ## Goal
 
@@ -67,7 +67,8 @@ Installed Applicationの`bin/blackops`から、Build可能なTyped Self-handled 
 
 ## Constraints
 
-- GPT-5.6 Luna High workerが実装し、Review前にCommitしない
+- Userは2026-07-13の「進めて」により、Model／Profileを明示できない現在のWorkerでこのTaskを進めることを承認した
+- WorkerはReview前にCommitしない
 - `make:operation`はDB、Build、Composer、NetworkへSide Effectを起こさない
 - StubはFramework Packageにだけ置き、Quickstartへ複製しない
 - `#[Accepts]`、`#[Returns]`、Generic DocBlock、Narrowing Guard、`OperationResult`を生成しない

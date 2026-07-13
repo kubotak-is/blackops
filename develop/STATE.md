@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-13T15:09:00+09:00
+Updated At: 2026-07-13T15:22:28+09:00
 
 ## Current Phase
 
@@ -16,9 +16,9 @@ Specification: `develop/spec/55-project-generators-and-application-migrations.md
 
 ## Task Status
 
-Blocked Before Worker Start
+Worker Implementation In Progress
 
-D080は4問すべてAでDecidedとなった。Generator／Application Migration Contract、Phase 9 Delivery Plan、P9-002からP9-004のTask Packetを作成し、P9-001を完了した。Production Codeは未変更である。P9-002はGPT-5.6 Luna High workerの明示選択が必要だが、現在のWorker起動InterfaceにはModel／Profile指定Parameterがないため開始していない。
+Userは「進めて」により、Model／Profileを明示できない現在のWorkerでP9-002を進めることを承認した。P9-002 Task PacketをIn Progressへ更新し、Operation Generator実装をWorkerへ依頼する。Production Codeはまだ未変更である。
 
 ## Last Accepted Task
 
@@ -30,13 +30,13 @@ P9-001-project-generator-command-contract
 
 ## Known Blockers
 
-Production CodeはGPT-5.6 Luna High workerへ依頼する必要がある。現在のWorker起動InterfaceではModel／Profileを明示指定できず、D077により別Modelへ黙ってFallbackできない。
+なし。P9-002に限る現在のWorker利用承認を得ている。P9-003開始時はWorker Model／Profile境界を再確認する。
 
 ## Required Next Action
 
-1. GPT-5.6 Luna Highを明示選択できるWorker実行環境を用意するか、今回に限る代替WorkerをUserが明示承認する。
-2. P9-002 Operation GeneratorをWorkerへ依頼し、Orchestrator Review後にCommitする。
-3. P9-003 Application Migration Generator／Runtime、P9-004 Framework Update Smoke／Closeoutの順で進める。
+1. P9-002 Operation GeneratorをWorkerへ依頼する。
+2. Worker Report／Diff／TestをOrchestratorがReviewし、必要な補強後にCommitする。
+3. P9-003開始前にWorker Model／Profile境界を再確認する。
 
 ## P8-003 Skeleton Distribution Publication Worker Verification Commands and Results
 
