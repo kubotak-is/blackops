@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-13T14:07:02+09:00
+Updated At: 2026-07-13T14:13:03+09:00
 
 ## Current Phase
 
@@ -16,9 +16,9 @@ Specification: `develop/spec/46-composer-skeleton-publication.md`
 
 ## Task Status
 
-Main Published; Packagist Registration Blocker
+Framework Registered; Initial Release Version Decision Blocker
 
-D076のMain／Distribution分離、Workflow追従、Public Distribution Repository、Write-enabled Deploy Key、Main Actions Secret登録、一時Key削除を完了した。GitHubの`LICENSE` Initial CommitをLocal Historyへ取り込み、Main Framework `main`を`8b2af584aeab` へforceなしでPushした。Packagistの`blackops/framework`と`blackops/skeleton`はどちらも未登録でHTTP 404。
+D076のMain／Distribution分離、Workflow追従、Public Distribution Repository、Write-enabled Deploy Key、Main Actions Secret登録、一時Key削除を完了した。GitHubの`LICENSE` Initial CommitをLocal Historyへ取り込み、Main Framework `main`をforceなしでPushした。Packagistの`blackops/framework`登録を確認し、Composer Metadataから`dev-main`がMain HEAD `ed9d8e345faca150644bab753e7b4d76d3243b78`を参照することを検証した。Stable Versionはまだ存在せず、`blackops/skeleton`は未登録である。
 
 ## Last Accepted Task
 
@@ -26,17 +26,17 @@ P8-002B-native-outcome-invocation
 
 ## Pending Decisions
 
-なし。
+- 初回ReleaseをStable `1.0.0`として公開するか、Pre-1.0向けにSkeleton ConstraintとPublication Contractを変更するか。
 
 ## Known Blockers
 
-- Packagist Accountで`blackops/framework`を`https://github.com/kubotak-is/blackops`から登録する必要がある。Packagist認証はOrchestratorに提供されていない。
+- 現在のSkeletonは`blackops/framework: ^1.0`を要求するため、現行Publication Contractで成功する初回Tagは`1.0.0`以上の1.xである。一方、P8-003 Task PacketはStable `1.0.0` ReleaseをOut of Scopeとしている。Public Tagを作成する前にRelease Versionのユーザー判断が必要である。
 
 ## Required Next Action
 
-1. Report／STATEのMain PushとPackagist BlockerをCommit／Pushする。
-2. UserがPackagistに`blackops/framework` Source `https://github.com/kubotak-is/blackops`を登録する。
-3. 初回bare SemVer Release TagでPublication Workflowを実行する。
+1. Userが初回Stable `1.0.0`公開、またはPre-1.0 Contractへの変更を判断する。
+2. 判断をDecision／Specification／Task Packetへ反映する。
+3. 合意した初回bare SemVer Release TagでPublication Workflowを実行する。
 4. Distribution `main`／Tag生成後、Packagistに`blackops/skeleton` Source `https://github.com/kubotak-is/blackops-skeleton`を登録する。
 5. P8-004 Remote Smokeへ進む。
 
