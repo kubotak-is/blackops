@@ -1,16 +1,16 @@
 # Handler and Result
 
-`OperationHandler<TValue, TOutcome>` は、一つの `handle()` MethodでOperationEnvelopeを受け取り、OperationResultを返す。
+標準Typed Self-handled Operationは `handle()` で具象Outcomeを直接返し、値のない成功は `void` で表す。Frameworkの共通Invokerが内部OperationResultへ正規化する。
 
-OperationResultは成功、予期された業務拒否、システム障害を区別する。成功と業務拒否はResultで表し、システム障害は例外として実行境界へ伝播する。
+`OperationRejectedException`だけを予期された業務拒否としてRejected Resultへ変換する。Retryable Exceptionとその他のThrowableは変換せず、既存Supervisionへ伝播する。
 
 ## Completed
 
-`OperationResult::completed($outcome)` は具体的なOutcomeを持つ成功を生成する。返却値のない成功では `completed()` を使用し、内部値としてEmptyOutcomeを保持する。
+標準形では具象Outcomeを直接returnする。`void` ReturnはFrameworkがEmptyOutcomeへ変換する。`OperationResult::completed()`はLegacy Self-handledとSeparate Handlerの互換APIとして維持する。
 
 ## Rejected
 
-`OperationResult::rejected($reason)` は予期された業務上の拒否を生成する。
+標準形では `OperationRejectedException::validation()` 等をthrowする。`OperationResult::rejected($reason)`はLegacy互換APIである。
 
 RejectionReasonはCategoryと安定したCodeだけを保持する。自由文や任意detailsを持たせず、利用者向けMessageとTransport表現はResponderが生成する。
 

@@ -1,6 +1,6 @@
 # P8-002B: Native Outcome Invocation
 
-Status: Ready
+Status: Completed
 
 ## Goal
 
@@ -170,20 +170,20 @@ public function handle(
 
 ## Acceptance Criteria
 
-- [ ] Native Outcome Typed Self-handledをAttributeなしでCompile／Invokeできる
-- [ ] Native Voidを`EmptyOutcome` Completedへ正規化できる
-- [ ] Optional ContextをInline／Deferredへ渡せる
-- [ ] Optional Attribute一致を受理し、不一致／重複を拒否する
-- [ ] Existing Typed `OperationResult`、Legacy Self-handled、Separate Handlerが回帰しない
-- [ ] Manifest旧形式復元とTamper Defenseが成立する
-- [ ] Public Rejected Exceptionの全Category FactoryとReason Accessorが成立する
-- [ ] Rejected ExceptionがInline／Deferred Rejected Lifecycleへ接続される
-- [ ] Retryable／通常例外がRejectedへ変換されない
-- [ ] Runtime Outcome／Void不整合を安全に拒否する
-- [ ] QuickstartからAccepts／Returns／OperationResult Wrapperがなくなる
-- [ ] Quickstart HTTP／Worker／Retry／Outcome／Consumer E2Eが成功する
-- [ ] Mago、Focused／Full PHPUnit、Deptrac、Composer、Guardが成功する
-- [ ] Docs、Report、Checkpointが更新される
+- [x] Native Outcome Typed Self-handledをAttributeなしでCompile／Invokeできる
+- [x] Native Voidを`EmptyOutcome` Completedへ正規化できる
+- [x] Optional ContextをInline／Deferredへ渡せる
+- [x] Optional Attribute一致を受理し、不一致／重複を拒否する
+- [x] Existing Typed `OperationResult`、Legacy Self-handled、Separate Handlerが回帰しない
+- [x] Manifest旧形式復元とTamper Defenseが成立する
+- [x] Public Rejected Exceptionの全Category FactoryとReason Accessorが成立する
+- [x] Rejected ExceptionがInline／Deferred Rejected Lifecycleへ接続される
+- [x] Retryable／通常例外がRejectedへ変換されない
+- [x] Runtime Outcome／Void不整合を安全に拒否する
+- [x] QuickstartからAccepts／Returns／OperationResult Wrapperがなくなる
+- [x] Quickstart HTTP／Worker／Retry／Outcome／Consumer E2Eが成功する
+- [x] Mago、Focused／Full PHPUnit、Deptrac、Composer、Guardが成功する
+- [x] Docs、Report、Checkpointが更新される
 
 ## Required Commands
 

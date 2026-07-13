@@ -151,9 +151,11 @@ its payload includes Compile済みFastRoute Dispatcher Data. Each manifest evolv
 proves that both artifacts belong to the same application build.
 
 Operation compilation validates Typed Self-handled signatures before writing artifacts. A typed handler accepts exactly
-the declared `OperationValue`, optionally followed by a required `ExecutionContext`, and returns `OperationResult`.
-The manifest stores this invocation mode while retaining the existing handler fields. Manifest loading validates the
-stored mode against the current class signature; runtime does not discover a replacement handler from source.
+one concrete `OperationValue`, optionally followed by a required `ExecutionContext`, and returns one concrete `Outcome`
+or `void`. The compiler infers Value and Outcome without `Accepts` or `Returns`; matching attributes and the older
+`OperationResult` return remain migration-compatible. The manifest stores the invocation mode while retaining the
+existing handler fields. Manifest loading validates mode, Value, and Outcome against the current class signature;
+runtime does not discover a replacement handler from source.
 
 The generated artifacts are PHP files containing arrays, scalar metadata, class names, FastRoute Dispatcher arrays, and a compiled container class. They contain no FastRoute objects or closures. Do not store credentials, tokens, environment secrets, or live service instances in provider metadata.
 

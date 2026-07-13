@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-13T12:06:27+09:00
+Updated At: 2026-07-13T12:35:19+09:00
 
 ## Current Phase
 
@@ -16,13 +16,13 @@ Specification: `develop/spec/54-native-outcome-and-rejection-exception.md`
 
 ## Task Status
 
-Ready
+Completed
 
-D075／Spec 54でNative Outcome／Void Return、Signature Metadata推論、Public Rejected Exception、Failure Boundary、Legacy Compatibilityを確定した。P8-002B Task Packetを作成し、worker実装開始待ち。
+P8-002BのNative Outcome／Void、Optional Attribute、Manifest互換、Public Rejected Exception、Inline／Deferred Lifecycle、Quickstart移行を完了した。Orchestrator Review後、未知Typed ModeとVoid／Outcome Metadata不整合をHandler副作前に拒否するfail-closed防御を追加し、全品質検証とConsumer E2Eを通過して受け入れた。D073のユーザー回答差分は変更していない。
 
 ## Last Accepted Task
 
-P8-002A-typed-self-handled-invocation
+P8-002B-native-outcome-invocation
 
 ## Pending Decisions
 
@@ -30,14 +30,46 @@ P8-002A-typed-self-handled-invocation
 
 ## Known Blockers
 
-- P8-002Bの実装Blockerはなし。
 - D073へA／A／Aのユーザー回答がある。P8-003開始前にDistribution Repositoryの正確なRepository名／URL、Default Branch、Visibilityを確定する。
 
 ## Required Next Action
 
-1. GPT-5.4-mini workerへP8-002Bを依頼する。
-2. Orchestrator Reviewと全品質検証を行う。
-3. P8-002B受入後、D073を確定してP8-003へ進む。
+1. D073のDistribution Repository詳細を確定する。
+2. P8-003へ進む。
+
+## P8-002B Native Outcome Invocation Worker Verification Commands and Results
+
+```text
+docker compose run --rm app composer validate --strict
+docker compose run --rm app composer validate --strict examples/quickstart/composer.json
+Result: Both Composer files are valid.
+
+docker compose run --rm app mago format --check src tests examples
+docker compose run --rm app mago lint
+docker compose run --rm app mago analyze
+docker compose run --rm app mago analyze examples/quickstart/app
+Result: All commands completed with INFO No issues found.
+
+docker compose run --rm app vendor/bin/phpunit tests/Core tests/Internal/Registry tests/Internal/Execution tests/Internal/DependencyInjection tests/Internal/Runtime tests/Internal/Application/ApplicationConsoleKernelTest.php tests/Internal/Console tests/Http tests/Integration tests/Architecture
+Result: OK (471 tests, 1430 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app vendor/bin/phpunit
+Result: OK (721 tests, 2374 assertions). Runtime PHP 8.5.7.
+
+docker compose run --rm app vendor/bin/deptrac
+Result: 361 files / Violations 0 / Skipped 0 / Uncovered 0 / Allowed 1546 / Warnings 0 / Errors 0.
+
+bash tests/Consumer/quickstart-e2e.sh
+Result: Quickstart consumer E2E passed.
+
+Quickstart Accepts／Returns／OperationResult、Internal import、management ID guards
+Result: No matches; all negated commands exited 0.
+
+git diff --check
+Result: No output.
+```
+
+Orchestrator Review後、Public Metadata直渡しの未知Typed ModeとVoid／Outcome不整合をHandler呼出前に拒否した。Counter Testで副作0を確認した。最終Focused `473 tests / 1436 assertions`、Full `721 tests / 2374 assertions`、Deptrac `Allowed 1546 / Violations 0 / Errors 0`、Mago、Consumer E2E、Guard、`git diff --check`が成功し、P8-002Bを受け入れた。
 
 ## P8-002A Typed Self-handled Invocation Verification Commands and Results
 

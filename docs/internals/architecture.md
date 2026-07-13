@@ -61,8 +61,8 @@ sequenceDiagram
     Inline->>Observer: filtered projection
     Inline->>Journal: attempt.started
     Inline->>Observer: filtered projection
-    Inline->>Handler: handle(readonly envelope)
-    Handler-->>Inline: Completed(typed outcome)
+    Inline->>Handler: handle(typed value, optional context)
+    Handler-->>Inline: typed outcome
     Inline->>Journal: attempt.succeeded
     Inline->>Journal: operation.completed + canonical outcome
     Inline-->>HTTP: OperationResult

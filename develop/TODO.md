@@ -410,6 +410,7 @@ MVP後に残す主要項目:
 - [x] FailedとDead Letteredを排他的なTerminal Eventとする
 - [x] Lifecycle状態遷移表と検証器を設計する
 - [x] Handlerの戻り値を `OperationResult<TOutcome>` に統一する
+- [x] Typed Self-handledのValue／OutcomeをNative Signatureから推論し、業務拒否をFramework例外でLifecycleへ統合する
 - [x] OperationResultの生成をStatic Factoryへ限定する
 - [x] 値のない成功を `EmptyOutcome` として扱う
 - [x] OperationResult、RejectionReason、EmptyOutcomeを実装する
