@@ -1,6 +1,6 @@
 # P10-005: Cloudflare Pages Delivery
 
-Status: Ready
+Status: In Progress
 
 ## Goal
 
@@ -48,7 +48,9 @@ Status: Ready
 
 ## Constraints
 
-- GPT-5.6 Luna High workerが実装し、Review前にCommitしない
+- 原則としてGPT-5.6 Luna High workerが実装し、Review前にCommitしない
+- Userは2026-07-13の回答「Y」により、Phase 10に限り、Model／Profileを明示できない現在利用可能なWorkerで進めることを承認した
+- この承認はPhase 10以外へ自動継続しない
 - Direct Uploadを使用し、Git Integration設定を前提にしない
 - Production Deployは`main` Pushまたは明示的に許可した`main` Workflow Dispatchだけに限定する
 - Pull Request CodeがProduction Environment／Secretを利用できないようにする

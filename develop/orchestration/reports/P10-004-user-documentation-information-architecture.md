@@ -147,6 +147,15 @@ Result: No output.
 - Guideから除外したAcceptance Evidenceと旧Runtime説明の移行先がReportに列挙され、利用者向け情報が失われていないことを確認した。
 - Worker差分はFiles Allowed to Change内に限定され、Orchestrator所有のTask Packetは受入Statusだけを更新した。
 
+### GitHub Actions Evidence
+
+```text
+Commit: 557f5a9bbae2dff66a81afd33db8b080e5a6cc21
+Run: 29240094053
+Documentation website: success (25s)
+Mago / PHPUnit / Deptrac: success (1m6s)
+```
+
 ## Acceptance Criteria
 
 - LandingからInstall／Quickstartへ1 Action: Satisfied
