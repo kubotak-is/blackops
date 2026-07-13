@@ -12,6 +12,7 @@ use BlackOps\Core\ExecutionContext;
 use BlackOps\Core\Operation;
 use BlackOps\Core\OperationResult;
 use BlackOps\Core\OperationValue;
+use BlackOps\Core\Outcome;
 use BlackOps\Core\Registry\OperationRegistry;
 use BlackOps\Internal\Registry\OperationManifestMetadataCodec;
 use BlackOps\Internal\Registry\OperationMetadataCompiler;
@@ -29,6 +30,7 @@ final class OperationManifestMetadataCodecTest extends TestCase
         self::assertTrue($decoded->typedSelfHandled);
         self::assertTrue($decoded->typedSelfHandledContext);
         self::assertSame(ManifestValue::class, $decoded->value);
+        self::assertSame('result', $decoded->typedSelfHandledMode);
     }
 
     public function testRejectsTypedSignatureAndManifestValueMismatch(): void
@@ -57,18 +59,45 @@ final class OperationManifestMetadataCodecTest extends TestCase
     public function testLoadsTypedMetadataFromManifestWithoutInvocationFlags(): void
     {
         $data = $this->encoded();
-        unset($data['operations'][0]['typedSelfHandled'], $data['operations'][0]['typedSelfHandledContext']);
+        unset(
+            $data['operations'][0]['typedSelfHandled'],
+            $data['operations'][0]['typedSelfHandledContext'],
+            $data['operations'][0]['typedSelfHandledMode'],
+        );
 
         $decoded = new OperationManifestMetadataCodec()->decode($data)[0];
 
         self::assertTrue($decoded->typedSelfHandled);
         self::assertTrue($decoded->typedSelfHandledContext);
+        self::assertSame('result', $decoded->typedSelfHandledMode);
     }
 
     public function testRejectsTamperedTypedInvocationMode(): void
     {
         $data = $this->encoded();
         $data['operations'][0]['typedSelfHandledContext'] = false;
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('invocation metadata');
+
+        new OperationManifestMetadataCodec()->decode($data);
+    }
+
+    public function testRejectsTamperedNativeOutcomeMode(): void
+    {
+        $data = $this->encoded();
+        $data['operations'][0]['typedSelfHandledMode'] = 'void';
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('invocation metadata');
+
+        new OperationManifestMetadataCodec()->decode($data);
+    }
+
+    public function testRejectsTamperedCompatibilityOutcome(): void
+    {
+        $data = $this->encoded();
+        $data['operations'][0]['outcome'] = OtherManifestOutcome::class;
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('invocation metadata');
@@ -88,6 +117,8 @@ final class OperationManifestMetadataCodecTest extends TestCase
 final readonly class ManifestValue implements OperationValue {}
 
 final readonly class OtherManifestValue implements OperationValue {}
+
+final readonly class OtherManifestOutcome implements Outcome {}
 
 abstract class AbstractManifestTypedOperation implements Operation
 {

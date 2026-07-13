@@ -33,6 +33,13 @@ final readonly class OperationManifestMetadataCodec
                 'strategy' => $metadata->strategy,
                 'typedSelfHandled' => $metadata->typedSelfHandled,
                 'typedSelfHandledContext' => $metadata->typedSelfHandledContext,
+                ...(
+                    $metadata->typedSelfHandledMode === null
+                        ? []
+                        : [
+                            'typedSelfHandledMode' => $metadata->typedSelfHandledMode,
+                        ]
+                ),
             ], $registry->all()),
         ];
     }
@@ -58,17 +65,25 @@ final readonly class OperationManifestMetadataCodec
         $definition = $this->classField($entry, 'definition', Operation::class);
         $value = $this->classField($entry, 'value', OperationValue::class);
         $handler = $this->objectClassField($entry, 'handler');
-        [$typedSelfHandled, $typedSelfHandledContext] = $this->handlers->decode($entry, $definition, $value, $handler);
+        $outcome = $this->classField($entry, 'outcome', Outcome::class);
+        [$typedSelfHandled, $typedSelfHandledContext, $typedSelfHandledMode] = $this->handlers->decode(
+            $entry,
+            $definition,
+            $value,
+            $handler,
+            $outcome,
+        );
 
         return new OperationMetadata(
             $this->stringField($entry, 'typeId'),
             $definition,
             $value,
             $handler,
-            $this->classField($entry, 'outcome', Outcome::class),
+            $outcome,
             $this->classField($entry, 'strategy', ExecutionStrategy::class),
             $typedSelfHandled,
             $typedSelfHandledContext,
+            $typedSelfHandledMode,
         );
     }
 

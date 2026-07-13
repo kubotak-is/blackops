@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BlackOps\Tests\Internal\Execution;
 
 use BlackOps\Core\EmptyOutcome;
+use BlackOps\Core\Exception\OperationRejectedException;
 use BlackOps\Core\Execution\Inline;
 use BlackOps\Core\ExecutionContext;
 use BlackOps\Core\Identifier\CorrelationId;
@@ -14,6 +15,7 @@ use BlackOps\Core\OperationEnvelope;
 use BlackOps\Core\OperationHandler;
 use BlackOps\Core\OperationResult;
 use BlackOps\Core\OperationValue;
+use BlackOps\Core\Outcome;
 use BlackOps\Core\Registry\OperationMetadata;
 use BlackOps\Internal\Execution\HandlerInvoker;
 use DateTimeImmutable;
@@ -22,6 +24,109 @@ use PHPUnit\Framework\TestCase;
 
 final class HandlerInvokerTest extends TestCase
 {
+    public function testNormalizesNativeOutcome(): void
+    {
+        $handler = new NativeOutcomeInvokeOperation();
+        $metadata = $this->metadata($handler::class, outcome: InvokeOutcome::class, mode: 'outcome');
+
+        $result = new HandlerInvoker()->invoke(
+            $metadata,
+            $handler,
+            $this->envelope($handler, new InvokeValue('native')),
+        );
+
+        self::assertInstanceOf(InvokeOutcome::class, $result->outcome());
+    }
+
+    public function testNormalizesNativeVoid(): void
+    {
+        $handler = new NativeVoidInvokeOperation();
+        $metadata = $this->metadata($handler::class, mode: 'void');
+
+        $result = new HandlerInvoker()->invoke($metadata, $handler, $this->envelope($handler, new InvokeValue('void')));
+
+        self::assertInstanceOf(EmptyOutcome::class, $result->outcome());
+    }
+
+    public function testNormalizesRejectedException(): void
+    {
+        $handler = new RejectingNativeInvokeOperation();
+        $metadata = $this->metadata($handler::class, outcome: InvokeOutcome::class, mode: 'outcome');
+
+        $result = new HandlerInvoker()->invoke(
+            $metadata,
+            $handler,
+            $this->envelope($handler, new InvokeValue('rejected')),
+        );
+
+        self::assertTrue($result->isRejected());
+        self::assertSame('invoke.rejected', $result->rejectionReason()->code());
+    }
+
+    public function testDoesNotNormalizeOtherThrowable(): void
+    {
+        $handler = new ThrowingNativeInvokeOperation();
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('temporary');
+
+        new HandlerInvoker()->invoke(
+            $this->metadata($handler::class, outcome: InvokeOutcome::class, mode: 'outcome'),
+            $handler,
+            $this->envelope($handler, new InvokeValue('failure')),
+        );
+    }
+
+    public function testRejectsNativeOutcomeMismatch(): void
+    {
+        $handler = new NativeOutcomeInvokeOperation();
+
+        $this->expectException(LogicException::class);
+        $this->expectExceptionMessage('outcome');
+
+        new HandlerInvoker()->invoke(
+            $this->metadata($handler::class, outcome: EmptyOutcome::class, mode: 'outcome'),
+            $handler,
+            $this->envelope($handler, new InvokeValue('mismatch')),
+        );
+    }
+
+    public function testRejectsUnknownTypedModeBeforeHandlerInvocation(): void
+    {
+        $handler = new CountingVoidInvokeOperation();
+
+        $this->expectException(LogicException::class);
+        $this->expectExceptionMessage('invocation mode');
+
+        try {
+            new HandlerInvoker()->invoke(
+                $this->metadata($handler::class, mode: 'unknown'),
+                $handler,
+                $this->envelope($handler, new InvokeValue('unknown-mode')),
+            );
+        } finally {
+            self::assertSame(0, $handler->invocations);
+        }
+    }
+
+    public function testRejectsVoidModeWithNonEmptyOutcomeBeforeHandlerInvocation(): void
+    {
+        $handler = new CountingVoidInvokeOperation();
+
+        $this->expectException(LogicException::class);
+        $this->expectExceptionMessage('outcome metadata');
+
+        try {
+            new HandlerInvoker()->invoke(
+                $this->metadata($handler::class, outcome: InvokeOutcome::class, mode: 'void'),
+                $handler,
+                $this->envelope($handler, new InvokeValue('void-outcome-mismatch')),
+            );
+        } finally {
+            self::assertSame(0, $handler->invocations);
+        }
+    }
+
     public function testInvokesTypedValueOnlyHandler(): void
     {
         $handler = new TypedValueInvokeOperation();
@@ -149,17 +254,24 @@ final class HandlerInvokerTest extends TestCase
     }
 
     /** @param class-string $handler */
-    private function metadata(string $handler, bool $typed = true, bool $context = false): OperationMetadata
-    {
+    /** @param class-string<Outcome> $outcome */
+    private function metadata(
+        string $handler,
+        bool $typed = true,
+        bool $context = false,
+        string $outcome = EmptyOutcome::class,
+        ?string $mode = null,
+    ): OperationMetadata {
         return new OperationMetadata(
             'invoke.test',
             $handler,
             InvokeValue::class,
             $handler,
-            EmptyOutcome::class,
+            $outcome,
             Inline::class,
             $typed,
             $context,
+            $mode,
         );
     }
 
@@ -186,6 +298,47 @@ final readonly class InvokeValue implements OperationValue
 }
 
 final readonly class OtherInvokeValue implements OperationValue {}
+
+final readonly class InvokeOutcome implements Outcome {}
+
+final readonly class NativeOutcomeInvokeOperation implements Operation
+{
+    public function handle(InvokeValue $value): InvokeOutcome
+    {
+        return new InvokeOutcome();
+    }
+}
+
+final readonly class NativeVoidInvokeOperation implements Operation
+{
+    public function handle(InvokeValue $value): void {}
+}
+
+final class CountingVoidInvokeOperation implements Operation
+{
+    public int $invocations = 0;
+
+    public function handle(InvokeValue $value): void
+    {
+        ++$this->invocations;
+    }
+}
+
+final readonly class RejectingNativeInvokeOperation implements Operation
+{
+    public function handle(InvokeValue $value): InvokeOutcome
+    {
+        throw OperationRejectedException::businessRule('invoke.rejected');
+    }
+}
+
+final readonly class ThrowingNativeInvokeOperation implements Operation
+{
+    public function handle(InvokeValue $value): InvokeOutcome
+    {
+        throw new \RuntimeException('temporary');
+    }
+}
 
 final class TypedValueInvokeOperation implements Operation
 {

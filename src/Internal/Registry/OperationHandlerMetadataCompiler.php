@@ -20,11 +20,21 @@ final readonly class OperationHandlerMetadataCompiler
 
     /**
      * @param ReflectionClass<Operation> $definition
+     * @return array{value: class-string<OperationValue>, outcome: class-string<\BlackOps\Core\Outcome>, context: bool, mode: 'result'|'outcome'|'void'}
+     */
+    public function signature(ReflectionClass $definition): array
+    {
+        return $this->typedSignatures->inspect($definition->getName());
+    }
+
+    /**
+     * @param ReflectionClass<Operation> $definition
      * @param list<ReflectionAttribute<HandledBy>> $attributes
      * @param class-string<OperationValue> $value
-     * @return array{class-string, bool, bool}
+     * @param class-string<\BlackOps\Core\Outcome> $outcome
+     * @return array{class-string, bool, bool, null|'result'|'outcome'|'void'}
      */
-    public function compile(ReflectionClass $definition, array $attributes, string $value): array
+    public function compile(ReflectionClass $definition, array $attributes, string $value, string $outcome): array
     {
         $legacy = $definition->implementsInterface(OperationHandler::class);
         if ($legacy && $attributes !== []) {
@@ -32,11 +42,19 @@ final readonly class OperationHandlerMetadataCompiler
         }
 
         if ($legacy) {
-            return [$definition->getName(), false, false];
+            return [$definition->getName(), false, false, null];
         }
 
         if ($attributes === []) {
-            return [$definition->getName(), true, $this->typedSignatures->validate($definition->getName(), $value)];
+            $signature = $this->typedSignatures->inspect($definition->getName());
+            if (
+                $signature['value'] !== $value
+                || $signature['mode'] !== 'result' && $signature['outcome'] !== $outcome
+            ) {
+                throw new InvalidArgumentException('Typed self-handled signature does not match operation metadata.');
+            }
+
+            return [$definition->getName(), true, $signature['context'], $signature['mode']];
         }
 
         if ($this->hasTypedSignature($definition, $value)) {
@@ -48,7 +66,7 @@ final readonly class OperationHandlerMetadataCompiler
             throw new InvalidArgumentException('Separate operation handler must implement OperationHandler.');
         }
 
-        return [$handler, false, false];
+        return [$handler, false, false, null];
     }
 
     /**

@@ -22,7 +22,12 @@ final readonly class OperationMetadataCompiler
 {
     public function __construct(
         private OperationHandlerMetadataCompiler $handlers = new OperationHandlerMetadataCompiler(),
-    ) {}
+        ?OperationValueOutcomeCompiler $valueOutcomes = null,
+    ) {
+        $this->valueOutcomes = $valueOutcomes ?? new OperationValueOutcomeCompiler($this->handlers);
+    }
+
+    private OperationValueOutcomeCompiler $valueOutcomes;
 
     /** @param class-string<Operation> $definition */
     public function compile(string $definition): OperationMetadata
@@ -35,37 +40,44 @@ final readonly class OperationMetadataCompiler
         $acceptsAttributes = $reflection->getAttributes(Accepts::class);
         $handlerAttributes = $reflection->getAttributes(HandledBy::class);
         $returnsAttributes = $reflection->getAttributes(Returns::class);
-        if (count($typeAttributes) !== 1 || count($acceptsAttributes) !== 1 || count($returnsAttributes) !== 1) {
-            throw new InvalidArgumentException('Operation definition requires each metadata attribute exactly once.');
+        if (count($typeAttributes) !== 1) {
+            throw new InvalidArgumentException('Operation definition requires OperationType exactly once.');
         }
         if (count($handlerAttributes) > 1) {
             throw new InvalidArgumentException('Operation definition must not repeat HandledBy.');
         }
         $type = $typeAttributes[0]->newInstance();
-        $accepts = $acceptsAttributes[0]->newInstance();
-        $returns = $returnsAttributes[0]->newInstance();
-        [$handler, $typedSelfHandled, $typedSelfHandledContext] = $this->handlers->compile(
+        [$value, $outcome] = $this->valueOutcomes->compile(
+            $reflection,
+            $acceptsAttributes,
+            $returnsAttributes,
+            $handlerAttributes,
+        );
+
+        [$handler, $typedSelfHandled, $typedSelfHandledContext, $typedSelfHandledMode] = $this->handlers->compile(
             $reflection,
             $handlerAttributes,
-            $accepts->value,
+            $value,
+            $outcome,
         );
         $strategyAttributes = $reflection->getAttributes(ExecuteWith::class);
         if (count($strategyAttributes) > 1) {
             throw new InvalidArgumentException('Operation definition must not repeat ExecuteWith.');
         }
         $strategy = $strategyAttributes === [] ? Inline::class : $strategyAttributes[0]->newInstance()->strategy;
-        $this->assertImplements($accepts->value, OperationValue::class);
-        $this->assertImplements($returns->outcome, Outcome::class);
+        $this->assertImplements($value, OperationValue::class);
+        $this->assertImplements($outcome, Outcome::class);
         $this->assertImplements($strategy, ExecutionStrategy::class);
         return new OperationMetadata(
             $type->id,
             $definition,
-            $accepts->value,
+            $value,
             $handler,
-            $returns->outcome,
+            $outcome,
             $strategy,
             $typedSelfHandled,
             $typedSelfHandledContext,
+            $typedSelfHandledMode,
         );
     }
 

@@ -18,6 +18,7 @@ use BlackOps\Core\OperationEnvelope;
 use BlackOps\Core\OperationHandler;
 use BlackOps\Core\OperationResult;
 use BlackOps\Core\OperationValue;
+use BlackOps\Core\Outcome;
 use BlackOps\Internal\Registry\OperationMetadataCompiler;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
@@ -75,6 +76,63 @@ final class OperationMetadataCompilerTest extends TestCase
         self::assertTrue($metadata->typedSelfHandledContext);
     }
 
+    public function testInfersNativeValueAndOutcomeWithoutAttributes(): void
+    {
+        $metadata = new OperationMetadataCompiler()->compile(NativeOutcomeOperationFixture::class);
+
+        self::assertSame(MetadataValueFixture::class, $metadata->value);
+        self::assertSame(MetadataOutcomeFixture::class, $metadata->outcome);
+        self::assertSame('outcome', $metadata->typedSelfHandledMode);
+    }
+
+    public function testInfersNativeVoidAsEmptyOutcome(): void
+    {
+        $metadata = new OperationMetadataCompiler()->compile(NativeVoidOperationFixture::class);
+
+        self::assertSame(EmptyOutcome::class, $metadata->outcome);
+        self::assertSame('void', $metadata->typedSelfHandledMode);
+    }
+
+    public function testAcceptsMatchingOptionalAttributes(): void
+    {
+        $metadata = new OperationMetadataCompiler()->compile(AttributedNativeOutcomeOperationFixture::class);
+
+        self::assertSame(MetadataOutcomeFixture::class, $metadata->outcome);
+    }
+
+    public function testAcceptsOneMatchingOptionalAttribute(): void
+    {
+        $acceptsOnly = new OperationMetadataCompiler()->compile(AcceptsOnlyNativeOutcomeOperationFixture::class);
+        $returnsOnly = new OperationMetadataCompiler()->compile(ReturnsOnlyNativeOutcomeOperationFixture::class);
+
+        self::assertSame(MetadataOutcomeFixture::class, $acceptsOnly->outcome);
+        self::assertSame(MetadataValueFixture::class, $returnsOnly->value);
+    }
+
+    public function testRejectsDuplicateOptionalAttribute(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('must not repeat');
+
+        new OperationMetadataCompiler()->compile(DuplicateAcceptsNativeOutcomeOperationFixture::class);
+    }
+
+    public function testRejectsMismatchedOptionalOutcomeAttribute(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('does not match');
+
+        new OperationMetadataCompiler()->compile(MismatchedNativeOutcomeOperationFixture::class);
+    }
+
+    public function testOperationResultCompatibilityRequiresAttributes(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('compatibility mode');
+
+        new OperationMetadataCompiler()->compile(UnattributedResultOperationFixture::class);
+    }
+
     public function testRejectsSelfHandledOperationWithHandledBy(): void
     {
         $this->expectException(InvalidArgumentException::class);
@@ -128,6 +186,84 @@ final class OperationMetadataCompilerTest extends TestCase
 final readonly class MetadataOperationFixture implements Operation {}
 
 final readonly class MetadataValueFixture implements OperationValue {}
+
+final readonly class MetadataOutcomeFixture implements Outcome {}
+
+#[OperationType('welcome.native')]
+final readonly class NativeOutcomeOperationFixture implements Operation
+{
+    public function handle(MetadataValueFixture $value): MetadataOutcomeFixture
+    {
+        return new MetadataOutcomeFixture();
+    }
+}
+
+#[OperationType('welcome.void')]
+final readonly class NativeVoidOperationFixture implements Operation
+{
+    public function handle(MetadataValueFixture $value): void {}
+}
+
+#[OperationType('welcome.native.attributed')]
+#[Accepts(MetadataValueFixture::class)]
+#[Returns(MetadataOutcomeFixture::class)]
+final readonly class AttributedNativeOutcomeOperationFixture implements Operation
+{
+    public function handle(MetadataValueFixture $value): MetadataOutcomeFixture
+    {
+        return new MetadataOutcomeFixture();
+    }
+}
+
+#[OperationType('welcome.native.accepts.only')]
+#[Accepts(MetadataValueFixture::class)]
+final readonly class AcceptsOnlyNativeOutcomeOperationFixture implements Operation
+{
+    public function handle(MetadataValueFixture $value): MetadataOutcomeFixture
+    {
+        return new MetadataOutcomeFixture();
+    }
+}
+
+#[OperationType('welcome.native.returns.only')]
+#[Returns(MetadataOutcomeFixture::class)]
+final readonly class ReturnsOnlyNativeOutcomeOperationFixture implements Operation
+{
+    public function handle(MetadataValueFixture $value): MetadataOutcomeFixture
+    {
+        return new MetadataOutcomeFixture();
+    }
+}
+
+#[OperationType('welcome.native.duplicate.accepts')]
+#[Accepts(MetadataValueFixture::class)]
+#[Accepts(MetadataValueFixture::class)]
+final readonly class DuplicateAcceptsNativeOutcomeOperationFixture implements Operation
+{
+    public function handle(MetadataValueFixture $value): MetadataOutcomeFixture
+    {
+        return new MetadataOutcomeFixture();
+    }
+}
+
+#[OperationType('welcome.native.mismatched')]
+#[Returns(EmptyOutcome::class)]
+final readonly class MismatchedNativeOutcomeOperationFixture implements Operation
+{
+    public function handle(MetadataValueFixture $value): MetadataOutcomeFixture
+    {
+        return new MetadataOutcomeFixture();
+    }
+}
+
+#[OperationType('welcome.result.unattributed')]
+final readonly class UnattributedResultOperationFixture implements Operation
+{
+    public function handle(MetadataValueFixture $value): OperationResult
+    {
+        return OperationResult::completed();
+    }
+}
 
 /** @implements OperationHandler<MetadataValueFixture, EmptyOutcome> */
 final readonly class MetadataHandlerFixture implements OperationHandler

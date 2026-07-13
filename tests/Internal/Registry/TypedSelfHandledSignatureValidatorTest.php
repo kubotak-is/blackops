@@ -8,6 +8,7 @@ use BlackOps\Core\EmptyOutcome;
 use BlackOps\Core\ExecutionContext;
 use BlackOps\Core\OperationResult;
 use BlackOps\Core\OperationValue;
+use BlackOps\Core\Outcome;
 use BlackOps\Internal\Registry\TypedSelfHandledSignatureValidator;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -43,7 +44,8 @@ final class TypedSelfHandledSignatureValidatorTest extends TestCase
         yield 'union return' => [UnionReturnHandler::class, SignatureValue::class];
         yield 'intersection return' => [IntersectionReturnHandler::class, SignatureValue::class];
         yield 'nullable return' => [NullableReturnHandler::class, SignatureValue::class];
-        yield 'wrong return' => [WrongReturnHandler::class, SignatureValue::class];
+        yield 'non outcome return' => [NonOutcomeReturnHandler::class, SignatureValue::class];
+        yield 'abstract outcome return' => [AbstractOutcomeReturnHandler::class, SignatureValue::class];
     }
 
     /** @param class-string $handler @param class-string<OperationValue> $value */
@@ -54,6 +56,23 @@ final class TypedSelfHandledSignatureValidatorTest extends TestCase
         $this->expectExceptionMessage($handler);
 
         new TypedSelfHandledSignatureValidator()->validate($handler, $value);
+    }
+
+    public function testInspectsNativeOutcomeSignature(): void
+    {
+        $signature = new TypedSelfHandledSignatureValidator()->inspect(WrongReturnHandler::class);
+
+        self::assertSame(SignatureValue::class, $signature['value']);
+        self::assertSame(EmptyOutcome::class, $signature['outcome']);
+        self::assertSame('outcome', $signature['mode']);
+    }
+
+    public function testInspectsVoidSignature(): void
+    {
+        $signature = new TypedSelfHandledSignatureValidator()->inspect(VoidReturnHandler::class);
+
+        self::assertSame(EmptyOutcome::class, $signature['outcome']);
+        self::assertSame('void', $signature['mode']);
     }
 }
 
@@ -197,4 +216,23 @@ final class NullableReturnHandler
 final class WrongReturnHandler
 {
     public function handle(SignatureValue $value): EmptyOutcome {}
+}
+
+final class VoidReturnHandler
+{
+    public function handle(SignatureValue $value): void {}
+}
+
+final readonly class NonOutcomeReturn {}
+
+final class NonOutcomeReturnHandler
+{
+    public function handle(SignatureValue $value): NonOutcomeReturn {}
+}
+
+abstract class AbstractSignatureOutcome implements Outcome {}
+
+final class AbstractOutcomeReturnHandler
+{
+    public function handle(SignatureValue $value): AbstractSignatureOutcome {}
 }

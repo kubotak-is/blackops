@@ -12,12 +12,22 @@ use ReflectionParameter;
 
 final readonly class TypedSelfHandledParameterValidator
 {
-    /** @param class-string<OperationValue> $value */
-    public function validateValue(string $definition, ReflectionParameter $parameter, string $value): void
+    /** @return class-string<OperationValue> */
+    public function valueClass(string $definition, ReflectionParameter $parameter): string
     {
         $this->assertRequired($definition, $parameter, 'value');
         $type = $this->classType($definition, $parameter, 'value');
-        if (!is_a($type, OperationValue::class, allow_string: true) || $type !== $value) {
+        if (!is_a($type, OperationValue::class, allow_string: true)) {
+            $this->invalid($definition, 'handle value must implement OperationValue');
+        }
+
+        return $type;
+    }
+
+    /** @param class-string<OperationValue> $value */
+    public function validateValue(string $definition, ReflectionParameter $parameter, string $value): void
+    {
+        if ($this->valueClass($definition, $parameter) !== $value) {
             $this->invalid($definition, 'handle value must match the accepted OperationValue');
         }
     }

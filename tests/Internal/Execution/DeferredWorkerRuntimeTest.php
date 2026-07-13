@@ -7,6 +7,7 @@ namespace BlackOps\Tests\Internal\Execution;
 use BlackOps\Core\AttemptContext;
 use BlackOps\Core\EmptyOutcome;
 use BlackOps\Core\Exception\DeferredTransportException;
+use BlackOps\Core\Exception\OperationRejectedException;
 use BlackOps\Core\Execution\Deferred;
 use BlackOps\Core\Execution\DeferredOperationMessage;
 use BlackOps\Core\Execution\OperationClaim;
@@ -201,6 +202,34 @@ final class DeferredWorkerRuntimeTest extends TestCase
         );
         self::assertSame([1, 2, 3, 4], array_column($records, 'sequence'));
         self::assertNull($this->outcomes->find(OperationId::fromString(self::OPERATION_ID)));
+    }
+
+    public function testWorkerNormalizesSelfHandledRejectedException(): void
+    {
+        $handler = new RejectingSelfHandledWorkerOperation();
+        $metadata = new OperationMetadata(
+            'report.generate',
+            $handler::class,
+            WorkerReportValue::class,
+            $handler::class,
+            WorkerReportDone::class,
+            Deferred::class,
+            true,
+            true,
+            'outcome',
+        );
+        $this->accept($metadata, $handler);
+        $claim = $this->receiver->claim(new \BlackOps\Core\Execution\ClaimRequest(
+            new DateTimeImmutable('2026-07-10T00:01:00.000000Z'),
+        ));
+
+        self::assertNotNull($claim);
+        $result = $this->runtime($handler, metadata: $metadata)->run($claim);
+
+        self::assertTrue($result->isRejected());
+        self::assertSame('report.rejected', $result->rejectionReason()->code());
+        self::assertSame('rejected', $this->operationRow()['state']);
+        self::assertSame(JournalEvent::OperationRejected, $this->records()[3]->event);
     }
 
     public function testWorkerRecordsOperationFailureAndWrapsNonRetryableHandlerException(): void
@@ -627,6 +656,7 @@ final class DeferredWorkerRuntimeTest extends TestCase
             Deferred::class,
             true,
             true,
+            'outcome',
         );
     }
 
@@ -725,13 +755,21 @@ final class RequiredSelfHandledWorkerOperation implements Operation
         private WorkerOperationDependency $dependency,
     ) {}
 
-    public function handle(WorkerReportValue $value, ExecutionContext $context): OperationResult
+    public function handle(WorkerReportValue $value, ExecutionContext $context): WorkerReportDone
     {
         $this->handledWith = $this->dependency->value;
         $this->operationId = $context->operationId()->toString();
         $this->attemptNumber = $context->attempt()?->number();
 
-        return OperationResult::completed(new WorkerReportDone('done-' . $value->reportName));
+        return new WorkerReportDone('done-' . $value->reportName);
+    }
+}
+
+final readonly class RejectingSelfHandledWorkerOperation implements Operation
+{
+    public function handle(WorkerReportValue $value, ExecutionContext $context): WorkerReportDone
+    {
+        throw OperationRejectedException::businessRule('report.rejected');
     }
 }
 

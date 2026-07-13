@@ -7,6 +7,7 @@ namespace BlackOps\Tests\Internal\Execution;
 use BlackOps\Core\Attribute\Sensitive;
 use BlackOps\Core\Attribute\SensitiveMode;
 use BlackOps\Core\EmptyOutcome;
+use BlackOps\Core\Exception\OperationRejectedException;
 use BlackOps\Core\Execution\Inline;
 use BlackOps\Core\ExecutionContext;
 use BlackOps\Core\Operation;
@@ -81,6 +82,7 @@ final class InlineDispatcherTest extends TestCase
             Inline::class,
             true,
             true,
+            'void',
         );
 
         $this->dispatcher($handler, metadata: $metadata)->dispatch($handler, new DispatchValue('typed'));
@@ -115,6 +117,35 @@ final class InlineDispatcherTest extends TestCase
             array_map(static fn(JournalRecord $record): JournalEvent => $record->event, $journal->records),
         );
         self::assertSame([1, 2, 3], array_column($journal->records, 'sequence'));
+    }
+
+    public function testRejectedExceptionWritesTerminalRejectedEvent(): void
+    {
+        $handler = new RejectingTypedDispatchOperation();
+        $journal = new RecordingJournalWriter();
+        $metadata = new OperationMetadata(
+            'dispatch.typed.rejected',
+            $handler::class,
+            DispatchValue::class,
+            $handler::class,
+            EmptyOutcome::class,
+            Inline::class,
+            true,
+            false,
+            'void',
+        );
+
+        $result = $this->dispatcher($handler, $journal, metadata: $metadata)->dispatch(
+            $handler,
+            new DispatchValue('rejected'),
+        );
+
+        self::assertTrue($result->isRejected());
+        self::assertSame('dispatch.rejected', $result->rejectionReason()->code());
+        self::assertSame(
+            [JournalEvent::OperationReceived, JournalEvent::AttemptStarted, JournalEvent::OperationRejected],
+            array_map(static fn(JournalRecord $record): JournalEvent => $record->event, $journal->records),
+        );
     }
 
     public function testJournalWriterFailurePropagates(): void
@@ -285,11 +316,17 @@ final class TypedContextDispatchOperation implements Operation
 {
     public ?ExecutionContext $context = null;
 
-    public function handle(DispatchValue $value, ExecutionContext $context): OperationResult
+    public function handle(DispatchValue $value, ExecutionContext $context): void
     {
         $this->context = $context;
+    }
+}
 
-        return OperationResult::completed();
+final readonly class RejectingTypedDispatchOperation implements Operation
+{
+    public function handle(DispatchValue $value): void
+    {
+        throw OperationRejectedException::conflict('dispatch.rejected');
     }
 }
 

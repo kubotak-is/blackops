@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BlackOps\Internal\Execution;
 
+use BlackOps\Core\Exception\OperationRejectedException;
 use BlackOps\Core\ExecutionContext;
 use BlackOps\Core\OperationEnvelope;
 use BlackOps\Core\OperationHandler;
@@ -13,27 +14,18 @@ use LogicException;
 
 final readonly class HandlerInvoker
 {
+    public function __construct(
+        private TypedHandlerResultNormalizer $results = new TypedHandlerResultNormalizer(),
+        private HandlerInvocationMetadataValidator $metadataValidator = new HandlerInvocationMetadataValidator(),
+    ) {}
+
     public function invoke(
         OperationMetadata $metadata,
         object $handler,
         OperationEnvelope $envelope,
         ?ExecutionContext $typedContext = null,
     ): OperationResult {
-        if ($metadata->typedSelfHandledContext && !$metadata->typedSelfHandled) {
-            throw new LogicException('Operation handler invocation metadata is invalid.');
-        }
-
-        if (
-            $metadata->typedSelfHandled
-            && ($metadata->definition !== $metadata->handler || !$handler instanceof \BlackOps\Core\Operation)
-        ) {
-            throw new LogicException('Typed self-handled operation metadata is invalid.');
-        }
-
-        $handlerClass = $metadata->handler;
-        if (!$handler instanceof $handlerClass) {
-            throw new LogicException('Resolved handler service does not match operation metadata.');
-        }
+        $this->metadataValidator->validate($metadata, $handler);
 
         $value = $envelope->value();
         if (!$value instanceof $metadata->value) {
@@ -48,7 +40,7 @@ final readonly class HandlerInvoker
             throw new LogicException('Legacy operation handler must implement OperationHandler.');
         }
 
-        return $this->requireResult($handler->handle($envelope));
+        return $this->results->normalize($metadata, $handler->handle($envelope));
     }
 
     private function invokeTyped(
@@ -64,19 +56,15 @@ final readonly class HandlerInvoker
         /** @var callable $callable */
         $callable = [$handler, 'handle'];
 
-        return $this->requireResult(
-            $metadata->typedSelfHandledContext
-                ? $callable($envelope->value(), $typedContext ?? $envelope->context())
-                : $callable($envelope->value()),
-        );
-    }
-
-    private function requireResult(mixed $result): OperationResult
-    {
-        if (!$result instanceof OperationResult) {
-            throw new LogicException('Operation handler must return OperationResult.');
+        try {
+            return $this->results->normalize(
+                $metadata,
+                $metadata->typedSelfHandledContext
+                    ? $callable($envelope->value(), $typedContext ?? $envelope->context())
+                    : $callable($envelope->value()),
+            );
+        } catch (OperationRejectedException $rejection) {
+            return OperationResult::rejected($rejection->reason());
         }
-
-        return $result;
     }
 }

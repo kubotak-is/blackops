@@ -29,5 +29,6 @@ final readonly class OperationMetadata
         public string $strategy,
         public bool $typedSelfHandled = false,
         public bool $typedSelfHandledContext = false,
+        public ?string $typedSelfHandledMode = null,
     ) {}
 }
