@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-13T13:21:47+09:00
+Updated At: 2026-07-13T13:26:06+09:00
 
 ## Current Phase
 
@@ -16,9 +16,9 @@ Specification: `develop/spec/46-composer-skeleton-publication.md`
 
 ## Task Status
 
-Distribution Repository Verified; External Credential Blocker
+Distribution Repository Initialization Blocker
 
-D073に基づくLocal Publication実装を受け入れた。GitHub ConnectorでPublic `kubotak-is/blackops`が空Repository、Default Branch `main`、Admin権限付きで作成済みと確認した。WSL2のGitHub CLI Tokenは引き続き無効で、Main Framework RepositoryのGitHub URLも未確定のため、Deploy Key／Secret／Packagist設定は未実施。
+D073に基づくLocal Publication実装を受け入れた。GitHub CLIの`kubotak-is`再認証は成功した。Public `kubotak-is/blackops`はDefault Branch `main`で作成済みだが、`LICENSE`だけを含む`Initial commit` (`9c213ddd214c`)が存在し、生成Skeleton Split HistoryとFast-forward互換ではない。現行WorkflowはこのRemote `main`をfail closedで拒否する。Repository Historyの初期化方法とMain Framework Repository URLのユーザー判断待ち。
 
 ## Last Accepted Task
 
@@ -30,15 +30,16 @@ P8-002B-native-outcome-invocation
 
 ## Known Blockers
 
-- GitHub CLIの`kubotak-is`認証Tokenが無効で、Distribution RepositoryへDeploy Keyを登録できない。
+- Distribution Repositoryの`main`にSkeleton Split Historyと無関係な`LICENSE` Initial Commitがあり、現行WorkflowでFast-forwardできない。Repositoryの削除・空での再作成は破壊的なためユーザ承認が必要。
 - Main Framework RepositoryのGitHub URLが未確定で、Actions Secret `SKELETON_DEPLOY_KEY`の登録先とPublication Workflowの実行元を特定できない。
 
 ## Required Next Action
 
-1. Main Framework RepositoryのGitHub URLを確定する。
-2. WSL2のGitHub CLIを再認証し、Deploy Keyと`SKELETON_DEPLOY_KEY`を設定する。
-3. Packagist `blackops/skeleton`のGitHub連携を設定する。
-4. 初回Publication Workflowを検証し、P8-004 Remote Smokeへ進む。
+1. `kubotak-is/blackops`を削除し、Initial Commitなしの空Public Repositoryとして再作成するかユーザが判断する。
+2. Main Framework RepositoryのGitHub URLを確定する。
+3. Deploy Keyと`SKELETON_DEPLOY_KEY`を設定する。
+4. Packagist `blackops/skeleton`のGitHub連携を設定する。
+5. 初回Publication Workflowを検証し、P8-004 Remote Smokeへ進む。
 
 ## P8-003 Skeleton Distribution Publication Worker Verification Commands and Results
 
