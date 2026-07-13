@@ -4,6 +4,8 @@
 
 `examples/quickstart/` は、Installed Application ExampleとComposer Project Package `blackops/skeleton` のSource of Truthである。
 
+Distribution RepositoryはPublic `https://github.com/kubotak-is/blackops.git`、Default Branch `main` とする。
+
 開発、Review、Consumer E2EはMain Framework Repositoryで行う。Release時に `examples/quickstart/` の内容だけを自動Splitし、`composer.json` がRepository RootにあるRead-only Distribution RepositoryへPushする。
 
 Packagistの `blackops/skeleton` PackageはDistribution Repositoryを参照する。Main Framework RepositoryのSubdirectoryを直接Packagist Package Sourceとして登録しない。
@@ -86,6 +88,8 @@ Release Pipelineは次の順で行う。
 7. Packagistへ新しいTagを反映する
 
 Push、Packagist Credential、TokenはRepositoryへ保存しない。Release PipelineのSecret Storeを使用する。
+
+Cross-repository PushはDistribution RepositoryだけへWrite可能なDeploy Keyを使用し、Private KeyはMain Repository Secret `SKELETON_DEPLOY_KEY` で管理する。PackagistはDistribution RepositoryのGitHub連携でTag Pushを検知し、Release WorkflowからPackagist APIを呼ばない。
 
 ## Verification
 

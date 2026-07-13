@@ -146,6 +146,6 @@
 | [D070](../decisions/070-quickstart-journal-observer.md) | Quickstart Journal Observer | Decided |
 | [D071](../decisions/071-operation-authoring-and-discovery.md) | Operation Authoring and Discovery | Decided |
 | [D072](../decisions/072-skeleton-empty-directory-policy.md) | Skeleton Empty Directory Policy | Decided |
-| [D073](../decisions/073-skeleton-distribution-publication-boundary.md) | Skeleton Distribution Publication Boundary | Awaiting Answer |
+| [D073](../decisions/073-skeleton-distribution-publication-boundary.md) | Skeleton Distribution Publication Boundary | Decided |
 | [D074](../decisions/074-typed-self-handled-operation-signature.md) | Typed Self-handled Operation Signature | Decided |
 | [D075](../decisions/075-native-outcome-and-rejection-exception.md) | Native Outcome and Rejection Exception | Decided |
