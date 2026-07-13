@@ -23,7 +23,7 @@ final class QuickstartApplicationArchitectureTest extends TestCase
             'app/Feature/Report/GenerateReport/GenerateReportValue.php',
             'app/Feature/Report/GenerateReport/ReportGenerated.php',
             'app/Feature/Report/GenerateReport/ReportGenerationTemporarilyUnavailable.php',
-            'bin/blackops',
+            'blackops',
             'bin/setup',
             'bootstrap/app.php',
             'config/app.php',
@@ -49,7 +49,8 @@ final class QuickstartApplicationArchitectureTest extends TestCase
 
         self::assertFileDoesNotExist($root . '/composer.lock');
         self::assertDirectoryDoesNotExist($root . '/vendor');
-        self::assertTrue(is_executable($root . '/bin/blackops'));
+        self::assertTrue(is_executable($root . '/blackops'));
+        self::assertFileDoesNotExist($root . '/bin/' . 'blackops');
         self::assertTrue(is_executable($root . '/bin/setup'));
         self::assertFileDoesNotExist($root . '/app/ApplicationOperationProvider.php');
         self::assertFileDoesNotExist($root . '/app/ApplicationServiceProvider.php');
@@ -110,6 +111,18 @@ final class QuickstartApplicationArchitectureTest extends TestCase
                 self::assertSame($this->quickstart() . '/public/index.php', $path);
             }
         }
+    }
+
+    public function testProjectRootConsoleEntrypointUsesOnlyPublicApplicationApi(): void
+    {
+        $source = (string) file_get_contents($this->quickstart() . '/blackops');
+
+        self::assertStringContainsString('use BlackOps\\Application\\Application;', $source);
+        self::assertStringContainsString("require __DIR__ . '/vendor/autoload.php';", $source);
+        self::assertStringContainsString("require __DIR__ . '/bootstrap/app.php';", $source);
+        self::assertStringContainsString('exit($application->console()->run());', $source);
+        self::assertStringNotContainsString('BlackOps\\Internal', $source);
+        self::assertStringNotContainsString('Symfony\\Component\\Console', $source);
     }
 
     public function testFeaturesDoNotReferenceEachOther(): void

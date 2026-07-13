@@ -17,8 +17,7 @@ app/
         ShowWelcome.php
         WelcomeValue.php
         WelcomeShown.php
-bin/
-  blackops
+blackops
 bootstrap/
   app.php
 config/

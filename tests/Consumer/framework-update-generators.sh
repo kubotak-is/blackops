@@ -35,11 +35,22 @@ run_composer() {
 
 mkdir -p "${framework_repository}" "${current_stubs}" "${current_commands}" "${consumer_root}" "${composer_home}"
 git -C "${repository_root}" archive HEAD | tar -x -C "${framework_repository}"
-git -C "${repository_root}" archive HEAD:examples/quickstart | tar -x -C "${consumer_root}"
+cp -a "${repository_root}/examples/quickstart/." "${consumer_root}/"
 cp -a "${framework_repository}/resources/stubs/." "${current_stubs}/"
 cp "${framework_repository}/src/Internal/Console/MakeOperationCommand.php" \
     "${framework_repository}/src/Internal/Console/MakeMigrationCommand.php" \
     "${current_commands}/"
+
+cli_name=blackops
+legacy_cli_directory="${consumer_root}/bin"
+legacy_cli="${legacy_cli_directory}/${cli_name}"
+legacy_cli_relative="bin/${cli_name}"
+mkdir -p "${legacy_cli_directory}"
+sed \
+    -e "s|require __DIR__ \. '/vendor/autoload.php';|require dirname(__DIR__) . '/vendor/autoload.php';|" \
+    -e "s|require __DIR__ \. '/bootstrap/app.php';|require dirname(__DIR__) . '/bootstrap/app.php';|" \
+    "${consumer_root}/blackops" > "${legacy_cli}"
+chmod +x "${legacy_cli}"
 
 git -C "${framework_repository}" init --quiet --initial-branch=main
 git -C "${framework_repository}" config user.name 'BlackOps Consumer Test'
@@ -87,9 +98,13 @@ if (($versions["blackops/framework"] ?? null) !== "1.0.0") {
 }
 '
 
-run_php bin/blackops make:operation Upgrade/BeforeUpdate --type=upgrade.before \
+run_php "${legacy_cli_relative}" list > "${temporary_root}/legacy-list.before.out"
+grep -q 'make:operation' "${temporary_root}/legacy-list.before.out"
+grep -q 'make:migration' "${temporary_root}/legacy-list.before.out"
+
+run_php blackops make:operation Upgrade/BeforeUpdate --type=upgrade.before \
     > "${temporary_root}/before-operation.out"
-run_php bin/blackops make:migration BeforeUpdateSchema \
+run_php blackops make:migration BeforeUpdateSchema \
     > "${temporary_root}/before-migration.out"
 
 grep -q '^Legacy Created: app/Feature/Upgrade/BeforeUpdate/BeforeUpdate.php$' \
@@ -107,7 +122,8 @@ test -n "${before_migration}"
 grep -q 'Legacy fixture stub' "${before_operation_directory}/BeforeUpdate.php"
 grep -q 'Legacy fixture stub' "${before_migration}"
 
-sha256sum "${consumer_root}/bin/blackops" > "${temporary_root}/entrypoint.before.sha256"
+sha256sum "${consumer_root}/blackops" > "${temporary_root}/entrypoint.before.sha256"
+sha256sum "${legacy_cli}" > "${temporary_root}/legacy-entrypoint.before.sha256"
 find "${before_operation_directory}" -maxdepth 1 -type f -print0 | sort -z | xargs -0 sha256sum \
     > "${temporary_root}/operation.before.sha256"
 sha256sum "${before_migration}" > "${temporary_root}/migration.before.sha256"
@@ -146,6 +162,7 @@ file_put_contents("/smoke/dependencies.after.json", json_encode($packages, JSON_
 cmp "${temporary_root}/dependencies.before.json" "${temporary_root}/dependencies.after.json"
 
 sha256sum --check "${temporary_root}/entrypoint.before.sha256"
+sha256sum --check "${temporary_root}/legacy-entrypoint.before.sha256"
 sha256sum --check "${temporary_root}/operation.before.sha256"
 sha256sum --check "${temporary_root}/migration.before.sha256"
 cmp "${current_stubs}/operation.php.stub" \
@@ -157,10 +174,14 @@ cmp "${repository_root}/src/Internal/Console/MakeOperationCommand.php" \
 cmp "${repository_root}/src/Internal/Console/MakeMigrationCommand.php" \
     "${consumer_root}/vendor/blackops/framework/src/Internal/Console/MakeMigrationCommand.php"
 
-run_php bin/blackops make:operation Upgrade/AfterUpdate --type=upgrade.after \
+run_php "${legacy_cli_relative}" list > "${temporary_root}/legacy-list.after.out"
+grep -q 'make:operation' "${temporary_root}/legacy-list.after.out"
+grep -q 'make:migration' "${temporary_root}/legacy-list.after.out"
+
+run_php blackops make:operation Upgrade/AfterUpdate --type=upgrade.after \
     > "${temporary_root}/after-operation.out"
 sleep 1
-run_php bin/blackops make:migration AfterUpdateSchema \
+run_php blackops make:migration AfterUpdateSchema \
     > "${temporary_root}/after-migration.out"
 
 ! grep -q 'Legacy Created:' "${temporary_root}/after-operation.out" "${temporary_root}/after-migration.out"
@@ -181,7 +202,7 @@ grep -q "#\[OperationType('upgrade.after')\]" "${after_operation_directory}/Afte
 grep -q 'handle(AfterUpdateValue \$value): AfterUpdateOutcome' "${after_operation_directory}/AfterUpdate.php"
 grep -q "return 'AfterUpdateSchema';" "${after_migration}"
 
-run_php bin/blackops blackops:build:compile > "${temporary_root}/build.out"
+run_php blackops blackops:build:compile > "${temporary_root}/build.out"
 
 test "$(git -C "${repository_root}" status --short)" = "${source_before}"
 

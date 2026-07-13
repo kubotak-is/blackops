@@ -38,11 +38,12 @@ run_composer() {
 }
 
 mkdir -p "${package_root}" "${composer_home}"
-git -C "${repository_root}" archive HEAD:examples/quickstart | tar -x -C "${package_root}"
+cp -a "${repository_root}/examples/quickstart/." "${package_root}/"
 
 test -f "${package_root}/composer.json"
 test -x "${package_root}/bin/setup"
-test -x "${package_root}/bin/blackops"
+test -x "${package_root}/blackops"
+test ! -e "${package_root}/bin/"'blackops'
 test -f "${package_root}/bootstrap/app.php"
 test -f "${package_root}/app/Feature/Welcome/ShowWelcome/ShowWelcome.php"
 test -f "${package_root}/app/Feature/Report/GenerateReport/GenerateReport.php"
@@ -66,16 +67,6 @@ if (($composer["name"] ?? null) !== "blackops/skeleton"
 cat > "${composer_home}/config.json" <<'JSON'
 {
   "repositories": {
-    "skeleton": {
-      "type": "path",
-      "url": "/smoke/package",
-      "options": {
-        "symlink": false,
-        "versions": {
-          "blackops/skeleton": "1.0.0"
-        }
-      }
-    },
     "framework": {
       "type": "path",
       "url": "/framework",
@@ -84,14 +75,19 @@ cat > "${composer_home}/config.json" <<'JSON'
         "versions": {
           "blackops/framework": "1.0.0"
         }
-      }
+      },
+      "canonical": true,
+      "only": ["blackops/framework"]
     }
   }
 }
 JSON
 
+skeleton_repository='{"type":"path","url":"/smoke/package","options":{"symlink":false,"versions":{"blackops/skeleton":"1.0.1"}},"canonical":true}'
+
 run_composer --working-dir=/smoke/package validate --strict
-run_composer create-project blackops/skeleton /smoke/normal 1.0.0 --no-interaction --prefer-dist \
+run_composer create-project blackops/skeleton /smoke/normal 1.0.1 --no-interaction --prefer-dist \
+    --repository="${skeleton_repository}" \
     > "${temporary_root}/normal-install.out"
 
 test ! -L "${normal_project}"
@@ -104,7 +100,8 @@ cmp "${normal_project}/.env.example" "${normal_project}/.env"
 test -d "${normal_project}/var/build"
 test -d "${normal_project}/var/log"
 test -x "${normal_project}/bin/setup"
-test -x "${normal_project}/bin/blackops"
+test -x "${normal_project}/blackops"
+test ! -e "${normal_project}/bin/"'blackops'
 test ! -e "${normal_project}/var/build/operations.php"
 test ! -e "${normal_project}/var/build/http.php"
 test ! -e "${normal_project}/var/build/container.php"
@@ -128,22 +125,23 @@ if (($versions["blackops/framework"] ?? null) !== "1.0.0") {
 }
 '
 
-run_php /smoke/normal/bin/blackops make:operation Smoke/CreateSmoke --type=smoke.create \
+run_php /smoke/normal/blackops make:operation Smoke/CreateSmoke --type=smoke.create \
     > "${temporary_root}/normal-operation-generator.out"
-run_php /smoke/normal/bin/blackops make:migration CreateSmokeTable \
+run_php /smoke/normal/blackops make:migration CreateSmokeTable \
     > "${temporary_root}/normal-migration-generator.out"
 test -f "${normal_project}/app/Feature/Smoke/CreateSmoke/CreateSmoke.php"
 test -f "${normal_project}/app/Feature/Smoke/CreateSmoke/CreateSmokeValue.php"
 test -f "${normal_project}/app/Feature/Smoke/CreateSmoke/CreateSmokeOutcome.php"
 test -n "$(find "${normal_project}/migrations" -maxdepth 1 -type f -name 'Version*.php' -print -quit)"
-run_php /smoke/normal/bin/blackops blackops:build:compile \
+run_php /smoke/normal/blackops blackops:build:compile \
     > "${temporary_root}/normal-build.out"
 test -f "${normal_project}/var/build/operations.php"
 
 test ! -d "${package_root}/resources/stubs"
 test ! -d "${normal_project}/resources/stubs"
 
-run_composer create-project blackops/skeleton /smoke/no-scripts 1.0.0 --no-interaction --prefer-dist --no-scripts \
+run_composer create-project blackops/skeleton /smoke/no-scripts 1.0.1 --no-interaction --prefer-dist --no-scripts \
+    --repository="${skeleton_repository}" \
     > "${temporary_root}/no-scripts-install.out"
 
 test ! -L "${no_scripts_project}"

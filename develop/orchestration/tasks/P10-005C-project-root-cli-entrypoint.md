@@ -1,6 +1,6 @@
 # P10-005C: Project Root CLI Entrypoint
 
-Status: Ready
+Status: Accepted
 
 ## Goal
 

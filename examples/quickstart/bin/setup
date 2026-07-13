@@ -131,9 +131,9 @@ fwrite(STDOUT, <<<'STEPS'
     Next steps:
       docker compose build app http
       docker compose run --rm app composer install
-      docker compose run --rm app php bin/blackops blackops:build:compile
-      docker compose run --rm app php bin/blackops blackops:database:status
-      docker compose run --rm app php bin/blackops blackops:database:migrate
+      docker compose run --rm app php blackops blackops:build:compile
+      docker compose run --rm app php blackops blackops:database:status
+      docker compose run --rm app php blackops blackops:database:migrate
       docker compose up -d
 
     STEPS);

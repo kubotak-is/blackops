@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-13T22:49:15+09:00
+Updated At: 2026-07-13T23:12:12+09:00
 
 ## Current Phase
 
@@ -16,13 +16,13 @@ Specifications: `develop/spec/41-developer-experience-roadmap.md`、`develop/spe
 
 ## Task Status
 
-P10-005C In Progress
+P10-005C Accepted
 
-Website Reviewを受け、D083で次回SkeletonのProject CLIをRoot `blackops`へ移すこと、D084でLanding／Quickstart／Tutorial／Diagram／Validation Guideを修正することを決定した。D085はFrankenPHP Worker Modeの段階導入、D086はBlackOps所有の7 Validation RuleとProtocol 400／Operation ID付き422境界で確定した。Userは2026-07-13の回答`Y`により、P10-005C／P10-005E1／P10-005E2／P10-005F／P10-005Dに限りModel／Profile Metadataを確認できない現在利用可能なWorkerで進める例外を承認した。P10-005Cから実装を再開する。
+P10-005Cは次回SkeletonのProject所有CLIをRoot `blackops`へ移し、Compose、Setup、Quickstart README、Architecture／Consumer／Publication Testを`php blackops`へ統一した。Create-projectはStable `1.0.0`と分離したLocal `1.0.1` Fixtureを明示し、Framework Update SmokeはRoot EntrypointとStable従来Entrypointの双方がUpdate前後で不変かつ実行可能であることを検証した。Worker Required CommandとOrchestrator独立Reviewが成功し、Spec 43のProject Treeも同期してAcceptedとした。
 
 ## Last Accepted Task
 
-P10-005B-guides-security-and-reference
+P10-005C-project-root-cli-entrypoint
 
 ## Pending Decisions
 
@@ -33,14 +33,43 @@ P10-005B-guides-security-and-reference
 
 ## Known Blockers
 
-P10-005Cに既知のBlockerはない。P10-005E1／P10-005E2／P10-005F／P10-005Dは前Task完了待ち。D085／D086の設計判断とPhase 10 Worker例外は解決済み。Cloudflare Project／Token／GitHub Environment SecretsとProtection Ruleの未設定はRemote DeployだけのExternal Blockerである。
+P10-005Cに既知のBlockerはない。P10-005E1を開始できる。P10-005E2／P10-005F／P10-005Dは前Task完了待ち。Cloudflare Project／Token／GitHub Environment SecretsとProtection Ruleの未設定はRemote DeployだけのExternal Blockerである。
 
 ## Required Next Action
 
-1. 現在利用可能なWorkerがP10-005Cを実装し、OrchestratorがReview／Commitする。
+1. P10-005CをTask単位でCommit／Pushする。
 2. P10-005E1、P10-005E2、P10-005Fを順に実装する。
 3. P10-005Dで全Reader Journeyを最終実装へ同期する。
 4. Repository内修正後、Cloudflare External ConfigurationとP10-006 Closeoutへ進む。
+
+## P10-005C Project Root CLI Entrypoint Worker Verification Commands and Results
+
+```text
+docker compose run --rm app composer validate --strict
+docker compose run --rm app composer validate --strict examples/quickstart/composer.json
+Result: RootとQuickstartのComposer Metadataがstrict validationに成功。
+
+docker compose run --rm app mago format --check src tests examples
+Result: INFO All files are already formatted.
+
+docker compose run --rm app vendor/bin/phpunit tests/Architecture/QuickstartApplicationArchitectureTest.php tests/Internal/Application/ApplicationConsoleKernelTest.php
+Result: OK (18 tests, 168 assertions).
+
+bash tests/Consumer/quickstart-e2e.sh
+Result: Root CLIでGenerator、Build、Migration、HTTP、Worker Retry、Outcome、Retentionを完走。
+
+bash tests/Consumer/skeleton-create-project.sh
+Result: Local Current Skeleton 1.0.1の通常／--no-scripts Copy Install、Root CLI、Setup、Source／Docker State不変を検証。
+
+bash tests/Consumer/framework-update-generators.sh
+Result: Root／Stable 1.0.0従来Entrypoint、既存生成Source、非Framework Dependencyの不変性とUpdate後Command／Stubを検証。
+
+bash tests/Consumer/skeleton-publication.sh --dry-run
+Result: Working TreeのRoot Distribution Guard、Executable、Composer Validationが成功。
+
+Legacy CLI Path Guard、PHP Management ID Guard、git diff --check
+Result: すべて成功。
+```
 
 ## P10-005B GitHub Actions Evidence
 

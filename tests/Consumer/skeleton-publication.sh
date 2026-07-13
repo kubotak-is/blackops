@@ -3,8 +3,15 @@
 set -euo pipefail
 
 repository_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-version="${1:-}"
-source_ref="${2:-}"
+dry_run=false
+if [[ "${1:-}" = '--dry-run' ]]; then
+    dry_run=true
+    version=1.0.1
+    source_ref=''
+else
+    version="${1:-}"
+    source_ref="${2:-}"
+fi
 
 fail() {
     printf 'Skeleton publication validation failed: %s\n' "$1" >&2
@@ -22,12 +29,16 @@ for invalid_version in '' 1 1.0 v1.0.0 01.0.0 1.0.0-alpha 1.0.0+build; do
 done
 
 validate_version "${version}" || fail "version must be a bare MAJOR.MINOR.PATCH SemVer"
-[[ "${source_ref}" =~ ^[A-Za-z0-9][A-Za-z0-9._/-]*$ ]] || fail "source ref contains unsupported characters"
-[[ "${source_ref}" != *..* && "${source_ref}" != */ && "${source_ref}" != *. ]] \
-    || fail "source ref is not canonical"
+if [[ "${dry_run}" = false ]]; then
+    [[ "${source_ref}" =~ ^[A-Za-z0-9][A-Za-z0-9._/-]*$ ]] || fail "source ref contains unsupported characters"
+    [[ "${source_ref}" != *..* && "${source_ref}" != */ && "${source_ref}" != *. ]] \
+        || fail "source ref is not canonical"
 
-source_commit="$(git -C "${repository_root}" rev-parse --verify "${source_ref}^{commit}" 2>/dev/null)" \
-    || fail "source ref does not resolve to a commit"
+    source_commit="$(git -C "${repository_root}" rev-parse --verify "${source_ref}^{commit}" 2>/dev/null)" \
+        || fail "source ref does not resolve to a commit"
+else
+    source_commit="$(git -C "${repository_root}" rev-parse --verify HEAD)"
+fi
 
 temporary_root="$(mktemp -d)"
 source_clone="${temporary_root}/source"
@@ -43,26 +54,32 @@ cleanup() {
 }
 trap cleanup EXIT
 
-git clone --quiet --no-hardlinks "${repository_root}" "${source_clone}"
-git -C "${source_clone}" cat-file -e "${source_commit}^{commit}" \
-    || fail "source commit is not available in the committed clone"
-
-split_commit="$(git -C "${source_clone}" subtree split --prefix=examples/quickstart "${source_commit}" 2> "${temporary_root}/split.log")"
-repeat_split_commit="$(git -C "${source_clone}" subtree split --prefix=examples/quickstart "${source_commit}" 2> "${temporary_root}/repeat-split.log")"
-test "${split_commit}" = "${repeat_split_commit}" \
-    || fail "repeated subtree split produced a different commit"
-
 mkdir -p "${distribution_root}"
-git -C "${source_clone}" archive "${split_commit}" | tar -x -C "${distribution_root}"
+if [[ "${dry_run}" = true ]]; then
+    cp -a "${repository_root}/examples/quickstart/." "${distribution_root}/"
+    split_commit='working-tree'
+else
+    git clone --quiet --no-hardlinks "${repository_root}" "${source_clone}"
+    git -C "${source_clone}" cat-file -e "${source_commit}^{commit}" \
+        || fail "source commit is not available in the committed clone"
 
-for required_path in composer.json README.md bin/setup bin/blackops bootstrap/app.php; do
+    split_commit="$(git -C "${source_clone}" subtree split --prefix=examples/quickstart "${source_commit}" 2> "${temporary_root}/split.log")"
+    repeat_split_commit="$(git -C "${source_clone}" subtree split --prefix=examples/quickstart "${source_commit}" 2> "${temporary_root}/repeat-split.log")"
+    test "${split_commit}" = "${repeat_split_commit}" \
+        || fail "repeated subtree split produced a different commit"
+
+    git -C "${source_clone}" archive "${split_commit}" | tar -x -C "${distribution_root}"
+fi
+
+for required_path in composer.json README.md bin/setup blackops bootstrap/app.php; do
     test -f "${distribution_root}/${required_path}" \
         || fail "required distribution path is missing: ${required_path}"
 done
 test -x "${distribution_root}/bin/setup" || fail 'bin/setup is not executable'
-test -x "${distribution_root}/bin/blackops" || fail 'bin/blackops is not executable'
+test -x "${distribution_root}/blackops" || fail 'blackops is not executable'
+test ! -e "${distribution_root}/bin/"'blackops' || fail 'legacy CLI entrypoint is present'
 
-allowed_roots=$'.env.example\n.gitignore\nCaddyfile\nDockerfile\nDockerfile.frankenphp\nREADME.md\napp\nbin\nbootstrap\ncompose.yaml\ncomposer.json\nconfig\npublic\ntests\nvar'
+allowed_roots=$'.env.example\n.gitignore\nCaddyfile\nDockerfile\nDockerfile.frankenphp\nREADME.md\napp\nbin\nblackops\nbootstrap\ncompose.yaml\ncomposer.json\nconfig\npublic\ntests\nvar'
 actual_roots="$(find "${distribution_root}" -mindepth 1 -maxdepth 1 -printf '%f\n' | sort)"
 test "${actual_roots}" = "${allowed_roots}" || fail 'distribution root allowlist does not match'
 
@@ -108,12 +125,14 @@ docker run --rm \
     blackops/framework:dev \
     composer validate --strict
 
-if git -C "${source_clone}" show-ref --verify --quiet "refs/tags/${version}"; then
-    git -C "${source_clone}" tag --delete "${version}" > /dev/null
+if [[ "${dry_run}" = false ]]; then
+    if git -C "${source_clone}" show-ref --verify --quiet "refs/tags/${version}"; then
+        git -C "${source_clone}" tag --delete "${version}" > /dev/null
+    fi
+    git -C "${source_clone}" tag "${version}" "${split_commit}"
+    test "$(git -C "${source_clone}" rev-list -n 1 "refs/tags/${version}")" = "${split_commit}" \
+        || fail 'release tag does not resolve to the split commit'
 fi
-git -C "${source_clone}" tag "${version}" "${split_commit}"
-test "$(git -C "${source_clone}" rev-list -n 1 "refs/tags/${version}")" = "${split_commit}" \
-    || fail 'release tag does not resolve to the split commit'
 
 test "$(git -C "${repository_root}" status --short)" = "${source_before}" \
     || fail 'main working tree changed during publication validation'

@@ -5,9 +5,9 @@ declare(strict_types=1);
 
 use BlackOps\Application\Application;
 
-require dirname(__DIR__) . '/vendor/autoload.php';
+require __DIR__ . '/vendor/autoload.php';
 
 /** @var Application $application */
-$application = require dirname(__DIR__) . '/bootstrap/app.php';
+$application = require __DIR__ . '/bootstrap/app.php';
 
 exit($application->console()->run());
