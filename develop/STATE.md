@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-13T16:23:33+09:00
+Updated At: 2026-07-13T16:25:13+09:00
 
 ## Current Phase
 
@@ -16,9 +16,9 @@ Specification: `develop/spec/56-phase-9-delivery-plan.md`
 
 ## Task Status
 
-P9-003 Accepted; P9-004 Ready
+P9-004 In Progress
 
-`make:migration`、optional Application Migration Runtime、Framework-first Comparator、standard Constructor Factory、strict Finder、安全境界、Guide／Internals／Quickstart Documentationを完成した。Orchestrator Reviewで実行順InvariantをSpecificationへ同期した。Focused `106 tests / 354 assertions`、Orchestrator Full `771 tests / 2544 assertions`、Deptrac `Allowed 1578 / Violations 0 / Errors 0`、Mago、Quickstart Consumer E2E、Guardが成功した。
+P9-003を`847c2cf feat: add application migrations`として受け入れ、origin/mainへPushした。P9-004を開始し、既存Project Entrypoint／生成済みSource不変、Framework Update後のCommand／Stub追従、Generator込みConsumer Smoke、Phase 9 Closeoutを検証する。
 
 ## Last Accepted Task
 
@@ -34,9 +34,9 @@ P9-003-application-migration-generator
 
 ## Required Next Action
 
-1. P9-003 Accepted ChangeをCommit／Pushする。
-2. P9-004開始Checkpointを記録する。
-3. Framework Update Generator SmokeとPhase 9 CloseoutをWorkerへ依頼する。
+1. P9-004 Task PacketをWorkerへ依頼する。
+2. Worker Report／Diff／TestをOrchestratorがReviewする。
+3. 必要な補強と全体再検証後、Phase 9をCloseする。
 
 ## P8-003 Skeleton Distribution Publication Worker Verification Commands and Results
 

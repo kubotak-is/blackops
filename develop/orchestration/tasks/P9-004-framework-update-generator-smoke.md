@@ -1,6 +1,6 @@
 # P9-004: Framework Update Generator Smoke and Phase 9 Closeout
 
-Status: Ready
+Status: In Progress
 
 ## Goal
 
