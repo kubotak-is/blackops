@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-13T14:31:56+09:00
+Updated At: 2026-07-13T14:36:44+09:00
 
 ## Current Phase
 
@@ -16,9 +16,9 @@ Specification: `develop/spec/46-composer-skeleton-publication.md`
 
 ## Task Status
 
-Framework 1.0.0 Published; Skeleton Recovery Ready for Live Run
+Framework and Skeleton 1.0.0 Published; Packagist Skeleton Registration Blocker
 
-D078をCommit／Pushし、Framework annotated Tag `1.0.0`をCommit `279716f904f17be9341f3fdaae30156ab17d8a62`へ作成・Pushした。Packagistで`blackops/framework` Stable `1.0.0`の同Commit参照を確認した。初回Run `29226110632`のPermission Failureに対し、D079に従ってRunner UID／GID接続と既存TagのManual Recovery Pathを実装した。YAML／Recovery Contract、Composer、Mago、Management／Credential／Force／Event SHA Guard、既存`1.0.0` TagからのPublication Dry Runが成功した。
+D078をCommit／Pushし、Framework annotated Tag `1.0.0`をCommit `279716f904f17be9341f3fdaae30156ab17d8a62`へ作成・Pushした。初回Run `29226110632`のPermission Failureに対してD079 Recoveryを実装し、Manual Run `29226590005`が全GateとPublicationに成功した。Public Distribution `main`／`1.0.0`は同じSplit Commit `da573f3190e5e855a9c09e275980c6ddc5cce028`を指し、Default Branch、Root Composer Metadata、必須File、Executable Bitを検証した。Packagistの`blackops/framework` Stable `1.0.0`は公開済みで、`blackops/skeleton`は未登録である。
 
 ## Last Accepted Task
 
@@ -26,7 +26,7 @@ P8-002B-native-outcome-invocation
 
 ## Pending Decisions
 
-なし。
+- Packagist Accountで`blackops/skeleton`を`https://github.com/kubotak-is/blackops-skeleton`から登録する必要がある。Packagist認証はOrchestratorに提供されていない。
 
 ## Known Blockers
 
@@ -34,11 +34,10 @@ P8-002B-native-outcome-invocation
 
 ## Required Next Action
 
-1. Recovery Workflow／Documentation／CheckpointをCommit／Pushする。
-2. Main上のWorkflowを`release_version=1.0.0`でManual Dispatchする。
-3. WorkflowとDistribution `main`／`1.0.0` Tagを検証する。
-4. Packagistに`blackops/skeleton` Source `https://github.com/kubotak-is/blackops-skeleton`を登録する。
-5. P8-004 Remote Smokeへ進む。
+1. Live Publication結果をReport／STATEへCommit／Pushする。
+2. UserがPackagistに`blackops/skeleton` Source `https://github.com/kubotak-is/blackops-skeleton`を登録する。
+3. Packagist MetadataでStable `1.0.0`を検証する。
+4. P8-003をCloseし、P8-004 Remote Smokeへ進む。
 
 ## P8-003 Skeleton Distribution Publication Worker Verification Commands and Results
 

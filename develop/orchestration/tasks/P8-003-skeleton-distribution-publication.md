@@ -152,6 +152,7 @@ GitHub／Packagist認証がない場合、Local実装を完了して明確なBlo
 - [x] WorkflowがDeploy Key Secretを一時利用しLog／Artifactへ残さない
 - [x] Manual Recoveryが既存bare SemVer Tagを明示Checkoutし、Tag／HEAD一致を検証する
 - [x] Runner UID／GIDをComposeへ渡し、bind mountのContainer Userを一致させる
+- [x] Framework／Skeleton `1.0.0` Live PublicationとRemote Ref検証が成功する
 - [x] Remote Branch／Tag Divergenceをforceせず拒否する
 - [x] Packagist API Token／直接API CallがWorkflowにない
 - [x] Public Repository／Deploy Key／Secret／Packagist境界がDocumentedである
