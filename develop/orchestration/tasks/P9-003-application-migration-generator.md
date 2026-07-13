@@ -1,6 +1,6 @@
 # P9-003: Application Migration Generator and Runtime
 
-Status: Blocked
+Status: In Progress
 
 ## Goal
 
@@ -73,8 +73,8 @@ Application Migrationを生成する`make:migration`を提供し、Framework Mig
 
 ## Constraints
 
-- GPT-5.6 Luna High workerが実装し、Review前にCommitしない
-- Model／Profileを明示できない現在のWorkerを使う場合は、P9-003に対するUserの明示承認を得てから開始する
+- Userの2026-07-13「進めて」を、Model／Profileを明示できない現在のWorkerでPhase 9を継続する承認として扱う
+- WorkerはReview前にCommitしない
 - `make:migration`はDB接続、Migration適用、Build、Composer更新を行わない
 - Application Migration Directory不在は正常なFramework-only状態として扱う
 - Application MigrationへFramework Schema名をConstructor注入しない
