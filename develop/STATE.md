@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-13T17:43:07+09:00
+Updated At: 2026-07-13T17:48:12+09:00
 
 ## Current Phase
 
@@ -8,17 +8,17 @@ Phase 10: Documentation Website
 
 ## Current Task
 
-Task ID: P10-002-documentation-directory-migration
+Task ID: P10-003-starlight-single-source-foundation
 
-Task Packet: `develop/orchestration/tasks/P10-002-documentation-directory-migration.md`
+Task Packet: `develop/orchestration/tasks/P10-003-starlight-single-source-foundation.md`
 
 Specification: `develop/spec/57-documentation-website-delivery-contract.md`
 
 ## Task Status
 
-P10-002 Accepted
+P10-003 In Progress
 
-旧Internal Directoryの40 MarkdownとGuideのInstalled Application Statusを`docs/internal/`へ移行した。AGENTS、README、Guide、Develop、Specification、過去Task／Reportの現行PathとMarkdown Linkを同期し、Missing Link 0、旧Directory不在を確認した。
+Userは2026-07-13の回答「Y」により、Phase 10に限り、Model／Profileを明示できない現在利用可能なWorkerで進めることを承認した。P10-003のmise／pnpm／Starlight Single-source Foundation実装を開始する。
 
 ## Last Accepted Task
 
@@ -30,13 +30,13 @@ P10-002-documentation-directory-migration
 
 ## Known Blockers
 
-P10-002にBlockerはない。P10-003以降のProduction Website実装はD077に従いGPT-5.6 Luna High workerが必要だが、現在の起動InterfaceではModel／Profileを明示できない。Phase 9の代替Worker承認はPhase 9 Closeoutまでに限定されており、Phase 10へ自動継続しない。
+P10-003に既知のBlockerはない。Phase 10限定のUser承認により、現在利用可能なWorkerへ委譲できる。
 
 ## Required Next Action
 
-1. P10-002の最終検証結果をReportへ反映し、Commit／Pushする。
-2. P10-003開始前にGPT-5.6 Luna Highの選択環境またはPhase 10に限る代替Worker承認を得る。
-3. Blocker解消後、mise／pnpm／Starlight Single-source Foundationを実装する。
+1. 現在利用可能なWorkerへP10-003を委譲する。
+2. WorkerはTask Packetの範囲で実装・検証し、ReportとSTATEを更新する。Review前にCommitしない。
+3. Orchestratorが差分Reviewと最終検証を行い、受入後にCommit／Pushする。
 
 ## P9-004 Framework Update Generator Smoke Worker Verification Commands and Results
 

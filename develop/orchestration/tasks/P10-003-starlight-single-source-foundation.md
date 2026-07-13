@@ -1,6 +1,6 @@
 # P10-003: Starlight Single-source Foundation
 
-Status: Ready
+Status: In Progress
 
 ## Goal
 
@@ -45,8 +45,9 @@ mise／pnpmで再現可能なAstro Starlight Projectを構築し、`docs/guide/`
 
 ## Constraints
 
-- GPT-5.6 Luna High workerが実装し、Review前にCommitしない
-- Model／Profileを明示できない場合は別Workerへ黙ってFallbackしない
+- 原則としてGPT-5.6 Luna High workerが実装し、Review前にCommitしない
+- Userは2026-07-13の回答「Y」により、Phase 10に限り、Model／Profileを明示できない現在利用可能なWorkerで進めることを承認した
+- この承認はPhase 10以外へ自動継続しない
 - Node.js 24 LTSとpnpm 11は実装時点のPatch Versionを`mise.toml`へExact Pinする
 - `packageManager`とCIのpnpm Versionをmiseと一致させる
 - `pnpm-lock.yaml`をCommitし、CIはFrozen Lockfileを使う
