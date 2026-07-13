@@ -1,6 +1,6 @@
 # P10-005: Cloudflare Pages Delivery
 
-Status: In Progress
+Status: Accepted
 
 ## Goal
 
@@ -63,14 +63,14 @@ Status: In Progress
 
 ## Acceptance Criteria
 
-- [ ] Pull Requestと`main` Pushで同じCheck／Build Contractが実行される
-- [ ] Pull Requestは非Production BranchとしてPreview Deployされる
-- [ ] `main`だけがProduction Deployされる
-- [ ] Fork Pull RequestはSecretなしでBuild成功可能でDeployをSkipする
-- [ ] Workflowが最小権限とRef別Concurrencyを持つ
-- [ ] Wranglerが`dist/`だけを`blackops-docs`へUploadする
-- [ ] Setup GuideがProject作成、Secret登録、Local／CI検証、Rollbackを説明する
-- [ ] WorkflowにLiteral Credential／Account IDがない
+- [x] Pull Requestと`main` Pushで同じCheck／Build Contractが実行される
+- [x] Pull Requestは非Production BranchとしてPreview Deployされる
+- [x] `main`だけがProduction Deployされる
+- [x] Fork Pull RequestはSecretなしでBuild成功可能でDeployをSkipする
+- [x] Workflowが最小権限とRef別Concurrencyを持つ
+- [x] Wranglerが`dist/`だけを`blackops-docs`へUploadする
+- [x] Setup GuideがProject作成、Secret登録、Local／CI検証、Rollbackを説明する
+- [x] WorkflowにLiteral Credential／Account IDがない
 
 ## Required Commands
 

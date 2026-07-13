@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-13T19:04:50+09:00
+Updated At: 2026-07-13T19:07:12+09:00
 
 ## Current Phase
 
@@ -16,27 +16,40 @@ Specification: `develop/spec/57-documentation-website-delivery-contract.md`
 
 ## Task Status
 
-P10-005 Orchestrator Reviewed - Pending Remote Workflow Verification
+P10-005 Accepted - Pending External Configuration
 
 検証済みDocumentation ArtifactをPull Request Previewと`main` Productionへ安全にDirect UploadするWorkflow、Secret／Fork境界、Setup Guideを実装した。Local Test／Check／Build、Workflow構文、Artifact／Credential Guard、PHP Format／管理ID Guardは成功した。Phase 10限定のUser承認に基づき、Model／Profileを明示できない現在利用可能なWorkerがTask Packet単位で実装した。
 
 ## Last Accepted Task
 
-P10-004-user-documentation-information-architecture
+P10-005-cloudflare-pages-delivery
 
 ## Pending Decisions
 
-Cloudflare Pages Project `blackops-docs`とPreview／Production用Tokenの外部設定状況は未確認。OrchestratorのGitHub API確認では`docs-preview`／`docs-production` Environment Endpointが404で、Environmentと必要Secretは未作成／未登録だった。Remote Deployに必要な時点で推測せずUserへ確認する。
+Cloudflare Pages Project `blackops-docs`とPreview／Production用Tokenの外部設定状況は未確認。Run `29241502353`により`docs-production` Environmentは自動作成されたがSecret／Protection Ruleは未設定で、`docs-preview`は未作成である。Remote Deployに必要なためUserへ確認する。
 
 ## Known Blockers
 
-Repository内実装に既知のBlockerはない。GitHub Environments／Secretsは未設定と確認済みであり、Cloudflare Pages Projectも未設定の場合はRemote Preview／Production DeployとLive VerificationがExternal Blockerとなる。
+Repository内実装に既知のBlockerはない。Cloudflare Project／Token／GitHub Environment SecretsとProtection Ruleが未設定であり、Remote Preview／Production DeployとLive VerificationのExternal Blockerとなる。
 
 ## Required Next Action
 
-1. Repository内実装をTask単位でCommit／Pushする。
-2. GitHub ActionsがWorkflowを受理し、Environment Secret未登録時にProduction DeployをSafe Skipすることを確認する。
-3. External Configurationが必要な時点でUserへ確認し、完了後にP10-006でPreview／Production／Live EvidenceをCloseする。
+1. UserへCloudflare Project／Token／GitHub Environment設定を依頼する。
+2. 設定完了後、P10-006でPreview／Production／Live EvidenceをCloseする。
+
+## P10-005 GitHub Actions Evidence
+
+```text
+Commit: 596df9a2ec713fcdd3ff9c3438b65fd64f0b4e3c
+Documentation delivery Run: 29241502353
+Build documentation artifact: success (31s)
+Deploy main production job: success (15s); credential check succeeded and deploy step safely skipped because Environment Secrets were absent
+Preview job: skipped because the event was a main push
+
+CI Run: 29241501398
+Documentation website: success
+Mago / PHPUnit / Deptrac: success
+```
 
 ## P10-005 Cloudflare Pages Delivery Worker Verification Commands and Results
 
@@ -68,7 +81,7 @@ git diff --check
 Result: すべて成功した。
 ```
 
-Cloudflare ProjectはUser所有のExternal Configurationであり未確認。GitHub APIでは`docs-preview`／`docs-production` Environment未作成とEnvironment Secret未登録を確認した。Remote Deployは未実行である。
+Cloudflare ProjectはUser所有のExternal Configurationであり未確認。Run `29241502353`で`docs-production` Environmentは自動作成されたがSecret／Protection Ruleはなく、`docs-preview`は未作成である。Remote Deployは未実行である。
 
 ## P10-004 GitHub Actions Evidence
 
