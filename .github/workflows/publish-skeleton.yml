@@ -1,0 +1,123 @@
+name: Publish skeleton
+
+on:
+  push:
+    tags:
+      - '*'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-skeleton
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      SKELETON_REMOTE: git@github.com:kubotak-is/blackops.git
+
+    steps:
+      - name: Check out framework release
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Validate release tag
+        env:
+          RELEASE_VERSION: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          [[ "${RELEASE_VERSION}" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]
+          test "$(git rev-parse HEAD)" = "$(git rev-list -n 1 "refs/tags/${RELEASE_VERSION}")"
+
+      - name: Build development image
+        run: docker compose build app
+
+      - name: Install framework dependencies
+        run: docker compose run --rm app composer install --no-interaction
+
+      - name: Run framework quality gates
+        run: |
+          set -euo pipefail
+          docker compose run --rm app composer validate --strict
+          docker compose run --rm app composer validate --strict examples/quickstart/composer.json
+          docker compose run --rm app mago format --check src tests examples
+          docker compose run --rm app mago lint
+          docker compose run --rm app mago analyze
+          docker compose run --rm app vendor/bin/phpunit
+          docker compose run --rm app vendor/bin/deptrac
+
+      - name: Run consumer and installation gates
+        run: |
+          set -euo pipefail
+          bash tests/Consumer/quickstart-e2e.sh
+          bash tests/Consumer/skeleton-create-project.sh
+
+      - name: Validate skeleton publication locally
+        env:
+          RELEASE_VERSION: ${{ github.ref_name }}
+        run: bash tests/Consumer/skeleton-publication.sh "${RELEASE_VERSION}" HEAD
+
+      - name: Configure distribution deploy key
+        env:
+          SKELETON_DEPLOY_KEY: ${{ secrets.SKELETON_DEPLOY_KEY }}
+        run: |
+          set -euo pipefail
+          test -n "${SKELETON_DEPLOY_KEY}"
+          umask 077
+          install -m 700 -d "${RUNNER_TEMP}/skeleton-ssh"
+          printf '%s\n' "${SKELETON_DEPLOY_KEY}" > "${RUNNER_TEMP}/skeleton-ssh/key"
+          chmod 600 "${RUNNER_TEMP}/skeleton-ssh/key"
+          curl --proto '=https' --tlsv1.2 --fail --silent --show-error https://api.github.com/meta \
+            | jq -r '.ssh_keys[] | "github.com " + .' \
+            > "${RUNNER_TEMP}/skeleton-ssh/known_hosts"
+          test -s "${RUNNER_TEMP}/skeleton-ssh/known_hosts"
+          chmod 600 "${RUNNER_TEMP}/skeleton-ssh/known_hosts"
+
+      - name: Publish split commit and matching tag
+        env:
+          RELEASE_VERSION: ${{ github.ref_name }}
+          GIT_SSH_COMMAND: ssh -i ${{ runner.temp }}/skeleton-ssh/key -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=${{ runner.temp }}/skeleton-ssh/known_hosts
+        run: |
+          set -euo pipefail
+          publication_root="$(mktemp -d "${RUNNER_TEMP}/skeleton-publication.XXXXXX")"
+          git clone --quiet --no-hardlinks "${GITHUB_WORKSPACE}" "${publication_root}/source"
+          split_commit="$(git -C "${publication_root}/source" subtree split \
+            --prefix=examples/quickstart "${GITHUB_SHA}")"
+
+          remote_main="$(git ls-remote "${SKELETON_REMOTE}" refs/heads/main | awk '{print $1}')"
+          remote_tag="$(git ls-remote "${SKELETON_REMOTE}" "refs/tags/${RELEASE_VERSION}" | awk '{print $1}')"
+
+          if [[ -n "${remote_tag}" && "${remote_tag}" != "${split_commit}" ]]; then
+            echo 'Existing skeleton release tag points to another commit.' >&2
+            exit 1
+          fi
+
+          if [[ -n "${remote_main}" && "${remote_main}" != "${split_commit}" ]]; then
+            git -C "${publication_root}/source" fetch --quiet "${SKELETON_REMOTE}" \
+              "refs/heads/main:refs/remotes/skeleton/main"
+            git -C "${publication_root}/source" merge-base --is-ancestor \
+              refs/remotes/skeleton/main "${split_commit}" || {
+                echo 'Skeleton main cannot be fast-forwarded to this split.' >&2
+                exit 1
+              }
+          fi
+
+          if [[ "${remote_main}" != "${split_commit}" ]]; then
+            git -C "${publication_root}/source" push "${SKELETON_REMOTE}" \
+              "${split_commit}:refs/heads/main"
+          fi
+          if [[ -z "${remote_tag}" ]]; then
+            git -C "${publication_root}/source" push "${SKELETON_REMOTE}" \
+              "${split_commit}:refs/tags/${RELEASE_VERSION}"
+          fi
+
+      - name: Remove publication credentials and temporary state
+        if: always()
+        run: |
+          rm -rf "${RUNNER_TEMP}/skeleton-ssh"
+          find "${RUNNER_TEMP}" -maxdepth 1 -type d -name 'skeleton-publication.*' -exec rm -rf {} +
