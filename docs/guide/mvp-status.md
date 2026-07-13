@@ -1,68 +1,47 @@
-# MVP Status
+# Current Status
 
-BlackOps MVP is complete. This milestone proves the operation model, Inline and Deferred HTTP execution, lifecycle journal, worker recovery, compiled runtime artifacts, typed outcomes, and retention on PHP 8.5 with PostgreSQL.
+BlackOpsのLatest StableはFramework／Skeleton `1.0.0`です。このWebsiteは`main` Branchの最新Documentを公開するため、Stableへまだ含まれない機能を説明する場合があります。
 
-MVP Complete is not the same as Production Ready. Framework／Skeleton Stable `1.0.0`はMVP Closeout後のPhase 8で公開した。Applications still own composition, database credentials, deployment, process supervision, access control, and operational policy.
+MVP CompleteとProduction Readyは同じ意味ではありません。ApplicationはDatabase Credential、Deployment、Process Supervision、Authentication／Authorization、Access Control、Encryption、Retention Policy、Operational Monitoringを所有します。
 
-## Definition of Done
+## Stableとmain
 
-| Requirement | Status | Evidence |
+| Capability | Stable 1.0.0 | main Document |
 | --- | --- | --- |
-| PHP 8.5で実行できる | Satisfied | Docker ComposeのPHP 8.5.7でSample E2Eと全Testを実行。`composer.json`もPHP `>=8.5`を要求する。 |
-| SampleのInline／Deferred Operationが動く | Satisfied | `MvpSampleEndToEndTest::testCompiledSampleRunsInlineAndDeferredAcrossWorkerRestart` が `GET /welcome` と `POST /reports` を実行する。 |
-| 全Lifecycle JournalをOperation IDで追跡できる | Satisfied | Sample E2EがInline／Deferred lifecycle順を検証し、`LifecycleStateMachineTest` と `DeferredWorkerRuntimeTest` がRejected、Failed、Retry、Dead Letterを含む標準eventを検証する。 |
-| HTTP 200／202とOperation IDが返る | Satisfied | Inline WelcomeはHTTP 200、Deferred ReportはHTTP 202とOperation IDを返す。Operation ID返却はDeferred acknowledgementのContractである。 |
-| Worker再起動後も未処理Deferred Operationを実行できる | Satisfied | Sample E2EがHTTP、初回Worker、再起動Workerで別DBAL Connectionと別DI Containerを使い、PostgreSQL上の同じOperationを再claimする。 |
-| Handler例外をAttemptFailedとして記録できる | Satisfied | Sampleの初回Report attemptと`DeferredWorkerRuntimeTest`が `attempt.failed` をCanonical Journalへ保存する。 |
-| 最低一回のRetryを実行できる | Satisfied | SampleがAttempt 1のretryable failure後に `attempt.retry_scheduled` を記録し、Attempt 2で完了する。 |
-| Sensitive Filterの最小実装がある | Satisfied | SampleはCanonical Received Recordに再現用tokenを保持し、Observed Projection／JSONLでは平文をmaskする。`SensitiveProjectionFilterTest`もOmit／Mask／HMACを検証する。 |
-| Manifest／Container Compileが成功する | Satisfied | Sample E2EがOperation Manifest、HTTP Manifest、Symfony DI Containerを同じBuild IDでcompileし、Production Artifact Loaderからのみ起動する。 |
-| Unit TestとIntegration Testが通る | Satisfied | MVP CloseoutでSample E2E、全PHPUnit、Mago、Deptrac、Composer validationを継続実行する。 |
+| Typed Self-handled Operation／Native Outcome | Available | Available |
+| Inline HTTP／Deferred HTTP／Worker Retry | Available | Available |
+| Lifecycle Journal／Sensitive Projection | Available | Available |
+| Typed Outcome Retrieval／Retention | Available | Available |
+| Composer Skeleton／Project `bin/blackops` | Available | Available |
+| `make:operation`／`make:migration` | Not included | Implemented; unreleased |
+| Application Migration Runtime | Not included | Implemented; unreleased |
 
-## Implemented MVP Surface
-
-- PSR-7／15／17 HTTP boundary and FastRoute compiled dispatcher data
-- Typed Operation, OperationValue, Handler, OperationResult, and Outcome contracts
-- Inline lifecycle execution and JSON responses
-- PostgreSQL Deferred acceptance, claim, retry, heartbeat, fencing, crash recovery, dead letter, and typed outcome storage
-- Canonical Journal with operation-scoped sequence numbers
-- Sensitive Observed Projection and Monolog JSONL application/system logs
-- Versioned Operation／HTTP manifests and compiled Symfony DI container
-- Doctrine versioned PostgreSQL migrations
-- Retention plan, dry-run／confirm purge, holds, payload tombstones, journal／outcome／dead-letter deletion, audit, and maintenance scheduler
-- FrankenPHP reference HTTP runtime and explicit worker CLI
-
-MVP Closeout後のDeveloper Experience Phaseでは、Composer Skeleton、Project所有CLI、Framework所有Operation／Migration Generator、Application Migration Runtimeを追加した。これらはMVP Definition of Doneを変更せず、Installed Applicationの利用体験を拡張する。
-
-## Reproduce
-
-From the repository root in WSL2:
+Stable Applicationを作る場合はVersionを明示します。
 
 ```bash
-docker compose run --rm app vendor/bin/phpunit --filter MvpSample
-docker compose run --rm app vendor/bin/phpunit
-docker compose run --rm app vendor/bin/deptrac
+composer create-project blackops/skeleton my-app 1.0.0
 ```
 
-Build, migration, worker, and runtime composition are described in:
+## Available Runtime Surface
 
-- [MVP Sample](mvp-sample.md)
-- [Runtime Bootstrap](runtime-bootstrap.md)
-- [Database Migrations](database-migrations.md)
-- [Data Retention](retention.md)
+- PHP 8.5、PSR-7／15／17 HTTP Boundary、FrankenPHP Reference Runtime
+- Typed Operation、OperationValue、Native Outcome／Void、業務拒否Exception
+- Inline LifecycleとJSON Response
+- PostgreSQL Deferred受付、Claim、Retry、Heartbeat、Fencing、Crash Recovery、Dead Letter
+- Operation IDで取得するTyped Outcome
+- Canonical JournalとSensitive Observed Projection
+- Versioned Operation／HTTP ManifestとCompiled Symfony DI Container
+- Doctrine PostgreSQL Migration
+- Payload、Journal、Outcome、Dead LetterのRetention、Hold、Purge Audit、Scheduler
 
-## Sensitive Data Boundary
+## Known Constraints
 
-Canonical Journal is the reproducible source of truth and may retain a sensitive operation value according to application access, encryption, and retention policy. Observed projections, application logs, and retention system logs receive filtered or explicitly payload-free data. Do not describe this boundary as “sensitive data is never stored in Journal.”
+- Authentication／Authorization実装は提供しない
+- Deferred Status／Outcome HTTP EndpointとGenerated Client SDKは提供しない
+- Transactional Outbox Relayは提供しない
+- Canonical Journal／Transport PayloadのEncryption Adapterは提供しない
+- Remote OpenTelemetry、CloudWatch、SQS、Kafka、SQLite、MySQL Adapterは提供しない
+- Observer Replay CLI、Admin UI、Scheduled Operation Strategyは提供しない
+- Production CertificationやPublic API Contractを超える互換性保証は提供しない
 
-## Known MVP Constraints
-
-- No authentication or authorization implementation
-- No Deferred status/outcome HTTP endpoint or generated client SDK
-- No transactional outbox persistence/relay
-- No encryption adapter for Canonical Journal or transport payloads
-- No remote OpenTelemetry, CloudWatch, SQS, Kafka, SQLite, or MySQL adapter
-- No observer replay CLI, admin UI, or Scheduled Operation Strategy
-- No production certification or compatibility promise beyond the marked Public API and Semantic Versioning contract
-
-These remain post-MVP work. Their absence does not invalidate the agreed MVP Definition of Done.
+これらの不在はApplication側のSecurity／Operations設計が不要であることを意味しません。Stableと`main`の差を確認し、Deployment前に必要なAdapterと運用責務を明示してください。

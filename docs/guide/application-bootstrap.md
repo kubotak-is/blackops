@@ -1,75 +1,58 @@
 # Application Bootstrap
 
-Installed Applicationは、Application Rootを起点にPublic Builderで起動設定を組み立てる。
-
-Feature-firstの完全なSource例は `examples/quickstart/` にあり、Application Code、Bootstrap、Config、Entrypointは `BlackOps\Internal` を参照しない。
+Installed ApplicationはApplication Rootを起点にPublic `Application` BuilderからHTTPとConsoleの共通Configuration Snapshotを作ります。
 
 ```php
 use BlackOps\Application\Application;
 
 $application = Application::configure(dirname(__DIR__))
-    ->withEnvironment()
+    ->withEnvironment($environment)
     ->withConfiguration()
-    ->withCommands([$command])
     ->create();
 ```
 
-`configure()` は既存DirectoryだけをApplication Rootとして受け入れ、絶対Pathへ正規化する。不正な入力、Config、登録は `ApplicationBootstrapException` で拒否される。
+`configure()`は存在するApplication Rootを絶対Pathへ正規化します。不正なRoot、Environment、Config、Registrationは`ApplicationBootstrapException`で拒否されます。
 
-## Environment
+## EnvironmentとConfiguration
 
-`withEnvironment()` は呼出時のProcess Environmentを一度だけCaptureする。明示値を使う場合は、文字列Keyと文字列Valueの配列を渡す。
+`withEnvironment()`へ文字列Key／Valueの配列を渡します。引数を省略した場合は呼出時のProcess Environmentを一度だけCaptureします。FrameworkはDotenvを提供せず、Skeletonが`.env`とProcess Environmentを解決します。
 
-```php
-$builder->withEnvironment([
-    'APP_ENV' => 'production',
-]);
-```
+`withConfiguration()`は既定で`<application-root>/config`を読みます。認識するFileは`app.php`、`database.php`、`operations.php`、`execution.php`、`journal.php`、`retention.php`の6つです。存在しない既定Directoryは空Configとして扱い、未知Fileは読みません。
 
-Frameworkは `.env` を読まず、Dotenvも提供しない。Process Manager、Container Runtime、Deployment PlatformなどがEnvironmentを用意する。
+Configは呼出時に一度だけ読み、`create()`後のFile変更を自動反映しません。各設定のShapeは[Configuration Reference](configuration.md)を参照してください。
 
-## Configuration
+## OperationとService
 
-`withConfiguration()` は既定で `<application-root>/config` を読む。既定Directoryが存在しなければ空のConfigとして扱う。明示Directoryを渡した場合、そのDirectoryは存在しなければならない。
+`config/operations.php`のDiscovery RootはBuild時にOperationを探索します。通常のApplication OperationをProviderへ列挙する必要はありません。PackageやApplication外Sourceを登録する場合だけ`providers`を使います。
 
-認識するFileは次の5つで、存在するFileは配列を返す必要がある。
+Typed Self-handled OperationはBuildでHandler Serviceとして自動登録されます。Repository Interface等のApplication固有DependencyをBindingする場合は、Service Providerを`config/app.php`の`services`へ登録します。Builderの`withOperations()`、`withServices()`、`withCommands()`から明示登録を追加することもできます。
 
-- `app.php`
-- `database.php`
-- `operations.php`
-- `execution.php`
-- `journal.php`
-- `retention.php`
-
-未知のFileは読み込まない。読み込みは `withConfiguration()` の時点で一度だけ行われ、`create()` 後にFile変更を自動反映しない。
-
-`operations.php` は絶対Directoryの `discovery` ListとOptionalな `providers` Listを返す。Application-aware BuildとOperation ListだけがSourceを探索する。PackageやApplication外SourceはProviderで追加できる。`app.php` の `services` と `commands` からService ProviderとApplication Commandを登録でき、Builderで明示した登録はConfig由来の登録の後へ追加される。
-
-Operation自身に `handle(OperationValue): Outcome` または `handle(OperationValue, ExecutionContext): Outcome` を定義するTyped Self-handledが標準である。値のない成功は `void`、予期された業務拒否は `OperationRejectedException`のCategory Factoryを使う。ValueとOutcomeはNative Signatureから推論されるため、標準形で `#[Accepts]`、`#[Returns]`、`OperationResult::completed()` は不要である。Inlineの `ExecutionContext` はOperation IDを持ちAttemptを持たず、Deferred Workerでは現在のAttemptを持つ。従来の `OperationHandler`と `OperationResult` は互換性のため引き続き利用できる。BuildはHandler Signatureを検証してContainerへ自動登録するため、Service ProviderはApplication固有Dependencyだけを登録する。
-
-Providerは対応するPublic ContractのInstanceまたは引数なしで生成できるClass Name、CommandはSymfony Console CommandのInstanceまたは引数なしで生成できるClass Nameを指定する。同一Classは一度だけ登録され、異なるCommandが同じCommand Nameを使う場合は起動エラーになる。
-
-## HTTP Runtime
-
-`Application::http()` は初回呼出時にCompile済みArtifactとDatabase設定を検証し、PSR-15 Handlerを遅延構成する。同じApplicationから繰り返し取得した場合は同じHandler Instanceを返す。
+## HTTP Process
 
 ```php
 $handler = $application->http();
 $response = $handler->handle($serverRequest);
 ```
 
-`config/app.php` の `build` には `operation_manifest`、`http_manifest`、`container` の絶対Path、`container_class`、`container_namespace` を指定する。`config/database.php` には解決済みDoctrine DBAL `connection` Parameter配列と安全なPostgreSQL `schema` Identifierを指定する。Environment Variable名と値の解決はApplication側が所有する。
+`http()`は初回呼出時にCompile済みArtifactとDatabase設定を検証し、PSR-15 Handlerを遅延構成します。同じApplicationから繰り返し取得すると同じHandler Instanceを返します。
 
-HTTP構成はArtifact Compile、Source Discovery、Database Migration、DDLを行わない。Deployment StepでBuildとMigrationを明示的に完了させてからProcessを開始する。Artifact不足、Format不正、Build ID不一致ではFallbackせず `ApplicationBootstrapException` で失敗する。
+HTTP構成はSource Discovery、Artifact Compile、Database Migration、DDLを行いません。Artifact不足、Format不正、Build ID不一致時はFallbackせず失敗します。
 
-## Console Kernel
+## Console Process
 
-`Application::console()` は同じSnapshotからPublic `ConsoleKernel` を遅延構成する。同じApplicationでは同じKernel Instanceを返す。
+Project所有の`bin/blackops`は同じApplicationからPublic Console Kernelを起動します。
 
 ```php
+use BlackOps\Application\Application;
+
+require dirname(__DIR__) . '/vendor/autoload.php';
+
+/** @var Application $application */
+$application = require dirname(__DIR__) . '/bootstrap/app.php';
+
 exit($application->console()->run());
 ```
 
-KernelはBuild、Operation List、Migration、Worker、Retention、Schedulerの9 Commandを常に表示する。Database、Artifact、PCNTL、Retention設定は対象Commandの実行時まで構成しないため、`list` と `help` は不完全なRuntime環境でも利用できる。Symfony Application、Container、Connection、ConfigのGetterは提供しない。
+`list`と`help`ではDatabase、Artifact、PCNTL、Retention Serviceを構成しません。対象Commandの実行時だけ必要なRuntimeを遅延構成します。
 
-`journal.php` の `jsonl` SectionでInline Observed Journalを構成できる。`enabled=true` では絶対Path、書込可能な既存Parent Directory、`best_effort` または `required` Deliveryを指定する。FrameworkはDirectoryを作らず、Sensitive Projection後のRecordだけをJSONLへappendする。
+Application ObjectやContainerをOperation、Value、Domain Serviceへ渡しません。業務DependencyはConstructor Injectionします。

@@ -2,6 +2,8 @@
 
 Install済みApplicationでは、Project Rootの`bin/blackops`からFrameworkが提供するGeneratorを実行できる。
 
+> **Document Channel:** このPageは`main`に実装済みで次回Stable Releaseへ含まれる機能を説明する。Latest Stable `1.0.0`には`make:operation`／`make:migration`がまだ含まれない。
+
 ## Creating an Operation
 
 FeatureとActionを`<Feature>/<Action>`形式で、永続的なOperation Typeを`--type`で指定する。

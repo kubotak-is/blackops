@@ -13,7 +13,7 @@ MVPとPhase 9 Project CLIはMain Branchで完成しています。ただし、MV
 
 Packagistで公開済みのFramework／Skeleton Stable `1.0.0`はPhase 8時点のPackageです。`make:operation`、`make:migration`、Application Migration Runtimeを含むPhase 9の変更はMain Branchへ実装済みですが、これらを含む新しいStable Releaseはまだ公開していません。
 
-詳細は[Installed Application and Project CLI Status](docs/internal/installed-application-status.md)を参照してください。
+利用者向けの機能差と制約は[Current Status](docs/guide/mvp-status.md)を参照してください。
 
 ## Installation
 
@@ -49,7 +49,7 @@ curl -X POST -H 'Content-Type: application/json' \
   http://127.0.0.1:8080/reports
 ```
 
-詳しい手順は[Quickstart Application](examples/quickstart/README.md)を参照してください。
+詳しい手順は[利用者向けQuickstart](docs/guide/mvp-sample.md)を参照してください。
 
 ## Project CLI on Main
 
@@ -83,7 +83,10 @@ docker compose run --rm app vendor/bin/deptrac
 
 ## Documentation
 
-- [Framework利用者向けGuide](docs/guide/README.md)
+- [Framework利用者向けDocumentation](docs/guide/README.md)
+- [Installation](docs/guide/installation.md)
+- [First Typed Self-handled Operation](docs/guide/first-operation.md)
+- [Local Runtime](docs/guide/runtime-bootstrap.md)
 - [Framework実装者向けInternals](docs/internal/README.md)
 - [Application Bootstrap](docs/guide/application-bootstrap.md)
 - [Project Generators and Framework Updates](docs/guide/project-generators.md)

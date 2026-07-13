@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-13T18:16:25+09:00
+Updated At: 2026-07-13T18:41:04+09:00
 
 ## Current Phase
 
@@ -16,13 +16,13 @@ Specification: `develop/spec/57-documentation-website-delivery-contract.md`
 
 ## Task Status
 
-P10-004 In Progress
+P10-004 Accepted
 
-P10-003 Commit `12bed46`のGitHub Actions Run `29238345831`は、Documentation Website Job 33秒、Mago／PHPUnit／Deptrac Job 1分9秒で成功した。P10-004では利用者向けLanding、目的別Navigation、Guide Content、`main`／Stable表示、Accessibility／Searchを完成させる。
+利用者向け18 Pageを5 Sectionへ再編し、LandingからStable Install、最初のTyped Self-handled Operation、Local Runtimeまでを接続した。Orchestrator Reviewでunsafe Slug GuardとPublic Route Link変換を補強し、Node Test 16件、Astro Check、Static Build、Quickstart Mago、PHP Format、Artifact／Management ID Guard、Pagefind実Search、Accessibility Markup、`git diff --check`の成功を再確認して受け入れた。
 
 ## Last Accepted Task
 
-P10-003-starlight-single-source-foundation
+P10-004-user-documentation-information-architecture
 
 ## Pending Decisions
 
@@ -30,13 +30,36 @@ P10-003-starlight-single-source-foundation
 
 ## Known Blockers
 
-P10-003に既知のBlockerはない。
+P10-004に既知のBlockerはない。
 
 ## Required Next Action
 
-1. 現在利用可能なWorkerへP10-004を委譲する。
-2. Workerは利用者向けInformation ArchitectureとGuide ContentをTask Packet範囲で実装し、Report／STATEを更新する。Review前にCommitしない。
-3. Orchestratorが公開API整合、User Journey、Accessibility、Search、Artifact BoundaryをReviewする。
+1. P10-004をCommit／Pushする。
+2. GitHub ActionsのWebsite／PHP Quality Jobを確認する。
+3. P10-005 Cloudflare Pages Deliveryへ進む。
+
+## P10-004 User Documentation Information Architecture Worker Verification Commands and Results
+
+```text
+mise exec -- pnpm --dir docs/website install --frozen-lockfile
+Result: Frozen install succeeded with pnpm 11.12.0.
+
+mise exec -- pnpm --dir docs/website run test
+Result: 16 tests / 16 passed / 0 failed.
+
+mise exec -- pnpm --dir docs/website run check
+Result: Determinism passed; Astro check 14 files / 0 errors / 0 warnings / 0 hints.
+
+mise exec -- pnpm --dir docs/website run build
+Result: 18 public pages plus fallback 404; Pagefind, sitemap, artifact, navigation, accessibility markup, actual search passed.
+
+docker compose run --rm app mago format --check src tests
+docker compose run --rm app mago analyze examples/quickstart/app
+Result: Format passed; Quickstart application analysis found no issues.
+
+Version／public boundary／management ID guards and git diff --check
+Result: All passed.
+```
 
 ## P10-003 Starlight Single-source Foundation Worker Verification Commands and Results
 

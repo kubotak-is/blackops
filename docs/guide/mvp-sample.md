@@ -1,40 +1,43 @@
-# MVP Sample
+# Quickstart
 
-`examples/quickstart` は、BlackOps MVPのInline／Deferred Vertical SliceをFeature-firstの独立Composer Applicationとして示す。同じSource Treeを公開済み `blackops/skeleton` Packageの配布元として使用する。
+Install直後のSkeletonにはInline `GET /welcome`とDeferred `POST /reports`が含まれます。同じFeature-first SourceからHTTP受付、Lifecycle Journal、Worker Retry、Typed Outcomeを確認できます。
 
-Quickstart所有のDocker ComposeはPostgreSQL 18とFrankenPHP HTTPだけをDefault起動する。依存Install、Build、Migration、Worker、RetentionはREADMEの明示Commandで実行する。Inline Observed JournalはSensitive Projection後に `var/log/journal.jsonl` へ追記される。
+## 準備
 
-## Sample Operations
+[インストール](installation.md)後のProject Rootで実行します。
 
-### Inline Welcome
+```bash
+docker compose build app http
+docker compose run --rm app composer install
+docker compose run --rm app php bin/blackops blackops:build:compile
+docker compose run --rm app php bin/blackops blackops:database:migrate
+docker compose up -d
+```
 
-```text
-GET /welcome
-X-Sample-Token: local-example-token
+## Inline Welcome
 
-200 OK
+```bash
+curl -H 'X-Sample-Token: local-example-token' \
+  http://127.0.0.1:8080/welcome
+```
+
+```json
 {"message":"Welcome to BlackOps"}
 ```
 
-Requestは `ShowWelcome` と `WelcomeValue` へbindされ、Self-handledな `ShowWelcome::handle(WelcomeValue)` がtyped `WelcomeShown`を返す。同じOperation IDへ次のCanonical Journalが永続化される。
+Requestは`WelcomeValue`へBindされ、`ShowWelcome::handle(WelcomeValue): WelcomeShown`が同期実行されます。同じOperation IDに受付、Attempt開始、成功、完了のLifecycle Journalが記録されます。
 
-```text
-operation.received
-attempt.started
-attempt.succeeded
-operation.completed
+HeaderのSample TokenはCanonical Journalで再現用Valueとして扱われます。Observed JSONLでは`#[Sensitive]`に従いMaskされ、平文のまま`var/log/journal.jsonl`へ出力されません。
+
+## Deferred Report
+
+```bash
+curl -X POST -H 'Content-Type: application/json' \
+  -d '{"reportName":"weekly","apiToken":"local-example-token"}' \
+  http://127.0.0.1:8080/reports
 ```
 
-### Deferred Report
-
-```text
-POST /reports
-Content-Type: application/json
-
-{"reportName":"weekly","apiToken":"local-report-token"}
-```
-
-受付成功はHTTP 202とOperation IDを返す。
+受付成功はHTTP 202とOperation IDを返します。
 
 ```json
 {
@@ -44,48 +47,23 @@ Content-Type: application/json
 }
 ```
 
-HTTP ProcessはHandlerを実行しない。別のWorker compositionがPostgreSQLからOperationをclaimする。Sampleの `GenerateReport::handle(GenerateReportValue, ExecutionContext)` はContextからAttemptを取得し、Attempt 1でretryable exceptionを投げ、`attempt.failed` と `attempt.retry_scheduled` を記録する。再起動相当の新しいWorker／DBAL Connection／DI ContainerがAttempt 2をclaimし、typed `ReportGenerated`をOutcomes Tableへ保存する。
-
-OutcomeはPHPの `OutcomeReader`からOperation IDで取得する。MVP SampleはDeferred Outcome取得用HTTP Endpointを追加しない。
-
-## Build Artifacts
-
-Application buildではPublic Console KernelがQuickstartのProviderとConfigからOperation Manifest、HTTP Manifest、DI Containerをcompileする。
+HTTP ProcessはHandlerを実行しません。Workerを明示的に起動します。
 
 ```bash
-cd examples/quickstart
-php bin/blackops blackops:build:compile
+docker compose run --rm app php bin/blackops blackops:worker:run --iterations=1
+docker compose run --rm app php bin/blackops blackops:worker:run --iterations=1
 ```
 
-BuildはTyped Self-handledのValue型、Optional Context型、Return型を検証してManifestへInvocation Modeを保存する。Production Runtimeはこの3 Artifactを同じBuild IDでloadし、Manifestと現在のSignatureの不整合を拒否する。Request時やWorker起動時にOperation Discovery、Container Compile、Database Migrationは実行しない。
+Sampleは最初のAttemptでRetryable Exceptionをthrowし、次のAttemptで`ReportGenerated`を保存します。Operation IDからOutcomeを読む方法は[Outcome Retrieval](outcome-retrieval.md)を参照してください。
 
-Database SchemaはDeployment時に先に適用する。
+常駐WorkerはCompose Profileから起動できます。
 
 ```bash
-php bin/blackops blackops:database:migrate --no-interaction
+docker compose --profile worker up worker
 ```
 
-## Reproduce the E2E
+## Starter Featureを外す
 
-Repository RootのDocker Composeだけで完全なE2Eを実行できる。
+Welcomeは`app/Feature/Welcome/`、Reportは`app/Feature/Report/`をDirectoryごと削除できます。`config/operations.php`のDiscovery RootがOperationを検出するため、Provider一覧やBootstrapの編集は不要です。
 
-```bash
-docker compose run --rm app vendor/bin/phpunit --filter MvpSample
-```
-
-Testは独立したPostgreSQL SchemaをVersioned Migrationで準備し、次を実際に検証する。
-
-- Compile済みManifest／ContainerのProduction load
-- Inline HTTP 200と4件のLifecycle Journal
-- Deferred HTTP 202とDurable受付Journal
-- HTTPとは別ConnectionのWorkerによる初回失敗とRetry Schedule
-- 別Connection／別Containerの再起動Workerによる後続成功
-- Operation IDによるtyped Outcome取得
-- Canonical Journalと安全なObserved Projectionの分離
-- Root Composerへ `App\` Autoloadを追加せず、Quickstart Sourceを明示的に読み込む境界
-
-## Sensitive Data Boundary
-
-Canonical JournalはOperationの再現性を保つ正本である。SampleのtokenはCanonical Received Recordには保持される。一方、`#[Sensitive]`を付けた値はObserved Projectionでmaskされ、JSONLへ平文出力されない。
-
-これは暗号化やCanonical Retentionの代替ではない。Canonical StoreへのAccess Control、暗号化、Retentionは別の運用境界で扱う。
+次にApplication固有のUse Caseを書く場合は[Operation Authoring](operations.md)へ進んでください。

@@ -11,10 +11,11 @@
   "scripts": {
     "content:generate": "node scripts/generate-content.mjs",
     "content:check": "node scripts/check-content.mjs",
+    "site:check": "node scripts/check-site.mjs",
     "test": "node --test --test-isolation=none tests/*.test.mjs",
     "astro:check": "ASTRO_TELEMETRY_DISABLED=1 astro check",
     "check": "pnpm run content:check && pnpm run astro:check",
-    "build": "pnpm run content:generate && ASTRO_TELEMETRY_DISABLED=1 astro build && node scripts/check-artifact.mjs",
+    "build": "pnpm run content:generate && ASTRO_TELEMETRY_DISABLED=1 astro build && node scripts/check-artifact.mjs && pnpm run site:check",
     "dev": "pnpm run content:generate && ASTRO_TELEMETRY_DISABLED=1 astro dev"
   },
   "dependencies": {

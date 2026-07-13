@@ -20,7 +20,7 @@ test('generates deterministic Starlight content and manifest without changing so
   assert.equal(first.index, second.index);
   assert.match(first.index, /^---\ntitle: "Home"\n---\n/);
   assert.doesNotMatch(first.index, /^# Home$/m);
-  assert.match(first.index, /\[Guide\]\(guide\.md\)/);
+  assert.match(first.index, /\[Guide\]\(\/guide\/\)/);
   assert.match(first.index, /```text\n# Preserved\n```/);
   assert.match(first.index, /\| A \| B \|/);
   assert.equal(await readFile(path.join(fixture.source, 'README.md'), 'utf8'), before);
@@ -48,6 +48,84 @@ test('rejects duplicate public slugs', async (context) => {
   await sources(fixture.source, { 'README.md': '# Home\n', 'index.md': '# Other\n' });
 
   await assert.rejects(() => generate(fixture), /Duplicate documentation slug "index"/);
+});
+
+test('applies explicit public slugs and page metadata', async (context) => {
+  const fixture = await fixtureRoot(context);
+  await sources(fixture.source, { 'README.md': '# Home\n' });
+  const contentRoot = path.join(fixture.root, 'mapped/content');
+  const manifestPath = path.join(fixture.root, 'mapped/manifest.json');
+
+  const manifest = await generateContent({
+    sourceRoot: fixture.source,
+    contentRoot,
+    manifestPath,
+    repositoryRoot: fixture.root,
+    contentMap: {
+      'README.md': {
+        slug: 'getting-started/install',
+        description: 'Install BlackOps.',
+        template: 'splash',
+      },
+    },
+    banner: { content: 'Channel: main' },
+  });
+  const content = await readFile(path.join(contentRoot, 'getting-started/install.md'), 'utf8');
+
+  assert.equal(JSON.parse(manifest).pages[0].slug, 'getting-started/install');
+  assert.match(content, /description: "Install BlackOps\."/);
+  assert.match(content, /template: "splash"/);
+  assert.match(content, /banner: \{"content":"Channel: main"\}/);
+});
+
+test('rejects incomplete or stale public metadata', async (context) => {
+  const incomplete = await fixtureRoot(context);
+  await sources(incomplete.source, { 'README.md': '# Home\n', 'guide.md': '# Guide\n' });
+  await assert.rejects(
+    () => generateContent({
+      sourceRoot: incomplete.source,
+      contentRoot: path.join(incomplete.root, 'content'),
+      manifestPath: path.join(incomplete.root, 'manifest.json'),
+      repositoryRoot: incomplete.root,
+      contentMap: { 'README.md': { slug: 'index' } },
+    }),
+    /missing public metadata: guide\.md/,
+  );
+
+  const stale = await fixtureRoot(context);
+  await sources(stale.source, { 'README.md': '# Home\n' });
+  await assert.rejects(
+    () => generateContent({
+      sourceRoot: stale.source,
+      contentRoot: path.join(stale.root, 'content'),
+      manifestPath: path.join(stale.root, 'manifest.json'),
+      repositoryRoot: stale.root,
+      contentMap: {
+        'README.md': { slug: 'index' },
+        'missing.md': { slug: 'missing' },
+      },
+    }),
+    /references missing documentation source: missing\.md/,
+  );
+});
+
+test('rejects missing or unsafe mapped public slugs', async (context) => {
+  const fixture = await fixtureRoot(context);
+  await sources(fixture.source, { 'README.md': '# Home\n' });
+  const invalid = [undefined, '', '/absolute', '.', '..', 'guide/../secret', 'guide\\secret', 'Getting-Started'];
+
+  for (const slug of invalid) {
+    await assert.rejects(
+      () => generateContent({
+        sourceRoot: fixture.source,
+        contentRoot: path.join(fixture.root, 'unsafe/content'),
+        manifestPath: path.join(fixture.root, 'unsafe/manifest.json'),
+        repositoryRoot: fixture.root,
+        contentMap: { 'README.md': slug === undefined ? {} : { slug } },
+      }),
+      /public slug must use lowercase kebab-case path segments/,
+    );
+  }
 });
 
 test('rejects a broken internal link', async (context) => {

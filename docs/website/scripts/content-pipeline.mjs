@@ -10,7 +10,14 @@ const FORBIDDEN_CONTENT = [
   { pattern: /develop\//i, label: 'develop/' },
 ];
 
-export async function generateContent({ sourceRoot, contentRoot, manifestPath, repositoryRoot }) {
+export async function generateContent({
+  sourceRoot,
+  contentRoot,
+  manifestPath,
+  repositoryRoot,
+  contentMap = null,
+  banner = null,
+}) {
   const sourceDirectory = await realpath(sourceRoot);
   const repositoryDirectory = repositoryRoot === undefined ? null : await realpath(repositoryRoot);
   const sourceFiles = await markdownFiles(sourceDirectory);
@@ -24,14 +31,26 @@ export async function generateContent({ sourceRoot, contentRoot, manifestPath, r
     const markdown = normalizeNewlines(await readFile(absolute, 'utf8'));
     validatePublicContent(markdown, source, repositoryDirectory);
     const { title, body } = extractTitle(markdown, source);
-    const slug = slugFor(source);
+    const metadata = contentMap?.[source] ?? null;
+    if (contentMap !== null && metadata === null) {
+      throw new Error(`Documentation source is missing public metadata: ${source}`);
+    }
+    const slug = metadata === null ? slugFor(source) : publicSlug(metadata.slug, source);
     records.push({
       source,
       generated: `${slug}.md`,
       slug,
       title,
       body,
+      metadata,
     });
+  }
+
+  if (contentMap !== null) {
+    const unknown = Object.keys(contentMap).filter((source) => !sourceFiles.includes(source));
+    if (unknown.length > 0) {
+      throw new Error(`Public metadata references missing documentation source: ${unknown.sort().join(', ')}`);
+    }
   }
 
   assertUniqueSlugs(records);
@@ -39,7 +58,7 @@ export async function generateContent({ sourceRoot, contentRoot, manifestPath, r
   const routes = new Set(records.map((record) => routeFor(record.slug)));
   const outputs = records.map((record) => {
     const body = rewriteAndValidateLinks(record, bySource, routes);
-    const content = `---\ntitle: ${JSON.stringify(record.title)}\n---\n${body}`;
+    const content = `---\n${frontmatter(record, banner)}---\n${body}`;
 
     return {
       ...record,
@@ -60,6 +79,29 @@ export async function generateContent({ sourceRoot, contentRoot, manifestPath, r
   await replaceGeneratedContent(contentRoot, manifestPath, outputs, manifest);
 
   return manifest;
+}
+
+function publicSlug(value, source) {
+  if (typeof value !== 'string' || !/^[a-z0-9]+(?:-[a-z0-9]+)*(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)*$/.test(value)) {
+    throw new Error(`Documentation public slug must use lowercase kebab-case path segments: ${source}`);
+  }
+
+  return value;
+}
+
+function frontmatter(record, banner) {
+  const values = {
+    title: record.title,
+    description: record.metadata?.description,
+    template: record.metadata?.template,
+    hero: record.metadata?.hero,
+    banner,
+  };
+
+  return Object.entries(values)
+    .filter(([, value]) => value !== undefined && value !== null)
+    .map(([key, value]) => `${key}: ${JSON.stringify(value)}\n`)
+    .join('');
 }
 
 async function markdownFiles(root) {
@@ -196,9 +238,7 @@ function rewriteAndValidateLinks(record, bySource, routes) {
         throw new Error(`Broken internal documentation link in ${record.source}: ${target}`);
       }
 
-      const relative = path.posix.relative(path.posix.dirname(record.generated), linked.generated);
-      const rewritten = relative === '' ? path.posix.basename(linked.generated) : relative;
-      return `${label}(${rewritten}${suffix})`;
+      return `${label}(${routeFor(linked.slug)}${suffix})`;
     }),
   );
 }

@@ -1,6 +1,6 @@
 # P10-004: User Documentation Information Architecture
 
-Status: In Progress
+Status: Accepted
 
 ## Goal
 

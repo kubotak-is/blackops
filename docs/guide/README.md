@@ -1,22 +1,25 @@
-# BlackOps Guide
+# BlackOps
 
-BlackOpsを利用してApplicationを作る開発者向けのガイドを管理する。
+BlackOpsは、PHP 8.5向けのHeadless Operation Frameworkです。同期HTTPとPostgreSQLを使ったDeferred実行を同じOperation Modelで扱い、Lifecycle Journal、Retry、Typed Outcome、Retention、Project CLIを提供します。
 
-公開APIと実装が存在しない内容を、利用可能な機能として先行記載しない。各Phaseで受入済みとなった機能から順に追加する。
+## 最短で動かす
 
-## Topics
+公開済みStable SkeletonをComposerで作成し、Feature-firstのApplicationを起動できます。
 
-- [MVP Status](mvp-status.md)
-- [Runtime Bootstrap](runtime-bootstrap.md)
-- [Application Bootstrap](application-bootstrap.md)
-- [Outcome Retrieval](outcome-retrieval.md)
-- [Database Migrations](database-migrations.md)
-- [Project Generators and Framework Updates](project-generators.md)
-- [MVP Sample](mvp-sample.md)
-- [Data Retention](retention.md)
-- [Remote Installation and Runtime Bootstrap](runtime-bootstrap.md)
-- Implementing a Handler
-- HTTP Routing and Responses
-- Inline and Deferred Execution
-- Configuration
-- Logging, Journal, and Operations
+1. [インストール](installation.md) — Stable `1.0.0`からProjectを作る
+2. [Directory Structure](directory-structure.md) — FeatureとProcess Boundaryを把握する
+3. [最初のOperation](first-operation.md) — Typed Self-handledのValueとOutcomeを読む
+4. [Local Runtime](runtime-bootstrap.md) — Build、Migration、HTTPを明示的に起動する
+
+完成済みのInline／Deferred Exampleを先に試す場合は[Quickstart](mvp-sample.md)へ進んでください。
+
+## 目的から探す
+
+- [Operations](operations.md): Operation、Value、Outcome、Generator、Lifecycle
+- [Execution](execution.md): HTTP、Inline、Deferred、Worker
+- [Database](database-migrations.md): Migration、Outcome Retrieval、Retention
+- [Reference](configuration.md): Configuration、Application Bootstrap、Project CLI、現行Status
+
+## Document Channel
+
+このWebsiteは`main` Branchの最新Documentです。最新Stableは`1.0.0`であり、`main`の説明には次のStable Releaseへ向けた未Release機能が含まれる場合があります。各Page上部のVersion Noticeと[Current Status](mvp-status.md)を確認してください。

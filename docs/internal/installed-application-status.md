@@ -22,6 +22,22 @@ Status: Phase 9 Complete in Main; Framework and Skeleton 1.0.0 Published
 
 詳細なCommand結果は [Phase 7 Closeout Report](../../develop/orchestration/reports/P7-007-phase-7-closeout.md) に記録する。
 
+## MVP Completion Evidence
+
+公開GuideのCurrent Statusから移したMVP完了根拠を、Repository内の実装者向け記録として維持する。
+
+| Requirement | Status | Evidence |
+| --- | --- | --- |
+| PHP 8.5で実行できる | Satisfied | Docker ComposeのPHP 8.5.7でSample E2Eと全Testを実行し、Root ComposerもPHP `>=8.5`を要求する。 |
+| SampleのInline／Deferred Operationが動く | Satisfied | MVP Sample E2Eが`GET /welcome`と`POST /reports`を実行する。 |
+| Lifecycle JournalをOperation IDで追跡できる | Satisfied | Sample E2EとLifecycle／Worker TestがRejected、Failed、Retry、Dead Letterを含む標準Eventを検証する。 |
+| HTTP 200／202とOperation IDが返る | Satisfied | Inline WelcomeはHTTP 200、Deferred ReportはHTTP 202とOperation IDを返す。 |
+| Worker再起動後もDeferred Operationを実行できる | Satisfied | Sample E2EがHTTP、初回Worker、再起動Workerで別Connectionと別Containerを使い同じOperationを再Claimする。 |
+| Handler例外とRetryを記録できる | Satisfied | Sampleの初回Report Attemptが`attempt.failed`と`attempt.retry_scheduled`を記録し、次のAttemptで完了する。 |
+| Sensitive Filterの最小実装がある | Satisfied | Canonical Received RecordとMask済みObserved Projectionの分離をSampleとSensitive Projection Testが検証する。 |
+| Manifest／Container Compileが成功する | Satisfied | Sample E2EがOperation Manifest、HTTP Manifest、Symfony DI Containerを同じBuild IDでCompileし、Production Artifact Loaderから起動する。 |
+| Unit／Integration／Architecture Quality Gateが通る | Satisfied | MVP CloseoutでSample E2E、全PHPUnit、Mago、Deptrac、Composer Validationを実行した。 |
+
 ## Installed Tree
 
 ```text

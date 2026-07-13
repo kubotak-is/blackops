@@ -3,7 +3,10 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { generateContent } from './content-pipeline.mjs';
 import { contentRoot, manifestPath, repositoryRoot, sourceRoot } from './website-paths.mjs';
+import { contentMap, versionBanner } from '../content-map.mjs';
+import { validateNavigation } from '../site-navigation.mjs';
 
+validateNavigation(contentMap);
 const temporary = await mkdtemp(path.join(tmpdir(), 'blackops-docs-check-'));
 
 try {
@@ -13,12 +16,16 @@ try {
     contentRoot: path.join(temporary, 'first/content'),
     manifestPath: path.join(temporary, 'first/manifest.json'),
     repositoryRoot,
+    contentMap,
+    banner: versionBanner,
   });
   const second = await generateContent({
     sourceRoot,
     contentRoot: path.join(temporary, 'second/content'),
     manifestPath: path.join(temporary, 'second/manifest.json'),
     repositoryRoot,
+    contentMap,
+    banner: versionBanner,
   });
   if (first !== second) {
     throw new Error('Content manifest generation is not deterministic.');
@@ -27,7 +34,14 @@ try {
     throw new Error('Generated Starlight content is not byte-for-byte deterministic.');
   }
 
-  await generateContent({ sourceRoot, contentRoot, manifestPath, repositoryRoot });
+  await generateContent({
+    sourceRoot,
+    contentRoot,
+    manifestPath,
+    repositoryRoot,
+    contentMap,
+    banner: versionBanner,
+  });
   if (before !== (await snapshot(sourceRoot))) {
     throw new Error('Content generation modified docs/guide source files.');
   }

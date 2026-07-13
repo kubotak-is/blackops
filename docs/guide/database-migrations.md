@@ -42,9 +42,3 @@ Application MigrationはDoctrine標準Constructorを使う。Framework Schema名
 `Version*.php`はDatabase Command実行時に直接読み込まれる。Parse Error、`App\Migrations`以外のNamespace、File名と異なるClass、`AbstractMigration`でないClassは失敗する。`migrations`がFileまたはsymlinkの場合も、Framework-only状態として無視せず拒否する。
 
 HTTP、Worker、Scheduler、Build、Consoleの`list`／`help`はMigration Directoryを読み込まず、MigrationやDDLを暗黙実行しない。
-
-## Existing Test Schema
-
-既存Adapterの `migrate()` はIntegration Test用helperとして残している。Production DeploymentではCommandを使用する。
-
-現在のhelperが作成した空SchemaはVersioned Baselineでadoptできる。Migrationは既存Tableを削除せず、Baseline VersionをDoctrine Metadataへ記録する。この互換性は現在のhelperが生成するSchemaだけを対象とし、任意に変更されたTableの修復機能ではない。
