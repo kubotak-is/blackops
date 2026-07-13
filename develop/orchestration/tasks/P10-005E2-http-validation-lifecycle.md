@@ -1,6 +1,6 @@
 # P10-005E2: HTTP Validation Lifecycle
 
-Status: Blocked by P10-005E1
+Status: Blocked by D087
 
 ## Goal
 
