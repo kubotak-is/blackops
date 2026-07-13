@@ -1,24 +1,24 @@
 # Orchestration State
 
-Updated At: 2026-07-13T14:52:08+09:00
+Updated At: 2026-07-13T14:59:01+09:00
 
 ## Current Phase
 
-Phase 8: Composer Project Bootstrap (Complete)
+Phase 9: Project BlackOps CLI (Design Dialogue)
 
 ## Current Task
 
-Task ID: P8-004-phase-8-closeout
+Task ID: P9-001-project-generator-command-contract
 
-Task Packet: `develop/orchestration/tasks/P8-004-phase-8-closeout.md`
+Task Packet: `develop/orchestration/tasks/P9-001-project-generator-command-contract.md`
 
-Specification: `develop/spec/52-phase-8-delivery-plan.md`
+Decision: `develop/decisions/080-project-generator-command-contract.md`
 
 ## Task Status
 
-P8-004 Accepted; Phase 8 Complete
+Awaiting User Decision
 
-P8-004を受け入れ、Phase 8をCloseした。Framework／Skeleton Stable `1.0.0`をGitHub／Packagistへ公開し、空Composer HomeからRemote通常／`--no-scripts` Create-project、Framework `1.0.0` Lock、Autoload、CLI、Post-create／Manual Setup、Side Effect不在、Cleanupを検証した。Full QualityはMago 3種、PHPUnit `721 tests / 2374 assertions`、Deptrac `361 files / 0 violations / 0 errors`、Consumer E2E、Local Create-project、Publication Dry Run、Guardが成功した。
+既存のProject CLI、Console Kernel、Quickstart Operation Layout、Migration Runnerを確認した。`make:operation`の入力／生成File、Application Migrationの実行境界、既存File保護をD080へ記録し、User回答を待っている。Production Codeは未変更である。
 
 ## Last Accepted Task
 
@@ -26,17 +26,17 @@ P8-004-phase-8-closeout
 
 ## Pending Decisions
 
-なし。
+D080 Project Generator Command Contract（Awaiting Answer）。
 
 ## Known Blockers
 
-なし。
+D080の回答がない状態ではApplication Migration RuntimeとGenerator Contractを確定できない。
 
 ## Required Next Action
 
-1. P8-004 Closeout Documentation／Report／STATEをCommit／Pushする。
-2. Phase 9 Project BlackOps CLIの仕様対話とTask Packetを準備する。
-3. `make:operation`／`make:migration`とFramework Update追従を実装・検証する。
+1. `develop/decisions/080-project-generator-command-contract.md`の4問へ回答する。
+2. 回答をDecision／Phase 9 Specificationへ反映し、Production Task Packetへ分割する。
+3. GPT-5.6 Luna High workerのModel／Profile指定を確認してからProduction Code実装へ進む。
 
 ## P8-003 Skeleton Distribution Publication Worker Verification Commands and Results
 
