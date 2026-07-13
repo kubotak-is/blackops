@@ -1,6 +1,6 @@
 # P10-005E1: OperationValue Validation Core
 
-Status: Blocked by P10-005C
+Status: Accepted
 
 ## Goal
 

@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-13T23:12:12+09:00
+Updated At: 2026-07-13T23:29:30+09:00
 
 ## Current Phase
 
@@ -8,21 +8,21 @@ Phase 10: Documentation Website
 
 ## Current Task
 
-Task ID: P10-005C-project-root-cli-entrypoint
+Task ID: P10-005E1-operation-value-validation-core
 
-Task Packet: `develop/orchestration/tasks/P10-005C-project-root-cli-entrypoint.md`
+Task Packet: `develop/orchestration/tasks/P10-005E1-operation-value-validation-core.md`
 
-Specifications: `develop/spec/41-developer-experience-roadmap.md`、`develop/spec/55-project-generators-and-application-migrations.md`
+Specifications: `develop/spec/04-handler-and-result.md`、`develop/spec/15-source-layout.md`、`develop/spec/16-namespace-dependencies.md`
 
 ## Task Status
 
-P10-005C Accepted
+P10-005E1 Accepted
 
-P10-005Cは次回SkeletonのProject所有CLIをRoot `blackops`へ移し、Compose、Setup、Quickstart README、Architecture／Consumer／Publication Testを`php blackops`へ統一した。Create-projectはStable `1.0.0`と分離したLocal `1.0.1` Fixtureを明示し、Framework Update SmokeはRoot EntrypointとStable従来Entrypointの双方がUpdate前後で不変かつ実行可能であることを検証した。Worker Required CommandとOrchestrator独立Reviewが成功し、Spec 43のProject Treeも同期してAcceptedとした。
+`BlackOps\Core\Validation\Attribute`へ7 Ruleを追加し、Raw Valueを保持しないPublic `Violation`と、Constructor Promotion PropertyをProperty名／固定Rule順で全件検証するInternal Validatorを実装した。Wrong Target Typeも安全なViolationとし、`#[Sensitive]` Raw ValueがSerialize／Dump／JSONへ出ないことを検証した。WorkerとOrchestrator独立ReviewでMago、79 Test／241 Assertion、Deptrac、Management ID Guard、Diff Checkが成功し、Acceptedとした。HTTP Status、Journal、Deferred接続はP10-005E2へ分離した。
 
 ## Last Accepted Task
 
-P10-005C-project-root-cli-entrypoint
+P10-005E1-operation-value-validation-core
 
 ## Pending Decisions
 
@@ -33,14 +33,34 @@ P10-005C-project-root-cli-entrypoint
 
 ## Known Blockers
 
-P10-005Cに既知のBlockerはない。P10-005E1を開始できる。P10-005E2／P10-005F／P10-005Dは前Task完了待ち。Cloudflare Project／Token／GitHub Environment SecretsとProtection Ruleの未設定はRemote DeployだけのExternal Blockerである。
+P10-005E1に既知のBlockerはない。P10-005E2を開始できる。P10-005F／P10-005Dは前Task完了待ち。Cloudflare Project／Token／GitHub Environment SecretsとProtection Ruleの未設定はRemote DeployだけのExternal Blockerである。
 
 ## Required Next Action
 
-1. P10-005CをTask単位でCommit／Pushする。
-2. P10-005E1、P10-005E2、P10-005Fを順に実装する。
+1. P10-005E1をTask単位でCommit／Pushする。
+2. P10-005E2、P10-005Fを順に実装する。
 3. P10-005Dで全Reader Journeyを最終実装へ同期する。
 4. Repository内修正後、Cloudflare External ConfigurationとP10-006 Closeoutへ進む。
+
+## P10-005E1 OperationValue Validation Core Worker Verification Commands and Results
+
+```text
+docker compose run --rm app mago format --check src tests
+Result: INFO All files are already formatted.
+
+docker compose run --rm app mago lint
+docker compose run --rm app mago analyze
+Result: ともにINFO No issues found.
+
+docker compose run --rm app vendor/bin/phpunit tests/Core/Validation tests/Internal/Validation tests/Architecture
+Result: OK (79 tests, 241 assertions). 7 Rule、Constructor Validation、Wrong Target、決定的集約、Sensitive非露出、Public API Architectureを検証。
+
+docker compose run --rm app vendor/bin/deptrac
+Result: Violations 0 / Skipped 0 / Uncovered 0 / Allowed 1597 / Warnings 0 / Errors 0.
+
+PHP Management ID Guard、git diff --check
+Result: すべて成功。
+```
 
 ## P10-005C Project Root CLI Entrypoint Worker Verification Commands and Results
 

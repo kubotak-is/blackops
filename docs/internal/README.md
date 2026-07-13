@@ -18,6 +18,7 @@ Framework実装者向けのArchitectureと実装ガイドを管理する。
 - [Execution Context](execution-context.md)
 - [Operation Envelope](operation-envelope.md)
 - [Handler and Result](handler-result.md)
+- [Operation Value Validation](operation-value-validation.md)
 - [Operation Metadata](operation-metadata.md)
 - [Operation Registry](operation-registry.md)
 - [In-Memory Execution Transport](in-memory-execution-transport.md)
