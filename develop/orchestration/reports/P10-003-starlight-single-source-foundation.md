@@ -112,6 +112,13 @@ Result: No output.
 - mise-action公式READMEの現行例とReleaseを確認し、通常CIのAction Majorを`jdx/mise-action@v4`へ更新した。Node／pnpmのExact Version Guardは維持した。
 - GeneratorのSource固定、決定的Manifest、Source不変、Link書換、公開対象外Path／Absolute Path／Symbolic Link拒否を確認し、Acceptance Criteriaを満たすと判断した。
 
+## GitHub Actions Evidence
+
+- Commit: `12bed463d438841ba49cd6a9a5e3346a253a9134`
+- Run: `29238345831`
+- Documentation Website Job: Success in 33 seconds
+- Mago, PHPUnit, and Deptrac Job: Success in 1 minute 9 seconds
+
 ## Acceptance Criteria
 
 - Exact mise Toolchain Install: Satisfied

@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-13T18:13:39+09:00
+Updated At: 2026-07-13T18:16:25+09:00
 
 ## Current Phase
 
@@ -8,17 +8,17 @@ Phase 10: Documentation Website
 
 ## Current Task
 
-Task ID: P10-003-starlight-single-source-foundation
+Task ID: P10-004-user-documentation-information-architecture
 
-Task Packet: `develop/orchestration/tasks/P10-003-starlight-single-source-foundation.md`
+Task Packet: `develop/orchestration/tasks/P10-004-user-documentation-information-architecture.md`
 
 Specification: `develop/spec/57-documentation-website-delivery-contract.md`
 
 ## Task Status
 
-P10-003 Accepted
+P10-004 In Progress
 
-Node.js 24.18.0／pnpm 11.12.0をExact Pinし、`docs/guide/`だけから未追跡Starlight Content／Manifestを決定的に生成するFoundationを受け入れた。Orchestrator再検証でNode Test 9件、Content Determinism、Astro Check、Static Build、Artifact Boundary、Frozen Lockfile、CI YAML、PHP Format／Management ID Guard、`git diff --check`が成功した。mise-actionは公式現行Majorの`v4`へ補強した。
+P10-003 Commit `12bed46`のGitHub Actions Run `29238345831`は、Documentation Website Job 33秒、Mago／PHPUnit／Deptrac Job 1分9秒で成功した。P10-004では利用者向けLanding、目的別Navigation、Guide Content、`main`／Stable表示、Accessibility／Searchを完成させる。
 
 ## Last Accepted Task
 
@@ -34,9 +34,9 @@ P10-003に既知のBlockerはない。
 
 ## Required Next Action
 
-1. P10-003をCommit／Pushする。
-2. GitHub ActionsのWebsite／PHP Quality Jobを確認する。
-3. P10-004 User Documentation Information Architectureへ進む。
+1. 現在利用可能なWorkerへP10-004を委譲する。
+2. Workerは利用者向けInformation ArchitectureとGuide ContentをTask Packet範囲で実装し、Report／STATEを更新する。Review前にCommitしない。
+3. Orchestratorが公開API整合、User Journey、Accessibility、Search、Artifact BoundaryをReviewする。
 
 ## P10-003 Starlight Single-source Foundation Worker Verification Commands and Results
 
