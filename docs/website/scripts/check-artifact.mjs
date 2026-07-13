@@ -49,6 +49,8 @@ for (const file of await files(distRoot)) {
     content.includes('min-inline-size:0') &&
     content.includes('max-inline-size:100%') &&
     content.includes('min-inline-size:60rem') &&
+    content.includes('min-inline-size:72rem') &&
+    content.includes('landing-feature-grid') &&
     (content.includes('overflow-x:auto') || content.includes('overflow:auto hidden'))
   ) {
     responsiveStylesheetCount += 1;

@@ -6,16 +6,16 @@ export const sidebar = [
   {
     label: 'Getting Started',
     items: [
-      'getting-started/installation',
-      'getting-started/directory-structure',
-      'getting-started/first-operation',
-      'getting-started/local-runtime',
       'getting-started/quickstart',
+      'getting-started/installation',
+      'getting-started/first-operation',
+      'getting-started/directory-structure',
+      'getting-started/local-runtime',
     ],
   },
   {
     label: 'Operations',
-    items: ['operations/authoring', 'operations/generators', 'operations/lifecycle'],
+    items: ['operations/authoring', 'operations/generators', 'operations/validation', 'operations/lifecycle'],
   },
   {
     label: 'Execution',

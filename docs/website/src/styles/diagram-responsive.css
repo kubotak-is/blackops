@@ -53,8 +53,55 @@
   margin-inline: auto;
 }
 
+.sl-markdown-content > pre.mermaid > svg[aria-roledescription='sequence'] {
+  min-inline-size: 72rem;
+}
+
+.landing-feature-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-block: 2rem;
+}
+
+.landing-feature-link {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-inline-size: 0;
+  padding: 1.25rem;
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 0.75rem;
+  color: var(--sl-color-text);
+  text-decoration: none;
+  background: var(--sl-color-bg-nav);
+}
+
+.landing-feature-link:hover,
+.landing-feature-link:focus-visible {
+  border-color: var(--sl-color-accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--sl-color-accent) 30%, transparent);
+}
+
+.landing-feature-link strong {
+  color: var(--sl-color-text-accent);
+  font-size: var(--sl-text-lg);
+}
+
+.landing-feature-link span {
+  overflow-wrap: anywhere;
+}
+
 @media (max-width: 50rem) {
+  .landing-feature-grid {
+    grid-template-columns: 1fr;
+  }
+
   .sl-markdown-content > pre.mermaid > svg {
     min-inline-size: 60rem;
+  }
+
+  .sl-markdown-content > pre.mermaid > svg[aria-roledescription='sequence'] {
+    min-inline-size: 72rem;
   }
 }

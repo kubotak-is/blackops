@@ -11,8 +11,8 @@ export const contentMap = {
     hero: {
       tagline: 'PHP 8.5で、同期HTTPとDeferred処理を同じOperation Modelから構築する。',
       actions: [
-        { text: 'Why BlackOps', link: '/concepts/why-blackops/', icon: 'open-book' },
-        { text: 'インストール', link: '/getting-started/installation/', variant: 'secondary' },
+        { text: 'Quickstart', link: '/getting-started/quickstart/', icon: 'rocket' },
+        { text: 'Why BlackOps', link: '/concepts/why-blackops/', variant: 'secondary' },
       ],
     },
   },
@@ -56,6 +56,10 @@ export const contentMap = {
     slug: 'operations/lifecycle',
     description: 'Operationの受付から完了、拒否、再試行、失敗までのLifecycleを理解する。',
   },
+  'validation.md': {
+    slug: 'operations/validation',
+    description: 'Protocol、Binding、Value、Business ValidationのRejected境界と7 Attributeを理解する。',
+  },
   'execution.md': {
     slug: 'execution/http-and-deferred',
     description: '同じOperation ModelをInline HTTPとPostgreSQL Deferred実行へ接続する。',
@@ -86,7 +90,7 @@ export const contentMap = {
   },
   'project-cli.md': {
     slug: 'reference/project-cli',
-    description: 'Project所有のbin/blackopsから利用できるBuild、Database、Worker、Retention Commandを確認する。',
+    description: 'Project Rootのblackopsから利用できるBuild、Database、Worker、Retention Commandを確認する。',
   },
   'troubleshooting.md': {
     slug: 'reference/troubleshooting',

@@ -1,6 +1,6 @@
 # Attributes Reference
 
-BlackOpsはOperation、HTTP Binding、Observed Journal ProjectionのMetadataをPHP Attributeで宣言します。このPageは`src/Core/Attribute/`と`src/Http/Attribute/`にある利用者向けPublic Attribute 11件をSourceと照合しています。`PublicApi` marker自身はFrameworkが公開境界を管理するためのMetadataであり、Application Authoringには使いません。
+BlackOpsはOperation、Value Validation、HTTP Binding、Observed Journal ProjectionのMetadataをPHP Attributeで宣言します。このPageは利用者向けPublic Attribute 18件をSourceと照合しています。`PublicApi` marker自身はFrameworkが公開境界を管理するためのMetadataであり、Application Authoringには使いません。
 
 ## Operation Attributes
 
@@ -35,6 +35,20 @@ final readonly class PlaceOrderValue implements OperationValue
 ```
 
 `Omit`はFieldを除外し、`Mask`は`[masked]`へ置換し、`Hash`は一方向Digestへ置換します。どのModeも認証、認可、暗号化、Access Control、Retentionを代替しません。
+
+## Value Validation Attributes
+
+| Attribute | 用途 | 付与対象 | 最小例 |
+| --- | --- | --- | --- |
+| `BlackOps\Core\Validation\Attribute\NotBlank` | 空文字や空相当を拒否する | `OperationValue` Property | `#[NotBlank]` |
+| `BlackOps\Core\Validation\Attribute\Length` | Stringの文字数を検証する | `string` Property | `#[Length(min: 3, max: 80)]` |
+| `BlackOps\Core\Validation\Attribute\Range` | 数値そのものを検証する | `int`／`float` Property | `#[Range(min: 1, max: 100)]` |
+| `BlackOps\Core\Validation\Attribute\Email` | Email形式を検証する | `string` Property | `#[Email]` |
+| `BlackOps\Core\Validation\Attribute\Regex` | PCRE Patternとの一致を検証する | `string` Property | `#[Regex('/^[A-Z]+$/')]` |
+| `BlackOps\Core\Validation\Attribute\Count` | Collectionの要素数を検証する | `array`等のProperty | `#[Count(min: 1, max: 20)]`。現行HTTP BinderはArray Input非対応 |
+| `BlackOps\Core\Validation\Attribute\Choice` | 許可したScalarへ厳密一致させる | Scalar Property | `#[Choice(['JPY', 'USD'])]` |
+
+Validation BackendはSymfony Validatorですが、ApplicationはBlackOps Namespaceの7 AttributeだけをContractとして使います。Binding後、Inline／Deferred Strategyを選ぶ前に全Violationを集約します。`Count`のValidatorは実装済みですが、現行HTTP BinderはNon-scalar Inputを`binding.type`として拒否するためHTTP Valueでは利用できません。`Length`、`Range`、`Count`の違いとRejected Lifecycleは[Validation](validation.md)を参照してください。
 
 ## HTTP Attributes
 

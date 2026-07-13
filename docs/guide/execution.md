@@ -35,8 +35,6 @@ sequenceDiagram
     end
 ```
 
-## 図のテキスト代替
-
 InlineはHTTP Request内で`operation.received`から直接Attemptを開始し、OperationのOutcomeをHTTP Responseへ変換して返します。DeferredはValueとContextをDurable Storeへ保存し、`operation.accepted`の後にHTTP 202とOperation IDを返します。Workerは後から[Claim](glossary.md#claim)を取得し、Attempt、Outcome保存、完了Journalを実行します。
 
 ## Inline HTTP
@@ -88,7 +86,7 @@ Deferred RouteはHTTP 202とOperation IDを返し、HandlerをHTTP Process内で
 Project CLIからWorkerを起動します。
 
 ```bash
-php bin/blackops blackops:worker:run --idle-sleep-milliseconds=1000
+php blackops blackops:worker:run --idle-sleep-milliseconds=1000
 ```
 
 Workerは期限切れAttemptをRecoveryしてから[Claim](glossary.md#claim)し、一度に最大1 Claimを処理します。Smoke Testでは`--iterations=N`でLoop回数を制限できます。常駐ProcessはProcess ManagerまたはCompose Worker Profileで監督してください。

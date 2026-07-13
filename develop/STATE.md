@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-14T03:01:51+09:00
+Updated At: 2026-07-14T03:33:24+09:00
 
 ## Current Phase
 
@@ -8,21 +8,21 @@ Phase 10: Documentation Website
 
 ## Current Task
 
-Task ID: P10-005D-reader-journey-corrections
+Task ID: Worker Mode Default Promotion Decision
 
-Task Packet: `develop/orchestration/tasks/P10-005D-reader-journey-corrections.md`
+Task Packet: 未作成。P10-005D Accepted後のDecisionを先に確定する。
 
 Specifications: `develop/spec/04-handler-and-result.md`、`develop/spec/50-operation-authoring-and-build-discovery.md`、`develop/spec/54-native-outcome-and-rejection-exception.md`、`develop/spec/55-project-generators-and-application-migrations.md`、`develop/spec/59-documentation-reader-experience.md`
 
 ## Task Status
 
-P10-005D Ready to Start
+Decision Required
 
-P10-005FはOrchestrator Reviewと独立再検証を完了しAcceptedとした。FrankenPHP Worker Modeは明示Opt-inとしてProcess単位Bootstrap、Request Lifecycle、DB Reconnect、Restart／Isolationを実証した。次はP10-005DでReader Journeyを現行実装へ同期する。
+P10-005DはOrchestrator Review、独立再検証、Desktop／390 px Browser Reviewを完了しAcceptedとした。Worker ModeをDefault HTTPへ昇格するか、Opt-inを維持するかをUser判断として確定した後、P10-006 Closeoutへ進む。
 
 ## Last Accepted Task
 
-P10-005F-frankenphp-worker-mode
+P10-005D-reader-journey-corrections
 
 ## Pending Decisions
 
@@ -32,17 +32,46 @@ P10-005F-frankenphp-worker-mode
 4. D087はAで確定。Binding FailureはReceivedなしのSequence 1 Rejectedとする。
 5. D088はSymfony Validator Backend採用で確定。
 6. D089はAで確定。Canonical ReceivedとObserved／Error SurfaceのSensitive境界を分離する。
-7. Cloudflare External Configuration待ちは継続するが、Repository内Reader Experience改善は独立して進行できる。
+7. P10-005DはAccepted。Worker Mode Default昇格は未決で、User判断が必要である。
+8. Cloudflare External Configuration待ちは継続するが、Repository内Closeoutは独立して進行できる。
 
 ## Known Blockers
 
-P10-005Dに既知のBlockerはない。Cloudflare Project／Token／GitHub Environment SecretsとProtection Ruleの未設定はRemote DeployだけのExternal Blockerである。
+Repository内実装のBlockerはない。Cloudflare Project／Token／GitHub Environment SecretsとProtection Ruleの未設定はRemote DeployだけのExternal Blockerである。
 
 ## Required Next Action
 
-1. P10-005DをWorkerへ割り当て、全Reader Journeyを最終実装へ同期する。
-2. Landing、Install込みQuickstart、Generator Tutorial、Diagram、Validation、Worker Mode GuideをBrowser Reviewする。
-3. Repository内修正後、Cloudflare External ConfigurationとP10-006 Closeoutへ進む。
+1. Worker ModeをDefault HTTPへ昇格するか、Opt-inを維持するかUser判断を得る。
+2. 判断をDecisionと確定仕様へ反映する。
+3. P10-006でPhase 10をCloseoutし、Cloudflare External Configurationを外部Blockerとして分離する。
+
+## P10-005D Reader Journey Corrections Worker Verification Commands and Results
+
+```text
+mise exec -- pnpm --dir docs/website install --frozen-lockfile
+Result: Already up to date。pnpm 11.12.0で成功。
+
+mise exec -- pnpm --dir docs/website run test
+Result: 33 tests / 33 passed / 0 failed。Landing、CLI、Generator実Output、JSON／JSONL Shape、119 Public API、18 Attribute、Validation、Worker Mode、Navigationを検証。
+
+mise exec -- pnpm --dir docs/website run check
+Result: Content Determinism、4 Mermaid Syntax／Accessibility Metadata、Astro Checkが成功。16 files / 0 errors / 0 warnings / 0 hints。
+
+mise exec -- pnpm --dir docs/website run build
+Result: 26 Public Pages plus 404、Pagefind 27 HTML、Sitemap、Artifact／Site／Search Guardが成功。既知のMermaid Chunk Size Warningのみ。
+
+docker compose run --rm app mago analyze examples/quickstart/app
+Result: INFO No issues found。
+
+docker compose run --rm app mago format --check src tests
+Result: INFO All files are already formatted。
+
+Windows Edge Headless Browser Review
+Result: Landing、Quickstart、Tutorial、Validation、HTTP／Deferred Diagramを1200 pxと390 px固定Same-origin iframeで確認。DesktopはDocument 1185／1185、Diagram 537／1184、MobileはDocument 375／375、Diagram 343／1184、SVG 1152 px。Page Level Overflowなし、Diagram内Scrollあり。
+
+Orchestrator Independent Verification
+Result: test、check、build、mago、Required Guardがすべて成功。
+```
 
 ## P10-005F FrankenPHP Worker Mode Worker Verification Commands and Results
 

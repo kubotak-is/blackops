@@ -14,6 +14,7 @@ const routes = [
   '/getting-started/quickstart/',
   '/operations/authoring/',
   '/operations/generators/',
+  '/operations/validation/',
   '/operations/lifecycle/',
   '/execution/http-and-deferred/',
   '/execution/context/',
@@ -37,14 +38,19 @@ for (const route of routes) {
 }
 
 const landing = pages.get('/');
+requireText(landing, 'href="/getting-started/quickstart/"', 'Landing Quickstart action');
 requireText(landing, 'href="/concepts/why-blackops/"', 'Landing Why BlackOps action');
-requireText(landing, 'href="/getting-started/installation/"', 'Landing install action');
-requireJourney('/', '/concepts/why-blackops/');
+if ((landing.match(/class="landing-feature-link"/g) ?? []).length !== 4) {
+  throw new Error('Landing must contain four feature link blocks.');
+}
+requireJourney('/', '/getting-started/quickstart/');
 requireJourney('/concepts/why-blackops/', '/concepts/core-concepts/');
 requireJourney('/concepts/core-concepts/', '/getting-started/installation/');
 requireJourney('/getting-started/installation/', '/getting-started/directory-structure/');
 requireJourney('/getting-started/directory-structure/', '/getting-started/first-operation/');
 requireJourney('/getting-started/first-operation/', '/getting-started/local-runtime/');
+requireJourney('/getting-started/quickstart/', '/getting-started/first-operation/');
+requireJourney('/getting-started/first-operation/', '/operations/validation/');
 
 const documentation = pages.get('/getting-started/installation/');
 for (const section of ['Overview', 'Getting Started', 'Operations', 'Execution', 'Database', 'Reference']) {
@@ -63,6 +69,7 @@ const responsiveContentRoutes = [
   '/reference/attributes/',
   '/reference/troubleshooting/',
   '/reference/security/',
+  '/operations/validation/',
 ];
 let diagramCount = 0;
 for (const route of diagramRoutes) {
@@ -74,7 +81,9 @@ for (const route of diagramRoutes) {
   diagramCount += count;
   requireText(html, 'accTitle:', `${route} diagram accessible title source`);
   requireText(html, 'accDescr:', `${route} diagram accessible description source`);
-  requireText(html, '図のテキスト代替', `${route} diagram text alternative`);
+  if (html.includes('図のテキスト代替')) {
+    throw new Error(`${route} must not display a mechanical diagram-alternative heading.`);
+  }
 }
 if (diagramCount !== 4) {
   throw new Error(`Static site must contain four Mermaid render targets; found ${diagramCount}.`);
@@ -143,6 +152,9 @@ async function verifyResponsiveDiagramStyle() {
       css.includes('min-inline-size:0') &&
       css.includes('max-inline-size:100%') &&
       css.includes('min-inline-size:60rem') &&
+      css.includes('min-inline-size:72rem') &&
+      css.includes("aria-roledescription=sequence") &&
+      css.includes('landing-feature-grid') &&
       css.includes('pre:not(.mermaid)') &&
       css.includes('overflow-wrap:anywhere') &&
       css.includes('white-space:normal') &&

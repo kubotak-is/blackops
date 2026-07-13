@@ -14,8 +14,6 @@ flowchart LR
     Strategy -->|受付・Attemptの差| Journal
 ```
 
-## 図のテキスト代替
-
 Operationは`OperationValue`を第一引数に受け取り、必要な場合だけ`ExecutionContext`を第二引数に受け取ります。Execution Strategyは同じOperationをInlineまたはDeferredで実行する経路を選びます。正常完了すると`Outcome`を返し、受付からTerminal StateまでのLifecycle上の事実は`Journal`へ追記されます。
 
 ## Operation

@@ -32,8 +32,6 @@ stateDiagram-v2
     DeadLettered --> [*]
 ```
 
-## 図のテキスト代替
-
 | 経路 | 状態遷移 |
 | --- | --- |
 | Inline成功 | Received → Running → Finalizing → Completed |

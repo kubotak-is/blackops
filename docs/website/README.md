@@ -38,7 +38,7 @@ Reader Experienceを改善するときもStable `1.0.0`と`main`の差、Failure
 
 ## Mermaid Diagrams
 
-Mermaid DiagramはStarlight公式Resourcesに掲載された`astro-mermaid`と`mermaid`をExact PinしたLocal Dependencyで描画する。外部CDNへ接続せず、Static HTMLの`pre.mermaid`描画Targetを、同梱したClient RuntimeがBrowser内でSVGへ変換する。各`mermaid` Fenceは`accTitle`と`accDescr`を持ち、直後の本文またはTableに「図のテキスト代替」として同じ関係を記載する。
+Mermaid DiagramはStarlight公式Resourcesに掲載された`astro-mermaid`と`mermaid`をExact PinしたLocal Dependencyで描画する。外部CDNへ接続せず、Static HTMLの`pre.mermaid`描画Targetを、同梱したClient RuntimeがBrowser内でSVGへ変換する。各`mermaid` Fenceは`accTitle`と`accDescr`を持ち、直後の自然な本文またはTableにも同じ関係を記載する。
 
 `diagrams:check`は`check`と`build`の前に固定したMermaid Parserで4つのSourceをParseし、構文ErrorとAccessible Metadata欠落をFail-fastする。`check-artifact`と`site:check`は4つの描画Target、Local Renderer Chunk、Text Alternative、外部Diagram CDN不在を検証する。Static ArtifactにSourceとTargetだけがあり、Rendererが同梱されない状態は許可しない。
 

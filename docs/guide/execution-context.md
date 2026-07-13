@@ -43,8 +43,6 @@ flowchart TB
     Child -->|子の実行| ChildAttempt
 ```
 
-### 図のテキスト代替
-
 | Identifier | 関係 |
 | --- | --- |
 | Operation ID | Operationごとに一つ発行し、Retryしても変わりません。 |

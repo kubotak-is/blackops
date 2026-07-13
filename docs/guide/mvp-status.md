@@ -14,9 +14,12 @@ MVP CompleteとProduction Readyは同じ意味ではありません。Applicatio
 | Inline HTTP／Deferred HTTP／Worker Retry | Available | Available |
 | Lifecycle Journal／Sensitive Projection | Available | Available |
 | Typed Outcome Retrieval／Retention | Available | Available |
-| Composer Skeleton／Project `bin/blackops` | Available | Available |
+| Composer Skeleton | Available | Available |
+| Project CLI Entrypoint | `bin` Directory内 | Project Root `blackops`; unreleased |
 | `make:operation`／`make:migration` | Not included | Implemented; unreleased |
 | Application Migration Runtime | Not included | Implemented; unreleased |
+| 7 Value Validation Attribute／422 Lifecycle | Not included | Implemented; unreleased |
+| FrankenPHP Worker Mode | Not included | Opt-in Profile implemented; unreleased |
 
 Stable Applicationを作る場合はVersionを明示します。
 
@@ -33,6 +36,7 @@ composer create-project blackops/skeleton my-app 1.0.0
 - Operation IDで取得するTyped Outcome
 - Canonical JournalとSensitive Observed Projection
 - Versioned Operation／HTTP ManifestとCompiled Symfony DI Container
+- BlackOps所有の7 Value Validation AttributeとSymfony Validator Backend
 - Doctrine PostgreSQL Migration
 - Payload、Journal、Outcome、Dead LetterのRetention、Hold、Purge Audit、Scheduler
 
@@ -44,6 +48,7 @@ composer create-project blackops/skeleton my-app 1.0.0
 - Canonical Journal／Transport PayloadのEncryption Adapterは提供しない
 - Remote OpenTelemetry、CloudWatch、SQS、Kafka、SQLite、MySQL Adapterは提供しない
 - Observer Replay CLI、Admin UI、Scheduled Operation Strategyは提供しない
+- Array／Nested ObjectのHTTP Binding、宣言的DB照合、Cross-field Attribute、Custom Callbackは提供しない。`Count` Validatorは実装済みだが現行HTTP BinderからArrayを渡せない
 - Production CertificationやPublic API Contractを超える互換性保証は提供しない
 
 これらの不在はApplication側のSecurity／Operations設計が不要であることを意味しません。Stableと`main`の差を確認し、Deployment前に必要なAdapterと運用責務を明示してください。

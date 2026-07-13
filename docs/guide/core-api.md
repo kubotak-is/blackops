@@ -1,6 +1,6 @@
 # Core API Types Reference
 
-このReferenceは現在の`main` Sourceで`#[PublicApi]`を持つ111型を一覧化しています。Application Authorはまず「Application構成」「Operation Authoring」「Outcome取得」の型を使い、Transport、Journal、Retention等のPortはAdapterを拡張するときだけ使ってください。
+このReferenceは現在の`main` Sourceで`#[PublicApi]`を持つ119型を一覧化しています。Application Authorはまず「Application構成」「Operation Authoring」「Validation」「Outcome取得」の型を使い、Transport、Journal、Retention等のPortはAdapterを拡張するときだけ使ってください。
 
 `BlackOps\Core\Attribute\PublicApi` marker自身は利用者向けAPIではないため一覧へ含めません。内部実装Namespaceと`#[PublicApi]`を持たない実装型にも依存しないでください。Attributeの付与対象と標準形は[Attributes Reference](attributes.md)を確認してください。
 
@@ -10,7 +10,7 @@
 | --- | --- | --- | --- |
 | `BlackOps\Application\Application` | final readonly class | HTTP／Console Processの共通Application | `Application::configure()`からBootstrapする |
 | `BlackOps\Application\ApplicationBuilder` | final class | Environment、Config、Providerを組み立てる | `withEnvironment()`、`withConfiguration()`、`create()`を呼ぶ |
-| `BlackOps\Application\ConsoleKernel` | final readonly class | Project CLIを実行する | `bin/blackops`から`run()`を呼ぶ |
+| `BlackOps\Application\ConsoleKernel` | final readonly class | Project CLIを実行する | Project Rootの`blackops`から`run()`を呼ぶ |
 | `BlackOps\Application\ApplicationBootstrapException` | exception class | Public Bootstrapの失敗を通知する | Entrypointで安全な起動Errorとして扱う |
 
 ## Operation Authoringと実行Context
@@ -49,6 +49,19 @@
 | `BlackOps\Http\Attribute\FromHeader` | attribute class | HeaderをValueへBindする | Header Inputへ付ける |
 | `BlackOps\Http\Attribute\FromPath` | attribute class | Path ParameterをValueへBindする | Path Inputへ付ける |
 | `BlackOps\Http\Attribute\FromQuery` | attribute class | Query ParameterをValueへBindする | Query Inputへ付ける |
+
+## Value Validation
+
+| Namespace／Type | Kind | Purpose | Typical Use |
+| --- | --- | --- | --- |
+| `BlackOps\Core\Validation\Attribute\NotBlank` | attribute class | 空文字や空相当を拒否する | 必須のValue Propertyへ付ける |
+| `BlackOps\Core\Validation\Attribute\Length` | attribute class | Stringの文字数を検証する | `min`／`max`を指定する |
+| `BlackOps\Core\Validation\Attribute\Range` | attribute class | 数値そのものを検証する | `int`／`float` Propertyへ付ける |
+| `BlackOps\Core\Validation\Attribute\Email` | attribute class | Email形式を検証する | Email Propertyへ付ける |
+| `BlackOps\Core\Validation\Attribute\Regex` | attribute class | PCRE Patternとの一致を検証する | String Propertyへ付ける |
+| `BlackOps\Core\Validation\Attribute\Count` | attribute class | Collectionの要素数を検証する | Array等のPropertyへ付ける |
+| `BlackOps\Core\Validation\Attribute\Choice` | attribute class | Scalarの許可Listを検証する | 列挙候補を持つPropertyへ付ける |
+| `BlackOps\Core\Validation\Violation` | final readonly value object | Field、Rule、安定Codeを保持する | Rejected Response／Journalで読む |
 
 ## Identifier
 

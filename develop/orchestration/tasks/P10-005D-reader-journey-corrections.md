@@ -1,6 +1,6 @@
 # P10-005D: Reader Journey Corrections
 
-Status: Blocked by P10-005C, P10-005E2, and P10-005F
+Status: Accepted
 
 ## Goal
 

@@ -62,6 +62,22 @@ test('reader orientation explains the headless unified model and its journal bou
   }
 });
 
+test('landing presents four keyboard links and a primary Quickstart action', async () => {
+  const landing = await guide('README.md');
+  const contentMapSource = await readFile(path.join(repositoryRoot, 'docs/website/content-map.mjs'), 'utf8');
+  const links = [...landing.matchAll(/<a class="landing-feature-link" href="([^"]+)">/g)];
+
+  assert.equal(links.length, 4);
+  for (const value of [
+    '一つのOperation、二つの実行経路',
+    '型付きOperationを生成',
+    'No operation stays in the dark',
+    'Durable Deferred Execution',
+  ]) assert.match(landing, new RegExp(value));
+  assert.match(contentMapSource, /actions: \[\s*\{ text: 'Quickstart', link: '\/getting-started\/quickstart\/'/s);
+  assert.match(contentMapSource, /\{ text: 'Why BlackOps'.*variant: 'secondary'/);
+});
+
 test('four Mermaid diagrams include accessible source descriptions and prose alternatives', async () => {
   const sources = await Promise.all(
     ['core-concepts.md', 'execution.md', 'operation-lifecycle.md', 'execution-context.md'].map(guide),
@@ -73,9 +89,11 @@ test('four Mermaid diagrams include accessible source descriptions and prose alt
     assert.match(diagram, /^\s*accTitle:\s*\S.+$/m);
     assert.match(diagram, /^\s*accDescr:\s*\S.+$/m);
   }
-  for (const source of sources) {
-    assert.match(source, /図のテキスト代替/);
-  }
+  for (const source of sources) assert.doesNotMatch(source, /図のテキスト代替/);
+  assert.match(sources[0], /Operationは`OperationValue`を第一引数/);
+  assert.match(sources[1], /InlineはHTTP Request内/);
+  assert.match(sources[2], /\| Inline成功 \| Received → Running → Finalizing → Completed \|/);
+  assert.match(sources[3], /\| Identifier \| 関係 \|/);
 });
 
 test('glossary defines every required BlackOps term', async () => {
@@ -107,7 +125,9 @@ test('guided tutorial pairs runnable inputs with parseable JSON and masked JSONL
   const jsonBlocks = [...tutorial.matchAll(/```json\n([\s\S]*?)\n```/g)].map((match) => match[1]);
   const jsonlBlocks = [...tutorial.matchAll(/```jsonl\n([\s\S]*?)\n```/g)].map((match) => match[1]);
 
-  assert.match(tutorial, /Operation Sourceを書く/);
+  assert.match(tutorial, /^# チュートリアル: Operationを作る$/m);
+  assert.match(tutorial, /php blackops make:operation Billing\/CreateInvoice --type=billing\.invoice\.create/);
+  assert.ok(tutorial.indexOf('make:operation') < tutorial.indexOf('```php'));
   assert.match(tutorial, /HTTP 202/);
   assert.match(tutorial, /Outcome用HTTP endpointやCLI Commandを提供しません/);
   assert.match(tutorial, /OutcomeReader/);
@@ -165,13 +185,13 @@ test('core API reference covers every source type marked PublicApi without expos
   const reference = await guide('core-api.md');
   const sourceTypes = await publicApiTypes();
 
-  assert.equal(sourceTypes.length, 111);
+  assert.equal(sourceTypes.length, 119);
   for (const type of sourceTypes) assert.match(reference, new RegExp(type.replaceAll('\\', '\\\\')));
   assert.doesNotMatch(reference, /`BlackOps\\Core\\Attribute\\PublicApi` \|/);
   assert.doesNotMatch(reference, /BlackOps\\Internal\\[A-Za-z]/);
 });
 
-test('attributes reference covers the eleven public authoring attributes and excludes the marker', async () => {
+test('attributes reference covers the eighteen public authoring attributes and excludes the marker', async () => {
   const attributes = await guide('attributes.md');
   const expected = [
     'BlackOps\\Core\\Attribute\\Accepts',
@@ -180,6 +200,13 @@ test('attributes reference covers the eleven public authoring attributes and exc
     'BlackOps\\Core\\Attribute\\OperationType',
     'BlackOps\\Core\\Attribute\\Returns',
     'BlackOps\\Core\\Attribute\\Sensitive',
+    'BlackOps\\Core\\Validation\\Attribute\\Choice',
+    'BlackOps\\Core\\Validation\\Attribute\\Count',
+    'BlackOps\\Core\\Validation\\Attribute\\Email',
+    'BlackOps\\Core\\Validation\\Attribute\\Length',
+    'BlackOps\\Core\\Validation\\Attribute\\NotBlank',
+    'BlackOps\\Core\\Validation\\Attribute\\Range',
+    'BlackOps\\Core\\Validation\\Attribute\\Regex',
     'BlackOps\\Http\\Attribute\\FromBody',
     'BlackOps\\Http\\Attribute\\FromHeader',
     'BlackOps\\Http\\Attribute\\FromPath',
@@ -190,9 +217,40 @@ test('attributes reference covers the eleven public authoring attributes and exc
   for (const attribute of expected) assert.match(attributes, new RegExp(attribute.replaceAll('\\', '\\\\')));
   const sourceTypes = (await publicApiTypes()).filter((type) => expected.includes(type));
   assert.deepEqual(sourceTypes, [...expected].sort());
-  assert.match(attributes, /Public Attribute 11件/);
+  assert.match(attributes, /Public Attribute 18件/);
   assert.match(attributes, /SensitiveMode.*Attributeではなく/s);
   assert.doesNotMatch(attributes, /`BlackOps\\Core\\Attribute\\PublicApi` \|/);
+});
+
+test('validation guide matches declarative and rejection lifecycle boundaries', async () => {
+  const validation = await guide('validation.md');
+
+  for (const attribute of ['NotBlank', 'Length', 'Range', 'Email', 'Regex', 'Count', 'Choice']) {
+    assert.match(validation, new RegExp(`Validation\\\\Attribute\\\\${attribute}|\\b${attribute}\\b`));
+  }
+  assert.match(validation, /Symfony Validator/);
+  assert.match(validation, /壊れたJSON.*400/s);
+  assert.match(validation, /必須Field欠落.*422/s);
+  assert.match(validation, /宣言的Value Validation.*422/s);
+  assert.match(validation, /OperationRejectedException::validation/);
+  assert.match(validation, /InlineとDeferredのどちらもHTTP受付中に422/);
+  assert.match(validation, /Deferredでは一般Validationを通過した時点でHTTP 202/);
+  assert.match(validation, /Array／Nested ObjectのHTTP Binding、宣言的DB照合、Cross-field Attribute、Custom Callback/);
+  assert.match(validation, /Count.*現行HTTP Binder.*binding\.type/s);
+});
+
+test('runtime guide keeps Worker Mode opt-in with request safety and Classic fallback', async () => {
+  const runtime = await guide('runtime-bootstrap.md');
+
+  assert.match(runtime, /worker-mode/);
+  assert.match(runtime, /Opt-in/);
+  assert.match(runtime, /Application、Environment、Configuration、Compile済みRuntime/);
+  assert.match(runtime, /Database Connection/);
+  assert.match(runtime, /Operation Scope/);
+  assert.match(runtime, /JSONL Journal.*flush/);
+  assert.match(runtime, /\$_ENV/);
+  assert.match(runtime, /FRANKENPHP_MAX_REQUESTS/);
+  assert.match(runtime, /Classic Modeへ戻す/);
 });
 
 test('every public guide uses Japanese prose and avoids specification-style sentence endings', async () => {
@@ -240,4 +298,8 @@ test('diagram renderer and syntax parser are exact local dependencies', async ()
   assert.match(responsiveCss, /max-inline-size: none !important/);
   assert.match(responsiveCss, /@media \(max-width: 50rem\)/);
   assert.match(responsiveCss, /min-inline-size: 60rem/);
+  assert.match(responsiveCss, /aria-roledescription='sequence'/);
+  assert.match(responsiveCss, /min-inline-size: 72rem/);
+  assert.match(responsiveCss, /\.landing-feature-grid/);
+  assert.match(responsiveCss, /\.landing-feature-link:focus-visible/);
 });

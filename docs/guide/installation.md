@@ -29,6 +29,8 @@ cd my-app
 
 ## main Documentとの違い
 
-Stable `1.0.0`にはFramework／SkeletonのInline、Deferred、Worker、Outcome、Retentionが含まれます。`main` Documentには、まだStable Releaseへ含まれていない`make:operation`、`make:migration`、Application Migration Runtimeの説明も含まれます。Stableで利用可能かは[Current Status](mvp-status.md)で確認してください。
+Stable `1.0.0`にはFramework／SkeletonのInline、Deferred、CLI Worker、Outcome、Retentionが含まれます。StableのCLI Entrypointは`bin` Directory内です。`main` DocumentはProject Rootの`blackops`へ統一し、まだReleaseしていないGenerator、Application Migration Runtime、7 Validation Attribute、FrankenPHP Worker Modeも説明します。Stableで利用可能かは[Current Status](mvp-status.md)で確認してください。
+
+このWebsiteの[Quickstart](mvp-sample.md)はProject Root Entrypointを含む`main` Channelを明示Installします。Stable `1.0.0`を固定した手順と混ぜないでください。
 
 次は[Directory Structure](directory-structure.md)でInstall直後の配置を確認します。

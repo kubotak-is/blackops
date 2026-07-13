@@ -1,6 +1,18 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { validateNavigation } from '../site-navigation.mjs';
+import { sidebar, validateNavigation } from '../site-navigation.mjs';
+
+test('puts the primary Quickstart first in the Getting Started journey', () => {
+  const gettingStarted = sidebar.find(({ label }) => label === 'Getting Started');
+
+  assert.deepEqual(gettingStarted?.items, [
+    'getting-started/quickstart',
+    'getting-started/installation',
+    'getting-started/first-operation',
+    'getting-started/directory-structure',
+    'getting-started/local-runtime',
+  ]);
+});
 
 test('accepts one placement for every mapped public page in six sections', () => {
   const contentMap = {
