@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-14T00:34:59+09:00
+Updated At: 2026-07-14T00:40:03+09:00
 
 ## Current Phase
 
@@ -16,9 +16,9 @@ Specifications: `develop/spec/02-lifecycle-and-journal.md`、`develop/spec/04-ha
 
 ## Task Status
 
-P10-005E2 In Progress
+P10-005E2 Blocked by D089
 
-D087はAで確定した。Binding FailureはOperation ID付きSequence 1の`operation.rejected`を直接記録し、`operation.received`はBinding済みの再現可能なEnvelopeへ限定する。SpecとTask PacketへContractとInternal Journal変更範囲を追加し、P10-005E2を再開する。
+User指示によりValidation Rule評価はD088でSymfony Validator Backendを採用した。BlackOps Attribute／Violation Contractは維持し、Symfony型をPublic APIへ露出しない。Value Validation FailureのCanonical ReceivedにSensitive Valueを保持する既存Contractを維持するかはD089の回答待ちとし、Production Code実装を停止した。
 
 ## Last Accepted Task
 
@@ -30,19 +30,22 @@ P10-005E1-operation-value-validation-core
 2. D086はA／A／Aで確定。BlackOps所有の7 RuleとProtocol 400／Operation ID付き422境界を実装する。`Range`は数値、`Length`は文字数、`Count`は要素数を扱う。
 3. Phase 10対象TaskのWorker例外承認は回答`Y`で解決済み。他Phaseへは適用しない。
 4. D087はAで確定。Binding FailureはReceivedなしのSequence 1 Rejectedとする。
-5. Cloudflare External Configuration待ちは継続するが、Repository内Reader Experience改善は独立して進行できる。
+5. D088はSymfony Validator Backend採用で確定。
+6. D089 Validation Rejection Sensitive Journalは回答待ち。
+7. Cloudflare External Configuration待ちは継続するが、Repository内Reader Experience改善は独立して進行できる。
 
 ## Known Blockers
 
-P10-005E2に既知のBlockerはない。P10-005F／P10-005Dは前Task完了待ち。Cloudflare Project／Token／GitHub Environment SecretsとProtection Ruleの未設定はRemote DeployだけのExternal Blockerである。
+P10-005E2はD089の回答待ち。P10-005F／P10-005Dは前Task完了待ち。Cloudflare Project／Token／GitHub Environment SecretsとProtection Ruleの未設定はRemote DeployだけのExternal Blockerである。
 
 ## Required Next Action
 
-1. 現在利用可能なWorkerがD087確定ContractでP10-005E2を実装する。
-2. OrchestratorがReview／Commitする。
-3. P10-005Fを実装する。
-4. P10-005Dで全Reader Journeyを最終実装へ同期する。
-5. Repository内修正後、Cloudflare External ConfigurationとP10-006 Closeoutへ進む。
+1. UserがD089へ回答する。
+2. D089確定後、現在利用可能なWorkerがD087／D088／D089 ContractでP10-005E2を実装する。
+3. OrchestratorがReview／Commitする。
+4. P10-005Fを実装する。
+5. P10-005Dで全Reader Journeyを最終実装へ同期する。
+6. Repository内修正後、Cloudflare External ConfigurationとP10-006 Closeoutへ進む。
 
 ## P10-005E1 OperationValue Validation Core Worker Verification Commands and Results
 
