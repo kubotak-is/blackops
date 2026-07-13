@@ -66,10 +66,10 @@ docs/website/
 ```
 
 - `docs/guide/`: Framework利用者向けMarkdownのSource of Truth
-- `docs/internal/`: Framework実装者向けMarkdownのSource of Truth
+- `docs/internal/`: Repository内で読むFramework実装者向けMarkdownのSource of Truth
 - `docs/website/`: Astro StarlightのWebsite、Build設定、Website固有Asset
 
-Website Contentを別に複製せず、`docs/guide/` と `docs/internal/` のMarkdownから決定的に静的Buildする。WebsiteはCloudflare PagesへDeployし、PreviewとProductionのPublication Boundaryを持つ。
+Website Contentを別に複製せず、公開対象である`docs/guide/`のMarkdownから決定的に静的Buildする。`docs/internal/`はWebsite、Navigation、Search Indexへ含めない。WebsiteはCloudflare PagesへDeployし、PreviewとProductionのPublication Boundaryを持つ。
 
 `docs/internals/` から `docs/internal/` への移行は、Repository内リンク、AGENTS、CI、関連Task Packetを同じ変更単位で更新する。
 
@@ -100,8 +100,10 @@ Website Contentを別に複製せず、`docs/guide/` と `docs/internal/` のMar
 - Astro Starlight Website
 - `docs/internal/` への移行
 - Markdown Single Source Build
+- WebsiteはFramework利用者向けに限定し、Internal／Contributor Documentationを公開しない
 - Cloudflare Pages Preview／Production Deploy
 
 ## Traceability
 
 - Decision: [D063 Developer Experience Roadmap](../decisions/063-developer-experience-roadmap.md)
+- Website Audience: [D081 Documentation Website Delivery Contract](../decisions/081-documentation-website-delivery-contract.md)

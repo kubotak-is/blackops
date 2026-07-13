@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-13T17:12:20+09:00
+Updated At: 2026-07-13T17:34:12+09:00
 
 ## Current Phase
 
@@ -16,9 +16,9 @@ Specification: `develop/spec/41-developer-experience-roadmap.md`
 
 ## Task Status
 
-P10-001 In Progress
+P10-001 Completed
 
-D063と現行Documentationを確認し、Astro StarlightのMarkdown適合、URL／Language、JavaScript Toolchain、Version表示、Cloudflare Pages連携、初回Content Scopeの未決事項をD081へ記録した。User回答待ち。
+D081をDecidedとし、公開WebsiteをFramework利用者向けに限定した。`docs/guide/`だけを公開Sourceとし、`docs/internal/`はRepository内専用とする。mise／Node.js 24 LTS／pnpm 11、目的別URL、Main／Stable表示、Cloudflare Pages Direct UploadをSpec 57／58とP10-002からP10-006へ確定した。
 
 ## Last Accepted Task
 
@@ -26,17 +26,17 @@ P9-005-continuous-integration-and-readme
 
 ## Pending Decisions
 
-D081 Documentation Website Delivery ContractのQuestion 1から6。
+なし。
 
 ## Known Blockers
 
-設計対話にBlockerはない。Production Task開始時はD077に従いGPT-5.6 Luna High workerのModel／Profile指定が必要であり、現在の起動Interfaceで指定できない場合はUser判断のため停止する。
+P10-002のDocumentation RenameにBlockerはない。P10-003以降のProduction Website実装はD077に従いGPT-5.6 Luna High workerが必要だが、現在の起動InterfaceではModel／Profileを明示できない。Phase 9の代替Worker承認はPhase 9 Closeoutまでに限定されており、Phase 10へ自動継続しない。
 
 ## Required Next Action
 
-1. UserがD081のQuestion 1から6へ回答する。
-2. 回答をDecision／Specification／Phase 10 Delivery Planへ確定し、Production Task Packetへ分割する。
-3. Production Worker Model／Profileを確認してからPhase 10実装を開始する。
+1. P10-001をReview／Commitする。
+2. P10-002で`docs/internals/`を`docs/internal/`へ移行し、Repository参照を同期する。
+3. P10-003開始前にGPT-5.6 Luna Highの選択環境またはPhase 10に限る代替Worker承認を得る。
 
 ## P9-004 Framework Update Generator Smoke Worker Verification Commands and Results
 

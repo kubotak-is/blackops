@@ -1,10 +1,10 @@
 # P10-001: Documentation Website Contract
 
-Status: In Progress
+Status: Completed
 
 ## Goal
 
-`docs/guide/`と`docs/internal/`をSingle SourceとするAstro Starlight Websiteを実装可能な単位へ分割するため、Content適合、Information Architecture、Toolchain、Version表示、Cloudflare Pages公開境界を確定する。
+`docs/guide/`だけを公開Sourceとし、`docs/internal/`をRepository内専用とするAstro Starlight Websiteを実装可能な単位へ分割するため、Content適合、Information Architecture、Toolchain、Version表示、Cloudflare Pages公開境界を確定する。
 
 ## In Scope
 
@@ -38,10 +38,11 @@ Status: In Progress
 - `develop/orchestration/reports/P10-001-documentation-website-contract.md`
 - `develop/spec/57-documentation-website-delivery-contract.md`
 - `develop/spec/58-phase-10-delivery-plan.md`
+- `develop/spec/41-developer-experience-roadmap.md`
 - `develop/spec/README.md`
 - `develop/orchestration/tasks/P10-002-documentation-directory-migration.md`
-- `develop/orchestration/tasks/P10-003-starlight-single-source-build.md`
-- `develop/orchestration/tasks/P10-004-documentation-information-architecture.md`
+- `develop/orchestration/tasks/P10-003-starlight-single-source-foundation.md`
+- `develop/orchestration/tasks/P10-004-user-documentation-information-architecture.md`
 - `develop/orchestration/tasks/P10-005-cloudflare-pages-delivery.md`
 - `develop/orchestration/tasks/P10-006-phase-10-closeout.md`
 - `develop/TODO.md`
@@ -53,7 +54,7 @@ Status: In Progress
 
 - Production CodeとWebsite Codeを変更しない
 - 未回答事項を推測でDecidedにしない
-- D063で決定済みのAstro Starlight、Documentation Directory、Markdown Source of Truth、Cloudflare Pages静的公開を再決定しない
+- D063で決定済みのAstro Starlight、Documentation Directory、Cloudflare Pages静的公開を維持する。Website公開対象はUser回答によりD081で置き換える
 - Repositoryで直接読めるMarkdown導線を失わない
 - Website用に編集対象Contentを複製しない
 - Credential、Token、Account ID、Custom Domainを推測またはRepositoryへ保存しない
@@ -64,9 +65,9 @@ Status: In Progress
 - [x] 現在のDocumentation Directory、Markdown Title、内部Linkの形を確認している
 - [x] Starlight ContentとCloudflare Pagesの現行公式Contractを確認している
 - [x] 実装を分岐させるUser判断がD081へOption／Recommendation付きで記録されている
-- [ ] User回答をD081へ反映し、StatusをDecidedにする
-- [ ] Phase 10の確定SpecificationとProduction Task Packetを作成する
-- [ ] Production Code実装前にWorker Model／Profileを確認する
+- [x] User回答をD081へ反映し、StatusをDecidedにする
+- [x] Phase 10の確定SpecificationとProduction Task Packetを作成する
+- [x] Production Code実装前にWorker Model／Profileの指定可否を確認する
 
 ## Required Commands
 

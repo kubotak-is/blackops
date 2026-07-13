@@ -57,7 +57,8 @@ MVP後に残す主要項目:
 
 - [~] `docs/website/` にAstro Starlightを構築する
 - [ ] `docs/internals/` を `docs/internal/` へ移行し、Repository内参照を同期する
-- [ ] `docs/guide/` と `docs/internal/` をSource of Truthとする静的Buildを整備する
+- [ ] `docs/guide/` だけを公開Source of Truthとする静的Buildを整備する
+- [ ] `docs/internal/` をWebsite Artifact、Navigation、Search Indexへ含めない
 - [ ] Cloudflare PagesのPreview／Production Deployを整備する
 
 ## 現在の優先事項

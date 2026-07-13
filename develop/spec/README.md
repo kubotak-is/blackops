@@ -71,6 +71,8 @@
 | [54-native-outcome-and-rejection-exception.md](54-native-outcome-and-rejection-exception.md) | Native Outcome／Void Returnと業務拒否Exception |
 | [55-project-generators-and-application-migrations.md](55-project-generators-and-application-migrations.md) | Operation／Migration GeneratorとApplication Migration実行境界 |
 | [56-phase-9-delivery-plan.md](56-phase-9-delivery-plan.md) | Generator実装からFramework Update SmokeまでのPhase 9 Task順序 |
+| [57-documentation-website-delivery-contract.md](57-documentation-website-delivery-contract.md) | 利用者向けSingle Source WebsiteとCloudflare Pages公開境界 |
+| [58-phase-10-delivery-plan.md](58-phase-10-delivery-plan.md) | Documentation RenameからCloudflare Pages CloseoutまでのTask順序 |
 
 ## 決定の参照
 
@@ -156,4 +158,4 @@
 | [D078](../decisions/078-initial-stable-release-version.md) | Initial Stable Release Version | Decided |
 | [D079](../decisions/079-immutable-release-publication-recovery.md) | Immutable Release Publication Recovery | Decided |
 | [D080](../decisions/080-project-generator-command-contract.md) | Project Generator Command Contract | Decided |
-| [D081](../decisions/081-documentation-website-delivery-contract.md) | Documentation Website Delivery Contract | In Discussion |
+| [D081](../decisions/081-documentation-website-delivery-contract.md) | Documentation Website Delivery Contract | Decided |
