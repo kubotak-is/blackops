@@ -75,6 +75,8 @@ Framework MigrationとApplication Migrationは次を共有する。
 - Transactional／All-or-nothing設定
 - 明示的なStatus／Dry-run／Migrate Command
 
+MigrationはFramework Namespaceを先に実行し、その後にApplication Namespaceを実行する。各Namespace内ではVersion Class名の昇順とする。これによりApplication MigrationはFramework Schemaの現在Versionを前提にできる。
+
 Framework Migration FactoryはFramework NamespaceにSchema名を注入する。Application MigrationはDoctrine標準Constructorで生成し、Framework専用Schema名を注入しない。未知NamespaceのMigration Classは拒否する。
 
 Doctrine Directory FinderがVersion Fileを直接Loadするため、Application Migration用Composer PSR-4 Mappingは要求しない。Migration FileのParse Error、Namespace不一致、Class不正はDatabase Command実行時にFail-fastする。
@@ -103,6 +105,7 @@ Framework Updateは生成済みOperation／Migrationを変更しない。新Stub
 - `make:migration`のDatabase／Build Side Effect不在
 - Application MigrationなしのFramework-only Status／Migrate互換
 - FrameworkとApplication MigrationのStatus／Dry-run／Migrate統合
+- Framework先行、各Namespace内Version順の実行
 - `list`／`help`のDB／Migration Scan不在
 - Framework Update前後でProject Entrypointと生成済みFileが不変
 - Framework Update後の新Command／新Stub利用

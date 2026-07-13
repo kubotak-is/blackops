@@ -42,3 +42,27 @@ php bin/blackops blackops:build:compile
 ```
 
 Generator Stubは`blackops/framework` Packageが所有する。Framework Update後に新しく生成するFileには更新済みStubが使われるが、Applicationが所有する生成済みFileは変更されない。
+
+## Creating a Migration
+
+Application固有のDatabase変更はPascalCaseのDescriptionから生成する。
+
+```bash
+php bin/blackops make:migration CreateOrdersTable
+```
+
+UTCの現在時刻から次のFileが作られる。
+
+```text
+migrations/VersionYYYYMMDDHHMMSS.php
+```
+
+生成Classは`App\Migrations` NamespaceでDoctrine `AbstractMigration`を継承し、Descriptionと空の`up()`／`down()`を持つ。必要なSQLを追加してから、既存のDatabase CommandでFramework Migrationと一緒に確認・適用する。
+
+```bash
+php bin/blackops blackops:database:status
+php bin/blackops blackops:database:migrate --dry-run
+php bin/blackops blackops:database:migrate
+```
+
+`migrations/`は最初の生成時だけ作られる。同じ秒のVersion Fileがすでに存在する場合は上書きせず失敗する。CommandはFile生成だけを行い、Database接続、Migration適用、Composer更新、Artifact Buildを行わない。

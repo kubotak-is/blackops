@@ -18,6 +18,7 @@ final class DatabaseMigrationCommandTest extends TestCase
 
     private Connection $connection;
     private DatabaseMigrationRunner $runner;
+    private ?string $migrationDirectory = null;
 
     protected function setUp(): void
     {
@@ -31,6 +32,18 @@ final class DatabaseMigrationCommandTest extends TestCase
         ]);
         $this->connection->executeStatement('DROP SCHEMA IF EXISTS ' . self::SCHEMA . ' CASCADE');
         $this->runner = new DatabaseMigrationRunner($this->connection, self::SCHEMA);
+    }
+
+    protected function tearDown(): void
+    {
+        if ($this->migrationDirectory === null) {
+            return;
+        }
+
+        foreach (glob($this->migrationDirectory . '/*') ?: [] as $file) {
+            unlink($file);
+        }
+        rmdir($this->migrationDirectory);
     }
 
     public function testStatusShowsPendingThenAppliedBaseline(): void
@@ -73,5 +86,69 @@ final class DatabaseMigrationCommandTest extends TestCase
         self::assertSame(0, $tester->execute([], ['interactive' => false]));
         self::assertStringContainsString('migrations: 0', $tester->getDisplay());
         self::assertStringContainsString('No pending migrations.', $tester->getDisplay());
+    }
+
+    public function testStatusDryRunAndMigrateIncludeApplicationMigration(): void
+    {
+        $this->migrationDirectory =
+            sys_get_temp_dir() . '/blackops-database-command-migrations-' . bin2hex(random_bytes(8));
+        mkdir($this->migrationDirectory);
+        $version = 'Version20260713020101';
+        $source = <<<'PHP'
+            <?php
+
+            declare(strict_types=1);
+
+            namespace App\Migrations;
+
+            use Doctrine\DBAL\Schema\Schema;
+            use Doctrine\Migrations\AbstractMigration;
+
+            final class Version20260713020101 extends AbstractMigration
+            {
+                public function up(Schema $schema): void
+                {
+                    $this->addSql('CREATE TABLE "blackops_database_migration_command"."application_command_records" (id integer PRIMARY KEY)');
+                }
+
+                public function down(Schema $schema): void
+                {
+                }
+            }
+            PHP;
+        file_put_contents($this->migrationDirectory . '/' . $version . '.php', $source);
+        $runner = new DatabaseMigrationRunner(
+            $this->connection,
+            self::SCHEMA,
+            applicationMigrationDirectory: $this->migrationDirectory,
+        );
+
+        $status = new CommandTester(new DatabaseMigrationStatusCommand($runner));
+        self::assertSame(0, $status->execute([]));
+        self::assertStringContainsString('pending: 3', $status->getDisplay());
+        self::assertStringContainsString('App\\Migrations\\' . $version, $status->getDisplay());
+
+        $dryRunRunner = new DatabaseMigrationRunner(
+            $this->connection,
+            self::SCHEMA,
+            applicationMigrationDirectory: $this->migrationDirectory,
+        );
+        $dryRun = new CommandTester(new DatabaseMigrationMigrateCommand($dryRunRunner));
+        self::assertSame(0, $dryRun->execute(['--dry-run' => true], ['interactive' => false]));
+        self::assertStringContainsString('application_command_records', $dryRun->getDisplay());
+
+        $migrateRunner = new DatabaseMigrationRunner(
+            $this->connection,
+            self::SCHEMA,
+            applicationMigrationDirectory: $this->migrationDirectory,
+        );
+        $migrate = new CommandTester(new DatabaseMigrationMigrateCommand($migrateRunner));
+        self::assertSame(0, $migrate->execute([], ['interactive' => false]));
+        self::assertStringContainsString('migrations: 3', $migrate->getDisplay());
+
+        $applied = new CommandTester(new DatabaseMigrationStatusCommand($migrateRunner));
+        self::assertSame(0, $applied->execute([]));
+        self::assertStringContainsString('applied: 3', $applied->getDisplay());
+        self::assertStringContainsString('App\\Migrations\\' . $version, $applied->getDisplay());
     }
 }

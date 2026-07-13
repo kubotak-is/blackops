@@ -78,3 +78,21 @@ php bin/blackops blackops:build:compile
 ```
 
 Generatorは`app/Feature/Billing/CreateInvoice/`へ3 Fileを作成する。既存Fileは上書きせず、Route、Deferred設定、Build、Database操作は行わない。生成後のSourceはApplication所有であり、Framework Updateによって書き換えられない。
+
+## Creating a Migration
+
+Application固有のMigrationはFramework所有Generatorで作成する。
+
+```bash
+php bin/blackops make:migration CreateOrdersTable
+```
+
+最初の実行時に`migrations/`が作られ、UTC Versionの`App\Migrations` Classが生成される。`up()`／`down()`へApplicationのSQLを記述した後、Framework Migrationと同じ明示Commandで確認・適用する。
+
+```bash
+php bin/blackops blackops:database:status
+php bin/blackops blackops:database:migrate --dry-run
+php bin/blackops blackops:database:migrate
+```
+
+Generator自身はDatabase接続、Migration適用、Buildを行わない。Application Migrationがない場合、空の`migrations/`は不要である。

@@ -11,6 +11,8 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\Exception\IrreversibleMigration;
+use InvalidArgumentException;
+use ParseError;
 use PHPUnit\Framework\TestCase;
 
 final class DatabaseMigrationRunnerTest extends TestCase
@@ -20,11 +22,31 @@ final class DatabaseMigrationRunnerTest extends TestCase
 
     private Connection $connection;
 
+    /** @var list<string> */
+    private array $migrationDirectories = [];
+
     protected function setUp(): void
     {
         $this->connection = $this->connection();
         $this->connection->executeStatement('DROP SCHEMA IF EXISTS ' . self::SCHEMA . ' CASCADE');
         $this->connection->executeStatement('DROP SCHEMA IF EXISTS ' . self::LEGACY_SCHEMA . ' CASCADE');
+    }
+
+    protected function tearDown(): void
+    {
+        foreach ($this->migrationDirectories as $directory) {
+            if (is_link($directory) || is_file($directory)) {
+                unlink($directory);
+                continue;
+            }
+
+            foreach (glob($directory . '/*') ?: [] as $file) {
+                unlink($file);
+            }
+            if (is_dir($directory)) {
+                rmdir($directory);
+            }
+        }
     }
 
     public function testDependencyFactoryRecognizesSchemaConfiguredMigrations(): void
@@ -178,6 +200,175 @@ final class DatabaseMigrationRunnerTest extends TestCase
         );
     }
 
+    public function testApplicationMigrationRunsAfterFrameworkMigrationsAndSharesMetadata(): void
+    {
+        $directory = $this->migrationDirectory();
+        $version = 'Version20260713010101';
+        $secondVersion = 'Version20260713010102';
+        $this->writeApplicationMigration(
+            $directory,
+            $version,
+            'CREATE TABLE "' . self::SCHEMA . '"."application_records" (id integer PRIMARY KEY)',
+        );
+        $this->writeApplicationMigration(
+            $directory,
+            $secondVersion,
+            'ALTER TABLE "' . self::SCHEMA . '"."application_records" ADD COLUMN label text NULL',
+        );
+        $runner = new DatabaseMigrationRunner(
+            $this->connection,
+            self::SCHEMA,
+            applicationMigrationDirectory: $directory,
+        );
+
+        self::assertSame(
+            [
+                'BlackOps\\Migrations\\PostgreSql\\Version20260712000000',
+                'BlackOps\\Migrations\\PostgreSql\\Version20260712010000',
+                'App\\Migrations\\' . $version,
+                'App\\Migrations\\' . $secondVersion,
+            ],
+            $runner->status()->pendingVersions,
+        );
+
+        $dryRun = $runner->dryRun();
+        $sql = implode("\n", $dryRun->sql);
+        self::assertSame(4, $dryRun->migrations);
+        $frameworkPosition = strpos($sql, 'CREATE TABLE IF NOT EXISTS "' . self::SCHEMA . '"."operations"');
+        $applicationPosition = strpos($sql, 'CREATE TABLE "' . self::SCHEMA . '"."application_records"');
+        $secondApplicationPosition = strpos($sql, 'ALTER TABLE "' . self::SCHEMA . '"."application_records"');
+        self::assertIsInt($frameworkPosition);
+        self::assertIsInt($applicationPosition);
+        self::assertIsInt($secondApplicationPosition);
+        self::assertLessThan($applicationPosition, $frameworkPosition);
+        self::assertLessThan($secondApplicationPosition, $applicationPosition);
+        self::assertFalse($this->schemaExists(self::SCHEMA));
+
+        $runner = new DatabaseMigrationRunner(
+            $this->connection,
+            self::SCHEMA,
+            applicationMigrationDirectory: $directory,
+        );
+        $result = $runner->migrate();
+
+        self::assertSame(4, $result->migrations);
+        self::assertSame(1, (int) $this->connection->fetchOne('SELECT count(*)
+                FROM information_schema.tables
+                WHERE table_schema = :schema
+                  AND table_name = :table', [
+            'schema' => self::SCHEMA,
+            'table' => 'application_records',
+        ]));
+        self::assertSame(
+            4,
+            (int) $this->connection->fetchOne('SELECT count(*) FROM ' . self::SCHEMA . '.schema_migrations'),
+        );
+        self::assertSame([], $runner->status()->pendingVersions);
+    }
+
+    public function testRejectsApplicationMigrationParseErrorWhenDatabaseCommandLoadsMigrations(): void
+    {
+        $directory = $this->migrationDirectory();
+        file_put_contents($directory . '/Version20260713010201.php', '<?php this is not valid PHP');
+        $runner = new DatabaseMigrationRunner(
+            $this->connection,
+            self::SCHEMA,
+            applicationMigrationDirectory: $directory,
+        );
+
+        $this->expectException(ParseError::class);
+
+        $runner->status();
+    }
+
+    public function testRejectsApplicationMigrationNamespaceMismatch(): void
+    {
+        $directory = $this->migrationDirectory();
+        $this->writeMigrationSource($directory, 'Version20260713010301', 'Other\\Migrations', 'Version20260713010301');
+        $runner = new DatabaseMigrationRunner(
+            $this->connection,
+            self::SCHEMA,
+            applicationMigrationDirectory: $directory,
+        );
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('matching App\Migrations AbstractMigration class');
+
+        $runner->status();
+    }
+
+    public function testRejectsApplicationMigrationWhoseClassDoesNotMatchVersionFile(): void
+    {
+        $directory = $this->migrationDirectory();
+        $this->writeMigrationSource(
+            $directory,
+            'Version20260713010401',
+            'App\\Migrations',
+            'UnknownMigration20260713010401',
+        );
+        $runner = new DatabaseMigrationRunner(
+            $this->connection,
+            self::SCHEMA,
+            applicationMigrationDirectory: $directory,
+        );
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('matching App\Migrations AbstractMigration class');
+
+        $runner->status();
+    }
+
+    public function testRejectsApplicationMigrationClassThatDoesNotExtendAbstractMigration(): void
+    {
+        $directory = $this->migrationDirectory();
+        $version = 'Version20260713010402';
+        file_put_contents(
+            $directory . '/' . $version . '.php',
+            '<?php namespace App\\Migrations; final class ' . $version . ' {}',
+        );
+        $runner = new DatabaseMigrationRunner(
+            $this->connection,
+            self::SCHEMA,
+            applicationMigrationDirectory: $directory,
+        );
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('matching App\Migrations AbstractMigration class');
+
+        $runner->status();
+    }
+
+    public function testRejectsExistingApplicationMigrationPathThatIsNotDirectory(): void
+    {
+        $path = $this->migrationDirectory();
+        rmdir($path);
+        file_put_contents($path, 'not-a-directory');
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Application migration path must be a directory.');
+
+        new DatabaseMigrationRunner($this->connection, self::SCHEMA, applicationMigrationDirectory: $path);
+    }
+
+    public function testRejectsApplicationMigrationSymlinkWithoutLoadingOutsidePhp(): void
+    {
+        $link = $this->migrationDirectory();
+        rmdir($link);
+        $outside = $this->migrationDirectory();
+        $class = 'ApplicationMigrationOutsideProbe20260713010501';
+        file_put_contents($outside . '/Version20260713010501.php', '<?php final class ' . $class . ' {}');
+        symlink($outside, $link);
+
+        try {
+            new DatabaseMigrationRunner($this->connection, self::SCHEMA, applicationMigrationDirectory: $link);
+            self::fail('Expected application migration symlink rejection.');
+        } catch (InvalidArgumentException $exception) {
+            self::assertSame('Application migration directory must not be a symbolic link.', $exception->getMessage());
+        }
+
+        self::assertFalse(class_exists($class, autoload: false));
+    }
+
     public function testApplyAdoptsEmptySchemaCreatedByProgrammaticTestHelpers(): void
     {
         foreach (new PostgreSqlDeferredOperationSchema(self::SCHEMA)->statements() as $statement) {
@@ -303,6 +494,76 @@ final class DatabaseMigrationRunnerTest extends TestCase
         return (bool) $this->connection->fetchOne('SELECT EXISTS (SELECT 1 FROM information_schema.schemata WHERE schema_name = :schema)', [
             'schema' => $schema,
         ]);
+    }
+
+    private function migrationDirectory(): string
+    {
+        $directory = sys_get_temp_dir() . '/blackops-application-migrations-' . bin2hex(random_bytes(8));
+        mkdir($directory);
+        $this->migrationDirectories[] = $directory;
+
+        return $directory;
+    }
+
+    private function writeApplicationMigration(string $directory, string $version, string $sql): void
+    {
+        $source = <<<'PHP'
+            <?php
+
+            declare(strict_types=1);
+
+            namespace App\Migrations;
+
+            use Doctrine\DBAL\Schema\Schema;
+            use Doctrine\Migrations\AbstractMigration;
+
+            final class {{ class }} extends AbstractMigration
+            {
+                public function up(Schema $schema): void
+                {
+                    $this->addSql('{{ sql }}');
+                }
+
+                public function down(Schema $schema): void
+                {
+                }
+            }
+            PHP;
+
+        file_put_contents($directory . '/' . $version . '.php', strtr($source, [
+            '{{ class }}' => $version,
+            '{{ sql }}' => $sql,
+        ]));
+    }
+
+    private function writeMigrationSource(string $directory, string $version, string $namespace, string $class): void
+    {
+        $source = <<<'PHP'
+            <?php
+
+            declare(strict_types=1);
+
+            namespace {{ namespace }};
+
+            use Doctrine\DBAL\Schema\Schema;
+            use Doctrine\Migrations\AbstractMigration;
+
+            final class {{ class }} extends AbstractMigration
+            {
+                public function up(Schema $schema): void
+                {
+                }
+
+                public function down(Schema $schema): void
+                {
+                }
+            }
+            PHP;
+
+        file_put_contents($directory . '/' . $version . '.php', strtr($source, [
+            '{{ namespace }}' => $namespace,
+            '{{ class }}' => $class,
+        ]));
     }
 
     private function connection(): Connection

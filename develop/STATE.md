@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-13T15:55:44+09:00
+Updated At: 2026-07-13T16:23:33+09:00
 
 ## Current Phase
 
@@ -8,21 +8,21 @@ Phase 9: Project BlackOps CLI
 
 ## Current Task
 
-Task ID: P9-003-application-migration-generator
+Task ID: P9-004-framework-update-generator-smoke
 
-Task Packet: `develop/orchestration/tasks/P9-003-application-migration-generator.md`
+Task Packet: `develop/orchestration/tasks/P9-004-framework-update-generator-smoke.md`
 
-Specification: `develop/spec/55-project-generators-and-application-migrations.md`
+Specification: `develop/spec/56-phase-9-delivery-plan.md`
 
 ## Task Status
 
-P9-003 Worker Implementation In Progress
+P9-003 Accepted; P9-004 Ready
 
-P9-002 Accepted Commit `adc9f12`をPushした。Userの「進めて」を現在利用可能なWorkerでPhase 9を継続する承認として扱い、P9-003 Application Migration Generator／Runtimeを開始する。
+`make:migration`、optional Application Migration Runtime、Framework-first Comparator、standard Constructor Factory、strict Finder、安全境界、Guide／Internals／Quickstart Documentationを完成した。Orchestrator Reviewで実行順InvariantをSpecificationへ同期した。Focused `106 tests / 354 assertions`、Orchestrator Full `771 tests / 2544 assertions`、Deptrac `Allowed 1578 / Violations 0 / Errors 0`、Mago、Quickstart Consumer E2E、Guardが成功した。
 
 ## Last Accepted Task
 
-P9-002-operation-generator
+P9-003-application-migration-generator
 
 ## Pending Decisions
 
@@ -34,9 +34,9 @@ P9-002-operation-generator
 
 ## Required Next Action
 
-1. P9-003 Application Migration Generator／RuntimeをWorkerへ依頼する。
-2. Worker Report／Diff／TestをOrchestratorがReviewする。
-3. 必要な補強と再検証後にCommitし、P9-004へ進む。
+1. P9-003 Accepted ChangeをCommit／Pushする。
+2. P9-004開始Checkpointを記録する。
+3. Framework Update Generator SmokeとPhase 9 CloseoutをWorkerへ依頼する。
 
 ## P8-003 Skeleton Distribution Publication Worker Verification Commands and Results
 

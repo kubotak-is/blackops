@@ -38,3 +38,17 @@ Stubへ次を追加しない。
 - Route、Execution Strategy、`ExecutionContext`
 
 生成結果はApplicationのOperation Discoveryによって次回Build時に検出される。Generator自身はDiscoveryまたはBuildを実行しない。
+
+## Migration Generator Flow
+
+`make:migration`もLazy Descriptorとして名前、Description、必須Argumentだけを常時登録する。実行時に次の順序で一つのFileを生成する。
+
+1. `MigrationGeneratorInput`がPascalCaseのPHP Identifierを検証する
+2. PSR Clockの時刻をUTCへ変換し、`VersionYYYYMMDDHHMMSS`を決定する
+3. Framework Package内のMigration StubへVersionとDescriptionを展開する
+4. `ProjectFileWriter`が`migrations/<Version>.php`の衝突とPathを検査する
+5. Temporary Fileを完全にWriteし、非上書きでPublishする
+
+`migrations/`はWriterが必要時だけ作成する。入力、Stub読込、Write、Publishに失敗した場合、今回作成したFileと空DirectoryだけをRollbackする。同一秒の再実行は既存Versionを変更しない。
+
+生成Classは`App\Migrations`のDoctrine `AbstractMigration` subclassで、constructorを宣言しない。このためApplication Migration RuntimeはDBAL ConnectionとLoggerだけを渡すDoctrine標準Constructorで生成できる。GeneratorはDB Connection、Migration Runner、Build、Composer、Source Discoveryを構成しない。

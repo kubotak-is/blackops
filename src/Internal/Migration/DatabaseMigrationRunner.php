@@ -18,9 +18,18 @@ final readonly class DatabaseMigrationRunner
     private DependencyFactory $dependencyFactory;
     private DoctrineMigrationMetadataBootstrapper $metadataBootstrapper;
 
-    public function __construct(Connection $connection, string $schema = 'blackops', ?LoggerInterface $logger = null)
-    {
-        $this->dependencyFactory = DoctrineMigrationDependencyFactory::create($connection, $schema, $logger);
+    public function __construct(
+        Connection $connection,
+        string $schema = 'blackops',
+        ?LoggerInterface $logger = null,
+        ?string $applicationMigrationDirectory = null,
+    ) {
+        $this->dependencyFactory = DoctrineMigrationDependencyFactory::create(
+            $connection,
+            $schema,
+            $logger,
+            $applicationMigrationDirectory,
+        );
         $this->metadataBootstrapper = new DoctrineMigrationMetadataBootstrapper(
             $connection,
             new PostgreSqlMigrationSchema($schema),

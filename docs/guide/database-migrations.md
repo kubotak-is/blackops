@@ -31,6 +31,18 @@ php bin/blackops blackops:database:status --no-interaction
 
 Pendingがない状態で `migrate` を再実行しても成功し、`No pending migrations.` と表示する。
 
+## Application Migrations
+
+Project Rootに`migrations/`がある場合、Database CommandはFramework Migrationに加えて`App\Migrations`の`Version*.php`を読み込む。DirectoryがないApplicationはFramework Migrationだけを扱い、空Directoryを作る必要はない。
+
+Application MigrationはFramework Migrationと同じConnection、Framework Schema内の`schema_migrations` Metadata Table、transactional／all-or-nothing設定を共有する。Framework Migrationが常に先に実行され、その後にApplication MigrationがVersion Class順で実行される。
+
+Application MigrationはDoctrine標準Constructorを使う。Framework Schema名は自動注入されないため、Application TableのSchema選択とSQLはApplicationが明示する。
+
+`Version*.php`はDatabase Command実行時に直接読み込まれる。Parse Error、`App\Migrations`以外のNamespace、File名と異なるClass、`AbstractMigration`でないClassは失敗する。`migrations`がFileまたはsymlinkの場合も、Framework-only状態として無視せず拒否する。
+
+HTTP、Worker、Scheduler、Build、Consoleの`list`／`help`はMigration Directoryを読み込まず、MigrationやDDLを暗黙実行しない。
+
 ## Existing Test Schema
 
 既存Adapterの `migrate()` はIntegration Test用helperとして残している。Production DeploymentではCommandを使用する。

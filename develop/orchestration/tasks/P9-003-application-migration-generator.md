@@ -1,6 +1,6 @@
 # P9-003: Application Migration Generator and Runtime
 
-Status: In Progress
+Status: Accepted
 
 ## Goal
 

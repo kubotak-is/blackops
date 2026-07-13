@@ -7,16 +7,22 @@ Framework-owned PostgreSQL SchemaはDoctrine Migrations 3.9のVersioned Migratio
 `DoctrineMigrationDependencyFactory` は既存のDBAL `Connection` からDoctrine `DependencyFactory`を構成する。
 
 - `ExistingConfiguration` と `ExistingConnection` を使用する
-- Baseline directoryを明示登録する
+- Framework Migration directoryを明示登録し、存在する場合だけApplication Rootの`migrations/`を追加する
 - Transactional／All-or-nothingを有効にする
 - Metadata Tableをconfigurable Schema内の `schema_migrations` に設定する
-- custom `ConfigurablePostgreSqlMigrationFactory`からSchema名をMigration constructorへ注入する
+- custom `ConfigurablePostgreSqlMigrationFactory`からFramework MigrationだけへSchema名を注入する
+- Framework優先ComparatorによりFramework Migrationを先に、各Namespace内をVersion Class順に実行する
+- Application MigrationとFramework Migrationで同じConnectionとMetadata Tableを共有する
 
-Migration FactoryはFrameworkのPostgreSQL Migration Namespaceに属する `AbstractMigration` subclassだけを受け入れる。新しいVersionにも同じconfigurable Schema名を注入し、Namespace外のClassは拒否する。
+Migration FactoryはFrameworkのPostgreSQL Migration Namespaceと`App\Migrations`に属する具象`AbstractMigration` subclassだけを受け入れる。Framework Versionにはconfigurable Schema名を注入し、Application VersionはDoctrine標準のConnection／Logger Constructorで生成する。それ以外のNamespaceは拒否する。
+
+Application-aware FinderはFramework directoryをDoctrineのGlob Finderへ委譲し、Application directoryを厳格に読み込む。各`Version*.php`はちょうど一つの、File名と一致する`App\Migrations`具象`AbstractMigration` Classを宣言しなければならない。Parse Error、Namespace不一致、Class不一致をDatabase Command実行時に拒否する。
+
+Application Migration directoryの不在だけをFramework-only状態として扱う。既存PathがDirectoryでない場合やsymlinkの場合は拒否し、Application Root外のPHPをMigrationとして読み込まない。
 
 Schema名は `PostgreSqlMigrationSchema` が検証し、Table名を引用する。MigrationへCredentialやConnection設定は渡さない。
 
-`DatabaseMigrationRunner` がDependencyFactoryを所有し、status、dry-run、applyの内部入口となる。HTTP Composition、Worker Runtime、FrankenPHP Front ControllerからRunnerを呼び出す経路は存在しない。
+`DatabaseMigrationRunner` がDependencyFactoryを所有し、status、dry-run、applyの内部入口となる。Application Console FactoryはDatabase Command実行時だけ`<basePath>/migrations` Conventionを渡す。HTTP Composition、Worker Runtime、FrankenPHP Front ControllerからRunnerを呼び出す経路は存在しない。
 
 ## Metadata Bootstrap
 

@@ -31,7 +31,10 @@ final class ApplicationConsoleKernelTest extends TestCase
 
     public function testListsAndHelpsAllFrameworkCommandsWithoutRuntimeConfiguration(): void
     {
-        $application = Application::configure($this->directory())->create();
+        $directory = $this->directory();
+        mkdir($directory . '/migrations');
+        file_put_contents($directory . '/migrations/Version20260713030101.php', '<?php invalid migration');
+        $application = Application::configure($directory)->create();
         $kernel = $application->console();
         self::assertSame($kernel, $application->console());
         $list = new BufferedOutput();
@@ -43,6 +46,7 @@ final class ApplicationConsoleKernelTest extends TestCase
             'blackops:build:compile',
             'blackops:operation:list',
             'make:operation',
+            'make:migration',
             'blackops:database:status',
             'blackops:database:migrate',
             'blackops:worker:run',
@@ -67,6 +71,13 @@ final class ApplicationConsoleKernelTest extends TestCase
             'command_name' => 'make:operation',
         ]), $generatorHelp));
         self::assertStringContainsString('Feature/Action', $generatorHelp->fetch());
+
+        $migrationHelp = new BufferedOutput();
+        self::assertSame(0, $kernel->run(new ArrayInput([
+            'command' => 'help',
+            'command_name' => 'make:migration',
+        ]), $migrationHelp));
+        self::assertStringContainsString('PascalCase', $migrationHelp->fetch());
     }
 
     public function testRunsApplicationCommand(): void
@@ -119,6 +130,40 @@ final class ApplicationConsoleKernelTest extends TestCase
         $application->console();
     }
 
+    public function testRejectsApplicationCommandThatConflictsWithMigrationGenerator(): void
+    {
+        $application = Application::configure($this->directory())
+            ->withCommands([ConsoleKernelMigrationGeneratorConflictingCommand::class])
+            ->create();
+
+        $this->expectException(ApplicationBootstrapException::class);
+        $this->expectExceptionMessage('conflicts with a framework command');
+
+        $application->console();
+    }
+
+    public function testMigrationGeneratorDoesNotResolveDatabaseConfigurationOrBuildArtifacts(): void
+    {
+        $directory = $this->directory();
+        $config = $directory . '/config';
+        mkdir($config);
+        $this->writeConfig(
+            $config,
+            'database',
+            "return ['connection' => ['driver' => 'not-a-driver'], 'schema' => 'invalid-schema'];",
+        );
+        $application = Application::configure($directory)->withConfiguration()->create();
+        $output = new BufferedOutput();
+
+        self::assertSame(0, $application->console()->run(new ArrayInput([
+            'command' => 'make:migration',
+            'description' => 'CreateOrdersTable',
+        ]), $output));
+        self::assertStringContainsString('Created: migrations/Version', $output->fetch());
+        self::assertCount(1, glob($directory . '/migrations/Version*.php') ?: []);
+        self::assertDirectoryDoesNotExist($directory . '/var/build');
+    }
+
     public function testGeneratedOperationCompilesWithApplicationBuild(): void
     {
         $directory = $this->directory();
@@ -143,6 +188,8 @@ final class ApplicationConsoleKernelTest extends TestCase
             'operations',
             sprintf("return ['discovery' => ['%s'], 'providers' => []];", $directory . '/app/Feature'),
         );
+        mkdir($directory . '/migrations');
+        file_put_contents($directory . '/migrations/Version20260713030201.php', '<?php invalid migration');
         $application = Application::configure($directory)->withConfiguration()->create();
 
         self::assertSame(0, $application->console()->run(new ArrayInput([
@@ -164,6 +211,32 @@ final class ApplicationConsoleKernelTest extends TestCase
                 ->findByTypeId('generated.create')
                 ?->definition,
         );
+    }
+
+    public function testDatabaseCommandRejectsApplicationMigrationParseErrorWithoutExposingPath(): void
+    {
+        $directory = $this->directory();
+        $config = $directory . '/config';
+        mkdir($config);
+        $this->writeConfig(
+            $config,
+            'database',
+            "return ['connection' => ['driver' => 'pdo_pgsql', 'host' => 'postgres', 'port' => 5432, 'dbname' => 'blackops', 'user' => 'blackops', 'password' => 'blackops'], 'schema' => 'blackops_application_parse_error'];",
+        );
+        mkdir($directory . '/migrations');
+        file_put_contents($directory . '/migrations/Version20260713030301.php', '<?php invalid migration');
+        $application = Application::configure($directory)->withConfiguration()->create();
+
+        try {
+            $application->console()->run(new ArrayInput([
+                'command' => 'blackops:database:status',
+            ]), new BufferedOutput());
+            self::fail('Expected application migration parse error.');
+        } catch (ApplicationBootstrapException $exception) {
+            self::assertSame('Application console command failed.', $exception->getMessage());
+            self::assertStringNotContainsString($directory, $exception->getMessage());
+            self::assertNull($exception->getPrevious());
+        }
     }
 
     public function testCommandFactoryErrorDoesNotExposeConnectionCredential(): void
@@ -220,6 +293,14 @@ final class ConsoleKernelGeneratorConflictingCommand extends Command
     public function __construct()
     {
         parent::__construct('make:operation');
+    }
+}
+
+final class ConsoleKernelMigrationGeneratorConflictingCommand extends Command
+{
+    public function __construct()
+    {
+        parent::__construct('make:migration');
     }
 }
 

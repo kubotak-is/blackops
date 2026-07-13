@@ -8,8 +8,10 @@ use BlackOps\Internal\Console\ApplicationBuildCompileCommand;
 use BlackOps\Internal\Console\ApplicationOperationListCommand;
 use BlackOps\Internal\Console\DatabaseMigrationMigrateCommand;
 use BlackOps\Internal\Console\DatabaseMigrationStatusCommand;
+use BlackOps\Internal\Console\MakeMigrationCommand;
 use BlackOps\Internal\Console\MakeOperationCommand;
 use BlackOps\Internal\Console\WorkerRunCommand;
+use BlackOps\Internal\Generator\MigrationGenerator;
 use BlackOps\Internal\Generator\OperationGenerator;
 use BlackOps\Internal\Migration\DatabaseMigrationRunner;
 use Doctrine\DBAL\Connection;
@@ -39,6 +41,13 @@ final class ApplicationConsoleCommandFactory
         );
     }
 
+    public function makeMigration(): Command
+    {
+        return new MakeMigrationCommand(
+            new MigrationGenerator($this->configuration->basePath(), dirname(__DIR__, levels: 3) . '/resources/stubs'),
+        );
+    }
+
     public function databaseStatus(): Command
     {
         return new DatabaseMigrationStatusCommand($this->migrationRunner());
@@ -58,7 +67,11 @@ final class ApplicationConsoleCommandFactory
     {
         $database = ApplicationDatabaseConfiguration::fromConfiguration($this->configuration->configuration());
 
-        return new DatabaseMigrationRunner($this->connection($database->connection), $database->schema);
+        return new DatabaseMigrationRunner(
+            $this->connection($database->connection),
+            $database->schema,
+            applicationMigrationDirectory: $this->configuration->basePath() . '/migrations',
+        );
     }
 
     /** @param array<string, mixed> $parameters */

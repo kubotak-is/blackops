@@ -9,6 +9,7 @@ use BlackOps\Internal\Console\ApplicationOperationListCommand;
 use BlackOps\Internal\Console\DatabaseMigrationMigrateCommand;
 use BlackOps\Internal\Console\DatabaseMigrationStatusCommand;
 use BlackOps\Internal\Console\LazyFrameworkCommand;
+use BlackOps\Internal\Console\MakeMigrationCommand;
 use BlackOps\Internal\Console\MakeOperationCommand;
 use BlackOps\Internal\Console\RetentionPlanCommand;
 use BlackOps\Internal\Console\RetentionPurgeCommand;
@@ -31,6 +32,7 @@ final readonly class ApplicationConsoleKernel
         ApplicationBuildCompileCommand::NAME,
         ApplicationOperationListCommand::NAME,
         MakeOperationCommand::NAME,
+        MakeMigrationCommand::NAME,
         DatabaseMigrationStatusCommand::NAME,
         DatabaseMigrationMigrateCommand::NAME,
         WorkerRunCommand::NAME,
@@ -110,6 +112,16 @@ final readonly class ApplicationConsoleKernel
                     InputArgument::REQUIRED,
                     'Feature and action as Feature/Action.',
                 )->addOption('type', null, InputOption::VALUE_REQUIRED, 'Stable dot-separated operation type.'),
+            ),
+            new LazyFrameworkCommand(
+                MakeMigrationCommand::NAME,
+                'Generate an application database migration.',
+                $factory->makeMigration(...),
+                static fn(Command $command): Command => $command->addArgument(
+                    'description',
+                    InputArgument::REQUIRED,
+                    'Migration description in PascalCase.',
+                ),
             ),
             new LazyFrameworkCommand(
                 DatabaseMigrationStatusCommand::NAME,
