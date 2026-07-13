@@ -14,7 +14,7 @@ BlackOpsを利用してApplicationを作る開発者向けのガイドを管理�
 - [Database Migrations](database-migrations.md)
 - [MVP Sample](mvp-sample.md)
 - [Data Retention](retention.md)
-- Remote Installation and `composer create-project` (Publication setup pending)
+- [Remote Installation and Runtime Bootstrap](runtime-bootstrap.md)
 - Creating an Operation
 - Implementing a Handler
 - HTTP Routing and Responses

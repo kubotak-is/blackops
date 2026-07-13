@@ -1,6 +1,6 @@
 # MVP Sample
 
-`examples/quickstart` は、BlackOps MVPのInline／Deferred Vertical SliceをFeature-firstの独立Composer Applicationとして示す。同じSource Treeを将来の `blackops/skeleton` 配布元として使用する。
+`examples/quickstart` は、BlackOps MVPのInline／Deferred Vertical SliceをFeature-firstの独立Composer Applicationとして示す。同じSource Treeを公開済み `blackops/skeleton` Packageの配布元として使用する。
 
 Quickstart所有のDocker ComposeはPostgreSQL 18とFrankenPHP HTTPだけをDefault起動する。依存Install、Build、Migration、Worker、RetentionはREADMEの明示Commandで実行する。Inline Observed JournalはSensitive Projection後に `var/log/journal.jsonl` へ追記される。
 

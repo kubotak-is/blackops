@@ -15,15 +15,15 @@ composer create-project --no-scripts blackops/skeleton my-app
 php my-app/bin/setup
 ```
 
-公式Remote Commandは次の形であり、Distribution Repository、Release Tag、Packagist連携の外部設定完了後に利用可能になる。
+公式Remote CommandはPackagist公開済みの`blackops/skeleton`からApplicationを作成する。
 
 ```bash
 composer create-project blackops/skeleton my-app
 ```
 
-現在はPublication WorkflowとLocal Dry Runまでが実装済みで、Remote Packageの可用性は未検証である。Setup自身はComposer Install、Network、Docker、Database、Migration、Artifact Compile、Worker、Scheduler、Retentionを実行しない。
+Framework／Skeleton Stable `1.0.0`はPackagistへ公開済みである。空のComposer Homeから通常と`--no-scripts`のRemote Create-projectを実行し、Framework `1.0.0` Lock、Copy Install、Autoload、Post-create／Manual Setup、既存`.env`非上書き、Generated State不在を検証している。Setup自身はComposer Install、Network、Docker、Database、Migration、Artifact Compile、Worker、Scheduler、Retentionを実行しない。
 
-RepositoryのRelease前SmokeはCommitted `examples/quickstart/`をClean Package Rootへ抽出し、Local Repositoryから通常／`--no-scripts` Create-projectを実行する。これはPackage Source、Version Constraint、Copy Install、AutoloadとSetup境界の検証であり、Remote Packagist Packageの可用性を示すものではない。
+RepositoryのLocal SmokeはCommitted `examples/quickstart/`をClean Package Rootへ抽出し、Local Repositoryから通常／`--no-scripts` Create-projectを実行する。Remote SmokeはLocal Path Repositoryと既存Composer Cacheを使わず、Packagist Packageの可用性を別に検証する。
 
 The current runtime supports:
 

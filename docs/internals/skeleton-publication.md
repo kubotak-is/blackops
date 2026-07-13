@@ -62,6 +62,8 @@ Local Workflow受入後、Repository Ownerが次を一度だけ設定する。
 6. Local Private Keyを削除し、Working TreeとGit Historyへ混入していないことを確認する。
 7. Packagistの`blackops/skeleton`を`https://github.com/kubotak-is/blackops-skeleton`へ接続し、GitHub Tag連携を有効にする。
 
+初回Stable `1.0.0`では上記設定を完了し、Framework Commit `279716f`とSkeleton Split Commit `da573f3`を同じVersionでGitHub／Packagistへ公開した。Remote通常／`--no-scripts` Create-projectも空のComposer Homeから検証済みである。
+
 GitHub／Packagist認証が利用できない場合、Local Dry Runまでを完了状態とし、外部設定と最初のRelease Tag PushはBlockerとして残す。
 
 ## Recovery

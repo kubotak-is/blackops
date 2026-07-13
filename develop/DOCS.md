@@ -7,6 +7,9 @@
 
 - [MVP Status and Definition of Done](../docs/guide/mvp-status.md)
 - [Installed Application Status](../docs/guide/installed-application-status.md)
+- [Remote Installation and Runtime Bootstrap](../docs/guide/runtime-bootstrap.md)
+- [Skeleton Publication](../docs/internals/skeleton-publication.md)
+- [Phase 8 Closeout Report](orchestration/reports/P8-004-phase-8-closeout.md)
 - [MVP Sample](../docs/guide/mvp-sample.md)
 - [Runtime Bootstrap](../docs/guide/runtime-bootstrap.md)
 - [Data Retention](../docs/guide/retention.md)

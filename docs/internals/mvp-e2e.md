@@ -6,13 +6,13 @@ MVP Sample E2EはProduction CodeへSample専用の近道を追加せず、既存
 
 ScriptはBuild、明示Migration、FrankenPHP HTTP、Sensitive JSONL、Deferred Retry／Completion、Encoded Outcome、Retention Plan／Dry Runを機械検証する。Trapは成功／失敗の両方でCompose Project、Container、Named Volume、Local Image、一時Consumerを削除する。
 
-このConsumer検証はLocal Package Source Boundaryの証拠であり、PackagistやRemote `composer create-project` の証拠ではない。Phase 7の完了状態と9項目の対応表は [Installed Application Status](../guide/installed-application-status.md) を参照する。
+このConsumer検証はLocal Package Source Boundaryの証拠である。PackagistとRemote `composer create-project`はP8-004の独立Smokeで検証し、結果を [Phase 8 Closeout Report](../../develop/orchestration/reports/P8-004-phase-8-closeout.md) に記録する。現行状態は [Installed Application Status](../guide/installed-application-status.md) を参照する。
 
 `tests/Consumer/quickstart-setup.sh` はQuickstartを一時ProjectへCopyし、`bin/setup`の直接実行、Composer Script実行、Project Root外からの実行、再実行、Failureを検証する。直接実行ではPHPの外部Process関数を無効化し、Setup前後のFile差分が`.env`と生成Directoryだけであることを確認する。これにより表示された次手順が実行されず、Network／Docker／Database／Build Side EffectがないProcess Boundaryを検証する。
 
 `tests/Consumer/skeleton-create-project.sh` は`git archive HEAD:examples/quickstart`からCommitted Sourceだけを抽出する。SkeletonとFrameworkへ別々のLocal Path Repositoryとversion `1.0.0`を一時Composer Homeで与え、両方を`symlink=false`で通常／`--no-scripts` Create-projectする。Package SourceへRepository設定やVersionを戻さず、Lock、Vendor、Autoload、Post-create／Manual Setup、Generated State不在、Docker Resource不変、Source不変、Temp Cleanupを機械検証する。
 
-`tests/Consumer/skeleton-publication.sh` はFramework Source RefからQuickstartだけのSubtree Splitを決定的に生成し、Framework VersionとConstraint、Distribution Root Allowlist、Composer Metadata、Generated State不在、同一Tag生成、Working Tree／Docker／Temporary State不変を検証する。これはRemote Pushを行わないDry Runであり、公開RepositoryとPackagistの可用性は別に検証する。
+`tests/Consumer/skeleton-publication.sh` はFramework Source RefからQuickstartだけのSubtree Splitを決定的に生成し、Framework VersionとConstraint、Distribution Root Allowlist、Composer Metadata、Generated State不在、同一Tag生成、Working Tree／Docker／Temporary State不変を検証する。これはRemote Pushを行わないDry Runであり、公開RepositoryとPackagistの可用性はP8-003／P8-004の外部検証が担当する。
 
 ## Build and Load
 

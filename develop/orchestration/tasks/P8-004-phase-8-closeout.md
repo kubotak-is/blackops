@@ -1,6 +1,6 @@
 # P8-004: Phase 8 Closeout
 
-Status: In Progress
+Status: Completed
 
 ## Goal
 
@@ -50,6 +50,8 @@ Status: In Progress
 - `docs/guide/README.md`
 - `docs/guide/runtime-bootstrap.md`
 - `docs/guide/installed-application-status.md`
+- `docs/guide/mvp-status.md`
+- `docs/guide/mvp-sample.md`
 - `docs/internals/README.md`
 - `docs/internals/mvp-e2e.md`
 - `docs/internals/skeleton-publication.md`
@@ -65,7 +67,7 @@ Status: In Progress
 ## Constraints
 
 - Remote SmokeはLocal Path Repository、Local Framework Mount、既存Composer Cacheを使用しない
-- VersionはPackagist Stable `1.0.0`を明示する
+- 通常／`--no-scripts`の詳細SmokeはStable `1.0.0`を明示し、追加でVersion省略の公式Commandが同Versionを選択することを確認する
 - Smoke TargetはRepository外の一時Directoryに作成し、終了時に削除する
 - Remote SmokeのためにProduction CodeまたはTestを変更しない
 - Credential、Token、Composer AuthenticationをRepositoryへ保存しない
@@ -73,16 +75,16 @@ Status: In Progress
 
 ## Acceptance Criteria
 
-- [ ] PackagistのFramework／Skeleton Stable `1.0.0` Metadataが公開Commitと一致する
-- [ ] Remote通常Create-projectが成功し、Post-create状態が正しい
-- [ ] Remote `--no-scripts` Create-projectとManual Setupが成功する
-- [ ] Installed Lockが`blackops/framework:1.0.0`を記録する
-- [ ] Installed Composer MetadataにPath Repository／固定Versionが混入しない
-- [ ] Consumer AutoloadからFrameworkとApplicationのPublic ClassをLoadできる
-- [ ] Install／SetupがDocker、Database、Migration、Buildを暗黙実行しない
-- [ ] Guide／README／Publication Documentationが公開済み導線と一致する
-- [ ] Full Quality Suiteと既存Consumer／Local Publication Gateが成功する
-- [ ] Phase 8 Acceptance Criteria、TODO、Report、STATEがEvidence付きでCloseする
+- [x] PackagistのFramework／Skeleton Stable `1.0.0` Metadataが公開Commitと一致する
+- [x] Remote通常Create-projectが成功し、Post-create状態が正しい
+- [x] Remote `--no-scripts` Create-projectとManual Setupが成功する
+- [x] Installed Lockが`blackops/framework:1.0.0`を記録する
+- [x] Installed Composer MetadataにPath Repository／固定Versionが混入しない
+- [x] Consumer AutoloadからFrameworkとApplicationのPublic ClassをLoadできる
+- [x] Install／SetupがDocker、Database、Migration、Buildを暗黙実行しない
+- [x] Guide／README／Publication Documentationが公開済み導線と一致する
+- [x] Full Quality Suiteと既存Consumer／Local Publication Gateが成功する
+- [x] Phase 8 Acceptance Criteria、TODO、Report、STATEがEvidence付きでCloseする
 
 ## Required Commands
 

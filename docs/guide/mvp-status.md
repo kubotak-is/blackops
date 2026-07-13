@@ -2,7 +2,7 @@
 
 BlackOps MVP is complete. This milestone proves the operation model, Inline and Deferred HTTP execution, lifecycle journal, worker recovery, compiled runtime artifacts, typed outcomes, and retention on PHP 8.5 with PostgreSQL.
 
-MVP Complete is not the same as Production Ready or a stable public release. Applications still own composition, database credentials, deployment, process supervision, access control, and operational policy.
+MVP Complete is not the same as Production Ready. Framework／Skeleton Stable `1.0.0`はMVP Closeout後のPhase 8で公開した。Applications still own composition, database credentials, deployment, process supervision, access control, and operational policy.
 
 ## Definition of Done
 
@@ -62,6 +62,6 @@ Canonical Journal is the reproducible source of truth and may retain a sensitive
 - No encryption adapter for Canonical Journal or transport payloads
 - No remote OpenTelemetry, CloudWatch, SQS, Kafka, SQLite, or MySQL adapter
 - No observer replay CLI, generator, admin UI, or Scheduled Operation Strategy
-- No Packagist release, compatibility promise beyond marked Public API, Git tag, or production certification
+- No production certification or compatibility promise beyond the marked Public API and Semantic Versioning contract
 
 These remain post-MVP work. Their absence does not invalidate the agreed MVP Definition of Done.

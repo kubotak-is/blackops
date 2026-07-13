@@ -1,10 +1,10 @@
 # Orchestration State
 
-Updated At: 2026-07-13T14:43:08+09:00
+Updated At: 2026-07-13T14:52:08+09:00
 
 ## Current Phase
 
-Phase 8: Composer Project Bootstrap
+Phase 8: Composer Project Bootstrap (Complete)
 
 ## Current Task
 
@@ -16,13 +16,13 @@ Specification: `develop/spec/52-phase-8-delivery-plan.md`
 
 ## Task Status
 
-P8-004 Started; Remote Packagist Create-project Smoke
+P8-004 Accepted; Phase 8 Complete
 
-P8-003を受け入れた。Framework Stable `1.0.0`はCommit `279716f904f17be9341f3fdaae30156ab17d8a62`、Skeleton Stable `1.0.0`はSplit Commit `da573f3190e5e855a9c09e275980c6ddc5cce028`としてGitHub／Packagistへ公開済みである。P8-004は空Composer Homeと一時DirectoryからRemote通常／`--no-scripts` Create-projectを実行し、Phase 8をCloseする。
+P8-004を受け入れ、Phase 8をCloseした。Framework／Skeleton Stable `1.0.0`をGitHub／Packagistへ公開し、空Composer HomeからRemote通常／`--no-scripts` Create-project、Framework `1.0.0` Lock、Autoload、CLI、Post-create／Manual Setup、Side Effect不在、Cleanupを検証した。Full QualityはMago 3種、PHPUnit `721 tests / 2374 assertions`、Deptrac `361 files / 0 violations / 0 errors`、Consumer E2E、Local Create-project、Publication Dry Run、Guardが成功した。
 
 ## Last Accepted Task
 
-P8-003-skeleton-distribution-publication
+P8-004-phase-8-closeout
 
 ## Pending Decisions
 
@@ -34,10 +34,9 @@ P8-003-skeleton-distribution-publication
 
 ## Required Next Action
 
-1. P8-003 CloseoutとP8-004 Task Packet／CheckpointをCommit／Pushする。
-2. Remote通常／`--no-scripts` Create-project Smokeを実行する。
-3. Full Quality Suiteと既存Consumer／Publication Gateを実行する。
-4. Documentation、TODO、Phase Acceptance、Report、STATEを同期してPhase 8をCloseする。
+1. P8-004 Closeout Documentation／Report／STATEをCommit／Pushする。
+2. Phase 9 Project BlackOps CLIの仕様対話とTask Packetを準備する。
+3. `make:operation`／`make:migration`とFramework Update追従を実装・検証する。
 
 ## P8-003 Skeleton Distribution Publication Worker Verification Commands and Results
 

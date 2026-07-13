@@ -66,16 +66,16 @@ P8-001 Post-create Initialization
 
 ## Phase Acceptance Criteria
 
-- [ ] SkeletonのPost-createが安全かつ再実行可能である
-- [ ] `--no-scripts` でも同じSource Treeと手動Setup導線が成立する
-- [ ] Split結果のRootが正しい `blackops/skeleton` Packageである
-- [ ] Framework／Skeleton Version Policyが機械検証される
-- [ ] Split／DistributionへLock、Vendor、Path Repository、Generated Stateが混入しない
-- [ ] 通常の `composer create-project` が成功する
-- [ ] `--no-scripts` create-projectとInstall後Smokeが成功する
-- [ ] FrameworkとSkeletonへ同一Release Tagを付けるPublication Boundaryが成立する
-- [ ] Remote Packagist Packageから公式Commandが成功する
-- [ ] Full Quality SuiteとConsumer／Install Smokeが成功する
+- [x] SkeletonのPost-createが安全かつ再実行可能である
+- [x] `--no-scripts` でも同じSource Treeと手動Setup導線が成立する
+- [x] Split結果のRootが正しい `blackops/skeleton` Packageである
+- [x] Framework／Skeleton Version Policyが機械検証される
+- [x] Split／DistributionへLock、Vendor、Path Repository、Generated Stateが混入しない
+- [x] 通常の `composer create-project` が成功する
+- [x] `--no-scripts` create-projectとInstall後Smokeが成功する
+- [x] FrameworkとSkeletonへ同一Release Tagを付けるPublication Boundaryが成立する
+- [x] Remote Packagist Packageから公式Commandが成功する
+- [x] Full Quality SuiteとConsumer／Install Smokeが成功する
 
 ## Traceability
 

@@ -1,8 +1,8 @@
 # Installed Application Status
 
-Status: Phase 7 Complete; Phase 8 Local Publication Verified
+Status: Phase 8 Complete; Framework and Skeleton 1.0.0 Published
 
-`examples/quickstart/` は、Feature-firstのInstalled Application Exampleと将来の `blackops/skeleton` Package Source Boundaryとして成立している。Phase 7 CompleteはPackagist公開、Production Ready、Stable Releaseを意味しない。
+`examples/quickstart/` はFeature-firstのInstalled Application Exampleと`blackops/skeleton`のSource of Truthである。Framework／Skeleton Stable `1.0.0`をGitHubとPackagistへ公開し、Remote `composer create-project`を検証済みである。Phase 8 CompleteとStable Package公開はProduction Readyを意味しない。
 
 ## Phase 7 Acceptance Evidence
 
@@ -51,20 +51,20 @@ Operation自身がHandlerを兼ねるSelf-handled形式を標準とする。Cons
 
 Default Compose ServiceはPostgreSQLとHTTPだけである。Composer Install、Artifact Build、Migration、Worker、Scheduler、Retention Purgeは明示CommandまたはProfileで実行する。変更を伴うPurgeは追加の`--confirm`を要求する。
 
-## Phase 8 Handoff
+## Phase 8 Publication Evidence
 
 Skeletonには再実行可能な`bin/setup`とComposer `post-create-project-cmd`が実装済みである。Setupは未作成`.env`のCopyとLocal生成Directoryの準備だけを行い、既存`.env`を変更せず、外部ProcessやRuntime Side Effectを起動しない。`--no-scripts`利用時も`php bin/setup`で同じ準備を行える。
 
 Committed Quickstartから`git archive`で抽出したClean Packageを使い、Local Skeleton／Framework Repositoryから通常と`--no-scripts`のCreate-projectが成功している。両PackageはCopy Installで、Lock、Vendor、Autoload、Post-create、Manual Setup、Source Cleanliness、Side Effect不在、Cleanupを検証済みである。
 
-Framework Source RefからQuickstartだけを決定的にSubtree Splitし、同一Version Tagを付けられるLocal Publication Dry Runも成功している。GitHub Actions WorkflowはFull Quality、Consumer、Create-project、Publication Gateの後だけDeploy Keyを展開し、Remote `main`とTagをfail-closedで更新する。Distribution Repository、Deploy Key、Actions Secret、Packagist連携は外部設定待ちであり、Remote Installはまだ利用可能性を保証しない。
+Framework Source RefからQuickstartだけを決定的にSubtree Splitし、同一Version Tagを付けるPublication Workflowが成功している。GitHub Actions WorkflowはFull Quality、Consumer、Create-project、Publication Gateの後だけDeploy Keyを展開し、Remote `main`とTagをfail-closedで更新する。Framework `1.0.0`はFramework Commit `279716f`、Skeleton `1.0.0`はSplit Commit `da573f3`としてGitHub／Packagistへ公開済みである。
 
-Phase 8はこのDirectoryを `blackops/skeleton` の配布Sourceとして扱い、次を実施する。
+空のComposer Homeと一時DirectoryからPackagistだけを使用し、次を検証した。
 
-- Public Skeleton Distribution RepositoryとDeploy Key境界を外部設定する
-- Framework Release TagからPublication Workflowを初回実行する
-- PackagistへPackageを公開する
-- `composer create-project blackops/skeleton my-app` を提供する
-- 公開PackageからのInstall後Smoke Testを整備する
+- 通常の`composer create-project blackops/skeleton my-app 1.0.0`
+- `--no-scripts` InstallとManual `bin/setup`
+- Skeleton Identity、Framework `1.0.0` Lock、Consumer Autoload、Project CLI
+- `.env` Copy、再実行非上書き、Generated State不在
+- Install／SetupによるDocker、Database、Migration、Build Side Effect不在
 
-Phase 7のConsumer E2Eは一時Path RepositoryによるLocal copy installである。Remote Packageの存在や公開後Installを保証しない。
+Phase 7 Consumer E2EとLocal Create-projectはSource／Runtime境界、P8-004 Remote Smokeは公開Package可用性を担当し、両方の証拠を維持する。詳細は [Phase 8 Closeout Report](../../develop/orchestration/reports/P8-004-phase-8-closeout.md) を参照する。
