@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-13T03:20:38+09:00
+Updated At: 2026-07-13T12:06:27+09:00
 
 ## Current Phase
 
@@ -8,17 +8,17 @@ Phase 8: Composer Project Bootstrap
 
 ## Current Task
 
-Task ID: P8-002A-typed-self-handled-invocation
+Task ID: P8-002B-native-outcome-invocation
 
-Task Packet: `develop/orchestration/tasks/P8-002A-typed-self-handled-invocation.md`
+Task Packet: `develop/orchestration/tasks/P8-002B-native-outcome-invocation.md`
 
-Specification: `develop/spec/53-typed-self-handled-operation-invocation.md`
+Specification: `develop/spec/54-native-outcome-and-rejection-exception.md`
 
 ## Task Status
 
-Completed
+Ready
 
-P8-002AのTyped Self-handled Signature Validation、Manifest、共通Runtime Invoker、Quickstart移行、Docs、全必須検証が完了した。Review指摘のInstantiable検証、不正Invoker Mode防御、Inline Invoker注入も補強し、Orchestratorが受け入れた。
+D075／Spec 54でNative Outcome／Void Return、Signature Metadata推論、Public Rejected Exception、Failure Boundary、Legacy Compatibilityを確定した。P8-002B Task Packetを作成し、worker実装開始待ち。
 
 ## Last Accepted Task
 
@@ -30,11 +30,14 @@ P8-002A-typed-self-handled-invocation
 
 ## Known Blockers
 
-- P8-003はDistribution Repositoryの実URL／Default Branch／Visibility、Write Credential、Packagist更新方法が未確定。
+- P8-002Bの実装Blockerはなし。
+- D073へA／A／Aのユーザー回答がある。P8-003開始前にDistribution Repositoryの正確なRepository名／URL、Default Branch、Visibilityを確定する。
 
 ## Required Next Action
 
-1. D073回答を待ってP8-003へ進む。
+1. GPT-5.4-mini workerへP8-002Bを依頼する。
+2. Orchestrator Reviewと全品質検証を行う。
+3. P8-002B受入後、D073を確定してP8-003へ進む。
 
 ## P8-002A Typed Self-handled Invocation Verification Commands and Results
 
