@@ -1,24 +1,24 @@
 # Orchestration State
 
-Updated At: 2026-07-13T16:45:19+09:00
+Updated At: 2026-07-13T16:52:34+09:00
 
 ## Current Phase
 
-Phase 9: Project BlackOps CLI (Complete)
+Phase 9 Follow-up: Repository Quality Entry Points
 
 ## Current Task
 
-Task ID: P9-004-framework-update-generator-smoke
+Task ID: P9-005-continuous-integration-and-readme
 
-Task Packet: `develop/orchestration/tasks/P9-004-framework-update-generator-smoke.md`
+Task Packet: `develop/orchestration/tasks/P9-005-continuous-integration-and-readme.md`
 
-Specification: `develop/spec/56-phase-9-delivery-plan.md`
+Specification: `develop/spec/40-mvp-delivery-plan.md`
 
 ## Task Status
 
-P9-004 Accepted; Phase 9 Complete
+P9-005 In Progress
 
-P9-004を受け入れ、Phase 9をCloseした。Framework Update Consumer Smoke、Generator込みQuickstart／Create-project E2E、Publication Stub Ownership Gate、Guide／Internals／TODO／Phase Plan同期を完成した。Orchestrator Review補強として旧`Legacy Created:`／Current `Created:`出力切替とVendor 2 Command SourceのCurrent byte一致を追加した。Worker／Orchestrator双方でFull `771 tests / 2544 assertions`、Deptrac `368 files / 0 violations / 0 errors`、3 Consumer Smoke、Guard、Workflow YAML、Diff Checkが成功した。
+Phase 10開始前のRepository基盤整備としてP9-005を開始した。通常の`main` Push／Pull RequestでMago、PHPUnit、Deptracを実行するCIと、Framework利用者／Contributor向けRoot READMEを追加する。Production Codeは変更しない。
 
 ## Last Accepted Task
 
@@ -34,9 +34,9 @@ P9-004-framework-update-generator-smoke
 
 ## Required Next Action
 
-1. P9-004 Closeout ChangeをCommit／Pushする。
-2. Phase 10 Documentation Websiteの設計対話とTask Packetを準備する。
-3. Astro Starlight、Markdown Single Source Build、Cloudflare Pages境界を実装・検証する。
+1. 通常CI WorkflowとRoot READMEを実装する。
+2. CI内と同じ品質Command、Workflow YAML、Documentation Linkを検証する。
+3. P9-005をCommit／Push後、Phase 10 Documentation Website計画へ戻る。
 
 ## P9-004 Framework Update Generator Smoke Worker Verification Commands and Results
 
