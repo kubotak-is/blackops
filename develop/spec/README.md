@@ -156,3 +156,4 @@
 | [D078](../decisions/078-initial-stable-release-version.md) | Initial Stable Release Version | Decided |
 | [D079](../decisions/079-immutable-release-publication-recovery.md) | Immutable Release Publication Recovery | Decided |
 | [D080](../decisions/080-project-generator-command-contract.md) | Project Generator Command Contract | Decided |
+| [D081](../decisions/081-documentation-website-delivery-contract.md) | Documentation Website Delivery Contract | In Discussion |

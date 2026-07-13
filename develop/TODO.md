@@ -55,7 +55,7 @@ MVP後に残す主要項目:
 
 ### Phase 10: Documentation Website
 
-- [ ] `docs/website/` にAstro Starlightを構築する
+- [~] `docs/website/` にAstro Starlightを構築する
 - [ ] `docs/internals/` を `docs/internal/` へ移行し、Repository内参照を同期する
 - [ ] `docs/guide/` と `docs/internal/` をSource of Truthとする静的Buildを整備する
 - [ ] Cloudflare PagesのPreview／Production Deployを整備する
