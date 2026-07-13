@@ -1,0 +1,9 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Feature\{{ feature }}\{{ action }};
+
+use BlackOps\Core\OperationValue;
+
+final readonly class {{ action }}Value implements OperationValue {}

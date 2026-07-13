@@ -8,7 +8,9 @@ use BlackOps\Internal\Console\ApplicationBuildCompileCommand;
 use BlackOps\Internal\Console\ApplicationOperationListCommand;
 use BlackOps\Internal\Console\DatabaseMigrationMigrateCommand;
 use BlackOps\Internal\Console\DatabaseMigrationStatusCommand;
+use BlackOps\Internal\Console\MakeOperationCommand;
 use BlackOps\Internal\Console\WorkerRunCommand;
+use BlackOps\Internal\Generator\OperationGenerator;
 use BlackOps\Internal\Migration\DatabaseMigrationRunner;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
@@ -28,6 +30,13 @@ final class ApplicationConsoleCommandFactory
     public function operations(): Command
     {
         return new ApplicationOperationListCommand($this->configuration);
+    }
+
+    public function makeOperation(): Command
+    {
+        return new MakeOperationCommand(
+            new OperationGenerator($this->configuration->basePath(), dirname(__DIR__, levels: 3) . '/resources/stubs'),
+        );
     }
 
     public function databaseStatus(): Command

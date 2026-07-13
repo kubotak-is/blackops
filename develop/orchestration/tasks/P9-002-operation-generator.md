@@ -1,6 +1,6 @@
 # P9-002: Operation Generator
 
-Status: In Progress
+Status: Accepted
 
 ## Goal
 

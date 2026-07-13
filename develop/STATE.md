@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-13T15:22:28+09:00
+Updated At: 2026-07-13T15:53:19+09:00
 
 ## Current Phase
 
@@ -8,21 +8,21 @@ Phase 9: Project BlackOps CLI
 
 ## Current Task
 
-Task ID: P9-002-operation-generator
+Task ID: P9-003-application-migration-generator
 
-Task Packet: `develop/orchestration/tasks/P9-002-operation-generator.md`
+Task Packet: `develop/orchestration/tasks/P9-003-application-migration-generator.md`
 
 Specification: `develop/spec/55-project-generators-and-application-migrations.md`
 
 ## Task Status
 
-Worker Implementation In Progress
+P9-002 Accepted; P9-003 Awaiting Worker Approval
 
-Userは「進めて」により、Model／Profileを明示できない現在のWorkerでP9-002を進めることを承認した。P9-002 Task PacketをIn Progressへ更新し、Operation Generator実装をWorkerへ依頼する。Production Codeはまだ未変更である。
+P9-002を受け入れた。`make:operation <Feature>/<Action> --type=<operation.type>`、Framework所有Stub、安全な入力／Path／衝突検証、Temporary Write／非上書きPublish／Rollback、Console Kernel登録、Build統合Test、Guide／Internalsを完成した。Orchestrator ReviewでFilesystem／Stub Read Raceのwarning／Absolute Path非露出と競合Target保持を補強した。最終Focused `36 tests / 218 assertions`、Orchestrator Full `746 tests / 2469 assertions`、Mago 3種、Deptrac `365 files / 0 violations / 0 errors`、Quickstart Consumer E2E、Guardが成功した。
 
 ## Last Accepted Task
 
-P9-001-project-generator-command-contract
+P9-002-operation-generator
 
 ## Pending Decisions
 
@@ -30,13 +30,13 @@ P9-001-project-generator-command-contract
 
 ## Known Blockers
 
-なし。P9-002に限る現在のWorker利用承認を得ている。P9-003開始時はWorker Model／Profile境界を再確認する。
+P9-003 Production CodeはGPT-5.6 Luna High workerが必要だが、現在のWorker起動InterfaceではModel／Profileを明示できない。P9-002のUser承認は同Taskに限定して記録したため、P9-003で現在利用可能なWorkerを使うには再承認が必要である。
 
 ## Required Next Action
 
-1. P9-002 Operation GeneratorをWorkerへ依頼する。
-2. Worker Report／Diff／TestをOrchestratorがReviewし、必要な補強後にCommitする。
-3. P9-003開始前にWorker Model／Profile境界を再確認する。
+1. P9-002 Accepted ChangeをCommit／Pushする。
+2. P9-003で現在利用可能なWorkerを使用してよいかUserへ確認する。
+3. 承認後、Application Migration Generator／RuntimeをWorkerへ依頼する。
 
 ## P8-003 Skeleton Distribution Publication Worker Verification Commands and Results
 

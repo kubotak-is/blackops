@@ -9,6 +9,7 @@ use BlackOps\Internal\Console\ApplicationOperationListCommand;
 use BlackOps\Internal\Console\DatabaseMigrationMigrateCommand;
 use BlackOps\Internal\Console\DatabaseMigrationStatusCommand;
 use BlackOps\Internal\Console\LazyFrameworkCommand;
+use BlackOps\Internal\Console\MakeOperationCommand;
 use BlackOps\Internal\Console\RetentionPlanCommand;
 use BlackOps\Internal\Console\RetentionPurgeCommand;
 use BlackOps\Internal\Console\SchedulerDaemonCommand;
@@ -18,6 +19,7 @@ use InvalidArgumentException;
 use ReflectionClass;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -28,6 +30,7 @@ final readonly class ApplicationConsoleKernel
     private const FRAMEWORK_COMMANDS = [
         ApplicationBuildCompileCommand::NAME,
         ApplicationOperationListCommand::NAME,
+        MakeOperationCommand::NAME,
         DatabaseMigrationStatusCommand::NAME,
         DatabaseMigrationMigrateCommand::NAME,
         WorkerRunCommand::NAME,
@@ -97,6 +100,16 @@ final readonly class ApplicationConsoleKernel
                 'List operation metadata from application providers.',
                 $factory->operations(...),
                 $none,
+            ),
+            new LazyFrameworkCommand(
+                MakeOperationCommand::NAME,
+                'Generate a typed self-handled operation.',
+                $factory->makeOperation(...),
+                static fn(Command $command): Command => $command->addArgument(
+                    'operation',
+                    InputArgument::REQUIRED,
+                    'Feature and action as Feature/Action.',
+                )->addOption('type', null, InputOption::VALUE_REQUIRED, 'Stable dot-separated operation type.'),
             ),
             new LazyFrameworkCommand(
                 DatabaseMigrationStatusCommand::NAME,

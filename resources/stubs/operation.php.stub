@@ -1,0 +1,17 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Feature\{{ feature }}\{{ action }};
+
+use BlackOps\Core\Attribute\OperationType;
+use BlackOps\Core\Operation;
+
+#[OperationType('{{ operation_type }}')]
+final readonly class {{ action }} implements Operation
+{
+    public function handle({{ action }}Value $value): {{ action }}Outcome
+    {
+        return new {{ action }}Outcome();
+    }
+}

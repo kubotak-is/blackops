@@ -12,10 +12,10 @@ BlackOpsを利用してApplicationを作る開発者向けのガイドを管理�
 - [Application Bootstrap](application-bootstrap.md)
 - [Outcome Retrieval](outcome-retrieval.md)
 - [Database Migrations](database-migrations.md)
+- [Project Generators](project-generators.md)
 - [MVP Sample](mvp-sample.md)
 - [Data Retention](retention.md)
 - [Remote Installation and Runtime Bootstrap](runtime-bootstrap.md)
-- Creating an Operation
 - Implementing a Handler
 - HTTP Routing and Responses
 - Inline and Deferred Execution

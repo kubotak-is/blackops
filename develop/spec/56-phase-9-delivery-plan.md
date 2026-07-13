@@ -51,11 +51,11 @@ P9-001 Generator Contract
 ## Phase Acceptance Criteria
 
 - [x] Generator Command ContractとApplication Migration境界が決定している
-- [ ] Operation Generatorが有効な3 Fileを安全に生成する
+- [x] Operation Generatorが有効な3 Fileを安全に生成する
 - [ ] Migration GeneratorがUTC Version FileをSide Effectなしで生成する
 - [ ] Framework／Application Migrationを同じ明示Commandで管理できる
 - [ ] Console `list`／`help`がRuntime設定なしで成功する
-- [ ] Generatorが既存Sourceを上書きせず、部分生成を残さない
+- [x] Generatorが既存Sourceを上書きせず、部分生成を残さない
 - [ ] Framework Update後に既存Entrypointが新Command／Stubを使う
 - [ ] Framework Updateが生成済みSourceを変更しない
 - [ ] Consumer／Create-project SmokeとFull Quality Suiteが成功する

@@ -168,6 +168,25 @@ final class QuickstartApplicationArchitectureTest extends TestCase
         self::assertStringContainsString("'delivery' => 'best_effort'", $journal);
     }
 
+    public function testOperationGeneratorStubsAreOwnedByTheFrameworkPackage(): void
+    {
+        $root = dirname(__DIR__, levels: 2);
+
+        foreach ([
+            'operation.php.stub',
+            'operation-value.php.stub',
+            'operation-outcome.php.stub',
+        ] as $stub) {
+            $path = $root . '/resources/stubs/' . $stub;
+            self::assertFileExists($path);
+            $source = (string) file_get_contents($path);
+            self::assertStringNotContainsString('Accepts', $source);
+            self::assertStringNotContainsString('Returns', $source);
+            self::assertStringNotContainsString('OperationResult', $source);
+            self::assertFileDoesNotExist($this->quickstart() . '/resources/stubs/' . $stub);
+        }
+    }
+
     private function quickstart(): string
     {
         return dirname(__DIR__, levels: 2) . '/examples/quickstart';

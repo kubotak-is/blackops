@@ -10,6 +10,7 @@ Framework実装者向けのArchitectureと実装ガイドを管理する。
 - [Development Setup](development-setup.md)
 - [Bootstrap](bootstrap.md)
 - [Application Bootstrap](application-bootstrap.md)
+- [Project Generators](project-generators.md)
 - [FrankenPHP Reference Runtime](frankenphp-runtime.md)
 - [Runtime Dependencies](runtime-dependencies.md)
 - [Core Contracts](core-contracts.md)

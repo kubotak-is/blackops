@@ -1,0 +1,44 @@
+# Project Generators
+
+Install済みApplicationでは、Project Rootの`bin/blackops`からFrameworkが提供するGeneratorを実行できる。
+
+## Creating an Operation
+
+FeatureとActionを`<Feature>/<Action>`形式で、永続的なOperation Typeを`--type`で指定する。
+
+```bash
+php bin/blackops make:operation Welcome/ShowWelcome --type=welcome.show
+```
+
+次の3 Fileが生成される。
+
+```text
+app/Feature/Welcome/ShowWelcome/ShowWelcome.php
+app/Feature/Welcome/ShowWelcome/ShowWelcomeValue.php
+app/Feature/Welcome/ShowWelcome/ShowWelcomeOutcome.php
+```
+
+FeatureとActionはPascalCaseのPHP Class名でなければならない。Operation Typeは`welcome.show`のようなlowercase dot-separated IDとする。Pathは必ず2 Segmentで、Absolute Path、Backslash、`.`、`..`、追加Segmentは使用できない。
+
+生成されるOperationは、ValueをNative Parameter、OutcomeをNative Return Typeに持つTyped Self-handled Operationである。ValueとOutcomeは空の`readonly` Classなので、Use Caseに必要なPropertyと処理を追加する。
+
+```php
+public function handle(ShowWelcomeValue $value): ShowWelcomeOutcome
+{
+    return new ShowWelcomeOutcome();
+}
+```
+
+GeneratorはRoute、HTTP Method、Execution Strategy、`ExecutionContext`を推測しない。HTTP公開やDeferred実行が必要なOperationだけへ、それぞれのAttributeと処理を追加する。
+
+## Safety and Build
+
+3 Targetの一つでも存在する場合、Generatorは既存Fileを上書きせず、何も生成しない。`--force`は提供しない。成功時は生成したProject Relative Pathだけを表示する。
+
+GeneratorはFileを作成するだけで、Composer、Database、Network、Artifact Buildを実行しない。生成後は通常のApplication BuildでOperationを検証する。
+
+```bash
+php bin/blackops blackops:build:compile
+```
+
+Generator Stubは`blackops/framework` Packageが所有する。Framework Update後に新しく生成するFileには更新済みStubが使われるが、Applicationが所有する生成済みFileは変更されない。

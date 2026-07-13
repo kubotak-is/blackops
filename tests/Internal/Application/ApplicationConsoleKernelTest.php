@@ -17,6 +17,7 @@ use BlackOps\Core\OperationHandler;
 use BlackOps\Core\OperationResult;
 use BlackOps\Core\OperationValue;
 use BlackOps\Core\Registry\OperationProvider;
+use BlackOps\Internal\Registry\OperationManifestFile;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -41,6 +42,7 @@ final class ApplicationConsoleKernelTest extends TestCase
         foreach ([
             'blackops:build:compile',
             'blackops:operation:list',
+            'make:operation',
             'blackops:database:status',
             'blackops:database:migrate',
             'blackops:worker:run',
@@ -58,6 +60,13 @@ final class ApplicationConsoleKernelTest extends TestCase
             'command_name' => 'blackops:worker:run',
         ]), $help));
         self::assertStringContainsString('blackops:worker:run', $help->fetch());
+
+        $generatorHelp = new BufferedOutput();
+        self::assertSame(0, $kernel->run(new ArrayInput([
+            'command' => 'help',
+            'command_name' => 'make:operation',
+        ]), $generatorHelp));
+        self::assertStringContainsString('Feature/Action', $generatorHelp->fetch());
     }
 
     public function testRunsApplicationCommand(): void
@@ -96,6 +105,65 @@ final class ApplicationConsoleKernelTest extends TestCase
         $this->expectExceptionMessage('conflicts with a framework command');
 
         $application->console();
+    }
+
+    public function testRejectsApplicationCommandThatConflictsWithOperationGenerator(): void
+    {
+        $application = Application::configure($this->directory())
+            ->withCommands([ConsoleKernelGeneratorConflictingCommand::class])
+            ->create();
+
+        $this->expectException(ApplicationBootstrapException::class);
+        $this->expectExceptionMessage('conflicts with a framework command');
+
+        $application->console();
+    }
+
+    public function testGeneratedOperationCompilesWithApplicationBuild(): void
+    {
+        $directory = $this->directory();
+        $config = $directory . '/config';
+        $build = $directory . '/var/build';
+        mkdir($config);
+        mkdir($build, recursive: true);
+        $feature = 'Generated' . bin2hex(random_bytes(4));
+        $action = 'CreateEntry';
+        $this->writeConfig(
+            $config,
+            'app',
+            sprintf(
+                "return ['build' => ['application_build_id' => 'generator-build', 'operation_manifest' => '%s', 'http_manifest' => '%s', 'container' => '%s', 'container_class' => 'CompiledContainer', 'container_namespace' => 'App\\\\Generated']];",
+                $build . '/operations.php',
+                $build . '/http.php',
+                $build . '/container.php',
+            ),
+        );
+        $this->writeConfig(
+            $config,
+            'operations',
+            sprintf("return ['discovery' => ['%s'], 'providers' => []];", $directory . '/app/Feature'),
+        );
+        $application = Application::configure($directory)->withConfiguration()->create();
+
+        self::assertSame(0, $application->console()->run(new ArrayInput([
+            'command' => 'make:operation',
+            'operation' => $feature . '/' . $action,
+            '--type' => 'generated.create',
+        ]), new BufferedOutput()));
+        self::assertSame(0, $application->console()->run(new ArrayInput([
+            'command' => 'blackops:build:compile',
+        ]), new BufferedOutput()));
+
+        self::assertFileExists($build . '/operations.php');
+        self::assertFileExists($build . '/http.php');
+        self::assertFileExists($build . '/container.php');
+        self::assertSame(
+            'App\\Feature\\' . $feature . '\\' . $action . '\\' . $action,
+            new OperationManifestFile()
+                ->load($build . '/operations.php')
+                ->findByTypeId('generated.create')
+                ?->definition,
+        );
     }
 
     public function testCommandFactoryErrorDoesNotExposeConnectionCredential(): void
@@ -144,6 +212,14 @@ final class ConsoleKernelConflictingCommand extends Command
     public function __construct()
     {
         parent::__construct('blackops:worker:run');
+    }
+}
+
+final class ConsoleKernelGeneratorConflictingCommand extends Command
+{
+    public function __construct()
+    {
+        parent::__construct('make:operation');
     }
 }
 
