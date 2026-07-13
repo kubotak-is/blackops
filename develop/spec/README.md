@@ -164,3 +164,4 @@
 | [D083](../decisions/083-project-root-blackops-entrypoint.md) | Project Root BlackOps Entrypoint | Decided |
 | [D084](../decisions/084-documentation-reader-journey-corrections.md) | Documentation Reader Journey Corrections | Decided |
 | [D085](../decisions/085-http-configuration-snapshot-lifecycle.md) | HTTP Configuration Snapshot Lifecycle | Discussing |
+| [D086](../decisions/086-operation-value-validation-runtime.md) | OperationValue Validation Runtime | Discussing |

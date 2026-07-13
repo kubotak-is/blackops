@@ -19,11 +19,21 @@ Status: Discussing
 
 ### Recommendation
 
-Bを推奨する。
+Bを最終到達点として推奨する。ただし、Classic Modeから即時にDefaultを切り替えず、専用Taskで安全性を証明してから昇格する。
 
 BlackOpsはD058でFrankenPHPを公式Reference Runtimeとし、Long-running ProcessでOperation Scope、Journal Flush、Connection Healthを明示管理する設計を採用している。Worker ModeならEnvironmentとConfigurationだけでなくCompiled Container／ManifestのRuntime CompositionもProcess起動時に一度へ集約できる。
 
-ただし、RequestごとのState Reset、Observer Flush、Connection Recoveryを実証する必要がある。AはRuntime非依存性と決定性に優れるが、Secretを含むDatabase Configuration Artifactの保存境界、Environment差し替え、Deploy手順を追加設計する必要がある。Cは一部だけをCacheしてSnapshotの意味が分かりづらくなる。
+RequestごとのState Reset、Observer Flush、Connection Recoveryを実証する必要がある。最初は明示Opt-inとしてConsumer E2Eと複数Request Testを通し、安全性を確認してから公式Defaultへ昇格する。
+
+AはRuntime非依存性と決定性に優れるが、現行SnapshotをそのままArtifact化するとDatabase Password等を保存するため採用しない。将来、Secretを含まないBuild-time StructureだけをArtifact化し、Bと併用する余地はある。CはClassic ModeのRequest終了で通常のPHP Static／Object Cacheが消えるため成立せず、APCu等を追加するとInvalidationとSecret残存が複雑になる。
+
+## Investigation Evidence
+
+- 公式CaddyfileはWorker指定なしの`php_server`であり、Classic Modeで動く。
+- `public/index.php`はRequestごとに`bootstrap/app.php`を読み、BootstrapはEnvironment、Dotenv、Applicationを再構成する。
+- `ApplicationBuilder::withConfiguration()`はその都度`config/*.php`を`require`する。
+- `Application::http()`のRuntime CacheはApplication Instance内だけであり、Classic ModeのRequest間では再利用しない。
+- Worker Modeへ移る場合、複数Request間のState Leak、例外後Cleanup、JSONL Flush、Database Reconnect、Memory Growth、`max_requests`／Restartを検証する必要がある。
 
 [ANSWER]
 
@@ -33,4 +43,3 @@ BlackOpsはD058でFrankenPHPを公式Reference Runtimeとし、Long-running Proc
 ## Pending Consequences
 
 回答後にHTTP Entrypoint、FrankenPHP Configuration、Application Lifecycle、Secret境界、Performance Test、DocumentationをTask Packetへ落とし込む。
-

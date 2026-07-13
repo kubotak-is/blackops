@@ -100,7 +100,11 @@ Validation Guideは現行実装を次の三つへ分ける。
 | Value Validation | 現行Releaseでは宣言的Attribute未実装。Operationの`handle()`で値を検証し、`OperationRejectedException::validation()`をthrowする |
 | Business Validation | Repository／Domain Service等で外部状態を照合し、適切なRejected Factoryをthrowする |
 
-Guideは成功Input／OutputとValidation Failure Input／HTTP Output／Journal Resultを対にした完全例を示す。実装されていない`NotBlank`、`Length`、`Range`等を利用可能なAttributeとして掲載しない。Current Statusにも仕様と実装のGapを明示する。
+現行BinderはNested Object／Array、Enum／DateTime変換、明示的なBoolean／Integer Parser、Constructor以外のProperty Bindingを提供しない。Field省略を許すにはNullable TypeだけでなくConstructor Defaultが必要である。
+
+Binding Failureは現行HTTP Handlerで4xxへ正規化されず、Operation IDとJournalも生成しない実装Gapがある。Guideはこの制約を隠さず、Application Error Handlerで任意の422として実装済みであるかのように記載しない。
+
+Guideは成功Input／OutputとValidation Failure Input／HTTP Output／Journal Resultを対にした完全例を示す。Inline Validationは422、Deferred Validationは受付時202の後にWorkerでRejectedとなる差を説明する。実装されていない`NotBlank`、`Length`、`Range`等を利用可能なAttributeとして掲載しない。Current Statusにも仕様と実装のGapを明示する。
 
 ## Glossary and First-use Notes
 
