@@ -1,6 +1,6 @@
 # D073: Skeleton Distribution Publication Boundary
 
-Status: Decided
+Status: Superseded by D076
 
 ## Context
 
@@ -121,3 +121,4 @@ A
 - [Composer Skeleton Publication](../spec/46-composer-skeleton-publication.md)
 - [Phase 8 Delivery Plan](../spec/52-phase-8-delivery-plan.md)
 - [P8-002 Local Create-project Smoke](../orchestration/reports/P8-002-local-split-create-project-smoke.md)
+- [D076 Framework and Skeleton Repository Naming](076-framework-and-skeleton-repository-naming.md)

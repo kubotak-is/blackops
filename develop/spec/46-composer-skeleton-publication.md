@@ -4,7 +4,7 @@
 
 `examples/quickstart/` は、Installed Application ExampleとComposer Project Package `blackops/skeleton` のSource of Truthである。
 
-Distribution RepositoryはPublic `https://github.com/kubotak-is/blackops.git`、Default Branch `main` とする。
+Main Framework RepositoryはPublic `https://github.com/kubotak-is/blackops.git` とする。Distribution RepositoryはPublic `https://github.com/kubotak-is/blackops-skeleton.git`、Default Branch `main` とする。
 
 開発、Review、Consumer E2EはMain Framework Repositoryで行う。Release時に `examples/quickstart/` の内容だけを自動Splitし、`composer.json` がRepository RootにあるRead-only Distribution RepositoryへPushする。
 
@@ -104,5 +104,6 @@ Cross-repository PushはDistribution RepositoryだけへWrite可能なDeploy Key
 ## Traceability
 
 - Decision: [D065 Composer Skeleton Publication](../decisions/065-composer-skeleton-publication.md)
+- Repository Naming: [D076 Framework and Skeleton Repository Naming](../decisions/076-framework-and-skeleton-repository-naming.md)
 - Roadmap: [Developer Experience Roadmap](41-developer-experience-roadmap.md)
 - Installed Layout: [Installed Application Layout and Bootstrap](43-installed-application-layout-and-bootstrap.md)
