@@ -7,6 +7,7 @@ const routes = [
   '/',
   '/concepts/why-blackops/',
   '/concepts/core-concepts/',
+  '/concepts/lifecycle/',
   '/getting-started/installation/',
   '/getting-started/directory-structure/',
   '/getting-started/first-operation/',
@@ -15,20 +16,21 @@ const routes = [
   '/operations/authoring/',
   '/operations/generators/',
   '/operations/validation/',
-  '/operations/lifecycle/',
   '/execution/http-and-deferred/',
   '/execution/context/',
   '/database/migrations/',
   '/database/outcomes/',
   '/database/retention/',
-  '/reference/configuration/',
-  '/reference/application-bootstrap/',
-  '/reference/project-cli/',
-  '/reference/troubleshooting/',
-  '/reference/security/',
+  '/testing/',
+  '/deployment/worker-operations/',
+  '/security/',
+  '/troubleshooting/',
+  '/releases/current-status/',
   '/reference/core-api/',
   '/reference/attributes/',
-  '/reference/current-status/',
+  '/reference/configuration/',
+  '/reference/project-cli/',
+  '/reference/application-bootstrap/',
   '/reference/glossary/',
 ];
 
@@ -38,28 +40,59 @@ for (const route of routes) {
 }
 
 const landing = pages.get('/');
-requireText(landing, 'href="/getting-started/quickstart/"', 'Landing Quickstart action');
+requireText(landing, '<h1 id="_top" data-page-title class="astro-', 'Landing product heading');
+requireText(landing, 'BlackOps — The PHP Framework</h1>', 'Landing product title');
+requireText(landing, 'href="/getting-started/installation/"', 'Landing Installation action');
 requireText(landing, 'href="/concepts/why-blackops/"', 'Landing Why BlackOps action');
-if ((landing.match(/class="landing-feature-link"/g) ?? []).length !== 4) {
-  throw new Error('Landing must contain four feature link blocks.');
+for (const feature of ['/operations/authoring/', '/concepts/lifecycle/', '/execution/http-and-deferred/']) {
+  requireText(landing, `class="landing-feature-link" href="${feature}"`, `Landing feature ${feature}`);
 }
-requireJourney('/', '/getting-started/quickstart/');
+if ((landing.match(/class="landing-feature-link"/g) ?? []).length !== 3) {
+  throw new Error('Landing must contain three feature link blocks.');
+}
+requireJourney('/', '/getting-started/installation/');
 requireJourney('/concepts/why-blackops/', '/concepts/core-concepts/');
-requireJourney('/concepts/core-concepts/', '/getting-started/installation/');
-requireJourney('/getting-started/installation/', '/getting-started/directory-structure/');
-requireJourney('/getting-started/directory-structure/', '/getting-started/first-operation/');
-requireJourney('/getting-started/first-operation/', '/getting-started/local-runtime/');
+requireJourney('/concepts/core-concepts/', '/concepts/lifecycle/');
+requireJourney('/concepts/lifecycle/', '/getting-started/installation/');
+requireJourney('/getting-started/installation/', '/getting-started/quickstart/');
 requireJourney('/getting-started/quickstart/', '/getting-started/first-operation/');
+requireJourney('/getting-started/first-operation/', '/getting-started/directory-structure/');
+requireJourney('/getting-started/directory-structure/', '/getting-started/local-runtime/');
 requireJourney('/getting-started/first-operation/', '/operations/validation/');
 
 const documentation = pages.get('/getting-started/installation/');
-for (const section of ['Overview', 'Getting Started', 'Operations', 'Execution', 'Database', 'Reference']) {
+for (const section of [
+  'Overview',
+  'Getting Started',
+  'Operations',
+  'Execution &amp; Workers',
+  'Data &amp; Retention',
+  'Testing',
+  'Deployment',
+  'Security',
+  'Troubleshooting',
+  'Releases',
+  'Reference',
+]) {
   requireText(documentation, `>${section}<`, `Sidebar section ${section}`);
+}
+requireText(documentation, '>Tutorial<', 'Sidebar Tutorial label');
+
+const redirects = await readFile(path.join(distRoot, '_redirects'), 'utf8');
+const expectedRedirects = [
+  '/operations/lifecycle/* /concepts/lifecycle/:splat 301',
+  '/reference/security/* /security/:splat 301',
+  '/reference/troubleshooting/* /troubleshooting/:splat 301',
+  '/reference/current-status/* /releases/current-status/:splat 301',
+  '',
+].join('\n');
+if (redirects !== expectedRedirects) {
+  throw new Error('Static artifact redirects do not match the four moved public URLs.');
 }
 
 const diagramRoutes = [
   '/concepts/core-concepts/',
-  '/operations/lifecycle/',
+  '/concepts/lifecycle/',
   '/execution/http-and-deferred/',
   '/execution/context/',
 ];
@@ -67,8 +100,10 @@ const responsiveContentRoutes = [
   '/getting-started/first-operation/',
   '/reference/core-api/',
   '/reference/attributes/',
-  '/reference/troubleshooting/',
-  '/reference/security/',
+  '/troubleshooting/',
+  '/security/',
+  '/testing/',
+  '/deployment/worker-operations/',
   '/operations/validation/',
 ];
 let diagramCount = 0;
@@ -155,6 +190,8 @@ async function verifyResponsiveDiagramStyle() {
       css.includes('min-inline-size:72rem') &&
       css.includes("aria-roledescription=sequence") &&
       css.includes('landing-feature-grid') &&
+      css.includes('grid-template-columns:repeat(3,minmax(0,1fr))') &&
+      css.includes('prefers-reduced-motion:reduce') &&
       css.includes('pre:not(.mermaid)') &&
       css.includes('overflow-wrap:anywhere') &&
       css.includes('white-space:normal') &&
@@ -231,7 +268,7 @@ async function verifySearch() {
     const troubleshootingRecords = await Promise.all(
       troubleshootingResult.results.slice(0, 5).map(({ data }) => data()),
     );
-    if (!troubleshootingRecords.some(({ url }) => url.includes('/reference/troubleshooting/'))) {
+    if (!troubleshootingRecords.some(({ url }) => url.includes('/troubleshooting/'))) {
       throw new Error('Pagefind did not return Troubleshooting for Typed Self-handled Signature Error.');
     }
     const securityResult = await search.search('Credential Rotation');
@@ -239,7 +276,7 @@ async function verifySearch() {
       throw new Error('Pagefind returned no result for Credential Rotation.');
     }
     const securityRecords = await Promise.all(securityResult.results.slice(0, 5).map(({ data }) => data()));
-    if (!securityRecords.some(({ url }) => url.includes('/reference/security/'))) {
+    if (!securityRecords.some(({ url }) => url.includes('/security/'))) {
       throw new Error('Pagefind did not return Security for Credential Rotation.');
     }
     await search.destroy();

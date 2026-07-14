@@ -93,6 +93,15 @@ Framework利用者向けMarkdownをSingle SourceとするAstro Starlight Website
 - Classic Modeの明示Fallback
 - State／Flush／Reconnect／Memory／`max_requests`の継続検証
 
+## P10-005H: Documentation Information Architecture and Visual Polish
+
+- Diátaxisを意識した11 Section Sidebar
+- Installationから始まるGetting Started
+- Referenceの純化とSecurity／Troubleshooting／Releases独立
+- Testing／Deployment入口Page
+- Landing Product Titleと3 Feature Card
+- Static Redirect、Navigation Validation、Desktop／Mobile／Theme Browser Review
+
 ## P10-006: Phase 10 Closeout
 
 - Full Website Quality Suite
@@ -117,7 +126,8 @@ P10-001 Website Contract
                     -> P10-005F FrankenPHP Worker Mode
                       -> P10-005D Reader Journey Corrections
                         -> P10-005G Worker Mode Default Promotion
-                          -> P10-006 Phase 10 Closeout
+                          -> P10-005H Documentation IA and Visual Polish
+                            -> P10-006 Phase 10 Closeout
 ```
 
 ## Commit Boundaries
@@ -137,6 +147,10 @@ P10-001 Website Contract
 - [ ] First OperationがCompileからHTTP、Journal、Outcomeまで完走する
 - [ ] Troubleshooting、Security責任分界、Core API、Attribute Referenceが揃う
 - [ ] 全公開Guideが日本語主体の能動態と統一用語を使用する
+- [x] Sidebarが説明、Tutorial、How-to、Referenceの役割を分離し、Installationから開始する
+- [x] Security、Troubleshooting、Releases、Testing、Deploymentが目的別Sectionとして到達可能である
+- [x] LandingがProduct TitleとOperation／Journal／Deferredの3 Feature Link Cardを持つ
+- [x] 移動した公開URLがStatic Redirectで新URLへ接続される
 - [ ] `main` DocumentとStable Versionの差が表示される
 - [ ] Mobile、Keyboard、Accessibility、Searchを検証している
 - [ ] Pull Request Previewと`main` Production Deployが成功する

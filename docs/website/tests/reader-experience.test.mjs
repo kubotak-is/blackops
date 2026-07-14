@@ -62,20 +62,37 @@ test('reader orientation explains the headless unified model and its journal bou
   }
 });
 
-test('landing presents four keyboard links and a primary Quickstart action', async () => {
+test('landing presents the product title, three feature links, and Installation as the primary action', async () => {
   const landing = await guide('README.md');
   const contentMapSource = await readFile(path.join(repositoryRoot, 'docs/website/content-map.mjs'), 'utf8');
   const links = [...landing.matchAll(/<a class="landing-feature-link" href="([^"]+)">/g)];
 
-  assert.equal(links.length, 4);
+  assert.match(landing, /^# BlackOps — The PHP Framework$/m);
+  assert.equal(links.length, 3);
   for (const value of [
-    '一つのOperation、二つの実行経路',
-    '型付きOperationを生成',
-    'No operation stays in the dark',
-    'Durable Deferred Execution',
+    'Operationが中心',
+    'Journalですべてを可視化',
+    '非同期処理を標準装備',
   ]) assert.match(landing, new RegExp(value));
-  assert.match(contentMapSource, /actions: \[\s*\{ text: 'Quickstart', link: '\/getting-started\/quickstart\/'/s);
+  assert.deepEqual(links.map((link) => link[1]), [
+    '/operations/authoring/',
+    '/concepts/lifecycle/',
+    '/execution/http-and-deferred/',
+  ]);
+  assert.match(contentMapSource, /actions: \[\s*\{ text: 'Installation', link: '\/getting-started\/installation\/'/s);
   assert.match(contentMapSource, /\{ text: 'Why BlackOps'.*variant: 'secondary'/);
+});
+
+test('static redirects preserve all four moved public URLs', async () => {
+  const redirects = await readFile(path.join(repositoryRoot, 'docs/website/public/_redirects'), 'utf8');
+
+  assert.equal(redirects, [
+    '/operations/lifecycle/* /concepts/lifecycle/:splat 301',
+    '/reference/security/* /security/:splat 301',
+    '/reference/troubleshooting/* /troubleshooting/:splat 301',
+    '/reference/current-status/* /releases/current-status/:splat 301',
+    '',
+  ].join('\n'));
 });
 
 test('four Mermaid diagrams include accessible source descriptions and prose alternatives', async () => {
@@ -304,4 +321,8 @@ test('diagram renderer and syntax parser are exact local dependencies', async ()
   assert.match(responsiveCss, /min-inline-size: 72rem/);
   assert.match(responsiveCss, /\.landing-feature-grid/);
   assert.match(responsiveCss, /\.landing-feature-link:focus-visible/);
+  assert.match(responsiveCss, /html\[data-has-hero\]/);
+  assert.match(responsiveCss, /grid-template-columns: repeat\(3, minmax\(0, 1fr\)\)/);
+  assert.match(responsiveCss, /@media \(prefers-reduced-motion: reduce\)/);
+  assert.match(responsiveCss, /transition: none/);
 });

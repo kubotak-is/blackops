@@ -26,9 +26,11 @@ mise exec -- pnpm --dir docs/website run dev
 
 GeneratorはTitle、Slug、内部Link、Source境界を検証する。`docs/internal/`、`develop/`、Repository Absolute Pathは公開Contentへ取り込まない。
 
-`content-map.mjs`はSource Relative Pathから公開Slug／Page MetadataへのMapping、`site-navigation.mjs`はOverview、Getting Started、Operations、Execution、Database、Referenceの6 Sectionを管理する。Source追加時は両方を更新する。未登録Source、欠落Source、重複Slug、Sidebar未配置／重複／未知SlugはBuild前に拒否される。
+`content-map.mjs`はSource Relative Pathから公開Slug／Page MetadataへのMapping、`site-navigation.mjs`はOverviewからReferenceまでの11 SectionとPage順を管理する。Source追加時は両方を更新する。未登録Source、欠落Source、重複Slug、Sidebar未配置／重複／未知SlugはBuild前に拒否される。
 
-Static Build後の`site:check`はLanding CTA、InstallからLocal Runtimeまでの連続Link、全PageのVersion Notice、Starlight標準Skip Link／Mobile Menu／Search Shortcut／Theme Selector、Pagefind日本語Indexと実Searchを検証する。独自Color／Navigation Componentは追加せず、Starlight標準のContrastとKeyboard Interactionを維持する。
+`public/_redirects`は役割変更で移動したLifecycle、Security、Troubleshooting、Current Statusの旧URLを新URLへ301 Redirectする。Slugを変更するときはSource Link、Content Map、Sidebar、Redirect、Search／Artifact Testを同じ変更単位で更新する。
+
+Static Build後の`site:check`はLanding CTA、InstallからLocal Runtimeまでの連続Link、11 Section、301 Redirect、全PageのVersion Notice、Starlight標準Skip Link／Mobile Menu／Search Shortcut／Theme Selector、Pagefind日本語Indexと実Searchを検証する。LandingのProduct Page装飾は`html[data-has-hero]`配下へ限定し、本文Layoutへ広げない。Starlight標準のContrastとKeyboard Interactionを維持し、`prefers-reduced-motion: reduce`ではCard Transitionを停止する。
 
 ## Reader-facing Terminology
 

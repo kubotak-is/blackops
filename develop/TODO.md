@@ -60,6 +60,7 @@ MVP後に残す主要項目:
 - [ ] `docs/guide/` だけを公開Source of Truthとする静的Buildを整備する
 - [ ] `docs/internal/` をWebsite Artifact、Navigation、Search Indexへ含めない
 - [ ] Cloudflare PagesのPreview／Production Deployを整備する
+- [x] Diátaxisを意識したSidebar、Landing、Testing／Deployment入口へ情報構造を再編する
 
 ## 現在の優先事項
 

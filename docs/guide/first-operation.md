@@ -235,4 +235,4 @@ function invoiceOutcome(OutcomeReader $outcomes, string $operationId): array
 docker compose down
 ```
 
-次は[Validation](validation.md)で宣言的Rule、Cross-field Validation、Business Rejectionの使い分けを確認してください。
+Getting Startedを続ける場合は[Directory Structure](directory-structure.md)でApplicationが所有する配置を確認してください。宣言的Rule、Cross-field Validation、Business Rejectionの詳細は[Validation](validation.md)を参照します。

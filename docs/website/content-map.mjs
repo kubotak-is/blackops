@@ -11,7 +11,7 @@ export const contentMap = {
     hero: {
       tagline: 'PHP 8.5で、同期HTTPとDeferred処理を同じOperation Modelから構築する。',
       actions: [
-        { text: 'Quickstart', link: '/getting-started/quickstart/', icon: 'rocket' },
+        { text: 'Installation', link: '/getting-started/installation/', icon: 'rocket' },
         { text: 'Why BlackOps', link: '/concepts/why-blackops/', variant: 'secondary' },
       ],
     },
@@ -53,7 +53,7 @@ export const contentMap = {
     description: 'Project CLIからOperationとMigrationを安全に生成し、Framework更新後のStubを利用する。',
   },
   'operation-lifecycle.md': {
-    slug: 'operations/lifecycle',
+    slug: 'concepts/lifecycle',
     description: 'Operationの受付から完了、拒否、再試行、失敗までのLifecycleを理解する。',
   },
   'validation.md': {
@@ -80,6 +80,14 @@ export const contentMap = {
     slug: 'database/retention',
     description: 'Payload、Journal、Outcome、Dead Letterの保持期間、Hold、Purgeを運用する。',
   },
+  'testing.md': {
+    slug: 'testing',
+    description: 'BlackOps Applicationを検証するときの層と、既存の実行例への入口を確認する。',
+  },
+  'deployment.md': {
+    slug: 'deployment/worker-operations',
+    description: 'HTTP WorkerとDeferred WorkerをProductionで運用するための責務と確認順を理解する。',
+  },
   'configuration.md': {
     slug: 'reference/configuration',
     description: 'Application、Database、Execution、Journal、Operation、Retentionの設定責務を確認する。',
@@ -93,11 +101,11 @@ export const contentMap = {
     description: 'Project Rootのblackopsから利用できるBuild、Database、Worker、Retention Commandを確認する。',
   },
   'troubleshooting.md': {
-    slug: 'reference/troubleshooting',
+    slug: 'troubleshooting',
     description: 'Build、Discovery、Artifact、Worker、Database、Journal、Outcomeの問題を症状から確認して解決する。',
   },
   'security.md': {
-    slug: 'reference/security',
+    slug: 'security',
     description: 'Sensitive ProjectionとApplication／運用が所有するSecurity責任の境界を確認する。',
   },
   'core-api.md': {
@@ -109,7 +117,7 @@ export const contentMap = {
     description: '全Public Attributeの用途、付与対象、Typed Self-handled標準形での必要性を確認する。',
   },
   'mvp-status.md': {
-    slug: 'reference/current-status',
+    slug: 'releases/current-status',
     description: 'main DocumentとStable 1.0.0で利用できる機能、既知の制約を確認する。',
   },
   'glossary.md': {

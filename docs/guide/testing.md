@@ -1,0 +1,20 @@
+# Testing Overview
+
+BlackOps ApplicationのTestは、Operationの業務規則、HTTP BindingとValidation、Inline／Deferredの実行境界、Databaseを含むWorker経路を分けて確認します。BlackOps専用のTesting APIやTest Runnerは提供していないため、Applicationが選んだPHP Test Frameworkと実Runtimeを組み合わせてください。
+
+## 確認する層
+
+| 層 | 確認すること | 既存の入口 |
+| --- | --- | --- |
+| Operation | 型付きValueからOutcomeまたは業務Rejectedを返す | [Operation Authoring](operations.md) |
+| HTTP Boundary | Route、Binding、宣言的Value Validation、Status／JSON | [Validation](validation.md) |
+| Inline／Deferred | 同じOperation ModelでResponseと受付境界が分かれる | [HTTP、Inline、Deferred](execution.md) |
+| Consumer E2E | Build、Migration、HTTP、Worker、Journal、Outcomeを実Processでつなぐ | [Quickstart](mvp-sample.md) |
+
+Unit TestだけでDeferred処理のDurabilityを保証したと判断しないでください。少なくともApplicationと同じPostgreSQL SchemaへMigrationを適用し、HTTP 202のOperation IDを使ってWorker後のJournalとOutcomeを確認します。
+
+## Validation Failureを固定する
+
+成功例だけでなく、壊れたJSONの400、Binding Failureの422、宣言的Value Validationの422、Handler内の業務Rejectedを別Caseとして固定します。Sensitive値を使うTestでは、Canonical StoreのAccess制御とObserved JournalのMask／Exclude／Hashを混同せず、公開するLogやFixtureへRaw Secretを残さないでください。
+
+再現可能なInput／Outputは[チュートリアル](first-operation.md)、失敗時の調査順は[Troubleshooting](troubleshooting.md)を参照してください。

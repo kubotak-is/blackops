@@ -58,3 +58,5 @@ Retryable ExceptionはSupervision Policyに従い`attempt.failed`と`attempt.ret
 CompletedだけがTyped Outcomeを保存します。Rejected、Failed、Retry Scheduled、Dead Letter、Claim LostはOutcome Recordを作成しません。詳細は[Outcome Retrieval](outcome-retrieval.md)を参照してください。
 
 JournalとOutcomeは別々の保持期間を設定できます。Operation単位のHoldと安全なPurgeについては[Data Retention](retention.md)を参照してください。
+
+仕組みを理解したら[Installation](installation.md)からApplicationを作成します。

@@ -33,4 +33,4 @@ Stable `1.0.0`にはFramework／SkeletonのInline、Deferred、CLI Worker、Outc
 
 このWebsiteの[Quickstart](mvp-sample.md)はProject Root Entrypointを含む`main` Channelを明示Installします。Stable `1.0.0`を固定した手順と混ぜないでください。
 
-次は[Directory Structure](directory-structure.md)でInstall直後の配置を確認します。
+次は[Quickstart](mvp-sample.md)でInline Request、Deferred受付、Worker実行を一続きで確認します。

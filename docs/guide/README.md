@@ -1,28 +1,26 @@
-# BlackOps Documentation
+# BlackOps — The PHP Framework
 
 BlackOpsは、PHP 8.5向けのHeadless Operation Frameworkです。一つの型付きOperationをInline HTTPとDurable Deferredの両方へ接続し、受理から完了までのLifecycleをJournalへ残します。
 
 <div class="landing-feature-grid">
-  <a class="landing-feature-link" href="/execution/http-and-deferred/"><strong>一つのOperation、二つの実行経路</strong><span>同じ型付きUse CaseをInline HTTPとDeferred Workerへ接続します。</span></a>
-  <a class="landing-feature-link" href="/operations/generators/"><strong>型付きOperationを生成</strong><span>Project CLIからOperation、Value、OutcomeのBuild可能な骨格を作ります。</span></a>
-  <a class="landing-feature-link" href="/concepts/why-blackops/"><strong>No operation stays in the dark</strong><span>受理したOperationのAttempt、拒否、完了をJournalで追跡します。</span></a>
-  <a class="landing-feature-link" href="/operations/lifecycle/"><strong>Durable Deferred Execution</strong><span>PostgreSQLのClaim、Lease、Retry、Outcomeで長い処理を安全に進めます。</span></a>
+  <a class="landing-feature-link" href="/operations/authoring/"><code>#[Route]</code><strong>Operationが中心</strong><span><code>#[Route]</code>で同期API、<code>#[ExecuteWith(Deferred)]</code>で非同期化。HTTPもコンソールコマンドもJobも、すべてはOperation。</span></a>
+  <a class="landing-feature-link" href="/concepts/lifecycle/"><code>Journal</code><strong>Journalですべてを可視化</strong><span>受理・試行・リトライ・拒否・完了をFWが自動でJournalへ記録。「なぜ失敗したか」をフレームワークが記録する。</span></a>
+  <a class="landing-feature-link" href="/execution/http-and-deferred/"><code>Deferred</code><strong>非同期処理を標準装備</strong><span>リトライ／バックオフ／重複防止／Dead Letter／型付きOutcome保存をPostgreSQLで標準提供。</span></a>
 </div>
 
 ## 最短で試す
 
-[Quickstart](mvp-sample.md)は空DirectoryからComposer Install、Inline Request、Deferred受付、Worker実行までを一Pageで案内します。先に別のInstallation Pageを終える必要はありません。
+[Quickstart](mvp-sample.md)は空DirectoryからComposer Install、Inline Request、Deferred受付、Worker実行までを一Pageで案内します。初めて使う場合は[Installation](installation.md)で前提を確認してから進んでください。
 
 ## 読み進め方
 
-1. [Why BlackOps](why-blackops.md) — 解決する分断と設計原則を理解する
-2. [Core Concepts](core-concepts.md) — Operation、Value、Outcome、Journalの関係をつかむ
-3. [Quickstart](mvp-sample.md) — InstallからInline／Deferred／Workerまで動かす
-4. [チュートリアル: Operationを作る](first-operation.md) — Generatorから自分のOperationを実装する
-5. [Validation](validation.md) — Binding、Value、Business rejectionの境界を選ぶ
-6. [Local Runtime](runtime-bootstrap.md) — Default Worker ModeとClassic Fallbackを運用する
+1. [Installation](installation.md) — Stableと`main`の前提を確認してProjectを作る
+2. [Quickstart](mvp-sample.md) — InstallからInline／Deferred／Workerまで動かす
+3. [Tutorial](first-operation.md) — Generatorから自分のOperationを実装する
+4. [Directory Structure](directory-structure.md) — Applicationが所有する構成をつかむ
+5. [Local Runtime](runtime-bootstrap.md) — Default Worker ModeとClassic Fallbackを運用する
 
-必要なPageだけを探す場合は、左SidebarまたはSearchから[Operation Authoring](operations.md)、[HTTP、Inline、Deferred](execution.md)、[Configuration](configuration.md)、[Troubleshooting](troubleshooting.md)へ進めます。
+設計から理解する場合は[Why BlackOps](why-blackops.md)、[Core Concepts](core-concepts.md)、[Operation Lifecycle](operation-lifecycle.md)の順に進みます。必要なPageだけを探す場合は、左SidebarまたはSearchから[Operation Authoring](operations.md)、[HTTP、Inline、Deferred](execution.md)、[Testing](testing.md)、[Deployment](deployment.md)、[Troubleshooting](troubleshooting.md)へ進めます。
 
 ## Document Channel
 

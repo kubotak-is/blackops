@@ -1,0 +1,4 @@
+/operations/lifecycle/* /concepts/lifecycle/:splat 301
+/reference/security/* /security/:splat 301
+/reference/troubleshooting/* /troubleshooting/:splat 301
+/reference/current-status/* /releases/current-status/:splat 301

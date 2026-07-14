@@ -1,41 +1,43 @@
 export const sidebar = [
   {
     label: 'Overview',
-    items: ['concepts/why-blackops', 'concepts/core-concepts'],
+    items: ['concepts/why-blackops', 'concepts/core-concepts', 'concepts/lifecycle'],
   },
   {
     label: 'Getting Started',
     items: [
-      'getting-started/quickstart',
       'getting-started/installation',
-      'getting-started/first-operation',
+      'getting-started/quickstart',
+      { label: 'Tutorial', link: 'getting-started/first-operation' },
       'getting-started/directory-structure',
       'getting-started/local-runtime',
     ],
   },
   {
     label: 'Operations',
-    items: ['operations/authoring', 'operations/generators', 'operations/validation', 'operations/lifecycle'],
+    items: ['operations/authoring', 'operations/generators', 'operations/validation'],
   },
   {
-    label: 'Execution',
+    label: 'Execution & Workers',
     items: ['execution/http-and-deferred', 'execution/context'],
   },
   {
-    label: 'Database',
+    label: 'Data & Retention',
     items: ['database/migrations', 'database/outcomes', 'database/retention'],
   },
+  { label: 'Testing', items: ['testing'] },
+  { label: 'Deployment', items: ['deployment/worker-operations'] },
+  { label: 'Security', items: ['security'] },
+  { label: 'Troubleshooting', items: ['troubleshooting'] },
+  { label: 'Releases', items: ['releases/current-status'] },
   {
     label: 'Reference',
     items: [
-      'reference/configuration',
-      'reference/application-bootstrap',
-      'reference/project-cli',
-      'reference/troubleshooting',
-      'reference/security',
       'reference/core-api',
       'reference/attributes',
-      'reference/current-status',
+      'reference/configuration',
+      'reference/project-cli',
+      'reference/application-bootstrap',
       'reference/glossary',
     ],
   },
@@ -43,16 +45,28 @@ export const sidebar = [
 
 export function validateNavigation(contentMap, navigation = sidebar) {
   const labels = navigation.map(({ label }) => label);
-  const required = ['Overview', 'Getting Started', 'Operations', 'Execution', 'Database', 'Reference'];
+  const required = [
+    'Overview',
+    'Getting Started',
+    'Operations',
+    'Execution & Workers',
+    'Data & Retention',
+    'Testing',
+    'Deployment',
+    'Security',
+    'Troubleshooting',
+    'Releases',
+    'Reference',
+  ];
   if (JSON.stringify(labels) !== JSON.stringify(required)) {
-    throw new Error(`Sidebar must contain the six public sections in order: ${required.join(', ')}`);
+    throw new Error(`Sidebar must contain the required public sections in order: ${required.join(', ')}`);
   }
 
   const mapped = Object.values(contentMap)
     .map(({ slug }) => slug)
     .filter((slug) => slug !== 'index')
     .sort();
-  const placed = navigation.flatMap(({ items }) => items).sort();
+  const placed = navigation.flatMap(({ items }) => items.map((item) => typeof item === 'string' ? item : item.link)).sort();
   const duplicates = placed.filter((slug, index) => placed.indexOf(slug) !== index);
   if (duplicates.length > 0) {
     throw new Error(`Sidebar contains duplicate public slugs: ${[...new Set(duplicates)].join(', ')}`);

@@ -20,6 +20,7 @@ let rendererEntryCount = 0;
 let mermaidCoreCount = 0;
 let responsiveStylesheetCount = 0;
 let responsiveContentStylesheetCount = 0;
+let landingStylesheetCount = 0;
 for (const file of await files(distRoot)) {
   const content = (await readFile(file)).toString('utf8');
   for (const [pattern, label] of forbidden) {
@@ -65,6 +66,16 @@ for (const file of await files(distRoot)) {
   ) {
     responsiveContentStylesheetCount += 1;
   }
+  if (
+    file.endsWith('.css') &&
+    content.includes('html[data-has-hero]') &&
+    content.includes('grid-template-columns:repeat(3,minmax(0,1fr))') &&
+    content.includes('landing-feature-link:focus-visible') &&
+    content.includes('prefers-reduced-motion:reduce') &&
+    content.includes('transition:none')
+  ) {
+    landingStylesheetCount += 1;
+  }
 }
 
 if (diagramCount !== 4) {
@@ -87,6 +98,9 @@ if (responsiveContentStylesheetCount !== 1) {
   throw new Error(
     `Static artifact must contain one responsive prose, code, and table stylesheet; found ${responsiveContentStylesheetCount}.`,
   );
+}
+if (landingStylesheetCount !== 1) {
+  throw new Error(`Static artifact must contain one accessible landing stylesheet; found ${landingStylesheetCount}.`);
 }
 
 function escapePattern(value) {

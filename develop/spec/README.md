@@ -155,7 +155,7 @@
 | [D074](../decisions/074-typed-self-handled-operation-signature.md) | Typed Self-handled Operation Signature | Decided |
 | [D075](../decisions/075-native-outcome-and-rejection-exception.md) | Native Outcome and Rejection Exception | Decided |
 | [D076](../decisions/076-framework-and-skeleton-repository-naming.md) | Framework and Skeleton Repository Naming | Decided |
-| [D077](../decisions/077-implementation-worker-model-upgrade.md) | Implementation Worker Model Upgrade | Decided |
+| [D077](../decisions/077-implementation-worker-model-upgrade.md) | Implementation Worker Model Upgrade | Superseded by D091 |
 | [D078](../decisions/078-initial-stable-release-version.md) | Initial Stable Release Version | Decided |
 | [D079](../decisions/079-immutable-release-publication-recovery.md) | Immutable Release Publication Recovery | Decided |
 | [D080](../decisions/080-project-generator-command-contract.md) | Project Generator Command Contract | Decided |
@@ -168,3 +168,5 @@
 | [D087](../decisions/087-pre-binding-rejection-journal.md) | Pre-binding Rejection Journal | Decided |
 | [D088](../decisions/088-validation-backend.md) | Validation Backend | Decided |
 | [D089](../decisions/089-validation-rejection-sensitive-journal.md) | Validation Rejection Sensitive Journal | Decided |
+| [D090](../decisions/090-documentation-information-architecture.md) | Documentation Information Architecture | Decided |
+| [D091](../decisions/091-orchestrator-worker-model-configuration.md) | Orchestrator and Worker Model Configuration | Decided |

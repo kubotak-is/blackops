@@ -8,9 +8,9 @@
 Landing
   -> Why BlackOps
   -> Core Concepts
-  -> Getting Started
-  -> Operations / Execution / Database
-  -> Security / Troubleshooting / Reference / Glossary
+  -> Installation / Quickstart / Tutorial
+  -> Operations / Execution & Workers / Data & Retention
+  -> Testing / Deployment / Security / Troubleshooting / Releases / Reference
 ```
 
 `Why BlackOps`は、同期HTTPと非同期処理を別Modelとして実装したときにLifecycle、Retry、Trace、Outcomeが分断される課題を示し、BlackOpsが一つのOperation ModelとExecution Strategyの差で扱うことを説明する。
@@ -86,9 +86,19 @@ Tutorialは`main`のGeneratorを学ぶPageとして明示し、Stable `1.0.0`に
 
 ## Landing and Quickstart
 
-LandingはHero直後に4つのFeature Link Blockを置き、統一Operation Model、Generator、Lifecycle Journal、Durable Deferred Executionから詳細Guideへ進めるようにする。Primary CTAはInstall込みQuickstartとする。
+LandingのTitleは`BlackOps — The PHP Framework`とする。Hero直後に「Operationが中心」「Journalですべてを可視化」「非同期処理を標準装備」の3 Feature Link Blockを置き、Operation Authoring、Lifecycle、HTTP／Deferred Guideへ進めるようにする。Primary CTAはInstallation、Secondary CTAはWhy BlackOpsとする。
 
-Quickstartは空Directoryから`composer create-project blackops/skeleton my-app`を実行し、Dependency Install、Build、Migration、HTTP起動、Inline Request、Deferred Request、Worker実行までを一Pageで扱う。Installation Pageを先に読んだことを前提にしない。
+Getting StartedのSidebarはInstallation、Quickstart、Tutorial、Directory Structure、Local Runtimeの順とする。Quickstart本文がInstallを含む場合も、情報構造上の開始地点はInstallationへ統一する。
+
+## Information Architecture
+
+OverviewはWhy BlackOps、Core Concepts、Operation Lifecycleを説明する。OperationsはAuthoring、Generators、Validationを扱い、Lifecycleを手順Sectionへ混在させない。
+
+`Execution & Workers`はHTTP／Inline／Deferred／Context、`Data & Retention`はMigration／Outcome／Retentionを扱う。TestingとDeploymentは入口Pageから開始する。Security、Troubleshooting、Releasesは独立Sectionとする。
+
+ReferenceはCore API、Attributes、Configuration、Project CLI、Application Bootstrap、Glossaryだけを置く。移動する旧URLはStatic Redirectで新URLへ接続する。
+
+LandingはStarlight標準のSidebar、Search、Mobile Navigation、Theme、Accessibilityを維持し、Custom CSS中心でProduct Pageとして視覚調整する。Desktop／Mobile、Dark／Light、Keyboard Focus、Reduced Motionを検証する。
 
 ## Validation Guide
 
@@ -97,14 +107,14 @@ Validation Guideは現行実装を次の三つへ分ける。
 | Boundary | Current capability |
 | --- | --- |
 | Binding | JSON Object、必須Constructor Parameter、Default、Scalar／null、Native Type、FromPath／Query／Header／Body |
-| Value Validation | 現行Releaseでは宣言的Attribute未実装。Operationの`handle()`で値を検証し、`OperationRejectedException::validation()`をthrowする |
+| Value Validation | `NotBlank`、`Length`、`Range`、`Email`、`Regex`、`Count`、`Choice`をSymfony Validator Backendで評価する |
 | Business Validation | Repository／Domain Service等で外部状態を照合し、適切なRejected Factoryをthrowする |
 
 現行BinderはNested Object／Array、Enum／DateTime変換、明示的なBoolean／Integer Parser、Constructor以外のProperty Bindingを提供しない。Field省略を許すにはNullable TypeだけでなくConstructor Defaultが必要である。
 
-Binding Failureは現行HTTP Handlerで4xxへ正規化されず、Operation IDとJournalも生成しない実装Gapがある。Guideはこの制約を隠さず、Application Error Handlerで任意の422として実装済みであるかのように記載しない。
+Binding FailureはOperation ID付き422へ正規化し、ReceivedなしのSequence 1 Rejectedを記録する。宣言的Value Validation FailureはReceivedからRejectedへ遷移し、HTTP受付中に422を返す。Inline／DeferredのどちらもHandlerまたはDeferred受付へ進めない。
 
-Guideは成功Input／OutputとValidation Failure Input／HTTP Output／Journal Resultを対にした完全例を示す。Inline Validationは422、Deferred Validationは受付時202の後にWorkerでRejectedとなる差を説明する。実装されていない`NotBlank`、`Length`、`Range`等を利用可能なAttributeとして掲載しない。Current Statusにも仕様と実装のGapを明示する。
+Guideは成功Input／OutputとValidation Failure Input／HTTP Output／Journal Resultを対にした完全例を示す。Cross-field／Custom ValidationはHandler内で`OperationRejectedException::validation()`をthrowする。DeferredでHandlerまで進んだ後の手動Validation／Business Rejectionは202受付後にWorkerでRejectedとなる差を説明する。`Count`はCollectionへ利用できるが、現行HTTP BinderがNon-scalar Inputを拒否する制約を明示する。
 
 ## Glossary and First-use Notes
 
@@ -155,7 +165,10 @@ Attributes Pageは全利用者向けPublic AttributeをSourceと照合し、Name
 ## Verification
 
 - Why BlackOpsとCore ConceptsがGetting Startedより前にNavigationへ配置される
-- Landingが4 Feature Link BlockとInstall込みQuickstartへのPrimary CTAを持つ
+- LandingがProduct Title、3 Feature Link Block、InstallationへのPrimary CTAを持つ
+- Getting StartedがInstallation、Quickstart、Tutorial、Directory Structure、Local Runtimeの順である
+- ReferenceがCore API、Attributes、Configuration、Project CLI、Application Bootstrap、Glossaryだけを持つ
+- Testing、Deployment、Security、Troubleshooting、Releasesが独立Sectionとして到達可能である
 - QuickstartがComposer InstallからInline／Deferred／Workerまで自己完結する
 - 4 DiagramのSyntaxがBuild前に検証され、Static ArtifactがLocal Renderer／Render Targetを持ち、BrowserでSVG描画される
 - 4 DiagramがAccessible DescriptionとText Alternativeを持つ
@@ -164,7 +177,7 @@ Attributes Pageは全利用者向けPublic AttributeをSourceと照合し、Name
 - Journal例がParse可能で、Sensitive Input Literalを含まずMaskを含む
 - Glossary、Troubleshooting、Security、Core API、AttributesがNavigationとSearchへ含まれる
 - Public API／Attribute Tableが現在のSourceと一致し、Internal Namespaceを利用者へ要求しない
-- Validation Guideが現在利用できるBinding／Rejected APIと未実装Attributeを区別する
+- Validation Guideが現在利用できる7 Attribute、Binding／Rejected API、HTTP Binder制約を区別する
 - 全PageがVersion Bannerを維持し、Current StatusのStable／main差と既知制約を保持する
 - Content Test、Astro Check、Static Build、Link／Artifact Guard、Quickstart Mago Analyzeが成功する
 
