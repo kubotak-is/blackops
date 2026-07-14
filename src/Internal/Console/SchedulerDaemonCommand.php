@@ -19,7 +19,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: self::NAME, description: 'Run BlackOps maintenance tasks on an interval.')]
 final class SchedulerDaemonCommand extends Command
 {
-    public const NAME = 'blackops:scheduler:daemon';
+    public const NAME = 'scheduler:daemon';
+
+    public const LEGACY_NAME = 'blackops:scheduler:daemon';
 
     public function __construct(
         private readonly MaintenanceScheduler $scheduler,

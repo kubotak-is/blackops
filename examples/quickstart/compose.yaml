@@ -75,13 +75,13 @@ services:
     profiles: ["worker"]
     extends:
       service: app
-    command: ["php", "blackops", "blackops:worker:run"]
+    command: ["php", "blackops", "worker:run"]
 
   scheduler:
     profiles: ["maintenance"]
     extends:
       service: app
-    command: ["php", "blackops", "blackops:scheduler:daemon"]
+    command: ["php", "blackops", "scheduler:daemon"]
 
 volumes:
   postgres_data:

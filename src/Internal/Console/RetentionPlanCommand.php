@@ -19,7 +19,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: self::NAME, description: 'Build and print a retention purge plan without applying it.')]
 final class RetentionPlanCommand extends Command
 {
-    public const NAME = 'blackops:retention:plan';
+    public const NAME = 'retention:plan';
+
+    public const LEGACY_NAME = 'blackops:retention:plan';
 
     public function __construct(
         private readonly RetentionPlanner $planner,

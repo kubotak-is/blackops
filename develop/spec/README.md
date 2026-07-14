@@ -170,3 +170,4 @@
 | [D089](../decisions/089-validation-rejection-sensitive-journal.md) | Validation Rejection Sensitive Journal | Decided |
 | [D090](../decisions/090-documentation-information-architecture.md) | Documentation Information Architecture | Decided |
 | [D091](../decisions/091-orchestrator-worker-model-configuration.md) | Orchestrator and Worker Model Configuration | Decided |
+| [D092](../decisions/092-project-cli-command-names.md) | Project CLI Command Names | Decided |

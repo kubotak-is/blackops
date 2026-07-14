@@ -106,7 +106,7 @@ Sourceを追加したらAutoloadとArtifactを更新します。
 
 ```bash
 docker compose run --rm app composer dump-autoload
-docker compose run --rm app php blackops blackops:build:compile
+docker compose run --rm app php blackops build:compile
 docker compose up -d
 ```
 

@@ -17,11 +17,18 @@ final class LazyFrameworkCommand extends Command
     /**
      * @param Closure(): Command $factory
      * @param Closure(Command): void $definition
+     * @param list<string> $aliases
      */
-    public function __construct(string $name, string $description, Closure $factory, Closure $definition)
-    {
+    public function __construct(
+        string $name,
+        string $description,
+        Closure $factory,
+        Closure $definition,
+        array $aliases = [],
+    ) {
         parent::__construct($name);
         $this->setDescription($description);
+        $this->setAliases($aliases);
         $this->factory = $factory;
         $definition($this);
     }

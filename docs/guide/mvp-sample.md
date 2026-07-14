@@ -19,8 +19,8 @@ composer require blackops/framework:dev-main
 ```bash
 docker compose build app http
 docker compose run --rm app composer install
-docker compose run --rm app php blackops blackops:build:compile
-docker compose run --rm app php blackops blackops:database:migrate
+docker compose run --rm app php blackops build:compile
+docker compose run --rm app php blackops database:migrate
 docker compose up -d
 ```
 
@@ -69,9 +69,9 @@ curl -sS -X POST -H 'Content-Type: application/json' \
 Sample Reportは一回目のAttemptでRetryを要求し、二回目で成功します。
 
 ```bash
-docker compose run --rm app php blackops blackops:worker:run --iterations=1 --idle-sleep-milliseconds=1
+docker compose run --rm app php blackops worker:run --iterations=1 --idle-sleep-milliseconds=1
 sleep 2
-docker compose run --rm app php blackops blackops:worker:run --iterations=1 --idle-sleep-milliseconds=1
+docker compose run --rm app php blackops worker:run --iterations=1 --idle-sleep-milliseconds=1
 ```
 
 ```text

@@ -22,7 +22,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: self::NAME, description: 'Dry-run or apply retention purge.')]
 final class RetentionPurgeCommand extends Command
 {
-    public const NAME = 'blackops:retention:purge';
+    public const NAME = 'retention:purge';
+
+    public const LEGACY_NAME = 'blackops:retention:purge';
 
     public function __construct(
         private readonly RetentionPlanner $planner,

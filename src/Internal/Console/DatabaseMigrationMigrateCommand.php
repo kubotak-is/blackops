@@ -14,7 +14,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: self::NAME, description: 'Apply or preview BlackOps database migrations.')]
 final class DatabaseMigrationMigrateCommand extends Command
 {
-    public const NAME = 'blackops:database:migrate';
+    public const NAME = 'database:migrate';
+
+    public const LEGACY_NAME = 'blackops:database:migrate';
 
     public function __construct(
         private readonly DatabaseMigrationRunner $runner,

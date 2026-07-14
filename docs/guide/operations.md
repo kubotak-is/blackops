@@ -78,4 +78,4 @@ if (!$this->inventory->isAvailable($value->items)) {
 
 Decoratorや複数実装の切替等で責務を分ける場合は、`#[HandledBy]`と`OperationHandler`を使うCompatibility形を選べます。新しい単純なUse CaseではTyped Self-handledを優先してください。
 
-Sourceを追加したら`php blackops blackops:build:compile`でSignatureとMetadataを検証します。Generatorを利用する場合は[Operation Generator](project-generators.md)を参照してください。
+Sourceを追加したら`php blackops build:compile`でSignatureとMetadataを検証します。Generatorを利用する場合は[Operation Generator](project-generators.md)を参照してください。

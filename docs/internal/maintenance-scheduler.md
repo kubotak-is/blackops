@@ -13,13 +13,13 @@ BlackOps exposes two command classes:
 
 | Command | Behavior |
 | --- | --- |
-| `blackops:scheduler:run` | Runs the registered maintenance tasks once, then exits. |
-| `blackops:scheduler:daemon` | Runs the registered maintenance tasks repeatedly with an explicit interval. |
+| `scheduler:run` | Runs the registered maintenance tasks once, then exits. |
+| `scheduler:daemon` | Runs the registered maintenance tasks repeatedly with an explicit interval. |
 
-Use `blackops:scheduler:run` for cron, container scheduler, Kubernetes CronJob,
+Use `scheduler:run` for cron, container scheduler, Kubernetes CronJob,
 systemd timers, or other external schedulers.
 
-Use `blackops:scheduler:daemon --interval=60` only when the application wants a
+Use `scheduler:daemon --interval=60` only when the application wants a
 long-running process. The daemon intentionally does not own process supervision,
 restart policy, or multi-start prevention.
 

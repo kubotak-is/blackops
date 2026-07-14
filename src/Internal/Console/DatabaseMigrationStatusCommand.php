@@ -13,7 +13,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: self::NAME, description: 'Show applied and pending BlackOps database migrations.')]
 final class DatabaseMigrationStatusCommand extends Command
 {
-    public const NAME = 'blackops:database:status';
+    public const NAME = 'database:status';
+
+    public const LEGACY_NAME = 'blackops:database:status';
 
     public function __construct(
         private readonly DatabaseMigrationRunner $runner,

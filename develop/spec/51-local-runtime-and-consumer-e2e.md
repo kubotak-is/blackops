@@ -123,8 +123,8 @@ Test終了時はCompose Project／Volume／Container／Image／Temp Directoryを
 ## End-to-End Scenario
 
 1. Temp Consumer Composer Install
-2. `blackops:operation:list` がWelcome／ReportをDiscovery
-3. `blackops:build:compile` が3 Artifactを生成
+2. `operation:list` がWelcome／ReportをDiscovery
+3. `build:compile` が3 Artifactを生成
 4. Build時点でFramework Schemaが存在しない
 5. `database:status` はRead-only
 6. `database:migrate` 明示実行後だけSchemaが存在

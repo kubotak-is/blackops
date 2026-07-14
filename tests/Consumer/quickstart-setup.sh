@@ -46,8 +46,8 @@ test -d "${project}/var/build"
 test -d "${project}/var/log"
 test -z "$(find "${project}/var/build" "${project}/var/log" -type f -print -quit)"
 grep -F 'docker compose build app http' "${temporary_root}/direct.out" > /dev/null
-grep -F 'blackops:build:compile' "${temporary_root}/direct.out" > /dev/null
-grep -F 'blackops:database:migrate' "${temporary_root}/direct.out" > /dev/null
+grep -F 'build:compile' "${temporary_root}/direct.out" > /dev/null
+grep -F 'database:migrate' "${temporary_root}/direct.out" > /dev/null
 
 find "${project}" -type f ! -path "${project}/.env" -printf '%P\t%s\t%T@\n' | sort > "${after}"
 cmp "${before}" "${after}"

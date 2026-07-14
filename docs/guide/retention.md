@@ -7,7 +7,7 @@ Public Console Kernelは`config/retention.php`の4期間、`policy_ref`、`actor
 候補を確認するときは、副作用のないPlan Commandを使います。
 
 ```text
-blackops:retention:plan
+retention:plan
   --transport-payload-days=7
   --journal-days=30
   --outcome-days=14
@@ -17,7 +17,7 @@ blackops:retention:plan
 Purge Commandは`--dry-run`または`--confirm`のどちらかを要求します。Confirm時は監査用のPolicy ReferenceとActorも指定します。
 
 ```text
-blackops:retention:purge
+retention:purge
   --confirm
   --transport-payload-days=7
   --journal-days=30
@@ -27,7 +27,7 @@ blackops:retention:purge
   --actor=system:retention
 ```
 
-Kernel構成、`list`、`help`ではRetention ConnectionやPurge Serviceを構成せず、Purgeも実行しません。`blackops:retention:purge --confirm`または明示的なScheduler Commandだけが変更を開始します。
+Kernel構成、`list`、`help`ではRetention ConnectionやPurge Serviceを構成せず、Purgeも実行しません。`retention:purge --confirm`または明示的なScheduler Commandだけが変更を開始します。
 
 ## Journal Retention
 

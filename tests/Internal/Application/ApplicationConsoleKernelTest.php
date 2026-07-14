@@ -43,27 +43,39 @@ final class ApplicationConsoleKernelTest extends TestCase
         $listing = $list->fetch();
 
         foreach ([
-            'blackops:build:compile',
-            'blackops:operation:list',
+            'build:compile',
+            'operation:list',
             'make:operation',
             'make:migration',
-            'blackops:database:status',
-            'blackops:database:migrate',
-            'blackops:worker:run',
-            'blackops:retention:plan',
-            'blackops:retention:purge',
-            'blackops:scheduler:run',
-            'blackops:scheduler:daemon',
+            'database:status',
+            'database:migrate',
+            'worker:run',
+            'retention:plan',
+            'retention:purge',
+            'scheduler:run',
+            'scheduler:daemon',
         ] as $name) {
             self::assertStringContainsString($name, $listing);
         }
 
-        $help = new BufferedOutput();
-        self::assertSame(0, $kernel->run(new ArrayInput([
-            'command' => 'help',
-            'command_name' => 'blackops:worker:run',
-        ]), $help));
-        self::assertStringContainsString('blackops:worker:run', $help->fetch());
+        foreach ([
+            'blackops:build:compile' => 'build:compile',
+            'blackops:operation:list' => 'operation:list',
+            'blackops:database:status' => 'database:status',
+            'blackops:database:migrate' => 'database:migrate',
+            'blackops:worker:run' => 'worker:run',
+            'blackops:retention:plan' => 'retention:plan',
+            'blackops:retention:purge' => 'retention:purge',
+            'blackops:scheduler:run' => 'scheduler:run',
+            'blackops:scheduler:daemon' => 'scheduler:daemon',
+        ] as $alias => $canonical) {
+            $help = new BufferedOutput();
+            self::assertSame(0, $kernel->run(new ArrayInput([
+                'command' => 'help',
+                'command_name' => $alias,
+            ]), $help));
+            self::assertStringContainsString($canonical, $help->fetch());
+        }
 
         $generatorHelp = new BufferedOutput();
         self::assertSame(0, $kernel->run(new ArrayInput([
@@ -101,7 +113,7 @@ final class ApplicationConsoleKernelTest extends TestCase
         $output = new BufferedOutput();
 
         self::assertSame(0, $application->console()->run(new ArrayInput([
-            'command' => 'blackops:operation:list',
+            'command' => 'operation:list',
         ]), $output));
         self::assertStringContainsString('console.provider.operation', $output->fetch());
     }
@@ -110,6 +122,30 @@ final class ApplicationConsoleKernelTest extends TestCase
     {
         $application = Application::configure($this->directory())
             ->withCommands([ConsoleKernelConflictingCommand::class])
+            ->create();
+
+        $this->expectException(ApplicationBootstrapException::class);
+        $this->expectExceptionMessage('conflicts with a framework command');
+
+        $application->console();
+    }
+
+    public function testRejectsApplicationCommandThatConflictsWithLegacyFrameworkAlias(): void
+    {
+        $application = Application::configure($this->directory())
+            ->withCommands([ConsoleKernelLegacyConflictingCommand::class])
+            ->create();
+
+        $this->expectException(ApplicationBootstrapException::class);
+        $this->expectExceptionMessage('conflicts with a framework command');
+
+        $application->console();
+    }
+
+    public function testRejectsApplicationCommandAliasThatConflictsWithFrameworkCommand(): void
+    {
+        $application = Application::configure($this->directory())
+            ->withCommands([ConsoleKernelAliasConflictingCommand::class])
             ->create();
 
         $this->expectException(ApplicationBootstrapException::class);
@@ -198,7 +234,7 @@ final class ApplicationConsoleKernelTest extends TestCase
             '--type' => 'generated.create',
         ]), new BufferedOutput()));
         self::assertSame(0, $application->console()->run(new ArrayInput([
-            'command' => 'blackops:build:compile',
+            'command' => 'build:compile',
         ]), new BufferedOutput()));
 
         self::assertFileExists($build . '/operations.php');
@@ -229,7 +265,7 @@ final class ApplicationConsoleKernelTest extends TestCase
 
         try {
             $application->console()->run(new ArrayInput([
-                'command' => 'blackops:database:status',
+                'command' => 'database:status',
             ]), new BufferedOutput());
             self::fail('Expected application migration parse error.');
         } catch (ApplicationBootstrapException $exception) {
@@ -254,7 +290,7 @@ final class ApplicationConsoleKernelTest extends TestCase
 
         try {
             $application->console()->run(new ArrayInput([
-                'command' => 'blackops:database:status',
+                'command' => 'database:status',
             ]), new BufferedOutput());
             self::fail('Expected invalid database configuration.');
         } catch (ApplicationBootstrapException $exception) {
@@ -284,7 +320,24 @@ final class ConsoleKernelConflictingCommand extends Command
 {
     public function __construct()
     {
+        parent::__construct('worker:run');
+    }
+}
+
+final class ConsoleKernelLegacyConflictingCommand extends Command
+{
+    public function __construct()
+    {
         parent::__construct('blackops:worker:run');
+    }
+}
+
+final class ConsoleKernelAliasConflictingCommand extends Command
+{
+    public function __construct()
+    {
+        parent::__construct('application:conflict');
+        $this->setAliases(['database:status']);
     }
 }
 

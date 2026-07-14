@@ -63,8 +63,8 @@ test "$("${compose[@]}" --profile classic-mode config --services | sort)" = $'ht
 "${compose[@]}" --profile classic-mode build app http http-classic
 "${compose[@]}" up -d postgres
 "${install_compose[@]}" run --rm app composer install --no-interaction --prefer-dist
-"${compose[@]}" run --rm app php blackops blackops:build:compile
-"${compose[@]}" run --rm app php blackops blackops:database:migrate
+"${compose[@]}" run --rm app php blackops build:compile
+"${compose[@]}" run --rm app php blackops database:migrate
 "${compose[@]}" up -d http
 
 for _ in $(seq 1 "${BLACKOPS_E2E_READY_ATTEMPTS:-30}"); do

@@ -51,12 +51,12 @@ test -f "${CONSUMER}/app/Feature/Smoke/CreateSmoke/CreateSmokeValue.php"
 test -f "${CONSUMER}/app/Feature/Smoke/CreateSmoke/CreateSmokeOutcome.php"
 test -n "$(find "${CONSUMER}/migrations" -maxdepth 1 -type f -name 'Version*.php' -print -quit)"
 
-operations=$(HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops blackops:operation:list)
+operations=$(HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops operation:list)
 grep -q 'welcome.show' <<<"${operations}"
 grep -q 'report.generate' <<<"${operations}"
 grep -q 'smoke.create' <<<"${operations}"
 
-HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops blackops:build:compile
+HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops build:compile
 test -f "${CONSUMER}/var/build/operations.php"
 test -f "${CONSUMER}/var/build/http.php"
 test -f "${CONSUMER}/var/build/container.php"
@@ -64,11 +64,11 @@ test -f "${CONSUMER}/var/build/container.php"
 schema_before=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
     "SELECT count(*) FROM information_schema.schemata WHERE schema_name = 'blackops'")
 test "${schema_before}" = "0"
-HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops blackops:database:status | grep -q 'pending:'
+HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops database:status | grep -q 'pending:'
 schema_after_status=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
     "SELECT count(*) FROM information_schema.schemata WHERE schema_name = 'blackops'")
 test "${schema_after_status}" = "0"
-HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops blackops:database:migrate
+HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops database:migrate
 
 schema_after=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
     "SELECT count(*) FROM information_schema.schemata WHERE schema_name = 'blackops'")
@@ -131,12 +131,12 @@ fwrite(STDOUT, $id);
 test -n "${operation_id}"
 
 sleep 1
-HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops blackops:worker:run --iterations=1 --idle-sleep-milliseconds=1
+HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops worker:run --iterations=1 --idle-sleep-milliseconds=1
 state=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
     "SELECT state FROM blackops.operations WHERE operation_id = '${operation_id}'::uuid")
 test "${state}" = "retry_scheduled"
 sleep 2
-HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops blackops:worker:run --iterations=1 --idle-sleep-milliseconds=1
+HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops worker:run --iterations=1 --idle-sleep-milliseconds=1
 state=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
     "SELECT state FROM blackops.operations WHERE operation_id = '${operation_id}'::uuid")
 test "${state}" = "completed"
@@ -144,8 +144,8 @@ test "${state}" = "completed"
 outcome=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
     "SELECT count(*) FROM blackops.outcomes WHERE operation_id = '${operation_id}'::uuid AND octet_length(encoded_payload) > 0")
 test "${outcome}" = "1"
-HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops blackops:retention:plan | grep -q 'Total:'
-HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops blackops:retention:purge --dry-run | grep -q 'dry run'
+HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops retention:plan | grep -q 'Total:'
+HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops retention:purge --dry-run | grep -q 'dry run'
 
 test "$(git -C "${ROOT}" status --short -- examples/quickstart)" = "${SOURCE_BEFORE}"
 echo "Quickstart consumer E2E passed."

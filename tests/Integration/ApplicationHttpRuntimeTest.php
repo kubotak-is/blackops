@@ -165,7 +165,7 @@ final class ApplicationHttpRuntimeTest extends TestCase
             ->withConfiguration()
             ->create()
             ->console()
-            ->run(new ArrayInput(['command' => 'blackops:build:compile']), new BufferedOutput());
+            ->run(new ArrayInput(['command' => 'build:compile']), new BufferedOutput());
         self::assertSame(0, $status);
 
         return $paths;

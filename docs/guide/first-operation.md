@@ -125,7 +125,7 @@ Value型とOutcome型は`handle()` Signatureから推論されます。`Accepts`
 
 ```bash
 docker compose run --rm app composer dump-autoload
-docker compose run --rm app php blackops blackops:build:compile
+docker compose run --rm app php blackops build:compile
 docker compose up -d
 ```
 
@@ -164,7 +164,7 @@ curl -sS -X POST -H 'Content-Type: application/json' \
 ## 7. Workerで実行する
 
 ```bash
-docker compose run --rm app php blackops blackops:worker:run --iterations=1 --idle-sleep-milliseconds=1
+docker compose run --rm app php blackops worker:run --iterations=1 --idle-sleep-milliseconds=1
 ```
 
 ```text

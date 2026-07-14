@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-14T20:32:17+09:00
+Updated At: 2026-07-14T21:53:07+09:00
 
 ## Current Phase
 
@@ -16,13 +16,13 @@ Specifications: `develop/spec/57-documentation-website-delivery-contract.md`、`
 
 ## Task Status
 
-P10-005H Accepted／P10-006 Repository Closeout Accepted・External Blocked
+P10-007 Accepted／P10-006 Repository Closeout Accepted・External Blocked
 
-D090の11 Section、URL、Testing／Deployment入口、Landing Product Visual、4 Static Redirectを実装し、Orchestrator Reviewと独立再検証を完了してAcceptedとした。P10-006のFull Website／PHP Suite、Repository Documentation同期、最新GitHub CI／Artifact EvidenceもOrchestrator ReviewでAcceptedとした。Cloudflare External Configuration、Preview／Production Deploy、Live Verificationは未完了のためPhase 10 Completeにはしていない。
+D092のPrefixなしCanonical 9 Command、旧`blackops:*`互換Alias、Canonical／Alias予約名、利用者向け表記同期を実装した。Full PHP／Website Suiteと6本のConsumer Test、Orchestrator独立再検証が成功し、P10-007をAcceptedとした。Cloudflare External Configuration待ちはP10-006の独立したExternal Blockerとして継続する。
 
 ## Last Accepted Task
 
-P10-005H-documentation-information-architecture
+P10-007-project-cli-command-names
 
 ## Pending Decisions
 
@@ -36,16 +36,52 @@ P10-005H-documentation-information-architecture
 8. Cloudflare External Configuration待ちは継続するが、Repository内Closeoutは独立して進行できる。
 9. D090 Documentation Information ArchitectureはA／A／A／Aで確定。Sidebar LabelのTutorialとLanding Title `BlackOps — The PHP Framework`を含む。
 10. D091で`.codex/config.toml`をOrchestrator Sol High、`.codex/agents/worker.toml`をWorker Luna Highの正本とした。Metadata非公開だけをBlockerにしない。
+11. D092でProject CLIのCanonical名をPrefixなしへ変更し、旧`blackops:*`名を互換Aliasとして維持する。
 
 ## Known Blockers
 
-1. Repository内CloseoutのBlockerはなく、Orchestrator ReviewはAcceptedである。
+1. P10-007のRepository内Blockerはなく、Orchestrator ReviewでAcceptedとなった。
 2. Cloudflare Project／Token／GitHub Environment SecretsとProtection Ruleが未設定であり、Production DeployはRun 29328741730でもSkipされた。`blackops-docs.pages.dev`はDNS解決できない。
 
 ## Required Next Action
 
-1. Cloudflare Pages Project、`docs-preview`／`docs-production` Environment Secret、Production Protection Ruleを外部設定する。
-2. Productionと同一Repository Pull Request PreviewをDeployし、Run ID／Commit SHA／URLとLive Website EvidenceをP10-006へ追記する。
+1. P10-007をTask単位でCommitし、GitHub Actions結果を確認する。
+2. Cloudflare External Setup後、Production／Preview EvidenceをP10-006へ追記する。
+
+## P10-007 Project CLI Command Names Worker Verification Commands and Results
+
+```text
+docker compose run --rm app composer validate --strict
+docker compose run --rm app composer validate --strict examples/quickstart/composer.json
+Result: RootとQuickstartのComposer Metadataがstrict validationに成功。
+
+docker compose run --rm app mago format --check src tests examples
+docker compose run --rm app mago lint
+docker compose run --rm app mago analyze
+Result: Format済み。Lint／AnalyzeともにNo issues found。
+
+docker compose run --rm app vendor/bin/phpunit
+Result: OK (871 tests, 2853 assertions)。Canonical 9 Command、Legacy 9 Alias、Canonical／Legacy／Application Alias競合拒否を検証。
+
+docker compose run --rm app vendor/bin/deptrac
+Result: Violations 0 / Skipped 0 / Uncovered 0 / Allowed 1712 / Warnings 0 / Errors 0。
+
+bash tests/Consumer/quickstart-e2e.sh
+bash tests/Consumer/frankenphp-worker-mode.sh
+bash tests/Consumer/quickstart-setup.sh
+bash tests/Consumer/skeleton-create-project.sh
+bash tests/Consumer/framework-update-generators.sh
+bash tests/Consumer/skeleton-publication.sh --dry-run
+Result: 6本すべて成功。Framework UpdateはLegacy=HEAD／Current=Working Tree FixtureでEntrypoint／生成済みSource不変とCanonical Buildを検証。
+
+mise exec -- pnpm --dir docs/website run test
+mise exec -- pnpm --dir docs/website run check
+mise exec -- pnpm --dir docs/website run build
+Result: 35 tests / 35 passed。16 files / 0 errors / 0 warnings / 0 hints。28 Public Pages plus 404、Pagefind 29 HTML、Artifact／Site／Search Guard成功。
+
+Active Command表記Guard、PHP Management ID Guard、Shell Syntax、git diff --check
+Result: すべて成功。
+```
 
 ## P10-006 Phase 10 Repository Closeout Worker Verification Commands and Results
 

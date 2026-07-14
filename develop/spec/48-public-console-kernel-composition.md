@@ -46,16 +46,18 @@ Application独自CommandはValidated Snapshotから登録する。Framework Comm
 P7-004のPublic Kernelは次を登録する。
 
 ```text
-blackops:build:compile
-blackops:operation:list
-blackops:database:status
-blackops:database:migrate
-blackops:worker:run
-blackops:retention:plan
-blackops:retention:purge
-blackops:scheduler:run
-blackops:scheduler:daemon
+build:compile
+operation:list
+database:status
+database:migrate
+worker:run
+retention:plan
+retention:purge
+scheduler:run
+scheduler:daemon
 ```
+
+Project Root Entrypointと組み合わせる公式形式は`php blackops build:compile`とする。Stable `1.0.0`の既存Application互換のため、従来の`blackops:*`名は同じCommandを実行するAliasとして維持する。Canonical名とAliasはどちらもFramework予約名であり、Application独自Commandは上書きできない。Generatorの`make:operation`と`make:migration`にはPrefixを付けない。
 
 個別Manifest／Container Compile Commandは内部の低レベルToolingとして維持するが、Installed Applicationの標準Kernelへ登録しない。Generator CommandはPhase 9まで追加しない。
 
@@ -80,7 +82,7 @@ return [
 
 Provider Config FileとArtifact Pathの必須CLI引数は持たない。既存のLock、Fingerprint等の任意Build最適化は、Application-aware Contractへ安全に適用できる範囲でOptionとして維持できる。
 
-`blackops:operation:list` は同じSnapshotのOperation ProviderをCompileして表示し、Source Discovery用必須CLI引数を要求しない。Production BuildとHTTP起動はSource DiscoveryへFallbackしない。
+`operation:list` は同じSnapshotのOperation ProviderをCompileして表示し、Source Discovery用必須CLI引数を要求しない。Production BuildとHTTP起動はSource DiscoveryへFallbackしない。
 
 ## Database and Migration
 
@@ -166,6 +168,7 @@ Symfony ConsoleがExceptionを表示する場合もPrevious ExceptionのCredenti
 ## Traceability
 
 - Decision: [Public Console Kernel Composition](../decisions/068-public-console-kernel-composition.md)
+- Command Names: [Project CLI Command Names](../decisions/092-project-cli-command-names.md)
 - Bootstrap API: [Public Application Bootstrap API](44-public-application-bootstrap-api.md)
 - HTTP Runtime: [Public HTTP Runtime Configuration](47-public-http-runtime-configuration.md)
 - Worker: [Worker Runtime](../../docs/internal/worker-runtime.md)

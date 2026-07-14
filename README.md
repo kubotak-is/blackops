@@ -60,8 +60,8 @@ Phase 9を含むMain Branchでは、Project Rootに置く薄い`blackops` Entryp
 ```bash
 php blackops make:operation Billing/CreateInvoice --type=billing.invoice.create
 php blackops make:migration CreateOrdersTable
-php blackops blackops:build:compile
-php blackops blackops:database:migrate --dry-run
+php blackops build:compile
+php blackops database:migrate --dry-run
 ```
 
 Framework UpdateはProject Rootの`blackops`や生成済みSourceを書き換えません。更新後のCommandとStubは、その後に新規生成するFileへ反映されます。

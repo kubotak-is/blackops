@@ -16,7 +16,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 final class ApplicationOperationListCommand extends Command
 {
-    public const NAME = 'blackops:operation:list';
+    public const NAME = 'operation:list';
+
+    public const LEGACY_NAME = 'blackops:operation:list';
 
     public function __construct(
         private readonly ApplicationConfigurationSnapshot $configuration,

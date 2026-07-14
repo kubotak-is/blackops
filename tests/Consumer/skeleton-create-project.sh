@@ -136,7 +136,7 @@ test -f "${normal_project}/app/Feature/Smoke/CreateSmoke/CreateSmoke.php"
 test -f "${normal_project}/app/Feature/Smoke/CreateSmoke/CreateSmokeValue.php"
 test -f "${normal_project}/app/Feature/Smoke/CreateSmoke/CreateSmokeOutcome.php"
 test -n "$(find "${normal_project}/migrations" -maxdepth 1 -type f -name 'Version*.php' -print -quit)"
-run_php /smoke/normal/blackops blackops:build:compile \
+run_php /smoke/normal/blackops build:compile \
     > "${temporary_root}/normal-build.out"
 test -f "${normal_project}/var/build/operations.php"
 

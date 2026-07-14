@@ -164,8 +164,8 @@ READMEは少なくとも次を説明する。
 - Required PHP／Composer／PostgreSQL
 - `.env.example` CopyとGenerated Directory準備
 - Dependency Install
-- `blackops:build:compile`
-- `blackops:database:status`／`migrate`
+- `build:compile`
+- `database:status`／`migrate`
 - HTTP起動
 - Welcome Request
 - Deferred Report Request

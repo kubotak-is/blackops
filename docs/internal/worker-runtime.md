@@ -75,14 +75,14 @@ The connection objects above may share database parameters and a server, but the
 Run the registered command as a long-lived process:
 
 ```bash
-php bin/console blackops:worker:run --idle-sleep-milliseconds=1000
+php blackops worker:run --idle-sleep-milliseconds=1000
 ```
 
 `--iterations=N` provides a finite loop for smoke tests and controlled jobs. Production normally omits it and relies on a process supervisor.
 
 PCNTL is required only when the worker signal runtime is constructed. Missing PCNTL functions fail fast without affecting HTTP or build commands. The reference Docker image enables PCNTL.
 
-The Public Console Kernel constructs this graph only when `blackops:worker:run` executes. It loads Compile済みArtifact without fallback, creates Main and Heartbeat DBAL Connections separately from the same parameters, and passes one `PcntlSignalHeartbeat` Instance to both the Runtime Guard and Loop Signal boundary. Kernel construction、`list`、`help`、Build do not check PCNTL availability.
+The Public Console Kernel constructs this graph only when `worker:run` executes. It loads Compile済みArtifact without fallback, creates Main and Heartbeat DBAL Connections separately from the same parameters, and passes one `PcntlSignalHeartbeat` Instance to both the Runtime Guard and Loop Signal boundary. Kernel construction、`list`、`help`、Build do not check PCNTL availability.
 
 `SIGTERM` and `SIGINT` stop new claims. If no handler is active, the loop exits at its next boundary. If a handler is active, it may finish within the configured grace period and is then acknowledged normally. When the grace period expires, execution is interrupted; the worker does not acknowledge or release the claim. The claim remains running until its lease expires and normal expired-attempt recovery takes ownership.
 

@@ -32,19 +32,19 @@ The current command set is:
 
 | Command | Class | Responsibility |
 | --- | --- | --- |
-| `blackops:build:compile` | `BlackOps\Internal\Console\CompileBuildArtifactsCommand` | Compile operation manifest, HTTP manifest, and runtime container together. |
-| `blackops:operation:list` | `BlackOps\Internal\Console\ListOperationsCommand` | Discover development operations and list their type ID, definition, and execution strategy. |
+| `build:compile` | `BlackOps\Internal\Console\ApplicationBuildCompileCommand` | Compile operation manifest, HTTP manifest, and runtime container together. |
+| `operation:list` | `BlackOps\Internal\Console\ApplicationOperationListCommand` | Discover application operations and list their type ID, definition, and execution strategy. |
 | `blackops:operation-manifest:compile` | `BlackOps\Internal\Console\CompileOperationManifestCommand` | Compile the operation manifest from explicit providers and optional development discovery. |
 | `blackops:http-manifest:compile` | `BlackOps\Internal\Console\CompileHttpManifestCommand` | Compile the HTTP manifest from explicit providers and optional development discovery. |
 | `blackops:container:compile` | `BlackOps\Internal\Console\CompileRuntimeContainerCommand` | Compile only the runtime container from explicit service provider config. |
 | `blackops:http-manifest:dump` | `BlackOps\Http\Console\DumpHttpManifestCommand` | Dump HTTP route metadata from an already-built operation registry and operation definitions. |
-| `blackops:retention:plan` | `BlackOps\Internal\Console\RetentionPlanCommand` | Print a retention purge plan without applying it. |
-| `blackops:retention:purge` | `BlackOps\Internal\Console\RetentionPurgeCommand` | Dry-run or apply retention purge through injected services. |
-| `blackops:scheduler:run` | `BlackOps\Internal\Console\SchedulerRunCommand` | Run registered maintenance tasks once and exit. |
-| `blackops:scheduler:daemon` | `BlackOps\Internal\Console\SchedulerDaemonCommand` | Run registered maintenance tasks repeatedly with an explicit interval. |
-| `blackops:worker:run` | `BlackOps\Internal\Console\WorkerRunCommand` | Run the single-claim deferred worker with recovery, heartbeat, and graceful shutdown. |
-| `blackops:database:migrate` | `BlackOps\Internal\Console\DatabaseMigrationMigrateCommand` | Apply or dry-run the versioned PostgreSQL framework baseline. |
-| `blackops:database:status` | `BlackOps\Internal\Console\DatabaseMigrationStatusCommand` | Show applied and pending framework migration versions without changing the database. |
+| `retention:plan` | `BlackOps\Internal\Console\RetentionPlanCommand` | Print a retention purge plan without applying it. |
+| `retention:purge` | `BlackOps\Internal\Console\RetentionPurgeCommand` | Dry-run or apply retention purge through injected services. |
+| `scheduler:run` | `BlackOps\Internal\Console\SchedulerRunCommand` | Run registered maintenance tasks once and exit. |
+| `scheduler:daemon` | `BlackOps\Internal\Console\SchedulerDaemonCommand` | Run registered maintenance tasks repeatedly with an explicit interval. |
+| `worker:run` | `BlackOps\Internal\Console\WorkerRunCommand` | Run the single-claim deferred worker with recovery, heartbeat, and graceful shutdown. |
+| `database:migrate` | `BlackOps\Internal\Console\DatabaseMigrationMigrateCommand` | Apply or dry-run the versioned PostgreSQL framework baseline. |
+| `database:status` | `BlackOps\Internal\Console\DatabaseMigrationStatusCommand` | Show applied and pending framework migration versions without changing the database. |
 
 For normal build pipelines, prefer the unified build command so operation metadata, HTTP route metadata, and container definitions are generated from the same provider set.
 
@@ -107,7 +107,7 @@ php bin/console blackops:http-manifest:compile \
 
 An exact definition returned by both a provider and discovery is compiled once. Different definitions with the same type ID remain an error, as do invalid operation attributes. Operation list output is sorted by type ID.
 
-The public Application-aware `blackops:build:compile` and `blackops:operation:list` read `operations.discovery` and scan only while those commands execute. The legacy standalone unified command retains its explicit provider inputs. Production HTTP and Worker runtime continue to use generated artifacts only and never fall back to source scanning.
+The public Application-aware `build:compile` and `operation:list` read `operations.discovery` and scan only while those commands execute. The legacy standalone unified command retains its explicit provider inputs. Production HTTP and Worker runtime continue to use generated artifacts only and never fall back to source scanning.
 
 ## Provider Inputs
 

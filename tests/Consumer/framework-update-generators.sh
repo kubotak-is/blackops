@@ -7,6 +7,7 @@ temporary_root="$(mktemp -d)"
 framework_repository="${temporary_root}/framework"
 current_stubs="${temporary_root}/current-stubs"
 current_commands="${temporary_root}/current-commands"
+current_application="${temporary_root}/current-application"
 consumer_root="${temporary_root}/consumer"
 composer_home="${temporary_root}/composer-home"
 source_before="$(git -C "${repository_root}" status --short)"
@@ -33,12 +34,24 @@ run_composer() {
     "${container[@]}" composer "$@"
 }
 
-mkdir -p "${framework_repository}" "${current_stubs}" "${current_commands}" "${consumer_root}" "${composer_home}"
+mkdir -p "${framework_repository}" "${current_stubs}" "${current_commands}" "${current_application}" \
+    "${consumer_root}" "${composer_home}"
 git -C "${repository_root}" archive HEAD | tar -x -C "${framework_repository}"
 cp -a "${repository_root}/examples/quickstart/." "${consumer_root}/"
-cp -a "${framework_repository}/resources/stubs/." "${current_stubs}/"
-cp "${framework_repository}/src/Internal/Console/MakeOperationCommand.php" \
-    "${framework_repository}/src/Internal/Console/MakeMigrationCommand.php" \
+cp -a "${repository_root}/resources/stubs/." "${current_stubs}/"
+cp "${repository_root}/src/Internal/Application/ApplicationConsoleKernel.php" "${current_application}/"
+cp "${repository_root}/src/Internal/Console/ApplicationBuildCompileCommand.php" \
+    "${repository_root}/src/Internal/Console/ApplicationOperationListCommand.php" \
+    "${repository_root}/src/Internal/Console/DatabaseMigrationMigrateCommand.php" \
+    "${repository_root}/src/Internal/Console/DatabaseMigrationStatusCommand.php" \
+    "${repository_root}/src/Internal/Console/LazyFrameworkCommand.php" \
+    "${repository_root}/src/Internal/Console/MakeOperationCommand.php" \
+    "${repository_root}/src/Internal/Console/MakeMigrationCommand.php" \
+    "${repository_root}/src/Internal/Console/RetentionPlanCommand.php" \
+    "${repository_root}/src/Internal/Console/RetentionPurgeCommand.php" \
+    "${repository_root}/src/Internal/Console/SchedulerDaemonCommand.php" \
+    "${repository_root}/src/Internal/Console/SchedulerRunCommand.php" \
+    "${repository_root}/src/Internal/Console/WorkerRunCommand.php" \
     "${current_commands}/"
 
 cli_name=blackops
@@ -73,11 +86,11 @@ git -C "${framework_repository}" tag 1.0.0
 rm -rf "${framework_repository}/resources/stubs"
 mkdir -p "${framework_repository}/resources/stubs"
 cp -a "${current_stubs}/." "${framework_repository}/resources/stubs/"
-cp "${current_commands}/MakeOperationCommand.php" \
-    "${framework_repository}/src/Internal/Console/MakeOperationCommand.php"
-cp "${current_commands}/MakeMigrationCommand.php" \
-    "${framework_repository}/src/Internal/Console/MakeMigrationCommand.php"
-git -C "${framework_repository}" add resources/stubs src/Internal/Console
+cp "${current_application}/ApplicationConsoleKernel.php" \
+    "${framework_repository}/src/Internal/Application/ApplicationConsoleKernel.php"
+cp "${current_commands}"/*.php "${framework_repository}/src/Internal/Console/"
+git -C "${framework_repository}" add resources/stubs src/Internal/Application/ApplicationConsoleKernel.php \
+    src/Internal/Console
 git -C "${framework_repository}" commit --quiet -m 'Current framework fixture'
 git -C "${framework_repository}" tag 1.1.0
 
@@ -202,7 +215,7 @@ grep -q "#\[OperationType('upgrade.after')\]" "${after_operation_directory}/Afte
 grep -q 'handle(AfterUpdateValue \$value): AfterUpdateOutcome' "${after_operation_directory}/AfterUpdate.php"
 grep -q "return 'AfterUpdateSchema';" "${after_migration}"
 
-run_php blackops blackops:build:compile > "${temporary_root}/build.out"
+run_php blackops build:compile > "${temporary_root}/build.out"
 
 test "$(git -C "${repository_root}" status --short)" = "${source_before}"
 

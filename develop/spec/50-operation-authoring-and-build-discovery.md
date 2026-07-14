@@ -65,7 +65,7 @@ return [
 
 Discovery Rootは存在する絶対Directory Pathでなければならない。重複Pathは一度だけ扱う。
 
-Application-aware `blackops:build:compile` と `blackops:operation:list` は次を行う。
+Application-aware `build:compile` と `operation:list` は次を行う。
 
 1. Accepted SnapshotのOperation Providerを解決する
 2. `operations.discovery` RootをToken／Reflectionで探索する

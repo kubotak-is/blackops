@@ -4,28 +4,28 @@
 
 ## Typed Self-handled Signature Error
 
-**Symptom:** `blackops:build:compile`がTyped Self-handled `handle()`のSignature Errorを表示します。
+**Symptom:** `build:compile`がTyped Self-handled `handle()`のSignature Errorを表示します。
 
 **Likely Cause:** `handle()`がPublic／Non-staticでない、第一引数が具象`OperationValue`でない、第二引数が`ExecutionContext`でない、Return Typeが具象`Outcome`または`void`でない、あるいはNullable／Union／Optional Parameterを使っています。Typed標準形と`#[HandledBy]`を同時に指定した場合もAmbiguousとして失敗します。
 
 **How to Verify:** Operation Classの`handle()`を確認し、次のCommandでもう一度Compileします。
 
 ```bash
-php blackops blackops:build:compile -vvv
+php blackops build:compile -vvv
 ```
 
 **Fix:** `public function handle(ConcreteValue $value): ConcreteOutcome`、またはContextが必要な場合だけ`public function handle(ConcreteValue $value, ExecutionContext $context): ConcreteOutcome`へ直します。Typed標準形から`#[Accepts]`、`#[Returns]`、`OperationHandler`を外します。
 
 ## Operation Discovery／Manifest未登録
 
-**Symptom:** `blackops:operation:list`へ新しいOperationが出ず、HTTP Routeも404になります。
+**Symptom:** `operation:list`へ新しいOperationが出ず、HTTP Routeも404になります。
 
 **Likely Cause:** Sourceが`config/operations.php`のDiscovery Root外にある、ClassがComposer Autoload対象外である、`Operation`を実装していない、またはBuild後にSourceだけを変更しています。[Manifest](glossary.md#manifest)はBuild時に生成するRuntime検索Artifactです。
 
 **How to Verify:** Discovery結果とConfigを確認します。
 
 ```bash
-php blackops blackops:operation:list
+php blackops operation:list
 php -r '$config = require "config/operations.php"; var_export($config["discovery"] ?? null); echo PHP_EOL;'
 ```
 
@@ -42,7 +42,7 @@ php -r '$config = require "config/operations.php"; var_export($config["discovery
 ```bash
 php -r '$config = require "config/app.php"; var_export($config["build"] ?? null); echo PHP_EOL;'
 ls -l var/build/operations.php var/build/http.php var/build/container.php
-php blackops blackops:build:compile
+php blackops build:compile
 ```
 
 **Fix:** Deploy対象のSource、Dependency、Configを同じBuild工程へ固定し、その工程で3 Artifactを再生成します。古いArtifactを別ReleaseへCopyしません。
@@ -56,7 +56,7 @@ php blackops blackops:build:compile
 **How to Verify:** 同じEnvironmentでWorkerを1 Loopだけ実行し、対象Operation IDのJournalに`operation.accepted`、`attempt.started`、`attempt.retry_scheduled`、Terminal Eventがあるか確認します。
 
 ```bash
-php blackops blackops:worker:run --iterations=1 --idle-sleep-milliseconds=1
+php blackops worker:run --iterations=1 --idle-sleep-milliseconds=1
 grep '<operation-id>' var/log/journal.jsonl
 ```
 
@@ -73,15 +73,15 @@ grep '<operation-id>' var/log/journal.jsonl
 **How to Verify:** 接続先をSecretなしで確認し、Read-only Statusを実行します。
 
 ```bash
-php blackops blackops:database:status --no-interaction
+php blackops database:status --no-interaction
 docker compose ps postgres
 ```
 
 **Fix:** PostgreSQLを起動し、正しいCredentialをEnvironmentから渡してMigrationを適用します。
 
 ```bash
-php blackops blackops:database:migrate --dry-run --no-interaction
-php blackops blackops:database:migrate --no-interaction
+php blackops database:migrate --dry-run --no-interaction
+php blackops database:migrate --no-interaction
 ```
 
 HTTP／Worker起動時の暗黙Migrationに頼りません。

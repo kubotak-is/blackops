@@ -86,7 +86,7 @@ Deferred RouteはHTTP 202とOperation IDを返し、HandlerをHTTP Process内で
 Project CLIからWorkerを起動します。
 
 ```bash
-php blackops blackops:worker:run --idle-sleep-milliseconds=1000
+php blackops worker:run --idle-sleep-milliseconds=1000
 ```
 
 Workerは期限切れAttemptをRecoveryしてから[Claim](glossary.md#claim)し、一度に最大1 Claimを処理します。Smoke Testでは`--iterations=N`でLoop回数を制限できます。常駐ProcessはProcess ManagerまたはCompose Worker Profileで監督してください。

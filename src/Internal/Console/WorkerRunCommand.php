@@ -16,7 +16,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: self::NAME, description: 'Run the deferred operation worker loop.')]
 final class WorkerRunCommand extends Command
 {
-    public const NAME = 'blackops:worker:run';
+    public const NAME = 'worker:run';
+
+    public const LEGACY_NAME = 'blackops:worker:run';
 
     public function __construct(
         private readonly WorkerLoop $worker,

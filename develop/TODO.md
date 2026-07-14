@@ -52,6 +52,7 @@ MVP後に残す主要項目:
 - [x] `make:operation` と `make:migration` を提供する
 - [x] Migration／Worker／Build／Retention／Scheduler CommandをApplicationから構成する
 - [x] Framework UpdateでCommand実装とGenerator Stubが更新されることを検証する
+- [x] Project CLIのCanonical Commandから重複する `blackops:` Prefixを除去する
 
 ### Phase 10: Documentation Website
 
