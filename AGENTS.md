@@ -2,6 +2,13 @@
 
 このRepositoryでは、CodexがOrchestrator兼Reviewerとなり、Production Codeの実装はTask Packet単位でCodex GPT-5.6 Luna High workerへ依頼する。
 
+Model／Profileの正本はRepository内設定とする。
+
+- Orchestrator: `.codex/config.toml`の`gpt-5.6-sol`／`high`
+- Worker: `.codex/agents/worker.toml`の`gpt-5.6-luna`／`high`
+
+Worker ProcessへModel Metadataが環境変数として公開されないことだけをBlockerにしない。Codexが設定値を拒否した場合、指定Modelへアクセスできない場合、または別ModelへFallbackしたことを実行環境が明示した場合だけ、OrchestratorへBlockerとして返す。
+
 ## Source of Truth
 
 作業前に、次の順で必要な文書を確認する。
@@ -35,9 +42,7 @@ Windows側や `/mnt/c` に別のWorking Treeを作らない。Credential、Token
 5. `develop/STATE.md` を更新する
 6. Orchestrator CodexのReviewを待つ
 
-GPT-5.6 Luna High workerはReview前にCommitしない。範囲外の修正が必要な場合は実装を広げず、ReportのBlockerとして返す。実行環境でこのModel／Profileを指定できない場合、別Modelへ黙ってFallbackせずOrchestratorがBlockerとして返す。
-
-2026-07-13のUser回答`Y`により、Phase 10のP10-005C、P10-005E1、P10-005E2、P10-005F、P10-005Dに限り、実行環境からModel／Profile Metadataを確認できない現在利用可能なWorkerで進める例外を承認済みとする。この例外は他Phase／Taskへ拡張しない。
+GPT-5.6 Luna High workerはReview前にCommitしない。範囲外の修正が必要な場合は実装を広げず、ReportのBlockerとして返す。別Modelへの暗黙Fallbackは禁止するが、Metadata非公開を理由に自己判定で停止しない。
 
 ## Checkpoint
 

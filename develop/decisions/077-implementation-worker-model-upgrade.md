@@ -1,6 +1,6 @@
 # D077: Implementation Worker Model Upgrade
 
-Status: Decided
+Status: Superseded by D091
 
 ## Context
 
