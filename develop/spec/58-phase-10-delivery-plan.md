@@ -137,22 +137,22 @@ P10-001 Website Contract
 ## Phase Acceptance Criteria
 
 - [x] `docs/internals/`が`docs/internal/`へ移行し、有効なRepository参照が同期している
-- [ ] Websiteが`docs/guide/`だけを公開Sourceとして使用する
-- [ ] Internal／Contributor／Develop ContentがArtifactとSearchへ含まれない
-- [ ] mise、Node.js 24 LTS、pnpm 11、Lockfileが再現可能に固定される
-- [ ] Content生成、Title／Slug／Link Guard、Astro Check、Static Buildが成功する
-- [ ] Landingと利用者目的別Navigationが完成している
-- [ ] Why BlackOps、Core Concepts、Mental Model、Glossaryが初見導線を構成する
-- [ ] Mermaid DiagramがCore、Execution、Lifecycle、IdentifierをAccessibleに説明する
-- [ ] First OperationがCompileからHTTP、Journal、Outcomeまで完走する
-- [ ] Troubleshooting、Security責任分界、Core API、Attribute Referenceが揃う
-- [ ] 全公開Guideが日本語主体の能動態と統一用語を使用する
+- [x] Websiteが`docs/guide/`だけを公開Sourceとして使用する
+- [x] Internal／Contributor／Develop ContentがArtifactとSearchへ含まれない
+- [x] mise、Node.js 24 LTS、pnpm 11、Lockfileが再現可能に固定される
+- [x] Content生成、Title／Slug／Link Guard、Astro Check、Static Buildが成功する
+- [x] Landingと利用者目的別Navigationが完成している
+- [x] Why BlackOps、Core Concepts、Mental Model、Glossaryが初見導線を構成する
+- [x] Mermaid DiagramがCore、Execution、Lifecycle、IdentifierをAccessibleに説明する
+- [x] First OperationがCompileからHTTP、Journal、Outcomeまで完走する
+- [x] Troubleshooting、Security責任分界、Core API、Attribute Referenceが揃う
+- [x] 全公開Guideが日本語主体の能動態と統一用語を使用する
 - [x] Sidebarが説明、Tutorial、How-to、Referenceの役割を分離し、Installationから開始する
 - [x] Security、Troubleshooting、Releases、Testing、Deploymentが目的別Sectionとして到達可能である
 - [x] LandingがProduct TitleとOperation／Journal／Deferredの3 Feature Link Cardを持つ
 - [x] 移動した公開URLがStatic Redirectで新URLへ接続される
-- [ ] `main` DocumentとStable Versionの差が表示される
-- [ ] Mobile、Keyboard、Accessibility、Searchを検証している
+- [x] `main` DocumentとStable Versionの差が表示される
+- [x] Mobile、Keyboard、Accessibility、Searchを検証している
 - [ ] Pull Request Previewと`main` Production Deployが成功する
 - [ ] Production Hostの主要PageとAssetがLive Verificationに成功する
 

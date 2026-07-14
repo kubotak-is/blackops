@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-14T03:55:32+09:00
+Updated At: 2026-07-14T20:32:17+09:00
 
 ## Current Phase
 
@@ -10,40 +10,108 @@ Phase 10: Documentation Website
 
 Task ID: P10-006-phase-10-closeout
 
-Task Packet: 未作成。P10-005G Accepted後に確定する。
+Task Packet: `develop/orchestration/tasks/P10-006-phase-10-closeout.md`
 
-Specifications: `develop/spec/44-public-application-bootstrap-api.md`、`develop/spec/49-feature-first-quickstart-application.md`、`develop/spec/51-local-runtime-and-consumer-e2e.md`、`develop/spec/58-phase-10-delivery-plan.md`
+Specifications: `develop/spec/57-documentation-website-delivery-contract.md`、`develop/spec/58-phase-10-delivery-plan.md`、`develop/spec/59-documentation-reader-experience.md`
 
 ## Task Status
 
-P10-005G Accepted／P10-006 Pending
+P10-005H Accepted／P10-006 Repository Closeout Accepted・External Blocked
 
-P10-005GはOrchestrator Reviewと独立再検証を完了しAcceptedとした。Default `http`はWorker Mode／8080、Classic Modeは`classic-mode` Profileの`http-classic`／8081である。次はP10-006でRepository内Phase 10 AcceptanceとExternal Cloudflare Evidenceを整理する。
+D090の11 Section、URL、Testing／Deployment入口、Landing Product Visual、4 Static Redirectを実装し、Orchestrator Reviewと独立再検証を完了してAcceptedとした。P10-006のFull Website／PHP Suite、Repository Documentation同期、最新GitHub CI／Artifact EvidenceもOrchestrator ReviewでAcceptedとした。Cloudflare External Configuration、Preview／Production Deploy、Live Verificationは未完了のためPhase 10 Completeにはしていない。
 
 ## Last Accepted Task
 
-P10-005G-worker-mode-default-promotion
+P10-005H-documentation-information-architecture
 
 ## Pending Decisions
 
 1. D085はBで確定し実装済み。FrankenPHP Worker ModeをDefaultへ昇格し、Classic Fallbackを維持する。
 2. D086はA／A／Aで確定。BlackOps所有の7 RuleとProtocol 400／Operation ID付き422境界を実装する。`Range`は数値、`Length`は文字数、`Count`は要素数を扱う。
-3. Phase 10対象TaskのWorker例外承認は回答`Y`で解決済み。他Phaseへは適用しない。
+3. 過去のPhase 10 Worker例外はD091導入前の履歴である。現在はRepository内Custom Agent設定を正本とする。
 4. D087はAで確定。Binding FailureはReceivedなしのSequence 1 Rejectedとする。
 5. D088はSymfony Validator Backend採用で確定。
 6. D089はAで確定。Canonical ReceivedとObserved／Error SurfaceのSensitive境界を分離する。
 7. P10-005DとP10-005GはAccepted。Reader JourneyとDefault Worker Runtimeは同期済みである。
 8. Cloudflare External Configuration待ちは継続するが、Repository内Closeoutは独立して進行できる。
+9. D090 Documentation Information ArchitectureはA／A／A／Aで確定。Sidebar LabelのTutorialとLanding Title `BlackOps — The PHP Framework`を含む。
+10. D091で`.codex/config.toml`をOrchestrator Sol High、`.codex/agents/worker.toml`をWorker Luna Highの正本とした。Metadata非公開だけをBlockerにしない。
 
 ## Known Blockers
 
-Repository内実装のBlockerはない。Cloudflare Project／Token／GitHub Environment SecretsとProtection Ruleの未設定はRemote DeployだけのExternal Blockerである。
+1. Repository内CloseoutのBlockerはなく、Orchestrator ReviewはAcceptedである。
+2. Cloudflare Project／Token／GitHub Environment SecretsとProtection Ruleが未設定であり、Production DeployはRun 29328741730でもSkipされた。`blackops-docs.pages.dev`はDNS解決できない。
 
 ## Required Next Action
 
-1. P10-005Gを単独Commitする。
-2. P10-006 Task Packetを作成し、Full Website Quality Suite、README／TODO／STATEを同期する。
-3. Production／Preview Evidenceを確認し、外部設定未完了なら明示Blockerとして分離する。
+1. Cloudflare Pages Project、`docs-preview`／`docs-production` Environment Secret、Production Protection Ruleを外部設定する。
+2. Productionと同一Repository Pull Request PreviewをDeployし、Run ID／Commit SHA／URLとLive Website EvidenceをP10-006へ追記する。
+
+## P10-006 Phase 10 Repository Closeout Worker Verification Commands and Results
+
+```text
+mise exec -- pnpm --dir docs/website install --frozen-lockfile
+Result: Exit 0。Already up to date。pnpm 11.12.0。Registry Metadata Fetch Warningのみ。
+
+mise exec -- pnpm --dir docs/website run test
+Result: 35 tests / 35 passed / 0 failed。
+
+mise exec -- pnpm --dir docs/website run check
+Result: Content／Mermaid／Astro Check成功。16 files / 0 errors / 0 warnings / 0 hints。
+
+mise exec -- pnpm --dir docs/website run build
+Result: 28 Public Pages plus 404、Pagefind 29 HTML、Artifact／Site／Search Guard成功。既知のMermaid Chunk Warningのみ。
+
+docker compose run --rm app composer validate --strict
+docker compose run --rm app composer validate --strict examples/quickstart/composer.json
+Result: RootとQuickstartのComposer Metadataがstrict validationに成功。
+
+docker compose run --rm app mago format --check src tests examples
+docker compose run --rm app mago lint
+docker compose run --rm app mago analyze
+Result: Format済み。Lint／AnalyzeともにNo issues found。
+
+docker compose run --rm app vendor/bin/phpunit
+Result: OK (869 tests, 2814 assertions)。
+
+docker compose run --rm app vendor/bin/deptrac
+Result: Violations 0 / Skipped 0 / Uncovered 0 / Allowed 1712 / Warnings 0 / Errors 0。
+
+Public Artifact Guard、PHP Management ID Guard
+git diff --check
+Result: GuardはMatchなし、Diff Checkも成功。
+
+GitHub CI Run 29328741805 / Documentation delivery Run 29328741730
+Result: Commit 2e2a55d0b76d59ecff594f472cf4b6ee709d67b0。CIとArtifact BuildはSuccess。Production Deploy StepとPreview JobはSkip。
+
+curl -sS -L https://blackops-docs.pages.dev/
+Result: Could not resolve host: blackops-docs.pages.dev
+```
+
+## P10-005H Documentation Information Architecture Worker Verification Commands and Results
+
+```text
+mise exec -- pnpm --dir docs/website install --frozen-lockfile
+Result: exit 0。Already up to date。Network制限によるmetadata warningだけを出力。
+
+mise exec -- pnpm --dir docs/website run test
+Result: 35 tests / 35 passed / 0 failed。
+
+mise exec -- pnpm --dir docs/website run check
+Result: Content／Mermaid／Astro Check成功。16 files / 0 errors / 0 warnings / 0 hints。
+
+mise exec -- pnpm --dir docs/website run build
+Result: 28 Public Pages plus 404、Pagefind 29 HTML、Artifact／Site／Search Guard成功。既知のMermaid Chunk Warningのみ。
+
+Windows Edge Headless Browser Review
+Result: Desktop Dark 1185／1185、Mobile Light 375／375でPage Overflowなし。3 Card Reflow、CTA／Card Focus、Reduced Motion 0s、Mobile Menu false→true、Lifecycle Mermaid Target 343／992・SVG 960 pxを確認。
+
+docker compose run --rm app mago format --check src tests
+Result: INFO All files are already formatted。
+
+Public Artifact、旧URL、PHP Management ID、git diff --check Guard
+Result: すべて成功。
+```
 
 ## P10-005G Worker Mode Default Promotion Worker Verification Commands and Results
 

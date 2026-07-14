@@ -9,9 +9,11 @@ BlackOpsは、PHP 8.5向けのHeadless Operation Frameworkです。同期HTTP実
 
 ## Status
 
-MVPとPhase 9 Project CLIはMain Branchで完成しています。ただし、MVP CompleteとProduction Readyは同じ意味ではありません。
+MVP、Phase 9 Project CLI、Phase 10 Documentation WebsiteのRepository内実装はMain Branchで完成しています。ただし、MVP CompleteとProduction Readyは同じ意味ではありません。
 
 Packagistで公開済みのFramework／Skeleton Stable `1.0.0`はPhase 8時点のPackageです。`make:operation`、`make:migration`、Application Migration Runtimeを含むPhase 9の変更はMain Branchへ実装済みですが、これらを含む新しいStable Releaseはまだ公開していません。
+
+Documentation WebsiteはLocal／CI Buildと公開Artifact境界まで検証済みです。Cloudflare Pages ProjectとGitHub Environment Credentialの外部設定、Preview／Production Deploy、Live Verificationは未完了であり、公開Hostはまだ利用できません。
 
 利用者向けの機能差と制約は[Current Status](docs/guide/mvp-status.md)を参照してください。
 
@@ -49,20 +51,20 @@ curl -X POST -H 'Content-Type: application/json' \
   http://127.0.0.1:8080/reports
 ```
 
-詳しい手順は[利用者向けQuickstart](docs/guide/mvp-sample.md)を参照してください。
+`main` Channelの未Release機能も含む詳しい手順は[利用者向けQuickstart](docs/guide/mvp-sample.md)を参照してください。Stable `1.0.0`のCommandと混在させないでください。
 
 ## Project CLI on Main
 
-Phase 9を含むMain Branchでは、Project所有の薄い`bin/blackops`からFramework所有Generatorを利用できます。
+Phase 9を含むMain Branchでは、Project Rootに置く薄い`blackops` EntrypointからFramework所有Generatorを利用できます。
 
 ```bash
-php bin/blackops make:operation Billing/CreateInvoice --type=billing.invoice.create
-php bin/blackops make:migration CreateOrdersTable
-php bin/blackops blackops:build:compile
-php bin/blackops blackops:database:migrate --dry-run
+php blackops make:operation Billing/CreateInvoice --type=billing.invoice.create
+php blackops make:migration CreateOrdersTable
+php blackops blackops:build:compile
+php blackops blackops:database:migrate --dry-run
 ```
 
-Framework UpdateはProjectの`bin/blackops`や生成済みSourceを書き換えません。更新後のCommandとStubは、その後に新規生成するFileへ反映されます。
+Framework UpdateはProject Rootの`blackops`や生成済みSourceを書き換えません。更新後のCommandとStubは、その後に新規生成するFileへ反映されます。
 
 ## Development
 

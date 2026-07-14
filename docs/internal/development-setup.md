@@ -8,17 +8,18 @@ BlackOpsの実装環境はWSL2 Ubuntu内へ構築する。CommandはRepository R
 
 ## Codex Implementation Delegation
 
-Production Codeの実装は、Orchestrator CodexがTask Packetを作成し、Codex GPT-5.6 Luna High workerへ依頼する。
+Production Codeの実装は、Orchestrator CodexがTask Packetを作成し、Codex GPT-5.6 Luna High workerへ依頼する。Model／Profileの正本はRepository内設定とする。
 
-実装依頼で使用するModelは次とする。
+OrchestratorとWorkerの設定は次とする。
 
 ```text
-Codex GPT-5.6 Luna High
+Orchestrator: .codex/config.toml の gpt-5.6-sol / high
+Worker: .codex/agents/worker.toml の gpt-5.6-luna / high
 ```
 
 Task Packet、Report、STATEはRepository内へ保存する。Credential、Token、Secret、外部ServiceのAPI KeyはRepository内のFile、Task Packet、Reportへ記載しない。
 
-GPT-5.6 Luna High workerは、Task Packetで許可されたFileだけを変更し、必須Command結果をReportへ記録し、Review前にCommitしない。実行環境でModel／Profileを指定できない場合は、別Modelへ黙ってFallbackせずOrchestratorへ返す。
+GPT-5.6 Luna High workerは、Task Packetで許可されたFileだけを変更し、必須Command結果をReportへ記録し、Review前にCommitしない。Worker ProcessへModel Metadataが公開されないことだけをBlockerにしない。Codexが設定値を拒否した場合、指定ModelへAccessできない場合、または別ModelへのFallbackを実行環境が明示した場合はOrchestratorへ返す。暗黙Fallbackは禁止する。
 
 ## Docker Compose
 

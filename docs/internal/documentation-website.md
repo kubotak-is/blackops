@@ -45,6 +45,10 @@ GitHub RepositoryのSettings、Environmentsで次の2 Environmentを作成する
 
 Secretが未登録の場合、WorkflowはCredentialの値を表示せずDeployだけをNotice付きでSkipする。ProjectとSecretの作成後にWorkflowを再実行する。
 
+## Current External Status
+
+Repository内のWebsite Build、Artifact Guard、Preview／Production Workflow境界は実装済みである。2026-07-14時点ではCloudflare Pages Project、Environment Secret、Production Protection Ruleの外部設定が未完了であり、Production Deploy StepはSkipされ、`blackops-docs.pages.dev`もDNS解決できない。Repository内完了をLive Website公開と同一視せず、上記設定後にProductionと同一Repository Pull Request Previewを実行してからLive Verificationを完了する。
+
 ## Local Verification
 
 Repository Rootで固定ToolchainとArtifactを検証する。
