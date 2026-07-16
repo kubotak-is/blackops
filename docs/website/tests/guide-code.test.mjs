@@ -7,6 +7,20 @@ import { repositoryRoot } from '../scripts/website-paths.mjs';
 const guideRoot = path.join(repositoryRoot, 'docs/guide');
 const guide = (name) => readFile(path.join(guideRoot, name), 'utf8');
 
+test('upgrade guide installs the exact Skeleton 1.1 project-root entrypoint', async () => {
+  const [upgrade, entrypoint] = await Promise.all([
+    readFile(path.join(repositoryRoot, 'UPGRADE.md'), 'utf8'),
+    readFile(path.join(repositoryRoot, 'examples/quickstart/blackops'), 'utf8'),
+  ]);
+  const replacement = upgrade.match(/install -m 0755 \/dev\/stdin blackops <<'PHP'\n([\s\S]*?)\nPHP/);
+
+  assert.ok(replacement, 'UPGRADE.md must contain the complete executable entrypoint replacement');
+  assert.equal(`${replacement[1]}\n`, entrypoint);
+  assert.doesNotMatch(upgrade, /^mv bin\/blackops blackops$/m);
+  assert.match(upgrade, /php blackops list/);
+  assert.match(upgrade, /rm bin\/blackops/);
+});
+
 test('tutorial starts from the current generator and contains complete edited source', async () => {
   const tutorial = await guide('first-operation.md');
   const command = 'php blackops make:operation Billing/CreateInvoice --type=billing.invoice.create';
@@ -109,18 +123,19 @@ test('guide JSON and JSONL examples stay parseable and free of raw tutorial secr
   }
 });
 
-test('guide keeps Stable install and unreleased main capabilities distinct', async () => {
+test('guide presents the Stable 1.1 release surface and experimental policy consistently', async () => {
   const installation = await guide('installation.md');
   const quickstart = await guide('mvp-sample.md');
   const tutorial = await guide('first-operation.md');
   const generators = await guide('project-generators.md');
   const status = await guide('mvp-status.md');
 
-  assert.match(installation, /composer create-project blackops\/skeleton my-app 1\.0\.0/);
-  assert.match(quickstart, /blackops\/skeleton my-app dev-main/);
-  assert.match(quickstart, /blackops\/framework:dev-main/);
-  assert.match(tutorial, /Latest Stable `1\.0\.0`にはまだ含まれません/);
-  assert.match(generators, /Latest Stable `1\.0\.0`には`make:operation`／`make:migration`がまだ含まれません/);
-  assert.match(status, /7 Value Validation Attribute／422 Lifecycle \| Not included \| Implemented; unreleased/);
-  assert.match(status, /FrankenPHP Worker Mode \| Not included \| Default Runtime implemented; unreleased/);
+  assert.match(installation, /composer create-project blackops\/skeleton my-app 1\.1\.0/);
+  assert.match(quickstart, /blackops\/skeleton my-app 1\.1\.0/);
+  assert.doesNotMatch(quickstart, /dev-main/);
+  assert.match(tutorial, /Experimental Stable `1\.1\.0`/);
+  assert.match(generators, /Experimental Stable `1\.1\.0`/);
+  assert.match(status, /7 Value Validation Attribute／422 Lifecycle \| Available \| Available/);
+  assert.match(status, /FrankenPHP Worker Mode \| Default Runtime \| Default Runtime/);
+  assert.match(status, /Backward Compatibility/);
 });

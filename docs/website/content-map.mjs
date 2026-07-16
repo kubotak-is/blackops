@@ -1,6 +1,6 @@
 export const versionBanner = {
   content:
-    '<strong>Document Channel:</strong> <code>main</code> · <strong>Latest Stable:</strong> <code>1.0.0</code> · mainの文書には未Releaseの変更が含まれる場合があります。',
+    '<strong>Document Channel:</strong> <code>main</code> · <strong>Latest Stable:</strong> <code>1.1.0</code> · Experimental: 1.x Minor間のBackward Compatibilityは保証しません。',
 };
 
 export const contentMap = {
@@ -118,7 +118,7 @@ export const contentMap = {
   },
   'mvp-status.md': {
     slug: 'releases/current-status',
-    description: 'main DocumentとStable 1.0.0で利用できる機能、既知の制約を確認する。',
+    description: 'main DocumentとExperimental Stable 1.1.0で利用できる機能、既知の制約を確認する。',
   },
   'glossary.md': {
     slug: 'reference/glossary',

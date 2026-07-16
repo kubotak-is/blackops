@@ -2,7 +2,7 @@
 
 MVP Sample E2EはProduction CodeへSample専用の近道を追加せず、既存のCompile、HTTP、PostgreSQL、Worker、Outcome、Projection境界を組み合わせる。
 
-`tests/Consumer/quickstart-e2e.sh` はChecked-in Quickstartを一時DirectoryへCopyし、`symlink=false` とversion `1.0.0` の一時Composer Path RepositoryからFrameworkをConsumer Vendorへmirror installする。RuntimeはConsumerのAutoloaderだけを使う。
+`tests/Consumer/quickstart-e2e.sh` はChecked-in Quickstartを一時DirectoryへCopyし、`symlink=false` とversion `1.1.0` の一時Composer Path RepositoryからFrameworkをConsumer Vendorへmirror installする。RuntimeはConsumerのAutoloaderだけを使う。
 
 ScriptはBuild、明示Migration、FrankenPHP HTTP、Sensitive JSONL、Deferred Retry／Completion、Encoded Outcome、Retention Plan／Dry Runを機械検証する。Trapは成功／失敗の両方でCompose Project、Container、Named Volume、Local Image、一時Consumerを削除する。
 
@@ -10,7 +10,7 @@ ScriptはBuild、明示Migration、FrankenPHP HTTP、Sensitive JSONL、Deferred 
 
 `tests/Consumer/quickstart-setup.sh` はQuickstartを一時ProjectへCopyし、`bin/setup`の直接実行、Composer Script実行、Project Root外からの実行、再実行、Failureを検証する。直接実行ではPHPの外部Process関数を無効化し、Setup前後のFile差分が`.env`と生成Directoryだけであることを確認する。これにより表示された次手順が実行されず、Network／Docker／Database／Build Side EffectがないProcess Boundaryを検証する。
 
-`tests/Consumer/skeleton-create-project.sh` は`git archive HEAD:examples/quickstart`からCommitted Sourceだけを抽出する。SkeletonとFrameworkへ別々のLocal Path Repositoryとversion `1.0.0`を一時Composer Homeで与え、両方を`symlink=false`で通常／`--no-scripts` Create-projectする。Package SourceへRepository設定やVersionを戻さず、Lock、Vendor、Autoload、Post-create／Manual Setup、Generated State不在、Docker Resource不変、Source不変、Temp Cleanupを機械検証する。
+`tests/Consumer/skeleton-create-project.sh` は`git archive HEAD:examples/quickstart`からCommitted Sourceだけを抽出する。SkeletonとFrameworkへ別々のLocal Path Repositoryとversion `1.1.0`を一時Composer Homeで与え、両方を`symlink=false`で通常／`--no-scripts` Create-projectする。Package SourceへRepository設定やVersionを戻さず、Lock、Vendor、Autoload、Post-create／Manual Setup、Generated State不在、Docker Resource不変、Source不変、Temp Cleanupを機械検証する。
 
 `tests/Consumer/skeleton-publication.sh` はFramework Source RefからQuickstartだけのSubtree Splitを決定的に生成し、Framework VersionとConstraint、Distribution Root Allowlist、Composer Metadata、Generated State不在、同一Tag生成、Working Tree／Docker／Temporary State不変を検証する。これはRemote Pushを行わないDry Runであり、公開RepositoryとPackagistの可用性はP8-003／P8-004の外部検証が担当する。
 

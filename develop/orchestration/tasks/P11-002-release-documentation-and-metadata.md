@@ -1,6 +1,6 @@
 # P11-002: Release Documentation and Metadata
 
-Status: Ready
+Status: Accepted
 
 ## Goal
 
@@ -76,17 +76,17 @@ Experimental `1.1.0` Release CandidateのPackage Constraint、Local／Consumer V
 
 ## Acceptance Criteria
 
-- [ ] Skeletonが`blackops/framework: ^1.1`を要求する
-- [ ] Local／ConsumerのCurrent Release Fixtureが`1.1.0`で整合する
-- [ ] Framework Update Consumerが`1.0.0`から`1.1.0`へのBreaking Upgradeを検証する
-- [ ] CHANGELOGがAdded／Changed／Removed／Known Limitationsを正確に記録する
-- [ ] UPGRADEがEntrypoint、Command、Composer、Runtime／Environmentの移行手順を提供する
-- [ ] README／Guide／WebsiteがLatest Stable `1.1.0`とExperimental Policyを表示する
-- [ ] QuickstartがStable `1.1.0`から実行できる手順を示す
-- [ ] Stableと`main`が同じRelease Surfaceになった項目を未Releaseと表現しない
-- [ ] Website Unit／Check／BuildとPublic Artifact Guardが成功する
-- [ ] PHP／Consumer／Publication Dry RunのRequired Gateが成功する
-- [ ] ReportとSTATEが更新される
+- [x] Skeletonが`blackops/framework: ^1.1`を要求する
+- [x] Local／ConsumerのCurrent Release Fixtureが`1.1.0`で整合する
+- [x] Framework Update Consumerが`1.0.0`から`1.1.0`へのBreaking Upgradeを検証する
+- [x] CHANGELOGがAdded／Changed／Removed／Known Limitationsを正確に記録する
+- [x] UPGRADEがEntrypoint、Command、Composer、Runtime／Environmentの移行手順を提供する
+- [x] README／Guide／WebsiteがLatest Stable `1.1.0`とExperimental Policyを表示する
+- [x] QuickstartがStable `1.1.0`から実行できる手順を示す
+- [x] Stableと`main`が同じRelease Surfaceになった項目を未Releaseと表現しない
+- [x] Website Unit／Check／BuildとPublic Artifact Guardが成功する
+- [x] PHP／Consumer／Publication Dry RunのRequired Gateが成功する
+- [x] ReportとSTATEが更新される
 
 ## Required Commands
 

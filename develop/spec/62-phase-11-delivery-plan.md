@@ -45,10 +45,10 @@ P11-001 Release Surface Reset
 
 ## Phase Acceptance Criteria
 
-- [ ] Project CLIの公式SurfaceがProject Root `blackops`とPrefixなしCanonical Commandだけである
-- [ ] `1.0.0`からのBreaking SurfaceとMigrationがDocumentedである
-- [ ] Skeleton `1.1.0`がFramework `^1.1`を要求する
-- [ ] CHANGELOG、UPGRADE、README、GuideがLatest StableとExperimental Policyに一致する
+- [x] Project CLIの公式SurfaceがProject Root `blackops`とPrefixなしCanonical Commandだけである
+- [x] `1.0.0`からのBreaking SurfaceとMigrationがDocumentedである
+- [x] Skeleton `1.1.0`がFramework `^1.1`を要求する
+- [x] CHANGELOG、UPGRADE、README、GuideがLatest StableとExperimental Policyに一致する
 - [ ] Full Quality／Consumer／Publication GateがRelease Candidate Commitで成功する
 - [ ] Framework／Skeleton `1.1.0` TagとPackagist Metadataが一致する
 - [ ] 公開Packageから通常／`--no-scripts` Create-projectとQuickstartが成功する

@@ -130,7 +130,7 @@ for (const [route, html] of pages) {
   requireText(html, 'Document Channel:', `${route} document channel`);
   requireText(html, '<code>main</code>', `${route} main channel`);
   requireText(html, 'Latest Stable:', `${route} stable label`);
-  requireText(html, '<code>1.0.0</code>', `${route} stable version`);
+  requireText(html, '<code>1.1.0</code>', `${route} stable version`);
   requireText(html, 'class="sl-skip-link', `${route} skip link`);
   requireText(html, 'href="#_top"', `${route} skip target`);
   requireText(html, 'id="_top"', `${route} page heading target`);

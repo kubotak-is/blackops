@@ -1,30 +1,30 @@
 # 現在の提供状況（Current Status）
 
-BlackOpsのLatest StableはFramework／Skeleton `1.0.0`です。このWebsiteは`main` Branchの最新Documentを公開するため、Stableへまだ含まれない機能を説明する場合があります。
+BlackOpsのLatest StableはFramework／Skeleton `1.1.0`です。このWebsiteの現行機能説明は同じRelease Surfaceを対象にします。`main`には今後の未Release変更が加わる場合があります。
 
 BlackOps固有のOperation、Claim、Journal、Outcome等は[用語集](glossary.md)で確認できます。
 
-MVP CompleteとProduction Readyは同じ意味ではありません。ApplicationはDatabase Credential、Deployment、Process Supervision、Authentication／Authorization、Access Control、Encryption、Retention Policy、Operational Monitoringを所有します。
+BlackOpsはExperimentalです。1.x Minor間のBackward CompatibilityとProduction Readinessを保証しません。ApplicationはDatabase Credential、Deployment、Process Supervision、Authentication／Authorization、Access Control、Encryption、Retention Policy、Operational Monitoringを所有します。
 
 ## Stableとmain
 
-| Capability | Stable 1.0.0 | main Document |
+| Capability | Stable 1.1.0 | main Document |
 | --- | --- | --- |
 | Typed Self-handled Operation／Native Outcome | Available | Available |
 | Inline HTTP／Deferred HTTP／Worker Retry | Available | Available |
 | Lifecycle Journal／Sensitive Projection | Available | Available |
 | Typed Outcome Retrieval／Retention | Available | Available |
 | Composer Skeleton | Available | Available |
-| Project CLI Entrypoint | `bin` Directory内 | Project Root `blackops`; unreleased |
-| `make:operation`／`make:migration` | Not included | Implemented; unreleased |
-| Application Migration Runtime | Not included | Implemented; unreleased |
-| 7 Value Validation Attribute／422 Lifecycle | Not included | Implemented; unreleased |
-| FrankenPHP Worker Mode | Not included | Default Runtime implemented; unreleased |
+| Project CLI Entrypoint | Project Root `blackops` | Project Root `blackops` |
+| `make:operation`／`make:migration` | Available | Available |
+| Application Migration Runtime | Available | Available |
+| 7 Value Validation Attribute／422 Lifecycle | Available | Available |
+| FrankenPHP Worker Mode | Default Runtime | Default Runtime |
 
 Stable Applicationを作る場合はVersionを明示します。
 
 ```bash
-composer create-project blackops/skeleton my-app 1.0.0
+composer create-project blackops/skeleton my-app 1.1.0
 ```
 
 ## Available Runtime Surface
@@ -49,6 +49,6 @@ composer create-project blackops/skeleton my-app 1.0.0
 - Remote OpenTelemetry、CloudWatch、SQS、Kafka、SQLite、MySQL Adapterは提供しない
 - Observer Replay CLI、Admin UI、Scheduled Operation Strategyは提供しない
 - Array／Nested ObjectのHTTP Binding、宣言的DB照合、Cross-field Attribute、Custom Callbackは提供しない。`Count` Validatorは実装済みだが現行HTTP BinderからArrayを渡せない
-- Production CertificationやPublic API Contractを超える互換性保証は提供しない
+- Production CertificationやExperimental Public API Contractを超える互換性保証は提供しない。1.x Minor間のBackward Compatibilityも保証しない
 
 これらの不在はApplication側のSecurity／Operations設計が不要であることを意味しません。Stableと`main`の差を確認し、Deployment前に必要なAdapterと運用責務を明示してください。

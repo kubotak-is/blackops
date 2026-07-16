@@ -2,7 +2,7 @@
 
 Project CLIから`Billing/CreateInvoice`の骨格を生成し、HTTPで受け付けるDeferred Operationへ仕上げます。
 
-> **Document Channel:** `make:operation`、Project Rootの`blackops`、宣言的Validation Attributeは`main`に実装済みで、Latest Stable `1.0.0`にはまだ含まれません。このPageは[Quickstart](mvp-sample.md)の`main`環境を使います。
+> **Release:** このTutorialはExperimental Stable `1.1.0`のProject Root `blackops`、`make:operation`、宣言的Validation Attributeを使用します。
 
 ## 1. Generatorから始める
 

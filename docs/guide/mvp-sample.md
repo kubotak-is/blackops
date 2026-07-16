@@ -1,15 +1,14 @@
 # Quickstart
 
-空DirectoryからBlackOpsをInstallし、Inline HTTPとDeferred Workerを一続きで確認します。このPageは`main` DocumentのProject Root Entrypointを使うため、SkeletonとFrameworkの`dev-main`を明示します。Latest Stable `1.0.0`は同じRuntime機能を持ちますが、CLI EntrypointはProject Rootではなく`bin` Directory内にあり、Generatorと宣言的Validationは含みません。Stableだけを使う場合は[Installation](installation.md)と[Current Status](mvp-status.md)を先に確認してください。
+空DirectoryからExperimental Stable `1.1.0`をInstallし、Inline HTTPとDeferred Workerを一続きで確認します。1.x Minor間のBackward Compatibilityは保証しないため、更新時はUpgrade Guideを確認してください。
 
 ## 1. ComposerでProjectを作る
 
 PHP 8.5、Composer、Docker Composeを利用できる空Directoryで実行します。
 
 ```bash
-composer create-project blackops/skeleton my-app dev-main
+composer create-project blackops/skeleton my-app 1.1.0
 cd my-app
-composer require blackops/framework:dev-main
 ```
 
 `create-project`は`.env`、`var/build/`、`var/log/`を準備します。Composer Scriptを無効にした場合は`php bin/setup`を一度実行してください。FrameworkのInstall後もProject所有の`blackops`は入口のままで、Command実装は`vendor/blackops/framework`から読み込まれます。

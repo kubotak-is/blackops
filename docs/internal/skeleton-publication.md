@@ -23,7 +23,7 @@ Packagist TokenはMain Repositoryへ登録せず、Publication WorkflowからPac
 Release候補は外部状態を変更せずに検証できる。
 
 ```bash
-bash tests/Consumer/skeleton-publication.sh 1.0.0 HEAD
+bash tests/Consumer/skeleton-publication.sh 1.1.0 HEAD
 ```
 
 ScriptはVersionとSource Refを検証し、RepositoryのLocal Cloneで`git subtree split --prefix=examples/quickstart`を2回実行する。両方のCommit IDが一致しなければ失敗する。Split Treeは一時Directoryへ展開され、Root Allowlist、必須Entrypoint、Executable Bit、Composer Metadata、Framework Constraint、Post-create Script、Generated State不在を検証する。

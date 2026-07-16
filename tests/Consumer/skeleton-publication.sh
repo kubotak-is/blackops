@@ -6,7 +6,7 @@ repository_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 dry_run=false
 if [[ "${1:-}" = '--dry-run' ]]; then
     dry_run=true
-    version=1.0.1
+    version=1.1.0
     source_ref=''
 else
     version="${1:-}"

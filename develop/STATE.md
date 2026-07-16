@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-16T23:30:43+09:00
+Updated At: 2026-07-16T23:55:19+09:00
 
 ## Current Phase
 
@@ -16,13 +16,13 @@ Specifications: `develop/spec/61-experimental-release-contract.md`、`develop/sp
 
 ## Task Status
 
-P11-002 Ready
+P11-002 Accepted
 
-P11-001を`dc9ff2f`でAcceptedとしてmainへPushした。P11-002ではSkeleton Constraint、Release Candidate Fixture、CHANGELOG／UPGRADE、README／Guide／Website Version NoticeをExperimental `1.1.0`へ同期する。
+GPT-5.6 Luna High workerがP11-002のSkeleton Constraint、Release Candidate Fixture、CHANGELOG／UPGRADE、README／Guide／Website Version NoticeをExperimental `1.1.0`へ同期した。Review指摘を受け、Upgrade GuideのRoot EntrypointをSkeleton完全版の実行可能な置換手順へ修正した。WorkerとOrchestratorのRequired Gateがすべて成功し、P11-002をAcceptedとした。
 
 ## Last Accepted Task
 
-P11-001-release-surface-reset
+P11-002-release-documentation-and-metadata
 
 ## Pending Decisions
 
@@ -47,11 +47,44 @@ P11-001-release-surface-reset
 
 ## Required Next Action
 
-1. P11-001 Commit `dc9ff2f`のGitHub Actions結果を確認する。
-2. GPT-5.6 Luna High workerがP11-002を実装・検証する。
-3. OrchestratorがReview、独立再検証、Task Commitを行う。
-4. Accepted後、P11-003 Release Candidate Gateへ進む。
-5. Documentation Website PublicationはUserが再開を明示するまで実行しない。
+1. OrchestratorがP11-002をTask単位でCommitし、mainへPushする。
+2. P11-003 Release Candidate GateのTask Packetを作成し、GPT-5.6 Luna High workerへ委譲する。
+3. Documentation Website PublicationはUserが再開を明示するまで実行しない。
+
+## P11-002 Release Documentation and Metadata Worker Verification Commands and Results
+
+```text
+docker compose run --rm app composer validate --strict
+docker compose run --rm app composer validate --strict examples/quickstart/composer.json
+Result: RootとQuickstartのComposer Metadataがstrict validationに成功。
+
+docker compose run --rm app mago format --check src tests examples
+docker compose run --rm app mago lint
+docker compose run --rm app mago analyze
+Result: Format済み。Lint／AnalyzeともにNo issues found。
+
+docker compose run --rm app vendor/bin/phpunit
+Result: OK (871 tests, 2831 assertions)。
+
+docker compose run --rm app vendor/bin/deptrac
+Result: Violations 0 / Skipped 0 / Uncovered 0 / Allowed 1712 / Warnings 0 / Errors 0。
+
+bash tests/Consumer/quickstart-e2e.sh
+bash tests/Consumer/frankenphp-worker-mode.sh
+bash tests/Consumer/quickstart-setup.sh
+bash tests/Consumer/skeleton-create-project.sh
+bash tests/Consumer/framework-update-generators.sh
+bash tests/Consumer/skeleton-publication.sh --dry-run
+Result: 6本すべて成功。Current `1.1.0` Fixture、Worker Mode、通常／no-scripts Create-project、`1.0.0`から`1.1.0` Update、Publication Dry Runを検証。
+
+mise exec -- pnpm --dir docs/website run test
+mise exec -- pnpm --dir docs/website run check
+mise exec -- pnpm --dir docs/website run build
+Result: 36 tests / 36 passed。Skeleton `1.1.0` Root EntrypointとUpgrade掲載内容のbyte一致を含む。16 files / 0 errors / 0 warnings / 0 hints。28 Public Pages plus 404、Pagefind 29 HTML、Artifact／Site／Search Guard成功。
+
+Public Artifact Guard、PHP Management ID Guard、git diff --check
+Result: すべて成功。
+```
 
 ## P11-001 Release Surface Reset Worker Verification Commands and Results
 

@@ -46,13 +46,13 @@ scheduler:daemon
 
 PlanとDry-runは変更を行いません。Purgeは`--confirm`を要求し、Schedulerも明示Commandでのみ開始します。
 
-## Generator Channel
+## Generator
 
 ```text
 make:operation
 make:migration
 ```
 
-この2 Commandは`main`に実装済みですがLatest Stable `1.0.0`には含まれません。次回Stable Releaseへ含まれるまでは、Stable Projectで利用可能とみなさないでください。詳細は[Project Generators](project-generators.md)を参照してください。
+この2 CommandはExperimental Stable `1.1.0`で利用できます。詳細は[Project Generators](project-generators.md)を参照してください。生成済みApplication SourceはFramework Updateで自動変更されません。
 
-Latest Stable `1.0.0`はEntrypointを`bin` Directory内に配置します。このPageのProject Root Command、Generator、Application Migration Runtimeは`main`の未Release Surfaceです。生成済みApplication SourceはFramework Updateで自動変更されません。
+`1.0.0`の`bin/blackops`と`blackops:*` Project Commandは互換対象ではありません。`1.1.0`への移行ではProject Root `blackops`とPrefixなしCommandへ更新してください。

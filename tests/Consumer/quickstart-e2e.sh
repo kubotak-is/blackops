@@ -33,7 +33,7 @@ compose=(docker compose --project-directory "${CONSUMER}" --project-name "${PROJ
 install_compose=("${compose[@]}" -f "${INSTALL_OVERRIDE}")
 
 docker run --rm -v "${CONSUMER}:/app" -v "${ROOT}:/framework:ro" -w /app composer:2 \
-    composer config repositories.framework '{"type":"path","url":"/framework","options":{"symlink":false,"versions":{"blackops/framework":"1.0.0"}}}'
+    composer config repositories.framework '{"type":"path","url":"/framework","options":{"symlink":false,"versions":{"blackops/framework":"1.1.0"}}}'
 
 HTTP_PORT="${PORT}" "${compose[@]}" build app http
 HTTP_PORT="${PORT}" "${compose[@]}" up -d postgres

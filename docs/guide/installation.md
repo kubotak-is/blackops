@@ -2,12 +2,12 @@
 
 BlackOps Applicationは、Packagistで公開済みのSkeletonからComposer標準の`create-project`で作成します。PHP 8.5、Composer、Docker Composeを利用できる環境を用意してください。
 
-## Stable 1.0.0を作成する
+## Stable 1.1.0を作成する
 
 Versionを明示してApplicationを作成します。
 
 ```bash
-composer create-project blackops/skeleton my-app 1.0.0
+composer create-project blackops/skeleton my-app 1.1.0
 cd my-app
 ```
 
@@ -20,17 +20,17 @@ SetupはDocker、Database、Migration、Artifact Build、Worker、Scheduler、Re
 Script実行を禁止する環境では、同じSetupを手動で実行します。
 
 ```bash
-composer create-project --no-scripts blackops/skeleton my-app 1.0.0
+composer create-project --no-scripts blackops/skeleton my-app 1.1.0
 php my-app/bin/setup
 cd my-app
 ```
 
 `bin/setup`は再実行可能です。既存`.env`を保持したまま不足するLocal Directoryだけを確認できます。
 
-## main Documentとの違い
+## Release Policy
 
-Stable `1.0.0`にはFramework／SkeletonのInline、Deferred、CLI Worker、Outcome、Retentionが含まれます。StableのCLI Entrypointは`bin` Directory内です。`main` DocumentはProject Rootの`blackops`へ統一し、まだReleaseしていないGenerator、Application Migration Runtime、7 Validation Attribute、FrankenPHP Worker Modeも説明します。Stableで利用可能かは[Current Status](mvp-status.md)で確認してください。
+Stable `1.1.0`にはProject Root `blackops`、Generator、Application Migration Runtime、7 Validation Attribute、FrankenPHP Worker Modeが含まれます。このWebsiteの現行手順と同じRelease Surfaceです。
 
-このWebsiteの[Quickstart](mvp-sample.md)はProject Root Entrypointを含む`main` Channelを明示Installします。Stable `1.0.0`を固定した手順と混ぜないでください。
+BlackOpsはExperimentalです。1.x Minor間のBackward CompatibilityとProduction Readinessを保証しません。Upgrade前にRelease NoteとUpgrade Guideを確認し、検証環境でApplicationをTestしてください。[Current Status](mvp-status.md)には利用可能な機能と既知の制約をまとめています。
 
 次は[Quickstart](mvp-sample.md)でInline Request、Deferred受付、Worker実行を一続きで確認します。

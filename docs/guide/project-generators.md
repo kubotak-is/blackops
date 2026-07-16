@@ -2,7 +2,7 @@
 
 Install済みApplicationでは、Project Rootの`blackops`からFrameworkが提供するGeneratorを実行できます。生成対象となる[Operation](glossary.md#operation)は、Applicationが実行したい一つの意図と処理単位です。
 
-> **Document Channel:** このPageは`main`に実装済みで、次回Stable Releaseへ含む機能を説明します。Latest Stable `1.0.0`には`make:operation`／`make:migration`がまだ含まれません。
+> **Release:** `make:operation`と`make:migration`はExperimental Stable `1.1.0`で利用できます。生成済みSourceはApplication所有であり、Framework Updateでは変更されません。
 
 ## Operationを生成する
 
