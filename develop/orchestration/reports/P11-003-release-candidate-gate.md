@@ -1,6 +1,6 @@
 # P11-003: Release Candidate Gate Report
 
-Status: Blocked
+Status: Accepted
 
 ## Summary
 
@@ -179,3 +179,208 @@ P11-003はBlockedである。Fixed CandidateのRelease AutomationはSkeletonへa
 ## Suggested Next Action
 
 OrchestratorがRelease Automation follow-up Taskを作成し、`tests/Consumer/skeleton-publication.sh`と`.github/workflows/publish-skeleton.yml`をannotated Skeleton tag契約へ修正する。修正をReview／Commit／PushしてGitHub Actions成功を確認した後、そのCommitを新しいFixed Release Candidate SHAとしてP11-003 Task Packetへ明記し、全Gateを最初から再実行する。
+
+## Resolution and Resumed Candidate Summary
+
+上記の最初のCandidate BlockerはP11-003A Accepted Commit `e3df5576c7216cfe8bd9e10e12ee6795f7674088`で解消した。Local Publication Testはannotated Tag Object、固定Message、Peeled Split Commitを検証する。Workflowはannotated Tag RefをPushし、Direct RefとPeeled Refを分離監査する。新規lightweight tagを拒否し、公開済みSkeleton `1.0.0`のlightweight tagだけを同一Split CommitのManual Recoveryで不変のまま許容する。
+
+新Fixed Candidateを対象にFull PHP／Website Gate、全6 Consumer、Publication Full Run、Workflow Regression、External Read-only Preflightを最初から再実行し、すべて成功した。External Stateは変更していない。
+
+## New Fixed Release Candidate Evidence
+
+- Checked At: `2026-07-17T00:34:40+09:00`
+- Fixed Source Commit: `e3df5576c7216cfe8bd9e10e12ee6795f7674088`
+- Subject: `fix: publish annotated skeleton release tags`
+- Local Task Commit／Remote `origin/main`: `428b71ebd8fa3a899759aef317840def102fa15c`
+- Fixed SourceはLocal／Remote `main` Historyのancestorであり、P11-003A Accepted Commitと一致する。
+- Fixed SourceからTask CommitまでのCommitted Changeは`develop/STATE.md`と`develop/orchestration/tasks/P11-003-release-candidate-gate.md`だけである。
+- Gate中のWorking Tree変更もTask、Report、STATEだけであり、Production、Skeleton、Release Metadata、利用者向けDocumentationを混入していない。
+
+## New Candidate Local Full Gate Evidence
+
+### PHP Quality Gate
+
+- Composer Strict Validation: Root／Skeleton成功
+- Mago Format Check／Lint／Analyze: 成功、Issueなし
+- PHPUnit: `871 tests, 2831 assertions`、成功
+- Deptrac: `Violations 0 / Skipped 0 / Uncovered 0 / Allowed 1712 / Warnings 0 / Errors 0`
+
+Worker環境からDocker SocketへのEscalationは実行環境Policyで拒否されたため迂回しなかった。Orchestratorが同じ新CandidateとTask／Report／STATEだけに限定されたWorking TreeでDocker必須Gateを実行し、上記結果を確認した。
+
+### Website and Static Guard
+
+- Website Unit: `36 tests / 36 passed`
+- Content／Mermaid／Astro Check: `16 files / 0 errors / 0 warnings / 0 hints`
+- Static Build: 28 Public Pages plus 404、Pagefind 29 HTML
+- Artifact／Navigation／Accessibility／Search Guard: 成功
+- Public Artifact、PHP Management ID、Credential、Generated State、Shell Syntax、`git diff --check`: 成功
+- `#[PublicApi]` Typeは119型で、Website Core API Coverage Testと一致する。
+
+## New Candidate GitHub Actions Evidence
+
+- Checked At: `2026-07-17T00:34:00+09:00`（Orchestrator read-only確認）
+- CI Run `29511467022`: Success、Head SHA `e3df5576c7216cfe8bd9e10e12ee6795f7674088`
+- Documentation Delivery Run `29511466795`: Artifact Build Success、同じHead SHA
+- Documentation Production Deploy: Credential不在によりSkip。Dormant Documentation Contractどおりであり、P11-003 Blockerではない。
+
+Worker環境の`gh run view`はSandbox Network外へ接続できず、EscalationもEnvironment Policyで拒否された。迂回せず、Orchestratorが同じRunをread-onlyで再確認したEvidenceを採用した。
+
+## New Candidate Split and Create-project Evidence
+
+- Fixed Publication Source: `e3df5576c7216cfe8bd9e10e12ee6795f7674088`
+- Deterministic Skeleton Split Commit: `293f880940636669f28ded756a888a8d6ba65f1b`
+- `skeleton-publication.sh`: annotated Tag Object、Message `BlackOps Skeleton 1.1.0`、Peeled Commit一致、Distribution Allowlist、Composer `^1.1`、Root `blackops`を検証して成功
+- `skeleton-publication-workflow.sh`: 新規annotated publication、同一Peeled Commitの冪等Recovery、annotated divergence拒否、新規lightweight拒否、Legacy `1.0.0` Manual Recovery限定例外をTemporary Bare Repositoryで検証して成功
+- Quickstart E2E、FrankenPHP Worker Mode、Setup、Framework `1.0.0`から`1.1.0` Update: 成功
+- Create-project: 通常／`--no-scripts`ともSkeleton／Framework `1.1.0` Lock、Root `blackops`、Post-create／Manual Setup境界を検証して成功
+
+Create-projectの最初の実行は他Consumerとの並列実行中に、Install完了後のDocker Resource不変Guardが他ProcessのResource変化を検出してExit 1になった。全ConsumerをCleanup後、単独で同じCommandを再実行して`Skeleton create-project smoke passed`となった。通常／`--no-scripts` Install自体は初回も完了しており、最終単独Gate成功をAcceptance Evidenceとする。
+
+## New Candidate Release Surface and Known Limitations Review
+
+- `CHANGELOG.md`のAdded／Changed／Removedは119 Public API、7 Validation Attribute、`symfony/validator:^7.4`、Generator、Application Migration、HTTP 400／422、Worker Mode、Root Entrypoint、9 Canonical Commandと一致する。
+- `UPGRADE.md`のRoot `blackops`完全版はSkeleton SourceとWebsite Testでbyte一致し、単純な`mv`を案内しない。
+- 旧9 `blackops:*`名はApplication Command競合TestのFixtureとInternal Compiler Commandを除き、公式Project CLIとして残っていない。
+- Skeletonは`blackops/framework:^1.1`を要求し、`composer.lock`、`vendor/`、`.env`、生成Build／Log Stateを配布Sourceへ含めない。
+- Known LimitationsのAuthentication／Authorization、Sensitive Data、Deferred Status API、Binder Array、Database／Transport／Telemetry Adapter境界は現在の実装とGuideに一致する。
+- Experimental、1.x Minor間Backward Compatibility未保証、Production Readiness未保証の表示はREADME、Guide、Website、CHANGELOG、UPGRADEで一致する。
+
+## New Candidate Publication Preflight State
+
+Checked At: `2026-07-17T00:34:00+09:00`（Orchestrator read-only確認）
+
+| Surface | Publication前State |
+| --- | --- |
+| Framework Remote `main` | `428b71ebd8fa3a899759aef317840def102fa15c` |
+| Framework `1.0.0` | annotated tag。Direct Tag Object `344ce0f…`、Peeled Commit `279716f…` |
+| Framework `1.1.0` | Direct／Peeled Refともに不存在 |
+| Skeleton Remote `main` | `da573f3190e5e855a9c09e275980c6ddc5cce028` |
+| Skeleton `1.0.0` | lightweight tag。Direct Commit `da573f3190e5e855a9c09e275980c6ddc5cce028`、Peeled Ref不存在 |
+| Skeleton `1.1.0` | Direct／Peeled Refともに不存在 |
+| GitHub Release `1.1.0` | `release not found` |
+| Actions Secret | Name `SKELETON_DEPLOY_KEY`が存在。Last Updated `2026-07-13T04:39:54Z`。値は取得していない |
+| Packagist Framework | Stableは`1.0.0`のみ、Source Ref `279716f…`。`1.1.0`不存在 |
+| Packagist Skeleton | Stableは`1.0.0`のみ、Source Ref `da573f3…`、Framework Constraint `^1.0`。`1.1.0`不存在 |
+
+新Releaseと同名のRemote Tag／GitHub Release／Packagist Stableは存在せず、Publication前状態として競合がない。Tag、Release、Repository、Packagist、Secret、Documentation Websiteを変更するCommandは実行していない。
+
+## Fixed P11-004 Publication Checklist and Recovery
+
+### Preconditions
+
+1. P11-003をAcceptedし、Release Sourceを`e3df5576c7216cfe8bd9e10e12ee6795f7674088`から読み替えない。
+2. Working Treeがcleanで、`main` HistoryにCandidateとP11-003 Tracking Commitだけが存在することを再確認する。
+3. Framework／Skeleton `1.1.0` Remote RefとGitHub Releaseが引き続き不存在であることをread-only再確認する。
+4. `SKELETON_DEPLOY_KEY`のSecret名が存在することだけを確認し、値を取得またはLogへ出さない。
+
+### Publication Sequence
+
+1. Framework Candidateへannotated tag `1.1.0`を作成し、Object Type `tag`、Message、Peeled CommitがCandidateと一致することをLocal確認する。
+2. Framework TagをPushし、`publish-skeleton.yml`のTag Runを監視する。
+3. WorkflowがFull Gate後にSkeleton `main`をSplit Commit `293f880940636669f28ded756a888a8d6ba65f1b`へFast-forwardし、annotated `1.1.0` Tag RefをPushしたことを確認する。
+4. Framework／SkeletonのDirect Tag Object TypeとPeeled CommitをRemoteで確認する。
+5. Packagist Framework／Skeletonへ`1.1.0`が反映され、SkeletonがFramework `^1.1`を要求することを確認する。
+6. `CHANGELOG.md`の`1.1.0`を要約したGitHub ReleaseをFramework Tagへ作成する。
+7. 公開Packageから通常／`--no-scripts` Create-project、Root `blackops`、Documented Quickstartを検証する。
+8. Phase Report、TODO、Spec 62、STATEをCloseoutする。Documentation Websiteは公開しない。
+
+### Success Conditions
+
+- Framework `1.1.0`がannotated tagで、Peeled CommitがFixed Candidateと一致する。
+- Skeleton `1.1.0`がannotated tagで、Peeled Commitと`main`が固定Split Commitと一致する。
+- Packagist両Packageが`1.1.0`を同一Release系列として公開する。
+- GitHub Releaseが確定Release Noteを持つ。
+- Remote通常／`--no-scripts` InstallとQuickstartが成功する。
+- Documentation Website、既存`1.0.0` Tag、Credential値を変更していない。
+
+### Recovery Conditions
+
+- Framework Tag公開後は移動、削除、再割当しない。
+- Tag-trigger Workflowが失敗した場合、main上のWorkflowを`release_version=1.1.0`でManual Dispatchし、同じ不変Framework TagをCheckoutして全Gateを再実行する。
+- Skeleton annotated tagが同じSplit CommitへPeeledする場合だけ冪等成功とする。異なるCommit、新規`1.1.0` lightweight tag、Peeled Ref不整合は自動修正せずBlockerとして停止する。
+- Legacy Skeleton `1.0.0` lightweight例外はManual Recoveryかつ同一Direct Commitだけに限定し、変更しない。
+- Skeleton `main`がSplit CommitへFast-forwardできない場合はPushせず停止する。
+- Packagist反映遅延はTagを変更せず再確認する。GitHub Release作成失敗はPackage Tagを変更せずRelease作成だけを再処理する。
+
+## Resumed Candidate Commands and Results
+
+```text
+docker compose run --rm app composer validate --strict
+docker compose run --rm app composer validate --strict examples/quickstart/composer.json
+Result: Root／Skeletonともにstrict validation成功。
+
+docker compose run --rm app mago format --check src tests examples
+docker compose run --rm app mago lint
+docker compose run --rm app mago analyze
+Result: Format済み。Lint／AnalyzeはNo issues found。
+
+docker compose run --rm app vendor/bin/phpunit
+Result: OK (871 tests, 2831 assertions)。
+
+docker compose run --rm app vendor/bin/deptrac
+Result: Violations 0 / Skipped 0 / Uncovered 0 / Allowed 1712 / Warnings 0 / Errors 0。
+
+bash tests/Consumer/quickstart-e2e.sh
+bash tests/Consumer/frankenphp-worker-mode.sh
+bash tests/Consumer/quickstart-setup.sh
+bash tests/Consumer/skeleton-create-project.sh
+bash tests/Consumer/framework-update-generators.sh
+Result: 6 Consumerすべて最終成功。Create-project初回の並列Resource Guard干渉は全Cleanup後の単独再実行で成功。
+
+bash tests/Consumer/skeleton-publication.sh 1.1.0 e3df5576c7216cfe8bd9e10e12ee6795f7674088
+Result: Success。split=293f880940636669f28ded756a888a8d6ba65f1b。Annotated Tag Object／Message／Peeled Commitを検証。
+
+bash tests/Consumer/skeleton-publication-workflow.sh
+Result: Success。split=293f880940636669f28ded756a888a8d6ba65f1b。Annotated／Peeled／Divergence／Legacy Recovery境界を検証。
+
+mise exec -- pnpm --dir docs/website run test
+Result: 36 tests / 36 passed。
+
+mise exec -- pnpm --dir docs/website run check
+Result: Content／Mermaid／Astro Check成功。16 files / 0 errors / 0 warnings / 0 hints。
+
+mise exec -- pnpm --dir docs/website run build
+Result: 28 Public Pages plus 404、Pagefind 29 HTML、Artifact／Site／Search Guard成功。既知のChunk Size Warningのみ。
+
+Public Artifact／PHP Management ID／Credential／Generated State Guard
+bash -n tests/Consumer/skeleton-publication.sh
+bash -n tests/Consumer/skeleton-publication-workflow.sh
+git diff --check
+Result: すべて成功。
+
+gh run view 29511467022 / 29511466795、Git Remote Ref、gh release、gh secret list、Packagist p2 Metadata
+Result: Orchestrator read-only確認でCI／Artifact Build成功、1.1.0未公開、Secret名存在、Stable 1.0.0のみを確認。External Mutationなし。
+```
+
+Workerからの最初のDocker CommandはSocket Permissionで実行前に失敗し、許可境界での再実行もEnvironment Policyに拒否された。Workerからの`gh run view`はNetwork接続失敗後、Escalationが同Policyに拒否された。いずれも迂回せず、Orchestratorが同じCommand群を許可された境界で再実行して成功Evidenceを共有した。
+
+## Resumed Candidate Acceptance Criteria
+
+- [x] 新Fixed Candidate SHAがLocal／Remote main Historyに存在し、P11-003A Accepted Commitと一致する
+- [x] GitHub Actions CI／Documentation Artifact BuildのSuccess Evidenceを記録した
+- [x] Composer、Mago、Full PHPUnit、Deptracが成功した
+- [x] 全6 Consumer／Installation／Worker／Framework Update Smokeが成功した
+- [x] Skeleton Publicationが決定的Splitとannotated Tag Object／Peeled Commitを検証した
+- [x] 通常／`--no-scripts` Create-projectが`1.1.0`とRoot `blackops`を検証した
+- [x] Website Unit／Check／Build／Public Artifact Guardが成功した
+- [x] Public API、Management ID、Credential、Generated State、Working Tree Guardが成功した
+- [x] CHANGELOG Known LimitationsとUPGRADE手順が実装Surfaceと一致した
+- [x] Framework／Skeleton Tag、GitHub Release、Packagist `1.1.0`が未公開であることをread-onlyで確認した
+- [x] P11-004 Checklist、Success条件、Recovery条件を固定した
+- [x] ReportとSTATEを更新した
+
+## Resumed Candidate Remaining Issues
+
+P11-003のRelease Candidate GateにBlockerはない。Documentation Websiteは意図的に未公開であり、Cloudflare Credential不在はP11-004にも含めない。
+
+## Resumed Candidate Suggested Next Action
+
+Orchestratorが新Candidate EvidenceとTracking差分をReviewする。Accepted後はP11-003 Tracking ChangeをTask単位でCommit／Pushし、D094の事前承認に従ってP11-004でFixed Candidate `e3df5576c7216cfe8bd9e10e12ee6795f7674088`へannotated Framework tag `1.1.0`を作成してPublication Checklistを実行する。
+
+## Resumed Candidate Orchestrator Review
+
+Accepted。OrchestratorがFixed Candidate、GitHub Actions Evidence、Full PHP／Website Gate、全6 Consumer、annotated Skeleton Publication、Workflow Regression、External read-only Preflight、P11-004 Recovery条件を独立照合した。
+
+最初のCandidate Blockerは履歴として保持され、P11-003Aでの解消と新Fixed Candidateの再Gateが分離されている。Create-projectの並列Resource Guard干渉も隠さず、Cleanup後の単独成功をAcceptance Evidenceとする根拠が明記されている。
+
+Release Sourceは`e3df5576c7216cfe8bd9e10e12ee6795f7674088`、Skeleton Splitは`293f880940636669f28ded756a888a8d6ba65f1b`に固定する。P11-003 Tracking CommitはRelease Sourceに含めない。

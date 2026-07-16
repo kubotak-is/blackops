@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-17T00:32:10+09:00
+Updated At: 2026-07-17T00:43:41+09:00
 
 ## Current Phase
 
@@ -16,13 +16,13 @@ Specifications: `develop/spec/61-experimental-release-contract.md`、`develop/sp
 
 ## Task Status
 
-P11-003 Ready (Resumed)
+P11-003 Accepted
 
-P11-003A Accepted Commit `e3df5576c7216cfe8bd9e10e12ee6795f7674088`をmainへPushし、CI Run `29511467022`とDocumentation Delivery Run `29511466795`が成功した。Documentation Production DeployはCredential不在でSkipされた。このCommitを新Fixed Release CandidateとしてP11-003 Full Gateを最初から再実行する。
+新Fixed Candidate `e3df5576c7216cfe8bd9e10e12ee6795f7674088`でFull PHP／Website Gate、全6 Consumer、annotated Skeleton Publication、Workflow Regression、External Read-only Preflightが成功した。固定Splitは`293f880940636669f28ded756a888a8d6ba65f1b`である。P11-004 Publication ChecklistとRecovery条件をReportへ固定し、Orchestrator ReviewでAcceptedとした。
 
 ## Last Accepted Task
 
-P11-003A-annotated-skeleton-release-tag
+P11-003-release-candidate-gate
 
 ## Pending Decisions
 
@@ -43,15 +43,57 @@ P11-003A-annotated-skeleton-release-tag
 
 ## Known Blockers
 
-新Fixed CandidateのP11-003 Full Gateを妨げる既知Blockerはない。最初のCandidateで検出したSkeleton annotated tag矛盾はP11-003Aで解消済みである。Documentation Websiteは意図的に未公開であり、Cloudflare Project／Credential未設定は本Taskと無関係である。
+P11-003 Release Candidate Gateを妨げるBlockerはない。最初のCandidateで検出したSkeleton annotated tag矛盾はP11-003Aで解消し、新CandidateのFull Gateで再検証済みである。Documentation Websiteは意図的に未公開であり、Cloudflare Project／Credential未設定は本Taskと無関係である。
 
 ## Required Next Action
 
-1. P11-003 Resume CheckpointをCommitし、mainへPushする。
-2. GPT-5.6 Luna High workerが新Fixed CandidateのFull Gate、全Consumer、Publication Dry Run、External Read-only Preflightを最初から実行する。
-3. OrchestratorがReport、Gate Evidence、Publication ChecklistをReviewする。
-4. 全Gate成功後はD094の事前承認に従いP11-004 Publicationへ進む。
+1. P11-003 Tracking ChangeをTask単位でCommitし、mainへPushする。
+2. P11-004 Task Packetを作成し、Fixed CandidateとPublication Checklistを固定する。
+3. D094の事前承認に従い、Fixed Candidate `e3df5576c7216cfe8bd9e10e12ee6795f7674088`へannotated Framework tag `1.1.0`を作成する。
+4. Skeleton Workflow、Framework／Skeleton Tag、Packagist、GitHub Release、Remote Create-project／Quickstartを検証してPhase 11をCloseする。
 5. Documentation Website PublicationはUserが再開を明示するまで実行しない。
+
+## P11-003 Release Candidate Gate Verification Commands and Results
+
+```text
+docker compose run --rm app composer validate --strict
+docker compose run --rm app composer validate --strict examples/quickstart/composer.json
+docker compose run --rm app mago format --check src tests examples
+docker compose run --rm app mago lint
+docker compose run --rm app mago analyze
+Result: Composer Strict、Format、Lint、Analyze成功。No issues found。
+
+docker compose run --rm app vendor/bin/phpunit
+Result: OK (871 tests, 2831 assertions)。
+
+docker compose run --rm app vendor/bin/deptrac
+Result: Violations 0 / Skipped 0 / Uncovered 0 / Allowed 1712 / Warnings 0 / Errors 0。
+
+bash tests/Consumer/quickstart-e2e.sh
+bash tests/Consumer/frankenphp-worker-mode.sh
+bash tests/Consumer/quickstart-setup.sh
+bash tests/Consumer/skeleton-create-project.sh
+bash tests/Consumer/framework-update-generators.sh
+Result: 全6 Consumerが最終成功。Create-projectは並列Resource Guard干渉後、Cleanupして単独再実行で成功。
+
+bash tests/Consumer/skeleton-publication.sh 1.1.0 e3df5576c7216cfe8bd9e10e12ee6795f7674088
+bash tests/Consumer/skeleton-publication-workflow.sh
+Result: Success。split=293f880940636669f28ded756a888a8d6ba65f1b。Annotated Tag Object、Peeled Commit、Divergence、Legacy 1.0.0 Recoveryを検証。
+
+mise exec -- pnpm --dir docs/website run test
+mise exec -- pnpm --dir docs/website run check
+mise exec -- pnpm --dir docs/website run build
+Result: 36 tests / 36 passed。Astro diagnostics 0。28 Public Pages plus 404、Pagefind 29 HTML、Artifact／Site／Search Guard成功。
+
+GitHub CI Run 29511467022 / Documentation Delivery Run 29511466795
+Result: Fixed Candidate e3df5576c7216cfe8bd9e10e12ee6795f7674088でSuccess。Production DeployはDormant Credential境界によりSkip。
+
+External read-only preflight
+Result: Framework／Skeleton 1.1.0 Tag、GitHub Release、Packagist Stableは未公開。SKELETON_DEPLOY_KEY Secret名は存在。External Mutationなし。
+
+Public Artifact、Management ID、Credential、Generated State、Working Tree、Shell Syntax、git diff --check Guard
+Result: すべて成功。
+```
 
 ## P11-003A Annotated Skeleton Release Tag Worker Verification Commands and Results
 

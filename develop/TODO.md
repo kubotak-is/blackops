@@ -68,7 +68,7 @@ MVP後に残す主要項目:
 
 - [x] Stable `1.0.0`からのBreaking／Additive SurfaceとUpgrade Pathを監査する
 - [x] Main BranchのProject CLI、Typed Operation、Validation、Worker ModeをRelease Noteへ固定する
-- [ ] Framework／Skeleton `1.1.0`のConsumer／Publication Gateを実行する
+- [x] Framework／Skeleton `1.1.0`のConsumer／Publication Gateを実行する
 - [ ] `composer create-project blackops/skeleton:^1.1`からQuickstartを完走する
 
 ### Phase 12: Middleware and Authorization Runtime

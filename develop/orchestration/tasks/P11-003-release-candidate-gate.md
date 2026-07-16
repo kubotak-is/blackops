@@ -1,6 +1,6 @@
 # P11-003: Release Candidate Gate
 
-Status: Ready (Resumed)
+Status: Accepted
 
 ## Goal
 
@@ -84,18 +84,18 @@ Task／Report／STATEだけを更新するCommitはRelease Sourceへ含めない
 
 ## Acceptance Criteria
 
-- [ ] Fixed Release Candidate SHA `e3df5576c7216cfe8bd9e10e12ee6795f7674088`がLocal／Remote main Historyに存在し、P11-003A Accepted Commitと一致する
-- [ ] GitHub Actions CI Run `29511467022`とDocumentation Delivery Run `29511466795`が成功Evidenceとして記録される
-- [ ] Composer、Mago、Full PHPUnit、Deptracが成功する
-- [ ] 全6 Consumer／Installation／Worker／Framework Update Smokeが成功する
-- [ ] Skeleton `1.1.0` Publication Dry RunがFixed Sourceから決定的なSplit Commitを生成する
-- [ ] 通常／`--no-scripts` Create-projectがSkeleton／Framework `1.1.0`をLockし、Root `blackops`を検証する
-- [ ] Website Unit／Check／Build／Public Artifact Guardが成功する
-- [ ] Public API、Management ID、Credential、Generated State、Working Tree Guardが成功する
-- [ ] CHANGELOG Known LimitationsとUPGRADE手順が実装Surfaceと一致する
-- [ ] Framework／Skeleton `1.1.0` Tag、GitHub Release、Packagist Stableが未公開であることをRead-onlyで確認する
-- [ ] P11-004 Publication Checklist、Success条件、Recovery条件がReportへ固定される
-- [ ] ReportとSTATEが更新される
+- [x] Fixed Release Candidate SHA `e3df5576c7216cfe8bd9e10e12ee6795f7674088`がLocal／Remote main Historyに存在し、P11-003A Accepted Commitと一致する
+- [x] GitHub Actions CI Run `29511467022`とDocumentation Delivery Run `29511466795`が成功Evidenceとして記録される
+- [x] Composer、Mago、Full PHPUnit、Deptracが成功する
+- [x] 全6 Consumer／Installation／Worker／Framework Update Smokeが成功する
+- [x] Skeleton `1.1.0` Publication Dry RunがFixed Sourceから決定的なSplit Commitを生成する
+- [x] 通常／`--no-scripts` Create-projectがSkeleton／Framework `1.1.0`をLockし、Root `blackops`を検証する
+- [x] Website Unit／Check／Build／Public Artifact Guardが成功する
+- [x] Public API、Management ID、Credential、Generated State、Working Tree Guardが成功する
+- [x] CHANGELOG Known LimitationsとUPGRADE手順が実装Surfaceと一致する
+- [x] Framework／Skeleton `1.1.0` Tag、GitHub Release、Packagist Stableが未公開であることをRead-onlyで確認する
+- [x] P11-004 Publication Checklist、Success条件、Recovery条件がReportへ固定される
+- [x] ReportとSTATEが更新される
 
 ## Required Commands
 
