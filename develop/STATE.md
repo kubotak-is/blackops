@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-16T23:59:00+09:00
+Updated At: 2026-07-17T00:04:00+09:00
 
 ## Current Phase
 
@@ -16,9 +16,9 @@ Specifications: `develop/spec/61-experimental-release-contract.md`、`develop/sp
 
 ## Task Status
 
-P11-003 Ready
+P11-003 Blocked
 
-P11-002をCommit `49b42efe5a0671cbae9212203a07271c1cf36f2b`としてmainへPushした。CI Run `29508886946`とDocumentation Delivery Run `29508886458`は成功し、Cloudflare Production DeployはCredential不在によりSkipされた。このCommitをExperimental `1.1.0`のFixed Release Candidate SourceとしてP11-003 Full Gateを実行する。
+Fixed Release Candidate `49b42efe5a0671cbae9212203a07271c1cf36f2b`はSkeleton annotated tag契約を満たさないためRelease CandidateとしてBlockedである。Spec 61はFramework／Skeleton双方のannotated tagを要求するが、Consumer TestとPublication WorkflowはSplit CommitをTag Refへ直接設定するlightweight tag実装である。Fixed Candidateを変更できないためFull Gateを停止した。
 
 ## Last Accepted Task
 
@@ -43,14 +43,16 @@ P11-002-release-documentation-and-metadata
 
 ## Known Blockers
 
-現在のRoadmap進行を妨げるBlockerはない。Documentation Websiteは意図的に未公開であり、Cloudflare Project／Credential未設定はBlockerとして扱わない。
+P11-003 Fixed CandidateのSkeleton Publicationがannotated tag契約と矛盾する。`tests/Consumer/skeleton-publication.sh`はlightweight tagを作り、`.github/workflows/publish-skeleton.yml`もSplit Commitを`refs/tags/<version>`へ直接Pushする。Remote既存Tag監査もannotated tag objectをSplit Commitと直接比較するためRecoveryできない。Release Automation follow-upと新Fixed Candidate SHAが必要である。Documentation Websiteは意図的に未公開であり、Cloudflare Project／Credential未設定は本Blockerとは無関係である。
 
 ## Required Next Action
 
-1. P11-003 Task PacketをTask開始CheckpointとしてCommitし、mainへPushする。
-2. GPT-5.6 Luna High workerがFixed Release CandidateのFull GateとRead-only Publication Preflightを実行する。
-3. OrchestratorがReport、Gate Evidence、Publication ChecklistをReviewし、Accepted後にP11-004へ進む。
-4. Documentation Website PublicationはUserが再開を明示するまで実行しない。
+1. OrchestratorがP11-003 Blocker ReportをReviewする。
+2. Release Automation follow-up TaskでConsumer TestとPublication Workflowをannotated Skeleton tag、peeled commit比較、Recovery条件へ修正する。
+3. 修正をCommit／PushしてGitHub Actions成功後、そのCommitを新Fixed Release Candidate SHAとして明示する。
+4. P11-003 Full Gate、全Consumer、Publication Dry Run、External Read-only Preflightを最初から再実行する。
+5. 新Candidateが全Gateを満たすまでFramework `1.1.0` TagをPushせず、P11-004へ進まない。
+6. Documentation Website PublicationはUserが再開を明示するまで実行しない。
 
 ## P11-002 Release Documentation and Metadata Worker Verification Commands and Results
 

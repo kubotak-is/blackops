@@ -1,6 +1,6 @@
 # P11-003: Release Candidate Gate
 
-Status: Ready
+Status: Blocked
 
 ## Goal
 
