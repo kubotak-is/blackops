@@ -176,3 +176,4 @@
 | [D092](../decisions/092-project-cli-command-names.md) | Project CLI Command Names | Partially Superseded by D094 |
 | [D093](../decisions/093-post-phase-10-roadmap.md) | Post Phase 10 Roadmap | Decided |
 | [D094](../decisions/094-stable-1-1-release-contract.md) | Stable 1.1 Release Contract | Decided |
+| [D095](../decisions/095-phase-12-middleware-and-authorization-runtime.md) | Phase 12 Middleware and Authorization Runtime | Proposed |

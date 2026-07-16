@@ -73,9 +73,9 @@ MVP後に残す主要項目:
 
 ### Phase 12: Middleware and Authorization Runtime
 
-- [ ] PSR-15 Adapter MiddlewareとOperation MiddlewareをRuntimeへ実装する
-- [ ] Global／Operation単位の順序とCompile検証を実装する
-- [ ] Authentication、ActorContext、`#[Authorize]`、Deferred再認可を実装する
+- [~] PSR-15 Adapter MiddlewareとOperation MiddlewareをRuntimeへ実装する
+- [~] Global／Operation単位の順序とCompile検証を実装する
+- [~] Authentication、ActorContext、`#[Authorize]`、Deferred再認可を実装する
 
 ### Phase 13: Database and Transaction Runtime
 

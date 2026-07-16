@@ -1,24 +1,24 @@
 # Orchestration State
 
-Updated At: 2026-07-17T00:58:49+09:00
+Updated At: 2026-07-17T01:05:11+09:00
 
 ## Current Phase
 
-Phase 11: Stable 1.1 Release (Complete)
+Phase 12: Middleware and Authorization Runtime (Design)
 
 ## Current Task
 
-Task ID: P11-004-stable-publication-and-closeout
+Task ID: P12-001-middleware-authorization-design
 
-Task Packet: `develop/orchestration/tasks/P11-004-stable-publication-and-closeout.md`
+Task Packet: `develop/orchestration/tasks/P12-001-middleware-authorization-design.md`
 
-Specifications: `develop/spec/61-experimental-release-contract.md`、`develop/spec/62-phase-11-delivery-plan.md`
+Specifications: `develop/spec/06-auth-and-middleware.md`、`develop/spec/19-execution-context-api.md`、`develop/spec/60-post-phase-10-roadmap.md`
 
 ## Task Status
 
-P11-004 Accepted
+P12-001 Awaiting Decision
 
-Framework／Skeleton Experimental Stable `1.1.0`を公開した。Framework Peeled Commitは`e3df5576c7216cfe8bd9e10e12ee6795f7674088`、Skeleton `main`／Peeled Commitは`293f880940636669f28ded756a888a8d6ba65f1b`である。Workflow `29512808726`、Packagist両Package、GitHub Release、Remote通常／`--no-scripts`／Quickstart Smokeが成功し、Phase 11をCloseした。
+Phase 11はP11-004でCloseした。D010／Spec 06とCurrent Typed Operation／Native Outcome／Runtimeを監査し、旧`HttpOperation`／`ConsoleOperation`およびPublic `OperationResult::rejected()`前提を置き換えるD095たたき台を作成した。Public API、Security、Durable Actor、Deferred FailureにUser判断が必要なため回答待ちである。
 
 ## Last Accepted Task
 
@@ -40,17 +40,19 @@ P11-004-stable-publication-and-closeout
 12. D093はA／A／Aで確定。Roadmap順序、Deferred HTTP API Scope、Dormant Documentation Workflowを確定した。
 13. Operation Frontend Bridgeの初期DepthとFrontend Targetは未決定だが、Phase 11から14を妨げないためPhase 15の設計対話へ延期する。
 14. D094はC／A／A／A／B／Cで確定。Experimental期間はMinor ReleaseのBackward Compatibilityを保証せず、Public Readiness時にVersioning Policyを再決定する。
+15. D095 Phase 12 Middleware and Authorization Runtimeは6問のUser Answer待ちである。全問Aを推奨する。
 
 ## Known Blockers
 
-Phase 11 Blockerはない。Documentation Websiteは意図的に未公開であり、Cloudflare Project／Credential未設定はCloseoutを妨げない。`actions/checkout@v4`のNode.js 20 Deprecation Warningは将来のWorkflow Maintenanceで更新する。
+Phase 11 Blockerはない。P12-001はD095のUser Answerが必要であり、回答前にPublic API／Security／Durable Dataを推測で実装しない。Documentation Websiteは意図的に未公開である。
 
 ## Required Next Action
 
-1. P11-004 CloseoutをCommitし、mainへPushする。
-2. Phase 12 Middleware and Authorization Runtimeの既存Specificationと実装Surfaceを監査する。
-3. Framework／Application所有境界、Middleware登録／順序、Authenticator／ActorContext、HTTP 401／403、Deferred再認可の未決事項をDecisionで確定する。
-4. Documentation Website PublicationはUserが再開を明示するまで実行しない。
+1. D095の6つの`[ANSWER]`欄にUserが回答する。
+2. Orchestratorが回答をDecisionとConsequencesへ反映し、D010のSuperseded範囲を固定する。
+3. Spec 06、Phase 12 Delivery Plan、最初のImplementation Task Packetを作成する。
+4. Production／Testの実装はGPT-5.6 Luna High workerへTask Packet単位で依頼する。
+5. Documentation Website PublicationはUserが再開を明示するまで実行しない。
 
 ## P11-003 Release Candidate Gate Verification Commands and Results
 
