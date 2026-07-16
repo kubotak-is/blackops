@@ -21,8 +21,6 @@ final class SchedulerDaemonCommand extends Command
 {
     public const NAME = 'scheduler:daemon';
 
-    public const LEGACY_NAME = 'blackops:scheduler:daemon';
-
     public function __construct(
         private readonly MaintenanceScheduler $scheduler,
         private readonly ClockInterface $clock,

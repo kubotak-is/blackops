@@ -57,7 +57,7 @@ scheduler:run
 scheduler:daemon
 ```
 
-Project Root Entrypointと組み合わせる公式形式は`php blackops build:compile`とする。Stable `1.0.0`の既存Application互換のため、従来の`blackops:*`名は同じCommandを実行するAliasとして維持する。Canonical名とAliasはどちらもFramework予約名であり、Application独自Commandは上書きできない。Generatorの`make:operation`と`make:migration`にはPrefixを付けない。
+Project Root Entrypointと組み合わせる公式形式は`php blackops build:compile`とする。FrameworkはPrefixなしCanonical名だけを予約し、旧`blackops:*` Project CLI名はAliasとして登録または予約しない。Applicationは旧名を独自Command名またはAliasとして利用できる。Generatorの`make:operation`と`make:migration`にはPrefixを付けない。
 
 個別Manifest／Container Compile Commandは内部の低レベルToolingとして維持するが、Installed Applicationの標準Kernelへ登録しない。Generator CommandはPhase 9まで追加しない。
 
@@ -157,7 +157,8 @@ Symfony ConsoleがExceptionを表示する場合もPrevious ExceptionのCredenti
 - `Application::console()` がPublic ConsoleKernelを返し、Instanceを再利用する
 - Public SignatureへInternal型、Symfony Application、Container、Connection、Raw Configを露出しない
 - `list`／`help` がDatabase、Artifact、PCNTLなしでFramework Commandを表示する
-- Custom Commandを実行でき、Framework Command名競合を拒否する
+- Custom Commandを実行でき、Canonical Framework Command名競合を拒否する
+- 旧`blackops:*` Project CLI名がFramework Command一覧に現れず、Application Commandとして利用できる
 - Application-aware Build／Operation ListがSnapshot ProviderとBuild Configを使う
 - Migration Status／Migrateが明示実行だけで動作する
 - Workerが別Heartbeat Connection、同一Signal Instance、Compile済みArtifactを使う

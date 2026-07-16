@@ -21,8 +21,6 @@ final class RetentionPlanCommand extends Command
 {
     public const NAME = 'retention:plan';
 
-    public const LEGACY_NAME = 'blackops:retention:plan';
-
     public function __construct(
         private readonly RetentionPlanner $planner,
         private readonly ClockInterface $clock,

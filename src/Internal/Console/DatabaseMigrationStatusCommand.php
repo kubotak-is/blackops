@@ -15,8 +15,6 @@ final class DatabaseMigrationStatusCommand extends Command
 {
     public const NAME = 'database:status';
 
-    public const LEGACY_NAME = 'blackops:database:status';
-
     public function __construct(
         private readonly DatabaseMigrationRunner $runner,
     ) {

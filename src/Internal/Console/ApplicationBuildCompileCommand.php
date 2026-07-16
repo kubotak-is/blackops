@@ -25,8 +25,6 @@ final class ApplicationBuildCompileCommand extends Command
 {
     public const NAME = 'build:compile';
 
-    public const LEGACY_NAME = 'blackops:build:compile';
-
     public function __construct(
         private readonly ApplicationConfigurationSnapshot $configuration,
     ) {

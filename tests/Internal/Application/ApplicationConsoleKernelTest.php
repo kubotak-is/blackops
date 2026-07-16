@@ -59,22 +59,17 @@ final class ApplicationConsoleKernelTest extends TestCase
         }
 
         foreach ([
-            'blackops:build:compile' => 'build:compile',
-            'blackops:operation:list' => 'operation:list',
-            'blackops:database:status' => 'database:status',
-            'blackops:database:migrate' => 'database:migrate',
-            'blackops:worker:run' => 'worker:run',
-            'blackops:retention:plan' => 'retention:plan',
-            'blackops:retention:purge' => 'retention:purge',
-            'blackops:scheduler:run' => 'scheduler:run',
-            'blackops:scheduler:daemon' => 'scheduler:daemon',
-        ] as $alias => $canonical) {
-            $help = new BufferedOutput();
-            self::assertSame(0, $kernel->run(new ArrayInput([
-                'command' => 'help',
-                'command_name' => $alias,
-            ]), $help));
-            self::assertStringContainsString($canonical, $help->fetch());
+            'blackops:build:compile',
+            'blackops:operation:list',
+            'blackops:database:status',
+            'blackops:database:migrate',
+            'blackops:worker:run',
+            'blackops:retention:plan',
+            'blackops:retention:purge',
+            'blackops:scheduler:run',
+            'blackops:scheduler:daemon',
+        ] as $legacyName) {
+            self::assertStringNotContainsString($legacyName, $listing);
         }
 
         $generatorHelp = new BufferedOutput();
@@ -130,16 +125,17 @@ final class ApplicationConsoleKernelTest extends TestCase
         $application->console();
     }
 
-    public function testRejectsApplicationCommandThatConflictsWithLegacyFrameworkAlias(): void
+    public function testRunsApplicationCommandUsingFormerFrameworkAlias(): void
     {
         $application = Application::configure($this->directory())
-            ->withCommands([ConsoleKernelLegacyConflictingCommand::class])
+            ->withCommands([ConsoleKernelFormerFrameworkCommand::class])
             ->create();
+        $output = new BufferedOutput();
 
-        $this->expectException(ApplicationBootstrapException::class);
-        $this->expectExceptionMessage('conflicts with a framework command');
-
-        $application->console();
+        self::assertSame(0, $application->console()->run(new ArrayInput([
+            'command' => 'blackops:worker:run',
+        ]), $output));
+        self::assertSame("application command\n", $output->fetch());
     }
 
     public function testRejectsApplicationCommandAliasThatConflictsWithFrameworkCommand(): void
@@ -324,11 +320,18 @@ final class ConsoleKernelConflictingCommand extends Command
     }
 }
 
-final class ConsoleKernelLegacyConflictingCommand extends Command
+final class ConsoleKernelFormerFrameworkCommand extends Command
 {
     public function __construct()
     {
         parent::__construct('blackops:worker:run');
+    }
+
+    protected function execute(InputInterface $input, OutputInterface $output): int
+    {
+        $output->writeln('application command');
+
+        return Command::SUCCESS;
     }
 }
 

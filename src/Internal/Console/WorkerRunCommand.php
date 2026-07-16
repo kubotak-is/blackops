@@ -18,8 +18,6 @@ final class WorkerRunCommand extends Command
 {
     public const NAME = 'worker:run';
 
-    public const LEGACY_NAME = 'blackops:worker:run';
-
     public function __construct(
         private readonly WorkerLoop $worker,
     ) {

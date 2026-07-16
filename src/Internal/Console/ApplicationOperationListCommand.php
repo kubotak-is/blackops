@@ -18,8 +18,6 @@ final class ApplicationOperationListCommand extends Command
 {
     public const NAME = 'operation:list';
 
-    public const LEGACY_NAME = 'blackops:operation:list';
-
     public function __construct(
         private readonly ApplicationConfigurationSnapshot $configuration,
         private readonly OperationProviderConfigLoader $providers = new OperationProviderConfigLoader(),

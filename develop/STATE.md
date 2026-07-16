@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-16T23:06:23+09:00
+Updated At: 2026-07-16T23:28:14+09:00
 
 ## Current Phase
 
@@ -16,13 +16,13 @@ Specifications: `develop/spec/61-experimental-release-contract.md`、`develop/sp
 
 ## Task Status
 
-P11-001 Ready
+P11-001 Accepted
 
-D094はC／A／A／A／B／Cで確定した。Full-stack Public Readiness前はExperimentalとしてMinor Releaseでも破壊的変更を許容し、`1.1.0`から旧CLI互換Layerを削除する。Release Candidate CI成功後の外部Publicationは追加確認なしで継続する。P11-001でRelease Surface Resetと差分監査を開始する。
+旧Project CLI Alias／予約を削除し、Canonical Command競合拒否、旧名Application Command許可、Project Root `blackops`／`bin/blackops`不在を検証した。Worker Full GateとOrchestrator独立再検証が成功し、Release Surface AuditのBreaking／Additive／Unchanged分類も確認したためP11-001をAcceptedとした。
 
 ## Last Accepted Task
 
-P10-006-phase-10-closeout
+P11-001-release-surface-reset
 
 ## Pending Decisions
 
@@ -36,7 +36,7 @@ P10-006-phase-10-closeout
 8. D093でCloudflare External ConfigurationとLive EvidenceをPhase 10 Blockerから分離し、将来の明示Publication Taskへ延期した。
 9. D090 Documentation Information ArchitectureはA／A／A／Aで確定。Sidebar LabelのTutorialとLanding Title `BlackOps — The PHP Framework`を含む。
 10. D091で`.codex/config.toml`をOrchestrator Sol High、`.codex/agents/worker.toml`をWorker Luna Highの正本とした。Metadata非公開だけをBlockerにしない。
-11. D092でProject CLIのCanonical名をPrefixなしへ変更し、旧`blackops:*`名を互換Aliasとして維持する。
+11. D092でProject CLIのCanonical名をPrefixなしへ変更した。旧`blackops:*`互換Aliasの維持はD094が置き換え、P11-001でAliasと予約を削除済みである。
 12. D093はA／A／Aで確定。Roadmap順序、Deferred HTTP API Scope、Dormant Documentation Workflowを確定した。
 13. Operation Frontend Bridgeの初期DepthとFrontend Targetは未決定だが、Phase 11から14を妨げないためPhase 15の設計対話へ延期する。
 14. D094はC／A／A／A／B／Cで確定。Experimental期間はMinor ReleaseのBackward Compatibilityを保証せず、Public Readiness時にVersioning Policyを再決定する。
@@ -47,10 +47,37 @@ P10-006-phase-10-closeout
 
 ## Required Next Action
 
-1. GPT-5.6 Luna High workerがP11-001を実装・検証し、Report／STATEを更新する。
-2. OrchestratorがReview、独立再検証、Task Commitを行う。
-3. Accepted後、P11-002 Release Documentation and Metadataへ進む。
+1. P11-001をTask単位でCommitし、GitHub Actions結果を確認する。
+2. P11-002 Release Documentation and MetadataのTask Packetを作成する。
+3. GPT-5.6 Luna High workerへP11-002を依頼する。
 4. Documentation Website PublicationはUserが再開を明示するまで実行しない。
+
+## P11-001 Release Surface Reset Worker Verification Commands and Results
+
+```text
+docker compose run --rm app composer validate --strict
+docker compose run --rm app composer validate --strict examples/quickstart/composer.json
+Result: RootとQuickstartのComposer Metadataがstrict validationに成功。
+
+docker compose run --rm app mago format --check src tests examples
+docker compose run --rm app mago lint
+docker compose run --rm app mago analyze
+Result: 最終Format Check、Lint、Analyzeが成功。No issues found。
+
+docker compose run --rm app vendor/bin/phpunit
+Result: OK (871 tests, 2831 assertions)。
+
+docker compose run --rm app vendor/bin/deptrac
+Result: Violations 0 / Skipped 0 / Uncovered 0 / Allowed 1712 / Warnings 0 / Errors 0。
+
+bash tests/Consumer/quickstart-e2e.sh
+bash tests/Consumer/framework-update-generators.sh
+bash tests/Consumer/skeleton-publication.sh --dry-run
+Result: 3本すべて成功。Canonical Project CLI、Framework Update、Project Root Entrypoint／旧Entrypoint不在を検証。
+
+Management ID Guard、Shell Syntax、git diff --check
+Result: すべて成功。
+```
 
 ## P10-007 Project CLI Command Names Worker Verification Commands and Results
 

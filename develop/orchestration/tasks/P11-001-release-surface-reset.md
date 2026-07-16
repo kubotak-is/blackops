@@ -1,6 +1,6 @@
 # P11-001: Release Surface Reset
 
-Status: Ready
+Status: Accepted
 
 ## Goal
 
@@ -60,14 +60,14 @@ Experimental `1.1.0` Releaseに向け、Project CLIから旧`blackops:*`互換Al
 
 ## Acceptance Criteria
 
-- [ ] Project CLI CommandがLegacy Aliasを持たない
-- [ ] Legacy Alias名がFramework予約名として拒否されない
-- [ ] PrefixなしCanonical Command名、または同名をAliasに持つApplication Commandは競合時にFail-fastする
-- [ ] Canonical Project CLI CommandのIntegration Testが成功する
-- [ ] SkeletonにProject Root `blackops`があり、`bin/blackops`がない
-- [ ] `1.0.0`からのBreaking／Additive SurfaceがReportへ分類される
-- [ ] Required Quality Commandsが成功する
-- [ ] ReportとSTATEが更新される
+- [x] Project CLI CommandがLegacy Aliasを持たない
+- [x] Legacy Alias名がFramework予約名として拒否されない
+- [x] PrefixなしCanonical Command名、または同名をAliasに持つApplication Commandは競合時にFail-fastする
+- [x] Canonical Project CLI CommandのIntegration Testが成功する
+- [x] SkeletonにProject Root `blackops`があり、`bin/blackops`がない
+- [x] `1.0.0`からのBreaking／Additive SurfaceがReportへ分類される
+- [x] Required Quality Commandsが成功する
+- [x] ReportとSTATEが更新される
 
 ## Required Commands
 

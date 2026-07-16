@@ -17,8 +17,6 @@ final class SchedulerRunCommand extends Command
 {
     public const NAME = 'scheduler:run';
 
-    public const LEGACY_NAME = 'blackops:scheduler:run';
-
     public function __construct(
         private readonly MaintenanceScheduler $scheduler,
         private readonly ClockInterface $clock,

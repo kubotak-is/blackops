@@ -58,9 +58,7 @@ final class ApplicationConsoleKernelTest extends TestCase
         $operations = $this->runCommand($kernel, 'operation:list');
         self::assertStringContainsString('welcome.show', $operations);
         self::assertStringContainsString('report.generate', $operations);
-        self::assertSame($operations, $this->runCommand($kernel, 'blackops:operation:list'));
         $this->runCommand($kernel, 'build:compile');
-        $this->runCommand($kernel, 'blackops:build:compile');
         self::assertFileExists($directory . '/var/build/operations.php');
         self::assertFileExists($directory . '/var/build/http.php');
         self::assertFileExists($directory . '/var/build/container.php');
@@ -68,13 +66,9 @@ final class ApplicationConsoleKernelTest extends TestCase
 
         $status = $this->runCommand($kernel, 'database:status');
         self::assertStringContainsString('pending: 2', $status);
-        self::assertSame($status, $this->runCommand($kernel, 'blackops:database:status'));
         self::assertFalse($this->schemaExists($connection));
         $this->runCommand($kernel, 'database:migrate');
-        self::assertStringContainsString('No pending migrations.', $this->runCommand(
-            $kernel,
-            'blackops:database:migrate',
-        ));
+        self::assertStringContainsString('No pending migrations.', $this->runCommand($kernel, 'database:migrate'));
         self::assertTrue($this->schemaExists($connection));
 
         $psr17 = new Psr17Factory();
@@ -95,7 +89,7 @@ final class ApplicationConsoleKernelTest extends TestCase
 
         $this->assertWorkerComposition($application);
         $this->runCommand($kernel, 'worker:run', ['--iterations' => '1', '--idle-sleep-milliseconds' => '1']);
-        self::assertStringContainsString('Worker stopped.', $this->runCommand($kernel, 'blackops:worker:run', [
+        self::assertStringContainsString('Worker stopped.', $this->runCommand($kernel, 'worker:run', [
             '--iterations' => '1',
             '--idle-sleep-milliseconds' => '1',
         ]));
@@ -104,30 +98,13 @@ final class ApplicationConsoleKernelTest extends TestCase
         . '.operations WHERE operation_id = :operation_id', ['operation_id' => $operationId->toString()]));
 
         self::assertStringContainsString('Total: 0', $this->runCommand($kernel, 'retention:plan'));
-        self::assertStringContainsString('Total: 0', $this->runCommand($kernel, 'blackops:retention:plan'));
         self::assertStringContainsString('Retention purge dry run', $this->runCommand($kernel, 'retention:purge', [
             '--dry-run' => true,
         ]));
-        self::assertStringContainsString('Retention purge dry run', $this->runCommand(
-            $kernel,
-            'blackops:retention:purge',
-            [
-                '--dry-run' => true,
-            ],
-        ));
         self::assertStringContainsString('Scheduler run completed', $this->runCommand($kernel, 'scheduler:run'));
-        self::assertStringContainsString('Scheduler run completed', $this->runCommand(
-            $kernel,
-            'blackops:scheduler:run',
-        ));
         self::assertStringContainsString('Scheduler daemon iteration 1 completed', $this->runCommand(
             $kernel,
             'scheduler:daemon',
-            ['--iterations' => '1'],
-        ));
-        self::assertStringContainsString('Scheduler daemon iteration 1 completed', $this->runCommand(
-            $kernel,
-            'blackops:scheduler:daemon',
             ['--iterations' => '1'],
         ));
     }

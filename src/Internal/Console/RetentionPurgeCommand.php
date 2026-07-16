@@ -24,8 +24,6 @@ final class RetentionPurgeCommand extends Command
 {
     public const NAME = 'retention:purge';
 
-    public const LEGACY_NAME = 'blackops:retention:purge';
-
     public function __construct(
         private readonly RetentionPlanner $planner,
         private readonly RetentionPurgeService $purge,

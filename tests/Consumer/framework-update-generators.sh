@@ -54,17 +54,6 @@ cp "${repository_root}/src/Internal/Console/ApplicationBuildCompileCommand.php" 
     "${repository_root}/src/Internal/Console/WorkerRunCommand.php" \
     "${current_commands}/"
 
-cli_name=blackops
-legacy_cli_directory="${consumer_root}/bin"
-legacy_cli="${legacy_cli_directory}/${cli_name}"
-legacy_cli_relative="bin/${cli_name}"
-mkdir -p "${legacy_cli_directory}"
-sed \
-    -e "s|require __DIR__ \. '/vendor/autoload.php';|require dirname(__DIR__) . '/vendor/autoload.php';|" \
-    -e "s|require __DIR__ \. '/bootstrap/app.php';|require dirname(__DIR__) . '/bootstrap/app.php';|" \
-    "${consumer_root}/blackops" > "${legacy_cli}"
-chmod +x "${legacy_cli}"
-
 git -C "${framework_repository}" init --quiet --initial-branch=main
 git -C "${framework_repository}" config user.name 'BlackOps Consumer Test'
 git -C "${framework_repository}" config user.email 'consumer-test@blackops.invalid'
@@ -111,10 +100,6 @@ if (($versions["blackops/framework"] ?? null) !== "1.0.0") {
 }
 '
 
-run_php "${legacy_cli_relative}" list > "${temporary_root}/legacy-list.before.out"
-grep -q 'make:operation' "${temporary_root}/legacy-list.before.out"
-grep -q 'make:migration' "${temporary_root}/legacy-list.before.out"
-
 run_php blackops make:operation Upgrade/BeforeUpdate --type=upgrade.before \
     > "${temporary_root}/before-operation.out"
 run_php blackops make:migration BeforeUpdateSchema \
@@ -136,7 +121,6 @@ grep -q 'Legacy fixture stub' "${before_operation_directory}/BeforeUpdate.php"
 grep -q 'Legacy fixture stub' "${before_migration}"
 
 sha256sum "${consumer_root}/blackops" > "${temporary_root}/entrypoint.before.sha256"
-sha256sum "${legacy_cli}" > "${temporary_root}/legacy-entrypoint.before.sha256"
 find "${before_operation_directory}" -maxdepth 1 -type f -print0 | sort -z | xargs -0 sha256sum \
     > "${temporary_root}/operation.before.sha256"
 sha256sum "${before_migration}" > "${temporary_root}/migration.before.sha256"
@@ -175,7 +159,6 @@ file_put_contents("/smoke/dependencies.after.json", json_encode($packages, JSON_
 cmp "${temporary_root}/dependencies.before.json" "${temporary_root}/dependencies.after.json"
 
 sha256sum --check "${temporary_root}/entrypoint.before.sha256"
-sha256sum --check "${temporary_root}/legacy-entrypoint.before.sha256"
 sha256sum --check "${temporary_root}/operation.before.sha256"
 sha256sum --check "${temporary_root}/migration.before.sha256"
 cmp "${current_stubs}/operation.php.stub" \
@@ -186,10 +169,6 @@ cmp "${repository_root}/src/Internal/Console/MakeOperationCommand.php" \
     "${consumer_root}/vendor/blackops/framework/src/Internal/Console/MakeOperationCommand.php"
 cmp "${repository_root}/src/Internal/Console/MakeMigrationCommand.php" \
     "${consumer_root}/vendor/blackops/framework/src/Internal/Console/MakeMigrationCommand.php"
-
-run_php "${legacy_cli_relative}" list > "${temporary_root}/legacy-list.after.out"
-grep -q 'make:operation' "${temporary_root}/legacy-list.after.out"
-grep -q 'make:migration' "${temporary_root}/legacy-list.after.out"
 
 run_php blackops make:operation Upgrade/AfterUpdate --type=upgrade.after \
     > "${temporary_root}/after-operation.out"

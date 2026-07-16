@@ -30,25 +30,16 @@ final readonly class ApplicationConsoleKernel
     /** @var list<string> */
     private const FRAMEWORK_COMMANDS = [
         ApplicationBuildCompileCommand::NAME,
-        ApplicationBuildCompileCommand::LEGACY_NAME,
         ApplicationOperationListCommand::NAME,
-        ApplicationOperationListCommand::LEGACY_NAME,
         MakeOperationCommand::NAME,
         MakeMigrationCommand::NAME,
         DatabaseMigrationStatusCommand::NAME,
-        DatabaseMigrationStatusCommand::LEGACY_NAME,
         DatabaseMigrationMigrateCommand::NAME,
-        DatabaseMigrationMigrateCommand::LEGACY_NAME,
         WorkerRunCommand::NAME,
-        WorkerRunCommand::LEGACY_NAME,
         RetentionPlanCommand::NAME,
-        RetentionPlanCommand::LEGACY_NAME,
         RetentionPurgeCommand::NAME,
-        RetentionPurgeCommand::LEGACY_NAME,
         SchedulerRunCommand::NAME,
-        SchedulerRunCommand::LEGACY_NAME,
         SchedulerDaemonCommand::NAME,
-        SchedulerDaemonCommand::LEGACY_NAME,
     ];
 
     private Application $application;
@@ -117,14 +108,12 @@ final readonly class ApplicationConsoleKernel
                 'Compile application operation, HTTP, and container artifacts.',
                 $factory->build(...),
                 $none,
-                [ApplicationBuildCompileCommand::LEGACY_NAME],
             ),
             new LazyFrameworkCommand(
                 ApplicationOperationListCommand::NAME,
                 'List operation metadata from application providers.',
                 $factory->operations(...),
                 $none,
-                [ApplicationOperationListCommand::LEGACY_NAME],
             ),
             new LazyFrameworkCommand(
                 MakeOperationCommand::NAME,
@@ -151,14 +140,12 @@ final readonly class ApplicationConsoleKernel
                 'Show applied and pending BlackOps database migrations.',
                 $factory->databaseStatus(...),
                 $none,
-                [DatabaseMigrationStatusCommand::LEGACY_NAME],
             ),
             new LazyFrameworkCommand(
                 DatabaseMigrationMigrateCommand::NAME,
                 'Apply or preview BlackOps database migrations.',
                 $factory->databaseMigrate(...),
                 static fn(Command $command): Command => $command->addOption('dry-run', null, InputOption::VALUE_NONE),
-                [DatabaseMigrationMigrateCommand::LEGACY_NAME],
             ),
             new LazyFrameworkCommand(
                 WorkerRunCommand::NAME,
@@ -169,14 +156,12 @@ final readonly class ApplicationConsoleKernel
                     null,
                     InputOption::VALUE_REQUIRED,
                 )->addOption('idle-sleep-milliseconds', null, InputOption::VALUE_REQUIRED, default: '1000'),
-                [WorkerRunCommand::LEGACY_NAME],
             ),
             new LazyFrameworkCommand(
                 RetentionPlanCommand::NAME,
                 'Build and print a retention purge plan without applying it.',
                 $retention->plan(...),
                 $retentionOptions,
-                [RetentionPlanCommand::LEGACY_NAME],
             ),
             new LazyFrameworkCommand(
                 RetentionPurgeCommand::NAME,
@@ -190,14 +175,12 @@ final readonly class ApplicationConsoleKernel
                         ->addOption('policy-ref', null, InputOption::VALUE_REQUIRED)
                         ->addOption('actor', null, InputOption::VALUE_REQUIRED);
                 },
-                [RetentionPurgeCommand::LEGACY_NAME],
             ),
             new LazyFrameworkCommand(
                 SchedulerRunCommand::NAME,
                 'Run due BlackOps maintenance tasks once.',
                 $retention->schedulerRun(...),
                 $none,
-                [SchedulerRunCommand::LEGACY_NAME],
             ),
             new LazyFrameworkCommand(
                 SchedulerDaemonCommand::NAME,
@@ -209,7 +192,6 @@ final readonly class ApplicationConsoleKernel
                     InputOption::VALUE_REQUIRED,
                     default: '60',
                 )->addOption('iterations', null, InputOption::VALUE_REQUIRED),
-                [SchedulerDaemonCommand::LEGACY_NAME],
             ),
         ];
     }
