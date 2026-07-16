@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-17T00:04:00+09:00
+Updated At: 2026-07-17T00:08:28+09:00
 
 ## Current Phase
 
@@ -8,17 +8,17 @@ Phase 11: Stable 1.1 Release
 
 ## Current Task
 
-Task ID: P11-003-release-candidate-gate
+Task ID: P11-003A-annotated-skeleton-release-tag
 
-Task Packet: `develop/orchestration/tasks/P11-003-release-candidate-gate.md`
+Task Packet: `develop/orchestration/tasks/P11-003A-annotated-skeleton-release-tag.md`
 
 Specifications: `develop/spec/61-experimental-release-contract.md`、`develop/spec/62-phase-11-delivery-plan.md`
 
 ## Task Status
 
-P11-003 Blocked
+P11-003A Ready
 
-Fixed Release Candidate `49b42efe5a0671cbae9212203a07271c1cf36f2b`はSkeleton annotated tag契約を満たさないためRelease CandidateとしてBlockedである。Spec 61はFramework／Skeleton双方のannotated tagを要求するが、Consumer TestとPublication WorkflowはSplit CommitをTag Refへ直接設定するlightweight tag実装である。Fixed Candidateを変更できないためFull Gateを停止した。
+P11-003 BlockerをCommit `0098e4f`としてmainへPushした。P11-003AではSkeleton Publication TestとWorkflowをannotated tag、Peeled Commit監査へ修正する。公開済みLegacy Skeleton `1.0.0` lightweight tagは移動せず、同じSplit Commitを指すManual Recoveryだけを明示的に維持する。
 
 ## Last Accepted Task
 
@@ -47,10 +47,10 @@ P11-003 Fixed CandidateのSkeleton Publicationがannotated tag契約と矛盾す
 
 ## Required Next Action
 
-1. OrchestratorがP11-003 Blocker ReportをReviewする。
-2. Release Automation follow-up TaskでConsumer TestとPublication Workflowをannotated Skeleton tag、peeled commit比較、Recovery条件へ修正する。
-3. 修正をCommit／PushしてGitHub Actions成功後、そのCommitを新Fixed Release Candidate SHAとして明示する。
-4. P11-003 Full Gate、全Consumer、Publication Dry Run、External Read-only Preflightを最初から再実行する。
+1. P11-003A Task PacketをTask開始CheckpointとしてCommitし、mainへPushする。
+2. GPT-5.6 Luna High workerがannotated Skeleton Tag、Peeled Commit、Legacy `1.0.0` Recoveryを実装・検証する。
+3. OrchestratorがReview、独立再検証、Task Commitを行う。
+4. CI成功後に新Fixed Candidate SHAをP11-003へ設定し、Full Gateを最初から再実行する。
 5. 新Candidateが全Gateを満たすまでFramework `1.1.0` TagをPushせず、P11-004へ進まない。
 6. Documentation Website PublicationはUserが再開を明示するまで実行しない。
 
