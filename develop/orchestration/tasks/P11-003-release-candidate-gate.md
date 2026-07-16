@@ -1,6 +1,6 @@
 # P11-003: Release Candidate Gate
 
-Status: Blocked
+Status: Ready (Resumed)
 
 ## Goal
 
@@ -8,13 +8,15 @@ Experimental Framework／Skeleton `1.1.0`のRelease Candidate Sourceを固定し
 
 ## Fixed Release Candidate
 
-- Source Commit: `49b42efe5a0671cbae9212203a07271c1cf36f2b`
-- Source Commit Subject: `docs: prepare experimental 1.1 release`
-- CI Run: `29508886946`（Success）
-- Documentation Delivery Run: `29508886458`（Artifact Build Success、Credential不在のためProduction DeployはSkip）
+- Source Commit: `e3df5576c7216cfe8bd9e10e12ee6795f7674088`
+- Source Commit Subject: `fix: publish annotated skeleton release tags`
+- CI Run: `29511467022`（Success）
+- Documentation Delivery Run: `29511466795`（Artifact Build Success、Credential不在のためProduction DeployはSkip）
 - Release Version: `1.1.0`
 
 Task／Report／STATEだけを更新するCommitはRelease Sourceへ含めない。Production、Skeleton、Release Metadata、利用者向けDocumentationに修正が必要になった場合はCandidate SHAを暗黙に変更せず、ReportへBlockerを記録してOrchestratorへ返す。
+
+最初のFixed Candidate `49b42efe5a0671cbae9212203a07271c1cf36f2b`はSkeleton annotated tag契約を満たさずBlockedとなった。P11-003A Accepted Commit `e3df5576c7216cfe8bd9e10e12ee6795f7674088`でRelease Automationを修正し、Local GateとGitHub Actionsが成功したため、このCommitを新Fixed CandidateとしてFull Gateを最初から再実行する。
 
 ## In Scope
 
@@ -82,8 +84,8 @@ Task／Report／STATEだけを更新するCommitはRelease Sourceへ含めない
 
 ## Acceptance Criteria
 
-- [ ] Fixed Release Candidate SHA `49b42efe5a0671cbae9212203a07271c1cf36f2b`がLocal／Remote main Historyに存在し、P11-002 Accepted Commitと一致する
-- [ ] GitHub Actions CI Run `29508886946`とDocumentation Delivery Run `29508886458`が成功Evidenceとして記録される
+- [ ] Fixed Release Candidate SHA `e3df5576c7216cfe8bd9e10e12ee6795f7674088`がLocal／Remote main Historyに存在し、P11-003A Accepted Commitと一致する
+- [ ] GitHub Actions CI Run `29511467022`とDocumentation Delivery Run `29511466795`が成功Evidenceとして記録される
 - [ ] Composer、Mago、Full PHPUnit、Deptracが成功する
 - [ ] 全6 Consumer／Installation／Worker／Framework Update Smokeが成功する
 - [ ] Skeleton `1.1.0` Publication Dry RunがFixed Sourceから決定的なSplit Commitを生成する
@@ -110,7 +112,7 @@ bash tests/Consumer/frankenphp-worker-mode.sh
 bash tests/Consumer/quickstart-setup.sh
 bash tests/Consumer/skeleton-create-project.sh
 bash tests/Consumer/framework-update-generators.sh
-bash tests/Consumer/skeleton-publication.sh 1.1.0 49b42efe5a0671cbae9212203a07271c1cf36f2b
+bash tests/Consumer/skeleton-publication.sh 1.1.0 e3df5576c7216cfe8bd9e10e12ee6795f7674088
 mise exec -- pnpm --dir docs/website run test
 mise exec -- pnpm --dir docs/website run check
 mise exec -- pnpm --dir docs/website run build

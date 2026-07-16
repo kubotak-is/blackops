@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-17T00:29:28+09:00
+Updated At: 2026-07-17T00:32:10+09:00
 
 ## Current Phase
 
@@ -8,17 +8,17 @@ Phase 11: Stable 1.1 Release
 
 ## Current Task
 
-Task ID: P11-003A-annotated-skeleton-release-tag
+Task ID: P11-003-release-candidate-gate
 
-Task Packet: `develop/orchestration/tasks/P11-003A-annotated-skeleton-release-tag.md`
+Task Packet: `develop/orchestration/tasks/P11-003-release-candidate-gate.md`
 
 Specifications: `develop/spec/61-experimental-release-contract.md`、`develop/spec/62-phase-11-delivery-plan.md`
 
 ## Task Status
 
-P11-003A Accepted
+P11-003 Ready (Resumed)
 
-GPT-5.6 Luna High workerがSkeleton Publication TestとWorkflowをannotated tag、Peeled Commit監査へ修正した。Workflow Run BlockをTemporary Bare Repositoryへ適用し、新規annotated tag、冪等再実行、annotated不一致、新規lightweight拒否、公開済みLegacy Skeleton `1.0.0`のManual限定Recoveryを検証した。WorkerとOrchestratorのRequired Gateがすべて成功し、P11-003AをAcceptedとした。外部状態は変更していない。
+P11-003A Accepted Commit `e3df5576c7216cfe8bd9e10e12ee6795f7674088`をmainへPushし、CI Run `29511467022`とDocumentation Delivery Run `29511466795`が成功した。Documentation Production DeployはCredential不在でSkipされた。このCommitを新Fixed Release CandidateとしてP11-003 Full Gateを最初から再実行する。
 
 ## Last Accepted Task
 
@@ -43,14 +43,14 @@ P11-003A-annotated-skeleton-release-tag
 
 ## Known Blockers
 
-P11-003Aの実装とLocal VerificationにBlockerはない。P11-003は旧Fixed CandidateのRelease Automation矛盾によりBlockedのままであり、P11-003AのReview／Commit／CI成功後に新Fixed Candidate SHAを設定してFull Gateを最初から再実行する必要がある。Documentation Websiteは意図的に未公開であり、Cloudflare Project／Credential未設定は本Taskと無関係である。
+新Fixed CandidateのP11-003 Full Gateを妨げる既知Blockerはない。最初のCandidateで検出したSkeleton annotated tag矛盾はP11-003Aで解消済みである。Documentation Websiteは意図的に未公開であり、Cloudflare Project／Credential未設定は本Taskと無関係である。
 
 ## Required Next Action
 
-1. OrchestratorがP11-003AをTask単位でCommitし、mainへPushする。
-2. GitHub Actions成功後、P11-003A Accepted Commitを新Fixed Candidate SHAとしてP11-003へ設定する。
-3. P11-003 Full Gateを最初から再実行する。
-4. 新Candidateが全Gateを満たすまでFramework `1.1.0` TagをPushせず、P11-004へ進まない。
+1. P11-003 Resume CheckpointをCommitし、mainへPushする。
+2. GPT-5.6 Luna High workerが新Fixed CandidateのFull Gate、全Consumer、Publication Dry Run、External Read-only Preflightを最初から実行する。
+3. OrchestratorがReport、Gate Evidence、Publication ChecklistをReviewする。
+4. 全Gate成功後はD094の事前承認に従いP11-004 Publicationへ進む。
 5. Documentation Website PublicationはUserが再開を明示するまで実行しない。
 
 ## P11-003A Annotated Skeleton Release Tag Worker Verification Commands and Results
