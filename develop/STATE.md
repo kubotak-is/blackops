@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-16T23:28:14+09:00
+Updated At: 2026-07-16T23:30:43+09:00
 
 ## Current Phase
 
@@ -8,17 +8,17 @@ Phase 11: Stable 1.1 Release
 
 ## Current Task
 
-Task ID: P11-001-release-surface-reset
+Task ID: P11-002-release-documentation-and-metadata
 
-Task Packet: `develop/orchestration/tasks/P11-001-release-surface-reset.md`
+Task Packet: `develop/orchestration/tasks/P11-002-release-documentation-and-metadata.md`
 
 Specifications: `develop/spec/61-experimental-release-contract.md`、`develop/spec/62-phase-11-delivery-plan.md`
 
 ## Task Status
 
-P11-001 Accepted
+P11-002 Ready
 
-旧Project CLI Alias／予約を削除し、Canonical Command競合拒否、旧名Application Command許可、Project Root `blackops`／`bin/blackops`不在を検証した。Worker Full GateとOrchestrator独立再検証が成功し、Release Surface AuditのBreaking／Additive／Unchanged分類も確認したためP11-001をAcceptedとした。
+P11-001を`dc9ff2f`でAcceptedとしてmainへPushした。P11-002ではSkeleton Constraint、Release Candidate Fixture、CHANGELOG／UPGRADE、README／Guide／Website Version NoticeをExperimental `1.1.0`へ同期する。
 
 ## Last Accepted Task
 
@@ -47,10 +47,11 @@ P11-001-release-surface-reset
 
 ## Required Next Action
 
-1. P11-001をTask単位でCommitし、GitHub Actions結果を確認する。
-2. P11-002 Release Documentation and MetadataのTask Packetを作成する。
-3. GPT-5.6 Luna High workerへP11-002を依頼する。
-4. Documentation Website PublicationはUserが再開を明示するまで実行しない。
+1. P11-001 Commit `dc9ff2f`のGitHub Actions結果を確認する。
+2. GPT-5.6 Luna High workerがP11-002を実装・検証する。
+3. OrchestratorがReview、独立再検証、Task Commitを行う。
+4. Accepted後、P11-003 Release Candidate Gateへ進む。
+5. Documentation Website PublicationはUserが再開を明示するまで実行しない。
 
 ## P11-001 Release Surface Reset Worker Verification Commands and Results
 
