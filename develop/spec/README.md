@@ -75,6 +75,8 @@
 | [58-phase-10-delivery-plan.md](58-phase-10-delivery-plan.md) | Documentation RenameからCloudflare Pages CloseoutまでのTask順序 |
 | [59-documentation-reader-experience.md](59-documentation-reader-experience.md) | 初見導線、Concept Diagram、Tutorial、Glossary、Security、Referenceの読者体験 |
 | [60-post-phase-10-roadmap.md](60-post-phase-10-roadmap.md) | Stable 1.1からMiddleware、DB、Diagnostics、Frontend Bridge、Deferred API以降の実装順序 |
+| [61-experimental-release-contract.md](61-experimental-release-contract.md) | Public Readiness前の破壊的Minor Release、Version、Documentation、Publication境界 |
+| [62-phase-11-delivery-plan.md](62-phase-11-delivery-plan.md) | Release Surface ResetからFramework／Skeleton 1.1.0公開までのTask順序 |
 
 ## 決定の参照
 
@@ -157,7 +159,7 @@
 | [D075](../decisions/075-native-outcome-and-rejection-exception.md) | Native Outcome and Rejection Exception | Decided |
 | [D076](../decisions/076-framework-and-skeleton-repository-naming.md) | Framework and Skeleton Repository Naming | Decided |
 | [D077](../decisions/077-implementation-worker-model-upgrade.md) | Implementation Worker Model Upgrade | Superseded by D091 |
-| [D078](../decisions/078-initial-stable-release-version.md) | Initial Stable Release Version | Decided |
+| [D078](../decisions/078-initial-stable-release-version.md) | Initial Stable Release Version | Partially Superseded by D094 |
 | [D079](../decisions/079-immutable-release-publication-recovery.md) | Immutable Release Publication Recovery | Decided |
 | [D080](../decisions/080-project-generator-command-contract.md) | Project Generator Command Contract | Decided |
 | [D081](../decisions/081-documentation-website-delivery-contract.md) | Documentation Website Delivery Contract | Partially Superseded by D093 |
@@ -171,5 +173,6 @@
 | [D089](../decisions/089-validation-rejection-sensitive-journal.md) | Validation Rejection Sensitive Journal | Decided |
 | [D090](../decisions/090-documentation-information-architecture.md) | Documentation Information Architecture | Decided |
 | [D091](../decisions/091-orchestrator-worker-model-configuration.md) | Orchestrator and Worker Model Configuration | Decided |
-| [D092](../decisions/092-project-cli-command-names.md) | Project CLI Command Names | Decided |
+| [D092](../decisions/092-project-cli-command-names.md) | Project CLI Command Names | Partially Superseded by D094 |
 | [D093](../decisions/093-post-phase-10-roadmap.md) | Post Phase 10 Roadmap | Decided |
+| [D094](../decisions/094-stable-1-1-release-contract.md) | Stable 1.1 Release Contract | Decided |

@@ -21,6 +21,8 @@ Phase 11 Stable 1.1 Release
 
 ## Phase 11: Stable 1.1 Release
 
+Release Version、Experimental Compatibility Policy、Task順序は[Experimental Release Contract](61-experimental-release-contract.md)と[Phase 11 Delivery Plan](62-phase-11-delivery-plan.md)を正本とする。
+
 - Stable `1.0.0`から`main`へのCompatibility Audit
 - Project Root `blackops`、Canonical Command、旧Command AliasのUpgrade Guide
 - Typed Self-handled Operation、Validation、Worker Mode DefaultのRelease Note

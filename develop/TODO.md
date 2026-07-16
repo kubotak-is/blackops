@@ -66,7 +66,7 @@ MVP後に残す主要項目:
 
 ### Phase 11: Stable 1.1 Release
 
-- [ ] Stable `1.0.0`からのCompatibilityとUpgrade Pathを監査する
+- [ ] Stable `1.0.0`からのBreaking／Additive SurfaceとUpgrade Pathを監査する
 - [ ] Main BranchのProject CLI、Typed Operation、Validation、Worker ModeをRelease Noteへ固定する
 - [ ] Framework／Skeleton `1.1.0`のConsumer／Publication Gateを実行する
 - [ ] `composer create-project blackops/skeleton:^1.1`からQuickstartを完走する

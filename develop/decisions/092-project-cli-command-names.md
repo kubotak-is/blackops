@@ -1,6 +1,10 @@
 # D092: Project CLI Command Names
 
-Status: Decided
+Status: Partially Superseded by D094
+
+## Supersession
+
+D094は`1.1.0`で旧`blackops:*` Project CLI Aliasとその予約を削除する。PrefixなしCanonical Command、Project Root `blackops` Entrypoint、重複Prefixを避ける命名方針は維持する。
 
 ## Context
 

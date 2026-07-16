@@ -1,6 +1,10 @@
 # D078: Initial Stable Release Version
 
-Status: Decided
+Status: Partially Superseded by D094
+
+## Supersession
+
+D094は、Full-stack Public Readiness前のExperimental ReleaseではMinor Release間のBackward Compatibilityを保証しない方針へ変更した。公開済みTagを移動または削除しない契約、Framework／Skeletonの同一Version、初回`1.0.0` Publicationに関する決定は維持する。
 
 ## Context
 

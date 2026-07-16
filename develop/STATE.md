@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-16T12:02:15+09:00
+Updated At: 2026-07-16T23:06:23+09:00
 
 ## Current Phase
 
@@ -8,17 +8,17 @@ Phase 11: Stable 1.1 Release
 
 ## Current Task
 
-Task ID: 未作成
+Task ID: P11-001-release-surface-reset
 
-Task Packet: D093／Spec 60に基づき、Phase 11開始時に作成する。
+Task Packet: `develop/orchestration/tasks/P11-001-release-surface-reset.md`
 
-Specifications: `develop/spec/46-composer-skeleton-publication.md`、`develop/spec/60-post-phase-10-roadmap.md`
+Specifications: `develop/spec/61-experimental-release-contract.md`、`develop/spec/62-phase-11-delivery-plan.md`
 
 ## Task Status
 
-Phase 10 Complete／Phase 11 Ready for Planning
+P11-001 Ready
 
-D093でCloudflare Live PublicationをPhase 10のBlockerから将来の明示Publication Taskへ移し、Repository内Website Content、Build、Search、Artifact Guard、Credential-gated WorkflowをPhase 10の完了条件として確定した。P10-006をAcceptedとしてPhase 10をCloseし、次はStable `1.1.0` Releaseを扱う。
+D094はC／A／A／A／B／Cで確定した。Full-stack Public Readiness前はExperimentalとしてMinor Releaseでも破壊的変更を許容し、`1.1.0`から旧CLI互換Layerを削除する。Release Candidate CI成功後の外部Publicationは追加確認なしで継続する。P11-001でRelease Surface Resetと差分監査を開始する。
 
 ## Last Accepted Task
 
@@ -39,6 +39,7 @@ P10-006-phase-10-closeout
 11. D092でProject CLIのCanonical名をPrefixなしへ変更し、旧`blackops:*`名を互換Aliasとして維持する。
 12. D093はA／A／Aで確定。Roadmap順序、Deferred HTTP API Scope、Dormant Documentation Workflowを確定した。
 13. Operation Frontend Bridgeの初期DepthとFrontend Targetは未決定だが、Phase 11から14を妨げないためPhase 15の設計対話へ延期する。
+14. D094はC／A／A／A／B／Cで確定。Experimental期間はMinor ReleaseのBackward Compatibilityを保証せず、Public Readiness時にVersioning Policyを再決定する。
 
 ## Known Blockers
 
@@ -46,9 +47,10 @@ P10-006-phase-10-closeout
 
 ## Required Next Action
 
-1. Phase 11 Stable `1.1.0` ReleaseのCompatibility、Version、Publication境界をDecision／Specificationで確定する。
-2. 確定後、最初のPhase 11 Task Packetを作成してWorkerへ実装を依頼する。
-3. Documentation Website PublicationはUserが再開を明示するまで実行しない。
+1. GPT-5.6 Luna High workerがP11-001を実装・検証し、Report／STATEを更新する。
+2. OrchestratorがReview、独立再検証、Task Commitを行う。
+3. Accepted後、P11-002 Release Documentation and Metadataへ進む。
+4. Documentation Website PublicationはUserが再開を明示するまで実行しない。
 
 ## P10-007 Project CLI Command Names Worker Verification Commands and Results
 
