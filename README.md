@@ -13,7 +13,7 @@ MVP、Phase 9 Project CLI、Phase 10 Documentation WebsiteのRepository内実装
 
 Packagistで公開済みのFramework／Skeleton Stable `1.0.0`はPhase 8時点のPackageです。`make:operation`、`make:migration`、Application Migration Runtimeを含むPhase 9の変更はMain Branchへ実装済みですが、これらを含む新しいStable Releaseはまだ公開していません。
 
-Documentation WebsiteはLocal／CI Buildと公開Artifact境界まで検証済みです。Cloudflare Pages ProjectとGitHub Environment Credentialの外部設定、Preview／Production Deploy、Live Verificationは未完了であり、公開Hostはまだ利用できません。
+Documentation WebsiteはLocal／CI Buildと公開Artifact境界まで検証済みです。公開は現在延期しているため、Cloudflare Pages ProjectとCredentialは設定せず、公開Hostも提供していません。Credential-gated Workflowは将来の公開経路として維持しています。
 
 利用者向けの機能差と制約は[Current Status](docs/guide/mvp-status.md)を参照してください。
 

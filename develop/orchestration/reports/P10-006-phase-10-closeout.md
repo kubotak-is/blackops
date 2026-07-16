@@ -1,6 +1,6 @@
 # P10-006: Phase 10 Closeout Report
 
-Status: Repository Closeout Accepted / External Blocked
+Status: Accepted / Phase Complete
 
 ## Summary
 
@@ -8,7 +8,7 @@ P10-006のRepository内Closeoutを完了した。D091のRepository内Custom Agen
 
 Commit `2e2a55d0b76d59ecff594f472cf4b6ee709d67b0`に対し、Website Unit／Check／Build、公開Artifact境界、Full PHP Quality Suite、最新GitHub CI／Documentation Artifact Buildを再検証した。P10-005HのAccepted Browser Evidenceも統合し、README、Internal Setup、TODO、Phase Planを現在の実装へ同期した。
 
-Repository内Acceptanceは満たしたが、Cloudflare PagesのProject／Environment設定が未完了である。Production Deploy StepとPreview Deployは実行されず、Production HostもDNS解決できないため、Phase 10 Completeにはしていない。
+その後D093で、Cloudflare PagesのProject／Environment設定、Preview／Production Deploy、Live VerificationをPhase 10のBlockerから分離し、Userが公開を再開した時点の明示Publication Taskへ延期した。Repository内Acceptanceはすべて満たしているため、P10-006をAccepted、Phase 10をCompleteとする。
 
 ## Local Quality Evidence
 
@@ -38,13 +38,13 @@ Repository内Acceptanceは満たしたが、Cloudflare PagesのProject／Environ
 
 Workflow全体のSuccessとCloudflare Deploy成功を同一視していない。Credential、Token、Account IDは記録していない。
 
-## Live Website Evidence
+## Deferred Publication Evidence
 
 - Production candidate: `https://blackops-docs.pages.dev/`
 - Result: `Could not resolve host: blackops-docs.pages.dev`
 - Installation Page、Pagefind Asset、Preview URL: Production／Preview Deployment自体がないため未検証
 
-Production URLまたはPreview URLが作成されるまではLive Verificationを成功扱いにしない。
+このEvidenceはWebsiteが未公開であることを示すが、D093確定後はPhase 10の失敗またはBlockerを意味しない。Production URLまたはPreview URLが作成されるまではLive Verificationを成功扱いにせず、将来のPublication Taskへ引き継ぐ。
 
 ## Accessibility Evidence
 
@@ -64,7 +64,13 @@ P10-005HのAccepted EvidenceをCloseoutへ統合した。P10-005H後のWebsite S
 - `docs/internal/documentation-website.md`
 - `docs/internal/project-generators.md`
 - `develop/TODO.md`
+- `develop/spec/README.md`
+- `develop/spec/41-developer-experience-roadmap.md`
 - `develop/spec/58-phase-10-delivery-plan.md`
+- `develop/spec/57-documentation-website-delivery-contract.md`
+- `develop/spec/60-post-phase-10-roadmap.md`
+- `develop/decisions/081-documentation-website-delivery-contract.md`
+- `develop/decisions/093-post-phase-10-roadmap.md`
 - `develop/orchestration/tasks/P10-006-phase-10-closeout.md`
 - `develop/orchestration/reports/P10-006-phase-10-closeout.md`
 - `develop/STATE.md`
@@ -77,6 +83,7 @@ P10-005HのAccepted EvidenceをCloseoutへ統合した。P10-005H後のWebsite S
 - Stable `1.0.0`のCLIは`bin` Directory内、`main` DocumentはProject Root `blackops`としてREADMEのChannel差を明示した。
 - Phase PlanはRepository内およびBrowserで検証済みのAcceptanceだけを完了とし、Preview／Production DeployとLive Hostは未完了のまま維持した。
 - Cloudflare External ConfigurationはCredentialをRepositoryへ保存せず、User Actionとして分離する。
+- D093に従い、Cloudflare Live PublicationはPhase 10 Acceptanceから将来の明示Publication Taskへ移す。Credential-gated WorkflowはDormantな公開経路として維持する。
 
 ## Commands and Results
 
@@ -132,17 +139,24 @@ Result: Could not resolve host: blackops-docs.pages.dev
 - [x] Internal／Develop／CredentialがLocal Artifactへ含まれない
 - [x] P10-005HのMobile／Keyboard／Accessibility／Search Evidenceを統合する
 - [x] README、Guide、Internal Setup、TODO、Phase Planが実装と一致する
-- [x] ReportとSTATEがRepository内完了とExternal Blockerを分離する
+- [x] ReportとSTATEがRepository内完了とDeferred Publicationを分離する
 
-### External Closeout
+### Phase Closeout
 
-- [ ] Phase 10 Delivery Planの全Acceptance Criteriaが証拠付きでSatisfiedである
+- [x] Phase 10 Delivery PlanのPhase Acceptance Criteriaが証拠付きでSatisfiedである
+- [x] Cloudflare Live PublicationをPhase 10 Blockerから分離する
+- [x] Credential-gated WorkflowをDormantな公開経路として維持する
+- [x] ReportとSTATEがPhase 10 Completeを示す
+
+### Deferred Publication
+
 - [ ] Cloudflare Production Deploy Stepが成功する
 - [ ] 同一Repository Pull Request Preview Deployが成功する
 - [ ] PreviewとProductionの主要URLが期待Status／Contentを返す
-- [ ] ReportとSTATEがPhase 10 Completeを示す
 
 ## Remaining Issues
+
+Phase 10にRemaining Issueはない。Website公開を再開する場合は、次を独立したPublication Taskとして扱う。
 
 1. Cloudflare Pages Direct Upload Project `blackops-docs`を作成する。
 2. `docs-preview`／`docs-production` GitHub Environmentへ分離したCloudflare Credentialを設定し、`docs-production`の`main` Branch RuleとRequired Reviewerを設定する。
@@ -151,4 +165,4 @@ Result: Could not resolve host: blackops-docs.pages.dev
 
 ## Suggested Next Action
 
-Repository内変更はOrchestrator ReviewでAcceptedとなった。External Setupを完了してProduction／Preview DeployとLive VerificationだけをP10-006へ追記し、その時点でPhase 10 Completeへ更新する。
+P10-006とPhase 10をCloseし、D093／Spec 60に基づいてPhase 11 Stable `1.1.0` ReleaseのContractとTask Packetを作成する。Website PublicationはUserが再開を明示するまで実行しない。

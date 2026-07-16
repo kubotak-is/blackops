@@ -61,8 +61,59 @@ MVP後に残す主要項目:
 - [x] `docs/guide/` だけを公開Source of Truthとする静的Buildを整備する
 - [x] `docs/internal/` をWebsite Artifact、Navigation、Search Indexへ含めない
 - [x] Cloudflare PagesのPreview／Production WorkflowとCredential／Artifact境界を整備する
-- [ ] Cloudflare Pages Project／GitHub Environmentを設定し、Preview／Production Live Evidenceを取得する
+- [x] Cloudflare Live PublicationをPhase 10 Blockerから分離し、明示Publication Taskへ延期する
 - [x] Diátaxisを意識したSidebar、Landing、Testing／Deployment入口へ情報構造を再編する
+
+### Phase 11: Stable 1.1 Release
+
+- [ ] Stable `1.0.0`からのCompatibilityとUpgrade Pathを監査する
+- [ ] Main BranchのProject CLI、Typed Operation、Validation、Worker ModeをRelease Noteへ固定する
+- [ ] Framework／Skeleton `1.1.0`のConsumer／Publication Gateを実行する
+- [ ] `composer create-project blackops/skeleton:^1.1`からQuickstartを完走する
+
+### Phase 12: Middleware and Authorization Runtime
+
+- [ ] PSR-15 Adapter MiddlewareとOperation MiddlewareをRuntimeへ実装する
+- [ ] Global／Operation単位の順序とCompile検証を実装する
+- [ ] Authentication、ActorContext、`#[Authorize]`、Deferred再認可を実装する
+
+### Phase 13: Database and Transaction Runtime
+
+- [ ] Named DBAL ConnectionとDI登録を実装する
+- [ ] Transaction Operation Middlewareと`#[Transactional]`を実装する
+- [ ] Worker ModeのConnection Health Check／Reset／Reconnectを実装する
+
+### Phase 14: Operation Diagnostics
+
+- [ ] Error Response／LogをOperation IDで相関可能にする
+- [ ] `operation:inspect`とDevelopment用Local Viewerを提供する
+- [ ] Production Log／Journal／Observabilityの責任境界を定義する
+
+### Phase 15: Operation Frontend Bridge
+
+- [ ] Operation／HTTP ManifestからFrontend Contract Manifestを生成する
+- [ ] URL／Method／Parameterを型付きTypeScript関数として生成する
+- [ ] Bridgeの初期DepthとFrontend TargetをPhase開始時に決定する
+
+### Phase 16: Deferred Status and Outcome API
+
+- [ ] Operation IDによるStatus／Outcome HTTP Contractを提供する
+- [ ] Polling、Typed Outcome、認証認可境界を定義する
+
+### Phase 17: Reliability and Delivery
+
+- [ ] Idempotency Keyと重複時Contractを実装する
+- [ ] Transactional Outbox、Relay、Replayを実装する
+
+### Phase 18: Security Hardening and Observability
+
+- [ ] Journal／Outcome参照制御、Tenant分離、暗号化Capabilityを強化する
+- [ ] 構造化Log SchemaとOpenTelemetry Adapterを提供する
+
+### Deferred: Documentation Website Publication
+
+- [ ] Userが公開再開を明示した後、Cloudflare Project／GitHub Environmentを設定する
+- [ ] Preview／Production DeployとLive Verificationを実行する
 
 ## 現在の優先事項
 

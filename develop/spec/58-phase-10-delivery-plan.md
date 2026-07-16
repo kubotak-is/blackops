@@ -2,7 +2,7 @@
 
 ## Goal
 
-Framework利用者向けMarkdownをSingle SourceとするAstro Starlight Websiteを構築し、Cloudflare PagesのPreview／Productionへ検証済みStatic Artifactを公開する。
+Framework利用者向けMarkdownをSingle SourceとするAstro Starlight Websiteを構築し、Local／CIで検証済みStatic ArtifactとCredential-gated Publication Workflowを完成させる。Cloudflare Pagesへの実公開はUserが公開を再開した時点の明示Publication Taskへ延期する。
 
 ## P10-001: Documentation Website Contract
 
@@ -106,8 +106,8 @@ Framework利用者向けMarkdownをSingle SourceとするAstro Starlight Website
 
 - Full Website Quality Suite
 - Repository Documentation／README／TODO同期
-- Production URLと主要PageのLive Verification
-- Preview／Production Evidence
+- GitHub Actions CI／Documentation Artifact Evidence
+- Cloudflare Live PublicationのDeferred Scope分離
 - Phase 10 Acceptance、Report、STATE Closeout
 
 ## Dependency Order
@@ -132,7 +132,7 @@ P10-001 Website Contract
 
 ## Commit Boundaries
 
-各Taskを一つのReview／Commit単位とする。P10-005はWorkflow実装CommitとExternal Cloudflare Setupの証拠を分離できる。User CredentialまたはDashboard操作待ちになった場合、Reader ExperienceのP10-005A／P10-005Bを先に進められる。External Deploy証拠はP10-006までに取得する。
+各Taskを一つのReview／Commit単位とする。P10-005はWorkflow実装CommitとExternal Cloudflare Setupを分離する。Phase 10ではCredential-gated WorkflowとArtifact境界までを検証し、External Deploy証拠はUserが公開を再開した時点の明示Publication Taskで取得する。
 
 ## Phase Acceptance Criteria
 
@@ -153,6 +153,13 @@ P10-001 Website Contract
 - [x] 移動した公開URLがStatic Redirectで新URLへ接続される
 - [x] `main` DocumentとStable Versionの差が表示される
 - [x] Mobile、Keyboard、Accessibility、Searchを検証している
+- [x] Credential未設定時にDeployだけを安全にSkipし、Build／Artifact検証を継続できる
+- [x] Cloudflare Live PublicationをPhase 10のBlockerから分離し、明示Publication Taskへ延期している
+
+## Deferred Publication Criteria
+
+次はPhase 10の未完了ではなく、Website公開を再開した場合のPublication Task Acceptanceとする。
+
 - [ ] Pull Request Previewと`main` Production Deployが成功する
 - [ ] Production Hostの主要PageとAssetがLive Verificationに成功する
 
@@ -161,3 +168,5 @@ P10-001 Website Contract
 - Decision: [D081 Documentation Website Delivery Contract](../decisions/081-documentation-website-delivery-contract.md)
 - Contract: [Documentation Website Delivery Contract](57-documentation-website-delivery-contract.md)
 - Roadmap: [Developer Experience Roadmap](41-developer-experience-roadmap.md)
+- Publication Timing Decision: [D093 Post Phase 10 Roadmap](../decisions/093-post-phase-10-roadmap.md)
+- Post Phase 10 Roadmap: [Post Phase 10 Roadmap](60-post-phase-10-roadmap.md)

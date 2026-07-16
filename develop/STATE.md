@@ -1,28 +1,28 @@
 # Orchestration State
 
-Updated At: 2026-07-14T21:53:07+09:00
+Updated At: 2026-07-16T12:02:15+09:00
 
 ## Current Phase
 
-Phase 10: Documentation Website
+Phase 11: Stable 1.1 Release
 
 ## Current Task
 
-Task ID: P10-006-phase-10-closeout
+Task ID: 未作成
 
-Task Packet: `develop/orchestration/tasks/P10-006-phase-10-closeout.md`
+Task Packet: D093／Spec 60に基づき、Phase 11開始時に作成する。
 
-Specifications: `develop/spec/57-documentation-website-delivery-contract.md`、`develop/spec/58-phase-10-delivery-plan.md`、`develop/spec/59-documentation-reader-experience.md`
+Specifications: `develop/spec/46-composer-skeleton-publication.md`、`develop/spec/60-post-phase-10-roadmap.md`
 
 ## Task Status
 
-P10-007 Accepted／P10-006 Repository Closeout Accepted・External Blocked
+Phase 10 Complete／Phase 11 Ready for Planning
 
-D092のPrefixなしCanonical 9 Command、旧`blackops:*`互換Alias、Canonical／Alias予約名、利用者向け表記同期を実装した。Full PHP／Website Suiteと6本のConsumer Test、Orchestrator独立再検証が成功し、P10-007をAcceptedとした。Cloudflare External Configuration待ちはP10-006の独立したExternal Blockerとして継続する。
+D093でCloudflare Live PublicationをPhase 10のBlockerから将来の明示Publication Taskへ移し、Repository内Website Content、Build、Search、Artifact Guard、Credential-gated WorkflowをPhase 10の完了条件として確定した。P10-006をAcceptedとしてPhase 10をCloseし、次はStable `1.1.0` Releaseを扱う。
 
 ## Last Accepted Task
 
-P10-007-project-cli-command-names
+P10-006-phase-10-closeout
 
 ## Pending Decisions
 
@@ -33,20 +33,22 @@ P10-007-project-cli-command-names
 5. D088はSymfony Validator Backend採用で確定。
 6. D089はAで確定。Canonical ReceivedとObserved／Error SurfaceのSensitive境界を分離する。
 7. P10-005DとP10-005GはAccepted。Reader JourneyとDefault Worker Runtimeは同期済みである。
-8. Cloudflare External Configuration待ちは継続するが、Repository内Closeoutは独立して進行できる。
+8. D093でCloudflare External ConfigurationとLive EvidenceをPhase 10 Blockerから分離し、将来の明示Publication Taskへ延期した。
 9. D090 Documentation Information ArchitectureはA／A／A／Aで確定。Sidebar LabelのTutorialとLanding Title `BlackOps — The PHP Framework`を含む。
 10. D091で`.codex/config.toml`をOrchestrator Sol High、`.codex/agents/worker.toml`をWorker Luna Highの正本とした。Metadata非公開だけをBlockerにしない。
 11. D092でProject CLIのCanonical名をPrefixなしへ変更し、旧`blackops:*`名を互換Aliasとして維持する。
+12. D093はA／A／Aで確定。Roadmap順序、Deferred HTTP API Scope、Dormant Documentation Workflowを確定した。
+13. Operation Frontend Bridgeの初期DepthとFrontend Targetは未決定だが、Phase 11から14を妨げないためPhase 15の設計対話へ延期する。
 
 ## Known Blockers
 
-1. P10-007のRepository内Blockerはなく、Orchestrator ReviewでAcceptedとなった。
-2. Cloudflare Project／Token／GitHub Environment SecretsとProtection Ruleが未設定であり、Production DeployはRun 29328741730でもSkipされた。`blackops-docs.pages.dev`はDNS解決できない。
+現在のRoadmap進行を妨げるBlockerはない。Documentation Websiteは意図的に未公開であり、Cloudflare Project／Credential未設定はBlockerとして扱わない。
 
 ## Required Next Action
 
-1. P10-007をTask単位でCommitし、GitHub Actions結果を確認する。
-2. Cloudflare External Setup後、Production／Preview EvidenceをP10-006へ追記する。
+1. Phase 11 Stable `1.1.0` ReleaseのCompatibility、Version、Publication境界をDecision／Specificationで確定する。
+2. 確定後、最初のPhase 11 Task Packetを作成してWorkerへ実装を依頼する。
+3. Documentation Website PublicationはUserが再開を明示するまで実行しない。
 
 ## P10-007 Project CLI Command Names Worker Verification Commands and Results
 

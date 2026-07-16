@@ -11,6 +11,8 @@ MVP後のDeveloper Experienceは、Install直後のApplication、Composer Projec
 3. Phase 9: Project BlackOps CLI
 4. Phase 10: Documentation Website
 
+Phase 10以降のStable Release、Middleware／認証認可、Database／Transaction、Operation Diagnostics、Frontend Bridge、Deferred APIは[Post Phase 10 Roadmap](60-post-phase-10-roadmap.md)を正本とする。
+
 ## Installed Application Example
 
 `examples/quickstart/` は次の2つの役割を兼ねる。
@@ -69,7 +71,7 @@ docs/website/
 - `docs/internal/`: Repository内で読むFramework実装者向けMarkdownのSource of Truth
 - `docs/website/`: Astro StarlightのWebsite、Build設定、Website固有Asset
 
-Website Contentを別に複製せず、公開対象である`docs/guide/`のMarkdownから決定的に静的Buildする。`docs/internal/`はWebsite、Navigation、Search Indexへ含めない。WebsiteはCloudflare PagesへDeployし、PreviewとProductionのPublication Boundaryを持つ。
+Website Contentを別に複製せず、公開対象である`docs/guide/`のMarkdownから決定的に静的Buildする。`docs/internal/`はWebsite、Navigation、Search Indexへ含めない。WebsiteはCloudflare Pages向けのPreviewとProductionのPublication Boundaryを持つが、実公開はD093により将来の明示Publication Taskへ延期する。
 
 `docs/internals/` から `docs/internal/` への移行は、Repository内リンク、AGENTS、CI、関連Task Packetを同じ変更単位で更新する。
 
