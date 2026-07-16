@@ -12,7 +12,7 @@ ScriptはBuild、明示Migration、FrankenPHP HTTP、Sensitive JSONL、Deferred 
 
 `tests/Consumer/skeleton-create-project.sh` は`git archive HEAD:examples/quickstart`からCommitted Sourceだけを抽出する。SkeletonとFrameworkへ別々のLocal Path Repositoryとversion `1.1.0`を一時Composer Homeで与え、両方を`symlink=false`で通常／`--no-scripts` Create-projectする。Package SourceへRepository設定やVersionを戻さず、Lock、Vendor、Autoload、Post-create／Manual Setup、Generated State不在、Docker Resource不変、Source不変、Temp Cleanupを機械検証する。
 
-`tests/Consumer/skeleton-publication.sh` はFramework Source RefからQuickstartだけのSubtree Splitを決定的に生成し、Framework VersionとConstraint、Distribution Root Allowlist、Composer Metadata、Generated State不在、同一Tag生成、Working Tree／Docker／Temporary State不変を検証する。これはRemote Pushを行わないDry Runであり、公開RepositoryとPackagistの可用性はP8-003／P8-004の外部検証が担当する。
+`tests/Consumer/skeleton-publication.sh` はFramework Source RefからQuickstartだけのSubtree Splitを決定的に生成し、Framework VersionとConstraint、Distribution Root Allowlist、Composer Metadata、Generated State不在、annotated Tag Object／Message／Peeled Commit、Working Tree／Docker／Temporary State不変を検証する。`tests/Consumer/skeleton-publication-workflow.sh`はWorkflowのPublication Run BlockをTemporary Bare Repositoryへ適用し、新規annotated tag、冪等再実行、不一致拒否、新規lightweight拒否、Legacy `1.0.0` Manual Recoveryを外部変更なしで検証する。公開RepositoryとPackagistの可用性はPublication Taskの外部検証が担当する。
 
 ## Build and Load
 

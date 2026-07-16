@@ -26,6 +26,16 @@
 - Release Candidate CommitとGitHub Actions Evidence
 - Release Source SHA、Known Limitations、Publication Checklist固定
 
+Source of Truth監査でSkeleton Publication Automationがannotated tag契約を満たさないことを検出したため、Fixed Candidate GateはBlockerとして停止し、P11-003A完了後に新Candidateで最初から再実行する。
+
+## P11-003A: Annotated Skeleton Release Tag
+
+- Local Publication Testでannotated Tag Object、Tag Message、Peeled Split Commitを検証する
+- Publication Workflowがannotated Tag RefをPushし、Remote Direct RefとPeeled Refを分離監査する
+- 新規Releaseのlightweight tagを拒否し、既存annotated tagはPeeled Commit一致時だけ冪等成功とする
+- 公開済みSkeleton `1.0.0` lightweight tagは同一Split CommitのManual Recoveryだけを許可し、Tagを変更しない
+- Temporary Bare Repositoryを使うWorkflow Regressionで外部状態を変更せずRecovery境界を検証する
+
 ## P11-004: Stable Publication and Closeout
 
 - annotated tag `1.1.0` Push
@@ -40,7 +50,9 @@
 P11-001 Release Surface Reset
   -> P11-002 Release Documentation and Metadata
     -> P11-003 Release Candidate Gate
-      -> P11-004 Stable Publication and Closeout
+      -> P11-003A Annotated Skeleton Release Tag
+        -> P11-003 Release Candidate Gate (new fixed candidate)
+          -> P11-004 Stable Publication and Closeout
 ```
 
 ## Phase Acceptance Criteria
@@ -49,6 +61,7 @@ P11-001 Release Surface Reset
 - [x] `1.0.0`からのBreaking SurfaceとMigrationがDocumentedである
 - [x] Skeleton `1.1.0`がFramework `^1.1`を要求する
 - [x] CHANGELOG、UPGRADE、README、GuideがLatest StableとExperimental Policyに一致する
+- [x] Skeleton Publicationがannotated Tag ObjectとPeeled Split Commitを検証する
 - [ ] Full Quality／Consumer／Publication GateがRelease Candidate Commitで成功する
 - [ ] Framework／Skeleton `1.1.0` TagとPackagist Metadataが一致する
 - [ ] 公開Packageから通常／`--no-scripts` Create-projectとQuickstartが成功する

@@ -76,7 +76,7 @@ Skeletonには再実行可能な`bin/setup`とComposer `post-create-project-cmd`
 
 Committed Quickstartから`git archive`で抽出したClean Packageを使い、Local Skeleton／Framework Repositoryから通常と`--no-scripts`のCreate-projectが成功している。両PackageはCopy Installで、Lock、Vendor、Autoload、Post-create、Manual Setup、Source Cleanliness、Side Effect不在、Cleanupを検証済みである。
 
-Framework Source RefからQuickstartだけを決定的にSubtree Splitし、同一Version Tagを付けるPublication Workflowが成功している。GitHub Actions WorkflowはFull Quality、Consumer、Create-project、Publication Gateの後だけDeploy Keyを展開し、Remote `main`とTagをfail-closedで更新する。Framework `1.0.0`はFramework Commit `279716f`、Skeleton `1.0.0`はSplit Commit `da573f3`としてGitHub／Packagistへ公開済みである。
+Framework Source RefからQuickstartだけを決定的にSubtree Splitし、新規Releaseへ同一Versionのannotated tagを付けるPublication Workflowを管理する。GitHub Actions WorkflowはFull Quality、Consumer、Create-project、Publication Gateの後だけDeploy Keyを展開し、Remote `main`、Tag Object、Peeled Commitをfail-closedで監査して更新する。Framework `1.0.0`はFramework Commit `279716f`、Skeleton `1.0.0`はSplit Commit `da573f3`としてGitHub／Packagistへ公開済みである。Skeleton `1.0.0`の既存Tagはlightweightであり、同一Split Commitを指すManual Recoveryだけに限定したImmutable Legacyとして維持する。
 
 空のComposer Homeと一時DirectoryからPackagistだけを使用し、次を検証した。
 

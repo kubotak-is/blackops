@@ -14,7 +14,7 @@ Distribution Repositoryへ機能変更を直接Commitしない。修正はMain R
 
 ## Version Policy
 
-FrameworkとSkeletonは同じRelease Version Tagを使用する。
+FrameworkとSkeletonは同じRelease Version Tagを使用する。新規Release Tagはannotated tag objectとして作成し、Tag Messageは`BlackOps Skeleton <version>`、Tagger IdentityはRelease Automation固定値とする。Tag Object ID自体の再現性は要求せず、TagをPeeledしたCommitが決定的なSkeleton Split Commitと一致することを要求する。
 
 例えばFramework `1.2.0` Releaseでは、Skeleton Split Commitにも `1.2.0` Tagを付ける。SkeletonのComposer Metadataは同じMajor／Minor系列のFrameworkをRequireする。
 
@@ -35,7 +35,7 @@ Release Automationは次を失敗条件とする。
 
 Skeleton独自VersionまたはFrameworkと異なるRelease Cycleは採用しない。必要性が生じた場合はVersion Policyを再決定する。
 
-初回Public Stable Versionは`1.0.0`とする。Framework Repositoryの`1.0.0` TagをTriggerとして、Skeleton Split Commitにも同じTagを付ける。SkeletonのFramework Constraintは`^1.0`とする。
+初回Public Stable Versionは`1.0.0`とする。Framework Repositoryの`1.0.0` TagをTriggerとして、Skeleton Split Commitにも同じTagを付ける。SkeletonのFramework Constraintは`^1.0`とする。公開済みSkeleton `1.0.0`はlightweight tagであるためImmutableなLegacyとして維持し、削除、移動、annotated tagへの置換を行わない。
 
 ## Lock File Ownership
 
@@ -84,7 +84,7 @@ Release Pipelineは次の順で行う。
 1. Framework Quality SuiteとQuickstart Consumer E2Eを実行する
 2. Framework Release TagとSkeleton Framework Constraintを検証する
 3. `examples/quickstart/` をDistribution RepositoryへSplitする
-4. Split CommitへFrameworkと同じVersion Tagを付ける
+4. Split CommitへFrameworkと同じVersionのannotated tagを付ける
 5. Distribution RepositoryへCommitとTagをPushする
 6. Split結果からInstall Smoke Testを実行する
 7. Packagistへ新しいTagを反映する
@@ -97,6 +97,10 @@ Cross-repository PushはDistribution RepositoryだけへWrite可能なDeploy Key
 
 GitHub-hosted RunnerではRunnerのUID／GIDをComposeの`HOST_UID`／`HOST_GID`へ渡し、bind-mounted Workspaceの所有者とContainer Userを一致させる。Publication SourceはEvent SHAではなく、検証済みTag Checkoutの`HEAD`とする。
 
+Remote Tag監査では`refs/tags/<version>`のDirect Refと`refs/tags/<version>^{}`のPeeled Refを分けて取得する。既存annotated tagはTag ObjectをFetchしてObject Type `tag`とPeeled Commitを検証し、Peeled Commitが期待Split Commitと一致する場合だけ冪等成功とする。異なるCommitを指すannotated tagと、新規Release Versionに存在するlightweight tagは失敗させ、Tagを移動、削除、置換しない。
+
+唯一の例外として、Manual Dispatchによる公開済みSkeleton `1.0.0` Recoveryでは、Peeled RefがなくDirect Commitが期待Split Commitと一致する既存lightweight tagを成功扱いにできる。この例外はTag Push Trigger、別Version、異なるDirect Commitへ適用しない。
+
 ## Verification
 
 - Main Repository内のConsumer E2EがFrameworkとQuickstartをAtomicに検証する
@@ -106,6 +110,9 @@ GitHub-hosted RunnerではRunnerのUID／GIDをComposeの`HOST_UID`／`HOST_GID`
 - `--no-scripts` Installが成功し、Manual Setup手順で起動準備できる
 - Post-createを再実行して既存 `.env` が変更されない
 - Install中にDocker、Database、Migration、Buildが暗黙実行されない
+- 新規ReleaseのTag Object Typeが`tag`であり、所定Messageを持ち、Peeled CommitがSplit Commitと一致する
+- Remote既存annotated tagのPeeled Commit一致だけを冪等成功とし、新規lightweight tagとCommit不一致を拒否する
+- Legacy Skeleton `1.0.0` lightweight tagのManual RecoveryがTagを変更せず、同一Split Commitの場合だけ成功する
 
 ## Traceability
 

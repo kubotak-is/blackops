@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-17T00:08:28+09:00
+Updated At: 2026-07-17T00:29:28+09:00
 
 ## Current Phase
 
@@ -16,13 +16,13 @@ Specifications: `develop/spec/61-experimental-release-contract.md`、`develop/sp
 
 ## Task Status
 
-P11-003A Ready
+P11-003A Accepted
 
-P11-003 BlockerをCommit `0098e4f`としてmainへPushした。P11-003AではSkeleton Publication TestとWorkflowをannotated tag、Peeled Commit監査へ修正する。公開済みLegacy Skeleton `1.0.0` lightweight tagは移動せず、同じSplit Commitを指すManual Recoveryだけを明示的に維持する。
+GPT-5.6 Luna High workerがSkeleton Publication TestとWorkflowをannotated tag、Peeled Commit監査へ修正した。Workflow Run BlockをTemporary Bare Repositoryへ適用し、新規annotated tag、冪等再実行、annotated不一致、新規lightweight拒否、公開済みLegacy Skeleton `1.0.0`のManual限定Recoveryを検証した。WorkerとOrchestratorのRequired Gateがすべて成功し、P11-003AをAcceptedとした。外部状態は変更していない。
 
 ## Last Accepted Task
 
-P11-002-release-documentation-and-metadata
+P11-003A-annotated-skeleton-release-tag
 
 ## Pending Decisions
 
@@ -43,16 +43,45 @@ P11-002-release-documentation-and-metadata
 
 ## Known Blockers
 
-P11-003 Fixed CandidateのSkeleton Publicationがannotated tag契約と矛盾する。`tests/Consumer/skeleton-publication.sh`はlightweight tagを作り、`.github/workflows/publish-skeleton.yml`もSplit Commitを`refs/tags/<version>`へ直接Pushする。Remote既存Tag監査もannotated tag objectをSplit Commitと直接比較するためRecoveryできない。Release Automation follow-upと新Fixed Candidate SHAが必要である。Documentation Websiteは意図的に未公開であり、Cloudflare Project／Credential未設定は本Blockerとは無関係である。
+P11-003Aの実装とLocal VerificationにBlockerはない。P11-003は旧Fixed CandidateのRelease Automation矛盾によりBlockedのままであり、P11-003AのReview／Commit／CI成功後に新Fixed Candidate SHAを設定してFull Gateを最初から再実行する必要がある。Documentation Websiteは意図的に未公開であり、Cloudflare Project／Credential未設定は本Taskと無関係である。
 
 ## Required Next Action
 
-1. P11-003A Task PacketをTask開始CheckpointとしてCommitし、mainへPushする。
-2. GPT-5.6 Luna High workerがannotated Skeleton Tag、Peeled Commit、Legacy `1.0.0` Recoveryを実装・検証する。
-3. OrchestratorがReview、独立再検証、Task Commitを行う。
-4. CI成功後に新Fixed Candidate SHAをP11-003へ設定し、Full Gateを最初から再実行する。
-5. 新Candidateが全Gateを満たすまでFramework `1.1.0` TagをPushせず、P11-004へ進まない。
-6. Documentation Website PublicationはUserが再開を明示するまで実行しない。
+1. OrchestratorがP11-003AをTask単位でCommitし、mainへPushする。
+2. GitHub Actions成功後、P11-003A Accepted Commitを新Fixed Candidate SHAとしてP11-003へ設定する。
+3. P11-003 Full Gateを最初から再実行する。
+4. 新Candidateが全Gateを満たすまでFramework `1.1.0` TagをPushせず、P11-004へ進まない。
+5. Documentation Website PublicationはUserが再開を明示するまで実行しない。
+
+## P11-003A Annotated Skeleton Release Tag Worker Verification Commands and Results
+
+```text
+docker compose run --rm app composer validate --strict
+docker compose run --rm app composer validate --strict examples/quickstart/composer.json
+Result: RootとQuickstartのComposer Metadataがstrict validationに成功。
+
+docker compose run --rm app mago format --check src tests examples
+docker compose run --rm app mago lint
+docker compose run --rm app mago analyze
+Result: Format済み。Lint／AnalyzeともにNo issues found。
+
+docker compose run --rm app vendor/bin/phpunit
+Result: OK (871 tests, 2831 assertions)。
+
+docker compose run --rm app vendor/bin/deptrac
+Result: Violations 0 / Skipped 0 / Uncovered 0 / Allowed 1712 / Warnings 0 / Errors 0。
+
+bash tests/Consumer/skeleton-create-project.sh
+bash tests/Consumer/framework-update-generators.sh
+bash tests/Consumer/skeleton-publication.sh 1.1.0 HEAD
+Result: 3本すべて成功。Publicationはsource `a2d2eb2a13d11d44372e2d646054ce5664e7de85`からsplit `293f880940636669f28ded756a888a8d6ba65f1b`を生成し、annotated Tag Object、Message、Peeled Commitを検証。
+
+bash tests/Consumer/skeleton-publication-workflow.sh
+Result: Workflow Run BlockをTemporary Bare Repositoryへ適用し、新規annotated tag、冪等annotated recovery、annotated divergence、新規lightweight拒否、Legacy 1.0.0 Manual Recovery／Trigger拒否／Divergence拒否が成功。
+
+Workflow YAML Parse、Shell Syntax、Force／Delete Guard、Credential Guard、PHP Management ID Guard、git diff --check
+Result: すべて成功。
+```
 
 ## P11-002 Release Documentation and Metadata Worker Verification Commands and Results
 

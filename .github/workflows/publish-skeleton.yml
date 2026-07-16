@@ -25,6 +25,7 @@ jobs:
     env:
       RELEASE_VERSION: ${{ inputs.release_version || github.ref_name }}
       SKELETON_REMOTE: git@github.com:kubotak-is/blackops-skeleton.git
+      MANUAL_RECOVERY: ${{ github.event_name == 'workflow_dispatch' && 'true' || 'false' }}
 
     steps:
       - name: Check out framework release
@@ -82,6 +83,9 @@ jobs:
       - name: Validate skeleton publication locally
         run: bash tests/Consumer/skeleton-publication.sh "${RELEASE_VERSION}" HEAD
 
+      - name: Run skeleton publication workflow regression
+        run: bash tests/Consumer/skeleton-publication-workflow.sh
+
       - name: Configure distribution deploy key
         env:
           SKELETON_DEPLOY_KEY: ${{ secrets.SKELETON_DEPLOY_KEY }}
@@ -98,27 +102,63 @@ jobs:
           test -s "${RUNNER_TEMP}/skeleton-ssh/known_hosts"
           chmod 600 "${RUNNER_TEMP}/skeleton-ssh/known_hosts"
 
-      - name: Publish split commit and matching tag
+      - name: Publish split commit and matching annotated tag
         env:
           GIT_SSH_COMMAND: ssh -i ${{ runner.temp }}/skeleton-ssh/key -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=${{ runner.temp }}/skeleton-ssh/known_hosts
         run: |
           set -euo pipefail
           publication_root="$(mktemp -d "${RUNNER_TEMP}/skeleton-publication.XXXXXX")"
           source_commit="$(git rev-parse HEAD)"
-          git clone --quiet --no-hardlinks "${GITHUB_WORKSPACE}" "${publication_root}/source"
+          git clone --quiet --no-hardlinks --no-tags "${GITHUB_WORKSPACE}" "${publication_root}/source"
           split_commit="$(git -C "${publication_root}/source" subtree split \
             --prefix=examples/quickstart "${source_commit}")"
+          tag_message="BlackOps Skeleton ${RELEASE_VERSION}"
+          GIT_COMMITTER_NAME='BlackOps Release Automation' \
+            GIT_COMMITTER_EMAIL='release@blackops.dev' \
+            git -C "${publication_root}/source" tag --annotate \
+              "${RELEASE_VERSION}" "${split_commit}" --message "${tag_message}"
+
+          test "$(git -C "${publication_root}/source" cat-file -t "refs/tags/${RELEASE_VERSION}")" = 'tag'
+          test "$(git -C "${publication_root}/source" for-each-ref \
+            --format='%(contents:subject)' "refs/tags/${RELEASE_VERSION}")" = "${tag_message}"
+          test "$(git -C "${publication_root}/source" rev-parse \
+            "refs/tags/${RELEASE_VERSION}^{commit}")" = "${split_commit}"
 
           remote_main="$(git ls-remote "${SKELETON_REMOTE}" refs/heads/main | awk '{print $1}')"
-          remote_tag="$(git ls-remote "${SKELETON_REMOTE}" "refs/tags/${RELEASE_VERSION}" | awk '{print $1}')"
+          remote_tag_object="$(git ls-remote "${SKELETON_REMOTE}" \
+            "refs/tags/${RELEASE_VERSION}" | awk '{print $1}')"
+          remote_tag_peeled="$(git ls-remote "${SKELETON_REMOTE}" \
+            "refs/tags/${RELEASE_VERSION}^{}" | awk '{print $1}')"
 
-          if [[ -n "${remote_tag}" && "${remote_tag}" != "${split_commit}" ]]; then
-            echo 'Existing skeleton release tag points to another commit.' >&2
+          if [[ -z "${remote_tag_object}" && -n "${remote_tag_peeled}" ]]; then
+            echo 'Skeleton release tag has a peeled ref without a direct tag ref.' >&2
             exit 1
           fi
 
+          if [[ -n "${remote_tag_object}" && -n "${remote_tag_peeled}" ]]; then
+            audit_ref="refs/skeleton-publication/audit/${RELEASE_VERSION}"
+            git -C "${publication_root}/source" fetch --quiet --no-tags "${SKELETON_REMOTE}" \
+              "refs/tags/${RELEASE_VERSION}:${audit_ref}"
+            test "$(git -C "${publication_root}/source" rev-parse "${audit_ref}")" = "${remote_tag_object}"
+            test "$(git -C "${publication_root}/source" cat-file -t "${audit_ref}")" = 'tag'
+            test "$(git -C "${publication_root}/source" rev-parse \
+              "${audit_ref}^{commit}")" = "${remote_tag_peeled}"
+            if [[ "${remote_tag_peeled}" != "${split_commit}" ]]; then
+              echo 'Existing annotated skeleton release tag peels to another commit.' >&2
+              exit 1
+            fi
+          elif [[ -n "${remote_tag_object}" ]]; then
+            if [[ "${MANUAL_RECOVERY}" != 'true' \
+              || "${RELEASE_VERSION}" != '1.0.0' \
+              || "${remote_tag_object}" != "${split_commit}" ]]; then
+              echo 'Existing lightweight skeleton release tag violates the release contract.' >&2
+              exit 1
+            fi
+            echo 'Keeping immutable legacy Skeleton 1.0.0 lightweight tag during manual recovery.'
+          fi
+
           if [[ -n "${remote_main}" && "${remote_main}" != "${split_commit}" ]]; then
-            git -C "${publication_root}/source" fetch --quiet "${SKELETON_REMOTE}" \
+            git -C "${publication_root}/source" fetch --quiet --no-tags "${SKELETON_REMOTE}" \
               "refs/heads/main:refs/remotes/skeleton/main"
             git -C "${publication_root}/source" merge-base --is-ancestor \
               refs/remotes/skeleton/main "${split_commit}" || {
@@ -131,9 +171,9 @@ jobs:
             git -C "${publication_root}/source" push "${SKELETON_REMOTE}" \
               "${split_commit}:refs/heads/main"
           fi
-          if [[ -z "${remote_tag}" ]]; then
+          if [[ -z "${remote_tag_object}" ]]; then
             git -C "${publication_root}/source" push "${SKELETON_REMOTE}" \
-              "${split_commit}:refs/tags/${RELEASE_VERSION}"
+              "refs/tags/${RELEASE_VERSION}:refs/tags/${RELEASE_VERSION}"
           fi
 
       - name: Remove publication credentials and temporary state

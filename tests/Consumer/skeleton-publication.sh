@@ -59,7 +59,7 @@ if [[ "${dry_run}" = true ]]; then
     cp -a "${repository_root}/examples/quickstart/." "${distribution_root}/"
     split_commit='working-tree'
 else
-    git clone --quiet --no-hardlinks "${repository_root}" "${source_clone}"
+    git clone --quiet --no-hardlinks --no-tags "${repository_root}" "${source_clone}"
     git -C "${source_clone}" cat-file -e "${source_commit}^{commit}" \
         || fail "source commit is not available in the committed clone"
 
@@ -130,12 +130,17 @@ docker run --rm \
     composer validate --strict
 
 if [[ "${dry_run}" = false ]]; then
-    if git -C "${source_clone}" show-ref --verify --quiet "refs/tags/${version}"; then
-        git -C "${source_clone}" tag --delete "${version}" > /dev/null
-    fi
-    git -C "${source_clone}" tag "${version}" "${split_commit}"
-    test "$(git -C "${source_clone}" rev-list -n 1 "refs/tags/${version}")" = "${split_commit}" \
-        || fail 'release tag does not resolve to the split commit'
+    tag_message="BlackOps Skeleton ${version}"
+    GIT_COMMITTER_NAME='BlackOps Release Automation' \
+        GIT_COMMITTER_EMAIL='release@blackops.dev' \
+        git -C "${source_clone}" tag --annotate "${version}" "${split_commit}" \
+            --message "${tag_message}"
+    test "$(git -C "${source_clone}" cat-file -t "refs/tags/${version}")" = 'tag' \
+        || fail 'release tag is not an annotated tag object'
+    test "$(git -C "${source_clone}" for-each-ref --format='%(contents:subject)' "refs/tags/${version}")" = "${tag_message}" \
+        || fail 'release tag message does not match the publication contract'
+    test "$(git -C "${source_clone}" rev-parse "refs/tags/${version}^{commit}")" = "${split_commit}" \
+        || fail 'release tag peeled commit does not match the split commit'
 fi
 
 test "$(git -C "${repository_root}" status --short)" = "${source_before}" \
