@@ -63,9 +63,9 @@ P11-001 Release Surface Reset
 - [x] CHANGELOG、UPGRADE、README、GuideがLatest StableとExperimental Policyに一致する
 - [x] Skeleton Publicationがannotated Tag ObjectとPeeled Split Commitを検証する
 - [x] Full Quality／Consumer／Publication GateがRelease Candidate Commitで成功する
-- [ ] Framework／Skeleton `1.1.0` TagとPackagist Metadataが一致する
-- [ ] 公開Packageから通常／`--no-scripts` Create-projectとQuickstartが成功する
-- [ ] GitHub Release `1.1.0`が確定Release Noteを持つ
+- [x] Framework／Skeleton `1.1.0` TagとPackagist Metadataが一致する
+- [x] 公開Packageから通常／`--no-scripts` Create-projectとQuickstartが成功する
+- [x] GitHub Release `1.1.0`が確定Release Noteを持つ
 
 ## Traceability
 

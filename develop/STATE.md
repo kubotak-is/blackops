@@ -1,10 +1,10 @@
 # Orchestration State
 
-Updated At: 2026-07-17T00:45:11+09:00
+Updated At: 2026-07-17T00:58:49+09:00
 
 ## Current Phase
 
-Phase 11: Stable 1.1 Release
+Phase 11: Stable 1.1 Release (Complete)
 
 ## Current Task
 
@@ -16,13 +16,13 @@ Specifications: `develop/spec/61-experimental-release-contract.md`、`develop/sp
 
 ## Task Status
 
-P11-004 In Progress
+P11-004 Accepted
 
-P11-003 Accepted。Framework Source `e3df5576c7216cfe8bd9e10e12ee6795f7674088`、Skeleton Split `293f880940636669f28ded756a888a8d6ba65f1b`、Version `1.1.0`をP11-004 Task Packetへ固定した。Publication CheckpointをCommit／Pushした後、D094の事前承認に従いExternal Publicationを実行する。
+Framework／Skeleton Experimental Stable `1.1.0`を公開した。Framework Peeled Commitは`e3df5576c7216cfe8bd9e10e12ee6795f7674088`、Skeleton `main`／Peeled Commitは`293f880940636669f28ded756a888a8d6ba65f1b`である。Workflow `29512808726`、Packagist両Package、GitHub Release、Remote通常／`--no-scripts`／Quickstart Smokeが成功し、Phase 11をCloseした。
 
 ## Last Accepted Task
 
-P11-003-release-candidate-gate
+P11-004-stable-publication-and-closeout
 
 ## Pending Decisions
 
@@ -43,15 +43,14 @@ P11-003-release-candidate-gate
 
 ## Known Blockers
 
-P11-003 Release Candidate Gateを妨げるBlockerはない。最初のCandidateで検出したSkeleton annotated tag矛盾はP11-003Aで解消し、新CandidateのFull Gateで再検証済みである。Documentation Websiteは意図的に未公開であり、Cloudflare Project／Credential未設定は本Taskと無関係である。
+Phase 11 Blockerはない。Documentation Websiteは意図的に未公開であり、Cloudflare Project／Credential未設定はCloseoutを妨げない。`actions/checkout@v4`のNode.js 20 Deprecation Warningは将来のWorkflow Maintenanceで更新する。
 
 ## Required Next Action
 
-1. P11-004 Publication CheckpointをCommitし、mainへPushする。
-2. Working Tree clean、Fixed Source、Framework／Skeleton同名Tag不存在を再確認する。
-3. Fixed Sourceへannotated Framework tag `1.1.0`をPushし、Skeleton Publication Workflowを監視する。
-4. Framework／Skeleton Tag、Packagist、GitHub Release、Remote Create-project／Quickstartを検証してPhase 11をCloseする。
-5. Documentation Website PublicationはUserが再開を明示するまで実行しない。
+1. P11-004 CloseoutをCommitし、mainへPushする。
+2. Phase 12 Middleware and Authorization Runtimeの既存Specificationと実装Surfaceを監査する。
+3. Framework／Application所有境界、Middleware登録／順序、Authenticator／ActorContext、HTTP 401／403、Deferred再認可の未決事項をDecisionで確定する。
+4. Documentation Website PublicationはUserが再開を明示するまで実行しない。
 
 ## P11-003 Release Candidate Gate Verification Commands and Results
 
