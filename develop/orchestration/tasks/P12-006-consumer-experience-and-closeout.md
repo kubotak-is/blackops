@@ -45,7 +45,11 @@ Phase 12で実装したPSR-15 Middleware、Authentication、Durable ActorContext
 - `examples/quickstart/config/app.php`
 - `examples/quickstart/config/middleware.php`
 - `tests/Architecture/QuickstartApplicationArchitectureTest.php`
+- `tests/Integration/ApplicationHttpRuntimeTest.php`
+- `tests/Integration/ApplicationConsoleKernelTest.php`
+- `tests/Integration/MvpSampleEndToEndTest.php`
 - `tests/Consumer/quickstart-e2e.sh`
+- `tests/Consumer/frankenphp-worker-mode.sh`
 - `tests/Consumer/skeleton-create-project.sh`
 - `tests/Consumer/framework-update-generators.sh`
 - `docs/guide/**`
