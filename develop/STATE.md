@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-17T13:35:45+09:00
+Updated At: 2026-07-17T13:39:12+09:00
 
 ## Current Phase
 
@@ -8,17 +8,17 @@ Phase 13: Database and Transaction Runtime (Design Pending)
 
 ## Current Task
 
-Task ID: P13-001-database-and-transaction-design
+Task ID: D096-phase-13-database-and-transaction-runtime
 
-Task Packet: Pending
+Decision Draft: `develop/decisions/096-phase-13-database-and-transaction-runtime.md`
 
-Specifications: Pending Phase 13 audit
+Specifications: `develop/spec/09-runtime-and-di.md`、`develop/spec/11-durable-journal-and-transactions.md`、`develop/spec/36-postgresql-transaction-boundaries.md`、`develop/spec/60-post-phase-10-roadmap.md`
 
 ## Task Status
 
-P13-001 Task Packet Pending
+Awaiting User Decision
 
-P12-006はOrchestratorの差分Reviewと独立PHP／Quickstart E2E／Website／静的品質Gateを通過しAcceptedとなった。Phase 12は全Acceptance Criteriaを満たして完了した。次はPhase 13の仕様と現行Database境界を監査し、判断が必要な論点をDecisionへまとめる。
+Phase 13の仕様、Decision、現行Database Configuration／DI／HTTP／Worker Connection境界を監査し、D096へNamed Connection、DatabaseManager、Transaction Lifecycle、Nested／Manual Transaction、Long-running Connection、Outbox Scopeの6問を作成した。Production実装はUser回答まで開始しない。
 
 ## Last Accepted Task
 
@@ -44,13 +44,14 @@ P12-006-consumer-experience-and-closeout
 
 ## Known Blockers
 
-Phase 13 Blockerはまだ特定されていない。Documentation Websiteは意図的に未公開である。
+Phase 13のPublic APIとTransaction保証はD096のUser回答待ちである。Documentation Websiteは意図的に未公開である。
 
 ## Required Next Action
 
-1. Phase 13の既存仕様、Database Configuration、DI、Worker Connection境界を監査する。
-2. Named Connection、Transaction Lifecycle、`#[Transactional]`の未決事項をDecision Draftへまとめる。
-3. Documentation Website PublicationはUserが再開を明示するまで実行しない。
+1. UserがD096の6問へ回答する。
+2. Orchestrator Codexが回答をDecision／Specification／Phase 13 Delivery Planへ確定する。
+3. 確定後にP13 Task Packetを作成し、GPT-5.6 Luna High workerへProduction実装を委譲する。
+4. Documentation Website PublicationはUserが再開を明示するまで実行しない。
 
 ## P12-006 Orchestrator Review Commands and Results
 
