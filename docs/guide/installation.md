@@ -29,8 +29,8 @@ cd my-app
 
 ## Release Policy
 
-Stable `1.1.0`にはProject Root `blackops`、Generator、Application Migration Runtime、7 Validation Attribute、FrankenPHP Worker Modeが含まれます。このWebsiteの現行手順と同じRelease Surfaceです。
+Stable `1.1.0`にはProject Root `blackops`、Generator、Application Migration Runtime、7 Validation Attribute、FrankenPHP Worker Modeが含まれます。このWebsiteは`main` Document Channelであり、Global Middleware、Authentication、Durable ActorContext、`#[Authorize]`等の未Release Surfaceも扱います。Stableとの差は[Current Status](mvp-status.md#stableとmain)で明示します。
 
 BlackOpsはExperimentalです。1.x Minor間のBackward CompatibilityとProduction Readinessを保証しません。Upgrade前にRelease NoteとUpgrade Guideを確認し、検証環境でApplicationをTestしてください。[Current Status](mvp-status.md)には利用可能な機能と既知の制約をまとめています。
 
-次は[Quickstart](mvp-sample.md)でInline Request、Deferred受付、Worker実行を一続きで確認します。
+公開済みStableを使う場合は上記提供範囲に留めてください。[Quickstart](mvp-sample.md)の認証付きJourneyはRepository `main` Previewの再現手順から始まります。

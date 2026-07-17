@@ -1,6 +1,6 @@
 # 現在の提供状況（Current Status）
 
-BlackOpsのLatest StableはFramework／Skeleton `1.1.0`です。このWebsiteの現行機能説明は同じRelease Surfaceを対象にします。`main`には今後の未Release変更が加わる場合があります。
+BlackOpsのLatest StableはFramework／Skeleton `1.1.0`です。このWebsiteは`main` Document Channelであり、未ReleaseのPhase 12 Surfaceも明示して説明します。Stableとの差を次表で確認してください。
 
 BlackOps固有のOperation、Claim、Journal、Outcome等は[用語集](glossary.md)で確認できます。
 
@@ -20,6 +20,9 @@ BlackOpsはExperimentalです。1.x Minor間のBackward CompatibilityとProducti
 | Application Migration Runtime | Available | Available |
 | 7 Value Validation Attribute／422 Lifecycle | Available | Available |
 | FrankenPHP Worker Mode | Default Runtime | Default Runtime |
+| Global PSR-15 Middleware Config | Not available | Available |
+| Authentication／Durable ActorContext | Not available | Available |
+| `#[Authorize]` Inline／Deferred再認可 | Not available | Available |
 
 Stable Applicationを作る場合はVersionを明示します。
 
@@ -37,12 +40,14 @@ composer create-project blackops/skeleton my-app 1.1.0
 - Canonical JournalとSensitive Observed Projection
 - Versioned Operation／HTTP ManifestとCompiled Symfony DI Container
 - BlackOps所有の7 Value Validation AttributeとSymfony Validator Backend
+- Global PSR-15 HTTP Middleware、Authentication Contract、Durable ActorContext
+- `#[Authorize]`とInline／Deferred Worker再認可
 - Doctrine PostgreSQL Migration
 - Payload、Journal、Outcome、Dead LetterのRetention、Hold、Purge Audit、Scheduler
 
 ## Known Constraints
 
-- Authentication／Authorization実装は提供しない
+- Session／JWT／OAuth／API Key等のProduction認証方式、Actor Repository、Permission Storeは提供しない
 - Deferred Status／Outcome HTTP EndpointとGenerated Client SDKは提供しない
 - Transactional Outbox Relayは提供しない
 - Canonical Journal／Transport PayloadのEncryption Adapterは提供しない

@@ -8,6 +8,7 @@ Application Bootstrapは、Installed Applicationの入力をInternal Runtime Com
 - `ApplicationEnvironment`: EnvironmentのKey／Value型検証
 - `ApplicationConfigurationLoader`: 認識済みConfig Fileの隔離された一回読込
 - `ApplicationConfigurationRegistrations`: Config内の登録Sectionの抽出
+- `ApplicationMiddlewareValidator`: Global PSR-15 Middleware ClassのContract、生成可能性、重複を検証
 - `ApplicationProviderValidator`: Provider Contract、生成可能性、Identity重複の検証
 - `ApplicationCommandValidator`: Command型、生成可能性、IdentityとCommand Name競合の検証
 - `ApplicationConfigurationSnapshot`: Base Path、Environment、Config、登録を保持するImmutableなInternal Snapshot
@@ -25,11 +26,13 @@ BuilderはEnvironmentとConfigを各 `with...()` 呼出時にCaptureする。`cr
 
 Configの責務別MapはSnapshotへそのまま保持するが、Public APIからEnvironmentやConfig全体をDumpする経路は持たせない。Bootstrap Exceptionは入力値を埋め込まず、問題のあるEnvironment名、Config File、登録種別だけを示す。
 
+Installed Quickstartは`config/app.php`の`services`へApplication所有の`ApplicationServiceProvider`を登録し、`HttpAuthenticator`を`SampleTokenAuthenticator`へBindingする。`config/middleware.php`はFrameworkの`AuthenticationMiddleware`をGlobal Pipelineへ登録する。Expected Sample TokenはAuthenticator構築時にEnvironmentから一度だけSnapshotし、RequestごとにEnvironmentを読み直さない。未設定または空白だけの値は構成時にFail-closedとし、Default CredentialへFallbackしない。Framework Containerへ渡すのはAuthenticator Serviceであり、Credential値そのものではない。
+
 ## Process Boundary
 
 SnapshotはHTTP Runtime Compositionが利用し、将来のConsole Compositionも同じInstanceを再利用する。`http()` の初回呼出だけがArtifactとConnectionを構成し、以後は同じPSR-15 Handlerを返す。`Application` はContainer Locator、Config Getter、Dotenv Loaderを持たない。
 
-HTTP ComposerはOperation／HTTP ManifestとContainerをFail-fastでLoadし、単一DBAL ConnectionをCanonical Journal、Deferred Sender、Acceptance Transactionへ共有する。Inline／Deferredは同じCompiled RegistryとHTTP Manifestを使う。ComposerはMigration、DDL、Build、Source Discoveryを呼び出さない。
+HTTP ComposerはOperation／HTTP ManifestとContainerをFail-fastでLoadし、単一DBAL ConnectionをCanonical Journal、Deferred Sender、Acceptance Transactionへ共有する。Inline／Deferredは同じCompiled RegistryとHTTP Manifestを使う。Global MiddlewareはConfig登録順にCompiled Containerから解決し、最初の登録を最外層としてHTTP Operation Handlerを包む。ComposerはMigration、DDL、Build、Source Discoveryを呼び出さない。
 
 Worker ComposerもOperation ManifestとCompiled ContainerをFail-fastでLoadする。Handler ResolverとAuthorization Policy Resolverは同じCompiled Containerを共有し、Policy Constructor DependencyをRuntime ReflectionやSource DiscoveryへFallbackせず解決する。`execution.worker.id`はPostgreSQL Lease Ownerと`system` Typeのexecution Actorへ共通利用する。Main ConnectionとHeartbeat Connectionは同じDatabase設定から生成するが、Instanceは分離する。
 

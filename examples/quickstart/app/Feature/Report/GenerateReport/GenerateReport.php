@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Feature\Report\GenerateReport;
 
+use App\Security\SampleUserAuthorizationPolicy;
+use BlackOps\Core\Attribute\Authorize;
 use BlackOps\Core\Attribute\ExecuteWith;
 use BlackOps\Core\Attribute\OperationType;
 use BlackOps\Core\Execution\Deferred;
@@ -15,6 +17,7 @@ use LogicException;
 #[Route(method: 'POST', path: '/reports')]
 #[OperationType('report.generate')]
 #[ExecuteWith(Deferred::class)]
+#[Authorize(SampleUserAuthorizationPolicy::class)]
 final readonly class GenerateReport implements Operation
 {
     public function handle(GenerateReportValue $value, ExecutionContext $context): ReportGenerated

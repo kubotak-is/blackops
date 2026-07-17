@@ -121,6 +121,14 @@ grep -q 'Legacy fixture stub' "${before_operation_directory}/BeforeUpdate.php"
 grep -q 'Legacy fixture stub' "${before_migration}"
 
 sha256sum "${consumer_root}/blackops" > "${temporary_root}/entrypoint.before.sha256"
+find \
+    "${consumer_root}/app/ApplicationServiceProvider.php" \
+    "${consumer_root}/app/Security/SampleUserAuthorizationPolicy.php" \
+    "${consumer_root}/app/UserInterface/Http/SampleTokenAuthenticator.php" \
+    "${consumer_root}/app/Feature/Welcome" \
+    "${consumer_root}/app/Feature/Report" \
+    -type f -print0 | sort -z | xargs -0 sha256sum \
+    > "${temporary_root}/application-authentication.before.sha256"
 find "${before_operation_directory}" -maxdepth 1 -type f -print0 | sort -z | xargs -0 sha256sum \
     > "${temporary_root}/operation.before.sha256"
 sha256sum "${before_migration}" > "${temporary_root}/migration.before.sha256"
@@ -159,6 +167,7 @@ file_put_contents("/smoke/dependencies.after.json", json_encode($packages, JSON_
 cmp "${temporary_root}/dependencies.before.json" "${temporary_root}/dependencies.after.json"
 
 sha256sum --check "${temporary_root}/entrypoint.before.sha256"
+sha256sum --check "${temporary_root}/application-authentication.before.sha256"
 sha256sum --check "${temporary_root}/operation.before.sha256"
 sha256sum --check "${temporary_root}/migration.before.sha256"
 cmp "${current_stubs}/operation.php.stub" \

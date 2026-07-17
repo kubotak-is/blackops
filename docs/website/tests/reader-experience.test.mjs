@@ -154,6 +154,9 @@ test('guided tutorial pairs runnable inputs with parseable JSON and masked JSONL
   for (const line of jsonlBlocks[0].split('\n')) JSON.parse(line);
   assert.match(jsonlBlocks[0], /\[masked\]/);
   assert.doesNotMatch(jsonlBlocks[0], /REPORT_API_TOKENから入力/);
+  assert.match(tutorial, /HTTP ProcessのObserved Projection/);
+  assert.match(tutorial, /Canonical PostgreSQL Journalが正本/);
+  assert.match(tutorial, /var\/log\/journal\.jsonl`で`operation\.completed`を待たず/);
 });
 
 test('troubleshooting covers every required symptom with four-part guidance', async () => {
@@ -196,22 +199,26 @@ test('security guide separates framework and application responsibilities', asyn
     assert.match(security, new RegExp(responsibility));
   }
   assert.match(security, /認証、認可、暗号化、Access Control、Retentionを代替しません/);
+  assert.match(security, /Header欠落.*Anonymousとして通過.*Operation ID付き401/s);
+  assert.match(security, /Header不一致.*Operationを受け付けずJournalなし.*Operation IDなし401/s);
+  assert.match(security, /Credential、Role、Permission、ClaimのSnapshotはTransportやJournalへ保存しません/);
 });
 
 test('core API reference covers every source type marked PublicApi without exposing Internal types', async () => {
   const reference = await guide('core-api.md');
   const sourceTypes = await publicApiTypes();
 
-  assert.equal(sourceTypes.length, 119);
+  assert.equal(sourceTypes.length, 128);
   for (const type of sourceTypes) assert.match(reference, new RegExp(type.replaceAll('\\', '\\\\')));
   assert.doesNotMatch(reference, /`BlackOps\\Core\\Attribute\\PublicApi` \|/);
   assert.doesNotMatch(reference, /BlackOps\\Internal\\[A-Za-z]/);
 });
 
-test('attributes reference covers the eighteen public authoring attributes and excludes the marker', async () => {
+test('attributes reference covers the nineteen public authoring attributes and excludes the marker', async () => {
   const attributes = await guide('attributes.md');
   const expected = [
     'BlackOps\\Core\\Attribute\\Accepts',
+    'BlackOps\\Core\\Attribute\\Authorize',
     'BlackOps\\Core\\Attribute\\ExecuteWith',
     'BlackOps\\Core\\Attribute\\HandledBy',
     'BlackOps\\Core\\Attribute\\OperationType',
@@ -234,7 +241,7 @@ test('attributes reference covers the eighteen public authoring attributes and e
   for (const attribute of expected) assert.match(attributes, new RegExp(attribute.replaceAll('\\', '\\\\')));
   const sourceTypes = (await publicApiTypes()).filter((type) => expected.includes(type));
   assert.deepEqual(sourceTypes, [...expected].sort());
-  assert.match(attributes, /Public Attribute 18件/);
+  assert.match(attributes, /Public Attribute 19件/);
   assert.match(attributes, /SensitiveMode.*Attributeではなく/s);
   assert.doesNotMatch(attributes, /`BlackOps\\Core\\Attribute\\PublicApi` \|/);
 });

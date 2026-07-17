@@ -68,14 +68,14 @@ P12-001 Middleware and Authorization Design
 ## Phase Acceptance Criteria
 
 - [x] Operation Middlewareを追加しないPhase ScopeがDecisionとSpecificationに一致する
-- [ ] ApplicationがGlobal PSR-15 MiddlewareをConfig順に実行でき、Responseも加工できる
-- [ ] CredentialがOperationValue、ExecutionContext、Journal、Log、Transportへ保存されない
-- [ ] ActorContextがorigin／authorization／executionを区別し、Durable DataはID／Typeだけである
-- [ ] `#[Authorize]`がInlineとDeferred受付で同じPolicyを評価する
-- [ ] Deferred Workerが最新状態で再認可し、execution ActorだけをSystem Actorへ置き換える
-- [ ] Unauthorized／ForbiddenがJournal付き401／403、Backend障害がSupervision対象Failureになる
-- [ ] Skeleton、Quickstart、Guide、Consumer E2EがPublic Contractを再現する
-- [ ] Full PHP／Consumer／Website Quality Gateが成功する
+- [x] ApplicationがGlobal PSR-15 MiddlewareをConfig順に実行でき、Responseも加工できる
+- [x] CredentialがOperationValue、ExecutionContext、Journal、Log、Transportへ保存されない
+- [x] ActorContextがorigin／authorization／executionを区別し、Durable DataはID／Typeだけである
+- [x] `#[Authorize]`がInlineとDeferred受付で同じPolicyを評価する
+- [x] Deferred Workerが最新状態で再認可し、execution ActorだけをSystem Actorへ置き換える
+- [x] Unauthorized／ForbiddenがJournal付き401／403、Backend障害がSupervision対象Failureになる
+- [x] Skeleton、Quickstart、Guide、Consumer E2EがPublic Contractを再現する
+- [x] Full PHP／Consumer／Website Quality Gateが成功する
 
 ## Traceability
 

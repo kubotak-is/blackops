@@ -60,15 +60,25 @@ test('public guide commands use the project-root entrypoint deterministically', 
   assert.ok(commands.every((match) => match[1] === 'blackops'));
 });
 
-test('every executable Welcome request includes the required sample-token header', async () => {
+test('Welcome requests authenticate unless they intentionally demonstrate anonymous access', async () => {
   const files = (await readdir(guideRoot)).filter((file) => file.endsWith('.md')).sort();
+  const anonymousExamples = [];
 
   for (const file of files) {
     const source = await guide(file);
     for (const match of source.matchAll(/^curl .*\/welcome$/gm)) {
+      if (!/-H ['"]X-Sample-Token:/.test(match[0])) {
+        anonymousExamples.push(`${file}: ${match[0]}`);
+        continue;
+      }
       assert.match(match[0], /-H ['"]X-Sample-Token:/, `${file}: ${match[0]}`);
     }
   }
+
+  assert.deepEqual(anonymousExamples, [
+    'mvp-sample.md: curl -i http://127.0.0.1:8080/welcome',
+    'troubleshooting.md: curl -i http://127.0.0.1:8080/welcome',
+  ]);
 });
 
 test('guide JSON and JSONL examples stay parseable and free of raw tutorial secrets', async () => {
@@ -87,7 +97,7 @@ test('guide JSON and JSONL examples stay parseable and free of raw tutorial secr
       assert.match(jsonlBlocks[0], /\[masked\]/);
       assert.doesNotMatch(jsonlBlocks[0], /local-example/);
       const records = jsonlBlocks[0].split('\n').map((line) => JSON.parse(line));
-      assert.deepEqual(records.map(({ event }) => event), ['operation.received', 'operation.completed']);
+      assert.deepEqual(records.map(({ event }) => event), ['operation.received', 'operation.rejected']);
       for (const record of records) {
         assert.equal(record.schemaVersion, 1);
         assert.equal(record.kind, 'journal');
@@ -98,14 +108,17 @@ test('guide JSON and JSONL examples stay parseable and free of raw tutorial secr
         assert.ok('causationId' in record.operation);
         assert.ok('attempt' in record);
       }
-      assert.equal(records[0].attempt, null);
+      assert.ok(records.every(({ attempt }) => attempt === null));
+      assert.equal(records[0].data.value.billingReference, '[masked]');
       assert.deepEqual(records[1].data, {
-        outcome: {
-          invoiceId: '019f32ab-2be0-7b38-a0a7-1ab2f9687697',
-          customerName: 'Acme',
-          quantity: 2,
+        reason: {
+          category: 'validation',
+          code: 'validation.failed',
+          violations: [{ field: 'email', rule: 'email', code: 'validation.email' }],
         },
       });
+      assert.match(source, /ApplicationWorkerComposer.*Worker Event.*JSONL Observer/s);
+      assert.match(source, /FROM blackops\.journal/);
     }
     if (file === 'validation.md') {
       assert.equal(jsonlBlocks.length, 1);
@@ -131,8 +144,13 @@ test('guide presents the Stable 1.1 release surface and experimental policy cons
   const status = await guide('mvp-status.md');
 
   assert.match(installation, /composer create-project blackops\/skeleton my-app 1\.1\.0/);
+  assert.match(installation, /Websiteは`main` Document Channel/);
+  assert.doesNotMatch(installation, /現行手順と同じRelease Surface/);
   assert.match(quickstart, /blackops\/skeleton my-app 1\.1\.0/);
   assert.doesNotMatch(quickstart, /dev-main/);
+  assert.match(quickstart, /StableにはGlobal Middleware、Authentication、`#\[Authorize\]`がない/);
+  assert.match(quickstart, /"symlink":false,"versions":\{"blackops\/framework":"1\.1\.0"\}/);
+  assert.match(quickstart, /Local Path Repository/);
   assert.match(tutorial, /Experimental Stable `1\.1\.0`/);
   assert.match(generators, /Experimental Stable `1\.1\.0`/);
   assert.match(status, /7 Value Validation Attribute／422 Lifecycle \| Available \| Available/);

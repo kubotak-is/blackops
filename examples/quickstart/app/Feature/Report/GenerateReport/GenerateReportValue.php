@@ -18,6 +18,6 @@ final readonly class GenerateReportValue implements OperationValue
         #[Sensitive(SensitiveMode::Mask)]
         #[SensitiveParameter]
         #[NotBlank]
-        public string $apiToken,
+        public string $recipientEmail,
     ) {}
 }

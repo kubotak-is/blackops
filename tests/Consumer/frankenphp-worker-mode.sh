@@ -37,6 +37,7 @@ trap cleanup EXIT
 
 mkdir -p "${CONSUMER}"
 cp -a "${ROOT}/examples/quickstart/." "${CONSUMER}/"
+cp "${CONSUMER}/.env.example" "${CONSUMER}/.env"
 
 cat >"${INSTALL_OVERRIDE}" <<YAML
 services:
@@ -68,7 +69,7 @@ test "$("${compose[@]}" --profile classic-mode config --services | sort)" = $'ht
 "${compose[@]}" up -d http
 
 for _ in $(seq 1 "${BLACKOPS_E2E_READY_ATTEMPTS:-30}"); do
-    if curl --fail --silent --max-time 5 -H 'X-Sample-Token: worker-ready-token' \
+    if curl --fail --silent --max-time 5 -H 'X-Sample-Token: local-example' \
         "http://127.0.0.1:${WORKER_PORT}/welcome" >"${TEMP}/ready.json"; then
         break
     fi
@@ -79,29 +80,29 @@ test "$(wc -l <"${CONSUMER}/var/log/worker-boots.log")" -ge 1
 echo "Worker process bootstrap verified."
 
 journal_before=$(wc -l <"${CONSUMER}/var/log/journal.jsonl")
-first_secret="worker-first-${RANDOM}-sensitive"
-curl --fail --silent --max-time 5 -H "X-Sample-Token: ${first_secret}" \
+curl --fail --silent --max-time 5 -H 'X-Sample-Token: local-example' \
     "http://127.0.0.1:${WORKER_PORT}/welcome" >"${TEMP}/first.json"
 journal_after=$(wc -l <"${CONSUMER}/var/log/journal.jsonl")
 test "${journal_after}" -gt "${journal_before}"
 grep -q '^{"message":"Welcome to BlackOps"}$' "${TEMP}/first.json"
 echo "Per-request journal flush verified."
 
-rejected_secret="worker-rejected-${RANDOM}-sensitive"
+rejected_recipient="worker-rejected-${RANDOM}@example.com"
 rejected_status=$(curl --silent --max-time 5 --output "${TEMP}/rejected.json" --write-out '%{http_code}' \
     -X POST "http://127.0.0.1:${WORKER_PORT}/reports" \
     -H 'Content-Type: application/json' \
-    --data "{\"reportName\":\"\",\"apiToken\":\"${rejected_secret}\"}")
+    -H 'X-Sample-Token: local-example' \
+    --data "{\"reportName\":\"\",\"recipientEmail\":\"${rejected_recipient}\"}")
 test "${rejected_status}" = "422"
 grep -q '"status":"rejected"' "${TEMP}/rejected.json"
-curl --fail --silent --max-time 5 -H 'X-Sample-Token: worker-after-rejected-token' \
+curl --fail --silent --max-time 5 -H 'X-Sample-Token: local-example' \
     "http://127.0.0.1:${WORKER_PORT}/welcome" >"${TEMP}/after-rejected.json"
 grep -q '^{"message":"Welcome to BlackOps"}$' "${TEMP}/after-rejected.json"
 echo "Rejected request isolation verified."
 
 "${compose[@]}" stop -t 0 postgres
 database_failure_status=$(curl --silent --max-time 20 --output "${TEMP}/database-failure.json" --write-out '%{http_code}' \
-    -H 'X-Sample-Token: worker-database-failure-token' \
+    -H 'X-Sample-Token: local-example' \
     "http://127.0.0.1:${WORKER_PORT}/welcome")
 test "${database_failure_status}" = "500"
 grep -q '^{"status":"error","code":"internal_error"}$' "${TEMP}/database-failure.json"
@@ -109,7 +110,7 @@ echo "Disconnected database failure verified."
 "${compose[@]}" up -d --wait postgres
 
 for _ in $(seq 1 30); do
-    if curl --fail --silent --max-time 5 -H 'X-Sample-Token: worker-after-reconnect-token' \
+    if curl --fail --silent --max-time 5 -H 'X-Sample-Token: local-example' \
         "http://127.0.0.1:${WORKER_PORT}/welcome" >"${TEMP}/after-reconnect.json"; then
         break
     fi
@@ -119,11 +120,9 @@ grep -q '^{"message":"Welcome to BlackOps"}$' "${TEMP}/after-reconnect.json"
 echo "Database reconnect verified."
 
 for sequence in $(seq 1 32); do
-    secret="worker-loop-${sequence}-${RANDOM}-sensitive"
-    curl --fail --silent --max-time 5 -H "X-Sample-Token: ${secret}" \
+    curl --fail --silent --max-time 5 -H 'X-Sample-Token: local-example' \
         "http://127.0.0.1:${WORKER_PORT}/welcome" >"${TEMP}/loop-${sequence}.json"
     grep -q '^{"message":"Welcome to BlackOps"}$' "${TEMP}/loop-${sequence}.json"
-    ! grep -Fq "${secret}" "${CONSUMER}/var/log/journal.jsonl"
 done
 echo "Multi-request isolation verified."
 
@@ -175,13 +174,13 @@ if (count($operationIds) < 10 || count($operationIds) !== count(array_unique($op
 '
 echo "Restart and memory bounds verified."
 
-! grep -Fq "${first_secret}" "${CONSUMER}/var/log/journal.jsonl"
-! grep -Fq "${rejected_secret}" "${CONSUMER}/var/log/journal.jsonl"
+! grep -Fq 'local-example' "${CONSUMER}/var/log/journal.jsonl"
+! grep -Fq "${rejected_recipient}" "${CONSUMER}/var/log/journal.jsonl"
 ! grep -q 'sensitive' "${CONSUMER}/var/log/worker-memory.jsonl"
 
 "${compose[@]}" --profile classic-mode up -d http-classic
 for _ in $(seq 1 30); do
-    if curl --fail --silent --max-time 5 -H 'X-Sample-Token: classic-fallback-token' \
+    if curl --fail --silent --max-time 5 -H 'X-Sample-Token: local-example' \
         "http://127.0.0.1:${CLASSIC_PORT}/welcome" >"${TEMP}/classic.json"; then
         break
     fi

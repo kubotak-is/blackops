@@ -77,24 +77,26 @@ final class ApplicationHttpRuntimeTest extends TestCase
 
         new DatabaseMigrationRunner($connection, self::SCHEMA)->migrate();
         $psr17 = new Psr17Factory();
-        $welcome = $http->handle($psr17->createServerRequest('GET', '/welcome')->withHeader(
-            'X-Sample-Token',
-            'sample-token',
+        $actor = new ActorRef('application-http-user', 'user');
+        $welcome = $http->handle($psr17->createServerRequest('GET', '/welcome')->withAttribute(
+            ActorRef::class,
+            $actor,
         ));
         self::assertSame(200, $welcome->getStatusCode());
         self::assertSame('{"message":"Welcome to BlackOps"}', (string) $welcome->getBody());
         self::assertNotNull($this->journalPath);
         $observed = (string) file_get_contents($this->journalPath);
         self::assertStringContainsString('[masked]', $observed);
-        self::assertStringNotContainsString('sample-token', $observed);
+        self::assertStringNotContainsString($actor->id(), $observed);
 
         $report = $http->handle(
             $psr17
                 ->createServerRequest('POST', '/reports')
                 ->withBody($psr17->createStream(json_encode([
                     'reportName' => 'weekly',
-                    'apiToken' => 'sample-api-token',
-                ], JSON_THROW_ON_ERROR))),
+                    'recipientEmail' => 'runtime-reports@example.com',
+                ], JSON_THROW_ON_ERROR)))
+                ->withAttribute(ActorRef::class, $actor),
         );
         self::assertSame(202, $report->getStatusCode());
         /** @var array{status: string, operationId: string, acceptedAt: string} $acknowledgement */
@@ -184,6 +186,7 @@ final class ApplicationHttpRuntimeTest extends TestCase
             'namespace' => $namespace,
         ];
         $root = dirname(__DIR__, levels: 2);
+        $this->requireQuickstartSource($root);
         $config = $directory . '/config';
         mkdir($config);
         mkdir($directory . '/log');
@@ -249,6 +252,20 @@ final class ApplicationHttpRuntimeTest extends TestCase
         $this->directories[] = $directory;
 
         return $directory;
+    }
+
+    private function requireQuickstartSource(string $root): void
+    {
+        $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator(
+            $root . '/examples/quickstart/app',
+            FilesystemIterator::SKIP_DOTS | FilesystemIterator::CURRENT_AS_FILEINFO,
+        ));
+
+        foreach ($files as $file) {
+            if ($file->isFile() && $file->getExtension() === 'php') {
+                require_once $file->getPathname();
+            }
+        }
     }
 
     /** @param array<array-key, mixed> $configuration */

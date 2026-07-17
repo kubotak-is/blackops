@@ -110,6 +110,7 @@ final class MvpSampleEndToEndTest extends TestCase
                 $sender,
                 $journal,
                 new JournalRecordFactory($identifiers, $clock),
+                authorization: new AuthorizationEvaluator(new AuthorizationPolicyResolver($httpArtifacts->container)),
             ),
         );
         $http = new OperationRequestHandler(
@@ -122,14 +123,11 @@ final class MvpSampleEndToEndTest extends TestCase
             $acceptor,
         );
 
-        $sensitiveToken = 'inline-secret-token';
         $actor = new ActorRef('mvp-authenticated-user', 'user');
-        $welcome = $http->handle(
-            $psr17
-                ->createServerRequest('GET', '/welcome')
-                ->withHeader('X-Sample-Token', $sensitiveToken)
-                ->withAttribute(ActorRef::class, $actor),
-        );
+        $welcome = $http->handle($psr17->createServerRequest('GET', '/welcome')->withAttribute(
+            ActorRef::class,
+            $actor,
+        ));
         self::assertSame(200, $welcome->getStatusCode());
         self::assertSame('{"message":"Welcome to BlackOps"}', (string) $welcome->getBody());
         $welcomeOperationId = $this->operationIdForType($httpConnection, 'welcome.show');
@@ -149,12 +147,11 @@ final class MvpSampleEndToEndTest extends TestCase
             self::assertEquals($actor, $record->operation->actorContext?->execution());
         }
         self::assertInstanceOf(OperationReceivedData::class, $welcomeRecords[0]->data);
-        self::assertSame($sensitiveToken, $welcomeRecords[0]->data->value->sampleToken);
+        self::assertSame([], get_object_vars($welcomeRecords[0]->data->value));
         self::assertInstanceOf(self::WELCOME_SHOWN, $welcomeRecords[3]->data->outcome);
         rewind($jsonl);
         $observedJsonl = stream_get_contents($jsonl);
         self::assertIsString($observedJsonl);
-        self::assertStringNotContainsString($sensitiveToken, $observedJsonl);
         self::assertStringNotContainsString($actor->id(), $observedJsonl);
         self::assertStringContainsString('[masked]', $observedJsonl);
         foreach (array_filter(explode("\n", $observedJsonl)) as $line) {
@@ -165,13 +162,13 @@ final class MvpSampleEndToEndTest extends TestCase
             self::assertSame('[masked]', $observed['operation']['actors']['execution']['id']);
         }
 
-        $reportToken = 'deferred-secret-token';
+        $reportRecipient = 'deferred-recipient@example.com';
         $reportResponse = $http->handle(
             $psr17
                 ->createServerRequest('POST', '/reports')
                 ->withBody($psr17->createStream(json_encode([
                     'reportName' => 'weekly',
-                    'apiToken' => $reportToken,
+                    'recipientEmail' => $reportRecipient,
                 ], JSON_THROW_ON_ERROR)))
                 ->withAttribute(ActorRef::class, $actor),
         );
@@ -189,6 +186,9 @@ final class MvpSampleEndToEndTest extends TestCase
             self::assertEquals($actor, $record->operation->actorContext?->authorization());
             self::assertEquals($actor, $record->operation->actorContext?->execution());
         }
+        $acceptedRecords = $this->records($journal, $reportOperationId);
+        self::assertInstanceOf(OperationReceivedData::class, $acceptedRecords[0]->data);
+        self::assertSame($reportRecipient, $acceptedRecords[0]->data->value->recipientEmail);
 
         $clock->set(new DateTimeImmutable('2026-07-12T00:01:00.000000Z'));
         $firstWorkerConnection = $this->connection();
@@ -290,6 +290,10 @@ final class MvpSampleEndToEndTest extends TestCase
         self::assertInstanceOf(OutcomeRecord::class, $outcome);
         self::assertInstanceOf(self::REPORT_GENERATED, $outcome->outcome());
         self::assertSame('/reports/generated/weekly.json', $outcome->outcome()->location);
+        $observedReport = new ObservedJournalRecordProjector(new SensitiveProjectionFilter())->project(
+            $completedRecords[0],
+        );
+        self::assertSame('[masked]', $observedReport->data['value']['recipientEmail']);
     }
 
     /** @return array{operation: string, http: string, container: string, class: string, namespace: string} */

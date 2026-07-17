@@ -88,6 +88,7 @@ final class ApplicationConsoleKernelTest extends TestCase
         self::assertTrue($this->schemaExists($connection));
 
         $psr17 = new Psr17Factory();
+        $actor = new ActorRef('console-report-user', 'user');
         $response = $application
             ->http()
             ->handle(
@@ -95,8 +96,9 @@ final class ApplicationConsoleKernelTest extends TestCase
                     ->createServerRequest('POST', '/reports')
                     ->withBody($psr17->createStream(json_encode([
                         'reportName' => 'weekly',
-                        'apiToken' => 'console-worker-token',
-                    ], JSON_THROW_ON_ERROR))),
+                        'recipientEmail' => 'console-reports@example.com',
+                    ], JSON_THROW_ON_ERROR)))
+                    ->withAttribute(ActorRef::class, $actor),
             );
         self::assertSame(202, $response->getStatusCode());
         /** @var array{operationId: string} $acknowledgement */

@@ -44,11 +44,23 @@ Setupは次手順を表示するだけで、Composer Install、Network Access、
 curl -H 'X-Sample-Token: local-example' http://127.0.0.1:8080/welcome
 
 curl -X POST -H 'Content-Type: application/json' \
-  -d '{"reportName":"weekly","apiToken":"local-example"}' \
+  -H 'X-Sample-Token: local-example' \
+  -d '{"reportName":"weekly","recipientEmail":"reports@example.com"}' \
   http://127.0.0.1:8080/reports
 ```
 
-Inline JournalのSensitive値は `var/log/journal.jsonl` へMask済みで追記される。既定Deliveryは `best_effort` である。
+`X-Sample-Token`はAuthentication Middlewareだけが読み、Operation Value、Transport、Journalへ保存しない。`SAMPLE_API_TOKEN`が未設定または空なら、Authenticatorは既知値へFallbackせず構成を失敗させる。
+
+Reportの`recipientEmail`は業務上のSensitive値の例である。HTTP内で完了するValidation RejectionのObserved Projectionでは`var/log/journal.jsonl`へ`[masked]`として記録する。Valid Deferred ReportのWorker EventはJSONLへ転送せず、Raw ValueとActor IDを含むCanonical PostgreSQL Journalが正本となる。既定Observer Deliveryは`best_effort`である。
+
+このHeader Token認証はLocal Development専用のExampleである。ProductionではApplicationがSession、Bearer Token、External IdP等の認証方式とSecret管理へ置き換える。
+
+Headerを省略するとAuthentication MiddlewareはAnonymousとして通過させ、`#[Authorize]`を持つOperationがOperation ID付き401でRejectする。不正なHeader値はOperation受付前の401となり、Operation IDとJournalを作らない。
+
+```bash
+curl -i http://127.0.0.1:8080/welcome
+curl -i -H 'X-Sample-Token: invalid' http://127.0.0.1:8080/welcome
+```
 
 ### FrankenPHP Worker Mode
 

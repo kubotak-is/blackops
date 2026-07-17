@@ -73,9 +73,9 @@ MVP後に残す主要項目:
 
 ### Phase 12: Middleware and Authorization Runtime
 
-- [~] Global PSR-15 HTTP MiddlewareをConfig登録順でRuntimeへ実装する
-- [~] ActorContextの伝播、Codec、Sensitive Journal境界を実装する
-- [~] Authentication、ActorContext、`#[Authorize]`、Deferred再認可を実装する
+- [x] Global PSR-15 HTTP MiddlewareをConfig登録順でRuntimeへ実装する
+- [x] ActorContextの伝播、Codec、Sensitive Journal境界を実装する
+- [x] Authentication、ActorContext、`#[Authorize]`、Deferred再認可を実装する
 
 ### Phase 13: Database and Transaction Runtime
 
@@ -246,7 +246,7 @@ MVP後に残す主要項目:
 
 - [x] センシティブ値は `#[Sensitive]` Attributeを基本として宣言する
 - [ ] マスク、除外、暗号化の使い分けを決める
-- [ ] 認証情報をJournalへ保存しない仕組みを決める
+- [x] 認証情報をOperation Value／Context／Transport／Journalへ保存しない境界を実装する
 - [ ] Journal参照権限を定義する
 - [ ] Tenant間の分離方法を決める
 - [ ] 保存データの暗号化要件を決める
@@ -326,7 +326,7 @@ MVP後に残す主要項目:
 ## 9. HTTP境界
 
 - [x] Adapter Middlewareで認証しCredentialを除いたActorContextを生成する
-- [x] Adapter MiddlewareとOperation Middlewareを玉ねぎ構造として分離する
+- [x] Global PSR-15 MiddlewareとFramework固定Operation Lifecycle Stageを分離する
 - [x] origin、execution、authorizationのActor責務を分離する
 - [x] HTTPリクエストからOperationValueへのBindingとValidationを定義する
 - [x] Operation Definitionの `#[Route]` でHTTPルートを宣言する
@@ -334,7 +334,7 @@ MVP後に残す主要項目:
 - [x] WebアダプタのResponderがOutcomeをHTTPレスポンスへ変換する
 - [x] Deferred受付成功は既定でHTTP 202を返す
 - [ ] Deferred Operationの状態確認APIを設計する
-- [ ] 認証・認可をOperation生成前後のどちらで行うか決める
+- [x] Invalid CredentialはOperation受理前、Actor Authorizationは受理後に評価する
 
 ## 10. 最小プロトタイプ
 

@@ -42,7 +42,7 @@ export const contentMap = {
   },
   'mvp-sample.md': {
     slug: 'getting-started/quickstart',
-    description: 'Inline WelcomeとDeferred Reportを使ってBlackOpsの主要Runtimeを確認する。',
+    description: 'Repository main PreviewでHeader認証、Inline Welcome、Deferred Report、Worker再認可を確認する。',
   },
   'operations.md': {
     slug: 'operations/authoring',
@@ -66,7 +66,7 @@ export const contentMap = {
   },
   'execution-context.md': {
     slug: 'execution/context',
-    description: 'ExecutionContextからOperation ID、相関情報、Deferred Attemptを読み取る。',
+    description: 'ExecutionContextからOperation ID、相関情報、Actor Context、Deferred Attemptを読み取る。',
   },
   'database-migrations.md': {
     slug: 'database/migrations',
@@ -102,11 +102,11 @@ export const contentMap = {
   },
   'troubleshooting.md': {
     slug: 'troubleshooting',
-    description: 'Build、Discovery、Artifact、Worker、Database、Journal、Outcomeの問題を症状から確認して解決する。',
+    description: 'Authentication、Build、Artifact、Worker、Journal、Outcomeの問題を症状から確認して解決する。',
   },
   'security.md': {
     slug: 'security',
-    description: 'Sensitive ProjectionとApplication／運用が所有するSecurity責任の境界を確認する。',
+    description: 'Authentication、Authorization、Actor、Sensitive Projectionの責任境界を確認する。',
   },
   'core-api.md': {
     slug: 'reference/core-api',

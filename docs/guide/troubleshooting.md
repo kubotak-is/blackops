@@ -16,6 +16,22 @@ php blackops build:compile -vvv
 
 **Fix:** `public function handle(ConcreteValue $value): ConcreteOutcome`、またはContextが必要な場合だけ`public function handle(ConcreteValue $value, ExecutionContext $context): ConcreteOutcome`へ直します。Typed標準形から`#[Accepts]`、`#[Returns]`、`OperationHandler`を外します。
 
+## 401にOperation IDがある場合とない場合
+
+**Symptom:** Quickstartの`/welcome`が401を返し、Header欠落時はOperation IDがあるのに、不正な`X-Sample-Token`ではOperation IDがありません。
+
+**Likely Cause:** Header欠落はAnonymous AuthenticationとしてOperationへ進み、`#[Authorize]`がLifecycle内でRejectします。不正HeaderはAuthentication MiddlewareがOperation受付前に停止します。
+
+**How to Verify:** Local Example Tokenで3経路を比較します。CredentialをLogへ出力しないでください。
+
+```bash
+curl -i http://127.0.0.1:8080/welcome
+curl -i -H 'X-Sample-Token: invalid' http://127.0.0.1:8080/welcome
+curl -i -H 'X-Sample-Token: local-example' http://127.0.0.1:8080/welcome
+```
+
+**Fix:** Localでは`.env`へ空でない`SAMPLE_API_TOKEN`を明示し、Headerと一致させます。未設定または空の設定は既知値へFallbackせずRuntime構成Errorになります。ProductionでSample Token方式を使い続けず、ApplicationのAuthenticator、Secret管理、Actor／Permission検索へ置き換えます。Header値をOperation Valueへ追加して解決しないでください。
+
 ## Operation Discovery／Manifest未登録
 
 **Symptom:** `operation:list`へ新しいOperationが出ず、HTTP Routeも404になります。

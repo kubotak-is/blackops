@@ -16,6 +16,7 @@ final class QuickstartApplicationArchitectureTest extends TestCase
         $root = $this->quickstart();
 
         foreach ([
+            'app/ApplicationServiceProvider.php',
             'app/Feature/Welcome/ShowWelcome/ShowWelcome.php',
             'app/Feature/Welcome/ShowWelcome/WelcomeValue.php',
             'app/Feature/Welcome/ShowWelcome/WelcomeShown.php',
@@ -23,6 +24,8 @@ final class QuickstartApplicationArchitectureTest extends TestCase
             'app/Feature/Report/GenerateReport/GenerateReportValue.php',
             'app/Feature/Report/GenerateReport/ReportGenerated.php',
             'app/Feature/Report/GenerateReport/ReportGenerationTemporarilyUnavailable.php',
+            'app/Security/SampleUserAuthorizationPolicy.php',
+            'app/UserInterface/Http/SampleTokenAuthenticator.php',
             'blackops',
             'bin/setup',
             'bootstrap/app.php',
@@ -30,6 +33,7 @@ final class QuickstartApplicationArchitectureTest extends TestCase
             'config/database.php',
             'config/execution.php',
             'config/journal.php',
+            'config/middleware.php',
             'config/operations.php',
             'config/retention.php',
             'public/worker.php',
@@ -55,7 +59,6 @@ final class QuickstartApplicationArchitectureTest extends TestCase
         self::assertFileDoesNotExist($root . '/bin/' . 'blackops');
         self::assertTrue(is_executable($root . '/bin/setup'));
         self::assertFileDoesNotExist($root . '/app/ApplicationOperationProvider.php');
-        self::assertFileDoesNotExist($root . '/app/ApplicationServiceProvider.php');
         self::assertFileDoesNotExist($root . '/app/Feature/Welcome/ShowWelcome/ShowWelcomeHandler.php');
         self::assertFileDoesNotExist($root . '/app/Feature/Report/GenerateReport/GenerateReportHandler.php');
         self::assertSame(['.gitignore'], $this->files($root . '/var/build'));
@@ -148,11 +151,17 @@ final class QuickstartApplicationArchitectureTest extends TestCase
         $report = (string) file_get_contents($root . '/app/Feature/Report/GenerateReport/GenerateReport.php');
         $bootstrap = (string) file_get_contents($root . '/bootstrap/app.php');
         $operations = (string) file_get_contents($root . '/config/operations.php');
+        $application = (string) file_get_contents($root . '/config/app.php');
+        $middleware = (string) file_get_contents($root . '/config/middleware.php');
+        $welcomeValue = (string) file_get_contents($root . '/app/Feature/Welcome/ShowWelcome/WelcomeValue.php');
+        $reportValue = (string) file_get_contents($root . '/app/Feature/Report/GenerateReport/GenerateReportValue.php');
 
         self::assertStringContainsString('implements Operation', $welcome);
         self::assertStringContainsString('handle(WelcomeValue $value)', $welcome);
         self::assertStringContainsString('implements Operation', $report);
         self::assertStringContainsString('handle(GenerateReportValue $value, ExecutionContext $context)', $report);
+        self::assertStringContainsString('#[Authorize(SampleUserAuthorizationPolicy::class)]', $welcome);
+        self::assertStringContainsString('#[Authorize(SampleUserAuthorizationPolicy::class)]', $report);
         self::assertStringNotContainsString('OperationHandler', $welcome . $report);
         self::assertStringNotContainsString('OperationEnvelope', $welcome . $report);
         self::assertStringNotContainsString('@implements', $welcome . $report);
@@ -163,6 +172,74 @@ final class QuickstartApplicationArchitectureTest extends TestCase
         self::assertStringNotContainsString('withServices', $bootstrap);
         self::assertStringContainsString("'discovery'", $operations);
         self::assertStringContainsString("'providers' => []", $operations);
+        self::assertStringContainsString('ApplicationServiceProvider::class', $application);
+        self::assertStringContainsString('AuthenticationMiddleware::class', $middleware);
+        self::assertStringNotContainsString('sampleToken', $welcomeValue . $reportValue);
+        self::assertStringNotContainsString('apiToken', $welcomeValue . $reportValue);
+        self::assertStringContainsString('public string $recipientEmail', $reportValue);
+        self::assertStringContainsString('#[Sensitive(SensitiveMode::Mask)]', $reportValue);
+    }
+
+    public function testAuthenticationSnapshotsExpectedTokenAndKeepsCredentialOutsideValues(): void
+    {
+        $root = $this->quickstart();
+        $authenticator = (string) file_get_contents($root . '/app/UserInterface/Http/SampleTokenAuthenticator.php');
+        $provider = (string) file_get_contents($root . '/app/ApplicationServiceProvider.php');
+        $policy = (string) file_get_contents($root . '/app/Security/SampleUserAuthorizationPolicy.php');
+        $environment = (string) file_get_contents($root . '/.env.example');
+
+        self::assertStringContainsString('implements HttpAuthenticator', $authenticator);
+        self::assertSame(1, substr_count($authenticator, "\$_ENV['SAMPLE_API_TOKEN']"));
+        self::assertStringNotContainsString("?? 'local-example'", $authenticator);
+        self::assertStringContainsString('SAMPLE_API_TOKEN must be configured with a non-empty value.', $authenticator);
+        self::assertStringContainsString("getHeaderLine('X-Sample-Token')", $authenticator);
+        self::assertStringContainsString('hash_equals($this->expectedToken, $token)', $authenticator);
+        self::assertStringContainsString(
+            "AuthenticationResult::invalid('authentication.invalid_sample_token')",
+            $authenticator,
+        );
+        self::assertStringContainsString("new ActorRef('quickstart-user', 'user')", $authenticator);
+        self::assertStringContainsString('HttpAuthenticator::class, SampleTokenAuthenticator::class', $provider);
+        self::assertStringContainsString('implements AuthorizationPolicy', $policy);
+        self::assertStringContainsString(
+            "AuthorizationDecision::forbid('authorization.sample_user_required')",
+            $policy,
+        );
+        self::assertStringContainsString('SAMPLE_API_TOKEN=local-example', $environment);
+    }
+
+    public function testSampleAuthenticatorFailsClosedWithoutANonEmptyExpectedToken(): void
+    {
+        require_once $this->quickstart() . '/app/UserInterface/Http/SampleTokenAuthenticator.php';
+
+        $wasDefined = array_key_exists('SAMPLE_API_TOKEN', $_ENV);
+        $previous = $_ENV['SAMPLE_API_TOKEN'] ?? null;
+
+        try {
+            foreach ([null, '', '   '] as $configured) {
+                if ($configured === null) {
+                    unset($_ENV['SAMPLE_API_TOKEN']);
+                } else {
+                    $_ENV['SAMPLE_API_TOKEN'] = $configured;
+                }
+
+                try {
+                    new \App\UserInterface\Http\SampleTokenAuthenticator();
+                    self::fail('Expected an unset or empty sample token configuration to fail closed.');
+                } catch (\RuntimeException $exception) {
+                    self::assertSame(
+                        'SAMPLE_API_TOKEN must be configured with a non-empty value.',
+                        $exception->getMessage(),
+                    );
+                }
+            }
+        } finally {
+            if ($wasDefined && is_string($previous)) {
+                $_ENV['SAMPLE_API_TOKEN'] = $previous;
+            } else {
+                unset($_ENV['SAMPLE_API_TOKEN']);
+            }
+        }
     }
 
     public function testLocalRuntimeKeepsBackgroundProcessesExplicit(): void

@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use App\ApplicationServiceProvider;
+
 return [
     'build' => [
         'application_build_id' => $_ENV['APP_BUILD_ID'] ?? 'quickstart-local',
@@ -10,5 +12,8 @@ return [
         'container' => dirname(__DIR__) . '/var/build/container.php',
         'container_class' => 'CompiledContainer',
         'container_namespace' => 'App\\Generated',
+    ],
+    'services' => [
+        ApplicationServiceProvider::class,
     ],
 ];

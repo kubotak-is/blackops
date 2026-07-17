@@ -1,28 +1,28 @@
 # Orchestration State
 
-Updated At: 2026-07-17T12:43:07+09:00
+Updated At: 2026-07-17T13:35:45+09:00
 
 ## Current Phase
 
-Phase 12: Middleware and Authorization Runtime (Implementation)
+Phase 13: Database and Transaction Runtime (Design Pending)
 
 ## Current Task
 
-Task ID: P12-006-consumer-experience-and-closeout
+Task ID: P13-001-database-and-transaction-design
 
-Task Packet: `develop/orchestration/tasks/P12-006-consumer-experience-and-closeout.md`
+Task Packet: Pending
 
-Specifications: `develop/spec/06-auth-and-middleware.md`、`develop/spec/19-execution-context-api.md`、`develop/spec/32-worker-crash-recovery.md`、`develop/spec/63-phase-12-delivery-plan.md`
+Specifications: Pending Phase 13 audit
 
 ## Task Status
 
-P12-006 Ready
+P13-001 Task Packet Pending
 
-OrchestratorがQuickstartのHeader Authentication、Credential非永続化、Inline／Deferred Authorization、Consumer／Website Full Gateを一単位で実装するTask Packetを作成した。Production変更はGPT-5.6 Luna High workerへ委譲する。
+P12-006はOrchestratorの差分Reviewと独立PHP／Quickstart E2E／Website／静的品質Gateを通過しAcceptedとなった。Phase 12は全Acceptance Criteriaを満たして完了した。次はPhase 13の仕様と現行Database境界を監査し、判断が必要な論点をDecisionへまとめる。
 
 ## Last Accepted Task
 
-P12-005B-deferred-worker-reauthorization-and-system-actor
+P12-006-consumer-experience-and-closeout
 
 ## Pending Decisions
 
@@ -44,13 +44,72 @@ P12-005B-deferred-worker-reauthorization-and-system-actor
 
 ## Known Blockers
 
-Phase 12 Blockerはない。Documentation Websiteは意図的に未公開である。
+Phase 13 Blockerはまだ特定されていない。Documentation Websiteは意図的に未公開である。
 
 ## Required Next Action
 
-1. GPT-5.6 Luna High workerがP12-006 Task Packetの範囲で実装し、CommitせずReviewへ返す。
-2. Orchestrator CodexがConsumer Journey、Credential境界、Actor分離とFull Gateを独立Reviewする。
+1. Phase 13の既存仕様、Database Configuration、DI、Worker Connection境界を監査する。
+2. Named Connection、Transaction Lifecycle、`#[Transactional]`の未決事項をDecision Draftへまとめる。
 3. Documentation Website PublicationはUserが再開を明示するまで実行しない。
+
+## P12-006 Orchestrator Review Commands and Results
+
+```text
+docker compose run --rm app vendor/bin/phpunit --display-deprecations tests/Architecture/QuickstartApplicationArchitectureTest.php tests/Integration/ApplicationHttpRuntimeTest.php tests/Integration/ApplicationConsoleKernelTest.php tests/Integration/MvpSampleEndToEndTest.php
+Result: OK (16 tests, 333 assertions, Deprecations 0)。
+
+bash tests/Consumer/quickstart-e2e.sh
+Result: Quickstart consumer E2E passed。
+
+mise exec -- pnpm --dir docs/website run test
+mise exec -- pnpm --dir docs/website run check
+mise exec -- pnpm --dir docs/website run build
+Result: 36 tests passed。Astro 0 diagnostics。29 pages built。Artifact／Navigation／Accessibility／Search Check成功。
+
+docker compose run --rm app mago format --check src tests examples
+docker compose run --rm app mago lint
+docker compose run --rm app mago analyze
+docker compose run --rm app vendor/bin/deptrac
+Result: Format／Lint／Analyze成功。Deptrac Violations 0。
+
+Public Artifact Guard、Management ID Guard、Credential Property Guard、Quickstart Generated State Guard、git diff --check
+Result: すべて成功。
+```
+
+## P12-006 Consumer Experience and Closeout Worker Verification Commands and Results
+
+```text
+docker compose run --rm app vendor/bin/phpunit --display-deprecations <P12-006 target tests>
+Result: OK (16 tests, 333 assertions)。未設定／空／空白TokenのFail-closedを含む。
+
+bash tests/Consumer/quickstart-e2e.sh
+bash tests/Consumer/frankenphp-worker-mode.sh
+bash tests/Consumer/quickstart-setup.sh
+bash tests/Consumer/skeleton-create-project.sh
+bash tests/Consumer/framework-update-generators.sh
+Result: Quickstart、Worker Mode、Setup、通常／no-scripts Create-project、Framework Update Smokeがすべて成功。Review修正後のQuickstart／Worker Modeは明示`.env`で再成功し、Deferred Worker EventがObserved JSONLへ混入しない境界も検証。
+
+mise exec -- pnpm --dir docs/website run test
+mise exec -- pnpm --dir docs/website run check
+mise exec -- pnpm --dir docs/website run build
+Result: 36 tests passed。Astro 0 errors／warnings／hints。29 pages built。Artifact／Navigation／Accessibility／Search Check成功。
+
+docker compose run --rm app composer validate --strict
+docker compose run --rm app composer validate --strict examples/quickstart/composer.json
+docker compose run --rm app mago format --check src tests examples
+docker compose run --rm app mago lint
+docker compose run --rm app mago analyze
+Result: Root／Quickstart valid。全File Format済み。Lint／Analyze No issues found。
+
+docker compose run --rm app vendor/bin/phpunit --display-deprecations
+Result: OK (999 tests, 3391 assertions)。
+
+docker compose run --rm app vendor/bin/deptrac
+Result: Violations 0 / Skipped 0 / Uncovered 0 / Allowed 1844 / Warnings 0 / Errors 0。
+
+Public Artifact Guard、Management ID Guard、Credential Property Guard、Quickstart Generated State Guard、git diff --check
+Result: すべて成功。
+```
 
 ## P12-005B Orchestrator Review Commands and Results
 

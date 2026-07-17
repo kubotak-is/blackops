@@ -32,7 +32,7 @@ final readonly class PlaceOrderValue implements OperationValue
 {
     public function __construct(
         #[Sensitive(SensitiveMode::Mask)]
-        public string $apiToken,
+        public string $recipientEmail,
     ) {}
 }
 ```

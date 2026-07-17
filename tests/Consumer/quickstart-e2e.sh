@@ -21,6 +21,7 @@ trap cleanup EXIT
 
 mkdir -p "${CONSUMER}"
 cp -a "${ROOT}/examples/quickstart/." "${CONSUMER}/"
+cp "${CONSUMER}/.env.example" "${CONSUMER}/.env"
 
 cat >"${INSTALL_OVERRIDE}" <<YAML
 services:
@@ -41,6 +42,18 @@ HTTP_PORT="${PORT}" "${install_compose[@]}" run --rm app composer install --no-i
 test ! -L "${CONSUMER}/vendor/blackops/framework"
 test -f "${CONSUMER}/vendor/blackops/framework/src/Application/Application.php"
 ! HTTP_PORT="${PORT}" "${compose[@]}" config | grep -q '/framework'
+HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php -r '
+require "/app/vendor/autoload.php";
+unset($_ENV["SAMPLE_API_TOKEN"]);
+try {
+    new App\UserInterface\Http\SampleTokenAuthenticator();
+    exit(1);
+} catch (RuntimeException $exception) {
+    if ($exception->getMessage() !== "SAMPLE_API_TOKEN must be configured with a non-empty value.") {
+        throw $exception;
+    }
+}
+'
 
 HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops \
     make:operation Smoke/CreateSmoke --type=smoke.create
@@ -76,20 +89,62 @@ test "${schema_after}" = "1"
 
 HTTP_PORT="${PORT}" "${compose[@]}" up -d http
 for _ in $(seq 1 30); do
-    if curl --fail --silent "http://127.0.0.1:${PORT}/welcome" -H 'X-Sample-Token: consumer-sensitive-value' >"${TEMP}/welcome.json"; then
+    if curl --fail --silent "http://127.0.0.1:${PORT}/welcome" -H 'X-Sample-Token: local-example' >"${TEMP}/welcome.json"; then
         break
     fi
     sleep 1
 done
 grep -q '^{"message":"Welcome to BlackOps"}$' "${TEMP}/welcome.json"
-! grep -q 'consumer-sensitive-value' "${CONSUMER}/var/log/journal.jsonl"
+! grep -q 'local-example' "${CONSUMER}/var/log/journal.jsonl"
 grep -q '\[masked\]' "${CONSUMER}/var/log/journal.jsonl"
 
-validation_secret='consumer-validation-sensitive-value'
+missing_status=$(curl --silent --output "${CONSUMER}/var/missing-token-response.json" --write-out '%{http_code}' \
+    "http://127.0.0.1:${PORT}/welcome")
+test "${missing_status}" = "401"
+missing_operation_id=$(HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php -r '
+$data = json_decode(file_get_contents("/app/var/missing-token-response.json"), true, 512, JSON_THROW_ON_ERROR);
+$id = $data["operationId"] ?? null;
+if (($data["status"] ?? null) !== "rejected"
+    || ($data["category"] ?? null) !== "unauthorized"
+    || ($data["code"] ?? null) !== "authorization.authentication_required"
+    || !is_string($id)
+) {
+    exit(1);
+}
+fwrite(STDOUT, $id);
+')
+test -n "${missing_operation_id}"
+missing_events=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
+    "SELECT string_agg(event, ',' ORDER BY sequence) FROM blackops.journal WHERE operation_id = '${missing_operation_id}'::uuid")
+test "${missing_events}" = "operation.received,attempt.started,operation.rejected"
+
+journal_count_before_invalid=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
+    'SELECT count(*) FROM blackops.journal')
+invalid_status=$(curl --silent --output "${CONSUMER}/var/invalid-token-response.json" --write-out '%{http_code}' \
+    -H 'X-Sample-Token: invalid-consumer-token' \
+    "http://127.0.0.1:${PORT}/welcome")
+test "${invalid_status}" = "401"
+HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php -r '
+$data = json_decode(file_get_contents("/app/var/invalid-token-response.json"), true, 512, JSON_THROW_ON_ERROR);
+if ($data !== [
+    "status" => "error",
+    "category" => "unauthorized",
+    "code" => "authentication.invalid_sample_token",
+] || array_key_exists("operationId", $data)) {
+    exit(1);
+}
+'
+journal_count_after_invalid=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
+    'SELECT count(*) FROM blackops.journal')
+test "${journal_count_after_invalid}" = "${journal_count_before_invalid}"
+! grep -q 'invalid-consumer-token' "${CONSUMER}/var/log/journal.jsonl"
+
+validation_recipient='validation-recipient@example.com'
 validation_status=$(curl --silent --output "${CONSUMER}/var/validation-response.json" --write-out '%{http_code}' \
     -X POST "http://127.0.0.1:${PORT}/reports" \
     -H 'Content-Type: application/json' \
-    --data "{\"reportName\":\"\",\"apiToken\":\"${validation_secret}\"}")
+    -H 'X-Sample-Token: local-example' \
+    --data "{\"reportName\":\"\",\"recipientEmail\":\"${validation_recipient}\"}")
 test "${validation_status}" = "422"
 validation_operation_id=$(HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php -r '
 $data = json_decode(file_get_contents("/app/var/validation-response.json"), true, 512, JSON_THROW_ON_ERROR);
@@ -106,8 +161,8 @@ if (($data["status"] ?? null) !== "rejected"
 fwrite(STDOUT, $id);
 ')
 test -n "${validation_operation_id}"
-! grep -q "${validation_secret}" "${CONSUMER}/var/validation-response.json"
-! grep -q "${validation_secret}" "${CONSUMER}/var/log/journal.jsonl"
+! grep -q "${validation_recipient}" "${CONSUMER}/var/validation-response.json"
+! grep -q "${validation_recipient}" "${CONSUMER}/var/log/journal.jsonl"
 validation_state_rows=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
     "SELECT count(*) FROM blackops.operations WHERE operation_id = '${validation_operation_id}'::uuid")
 test "${validation_state_rows}" = "0"
@@ -118,7 +173,8 @@ test "${validation_events}" = "operation.received,operation.rejected"
 report_status=$(curl --silent --output "${CONSUMER}/var/report-response.json" --write-out '%{http_code}' \
     -X POST "http://127.0.0.1:${PORT}/reports" \
     -H 'Content-Type: application/json' \
-    --data '{"reportName":"consumer","apiToken":"consumer-report-value"}')
+    -H 'X-Sample-Token: local-example' \
+    --data '{"reportName":"consumer","recipientEmail":"consumer-report@example.com"}')
 test "${report_status}" = "202"
 operation_id=$(HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php -r '
 $data = json_decode(file_get_contents("/app/var/report-response.json"), true, 512, JSON_THROW_ON_ERROR);
@@ -129,6 +185,19 @@ if (($data["status"] ?? null) !== "accepted" || !is_string($id) || preg_match("/
 fwrite(STDOUT, $id);
 ')
 test -n "${operation_id}"
+! grep -q "${operation_id}" "${CONSUMER}/var/log/journal.jsonl"
+
+transport_actors=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
+    "SELECT concat(
+        convert_from(encoded_context, 'UTF8')::jsonb #>> '{actors,origin,id}', ':',
+        convert_from(encoded_context, 'UTF8')::jsonb #>> '{actors,authorization,id}', ':',
+        convert_from(encoded_context, 'UTF8')::jsonb #>> '{actors,execution,id}'
+    ) FROM blackops.operations WHERE operation_id = '${operation_id}'::uuid")
+test "${transport_actors}" = "quickstart-user:quickstart-user:quickstart-user"
+transport_payload=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
+    "SELECT convert_from(encoded_payload, 'UTF8') FROM blackops.operations WHERE operation_id = '${operation_id}'::uuid")
+grep -q 'consumer-report@example.com' <<<"${transport_payload}"
+! grep -q 'local-example' <<<"${transport_payload}"
 
 sleep 1
 HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops worker:run --iterations=1 --idle-sleep-milliseconds=1
@@ -140,6 +209,34 @@ HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops worker:run --itera
 state=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
     "SELECT state FROM blackops.operations WHERE operation_id = '${operation_id}'::uuid")
 test "${state}" = "completed"
+
+canonical_actors=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
+    "SELECT string_agg(
+        sequence::text || ':' ||
+        (convert_from(encoded_record, 'UTF8')::jsonb #>> '{operation,actors,authorization,id}') || ':' ||
+        (convert_from(encoded_record, 'UTF8')::jsonb #>> '{operation,actors,execution,id}'),
+        ',' ORDER BY sequence
+    ) FROM blackops.journal WHERE operation_id = '${operation_id}'::uuid")
+test "${canonical_actors}" = \
+    "1:quickstart-user:quickstart-user,2:quickstart-user:quickstart-user,3:quickstart-user:quickstart-worker-1,4:quickstart-user:quickstart-worker-1,5:quickstart-user:quickstart-worker-1,6:quickstart-user:quickstart-worker-1,7:quickstart-user:quickstart-worker-1,8:quickstart-user:quickstart-worker-1"
+! grep -q "${operation_id}" "${CONSUMER}/var/log/journal.jsonl"
+
+credential_rows=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
+    "SELECT
+        (SELECT count(*) FROM blackops.operations
+            WHERE coalesce(convert_from(encoded_payload, 'UTF8'), '') LIKE '%local-example%'
+               OR coalesce(convert_from(encoded_context, 'UTF8'), '') LIKE '%local-example%')
+        + (SELECT count(*) FROM blackops.journal
+            WHERE convert_from(encoded_record, 'UTF8') LIKE '%local-example%')
+        + (SELECT count(*) FROM blackops.outcomes
+            WHERE convert_from(encoded_payload, 'UTF8') LIKE '%local-example%')")
+test "${credential_rows}" = "0"
+! grep -q 'local-example' "${CONSUMER}/var/log/journal.jsonl"
+! grep -q 'quickstart-user' "${CONSUMER}/var/log/journal.jsonl"
+! grep -q 'quickstart-worker-1' "${CONSUMER}/var/log/journal.jsonl"
+! grep -q 'consumer-report@example.com' "${CONSUMER}/var/log/journal.jsonl"
+grep -q '"recipientEmail":"\[masked\]"' "${CONSUMER}/var/log/journal.jsonl"
+grep -q '"id":"\[masked\]","type":"user"' "${CONSUMER}/var/log/journal.jsonl"
 
 outcome=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
     "SELECT count(*) FROM blackops.outcomes WHERE operation_id = '${operation_id}'::uuid AND octet_length(encoded_payload) > 0")

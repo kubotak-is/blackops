@@ -34,7 +34,7 @@ use BlackOps\Core\Attribute\SensitiveMode;
 
 public function __construct(
     #[Sensitive(SensitiveMode::Mask)]
-    public string $apiToken,
+    public string $recipientEmail,
 ) {}
 ```
 
@@ -71,6 +71,16 @@ Applicationは`HttpAuthenticator`を実装し、Credentialなしを`Authenticati
 Frameworkの`AuthenticationMiddleware`はCredential自体をResult、Request Attribute、ExecutionContext、Journalへコピーしません。Authenticated時に渡すのはID／Typeだけの`ActorRef`です。Invalid時はOperation IDを発行せず、安定Codeだけを含む401 JSONを返します。AuthenticatorのBackend障害はInvalidへ丸めず、上位のHTTP Error境界へ伝播します。
 
 Authenticated Resultの`ActorRef`は予約Request Attributeを経由し、Operationの`ActorContext`へ接続されます。HTTP入口では同じ参照がorigin／authorization／execution Actorになります。Anonymous RequestにはActorContextを追加しません。`config/middleware.php`へAuthentication Middlewareを登録しても認可Policyは自動では決まらないため、Operation単位で`#[Authorize]`を宣言してください。
+
+Quickstartの`X-Sample-Token`はLocal Development用の最小Exampleです。AuthenticatorはExpected TokenをApplication Runtime構成時に一度だけSnapshotし、比較に`hash_equals()`を使います。`SAMPLE_API_TOKEN`の未設定、空文字、空白だけの値は構成ErrorとしてFail-closedにし、既知TokenへFallbackしません。Header値はOperation ValueへBindせず、Response、ExecutionContext、Transport、Journal、Outcomeへ保存しません。ProductionではApplicationがSession、Bearer Token、External IdP等とSecret管理へ置き換えてください。
+
+Header欠落と不正Headerは同じ401でも境界が異なります。
+
+| Request | Authentication | Operation Lifecycle | Response |
+| --- | --- | --- | --- |
+| Header欠落 | Anonymousとして通過 | `#[Authorize]`がRejectedを記録 | Operation ID付き401 |
+| Header不一致 | Invalidとして停止 | Operationを受け付けずJournalなし | Operation IDなし401 |
+| Header一致 | `ActorRef`だけを追加 | Policy評価後にHandler／Deferred受付へ進む | Inline 200／Deferred 202 |
 
 ## Operation Authorizationの責任境界
 
