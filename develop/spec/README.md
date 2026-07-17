@@ -77,6 +77,7 @@
 | [60-post-phase-10-roadmap.md](60-post-phase-10-roadmap.md) | Stable 1.1からMiddleware、DB、Diagnostics、Frontend Bridge、Deferred API以降の実装順序 |
 | [61-experimental-release-contract.md](61-experimental-release-contract.md) | Public Readiness前の破壊的Minor Release、Version、Documentation、Publication境界 |
 | [62-phase-11-delivery-plan.md](62-phase-11-delivery-plan.md) | Release Surface ResetからFramework／Skeleton 1.1.0公開までのTask順序 |
+| [63-phase-12-delivery-plan.md](63-phase-12-delivery-plan.md) | Actor ContextからDeferred再認可とPhase CloseoutまでのTask順序 |
 
 ## 決定の参照
 
@@ -91,7 +92,7 @@
 | [D007](../decisions/007-supervision-policy.md) | Supervision Policy | Decided |
 | [D008](../decisions/008-http-routing-and-binding.md) | HTTP RoutingとBinding | Decided |
 | [D009](../decisions/009-execution-context.md) | ExecutionContext | Decided |
-| [D010](../decisions/010-authentication-and-middleware.md) | AuthenticationとMiddleware | Decided |
+| [D010](../decisions/010-authentication-and-middleware.md) | AuthenticationとMiddleware | Partially Superseded by D095 |
 | [D011](../decisions/011-project-structure.md) | Project Structure | Decided |
 | [D012](../decisions/012-operation-registry-and-manifest.md) | Operation RegistryとManifest | Decided |
 | [D013](../decisions/013-runtime-and-dependency-injection.md) | PHP RuntimeとDependency Injection | Decided |

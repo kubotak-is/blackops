@@ -1,12 +1,14 @@
 # D010: AuthenticationとMiddleware
 
-Status: Decided
+Status: Partially Superseded by D095
 
 ## Context
 
 ExecutionContextはActor ID、Actor Type、許可された属性を保持できる。一方、Password、Session、Bearer TokenなどのCredentialはContext、Journal、Deferred Transportへ含めない。
 
 この設計対話では、CredentialからActorContextを生成するAuthentication、Operationの実行可否を判断するAuthorization、横断処理を担うMiddlewareの境界を決める。
+
+D095により、HTTP Middleware、Credential隔離、`#[Authorize]`、Deferred再認可、Actorの役割分離は維持する一方、Operation Middleware、Dispatch／Execution Scope、入口別Operation marker、Public `OperationResult::rejected()`前提は置き換えた。現行仕様は`develop/spec/06-auth-and-middleware.md`を正本とする。
 
 ## Question 1: Middleware Pipelineの分離
 

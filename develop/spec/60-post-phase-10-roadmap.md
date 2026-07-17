@@ -34,25 +34,24 @@ Release Version、Experimental Compatibility Policy、Task順序は[Experimental
 
 ## Phase 12: Middleware and Authorization Runtime
 
-- HTTP用PSR-15 Adapter MiddlewareとOperation Middlewareの玉ねぎPipeline
-- Global／Endpoint／Operation単位の登録、除外、順序
-- Dispatch／Execution ScopeとManifest Compile検証
+- HTTP用PSR-15 Middlewareの玉ねぎPipeline
+- Global HTTP MiddlewareのConfig登録順と型検証
 - Credentialを保持しないAuthenticator／ActorContext境界
 - Authorization Policy、Rejected Lifecycle、HTTP 401／403
 - Deferred受付時とWorker実行時の再認可
 
-既存のAuthentication and Middleware Specificationを出発点とし、実装前にFrameworkとApplicationの所有境界を再確認する。
+Operation Middleware、Operation単位の汎用Middleware Attribute、Dispatch／Execution Scopeは実装しない。AuthorizationはFramework固定のOperation Lifecycle Stageとする。詳細は[Authentication and HTTP Middleware](06-auth-and-middleware.md)と[Phase 12 Delivery Plan](63-phase-12-delivery-plan.md)を正本とする。
 
 ## Phase 13: Database and Transaction Runtime
 
 - Named Doctrine DBAL ConnectionのApplication ConfigurationとDI
 - Repository／Application ServiceへのConstructor Injection
-- Transaction Operation Middlewareと明示Attribute
+- Transaction Lifecycle Contractと明示Attribute
 - Manual Transaction、Nested呼び出し、複数Connectionの境界
 - Worker ModeのConnection Health Check／Reset／Reconnect
 - 業務DBとBlackOps Storeが同一または別Connectionの場合の保証差
 
-初期ScopeではORMとRepository基底Classを標準化せず、Connection、DI、Transaction境界を提供する案を開始点とする。最終ScopeはPhase Decisionで確定する。
+初期ScopeではORMとRepository基底Classを標準化せず、Connection、DI、Transaction境界を提供する案を開始点とする。Operation Middlewareを前提にせず、専用Lifecycle ContractをPhase開始時に決定する。
 
 ## Phase 14: Operation Diagnostics
 

@@ -73,14 +73,14 @@ MVP後に残す主要項目:
 
 ### Phase 12: Middleware and Authorization Runtime
 
-- [~] PSR-15 Adapter MiddlewareとOperation MiddlewareをRuntimeへ実装する
-- [~] Global／Operation単位の順序とCompile検証を実装する
+- [~] Global PSR-15 HTTP MiddlewareをConfig登録順でRuntimeへ実装する
+- [~] ActorContextの伝播、Codec、Sensitive Journal境界を実装する
 - [~] Authentication、ActorContext、`#[Authorize]`、Deferred再認可を実装する
 
 ### Phase 13: Database and Transaction Runtime
 
 - [ ] Named DBAL ConnectionとDI登録を実装する
-- [ ] Transaction Operation Middlewareと`#[Transactional]`を実装する
+- [ ] Transaction Lifecycle Contractと`#[Transactional]`を実装する
 - [ ] Worker ModeのConnection Health Check／Reset／Reconnectを実装する
 
 ### Phase 14: Operation Diagnostics
