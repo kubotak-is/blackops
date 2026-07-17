@@ -10,6 +10,7 @@ use BlackOps\Http\Responder\JsonOperationResponder;
 use BlackOps\Internal\Execution\HandlerResolver;
 use BlackOps\Internal\Execution\InlineDispatcher;
 use BlackOps\Internal\ExecutionContext\ExecutionContextFactory;
+use BlackOps\Internal\Http\HttpMiddlewarePipeline;
 use BlackOps\Internal\Identifier\IdentifierFactory;
 use BlackOps\Internal\Identifier\SymfonyUuidv7Generator;
 use BlackOps\Internal\Journal\JournalRecordFactory;
@@ -59,18 +60,22 @@ final readonly class ProductionRuntimeComposer
             $handlers->resolve(...),
         ));
 
+        $httpHandler = new OperationRequestHandler(
+            $routes,
+            new OperationValueBinder(),
+            $dispatcher,
+            new JsonOperationResponder($dependencies->responses, $dependencies->streams),
+            $dependencies->responses,
+            $dispatcher,
+            $dependencies->deferredOperationAcceptor,
+        );
+
         return new ProductionRuntimeComposition(
             $dispatcher,
             $routes,
-            new OperationRequestHandler(
-                $routes,
-                new OperationValueBinder(),
-                $dispatcher,
-                new JsonOperationResponder($dependencies->responses, $dependencies->streams),
-                $dependencies->responses,
-                $dispatcher,
-                $dependencies->deferredOperationAcceptor,
-            ),
+            $dependencies->httpMiddleware === []
+                ? $httpHandler
+                : new HttpMiddlewarePipeline($dependencies->httpMiddleware, $httpHandler),
             $scope,
         );
     }

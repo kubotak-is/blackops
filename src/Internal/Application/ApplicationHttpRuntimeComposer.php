@@ -31,6 +31,7 @@ final readonly class ApplicationHttpRuntimeComposer
     {
         $build = ApplicationBuildConfiguration::fromConfiguration($configuration->configuration());
         $database = ApplicationDatabaseConfiguration::fromConfiguration($configuration->configuration());
+        $middleware = ApplicationHttpMiddlewareConfiguration::fromConfiguration($configuration->configuration());
         $artifacts = new ProductionRuntimeArtifactLoader()->load(
             $build->operationManifest,
             $build->httpManifest,
@@ -38,6 +39,7 @@ final readonly class ApplicationHttpRuntimeComposer
             $build->containerClass,
             $build->containerNamespace,
         );
+        $httpMiddleware = new ApplicationHttpMiddlewareResolver($artifacts->container)->resolve($middleware);
         $connection = $this->connection($database->connection);
         $clock = new PostgreSqlSystemClock();
         $identifiers = new IdentifierFactory(new SymfonyUuidv7Generator(), $clock);
@@ -66,6 +68,7 @@ final readonly class ApplicationHttpRuntimeComposer
                 $psr17,
                 journalObservations: $observations?->pipeline(),
                 deferredOperationAcceptor: $acceptor,
+                httpMiddleware: $httpMiddleware,
             ),
         );
 

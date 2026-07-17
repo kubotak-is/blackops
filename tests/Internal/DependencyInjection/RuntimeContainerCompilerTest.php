@@ -15,11 +15,18 @@ use BlackOps\Core\OperationResult;
 use BlackOps\Core\OperationValue;
 use BlackOps\Core\Registry\OperationMetadata;
 use BlackOps\Core\Registry\OperationRegistry;
+use BlackOps\Http\Authentication\AuthenticationMiddleware;
+use BlackOps\Http\Authentication\AuthenticationResult;
+use BlackOps\Http\Authentication\HttpAuthenticator;
 use BlackOps\Http\Console\DumpHttpManifestCommand;
 use BlackOps\Http\Routing\HttpOperationManifestFile;
 use BlackOps\Internal\DependencyInjection\RuntimeContainerCompiler;
 use BlackOps\Internal\Execution\HandlerResolver;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use Symfony\Component\DependencyInjection\Reference;
 
 final class RuntimeContainerCompilerTest extends TestCase
@@ -131,6 +138,63 @@ final class RuntimeContainerCompilerTest extends TestCase
         self::assertSame($expected, $compiler->compile($builder)->get(RepositoryBackedOperation::class));
     }
 
+    public function testRegistersMiddlewareClassAsAutowiredPublicService(): void
+    {
+        $compiler = new RuntimeContainerCompiler();
+        $builder = $compiler->builder();
+        $builder->register(ContainerDependency::class)->setAutowired(true);
+
+        $compiler->registerHttpMiddleware($builder, [ContainerMiddleware::class]);
+
+        $middleware = $compiler->compile($builder)->get(ContainerMiddleware::class);
+
+        self::assertInstanceOf(ContainerMiddleware::class, $middleware);
+        self::assertSame('dependency-ready', $middleware->dependency->value);
+    }
+
+    public function testExplicitProviderMiddlewareBindingWinsOverAutomaticRegistration(): void
+    {
+        $compiler = new RuntimeContainerCompiler();
+        $builder = $compiler->builder();
+        $expected = new ContainerMiddleware(new ContainerDependency('explicit'));
+        $compiler->apply($builder, [new ExplicitMiddlewareProvider($expected)]);
+
+        $compiler->registerHttpMiddleware($builder, [ContainerMiddleware::class]);
+
+        self::assertSame($expected, $compiler->compile($builder)->get(ContainerMiddleware::class));
+    }
+
+    public function testAutowiresAuthenticationMiddlewareWithProviderAuthenticatorAndDefaultPsr17Factories(): void
+    {
+        $compiler = new RuntimeContainerCompiler();
+        $builder = $compiler->builder();
+        $compiler->apply($builder, [new HttpAuthenticatorProvider()]);
+
+        $compiler->registerHttpMiddleware($builder, [AuthenticationMiddleware::class]);
+
+        self::assertInstanceOf(
+            AuthenticationMiddleware::class,
+            $compiler->compile($builder)->get(AuthenticationMiddleware::class),
+        );
+    }
+
+    public function testRejectsUnavailableOrNonMiddlewareClassRegistration(): void
+    {
+        $compiler = new RuntimeContainerCompiler();
+        $builder = $compiler->builder();
+
+        try {
+            $compiler->registerHttpMiddleware($builder, ['Missing\\CredentialService']);
+            self::fail('Expected unavailable middleware rejection.');
+        } catch (\InvalidArgumentException $exception) {
+            self::assertStringNotContainsString('Missing\\CredentialService', $exception->getMessage());
+        }
+
+        $this->expectException(\InvalidArgumentException::class);
+
+        $compiler->registerHttpMiddleware($builder, [ContainerDependency::class]);
+    }
+
     private function metadata(): OperationMetadata
     {
         return new OperationMetadata(
@@ -224,6 +288,46 @@ final readonly class ExplicitTypedHandlerProvider implements ServiceProvider
     public function register(ServiceRegistry $services): void
     {
         $services->set(RepositoryBackedOperation::class, $this->handler);
+    }
+}
+
+final readonly class ContainerMiddleware implements MiddlewareInterface
+{
+    public function __construct(
+        public ContainerDependency $dependency,
+    ) {}
+
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
+    {
+        return $handler->handle($request);
+    }
+}
+
+final readonly class ExplicitMiddlewareProvider implements ServiceProvider
+{
+    public function __construct(
+        private ContainerMiddleware $middleware,
+    ) {}
+
+    public function register(ServiceRegistry $services): void
+    {
+        $services->set(ContainerMiddleware::class, $this->middleware);
+    }
+}
+
+final readonly class HttpAuthenticatorProvider implements ServiceProvider
+{
+    public function register(ServiceRegistry $services): void
+    {
+        $services->autowire(HttpAuthenticator::class, ContainerHttpAuthenticator::class);
+    }
+}
+
+final readonly class ContainerHttpAuthenticator implements HttpAuthenticator
+{
+    public function authenticate(ServerRequestInterface $request): AuthenticationResult
+    {
+        return AuthenticationResult::anonymous();
     }
 }
 

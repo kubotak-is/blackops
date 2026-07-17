@@ -9,6 +9,7 @@ Installed Applicationは責務別のPHP Configを`config/`に置きます。Fram
 | `operations.php` | Build-time Discovery RootとOptional Operation Provider |
 | `execution.php` | Worker ID、Lease、Heartbeat、Grace、Supervision |
 | `journal.php` | Observed JSONL JournalのPathとDelivery Mode |
+| `middleware.php` | Global PSR-15 HTTP Middlewareの登録順 |
 | `retention.php` | Payload、Journal、Outcome、Dead Letterの保持期間、Policy、Actor |
 
 ## Environment
@@ -76,5 +77,22 @@ return [
 ```
 
 `enabled=true`では絶対Path、書込可能な既存Parent Directory、`best_effort`または`required`を指定します。FrameworkはDirectoryを作らず、Sensitive Projection後のRecordだけをJSONLへ追記します。
+
+## HTTP Middleware
+
+```php
+return [
+    'http' => [
+        App\UserInterface\Http\Middleware\RequestIdMiddleware::class,
+        BlackOps\Http\Authentication\AuthenticationMiddleware::class,
+    ],
+];
+```
+
+`http`はPSR-15 MiddlewareのService IDまたはClass名を、外側から内側の順で並べたListです。同じEntryを複数回登録できません。Frameworkは順序を変更せず、数値Priorityも使用しません。
+
+ClassがService Providerで未登録の場合、Build時にPSR-15 Middlewareであることを検証してAutowired Public Serviceへ登録します。Constructor InterfaceのBindingや具象Instanceが必要なMiddlewareは、`app.php`のService Providerで同じService IDを登録してください。Providerの明示登録が自動登録より優先されます。
+
+File欠落または空Listでは、Operation HTTP Handlerを直接実行します。存在しないService IDやPSR-15でないServiceはBuildまたはHTTP Runtime起動時に安全なErrorとして拒否します。
 
 BootstrapのLoading Boundaryは[Application Bootstrap](application-bootstrap.md)、実行Commandは[Project CLI](project-cli.md)を参照してください。

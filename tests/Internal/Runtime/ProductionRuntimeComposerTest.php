@@ -39,6 +39,10 @@ use Nyholm\Psr7\Factory\Psr17Factory;
 use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
 use Psr\Container\ContainerInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Log\AbstractLogger;
 use Stringable;
 
@@ -151,6 +155,22 @@ final class ProductionRuntimeComposerTest extends TestCase
         self::assertSame($handler, $match->route->operation);
         self::assertSame(204, $response->getStatusCode());
         self::assertSame('container-resolved', $handler->handledWith);
+    }
+
+    public function testConnectsConfiguredHttpMiddlewareToProductionHandler(): void
+    {
+        $psr17 = new Psr17Factory();
+        $runtime = new ProductionRuntimeComposer()->composeWithDependencies($this->artifacts(), new ProductionRuntimeDependencies(
+            new RuntimeCompositionClock(),
+            new RuntimeCompositionJournalWriter(),
+            $psr17,
+            $psr17,
+            httpMiddleware: [new RuntimeHeaderMiddleware()],
+        ));
+
+        $response = $runtime->httpHandler->handle($psr17->createServerRequest('GET', '/composition'));
+
+        self::assertSame('ready', $response->getHeaderLine('X-Runtime-Middleware'));
     }
 
     private function artifacts(?OperationHandler $handler = null): ProductionRuntimeArtifacts
@@ -309,5 +329,13 @@ final class RuntimeCompositionPsrLogger extends AbstractLogger
             'message' => $message,
             'context' => $context,
         ];
+    }
+}
+
+final readonly class RuntimeHeaderMiddleware implements MiddlewareInterface
+{
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
+    {
+        return $handler->handle($request)->withHeader('X-Runtime-Middleware', 'ready');
     }
 }

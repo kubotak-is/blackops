@@ -19,14 +19,17 @@ final class ApplicationConfigurationTest extends TestCase
         mkdir($config);
         $this->writeConfig($config, 'app', "return ['name' => 'before'];");
         $this->writeConfig($config, 'database', "return ['schema' => 'blackops_test'];");
+        $this->writeConfig($config, 'middleware', "return ['http' => ['before']];");
         $this->writeConfig($config, 'unknown', "return ['ignored' => true];");
 
         $builder = Application::configure($directory)->withConfiguration($config);
         $this->writeConfig($config, 'app', "return ['name' => 'after'];");
+        $this->writeConfig($config, 'middleware', "return ['http' => ['after']];");
         $snapshot = $this->snapshot($builder->create());
 
         self::assertSame('before', $snapshot->configuration()['app']['name']);
         self::assertSame('blackops_test', $snapshot->configuration()['database']['schema']);
+        self::assertSame(['before'], $snapshot->configuration()['middleware']['http']);
         self::assertArrayNotHasKey('unknown', $snapshot->configuration());
     }
 

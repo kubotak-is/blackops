@@ -9,6 +9,7 @@ use BlackOps\Http\Routing\HttpRouteCompiler;
 use BlackOps\Internal\Application\ApplicationBuildConfiguration;
 use BlackOps\Internal\Application\ApplicationBuildId;
 use BlackOps\Internal\Application\ApplicationConfigurationSnapshot;
+use BlackOps\Internal\Application\ApplicationHttpMiddlewareConfiguration;
 use BlackOps\Internal\Application\ApplicationOperationDiscovery;
 use BlackOps\Internal\DependencyInjection\RuntimeContainerCompiler;
 use BlackOps\Internal\DependencyInjection\RuntimeContainerDumper;
@@ -40,6 +41,7 @@ final class ApplicationBuildCompileCommand extends Command
         $discovered = new ApplicationOperationDiscovery()->discover($this->configuration);
         $registry = new OperationProviderCompiler()->compile($operations, $discovered);
         $definitions = new OperationDefinitionFactory()->classNamesFromProviders($operations, $discovered);
+        $middleware = ApplicationHttpMiddlewareConfiguration::fromConfiguration($this->configuration->configuration());
 
         new OperationManifestFile()->write($registry, $build->operationManifest, $buildId);
         new HttpOperationManifestFile()->write(
@@ -52,6 +54,7 @@ final class ApplicationBuildCompileCommand extends Command
         $container = $compiler->builder();
         $compiler->apply($container, $services);
         $compiler->registerHandlers($container, $registry);
+        $compiler->registerHttpMiddleware($container, $middleware->http);
         $compiler->compile($container);
         new RuntimeContainerDumper()->dump(
             $container,

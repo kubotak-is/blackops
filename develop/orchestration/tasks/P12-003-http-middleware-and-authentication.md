@@ -1,6 +1,6 @@
 # P12-003: HTTP Middleware and Authentication
 
-Status: Ready
+Status: Accepted
 
 ## Goal
 
@@ -43,6 +43,7 @@ D095／Spec 06／Phase 12 Delivery Planに従い、Application ConfigからGloba
 
 ## Files Allowed to Change
 
+- `mago.toml`
 - `src/Http/Authentication/HttpAuthenticator.php`
 - `src/Http/Authentication/AuthenticationResult.php`
 - `src/Http/Authentication/AuthenticationMiddleware.php`

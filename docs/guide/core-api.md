@@ -1,6 +1,6 @@
 # Core API Types Reference
 
-このReferenceは現在の`main` Sourceで`#[PublicApi]`を持つ121型を一覧化しています。Application Authorはまず「Application構成」「Operation Authoring」「Validation」「Outcome取得」の型を使い、Transport、Journal、Retention等のPortはAdapterを拡張するときだけ使ってください。
+このReferenceは現在の`main` Sourceで`#[PublicApi]`を持つ124型を一覧化しています。Application Authorはまず「Application構成」「Operation Authoring」「Validation」「Outcome取得」の型を使い、Transport、Journal、Retention等のPortはAdapterを拡張するときだけ使ってください。
 
 `BlackOps\Core\Attribute\PublicApi` marker自身は利用者向けAPIではないため一覧へ含めません。内部実装Namespaceと`#[PublicApi]`を持たない実装型にも依存しないでください。Attributeの付与対象と標準形は[Attributes Reference](attributes.md)を確認してください。
 
@@ -51,6 +51,14 @@
 | `BlackOps\Http\Attribute\FromHeader` | attribute class | HeaderをValueへBindする | Header Inputへ付ける |
 | `BlackOps\Http\Attribute\FromPath` | attribute class | Path ParameterをValueへBindする | Path Inputへ付ける |
 | `BlackOps\Http\Attribute\FromQuery` | attribute class | Query ParameterをValueへBindする | Query Inputへ付ける |
+
+## HTTP Authentication
+
+| Namespace／Type | Kind | Purpose | Typical Use |
+| --- | --- | --- | --- |
+| `BlackOps\Http\Authentication\HttpAuthenticator` | interface | HTTP CredentialをApplication Actorへ解決する | Application固有のSession／Token検証を実装する |
+| `BlackOps\Http\Authentication\AuthenticationResult` | final readonly class | Anonymous／Authenticated／Invalidを表す | Authenticatorから安全なActorまたはCodeを返す |
+| `BlackOps\Http\Authentication\AuthenticationMiddleware` | final readonly middleware | Authentication結果をPSR-15 Pipelineへ接続する | `config/middleware.php`へServiceとして登録する |
 
 ## Value Validation
 
