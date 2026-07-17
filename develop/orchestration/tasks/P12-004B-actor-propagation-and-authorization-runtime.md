@@ -1,6 +1,6 @@
 # P12-004B: Actor Propagation and Authorization Runtime
 
-Status: Ready
+Status: Accepted
 
 ## Goal
 

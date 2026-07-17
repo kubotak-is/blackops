@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace BlackOps\Http;
 
+use BlackOps\Core\ActorContext;
+use BlackOps\Core\ActorRef;
+use BlackOps\Core\Execution\DeferredAcknowledgement;
 use BlackOps\Core\OperationValue;
 use BlackOps\Execution\Dispatcher;
 use BlackOps\Execution\ValidationRejectionRecorder;
@@ -13,6 +16,7 @@ use BlackOps\Http\Binding\OperationValueBindingException;
 use BlackOps\Http\Responder\JsonOperationResponder;
 use BlackOps\Http\Routing\HttpRouteMatch;
 use BlackOps\Http\Routing\HttpRouteRegistry;
+use LogicException;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -52,7 +56,7 @@ final readonly class OperationRequestHandler implements RequestHandlerInterface
             return $rejection;
         }
 
-        return $this->execute($match, $bound);
+        return $this->execute($match, $bound, $this->actorContext($request));
     }
 
     private function bind(HttpRouteMatch $match, ServerRequestInterface $request): OperationValue|ResponseInterface
@@ -81,15 +85,36 @@ final readonly class OperationRequestHandler implements RequestHandlerInterface
         return $this->responder->respondValidationRejection($operationId, $violations);
     }
 
-    private function execute(HttpRouteMatch $match, OperationValue $value): ResponseInterface
-    {
+    private function execute(
+        HttpRouteMatch $match,
+        OperationValue $value,
+        ?ActorContext $actorContext,
+    ): ResponseInterface {
         if ($this->deferred !== null && $this->deferred->accepts($match->route->operation)) {
-            return $this->responder->respondAcknowledgement($this->deferred->accept($match->route->operation, $value));
+            $result = $this->deferred->accept($match->route->operation, $value, $actorContext);
+
+            if ($result instanceof DeferredAcknowledgement) {
+                return $this->responder->respondAcknowledgement($result);
+            }
+
+            if ($result->isCompleted()) {
+                throw new LogicException('Deferred operation acceptance cannot return a completed result.');
+            }
+
+            return $this->responder->respond($result);
         }
 
-        $result = $this->dispatcher->dispatch($match->route->operation, $value);
+        $result = $this->dispatcher->dispatch($match->route->operation, $value, $actorContext);
 
         return $this->responder->respond($result);
+    }
+
+    private function actorContext(ServerRequestInterface $request): ?ActorContext
+    {
+        /** @var mixed $attribute */
+        $attribute = $request->getAttribute(ActorRef::class);
+
+        return $attribute instanceof ActorRef ? new ActorContext($attribute, $attribute, $attribute) : null;
     }
 
     private function hasForbiddenGetBody(ServerRequestInterface $request): bool

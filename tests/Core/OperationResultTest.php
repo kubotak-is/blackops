@@ -6,6 +6,7 @@ namespace BlackOps\Tests\Core;
 
 use BlackOps\Core\Attribute\PublicApi;
 use BlackOps\Core\EmptyOutcome;
+use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Core\OperationResult;
 use BlackOps\Core\Outcome;
 use BlackOps\Core\Rejection\RejectionReason;
@@ -15,6 +16,8 @@ use ReflectionClass;
 
 final class OperationResultTest extends TestCase
 {
+    private const string OPERATION_ID = '019f32ab-2be0-7b38-a0a7-1ab2f9687697';
+
     public function testPublicApiShape(): void
     {
         $result = new ReflectionClass(OperationResult::class);
@@ -38,6 +41,7 @@ final class OperationResultTest extends TestCase
         self::assertTrue($result->isCompleted());
         self::assertFalse($result->isRejected());
         self::assertSame($outcome, $result->outcome());
+        self::assertNull($result->operationId());
     }
 
     public function testCompletedWithoutOutcomeUsesEmptyOutcome(): void
@@ -56,6 +60,16 @@ final class OperationResultTest extends TestCase
         self::assertFalse($result->isCompleted());
         self::assertTrue($result->isRejected());
         self::assertSame($reason, $result->rejectionReason());
+        self::assertNull($result->operationId());
+    }
+
+    public function testRejectedResultCanCarryOperationId(): void
+    {
+        $operationId = OperationId::fromString(self::OPERATION_ID);
+        $result = OperationResult::rejected(RejectionReason::forbidden('authorization.denied'), $operationId);
+
+        self::assertSame($operationId, $result->operationId());
+        self::assertSame('authorization.denied', $result->rejectionReason()->code());
     }
 
     public function testRejectedHasNoOutcome(): void

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace BlackOps\Tests\Http;
 
+use BlackOps\Core\ActorContext;
+use BlackOps\Core\ActorRef;
 use BlackOps\Core\EmptyOutcome;
 use BlackOps\Core\Execution\Inline;
 use BlackOps\Core\Identifier\OperationId;
@@ -26,6 +28,7 @@ use BlackOps\Http\Attribute\FromPath;
 use BlackOps\Http\Attribute\FromQuery;
 use BlackOps\Http\Attribute\Route;
 use BlackOps\Http\Binding\OperationValueBinder;
+use BlackOps\Http\DeferredOperationAcceptor;
 use BlackOps\Http\OperationRequestHandler;
 use BlackOps\Http\Responder\JsonOperationResponder;
 use BlackOps\Http\Routing\HttpOperationRoute;
@@ -44,6 +47,7 @@ use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use InvalidArgumentException;
+use LogicException;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
@@ -113,6 +117,64 @@ final class OperationRequestHandlerTest extends TestCase
             '{"status":"rejected","category":"conflict","code":"welcome_unavailable"}',
             (string) $response->getBody(),
         );
+    }
+
+    public function testRejectedResultWithOperationIdReturnsCorrelatedJsonError(): void
+    {
+        $operationId = OperationId::fromString('019f32ab-2be0-7b38-a0a7-1ab2f9687697');
+        $handler = $this->httpHandler(new FixedDispatcher(OperationResult::rejected(
+            RejectionReason::forbidden('authorization.welcome_forbidden'),
+            $operationId,
+        )));
+
+        $response = $handler->handle($this->request('GET', '/welcome'));
+
+        self::assertSame(403, $response->getStatusCode());
+        self::assertSame(
+            '{"status":"rejected","operationId":"019f32ab-2be0-7b38-a0a7-1ab2f9687697","category":"forbidden","code":"authorization.welcome_forbidden"}',
+            (string) $response->getBody(),
+        );
+    }
+
+    public function testAuthenticatedRequestActorIsPassedAsCompleteActorContext(): void
+    {
+        $dispatcher = new RecordingDispatcher(OperationResult::completed(new WelcomeShown('ok')));
+        $actor = new ActorRef('user-123', 'user');
+        $handler = $this->httpHandler($dispatcher);
+
+        $response = $handler->handle($this->request('GET', '/welcome')->withAttribute(ActorRef::class, $actor));
+
+        self::assertSame(200, $response->getStatusCode());
+        self::assertSame($actor, $dispatcher->actorContext?->origin());
+        self::assertSame($actor, $dispatcher->actorContext?->authorization());
+        self::assertSame($actor, $dispatcher->actorContext?->execution());
+    }
+
+    public function testNonActorReservedAttributeIsIgnored(): void
+    {
+        $dispatcher = new RecordingDispatcher(OperationResult::completed(new WelcomeShown('ok')));
+        $handler = $this->httpHandler($dispatcher);
+
+        $handler->handle($this->request('GET', '/welcome')->withAttribute(ActorRef::class, 'credential-value'));
+
+        self::assertNull($dispatcher->actorContext);
+    }
+
+    public function testDeferredAcceptorCannotReturnCompletedResult(): void
+    {
+        $handler = new OperationRequestHandler(
+            new HttpRouteRegistry([new HttpOperationRoute('GET', '/welcome', new ShowWelcome(), WelcomeValue::class)]),
+            new OperationValueBinder(),
+            new FailingDispatcher(),
+            new JsonOperationResponder($this->psr17, $this->psr17),
+            $this->psr17,
+            new NoopValidationRejectionRecorder(),
+            new CompletedDeferredAcceptor(),
+        );
+
+        $this->expectException(LogicException::class);
+
+        $handler->handle($this->request('GET', '/welcome'));
     }
 
     public function testManualValidationRejectionKeepsLegacyResponseShape(): void
@@ -464,16 +526,22 @@ final readonly class FixedDispatcher implements Dispatcher
         private OperationResult $result,
     ) {}
 
-    public function dispatch(Operation $definition, OperationValue $value): OperationResult
-    {
+    public function dispatch(
+        Operation $definition,
+        OperationValue $value,
+        ?ActorContext $actorContext = null,
+    ): OperationResult {
         return $this->result;
     }
 }
 
 final readonly class FailingDispatcher implements Dispatcher
 {
-    public function dispatch(Operation $definition, OperationValue $value): OperationResult
-    {
+    public function dispatch(
+        Operation $definition,
+        OperationValue $value,
+        ?ActorContext $actorContext = null,
+    ): OperationResult {
         self::fail('Dispatcher should not be called.');
     }
 }
@@ -481,16 +549,37 @@ final readonly class FailingDispatcher implements Dispatcher
 final class RecordingDispatcher implements Dispatcher
 {
     public ?OperationValue $value = null;
+    public ?ActorContext $actorContext = null;
 
     public function __construct(
         private readonly OperationResult $result,
     ) {}
 
-    public function dispatch(Operation $definition, OperationValue $value): OperationResult
-    {
+    public function dispatch(
+        Operation $definition,
+        OperationValue $value,
+        ?ActorContext $actorContext = null,
+    ): OperationResult {
         $this->value = $value;
+        $this->actorContext = $actorContext;
 
         return $this->result;
+    }
+}
+
+final readonly class CompletedDeferredAcceptor implements DeferredOperationAcceptor
+{
+    public function accepts(Operation $definition): bool
+    {
+        return true;
+    }
+
+    public function accept(
+        Operation $definition,
+        OperationValue $value,
+        ?ActorContext $actorContext = null,
+    ): \BlackOps\Core\Execution\DeferredAcknowledgement|OperationResult {
+        return OperationResult::completed();
     }
 }
 

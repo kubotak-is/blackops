@@ -31,9 +31,11 @@ final readonly class JsonOperationResponder
     {
         if ($result->isRejected()) {
             $reason = $result->rejectionReason();
+            $operationId = $result->operationId();
 
             return $this->json($this->statusFor($reason->category()), [
                 'status' => 'rejected',
+                ...($operationId === null ? [] : ['operationId' => $operationId->toString()]),
                 'category' => $reason->category()->value,
                 'code' => $reason->code(),
             ]);

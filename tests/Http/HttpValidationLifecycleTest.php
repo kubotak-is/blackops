@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BlackOps\Tests\Http;
 
+use BlackOps\Core\ActorContext;
 use BlackOps\Core\Attribute\Sensitive;
 use BlackOps\Core\EmptyOutcome;
 use BlackOps\Core\Execution\Deferred;
@@ -11,6 +12,7 @@ use BlackOps\Core\Execution\DeferredAcknowledgement;
 use BlackOps\Core\Execution\Inline;
 use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Core\Operation;
+use BlackOps\Core\OperationResult;
 use BlackOps\Core\OperationValue;
 use BlackOps\Core\Registry\OperationMetadata;
 use BlackOps\Core\Registry\OperationRegistry;
@@ -291,8 +293,11 @@ final class ValidationFailingDeferredAcceptor implements DeferredOperationAccept
         return true;
     }
 
-    public function accept(Operation $definition, OperationValue $value): DeferredAcknowledgement
-    {
+    public function accept(
+        Operation $definition,
+        OperationValue $value,
+        ?ActorContext $actorContext = null,
+    ): DeferredAcknowledgement|OperationResult {
         $this->accepted = true;
         self::fail('Deferred acceptance should not run after validation failure.');
     }

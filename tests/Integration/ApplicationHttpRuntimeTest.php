@@ -6,7 +6,20 @@ namespace BlackOps\Tests\Integration;
 
 use BlackOps\Application\Application;
 use BlackOps\Application\ApplicationBootstrapException;
+use BlackOps\Core\ActorRef;
+use BlackOps\Core\Attribute\Authorize;
+use BlackOps\Core\Attribute\OperationType;
+use BlackOps\Core\Authorization\AuthorizationDecision;
+use BlackOps\Core\Authorization\AuthorizationPolicy;
+use BlackOps\Core\Authorization\AuthorizationRequest;
+use BlackOps\Core\DependencyInjection\ServiceProvider;
+use BlackOps\Core\DependencyInjection\ServiceRegistry;
 use BlackOps\Core\Identifier\OperationId;
+use BlackOps\Core\Operation;
+use BlackOps\Core\OperationValue;
+use BlackOps\Core\Outcome;
+use BlackOps\Core\Registry\OperationProvider;
+use BlackOps\Http\Attribute\Route;
 use BlackOps\Internal\Migration\DatabaseMigrationRunner;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
@@ -102,6 +115,32 @@ final class ApplicationHttpRuntimeTest extends TestCase
         );
     }
 
+    public function testCompiledPolicyReceivesAuthenticatedActorInApplicationHttpRuntime(): void
+    {
+        $paths = $this->compileArtifacts(withAuthorizationFixture: true);
+        $connection = $this->connection();
+        $connection->executeStatement('DROP SCHEMA IF EXISTS ' . self::SCHEMA . ' CASCADE');
+        new DatabaseMigrationRunner($connection, self::SCHEMA)->migrate();
+        $http = $this->application($paths)->http();
+        $actor = new ActorRef('integration-user', 'user');
+        ApplicationRuntimeAuthorizationPolicy::$request = null;
+
+        $response = $http->handle(
+            new Psr17Factory()
+                ->createServerRequest('GET', '/authorized')
+                ->withAttribute(ActorRef::class, $actor),
+        );
+
+        self::assertSame(200, $response->getStatusCode());
+        self::assertSame('{"message":"authorized"}', (string) $response->getBody());
+        $request = ApplicationRuntimeAuthorizationPolicy::$request;
+        self::assertNotNull($request);
+        self::assertSame($actor, $request->actor());
+        self::assertSame($actor, $request->context()->actorContext()?->origin());
+        self::assertSame($actor, $request->context()->actorContext()?->authorization());
+        self::assertSame($actor, $request->context()->actorContext()?->execution());
+    }
+
     public function testMissingArtifactFailsWithoutFallbackOrCredentialExposure(): void
     {
         $credential = 'database-credential-that-must-not-appear';
@@ -132,7 +171,7 @@ final class ApplicationHttpRuntimeTest extends TestCase
     }
 
     /** @return array{operation: string, http: string, container: string, class: string, namespace: string} */
-    private function compileArtifacts(): array
+    private function compileArtifacts(bool $withAuthorizationFixture = false): array
     {
         $directory = $this->directory();
         $class = 'ApplicationHttpContainer' . bin2hex(random_bytes(8));
@@ -161,11 +200,13 @@ final class ApplicationHttpRuntimeTest extends TestCase
             'discovery' => [$root . '/examples/quickstart/app/Feature'],
             'providers' => [],
         ]);
-        $status = Application::configure($directory)
+        $builder = Application::configure($directory)
             ->withConfiguration()
-            ->create()
-            ->console()
-            ->run(new ArrayInput(['command' => 'build:compile']), new BufferedOutput());
+            ->withOperations($withAuthorizationFixture ? [ApplicationRuntimeOperationProvider::class] : [])
+            ->withServices($withAuthorizationFixture ? [ApplicationRuntimeServiceProvider::class] : []);
+        $status = $builder->create()->console()->run(new ArrayInput([
+            'command' => 'build:compile',
+        ]), new BufferedOutput());
         self::assertSame(0, $status);
 
         return $paths;
@@ -242,5 +283,59 @@ final class ApplicationHttpRuntimeTest extends TestCase
             'user' => (string) (getenv('POSTGRES_USER') ?: 'blackops'),
             'password' => (string) (getenv('POSTGRES_PASSWORD') ?: 'blackops'),
         ];
+    }
+}
+
+final readonly class ApplicationRuntimeOperationProvider implements OperationProvider
+{
+    public function definitions(): iterable
+    {
+        return [ApplicationRuntimeAuthorizedOperation::class];
+    }
+}
+
+final readonly class ApplicationRuntimeServiceProvider implements ServiceProvider
+{
+    public function register(ServiceRegistry $services): void
+    {
+        $services->autowire(ApplicationRuntimePolicyDependency::class);
+    }
+}
+
+final readonly class ApplicationRuntimePolicyDependency {}
+
+final readonly class ApplicationRuntimeAuthorizedValue implements OperationValue {}
+
+final readonly class ApplicationRuntimeAuthorizedOutcome implements Outcome
+{
+    public function __construct(
+        public string $message,
+    ) {}
+}
+
+#[Route(method: 'GET', path: '/authorized')]
+#[OperationType('application.runtime.authorized')]
+#[Authorize(ApplicationRuntimeAuthorizationPolicy::class)]
+final readonly class ApplicationRuntimeAuthorizedOperation implements Operation
+{
+    public function handle(ApplicationRuntimeAuthorizedValue $value): ApplicationRuntimeAuthorizedOutcome
+    {
+        return new ApplicationRuntimeAuthorizedOutcome('authorized');
+    }
+}
+
+final class ApplicationRuntimeAuthorizationPolicy implements AuthorizationPolicy
+{
+    public static ?AuthorizationRequest $request = null;
+
+    public function __construct(
+        public readonly ApplicationRuntimePolicyDependency $dependency,
+    ) {}
+
+    public function decide(AuthorizationRequest $request): AuthorizationDecision
+    {
+        self::$request = $request;
+
+        return AuthorizationDecision::allow();
     }
 }

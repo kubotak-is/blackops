@@ -4,8 +4,13 @@ declare(strict_types=1);
 
 namespace BlackOps\Tests\Internal\Execution;
 
+use BlackOps\Core\ActorContext;
+use BlackOps\Core\ActorRef;
 use BlackOps\Core\Attribute\Sensitive;
 use BlackOps\Core\Attribute\SensitiveMode;
+use BlackOps\Core\Authorization\AuthorizationDecision;
+use BlackOps\Core\Authorization\AuthorizationPolicy;
+use BlackOps\Core\Authorization\AuthorizationRequest;
 use BlackOps\Core\EmptyOutcome;
 use BlackOps\Core\Exception\OperationRejectedException;
 use BlackOps\Core\Execution\Inline;
@@ -18,6 +23,8 @@ use BlackOps\Core\OperationValue;
 use BlackOps\Core\Registry\OperationMetadata;
 use BlackOps\Core\Registry\OperationRegistry;
 use BlackOps\Core\Rejection\RejectionReason;
+use BlackOps\Internal\Authorization\AuthorizationEvaluator;
+use BlackOps\Internal\Authorization\AuthorizationPolicyResolver;
 use BlackOps\Internal\Execution\ExecutionScopeProvider;
 use BlackOps\Internal\Execution\HandlerResolver;
 use BlackOps\Internal\Execution\InlineDispatcher;
@@ -112,11 +119,106 @@ final class InlineDispatcherTest extends TestCase
         );
 
         self::assertTrue($result->isRejected());
+        self::assertSame('019f32ab-2be0-7b38-a0a7-1ab2f9687697', $result->operationId()?->toString());
         self::assertSame(
             [JournalEvent::OperationReceived, JournalEvent::AttemptStarted, JournalEvent::OperationRejected],
             array_map(static fn(JournalRecord $record): JournalEvent => $record->event, $journal->records),
         );
         self::assertSame([1, 2, 3], array_column($journal->records, 'sequence'));
+    }
+
+    public function testAnonymousAuthorizedOperationRejectsAfterAttemptWithoutCallingPolicyOrHandler(): void
+    {
+        $policy = new RecordingDispatchPolicy(AuthorizationDecision::allow());
+        $handler = new CountingDispatchHandler();
+        $journal = new RecordingJournalWriter();
+
+        $result = $this->dispatcher(
+            $handler,
+            $journal,
+            metadata: $this->authorizedMetadata($handler),
+            policy: $policy,
+        )->dispatch(new DispatchOperation(), new DispatchValue('anonymous'));
+
+        self::assertTrue($result->isRejected());
+        self::assertSame('authorization.authentication_required', $result->rejectionReason()->code());
+        self::assertSame('019f32ab-2be0-7b38-a0a7-1ab2f9687697', $result->operationId()?->toString());
+        self::assertSame(0, $policy->calls);
+        self::assertSame(0, $handler->calls);
+        self::assertSame(
+            [JournalEvent::OperationReceived, JournalEvent::AttemptStarted, JournalEvent::OperationRejected],
+            array_column($journal->records, 'event'),
+        );
+        self::assertSame([1, 2, 3], array_column($journal->records, 'sequence'));
+    }
+
+    public function testAuthenticatedAllowPassesAttemptContextAndRunsHandler(): void
+    {
+        $policy = new RecordingDispatchPolicy(AuthorizationDecision::allow());
+        $handler = new CountingDispatchHandler();
+        $actor = new ActorRef('user-123', 'user');
+
+        $result = $this->dispatcher($handler, metadata: $this->authorizedMetadata($handler), policy: $policy)->dispatch(
+            new DispatchOperation(),
+            new DispatchValue('allow'),
+            new ActorContext($actor, $actor, $actor),
+        );
+
+        self::assertTrue($result->isCompleted());
+        self::assertSame(1, $policy->calls);
+        self::assertSame(1, $handler->calls);
+        self::assertSame($actor, $policy->request?->actor());
+        self::assertNotNull($policy->request?->context()->attempt());
+    }
+
+    public function testForbiddenDoesNotRunHandlerAndWritesRejected(): void
+    {
+        $policy = new RecordingDispatchPolicy(AuthorizationDecision::forbid('authorization.dispatch_forbidden'));
+        $handler = new CountingDispatchHandler();
+        $journal = new RecordingJournalWriter();
+        $actor = new ActorRef('user-123', 'user');
+
+        $result = $this->dispatcher(
+            $handler,
+            $journal,
+            metadata: $this->authorizedMetadata($handler),
+            policy: $policy,
+        )->dispatch(new DispatchOperation(), new DispatchValue('forbid'), new ActorContext($actor, $actor, $actor));
+
+        self::assertSame('authorization.dispatch_forbidden', $result->rejectionReason()->code());
+        self::assertSame(0, $handler->calls);
+        self::assertSame(JournalEvent::OperationRejected, $journal->records[2]->event);
+    }
+
+    public function testPolicyBackendExceptionPropagatesWithoutRejectedJournalOrHandler(): void
+    {
+        $failure = new \RuntimeException('policy backend unavailable');
+        $policy = new RecordingDispatchPolicy(AuthorizationDecision::allow(), $failure);
+        $handler = new CountingDispatchHandler();
+        $journal = new RecordingJournalWriter();
+        $actor = new ActorRef('user-123', 'user');
+
+        try {
+            $this->dispatcher(
+                $handler,
+                $journal,
+                metadata: $this->authorizedMetadata($handler),
+                policy: $policy,
+            )->dispatch(
+                new DispatchOperation(),
+                new DispatchValue('failure'),
+                new ActorContext($actor, $actor, $actor),
+            );
+            self::fail('Expected policy backend failure.');
+        } catch (\RuntimeException $exception) {
+            self::assertSame($failure, $exception);
+        }
+
+        self::assertSame(0, $handler->calls);
+        self::assertSame(
+            [JournalEvent::OperationReceived, JournalEvent::AttemptStarted],
+            array_column($journal->records, 'event'),
+        );
     }
 
     public function testRejectedExceptionWritesTerminalRejectedEvent(): void
@@ -259,6 +361,7 @@ final class InlineDispatcherTest extends TestCase
         ?JournalObservationPipeline $observations = null,
         ?ExecutionScopeProvider $scope = null,
         ?OperationMetadata $metadata = null,
+        ?AuthorizationPolicy $policy = null,
     ): InlineDispatcher {
         $metadata ??= new OperationMetadata(
             'dispatch.test',
@@ -296,6 +399,9 @@ final class InlineDispatcherTest extends TestCase
             }
         };
         $identifiers = new IdentifierFactory($generator, $clock);
+        $authorization = $policy === null
+            ? null
+            : new AuthorizationEvaluator(new AuthorizationPolicyResolver(new DispatchPolicyContainer($policy)));
 
         return new InlineDispatcher(
             new OperationRegistry([$metadata]),
@@ -306,6 +412,20 @@ final class InlineDispatcherTest extends TestCase
             $lifecycle ?? new LifecycleStateMachine(),
             $observations,
             $scope ?? new ExecutionScopeProvider(),
+            authorization: $authorization,
+        );
+    }
+
+    private function authorizedMetadata(object $handler): OperationMetadata
+    {
+        return new OperationMetadata(
+            'dispatch.authorized',
+            DispatchOperation::class,
+            DispatchValue::class,
+            $handler::class,
+            EmptyOutcome::class,
+            Inline::class,
+            authorizationPolicy: RecordingDispatchPolicy::class,
         );
     }
 }
@@ -352,6 +472,58 @@ final readonly class DispatchHandler implements OperationHandler
             throw new LogicException('Attempt is required.');
         }
         return OperationResult::completed();
+    }
+}
+
+final class CountingDispatchHandler implements OperationHandler
+{
+    public int $calls = 0;
+
+    public function handle(OperationEnvelope $operation): OperationResult
+    {
+        ++$this->calls;
+
+        return OperationResult::completed();
+    }
+}
+
+final class RecordingDispatchPolicy implements AuthorizationPolicy
+{
+    public int $calls = 0;
+    public ?AuthorizationRequest $request = null;
+
+    public function __construct(
+        private readonly AuthorizationDecision $decision,
+        private readonly ?\Throwable $failure = null,
+    ) {}
+
+    public function decide(AuthorizationRequest $request): AuthorizationDecision
+    {
+        ++$this->calls;
+        $this->request = $request;
+
+        if ($this->failure !== null) {
+            throw $this->failure;
+        }
+
+        return $this->decision;
+    }
+}
+
+final readonly class DispatchPolicyContainer implements ContainerInterface
+{
+    public function __construct(
+        private AuthorizationPolicy $policy,
+    ) {}
+
+    public function get(string $id): mixed
+    {
+        return $this->policy;
+    }
+
+    public function has(string $id): bool
+    {
+        return true;
     }
 }
 

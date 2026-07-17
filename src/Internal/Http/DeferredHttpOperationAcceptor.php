@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace BlackOps\Internal\Http;
 
+use BlackOps\Core\ActorContext;
 use BlackOps\Core\Codec\OperationCodec;
 use BlackOps\Core\Execution\Deferred;
 use BlackOps\Core\Execution\DeferredAcknowledgement;
 use BlackOps\Core\Execution\DeferredOperationMessage;
 use BlackOps\Core\Operation;
 use BlackOps\Core\OperationEnvelope;
+use BlackOps\Core\OperationResult;
 use BlackOps\Core\OperationValue;
 use BlackOps\Core\Registry\OperationRegistry;
 use BlackOps\Http\DeferredOperationAcceptor;
@@ -33,8 +35,11 @@ final readonly class DeferredHttpOperationAcceptor implements DeferredOperationA
         return $metadata !== null && $metadata->strategy === Deferred::class;
     }
 
-    public function accept(Operation $definition, OperationValue $value): DeferredAcknowledgement
-    {
+    public function accept(
+        Operation $definition,
+        OperationValue $value,
+        ?ActorContext $actorContext = null,
+    ): DeferredAcknowledgement|OperationResult {
         $metadata = $this->registry->findByDefinition($definition::class) ?? throw new LogicException(
             'Deferred operation definition is not registered.',
         );
@@ -43,7 +48,7 @@ final readonly class DeferredHttpOperationAcceptor implements DeferredOperationA
             throw new LogicException('Deferred HTTP acceptor requires the Deferred execution strategy.');
         }
 
-        $context = $this->contexts->receive();
+        $context = $this->contexts->receive(actorContext: $actorContext);
         $strategy = new Deferred();
         $envelope = new OperationEnvelope($definition, $value, $context, $strategy);
         $encoded = $this->codec->encode($metadata, $value, $context);

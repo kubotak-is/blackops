@@ -68,7 +68,7 @@ Applicationは`HttpAuthenticator`を実装し、Credentialなしを`Authenticati
 
 Frameworkの`AuthenticationMiddleware`はCredential自体をResult、Request Attribute、ExecutionContext、Journalへコピーしません。Authenticated時に渡すのはID／Typeだけの`ActorRef`です。Invalid時はOperation IDを発行せず、安定Codeだけを含む401 JSONを返します。AuthenticatorのBackend障害はInvalidへ丸めず、上位のHTTP Error境界へ伝播します。
 
-`config/middleware.php`へAuthentication Middlewareを登録しても、認可Policyは自動では決まりません。Operation単位のAuthorizationとDeferred再認可は別のLifecycle境界です。
+Authenticated Resultの`ActorRef`は予約Request Attributeを経由し、Operationの`ActorContext`へ接続されます。HTTP入口では同じ参照がorigin／authorization／execution Actorになります。Anonymous RequestにはActorContextを追加しません。`config/middleware.php`へAuthentication Middlewareを登録しても認可Policyは自動では決まらないため、Operation単位で`#[Authorize]`を宣言してください。Deferred Worker実行時の再認可とSystem Actorへの置換は現在の提供範囲に含まれません。
 
 ## Operation Authorizationの責任境界
 
@@ -76,7 +76,11 @@ Frameworkの`AuthenticationMiddleware`はCredential自体をResult、Request Att
 
 Policy ClassはBuild時にCompiled ContainerへAutowired登録されます。RepositoryやPermission Service等のInterface BindingはApplicationのService Providerへ登録してください。PolicyはCredential、Token、Session、Role／Permission Snapshot、Backend例外をRequestやDecisionへ保存しません。現在のRole、Permission、Resource状態はDIしたApplication Serviceから評価します。
 
-Unauthorized／Forbidden Codeには外部公開とJournal保存が可能な安定Codeだけを使います。Policy BackendのTimeoutや接続障害は拒否Decisionへ丸めず、例外としてFramework Runtimeへ伝えてください。AuthorizationのLifecycle評価とHTTP 401／403変換は後続Runtime接続で有効になります。
+FrameworkはPolicy評価を固定Lifecycle Stageとして実行します。Inlineでは`operation.received`、`attempt.started`の後、Handler解決／実行前に評価します。Deferred受付では`operation.received`の後、Transport Enqueue前に評価します。拒否時は次のSequenceへ`operation.rejected`を記録し、Handler／Enqueueへ進みません。
+
+ActorがないPolicy付きOperationはPolicyを呼ばず、`authorization.authentication_required`でUnauthorizedになります。Policyが返したUnauthorized／ForbiddenはOperation ID付きの401／403 JSONへ変換されます。ResponseとJournalへ出すCodeには外部公開可能な安定Codeだけを使ってください。
+
+Policy BackendのTimeout、接続障害、Policy解決／構築失敗は拒否Decisionへ丸めません。Frameworkは元の例外をRuntime Error境界へ渡し、401／403として扱いません。Credential、Role、Permission SnapshotもExecutionContext、Result、Journalへ追加しません。
 
 ## Operation受理前のError
 

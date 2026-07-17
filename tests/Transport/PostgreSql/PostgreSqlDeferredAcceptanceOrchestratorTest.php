@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace BlackOps\Tests\Transport\PostgreSql;
 
+use BlackOps\Core\ActorContext;
+use BlackOps\Core\ActorRef;
+use BlackOps\Core\Authorization\AuthorizationDecision;
+use BlackOps\Core\Authorization\AuthorizationPolicy;
+use BlackOps\Core\Authorization\AuthorizationRequest;
 use BlackOps\Core\EmptyOutcome;
 use BlackOps\Core\Exception\DeferredTransportException;
 use BlackOps\Core\Execution\Deferred;
@@ -16,6 +21,8 @@ use BlackOps\Core\OperationEnvelope;
 use BlackOps\Core\OperationHandler;
 use BlackOps\Core\OperationValue;
 use BlackOps\Core\Registry\OperationMetadata;
+use BlackOps\Internal\Authorization\AuthorizationEvaluator;
+use BlackOps\Internal\Authorization\AuthorizationPolicyResolver;
 use BlackOps\Internal\Execution\DeferredAcceptanceOrchestrator;
 use BlackOps\Internal\Identifier\IdentifierFactory;
 use BlackOps\Internal\Identifier\Uuidv7Generator;
@@ -31,6 +38,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
+use Psr\Container\ContainerInterface;
 
 final class PostgreSqlDeferredAcceptanceOrchestratorTest extends TestCase
 {
@@ -93,7 +101,28 @@ final class PostgreSqlDeferredAcceptanceOrchestratorTest extends TestCase
         self::assertCount(2, $this->records());
     }
 
-    private function orchestrator(): DeferredAcceptanceOrchestrator
+    public function testAuthorizationRejectionCommitsReceivedAndRejectedWithoutTransportRow(): void
+    {
+        $policy = new DeferredAcceptancePolicy(AuthorizationDecision::forbid('authorization.report_forbidden'));
+        $actor = new ActorRef('user-123', 'user');
+        $result = $this->orchestrator($policy)->accept(
+            $this->message(),
+            $this->envelope(new ActorContext($actor, $actor, $actor)),
+            $this->metadata(DeferredAcceptancePolicy::class),
+        );
+
+        self::assertInstanceOf(\BlackOps\Core\OperationResult::class, $result);
+        self::assertSame('authorization.report_forbidden', $result->rejectionReason()->code());
+        self::assertSame(self::OPERATION_ID, $result->operationId()?->toString());
+        self::assertSame(0, (int) $this->connection->fetchOne('SELECT count(*) FROM ' . self::SCHEMA . '.operations'));
+        self::assertSame(
+            [JournalEvent::OperationReceived, JournalEvent::OperationRejected],
+            array_column($this->records(), 'event'),
+        );
+        self::assertSame([1, 2], array_column($this->records(), 'sequence'));
+    }
+
+    private function orchestrator(?AuthorizationPolicy $policy = null): DeferredAcceptanceOrchestrator
     {
         $clock = new FixedDeferredAcceptanceClock();
         $identifiers = new IdentifierFactory(new DeferredAcceptanceUuidv7Generator(), $clock);
@@ -103,6 +132,11 @@ final class PostgreSqlDeferredAcceptanceOrchestratorTest extends TestCase
             $this->sender,
             $this->journal,
             new JournalRecordFactory($identifiers, $clock),
+            authorization: $policy === null
+                ? null
+                : new AuthorizationEvaluator(new AuthorizationPolicyResolver(
+                    new DeferredAcceptancePolicyContainer($policy),
+                )),
         );
     }
 
@@ -118,7 +152,7 @@ final class PostgreSqlDeferredAcceptanceOrchestratorTest extends TestCase
         );
     }
 
-    private function envelope(): OperationEnvelope
+    private function envelope(?ActorContext $actorContext = null): OperationEnvelope
     {
         return new OperationEnvelope(
             new DeferredAcceptedOperation(),
@@ -127,12 +161,14 @@ final class PostgreSqlDeferredAcceptanceOrchestratorTest extends TestCase
                 OperationId::fromString(self::OPERATION_ID),
                 new DateTimeImmutable('2026-07-10T00:00:00.000000Z'),
                 CorrelationId::fromString(self::CORRELATION_ID),
+                actorContext: $actorContext,
             ),
             new Deferred(),
         );
     }
 
-    private function metadata(): OperationMetadata
+    /** @param class-string<AuthorizationPolicy>|null $policy */
+    private function metadata(?string $policy = null): OperationMetadata
     {
         return new OperationMetadata(
             'report.generate',
@@ -141,6 +177,7 @@ final class PostgreSqlDeferredAcceptanceOrchestratorTest extends TestCase
             DeferredAcceptedHandler::class,
             EmptyOutcome::class,
             Deferred::class,
+            authorizationPolicy: $policy,
         );
     }
 
@@ -193,6 +230,35 @@ final readonly class DeferredAcceptedValue implements OperationValue
 }
 
 abstract class DeferredAcceptedHandler implements OperationHandler {}
+
+final readonly class DeferredAcceptancePolicy implements AuthorizationPolicy
+{
+    public function __construct(
+        private AuthorizationDecision $decision,
+    ) {}
+
+    public function decide(AuthorizationRequest $request): AuthorizationDecision
+    {
+        return $this->decision;
+    }
+}
+
+final readonly class DeferredAcceptancePolicyContainer implements ContainerInterface
+{
+    public function __construct(
+        private AuthorizationPolicy $policy,
+    ) {}
+
+    public function get(string $id): mixed
+    {
+        return $this->policy;
+    }
+
+    public function has(string $id): bool
+    {
+        return true;
+    }
+}
 
 final readonly class FixedDeferredAcceptanceClock implements ClockInterface
 {

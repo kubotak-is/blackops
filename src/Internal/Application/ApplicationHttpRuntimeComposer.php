@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace BlackOps\Internal\Application;
 
+use BlackOps\Internal\Authorization\AuthorizationEvaluator;
+use BlackOps\Internal\Authorization\AuthorizationPolicyResolver;
 use BlackOps\Internal\Codec\ReflectionJsonOperationCodec;
 use BlackOps\Internal\Execution\DeferredAcceptanceOrchestrator;
 use BlackOps\Internal\ExecutionContext\ExecutionContextFactory;
@@ -54,6 +56,7 @@ final readonly class ApplicationHttpRuntimeComposer
                 $sender,
                 $journal,
                 new JournalRecordFactory($identifiers, $clock),
+                authorization: new AuthorizationEvaluator(new AuthorizationPolicyResolver($artifacts->container)),
             ),
         );
         $psr17 = $this->psr17();

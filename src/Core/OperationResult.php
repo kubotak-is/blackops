@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BlackOps\Core;
 
 use BlackOps\Core\Attribute\PublicApi;
+use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Core\Rejection\RejectionReason;
 use LogicException;
 
@@ -25,6 +26,7 @@ final readonly class OperationResult
     private function __construct(
         ?Outcome $outcome,
         private ?RejectionReason $rejectionReason,
+        private ?OperationId $operationId,
     ) {
         $this->outcome = $outcome;
     }
@@ -38,15 +40,15 @@ final readonly class OperationResult
      */
     public static function completed(Outcome $outcome = new EmptyOutcome()): self
     {
-        return new self($outcome, null);
+        return new self($outcome, null, null);
     }
 
     /**
      * @return self<Outcome>
      */
-    public static function rejected(RejectionReason $reason): self
+    public static function rejected(RejectionReason $reason, ?OperationId $operationId = null): self
     {
-        return new self(null, $reason);
+        return new self(null, $reason, $operationId);
     }
 
     public function isCompleted(): bool
@@ -69,5 +71,10 @@ final readonly class OperationResult
         return (
             $this->rejectionReason ?? throw new LogicException('Completed operation result has no rejection reason.')
         );
+    }
+
+    public function operationId(): ?OperationId
+    {
+        return $this->operationId;
     }
 }

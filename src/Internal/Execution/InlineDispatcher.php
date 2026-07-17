@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BlackOps\Internal\Execution;
 
+use BlackOps\Core\ActorContext;
 use BlackOps\Core\Execution\Deferred;
 use BlackOps\Core\Execution\ExecutionStrategy;
 use BlackOps\Core\Execution\Inline;
@@ -18,6 +19,7 @@ use BlackOps\Core\Rejection\RejectionReason;
 use BlackOps\Core\Validation\Violation;
 use BlackOps\Execution\Dispatcher;
 use BlackOps\Execution\ValidationRejectionRecorder;
+use BlackOps\Internal\Authorization\AuthorizationEvaluator;
 use BlackOps\Internal\ExecutionContext\ExecutionContextFactory;
 use BlackOps\Internal\Journal\InlineSequence;
 use BlackOps\Internal\Journal\JournalObservationPipeline;
@@ -40,6 +42,7 @@ final readonly class InlineDispatcher implements Dispatcher, ValidationRejection
 
     private OperationValueValidator $validator;
 
+    /** @mago-expect lint:excessive-parameter-list */
     public function __construct(
         private OperationRegistry $registry,
         private ExecutionContextFactory $contexts,
@@ -50,6 +53,7 @@ final readonly class InlineDispatcher implements Dispatcher, ValidationRejection
         ?JournalObservationPipeline $observations = null,
         private ExecutionScopeProvider $scope = new ExecutionScopeProvider(),
         private HandlerInvoker $invoker = new HandlerInvoker(),
+        private ?AuthorizationEvaluator $authorization = null,
     ) {
         $this->validator = new OperationValueValidator();
         $this->observations = $observations ?? new JournalObservationPipeline(
@@ -66,8 +70,11 @@ final readonly class InlineDispatcher implements Dispatcher, ValidationRejection
         return $this->validator->validate($value);
     }
 
-    public function dispatch(Operation $definition, OperationValue $value): OperationResult
-    {
+    public function dispatch(
+        Operation $definition,
+        OperationValue $value,
+        ?ActorContext $actorContext = null,
+    ): OperationResult {
         $metadata = $this->registry->findByDefinition($definition::class) ?? throw new LogicException(
             'Operation definition is not registered.',
         );
@@ -82,7 +89,12 @@ final readonly class InlineDispatcher implements Dispatcher, ValidationRejection
 
         $sequence = new InlineSequence();
         $state = null;
-        $receivedEnvelope = new OperationEnvelope($definition, $value, $this->contexts->receive(), new Inline());
+        $receivedEnvelope = new OperationEnvelope(
+            $definition,
+            $value,
+            $this->contexts->receive(actorContext: $actorContext),
+            new Inline(),
+        );
         $state = $this->appendLifecycleRecord(
             $state,
             JournalEvent::OperationReceived,
@@ -104,6 +116,11 @@ final readonly class InlineDispatcher implements Dispatcher, ValidationRejection
             JournalEvent::AttemptStarted,
             fn(): JournalRecord => $this->journalRecords->attemptStarted($envelope, $metadata, $sequence->next()),
         );
+        $authorizationResult = $this->authorize($metadata, $envelope, $state, $sequence);
+        if ($authorizationResult !== null) {
+            return $authorizationResult;
+        }
+
         $handler = $this->handlers->resolve($metadata->handler);
         $result = $this->scope->run(
             $envelope,
@@ -136,6 +153,7 @@ final readonly class InlineDispatcher implements Dispatcher, ValidationRejection
             return $result;
         }
 
+        $rejected = OperationResult::rejected($result->rejectionReason(), $envelope->id());
         $this->appendLifecycleRecord(
             $state,
             JournalEvent::OperationRejected,
@@ -143,11 +161,11 @@ final readonly class InlineDispatcher implements Dispatcher, ValidationRejection
                 $envelope,
                 $metadata,
                 $sequence->next(),
-                $result->rejectionReason(),
+                $rejected->rejectionReason(),
             ),
         );
 
-        return $result;
+        return $rejected;
     }
 
     /**
@@ -208,14 +226,9 @@ final readonly class InlineDispatcher implements Dispatcher, ValidationRejection
         $next = $this->lifecycle->next($state, $event);
         $record = $createRecord();
         $this->journal->append($record);
-        $this->observe($record);
+        $this->observations->observe($record);
 
         return $next;
-    }
-
-    private function observe(JournalRecord $record): void
-    {
-        $this->observations->observe($record);
     }
 
     private function metadata(Operation $definition): OperationMetadata
@@ -241,5 +254,38 @@ final readonly class InlineDispatcher implements Dispatcher, ValidationRejection
             Deferred::class => new Deferred(),
             default => throw new LogicException('Unsupported execution strategy.'),
         };
+    }
+
+    private function authorize(
+        OperationMetadata $metadata,
+        OperationEnvelope $envelope,
+        LifecycleState $state,
+        InlineSequence $sequence,
+    ): ?OperationResult {
+        if ($metadata->authorizationPolicy === null) {
+            return null;
+        }
+
+        if ($this->authorization === null) {
+            throw new LogicException('Authorization evaluator is unavailable.');
+        }
+
+        $rejection = $this->authorization->evaluate($metadata, $envelope);
+        if ($rejection === null) {
+            return null;
+        }
+
+        $this->appendLifecycleRecord(
+            $state,
+            JournalEvent::OperationRejected,
+            fn(): JournalRecord => $this->journalRecords->operationRejected(
+                $envelope,
+                $metadata,
+                $sequence->next(),
+                $rejection,
+            ),
+        );
+
+        return OperationResult::rejected($rejection, $envelope->id());
     }
 }

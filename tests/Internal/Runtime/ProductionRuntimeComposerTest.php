@@ -4,10 +4,14 @@ declare(strict_types=1);
 
 namespace BlackOps\Tests\Internal\Runtime;
 
+use BlackOps\Core\ActorRef;
 use BlackOps\Core\Attribute\Accepts;
 use BlackOps\Core\Attribute\HandledBy;
 use BlackOps\Core\Attribute\OperationType;
 use BlackOps\Core\Attribute\Returns;
+use BlackOps\Core\Authorization\AuthorizationDecision;
+use BlackOps\Core\Authorization\AuthorizationPolicy;
+use BlackOps\Core\Authorization\AuthorizationRequest;
 use BlackOps\Core\EmptyOutcome;
 use BlackOps\Core\Execution\Inline;
 use BlackOps\Core\Operation;
@@ -173,8 +177,35 @@ final class ProductionRuntimeComposerTest extends TestCase
         self::assertSame('ready', $response->getHeaderLine('X-Runtime-Middleware'));
     }
 
-    private function artifacts(?OperationHandler $handler = null): ProductionRuntimeArtifacts
+    public function testConnectsCompiledAuthorizationPolicyAndHttpActorToInlineRuntime(): void
     {
+        $policy = new RuntimeCompositionAuthorizationPolicy();
+        $psr17 = new Psr17Factory();
+        $runtime = new ProductionRuntimeComposer()->compose(
+            $this->artifacts(policy: $policy),
+            new RuntimeCompositionClock(),
+            new RuntimeCompositionJournalWriter(),
+            $psr17,
+            $psr17,
+        );
+        $actor = new ActorRef('user-123', 'user');
+
+        $response = $runtime->httpHandler->handle($psr17->createServerRequest('GET', '/composition')->withAttribute(
+            ActorRef::class,
+            $actor,
+        ));
+
+        self::assertSame(204, $response->getStatusCode());
+        self::assertSame($actor, $policy->request?->actor());
+        self::assertSame($actor, $policy->request?->context()->actorContext()?->origin());
+        self::assertSame($actor, $policy->request?->context()->actorContext()?->authorization());
+        self::assertSame($actor, $policy->request?->context()->actorContext()?->execution());
+    }
+
+    private function artifacts(
+        ?OperationHandler $handler = null,
+        ?AuthorizationPolicy $policy = null,
+    ): ProductionRuntimeArtifacts {
         $handler ??= new RuntimeCompositionHandler();
         $routes = [
             'GET' => [
@@ -190,6 +221,7 @@ final class ProductionRuntimeComposerTest extends TestCase
                 $handler::class,
                 EmptyOutcome::class,
                 Inline::class,
+                authorizationPolicy: $policy === null ? null : RuntimeCompositionAuthorizationPolicy::class,
             )]),
             new HttpOperationManifest(
                 $routes,
@@ -204,7 +236,7 @@ final class ProductionRuntimeComposerTest extends TestCase
                 ],
                 new FastRouteDispatcherDataCompiler()->compile($routes),
             ),
-            new RuntimeCompositionContainer($handler),
+            new RuntimeCompositionContainer($handler, $policy),
         );
     }
 
@@ -243,16 +275,29 @@ final readonly class RuntimeCompositionContainer implements ContainerInterface
 {
     public function __construct(
         private OperationHandler $handler,
+        private ?AuthorizationPolicy $policy = null,
     ) {}
 
     public function get(string $id): mixed
     {
-        return $this->handler;
+        if ($id === $this->handler::class) {
+            return $this->handler;
+        }
+
+        if ($this->policy !== null && $id === RuntimeCompositionAuthorizationPolicy::class) {
+            return $this->policy;
+        }
+
+        throw new \LogicException('Runtime composition service is unavailable.');
     }
 
     public function has(string $id): bool
     {
-        return $id === $this->handler::class;
+        return (
+            $id === $this->handler::class
+            || $this->policy !== null
+            && $id === RuntimeCompositionAuthorizationPolicy::class
+        );
     }
 }
 
@@ -269,6 +314,18 @@ final readonly class RuntimeCompositionHandler implements OperationHandler
     public function handle(OperationEnvelope $operation): OperationResult
     {
         return OperationResult::completed();
+    }
+}
+
+final class RuntimeCompositionAuthorizationPolicy implements AuthorizationPolicy
+{
+    public ?AuthorizationRequest $request = null;
+
+    public function decide(AuthorizationRequest $request): AuthorizationDecision
+    {
+        $this->request = $request;
+
+        return AuthorizationDecision::allow();
     }
 }
 

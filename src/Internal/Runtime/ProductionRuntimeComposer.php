@@ -7,6 +7,8 @@ namespace BlackOps\Internal\Runtime;
 use BlackOps\Http\Binding\OperationValueBinder;
 use BlackOps\Http\OperationRequestHandler;
 use BlackOps\Http\Responder\JsonOperationResponder;
+use BlackOps\Internal\Authorization\AuthorizationEvaluator;
+use BlackOps\Internal\Authorization\AuthorizationPolicyResolver;
 use BlackOps\Internal\Execution\HandlerResolver;
 use BlackOps\Internal\Execution\InlineDispatcher;
 use BlackOps\Internal\ExecutionContext\ExecutionContextFactory;
@@ -45,6 +47,7 @@ final readonly class ProductionRuntimeComposer
     ): ProductionRuntimeComposition {
         $identifiers = new IdentifierFactory(new SymfonyUuidv7Generator(), $dependencies->clock);
         $scope = $dependencies->executionScope ?? new \BlackOps\Internal\Execution\ExecutionScopeProvider();
+        $authorization = new AuthorizationEvaluator(new AuthorizationPolicyResolver($artifacts->container));
         $dispatcher = new InlineDispatcher(
             $artifacts->operations,
             new ExecutionContextFactory($identifiers, $dependencies->clock),
@@ -53,6 +56,7 @@ final readonly class ProductionRuntimeComposer
             $dependencies->journal,
             observations: $dependencies->journalObservations,
             scope: $scope,
+            authorization: $authorization,
         );
         $handlers = new HandlerResolver($artifacts->container);
         $routes = $artifacts->http->toRegistry($this->definitions->fromRegistry(

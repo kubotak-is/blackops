@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace BlackOps\Tests\Http;
 
+use BlackOps\Core\ActorContext;
+use BlackOps\Core\ActorRef;
+use BlackOps\Core\Authorization\AuthorizationDecision;
+use BlackOps\Core\Authorization\AuthorizationPolicy;
+use BlackOps\Core\Authorization\AuthorizationRequest;
 use BlackOps\Core\Codec\OperationCodec;
 use BlackOps\Core\EmptyOutcome;
 use BlackOps\Core\Execution\Deferred;
@@ -21,6 +26,8 @@ use BlackOps\Http\OperationRequestHandler;
 use BlackOps\Http\Responder\JsonOperationResponder;
 use BlackOps\Http\Routing\HttpOperationRoute;
 use BlackOps\Http\Routing\HttpRouteRegistry;
+use BlackOps\Internal\Authorization\AuthorizationEvaluator;
+use BlackOps\Internal\Authorization\AuthorizationPolicyResolver;
 use BlackOps\Internal\Codec\ReflectionJsonOperationCodec;
 use BlackOps\Internal\Execution\DeferredAcceptanceOrchestrator;
 use BlackOps\Internal\Execution\HandlerResolver;
@@ -43,6 +50,8 @@ use Nyholm\Psr7\Factory\Psr17Factory;
 use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
 use Psr\Container\ContainerInterface;
+use RuntimeException;
+use Throwable;
 
 final class DeferredOperationRequestHandlerTest extends TestCase
 {
@@ -148,7 +157,102 @@ final class DeferredOperationRequestHandlerTest extends TestCase
         self::assertSame('', $records[0]->data->value->reportName);
     }
 
-    private function handler(OperationCodec $codec): OperationRequestHandler
+    public function testAnonymousAuthorizedDeferredRequestRejectsBeforePolicyAndEnqueue(): void
+    {
+        $policy = new DeferredHttpAuthorizationPolicy(AuthorizationDecision::allow());
+        $handler = $this->handler(new ReflectionJsonOperationCodec(), $policy);
+
+        $response = $handler->handle(
+            $this->psr17
+                ->createServerRequest('POST', '/reports')
+                ->withBody($this->psr17->createStream('{"reportName":"weekly"}')),
+        );
+
+        self::assertSame(401, $response->getStatusCode());
+        self::assertStringContainsString('"operationId":"' . self::OPERATION_ID . '"', (string) $response->getBody());
+        self::assertStringContainsString(
+            '"code":"authorization.authentication_required"',
+            (string) $response->getBody(),
+        );
+        self::assertSame(0, $policy->calls);
+        self::assertSame(0, (int) $this->connection->fetchOne('SELECT count(*) FROM ' . self::SCHEMA . '.operations'));
+        self::assertSame(
+            [JournalEvent::OperationReceived, JournalEvent::OperationRejected],
+            array_column($this->records(), 'event'),
+        );
+    }
+
+    public function testAuthenticatedForbiddenDeferredRequestRejectsWithoutEnqueue(): void
+    {
+        $policy = new DeferredHttpAuthorizationPolicy(AuthorizationDecision::forbid('authorization.report_forbidden'));
+        $actor = new ActorRef('user-123', 'user');
+        $handler = $this->handler(new ReflectionJsonOperationCodec(), $policy);
+        $request = $this->psr17
+            ->createServerRequest('POST', '/reports')
+            ->withAttribute(ActorRef::class, $actor)
+            ->withBody($this->psr17->createStream('{"reportName":"weekly"}'));
+
+        $response = $handler->handle($request);
+
+        self::assertSame(403, $response->getStatusCode());
+        self::assertSame(
+            '{"status":"rejected","operationId":"'
+            . self::OPERATION_ID
+            . '","category":"forbidden","code":"authorization.report_forbidden"}',
+            (string) $response->getBody(),
+        );
+        self::assertSame($actor, $policy->request?->actor());
+        self::assertSame(0, (int) $this->connection->fetchOne('SELECT count(*) FROM ' . self::SCHEMA . '.operations'));
+        self::assertSame([1, 2], array_column($this->records(), 'sequence'));
+    }
+
+    public function testAuthenticatedAllowDeferredRequestPersistsActorIdsAndEnqueues(): void
+    {
+        $policy = new DeferredHttpAuthorizationPolicy(AuthorizationDecision::allow());
+        $actor = new ActorRef('user-123', 'user');
+        $handler = $this->handler(new ReflectionJsonOperationCodec(), $policy);
+        $request = $this->psr17
+            ->createServerRequest('POST', '/reports')
+            ->withAttribute(ActorRef::class, $actor)
+            ->withBody($this->psr17->createStream('{"reportName":"weekly"}'));
+
+        $response = $handler->handle($request);
+        $operationRow = $this->operationRow();
+
+        self::assertSame(202, $response->getStatusCode());
+        self::assertSame($actor, $policy->request?->context()->actorContext()?->origin());
+        self::assertSame($actor, $policy->request?->context()->actorContext()?->authorization());
+        self::assertSame($actor, $policy->request?->context()->actorContext()?->execution());
+        self::assertStringContainsString(
+            '"actors":{"origin":{"id":"user-123","type":"user"}',
+            $operationRow['context'],
+        );
+        self::assertStringNotContainsString('credential', $operationRow['context']);
+        self::assertStringNotContainsString('permission', $operationRow['context']);
+    }
+
+    public function testPolicyBackendFailurePropagatesAndRollsBackReceivedRecord(): void
+    {
+        $failure = new RuntimeException('authorization backend credential detail');
+        $policy = new DeferredHttpAuthorizationPolicy(AuthorizationDecision::allow(), $failure);
+        $handler = $this->handler(new ReflectionJsonOperationCodec(), $policy);
+        $request = $this->psr17
+            ->createServerRequest('POST', '/reports')
+            ->withAttribute(ActorRef::class, new ActorRef('user-123', 'user'))
+            ->withBody($this->psr17->createStream('{"reportName":"weekly"}'));
+
+        try {
+            $handler->handle($request);
+            self::fail('Expected authorization backend failure.');
+        } catch (RuntimeException $exception) {
+            self::assertSame($failure, $exception);
+        }
+
+        self::assertSame(0, (int) $this->connection->fetchOne('SELECT count(*) FROM ' . self::SCHEMA . '.operations'));
+        self::assertSame([], $this->records());
+    }
+
+    private function handler(OperationCodec $codec, ?AuthorizationPolicy $policy = null): OperationRequestHandler
     {
         $clock = new DeferredHttpClock();
         $identifiers = new IdentifierFactory(new DeferredHttpUuidv7Generator(), $clock);
@@ -159,12 +263,17 @@ final class DeferredOperationRequestHandlerTest extends TestCase
         );
         $sender->migrate();
         $this->journal->migrate();
-        $registry = new OperationRegistry([$this->metadata()]);
+        $registry = new OperationRegistry([$this->metadata(
+            $policy === null ? null : DeferredHttpAuthorizationPolicy::class,
+        )]);
         $orchestrator = new DeferredAcceptanceOrchestrator(
             $this->connection,
             $sender,
             $this->journal,
             new JournalRecordFactory($identifiers, $clock),
+            authorization: $policy === null
+                ? null
+                : new AuthorizationEvaluator(new AuthorizationPolicyResolver(new DeferredHttpPolicyContainer($policy))),
         );
         $dispatcher = new InlineDispatcher(
             $registry,
@@ -195,7 +304,8 @@ final class DeferredOperationRequestHandlerTest extends TestCase
         );
     }
 
-    private function metadata(): OperationMetadata
+    /** @param class-string<AuthorizationPolicy>|null $policy */
+    private function metadata(?string $policy = null): OperationMetadata
     {
         return new OperationMetadata(
             'report.generate',
@@ -204,6 +314,7 @@ final class DeferredOperationRequestHandlerTest extends TestCase
             GenerateReportHandler::class,
             EmptyOutcome::class,
             Deferred::class,
+            authorizationPolicy: $policy,
         );
     }
 
@@ -264,6 +375,46 @@ final readonly class ReportRequestValue implements OperationValue
 }
 
 abstract class GenerateReportHandler implements OperationHandler {}
+
+final class DeferredHttpAuthorizationPolicy implements AuthorizationPolicy
+{
+    public int $calls = 0;
+    public ?AuthorizationRequest $request = null;
+
+    public function __construct(
+        private readonly AuthorizationDecision $decision,
+        private readonly ?Throwable $failure = null,
+    ) {}
+
+    public function decide(AuthorizationRequest $request): AuthorizationDecision
+    {
+        ++$this->calls;
+        $this->request = $request;
+
+        if ($this->failure !== null) {
+            throw $this->failure;
+        }
+
+        return $this->decision;
+    }
+}
+
+final readonly class DeferredHttpPolicyContainer implements ContainerInterface
+{
+    public function __construct(
+        private AuthorizationPolicy $policy,
+    ) {}
+
+    public function get(string $id): mixed
+    {
+        return $this->policy;
+    }
+
+    public function has(string $id): bool
+    {
+        return true;
+    }
+}
 
 final readonly class DeferredHttpFailingContainer implements ContainerInterface
 {

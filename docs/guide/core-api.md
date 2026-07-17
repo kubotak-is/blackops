@@ -27,8 +27,8 @@
 | `BlackOps\Core\ActorContext` | final readonly class | Origin、Authorization、Execution Actorを区別する | `ExecutionContext::actorContext()`から読む |
 | `BlackOps\Core\OperationEnvelope` | final readonly class | Definition、Value、Context、Strategyをまとめる | Legacy Handler／低Level Dispatcher拡張で使う |
 | `BlackOps\Core\OperationHandler` | interface | Separate／Legacy Handler Contract | Compatibility形のHandlerで実装する |
-| `BlackOps\Core\OperationResult` | final readonly class | Legacy HandlerのCompleted／Rejected Result | Compatibility形で返す |
-| `BlackOps\Execution\Dispatcher` | interface | Envelopeを実行してResultを返す | 独自入口や実行Adapterを構成する |
+| `BlackOps\Core\OperationResult` | final readonly class | Completed／Rejected Resultと任意のOperation IDを保持する | 拒否時は`rejected($reason, $operationId)`で相関IDを残す |
+| `BlackOps\Execution\Dispatcher` | interface | Operationを実行してResultを返す | 独自入口では任意の`ActorContext`を第三引数へ渡す |
 
 ## Operation Metadata Attributes
 
@@ -68,6 +68,8 @@
 | `BlackOps\Core\Authorization\AuthorizationPolicy` | interface | Operation認可をApplicationへ委譲する | Policy Serviceで`decide()`を実装する |
 | `BlackOps\Core\Authorization\AuthorizationRequest` | final readonly class | Operation、Value、Context、Authorization Actorを渡す | Policy内で現在権限の検索に使う |
 | `BlackOps\Core\Authorization\AuthorizationDecision` | final readonly class | Allow／Unauthorized／Forbiddenを表す | 安定Code付きの認可判断を返す |
+
+HTTP入口はAuthenticationで得た`ActorRef`から、同じ主体をorigin／authorization／executionへ設定した`ActorContext`を作ります。独自入口から`Dispatcher`を呼ぶ場合も、Credentialを含めず、このActor参照だけを任意の第三引数へ渡してください。従来の二引数呼び出しはAnonymous Contextとして動作します。
 
 ## Value Validation
 
