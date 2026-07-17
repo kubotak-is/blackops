@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace BlackOps\Tests\Internal\DependencyInjection;
 
+use BlackOps\Core\Authorization\AuthorizationDecision;
+use BlackOps\Core\Authorization\AuthorizationPolicy;
+use BlackOps\Core\Authorization\AuthorizationRequest;
 use BlackOps\Core\DependencyInjection\ServiceProvider;
 use BlackOps\Core\DependencyInjection\ServiceRegistry;
 use BlackOps\Core\EmptyOutcome;
@@ -94,6 +97,34 @@ final class RuntimeContainerCompilerTest extends TestCase
 
         self::assertSame($expected, $handler);
         self::assertSame('explicit', $handler->dependency->value);
+    }
+
+    public function testRegistersAuthorizationPolicyOnceAndAutowiresDependencies(): void
+    {
+        $compiler = new RuntimeContainerCompiler();
+        $builder = $compiler->builder();
+        $builder->register(ContainerDependency::class)->setAutowired(true);
+        $registry = new OperationRegistry([$this->metadata(ContainerAuthorizationPolicy::class)]);
+
+        $compiler->registerAuthorizationPolicies($builder, $registry);
+        $compiler->registerAuthorizationPolicies($builder, $registry);
+
+        $policy = $compiler->compile($builder)->get(ContainerAuthorizationPolicy::class);
+
+        self::assertInstanceOf(ContainerAuthorizationPolicy::class, $policy);
+        self::assertSame('dependency-ready', $policy->dependency->value);
+    }
+
+    public function testExplicitProviderAuthorizationPolicyBindingWinsOverAutomaticRegistration(): void
+    {
+        $compiler = new RuntimeContainerCompiler();
+        $builder = $compiler->builder();
+        $expected = new ContainerAuthorizationPolicy(new ContainerDependency('explicit'));
+        $compiler->apply($builder, [new ExplicitAuthorizationPolicyProvider($expected)]);
+
+        $compiler->registerAuthorizationPolicies($builder, new OperationRegistry([$this->metadata(ContainerAuthorizationPolicy::class)]));
+
+        self::assertSame($expected, $compiler->compile($builder)->get(ContainerAuthorizationPolicy::class));
     }
 
     public function testApplicationProviderInterfaceBindingIsInjectedIntoSelfHandledOperation(): void
@@ -195,7 +226,8 @@ final class RuntimeContainerCompilerTest extends TestCase
         $compiler->registerHttpMiddleware($builder, [ContainerDependency::class]);
     }
 
-    private function metadata(): OperationMetadata
+    /** @param class-string<AuthorizationPolicy>|null $authorizationPolicy */
+    private function metadata(?string $authorizationPolicy = null): OperationMetadata
     {
         return new OperationMetadata(
             'container.operation',
@@ -204,6 +236,7 @@ final class RuntimeContainerCompilerTest extends TestCase
             ContainerHandler::class,
             EmptyOutcome::class,
             Inline::class,
+            authorizationPolicy: $authorizationPolicy,
         );
     }
 }
@@ -255,6 +288,30 @@ final readonly class ExplicitHandlerProvider implements ServiceProvider
     public function register(ServiceRegistry $services): void
     {
         $services->set(ContainerHandler::class, $this->handler);
+    }
+}
+
+final readonly class ContainerAuthorizationPolicy implements AuthorizationPolicy
+{
+    public function __construct(
+        public ContainerDependency $dependency,
+    ) {}
+
+    public function decide(AuthorizationRequest $request): AuthorizationDecision
+    {
+        return AuthorizationDecision::allow();
+    }
+}
+
+final readonly class ExplicitAuthorizationPolicyProvider implements ServiceProvider
+{
+    public function __construct(
+        private ContainerAuthorizationPolicy $policy,
+    ) {}
+
+    public function register(ServiceRegistry $services): void
+    {
+        $services->set(ContainerAuthorizationPolicy::class, $this->policy);
     }
 }
 

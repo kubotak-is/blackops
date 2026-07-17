@@ -40,11 +40,7 @@ final readonly class RuntimeContainerCompiler
     public function registerHandlers(ContainerBuilder $builder, OperationRegistry $operations): void
     {
         foreach ($operations->all() as $operation) {
-            if (
-                $builder->has($operation->handler)
-                || $builder->hasDefinition($operation->handler)
-                || $builder->hasAlias($operation->handler)
-            ) {
+            if ($builder->has($operation->handler)) {
                 continue;
             }
 
@@ -52,11 +48,24 @@ final readonly class RuntimeContainerCompiler
         }
     }
 
+    public function registerAuthorizationPolicies(ContainerBuilder $builder, OperationRegistry $operations): void
+    {
+        foreach ($operations->all() as $operation) {
+            $policy = $operation->authorizationPolicy;
+
+            if ($policy === null || $builder->has($policy)) {
+                continue;
+            }
+
+            $builder->register($policy)->setAutowired(true)->setPublic(true);
+        }
+    }
+
     /** @param list<string> $middleware */
     public function registerHttpMiddleware(ContainerBuilder $builder, array $middleware): void
     {
         foreach ($middleware as $id) {
-            if ($builder->has($id) || $builder->hasDefinition($id) || $builder->hasAlias($id)) {
+            if ($builder->has($id)) {
                 continue;
             }
 

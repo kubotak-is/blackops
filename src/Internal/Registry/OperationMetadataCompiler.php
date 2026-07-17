@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace BlackOps\Internal\Registry;
 
 use BlackOps\Core\Attribute\Accepts;
+use BlackOps\Core\Attribute\Authorize;
 use BlackOps\Core\Attribute\ExecuteWith;
 use BlackOps\Core\Attribute\HandledBy;
 use BlackOps\Core\Attribute\OperationType;
 use BlackOps\Core\Attribute\Returns;
+use BlackOps\Core\Authorization\AuthorizationPolicy;
 use BlackOps\Core\Execution\ExecutionStrategy;
 use BlackOps\Core\Execution\Inline;
 use BlackOps\Core\Operation;
@@ -40,11 +42,15 @@ final readonly class OperationMetadataCompiler
         $acceptsAttributes = $reflection->getAttributes(Accepts::class);
         $handlerAttributes = $reflection->getAttributes(HandledBy::class);
         $returnsAttributes = $reflection->getAttributes(Returns::class);
+        $authorizationAttributes = $reflection->getAttributes(Authorize::class);
         if (count($typeAttributes) !== 1) {
             throw new InvalidArgumentException('Operation definition requires OperationType exactly once.');
         }
         if (count($handlerAttributes) > 1) {
             throw new InvalidArgumentException('Operation definition must not repeat HandledBy.');
+        }
+        if (count($authorizationAttributes) > 1) {
+            throw new InvalidArgumentException('Operation definition must not repeat Authorize.');
         }
         $type = $typeAttributes[0]->newInstance();
         [$value, $outcome] = $this->valueOutcomes->compile(
@@ -68,6 +74,13 @@ final readonly class OperationMetadataCompiler
         $this->assertImplements($value, OperationValue::class);
         $this->assertImplements($outcome, Outcome::class);
         $this->assertImplements($strategy, ExecutionStrategy::class);
+        $authorizationPolicy = $authorizationAttributes === []
+            ? null
+            : $authorizationAttributes[0]->newInstance()->policy;
+        if ($authorizationPolicy !== null) {
+            $this->assertImplements($authorizationPolicy, AuthorizationPolicy::class);
+        }
+
         return new OperationMetadata(
             $type->id,
             $definition,
@@ -78,6 +91,7 @@ final readonly class OperationMetadataCompiler
             $typedSelfHandled,
             $typedSelfHandledContext,
             $typedSelfHandledMode,
+            $authorizationPolicy,
         );
     }
 

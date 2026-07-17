@@ -1,6 +1,6 @@
 # Core API Types Reference
 
-このReferenceは現在の`main` Sourceで`#[PublicApi]`を持つ124型を一覧化しています。Application Authorはまず「Application構成」「Operation Authoring」「Validation」「Outcome取得」の型を使い、Transport、Journal、Retention等のPortはAdapterを拡張するときだけ使ってください。
+このReferenceは現在の`main` Sourceで`#[PublicApi]`を持つ128型を一覧化しています。Application Authorはまず「Application構成」「Operation Authoring」「Validation」「Outcome取得」の型を使い、Transport、Journal、Retention等のPortはAdapterを拡張するときだけ使ってください。
 
 `BlackOps\Core\Attribute\PublicApi` marker自身は利用者向けAPIではないため一覧へ含めません。内部実装Namespaceと`#[PublicApi]`を持たない実装型にも依存しないでください。Attributeの付与対象と標準形は[Attributes Reference](attributes.md)を確認してください。
 
@@ -36,6 +36,7 @@
 | --- | --- | --- | --- |
 | `BlackOps\Core\Attribute\OperationType` | attribute class | 永続Operation Type IDを宣言する | 全Operation Classへ付ける |
 | `BlackOps\Core\Attribute\ExecuteWith` | attribute class | Execution Strategyを指定する | Deferred Operationへ付ける |
+| `BlackOps\Core\Attribute\Authorize` | attribute class | OperationのAuthorization Policyを指定する | 認可が必要なOperationへ付ける |
 | `BlackOps\Core\Attribute\Sensitive` | attribute class | Observed Projection Modeを指定する | SensitiveなValue Propertyへ付ける |
 | `BlackOps\Core\Attribute\SensitiveMode` | enum | Omit／Mask／Hashを選ぶ | `#[Sensitive]`の引数に使う |
 | `BlackOps\Core\Attribute\Accepts` | attribute class | Accepted Valueを明示する | Legacy／Separate互換形で使う |
@@ -59,6 +60,14 @@
 | `BlackOps\Http\Authentication\HttpAuthenticator` | interface | HTTP CredentialをApplication Actorへ解決する | Application固有のSession／Token検証を実装する |
 | `BlackOps\Http\Authentication\AuthenticationResult` | final readonly class | Anonymous／Authenticated／Invalidを表す | Authenticatorから安全なActorまたはCodeを返す |
 | `BlackOps\Http\Authentication\AuthenticationMiddleware` | final readonly middleware | Authentication結果をPSR-15 Pipelineへ接続する | `config/middleware.php`へServiceとして登録する |
+
+## Operation Authorization
+
+| Namespace／Type | Kind | Purpose | Typical Use |
+| --- | --- | --- | --- |
+| `BlackOps\Core\Authorization\AuthorizationPolicy` | interface | Operation認可をApplicationへ委譲する | Policy Serviceで`decide()`を実装する |
+| `BlackOps\Core\Authorization\AuthorizationRequest` | final readonly class | Operation、Value、Context、Authorization Actorを渡す | Policy内で現在権限の検索に使う |
+| `BlackOps\Core\Authorization\AuthorizationDecision` | final readonly class | Allow／Unauthorized／Forbiddenを表す | 安定Code付きの認可判断を返す |
 
 ## Value Validation
 

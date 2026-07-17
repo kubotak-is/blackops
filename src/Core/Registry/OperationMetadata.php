@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BlackOps\Core\Registry;
 
 use BlackOps\Core\Attribute\PublicApi;
+use BlackOps\Core\Authorization\AuthorizationPolicy;
 use BlackOps\Core\Execution\ExecutionStrategy;
 use BlackOps\Core\Operation;
 use BlackOps\Core\OperationValue;
@@ -19,6 +20,9 @@ final readonly class OperationMetadata
      * @param class-string $handler
      * @param class-string<Outcome> $outcome
      * @param class-string<ExecutionStrategy> $strategy
+     * @param class-string<AuthorizationPolicy>|null $authorizationPolicy
+     *
+     * @mago-expect lint:excessive-parameter-list
      */
     public function __construct(
         public string $typeId,
@@ -30,5 +34,6 @@ final readonly class OperationMetadata
         public bool $typedSelfHandled = false,
         public bool $typedSelfHandledContext = false,
         public ?string $typedSelfHandledMode = null,
+        public ?string $authorizationPolicy = null,
     ) {}
 }

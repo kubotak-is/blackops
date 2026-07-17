@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace BlackOps\Tests\Internal\Registry;
 
+use BlackOps\Core\Authorization\AuthorizationDecision;
+use BlackOps\Core\Authorization\AuthorizationPolicy;
+use BlackOps\Core\Authorization\AuthorizationRequest;
 use BlackOps\Core\EmptyOutcome;
 use BlackOps\Core\Execution\Inline;
 use BlackOps\Core\Operation;
@@ -34,6 +37,10 @@ final class OperationManifestFileTest extends TestCase
         self::assertSame(
             ManifestFileOperation::class,
             $artifact->operations->findByTypeId('manifest.file')?->definition,
+        );
+        self::assertSame(
+            ManifestFileAuthorizationPolicy::class,
+            $artifact->operations->findByTypeId('manifest.file')?->authorizationPolicy,
         );
     }
 
@@ -119,6 +126,7 @@ final class OperationManifestFileTest extends TestCase
             ManifestFileHandler::class,
             EmptyOutcome::class,
             Inline::class,
+            authorizationPolicy: ManifestFileAuthorizationPolicy::class,
         );
     }
 
@@ -137,5 +145,13 @@ final readonly class ManifestFileHandler implements OperationHandler
     public function handle(OperationEnvelope $operation): OperationResult
     {
         return OperationResult::completed();
+    }
+}
+
+final readonly class ManifestFileAuthorizationPolicy implements AuthorizationPolicy
+{
+    public function decide(AuthorizationRequest $request): AuthorizationDecision
+    {
+        return AuthorizationDecision::allow();
     }
 }

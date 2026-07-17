@@ -5,8 +5,12 @@ declare(strict_types=1);
 namespace BlackOps\Tests\Internal\Registry;
 
 use BlackOps\Core\Attribute\Accepts;
+use BlackOps\Core\Attribute\Authorize;
 use BlackOps\Core\Attribute\OperationType;
 use BlackOps\Core\Attribute\Returns;
+use BlackOps\Core\Authorization\AuthorizationDecision;
+use BlackOps\Core\Authorization\AuthorizationPolicy;
+use BlackOps\Core\Authorization\AuthorizationRequest;
 use BlackOps\Core\EmptyOutcome;
 use BlackOps\Core\ExecutionContext;
 use BlackOps\Core\Operation;
@@ -31,6 +35,54 @@ final class OperationManifestMetadataCodecTest extends TestCase
         self::assertTrue($decoded->typedSelfHandledContext);
         self::assertSame(ManifestValue::class, $decoded->value);
         self::assertSame('result', $decoded->typedSelfHandledMode);
+    }
+
+    public function testRoundTripsAuthorizationPolicyMetadata(): void
+    {
+        $metadata = new OperationMetadataCompiler()->compile(AuthorizedManifestOperation::class);
+        $codec = new OperationManifestMetadataCodec();
+        $encoded = $codec->encode(new OperationRegistry([$metadata]));
+        $decoded = $codec->decode($encoded)[0];
+
+        self::assertSame(ManifestAuthorizationPolicy::class, $encoded['operations'][0]['authorizationPolicy']);
+        self::assertSame(ManifestAuthorizationPolicy::class, $decoded->authorizationPolicy);
+    }
+
+    public function testOmitsAuthorizationPolicyAndLoadsLegacyManifestWithoutField(): void
+    {
+        $encoded = $this->encoded();
+
+        self::assertArrayNotHasKey('authorizationPolicy', $encoded['operations'][0]);
+        self::assertNull(new OperationManifestMetadataCodec()->decode($encoded)[0]->authorizationPolicy);
+    }
+
+    public function testRejectsTamperedAuthorizationPolicyWithoutClassExposure(): void
+    {
+        $data = $this->encoded();
+        $tampered = 'Application\\Secret\\PolicyCredential';
+        $data['operations'][0]['authorizationPolicy'] = $tampered;
+
+        try {
+            new OperationManifestMetadataCodec()->decode($data);
+            self::fail('Expected tampered authorization policy rejection.');
+        } catch (InvalidArgumentException $exception) {
+            self::assertStringNotContainsString($tampered, $exception->getMessage());
+        }
+    }
+
+    public function testRejectsEmptyOrNonPolicyAuthorizationManifestField(): void
+    {
+        foreach (['', \stdClass::class, 42] as $value) {
+            $data = $this->encoded();
+            $data['operations'][0]['authorizationPolicy'] = $value;
+
+            try {
+                new OperationManifestMetadataCodec()->decode($data);
+                self::fail('Expected invalid authorization policy rejection.');
+            } catch (InvalidArgumentException $exception) {
+                self::assertSame('Operation manifest metadata entry is invalid.', $exception->getMessage());
+            }
+        }
     }
 
     public function testRejectsTypedSignatureAndManifestValueMismatch(): void
@@ -119,6 +171,24 @@ final readonly class ManifestValue implements OperationValue {}
 final readonly class OtherManifestValue implements OperationValue {}
 
 final readonly class OtherManifestOutcome implements Outcome {}
+
+final readonly class ManifestAuthorizationPolicy implements AuthorizationPolicy
+{
+    public function decide(AuthorizationRequest $request): AuthorizationDecision
+    {
+        return AuthorizationDecision::allow();
+    }
+}
+
+#[OperationType('manifest.authorized')]
+#[Authorize(ManifestAuthorizationPolicy::class)]
+final readonly class AuthorizedManifestOperation implements Operation
+{
+    public function handle(ManifestValue $value): OtherManifestOutcome
+    {
+        return new OtherManifestOutcome();
+    }
+}
 
 abstract class AbstractManifestTypedOperation implements Operation
 {

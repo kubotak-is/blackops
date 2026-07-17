@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BlackOps\Internal\Registry;
 
+use BlackOps\Core\Authorization\AuthorizationPolicy;
 use BlackOps\Core\Execution\ExecutionStrategy;
 use BlackOps\Core\Operation;
 use BlackOps\Core\OperationValue;
@@ -38,6 +39,13 @@ final readonly class OperationManifestMetadataCodec
                         ? []
                         : [
                             'typedSelfHandledMode' => $metadata->typedSelfHandledMode,
+                        ]
+                ),
+                ...(
+                    $metadata->authorizationPolicy === null
+                        ? []
+                        : [
+                            'authorizationPolicy' => $metadata->authorizationPolicy,
                         ]
                 ),
             ], $registry->all()),
@@ -84,7 +92,22 @@ final readonly class OperationManifestMetadataCodec
             $typedSelfHandled,
             $typedSelfHandledContext,
             $typedSelfHandledMode,
+            $this->authorizationPolicy($entry),
         );
+    }
+
+    /**
+     * @param array<array-key, mixed> $entry
+     *
+     * @return class-string<AuthorizationPolicy>|null
+     */
+    private function authorizationPolicy(array $entry): ?string
+    {
+        if (!array_key_exists('authorizationPolicy', $entry)) {
+            return null;
+        }
+
+        return $this->classField($entry, 'authorizationPolicy', AuthorizationPolicy::class);
     }
 
     /**

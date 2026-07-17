@@ -5,10 +5,14 @@ declare(strict_types=1);
 namespace BlackOps\Tests\Internal\Registry;
 
 use BlackOps\Core\Attribute\Accepts;
+use BlackOps\Core\Attribute\Authorize;
 use BlackOps\Core\Attribute\ExecuteWith;
 use BlackOps\Core\Attribute\HandledBy;
 use BlackOps\Core\Attribute\OperationType;
 use BlackOps\Core\Attribute\Returns;
+use BlackOps\Core\Authorization\AuthorizationDecision;
+use BlackOps\Core\Authorization\AuthorizationPolicy;
+use BlackOps\Core\Authorization\AuthorizationRequest;
 use BlackOps\Core\EmptyOutcome;
 use BlackOps\Core\Execution\ExecutionStrategy;
 use BlackOps\Core\Execution\Inline;
@@ -35,6 +39,32 @@ final class OperationMetadataCompilerTest extends TestCase
         self::assertSame(MetadataHandlerFixture::class, $metadata->handler);
         self::assertSame(EmptyOutcome::class, $metadata->outcome);
         self::assertSame(Inline::class, $metadata->strategy);
+        self::assertNull($metadata->authorizationPolicy);
+    }
+
+    public function testCompilesAuthorizationPolicyMetadata(): void
+    {
+        $metadata = new OperationMetadataCompiler()->compile(AuthorizedMetadataOperationFixture::class);
+
+        self::assertSame(MetadataAuthorizationPolicyFixture::class, $metadata->authorizationPolicy);
+    }
+
+    public function testRejectsDuplicateAuthorizationAttribute(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('must not repeat Authorize');
+
+        new OperationMetadataCompiler()->compile(DuplicateAuthorizationOperationFixture::class);
+    }
+
+    public function testRejectsClassThatDoesNotImplementAuthorizationPolicyWithoutExposure(): void
+    {
+        try {
+            new OperationMetadataCompiler()->compile(InvalidAuthorizationOperationFixture::class);
+            self::fail('Expected invalid authorization policy rejection.');
+        } catch (InvalidArgumentException $exception) {
+            self::assertStringNotContainsString(\stdClass::class, $exception->getMessage());
+        }
     }
 
     public function testMissingMetadataIsRejected(): void
@@ -188,6 +218,45 @@ final readonly class MetadataOperationFixture implements Operation {}
 final readonly class MetadataValueFixture implements OperationValue {}
 
 final readonly class MetadataOutcomeFixture implements Outcome {}
+
+final readonly class MetadataAuthorizationPolicyFixture implements AuthorizationPolicy
+{
+    public function decide(AuthorizationRequest $request): AuthorizationDecision
+    {
+        return AuthorizationDecision::allow();
+    }
+}
+
+#[OperationType('welcome.authorized')]
+#[Authorize(MetadataAuthorizationPolicyFixture::class)]
+final readonly class AuthorizedMetadataOperationFixture implements Operation
+{
+    public function handle(MetadataValueFixture $value): MetadataOutcomeFixture
+    {
+        return new MetadataOutcomeFixture();
+    }
+}
+
+#[OperationType('welcome.authorized.duplicate')]
+#[Authorize(MetadataAuthorizationPolicyFixture::class)]
+#[Authorize(MetadataAuthorizationPolicyFixture::class)]
+final readonly class DuplicateAuthorizationOperationFixture implements Operation
+{
+    public function handle(MetadataValueFixture $value): MetadataOutcomeFixture
+    {
+        return new MetadataOutcomeFixture();
+    }
+}
+
+#[OperationType('welcome.authorized.invalid')]
+#[Authorize(\stdClass::class)]
+final readonly class InvalidAuthorizationOperationFixture implements Operation
+{
+    public function handle(MetadataValueFixture $value): MetadataOutcomeFixture
+    {
+        return new MetadataOutcomeFixture();
+    }
+}
 
 #[OperationType('welcome.native')]
 final readonly class NativeOutcomeOperationFixture implements Operation

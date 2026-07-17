@@ -1,6 +1,6 @@
 # Attributes Reference
 
-BlackOpsはOperation、Value Validation、HTTP Binding、Observed Journal ProjectionのMetadataをPHP Attributeで宣言します。このPageは利用者向けPublic Attribute 18件をSourceと照合しています。`PublicApi` marker自身はFrameworkが公開境界を管理するためのMetadataであり、Application Authoringには使いません。
+BlackOpsはOperation、Value Validation、HTTP Binding、Observed Journal ProjectionのMetadataをPHP Attributeで宣言します。このPageは利用者向けPublic Attribute 19件をSourceと照合しています。`PublicApi` marker自身はFrameworkが公開境界を管理するためのMetadataであり、Application Authoringには使いません。
 
 ## Operation Attributes
 
@@ -8,6 +8,7 @@ BlackOpsはOperation、Value Validation、HTTP Binding、Observed Journal Projec
 | --- | --- | --- | --- | --- |
 | `BlackOps\Core\Attribute\OperationType` | 永続的なdot-separated Operation Type IDを宣言する | Operation Class | `#[OperationType('order.place')]` | 必須 |
 | `BlackOps\Core\Attribute\ExecuteWith` | Inline以外のExecution Strategyを選ぶ | Operation Class | `#[ExecuteWith(Deferred::class)]` | Deferred時だけ必要。省略時はInline |
+| `BlackOps\Core\Attribute\Authorize` | Operationへ認可Policyを結び付ける | Operation Class | `#[Authorize(PlaceOrderPolicy::class)]` | 認可が必要なOperationへ一度だけ付ける |
 | `BlackOps\Core\Attribute\HandledBy` | Separate Handler Classを指定する | Operation Class | `#[HandledBy(PlaceOrderHandler::class)]` | 不要。Separate Handler互換形だけで使う |
 | `BlackOps\Core\Attribute\Accepts` | Accepted `OperationValue`を明示する | Operation Class | `#[Accepts(PlaceOrderValue::class)]` | 不要。第一引数から推論する |
 | `BlackOps\Core\Attribute\Returns` | `Outcome` Classを明示する | Operation Class | `#[Returns(OrderPlaced::class)]` | 不要。Return Typeから推論する |
@@ -16,6 +17,8 @@ BlackOpsはOperation、Value Validation、HTTP Binding、Observed Journal Projec
 Typed Self-handled標準形では、`handle(ConcreteValue $value): ConcreteOutcome`のNative Signatureを正本にします。`#[Accepts]`／`#[Returns]`を併記した場合は推論型との完全一致が必要です。新しい単純なOperationへは追加しないでください。
 
 `#[HandledBy]`はDecorator、複数実装切替等でOperation DefinitionとHandlerを分けるCompatibility形に限って使います。Typed Self-handled `handle()`と同時に指定するとBuildがAmbiguousとして拒否します。
+
+`#[Authorize]`は`AuthorizationPolicy`を実装するClassを一つ指定します。複数条件は複数Attributeではなく、一つのApplication Policy内で組み合わせてください。BuildはPolicy Contractを検証し、PolicyをCompiled ContainerへAutowired登録します。Service Providerで同じPolicyを登録した場合はApplication側のBindingを優先します。
 
 ### Sensitive Mode
 
@@ -66,11 +69,13 @@ Validation BackendはSymfony Validatorですが、ApplicationはBlackOps Namespa
 
 ```php
 use BlackOps\Core\Attribute\OperationType;
+use BlackOps\Core\Attribute\Authorize;
 use BlackOps\Core\Operation;
 use BlackOps\Http\Attribute\Route;
 
 #[Route(method: 'POST', path: '/orders')]
 #[OperationType('order.place')]
+#[Authorize(PlaceOrderPolicy::class)]
 final readonly class PlaceOrder implements Operation
 {
     public function handle(PlaceOrderValue $value): OrderPlaced

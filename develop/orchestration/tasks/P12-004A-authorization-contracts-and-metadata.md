@@ -1,6 +1,6 @@
 # P12-004A: Authorization Contracts and Metadata
 
-Status: Ready
+Status: Accepted
 
 ## Goal
 

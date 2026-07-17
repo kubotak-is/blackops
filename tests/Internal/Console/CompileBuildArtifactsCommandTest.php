@@ -5,9 +5,13 @@ declare(strict_types=1);
 namespace BlackOps\Tests\Internal\Console;
 
 use BlackOps\Core\Attribute\Accepts;
+use BlackOps\Core\Attribute\Authorize;
 use BlackOps\Core\Attribute\HandledBy;
 use BlackOps\Core\Attribute\OperationType;
 use BlackOps\Core\Attribute\Returns;
+use BlackOps\Core\Authorization\AuthorizationDecision;
+use BlackOps\Core\Authorization\AuthorizationPolicy;
+use BlackOps\Core\Authorization\AuthorizationRequest;
 use BlackOps\Core\DependencyInjection\ServiceProvider;
 use BlackOps\Core\DependencyInjection\ServiceRegistry;
 use BlackOps\Core\EmptyOutcome;
@@ -111,6 +115,8 @@ final class CompileBuildArtifactsCommandTest extends TestCase
         self::assertNotNull($httpMatch);
         self::assertInstanceOf(ContainerInterface::class, $container);
         self::assertInstanceOf(BuildService::class, $container->get(BuildService::class));
+        self::assertInstanceOf(BuildAuthorizationPolicy::class, $container->get(BuildAuthorizationPolicy::class));
+        self::assertInstanceOf(BuildService::class, $container->get(BuildAuthorizationPolicy::class)->service);
         self::assertFileExists($fingerprint);
     }
 
@@ -477,6 +483,7 @@ final readonly class ComposerBuildServiceProvider implements ServiceProvider
 
 #[Route('GET', '/build')]
 #[OperationType('build.operation')]
+#[Authorize(BuildAuthorizationPolicy::class)]
 #[Accepts(BuildValue::class)]
 #[HandledBy(BuildHandler::class)]
 #[Returns(EmptyOutcome::class)]
@@ -493,6 +500,18 @@ final readonly class BuildHandler implements OperationHandler
 }
 
 final readonly class BuildService {}
+
+final readonly class BuildAuthorizationPolicy implements AuthorizationPolicy
+{
+    public function __construct(
+        public BuildService $service,
+    ) {}
+
+    public function decide(AuthorizationRequest $request): AuthorizationDecision
+    {
+        return AuthorizationDecision::allow();
+    }
+}
 
 final readonly class RequiredBuildDependency
 {
