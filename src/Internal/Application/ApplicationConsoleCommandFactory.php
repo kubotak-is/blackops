@@ -14,8 +14,6 @@ use BlackOps\Internal\Console\WorkerRunCommand;
 use BlackOps\Internal\Generator\MigrationGenerator;
 use BlackOps\Internal\Generator\OperationGenerator;
 use BlackOps\Internal\Migration\DatabaseMigrationRunner;
-use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\DriverManager;
 use Symfony\Component\Console\Command\Command;
 
 final class ApplicationConsoleCommandFactory
@@ -66,20 +64,12 @@ final class ApplicationConsoleCommandFactory
     private function migrationRunner(): DatabaseMigrationRunner
     {
         $database = ApplicationDatabaseConfiguration::fromConfiguration($this->configuration->configuration());
+        $connection = $database->databaseManager()->connection($database->frameworkConnection);
 
         return new DatabaseMigrationRunner(
-            $this->connection($database->connection),
+            $connection,
             $database->schema,
             applicationMigrationDirectory: $this->configuration->basePath() . '/migrations',
         );
-    }
-
-    /** @param array<string, mixed> $parameters */
-    private function connection(array $parameters): Connection
-    {
-        /** @var callable(array<string, mixed>): Connection $factory */
-        $factory = [DriverManager::class, 'getConnection'];
-
-        return $factory($parameters);
     }
 }

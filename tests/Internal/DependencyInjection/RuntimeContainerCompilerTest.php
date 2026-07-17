@@ -18,6 +18,7 @@ use BlackOps\Core\OperationResult;
 use BlackOps\Core\OperationValue;
 use BlackOps\Core\Registry\OperationMetadata;
 use BlackOps\Core\Registry\OperationRegistry;
+use BlackOps\Database\DatabaseManager;
 use BlackOps\Http\Authentication\AuthenticationMiddleware;
 use BlackOps\Http\Authentication\AuthenticationResult;
 use BlackOps\Http\Authentication\HttpAuthenticator;
@@ -25,11 +26,13 @@ use BlackOps\Http\Console\DumpHttpManifestCommand;
 use BlackOps\Http\Routing\HttpOperationManifestFile;
 use BlackOps\Internal\DependencyInjection\RuntimeContainerCompiler;
 use BlackOps\Internal\Execution\HandlerResolver;
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface as SymfonyContainerInterface;
 use Symfony\Component\DependencyInjection\Reference;
 
 final class RuntimeContainerCompilerTest extends TestCase
@@ -193,6 +196,42 @@ final class RuntimeContainerCompilerTest extends TestCase
         $compiler->registerHttpMiddleware($builder, [ContainerMiddleware::class]);
 
         self::assertSame($expected, $compiler->compile($builder)->get(ContainerMiddleware::class));
+    }
+
+    public function testRegistersSyntheticDatabaseServicesForAutowiredApplicationService(): void
+    {
+        $compiler = new RuntimeContainerCompiler();
+        $builder = $compiler->builder();
+        $compiler->registerDatabaseServices($builder);
+        $builder->register(ContainerDatabaseConsumer::class)->setAutowired(true)->setPublic(true);
+        $container = $compiler->compile($builder);
+        $connection = $this->createStub(Connection::class);
+        $databases = $this->createStub(DatabaseManager::class);
+
+        self::assertInstanceOf(SymfonyContainerInterface::class, $container);
+        $container->set(DatabaseManager::class, $databases);
+        $container->set(Connection::class, $connection);
+        $consumer = $container->get(ContainerDatabaseConsumer::class);
+
+        self::assertInstanceOf(ContainerDatabaseConsumer::class, $consumer);
+        self::assertSame($databases, $consumer->databases);
+        self::assertSame($connection, $consumer->connection);
+    }
+
+    public function testRejectsProviderDatabaseRuntimeServiceRedefinitionWithoutOverwritingIt(): void
+    {
+        $compiler = new RuntimeContainerCompiler();
+        $builder = $compiler->builder();
+        $expected = $this->createStub(DatabaseManager::class);
+        $compiler->apply($builder, [new ExplicitDatabaseManagerProvider($expected)]);
+
+        try {
+            $compiler->registerDatabaseServices($builder);
+            self::fail('Expected database runtime service redefinition rejection.');
+        } catch (\InvalidArgumentException $exception) {
+            self::assertSame($expected, $builder->get(DatabaseManager::class));
+            self::assertStringNotContainsString('credential', $exception->getMessage());
+        }
     }
 
     public function testAutowiresAuthenticationMiddlewareWithProviderAuthenticatorAndDefaultPsr17Factories(): void
@@ -397,5 +436,25 @@ final readonly class RepositoryBackedOperation implements Operation
     public function handle(ContainerValue $value): OperationResult
     {
         return OperationResult::completed();
+    }
+}
+
+final readonly class ContainerDatabaseConsumer
+{
+    public function __construct(
+        public DatabaseManager $databases,
+        public Connection $connection,
+    ) {}
+}
+
+final readonly class ExplicitDatabaseManagerProvider implements ServiceProvider
+{
+    public function __construct(
+        private DatabaseManager $databases,
+    ) {}
+
+    public function register(ServiceRegistry $services): void
+    {
+        $services->set(DatabaseManager::class, $this->databases);
     }
 }

@@ -6,6 +6,8 @@ namespace BlackOps\Internal\DependencyInjection;
 
 use BlackOps\Core\DependencyInjection\ServiceProvider;
 use BlackOps\Core\Registry\OperationRegistry;
+use BlackOps\Database\DatabaseManager;
+use Doctrine\DBAL\Connection;
 use InvalidArgumentException;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -46,6 +48,16 @@ final readonly class RuntimeContainerCompiler
 
             $builder->register($operation->handler)->setAutowired(true)->setPublic(true);
         }
+    }
+
+    public function registerDatabaseServices(ContainerBuilder $builder): void
+    {
+        if ($builder->has(DatabaseManager::class) || $builder->has(Connection::class)) {
+            throw new InvalidArgumentException('Database runtime services cannot be redefined by a service provider.');
+        }
+
+        $builder->register(DatabaseManager::class, DatabaseManager::class)->setSynthetic(true)->setPublic(true);
+        $builder->register(Connection::class, Connection::class)->setSynthetic(true)->setPublic(true);
     }
 
     public function registerAuthorizationPolicies(ContainerBuilder $builder, OperationRegistry $operations): void

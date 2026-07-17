@@ -21,6 +21,7 @@ use BlackOps\Core\Operation;
 use BlackOps\Core\OperationValue;
 use BlackOps\Core\Outcome;
 use BlackOps\Core\Registry\OperationProvider;
+use BlackOps\Database\DatabaseManager;
 use BlackOps\Http\Attribute\Route;
 use BlackOps\Internal\Application\ApplicationConfigurationSnapshot;
 use BlackOps\Internal\Application\ApplicationWorkerComposer;
@@ -199,9 +200,18 @@ final class ApplicationConsoleKernelTest extends TestCase
                 'container_namespace' => __NAMESPACE__ . '\\Generated',
             ],
         ]);
+        $applicationConnection = $this->connectionParameters();
+        $applicationConnection['dbname'] = 'blackops_application_console_unused';
         $this->writeConfig($config, 'database', [
-            'connection' => $this->connectionParameters(),
-            'schema' => self::SCHEMA,
+            'default' => 'app',
+            'connections' => [
+                'app' => $applicationConnection,
+                'framework' => $this->connectionParameters(),
+            ],
+            'framework' => [
+                'connection' => 'framework',
+                'schema' => self::SCHEMA,
+            ],
         ]);
         $this->writeConfig($config, 'execution', ['worker' => ['id' => 'console-worker']]);
         $this->writeConfig($config, 'operations', [
@@ -320,9 +330,16 @@ final readonly class ConsoleWorkerServiceProvider implements ServiceProvider
 
 final readonly class ConsoleWorkerPolicyDependency
 {
-    public function __construct(
-        public string $value = 'compiled',
-    ) {}
+    public function __construct(DatabaseManager $databases, Connection $connection)
+    {
+        $this->value =
+            $databases->connection() === $connection
+            && $connection->getParams()['dbname'] === 'blackops_application_console_unused'
+                ? 'compiled'
+                : 'mismatch';
+    }
+
+    public string $value;
 }
 
 final readonly class ConsoleWorkerAuthorizedValue implements OperationValue {}

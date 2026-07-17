@@ -7,6 +7,7 @@ namespace BlackOps\Internal\Application;
 use BlackOps\Internal\Authorization\AuthorizationEvaluator;
 use BlackOps\Internal\Authorization\AuthorizationPolicyResolver;
 use BlackOps\Internal\Codec\ReflectionJsonOperationCodec;
+use BlackOps\Internal\Database\RuntimeDatabaseServiceInjector;
 use BlackOps\Internal\Execution\DeferredAcceptanceOrchestrator;
 use BlackOps\Internal\ExecutionContext\ExecutionContextFactory;
 use BlackOps\Internal\Http\DeferredHttpOperationAcceptor;
@@ -19,8 +20,6 @@ use BlackOps\Internal\Runtime\ProductionRuntimeDependencies;
 use BlackOps\Transport\PostgreSql\PostgreSqlCanonicalJournalStore;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationSender;
 use BlackOps\Transport\PostgreSql\PostgreSqlSystemClock;
-use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\DriverManager;
 use LogicException;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\StreamFactoryInterface;
@@ -41,8 +40,10 @@ final readonly class ApplicationHttpRuntimeComposer
             $build->containerClass,
             $build->containerNamespace,
         );
+        $databases = $database->databaseManager();
+        new RuntimeDatabaseServiceInjector()->inject($artifacts->container, $databases);
+        $connection = $databases->connection($database->frameworkConnection);
         $httpMiddleware = new ApplicationHttpMiddlewareResolver($artifacts->container)->resolve($middleware);
-        $connection = $this->connection($database->connection);
         $clock = new PostgreSqlSystemClock();
         $identifiers = new IdentifierFactory(new SymfonyUuidv7Generator(), $clock);
         $journal = new PostgreSqlCanonicalJournalStore($connection, $database->schema);
@@ -81,15 +82,6 @@ final readonly class ApplicationHttpRuntimeComposer
             new ApplicationDatabaseConnectionLifecycle($connection),
             $observations,
         );
-    }
-
-    /** @param array<string, mixed> $parameters */
-    private function connection(array $parameters): Connection
-    {
-        /** @var callable(array<string, mixed>): Connection $factory */
-        $factory = [DriverManager::class, 'getConnection'];
-
-        return $factory($parameters);
     }
 
     private function psr17(): ResponseFactoryInterface&StreamFactoryInterface

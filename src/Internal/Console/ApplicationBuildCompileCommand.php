@@ -53,6 +53,7 @@ final class ApplicationBuildCompileCommand extends Command
         $compiler = new RuntimeContainerCompiler();
         $container = $compiler->builder();
         $compiler->apply($container, $services);
+        $compiler->registerDatabaseServices($container);
         $compiler->registerHandlers($container, $registry);
         $compiler->registerAuthorizationPolicies($container, $registry);
         $compiler->registerHttpMiddleware($container, $middleware->http);

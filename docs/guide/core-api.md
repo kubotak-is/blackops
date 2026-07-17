@@ -1,6 +1,6 @@
 # Core API Types Reference
 
-このReferenceは現在の`main` Sourceで`#[PublicApi]`を持つ128型を一覧化しています。Application Authorはまず「Application構成」「Operation Authoring」「Validation」「Outcome取得」の型を使い、Transport、Journal、Retention等のPortはAdapterを拡張するときだけ使ってください。
+このReferenceは現在の`main` Sourceで`#[PublicApi]`を持つ129型を一覧化しています。Application Authorはまず「Application構成」「Database」「Operation Authoring」「Validation」「Outcome取得」の型を使い、Transport、Journal、Retention等のPortはAdapterを拡張するときだけ使ってください。
 
 `BlackOps\Core\Attribute\PublicApi` marker自身は利用者向けAPIではないため一覧へ含めません。内部実装Namespaceと`#[PublicApi]`を持たない実装型にも依存しないでください。Attributeの付与対象と標準形は[Attributes Reference](attributes.md)を確認してください。
 
@@ -12,6 +12,14 @@
 | `BlackOps\Application\ApplicationBuilder` | final class | Environment、Config、Providerを組み立てる | `withEnvironment()`、`withConfiguration()`、`create()`を呼ぶ |
 | `BlackOps\Application\ConsoleKernel` | final readonly class | Project CLIを実行する | Project Rootの`blackops`から`run()`を呼ぶ |
 | `BlackOps\Application\ApplicationBootstrapException` | exception class | Public Bootstrapの失敗を通知する | Entrypointで安全な起動Errorとして扱う |
+
+## Database
+
+| Namespace／Type | Kind | Purpose | Typical Use |
+| --- | --- | --- | --- |
+| `BlackOps\Database\DatabaseManager` | interface | DefaultまたはNamed DBAL Connectionを選択する | 複数Connectionが必要なServiceへConstructor Injectionする |
+
+Default Connectionだけを使うRepositoryは`Doctrine\DBAL\Connection`を直接Constructor Injectionできます。Named ConnectionはContainerやGlobal Helperではなく`DatabaseManager::connection($name)`で選択します。
 
 ## Operation Authoringと実行Context
 

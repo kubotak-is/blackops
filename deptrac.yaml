@@ -10,6 +10,10 @@ deptrac:
       collectors:
         - type: classNameRegex
           value: '/^BlackOps\\Application(\\|$)/'
+    - name: Database
+      collectors:
+        - type: classNameRegex
+          value: '/^BlackOps\\Database(\\|$)/'
     - name: Journal
       collectors:
         - type: classNameRegex
@@ -78,6 +82,9 @@ deptrac:
       - Core
       - Internal
       - Library
+    Database:
+      - Core
+      - Library
     Journal:
       - Core
     Execution:
@@ -114,4 +121,5 @@ deptrac:
       - Logging
       - Console
       - Outcome
+      - Database
       - Library

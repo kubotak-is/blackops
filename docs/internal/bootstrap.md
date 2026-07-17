@@ -187,7 +187,7 @@ return [
 ];
 ```
 
-The generated artifacts contain scalar values, arrays, and class names. They must not contain credentials, tokens, environment secrets, closures, or live service instances.
+The generated artifacts contain scalar values, arrays, class names, and synthetic runtime service definitions. They must not contain credentials, resolved database connection parameters, tokens, environment secrets, closures, or live service instances. `DatabaseManager` and the default DBAL `Connection` are synthetic definitions; HTTP and deferred worker composition set their runtime instances before resolving application handlers, policies, or middleware. Container compilation does not connect to a database.
 
 ## Locking and Fingerprint
 
@@ -228,6 +228,8 @@ The loader returns:
 - HTTP operation manifest
 - PSR-11 container
 
+Application-aware containers also implement Symfony's internal mutable container contract so the composition root can set the two database synthetic services. This mutable type remains internal and is not exposed by the public Application API.
+
 Startup fails before the generated container is loaded when either manifest is missing, does not use the supported
 schema version, has an empty application build ID, has an invalid payload, or the operation and HTTP application build
 IDs differ. Production startup does not fall back to Composer discovery, operation scanning, token scanning, or
@@ -247,6 +249,6 @@ The production runtime composer can take loaded artifacts plus runtime dependenc
 
 The application must still provide runtime resources such as the clock, canonical journal writer, response factory, and stream factory. The composer uses the generated container to resolve operation handlers, but it does not pass the container into handlers, envelopes, values, or domain services.
 
-The current composition wrapper is still internal. It does not create a complete front controller, choose a transport adapter, create database connections, or load environment variables.
+The current low-level production runtime composer remains internal and does not create a complete front controller, choose a transport adapter, create database connections, or load environment variables. The higher-level Application HTTP and Worker composers create a named `DatabaseManager`, inject its default Connection into the compiled container, and resolve the Framework Store Connection from the same manager.
 
 Application HTTP composition may add the configured JSONL observation pipeline. Configuration validation and stream opening happen during HTTP composition; source discovery, build, migration, and directory creation do not. The open stream remains owned by the observer referenced from the composed handler graph.

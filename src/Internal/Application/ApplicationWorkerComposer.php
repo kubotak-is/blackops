@@ -9,6 +9,7 @@ use BlackOps\Core\Supervision\ExponentialBackoffSupervisionPolicy;
 use BlackOps\Internal\Authorization\AuthorizationEvaluator;
 use BlackOps\Internal\Authorization\AuthorizationPolicyResolver;
 use BlackOps\Internal\Codec\ReflectionJsonOperationCodec;
+use BlackOps\Internal\Database\RuntimeDatabaseServiceInjector;
 use BlackOps\Internal\Execution\DeferredLeaseExpiredRecovery;
 use BlackOps\Internal\Execution\DeferredWorkerLoop;
 use BlackOps\Internal\Execution\DeferredWorkerRuntime;
@@ -26,8 +27,6 @@ use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationLifecycleStore;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationReceiver;
 use BlackOps\Transport\PostgreSql\PostgreSqlOutcomeStore;
 use BlackOps\Transport\PostgreSql\PostgreSqlSystemClock;
-use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\DriverManager;
 
 final readonly class ApplicationWorkerComposer
 {
@@ -43,8 +42,10 @@ final readonly class ApplicationWorkerComposer
             $build->containerClass,
             $build->containerNamespace,
         );
-        $main = $this->connection($database->connection);
-        $heartbeat = $this->connection($database->connection);
+        $databases = $database->databaseManager();
+        new RuntimeDatabaseServiceInjector()->inject($artifacts->container, $databases);
+        $main = $databases->connection($database->frameworkConnection);
+        $heartbeat = $database->databaseManager()->connection($database->frameworkConnection);
         $clock = new PostgreSqlSystemClock();
         $identifiers = new IdentifierFactory(new SymfonyUuidv7Generator(), $clock);
         $services = new DeferredWorkerRuntimeServices(
@@ -96,14 +97,5 @@ final readonly class ApplicationWorkerComposer
         );
 
         return new ApplicationWorkerComposition($loop, $main, $heartbeat, $signals);
-    }
-
-    /** @param array<string, mixed> $parameters */
-    private function connection(array $parameters): Connection
-    {
-        /** @var callable(array<string, mixed>): Connection $factory */
-        $factory = [DriverManager::class, 'getConnection'];
-
-        return $factory($parameters);
     }
 }

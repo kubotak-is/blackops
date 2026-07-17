@@ -19,6 +19,7 @@ use BlackOps\Core\Operation;
 use BlackOps\Core\OperationValue;
 use BlackOps\Core\Outcome;
 use BlackOps\Core\Registry\OperationProvider;
+use BlackOps\Database\DatabaseManager;
 use BlackOps\Http\Attribute\Route;
 use BlackOps\Internal\Migration\DatabaseMigrationRunner;
 use Doctrine\DBAL\Connection;
@@ -141,6 +142,10 @@ final class ApplicationHttpRuntimeTest extends TestCase
         self::assertSame($actor, $request->context()->actorContext()?->origin());
         self::assertSame($actor, $request->context()->actorContext()?->authorization());
         self::assertSame($actor, $request->context()->actorContext()?->execution());
+        $policy = ApplicationRuntimeAuthorizationPolicy::$instance;
+        self::assertNotNull($policy);
+        self::assertSame($policy->dependency->connection, $policy->dependency->databases->connection());
+        self::assertSame('blackops_application_http_unused', $policy->dependency->connection->getParams()['dbname']);
     }
 
     public function testMissingArtifactFailsWithoutFallbackOrCredentialExposure(): void
@@ -230,9 +235,18 @@ final class ApplicationHttpRuntimeTest extends TestCase
                 'container_namespace' => $paths['namespace'],
             ],
         ]);
+        $applicationConnection = $this->connectionParameters();
+        $applicationConnection['dbname'] = 'blackops_application_http_unused';
         $this->writeConfig($config, 'database', [
-            'connection' => $this->connectionParameters(),
-            'schema' => self::SCHEMA,
+            'default' => 'app',
+            'connections' => [
+                'app' => $applicationConnection,
+                'framework' => $this->connectionParameters(),
+            ],
+            'framework' => [
+                'connection' => 'framework',
+                'schema' => self::SCHEMA,
+            ],
         ]);
         $this->writeConfig($config, 'journal', ['jsonl' => [
             'enabled' => true,
@@ -319,7 +333,13 @@ final readonly class ApplicationRuntimeServiceProvider implements ServiceProvide
     }
 }
 
-final readonly class ApplicationRuntimePolicyDependency {}
+final readonly class ApplicationRuntimePolicyDependency
+{
+    public function __construct(
+        public DatabaseManager $databases,
+        public Connection $connection,
+    ) {}
+}
 
 final readonly class ApplicationRuntimeAuthorizedValue implements OperationValue {}
 
@@ -344,10 +364,13 @@ final readonly class ApplicationRuntimeAuthorizedOperation implements Operation
 final class ApplicationRuntimeAuthorizationPolicy implements AuthorizationPolicy
 {
     public static ?AuthorizationRequest $request = null;
+    public static ?self $instance = null;
 
     public function __construct(
         public readonly ApplicationRuntimePolicyDependency $dependency,
-    ) {}
+    ) {
+        self::$instance = $this;
+    }
 
     public function decide(AuthorizationRequest $request): AuthorizationDecision
     {

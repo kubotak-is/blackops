@@ -15,9 +15,11 @@ use BlackOps\Core\Operation;
 use BlackOps\Core\OperationValue;
 use BlackOps\Core\Outcome;
 use BlackOps\Core\Registry\OperationProvider;
+use BlackOps\Database\DatabaseManager;
 use BlackOps\Internal\Application\ApplicationConfigurationSnapshot;
 use BlackOps\Internal\Console\ApplicationBuildCompileCommand;
 use BlackOps\Internal\Registry\OperationManifestFile;
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -44,6 +46,16 @@ final class ApplicationBuildCompileCommandTest extends TestCase
                         'application_build_id' => 'application-build-authorization',
                     ],
                 ],
+                'database' => [
+                    'default' => 'app',
+                    'connections' => [
+                        'app' => [
+                            'driver' => 'pdo_pgsql',
+                            'password' => 'build-credential-that-must-not-appear',
+                        ],
+                    ],
+                    'framework' => ['connection' => 'app', 'schema' => 'blackops'],
+                ],
             ],
             [ApplicationBuildOperationProvider::class],
             [ApplicationBuildServiceProvider::class],
@@ -68,6 +80,15 @@ final class ApplicationBuildCompileCommandTest extends TestCase
             ApplicationBuildPolicyDependency::class,
             $container->get(ApplicationBuildAuthorizationPolicy::class)->dependency,
         );
+        $connection = $this->createStub(Connection::class);
+        $databases = $this->createStub(DatabaseManager::class);
+        $container->set(DatabaseManager::class, $databases);
+        $container->set(Connection::class, $connection);
+        self::assertTrue($container->has(DatabaseManager::class));
+        self::assertTrue($container->has(Connection::class));
+        $source = (string) file_get_contents($containerPath);
+        self::assertStringNotContainsString('build-credential-that-must-not-appear', $source);
+        self::assertStringNotContainsString("'password'", $source);
     }
 
     private function path(string $name): string

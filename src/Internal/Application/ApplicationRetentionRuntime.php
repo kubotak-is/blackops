@@ -14,8 +14,6 @@ use BlackOps\Transport\PostgreSql\PostgreSqlRetentionPurgeAuditStore;
 use BlackOps\Transport\PostgreSql\PostgreSqlRetentionPurgeService;
 use BlackOps\Transport\PostgreSql\PostgreSqlSystemClock;
 use BlackOps\Transport\PostgreSql\PostgreSqlTransportPayloadTombstoneService;
-use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\DriverManager;
 use Psr\Clock\ClockInterface;
 
 final readonly class ApplicationRetentionRuntime
@@ -30,7 +28,7 @@ final readonly class ApplicationRetentionRuntime
     {
         $database = ApplicationDatabaseConfiguration::fromConfiguration($snapshot->configuration());
         $this->configuration = ApplicationRetentionConfiguration::fromConfiguration($snapshot->configuration());
-        $connection = $this->connection($database->connection);
+        $connection = $database->databaseManager()->connection($database->frameworkConnection);
         $this->clock = new PostgreSqlSystemClock();
         $this->planner = new PostgreSqlRetentionPlanner($connection, $database->schema);
         $audit = new PostgreSqlRetentionPurgeAuditStore($connection, $database->schema);
@@ -49,14 +47,5 @@ final readonly class ApplicationRetentionRuntime
                 $this->configuration->actor,
             ),
         ]);
-    }
-
-    /** @param array<string, mixed> $parameters */
-    private function connection(array $parameters): Connection
-    {
-        /** @var callable(array<string, mixed>): Connection $factory */
-        $factory = [DriverManager::class, 'getConnection'];
-
-        return $factory($parameters);
     }
 }
