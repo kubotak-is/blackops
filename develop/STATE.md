@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-18T07:33:58+09:00
+Updated At: 2026-07-18T07:36:08+09:00
 
 ## Current Phase
 
@@ -18,7 +18,7 @@ Specifications: `develop/spec/09-runtime-and-di.md`、`develop/spec/10-logging-a
 
 In Progress
 
-P13-006AをAccepted／Commit済みとしてP13-006を再開した。Full PHP GateとConsumer 7本は成功済み。Database／Transaction Guideを公開Navigationへ配置するため、Website Navigation定義をTask Scopeへ追加した。
+P13-006AをAccepted／Commit済みとしてP13-006を再開した。Full PHP Gate、Consumer 7本、Website test／check／build／Artifact Boundaryは成功済み。追加公開PageをStatic Route／Pagefind Guardへ同期するため、Website Check ScriptをTask Scopeへ追加した。
 
 ## Last Accepted Task
 
