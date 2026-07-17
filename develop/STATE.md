@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-18T05:28:26+09:00
+Updated At: 2026-07-18T05:33:49+09:00
 
 ## Current Phase
 
@@ -8,17 +8,17 @@ Phase 13: Database and Transaction Runtime
 
 ## Current Task
 
-Task ID: P13-003-generic-transaction-and-after-commit-scope
+Task ID: P13-004-operation-transaction-lifecycle
 
-Task Packet: `develop/orchestration/tasks/P13-003-generic-transaction-and-after-commit-scope.md`
+Task Packet: `develop/orchestration/tasks/P13-004-operation-transaction-lifecycle.md`
 
 Specifications: `develop/spec/09-runtime-and-di.md`、`develop/spec/10-logging-and-traceability.md`、`develop/spec/11-durable-journal-and-transactions.md`、`develop/spec/36-postgresql-transaction-boundaries.md`、`develop/spec/64-phase-13-delivery-plan.md`
 
 ## Task Status
 
-Accepted
+Ready
 
-GPT-5.6 Luna High workerがP13-003を実装し、一般ServiceのRequired Transaction、Rollback-only、Manual Transaction Guard、After Commit Queue／Failure Reporterを完成した。Orchestrator Reviewで未注入RuntimeのFail-fastとA→B→A再入時の論理Invocation Stackを修正し、独立Quality Gateを通過した。Operation TransactionはP13-004までGeneric Interceptorから除外している。
+P13-004 Task Packetを作成した。Operation Transactional Metadata、Authorization後の固定Transaction Stage、同一Connectionの業務更新と成功Terminal Journal／OutcomeのAtomic Commit、Rejected／Throwable／Fencing／Supervision境界を実装する準備が整っている。
 
 ## Last Accepted Task
 
@@ -45,12 +45,12 @@ P13-003-generic-transaction-and-after-commit-scope
 
 ## Known Blockers
 
-P13-004のTask Packetは未作成である。Documentation Websiteは意図的に未公開である。
+P13-004に既知Blockerはない。Documentation Websiteは意図的に未公開である。
 
 ## Required Next Action
 
-1. P13-004 Operation Transaction LifecycleのTask Packetを作成する。
-2. Operationの固定Transaction境界とTerminal Journal／Outcomeの原子的Commitを実装する。
+1. GPT-5.6 Luna High workerへP13-004を依頼する。
+2. Worker Report後、Orchestratorが差分とTarget／Full Quality GateをReviewする。
 3. Documentation Website PublicationはUserが再開を明示するまで実行しない。
 
 ## P13-003 Orchestrator Review Commands and Results
