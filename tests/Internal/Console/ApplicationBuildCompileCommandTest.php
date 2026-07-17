@@ -21,6 +21,7 @@ use BlackOps\Internal\Console\ApplicationBuildCompileCommand;
 use BlackOps\Internal\Execution\ExecutionScopeProvider;
 use BlackOps\Internal\Registry\OperationManifestFile;
 use BlackOps\Internal\Transaction\RuntimeTransactionServiceInjector;
+use BlackOps\Tests\Fixtures\Aop\TransactionalOperation;
 use BlackOps\Tests\Fixtures\Aop\TransactionalService;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
@@ -81,9 +82,13 @@ final class ApplicationBuildCompileCommandTest extends TestCase
         $metadata = new OperationManifestFile()
             ->load($operationManifest)
             ->findByTypeId('application.build.authorized');
+        $transactionalMetadata = new OperationManifestFile()
+            ->load($operationManifest)
+            ->findByTypeId('application.build.transactional');
 
         self::assertSame(0, $status);
         self::assertSame(ApplicationBuildAuthorizationPolicy::class, $metadata?->authorizationPolicy);
+        self::assertSame('app', $transactionalMetadata?->transactionConnection);
         self::assertInstanceOf(
             ApplicationBuildAuthorizationPolicy::class,
             $container->get(ApplicationBuildAuthorizationPolicy::class),
@@ -164,7 +169,7 @@ final readonly class ApplicationBuildOperationProvider implements OperationProvi
 {
     public function definitions(): iterable
     {
-        return [ApplicationBuildOperation::class];
+        return [ApplicationBuildOperation::class, TransactionalOperation::class];
     }
 }
 

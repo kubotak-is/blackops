@@ -1,6 +1,6 @@
 # P13-004: Operation Transaction Lifecycle
 
-Status: Ready
+Status: Accepted
 
 ## Goal
 
@@ -60,6 +60,7 @@ Application ConnectionとFramework Storeが同じ`DatabaseManager`内の同一Co
 - `src/Internal/Application/ApplicationHttpRuntimeComposer.php`
 - `src/Internal/Application/ApplicationWorkerComposer.php`
 - `src/Internal/Console/ApplicationBuildCompileCommand.php`
+- `src/Internal/Console/ApplicationOperationListCommand.php`
 - `src/Internal/Console/CompileBuildArtifactsCommand.php`
 - `tests/Core/Registry/**`
 - `tests/Internal/Registry/**`
@@ -68,6 +69,7 @@ Application ConnectionとFramework Storeが同じ`DatabaseManager`内の同一Co
 - `tests/Internal/Execution/**`
 - `tests/Internal/Runtime/ProductionRuntimeSmokeTest.php`
 - `tests/Internal/Application/ApplicationHttpConfigurationTest.php`
+- `tests/Internal/Application/ApplicationConsoleKernelTest.php`
 - `tests/Internal/Console/ApplicationBuildCompileCommandTest.php`
 - `tests/Internal/Console/CompileBuildArtifactsCommandTest.php`
 - `tests/Internal/Console/CompileHttpManifestCommandTest.php`

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BlackOps\Internal\Execution;
 
 use BlackOps\Core\ActorContext;
+use BlackOps\Core\Exception\OperationRejectedException;
 use BlackOps\Core\Execution\Deferred;
 use BlackOps\Core\Execution\ExecutionStrategy;
 use BlackOps\Core\Execution\Inline;
@@ -28,6 +29,7 @@ use BlackOps\Internal\Journal\JournalRecordFactory;
 use BlackOps\Internal\Journal\LifecycleStateMachine;
 use BlackOps\Internal\Projection\ObservedJournalRecordProjector;
 use BlackOps\Internal\Projection\SensitiveProjectionFilter;
+use BlackOps\Internal\Transaction\OperationTransactionCoordinator;
 use BlackOps\Internal\Validation\OperationValueValidator;
 use BlackOps\Journal\CanonicalJournalWriter;
 use BlackOps\Journal\JournalEvent;
@@ -36,6 +38,12 @@ use BlackOps\Journal\LifecycleState;
 use Closure;
 use LogicException;
 
+/**
+ * Owns the complete inline lifecycle so state, canonical records, and transaction ordering stay synchronized.
+ *
+ * @mago-expect lint:cyclomatic-complexity
+ * @mago-expect lint:too-many-methods
+ */
 final readonly class InlineDispatcher implements Dispatcher, ValidationRejectionRecorder
 {
     private JournalObservationPipeline $observations;
@@ -54,6 +62,7 @@ final readonly class InlineDispatcher implements Dispatcher, ValidationRejection
         private ExecutionScopeProvider $scope = new ExecutionScopeProvider(),
         private HandlerInvoker $invoker = new HandlerInvoker(),
         private ?AuthorizationEvaluator $authorization = null,
+        private ?OperationTransactionCoordinator $transactions = null,
     ) {
         $this->validator = new OperationValueValidator();
         $this->observations = $observations ?? new JournalObservationPipeline(
@@ -70,6 +79,7 @@ final readonly class InlineDispatcher implements Dispatcher, ValidationRejection
         return $this->validator->validate($value);
     }
 
+    /** @mago-expect lint:halstead */
     public function dispatch(
         Operation $definition,
         OperationValue $value,
@@ -122,18 +132,41 @@ final readonly class InlineDispatcher implements Dispatcher, ValidationRejection
         }
 
         $handler = $this->handlers->resolve($metadata->handler);
+        $terminalRecords = [];
+        $invoke = fn(): OperationResult => $this->invoke($metadata, $handler, $envelope, $receivedEnvelope->context());
         $result = $this->scope->run(
             $envelope,
-            fn(): OperationResult => $this->invoker->invoke(
-                $metadata,
-                $handler,
-                $envelope,
-                $receivedEnvelope->context(),
-            ),
+            function () use ($metadata, $invoke, $envelope, $sequence, $state, &$terminalRecords): OperationResult {
+                if ($metadata->transactionConnection === null) {
+                    return $invoke();
+                }
+
+                if ($this->transactions === null) {
+                    throw new LogicException('Operation transaction coordinator is unavailable.');
+                }
+
+                return $this->transactions->execute($metadata, $invoke, function (OperationResult $result) use (
+                    $metadata,
+                    $envelope,
+                    $sequence,
+                    $state,
+                    &$terminalRecords,
+                ): void {
+                    $terminalRecords = $this->completeCanonical($state, $metadata, $envelope, $sequence, $result);
+                });
+            },
             $metadata->typeId,
         );
 
         if ($result->isCompleted()) {
+            if ($terminalRecords !== []) {
+                foreach ($terminalRecords as $record) {
+                    $this->observations->observe($record);
+                }
+
+                return $result;
+            }
+
             $state = $this->appendLifecycleRecord(
                 $state,
                 JournalEvent::AttemptSucceeded,
@@ -166,6 +199,42 @@ final readonly class InlineDispatcher implements Dispatcher, ValidationRejection
         );
 
         return $rejected;
+    }
+
+    private function invoke(
+        OperationMetadata $metadata,
+        object $handler,
+        OperationEnvelope $envelope,
+        \BlackOps\Core\ExecutionContext $context,
+    ): OperationResult {
+        try {
+            return $this->invoker->invoke($metadata, $handler, $envelope, $context);
+        } catch (OperationRejectedException $rejected) {
+            return OperationResult::rejected($rejected->reason(), $envelope->id());
+        }
+    }
+
+    /** @return list<JournalRecord> */
+    private function completeCanonical(
+        LifecycleState $state,
+        OperationMetadata $metadata,
+        OperationEnvelope $envelope,
+        InlineSequence $sequence,
+        OperationResult $result,
+    ): array {
+        $finalizing = $this->lifecycle->next($state, JournalEvent::AttemptSucceeded);
+        $succeeded = $this->journalRecords->attemptSucceeded($envelope, $metadata, $sequence->next());
+        $this->journal->append($succeeded);
+        $this->lifecycle->next($finalizing, JournalEvent::OperationCompleted);
+        $completed = $this->journalRecords->operationCompleted(
+            $envelope,
+            $metadata,
+            $sequence->next(),
+            $result->outcome(),
+        );
+        $this->journal->append($completed);
+
+        return [$succeeded, $completed];
     }
 
     /**

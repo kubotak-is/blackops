@@ -17,14 +17,18 @@ use BlackOps\Core\Operation;
 use BlackOps\Core\OperationValue;
 use BlackOps\Core\Outcome;
 use BlackOps\Core\Registry\OperationMetadata;
+use BlackOps\Database\Attribute\Transactional;
 use InvalidArgumentException;
 use ReflectionClass;
 
+/** @mago-expect lint:cyclomatic-complexity */
 final readonly class OperationMetadataCompiler
 {
     public function __construct(
         private OperationHandlerMetadataCompiler $handlers = new OperationHandlerMetadataCompiler(),
         ?OperationValueOutcomeCompiler $valueOutcomes = null,
+        private ?string $defaultTransactionConnection = null,
+        private array $knownTransactionConnections = [],
     ) {
         $this->valueOutcomes = $valueOutcomes ?? new OperationValueOutcomeCompiler($this->handlers);
     }
@@ -80,6 +84,7 @@ final readonly class OperationMetadataCompiler
         if ($authorizationPolicy !== null) {
             $this->assertImplements($authorizationPolicy, AuthorizationPolicy::class);
         }
+        $transactionConnection = $this->transactionConnection($reflection, $handler);
 
         return new OperationMetadata(
             $type->id,
@@ -92,7 +97,45 @@ final readonly class OperationMetadataCompiler
             $typedSelfHandledContext,
             $typedSelfHandledMode,
             $authorizationPolicy,
+            $transactionConnection,
         );
+    }
+
+    /** @param ReflectionClass<Operation> $definition @param class-string $handler */
+    private function transactionConnection(ReflectionClass $definition, string $handler): ?string
+    {
+        $attributes = $definition->getAttributes(Transactional::class);
+        if (count($attributes) > 1) {
+            throw new InvalidArgumentException('Operation definition must not repeat Transactional.');
+        }
+
+        $transactional = $attributes === [] ? null : $attributes[0]->newInstance();
+
+        if ($definition->getName() === $handler && $definition->hasMethod('handle')) {
+            $methodAttributes = $definition->getMethod('handle')->getAttributes(Transactional::class);
+            if (count($methodAttributes) > 1) {
+                throw new InvalidArgumentException('Operation handle method must not repeat Transactional.');
+            }
+
+            if ($methodAttributes !== []) {
+                $transactional = $methodAttributes[0]->newInstance();
+            }
+        }
+
+        if (!$transactional instanceof Transactional) {
+            return null;
+        }
+
+        if ($this->knownTransactionConnections === []) {
+            throw new InvalidArgumentException('Transactional operation requires database configuration.');
+        }
+
+        $connection = $transactional->connection ?? $this->defaultTransactionConnection;
+        if ($connection === null || !in_array($connection, $this->knownTransactionConnections, strict: true)) {
+            throw new InvalidArgumentException('Transactional operation references an unknown database connection.');
+        }
+
+        return $connection;
     }
 
     /** @param class-string $class @param class-string $interface */

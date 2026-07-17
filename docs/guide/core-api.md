@@ -143,7 +143,7 @@ HTTP入口はAuthenticationで得た`ActorRef`から、同じ主体をorigin／a
 
 | Namespace／Type | Kind | Purpose | Typical Use |
 | --- | --- | --- | --- |
-| `BlackOps\Core\Registry\OperationMetadata` | final readonly value object | Type、Value、Outcome、Handler、Strategyを保持する | Registry／Build Extensionで読む |
+| `BlackOps\Core\Registry\OperationMetadata` | final readonly value object | Type、Value、Outcome、Handler、Strategy、解決済みTransaction Connectionを保持する | Registry／Build Extensionで読む |
 | `BlackOps\Core\Registry\OperationRegistry` | final readonly class | Compile済みOperation Metadataを検索する | Type IDまたはDefinitionで解決する |
 | `BlackOps\Core\Registry\OperationProvider` | interface | Discovery外Operationを列挙する | Package／Generated Sourceを登録する |
 

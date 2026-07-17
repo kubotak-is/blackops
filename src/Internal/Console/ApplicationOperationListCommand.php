@@ -6,7 +6,9 @@ namespace BlackOps\Internal\Console;
 
 use BlackOps\Core\Registry\OperationMetadata;
 use BlackOps\Internal\Application\ApplicationConfigurationSnapshot;
+use BlackOps\Internal\Application\ApplicationDatabaseConfiguration;
 use BlackOps\Internal\Application\ApplicationOperationDiscovery;
+use BlackOps\Internal\Registry\OperationMetadataCompiler;
 use BlackOps\Internal\Registry\OperationProviderCompiler;
 use BlackOps\Internal\Registry\OperationProviderConfigLoader;
 use Symfony\Component\Console\Command\Command;
@@ -21,7 +23,7 @@ final class ApplicationOperationListCommand extends Command
     public function __construct(
         private readonly ApplicationConfigurationSnapshot $configuration,
         private readonly OperationProviderConfigLoader $providers = new OperationProviderConfigLoader(),
-        private readonly OperationProviderCompiler $compiler = new OperationProviderCompiler(),
+        private readonly ?OperationProviderCompiler $compiler = null,
     ) {
         parent::__construct(self::NAME);
     }
@@ -29,7 +31,15 @@ final class ApplicationOperationListCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $providers = $this->providers->fromEntries($this->configuration->operationProviders());
-        $metadata = $this->compiler->compile(
+        $configuration = $this->configuration->configuration();
+        $database = is_array($configuration['database'] ?? null)
+            ? ApplicationDatabaseConfiguration::fromConfiguration($configuration)
+            : null;
+        $compiler = $this->compiler ?? new OperationProviderCompiler(new OperationMetadataCompiler(
+            defaultTransactionConnection: $database?->default,
+            knownTransactionConnections: $database === null ? [] : array_keys($database->connections),
+        ));
+        $metadata = $compiler->compile(
             $providers,
             new ApplicationOperationDiscovery()->discover($this->configuration),
         )->all();

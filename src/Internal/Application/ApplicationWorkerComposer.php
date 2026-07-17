@@ -23,6 +23,7 @@ use BlackOps\Internal\Identifier\IdentifierFactory;
 use BlackOps\Internal\Identifier\SymfonyUuidv7Generator;
 use BlackOps\Internal\Journal\JournalRecordFactory;
 use BlackOps\Internal\Runtime\ProductionRuntimeArtifactLoader;
+use BlackOps\Internal\Transaction\OperationTransactionCoordinator;
 use BlackOps\Internal\Transaction\RuntimeTransactionServiceInjector;
 use BlackOps\Transport\PostgreSql\PostgreSqlCanonicalJournalStore;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationLifecycleStore;
@@ -47,8 +48,13 @@ final readonly class ApplicationWorkerComposer
         $databases = $database->databaseManager();
         new RuntimeDatabaseServiceInjector()->inject($artifacts->container, $databases);
         $executionScope = new ExecutionScopeProvider();
-        new RuntimeTransactionServiceInjector()->inject($artifacts->container, $databases, $executionScope);
+        $transactionRuntime = new RuntimeTransactionServiceInjector()->inject(
+            $artifacts->container,
+            $databases,
+            $executionScope,
+        );
         $main = $databases->connection($database->frameworkConnection);
+        $operationTransactions = new OperationTransactionCoordinator($transactionRuntime, $databases, $main);
         $heartbeat = $database->databaseManager()->connection($database->frameworkConnection);
         $clock = new PostgreSqlSystemClock();
         $identifiers = new IdentifierFactory(new SymfonyUuidv7Generator(), $clock);
@@ -69,6 +75,7 @@ final readonly class ApplicationWorkerComposer
             $clock,
             new PostgreSqlOutcomeStore($main, $database->schema),
             scope: $executionScope,
+            transactions: $operationTransactions,
         );
         $receiver = new PostgreSqlDeferredOperationReceiver(
             $main,

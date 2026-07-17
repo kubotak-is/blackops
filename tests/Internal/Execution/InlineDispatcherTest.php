@@ -23,6 +23,9 @@ use BlackOps\Core\OperationValue;
 use BlackOps\Core\Registry\OperationMetadata;
 use BlackOps\Core\Registry\OperationRegistry;
 use BlackOps\Core\Rejection\RejectionReason;
+use BlackOps\Database\AfterCommitFailure;
+use BlackOps\Database\AfterCommitFailureReporter;
+use BlackOps\Database\DatabaseManager;
 use BlackOps\Internal\Authorization\AuthorizationEvaluator;
 use BlackOps\Internal\Authorization\AuthorizationPolicyResolver;
 use BlackOps\Internal\Execution\ExecutionScopeProvider;
@@ -38,6 +41,8 @@ use BlackOps\Internal\Journal\JournalRecordFactory;
 use BlackOps\Internal\Journal\LifecycleStateMachine;
 use BlackOps\Internal\Projection\ObservedJournalRecordProjector;
 use BlackOps\Internal\Projection\SensitiveProjectionFilter;
+use BlackOps\Internal\Transaction\OperationTransactionCoordinator;
+use BlackOps\Internal\Transaction\TransactionRuntime;
 use BlackOps\Journal\CanonicalJournalWriter;
 use BlackOps\Journal\Exception\JournalObservationFailed;
 use BlackOps\Journal\Exception\JournalWriteFailed;
@@ -48,6 +53,8 @@ use BlackOps\Journal\JournalRecord;
 use BlackOps\Journal\LifecycleState;
 use BlackOps\Journal\ObservedJournalRecord;
 use DateTimeImmutable;
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DriverManager;
 use LogicException;
 use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
@@ -281,6 +288,102 @@ final class InlineDispatcherTest extends TestCase
         self::assertStringStartsWith('hmac-sha256:', $observer->records[0]->data['value']['customerId']);
     }
 
+    public function testTransactionalInlineCommitsBusinessAndTerminalBeforeObservation(): void
+    {
+        $connection = DriverManager::getConnection(['driver' => 'pdo_sqlite', 'memory' => true]);
+        $connection->executeStatement('CREATE TABLE business_updates (value TEXT NOT NULL)');
+        [$coordinator, $scope] = $this->transactionCoordinator($connection);
+        $observer = new TransactionStateJournalObserver($connection);
+        $journal = new RecordingJournalWriter();
+        $handler = new TransactionalInlineDispatchHandler($connection, OperationResult::completed());
+        $metadata = new OperationMetadata(
+            'dispatch.transactional',
+            DispatchOperation::class,
+            DispatchValue::class,
+            $handler::class,
+            EmptyOutcome::class,
+            Inline::class,
+            transactionConnection: 'app',
+        );
+
+        $result = $this->dispatcher(
+            $handler,
+            $journal,
+            observations: new JournalObservationPipeline(
+                new ObservedJournalRecordProjector(new SensitiveProjectionFilter('projection-key')),
+                new JournalObserverAggregator([new JournalObserverBinding('transaction-state', $observer)]),
+            ),
+            scope: $scope,
+            metadata: $metadata,
+            transactions: $coordinator,
+        )->dispatch(new DispatchOperation(), new DispatchValue('transactional'));
+
+        self::assertTrue($result->isCompleted());
+        self::assertSame(['business'], $connection->fetchFirstColumn('SELECT value FROM business_updates'));
+        self::assertSame([false, false, false, false], $observer->transactionStates);
+        self::assertSame(
+            [
+                JournalEvent::OperationReceived,
+                JournalEvent::AttemptStarted,
+                JournalEvent::AttemptSucceeded,
+                JournalEvent::OperationCompleted,
+            ],
+            array_column($journal->records, 'event'),
+        );
+    }
+
+    public function testTransactionalInlineRollsBackBeforeRejectionAndStartsAfterAuthorization(): void
+    {
+        $connection = DriverManager::getConnection(['driver' => 'pdo_sqlite', 'memory' => true]);
+        $connection->executeStatement('CREATE TABLE business_updates (value TEXT NOT NULL)');
+        [$coordinator, $scope] = $this->transactionCoordinator($connection);
+        $handler = new TransactionalInlineDispatchHandler(
+            $connection,
+            OperationResult::rejected(RejectionReason::businessRule('dispatch.rejected')),
+        );
+        $metadata = new OperationMetadata(
+            'dispatch.transactional.rejected',
+            DispatchOperation::class,
+            DispatchValue::class,
+            $handler::class,
+            EmptyOutcome::class,
+            Inline::class,
+            transactionConnection: 'app',
+        );
+
+        $result = $this->dispatcher($handler, scope: $scope, metadata: $metadata, transactions: $coordinator)->dispatch(
+            new DispatchOperation(),
+            new DispatchValue('rejected'),
+        );
+
+        self::assertTrue($result->isRejected());
+        self::assertSame([], $connection->fetchFirstColumn('SELECT value FROM business_updates'));
+
+        $policy = new TransactionStateDispatchPolicy($connection);
+        $authorizedMetadata = new OperationMetadata(
+            'dispatch.transactional.authorized',
+            DispatchOperation::class,
+            DispatchValue::class,
+            $handler::class,
+            EmptyOutcome::class,
+            Inline::class,
+            authorizationPolicy: $policy::class,
+            transactionConnection: 'app',
+        );
+        $actor = new ActorRef('user-123', 'user');
+        $denied = $this->dispatcher(
+            $handler,
+            scope: $scope,
+            metadata: $authorizedMetadata,
+            policy: $policy,
+            transactions: $coordinator,
+        )->dispatch(new DispatchOperation(), new DispatchValue('forbidden'), new ActorContext($actor, $actor, $actor));
+
+        self::assertTrue($denied->isRejected());
+        self::assertSame([false], $policy->transactionStates);
+        self::assertSame(1, $handler->calls);
+    }
+
     public function testBestEffortObserverFailureDoesNotBlockDispatch(): void
     {
         $result = $this->dispatcher(
@@ -362,6 +465,7 @@ final class InlineDispatcherTest extends TestCase
         ?ExecutionScopeProvider $scope = null,
         ?OperationMetadata $metadata = null,
         ?AuthorizationPolicy $policy = null,
+        ?OperationTransactionCoordinator $transactions = null,
     ): InlineDispatcher {
         $metadata ??= new OperationMetadata(
             'dispatch.test',
@@ -413,7 +517,18 @@ final class InlineDispatcherTest extends TestCase
             $observations,
             $scope ?? new ExecutionScopeProvider(),
             authorization: $authorization,
+            transactions: $transactions,
         );
+    }
+
+    /** @return array{OperationTransactionCoordinator, ExecutionScopeProvider} */
+    private function transactionCoordinator(Connection $connection): array
+    {
+        $manager = new InlineDispatchDatabaseManager($connection);
+        $scope = new ExecutionScopeProvider();
+        $runtime = new TransactionRuntime($manager, new IgnoringInlineAfterCommitReporter(), $scope);
+
+        return [new OperationTransactionCoordinator($runtime, $manager, $connection), $scope];
     }
 
     private function authorizedMetadata(object $handler): OperationMetadata
@@ -484,6 +599,41 @@ final class CountingDispatchHandler implements OperationHandler
         ++$this->calls;
 
         return OperationResult::completed();
+    }
+}
+
+final class TransactionalInlineDispatchHandler implements OperationHandler
+{
+    public int $calls = 0;
+
+    public function __construct(
+        private Connection $connection,
+        private OperationResult $result,
+    ) {}
+
+    public function handle(OperationEnvelope $operation): OperationResult
+    {
+        ++$this->calls;
+        $this->connection->insert('business_updates', ['value' => 'business']);
+
+        return $this->result;
+    }
+}
+
+final class TransactionStateDispatchPolicy implements AuthorizationPolicy
+{
+    /** @var list<bool> */
+    public array $transactionStates = [];
+
+    public function __construct(
+        private Connection $connection,
+    ) {}
+
+    public function decide(AuthorizationRequest $request): AuthorizationDecision
+    {
+        $this->transactionStates[] = $this->connection->isTransactionActive();
+
+        return AuthorizationDecision::forbid('authorization.transaction_forbidden');
     }
 }
 
@@ -596,6 +746,42 @@ final class RecordingJournalObserver implements JournalObserver
     {
         $this->records[] = $record;
     }
+}
+
+final class TransactionStateJournalObserver implements JournalObserver
+{
+    /** @var list<bool> */
+    public array $transactionStates = [];
+
+    public function __construct(
+        private Connection $connection,
+    ) {}
+
+    public function observe(ObservedJournalRecord $record): void
+    {
+        $this->transactionStates[] = $this->connection->isTransactionActive();
+    }
+}
+
+final readonly class InlineDispatchDatabaseManager implements DatabaseManager
+{
+    public function __construct(
+        private Connection $connection,
+    ) {}
+
+    public function connection(?string $name = null): Connection
+    {
+        if ($name !== null && $name !== 'app') {
+            throw new LogicException('Unknown test connection.');
+        }
+
+        return $this->connection;
+    }
+}
+
+final readonly class IgnoringInlineAfterCommitReporter implements AfterCommitFailureReporter
+{
+    public function report(AfterCommitFailure $failure): void {}
 }
 
 final readonly class FailingJournalObserver implements JournalObserver

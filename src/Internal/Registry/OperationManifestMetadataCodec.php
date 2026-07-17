@@ -48,6 +48,13 @@ final readonly class OperationManifestMetadataCodec
                             'authorizationPolicy' => $metadata->authorizationPolicy,
                         ]
                 ),
+                ...(
+                    $metadata->transactionConnection === null
+                        ? []
+                        : [
+                            'transactionConnection' => $metadata->transactionConnection,
+                        ]
+                ),
             ], $registry->all()),
         ];
     }
@@ -93,7 +100,18 @@ final readonly class OperationManifestMetadataCodec
             $typedSelfHandledContext,
             $typedSelfHandledMode,
             $this->authorizationPolicy($entry),
+            $this->optionalStringField($entry, 'transactionConnection'),
         );
+    }
+
+    /** @param array<array-key, mixed> $entry */
+    private function optionalStringField(array $entry, string $key): ?string
+    {
+        if (!array_key_exists($key, $entry)) {
+            return null;
+        }
+
+        return $this->stringField($entry, $key);
     }
 
     /**

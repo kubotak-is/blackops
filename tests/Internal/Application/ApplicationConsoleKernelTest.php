@@ -17,6 +17,7 @@ use BlackOps\Core\OperationHandler;
 use BlackOps\Core\OperationResult;
 use BlackOps\Core\OperationValue;
 use BlackOps\Core\Registry\OperationProvider;
+use BlackOps\Database\Attribute\Transactional;
 use BlackOps\Internal\Registry\OperationManifestFile;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Command\Command;
@@ -111,6 +112,28 @@ final class ApplicationConsoleKernelTest extends TestCase
             'command' => 'operation:list',
         ]), $output));
         self::assertStringContainsString('console.provider.operation', $output->fetch());
+    }
+
+    public function testOperationListResolvesTransactionalOperationFromDatabaseConfiguration(): void
+    {
+        $directory = $this->directory();
+        $config = $directory . '/config';
+        mkdir($config);
+        $this->writeConfig(
+            $config,
+            'database',
+            "return ['default' => 'app', 'connections' => ['app' => ['driver' => 'pdo_pgsql']], 'framework' => ['connection' => 'app', 'schema' => 'blackops']];",
+        );
+        $application = Application::configure($directory)
+            ->withConfiguration()
+            ->withOperations([ConsoleKernelTransactionalOperationProvider::class])
+            ->create();
+        $output = new BufferedOutput();
+
+        self::assertSame(0, $application->console()->run(new ArrayInput([
+            'command' => 'operation:list',
+        ]), $output));
+        self::assertStringContainsString('console.transactional.operation', $output->fetch());
     }
 
     public function testRejectsApplicationCommandThatConflictsWithFrameworkCommand(): void
@@ -366,6 +389,21 @@ final readonly class ConsoleKernelOperationProvider implements OperationProvider
     {
         return [ConsoleKernelProviderOperation::class];
     }
+}
+
+final readonly class ConsoleKernelTransactionalOperationProvider implements OperationProvider
+{
+    public function definitions(): iterable
+    {
+        return [ConsoleKernelTransactionalOperation::class];
+    }
+}
+
+#[OperationType('console.transactional.operation')]
+#[Transactional]
+readonly class ConsoleKernelTransactionalOperation implements Operation
+{
+    public function handle(ConsoleKernelProviderValue $value): void {}
 }
 
 #[OperationType('console.provider.operation')]

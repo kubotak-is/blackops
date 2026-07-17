@@ -35,5 +35,6 @@ final readonly class OperationMetadata
         public bool $typedSelfHandledContext = false,
         public ?string $typedSelfHandledMode = null,
         public ?string $authorizationPolicy = null,
+        public ?string $transactionConnection = null,
     ) {}
 }

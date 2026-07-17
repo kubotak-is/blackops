@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BlackOps\Internal\Execution;
 
 use BlackOps\Core\Exception\DeferredTransportException;
+use BlackOps\Core\Exception\OperationRejectedException;
 use BlackOps\Core\Execution\Deferred;
 use BlackOps\Core\Execution\OperationClaim;
 use BlackOps\Core\Operation;
@@ -19,6 +20,12 @@ use LogicException;
 use ReflectionClass;
 use Throwable;
 
+/**
+ * Keeps claim fencing, supervision, and transactional terminal persistence in one attempt lifecycle.
+ *
+ * @mago-expect lint:cyclomatic-complexity
+ * @mago-expect lint:too-many-methods
+ */
 final readonly class DeferredWorkerRuntime implements DeferredClaimRuntime
 {
     public function __construct(
@@ -28,6 +35,7 @@ final readonly class DeferredWorkerRuntime implements DeferredClaimRuntime
         private HandlerInvoker $invoker = new HandlerInvoker(),
     ) {}
 
+    /** @mago-expect lint:halstead */
     public function run(OperationClaim $claim): OperationResult
     {
         $metadata = $this->metadata($claim);
@@ -47,7 +55,13 @@ final readonly class DeferredWorkerRuntime implements DeferredClaimRuntime
         }
 
         if ($result->isCompleted()) {
-            $this->complete($claim, $metadata, $envelope, $result);
+            if (
+                $metadata->transactionConnection === null
+                || $this->storage->transactions === null
+                || !$this->storage->transactions->sharesFrameworkConnection($metadata)
+            ) {
+                $this->complete($claim, $metadata, $envelope, $result);
+            }
 
             return $result;
         }
@@ -66,14 +80,39 @@ final readonly class DeferredWorkerRuntime implements DeferredClaimRuntime
     ): OperationResult {
         return $this->guard->run($claim, fn(): OperationResult => $this->storage->scope->run(
             $envelope,
-            function () use ($handler, $envelope, $metadata): OperationResult {
+            function () use ($claim, $handler, $envelope, $metadata): OperationResult {
                 try {
                     $rejection = $this->services->authorization->evaluate($metadata, $envelope);
                     if ($rejection !== null) {
                         return OperationResult::rejected($rejection, $envelope->id());
                     }
 
-                    return $this->invoker->invoke($metadata, $handler, $envelope);
+                    $invoke = function () use ($metadata, $handler, $envelope): OperationResult {
+                        try {
+                            return $this->invoker->invoke($metadata, $handler, $envelope);
+                        } catch (OperationRejectedException $rejected) {
+                            return OperationResult::rejected($rejected->reason(), $envelope->id());
+                        }
+                    };
+
+                    if ($metadata->transactionConnection === null) {
+                        return $invoke();
+                    }
+
+                    if ($this->storage->transactions === null) {
+                        throw new LogicException('Operation transaction coordinator is unavailable.');
+                    }
+
+                    return $this->storage->transactions->execute(
+                        $metadata,
+                        $invoke,
+                        fn(OperationResult $result): mixed => $this->completeInCurrentTransaction(
+                            $claim,
+                            $metadata,
+                            $envelope,
+                            $result,
+                        ),
+                    );
                 } catch (WorkerExecutionInterruptedException $exception) {
                     throw $exception;
                 } catch (Throwable $exception) {
@@ -145,25 +184,34 @@ final readonly class DeferredWorkerRuntime implements DeferredClaimRuntime
         OperationResult $result,
     ): void {
         $this->storage->connection->transactional(function () use ($claim, $metadata, $envelope, $result): void {
-            $completedAt = $this->storage->clock->now();
-            $reservation = $this->storage->state->reserveCompleted($claim, $completedAt);
-            $finalizing = $this->storage->lifecycle->next(LifecycleState::Running, JournalEvent::AttemptSucceeded);
-            $this->storage->lifecycle->next($finalizing, JournalEvent::OperationCompleted);
-            $this->storage->journal->append($this->storage->records->attemptSucceeded(
-                $envelope,
-                $metadata,
-                $reservation->attemptSucceededSequence,
-            ));
-            $this->storage->journal->append($this->storage->records->operationCompleted(
-                $envelope,
-                $metadata,
-                $reservation->operationCompletedSequence,
-                $result->outcome(),
-            ));
-            $this->storage->outcomes->save(
-                new OutcomeRecord($claim->message()->operationId(), $result->outcome(), $completedAt),
-            );
+            $this->completeInCurrentTransaction($claim, $metadata, $envelope, $result);
         });
+    }
+
+    private function completeInCurrentTransaction(
+        OperationClaim $claim,
+        OperationMetadata $metadata,
+        OperationEnvelope $envelope,
+        OperationResult $result,
+    ): void {
+        $completedAt = $this->storage->clock->now();
+        $reservation = $this->storage->state->reserveCompleted($claim, $completedAt);
+        $finalizing = $this->storage->lifecycle->next(LifecycleState::Running, JournalEvent::AttemptSucceeded);
+        $this->storage->lifecycle->next($finalizing, JournalEvent::OperationCompleted);
+        $this->storage->journal->append($this->storage->records->attemptSucceeded(
+            $envelope,
+            $metadata,
+            $reservation->attemptSucceededSequence,
+        ));
+        $this->storage->journal->append($this->storage->records->operationCompleted(
+            $envelope,
+            $metadata,
+            $reservation->operationCompletedSequence,
+            $result->outcome(),
+        ));
+        $this->storage->outcomes->save(
+            new OutcomeRecord($claim->message()->operationId(), $result->outcome(), $completedAt),
+        );
     }
 
     private function reject(

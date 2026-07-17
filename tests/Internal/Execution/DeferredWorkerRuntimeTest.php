@@ -33,6 +33,9 @@ use BlackOps\Core\Supervision\ExponentialBackoffSupervisionPolicy;
 use BlackOps\Core\Supervision\RetryableException;
 use BlackOps\Core\Supervision\SupervisionDecision;
 use BlackOps\Core\Supervision\SupervisionPolicy;
+use BlackOps\Database\AfterCommitFailure;
+use BlackOps\Database\AfterCommitFailureReporter;
+use BlackOps\Database\DatabaseManager;
 use BlackOps\Internal\Authorization\AuthorizationEvaluator;
 use BlackOps\Internal\Authorization\AuthorizationPolicyResolver;
 use BlackOps\Internal\Codec\ReflectionJsonOperationCodec;
@@ -42,6 +45,7 @@ use BlackOps\Internal\Execution\DeferredLeaseExpiredRecovery;
 use BlackOps\Internal\Execution\DeferredWorkerRuntime;
 use BlackOps\Internal\Execution\DeferredWorkerRuntimeServices;
 use BlackOps\Internal\Execution\DeferredWorkerRuntimeStorage;
+use BlackOps\Internal\Execution\ExecutionScopeProvider;
 use BlackOps\Internal\Execution\HandlerResolver;
 use BlackOps\Internal\Execution\SupervisedHandlerFailureException;
 use BlackOps\Internal\Execution\WorkerClaimLostException;
@@ -49,6 +53,8 @@ use BlackOps\Internal\ExecutionContext\ExecutionContextFactory;
 use BlackOps\Internal\Identifier\IdentifierFactory;
 use BlackOps\Internal\Identifier\Uuidv7Generator;
 use BlackOps\Internal\Journal\JournalRecordFactory;
+use BlackOps\Internal\Transaction\OperationTransactionCoordinator;
+use BlackOps\Internal\Transaction\TransactionRuntime;
 use BlackOps\Journal\Data\AttemptFailedData;
 use BlackOps\Journal\Data\AttemptRetryScheduledData;
 use BlackOps\Journal\Data\OperationDeadLetteredData;
@@ -102,6 +108,9 @@ final class DeferredWorkerRuntimeTest extends TestCase
         $this->sender->migrate();
         $this->receiver->migrate();
         $this->journal->migrate();
+        $this->connection->executeStatement(
+            'CREATE TABLE ' . self::SCHEMA . '.business_updates (id INTEGER PRIMARY KEY, value TEXT NOT NULL)',
+        );
     }
 
     public function testWorkerRunsClaimedOperationToCompletion(): void
@@ -150,6 +159,180 @@ final class DeferredWorkerRuntimeTest extends TestCase
         self::assertNotNull($storedOutcome);
         self::assertInstanceOf(WorkerReportDone::class, $storedOutcome->outcome());
         self::assertSame('done-weekly', $storedOutcome->outcome()->message);
+    }
+
+    public function testTransactionalWorkerCommitsBusinessTerminalAndAfterCommitTogether(): void
+    {
+        $metadata = $this->transactionalMetadata();
+        $callbackStates = [];
+        $handler = new TransactionalWorkerReportHandler($this->connection, function (TransactionRuntime $runtime) use (
+            &$callbackStates,
+        ): void {
+            $runtime->afterCommit(self::class, 'completed', function () use (&$callbackStates): void {
+                $callbackStates[] = $this->operationRow()['state'];
+            });
+        });
+        $this->accept($metadata);
+        $claim = $this->receiver->claim(new \BlackOps\Core\Execution\ClaimRequest(
+            new DateTimeImmutable('2026-07-10T00:01:00.000000Z'),
+        ));
+        self::assertNotNull($claim);
+
+        $result = $this->runtime($handler, metadata: $metadata)->run($claim);
+
+        self::assertTrue($result->isCompleted());
+        self::assertSame(['completed'], $callbackStates);
+        self::assertSame(['business'], $this->businessValues());
+        self::assertSame('completed', $this->operationRow()['state']);
+        self::assertNotNull($this->outcomes->find(OperationId::fromString(self::OPERATION_ID)));
+    }
+
+    public function testTransactionalWorkerRollsBackBusinessBeforeRejectionAndSupervision(): void
+    {
+        $metadata = $this->transactionalMetadata();
+        $rejecting = new TransactionalRejectingWorkerReportHandler($this->connection);
+        $this->accept($metadata);
+        $claim = $this->receiver->claim(new \BlackOps\Core\Execution\ClaimRequest(
+            new DateTimeImmutable('2026-07-10T00:01:00.000000Z'),
+        ));
+        self::assertNotNull($claim);
+
+        $result = $this->runtime($rejecting, metadata: $metadata)->run($claim);
+
+        self::assertTrue($result->isRejected());
+        self::assertSame([], $this->businessValues());
+        self::assertSame('rejected', $this->operationRow()['state']);
+
+        $this->connection->close();
+        $this->setUp();
+        $this->accept($metadata);
+        $claim = $this->receiver->claim(new \BlackOps\Core\Execution\ClaimRequest(
+            new DateTimeImmutable('2026-07-10T00:01:00.000000Z'),
+        ));
+        self::assertNotNull($claim);
+
+        try {
+            $this->runtime(new TransactionalThrowingWorkerReportHandler($this->connection), metadata: $metadata)->run(
+                $claim,
+            );
+            self::fail('Expected supervised transaction failure.');
+        } catch (SupervisedHandlerFailureException) {
+        }
+
+        self::assertSame([], $this->businessValues());
+        self::assertSame('failed', $this->operationRow()['state']);
+        self::assertSame(JournalEvent::AttemptFailed, $this->records()[3]->event);
+
+        $this->connection->close();
+        $this->setUp();
+        $this->accept($metadata);
+        $claim = $this->receiver->claim(new \BlackOps\Core\Execution\ClaimRequest(
+            new DateTimeImmutable('2026-07-10T00:01:00.000000Z'),
+        ));
+        self::assertNotNull($claim);
+
+        try {
+            $this->runtime(
+                new TransactionalThrowingWorkerReportHandler($this->connection),
+                new AlwaysDeadLetterSupervisionPolicy(),
+                metadata: $metadata,
+            )->run($claim);
+            self::fail('Expected supervised transactional dead letter.');
+        } catch (SupervisedHandlerFailureException) {
+        }
+
+        self::assertSame([], $this->businessValues());
+        self::assertSame('dead_lettered', $this->operationRow()['state']);
+        self::assertSame(JournalEvent::OperationDeadLettered, $this->records()[4]->event);
+    }
+
+    public function testTransactionalWorkerAuthorizesBeforeBeginAndRetriesOnlyAfterRollback(): void
+    {
+        $metadata = $this->authorizedTransactionalMetadata();
+        $policy = new TransactionStateWorkerAuthorizationPolicy($this->connection);
+        $handler = new CompletingWorkerReportHandler();
+        $this->accept($metadata, actors: self::userActors(), authorizationPolicy: $policy);
+        $claim = $this->receiver->claim(new \BlackOps\Core\Execution\ClaimRequest(
+            new DateTimeImmutable('2026-07-10T00:01:00.000000Z'),
+        ));
+        self::assertNotNull($claim);
+
+        $result = $this->runtime($handler, metadata: $metadata, authorizationPolicy: $policy)->run($claim);
+
+        self::assertTrue($result->isRejected());
+        self::assertSame([true, false], $policy->transactionStates);
+        self::assertSame(0, $handler->calls);
+
+        $this->connection->close();
+        $this->setUp();
+        $retryMetadata = $this->transactionalMetadata();
+        $this->accept($retryMetadata);
+        $claim = $this->receiver->claim(new \BlackOps\Core\Execution\ClaimRequest(
+            new DateTimeImmutable('2026-07-10T00:01:00.000000Z'),
+        ));
+        self::assertNotNull($claim);
+
+        try {
+            $this->runtime(
+                new TransactionalRetryableWorkerReportHandler($this->connection),
+                metadata: $retryMetadata,
+            )->run($claim);
+            self::fail('Expected supervised retryable transaction failure.');
+        } catch (SupervisedHandlerFailureException $exception) {
+            self::assertInstanceOf(RetryableWorkerRuntimeException::class, $exception->getPrevious());
+        }
+
+        self::assertSame([], $this->businessValues());
+        self::assertSame('retry_scheduled', $this->operationRow()['state']);
+        self::assertSame(
+            [JournalEvent::AttemptFailed, JournalEvent::AttemptRetryScheduled],
+            array_column(array_slice($this->records(), 3), 'event'),
+        );
+    }
+
+    public function testTransactionalWorkerRollsBackBusinessWhenOutcomeOrFencingFails(): void
+    {
+        $metadata = $this->transactionalMetadata();
+        $this->accept($metadata);
+        $claim = $this->receiver->claim(new \BlackOps\Core\Execution\ClaimRequest(
+            new DateTimeImmutable('2026-07-10T00:01:00.000000Z'),
+        ));
+        self::assertNotNull($claim);
+
+        try {
+            $this->runtime(
+                new TransactionalWorkerReportHandler($this->connection),
+                outcomes: new FailingWorkerOutcomeWriter(),
+                metadata: $metadata,
+            )->run($claim);
+            self::fail('Expected supervised outcome failure.');
+        } catch (SupervisedHandlerFailureException $exception) {
+            self::assertInstanceOf(OutcomeStoreException::class, $exception->getPrevious());
+        }
+
+        self::assertSame([], $this->businessValues());
+        self::assertSame('failed', $this->operationRow()['state']);
+        self::assertNull($this->outcomes->find(OperationId::fromString(self::OPERATION_ID)));
+
+        $this->connection->close();
+        $this->setUp();
+        $this->accept($metadata);
+        $claim = $this->receiver->claim(new \BlackOps\Core\Execution\ClaimRequest(
+            new DateTimeImmutable('2026-07-10T00:01:00.000000Z'),
+        ));
+        self::assertNotNull($claim);
+
+        try {
+            $this->runtime(new TransactionalFencingWorkerReportHandler($this->connection), metadata: $metadata)->run(
+                $claim,
+            );
+            self::fail('Expected supervised fencing failure.');
+        } catch (SupervisedHandlerFailureException) {
+        }
+
+        self::assertSame([], $this->businessValues());
+        self::assertSame('failed', $this->operationRow()['state']);
+        self::assertNull($this->outcomes->find(OperationId::fromString(self::OPERATION_ID)));
     }
 
     public function testWorkerUsesContainerResolvedSelfHandledOperationWithRequiredDependency(): void
@@ -841,10 +1024,20 @@ final class DeferredWorkerRuntimeTest extends TestCase
         $clock = new DeferredWorkerClock();
         $identifiers = new IdentifierFactory(new DeferredWorkerRuntimeUuidv7Generator(), $clock);
         $container = new DeferredWorkerContainer($handler, $authorizationPolicy);
+        $resolvedMetadata = $metadata ?? $this->metadata();
+        $scope = new ExecutionScopeProvider();
+        $manager = new DeferredWorkerDatabaseManager($this->connection);
+        $transactionRuntime = new TransactionRuntime($manager, new IgnoringDeferredAfterCommitReporter(), $scope);
+        if ($handler instanceof TransactionRuntimeAwareWorkerHandler) {
+            $handler->setTransactionRuntime($transactionRuntime);
+        }
+        $operationTransactions = $resolvedMetadata->transactionConnection === null
+            ? null
+            : new OperationTransactionCoordinator($transactionRuntime, $manager, $this->connection);
 
         return new DeferredWorkerRuntime(
             new DeferredWorkerRuntimeServices(
-                new OperationRegistry([$metadata ?? $this->metadata()]),
+                new OperationRegistry([$resolvedMetadata]),
                 $this->codec,
                 new ExecutionContextFactory($identifiers, $clock),
                 new HandlerResolver($container),
@@ -859,6 +1052,8 @@ final class DeferredWorkerRuntimeTest extends TestCase
                 new PostgreSqlDeferredOperationLifecycleStore($this->connection, self::SCHEMA),
                 $clock,
                 $outcomes ?? $this->outcomes,
+                scope: $scope,
+                transactions: $operationTransactions,
             ),
             $guard ?? new \BlackOps\Internal\Execution\DirectClaimExecutionGuard(),
         );
@@ -937,6 +1132,44 @@ final class DeferredWorkerRuntimeTest extends TestCase
             WorkerReportDone::class,
             Deferred::class,
         );
+    }
+
+    private function transactionalMetadata(): OperationMetadata
+    {
+        return new OperationMetadata(
+            'report.generate',
+            WorkerReportOperation::class,
+            WorkerReportValue::class,
+            WorkerReportHandler::class,
+            WorkerReportDone::class,
+            Deferred::class,
+            transactionConnection: 'app',
+        );
+    }
+
+    private function authorizedTransactionalMetadata(): OperationMetadata
+    {
+        return new OperationMetadata(
+            'report.generate',
+            WorkerReportOperation::class,
+            WorkerReportValue::class,
+            WorkerReportHandler::class,
+            WorkerReportDone::class,
+            Deferred::class,
+            authorizationPolicy: TransactionStateWorkerAuthorizationPolicy::class,
+            transactionConnection: 'app',
+        );
+    }
+
+    /** @return list<string> */
+    private function businessValues(): array
+    {
+        /** @var list<string> $values */
+        $values = $this->connection->fetchFirstColumn(
+            'SELECT value FROM ' . self::SCHEMA . '.business_updates ORDER BY id',
+        );
+
+        return $values;
     }
 
     private function authorizedMetadata(): OperationMetadata
@@ -1107,6 +1340,105 @@ final class CompletingWorkerReportHandler extends WorkerReportHandler
     }
 }
 
+interface TransactionRuntimeAwareWorkerHandler
+{
+    public function setTransactionRuntime(TransactionRuntime $runtime): void;
+}
+
+final class TransactionalWorkerReportHandler extends WorkerReportHandler implements TransactionRuntimeAwareWorkerHandler
+{
+    private ?TransactionRuntime $runtime = null;
+
+    /** @param null|Closure(TransactionRuntime): void $registerAfterCommit */
+    public function __construct(
+        private Connection $connection,
+        private ?Closure $registerAfterCommit = null,
+    ) {}
+
+    public function setTransactionRuntime(TransactionRuntime $runtime): void
+    {
+        $this->runtime = $runtime;
+    }
+
+    public function handle(OperationEnvelope $operation): OperationResult
+    {
+        self::assertTransactionActive($this->connection);
+        $this->connection->insert('blackops_p3_010.business_updates', ['id' => 1, 'value' => 'business']);
+
+        if ($this->registerAfterCommit !== null) {
+            ($this->registerAfterCommit)(
+                $this->runtime ?? throw new RuntimeException('Transaction runtime was not injected.'),
+            );
+        }
+
+        return OperationResult::completed(new WorkerReportDone('done-weekly'));
+    }
+
+    private static function assertTransactionActive(Connection $connection): void
+    {
+        if (!$connection->isTransactionActive()) {
+            throw new RuntimeException('Operation transaction is not active.');
+        }
+    }
+}
+
+final class TransactionalRejectingWorkerReportHandler extends WorkerReportHandler
+{
+    public function __construct(
+        private Connection $connection,
+    ) {}
+
+    public function handle(OperationEnvelope $operation): OperationResult
+    {
+        $this->connection->insert('blackops_p3_010.business_updates', ['id' => 1, 'value' => 'rejected']);
+
+        return OperationResult::rejected(RejectionReason::businessRule('report.rejected'));
+    }
+}
+
+final class TransactionalThrowingWorkerReportHandler extends WorkerReportHandler
+{
+    public function __construct(
+        private Connection $connection,
+    ) {}
+
+    public function handle(OperationEnvelope $operation): OperationResult
+    {
+        $this->connection->insert('blackops_p3_010.business_updates', ['id' => 1, 'value' => 'throwable']);
+
+        throw new RuntimeException('transactional handler failure');
+    }
+}
+
+final class TransactionalRetryableWorkerReportHandler extends WorkerReportHandler
+{
+    public function __construct(
+        private Connection $connection,
+    ) {}
+
+    public function handle(OperationEnvelope $operation): OperationResult
+    {
+        $this->connection->insert('blackops_p3_010.business_updates', ['id' => 1, 'value' => 'retryable']);
+
+        throw new RetryableWorkerRuntimeException('retryable transactional failure');
+    }
+}
+
+final class TransactionalFencingWorkerReportHandler extends WorkerReportHandler
+{
+    public function __construct(
+        private Connection $connection,
+    ) {}
+
+    public function handle(OperationEnvelope $operation): OperationResult
+    {
+        $this->connection->insert('blackops_p3_010.business_updates', ['id' => 1, 'value' => 'fencing']);
+        $this->connection->executeStatement('UPDATE blackops_p3_010.operations SET fencing_token = fencing_token + 1');
+
+        return OperationResult::completed(new WorkerReportDone('done-weekly'));
+    }
+}
+
 final class RejectingWorkerReportHandler extends WorkerReportHandler
 {
     public function handle(OperationEnvelope $operation): OperationResult
@@ -1178,6 +1510,27 @@ final readonly class FailingWorkerOutcomeWriter implements OutcomeWriter
     }
 }
 
+final readonly class DeferredWorkerDatabaseManager implements DatabaseManager
+{
+    public function __construct(
+        private Connection $connection,
+    ) {}
+
+    public function connection(?string $name = null): Connection
+    {
+        if ($name !== null && $name !== 'app') {
+            throw new RuntimeException('Unknown test connection.');
+        }
+
+        return $this->connection;
+    }
+}
+
+final readonly class IgnoringDeferredAfterCommitReporter implements AfterCommitFailureReporter
+{
+    public function report(AfterCommitFailure $failure): void {}
+}
+
 final class RetryableWorkerRuntimeException extends RuntimeException implements RetryableException {}
 
 final class SequencedWorkerAuthorizationPolicy implements AuthorizationPolicy
@@ -1200,6 +1553,28 @@ final class SequencedWorkerAuthorizationPolicy implements AuthorizationPolicy
         }
 
         return $result;
+    }
+}
+
+final class TransactionStateWorkerAuthorizationPolicy implements AuthorizationPolicy
+{
+    /** @var list<bool> */
+    public array $transactionStates = [];
+
+    private int $calls = 0;
+
+    public function __construct(
+        private Connection $connection,
+    ) {}
+
+    public function decide(AuthorizationRequest $request): AuthorizationDecision
+    {
+        $this->transactionStates[] = $this->connection->isTransactionActive();
+        ++$this->calls;
+
+        return $this->calls === 1
+            ? AuthorizationDecision::allow()
+            : AuthorizationDecision::forbid('authorization.transaction_forbidden');
     }
 }
 

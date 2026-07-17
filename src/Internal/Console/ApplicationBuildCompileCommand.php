@@ -41,13 +41,16 @@ final class ApplicationBuildCompileCommand extends Command
         $operations = new OperationProviderConfigLoader()->fromEntries($this->configuration->operationProviders());
         $services = new ServiceProviderConfigLoader()->fromEntries($this->configuration->serviceProviders());
         $discovered = new ApplicationOperationDiscovery()->discover($this->configuration);
-        $registry = new OperationProviderCompiler()->compile($operations, $discovered);
-        $definitions = new OperationDefinitionFactory()->classNamesFromProviders($operations, $discovered);
-        $middleware = ApplicationHttpMiddlewareConfiguration::fromConfiguration($this->configuration->configuration());
         $applicationConfiguration = $this->configuration->configuration();
         $database = is_array($applicationConfiguration['database'] ?? null)
             ? ApplicationDatabaseConfiguration::fromConfiguration($applicationConfiguration)
             : null;
+        $registry = new OperationProviderCompiler(new \BlackOps\Internal\Registry\OperationMetadataCompiler(
+            defaultTransactionConnection: $database?->default,
+            knownTransactionConnections: $database === null ? [] : array_keys($database->connections),
+        ))->compile($operations, $discovered);
+        $definitions = new OperationDefinitionFactory()->classNamesFromProviders($operations, $discovered);
+        $middleware = ApplicationHttpMiddlewareConfiguration::fromConfiguration($this->configuration->configuration());
 
         new OperationManifestFile()->write($registry, $build->operationManifest, $buildId);
         new HttpOperationManifestFile()->write(

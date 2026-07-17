@@ -18,6 +18,7 @@ use BlackOps\Core\OperationResult;
 use BlackOps\Core\OperationValue;
 use BlackOps\Core\Outcome;
 use BlackOps\Core\Registry\OperationRegistry;
+use BlackOps\Database\Attribute\Transactional;
 use BlackOps\Internal\Registry\OperationManifestMetadataCodec;
 use BlackOps\Internal\Registry\OperationMetadataCompiler;
 use InvalidArgumentException;
@@ -54,6 +55,20 @@ final class OperationManifestMetadataCodecTest extends TestCase
 
         self::assertArrayNotHasKey('authorizationPolicy', $encoded['operations'][0]);
         self::assertNull(new OperationManifestMetadataCodec()->decode($encoded)[0]->authorizationPolicy);
+        self::assertArrayNotHasKey('transactionConnection', $encoded['operations'][0]);
+        self::assertNull(new OperationManifestMetadataCodec()->decode($encoded)[0]->transactionConnection);
+    }
+
+    public function testRoundTripsResolvedTransactionConnection(): void
+    {
+        $metadata = new OperationMetadataCompiler(defaultTransactionConnection: 'app', knownTransactionConnections: [
+            'app',
+        ])->compile(TransactionalManifestOperation::class);
+        $codec = new OperationManifestMetadataCodec();
+        $encoded = $codec->encode(new OperationRegistry([$metadata]));
+
+        self::assertSame('app', $encoded['operations'][0]['transactionConnection']);
+        self::assertSame('app', $codec->decode($encoded)[0]->transactionConnection);
     }
 
     public function testRejectsTamperedAuthorizationPolicyWithoutClassExposure(): void
@@ -177,6 +192,16 @@ final readonly class ManifestAuthorizationPolicy implements AuthorizationPolicy
     public function decide(AuthorizationRequest $request): AuthorizationDecision
     {
         return AuthorizationDecision::allow();
+    }
+}
+
+#[OperationType('manifest.transactional')]
+#[Transactional]
+readonly class TransactionalManifestOperation implements Operation
+{
+    public function handle(ManifestValue $value): OtherManifestOutcome
+    {
+        return new OtherManifestOutcome();
     }
 }
 

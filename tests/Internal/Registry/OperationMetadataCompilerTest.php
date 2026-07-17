@@ -23,6 +23,7 @@ use BlackOps\Core\OperationHandler;
 use BlackOps\Core\OperationResult;
 use BlackOps\Core\OperationValue;
 use BlackOps\Core\Outcome;
+use BlackOps\Database\Attribute\Transactional;
 use BlackOps\Internal\Registry\OperationMetadataCompiler;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
@@ -40,6 +41,40 @@ final class OperationMetadataCompilerTest extends TestCase
         self::assertSame(EmptyOutcome::class, $metadata->outcome);
         self::assertSame(Inline::class, $metadata->strategy);
         self::assertNull($metadata->authorizationPolicy);
+        self::assertNull($metadata->transactionConnection);
+    }
+
+    public function testResolvesClassAndMethodTransactionConnectionsAtBuildTime(): void
+    {
+        $compiler = new OperationMetadataCompiler(defaultTransactionConnection: 'app', knownTransactionConnections: [
+            'app',
+            'analytics',
+        ]);
+
+        self::assertSame('app', $compiler->compile(DefaultTransactionalOperationFixture::class)->transactionConnection);
+        self::assertSame(
+            'analytics',
+            $compiler->compile(MethodTransactionalOperationFixture::class)->transactionConnection,
+        );
+        self::assertNull($compiler->compile(HandlerOnlyTransactionalOperationFixture::class)->transactionConnection);
+    }
+
+    public function testRejectsTransactionalOperationWithoutKnownDatabaseConfiguration(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('requires database configuration');
+
+        new OperationMetadataCompiler()->compile(DefaultTransactionalOperationFixture::class);
+    }
+
+    public function testRejectsUnknownTransactionalConnectionWithoutExposingConfiguration(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('unknown database connection');
+
+        new OperationMetadataCompiler(defaultTransactionConnection: 'app', knownTransactionConnections: [
+            'app',
+        ])->compile(MethodTransactionalOperationFixture::class);
     }
 
     public function testCompilesAuthorizationPolicyMetadata(): void
@@ -218,6 +253,42 @@ final readonly class MetadataOperationFixture implements Operation {}
 final readonly class MetadataValueFixture implements OperationValue {}
 
 final readonly class MetadataOutcomeFixture implements Outcome {}
+
+#[OperationType('transaction.default')]
+#[Transactional]
+readonly class DefaultTransactionalOperationFixture implements Operation
+{
+    public function handle(MetadataValueFixture $value): MetadataOutcomeFixture
+    {
+        return new MetadataOutcomeFixture();
+    }
+}
+
+#[OperationType('transaction.method')]
+#[Transactional(connection: 'app')]
+readonly class MethodTransactionalOperationFixture implements Operation
+{
+    #[Transactional(connection: 'analytics')]
+    public function handle(MetadataValueFixture $value): MetadataOutcomeFixture
+    {
+        return new MetadataOutcomeFixture();
+    }
+}
+
+#[Transactional(connection: 'analytics')]
+class TransactionalSeparateHandlerFixture implements OperationHandler
+{
+    public function handle(OperationEnvelope $operation): OperationResult
+    {
+        return OperationResult::completed();
+    }
+}
+
+#[OperationType('transaction.handler.only')]
+#[Accepts(MetadataValueFixture::class)]
+#[HandledBy(TransactionalSeparateHandlerFixture::class)]
+#[Returns(EmptyOutcome::class)]
+final readonly class HandlerOnlyTransactionalOperationFixture implements Operation {}
 
 final readonly class MetadataAuthorizationPolicyFixture implements AuthorizationPolicy
 {

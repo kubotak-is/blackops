@@ -18,6 +18,7 @@ use BlackOps\Internal\Journal\JournalRecordFactory;
 use BlackOps\Internal\Runtime\ProductionRuntimeArtifactLoader;
 use BlackOps\Internal\Runtime\ProductionRuntimeComposer;
 use BlackOps\Internal\Runtime\ProductionRuntimeDependencies;
+use BlackOps\Internal\Transaction\OperationTransactionCoordinator;
 use BlackOps\Internal\Transaction\RuntimeTransactionServiceInjector;
 use BlackOps\Transport\PostgreSql\PostgreSqlCanonicalJournalStore;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationSender;
@@ -45,8 +46,13 @@ final readonly class ApplicationHttpRuntimeComposer
         $databases = $database->databaseManager();
         new RuntimeDatabaseServiceInjector()->inject($artifacts->container, $databases);
         $executionScope = new ExecutionScopeProvider();
-        new RuntimeTransactionServiceInjector()->inject($artifacts->container, $databases, $executionScope);
+        $transactionRuntime = new RuntimeTransactionServiceInjector()->inject(
+            $artifacts->container,
+            $databases,
+            $executionScope,
+        );
         $connection = $databases->connection($database->frameworkConnection);
+        $operationTransactions = new OperationTransactionCoordinator($transactionRuntime, $databases, $connection);
         $httpMiddleware = new ApplicationHttpMiddlewareResolver($artifacts->container)->resolve($middleware);
         $clock = new PostgreSqlSystemClock();
         $identifiers = new IdentifierFactory(new SymfonyUuidv7Generator(), $clock);
@@ -78,6 +84,7 @@ final readonly class ApplicationHttpRuntimeComposer
                 journalObservations: $observations?->pipeline(),
                 deferredOperationAcceptor: $acceptor,
                 httpMiddleware: $httpMiddleware,
+                operationTransactions: $operationTransactions,
             ),
         );
 

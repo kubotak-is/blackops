@@ -24,10 +24,12 @@ Typed Self-handled標準形では、`handle(ConcreteValue $value): ConcreteOutco
 
 | Attribute | 用途 | 付与対象 | 最小例 |
 | --- | --- | --- | --- |
-| `BlackOps\Database\Attribute\Transactional` | DI管理ServiceのMethodをDatabase Transaction境界として宣言する | 非`final` ClassまたはPublicな非`final` Instance Method | `#[Transactional]`、`#[Transactional(connection: 'analytics')]` |
+| `BlackOps\Database\Attribute\Transactional` | Operation固定LifecycleまたはDI管理ServiceのDatabase Transaction境界を宣言する | 非`final` ClassまたはPublicな非`final` Instance Method | `#[Transactional]`、`#[Transactional(connection: 'analytics')]` |
 | `BlackOps\Database\Attribute\AfterCommit` | Transactionで呼ばれた処理をCommit後まで遅延する | Publicな非`final` Instance Method | `#[AfterCommit] public function send(OrderId $id): void` |
 
 `Transactional`のConnectionを省略すると`config/database.php`の`default`を使います。Named ConnectionはBuild時にConfiguration Snapshotと照合しますが、Databaseへは接続しません。空のNameと未定義Nameは`php blackops build:compile`で拒否されます。Method-levelの指定はClass-levelのConnectionを上書きできます。
+
+Operation Definitionまたは自己処理`handle()`へ付けた`Transactional`は、Authorization後から成功Terminal Journal／OutcomeまでをFramework固定Lifecycleで包みます。同一Connectionなら業務更新と成功Terminalを同じCommitへ含めます。Separate Handler側だけへ付けた場合は一般Service Semanticsとなり、Handler Method Return時にCommitします。
 
 ```php
 <?php
@@ -51,6 +53,8 @@ readonly class CreateOrderCommand
 ```
 
 AOP ProxyはBuild時に`var/build/aop/`へ生成され、Compiled Containerから解決したInstanceだけをInterceptします。`new CreateOrderCommand(...)`で直接作ったInstance、StaticまたはPrivate Methodは対象ではありません。対象ClassとMethodに`final`は使えませんが、非`final`の`readonly class`は使えます。無効な付与対象は黙って無視せずBuild Errorにします。
+
+Operation Proxy上のTransaction Interceptorは意図的にPass-throughです。実行時はManifestの解決済みConnection Metadataを固定Lifecycleが読み、AOPと二重にTransactionを開始しません。
 
 `AfterCommit` Methodは明示的な`void` Return Typeが必要で、Static、`final`、Generator、Reference Return、Reference Parameterは使えません。Transaction内の呼出は最外Commit後までQueueされ、Rollbackでは破棄されます。Transaction外では通常のMethod Callとして即時実行されます。Nested、Manual Transaction、失敗時の保証は[Database and Transactions](database-and-transactions.md)を確認してください。
 

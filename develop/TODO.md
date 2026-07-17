@@ -82,10 +82,10 @@ MVP後に残す主要項目:
 - [x] Named DBAL ConnectionとDI登録を実装する
 - [x] Ray.AopのBuild-time Proxy生成とAttribute Guardを実装する
 - [x] Command／Application Serviceの`#[Transactional]`を実装する
-- [ ] Operationの`#[Transactional]`を固定Lifecycleへ統合する
+- [x] Operationの`#[Transactional]`を固定Lifecycleへ統合する
 - [x] Nested Required／Rollback-only／Manual Transaction境界を実装する
 - [x] `#[AfterCommit]` QueueとFailure Reporterを実装する
-- [ ] Transactional OperationとTerminal Journal／Outcomeの同一Connection Commitを実装する
+- [x] Transactional OperationとTerminal Journal／Outcomeの同一Connection Commitを実装する
 - [ ] Worker ModeのConnection Health Check／Reset／Reconnectを実装する
 
 ### Phase 14: Operation Diagnostics
