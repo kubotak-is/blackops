@@ -10,6 +10,7 @@ public function handle(ProcessPaymentValue $value, ExecutionContext $context): P
     $operationId = $context->operationId();
     $correlationId = $context->correlationId();
     $attempt = $context->attempt();
+    $actors = $context->actorContext();
 
     return new PaymentProcessed($operationId->toString());
 }
@@ -23,8 +24,23 @@ public function handle(ProcessPaymentValue $value, ExecutionContext $context): P
 - `causationId()`: 原因となるOperationがある場合のID
 - `attempt()`: Deferred Attempt。Inlineでは`null`
 - `deadline()`: Deadlineが構成されている場合のUTC時刻
+- `actorContext()`: Operationの原因、認可対象、実行主体。Actor未設定の経路では`null`
 
 ContextはFrameworkが生成し、ApplicationはGetterで読み取ります。公開`with...()` Methodはありません。
+
+## Actor Context
+
+`ActorContext`は「誰が起点か」「誰の権限を評価するか」「どのSystemが実行したか」を分けて保持します。
+
+| Getter | 意味 | Nullable |
+| --- | --- | --- |
+| `origin()` | Operationの原因となった主体 | Yes |
+| `authorization()` | 現在の権限を評価する主体 | Yes |
+| `execution()` | 実際に処理を実行するApplication／Worker主体 | No |
+
+各Actorは`ActorRef`の`id()`と`type()`だけを持ちます。Password、Session ID、Bearer Token、API Key、Role、Permission、ClaimはExecutionContextやDeferred Transportへ保存しません。Policy等で詳細が必要な場合は、Actor ID／Typeを使ってApplication Serviceから現在の情報を取得します。
+
+Deferred Workerはoriginとauthorizationを維持し、executionだけをWorker System Actorへ置き換えます。この分離により、User起点の処理をWorkerが実行しても、元Userの権限をWorker自身の権限へ強化しません。
 
 ## Identifierの関係
 

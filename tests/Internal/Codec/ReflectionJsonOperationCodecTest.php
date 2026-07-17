@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace BlackOps\Tests\Internal\Codec;
 
+use BlackOps\Core\ActorContext;
+use BlackOps\Core\ActorRef;
 use BlackOps\Core\AttemptContext;
 use BlackOps\Core\Codec\OperationCodecException;
 use BlackOps\Core\EmptyOutcome;
@@ -19,6 +21,7 @@ use BlackOps\Core\OperationValue;
 use BlackOps\Core\Registry\OperationMetadata;
 use BlackOps\Internal\Codec\ReflectionJsonOperationCodec;
 use DateTimeImmutable;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class ReflectionJsonOperationCodecTest extends TestCase
@@ -38,6 +41,11 @@ final class ReflectionJsonOperationCodecTest extends TestCase
                 new DateTimeImmutable('2026-07-10T00:01:00.654321+09:00'),
             ),
             new DateTimeImmutable('2026-07-10T01:00:00.000000+09:00'),
+            new ActorContext(
+                new ActorRef('user-123', 'user'),
+                new ActorRef('user-123', 'user'),
+                new ActorRef('http-runtime', 'system'),
+            ),
         );
 
         $encoded = $codec->encode($metadata, new CodecReportValue('weekly', 7, true, ['finance']), $context);
@@ -49,6 +57,15 @@ final class ReflectionJsonOperationCodecTest extends TestCase
             '"operation_id":"019f32ab-2be0-7b38-a0a7-1ab2f9687701"',
             $encoded->encodedContext(),
         );
+        self::assertStringContainsString(
+            '"actors":{"origin":{"id":"user-123","type":"user"},"authorization":{"id":"user-123","type":"user"},"execution":{"id":"http-runtime","type":"system"}}',
+            $encoded->encodedContext(),
+        );
+        self::assertStringNotContainsString('credential', $encoded->encodedContext());
+        self::assertStringNotContainsString('token', $encoded->encodedContext());
+        self::assertStringNotContainsString('role', $encoded->encodedContext());
+        self::assertStringNotContainsString('permission', $encoded->encodedContext());
+        self::assertStringNotContainsString('claim', $encoded->encodedContext());
 
         $decodedValue = $codec->decodeValue($metadata, $encoded->schemaVersion(), $encoded->encodedPayload());
         $decodedContext = $codec->decodeContext($encoded->schemaVersion(), $encoded->encodedContext());
@@ -64,6 +81,9 @@ final class ReflectionJsonOperationCodecTest extends TestCase
         self::assertSame($context->causationId()?->toString(), $decodedContext->causationId()?->toString());
         self::assertSame(2, $decodedContext->attempt()?->number());
         self::assertSame('2026-07-09T16:00:00.000000Z', $decodedContext->deadline()?->format('Y-m-d\TH:i:s.u\Z'));
+        self::assertSame('user-123', $decodedContext->actorContext()?->origin()?->id());
+        self::assertSame('user', $decodedContext->actorContext()?->authorization()?->type());
+        self::assertSame('http-runtime', $decodedContext->actorContext()?->execution()->id());
     }
 
     public function testDecodesConstructorDefaultsAndNullableParameters(): void
@@ -108,6 +128,126 @@ final class ReflectionJsonOperationCodecTest extends TestCase
         $this->expectException(OperationCodecException::class);
 
         $codec->decodeContext(1, '{"operation_id":null}');
+    }
+
+    public function testDecodesLegacyContextWithoutActors(): void
+    {
+        $decoded = new ReflectionJsonOperationCodec()->decodeContext(1, $this->encodedContextWithoutActors());
+
+        self::assertNull($decoded->actorContext());
+    }
+
+    public function testDecodesNullActorsAsMissingActorContext(): void
+    {
+        $decoded = new ReflectionJsonOperationCodec()->decodeContext(1, $this->encodedContextWithActors(null));
+
+        self::assertNull($decoded->actorContext());
+    }
+
+    public function testRejectsActorMissingRequiredField(): void
+    {
+        $this->expectException(OperationCodecException::class);
+
+        new ReflectionJsonOperationCodec()->decodeContext(1, $this->encodedContextWithActors([
+            'origin' => null,
+            'authorization' => null,
+            'execution' => ['id' => 'worker-1'],
+        ]));
+    }
+
+    public function testRejectsNonStringActorField(): void
+    {
+        $this->expectException(OperationCodecException::class);
+
+        new ReflectionJsonOperationCodec()->decodeContext(1, $this->encodedContextWithActors([
+            'origin' => null,
+            'authorization' => null,
+            'execution' => ['id' => 123, 'type' => 'system'],
+        ]));
+    }
+
+    public function testRejectsBlankActorField(): void
+    {
+        $this->expectException(OperationCodecException::class);
+
+        new ReflectionJsonOperationCodec()->decodeContext(1, $this->encodedContextWithActors([
+            'origin' => null,
+            'authorization' => null,
+            'execution' => ['id' => '  ', 'type' => 'system'],
+        ]));
+    }
+
+    public function testRejectsCredentialOrOtherUnknownActorField(): void
+    {
+        $this->expectException(OperationCodecException::class);
+
+        new ReflectionJsonOperationCodec()->decodeContext(1, $this->encodedContextWithActors([
+            'origin' => null,
+            'authorization' => null,
+            'execution' => ['id' => 'worker-1', 'type' => 'system', 'credential' => 'secret'],
+        ]));
+    }
+
+    public function testRejectsUnknownActorContextField(): void
+    {
+        $this->expectException(OperationCodecException::class);
+
+        new ReflectionJsonOperationCodec()->decodeContext(1, $this->encodedContextWithActors([
+            'origin' => null,
+            'authorization' => null,
+            'execution' => ['id' => 'worker-1', 'type' => 'system'],
+            'roles' => ['admin'],
+        ]));
+    }
+
+    #[DataProvider('reservedTopLevelSecurityFields')]
+    public function testRejectsReservedTopLevelSecurityField(string $field, mixed $value): void
+    {
+        $this->expectException(OperationCodecException::class);
+
+        new ReflectionJsonOperationCodec()->decodeContext(1, $this->encodedContextWithTopLevelField($field, $value));
+    }
+
+    /**
+     * @return iterable<string, array{field: string, value: mixed}>
+     */
+    public static function reservedTopLevelSecurityFields(): iterable
+    {
+        yield 'token' => ['field' => 'token', 'value' => 'secret-token'];
+        yield 'permission snapshot snake case' => ['field' => 'permission_snapshot', 'value' => ['write']];
+        yield 'permission snapshot camel case' => ['field' => 'permissionSnapshot', 'value' => ['write']];
+        yield 'permission snapshot kebab case' => ['field' => 'permission-snapshot', 'value' => ['write']];
+    }
+
+    public function testAllowsUnreservedTopLevelContextExtensionField(): void
+    {
+        $decoded = new ReflectionJsonOperationCodec()->decodeContext(1, $this->encodedContextWithTopLevelField(
+            'tenant_id',
+            'tenant-123',
+        ));
+
+        self::assertNull($decoded->actorContext());
+    }
+
+    private function encodedContextWithoutActors(): string
+    {
+        return '{"operation_id":"019f32ab-2be0-7b38-a0a7-1ab2f9687705","received_at":"2026-07-10T00:00:00.000000Z","correlation_id":"019f32ab-2be0-7b38-a0a7-1ab2f9687705","causation_id":null,"attempt":null,"deadline":null}';
+    }
+
+    private function encodedContextWithActors(mixed $actors): string
+    {
+        $context = json_decode($this->encodedContextWithoutActors(), true, flags: JSON_THROW_ON_ERROR);
+        $context['actors'] = $actors;
+
+        return json_encode($context, JSON_THROW_ON_ERROR);
+    }
+
+    private function encodedContextWithTopLevelField(string $field, mixed $value): string
+    {
+        $context = json_decode($this->encodedContextWithoutActors(), true, flags: JSON_THROW_ON_ERROR);
+        $context[$field] = $value;
+
+        return json_encode($context, JSON_THROW_ON_ERROR);
     }
 
     /**

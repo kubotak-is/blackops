@@ -1,6 +1,6 @@
 # P12-002: Actor Context Foundation
 
-Status: Ready
+Status: Accepted
 
 ## Goal
 

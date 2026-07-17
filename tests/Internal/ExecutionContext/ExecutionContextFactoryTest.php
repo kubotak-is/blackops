@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace BlackOps\Tests\Internal\ExecutionContext;
 
+use BlackOps\Core\ActorContext;
+use BlackOps\Core\ActorRef;
 use BlackOps\Core\ExecutionContext;
 use BlackOps\Core\Identifier\AttemptId;
 use BlackOps\Core\Identifier\CausationId;
@@ -35,12 +37,22 @@ final class ExecutionContextFactoryTest extends TestCase
         self::assertNull($context->causationId());
         self::assertNull($context->attempt());
         self::assertNull($context->deadline());
+        self::assertNull($context->actorContext());
         self::assertSame(
             '2026-07-02T12:34:56.123456Z',
             $context->receivedAt()->format('Y-m-d\TH:i:s.u\Z'),
             'receive() must use the injected clock for receivedAt.',
         );
         self::assertSame('UTC', $context->receivedAt()->getTimezone()->getName());
+    }
+
+    public function testReceivePreservesActorContext(): void
+    {
+        $actors = $this->actorContext();
+
+        $context = $this->factory()->receive(null, $actors);
+
+        self::assertSame($actors, $context->actorContext());
     }
 
     public function testReceivePreservesProvidedDeadline(): void
@@ -77,6 +89,7 @@ final class ExecutionContextFactoryTest extends TestCase
         self::assertSame($context->receivedAt(), $attempted->receivedAt());
         self::assertSame($context->correlationId(), $attempted->correlationId());
         self::assertSame($context->causationId(), $attempted->causationId());
+        self::assertSame($context->actorContext(), $attempted->actorContext());
 
         $attempt = $attempted->attempt();
         self::assertNotNull($attempt, 'startAttempt() must produce a non-null AttemptContext.');
@@ -84,6 +97,31 @@ final class ExecutionContextFactoryTest extends TestCase
         self::assertSame(1, $attempt->number());
         self::assertSame('UTC', $attempt->startedAt()->getTimezone()->getName());
         self::assertSame('2026-07-02T12:35:10.000000Z', $attempt->startedAt()->format('Y-m-d\TH:i:s.u\Z'));
+    }
+
+    public function testStartAttemptReplacesOnlyExecutionActor(): void
+    {
+        $actors = $this->actorContext();
+        $worker = new ActorRef('worker-1', 'system');
+        $context = $this->factory()->receive(null, $actors);
+
+        $attempted = $this->factory()->startAttempt($context, 1, $worker);
+
+        self::assertSame($actors->origin(), $attempted->actorContext()?->origin());
+        self::assertSame($actors->authorization(), $attempted->actorContext()?->authorization());
+        self::assertSame($worker, $attempted->actorContext()?->execution());
+    }
+
+    public function testStartAttemptCanIntroduceExecutionActorToContextWithoutActors(): void
+    {
+        $worker = new ActorRef('worker-1', 'system');
+        $context = $this->factory()->receive();
+
+        $attempted = $this->factory()->startAttempt($context, 1, $worker);
+
+        self::assertNull($attempted->actorContext()?->origin());
+        self::assertNull($attempted->actorContext()?->authorization());
+        self::assertSame($worker, $attempted->actorContext()?->execution());
     }
 
     public function testStartAttemptAcceptsRetryAttemptNumber(): void
@@ -192,8 +230,26 @@ final class ExecutionContextFactoryTest extends TestCase
         );
 
         self::assertNull($child->attempt(), 'Child Context must not carry an attempt.');
+        self::assertSame($parent->actorContext(), $child->actorContext());
         self::assertSame('2026-07-02T12:40:00.000000Z', $child->receivedAt()->format('Y-m-d\TH:i:s.u\Z'));
         self::assertSame('UTC', $child->receivedAt()->getTimezone()->getName());
+    }
+
+    public function testCreateChildReplacesOnlyExecutionActor(): void
+    {
+        $factory = $this->factoryWithClock([
+            '2026-07-02T12:34:56.123456Z',
+            '2026-07-02T12:40:00.000000Z',
+        ]);
+        $actors = $this->actorContext();
+        $childRuntime = new ActorRef('inline-runtime', 'system');
+        $parent = $factory->receive(null, $actors);
+
+        $child = $factory->createChild($parent, null, $childRuntime);
+
+        self::assertSame($actors->origin(), $child->actorContext()?->origin());
+        self::assertSame($actors->authorization(), $child->actorContext()?->authorization());
+        self::assertSame($childRuntime, $child->actorContext()?->execution());
     }
 
     public function testCreateChildInheritsParentDeadlineWhenOmitted(): void
@@ -295,6 +351,13 @@ final class ExecutionContextFactoryTest extends TestCase
     private function factory(): ExecutionContextFactory
     {
         return $this->factoryWithClock(null);
+    }
+
+    private function actorContext(): ActorContext
+    {
+        $user = new ActorRef('user-123', 'user');
+
+        return new ActorContext($user, $user, new ActorRef('http-runtime', 'system'));
     }
 
     /**

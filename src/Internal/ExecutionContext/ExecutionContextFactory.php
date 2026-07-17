@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace BlackOps\Internal\ExecutionContext;
 
+use BlackOps\Core\ActorContext;
+use BlackOps\Core\ActorRef;
 use BlackOps\Core\AttemptContext;
 use BlackOps\Core\ExecutionContext;
 use BlackOps\Core\Identifier\CausationId;
@@ -30,16 +32,27 @@ final readonly class ExecutionContextFactory
         private ClockInterface $clock,
     ) {}
 
-    public function receive(?DateTimeImmutable $deadline = null): ExecutionContext
+    public function receive(?DateTimeImmutable $deadline = null, ?ActorContext $actorContext = null): ExecutionContext
     {
         $operationId = $this->identifiers->newOperationId();
         $correlationId = CorrelationId::fromString($operationId->toString());
 
-        return new ExecutionContext($operationId, $this->clock->now(), $correlationId, null, null, $deadline);
+        return new ExecutionContext(
+            $operationId,
+            $this->clock->now(),
+            $correlationId,
+            null,
+            null,
+            $deadline,
+            $actorContext,
+        );
     }
 
-    public function startAttempt(ExecutionContext $context, int $attemptNumber): ExecutionContext
-    {
+    public function startAttempt(
+        ExecutionContext $context,
+        int $attemptNumber,
+        ?ActorRef $executionActor = null,
+    ): ExecutionContext {
         $deadline = $context->deadline();
         $startedAt = $this->clock->now();
 
@@ -56,11 +69,15 @@ final readonly class ExecutionContextFactory
             $context->causationId(),
             $attempt,
             $context->deadline(),
+            $this->resolveActorContext($context->actorContext(), $executionActor),
         );
     }
 
-    public function createChild(ExecutionContext $parent, ?DateTimeImmutable $deadline = null): ExecutionContext
-    {
+    public function createChild(
+        ExecutionContext $parent,
+        ?DateTimeImmutable $deadline = null,
+        ?ActorRef $executionActor = null,
+    ): ExecutionContext {
         $resolvedDeadline = $this->resolveChildDeadline($parent, $deadline);
         $operationId = $this->identifiers->newOperationId();
         $causationId = CausationId::fromString($parent->operationId()->toString());
@@ -72,7 +89,17 @@ final readonly class ExecutionContextFactory
             $causationId,
             null,
             $resolvedDeadline,
+            $this->resolveActorContext($parent->actorContext(), $executionActor),
         );
+    }
+
+    private function resolveActorContext(?ActorContext $context, ?ActorRef $executionActor): ?ActorContext
+    {
+        if ($executionActor === null) {
+            return $context;
+        }
+
+        return new ActorContext($context?->origin(), $context?->authorization(), $executionActor);
     }
 
     private function resolveChildDeadline(ExecutionContext $parent, ?DateTimeImmutable $deadline): ?DateTimeImmutable

@@ -14,8 +14,7 @@ use DateTimeZone;
 /**
  * Operationの伝播と追跡に必要な不変Metadataを保持する不変Context。
  *
- * 現時点ではCore Context、Attempt、Deadlineを先行実装する。Actor、Tenant、Idempotency Key、
- * Context ExtensionはOptional Getterとして後方互換な拡張で後続追加する。
+ * Tenant、Idempotency Key、Context ExtensionはOptional Getterとして後方互換な拡張で後続追加する。
  *
  * 生成と遷移はInternal Factoryが行い、利用者はGetterでの読み取りのみを許可する。
  * 公開 `with...()` Methodは提供しない。
@@ -33,6 +32,7 @@ final readonly class ExecutionContext
         private ?CausationId $causationId = null,
         private ?AttemptContext $attempt = null,
         ?DateTimeImmutable $deadline = null,
+        private ?ActorContext $actorContext = null,
     ) {
         $this->receivedAt = $this->toUtc($receivedAt);
         $this->deadline = $deadline === null ? null : $this->toUtc($deadline);
@@ -66,6 +66,11 @@ final readonly class ExecutionContext
     public function deadline(): ?DateTimeImmutable
     {
         return $this->deadline;
+    }
+
+    public function actorContext(): ?ActorContext
+    {
+        return $this->actorContext;
     }
 
     private function toUtc(DateTimeImmutable $time): DateTimeImmutable

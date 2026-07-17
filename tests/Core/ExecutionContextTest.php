@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace BlackOps\Tests\Core;
 
+use BlackOps\Core\ActorContext;
+use BlackOps\Core\ActorRef;
 use BlackOps\Core\AttemptContext;
 use BlackOps\Core\Attribute\PublicApi;
 use BlackOps\Core\ExecutionContext;
@@ -50,6 +52,7 @@ final class ExecutionContextTest extends TestCase
         self::assertNull($context->causationId());
         self::assertNull($context->attempt());
         self::assertNull($context->deadline());
+        self::assertNull($context->actorContext());
     }
 
     public function testGettersReturnConstructorValues(): void
@@ -64,14 +67,28 @@ final class ExecutionContextTest extends TestCase
             2,
             new DateTimeImmutable('2026-07-02T12:35:00.000000', new DateTimeZone('UTC')),
         );
+        $actorContext = new ActorContext(
+            new ActorRef('user-123', 'user'),
+            new ActorRef('user-123', 'user'),
+            new ActorRef('http-runtime', 'system'),
+        );
 
-        $context = new ExecutionContext($operation, $receivedAt, $correlation, $causation, $attempt, $deadline);
+        $context = new ExecutionContext(
+            $operation,
+            $receivedAt,
+            $correlation,
+            $causation,
+            $attempt,
+            $deadline,
+            $actorContext,
+        );
 
         self::assertSame($operation, $context->operationId());
         self::assertSame($correlation, $context->correlationId());
         self::assertSame($causation, $context->causationId());
         self::assertSame($attempt, $context->attempt());
         self::assertSame($deadline, $context->deadline());
+        self::assertSame($actorContext, $context->actorContext());
     }
 
     public function testReceivedAtIsNormalizedToUtc(): void

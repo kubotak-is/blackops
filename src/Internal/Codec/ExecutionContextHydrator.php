@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace BlackOps\Internal\Codec;
 
+use BlackOps\Core\ActorContext;
+use BlackOps\Core\ActorRef;
 use BlackOps\Core\AttemptContext;
 use BlackOps\Core\Codec\OperationCodecException;
 use BlackOps\Core\ExecutionContext;
@@ -17,6 +19,8 @@ use Throwable;
 
 final readonly class ExecutionContextHydrator
 {
+    private const string RESERVED_SECURITY_FIELD_PATTERN = '/(?:^|[^a-z0-9])(?:password|token|secret|credential|session|api[_-]?key|bearer|jwt|claims?|roles?|permissions?)(?:[^a-z0-9]|$)/i';
+
     public function __construct(
         private JsonObjectReader $reader = new JsonObjectReader(),
         private TimeCodec $time = new TimeCodec(),
@@ -27,6 +31,8 @@ final readonly class ExecutionContextHydrator
      */
     public function hydrate(array $context): ExecutionContext
     {
+        $this->assertNoReservedSecurityFields($context);
+
         $attempt = $this->reader->optionalObject($context, 'attempt');
 
         return new ExecutionContext(
@@ -36,7 +42,89 @@ final readonly class ExecutionContextHydrator
             $this->optionalCausationId($context, 'causation_id'),
             $attempt === null ? null : $this->hydrateAttempt($attempt),
             $this->optionalTime($context, 'deadline'),
+            $this->hydrateActors($context),
         );
+    }
+
+    /**
+     * @param array<string, mixed> $context
+     */
+    private function assertNoReservedSecurityFields(array $context): void
+    {
+        $reserved = array_filter(
+            array_keys($context),
+            static fn(string $field): bool => (
+                preg_match(
+                    self::RESERVED_SECURITY_FIELD_PATTERN,
+                    preg_replace(
+                        pattern: ['/(?<=[a-z0-9])(?=[A-Z])/', '/(?<=[A-Z])(?=[A-Z][a-z])/'],
+                        replacement: '_',
+                        subject: $field,
+                    ) ?? $field,
+                ) === 1
+            ),
+        );
+
+        if ($reserved !== []) {
+            throw new OperationCodecException('Encoded context contains a reserved security field.');
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $context
+     */
+    private function hydrateActors(array $context): ?ActorContext
+    {
+        $actors = $this->reader->optionalObject($context, 'actors');
+
+        if ($actors === null) {
+            return null;
+        }
+
+        $this->assertFields($actors, ['origin', 'authorization', 'execution']);
+
+        $origin = $this->reader->optionalObject($actors, 'origin');
+        $authorization = $this->reader->optionalObject($actors, 'authorization');
+        $execution = $this->reader->optionalObject($actors, 'execution');
+
+        if ($execution === null) {
+            throw new OperationCodecException('Encoded actor context is missing its execution actor.');
+        }
+
+        return new ActorContext(
+            $origin === null ? null : $this->hydrateActor($origin),
+            $authorization === null ? null : $this->hydrateActor($authorization),
+            $this->hydrateActor($execution),
+        );
+    }
+
+    /**
+     * @param array<string, mixed> $actor
+     */
+    private function hydrateActor(array $actor): ActorRef
+    {
+        $this->assertFields($actor, ['id', 'type']);
+
+        try {
+            return new ActorRef($this->reader->string($actor, 'id'), $this->reader->string($actor, 'type'));
+        } catch (Throwable $exception) {
+            throw new OperationCodecException('Encoded context contains an invalid actor.', previous: $exception);
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     * @param list<string> $expected
+     */
+    private function assertFields(array $data, array $expected): void
+    {
+        $fields = array_keys($data);
+        sort($fields);
+        sort($expected);
+
+        if ($fields !== $expected) {
+            throw new OperationCodecException('Encoded actor context contains unknown or missing fields.');
+        }
     }
 
     /**

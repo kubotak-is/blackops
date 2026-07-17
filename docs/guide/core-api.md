@@ -1,6 +1,6 @@
 # Core API Types Reference
 
-このReferenceは現在の`main` Sourceで`#[PublicApi]`を持つ119型を一覧化しています。Application Authorはまず「Application構成」「Operation Authoring」「Validation」「Outcome取得」の型を使い、Transport、Journal、Retention等のPortはAdapterを拡張するときだけ使ってください。
+このReferenceは現在の`main` Sourceで`#[PublicApi]`を持つ121型を一覧化しています。Application Authorはまず「Application構成」「Operation Authoring」「Validation」「Outcome取得」の型を使い、Transport、Journal、Retention等のPortはAdapterを拡張するときだけ使ってください。
 
 `BlackOps\Core\Attribute\PublicApi` marker自身は利用者向けAPIではないため一覧へ含めません。内部実装Namespaceと`#[PublicApi]`を持たない実装型にも依存しないでください。Attributeの付与対象と標準形は[Attributes Reference](attributes.md)を確認してください。
 
@@ -21,8 +21,10 @@
 | `BlackOps\Core\OperationValue` | marker interface | 型付きOperation Inputを示す | Value DTOで実装する |
 | `BlackOps\Core\Outcome` | marker interface | 正常完了の型付きOutputを示す | Outcome DTOで実装する |
 | `BlackOps\Core\EmptyOutcome` | final readonly class | `void`成功を型付きOutcomeへ正規化する | 値のない成功を読む |
-| `BlackOps\Core\ExecutionContext` | final readonly class | Operation ID、Correlation、Causation、Attemptを保持する | 必要なOperationだけ`handle()`第二引数で受ける |
+| `BlackOps\Core\ExecutionContext` | final readonly class | Operation ID、Correlation、Causation、Attempt、Actorを保持する | 必要なOperationだけ`handle()`第二引数で受ける |
 | `BlackOps\Core\AttemptContext` | final readonly class | 現在のDeferred Attempt情報を保持する | `ExecutionContext::attempt()`から読む |
+| `BlackOps\Core\ActorRef` | final readonly class | ActorのIDとTypeだけを保持する | Credentialを含めず主体を参照する |
+| `BlackOps\Core\ActorContext` | final readonly class | Origin、Authorization、Execution Actorを区別する | `ExecutionContext::actorContext()`から読む |
 | `BlackOps\Core\OperationEnvelope` | final readonly class | Definition、Value、Context、Strategyをまとめる | Legacy Handler／低Level Dispatcher拡張で使う |
 | `BlackOps\Core\OperationHandler` | interface | Separate／Legacy Handler Contract | Compatibility形のHandlerで実装する |
 | `BlackOps\Core\OperationResult` | final readonly class | Legacy HandlerのCompleted／Rejected Result | Compatibility形で返す |
