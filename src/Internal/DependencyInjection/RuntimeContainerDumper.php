@@ -11,8 +11,14 @@ use Symfony\Component\DependencyInjection\Dumper\PhpDumper;
 
 final readonly class RuntimeContainerDumper
 {
-    public function dump(ContainerBuilder $builder, string $path, string $class, string $namespace = ''): void
-    {
+    /** @param list<string> $requiredFiles */
+    public function dump(
+        ContainerBuilder $builder,
+        string $path,
+        string $class,
+        string $namespace = '',
+        array $requiredFiles = [],
+    ): void {
         $this->assertIdentifier($class, 'container class');
 
         if ($namespace !== '') {
@@ -37,22 +43,42 @@ final readonly class RuntimeContainerDumper
             throw new RuntimeException('Runtime container dump must be a single PHP file.');
         }
 
+        $source .= $this->requiredFileSource($requiredFiles, $directory);
+
         $this->write($source, $directory, $path);
+    }
+
+    /** @param list<string> $requiredFiles */
+    private function requiredFileSource(array $requiredFiles, string $containerDirectory): string
+    {
+        if ($requiredFiles === []) {
+            return '';
+        }
+
+        $aopDirectory = $containerDirectory . DIRECTORY_SEPARATOR . 'aop';
+        $source = "\n";
+
+        foreach ($requiredFiles as $file) {
+            if (dirname($file) !== $aopDirectory || !is_file($file)) {
+                throw new InvalidArgumentException('Runtime container required AOP artifact is invalid.');
+            }
+
+            $source .= sprintf("require_once __DIR__ . '/aop/%s';\n", basename($file));
+        }
+
+        return $source;
     }
 
     private function write(string $source, string $directory, string $path): void
     {
-        $temporary = tempnam(directory: $directory, prefix: 'container-');
+        $temporary = $directory . DIRECTORY_SEPARATOR . 'container-' . bin2hex(random_bytes(16)) . '.tmp';
+        $written = file_put_contents($temporary, $source, LOCK_EX);
 
-        if ($temporary === false) {
-            throw new RuntimeException('Runtime container temporary file could not be created.');
+        if ($written === false || $written !== strlen($source)) {
+            throw new RuntimeException('Runtime container dump could not be written.');
         }
 
         try {
-            if (file_put_contents($temporary, $source) === false) {
-                throw new RuntimeException('Runtime container dump could not be written.');
-            }
-
             if (!rename($temporary, $path)) {
                 throw new RuntimeException('Runtime container dump could not be moved into place.');
             }

@@ -74,6 +74,8 @@ return [
 
 `default`と`framework.connection`は`connections`内のNameを参照します。通常のRepositoryはDefault `Doctrine\DBAL\Connection`をConstructor Injectionでき、複数Databaseを選ぶServiceは`BlackOps\Database\DatabaseManager::connection('analytics')`をConstructor Injectionして使用します。ConnectionはNameごとに生成され、同じNameは同じInstanceを再利用します。
 
+`#[Transactional]`のDefaultとNamed ConnectionもこのSnapshotに対してBuild時に検証します。この検証はConnection Nameだけを使い、Databaseへの接続やCredentialのBuild Artifactへの保存を行いません。AOP Proxyは`build.container`と同じDirectoryの`aop/`へ自動生成されるため、利用者向けの追加Config Keyはありません。
+
 HTTP、Worker、Migration、Outcome、Retentionは`framework.connection`と安全なPostgreSQL Identifierである`framework.schema`を使用します。Framework StoreとDefaultが同じNameならApplication ServiceとFramework Storeは同じConnection Instanceを共有します。Build ArtifactにはConnection ParameterやCredentialを保存せず、Build CommandもDatabaseへ接続しません。
 
 従来の単一Connection形式も互換Shorthandとして受理し、一つのDefault／Framework Connectionへ正規化します。

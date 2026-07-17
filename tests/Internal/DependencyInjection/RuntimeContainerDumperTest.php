@@ -8,11 +8,14 @@ use BlackOps\Core\EmptyOutcome;
 use BlackOps\Core\OperationEnvelope;
 use BlackOps\Core\OperationHandler;
 use BlackOps\Core\OperationResult;
+use BlackOps\Internal\Aop\RuntimeAopCompiler;
 use BlackOps\Internal\DependencyInjection\RuntimeContainerCompiler;
 use BlackOps\Internal\DependencyInjection\RuntimeContainerDumper;
 use BlackOps\Internal\Execution\HandlerResolver;
+use BlackOps\Tests\Fixtures\Aop\TransactionalService;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
+use Ray\Aop\WeavedInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 final class RuntimeContainerDumperTest extends TestCase
@@ -50,6 +53,32 @@ final class RuntimeContainerDumperTest extends TestCase
 
         self::assertInstanceOf(DumpedContainerHandler::class, $handler);
         self::assertSame('dumped-ready', $handler->dependency->value);
+    }
+
+    public function testDumpedContainerRequiresAndInitializesGeneratedAopProxy(): void
+    {
+        $compiler = new RuntimeContainerCompiler();
+        $builder = $compiler->builder();
+        $builder->register(TransactionalService::class)->setPublic(true);
+        $directory = sys_get_temp_dir() . '/blackops-runtime-aop-' . bin2hex(random_bytes(8));
+        $path = $directory . '/container.php';
+        $class = $this->className();
+        $namespace = __NAMESPACE__ . '\\Generated';
+        $aop = new RuntimeAopCompiler()->compile($builder, $path, 'app', ['app']);
+        $compiler->compile($builder);
+
+        new RuntimeContainerDumper()->dump($builder, $path, $class, $namespace, $aop->proxyFiles);
+
+        $source = (string) file_get_contents($path);
+        self::assertStringContainsString("require_once __DIR__ . '/aop/", $source);
+        require_once $path;
+        $containerClass = $namespace . '\\' . $class;
+        $container = new $containerClass();
+        $service = $container->get(TransactionalService::class);
+
+        self::assertInstanceOf(WeavedInterface::class, $service);
+        self::assertSame('dumped-aop', $service->execute('dumped-aop'));
+        self::assertSame(1, $service->calls);
     }
 
     private function compiledBuilder(RuntimeContainerCompiler $compiler): ContainerBuilder

@@ -80,7 +80,7 @@ MVP後に残す主要項目:
 ### Phase 13: Database and Transaction Runtime
 
 - [x] Named DBAL ConnectionとDI登録を実装する
-- [ ] Ray.AopのBuild-time Proxy生成とAttribute Guardを実装する
+- [x] Ray.AopのBuild-time Proxy生成とAttribute Guardを実装する
 - [ ] Operation／Command／Application Service共通の`#[Transactional]`を実装する
 - [ ] Nested Required／Rollback-only／Manual Transaction境界を実装する
 - [ ] `#[AfterCommit]` QueueとFailure Reporterを実装する

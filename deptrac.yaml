@@ -67,6 +67,8 @@ deptrac:
         - type: classNameRegex
           value: '/^Psr\\Log(\\|$)/'
         - type: classNameRegex
+          value: '/^Ray\\Aop(\\|$)/'
+        - type: classNameRegex
           value: '/^Symfony\\Component\\Console(\\|$)/'
         - type: classNameRegex
           value: '/^Symfony\\Component\\DependencyInjection(\\|$)/'

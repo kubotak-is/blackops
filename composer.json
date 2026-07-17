@@ -22,7 +22,8 @@
         "monolog/monolog": "^3.10",
         "doctrine/dbal": "^4.4",
         "doctrine/migrations": "^3.9",
-        "symfony/stopwatch": "^7.4"
+        "symfony/stopwatch": "^7.4",
+        "ray/aop": "^2.19"
     },
     "require-dev": {
         "carthage-software/mago": "1.42.0",

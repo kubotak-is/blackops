@@ -19,12 +19,22 @@ use BlackOps\Database\DatabaseManager;
 use BlackOps\Internal\Application\ApplicationConfigurationSnapshot;
 use BlackOps\Internal\Console\ApplicationBuildCompileCommand;
 use BlackOps\Internal\Registry\OperationManifestFile;
+use BlackOps\Tests\Fixtures\Aop\TransactionalService;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Ray\Aop\WeavedInterface;
 use Symfony\Component\Console\Tester\CommandTester;
 
 final class ApplicationBuildCompileCommandTest extends TestCase
 {
+    private string $directory;
+
+    protected function setUp(): void
+    {
+        $this->directory = sys_get_temp_dir() . '/blackops-application-build-' . bin2hex(random_bytes(8));
+        mkdir($this->directory, 0o755, true);
+    }
+
     public function testGeneratedContainerResolvesAutowiredAuthorizationPolicy(): void
     {
         $operationManifest = $this->path('operation-manifest');
@@ -86,14 +96,26 @@ final class ApplicationBuildCompileCommandTest extends TestCase
         $container->set(Connection::class, $connection);
         self::assertTrue($container->has(DatabaseManager::class));
         self::assertTrue($container->has(Connection::class));
+        $transactional = $container->get(TransactionalService::class);
+        self::assertInstanceOf(WeavedInterface::class, $transactional);
+        self::assertNotInstanceOf(WeavedInterface::class, new TransactionalService());
+        self::assertSame('application-build-aop', $transactional->execute('application-build-aop'));
+        self::assertSame(1, $transactional->calls);
         $source = (string) file_get_contents($containerPath);
+        self::assertStringContainsString("require_once __DIR__ . '/aop/", $source);
         self::assertStringNotContainsString('build-credential-that-must-not-appear', $source);
         self::assertStringNotContainsString("'password'", $source);
+
+        foreach (glob($this->directory . '/aop/*.php') ?: [] as $proxySource) {
+            $proxy = (string) file_get_contents($proxySource);
+            self::assertStringNotContainsString('build-credential-that-must-not-appear', $proxy);
+            self::assertStringNotContainsString("'password'", $proxy);
+        }
     }
 
     private function path(string $name): string
     {
-        return sys_get_temp_dir() . '/blackops-application-build-' . $name . '-' . bin2hex(random_bytes(8)) . '.php';
+        return $this->directory . '/' . $name . '.php';
     }
 }
 
@@ -110,6 +132,7 @@ final readonly class ApplicationBuildServiceProvider implements ServiceProvider
     public function register(ServiceRegistry $services): void
     {
         $services->autowire(ApplicationBuildPolicyDependency::class);
+        $services->autowire(TransactionalService::class);
     }
 }
 

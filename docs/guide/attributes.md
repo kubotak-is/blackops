@@ -1,6 +1,6 @@
 # Attributes Reference
 
-BlackOpsはOperation、Value Validation、HTTP Binding、Observed Journal ProjectionのMetadataをPHP Attributeで宣言します。このPageは利用者向けPublic Attribute 19件をSourceと照合しています。`PublicApi` marker自身はFrameworkが公開境界を管理するためのMetadataであり、Application Authoringには使いません。
+BlackOpsはOperation、Transaction、Value Validation、HTTP Binding、Observed Journal ProjectionのMetadataをPHP Attributeで宣言します。このPageは利用者向けPublic Attribute 21件をSourceと照合しています。`PublicApi` marker自身はFrameworkが公開境界を管理するためのMetadataであり、Application Authoringには使いません。
 
 ## Operation Attributes
 
@@ -19,6 +19,40 @@ Typed Self-handled標準形では、`handle(ConcreteValue $value): ConcreteOutco
 `#[HandledBy]`はDecorator、複数実装切替等でOperation DefinitionとHandlerを分けるCompatibility形に限って使います。Typed Self-handled `handle()`と同時に指定するとBuildがAmbiguousとして拒否します。
 
 `#[Authorize]`は`AuthorizationPolicy`を実装するClassを一つ指定します。複数条件は複数Attributeではなく、一つのApplication Policy内で組み合わせてください。BuildはPolicy Contractを検証し、PolicyをCompiled ContainerへAutowired登録します。Service Providerで同じPolicyを登録した場合はApplication側のBindingを優先します。
+
+## Transaction Attributes
+
+| Attribute | 用途 | 付与対象 | 最小例 |
+| --- | --- | --- | --- |
+| `BlackOps\Database\Attribute\Transactional` | DI管理ServiceのMethodをDatabase Transaction境界として宣言する | 非`final` ClassまたはPublicな非`final` Instance Method | `#[Transactional]`、`#[Transactional(connection: 'analytics')]` |
+| `BlackOps\Database\Attribute\AfterCommit` | Transactionで呼ばれた処理をCommit後まで遅延する | Publicな非`final` Instance Method | `#[AfterCommit] public function send(OrderId $id): void` |
+
+`Transactional`のConnectionを省略すると`config/database.php`の`default`を使います。Named ConnectionはBuild時にConfiguration Snapshotと照合しますが、Databaseへは接続しません。空のNameと未定義Nameは`php blackops build:compile`で拒否されます。Method-levelの指定はClass-levelのConnectionを上書きできます。
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Feature\Order;
+
+use BlackOps\Database\Attribute\Transactional;
+
+#[Transactional]
+readonly class CreateOrderCommand
+{
+    public function __construct(private OrderRepository $orders) {}
+
+    public function execute(CreateOrderInput $input): OrderId
+    {
+        return $this->orders->create($input);
+    }
+}
+```
+
+AOP ProxyはBuild時に`var/build/aop/`へ生成され、Compiled Containerから解決したInstanceだけをInterceptします。`new CreateOrderCommand(...)`で直接作ったInstance、StaticまたはPrivate Methodは対象ではありません。対象ClassとMethodに`final`は使えませんが、非`final`の`readonly class`は使えます。無効な付与対象は黙って無視せずBuild Errorにします。
+
+`AfterCommit` Methodは明示的な`void` Return Typeが必要で、Static、`final`、Generator、Reference Return、Reference Parameterは使えません。現在のBuild-time AOP Foundationは元Methodを一度だけそのまま実行します。TransactionのBegin／Commit／RollbackとAfter Commit Queueの実行Semanticsは次のTransaction Runtime実装で有効になります。
 
 ### Sensitive Mode
 

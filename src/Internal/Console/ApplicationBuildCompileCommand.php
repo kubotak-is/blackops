@@ -6,9 +6,11 @@ namespace BlackOps\Internal\Console;
 
 use BlackOps\Http\Routing\HttpOperationManifestFile;
 use BlackOps\Http\Routing\HttpRouteCompiler;
+use BlackOps\Internal\Aop\RuntimeAopCompiler;
 use BlackOps\Internal\Application\ApplicationBuildConfiguration;
 use BlackOps\Internal\Application\ApplicationBuildId;
 use BlackOps\Internal\Application\ApplicationConfigurationSnapshot;
+use BlackOps\Internal\Application\ApplicationDatabaseConfiguration;
 use BlackOps\Internal\Application\ApplicationHttpMiddlewareConfiguration;
 use BlackOps\Internal\Application\ApplicationOperationDiscovery;
 use BlackOps\Internal\DependencyInjection\RuntimeContainerCompiler;
@@ -42,6 +44,10 @@ final class ApplicationBuildCompileCommand extends Command
         $registry = new OperationProviderCompiler()->compile($operations, $discovered);
         $definitions = new OperationDefinitionFactory()->classNamesFromProviders($operations, $discovered);
         $middleware = ApplicationHttpMiddlewareConfiguration::fromConfiguration($this->configuration->configuration());
+        $applicationConfiguration = $this->configuration->configuration();
+        $database = is_array($applicationConfiguration['database'] ?? null)
+            ? ApplicationDatabaseConfiguration::fromConfiguration($applicationConfiguration)
+            : null;
 
         new OperationManifestFile()->write($registry, $build->operationManifest, $buildId);
         new HttpOperationManifestFile()->write(
@@ -57,13 +63,28 @@ final class ApplicationBuildCompileCommand extends Command
         $compiler->registerHandlers($container, $registry);
         $compiler->registerAuthorizationPolicies($container, $registry);
         $compiler->registerHttpMiddleware($container, $middleware->http);
-        $compiler->compile($container);
-        new RuntimeContainerDumper()->dump(
-            $container,
-            $build->container,
-            $build->containerClass,
-            $build->containerNamespace,
-        );
+        $aop = new RuntimeAopCompiler();
+
+        try {
+            $aopCompilation = $aop->compile(
+                $container,
+                $build->container,
+                $database?->default,
+                $database === null ? [] : array_keys($database->connections),
+            );
+            $compiler->compile($container);
+            new RuntimeContainerDumper()->dump(
+                $container,
+                $build->container,
+                $build->containerClass,
+                $build->containerNamespace,
+                $aopCompilation->proxyFiles,
+            );
+        } catch (\Throwable $throwable) {
+            $aop->discard($build->container);
+
+            throw $throwable;
+        }
 
         $output->writeln('Build artifacts written.');
 

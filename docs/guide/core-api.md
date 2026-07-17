@@ -1,6 +1,6 @@
 # Core API Types Reference
 
-このReferenceは現在の`main` Sourceで`#[PublicApi]`を持つ129型を一覧化しています。Application Authorはまず「Application構成」「Database」「Operation Authoring」「Validation」「Outcome取得」の型を使い、Transport、Journal、Retention等のPortはAdapterを拡張するときだけ使ってください。
+このReferenceは現在の`main` Sourceで`#[PublicApi]`を持つ131型を一覧化しています。Application Authorはまず「Application構成」「Database」「Operation Authoring」「Validation」「Outcome取得」の型を使い、Transport、Journal、Retention等のPortはAdapterを拡張するときだけ使ってください。
 
 `BlackOps\Core\Attribute\PublicApi` marker自身は利用者向けAPIではないため一覧へ含めません。内部実装Namespaceと`#[PublicApi]`を持たない実装型にも依存しないでください。Attributeの付与対象と標準形は[Attributes Reference](attributes.md)を確認してください。
 
@@ -18,8 +18,10 @@
 | Namespace／Type | Kind | Purpose | Typical Use |
 | --- | --- | --- | --- |
 | `BlackOps\Database\DatabaseManager` | interface | DefaultまたはNamed DBAL Connectionを選択する | 複数Connectionが必要なServiceへConstructor Injectionする |
+| `BlackOps\Database\Attribute\Transactional` | attribute class | DI管理ServiceのTransaction境界を宣言する | ClassまたはPublic Instance Methodへ付ける |
+| `BlackOps\Database\Attribute\AfterCommit` | attribute class | Commit後に実行する`void` Methodを宣言する | Public Instance Methodへ付ける |
 
-Default Connectionだけを使うRepositoryは`Doctrine\DBAL\Connection`を直接Constructor Injectionできます。Named ConnectionはContainerやGlobal Helperではなく`DatabaseManager::connection($name)`で選択します。
+Default Connectionだけを使うRepositoryは`Doctrine\DBAL\Connection`を直接Constructor Injectionできます。Named ConnectionはContainerやGlobal Helperではなく`DatabaseManager::connection($name)`で選択します。Transaction Attributeの制約とContainer管理境界は[Attributes Reference](attributes.md#transaction-attributes)を参照してください。
 
 ## Operation Authoringと実行Context
 
