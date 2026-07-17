@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-18T06:35:39+09:00
+Updated At: 2026-07-18T06:39:00+09:00
 
 ## Current Phase
 
@@ -8,17 +8,17 @@ Phase 13: Database and Transaction Runtime
 
 ## Current Task
 
-Task ID: P13-005-long-running-connection-safety
+Task ID: P13-006-consumer-experience-and-closeout
 
-Task Packet: `develop/orchestration/tasks/P13-005-long-running-connection-safety.md`
+Task Packet: `develop/orchestration/tasks/P13-006-consumer-experience-and-closeout.md`
 
 Specifications: `develop/spec/09-runtime-and-di.md`、`develop/spec/10-logging-and-traceability.md`、`develop/spec/11-durable-journal-and-transactions.md`、`develop/spec/36-postgresql-transaction-boundaries.md`、`develop/spec/64-phase-13-delivery-plan.md`
 
 ## Task Status
 
-Accepted
+Ready
 
-生成済みNamed Connectionの開始Health Check、同一Object再接続、成功時Leak検査、失敗時全CloseをHTTP Request／Deferred Attemptへ統合した。Heartbeat Connectionは別ManagerとしてApplication Lifecycle外に維持した。Orchestrator独立Reviewでclosed Objectの開始時再接続を修正し、Target／Full GateとConsumer E2Eを再実行してAcceptedとした。
+P13-006 Task Packetを作成した。QuickstartへRepository、Transactional Command、Transactional Operation、After Commitを一続きで実行するOrder Journeyを追加し、Skeleton、Framework Update、Guide、Documentation Website Artifactを同期してPhase 13をCloseする準備が整っている。
 
 ## Last Accepted Task
 
@@ -45,13 +45,13 @@ P13-005-long-running-connection-safety
 
 ## Known Blockers
 
-P13-006に既知Blockerはない。Documentation Websiteは意図的に未公開である。
+P13-006に既知Blockerはない。Documentation Websiteは意図的に未公開であり、このTaskでもDeployしない。
 
 ## Required Next Action
 
-1. P13-005をTask単位でCommitする。
-2. P13-006 Consumer Experience and CloseoutをTask化する。
-3. Documentation Website PublicationはUserが再開を明示するまで実行しない。
+1. P13-006 Task PacketをCommitする。
+2. GPT-5.6 Luna High workerへP13-006を依頼する。
+3. Worker Report後、Orchestratorが差分とFull PHP／Consumer／Website Gateを独立Reviewする。
 
 ## P13-005 Orchestrator Review Commands and Results
 
