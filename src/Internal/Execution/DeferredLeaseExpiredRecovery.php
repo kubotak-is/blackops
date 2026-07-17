@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BlackOps\Internal\Execution;
 
+use BlackOps\Core\ActorContext;
 use BlackOps\Core\Execution\Deferred;
 use BlackOps\Core\Execution\OperationClaim;
 use BlackOps\Core\ExecutionContext;
@@ -94,6 +95,11 @@ final readonly class DeferredLeaseExpiredRecovery implements ExpiredAttemptRecov
                 $context->causationId(),
                 $reservation->attempt,
                 $context->deadline(),
+                new ActorContext(
+                    $context->actorContext()?->origin(),
+                    $context->actorContext()?->authorization(),
+                    $this->services->executionActor,
+                ),
             ),
             new Deferred(),
         );

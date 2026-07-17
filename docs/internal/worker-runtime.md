@@ -4,6 +4,22 @@ The deferred worker processes one claim at a time. Each loop iteration first att
 
 `DeferredWorkerRuntime` commits attempt start before entering the handler guard. It commits completion or rejection only after the guard returns normally. Handler exceptions use the normal failure-supervision boundary. After supervision is durably recorded, the runtime wraps the original handler exception as a `SupervisedHandlerFailureException`; only this marker is eligible for loop continuation. Metadata, transaction, recovery, claim, completion, and settlement failures are infrastructure failures and terminate the worker instead of being swallowed by the handler-failure policy.
 
+## Actor context and reauthorization
+
+`DeferredWorkerRuntimeServices` requires both a non-null worker execution `ActorRef` and an `AuthorizationEvaluator`. Application composition builds the actor from `execution.worker.id` with the fixed type `system`, and resolves policies from the same compiled container used for handlers.
+
+Attempt start decodes the transported context and calls `ExecutionContextFactory::startAttempt()` with that worker actor. The factory preserves origin and authorization while replacing execution. An actorless accepted operation therefore becomes `{origin: null, authorization: null, execution: worker/system}` for its worker attempt. Expired-lease recovery reconstructs the same shape before it records failure, retry, or dead-letter events.
+
+After `attempt.started` commits, the guarded execution scope runs these stages:
+
+1. Evaluate the operation's compiled authorization policy against the attempt envelope.
+2. Convert an absent authorization actor or an unauthorized/forbidden decision to a rejected `OperationResult`.
+3. Invoke the already-resolved handler only when evaluation allows execution or no policy is declared.
+
+Authorization denial follows the normal terminal rejection transaction and never enters attempt-failure supervision. Unexpected policy resolution, construction, or execution exceptions cross the same failure boundary as handler exceptions. Retryable exceptions can schedule another attempt, which evaluates the policy again. Fail and dead-letter decisions retain the original exception classification.
+
+The evaluator always selects the transported authorization actor. The configured worker actor is only the execution actor and must not elevate the request. Credentials, roles, permissions, and claims are neither reconstructed nor added to the transport context.
+
 The common handler invoker selects the invocation contract from compiled metadata. Typed Self-handled definitions receive their declared `OperationValue` and, when requested, an `ExecutionContext` containing the Operation ID and current Attempt. Native Outcome and Void returns are normalized to internal OperationResult; `OperationRejectedException` becomes the existing terminal Rejected lifecycle. Other Throwable values remain in the normal supervision boundary. Legacy Self-handled and Separate `OperationHandler` implementations continue to receive the complete Envelope. The invoker performs no source discovery or runtime signature inference.
 
 A heartbeat failure or grace-period timeout throws a `WorkerExecutionInterruptedException`; the runtime deliberately bypasses normal handler supervision, and the loop performs no acknowledge or release. The running claim is left for lease-expiry recovery by another worker.

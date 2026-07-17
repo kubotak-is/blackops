@@ -4,7 +4,12 @@ declare(strict_types=1);
 
 namespace BlackOps\Tests\Internal\Execution;
 
+use BlackOps\Core\ActorContext;
+use BlackOps\Core\ActorRef;
 use BlackOps\Core\AttemptContext;
+use BlackOps\Core\Authorization\AuthorizationDecision;
+use BlackOps\Core\Authorization\AuthorizationPolicy;
+use BlackOps\Core\Authorization\AuthorizationRequest;
 use BlackOps\Core\EmptyOutcome;
 use BlackOps\Core\Exception\DeferredTransportException;
 use BlackOps\Core\Exception\OperationRejectedException;
@@ -22,11 +27,14 @@ use BlackOps\Core\OperationValue;
 use BlackOps\Core\Outcome;
 use BlackOps\Core\Registry\OperationMetadata;
 use BlackOps\Core\Registry\OperationRegistry;
+use BlackOps\Core\Rejection\RejectionCategory;
 use BlackOps\Core\Rejection\RejectionReason;
 use BlackOps\Core\Supervision\ExponentialBackoffSupervisionPolicy;
 use BlackOps\Core\Supervision\RetryableException;
 use BlackOps\Core\Supervision\SupervisionDecision;
 use BlackOps\Core\Supervision\SupervisionPolicy;
+use BlackOps\Internal\Authorization\AuthorizationEvaluator;
+use BlackOps\Internal\Authorization\AuthorizationPolicyResolver;
 use BlackOps\Internal\Codec\ReflectionJsonOperationCodec;
 use BlackOps\Internal\Execution\ClaimExecutionGuard;
 use BlackOps\Internal\Execution\DeferredAcceptanceOrchestrator;
@@ -59,6 +67,7 @@ use Closure;
 use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
 use Psr\Container\ContainerInterface;
@@ -131,6 +140,12 @@ final class DeferredWorkerRuntimeTest extends TestCase
         self::assertSame([1, 2, 3, 4, 5], array_column($records, 'sequence'));
         self::assertNotNull($records[2]->attempt);
         self::assertSame(1, $records[2]->attempt?->number);
+        foreach (array_slice($records, 2) as $record) {
+            self::assertNull($record->operation->actorContext?->origin());
+            self::assertNull($record->operation->actorContext?->authorization());
+            self::assertSame('worker-a', $record->operation->actorContext?->execution()->id());
+            self::assertSame('system', $record->operation->actorContext?->execution()->type());
+        }
         $storedOutcome = $this->outcomes->find(OperationId::fromString(self::OPERATION_ID));
         self::assertNotNull($storedOutcome);
         self::assertInstanceOf(WorkerReportDone::class, $storedOutcome->outcome());
@@ -153,6 +168,258 @@ final class DeferredWorkerRuntimeTest extends TestCase
         self::assertSame('resolved', $handler->handledWith);
         self::assertSame(self::OPERATION_ID, $handler->operationId);
         self::assertSame(1, $handler->attemptNumber);
+    }
+
+    public function testWorkerReauthorizesWithOriginalUserAndWorkerExecutionActorBeforeHandler(): void
+    {
+        $handler = new CompletingWorkerReportHandler();
+        $metadata = $this->authorizedMetadata();
+        $actors = self::userActors();
+        $policy = new SequencedWorkerAuthorizationPolicy([
+            AuthorizationDecision::allow(),
+            AuthorizationDecision::allow(),
+        ]);
+        $this->accept($metadata, actors: $actors, authorizationPolicy: $policy);
+        $claim = $this->receiver->claim(new \BlackOps\Core\Execution\ClaimRequest(
+            new DateTimeImmutable('2026-07-10T00:01:00.000000Z'),
+        ));
+
+        self::assertNotNull($claim);
+        $result = $this->runtime($handler, metadata: $metadata, authorizationPolicy: $policy)->run($claim);
+
+        self::assertTrue($result->isCompleted());
+        self::assertSame(1, $handler->calls);
+        self::assertCount(2, $policy->requests);
+        $workerRequest = $policy->requests[1];
+        self::assertEquals($actors->origin(), $workerRequest->context()->actorContext()?->origin());
+        self::assertEquals($actors->authorization(), $workerRequest->actor());
+        self::assertEquals($actors->authorization(), $workerRequest->context()->actorContext()?->authorization());
+        self::assertSame('worker-a', $workerRequest->context()->actorContext()?->execution()->id());
+        self::assertSame('system', $workerRequest->context()->actorContext()?->execution()->type());
+        $records = $this->records();
+        self::assertSame('http-runtime', $records[0]->operation->actorContext?->execution()->id());
+        self::assertSame('http-runtime', $records[1]->operation->actorContext?->execution()->id());
+        foreach (array_slice($records, 2) as $record) {
+            self::assertEquals($actors->origin(), $record->operation->actorContext?->origin());
+            self::assertEquals($actors->authorization(), $record->operation->actorContext?->authorization());
+            self::assertSame('worker-a', $record->operation->actorContext?->execution()->id());
+        }
+    }
+
+    public function testWorkerDoesNotElevateMissingAuthorizationActorToWorkerActor(): void
+    {
+        $handler = new CompletingWorkerReportHandler();
+        $metadata = $this->authorizedMetadata();
+        $policy = new SequencedWorkerAuthorizationPolicy([AuthorizationDecision::allow()]);
+        $this->accept();
+        $claim = $this->receiver->claim(new \BlackOps\Core\Execution\ClaimRequest(
+            new DateTimeImmutable('2026-07-10T00:01:00.000000Z'),
+        ));
+
+        self::assertNotNull($claim);
+        $result = $this->runtime($handler, metadata: $metadata, authorizationPolicy: $policy)->run($claim);
+
+        self::assertTrue($result->isRejected());
+        self::assertSame(RejectionCategory::Unauthorized, $result->rejectionReason()->category());
+        self::assertSame('authorization.authentication_required', $result->rejectionReason()->code());
+        self::assertSame(0, $handler->calls);
+        self::assertSame([], $policy->requests);
+        self::assertSame('rejected', $this->operationRow()['state']);
+        self::assertSame(
+            [
+                JournalEvent::OperationReceived,
+                JournalEvent::OperationAccepted,
+                JournalEvent::AttemptStarted,
+                JournalEvent::OperationRejected,
+            ],
+            array_map(static fn(JournalRecord $record): JournalEvent => $record->event, $this->records()),
+        );
+        self::assertNull($this->records()[3]->operation->actorContext?->authorization());
+        self::assertSame('worker-a', $this->records()[3]->operation->actorContext?->execution()->id());
+    }
+
+    #[DataProvider('authorizationDenials')]
+    public function testWorkerAuthorizationDenialIsTerminalWithoutFailureSupervision(
+        AuthorizationDecision $denial,
+        RejectionCategory $category,
+        string $code,
+    ): void {
+        $handler = new CompletingWorkerReportHandler();
+        $metadata = $this->authorizedMetadata();
+        $policy = new SequencedWorkerAuthorizationPolicy([AuthorizationDecision::allow(), $denial]);
+        $this->accept($metadata, actors: self::userActors(), authorizationPolicy: $policy);
+        $claim = $this->receiver->claim(new \BlackOps\Core\Execution\ClaimRequest(
+            new DateTimeImmutable('2026-07-10T00:01:00.000000Z'),
+        ));
+
+        self::assertNotNull($claim);
+        $result = $this->runtime($handler, metadata: $metadata, authorizationPolicy: $policy)->run($claim);
+
+        self::assertTrue($result->isRejected());
+        self::assertSame($category, $result->rejectionReason()->category());
+        self::assertSame($code, $result->rejectionReason()->code());
+        self::assertSame(0, $handler->calls);
+        self::assertSame('rejected', $this->operationRow()['state']);
+        $records = $this->records();
+        self::assertSame(
+            [
+                JournalEvent::OperationReceived,
+                JournalEvent::OperationAccepted,
+                JournalEvent::AttemptStarted,
+                JournalEvent::OperationRejected,
+            ],
+            array_map(static fn(JournalRecord $record): JournalEvent => $record->event, $records),
+        );
+        self::assertSame('worker-a', $records[3]->operation->actorContext?->execution()->id());
+        self::assertNotInstanceOf(AttemptFailedData::class, $records[3]->data);
+    }
+
+    /**
+     * @return iterable<string, array{AuthorizationDecision, RejectionCategory, string}>
+     */
+    public static function authorizationDenials(): iterable
+    {
+        yield 'unauthorized' => [
+            AuthorizationDecision::unauthorized('authorization.expired'),
+            RejectionCategory::Unauthorized,
+            'authorization.expired',
+        ];
+        yield 'forbidden' => [
+            AuthorizationDecision::forbid('authorization.report_forbidden'),
+            RejectionCategory::Forbidden,
+            'authorization.report_forbidden',
+        ];
+    }
+
+    public function testPolicyBackendFailureUsesAttemptFailureAndNotSecurityRejection(): void
+    {
+        $handler = new CompletingWorkerReportHandler();
+        $metadata = $this->authorizedMetadata();
+        $failure = new RuntimeException('policy backend unavailable');
+        $policy = new SequencedWorkerAuthorizationPolicy([AuthorizationDecision::allow(), $failure]);
+        $this->accept($metadata, actors: self::userActors(), authorizationPolicy: $policy);
+        $claim = $this->receiver->claim(new \BlackOps\Core\Execution\ClaimRequest(
+            new DateTimeImmutable('2026-07-10T00:01:00.000000Z'),
+        ));
+
+        self::assertNotNull($claim);
+        try {
+            $this->runtime($handler, metadata: $metadata, authorizationPolicy: $policy)->run($claim);
+            self::fail('Expected policy backend failure to be supervised.');
+        } catch (SupervisedHandlerFailureException $exception) {
+            self::assertSame($failure, $exception->getPrevious());
+        }
+
+        self::assertSame(0, $handler->calls);
+        self::assertSame('failed', $this->operationRow()['state']);
+        $records = $this->records();
+        self::assertSame(
+            [
+                JournalEvent::OperationReceived,
+                JournalEvent::OperationAccepted,
+                JournalEvent::AttemptStarted,
+                JournalEvent::AttemptFailed,
+                JournalEvent::OperationFailed,
+            ],
+            array_map(static fn(JournalRecord $record): JournalEvent => $record->event, $records),
+        );
+        self::assertInstanceOf(AttemptFailedData::class, $records[3]->data);
+        self::assertSame(RuntimeException::class, $records[3]->data->errorType);
+        self::assertSame('policy backend unavailable', $records[3]->data->errorMessage);
+        self::assertSame('worker-a', $records[4]->operation->actorContext?->execution()->id());
+    }
+
+    public function testRetryablePolicyFailureIsReevaluatedOnNextAttempt(): void
+    {
+        $handler = new CompletingWorkerReportHandler();
+        $metadata = $this->authorizedMetadata();
+        $policy = new SequencedWorkerAuthorizationPolicy([
+            AuthorizationDecision::allow(),
+            new RetryableWorkerRuntimeException('temporary policy backend failure'),
+            AuthorizationDecision::allow(),
+        ]);
+        $actors = self::userActors();
+        $this->accept($metadata, actors: $actors, authorizationPolicy: $policy);
+        $firstClaim = $this->receiver->claim(new \BlackOps\Core\Execution\ClaimRequest(
+            new DateTimeImmutable('2026-07-10T00:01:00.000000Z'),
+        ));
+        self::assertNotNull($firstClaim);
+        $runtime = $this->runtime($handler, metadata: $metadata, authorizationPolicy: $policy);
+
+        try {
+            $runtime->run($firstClaim);
+            self::fail('Expected retryable policy failure.');
+        } catch (SupervisedHandlerFailureException $exception) {
+            self::assertInstanceOf(RetryableWorkerRuntimeException::class, $exception->getPrevious());
+        }
+
+        self::assertSame('retry_scheduled', $this->operationRow()['state']);
+        $secondClaim = $this->receiver->claim(new \BlackOps\Core\Execution\ClaimRequest(
+            new DateTimeImmutable('2026-07-10T00:02:01.000000Z'),
+        ));
+        self::assertNotNull($secondClaim);
+        $result = $runtime->run($secondClaim);
+
+        self::assertTrue($result->isCompleted());
+        self::assertSame(1, $handler->calls);
+        self::assertCount(3, $policy->requests);
+        self::assertSame(2, $policy->requests[2]->context()->attempt()?->number());
+        self::assertEquals($actors->authorization(), $policy->requests[2]->actor());
+        self::assertSame('worker-a', $policy->requests[2]->context()->actorContext()?->execution()->id());
+        self::assertSame(
+            [
+                JournalEvent::OperationReceived,
+                JournalEvent::OperationAccepted,
+                JournalEvent::AttemptStarted,
+                JournalEvent::AttemptFailed,
+                JournalEvent::AttemptRetryScheduled,
+                JournalEvent::AttemptStarted,
+                JournalEvent::AttemptSucceeded,
+                JournalEvent::OperationCompleted,
+            ],
+            array_map(static fn(JournalRecord $record): JournalEvent => $record->event, $this->records()),
+        );
+        foreach (array_slice($this->records(), 2) as $record) {
+            self::assertEquals($actors->origin(), $record->operation->actorContext?->origin());
+            self::assertEquals($actors->authorization(), $record->operation->actorContext?->authorization());
+            self::assertSame('worker-a', $record->operation->actorContext?->execution()->id());
+        }
+    }
+
+    public function testPolicyBackendFailureCanDeadLetterWithWorkerActorContext(): void
+    {
+        $handler = new CompletingWorkerReportHandler();
+        $metadata = $this->authorizedMetadata();
+        $policy = new SequencedWorkerAuthorizationPolicy([
+            AuthorizationDecision::allow(),
+            new RuntimeException('terminal policy backend failure'),
+        ]);
+        $actors = self::userActors();
+        $this->accept($metadata, actors: $actors, authorizationPolicy: $policy);
+        $claim = $this->receiver->claim(new \BlackOps\Core\Execution\ClaimRequest(
+            new DateTimeImmutable('2026-07-10T00:01:00.000000Z'),
+        ));
+        self::assertNotNull($claim);
+
+        try {
+            $this->runtime(
+                $handler,
+                new AlwaysDeadLetterSupervisionPolicy(),
+                metadata: $metadata,
+                authorizationPolicy: $policy,
+            )->run($claim);
+            self::fail('Expected policy backend failure to dead letter.');
+        } catch (SupervisedHandlerFailureException $exception) {
+            self::assertSame('terminal policy backend failure', $exception->getPrevious()?->getMessage());
+        }
+
+        self::assertSame(0, $handler->calls);
+        self::assertSame('dead_lettered', $this->operationRow()['state']);
+        $records = $this->records();
+        self::assertSame(JournalEvent::AttemptFailed, $records[3]->event);
+        self::assertSame(JournalEvent::OperationDeadLettered, $records[4]->event);
+        self::assertSame('worker-a', $records[4]->operation->actorContext?->execution()->id());
+        self::assertEquals($actors->authorization(), $records[4]->operation->actorContext?->authorization());
     }
 
     public function testLeaseRecoveryUsesContainerResolvedSelfHandledOperationWithRequiredDependency(): void
@@ -404,7 +671,8 @@ final class DeferredWorkerRuntimeTest extends TestCase
 
     public function testLeaseExpiredRecoveryRecordsAttemptFailureAndSchedulesRetry(): void
     {
-        $this->accept();
+        $actors = self::userActors();
+        $this->accept(actors: $actors);
         $claim = $this->receiver->claim(new \BlackOps\Core\Execution\ClaimRequest(
             new DateTimeImmutable('2026-07-10T00:01:00.000000Z'),
         ));
@@ -443,6 +711,12 @@ final class DeferredWorkerRuntimeTest extends TestCase
         self::assertSame($records[2]->attempt?->id->toString(), $records[4]->data->failedAttemptId->toString());
         self::assertSame(2, $records[4]->data->nextAttemptNumber);
         self::assertSame('2026-07-10T00:02:01+00:00', $records[4]->data->scheduledAt->format(DATE_ATOM));
+        foreach (array_slice($records, 2) as $record) {
+            self::assertEquals($actors->origin(), $record->operation->actorContext?->origin());
+            self::assertEquals($actors->authorization(), $record->operation->actorContext?->authorization());
+            self::assertSame('worker-a', $record->operation->actorContext?->execution()->id());
+            self::assertSame('system', $record->operation->actorContext?->execution()->type());
+        }
     }
 
     public function testWorkerDeadLettersOperationWithoutOperationFailedEvent(): void
@@ -514,23 +788,32 @@ final class DeferredWorkerRuntimeTest extends TestCase
         );
     }
 
-    private function accept(?OperationMetadata $metadata = null, ?Operation $definition = null): void
-    {
+    private function accept(
+        ?OperationMetadata $metadata = null,
+        ?Operation $definition = null,
+        ?ActorContext $actors = null,
+        ?AuthorizationPolicy $authorizationPolicy = null,
+    ): void {
         $metadata ??= $this->metadata();
         $context = new ExecutionContext(
             OperationId::fromString(self::OPERATION_ID),
             new DateTimeImmutable('2026-07-10T00:00:00.000000Z'),
             CorrelationId::fromString(self::CORRELATION_ID),
+            actorContext: $actors,
         );
         $value = new WorkerReportValue('weekly');
         $encoded = $this->codec->encode($metadata, $value, $context);
         $envelope = new OperationEnvelope($definition ?? new WorkerReportOperation(), $value, $context, new Deferred());
         $identifiers = new IdentifierFactory(new DeferredWorkerAcceptanceUuidv7Generator(), new DeferredWorkerClock());
+        $container = new DeferredWorkerContainer($definition ?? new WorkerReportOperation(), $authorizationPolicy);
         $orchestrator = new DeferredAcceptanceOrchestrator(
             $this->connection,
             $this->sender,
             $this->journal,
             new JournalRecordFactory($identifiers, new DeferredWorkerClock()),
+            authorization: $authorizationPolicy === null
+                ? null
+                : new AuthorizationEvaluator(new AuthorizationPolicyResolver($container)),
         );
 
         $orchestrator->accept(
@@ -553,16 +836,20 @@ final class DeferredWorkerRuntimeTest extends TestCase
         ?ClaimExecutionGuard $guard = null,
         ?OutcomeWriter $outcomes = null,
         ?OperationMetadata $metadata = null,
+        ?AuthorizationPolicy $authorizationPolicy = null,
     ): DeferredWorkerRuntime {
         $clock = new DeferredWorkerClock();
         $identifiers = new IdentifierFactory(new DeferredWorkerRuntimeUuidv7Generator(), $clock);
+        $container = new DeferredWorkerContainer($handler, $authorizationPolicy);
 
         return new DeferredWorkerRuntime(
             new DeferredWorkerRuntimeServices(
                 new OperationRegistry([$metadata ?? $this->metadata()]),
                 $this->codec,
                 new ExecutionContextFactory($identifiers, $clock),
-                new HandlerResolver(new DeferredWorkerContainer($handler)),
+                new HandlerResolver($container),
+                new ActorRef('worker-a', 'system'),
+                new AuthorizationEvaluator(new AuthorizationPolicyResolver($container)),
                 $policy ?? new ExponentialBackoffSupervisionPolicy(jitterRatio: 0.0),
             ),
             new DeferredWorkerRuntimeStorage(
@@ -583,13 +870,16 @@ final class DeferredWorkerRuntimeTest extends TestCase
     ): DeferredLeaseExpiredRecovery {
         $clock = new DeferredWorkerClock();
         $identifiers = new IdentifierFactory(new DeferredWorkerRecoveryUuidv7Generator(), $clock);
+        $container = new DeferredWorkerContainer($handler ?? new CompletingWorkerReportHandler());
 
         return new DeferredLeaseExpiredRecovery(
             new DeferredWorkerRuntimeServices(
                 new OperationRegistry([$metadata ?? $this->metadata()]),
                 $this->codec,
                 new ExecutionContextFactory($identifiers, $clock),
-                new HandlerResolver(new DeferredWorkerContainer($handler ?? new CompletingWorkerReportHandler())),
+                new HandlerResolver($container),
+                new ActorRef('worker-a', 'system'),
+                new AuthorizationEvaluator(new AuthorizationPolicyResolver($container)),
                 new ExponentialBackoffSupervisionPolicy(jitterRatio: 0.0),
             ),
             new DeferredWorkerRuntimeStorage(
@@ -622,7 +912,11 @@ final class DeferredWorkerRuntimeTest extends TestCase
                 $claim->message()->schemaVersion(),
                 $claim->message()->encodedPayload(),
             ),
-            new ExecutionContextFactory($identifiers, $clock)->startAttempt($context, $reservation->attemptNumber),
+            new ExecutionContextFactory($identifiers, $clock)->startAttempt(
+                $context,
+                $reservation->attemptNumber,
+                new ActorRef('worker-a', 'system'),
+            ),
             new Deferred(),
         );
         $attempt = $envelope->context()->attempt();
@@ -643,6 +937,26 @@ final class DeferredWorkerRuntimeTest extends TestCase
             WorkerReportDone::class,
             Deferred::class,
         );
+    }
+
+    private function authorizedMetadata(): OperationMetadata
+    {
+        return new OperationMetadata(
+            'report.generate',
+            WorkerReportOperation::class,
+            WorkerReportValue::class,
+            WorkerReportHandler::class,
+            WorkerReportDone::class,
+            Deferred::class,
+            authorizationPolicy: SequencedWorkerAuthorizationPolicy::class,
+        );
+    }
+
+    private static function userActors(): ActorContext
+    {
+        $user = new ActorRef('user-123', 'user');
+
+        return new ActorContext($user, $user, new ActorRef('http-runtime', 'system'));
     }
 
     private function selfHandledMetadata(): OperationMetadata
@@ -778,8 +1092,11 @@ abstract class WorkerReportHandler implements OperationHandler {}
 
 final class CompletingWorkerReportHandler extends WorkerReportHandler
 {
+    public int $calls = 0;
+
     public function handle(OperationEnvelope $operation): OperationResult
     {
+        $this->calls++;
         $value = $operation->value();
 
         if (!$value instanceof WorkerReportValue) {
@@ -863,6 +1180,29 @@ final readonly class FailingWorkerOutcomeWriter implements OutcomeWriter
 
 final class RetryableWorkerRuntimeException extends RuntimeException implements RetryableException {}
 
+final class SequencedWorkerAuthorizationPolicy implements AuthorizationPolicy
+{
+    /** @var list<AuthorizationRequest> */
+    public array $requests = [];
+
+    /** @param list<AuthorizationDecision|\Throwable> $results */
+    public function __construct(
+        private array $results,
+    ) {}
+
+    public function decide(AuthorizationRequest $request): AuthorizationDecision
+    {
+        $this->requests[] = $request;
+        $result = array_shift($this->results) ?? AuthorizationDecision::allow();
+
+        if ($result instanceof \Throwable) {
+            throw $result;
+        }
+
+        return $result;
+    }
+}
+
 final readonly class AlwaysDeadLetterSupervisionPolicy implements SupervisionPolicy
 {
     public function decide(\Throwable $error, AttemptContext $attempt): SupervisionDecision
@@ -875,16 +1215,26 @@ final readonly class DeferredWorkerContainer implements ContainerInterface
 {
     public function __construct(
         private object $handler,
+        private ?AuthorizationPolicy $authorizationPolicy = null,
     ) {}
 
     public function get(string $id): mixed
     {
+        if ($this->authorizationPolicy !== null && $id === $this->authorizationPolicy::class) {
+            return $this->authorizationPolicy;
+        }
+
         return $this->handler;
     }
 
     public function has(string $id): bool
     {
-        return $id === WorkerReportHandler::class;
+        return (
+            $id === WorkerReportHandler::class
+            || $id === $this->handler::class
+            || $this->authorizationPolicy !== null
+            && $id === $this->authorizationPolicy::class
+        );
     }
 }
 
@@ -924,6 +1274,8 @@ final class DeferredWorkerRuntimeUuidv7Generator implements Uuidv7Generator
         '019f32ab-2be0-7b38-a0a7-1ab2f9687738',
         '019f32ab-2be0-7b38-a0a7-1ab2f9687739',
         '019f32ab-2be0-7b38-a0a7-1ab2f968773a',
+        '019f32ab-2be0-7b38-a0a7-1ab2f968773b',
+        '019f32ab-2be0-7b38-a0a7-1ab2f968773c',
     ];
 
     public function generate(DateTimeImmutable $time): string

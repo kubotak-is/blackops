@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace BlackOps\Internal\Application;
 
+use BlackOps\Core\ActorRef;
 use BlackOps\Core\Supervision\ExponentialBackoffSupervisionPolicy;
+use BlackOps\Internal\Authorization\AuthorizationEvaluator;
+use BlackOps\Internal\Authorization\AuthorizationPolicyResolver;
 use BlackOps\Internal\Codec\ReflectionJsonOperationCodec;
 use BlackOps\Internal\Execution\DeferredLeaseExpiredRecovery;
 use BlackOps\Internal\Execution\DeferredWorkerLoop;
@@ -49,6 +52,8 @@ final readonly class ApplicationWorkerComposer
             new ReflectionJsonOperationCodec(),
             new ExecutionContextFactory($identifiers, $clock),
             new HandlerResolver($artifacts->container),
+            new ActorRef($worker->id, 'system'),
+            new AuthorizationEvaluator(new AuthorizationPolicyResolver($artifacts->container)),
             new ExponentialBackoffSupervisionPolicy(),
         );
         $storage = new DeferredWorkerRuntimeStorage(

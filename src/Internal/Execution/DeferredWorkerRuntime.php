@@ -36,7 +36,7 @@ final readonly class DeferredWorkerRuntime implements DeferredClaimRuntime
         $value = $this->value($metadata, $claim);
         $envelope = $this->startAttempt($claim, $metadata, $definition, $value);
         try {
-            $result = $this->executeHandler($claim, $envelope, $handler, $metadata, $metadata->typeId);
+            $result = $this->execute($claim, $envelope, $handler, $metadata, $metadata->typeId);
         } catch (HandlerInvocationFailedException $exception) {
             $this->fail($claim, $metadata, $envelope, $exception->failure);
 
@@ -57,7 +57,7 @@ final readonly class DeferredWorkerRuntime implements DeferredClaimRuntime
         return $result;
     }
 
-    private function executeHandler(
+    private function execute(
         OperationClaim $claim,
         OperationEnvelope $envelope,
         object $handler,
@@ -68,6 +68,11 @@ final readonly class DeferredWorkerRuntime implements DeferredClaimRuntime
             $envelope,
             function () use ($handler, $envelope, $metadata): OperationResult {
                 try {
+                    $rejection = $this->services->authorization->evaluate($metadata, $envelope);
+                    if ($rejection !== null) {
+                        return OperationResult::rejected($rejection, $envelope->id());
+                    }
+
                     return $this->invoker->invoke($metadata, $handler, $envelope);
                 } catch (WorkerExecutionInterruptedException $exception) {
                     throw $exception;
@@ -100,7 +105,11 @@ final readonly class DeferredWorkerRuntime implements DeferredClaimRuntime
                 $envelope = new OperationEnvelope(
                     $definition,
                     $value,
-                    $this->services->contexts->startAttempt($context, $reservation->attemptNumber),
+                    $this->services->contexts->startAttempt(
+                        $context,
+                        $reservation->attemptNumber,
+                        $this->services->executionActor,
+                    ),
                     new Deferred(),
                 );
 

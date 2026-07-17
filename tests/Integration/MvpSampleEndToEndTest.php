@@ -12,6 +12,8 @@ use BlackOps\Core\Supervision\ExponentialBackoffSupervisionPolicy;
 use BlackOps\Http\Binding\OperationValueBinder;
 use BlackOps\Http\OperationRequestHandler;
 use BlackOps\Http\Responder\JsonOperationResponder;
+use BlackOps\Internal\Authorization\AuthorizationEvaluator;
+use BlackOps\Internal\Authorization\AuthorizationPolicyResolver;
 use BlackOps\Internal\Codec\ReflectionJsonOperationCodec;
 use BlackOps\Internal\Execution\DeferredAcceptanceOrchestrator;
 use BlackOps\Internal\Execution\DeferredWorkerRuntime;
@@ -170,7 +172,8 @@ final class MvpSampleEndToEndTest extends TestCase
                 ->withBody($psr17->createStream(json_encode([
                     'reportName' => 'weekly',
                     'apiToken' => $reportToken,
-                ], JSON_THROW_ON_ERROR))),
+                ], JSON_THROW_ON_ERROR)))
+                ->withAttribute(ActorRef::class, $actor),
         );
         self::assertSame(202, $reportResponse->getStatusCode());
         /** @var array{status: string, operationId: string, acceptedAt: string} $acknowledgement */
@@ -181,6 +184,11 @@ final class MvpSampleEndToEndTest extends TestCase
             [JournalEvent::OperationReceived, JournalEvent::OperationAccepted],
             $this->events($journal, $reportOperationId),
         );
+        foreach ($this->records($journal, $reportOperationId) as $record) {
+            self::assertEquals($actor, $record->operation->actorContext?->origin());
+            self::assertEquals($actor, $record->operation->actorContext?->authorization());
+            self::assertEquals($actor, $record->operation->actorContext?->execution());
+        }
 
         $clock->set(new DateTimeImmutable('2026-07-12T00:01:00.000000Z'));
         $firstWorkerConnection = $this->connection();
@@ -195,7 +203,9 @@ final class MvpSampleEndToEndTest extends TestCase
         self::assertNotNull($firstClaim);
 
         try {
-            $this->workerRuntime($firstWorkerConnection, $firstWorkerArtifacts, $clock)->run($firstClaim);
+            $this->workerRuntime($firstWorkerConnection, $firstWorkerArtifacts, $clock, 'mvp-worker-first')->run(
+                $firstClaim,
+            );
             self::fail('The first report attempt must request a retry.');
         } catch (SupervisedHandlerFailureException $exception) {
             self::assertStringContainsString('temporarily unavailable', $exception->getPrevious()?->getMessage() ?? '');
@@ -215,6 +225,16 @@ final class MvpSampleEndToEndTest extends TestCase
                 $reportOperationId,
             ),
         );
+        $firstAttemptRecords = $this->records(
+            new PostgreSqlCanonicalJournalStore($firstWorkerConnection, self::SCHEMA),
+            $reportOperationId,
+        );
+        foreach (array_slice($firstAttemptRecords, 2) as $record) {
+            self::assertEquals($actor, $record->operation->actorContext?->origin());
+            self::assertEquals($actor, $record->operation->actorContext?->authorization());
+            self::assertSame('mvp-worker-first', $record->operation->actorContext?->execution()->id());
+            self::assertSame('system', $record->operation->actorContext?->execution()->type());
+        }
 
         $clock->set(new DateTimeImmutable('2026-07-12T00:01:02.000000Z'));
         $secondWorkerConnection = $this->connection();
@@ -228,7 +248,12 @@ final class MvpSampleEndToEndTest extends TestCase
         );
         $secondClaim = $secondReceiver->claim(new ClaimRequest($clock->now()));
         self::assertNotNull($secondClaim);
-        $result = $this->workerRuntime($secondWorkerConnection, $secondWorkerArtifacts, $clock)->run($secondClaim);
+        $result = $this->workerRuntime(
+            $secondWorkerConnection,
+            $secondWorkerArtifacts,
+            $clock,
+            'mvp-worker-restarted',
+        )->run($secondClaim);
 
         self::assertTrue($result->isCompleted());
         self::assertInstanceOf(self::REPORT_GENERATED, $result->outcome());
@@ -250,6 +275,16 @@ final class MvpSampleEndToEndTest extends TestCase
                 $reportOperationId,
             ),
         );
+        $completedRecords = $this->records(
+            new PostgreSqlCanonicalJournalStore($secondWorkerConnection, self::SCHEMA),
+            $reportOperationId,
+        );
+        foreach (array_slice($completedRecords, 5) as $record) {
+            self::assertEquals($actor, $record->operation->actorContext?->origin());
+            self::assertEquals($actor, $record->operation->actorContext?->authorization());
+            self::assertSame('mvp-worker-restarted', $record->operation->actorContext?->execution()->id());
+            self::assertSame('system', $record->operation->actorContext?->execution()->type());
+        }
 
         $outcome = new PostgreSqlOutcomeStore($this->connection(), self::SCHEMA)->find($reportOperationId);
         self::assertInstanceOf(OutcomeRecord::class, $outcome);
@@ -341,6 +376,7 @@ final class MvpSampleEndToEndTest extends TestCase
         Connection $connection,
         \BlackOps\Internal\Runtime\ProductionRuntimeArtifacts $artifacts,
         ClockInterface $clock,
+        string $workerId,
     ): DeferredWorkerRuntime {
         $identifiers = new IdentifierFactory(new SymfonyUuidv7Generator(), $clock);
 
@@ -350,6 +386,8 @@ final class MvpSampleEndToEndTest extends TestCase
                 new ReflectionJsonOperationCodec(),
                 new ExecutionContextFactory($identifiers, $clock),
                 new HandlerResolver($artifacts->container),
+                new ActorRef($workerId, 'system'),
+                new AuthorizationEvaluator(new AuthorizationPolicyResolver($artifacts->container)),
                 new ExponentialBackoffSupervisionPolicy(jitterRatio: 0.0),
             ),
             new DeferredWorkerRuntimeStorage(

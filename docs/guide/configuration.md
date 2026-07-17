@@ -64,6 +64,24 @@ return [
 
 HTTP、Worker、Migration、Outcome、Retentionは同じAccepted Database Configurationを使用します。Schema名は安全な小文字PostgreSQL Identifierに制限されます。
 
+## Deferred Worker
+
+```php
+return [
+    'worker' => [
+        'id' => $_ENV['BLACKOPS_WORKER_ID'] ?? 'worker-1',
+        'lease_seconds' => 30,
+        'heartbeat_seconds' => 10,
+        'grace_seconds' => 20,
+        'continue_after_handler_failure' => false,
+    ],
+];
+```
+
+`execution.worker.id`はClaimのLease Ownerと、Journalへ記録するWorker System Actorの両方に使います。Actor TypeはFrameworkが`system`へ固定します。同じProcess内のMain ConnectionとHeartbeat ConnectionはWorker IDを共有しますが、DBAL Connection Instanceは分離されます。
+
+Deferred Operationの受付ActorはTransport Contextへ維持されます。WorkerがAttemptを開始すると、origin／authorization Actorは受付時のまま、execution Actorだけが`execution.worker.id`／`system`へ置き換わります。Worker用の別Actor設定はありません。
+
 ## Observed Journal
 
 ```php

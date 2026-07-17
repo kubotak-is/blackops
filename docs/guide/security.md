@@ -70,7 +70,7 @@ Applicationは`HttpAuthenticator`を実装し、Credentialなしを`Authenticati
 
 Frameworkの`AuthenticationMiddleware`はCredential自体をResult、Request Attribute、ExecutionContext、Journalへコピーしません。Authenticated時に渡すのはID／Typeだけの`ActorRef`です。Invalid時はOperation IDを発行せず、安定Codeだけを含む401 JSONを返します。AuthenticatorのBackend障害はInvalidへ丸めず、上位のHTTP Error境界へ伝播します。
 
-Authenticated Resultの`ActorRef`は予約Request Attributeを経由し、Operationの`ActorContext`へ接続されます。HTTP入口では同じ参照がorigin／authorization／execution Actorになります。Anonymous RequestにはActorContextを追加しません。`config/middleware.php`へAuthentication Middlewareを登録しても認可Policyは自動では決まらないため、Operation単位で`#[Authorize]`を宣言してください。Deferred Worker実行時の再認可とSystem Actorへの置換は現在の提供範囲に含まれません。
+Authenticated Resultの`ActorRef`は予約Request Attributeを経由し、Operationの`ActorContext`へ接続されます。HTTP入口では同じ参照がorigin／authorization／execution Actorになります。Anonymous RequestにはActorContextを追加しません。`config/middleware.php`へAuthentication Middlewareを登録しても認可Policyは自動では決まらないため、Operation単位で`#[Authorize]`を宣言してください。
 
 ## Operation Authorizationの責任境界
 
@@ -83,6 +83,23 @@ FrameworkはPolicy評価を固定Lifecycle Stageとして実行します。Inlin
 ActorがないPolicy付きOperationはPolicyを呼ばず、`authorization.authentication_required`でUnauthorizedになります。Policyが返したUnauthorized／ForbiddenはOperation ID付きの401／403 JSONへ変換されます。ResponseとJournalへ出すCodeには外部公開可能な安定Codeだけを使ってください。
 
 Policy BackendのTimeout、接続障害、Policy解決／構築失敗は拒否Decisionへ丸めません。Frameworkは元の例外をRuntime Error境界へ渡し、401／403として扱いません。Credential、Role、Permission SnapshotもExecutionContext、Result、Journalへ追加しません。
+
+## Deferred Workerでの再認可
+
+Deferred Operationは受付時だけでなく、各Worker Attemptでも同じPolicyを評価します。Workerは`attempt.started`を記録した後、Handlerを呼ぶ直前に、Transportから復元した最新のValueとExecutionContextをPolicyへ渡します。PolicyはDIしたRepository等から現在の権限やResource状態を取得してください。RetryではPolicyを再評価するため、受付後に失効した権限をそのまま使い続けません。
+
+Worker AttemptのActor Contextは、受付時のorigin／authorizationを維持し、executionだけを`execution.worker.id`／`system`へ置き換えます。Policyへ渡すActorはauthorization Actorです。Worker System Actorを代わりに使って権限を強化することはありません。
+
+認可結果と障害は次のように分離します。
+
+| 状況 | Lifecycle | Handler | Retry |
+| --- | --- | --- | --- |
+| Policyなし | 通常実行 | 実行する | Handler結果に従う |
+| authorization Actorなし | `operation.rejected` | 実行しない | しない |
+| Unauthorized／Forbidden | `operation.rejected` | 実行しない | しない |
+| Policy解決／構築／実行の予期しない例外 | `attempt.failed`後にSupervisionへ渡す | 実行しない | Supervision Policyに従う |
+
+RetryableなPolicy Backend障害はBackoff後の次Attemptで再評価されます。Fail／Dead Letterへ到達した場合も、FailureのException Class／Messageと、受付Actor／Worker execution Actorの分離をCanonical Journalへ維持します。Credential、Role、Permission、ClaimのSnapshotはTransportやJournalへ保存しません。
 
 ## Operation受理前のError
 

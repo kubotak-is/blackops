@@ -5,7 +5,23 @@ declare(strict_types=1);
 namespace BlackOps\Tests\Integration;
 
 use BlackOps\Application\Application;
+use BlackOps\Core\ActorRef;
+use BlackOps\Core\Attribute\Authorize;
+use BlackOps\Core\Attribute\ExecuteWith;
+use BlackOps\Core\Attribute\OperationType;
+use BlackOps\Core\Authorization\AuthorizationDecision;
+use BlackOps\Core\Authorization\AuthorizationPolicy;
+use BlackOps\Core\Authorization\AuthorizationRequest;
+use BlackOps\Core\DependencyInjection\ServiceProvider;
+use BlackOps\Core\DependencyInjection\ServiceRegistry;
+use BlackOps\Core\Execution\Deferred;
+use BlackOps\Core\ExecutionContext;
 use BlackOps\Core\Identifier\OperationId;
+use BlackOps\Core\Operation;
+use BlackOps\Core\OperationValue;
+use BlackOps\Core\Outcome;
+use BlackOps\Core\Registry\OperationProvider;
+use BlackOps\Http\Attribute\Route;
 use BlackOps\Internal\Application\ApplicationConfigurationSnapshot;
 use BlackOps\Internal\Application\ApplicationWorkerComposer;
 use BlackOps\Internal\Execution\DeferredWorkerRuntime;
@@ -109,9 +125,55 @@ final class ApplicationConsoleKernelTest extends TestCase
         ));
     }
 
+    public function testApplicationWorkerUsesConfiguredSystemActorAndCompiledPolicy(): void
+    {
+        $directory = $this->directory();
+        $application = $this->application($directory);
+        $kernel = $application->console();
+        $connection = $this->connection();
+        $connection->executeStatement('DROP SCHEMA IF EXISTS ' . self::SCHEMA . ' CASCADE');
+        $this->runCommand($kernel, 'build:compile');
+        $this->runCommand($kernel, 'database:migrate');
+        ConsoleWorkerAuthorizationPolicy::$requests = [];
+        ConsoleWorkerAuthorizationPolicy::$dependencies = [];
+        ConsoleWorkerAuthorizedOperation::$context = null;
+        $actor = new ActorRef('console-user-123', 'user');
+        $response = $application
+            ->http()
+            ->handle(
+                new Psr17Factory()
+                    ->createServerRequest('GET', '/authorized-worker')
+                    ->withAttribute(ActorRef::class, $actor),
+            );
+
+        self::assertSame(202, $response->getStatusCode());
+        /** @var array{operationId: string} $acknowledgement */
+        $acknowledgement = json_decode((string) $response->getBody(), true, flags: JSON_THROW_ON_ERROR);
+        $operationId = OperationId::fromString($acknowledgement['operationId']);
+        $this->runCommand($kernel, 'worker:run', ['--iterations' => '1', '--idle-sleep-milliseconds' => '1']);
+
+        self::assertSame('completed', $connection->fetchOne('SELECT state FROM '
+        . self::SCHEMA
+        . '.operations WHERE operation_id = :operation_id', ['operation_id' => $operationId->toString()]));
+        self::assertCount(2, ConsoleWorkerAuthorizationPolicy::$requests);
+        $workerRequest = ConsoleWorkerAuthorizationPolicy::$requests[1];
+        self::assertEquals($actor, $workerRequest->actor());
+        self::assertEquals($actor, $workerRequest->context()->actorContext()?->origin());
+        self::assertEquals($actor, $workerRequest->context()->actorContext()?->authorization());
+        self::assertSame('console-worker', $workerRequest->context()->actorContext()?->execution()->id());
+        self::assertSame('system', $workerRequest->context()->actorContext()?->execution()->type());
+        self::assertSame(['compiled', 'compiled'], ConsoleWorkerAuthorizationPolicy::$dependencies);
+        self::assertNotNull(ConsoleWorkerAuthorizedOperation::$context);
+        self::assertSame(
+            'console-worker',
+            ConsoleWorkerAuthorizedOperation::$context->actorContext()?->execution()->id(),
+        );
+    }
+
     private function application(string $directory): Application
     {
         $root = dirname(__DIR__, levels: 2);
+        $containerClass = 'ConsoleIntegrationContainer' . substr(hash('sha256', $directory), 0, 12);
         $source = new RecursiveIteratorIterator(new RecursiveDirectoryIterator(
             $root . '/examples/quickstart/app',
             FilesystemIterator::SKIP_DOTS | FilesystemIterator::CURRENT_AS_FILEINFO,
@@ -131,7 +193,7 @@ final class ApplicationConsoleKernelTest extends TestCase
                 'operation_manifest' => $directory . '/var/build/operations.php',
                 'http_manifest' => $directory . '/var/build/http.php',
                 'container' => $directory . '/var/build/container.php',
-                'container_class' => 'ConsoleIntegrationContainer',
+                'container_class' => $containerClass,
                 'container_namespace' => __NAMESPACE__ . '\\Generated',
             ],
         ]);
@@ -153,7 +215,11 @@ final class ApplicationConsoleKernelTest extends TestCase
             'actor' => 'console-maintenance',
         ]);
 
-        return Application::configure($directory)->withConfiguration()->create();
+        return Application::configure($directory)
+            ->withConfiguration()
+            ->withOperations([ConsoleWorkerOperationProvider::class])
+            ->withServices([ConsoleWorkerServiceProvider::class])
+            ->create();
     }
 
     /** @param array<string, mixed> $options */
@@ -231,5 +297,76 @@ final class ApplicationConsoleKernelTest extends TestCase
             'user' => (string) (getenv('POSTGRES_USER') ?: 'blackops'),
             'password' => (string) (getenv('POSTGRES_PASSWORD') ?: 'blackops'),
         ];
+    }
+}
+
+final readonly class ConsoleWorkerOperationProvider implements OperationProvider
+{
+    public function definitions(): iterable
+    {
+        return [ConsoleWorkerAuthorizedOperation::class];
+    }
+}
+
+final readonly class ConsoleWorkerServiceProvider implements ServiceProvider
+{
+    public function register(ServiceRegistry $services): void
+    {
+        $services->autowire(ConsoleWorkerPolicyDependency::class);
+    }
+}
+
+final readonly class ConsoleWorkerPolicyDependency
+{
+    public function __construct(
+        public string $value = 'compiled',
+    ) {}
+}
+
+final readonly class ConsoleWorkerAuthorizedValue implements OperationValue {}
+
+final readonly class ConsoleWorkerAuthorizedOutcome implements Outcome
+{
+    public function __construct(
+        public string $status,
+    ) {}
+}
+
+#[Route(method: 'GET', path: '/authorized-worker')]
+#[OperationType('console.worker.authorized')]
+#[ExecuteWith(Deferred::class)]
+#[Authorize(ConsoleWorkerAuthorizationPolicy::class)]
+final class ConsoleWorkerAuthorizedOperation implements Operation
+{
+    public static ?ExecutionContext $context = null;
+
+    public function handle(
+        ConsoleWorkerAuthorizedValue $value,
+        ExecutionContext $context,
+    ): ConsoleWorkerAuthorizedOutcome {
+        self::$context = $context;
+
+        return new ConsoleWorkerAuthorizedOutcome('completed');
+    }
+}
+
+final class ConsoleWorkerAuthorizationPolicy implements AuthorizationPolicy
+{
+    /** @var list<AuthorizationRequest> */
+    public static array $requests = [];
+
+    /** @var list<string> */
+    public static array $dependencies = [];
+
+    public function __construct(ConsoleWorkerPolicyDependency $dependency)
+    {
+        self::$dependencies[] = $dependency->value;
+    }
+
+    public function decide(AuthorizationRequest $request): AuthorizationDecision
+    {
+        self::$requests[] = $request;
+
+        return AuthorizationDecision::allow();
     }
 }
