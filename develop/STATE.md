@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-17T13:39:12+09:00
+Updated At: 2026-07-18T02:57:35+09:00
 
 ## Current Phase
 
@@ -16,9 +16,9 @@ Specifications: `develop/spec/09-runtime-and-di.md`、`develop/spec/11-durable-j
 
 ## Task Status
 
-Awaiting User Decision
+Awaiting Follow-up User Decision
 
-Phase 13の仕様、Decision、現行Database Configuration／DI／HTTP／Worker Connection境界を監査し、D096へNamed Connection、DatabaseManager、Transaction Lifecycle、Nested／Manual Transaction、Long-running Connection、Outbox Scopeの6問を作成した。Production実装はUser回答まで開始しない。
+UserはD096 Question 1／2／5／6でAを選択し、Question 3／4でOperation以外のCommand／Application Serviceへ適用できるAOP型TransactionとAfter Commit Scopeを追加要件とした。Ray.Aopの現行Release、Proxy生成、PHP／readonly／final制約、Symfony DI統合境界を監査し、Question 7から10を追加した。Production実装はFollow-up回答まで開始しない。
 
 ## Last Accepted Task
 
@@ -44,12 +44,12 @@ P12-006-consumer-experience-and-closeout
 
 ## Known Blockers
 
-Phase 13のPublic APIとTransaction保証はD096のUser回答待ちである。Documentation Websiteは意図的に未公開である。
+Phase 13のMethod Interception方式、Operation保証差、After Commit Semantics／Failure ContractはD096 Question 7から10のUser回答待ちである。Documentation Websiteは意図的に未公開である。
 
 ## Required Next Action
 
-1. UserがD096の6問へ回答する。
-2. Orchestrator Codexが回答をDecision／Specification／Phase 13 Delivery Planへ確定する。
+1. UserがD096 Question 7から10へ回答する。
+2. Orchestrator Codexが全回答をDecision／Specification／Phase 13 Delivery Planへ確定する。
 3. 確定後にP13 Task Packetを作成し、GPT-5.6 Luna High workerへProduction実装を委譲する。
 4. Documentation Website PublicationはUserが再開を明示するまで実行しない。
 
