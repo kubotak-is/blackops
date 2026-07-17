@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace BlackOps\Transport\PostgreSql;
 
+use BlackOps\Core\ActorContext;
+use BlackOps\Core\ActorRef;
 use BlackOps\Core\Identifier\AttemptId;
 use BlackOps\Core\Identifier\CausationId;
 use BlackOps\Core\Identifier\CorrelationId;
@@ -15,7 +17,10 @@ use BlackOps\Journal\JournalEvent;
 use BlackOps\Journal\JournalOperation;
 use BlackOps\Journal\JournalRecord;
 use DateTimeImmutable;
+use RuntimeException;
+use Throwable;
 
+/** @mago-expect lint:cyclomatic-complexity */
 final readonly class PostgreSqlJournalRecordCodec
 {
     public function __construct(
@@ -66,6 +71,27 @@ final readonly class PostgreSqlJournalRecordCodec
             'strategy' => $operation->strategy,
             'correlationId' => $operation->correlationId->toString(),
             'causationId' => $operation->causationId?->toString(),
+            'actors' => $this->encodeActors($operation->actorContext),
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function encodeActors(?ActorContext $actors): ?array
+    {
+        if ($actors === null) {
+            return null;
+        }
+        /** @var callable(?ActorRef): (array{id: string, type: string}|null) $encode */
+        $encode = static fn(?ActorRef $actor): ?array => (
+            $actor === null ? null : ['id' => $actor->id(), 'type' => $actor->type()]
+        );
+
+        return [
+            'origin' => $encode($actors->origin()),
+            'authorization' => $encode($actors->authorization()),
+            'execution' => $encode($actors->execution()),
         ];
     }
 
@@ -90,7 +116,63 @@ final readonly class PostgreSqlJournalRecordCodec
             $this->json->string($operation, 'strategy'),
             CorrelationId::fromString($this->json->string($operation, 'correlationId')),
             $this->decodeCausationId($operation),
+            $this->decodeActors($operation),
         );
+    }
+
+    private function decodeActors(array $operation): ?ActorContext
+    {
+        /** @var mixed $encodedActors */
+        $encodedActors = $operation['actors'] ?? null;
+        if ($encodedActors === null) {
+            return null;
+        }
+
+        if (!is_array($encodedActors)) {
+            throw new RuntimeException('Stored journal actor context must be an object.');
+        }
+
+        $actors = $encodedActors;
+        $fields = array_keys($actors);
+        sort($fields);
+        if ($fields !== ['authorization', 'execution', 'origin']) {
+            throw new RuntimeException('Stored journal actor context contains unknown or missing fields.');
+        }
+        $decode = function (string $key) use ($actors): ?ActorRef {
+            /** @var mixed $actor */
+            $actor = $actors[$key];
+            if ($actor === null) {
+                return null;
+            }
+
+            if (!is_array($actor)) {
+                throw new RuntimeException('Stored journal actor must be an object or null.');
+            }
+
+            $fields = array_keys($actor);
+            sort($fields);
+            if ($fields !== ['id', 'type']) {
+                throw new RuntimeException('Stored journal actor contains unknown or missing fields.');
+            }
+
+            try {
+                $id = $this->json->string($actor, 'id');
+                $type = $this->json->string($actor, 'type');
+                if ($id === '' || $type === '' || trim($id) !== $id || trim($type) !== $type) {
+                    throw new RuntimeException('Stored journal actor is invalid.');
+                }
+
+                return new ActorRef($id, $type);
+            } catch (Throwable $exception) {
+                throw new RuntimeException('Stored journal actor is invalid.', previous: $exception);
+            }
+        };
+        $execution = $decode('execution');
+        if ($execution === null) {
+            throw new RuntimeException('Stored journal actor context requires an execution actor.');
+        }
+
+        return new ActorContext($decode('origin'), $decode('authorization'), $execution);
     }
 
     private function decodeOptionalAttempt(array $record): ?JournalAttempt

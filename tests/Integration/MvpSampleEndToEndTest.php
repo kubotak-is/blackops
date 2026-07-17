@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BlackOps\Tests\Integration;
 
 use BlackOps\Application\Application;
+use BlackOps\Core\ActorRef;
 use BlackOps\Core\Execution\ClaimRequest;
 use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Core\Supervision\ExponentialBackoffSupervisionPolicy;
@@ -120,10 +121,13 @@ final class MvpSampleEndToEndTest extends TestCase
         );
 
         $sensitiveToken = 'inline-secret-token';
-        $welcome = $http->handle($psr17->createServerRequest('GET', '/welcome')->withHeader(
-            'X-Sample-Token',
-            $sensitiveToken,
-        ));
+        $actor = new ActorRef('mvp-authenticated-user', 'user');
+        $welcome = $http->handle(
+            $psr17
+                ->createServerRequest('GET', '/welcome')
+                ->withHeader('X-Sample-Token', $sensitiveToken)
+                ->withAttribute(ActorRef::class, $actor),
+        );
         self::assertSame(200, $welcome->getStatusCode());
         self::assertSame('{"message":"Welcome to BlackOps"}', (string) $welcome->getBody());
         $welcomeOperationId = $this->operationIdForType($httpConnection, 'welcome.show');
@@ -137,6 +141,11 @@ final class MvpSampleEndToEndTest extends TestCase
             ],
             array_map(static fn(JournalRecord $record): JournalEvent => $record->event, $welcomeRecords),
         );
+        foreach ($welcomeRecords as $record) {
+            self::assertEquals($actor, $record->operation->actorContext?->origin());
+            self::assertEquals($actor, $record->operation->actorContext?->authorization());
+            self::assertEquals($actor, $record->operation->actorContext?->execution());
+        }
         self::assertInstanceOf(OperationReceivedData::class, $welcomeRecords[0]->data);
         self::assertSame($sensitiveToken, $welcomeRecords[0]->data->value->sampleToken);
         self::assertInstanceOf(self::WELCOME_SHOWN, $welcomeRecords[3]->data->outcome);
@@ -144,7 +153,15 @@ final class MvpSampleEndToEndTest extends TestCase
         $observedJsonl = stream_get_contents($jsonl);
         self::assertIsString($observedJsonl);
         self::assertStringNotContainsString($sensitiveToken, $observedJsonl);
+        self::assertStringNotContainsString($actor->id(), $observedJsonl);
         self::assertStringContainsString('[masked]', $observedJsonl);
+        foreach (array_filter(explode("\n", $observedJsonl)) as $line) {
+            /** @var array<string, mixed> $observed */
+            $observed = json_decode($line, true, flags: JSON_THROW_ON_ERROR);
+            self::assertSame('[masked]', $observed['operation']['actors']['origin']['id']);
+            self::assertSame('[masked]', $observed['operation']['actors']['authorization']['id']);
+            self::assertSame('[masked]', $observed['operation']['actors']['execution']['id']);
+        }
 
         $reportToken = 'deferred-secret-token';
         $reportResponse = $http->handle(

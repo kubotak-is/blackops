@@ -82,6 +82,7 @@ final readonly class JournalRecordBuilder
                 $this->strategyWireName($metadata->strategy),
                 $context->correlationId(),
                 $context->causationId(),
+                $context->actorContext(),
             ),
             $attempt === null ? null : new JournalAttempt($attempt->id(), $attempt->number(), $attempt->startedAt()),
             $data,

@@ -62,6 +62,8 @@ Hashは同一値の相関が必要な場合だけ使います。低Entropy値は
 
 Observed JSONLでMaskできても、Canonical JournalやTransport Payloadには再現に必要な値が残る場合があります。保存先の暗号化、最小権限、保持期間、削除手順を必ず構成してください。
 
+Actorも同じ責任分界に従います。Canonical Journalは監査正本としてorigin／authorization／execution ActorのIDとTypeを保持します。Observed JournalとJSONLではActor Typeとnull関係を維持しながら、すべてのActor IDを`[masked]`へ置き換えます。Role、Permission、Credential、Token、Session、ClaimはCanonical／Observedのどちらにも保存しません。
+
 ## HTTP Authenticationの境界
 
 Applicationは`HttpAuthenticator`を実装し、Credentialなしを`AuthenticationResult::anonymous()`、有効なCredentialを`authenticated(new ActorRef($id, $type))`、不正Credentialを`invalid('authentication.invalid')`として返します。具体的なSession／JWT／API Key Libraryと検証PolicyはApplicationが選びます。

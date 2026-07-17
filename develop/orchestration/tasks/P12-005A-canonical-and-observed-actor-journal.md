@@ -1,6 +1,6 @@
 # P12-005A: Canonical and Observed Actor Journal
 
-Status: Ready
+Status: Accepted
 
 ## Goal
 

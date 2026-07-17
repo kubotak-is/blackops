@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace BlackOps\Tests\Internal\Journal;
 
+use BlackOps\Core\ActorContext;
+use BlackOps\Core\ActorRef;
 use BlackOps\Core\EmptyOutcome;
 use BlackOps\Core\Execution\Deferred;
 use BlackOps\Core\Execution\Inline;
@@ -75,6 +77,56 @@ final class JournalRecordFactoryTest extends TestCase
         self::assertInstanceOf(OperationReceivedData::class, $record->data);
         self::assertSame($value, $record->data->value);
         self::assertSame('inline', $record->operation->strategy);
+        self::assertNull($record->operation->actorContext);
+    }
+
+    public function testCopiesActorContextIntoCanonicalJournalOperation(): void
+    {
+        $clock = new class implements ClockInterface {
+            public function now(): DateTimeImmutable
+            {
+                return new DateTimeImmutable('2026-07-06T12:00:00.123456Z');
+            }
+        };
+        $generator = new class implements Uuidv7Generator {
+            public function generate(DateTimeImmutable $time): string
+            {
+                return JournalRecordFactoryTest::ID;
+            }
+        };
+        $actors = new ActorContext(
+            new ActorRef('user-123', 'user'),
+            new ActorRef('user-123', 'user'),
+            new ActorRef('http-runtime', 'system'),
+        );
+        $context = new ExecutionContext(
+            OperationId::fromString(self::ID),
+            $clock->now(),
+            CorrelationId::fromString(self::ID),
+            actorContext: $actors,
+        );
+        $metadata = new OperationMetadata(
+            'journal.test',
+            JournalOperationFixture::class,
+            JournalValueFixture::class,
+            JournalHandlerFixture::class,
+            EmptyOutcome::class,
+            Inline::class,
+        );
+        $record = new JournalRecordFactory(new IdentifierFactory($generator, $clock), $clock)->operationReceived(
+            new OperationEnvelope(
+                new JournalOperationFixture(),
+                new JournalValueFixture('hello'),
+                $context,
+                new Inline(),
+            ),
+            $metadata,
+            1,
+        );
+
+        self::assertSame($actors, $record->operation->actorContext);
+        self::assertSame('user-123', $record->operation->actorContext?->origin()?->id());
+        self::assertSame('http-runtime', $record->operation->actorContext?->execution()->id());
     }
 
     public function testCreatesAcceptedRecordForDeferredOperation(): void

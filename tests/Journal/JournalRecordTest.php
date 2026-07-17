@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace BlackOps\Tests\Journal;
 
+use BlackOps\Core\ActorContext;
+use BlackOps\Core\ActorRef;
 use BlackOps\Core\Attribute\PublicApi;
 use BlackOps\Core\Identifier\AttemptId;
 use BlackOps\Core\Identifier\CorrelationId;
@@ -63,6 +65,33 @@ final class JournalRecordTest extends TestCase
             self::assertTrue($reflection->isReadOnly());
             self::assertCount(1, $reflection->getAttributes(PublicApi::class));
         }
+    }
+
+    public function testJournalOperationAcceptsOptionalActorContextWithoutBreakingLegacyConstruction(): void
+    {
+        $legacy = new JournalOperation(
+            OperationId::fromString(self::ID),
+            'welcome.show',
+            1,
+            'inline',
+            CorrelationId::fromString(self::ID),
+        );
+        $actors = new ActorContext(
+            new ActorRef('user-123', 'user'),
+            new ActorRef('user-123', 'user'),
+            new ActorRef('http-runtime', 'system'),
+        );
+        $withActors = new JournalOperation(
+            OperationId::fromString(self::ID),
+            'welcome.show',
+            1,
+            'inline',
+            CorrelationId::fromString(self::ID),
+            actorContext: $actors,
+        );
+
+        self::assertNull($legacy->actorContext);
+        self::assertSame($actors, $withActors->actorContext);
     }
 
     public function testInvalidSequenceIsRejected(): void

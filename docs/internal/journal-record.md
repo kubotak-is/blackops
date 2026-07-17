@@ -4,6 +4,6 @@ JournalRecordはLifecycle Eventの共通Envelopeであり、Record情報、Journ
 
 Schema Version、Sequence、Attempt番号は1以上とし、時刻はUTCへ正規化する。Operation TypeとStrategyは安定したWire識別子として検証する。
 
-Actor、Trace、Event固有Data、Factory、Codecは後続Taskで追加する。
+JournalOperationはOperation ID、Type、Schema Version、Strategy、Correlation／Causation IDに加え、Optional ActorContextを保持する。Internal BuilderはExecutionContextからorigin／authorization／execution Actorを全Lifecycle Recordへコピーする。Canonical Actor DataはIDとTypeだけであり、CredentialやPermission Snapshotを含めない。既存の6引数ConstructorはActorなしとして互換性を維持する。
 
 LifecycleStateはOperationの現在状態を表す。InternalのState MachineはJournalEventごとの許可遷移を検証し、不正なEventではJournal Recordを出力する前にLifecycleTransitionExceptionを投げる。

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BlackOps\Journal;
 
+use BlackOps\Core\ActorContext;
 use BlackOps\Core\Attribute\PublicApi;
 use BlackOps\Core\Identifier\CausationId;
 use BlackOps\Core\Identifier\CorrelationId;
@@ -20,6 +21,7 @@ final readonly class JournalOperation
         public string $strategy,
         public CorrelationId $correlationId,
         public ?CausationId $causationId = null,
+        public ?ActorContext $actorContext = null,
     ) {
         if (!preg_match('/^[a-z0-9]+(?:\.[a-z0-9]+)*$/', $type)) {
             throw new InvalidArgumentException('Journal operation requires a valid type identifier.');

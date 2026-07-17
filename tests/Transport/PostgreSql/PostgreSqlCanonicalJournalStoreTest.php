@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace BlackOps\Tests\Transport\PostgreSql;
 
+use BlackOps\Core\ActorContext;
+use BlackOps\Core\ActorRef;
 use BlackOps\Core\Identifier\AttemptId;
 use BlackOps\Core\Identifier\CorrelationId;
 use BlackOps\Core\Identifier\JournalRecordId;
@@ -171,6 +173,25 @@ final class PostgreSqlCanonicalJournalStoreTest extends TestCase
         self::assertSame([], $records[0]->data->reason->violations());
     }
 
+    public function testAppendsAndReadsCanonicalActorContext(): void
+    {
+        $actors = new ActorContext(
+            new ActorRef('canonical-origin-123', 'user'),
+            null,
+            new ActorRef('canonical-runtime-456', 'system'),
+        );
+        $this->store->append($this->record(self::RECORD_ID_3, JournalEvent::OperationReceived, 1, actors: $actors));
+
+        $records = array_values(iterator_to_array($this->store->records(OperationId::fromString(self::OPERATION_ID))));
+
+        self::assertCount(1, $records);
+        self::assertSame('canonical-origin-123', $records[0]->operation->actorContext?->origin()?->id());
+        self::assertSame('user', $records[0]->operation->actorContext?->origin()?->type());
+        self::assertNull($records[0]->operation->actorContext?->authorization());
+        self::assertSame('canonical-runtime-456', $records[0]->operation->actorContext?->execution()->id());
+        self::assertSame('system', $records[0]->operation->actorContext?->execution()->type());
+    }
+
     public function testAppendsAndReadsValidationViolationsWithoutRawValues(): void
     {
         $secret = 'database-secret-must-not-be-copied';
@@ -302,6 +323,7 @@ final class PostgreSqlCanonicalJournalStoreTest extends TestCase
         int $sequence,
         ?\BlackOps\Journal\JournalData $data = null,
         ?JournalAttempt $attempt = null,
+        ?ActorContext $actors = null,
     ): JournalRecord {
         return new JournalRecord(
             JournalRecordId::fromString($recordId),
@@ -315,6 +337,7 @@ final class PostgreSqlCanonicalJournalStoreTest extends TestCase
                 1,
                 'inline',
                 CorrelationId::fromString(self::CORRELATION_ID),
+                actorContext: $actors,
             ),
             $attempt,
             $data ?? new \BlackOps\Journal\EmptyJournalData(),

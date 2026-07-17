@@ -4,6 +4,8 @@ Sensitive projection is the framework-owned filtering boundary used before journ
 
 The canonical journal remains the durable source of truth. Observer and logging adapters must receive only projected data.
 
+Canonical operation metadata keeps actor IDs and types for audit. Before an operation reaches an observer, the projector builds separate operation metadata and replaces every non-null origin, authorization, and execution actor ID with `[masked]`. Actor types and null relationships remain available for diagnostics.
+
 ## Metadata
 
 Applications can mark public properties with `#[Sensitive]`.
@@ -46,6 +48,4 @@ Typed property metadata remains the primary signal when projecting objects.
 
 ## Current boundary
 
-The current implementation provides the metadata and internal projection filter foundation.
-
-Observer records, observer delivery, PSR-3 logger decoration, execution scope, and adapter-specific redactors are added in later Phase 2 tasks.
+The framework projects typed journal data and actor IDs before observer delivery. JSONL encodes only the projected operation and data. Canonical storage remains a separate port and does not apply observer masking.

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace BlackOps\Tests\Logging;
 
+use BlackOps\Core\ActorContext;
+use BlackOps\Core\ActorRef;
 use BlackOps\Core\Attribute\PublicApi;
 use BlackOps\Core\Identifier\AttemptId;
 use BlackOps\Core\Identifier\CorrelationId;
@@ -46,6 +48,14 @@ final class JsonlJournalObserverTest extends TestCase
         self::assertSame('operation.received', $payload['event']);
         self::assertSame('2026-07-06T23:00:01.123456Z', $payload['occurredAt']);
         self::assertSame('dispatch.test', $payload['operation']['type']);
+        self::assertSame(
+            [
+                'origin' => ['id' => '[masked]', 'type' => 'user'],
+                'authorization' => null,
+                'execution' => ['id' => '[masked]', 'type' => 'system'],
+            ],
+            $payload['operation']['actors'],
+        );
         self::assertSame('2026-07-06T23:00:00.123456Z', $payload['attempt']['startedAt']);
         self::assertSame(['message' => 'hello'], $payload['data']['value']);
         self::assertFalse(fgets($stream));
@@ -104,6 +114,11 @@ final class JsonlJournalObserverTest extends TestCase
                 1,
                 'inline',
                 CorrelationId::fromString(self::ID),
+                actorContext: new ActorContext(
+                    new ActorRef('[masked]', 'user'),
+                    null,
+                    new ActorRef('[masked]', 'system'),
+                ),
             ),
             new JournalAttempt(
                 AttemptId::fromString(self::ID),

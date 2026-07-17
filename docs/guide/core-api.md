@@ -166,7 +166,7 @@ HTTP入口はAuthenticationで得た`ActorRef`から、同じ主体をorigin／a
 | `BlackOps\Journal\LifecycleState` | enum | Operation Lifecycle Stateを表す | Status Viewで現在Stateを示す |
 | `BlackOps\Journal\JournalData` | marker interface | Event Data型を示す | Custom／Canonical Data境界で実装する |
 | `BlackOps\Journal\EmptyJournalData` | final readonly class | DataなしEventを表す | Payloadを持たないRecordで使う |
-| `BlackOps\Journal\JournalOperation` | final readonly value object | Journal内のOperation Metadataを保持する | RecordからType／Strategy／相関IDを読む |
+| `BlackOps\Journal\JournalOperation` | final readonly value object | Journal内のOperation、相関ID、Actor Contextを保持する | Canonical RecordからID／TypeだけのActorを読む |
 | `BlackOps\Journal\JournalAttempt` | final readonly value object | Journal内のAttempt Metadataを保持する | Attempt ID／番号／開始時刻を読む |
 | `BlackOps\Journal\JournalRecord` | final readonly value object | Canonical Journal Recordを表す | Canonical Storeで読み書きする |
 | `BlackOps\Journal\ObservedJournalRecord` | final readonly value object | Projection済みRecordを表す | Observer／Log Sinkへ渡す |

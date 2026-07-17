@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace BlackOps\Logging;
 
+use BlackOps\Core\ActorContext;
+use BlackOps\Core\ActorRef;
 use BlackOps\Core\Attribute\PublicApi;
 use BlackOps\Journal\JournalAttempt;
 use BlackOps\Journal\JournalOperation;
@@ -54,7 +56,32 @@ final readonly class JsonlJournalRecordEncoder
             'strategy' => $operation->strategy,
             'correlationId' => (string) $operation->correlationId,
             'causationId' => $operation->causationId === null ? null : (string) $operation->causationId,
+            'actors' => $this->actors($operation->actorContext),
         ];
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function actors(?ActorContext $actors): ?array
+    {
+        if ($actors === null) {
+            return null;
+        }
+
+        return [
+            'origin' => $this->actor($actors->origin()),
+            'authorization' => $this->actor($actors->authorization()),
+            'execution' => $this->actor($actors->execution()),
+        ];
+    }
+
+    /**
+     * @return array{id: string, type: string}|null
+     */
+    private function actor(?ActorRef $actor): ?array
+    {
+        return $actor === null ? null : ['id' => $actor->id(), 'type' => $actor->type()];
     }
 
     /**
