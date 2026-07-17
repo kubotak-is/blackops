@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-18T06:39:00+09:00
+Updated At: 2026-07-18T06:56:43+09:00
 
 ## Current Phase
 
@@ -8,9 +8,9 @@ Phase 13: Database and Transaction Runtime
 
 ## Current Task
 
-Task ID: P13-006-consumer-experience-and-closeout
+Task ID: P13-006A-proxied-http-operation-resolution
 
-Task Packet: `develop/orchestration/tasks/P13-006-consumer-experience-and-closeout.md`
+Task Packet: `develop/orchestration/tasks/P13-006A-proxied-http-operation-resolution.md`
 
 Specifications: `develop/spec/09-runtime-and-di.md`、`develop/spec/10-logging-and-traceability.md`、`develop/spec/11-durable-journal-and-transactions.md`、`develop/spec/36-postgresql-transaction-boundaries.md`、`develop/spec/64-phase-13-delivery-plan.md`
 
@@ -18,7 +18,7 @@ Specifications: `develop/spec/09-runtime-and-di.md`、`develop/spec/10-logging-a
 
 Ready
 
-P13-006 Task Packetを作成した。QuickstartへRepository、Transactional Command、Transactional Operation、After Commitを一続きで実行するOrder Journeyを追加し、Skeleton、Framework Update、Guide、Documentation Website Artifactを同期してPhase 13をCloseする準備が整っている。
+P13-006のQuickstart E2Eで、Transactional self-handled HTTP OperationのAOP ProxyをHTTP Manifestが元Definition Classへ対応付けられない既存Runtime不具合を検出した。P13-006差分を保持して一時停止し、最小Runtime修正をP13-006Aとして単独Task化した。
 
 ## Last Accepted Task
 
@@ -45,13 +45,13 @@ P13-005-long-running-connection-safety
 
 ## Known Blockers
 
-P13-006に既知Blockerはない。Documentation Websiteは意図的に未公開であり、このTaskでもDeployしない。
+P13-006はP13-006Aの修正Acceptedまで一時停止する。P13-006A自体に既知Blockerはない。Documentation Websiteは意図的に未公開である。
 
 ## Required Next Action
 
-1. P13-006 Task PacketをCommitする。
-2. GPT-5.6 Luna High workerへP13-006を依頼する。
-3. Worker Report後、Orchestratorが差分とFull PHP／Consumer／Website Gateを独立Reviewする。
+1. P13-006A Task Packetを単独Commitする。
+2. GPT-5.6 Luna High workerへ最小Runtime修正と回帰Testを依頼する。
+3. Orchestrator Review後にP13-006AだけをCommitし、保持中のP13-006を再開する。
 
 ## P13-005 Orchestrator Review Commands and Results
 
