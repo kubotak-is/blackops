@@ -1,24 +1,24 @@
 # Orchestration State
 
-Updated At: 2026-07-18T07:47:05+09:00
+Updated At: 2026-07-18T07:48:56+09:00
 
 ## Current Phase
 
-Phase 13: Database and Transaction Runtime (Closed)
+Phase 14: Operation Diagnostics
 
 ## Current Task
 
-Task ID: P13-006-consumer-experience-and-closeout
+Task ID: P14-000-operation-diagnostics-design-audit
 
-Task Packet: `develop/orchestration/tasks/P13-006-consumer-experience-and-closeout.md`
+Task Packet: `develop/orchestration/tasks/P14-000-operation-diagnostics-design-audit.md`
 
-Specifications: `develop/spec/09-runtime-and-di.md`、`develop/spec/10-logging-and-traceability.md`、`develop/spec/11-durable-journal-and-transactions.md`、`develop/spec/36-postgresql-transaction-boundaries.md`、`develop/spec/64-phase-13-delivery-plan.md`
+Specifications: `develop/spec/02-lifecycle-and-journal.md`、`develop/spec/05-http.md`、`develop/spec/06-auth-and-middleware.md`、`develop/spec/10-logging-and-traceability.md`、`develop/spec/11-durable-journal-and-transactions.md`、`develop/spec/22-journal-record-schema.md`、`develop/spec/25-sensitive-projection.md`、`develop/spec/26-journal-ports.md`、`develop/spec/31-deferred-claim-and-attempt.md`、`develop/spec/32-worker-crash-recovery.md`、`develop/spec/35-postgresql-transport-schema.md`、`develop/spec/38-data-retention-and-deletion.md`、`develop/spec/39-retention-runtime.md`、`develop/spec/54-native-outcome-and-rejection-exception.md`、`develop/spec/60-post-phase-10-roadmap.md`
 
 ## Task Status
 
-Accepted
+In Progress
 
-OrchestratorがP13-006をAcceptedとし、Phase 13をClosedとした。Quickstart／SkeletonへOrder Transaction Journeyを統合し、P13-006Aを含むFull PHP、全Consumer、Documentation Website Gateが成功した。Reviewで検出したStable `1.1.0`とRepository `main` PreviewのREADME境界も修正し、Website Gateを再実行済みである。Phase 13 Delivery PlanのAcceptance Criteriaはすべて実行証拠に基づき完了している。
+Phase 14を開始した。Production Codeへ着手する前に、Operation IDを軸とするHTTP Error、Application Log、Canonical Journal、Lifecycle、Attempt、Outcome、Dead Letter、Sensitive／Retention境界を監査し、Terminal Inspect、Local Viewer、Production Observabilityの未確定ContractをDecision Draftへ整理する。
 
 ## Last Accepted Task
 
@@ -45,13 +45,13 @@ P13-006-consumer-experience-and-closeout
 
 ## Known Blockers
 
-既知Blockerはない。Documentation WebsiteはRepository内BuildとArtifact Guardまで成功し、User判断どおり未公開である。
+既知Blockerはない。Phase 14のPublic Contractは未確定であり、P14-000の証拠監査後にUser判断を求める。Documentation WebsiteはUser判断どおり未公開である。
 
 ## Required Next Action
 
-1. P13-006をTask単位でCommit／Pushする。
-2. Phase 14 Operation Diagnosticsの仕様と既存Runtimeを設計監査する。
-3. User判断が必要なDiagnostics ContractをDecision Draftへ整理する。
+1. GPT-5.6 Luna High workerがP14-000の読み取り中心設計監査を行う。
+2. OrchestratorがEvidenceとDecision 097 DraftをReviewする。
+3. 未確定のDiagnostics ContractについてUser判断を求める。
 
 ## P13-006 Consumer Experience and Closeout Worker Verification Commands and Results
 
