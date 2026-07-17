@@ -4,13 +4,16 @@ Status: Ready
 
 ## Goal
 
-P13-004で導入したTransactional self-handled OperationのBuild-time AOP Proxyを、Production HTTP Runtimeが元のManifest Definition Classとして解決できるようにする。
+P13-004で導入したTransactional self-handled OperationのBuild-time AOP Proxyを、Production HTTP Runtimeが元のManifest Definition ClassとOperation Metadataとして一貫して解決できるようにする。
 
-Current `HttpOperationManifest::toRegistry()`はContainerから返されたInstanceをRuntime Class名だけでIndexする。Ray.Aop Proxyは元OperationのSubclassであるため、Manifestが保持する元Definition Class名と一致せず、`HTTP manifest requires operation definition instances.`でHTTP起動が失敗する。Exact Class Instanceの既存動作を維持しつつ、元Definition ClassのSubclass Instanceを受理する。
+Current `HttpOperationManifest::toRegistry()`、Inline／Deferred HTTP Metadata Lookup、Journal／Deferred Acceptance GuardはRuntime Class名と元Definition Classの完全一致を前提にする。Ray.Aop Proxyは元OperationのSubclassであるため、Route構成後も`Operation definition is not registered.`等で停止する。Exact Class Instanceの既存動作を維持しつつ、元Definition ClassのBuild-time Proxy Subclassを全HTTP Lifecycleで同じOperationとして扱う。
 
 ## In Scope
 
 - HTTP Manifest Definition Instance解決でBuild-time Proxy Subclassを元Operation Classへ対応付ける
+- Inline DispatcherとDeferred HTTP AcceptorがProxy Subclassから元Operation Metadataを解決する
+- Journal RecordとDeferred AcceptanceのDefinition整合Guardが、Metadataの元Classに属するProxy Instanceを受理する
+- Metadata解決はExact Runtime Classを優先し、必要な場合だけ最も近い登録済み親Operation ClassへFallbackする
 - Exact Class Instanceの既存解決を維持する
 - Manifestが要求するOperation Classと無関係なInstanceを引き続き拒否する
 - Proxy Subclassを使ったRoute Registry／Production Runtime回帰Test
@@ -37,9 +40,19 @@ Current `HttpOperationManifest::toRegistry()`はContainerから返されたInsta
 ## Files Allowed to Change
 
 - `src/Http/Routing/HttpOperationManifest.php`
+- `src/Internal/Execution/InlineDispatcher.php`
+- `src/Internal/Http/DeferredHttpOperationAcceptor.php`
+- `src/Internal/Execution/DeferredAcceptanceOrchestrator.php`
+- `src/Internal/Journal/JournalRecordBuilder.php`
+- `src/Internal/Journal/JournalRecordFactory.php`
+- `src/Internal/Registry/OperationMetadataResolver.php`
 - `tests/Http/HttpOperationManifestTest.php`
 - `tests/Http/HttpOperationManifestFileTest.php`
+- `tests/Internal/Execution/InlineDispatcherTest.php`
+- `tests/Internal/Http/DeferredHttpOperationAcceptorTest.php`
+- `tests/Internal/Journal/JournalRecordFactoryTest.php`
 - `tests/Internal/Runtime/ProductionRuntimeComposerTest.php`
+- `tests/Transport/PostgreSql/PostgreSqlDeferredAcceptanceOrchestratorTest.php`
 - `develop/orchestration/reports/P13-006A-proxied-http-operation-resolution.md`
 - `develop/STATE.md`
 
@@ -50,8 +63,10 @@ P13-006の未Commit差分は保持し、このTaskでは変更しない。追加
 - Manifestの`operations[typeId].definition`はBuild時に確定した元Operation Class名を正本とする
 - Container解決Instanceがその元ClassのInstanceなら、Runtime Classが生成Proxy SubclassでもRoute Definitionとして受理する
 - Exact Class Instanceを優先し、既存の非Proxy Operation解決を変えない
+- Proxy Runtime Classに対応するMetadataは、Exact登録がなければClass継承Chainを近い順に辿って最初の登録済みOperation Definitionから解決する
 - 単に`Operation`を実装するだけで元ClassのInstanceでないObjectは受理しない
 - Operation Interface全般や共通親Classだけを理由に別Definitionへ誤対応させない
+- JournalとDeferred Transportへ記録するDefinition／TypeはProxy Class名ではなく元Operation Metadataを正本とする
 - Manifest FormatへProxy Class名を保存しない
 - Error MessageへProxy Artifact Path、Credential、Container Dumpを含めない
 
@@ -61,7 +76,9 @@ P13-006の未Commit差分は保持し、このTaskでは変更しない。追加
 - [ ] 元OperationのProxy相当Subclass InstanceでRouteを構成できる
 - [ ] Routeが保持するDefinitionはContainerから渡されたSubclass Instanceそのものである
 - [ ] 無関係なOperation Instanceは従来どおり拒否する
-- [ ] Transactional self-handled Operationを含むProduction Runtime回帰Testが成功する
+- [ ] Proxy SubclassのInline Dispatchが元MetadataでJournal Terminalまで完了する
+- [ ] Proxy SubclassのDeferred HTTP Acceptanceが元MetadataでMessage／Journalを保存する
+- [ ] Transactional self-handled Operationを含むProduction Runtime HTTP Dispatch回帰Testが成功する
 - [ ] HTTP Manifest Artifact Formatを変更しない
 - [ ] Target／Full Quality Gateが成功する
 - [ ] P13-006の未Commit差分をこのTaskのCommitへ混ぜない
@@ -70,8 +87,8 @@ P13-006の未Commit差分は保持し、このTaskでは変更しない。追加
 ## Required Commands
 
 ```bash
-docker compose run --rm app mago format src/Http/Routing/HttpOperationManifest.php tests/Http tests/Internal/Runtime
-docker compose run --rm app vendor/bin/phpunit --display-deprecations tests/Http/HttpOperationManifestTest.php tests/Http/HttpOperationManifestFileTest.php tests/Internal/Runtime/ProductionRuntimeComposerTest.php
+docker compose run --rm app mago format src/Http/Routing src/Internal/Execution src/Internal/Http src/Internal/Journal src/Internal/Registry tests/Http tests/Internal/Execution tests/Internal/Http tests/Internal/Journal tests/Internal/Runtime tests/Transport/PostgreSql
+docker compose run --rm app vendor/bin/phpunit --display-deprecations tests/Http/HttpOperationManifestTest.php tests/Http/HttpOperationManifestFileTest.php tests/Internal/Execution/InlineDispatcherTest.php tests/Internal/Http/DeferredHttpOperationAcceptorTest.php tests/Internal/Journal/JournalRecordFactoryTest.php tests/Internal/Runtime/ProductionRuntimeComposerTest.php tests/Transport/PostgreSql/PostgreSqlDeferredAcceptanceOrchestratorTest.php
 docker compose run --rm app composer validate --strict
 docker compose run --rm app mago format --check src tests examples
 docker compose run --rm app mago lint
