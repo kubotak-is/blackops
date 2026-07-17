@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-18T04:45:47+09:00
+Updated At: 2026-07-18T04:50:59+09:00
 
 ## Current Phase
 
@@ -8,17 +8,17 @@ Phase 13: Database and Transaction Runtime
 
 ## Current Task
 
-Task ID: P13-002-build-time-aop-foundation
+Task ID: P13-003-generic-transaction-and-after-commit-scope
 
-Task Packet: `develop/orchestration/tasks/P13-002-build-time-aop-foundation.md`
+Task Packet: `develop/orchestration/tasks/P13-003-generic-transaction-and-after-commit-scope.md`
 
-Specifications: `develop/spec/09-runtime-and-di.md`、`develop/spec/11-durable-journal-and-transactions.md`、`develop/spec/17-core-api.md`、`develop/spec/47-public-http-runtime-configuration.md`、`develop/spec/64-phase-13-delivery-plan.md`
+Specifications: `develop/spec/09-runtime-and-di.md`、`develop/spec/10-logging-and-traceability.md`、`develop/spec/11-durable-journal-and-transactions.md`、`develop/spec/36-postgresql-transaction-boundaries.md`、`develop/spec/64-phase-13-delivery-plan.md`
 
 ## Task Status
 
-Accepted
+Ready
 
-P13-002はOrchestratorの差分Reviewと独立Target／Full PHPUnit、Composer、Mago、Deptrac、Quickstart／Skeleton Consumer、Guardを通過しAcceptedとなった。Ray.Aop Build-time Proxy、Public Transactional／AfterCommit Attribute、Compile-time Validation、Container管理境界、Artifact cleanupと明示Proxy loadを実装した。
+P13-002はAccepted／Commit／Push済み。P13-003のTask Packetを作成し、一般ServiceのRequired Transaction、Rollback-only、Manual Transaction Guard、After Commit Queue／Failure Reporterを実装できる状態にした。Operation TransactionはP13-004までGeneric Interceptorから除外する。
 
 ## Last Accepted Task
 
@@ -49,9 +49,10 @@ P13-003に既知Blockerはない。Documentation Websiteは意図的に未公開
 
 ## Required Next Action
 
-1. P13-002を実装単位でCommit／Pushする。
-2. P13-003 Generic Transaction and After Commit ScopeのTask Packetを作成する。
-3. Documentation Website PublicationはUserが再開を明示するまで実行しない。
+1. P13-003をGPT-5.6 Luna High workerへ委譲する。
+2. Worker Reportと差分をOrchestratorがReviewし、Target／Full Quality Gateを独立再実行する。
+3. Accepted後、P13-004 Operation Transaction LifecycleのTask Packetを作成する。
+4. Documentation Website PublicationはUserが再開を明示するまで実行しない。
 
 ## P13-002 Orchestrator Review Commands and Results
 
