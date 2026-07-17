@@ -208,13 +208,13 @@ test('core API reference covers every source type marked PublicApi without expos
   const reference = await guide('core-api.md');
   const sourceTypes = await publicApiTypes();
 
-  assert.equal(sourceTypes.length, 128);
+  assert.equal(sourceTypes.length, 134);
   for (const type of sourceTypes) assert.match(reference, new RegExp(type.replaceAll('\\', '\\\\')));
   assert.doesNotMatch(reference, /`BlackOps\\Core\\Attribute\\PublicApi` \|/);
   assert.doesNotMatch(reference, /BlackOps\\Internal\\[A-Za-z]/);
 });
 
-test('attributes reference covers the nineteen public authoring attributes and excludes the marker', async () => {
+test('attributes reference covers the twenty-one public authoring attributes and excludes the marker', async () => {
   const attributes = await guide('attributes.md');
   const expected = [
     'BlackOps\\Core\\Attribute\\Accepts',
@@ -231,6 +231,8 @@ test('attributes reference covers the nineteen public authoring attributes and e
     'BlackOps\\Core\\Validation\\Attribute\\NotBlank',
     'BlackOps\\Core\\Validation\\Attribute\\Range',
     'BlackOps\\Core\\Validation\\Attribute\\Regex',
+    'BlackOps\\Database\\Attribute\\AfterCommit',
+    'BlackOps\\Database\\Attribute\\Transactional',
     'BlackOps\\Http\\Attribute\\FromBody',
     'BlackOps\\Http\\Attribute\\FromHeader',
     'BlackOps\\Http\\Attribute\\FromPath',
@@ -241,7 +243,7 @@ test('attributes reference covers the nineteen public authoring attributes and e
   for (const attribute of expected) assert.match(attributes, new RegExp(attribute.replaceAll('\\', '\\\\')));
   const sourceTypes = (await publicApiTypes()).filter((type) => expected.includes(type));
   assert.deepEqual(sourceTypes, [...expected].sort());
-  assert.match(attributes, /Public Attribute 19件/);
+  assert.match(attributes, /Public Attribute 21件/);
   assert.match(attributes, /SensitiveMode.*Attributeではなく/s);
   assert.doesNotMatch(attributes, /`BlackOps\\Core\\Attribute\\PublicApi` \|/);
 });

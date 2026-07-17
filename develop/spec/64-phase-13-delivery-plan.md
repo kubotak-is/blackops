@@ -76,18 +76,18 @@ P13-001 Database Configuration and DI Foundation
 
 ## Phase Acceptance Criteria
 
-- [ ] Canonical Named Database ConfigとLegacy Shorthandが同じ内部Modelへ正規化される
-- [ ] DatabaseManagerとDefault DBAL ConnectionをApplication ServiceへConstructor Injectionできる
-- [ ] CredentialをBuild Artifact、Error、Logへ保存しない
-- [ ] Ray.Aop ProxyをBuild時に生成し、Production RuntimeでSource Scanしない
-- [ ] `#[Transactional]`をOperationと一般Serviceへ適用でき、無効な対象をBuildで拒否する
-- [ ] Nested Required、Rollback-only、Manual Transaction、複数Connectionの境界がTestされる
-- [ ] `#[AfterCommit]`がCommit後に実行され、Rollback時に破棄され、失敗で自動Retryしない
-- [ ] 同一ConnectionのTransactional Operationが業務更新とTerminal Journal／Outcomeを原子的にCommitする
-- [ ] Transactional Commandだけを使うOperationと別Connectionの保証差が公開される
-- [ ] HTTP／Deferred Long-running ProcessがConnectionを安全に再利用／破棄／再接続する
-- [ ] Skeleton、Quickstart、Guide、Consumer E2EがPublic Contractを再現する
-- [ ] Full PHP／Consumer／Website Quality Gateが成功する
+- [x] Canonical Named Database ConfigとLegacy Shorthandが同じ内部Modelへ正規化される
+- [x] DatabaseManagerとDefault DBAL ConnectionをApplication ServiceへConstructor Injectionできる
+- [x] CredentialをBuild Artifact、Error、Logへ保存しない
+- [x] Ray.Aop ProxyをBuild時に生成し、Production RuntimeでSource Scanしない
+- [x] `#[Transactional]`をOperationと一般Serviceへ適用でき、無効な対象をBuildで拒否する
+- [x] Nested Required、Rollback-only、Manual Transaction、複数Connectionの境界がTestされる
+- [x] `#[AfterCommit]`がCommit後に実行され、Rollback時に破棄され、失敗で自動Retryしない
+- [x] 同一ConnectionのTransactional Operationが業務更新とTerminal Journal／Outcomeを原子的にCommitする
+- [x] Transactional Commandだけを使うOperationと別Connectionの保証差が公開される
+- [x] HTTP／Deferred Long-running ProcessがConnectionを安全に再利用／破棄／再接続する
+- [x] Skeleton、Quickstart、Guide、Consumer E2EがPublic Contractを再現する
+- [x] Full PHP／Consumer／Website Quality Gateが成功する
 
 ## Traceability
 

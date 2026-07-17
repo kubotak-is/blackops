@@ -87,6 +87,8 @@ MVP後に残す主要項目:
 - [x] `#[AfterCommit]` QueueとFailure Reporterを実装する
 - [x] Transactional OperationとTerminal Journal／Outcomeの同一Connection Commitを実装する
 - [x] Worker ModeのConnection Health Check／Reset／Reconnectを実装する
+- [x] Install直後のQuickstart／SkeletonへRepository、Transactional Command、After CommitのOrder Journeyを統合する
+- [x] Full PHP／Consumer／Website Gateを完走し、Phase 13をCloseする
 
 ### Phase 14: Operation Diagnostics
 

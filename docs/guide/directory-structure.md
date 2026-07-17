@@ -4,7 +4,17 @@
 
 ```text
 app/
+  ApplicationServiceProvider.php
   Feature/
+    Order/
+      CreateOrder/
+        CreateOrder.php
+        CreateOrderCommand.php
+        CreateOrderValue.php
+        OrderCreated.php
+      DoctrineOrderRepository.php
+      OrderRepository.php
+      RecordOrderCommit.php
     Welcome/
       ShowWelcome/
         ShowWelcome.php
@@ -15,6 +25,8 @@ app/
         GenerateReport.php
         GenerateReportValue.php
         ReportGenerated.php
+migrations/
+  Version20260718000000.php
 blackops
 bootstrap/
   app.php
@@ -40,7 +52,7 @@ composer.json
 
 `app/Feature/<Feature>/<Action>/`がUse Caseの単位です。WelcomeやReportはDirectoryごと削除でき、Provider一覧やBootstrapを編集する必要はありません。`config/operations.php`のDiscovery Rootへ追加したOperationは次回Buildで検出されます。
 
-Application固有のRepository、External Service、Clock等は任意の`app/Infrastructure/`へ配置できます。Application Migrationが必要になった場合だけ`migrations/`を作成します。空Directoryとして配布する必要はありません。
+Application固有のRepository、External Service、Clock等はFeatureの内部または任意の`app/Infrastructure/`へ配置できます。Install直後のSkeletonはDatabase／Transaction例としてOrder Featureと`migrations/Version20260718000000.php`を含みます。追加Migrationは`php blackops make:migration Description`で生成してください。
 
 ## Process Boundary
 

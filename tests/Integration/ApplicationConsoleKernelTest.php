@@ -76,6 +76,7 @@ final class ApplicationConsoleKernelTest extends TestCase
         $operations = $this->runCommand($kernel, 'operation:list');
         self::assertStringContainsString('welcome.show', $operations);
         self::assertStringContainsString('report.generate', $operations);
+        self::assertStringContainsString('order.create', $operations);
         $this->runCommand($kernel, 'build:compile');
         self::assertFileExists($directory . '/var/build/operations.php');
         self::assertFileExists($directory . '/var/build/http.php');
@@ -178,6 +179,7 @@ final class ApplicationConsoleKernelTest extends TestCase
     {
         $root = dirname(__DIR__, levels: 2);
         $containerClass = 'ConsoleIntegrationContainer' . substr(hash('sha256', $directory), 0, 12);
+        require_once $root . '/examples/quickstart/app/Feature/Order/OrderRepository.php';
         $source = new RecursiveIteratorIterator(new RecursiveDirectoryIterator(
             $root . '/examples/quickstart/app',
             FilesystemIterator::SKIP_DOTS | FilesystemIterator::CURRENT_AS_FILEINFO,
@@ -230,7 +232,10 @@ final class ApplicationConsoleKernelTest extends TestCase
         return Application::configure($directory)
             ->withConfiguration()
             ->withOperations([ConsoleWorkerOperationProvider::class])
-            ->withServices([ConsoleWorkerServiceProvider::class])
+            ->withServices([
+                \App\ApplicationServiceProvider::class,
+                ConsoleWorkerServiceProvider::class,
+            ])
             ->create();
     }
 

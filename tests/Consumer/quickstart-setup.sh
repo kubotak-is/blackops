@@ -30,6 +30,7 @@ copy_project() {
 
 project="${temporary_root}/direct"
 copy_project "${project}"
+test -f "${project}/migrations/Version20260718000000.php"
 printf '%s\n' 'untouched' > "${project}/existing.txt"
 
 before="${temporary_root}/before.txt"

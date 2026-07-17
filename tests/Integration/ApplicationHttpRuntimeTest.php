@@ -211,10 +211,24 @@ final class ApplicationHttpRuntimeTest extends TestCase
             'discovery' => [$root . '/examples/quickstart/app/Feature'],
             'providers' => [],
         ]);
+        $this->writeConfig($config, 'database', [
+            'default' => 'app',
+            'connections' => [
+                'app' => $this->connectionParameters(),
+                'framework' => $this->connectionParameters(),
+            ],
+            'framework' => [
+                'connection' => 'framework',
+                'schema' => self::SCHEMA,
+            ],
+        ]);
         $builder = Application::configure($directory)
             ->withConfiguration()
             ->withOperations($withAuthorizationFixture ? [ApplicationRuntimeOperationProvider::class] : [])
-            ->withServices($withAuthorizationFixture ? [ApplicationRuntimeServiceProvider::class] : []);
+            ->withServices([
+                \App\ApplicationServiceProvider::class,
+                ...($withAuthorizationFixture ? [ApplicationRuntimeServiceProvider::class] : []),
+            ]);
         $status = $builder->create()->console()->run(new ArrayInput([
             'command' => 'build:compile',
         ]), new BufferedOutput());
@@ -272,6 +286,7 @@ final class ApplicationHttpRuntimeTest extends TestCase
 
     private function requireQuickstartSource(string $root): void
     {
+        require_once $root . '/examples/quickstart/app/Feature/Order/OrderRepository.php';
         $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator(
             $root . '/examples/quickstart/app',
             FilesystemIterator::SKIP_DOTS | FilesystemIterator::CURRENT_AS_FILEINFO,

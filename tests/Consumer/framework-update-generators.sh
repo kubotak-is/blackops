@@ -115,7 +115,8 @@ grep -Eq '^Legacy Created: migrations/Version[0-9]{14}\.php$' \
     "${temporary_root}/before-migration.out"
 
 before_operation_directory="${consumer_root}/app/Feature/Upgrade/BeforeUpdate"
-before_migration="$(find "${consumer_root}/migrations" -maxdepth 1 -type f -name 'Version*.php' -print -quit)"
+before_migration_relative="$(sed -n 's/^Legacy Created: //p' "${temporary_root}/before-migration.out")"
+before_migration="${consumer_root}/${before_migration_relative}"
 test -n "${before_migration}"
 grep -q 'Legacy fixture stub' "${before_operation_directory}/BeforeUpdate.php"
 grep -q 'Legacy fixture stub' "${before_migration}"
@@ -127,6 +128,8 @@ find \
     "${consumer_root}/app/UserInterface/Http/SampleTokenAuthenticator.php" \
     "${consumer_root}/app/Feature/Welcome" \
     "${consumer_root}/app/Feature/Report" \
+    "${consumer_root}/app/Feature/Order" \
+    "${consumer_root}/migrations/Version20260718000000.php" \
     -type f -print0 | sort -z | xargs -0 sha256sum \
     > "${temporary_root}/application-authentication.before.sha256"
 find "${before_operation_directory}" -maxdepth 1 -type f -print0 | sort -z | xargs -0 sha256sum \
@@ -196,7 +199,8 @@ grep -Eq '^Created: migrations/Version[0-9]{14}\.php$' \
     "${temporary_root}/after-migration.out"
 
 after_operation_directory="${consumer_root}/app/Feature/Upgrade/AfterUpdate"
-after_migration="$(find "${consumer_root}/migrations" -maxdepth 1 -type f -name 'Version*.php' ! -path "${before_migration}" -print -quit)"
+after_migration_relative="$(sed -n 's/^Created: //p' "${temporary_root}/after-migration.out")"
+after_migration="${consumer_root}/${after_migration_relative}"
 test -n "${after_migration}"
 ! grep -R -q 'Legacy fixture stub' "${after_operation_directory}" "${after_migration}"
 grep -q "#\[OperationType('upgrade.after')\]" "${after_operation_directory}/AfterUpdate.php"

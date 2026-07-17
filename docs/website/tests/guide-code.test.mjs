@@ -155,5 +155,34 @@ test('guide presents the Stable 1.1 release surface and experimental policy cons
   assert.match(generators, /Experimental Stable `1\.1\.0`/);
   assert.match(status, /7 Value Validation Attribute／422 Lifecycle \| Available \| Available/);
   assert.match(status, /FrankenPHP Worker Mode \| Default Runtime \| Default Runtime/);
+  assert.match(status, /Named DBAL Connection／Default Connection DI \| Not available \| Available/);
+  assert.match(status, /`#\[Transactional\]` Operation／Service \| Not available \| Available/);
   assert.match(status, /Backward Compatibility/);
+});
+
+test('quickstart order journey matches the installed transactional source', async () => {
+  const [quickstart, provider, operation, command, repository, afterCommit, migration] = await Promise.all([
+    guide('mvp-sample.md'),
+    readFile(path.join(repositoryRoot, 'examples/quickstart/app/ApplicationServiceProvider.php'), 'utf8'),
+    readFile(path.join(repositoryRoot, 'examples/quickstart/app/Feature/Order/CreateOrder/CreateOrder.php'), 'utf8'),
+    readFile(path.join(repositoryRoot, 'examples/quickstart/app/Feature/Order/CreateOrder/CreateOrderCommand.php'), 'utf8'),
+    readFile(path.join(repositoryRoot, 'examples/quickstart/app/Feature/Order/DoctrineOrderRepository.php'), 'utf8'),
+    readFile(path.join(repositoryRoot, 'examples/quickstart/app/Feature/Order/RecordOrderCommit.php'), 'utf8'),
+    readFile(path.join(repositoryRoot, 'examples/quickstart/migrations/Version20260718000000.php'), 'utf8'),
+  ]);
+
+  assert.match(operation, /#\[Route\(method: 'POST', path: '\/orders'\)\]/);
+  assert.match(operation, /#\[Transactional\][\s\S]*handle\(CreateOrderValue \$value\): OrderCreated/);
+  assert.match(command, /#\[Transactional\][\s\S]*function execute\(string \$reference\): void/);
+  assert.match(repository, /private Connection \$connection/);
+  assert.match(repository, /VALUES \(:reference\)/);
+  assert.match(afterCommit, /#\[AfterCommit\][\s\S]*function record\(string \$reference\): void/);
+  assert.match(provider, /autowire\(OrderRepository::class, DoctrineOrderRepository::class\)/);
+  assert.match(provider, /autowire\(CreateOrderCommand::class\)/);
+  assert.match(provider, /autowire\(RecordOrderCommit::class\)/);
+  assert.match(migration, /CREATE TABLE public\.quickstart_orders/);
+  assert.match(migration, /CREATE TABLE public\.quickstart_order_commits/);
+  assert.match(quickstart, /"reference":"order-001","status":"created"/);
+  assert.match(quickstart, /Nested Required/);
+  assert.match(quickstart, /Transactional Outbox/);
 });

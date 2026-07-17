@@ -42,7 +42,7 @@ export const contentMap = {
   },
   'mvp-sample.md': {
     slug: 'getting-started/quickstart',
-    description: 'Repository main PreviewでHeader認証、Inline Welcome、Deferred Report、Worker再認可を確認する。',
+    description: 'Repository main PreviewでInline HTTP、Database Transaction、After Commit、Deferred Workerを確認する。',
   },
   'operations.md': {
     slug: 'operations/authoring',
@@ -67,6 +67,10 @@ export const contentMap = {
   'execution-context.md': {
     slug: 'execution/context',
     description: 'ExecutionContextからOperation ID、相関情報、Actor Context、Deferred Attemptを読み取る。',
+  },
+  'database-and-transactions.md': {
+    slug: 'database/transactions',
+    description: 'Default／Named Connection、Transactional Operation、After Commit、Outboxの保証境界を理解する。',
   },
   'database-migrations.md': {
     slug: 'database/migrations',
@@ -118,7 +122,7 @@ export const contentMap = {
   },
   'mvp-status.md': {
     slug: 'releases/current-status',
-    description: 'main DocumentとExperimental Stable 1.1.0で利用できる機能、既知の制約を確認する。',
+    description: 'main DocumentとExperimental Stable 1.1.0のMiddleware、Authorization、Database／Transaction機能差を確認する。',
   },
   'glossary.md': {
     slug: 'reference/glossary',

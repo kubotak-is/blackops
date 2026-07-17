@@ -7,6 +7,8 @@
 
 BlackOpsは、PHP 8.5向けのHeadless Operation Frameworkです。同期HTTP実行とPostgreSQLを使ったDeferred実行を同じOperation Modelで扱い、Lifecycle Journal、Retry、Outcome、Retention、Project CLIを提供します。
 
+Repository `main`ではNamed Doctrine DBAL Connection、Constructor Injection、`#[Transactional]`付きOperation／Service、Nested Required、`#[AfterCommit]`を利用できます。Latest Stable `1.1.0`にはまだ収録されていません。
+
 ## Status
 
 Latest StableはFramework／Skeleton `1.1.0`です。BlackOpsはExperimentalであり、1.x Minor間のBackward CompatibilityとProduction Readinessを保証しません。破壊的変更と移行手順は[CHANGELOG](CHANGELOG.md)と[Upgrade Guide](UPGRADE.md)で確認してください。
@@ -26,9 +28,11 @@ cd my-app
 
 `blackops new`専用Installerは提供していません。Composer標準の`create-project`が公式の作成方法です。
 
-## Quickstart
+このCommandが作成するのはStable `1.1.0`のApplicationです。StableにはHeader AuthenticationとPhase 13のDatabase／Transaction Journeyが未収録で、`POST /orders`も含まれません。
 
-生成したApplication Directoryで、Docker Image、Artifact、Databaseを明示的に準備します。
+## Repository main Preview Quickstart
+
+以下はStable `1.1.0`で作成した`my-app`向けではありません。[利用者向けQuickstart](docs/guide/mvp-sample.md)の「Repository main Preview」でFramework SourceとQuickstartをLocal Path Repositoryとして準備してから、生成した`blackops-preview` DirectoryでDocker Image、Artifact、Databaseを明示的に準備します。
 
 ```bash
 docker compose build app http
@@ -45,11 +49,17 @@ docker compose up -d
 curl -H 'X-Sample-Token: local-example' http://127.0.0.1:8080/welcome
 
 curl -X POST -H 'Content-Type: application/json' \
-  -d '{"reportName":"weekly","apiToken":"local-example"}' \
+  -H 'X-Sample-Token: local-example' \
+  -d '{"reference":"order-001"}' \
+  http://127.0.0.1:8080/orders
+
+curl -X POST -H 'Content-Type: application/json' \
+  -H 'X-Sample-Token: local-example' \
+  -d '{"reportName":"weekly","recipientEmail":"reports@example.com"}' \
   http://127.0.0.1:8080/reports
 ```
 
-詳しい手順は[利用者向けQuickstart](docs/guide/mvp-sample.md)を参照してください。
+Stableと`main` Previewの準備方法、利用可能なEndpointの差は[利用者向けQuickstart](docs/guide/mvp-sample.md)を参照してください。
 
 ## Project CLI
 

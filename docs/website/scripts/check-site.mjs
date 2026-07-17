@@ -18,6 +18,7 @@ const routes = [
   '/operations/validation/',
   '/execution/http-and-deferred/',
   '/execution/context/',
+  '/database/transactions/',
   '/database/migrations/',
   '/database/outcomes/',
   '/database/retention/',

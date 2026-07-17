@@ -15,11 +15,14 @@ use BlackOps\Http\Responder\JsonOperationResponder;
 use BlackOps\Internal\Authorization\AuthorizationEvaluator;
 use BlackOps\Internal\Authorization\AuthorizationPolicyResolver;
 use BlackOps\Internal\Codec\ReflectionJsonOperationCodec;
+use BlackOps\Internal\Database\DoctrineDatabaseManager;
+use BlackOps\Internal\Database\RuntimeDatabaseServiceInjector;
 use BlackOps\Internal\Execution\DeferredAcceptanceOrchestrator;
 use BlackOps\Internal\Execution\DeferredWorkerRuntime;
 use BlackOps\Internal\Execution\DeferredWorkerRuntimeServices;
 use BlackOps\Internal\Execution\DeferredWorkerRuntimeStorage;
 use BlackOps\Internal\Execution\DirectClaimExecutionGuard;
+use BlackOps\Internal\Execution\ExecutionScopeProvider;
 use BlackOps\Internal\Execution\HandlerResolver;
 use BlackOps\Internal\Execution\SupervisedHandlerFailureException;
 use BlackOps\Internal\ExecutionContext\ExecutionContextFactory;
@@ -36,6 +39,8 @@ use BlackOps\Internal\Projection\SensitiveProjectionFilter;
 use BlackOps\Internal\Runtime\ProductionRuntimeArtifactLoader;
 use BlackOps\Internal\Runtime\ProductionRuntimeComposer;
 use BlackOps\Internal\Runtime\ProductionRuntimeDependencies;
+use BlackOps\Internal\Transaction\OperationTransactionCoordinator;
+use BlackOps\Internal\Transaction\RuntimeTransactionServiceInjector;
 use BlackOps\Journal\Data\OperationReceivedData;
 use BlackOps\Journal\JournalEvent;
 use BlackOps\Journal\JournalRecord;
@@ -63,6 +68,7 @@ final class MvpSampleEndToEndTest extends TestCase
 {
     private const SCHEMA = 'blackops_mvp_sample';
     private const BUILD_ID = 'mvp-sample-e2e';
+    private const CREATE_ORDER = 'App\\Feature\\Order\\CreateOrder\\CreateOrder';
     private const GENERATE_REPORT = 'App\\Feature\\Report\\GenerateReport\\GenerateReport';
     private const REPORT_GENERATED = 'App\\Feature\\Report\\GenerateReport\\ReportGenerated';
     private const WELCOME_SHOWN = 'App\\Feature\\Welcome\\ShowWelcome\\WelcomeShown';
@@ -74,14 +80,24 @@ final class MvpSampleEndToEndTest extends TestCase
         $migrationConnection->executeStatement('DROP SCHEMA IF EXISTS ' . self::SCHEMA . ' CASCADE');
         new DatabaseMigrationRunner($migrationConnection, self::SCHEMA)->migrate();
 
-        $httpConnection = $this->connection();
+        $databases = new DoctrineDatabaseManager('app', ['app' => $this->connectionParameters()]);
+        $httpConnection = $databases->connection();
         $httpArtifacts = $this->loadArtifacts($paths);
-        self::assertCount(2, $httpArtifacts->operations->all());
+        new RuntimeDatabaseServiceInjector()->inject($httpArtifacts->container, $databases);
+        $executionScope = new ExecutionScopeProvider();
+        $transactionRuntime = new RuntimeTransactionServiceInjector()->inject(
+            $httpArtifacts->container,
+            $databases,
+            $executionScope,
+        );
+        self::assertCount(3, $httpArtifacts->operations->all());
+        self::assertSame(self::CREATE_ORDER, $httpArtifacts->operations->findByTypeId('order.create')?->definition);
         self::assertSame(
             self::GENERATE_REPORT,
             $httpArtifacts->operations->findByTypeId('report.generate')?->definition,
         );
-        self::assertSame('/reports', array_key_first($httpArtifacts->http->routes['POST']));
+        self::assertSame('order.create', $httpArtifacts->http->routes['POST']['/orders']);
+        self::assertSame('report.generate', $httpArtifacts->http->routes['POST']['/reports']);
 
         $clock = new MvpSampleClock(new DateTimeImmutable('2026-07-12T00:00:00.123456Z'));
         $journal = new PostgreSqlCanonicalJournalStore($httpConnection, self::SCHEMA);
@@ -96,7 +112,19 @@ final class MvpSampleEndToEndTest extends TestCase
         $psr17 = new Psr17Factory();
         $inline = new ProductionRuntimeComposer()->composeWithDependencies(
             $httpArtifacts,
-            new ProductionRuntimeDependencies($clock, $journal, $psr17, $psr17, journalObservations: $observations),
+            new ProductionRuntimeDependencies(
+                $clock,
+                $journal,
+                $psr17,
+                $psr17,
+                executionScope: $executionScope,
+                journalObservations: $observations,
+                operationTransactions: new OperationTransactionCoordinator(
+                    $transactionRuntime,
+                    $databases,
+                    $httpConnection,
+                ),
+            ),
         );
         $identifiers = new IdentifierFactory(new SymfonyUuidv7Generator(), $clock);
         $codec = new ReflectionJsonOperationCodec();
@@ -328,8 +356,20 @@ final class MvpSampleEndToEndTest extends TestCase
             'discovery' => [$root . '/examples/quickstart/app/Feature'],
             'providers' => [],
         ]);
+        $this->writeConfig($config, 'database', [
+            'default' => 'app',
+            'connections' => [
+                'app' => $this->connectionParameters(),
+                'framework' => $this->connectionParameters(),
+            ],
+            'framework' => [
+                'connection' => 'framework',
+                'schema' => self::SCHEMA,
+            ],
+        ]);
         $status = Application::configure($directory)
             ->withConfiguration()
+            ->withServices([\App\ApplicationServiceProvider::class])
             ->create()
             ->console()
             ->run(new ArrayInput(['command' => 'build:compile']), new BufferedOutput());
@@ -350,6 +390,7 @@ final class MvpSampleEndToEndTest extends TestCase
 
     private function requireQuickstartSource(string $root): void
     {
+        require_once $root . '/examples/quickstart/app/Feature/Order/OrderRepository.php';
         $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator(
             $root . '/examples/quickstart/app',
             FilesystemIterator::SKIP_DOTS | FilesystemIterator::CURRENT_AS_FILEINFO,
@@ -451,14 +492,20 @@ final class MvpSampleEndToEndTest extends TestCase
 
     private function connection(): Connection
     {
-        return DriverManager::getConnection([
+        return DriverManager::getConnection($this->connectionParameters());
+    }
+
+    /** @return array<string, mixed> */
+    private function connectionParameters(): array
+    {
+        return [
             'driver' => 'pdo_pgsql',
             'host' => (string) (getenv('POSTGRES_HOST') ?: 'postgres'),
             'port' => (int) (getenv('POSTGRES_PORT') ?: '5432'),
             'dbname' => (string) (getenv('POSTGRES_DB') ?: 'blackops'),
             'user' => (string) (getenv('POSTGRES_USER') ?: 'blackops'),
             'password' => (string) (getenv('POSTGRES_PASSWORD') ?: 'blackops'),
-        ]);
+        ];
     }
 }
 

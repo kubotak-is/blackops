@@ -1,10 +1,10 @@
 # Orchestration State
 
-Updated At: 2026-07-18T07:36:08+09:00
+Updated At: 2026-07-18T07:47:05+09:00
 
 ## Current Phase
 
-Phase 13: Database and Transaction Runtime
+Phase 13: Database and Transaction Runtime (Closed)
 
 ## Current Task
 
@@ -16,13 +16,13 @@ Specifications: `develop/spec/09-runtime-and-di.md`、`develop/spec/10-logging-a
 
 ## Task Status
 
-In Progress
+Accepted
 
-P13-006AをAccepted／Commit済みとしてP13-006を再開した。Full PHP Gate、Consumer 7本、Website test／check／build／Artifact Boundaryは成功済み。追加公開PageをStatic Route／Pagefind Guardへ同期するため、Website Check ScriptをTask Scopeへ追加した。
+OrchestratorがP13-006をAcceptedとし、Phase 13をClosedとした。Quickstart／SkeletonへOrder Transaction Journeyを統合し、P13-006Aを含むFull PHP、全Consumer、Documentation Website Gateが成功した。Reviewで検出したStable `1.1.0`とRepository `main` PreviewのREADME境界も修正し、Website Gateを再実行済みである。Phase 13 Delivery PlanのAcceptance Criteriaはすべて実行証拠に基づき完了している。
 
 ## Last Accepted Task
 
-P13-006A-proxied-http-operation-resolution
+P13-006-consumer-experience-and-closeout
 
 ## Pending Decisions
 
@@ -45,13 +45,47 @@ P13-006A-proxied-http-operation-resolution
 
 ## Known Blockers
 
-既知Blockerはない。P13-006Aを含むFull Quality Gateと全Consumer／Website GateはP13-006完了前に再検証する。Documentation Websiteは意図的に未公開である。
+既知Blockerはない。Documentation WebsiteはRepository内BuildとArtifact Guardまで成功し、User判断どおり未公開である。
 
 ## Required Next Action
 
-1. GPT-5.6 Luna High workerが保持中のP13-006を再開する。
-2. Quickstart統合FixtureをOrder Journeyへ同期する。
-3. Full Quality Gate、全Consumer、Documentation Website Gateを完了しPhase 13をCloseする。
+1. P13-006をTask単位でCommit／Pushする。
+2. Phase 14 Operation Diagnosticsの仕様と既存Runtimeを設計監査する。
+3. User判断が必要なDiagnostics ContractをDecision Draftへ整理する。
+
+## P13-006 Consumer Experience and Closeout Worker Verification Commands and Results
+
+```text
+docker compose run --rm app composer validate --strict
+docker compose run --rm app composer validate --strict examples/quickstart/composer.json
+docker compose run --rm app mago format --check src tests examples
+docker compose run --rm app mago lint
+docker compose run --rm app mago analyze
+Result: Root／Quickstart valid。Format、Lint、Analyze成功。
+
+docker compose run --rm app vendor/bin/phpunit --display-deprecations
+Result: OK (1096 tests, 3806 assertions)。P13-006AとQuickstart 3 Operation Integration Fixtureを含む。
+
+docker compose run --rm app vendor/bin/deptrac
+Result: Violations 0 / Skipped 0 / Uncovered 0 / Allowed 2002 / Warnings 0 / Errors 0。
+
+bash tests/Consumer/quickstart-setup.sh
+bash tests/Consumer/quickstart-e2e.sh
+bash tests/Consumer/framework-update-generators.sh
+bash tests/Consumer/frankenphp-worker-mode.sh
+bash tests/Consumer/skeleton-create-project.sh
+bash tests/Consumer/skeleton-publication.sh --dry-run
+bash tests/Consumer/skeleton-publication-workflow.sh
+Result: Setup、Order Journey、Framework Update、Worker Mode、通常／no-scripts Skeleton、Publication回帰がすべて成功。
+
+mise exec -- pnpm --dir docs/website run test
+mise exec -- pnpm --dir docs/website run check
+mise exec -- pnpm --dir docs/website run build
+Result: 37 tests成功。Astro 16 filesで0 diagnostics。30 HTML／29 Japanese Pagefind pagesをBuildし、Artifact／Navigation／Accessibility／Search Check成功。
+
+Public Artifact Guard、Internal Path Guard、Management Comment ID Guard、git diff --check
+Result: すべて成功。
+```
 
 ## P13-006A Orchestrator Review Commands and Results
 

@@ -23,7 +23,7 @@ export const sidebar = [
   },
   {
     label: 'Data & Retention',
-    items: ['database/migrations', 'database/outcomes', 'database/retention'],
+    items: ['database/transactions', 'database/migrations', 'database/outcomes', 'database/retention'],
   },
   { label: 'Testing', items: ['testing'] },
   { label: 'Deployment', items: ['deployment/worker-operations'] },

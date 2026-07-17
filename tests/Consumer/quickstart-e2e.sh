@@ -67,25 +67,45 @@ test -n "$(find "${CONSUMER}/migrations" -maxdepth 1 -type f -name 'Version*.php
 operations=$(HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops operation:list)
 grep -q 'welcome.show' <<<"${operations}"
 grep -q 'report.generate' <<<"${operations}"
+grep -q 'order.create' <<<"${operations}"
 grep -q 'smoke.create' <<<"${operations}"
 
 HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops build:compile
 test -f "${CONSUMER}/var/build/operations.php"
 test -f "${CONSUMER}/var/build/http.php"
 test -f "${CONSUMER}/var/build/container.php"
+HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php -r '
+$manifest = require "/app/var/build/operations.php";
+foreach ($manifest["payload"]["operations"] ?? [] as $operation) {
+    if (($operation["typeId"] ?? null) === "order.create"
+        && ($operation["transactionConnection"] ?? null) === "app") {
+        exit(0);
+    }
+}
+exit(1);
+'
 
 schema_before=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
     "SELECT count(*) FROM information_schema.schemata WHERE schema_name = 'blackops'")
 test "${schema_before}" = "0"
+order_table_before=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
+    "SELECT count(*) FROM information_schema.tables WHERE table_schema = 'public' AND table_name IN ('quickstart_orders', 'quickstart_order_commits')")
+test "${order_table_before}" = "0"
 HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops database:status | grep -q 'pending:'
 schema_after_status=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
     "SELECT count(*) FROM information_schema.schemata WHERE schema_name = 'blackops'")
 test "${schema_after_status}" = "0"
+order_table_after_status=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
+    "SELECT count(*) FROM information_schema.tables WHERE table_schema = 'public' AND table_name IN ('quickstart_orders', 'quickstart_order_commits')")
+test "${order_table_after_status}" = "0"
 HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops database:migrate
 
 schema_after=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
     "SELECT count(*) FROM information_schema.schemata WHERE schema_name = 'blackops'")
 test "${schema_after}" = "1"
+order_tables_after=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
+    "SELECT count(*) FROM information_schema.tables WHERE table_schema = 'public' AND table_name IN ('quickstart_orders', 'quickstart_order_commits')")
+test "${order_tables_after}" = "2"
 
 HTTP_PORT="${PORT}" "${compose[@]}" up -d http
 for _ in $(seq 1 30); do
@@ -97,6 +117,36 @@ done
 grep -q '^{"message":"Welcome to BlackOps"}$' "${TEMP}/welcome.json"
 ! grep -q 'local-example' "${CONSUMER}/var/log/journal.jsonl"
 grep -q '\[masked\]' "${CONSUMER}/var/log/journal.jsonl"
+
+order_reference='consumer-order-001'
+order_status=$(curl --silent --output "${CONSUMER}/var/order-response.json" --write-out '%{http_code}' \
+    -X POST "http://127.0.0.1:${PORT}/orders" \
+    -H 'Content-Type: application/json' \
+    -H 'X-Sample-Token: local-example' \
+    --data "{\"reference\":\"${order_reference}\"}")
+test "${order_status}" = "200"
+HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php -r '
+$data = json_decode(file_get_contents("/app/var/order-response.json"), true, 512, JSON_THROW_ON_ERROR);
+if ($data !== ["reference" => "consumer-order-001", "status" => "created"]) {
+    exit(1);
+}
+'
+order_rows=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
+    "SELECT count(*) FROM quickstart_orders WHERE reference = '${order_reference}'")
+test "${order_rows}" = "1"
+order_commit_rows=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
+    "SELECT count(*) FROM quickstart_order_commits WHERE reference = '${order_reference}'")
+test "${order_commit_rows}" = "1"
+order_operation_id=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
+    "SELECT operation_id FROM blackops.journal WHERE event = 'operation.received' AND convert_from(encoded_record, 'UTF8') LIKE '%${order_reference}%' ORDER BY sequence LIMIT 1")
+test -n "${order_operation_id}"
+order_events=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
+    "SELECT string_agg(event, ',' ORDER BY sequence) FROM blackops.journal WHERE operation_id = '${order_operation_id}'::uuid")
+test "${order_events}" = "operation.received,attempt.started,attempt.succeeded,operation.completed"
+! grep -q 'local-example' "${CONSUMER}/var/order-response.json"
+order_credential_rows=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
+    "SELECT (SELECT count(*) FROM quickstart_orders WHERE reference LIKE '%local-example%') + (SELECT count(*) FROM quickstart_order_commits WHERE reference LIKE '%local-example%')")
+test "${order_credential_rows}" = "0"
 
 missing_status=$(curl --silent --output "${CONSUMER}/var/missing-token-response.json" --write-out '%{http_code}' \
     "http://127.0.0.1:${PORT}/welcome")

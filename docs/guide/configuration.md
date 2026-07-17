@@ -72,7 +72,7 @@ return [
 ];
 ```
 
-`default`と`framework.connection`は`connections`内のNameを参照します。通常のRepositoryはDefault `Doctrine\DBAL\Connection`をConstructor Injectionでき、複数Databaseを選ぶServiceは`BlackOps\Database\DatabaseManager::connection('analytics')`をConstructor Injectionして使用します。ConnectionはNameごとに生成され、同じNameは同じInstanceを再利用します。
+`default`と`framework.connection`は`connections`内のNameを参照します。通常のRepositoryはDefault `Doctrine\DBAL\Connection`をConstructor Injectionできます。複数Databaseを選ぶServiceは`BlackOps\Database\DatabaseManager`をConstructor Injectionし、`$databases->connection('analytics')`で明示的に選びます。ConnectionはNameごとに生成され、同じNameは同じInstanceを再利用します。
 
 `#[Transactional]`のDefaultとNamed ConnectionもこのSnapshotに対してBuild時に検証します。この検証はConnection Nameだけを使い、Databaseへの接続やCredentialのBuild Artifactへの保存を行いません。AOP Proxyは`build.container`と同じDirectoryの`aop/`へ自動生成されるため、利用者向けの追加Config Keyはありません。
 

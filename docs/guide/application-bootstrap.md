@@ -27,6 +27,36 @@ Configは呼出時に一度だけ読み、`create()`後のFile変更を自動反
 
 Typed Self-handled OperationはBuildでHandler Serviceとして自動登録されます。Repository Interface等のApplication固有DependencyをBindingする場合は、Service Providerを`config/app.php`の`services`へ登録します。Builderの`withOperations()`、`withServices()`、`withCommands()`から明示登録を追加することもできます。
 
+QuickstartではOperationをProviderへ列挙せず、Repository Interface、Transactional Command、After Commit Serviceだけを登録します。Default DBAL `Connection`はFrameworkがRuntimeでSynthetic Serviceとして注入するため、ApplicationがCredential付きConnectionをProviderで作る必要はありません。
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App;
+
+use App\Feature\Order\CreateOrder\CreateOrderCommand;
+use App\Feature\Order\DoctrineOrderRepository;
+use App\Feature\Order\OrderRepository;
+use App\Feature\Order\RecordOrderCommit;
+use App\UserInterface\Http\SampleTokenAuthenticator;
+use BlackOps\Core\DependencyInjection\ServiceProvider;
+use BlackOps\Core\DependencyInjection\ServiceRegistry;
+use BlackOps\Http\Authentication\HttpAuthenticator;
+
+final readonly class ApplicationServiceProvider implements ServiceProvider
+{
+    public function register(ServiceRegistry $services): void
+    {
+        $services->autowire(HttpAuthenticator::class, SampleTokenAuthenticator::class);
+        $services->autowire(OrderRepository::class, DoctrineOrderRepository::class);
+        $services->autowire(CreateOrderCommand::class);
+        $services->autowire(RecordOrderCommit::class);
+    }
+}
+```
+
 ## HTTP Process
 
 ```php

@@ -1,6 +1,6 @@
 # 現在の提供状況（Current Status）
 
-BlackOpsのLatest StableはFramework／Skeleton `1.1.0`です。このWebsiteは`main` Document Channelであり、未ReleaseのPhase 12 Surfaceも明示して説明します。Stableとの差を次表で確認してください。
+BlackOpsのLatest StableはFramework／Skeleton `1.1.0`です。このWebsiteは`main` Document Channelであり、未ReleaseのPhase 12／13 Surfaceも明示して説明します。Stableとの差を次表で確認してください。
 
 BlackOps固有のOperation、Claim、Journal、Outcome等は[用語集](glossary.md)で確認できます。
 
@@ -23,6 +23,10 @@ BlackOpsはExperimentalです。1.x Minor間のBackward CompatibilityとProducti
 | Global PSR-15 Middleware Config | Not available | Available |
 | Authentication／Durable ActorContext | Not available | Available |
 | `#[Authorize]` Inline／Deferred再認可 | Not available | Available |
+| Named DBAL Connection／Default Connection DI | Not available | Available |
+| `#[Transactional]` Operation／Service | Not available | Available |
+| Nested Required／`#[AfterCommit]` | Not available | Available |
+| Long-running Connection Health Check／Reconnect | Not available | Available |
 
 Stable Applicationを作る場合はVersionを明示します。
 
@@ -42,6 +46,9 @@ composer create-project blackops/skeleton my-app 1.1.0
 - BlackOps所有の7 Value Validation AttributeとSymfony Validator Backend
 - Global PSR-15 HTTP Middleware、Authentication Contract、Durable ActorContext
 - `#[Authorize]`とInline／Deferred Worker再認可
+- Named DBAL Connection、Default `Connection`／`DatabaseManager` Constructor Injection
+- Operation／Container管理Serviceの`#[Transactional]`、Nested Required、Rollback-only
+- `#[AfterCommit]` Queue、Failure Reporter、HTTP／Deferred Connection Lifecycle
 - Doctrine PostgreSQL Migration
 - Payload、Journal、Outcome、Dead LetterのRetention、Hold、Purge Audit、Scheduler
 

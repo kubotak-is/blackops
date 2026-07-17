@@ -36,7 +36,42 @@ Project Rootに`migrations/`がある場合、Database CommandはFramework Migra
 
 Application MigrationはFramework Migrationと同じConnection、Framework Schema内の`schema_migrations` Metadata Table、transactional／all-or-nothing設定を共有します。RunnerはFramework Migrationを先に実行し、その後にApplication MigrationをVersion Class順で実行します。
 
-Application MigrationはDoctrine標準Constructorを使います。FrameworkはSchema名を自動注入しないため、ApplicationがTableのSchemaとSQLを明示します。
+Application MigrationはDoctrine標準Constructorを使います。FrameworkはSchema名を自動注入しないため、ApplicationがTableのSchemaとSQLを明示します。Install直後のSkeletonにはOrder Journey用のApplication Migrationがあり、`database:migrate`後に`quickstart_orders`と`quickstart_order_commits`を作ります。HTTP起動だけではこれらのTableを作りません。
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Migrations;
+
+use Doctrine\DBAL\Schema\Schema;
+use Doctrine\Migrations\AbstractMigration;
+
+final class Version20260718000000 extends AbstractMigration
+{
+    public function getDescription(): string
+    {
+        return 'CreateQuickstartOrderTables';
+    }
+
+    public function up(Schema $schema): void
+    {
+        $this->addSql(
+            'CREATE TABLE public.quickstart_orders (reference VARCHAR(64) NOT NULL, PRIMARY KEY (reference))',
+        );
+        $this->addSql(
+            'CREATE TABLE public.quickstart_order_commits (reference VARCHAR(64) NOT NULL, PRIMARY KEY (reference))',
+        );
+    }
+
+    public function down(Schema $schema): void
+    {
+        $this->addSql('DROP TABLE public.quickstart_order_commits');
+        $this->addSql('DROP TABLE public.quickstart_orders');
+    }
+}
+```
 
 Database Commandは実行時に`Version*.php`を直接読み込みます。Parse Error、`App\Migrations`以外のNamespace、File名と異なるClass、`AbstractMigration`でないClassを検出すると失敗します。`migrations`がFileまたはsymlinkの場合も無視せず拒否します。
 

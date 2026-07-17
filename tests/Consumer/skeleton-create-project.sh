@@ -57,6 +57,10 @@ test -f "${package_root}/Caddyfile"
 test -f "${package_root}/Caddyfile.classic"
 test -f "${package_root}/app/Feature/Welcome/ShowWelcome/ShowWelcome.php"
 test -f "${package_root}/app/Feature/Report/GenerateReport/GenerateReport.php"
+test -f "${package_root}/app/Feature/Order/CreateOrder/CreateOrder.php"
+test -f "${package_root}/app/Feature/Order/CreateOrder/CreateOrderCommand.php"
+test -f "${package_root}/app/Feature/Order/DoctrineOrderRepository.php"
+test -f "${package_root}/migrations/Version20260718000000.php"
 test ! -e "${package_root}/.env"
 test ! -e "${package_root}/composer.lock"
 test ! -d "${package_root}/vendor"
@@ -110,6 +114,8 @@ test -f "${normal_project}/config/middleware.php"
 test -f "${normal_project}/app/ApplicationServiceProvider.php"
 test -f "${normal_project}/app/Security/SampleUserAuthorizationPolicy.php"
 test -f "${normal_project}/app/UserInterface/Http/SampleTokenAuthenticator.php"
+test -f "${normal_project}/app/Feature/Order/CreateOrder/CreateOrder.php"
+test -f "${normal_project}/migrations/Version20260718000000.php"
 test -f "${normal_project}/Caddyfile.classic"
 cmp "${normal_project}/.env.example" "${normal_project}/.env"
 test -d "${normal_project}/var/build"
@@ -126,7 +132,9 @@ run_php -r '
 require "/smoke/normal/vendor/autoload.php";
 if (!class_exists(BlackOps\Application\Application::class)
     || !class_exists(App\Feature\Welcome\ShowWelcome\ShowWelcome::class)
-    || !class_exists(App\Feature\Report\GenerateReport\GenerateReport::class)) {
+    || !class_exists(App\Feature\Report\GenerateReport\GenerateReport::class)
+    || !class_exists(App\Feature\Order\CreateOrder\CreateOrder::class)
+    || !class_exists(App\Feature\Order\CreateOrder\CreateOrderCommand::class)) {
     exit(1);
 }
 $composer = json_decode(file_get_contents("/smoke/normal/composer.json"), true, 512, JSON_THROW_ON_ERROR);
@@ -170,6 +178,8 @@ test -f "${no_scripts_project}/config/middleware.php"
 test -f "${no_scripts_project}/app/ApplicationServiceProvider.php"
 test -f "${no_scripts_project}/app/Security/SampleUserAuthorizationPolicy.php"
 test -f "${no_scripts_project}/app/UserInterface/Http/SampleTokenAuthenticator.php"
+test -f "${no_scripts_project}/app/Feature/Order/CreateOrder/CreateOrder.php"
+test -f "${no_scripts_project}/migrations/Version20260718000000.php"
 test -f "${no_scripts_project}/Caddyfile.classic"
 test ! -e "${no_scripts_project}/var/build/operations.php"
 test ! -e "${no_scripts_project}/var/log/journal.jsonl"
@@ -177,7 +187,8 @@ test ! -e "${no_scripts_project}/var/log/journal.jsonl"
 run_php -r '
 require "/smoke/no-scripts/vendor/autoload.php";
 if (!class_exists(BlackOps\Application\Application::class)
-    || !class_exists(App\Feature\Welcome\ShowWelcome\ShowWelcome::class)) {
+    || !class_exists(App\Feature\Welcome\ShowWelcome\ShowWelcome::class)
+    || !class_exists(App\Feature\Order\CreateOrder\CreateOrder::class)) {
     exit(1);
 }
 $composer = json_decode(file_get_contents("/smoke/no-scripts/composer.json"), true, 512, JSON_THROW_ON_ERROR);

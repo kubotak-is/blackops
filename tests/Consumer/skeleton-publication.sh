@@ -71,7 +71,8 @@ else
     git -C "${source_clone}" archive "${split_commit}" | tar -x -C "${distribution_root}"
 fi
 
-for required_path in composer.json README.md bin/setup blackops bootstrap/app.php; do
+for required_path in composer.json README.md bin/setup blackops bootstrap/app.php \
+    app/Feature/Order/CreateOrder/CreateOrder.php migrations/Version20260718000000.php; do
     test -f "${distribution_root}/${required_path}" \
         || fail "required distribution path is missing: ${required_path}"
 done
@@ -83,7 +84,7 @@ grep -Fq "curl -H 'X-Sample-Token: local-example' http://127.0.0.1:8080/welcome"
 grep -Fq "curl -H 'X-Sample-Token: local-example' http://127.0.0.1:8081/welcome" \
     "${distribution_root}/README.md" || fail 'Classic fallback README curl is missing its required token header'
 
-allowed_roots=$'.env.example\n.gitignore\nCaddyfile\nCaddyfile.classic\nDockerfile\nDockerfile.frankenphp\nREADME.md\napp\nbin\nblackops\nbootstrap\ncompose.yaml\ncomposer.json\nconfig\npublic\ntests\nvar'
+allowed_roots=$'.env.example\n.gitignore\nCaddyfile\nCaddyfile.classic\nDockerfile\nDockerfile.frankenphp\nREADME.md\napp\nbin\nblackops\nbootstrap\ncompose.yaml\ncomposer.json\nconfig\nmigrations\npublic\ntests\nvar'
 actual_roots="$(find "${distribution_root}" -mindepth 1 -maxdepth 1 -printf '%f\n' | sort)"
 test "${actual_roots}" = "${allowed_roots}" || fail 'distribution root allowlist does not match'
 
