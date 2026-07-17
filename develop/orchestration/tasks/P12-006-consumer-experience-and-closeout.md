@@ -35,7 +35,7 @@ Phase 12で実装したPSR-15 Middleware、Authentication、Durable ActorContext
 - `develop/spec/06-auth-and-middleware.md`
 - `develop/spec/19-execution-context-api.md`
 - `develop/spec/63-phase-12-delivery-plan.md`
-- `develop/spec/62-experimental-versioning-policy.md`
+- `develop/spec/61-experimental-release-contract.md`
 
 ## Files Allowed to Change
 
