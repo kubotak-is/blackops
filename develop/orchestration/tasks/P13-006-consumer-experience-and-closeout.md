@@ -58,6 +58,9 @@ Quickstart、Skeleton、Guide、Reference、Consumer E2E、Documentation Website
 - `tests/Consumer/skeleton-create-project.sh`
 - `tests/Consumer/skeleton-publication.sh`
 - `tests/Consumer/skeleton-publication-workflow.sh`
+- `tests/Integration/ApplicationConsoleKernelTest.php`
+- `tests/Integration/ApplicationHttpRuntimeTest.php`
+- `tests/Integration/MvpSampleEndToEndTest.php`
 - `docs/guide/mvp-sample.md`
 - `docs/guide/database-and-transactions.md`
 - `docs/guide/configuration.md`
@@ -76,6 +79,8 @@ Quickstart、Skeleton、Guide、Reference、Consumer E2E、Documentation Website
 - `develop/STATE.md`
 
 新しいExampleを成立させるために上記以外のFileが必要なら実装を広げず、ReportのBlockerへ記録する。Framework Public APIまたはInternal Runtimeの変更はこのTaskで行わない。
+
+Quickstart Sourceを直接列挙して読み込むIntegration Fixtureは、Order FeatureのInterface／実装依存順を保証し、Transactional Operation Metadata Compileに必要なApplication Database設定を与える。既存のOperation件数／Route期待値もInstall直後の3 Operation構成へ同期する。
 
 ## Quickstart Example Contract
 
