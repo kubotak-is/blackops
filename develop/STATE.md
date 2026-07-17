@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-18T04:02:52+09:00
+Updated At: 2026-07-18T04:08:35+09:00
 
 ## Current Phase
 
@@ -8,17 +8,17 @@ Phase 13: Database and Transaction Runtime
 
 ## Current Task
 
-Task ID: P13-001-database-configuration-and-di-foundation
+Task ID: P13-002-build-time-aop-foundation
 
-Task Packet: `develop/orchestration/tasks/P13-001-database-configuration-and-di-foundation.md`
+Task Packet: `develop/orchestration/tasks/P13-002-build-time-aop-foundation.md`
 
-Specifications: `develop/spec/09-runtime-and-di.md`、`develop/spec/11-durable-journal-and-transactions.md`、`develop/spec/36-postgresql-transaction-boundaries.md`、`develop/spec/64-phase-13-delivery-plan.md`
+Specifications: `develop/spec/09-runtime-and-di.md`、`develop/spec/11-durable-journal-and-transactions.md`、`develop/spec/17-core-api.md`、`develop/spec/47-public-http-runtime-configuration.md`、`develop/spec/64-phase-13-delivery-plan.md`
 
 ## Task Status
 
-Accepted
+Ready
 
-P13-001はOrchestratorの差分Reviewと独立Target／Full PHPUnit、Mago、Deptrac、Quickstart Consumer、Guardを通過しAcceptedとなった。Canonical／Legacy Database Configuration、Public DatabaseManager、Named ConnectionのLazy生成／再利用、Default Connection DI、Synthetic Runtime Service、Framework Store／Migration／RetentionのConfigured Connection化を実装した。
+P13-001はAccepted／Commit／Push済み。P13-002のTask Packetを作成し、Ray.Aop Build-time Proxy、Public Transactional／AfterCommit Attribute、Compile-time Validation、Container管理境界を実装できる状態にした。
 
 ## Last Accepted Task
 
@@ -49,9 +49,9 @@ P13-002に既知Blockerはない。Documentation Websiteは意図的に未公開
 
 ## Required Next Action
 
-1. P13-001を実装単位でCommitする。
-2. P13-002 Build-time AOP FoundationのTask Packetを作成する。
-3. GPT-5.6 Luna High workerへP13-002を委譲する。
+1. P13-002をGPT-5.6 Luna High workerへ委譲する。
+2. Worker Reportと差分をOrchestratorがReviewし、Target／Full Quality Gateを独立再実行する。
+3. Accepted後、P13-003 Generic Transaction and After Commit ScopeのTask Packetを作成する。
 4. Documentation Website PublicationはUserが再開を明示するまで実行しない。
 
 ## P13-001 Orchestrator Review Commands and Results
