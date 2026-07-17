@@ -21,9 +21,13 @@ use BlackOps\Core\OperationEnvelope;
 use BlackOps\Core\OperationHandler;
 use BlackOps\Core\OperationValue;
 use BlackOps\Core\Registry\OperationMetadata;
+use BlackOps\Core\Registry\OperationRegistry;
 use BlackOps\Internal\Authorization\AuthorizationEvaluator;
 use BlackOps\Internal\Authorization\AuthorizationPolicyResolver;
+use BlackOps\Internal\Codec\ReflectionJsonOperationCodec;
 use BlackOps\Internal\Execution\DeferredAcceptanceOrchestrator;
+use BlackOps\Internal\ExecutionContext\ExecutionContextFactory;
+use BlackOps\Internal\Http\DeferredHttpOperationAcceptor;
 use BlackOps\Internal\Identifier\IdentifierFactory;
 use BlackOps\Internal\Identifier\Uuidv7Generator;
 use BlackOps\Internal\Journal\JournalRecordFactory;
@@ -85,6 +89,66 @@ final class PostgreSqlDeferredAcceptanceOrchestratorTest extends TestCase
         self::assertInstanceOf(DeferredAcceptedValue::class, $records[0]->data->value);
         self::assertSame('report-1', $records[0]->data->value->reportId);
         self::assertInstanceOf(EmptyJournalData::class, $records[1]->data);
+    }
+
+    public function testAcceptsProxySubclassEnvelopeUsingOriginalMetadata(): void
+    {
+        $acknowledgement = $this->orchestrator()->accept(
+            $this->message(),
+            $this->envelope(definition: new ProxiedDeferredAcceptedOperation()),
+            $this->metadata(),
+        );
+
+        self::assertSame(self::OPERATION_ID, $acknowledgement->operationId()->toString());
+        self::assertSame('accepted', $this->operationRow()['state']);
+        self::assertSame(
+            [JournalEvent::OperationReceived, JournalEvent::OperationAccepted],
+            array_column($this->records(), 'event'),
+        );
+        self::assertSame(
+            ['report.generate'],
+            array_values(array_unique(array_map(
+                static fn(JournalRecord $record): string => $record->operation->type,
+                $this->records(),
+            ))),
+        );
+    }
+
+    public function testHttpAcceptorStoresProxySubclassMessageAndJournalUsingOriginalMetadata(): void
+    {
+        $clock = new FixedDeferredAcceptanceClock();
+        $identifiers = new IdentifierFactory(new DeferredAcceptanceUuidv7Generator(), $clock);
+        $acceptor = new DeferredHttpOperationAcceptor(
+            new OperationRegistry([$this->metadata()]),
+            new ExecutionContextFactory($identifiers, $clock),
+            new ReflectionJsonOperationCodec(),
+            $this->orchestrator(),
+        );
+
+        $acknowledgement = $acceptor->accept(
+            new ProxiedDeferredAcceptedOperation(),
+            new DeferredAcceptedValue('report-1'),
+        );
+
+        $operationRow = $this->operationRow();
+        $records = $this->records($acknowledgement->operationId());
+
+        self::assertSame('019f32ab-2be0-7b38-a0a7-1ab2f9687699', $acknowledgement->operationId()->toString());
+        self::assertSame('report.generate', $operationRow['operation_type']);
+        self::assertIsResource($operationRow['encoded_payload']);
+        self::assertSame('{"reportId":"report-1"}', stream_get_contents($operationRow['encoded_payload']));
+        self::assertSame('accepted', $operationRow['state']);
+        self::assertSame(
+            [JournalEvent::OperationReceived, JournalEvent::OperationAccepted],
+            array_column($records, 'event'),
+        );
+        self::assertSame(
+            ['report.generate'],
+            array_values(array_unique(array_map(
+                static fn(JournalRecord $record): string => $record->operation->type,
+                $records,
+            ))),
+        );
     }
 
     public function testDuplicateOperationRollsBackWithoutAdditionalJournalRecords(): void
@@ -152,10 +216,10 @@ final class PostgreSqlDeferredAcceptanceOrchestratorTest extends TestCase
         );
     }
 
-    private function envelope(?ActorContext $actorContext = null): OperationEnvelope
+    private function envelope(?ActorContext $actorContext = null, ?Operation $definition = null): OperationEnvelope
     {
         return new OperationEnvelope(
-            new DeferredAcceptedOperation(),
+            $definition ?? new DeferredAcceptedOperation(),
             new DeferredAcceptedValue('report-1'),
             new ExecutionContext(
                 OperationId::fromString(self::OPERATION_ID),
@@ -196,9 +260,11 @@ final class PostgreSqlDeferredAcceptanceOrchestratorTest extends TestCase
     /**
      * @return list<JournalRecord>
      */
-    private function records(): array
+    private function records(?OperationId $operationId = null): array
     {
-        return array_values(iterator_to_array($this->journal->records(OperationId::fromString(self::OPERATION_ID))));
+        return array_values(iterator_to_array($this->journal->records(
+            $operationId ?? OperationId::fromString(self::OPERATION_ID),
+        )));
     }
 
     private function connection(): Connection
@@ -220,7 +286,9 @@ final class PostgreSqlDeferredAcceptanceOrchestratorTest extends TestCase
     }
 }
 
-final readonly class DeferredAcceptedOperation implements Operation {}
+readonly class DeferredAcceptedOperation implements Operation {}
+
+final readonly class ProxiedDeferredAcceptedOperation extends DeferredAcceptedOperation {}
 
 final readonly class DeferredAcceptedValue implements OperationValue
 {

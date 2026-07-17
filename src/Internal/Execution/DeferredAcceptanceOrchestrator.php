@@ -120,7 +120,9 @@ final readonly class DeferredAcceptanceOrchestrator
             throw new LogicException('Deferred message operation type must match metadata.');
         }
 
-        if ($metadata->definition !== $envelope->definition()::class || $metadata->strategy !== Deferred::class) {
+        $definition = $metadata->definition;
+
+        if (!$envelope->definition() instanceof $definition || $metadata->strategy !== Deferred::class) {
             throw new LogicException('Deferred acceptance requires deferred operation metadata.');
         }
 

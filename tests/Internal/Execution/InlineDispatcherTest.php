@@ -84,6 +84,33 @@ final class InlineDispatcherTest extends TestCase
         self::assertSame([1, 2, 3, 4], array_column($journal->records, 'sequence'));
     }
 
+    public function testProxySubclassDispatchUsesRegisteredParentMetadataThroughTerminalJournal(): void
+    {
+        $journal = new RecordingJournalWriter();
+        $result = $this->dispatcher(new DispatchHandler(), $journal)->dispatch(
+            new ProxiedDispatchOperation(),
+            new DispatchValue('proxied'),
+        );
+
+        self::assertTrue($result->isCompleted());
+        self::assertSame(
+            [
+                JournalEvent::OperationReceived,
+                JournalEvent::AttemptStarted,
+                JournalEvent::AttemptSucceeded,
+                JournalEvent::OperationCompleted,
+            ],
+            array_map(static fn(JournalRecord $record): JournalEvent => $record->event, $journal->records),
+        );
+        self::assertSame(
+            ['dispatch.test'],
+            array_values(array_unique(array_map(
+                static fn(JournalRecord $record): string => $record->operation->type,
+                $journal->records,
+            ))),
+        );
+    }
+
     public function testTypedHandlerReceivesInlineContextWithoutAttempt(): void
     {
         $handler = new TypedContextDispatchOperation();
@@ -545,7 +572,9 @@ final class InlineDispatcherTest extends TestCase
     }
 }
 
-final readonly class DispatchOperation implements Operation {}
+readonly class DispatchOperation implements Operation {}
+
+final readonly class ProxiedDispatchOperation extends DispatchOperation {}
 
 final class TypedContextDispatchOperation implements Operation
 {

@@ -161,6 +161,46 @@ final class ProductionRuntimeComposerTest extends TestCase
         self::assertSame('container-resolved', $handler->handledWith);
     }
 
+    public function testUsesContainerResolvedProxySubclassAsHttpDefinition(): void
+    {
+        $dependency = new RuntimeCompositionDependency('proxy-resolved');
+        $handler = new ProxiedRequiredRuntimeCompositionOperation($dependency);
+        $routes = ['GET' => ['/required' => 'runtime.required']];
+        $artifacts = new ProductionRuntimeArtifacts(
+            new OperationRegistry([new OperationMetadataCompiler()->compile(RequiredRuntimeCompositionOperation::class)]),
+            new HttpOperationManifest(
+                $routes,
+                [
+                    'runtime.required' => [
+                        'definition' => RequiredRuntimeCompositionOperation::class,
+                        'value' => RuntimeCompositionValue::class,
+                        'handler' => RequiredRuntimeCompositionOperation::class,
+                        'outcome' => EmptyOutcome::class,
+                        'strategy' => Inline::class,
+                    ],
+                ],
+                new FastRouteDispatcherDataCompiler()->compile($routes),
+            ),
+            new RuntimeCompositionContainer($handler, handlerId: RequiredRuntimeCompositionOperation::class),
+        );
+        $psr17 = new Psr17Factory();
+
+        $composition = new ProductionRuntimeComposer()->compose(
+            $artifacts,
+            new RuntimeCompositionClock(),
+            new RuntimeCompositionJournalWriter(),
+            $psr17,
+            $psr17,
+        );
+        $match = $composition->httpRoutes->match('GET', '/required');
+        $response = $composition->httpHandler->handle($psr17->createServerRequest('GET', '/required'));
+
+        self::assertNotNull($match);
+        self::assertSame($handler, $match->route->operation);
+        self::assertSame(204, $response->getStatusCode());
+        self::assertSame('proxy-resolved', $handler->handledWith);
+    }
+
     public function testConnectsConfiguredHttpMiddlewareToProductionHandler(): void
     {
         $psr17 = new Psr17Factory();
@@ -276,11 +316,12 @@ final readonly class RuntimeCompositionContainer implements ContainerInterface
     public function __construct(
         private OperationHandler $handler,
         private ?AuthorizationPolicy $policy = null,
+        private ?string $handlerId = null,
     ) {}
 
     public function get(string $id): mixed
     {
-        if ($id === $this->handler::class) {
+        if ($id === ($this->handlerId ?? $this->handler::class)) {
             return $this->handler;
         }
 
@@ -294,7 +335,7 @@ final readonly class RuntimeCompositionContainer implements ContainerInterface
     public function has(string $id): bool
     {
         return (
-            $id === $this->handler::class
+            $id === ($this->handlerId ?? $this->handler::class)
             || $this->policy !== null
             && $id === RuntimeCompositionAuthorizationPolicy::class
         );
@@ -353,7 +394,7 @@ final readonly class RuntimeCompositionDependency
 #[OperationType('runtime.required')]
 #[Accepts(RuntimeCompositionValue::class)]
 #[Returns(EmptyOutcome::class)]
-final class RequiredRuntimeCompositionOperation implements Operation, OperationHandler
+class RequiredRuntimeCompositionOperation implements Operation, OperationHandler
 {
     public ?string $handledWith = null;
 
@@ -368,6 +409,8 @@ final class RequiredRuntimeCompositionOperation implements Operation, OperationH
         return OperationResult::completed();
     }
 }
+
+final class ProxiedRequiredRuntimeCompositionOperation extends RequiredRuntimeCompositionOperation {}
 
 final class RuntimeCompositionPsrLogger extends AbstractLogger
 {

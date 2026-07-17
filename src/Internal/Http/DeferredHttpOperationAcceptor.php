@@ -17,20 +17,26 @@ use BlackOps\Core\Registry\OperationRegistry;
 use BlackOps\Http\DeferredOperationAcceptor;
 use BlackOps\Internal\Execution\DeferredAcceptanceOrchestrator;
 use BlackOps\Internal\ExecutionContext\ExecutionContextFactory;
+use BlackOps\Internal\Registry\OperationMetadataResolver;
 use LogicException;
 
 final readonly class DeferredHttpOperationAcceptor implements DeferredOperationAcceptor
 {
+    private OperationMetadataResolver $metadataResolver;
+
     public function __construct(
-        private OperationRegistry $registry,
+        OperationRegistry $registry,
         private ExecutionContextFactory $contexts,
         private OperationCodec $codec,
         private DeferredAcceptanceOrchestrator $orchestrator,
-    ) {}
+        ?OperationMetadataResolver $metadataResolver = null,
+    ) {
+        $this->metadataResolver = $metadataResolver ?? new OperationMetadataResolver($registry);
+    }
 
     public function accepts(Operation $definition): bool
     {
-        $metadata = $this->registry->findByDefinition($definition::class);
+        $metadata = $this->metadataResolver->resolve($definition);
 
         return $metadata !== null && $metadata->strategy === Deferred::class;
     }
@@ -40,7 +46,7 @@ final readonly class DeferredHttpOperationAcceptor implements DeferredOperationA
         OperationValue $value,
         ?ActorContext $actorContext = null,
     ): DeferredAcknowledgement|OperationResult {
-        $metadata = $this->registry->findByDefinition($definition::class) ?? throw new LogicException(
+        $metadata = $this->metadataResolver->resolve($definition) ?? throw new LogicException(
             'Deferred operation definition is not registered.',
         );
 

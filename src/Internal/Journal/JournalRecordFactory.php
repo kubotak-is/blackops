@@ -149,7 +149,9 @@ final readonly class JournalRecordFactory
         int $sequence,
         RejectionReason $reason,
     ): JournalRecord {
-        if ($metadata->definition !== $definition::class) {
+        $definitionClass = $metadata->definition;
+
+        if (!$definition instanceof $definitionClass) {
             throw new LogicException('Journal metadata does not match the operation definition.');
         }
 

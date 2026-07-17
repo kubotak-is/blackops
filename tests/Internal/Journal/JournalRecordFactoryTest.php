@@ -218,6 +218,49 @@ final class JournalRecordFactoryTest extends TestCase
         self::assertSame($reason, $record->data->reason);
     }
 
+    public function testCreatesPreBindingRejectedRecordForProxySubclass(): void
+    {
+        $clock = new class implements ClockInterface {
+            public function now(): DateTimeImmutable
+            {
+                return new DateTimeImmutable('2026-07-06T12:00:00.123456Z');
+            }
+        };
+        $generator = new class implements Uuidv7Generator {
+            public function generate(DateTimeImmutable $time): string
+            {
+                return JournalRecordFactoryTest::ID;
+            }
+        };
+        $context = new ExecutionContext(
+            OperationId::fromString(self::ID),
+            $clock->now(),
+            CorrelationId::fromString(self::ID),
+        );
+        $metadata = new OperationMetadata(
+            'journal.test',
+            JournalOperationFixture::class,
+            JournalValueFixture::class,
+            JournalHandlerFixture::class,
+            EmptyOutcome::class,
+            Deferred::class,
+        );
+
+        $record = new JournalRecordFactory(
+            new IdentifierFactory($generator, $clock),
+            $clock,
+        )->operationRejectedBeforeBinding(
+            new ProxiedJournalOperationFixture(),
+            $context,
+            $metadata,
+            1,
+            RejectionReason::validation('validation.failed'),
+        );
+
+        self::assertSame(JournalEvent::OperationRejected, $record->event);
+        self::assertSame('journal.test', $record->operation->type);
+    }
+
     public function testCreatesRetryScheduledRecordForCurrentAttempt(): void
     {
         $clock = new class implements ClockInterface {
@@ -274,7 +317,9 @@ final class JournalRecordFactoryTest extends TestCase
     }
 }
 
-final readonly class JournalOperationFixture implements Operation {}
+readonly class JournalOperationFixture implements Operation {}
+
+final readonly class ProxiedJournalOperationFixture extends JournalOperationFixture {}
 
 final readonly class JournalValueFixture implements OperationValue
 {

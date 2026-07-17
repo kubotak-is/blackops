@@ -34,7 +34,9 @@ final readonly class JournalRecordBuilder
         JournalEvent $event,
         JournalData $data,
     ): JournalRecord {
-        if ($metadata->definition !== $envelope->definition()::class) {
+        $definition = $metadata->definition;
+
+        if (!$envelope->definition() instanceof $definition) {
             throw new LogicException('Journal metadata does not match the operation envelope definition.');
         }
 

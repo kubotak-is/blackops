@@ -55,9 +55,11 @@ final readonly class HttpOperationManifest
     public function toRegistry(iterable $definitions): HttpRouteRegistry
     {
         $byClass = [];
+        $instances = [];
 
         foreach ($definitions as $definition) {
             $byClass[$definition::class] = $definition;
+            $instances[] = $definition;
         }
 
         $routes = [];
@@ -70,7 +72,13 @@ final readonly class HttpOperationManifest
                     throw new InvalidArgumentException('HTTP manifest route references an unknown operation.');
                 }
 
-                $definition = $byClass[$operation['definition']] ?? null;
+                $definitionClass = $operation['definition'];
+                /** @var class-string<Operation> $definitionClass */
+                $definition = $byClass[$definitionClass] ?? null;
+
+                if (!$definition instanceof Operation) {
+                    $definition = $this->closestInstance($instances, $definitionClass);
+                }
 
                 if (!$definition instanceof Operation) {
                     throw new InvalidArgumentException('HTTP manifest requires operation definition instances.');
@@ -87,5 +95,25 @@ final readonly class HttpOperationManifest
         }
 
         return new HttpRouteRegistry($routes, $this->dispatcherData);
+    }
+
+    /**
+     * @param list<Operation> $instances
+     * @param class-string<Operation> $expected
+     */
+    private function closestInstance(array $instances, string $expected): ?Operation
+    {
+        $candidates = array_values(array_filter(
+            $instances,
+            static fn(Operation $instance): bool => $instance instanceof $expected,
+        ));
+        usort(
+            $candidates,
+            static fn(Operation $left, Operation $right): int => (
+                count((array) class_parents($left)) <=> count((array) class_parents($right))
+            ),
+        );
+
+        return $candidates[0] ?? null;
     }
 }

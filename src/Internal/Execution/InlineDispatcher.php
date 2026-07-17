@@ -29,6 +29,7 @@ use BlackOps\Internal\Journal\JournalRecordFactory;
 use BlackOps\Internal\Journal\LifecycleStateMachine;
 use BlackOps\Internal\Projection\ObservedJournalRecordProjector;
 use BlackOps\Internal\Projection\SensitiveProjectionFilter;
+use BlackOps\Internal\Registry\OperationMetadataResolver;
 use BlackOps\Internal\Transaction\OperationTransactionCoordinator;
 use BlackOps\Internal\Validation\OperationValueValidator;
 use BlackOps\Journal\CanonicalJournalWriter;
@@ -50,9 +51,11 @@ final readonly class InlineDispatcher implements Dispatcher, ValidationRejection
 
     private OperationValueValidator $validator;
 
+    private OperationMetadataResolver $metadataResolver;
+
     /** @mago-expect lint:excessive-parameter-list */
     public function __construct(
-        private OperationRegistry $registry,
+        OperationRegistry $registry,
         private ExecutionContextFactory $contexts,
         private HandlerResolver $handlers,
         private JournalRecordFactory $journalRecords,
@@ -63,8 +66,10 @@ final readonly class InlineDispatcher implements Dispatcher, ValidationRejection
         private HandlerInvoker $invoker = new HandlerInvoker(),
         private ?AuthorizationEvaluator $authorization = null,
         private ?OperationTransactionCoordinator $transactions = null,
+        ?OperationMetadataResolver $metadataResolver = null,
     ) {
         $this->validator = new OperationValueValidator();
+        $this->metadataResolver = $metadataResolver ?? new OperationMetadataResolver($registry);
         $this->observations = $observations ?? new JournalObservationPipeline(
             new ObservedJournalRecordProjector(new SensitiveProjectionFilter()),
             new JournalObserverAggregator([]),
@@ -85,9 +90,7 @@ final readonly class InlineDispatcher implements Dispatcher, ValidationRejection
         OperationValue $value,
         ?ActorContext $actorContext = null,
     ): OperationResult {
-        $metadata = $this->registry->findByDefinition($definition::class) ?? throw new LogicException(
-            'Operation definition is not registered.',
-        );
+        $metadata = $this->metadata($definition);
 
         if ($metadata->strategy !== Inline::class) {
             throw new LogicException('Inline dispatcher requires the Inline execution strategy.');
@@ -303,7 +306,7 @@ final readonly class InlineDispatcher implements Dispatcher, ValidationRejection
     private function metadata(Operation $definition): OperationMetadata
     {
         return (
-            $this->registry->findByDefinition($definition::class) ?? throw new LogicException(
+            $this->metadataResolver->resolve($definition) ?? throw new LogicException(
                 'Operation definition is not registered.',
             )
         );

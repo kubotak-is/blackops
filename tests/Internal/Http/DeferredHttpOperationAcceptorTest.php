@@ -44,6 +44,15 @@ final class DeferredHttpOperationAcceptorTest extends TestCase
         self::assertFalse($acceptor->accepts(new MissingAcceptorOperation()));
     }
 
+    public function testAcceptsProxySubclassFromRegisteredParentMetadata(): void
+    {
+        $acceptor = $this->acceptor(new OperationRegistry([
+            $this->metadata(AcceptorOperation::class, Deferred::class),
+        ]));
+
+        self::assertTrue($acceptor->accepts(new ProxiedAcceptorOperation()));
+    }
+
     private function acceptor(OperationRegistry $registry): DeferredHttpOperationAcceptor
     {
         /** @var ExecutionContextFactory $contexts */
@@ -99,7 +108,9 @@ final class DeferredHttpOperationAcceptorTest extends TestCase
     }
 }
 
-final readonly class AcceptorOperation implements Operation {}
+readonly class AcceptorOperation implements Operation {}
+
+final readonly class ProxiedAcceptorOperation extends AcceptorOperation {}
 
 final readonly class OtherAcceptorOperation implements Operation {}
 
