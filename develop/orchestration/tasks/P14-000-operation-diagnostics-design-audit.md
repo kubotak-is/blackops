@@ -34,6 +34,7 @@ Phase 14 Operation Diagnosticsの実装前に、既存のHTTP Error、Applicatio
 ## Relevant Specifications and Decisions
 
 - `develop/spec/02-lifecycle-and-journal.md`
+- `develop/spec/03-execution.md`
 - `develop/spec/05-http.md`
 - `develop/spec/06-auth-and-middleware.md`
 - `develop/spec/10-logging-and-traceability.md`

@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-18T07:48:56+09:00
+Updated At: 2026-07-18T08:03:09+09:00
 
 ## Current Phase
 
@@ -12,17 +12,19 @@ Task ID: P14-000-operation-diagnostics-design-audit
 
 Task Packet: `develop/orchestration/tasks/P14-000-operation-diagnostics-design-audit.md`
 
-Specifications: `develop/spec/02-lifecycle-and-journal.md`、`develop/spec/05-http.md`、`develop/spec/06-auth-and-middleware.md`、`develop/spec/10-logging-and-traceability.md`、`develop/spec/11-durable-journal-and-transactions.md`、`develop/spec/22-journal-record-schema.md`、`develop/spec/25-sensitive-projection.md`、`develop/spec/26-journal-ports.md`、`develop/spec/31-deferred-claim-and-attempt.md`、`develop/spec/32-worker-crash-recovery.md`、`develop/spec/35-postgresql-transport-schema.md`、`develop/spec/38-data-retention-and-deletion.md`、`develop/spec/39-retention-runtime.md`、`develop/spec/54-native-outcome-and-rejection-exception.md`、`develop/spec/60-post-phase-10-roadmap.md`
+Specifications: `develop/spec/02-lifecycle-and-journal.md`、`develop/spec/03-execution.md`、`develop/spec/05-http.md`、`develop/spec/06-auth-and-middleware.md`、`develop/spec/10-logging-and-traceability.md`、`develop/spec/11-durable-journal-and-transactions.md`、`develop/spec/22-journal-record-schema.md`、`develop/spec/25-sensitive-projection.md`、`develop/spec/26-journal-ports.md`、`develop/spec/31-deferred-claim-and-attempt.md`、`develop/spec/32-worker-crash-recovery.md`、`develop/spec/35-postgresql-transport-schema.md`、`develop/spec/38-data-retention-and-deletion.md`、`develop/spec/39-retention-runtime.md`、`develop/spec/54-native-outcome-and-rejection-exception.md`、`develop/spec/60-post-phase-10-roadmap.md`
 
 ## Task Status
 
-In Progress
+Waiting for User Decision
 
-Phase 14を開始した。Production Codeへ着手する前に、Operation IDを軸とするHTTP Error、Application Log、Canonical Journal、Lifecycle、Attempt、Outcome、Dead Letter、Sensitive／Retention境界を監査し、Terminal Inspect、Local Viewer、Production Observabilityの未確定ContractをDecision Draftへ整理する。
+OrchestratorがP14-000の読み取り中心設計監査をAcceptedとした。HTTP／Journal／Outcome／Deferred State／Dead Letter／Retention／Console／Loggingを証拠付きで整理し、Decision 097 DraftへTerminal Inspect、Development Local Viewer、Production Log境界のRecommendation付き7 Questionを記録した。
+
+重大Gapとして、Inline Handler／Authorization Policy Throwableが`operation.received`／`attempt.started`で止まり、FrankenPHP Workerの500 Responseと`error_log`にもOperation IDがないことを確認した。`ExecutionScopedLogger`は相関Contractを持つがApplication Runtime／DIへ自動接続されていない。Terminal／Viewer実装前にP14-002相当で修復する案を推奨する。
 
 ## Last Accepted Task
 
-P13-006-consumer-experience-and-closeout
+P14-000-operation-diagnostics-design-audit
 
 ## Pending Decisions
 
@@ -42,16 +44,44 @@ P13-006-consumer-experience-and-closeout
 14. D094はC／A／A／A／B／Cで確定。Experimental期間はMinor ReleaseのBackward Compatibilityを保証せず、Public Readiness時にVersioning Policyを再決定する。
 15. D095は確定。Operation Middlewareは不要とし、Phase 12はPSR-15 HTTP MiddlewareとAuthorizationへ絞る。Authentication、Durable Actor、Deferred FailureはAを採用する。
 16. D096は確定。Named DBAL Connection、DatabaseManager、Ray.Aop Build-time Interception、Operation／一般ServiceのTransaction保証差、Nested Required、After Commit Best-effort、Long-running Connection Lifecycleを採用する。
+17. D097はDraft。Phase 14の実装Depth、Query Model、CLI、Sensitive、Unavailable、Local Viewer、Production Loggingの7 QuestionがUser回答待ちである。
 
 ## Known Blockers
 
-既知Blockerはない。Phase 14のPublic Contractは未確定であり、P14-000の証拠監査後にUser判断を求める。Documentation WebsiteはUser判断どおり未公開である。
+実装Blockerはない。Phase 14のPublic／Security ContractはDecision 097 Draftの7 QuestionがUser回答待ちである。Documentation WebsiteはUser判断どおり未公開である。
 
 ## Required Next Action
 
-1. GPT-5.6 Luna High workerがP14-000の読み取り中心設計監査を行う。
-2. OrchestratorがEvidenceとDecision 097 DraftをReviewする。
-3. 未確定のDiagnostics ContractについてUser判断を求める。
+1. UserがDecision 097 Draftの7 Questionへ回答する。
+2. Orchestratorが回答をDecisionとして確定する。
+3. P14-001でOperation Diagnostics SpecificationとPhase 14 Delivery Planを作成する。
+
+## P14-000 Operation Diagnostics Design Audit Worker Verification Commands and Results
+
+```text
+rg -n "OperationId|operationId|operation_id|Journal|Outcome|DeadLetter|Throwable|Logger" src tests
+Result: 成功。2779件を抽出し、HTTP／Lifecycle／Store／Logger境界を監査した。
+
+rg -n "add\(|Command|operation:list|outcome" src/Internal/Console src/Application tests 2>/dev/null
+Result: 成功。518件を抽出し、Console CompositionとOutcome Surfaceを監査した。
+
+tests/Internal/Outcome
+Result: Directoryが存在しないためRequired PHPUnit対象から除外し、実在するtests/Outcomeを補助対象へ追加した。
+
+docker compose run --rm app vendor/bin/phpunit --display-deprecations \
+  tests/Internal/Http tests/Internal/Journal tests/Internal/Console \
+  tests/Transport/PostgreSql tests/Outcome
+Result: OK (171 tests, 663 assertions)。
+
+docker compose run --rm app vendor/bin/phpunit --display-deprecations <P14-000 correlation target tests>
+Result: OK (104 tests, 678 assertions)。HTTP ID境界、Inline Throwable伝播、Deferred Supervision、Logger単体相関を含む。
+
+docker compose run --rm app mago format --check src tests
+Result: 成功。All files are already formatted。
+
+Management Comment ID Guard、git diff --check
+Result: 成功。
+```
 
 ## P13-006 Consumer Experience and Closeout Worker Verification Commands and Results
 
