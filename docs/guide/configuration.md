@@ -76,6 +76,8 @@ return [
 
 `#[Transactional]`のDefaultとNamed ConnectionもこのSnapshotに対してBuild時に検証します。この検証はConnection Nameだけを使い、Databaseへの接続やCredentialのBuild Artifactへの保存を行いません。AOP Proxyは`build.container`と同じDirectoryの`aop/`へ自動生成されるため、利用者向けの追加Config Keyはありません。
 
+After Commit Callbackの失敗通知をApplication監視基盤へ送る場合は、`BlackOps\Database\AfterCommitFailureReporter`をService Providerで登録します。未登録時はFramework Default ReporterがPSR-3／Monolog経由で標準ErrorへService、Method、存在するOperation／Attempt／Correlation／Causation IDだけを記録します。Callback引数、Throwable Message／Trace、Database CredentialはDefault Logへ展開しません。
+
 HTTP、Worker、Migration、Outcome、Retentionは`framework.connection`と安全なPostgreSQL Identifierである`framework.schema`を使用します。Framework StoreとDefaultが同じNameならApplication ServiceとFramework Storeは同じConnection Instanceを共有します。Build ArtifactにはConnection ParameterやCredentialを保存せず、Build CommandもDatabaseへ接続しません。
 
 従来の単一Connection形式も互換Shorthandとして受理し、一つのDefault／Framework Connectionへ正規化します。

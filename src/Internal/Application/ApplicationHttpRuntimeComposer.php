@@ -9,6 +9,7 @@ use BlackOps\Internal\Authorization\AuthorizationPolicyResolver;
 use BlackOps\Internal\Codec\ReflectionJsonOperationCodec;
 use BlackOps\Internal\Database\RuntimeDatabaseServiceInjector;
 use BlackOps\Internal\Execution\DeferredAcceptanceOrchestrator;
+use BlackOps\Internal\Execution\ExecutionScopeProvider;
 use BlackOps\Internal\ExecutionContext\ExecutionContextFactory;
 use BlackOps\Internal\Http\DeferredHttpOperationAcceptor;
 use BlackOps\Internal\Identifier\IdentifierFactory;
@@ -17,6 +18,7 @@ use BlackOps\Internal\Journal\JournalRecordFactory;
 use BlackOps\Internal\Runtime\ProductionRuntimeArtifactLoader;
 use BlackOps\Internal\Runtime\ProductionRuntimeComposer;
 use BlackOps\Internal\Runtime\ProductionRuntimeDependencies;
+use BlackOps\Internal\Transaction\RuntimeTransactionServiceInjector;
 use BlackOps\Transport\PostgreSql\PostgreSqlCanonicalJournalStore;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationSender;
 use BlackOps\Transport\PostgreSql\PostgreSqlSystemClock;
@@ -42,6 +44,8 @@ final readonly class ApplicationHttpRuntimeComposer
         );
         $databases = $database->databaseManager();
         new RuntimeDatabaseServiceInjector()->inject($artifacts->container, $databases);
+        $executionScope = new ExecutionScopeProvider();
+        new RuntimeTransactionServiceInjector()->inject($artifacts->container, $databases, $executionScope);
         $connection = $databases->connection($database->frameworkConnection);
         $httpMiddleware = new ApplicationHttpMiddlewareResolver($artifacts->container)->resolve($middleware);
         $clock = new PostgreSqlSystemClock();
@@ -70,6 +74,7 @@ final readonly class ApplicationHttpRuntimeComposer
                 $journal,
                 $psr17,
                 $psr17,
+                executionScope: $executionScope,
                 journalObservations: $observations?->pipeline(),
                 deferredOperationAcceptor: $acceptor,
                 httpMiddleware: $httpMiddleware,

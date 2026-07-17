@@ -52,7 +52,7 @@ readonly class CreateOrderCommand
 
 AOP ProxyはBuild時に`var/build/aop/`へ生成され、Compiled Containerから解決したInstanceだけをInterceptします。`new CreateOrderCommand(...)`で直接作ったInstance、StaticまたはPrivate Methodは対象ではありません。対象ClassとMethodに`final`は使えませんが、非`final`の`readonly class`は使えます。無効な付与対象は黙って無視せずBuild Errorにします。
 
-`AfterCommit` Methodは明示的な`void` Return Typeが必要で、Static、`final`、Generator、Reference Return、Reference Parameterは使えません。現在のBuild-time AOP Foundationは元Methodを一度だけそのまま実行します。TransactionのBegin／Commit／RollbackとAfter Commit Queueの実行Semanticsは次のTransaction Runtime実装で有効になります。
+`AfterCommit` Methodは明示的な`void` Return Typeが必要で、Static、`final`、Generator、Reference Return、Reference Parameterは使えません。Transaction内の呼出は最外Commit後までQueueされ、Rollbackでは破棄されます。Transaction外では通常のMethod Callとして即時実行されます。Nested、Manual Transaction、失敗時の保証は[Database and Transactions](database-and-transactions.md)を確認してください。
 
 ### Sensitive Mode
 

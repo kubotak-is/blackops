@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-18T04:50:59+09:00
+Updated At: 2026-07-18T05:28:26+09:00
 
 ## Current Phase
 
@@ -16,13 +16,13 @@ Specifications: `develop/spec/09-runtime-and-di.md`、`develop/spec/10-logging-a
 
 ## Task Status
 
-Ready
+Accepted
 
-P13-002はAccepted／Commit／Push済み。P13-003のTask Packetを作成し、一般ServiceのRequired Transaction、Rollback-only、Manual Transaction Guard、After Commit Queue／Failure Reporterを実装できる状態にした。Operation TransactionはP13-004までGeneric Interceptorから除外する。
+GPT-5.6 Luna High workerがP13-003を実装し、一般ServiceのRequired Transaction、Rollback-only、Manual Transaction Guard、After Commit Queue／Failure Reporterを完成した。Orchestrator Reviewで未注入RuntimeのFail-fastとA→B→A再入時の論理Invocation Stackを修正し、独立Quality Gateを通過した。Operation TransactionはP13-004までGeneric Interceptorから除外している。
 
 ## Last Accepted Task
 
-P13-002-build-time-aop-foundation
+P13-003-generic-transaction-and-after-commit-scope
 
 ## Pending Decisions
 
@@ -45,14 +45,65 @@ P13-002-build-time-aop-foundation
 
 ## Known Blockers
 
-P13-003に既知Blockerはない。Documentation Websiteは意図的に未公開である。
+P13-004のTask Packetは未作成である。Documentation Websiteは意図的に未公開である。
 
 ## Required Next Action
 
-1. P13-003をGPT-5.6 Luna High workerへ委譲する。
-2. Worker Reportと差分をOrchestratorがReviewし、Target／Full Quality Gateを独立再実行する。
-3. Accepted後、P13-004 Operation Transaction LifecycleのTask Packetを作成する。
-4. Documentation Website PublicationはUserが再開を明示するまで実行しない。
+1. P13-004 Operation Transaction LifecycleのTask Packetを作成する。
+2. Operationの固定Transaction境界とTerminal Journal／Outcomeの原子的Commitを実装する。
+3. Documentation Website PublicationはUserが再開を明示するまで実行しない。
+
+## P13-003 Orchestrator Review Commands and Results
+
+```text
+docker compose run --rm app vendor/bin/phpunit --display-deprecations <P13-003 expanded target tests>
+Result: OK (106 tests, 766 assertions)。PostgreSQL実接続のA→B→A再入回帰を含む。
+
+docker compose run --rm app composer validate --strict
+docker compose run --rm app composer validate --strict examples/quickstart/composer.json
+docker compose run --rm app mago format --check src tests examples
+docker compose run --rm app mago lint
+docker compose run --rm app mago analyze
+docker compose run --rm app vendor/bin/deptrac
+Result: Root／Quickstart valid。Format／Lint／Analyze成功。Deptrac Violations 0。
+
+docker compose run --rm app vendor/bin/phpunit --display-deprecations
+Result: OK (1056 tests, 3608 assertions)。
+
+bash tests/Consumer/quickstart-e2e.sh
+bash tests/Consumer/skeleton-create-project.sh
+Result: Quickstart E2E、Skeleton通常／no-scripts Create-projectが成功。
+
+Public API Count 134型、Management ID、Runtime Temporary Proxy API、git diff --check Guard
+Result: すべて成功。
+```
+
+## P13-003 Generic Transaction and After Commit Scope Worker Verification Commands and Results
+
+```text
+docker compose run --rm app vendor/bin/phpunit --display-deprecations <P13-003 target tests>
+Result: OK (102 tests, 742 assertions)。PostgreSQL実接続のCommit／Rollback／Nested／Manual／複数ConnectionとA→B→A再入を含む。
+
+docker compose run --rm app composer validate --strict
+docker compose run --rm app composer validate --strict examples/quickstart/composer.json
+docker compose run --rm app mago format --check src tests examples
+docker compose run --rm app mago lint
+docker compose run --rm app mago analyze
+Result: Root／Quickstart valid。Format／Lint／Analyze成功。
+
+docker compose run --rm app vendor/bin/phpunit --display-deprecations
+Result: OK (1056 tests, 3608 assertions)。
+
+docker compose run --rm app vendor/bin/deptrac
+Result: Violations 0 / Skipped 0 / Uncovered 0 / Allowed 1948 / Warnings 0 / Errors 0。
+
+bash tests/Consumer/quickstart-e2e.sh
+bash tests/Consumer/skeleton-create-project.sh
+Result: Quickstart E2E、Skeleton通常／no-scripts Create-projectが成功。
+
+Public API Count 134型、Management ID、Runtime Temporary Proxy API、git diff --check Guard
+Result: すべて成功。
+```
 
 ## P13-002 Orchestrator Review Commands and Results
 

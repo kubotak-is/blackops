@@ -8,11 +8,16 @@ use BlackOps\Core\EmptyOutcome;
 use BlackOps\Core\OperationEnvelope;
 use BlackOps\Core\OperationHandler;
 use BlackOps\Core\OperationResult;
+use BlackOps\Database\DatabaseManager;
 use BlackOps\Internal\Aop\RuntimeAopCompiler;
+use BlackOps\Internal\Database\RuntimeDatabaseServiceInjector;
 use BlackOps\Internal\DependencyInjection\RuntimeContainerCompiler;
 use BlackOps\Internal\DependencyInjection\RuntimeContainerDumper;
+use BlackOps\Internal\Execution\ExecutionScopeProvider;
 use BlackOps\Internal\Execution\HandlerResolver;
+use BlackOps\Internal\Transaction\RuntimeTransactionServiceInjector;
 use BlackOps\Tests\Fixtures\Aop\TransactionalService;
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Ray\Aop\WeavedInterface;
@@ -59,6 +64,7 @@ final class RuntimeContainerDumperTest extends TestCase
     {
         $compiler = new RuntimeContainerCompiler();
         $builder = $compiler->builder();
+        $compiler->registerDatabaseServices($builder);
         $builder->register(TransactionalService::class)->setPublic(true);
         $directory = sys_get_temp_dir() . '/blackops-runtime-aop-' . bin2hex(random_bytes(8));
         $path = $directory . '/container.php';
@@ -74,6 +80,11 @@ final class RuntimeContainerDumperTest extends TestCase
         require_once $path;
         $containerClass = $namespace . '\\' . $class;
         $container = new $containerClass();
+        $connection = $this->transactionConnection();
+        $databases = $this->createStub(DatabaseManager::class);
+        $databases->method('connection')->willReturn($connection);
+        new RuntimeDatabaseServiceInjector()->inject($container, $databases);
+        new RuntimeTransactionServiceInjector()->inject($container, $databases, new ExecutionScopeProvider());
         $service = $container->get(TransactionalService::class);
 
         self::assertInstanceOf(WeavedInterface::class, $service);
@@ -99,6 +110,43 @@ final class RuntimeContainerDumperTest extends TestCase
     private function className(): string
     {
         return 'DumpedContainer' . bin2hex(random_bytes(8));
+    }
+
+    private function transactionConnection(): Connection
+    {
+        $active = false;
+        $level = 0;
+        $connection = $this->createStub(Connection::class);
+        $connection
+            ->method('isTransactionActive')
+            ->willReturnCallback(static function () use (&$active): bool {
+                return $active;
+            });
+        $connection
+            ->method('getTransactionNestingLevel')
+            ->willReturnCallback(static function () use (&$level): int {
+                return $level;
+            });
+        $connection
+            ->method('beginTransaction')
+            ->willReturnCallback(static function () use (&$active, &$level): void {
+                $active = true;
+                $level = 1;
+            });
+        $connection
+            ->method('commit')
+            ->willReturnCallback(static function () use (&$active, &$level): void {
+                $active = false;
+                $level = 0;
+            });
+        $connection
+            ->method('rollBack')
+            ->willReturnCallback(static function () use (&$active, &$level): void {
+                $active = false;
+                $level = 0;
+            });
+
+        return $connection;
     }
 }
 

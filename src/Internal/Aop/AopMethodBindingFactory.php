@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BlackOps\Internal\Aop;
 
+use BlackOps\Core\Operation;
 use BlackOps\Database\Attribute\AfterCommit;
 use BlackOps\Database\Attribute\Transactional;
 use Ray\Aop\Bind;
@@ -29,9 +30,11 @@ final readonly class AopMethodBindingFactory
         $transactional = $this->attributes->read($method, Transactional::class);
         $afterCommit = $this->attributes->read($method, AfterCommit::class);
 
+        $connectionName = null;
+
         if ($transactional instanceof Transactional) {
             $this->methods->assertInterceptable($class, $method, 'Transactional');
-            $this->connections->assertKnown($transactional, $class, $method, $context);
+            $connectionName = $this->connections->resolve($transactional, $class, $method, $context);
         }
 
         if ($afterCommit instanceof AfterCommit) {
@@ -40,7 +43,6 @@ final readonly class AopMethodBindingFactory
         }
 
         $usesClassTransactional = $classTransactional !== null && $this->methods->isClassLevelCandidate($method);
-        $interceptor = new FoundationMethodInterceptor();
         $methodName = $method->getName();
 
         if ($methodName === '') {
@@ -48,11 +50,22 @@ final readonly class AopMethodBindingFactory
         }
 
         if ($transactional instanceof Transactional || $usesClassTransactional) {
+            if ($connectionName === null && $classTransactional instanceof Transactional) {
+                $connectionName = $this->connections->resolve($classTransactional, $class, null, $context);
+            }
+
+            $interceptor = is_a($class->getName(), Operation::class, allow_string: true)
+                ? new FoundationMethodInterceptor()
+                : new TransactionalBindingInterceptor(
+                    $connectionName ?? throw new \LogicException(
+                        'Transactional AOP binding requires a resolved connection name.',
+                    ),
+                );
             $bind->bindInterceptors($methodName, [$interceptor]);
         }
 
         if ($afterCommit instanceof AfterCommit) {
-            $bind->bindInterceptors($methodName, [$interceptor]);
+            $bind->bindInterceptors($methodName, [new AfterCommitBindingInterceptor()]);
         }
     }
 }

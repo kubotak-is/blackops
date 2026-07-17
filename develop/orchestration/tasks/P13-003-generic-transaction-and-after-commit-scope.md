@@ -1,6 +1,6 @@
 # P13-003: Generic Transaction and After Commit Scope
 
-Status: Ready
+Status: Accepted
 
 ## Goal
 
@@ -71,6 +71,8 @@ Operation Definition／`handle()`のTransactionはP13-004のFramework固定Lifec
 - `tests/Internal/Application/ApplicationHttpConfigurationTest.php`
 - `tests/Internal/Application/ApplicationWorkerComposerTest.php`
 - `tests/Internal/DependencyInjection/RuntimeContainerCompilerTest.php`
+- `tests/Internal/DependencyInjection/RuntimeContainerDumperTest.php`
+- `tests/Internal/Console/ApplicationBuildCompileCommandTest.php`
 - `tests/Internal/Execution/DeferredWorkerRuntimeTest.php`
 - `tests/Internal/Runtime/ProductionRuntimeSmokeTest.php`
 - `tests/Integration/ApplicationHttpRuntimeTest.php`

@@ -18,7 +18,9 @@ use BlackOps\Core\Registry\OperationProvider;
 use BlackOps\Database\DatabaseManager;
 use BlackOps\Internal\Application\ApplicationConfigurationSnapshot;
 use BlackOps\Internal\Console\ApplicationBuildCompileCommand;
+use BlackOps\Internal\Execution\ExecutionScopeProvider;
 use BlackOps\Internal\Registry\OperationManifestFile;
+use BlackOps\Internal\Transaction\RuntimeTransactionServiceInjector;
 use BlackOps\Tests\Fixtures\Aop\TransactionalService;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
@@ -90,10 +92,12 @@ final class ApplicationBuildCompileCommandTest extends TestCase
             ApplicationBuildPolicyDependency::class,
             $container->get(ApplicationBuildAuthorizationPolicy::class)->dependency,
         );
-        $connection = $this->createStub(Connection::class);
+        $connection = $this->transactionConnection();
         $databases = $this->createStub(DatabaseManager::class);
+        $databases->method('connection')->willReturn($connection);
         $container->set(DatabaseManager::class, $databases);
         $container->set(Connection::class, $connection);
+        new RuntimeTransactionServiceInjector()->inject($container, $databases, new ExecutionScopeProvider());
         self::assertTrue($container->has(DatabaseManager::class));
         self::assertTrue($container->has(Connection::class));
         $transactional = $container->get(TransactionalService::class);
@@ -116,6 +120,43 @@ final class ApplicationBuildCompileCommandTest extends TestCase
     private function path(string $name): string
     {
         return $this->directory . '/' . $name . '.php';
+    }
+
+    private function transactionConnection(): Connection
+    {
+        $active = false;
+        $level = 0;
+        $connection = $this->createStub(Connection::class);
+        $connection
+            ->method('isTransactionActive')
+            ->willReturnCallback(static function () use (&$active): bool {
+                return $active;
+            });
+        $connection
+            ->method('getTransactionNestingLevel')
+            ->willReturnCallback(static function () use (&$level): int {
+                return $level;
+            });
+        $connection
+            ->method('beginTransaction')
+            ->willReturnCallback(static function () use (&$active, &$level): void {
+                $active = true;
+                $level = 1;
+            });
+        $connection
+            ->method('commit')
+            ->willReturnCallback(static function () use (&$active, &$level): void {
+                $active = false;
+                $level = 0;
+            });
+        $connection
+            ->method('rollBack')
+            ->willReturnCallback(static function () use (&$active, &$level): void {
+                $active = false;
+                $level = 0;
+            });
+
+        return $connection;
     }
 }
 

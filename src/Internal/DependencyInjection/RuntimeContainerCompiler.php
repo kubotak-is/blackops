@@ -6,7 +6,11 @@ namespace BlackOps\Internal\DependencyInjection;
 
 use BlackOps\Core\DependencyInjection\ServiceProvider;
 use BlackOps\Core\Registry\OperationRegistry;
+use BlackOps\Database\AfterCommitFailureReporter;
 use BlackOps\Database\DatabaseManager;
+use BlackOps\Internal\Transaction\DefaultAfterCommitFailureReporter;
+use BlackOps\Internal\Transaction\TransactionRuntime;
+use BlackOps\Internal\Transaction\TransactionRuntimeAccessor;
 use Doctrine\DBAL\Connection;
 use InvalidArgumentException;
 use Psr\Container\ContainerInterface;
@@ -58,6 +62,21 @@ final readonly class RuntimeContainerCompiler
 
         $builder->register(DatabaseManager::class, DatabaseManager::class)->setSynthetic(true)->setPublic(true);
         $builder->register(Connection::class, Connection::class)->setSynthetic(true)->setPublic(true);
+
+        if (!$builder->has(AfterCommitFailureReporter::class)) {
+            $builder
+                ->register(AfterCommitFailureReporter::class, DefaultAfterCommitFailureReporter::class)
+                ->setPublic(true);
+        }
+
+        if ($builder->has(TransactionRuntime::class) || $builder->has(TransactionRuntimeAccessor::class)) {
+            throw new InvalidArgumentException(
+                'Transaction runtime service cannot be redefined by a service provider.',
+            );
+        }
+
+        $builder->register(TransactionRuntime::class, TransactionRuntime::class)->setSynthetic(true)->setPublic(true);
+        $builder->register(TransactionRuntimeAccessor::class)->setPublic(true);
     }
 
     public function registerAuthorizationPolicies(ContainerBuilder $builder, OperationRegistry $operations): void

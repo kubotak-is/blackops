@@ -4,15 +4,24 @@ declare(strict_types=1);
 
 namespace BlackOps\Tests\Internal\Aop;
 
+use BlackOps\Database\AfterCommitFailure;
+use BlackOps\Database\AfterCommitFailureReporter;
 use BlackOps\Database\Attribute\AfterCommit;
 use BlackOps\Database\Attribute\Transactional;
+use BlackOps\Database\DatabaseManager;
 use BlackOps\Internal\Aop\RuntimeAopCompiler;
+use BlackOps\Internal\Execution\ExecutionScopeProvider;
+use BlackOps\Internal\Transaction\TransactionRuntime;
+use BlackOps\Internal\Transaction\TransactionRuntimeAccessor;
 use BlackOps\Tests\Fixtures\Aop\AfterCommitService;
 use BlackOps\Tests\Fixtures\Aop\ClassTransactionalService;
+use BlackOps\Tests\Fixtures\Aop\FoundationTransactionalOperation;
 use BlackOps\Tests\Fixtures\Aop\PlainService;
 use BlackOps\Tests\Fixtures\Aop\ReadonlyTransactionalService;
 use BlackOps\Tests\Fixtures\Aop\TransactionalService;
+use Doctrine\DBAL\Connection;
 use InvalidArgumentException;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Ray\Aop\WeavedInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -21,7 +30,7 @@ final class RuntimeAopCompilerTest extends TestCase
 {
     public function testCompilesAttributedDefinitionsAndLeavesPlainServiceUntouched(): void
     {
-        $builder = new ContainerBuilder();
+        $builder = $this->builder();
         $this->register($builder, TransactionalService::class);
         $this->register($builder, ClassTransactionalService::class);
         $this->register($builder, AfterCommitService::class);
@@ -31,6 +40,7 @@ final class RuntimeAopCompilerTest extends TestCase
 
         $compilation = new RuntimeAopCompiler()->compile($builder, $containerPath, 'app', ['app', 'analytics']);
         $builder->compile();
+        $this->injectRuntime($builder);
 
         $transactional = $builder->get(TransactionalService::class);
         $classTransactional = $builder->get(ClassTransactionalService::class);
@@ -60,25 +70,59 @@ final class RuntimeAopCompilerTest extends TestCase
 
     public function testDirectInstanceIsNotInterceptedAndContainerInstanceIsProxy(): void
     {
-        $builder = new ContainerBuilder();
+        $builder = $this->builder();
         $this->register($builder, TransactionalService::class);
         new RuntimeAopCompiler()->compile($builder, $this->containerPath(), 'app', ['app']);
         $builder->compile();
+        $this->injectRuntime($builder);
 
         self::assertNotInstanceOf(WeavedInterface::class, new TransactionalService());
         self::assertInstanceOf(WeavedInterface::class, $builder->get(TransactionalService::class));
+    }
+
+    public function testOperationTransactionalBindingRemainsPassThrough(): void
+    {
+        $builder = $this->builder();
+        $this->register($builder, FoundationTransactionalOperation::class);
+        new RuntimeAopCompiler()->compile($builder, $this->containerPath(), 'app', ['app']);
+        $builder->compile();
+        $connection = $this->createMock(Connection::class);
+        $connection->expects(self::never())->method('beginTransaction');
+        $this->injectRuntime($builder, $connection, configureConnection: false);
+
+        $operation = $builder->get(FoundationTransactionalOperation::class);
+
+        self::assertInstanceOf(FoundationTransactionalOperation::class, $operation);
+        self::assertSame('operation', $operation->execute());
+    }
+
+    public function testAfterCommitProxyQueuesUntilTransactionCommit(): void
+    {
+        $builder = $this->builder();
+        $this->register($builder, AfterCommitService::class);
+        new RuntimeAopCompiler()->compile($builder, $this->containerPath(), 'app', ['app']);
+        $builder->compile();
+        $runtime = $this->injectRuntime($builder);
+        $service = $builder->get(AfterCommitService::class);
+
+        $runtime->transactional('app', function () use ($service): void {
+            $service->record('queued');
+            self::assertSame([], $service->values);
+        });
+
+        self::assertSame(['queued'], $service->values);
     }
 
     public function testProxyNameIsDeterministicAndStaleArtifactsAreRemoved(): void
     {
         $containerPath = $this->containerPath();
         $compiler = new RuntimeAopCompiler();
-        $builder = new ContainerBuilder();
+        $builder = $this->builder();
         $this->register($builder, TransactionalService::class);
         $first = $compiler->compile($builder, $containerPath, 'app', ['app']);
         $stale = dirname($containerPath) . '/aop/stale.php';
         file_put_contents($stale, '<?php');
-        $secondBuilder = new ContainerBuilder();
+        $secondBuilder = $this->builder();
         $this->register($secondBuilder, TransactionalService::class);
         $second = $compiler->compile($secondBuilder, $containerPath, 'app', ['app']);
 
@@ -88,10 +132,11 @@ final class RuntimeAopCompilerTest extends TestCase
 
     public function testOriginalThrowableIsPropagatedWithoutAdditionalInvocation(): void
     {
-        $builder = new ContainerBuilder();
+        $builder = $this->builder();
         $this->register($builder, TransactionalService::class);
         new RuntimeAopCompiler()->compile($builder, $this->containerPath(), 'app', ['app']);
         $builder->compile();
+        $this->injectRuntime($builder);
         $service = $builder->get(TransactionalService::class);
 
         try {
@@ -106,7 +151,7 @@ final class RuntimeAopCompilerTest extends TestCase
     public function testRejectsFinalClassAndCleansArtifacts(): void
     {
         $containerPath = $this->containerPath();
-        $builder = new ContainerBuilder();
+        $builder = $this->builder();
         $this->register($builder, InvalidFinalTransactionalService::class);
 
         try {
@@ -142,7 +187,7 @@ final class RuntimeAopCompilerTest extends TestCase
 
     public function testRejectsUnknownConnectionWithoutExposingConfigurationValues(): void
     {
-        $builder = new ContainerBuilder();
+        $builder = $this->builder();
         $this->register($builder, UnknownConnectionService::class);
 
         try {
@@ -156,7 +201,7 @@ final class RuntimeAopCompilerTest extends TestCase
 
     public function testRejectsTransactionalServiceWhenDatabaseConfigurationIsMissing(): void
     {
-        $builder = new ContainerBuilder();
+        $builder = $this->builder();
         $this->register($builder, TransactionalService::class);
 
         $this->expectException(InvalidArgumentException::class);
@@ -168,7 +213,7 @@ final class RuntimeAopCompilerTest extends TestCase
     /** @param class-string $class */
     private function assertInvalid(string $class, string $message): void
     {
-        $builder = new ContainerBuilder();
+        $builder = $this->builder();
         $this->register($builder, $class);
 
         try {
@@ -184,6 +229,80 @@ final class RuntimeAopCompilerTest extends TestCase
     private function register(ContainerBuilder $builder, string $class): void
     {
         $builder->register($class)->setPublic(true);
+    }
+
+    private function builder(): ContainerBuilder
+    {
+        $builder = new ContainerBuilder();
+        $builder->register(TransactionRuntime::class)->setSynthetic(true)->setPublic(true);
+
+        return $builder;
+    }
+
+    private function injectRuntime(
+        ContainerBuilder $builder,
+        ?Connection $connection = null,
+        bool $configureConnection = true,
+    ): TransactionRuntime {
+        $active = false;
+        $level = 0;
+        $connection ??= $this->createStub(Connection::class);
+
+        if ($configureConnection && $connection instanceof Stub) {
+            $connection
+                ->method('isTransactionActive')
+                ->willReturnCallback(static function () use (&$active): bool {
+                    return $active;
+                });
+            $connection
+                ->method('getTransactionNestingLevel')
+                ->willReturnCallback(static function () use (&$level): int {
+                    return $level;
+                });
+            $connection
+                ->method('beginTransaction')
+                ->willReturnCallback(static function () use (&$active, &$level): void {
+                    $active = true;
+                    $level++;
+                });
+            $connection
+                ->method('commit')
+                ->willReturnCallback(static function () use (&$active, &$level): void {
+                    $active = false;
+                    $level = 0;
+                });
+            $connection
+                ->method('rollBack')
+                ->willReturnCallback(static function () use (&$active, &$level): void {
+                    $level = max(0, $level - 1);
+                    $active = $level > 0;
+                });
+        }
+        $databases = new class($connection) implements DatabaseManager {
+            public function __construct(
+                private readonly Connection $connection,
+            ) {}
+
+            public function connection(?string $name = null): Connection
+            {
+                return $this->connection;
+            }
+        };
+        $reporter = new class implements AfterCommitFailureReporter {
+            public function report(AfterCommitFailure $failure): void {}
+        };
+
+        $runtime = new TransactionRuntime($databases, $reporter, new ExecutionScopeProvider());
+        $builder->set(TransactionRuntime::class, $runtime);
+        $accessor = $builder->get(TransactionRuntimeAccessor::class);
+
+        if (!$accessor instanceof TransactionRuntimeAccessor) {
+            self::fail('Expected transaction runtime accessor.');
+        }
+
+        $accessor->set($runtime);
+
+        return $runtime;
     }
 
     private function containerPath(): string

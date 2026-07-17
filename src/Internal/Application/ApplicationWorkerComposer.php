@@ -15,6 +15,7 @@ use BlackOps\Internal\Execution\DeferredWorkerLoop;
 use BlackOps\Internal\Execution\DeferredWorkerRuntime;
 use BlackOps\Internal\Execution\DeferredWorkerRuntimeServices;
 use BlackOps\Internal\Execution\DeferredWorkerRuntimeStorage;
+use BlackOps\Internal\Execution\ExecutionScopeProvider;
 use BlackOps\Internal\Execution\HandlerResolver;
 use BlackOps\Internal\Execution\PcntlSignalHeartbeat;
 use BlackOps\Internal\ExecutionContext\ExecutionContextFactory;
@@ -22,6 +23,7 @@ use BlackOps\Internal\Identifier\IdentifierFactory;
 use BlackOps\Internal\Identifier\SymfonyUuidv7Generator;
 use BlackOps\Internal\Journal\JournalRecordFactory;
 use BlackOps\Internal\Runtime\ProductionRuntimeArtifactLoader;
+use BlackOps\Internal\Transaction\RuntimeTransactionServiceInjector;
 use BlackOps\Transport\PostgreSql\PostgreSqlCanonicalJournalStore;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationLifecycleStore;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationReceiver;
@@ -44,6 +46,8 @@ final readonly class ApplicationWorkerComposer
         );
         $databases = $database->databaseManager();
         new RuntimeDatabaseServiceInjector()->inject($artifacts->container, $databases);
+        $executionScope = new ExecutionScopeProvider();
+        new RuntimeTransactionServiceInjector()->inject($artifacts->container, $databases, $executionScope);
         $main = $databases->connection($database->frameworkConnection);
         $heartbeat = $database->databaseManager()->connection($database->frameworkConnection);
         $clock = new PostgreSqlSystemClock();
@@ -64,6 +68,7 @@ final readonly class ApplicationWorkerComposer
             new PostgreSqlDeferredOperationLifecycleStore($main, $database->schema),
             $clock,
             new PostgreSqlOutcomeStore($main, $database->schema),
+            scope: $executionScope,
         );
         $receiver = new PostgreSqlDeferredOperationReceiver(
             $main,

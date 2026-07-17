@@ -18,6 +18,16 @@ final readonly class AopConnectionValidator
         ?ReflectionMethod $method,
         AopCompilationContext $context,
     ): void {
+        $this->resolve($transactional, $class, $method, $context);
+    }
+
+    /** @param ReflectionClass<object> $class */
+    public function resolve(
+        Transactional $transactional,
+        ReflectionClass $class,
+        ?ReflectionMethod $method,
+        AopCompilationContext $context,
+    ): string {
         $connection = $transactional->connection ?? $context->defaultConnection;
 
         if ($connection === null) {
@@ -27,7 +37,7 @@ final readonly class AopConnectionValidator
         }
 
         if (($context->connectionNames[$connection] ?? null) === true) {
-            return;
+            return $connection;
         }
 
         $location = $method === null ? $class->getName() : $class->getName() . '::' . $method->getName() . '()';
