@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-18T06:01:34+09:00
+Updated At: 2026-07-18T06:04:12+09:00
 
 ## Current Phase
 
@@ -8,17 +8,17 @@ Phase 13: Database and Transaction Runtime
 
 ## Current Task
 
-Task ID: P13-004-operation-transaction-lifecycle
+Task ID: P13-005-long-running-connection-safety
 
-Task Packet: `develop/orchestration/tasks/P13-004-operation-transaction-lifecycle.md`
+Task Packet: `develop/orchestration/tasks/P13-005-long-running-connection-safety.md`
 
 Specifications: `develop/spec/09-runtime-and-di.md`、`develop/spec/10-logging-and-traceability.md`、`develop/spec/11-durable-journal-and-transactions.md`、`develop/spec/36-postgresql-transaction-boundaries.md`、`develop/spec/64-phase-13-delivery-plan.md`
 
 ## Task Status
 
-Accepted
+Ready
 
-P13-004を実装し、Operation Transactional Metadata、Authorization後の固定Transaction Stage、同一Connectionの業務更新と成功Terminal Journal／OutcomeのAtomic Commit、Rejected／Throwable／Fencing／Supervision境界をOrchestrator独立Quality Gateまで通してAcceptedとした。
+P13-005 Task Packetを作成した。HTTP Request／Deferred Attempt単位で生成済みNamed ConnectionをHealth Checkし、正常再利用、Leak検出、失敗時Close、次回再接続を行うLong-running Process境界を実装する準備が整っている。
 
 ## Last Accepted Task
 
@@ -45,12 +45,12 @@ P13-004-operation-transaction-lifecycle
 
 ## Known Blockers
 
-P13-005のTask Packetは未作成である。Documentation Websiteは意図的に未公開である。
+P13-005に既知Blockerはない。Documentation Websiteは意図的に未公開である。
 
 ## Required Next Action
 
-1. P13-005 Long-running Connection SafetyのTask Packetを作成する。
-2. Request／Attempt単位のConnection Health Check、Leak検査、Close／Reconnect境界を実装する。
+1. GPT-5.6 Luna High workerへP13-005を依頼する。
+2. Worker Report後、Orchestratorが差分とTarget／Full Quality GateをReviewする。
 3. Documentation Website PublicationはUserが再開を明示するまで実行しない。
 
 ## P13-004 Orchestrator Review Commands and Results
