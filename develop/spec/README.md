@@ -25,7 +25,7 @@
 | [08-registry-and-manifest.md](08-registry-and-manifest.md) | Operation探索、Provider、Manifest、Runtime Registry |
 | [09-runtime-and-di.md](09-runtime-and-di.md) | PHP Runtime、PSR-11、Symfony DI、Container Compile |
 | [10-logging-and-traceability.md](10-logging-and-traceability.md) | PSR-3 Logger、自動Context、Journal Log、OTel相関 |
-| [11-durable-journal-and-transactions.md](11-durable-journal-and-transactions.md) | Durable保証、Transaction Middleware、Outbox |
+| [11-durable-journal-and-transactions.md](11-durable-journal-and-transactions.md) | Named Connection、Transaction Attribute、After Commit、Outbox |
 | [12-mvp-scope.md](12-mvp-scope.md) | 最初のVertical Sliceと完了条件 |
 | [13-mvp-technical-stack.md](13-mvp-technical-stack.md) | PostgreSQL、HTTP PSR、FastRoute、UID、Console、Logger、Test |
 | [14-package-architecture.md](14-package-architecture.md) | Composer Packageの公開単位 |
@@ -78,6 +78,7 @@
 | [61-experimental-release-contract.md](61-experimental-release-contract.md) | Public Readiness前の破壊的Minor Release、Version、Documentation、Publication境界 |
 | [62-phase-11-delivery-plan.md](62-phase-11-delivery-plan.md) | Release Surface ResetからFramework／Skeleton 1.1.0公開までのTask順序 |
 | [63-phase-12-delivery-plan.md](63-phase-12-delivery-plan.md) | Actor ContextからDeferred再認可とPhase CloseoutまでのTask順序 |
+| [64-phase-13-delivery-plan.md](64-phase-13-delivery-plan.md) | Named Connection、Build-time AOP、Transaction、After CommitからPhase CloseoutまでのTask順序 |
 
 ## 決定の参照
 
@@ -98,7 +99,7 @@
 | [D013](../decisions/013-runtime-and-dependency-injection.md) | PHP RuntimeとDependency Injection | Decided |
 | [D014](../decisions/014-logging-and-traceability.md) | LoggingとTraceability | Decided |
 | [D015](../decisions/015-log-delivery-and-retention.md) | Log DeliveryとRetention | Decided |
-| [D016](../decisions/016-durable-journal-transaction.md) | Durable JournalとTransaction | Decided |
+| [D016](../decisions/016-durable-journal-transaction.md) | Durable JournalとTransaction | Partially Superseded by D096 |
 | [D017](../decisions/017-mvp-scope.md) | MVP Scope | Decided |
 | [D018](../decisions/018-mvp-technical-stack.md) | MVP Technical Stack | Decided |
 | [D019](../decisions/019-framework-name.md) | Framework Name | Decided |
@@ -178,4 +179,4 @@
 | [D093](../decisions/093-post-phase-10-roadmap.md) | Post Phase 10 Roadmap | Decided |
 | [D094](../decisions/094-stable-1-1-release-contract.md) | Stable 1.1 Release Contract | Decided |
 | [D095](../decisions/095-phase-12-middleware-and-authorization-runtime.md) | Phase 12 Middleware and Authorization Runtime | Decided |
-| [D096](../decisions/096-phase-13-database-and-transaction-runtime.md) | Phase 13 Database and Transaction Runtime | Proposed |
+| [D096](../decisions/096-phase-13-database-and-transaction-runtime.md) | Phase 13 Database and Transaction Runtime | Decided |

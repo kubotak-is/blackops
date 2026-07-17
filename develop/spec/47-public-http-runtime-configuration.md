@@ -30,33 +30,40 @@ Artifact Fileの不存在、不正Format、未対応Version、Application Build 
 
 ## Database Configuration
 
-`config/database.php` は解決済みDoctrine DBAL Connection ParametersとFramework Schemaを返す。
+`config/database.php` はDefault／Named Doctrine DBAL Connection Parametersと、Framework Storeが使用するConnection／Schemaを返す。
 
 ```php
 return [
-    'connection' => [
-        'driver' => 'pdo_pgsql',
-        'host' => getenv('POSTGRES_HOST'),
-        'port' => (int) getenv('POSTGRES_PORT'),
-        'dbname' => getenv('POSTGRES_DB'),
-        'user' => getenv('POSTGRES_USER'),
-        'password' => getenv('POSTGRES_PASSWORD'),
+    'default' => 'app',
+    'connections' => [
+        'app' => [
+            'driver' => 'pdo_pgsql',
+            'host' => $_ENV['POSTGRES_HOST'],
+            'port' => (int) $_ENV['POSTGRES_PORT'],
+            'dbname' => $_ENV['POSTGRES_DB'],
+            'user' => $_ENV['POSTGRES_USER'],
+            'password' => $_ENV['POSTGRES_PASSWORD'],
+        ],
     ],
-    'schema' => 'blackops',
+    'framework' => [
+        'connection' => 'app',
+        'schema' => 'blackops',
+    ],
 ];
 ```
 
 Environment VariableとConnection Parameterの対応はApplication Configが所有する。FrameworkはEnvironment Variable名をHard Codeしない。
 
-`connection` は配列、`schema` は安全なPostgreSQL Identifierとして検証できる非空Stringでなければならない。Error MessageへPassword、DSN Credential、Token等の値を含めない。
+`default`と`framework.connection`は`connections`内のNameを参照する。各ConnectionはString Key Parameter Map、`framework.schema`は安全なPostgreSQL Identifierとして検証できる非空Stringでなければならない。既存の単一`connection`／`schema`形式は互換Shorthandとして受理する。Error MessageへPassword、DSN Credential、Token等の値を含めない。
 
-HTTP Runtimeは一つのDBAL ConnectionをDeferred Acceptance Transaction、PostgreSQL Sender、Canonical Journal Storeで共有する。Connection生成は `http()` の初回呼出時まで遅延する。
+HTTP RuntimeはDatabaseManagerから`framework.connection`を解決し、Deferred Acceptance Transaction、PostgreSQL Sender、Canonical Journal Storeで共有する。DatabaseManagerとDefault DBAL ConnectionはSynthetic ServiceとしてCompiled Containerへ設定し、Application RepositoryからConstructor Injectionできる。Connection生成は実際にNameを要求する時点まで遅延する。
 
 ## Runtime Composition
 
 `Application::http()` は次をFramework内で構成する。
 
 - Production Runtime Artifact Loader
+- Named DatabaseManagerとRuntime Synthetic Service Injection
 - Compiled Operation Registry／HTTP Route Registry／PSR-11 Container
 - System ClockとUUIDv7 Identifier Factory
 - PostgreSQL Canonical Journal Store

@@ -1,6 +1,6 @@
 # D016: Durable JournalとTransaction
 
-Status: Decided
+Status: Partially Superseded by D096
 
 ## Context
 

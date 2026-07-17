@@ -19,7 +19,7 @@ Commit成功後に `DeferredAcknowledgement` を返す。
 
 ## Worker
 
-Handler実行中にDatabase Transactionを保持しない。
+通常のDeferred OperationはHandler実行中にFramework Store Transactionを保持しない。
 
 ```text
 Tx 1: Claim + Fencing更新
@@ -31,6 +31,10 @@ Tx 3: Fencing検証 + Result State + Sequence + Canonical Journal + Outcome
 ```
 
 各Lifecycle境界内ではState、Sequence、Canonical Journal、Outcomeを原子的に更新する。
+
+`#[Transactional]`付きOperationは明示例外とする。Attempt Startedは先にCommitしたまま、Authorization後にApplication Transactionを開始する。Application ConnectionとFramework Storeが同一Connection Instanceなら、Handlerの業務更新、Fencing検証、Result State、Sequence、Canonical Journal、Outcomeを一つの成功Transactionへ含める。Rejected／ThrowableではApplication TransactionをRollbackしてから、既存の短いFramework TransactionでTerminalまたはSupervision状態を記録する。
+
+一般Serviceの`#[Transactional]`はMethod Return時にCommitする。Operation自体がTransactionalでない場合、そのCommitと後続のWorker Result Transactionは原子的ではない。
 
 業務Databaseが別Connectionの場合、その更新との原子性はTransactional Outbox等を使わない限り保証しない。
 

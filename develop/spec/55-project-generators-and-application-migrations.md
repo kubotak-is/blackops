@@ -70,7 +70,7 @@ Application Rootに`migrations/`が存在する場合、`database:status`と`dat
 
 Framework MigrationとApplication Migrationは次を共有する。
 
-- `config/database.php`で構成された一つのDBAL Connection
+- `config/database.php`の`framework.connection`で構成されたDBAL Connection
 - Framework Schema内のDoctrine Metadata Table
 - Transactional／All-or-nothing設定
 - 明示的なStatus／Dry-run／Migrate Command

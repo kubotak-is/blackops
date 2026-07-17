@@ -1,24 +1,24 @@
 # Orchestration State
 
-Updated At: 2026-07-18T02:57:35+09:00
+Updated At: 2026-07-18T03:17:51+09:00
 
 ## Current Phase
 
-Phase 13: Database and Transaction Runtime (Design Pending)
+Phase 13: Database and Transaction Runtime
 
 ## Current Task
 
-Task ID: D096-phase-13-database-and-transaction-runtime
+Task ID: P13-001-database-configuration-and-di-foundation
 
-Decision Draft: `develop/decisions/096-phase-13-database-and-transaction-runtime.md`
+Task Packet: `develop/orchestration/tasks/P13-001-database-configuration-and-di-foundation.md`
 
-Specifications: `develop/spec/09-runtime-and-di.md`、`develop/spec/11-durable-journal-and-transactions.md`、`develop/spec/36-postgresql-transaction-boundaries.md`、`develop/spec/60-post-phase-10-roadmap.md`
+Specifications: `develop/spec/09-runtime-and-di.md`、`develop/spec/11-durable-journal-and-transactions.md`、`develop/spec/36-postgresql-transaction-boundaries.md`、`develop/spec/64-phase-13-delivery-plan.md`
 
 ## Task Status
 
-Awaiting Follow-up User Decision
+Ready for Worker
 
-UserはD096 Question 1／2／5／6でAを選択し、Question 3／4でOperation以外のCommand／Application Serviceへ適用できるAOP型TransactionとAfter Commit Scopeを追加要件とした。Ray.Aopの現行Release、Proxy生成、PHP／readonly／final制約、Symfony DI統合境界を監査し、Question 7から10を追加した。Production実装はFollow-up回答まで開始しない。
+UserはD096 Question 1から10を確定した。D096をDecidedとし、Runtime／Transaction／PostgreSQL仕様とPhase 13 Delivery Planを同期した。P13-001はNamed Database Configuration、DatabaseManager、Default Connection DI、Synthetic Runtime Serviceの基盤を実装する。
 
 ## Last Accepted Task
 
@@ -41,16 +41,17 @@ P12-006-consumer-experience-and-closeout
 13. Operation Frontend Bridgeの初期DepthとFrontend Targetは未決定だが、Phase 11から14を妨げないためPhase 15の設計対話へ延期する。
 14. D094はC／A／A／A／B／Cで確定。Experimental期間はMinor ReleaseのBackward Compatibilityを保証せず、Public Readiness時にVersioning Policyを再決定する。
 15. D095は確定。Operation Middlewareは不要とし、Phase 12はPSR-15 HTTP MiddlewareとAuthorizationへ絞る。Authentication、Durable Actor、Deferred FailureはAを採用する。
+16. D096は確定。Named DBAL Connection、DatabaseManager、Ray.Aop Build-time Interception、Operation／一般ServiceのTransaction保証差、Nested Required、After Commit Best-effort、Long-running Connection Lifecycleを採用する。
 
 ## Known Blockers
 
-Phase 13のMethod Interception方式、Operation保証差、After Commit Semantics／Failure ContractはD096 Question 7から10のUser回答待ちである。Documentation Websiteは意図的に未公開である。
+P13-001に既知Blockerはない。Documentation Websiteは意図的に未公開である。
 
 ## Required Next Action
 
-1. UserがD096 Question 7から10へ回答する。
-2. Orchestrator Codexが全回答をDecision／Specification／Phase 13 Delivery Planへ確定する。
-3. 確定後にP13 Task Packetを作成し、GPT-5.6 Luna High workerへProduction実装を委譲する。
+1. GPT-5.6 Luna High workerがP13-001を実装・検証し、Report／STATEを更新する。
+2. Orchestrator Codexが差分Review、独立Quality Gate、必要な修正を行う。
+3. Accepted後にP13-002 Build-time AOP Foundationへ進む。
 4. Documentation Website PublicationはUserが再開を明示するまで実行しない。
 
 ## P12-006 Orchestrator Review Commands and Results

@@ -1,6 +1,6 @@
 # D096: Phase 13 Database and Transaction Runtime
 
-Status: Proposed
+Status: Decided
 
 ## Context
 
@@ -287,6 +287,8 @@ readonly class CreateOrderCommand
 
 [ANSWER]
 
+A
+
 [/ANSWER]
 
 ## Question 8: Operationと一般ServiceのTransaction保証差
@@ -315,6 +317,8 @@ Non-transactional Operation -> Transactional Command:
 ```
 
 [ANSWER]
+
+A
 
 [/ANSWER]
 
@@ -347,6 +351,8 @@ Methodは通常どおり業務Codeから呼ぶ。Frameworkが無条件に全Hook
 
 [ANSWER]
 
+A
+
 [/ANSWER]
 
 ## Question 10: After Commit失敗とDurability
@@ -367,9 +373,34 @@ Commit済みOperationをFailedとして自動Retryすると、業務更新を二
 
 [ANSWER]
 
+A
+
 [/ANSWER]
 
-## Proposed Consequences
+## Decision
+
+[DECISION]
+
+1. `config/database.php`は`default`、`connections`、`framework.connection`、`framework.schema`をCanonical形式とし、既存の単一`connection`／`schema`を互換Shorthandとして正規化する。
+2. Public `BlackOps\Database\DatabaseManager`はDefaultまたはNamed Doctrine DBAL Connectionを返す。Default `Doctrine\DBAL\Connection`もConstructor Autowiringできるようにする。
+3. ConnectionはConfiguration Snapshotの解決済みParameterから名前ごとにLazy生成し、CredentialをBuild Artifactへ保存しない。
+4. `ray/aop`をSymfony DIのBuild時Compilerへ統合する。Ray.DiとRuntime Proxy生成は導入しない。
+5. `#[Transactional]`はDI管理ServiceのClassまたはPublic Methodへ適用できる。Intercept対象Class／Methodは非`final`を必須とし、無効な対象は`build:compile`で拒否する。`readonly` Classは許可する。
+6. Operation Definition／`handle()`のTransactionはFramework固定Operation Lifecycleが所有する。同一Connectionなら業務更新、成功Terminal Journal、Outcomeを同じCommitへ含める。
+7. 一般Service MethodのTransactionはCompiled InterceptorがMethod Return時にCommitする。Transactional Commandだけを呼ぶOperationでは、Command CommitとOperation Terminalの原子性を保証しない。
+8. 同じConnectionのNested TransactionはRequired Semanticsで最外Scopeへ参加し、Inner FailureはRollback-onlyにする。異なるNamed Connectionは独立Scopeとして許可するが、Connection間の原子性を保証しない。
+9. Attribute管理Transactionが所有者不明のManual Transactionへ遭遇した場合はFail-fastする。Manual TransactionはAttributeを使わない処理で引き続き許可する。
+10. `#[AfterCommit]`付きPublic `void` Methodの呼出は現在のTransaction ScopeへQueueし、最外Commit後に登録順で一度実行する。Rollbackでは破棄し、Transaction外では即時実行する。
+11. After Commit失敗は全Callbackを止めず、相関情報付きApplication LogとFailure Reporterへ記録する。Commit済みTransactionとOperation Outcomeを変更せず、自動Retryしない。Delivery保証が必要な処理はPhase 17のTransactional Outboxを使う。
+12. HTTP Request／Deferred Attempt開始時に生成済みConnectionをHealth Checkする。正常終了時はTransaction Leakを検査して再利用し、Throwable、Rollback失敗、Leak、Health Check失敗ではCloseして次回利用時に再接続する。
+13. Transactional Outbox Persistence／Relay／ReplayはPhase 17へ残し、Phase 13ではORM、Repository基底Class、Query Builder Wrapperを標準化しない。
+14. D016のTransaction Operation Middlewareという実装方式を本Decisionで置き換える。Operation Middlewareを追加しないD095の方針は維持する。
+
+[/DECISION]
+
+## Consequences
+
+[CONSEQUENCES]
 
 - Runtime Connection ParametersをBuild Artifactへ保存せず、Compiled ContainerへSynthetic Runtime Serviceを注入する必要がある
 - `DatabaseManager`とDefault `Connection`をPHP Public APIとして追加する
@@ -383,6 +414,8 @@ Commit済みOperationをFailedとして自動Retryすると、業務更新を二
 - HTTP Request、Deferred Attempt、Nested Dispatch、Manual Transaction、Worker Crashの回帰Testが必要になる
 - Worker ModeでApplication ConnectionのHealth Check／Reset／ReconnectをConsumer E2Eへ追加する
 - ORMとOutbox RelayをPhase 13へ持ち込まない
+
+[/CONSEQUENCES]
 
 ## References
 
