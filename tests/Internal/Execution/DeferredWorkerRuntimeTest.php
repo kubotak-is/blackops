@@ -36,9 +36,11 @@ use BlackOps\Core\Supervision\SupervisionPolicy;
 use BlackOps\Database\AfterCommitFailure;
 use BlackOps\Database\AfterCommitFailureReporter;
 use BlackOps\Database\DatabaseManager;
+use BlackOps\Internal\Application\ApplicationDatabaseConnectionLifecycle;
 use BlackOps\Internal\Authorization\AuthorizationEvaluator;
 use BlackOps\Internal\Authorization\AuthorizationPolicyResolver;
 use BlackOps\Internal\Codec\ReflectionJsonOperationCodec;
+use BlackOps\Internal\Database\DoctrineDatabaseManager;
 use BlackOps\Internal\Execution\ClaimExecutionGuard;
 use BlackOps\Internal\Execution\DeferredAcceptanceOrchestrator;
 use BlackOps\Internal\Execution\DeferredLeaseExpiredRecovery;
@@ -159,6 +161,140 @@ final class DeferredWorkerRuntimeTest extends TestCase
         self::assertNotNull($storedOutcome);
         self::assertInstanceOf(WorkerReportDone::class, $storedOutcome->outcome());
         self::assertSame('done-weekly', $storedOutcome->outcome()->message);
+    }
+
+    public function testWorkerReconnectsGeneratedConnectionBeforeResolvingHandler(): void
+    {
+        $handler = new CompletingWorkerReportHandler();
+        $application = $this->createMock(Connection::class);
+        $application
+            ->expects(self::exactly(2))
+            ->method('fetchOne')
+            ->with('SELECT 1')
+            ->willReturnOnConsecutiveCalls(self::throwException(new RuntimeException('stale')), 1);
+        $application->expects(self::once())->method('close');
+        $application->expects(self::once())->method('isTransactionActive')->willReturn(false);
+        $this->accept();
+        $claim = $this->receiver->claim(new \BlackOps\Core\Execution\ClaimRequest(
+            new DateTimeImmutable('2026-07-10T00:01:00.000000Z'),
+        ));
+
+        self::assertNotNull($claim);
+        $result = $this->runtime($handler, connections: $this->lifecycle(['app' => $application]))->run($claim);
+
+        self::assertTrue($result->isCompleted());
+        self::assertSame(1, $handler->calls);
+    }
+
+    public function testWorkerDoesNotResolveHandlerWhenConnectionReconnectFails(): void
+    {
+        $handler = new CompletingWorkerReportHandler();
+        $application = $this->createMock(Connection::class);
+        $application
+            ->expects(self::exactly(2))
+            ->method('fetchOne')
+            ->with('SELECT 1')
+            ->willThrowException(new RuntimeException('database unavailable'));
+        $application->expects(self::exactly(2))->method('close');
+        $this->accept();
+        $claim = $this->receiver->claim(new \BlackOps\Core\Execution\ClaimRequest(
+            new DateTimeImmutable('2026-07-10T00:01:00.000000Z'),
+        ));
+
+        self::assertNotNull($claim);
+
+        try {
+            $this->runtime($handler, connections: $this->lifecycle(['app' => $application]))->run($claim);
+            self::fail('Expected connection health check failure.');
+        } catch (RuntimeException $exception) {
+            self::assertSame('database unavailable', $exception->getMessage());
+        }
+
+        self::assertSame(0, $handler->calls);
+        self::assertSame('running', $this->operationRow()['state']);
+    }
+
+    public function testWorkerClosesEveryGeneratedConnectionAfterSupervisedFailure(): void
+    {
+        $app = $this->createMock(Connection::class);
+        $analytics = $this->createMock(Connection::class);
+        foreach ([$app, $analytics] as $connection) {
+            $connection->expects(self::once())->method('fetchOne')->with('SELECT 1')->willReturn(1);
+            $connection->expects(self::once())->method('close');
+        }
+        $this->accept();
+        $claim = $this->receiver->claim(new \BlackOps\Core\Execution\ClaimRequest(
+            new DateTimeImmutable('2026-07-10T00:01:00.000000Z'),
+        ));
+
+        self::assertNotNull($claim);
+
+        try {
+            $this->runtime(new ThrowingWorkerReportHandler(), connections: $this->lifecycle([
+                'app' => $app,
+                'analytics' => $analytics,
+            ]))->run($claim);
+            self::fail('Expected supervised handler failure.');
+        } catch (SupervisedHandlerFailureException) {
+        }
+
+        self::assertSame('failed', $this->operationRow()['state']);
+    }
+
+    public function testWorkerReusesClosedConnectionObjectOnNextRetryAttempt(): void
+    {
+        $handler = new RecoveringWorkerReportHandler();
+        $application = $this->createMock(Connection::class);
+        $application->expects(self::exactly(2))->method('fetchOne')->with('SELECT 1')->willReturn(1);
+        $application->expects(self::once())->method('close');
+        $application->expects(self::once())->method('isTransactionActive')->willReturn(false);
+        $runtime = $this->runtime($handler, connections: $this->lifecycle(['app' => $application]));
+        $this->accept();
+        $claim = $this->receiver->claim(new \BlackOps\Core\Execution\ClaimRequest(
+            new DateTimeImmutable('2026-07-10T00:01:00.000000Z'),
+        ));
+
+        self::assertNotNull($claim);
+        try {
+            $runtime->run($claim);
+            self::fail('Expected the first attempt to be retried.');
+        } catch (SupervisedHandlerFailureException) {
+        }
+
+        $retry = $this->receiver->claim(new \BlackOps\Core\Execution\ClaimRequest(
+            new DateTimeImmutable('2026-07-10T00:03:00.000000Z'),
+        ));
+        self::assertNotNull($retry);
+        $result = $runtime->run($retry);
+
+        self::assertTrue($result->isCompleted());
+        self::assertSame(2, $handler->calls);
+        self::assertSame('completed', $this->operationRow()['state']);
+    }
+
+    public function testWorkerTransactionLeakClosesConnectionAndEscapesSuccessfulAttempt(): void
+    {
+        $handler = new CompletingWorkerReportHandler();
+        $application = $this->createMock(Connection::class);
+        $application->expects(self::once())->method('fetchOne')->with('SELECT 1')->willReturn(1);
+        $application->expects(self::once())->method('isTransactionActive')->willReturn(true);
+        $application->expects(self::once())->method('close');
+        $this->accept();
+        $claim = $this->receiver->claim(new \BlackOps\Core\Execution\ClaimRequest(
+            new DateTimeImmutable('2026-07-10T00:01:00.000000Z'),
+        ));
+
+        self::assertNotNull($claim);
+
+        try {
+            $this->runtime($handler, connections: $this->lifecycle(['app' => $application]))->run($claim);
+            self::fail('Expected transaction leak failure.');
+        } catch (\LogicException $exception) {
+            self::assertSame('Application invocation left a database transaction active.', $exception->getMessage());
+        }
+
+        self::assertSame(1, $handler->calls);
+        self::assertSame('completed', $this->operationRow()['state']);
     }
 
     public function testTransactionalWorkerCommitsBusinessTerminalAndAfterCommitTogether(): void
@@ -1020,6 +1156,7 @@ final class DeferredWorkerRuntimeTest extends TestCase
         ?OutcomeWriter $outcomes = null,
         ?OperationMetadata $metadata = null,
         ?AuthorizationPolicy $authorizationPolicy = null,
+        ?ApplicationDatabaseConnectionLifecycle $connections = null,
     ): DeferredWorkerRuntime {
         $clock = new DeferredWorkerClock();
         $identifiers = new IdentifierFactory(new DeferredWorkerRuntimeUuidv7Generator(), $clock);
@@ -1056,7 +1193,27 @@ final class DeferredWorkerRuntimeTest extends TestCase
                 transactions: $operationTransactions,
             ),
             $guard ?? new \BlackOps\Internal\Execution\DirectClaimExecutionGuard(),
+            connections: $connections,
         );
+    }
+
+    /** @param array<string, Connection> $connections */
+    private function lifecycle(array $connections): ApplicationDatabaseConnectionLifecycle
+    {
+        $parameters = [];
+        foreach (array_keys($connections) as $name) {
+            $parameters[$name] = ['name' => $name];
+        }
+        $manager = new DoctrineDatabaseManager(
+            array_key_first($connections),
+            $parameters,
+            static fn(array $parameters): Connection => $connections[$parameters['name']],
+        );
+        foreach (array_keys($connections) as $name) {
+            $manager->connection($name);
+        }
+
+        return new ApplicationDatabaseConnectionLifecycle($manager);
     }
 
     private function recovery(
@@ -1460,6 +1617,22 @@ final class RetryableThrowingWorkerReportHandler extends WorkerReportHandler
     public function handle(OperationEnvelope $operation): OperationResult
     {
         throw new RetryableWorkerRuntimeException('temporary boom');
+    }
+}
+
+final class RecoveringWorkerReportHandler extends WorkerReportHandler
+{
+    public int $calls = 0;
+
+    public function handle(OperationEnvelope $operation): OperationResult
+    {
+        ++$this->calls;
+
+        if ($this->calls === 1) {
+            throw new RetryableWorkerRuntimeException('temporary connection-adjacent failure');
+        }
+
+        return OperationResult::completed(new WorkerReportDone('recovered'));
     }
 }
 

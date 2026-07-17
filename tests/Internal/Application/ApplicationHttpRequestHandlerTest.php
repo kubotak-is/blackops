@@ -7,6 +7,7 @@ namespace BlackOps\Tests\Internal\Application;
 use BlackOps\Internal\Application\ApplicationDatabaseConnectionLifecycle;
 use BlackOps\Internal\Application\ApplicationHttpRequestHandler;
 use BlackOps\Internal\Application\ApplicationJournalObservations;
+use BlackOps\Internal\Database\DoctrineDatabaseManager;
 use BlackOps\Internal\Execution\ExecutionScopeProvider;
 use BlackOps\Internal\Journal\JournalObservationPipeline;
 use BlackOps\Internal\Journal\JournalObserverAggregator;
@@ -83,9 +84,26 @@ final class ApplicationHttpRequestHandlerTest extends TestCase
         }
     }
 
+    public function testObserverCleanupFailureClosesConnectionAndEscapesRequest(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection->expects(self::once())->method('fetchOne')->with('SELECT 1')->willReturn(1);
+        $connection->expects(self::once())->method('close');
+        $handler = $this->handler(
+            new ReferenceLifecycleRequestHandler([new Response(200)]),
+            new FailingFlushableObserver(),
+            $connection,
+        );
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('observer flush failed');
+
+        $handler->handle(new ServerRequest('GET', '/observer-failure'));
+    }
+
     private function handler(
         RequestHandlerInterface $handler,
-        RecordingFlushableObserver $observer,
+        FlushableJournalObserver $observer,
         ?Connection $connection = null,
     ): ApplicationHttpRequestHandler {
         $connection ??= $this->createStub(Connection::class);
@@ -97,7 +115,7 @@ final class ApplicationHttpRequestHandlerTest extends TestCase
         return new ApplicationHttpRequestHandler(
             $handler,
             new ExecutionScopeProvider(),
-            new ApplicationDatabaseConnectionLifecycle($connection),
+            new ApplicationDatabaseConnectionLifecycle($this->manager($connection)),
             new ApplicationJournalObservations(
                 new JournalObservationPipeline(
                     new ObservedJournalRecordProjector(new SensitiveProjectionFilter()),
@@ -106,6 +124,18 @@ final class ApplicationHttpRequestHandlerTest extends TestCase
                 $aggregator,
             ),
         );
+    }
+
+    private function manager(Connection $connection): DoctrineDatabaseManager
+    {
+        $manager = new DoctrineDatabaseManager(
+            'app',
+            ['app' => []],
+            static fn(array $parameters): Connection => $connection,
+        );
+        $manager->connection();
+
+        return $manager;
     }
 }
 
@@ -141,5 +171,15 @@ final class RecordingFlushableObserver implements FlushableJournalObserver
     public function flush(): void
     {
         ++$this->flushes;
+    }
+}
+
+final class FailingFlushableObserver implements FlushableJournalObserver
+{
+    public function observe(ObservedJournalRecord $record): void {}
+
+    public function flush(): void
+    {
+        throw new RuntimeException('observer flush failed');
     }
 }

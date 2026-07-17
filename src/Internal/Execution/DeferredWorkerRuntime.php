@@ -13,6 +13,7 @@ use BlackOps\Core\OperationEnvelope;
 use BlackOps\Core\OperationResult;
 use BlackOps\Core\OperationValue;
 use BlackOps\Core\Registry\OperationMetadata;
+use BlackOps\Internal\Application\ApplicationDatabaseConnectionLifecycle;
 use BlackOps\Journal\JournalEvent;
 use BlackOps\Journal\LifecycleState;
 use BlackOps\Outcome\OutcomeRecord;
@@ -33,10 +34,48 @@ final readonly class DeferredWorkerRuntime implements DeferredClaimRuntime
         private DeferredWorkerRuntimeStorage $storage,
         private ClaimExecutionGuard $guard = new DirectClaimExecutionGuard(),
         private HandlerInvoker $invoker = new HandlerInvoker(),
+        private ?ApplicationDatabaseConnectionLifecycle $connections = null,
     ) {}
 
-    /** @mago-expect lint:halstead */
     public function run(OperationClaim $claim): OperationResult
+    {
+        $result = null;
+        $failure = null;
+        $prepared = false;
+
+        try {
+            $this->connections?->prepare();
+            $prepared = true;
+            $result = $this->runAttempt($claim);
+        } catch (Throwable $exception) {
+            $failure = $exception;
+        }
+
+        try {
+            if ($failure === null) {
+                $this->connections?->finishSuccessfulInvocation();
+            }
+
+            if ($failure !== null && $prepared) {
+                $this->connections?->finishFailedInvocation();
+            }
+        } catch (Throwable $exception) {
+            $failure ??= $exception;
+        }
+
+        if ($failure !== null) {
+            throw $failure;
+        }
+
+        if (!$result instanceof OperationResult) {
+            throw new LogicException('Deferred worker did not produce an operation result.');
+        }
+
+        return $result;
+    }
+
+    /** @mago-expect lint:halstead */
+    private function runAttempt(OperationClaim $claim): OperationResult
     {
         $metadata = $this->metadata($claim);
         $handler = $this->services->handlers->resolve($metadata->handler);

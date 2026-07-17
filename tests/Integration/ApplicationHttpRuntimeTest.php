@@ -145,7 +145,10 @@ final class ApplicationHttpRuntimeTest extends TestCase
         $policy = ApplicationRuntimeAuthorizationPolicy::$instance;
         self::assertNotNull($policy);
         self::assertSame($policy->dependency->connection, $policy->dependency->databases->connection());
-        self::assertSame('blackops_application_http_unused', $policy->dependency->connection->getParams()['dbname']);
+        self::assertSame(
+            $this->connectionParameters()['dbname'],
+            $policy->dependency->connection->getParams()['dbname'],
+        );
     }
 
     public function testMissingArtifactFailsWithoutFallbackOrCredentialExposure(): void
@@ -236,7 +239,6 @@ final class ApplicationHttpRuntimeTest extends TestCase
             ],
         ]);
         $applicationConnection = $this->connectionParameters();
-        $applicationConnection['dbname'] = 'blackops_application_http_unused';
         $this->writeConfig($config, 'database', [
             'default' => 'app',
             'connections' => [

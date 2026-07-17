@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-18T06:04:12+09:00
+Updated At: 2026-07-18T06:35:39+09:00
 
 ## Current Phase
 
@@ -16,13 +16,13 @@ Specifications: `develop/spec/09-runtime-and-di.md`、`develop/spec/10-logging-a
 
 ## Task Status
 
-Ready
+Accepted
 
-P13-005 Task Packetを作成した。HTTP Request／Deferred Attempt単位で生成済みNamed ConnectionをHealth Checkし、正常再利用、Leak検出、失敗時Close、次回再接続を行うLong-running Process境界を実装する準備が整っている。
+生成済みNamed Connectionの開始Health Check、同一Object再接続、成功時Leak検査、失敗時全CloseをHTTP Request／Deferred Attemptへ統合した。Heartbeat Connectionは別ManagerとしてApplication Lifecycle外に維持した。Orchestrator独立Reviewでclosed Objectの開始時再接続を修正し、Target／Full GateとConsumer E2Eを再実行してAcceptedとした。
 
 ## Last Accepted Task
 
-P13-004-operation-transaction-lifecycle
+P13-005-long-running-connection-safety
 
 ## Pending Decisions
 
@@ -45,13 +45,65 @@ P13-004-operation-transaction-lifecycle
 
 ## Known Blockers
 
-P13-005に既知Blockerはない。Documentation Websiteは意図的に未公開である。
+P13-006に既知Blockerはない。Documentation Websiteは意図的に未公開である。
 
 ## Required Next Action
 
-1. GPT-5.6 Luna High workerへP13-005を依頼する。
-2. Worker Report後、Orchestratorが差分とTarget／Full Quality GateをReviewする。
+1. P13-005をTask単位でCommitする。
+2. P13-006 Consumer Experience and CloseoutをTask化する。
 3. Documentation Website PublicationはUserが再開を明示するまで実行しない。
+
+## P13-005 Orchestrator Review Commands and Results
+
+```text
+docker compose run --rm app vendor/bin/phpunit --display-deprecations <P13-005 target tests>
+Result: OK (60 tests, 520 assertions)。HTTP／Deferred、closed Object再接続、Leak、Heartbeat分離を含む。
+
+docker compose run --rm app composer validate --strict
+docker compose run --rm app composer validate --strict examples/quickstart/composer.json
+docker compose run --rm app mago format --check src tests examples
+docker compose run --rm app mago lint
+docker compose run --rm app mago analyze
+docker compose run --rm app vendor/bin/deptrac
+Result: Root／Quickstart valid。Format／Lint／Analyze成功。Deptrac Violations 0 / Allowed 1990。
+
+docker compose run --rm app vendor/bin/phpunit --display-deprecations
+Result: OK (1085 tests, 3766 assertions)。
+
+bash tests/Consumer/frankenphp-worker-mode.sh
+bash tests/Consumer/quickstart-e2e.sh
+bash tests/Consumer/skeleton-create-project.sh
+Result: PostgreSQL停止／500／復旧、Multi-request、Quickstart、Skeleton通常／no-scriptsが成功。SkeletonはConsumer間の干渉を避けて単独再実行した。
+
+Management Comment ID Guard、git diff --check
+Result: すべて成功。
+```
+
+## P13-005 Long-running Connection Safety Worker Verification Commands and Results
+
+```text
+docker compose run --rm app vendor/bin/phpunit --display-deprecations <P13-005 target tests>
+Result: OK (60 tests, 520 assertions)。HTTP／Deferred、closed Object再接続、Leak、Heartbeat分離を含む。
+
+docker compose run --rm app composer validate --strict
+docker compose run --rm app composer validate --strict examples/quickstart/composer.json
+docker compose run --rm app mago format --check src tests examples
+docker compose run --rm app mago lint
+docker compose run --rm app mago analyze
+docker compose run --rm app vendor/bin/deptrac
+Result: Root／Quickstart valid。Format／Lint／Analyze成功。Deptrac Violations 0 / Allowed 1990。
+
+docker compose run --rm app vendor/bin/phpunit --display-deprecations
+Result: OK (1085 tests, 3766 assertions)。
+
+bash tests/Consumer/frankenphp-worker-mode.sh
+bash tests/Consumer/quickstart-e2e.sh
+bash tests/Consumer/skeleton-create-project.sh
+Result: PostgreSQL停止／復旧、Multi-request、Quickstart、Skeleton通常／no-scriptsが成功。
+
+Management Comment ID Guard、git diff --check
+Result: すべて成功。
+```
 
 ## P13-004 Orchestrator Review Commands and Results
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BlackOps\Internal\Application;
 
+use BlackOps\Internal\Database\DoctrineDatabaseManager;
 use Doctrine\DBAL\Connection;
 use LogicException;
 use Throwable;
@@ -11,35 +12,84 @@ use Throwable;
 final readonly class ApplicationDatabaseConnectionLifecycle
 {
     public function __construct(
-        private Connection $connection,
+        private DoctrineDatabaseManager $databases,
     ) {}
 
     public function prepare(): void
     {
         try {
-            $this->healthCheck();
+            foreach ($this->databases->generatedConnections() as $connection) {
+                $this->healthCheck($connection);
+            }
+        } catch (Throwable $failure) {
+            $this->closeAll();
+
+            throw $failure;
+        }
+    }
+
+    public function finishFailedInvocation(): void
+    {
+        $this->closeAll();
+    }
+
+    public function finishSuccessfulInvocation(): void
+    {
+        $leaked = false;
+
+        foreach ($this->databases->generatedConnections() as $connection) {
+            try {
+                $active = $connection->isTransactionActive();
+            } catch (Throwable $failure) {
+                $this->closeAll();
+
+                throw $failure;
+            }
+
+            if (!$active) {
+                continue;
+            }
+
+            $leaked = true;
+            $this->close($connection);
+        }
+
+        if ($leaked) {
+            throw new LogicException('Application invocation left a database transaction active.');
+        }
+    }
+
+    private function healthCheck(Connection $connection): void
+    {
+        try {
+            $connection->fetchOne('SELECT 1');
+
+            return;
+        } catch (Throwable $healthFailure) {
+            try {
+                $connection->close();
+            } catch (Throwable) {
+                throw $healthFailure;
+            }
+        }
+
+        $connection->fetchOne('SELECT 1');
+    }
+
+    private function closeAll(): void
+    {
+        foreach ($this->databases->generatedConnections() as $connection) {
+            $this->close($connection);
+        }
+    }
+
+    private function close(Connection $connection): void
+    {
+        try {
+            $connection->close();
         } catch (Throwable) {
-            $this->connection->close();
-            $this->healthCheck();
+            // Closing is best-effort; the original request or attempt failure remains authoritative.
+            return;
         }
-    }
-
-    public function finishFailedRequest(): void
-    {
-        $this->connection->close();
-    }
-
-    public function finishSuccessfulRequest(): void
-    {
-        if ($this->connection->isTransactionActive()) {
-            $this->connection->close();
-
-            throw new LogicException('Application HTTP request left a database transaction active.');
-        }
-    }
-
-    private function healthCheck(): void
-    {
-        $this->connection->fetchOne('SELECT 1');
     }
 }

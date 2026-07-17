@@ -24,35 +24,33 @@ final readonly class ApplicationHttpRequestHandler implements RequestHandlerInte
     {
         $response = null;
         $failure = null;
+        $prepared = false;
 
         try {
             $this->connection->prepare();
+            $prepared = true;
             $response = $this->handler->handle($request);
         } catch (Throwable $exception) {
             $failure = $exception;
         }
 
-        $cleanupFailure = null;
-
-        try {
-            if ($failure !== null) {
-                $this->connection->finishFailedRequest();
-            }
-
-            if ($failure === null) {
-                $this->connection->finishSuccessfulRequest();
-            }
-        } catch (Throwable $exception) {
-            $cleanupFailure = $exception;
-        }
-
         try {
             $this->finishRequestState();
         } catch (Throwable $exception) {
-            $cleanupFailure ??= $exception;
+            $failure ??= $exception;
         }
 
-        $failure ??= $cleanupFailure;
+        try {
+            if ($failure !== null && $prepared) {
+                $this->connection->finishFailedInvocation();
+            }
+
+            if ($failure === null) {
+                $this->connection->finishSuccessfulInvocation();
+            }
+        } catch (Throwable $exception) {
+            $failure ??= $exception;
+        }
 
         if ($failure !== null) {
             throw $failure;

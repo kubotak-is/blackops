@@ -97,7 +97,12 @@ final readonly class ApplicationWorkerComposer
             $worker->leaseSeconds,
             $worker->graceSeconds,
         );
-        $runtime = new DeferredWorkerRuntime($services, $storage, $signals);
+        $runtime = new DeferredWorkerRuntime(
+            $services,
+            $storage,
+            $signals,
+            connections: new ApplicationDatabaseConnectionLifecycle($databases),
+        );
         $loop = new DeferredWorkerLoop(
             new DeferredLeaseExpiredRecovery($services, $storage),
             $receiver,

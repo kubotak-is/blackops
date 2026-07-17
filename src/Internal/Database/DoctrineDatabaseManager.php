@@ -53,6 +53,12 @@ final class DoctrineDatabaseManager implements DatabaseManager
         return $this->instances[$resolved] = $connection;
     }
 
+    /** @return list<Connection> */
+    public function generatedConnections(): array
+    {
+        return array_values($this->instances);
+    }
+
     /** @param array<string, mixed> $parameters */
     private static function createConnection(array $parameters): Connection
     {

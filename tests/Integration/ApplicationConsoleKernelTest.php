@@ -24,6 +24,7 @@ use BlackOps\Core\Registry\OperationProvider;
 use BlackOps\Database\DatabaseManager;
 use BlackOps\Http\Attribute\Route;
 use BlackOps\Internal\Application\ApplicationConfigurationSnapshot;
+use BlackOps\Internal\Application\ApplicationDatabaseConnectionLifecycle;
 use BlackOps\Internal\Application\ApplicationWorkerComposer;
 use BlackOps\Internal\Execution\DeferredWorkerRuntime;
 use Doctrine\DBAL\Connection;
@@ -201,7 +202,6 @@ final class ApplicationConsoleKernelTest extends TestCase
             ],
         ]);
         $applicationConnection = $this->connectionParameters();
-        $applicationConnection['dbname'] = 'blackops_application_console_unused';
         $this->writeConfig($config, 'database', [
             'default' => 'app',
             'connections' => [
@@ -264,6 +264,19 @@ final class ApplicationConsoleKernelTest extends TestCase
                 ->getProperty('guard')
                 ->getValue($runtime),
         );
+        $connections = new ReflectionClass($runtime)
+            ->getProperty('connections')
+            ->getValue($runtime);
+        self::assertInstanceOf(ApplicationDatabaseConnectionLifecycle::class, $connections);
+        $databases = new ReflectionClass($connections)
+            ->getProperty('databases')
+            ->getValue($connections);
+        self::assertTrue(in_array($composition->mainConnection, $databases->generatedConnections(), strict: true));
+        self::assertFalse(in_array(
+            $composition->heartbeatConnection,
+            $databases->generatedConnections(),
+            strict: true,
+        ));
     }
 
     private function directory(): string
@@ -332,11 +345,7 @@ final readonly class ConsoleWorkerPolicyDependency
 {
     public function __construct(DatabaseManager $databases, Connection $connection)
     {
-        $this->value =
-            $databases->connection() === $connection
-            && $connection->getParams()['dbname'] === 'blackops_application_console_unused'
-                ? 'compiled'
-                : 'mismatch';
+        $this->value = $databases->connection() === $connection ? 'compiled' : 'mismatch';
     }
 
     public string $value;

@@ -86,7 +86,7 @@ MVP後に残す主要項目:
 - [x] Nested Required／Rollback-only／Manual Transaction境界を実装する
 - [x] `#[AfterCommit]` QueueとFailure Reporterを実装する
 - [x] Transactional OperationとTerminal Journal／Outcomeの同一Connection Commitを実装する
-- [ ] Worker ModeのConnection Health Check／Reset／Reconnectを実装する
+- [x] Worker ModeのConnection Health Check／Reset／Reconnectを実装する
 
 ### Phase 14: Operation Diagnostics
 

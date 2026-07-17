@@ -91,7 +91,7 @@ final readonly class ApplicationHttpRuntimeComposer
         return new ApplicationHttpRequestHandler(
             $runtime->httpHandler,
             $runtime->executionScope,
-            new ApplicationDatabaseConnectionLifecycle($connection),
+            new ApplicationDatabaseConnectionLifecycle($databases),
             $observations,
         );
     }

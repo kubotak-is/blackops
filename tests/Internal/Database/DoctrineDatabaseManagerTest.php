@@ -31,12 +31,15 @@ final class DoctrineDatabaseManagerTest extends TestCase
         );
 
         self::assertSame([], $created);
+        self::assertSame([], $manager->generatedConnections());
         self::assertSame($analytics, $manager->connection(' analytics '));
         self::assertSame(['analytics'], $created);
+        self::assertSame([$analytics], $manager->generatedConnections());
         self::assertSame($analytics, $manager->connection('analytics'));
         self::assertSame($default, $manager->connection());
         self::assertSame($default, $manager->connection('app'));
         self::assertSame(['analytics', 'app'], $created);
+        self::assertSame([$analytics, $default], $manager->generatedConnections());
     }
 
     public function testRejectsUnknownNameWithoutExposingConnectionParameters(): void
