@@ -1,10 +1,10 @@
 # Orchestration State
 
-Updated At: 2026-07-17T01:05:11+09:00
+Updated At: 2026-07-17T10:00:37+09:00
 
 ## Current Phase
 
-Phase 12: Middleware and Authorization Runtime (Design)
+Phase 12: Middleware and Authorization Runtime (Specification)
 
 ## Current Task
 
@@ -16,13 +16,13 @@ Specifications: `develop/spec/06-auth-and-middleware.md`、`develop/spec/19-exec
 
 ## Task Status
 
-P12-001 Awaiting Decision
+P12-001 Accepted
 
-Phase 11はP11-004でCloseした。D010／Spec 06とCurrent Typed Operation／Native Outcome／Runtimeを監査し、旧`HttpOperation`／`ConsoleOperation`およびPublic `OperationResult::rejected()`前提を置き換えるD095たたき台を作成した。Public API、Security、Durable Actor、Deferred FailureにUser判断が必要なため回答待ちである。
+D095を確定した。Phase 12はPSR-15 HTTP Middleware、Authentication、ActorContext、`#[Authorize]`、Deferred再認可へ限定し、Operation Middlewareは追加しない。HTTP MiddlewareはGlobal登録順、AuthorizationはFramework固定Lifecycle Stageとする。次にSpec 06／19、Roadmap、Delivery Plan、最初のImplementation Task Packetを同期する。
 
 ## Last Accepted Task
 
-P11-004-stable-publication-and-closeout
+P12-001-middleware-authorization-design
 
 ## Pending Decisions
 
@@ -40,19 +40,18 @@ P11-004-stable-publication-and-closeout
 12. D093はA／A／Aで確定。Roadmap順序、Deferred HTTP API Scope、Dormant Documentation Workflowを確定した。
 13. Operation Frontend Bridgeの初期DepthとFrontend Targetは未決定だが、Phase 11から14を妨げないためPhase 15の設計対話へ延期する。
 14. D094はC／A／A／A／B／Cで確定。Experimental期間はMinor ReleaseのBackward Compatibilityを保証せず、Public Readiness時にVersioning Policyを再決定する。
-15. D095 Phase 12 Middleware and Authorization Runtimeは6問のUser Answer待ちである。全問Aを推奨する。
+15. D095は確定。Operation Middlewareは不要とし、Phase 12はPSR-15 HTTP MiddlewareとAuthorizationへ絞る。Authentication、Durable Actor、Deferred FailureはAを採用する。
 
 ## Known Blockers
 
-Phase 11 Blockerはない。P12-001はD095のUser Answerが必要であり、回答前にPublic API／Security／Durable Dataを推測で実装しない。Documentation Websiteは意図的に未公開である。
+Phase 12 Blockerはない。Documentation Websiteは意図的に未公開である。
 
 ## Required Next Action
 
-1. D095の6つの`[ANSWER]`欄にUserが回答する。
-2. Orchestratorが回答をDecisionとConsequencesへ反映し、D010のSuperseded範囲を固定する。
-3. Spec 06、Phase 12 Delivery Plan、最初のImplementation Task Packetを作成する。
-4. Production／Testの実装はGPT-5.6 Luna High workerへTask Packet単位で依頼する。
-5. Documentation Website PublicationはUserが再開を明示するまで実行しない。
+1. Spec 06／19とRoadmapをD095へ同期する。
+2. Phase 12 Delivery Planと最初のImplementation Task Packetを作成する。
+3. Production／Testの実装はGPT-5.6 Luna High workerへTask Packet単位で依頼する。
+4. Documentation Website PublicationはUserが再開を明示するまで実行しない。
 
 ## P11-003 Release Candidate Gate Verification Commands and Results
 

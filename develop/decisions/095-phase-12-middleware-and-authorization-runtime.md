@@ -1,10 +1,10 @@
 # D095: Phase 12 Middleware and Authorization Runtime
 
-Status: Proposed
+Status: Decided
 
 ## Context
 
-Phase 12はPSR-15 HTTP Middleware、入口に依存しないOperation Middleware、Authentication、ActorContext、`#[Authorize]`、Deferred再認可をRuntimeへ実装する。
+Phase 12はPSR-15 HTTP Middleware、Authentication、ActorContext、`#[Authorize]`、Deferred再認可をRuntimeへ実装する。
 
 D010とSpec 06は基本方針を定めているが、その後にPublic APIと利用者体験が変化した。
 
@@ -34,8 +34,13 @@ Aを推奨する。
 Current Operation Authoringと「HTTPもConsoleもJobもOperation」という中心Modelを維持し、入口別markerとディレクトリ強制を戻さない。Phase 12 Roadmapの必須AdapterはHTTPであり、ConsoleにはまだApplication Operation入口自体がない。
 
 [ANSWER]
-
+OperationMiddlewareは不要。
+HttpMiddlewareとAuthorizationのみ
 [/ANSWER]
+
+### Decision
+
+PSR-15 HTTP MiddlewareとAuthorizationだけをPhase 12のMiddleware Surfaceとする。Operationは一種類のまま維持し、HTTP入口は`#[Route]`、実行方式は`#[ExecuteWith]`で宣言する。Operation Middleware、Console Middleware、Message Middleware、入口別Operation markerは追加しない。
 
 ## Question 2: Operation MiddlewareのPublic API
 
@@ -57,6 +62,10 @@ Handlerと同じ「正常系はOutcome、予期された拒否はFramework例外
 
 [/ANSWER]
 
+### Decision
+
+Question 1でOperation MiddlewareをScope外としたため、このPublic APIは採用しない。`OperationInvocation`、`OperationMiddlewareHandler`、PublicなOperation Middleware Contractは追加しない。
+
 ## Question 3: Middlewareの登録、除外、順序
 
 GlobalとOperation単位のPipelineをどう固定するか。
@@ -77,6 +86,12 @@ Aを推奨する。
 
 [/ANSWER]
 
+### Decision
+
+Question 1でOperation MiddlewareをScope外としたため、Dispatch／Execution Middlewareの登録、除外、順序解決は採用しない。
+
+HTTP Middlewareは`config/middleware.php`へPSR-15 Middleware Classを外側から内側の順に登録する。Global PipelineをPhase 12の必須Scopeとし、Operation単位の`#[UseMiddleware]`／`#[WithoutMiddleware]`、`before`／`after`依存解決は追加しない。Authorizationは利用者が除外できるMiddlewareではなく、`#[Authorize]`を持つOperationへFrameworkが適用する固定Lifecycle Stageとする。
+
 ## Question 4: AuthenticationのFramework／Application責任境界
 
 Session、JWT、API Key、External IdPをFrameworkとApplicationのどちらが実装するか。
@@ -95,7 +110,15 @@ Security SchemeをFrameworkへ固定せず、CredentialをExecutionContext／Jou
 
 [ANSWER]
 
+A
+
 [/ANSWER]
+
+### Decision
+
+Frameworkは`HttpAuthenticator` Contractと中立なPSR-15 `AuthenticationMiddleware`を提供し、ApplicationがCredentialの解析と検証を実装する。CredentialはRequest外へ持ち出さず、Typed Request AttributeにはActorだけを設定する。
+
+Credential不在はAnonymousとして通過させる。不正CredentialはOperation生成前の401、`#[Authorize]`付きOperationのAnonymous拒否はOperation IDとJournalを持つ401、認証済みActorの権限不足は403とする。
 
 ## Question 5: Durable Actor Model
 
@@ -115,7 +138,15 @@ Credentialや古いPermission SnapshotをDurable Dataにせず、「誰が原因
 
 [ANSWER]
 
+A
+
 [/ANSWER]
+
+### Decision
+
+Publicな`ActorRef(id, type)`と`ActorContext(origin, authorization, execution)`を追加する。Durable Contextへ保存するActor情報はIDとTypeだけとし、Role、Permission、Credential、Token、Claimは保存しない。PolicyはDIされたApplication Serviceから必要な最新情報を取得する。
+
+Workerはorigin Actorとauthorization Actorを維持し、execution ActorだけをSystem Actorへ置き換える。
 
 ## Question 6: Deferred再認可の拒否と障害
 
@@ -135,18 +166,26 @@ Aを推奨する。
 
 [ANSWER]
 
+A
+
 [/ANSWER]
 
-## Proposed Consequences
+### Decision
 
-上記をA／A／A／A／A／Aで確定する場合、D010とSpec 06は次のように更新する。
+Actor不在または無効はUnauthorized、認証済みActorの権限不足はForbiddenとしてTerminal Rejectedにする。Actor ResolverまたはPolicy Backendの接続障害とTimeoutはAttempt FailureとしてSupervisionのRetry、Backoff、Dead Letterへ渡す。
 
-- `HttpOperation`／`ConsoleOperation`の利用者marker前提を削除し、Operation＋Attribute Metadataを維持する
-- HTTPはPSR-15、OperationはNative OutcomeとFramework Rejection Exceptionに合わせた二つの玉ねぎPipelineとする
-- `config/middleware.php`とOperation Attributeから決定的PipelineをCompileする
+## Consequences
+
+- D010のHTTP Middleware、Credential隔離、`#[Authorize]`、Deferred再認可、Actorの役割分離は維持する
+- D010のOperation Middleware、Dispatch／Execution Scope、入口別Operation marker、Public `OperationResult::rejected()`前提を置き換える
+- `HttpOperation`／`ConsoleOperation`を追加せず、Operation＋Attribute Metadataを維持する
+- HTTP MiddlewareはPSR-15の玉ねぎPipelineとし、Globalな登録順をそのまま実行順とする
+- AuthorizationはOperation Middlewareではなく、Frameworkが管理するOperation Lifecycle Stageとして実行する
+- Operation単位の汎用Middleware AttributeとMiddleware順序CompilerはPhase 12へ含めない
 - FrameworkはAuthentication IntegrationとActor／Policy Contractを所有し、Credential SchemeとDomain Permission LookupはApplicationが所有する
 - Actor ID／TypeだけをDeferred ContextとCanonical JournalのSensitive Boundary内で保持する
 - Deferredは受付時とWorker実行時に同じPolicyを評価し、Security DenialとInfrastructure FailureをLifecycleで分離する
+- Phase 13のTransaction境界はOperation Middlewareを前提にせず、Database and Transaction Runtimeの開始時に専用Lifecycle Contractを再設計する
 
 ## References
 

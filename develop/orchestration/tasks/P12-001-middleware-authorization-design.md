@@ -1,6 +1,6 @@
 # P12-001: Middleware and Authorization Design
 
-Status: Awaiting Decision
+Status: Accepted
 
 ## Goal
 
@@ -53,9 +53,9 @@ Current Operation Authoring／RuntimeとD010／Spec 06を照合し、Phase 12で
 - [x] D010／Spec 06とCurrent Runtime／Public APIのGapを監査した
 - [x] 実装前にUser判断が必要な項目をD095の6問に絞った
 - [x] 各QuestionにOptions、Recommendation、理由を記録した
-- [ ] User AnswerをD095へ反映し、DecisionをDecidedにする
-- [ ] D010のSuperseded範囲とSpec 06の更新入力を固定する
-- [ ] Report／STATEをAcceptedへ更新する
+- [x] User AnswerをD095へ反映し、DecisionをDecidedにする
+- [x] D010のSuperseded範囲とSpec 06の更新入力を固定する
+- [x] Report／STATEをAcceptedへ更新する
 
 ## Required Commands
 
