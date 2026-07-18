@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-18T08:03:09+09:00
+Updated At: 2026-07-18T16:11:33+09:00
 
 ## Current Phase
 
@@ -8,19 +8,17 @@ Phase 14: Operation Diagnostics
 
 ## Current Task
 
-Task ID: P14-000-operation-diagnostics-design-audit
+Task ID: P14-001-operation-diagnostics-specification
 
-Task Packet: `develop/orchestration/tasks/P14-000-operation-diagnostics-design-audit.md`
+Task Packet: `develop/orchestration/tasks/P14-001-operation-diagnostics-specification.md`
 
-Specifications: `develop/spec/02-lifecycle-and-journal.md`、`develop/spec/03-execution.md`、`develop/spec/05-http.md`、`develop/spec/06-auth-and-middleware.md`、`develop/spec/10-logging-and-traceability.md`、`develop/spec/11-durable-journal-and-transactions.md`、`develop/spec/22-journal-record-schema.md`、`develop/spec/25-sensitive-projection.md`、`develop/spec/26-journal-ports.md`、`develop/spec/31-deferred-claim-and-attempt.md`、`develop/spec/32-worker-crash-recovery.md`、`develop/spec/35-postgresql-transport-schema.md`、`develop/spec/38-data-retention-and-deletion.md`、`develop/spec/39-retention-runtime.md`、`develop/spec/54-native-outcome-and-rejection-exception.md`、`develop/spec/60-post-phase-10-roadmap.md`
+Specifications: `develop/spec/02-lifecycle-and-journal.md`、`develop/spec/03-execution.md`、`develop/spec/05-http.md`、`develop/spec/06-auth-and-middleware.md`、`develop/spec/10-logging-and-traceability.md`、`develop/spec/22-journal-record-schema.md`、`develop/spec/25-sensitive-projection.md`、`develop/spec/26-journal-ports.md`、`develop/spec/31-deferred-claim-and-attempt.md`、`develop/spec/35-postgresql-transport-schema.md`、`develop/spec/38-data-retention-and-deletion.md`、`develop/spec/39-retention-runtime.md`、`develop/spec/60-post-phase-10-roadmap.md`、`develop/decisions/097-phase-14-operation-diagnostics.md`
 
 ## Task Status
 
-Waiting for User Decision
+In Progress
 
-OrchestratorがP14-000の読み取り中心設計監査をAcceptedとした。HTTP／Journal／Outcome／Deferred State／Dead Letter／Retention／Console／Loggingを証拠付きで整理し、Decision 097 DraftへTerminal Inspect、Development Local Viewer、Production Log境界のRecommendation付き7 Questionを記録した。
-
-重大Gapとして、Inline Handler／Authorization Policy Throwableが`operation.received`／`attempt.started`で止まり、FrankenPHP Workerの500 Responseと`error_log`にもOperation IDがないことを確認した。`ExecutionScopedLogger`は相関Contractを持つがApplication Runtime／DIへ自動接続されていない。Terminal／Viewer実装前にP14-002相当で修復する案を推奨する。
+UserがDecision 097の7 QuestionすべてにAを選択し、OrchestratorがDecidedへ確定した。P14-001でOperation Diagnostics SpecificationとPhase 14 Delivery Planを作成中である。
 
 ## Last Accepted Task
 
@@ -44,17 +42,16 @@ P14-000-operation-diagnostics-design-audit
 14. D094はC／A／A／A／B／Cで確定。Experimental期間はMinor ReleaseのBackward Compatibilityを保証せず、Public Readiness時にVersioning Policyを再決定する。
 15. D095は確定。Operation Middlewareは不要とし、Phase 12はPSR-15 HTTP MiddlewareとAuthorizationへ絞る。Authentication、Durable Actor、Deferred FailureはAを採用する。
 16. D096は確定。Named DBAL Connection、DatabaseManager、Ray.Aop Build-time Interception、Operation／一般ServiceのTransaction保証差、Nested Required、After Commit Best-effort、Long-running Connection Lifecycleを採用する。
-17. D097はDraft。Phase 14の実装Depth、Query Model、CLI、Sensitive、Unavailable、Local Viewer、Production Loggingの7 QuestionがUser回答待ちである。
+17. D097はA／A／A／A／A／A／Aで確定。Failure相関を先に修復し、内部Query Model、CLI、Development Local ViewerまでをPhase 14で実装し、Public API／OTelを後続Phaseへ送る。
 
 ## Known Blockers
 
-実装Blockerはない。Phase 14のPublic／Security ContractはDecision 097 Draftの7 QuestionがUser回答待ちである。Documentation WebsiteはUser判断どおり未公開である。
+実装Blockerはない。Documentation WebsiteはUser判断どおり未公開である。
 
 ## Required Next Action
 
-1. UserがDecision 097 Draftの7 Questionへ回答する。
-2. Orchestratorが回答をDecisionとして確定する。
-3. P14-001でOperation Diagnostics SpecificationとPhase 14 Delivery Planを作成する。
+1. P14-001でOperation Diagnostics SpecificationとPhase 14 Delivery Planを作成する。
+2. Orchestrator Review後にP14-002 Inline Failure Correlationを開始する。
 
 ## P14-000 Operation Diagnostics Design Audit Worker Verification Commands and Results
 

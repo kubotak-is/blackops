@@ -1,6 +1,6 @@
 # D097: Phase 14 Operation Diagnostics
 
-Status: Draft
+Status: Decided
 
 ## Context
 
@@ -44,6 +44,8 @@ Terminalを最小SliceとしてQuery Contractを固定し、その同じContract
 
 [ANSWER]
 
+A
+
 [/ANSWER]
 
 ## Question 2: Diagnostics Query Model Visibility
@@ -63,6 +65,8 @@ Aを推奨する。
 Phase 14時点ではUnauthorized／Tenant／Remote Access Contractが未確定である。内部AggregateならTerminalとViewerの重複を防ぎつつ、Phase 16でHTTP Status APIに必要な最小Public Shapeを証拠に基づいて選べる。CはCanonical Raw Dataを利用者Surfaceへ漏らしやすい。
 
 [ANSWER]
+
+A
 
 [/ANSWER]
 
@@ -95,6 +99,8 @@ Human既定は次を表示する。
 
 [ANSWER]
 
+A
+
 [/ANSWER]
 
 ## Question 4: Sensitive, Actor, and Error Defaults
@@ -114,6 +120,8 @@ Aを推奨する。
 Local ShellやBrowser履歴も安全な保管先とは限らない。現状のFailure MessageはApplication例外の自由文であり、CredentialやBackend Detailを含まない保証がない。Raw Access、暗号化Capability、監査付き特権表示はPhase 18でAccess Controlと一緒に設計する。
 
 [ANSWER]
+
+A
 
 [/ANSWER]
 
@@ -135,6 +143,8 @@ Operation IDの存在、Retention対象、Actorとの関係を未認可利用者
 
 [ANSWER]
 
+A
+
 [/ANSWER]
 
 ## Question 6: Local Viewer Boundary
@@ -154,6 +164,8 @@ Aを推奨する。
 Application Routeへ混ぜるとProduction露出、Middleware、Route Conflict、認証設定がPhase 14へ入り込む。既定無効Config、明示CLI、Loopback、Session Token、Read-only Server-renderingなら最小のDevelopment SurfaceでTerminalと同じQuery Modelを再利用できる。現行FrameworkにCanonical Runtime Environment判定がないため、曖昧な`APP_ENV`推測ではなく明示Enable Gateを正本とする。
 
 [ANSWER]
+
+A
 
 [/ANSWER]
 
@@ -175,9 +187,11 @@ Aを推奨する。
 
 [ANSWER]
 
+A
+
 [/ANSWER]
 
-## Proposed Query Aggregate
+## Confirmed Query Aggregate
 
 Phase 14の内部Query結果は、Store固有Objectを直接露出せず次を集約する。
 
@@ -204,7 +218,7 @@ OperationDiagnostics
 - Outcome Decode FailureをMissingへ畳まずStorage／Decode Failureとする。Human表示では安全なCodeだけ、詳細はstderr／Framework Logへ出す。
 - Partially Purged Recordは残存Sourceを返し、削除済み対象を`availability`へ示す。
 
-## Proposed Delivery Plan
+## Confirmed Delivery Plan
 
 1. P14-001: Decision確定、Operation Diagnostics Specification、Phase 14 Delivery Plan
 2. P14-002: Inline Throwable Lifecycle、Operation ID付きHTTP 500、Runtime PSR-3相関
@@ -219,6 +233,32 @@ OperationDiagnostics
 - Phase 15: Frontend ContractからOperation IDへの接続。Diagnostics UIを生成Clientへ組み込まない。
 - Phase 16: Public Status／Outcome Query API、HTTP Endpoint、Application Access Policy、Polling Contract。
 - Phase 18: Tenant分離、Canonical Raw Access Control、保存時暗号化、特権表示Audit、OpenTelemetry、Metric、Remote Exporter、Health／Readiness。
+
+## Decision
+
+[DECISION]
+
+1. Phase 14はInline Failure／Error Log相関を先に修復し、内部Diagnostics Query Model、`operation:inspect`、Development限定Local Viewerまでを実装する。OpenTelemetryとRemote ObservabilityはPhase 18へ延期する。
+2. Query Modelは`BlackOps\Internal\Diagnostics`配下のApplication Service／DTOとし、Phase 14の利用者ContractはCLIのHuman／Version付きJSON出力とする。Public PHP Query APIはPhase 16でAccess Policyと同時に設計する。
+3. CLIは`php blackops operation:inspect <operation-id>`をHuman表示の既定とし、`--json`を提供する。Exit CodeはFound=`0`、Invalid Input=`2`、Unavailable=`3`、Storage／Decode Failure=`4`で固定し、Dataをstdout、診断自体のErrorをstderrへ分離する。
+4. CLI、Viewer、Framework Log、HTTP Errorは常にSafe Projectionだけを使用する。Actor IDをMaskし、Credentialと`#[Sensitive]`対象を除外し、Failureは安全なType／Classificationだけを既定表示する。Phase 14でRawまたは例外Messageの表示Overrideは提供しない。
+5. Missing／Fully Purged／Unauthorizedは、全情報が取得不能な場合に同じ`operation.unavailable`へ畳み込む。認可済みで一部Dataだけ削除済みのOperationはFoundとし、対象ごとのAvailabilityを返す。
+6. Local Viewerは`php blackops operation:viewer`で明示起動するRead-only Server-rendered Viewerとする。`diagnostics.viewer.enabled`は既定`false`、Quickstart Localだけ`true`とし、明示CLIとEnable Gateを両方必須にする。既定は`127.0.0.1:8082`、起動ごとのRandom Access Tokenを必須とし、Non-loopback Bindを拒否する。
+7. PSR-3 LoggerをApplication Runtime／DIへ接続し、Operation ScopeのApplication LogとFramework Error LogにOperation／Attempt／Correlation／Causation IDを付与する。Operation成立後のHTTP 500はOperation IDを返す。Log Sink、Retention、AlertはApplication、OTel AdapterはPhase 18の責務とする。
+
+[/DECISION]
+
+## Consequences
+
+[CONSEQUENCES]
+
+- TerminalとViewerの前にInline ThrowableのTerminal LifecycleとHTTP／Log相関を閉じ、不完全なTimelineを新しいQuery Surfaceへ固定しない。
+- Canonical JournalはRestricted Dataの正本として維持し、Diagnostics Surfaceは独立したSafe Projectionを通す。
+- InlineはJournal、Deferredは`operations.state`を現在Stateの正本とし、不整合を自動修復せずIntegrity Errorとして報告する。
+- Local ViewerはApplication RouteやProduction Authenticationに組み込まず、既定無効、Loopback限定、Token必須のDevelopment Toolとする。
+- Public Status／Outcome API、Tenant境界、特権Raw Access、OpenTelemetryはそれぞれPhase 16／18までPublic Contractにしない。
+
+[/CONSEQUENCES]
 
 ## References
 
