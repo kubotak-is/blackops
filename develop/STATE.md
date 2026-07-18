@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-18T22:15:22+09:00
+Updated At: 2026-07-18T22:19:28+09:00
 
 ## Current Phase
 
@@ -8,17 +8,17 @@ Phase 14: Operation Diagnostics
 
 ## Current Task
 
-Task ID: P14-001-operation-diagnostics-specification
+Task ID: P14-002-operation-failure-runtime-correlation
 
-Task Packet: `develop/orchestration/tasks/P14-001-operation-diagnostics-specification.md`
+Task Packet: `develop/orchestration/tasks/P14-002-operation-failure-runtime-correlation.md`
 
-Specifications: `develop/spec/02-lifecycle-and-journal.md`、`develop/spec/03-execution.md`、`develop/spec/05-http.md`、`develop/spec/06-auth-and-middleware.md`、`develop/spec/10-logging-and-traceability.md`、`develop/spec/22-journal-record-schema.md`、`develop/spec/25-sensitive-projection.md`、`develop/spec/26-journal-ports.md`、`develop/spec/31-deferred-claim-and-attempt.md`、`develop/spec/35-postgresql-transport-schema.md`、`develop/spec/38-data-retention-and-deletion.md`、`develop/spec/39-retention-runtime.md`、`develop/spec/60-post-phase-10-roadmap.md`、`develop/decisions/097-phase-14-operation-diagnostics.md`、`develop/decisions/098-deferred-acceptance-failure-lifecycle.md`
+Specifications: `develop/spec/02-lifecycle-and-journal.md`、`develop/spec/03-execution.md`、`develop/spec/05-http.md`、`develop/spec/06-auth-and-middleware.md`、`develop/spec/09-runtime-and-di.md`、`develop/spec/10-logging-and-traceability.md`、`develop/spec/11-durable-journal-and-transactions.md`、`develop/spec/25-sensitive-projection.md`、`develop/spec/30-lifecycle-state-machine.md`、`develop/spec/47-public-http-runtime-configuration.md`、`develop/spec/65-operation-diagnostics.md`、`develop/spec/66-phase-14-delivery-plan.md`、`develop/decisions/097-phase-14-operation-diagnostics.md`、`develop/decisions/098-deferred-acceptance-failure-lifecycle.md`
 
 ## Task Status
 
-Accepted
+In Progress
 
-UserがDecision 098へAと回答し、OrchestratorがDecidedへ確定した。Attempt開始前Failureを受付TransactionのRollback後に別Transactionで記録するAttemptなしの`received -> operation.failed`とし、D097の内部Query Aggregate、CLI、Local Viewer、PSR-3相関、Safe Projection、Retention Availabilityと共に仕様化した。Orchestrator ReviewとQuality Guardが成功し、P14-001をAcceptedとした。
+P14-001でOperation Diagnostics SpecificationとPhase 14 Delivery PlanをAcceptedとした。P14-002はInline Attempt内Failure、Deferred受付のAttempt開始前Failure、Operation ID付きHTTP 500、Runtime PSR-3相関を一つのVertical Sliceとして実装する。
 
 ## Last Accepted Task
 
@@ -47,12 +47,12 @@ P14-001-operation-diagnostics-specification
 
 ## Known Blockers
 
-P14-001を妨げるBlockerはない。Documentation WebsiteはUser判断どおり未公開であり、本TaskのBlockerではない。
+P14-002を妨げるBlockerはない。Documentation WebsiteはUser判断どおり未公開であり、本TaskのBlockerではない。
 
 ## Required Next Action
 
-1. P14-002 Task Packetを作成する。
-2. P14-002でInline／Attempt開始前Failure LifecycleとRuntime相関を実装する。
+1. Luna High WorkerがP14-002を実装する。
+2. OrchestratorがFailure Lifecycle、HTTP／Log相関、Sensitive境界をReviewする。
 
 ## P14-001 Operation Diagnostics Specification Worker Verification
 
