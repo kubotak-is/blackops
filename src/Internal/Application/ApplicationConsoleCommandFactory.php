@@ -4,13 +4,16 @@ declare(strict_types=1);
 
 namespace BlackOps\Internal\Application;
 
+use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Internal\Console\ApplicationBuildCompileCommand;
 use BlackOps\Internal\Console\ApplicationOperationListCommand;
 use BlackOps\Internal\Console\DatabaseMigrationMigrateCommand;
 use BlackOps\Internal\Console\DatabaseMigrationStatusCommand;
 use BlackOps\Internal\Console\MakeMigrationCommand;
 use BlackOps\Internal\Console\MakeOperationCommand;
+use BlackOps\Internal\Console\OperationInspectCommand;
 use BlackOps\Internal\Console\WorkerRunCommand;
+use BlackOps\Internal\Diagnostics\OperationDiagnosticsResult;
 use BlackOps\Internal\Generator\MigrationGenerator;
 use BlackOps\Internal\Generator\OperationGenerator;
 use BlackOps\Internal\Migration\DatabaseMigrationRunner;
@@ -59,6 +62,15 @@ final class ApplicationConsoleCommandFactory
     public function worker(): Command
     {
         return new WorkerRunCommand(new ApplicationWorkerComposer()->compose($this->configuration)->loop);
+    }
+
+    public function operationInspect(): Command
+    {
+        return new OperationInspectCommand(
+            fn(OperationId $operationId): OperationDiagnosticsResult => new ApplicationDiagnosticsQueryFactory($this->configuration)
+                ->create()
+                ->find($operationId),
+        );
     }
 
     private function migrationRunner(): DatabaseMigrationRunner

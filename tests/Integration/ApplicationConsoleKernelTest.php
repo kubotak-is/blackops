@@ -108,6 +108,17 @@ final class ApplicationConsoleKernelTest extends TestCase
         $acknowledgement = json_decode((string) $response->getBody(), associative: true, flags: JSON_THROW_ON_ERROR);
         $operationId = OperationId::fromString($acknowledgement['operationId']);
 
+        $inspect = $this->runCommand($kernel, 'operation:inspect', [
+            'operation-id' => $operationId->toString(),
+            '--json' => true,
+        ]);
+        /** @var array<string, mixed> $diagnostics */
+        $diagnostics = json_decode($inspect, associative: true, flags: JSON_THROW_ON_ERROR);
+        self::assertSame('found', $diagnostics['status']);
+        self::assertSame($operationId->toString(), $diagnostics['operation']['operationId']);
+        self::assertSame('accepted', $diagnostics['state']['current']);
+        self::assertSame('[masked]', $diagnostics['operation']['actors']['origin']['id']);
+
         $this->assertWorkerComposition($application);
         $this->runCommand($kernel, 'worker:run', ['--iterations' => '1', '--idle-sleep-milliseconds' => '1']);
         self::assertStringContainsString('Worker stopped.', $this->runCommand($kernel, 'worker:run', [

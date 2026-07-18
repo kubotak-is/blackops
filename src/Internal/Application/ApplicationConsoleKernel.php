@@ -11,6 +11,7 @@ use BlackOps\Internal\Console\DatabaseMigrationStatusCommand;
 use BlackOps\Internal\Console\LazyFrameworkCommand;
 use BlackOps\Internal\Console\MakeMigrationCommand;
 use BlackOps\Internal\Console\MakeOperationCommand;
+use BlackOps\Internal\Console\OperationInspectCommand;
 use BlackOps\Internal\Console\RetentionPlanCommand;
 use BlackOps\Internal\Console\RetentionPurgeCommand;
 use BlackOps\Internal\Console\SchedulerDaemonCommand;
@@ -40,6 +41,7 @@ final readonly class ApplicationConsoleKernel
         RetentionPurgeCommand::NAME,
         SchedulerRunCommand::NAME,
         SchedulerDaemonCommand::NAME,
+        OperationInspectCommand::NAME,
     ];
 
     private Application $application;
@@ -103,6 +105,19 @@ final readonly class ApplicationConsoleKernel
         };
 
         return [
+            new LazyFrameworkCommand(
+                OperationInspectCommand::NAME,
+                'Inspect one operation lifecycle and outcome.',
+                $factory->operationInspect(...),
+                static fn(Command $command): Command => $command
+                    ->addArgument(
+                        'operation-id',
+                        InputArgument::OPTIONAL,
+                        'Required UUID version 7 operation identifier.',
+                    )
+                    ->addOption('json', null, InputOption::VALUE_NONE, 'Write a versioned JSON object.')
+                    ->addUsage('<operation-id> [--json]'),
+            )->withCanonicalSynopsis('operation:inspect <operation-id> [--json]'),
             new LazyFrameworkCommand(
                 ApplicationBuildCompileCommand::NAME,
                 'Compile application operation, HTTP, and container artifacts.',

@@ -322,6 +322,8 @@ php blackops operation:inspect <operation-id> --json
 
 `operation-id`はRequired Argumentであり、`OperationId::fromString()`で検証する。Whitespace補正、短縮ID、Prefix検索、最新Operationの暗黙選択は行わない。
 
+Symfony Console上のMissing ArgumentもFramework Command内でMalformed IDと同じSafe Errorへ畳み、Exit 2とする。Helpは`operation:inspect <operation-id> [--json]`の論理必須Usageを表示する。Operation ID検証に成功するまでDatabase Connection、Reader、Queryを構成しない。
+
 ### Human Output
 
 Found時は次の順序で表示する。
@@ -335,6 +337,7 @@ Found時は次の順序で表示する。
 7. Outcome: Availability、Type、Completed At、Safe Data
 
 Human出力はColorの有無に意味を持たせず、Non-interactive Terminalでも同じ情報を読めるようにする。
+Safe Aggregate内の可変文字列もRaw連結せず、改行、ANSI Escape、その他Control Character、Quote、Backslashを一行内のescaped representationへ変換する。通常のASCII／Unicode文字列は可読表示を維持し、Data ObjectはJSON escapingを使う。
 
 ### JSON Output
 

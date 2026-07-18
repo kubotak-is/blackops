@@ -26,6 +26,18 @@ final class LazyFrameworkCommand extends Command
         $definition($this);
     }
 
+    public function withCanonicalSynopsis(string $synopsis): self
+    {
+        $this->canonicalSynopsis = $synopsis;
+
+        return $this;
+    }
+
+    public function getSynopsis(bool $short = false): string
+    {
+        return $this->canonicalSynopsis ?? parent::getSynopsis($short);
+    }
+
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $command = ($this->factory)();
@@ -38,4 +50,6 @@ final class LazyFrameworkCommand extends Command
 
         return $command->run($input, $output);
     }
+
+    private ?string $canonicalSynopsis = null;
 }

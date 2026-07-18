@@ -36,6 +36,7 @@ Framework Commandの名前、Description、AliasesはKernel構成時に登録す
 - MigrationはBuild ArtifactまたはPCNTLを要求しない
 - Workerは実行時だけArtifact、Main Connection、Heartbeat Connection、PCNTLを構成する
 - Retention／Schedulerは実行時だけRetention ConfigとConnectionを構成する
+- Operation InspectはOperation ID検証成功後だけFramework ConnectionとDiagnostics Queryを構成する
 - Config不足でCommandを一覧から除外しない
 - Factory失敗はCredentialを含まない責務別Bootstrap Errorへ変換する
 
@@ -43,11 +44,12 @@ Application独自CommandはValidated Snapshotから登録する。Framework Comm
 
 ## Framework Command Set
 
-P7-004のPublic Kernelは次を登録する。
+Public Kernelは次を登録する。
 
 ```text
 build:compile
 operation:list
+operation:inspect
 database:status
 database:migrate
 worker:run
@@ -59,7 +61,7 @@ scheduler:daemon
 
 Project Root Entrypointと組み合わせる公式形式は`php blackops build:compile`とする。FrameworkはPrefixなしCanonical名だけを予約し、旧`blackops:*` Project CLI名はAliasとして登録または予約しない。Applicationは旧名を独自Command名またはAliasとして利用できる。Generatorの`make:operation`と`make:migration`にはPrefixを付けない。
 
-個別Manifest／Container Compile Commandは内部の低レベルToolingとして維持するが、Installed Applicationの標準Kernelへ登録しない。Generator CommandはPhase 9まで追加しない。
+個別Manifest／Container Compile Commandは内部の低レベルToolingとして維持するが、Installed Applicationの標準Kernelへ登録しない。
 
 ## Application-aware Build
 
@@ -157,6 +159,7 @@ Symfony ConsoleがExceptionを表示する場合もPrevious ExceptionのCredenti
 - `Application::console()` がPublic ConsoleKernelを返し、Instanceを再利用する
 - Public SignatureへInternal型、Symfony Application、Container、Connection、Raw Configを露出しない
 - `list`／`help` がDatabase、Artifact、PCNTLなしでFramework Commandを表示する
+- `operation:inspect`のMissing／Malformed IDがCommand所有のExit 2となり、Queryを構成しない
 - Custom Commandを実行でき、Canonical Framework Command名競合を拒否する
 - 旧`blackops:*` Project CLI名がFramework Command一覧に現れず、Application Commandとして利用できる
 - Application-aware Build／Operation ListがSnapshot ProviderとBuild Configを使う
