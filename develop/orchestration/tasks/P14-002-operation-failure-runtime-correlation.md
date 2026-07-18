@@ -94,6 +94,7 @@ Inline Attempt内Failureは`attempt.failed -> operation.failed`、Deferred受付
 - `tests/Internal/Console/ApplicationBuildCompileCommandTest.php`
 - `tests/Internal/Runtime/ProductionRuntimeComposerTest.php`
 - `tests/Integration/ApplicationHttpRuntimeTest.php`
+- `tests/Internal/Application/ApplicationHttpRequestHandlerTest.php`
 - `tests/Integration/ApplicationConsoleKernelTest.php`
 - `tests/Consumer/frankenphp-worker-mode.sh`（Error Boundary回帰が必要な場合だけ）
 
