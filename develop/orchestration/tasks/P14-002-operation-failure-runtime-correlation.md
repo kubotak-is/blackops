@@ -57,6 +57,7 @@ Inline Attempt内Failureは`attempt.failed -> operation.failed`、Deferred受付
 
 - `src/Http/OperationRequestHandler.php`
 - `src/Http/Responder/JsonOperationResponder.php`
+- `src/Internal/Http/OperationFailureErrorBoundary.php`
 - `src/Internal/Execution/InlineDispatcher.php`
 - `src/Internal/Execution/DeferredAcceptanceOrchestrator.php`
 - P14-002のFailure相関に必要な新規`src/Internal/Execution/*.php`
@@ -84,6 +85,7 @@ Inline Attempt内Failureは`attempt.failed -> operation.failed`、Deferred受付
 - `tests/Http/OperationRequestHandlerTest.php`
 - `tests/Http/DeferredOperationRequestHandlerTest.php`
 - `tests/Internal/Http/DeferredHttpOperationAcceptorTest.php`
+- `tests/Internal/Http/OperationFailureErrorBoundaryTest.php`
 - `tests/Internal/Logging/ExecutionScopedLoggerTest.php`
 - `tests/Internal/Logging/MonologJsonlLoggerFactoryTest.php`
 - P14-002のRuntime Logger Injection／Safe Error Reportingに必要な新規`tests/Internal/Logging/*.php`
