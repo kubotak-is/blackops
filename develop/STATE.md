@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-19T01:14:03+09:00
+Updated At: 2026-07-19T04:33:57+09:00
 
 ## Current Phase
 
@@ -8,17 +8,17 @@ Phase 14: Operation Diagnostics
 
 ## Current Task
 
-Task ID: D099-production-logging-configuration
+Task ID: P14-006-production-correlation-security-regression
 
-Task Packet: `develop/decisions/099-production-logging-configuration.md`
+Task Packet: `develop/orchestration/tasks/P14-006-production-correlation-security-regression.md`
 
-Specifications: `develop/spec/10-logging-and-traceability.md`、`develop/spec/44-public-application-bootstrap-api.md`、`develop/spec/65-operation-diagnostics.md`、`develop/spec/66-phase-14-delivery-plan.md`、`develop/decisions/097-phase-14-operation-diagnostics.md`、`develop/decisions/099-production-logging-configuration.md`
+Specifications: `develop/spec/02-lifecycle-and-journal.md`、`develop/spec/05-http.md`、`develop/spec/09-runtime-and-di.md`、`develop/spec/10-logging-and-traceability.md`、`develop/spec/25-sensitive-projection.md`、`develop/spec/38-data-retention-and-deletion.md`、`develop/spec/44-public-application-bootstrap-api.md`、`develop/spec/47-public-http-runtime-configuration.md`、`develop/spec/65-operation-diagnostics.md`、`develop/spec/66-phase-14-delivery-plan.md`、`develop/decisions/085-http-configuration-snapshot-lifecycle.md`、`develop/decisions/097-phase-14-operation-diagnostics.md`、`develop/decisions/098-deferred-acceptance-failure-lifecycle.md`、`develop/decisions/099-production-logging-configuration.md`
 
 ## Task Status
 
-Decision Required
+Ready
 
-P14-005をCommit `6fc6f46`としてPushした。P14-006着手前の照合で、PSR-3 BackendをApplication Configuration Snapshotから解決する要件に対し、Canonical Config Shape、Stream許可範囲、Failure時契約、Disable可否が未定義と判明した。Public Configuration SurfaceのためD099でUser判断を待つ。
+D099はA／A／A／Aで確定した。P14-006はBuilt-in JSONL Config、Snapshot一回解決、Production Correlation Matrix、Scope Leak、Safe Projection、運用責任分界を実装／回帰するTask Packetを作成した。
 
 ## Last Accepted Task
 
@@ -44,16 +44,16 @@ P14-005-development-local-viewer
 16. D096は確定。Named DBAL Connection、DatabaseManager、Ray.Aop Build-time Interception、Operation／一般ServiceのTransaction保証差、Nested Required、After Commit Best-effort、Long-running Connection Lifecycleを採用する。
 17. D097はA／A／A／A／A／A／Aで確定。Failure相関を先に修復し、内部Query Model、CLI、Development Local ViewerまでをPhase 14で実装し、Public API／OTelを後続Phaseへ送る。
 18. D098はAで確定。Operation ID発行後、Attempt開始前の予期しないThrowableは、受付TransactionのRollback後に別TransactionでAttemptなしの`received -> operation.failed`へ到達する。
-19. D099 Production Logging Configurationは回答待ち。P14-006のPublic Configuration Surfaceを確定する。
+19. D099はA／A／A／Aで確定。Built-in JSONL、限定Stream、Invalid Config Fail-fast／Runtime Failure Best-effort、Disable不可を採用する。
 
 ## Known Blockers
 
-D099の4問が未回答であるため、P14-006のPublic Logging Configuration実装を開始できない。Documentation WebsiteはUser判断どおり未公開であり、本DecisionのBlockerではない。
+P14-006を妨げるBlockerはない。Documentation WebsiteはUser判断どおり未公開であり、本TaskのBlockerではない。
 
 ## Required Next Action
 
-1. Userが`develop/decisions/099-production-logging-configuration.md`の4問へ回答する。
-2. Orchestratorが回答をDecision／Specificationへ確定し、P14-006 Task Packetを作成する。
+1. OrchestratorがD099確定、Specification、P14-006 Task PacketをCommit／Pushする。
+2. GPT-5.6 Luna High WorkerへP14-006を実装依頼する。
 
 ## P14-005 Development Local Viewer Worker Verification
 

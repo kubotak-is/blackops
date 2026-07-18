@@ -8,6 +8,33 @@ FW LoggerはPSR-3 `LoggerInterface` を実装する。
 
 HandlerやServiceはLoggerをConstructor Injectionして利用する。各Log呼び出しでOperation IDを手動指定する必要はない。
 
+## Production Backend Configuration
+
+Installed ApplicationはOptional `config/logging.php`でBuilt-in JSONL Backendを設定する。Canonical Shapeは次とする。
+
+```php
+return [
+    'backend' => [
+        'driver' => 'jsonl',
+        'stream' => 'php://stderr',
+        'channel' => 'blackops',
+        'minimum_level' => 'info',
+    ],
+];
+```
+
+Config欠落時も上記をFramework既定とする。Phase 14のDriverは`jsonl`だけとし、Disable SwitchまたはCustom Backend Public Selectionを提供しない。
+
+- `driver`、`stream`、`channel`、`minimum_level`はStringだけを受け付ける。
+- `stream`は`php://stderr`、`php://stdout`、絶対Local File Pathだけを許可する。Relative Path、その他のPHP Wrapper、Network URIを拒否する。
+- `minimum_level`はPSR-3 Level名を厳密に受け付け、暗黙のCase変換またはNumeric Level変換を行わない。
+- Configの型、Driver、Stream、Channel、LevelはRuntime Composition時に検証し、Invalid Configを起動時に失敗させる。ErrorへConfig値、Credential、内部Backend Detailを含めない。
+- HTTPとWorkerは同じApplication Configuration SnapshotからBackendを一度だけ構成する。Request、Attempt、Log RecordごとにConfig Fileまたは`$_ENV`を再読込しない。
+- Backendは必ず`ExecutionScopedLogger`の内側へ置き、Application ServiceへDecoratorを`LoggerInterface`として注入する。
+- Backend Open／Write FailureはBest-effortで吸収し、Primary Throwable、Terminal Journal、HTTP Response、Worker Loopを変更しない。別Sinkへ暗黙Fallbackしない。
+
+Application／InfrastructureはLocal FileのDirectory、Permission、Rotation、Disk Capacityと、stdout／stderr以降のDelivery、Retention、Alertを所有する。FrameworkはDirectory作成、Remote Delivery、OpenTelemetry、Metric、Dashboardを行わない。
+
 ## 自動Context
 
 Operation内のApplication Logへ、存在する次の情報を自動付与する。
