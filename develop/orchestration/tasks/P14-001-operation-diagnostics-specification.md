@@ -51,6 +51,7 @@ Failure Lifecycle、Operation ID相関、Safe Projection、内部Diagnostics Agg
 - `develop/spec/65-operation-diagnostics.md`
 - `develop/spec/66-phase-14-delivery-plan.md`
 - `develop/spec/README.md`
+- `develop/decisions/098-deferred-acceptance-failure-lifecycle.md`
 - `develop/TODO.md`
 - `develop/orchestration/reports/P14-001-operation-diagnostics-specification.md`
 - `develop/STATE.md`

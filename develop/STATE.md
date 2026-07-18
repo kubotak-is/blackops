@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-18T16:11:33+09:00
+Updated At: 2026-07-18T16:19:03+09:00
 
 ## Current Phase
 
@@ -12,13 +12,13 @@ Task ID: P14-001-operation-diagnostics-specification
 
 Task Packet: `develop/orchestration/tasks/P14-001-operation-diagnostics-specification.md`
 
-Specifications: `develop/spec/02-lifecycle-and-journal.md`、`develop/spec/03-execution.md`、`develop/spec/05-http.md`、`develop/spec/06-auth-and-middleware.md`、`develop/spec/10-logging-and-traceability.md`、`develop/spec/22-journal-record-schema.md`、`develop/spec/25-sensitive-projection.md`、`develop/spec/26-journal-ports.md`、`develop/spec/31-deferred-claim-and-attempt.md`、`develop/spec/35-postgresql-transport-schema.md`、`develop/spec/38-data-retention-and-deletion.md`、`develop/spec/39-retention-runtime.md`、`develop/spec/60-post-phase-10-roadmap.md`、`develop/decisions/097-phase-14-operation-diagnostics.md`
+Specifications: `develop/spec/02-lifecycle-and-journal.md`、`develop/spec/03-execution.md`、`develop/spec/05-http.md`、`develop/spec/06-auth-and-middleware.md`、`develop/spec/10-logging-and-traceability.md`、`develop/spec/22-journal-record-schema.md`、`develop/spec/25-sensitive-projection.md`、`develop/spec/26-journal-ports.md`、`develop/spec/31-deferred-claim-and-attempt.md`、`develop/spec/35-postgresql-transport-schema.md`、`develop/spec/38-data-retention-and-deletion.md`、`develop/spec/39-retention-runtime.md`、`develop/spec/60-post-phase-10-roadmap.md`、`develop/decisions/097-phase-14-operation-diagnostics.md`、`develop/decisions/098-deferred-acceptance-failure-lifecycle.md`
 
 ## Task Status
 
-In Progress
+Waiting for User Decision
 
-UserがDecision 097の7 QuestionすべてにAを選択し、OrchestratorがDecidedへ確定した。P14-001でOperation Diagnostics SpecificationとPhase 14 Delivery Planを作成中である。
+UserがDecision 097の7 QuestionすべてにAを選択し、OrchestratorがDecidedへ確定した。P14-001の仕様化で、Operation ID発行後かつAttempt開始前のDeferred受付Policy ThrowableがJournalに残らないGapを確認した。Decision 098 DraftでFailure LifecycleをUser確認中である。
 
 ## Last Accepted Task
 
@@ -43,15 +43,17 @@ P14-000-operation-diagnostics-design-audit
 15. D095は確定。Operation Middlewareは不要とし、Phase 12はPSR-15 HTTP MiddlewareとAuthorizationへ絞る。Authentication、Durable Actor、Deferred FailureはAを採用する。
 16. D096は確定。Named DBAL Connection、DatabaseManager、Ray.Aop Build-time Interception、Operation／一般ServiceのTransaction保証差、Nested Required、After Commit Best-effort、Long-running Connection Lifecycleを採用する。
 17. D097はA／A／A／A／A／A／Aで確定。Failure相関を先に修復し、内部Query Model、CLI、Development Local ViewerまでをPhase 14で実装し、Public API／OTelを後続Phaseへ送る。
+18. D098はDraft。Operation ID発行後、Attempt開始前の予期しないThrowableに`received -> operation.failed`を追加するかUser回答待ちである。
 
 ## Known Blockers
 
-実装Blockerはない。Documentation WebsiteはUser判断どおり未公開である。
+P14-001のFailure Lifecycle仕様はDecision 098のUser回答待ちである。Documentation WebsiteはUser判断どおり未公開である。
 
 ## Required Next Action
 
-1. P14-001でOperation Diagnostics SpecificationとPhase 14 Delivery Planを作成する。
-2. Orchestrator Review後にP14-002 Inline Failure Correlationを開始する。
+1. UserがDecision 098 Question 1へ回答する。
+2. Orchestratorが回答をFailure Lifecycle仕様へ確定する。
+3. P14-001のOperation Diagnostics SpecificationとPhase 14 Delivery Planを完成する。
 
 ## P14-000 Operation Diagnostics Design Audit Worker Verification Commands and Results
 
