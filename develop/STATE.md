@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-18T16:19:03+09:00
+Updated At: 2026-07-18T22:15:22+09:00
 
 ## Current Phase
 
@@ -16,13 +16,13 @@ Specifications: `develop/spec/02-lifecycle-and-journal.md`、`develop/spec/03-ex
 
 ## Task Status
 
-Waiting for User Decision
+Accepted
 
-UserがDecision 097の7 QuestionすべてにAを選択し、OrchestratorがDecidedへ確定した。P14-001の仕様化で、Operation ID発行後かつAttempt開始前のDeferred受付Policy ThrowableがJournalに残らないGapを確認した。Decision 098 DraftでFailure LifecycleをUser確認中である。
+UserがDecision 098へAと回答し、OrchestratorがDecidedへ確定した。Attempt開始前Failureを受付TransactionのRollback後に別Transactionで記録するAttemptなしの`received -> operation.failed`とし、D097の内部Query Aggregate、CLI、Local Viewer、PSR-3相関、Safe Projection、Retention Availabilityと共に仕様化した。Orchestrator ReviewとQuality Guardが成功し、P14-001をAcceptedとした。
 
 ## Last Accepted Task
 
-P14-000-operation-diagnostics-design-audit
+P14-001-operation-diagnostics-specification
 
 ## Pending Decisions
 
@@ -43,17 +43,41 @@ P14-000-operation-diagnostics-design-audit
 15. D095は確定。Operation Middlewareは不要とし、Phase 12はPSR-15 HTTP MiddlewareとAuthorizationへ絞る。Authentication、Durable Actor、Deferred FailureはAを採用する。
 16. D096は確定。Named DBAL Connection、DatabaseManager、Ray.Aop Build-time Interception、Operation／一般ServiceのTransaction保証差、Nested Required、After Commit Best-effort、Long-running Connection Lifecycleを採用する。
 17. D097はA／A／A／A／A／A／Aで確定。Failure相関を先に修復し、内部Query Model、CLI、Development Local ViewerまでをPhase 14で実装し、Public API／OTelを後続Phaseへ送る。
-18. D098はDraft。Operation ID発行後、Attempt開始前の予期しないThrowableに`received -> operation.failed`を追加するかUser回答待ちである。
+18. D098はAで確定。Operation ID発行後、Attempt開始前の予期しないThrowableは、受付TransactionのRollback後に別TransactionでAttemptなしの`received -> operation.failed`へ到達する。
 
 ## Known Blockers
 
-P14-001のFailure Lifecycle仕様はDecision 098のUser回答待ちである。Documentation WebsiteはUser判断どおり未公開である。
+P14-001を妨げるBlockerはない。Documentation WebsiteはUser判断どおり未公開であり、本TaskのBlockerではない。
 
 ## Required Next Action
 
-1. UserがDecision 098 Question 1へ回答する。
-2. Orchestratorが回答をFailure Lifecycle仕様へ確定する。
-3. P14-001のOperation Diagnostics SpecificationとPhase 14 Delivery Planを完成する。
+1. P14-002 Task Packetを作成する。
+2. P14-002でInline／Attempt開始前Failure LifecycleとRuntime相関を実装する。
+
+## P14-001 Operation Diagnostics Specification Worker Verification
+
+```text
+develop/spec/65-operation-diagnostics.md
+Result: D097確定範囲のError相関、Internal Query Aggregate、Availability、Safe Projection、CLI、Local Viewer、PSR-3責任境界を仕様化した。D098のAttemptなしTerminal Failureを反映した。
+
+develop/spec/66-phase-14-delivery-plan.md
+Result: P14-002からP14-007までの単一責務、Acceptance Gate、依存順序を仕様化した。D098の実装をP14-002へ含めた。
+
+develop/spec/README.md、develop/TODO.md、P14-001 Report
+Result: 新仕様、Decision Traceability、Phase 14作業項目を同期した。
+
+Decision 098
+Result: User回答AとOrchestratorのDecision／Consequences確定を保持し、Status DecidedをSpecification Indexへ同期した。
+
+Required Contract Search、Specification Index Search、git diff --check
+Result: 成功。
+
+Management Comment ID Guard
+Result: 成功。
+
+docker compose run --rm app mago format --check src tests
+Result: 成功。All files are already formatted。Sandbox内のDocker Socket権限不足後、承認済みDocker実行で再確認した。
+```
 
 ## P14-000 Operation Diagnostics Design Audit Worker Verification Commands and Results
 

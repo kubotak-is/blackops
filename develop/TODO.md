@@ -92,9 +92,14 @@ MVP後に残す主要項目:
 
 ### Phase 14: Operation Diagnostics
 
-- [ ] Error Response／LogをOperation IDで相関可能にする
-- [ ] `operation:inspect`とDevelopment用Local Viewerを提供する
-- [ ] Production Log／Journal／Observabilityの責任境界を定義する
+- [x] `OperationDiagnostics`、`operation:inspect`、`operation:viewer`、Safe Projection、Production Log責任境界をD097と仕様書へ固定する
+- [x] D098でOperation ID発行後かつAttempt開始前の`received -> operation.failed` Lifecycleを確定する
+- [ ] Error Response／Journal／`ExecutionScopedLogger`を同じOperation IDで相関可能にする
+- [ ] Internal `OperationDiagnostics` Queryと`operation.unavailable` Availability境界を実装する
+- [ ] `operation:inspect`のHuman／JSON／Exit Code Contractを実装する
+- [ ] `diagnostics.viewer.enabled`で既定無効のDevelopment用`operation:viewer`を実装する
+- [ ] Production Log／Journal／Observabilityの責任境界をRegression TestとInternal Documentationへ同期する
+- [ ] Quickstart／Skeleton／Guide／Consumer E2Eを同期してPhase 14をCloseする
 
 ### Phase 15: Operation Frontend Bridge
 

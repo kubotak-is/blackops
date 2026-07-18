@@ -79,6 +79,8 @@
 | [62-phase-11-delivery-plan.md](62-phase-11-delivery-plan.md) | Release Surface ResetからFramework／Skeleton 1.1.0公開までのTask順序 |
 | [63-phase-12-delivery-plan.md](63-phase-12-delivery-plan.md) | Actor ContextからDeferred再認可とPhase CloseoutまでのTask順序 |
 | [64-phase-13-delivery-plan.md](64-phase-13-delivery-plan.md) | Named Connection、Build-time AOP、Transaction、After CommitからPhase CloseoutまでのTask順序 |
+| [65-operation-diagnostics.md](65-operation-diagnostics.md) | Operation ID相関、内部Diagnostics Aggregate、CLI、Local Viewer、安全な表示境界 |
+| [66-phase-14-delivery-plan.md](66-phase-14-delivery-plan.md) | Failure相関からDiagnostics Consumer ExperienceまでのPhase 14 Task順序 |
 
 ## 決定の参照
 
@@ -180,3 +182,5 @@
 | [D094](../decisions/094-stable-1-1-release-contract.md) | Stable 1.1 Release Contract | Decided |
 | [D095](../decisions/095-phase-12-middleware-and-authorization-runtime.md) | Phase 12 Middleware and Authorization Runtime | Decided |
 | [D096](../decisions/096-phase-13-database-and-transaction-runtime.md) | Phase 13 Database and Transaction Runtime | Decided |
+| [D097](../decisions/097-phase-14-operation-diagnostics.md) | Phase 14 Operation Diagnostics | Decided |
+| [D098](../decisions/098-deferred-acceptance-failure-lifecycle.md) | Deferred Acceptance Failure Lifecycle | Decided |
