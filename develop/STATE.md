@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-18T23:26:00+09:00
+Updated At: 2026-07-18T23:29:53+09:00
 
 ## Current Phase
 
@@ -12,13 +12,13 @@ Task ID: P14-003-diagnostics-readers-and-query-aggregate
 
 Task Packet: `develop/orchestration/tasks/P14-003-diagnostics-readers-and-query-aggregate.md`
 
-Specifications: `develop/spec/01-core-model.md`、`develop/spec/02-lifecycle-and-journal.md`、`develop/spec/03-execution.md`、`develop/spec/11-durable-journal-and-transactions.md`、`develop/spec/12-deferred-execution.md`、`develop/spec/16-outcome-storage.md`、`develop/spec/25-sensitive-projection.md`、`develop/spec/30-lifecycle-state-machine.md`、`develop/spec/37-postgresql-table-layout.md`、`develop/spec/38-data-retention-and-deletion.md`、`develop/spec/65-operation-diagnostics.md`、`develop/spec/66-phase-14-delivery-plan.md`、`develop/decisions/097-phase-14-operation-diagnostics.md`、`develop/decisions/098-deferred-acceptance-failure-lifecycle.md`
+Specifications: `develop/spec/01-core-model.md`、`develop/spec/02-lifecycle-and-journal.md`、`develop/spec/03-execution.md`、`develop/spec/11-durable-journal-and-transactions.md`、`develop/spec/24-lifecycle-event-data.md`、`develop/spec/25-sensitive-projection.md`、`develop/spec/26-journal-ports.md`、`develop/spec/30-lifecycle-state-machine.md`、`develop/spec/31-deferred-claim-and-attempt.md`、`develop/spec/33-execution-transport-contract.md`、`develop/spec/35-postgresql-transport-schema.md`、`develop/spec/36-postgresql-transaction-boundaries.md`、`develop/spec/37-postgresql-table-layout.md`、`develop/spec/38-data-retention-and-deletion.md`、`develop/spec/65-operation-diagnostics.md`、`develop/spec/66-phase-14-delivery-plan.md`、`develop/decisions/097-phase-14-operation-diagnostics.md`、`develop/decisions/098-deferred-acceptance-failure-lifecycle.md`
 
 ## Task Status
 
 In Progress
 
-P14-002をCommit／Pushした。P14-003は既存Canonical Journal／Outcome ReaderとRestricted Columnを読まないPostgreSQL内部Readerを集約し、SafeなInternal Diagnostics Queryを実装する。Task Packetを作成し、GPT-5.6 Luna High Workerへ引き渡す。
+P14-002をCommit／Pushした。P14-003は既存Canonical Journal／Outcome ReaderとRestricted Columnを読まないPostgreSQL内部Readerを集約し、SafeなInternal Diagnostics Queryを実装する。開始時に検出した旧称の仕様参照を現行のLifecycle Event、Journal Port、Deferred Claim／Transport／PostgreSQL Transaction仕様へ修正し、GPT-5.6 Luna High Workerへ再引き渡す。
 
 ## Last Accepted Task
 

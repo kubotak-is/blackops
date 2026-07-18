@@ -45,10 +45,14 @@ InlineはCanonical Journal、DeferredはOperations RowをCurrent Stateの正本�
 - `develop/spec/02-lifecycle-and-journal.md`
 - `develop/spec/03-execution.md`
 - `develop/spec/11-durable-journal-and-transactions.md`
-- `develop/spec/12-deferred-execution.md`
-- `develop/spec/16-outcome-storage.md`
+- `develop/spec/24-lifecycle-event-data.md`
 - `develop/spec/25-sensitive-projection.md`
+- `develop/spec/26-journal-ports.md`
 - `develop/spec/30-lifecycle-state-machine.md`
+- `develop/spec/31-deferred-claim-and-attempt.md`
+- `develop/spec/33-execution-transport-contract.md`
+- `develop/spec/35-postgresql-transport-schema.md`
+- `develop/spec/36-postgresql-transaction-boundaries.md`
 - `develop/spec/37-postgresql-table-layout.md`
 - `develop/spec/38-data-retention-and-deletion.md`
 - `develop/spec/65-operation-diagnostics.md`
