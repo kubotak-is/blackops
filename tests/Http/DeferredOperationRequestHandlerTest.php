@@ -30,13 +30,17 @@ use BlackOps\Internal\Authorization\AuthorizationEvaluator;
 use BlackOps\Internal\Authorization\AuthorizationPolicyResolver;
 use BlackOps\Internal\Codec\ReflectionJsonOperationCodec;
 use BlackOps\Internal\Execution\DeferredAcceptanceOrchestrator;
+use BlackOps\Internal\Execution\ExecutionScopeProvider;
 use BlackOps\Internal\Execution\HandlerResolver;
 use BlackOps\Internal\Execution\InlineDispatcher;
 use BlackOps\Internal\ExecutionContext\ExecutionContextFactory;
 use BlackOps\Internal\Http\DeferredHttpOperationAcceptor;
+use BlackOps\Internal\Http\OperationFailureErrorBoundary;
 use BlackOps\Internal\Identifier\IdentifierFactory;
 use BlackOps\Internal\Identifier\Uuidv7Generator;
 use BlackOps\Internal\Journal\JournalRecordFactory;
+use BlackOps\Internal\Logging\ExecutionScopedLogger;
+use BlackOps\Internal\Logging\FrameworkOperationFailureReporter;
 use BlackOps\Journal\Data\OperationReceivedData;
 use BlackOps\Journal\EmptyJournalData;
 use BlackOps\Journal\JournalEvent;
@@ -50,6 +54,8 @@ use Nyholm\Psr7\Factory\Psr17Factory;
 use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
 use Psr\Container\ContainerInterface;
+use Psr\Http\Server\RequestHandlerInterface;
+use Psr\Log\NullLogger;
 use RuntimeException;
 use Throwable;
 
@@ -231,7 +237,7 @@ final class DeferredOperationRequestHandlerTest extends TestCase
         self::assertStringNotContainsString('permission', $operationRow['context']);
     }
 
-    public function testPolicyBackendFailurePropagatesAndRollsBackReceivedRecord(): void
+    public function testPolicyBackendFailureReturnsSafeCorrelatedErrorAndAttemptlessTerminalJournal(): void
     {
         $failure = new RuntimeException('authorization backend credential detail');
         $policy = new DeferredHttpAuthorizationPolicy(AuthorizationDecision::allow(), $failure);
@@ -241,18 +247,26 @@ final class DeferredOperationRequestHandlerTest extends TestCase
             ->withAttribute(ActorRef::class, new ActorRef('user-123', 'user'))
             ->withBody($this->psr17->createStream('{"reportName":"weekly"}'));
 
-        try {
-            $handler->handle($request);
-            self::fail('Expected authorization backend failure.');
-        } catch (RuntimeException $exception) {
-            self::assertSame($failure, $exception);
-        }
+        $response = $handler->handle($request);
 
+        self::assertSame(500, $response->getStatusCode());
+        self::assertSame(
+            '{"status":"error","code":"internal_error","operationId":"' . self::OPERATION_ID . '"}',
+            (string) $response->getBody(),
+        );
+        self::assertStringNotContainsString('credential', (string) $response->getBody());
         self::assertSame(0, (int) $this->connection->fetchOne('SELECT count(*) FROM ' . self::SCHEMA . '.operations'));
-        self::assertSame([], $this->records());
+        $records = $this->records();
+        self::assertSame(
+            [JournalEvent::OperationReceived, JournalEvent::OperationFailed],
+            array_column($records, 'event'),
+        );
+        self::assertSame([1, 2], array_column($records, 'sequence'));
+        self::assertNull($records[0]->attempt);
+        self::assertNull($records[1]->attempt);
     }
 
-    private function handler(OperationCodec $codec, ?AuthorizationPolicy $policy = null): OperationRequestHandler
+    private function handler(OperationCodec $codec, ?AuthorizationPolicy $policy = null): RequestHandlerInterface
     {
         $clock = new DeferredHttpClock();
         $identifiers = new IdentifierFactory(new DeferredHttpUuidv7Generator(), $clock);
@@ -283,7 +297,8 @@ final class DeferredOperationRequestHandlerTest extends TestCase
             $this->journal,
         );
 
-        return new OperationRequestHandler(
+        $responder = new JsonOperationResponder($this->psr17, $this->psr17);
+        $handler = new OperationRequestHandler(
             new HttpRouteRegistry([new HttpOperationRoute(
                 'POST',
                 '/reports',
@@ -292,7 +307,7 @@ final class DeferredOperationRequestHandlerTest extends TestCase
             )]),
             new OperationValueBinder(),
             $dispatcher,
-            new JsonOperationResponder($this->psr17, $this->psr17),
+            $responder,
             $this->psr17,
             $dispatcher,
             new DeferredHttpOperationAcceptor(
@@ -301,6 +316,13 @@ final class DeferredOperationRequestHandlerTest extends TestCase
                 $codec,
                 $orchestrator,
             ),
+        );
+        $scope = new ExecutionScopeProvider();
+
+        return new OperationFailureErrorBoundary(
+            $handler,
+            $responder,
+            new FrameworkOperationFailureReporter(new ExecutionScopedLogger(new NullLogger(), $scope), $scope),
         );
     }
 

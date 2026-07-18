@@ -41,11 +41,14 @@ final readonly class ApplicationHttpRequestHandler implements RequestHandlerInte
         }
 
         try {
-            if ($failure !== null && $prepared) {
+            $failedInvocation =
+                $failure !== null || $response instanceof ResponseInterface && $response->getStatusCode() >= 500;
+
+            if ($failedInvocation && $prepared) {
                 $this->connection->finishFailedInvocation();
             }
 
-            if ($failure === null) {
+            if (!$failedInvocation) {
                 $this->connection->finishSuccessfulInvocation();
             }
         } catch (Throwable $exception) {

@@ -7,6 +7,7 @@ namespace BlackOps\Internal\Runtime;
 use BlackOps\Http\DeferredOperationAcceptor;
 use BlackOps\Internal\Execution\ExecutionScopeProvider;
 use BlackOps\Internal\Journal\JournalObservationPipeline;
+use BlackOps\Internal\Logging\ExecutionScopedLogger;
 use BlackOps\Internal\Transaction\OperationTransactionCoordinator;
 use BlackOps\Journal\CanonicalJournalWriter;
 use Psr\Clock\ClockInterface;
@@ -18,6 +19,8 @@ final readonly class ProductionRuntimeDependencies
 {
     /**
      * @param list<MiddlewareInterface> $httpMiddleware
+     *
+     * @mago-expect lint:excessive-parameter-list
      */
     public function __construct(
         public ClockInterface $clock,
@@ -29,5 +32,6 @@ final readonly class ProductionRuntimeDependencies
         public ?DeferredOperationAcceptor $deferredOperationAcceptor = null,
         public array $httpMiddleware = [],
         public ?OperationTransactionCoordinator $operationTransactions = null,
+        public ?ExecutionScopedLogger $executionLogger = null,
     ) {}
 }

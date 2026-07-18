@@ -65,6 +65,24 @@ final class ApplicationHttpRequestHandlerTest extends TestCase
         self::assertSame(2, $observer->flushes);
     }
 
+    public function testServerErrorResponseClosesConnectionAndDoesNotPoisonNextRequest(): void
+    {
+        $observer = new RecordingFlushableObserver();
+        $connection = $this->createMock(Connection::class);
+        $connection->expects(self::exactly(2))->method('fetchOne')->with('SELECT 1')->willReturn(1);
+        $connection->expects(self::once())->method('close');
+        $connection->expects(self::once())->method('isTransactionActive')->willReturn(false);
+        $handler = $this->handler(
+            new ReferenceLifecycleRequestHandler([new Response(500), new Response(200)]),
+            $observer,
+            $connection,
+        );
+
+        self::assertSame(500, $handler->handle(new ServerRequest('GET', '/fails'))->getStatusCode());
+        self::assertSame(200, $handler->handle(new ServerRequest('GET', '/recovers'))->getStatusCode());
+        self::assertSame(2, $observer->flushes);
+    }
+
     public function testActiveTransactionClosesConnectionAndBlocksSuccessfulResponse(): void
     {
         $observer = new RecordingFlushableObserver();

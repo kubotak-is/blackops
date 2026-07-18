@@ -13,9 +13,13 @@ use BlackOps\Internal\Execution\HandlerResolver;
 use BlackOps\Internal\Execution\InlineDispatcher;
 use BlackOps\Internal\ExecutionContext\ExecutionContextFactory;
 use BlackOps\Internal\Http\HttpMiddlewarePipeline;
+use BlackOps\Internal\Http\OperationFailureErrorBoundary;
 use BlackOps\Internal\Identifier\IdentifierFactory;
 use BlackOps\Internal\Identifier\SymfonyUuidv7Generator;
 use BlackOps\Internal\Journal\JournalRecordFactory;
+use BlackOps\Internal\Logging\ExecutionScopedLogger;
+use BlackOps\Internal\Logging\FrameworkOperationFailureReporter;
+use BlackOps\Internal\Logging\MonologJsonlLoggerFactory;
 use BlackOps\Internal\Registry\OperationDefinitionFactory;
 use BlackOps\Journal\CanonicalJournalWriter;
 use Psr\Clock\ClockInterface;
@@ -47,6 +51,10 @@ final readonly class ProductionRuntimeComposer
     ): ProductionRuntimeComposition {
         $identifiers = new IdentifierFactory(new SymfonyUuidv7Generator(), $dependencies->clock);
         $scope = $dependencies->executionScope ?? new \BlackOps\Internal\Execution\ExecutionScopeProvider();
+        $logger = $dependencies->executionLogger ?? new ExecutionScopedLogger(
+            new MonologJsonlLoggerFactory()->create('php://stderr'),
+            $scope,
+        );
         $authorization = new AuthorizationEvaluator(new AuthorizationPolicyResolver($artifacts->container));
         $dispatcher = new InlineDispatcher(
             $artifacts->operations,
@@ -65,14 +73,20 @@ final readonly class ProductionRuntimeComposer
             $handlers->resolve(...),
         ));
 
-        $httpHandler = new OperationRequestHandler(
+        $responder = new JsonOperationResponder($dependencies->responses, $dependencies->streams);
+        $operationHandler = new OperationRequestHandler(
             $routes,
             new OperationValueBinder(),
             $dispatcher,
-            new JsonOperationResponder($dependencies->responses, $dependencies->streams),
+            $responder,
             $dependencies->responses,
             $dispatcher,
             $dependencies->deferredOperationAcceptor,
+        );
+        $httpHandler = new OperationFailureErrorBoundary(
+            $operationHandler,
+            $responder,
+            new FrameworkOperationFailureReporter($logger, $scope),
         );
 
         return new ProductionRuntimeComposition(
@@ -82,6 +96,7 @@ final readonly class ProductionRuntimeComposer
                 ? $httpHandler
                 : new HttpMiddlewarePipeline($dependencies->httpMiddleware, $httpHandler),
             $scope,
+            $logger,
         );
     }
 }

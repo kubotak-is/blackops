@@ -31,6 +31,7 @@ use BlackOps\Internal\Authorization\AuthorizationPolicyResolver;
 use BlackOps\Internal\Execution\ExecutionScopeProvider;
 use BlackOps\Internal\Execution\HandlerResolver;
 use BlackOps\Internal\Execution\InlineDispatcher;
+use BlackOps\Internal\Execution\OperationExecutionFailed;
 use BlackOps\Internal\ExecutionContext\ExecutionContextFactory;
 use BlackOps\Internal\Identifier\IdentifierFactory;
 use BlackOps\Internal\Identifier\Uuidv7Generator;
@@ -44,6 +45,8 @@ use BlackOps\Internal\Projection\SensitiveProjectionFilter;
 use BlackOps\Internal\Transaction\OperationTransactionCoordinator;
 use BlackOps\Internal\Transaction\TransactionRuntime;
 use BlackOps\Journal\CanonicalJournalWriter;
+use BlackOps\Journal\Data\AttemptFailedData;
+use BlackOps\Journal\Data\OperationFailedData;
 use BlackOps\Journal\Exception\JournalObservationFailed;
 use BlackOps\Journal\Exception\JournalWriteFailed;
 use BlackOps\Journal\Exception\LifecycleTransitionException;
@@ -138,10 +141,39 @@ final class InlineDispatcherTest extends TestCase
         $this->dispatcher(new DispatchHandler())->dispatch(new DispatchOperation(), new OtherDispatchValue());
     }
 
-    public function testHandlerExceptionPropagates(): void
+    public function testHandlerExceptionRecordsTerminalFailureAndPreservesPrimaryThrowable(): void
     {
-        $this->expectException(\RuntimeException::class);
-        $this->dispatcher(new ThrowingDispatchHandler())->dispatch(new DispatchOperation(), new DispatchValue('hello'));
+        $journal = new RecordingJournalWriter();
+
+        try {
+            $this->dispatcher(new ThrowingDispatchHandler(), $journal)->dispatch(
+                new DispatchOperation(),
+                new DispatchValue('hello'),
+            );
+            self::fail('Expected operation execution failure.');
+        } catch (OperationExecutionFailed $failure) {
+            self::assertInstanceOf(\RuntimeException::class, $failure->primaryFailure());
+            self::assertSame('handler failed', $failure->primaryFailure()->getMessage());
+            self::assertSame('019f32ab-2be0-7b38-a0a7-1ab2f9687697', $failure->operationId()->toString());
+            self::assertNull($failure->recordingFailure());
+        }
+
+        self::assertSame(
+            [
+                JournalEvent::OperationReceived,
+                JournalEvent::AttemptStarted,
+                JournalEvent::AttemptFailed,
+                JournalEvent::OperationFailed,
+            ],
+            array_column($journal->records, 'event'),
+        );
+        self::assertSame([1, 2, 3, 4], array_column($journal->records, 'sequence'));
+        self::assertInstanceOf(AttemptFailedData::class, $journal->records[2]->data);
+        self::assertFalse($journal->records[2]->data->retryable);
+        self::assertInstanceOf(OperationFailedData::class, $journal->records[3]->data);
+        self::assertFalse($journal->records[3]->data->retryable);
+        self::assertSame($journal->records[1]->attempt?->id, $journal->records[2]->attempt?->id);
+        self::assertSame($journal->records[1]->attempt?->id, $journal->records[3]->attempt?->id);
     }
 
     public function testRejectedResultWritesTerminalRejectedEvent(): void
@@ -244,13 +276,19 @@ final class InlineDispatcherTest extends TestCase
                 new ActorContext($actor, $actor, $actor),
             );
             self::fail('Expected policy backend failure.');
-        } catch (\RuntimeException $exception) {
-            self::assertSame($failure, $exception);
+        } catch (OperationExecutionFailed $exception) {
+            self::assertSame($failure, $exception->primaryFailure());
+            self::assertNull($exception->recordingFailure());
         }
 
         self::assertSame(0, $handler->calls);
         self::assertSame(
-            [JournalEvent::OperationReceived, JournalEvent::AttemptStarted],
+            [
+                JournalEvent::OperationReceived,
+                JournalEvent::AttemptStarted,
+                JournalEvent::AttemptFailed,
+                JournalEvent::OperationFailed,
+            ],
             array_column($journal->records, 'event'),
         );
     }
@@ -286,11 +324,37 @@ final class InlineDispatcherTest extends TestCase
 
     public function testJournalWriterFailurePropagates(): void
     {
-        $this->expectException(JournalWriteFailed::class);
+        try {
+            $this->dispatcher(new DispatchHandler(), new FailingJournalWriter())->dispatch(
+                new DispatchOperation(),
+                new DispatchValue('hello'),
+            );
+            self::fail('Expected operation execution failure.');
+        } catch (OperationExecutionFailed $failure) {
+            self::assertInstanceOf(JournalWriteFailed::class, $failure->primaryFailure());
+            self::assertNull($failure->recordingFailure());
+        }
+    }
 
-        $this->dispatcher(new DispatchHandler(), new FailingJournalWriter())->dispatch(
-            new DispatchOperation(),
-            new DispatchValue('hello'),
+    public function testFailureJournalWriteDoesNotReplacePrimaryHandlerThrowable(): void
+    {
+        $journal = new FailingTerminalJournalWriter();
+
+        try {
+            $this->dispatcher(new ThrowingDispatchHandler(), $journal)->dispatch(
+                new DispatchOperation(),
+                new DispatchValue('hello'),
+            );
+            self::fail('Expected operation execution failure.');
+        } catch (OperationExecutionFailed $failure) {
+            self::assertSame('handler failed', $failure->primaryFailure()->getMessage());
+            self::assertInstanceOf(JournalWriteFailed::class, $failure->recordingFailure());
+            self::assertSame('019f32ab-2be0-7b38-a0a7-1ab2f9687697', $failure->operationId()->toString());
+        }
+
+        self::assertSame(
+            [JournalEvent::OperationReceived, JournalEvent::AttemptStarted],
+            array_column($journal->records, 'event'),
         );
     }
 
@@ -411,6 +475,103 @@ final class InlineDispatcherTest extends TestCase
         self::assertSame(1, $handler->calls);
     }
 
+    public function testTransactionalInlineRollsBackBeforeRecordingTerminalFailure(): void
+    {
+        $connection = DriverManager::getConnection(['driver' => 'pdo_sqlite', 'memory' => true]);
+        $connection->executeStatement('CREATE TABLE business_updates (value TEXT NOT NULL)');
+        [$coordinator, $scope] = $this->transactionCoordinator($connection);
+        $failure = new \RuntimeException('transactional handler credential detail');
+        $handler = new FailingTransactionalInlineDispatchHandler($connection, $failure);
+        $journal = new RecordingJournalWriter();
+        $metadata = new OperationMetadata(
+            'dispatch.transactional.failed',
+            DispatchOperation::class,
+            DispatchValue::class,
+            $handler::class,
+            EmptyOutcome::class,
+            Inline::class,
+            transactionConnection: 'app',
+        );
+
+        try {
+            $this->dispatcher(
+                $handler,
+                $journal,
+                scope: $scope,
+                metadata: $metadata,
+                transactions: $coordinator,
+            )->dispatch(new DispatchOperation(), new DispatchValue('failed'));
+            self::fail('Expected transactional operation failure.');
+        } catch (OperationExecutionFailed $executionFailure) {
+            self::assertSame($failure, $executionFailure->primaryFailure());
+        }
+
+        self::assertSame([], $connection->fetchFirstColumn('SELECT value FROM business_updates'));
+        self::assertSame(
+            [
+                JournalEvent::OperationReceived,
+                JournalEvent::AttemptStarted,
+                JournalEvent::AttemptFailed,
+                JournalEvent::OperationFailed,
+            ],
+            array_column($journal->records, 'event'),
+        );
+    }
+
+    public function testRollbackFailureDoesNotReplacePrimaryHandlerThrowable(): void
+    {
+        $active = false;
+        $connection = $this->createStub(Connection::class);
+        $connection
+            ->method('isTransactionActive')
+            ->willReturnCallback(static function () use (&$active): bool {
+                return $active;
+            });
+        $connection->method('getTransactionNestingLevel')->willReturn(1);
+        $connection
+            ->method('beginTransaction')
+            ->willReturnCallback(static function () use (&$active): void {
+                $active = true;
+            });
+        $connection->method('rollBack')->willThrowException(new \RuntimeException('rollback credential detail'));
+        [$coordinator, $scope] = $this->transactionCoordinator($connection);
+        $handler = new ThrowingDispatchHandler();
+        $journal = new RecordingJournalWriter();
+        $metadata = new OperationMetadata(
+            'dispatch.transactional.rollbackfailed',
+            DispatchOperation::class,
+            DispatchValue::class,
+            $handler::class,
+            EmptyOutcome::class,
+            Inline::class,
+            transactionConnection: 'app',
+        );
+
+        try {
+            $this->dispatcher(
+                $handler,
+                $journal,
+                scope: $scope,
+                metadata: $metadata,
+                transactions: $coordinator,
+            )->dispatch(new DispatchOperation(), new DispatchValue('failed'));
+            self::fail('Expected transactional operation failure.');
+        } catch (OperationExecutionFailed $failure) {
+            self::assertSame('handler failed', $failure->primaryFailure()->getMessage());
+            self::assertNull($failure->recordingFailure());
+        }
+
+        self::assertSame(
+            [
+                JournalEvent::OperationReceived,
+                JournalEvent::AttemptStarted,
+                JournalEvent::AttemptFailed,
+                JournalEvent::OperationFailed,
+            ],
+            array_column($journal->records, 'event'),
+        );
+    }
+
     public function testBestEffortObserverFailureDoesNotBlockDispatch(): void
     {
         $result = $this->dispatcher(
@@ -449,7 +610,8 @@ final class InlineDispatcherTest extends TestCase
                 ),
             )->dispatch(new DispatchOperation(), new DispatchValue('hello'));
             self::fail('Expected journal write failure.');
-        } catch (JournalWriteFailed) {
+        } catch (OperationExecutionFailed $failure) {
+            self::assertInstanceOf(JournalWriteFailed::class, $failure->primaryFailure());
         }
 
         self::assertSame([], $observer->records);
@@ -475,11 +637,17 @@ final class InlineDispatcherTest extends TestCase
                 new DispatchValue('hello'),
             );
             self::fail('Expected lifecycle transition failure.');
-        } catch (LifecycleTransitionException) {
+        } catch (OperationExecutionFailed $failure) {
+            self::assertInstanceOf(LifecycleTransitionException::class, $failure->primaryFailure());
         }
 
         self::assertSame(
-            [JournalEvent::OperationReceived, JournalEvent::AttemptStarted, JournalEvent::AttemptSucceeded],
+            [
+                JournalEvent::OperationReceived,
+                JournalEvent::AttemptStarted,
+                JournalEvent::AttemptSucceeded,
+                JournalEvent::OperationFailed,
+            ],
             array_map(static fn(JournalRecord $record): JournalEvent => $record->event, $journal->records),
         );
     }
@@ -649,6 +817,21 @@ final class TransactionalInlineDispatchHandler implements OperationHandler
     }
 }
 
+final readonly class FailingTransactionalInlineDispatchHandler implements OperationHandler
+{
+    public function __construct(
+        private Connection $connection,
+        private \Throwable $failure,
+    ) {}
+
+    public function handle(OperationEnvelope $operation): OperationResult
+    {
+        $this->connection->insert('business_updates', ['value' => 'business']);
+
+        throw $this->failure;
+    }
+}
+
 final class TransactionStateDispatchPolicy implements AuthorizationPolicy
 {
     /** @var list<bool> */
@@ -763,6 +946,21 @@ final readonly class FailingJournalWriter implements CanonicalJournalWriter
     public function append(JournalRecord $record): void
     {
         throw new JournalWriteFailed('journal unavailable');
+    }
+}
+
+final class FailingTerminalJournalWriter implements CanonicalJournalWriter
+{
+    /** @var list<JournalRecord> */
+    public array $records = [];
+
+    public function append(JournalRecord $record): void
+    {
+        if (count($this->records) >= 2) {
+            throw new JournalWriteFailed('terminal journal unavailable');
+        }
+
+        $this->records[] = $record;
     }
 }
 

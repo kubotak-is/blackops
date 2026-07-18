@@ -18,11 +18,14 @@ use BlackOps\Core\Rejection\RejectionCategory;
 use BlackOps\Core\Rejection\RejectionReason;
 use BlackOps\Internal\Execution\HandlerResolver;
 use BlackOps\Internal\Execution\InlineDispatcher;
+use BlackOps\Internal\Execution\OperationExecutionFailed;
 use BlackOps\Internal\ExecutionContext\ExecutionContextFactory;
 use BlackOps\Internal\Identifier\IdentifierFactory;
 use BlackOps\Internal\Identifier\Uuidv7Generator;
 use BlackOps\Internal\Journal\JournalRecordFactory;
+use BlackOps\Journal\Data\AttemptFailedData;
 use BlackOps\Journal\Data\OperationCompletedData;
+use BlackOps\Journal\Data\OperationFailedData;
 use BlackOps\Journal\Data\OperationReceivedData;
 use BlackOps\Journal\Data\OperationRejectedData;
 use BlackOps\Journal\JournalEvent;
@@ -99,6 +102,36 @@ final class PostgreSqlInlineDispatcherIntegrationTest extends TestCase
         self::assertInstanceOf(OperationRejectedData::class, $records[2]->data);
         self::assertSame(RejectionCategory::Conflict, $records[2]->data->reason->category());
         self::assertSame('postgres_inline_rejected', $records[2]->data->reason->code());
+    }
+
+    public function testFailedInlineDispatchPersistsAttemptAndOperationFailureToPostgreSql(): void
+    {
+        try {
+            $this->dispatcher(new PostgreSqlThrowingHandler())->dispatch(
+                new PostgreSqlDispatchOperation(),
+                new PostgreSqlDispatchValue('hello'),
+            );
+            self::fail('Expected inline operation failure.');
+        } catch (OperationExecutionFailed $failure) {
+            self::assertInstanceOf(\RuntimeException::class, $failure->primaryFailure());
+            self::assertNull($failure->recordingFailure());
+        }
+
+        $records = $this->recordsForOnlyOperation();
+        self::assertSame(
+            [
+                JournalEvent::OperationReceived,
+                JournalEvent::AttemptStarted,
+                JournalEvent::AttemptFailed,
+                JournalEvent::OperationFailed,
+            ],
+            array_column($records, 'event'),
+        );
+        self::assertSame([1, 2, 3, 4], array_column($records, 'sequence'));
+        self::assertInstanceOf(AttemptFailedData::class, $records[2]->data);
+        self::assertFalse($records[2]->data->retryable);
+        self::assertInstanceOf(OperationFailedData::class, $records[3]->data);
+        self::assertFalse($records[3]->data->retryable);
     }
 
     private function dispatcher(OperationHandler $handler): InlineDispatcher
@@ -200,6 +233,15 @@ final readonly class PostgreSqlRejectingHandler implements OperationHandler
     public function handle(OperationEnvelope $operation): OperationResult
     {
         return OperationResult::rejected(RejectionReason::conflict('postgres_inline_rejected'));
+    }
+}
+
+/** @implements OperationHandler<PostgreSqlDispatchValue, EmptyOutcome> */
+final readonly class PostgreSqlThrowingHandler implements OperationHandler
+{
+    public function handle(OperationEnvelope $operation): OperationResult
+    {
+        throw new \RuntimeException('postgres backend credential detail');
     }
 }
 

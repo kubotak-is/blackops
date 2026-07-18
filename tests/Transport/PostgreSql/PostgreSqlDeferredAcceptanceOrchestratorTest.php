@@ -10,7 +10,6 @@ use BlackOps\Core\Authorization\AuthorizationDecision;
 use BlackOps\Core\Authorization\AuthorizationPolicy;
 use BlackOps\Core\Authorization\AuthorizationRequest;
 use BlackOps\Core\EmptyOutcome;
-use BlackOps\Core\Exception\DeferredTransportException;
 use BlackOps\Core\Execution\Deferred;
 use BlackOps\Core\Execution\DeferredOperationMessage;
 use BlackOps\Core\ExecutionContext;
@@ -26,11 +25,13 @@ use BlackOps\Internal\Authorization\AuthorizationEvaluator;
 use BlackOps\Internal\Authorization\AuthorizationPolicyResolver;
 use BlackOps\Internal\Codec\ReflectionJsonOperationCodec;
 use BlackOps\Internal\Execution\DeferredAcceptanceOrchestrator;
+use BlackOps\Internal\Execution\OperationExecutionFailed;
 use BlackOps\Internal\ExecutionContext\ExecutionContextFactory;
 use BlackOps\Internal\Http\DeferredHttpOperationAcceptor;
 use BlackOps\Internal\Identifier\IdentifierFactory;
 use BlackOps\Internal\Identifier\Uuidv7Generator;
 use BlackOps\Internal\Journal\JournalRecordFactory;
+use BlackOps\Journal\Data\OperationFailedData;
 use BlackOps\Journal\Data\OperationReceivedData;
 use BlackOps\Journal\EmptyJournalData;
 use BlackOps\Journal\JournalEvent;
@@ -43,6 +44,8 @@ use Doctrine\DBAL\DriverManager;
 use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
 use Psr\Container\ContainerInterface;
+use RuntimeException;
+use Throwable;
 
 final class PostgreSqlDeferredAcceptanceOrchestratorTest extends TestCase
 {
@@ -158,7 +161,9 @@ final class PostgreSqlDeferredAcceptanceOrchestratorTest extends TestCase
         try {
             $this->orchestrator()->accept($this->message(), $this->envelope(), $this->metadata());
             self::fail('Expected duplicate operation to fail.');
-        } catch (DeferredTransportException) {
+        } catch (OperationExecutionFailed $failure) {
+            self::assertInstanceOf(\BlackOps\Journal\Exception\JournalWriteFailed::class, $failure->primaryFailure());
+            self::assertNotNull($failure->recordingFailure());
         }
 
         self::assertSame(1, (int) $this->connection->fetchOne('SELECT count(*) FROM ' . self::SCHEMA . '.operations'));
@@ -184,6 +189,38 @@ final class PostgreSqlDeferredAcceptanceOrchestratorTest extends TestCase
             array_column($this->records(), 'event'),
         );
         self::assertSame([1, 2], array_column($this->records(), 'sequence'));
+    }
+
+    public function testAuthorizationFailureRollsBackAcceptanceAndRecordsAttemptlessTerminalFailure(): void
+    {
+        $primaryFailure = new RuntimeException('authorization backend credential detail');
+        $policy = new DeferredAcceptancePolicy(AuthorizationDecision::allow(), $primaryFailure);
+        $actor = new ActorRef('user-123', 'user');
+
+        try {
+            $this->orchestrator($policy)->accept(
+                $this->message(),
+                $this->envelope(new ActorContext($actor, $actor, $actor)),
+                $this->metadata(DeferredAcceptancePolicy::class),
+            );
+            self::fail('Expected deferred acceptance failure.');
+        } catch (OperationExecutionFailed $failure) {
+            self::assertSame($primaryFailure, $failure->primaryFailure());
+            self::assertSame(self::OPERATION_ID, $failure->operationId()->toString());
+            self::assertNull($failure->recordingFailure());
+        }
+
+        $records = $this->records();
+        self::assertSame(0, (int) $this->connection->fetchOne('SELECT count(*) FROM ' . self::SCHEMA . '.operations'));
+        self::assertSame(
+            [JournalEvent::OperationReceived, JournalEvent::OperationFailed],
+            array_column($records, 'event'),
+        );
+        self::assertSame([1, 2], array_column($records, 'sequence'));
+        self::assertNull($records[0]->attempt);
+        self::assertNull($records[1]->attempt);
+        self::assertInstanceOf(OperationFailedData::class, $records[1]->data);
+        self::assertFalse($records[1]->data->retryable);
     }
 
     private function orchestrator(?AuthorizationPolicy $policy = null): DeferredAcceptanceOrchestrator
@@ -303,10 +340,15 @@ final readonly class DeferredAcceptancePolicy implements AuthorizationPolicy
 {
     public function __construct(
         private AuthorizationDecision $decision,
+        private ?Throwable $failure = null,
     ) {}
 
     public function decide(AuthorizationRequest $request): AuthorizationDecision
     {
+        if ($this->failure !== null) {
+            throw $this->failure;
+        }
+
         return $this->decision;
     }
 }
@@ -344,6 +386,8 @@ final class DeferredAcceptanceUuidv7Generator implements Uuidv7Generator
     private array $values = [
         '019f32ab-2be0-7b38-a0a7-1ab2f9687699',
         '019f32ab-2be0-7b38-a0a7-1ab2f968769a',
+        '019f32ab-2be0-7b38-a0a7-1ab2f968769b',
+        '019f32ab-2be0-7b38-a0a7-1ab2f968769c',
     ];
 
     public function generate(DateTimeImmutable $time): string

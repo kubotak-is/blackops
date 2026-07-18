@@ -34,12 +34,16 @@ use BlackOps\Http\Responder\JsonOperationResponder;
 use BlackOps\Http\Routing\HttpOperationRoute;
 use BlackOps\Http\Routing\HttpRouteCompiler;
 use BlackOps\Http\Routing\HttpRouteRegistry;
+use BlackOps\Internal\Execution\ExecutionScopeProvider;
 use BlackOps\Internal\Execution\HandlerResolver;
 use BlackOps\Internal\Execution\InlineDispatcher;
 use BlackOps\Internal\ExecutionContext\ExecutionContextFactory;
+use BlackOps\Internal\Http\OperationFailureErrorBoundary;
 use BlackOps\Internal\Identifier\IdentifierFactory;
 use BlackOps\Internal\Identifier\Uuidv7Generator;
 use BlackOps\Internal\Journal\JournalRecordFactory;
+use BlackOps\Internal\Logging\ExecutionScopedLogger;
+use BlackOps\Internal\Logging\FrameworkOperationFailureReporter;
 use BlackOps\Journal\JournalEvent;
 use BlackOps\Journal\JournalRecord;
 use BlackOps\Transport\PostgreSql\PostgreSqlCanonicalJournalStore;
@@ -53,6 +57,8 @@ use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
+use Psr\Log\NullLogger;
 
 final class OperationRequestHandlerTest extends TestCase
 {
@@ -102,6 +108,34 @@ final class OperationRequestHandlerTest extends TestCase
 
         self::assertSame(204, $response->getStatusCode());
         self::assertSame('', (string) $response->getBody());
+    }
+
+    public function testInlineFailureReturnsSafeCorrelatedServerErrorAndTerminalJournal(): void
+    {
+        $connection = $this->connection();
+        $connection->executeStatement('DROP SCHEMA IF EXISTS ' . self::SCHEMA . ' CASCADE');
+        $journal = new PostgreSqlCanonicalJournalStore($connection, self::SCHEMA);
+        $journal->migrate();
+        $handler = $this->httpHandler($this->inlineDispatcher(new ThrowingWelcomeHandler(), $journal));
+
+        $response = $handler->handle($this->request('GET', '/welcome'));
+
+        self::assertSame(500, $response->getStatusCode());
+        self::assertSame('application/json', $response->getHeaderLine('Content-Type'));
+        self::assertSame(
+            '{"status":"error","code":"internal_error","operationId":"019f32ab-2be0-7b38-a0a7-1ab2f9687697"}',
+            (string) $response->getBody(),
+        );
+        self::assertStringNotContainsString('credential', (string) $response->getBody());
+        self::assertSame(
+            [
+                JournalEvent::OperationReceived,
+                JournalEvent::AttemptStarted,
+                JournalEvent::AttemptFailed,
+                JournalEvent::OperationFailed,
+            ],
+            array_column($this->recordsForOnlyOperation($connection, $journal), 'event'),
+        );
     }
 
     public function testRejectedResultReturnsStableJsonError(): void
@@ -340,15 +374,23 @@ final class OperationRequestHandlerTest extends TestCase
         self::assertSame('Ada', $dispatcher->value->name);
     }
 
-    private function httpHandler(Dispatcher $dispatcher): OperationRequestHandler
+    private function httpHandler(Dispatcher $dispatcher): RequestHandlerInterface
     {
-        return new OperationRequestHandler(
+        $responder = new JsonOperationResponder($this->psr17, $this->psr17);
+        $handler = new OperationRequestHandler(
             new HttpRouteRegistry([new HttpOperationRoute('GET', '/welcome', new ShowWelcome(), WelcomeValue::class)]),
             new OperationValueBinder(),
             $dispatcher,
-            new JsonOperationResponder($this->psr17, $this->psr17),
+            $responder,
             $this->psr17,
             $dispatcher instanceof ValidationRejectionRecorder ? $dispatcher : new NoopValidationRejectionRecorder(),
+        );
+        $scope = new ExecutionScopeProvider();
+
+        return new OperationFailureErrorBoundary(
+            $handler,
+            $responder,
+            new FrameworkOperationFailureReporter(new ExecutionScopedLogger(new NullLogger(), $scope), $scope),
         );
     }
 
@@ -517,6 +559,15 @@ final readonly class WelcomeHandler implements OperationHandler
     public function handle(OperationEnvelope $operation): OperationResult
     {
         return OperationResult::completed(new WelcomeShown('Welcome to BlackOps'));
+    }
+}
+
+/** @implements OperationHandler<WelcomeValue, WelcomeShown> */
+final readonly class ThrowingWelcomeHandler implements OperationHandler
+{
+    public function handle(OperationEnvelope $operation): OperationResult
+    {
+        throw new \RuntimeException('backend credential detail');
     }
 }
 

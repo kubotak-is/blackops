@@ -21,12 +21,14 @@ use BlackOps\Core\Outcome;
 use BlackOps\Core\Registry\OperationProvider;
 use BlackOps\Database\DatabaseManager;
 use BlackOps\Http\Attribute\Route;
+use BlackOps\Internal\Logging\ExecutionScopedLogger;
 use BlackOps\Internal\Migration\DatabaseMigrationRunner;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use FilesystemIterator;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RuntimeException;
@@ -149,6 +151,7 @@ final class ApplicationHttpRuntimeTest extends TestCase
             $this->connectionParameters()['dbname'],
             $policy->dependency->connection->getParams()['dbname'],
         );
+        self::assertInstanceOf(ExecutionScopedLogger::class, $policy->logger);
     }
 
     public function testMissingArtifactFailsWithoutFallbackOrCredentialExposure(): void
@@ -385,6 +388,7 @@ final class ApplicationRuntimeAuthorizationPolicy implements AuthorizationPolicy
 
     public function __construct(
         public readonly ApplicationRuntimePolicyDependency $dependency,
+        public readonly LoggerInterface $logger,
     ) {
         self::$instance = $this;
     }
@@ -392,6 +396,7 @@ final class ApplicationRuntimeAuthorizationPolicy implements AuthorizationPolicy
     public function decide(AuthorizationRequest $request): AuthorizationDecision
     {
         self::$request = $request;
+        $this->logger->info('authorization evaluated', ['safe' => 'ok']);
 
         return AuthorizationDecision::allow();
     }

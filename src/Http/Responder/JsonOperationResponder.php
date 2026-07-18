@@ -67,6 +67,15 @@ final readonly class JsonOperationResponder
         ]);
     }
 
+    public function respondInternalError(OperationId $operationId): ResponseInterface
+    {
+        return $this->json(500, [
+            'status' => 'error',
+            'code' => 'internal_error',
+            'operationId' => $operationId->toString(),
+        ]);
+    }
+
     /**
      * @param list<Violation> $violations
      */

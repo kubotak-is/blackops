@@ -22,6 +22,7 @@ readonly class LifecycleStateMachine
             'operation.accepted' => 'accepted',
             'attempt.started' => 'running',
             'operation.rejected' => 'rejected',
+            'operation.failed' => 'failed',
         ],
         'accepted' => [
             'attempt.started' => 'running',

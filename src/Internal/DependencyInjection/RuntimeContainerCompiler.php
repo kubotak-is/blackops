@@ -15,8 +15,13 @@ use Doctrine\DBAL\Connection;
 use InvalidArgumentException;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Server\MiddlewareInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
+/**
+ * @mago-expect lint:cyclomatic-complexity
+ * @mago-expect lint:kan-defect
+ */
 final readonly class RuntimeContainerCompiler
 {
     public function builder(): ContainerBuilder
@@ -45,6 +50,8 @@ final readonly class RuntimeContainerCompiler
 
     public function registerHandlers(ContainerBuilder $builder, OperationRegistry $operations): void
     {
+        $this->registerRuntimeLogger($builder);
+
         foreach ($operations->all() as $operation) {
             if ($builder->has($operation->handler)) {
                 continue;
@@ -52,6 +59,22 @@ final readonly class RuntimeContainerCompiler
 
             $builder->register($operation->handler)->setAutowired(true)->setPublic(true);
         }
+    }
+
+    private function registerRuntimeLogger(ContainerBuilder $builder): void
+    {
+        if ($builder->has(LoggerInterface::class)) {
+            if (
+                $builder->hasDefinition(LoggerInterface::class)
+                && $builder->getDefinition(LoggerInterface::class)->isSynthetic()
+            ) {
+                return;
+            }
+
+            throw new InvalidArgumentException('Runtime logging service cannot be redefined by a service provider.');
+        }
+
+        $builder->register(LoggerInterface::class, LoggerInterface::class)->setSynthetic(true)->setPublic(true);
     }
 
     public function registerDatabaseServices(ContainerBuilder $builder): void

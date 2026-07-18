@@ -33,11 +33,14 @@ use BlackOps\Internal\Registry\OperationMetadataResolver;
 use BlackOps\Internal\Transaction\OperationTransactionCoordinator;
 use BlackOps\Internal\Validation\OperationValueValidator;
 use BlackOps\Journal\CanonicalJournalWriter;
+use BlackOps\Journal\Data\AttemptFailedData;
+use BlackOps\Journal\Data\OperationFailedData;
 use BlackOps\Journal\JournalEvent;
 use BlackOps\Journal\JournalRecord;
 use BlackOps\Journal\LifecycleState;
 use Closure;
 use LogicException;
+use Throwable;
 
 /**
  * Owns the complete inline lifecycle so state, canonical records, and transaction ordering stay synchronized.
@@ -101,34 +104,101 @@ final readonly class InlineDispatcher implements Dispatcher, ValidationRejection
         }
 
         $sequence = new InlineSequence();
-        $state = null;
         $receivedEnvelope = new OperationEnvelope(
             $definition,
             $value,
             $this->contexts->receive(actorContext: $actorContext),
             new Inline(),
         );
-        $state = $this->appendLifecycleRecord(
-            $state,
-            JournalEvent::OperationReceived,
-            fn(): JournalRecord => $this->journalRecords->operationReceived(
-                $receivedEnvelope,
-                $metadata,
-                $sequence->next(),
-            ),
-        );
+        $envelope = $receivedEnvelope;
+        $state = null;
+        $primaryFailure = null;
 
-        $envelope = new OperationEnvelope(
-            $definition,
-            $value,
-            $this->contexts->startAttempt($receivedEnvelope->context(), 1),
-            new Inline(),
-        );
-        $state = $this->appendLifecycleRecord(
-            $state,
-            JournalEvent::AttemptStarted,
-            fn(): JournalRecord => $this->journalRecords->attemptStarted($envelope, $metadata, $sequence->next()),
-        );
+        try {
+            $state = $this->appendLifecycleRecord(
+                $state,
+                JournalEvent::OperationReceived,
+                fn(): JournalRecord => $this->journalRecords->operationReceived(
+                    $receivedEnvelope,
+                    $metadata,
+                    $sequence->next(),
+                ),
+            );
+
+            $envelope = new OperationEnvelope(
+                $definition,
+                $value,
+                $this->contexts->startAttempt($receivedEnvelope->context(), 1),
+                new Inline(),
+            );
+            $state = $this->appendLifecycleRecord(
+                $state,
+                JournalEvent::AttemptStarted,
+                fn(): JournalRecord => $this->journalRecords->attemptStarted($envelope, $metadata, $sequence->next()),
+            );
+
+            return $this->scope->run(
+                $envelope,
+                function () use (
+                    $metadata,
+                    $envelope,
+                    $receivedEnvelope,
+                    &$state,
+                    $sequence,
+                    &$primaryFailure,
+                ): OperationResult {
+                    return $this->executeAttempt(
+                        $metadata,
+                        $envelope,
+                        $receivedEnvelope,
+                        $state,
+                        $sequence,
+                        $primaryFailure,
+                    );
+                },
+                $metadata->typeId,
+            );
+        } catch (Throwable $failure) {
+            $primaryFailure ??= $failure;
+            $journalRecorded = false;
+            $recordingFailure = null;
+
+            if (
+                in_array($state, [LifecycleState::Running, LifecycleState::Finalizing], strict: true)
+                && $envelope->context()->attempt() !== null
+            ) {
+                $recordingFailure = $this->recordAttemptFailure(
+                    $state,
+                    $metadata,
+                    $envelope,
+                    $sequence,
+                    $primaryFailure,
+                );
+                $journalRecorded = $recordingFailure === null;
+            }
+
+            throw new OperationExecutionFailed(
+                $envelope,
+                $metadata->typeId,
+                $primaryFailure,
+                $journalRecorded,
+                $recordingFailure,
+            );
+        }
+    }
+
+    /**
+     * @mago-expect lint:excessive-parameter-list
+     * @mago-expect lint:halstead
+     */
+    private function executeAttempt(
+        OperationMetadata $metadata,
+        OperationEnvelope $envelope,
+        OperationEnvelope $receivedEnvelope,
+        LifecycleState &$state,
+        InlineSequence $sequence,
+        ?Throwable &$primaryFailure,
+    ): OperationResult {
         $authorizationResult = $this->authorize($metadata, $envelope, $state, $sequence);
         if ($authorizationResult !== null) {
             return $authorizationResult;
@@ -136,29 +206,29 @@ final readonly class InlineDispatcher implements Dispatcher, ValidationRejection
 
         $handler = $this->handlers->resolve($metadata->handler);
         $terminalRecords = [];
-        $invoke = fn(): OperationResult => $this->invoke($metadata, $handler, $envelope, $receivedEnvelope->context());
-        $result = $this->scope->run(
+        $invoke = function () use (
+            $metadata,
+            $handler,
             $envelope,
-            function () use ($metadata, $invoke, $envelope, $sequence, $state, &$terminalRecords): OperationResult {
-                if ($metadata->transactionConnection === null) {
-                    return $invoke();
-                }
+            $receivedEnvelope,
+            &$primaryFailure,
+        ): OperationResult {
+            try {
+                return $this->invoke($metadata, $handler, $envelope, $receivedEnvelope->context());
+            } catch (Throwable $failure) {
+                $primaryFailure ??= $failure;
 
-                if ($this->transactions === null) {
-                    throw new LogicException('Operation transaction coordinator is unavailable.');
-                }
-
-                return $this->transactions->execute($metadata, $invoke, function (OperationResult $result) use (
-                    $metadata,
-                    $envelope,
-                    $sequence,
-                    $state,
-                    &$terminalRecords,
-                ): void {
-                    $terminalRecords = $this->completeCanonical($state, $metadata, $envelope, $sequence, $result);
-                });
-            },
-            $metadata->typeId,
+                throw $failure;
+            }
+        };
+        $result = $this->executeInvocation(
+            $metadata,
+            $invoke,
+            $envelope,
+            $sequence,
+            $state,
+            $terminalRecords,
+            $primaryFailure,
         );
 
         if ($result->isCompleted()) {
@@ -202,6 +272,91 @@ final readonly class InlineDispatcher implements Dispatcher, ValidationRejection
         );
 
         return $rejected;
+    }
+
+    /**
+     * @param Closure(): OperationResult $invoke
+     * @param list<JournalRecord> $terminalRecords
+     *
+     * @mago-expect lint:excessive-parameter-list
+     */
+    private function executeInvocation(
+        OperationMetadata $metadata,
+        Closure $invoke,
+        OperationEnvelope $envelope,
+        InlineSequence $sequence,
+        LifecycleState $state,
+        array &$terminalRecords,
+        ?Throwable &$primaryFailure,
+    ): OperationResult {
+        if ($metadata->transactionConnection === null) {
+            return $invoke();
+        }
+
+        if ($this->transactions === null) {
+            throw new LogicException('Operation transaction coordinator is unavailable.');
+        }
+
+        return $this->transactions->execute($metadata, $invoke, function (OperationResult $result) use (
+            $metadata,
+            $envelope,
+            $sequence,
+            $state,
+            &$terminalRecords,
+            &$primaryFailure,
+        ): void {
+            try {
+                $terminalRecords = $this->completeCanonical($state, $metadata, $envelope, $sequence, $result);
+            } catch (Throwable $failure) {
+                $primaryFailure ??= $failure;
+
+                throw $failure;
+            }
+        });
+    }
+
+    private function recordAttemptFailure(
+        LifecycleState $state,
+        OperationMetadata $metadata,
+        OperationEnvelope $envelope,
+        InlineSequence $sequence,
+        Throwable $failure,
+    ): ?Throwable {
+        try {
+            if ($state === LifecycleState::Finalizing) {
+                $this->lifecycle->next($state, JournalEvent::OperationFailed);
+                $this->journal->append($this->journalRecords->terminal()->operationFailed(
+                    $envelope,
+                    $metadata,
+                    $sequence->next(),
+                    new OperationFailedData($failure::class, $failure->getMessage(), false),
+                ));
+
+                return null;
+            }
+
+            $supervising = $this->lifecycle->next($state, JournalEvent::AttemptFailed);
+            $attemptFailed = $this->journalRecords->attemptFailed(
+                $envelope,
+                $metadata,
+                $sequence->next(),
+                new AttemptFailedData($failure::class, $failure->getMessage(), false),
+            );
+            $this->journal->append($attemptFailed);
+
+            $this->lifecycle->next($supervising, JournalEvent::OperationFailed);
+            $operationFailed = $this->journalRecords->terminal()->operationFailed(
+                $envelope,
+                $metadata,
+                $sequence->next(),
+                new OperationFailedData($failure::class, $failure->getMessage(), false),
+            );
+            $this->journal->append($operationFailed);
+
+            return null;
+        } catch (Throwable $recordingFailure) {
+            return $recordingFailure;
+        }
     }
 
     private function invoke(

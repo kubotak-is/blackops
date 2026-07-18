@@ -15,6 +15,7 @@ use BlackOps\Internal\Http\DeferredHttpOperationAcceptor;
 use BlackOps\Internal\Identifier\IdentifierFactory;
 use BlackOps\Internal\Identifier\SymfonyUuidv7Generator;
 use BlackOps\Internal\Journal\JournalRecordFactory;
+use BlackOps\Internal\Logging\RuntimeLoggingServiceInjector;
 use BlackOps\Internal\Runtime\ProductionRuntimeArtifactLoader;
 use BlackOps\Internal\Runtime\ProductionRuntimeComposer;
 use BlackOps\Internal\Runtime\ProductionRuntimeDependencies;
@@ -46,6 +47,7 @@ final readonly class ApplicationHttpRuntimeComposer
         $databases = $database->databaseManager();
         new RuntimeDatabaseServiceInjector()->inject($artifacts->container, $databases);
         $executionScope = new ExecutionScopeProvider();
+        $logger = new RuntimeLoggingServiceInjector()->inject($artifacts->container, $executionScope);
         $transactionRuntime = new RuntimeTransactionServiceInjector()->inject(
             $artifacts->container,
             $databases,
@@ -68,6 +70,7 @@ final readonly class ApplicationHttpRuntimeComposer
                 $journal,
                 new JournalRecordFactory($identifiers, $clock),
                 authorization: new AuthorizationEvaluator(new AuthorizationPolicyResolver($artifacts->container)),
+                scope: $executionScope,
             ),
         );
         $psr17 = $this->psr17();
@@ -85,6 +88,7 @@ final readonly class ApplicationHttpRuntimeComposer
                 deferredOperationAcceptor: $acceptor,
                 httpMiddleware: $httpMiddleware,
                 operationTransactions: $operationTransactions,
+                executionLogger: $logger,
             ),
         );
 

@@ -25,6 +25,7 @@ stateDiagram-v2
     Received --> Accepted: operation.accepted (Deferred)
     Received --> Running: attempt.started (Inline)
     Received --> Rejected: operation.rejected
+    Received --> Failed: operation.failed (before attempt)
     Accepted --> Running: attempt.started
     Running --> Finalizing: attempt.succeeded
     Running --> Rejected: operation.rejected
@@ -42,6 +43,8 @@ stateDiagram-v2
 ```
 
 ## 不正な遷移
+
+`Received -> Failed`は、Operation ID発行後かつAttempt開始前のDeferred受付Failureに使用する。この遷移ではAttempt ID、`attempt.started`、`attempt.failed`を生成しない。
 
 不正な遷移はJournal Record生成前に `LifecycleTransitionException` を投げ、CriticalなSystem Logを残す。
 

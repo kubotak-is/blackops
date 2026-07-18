@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace BlackOps\Internal\Execution;
 
-use BlackOps\Core\Exception\DeferredTransportException;
 use BlackOps\Core\Execution\Deferred;
 use BlackOps\Core\Execution\DeferredAcknowledgement;
 use BlackOps\Core\Execution\DeferredOperationMessage;
@@ -16,12 +15,12 @@ use BlackOps\Internal\Authorization\AuthorizationEvaluator;
 use BlackOps\Internal\Journal\JournalRecordFactory;
 use BlackOps\Internal\Journal\LifecycleStateMachine;
 use BlackOps\Journal\CanonicalJournalWriter;
+use BlackOps\Journal\Data\OperationFailedData;
 use BlackOps\Journal\JournalEvent;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationSender;
 use Doctrine\DBAL\Connection;
 use LogicException;
 use Throwable;
-use WeakMap;
 
 final readonly class DeferredAcceptanceOrchestrator
 {
@@ -32,6 +31,7 @@ final readonly class DeferredAcceptanceOrchestrator
         private JournalRecordFactory $records,
         private LifecycleStateMachine $lifecycle = new LifecycleStateMachine(),
         private ?AuthorizationEvaluator $authorization = null,
+        private ExecutionScopeProvider $scope = new ExecutionScopeProvider(),
     ) {}
 
     public function accept(
@@ -40,58 +40,86 @@ final readonly class DeferredAcceptanceOrchestrator
         OperationMetadata $metadata,
     ): DeferredAcknowledgement|OperationResult {
         $this->assertMatches($message, $envelope, $metadata);
-        /** @var WeakMap<Throwable, bool> $authorizationFailures */
-        $authorizationFailures = new WeakMap();
+        $failures = new PrimaryFailureCapture();
 
         try {
-            return $this->connection->transactional(function () use (
-                $message,
+            return $this->scope->run(
                 $envelope,
-                $metadata,
-                $authorizationFailures,
-            ): DeferredAcknowledgement|OperationResult {
+                fn(): DeferredAcknowledgement|OperationResult => $this->connection->transactional(function () use (
+                    $message,
+                    $envelope,
+                    $metadata,
+                    $failures,
+                ): DeferredAcknowledgement|OperationResult {
+                    try {
+                        $received = $this->records->operationReceived($envelope, $metadata, 1);
+                        $state = $this->lifecycle->next(null, JournalEvent::OperationReceived);
+                        $this->journal->append($received);
+                        $authorizationRejection = $this->authorize($metadata, $envelope);
+
+                        if ($authorizationRejection !== null) {
+                            $this->lifecycle->next($state, JournalEvent::OperationRejected);
+                            $this->journal->append($this->records->operationRejected(
+                                $envelope,
+                                $metadata,
+                                2,
+                                $authorizationRejection,
+                            ));
+
+                            return OperationResult::rejected($authorizationRejection, $envelope->id());
+                        }
+
+                        $acknowledgement = $this->sender->enqueue($message);
+                        $accepted = $this->records->operationAccepted($envelope, $metadata, 2);
+                        $this->lifecycle->next($state, JournalEvent::OperationAccepted);
+                        $this->journal->append($accepted);
+                        $this->sender->advanceNextSequence($message, 3);
+
+                        return $acknowledgement;
+                    } catch (Throwable $failure) {
+                        $failures->capture($failure);
+
+                        throw $failure;
+                    }
+                }),
+                $metadata->typeId,
+            );
+        } catch (Throwable $failure) {
+            throw $this->failureBeforeAttempt($envelope, $metadata, $failures->getOr($failure));
+        }
+    }
+
+    private function failureBeforeAttempt(
+        OperationEnvelope $envelope,
+        OperationMetadata $metadata,
+        Throwable $primaryFailure,
+    ): OperationExecutionFailed {
+        $recordingFailure = null;
+
+        try {
+            $this->connection->transactional(function () use ($envelope, $metadata, $primaryFailure): void {
                 $received = $this->records->operationReceived($envelope, $metadata, 1);
                 $state = $this->lifecycle->next(null, JournalEvent::OperationReceived);
                 $this->journal->append($received);
-
-                try {
-                    $authorizationRejection = $this->authorize($metadata, $envelope);
-                } catch (Throwable $exception) {
-                    $authorizationFailures[$exception] = true;
-                    throw $exception;
-                }
-
-                if ($authorizationRejection !== null) {
-                    $this->lifecycle->next($state, JournalEvent::OperationRejected);
-                    $this->journal->append($this->records->operationRejected(
-                        $envelope,
-                        $metadata,
-                        2,
-                        $authorizationRejection,
-                    ));
-
-                    return OperationResult::rejected($authorizationRejection, $envelope->id());
-                }
-
-                $acknowledgement = $this->sender->enqueue($message);
-                $accepted = $this->records->operationAccepted($envelope, $metadata, 2);
-                $this->lifecycle->next($state, JournalEvent::OperationAccepted);
-                $this->journal->append($accepted);
-                $this->sender->advanceNextSequence($message, 3);
-
-                return $acknowledgement;
+                $this->lifecycle->next($state, JournalEvent::OperationFailed);
+                $this->journal->append($this->records->terminal()->operationFailed(
+                    $envelope,
+                    $metadata,
+                    2,
+                    new OperationFailedData($primaryFailure::class, $primaryFailure->getMessage(), false),
+                ));
             });
-        } catch (Throwable $exception) {
-            if ($authorizationFailures[$exception] ?? false) {
-                throw $exception;
-            }
-
-            if ($exception instanceof DeferredTransportException) {
-                throw $exception;
-            }
-
-            throw new DeferredTransportException('Failed to accept deferred operation.', previous: $exception);
+        } catch (Throwable $failure) {
+            $recordingFailure = $failure;
         }
+
+        return new OperationExecutionFailed(
+            $envelope,
+            $metadata->typeId,
+            $primaryFailure,
+            $recordingFailure === null,
+            $recordingFailure,
+        );
     }
 
     private function authorize(OperationMetadata $metadata, OperationEnvelope $envelope): ?RejectionReason

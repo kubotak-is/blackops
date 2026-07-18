@@ -65,6 +65,10 @@ Completed OutcomeからHTTPレスポンスへの変換はWeb AdapterのResponder
 - Deferred配送成功：HTTP 202とOperation IDを含むAcknowledgement
 - 状態確認URLが構成されている場合：Location Headerを追加可能
 
+Operation ID発行後の予期しない実行FailureはHTTP 500とし、`status: error`、`code: internal_error`、発行済み`operationId`だけをJSONで返す。Exception Message、Stack Trace、Raw Value、Credential、Actor IDは返さない。Protocol Error、認証基盤のFailureなどOperation成立前の500にはOperation IDを付けず、架空のIDを発行しない。
+
+Classic EntrypointとFrankenPHP Worker Modeは同じFramework Error BoundaryとResponse Shapeを使う。
+
 HTTP 201、独自Header、ファイル出力などは専用Responderで上書きする。Rejection ReasonとFailure ReasonもWeb Adapterが具体的な4xx／5xxへ変換する。
 
 ## Operation Manifest

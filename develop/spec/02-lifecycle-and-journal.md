@@ -27,6 +27,8 @@ Route特定後に必須Field欠落または型不一致でBindingへ失敗した
 
 `OperationAccepted` はDeferred OperationがExecution TransportへDurableに永続化された場合だけ記録する。Inline OperationはReceivedから直接Attempt Startedへ進む。
 
+Deferred受付でOperation IDを発行した後、Attempt開始前のAuthorization Policyまたは受付処理が予期せず失敗した場合は、受付TransactionをRollbackしてから別Transactionで`OperationReceived`、`OperationFailed`を記録する。この経路ではAttemptを作らず、両Recordは同じOperation IDを使う。
+
 `AttemptSucceeded` はHandler成功、`OperationCompleted` はOutcome保存等の最終処理を含むTerminal化を表す。
 
 Dead Letterへ隔離したOperationには `OperationFailed` を併記せず、Terminal Eventを `OperationDeadLettered` 一つとする。
@@ -40,6 +42,8 @@ Dead Letterへ隔離したOperationには `OperationFailed` を併記せず、Te
 拒否と失敗はHTTPに依存しないReasonを持ち、Web Adapterが具体的な4xxまたは5xxへ変換する。
 
 Lifecycle State MachineはBinding Failureに限りInitial Stateから`OperationRejected`へのTerminal Transitionを許可する。通常のInline／Deferred OperationとValue Validation Failureは`OperationReceived`から開始する。
+
+`Received -> Failed`はOperation成立後かつAttempt開始前のFailureに限定したTerminal Transitionとする。Inline Attempt内の予期しないFailureは`Running -> Supervising -> Failed`として`AttemptFailed`、`OperationFailed`を記録し、自動Retryしない。
 
 最終状態へ到達したOperationを同じOperation IDで再実行しない。手動Replayは新しいOperationとして作り、元Operationとの因果関係を記録する。
 

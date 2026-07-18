@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace BlackOps\Tests\Internal\Logging;
 
+use BlackOps\Core\ActorContext;
+use BlackOps\Core\ActorRef;
 use BlackOps\Core\AttemptContext;
 use BlackOps\Core\EmptyOutcome;
 use BlackOps\Core\Execution\Inline;
@@ -66,7 +68,51 @@ final class ExecutionScopedLoggerTest extends TestCase
         self::assertSame(['safe' => 'ok'], $inner->records[0]['context']['context']);
     }
 
-    private static function envelope(): OperationEnvelope
+    public function testFrameworkErrorUsesSafeClassificationAndMaskedActorCorrelation(): void
+    {
+        $inner = new RecordingPsrLogger();
+        $scope = new ExecutionScopeProvider();
+        $logger = new ExecutionScopedLogger($inner, $scope);
+        $actor = new ActorRef('user-credential-id', 'user');
+
+        $scope->run(
+            self::envelope(new ActorContext($actor, $actor, $actor)),
+            static function () use ($logger): void {
+                $logger->frameworkError(\RuntimeException::class, false, \LogicException::class);
+            },
+            'dispatch.test',
+        );
+
+        $context = $inner->records[0]['context'];
+        self::assertSame('framework', $context['kind']);
+        self::assertSame('internal_error', $context['context']['failure']['classification']);
+        self::assertSame(\RuntimeException::class, $context['context']['failure']['type']);
+        self::assertFalse($context['context']['failure']['journalRecorded']);
+        self::assertSame('failure_recording_failed', $context['context']['failure']['secondary']['classification']);
+        self::assertSame(\LogicException::class, $context['context']['failure']['secondary']['type']);
+        self::assertSame(self::ID, $context['operation']['id']);
+        self::assertSame('[masked]', $context['operation']['actors']['origin']['id']);
+        self::assertSame('user', $context['operation']['actors']['origin']['type']);
+        self::assertStringNotContainsString('user-credential-id', serialize($context));
+    }
+
+    public function testBackendFailureDoesNotEscapeApplicationOrFrameworkLogging(): void
+    {
+        $backend = new class extends AbstractLogger {
+            public function log(mixed $level, string|Stringable $message, array $context = []): void
+            {
+                throw new \RuntimeException('logger backend credential detail');
+            }
+        };
+        $logger = new ExecutionScopedLogger($backend, new ExecutionScopeProvider());
+
+        $logger->info('application');
+        $logger->frameworkError(\RuntimeException::class, false);
+
+        self::addToAssertionCount(1);
+    }
+
+    private static function envelope(?ActorContext $actorContext = null): OperationEnvelope
     {
         return new OperationEnvelope(
             new LoggingOperation(),
@@ -80,6 +126,7 @@ final class ExecutionScopedLoggerTest extends TestCase
                     1,
                     new DateTimeImmutable('2026-07-07T00:00:01Z'),
                 ),
+                actorContext: $actorContext,
             ),
             new Inline(),
         );

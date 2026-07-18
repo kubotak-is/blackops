@@ -40,6 +40,11 @@ final class LifecycleStateMachineTest extends TestCase
             JournalEvent::OperationRejected,
             LifecycleState::Rejected,
         ];
+        yield 'received failed without attempt' => [
+            LifecycleState::Received,
+            JournalEvent::OperationFailed,
+            LifecycleState::Failed,
+        ];
         yield 'accepted started' => [LifecycleState::Accepted, JournalEvent::AttemptStarted, LifecycleState::Running];
         yield 'running succeeded' => [
             LifecycleState::Running,

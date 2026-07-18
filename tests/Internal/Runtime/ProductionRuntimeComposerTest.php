@@ -121,6 +121,84 @@ final class ProductionRuntimeComposerTest extends TestCase
         );
     }
 
+    public function testOperationFailureReturnsSafeCorrelatedHttpErrorAndFrameworkLog(): void
+    {
+        $journal = new RuntimeCompositionJournalWriter();
+        $scope = new ExecutionScopeProvider();
+        $backend = new RuntimeCompositionPsrLogger();
+        $logger = new ExecutionScopedLogger($backend, $scope);
+        $psr17 = new Psr17Factory();
+        $composition = new ProductionRuntimeComposer()->composeWithDependencies(
+            $this->artifacts(new ThrowingRuntimeCompositionHandler()),
+            new ProductionRuntimeDependencies(
+                new RuntimeCompositionClock(),
+                $journal,
+                $psr17,
+                $psr17,
+                executionScope: $scope,
+                executionLogger: $logger,
+            ),
+        );
+
+        $response = $composition->httpHandler->handle($psr17->createServerRequest('GET', '/composition'));
+        $payload = json_decode((string) $response->getBody(), associative: true, flags: JSON_THROW_ON_ERROR);
+
+        self::assertSame(500, $response->getStatusCode());
+        self::assertSame('error', $payload['status']);
+        self::assertSame('internal_error', $payload['code']);
+        self::assertSame($journal->records[0]->operation->id->toString(), $payload['operationId']);
+        self::assertStringNotContainsString('credential', (string) $response->getBody());
+        self::assertSame(
+            [
+                JournalEvent::OperationReceived,
+                JournalEvent::AttemptStarted,
+                JournalEvent::AttemptFailed,
+                JournalEvent::OperationFailed,
+            ],
+            array_column($journal->records, 'event'),
+        );
+        self::assertCount(1, $backend->records);
+        self::assertSame('Operation failed.', $backend->records[0]['message']);
+        self::assertSame('framework', $backend->records[0]['context']['kind']);
+        self::assertSame($payload['operationId'], $backend->records[0]['context']['operation']['id']);
+        self::assertSame(\RuntimeException::class, $backend->records[0]['context']['context']['failure']['type']);
+        self::assertStringNotContainsString('credential', serialize($backend->records));
+        self::assertNull($scope->current());
+    }
+
+    public function testLoggerBackendFailureDoesNotChangeTerminalLifecycleOrHttpError(): void
+    {
+        $journal = new RuntimeCompositionJournalWriter();
+        $scope = new ExecutionScopeProvider();
+        $logger = new ExecutionScopedLogger(new FailingRuntimeCompositionPsrLogger(), $scope);
+        $psr17 = new Psr17Factory();
+        $composition = new ProductionRuntimeComposer()->composeWithDependencies(
+            $this->artifacts(new ThrowingRuntimeCompositionHandler()),
+            new ProductionRuntimeDependencies(
+                new RuntimeCompositionClock(),
+                $journal,
+                $psr17,
+                $psr17,
+                executionScope: $scope,
+                executionLogger: $logger,
+            ),
+        );
+
+        $response = $composition->httpHandler->handle($psr17->createServerRequest('GET', '/composition'));
+
+        self::assertSame(500, $response->getStatusCode());
+        self::assertSame(
+            [
+                JournalEvent::OperationReceived,
+                JournalEvent::AttemptStarted,
+                JournalEvent::AttemptFailed,
+                JournalEvent::OperationFailed,
+            ],
+            array_column($journal->records, 'event'),
+        );
+        self::assertNull($scope->current());
+    }
+
     public function testUsesContainerResolvedSelfHandledOperationAsHttpDefinition(): void
     {
         $dependency = new RuntimeCompositionDependency('container-resolved');
@@ -384,6 +462,14 @@ final readonly class RuntimeLoggingCompositionHandler implements OperationHandle
     }
 }
 
+final readonly class ThrowingRuntimeCompositionHandler implements OperationHandler
+{
+    public function handle(OperationEnvelope $operation): OperationResult
+    {
+        throw new \RuntimeException('runtime backend credential detail');
+    }
+}
+
 final readonly class RuntimeCompositionDependency
 {
     public function __construct(
@@ -429,6 +515,14 @@ final class RuntimeCompositionPsrLogger extends AbstractLogger
             'message' => $message,
             'context' => $context,
         ];
+    }
+}
+
+final class FailingRuntimeCompositionPsrLogger extends AbstractLogger
+{
+    public function log(mixed $level, string|Stringable $message, array $context = []): void
+    {
+        throw new \RuntimeException('logger backend credential detail');
     }
 }
 

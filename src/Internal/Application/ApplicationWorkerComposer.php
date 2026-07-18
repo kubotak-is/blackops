@@ -22,6 +22,7 @@ use BlackOps\Internal\ExecutionContext\ExecutionContextFactory;
 use BlackOps\Internal\Identifier\IdentifierFactory;
 use BlackOps\Internal\Identifier\SymfonyUuidv7Generator;
 use BlackOps\Internal\Journal\JournalRecordFactory;
+use BlackOps\Internal\Logging\RuntimeLoggingServiceInjector;
 use BlackOps\Internal\Runtime\ProductionRuntimeArtifactLoader;
 use BlackOps\Internal\Transaction\OperationTransactionCoordinator;
 use BlackOps\Internal\Transaction\RuntimeTransactionServiceInjector;
@@ -48,6 +49,7 @@ final readonly class ApplicationWorkerComposer
         $databases = $database->databaseManager();
         new RuntimeDatabaseServiceInjector()->inject($artifacts->container, $databases);
         $executionScope = new ExecutionScopeProvider();
+        new RuntimeLoggingServiceInjector()->inject($artifacts->container, $executionScope);
         $transactionRuntime = new RuntimeTransactionServiceInjector()->inject(
             $artifacts->container,
             $databases,

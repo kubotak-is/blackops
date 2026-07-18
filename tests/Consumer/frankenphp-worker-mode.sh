@@ -189,5 +189,43 @@ done
 grep -q '^{"message":"Welcome to BlackOps"}$' "${TEMP}/classic.json"
 echo "Classic fallback verified."
 
+sed -i \
+    "s/return new WelcomeShown('Welcome to BlackOps');/throw new \\\\RuntimeException('consumer credential detail');/" \
+    "${CONSUMER}/app/Feature/Welcome/ShowWelcome/ShowWelcome.php"
+"${compose[@]}" run --rm app php blackops build:compile
+"${compose[@]}" restart http >/dev/null
+
+worker_failure_status=''
+for _ in $(seq 1 30); do
+    worker_failure_status=$(curl --silent --max-time 5 --output "${TEMP}/worker-failure.json" --write-out '%{http_code}' \
+        -H 'X-Sample-Token: local-example' \
+        "http://127.0.0.1:${WORKER_PORT}/welcome" || true)
+    if test "${worker_failure_status}" = "500"; then
+        break
+    fi
+    sleep 1
+done
+test "${worker_failure_status}" = "500"
+grep -Eq '^\{"status":"error","code":"internal_error","operationId":"[0-9a-f-]{36}"\}$' \
+    "${TEMP}/worker-failure.json"
+worker_failure_id=$(sed -E 's/.*"operationId":"([0-9a-f-]{36})".*/\1/' "${TEMP}/worker-failure.json")
+"${compose[@]}" logs --no-color http >"${TEMP}/worker-failure.log"
+grep -Fq '"kind":"framework"' "${TEMP}/worker-failure.log"
+grep -Fq "\"id\":\"${worker_failure_id}\"" "${TEMP}/worker-failure.log"
+! grep -Fq 'consumer credential detail' "${TEMP}/worker-failure.log"
+
+classic_failure_status=$(curl --silent --max-time 5 --output "${TEMP}/classic-failure.json" --write-out '%{http_code}' \
+    -H 'X-Sample-Token: local-example' \
+    "http://127.0.0.1:${CLASSIC_PORT}/welcome")
+test "${classic_failure_status}" = "500"
+grep -Eq '^\{"status":"error","code":"internal_error","operationId":"[0-9a-f-]{36}"\}$' \
+    "${TEMP}/classic-failure.json"
+classic_failure_id=$(sed -E 's/.*"operationId":"([0-9a-f-]{36})".*/\1/' "${TEMP}/classic-failure.json")
+"${compose[@]}" --profile classic-mode logs --no-color http-classic >"${TEMP}/classic-failure.log"
+grep -Fq '"kind":"framework"' "${TEMP}/classic-failure.log"
+grep -Fq "\"id\":\"${classic_failure_id}\"" "${TEMP}/classic-failure.log"
+! grep -Fq 'consumer credential detail' "${TEMP}/classic-failure.log"
+echo "Correlated worker and classic failure boundary verified."
+
 test "$(git -C "${ROOT}" status --short -- examples/quickstart)" = "${SOURCE_BEFORE}"
 echo "FrankenPHP worker mode consumer E2E passed."

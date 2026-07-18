@@ -65,6 +65,10 @@ Handlerを実行
 Commit成功後にAfter Commit Queueを実行
 ```
 
+Inlineの予期しないThrowableでは、Application TransactionをRollbackした後、同じOperation IDとAttempt IDで`AttemptFailed`、`OperationFailed`を別Transactionに記録する。Deferred受付のAttempt開始前Throwableでは受付TransactionをRollbackし、同じOperation IDで`OperationReceived`、`OperationFailed`だけを別Transactionに記録する。
+
+Rollback、Failure Journal、Loggerが追加で失敗しても、最初のThrowableをPrimary Failureとして維持する。Failure Journal自体が保存できない場合も別のOperation IDへ置き換えない。
+
 Application ConnectionとFramework Store Connectionが同じDatabaseManager内の同一Connection Instanceなら、業務更新と成功Terminal Journal／Outcomeを同じTransactionでCommitする。別ConnectionではApplication MethodのTransactionだけを保証し、二相CommitまたはExactly-onceを保証しない。
 
 Non-transactional OperationがTransactional Commandを呼ぶ場合、CommandはMethod Return時にCommitし、その後でOperation Terminalを保存する。この構成では業務更新とOperation Terminalの原子性を保証しない。

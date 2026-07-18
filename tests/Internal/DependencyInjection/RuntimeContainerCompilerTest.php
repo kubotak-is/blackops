@@ -32,6 +32,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface as SymfonyContainerInterface;
 use Symfony\Component\DependencyInjection\Reference;
 
@@ -86,6 +87,21 @@ final class RuntimeContainerCompilerTest extends TestCase
 
         self::assertInstanceOf(ContainerHandler::class, $handler);
         self::assertSame('dependency-ready', $handler->dependency->value);
+    }
+
+    public function testRegistersSyntheticRuntimeLoggerForAutowiredApplicationServices(): void
+    {
+        $compiler = new RuntimeContainerCompiler();
+        $builder = $compiler->builder();
+        $compiler->registerHandlers($builder, new OperationRegistry([]));
+        $builder->register(ContainerLoggerConsumer::class)->setAutowired(true)->setPublic(true);
+        $container = $compiler->compile($builder);
+        $logger = $this->createStub(LoggerInterface::class);
+
+        self::assertInstanceOf(SymfonyContainerInterface::class, $container);
+        $container->set(LoggerInterface::class, $logger);
+
+        self::assertSame($logger, $container->get(ContainerLoggerConsumer::class)->logger);
     }
 
     public function testExplicitProviderInstanceBindingWinsOverAutomaticRegistration(): void
@@ -444,6 +460,13 @@ final readonly class ContainerDatabaseConsumer
     public function __construct(
         public DatabaseManager $databases,
         public Connection $connection,
+    ) {}
+}
+
+final readonly class ContainerLoggerConsumer
+{
+    public function __construct(
+        public LoggerInterface $logger,
     ) {}
 }
 
