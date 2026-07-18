@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-18T23:22:53+09:00
+Updated At: 2026-07-18T23:26:00+09:00
 
 ## Current Phase
 
@@ -8,17 +8,17 @@ Phase 14: Operation Diagnostics
 
 ## Current Task
 
-Task ID: P14-002-operation-failure-runtime-correlation
+Task ID: P14-003-diagnostics-readers-and-query-aggregate
 
-Task Packet: `develop/orchestration/tasks/P14-002-operation-failure-runtime-correlation.md`
+Task Packet: `develop/orchestration/tasks/P14-003-diagnostics-readers-and-query-aggregate.md`
 
-Specifications: `develop/spec/02-lifecycle-and-journal.md`、`develop/spec/03-execution.md`、`develop/spec/05-http.md`、`develop/spec/06-auth-and-middleware.md`、`develop/spec/09-runtime-and-di.md`、`develop/spec/10-logging-and-traceability.md`、`develop/spec/11-durable-journal-and-transactions.md`、`develop/spec/25-sensitive-projection.md`、`develop/spec/30-lifecycle-state-machine.md`、`develop/spec/47-public-http-runtime-configuration.md`、`develop/spec/65-operation-diagnostics.md`、`develop/spec/66-phase-14-delivery-plan.md`、`develop/decisions/097-phase-14-operation-diagnostics.md`、`develop/decisions/098-deferred-acceptance-failure-lifecycle.md`
+Specifications: `develop/spec/01-core-model.md`、`develop/spec/02-lifecycle-and-journal.md`、`develop/spec/03-execution.md`、`develop/spec/11-durable-journal-and-transactions.md`、`develop/spec/12-deferred-execution.md`、`develop/spec/16-outcome-storage.md`、`develop/spec/25-sensitive-projection.md`、`develop/spec/30-lifecycle-state-machine.md`、`develop/spec/37-postgresql-table-layout.md`、`develop/spec/38-data-retention-and-deletion.md`、`develop/spec/65-operation-diagnostics.md`、`develop/spec/66-phase-14-delivery-plan.md`、`develop/decisions/097-phase-14-operation-diagnostics.md`、`develop/decisions/098-deferred-acceptance-failure-lifecycle.md`
 
 ## Task Status
 
-Accepted
+In Progress
 
-P14-002はInline Attempt内Failure、Deferred受付のAttempt開始前Failure、Operation ID付きHTTP 500、Runtime PSR-3相関を実装した。Orchestrator ReviewでPublic HTTPからInternalへの依存逆転とSafe 500後のConnection再利用を修正した。WorkerとOrchestratorのFull PHPUnit、Mago、Deptrac、Quickstart、Worker／Classic Consumer E2Eが成功し、P14-002をAcceptedとした。
+P14-002をCommit／Pushした。P14-003は既存Canonical Journal／Outcome ReaderとRestricted Columnを読まないPostgreSQL内部Readerを集約し、SafeなInternal Diagnostics Queryを実装する。Task Packetを作成し、GPT-5.6 Luna High Workerへ引き渡す。
 
 ## Last Accepted Task
 
@@ -47,12 +47,12 @@ P14-002-operation-failure-runtime-correlation
 
 ## Known Blockers
 
-P14-002を妨げるBlockerはない。Documentation WebsiteはUser判断どおり未公開であり、本TaskのBlockerではない。
+P14-003を妨げるBlockerはない。Documentation WebsiteはUser判断どおり未公開であり、本TaskのBlockerではない。
 
 ## Required Next Action
 
-1. OrchestratorがP14-002をCommit／Pushする。
-2. P14-003 Internal Diagnostics QueryのTask Packetを作成する。
+1. GPT-5.6 Luna High WorkerがP14-003をTask Packetの範囲で実装・検証し、CommitせずReportを返す。
+2. OrchestratorがP14-003のReader SQL、Safe Projection、Availability、Integrity境界をReviewする。
 
 ## P14-002 Operation Failure and Runtime Correlation Worker Verification
 
