@@ -238,11 +238,15 @@ DiagnosticsOutcome
 ### Deferred
 
 - Current State、Operation Type、Schema Version、Transport Payload Availabilityの正本はOperations Rowとする。
+- Operations Row作成前に終端するBinding Failure、Value Validation Failure、Expected Authorization Rejectionは例外とし、Sequence順JournalからCurrent StateとIdentityを導出する。これらはAttemptなしのRejectedであり、`operation.rejected`または`operation.received -> operation.rejected`を持つ。
+- Operations Row作成前の予期しない受付Failureも例外とし、Sequence順JournalからAttemptなしのFailedを導出する。この経路は`operation.received -> operation.failed`を持つ。
+- `operation.accepted`到達後またはAttempt開始後にOperations Rowが欠落している場合はJournal-onlyへFallbackせずIntegrity Failureとする。
 - Strategyは`deferred`とする。
 - JournalはTimelineとHistoric Attemptの正本とする。
 - Outcome StoreはDeferred Outcomeの正本とする。
 - Dead Letter RowはDead Letter Detailの正本とする。
 - Purge Auditは削除済みSourceを確認する補助証拠とする。
+- Transport PayloadのTombstoneは単独で`purged`を証明できる。Purge Auditが存在してもOperations RowがAvailableを示す場合はIntegrity Failureとする。
 - State RowとJournalが両方存在する場合、導出Stateが一致しなければIntegrity Failureとする。
 
 Query用PostgreSQL Readerは既存Schemaを読み、Migrationを追加しない。Operation State ReaderはEncoded Payload／Contextを返さず、Dead Letter Readerは`reason_message`をSELECTせず、Purge Audit ReaderはTarget、Affected Count、Purged Atだけを返す。
@@ -278,11 +282,12 @@ Query Serviceは少なくとも次を検証する。
 - Journal Sequenceが1から始まり、重複せず連続している
 - Lifecycle EventがState Machineの正しい順序である
 - 全Journal RecordのOperation ID、Type、Schema Version、Strategy、Correlation／Causationが一貫する
-- Attempt ID、Attempt番号、Started Atが同じAttempt内で一貫する
+- Attempt ID、Attempt番号、Started Atが同じAttempt内で一貫し、Attempt番号が1から連続する
 - Retry Scheduledが存在するFailed Attemptを参照する
 - Deferred Operations StateとJournal導出Stateが一致する
 - Completed Deferred OperationだけがOutcomeを持つ
 - Dead Letter RowはDead Lettered Stateだけに存在する
+- Identityを構成できるOperations Row／JournalがなくDead Letter Rowだけが存在する場合はIntegrity Failureとなる
 - Available Sourceと同じTargetのPurge Auditが矛盾しない
 
 不整合を自動修復、補完、並べ替えで隠さない。CLIとViewerは安全なIntegrity Errorだけを表示し、Framework Error LogへOperation IDと`diagnostics.integrity_failed`を記録する。
