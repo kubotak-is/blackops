@@ -154,6 +154,84 @@ final class ApplicationHttpRuntimeTest extends TestCase
         self::assertInstanceOf(ExecutionScopedLogger::class, $policy->logger);
     }
 
+    public function testHttpRuntimeUsesConfiguredJsonlStreamChannelAndMinimumLevel(): void
+    {
+        $paths = $this->compileArtifacts(withAuthorizationFixture: true);
+        $connection = $this->connection();
+        $connection->executeStatement('DROP SCHEMA IF EXISTS ' . self::SCHEMA . ' CASCADE');
+        new DatabaseMigrationRunner($connection, self::SCHEMA)->migrate();
+        $logDirectory = $this->directory();
+        $logPath = $logDirectory . '/http-runtime.jsonl';
+        $http = $this->application($paths, [
+            'backend' => [
+                'driver' => 'jsonl',
+                'stream' => $logPath,
+                'channel' => 'http-custom',
+                'minimum_level' => 'warning',
+            ],
+        ])->http();
+
+        $response = $http->handle(
+            new Psr17Factory()
+                ->createServerRequest('GET', '/authorized')
+                ->withAttribute(ActorRef::class, new ActorRef('custom-logging-user', 'user')),
+        );
+
+        self::assertSame(200, $response->getStatusCode());
+        $contents = file_get_contents($logPath);
+        self::assertIsString($contents);
+        $lines = array_values(array_filter(explode("\n", $contents)));
+        self::assertCount(1, $lines);
+        $record = json_decode($lines[0], associative: true, flags: JSON_THROW_ON_ERROR);
+        self::assertIsArray($record);
+        self::assertSame('http-custom', $record['channel']);
+        self::assertSame('WARNING', $record['level_name']);
+        self::assertSame('authorization warning', $record['message']);
+    }
+
+    public function testEstablishedOperationFailureKeepsCorrelatedResponseThroughOuterBoundary(): void
+    {
+        $paths = $this->compileArtifacts(withAuthorizationFixture: true);
+        $connection = $this->connection();
+        $connection->executeStatement('DROP SCHEMA IF EXISTS ' . self::SCHEMA . ' CASCADE');
+        new DatabaseMigrationRunner($connection, self::SCHEMA)->migrate();
+        $logDirectory = $this->directory();
+        $logPath = $logDirectory . '/established-failure.jsonl';
+        $http = $this->application($paths, [
+            'backend' => [
+                'driver' => 'jsonl',
+                'stream' => $logPath,
+                'channel' => 'http-failure',
+                'minimum_level' => 'error',
+            ],
+        ])->http();
+        ApplicationRuntimeAuthorizationPolicy::$failure = new RuntimeException('authorization credential detail');
+
+        try {
+            $response = $http->handle(
+                new Psr17Factory()
+                    ->createServerRequest('GET', '/authorized')
+                    ->withAttribute(ActorRef::class, new ActorRef('failure-user', 'user')),
+            );
+        } finally {
+            ApplicationRuntimeAuthorizationPolicy::$failure = null;
+        }
+
+        self::assertSame(500, $response->getStatusCode());
+        $payload = json_decode((string) $response->getBody(), associative: true, flags: JSON_THROW_ON_ERROR);
+        self::assertIsArray($payload);
+        self::assertSame('internal_error', $payload['code']);
+        self::assertArrayHasKey('operationId', $payload);
+        $contents = file_get_contents($logPath);
+        self::assertIsString($contents);
+        self::assertStringNotContainsString('credential detail', $contents);
+        $record = json_decode(trim($contents), associative: true, flags: JSON_THROW_ON_ERROR);
+        self::assertIsArray($record);
+        self::assertSame('http-failure', $record['channel']);
+        self::assertSame($payload['operationId'], $record['context']['operation']['id']);
+        self::assertSame('framework', $record['context']['kind']);
+    }
+
     public function testMissingArtifactFailsWithoutFallbackOrCredentialExposure(): void
     {
         $credential = 'database-credential-that-must-not-appear';
@@ -241,7 +319,8 @@ final class ApplicationHttpRuntimeTest extends TestCase
     }
 
     /** @param array{operation: string, http: string, container: string, class: string, namespace: string} $paths */
-    private function application(array $paths): Application
+    /** @param array<array-key, mixed>|null $logging */
+    private function application(array $paths, ?array $logging = null): Application
     {
         $directory = $this->directory();
         $config = $directory . '/config';
@@ -272,6 +351,9 @@ final class ApplicationHttpRuntimeTest extends TestCase
             'path' => $this->journalPath,
             'delivery' => 'best_effort',
         ]]);
+        if ($logging !== null) {
+            $this->writeConfig($config, 'logging', $logging);
+        }
 
         return Application::configure($directory)->withConfiguration()->create();
     }
@@ -385,6 +467,7 @@ final class ApplicationRuntimeAuthorizationPolicy implements AuthorizationPolicy
 {
     public static ?AuthorizationRequest $request = null;
     public static ?self $instance = null;
+    public static ?\Throwable $failure = null;
 
     public function __construct(
         public readonly ApplicationRuntimePolicyDependency $dependency,
@@ -397,6 +480,11 @@ final class ApplicationRuntimeAuthorizationPolicy implements AuthorizationPolicy
     {
         self::$request = $request;
         $this->logger->info('authorization evaluated', ['safe' => 'ok']);
+        $this->logger->warning('authorization warning', ['safe' => 'ok']);
+
+        if (self::$failure !== null) {
+            throw self::$failure;
+        }
 
         return AuthorizationDecision::allow();
     }

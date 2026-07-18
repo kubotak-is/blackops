@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BlackOps\Internal\Application;
 
+use BlackOps\Http\Responder\JsonOperationResponder;
 use BlackOps\Internal\Authorization\AuthorizationEvaluator;
 use BlackOps\Internal\Authorization\AuthorizationPolicyResolver;
 use BlackOps\Internal\Codec\ReflectionJsonOperationCodec;
@@ -15,6 +16,7 @@ use BlackOps\Internal\Http\DeferredHttpOperationAcceptor;
 use BlackOps\Internal\Identifier\IdentifierFactory;
 use BlackOps\Internal\Identifier\SymfonyUuidv7Generator;
 use BlackOps\Internal\Journal\JournalRecordFactory;
+use BlackOps\Internal\Logging\MonologJsonlLoggerFactory;
 use BlackOps\Internal\Logging\RuntimeLoggingServiceInjector;
 use BlackOps\Internal\Runtime\ProductionRuntimeArtifactLoader;
 use BlackOps\Internal\Runtime\ProductionRuntimeComposer;
@@ -47,7 +49,12 @@ final readonly class ApplicationHttpRuntimeComposer
         $databases = $database->databaseManager();
         new RuntimeDatabaseServiceInjector()->inject($artifacts->container, $databases);
         $executionScope = new ExecutionScopeProvider();
-        $logger = new RuntimeLoggingServiceInjector()->inject($artifacts->container, $executionScope);
+        $logging = ApplicationLoggingConfiguration::fromConfiguration($configuration->configuration());
+        $logger = new RuntimeLoggingServiceInjector()->inject(
+            $artifacts->container,
+            $executionScope,
+            new MonologJsonlLoggerFactory()->create($logging->stream, $logging->channel, $logging->minimumLevel),
+        );
         $transactionRuntime = new RuntimeTransactionServiceInjector()->inject(
             $artifacts->container,
             $databases,
@@ -97,6 +104,8 @@ final readonly class ApplicationHttpRuntimeComposer
             $runtime->executionScope,
             new ApplicationDatabaseConnectionLifecycle($databases),
             $observations,
+            new JsonOperationResponder($psr17, $psr17),
+            $logger,
         );
     }
 

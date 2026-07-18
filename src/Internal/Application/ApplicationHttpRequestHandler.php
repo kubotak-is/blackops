@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace BlackOps\Internal\Application;
 
+use BlackOps\Http\Responder\JsonOperationResponder;
 use BlackOps\Internal\Execution\ExecutionScopeProvider;
+use BlackOps\Internal\Logging\ExecutionScopedLogger;
 use LogicException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -18,6 +20,8 @@ final readonly class ApplicationHttpRequestHandler implements RequestHandlerInte
         private ExecutionScopeProvider $scope,
         private ApplicationDatabaseConnectionLifecycle $connection,
         private ?ApplicationJournalObservations $observations,
+        private JsonOperationResponder $responder,
+        private ExecutionScopedLogger $logger,
     ) {}
 
     public function handle(ServerRequestInterface $request): ResponseInterface
@@ -56,11 +60,15 @@ final readonly class ApplicationHttpRequestHandler implements RequestHandlerInte
         }
 
         if ($failure !== null) {
-            throw $failure;
+            $this->logger->frameworkSystemError($failure::class);
+
+            return $this->responder->respondUncorrelatedInternalError();
         }
 
         if (!$response instanceof ResponseInterface) {
-            throw new LogicException('Application HTTP handler did not return a response.');
+            $this->logger->frameworkSystemError(LogicException::class);
+
+            return $this->responder->respondUncorrelatedInternalError();
         }
 
         return $response;

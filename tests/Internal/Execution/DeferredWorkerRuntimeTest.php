@@ -55,6 +55,8 @@ use BlackOps\Internal\ExecutionContext\ExecutionContextFactory;
 use BlackOps\Internal\Identifier\IdentifierFactory;
 use BlackOps\Internal\Identifier\Uuidv7Generator;
 use BlackOps\Internal\Journal\JournalRecordFactory;
+use BlackOps\Internal\Logging\ExecutionScopedLogger;
+use BlackOps\Internal\Logging\FrameworkOperationFailureReporter;
 use BlackOps\Internal\Transaction\OperationTransactionCoordinator;
 use BlackOps\Internal\Transaction\TransactionRuntime;
 use BlackOps\Journal\Data\AttemptFailedData;
@@ -79,7 +81,9 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
 use Psr\Container\ContainerInterface;
+use Psr\Log\AbstractLogger;
 use RuntimeException;
+use Stringable;
 
 final class DeferredWorkerRuntimeTest extends TestCase
 {
@@ -821,6 +825,9 @@ final class DeferredWorkerRuntimeTest extends TestCase
     public function testWorkerRecordsOperationFailureAndWrapsNonRetryableHandlerException(): void
     {
         $handler = new ThrowingWorkerReportHandler();
+        $scope = new ExecutionScopeProvider();
+        $backend = new DeferredWorkerRecordingLogger();
+        $logger = new ExecutionScopedLogger($backend, $scope);
         $this->accept();
         $claim = $this->receiver->claim(new \BlackOps\Core\Execution\ClaimRequest(
             new DateTimeImmutable('2026-07-10T00:01:00.000000Z'),
@@ -829,7 +836,11 @@ final class DeferredWorkerRuntimeTest extends TestCase
         self::assertNotNull($claim);
 
         try {
-            $this->runtime($handler)->run($claim);
+            $this->runtime(
+                $handler,
+                scope: $scope,
+                failureReporter: new FrameworkOperationFailureReporter($logger, $scope),
+            )->run($claim);
             self::fail('Expected handler exception to be rethrown.');
         } catch (SupervisedHandlerFailureException $exception) {
             self::assertInstanceOf(RuntimeException::class, $exception->getPrevious());
@@ -864,6 +875,15 @@ final class DeferredWorkerRuntimeTest extends TestCase
         self::assertSame('boom', $records[4]->data->errorMessage);
         self::assertFalse($records[4]->data->retryable);
         self::assertNull($this->outcomes->find(OperationId::fromString(self::OPERATION_ID)));
+        self::assertCount(1, $backend->records);
+        self::assertSame('framework', $backend->records[0]['context']['kind']);
+        self::assertSame(self::OPERATION_ID, $backend->records[0]['context']['operation']['id']);
+        self::assertSame(self::CORRELATION_ID, $backend->records[0]['context']['operation']['correlationId']);
+        self::assertSame('report.generate', $backend->records[0]['context']['operation']['type']);
+        self::assertSame(RuntimeException::class, $backend->records[0]['context']['context']['failure']['type']);
+        self::assertTrue($backend->records[0]['context']['context']['failure']['journalRecorded']);
+        self::assertStringNotContainsString('boom', serialize($backend->records));
+        self::assertNull($scope->current());
     }
 
     public function testWorkerSchedulesRetryAndWrapsRetryableHandlerException(): void
@@ -1157,12 +1177,14 @@ final class DeferredWorkerRuntimeTest extends TestCase
         ?OperationMetadata $metadata = null,
         ?AuthorizationPolicy $authorizationPolicy = null,
         ?ApplicationDatabaseConnectionLifecycle $connections = null,
+        ?ExecutionScopeProvider $scope = null,
+        ?FrameworkOperationFailureReporter $failureReporter = null,
     ): DeferredWorkerRuntime {
         $clock = new DeferredWorkerClock();
         $identifiers = new IdentifierFactory(new DeferredWorkerRuntimeUuidv7Generator(), $clock);
         $container = new DeferredWorkerContainer($handler, $authorizationPolicy);
         $resolvedMetadata = $metadata ?? $this->metadata();
-        $scope = new ExecutionScopeProvider();
+        $scope ??= new ExecutionScopeProvider();
         $manager = new DeferredWorkerDatabaseManager($this->connection);
         $transactionRuntime = new TransactionRuntime($manager, new IgnoringDeferredAfterCommitReporter(), $scope);
         if ($handler instanceof TransactionRuntimeAwareWorkerHandler) {
@@ -1191,6 +1213,7 @@ final class DeferredWorkerRuntimeTest extends TestCase
                 $outcomes ?? $this->outcomes,
                 scope: $scope,
                 transactions: $operationTransactions,
+                failureReporter: $failureReporter,
             ),
             $guard ?? new \BlackOps\Internal\Execution\DirectClaimExecutionGuard(),
             connections: $connections,
@@ -1433,6 +1456,18 @@ final readonly class WorkerReportValue implements OperationValue
     public function __construct(
         public string $reportName,
     ) {}
+}
+
+final class DeferredWorkerRecordingLogger extends AbstractLogger
+{
+    /** @var list<array{message: string|Stringable, context: array<array-key, mixed>}> */
+    public array $records = [];
+
+    /** @param array<array-key, mixed> $context */
+    public function log(mixed $level, string|Stringable $message, array $context = []): void
+    {
+        $this->records[] = ['message' => $message, 'context' => $context];
+    }
 }
 
 final readonly class WorkerReportDone implements Outcome

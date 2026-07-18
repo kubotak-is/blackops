@@ -31,6 +31,7 @@ Framework実装者向けのArchitectureと実装ガイドを管理する。
 - [JSONL Journal Observer](jsonl-journal-observer.md)
 - [Execution Scoped Logger](execution-scoped-logger.md)
 - [Monolog JSONL Backend](monolog-jsonl-backend.md)
+- [Production Observability Responsibility Boundary](production-observability.md)
 - Package and Namespace Architecture
 - Operation Dispatch Flow
 - Journal and Transaction Flow

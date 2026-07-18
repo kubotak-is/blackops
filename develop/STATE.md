@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-19T04:33:57+09:00
+Updated At: 2026-07-19T05:13:17+09:00
 
 ## Current Phase
 
@@ -16,13 +16,13 @@ Specifications: `develop/spec/02-lifecycle-and-journal.md`、`develop/spec/05-ht
 
 ## Task Status
 
-Ready
+Accepted
 
-D099はA／A／A／Aで確定した。P14-006はBuilt-in JSONL Config、Snapshot一回解決、Production Correlation Matrix、Scope Leak、Safe Projection、運用責任分界を実装／回帰するTask Packetを作成した。
+D099のBuilt-in JSONL ConfigをHTTP／Workerへ接続した。Application共通外側Safe 500境界、成立後ID維持、Deferred Failure相関、custom Backend実Composition、Safe Projectionと運用責任分界をReviewし、独立品質Gateを完走してAcceptedとした。
 
 ## Last Accepted Task
 
-P14-005-development-local-viewer
+P14-006-production-correlation-security-regression
 
 ## Pending Decisions
 
@@ -48,12 +48,42 @@ P14-005-development-local-viewer
 
 ## Known Blockers
 
-P14-006を妨げるBlockerはない。Documentation WebsiteはUser判断どおり未公開であり、本TaskのBlockerではない。
+P14-007開始を妨げるBlockerはない。Documentation WebsiteはUser判断どおり未公開であり、Phase 14 Closeoutの公開作業には含めない。
 
 ## Required Next Action
 
-1. OrchestratorがD099確定、Specification、P14-006 Task PacketをCommit／Pushする。
-2. GPT-5.6 Luna High WorkerへP14-006を実装依頼する。
+1. P14-006をCommit／Pushする。
+2. P14-007 Consumer Experience and CloseoutのTask Packetを確定し、Workerへ依頼する。
+
+## P14-006 Production Correlation and Security Regression Worker Verification
+
+```text
+docker compose run --rm app vendor/bin/phpunit --display-deprecations <P14-006 required target tests>
+Result: OK (218 tests, 1255 assertions)。Logging Config、Application外側Safe 500、HTTP、Inline／Deferred、Scope、Diagnostics、CLI、Viewer、Projectionを含む。
+
+docker compose run --rm app vendor/bin/phpunit --display-deprecations
+Result: OK (1232 tests, 4497 assertions)。
+
+docker compose run --rm app composer validate --strict
+docker compose run --rm app composer validate --strict examples/quickstart/composer.json
+docker compose run --rm app mago format --check src tests examples
+docker compose run --rm app mago lint
+docker compose run --rm app mago analyze
+docker compose run --rm app vendor/bin/deptrac
+Result: Composer Root／Quickstart valid。Mago全成功。Deptrac Violations 0 / Skipped 0 / Uncovered 0 / Allowed 2225 / Warnings 0 / Errors 0。
+
+bash tests/Consumer/frankenphp-worker-mode.sh
+Result: Multi-request、Classic fallback、correlated worker failure boundaryを含めConsumer E2E passed。
+
+Management Comment ID、Internal PublicApi、Logging Disable／Remote URI、P14-006差分Forbidden Observability、git diff --check Guard
+Result: 成功。Global `Collector` substringだけ既存Definition／Routing class名へ一致し、Reportへ記録した。
+```
+
+### Orchestrator Review Correction
+
+初回実装ではApplication handler到達後のDB prepare／Middleware／cleanup Throwableがescapeし、IDなしSafe 500がWorker Entrypoint fallbackだけに依存していた。`ApplicationHttpRequestHandler`をHTTP／Worker Mode共通の外側Boundaryとし、非Operation FailureをIDなしSafe JSON 500、Operation fieldなしSafe Framework Logへ変換した。成立後Failureは既存内側BoundaryのOperation IDを維持する。
+
+HTTPはcustom `warning` BackendでINFO除外＋WARNING一行、Workerはcustom `error` BackendでFramework ERROR一行を実JSONLから検証した。Review修正後にTarget、Full、Composer、Mago、Deptrac、Consumer、Guardを再実行した。
 
 ## P14-005 Development Local Viewer Worker Verification
 

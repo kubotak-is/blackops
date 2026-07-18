@@ -277,12 +277,30 @@ final readonly class DeferredWorkerRuntime implements DeferredClaimRuntime
         OperationEnvelope $envelope,
         Throwable $exception,
     ): void {
-        new DeferredFailureSupervisor($this->services, $this->storage)->record(
-            $claim,
-            $metadata,
+        $recordingFailure = null;
+
+        try {
+            new DeferredFailureSupervisor($this->services, $this->storage)->record(
+                $claim,
+                $metadata,
+                $envelope,
+                $exception,
+            );
+        } catch (Throwable $failure) {
+            $recordingFailure = $failure;
+        }
+
+        $this->storage->failureReporter?->reportThrowable(
             $envelope,
+            $metadata->typeId,
             $exception,
+            $recordingFailure === null,
+            $recordingFailure,
         );
+
+        if ($recordingFailure !== null) {
+            throw $recordingFailure;
+        }
     }
 
     private function metadata(OperationClaim $claim): OperationMetadata

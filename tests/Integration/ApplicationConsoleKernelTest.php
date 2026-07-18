@@ -125,6 +125,15 @@ final class ApplicationConsoleKernelTest extends TestCase
 
         $this->assertWorkerComposition($application);
         $this->runCommand($kernel, 'worker:run', ['--iterations' => '1', '--idle-sleep-milliseconds' => '1']);
+        $workerLog = file_get_contents($directory . '/var/worker.jsonl');
+        self::assertIsString($workerLog);
+        $workerLines = array_values(array_filter(explode("\n", $workerLog)));
+        self::assertCount(1, $workerLines);
+        $workerRecord = json_decode($workerLines[0], associative: true, flags: JSON_THROW_ON_ERROR);
+        self::assertIsArray($workerRecord);
+        self::assertSame('worker-custom', $workerRecord['channel']);
+        self::assertSame('ERROR', $workerRecord['level_name']);
+        self::assertSame('Operation failed.', $workerRecord['message']);
         self::assertStringContainsString('Worker stopped.', $this->runCommand($kernel, 'worker:run', [
             '--iterations' => '1',
             '--idle-sleep-milliseconds' => '1',
@@ -231,6 +240,14 @@ final class ApplicationConsoleKernelTest extends TestCase
             ],
         ]);
         $this->writeConfig($config, 'execution', ['worker' => ['id' => 'console-worker']]);
+        $this->writeConfig($config, 'logging', [
+            'backend' => [
+                'driver' => 'jsonl',
+                'stream' => $directory . '/var/worker.jsonl',
+                'channel' => 'worker-custom',
+                'minimum_level' => 'error',
+            ],
+        ]);
         $this->writeConfig($config, 'operations', [
             'discovery' => [$root . '/examples/quickstart/app/Feature'],
             'providers' => [],

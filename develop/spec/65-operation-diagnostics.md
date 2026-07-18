@@ -80,7 +80,7 @@ operation.received
 }
 ```
 
-Operation成立前の500は`operationId`を持たない。同じError ResponderをClassic EntrypointとFrankenPHP Worker Modeで使用し、EntrypointごとにResponse Shapeを変えない。
+Operation成立前またはOperation外の500は`operationId`を持たない。Application HTTP Compositionの共通最外周BoundaryでDB prepare、PSR-15 Middleware、Observer flush、Connection cleanup等のThrowableをSafe JSONへ変換する。同じError ResponderをClassic EntrypointとFrankenPHP Worker Modeで使用し、EntrypointごとにResponse Shapeを変えない。Operation成立後の`OperationExecutionFailed`は内側Boundaryで発行済みOperation IDを維持する。
 
 ## PSR-3 Runtime Correlation
 
@@ -112,7 +112,7 @@ operation.actors.execution.type
 - Operation外のSystem LogはOperation Fieldを持たない。
 - Nested Operation終了後は親Scopeを復元する。
 - HTTP Request間、Deferred Attempt間、Long-running Worker Loop間でScopeを残さない。
-- Application Log Backend失敗はOperationを失敗させず、可能な範囲で安全なFallback通知を行う。
+- Application Log Backend失敗はOperationを失敗させず吸収し、別SinkへFallbackしない。
 
 ApplicationはLog Sink、Delivery、Retention、Alertを所有する。FrameworkはPSR-3相関Decoratorと安全な既定Backendを構成できるが、外部CollectorへのDeliveryを保証しない。OpenTelemetry Adapterと安定したRemote Log SchemaはPhase 18で扱う。
 

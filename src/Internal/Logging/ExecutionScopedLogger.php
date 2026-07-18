@@ -51,6 +51,21 @@ final class ExecutionScopedLogger extends AbstractLogger
         $this->write(LogLevel::ERROR, 'Operation failed.', ['failure' => $failure], 'framework');
     }
 
+    /** @mago-expect lint:no-empty-catch-clause */
+    public function frameworkSystemError(string $failureType): void
+    {
+        try {
+            $this->inner->log(LogLevel::ERROR, 'Application request failed.', [
+                'schemaVersion' => 1,
+                'kind' => 'framework',
+                'context' => [
+                    'failure' => ['classification' => 'internal_error', 'type' => $failureType],
+                ],
+            ]);
+        } catch (Throwable) {
+        }
+    }
+
     /**
      * @param array<array-key, mixed> $context
      */

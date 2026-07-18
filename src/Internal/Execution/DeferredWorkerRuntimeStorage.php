@@ -6,6 +6,7 @@ namespace BlackOps\Internal\Execution;
 
 use BlackOps\Internal\Journal\JournalRecordFactory;
 use BlackOps\Internal\Journal\LifecycleStateMachine;
+use BlackOps\Internal\Logging\FrameworkOperationFailureReporter;
 use BlackOps\Internal\Transaction\OperationTransactionCoordinator;
 use BlackOps\Journal\CanonicalJournalWriter;
 use BlackOps\Outcome\OutcomeWriter;
@@ -15,6 +16,7 @@ use Psr\Clock\ClockInterface;
 
 final readonly class DeferredWorkerRuntimeStorage
 {
+    /** @mago-expect lint:excessive-parameter-list */
     public function __construct(
         public Connection $connection,
         public JournalRecordFactory $records,
@@ -25,5 +27,6 @@ final readonly class DeferredWorkerRuntimeStorage
         public LifecycleStateMachine $lifecycle = new LifecycleStateMachine(),
         public ExecutionScopeProvider $scope = new ExecutionScopeProvider(),
         public ?OperationTransactionCoordinator $transactions = null,
+        public ?FrameworkOperationFailureReporter $failureReporter = null,
     ) {}
 }

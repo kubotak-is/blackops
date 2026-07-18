@@ -22,6 +22,8 @@ use BlackOps\Internal\ExecutionContext\ExecutionContextFactory;
 use BlackOps\Internal\Identifier\IdentifierFactory;
 use BlackOps\Internal\Identifier\SymfonyUuidv7Generator;
 use BlackOps\Internal\Journal\JournalRecordFactory;
+use BlackOps\Internal\Logging\FrameworkOperationFailureReporter;
+use BlackOps\Internal\Logging\MonologJsonlLoggerFactory;
 use BlackOps\Internal\Logging\RuntimeLoggingServiceInjector;
 use BlackOps\Internal\Runtime\ProductionRuntimeArtifactLoader;
 use BlackOps\Internal\Transaction\OperationTransactionCoordinator;
@@ -49,7 +51,12 @@ final readonly class ApplicationWorkerComposer
         $databases = $database->databaseManager();
         new RuntimeDatabaseServiceInjector()->inject($artifacts->container, $databases);
         $executionScope = new ExecutionScopeProvider();
-        new RuntimeLoggingServiceInjector()->inject($artifacts->container, $executionScope);
+        $logging = ApplicationLoggingConfiguration::fromConfiguration($configuration->configuration());
+        $logger = new RuntimeLoggingServiceInjector()->inject(
+            $artifacts->container,
+            $executionScope,
+            new MonologJsonlLoggerFactory()->create($logging->stream, $logging->channel, $logging->minimumLevel),
+        );
         $transactionRuntime = new RuntimeTransactionServiceInjector()->inject(
             $artifacts->container,
             $databases,
@@ -78,6 +85,7 @@ final readonly class ApplicationWorkerComposer
             new PostgreSqlOutcomeStore($main, $database->schema),
             scope: $executionScope,
             transactions: $operationTransactions,
+            failureReporter: new FrameworkOperationFailureReporter($logger, $executionScope),
         );
         $receiver = new PostgreSqlDeferredOperationReceiver(
             $main,

@@ -18,6 +18,7 @@ final readonly class ApplicationConfigurationLoader
         'middleware',
         'retention',
         'diagnostics',
+        'logging',
     ];
 
     /** @return array<string, array<array-key, mixed>> */

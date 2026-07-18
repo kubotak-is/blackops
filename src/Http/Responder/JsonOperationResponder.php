@@ -76,6 +76,14 @@ final readonly class JsonOperationResponder
         ]);
     }
 
+    public function respondUncorrelatedInternalError(): ResponseInterface
+    {
+        return $this->json(500, [
+            'status' => 'error',
+            'code' => 'internal_error',
+        ]);
+    }
+
     /**
      * @param list<Violation> $violations
      */

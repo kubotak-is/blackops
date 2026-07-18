@@ -108,8 +108,30 @@ final class ExecutionScopedLoggerTest extends TestCase
 
         $logger->info('application');
         $logger->frameworkError(\RuntimeException::class, false);
+        $logger->frameworkSystemError(\RuntimeException::class);
 
         self::addToAssertionCount(1);
+    }
+
+    public function testSystemFailureNeverAddsOperationFieldEvenWhenScopeIsActive(): void
+    {
+        $inner = new RecordingPsrLogger();
+        $scope = new ExecutionScopeProvider();
+        $logger = new ExecutionScopedLogger($inner, $scope);
+
+        $scope->run(
+            self::envelope(),
+            static fn() => $logger->frameworkSystemError(\RuntimeException::class),
+            'dispatch.test',
+        );
+
+        self::assertCount(1, $inner->records);
+        self::assertArrayNotHasKey('operation', $inner->records[0]['context']);
+        self::assertSame('framework', $inner->records[0]['context']['kind']);
+        self::assertSame(
+            ['classification' => 'internal_error', 'type' => \RuntimeException::class],
+            $inner->records[0]['context']['context']['failure'],
+        );
     }
 
     private static function envelope(?ActorContext $actorContext = null): OperationEnvelope

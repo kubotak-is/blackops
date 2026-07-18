@@ -4,7 +4,30 @@
 
 Monolog classes remain implementation details of `BlackOps\Internal\Logging`. Core contracts, Operation APIs, handlers, and services depend on PSR-3 rather than Monolog types.
 
-## Defaults and Configuration
+## Installed Application Configuration
+
+Optional `config/logging.php`は次のShapeだけを受け付ける。Fileがない場合も同じ既定を使い、Loggingを無効にはしない。
+
+```php
+<?php
+
+declare(strict_types=1);
+
+return [
+    'backend' => [
+        'driver' => 'jsonl',
+        'stream' => 'php://stderr',
+        'channel' => 'blackops',
+        'minimum_level' => 'info',
+    ],
+];
+```
+
+`driver`は`jsonl`だけ、`stream`は`php://stderr`、`php://stdout`、または`/`で始まる絶対Local File Pathだけを許可する。Relative Path、NUL、その他のStream Wrapper、Network URIは拒否する。`channel`は空、前後Whitespace、Control Characterを拒否する。`minimum_level`はlowercase完全一致のPSR-3 8 Levelだけを受け付ける。
+
+型、未知Key、Custom Driverが不正ならHTTP／WorkerのRuntime CompositionをRequest／Attempt開始前に失敗させる。ExceptionへConfig値を反射しない。Config FileとEnvironmentはApplication作成時のSnapshotから一度だけ解決し、Request、Attempt、Log Recordごとに再読込しない。
+
+## Factory Defaults
 
 The deterministic defaults are:
 
@@ -15,7 +38,7 @@ JSON batch mode: newline-delimited records
 record newline: enabled
 ```
 
-Create a file-backed logger:
+内部Testまたは低水準Compositionでfile-backed loggerを直接作る場合は次のFactoryを使う。
 
 ```php
 use BlackOps\Internal\Logging\MonologJsonlLoggerFactory;
@@ -36,7 +59,7 @@ $backend = new MonologJsonlLoggerFactory()->create($stream);
 
 The Factory does not implement file opening, writes, level comparison, or JSON encoding itself. `StreamHandler` owns stream/path handling and minimum-level filtering. `JsonFormatter` owns normalization and emits one newline-terminated JSON object per record.
 
-Stream initialization and write exceptions are not caught or replaced by the Factory. Composition code therefore sees the original Monolog exception and can apply its own application-log delivery policy.
+Factory自体はStream初期化とWrite Exceptionを吸収しない。Installed Applicationは必ずFactoryの結果を`ExecutionScopedLogger`の内側へ置き、最初のOpen／Write Failureを含めBest-effortで吸収する。別StreamへFallbackしない。
 
 Retention audit logging composes this same backend directly with `LoggingRetentionPurgeAuditPort`. The decorator emits one `info` record whose context contains only the typed purge-audit metadata, so its backend must accept the `info` level; the Factory default does. Unlike ordinary application logging, this audit path is fail-closed: a backend exception propagates into the purge transaction so the database audit and deletion roll back together. Do not place `ExecutionScopedLogger` around this system-audit path because its operation scope is unrelated to maintenance execution and the audit record already carries the target Operation ID explicitly.
 
@@ -95,6 +118,6 @@ Reserved sensitive keys such as password, token, and secret are removed before t
 
 ## Extension Boundary
 
-Handlers and services receive `Psr\Log\LoggerInterface`. Applications may replace the backend with another PSR-3 implementation without changing Core or Operation code.
+Handlers and services receive `Psr\Log\LoggerInterface`。Phase 14のInstalled Application ConfigはBuilt-in JSONLだけを選択でき、Custom Backend、Handler List、Remote SinkはPublic Configuration Surfaceではない。
 
-Rotation, buffering, network handlers, OpenTelemetry, and full production DI wiring remain separate composition concerns. Adding those capabilities should preserve the existing order: framework scope enrichment and sensitive projection first, output-adapter processing second.
+FrameworkはOperation ID相関、Safe Envelope、Sensitive Filter、JSONL Backend、Best-effort書込境界を所有する。Application／Infrastructureはstdout／stderrまたはLocal File以降の収集、Delivery保証、Rotation、Retention、Disk Capacity、Access Control、Alertを所有する。FrameworkはLog到達、保存期間、Alert発火を保証しない。
