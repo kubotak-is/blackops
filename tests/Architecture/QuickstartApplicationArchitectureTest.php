@@ -24,6 +24,9 @@ final class QuickstartApplicationArchitectureTest extends TestCase
             'app/Feature/Report/GenerateReport/GenerateReportValue.php',
             'app/Feature/Report/GenerateReport/ReportGenerated.php',
             'app/Feature/Report/GenerateReport/ReportGenerationTemporarilyUnavailable.php',
+            'app/Feature/Diagnostics/TriggerFailure/TriggerFailure.php',
+            'app/Feature/Diagnostics/TriggerFailure/TriggerFailureValue.php',
+            'app/Feature/Diagnostics/TriggerFailure/FailureTriggered.php',
             'app/Security/SampleUserAuthorizationPolicy.php',
             'app/UserInterface/Http/SampleTokenAuthenticator.php',
             'blackops',
@@ -34,6 +37,7 @@ final class QuickstartApplicationArchitectureTest extends TestCase
             'config/diagnostics.php',
             'config/execution.php',
             'config/journal.php',
+            'config/logging.php',
             'config/middleware.php',
             'config/operations.php',
             'config/retention.php',
@@ -62,6 +66,7 @@ final class QuickstartApplicationArchitectureTest extends TestCase
         self::assertFileDoesNotExist($root . '/app/ApplicationOperationProvider.php');
         self::assertFileDoesNotExist($root . '/app/Feature/Welcome/ShowWelcome/ShowWelcomeHandler.php');
         self::assertFileDoesNotExist($root . '/app/Feature/Report/GenerateReport/GenerateReportHandler.php');
+        self::assertFileDoesNotExist($root . '/app/Feature/Diagnostics/TriggerFailure/TriggerFailureHandler.php');
         self::assertSame(['.gitignore'], $this->files($root . '/var/build'));
         self::assertSame(['.gitignore'], $this->files($root . '/var/log'));
     }
@@ -150,25 +155,36 @@ final class QuickstartApplicationArchitectureTest extends TestCase
         $root = $this->quickstart();
         $welcome = (string) file_get_contents($root . '/app/Feature/Welcome/ShowWelcome/ShowWelcome.php');
         $report = (string) file_get_contents($root . '/app/Feature/Report/GenerateReport/GenerateReport.php');
+        $failure = (string) file_get_contents($root . '/app/Feature/Diagnostics/TriggerFailure/TriggerFailure.php');
         $bootstrap = (string) file_get_contents($root . '/bootstrap/app.php');
         $operations = (string) file_get_contents($root . '/config/operations.php');
         $application = (string) file_get_contents($root . '/config/app.php');
         $middleware = (string) file_get_contents($root . '/config/middleware.php');
         $welcomeValue = (string) file_get_contents($root . '/app/Feature/Welcome/ShowWelcome/WelcomeValue.php');
         $reportValue = (string) file_get_contents($root . '/app/Feature/Report/GenerateReport/GenerateReportValue.php');
+        $failureValue = (string) file_get_contents($root
+        . '/app/Feature/Diagnostics/TriggerFailure/TriggerFailureValue.php');
 
         self::assertStringContainsString('implements Operation', $welcome);
         self::assertStringContainsString('handle(WelcomeValue $value)', $welcome);
         self::assertStringContainsString('implements Operation', $report);
         self::assertStringContainsString('handle(GenerateReportValue $value, ExecutionContext $context)', $report);
+        self::assertStringContainsString('handle(TriggerFailureValue $value): FailureTriggered', $failure);
         self::assertStringContainsString('#[Authorize(SampleUserAuthorizationPolicy::class)]', $welcome);
         self::assertStringContainsString('#[Authorize(SampleUserAuthorizationPolicy::class)]', $report);
-        self::assertStringNotContainsString('OperationHandler', $welcome . $report);
-        self::assertStringNotContainsString('OperationEnvelope', $welcome . $report);
-        self::assertStringNotContainsString('@implements', $welcome . $report);
+        self::assertStringContainsString('#[Authorize(SampleUserAuthorizationPolicy::class)]', $failure);
+        self::assertStringContainsString("#[Route(method: 'POST', path: '/failures')]", $failure);
+        self::assertStringContainsString("#[OperationType('diagnostics.failure.trigger')]", $failure);
+        self::assertStringContainsString('private LoggerInterface $logger', $failure);
+        self::assertStringContainsString("'reference' => \$value->reference", $failure);
+        self::assertStringNotContainsString('sensitiveNote', $failure);
+        self::assertStringNotContainsString('OperationHandler', $welcome . $report . $failure);
+        self::assertStringNotContainsString('OperationEnvelope', $welcome . $report . $failure);
+        self::assertStringNotContainsString('@implements', $welcome . $report . $failure);
         self::assertStringNotContainsString('instanceof WelcomeValue', $welcome);
         self::assertStringNotContainsString('instanceof GenerateReportValue', $report);
-        self::assertStringNotContainsString('HandledBy', $welcome . $report);
+        self::assertStringNotContainsString('instanceof TriggerFailureValue', $failure);
+        self::assertStringNotContainsString('HandledBy', $welcome . $report . $failure);
         self::assertStringNotContainsString('withOperations', $bootstrap);
         self::assertStringNotContainsString('withServices', $bootstrap);
         self::assertStringContainsString("'discovery'", $operations);
@@ -179,6 +195,20 @@ final class QuickstartApplicationArchitectureTest extends TestCase
         self::assertStringNotContainsString('apiToken', $welcomeValue . $reportValue);
         self::assertStringContainsString('public string $recipientEmail', $reportValue);
         self::assertStringContainsString('#[Sensitive(SensitiveMode::Mask)]', $reportValue);
+        self::assertStringContainsString('public string $reference', $failureValue);
+        self::assertStringContainsString('public string $sensitiveNote', $failureValue);
+        self::assertStringContainsString('#[Sensitive(SensitiveMode::Mask)]', $failureValue);
+    }
+
+    public function testLoggingUsesAnAbsoluteApplicationOwnedJsonlPath(): void
+    {
+        /** @var array{backend: array{driver: string, stream: string, channel: string, minimum_level: string}} $logging */
+        $logging = require $this->quickstart() . '/config/logging.php';
+
+        self::assertSame('jsonl', $logging['backend']['driver']);
+        self::assertSame($this->quickstart() . '/var/log/application.jsonl', $logging['backend']['stream']);
+        self::assertSame('blackops', $logging['backend']['channel']);
+        self::assertSame('info', $logging['backend']['minimum_level']);
     }
 
     public function testAuthenticationSnapshotsExpectedTokenAndKeepsCredentialOutsideValues(): void

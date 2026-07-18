@@ -1,10 +1,10 @@
 # Orchestration State
 
-Updated At: 2026-07-19T05:18:32+09:00
+Updated At: 2026-07-19T06:13:43+09:00
 
 ## Current Phase
 
-Phase 14: Operation Diagnostics
+Phase 14: Operation Diagnostics — Closed
 
 ## Current Task
 
@@ -16,13 +16,13 @@ Specifications: `develop/spec/10-logging-and-traceability.md`、`develop/spec/25
 
 ## Task Status
 
-Ready
+Accepted
 
-P14-006はAccepted／Push済みである。P14-007はQuickstart Inline FailureからOperation IDをHuman／JSON／Local Viewerへ渡すConsumer Journey、Skeleton／Guide／Website同期、Phase 14 Closeoutを一つのTask Packetとして確定した。
+GPT-5.6 Luna High WorkerのP14-007実装をOrchestratorがReviewし、独立Critical Gateを完走してAcceptedとした。Quickstart Inline FailureからOperation IDをCanonical Journal、Human／JSON Inspect、Local Viewer、Application／Framework JSONLへ渡すConsumer Journey、Skeleton／Framework Update、Guide／Website、Specification／TODOを同期した。Phase 14 Delivery PlanとTODOは全件完了し、Phase 14を正式Closeした。
 
 ## Last Accepted Task
 
-P14-006-production-correlation-security-regression
+P14-007-consumer-experience-and-closeout
 
 ## Pending Decisions
 
@@ -48,12 +48,58 @@ P14-006-production-correlation-security-regression
 
 ## Known Blockers
 
-P14-007を妨げるBlockerはない。Documentation WebsiteはUser判断どおり未公開であり、Test／Check／Buildだけを行って外部公開しない。
+Phase 14を妨げるBlockerはない。Documentation WebsiteはUser判断どおり未公開であり、Test／Check／Buildだけを実行し、Publication／Deployは行っていない。Phase 15はOperation Frontend Bridgeの初期DepthとFrontend TargetのUser判断を必要とする。
 
 ## Required Next Action
 
-1. P14-007 Task PacketとSTATEをCommit／Pushする。
-2. GPT-5.6 Luna High WorkerへP14-007を依頼する。
+1. P14-007 Accepted差分をCommit／Pushする。
+2. Phase 15 Operation Frontend BridgeのDecision Draftを作成する。
+3. Wayfinder相当のRequest Descriptor／Full Typed ClientとFrontend Framework依存の初期境界をUserと確定する。
+
+## P14-007 Consumer Experience and Closeout Worker Verification
+
+```text
+docker compose run --rm app composer validate --strict
+docker compose run --rm app composer validate --strict examples/quickstart/composer.json
+docker compose run --rm app mago format --check src tests examples
+docker compose run --rm app mago lint
+docker compose run --rm app mago analyze
+Result: Composer Root／Quickstart valid。Mago全成功。
+
+docker compose run --rm app vendor/bin/phpunit --display-deprecations
+Result: OK (1233 tests, 4523 assertions)。
+
+docker compose run --rm app vendor/bin/deptrac
+Result: Violations 0 / Skipped 0 / Uncovered 0 / Allowed 2225 / Warnings 0 / Errors 0。
+
+bash tests/Consumer/quickstart-setup.sh
+bash tests/Consumer/quickstart-e2e.sh
+bash tests/Consumer/framework-update-generators.sh
+bash tests/Consumer/frankenphp-worker-mode.sh
+bash tests/Consumer/skeleton-create-project.sh
+bash tests/Consumer/skeleton-publication.sh --dry-run
+bash tests/Consumer/skeleton-publication-workflow.sh
+Result: 全Consumer Gate成功。HTTP 500から同一Operation IDの4-event Lifecycle、Human／JSON、Viewer Token／Session／Read-only、Application／Framework JSONL、機密Artifact Guard、Framework Update、Skeleton通常／no-scripts／split workflowを含む。
+
+mise exec -- pnpm --dir docs/website install --frozen-lockfile
+mise exec -- pnpm --dir docs/website run test
+mise exec -- pnpm --dir docs/website run check
+mise exec -- pnpm --dir docs/website run build
+Result: 38 tests passed。Astro 0 errors／warnings／hints。30 pages build、29 public pages navigation／search check成功。
+
+Website Artifact、Internal Path、Management Comment ID、Forbidden Diagnostics Option、git diff --check Guard
+Result: 成功。Documentation WebsiteのPublication／Deployは未実行。
+```
+
+### P14-007 Orchestrator Review Correction
+
+初回GuideはDocker Compose Quickstart直後にHost Native CLI／BrowserからViewerへ到達できるように読めた。実際にはPostgreSQLをHostへPublishせず、`POSTGRES_HOST=postgres`はCompose Network内だけで解決し、ViewerもCLI ProcessのLoopback限定である。
+
+Root README、Quickstart README、利用者向けQuickstartを、Docker-onlyではHuman／JSON Inspectを利用し、Viewer Consumer検証はViewer／HTTP Clientを同じnamed CLI Container／Local Network Namespaceへ置く境界へ修正した。Browser利用はApplication／PHP CLI／PostgreSQL／Browserが同じLocal Network Namespaceから到達可能なNative Runtimeだけと明記し、Non-loopback Bindへ緩めていない。
+
+Website Guide TestとBuilt Site CheckへこのReader Contractを追加し、38 tests、Astro check、Build、Artifact／Navigation／Search、Forbidden Bind、diff Guardを再実行して成功した。`src/`、Compose、Commit、Publication／Deployの変更はない。
+
+独立Quickstart E2E Reviewで、Human／Viewerのpositive `grep`が一致行と単一行HTMLを通常CI stdoutへ出していることを修正した。P14-007追加assertionをquiet `grep -Fq`／`grep -Fxq`へ変更し、否定grep、値抽出、失敗時診断は維持した。`bash -n tests/Consumer/quickstart-e2e.sh`とQuickstart consumer E2Eを再実行し、Operation ID／Safe Referenceを含むHuman行／Viewer HTMLを通常成功Logへ出さずにpassedした。
 
 ## P14-006 Production Correlation and Security Regression Worker Verification
 

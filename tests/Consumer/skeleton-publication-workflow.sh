@@ -40,9 +40,26 @@ test -s "${workflow_run}" || fail 'publication run block was not found'
 bash -n "${workflow_run}"
 
 git clone --quiet --no-hardlinks --no-tags "${repository_root}" "${source_clone}"
-source_commit="$(git -C "${repository_root}" rev-parse HEAD)"
+git -C "${source_clone}" rm -r --quiet examples/quickstart
+mkdir -p "${source_clone}/examples/quickstart"
+cp -a "${repository_root}/examples/quickstart/." "${source_clone}/examples/quickstart/"
+git -C "${source_clone}" add examples/quickstart
+GIT_AUTHOR_NAME='BlackOps Workflow Regression' \
+    GIT_AUTHOR_EMAIL='workflow-regression@blackops.dev' \
+    GIT_COMMITTER_NAME='BlackOps Workflow Regression' \
+    GIT_COMMITTER_EMAIL='workflow-regression@blackops.dev' \
+    git -C "${source_clone}" commit --quiet --message 'Test current skeleton working tree'
+source_commit="$(git -C "${source_clone}" rev-parse HEAD)"
 split_commit="$(git -C "${source_clone}" subtree split \
     --prefix=examples/quickstart "${source_commit}" 2> "${temporary_root}/split.log")"
+for required_path in \
+    app/Feature/Diagnostics/TriggerFailure/TriggerFailure.php \
+    app/Feature/Diagnostics/TriggerFailure/TriggerFailureValue.php \
+    app/Feature/Diagnostics/TriggerFailure/FailureTriggered.php \
+    config/diagnostics.php config/logging.php README.md; do
+    git -C "${source_clone}" cat-file -e "${split_commit}:${required_path}" \
+        || fail "split commit is missing ${required_path}"
+done
 
 create_remote() {
     git init --quiet --bare "$1"
@@ -56,9 +73,9 @@ run_publication() {
 
     run_root="$(mktemp -d "${temporary_root}/run.XXXXXX")"
     (
-        cd "${repository_root}"
+        cd "${source_clone}"
         RUNNER_TEMP="${run_root}" \
-            GITHUB_WORKSPACE="${repository_root}" \
+            GITHUB_WORKSPACE="${source_clone}" \
             SKELETON_REMOTE="${remote}" \
             RELEASE_VERSION="${version}" \
             MANUAL_RECOVERY="${manual_recovery}" \

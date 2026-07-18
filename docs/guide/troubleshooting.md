@@ -80,6 +80,31 @@ grep '<operation-id>' var/log/journal.jsonl
 
 **Fix:** HTTPとWorkerへ同じDatabase／Schema／Build Artifactを渡し、常駐WorkerをProcess ManagerまたはCompose Worker Profileで監督します。Retry Scheduledの場合はDelay後のAttemptを待ちます。
 
+## Operation ID付き500を調べる
+
+**Symptom:** Responseが`{"status":"error","code":"internal_error","operationId":"019..."}`を返します。
+
+**How to Verify:** IDを変更せず、Human表示、次にJSON表示で確認します。
+
+```bash
+php blackops operation:inspect 019...
+php blackops operation:inspect 019... --json
+```
+
+`received -> attempt.started -> attempt.failed -> operation.failed`の順と、Application／Framework JSONL Logの同じOperation IDを確認します。HTTPやCLIにException Messageがないのは意図したSafe Surfaceです。Canonical DatabaseのRaw RecordをSupport Ticketへ貼り付けないでください。
+
+IDのない500はOperation成立前のBootstrap／Middleware／Protocol境界の失敗です。`operation:inspect`では追跡できないため、Credentialを除いたFramework Error Log、Config Validation、Build Artifact、Database Connectionを確認します。
+
+InspectのExit CodeはInvalid ID=`2`、Unavailable=`3`、Storage／Decode／Integrity=`4`です。`--json`のErrorは`{"schemaVersion":1,"status":"error","code":"..."}`をstderrへ出します。
+
+## Local Viewerが起動／表示できない
+
+**Symptom:** `viewer.disabled`、`viewer.invalid_configuration`、`viewer.runtime_unavailable`、`viewer.bind_failed`、またはBrowserで404が返ります。
+
+**How to Verify:** `config/diagnostics.php`の`enabled`、`127.0.0.1`、Port競合、CLI RuntimeのPCNTLを確認します。QuickstartはLocalだけEnabledです。
+
+**Fix:** Viewerを`php blackops operation:viewer`で明示起動し、その起動で一度だけ出るBootstrap URLへ同じLocal Runtimeからアクセスします。Tokenがない、古いTokenを使う、Session Cookieを捨てる、Host Headerが異なる場合の404はFail-closed動作です。Non-loopback Bindへ変更せず、別のLocal Portへ変える場合はConfigと接続先を同期します。POSTは405で、GET／HEADだけが正常です。
+
 ## Migration未適用／PostgreSQL接続失敗
 
 **Symptom:** HTTP、Worker、Outcome、Retention CommandがTable不在またはPostgreSQL接続Errorで失敗します。

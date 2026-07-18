@@ -9,8 +9,14 @@ PORT=$((18080 + RANDOM % 1000))
 CONSUMER="${TEMP}/consumer"
 INSTALL_OVERRIDE="${TEMP}/compose.install.yaml"
 SOURCE_BEFORE=$(git -C "${ROOT}" status --short -- examples/quickstart)
+viewer_process=''
+viewer_container="${PROJECT}-viewer"
 
 cleanup() {
+    if test -n "${viewer_process}" && kill -0 "${viewer_process}" 2>/dev/null; then
+        docker stop --time 5 "${viewer_container}" >/dev/null 2>&1 || true
+        wait "${viewer_process}" 2>/dev/null || true
+    fi
     if test -d "${CONSUMER}"; then
         docker compose --project-directory "${CONSUMER}" --project-name "${PROJECT}" \
             -f "${CONSUMER}/compose.yaml" down --volumes --remove-orphans --rmi local >/dev/null 2>&1 || true
@@ -22,6 +28,7 @@ trap cleanup EXIT
 mkdir -p "${CONSUMER}"
 cp -a "${ROOT}/examples/quickstart/." "${CONSUMER}/"
 cp "${CONSUMER}/.env.example" "${CONSUMER}/.env"
+cp "${ROOT}/tests/Consumer/fixtures/viewer-request.php" "${CONSUMER}/tests/viewer-request.php"
 
 cat >"${INSTALL_OVERRIDE}" <<YAML
 services:
@@ -68,6 +75,7 @@ operations=$(HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops opera
 grep -q 'welcome.show' <<<"${operations}"
 grep -q 'report.generate' <<<"${operations}"
 grep -q 'order.create' <<<"${operations}"
+grep -q 'diagnostics.failure.trigger' <<<"${operations}"
 grep -q 'smoke.create' <<<"${operations}"
 
 HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops build:compile
@@ -117,6 +125,172 @@ done
 grep -q '^{"message":"Welcome to BlackOps"}$' "${TEMP}/welcome.json"
 ! grep -q 'local-example' "${CONSUMER}/var/log/journal.jsonl"
 grep -q '\[masked\]' "${CONSUMER}/var/log/journal.jsonl"
+
+failure_reference="failure-$RANDOM-$$"
+failure_sentinel="sensitive-$RANDOM-$$"
+failure_status=$(curl --silent --output "${CONSUMER}/var/failure-response.json" --write-out '%{http_code}' \
+    -X POST "http://127.0.0.1:${PORT}/failures" \
+    -H 'Content-Type: application/json' \
+    -H 'X-Sample-Token: local-example' \
+    --data "{\"reference\":\"${failure_reference}\",\"sensitiveNote\":\"${failure_sentinel}\"}")
+test "${failure_status}" = "500"
+failure_operation_id=$(HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php -r '
+$data = json_decode(file_get_contents("/app/var/failure-response.json"), true, 512, JSON_THROW_ON_ERROR);
+$id = $data["operationId"] ?? null;
+if ($data !== ["status" => "error", "code" => "internal_error", "operationId" => $id]
+    || !is_string($id)
+    || preg_match("/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/", $id) !== 1) {
+    exit(1);
+}
+fwrite(STDOUT, $id);
+')
+test -n "${failure_operation_id}"
+failure_events=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
+    "SELECT string_agg(event, ',' ORDER BY sequence) FROM blackops.journal WHERE operation_id = '${failure_operation_id}'::uuid")
+if test "${failure_events}" != "operation.received,attempt.started,attempt.failed,operation.failed"; then
+    HTTP_PORT="${PORT}" "${compose[@]}" logs http >&2
+    test ! -f "${CONSUMER}/var/log/application.jsonl" || tail -n 10 "${CONSUMER}/var/log/application.jsonl" >&2
+    grep -n -C 8 'TriggerFailure' "${CONSUMER}/var/build/container.php" >&2 || true
+    echo "Unexpected failure lifecycle: ${failure_events}" >&2
+    exit 1
+fi
+
+HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops operation:inspect "${failure_operation_id}" \
+    > "${CONSUMER}/var/failure-inspect.txt"
+grep -Fxq '  Type: diagnostics.failure.trigger' "${CONSUMER}/var/failure-inspect.txt"
+grep -Fxq '  Current: failed' "${CONSUMER}/var/failure-inspect.txt"
+grep -Fxq '  Outcome: not_applicable' "${CONSUMER}/var/failure-inspect.txt"
+grep -Fxq '  Availability: not_applicable' "${CONSUMER}/var/failure-inspect.txt"
+grep -Fxq '  Value: none' "${CONSUMER}/var/failure-inspect.txt"
+grep -Fq 'operation.received' "${CONSUMER}/var/failure-inspect.txt"
+grep -Fq 'attempt.started' "${CONSUMER}/var/failure-inspect.txt"
+grep -Fq 'attempt.failed' "${CONSUMER}/var/failure-inspect.txt"
+grep -Fq 'operation.failed' "${CONSUMER}/var/failure-inspect.txt"
+grep -Fq '[masked] (user)' "${CONSUMER}/var/failure-inspect.txt"
+grep -Fq '"reference":"'"${failure_reference}"'"' "${CONSUMER}/var/failure-inspect.txt"
+grep -Fq '"sensitiveNote":"[masked]"' "${CONSUMER}/var/failure-inspect.txt"
+
+HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops operation:inspect "${failure_operation_id}" --json \
+    > "${CONSUMER}/var/failure-inspect.json"
+HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php -r '
+$data = json_decode(file_get_contents("/app/var/failure-inspect.json"), true, 512, JSON_THROW_ON_ERROR);
+$expectedEvents = ["operation.received", "attempt.started", "attempt.failed", "operation.failed"];
+if (($data["schemaVersion"] ?? null) !== 1
+    || ($data["status"] ?? null) !== "found"
+    || ($data["operation"]["operationId"] ?? null) !== $argv[1]
+    || ($data["operation"]["type"] ?? null) !== "diagnostics.failure.trigger"
+    || ($data["operation"]["strategy"] ?? null) !== "inline"
+    || ($data["operation"]["actors"]["origin"]["id"] ?? null) !== "[masked]"
+    || ($data["state"]["current"] ?? null) !== "failed"
+    || ($data["state"]["terminal"] ?? null) !== true
+    || ($data["availability"]["journal"] ?? null) !== "available"
+    || ($data["availability"]["outcome"] ?? null) !== "not_applicable"
+    || !array_key_exists("outcome", $data)
+    || $data["outcome"] !== null
+    || count($data["attempts"] ?? []) !== 1
+    || array_column($data["timeline"] ?? [], "event") !== $expectedEvents) {
+    exit(1);
+}
+' "${failure_operation_id}"
+
+viewer_output="${TEMP}/viewer.out"
+viewer_error="${TEMP}/viewer.err"
+HTTP_PORT="${PORT}" "${compose[@]}" run --rm --no-deps --name "${viewer_container}" app \
+    php blackops operation:viewer \
+    > "${viewer_output}" 2> "${viewer_error}" &
+viewer_process=$!
+viewer_url=''
+for _ in $(seq 1 30); do
+    viewer_url=$(sed -n '1p' "${viewer_output}")
+    if [[ "${viewer_url}" == http://127.0.0.1:8082/?token=* ]]; then
+        break
+    fi
+    if ! kill -0 "${viewer_process}" 2>/dev/null; then
+        cat "${viewer_error}" >&2
+        exit 1
+    fi
+    sleep 0.2
+done
+[[ "${viewer_url}" == http://127.0.0.1:8082/?token=* ]]
+
+viewer_request() {
+    docker exec -i "${viewer_container}" php /app/tests/viewer-request.php "$@"
+}
+
+viewer_request GET "/operations/${failure_operation_id}" > "${CONSUMER}/var/viewer-no-token.http"
+grep -Fq 'HTTP/1.1 404 Not Found' "${CONSUMER}/var/viewer-no-token.http"
+viewer_request GET "${viewer_url}" > "${TEMP}/viewer-bootstrap.http"
+grep -Fq 'HTTP/1.1 303 See Other' "${TEMP}/viewer-bootstrap.http"
+grep -Fq 'Location: /' "${TEMP}/viewer-bootstrap.http"
+viewer_cookie=$(sed -n 's/^Set-Cookie: \([^;]*\).*/\1/p' "${TEMP}/viewer-bootstrap.http" | tr -d '\r')
+test -n "${viewer_cookie}"
+rm -f "${viewer_output}" "${TEMP}/viewer-bootstrap.http"
+
+viewer_request GET "/?operationId=${failure_operation_id}" "${viewer_cookie}" \
+    > "${CONSUMER}/var/viewer-canonical.http"
+grep -Fq 'HTTP/1.1 303 See Other' "${CONSUMER}/var/viewer-canonical.http"
+grep -Fq "Location: /operations/${failure_operation_id}" "${CONSUMER}/var/viewer-canonical.http"
+viewer_request GET "/operations/${failure_operation_id}" "${viewer_cookie}" \
+    > "${CONSUMER}/var/viewer-operation.http"
+grep -Fq 'HTTP/1.1 200 OK' "${CONSUMER}/var/viewer-operation.http"
+grep -Fq "${failure_operation_id}" "${CONSUMER}/var/viewer-operation.http"
+grep -Fq 'diagnostics.failure.trigger' "${CONSUMER}/var/viewer-operation.http"
+grep -Fq '<dd>failed</dd>' "${CONSUMER}/var/viewer-operation.http"
+grep -Fq 'operation.received' "${CONSUMER}/var/viewer-operation.http"
+grep -Fq 'attempt.failed' "${CONSUMER}/var/viewer-operation.http"
+grep -Fq '[masked] (user)' "${CONSUMER}/var/viewer-operation.http"
+grep -Fq "${failure_reference}" "${CONSUMER}/var/viewer-operation.http"
+grep -Fq '[masked]' "${CONSUMER}/var/viewer-operation.http"
+viewer_request HEAD "/operations/${failure_operation_id}" "${viewer_cookie}" \
+    > "${CONSUMER}/var/viewer-head.http"
+grep -Fq 'HTTP/1.1 200 OK' "${CONSUMER}/var/viewer-head.http"
+! grep -F '<!doctype html>' "${CONSUMER}/var/viewer-head.http"
+viewer_request POST "/operations/${failure_operation_id}" "${viewer_cookie}" \
+    > "${CONSUMER}/var/viewer-post.http"
+grep -Fq 'HTTP/1.1 405 Method Not Allowed' "${CONSUMER}/var/viewer-post.http"
+grep -Fq 'Allow: GET, HEAD' "${CONSUMER}/var/viewer-post.http"
+
+docker stop --time 5 "${viewer_container}" >/dev/null
+wait "${viewer_process}" || true
+viewer_process=''
+
+HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php -r '
+$records = [];
+foreach (file("/app/var/log/application.jsonl", FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [] as $line) {
+    $record = json_decode($line, true, 512, JSON_THROW_ON_ERROR);
+    if (($record["context"]["operation"]["id"] ?? null) === $argv[1]) {
+        $records[] = $record;
+    }
+}
+if (count($records) !== 2
+    || array_column($records, "message") !== ["Quickstart diagnostics failure requested.", "Operation failed."]
+    || ($records[0]["context"]["schemaVersion"] ?? null) !== 1
+    || ($records[0]["context"]["kind"] ?? null) !== "application"
+    || ($records[1]["context"]["schemaVersion"] ?? null) !== 1
+    || ($records[1]["context"]["kind"] ?? null) !== "framework"
+    || ($records[0]["context"]["context"]["reference"] ?? null) !== $argv[2]
+    || array_key_exists("sensitiveNote", $records[0]["context"]["context"] ?? [])
+    || ($records[0]["context"]["operation"]["actors"]["origin"]["id"] ?? null) !== "[masked]"
+    || ($records[1]["context"]["context"]["failure"]["classification"] ?? null) !== "internal_error") {
+    exit(1);
+}
+' "${failure_operation_id}" "${failure_reference}"
+
+for artifact in \
+    "${CONSUMER}/var/failure-response.json" \
+    "${CONSUMER}/var/failure-inspect.txt" \
+    "${CONSUMER}/var/failure-inspect.json" \
+    "${CONSUMER}/var/viewer-no-token.http" \
+    "${CONSUMER}/var/viewer-canonical.http" \
+    "${CONSUMER}/var/viewer-operation.http" \
+    "${CONSUMER}/var/viewer-head.http" \
+    "${CONSUMER}/var/viewer-post.http" \
+    "${CONSUMER}/var/log/application.jsonl"; do
+    ! grep -Fq 'local-example' "${artifact}"
+    ! grep -Fq "${failure_sentinel}" "${artifact}"
+    ! grep -Fq 'Intentional quickstart diagnostics failure.' "${artifact}"
+    ! grep -Fq 'quickstart-user' "${artifact}"
+done
 
 order_reference='consumer-order-001'
 order_status=$(curl --silent --output "${CONSUMER}/var/order-response.json" --write-out '%{http_code}' \

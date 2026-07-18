@@ -1,6 +1,6 @@
 # Installed Application Status
 
-Status: Phase 11 Release Candidate Metadata targets 1.1.0; Framework and Skeleton 1.0.0 Published
+Status: Phase 14 main Preview complete; Framework and Skeleton 1.1.0 Published
 
 この文書はRepositoryのPhase Acceptance Evidenceを記録するFramework実装者向け資料であり、公開Documentation WebsiteのContent Sourceには含めない。利用者向けの現行機能と制約は[Guide MVP Status](../guide/mvp-status.md)を参照する。
 
@@ -44,10 +44,11 @@ Status: Phase 11 Release Candidate Metadata targets 1.1.0; Framework and Skeleto
 examples/quickstart/
   app/Feature/Welcome/ShowWelcome/
   app/Feature/Report/GenerateReport/
+  app/Feature/Diagnostics/TriggerFailure/
   blackops
   bin/setup
   bootstrap/app.php
-  config/{app,database,execution,journal,operations,retention}.php
+  config/{app,database,diagnostics,execution,journal,logging,middleware,operations,retention}.php
   public/index.php
   tests/
   var/{build,log}/

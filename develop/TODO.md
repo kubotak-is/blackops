@@ -99,7 +99,7 @@ MVP後に残す主要項目:
 - [x] `operation:inspect`のHuman／JSON／Exit Code Contractを実装する
 - [x] `diagnostics.viewer.enabled`で既定無効のDevelopment用`operation:viewer`を実装する
 - [x] Production Log／Journal／Observabilityの責任境界をRegression TestとInternal Documentationへ同期する
-- [ ] Quickstart／Skeleton／Guide／Consumer E2Eを同期してPhase 14をCloseする
+- [x] Quickstart／Skeleton／Guide／Consumer E2Eを同期してPhase 14をCloseする
 
 ### Phase 15: Operation Frontend Bridge
 

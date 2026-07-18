@@ -33,6 +33,7 @@ use BlackOps\Internal\Journal\JournalObservationPipeline;
 use BlackOps\Internal\Journal\JournalObserverAggregator;
 use BlackOps\Internal\Journal\JournalObserverBinding;
 use BlackOps\Internal\Journal\JournalRecordFactory;
+use BlackOps\Internal\Logging\RuntimeLoggingServiceInjector;
 use BlackOps\Internal\Migration\DatabaseMigrationRunner;
 use BlackOps\Internal\Projection\ObservedJournalRecordProjector;
 use BlackOps\Internal\Projection\SensitiveProjectionFilter;
@@ -58,6 +59,7 @@ use FilesystemIterator;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
+use Psr\Log\NullLogger;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RuntimeException;
@@ -69,6 +71,7 @@ final class MvpSampleEndToEndTest extends TestCase
     private const SCHEMA = 'blackops_mvp_sample';
     private const BUILD_ID = 'mvp-sample-e2e';
     private const CREATE_ORDER = 'App\\Feature\\Order\\CreateOrder\\CreateOrder';
+    private const TRIGGER_FAILURE = 'App\\Feature\\Diagnostics\\TriggerFailure\\TriggerFailure';
     private const GENERATE_REPORT = 'App\\Feature\\Report\\GenerateReport\\GenerateReport';
     private const REPORT_GENERATED = 'App\\Feature\\Report\\GenerateReport\\ReportGenerated';
     private const WELCOME_SHOWN = 'App\\Feature\\Welcome\\ShowWelcome\\WelcomeShown';
@@ -85,18 +88,24 @@ final class MvpSampleEndToEndTest extends TestCase
         $httpArtifacts = $this->loadArtifacts($paths);
         new RuntimeDatabaseServiceInjector()->inject($httpArtifacts->container, $databases);
         $executionScope = new ExecutionScopeProvider();
+        new RuntimeLoggingServiceInjector()->inject($httpArtifacts->container, $executionScope, new NullLogger());
         $transactionRuntime = new RuntimeTransactionServiceInjector()->inject(
             $httpArtifacts->container,
             $databases,
             $executionScope,
         );
-        self::assertCount(3, $httpArtifacts->operations->all());
+        self::assertCount(4, $httpArtifacts->operations->all());
         self::assertSame(self::CREATE_ORDER, $httpArtifacts->operations->findByTypeId('order.create')?->definition);
+        self::assertSame(
+            self::TRIGGER_FAILURE,
+            $httpArtifacts->operations->findByTypeId('diagnostics.failure.trigger')?->definition,
+        );
         self::assertSame(
             self::GENERATE_REPORT,
             $httpArtifacts->operations->findByTypeId('report.generate')?->definition,
         );
         self::assertSame('order.create', $httpArtifacts->http->routes['POST']['/orders']);
+        self::assertSame('diagnostics.failure.trigger', $httpArtifacts->http->routes['POST']['/failures']);
         self::assertSame('report.generate', $httpArtifacts->http->routes['POST']['/reports']);
 
         $clock = new MvpSampleClock(new DateTimeImmutable('2026-07-12T00:00:00.123456Z'));

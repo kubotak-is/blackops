@@ -9,6 +9,8 @@ Installed Applicationは責務別のPHP Configを`config/`に置きます。Fram
 | `operations.php` | Build-time Discovery RootとOptional Operation Provider |
 | `execution.php` | Worker ID、Lease、Heartbeat、Grace、Supervision |
 | `journal.php` | Observed JSONL JournalのPathとDelivery Mode |
+| `logging.php` | Application／Framework相関LogのJSONL Backend |
+| `diagnostics.php` | Local Diagnostics ViewerのEnable GateとLoopback Address |
 | `middleware.php` | Global PSR-15 HTTP Middlewareの登録順 |
 | `retention.php` | Payload、Journal、Outcome、Dead Letterの保持期間、Policy、Actor |
 
@@ -120,6 +122,37 @@ return [
 ```
 
 `enabled=true`では絶対Path、書込可能な既存Parent Directory、`best_effort`または`required`を指定します。FrameworkはDirectoryを作らず、Sensitive Projection後のRecordだけをJSONLへ追記します。
+
+## Application Logging
+
+```php
+return [
+    'backend' => [
+        'driver' => 'jsonl',
+        'stream' => dirname(__DIR__) . '/var/log/application.jsonl',
+        'channel' => 'blackops',
+        'minimum_level' => 'info',
+    ],
+];
+```
+
+Canonical Keyは`driver`、`stream`、`channel`、`minimum_level`です。Phase 14のDriverは`jsonl`だけで、Fileがない場合は`php://stderr`／`blackops`／`info`を使います。`stream`は`php://stderr`、`php://stdout`、絶対Local File Pathのみを受け付け、Relative Path、任意PHP Wrapper、Network URIを拒否します。
+
+FrameworkはConfigをHTTP／Worker Process構成時に一度だけ検証し、RequestやLog RecordごとにFileや`$_ENV`を再読込しません。無効なDriver／Stream／Levelは起動時にFail-fastします。起動後のOpen／Write FailureはBest-effortで吸収し、元のOperation、Journal、HTTP Response、Worker Loopを変えません。Directory作成、Permission、Rotation、Disk Capacity、RetentionはApplication／運用の責務です。
+
+## Local Diagnostics Viewer
+
+```php
+return [
+    'viewer' => [
+        'enabled' => true,
+        'bind' => '127.0.0.1',
+        'port' => 8082,
+    ],
+];
+```
+
+Framework既定は`enabled=false`、`127.0.0.1:8082`です。QuickstartはLocal利用のためだけ`true`にします。Commandの明示実行とEnable Gateの両方が必要で、Non-loopback Bindは設定エラーです。ViewerはCanonical Storeをそのまま表示せず、`operation:inspect`と同じSafe Diagnostics Projectionを使います。
 
 ## HTTP Middleware
 

@@ -446,6 +446,8 @@ Viewer Session TokenはApplication User Authenticationではない。Production 
 | Production Log | Correlation Decorator、Safe Framework Error | Sink、Delivery、Retention、Alert、Collector |
 | Remote Observability | Operation ID Fieldだけ準備 | Phase 18までAdapterなし |
 
+Quickstart Consumerは`diagnostics.failure.trigger`を使い、Safe HTTP 500のOperation IDをHuman／JSON CLI、Local Viewer、Application／Framework JSONLへそのまま渡す。ViewerはPCNTLを持つ明示的なCLI Processで起動し、HTTP Clientと同じLocal Network NamespaceのLoopbackだけを使う。Token／CookieはTemporary Artifactとして回収し、通常Console、Report、Sourceへ残さない。
+
 ## Deferred Scope
 
 - Phase 15: Generated Frontend ContractとOperation IDの接続。Diagnostics UIは生成しない。

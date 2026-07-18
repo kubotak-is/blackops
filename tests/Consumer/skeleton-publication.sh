@@ -72,7 +72,11 @@ else
 fi
 
 for required_path in composer.json README.md bin/setup blackops bootstrap/app.php \
-    app/Feature/Order/CreateOrder/CreateOrder.php migrations/Version20260718000000.php; do
+    app/Feature/Order/CreateOrder/CreateOrder.php \
+    app/Feature/Diagnostics/TriggerFailure/TriggerFailure.php \
+    app/Feature/Diagnostics/TriggerFailure/TriggerFailureValue.php \
+    app/Feature/Diagnostics/TriggerFailure/FailureTriggered.php \
+    config/diagnostics.php config/logging.php migrations/Version20260718000000.php; do
     test -f "${distribution_root}/${required_path}" \
         || fail "required distribution path is missing: ${required_path}"
 done

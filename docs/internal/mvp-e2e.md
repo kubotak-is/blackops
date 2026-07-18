@@ -4,7 +4,7 @@ MVP Sample E2EはProduction CodeへSample専用の近道を追加せず、既存
 
 `tests/Consumer/quickstart-e2e.sh` はChecked-in Quickstartを一時DirectoryへCopyし、`symlink=false` とversion `1.1.0` の一時Composer Path RepositoryからFrameworkをConsumer Vendorへmirror installする。RuntimeはConsumerのAutoloaderだけを使う。
 
-ScriptはBuild、明示Migration、FrankenPHP HTTP、Sensitive JSONL、Deferred Retry／Completion、Encoded Outcome、Retention Plan／Dry Runを機械検証する。Trapは成功／失敗の両方でCompose Project、Container、Named Volume、Local Image、一時Consumerを削除する。
+ScriptはBuild、明示Migration、FrankenPHP HTTP、Sensitive JSONL、Inline FailureのOperation ID相関、Human／JSON Inspect、Local Viewer、Deferred Retry／Completion、Encoded Outcome、Retention Plan／Dry Runを機械検証する。ViewerはPCNTLを持つnamed CLI Containerで明示起動し、同じNetwork NamespaceのLoopbackに対してTokenなし404、Bootstrap／Session、Canonical Path、GET／HEAD、POST 405を確認する。Trapは成功／失敗の両方でViewer、Compose Project、Container、Named Volume、Local Image、Tokenを含む一時Artifact、一時Consumerを削除する。
 
 このConsumer検証はLocal Package Source Boundaryの証拠である。PackagistとRemote `composer create-project`はP8-004の独立Smokeで検証し、結果を [Phase 8 Closeout Report](../../develop/orchestration/reports/P8-004-phase-8-closeout.md) に記録する。現行状態は [Installed Application Status](installed-application-status.md) を参照する。
 
@@ -43,6 +43,13 @@ POST /reports
   -> DeferredHttpOperationAcceptor
   -> operation state + received + accepted in one transaction
   -> JSON 202
+
+POST /failures
+  -> compiled authenticated inline route
+  -> application log with a non-sensitive reference
+  -> RuntimeException
+  -> received + attempt.started + attempt.failed + operation.failed
+  -> safe JSON 500 with the operation ID
 ```
 
 HTTP compositionはVersioned Migrationを呼ばない。E2E setupが `DatabaseMigrationRunner` をDeployment stepとして先に実行する。
@@ -72,3 +79,5 @@ Canonical JournalはOperation IDごとにInline 4件、Deferred 8件の順序を
 Sensitive検証はInlineの `JournalObservationPipeline`へJSONL Observerを接続して行う。Canonical Received Recordが再現可能な値を持つ一方、Observed JSONLは `#[Sensitive]` Propertyをmaskすることを同じ実行で確認する。
 
 Deferred RuntimeにはSample専用Observer配送を追加しない。Canonical Journalを正本とし、既存のObserver配送／将来のReplay境界を保つ。
+
+Failure JourneyはHTTP、Observed Journal、Human／JSON Inspect、Viewer HTML、Application／Framework JSONLの同じOperation IDを検証する。Credential、固有Sensitive Sentinel、Exception Message、Raw Actor IDがすべてのSafe Artifactにないことを否定検証し、Canonical PostgreSQL JournalのRestricted Dataと分離する。

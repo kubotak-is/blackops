@@ -160,6 +160,19 @@ test('guide presents the Stable 1.1 release surface and experimental policy cons
   assert.match(status, /Backward Compatibility/);
 });
 
+test('Docker-only quickstart keeps the local viewer inside its reachable network boundary', async () => {
+  const quickstart = await guide('mvp-sample.md');
+
+  assert.match(quickstart, /Docker-only Quickstartでは、Host BrowserからLocal Viewerを利用できません/);
+  assert.match(quickstart, /`POSTGRES_HOST=postgres`はCompose Network内だけで解決/);
+  assert.match(quickstart, /Human／JSONを利用してください/);
+  assert.match(quickstart, /ViewerとHTTP Clientを同じnamed CLI Container、同じLocal Network Namespace/);
+  assert.match(quickstart, /Application／PHP CLI／PostgreSQL／Browserが同じLocal Network Namespace/);
+  assert.match(quickstart, /Native Runtime/);
+  assert.match(quickstart, /Non-loopback Bindへ緩めて回避してはいけません/);
+  assert.doesNotMatch(quickstart, /0\.0\.0\.0/);
+});
+
 test('quickstart order journey matches the installed transactional source', async () => {
   const [quickstart, provider, operation, command, repository, afterCommit, migration] = await Promise.all([
     guide('mvp-sample.md'),

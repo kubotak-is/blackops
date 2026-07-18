@@ -57,7 +57,16 @@ curl -X POST -H 'Content-Type: application/json' \
   -H 'X-Sample-Token: local-example' \
   -d '{"reportName":"weekly","recipientEmail":"reports@example.com"}' \
   http://127.0.0.1:8080/reports
+
+curl -X POST -H 'Content-Type: application/json' \
+  -H 'X-Sample-Token: local-example' \
+  -d '{"reference":"incident-demo-001","sensitiveNote":"private diagnostic note"}' \
+  http://127.0.0.1:8080/failures
 ```
+
+`/failures`のSafe 500が返すOperation IDは、Docker-only Quickstartでは`docker compose run --rm app php blackops operation:inspect <id> [--json]`へ渡します。PostgreSQLはHostへPublishせず、ViewerはCLI ContainerのLoopback限定なので、このDocker構成からHost BrowserへViewerを公開できません。ViewerはConsumer E2EのようにViewerとHTTP Clientを同じCLI Container／Local Network Namespaceへ置いて検証します。
+
+Browserで`php blackops operation:viewer`を使うには、Application／PHP CLI／PostgreSQL／Browserが同じLocal Network Namespaceから到達可能なNative Runtimeが必要です。Non-loopback Bindへ緩めません。Application／Framework相関Logは`var/log/application.jsonl`で同じIDを使い、Sensitive ValueとActor IDをSafe Projectionします。
 
 Stableと`main` Previewの準備方法、利用可能なEndpointの差は[利用者向けQuickstart](docs/guide/mvp-sample.md)を参照してください。
 

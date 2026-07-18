@@ -209,10 +209,9 @@ test "${worker_failure_status}" = "500"
 grep -Eq '^\{"status":"error","code":"internal_error","operationId":"[0-9a-f-]{36}"\}$' \
     "${TEMP}/worker-failure.json"
 worker_failure_id=$(sed -E 's/.*"operationId":"([0-9a-f-]{36})".*/\1/' "${TEMP}/worker-failure.json")
-"${compose[@]}" logs --no-color http >"${TEMP}/worker-failure.log"
-grep -Fq '"kind":"framework"' "${TEMP}/worker-failure.log"
-grep -Fq "\"id\":\"${worker_failure_id}\"" "${TEMP}/worker-failure.log"
-! grep -Fq 'consumer credential detail' "${TEMP}/worker-failure.log"
+grep -Fq '"kind":"framework"' "${CONSUMER}/var/log/application.jsonl"
+grep -Fq "\"id\":\"${worker_failure_id}\"" "${CONSUMER}/var/log/application.jsonl"
+! grep -Fq 'consumer credential detail' "${CONSUMER}/var/log/application.jsonl"
 
 classic_failure_status=$(curl --silent --max-time 5 --output "${TEMP}/classic-failure.json" --write-out '%{http_code}' \
     -H 'X-Sample-Token: local-example' \
@@ -221,10 +220,9 @@ test "${classic_failure_status}" = "500"
 grep -Eq '^\{"status":"error","code":"internal_error","operationId":"[0-9a-f-]{36}"\}$' \
     "${TEMP}/classic-failure.json"
 classic_failure_id=$(sed -E 's/.*"operationId":"([0-9a-f-]{36})".*/\1/' "${TEMP}/classic-failure.json")
-"${compose[@]}" --profile classic-mode logs --no-color http-classic >"${TEMP}/classic-failure.log"
-grep -Fq '"kind":"framework"' "${TEMP}/classic-failure.log"
-grep -Fq "\"id\":\"${classic_failure_id}\"" "${TEMP}/classic-failure.log"
-! grep -Fq 'consumer credential detail' "${TEMP}/classic-failure.log"
+grep -Fq '"kind":"framework"' "${CONSUMER}/var/log/application.jsonl"
+grep -Fq "\"id\":\"${classic_failure_id}\"" "${CONSUMER}/var/log/application.jsonl"
+! grep -Fq 'consumer credential detail' "${CONSUMER}/var/log/application.jsonl"
 echo "Correlated worker and classic failure boundary verified."
 
 test "$(git -C "${ROOT}" status --short -- examples/quickstart)" = "${SOURCE_BEFORE}"

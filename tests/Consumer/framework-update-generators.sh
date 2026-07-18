@@ -129,6 +129,10 @@ find \
     "${consumer_root}/app/Feature/Welcome" \
     "${consumer_root}/app/Feature/Report" \
     "${consumer_root}/app/Feature/Order" \
+    "${consumer_root}/app/Feature/Diagnostics" \
+    "${consumer_root}/config/diagnostics.php" \
+    "${consumer_root}/config/logging.php" \
+    "${consumer_root}/README.md" \
     "${consumer_root}/migrations/Version20260718000000.php" \
     -type f -print0 | sort -z | xargs -0 sha256sum \
     > "${temporary_root}/application-authentication.before.sha256"
@@ -208,6 +212,19 @@ grep -q 'handle(AfterUpdateValue \$value): AfterUpdateOutcome' "${after_operatio
 grep -q "return 'AfterUpdateSchema';" "${after_migration}"
 
 run_php blackops build:compile > "${temporary_root}/build.out"
+run_php blackops operation:list > "${temporary_root}/operations.out"
+grep -q 'diagnostics.failure.trigger' "${temporary_root}/operations.out"
+run_php -r '
+$operations = require "/smoke/consumer/var/build/operations.php";
+$http = require "/smoke/consumer/var/build/http.php";
+$typeFound = false;
+foreach ($operations["payload"]["operations"] ?? [] as $operation) {
+    $typeFound = $typeFound || ($operation["typeId"] ?? null) === "diagnostics.failure.trigger";
+}
+$routeFound = ($http["payload"]["routes"]["POST"]["/failures"] ?? null)
+    === "diagnostics.failure.trigger";
+exit($typeFound && $routeFound ? 0 : 1);
+'
 
 test "$(git -C "${repository_root}" status --short)" = "${source_before}"
 

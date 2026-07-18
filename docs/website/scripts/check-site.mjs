@@ -61,6 +61,16 @@ requireJourney('/getting-started/first-operation/', '/getting-started/directory-
 requireJourney('/getting-started/directory-structure/', '/getting-started/local-runtime/');
 requireJourney('/getting-started/first-operation/', '/operations/validation/');
 
+requireText(pages.get('/getting-started/quickstart/'), 'diagnostics.failure.trigger', 'Quickstart failure operation');
+requireText(pages.get('/getting-started/quickstart/'), 'operation:inspect', 'Quickstart operation inspect');
+requireText(pages.get('/getting-started/quickstart/'), 'operation:viewer', 'Quickstart local viewer');
+requireText(pages.get('/getting-started/quickstart/'), 'Docker-only Quickstartでは、Host BrowserからLocal Viewerを利用できません', 'Quickstart Docker viewer boundary');
+requireText(pages.get('/getting-started/quickstart/'), 'Application／PHP CLI／PostgreSQL／Browserが同じLocal Network Namespace', 'Quickstart native viewer boundary');
+requireText(pages.get('/reference/project-cli/'), 'operation:inspect', 'Project CLI diagnostics command');
+requireText(pages.get('/reference/configuration/'), 'application.jsonl', 'Application JSONL configuration');
+requireText(pages.get('/security/'), 'Canonical DataとSafe Diagnostics', 'Diagnostics security boundary');
+requireText(pages.get('/troubleshooting/'), 'Operation ID付き500を調べる', 'Diagnostics troubleshooting');
+
 const documentation = pages.get('/getting-started/installation/');
 for (const section of [
   'Overview',

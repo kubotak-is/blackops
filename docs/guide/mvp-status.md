@@ -1,6 +1,6 @@
 # 現在の提供状況（Current Status）
 
-BlackOpsのLatest StableはFramework／Skeleton `1.1.0`です。このWebsiteは`main` Document Channelであり、未ReleaseのPhase 12／13 Surfaceも明示して説明します。Stableとの差を次表で確認してください。
+BlackOpsのLatest StableはFramework／Skeleton `1.1.0`です。このWebsite Sourceは`main` Document Channelであり、未ReleaseのPhase 12〜14 Surfaceも明示して説明します。WebsiteはLocal／CI Buildだけで、現在は公開していません。Stableとの差を次表で確認してください。
 
 BlackOps固有のOperation、Claim、Journal、Outcome等は[用語集](glossary.md)で確認できます。
 
@@ -27,6 +27,9 @@ BlackOpsはExperimentalです。1.x Minor間のBackward CompatibilityとProducti
 | `#[Transactional]` Operation／Service | Not available | Available |
 | Nested Required／`#[AfterCommit]` | Not available | Available |
 | Long-running Connection Health Check／Reconnect | Not available | Available |
+| Operation ID Diagnostics Human／JSON CLI | Not available | Available |
+| Development Local Diagnostics Viewer | Not available | Available |
+| Configurable Application／Framework JSONL Correlation | Not available | Available |
 
 Stable Applicationを作る場合はVersionを明示します。
 
@@ -51,6 +54,9 @@ composer create-project blackops/skeleton my-app 1.1.0
 - `#[AfterCommit]` Queue、Failure Reporter、HTTP／Deferred Connection Lifecycle
 - Doctrine PostgreSQL Migration
 - Payload、Journal、Outcome、Dead LetterのRetention、Hold、Purge Audit、Scheduler
+- Operation IDからLifecycle／Attempt／Outcome Availabilityを読むSafe Human／JSON Diagnostics
+- 既定無効・Loopback限定・Token必須・Read-onlyのDevelopment Local Viewer
+- Process起動時に一度解決するApplication／Framework JSONL LoggingとOperation／Attempt／Correlation ID相関
 
 ## Known Constraints
 
@@ -62,5 +68,6 @@ composer create-project blackops/skeleton my-app 1.1.0
 - Observer Replay CLI、Admin UI、Scheduled Operation Strategyは提供しない
 - Array／Nested ObjectのHTTP Binding、宣言的DB照合、Cross-field Attribute、Custom Callbackは提供しない。`Count` Validatorは実装済みだが現行HTTP BinderからArrayを渡せない
 - Production CertificationやExperimental Public API Contractを超える互換性保証は提供しない。1.x Minor間のBackward Compatibilityも保証しない
+- DiagnosticsのPublic PHP Query API、Remote Viewer、OpenTelemetry／Metric／Collectorは提供しない
 
 これらの不在はApplication側のSecurity／Operations設計が不要であることを意味しません。Stableと`main`の差を確認し、Deployment前に必要なAdapterと運用責務を明示してください。

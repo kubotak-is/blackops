@@ -60,6 +60,11 @@ test -f "${package_root}/app/Feature/Report/GenerateReport/GenerateReport.php"
 test -f "${package_root}/app/Feature/Order/CreateOrder/CreateOrder.php"
 test -f "${package_root}/app/Feature/Order/CreateOrder/CreateOrderCommand.php"
 test -f "${package_root}/app/Feature/Order/DoctrineOrderRepository.php"
+test -f "${package_root}/app/Feature/Diagnostics/TriggerFailure/TriggerFailure.php"
+test -f "${package_root}/app/Feature/Diagnostics/TriggerFailure/TriggerFailureValue.php"
+test -f "${package_root}/app/Feature/Diagnostics/TriggerFailure/FailureTriggered.php"
+test -f "${package_root}/config/diagnostics.php"
+test -f "${package_root}/config/logging.php"
 test -f "${package_root}/migrations/Version20260718000000.php"
 test ! -e "${package_root}/.env"
 test ! -e "${package_root}/composer.lock"
@@ -115,6 +120,9 @@ test -f "${normal_project}/app/ApplicationServiceProvider.php"
 test -f "${normal_project}/app/Security/SampleUserAuthorizationPolicy.php"
 test -f "${normal_project}/app/UserInterface/Http/SampleTokenAuthenticator.php"
 test -f "${normal_project}/app/Feature/Order/CreateOrder/CreateOrder.php"
+test -f "${normal_project}/app/Feature/Diagnostics/TriggerFailure/TriggerFailure.php"
+test -f "${normal_project}/config/diagnostics.php"
+test -f "${normal_project}/config/logging.php"
 test -f "${normal_project}/migrations/Version20260718000000.php"
 test -f "${normal_project}/Caddyfile.classic"
 cmp "${normal_project}/.env.example" "${normal_project}/.env"
@@ -134,6 +142,7 @@ if (!class_exists(BlackOps\Application\Application::class)
     || !class_exists(App\Feature\Welcome\ShowWelcome\ShowWelcome::class)
     || !class_exists(App\Feature\Report\GenerateReport\GenerateReport::class)
     || !class_exists(App\Feature\Order\CreateOrder\CreateOrder::class)
+    || !class_exists(App\Feature\Diagnostics\TriggerFailure\TriggerFailure::class)
     || !class_exists(App\Feature\Order\CreateOrder\CreateOrderCommand::class)) {
     exit(1);
 }
@@ -179,6 +188,9 @@ test -f "${no_scripts_project}/app/ApplicationServiceProvider.php"
 test -f "${no_scripts_project}/app/Security/SampleUserAuthorizationPolicy.php"
 test -f "${no_scripts_project}/app/UserInterface/Http/SampleTokenAuthenticator.php"
 test -f "${no_scripts_project}/app/Feature/Order/CreateOrder/CreateOrder.php"
+test -f "${no_scripts_project}/app/Feature/Diagnostics/TriggerFailure/TriggerFailure.php"
+test -f "${no_scripts_project}/config/diagnostics.php"
+test -f "${no_scripts_project}/config/logging.php"
 test -f "${no_scripts_project}/migrations/Version20260718000000.php"
 test -f "${no_scripts_project}/Caddyfile.classic"
 test ! -e "${no_scripts_project}/var/build/operations.php"
@@ -188,7 +200,8 @@ run_php -r '
 require "/smoke/no-scripts/vendor/autoload.php";
 if (!class_exists(BlackOps\Application\Application::class)
     || !class_exists(App\Feature\Welcome\ShowWelcome\ShowWelcome::class)
-    || !class_exists(App\Feature\Order\CreateOrder\CreateOrder::class)) {
+    || !class_exists(App\Feature\Order\CreateOrder\CreateOrder::class)
+    || !class_exists(App\Feature\Diagnostics\TriggerFailure\TriggerFailure::class)) {
     exit(1);
 }
 $composer = json_decode(file_get_contents("/smoke/no-scripts/composer.json"), true, 512, JSON_THROW_ON_ERROR);

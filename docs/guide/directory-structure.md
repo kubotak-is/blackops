@@ -6,6 +6,11 @@
 app/
   ApplicationServiceProvider.php
   Feature/
+    Diagnostics/
+      TriggerFailure/
+        TriggerFailure.php
+        TriggerFailureValue.php
+        FailureTriggered.php
     Order/
       CreateOrder/
         CreateOrder.php
@@ -35,6 +40,8 @@ config/
   database.php
   execution.php
   journal.php
+  logging.php
+  diagnostics.php
   operations.php
   retention.php
 public/
@@ -50,7 +57,7 @@ composer.json
 
 ## Feature-first Source
 
-`app/Feature/<Feature>/<Action>/`がUse Caseの単位です。WelcomeやReportはDirectoryごと削除でき、Provider一覧やBootstrapを編集する必要はありません。`config/operations.php`のDiscovery Rootへ追加したOperationは次回Buildで検出されます。
+`app/Feature/<Feature>/<Action>/`がUse Caseの単位です。WelcomeやReportはDirectoryごと削除でき、Provider一覧やBootstrapを編集する必要はありません。DiagnosticsのTriggerFailureはOperation IDから失敗を追跡するLocal Exampleで、Production Featureとして必要なければDirectoryごと削除できます。`config/operations.php`のDiscovery Rootへ追加したOperationは次回Buildで検出されます。
 
 Application固有のRepository、External Service、Clock等はFeatureの内部または任意の`app/Infrastructure/`へ配置できます。Install直後のSkeletonはDatabase／Transaction例としてOrder Featureと`migrations/Version20260718000000.php`を含みます。追加Migrationは`php blackops make:migration Description`で生成してください。
 

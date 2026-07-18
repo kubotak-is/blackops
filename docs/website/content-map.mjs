@@ -42,7 +42,7 @@ export const contentMap = {
   },
   'mvp-sample.md': {
     slug: 'getting-started/quickstart',
-    description: 'Repository main PreviewでInline HTTP、Database Transaction、After Commit、Deferred Workerを確認する。',
+    description: 'Repository main PreviewでInline失敗のOperation ID調査、Local Viewer、Database、Deferred Workerを確認する。',
   },
   'operations.md': {
     slug: 'operations/authoring',
@@ -94,7 +94,7 @@ export const contentMap = {
   },
   'configuration.md': {
     slug: 'reference/configuration',
-    description: 'Application、Database、Execution、Journal、Operation、Retentionの設定責務を確認する。',
+    description: 'Application、Database、Execution、Journal、Logging、Diagnostics、Retentionの設定責務を確認する。',
   },
   'application-bootstrap.md': {
     slug: 'reference/application-bootstrap',
@@ -102,15 +102,15 @@ export const contentMap = {
   },
   'project-cli.md': {
     slug: 'reference/project-cli',
-    description: 'Project Rootのblackopsから利用できるBuild、Database、Worker、Retention Commandを確認する。',
+    description: 'Project Rootのblackopsから利用できるBuild、Worker、Operation Inspect／Viewer、Retention Commandを確認する。',
   },
   'troubleshooting.md': {
     slug: 'troubleshooting',
-    description: 'Authentication、Build、Artifact、Worker、Journal、Outcomeの問題を症状から確認して解決する。',
+    description: 'Operation ID付き500、Inspect、Local Viewer、Worker、Journalの問題を症状から解決する。',
   },
   'security.md': {
     slug: 'security',
-    description: 'Authentication、Authorization、Actor、Sensitive Projectionの責任境界を確認する。',
+    description: 'Canonical Restricted DataとHTTP・Log・CLI・Local ViewerのSafe Diagnostics境界を確認する。',
   },
   'core-api.md': {
     slug: 'reference/core-api',
@@ -122,7 +122,7 @@ export const contentMap = {
   },
   'mvp-status.md': {
     slug: 'releases/current-status',
-    description: 'main DocumentとExperimental Stable 1.1.0のMiddleware、Authorization、Database／Transaction機能差を確認する。',
+    description: 'main DocumentとExperimental Stable 1.1.0のDiagnostics、Authorization、Database／Transaction機能差を確認する。',
   },
   'glossary.md': {
     slug: 'reference/glossary',
