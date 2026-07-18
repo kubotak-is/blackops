@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-19T00:12:24+09:00
+Updated At: 2026-07-19T00:15:25+09:00
 
 ## Current Phase
 
@@ -8,17 +8,17 @@ Phase 14: Operation Diagnostics
 
 ## Current Task
 
-Task ID: P14-003-diagnostics-readers-and-query-aggregate
+Task ID: P14-004-operation-inspect-cli
 
-Task Packet: `develop/orchestration/tasks/P14-003-diagnostics-readers-and-query-aggregate.md`
+Task Packet: `develop/orchestration/tasks/P14-004-operation-inspect-cli.md`
 
-Specifications: `develop/spec/01-core-model.md`、`develop/spec/02-lifecycle-and-journal.md`、`develop/spec/03-execution.md`、`develop/spec/11-durable-journal-and-transactions.md`、`develop/spec/24-lifecycle-event-data.md`、`develop/spec/25-sensitive-projection.md`、`develop/spec/26-journal-ports.md`、`develop/spec/30-lifecycle-state-machine.md`、`develop/spec/31-deferred-claim-and-attempt.md`、`develop/spec/33-execution-transport-contract.md`、`develop/spec/35-postgresql-transport-schema.md`、`develop/spec/36-postgresql-transaction-boundaries.md`、`develop/spec/37-postgresql-table-layout.md`、`develop/spec/38-data-retention-and-deletion.md`、`develop/spec/65-operation-diagnostics.md`、`develop/spec/66-phase-14-delivery-plan.md`、`develop/decisions/097-phase-14-operation-diagnostics.md`、`develop/decisions/098-deferred-acceptance-failure-lifecycle.md`
+Specifications: `develop/spec/20-identifier-value-objects.md`、`develop/spec/21-clock-and-time.md`、`develop/spec/37-postgresql-table-layout.md`、`develop/spec/44-public-application-bootstrap-api.md`、`develop/spec/47-public-http-runtime-configuration.md`、`develop/spec/48-public-console-kernel-composition.md`、`develop/spec/65-operation-diagnostics.md`、`develop/spec/66-phase-14-delivery-plan.md`、`develop/decisions/092-project-cli-command-names.md`、`develop/decisions/097-phase-14-operation-diagnostics.md`
 
 ## Task Status
 
-Accepted
+In Progress
 
-P14-003のInternal Diagnostics Query、Immutable Safe DTO、PostgreSQL Safe Reader、Transport／Internal Adapter、Availability／Integrity Validation、単体／PostgreSQL Integration Testを実装した。Orchestrator ReviewでDeferred pre-transport Journal-only Rejected、Attempt番号1開始／連続、Tombstone単独Purged、State-only Attempt Pair、Dangling Dead Letterを修正し、実Deferred Rejectionを含む独立Target、Full PHPUnit、Mago、Deptrac、各Guardが成功したためAcceptedとした。
+P14-003をCommit／Pushした。P14-004は同じInternal Diagnostics QueryをPrefixなしCanonical `operation:inspect`へLazy接続し、Human／JSON、stdout／stderr、Exit Code、Sensitive境界を実装する。Task Packetを作成し、GPT-5.6 Luna High Workerへ引き渡す。
 
 ## Last Accepted Task
 
@@ -47,12 +47,12 @@ P14-003-diagnostics-readers-and-query-aggregate
 
 ## Known Blockers
 
-P14-003を妨げるBlockerはない。Documentation WebsiteはUser判断どおり未公開であり、本TaskのBlockerではない。
+P14-004を妨げるBlockerはない。Documentation WebsiteはUser判断どおり未公開であり、本TaskのBlockerではない。
 
 ## Required Next Action
 
-1. OrchestratorがP14-003をCommit／Pushする。
-2. P14-004 Operation Inspect CLIのTask Packetを作成する。
+1. GPT-5.6 Luna High WorkerがP14-004をTask Packetの範囲で実装・検証し、CommitせずReportを返す。
+2. OrchestratorがP14-004のLazy Composition、Human／JSON同値性、stdout／stderr、Exit Code、Sensitive境界をReviewする。
 
 ## P14-003 Diagnostics Readers and Query Aggregate Worker Verification
 
