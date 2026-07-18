@@ -12,13 +12,17 @@ use BlackOps\Internal\Console\DatabaseMigrationStatusCommand;
 use BlackOps\Internal\Console\MakeMigrationCommand;
 use BlackOps\Internal\Console\MakeOperationCommand;
 use BlackOps\Internal\Console\OperationInspectCommand;
+use BlackOps\Internal\Console\OperationViewerCommand;
 use BlackOps\Internal\Console\WorkerRunCommand;
 use BlackOps\Internal\Diagnostics\OperationDiagnosticsResult;
+use BlackOps\Internal\Diagnostics\Viewer\OperationViewerRouter;
+use BlackOps\Internal\Diagnostics\Viewer\OperationViewerTokens;
 use BlackOps\Internal\Generator\MigrationGenerator;
 use BlackOps\Internal\Generator\OperationGenerator;
 use BlackOps\Internal\Migration\DatabaseMigrationRunner;
 use Symfony\Component\Console\Command\Command;
 
+/** @mago-expect lint:too-many-methods */
 final class ApplicationConsoleCommandFactory
 {
     public function __construct(
@@ -70,6 +74,25 @@ final class ApplicationConsoleCommandFactory
             fn(OperationId $operationId): OperationDiagnosticsResult => new ApplicationDiagnosticsQueryFactory($this->configuration)
                 ->create()
                 ->find($operationId),
+        );
+    }
+
+    public function operationViewer(): Command
+    {
+        return new OperationViewerCommand(
+            fn(): ApplicationDiagnosticsViewerConfiguration => ApplicationDiagnosticsViewerConfiguration::fromConfiguration(
+                $this->configuration->configuration(),
+            ),
+            fn(
+                ApplicationDiagnosticsViewerConfiguration $configuration,
+                OperationViewerTokens $tokens,
+            ): OperationViewerRouter => new OperationViewerRouter(
+                $configuration->authority(),
+                $tokens,
+                fn(OperationId $operationId): OperationDiagnosticsResult => new ApplicationDiagnosticsQueryFactory($this->configuration)
+                    ->create()
+                    ->find($operationId),
+            ),
         );
     }
 

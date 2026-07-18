@@ -29,6 +29,18 @@ final class ApplicationDiagnosticsConsoleKernelTest extends TestCase
 
         self::assertSame(0, $kernel->run(new ArrayInput(['command' => 'list']), $list));
         self::assertStringContainsString('operation:inspect', $list->fetch());
+        $viewerList = new BufferedOutput();
+        self::assertSame(0, $kernel->run(new ArrayInput(['command' => 'list']), $viewerList));
+        $viewerListing = $viewerList->fetch();
+        self::assertStringContainsString('operation:viewer', $viewerListing);
+        self::assertStringNotContainsString('blackops:operation:viewer', $viewerListing);
+
+        $viewerHelp = new BufferedOutput();
+        self::assertSame(0, $kernel->run(new ArrayInput([
+            'command' => 'help',
+            'command_name' => 'operation:viewer',
+        ]), $viewerHelp));
+        self::assertStringContainsString('read-only local operation diagnostics viewer', $viewerHelp->fetch());
 
         $help = new BufferedOutput();
         self::assertSame(0, $kernel->run(new ArrayInput([
@@ -54,6 +66,8 @@ final class ApplicationDiagnosticsConsoleKernelTest extends TestCase
         foreach ([
             ApplicationDiagnosticsConflictingCommand::class,
             ApplicationDiagnosticsAliasConflictingCommand::class,
+            ApplicationDiagnosticsViewerConflictingCommand::class,
+            ApplicationDiagnosticsViewerAliasConflictingCommand::class,
         ] as $command) {
             try {
                 Application::configure($this->directory())->withCommands([$command])->create()->console();
@@ -94,7 +108,10 @@ final class ApplicationDiagnosticsConsoleKernelTest extends TestCase
     public function testFormerPrefixedNameIsNotReservedAndUnknownCommandRemainsUnknown(): void
     {
         $application = Application::configure($this->directory())
-            ->withCommands([ApplicationDiagnosticsFormerNameCommand::class])
+            ->withCommands([
+                ApplicationDiagnosticsFormerNameCommand::class,
+                ApplicationDiagnosticsFormerViewerNameCommand::class,
+            ])
             ->create();
         $output = new BufferedOutput();
 
@@ -102,6 +119,12 @@ final class ApplicationDiagnosticsConsoleKernelTest extends TestCase
             'command' => 'blackops:operation:inspect',
         ]), $output));
         self::assertSame("application command\n", $output->fetch());
+
+        $viewerOutput = new BufferedOutput();
+        self::assertSame(0, $application->console()->run(new ArrayInput([
+            'command' => 'blackops:operation:viewer',
+        ]), $viewerOutput));
+        self::assertSame("application viewer command\n", $viewerOutput->fetch());
 
         $this->expectException(ApplicationBootstrapException::class);
         $this->expectExceptionMessage('Command "operation:unknown" is not defined.');
@@ -141,6 +164,40 @@ final class ApplicationDiagnosticsFormerNameCommand extends Command
         \Symfony\Component\Console\Output\OutputInterface $output,
     ): int {
         $output->writeln('application command');
+
+        return Command::SUCCESS;
+    }
+}
+
+final class ApplicationDiagnosticsViewerConflictingCommand extends Command
+{
+    public function __construct()
+    {
+        parent::__construct('operation:viewer');
+    }
+}
+
+final class ApplicationDiagnosticsViewerAliasConflictingCommand extends Command
+{
+    public function __construct()
+    {
+        parent::__construct('application:viewer');
+        $this->setAliases(['operation:viewer']);
+    }
+}
+
+final class ApplicationDiagnosticsFormerViewerNameCommand extends Command
+{
+    public function __construct()
+    {
+        parent::__construct('blackops:operation:viewer');
+    }
+
+    protected function execute(
+        \Symfony\Component\Console\Input\InputInterface $input,
+        \Symfony\Component\Console\Output\OutputInterface $output,
+    ): int {
+        $output->writeln('application viewer command');
 
         return Command::SUCCESS;
     }

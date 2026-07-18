@@ -97,7 +97,7 @@ MVP後に残す主要項目:
 - [x] Error Response／Journal／`ExecutionScopedLogger`を同じOperation IDで相関可能にする
 - [x] Internal `OperationDiagnostics` Queryと`operation.unavailable` Availability境界を実装する
 - [x] `operation:inspect`のHuman／JSON／Exit Code Contractを実装する
-- [ ] `diagnostics.viewer.enabled`で既定無効のDevelopment用`operation:viewer`を実装する
+- [x] `diagnostics.viewer.enabled`で既定無効のDevelopment用`operation:viewer`を実装する
 - [ ] Production Log／Journal／Observabilityの責任境界をRegression TestとInternal Documentationへ同期する
 - [ ] Quickstart／Skeleton／Guide／Consumer E2Eを同期してPhase 14をCloseする
 

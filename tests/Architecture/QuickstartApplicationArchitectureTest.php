@@ -31,6 +31,7 @@ final class QuickstartApplicationArchitectureTest extends TestCase
             'bootstrap/app.php',
             'config/app.php',
             'config/database.php',
+            'config/diagnostics.php',
             'config/execution.php',
             'config/journal.php',
             'config/middleware.php',

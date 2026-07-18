@@ -424,10 +424,12 @@ return [
 ### HTTP Safety
 
 - GETとHEADだけを許可し、その他Methodは405とする。
+- Native ParserはRequest Line 2048 bytes、Request全Header 8192 bytes、Header 32件、Read Timeout 2秒を上限とし、Body、Chunked、Upgrade、Pipeliningを受け付けない。
 - Responseへ`Cache-Control: no-store`、`Referrer-Policy: no-referrer`、`X-Content-Type-Options: nosniff`、`X-Frame-Options: DENY`、制限的Content Security Policyを付ける。
 - Operation ID一件のLookup、Summary、Availability、Timeline、Attempt、Outcome表示だけを提供する。
 - List、全文検索、Raw表示、Retry、Replay、Cancel、Delete、Hold操作、Configuration変更を提供しない。
 - Viewer HTMLは`OperationDiagnostics`だけを受け取り、Canonical Store Objectへアクセスしない。
+- 可変文字列はHTML ContextでEscapeし、Control Characterは一行のescaped representationへ変換する。
 - Unavailableは404相当の同一画面、Storage／Decode／Integrity FailureはDetailなし500相当画面にする。
 
 Viewer Session TokenはApplication User Authenticationではない。Production Route、Remote Support UI、Tenant Accessには再利用しない。

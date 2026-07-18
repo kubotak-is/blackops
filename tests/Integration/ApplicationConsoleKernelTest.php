@@ -73,6 +73,10 @@ final class ApplicationConsoleKernelTest extends TestCase
         $connection = $this->connection();
         $connection->executeStatement('DROP SCHEMA IF EXISTS ' . self::SCHEMA . ' CASCADE');
 
+        $viewerDisabled = new BufferedOutput();
+        self::assertSame(1, $kernel->run(new ArrayInput(['command' => 'operation:viewer']), $viewerDisabled));
+        self::assertSame("viewer.disabled\n", $viewerDisabled->fetch());
+
         $operations = $this->runCommand($kernel, 'operation:list');
         self::assertStringContainsString('welcome.show', $operations);
         self::assertStringContainsString('report.generate', $operations);

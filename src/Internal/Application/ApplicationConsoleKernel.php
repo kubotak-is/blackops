@@ -12,6 +12,7 @@ use BlackOps\Internal\Console\LazyFrameworkCommand;
 use BlackOps\Internal\Console\MakeMigrationCommand;
 use BlackOps\Internal\Console\MakeOperationCommand;
 use BlackOps\Internal\Console\OperationInspectCommand;
+use BlackOps\Internal\Console\OperationViewerCommand;
 use BlackOps\Internal\Console\RetentionPlanCommand;
 use BlackOps\Internal\Console\RetentionPurgeCommand;
 use BlackOps\Internal\Console\SchedulerDaemonCommand;
@@ -42,6 +43,7 @@ final readonly class ApplicationConsoleKernel
         SchedulerRunCommand::NAME,
         SchedulerDaemonCommand::NAME,
         OperationInspectCommand::NAME,
+        OperationViewerCommand::NAME,
     ];
 
     private Application $application;
@@ -105,6 +107,12 @@ final readonly class ApplicationConsoleKernel
         };
 
         return [
+            new LazyFrameworkCommand(
+                OperationViewerCommand::NAME,
+                'Start the read-only local operation diagnostics viewer.',
+                $factory->operationViewer(...),
+                $none,
+            ),
             new LazyFrameworkCommand(
                 OperationInspectCommand::NAME,
                 'Inspect one operation lifecycle and outcome.',

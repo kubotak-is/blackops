@@ -50,6 +50,7 @@ Public Kernelは次を登録する。
 build:compile
 operation:list
 operation:inspect
+operation:viewer
 database:status
 database:migrate
 worker:run

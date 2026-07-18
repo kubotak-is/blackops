@@ -30,6 +30,7 @@ examples/quickstart/
   config/
     app.php
     database.php
+    diagnostics.php
     execution.php
     journal.php
     operations.php
@@ -47,6 +48,8 @@ examples/quickstart/
 ```
 
 `examples/mvp/` のFeatureとTest用途はQuickstartへ移し、重複するMVP Source Treeは削除する。Repository Integration TestはQuickstartのBuild-time DiscoveryとFeatureを使用する。
+
+Quickstart Localの`config/diagnostics.php`だけがDevelopment Viewerを`enabled: true`にする。Framework既定は無効のままとし、このLocal設定をProduction Enableの根拠にしない。
 
 ## Composer Boundary
 
