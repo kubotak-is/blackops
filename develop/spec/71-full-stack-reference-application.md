@@ -140,6 +140,8 @@ Initial HTTP Operationは次を基本とする。実際のType ID、Path、Value
 | Generate weekly digest | Deferred | Authenticated | Digest reference and aggregate counts |
 | Show digest | Inline | Requesting user | Stored digest detail |
 
+FeedとDetailのPaginated Summary／Comment Listは[Structured Outcome Contract](73-structured-outcome-contract.md)のReadonly DTOとTyped Listで表現し、JSON StringやFrontend生成Opt-outを使わない。
+
 Mutation Operationは`#[Transactional]`を使い、業務更新と成功Terminal Journal／Outcomeを同じApplication Connectionへ含める。RepositoryはCurrent Actorを暗黙Globalから読まず、Operation／Application Serviceから明示的なUser IDを受け取る。
 
 ## Validation

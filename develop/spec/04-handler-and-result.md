@@ -54,6 +54,8 @@ public function handle(OrderValue $value): OrderCreated
 
 Framework Invocation BoundaryはNative Outcome／Void／`OperationRejectedException` を内部 `OperationResult` へ正規化する。
 
+OutcomeはNative Scalarに加え、`OutcomeData`を実装するReadonly DTOと`#[ListOf]`で宣言したTyped ListをOutput Shapeとして持てる。Structured Shapeの詳細とUnsupported Typeは[Structured Outcome Contract](73-structured-outcome-contract.md)を正本とする。
+
 Legacy Self-handled／Separate Handlerは互換Contractとして次を使用する。
 
 - `OperationResult::completed($outcome)`：成功

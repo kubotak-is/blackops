@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-20T03:40:31+09:00
+Updated At: 2026-07-20T08:40:45+09:00
 
 ## Current Phase
 
@@ -8,17 +8,17 @@ Phase 17: Full-stack Reference Application - In Progress
 
 ## Current Task
 
-Task ID: D104-structured-outcome-contract
+Task ID: P17-004-structured-outcome-contract
 
-Task Packet: 未作成。D104回答後に作成する。
+Task Packet: `develop/orchestration/tasks/P17-004-structured-outcome-contract.md`
 
-Specifications: `develop/spec/60-post-phase-10-roadmap.md`、`develop/spec/71-full-stack-reference-application.md`、`develop/spec/72-phase-17-delivery-plan.md`
+Specifications: `develop/spec/73-structured-outcome-contract.md`、`develop/spec/67-operation-frontend-bridge.md`、`develop/spec/69-deferred-status-and-outcome-api.md`、`develop/spec/72-phase-17-delivery-plan.md`
 
 ## Task Status
 
-Awaiting User Decision
+Ready for Worker
 
-P17-004 Post／CommentをTask Packet化する前にStructured Outcome Gapを検出した。現在のFrontend Contract、PostgreSQL Outcome Codec、Generated DecoderはScalar Outcomeだけを許可し、投稿一覧の`list<PostSummary>`と投稿詳細の`list<CommentDetail>`を表現できない。JSON String／Frontend Opt-outで回避せず、D104でTyped Nested DTO／List、Output-only Scope、`#[ListOf]`、Outcome Codec Version 2互換、Delivery順を判断する。
+D104はA／A／A／D／Aで確定した。Public `OutcomeData`／`#[ListOf]`、Output-only Structured Shape、Frontend再帰Contract、PostgreSQL Outcome Codec Version 2を実装する。Version 1互換は維持せず、既存Local Dataは再作成する。P17-004 Task PacketはReadyであり、Community Board Domainへ進む前にFramework Capabilityを独立実装する。
 
 ## Last Accepted Task
 
@@ -47,16 +47,17 @@ P17-003-identity-session-and-bff-boundary
 19. D099はA／A／A／Aで確定。Built-in JSONL、限定Stream、Invalid Config Fail-fast／Runtime Failure Best-effort、Disable不可を採用する。
 20. D101はA／A／Aで確定。Path／Query／HeaderのNative Scalarを厳密Coercionし、Canonical形式と既存422 Failure Surfaceを採用する。
 21. D103はA／A／A／A／A／A／A／Aで確定。Phase 17をFull-stack Reference Applicationとし、Server-only SvelteKit BFF、Application-owned Authentication、Deferred Digest、DBAL、Taste Skill適用範囲、Reicon、Local-only Deliveryを採用する。
+22. D104はA／A／A／D／Aで確定。Outcome OutputへReadonly Nested DTO／Typed Listを追加し、`OutcomeData`／`#[ListOf]`、PostgreSQL Outcome Codec Version 2、Version 1非互換、独立P17-004を採用する。
 
 ## Known Blockers
 
-D104 Structured Outcome ContractのUser回答待ち。Documentation WebsiteはUser判断どおり未公開であり、Publication／Deployは行っていない。
+なし。Documentation WebsiteはUser判断どおり未公開であり、Publication／Deployは行わない。
 
 ## Required Next Action
 
-1. Userが`develop/decisions/104-structured-outcome-contract.md`の5問へ回答する。
-2. Orchestratorが回答をDecision／Specification／Delivery Planへ反映する。
-3. 確定順序の次Task Packetを作成し、GPT-5.6 Luna High Workerへ実装を依頼する。
+1. GPT-5.6 Luna High WorkerがP17-004 Task Packetを実装し、Report／STATEを更新する。
+2. Orchestratorが変更をReviewし、独立Quality Gateを実行する。
+3. Acceptedなら独立Commit／Pushし、P17-005 Post／Comment Task Packetへ進む。
 
 ## P17-003 Identity, Session, and BFF Boundary Worker Verification
 

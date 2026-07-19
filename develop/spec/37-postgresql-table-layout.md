@@ -65,6 +65,8 @@ outcomes
 
 Canonical JournalにもOutcomeを保持する。Outcomes TableはDeferred Outcome取得と独立Retentionのための取得用Storeとする。
 
+Outcome PayloadのCodec VersionとStructured Shapeは[Structured Outcome Contract](73-structured-outcome-contract.md)を正本とする。Public Readiness前のVersion 1 RowはMigration対象にせず、Local Databaseを再作成する。
+
 ## Dead Letters
 
 Dead Letter時もOperationsの行を移動しない。

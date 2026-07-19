@@ -75,7 +75,7 @@ OperationStatusError
 
 `OperationStatus`は不変Objectとし、Constructor／Named ConstructorでState別Invariantを強制する。Completed以外はOutcomeを持たず、Rejected以外はCategoryを持たない。Failed／Dead LetteredのCodeは上表の固定値だけを許可する。
 
-Completed OutcomeはOperation固有の`Outcome` Objectである。型なし配列、Raw JSON、`mixed`へ変換しない。値のない完了は既存`EmptyOutcome`で表す。
+Completed OutcomeはOperation固有の`Outcome` Objectである。型なし配列、Raw JSON、`mixed`へ変換しない。値のない完了は既存`EmptyOutcome`で表す。Nested DTO／Typed Listは[Structured Outcome Contract](73-structured-outcome-contract.md)と同じShapeで保存・HTTP投影・Frontend Decodeする。
 
 Query失敗はSafeなPublic Exceptionで表し、少なくとも次の安定Codeを持つ。
 

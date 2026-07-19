@@ -10,11 +10,12 @@
 P17-001 Decision, Specification, and Delivery Plan
   -> P17-002 Application and SvelteKit Foundation
     -> P17-003 Identity, Session, and BFF Boundary
-      -> P17-004 Post and Comment Operations
-        -> P17-005 Generated Operations and SvelteKit Product Journey
-          -> P17-006 Deferred Digest and Progress
-            -> P17-007 Visual, Accessibility, and Browser E2E
-              -> P17-008 Consumer, Documentation, and Closeout
+      -> P17-004 Structured Outcome Contract
+        -> P17-005 Post and Comment Operations
+          -> P17-006 Generated Operations and SvelteKit Product Journey
+            -> P17-007 Deferred Digest and Progress
+              -> P17-008 Visual, Accessibility, and Browser E2E
+                -> P17-009 Consumer, Documentation, and Closeout
 ```
 
 Taskは依存順に実装し、同一Source Treeへ並行変更しない。各TaskでReference Application自身のTarget Testを先に通し、Phase CloseoutでFramework、Quickstart、Skeleton、Websiteを含むFull Gateを実行する。
@@ -57,7 +58,20 @@ Identity、Post Domain、Digest Business Logic、Framework Production Codeは変
 
 Authentication RouteをOperationへせず、CredentialをJournal／Outcome／Generated Contractへ入れない。
 
-## P17-004: Post and Comment Operations
+## P17-004: Structured Outcome Contract
+
+- Public `OutcomeData` Markerと`#[ListOf]` Attributeを追加する
+- Outcome OutputだけにReadonly Nested DTO／Nullable DTO／Typed `list<DTO>`を追加する
+- Build時の再帰Schema、Cycle／Unsupported／Sensitive Failureを固定する
+- Frontend Manifest SchemaとGeneration Markerを更新する
+- Readonly TypeScript DTO／ReadonlyArrayとStrict Recursive Decoderを生成する
+- Inline HTTP／Deferred Status／Canonical Journalで同じStructured Shapeを使う
+- PostgreSQL Outcome Codec Version 2を実装し、Version 1を非対応にする
+- Existing Scalar／Empty OutcomeとOperationValue Bindingを回帰させない
+
+Community BoardのPost／Comment DomainとOperationValueのNested／Array Inputは実装しない。
+
+## P17-005: Post and Comment Operations
 
 - Post／Comment MigrationとApplication-owned Repositoryを実装する
 - List、Show、Create、Update、Delete PostとAdd Comment Operationを実装する
@@ -69,7 +83,7 @@ Authentication RouteをOperationへせず、CredentialをJournal／Outcome／Gen
 
 SvelteKit Product PageとDigestは実装しない。
 
-## P17-005: Generated Operations and SvelteKit Product Journey
+## P17-006: Generated Operations and SvelteKit Product Journey
 
 - Server-only DirectoryへFrontend Contractを生成する
 - Application-owned `.server.ts` WrapperでInjected Fetch、Base URL、Credentialを構成する
@@ -80,7 +94,7 @@ SvelteKit Product PageとDigestは実装しない。
 
 Framework固有Svelte Adapter、Global Client、Browser Direct Fetchを追加しない。
 
-## P17-006: Deferred Digest and Progress
+## P17-007: Deferred Digest and Progress
 
 - Digest Migration、Repository、`GenerateWeeklyDigest`、`ShowDigest`を実装する
 - Deferred Transaction、Worker再認可、Status Authorizerを接続する
@@ -93,7 +107,7 @@ Framework固有Svelte Adapter、Global Client、Browser Direct Fetchを追加し
 
 Production Business Logicへ意図的Failureを埋め込まない。
 
-## P17-007: Visual, Accessibility, and Browser E2E
+## P17-008: Visual, Accessibility, and Browser E2E
 
 - `design-taste-frontend`を使ってDesign Briefを作成する
 - 公式`reicon-svelte`をLockfileへ固定し、使用IconだけをStatic Importする
@@ -107,7 +121,7 @@ Production Business Logicへ意図的Failureを埋め込まない。
 
 Visual変更はProduct Journeyを壊さず、Taste SkillのLanding向けRuleをProduct UIへ一律適用しない。
 
-## P17-008: Consumer, Documentation, and Closeout
+## P17-009: Consumer, Documentation, and Closeout
 
 - `examples/community-board/README.md`をSetupからFull Journeyまで通す
 - `docs/guide/`へQuickstartとの差、BFF、Authentication責任、Deferred UIを同期する
@@ -135,6 +149,7 @@ Documentation WebsiteとCommunity BoardのExternal Publication／Deployは行わ
 - [x] D103とPhase 17 Specification／Delivery PlanがDecidedである
 - [x] Independent Community Board Foundationが起動する
 - [x] Server-only BFFとApplication-owned AuthenticationがCredentialを安全に扱う
+- [ ] Structured OutcomeがNested DTO／Typed ListをHTTP／Persistence／Frontendで一貫して扱う
 - [ ] Post／Comment JourneyがValidation／Authorization／Transaction付きで完走する
 - [ ] Generated Operation ObjectがSvelteKit Serverだけから使われる
 - [ ] Deferred Digestが202からStatus／Wait／Typed Outcome／表示まで完走する
@@ -147,4 +162,5 @@ Documentation WebsiteとCommunity BoardのExternal Publication／Deployは行わ
 
 - Decision: [D103 Full-stack Reference Application](../decisions/103-full-stack-reference-application.md)
 - Contract: [Full-stack Reference Application](71-full-stack-reference-application.md)
+- Structured Outcome: [Structured Outcome Contract](73-structured-outcome-contract.md)
 - Roadmap: [Post Phase 10 Roadmap](60-post-phase-10-roadmap.md)
