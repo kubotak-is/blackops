@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-20T00:32:46+09:00
+Updated At: 2026-07-20T00:36:45+09:00
 
 ## Current Phase
 
@@ -8,17 +8,17 @@ Phase 17: Full-stack Reference Application - Decision Planning
 
 ## Current Task
 
-Decision ID: D103-full-stack-reference-application
+Task ID: P17-002-application-and-sveltekit-foundation
 
-Decision: `develop/decisions/103-full-stack-reference-application.md`
+Task Packet: `develop/orchestration/tasks/P17-002-application-and-sveltekit-foundation.md`
 
 Specifications: `develop/spec/60-post-phase-10-roadmap.md`、`develop/spec/71-full-stack-reference-application.md`、`develop/spec/72-phase-17-delivery-plan.md`
 
 ## Task Status
 
-Planning Complete
+Ready
 
-D103はA／A／A／A／A／A／A／Aで確定した。認証付きコミュニティ掲示板`BlackOps Board`を独立したSvelteKit Reference ApplicationとしてPhase 17へ追加する。BlackOps通信はSvelteKit Server-only Moduleへ限定し、Application-owned Authentication EndpointをOperation／Journal外に置く。Roadmap、TODO、Full-stack Reference Application仕様、Phase 17 Delivery Planを同期した。Production Code実装はまだ開始していない。
+P17-002 Task Packetを作成した。独立Community Board Layout、Compose、SvelteKit Server-only Generated Output、Welcome OperationからSSR LandingまでのFoundationを実装対象とする。Identity、Post、Digest、Final Visual Design、Framework Production Codeは範囲外である。GPT-5.6 Luna High Workerの実装開始待ち。
 
 ## Last Accepted Task
 
@@ -54,9 +54,9 @@ P16-007-consumer-experience-and-closeout
 
 ## Required Next Action
 
-1. OrchestratorがP17-001 Planning差分をReview／Commitする。
-2. OrchestratorがP17-002 Application and SvelteKit FoundationのTask Packetを作成する。
-3. GPT-5.6 Luna High WorkerがP17-002を実装する。
+1. OrchestratorがP17-002 Task PacketをReview／Commitする。
+2. GPT-5.6 Luna High WorkerがP17-002を実装する。
+3. OrchestratorがReportと差分をReviewし、独立Verification後にCommitする。
 
 ## P16-007 Consumer Experience and Phase Closeout Worker Verification
 
