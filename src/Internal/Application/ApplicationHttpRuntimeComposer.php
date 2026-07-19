@@ -13,6 +13,7 @@ use BlackOps\Internal\Execution\DeferredAcceptanceOrchestrator;
 use BlackOps\Internal\Execution\ExecutionScopeProvider;
 use BlackOps\Internal\ExecutionContext\ExecutionContextFactory;
 use BlackOps\Internal\Http\DeferredHttpOperationAcceptor;
+use BlackOps\Internal\Http\OperationStatusAuthorizerResolver;
 use BlackOps\Internal\Identifier\IdentifierFactory;
 use BlackOps\Internal\Identifier\SymfonyUuidv7Generator;
 use BlackOps\Internal\Journal\JournalRecordFactory;
@@ -21,6 +22,8 @@ use BlackOps\Internal\Logging\RuntimeLoggingServiceInjector;
 use BlackOps\Internal\Runtime\ProductionRuntimeArtifactLoader;
 use BlackOps\Internal\Runtime\ProductionRuntimeComposer;
 use BlackOps\Internal\Runtime\ProductionRuntimeDependencies;
+use BlackOps\Internal\Status\DefaultOperationStatusQuery;
+use BlackOps\Internal\Status\PostgreSqlOperationStatusSource;
 use BlackOps\Internal\Transaction\OperationTransactionCoordinator;
 use BlackOps\Internal\Transaction\RuntimeTransactionServiceInjector;
 use BlackOps\Transport\PostgreSql\PostgreSqlCanonicalJournalStore;
@@ -82,6 +85,10 @@ final readonly class ApplicationHttpRuntimeComposer
         );
         $psr17 = $this->psr17();
         $observations = new ApplicationJournalObservationFactory()->create($configuration->configuration());
+        $statusQuery = new DefaultOperationStatusQuery(
+            new PostgreSqlOperationStatusSource($connection, $artifacts->operations, $database->schema),
+            new OperationStatusAuthorizerResolver($artifacts->container)->resolve(),
+        );
 
         $runtime = new ProductionRuntimeComposer()->composeWithDependencies(
             $artifacts,
@@ -96,6 +103,7 @@ final readonly class ApplicationHttpRuntimeComposer
                 httpMiddleware: $httpMiddleware,
                 operationTransactions: $operationTransactions,
                 executionLogger: $logger,
+                operationStatusQuery: $statusQuery,
             ),
         );
 

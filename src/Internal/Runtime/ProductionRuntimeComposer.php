@@ -7,6 +7,8 @@ namespace BlackOps\Internal\Runtime;
 use BlackOps\Http\Binding\OperationValueBinder;
 use BlackOps\Http\OperationRequestHandler;
 use BlackOps\Http\Responder\JsonOperationResponder;
+use BlackOps\Http\Status\OperationStatusJsonResponder;
+use BlackOps\Http\Status\OperationStatusRequestHandler;
 use BlackOps\Internal\Authorization\AuthorizationEvaluator;
 use BlackOps\Internal\Authorization\AuthorizationPolicyResolver;
 use BlackOps\Internal\Execution\HandlerResolver;
@@ -74,6 +76,12 @@ final readonly class ProductionRuntimeComposer
         ));
 
         $responder = new JsonOperationResponder($dependencies->responses, $dependencies->streams);
+        $status = $dependencies->operationStatusQuery === null
+            ? null
+            : new OperationStatusRequestHandler(
+                $dependencies->operationStatusQuery,
+                new OperationStatusJsonResponder($dependencies->responses, $dependencies->streams),
+            );
         $operationHandler = new OperationRequestHandler(
             $routes,
             new OperationValueBinder(),
@@ -82,6 +90,7 @@ final readonly class ProductionRuntimeComposer
             $dependencies->responses,
             $dispatcher,
             $dependencies->deferredOperationAcceptor,
+            $status,
         );
         $httpHandler = new OperationFailureErrorBoundary(
             $operationHandler,

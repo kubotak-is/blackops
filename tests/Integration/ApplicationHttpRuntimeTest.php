@@ -23,6 +23,9 @@ use BlackOps\Database\DatabaseManager;
 use BlackOps\Http\Attribute\Route;
 use BlackOps\Internal\Logging\ExecutionScopedLogger;
 use BlackOps\Internal\Migration\DatabaseMigrationRunner;
+use BlackOps\Status\OperationStatusAuthorizationDecision;
+use BlackOps\Status\OperationStatusAuthorizationRequest;
+use BlackOps\Status\OperationStatusAuthorizer;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use FilesystemIterator;
@@ -102,10 +105,14 @@ final class ApplicationHttpRuntimeTest extends TestCase
                 ->withAttribute(ActorRef::class, $actor),
         );
         self::assertSame(202, $report->getStatusCode());
+        self::assertSame('1', $report->getHeaderLine('Retry-After'));
+        self::assertSame('private, no-store', $report->getHeaderLine('Cache-Control'));
         /** @var array{status: string, operationId: string, acceptedAt: string} $acknowledgement */
         $acknowledgement = json_decode((string) $report->getBody(), associative: true, flags: JSON_THROW_ON_ERROR);
         self::assertSame('accepted', $acknowledgement['status']);
         $operationId = OperationId::fromString($acknowledgement['operationId']);
+        $location = '/operations/' . $operationId->toString();
+        self::assertSame($location, $report->getHeaderLine('Location'));
         $operation = $connection->fetchAssociative('SELECT state, next_sequence FROM '
         . self::SCHEMA
         . '.operations WHERE operation_id = :operation_id', ['operation_id' => $operationId->toString()]);
@@ -118,6 +125,71 @@ final class ApplicationHttpRuntimeTest extends TestCase
             . self::SCHEMA
             . '.journal WHERE operation_id = :operation_id', ['operation_id' => $operationId->toString()]),
         );
+
+        $status = $http->handle($psr17->createServerRequest('GET', $location)->withAttribute(ActorRef::class, $actor));
+        self::assertSame(404, $status->getStatusCode());
+        self::assertSame('application/json', $status->getHeaderLine('Content-Type'));
+        self::assertSame('private, no-store', $status->getHeaderLine('Cache-Control'));
+        self::assertSame('', $status->getHeaderLine('Retry-After'));
+        self::assertSame(
+            ['status' => 'error', 'code' => 'operation_unavailable'],
+            json_decode((string) $status->getBody(), associative: true, flags: JSON_THROW_ON_ERROR),
+        );
+    }
+
+    public function testDeferredAcknowledgementAndStatusUseCompiledAuthorizerAndPostgreSqlProjection(): void
+    {
+        $paths = $this->compileArtifacts(withAuthorizationFixture: true);
+        $connection = $this->connection();
+        $connection->executeStatement('DROP SCHEMA IF EXISTS ' . self::SCHEMA . ' CASCADE');
+        new DatabaseMigrationRunner($connection, self::SCHEMA)->migrate();
+        $http = $this->application($paths)->http();
+        $psr17 = new Psr17Factory();
+        $actor = new ActorRef('status-integration-user', 'user');
+        ApplicationRuntimeStatusAuthorizer::$request = null;
+
+        $report = $http->handle(
+            $psr17
+                ->createServerRequest('POST', '/reports')
+                ->withBody($psr17->createStream(json_encode([
+                    'reportName' => 'status-weekly',
+                    'recipientEmail' => 'status-runtime-reports@example.com',
+                ], JSON_THROW_ON_ERROR)))
+                ->withAttribute(ActorRef::class, $actor),
+        );
+
+        self::assertSame(202, $report->getStatusCode());
+        self::assertSame('1', $report->getHeaderLine('Retry-After'));
+        self::assertSame('private, no-store', $report->getHeaderLine('Cache-Control'));
+        /** @var array{status: string, operationId: string, acceptedAt: string} $acknowledgement */
+        $acknowledgement = json_decode((string) $report->getBody(), associative: true, flags: JSON_THROW_ON_ERROR);
+        self::assertSame('accepted', $acknowledgement['status']);
+        $location = '/operations/' . $acknowledgement['operationId'];
+        self::assertSame($location, $report->getHeaderLine('Location'));
+
+        $status = $http->handle($psr17->createServerRequest('GET', $location)->withAttribute(ActorRef::class, $actor));
+
+        self::assertSame(200, $status->getStatusCode());
+        self::assertSame('application/json', $status->getHeaderLine('Content-Type'));
+        self::assertSame('private, no-store', $status->getHeaderLine('Cache-Control'));
+        self::assertSame('1', $status->getHeaderLine('Retry-After'));
+        self::assertSame(
+            [
+                'schemaVersion' => 1,
+                'operationId' => $acknowledgement['operationId'],
+                'operationType' => 'report.generate',
+                'state' => 'accepted',
+            ],
+            json_decode((string) $status->getBody(), associative: true, flags: JSON_THROW_ON_ERROR),
+        );
+        $authorization = ApplicationRuntimeStatusAuthorizer::$request;
+        self::assertNotNull($authorization);
+        self::assertSame($acknowledgement['operationId'], $authorization->operationId()->toString());
+        self::assertSame('report.generate', $authorization->operationType());
+        self::assertSame($actor, $authorization->currentActor());
+        self::assertNotNull($authorization->originActor());
+        self::assertSame($actor->id(), $authorization->originActor()->id());
+        self::assertSame($actor->type(), $authorization->originActor()->type());
     }
 
     public function testCompiledPolicyReceivesAuthenticatedActorInApplicationHttpRuntime(): void
@@ -454,6 +526,19 @@ final readonly class ApplicationRuntimeServiceProvider implements ServiceProvide
     public function register(ServiceRegistry $services): void
     {
         $services->autowire(ApplicationRuntimePolicyDependency::class);
+        $services->autowire(OperationStatusAuthorizer::class, ApplicationRuntimeStatusAuthorizer::class);
+    }
+}
+
+final class ApplicationRuntimeStatusAuthorizer implements OperationStatusAuthorizer
+{
+    public static ?OperationStatusAuthorizationRequest $request = null;
+
+    public function decide(OperationStatusAuthorizationRequest $request): OperationStatusAuthorizationDecision
+    {
+        self::$request = $request;
+
+        return OperationStatusAuthorizationDecision::allow();
     }
 }
 

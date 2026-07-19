@@ -16,6 +16,7 @@ use BlackOps\Http\Binding\OperationValueBindingException;
 use BlackOps\Http\Responder\JsonOperationResponder;
 use BlackOps\Http\Routing\HttpRouteMatch;
 use BlackOps\Http\Routing\HttpRouteRegistry;
+use BlackOps\Http\Status\OperationStatusRequestHandler;
 use LogicException;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -32,10 +33,15 @@ final readonly class OperationRequestHandler implements RequestHandlerInterface
         private ResponseFactoryInterface $responses,
         private ValidationRejectionRecorder $validation,
         private ?DeferredOperationAcceptor $deferred = null,
+        private ?OperationStatusRequestHandler $status = null,
     ) {}
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
+        if ($this->status?->matches($request) === true) {
+            return $this->status->handle($request);
+        }
+
         $match = $this->routes->match($request->getMethod(), $request->getUri()->getPath());
 
         if ($match === null) {

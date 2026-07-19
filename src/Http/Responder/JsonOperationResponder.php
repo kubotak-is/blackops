@@ -12,6 +12,7 @@ use BlackOps\Core\Outcome;
 use BlackOps\Core\Rejection\RejectionCategory;
 use BlackOps\Core\Time\TimeCodec;
 use BlackOps\Core\Validation\Violation;
+use BlackOps\Http\Status\OperationStatusHttpContract;
 use JsonException;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -52,11 +53,15 @@ final readonly class JsonOperationResponder
 
     public function respondAcknowledgement(DeferredAcknowledgement $acknowledgement): ResponseInterface
     {
-        return $this->json(202, [
-            'status' => 'accepted',
-            'operationId' => $acknowledgement->operationId()->toString(),
-            'acceptedAt' => $this->time->format($acknowledgement->acceptedAt()),
-        ]);
+        return $this
+            ->json(202, [
+                'status' => 'accepted',
+                'operationId' => $acknowledgement->operationId()->toString(),
+                'acceptedAt' => $this->time->format($acknowledgement->acceptedAt()),
+            ])
+            ->withHeader('Location', '/operations/' . $acknowledgement->operationId()->toString())
+            ->withHeader('Retry-After', (string) OperationStatusHttpContract::POLLING_HINT_SECONDS)
+            ->withHeader('Cache-Control', OperationStatusHttpContract::CACHE_CONTROL);
     }
 
     public function respondProtocolError(string $code): ResponseInterface

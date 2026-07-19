@@ -23,6 +23,9 @@ use BlackOps\Internal\Execution\ExecutionScopeProvider;
 use BlackOps\Internal\Frontend\FrontendContractManifestFile;
 use BlackOps\Internal\Registry\OperationManifestFile;
 use BlackOps\Internal\Transaction\RuntimeTransactionServiceInjector;
+use BlackOps\Status\OperationStatusAuthorizationDecision;
+use BlackOps\Status\OperationStatusAuthorizationRequest;
+use BlackOps\Status\OperationStatusAuthorizer;
 use BlackOps\Tests\Fixtures\Aop\TransactionalOperation;
 use BlackOps\Tests\Fixtures\Aop\TransactionalService;
 use Doctrine\DBAL\Connection;
@@ -108,6 +111,10 @@ final class ApplicationBuildCompileCommandTest extends TestCase
             ApplicationBuildPolicyDependency::class,
             $container->get(ApplicationBuildAuthorizationPolicy::class)->dependency,
         );
+        self::assertInstanceOf(
+            ApplicationBuildStatusAuthorizer::class,
+            $container->get(OperationStatusAuthorizer::class),
+        );
         $connection = $this->transactionConnection();
         $databases = $this->createStub(DatabaseManager::class);
         $databases->method('connection')->willReturn($connection);
@@ -190,10 +197,19 @@ final readonly class ApplicationBuildServiceProvider implements ServiceProvider
     {
         $services->autowire(ApplicationBuildPolicyDependency::class);
         $services->autowire(TransactionalService::class);
+        $services->autowire(OperationStatusAuthorizer::class, ApplicationBuildStatusAuthorizer::class);
     }
 }
 
 final readonly class ApplicationBuildPolicyDependency {}
+
+final readonly class ApplicationBuildStatusAuthorizer implements OperationStatusAuthorizer
+{
+    public function decide(OperationStatusAuthorizationRequest $request): OperationStatusAuthorizationDecision
+    {
+        return OperationStatusAuthorizationDecision::allow();
+    }
+}
 
 final readonly class ApplicationBuildValue implements OperationValue {}
 

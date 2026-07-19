@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-19T20:53:15+09:00
+Updated At: 2026-07-19T21:27:09+09:00
 
 ## Current Phase
 
@@ -16,13 +16,13 @@ Specifications: `develop/spec/05-http.md`、`develop/spec/06-auth-and-middleware
 
 ## Task Status
 
-Ready
+Accepted
 
-P16-003は`de5899c`でCommit／Push済み。P16-004 Task Packetを作成し、Framework予約`GET /operations/{operationId}`、Application Status Authorizerと既定Deny、7 State JSON、200／404／410／500、Safe Header、Deferred 202の`Location`／`Retry-After`、Classic／Worker共通Compositionを実装可能な状態にした。Frontend、Quickstart、Website、SchemaはTask範囲外である。
+Orchestrator Review Correctionと独立再検証を完了し、P16-004をAcceptedとした。実`Application::http()`でDeferred受付202のLocationから、Compiled Service ProviderのAllow Authorizer、PostgreSQL Status Source、Default Queryを通るaccepted 200までをE2E検証した。未登録Authorizerのdefault-deny Safe 404、Authorizer RequestのCurrent／Origin Actor・Operation Type／IDも固定した。Status GETのBodyはQuery前に400へ拒否し、通常Application Routeの既存404優先順を維持する。Orchestrator再実行で対象265 tests／1188 assertions、全1419 tests／5529 assertionsと全品質Guardが成功した。
 
 ## Last Accepted Task
 
-P16-003-postgresql-status-projection
+P16-004-http-status-resource
 
 ## Pending Decisions
 
@@ -53,9 +53,38 @@ P16-003-postgresql-status-projection
 
 ## Required Next Action
 
-1. P16-004 Task PacketをCommit／Pushする。
-2. GPT-5.6 Luna High WorkerへP16-004を委譲する。
-3. OrchestratorがHTTP Security／Route／CompositionをReviewし、独立再検証後にCommitする。
+1. OrchestratorがP16-004をCommit／Pushする。
+2. P16-005のTask Packetを作成する。
+3. P16-005でGenerated `.status()`とTyped Outcome Decoderを実装する。
+
+## P16-004 HTTP Status Resource Worker Verification
+
+```text
+docker compose run --rm app composer validate --strict
+docker compose run --rm app composer validate --strict examples/quickstart/composer.json
+docker compose run --rm app mago format --check src tests
+docker compose run --rm app mago lint
+docker compose run --rm app mago analyze
+Result: Composer Root／Quickstart valid。Mago全成功。
+
+docker compose run --rm app vendor/bin/phpunit --display-deprecations <P16-004 actual responsibility targets>
+Result: OK (265 tests, 1188 assertions)。実Application E2Eを含む。
+
+docker compose run --rm app vendor/bin/phpunit --display-deprecations
+Result: OK (1419 tests, 5529 assertions)。
+
+docker compose run --rm app vendor/bin/deptrac
+Result: Violations 0 / Skipped 0 / Uncovered 0 / Allowed 2526 / Warnings 0 / Errors 0。
+
+Management ID／Internal PublicApi／Restricted Field／Schema DDL／git diff --check Guards
+Result: 全成功。Migration／Schema差分なし。
+```
+
+### P16-004 Worker Notes
+
+Status ResourceはApplication Global Middleware／Authenticationの内側でCurrent ActorをQueryへ渡す。ContainerのApplication Authorizer Bindingを維持し、未登録はDenyへFail-closedする。Invalid UUIDv7／Unknown／Denyは同じSafe 404、Authorized Expiredは410、Query／Encode FailureはRaw Detailなしの500になる。Completed OutcomeはPublic Instance PropertyだけをObjectへ写し、`EmptyOutcome`は`{}`になる。
+
+Task Packet記載の`tests/Internal/Application/ApplicationHttpRuntimeComposerTest.php`は実在しないため、同じ責務の実在Test群と`tests/Integration/ApplicationHttpRuntimeTest.php`へ置換して対象265 testsを実行した。実ApplicationのAllow／default-deny Composition、受付202からStatus 200、Status GET BodyのQuery前400を追加確認した。Classic／Workerは`Application::http()`の同一Compositionを使い、Entrypoint固有分岐を追加していない。詳細は`develop/orchestration/reports/P16-004-http-status-resource.md`を参照する。
 
 ## P16-003 PostgreSQL Status Projection Worker Verification
 

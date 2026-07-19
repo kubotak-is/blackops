@@ -83,6 +83,7 @@ Deferred受付の既存202 Bodyは維持し、同じResourceを指す相対`Loca
 - `tests/Internal/Runtime/ProductionRuntimeArtifactTest.php`（必要な場合だけ）
 - `tests/Internal/Application/ApplicationHttpRuntimeComposerTest.php`
 - `tests/Internal/Application/ApplicationHttpRequestHandlerTest.php`
+- `tests/Integration/ApplicationHttpRuntimeTest.php`
 - `tests/Internal/Console/CompileBuildArtifactsCommandTest.php`
 - `tests/Internal/Console/ApplicationBuildCompileCommandTest.php`
 - P16-004専用の新規`tests/Fixtures/**`

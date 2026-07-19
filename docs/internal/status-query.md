@@ -114,6 +114,43 @@ Canonical JournalはSequence 1始まりの連番、Lifecycle遷移、Operation I
 
 Unknown／DenyではPurge Auditを読まないため、存在やRetention状態を推測できない。Dead LetterのReason Message、Raw Payload、Attempt ID、`purged_by`もPublic StatusまたはSafe Exceptionへ出さない。
 
+## HTTP Resource
+
+Application RuntimeはPublic QueryをFramework予約Routeへ接続する。
+
+```text
+GET /operations/{operationId}
+```
+
+Status HandlerはOperation Handlerと同じFramework Routerの内側にあり、Global PSR-15 MiddlewareとAuthenticationを先に通る。Invalid CredentialはStatus Subjectを読む前に既存401を返す。Authenticated Actorは`currentActor`としてQueryへ渡し、Anonymous Requestは`null`を渡す。
+
+Status GETに空でないRequest Bodyがある場合は、既存HTTP Protocol境界の400をStatus Queryより先に返す。Application Routeは従来どおりRoute未一致の404をBody検査より優先する。
+
+Compiled Containerに`OperationStatusAuthorizer` BindingがあればApplication実装を使用し、なければ`DenyOperationStatusAuthorizer`へFail-closedする。取得したServiceがContractを満たさない場合はRuntime Compositionを安全に失敗させる。FrameworkはApplication Bindingを上書きしない。
+
+| Query／Request | HTTP | Body |
+| --- | --- | --- |
+| Found | 200 | Schema Version 1のState Resource |
+| Invalid ID／Unknown／Deny | 404 | `{"status":"error","code":"operation_unavailable"}` |
+| Allow後のExpired | 410 | `{"status":"error","code":"operation_expired"}` |
+| Query／Encode Failure | 500 | `{"status":"error","code":"internal_error"}` |
+
+200／404／410／500は`Content-Type: application/json`と`Cache-Control: private, no-store`を持つ。`accepted`、`running`、`retry_scheduled`の200だけ`Retry-After: 1`を持つ。Terminal ResponseとError ResponseにPolling Hintを付けない。
+
+Found Bodyの共通Fieldは`schemaVersion`、`operationId`、`operationType`、`state`である。State別に`attempt`、UTC Microsecondsの`retryAt`、Public Propertyだけの`outcome`、Safe `error`を追加する。`EmptyOutcome`は`{}`になる。Actor、Attempt ID、Correlation／Causation ID、Journal、Exceptionを追加しない。
+
+Deferred受付202は既存Bodyを変えず、次のHeaderを付ける。
+
+```text
+Location: /operations/{operationId}
+Retry-After: 1
+Cache-Control: private, no-store
+```
+
+Polling Hintは202とStatus Resourceで同じ内部定数を使用する。Classic EntrypointとFrankenPHP Worker Modeはどちらも`Application::http()`が構成した同一Handler Graphを使用し、Entrypoint固有のStatus分岐を持たない。
+
+ApplicationのGET Routeが`/operations/{operationId}`と同じ二Segmentを使用する場合、Build時に予約Route Collisionとして拒否する。Parameter名が異なるDynamic RouteとStatic Segmentも同様である。GET以外またはSegment数が異なるRouteは既存規則を維持する。
+
 ## Adapter Rules
 
 - `findSubject()`は認可前に呼ばれるため、最小Subject以外をSELECT／Decodeしない

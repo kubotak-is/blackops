@@ -53,6 +53,7 @@ use Doctrine\DBAL\DriverManager;
 use InvalidArgumentException;
 use LogicException;
 use Nyholm\Psr7\Factory\Psr17Factory;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
 use Psr\Container\ContainerInterface;
@@ -244,6 +245,15 @@ final class OperationRequestHandlerTest extends TestCase
         self::assertSame(404, $response->getStatusCode());
     }
 
+    public function testUnknownGetRouteWithBodyKeepsNotFoundPrecedence(): void
+    {
+        $handler = $this->httpHandler(new FailingDispatcher());
+
+        $response = $handler->handle($this->request('GET', '/missing', 'body'));
+
+        self::assertSame(404, $response->getStatusCode());
+    }
+
     public function testMethodNotAllowedReturnsNotFound(): void
     {
         $handler = $this->httpHandler(new FailingDispatcher());
@@ -334,6 +344,42 @@ final class OperationRequestHandlerTest extends TestCase
             new PathWelcomeOperation(),
             new ConflictingWelcomeOperation(),
         ]);
+    }
+
+    /** @param class-string<Operation> $definition */
+    #[DataProvider('reservedStatusRouteDefinitions')]
+    public function testRouteCompilerRejectsReservedOperationStatusCollisions(string $definition): void
+    {
+        $registry = new OperationRegistry([$this->pathMetadata('status.route.collision', $definition)]);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('framework reserved resource');
+
+        new HttpRouteCompiler($registry)->compileManifest([$definition]);
+    }
+
+    /** @return iterable<string, array{class-string<Operation>}> */
+    public static function reservedStatusRouteDefinitions(): iterable
+    {
+        yield 'canonical parameter' => [ReservedCanonicalStatusOperation::class];
+        yield 'renamed parameter' => [ReservedRenamedStatusOperation::class];
+        yield 'static segment' => [ReservedStaticStatusOperation::class];
+    }
+
+    public function testRouteCompilerKeepsNonConflictingMethodsAndSegmentCounts(): void
+    {
+        $registry = new OperationRegistry([
+            $this->pathMetadata('status.route.post', NonConflictingStatusPostOperation::class),
+            $this->pathMetadata('status.route.nested', NonConflictingNestedStatusOperation::class),
+        ]);
+
+        $manifest = new HttpRouteCompiler($registry)->compileManifest([
+            NonConflictingStatusPostOperation::class,
+            NonConflictingNestedStatusOperation::class,
+        ]);
+
+        self::assertSame('status.route.post', $manifest->routes['POST']['/operations/{operationId}']);
+        self::assertSame('status.route.nested', $manifest->routes['GET']['/operations/{operationId}/outcome']);
     }
 
     public function testBindingAttributesReadPathQueryHeaderAndBody(): void
@@ -507,6 +553,21 @@ final readonly class DuplicateWelcomeOperation implements Operation {}
 
 #[Route(method: 'GET', path: '/duplicate')]
 final readonly class SecondDuplicateWelcomeOperation implements Operation {}
+
+#[Route(method: 'GET', path: '/operations/{operationId}')]
+final readonly class ReservedCanonicalStatusOperation implements Operation {}
+
+#[Route(method: 'GET', path: '/operations/{id}')]
+final readonly class ReservedRenamedStatusOperation implements Operation {}
+
+#[Route(method: 'GET', path: '/operations/example')]
+final readonly class ReservedStaticStatusOperation implements Operation {}
+
+#[Route(method: 'POST', path: '/operations/{operationId}')]
+final readonly class NonConflictingStatusPostOperation implements Operation {}
+
+#[Route(method: 'GET', path: '/operations/{operationId}/outcome')]
+final readonly class NonConflictingNestedStatusOperation implements Operation {}
 
 #[Route(method: 'GET', path: '/required')]
 final readonly class RequiredWelcomeOperation implements Operation, OperationHandler

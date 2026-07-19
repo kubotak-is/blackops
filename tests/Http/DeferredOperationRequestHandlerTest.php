@@ -87,6 +87,9 @@ final class DeferredOperationRequestHandlerTest extends TestCase
 
         self::assertSame(202, $response->getStatusCode());
         self::assertSame('application/json', $response->getHeaderLine('Content-Type'));
+        self::assertSame('/operations/' . self::OPERATION_ID, $response->getHeaderLine('Location'));
+        self::assertSame('1', $response->getHeaderLine('Retry-After'));
+        self::assertSame('private, no-store', $response->getHeaderLine('Cache-Control'));
         self::assertSame(
             '{"status":"accepted","operationId":"'
             . self::OPERATION_ID

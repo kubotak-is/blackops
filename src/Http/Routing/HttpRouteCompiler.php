@@ -48,6 +48,10 @@ final readonly class HttpRouteCompiler
             $route = $this->route($definitionClass);
 
             if ($route !== null) {
+                if ($this->collidesWithOperationStatus($route)) {
+                    throw new InvalidArgumentException('HTTP route conflicts with a framework reserved resource.');
+                }
+
                 if (
                     array_key_exists($route->method, $routes) && array_key_exists($route->path, $routes[$route->method])
                 ) {
@@ -83,5 +87,10 @@ final readonly class HttpRouteCompiler
         }
 
         return $attributes[0]->newInstance();
+    }
+
+    private function collidesWithOperationStatus(Route $route): bool
+    {
+        return $route->method === 'GET' && preg_match('#^/operations/[^/]+$#', $route->path) === 1;
     }
 }

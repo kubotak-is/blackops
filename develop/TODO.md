@@ -117,7 +117,7 @@ MVP後に残す主要項目:
 - [x] Status／Outcome ContractとPhase 16 Delivery Planを仕様化する
 - [x] Public PHP Status QueryとFail-closed専用Query Authorizerを実装する
 - [x] PostgreSQL Status ProjectionとRetention境界を実装する
-- [ ] `GET /operations/{operationId}`とDeferred 202の`Location`／`Retry-After`を実装する
+- [x] `GET /operations/{operationId}`とDeferred 202の`Location`／`Retry-After`を実装する
 - [ ] Generated `.status()`とTyped Outcome Decoderを実装する
 - [ ] Abort可能で有限なGenerated `.wait()`とFrontend CIを実装する
 - [ ] Quickstart／Skeleton／Guide／Website Source／Consumer E2Eを同期してPhase 16をCloseする

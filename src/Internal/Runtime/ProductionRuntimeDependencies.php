@@ -10,6 +10,7 @@ use BlackOps\Internal\Journal\JournalObservationPipeline;
 use BlackOps\Internal\Logging\ExecutionScopedLogger;
 use BlackOps\Internal\Transaction\OperationTransactionCoordinator;
 use BlackOps\Journal\CanonicalJournalWriter;
+use BlackOps\Status\OperationStatusQuery;
 use Psr\Clock\ClockInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\StreamFactoryInterface;
@@ -33,5 +34,6 @@ final readonly class ProductionRuntimeDependencies
         public array $httpMiddleware = [],
         public ?OperationTransactionCoordinator $operationTransactions = null,
         public ?ExecutionScopedLogger $executionLogger = null,
+        public ?OperationStatusQuery $operationStatusQuery = null,
     ) {}
 }

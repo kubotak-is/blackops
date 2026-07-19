@@ -21,6 +21,9 @@ use BlackOps\Core\OperationResult;
 use BlackOps\Core\OperationValue;
 use BlackOps\Core\Registry\OperationMetadata;
 use BlackOps\Core\Registry\OperationRegistry;
+use BlackOps\Http\Authentication\AuthenticationMiddleware;
+use BlackOps\Http\Authentication\AuthenticationResult;
+use BlackOps\Http\Authentication\HttpAuthenticator;
 use BlackOps\Http\Routing\FastRouteDispatcherDataCompiler;
 use BlackOps\Http\Routing\HttpOperationManifest;
 use BlackOps\Internal\Execution\ExecutionScopeProvider;
@@ -38,6 +41,11 @@ use BlackOps\Journal\CanonicalJournalWriter;
 use BlackOps\Journal\JournalEvent;
 use BlackOps\Journal\JournalRecord;
 use BlackOps\Logging\JsonlJournalObserver;
+use BlackOps\Status\OperationStatus;
+use BlackOps\Status\OperationStatusFound;
+use BlackOps\Status\OperationStatusQuery;
+use BlackOps\Status\OperationStatusResult;
+use BlackOps\Status\OperationStatusUnavailable;
 use DateTimeImmutable;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use PHPUnit\Framework\TestCase;
@@ -295,6 +303,99 @@ final class ProductionRuntimeComposerTest extends TestCase
         self::assertSame('ready', $response->getHeaderLine('X-Runtime-Middleware'));
     }
 
+    public function testStatusResourceRunsInsideGlobalMiddlewareAndAuthentication(): void
+    {
+        $actor = new ActorRef('status-user', 'user');
+        $query = new RuntimeStatusQuery(new OperationStatusFound(OperationStatus::accepted(
+            \BlackOps\Core\Identifier\OperationId::fromString('019f32ab-2be0-7b38-a0a7-1ab2f9687697'),
+            'runtime.composition',
+        )));
+        $psr17 = new Psr17Factory();
+        $runtime = new ProductionRuntimeComposer()->composeWithDependencies(
+            $this->artifacts(),
+            new ProductionRuntimeDependencies(
+                new RuntimeCompositionClock(),
+                new RuntimeCompositionJournalWriter(),
+                $psr17,
+                $psr17,
+                httpMiddleware: [
+                    new RuntimeHeaderMiddleware(),
+                    new AuthenticationMiddleware(
+                        new RuntimeHttpAuthenticator(AuthenticationResult::authenticated($actor)),
+                        $psr17,
+                        $psr17,
+                    ),
+                ],
+                operationStatusQuery: $query,
+            ),
+        );
+
+        $response = $runtime->httpHandler->handle($psr17->createServerRequest(
+            'GET',
+            '/operations/019f32ab-2be0-7b38-a0a7-1ab2f9687697',
+        ));
+
+        self::assertSame(200, $response->getStatusCode());
+        self::assertSame('ready', $response->getHeaderLine('X-Runtime-Middleware'));
+        self::assertSame($actor, $query->actor);
+        self::assertSame(1, $query->calls);
+    }
+
+    public function testInvalidCredentialReturnsExistingUnauthorizedResponseBeforeStatusQuery(): void
+    {
+        $query = new RuntimeStatusQuery(new OperationStatusUnavailable());
+        $psr17 = new Psr17Factory();
+        $runtime = new ProductionRuntimeComposer()->composeWithDependencies(
+            $this->artifacts(),
+            new ProductionRuntimeDependencies(
+                new RuntimeCompositionClock(),
+                new RuntimeCompositionJournalWriter(),
+                $psr17,
+                $psr17,
+                httpMiddleware: [new AuthenticationMiddleware(
+                    new RuntimeHttpAuthenticator(AuthenticationResult::invalid('authentication.invalid')),
+                    $psr17,
+                    $psr17,
+                )],
+                operationStatusQuery: $query,
+            ),
+        );
+
+        $response = $runtime->httpHandler->handle($psr17->createServerRequest(
+            'GET',
+            '/operations/019f32ab-2be0-7b38-a0a7-1ab2f9687697',
+        ));
+
+        self::assertSame(401, $response->getStatusCode());
+        self::assertSame(0, $query->calls);
+        self::assertStringContainsString('authentication.invalid', (string) $response->getBody());
+    }
+
+    public function testStatusGetWithBodyReturnsProtocolErrorBeforeStatusQuery(): void
+    {
+        $query = new RuntimeStatusQuery(new OperationStatusUnavailable());
+        $psr17 = new Psr17Factory();
+        $runtime = new ProductionRuntimeComposer()->composeWithDependencies(
+            $this->artifacts(),
+            new ProductionRuntimeDependencies(
+                new RuntimeCompositionClock(),
+                new RuntimeCompositionJournalWriter(),
+                $psr17,
+                $psr17,
+                operationStatusQuery: $query,
+            ),
+        );
+
+        $response = $runtime->httpHandler->handle(
+            $psr17
+                ->createServerRequest('GET', '/operations/019f32ab-2be0-7b38-a0a7-1ab2f9687697')
+                ->withBody($psr17->createStream('body')),
+        );
+
+        self::assertSame(400, $response->getStatusCode());
+        self::assertSame(0, $query->calls);
+    }
+
     public function testConnectsCompiledAuthorizationPolicyAndHttpActorToInlineRuntime(): void
     {
         $policy = new RuntimeCompositionAuthorizationPolicy();
@@ -531,5 +632,37 @@ final readonly class RuntimeHeaderMiddleware implements MiddlewareInterface
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         return $handler->handle($request)->withHeader('X-Runtime-Middleware', 'ready');
+    }
+}
+
+final class RuntimeStatusQuery implements OperationStatusQuery
+{
+    public int $calls = 0;
+    public ?ActorRef $actor = null;
+
+    public function __construct(
+        private readonly OperationStatusResult $result,
+    ) {}
+
+    public function find(
+        \BlackOps\Core\Identifier\OperationId $operationId,
+        ?ActorRef $currentActor = null,
+    ): OperationStatusResult {
+        ++$this->calls;
+        $this->actor = $currentActor;
+
+        return $this->result;
+    }
+}
+
+final readonly class RuntimeHttpAuthenticator implements HttpAuthenticator
+{
+    public function __construct(
+        private AuthenticationResult $result,
+    ) {}
+
+    public function authenticate(ServerRequestInterface $request): AuthenticationResult
+    {
+        return $this->result;
     }
 }
