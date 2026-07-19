@@ -313,16 +313,16 @@ Actor ID、Origin Actor、Authorization Actor、Execution Actor、Correlation ID
 
 ## Acceptance Criteria
 
-- Public PHP Queryが7 State、Typed Outcome、Safe Error、Unavailable、Expiredを表現できる
-- 未登録／Deny AuthorizerがFail-closedになり、認可後だけDetailを読む
-- Inline／DeferredのSource Authorityと不整合FailureがTestで固定される
-- `GET /operations/{operationId}`が200／404／410／500とSafe Header／Bodyを実装する
-- Deferred 202が`Location`／`Retry-After`を返す
-- Generated `.status()`がOperation TypeとTyped Outcomeを検証する
-- Generated `.wait()`がAbort可能、有限、Retry-After準拠で、任意Errorを無制限Retryしない
-- Quickstart／Skeleton／Framework Update／Real HTTP Consumer E2Eが同期する
-- Public ResourceとGenerated ResultへSensitive／Canonical／Credential／Raw Errorが露出しない
-- Full PHP／Frontend／Consumer／Website Quality Gateが成功する
+- [x] Public PHP Queryが7 State、Typed Outcome、Safe Error、Unavailable、Expiredを表現できる
+- [x] 未登録／Deny AuthorizerがFail-closedになり、認可後だけDetailを読む
+- [x] Inline／DeferredのSource Authorityと不整合FailureがTestで固定される
+- [x] `GET /operations/{operationId}`が200／404／410／500とSafe Header／Bodyを実装する
+- [x] Deferred 202が`Location`／`Retry-After`を返す
+- [x] Generated `.status()`がOperation TypeとTyped Outcomeを検証する
+- [x] Generated `.wait()`がAbort可能、有限、Retry-After準拠で、任意Errorを無制限Retryしない
+- [x] Quickstart／Skeleton／Framework Update／Real HTTP Consumer E2Eが同期する
+- [x] Public ResourceとGenerated ResultへSensitive／Canonical／Credential／Raw Errorが露出しない
+- [x] Full PHP／Frontend／Consumer／Website Quality Gateが成功する
 
 ## Traceability
 

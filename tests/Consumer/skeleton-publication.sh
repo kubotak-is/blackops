@@ -76,10 +76,11 @@ for required_path in composer.json README.md bin/setup blackops bootstrap/app.ph
     app/Feature/Diagnostics/TriggerFailure/TriggerFailure.php \
     app/Feature/Diagnostics/TriggerFailure/TriggerFailureValue.php \
     app/Feature/Diagnostics/TriggerFailure/FailureTriggered.php \
+    app/Security/SampleOperationStatusAuthorizer.php \
     config/diagnostics.php config/frontend.php config/logging.php \
     migrations/Version20260718000000.php package.json pnpm-lock.yaml \
     resources/js/application/operations.ts tsconfig.json tsconfig.runtime.json \
-    tests/Frontend/typecheck.ts tests/Frontend/real-http.ts \
+    tests/Frontend/typecheck.ts tests/Frontend/real-http.ts tests/Frontend/wait-signal.ts \
     tests/Frontend/write-runtime-package.mjs tests/Frontend/clean.mjs; do
     test -f "${distribution_root}/${required_path}" \
         || fail "required distribution path is missing: ${required_path}"

@@ -127,12 +127,17 @@ final class ApplicationHttpRuntimeTest extends TestCase
         );
 
         $status = $http->handle($psr17->createServerRequest('GET', $location)->withAttribute(ActorRef::class, $actor));
-        self::assertSame(404, $status->getStatusCode());
+        self::assertSame(200, $status->getStatusCode());
         self::assertSame('application/json', $status->getHeaderLine('Content-Type'));
         self::assertSame('private, no-store', $status->getHeaderLine('Cache-Control'));
-        self::assertSame('', $status->getHeaderLine('Retry-After'));
+        self::assertSame('1', $status->getHeaderLine('Retry-After'));
         self::assertSame(
-            ['status' => 'error', 'code' => 'operation_unavailable'],
+            [
+                'schemaVersion' => 1,
+                'operationId' => $operationId->toString(),
+                'operationType' => 'report.generate',
+                'state' => 'accepted',
+            ],
             json_decode((string) $status->getBody(), associative: true, flags: JSON_THROW_ON_ERROR),
         );
     }

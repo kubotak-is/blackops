@@ -46,6 +46,7 @@ frontend_owned_files=(
     resources/js/application/operations.ts
     tests/Frontend/typecheck.ts
     tests/Frontend/real-http.ts
+    tests/Frontend/wait-signal.ts
     tests/Frontend/write-runtime-package.mjs
     tests/Frontend/clean.mjs
 )
@@ -61,10 +62,13 @@ test -f "${package_root}/bootstrap/app.php"
 test -f "${package_root}/config/middleware.php"
 test -f "${package_root}/app/ApplicationServiceProvider.php"
 test -f "${package_root}/app/Security/SampleUserAuthorizationPolicy.php"
+test -f "${package_root}/app/Security/SampleOperationStatusAuthorizer.php"
 test -f "${package_root}/app/UserInterface/Http/SampleTokenAuthenticator.php"
 grep -q 'SAMPLE_API_TOKEN=local-example' "${package_root}/.env.example"
 grep -q 'AuthenticationMiddleware::class' "${package_root}/config/middleware.php"
 grep -q 'ApplicationServiceProvider::class' "${package_root}/config/app.php"
+grep -q 'OperationStatusAuthorizer::class, SampleOperationStatusAuthorizer::class' \
+    "${package_root}/app/ApplicationServiceProvider.php"
 ! grep -R -q 'sampleToken\|apiToken' "${package_root}/app"
 test -f "${package_root}/Caddyfile"
 test -f "${package_root}/Caddyfile.classic"
@@ -137,6 +141,8 @@ test -f "${normal_project}/vendor/blackops/framework/src/Application/Application
 test -f "${normal_project}/config/middleware.php"
 test -f "${normal_project}/app/ApplicationServiceProvider.php"
 test -f "${normal_project}/app/Security/SampleUserAuthorizationPolicy.php"
+cmp "${package_root}/app/Security/SampleOperationStatusAuthorizer.php" \
+    "${normal_project}/app/Security/SampleOperationStatusAuthorizer.php"
 test -f "${normal_project}/app/UserInterface/Http/SampleTokenAuthenticator.php"
 test -f "${normal_project}/app/Feature/Order/CreateOrder/CreateOrder.php"
 test -f "${normal_project}/app/Feature/Diagnostics/TriggerFailure/TriggerFailure.php"
@@ -211,6 +217,8 @@ test -f "${no_scripts_project}/vendor/blackops/framework/src/Application/Applica
 test -f "${no_scripts_project}/config/middleware.php"
 test -f "${no_scripts_project}/app/ApplicationServiceProvider.php"
 test -f "${no_scripts_project}/app/Security/SampleUserAuthorizationPolicy.php"
+cmp "${package_root}/app/Security/SampleOperationStatusAuthorizer.php" \
+    "${no_scripts_project}/app/Security/SampleOperationStatusAuthorizer.php"
 test -f "${no_scripts_project}/app/UserInterface/Http/SampleTokenAuthenticator.php"
 test -f "${no_scripts_project}/app/Feature/Order/CreateOrder/CreateOrder.php"
 test -f "${no_scripts_project}/app/Feature/Diagnostics/TriggerFailure/TriggerFailure.php"

@@ -129,6 +129,9 @@ Value型とOutcome型は`handle()` Signatureから推論されます。`Accepts`
 ```bash
 docker compose run --rm app composer dump-autoload
 docker compose run --rm app php blackops build:compile
+docker compose run --rm app php blackops frontend:generate
+docker compose run --rm app php blackops frontend:check
+pnpm test
 docker compose up -d
 ```
 
@@ -152,6 +155,18 @@ curl -sS -X POST -H 'Content-Type: application/json' \
 ```
 
 HTTP 202はDurable受付の結果です。HandlerはHTTP Process内でまだ実行されません。`operationId`と`acceptedAt`は実行ごとに変わります。
+
+同じOperation IDをPublic Status Resourceへ渡すと、Worker未起動中の`accepted`を確認できます。
+
+```bash
+OPERATION_ID='019f32ab-2be0-7b38-a0a7-1ab2f9687697'
+curl -sS -H 'X-Sample-Token: local-example' \
+  "http://127.0.0.1:8080/operations/${OPERATION_ID}"
+```
+
+```json
+{"schemaVersion":1,"operationId":"019f32ab-2be0-7b38-a0a7-1ab2f9687697","operationType":"billing.invoice.create","state":"accepted"}
+```
 
 不正なEmailを送るとHTTP 422になり、HandlerもDeferred受付も実行されません。
 
@@ -191,72 +206,53 @@ grep "$VALIDATION_OPERATION_ID" var/log/journal.jsonl \
 {"schemaVersion":1,"kind":"journal","event":"operation.rejected","occurredAt":"2026-07-14T01:24:45.679012Z","sequence":2,"operation":{"id":"019f32ab-2be0-7b38-a0a7-1ab2f9687698","type":"billing.invoice.create","schemaVersion":1,"strategy":"deferred","correlationId":"019f32ab-2be0-7b38-a0a7-1ab2f9687698","causationId":null,"actors":{"origin":{"id":"[masked]","type":"user"},"authorization":{"id":"[masked]","type":"user"},"execution":{"id":"[masked]","type":"user"}}},"attempt":null,"data":{"reason":{"category":"validation","code":"validation.failed","violations":[{"field":"email","rule":"email","code":"validation.email"}]}}}
 ```
 
-Valid Deferred Operationの受理、Attempt、完了はCanonical PostgreSQL Journalが正本です。現行`ApplicationWorkerComposer`はWorker EventをHTTP ProcessのJSONL Observerへ転送しません。したがって`var/log/journal.jsonl`で`operation.completed`を待たず、202 ResponseのOperation IDでCanonical Journalを照会します。
+Worker完了後は、同じPublic Status ResourceからTyped Outcomeを取得できます。
 
 ```bash
-OPERATION_ID='019f32ab-2be0-7b38-a0a7-1ab2f9687697'
-docker compose exec -T postgres psql -U blackops -d blackops -Atc "
-SELECT sequence || '|' || event || '|' ||
-       (convert_from(encoded_record, 'UTF8')::jsonb #>> '{operation,actors,authorization,id}') || '|' ||
-       (convert_from(encoded_record, 'UTF8')::jsonb #>> '{operation,actors,execution,id}')
-FROM blackops.journal
-WHERE operation_id = '${OPERATION_ID}'::uuid
-ORDER BY sequence;
-"
-```
-
-```text
-1|operation.received|quickstart-user|quickstart-user
-2|operation.accepted|quickstart-user|quickstart-user
-3|attempt.started|quickstart-user|quickstart-worker-1
-4|attempt.succeeded|quickstart-user|quickstart-worker-1
-5|operation.completed|quickstart-user|quickstart-worker-1
-```
-
-Canonical Journalは監査と再現のためActor IDとRaw Valueを保持します。Database暗号化、Access Control、RetentionはApplication／運用の責務です。
-
-### Outcomeを読む
-
-現行RuntimeはOutcome用HTTP endpointやCLI Commandを提供しません。ApplicationがController、CLI Command等の入口を実装し、Public `OutcomeReader`へ同じOperation IDを渡します。
-
-```php
-use App\Feature\Billing\CreateInvoice\CreateInvoiceOutcome;
-use BlackOps\Core\Identifier\OperationId;
-use BlackOps\Outcome\OutcomeReader;
-use RuntimeException;
-
-function invoiceOutcome(OutcomeReader $outcomes, string $operationId): array
-{
-    $record = $outcomes->find(OperationId::fromString($operationId));
-
-    if ($record === null) {
-        return ['status' => 'pending_or_unavailable', 'operationId' => $operationId];
-    }
-
-    $outcome = $record->outcome();
-
-    if (!$outcome instanceof CreateInvoiceOutcome) {
-        throw new RuntimeException('The stored outcome type does not match billing.invoice.create.');
-    }
-
-    return [
-        'status' => 'completed',
-        'operationId' => $record->operationId()->toString(),
-        'completedAt' => $record->completedAt()->format('Y-m-d\\TH:i:s.u\\Z'),
-        'outcome' => [
-            'invoiceId' => $outcome->invoiceId,
-            'customerName' => $outcome->customerName,
-            'quantity' => $outcome->quantity,
-        ],
-    ];
-}
+curl -sS -H 'X-Sample-Token: local-example' \
+  "http://127.0.0.1:8080/operations/${OPERATION_ID}"
 ```
 
 ```json
-{"status":"completed","operationId":"019f32ab-2be0-7b38-a0a7-1ab2f9687697","completedAt":"2026-07-14T01:23:47.123456Z","outcome":{"invoiceId":"019f32ab-2be0-7b38-a0a7-1ab2f9687697","customerName":"Acme","quantity":2}}
+{"schemaVersion":1,"operationId":"019f32ab-2be0-7b38-a0a7-1ab2f9687697","operationType":"billing.invoice.create","state":"completed","outcome":{"invoiceId":"019f32ab-2be0-7b38-a0a7-1ab2f9687697","customerName":"Acme","quantity":2}}
 ```
 
-`find()`が`null`を返すだけではPending、未知のID、失敗、保持期限切れを区別できません。Application Status Viewは[Outcome Retrieval](outcome-retrieval.md)で設計します。
+Frontendでは生成したOperation Objectから同じ経路を型付きで使います。`.fetch()`は受付だけ、`.status()`は一回だけ取得し、`.wait()`はAbort可能な有限待機です。
+
+```ts
+import { CreateInvoice } from './resources/js/blackops/operations/billing/invoice/create-invoice';
+
+const options = {
+  baseUrl: 'http://127.0.0.1:8080',
+  headers: { 'X-Sample-Token': 'local-example' },
+};
+const accepted = await CreateInvoice.fetch({
+  customerName: 'Acme',
+  email: 'billing@example.com',
+  quantity: 2,
+  billingReference: 'PO-2026-001',
+}, options);
+
+if (accepted.ok && accepted.kind === 'accepted') {
+  const current = await CreateInvoice.status(accepted.data.operationId, options);
+  const controller = new AbortController();
+  const terminal = await CreateInvoice.wait(accepted.data.operationId, {
+    ...options,
+    signal: controller.signal,
+    maxWaitMilliseconds: 15_000,
+  });
+
+  if (terminal.ok && terminal.kind === 'completed') {
+    terminal.data.outcome.invoiceId;
+    terminal.data.outcome.customerName;
+    terminal.data.outcome.quantity;
+  }
+
+  void current;
+}
+```
+
+Canonical PostgreSQL Journalは監査と再現の正本としてActor IDとRaw Valueを保持します。Database暗号化、Access Control、RetentionはApplication／運用の責務です。PHP AdapterからOutcomeだけを読む低Level ContractはPublic `OutcomeReader`です。Pending、Terminal、Expiredを区別するときは[Outcome Retrieval](outcome-retrieval.md)のStatus Queryを主経路にしてください。
 
 作業後はRuntimeを停止します。
 

@@ -89,6 +89,8 @@ The installed Quickstart owns the same frontend boundary without making Node.js 
 
 `tests/Consumer/quickstart-e2e.sh` copies that source to an isolated consumer and executes the canonical chain against the real Worker Mode HTTP runtime. The application-owned TypeScript test imports the generated Welcome, Report, Order, and Diagnostics objects, verifies `.url()`, `.toRequest()`, readonly metadata, and all supported result families, and keeps tokens, sensitive values, and raw diagnostic bodies out of generated artifacts, typed results, and observed logs. Skeleton creation, publication, and framework-update regressions compare the committed frontend files byte-for-byte so framework upgrades do not replace application-owned code.
 
+The Quickstart binds an application-owned status authorizer that allows only matching authenticated current and persisted origin actors. Its real HTTP journey verifies deferred 202, one-shot accepted status, retry-scheduled state after the first worker attempt, typed completion after the second attempt, a finite poll timeout for an unprocessed operation, safe 401/404 handling, cache and retry headers, and non-disclosure of credentials, actors, sensitive inputs, and raw errors.
+
 The worker command requires an application-composed `WorkerLoop`. Its signal heartbeat must be shared with the handler guard and must use a dedicated DBAL connection. See [Deferred Worker Runtime](worker-runtime.md) for the composition and shutdown contract.
 
 Database migration commands require an application-owned DBAL connection and an explicitly constructed `DatabaseMigrationRunner`. They are deployment tools and are not registered or executed implicitly by HTTP or Worker startup. See [Database Migrations](database-migrations.md).

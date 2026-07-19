@@ -32,6 +32,20 @@ return [
 
 Discovery Rootは存在する絶対Directoryです。Application-aware BuildとOperation ListだけがSourceを探索します。Composer PackageやApplication外Sourceを追加する場合だけOperation Providerを使います。
 
+Status参照PolicyはOperation DiscoveryではなくApplication ServiceとしてBindingします。
+
+```php
+use App\Security\ApplicationOperationStatusAuthorizer;
+use BlackOps\Status\OperationStatusAuthorizer;
+
+$services->autowire(
+    OperationStatusAuthorizer::class,
+    ApplicationOperationStatusAuthorizer::class,
+);
+```
+
+Bindingがない場合、Frameworkは常にDenyする実装を使い、`GET /operations/{operationId}`をSafe 404にします。QuickstartのSame-origin実装はLocal Exampleです。ProductionではTenant／Resource PolicyをApplicationが所有します。
+
 ## Build Artifact
 
 ```php
@@ -61,6 +75,8 @@ return [
 `config/frontend.php`はOptionalで、欠落時も上記Pathを使います。OutputはApplication Root配下の絶対Directoryだけを許可し、Application Root自身、Filesystem Root、Repository外Path、Symlinkを拒否します。設定できるのはOutputだけで、Credential、Base URL、Authentication、CSRF Token、Runtime Fetchはここへ保存しません。
 
 `frontend:generate`と`frontend:check`はBuild済みFrontend Contractを読みます。GenerateはNon-marker Directoryを上書きせず、Temporary Treeを検証後にAtomic Replaceします。CheckはRead-onlyで、Fresh 0、Missing／Drift 1、Invalid 2を返します。Generated `resources/js/blackops/`はApplication Sourceではなく、Quickstartでは`.gitignore`対象です。
+
+生成する各HTTP Operation Objectは`.url()`、`.toRequest()`、`.fetch()`に加えて、一回取得の`.status()`と有限待機の`.wait()`を持ちます。Base URL、Credential、Fetch、Abort Signal、DeadlineはConfigへ保存せず呼出単位で渡します。
 
 ## Database
 

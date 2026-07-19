@@ -155,6 +155,7 @@ sha256sum "${consumer_root}/blackops" > "${temporary_root}/entrypoint.before.sha
 find \
     "${consumer_root}/app/ApplicationServiceProvider.php" \
     "${consumer_root}/app/Security/SampleUserAuthorizationPolicy.php" \
+    "${consumer_root}/app/Security/SampleOperationStatusAuthorizer.php" \
     "${consumer_root}/app/UserInterface/Http/SampleTokenAuthenticator.php" \
     "${consumer_root}/app/Feature/Welcome" \
     "${consumer_root}/app/Feature/Report" \

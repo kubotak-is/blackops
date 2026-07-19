@@ -1,6 +1,19 @@
 # Outcomeを取得する
 
-正常完了したDeferred Operationは、Operation IDごとに型付き[Outcome](glossary.md#outcome)を保存します。ApplicationはPublic `OutcomeReader` ContractからOutcomeを読みます。Persistence Payloadを独自にDecodeしたり、PostgreSQLのSchema Versionへ直接依存したりしないでください。
+正常完了したDeferred Operationは、Operation IDごとに型付き[Outcome](glossary.md#outcome)を保存します。Browserや外部ConsumerはPublic Status Resource、Generated Clientは`.status()`／`.wait()`を主経路にします。PHP AdapterからOutcomeだけを読む場合はPublic `OutcomeReader` Contractを使います。Persistence Payloadを独自にDecodeしたり、PostgreSQLのSchema Versionへ直接依存したりしないでください。
+
+```ts
+const current = await GenerateReport.status(operationId, options);
+
+if (current.ok && current.kind === 'completed') {
+  current.data.outcome.reportName;
+  current.data.outcome.location;
+}
+```
+
+Status Resultは`accepted`／`running`／`retry_scheduled`をPending、`completed`／`rejected`／`failed`／`dead_lettered`をTerminalとして区別します。認可済みでRetention期限切れを証明できる場合は410 `expired`、UnknownとDenyは同じ404 `unavailable`です。
+
+## PHP AdapterからOutcomeだけを読む
 
 ```php
 use BlackOps\Core\Identifier\OperationId;
@@ -31,7 +44,7 @@ function reportResult(OutcomeReader $outcomes, string $operationId): ?ReportGene
 - OperationがRejected／Failed／Dead Letterになった
 - Outcomeの独立した保持期限を過ぎた
 
-現行RuntimeはOutcome／Status用HTTP endpointやCLI Commandを提供しません。区別が必要なApplicationは、Operation Status Viewを実装し、`OutcomeReader`の結果と組み合わせてControllerやCLI Commandから返します。Frameworkの非PublicなTableやPayload形式を利用者向けContractにしないでください。判定例は[Troubleshooting](troubleshooting.md#outcome-status)を確認してください。
+Public Status Query／HTTP Resourceはこれらを区別します。`OutcomeReader::find()`はOutcomeだけが必要なPHP Adapter向けなので、`null`をStatus判定へ流用しません。Frameworkの非PublicなTableやPayload形式を利用者向けContractにしないでください。判定例は[Troubleshooting](troubleshooting.md#outcome-status)を確認してください。
 
 ## 保存するOutcome
 

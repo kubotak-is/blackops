@@ -184,7 +184,51 @@ ShowWelcome.path;     // '/welcome'
 ShowWelcome.strategy; // 'inline'
 ```
 
-Generated ObjectはCallable／Thenableではありません。通信は`.fetch()`、Request参照は`.toRequest()`、URL参照は`.url()`と明示します。Deferred 202後のStatus／Outcome Polling Clientはまだ提供していません。
+Generated ObjectはCallable／Thenableではありません。通信は`.fetch()`、一回の状態取得は`.status()`、有限待機は`.wait()`、Request参照は`.toRequest()`、URL参照は`.url()`と明示します。`.fetch()`は202後に自動Pollingしません。
+
+202で得たOperation IDを使い、現在状態を一回だけ取得します。
+
+```ts
+const current = await GenerateReport.status(report.data.operationId, options);
+```
+
+```json
+{"ok":true,"kind":"accepted","status":200,"data":{"schemaVersion":1,"operationId":"019f32ab-2be0-7b38-a0a7-1ab2f9687697","operationType":"report.generate","state":"accepted"},"retryAfterSeconds":1}
+```
+
+BrowserでTerminal Stateまで待つ場合はnative `AbortController`と有限Deadlineを渡します。
+
+```ts
+const controller = new AbortController();
+const terminal = await GenerateReport.wait(report.data.operationId, {
+  ...options,
+  signal: controller.signal,
+  maxWaitMilliseconds: 15_000,
+});
+
+if (terminal.ok && terminal.kind === 'completed') {
+  terminal.data.outcome.reportName;
+  terminal.data.outcome.location;
+}
+```
+
+```json
+{"ok":true,"kind":"completed","status":200,"data":{"schemaVersion":1,"operationId":"019f32ab-2be0-7b38-a0a7-1ab2f9687697","operationType":"report.generate","state":"completed","outcome":{"reportName":"weekly","location":"/reports/generated/weekly.json"}}}
+```
+
+Worker未起動の別Operationへ短いDeadlineを指定すると、無限に待たず`poll_timeout`で停止します。これはOperationのCancelではなく、Workerは後から同じOperationを処理できます。
+
+```ts
+const timedOut = await GenerateReport.wait(otherOperationId, {
+  ...options,
+  signal: new AbortController().signal,
+  maxWaitMilliseconds: 150,
+});
+```
+
+```json
+{"ok":false,"kind":"transport","status":null,"error":{"code":"poll_timeout"}}
+```
 
 ## 4. Inline Operationをcurlで呼ぶ
 
@@ -398,6 +442,23 @@ curl -sS -X POST -H 'Content-Type: application/json' \
 
 HTTP 202はHandler完了ではなく、ValueとContextをPostgreSQLへDurableに保存した合図です。`operationId`と`acceptedAt`は実行ごとに変わります。
 
+同じCredentialでPublic Status Resourceを読むと、Worker未起動中は`accepted`と正整数`Retry-After`を返します。
+
+```bash
+OPERATION_ID='019f32ab-2be0-7b38-a0a7-1ab2f9687697'
+curl -i -H 'X-Sample-Token: local-example' \
+  "http://127.0.0.1:8080/operations/${OPERATION_ID}"
+```
+
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json
+Cache-Control: private, no-store
+Retry-After: 1
+
+{"schemaVersion":1,"operationId":"019f32ab-2be0-7b38-a0a7-1ab2f9687697","operationType":"report.generate","state":"accepted"}
+```
+
 空の`reportName`は宣言的Validationで受付前にHTTP 422となります。Inline／DeferredのどちらもValidation Failureを202にせず、Handlerを実行しません。
 
 ```bash
@@ -462,7 +523,15 @@ ORDER BY sequence;
 
 Canonical JournalはRaw Business ValueとActor IDを保持する監査正本です。暗号化、Access Control、RetentionをApplication／運用で構成してください。
 
-Outcomeの取得にはPublic `OutcomeReader`をApplicationのHTTP／CLI入口から利用します。現行FrameworkはOutcome参照用の既成HTTP endpointを提供しません。詳しい取得例は[チュートリアル](first-operation.md#outcomeを読む)を参照してください。
+Worker完了後は同じStatus ResourceがTyped Outcomeを返し、Terminal Responseに`Retry-After`は付きません。
+
+```json
+{"schemaVersion":1,"operationId":"019f32ab-2be0-7b38-a0a7-1ab2f9687697","operationType":"report.generate","state":"completed","outcome":{"reportName":"weekly","location":"/reports/generated/weekly.json"}}
+```
+
+Quickstartの`SampleOperationStatusAuthorizer`は、Current Actorと受付時のOrigin Actorがともに`user`で、ID／Typeが完全一致するときだけAllowします。これはLocal Exampleであり、ProductionのTenant／Role／Resource Policyではありません。Header欠落はAnonymousのためUnknown／Denyと同じ404、不正TokenはSubject読取前の401です。Operation IDはSecretではありませんが、知っているだけでは参照権限を得ません。
+
+PHP AdapterからOutcomeだけを直接読む場合はPublic `OutcomeReader`を利用します。Pending、Terminal、Expiredを区別する主経路はStatus Resourceです。詳しくは[Outcome Retrieval](outcome-retrieval.md)を参照してください。
 
 ## 9. 終了する
 

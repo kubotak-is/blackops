@@ -80,6 +80,8 @@ Terminal Queryを最小Vertical Slice候補とし、Local ViewerとProduction運
 
 ## Phase 16: Deferred Status and Outcome API
 
+Status: Complete
+
 - Operation IDによるStatus Query
 - Pending／Running／Retry Scheduled／Completed／Rejected／Failed／Dead Letteredの安定表現
 - Typed OutcomeとTerminal Errorの安全な表現

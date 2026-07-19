@@ -34,7 +34,7 @@ export const contentMap = {
   },
   'first-operation.md': {
     slug: 'getting-started/first-operation',
-    description: 'QuickstartのSource作成からHTTP受付、Journal、Worker、Outcome取得までを完走する。',
+    description: 'Operation生成からHTTP 202受付、Status、Worker、Typed Outcome取得までを完走する。',
   },
   'runtime-bootstrap.md': {
     slug: 'getting-started/local-runtime',
@@ -42,7 +42,7 @@ export const contentMap = {
   },
   'mvp-sample.md': {
     slug: 'getting-started/quickstart',
-    description: 'Repository main PreviewでInline失敗のOperation ID調査、Local Viewer、Database、Deferred Workerを確認する。',
+    description: 'Repository main PreviewでGenerated Operation Object、Status、有限Wait、Database、Deferred Workerを確認する。',
   },
   'operations.md': {
     slug: 'operations/authoring',
@@ -62,7 +62,7 @@ export const contentMap = {
   },
   'execution.md': {
     slug: 'execution/http-and-deferred',
-    description: '同じOperation ModelをInline HTTPとPostgreSQL Deferred実行へ接続する。',
+    description: '同じOperation ModelをInline HTTPとDeferred Workerへ接続し、受付と完了確認を分ける。',
   },
   'execution-context.md': {
     slug: 'execution/context',
@@ -78,7 +78,7 @@ export const contentMap = {
   },
   'outcome-retrieval.md': {
     slug: 'database/outcomes',
-    description: 'Deferred OperationのTyped OutcomeをOperation IDから安全に取得する。',
+    description: 'Deferred OperationのStatusとTyped OutcomeをPublic ResourceまたはPHP Adapterから安全に取得する。',
   },
   'retention.md': {
     slug: 'database/retention',
@@ -106,11 +106,11 @@ export const contentMap = {
   },
   'troubleshooting.md': {
     slug: 'troubleshooting',
-    description: 'Operation ID付き500、Inspect、Local Viewer、Worker、Journalの問題を症状から解決する。',
+    description: '202、Status 404／410、有限Wait、Operation ID付き500、Worker、Journalの問題を症状から解決する。',
   },
   'security.md': {
     slug: 'security',
-    description: 'Canonical Restricted DataとHTTP・Log・CLI・Local ViewerのSafe Diagnostics境界を確認する。',
+    description: 'Status AuthorizationとCanonical Restricted Data、HTTP・Frontend・Diagnosticsの責任分界を確認する。',
   },
   'core-api.md': {
     slug: 'reference/core-api',
@@ -122,7 +122,7 @@ export const contentMap = {
   },
   'mvp-status.md': {
     slug: 'releases/current-status',
-    description: 'main DocumentとExperimental Stable 1.1.0のDiagnostics、Authorization、Database／Transaction機能差を確認する。',
+    description: 'Stable 1.1.0とmain ExperimentalのStatus／Outcome、Frontend、Diagnostics、Transaction機能差を確認する。',
   },
   'glossary.md': {
     slug: 'reference/glossary',

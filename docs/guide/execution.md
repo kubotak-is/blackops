@@ -81,6 +81,35 @@ final readonly class GenerateReport implements Operation
 
 Deferred RouteはHTTP 202とOperation IDを返し、HandlerをHTTP Process内で実行しません。Operation Value、Context、受付JournalをPostgreSQLへDurableに保存します。
 
+## Frontendから受付と完了を分ける
+
+Generated Operation Objectは三つの異なる操作を明示します。
+
+| Method | 通信 | Result |
+| --- | --- | --- |
+| `.fetch(value, options)` | Operation Routeへ1 Request | Inline完了、またはDeferred受付202。自動Pollingしない |
+| `.status(operationId, options)` | Status Resourceへ1 GET | 7 Lifecycle State、または401／404／410／500／Transport Failure |
+| `.wait(operationId, options)` | `Retry-After`に従う有限のStatus GET | Completed／Rejected／Failed／Dead Lettered、またはFailure |
+
+```ts
+const accepted = await GenerateReport.fetch(value, options);
+
+if (accepted.ok && accepted.kind === 'accepted') {
+  const current = await GenerateReport.status(accepted.data.operationId, options);
+  const controller = new AbortController();
+  const terminal = await GenerateReport.wait(accepted.data.operationId, {
+    ...options,
+    signal: controller.signal,
+    maxWaitMilliseconds: 15_000,
+  });
+
+  void current;
+  void terminal;
+}
+```
+
+`.wait()`は正のSafe Integer Deadlineと購読可能なAbort Signalを必須にします。Non-terminalだけをServerの正整数`Retry-After`に従って再取得し、401、404、410、500、Network Error、不正Responseでは停止します。無限待機、独自Backoff、Global Mutable Clientは提供しません。
+
 ## Worker
 
 Project CLIからWorkerを起動します。

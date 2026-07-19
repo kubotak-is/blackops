@@ -146,7 +146,7 @@ test('guided tutorial pairs runnable inputs with parseable JSON and masked JSONL
   assert.match(tutorial, /php blackops make:operation Billing\/CreateInvoice --type=billing\.invoice\.create/);
   assert.ok(tutorial.indexOf('make:operation') < tutorial.indexOf('```php'));
   assert.match(tutorial, /HTTP 202/);
-  assert.match(tutorial, /Outcome用HTTP endpointやCLI Commandを提供しません/);
+  assert.match(tutorial, /Public Status Resource/);
   assert.match(tutorial, /OutcomeReader/);
   assert.ok(jsonBlocks.length >= 3);
   for (const block of jsonBlocks) JSON.parse(block);
@@ -155,8 +155,8 @@ test('guided tutorial pairs runnable inputs with parseable JSON and masked JSONL
   assert.match(jsonlBlocks[0], /\[masked\]/);
   assert.doesNotMatch(jsonlBlocks[0], /REPORT_API_TOKENから入力/);
   assert.match(tutorial, /HTTP ProcessのObserved Projection/);
-  assert.match(tutorial, /Canonical PostgreSQL Journalが正本/);
-  assert.match(tutorial, /var\/log\/journal\.jsonl`で`operation\.completed`を待たず/);
+  assert.match(tutorial, /Canonical PostgreSQL Journalは.*正本/s);
+  assert.match(tutorial, /\.status\(\).*一回.*\.wait\(\).*有限待機/s);
 });
 
 test('troubleshooting covers every required symptom with four-part guidance', async () => {
@@ -170,6 +170,10 @@ test('troubleshooting covers every required symptom with four-part guidance', as
     'Generated TypeScriptがCompileできない',
     '`.fetch()`がTransport Resultを返す',
     'Deferred HTTPが202だがOutcomeがない',
+    'Statusが404 `operation_unavailable`を返す',
+    'Statusが410 `operation_expired`を返す',
+    '`.wait()`が`poll_timeout`を返す',
+    '`.status()`／`.wait()`が`unexpected_response`を返す',
     'Migration未適用／PostgreSQL接続失敗',
     'journal.jsonlへ出力されない',
     'OutcomeがPending／Not Found／Expiredか判別できない',
@@ -209,13 +213,16 @@ test('security guide separates framework and application responsibilities', asyn
   assert.match(security, /Credential、Role、Permission、ClaimのSnapshotはTransportやJournalへ保存しません/);
   assert.match(security, /Generated Typeは認証、認可、暗号化、Access Control、Retentionを代替しません/);
   assert.match(security, /Global Mutable Clientへ保存しないでください/);
+  assert.match(security, /OperationStatusAuthorizer/);
+  assert.match(security, /Unknown／Deny.*404/s);
+  assert.match(security, /Retention.*410/s);
 });
 
 test('core API reference covers every source type marked PublicApi without exposing Internal types', async () => {
   const reference = await guide('core-api.md');
   const sourceTypes = await publicApiTypes();
 
-  assert.equal(sourceTypes.length, 134);
+  assert.equal(sourceTypes.length, 147);
   for (const type of sourceTypes) assert.match(reference, new RegExp(type.replaceAll('\\', '\\\\')));
   assert.doesNotMatch(reference, /`BlackOps\\Core\\Attribute\\PublicApi` \|/);
   assert.doesNotMatch(reference, /BlackOps\\Internal\\[A-Za-z]/);

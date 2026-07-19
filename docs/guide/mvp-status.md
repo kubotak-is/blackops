@@ -1,6 +1,6 @@
 # 現在の提供状況（Current Status）
 
-BlackOpsのLatest StableはFramework／Skeleton `1.1.0`です。このWebsite Sourceは`main` Document Channelであり、未ReleaseのPhase 12〜15 Surfaceも明示して説明します。WebsiteはLocal／CI Buildだけで、現在は公開していません。Stableとの差を次表で確認してください。
+BlackOpsのLatest StableはFramework／Skeleton `1.1.0`です。このWebsite Sourceは`main` Document Channelであり、未ReleaseのPhase 12〜16 Surfaceも明示して説明します。WebsiteはLocal／CI Buildだけで、現在は公開していません。Stableとの差を次表で確認してください。
 
 BlackOps固有のOperation、Claim、Journal、Outcome等は[用語集](glossary.md)で確認できます。
 
@@ -33,7 +33,8 @@ BlackOpsはExperimentalです。1.x Minor間のBackward CompatibilityとProducti
 | Frontend Contract Manifest／Operation Object生成 | Not available | Available（Experimental） |
 | `.url()`／`.toRequest()`／Typed `.fetch()` | Not available | Available（Experimental） |
 | `frontend:generate`／`frontend:check` | Not available | Available（Experimental） |
-| Deferred Status／Outcome Generated Client | Not available | Not available |
+| Deferred Status Query／`GET /operations/{operationId}` | Not available | Available（Experimental） |
+| Generated `.status()`／finite `.wait()` | Not available | Available（Experimental） |
 
 Stable Applicationを作る場合はVersionを明示します。
 
@@ -63,11 +64,14 @@ composer create-project blackops/skeleton my-app 1.1.0
 - Process起動時に一度解決するApplication／Framework JSONL LoggingとOperation／Attempt／Correlation ID相関
 - HTTP Operationから生成するFramework-neutral TypeScript ESM Operation Object
 - Readonly Metadata、`.url()`、`.toRequest()`、Typed `.fetch()`とFrontend Drift Check
+- 認可前Subject Projection、Unknown／Deny 404、認可済みExpired 410を持つPublic Status Query／HTTP Resource
+- 7 Stateを一回取得するGenerated `.status()`と、Abort／Deadline必須の有限`.wait()`
 
 ## Known Constraints
 
 - Session／JWT／OAuth／API Key等のProduction認証方式、Actor Repository、Permission Storeは提供しない
-- Deferred Status／Outcome HTTP EndpointとGenerated Polling Clientは提供しない
+- Production Status Authorization Policy、Tenant Model、Role／Permission Repositoryは提供しない
+- 無限Wait、任意Backoff／Jitter、Global Generated Client、Cache／Offline Queueは提供しない
 - Transactional Outbox Relayは提供しない
 - Canonical Journal／Transport PayloadのEncryption Adapterは提供しない
 - Remote OpenTelemetry、CloudWatch、SQS、Kafka、SQLite、MySQL Adapterは提供しない

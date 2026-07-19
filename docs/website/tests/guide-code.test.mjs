@@ -31,7 +31,7 @@ test('tutorial starts from the current generator and contains complete edited so
   for (const file of ['CreateInvoice.php', 'CreateInvoiceValue.php', 'CreateInvoiceOutcome.php']) {
     assert.match(tutorial, new RegExp(`Created: app/Feature/Billing/CreateInvoice/${file.replace('.', '\\.')}`));
   }
-  assert.equal(phpBlocks.length, 4);
+  assert.equal(phpBlocks.length, 3);
   for (const [className, source] of [
     ['CreateInvoiceValue', phpBlocks[0]],
     ['CreateInvoiceOutcome', phpBlocks[1]],
@@ -44,7 +44,7 @@ test('tutorial starts from the current generator and contains complete edited so
   assert.match(phpBlocks[0], /Validation\\Attribute\\NotBlank/);
   assert.match(phpBlocks[0], /SensitiveMode::Mask/);
   assert.match(phpBlocks[2], /handle\(CreateInvoiceValue \$value, ExecutionContext \$context\): CreateInvoiceOutcome/);
-  assert.match(phpBlocks[3], /OutcomeReader/);
+  assert.match(tutorial, /OutcomeReader/);
   assert.match(tutorial, /Build artifacts written\./);
 });
 
@@ -117,8 +117,9 @@ test('guide JSON and JSONL examples stay parseable and free of raw tutorial secr
           violations: [{ field: 'email', rule: 'email', code: 'validation.email' }],
         },
       });
-      assert.match(source, /ApplicationWorkerComposer.*Worker Event.*JSONL Observer/s);
-      assert.match(source, /FROM blackops\.journal/);
+      assert.match(source, /HTTP ProcessのObserved Projection/);
+      assert.match(source, /Public Status Resource/);
+      assert.doesNotMatch(source, /FROM blackops\.journal/);
     }
     if (file === 'validation.md') {
       assert.equal(jsonlBlocks.length, 1);
@@ -204,7 +205,11 @@ test('quickstart frontend journey matches the installed application-owned source
   assert.match(configuration, /resources\/js\/blackops/);
   assert.match(directory, /resources\/js\/application/);
   assert.match(status, /Frontend Contract Manifest／Operation Object生成 \| Not available \| Available（Experimental）/);
-  assert.match(status, /Deferred Status／Outcome Generated Client \| Not available \| Not available/);
+  assert.match(status, /Deferred Status Query／`GET \/operations\/\{operationId\}` \| Not available \| Available（Experimental）/);
+  assert.match(status, /Generated `\.status\(\)`／finite `\.wait\(\)` \| Not available \| Available（Experimental）/);
+  assert.match(quickstart, /GenerateReport\.status/);
+  assert.match(quickstart, /GenerateReport\.wait/);
+  assert.match(quickstart, /poll_timeout/);
 });
 
 test('quickstart order journey matches the installed transactional source', async () => {

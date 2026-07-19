@@ -5,8 +5,13 @@ import {
   TriggerFailure,
   operationOptions,
 } from '../../resources/js/application/operations';
+import { testOperationWaitController } from './wait-signal';
 import type { CreateOrderResult } from '../../resources/js/blackops/operations/order/create-order';
 import type { GenerateReportResult } from '../../resources/js/blackops/operations/report/generate-report';
+import type {
+  GenerateReportStatusResult,
+  GenerateReportWaitResult,
+} from '../../resources/js/blackops/operations/report/generate-report';
 import type { ShowWelcomeResult } from '../../resources/js/blackops/operations/welcome/show-welcome';
 import type { TriggerFailureResult } from '../../resources/js/blackops/operations/diagnostics/failure/trigger-failure';
 
@@ -28,6 +33,50 @@ function reportState(result: GenerateReportResult): string {
   }
 
   return `${result.kind}:${result.status}`;
+}
+
+function reportStatusState(result: GenerateReportStatusResult): string {
+  if (!result.ok) {
+    switch (result.kind) {
+      case 'authentication':
+      case 'unavailable':
+      case 'expired':
+      case 'internal':
+        return `${result.kind}:${result.status}:${result.error.code}`;
+      case 'transport':
+        return `${result.kind}:${result.status}:${result.error.code}`;
+    }
+  }
+
+  switch (result.kind) {
+    case 'accepted':
+    case 'running':
+    case 'retry_scheduled':
+      return `${result.data.state}:${result.retryAfterSeconds}`;
+    case 'completed':
+      return `${result.data.outcome.reportName}:${result.data.outcome.location}`;
+    case 'rejected':
+      return `${result.data.error.category}:${result.data.error.code}`;
+    case 'failed':
+    case 'dead_lettered':
+      return result.data.error.code;
+  }
+}
+
+function reportWaitState(result: GenerateReportWaitResult): string {
+  if (!result.ok) {
+    return `${result.kind}:${result.status}:${result.error.code}`;
+  }
+
+  switch (result.kind) {
+    case 'completed':
+      return `${result.data.outcome.reportName}:${result.data.outcome.location}`;
+    case 'rejected':
+      return `${result.data.error.category}:${result.data.error.code}`;
+    case 'failed':
+    case 'dead_lettered':
+      return result.data.error.code;
+  }
 }
 
 function orderState(result: CreateOrderResult): string {
@@ -59,6 +108,14 @@ void GenerateReport.toRequest(
   { reportName: 'weekly', recipientEmail: 'write-only@example.test' },
   operationOptions('runtime-token'),
 );
+void GenerateReport.status('018f22e2-7a13-7c90-8f3a-7d91b625eca9');
+const waitController = testOperationWaitController();
+void GenerateReport.wait('018f22e2-7a13-7c90-8f3a-7d91b625eca9', {
+  ...operationOptions('runtime-token'),
+  signal: waitController.signal,
+  maxWaitMilliseconds: 15_000,
+});
+waitController.abort();
 void CreateOrder.fetch;
 void TriggerFailure.fetch;
 void welcomeType;
@@ -68,5 +125,7 @@ void orderPath;
 void failureStrategy;
 void welcomeMessage;
 void reportState;
+void reportStatusState;
+void reportWaitState;
 void orderState;
 void failureState;

@@ -11,8 +11,13 @@ INSTALL_OVERRIDE="${TEMP}/compose.install.yaml"
 SOURCE_BEFORE=$(git -C "${ROOT}" status --short -- examples/quickstart)
 viewer_process=''
 viewer_container="${PROJECT}-viewer"
+frontend_process=''
 
 cleanup() {
+    if test -n "${frontend_process}" && kill -0 "${frontend_process}" 2>/dev/null; then
+        kill "${frontend_process}" >/dev/null 2>&1 || true
+        wait "${frontend_process}" 2>/dev/null || true
+    fi
     if test -n "${viewer_process}" && kill -0 "${viewer_process}" 2>/dev/null; then
         docker stop --time 5 "${viewer_container}" >/dev/null 2>&1 || true
         wait "${viewer_process}" 2>/dev/null || true
@@ -487,12 +492,153 @@ BLACKOPS_FRONTEND_REPORT_SECRET="${frontend_report_secret}" \
 BLACKOPS_FRONTEND_FAILURE_SECRET="${frontend_failure_secret}" \
 BLACKOPS_FRONTEND_RAW_ERROR="${frontend_raw_error}" \
     mise exec -- pnpm --dir "${CONSUMER}" run test:http \
-    > "${CONSUMER}/var/frontend-result.log"
+    > "${CONSUMER}/var/frontend-result.log" \
+    2> "${CONSUMER}/var/frontend-error.log" &
+frontend_process=$!
+
+frontend_wait_operation_id=''
+for _ in $(seq 1 100); do
+    frontend_wait_operation_id=$(sed -n 's/^BLACKOPS_WAIT_STARTED://p' \
+        "${CONSUMER}/var/frontend-result.log" | tail -n 1)
+    if [[ "${frontend_wait_operation_id}" =~ ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$ ]]; then
+        break
+    fi
+    if ! kill -0 "${frontend_process}" 2>/dev/null; then
+        cat "${CONSUMER}/var/frontend-error.log" >&2
+        cat "${CONSUMER}/var/frontend-result.log" >&2
+        exit 1
+    fi
+    sleep 0.1
+done
+[[ "${frontend_wait_operation_id}" =~ ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$ ]]
+
+frontend_status_code=$(curl --silent \
+    --dump-header "${CONSUMER}/var/frontend-status-accepted.headers" \
+    --output "${CONSUMER}/var/frontend-status-accepted.json" \
+    --write-out '%{http_code}' \
+    "http://127.0.0.1:${PORT}/operations/${frontend_wait_operation_id}" \
+    -H 'X-Sample-Token: local-example' \
+    -H 'X-Unrelated-Operation-Header: ignored')
+test "${frontend_status_code}" = '200'
+tr -d '\r' < "${CONSUMER}/var/frontend-status-accepted.headers" \
+    | grep -Fiqx 'Cache-Control: private, no-store'
+retry_after=$(sed -n 's/^Retry-After: //Ip' "${CONSUMER}/var/frontend-status-accepted.headers" | tr -d '\r')
+[[ "${retry_after}" =~ ^[1-9][0-9]*$ ]]
+HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php -r '
+$data = json_decode(file_get_contents("/app/var/frontend-status-accepted.json"), true, 512, JSON_THROW_ON_ERROR);
+if (($data["schemaVersion"] ?? null) !== 1
+    || ($data["operationId"] ?? null) !== $argv[1]
+    || ($data["operationType"] ?? null) !== "report.generate"
+    || ($data["state"] ?? null) !== "accepted"
+    || array_key_exists("ignored", $data)) {
+    exit(1);
+}
+' "${frontend_wait_operation_id}"
+
+HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops worker:run \
+    --iterations=1 --idle-sleep-milliseconds=1
+frontend_retry_state=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
+    "SELECT state FROM blackops.operations WHERE operation_id = '${frontend_wait_operation_id}'::uuid")
+test "${frontend_retry_state}" = 'retry_scheduled'
+frontend_retry_status_code=$(curl --silent \
+    --dump-header "${CONSUMER}/var/frontend-status-retry.headers" \
+    --output "${CONSUMER}/var/frontend-status-retry.json" \
+    --write-out '%{http_code}' \
+    "http://127.0.0.1:${PORT}/operations/${frontend_wait_operation_id}" \
+    -H 'X-Sample-Token: local-example')
+if test "${frontend_retry_status_code}" != '200'; then
+    cat "${CONSUMER}/var/frontend-status-retry.json" >&2
+    exit 1
+fi
+grep -Fq '"state":"retry_scheduled"' "${CONSUMER}/var/frontend-status-retry.json"
+retry_after=$(sed -n 's/^Retry-After: //Ip' "${CONSUMER}/var/frontend-status-retry.headers" | tr -d '\r')
+[[ "${retry_after}" =~ ^[1-9][0-9]*$ ]]
+
+frontend_retry_ready='0'
+for _ in $(seq 1 50); do
+    frontend_retry_ready=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
+        "SELECT CASE WHEN available_at <= clock_timestamp() THEN 1 ELSE 0 END FROM blackops.operations WHERE operation_id = '${frontend_wait_operation_id}'::uuid")
+    if test "${frontend_retry_ready}" = '1'; then
+        break
+    fi
+    sleep 0.1
+done
+test "${frontend_retry_ready}" = '1'
+HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops worker:run \
+    --iterations=1 --idle-sleep-milliseconds=1
+frontend_completed_state=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
+    "SELECT state FROM blackops.operations WHERE operation_id = '${frontend_wait_operation_id}'::uuid")
+test "${frontend_completed_state}" = 'completed'
+
+if ! wait "${frontend_process}"; then
+    cat "${CONSUMER}/var/frontend-error.log" >&2
+    cat "${CONSUMER}/var/frontend-result.log" >&2
+    exit 1
+fi
+frontend_process=''
+
+frontend_timeout_operation_id=$(HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php -r '
+$lines = file("/app/var/frontend-result.log", FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [];
+$data = json_decode((string) end($lines), true, 512, JSON_THROW_ON_ERROR);
+$id = $data["timeout"]["input"]["operationId"] ?? null;
+if (!is_string($id) || preg_match("/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/", $id) !== 1) {
+    exit(1);
+}
+fwrite(STDOUT, $id);
+')
+test -n "${frontend_timeout_operation_id}"
+frontend_timeout_state=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
+    "SELECT state FROM blackops.operations WHERE operation_id = '${frontend_timeout_operation_id}'::uuid")
+test "${frontend_timeout_state}" = 'accepted'
+
+HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops worker:run \
+    --iterations=1 --idle-sleep-milliseconds=1
+frontend_timeout_retry_state=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
+    "SELECT state FROM blackops.operations WHERE operation_id = '${frontend_timeout_operation_id}'::uuid")
+test "${frontend_timeout_retry_state}" = 'retry_scheduled'
+frontend_timeout_ready='0'
+for _ in $(seq 1 50); do
+    frontend_timeout_ready=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
+        "SELECT CASE WHEN available_at <= clock_timestamp() THEN 1 ELSE 0 END FROM blackops.operations WHERE operation_id = '${frontend_timeout_operation_id}'::uuid")
+    if test "${frontend_timeout_ready}" = '1'; then
+        break
+    fi
+    sleep 0.1
+done
+test "${frontend_timeout_ready}" = '1'
+HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops worker:run \
+    --iterations=1 --idle-sleep-milliseconds=1
+frontend_timeout_completed_state=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
+    "SELECT state FROM blackops.operations WHERE operation_id = '${frontend_timeout_operation_id}'::uuid")
+test "${frontend_timeout_completed_state}" = 'completed'
+
+terminal_status_code=$(curl --silent \
+    --dump-header "${CONSUMER}/var/frontend-status-completed.headers" \
+    --output "${CONSUMER}/var/frontend-status-completed.json" \
+    --write-out '%{http_code}' \
+    "http://127.0.0.1:${PORT}/operations/${frontend_wait_operation_id}" \
+    -H 'X-Sample-Token: local-example')
+test "${terminal_status_code}" = '200'
+tr -d '\r' < "${CONSUMER}/var/frontend-status-completed.headers" \
+    | grep -Fiqx 'Cache-Control: private, no-store'
+! grep -Fiq '^Retry-After:' "${CONSUMER}/var/frontend-status-completed.headers"
+HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php -r '
+$data = json_decode(file_get_contents("/app/var/frontend-status-completed.json"), true, 512, JSON_THROW_ON_ERROR);
+if (($data["operationId"] ?? null) !== $argv[1]
+    || ($data["operationType"] ?? null) !== "report.generate"
+    || ($data["state"] ?? null) !== "completed"
+    || !is_string($data["outcome"]["reportName"] ?? null)
+    || !is_string($data["outcome"]["location"] ?? null)) {
+    exit(1);
+}
+' "${frontend_wait_operation_id}"
 
 for result_kind in completed accepted validation internal transport; do
     grep -Fq "\"kind\":\"${result_kind}\"" "${CONSUMER}/var/frontend-result.log"
 done
 grep -Fq '"code":"network_error"' "${CONSUMER}/var/frontend-result.log"
+grep -Fq '"kind":"completed","status":200' "${CONSUMER}/var/frontend-result.log"
+grep -Fq '"code":"poll_timeout"' "${CONSUMER}/var/frontend-result.log"
 
 for forbidden in \
     'local-example' \
@@ -503,6 +649,8 @@ for forbidden in \
     ! grep -R -Fq "${forbidden}" "${CONSUMER}/resources/js/blackops"
     ! grep -R -Fq "${forbidden}" "${CONSUMER}/var/build"
     ! grep -Fq "${forbidden}" "${CONSUMER}/var/frontend-result.log"
+    ! grep -Fq "${forbidden}" "${CONSUMER}/var/frontend-status-accepted.json"
+    ! grep -Fq "${forbidden}" "${CONSUMER}/var/frontend-status-completed.json"
     ! grep -Fq "${forbidden}" "${CONSUMER}/var/log/application.jsonl"
 done
 ! grep -Fq "${frontend_report_secret}" "${CONSUMER}/var/log/journal.jsonl"

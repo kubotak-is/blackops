@@ -54,7 +54,7 @@ docker compose run --rm app php blackops frontend:check
 pnpm test
 ```
 
-`frontend:generate`と`frontend:check`は`build:compile`を暗黙実行しない。`frontend:check`はFreshならExit 0、Missing／DriftならExit 1、Config／Artifact／Contract不正ならExit 2を返す。生成したModuleはCallableでもThenableでもなく、通信する`.fetch()`、送信しない`.toRequest()`、URLを返す`.url()`、Readonly Metadataを持つOperation Objectである。
+`frontend:generate`と`frontend:check`は`build:compile`を暗黙実行しない。`frontend:check`はFreshならExit 0、Missing／DriftならExit 1、Config／Artifact／Contract不正ならExit 2を返す。生成したModuleはCallableでもThenableでもなく、通信する`.fetch()`、一回だけ状態を取得する`.status()`、明示した期限まで待つ`.wait()`、送信しない`.toRequest()`、URLを返す`.url()`、Readonly Metadataを持つOperation Objectである。
 
 ```ts
 import {
@@ -85,6 +85,20 @@ const result = await GenerateReport.fetch(
 if (result.ok && result.kind === 'accepted') {
   result.status; // 202
   result.data.operationId;
+
+  const current = await GenerateReport.status(result.data.operationId, options);
+
+  const controller = new AbortController();
+  const terminal = await GenerateReport.wait(result.data.operationId, {
+    ...options,
+    signal: controller.signal,
+    maxWaitMilliseconds: 15_000,
+  });
+
+  if (terminal.ok && terminal.kind === 'completed') {
+    terminal.data.outcome.reportName;
+    terminal.data.outcome.location;
+  }
 }
 
 ShowWelcome.type;     // 'welcome.show'
@@ -94,6 +108,10 @@ ShowWelcome.strategy; // 'inline'
 ```
 
 `recipientEmail`の名前と型は送信に必要なWrite-only Input Contractへ含むが、その実値をGenerated Tree、Result、Log Helperへ埋め込まない。`X-Sample-Token`もApplicationが呼出単位で注入する。Generated TypeはAuthentication／Authorization、CORS、CSRF、Encryption、Browser Storageを代替しない。
+
+`.fetch()`は202後に自動Pollingしない。`.status()`は`GET /operations/{operationId}`を一回だけ呼び、`.wait()`だけがServerの`Retry-After`に従って有限に待つ。`.wait()`には購読可能なAbort Signalと正の`maxWaitMilliseconds`が必須である。401、404、410、500、Network Error、不正Responseでは自動Retryせず停止する。
+
+Quickstartは`SampleOperationStatusAuthorizer`を`ApplicationServiceProvider`から明示Bindingする。同じ`user` Actorが受け付けたOperationだけを同じActorが参照できる最小Same-origin Exampleであり、Tenant／Role／Resourceを扱うProduction Policyではない。ProductionではApplicationが認証方式とStatus参照Policyを実装する。Operation IDは相関KeyでありSecretではないが、IDを知っているだけでは参照できない。
 
 ## HTTP
 
@@ -109,6 +127,9 @@ curl -X POST -H 'Content-Type: application/json' \
   -H 'X-Sample-Token: local-example' \
   -d '{"reportName":"weekly","recipientEmail":"reports@example.com"}' \
   http://127.0.0.1:8080/reports
+
+curl -i -H 'X-Sample-Token: local-example' \
+  http://127.0.0.1:8080/operations/<operation-id>
 
 curl -X POST -H 'Content-Type: application/json' \
   -H 'X-Sample-Token: local-example' \

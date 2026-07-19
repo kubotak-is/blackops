@@ -130,6 +130,8 @@ Status GETに空でないRequest Bodyがある場合は、既存HTTP Protocol境
 
 Compiled Containerに`OperationStatusAuthorizer` BindingがあればApplication実装を使用し、なければ`DenyOperationStatusAuthorizer`へFail-closedする。取得したServiceがContractを満たさない場合はRuntime Compositionを安全に失敗させる。FrameworkはApplication Bindingを上書きしない。
 
+Installed QuickstartはApplication所有のSample Authorizerを明示Bindingする。Current ActorとOrigin Actorが両方`user`で、ID／Typeが完全一致する場合だけAllowするLocal Exampleであり、Tenant／Resource／Roleを持つProduction Policyの代替ではない。
+
 | Query／Request | HTTP | Body |
 | --- | --- | --- |
 | Found | 200 | Schema Version 1のState Resource |
@@ -166,6 +168,8 @@ DecoderはSchema Version、Requested Operation ID、Generated Operation Type、S
 `.wait(operationId, options)`はTerminal Stateまでの明示的な有限待機を提供する。購読可能なStructural Abort Signalと正のSafe Integer `maxWaitMilliseconds`は必須である。各Status RequestはAbortと固定DeadlineのTimerに競合し、Non-terminal ResponseだけがStrict Decode済み`Retry-After`に従って次のQueryへ進む。Terminal 4 State、401／404／410／500、Transport Failureは即時返却し、Wait固有Result型からNon-terminal Stateを除外する。
 
 Clock、Timer、Fetchは呼出単位のStructural Typeとして注入でき、DOM／Node型へ依存しない。Pre-abort、in-flight Abort、sleep中Abort、Timeout、成功、Errorの全経路でInvocation所有TimerをClearしListenerをRemoveする。一つのWaitのSignal、Deadline、Timer、Fetchは別のWaitと共有されず、`poll_timeout`／`invalid_wait_options`／Abort Reason／Elapsed／Deadline／Raw Errorを詳細情報として露出しない。
+
+Quickstart Real HTTP回帰は、`.fetch()`の202、Worker未起動中の`accepted`、第一Attempt後の`retry_scheduled`、第二Attempt後のTyped `completed`を一つのOperation IDで追う。別Operationの短いDeadlineは有限`poll_timeout`となり、後続Worker処理を妨げない。Missing CredentialのDenyとUnknownは同じ404、Invalid CredentialはSubject読取前の401となり、全Status Responseの`private, no-store`とNon-terminal限定`Retry-After`を実Responseで固定する。
 
 ## Adapter Rules
 

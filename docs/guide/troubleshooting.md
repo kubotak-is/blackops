@@ -140,13 +140,54 @@ if (!result.ok && result.kind === 'transport') {
 **How to Verify:** 同じEnvironmentでWorkerを1 Loopだけ実行し、対象Operation IDのJournalに`operation.accepted`、`attempt.started`、`attempt.retry_scheduled`、Terminal Eventがあるか確認します。
 
 ```bash
+curl -i -H 'X-Sample-Token: local-example' \
+  http://127.0.0.1:8080/operations/<operation-id>
 php blackops worker:run --iterations=1 --idle-sleep-milliseconds=1
-grep '<operation-id>' var/log/journal.jsonl
 ```
 
-`<operation-id>`は202 Responseの値へ置き換えます。
+`<operation-id>`は202 Responseの値へ置き換えます。Worker未起動ならStatusは`accepted`のままです。`var/log/journal.jsonl`はHTTP ProcessのObserved Projectionなので、Worker完了を待つSourceには使いません。
 
 **Fix:** HTTPとWorkerへ同じDatabase／Schema／Build Artifactを渡し、常駐WorkerをProcess ManagerまたはCompose Worker Profileで監督します。Retry Scheduledの場合はDelay後のAttemptを待ちます。
+
+## Statusが404 `operation_unavailable`を返す
+
+**Symptom:** 202で受け取ったOperation IDを`GET /operations/{operationId}`へ渡しても404になります。
+
+**Likely Cause:** IDがUnknown、`OperationStatusAuthorizer`が未BindingまたはDeny、Current ActorとOrigin Actorが不一致、あるいはSubject自体がRetentionで完全削除されています。Frameworkは存在とDenyを区別させません。
+
+**How to Verify:** 同じCredentialを使っているか、Application Service Providerが`OperationStatusAuthorizer::class`をApplication実装へBindingしているかを確認します。Operation IDやActor IDだけをLogへ追加しないでください。
+
+**Fix:** ApplicationのStatus PolicyでCurrent Actor、Origin Actor、Tenant／Resource関係を評価します。Operation IDを知っていることだけをAllow条件にせず、Framework既定Denyを無効化する全許可Policyも置きません。QuickstartのSame-origin PolicyはLocal ExampleなのでProduction Policyへ置き換えます。
+
+## Statusが410 `operation_expired`を返す
+
+**Symptom:** 以前は取得できたOperationが410になります。
+
+**Likely Cause:** AuthorizerはAllowしましたが、Terminal DetailまたはOutcomeがRetentionで削除され、Purge Auditから期限切れを証明できました。
+
+**How to Verify:** `retention:plan`と承認済みRetention Policyを確認します。Unknown／Denyは404なので、410を認可判定の代わりに使いません。
+
+**Fix:** 必要な保持期間をApplicationのPolicyとして見直します。削除済みCanonical PayloadをStatus ResponseやBackupから無断で復元せず、Legal Hold、Access Control、Purge承認を運用します。
+
+## `.wait()`が`poll_timeout`を返す
+
+**Symptom:** `.wait()`がTerminal StateではなくTransport Resultの`poll_timeout`を返します。
+
+**Likely Cause:** Worker未起動、Retry Delay中、処理時間がDeadlineを超えた、またはStatus Request自体が期限内に完了しませんでした。
+
+**How to Verify:** 同じOperation IDへ`.status()`を一回実行し、`accepted`／`running`／`retry_scheduled`と`retryAfterSeconds`を確認します。Timeout後にOperationが自動Cancelされたとは解釈しません。
+
+**Fix:** Workerを監督し、業務SLOに合う正の`maxWaitMilliseconds`を呼出単位で指定します。無限待機や固定間隔の独自Pollingへ置き換えません。Timeout後もWorkerは処理を続けられるため、後から同じIDで`.status()`または新しい有限`.wait()`を実行できます。
+
+## `.status()`／`.wait()`が`unexpected_response`を返す
+
+**Symptom:** Serverへ到達できるのにGenerated Clientが`unexpected_response`で停止します。
+
+**Likely Cause:** HTTP Status、JSON Media Type、Schema Version、Operation ID／Type、State別Field、Outcome Shape、`Retry-After`がCompiled Contractと一致しません。
+
+**How to Verify:** Generated Treeを再生成し、ServerとClientが同じBuildから作られているか確認します。Raw Body、Credential、Thrown ErrorをResultやLogへ追加しないでください。
+
+**Fix:** `build:compile -> frontend:generate -> frontend:check -> pnpm test`を同じReleaseで実行します。Malformed／5xxをClient側で自動Retryせず、Server ContractまたはDeploy不整合を修正します。
 
 ## Operation ID付き500を調べる
 
@@ -216,19 +257,19 @@ test -d var/log && test -w var/log && printf 'journal directory is writable\n'
 
 **Symptom:** `OutcomeReader::find()`が`null`を返し、処理中、未知のOperation ID、失敗、保持期限切れを区別できません。
 
-**Likely Cause:** `OutcomeReader`は正常完了したOutcomeだけを返すContractです。現行RuntimeはStatus／Outcome HTTP endpointを提供しません。
+**Likely Cause:** `OutcomeReader`は正常完了したOutcomeだけを返す低Level Contractです。Status Queryを使わず`null`だけで判定しています。
 
-**How to Verify:** Applicationが所有するStatus ViewでOperation IDの存在、現在State、Terminal Event、Outcome保持期限を確認します。Journalでは`operation.completed`、`operation.rejected`、`operation.failed`、`operation.dead_lettered`を調べます。
+**How to Verify:** Public `OperationStatusQuery`、`GET /operations/{operationId}`、またはGenerated `.status()`で現在Stateを確認します。
 
-**Fix:** ApplicationにStatus ViewとController／CLI Adapterを実装し、次のように分類します。
+**Fix:** Public Status Resultを次のように分類します。PHP AdapterでOutcomeだけが必要な場合に限り`OutcomeReader`を使います。
 
 | 判定 | Applicationが返す状態 |
 | --- | --- |
 | Operationが存在し、非Terminal | Pending |
 | CompletedかつOutcomeあり | Completed |
 | Rejected／Failed／Dead Letter | Terminal without outcome |
-| Operationを確認できない | Not Found |
-| Completed記録がありOutcome保持期限を超過 | Expired |
+| UnknownまたはDeny | 404 Unavailable |
+| Allow済みで期限切れを証明 | 410 Expired |
 
 Persistence PayloadやFramework Table Schemaを利用者向けResponseへ直接公開しません。
 

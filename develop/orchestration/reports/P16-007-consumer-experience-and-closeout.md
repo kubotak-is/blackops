@@ -1,18 +1,16 @@
 # P16-007 Consumer Experience and Phase Closeout Report
 
-Status: Paused by Orchestrator due to second out-of-scope Production blocker
+Status: Accepted
 
 ## Summary
 
-P16-007のQuickstart Status Authorizer、Frontend Type Narrowing、Generated `.status()`／`.wait()`のReal HTTP Journey、Skeleton／Publication／Framework Update Guard、主要Guide同期を途中まで実装した。
+QuickstartとComposer SkeletonへApplication所有の`SampleOperationStatusAuthorizer`と明示Service Bindingを追加し、Generated `.status()`／`.wait()`をInstall直後のFrontend Source、実HTTP Consumer E2E、Guide、Documentation Websiteへ統合した。
 
-P16-003Aでexecution Actor Continuity修正がAcceptedされた後、Quickstartの明示Status Authorizer登録に合わせて既存Application Runtime TestをStatus 200契約へ同期し、Real HTTP E2Eを再開した。Application Runtime Testは成功し、Real HTTPでも受付直後の`accepted`は200で取得できた。
+P16-003Aのexecution Actor ContinuityとP16-003BのCanonical Retry時刻精度を前提にReal HTTP Journeyを先頭から再実行し、202受付、Worker未起動中の`accepted`、第一Attempt後の`retry_scheduled`、第二Attempt後の`completed`とTyped `ReportGenerated` Outcomeまで一つのOperation IDで完走した。別Operationの短いDeadlineは有限`poll_timeout`で停止し、その後のWorker処理を妨げない。
 
-第一Worker Attempt後のDB Stateは正しく`retry_scheduled`へ到達し、P16-003A修正後のInternal DiagnosticsもFoundを返した。しかしPublic Status Resourceは引き続き500 `internal_error`になった。第二の原因は、PostgreSQL Journal Data CodecがRetry予定時刻を`DATE_ATOM`でEncodeしてマイクロ秒を失う一方、Operations Rowの`available_at`はマイクロ秒を保持することにある。
+Missing Token／Unknown／Denyの同一404、Invalid Tokenの401、Non-terminal限定`Retry-After`、全Status Responseの`private, no-store`、Terminal Header、Sensitive Input／Credential／Actor／Raw Error非露出を実HTTPで固定した。通常／`--no-scripts` Skeleton、Working-tree Publication Dry-run／Workflow、Framework Update、Full PHP／Frontend／Consumer／Website Gateも成功した。
 
-実EvidenceではOperations Rowが`2026-07-19 14:22:56.143069+00`、Journalの`AttemptRetryScheduledData.scheduledAt`が`2026-07-19T14:22:56.000000Z`だった。Status Sourceは正しく両時刻の同一性を検証するためIntegrity Failureになり、安全なHTTP 500へ畳まれる。
-
-Production Codec修正はP16-007の変更許可範囲外なので実装を広げず、Orchestrator指示により現在の差分を保持して再度一時停止した。Canonical Retry時刻の精度修正を別Task Packet／別Commitで先に扱う。
+Phase 16のSpecification、Delivery Plan、Roadmap、TODO、STATEをCompleteへ同期した。Documentation WebsiteはLocal／CI相当のBuildまで実行し、外部Publication／Deploy／Cloudflare変更は行っていない。
 
 ## Changed Files
 
@@ -29,13 +27,13 @@ Production Codec修正はP16-007の変更許可範囲外なので実装を広げ
 ### Consumer／Skeleton／Publication
 
 - `tests/Consumer/quickstart-e2e.sh`
-- `tests/Integration/ApplicationHttpRuntimeTest.php`
 - `tests/Consumer/skeleton-create-project.sh`
 - `tests/Consumer/skeleton-publication.sh`
 - `tests/Consumer/skeleton-publication-workflow.sh`
 - `tests/Consumer/framework-update-generators.sh`
+- `tests/Integration/ApplicationHttpRuntimeTest.php`
 
-### Guide
+### Guide／Website／Internal Documentation
 
 - `docs/guide/configuration.md`
 - `docs/guide/core-api.md`
@@ -49,79 +47,203 @@ Production Codec修正はP16-007の変更許可範囲外なので実装を広げ
 - `docs/guide/security.md`
 - `docs/guide/testing.md`
 - `docs/guide/troubleshooting.md`
+- `docs/internal/bootstrap.md`
+- `docs/internal/installed-application-status.md`
+- `docs/internal/status-query.md`
+- `docs/website/content-map.mjs`
+- `docs/website/tests/guide-code.test.mjs`
+- `docs/website/tests/reader-experience.test.mjs`
 
-### Orchestration
+### Specification／Orchestration
 
+- `develop/spec/60-post-phase-10-roadmap.md`
+- `develop/spec/69-deferred-status-and-outcome-api.md`
+- `develop/spec/70-phase-16-delivery-plan.md`
+- `develop/TODO.md`
 - `develop/STATE.md`
 - `develop/orchestration/reports/P16-007-consumer-experience-and-closeout.md`
 
 ## Decisions and Assumptions
 
-- Existing `ReportGenerated` Public Contractの`reportName`／`location`を正本とした。Task Packetの`downloadPath`は誤記としてOrchestratorが訂正し、Outcome Renameは行っていない。
-- Missing Sample TokenはAnonymousとなるため、Status AuthorizerのDenyを経てUnknownと同じ404 `unavailable`になる。不正TokenだけがSubject読取前の401 `authentication`になる。
-- Framework予約Status GETは空でないBodyをQuery前400にする。Consumerのaccepted確認はBodyを送らず、無関係Headerだけを付与する。
-- Structural Abort Signal HelperはApplication APIにせず、DOMなしNode Test専用の`tests/Frontend/wait-signal.ts`へ置いた。Browser向けGuideはnative `AbortController`を使う。
-- Production Status Actor ContinuityとCanonical Retry時刻精度の修正はP16-007へ混ぜない。
-- Quickstart `ApplicationServiceProvider`は明示Status Authorizerを登録するため、同ProviderをCompileするApplication Runtime Testはsame-origin ActorのStatus 200を期待する。Framework既定Denyは専用Resolver／Public Authorization Testで維持する。
+- Existing `ReportGenerated` Public Contractの`reportName`／`location`を正本とし、Outcome Renameを行っていない。
+- Missing Sample TokenはAnonymousとしてStatus AuthorizerがDenyし、Unknownと同じ404になる。不正TokenだけがAuthentication Middlewareで401になる。
+- QuickstartのSame-origin Status AuthorizerはLocal Exampleである。Production Tenant／Resource／Role Policyを規定しない。
+- `.fetch()`は202受付だけで自動Pollingしない。`.status()`は一回、`.wait()`は購読可能Signalと有限Deadlineを必須とする。
+- Retention 410は既存PHP／HTTP RegressionとGuideで維持し、Consumer E2EでRetention Dataを破壊して作らない。
+- Worker未Commit差分なのでPublication `HEAD` Gateは成功扱いにしない。Working-tree `--dry-run`だけを実行し、実装Commit直後のHEAD GateはOrchestratorが担当する。
+- WebsiteはBuild／Artifact／Search確認までとし、Publication／Deployしない。
+
+## Quickstart Status Authorization Matrix
+
+| Current Actor | Origin Actor | Type／Identity | Decision |
+| --- | --- | --- | --- |
+| Authenticated | Persisted | 両方`user`、ID／Type完全一致 | Allow |
+| `null` | Any | Anonymous／Missing Token | Deny |
+| Authenticated | `null` | Origin Actorを復元不能 | Deny |
+| Authenticated | Persisted | IDまたはType不一致 | Deny |
+| Authenticated | Persisted | `user`以外 | Deny |
+
+Application BindingがなければFrameworkの既定Denyを使う。Quickstart BindingはBuild、Application Runtime Test、Skeleton File Guard、Real HTTP 404／200で固定した。
+
+## Frontend `.status()`／`.wait()` Type Matrix
+
+| Capability | Success | Failure／停止 |
+| --- | --- | --- |
+| `.fetch()` | Inline completed、Deferred accepted | Protocol／Rejected／Validation／Internal／Transport |
+| `.status()` | accepted／running／retry_scheduled／completed／rejected／failed／dead_lettered | authentication／unavailable／expired／internal／transport |
+| `.wait()` | completed／rejected／failed／dead_letteredだけ | authentication／unavailable／expired／internal／transport／`poll_timeout`／aborted |
+
+Quickstart TypecheckはCompleted Outcomeの`reportName`／`location`を型付きで読み、Statusの7 StateとWaitのTerminal 4 State／FailureをDiscriminated UnionでNarrowingする。Non-terminal StateはWait Resultへ出ない。
+
+## Real HTTP 202-to-Terminal Journey
+
+1. `GenerateReport.fetch()`が一回のPOSTで202、Operation ID、`Location`、`Retry-After`、`private, no-store`を受け取る。
+2. 直後の`.status()`が一回のGETで`accepted` 200と正整数Retry Hintを返す。
+3. Node `.wait()`開始Signalを安全なOutput FileでShellへ通知する。
+4. Shellが第一Worker Attemptを進め、Operations Rowを`retry_scheduled`へ有限Pollする。
+5. Public StatusはAttempt 1とマイクロ秒付き`retryAt`を持つ`retry_scheduled` 200を返す。
+6. Retry Delay後に第二Worker Attemptを進める。
+7. `.wait()`が同じOperation IDの`completed` 200とTyped `ReportGenerated(reportName, location)`を返す。
+8. Worker未起動の別Operationは150msの有限Deadlineで`poll_timeout`となり、後続Worker処理は成功する。
+
+固定Sleepだけに依存せず、Node Wait開始MarkerとDatabase Stateを有限回Pollした。Background Process、Temporary Directory、Container、Network、Volume、Generated ArtifactはTrap／Cleanupで回収した。
+
+## Authentication／Unavailable／Expired／Header Matrix
+
+| Situation | HTTP／Generated Result | Header／Detail Boundary |
+| --- | --- | --- |
+| Deferred受付 | 202 accepted | `Location`、正整数`Retry-After`、`private, no-store` |
+| accepted／retry_scheduled | 200 non-terminal | 正整数`Retry-After`、`private, no-store` |
+| completed | 200 terminal | `Retry-After`なし、`private, no-store` |
+| Missing Token／Deny | 404 unavailable | Unknownと同じBody、Detailなし |
+| Unknown Operation ID | 404 unavailable | Denyと同じBody、Detailなし |
+| Invalid Token | 401 authentication | Subject読取前、Operation Detailなし |
+| Allow済みRetention Expired | 410 expired | 既存RegressionとGuideで維持、認可後だけ公開 |
+
+## Sensitive／Credential／Actor／Raw Error Evidence
+
+- `recipientEmail`はWrite-only Inputとして送信するが、Status／Wait ResultとGenerated Metadataへ含めない。
+- Sample TokenはOperationValue、Context、Journal、Generated Artifact、Typed Resultへ含めない。
+- Origin／Authorization／Execution Actor ID、Worker ID、Attempt ID、Correlation／Causation IDをPublic Statusへ返さない。
+- Internal 500、Network Error、Malformed Responseは安定Codeだけを返し、Raw Body、Exception Message、Stack Traceを保持しない。
+- Completed StatusはPublic Outcome Property `reportName`／`location`だけを返す。
+- Generated TreeとWebsite distをSensitive Markerで検査し、禁止値なしを確認後にCleanupした。
+
+## Skeleton／Publication／Framework Update Evidence
+
+- 通常`composer create-project`と`--no-scripts`の両方がStatus Authorizer、Provider Binding、Frontend Typecheck／Real HTTP／Signal Helperをbytes単位で保持した。
+- `--no-scripts`は`php bin/setup`を明示実行し、通常Installと同じ準備状態になった。
+- Working-tree Publication Dry-runがVersion `1.1.0`、Source `2bfd63cb89bed4779c60784b1853727001ce9e67`、`split=working-tree`で成功した。
+- Publication Workflow RegressionがSplit Commit `dc863b6999c3a4389edf8643ce0d36c091306fc1`で成功した。
+- Framework UpdateはApplication所有Authorizer、Provider、README、Frontend Source／Testを保持し、更新後のProject Root `blackops`からCurrent Build／Generate／Checkへ到達した。
+
+## Guide／Website／Current Status Evidence
+
+- QuickstartとTutorialを202→Status→Worker→finite Wait→Typed OutcomeのInput／Output対へ更新した。
+- Execution、Outcome、Security、Troubleshooting、Configuration、Directory、Testing、Deployment、Core APIへStatus／Wait／Authorization／Retention責務を配置した。
+- Current StatusはStable 1.1.0をNot available、`main`のStatus Resource／Generated `.status()`／`.wait()`をAvailable（Experimental）として区別した。
+- Website IAとStable／main Bannerを維持し、Content Mapの説明とReader Contract Testを更新した。
+- Websiteは39 Source Test、Astro 0 diagnostics、30 Static Page Build、29 Page Navigation／Accessibility／Search Checkを完走した。
+- Website Publication／Deploy／Cloudflare変更は行っていない。
 
 ## Commands and Results
 
 ```text
-bash -n tests/Consumer/quickstart-e2e.sh \
-  tests/Consumer/skeleton-create-project.sh \
-  tests/Consumer/skeleton-publication.sh \
-  tests/Consumer/skeleton-publication-workflow.sh \
-  tests/Consumer/framework-update-generators.sh
-Result: success。
-
-git diff --check
-Result: success。
-
 bash tests/Consumer/quickstart-e2e.sh
-Result: P16-003A受理後も第二Production blockerのEvidenceを得て失敗。
-  - Composer install、Frontend generate／check、DOMなしTypeScript typecheckは成功。
-  - Generated `.fetch()`の202と直後`.status()`のaccepted 200は成功。
-  - DB Stateは第一Attempt後にretry_scheduledへ到達。
-  - Internal Diagnosticsはretry_scheduledをFoundへ投影。
-  - Operations Row `available_at`: `2026-07-19 14:22:56.143069+00`。
-  - Journal `scheduledAt`: `2026-07-19T14:22:56.000000Z`。
-  - 同時点のPublic Status curlは500 `{"status":"error","code":"internal_error"}`。
-  - Generated `.wait()`はinternal:internal_errorで即時停止。
+Result: Quickstart consumer E2E passed。
 
-docker compose run --rm app vendor/bin/phpunit --display-deprecations \
-  tests/Integration/ApplicationHttpRuntimeTest.php
-Result: OK (6 tests, 73 assertions)。Quickstart明示Status Authorizerのaccepted 200、`private, no-store`、`Retry-After: 1`を確認。
+bash tests/Consumer/quickstart-setup.sh
+Result: Quickstart setup tests passed。
+
+mise exec -- pnpm --dir tests/Frontend install --frozen-lockfile
+docker compose run --rm app php tests/Frontend/fixture/blackops build:compile
+docker compose run --rm app php tests/Frontend/fixture/blackops frontend:generate
+docker compose run --rm app php tests/Frontend/fixture/blackops frontend:check
+mise exec -- pnpm --dir tests/Frontend run test
+mise exec -- pnpm --dir tests/Frontend run clean
+Result: Build／Generate／Fresh、Typecheck、Injected Fetch、Status／Finite Wait、Module Shape、Cleanup全成功。
+
+bash tests/Consumer/skeleton-create-project.sh
+Result: 通常／--no-scripts Skeleton create-project smoke passed。
+
+bash tests/Consumer/skeleton-publication.sh --dry-run
+Result: Working-tree publication dry run passed。
+
+bash tests/Consumer/skeleton-publication-workflow.sh
+Result: Publication workflow regression passed。
+
+bash tests/Consumer/framework-update-generators.sh
+Result: Framework update generator smoke passed。
+
+mise exec -- pnpm --dir docs/website install --frozen-lockfile
+mise exec -- pnpm --dir docs/website run content:generate
+mise exec -- pnpm --dir docs/website run content:check
+mise exec -- pnpm --dir docs/website run test
+Result: Content deterministic、39 tests passed。初回は旧Tutorial／Status期待3件を検出し、Public Status主経路へ同期後に全成功。
+
+mise exec -- pnpm --dir docs/website run check
+Result: Mermaid／Accessibility成功、Astro 0 errors / 0 warnings / 0 hints。
+
+mise exec -- pnpm --dir docs/website run build
+Result: 30 pages built、Artifact Boundary成功、29 pages Navigation／Accessibility／Pagefind Search成功。
+
+docker compose run --rm app composer validate --strict
+docker compose run --rm app composer validate --strict examples/quickstart/composer.json
+Result: Root／Quickstart Composer valid。
+
+docker compose run --rm app mago format --check src tests examples
+docker compose run --rm app mago lint
+docker compose run --rm app mago analyze
+Result: 全成功。
+
+docker compose run --rm app vendor/bin/phpunit --display-deprecations
+Result: OK (1430 tests, 5679 assertions)。
+
+docker compose run --rm app vendor/bin/deptrac
+Result: Violations 0 / Skipped 0 / Uncovered 0 / Allowed 2530 / Warnings 0 / Errors 0。
+
+Management ID／Sensitive／Tracking／Artifact／git diff --check Guards
+Result: 全成功。Generated／Build／Node Modules／Website Content／distを追跡せずCleanup済み。
 ```
 
-Full PHP／Frontend／Consumer／Skeleton／Publication／Website GateはBlocker修正前のため未実行である。Website Publication／Deploy／Cloudflare変更は行っていない。
+```text
+bash tests/Consumer/skeleton-publication.sh 1.1.0 HEAD
+Result: 実装Commit直後のPublication HEAD Gate成功。Version 1.1.0、Committed SourceからSkeleton Splitを構成し、配布対象File／除外Artifact／Install Contractを確認した。
+```
 
-## Acceptance Criteria
+## Phase 16 Acceptance Criteria
 
 - [x] QuickstartがApplication所有Status Authorizerと明示Bindingを持つ
-- [x] Same-origin Actor一致だけAllowし、欠落／不一致をDenyする実装を持つ
-- [x] Frontend Typecheckが`.status()`の7 State／Failureと`.wait()`のTerminal／FailureをNarrowingする
-- [x] `.fetch()`一回、直後`.status()`一回、有限`.wait()`、短DeadlineのTest Journeyを実装した
-- [x] Skeleton／Publication／Framework Update GuardへAuthorizerとFrontend Test Sourceを追加した
-- [x] Quickstart明示Status AuthorizerをCompileするApplication Runtime Testを200契約へ同期した
-- [ ] Generated `.wait()`がWorker Retry後のCompleted Typed Outcomeを返す
-- [ ] Real HTTP 401／404／Retry／Terminal／Sensitive Evidenceを完走する
-- [ ] Guide／Website Source／Internal Documentationをすべて同期する
-- [ ] Full Quality Gateを完走する
-- [ ] Phase 16をCloseする
+- [x] Same-origin Actor一致だけAllowし、欠落／不一致をDenyする
+- [x] Install直後のSkeleton通常／`--no-scripts`へAuthorizerとFrontend Journeyが含まれる
+- [x] Generated `.status()`が実HTTP acceptedを一回取得する
+- [x] Generated `.wait()`がWorker Retry後のCompleted Typed Outcomeを返す
+- [x] Worker未起動が有限Timeoutとなり、`.fetch()`は自動Pollingしない
+- [x] 401／404／Safe Header／No-store／Retry-Afterを実HTTPで確認する
+- [x] Sensitive Input／Credential／Actor／Raw Error／Canonical DetailがPublic Result／Artifact／Logへ露出しない
+- [x] Skeleton Publication Dry-run／WorkflowとFramework UpdateがApplication-owned Fileを保持する
+- [x] Guide／Website SourceがStatus／Wait／Authorization／Retention／Troubleshootingを同期する
+- [x] Stable 1.1.0と`main` Experimental Surfaceを正しく区別する
+- [x] Full PHP／Frontend／Consumer／Skeleton／Publication／Website Gateが成功する
+- [x] Generated／Build／Node Modules／Website Content／Dist ArtifactをCommitしない
+- [x] Documentation Websiteを外部公開しない
+- [x] Phase 16 Delivery Plan／Roadmap／TODO／STATEをClosedへ同期する
 - [x] WorkerはCommitしていない
 
 ## Remaining Issues
 
-1. P16-003Aのexecution Actor Continuity修正はAccepted済みである。
-2. `PostgreSqlJournalDataCodec`が`AttemptRetryScheduledData.scheduledAt`を`DATE_ATOM`でEncodeし、Operations Rowが保持するマイクロ秒をCanonical Journalで失う。StatusのRetry時刻整合性検証がIntegrity Failureになる。
-3. Canonical Retry時刻精度修正の受理後にP16-007 Real HTTP E2Eを再実行する必要がある。
-4. Quickstart README／Guideは途中まで同期済みだが、Website Source生成、Internal Documentation、Phase Acceptance／TODO／STATE Closeoutは未完了である。
-5. Skeleton／Publication／Framework UpdateとFull Gateは未実行である。
+P16-007とPhase 16の実装範囲にRemaining Issueはない。
+
+P16-007とPhase 16の実装範囲にRemaining Issueはない。Documentation Website PublicationはUser判断どおり別の明示TaskまでDeferredである。
 
 ## Suggested Next Action
 
-1. OrchestratorがCanonical Retry時刻精度修正の別Task Packetを作成する。
-2. WorkerがJournal Data Codecでマイクロ秒を保持し、Retry ScheduledのOperations Row／Journal一致とStatus Foundを実DB回帰で固定する。関連するCanonical Timestamp Fieldの同じ精度問題もTask Packetで範囲を明示する。
-3. Orchestrator受理／別Commit後、P16-007を再開する。
-4. Application Runtime 200同期済み差分を維持したままReal HTTPの202→accepted→retry_scheduled→completed Typed Outcomeと有限Timeoutを再実行する。
-5. 残りDocumentation、Skeleton／Publication／Framework Update、全Gate、Phase 16 Closeoutを完走する。
+Phase 16 CloseoutをPushし、Phase 17 Reliability and DeliveryのDecision Planningへ進む。
+
+## Orchestrator Review
+
+QuickstartのApplication所有Status Authorizer、Generated `.status()`／`.wait()` Consumer、Skeleton／Publication／Framework Update Guard、Guide／Website／Internal Documentation、Phase 16 Closeoutの差分がTask Packet範囲内であることを確認した。Framework既定Denyは専用Resolver／Authorization Testで維持し、Quickstartの明示BindingだけをApplication Runtime 200契約へ同期している。
+
+Orchestrator再実行でComposer Root／Quickstart、Mago format／lint／analyze、Full 1430 tests／5679 assertions、Deptrac 0違反／0警告／0エラーが成功した。WebsiteもContent Generate／Check、39 tests、Astro 0 diagnostics、30 Page Build、29 Page Navigation／Accessibility／Search Checkが成功した。Real HTTP Quickstart E2Eは202→accepted→retry_scheduled→completed Typed Outcome、finite `poll_timeout`、401／404、Header、Sensitive境界を再度完走し、専用Container／VolumeをCleanupした。
+
+Website Generated Content／dist／node_modules／Astro CacheをCleanupし、Artifact／Sensitive／Tracking／Management ID／`git diff --check` Guardを再確認した。実装Commit直後のPublication HEAD Gateも成功したためAcceptedとした。

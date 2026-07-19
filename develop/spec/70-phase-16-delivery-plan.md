@@ -107,17 +107,17 @@ Documentation WebsiteはBuildまでとし、Publication／Deployしない。
 
 ## Phase Acceptance Criteria
 
-- [ ] D102とPhase 16 Specification／Delivery PlanがDecidedである
-- [ ] Public PHP Status Queryと専用Query Authorizerが実装される
-- [ ] PostgreSQL SourceがInline／Deferred／Retentionを安全に投影する
-- [ ] HTTP Resourceが7 Stateと200／404／410／500 Contractを提供する
-- [ ] Deferred 202が`Location`／`Retry-After`を提供する
-- [ ] Generated `.status()`がTyped Outcomeを取得できる
-- [ ] Generated `.wait()`がAbort可能、有限、Retry-After準拠である
-- [ ] Unknown／Unauthorized、Expired、Sensitive、Raw Error境界がRegression Testで固定される
-- [ ] Quickstart／Skeleton／Framework Update／Consumer E2E／Guide／Website Sourceが同期する
-- [ ] Full PHP／Frontend／Consumer／Website Quality Gateが成功する
-- [ ] Documentation Websiteを外部公開しない
+- [x] D102とPhase 16 Specification／Delivery PlanがDecidedである
+- [x] Public PHP Status Queryと専用Query Authorizerが実装される
+- [x] PostgreSQL SourceがInline／Deferred／Retentionを安全に投影する
+- [x] HTTP Resourceが7 Stateと200／404／410／500 Contractを提供する
+- [x] Deferred 202が`Location`／`Retry-After`を提供する
+- [x] Generated `.status()`がTyped Outcomeを取得できる
+- [x] Generated `.wait()`がAbort可能、有限、Retry-After準拠である
+- [x] Unknown／Unauthorized、Expired、Sensitive、Raw Error境界がRegression Testで固定される
+- [x] Quickstart／Skeleton／Framework Update／Consumer E2E／Guide／Website Sourceが同期する
+- [x] Full PHP／Frontend／Consumer／Website Quality Gateが成功する
+- [x] Documentation Websiteを外部公開しない
 
 ## Traceability
 

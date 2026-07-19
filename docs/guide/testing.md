@@ -9,7 +9,7 @@ BlackOps ApplicationのTestは、Operationの業務規則、HTTP BindingとValid
 | Operation | 型付きValueからOutcomeまたは業務Rejectedを返す | [Operation Authoring](operations.md) |
 | HTTP Boundary | Route、Binding、宣言的Value Validation、Status／JSON | [Validation](validation.md) |
 | Inline／Deferred | 同じOperation ModelでResponseと受付境界が分かれる | [HTTP、Inline、Deferred](execution.md) |
-| Frontend Contract | Generate／Drift、DOMなしStrict Type、`.url()`／`.toRequest()`／`.fetch()`のRequestとResult | [Quickstart](mvp-sample.md#3-generated-operation-objectから呼ぶ) |
+| Frontend Contract | Generate／Drift、DOMなしStrict Type、`.url()`／`.toRequest()`／`.fetch()`／`.status()`／`.wait()`のRequestとResult | [Quickstart](mvp-sample.md#3-generated-operation-objectから呼ぶ) |
 | Consumer E2E | Build、Migration、HTTP、Worker、Journal、Outcomeを実Processでつなぐ | [Quickstart](mvp-sample.md) |
 
 Unit TestだけでDeferred処理のDurabilityを保証したと判断しないでください。少なくともApplicationと同じPostgreSQL SchemaへMigrationを適用し、HTTP 202のOperation IDを使ってWorker後のJournalとOutcomeを確認します。
@@ -30,6 +30,10 @@ php blackops frontend:check
 pnpm test
 ```
 
-Consumer E2EではGenerated Welcome／Report／Order／Diagnostics ObjectをWorker Mode HTTPへ接続し、200 `completed`、202 `accepted`、422 `validation`、500 `internal`、Fetch Throwの`transport`を確認します。`.url()`、`.toRequest()`、Readonly Metadataも同じCompiled Contractと比較します。Sensitive Input、Credential、Raw Transport ErrorをGenerated Tree、Typed Result、Application／Observed Logで検索し、非露出を固定してください。Deferred 202後のPollingはStatus／Outcome HTTP APIが提供されるまでClient Testへ追加しません。
+Consumer E2EではGenerated Welcome／Report／Order／Diagnostics ObjectをWorker Mode HTTPへ接続し、200 `completed`、202 `accepted`、422 `validation`、500 `internal`、Fetch Throwの`transport`を確認します。`.url()`、`.toRequest()`、Readonly Metadataも同じCompiled Contractと比較します。
+
+Deferred Journeyでは、`.fetch()`が一回のPOSTだけで202を返すこと、`.status()`が`accepted`を一回取得すること、Nodeの有限`.wait()`中にShell側でWorker Retryを進めてTyped Completed Outcomeへ到達することを確認します。別Operationの短いDeadlineは`poll_timeout`になり、その後のWorker処理を壊しません。不正Credentialは401、Anonymous／Unknown／Denyは404、Non-terminalだけに`Retry-After`、全Responseに`private, no-store`があることも実HTTPで固定します。
+
+Browser Testはnative `AbortController`、DOMなしNode Testは購読可能なStructural Signal Helperを使います。Sensitive Input、Credential、Actor ID、Worker ID、Raw Transport ErrorをGenerated Tree、Typed Result、Application／Observed Logで検索し、非露出を固定してください。
 
 再現可能なInput／Outputは[チュートリアル](first-operation.md)、失敗時の調査順は[Troubleshooting](troubleshooting.md)を参照してください。

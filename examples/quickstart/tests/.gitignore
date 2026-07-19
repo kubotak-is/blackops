@@ -1,2 +1,9 @@
 *
 !.gitignore
+!Frontend/
+Frontend/*
+!Frontend/clean.mjs
+!Frontend/real-http.ts
+!Frontend/typecheck.ts
+!Frontend/wait-signal.ts
+!Frontend/write-runtime-package.mjs
