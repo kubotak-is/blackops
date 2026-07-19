@@ -1,24 +1,24 @@
 # Orchestration State
 
-Updated At: 2026-07-20T00:01:28+09:00
+Updated At: 2026-07-20T00:32:46+09:00
 
 ## Current Phase
 
-Phase 16: Deferred Status and Outcome API - Complete
+Phase 17: Full-stack Reference Application - Decision Planning
 
 ## Current Task
 
-Task ID: P16-007-consumer-experience-and-closeout
+Decision ID: D103-full-stack-reference-application
 
-Task Packet: `develop/orchestration/tasks/P16-007-consumer-experience-and-closeout.md`
+Decision: `develop/decisions/103-full-stack-reference-application.md`
 
-Specifications: `develop/spec/25-sensitive-projection.md`、`develop/spec/67-operation-frontend-bridge.md`、`develop/spec/69-deferred-status-and-outcome-api.md`、`develop/spec/70-phase-16-delivery-plan.md`、`develop/decisions/100-phase-15-operation-frontend-bridge.md`、`develop/decisions/102-phase-16-deferred-status-and-outcome-api.md`
+Specifications: `develop/spec/60-post-phase-10-roadmap.md`、`develop/spec/71-full-stack-reference-application.md`、`develop/spec/72-phase-17-delivery-plan.md`
 
 ## Task Status
 
-Accepted
+Planning Complete
 
-P16-007とPhase 16 CloseoutをAcceptedとした。Orchestrator再実行でもReal HTTPの202→accepted→retry_scheduled→completed Typed Outcome、有限`poll_timeout`、401／404／Header／Sensitive境界、Full PHP 1430 tests／5679 assertions、Mago、Deptrac、Website 39 tests／Astro 0 diagnostics／30 Page Buildが成功した。Generated ArtifactはCleanup済みで、Website Publication／Deployは行っていない。
+D103はA／A／A／A／A／A／A／Aで確定した。認証付きコミュニティ掲示板`BlackOps Board`を独立したSvelteKit Reference ApplicationとしてPhase 17へ追加する。BlackOps通信はSvelteKit Server-only Moduleへ限定し、Application-owned Authentication EndpointをOperation／Journal外に置く。Roadmap、TODO、Full-stack Reference Application仕様、Phase 17 Delivery Planを同期した。Production Code実装はまだ開始していない。
 
 ## Last Accepted Task
 
@@ -46,6 +46,7 @@ P16-007-consumer-experience-and-closeout
 18. D098はAで確定。Operation ID発行後、Attempt開始前の予期しないThrowableは、受付TransactionのRollback後に別TransactionでAttemptなしの`received -> operation.failed`へ到達する。
 19. D099はA／A／A／Aで確定。Built-in JSONL、限定Stream、Invalid Config Fail-fast／Runtime Failure Best-effort、Disable不可を採用する。
 20. D101はA／A／Aで確定。Path／Query／HeaderのNative Scalarを厳密Coercionし、Canonical形式と既存422 Failure Surfaceを採用する。
+21. D103はA／A／A／A／A／A／A／Aで確定。Phase 17をFull-stack Reference Applicationとし、Server-only SvelteKit BFF、Application-owned Authentication、Deferred Digest、DBAL、Taste Skill適用範囲、Local-only Deliveryを採用する。
 
 ## Known Blockers
 
@@ -53,8 +54,9 @@ P16-007-consumer-experience-and-closeout
 
 ## Required Next Action
 
-1. OrchestratorがPublication HEAD Gate成功を含むP16-007 Accepted CommitをPushする。
-2. Phase 17 Reliability and DeliveryのDecision Planningへ進む。
+1. OrchestratorがP17-001 Planning差分をReview／Commitする。
+2. OrchestratorがP17-002 Application and SvelteKit FoundationのTask Packetを作成する。
+3. GPT-5.6 Luna High WorkerがP17-002を実装する。
 
 ## P16-007 Consumer Experience and Phase Closeout Worker Verification
 

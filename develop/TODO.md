@@ -122,12 +122,24 @@ MVP後に残す主要項目:
 - [x] Abort可能で有限なGenerated `.wait()`とFrontend CIを実装する
 - [x] Quickstart／Skeleton／Guide／Website Source／Consumer E2Eを同期してPhase 16をCloseする
 
-### Phase 17: Reliability and Delivery
+### Phase 17: Full-stack Reference Application
+
+- [x] D103でRoadmap順序、BlackOps Board Scope、BFF、Authentication、Deferred Journey、Persistence、Design、Publication境界を決定する
+- [x] Full-stack Reference Application仕様とPhase 17 Delivery Planを作成する
+- [ ] `examples/community-board/`のApplication／SvelteKit／Compose Foundationを構築する
+- [ ] Application-owned Authentication EndpointとSvelteKit Server-only Sessionを実装する
+- [ ] Post／CommentのInline Operation、Validation、Authorization、Transactionを実装する
+- [ ] Generated Operation ObjectをServer-only BFFへ接続し、投稿Journeyを実装する
+- [ ] Deferred `GenerateWeeklyDigest`とStatus／Wait／Typed Outcome UIを実装する
+- [ ] Taste SkillをDesign Directionへ適用し、Accessibility／Responsive／State UIを完成する
+- [ ] Real Browser E2E、CI、Screenshot、README／Guideを同期してPhase 17をCloseする
+
+### Phase 18: Reliability and Delivery
 
 - [ ] Idempotency Keyと重複時Contractを実装する
 - [ ] Transactional Outbox、Relay、Replayを実装する
 
-### Phase 18: Security Hardening and Observability
+### Phase 19: Security Hardening and Observability
 
 - [ ] Journal／Outcome参照制御、Tenant分離、暗号化Capabilityを強化する
 - [ ] 構造化Log SchemaとOpenTelemetry Adapterを提供する

@@ -15,8 +15,9 @@ Phase 11 Stable 1.1 Release
       -> Phase 14 Operation Diagnostics
         -> Phase 15 Operation Frontend Bridge
           -> Phase 16 Deferred Status and Outcome API
-            -> Phase 17 Reliability and Delivery
-              -> Phase 18 Security Hardening and Observability
+            -> Phase 17 Full-stack Reference Application
+              -> Phase 18 Reliability and Delivery
+                -> Phase 19 Security Hardening and Observability
 ```
 
 ## Phase 11: Stable 1.1 Release
@@ -92,7 +93,20 @@ Status: Complete
 
 Generated ClientへのPolling統合はPhase 15のOperation Object Contractを利用し、Phase 16の必須完了条件とする。`.fetch()`は自動Pollingせず、明示的な`.status()`とAbort可能で有限な`.wait()`を追加する。詳細は[Deferred Status and Outcome API](69-deferred-status-and-outcome-api.md)を正本とする。
 
-## Phase 17: Reliability and Delivery
+## Phase 17: Full-stack Reference Application
+
+- `examples/community-board/`の独立したBlackOps Board Application
+- SvelteKit Same-origin BFFとServer-only Generated Operation Object
+- Application-owned User Registration、Password、Session、Login／Logout
+- Post Feed、Post Detail、Create／Edit／Delete、Comment
+- Validation、ActorContext、Owner Authorization、DBAL Repository、Transaction
+- Deferred `GenerateWeeklyDigest`の202、Status／Wait、Typed Outcome UI
+- Taste SkillをDesign Directionに使うAccessible／Responsive Product UI
+- Local Compose、Seed、Real Browser E2E、Screenshot／Guide、CI
+
+Quickstart／Skeletonは変更せず、External HostingとDocumentation Website Publicationを含めない。Authentication EndpointはOperation外のApplication-owned HTTP Boundaryとし、BrowserからBlackOpsへの直接通信とCredentialのJournal保存を行わない。詳細は[Full-stack Reference Application](71-full-stack-reference-application.md)を正本とする。
+
+## Phase 18: Reliability and Delivery
 
 - Idempotency Keyの受付、保存、重複時Contract
 - Transactional Outbox Persistence AdapterとRelay
@@ -100,7 +114,9 @@ Generated ClientへのPolling統合はPhase 15のOperation Object Contractを利
 - at-least-once、Fencing、Retry、Dead Letter運用
 - HandlerのIdempotency責務とFramework支援
 
-## Phase 18: Security Hardening and Observability
+Community Boardの二重投稿防止と通知配送をConcrete Acceptance Journeyとして利用する。
+
+## Phase 19: Security Hardening and Observability
 
 - Journal／Status／Outcome参照制御とTenant分離
 - Canonical Payload／Transportの暗号化Capability
