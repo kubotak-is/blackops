@@ -85,7 +85,7 @@ DetailはSubjectが認可された後、同じDBAL Connection上の`REPEATABLE R
 | Deferred | Operations Row | CompletedはOutcome Store、RejectedはJournal、Failedは固定Code、Dead LetteredはRow／Purge Evidence |
 | Deferred受付前Terminal | Canonical Journal | Rejected Safe ReasonまたはFailed Event |
 
-DeferredではOperations RowのType、Schema Version、State、Next Sequence、Attempt、Retry時刻をJournalと照合する。Internal `supervising`はPublic `running`へ投影する。Public Stateは次のようになる。
+DeferredではOperations RowのType、Schema Version、State、Next Sequence、Attempt、Retry時刻をJournalと照合する。Retry時刻はOperations Rowの`available_at`とCanonical Journal Dataの`scheduled_at`をマイクロ秒まで厳密に比較する。Journal DataはUTC RFC 3339の6桁マイクロ秒形式で新規保存し、既存の秒精度／Offset付き値もDecodeできる。Internal `supervising`はPublic `running`へ投影する。Public Stateは次のようになる。
 
 | Internal state | Public state | Attempt／retryAt |
 | --- | --- | --- |
@@ -99,6 +99,8 @@ DeferredではOperations RowのType、Schema Version、State、Next Sequence、A
 | `dead_lettered` | `dead_lettered` | 固定`operation_dead_lettered` |
 
 Canonical JournalはSequence 1始まりの連番、Lifecycle遷移、Operation Identity、Attempt ID／Number／Started At、Retry Dataを検証する。Operation IdentityとしてRecord Schema Version、Operation ID、Type、Operation Schema Version、Strategy、Correlation／Causation、origin Actor、authorization Actorを全Recordで一致させる。execution Actorは各Recordの生成主体なので、HTTP受付からWorkerへの移行、Retry、Lease Recoveryで変化できる。検証できない欠落や矛盾を推測でPublic Stateへ丸めない。
+
+Dead Letterの内部診断では、Dead Letters Rowの`moved_at`とCanonical Journal Dataの`moved_at`も同じUTCマイクロ秒形式で照合する。
 
 ## Retention Boundary
 

@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-19T23:25:15+09:00
+Updated At: 2026-07-19T23:36:09+09:00
 
 ## Current Phase
 
@@ -16,13 +16,13 @@ Specifications: `develop/spec/24-lifecycle-event-data.md`、`develop/spec/35-pos
 
 ## Task Status
 
-Ready
+Accepted
 
-P16-007の途中差分を保持して再度一時停止し、PostgreSQL Canonical Journal DataのRetry／Dead Letter時刻が`DATE_ATOM` Encodeでマイクロ秒を失う不整合を独立補正する。既存`TimeCodec`でUTCマイクロ秒を保持し、Legacy秒精度Decode互換とStatusの厳密時刻照合を維持する。
+Retry `scheduled_at`とDead Letter `moved_at`を既存`TimeCodec`によるUTCマイクロ秒形式へ補正し、Legacy秒精度Decode互換とStatusの厳密時刻照合を維持した。Orchestrator再実行でもTarget 45 tests／204 assertions、Composer、Mago、Deptrac、Guardが成功し、Worker Full 1430 tests／5679 assertionsも含めP16-003BをAcceptedとした。P16-007途中差分は変更していない。
 
 ## Last Accepted Task
 
-P16-003A-journal-execution-actor-continuity
+P16-003B-canonical-journal-timestamp-precision
 
 ## Pending Decisions
 
@@ -49,15 +49,12 @@ P16-003A-journal-execution-actor-continuity
 
 ## Known Blockers
 
-1. P16-003BでCanonical Journal DataのRetry／Dead Letter時刻精度を補正する。P16-007 Real HTTP JourneyはこのTask受理まで一時停止する。
-
-Documentation WebsiteはUser判断どおり未公開であり、Publication／Deployは行わない。
+なし。Documentation WebsiteはUser判断どおり未公開であり、Publication／Deployは行わない。
 
 ## Required Next Action
 
-1. OrchestratorがP16-003B Task PacketをCommit／Pushする。
-2. GPT-5.6 Luna High WorkerがCodec修正と実Database回帰を実装する。
-3. Orchestratorが別Commitとして受理後、P16-007を再開してReal HTTP／Documentation／全品質Gateを完走する。
+1. OrchestratorがP16-003Bの許可範囲だけをCommit／Pushする。
+2. P16-007を再開してReal HTTP／Documentation／全品質Gateを完走する。
 
 ## P16-006 Generated Wait Capability and Frontend CI Worker Verification
 

@@ -22,6 +22,7 @@ use BlackOps\Internal\Diagnostics\PostgreSqlDiagnosticsSourceReader;
 use BlackOps\Journal\Data\AttemptFailedData;
 use BlackOps\Journal\Data\AttemptRetryScheduledData;
 use BlackOps\Journal\Data\OperationCompletedData;
+use BlackOps\Journal\Data\OperationDeadLetteredData;
 use BlackOps\Journal\Data\OperationReceivedData;
 use BlackOps\Journal\EmptyJournalData;
 use BlackOps\Journal\JournalAttempt;
@@ -117,6 +118,41 @@ final class PostgreSqlDiagnosticsQueryIntegrationTest extends TestCase
         self::assertCount(2, $result->diagnostics->attempts);
         self::assertSame([3, 4, 5], $result->diagnostics->attempts[0]->events);
         self::assertSame([6, 7, 8], $result->diagnostics->attempts[1]->events);
+    }
+
+    public function testDeadLetterRowAndJournalPreserveMatchingMicroseconds(): void
+    {
+        $this->connection->executeStatement('DELETE FROM ' . self::SCHEMA . '.outcomes');
+        $this->connection->executeStatement('DELETE FROM ' . self::SCHEMA . '.journal');
+        foreach ($this->deadLetteredRecords() as $record) {
+            $this->journal->append($record);
+        }
+        $this->connection->executeStatement(
+            'UPDATE ' . self::SCHEMA . '.operations
+            SET state = :state, next_sequence = 6, attempt_number = 1
+            WHERE operation_id = :operation_id',
+            [
+                'state' => LifecycleState::DeadLettered->value,
+                'operation_id' => self::OPERATION_ID,
+            ],
+        );
+        $this->connection->executeStatement('INSERT INTO ' . self::SCHEMA . '.dead_letters (
+            operation_id, final_attempt_id, final_attempt_number, reason_type, reason_message, moved_at
+        ) VALUES (
+            :operation_id, :attempt_id, 1, :reason_type, :reason_message, :moved_at
+        )', [
+            'operation_id' => self::OPERATION_ID,
+            'attempt_id' => self::ATTEMPT_ID,
+            'reason_type' => 'PermanentFailure',
+            'reason_message' => 'private-dead-letter',
+            'moved_at' => '2026-07-18T00:00:05.654321Z',
+        ]);
+
+        $result = $this->query->find($this->operationId());
+
+        self::assertInstanceOf(OperationDiagnosticsFound::class, $result);
+        self::assertSame(LifecycleState::DeadLettered, $result->diagnostics->state->current);
+        self::assertSame(DiagnosticsAvailability::Available, $result->diagnostics->availability->deadLetter);
     }
 
     public function testReturnsFoundWithPerSourcePurgedAvailabilityAfterRetention(): void
@@ -219,6 +255,47 @@ final class PostgreSqlDiagnosticsQueryIntegrationTest extends TestCase
                 new OperationCompletedData(new PostgreSqlDiagnosticsOutcome('ready', 'private-outcome')),
                 $secondAttempt,
                 'worker-three',
+            ),
+        ];
+    }
+
+    /** @return list<JournalRecord> */
+    private function deadLetteredRecords(): array
+    {
+        $attempt = new JournalAttempt(
+            AttemptId::fromString(self::ATTEMPT_ID),
+            1,
+            new DateTimeImmutable('2026-07-18T00:00:03Z'),
+        );
+
+        return [
+            $this->record(
+                1,
+                JournalEvent::OperationReceived,
+                new OperationReceivedData(new PostgreSqlDiagnosticsValue('visible', 'private-credential')),
+                executionId: 'http-user',
+            ),
+            $this->record(2, JournalEvent::OperationAccepted, executionId: 'http-user'),
+            $this->record(3, JournalEvent::AttemptStarted, attempt: $attempt, executionId: 'worker-one'),
+            $this->record(
+                4,
+                JournalEvent::AttemptFailed,
+                new AttemptFailedData('PermanentFailure', 'private-failure', false),
+                $attempt,
+                'worker-one',
+            ),
+            $this->record(
+                5,
+                JournalEvent::OperationDeadLettered,
+                new OperationDeadLetteredData(
+                    $attempt->id,
+                    1,
+                    'PermanentFailure',
+                    'private-dead-letter',
+                    new DateTimeImmutable('2026-07-18T00:00:05.654321Z'),
+                ),
+                $attempt,
+                'worker-one',
             ),
         ];
     }

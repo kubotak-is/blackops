@@ -183,7 +183,7 @@ final class PostgreSqlStatusQueryIntegrationTest extends TestCase
             if ($state === LifecycleState::RetryScheduled) {
                 self::assertSame(1, $result->status()->attempt());
                 self::assertSame(
-                    '2026-07-19T00:01:00.000000+00:00',
+                    '2026-07-19T00:01:00.143069+00:00',
                     $result->status()->retryAt()?->format('Y-m-d\TH:i:s.uP'),
                 );
             }
@@ -197,6 +197,26 @@ final class PostgreSqlStatusQueryIntegrationTest extends TestCase
                 self::assertSame('operation_dead_lettered', $result->status()->error()?->code());
             }
         }
+    }
+
+    public function testRetryScheduledTimestampMismatchStillFailsIntegrity(): void
+    {
+        $id = $this->id(189);
+        $this->createDeferred($id, LifecycleState::RetryScheduled);
+        $this->connection->executeStatement(
+            'UPDATE ' . self::SCHEMA . '.operations
+            SET available_at = :available_at
+            WHERE operation_id = :operation_id',
+            [
+                'available_at' => '2026-07-19T00:01:00.143070Z',
+                'operation_id' => $id->toString(),
+            ],
+        );
+
+        $exception = $this->captureFailure($this->query(OperationStatusAuthorizationDecision::allow()), $id);
+
+        self::assertSame(OperationStatusQueryException::INTEGRITY_FAILED, $exception->queryCode());
+        self::assertSame('status_query.integrity_failed', $exception->getMessage());
     }
 
     public function testExecutionActorChangesRemainFoundAcrossRetryAndCompletion(): void
@@ -501,7 +521,7 @@ final class PostgreSqlStatusQueryIntegrationTest extends TestCase
                 'current_attempt_id' => $active ? $this->attemptId($id)->toString() : null,
                 'current_attempt_started_at' => $active ? '2026-07-19T00:00:03Z' : null,
                 'available_at' => $state === LifecycleState::RetryScheduled
-                    ? '2026-07-19T00:01:00Z'
+                    ? '2026-07-19T00:01:00.143069Z'
                     : '2026-07-19T00:00:00Z',
                 'operation_id' => $id->toString(),
             ],
@@ -738,7 +758,7 @@ final class PostgreSqlStatusQueryIntegrationTest extends TestCase
             LifecycleState::RetryScheduled => new AttemptRetryScheduledData(
                 $attempt->id,
                 2,
-                new DateTimeImmutable('2026-07-19T00:01:00Z'),
+                new DateTimeImmutable('2026-07-19T00:01:00.143069Z'),
                 60_000,
             ),
             LifecycleState::Failed => new OperationFailedData('PrivateFailure', 'failure-private', false),
@@ -747,7 +767,7 @@ final class PostgreSqlStatusQueryIntegrationTest extends TestCase
                 1,
                 'PrivateFailure',
                 'dead-private',
-                new DateTimeImmutable('2026-07-19T00:00:05Z'),
+                new DateTimeImmutable('2026-07-19T00:00:05.654321Z'),
             ),
             default => throw new \LogicException('Unexpected deferred state fixture.'),
         };
@@ -906,7 +926,7 @@ final class PostgreSqlStatusQueryIntegrationTest extends TestCase
             'attempt_id' => $this->attemptId($id)->toString(),
             'reason_type' => 'PrivateFailure',
             'reason_message' => 'dead-private',
-            'moved_at' => '2026-07-19T00:00:05Z',
+            'moved_at' => '2026-07-19T00:00:05.654321Z',
         ]);
     }
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BlackOps\Transport\PostgreSql;
 
 use BlackOps\Core\Identifier\AttemptId;
+use BlackOps\Core\Time\TimeCodec;
 use BlackOps\Journal\Data\AttemptFailedData;
 use BlackOps\Journal\Data\OperationDeadLetteredData;
 use BlackOps\Journal\Data\OperationFailedData;
@@ -16,6 +17,7 @@ final readonly class PostgreSqlFailureJournalDataCodec
 {
     public function __construct(
         private PostgreSqlJson $json = new PostgreSqlJson(),
+        private TimeCodec $time = new TimeCodec(),
     ) {}
 
     /**
@@ -39,7 +41,7 @@ final readonly class PostgreSqlFailureJournalDataCodec
                     'final_attempt_number' => $data->finalAttemptNumber,
                     'reason_type' => $data->reasonType,
                     'reason_message' => $data->reasonMessage,
-                    'moved_at' => $data->movedAt->format(DATE_ATOM),
+                    'moved_at' => $this->time->format($data->movedAt),
                 ],
             ];
         }

@@ -6,10 +6,14 @@ namespace BlackOps\Tests\Transport\PostgreSql;
 
 use BlackOps\Core\ActorContext;
 use BlackOps\Core\ActorRef;
+use BlackOps\Core\Identifier\AttemptId;
 use BlackOps\Core\Identifier\CorrelationId;
 use BlackOps\Core\Identifier\JournalRecordId;
 use BlackOps\Core\Identifier\OperationId;
+use BlackOps\Journal\Data\AttemptRetryScheduledData;
+use BlackOps\Journal\Data\OperationDeadLetteredData;
 use BlackOps\Journal\EmptyJournalData;
+use BlackOps\Journal\JournalData;
 use BlackOps\Journal\JournalEvent;
 use BlackOps\Journal\JournalOperation;
 use BlackOps\Journal\JournalRecord;
@@ -67,6 +71,53 @@ final class PostgreSqlJournalRecordCodecTest extends TestCase
         $legacy = $codec->decode(json_encode($payload, JSON_THROW_ON_ERROR));
 
         self::assertNull($legacy->operation->actorContext);
+    }
+
+    public function testRetryScheduledTimestampUsesCanonicalUtcMicrosecondsAndDecodesLegacyValue(): void
+    {
+        $codec = new PostgreSqlJournalRecordCodec();
+        $encoded = $codec->encode($this->record(
+            event: JournalEvent::AttemptRetryScheduled,
+            data: new AttemptRetryScheduledData(
+                AttemptId::fromString(self::ID),
+                2,
+                new DateTimeImmutable('2026-07-19T23:22:56.143069+09:00'),
+                1_000,
+            ),
+        ));
+
+        self::assertStringContainsString('"scheduled_at":"2026-07-19T14:22:56.143069Z"', $encoded);
+        $decoded = $codec->decode($encoded);
+        self::assertInstanceOf(AttemptRetryScheduledData::class, $decoded->data);
+        self::assertSame('2026-07-19T14:22:56.143069Z', $decoded->data->scheduledAt->format('Y-m-d\TH:i:s.u\Z'));
+
+        $legacy = $codec->decode(str_replace('2026-07-19T14:22:56.143069Z', '2026-07-19T14:22:56+00:00', $encoded));
+        self::assertInstanceOf(AttemptRetryScheduledData::class, $legacy->data);
+        self::assertSame('2026-07-19T14:22:56.000000+00:00', $legacy->data->scheduledAt->format('Y-m-d\TH:i:s.uP'));
+    }
+
+    public function testDeadLetterTimestampUsesCanonicalUtcMicrosecondsAndDecodesLegacyValue(): void
+    {
+        $codec = new PostgreSqlJournalRecordCodec();
+        $encoded = $codec->encode($this->record(
+            event: JournalEvent::OperationDeadLettered,
+            data: new OperationDeadLetteredData(
+                AttemptId::fromString(self::ID),
+                1,
+                RuntimeException::class,
+                'boom',
+                new DateTimeImmutable('2026-07-19T23:22:56.143069+09:00'),
+            ),
+        ));
+
+        self::assertStringContainsString('"moved_at":"2026-07-19T14:22:56.143069Z"', $encoded);
+        $decoded = $codec->decode($encoded);
+        self::assertInstanceOf(OperationDeadLetteredData::class, $decoded->data);
+        self::assertSame('2026-07-19T14:22:56.143069Z', $decoded->data->movedAt->format('Y-m-d\TH:i:s.u\Z'));
+
+        $legacy = $codec->decode(str_replace('2026-07-19T14:22:56.143069Z', '2026-07-19T14:22:56+00:00', $encoded));
+        self::assertInstanceOf(OperationDeadLetteredData::class, $legacy->data);
+        self::assertSame('2026-07-19T14:22:56.000000+00:00', $legacy->data->movedAt->format('Y-m-d\TH:i:s.uP'));
     }
 
     #[DataProvider('invalidActors')]
@@ -159,12 +210,15 @@ final class PostgreSqlJournalRecordCodecTest extends TestCase
         ];
     }
 
-    private function record(?ActorContext $actors = null): JournalRecord
-    {
+    private function record(
+        ?ActorContext $actors = null,
+        JournalEvent $event = JournalEvent::OperationReceived,
+        ?JournalData $data = null,
+    ): JournalRecord {
         return new JournalRecord(
             JournalRecordId::fromString(self::ID),
             1,
-            JournalEvent::OperationReceived,
+            $event,
             new DateTimeImmutable('2026-07-17T00:00:00.123456Z'),
             1,
             new JournalOperation(
@@ -176,7 +230,7 @@ final class PostgreSqlJournalRecordCodecTest extends TestCase
                 actorContext: $actors,
             ),
             null,
-            new EmptyJournalData(),
+            $data ?? new EmptyJournalData(),
         );
     }
 }

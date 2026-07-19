@@ -7,6 +7,7 @@ namespace BlackOps\Transport\PostgreSql;
 use BlackOps\Core\Identifier\AttemptId;
 use BlackOps\Core\OperationValue;
 use BlackOps\Core\Outcome;
+use BlackOps\Core\Time\TimeCodec;
 use BlackOps\Journal\Data\AttemptRetryScheduledData;
 use BlackOps\Journal\Data\OperationCompletedData;
 use BlackOps\Journal\Data\OperationReceivedData;
@@ -23,6 +24,7 @@ final readonly class PostgreSqlJournalDataCodec
         private PostgreSqlJson $json = new PostgreSqlJson(),
         private PostgreSqlFailureJournalDataCodec $failures = new PostgreSqlFailureJournalDataCodec(),
         private PostgreSqlRejectionJournalDataCodec $rejections = new PostgreSqlRejectionJournalDataCodec(),
+        private TimeCodec $time = new TimeCodec(),
     ) {}
 
     /**
@@ -48,7 +50,7 @@ final readonly class PostgreSqlJournalDataCodec
                 'value' => [
                     'failed_attempt_id' => $data->failedAttemptId->toString(),
                     'next_attempt_number' => $data->nextAttemptNumber,
-                    'scheduled_at' => $data->scheduledAt->format(DATE_ATOM),
+                    'scheduled_at' => $this->time->format($data->scheduledAt),
                     'delay_milliseconds' => $data->delayMilliseconds,
                 ],
             ];

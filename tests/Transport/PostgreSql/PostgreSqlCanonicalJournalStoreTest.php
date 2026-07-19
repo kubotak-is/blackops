@@ -222,19 +222,24 @@ final class PostgreSqlCanonicalJournalStoreTest extends TestCase
             new AttemptRetryScheduledData(
                 AttemptId::fromString(self::ATTEMPT_ID),
                 2,
-                new DateTimeImmutable('2026-07-08T00:00:02.000000Z'),
+                new DateTimeImmutable('2026-07-19T23:22:56.143069+09:00'),
                 1_000,
             ),
         ));
 
         $records = array_values(iterator_to_array($this->store->records(OperationId::fromString(self::OPERATION_ID))));
+        $encoded = $this->connection->fetchOne(
+            "SELECT convert_from(encoded_record, 'UTF8') FROM " . self::SCHEMA . '.journal',
+        );
 
         self::assertCount(1, $records);
         self::assertInstanceOf(AttemptRetryScheduledData::class, $records[0]->data);
         self::assertSame(self::ATTEMPT_ID, $records[0]->data->failedAttemptId->toString());
         self::assertSame(2, $records[0]->data->nextAttemptNumber);
-        self::assertSame('2026-07-08T00:00:02+00:00', $records[0]->data->scheduledAt->format(DATE_ATOM));
+        self::assertSame('2026-07-19T14:22:56.143069+00:00', $records[0]->data->scheduledAt->format('Y-m-d\TH:i:s.uP'));
         self::assertSame(1_000, $records[0]->data->delayMilliseconds);
+        self::assertIsString($encoded);
+        self::assertStringContainsString('"scheduled_at":"2026-07-19T14:22:56.143069Z"', $encoded);
     }
 
     public function testAppendsAndReadsOperationFailedData(): void
@@ -266,11 +271,14 @@ final class PostgreSqlCanonicalJournalStoreTest extends TestCase
                 1,
                 \RuntimeException::class,
                 'boom',
-                new DateTimeImmutable('2026-07-08T00:00:03.000000Z'),
+                new DateTimeImmutable('2026-07-19T23:22:56.654321+09:00'),
             ),
         ));
 
         $records = array_values(iterator_to_array($this->store->records(OperationId::fromString(self::OPERATION_ID))));
+        $encoded = $this->connection->fetchOne(
+            "SELECT convert_from(encoded_record, 'UTF8') FROM " . self::SCHEMA . '.journal',
+        );
 
         self::assertCount(1, $records);
         self::assertInstanceOf(OperationDeadLetteredData::class, $records[0]->data);
@@ -278,7 +286,9 @@ final class PostgreSqlCanonicalJournalStoreTest extends TestCase
         self::assertSame(1, $records[0]->data->finalAttemptNumber);
         self::assertSame(\RuntimeException::class, $records[0]->data->reasonType);
         self::assertSame('boom', $records[0]->data->reasonMessage);
-        self::assertSame('2026-07-08T00:00:03+00:00', $records[0]->data->movedAt->format(DATE_ATOM));
+        self::assertSame('2026-07-19T14:22:56.654321+00:00', $records[0]->data->movedAt->format('Y-m-d\TH:i:s.uP'));
+        self::assertIsString($encoded);
+        self::assertStringContainsString('"moved_at":"2026-07-19T14:22:56.654321Z"', $encoded);
     }
 
     public function testDuplicateRecordIdFails(): void
