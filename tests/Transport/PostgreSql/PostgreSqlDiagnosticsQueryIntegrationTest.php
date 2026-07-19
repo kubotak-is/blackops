@@ -19,6 +19,8 @@ use BlackOps\Internal\Diagnostics\DiagnosticsAvailability;
 use BlackOps\Internal\Diagnostics\OperationDiagnosticsFound;
 use BlackOps\Internal\Diagnostics\OperationDiagnosticsQuery;
 use BlackOps\Internal\Diagnostics\PostgreSqlDiagnosticsSourceReader;
+use BlackOps\Journal\Data\AttemptFailedData;
+use BlackOps\Journal\Data\AttemptRetryScheduledData;
 use BlackOps\Journal\Data\OperationCompletedData;
 use BlackOps\Journal\Data\OperationReceivedData;
 use BlackOps\Journal\EmptyJournalData;
@@ -75,7 +77,7 @@ final class PostgreSqlDiagnosticsQueryIntegrationTest extends TestCase
         }
         $this->connection->executeStatement(
             'UPDATE ' . self::SCHEMA . '.operations
-            SET state = :state, next_sequence = 6, attempt_number = 1
+            SET state = :state, next_sequence = 9, attempt_number = 2
             WHERE operation_id = :operation_id',
             [
                 'state' => LifecycleState::Completed->value,
@@ -112,8 +114,9 @@ final class PostgreSqlDiagnosticsQueryIntegrationTest extends TestCase
         self::assertSame(DiagnosticsAvailability::Available, $result->diagnostics->availability->outcome);
         self::assertSame('outcome_store', $result->diagnostics->outcome?->source);
         self::assertArrayNotHasKey('secret', $result->diagnostics->outcome?->data ?? []);
-        self::assertCount(1, $result->diagnostics->attempts);
+        self::assertCount(2, $result->diagnostics->attempts);
         self::assertSame([3, 4, 5], $result->diagnostics->attempts[0]->events);
+        self::assertSame([6, 7, 8], $result->diagnostics->attempts[1]->events);
     }
 
     public function testReturnsFoundWithPerSourcePurgedAvailabilityAfterRetention(): void
@@ -169,10 +172,15 @@ final class PostgreSqlDiagnosticsQueryIntegrationTest extends TestCase
     /** @return list<JournalRecord> */
     private function completedRecords(): array
     {
-        $attempt = new JournalAttempt(
+        $firstAttempt = new JournalAttempt(
             AttemptId::fromString(self::ATTEMPT_ID),
             1,
             new DateTimeImmutable('2026-07-18T00:00:03Z'),
+        );
+        $secondAttempt = new JournalAttempt(
+            AttemptId::fromString('019f5b0e-d13f-73b4-8f57-1f60680ff004'),
+            2,
+            new DateTimeImmutable('2026-07-18T00:00:06Z'),
         );
 
         return [
@@ -180,15 +188,37 @@ final class PostgreSqlDiagnosticsQueryIntegrationTest extends TestCase
                 1,
                 JournalEvent::OperationReceived,
                 new OperationReceivedData(new PostgreSqlDiagnosticsValue('visible', 'private-credential')),
+                executionId: 'http-user',
             ),
-            $this->record(2, JournalEvent::OperationAccepted),
-            $this->record(3, JournalEvent::AttemptStarted, attempt: $attempt),
-            $this->record(4, JournalEvent::AttemptSucceeded, attempt: $attempt),
+            $this->record(2, JournalEvent::OperationAccepted, executionId: 'http-user'),
+            $this->record(3, JournalEvent::AttemptStarted, attempt: $firstAttempt, executionId: 'worker-one'),
+            $this->record(
+                4,
+                JournalEvent::AttemptFailed,
+                new AttemptFailedData('TemporaryFailure', 'private-failure', true),
+                $firstAttempt,
+                'worker-one',
+            ),
             $this->record(
                 5,
+                JournalEvent::AttemptRetryScheduled,
+                new AttemptRetryScheduledData(
+                    $firstAttempt->id,
+                    2,
+                    new DateTimeImmutable('2026-07-18T00:01:00Z'),
+                    60_000,
+                ),
+                $firstAttempt,
+                'worker-recovery',
+            ),
+            $this->record(6, JournalEvent::AttemptStarted, attempt: $secondAttempt, executionId: 'worker-two'),
+            $this->record(7, JournalEvent::AttemptSucceeded, attempt: $secondAttempt, executionId: 'worker-three'),
+            $this->record(
+                8,
                 JournalEvent::OperationCompleted,
                 new OperationCompletedData(new PostgreSqlDiagnosticsOutcome('ready', 'private-outcome')),
-                $attempt,
+                $secondAttempt,
+                'worker-three',
             ),
         ];
     }
@@ -198,6 +228,7 @@ final class PostgreSqlDiagnosticsQueryIntegrationTest extends TestCase
         JournalEvent $event,
         ?JournalData $data = null,
         ?JournalAttempt $attempt = null,
+        string $executionId = 'private-worker',
     ): JournalRecord {
         return new JournalRecord(
             JournalRecordId::fromString(sprintf('019f5b0e-d13f-73b4-8f57-1f60680ff%03d', $sequence + 20)),
@@ -213,8 +244,8 @@ final class PostgreSqlDiagnosticsQueryIntegrationTest extends TestCase
                 CorrelationId::fromString(self::CORRELATION_ID),
                 actorContext: new ActorContext(
                     new ActorRef('private-origin', 'customer'),
-                    null,
-                    new ActorRef('private-worker', 'system'),
+                    new ActorRef('private-authorization', 'customer'),
+                    new ActorRef($executionId, 'system'),
                 ),
             ),
             $attempt,

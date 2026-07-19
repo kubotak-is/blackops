@@ -199,6 +199,32 @@ final class PostgreSqlStatusQueryIntegrationTest extends TestCase
         }
     }
 
+    public function testExecutionActorChangesRemainFoundAcrossRetryAndCompletion(): void
+    {
+        $retryId = $this->id(190);
+        $completedId = $this->id(191);
+        $this->createDeferredWithActorChanges($retryId, LifecycleState::RetryScheduled);
+        $this->createDeferredWithActorChanges($completedId, LifecycleState::Completed);
+        $query = $this->query(OperationStatusAuthorizationDecision::allow());
+
+        $retry = $query->find($retryId);
+        $completed = $query->find($completedId);
+
+        self::assertInstanceOf(OperationStatusFound::class, $retry);
+        self::assertSame(OperationStatusState::RetryScheduled, $retry->status()->state());
+        self::assertSame(1, $retry->status()->attempt());
+        self::assertInstanceOf(OperationStatusFound::class, $completed);
+        self::assertSame(OperationStatusState::Completed, $completed->status()->state());
+        self::assertInstanceOf(StatusProjectionOutcome::class, $completed->status()->outcome());
+
+        $validated = new OperationStatusJournalValidator()->validate($completedId, iterator_to_array(
+            $this->journal->records($completedId),
+            false,
+        ));
+        self::assertCount(2, $validated->attempts);
+        self::assertSame(2, $validated->lastAttempt()?->number);
+    }
+
     public function testDetailUsesTheSameConnectionInsideARepeatableReadOnlySnapshot(): void
     {
         $id = $this->id(180);
@@ -495,6 +521,144 @@ final class PostgreSqlStatusQueryIntegrationTest extends TestCase
         }
     }
 
+    private function createDeferredWithActorChanges(OperationId $id, LifecycleState $state): void
+    {
+        $this->enqueue($id);
+        $records = $this->deferredActorContinuityRecords($id, $state);
+        $this->append($records);
+        $this->connection->executeStatement(
+            'UPDATE ' . self::SCHEMA . '.operations
+            SET state = :state,
+                next_sequence = :next_sequence,
+                attempt_number = :attempt_number,
+                available_at = :available_at
+            WHERE operation_id = :operation_id',
+            [
+                'state' => $state->value,
+                'next_sequence' => count($records) + 1,
+                'attempt_number' => $state === LifecycleState::Completed ? 2 : 1,
+                'available_at' => $state === LifecycleState::RetryScheduled
+                    ? '2026-07-19T00:01:00Z'
+                    : '2026-07-19T00:00:00Z',
+                'operation_id' => $id->toString(),
+            ],
+        );
+
+        if ($state === LifecycleState::Completed) {
+            $this->outcomes->save(
+                new OutcomeRecord(
+                    $id,
+                    new StatusProjectionOutcome('ready', 'stored-private'),
+                    new DateTimeImmutable('2026-07-19T00:00:08Z'),
+                ),
+            );
+        }
+    }
+
+    /** @return list<JournalRecord> */
+    private function deferredActorContinuityRecords(OperationId $id, LifecycleState $state): array
+    {
+        $first = $this->attempt($id);
+        $second = new JournalAttempt(
+            AttemptId::fromString('019f70ab-9000-7000-8000-' . substr($id->toString(), -12)),
+            2,
+            new DateTimeImmutable('2026-07-19T00:00:06Z'),
+        );
+        $records = [
+            $this->record(
+                $id,
+                'status.deferred',
+                'deferred',
+                1,
+                JournalEvent::OperationReceived,
+                new OperationReceivedData(new StatusProjectionValue('value-private')),
+                executionId: 'http-user',
+                authorizationId: 'authorization-private',
+            ),
+            $this->record(
+                $id,
+                'status.deferred',
+                'deferred',
+                2,
+                JournalEvent::OperationAccepted,
+                executionId: 'http-user',
+                authorizationId: 'authorization-private',
+            ),
+            $this->record(
+                $id,
+                'status.deferred',
+                'deferred',
+                3,
+                JournalEvent::AttemptStarted,
+                attempt: $first,
+                executionId: 'worker-one',
+                authorizationId: 'authorization-private',
+            ),
+            $this->record(
+                $id,
+                'status.deferred',
+                'deferred',
+                4,
+                JournalEvent::AttemptFailed,
+                new AttemptFailedData('PrivateFailure', 'attempt-private', true),
+                $first,
+                'worker-one',
+                'origin-private',
+                'authorization-private',
+            ),
+            $this->record(
+                $id,
+                'status.deferred',
+                'deferred',
+                5,
+                JournalEvent::AttemptRetryScheduled,
+                new AttemptRetryScheduledData($first->id, 2, new DateTimeImmutable('2026-07-19T00:01:00Z'), 60_000),
+                $first,
+                'worker-recovery',
+                'origin-private',
+                'authorization-private',
+            ),
+        ];
+        if ($state === LifecycleState::RetryScheduled) {
+            return $records;
+        }
+
+        $records[] = $this->record(
+            $id,
+            'status.deferred',
+            'deferred',
+            6,
+            JournalEvent::AttemptStarted,
+            attempt: $second,
+            executionId: 'worker-two',
+            authorizationId: 'authorization-private',
+        );
+        $records[] = $this->record(
+            $id,
+            'status.deferred',
+            'deferred',
+            7,
+            JournalEvent::AttemptSucceeded,
+            attempt: $second,
+            executionId: 'worker-three',
+            authorizationId: 'authorization-private',
+        );
+        $records[] = $this->record(
+            $id,
+            'status.deferred',
+            'deferred',
+            8,
+            JournalEvent::OperationCompleted,
+            new OperationCompletedData(new StatusProjectionOutcome('ready', 'journal-private')),
+            $second,
+            'worker-three',
+            'origin-private',
+            'authorization-private',
+        );
+
+        return $records;
+    }
+
     /** @return list<JournalRecord> */
     private function deferredRecords(OperationId $id, LifecycleState $state): array
     {
@@ -679,6 +843,9 @@ final class PostgreSqlStatusQueryIntegrationTest extends TestCase
         JournalEvent $event,
         ?JournalData $data = null,
         ?JournalAttempt $attempt = null,
+        string $executionId = 'execution-private',
+        string $originId = 'origin-private',
+        ?string $authorizationId = null,
     ): JournalRecord {
         return new JournalRecord(
             JournalRecordId::fromString(sprintf(
@@ -696,9 +863,9 @@ final class PostgreSqlStatusQueryIntegrationTest extends TestCase
                 $strategy,
                 CorrelationId::fromString('019f70ab-6000-7000-8000-' . substr($id->toString(), -12)),
                 actorContext: new ActorContext(
-                    new ActorRef('origin-private', 'customer'),
-                    null,
-                    new ActorRef('execution-private', 'worker'),
+                    new ActorRef($originId, 'customer'),
+                    $authorizationId === null ? null : new ActorRef($authorizationId, 'customer'),
+                    new ActorRef($executionId, 'worker'),
                 ),
             ),
             $attempt,

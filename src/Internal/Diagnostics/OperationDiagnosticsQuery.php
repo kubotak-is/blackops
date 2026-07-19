@@ -572,6 +572,7 @@ final readonly class OperationDiagnosticsQuery
         $actors = $operation->actorContext;
 
         return json_encode([
+            (string) $record->schemaVersion,
             $operation->id->toString(),
             $operation->type,
             (string) $operation->schemaVersion,
@@ -582,8 +583,6 @@ final readonly class OperationDiagnosticsQuery
             $actors?->origin()?->type() ?? '',
             $actors?->authorization()?->id() ?? '',
             $actors?->authorization()?->type() ?? '',
-            $actors?->execution()->id() ?? '',
-            $actors?->execution()->type() ?? '',
         ], JSON_THROW_ON_ERROR);
     }
 

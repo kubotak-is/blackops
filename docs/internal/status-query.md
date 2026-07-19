@@ -98,7 +98,7 @@ DeferredではOperations RowのType、Schema Version、State、Next Sequence、A
 | `failed` | `failed` | 固定`operation_failed` |
 | `dead_lettered` | `dead_lettered` | 固定`operation_dead_lettered` |
 
-Canonical JournalはSequence 1始まりの連番、Lifecycle遷移、Operation Identity、Attempt ID／Number／Started At、Retry Dataを検証する。検証できない欠落や矛盾を推測でPublic Stateへ丸めない。
+Canonical JournalはSequence 1始まりの連番、Lifecycle遷移、Operation Identity、Attempt ID／Number／Started At、Retry Dataを検証する。Operation IdentityとしてRecord Schema Version、Operation ID、Type、Operation Schema Version、Strategy、Correlation／Causation、origin Actor、authorization Actorを全Recordで一致させる。execution Actorは各Recordの生成主体なので、HTTP受付からWorkerへの移行、Retry、Lease Recoveryで変化できる。検証できない欠落や矛盾を推測でPublic Stateへ丸めない。
 
 ## Retention Boundary
 

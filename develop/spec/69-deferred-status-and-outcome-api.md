@@ -157,6 +157,8 @@ Subjectは認可入力だけを保持し、Expired Flag、Retention Evidence、S
 - Dead LetterはState確認に利用できるが、Payload、Reason Message、Worker MetadataをSELECT／Decode／返却しない
 - Operations RowとJournalの両方が利用可能な場合、State／Typeの不一致はIntegrity Failureとする
 
+Canonical JournalのOperation Identity検証ではRecord Schema Version、Operation ID、Type、Operation Schema Version、Strategy、Correlation／Causation、origin Actor、authorization Actorを全Recordで一致させる。execution ActorはRecord生成主体であり、HTTP受付からWorkerへの移行、Retry、Lease Recoveryで変化できるため同一性を要求しない。Sequence、Lifecycle、Attempt、Retry参照の整合性は引き続き検証する。
+
 DeferredのOperations Rowが残りJournalだけがRetention削除された場合、Origin Actorは`null`になる。Operations RowのEncoded ContextへFallbackしてActorを復元しない。Application AuthorizerはOrigin Actorなしの参照を明示的にAllowまたはDenyする。
 
 Public `running`はInternal `running`と`supervising`を含む。Public `attempt`はCurrent Attempt Numberを使い、Attempt IDを返さない。

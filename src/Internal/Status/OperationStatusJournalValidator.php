@@ -146,7 +146,6 @@ final readonly class OperationStatusJournalValidator
         return $data->scheduledAt;
     }
 
-    /** @mago-expect lint:halstead */
     private function identityFingerprint(JournalRecord $record): string
     {
         $operation = $record->operation;
@@ -164,8 +163,6 @@ final readonly class OperationStatusJournalValidator
             $actors?->origin()?->type() ?? '',
             $actors?->authorization()?->id() ?? '',
             $actors?->authorization()?->type() ?? '',
-            $actors?->execution()->id() ?? '',
-            $actors?->execution()->type() ?? '',
         ], JSON_THROW_ON_ERROR);
     }
 

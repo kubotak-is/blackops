@@ -180,6 +180,54 @@ final class OperationDiagnosticsQueryTest extends TestCase
         }
     }
 
+    public function testDeferredJournalAcceptsExecutionActorChangesAcrossRetryAndLeaseRecovery(): void
+    {
+        $records = $this->actorContinuityRecords();
+
+        $result = $this->query($records, $this->actorContinuityState($records), $this->actorContinuityOutcome())->find(
+            $this->operationId(),
+        );
+
+        self::assertInstanceOf(OperationDiagnosticsFound::class, $result);
+        self::assertSame(LifecycleState::Completed, $result->diagnostics->state->current);
+        self::assertCount(2, $result->diagnostics->attempts);
+        self::assertSame('[masked]', $result->diagnostics->identity->actors?->origin?->id);
+        self::assertSame('[masked]', $result->diagnostics->identity->actors?->authorization?->id);
+        self::assertSame('[masked]', $result->diagnostics->identity->actors?->execution?->id);
+    }
+
+    public function testDeferredJournalStillRejectsDurableActorAndRecordSchemaChanges(): void
+    {
+        foreach (['origin', 'authorization', 'record_schema'] as $change) {
+            $records = $this->actorContinuityRecords();
+            $records[4] = $this->record(
+                5,
+                JournalEvent::AttemptRetryScheduled,
+                new AttemptRetryScheduledData(
+                    $this->attempt()->id,
+                    2,
+                    new DateTimeImmutable('2026-07-18T00:01:00Z'),
+                    60_000,
+                ),
+                'deferred',
+                $this->attempt(),
+                $change === 'origin' ? 'other-origin' : 'origin-private-id',
+                $change === 'authorization' ? 'other-authorization' : 'authorization-private-id',
+                'worker-recovery',
+                $change === 'record_schema' ? 2 : 1,
+            );
+
+            try {
+                $this->query($records, $this->actorContinuityState($records), $this->actorContinuityOutcome())->find(
+                    $this->operationId(),
+                );
+                self::fail('Expected diagnostics integrity failure.');
+            } catch (OperationDiagnosticsException $exception) {
+                self::assertSame(DiagnosticsFailureCode::IntegrityFailed, $exception->diagnosticsCode);
+            }
+        }
+    }
+
     #[DataProvider('deferredStates')]
     public function testDeferredStatesUseTransportAuthority(LifecycleState $state): void
     {
@@ -572,16 +620,133 @@ final class OperationDiagnosticsQueryTest extends TestCase
         return $records;
     }
 
+    /** @return list<JournalRecord> */
+    private function actorContinuityRecords(): array
+    {
+        $first = $this->attempt();
+        $second = new JournalAttempt(
+            AttemptId::fromString('019f5b0e-d13f-73b4-8f57-1f60680fd004'),
+            2,
+            new DateTimeImmutable('2026-07-18T00:00:06Z'),
+        );
+
+        return [
+            $this->record(
+                1,
+                JournalEvent::OperationReceived,
+                new OperationReceivedData($this->value()),
+                'deferred',
+                originId: 'origin-private-id',
+                authorizationId: 'authorization-private-id',
+                executionId: 'http-user',
+            ),
+            $this->record(
+                2,
+                JournalEvent::OperationAccepted,
+                strategy: 'deferred',
+                originId: 'origin-private-id',
+                authorizationId: 'authorization-private-id',
+                executionId: 'http-user',
+            ),
+            $this->record(
+                3,
+                JournalEvent::AttemptStarted,
+                strategy: 'deferred',
+                attempt: $first,
+                originId: 'origin-private-id',
+                authorizationId: 'authorization-private-id',
+                executionId: 'worker-one',
+            ),
+            $this->record(
+                4,
+                JournalEvent::AttemptFailed,
+                new AttemptFailedData(RuntimeException::class, 'hidden', true),
+                'deferred',
+                $first,
+                'origin-private-id',
+                'authorization-private-id',
+                'worker-one',
+            ),
+            $this->record(
+                5,
+                JournalEvent::AttemptRetryScheduled,
+                new AttemptRetryScheduledData($first->id, 2, new DateTimeImmutable('2026-07-18T00:01:00Z'), 60_000),
+                'deferred',
+                $first,
+                'origin-private-id',
+                'authorization-private-id',
+                'worker-recovery',
+            ),
+            $this->record(
+                6,
+                JournalEvent::AttemptStarted,
+                strategy: 'deferred',
+                attempt: $second,
+                originId: 'origin-private-id',
+                authorizationId: 'authorization-private-id',
+                executionId: 'worker-two',
+            ),
+            $this->record(
+                7,
+                JournalEvent::AttemptSucceeded,
+                strategy: 'deferred',
+                attempt: $second,
+                originId: 'origin-private-id',
+                authorizationId: 'authorization-private-id',
+                executionId: 'worker-three',
+            ),
+            $this->record(
+                8,
+                JournalEvent::OperationCompleted,
+                new OperationCompletedData(new DiagnosticsTestOutcome('done', 'hidden')),
+                'deferred',
+                $second,
+                'origin-private-id',
+                'authorization-private-id',
+                'worker-three',
+            ),
+        ];
+    }
+
+    /** @param list<JournalRecord> $records */
+    private function actorContinuityState(array $records): DiagnosticsDeferredState
+    {
+        return new DiagnosticsDeferredState(
+            self::OPERATION_ID,
+            'diagnostics.test',
+            1,
+            LifecycleState::Completed,
+            count($records) + 1,
+            false,
+            2,
+            null,
+            null,
+        );
+    }
+
+    private function actorContinuityOutcome(): OutcomeRecord
+    {
+        return new OutcomeRecord(
+            $this->operationId(),
+            new DiagnosticsTestOutcome('done', 'hidden'),
+            new DateTimeImmutable('2026-07-18T00:00:08Z'),
+        );
+    }
+
     private function record(
         int $sequence,
         JournalEvent $event,
         ?JournalData $data = null,
         string $strategy = 'inline',
         ?JournalAttempt $attempt = null,
+        string $originId = 'origin-private-id',
+        ?string $authorizationId = null,
+        string $executionId = 'worker-private-id',
+        int $recordSchemaVersion = 1,
     ): JournalRecord {
         return new JournalRecord(
             JournalRecordId::fromString(sprintf('019f5b0e-d13f-73b4-8f57-1f60680fd%03d', $sequence + 10)),
-            1,
+            $recordSchemaVersion,
             $event,
             new DateTimeImmutable(sprintf('2026-07-18T00:00:%02d.000000Z', $sequence)),
             $sequence,
@@ -592,9 +757,9 @@ final class OperationDiagnosticsQueryTest extends TestCase
                 $strategy,
                 CorrelationId::fromString(self::CORRELATION_ID),
                 actorContext: new ActorContext(
-                    new ActorRef('origin-private-id', 'customer'),
-                    null,
-                    new ActorRef('worker-private-id', 'system'),
+                    new ActorRef($originId, 'customer'),
+                    $authorizationId === null ? null : new ActorRef($authorizationId, 'customer'),
+                    new ActorRef($executionId, 'system'),
                 ),
             ),
             $attempt,

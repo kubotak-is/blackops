@@ -281,7 +281,8 @@ Query Serviceは少なくとも次を検証する。
 
 - Journal Sequenceが1から始まり、重複せず連続している
 - Lifecycle EventがState Machineの正しい順序である
-- 全Journal RecordのOperation ID、Type、Schema Version、Strategy、Correlation／Causationが一貫する
+- 全Journal RecordのRecord Schema Version、Operation ID、Type、Schema Version、Strategy、Correlation／Causation、origin Actor、authorization Actorが一貫する
+- execution ActorはRecord生成主体であり、HTTP受付からWorkerへの移行、Retry、Lease Recoveryで変化できるためOperation Identityの一貫性検証へ含めない
 - Attempt ID、Attempt番号、Started Atが同じAttempt内で一貫し、Attempt番号が1から連続する
 - Retry Scheduledが存在するFailed Attemptを参照する
 - Deferred Operations StateとJournal導出Stateが一致する
