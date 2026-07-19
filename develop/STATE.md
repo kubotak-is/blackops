@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-19T21:27:09+09:00
+Updated At: 2026-07-19T21:30:35+09:00
 
 ## Current Phase
 
@@ -8,17 +8,17 @@ Phase 16: Deferred Status and Outcome API
 
 ## Current Task
 
-Task ID: P16-004-http-status-resource
+Task ID: P16-005-generated-status-capability
 
-Task Packet: `develop/orchestration/tasks/P16-004-http-status-resource.md`
+Task Packet: `develop/orchestration/tasks/P16-005-generated-status-capability.md`
 
-Specifications: `develop/spec/05-http.md`、`develop/spec/06-auth-and-middleware.md`、`develop/spec/25-sensitive-projection.md`、`develop/spec/38-data-retention-and-deletion.md`、`develop/spec/42-installed-application-boundary.md`、`develop/spec/44-public-application-bootstrap-api.md`、`develop/spec/47-public-http-runtime-configuration.md`、`develop/spec/50-operation-authoring-and-build-discovery.md`、`develop/spec/69-deferred-status-and-outcome-api.md`、`develop/spec/70-phase-16-delivery-plan.md`、`develop/decisions/102-phase-16-deferred-status-and-outcome-api.md`
+Specifications: `develop/spec/25-sensitive-projection.md`、`develop/spec/67-operation-frontend-bridge.md`、`develop/spec/69-deferred-status-and-outcome-api.md`、`develop/spec/70-phase-16-delivery-plan.md`、`develop/decisions/100-phase-15-operation-frontend-bridge.md`、`develop/decisions/102-phase-16-deferred-status-and-outcome-api.md`
 
 ## Task Status
 
-Accepted
+Ready
 
-Orchestrator Review Correctionと独立再検証を完了し、P16-004をAcceptedとした。実`Application::http()`でDeferred受付202のLocationから、Compiled Service ProviderのAllow Authorizer、PostgreSQL Status Source、Default Queryを通るaccepted 200までをE2E検証した。未登録Authorizerのdefault-deny Safe 404、Authorizer RequestのCurrent／Origin Actor・Operation Type／IDも固定した。Status GETのBodyはQuery前に400へ拒否し、通常Application Routeの既存404優先順を維持する。Orchestrator再実行で対象265 tests／1188 assertions、全1419 tests／5529 assertionsと全品質Guardが成功した。
+P16-004は`196636b`でCommit／Push済み。P16-005 Task Packetを作成し、Generated Operation Objectの一回取得`.status()`、7 State／Typed Outcome、Strict Operation ID／Type／Schema、Retry-After、401／404／410／500、Safe Transport、Marker 3、Temporary Strict TypeScript／Runtime Evidenceを実装可能な状態にした。`.wait()`、Polling、Frontend Fixture／CI、Quickstart、WebsiteはTask範囲外である。
 
 ## Last Accepted Task
 
@@ -53,9 +53,9 @@ P16-004-http-status-resource
 
 ## Required Next Action
 
-1. OrchestratorがP16-004をCommit／Pushする。
-2. P16-005のTask Packetを作成する。
-3. P16-005でGenerated `.status()`とTyped Outcome Decoderを実装する。
+1. P16-005 Task PacketをCommit／Pushする。
+2. GPT-5.6 Luna High WorkerへP16-005を委譲する。
+3. OrchestratorがGenerated Type／Runtime／Sensitive境界をReviewし、独立再検証後にCommitする。
 
 ## P16-004 HTTP Status Resource Worker Verification
 
