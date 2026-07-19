@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-19T22:34:58+09:00
+Updated At: 2026-07-19T23:02:05+09:00
 
 ## Current Phase
 
@@ -8,17 +8,17 @@ Phase 16: Deferred Status and Outcome API
 
 ## Current Task
 
-Task ID: P16-007-consumer-experience-and-closeout
+Task ID: P16-003A-journal-execution-actor-continuity
 
-Task Packet: `develop/orchestration/tasks/P16-007-consumer-experience-and-closeout.md`
+Task Packet: `develop/orchestration/tasks/P16-003A-journal-execution-actor-continuity.md`
 
-Specifications: `develop/spec/25-sensitive-projection.md`、`develop/spec/67-operation-frontend-bridge.md`、`develop/spec/69-deferred-status-and-outcome-api.md`、`develop/spec/70-phase-16-delivery-plan.md`、`develop/decisions/100-phase-15-operation-frontend-bridge.md`、`develop/decisions/102-phase-16-deferred-status-and-outcome-api.md`
+Specifications: `develop/spec/06-auth-and-middleware.md`、`develop/spec/19-execution-context-api.md`、`develop/spec/65-operation-diagnostics.md`、`develop/spec/69-deferred-status-and-outcome-api.md`、`develop/decisions/095-phase-12-middleware-and-authorization-runtime.md`、`develop/decisions/102-phase-16-deferred-status-and-outcome-api.md`
 
 ## Task Status
 
 Ready
 
-P16-007 Task Packetを作成した。Quickstart／SkeletonへApplication所有Status Authorizerを追加し、Generated Clientの202受付、一回`.status()`、Worker Retry、有限`.wait()`、Completed Typed OutcomeをReal HTTPで完走する。Guide／Website Source、Security／Retention／Troubleshooting、Skeleton／Publication／Framework Updateを同期し、外部公開せずPhase 16をCloseする。
+P16-007の途中差分を保持して一時停止し、Status／Diagnostics Journalが正規なexecution Actor変化をIntegrity Failureにする既存仕様不整合を独立補正する。origin／authorization ActorとOperation Identityの継続性は維持し、HTTP受付、Retry、Lease Recoveryで変わり得るexecution ActorをIdentity Fingerprintから分離する。
 
 ## Last Accepted Task
 
@@ -49,13 +49,15 @@ P16-006-generated-wait-and-frontend-ci
 
 ## Known Blockers
 
-なし。Documentation WebsiteはUser判断どおり未公開であり、Publication／Deployは行わない。
+1. P16-003AでStatus／Diagnostics Journalのexecution Actor Identity誤判定を補正する。P16-007のReal HTTP JourneyはこのTask受理まで一時停止する。
+
+Documentation WebsiteはUser判断どおり未公開であり、Publication／Deployは行わない。
 
 ## Required Next Action
 
-1. OrchestratorがP16-007 Task PacketをCommit／Pushする。
-2. GPT-5.6 Luna High WorkerへP16-007実装を委譲する。
-3. OrchestratorがReal HTTP／Skeleton／Publication／Website／全品質Gateを再実行してPhase 16をCloseする。
+1. OrchestratorがP16-003A Task PacketをCommit／Pushする。
+2. GPT-5.6 Luna High WorkerがProduction修正とRegression Testを実装する。
+3. Orchestratorが別Commitとして受理後、P16-007を再開してReal HTTP／Documentation／全品質Gateを完走する。
 
 ## P16-006 Generated Wait Capability and Frontend CI Worker Verification
 
