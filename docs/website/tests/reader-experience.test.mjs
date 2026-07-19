@@ -165,6 +165,10 @@ test('troubleshooting covers every required symptom with four-part guidance', as
     'Typed Self-handled Signature Error',
     'Operation Discovery／Manifest未登録',
     'Build Artifact不在／Build ID不一致',
+    'Frontend Contract ArtifactがInvalid／Stale',
+    'Frontend Generated TreeがMissing／Drift',
+    'Generated TypeScriptがCompileできない',
+    '`.fetch()`がTransport Resultを返す',
     'Deferred HTTPが202だがOutcomeがない',
     'Migration未適用／PostgreSQL接続失敗',
     'journal.jsonlへ出力されない',
@@ -195,6 +199,7 @@ test('security guide separates framework and application responsibilities', asyn
     'Backup',
     'Legal Hold',
     'Credential Rotation',
+    'Frontend Contract',
   ]) {
     assert.match(security, new RegExp(responsibility));
   }
@@ -202,6 +207,8 @@ test('security guide separates framework and application responsibilities', asyn
   assert.match(security, /Header欠落.*Anonymousとして通過.*Operation ID付き401/s);
   assert.match(security, /Header不一致.*Operationを受け付けずJournalなし.*Operation IDなし401/s);
   assert.match(security, /Credential、Role、Permission、ClaimのSnapshotはTransportやJournalへ保存しません/);
+  assert.match(security, /Generated Typeは認証、認可、暗号化、Access Control、Retentionを代替しません/);
+  assert.match(security, /Global Mutable Clientへ保存しないでください/);
 });
 
 test('core API reference covers every source type marked PublicApi without exposing Internal types', async () => {

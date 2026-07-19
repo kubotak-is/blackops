@@ -63,6 +63,74 @@ php blackops build:compile
 
 **Fix:** Deploy対象のSource、Dependency、Configを同じBuild工程へ固定し、その工程で3 Artifactを再生成します。古いArtifactを別ReleaseへCopyしません。
 
+## Frontend Contract ArtifactがInvalid／Stale
+
+**Symptom:** `frontend:generate`または`frontend:check`がContract Artifact不正として失敗します。
+
+**Likely Cause:** `var/build/frontend.php`がない、Schemaが古い、Operation／HTTP／Frontend ManifestのBuild IDが違う、またはPHP Operation変更後に再Buildしていません。Frontend CommandはSource Reflectionや`build:compile`へFallbackしません。
+
+**How to Verify:** Backend Artifactを同じApplication Build IDで作り直し、Commandを順番どおり実行します。CredentialやArtifact PayloadをErrorへ貼り付けないでください。
+
+```bash
+php blackops build:compile
+php blackops frontend:generate
+php blackops frontend:check
+```
+
+**Fix:** Source、Composer Dependency、`APP_BUILD_ID`、`config/app.php`を同じBuild工程へ固定し、その工程でArtifactを再生成します。別Releaseの`frontend.php`やGenerated TreeをCopyしません。
+
+## Frontend Generated TreeがMissing／Drift
+
+**Symptom:** `frontend:check`がExit 1で`missing`または`has drift`を表示します。
+
+**Likely Cause:** `resources/js/blackops/`をまだ生成していない、生成後にPHP Contractが変わった、Generated Fileを手動編集／追加した、または別Build IDのTreeが残っています。
+
+**How to Verify:** CheckはRead-onlyなので、実行前後のApplication Sourceを変更せず状態を分類できます。
+
+```bash
+php blackops frontend:check
+echo $?
+```
+
+**Fix:** Application-owned `resources/js/application/`を編集し、Generated `resources/js/blackops/`は編集しません。現在のArtifactから`php blackops frontend:generate`を実行し、続けてCheckします。Non-marker DirectoryやSymlinkを強制削除せず、所有者を確認してから別Pathへ退避します。
+
+## Generated TypeScriptがCompileできない
+
+**Symptom:** `pnpm test`または`tsc`がGenerated OperationのImport、Value Input、Result Narrowingで型Errorを返します。
+
+**Likely Cause:** Generate前、古いGenerated Tree、手書きのURL／Response型との競合、OperationValue変更にApplication-owned Consumerが追従していない、またはLockfileと異なるTypeScriptを使っています。
+
+**How to Verify:** Frozen LockfileとCanonical Chainを使い、最初にDriftを除外します。
+
+```bash
+pnpm install --frozen-lockfile
+php blackops build:compile
+php blackops frontend:generate
+php blackops frontend:check
+pnpm test
+```
+
+**Fix:** Generated FileをCastや`any`で隠さず、PHP OperationValue／OutcomeまたはApplication-owned Consumer Sourceを修正して再生成します。Unsupported Collection／DTO／Enumを無理にScalarへ見せず、現行Supported Typeへ戻します。
+
+## `.fetch()`がTransport Resultを返す
+
+**Symptom:** `.fetch()`が`missing_fetch`、`invalid_base_url`、`network_error`、`aborted`、`unexpected_response`のTransport Resultを返します。
+
+**Likely Cause:** Runtimeに`globalThis.fetch`がなくInjected Fetchもない、Base URLがHTTP／HTTPS Origin形式でない、Network／Abortが発生した、またはResponseのStatus／Content-Type／JSON ShapeがCompiled Contractと一致しません。
+
+**How to Verify:** `result.kind === 'transport'`と安定した`result.error.code`だけを確認し、Raw Response Body、Token、Thrown Error MessageをLogへ出さないでください。SSR／Node／Testでは呼出単位の`fetch`と`baseUrl`を明示します。
+
+```ts
+const result = await ShowWelcome.fetch({}, { baseUrl, fetch: runtimeFetch });
+
+if (!result.ok && result.kind === 'transport') {
+  const safeCode: string = result.error.code;
+  void safeCode;
+}
+```
+
+**Fix:** RuntimeへWeb Fetch互換実装を注入し、安全なHTTP／HTTPS Base URLを使います。`unexpected_response`ではServerの公開Response ContractとGenerated ClientのBuild IDを揃えます。Raw BodyをResultへ追加するPatchやGlobal Mutable Credential Clientで回避しません。
+
 ## Deferred HTTPが202だがOutcomeがない
 
 **Symptom:** HTTPは`202 Accepted`とOperation IDを返しますが、Outcomeが作られません。

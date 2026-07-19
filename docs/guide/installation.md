@@ -1,6 +1,6 @@
 # インストール
 
-BlackOps Applicationは、Packagistで公開済みのSkeletonからComposer標準の`create-project`で作成します。PHP 8.5、Composer、Docker Composeを利用できる環境を用意してください。
+BlackOps Applicationは、Packagistで公開済みのSkeletonからComposer標準の`create-project`で作成します。PHP 8.5、Composer、Docker Composeを利用できる環境を用意してください。Repository `main`のFrontend Operation生成を使う場合だけ、Node 24とpnpm 11も必要です。Backend-only ApplicationはNodeを必要としません。
 
 ## Stable 1.1.0を作成する
 
@@ -13,7 +13,7 @@ cd my-app
 
 Composer ScriptはProject所有の`bin/setup`を実行します。`.env`が存在しない場合だけ`.env.example`をCopyし、`var/build/`と`var/log/`を準備します。既存の`.env`は上書きしません。
 
-SetupはDocker、Database、Migration、Artifact Build、Worker、Scheduler、Retentionを起動しません。Applicationの状態を変える処理は、以降の明示Commandで実行します。
+SetupはDocker、Composer／pnpm Install、Database、Migration、Artifact Build、Frontend生成、TypeScript Test、Worker、Scheduler、Retentionを起動しません。Applicationの状態を変える処理は、以降の明示Commandで実行します。
 
 ## Composer Scriptを使わない場合
 
@@ -29,7 +29,7 @@ cd my-app
 
 ## Release Policy
 
-Stable `1.1.0`にはProject Root `blackops`、Generator、Application Migration Runtime、7 Validation Attribute、FrankenPHP Worker Modeが含まれます。このWebsiteは`main` Document Channelであり、Global Middleware、Authentication、Durable ActorContext、`#[Authorize]`等の未Release Surfaceも扱います。Stableとの差は[Current Status](mvp-status.md#stableとmain)で明示します。
+Stable `1.1.0`にはProject Root `blackops`、Generator、Application Migration Runtime、7 Validation Attribute、FrankenPHP Worker Modeが含まれます。このWebsiteは`main` Document Channelであり、Global Middleware、Authentication、Durable ActorContext、`#[Authorize]`、Frontend Operation Bridge等の未Release Surfaceも扱います。Stableとの差は[Current Status](mvp-status.md#stableとmain)で明示します。
 
 BlackOpsはExperimentalです。1.x Minor間のBackward CompatibilityとProduction Readinessを保証しません。Upgrade前にRelease NoteとUpgrade Guideを確認し、検証環境でApplicationをTestしてください。[Current Status](mvp-status.md)には利用可能な機能と既知の制約をまとめています。
 

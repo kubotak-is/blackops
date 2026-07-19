@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "target": "ES2022",
+    "module": "CommonJS",
+    "moduleResolution": "Node10",
+    "lib": ["ES2022"],
+    "rootDir": ".",
+    "outDir": ".build",
+    "skipLibCheck": false,
+    "ignoreDeprecations": "6.0"
+  },
+  "include": [
+    "resources/js/blackops/**/*.ts",
+    "resources/js/application/**/*.ts",
+    "tests/Frontend/real-http.ts"
+  ]
+}

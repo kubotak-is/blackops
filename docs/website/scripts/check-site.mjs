@@ -66,10 +66,17 @@ requireText(pages.get('/getting-started/quickstart/'), 'operation:inspect', 'Qui
 requireText(pages.get('/getting-started/quickstart/'), 'operation:viewer', 'Quickstart local viewer');
 requireText(pages.get('/getting-started/quickstart/'), 'Docker-only Quickstartでは、Host BrowserからLocal Viewerを利用できません', 'Quickstart Docker viewer boundary');
 requireText(pages.get('/getting-started/quickstart/'), 'Application／PHP CLI／PostgreSQL／Browserが同じLocal Network Namespace', 'Quickstart native viewer boundary');
+requireText(pages.get('/getting-started/quickstart/'), 'Generated Operation Objectから呼ぶ', 'Quickstart frontend journey');
+requireText(pages.get('/getting-started/quickstart/'), 'ShowWelcome.fetch', 'Quickstart frontend inline call');
+requireText(pages.get('/getting-started/quickstart/'), 'GenerateReport.toRequest', 'Quickstart frontend request descriptor');
 requireText(pages.get('/reference/project-cli/'), 'operation:inspect', 'Project CLI diagnostics command');
+requireText(pages.get('/reference/project-cli/'), 'frontend:check', 'Project CLI frontend drift command');
 requireText(pages.get('/reference/configuration/'), 'application.jsonl', 'Application JSONL configuration');
+requireText(pages.get('/reference/configuration/'), 'resources/js/blackops', 'Frontend output configuration');
 requireText(pages.get('/security/'), 'Canonical DataとSafe Diagnostics', 'Diagnostics security boundary');
+requireText(pages.get('/security/'), 'Frontend Operation Contractの境界', 'Frontend security boundary');
 requireText(pages.get('/troubleshooting/'), 'Operation ID付き500を調べる', 'Diagnostics troubleshooting');
+requireText(pages.get('/troubleshooting/'), 'Frontend Generated TreeがMissing／Drift', 'Frontend troubleshooting');
 
 const documentation = pages.get('/getting-started/installation/');
 for (const section of [

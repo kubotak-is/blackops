@@ -11,6 +11,7 @@ Installed Applicationは責務別のPHP Configを`config/`に置きます。Fram
 | `journal.php` | Observed JSONL JournalのPathとDelivery Mode |
 | `logging.php` | Application／Framework相関LogのJSONL Backend |
 | `diagnostics.php` | Local Diagnostics ViewerのEnable GateとLoopback Address |
+| `frontend.php` | Generated TypeScript ESMのApplication Root内Output |
 | `middleware.php` | Global PSR-15 HTTP Middlewareの登録順 |
 | `retention.php` | Payload、Journal、Outcome、Dead Letterの保持期間、Policy、Actor |
 
@@ -39,6 +40,7 @@ return [
         'application_build_id' => $_ENV['APP_BUILD_ID'] ?? 'local',
         'operation_manifest' => dirname(__DIR__) . '/var/build/operations.php',
         'http_manifest' => dirname(__DIR__) . '/var/build/http.php',
+        'frontend_manifest' => dirname(__DIR__) . '/var/build/frontend.php',
         'container' => dirname(__DIR__) . '/var/build/container.php',
         'container_class' => 'CompiledContainer',
         'container_namespace' => 'App\\Generated',
@@ -46,7 +48,19 @@ return [
 ];
 ```
 
-Operation Manifest、HTTP Manifest、Containerは同じBuild IDで作成します。ProductionはArtifact不足、Format不正、Build ID不一致時に起動を拒否し、Source DiscoveryへFallbackしません。
+Operation Manifest、HTTP Manifest、Frontend Contract Manifest、Containerは同じBuild IDで作成します。Production HTTP／Worker RuntimeはFrontend Contractを読みません。ProductionはBackend Artifact不足、Format不正、Build ID不一致時に起動を拒否し、Source DiscoveryへFallbackしません。
+
+## Frontend Generation
+
+```php
+return [
+    'output' => dirname(__DIR__) . '/resources/js/blackops',
+];
+```
+
+`config/frontend.php`はOptionalで、欠落時も上記Pathを使います。OutputはApplication Root配下の絶対Directoryだけを許可し、Application Root自身、Filesystem Root、Repository外Path、Symlinkを拒否します。設定できるのはOutputだけで、Credential、Base URL、Authentication、CSRF Token、Runtime Fetchはここへ保存しません。
+
+`frontend:generate`と`frontend:check`はBuild済みFrontend Contractを読みます。GenerateはNon-marker Directoryを上書きせず、Temporary Treeを検証後にAtomic Replaceします。CheckはRead-onlyで、Fresh 0、Missing／Drift 1、Invalid 2を返します。Generated `resources/js/blackops/`はApplication Sourceではなく、Quickstartでは`.gitignore`対象です。
 
 ## Database
 

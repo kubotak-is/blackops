@@ -76,7 +76,11 @@ for required_path in composer.json README.md bin/setup blackops bootstrap/app.ph
     app/Feature/Diagnostics/TriggerFailure/TriggerFailure.php \
     app/Feature/Diagnostics/TriggerFailure/TriggerFailureValue.php \
     app/Feature/Diagnostics/TriggerFailure/FailureTriggered.php \
-    config/diagnostics.php config/logging.php migrations/Version20260718000000.php; do
+    config/diagnostics.php config/frontend.php config/logging.php \
+    migrations/Version20260718000000.php package.json pnpm-lock.yaml \
+    resources/js/application/operations.ts tsconfig.json tsconfig.runtime.json \
+    tests/Frontend/typecheck.ts tests/Frontend/real-http.ts \
+    tests/Frontend/write-runtime-package.mjs tests/Frontend/clean.mjs; do
     test -f "${distribution_root}/${required_path}" \
         || fail "required distribution path is missing: ${required_path}"
 done
@@ -88,7 +92,7 @@ grep -Fq "curl -H 'X-Sample-Token: local-example' http://127.0.0.1:8080/welcome"
 grep -Fq "curl -H 'X-Sample-Token: local-example' http://127.0.0.1:8081/welcome" \
     "${distribution_root}/README.md" || fail 'Classic fallback README curl is missing its required token header'
 
-allowed_roots=$'.env.example\n.gitignore\nCaddyfile\nCaddyfile.classic\nDockerfile\nDockerfile.frankenphp\nREADME.md\napp\nbin\nblackops\nbootstrap\ncompose.yaml\ncomposer.json\nconfig\nmigrations\npublic\ntests\nvar'
+allowed_roots=$'.env.example\n.gitignore\nCaddyfile\nCaddyfile.classic\nDockerfile\nDockerfile.frankenphp\nREADME.md\napp\nbin\nblackops\nbootstrap\ncompose.yaml\ncomposer.json\nconfig\nmigrations\npackage.json\npnpm-lock.yaml\npublic\nresources\ntests\ntsconfig.json\ntsconfig.runtime.json\nvar'
 actual_roots="$(find "${distribution_root}" -mindepth 1 -maxdepth 1 -printf '%f\n' | sort)"
 test "${actual_roots}" = "${allowed_roots}" || fail 'distribution root allowlist does not match'
 
@@ -98,6 +102,12 @@ test -z "$(find "${distribution_root}" -type f -name composer.lock -print -quit)
     || fail 'distribution contains composer.lock'
 test -z "$(find "${distribution_root}" -type d -name vendor -print -quit)" \
     || fail 'distribution contains vendor/'
+test -z "$(find "${distribution_root}" -type d -name node_modules -print -quit)" \
+    || fail 'distribution contains node_modules/'
+test ! -d "${distribution_root}/.build" \
+    || fail 'distribution contains frontend build output'
+test ! -d "${distribution_root}/resources/js/blackops" \
+    || fail 'distribution contains generated frontend modules'
 test -z "$(find "${distribution_root}" -type f -name .env -print -quit)" \
     || fail 'distribution contains .env'
 test "$(find "${distribution_root}/var/build" "${distribution_root}/var/log" -type f ! -name .gitignore -print -quit)" = '' \

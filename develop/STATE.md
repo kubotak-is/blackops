@@ -1,10 +1,10 @@
 # Orchestration State
 
-Updated At: 2026-07-19T17:02:10+09:00
+Updated At: 2026-07-19T17:43:20+09:00
 
 ## Current Phase
 
-Phase 15: Operation Frontend Bridge
+Phase 15: Operation Frontend Bridge Closed
 
 ## Current Task
 
@@ -16,13 +16,13 @@ Specifications: `develop/spec/08-registry-and-manifest.md`、`develop/spec/25-se
 
 ## Task Status
 
-Ready
+Accepted
 
-P15-006 Task Packetを作成した。Quickstart／SkeletonのInstall直後Frontend Layout、Generated Operation Objectから実HTTPへのConsumer E2E、Guide／Website／Publication／Framework Update同期、Phase 15 Closeoutを一つの受入単位とする。
+P15-006をOrchestratorが独立ReviewしAcceptedとした。Quickstart／SkeletonのInstall直後Frontend Layout、Canonical Generation Chain、Generated Operation Objectから実Worker Mode HTTPへのConsumer E2E、Guide／Website／Publication／Framework Update同期がPhase 15 Acceptance Criteriaを満たす。
 
 ## Last Accepted Task
 
-P15-005-drift-and-frontend-build-integration
+P15-006-consumer-experience-and-closeout
 
 ## Pending Decisions
 
@@ -49,13 +49,47 @@ P15-005-drift-and-frontend-build-integration
 
 ## Known Blockers
 
-P15-006 Worker開始を妨げる既知Blockerはない。Documentation WebsiteはUser判断どおり未公開であり、Publication／Deployは行わない。
+既知Blockerはない。Documentation WebsiteはUser判断どおり未公開であり、Publication／Deployは行っていない。Exact HEAD Skeleton Publication GateはTask Commit作成後に成功した。
 
 ## Required Next Action
 
-1. P15-006をGPT-5.6 Luna High Workerへ委譲する。
-2. Worker実装後にOrchestratorがInstalled Layout、Real HTTP Result、Sensitive境界、Skeleton／Publication／Website Gateを独立Reviewする。
-3. Accepted後にTask単位でCommit／Pushし、Phase 16のDecision／Specificationへ進む。
+1. AcceptedなP15-006 Task CommitをPushする。
+2. Phase 16 Deferred Status and Outcome APIのDecision／Specification Task Packetを作成する。
+
+## P15-006 Consumer Experience and Closeout Worker Verification
+
+```text
+docker compose run --rm app composer validate --strict
+docker compose run --rm app composer validate --strict examples/quickstart/composer.json
+docker compose run --rm app mago format --check src tests examples
+docker compose run --rm app mago lint
+docker compose run --rm app mago analyze
+Result: Composer Root／Quickstart valid。Mago全成功。
+
+docker compose run --rm app vendor/bin/phpunit --display-deprecations
+Result: OK (1332 tests, 5101 assertions)。
+
+docker compose run --rm app vendor/bin/deptrac
+Result: Violations 0 / Skipped 0 / Uncovered 0 / Allowed 2273 / Warnings 0 / Errors 0。
+
+Independent Frontend Fixture Canonical Chain／Strict TypeScript／Injected Fetch Runtime／Module Shape
+Result: 全成功。
+
+Quickstart Setup／Real HTTP Consumer E2E、Skeleton通常／--no-scripts、Working-tree Publication Dry-run／Workflow、Framework Update
+Result: 全成功。Inline／Deferred／Validation／Internal／Transport、Readonly Metadata、Sensitive／Credential／Raw Error非露出を確認。
+
+Documentation Website Frozen Install／Content Generate／39 Tests／Astro Check／Build／Artifact／Site Check
+Result: 39/39、0 errors／0 warnings／0 hints、30 pages Build成功。外部公開なし。
+
+Management Comment ID、Generated Artifact Tracking、bash syntax、git diff --check Guard
+Result: 成功。Generated Frontend／Website ArtifactはCleanup済み。
+```
+
+### P15-006 Worker Notes
+
+Install直後のQuickstartはFrontend Config、Frozen Package／Lockfile、Application Source、Strict Test Sourceを所有する。`bin/setup`はFrontend次手順を表示するだけで暗黙実行しない。Consumer E2EはGenerated Welcome／Report／Order／Diagnostics Objectを実Worker Mode HTTPへ接続し、既存Backend Journeyを維持する。Skeleton／Framework UpdateはApplication-owned Frontend Fileをbytes単位で保持する。
+
+`examples/quickstart/tests/.gitignore`の既存`*`により新規`tests/Frontend/**`は通常のStatusへ出ないため、OrchestratorはForce Stageする。Task Commit前のExact `HEAD` Publicationは未実行であり、Working-tree Dry-runとTemporary Commit Workflow Regressionは成功済みである。詳細は`develop/orchestration/reports/P15-006-consumer-experience-and-closeout.md`を参照する。
 
 ## P15-005 Drift and Frontend Build Integration Worker Verification
 

@@ -67,7 +67,21 @@ jobs:
       - name: Guard generated frontend artifacts
         run: |
           set -euo pipefail
+          for required_path in \
+            examples/quickstart/config/frontend.php \
+            examples/quickstart/package.json \
+            examples/quickstart/pnpm-lock.yaml \
+            examples/quickstart/tsconfig.json \
+            examples/quickstart/tsconfig.runtime.json \
+            examples/quickstart/resources/js/application/operations.ts \
+            examples/quickstart/tests/Frontend/typecheck.ts \
+            examples/quickstart/tests/Frontend/real-http.ts; do
+            git ls-files --error-unmatch "${required_path}" >/dev/null
+          done
           if git ls-files \
+            examples/quickstart/resources/js/blackops \
+            examples/quickstart/node_modules \
+            examples/quickstart/.build \
             tests/Frontend/fixture/var/build \
             tests/Frontend/fixture/resources/js/blackops \
             tests/Frontend/.build | grep -q .; then

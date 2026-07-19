@@ -1,6 +1,6 @@
 # 現在の提供状況（Current Status）
 
-BlackOpsのLatest StableはFramework／Skeleton `1.1.0`です。このWebsite Sourceは`main` Document Channelであり、未ReleaseのPhase 12〜14 Surfaceも明示して説明します。WebsiteはLocal／CI Buildだけで、現在は公開していません。Stableとの差を次表で確認してください。
+BlackOpsのLatest StableはFramework／Skeleton `1.1.0`です。このWebsite Sourceは`main` Document Channelであり、未ReleaseのPhase 12〜15 Surfaceも明示して説明します。WebsiteはLocal／CI Buildだけで、現在は公開していません。Stableとの差を次表で確認してください。
 
 BlackOps固有のOperation、Claim、Journal、Outcome等は[用語集](glossary.md)で確認できます。
 
@@ -30,6 +30,10 @@ BlackOpsはExperimentalです。1.x Minor間のBackward CompatibilityとProducti
 | Operation ID Diagnostics Human／JSON CLI | Not available | Available |
 | Development Local Diagnostics Viewer | Not available | Available |
 | Configurable Application／Framework JSONL Correlation | Not available | Available |
+| Frontend Contract Manifest／Operation Object生成 | Not available | Available（Experimental） |
+| `.url()`／`.toRequest()`／Typed `.fetch()` | Not available | Available（Experimental） |
+| `frontend:generate`／`frontend:check` | Not available | Available（Experimental） |
+| Deferred Status／Outcome Generated Client | Not available | Not available |
 
 Stable Applicationを作る場合はVersionを明示します。
 
@@ -57,11 +61,13 @@ composer create-project blackops/skeleton my-app 1.1.0
 - Operation IDからLifecycle／Attempt／Outcome Availabilityを読むSafe Human／JSON Diagnostics
 - 既定無効・Loopback限定・Token必須・Read-onlyのDevelopment Local Viewer
 - Process起動時に一度解決するApplication／Framework JSONL LoggingとOperation／Attempt／Correlation ID相関
+- HTTP Operationから生成するFramework-neutral TypeScript ESM Operation Object
+- Readonly Metadata、`.url()`、`.toRequest()`、Typed `.fetch()`とFrontend Drift Check
 
 ## Known Constraints
 
 - Session／JWT／OAuth／API Key等のProduction認証方式、Actor Repository、Permission Storeは提供しない
-- Deferred Status／Outcome HTTP EndpointとGenerated Client SDKは提供しない
+- Deferred Status／Outcome HTTP EndpointとGenerated Polling Clientは提供しない
 - Transactional Outbox Relayは提供しない
 - Canonical Journal／Transport PayloadのEncryption Adapterは提供しない
 - Remote OpenTelemetry、CloudWatch、SQS、Kafka、SQLite、MySQL Adapterは提供しない

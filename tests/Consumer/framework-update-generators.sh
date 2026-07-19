@@ -113,7 +113,9 @@ return [
 ];
 PHP;
 file_put_contents("/smoke/consumer/config/frontend.php", $config . "\n");
-mkdir("/smoke/consumer/resources/js/application", 0777, true);
+if (!is_dir("/smoke/consumer/resources/js/application")) {
+    mkdir("/smoke/consumer/resources/js/application", 0777, true);
+}
 file_put_contents(
     "/smoke/consumer/resources/js/application/client.ts",
     "export const applicationOwned = true;\n",
@@ -161,7 +163,12 @@ find \
     "${consumer_root}/config/diagnostics.php" \
     "${consumer_root}/config/frontend.php" \
     "${consumer_root}/config/logging.php" \
-    "${consumer_root}/resources/js/application/client.ts" \
+    "${consumer_root}/package.json" \
+    "${consumer_root}/pnpm-lock.yaml" \
+    "${consumer_root}/resources/js/application" \
+    "${consumer_root}/tests/Frontend" \
+    "${consumer_root}/tsconfig.json" \
+    "${consumer_root}/tsconfig.runtime.json" \
     "${consumer_root}/README.md" \
     "${consumer_root}/migrations/Version20260718000000.php" \
     -type f -print0 | sort -z | xargs -0 sha256sum \

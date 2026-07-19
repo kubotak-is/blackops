@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "noEmit": true,
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2022"],
+    "skipLibCheck": false
+  },
+  "include": [
+    "resources/js/blackops/**/*.ts",
+    "resources/js/application/**/*.ts",
+    "tests/Frontend/**/*.ts"
+  ]
+}

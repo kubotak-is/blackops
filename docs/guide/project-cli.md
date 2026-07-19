@@ -16,7 +16,32 @@ operation:list
 build:compile
 ```
 
-Operation ListとBuildだけが`config/operations.php`のSource Rootを探索します。BuildはOperation Manifest、HTTP Manifest、DI Containerを同じBuild IDで生成します。
+Operation ListとBuildだけが`config/operations.php`のSource Rootを探索します。BuildはOperation Manifest、HTTP Manifest、Frontend Contract Manifest、DI Containerを同じBuild IDで生成します。TypeScript Source Treeは変更しません。
+
+## Frontend
+
+```text
+frontend:generate
+frontend:check
+```
+
+`frontend:generate`は現在のFrontend Contract Artifactから`config/frontend.php`のOutputへFramework-neutral TypeScript ESMを全再生成します。`frontend:check`は生成せず、Expected Treeと既存TreeのPath／Bytes／余剰Fileを比較します。Checkの固定ContractはFresh 0、Missing／Drift 1、Invalid 2です。どちらも`build:compile`を暗黙実行せず、ArtifactのMissing、Stale、Build ID不一致を拒否します。
+
+| Command | Exit | Meaning |
+| --- | ---: | --- |
+| `frontend:generate` | `0` | Atomicな生成とRead-back検証が完了した |
+| `frontend:generate` | `1` | 生成または安全な置換に失敗した |
+| `frontend:check` | `0` | Generated TreeがFresh |
+| `frontend:check` | `1` | OutputがMissingまたはDrift |
+| `frontend:check` | `2` | Config、Artifact、Generated Contract、InspectionがInvalid |
+
+```bash
+php blackops build:compile
+php blackops frontend:generate
+php blackops frontend:check
+```
+
+Frontend BridgeはRepository `main`のExperimental Surfaceであり、Stable `1.1.0`には含まれません。
 
 ## Database
 

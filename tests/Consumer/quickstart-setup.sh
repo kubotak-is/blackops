@@ -47,8 +47,15 @@ test -d "${project}/var/build"
 test -d "${project}/var/log"
 test -z "$(find "${project}/var/build" "${project}/var/log" -type f -print -quit)"
 grep -F 'docker compose build app http' "${temporary_root}/direct.out" > /dev/null
+grep -F 'pnpm install --frozen-lockfile' "${temporary_root}/direct.out" > /dev/null
 grep -F 'build:compile' "${temporary_root}/direct.out" > /dev/null
+grep -F 'frontend:generate' "${temporary_root}/direct.out" > /dev/null
+grep -F 'frontend:check' "${temporary_root}/direct.out" > /dev/null
+grep -F 'pnpm test' "${temporary_root}/direct.out" > /dev/null
 grep -F 'database:migrate' "${temporary_root}/direct.out" > /dev/null
+test ! -d "${project}/node_modules"
+test ! -d "${project}/resources/js/blackops"
+test ! -d "${project}/.build"
 
 find "${project}" -type f ! -path "${project}/.env" -printf '%P\t%s\t%T@\n' | sort > "${after}"
 cmp "${before}" "${after}"
@@ -106,5 +113,8 @@ grep -F 'Created .env from .env.example.' "${temporary_root}/composer.out" > /de
 test ! -e "${repository_root}/examples/quickstart/.env"
 test ! -e "${repository_root}/examples/quickstart/composer.lock"
 test ! -d "${repository_root}/examples/quickstart/vendor"
+test ! -d "${repository_root}/examples/quickstart/node_modules"
+test ! -d "${repository_root}/examples/quickstart/resources/js/blackops"
+test ! -d "${repository_root}/examples/quickstart/.build"
 
 echo 'Quickstart setup tests passed.'

@@ -173,6 +173,40 @@ test('Docker-only quickstart keeps the local viewer inside its reachable network
   assert.doesNotMatch(quickstart, /0\.0\.0\.0/);
 });
 
+test('quickstart frontend journey matches the installed application-owned source', async () => {
+  const [quickstart, projectCli, configuration, directory, status, packageSource, applicationSource] = await Promise.all([
+    guide('mvp-sample.md'),
+    guide('project-cli.md'),
+    guide('configuration.md'),
+    guide('directory-structure.md'),
+    guide('mvp-status.md'),
+    readFile(path.join(repositoryRoot, 'examples/quickstart/package.json'), 'utf8'),
+    readFile(path.join(repositoryRoot, 'examples/quickstart/resources/js/application/operations.ts'), 'utf8'),
+  ]);
+  const frontendPackage = JSON.parse(packageSource);
+
+  assert.equal(frontendPackage.private, true);
+  assert.equal(frontendPackage.devDependencies.typescript, '6.0.3');
+  assert.match(frontendPackage.scripts.test, /typecheck/);
+  assert.match(quickstart, /build:compile[\s\S]*frontend:generate[\s\S]*frontend:check[\s\S]*pnpm test/);
+  for (const operation of ['ShowWelcome', 'GenerateReport', 'CreateOrder', 'TriggerFailure']) {
+    assert.match(quickstart, new RegExp(`${operation}\\.fetch`));
+    assert.match(applicationSource, new RegExp(`export \\{ ${operation} \\}`));
+  }
+  assert.match(quickstart, /ShowWelcome\.url\(\)/);
+  assert.match(quickstart, /GenerateReport\.toRequest/);
+  assert.match(quickstart, /"kind":"completed"/);
+  assert.match(quickstart, /"kind":"accepted"/);
+  assert.match(quickstart, /"kind":"validation"/);
+  assert.match(quickstart, /"kind":"internal"/);
+  assert.match(quickstart, /"kind":"transport"/);
+  assert.match(projectCli, /Fresh 0、Missing／Drift 1、Invalid 2/);
+  assert.match(configuration, /resources\/js\/blackops/);
+  assert.match(directory, /resources\/js\/application/);
+  assert.match(status, /Frontend Contract Manifest／Operation Object生成 \| Not available \| Available（Experimental）/);
+  assert.match(status, /Deferred Status／Outcome Generated Client \| Not available \| Not available/);
+});
+
 test('quickstart order journey matches the installed transactional source', async () => {
   const [quickstart, provider, operation, command, repository, afterCommit, migration] = await Promise.all([
     guide('mvp-sample.md'),

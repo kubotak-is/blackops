@@ -131,7 +131,11 @@ fwrite(STDOUT, <<<'STEPS'
     Next steps:
       docker compose build app http
       docker compose run --rm app composer install
+      pnpm install --frozen-lockfile
       docker compose run --rm app php blackops build:compile
+      docker compose run --rm app php blackops frontend:generate
+      docker compose run --rm app php blackops frontend:check
+      pnpm test
       docker compose run --rm app php blackops database:status
       docker compose run --rm app php blackops database:migrate
       docker compose up -d

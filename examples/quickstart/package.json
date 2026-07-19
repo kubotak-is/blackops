@@ -1,0 +1,16 @@
+{
+  "name": "blackops-quickstart-frontend",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --project tsconfig.json",
+    "runtime:compile": "tsc --project tsconfig.runtime.json && node tests/Frontend/write-runtime-package.mjs",
+    "test": "pnpm run typecheck",
+    "test:http": "pnpm run runtime:compile && node .build/tests/Frontend/real-http.js",
+    "clean": "node tests/Frontend/clean.mjs"
+  },
+  "devDependencies": {
+    "typescript": "6.0.3"
+  },
+  "packageManager": "pnpm@11.12.0"
+}

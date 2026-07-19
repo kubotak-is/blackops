@@ -44,6 +44,7 @@ git -C "${source_clone}" rm -r --quiet examples/quickstart
 mkdir -p "${source_clone}/examples/quickstart"
 cp -a "${repository_root}/examples/quickstart/." "${source_clone}/examples/quickstart/"
 git -C "${source_clone}" add examples/quickstart
+git -C "${source_clone}" add --force examples/quickstart/tests/Frontend
 GIT_AUTHOR_NAME='BlackOps Workflow Regression' \
     GIT_AUTHOR_EMAIL='workflow-regression@blackops.dev' \
     GIT_COMMITTER_NAME='BlackOps Workflow Regression' \
@@ -56,7 +57,10 @@ for required_path in \
     app/Feature/Diagnostics/TriggerFailure/TriggerFailure.php \
     app/Feature/Diagnostics/TriggerFailure/TriggerFailureValue.php \
     app/Feature/Diagnostics/TriggerFailure/FailureTriggered.php \
-    config/diagnostics.php config/logging.php README.md; do
+    config/diagnostics.php config/frontend.php config/logging.php \
+    package.json pnpm-lock.yaml resources/js/application/operations.ts \
+    tests/Frontend/typecheck.ts tests/Frontend/real-http.ts \
+    tsconfig.json tsconfig.runtime.json README.md; do
     git -C "${source_clone}" cat-file -e "${split_commit}:${required_path}" \
         || fail "split commit is missing ${required_path}"
 done

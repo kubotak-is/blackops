@@ -37,6 +37,19 @@ run_composer() {
     "${container[@]}" composer "$@"
 }
 
+frontend_owned_files=(
+    config/frontend.php
+    package.json
+    pnpm-lock.yaml
+    tsconfig.json
+    tsconfig.runtime.json
+    resources/js/application/operations.ts
+    tests/Frontend/typecheck.ts
+    tests/Frontend/real-http.ts
+    tests/Frontend/write-runtime-package.mjs
+    tests/Frontend/clean.mjs
+)
+
 mkdir -p "${package_root}" "${composer_home}"
 cp -a "${repository_root}/examples/quickstart/." "${package_root}/"
 
@@ -66,9 +79,15 @@ test -f "${package_root}/app/Feature/Diagnostics/TriggerFailure/FailureTriggered
 test -f "${package_root}/config/diagnostics.php"
 test -f "${package_root}/config/logging.php"
 test -f "${package_root}/migrations/Version20260718000000.php"
+for frontend_file in "${frontend_owned_files[@]}"; do
+    test -f "${package_root}/${frontend_file}"
+done
 test ! -e "${package_root}/.env"
 test ! -e "${package_root}/composer.lock"
 test ! -d "${package_root}/vendor"
+test ! -d "${package_root}/node_modules"
+test ! -d "${package_root}/resources/js/blackops"
+test ! -d "${package_root}/.build"
 test "$(find "${package_root}/var/build" -type f ! -name .gitignore -print -quit)" = ''
 test "$(find "${package_root}/var/log" -type f ! -name .gitignore -print -quit)" = ''
 
@@ -125,6 +144,9 @@ test -f "${normal_project}/config/diagnostics.php"
 test -f "${normal_project}/config/logging.php"
 test -f "${normal_project}/migrations/Version20260718000000.php"
 test -f "${normal_project}/Caddyfile.classic"
+for frontend_file in "${frontend_owned_files[@]}"; do
+    cmp "${package_root}/${frontend_file}" "${normal_project}/${frontend_file}"
+done
 cmp "${normal_project}/.env.example" "${normal_project}/.env"
 test -d "${normal_project}/var/build"
 test -d "${normal_project}/var/log"
@@ -135,6 +157,9 @@ test ! -e "${normal_project}/var/build/operations.php"
 test ! -e "${normal_project}/var/build/http.php"
 test ! -e "${normal_project}/var/build/container.php"
 test ! -e "${normal_project}/var/log/journal.jsonl"
+test ! -d "${normal_project}/node_modules"
+test ! -d "${normal_project}/resources/js/blackops"
+test ! -d "${normal_project}/.build"
 
 run_php -r '
 require "/smoke/normal/vendor/autoload.php";
@@ -193,8 +218,14 @@ test -f "${no_scripts_project}/config/diagnostics.php"
 test -f "${no_scripts_project}/config/logging.php"
 test -f "${no_scripts_project}/migrations/Version20260718000000.php"
 test -f "${no_scripts_project}/Caddyfile.classic"
+for frontend_file in "${frontend_owned_files[@]}"; do
+    cmp "${package_root}/${frontend_file}" "${no_scripts_project}/${frontend_file}"
+done
 test ! -e "${no_scripts_project}/var/build/operations.php"
 test ! -e "${no_scripts_project}/var/log/journal.jsonl"
+test ! -d "${no_scripts_project}/node_modules"
+test ! -d "${no_scripts_project}/resources/js/blackops"
+test ! -d "${no_scripts_project}/.build"
 
 run_php -r '
 require "/smoke/no-scripts/vendor/autoload.php";
@@ -227,6 +258,9 @@ environment_contents="$(sha256sum "${no_scripts_project}/.env")"
 run_php /smoke/no-scripts/bin/setup > "${temporary_root}/manual-repeat.out"
 test "${environment_before}" = "$(stat -c '%a:%Y:%s' "${no_scripts_project}/.env")"
 test "${environment_contents}" = "$(sha256sum "${no_scripts_project}/.env")"
+test ! -d "${no_scripts_project}/node_modules"
+test ! -d "${no_scripts_project}/resources/js/blackops"
+test ! -d "${no_scripts_project}/.build"
 
 test "$(git -C "${repository_root}" status --short -- examples/quickstart)" = "${source_before}"
 test "$(docker ps -aq | sort)" = "${containers_before}"

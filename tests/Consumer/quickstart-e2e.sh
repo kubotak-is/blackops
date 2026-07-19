@@ -46,6 +46,7 @@ docker run --rm -v "${CONSUMER}:/app" -v "${ROOT}:/framework:ro" -w /app compose
 HTTP_PORT="${PORT}" "${compose[@]}" build app http
 HTTP_PORT="${PORT}" "${compose[@]}" up -d postgres
 HTTP_PORT="${PORT}" "${install_compose[@]}" run --rm app composer install --no-interaction --prefer-dist
+mise exec -- pnpm --dir "${CONSUMER}" install --frozen-lockfile
 test ! -L "${CONSUMER}/vendor/blackops/framework"
 test -f "${CONSUMER}/vendor/blackops/framework/src/Application/Application.php"
 ! HTTP_PORT="${PORT}" "${compose[@]}" config | grep -q '/framework'
@@ -81,7 +82,16 @@ grep -q 'smoke.create' <<<"${operations}"
 HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops build:compile
 test -f "${CONSUMER}/var/build/operations.php"
 test -f "${CONSUMER}/var/build/http.php"
+test -f "${CONSUMER}/var/build/frontend.php"
 test -f "${CONSUMER}/var/build/container.php"
+HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops frontend:generate
+HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops frontend:check \
+    | grep -Fx 'Frontend generated tree is fresh in resources/js/blackops.'
+mise exec -- pnpm --dir "${CONSUMER}" run test
+test -f "${CONSUMER}/resources/js/blackops/operations/welcome/show-welcome.ts"
+test -f "${CONSUMER}/resources/js/blackops/operations/report/generate-report.ts"
+test -f "${CONSUMER}/resources/js/blackops/operations/order/create-order.ts"
+test -f "${CONSUMER}/resources/js/blackops/operations/diagnostics/failure/trigger-failure.ts"
 HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php -r '
 $manifest = require "/app/var/build/operations.php";
 foreach ($manifest["payload"]["operations"] ?? [] as $operation) {
@@ -467,6 +477,42 @@ outcome=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops 
 test "${outcome}" = "1"
 HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops retention:plan | grep -q 'Total:'
 HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops retention:purge --dry-run | grep -q 'dry run'
+
+frontend_report_secret="frontend-sensitive-report-$RANDOM-$$@example.test"
+frontend_failure_secret="frontend-sensitive-failure-$RANDOM-$$"
+frontend_raw_error="raw-body-$RANDOM-$$"
+BLACKOPS_FRONTEND_BASE_URL="http://127.0.0.1:${PORT}" \
+BLACKOPS_FRONTEND_SAMPLE_TOKEN='local-example' \
+BLACKOPS_FRONTEND_REPORT_SECRET="${frontend_report_secret}" \
+BLACKOPS_FRONTEND_FAILURE_SECRET="${frontend_failure_secret}" \
+BLACKOPS_FRONTEND_RAW_ERROR="${frontend_raw_error}" \
+    mise exec -- pnpm --dir "${CONSUMER}" run test:http \
+    > "${CONSUMER}/var/frontend-result.log"
+
+for result_kind in completed accepted validation internal transport; do
+    grep -Fq "\"kind\":\"${result_kind}\"" "${CONSUMER}/var/frontend-result.log"
+done
+grep -Fq '"code":"network_error"' "${CONSUMER}/var/frontend-result.log"
+
+for forbidden in \
+    'local-example' \
+    "${frontend_report_secret}" \
+    "${frontend_failure_secret}" \
+    "${frontend_raw_error}" \
+    'Intentional quickstart diagnostics failure.'; do
+    ! grep -R -Fq "${forbidden}" "${CONSUMER}/resources/js/blackops"
+    ! grep -R -Fq "${forbidden}" "${CONSUMER}/var/build"
+    ! grep -Fq "${forbidden}" "${CONSUMER}/var/frontend-result.log"
+    ! grep -Fq "${forbidden}" "${CONSUMER}/var/log/application.jsonl"
+done
+! grep -Fq "${frontend_report_secret}" "${CONSUMER}/var/log/journal.jsonl"
+! grep -Fq "${frontend_failure_secret}" "${CONSUMER}/var/log/journal.jsonl"
+grep -Fq '"recipientEmail":"[masked]"' "${CONSUMER}/var/log/journal.jsonl"
+grep -Fq '"sensitiveNote":"[masked]"' "${CONSUMER}/var/log/journal.jsonl"
+
+mise exec -- pnpm --dir "${CONSUMER}" run clean
+test ! -d "${CONSUMER}/resources/js/blackops"
+test ! -d "${CONSUMER}/.build"
 
 test "$(git -C "${ROOT}" status --short -- examples/quickstart)" = "${SOURCE_BEFORE}"
 echo "Quickstart consumer E2E passed."
