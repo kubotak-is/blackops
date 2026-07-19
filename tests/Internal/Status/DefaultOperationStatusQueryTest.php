@@ -8,6 +8,8 @@ use BlackOps\Core\ActorRef;
 use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Internal\Status\DefaultOperationStatusQuery;
 use BlackOps\Internal\Status\OperationStatusDetail;
+use BlackOps\Internal\Status\OperationStatusDetailExpired;
+use BlackOps\Internal\Status\OperationStatusDetailResult;
 use BlackOps\Internal\Status\OperationStatusSource;
 use BlackOps\Internal\Status\OperationStatusSourceException;
 use BlackOps\Internal\Status\OperationStatusSubject;
@@ -46,7 +48,7 @@ final class DefaultOperationStatusQueryTest extends TestCase
     public function testDenyMatchesUnknownAndNeverReadsDetail(): void
     {
         $calls = new StatusCallLog();
-        $source = new FakeOperationStatusSource($calls, $this->subject());
+        $source = new FakeOperationStatusSource($calls, $this->subject(), new OperationStatusDetailExpired());
         $authorizer = new FakeOperationStatusAuthorizer($calls, OperationStatusAuthorizationDecision::deny());
 
         $result = new DefaultOperationStatusQuery($source, $authorizer)->find($this->operationId());
@@ -55,15 +57,15 @@ final class DefaultOperationStatusQueryTest extends TestCase
         self::assertSame(['subject', 'authorize'], $calls->calls);
     }
 
-    public function testAllowOnExpiredSubjectReturnsExpiredWithoutDetailRead(): void
+    public function testAllowReturnsExpiredOnlyAfterDetailRead(): void
     {
         $calls = new StatusCallLog();
-        $subject = OperationStatusSubject::expired(
+        $subject = new OperationStatusSubject(
             $this->operationId(),
             'report.generate',
             new ActorRef('origin-user', 'user'),
         );
-        $source = new FakeOperationStatusSource($calls, $subject);
+        $source = new FakeOperationStatusSource($calls, $subject, new OperationStatusDetailExpired());
         $authorizer = new FakeOperationStatusAuthorizer($calls, OperationStatusAuthorizationDecision::allow());
 
         $result = new DefaultOperationStatusQuery($source, $authorizer)->find(
@@ -72,7 +74,7 @@ final class DefaultOperationStatusQueryTest extends TestCase
         );
 
         self::assertInstanceOf(OperationStatusExpired::class, $result);
-        self::assertSame(['subject', 'authorize'], $calls->calls);
+        self::assertSame(['subject', 'authorize', 'detail'], $calls->calls);
         self::assertSame('current-user', $authorizer->request?->currentActor()?->id());
         self::assertSame('origin-user', $authorizer->request?->originActor()?->id());
     }
@@ -98,9 +100,10 @@ final class DefaultOperationStatusQueryTest extends TestCase
     public function testMismatchedSubjectFailsIntegrityBeforeAuthorization(): void
     {
         $calls = new StatusCallLog();
-        $subject = OperationStatusSubject::available(
+        $subject = new OperationStatusSubject(
             OperationId::fromString(self::OTHER_OPERATION_ID),
             'report.generate',
+            null,
         );
         $source = new FakeOperationStatusSource($calls, $subject);
         $authorizer = new FakeOperationStatusAuthorizer($calls, OperationStatusAuthorizationDecision::allow());
@@ -219,7 +222,7 @@ final class DefaultOperationStatusQueryTest extends TestCase
 
     private function subject(): OperationStatusSubject
     {
-        return OperationStatusSubject::available($this->operationId(), 'report.generate');
+        return new OperationStatusSubject($this->operationId(), 'report.generate', null);
     }
 
     /** @param callable(): mixed $query */
@@ -245,7 +248,7 @@ final class FakeOperationStatusSource implements OperationStatusSource
     public function __construct(
         private readonly StatusCallLog $log,
         private readonly ?OperationStatusSubject $subject,
-        private readonly ?OperationStatusDetail $detail = null,
+        private readonly ?OperationStatusDetailResult $detail = null,
         private readonly ?Throwable $subjectFailure = null,
         private readonly ?Throwable $detailFailure = null,
     ) {}
@@ -260,7 +263,7 @@ final class FakeOperationStatusSource implements OperationStatusSource
         return $this->subject;
     }
 
-    public function readDetail(OperationStatusSubject $subject): OperationStatusDetail
+    public function readDetail(OperationStatusSubject $subject): OperationStatusDetailResult
     {
         $this->log->calls[] = 'detail';
         if ($this->detailFailure !== null) {

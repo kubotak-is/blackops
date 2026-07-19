@@ -38,11 +38,14 @@ final readonly class DefaultOperationStatusQuery implements OperationStatusQuery
             return new OperationStatusUnavailable();
         }
 
-        if ($subject->expired) {
+        $detail = $this->readDetail($subject);
+        if ($detail instanceof OperationStatusDetailExpired) {
             return new OperationStatusExpired();
         }
 
-        $detail = $this->readDetail($subject);
+        if (!$detail instanceof OperationStatusDetail) {
+            throw OperationStatusQueryException::integrityFailed();
+        }
         if (
             !$detail->status->operationId()->equals($subject->operationId)
             || $detail->status->operationType() !== $subject->operationType
@@ -82,7 +85,7 @@ final readonly class DefaultOperationStatusQuery implements OperationStatusQuery
         }
     }
 
-    private function readDetail(OperationStatusSubject $subject): OperationStatusDetail
+    private function readDetail(OperationStatusSubject $subject): OperationStatusDetailResult
     {
         try {
             return $this->source->readDetail($subject);

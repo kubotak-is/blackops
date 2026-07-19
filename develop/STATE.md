@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-19T20:07:40+09:00
+Updated At: 2026-07-19T20:49:50+09:00
 
 ## Current Phase
 
@@ -16,13 +16,13 @@ Specifications: `develop/spec/02-lifecycle-and-journal.md`、`develop/spec/11-du
 
 ## Task Status
 
-Ready for Worker
+Accepted
 
-P16-002はAccepted／Push済み。P16-003では既存PostgreSQL Schemaから認可前の最小SubjectとAllow後のStatus Detail／Expiredを構成する。P16-002のInternal SubjectからExpired Flagを除き、Retention EvidenceをAllow後だけ読む内部契約へ補正する。MigrationとPublic API変更は行わない。
+GPT-5.6 Luna High Workerの実装とOrchestrator修正要求をReviewし、P16-003をAcceptedとした。Internal SubjectからExpired Flagを除き、Allow後のDetail ResultでStatus／Expiredを判定する。既存PostgreSQL Schemaから認可前最小Subjectと認可後Projectionを実装し、Inline／Deferred全State、Typed Outcome、Safe Rejection、Dead Letter、Retention、Integrityを実DBで検証した。Detailは同一Connectionの`REPEATABLE READ, READ ONLY` Snapshotを使う。DBAL／PDO連鎖だけをStorage、それ以外のCanonical Journal／Outcome読取失敗をDecodeへ分類した。Journalが存在するDetailでは認可時SubjectとOrigin Actorを厳密照合し、認可後Actor変更をIntegrity Failureにする。Orchestrator独立再検証で対象110 tests／498 assertions、全1393 tests／5379 assertionsと全品質Guardが成功した。MigrationとPublic APIは変更していない。
 
 ## Last Accepted Task
 
-P16-002-public-status-query-contract
+P16-003-postgresql-status-projection
 
 ## Pending Decisions
 
@@ -53,9 +53,46 @@ P16-002-public-status-query-contract
 
 ## Required Next Action
 
-1. OrchestratorがP16-003 Task PacketとSpecification補足をReview／Commitする。
-2. GPT-5.6 Luna High WorkerがP16-003を実装し、Report／STATEを同期する。
-3. Orchestratorが認可順序、Source Authority、Retention／IntegrityをReviewし、独立再検証後にCommitする。
+1. OrchestratorがP16-003をCommit／Pushする。
+2. P16-004のTask Packetを作成する。
+3. P16-004で`GET /operations/{operationId}`とDeferred 202の`Location`／`Retry-After`を実装する。
+
+## P16-003 PostgreSQL Status Projection Worker Verification
+
+```text
+docker compose run --rm app composer validate --strict
+docker compose run --rm app composer validate --strict examples/quickstart/composer.json
+docker compose run --rm app mago format --check src tests
+docker compose run --rm app mago lint
+docker compose run --rm app mago analyze
+Result: Composer Root／Quickstart valid。Mago全成功。
+
+docker compose run --rm app vendor/bin/phpunit --display-deprecations \
+  tests/Status tests/Internal/Status \
+  tests/Transport/PostgreSql/PostgreSqlStatusReaderTest.php \
+  tests/Transport/PostgreSql/PostgreSqlStatusQueryIntegrationTest.php \
+  tests/Internal/Diagnostics/OperationDiagnosticsQueryTest.php \
+  tests/Transport/PostgreSql/PostgreSqlDiagnosticsReaderTest.php \
+  tests/Transport/PostgreSql/PostgreSqlDiagnosticsQueryIntegrationTest.php \
+  tests/Transport/PostgreSql/PostgreSqlCanonicalJournalStoreTest.php \
+  tests/Transport/PostgreSql/PostgreSqlOutcomeStoreTest.php
+Result: OK (110 tests, 498 assertions)。
+
+docker compose run --rm app vendor/bin/phpunit --display-deprecations
+Result: OK (1393 tests, 5379 assertions)。
+
+docker compose run --rm app vendor/bin/deptrac
+Result: Violations 0 / Skipped 0 / Uncovered 0 / Allowed 2481 / Warnings 0 / Errors 0。
+
+Management ID／Internal PublicApi／Restricted Field／Schema DDL／git diff --check Guards
+Result: 全成功。
+```
+
+### P16-003 Orchestrator Review Corrections
+
+Outcome StoreのUnsupported Schema Versionなど、`previous`を持たないCodec ExceptionがStorageへ分類される経路を修正した。DBAL／PDOを例外連鎖に含む場合だけStorage、それ以外のCanonical Journal／Outcome読取失敗をDecodeとする。実DBのCompleted OutcomeをUnsupported Schemaへ変更し、Public `status_query.decode_failed`とSnapshot Transaction Cleanupを確認した。
+
+Journalが残るDetailで、認可に使ったSubject Origin ActorとJournal Origin Actorのnull性・ID・Typeを厳密照合する。Authorizer callback後に全Journal RecordのOrigin Actor IDを変更する実DB回帰で、Public `status_query.integrity_failed`、Status非返却、Snapshot Transaction Cleanupを確認した。Journal Retention済みでSubject／DetailともActor不明のTerminal経路は既存回帰で維持した。
 
 ## P16-002 Public Status Query Contract Worker Verification
 

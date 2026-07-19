@@ -6,7 +6,7 @@ namespace BlackOps\Internal\Status;
 
 use BlackOps\Status\OperationStatus;
 
-final readonly class OperationStatusDetail
+final readonly class OperationStatusDetail implements OperationStatusDetailResult
 {
     public function __construct(
         public OperationStatus $status,

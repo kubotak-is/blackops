@@ -10,5 +10,5 @@ interface OperationStatusSource
 {
     public function findSubject(OperationId $operationId): ?OperationStatusSubject;
 
-    public function readDetail(OperationStatusSubject $subject): OperationStatusDetail;
+    public function readDetail(OperationStatusSubject $subject): OperationStatusDetailResult;
 }
