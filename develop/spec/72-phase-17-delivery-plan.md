@@ -133,8 +133,8 @@ Documentation WebsiteとCommunity BoardのExternal Publication／Deployは行わ
 ## Phase Acceptance Criteria
 
 - [x] D103とPhase 17 Specification／Delivery PlanがDecidedである
-- [ ] Independent Community Board Foundationが起動する
-- [ ] Server-only BFFとApplication-owned AuthenticationがCredentialを安全に扱う
+- [x] Independent Community Board Foundationが起動する
+- [x] Server-only BFFとApplication-owned AuthenticationがCredentialを安全に扱う
 - [ ] Post／Comment JourneyがValidation／Authorization／Transaction付きで完走する
 - [ ] Generated Operation ObjectがSvelteKit Serverだけから使われる
 - [ ] Deferred Digestが202からStatus／Wait／Typed Outcome／表示まで完走する

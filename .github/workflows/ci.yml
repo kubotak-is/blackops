@@ -17,7 +17,7 @@ concurrency:
 
 jobs:
   community-board-foundation:
-    name: Community Board foundation
+    name: Community Board foundation and identity
     runs-on: ubuntu-latest
     timeout-minutes: 25
 
@@ -62,9 +62,14 @@ jobs:
       - name: Test Community Board foundation
         run: bash tests/Consumer/community-board-foundation.sh
 
+      - name: Test Community Board identity
+        run: bash tests/Consumer/community-board-identity.sh
+
       - name: Guard generated and sensitive artifacts
         run: |
           set -euo pipefail
+          git ls-files --error-unmatch \
+            examples/community-board/migrations/Version20260720023000.php >/dev/null
           if git ls-files \
             examples/community-board/.env \
             examples/community-board/vendor \
@@ -87,6 +92,7 @@ jobs:
             examples/community-board/vendor \
             examples/community-board/var/build/* \
             examples/community-board/var/log/* \
+            examples/community-board/var/phpunit \
             examples/community-board/frontend/node_modules \
             examples/community-board/frontend/src/lib/server/blackops/generated \
             examples/community-board/frontend/.svelte-kit \

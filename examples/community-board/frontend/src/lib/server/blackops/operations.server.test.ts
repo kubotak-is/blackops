@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { loadBoardWelcome, type ServerFetch } from './operations.server';
+import { loadBoardWelcome, loadCurrentUser, type ServerFetch } from './operations.server';
 
 describe('loadBoardWelcome', () => {
   it('maps the typed BlackOps outcome to a safe landing view', async () => {
@@ -75,5 +75,45 @@ describe('loadBoardWelcome', () => {
       available: false,
       message: 'The board service is temporarily unavailable.',
     });
+  });
+});
+
+describe('loadCurrentUser', () => {
+  it('injects bearer per request and returns only a safe current-user view', async () => {
+    let authorization: string | null = null;
+    const serverFetch: ServerFetch = async (_input, init) => {
+      authorization = new Headers(init?.headers).get('authorization');
+      return Response.json({
+        id: 'user-id',
+        email: 'person@example.com',
+        displayName: 'Person',
+      });
+    };
+
+    const result = await loadCurrentUser(serverFetch, 'raw-session-token', 'http://blackops.test');
+
+    expect(authorization).toBe('Bearer raw-session-token');
+    expect(result).toEqual({
+      state: 'authenticated',
+      user: { id: 'user-id', email: 'person@example.com', displayName: 'Person' },
+    });
+    expect(JSON.stringify(result)).not.toContain('raw-session-token');
+  });
+
+  it('marks an invalid session for cookie removal without exposing backend errors', async () => {
+    const serverFetch: ServerFetch = async () =>
+      Response.json(
+        {
+          status: 'error',
+          category: 'unauthorized',
+          code: 'authentication.invalid_session',
+        },
+        { status: 401 },
+      );
+
+    const result = await loadCurrentUser(serverFetch, 'expired-session', 'http://blackops.test');
+
+    expect(result).toEqual({ state: 'invalid' });
+    expect(JSON.stringify(result)).not.toContain('expired-session');
   });
 });

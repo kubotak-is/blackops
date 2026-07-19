@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use App\ApplicationServiceProvider;
+
 return [
     'build' => [
         'application_build_id' => $_ENV['APP_BUILD_ID'] ?? 'community-board-local',
@@ -12,5 +14,5 @@ return [
         'container_class' => 'CompiledContainer',
         'container_namespace' => 'App\\Generated',
     ],
-    'services' => [],
+    'services' => [ApplicationServiceProvider::class],
 ];

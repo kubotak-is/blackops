@@ -23,7 +23,15 @@
     <p role="status" data-testid="welcome-unavailable">{data.welcome.message}</p>
   {/if}
 
-  <p>Identity, posts, comments, and deferred digests arrive in later foundation phases.</p>
+  {#if data.currentUser}
+    <p data-testid="current-user">Signed in as {data.currentUser.displayName} ({data.currentUser.email})</p>
+  {:else if !data.identityAvailable}
+    <p role="status">Identity service is temporarily unavailable.</p>
+  {:else}
+    <p><a href="/register">Create an account</a> or <a href="/login">log in</a>.</p>
+  {/if}
+
+  <p>Posts, comments, and deferred digests arrive in later phases.</p>
 </main>
 
 <style>

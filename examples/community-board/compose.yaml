@@ -33,6 +33,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-blackops}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-blackops}
       BLACKOPS_SCHEMA: ${BLACKOPS_SCHEMA:-blackops}
+      SESSION_TTL_SECONDS: ${SESSION_TTL_SECONDS:-28800}
       FRANKENPHP_MAX_REQUESTS: ${FRANKENPHP_MAX_REQUESTS:-1000}
       WORKER_ID: ${WORKER_ID:-community-board-worker-1}
       WORKER_LEASE_SECONDS: ${WORKER_LEASE_SECONDS:-60}
@@ -47,16 +48,28 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.frankenphp
+    user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
     working_dir: /workspace/examples/community-board
     volumes:
       - ../..:/workspace
       - ./Caddyfile:/etc/frankenphp/Caddyfile:ro
-    environment: *application-environment
+    environment:
+      <<: *application-environment
+      XDG_CONFIG_HOME: /tmp/caddy/config
+      XDG_DATA_HOME: /tmp/caddy/data
     depends_on:
       postgres:
         condition: service_healthy
     ports:
       - "${BLACKOPS_DEBUG_PORT:-8081}:80"
+
+  http-classic:
+    profiles: ["classic-mode"]
+    extends:
+      service: app
+    command: ["php", "-S", "0.0.0.0:8080", "-t", "public", "public/index.php"]
+    ports:
+      - "${BLACKOPS_CLASSIC_DEBUG_PORT:-8082}:8080"
 
   worker:
     profiles: ["worker"]
@@ -77,6 +90,8 @@ services:
       PORT: 3000
       ORIGIN: ${FRONTEND_ORIGIN:-http://localhost:5173}
       BLACKOPS_BASE_URL: ${BLACKOPS_BASE_URL:-http://http}
+      SESSION_TTL_SECONDS: ${SESSION_TTL_SECONDS:-28800}
+      SESSION_COOKIE_SECURE: ${SESSION_COOKIE_SECURE:-false}
     command: ["node", "build"]
     depends_on:
       - http

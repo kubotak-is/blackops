@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-20T02:25:32+09:00
+Updated At: 2026-07-20T03:36:12+09:00
 
 ## Current Phase
 
@@ -16,13 +16,13 @@ Specifications: `develop/spec/60-post-phase-10-roadmap.md`、`develop/spec/71-fu
 
 ## Task Status
 
-Ready
+Accepted
 
-P17-003 Task PacketをReadyとした。Application-owned Authentication Router、User／Session Repository、Password Hash、Opaque Session Hash、Expiry／Revocation／Rotation、BlackOps `HttpAuthenticator`、Authorized Current User Operation、SvelteKit Form Action／HttpOnly Cookie、Sensitive Guardを実装する。CredentialをOperation、Journal、Outcome、Generated Contract、Browser JavaScriptへ入れず、Authentication以外を既存BlackOps Handlerへ委譲する。Post、Comment、Digest、Final Visual Design、Reicon、Framework Production Code、Quickstartは変更しない。
+P17-003をAcceptedとした。Application-owned Authentication Router、User／Session、Argon2id、Opaque Token Hash／TTL／Revocation／Rotation、BlackOps Authentication／Authorization／Current User Operation、SvelteKit Form Action／HttpOnly Cookie、Real HTTP Identity E2E、CI、Sensitive Guardを完走した。Orchestrator ReviewでMigration Tracking、未知EmailのDummy Verify、Direct Dependency、3 Runtimeの非root Ownershipを補正し、独立再実行でもIdentity E2E、Mago、Full PHPUnit 1430 tests／5679 assertions、Deptrac 0違反が成功した。ArtifactはCleanup済みである。
 
 ## Last Accepted Task
 
-P17-002-application-and-sveltekit-foundation
+P17-003-identity-session-and-bff-boundary
 
 ## Pending Decisions
 
@@ -54,9 +54,31 @@ P17-002-application-and-sveltekit-foundation
 
 ## Required Next Action
 
-1. OrchestratorがP17-003 Task Packet／CheckpointをCommitする。
-2. GPT-5.6 Luna High WorkerがP17-003を実装し、Report／STATEを更新する。
-3. Orchestratorが差分をReviewし、独立再検証後にCommitする。
+1. OrchestratorがP17-003 Accepted差分をCommit／Pushする。
+2. OrchestratorがP17-004 Post and Comment OperationsのTask Packetを作成する。
+3. GPT-5.6 Luna High WorkerがP17-004を実装する。
+
+## P17-003 Identity, Session, and BFF Boundary Worker Verification
+
+```text
+Identity Schema／PHP: Application Migration 1、Argon2id、UUIDv7、Opaque Token SHA-256、8h TTL、Expiry／Revocation／Rotationを実装。Migration Tracking Guardと未知Email Dummy Argon2id Verifyを追加。Example PHPUnit OK (17 tests, 71 assertions)。
+
+HTTP／BlackOps: Application-owned /auth Router、Non-auth Delegation、Classic／Worker共通bootstrap、Global Authentication、ActorRef-only、Authorized GET /meを実装。Build成功、Generated 5 files、Fresh Check成功。
+
+SvelteKit: Register／Login／Logout Form Action、HttpOnly／SameSite Strict／Path／Secure Default Cookie、Server-only Auth Client／Generated Wrapper、Invalid Session Cookie削除を実装。Check 0 errors／0 warnings、Vitest 16 passed、adapter-node build成功。
+
+Real HTTP: Default HTTP先行後にClassic／Deferred Workerを同じ非root UID／GIDで起動し、Journal OpenとWorker Runningを確認。有限curl timeoutのIdentity JourneyでRegister、Cookie、Current User、Logout、Old Token 401、Login、Rotation、Expiry、CSRF、Safe 400／401／409／415／500、Sensitive Marker Guardが成功。Foundation Journeyも成功。
+
+Sensitive: Raw Token／Password MarkerがDatabase Dump、BlackOps Build／Journal／Log、Generated Tree、Client Build、SSR／Action Response、PHP Current User、Container Logへ残らないことを確認。DBはToken SHA-256 Hashだけを保持。
+
+Root: Composer Root／Quickstart valid、Mago format／lint／analyze成功、PHPUnit OK (1430 tests, 5679 assertions)、Deptrac違反0。
+
+Management ID／Quickstart Diff／Tracking／git diff --check Guards: 全成功。Generated／Dependency／Build／Runtime ArtifactはCleanup済み。
+```
+
+### P17-003 Worker Notes
+
+Task Packet初版の`board.identity.current-user.show`はFramework Public Operation Type ContractがHyphenを拒否したため、Orchestrator判断でCanonical `board.identity.current.user.show`へ訂正した。Authentication RouteだけがApplication-owned DBAL ConnectionをRequest単位で作成／Closeし、BlackOps側はFramework DI／Lifecycleを使う。Applicationが直接ImportするDBAL／Migrations／UIDはDirect Dependencyとして宣言した。FrankenPHPのCaddy固有書込先は`/tmp/caddy`へ分離し、Classic／Workerを含むApplication Runtime Artifactは同じ非root Userが所有する。詳細は`develop/orchestration/reports/P17-003-identity-session-and-bff-boundary.md`を参照する。
 
 ## P17-002 Application and SvelteKit Foundation Worker Verification
 
