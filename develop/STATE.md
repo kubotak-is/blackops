@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-19T22:30:27+09:00
+Updated At: 2026-07-19T22:34:58+09:00
 
 ## Current Phase
 
@@ -8,17 +8,17 @@ Phase 16: Deferred Status and Outcome API
 
 ## Current Task
 
-Task ID: P16-006-generated-wait-and-frontend-ci
+Task ID: P16-007-consumer-experience-and-closeout
 
-Task Packet: `develop/orchestration/tasks/P16-006-generated-wait-and-frontend-ci.md`
+Task Packet: `develop/orchestration/tasks/P16-007-consumer-experience-and-closeout.md`
 
 Specifications: `develop/spec/25-sensitive-projection.md`、`develop/spec/67-operation-frontend-bridge.md`、`develop/spec/69-deferred-status-and-outcome-api.md`、`develop/spec/70-phase-16-delivery-plan.md`、`develop/decisions/100-phase-15-operation-frontend-bridge.md`、`develop/decisions/102-phase-16-deferred-status-and-outcome-api.md`
 
 ## Task Status
 
-Accepted
+Ready
 
-GPT-5.6 Luna High WorkerのP16-006実装をReviewし、Orchestrator独立再検証後にAcceptedとした。全Generated HTTP Operation ObjectへRequired Abort Signalと有限Deadlineを持つ`.wait()`を追加し、in-flight Status Requestを含むDeadline／Abort Race、Retry-After、Terminal停止、Error即時停止、Timer／Clock注入、全Cleanup、並行Wait分離をPermanent Frontend Fixture／既存CI Test Scriptで固定した。Wait固有ResultはTerminal 4 Stateだけを成功型に含み、単発Status／Fetch ResultへWait専用Codeを混ぜない。対象46 tests／460 assertions、全1421 tests／5634 assertions、Frontend Runtimeと全品質Guardが成功した。
+P16-007 Task Packetを作成した。Quickstart／SkeletonへApplication所有Status Authorizerを追加し、Generated Clientの202受付、一回`.status()`、Worker Retry、有限`.wait()`、Completed Typed OutcomeをReal HTTPで完走する。Guide／Website Source、Security／Retention／Troubleshooting、Skeleton／Publication／Framework Updateを同期し、外部公開せずPhase 16をCloseする。
 
 ## Last Accepted Task
 
@@ -53,9 +53,9 @@ P16-006-generated-wait-and-frontend-ci
 
 ## Required Next Action
 
-1. OrchestratorがP16-006をCommit／Pushする。
-2. P16-007 Consumer Experience and CloseoutのTask Packetを作成する。
-3. Quickstart／Skeleton／Guide／Website Source／Consumer E2Eを同期してPhase 16をCloseする。Website Publication／Deployは行わない。
+1. OrchestratorがP16-007 Task PacketをCommit／Pushする。
+2. GPT-5.6 Luna High WorkerへP16-007実装を委譲する。
+3. OrchestratorがReal HTTP／Skeleton／Publication／Website／全品質Gateを再実行してPhase 16をCloseする。
 
 ## P16-006 Generated Wait Capability and Frontend CI Worker Verification
 
