@@ -126,6 +126,19 @@ AuthorizerがThrowableを投げた場合はDenyへ丸めず、`status_query.auth
 
 Internal Diagnostics AggregateをPublic DTOとして再利用しない。Status Query専用の最小Source PortとSafe Projectorを持ち、認可前のSubject読取と認可後のDetail読取を型レベルで分離する。
 
+```text
+findSubject(OperationId): OperationStatusSubject|null
+  operationId
+  operationType
+  originActor|null
+
+readDetail(OperationStatusSubject): OperationStatusDetailResult
+  OperationStatusDetail(status)
+  OperationStatusDetailExpired
+```
+
+Subjectは認可入力だけを保持し、Expired Flag、Retention Evidence、State、Outcome、Terminal Errorを持たない。Expired判定を含むDetail ResultはAuthorizerのAllow後だけ取得する。PostgreSQL Subject ReaderはCanonical `encoded_record`、Encoded Payload／Context全体をPHPへ返さず、SQL ProjectionでOperation TypeとOrigin Actorだけを取得する。
+
 ### Inline
 
 - Identity、Current State、Terminal Error、Outcomeの正本はSequence順Canonical Journalとする
@@ -143,6 +156,8 @@ Internal Diagnostics AggregateをPublic DTOとして再利用しない。Status 
 - Rejected Category／Codeの正本はCanonical Journalとし、Raw Violation、Raw Value、Exception Detailを投影しない
 - Dead LetterはState確認に利用できるが、Payload、Reason Message、Worker MetadataをSELECT／Decode／返却しない
 - Operations RowとJournalの両方が利用可能な場合、State／Typeの不一致はIntegrity Failureとする
+
+DeferredのOperations Rowが残りJournalだけがRetention削除された場合、Origin Actorは`null`になる。Operations RowのEncoded ContextへFallbackしてActorを復元しない。Application AuthorizerはOrigin Actorなしの参照を明示的にAllowまたはDenyする。
 
 Public `running`はInternal `running`と`supervising`を含む。Public `attempt`はCurrent Attempt Numberを使い、Attempt IDを返さない。
 

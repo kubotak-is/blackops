@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-19T20:03:25+09:00
+Updated At: 2026-07-19T20:07:40+09:00
 
 ## Current Phase
 
@@ -8,17 +8,17 @@ Phase 16: Deferred Status and Outcome API
 
 ## Current Task
 
-Task ID: P16-002-public-status-query-contract
+Task ID: P16-003-postgresql-status-projection
 
-Task Packet: `develop/orchestration/tasks/P16-002-public-status-query-contract.md`
+Task Packet: `develop/orchestration/tasks/P16-003-postgresql-status-projection.md`
 
-Specifications: `develop/spec/01-core-model.md`、`develop/spec/06-auth-and-middleware.md`、`develop/spec/17-core-api.md`、`develop/spec/25-sensitive-projection.md`、`develop/spec/29-handler-result-contract.md`、`develop/spec/30-lifecycle-state-machine.md`、`develop/spec/38-data-retention-and-deletion.md`、`develop/spec/65-operation-diagnostics.md`、`develop/spec/69-deferred-status-and-outcome-api.md`、`develop/spec/70-phase-16-delivery-plan.md`、`develop/decisions/102-phase-16-deferred-status-and-outcome-api.md`
+Specifications: `develop/spec/02-lifecycle-and-journal.md`、`develop/spec/11-durable-journal-and-transactions.md`、`develop/spec/24-lifecycle-event-data.md`、`develop/spec/25-sensitive-projection.md`、`develop/spec/30-lifecycle-state-machine.md`、`develop/spec/35-postgresql-transport-schema.md`、`develop/spec/36-postgresql-transaction-boundaries.md`、`develop/spec/37-postgresql-table-layout.md`、`develop/spec/38-data-retention-and-deletion.md`、`develop/spec/65-operation-diagnostics.md`、`develop/spec/69-deferred-status-and-outcome-api.md`、`develop/spec/70-phase-16-delivery-plan.md`、`develop/decisions/102-phase-16-deferred-status-and-outcome-api.md`
 
 ## Task Status
 
-Accepted
+Ready for Worker
 
-P16-002はAccepted。7 StateのPublic Status Aggregate／Result、専用Query Authorizerと既定Deny、Safe Query Exception、Subject -> Authorizer -> Detailの二段階Internal Sourceを実装した。Orchestrator独立ReviewとTarget 42 tests／171 assertions、Full 1370 tests／5260 assertions、Composer／Mago／Deptrac／Guardが成功した。
+P16-002はAccepted／Push済み。P16-003では既存PostgreSQL Schemaから認可前の最小SubjectとAllow後のStatus Detail／Expiredを構成する。P16-002のInternal SubjectからExpired Flagを除き、Retention EvidenceをAllow後だけ読む内部契約へ補正する。MigrationとPublic API変更は行わない。
 
 ## Last Accepted Task
 
@@ -53,9 +53,9 @@ P16-002-public-status-query-contract
 
 ## Required Next Action
 
-1. OrchestratorがP16-002をCommit／Pushする。
-2. OrchestratorがP16-003 PostgreSQL Status Projection and RetentionのTask Packetを用意する。
-3. GPT-5.6 Luna High WorkerがP16-003を実装し、OrchestratorがReview／Commitする。
+1. OrchestratorがP16-003 Task PacketとSpecification補足をReview／Commitする。
+2. GPT-5.6 Luna High WorkerがP16-003を実装し、Report／STATEを同期する。
+3. Orchestratorが認可順序、Source Authority、Retention／IntegrityをReviewし、独立再検証後にCommitする。
 
 ## P16-002 Public Status Query Contract Worker Verification
 

@@ -42,13 +42,14 @@ PostgreSQL、HTTP Route、Frontend生成は変更しない。
 
 ## P16-003: PostgreSQL Status Projection and Retention
 
+- Internal Source Contractを認可情報だけのSubjectと、Allow後のFound／Expired Detail Resultへ分離する
 - Operations Row、Canonical Journal、Outcome Store、Dead Letter、Purge AuditをStatus Sourceへ接続する
 - Inline／DeferredのSource Authorityを実装する
 - Internal `supervising`をPublic `running`へ投影する
 - Completed Typed OutcomeとRejected Safe Category／Codeを復元する
 - 認可前の最小Subject Queryと認可後のDetail Queryを分離する
 - Unknown、Tombstone、Fully Purged、Missing Outcome、Source不整合をIntegration Testで固定する
-- Raw Payload、Context、Reason MessageをSELECT／DecodeしないことをGuardする
+- 認可前Subject QueryがCanonical Record、Raw Payload／Context全体を返さず、認可後もDead Letter Reason MessageをSELECT／DecodeしないことをGuardする
 
 Migrationは既存Schemaで実現できないことが証明された場合だけOrchestratorへBlockerを返す。Task内で無断追加しない。
 
