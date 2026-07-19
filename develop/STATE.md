@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-20T03:36:12+09:00
+Updated At: 2026-07-20T03:40:31+09:00
 
 ## Current Phase
 
@@ -8,17 +8,17 @@ Phase 17: Full-stack Reference Application - In Progress
 
 ## Current Task
 
-Task ID: P17-003-identity-session-and-bff-boundary
+Task ID: D104-structured-outcome-contract
 
-Task Packet: `develop/orchestration/tasks/P17-003-identity-session-and-bff-boundary.md`
+Task Packet: 未作成。D104回答後に作成する。
 
 Specifications: `develop/spec/60-post-phase-10-roadmap.md`、`develop/spec/71-full-stack-reference-application.md`、`develop/spec/72-phase-17-delivery-plan.md`
 
 ## Task Status
 
-Accepted
+Awaiting User Decision
 
-P17-003をAcceptedとした。Application-owned Authentication Router、User／Session、Argon2id、Opaque Token Hash／TTL／Revocation／Rotation、BlackOps Authentication／Authorization／Current User Operation、SvelteKit Form Action／HttpOnly Cookie、Real HTTP Identity E2E、CI、Sensitive Guardを完走した。Orchestrator ReviewでMigration Tracking、未知EmailのDummy Verify、Direct Dependency、3 Runtimeの非root Ownershipを補正し、独立再実行でもIdentity E2E、Mago、Full PHPUnit 1430 tests／5679 assertions、Deptrac 0違反が成功した。ArtifactはCleanup済みである。
+P17-004 Post／CommentをTask Packet化する前にStructured Outcome Gapを検出した。現在のFrontend Contract、PostgreSQL Outcome Codec、Generated DecoderはScalar Outcomeだけを許可し、投稿一覧の`list<PostSummary>`と投稿詳細の`list<CommentDetail>`を表現できない。JSON String／Frontend Opt-outで回避せず、D104でTyped Nested DTO／List、Output-only Scope、`#[ListOf]`、Outcome Codec Version 2互換、Delivery順を判断する。
 
 ## Last Accepted Task
 
@@ -50,13 +50,13 @@ P17-003-identity-session-and-bff-boundary
 
 ## Known Blockers
 
-なし。Documentation WebsiteはUser判断どおり未公開であり、Publication／Deployは行っていない。
+D104 Structured Outcome ContractのUser回答待ち。Documentation WebsiteはUser判断どおり未公開であり、Publication／Deployは行っていない。
 
 ## Required Next Action
 
-1. OrchestratorがP17-003 Accepted差分をCommit／Pushする。
-2. OrchestratorがP17-004 Post and Comment OperationsのTask Packetを作成する。
-3. GPT-5.6 Luna High WorkerがP17-004を実装する。
+1. Userが`develop/decisions/104-structured-outcome-contract.md`の5問へ回答する。
+2. Orchestratorが回答をDecision／Specification／Delivery Planへ反映する。
+3. 確定順序の次Task Packetを作成し、GPT-5.6 Luna High Workerへ実装を依頼する。
 
 ## P17-003 Identity, Session, and BFF Boundary Worker Verification
 
