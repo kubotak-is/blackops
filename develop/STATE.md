@@ -1,24 +1,24 @@
 # Orchestration State
 
-Updated At: 2026-07-19T13:25:54+09:00
+Updated At: 2026-07-19T13:44:53+09:00
 
 ## Current Phase
 
-Phase 15: Operation Frontend Bridge — Decision
+Phase 15: Operation Frontend Bridge
 
 ## Current Task
 
-Task ID: D100-phase-15-operation-frontend-bridge
+Task ID: P15-002-frontend-contract-manifest
 
-Task Packet: 未作成。D100確定後にPhase 15 Specification／Delivery Planと最初のTask Packetを作成する。
+Task Packet: `develop/orchestration/tasks/P15-002-frontend-contract-manifest.md`
 
-Specifications: `develop/spec/01-core-model.md`、`develop/spec/04-handler-and-result.md`、`develop/spec/05-http.md`、`develop/spec/08-registry-and-manifest.md`、`develop/spec/25-sensitive-projection.md`、`develop/spec/50-operation-authoring-and-build-discovery.md`、`develop/spec/60-post-phase-10-roadmap.md`、`develop/spec/65-operation-diagnostics.md`、`develop/decisions/093-post-phase-10-roadmap.md`、`develop/decisions/100-phase-15-operation-frontend-bridge.md`
+Specifications: `develop/spec/01-core-model.md`、`develop/spec/04-handler-and-result.md`、`develop/spec/05-http.md`、`develop/spec/08-registry-and-manifest.md`、`develop/spec/25-sensitive-projection.md`、`develop/spec/50-operation-authoring-and-build-discovery.md`、`develop/spec/60-post-phase-10-roadmap.md`、`develop/spec/67-operation-frontend-bridge.md`、`develop/spec/68-phase-15-delivery-plan.md`、`develop/decisions/100-phase-15-operation-frontend-bridge.md`
 
 ## Task Status
 
-Awaiting User Decision
+Ready
 
-Phase 14はAccepted／Closedである。D100 Question 2から5はAの回答を得た。Question 1へUserから`await ShowWelcome(value, options)`形式の直接実行APIが提案されたため、共通Client Runtimeを内部利用するOption Dとして追加し、推奨をDへ変更した。Q1の最終確認を待つため、Production CodeとTask Packetには着手していない。
+Phase 14はAccepted／Closedである。D100はD／A／A／A／Aで確定した。Frontend APIはCallable／Thenableではなく、`.fetch()`、`.toRequest()`、`.url()`、Readonly Metadataを持つimmutable Operation Objectとする。Operation Frontend Bridge Specification、Phase 15 Delivery Plan、最初のFrontend Contract Manifest Task Packetを作成した。
 
 ## Last Accepted Task
 
@@ -38,7 +38,7 @@ P14-007-consumer-experience-and-closeout
 10. D091で`.codex/config.toml`をOrchestrator Sol High、`.codex/agents/worker.toml`をWorker Luna Highの正本とした。Metadata非公開だけをBlockerにしない。
 11. D092でProject CLIのCanonical名をPrefixなしへ変更した。旧`blackops:*`互換Aliasの維持はD094が置き換え、P11-001でAliasと予約を削除済みである。
 12. D093はA／A／Aで確定。Roadmap順序、Deferred HTTP API Scope、Dormant Documentation Workflowを確定した。
-13. D100はQuestion 2から5をAで合意した。Question 1は直接実行CallableのOption Dを追加し、Userの最終確認を待つ。
+13. D100はD／A／A／A／Aで確定した。immutable Operation Object、Framework-neutral ESM、明示生成、全HTTP Operation、Sensitive Input／Outcome境界を採用する。
 14. D094はC／A／A／A／B／Cで確定。Experimental期間はMinor ReleaseのBackward Compatibilityを保証せず、Public Readiness時にVersioning Policyを再決定する。
 15. D095は確定。Operation Middlewareは不要とし、Phase 12はPSR-15 HTTP MiddlewareとAuthorizationへ絞る。Authentication、Durable Actor、Deferred FailureはAを採用する。
 16. D096は確定。Named DBAL Connection、DatabaseManager、Ray.Aop Build-time Interception、Operation／一般ServiceのTransaction保証差、Nested Required、After Commit Best-effort、Long-running Connection Lifecycleを採用する。
@@ -48,13 +48,13 @@ P14-007-consumer-experience-and-closeout
 
 ## Known Blockers
 
-Phase 14を妨げるBlockerはない。Documentation WebsiteはUser判断どおり未公開である。Phase 15のProduction実装はD100のUser回答まで開始しない。
+P15-002を妨げるBlockerはない。Documentation WebsiteはUser判断どおり未公開であり、Phase 15でもPublication／Deployを行わない。
 
 ## Required Next Action
 
-1. Userが`develop/decisions/100-phase-15-operation-frontend-bridge.md` Question 1のOption Dを最終確認する。
-2. Orchestratorが回答をDecision／Consequencesへ確定し、Phase 15 SpecificationとDelivery Planを作成する。
-3. 最初のTask Packetを作成し、GPT-5.6 Luna High Workerへ実装を依頼する。
+1. OrchestratorがD100、Specification、Delivery Plan、P15-002 Task PacketをCommit／Pushする。
+2. GPT-5.6 Luna High WorkerへP15-002を実装依頼する。
+3. Worker Report後、OrchestratorがArtifact Schema、Sensitive／Unsupported Type、Build ID／Freshnessを独立Reviewする。
 
 ## P14-007 Consumer Experience and Closeout Worker Verification
 

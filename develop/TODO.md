@@ -103,9 +103,12 @@ MVP後に残す主要項目:
 
 ### Phase 15: Operation Frontend Bridge
 
-- [ ] Operation／HTTP ManifestからFrontend Contract Manifestを生成する
-- [ ] URL／Method／Parameterを型付きTypeScript関数として生成する
-- [ ] Bridgeの初期DepthとFrontend TargetをPhase開始時に決定する
+- [x] Bridgeの初期Depth、Operation Object API、Frontend Target、生成／Sensitive境界をD100で決定する
+- [ ] Operation／HTTP Manifestから言語中立なFrontend Contract Manifestを生成する
+- [ ] `.url()`／`.toRequest()`／Readonly Metadataを持つTypeScript Operation Objectを生成する
+- [ ] `.fetch()`とInline／Deferred／Rejected／Failure／Transport Typed Resultを実装する
+- [ ] `frontend:check`、TypeScript Compile／Runtime Test、CI連携を実装する
+- [ ] Quickstart／Skeleton／Guide／Consumer E2Eを同期してPhase 15をCloseする
 
 ### Phase 16: Deferred Status and Outcome API
 

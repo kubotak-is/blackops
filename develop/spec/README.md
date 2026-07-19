@@ -81,6 +81,8 @@
 | [64-phase-13-delivery-plan.md](64-phase-13-delivery-plan.md) | Named Connection、Build-time AOP、Transaction、After CommitからPhase CloseoutまでのTask順序 |
 | [65-operation-diagnostics.md](65-operation-diagnostics.md) | Operation ID相関、内部Diagnostics Aggregate、CLI、Local Viewer、安全な表示境界 |
 | [66-phase-14-delivery-plan.md](66-phase-14-delivery-plan.md) | Failure相関からDiagnostics Consumer ExperienceまでのPhase 14 Task順序 |
+| [67-operation-frontend-bridge.md](67-operation-frontend-bridge.md) | Operation Object、Frontend Contract Manifest、Typed Fetch、生成／Drift境界 |
+| [68-phase-15-delivery-plan.md](68-phase-15-delivery-plan.md) | Frontend ContractからConsumer ExperienceまでのPhase 15 Task順序 |
 
 ## 決定の参照
 
