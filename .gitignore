@@ -8,3 +8,7 @@ vendor
 /docs/website/dist/
 /docs/website/node_modules/
 /docs/website/src/content/docs/
+/tests/Frontend/node_modules/
+/tests/Frontend/.build/
+/tests/Frontend/fixture/resources/js/blackops/
+/tests/Frontend/fixture/var/build/

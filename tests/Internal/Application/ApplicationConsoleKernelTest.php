@@ -46,6 +46,7 @@ final class ApplicationConsoleKernelTest extends TestCase
         foreach ([
             'build:compile',
             'frontend:generate',
+            'frontend:check',
             'operation:list',
             'make:operation',
             'make:migration',

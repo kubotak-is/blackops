@@ -8,6 +8,7 @@ use BlackOps\Internal\Console\ApplicationBuildCompileCommand;
 use BlackOps\Internal\Console\ApplicationOperationListCommand;
 use BlackOps\Internal\Console\DatabaseMigrationMigrateCommand;
 use BlackOps\Internal\Console\DatabaseMigrationStatusCommand;
+use BlackOps\Internal\Console\FrontendCheckCommand;
 use BlackOps\Internal\Console\FrontendGenerateCommand;
 use BlackOps\Internal\Console\LazyFrameworkCommand;
 use BlackOps\Internal\Console\MakeMigrationCommand;
@@ -46,6 +47,7 @@ final readonly class ApplicationConsoleKernel
         OperationInspectCommand::NAME,
         OperationViewerCommand::NAME,
         FrontendGenerateCommand::NAME,
+        FrontendCheckCommand::NAME,
     ];
 
     private Application $application;
@@ -138,6 +140,12 @@ final readonly class ApplicationConsoleKernel
                 FrontendGenerateCommand::NAME,
                 'Generate TypeScript operation objects from the frontend contract.',
                 $factory->frontendGenerate(...),
+                $none,
+            ),
+            new LazyFrameworkCommand(
+                FrontendCheckCommand::NAME,
+                'Check generated TypeScript operation objects for drift.',
+                $factory->frontendCheck(...),
                 $none,
             ),
             new LazyFrameworkCommand(

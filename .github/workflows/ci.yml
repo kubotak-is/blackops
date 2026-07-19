@@ -16,6 +16,78 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  frontend:
+    name: Frontend contract and runtime
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Configure container user
+        run: |
+          set -euo pipefail
+          printf 'HOST_UID=%s\n' "$(id -u)" >> "${GITHUB_ENV}"
+          printf 'HOST_GID=%s\n' "$(id -g)" >> "${GITHUB_ENV}"
+
+      - name: Install pinned frontend toolchain
+        uses: jdx/mise-action@v4
+        with:
+          install: true
+          cache: true
+
+      - name: Verify frontend toolchain versions
+        run: |
+          set -euo pipefail
+          test "$(node --version)" = "v24.18.0"
+          test "$(pnpm --version)" = "11.12.0"
+
+      - name: Build development image
+        run: docker compose build app
+
+      - name: Install PHP dependencies
+        run: docker compose run --rm app composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Install frontend fixture dependencies
+        run: pnpm --dir tests/Frontend install --frozen-lockfile
+
+      - name: Compile backend and frontend contracts
+        run: |
+          set -euo pipefail
+          docker compose run --rm app php tests/Frontend/fixture/blackops build:compile
+          docker compose run --rm app php tests/Frontend/fixture/blackops frontend:generate
+          docker compose run --rm app php tests/Frontend/fixture/blackops frontend:check
+
+      - name: Test generated frontend modules
+        run: pnpm --dir tests/Frontend run test
+
+      - name: Guard generated frontend artifacts
+        run: |
+          set -euo pipefail
+          if git ls-files \
+            tests/Frontend/fixture/var/build \
+            tests/Frontend/fixture/resources/js/blackops \
+            tests/Frontend/.build | grep -q .; then
+            echo "Generated frontend artifacts must not be tracked." >&2
+            exit 1
+          fi
+          if rg -n 'credential-secret|sensitive-value|default-must-not-appear|raw-body' \
+            tests/Frontend/fixture/resources/js/blackops; then
+            echo "Generated frontend modules contain forbidden runtime data." >&2
+            exit 1
+          fi
+
+      - name: Clean up frontend fixture
+        if: always()
+        run: mise exec -- pnpm --dir tests/Frontend run clean
+
+      - name: Clean up frontend Docker resources
+        if: always()
+        run: docker compose down --volumes --remove-orphans
+
   website:
     name: Documentation website
     runs-on: ubuntu-latest

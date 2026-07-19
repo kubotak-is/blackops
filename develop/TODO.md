@@ -108,7 +108,7 @@ MVP後に残す主要項目:
 - [x] Frontend Contract Schema Version 2でPHP Native Scalar Kindを保持する
 - [x] `.url()`／`.toRequest()`／Readonly Metadataを持つTypeScript Operation Objectを生成する
 - [x] `.fetch()`とInline／Deferred／Rejected／Failure／Transport Typed Resultを実装する
-- [ ] `frontend:check`、TypeScript Compile／Runtime Test、CI連携を実装する
+- [x] `frontend:check`、TypeScript Compile／Runtime Test、CI連携を実装する
 - [ ] Quickstart／Skeleton／Guide／Consumer E2Eを同期してPhase 15をCloseする
 
 ### Phase 16: Deferred Status and Outcome API

@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "target": "ES2022",
+    "module": "CommonJS",
+    "moduleResolution": "Node10",
+    "lib": ["ES2022"],
+    "rootDir": "fixture/resources/js/blackops",
+    "outDir": ".build/runtime",
+    "skipLibCheck": false,
+    "ignoreDeprecations": "6.0"
+  },
+  "include": ["fixture/resources/js/blackops/**/*.ts"]
+}

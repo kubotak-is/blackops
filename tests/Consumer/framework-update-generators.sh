@@ -8,6 +8,7 @@ framework_repository="${temporary_root}/framework"
 current_stubs="${temporary_root}/current-stubs"
 current_commands="${temporary_root}/current-commands"
 current_application="${temporary_root}/current-application"
+current_frontend_generation="${temporary_root}/current-frontend-generation"
 consumer_root="${temporary_root}/consumer"
 composer_home="${temporary_root}/composer-home"
 source_before="$(git -C "${repository_root}" status --short)"
@@ -35,16 +36,20 @@ run_composer() {
 }
 
 mkdir -p "${framework_repository}" "${current_stubs}" "${current_commands}" "${current_application}" \
+    "${current_frontend_generation}" \
     "${consumer_root}" "${composer_home}"
 git -C "${repository_root}" archive HEAD | tar -x -C "${framework_repository}"
 cp -a "${repository_root}/examples/quickstart/." "${consumer_root}/"
 cp -a "${repository_root}/resources/stubs/." "${current_stubs}/"
-cp "${repository_root}/src/Internal/Application/ApplicationConsoleKernel.php" "${current_application}/"
+cp "${repository_root}/src/Internal/Application/ApplicationConsoleKernel.php" \
+    "${repository_root}/src/Internal/Application/ApplicationConsoleCommandFactory.php" \
+    "${current_application}/"
 cp "${repository_root}/src/Internal/Console/ApplicationBuildCompileCommand.php" \
     "${repository_root}/src/Internal/Console/ApplicationOperationListCommand.php" \
     "${repository_root}/src/Internal/Console/DatabaseMigrationMigrateCommand.php" \
     "${repository_root}/src/Internal/Console/DatabaseMigrationStatusCommand.php" \
     "${repository_root}/src/Internal/Console/LazyFrameworkCommand.php" \
+    "${repository_root}/src/Internal/Console/FrontendCheckCommand.php" \
     "${repository_root}/src/Internal/Console/MakeOperationCommand.php" \
     "${repository_root}/src/Internal/Console/MakeMigrationCommand.php" \
     "${repository_root}/src/Internal/Console/RetentionPlanCommand.php" \
@@ -53,6 +58,12 @@ cp "${repository_root}/src/Internal/Console/ApplicationBuildCompileCommand.php" 
     "${repository_root}/src/Internal/Console/SchedulerRunCommand.php" \
     "${repository_root}/src/Internal/Console/WorkerRunCommand.php" \
     "${current_commands}/"
+cp "${repository_root}/src/Internal/Frontend/Generation/FrontendTreeCheckInspectionException.php" \
+    "${repository_root}/src/Internal/Frontend/Generation/FrontendTreeCheckFilesystem.php" \
+    "${repository_root}/src/Internal/Frontend/Generation/FrontendTreeCheckState.php" \
+    "${repository_root}/src/Internal/Frontend/Generation/FrontendTreeChecker.php" \
+    "${repository_root}/src/Internal/Frontend/Generation/NativeFrontendTreeCheckFilesystem.php" \
+    "${current_frontend_generation}/"
 
 git -C "${framework_repository}" init --quiet --initial-branch=main
 git -C "${framework_repository}" config user.name 'BlackOps Consumer Test'
@@ -75,11 +86,12 @@ git -C "${framework_repository}" tag 1.0.0
 rm -rf "${framework_repository}/resources/stubs"
 mkdir -p "${framework_repository}/resources/stubs"
 cp -a "${current_stubs}/." "${framework_repository}/resources/stubs/"
-cp "${current_application}/ApplicationConsoleKernel.php" \
-    "${framework_repository}/src/Internal/Application/ApplicationConsoleKernel.php"
+cp "${current_application}"/*.php "${framework_repository}/src/Internal/Application/"
 cp "${current_commands}"/*.php "${framework_repository}/src/Internal/Console/"
+cp "${current_frontend_generation}"/*.php "${framework_repository}/src/Internal/Frontend/Generation/"
 git -C "${framework_repository}" add resources/stubs src/Internal/Application/ApplicationConsoleKernel.php \
-    src/Internal/Console
+    src/Internal/Application/ApplicationConsoleCommandFactory.php src/Internal/Console \
+    src/Internal/Frontend/Generation
 git -C "${framework_repository}" commit --quiet -m 'Current framework fixture'
 git -C "${framework_repository}" tag 1.1.0
 
@@ -91,6 +103,22 @@ $composer["require"]["blackops/framework"] = "1.0.0";
 file_put_contents($path, json_encode($composer, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
 '
 run_composer install --no-interaction --prefer-dist > "${temporary_root}/install.out"
+
+run_php -r '
+$config = <<<'"'"'PHP'"'"'
+<?php
+
+return [
+    "output" => dirname(__DIR__) . "/resources/js/blackops",
+];
+PHP;
+file_put_contents("/smoke/consumer/config/frontend.php", $config . "\n");
+mkdir("/smoke/consumer/resources/js/application", 0777, true);
+file_put_contents(
+    "/smoke/consumer/resources/js/application/client.ts",
+    "export const applicationOwned = true;\n",
+);
+'
 
 run_php -r '
 $lock = json_decode(file_get_contents("/smoke/consumer/composer.lock"), true, 512, JSON_THROW_ON_ERROR);
@@ -131,7 +159,9 @@ find \
     "${consumer_root}/app/Feature/Order" \
     "${consumer_root}/app/Feature/Diagnostics" \
     "${consumer_root}/config/diagnostics.php" \
+    "${consumer_root}/config/frontend.php" \
     "${consumer_root}/config/logging.php" \
+    "${consumer_root}/resources/js/application/client.ts" \
     "${consumer_root}/README.md" \
     "${consumer_root}/migrations/Version20260718000000.php" \
     -type f -print0 | sort -z | xargs -0 sha256sum \
@@ -212,6 +242,10 @@ grep -q 'handle(AfterUpdateValue \$value): AfterUpdateOutcome' "${after_operatio
 grep -q "return 'AfterUpdateSchema';" "${after_migration}"
 
 run_php blackops build:compile > "${temporary_root}/build.out"
+run_php blackops frontend:generate > "${temporary_root}/frontend-generate.out"
+run_php blackops frontend:check > "${temporary_root}/frontend-check.out"
+grep -q '^Frontend generated tree is fresh in resources/js/blackops\.$' \
+    "${temporary_root}/frontend-check.out"
 run_php blackops operation:list > "${temporary_root}/operations.out"
 grep -q 'diagnostics.failure.trigger' "${temporary_root}/operations.out"
 run_php -r '

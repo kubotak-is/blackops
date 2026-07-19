@@ -9,6 +9,7 @@ use BlackOps\Internal\Console\ApplicationBuildCompileCommand;
 use BlackOps\Internal\Console\ApplicationOperationListCommand;
 use BlackOps\Internal\Console\DatabaseMigrationMigrateCommand;
 use BlackOps\Internal\Console\DatabaseMigrationStatusCommand;
+use BlackOps\Internal\Console\FrontendCheckCommand;
 use BlackOps\Internal\Console\FrontendGenerateCommand;
 use BlackOps\Internal\Console\MakeMigrationCommand;
 use BlackOps\Internal\Console\MakeOperationCommand;
@@ -57,6 +58,11 @@ final class ApplicationConsoleCommandFactory
     public function frontendGenerate(): Command
     {
         return new FrontendGenerateCommand($this->configuration);
+    }
+
+    public function frontendCheck(): Command
+    {
+        return new FrontendCheckCommand($this->configuration);
     }
 
     public function databaseStatus(): Command

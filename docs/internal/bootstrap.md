@@ -34,6 +34,7 @@ The current command set is:
 | --- | --- | --- |
 | `build:compile` | `BlackOps\Internal\Console\ApplicationBuildCompileCommand` | Compile operation, HTTP, and frontend contract manifests plus the runtime container together. |
 | `frontend:generate` | `BlackOps\Internal\Console\FrontendGenerateCommand` | Generate the deterministic TypeScript operation-object tree from the current frontend contract manifest. |
+| `frontend:check` | `BlackOps\Internal\Console\FrontendCheckCommand` | Compare the expected and existing generated frontend trees without changing either one. |
 | `operation:list` | `BlackOps\Internal\Console\ApplicationOperationListCommand` | Discover application operations and list their type ID, definition, and execution strategy. |
 | `blackops:operation-manifest:compile` | `BlackOps\Internal\Console\CompileOperationManifestCommand` | Compile the operation manifest from explicit providers and optional development discovery. |
 | `blackops:http-manifest:compile` | `BlackOps\Internal\Console\CompileHttpManifestCommand` | Compile the HTTP manifest from explicit providers and optional development discovery. |
@@ -54,9 +55,11 @@ TypeScript generation is a separate explicit step:
 ```bash
 php blackops build:compile
 php blackops frontend:generate
+php blackops frontend:check
+# Run the application-owned TypeScript compile and runtime tests next.
 ```
 
-`frontend:generate` loads only the accepted `app.build.frontend_manifest`; it does not rediscover PHP source or implicitly run `build:compile`. The artifact Application Build ID must match `app.build.application_build_id`. Missing, unsupported, corrupt, or stale artifacts fail before the output tree changes.
+`frontend:generate` and `frontend:check` load only the accepted `app.build.frontend_manifest`; neither command rediscovers PHP source nor implicitly runs `build:compile` or the other frontend command. The artifact Application Build ID must match `app.build.application_build_id`. Missing, unsupported, corrupt, or stale artifacts fail before the output tree changes.
 
 `config/frontend.php` is optional. Its only setting is an absolute output path beneath the Application Root:
 
@@ -72,7 +75,11 @@ The generated tree contains `types.ts`, `client.ts`, `manifest.json`, and one mo
 
 Each module exports a frozen PascalCase Operation Object with readonly `type`, `method`, `path`, and `strategy`, plus `.url()`, `.toRequest()`, and `.fetch()`. Request generation applies the same native scalar rules as HTTP binding, protects Operation-owned headers and `Content-Type`, and validates optional base URLs. An Operation with at least one body binding always serializes a JSON object and sets `Content-Type: application/json`; when every body field is optional and omitted, the body is `{}`.
 
-`.fetch()` selects a per-call structural Fetch implementation before the Browser `globalThis.fetch` default and does not retain mutable global configuration. It returns an Operation-specific discriminated union for inline outcome, inline void, deferred acknowledgement, protocol, rejection, validation, internal, and transport results. Except for an empty 204 response, decoding requires an `application/json` media type, a JSON object, the exact status-specific keys, and runtime-valid scalar fields. Malformed response objects, unknown keys, invalid JSON, and mismatched fields become `unexpected_response`; fetch rejection, abort, and body-read failure expose stable transport codes without raw bodies or exception details. Drift checking remains a later Phase 15 step.
+`.fetch()` selects a per-call structural Fetch implementation before the Browser `globalThis.fetch` default and does not retain mutable global configuration. It returns an Operation-specific discriminated union for inline outcome, inline void, deferred acknowledgement, protocol, rejection, validation, internal, and transport results. Except for an empty 204 response, decoding requires an `application/json` media type, a JSON object, the exact status-specific keys, and runtime-valid scalar fields. Malformed response objects, unknown keys, invalid JSON, and mismatched fields become `unexpected_response`; fetch rejection, abort, and body-read failure expose stable transport codes without raw bodies or exception details.
+
+`frontend:check` resolves Build Configuration, the expected Build ID, the Frontend Contract Artifact, output configuration, and the expected TypeScript tree in that order. It then compares the complete regular-file path set and exact bytes. A missing output directory exits 1 as `missing`; a missing file, changed bytes, extra file, or nested symlink exits 1 as `drift`; a fresh tree exits 0. Invalid configuration, artifact, generated contract, or filesystem inspection exits 2 with a fixed safe stderr message. Empty directories do not affect freshness. The inspector never follows symlinks and verifies regular-file identity around reads. It does not create, write, rename, delete, or clean any path.
+
+`tests/Frontend/` owns the independent TypeScript 6.0.3 fixture used by CI. The frontend job executes `build:compile -> frontend:generate -> frontend:check`, then a DOM-free strict ES2022 ESM type check, discriminated-union narrowing check, and Node injected-Fetch runtime test. Generated TypeScript, PHP build artifacts, and CommonJS runtime emit are ignored, guarded against tracking, and removed by the fixture cleanup command. This fixture does not use the Documentation Website toolchain.
 
 The worker command requires an application-composed `WorkerLoop`. Its signal heartbeat must be shared with the handler guard and must use a dedicated DBAL connection. See [Deferred Worker Runtime](worker-runtime.md) for the composition and shutdown contract.
 

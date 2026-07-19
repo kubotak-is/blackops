@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-19T16:19:54+09:00
+Updated At: 2026-07-19T16:56:16+09:00
 
 ## Current Phase
 
@@ -16,13 +16,13 @@ Specifications: `develop/spec/08-registry-and-manifest.md`、`develop/spec/25-se
 
 ## Task Status
 
-Ready
+Accepted
 
-P15-004はAccepted／Push済みである。P15-005では非破壊`frontend:check`、独立Frontend Fixture、Strict TypeScript／Node Runtime Test、GitHub Actions Frontend Gate、Framework Update時のApplication-owned Frontend Config／Source保持を実装する。
+P15-005をOrchestratorが独立ReviewしAcceptedとした。非破壊`frontend:check`、独立Frontend Fixture、Strict TypeScript／Node Runtime Test、GitHub Actions Frontend Gate、Framework Update時のApplication-owned Frontend Config／Source保持がRequired Contractを満たす。
 
 ## Last Accepted Task
 
-P15-004-typed-fetch-runtime-results
+P15-005-drift-and-frontend-build-integration
 
 ## Pending Decisions
 
@@ -49,13 +49,55 @@ P15-004-typed-fetch-runtime-results
 
 ## Known Blockers
 
-P15-005を妨げる既知Blockerはない。Documentation WebsiteはUser判断どおり未公開であり、Publication／Deployは行わない。
+P15-006のTask Packet作成を妨げる既知Blockerはない。Documentation WebsiteはUser判断どおり未公開であり、Publication／Deployは行わない。
 
 ## Required Next Action
 
-1. P15-005 Task PacketをCommit／Pushする。
-2. GPT-5.6 Luna High WorkerがP15-005を実装する。
-3. OrchestratorがExit／Read-only／Type Narrowing／Node Runtime／CI／Framework Update境界を独立Reviewする。
+1. P15-005をTask単位でCommit／Pushする。
+2. P15-006 Consumer Experience and CloseoutのTask Packetを作成する。
+
+## P15-005 Drift and Frontend Build Integration Worker Verification
+
+```text
+docker compose run --rm app composer validate --strict
+docker compose run --rm app composer validate --strict examples/quickstart/composer.json
+docker compose run --rm app mago format --check src tests examples
+docker compose run --rm app mago lint
+docker compose run --rm app mago analyze
+Result: Composer Root／Quickstart valid。Mago全成功。
+
+docker compose run --rm app vendor/bin/phpunit --display-deprecations \
+  tests/Internal/Frontend \
+  tests/Internal/Console/FrontendGenerateCommandTest.php \
+  tests/Internal/Console/FrontendCheckCommandTest.php \
+  tests/Internal/Application/ApplicationConsoleKernelTest.php
+Result: OK (57 tests, 416 assertions)。
+
+docker compose run --rm app vendor/bin/phpunit --display-deprecations
+Result: OK (1332 tests, 5100 assertions)。
+
+docker compose run --rm app vendor/bin/deptrac
+Result: Violations 0 / Skipped 0 / Uncovered 0 / Allowed 2273 / Warnings 0 / Errors 0。
+
+mise exec -- pnpm --dir tests/Frontend install --frozen-lockfile
+docker compose run --rm app php tests/Frontend/fixture/blackops build:compile
+docker compose run --rm app php tests/Frontend/fixture/blackops frontend:generate
+docker compose run --rm app php tests/Frontend/fixture/blackops frontend:check
+mise exec -- pnpm --dir tests/Frontend run test
+Result: Frozen Install、Canonical CLI Chain、DOMなしStrict ESM、Narrowing、Injected Fetch Runtime、Module Shape全成功。
+
+bash tests/Consumer/framework-update-generators.sh
+Result: Framework Update Generator Smoke成功。Application-owned Frontend Config／Source保持と更新後Check到達を確認。
+
+Management Comment ID、Generated Sensitive／Forbidden Runtime Surface、Generated Artifact Tracking、bash syntax、git diff --check Guard
+Result: 成功。Generated Tree、Build Artifact、Runtime EmitはCleanup済み。
+```
+
+### P15-005 Worker Notes
+
+`frontend:check`をPrefixなしでLazy登録し、Task Contractの解決順、Fresh 0／Missing・Drift 1／Invalid 2、固定stdout／stderrを実装した。CheckerはRegular File Path／Bytes／余剰FileをRead-only比較し、空Directoryを無視、Nested Symlinkを追跡せずDriftにする。Filesystem I/O Failure、Unsafe Entry、Cycle、File／Directory Identity変化はInvalid Inspectionとなる。
+
+独立`tests/Frontend` FixtureはInline／Deferredの2 Operation、TypeScript 6.0.3、Strict ESM／Result Narrowing、Node Injected Fetch、Named ESM／Sibling非Importを検証する。CIはWebsiteから独立し、Canonical CLI ChainとFrontend Test、Tracking／Sensitive Guard、Frontend／Dockerの別Always Cleanupを持つ。Framework Update SmokeはApplication所有Frontend Config／SourceのSHA-256を保持し、更新後Project CLIから新Checkへ到達する。仕様矛盾とBlockerはない。
 
 ## P15-004 Typed Fetch Runtime and Results Worker Verification
 
