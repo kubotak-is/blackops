@@ -39,6 +39,8 @@ Wayfinderに近い小さな責務で、React／Vue／Svelte／Inertia／独自HT
 
 想定する利用形は次である。名称とPathは最終Specificationで衝突検査を含めて固定する。
 
+Option AではBlackOpsは`request`までを生成し、実際の送信にはBrowser標準の`fetch`、Axios、Application独自Clientなどを使う。
+
 ```ts
 import { triggerFailure } from '@/blackops/operations/diagnostics/failure/trigger';
 
@@ -52,12 +54,77 @@ const request = triggerFailure({
 //   method: 'POST',
 //   body: { reference: 'checkout-1042', sensitiveNote: 'not-for-logs' }
 // }
-await http(request);
+const response = await fetch(request.url, {
+  method: request.method,
+  headers: {
+    'Content-Type': 'application/json',
+    ...request.headers,
+  },
+  body: request.body === undefined
+    ? undefined
+    : JSON.stringify(request.body),
+});
 ```
+
+初稿の`await http(request)`に登場した`http`は、Applicationが所有するHTTP Clientを表す説明用の仮名であり、BlackOpsのAPIではない。説明として不明瞭だったため、標準`fetch`を使う完全な例へ置き換えた。
+
+### If Option B Is Selected
+
+Option BではRequest Descriptorに加え、BlackOpsがFramework-neutralなTyped Executorも生成する。Operation関数が直接通信するのではなく、DescriptorとExecutorを分けることで、URLだけをLinkへ使う場合とHTTP送信する場合の両方を維持する。
+
+```ts
+import { createBlackOpsClient } from '@/blackops/client';
+import { triggerFailure } from '@/blackops/operations/diagnostics/failure/trigger';
+
+const blackops = createBlackOpsClient({
+  baseUrl: 'https://api.example.com',
+  fetch: window.fetch.bind(window),
+  credentials: 'include',
+  beforeRequest(request) {
+    return request;
+  },
+});
+
+const result = await blackops.execute(triggerFailure({
+  reference: 'checkout-1042',
+  sensitiveNote: 'not-for-logs',
+}));
+
+if (result.ok) {
+  // InlineならdataはFailureTriggered、DeferredならDeferredAcknowledgement。
+  console.log(result.data);
+} else if (result.status === 422) {
+  // errorはValidationRejectionとして型付けされる。
+  console.log(result.error.violations);
+}
+```
+
+生成されるResultは概念上、次のDiscriminated Unionになる。
+
+```ts
+type TriggerFailureResult =
+  | { ok: true; status: 200; data: FailureTriggered }
+  | { ok: false; status: 400 | 401 | 403 | 404 | 409; error: OperationRejection }
+  | { ok: false; status: 422; error: ValidationRejection }
+  | { ok: false; status: 500; error: InternalOperationError };
+```
+
+Deferred Operationなら成功側を`{ ok: true; status: 202; data: DeferredAcknowledgement }`にする。`void` Outcomeは`{ ok: true; status: 204; data: undefined }`になる。
+
+Bを選ぶと、BlackOpsはAに加えて次もPublic Contractとして所有する。
+
+- `fetch`互換関数、Base URL、Cookie／Credential、追加Headerの注入方法
+- JSON Encode／Decode、204、非JSON Response、Network Failure、Abortの扱い
+- HTTP StatusからSuccess／Rejection／Validation／Internal Error Unionへの変換
+- BrowserとSSR／Nodeの両方で同じExecutorを使う境界
+- Client RuntimeのBackward CompatibilityとGenerated Typeの整合性
+
+この範囲を受け入れるなら、Bは利用側の定型処理を大きく減らせる。実装する場合もReact／Vue／Svelteへは依存せず、Q2はAのまま成立する。Retry、Polling、State管理はBでもPhase 15へ含めない。
 
 [ANSWER]
 
-
+await httpは何者？
+Bまでやる場合どうなる？
 
 [/ANSWER]
 

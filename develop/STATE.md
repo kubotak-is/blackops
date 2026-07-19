@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-19T06:17:46+09:00
+Updated At: 2026-07-19T13:17:10+09:00
 
 ## Current Phase
 
@@ -18,7 +18,7 @@ Specifications: `develop/spec/01-core-model.md`、`develop/spec/04-handler-and-r
 
 Awaiting User Decision
 
-Phase 14はAccepted／Closedである。Phase 15開始に必要な初期Depth、Frontend Target、生成／Build連携、生成対象、Sensitive Input／Output境界をD100へ整理した。Production CodeとTask Packetには着手していない。
+Phase 14はAccepted／Closedである。D100 Question 1へUserからAの`http`とBの具体像について確認があり、Aの標準`fetch`例とBのFramework-neutral Typed Executor／Result Union／追加責務を追記した。残る回答を待つため、Production CodeとTask Packetには着手していない。
 
 ## Last Accepted Task
 
