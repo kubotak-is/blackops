@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-19T16:56:16+09:00
+Updated At: 2026-07-19T17:02:10+09:00
 
 ## Current Phase
 
@@ -8,17 +8,17 @@ Phase 15: Operation Frontend Bridge
 
 ## Current Task
 
-Task ID: P15-005-drift-and-frontend-build-integration
+Task ID: P15-006-consumer-experience-and-closeout
 
-Task Packet: `develop/orchestration/tasks/P15-005-drift-and-frontend-build-integration.md`
+Task Packet: `develop/orchestration/tasks/P15-006-consumer-experience-and-closeout.md`
 
 Specifications: `develop/spec/08-registry-and-manifest.md`、`develop/spec/25-sensitive-projection.md`、`develop/spec/44-public-application-bootstrap-api.md`、`develop/spec/48-public-console-kernel-composition.md`、`develop/spec/50-operation-authoring-and-build-discovery.md`、`develop/spec/67-operation-frontend-bridge.md`、`develop/spec/68-phase-15-delivery-plan.md`、`develop/decisions/092-project-cli-command-names.md`、`develop/decisions/094-stable-1-1-release-contract.md`、`develop/decisions/100-phase-15-operation-frontend-bridge.md`
 
 ## Task Status
 
-Accepted
+Ready
 
-P15-005をOrchestratorが独立ReviewしAcceptedとした。非破壊`frontend:check`、独立Frontend Fixture、Strict TypeScript／Node Runtime Test、GitHub Actions Frontend Gate、Framework Update時のApplication-owned Frontend Config／Source保持がRequired Contractを満たす。
+P15-006 Task Packetを作成した。Quickstart／SkeletonのInstall直後Frontend Layout、Generated Operation Objectから実HTTPへのConsumer E2E、Guide／Website／Publication／Framework Update同期、Phase 15 Closeoutを一つの受入単位とする。
 
 ## Last Accepted Task
 
@@ -49,12 +49,13 @@ P15-005-drift-and-frontend-build-integration
 
 ## Known Blockers
 
-P15-006のTask Packet作成を妨げる既知Blockerはない。Documentation WebsiteはUser判断どおり未公開であり、Publication／Deployは行わない。
+P15-006 Worker開始を妨げる既知Blockerはない。Documentation WebsiteはUser判断どおり未公開であり、Publication／Deployは行わない。
 
 ## Required Next Action
 
-1. P15-005をTask単位でCommit／Pushする。
-2. P15-006 Consumer Experience and CloseoutのTask Packetを作成する。
+1. P15-006をGPT-5.6 Luna High Workerへ委譲する。
+2. Worker実装後にOrchestratorがInstalled Layout、Real HTTP Result、Sensitive境界、Skeleton／Publication／Website Gateを独立Reviewする。
+3. Accepted後にTask単位でCommit／Pushし、Phase 16のDecision／Specificationへ進む。
 
 ## P15-005 Drift and Frontend Build Integration Worker Verification
 
