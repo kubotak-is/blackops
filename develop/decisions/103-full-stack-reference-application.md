@@ -285,6 +285,8 @@ UserはQuestion 1からQuestion 8まですべてAを選択した。Question 4に
 
 Generated Operation ObjectはSvelteKitのServer-only Directoryに生成し、Application-owned `.server.ts` WrapperだけがImportする。BrowserはSvelteKitのForm Action／BFF Endpointを呼び、BlackOps HTTP Endpointへ直接接続しない。
 
+Userは2026-07-20に、FrontendのIcon Libraryとして[Reicon](https://reicon.dev/)を使用する方針を追加した。SvelteKitでは公式`reicon-svelte` Packageを使い、後続Visual TaskでVersionと利用IconをLockfileへ固定する。
+
 ## Decision
 
 [DECISION]
@@ -301,6 +303,7 @@ Generated Operation ObjectはSvelteKitのServer-only Directoryに生成し、App
 10. `design-taste-frontend`はLanding、Authentication、Typography、Color、Spacing、MotionのDesign Directionへ使う。Feed、Form、Operation ProgressはAccessibility、Responsive Layout、Clear Stateを優先する。
 11. Phase 17のDeliveryはLocal Docker Compose、Seed Data、Real Browser E2E、Screenshot／Guide、CIまでとし、外部HostingとDocumentation Website Publicationを含めない。
 12. Reference ApplicationでFramework Gapを発見した場合、Example内のWorkaroundやProduction Codeの無断拡張を行わず、別Decisionへ返す。
+13. Frontendの一般UI IconはReiconの公式Svelte Packageを使用する。別のGeneral-purpose Icon Library、Icon Font、CDN Runtime Loadを混在させない。
 
 [/DECISION]
 
@@ -316,6 +319,7 @@ Generated Operation ObjectはSvelteKitのServer-only Directoryに生成し、App
 - SvelteKit BFFはHTTP／Validation／Authorization／Status Resultを画面向けModelへ変換し、Framework ContractをBrowserへそのまま透過しない。
 - Phase 18はCommunity Boardの二重投稿防止と通知配送をIdempotency／OutboxのConcrete Acceptance Journeyとして利用できる。
 - Visual品質に加え、Keyboard、Focus、Contrast、Reduced Motion、Loading、Error、Empty StateのAcceptance Criteriaが必要になる。
+- ReiconはFrontend DependencyとしてApplication Lockfileへ固定し、使用IconだけをStatic Importする。装飾Iconと意味を持つIconのAccessible Name境界をUI Testで検証する。
 - External Hostingを行わないため、Phase 17完了はLocal／CI Evidenceで判定する。
 
 [/CONSEQUENCES]

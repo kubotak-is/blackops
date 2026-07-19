@@ -96,10 +96,12 @@ Production Business Logicへ意図的Failureを埋め込まない。
 ## P17-007: Visual, Accessibility, and Browser E2E
 
 - `design-taste-frontend`を使ってDesign Briefを作成する
+- 公式`reicon-svelte`をLockfileへ固定し、使用IconだけをStatic Importする
 - Landing、Authentication、Typography、Color、Spacing、Motion Tokenを実装する
 - Feed、Detail、Form、Digest ProgressをResponsive Product UIとして仕上げる
 - Empty、Loading、Validation、Unauthorized、Retry、Failure、Completed Stateを揃える
 - Keyboard、Focus、Contrast、Label、Error Association、Reduced Motionを検証する
+- 装飾Icon、Icon-only Action、Text併記StateのAccessibilityと、別Icon Library／CDN非混在を検証する
 - Register／Login／Post／Comment／Digest／LogoutのReal Browser E2Eを追加する
 - ScreenshotをCredentialなしのDocumentation Assetとして生成する
 
