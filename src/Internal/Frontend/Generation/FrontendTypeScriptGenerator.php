@@ -139,6 +139,149 @@ final readonly class FrontendTypeScriptGenerator
               code: 'missing_fetch' | 'invalid_base_url' | 'network_error' | 'aborted' | 'unexpected_response';
             }>;
 
+            export type OperationStatusTransportError = Readonly<{
+              code:
+                | 'invalid_operation_id'
+                | 'missing_fetch'
+                | 'invalid_base_url'
+                | 'network_error'
+                | 'aborted'
+                | 'unexpected_response';
+            }>;
+
+            export type OperationAcceptedStatus<TType extends string> = Readonly<{
+              schemaVersion: 1;
+              operationId: string;
+              operationType: TType;
+              state: 'accepted';
+            }>;
+
+            export type OperationRunningStatus<TType extends string> = Readonly<{
+              schemaVersion: 1;
+              operationId: string;
+              operationType: TType;
+              state: 'running';
+              attempt: number;
+            }>;
+
+            export type OperationRetryScheduledStatus<TType extends string> = Readonly<{
+              schemaVersion: 1;
+              operationId: string;
+              operationType: TType;
+              state: 'retry_scheduled';
+              attempt: number;
+              retryAt: string;
+            }>;
+
+            export type OperationCompletedStatus<TType extends string, TOutcome> = Readonly<{
+              schemaVersion: 1;
+              operationId: string;
+              operationType: TType;
+              state: 'completed';
+              outcome: TOutcome;
+            }>;
+
+            export type OperationRejectedStatus<TType extends string> = Readonly<{
+              schemaVersion: 1;
+              operationId: string;
+              operationType: TType;
+              state: 'rejected';
+              error: Readonly<{ category: string; code: string }>;
+            }>;
+
+            export type OperationFailedStatus<TType extends string> = Readonly<{
+              schemaVersion: 1;
+              operationId: string;
+              operationType: TType;
+              state: 'failed';
+              error: Readonly<{ code: 'operation_failed' }>;
+            }>;
+
+            export type OperationDeadLetteredStatus<TType extends string> = Readonly<{
+              schemaVersion: 1;
+              operationId: string;
+              operationType: TType;
+              state: 'dead_lettered';
+              error: Readonly<{ code: 'operation_dead_lettered' }>;
+            }>;
+
+            export type OperationStatusResult<TType extends string, TOutcome> =
+              | Readonly<{
+                  ok: true;
+                  kind: 'accepted';
+                  status: 200;
+                  data: OperationAcceptedStatus<TType>;
+                  retryAfterSeconds: number;
+                }>
+              | Readonly<{
+                  ok: true;
+                  kind: 'running';
+                  status: 200;
+                  data: OperationRunningStatus<TType>;
+                  retryAfterSeconds: number;
+                }>
+              | Readonly<{
+                  ok: true;
+                  kind: 'retry_scheduled';
+                  status: 200;
+                  data: OperationRetryScheduledStatus<TType>;
+                  retryAfterSeconds: number;
+                }>
+              | Readonly<{
+                  ok: true;
+                  kind: 'completed';
+                  status: 200;
+                  data: OperationCompletedStatus<TType, TOutcome>;
+                }>
+              | Readonly<{
+                  ok: true;
+                  kind: 'rejected';
+                  status: 200;
+                  data: OperationRejectedStatus<TType>;
+                }>
+              | Readonly<{
+                  ok: true;
+                  kind: 'failed';
+                  status: 200;
+                  data: OperationFailedStatus<TType>;
+                }>
+              | Readonly<{
+                  ok: true;
+                  kind: 'dead_lettered';
+                  status: 200;
+                  data: OperationDeadLetteredStatus<TType>;
+                }>
+              | Readonly<{
+                  ok: false;
+                  kind: 'authentication';
+                  status: 401;
+                  error: Readonly<{ code: string }>;
+                }>
+              | Readonly<{
+                  ok: false;
+                  kind: 'unavailable';
+                  status: 404;
+                  error: Readonly<{ code: 'operation_unavailable' }>;
+                }>
+              | Readonly<{
+                  ok: false;
+                  kind: 'expired';
+                  status: 410;
+                  error: Readonly<{ code: 'operation_expired' }>;
+                }>
+              | Readonly<{
+                  ok: false;
+                  kind: 'internal';
+                  status: 500;
+                  error: Readonly<{ code: 'internal_error' }>;
+                }>
+              | Readonly<{
+                  ok: false;
+                  kind: 'transport';
+                  status: null;
+                  error: OperationStatusTransportError;
+                }>;
+
             export type OperationFailureResult<TField extends string> =
               | Readonly<{ ok: false; kind: 'protocol'; status: 400; error: ProtocolError }>
               | Readonly<{
@@ -189,6 +332,7 @@ final readonly class FrontendTypeScriptGenerator
               OperationRejection,
               OperationRequest,
               OperationRequestOptions,
+              OperationStatusResult,
               ValidationRejection,
               ValidationViolation,
             } from './types';
@@ -225,6 +369,12 @@ final readonly class FrontendTypeScriptGenerator
             export type DeferredResponseContract<TField extends string> = Readonly<{
               mode: 'deferred';
               validationFields: readonly TField[];
+            }>;
+
+            export type OperationStatusResponseContract<TType extends string> = Readonly<{
+              operationType: TType;
+              outcomeMode: 'outcome' | 'void';
+              outcomeFields: readonly OperationOutcomeField[];
             }>;
 
             type OperationInput = Readonly<Record<string, unknown>>;
@@ -576,6 +726,94 @@ final readonly class FrontendTypeScriptGenerator
               return decodeOperationResponse(response, rawBody, responseContract);
             }
 
+            export async function fetchOperationStatus<TType extends string, TOutcome>(
+              operationId: string,
+              options: OperationCallOptions = {},
+              contract: OperationStatusResponseContract<TType>,
+            ): Promise<OperationStatusResult<TType, TOutcome>> {
+              if (!isCanonicalOperationId(operationId)) {
+                return statusTransportResult('invalid_operation_id');
+              }
+
+              let url: string;
+              try {
+                url = joinBaseUrl(options.baseUrl, `/operations/${operationId}`);
+              } catch (error: unknown) {
+                if (error instanceof InvalidOperationBaseUrlError) {
+                  return statusTransportResult('invalid_base_url');
+                }
+                throw error;
+              }
+
+              const operationFetch = selectOperationFetch(options.fetch);
+              if (operationFetch === undefined) {
+                return statusTransportResult('missing_fetch');
+              }
+
+              const request: {
+                method: 'GET';
+                headers: Readonly<Record<string, string>>;
+                credentials?: OperationFetchRequest['credentials'];
+                signal?: OperationFetchRequest['signal'];
+              } = {
+                method: 'GET',
+                headers: statusRequestHeaders(options.headers),
+              };
+              if (options.credentials !== undefined) {
+                request.credentials = options.credentials;
+              }
+              if (options.signal !== undefined) {
+                request.signal = options.signal;
+              }
+
+              let received: unknown;
+              try {
+                received = await operationFetch(url, Object.freeze(request));
+              } catch {
+                return statusTransportResult(options.signal?.aborted === true ? 'aborted' : 'network_error');
+              }
+
+              const response = snapshotOperationFetchResponse(received);
+              if (response === undefined) {
+                return statusTransportResult('unexpected_response');
+              }
+
+              let rawBody: unknown;
+              try {
+                rawBody = await response.readBody();
+              } catch {
+                return statusTransportResult(options.signal?.aborted === true ? 'aborted' : 'network_error');
+              }
+              if (typeof rawBody !== 'string') {
+                return statusTransportResult('unexpected_response');
+              }
+
+              return decodeOperationStatusResponse<TType, TOutcome>(
+                response,
+                rawBody,
+                operationId,
+                contract,
+              );
+            }
+
+            function statusRequestHeaders(
+              configured: Readonly<Record<string, string>> | undefined,
+            ): Readonly<Record<string, string>> {
+              const headers: Record<string, string> = {};
+              const names = new Set<string>();
+              for (const [name, value] of Object.entries(configured ?? {})) {
+                assertHeader(name, value);
+                const normalized = name.toLowerCase();
+                if (normalized === 'content-type' || names.has(normalized)) {
+                  continue;
+                }
+                names.add(normalized);
+                headers[name] = value;
+              }
+
+              return Object.freeze(headers);
+            }
+
             function selectOperationFetch(injected: OperationFetch | undefined): OperationFetch | undefined {
               if (injected !== undefined) {
                 return typeof injected === 'function' ? injected : undefined;
@@ -677,6 +915,287 @@ final readonly class FrontendTypeScriptGenerator
               }
 
               return transportResult('unexpected_response');
+            }
+
+            function decodeOperationStatusResponse<TType extends string, TOutcome>(
+              response: OperationFetchResponseSnapshot,
+              rawBody: string,
+              requestedOperationId: string,
+              contract: OperationStatusResponseContract<TType>,
+            ): OperationStatusResult<TType, TOutcome> {
+              let contentType: unknown;
+              try {
+                contentType = response.getHeader('content-type');
+              } catch {
+                return statusTransportResult('unexpected_response');
+              }
+              if (!isJsonMediaType(contentType)) {
+                return statusTransportResult('unexpected_response');
+              }
+
+              let payload: unknown;
+              try {
+                payload = JSON.parse(rawBody);
+              } catch {
+                return statusTransportResult('unexpected_response');
+              }
+              if (!isRecord(payload)) {
+                return statusTransportResult('unexpected_response');
+              }
+
+              if (response.status === 401) {
+                if (
+                  !hasExactKeys(payload, ['status', 'category', 'code'])
+                  || payload.status !== 'error'
+                  || payload.category !== 'unauthorized'
+                  || !isNonEmptyString(payload.code)
+                ) {
+                  return statusTransportResult('unexpected_response');
+                }
+                return Object.freeze({
+                  ok: false,
+                  kind: 'authentication',
+                  status: 401,
+                  error: Object.freeze({ code: payload.code }),
+                });
+              }
+              if (response.status === 404) {
+                return decodeExactStatusError<TType, TOutcome>(
+                  payload,
+                  404,
+                  'unavailable',
+                  'operation_unavailable',
+                );
+              }
+              if (response.status === 410) {
+                return decodeExactStatusError<TType, TOutcome>(
+                  payload,
+                  410,
+                  'expired',
+                  'operation_expired',
+                );
+              }
+              if (response.status === 500) {
+                return decodeExactStatusError<TType, TOutcome>(payload, 500, 'internal', 'internal_error');
+              }
+              if (
+                response.status !== 200
+                || payload.schemaVersion !== 1
+                || payload.operationId !== requestedOperationId
+                || payload.operationType !== contract.operationType
+                || !isNonEmptyString(payload.state)
+              ) {
+                return statusTransportResult('unexpected_response');
+              }
+
+              const common = {
+                schemaVersion: 1 as const,
+                operationId: requestedOperationId,
+                operationType: contract.operationType,
+              };
+
+              switch (payload.state) {
+                case 'accepted': {
+                  if (!hasExactKeys(payload, ['schemaVersion', 'operationId', 'operationType', 'state'])) {
+                    return statusTransportResult('unexpected_response');
+                  }
+                  const retryAfterSeconds = decodeRetryAfterSeconds(response);
+                  if (retryAfterSeconds === undefined) {
+                    return statusTransportResult('unexpected_response');
+                  }
+                  const data = Object.freeze({ ...common, state: 'accepted' as const });
+                  return Object.freeze({ ok: true, kind: 'accepted', status: 200, data, retryAfterSeconds });
+                }
+                case 'running': {
+                  if (
+                    !hasExactKeys(payload, ['schemaVersion', 'operationId', 'operationType', 'state', 'attempt'])
+                    || !isPositiveSafeInteger(payload.attempt)
+                  ) {
+                    return statusTransportResult('unexpected_response');
+                  }
+                  const retryAfterSeconds = decodeRetryAfterSeconds(response);
+                  if (retryAfterSeconds === undefined) {
+                    return statusTransportResult('unexpected_response');
+                  }
+                  const data = Object.freeze({ ...common, state: 'running' as const, attempt: payload.attempt });
+                  return Object.freeze({ ok: true, kind: 'running', status: 200, data, retryAfterSeconds });
+                }
+                case 'retry_scheduled': {
+                  if (
+                    !hasExactKeys(
+                      payload,
+                      ['schemaVersion', 'operationId', 'operationType', 'state', 'attempt', 'retryAt'],
+                    )
+                    || !isPositiveSafeInteger(payload.attempt)
+                    || !isUtcMicrosecondTimestamp(payload.retryAt)
+                  ) {
+                    return statusTransportResult('unexpected_response');
+                  }
+                  const retryAfterSeconds = decodeRetryAfterSeconds(response);
+                  if (retryAfterSeconds === undefined) {
+                    return statusTransportResult('unexpected_response');
+                  }
+                  const data = Object.freeze({
+                    ...common,
+                    state: 'retry_scheduled' as const,
+                    attempt: payload.attempt,
+                    retryAt: payload.retryAt,
+                  });
+                  return Object.freeze({
+                    ok: true,
+                    kind: 'retry_scheduled',
+                    status: 200,
+                    data,
+                    retryAfterSeconds,
+                  });
+                }
+                case 'completed': {
+                  if (
+                    !hasExactKeys(payload, ['schemaVersion', 'operationId', 'operationType', 'state', 'outcome'])
+                    || !hasNoRetryAfter(response)
+                    || !isRecord(payload.outcome)
+                  ) {
+                    return statusTransportResult('unexpected_response');
+                  }
+                  let outcome: TOutcome;
+                  if (contract.outcomeMode === 'void') {
+                    if (!hasExactKeys(payload.outcome, [])) {
+                      return statusTransportResult('unexpected_response');
+                    }
+                    outcome = undefined as TOutcome;
+                  } else {
+                    const decoded = decodeOutcome<TOutcome>(payload.outcome, contract.outcomeFields);
+                    if (decoded === undefined) {
+                      return statusTransportResult('unexpected_response');
+                    }
+                    outcome = decoded;
+                  }
+                  const data = Object.freeze({ ...common, state: 'completed' as const, outcome });
+                  return Object.freeze({ ok: true, kind: 'completed', status: 200, data });
+                }
+                case 'rejected': {
+                  if (
+                    !hasExactKeys(payload, ['schemaVersion', 'operationId', 'operationType', 'state', 'error'])
+                    || !hasNoRetryAfter(response)
+                    || !isRecord(payload.error)
+                    || !hasExactKeys(payload.error, ['category', 'code'])
+                    || !isNonEmptyString(payload.error.category)
+                    || !isNonEmptyString(payload.error.code)
+                  ) {
+                    return statusTransportResult('unexpected_response');
+                  }
+                  const error = Object.freeze({ category: payload.error.category, code: payload.error.code });
+                  const data = Object.freeze({ ...common, state: 'rejected' as const, error });
+                  return Object.freeze({ ok: true, kind: 'rejected', status: 200, data });
+                }
+                case 'failed': {
+                  if (
+                    !hasExactKeys(payload, ['schemaVersion', 'operationId', 'operationType', 'state', 'error'])
+                    || !hasNoRetryAfter(response)
+                    || !isRecord(payload.error)
+                    || !hasExactKeys(payload.error, ['code'])
+                    || payload.error.code !== 'operation_failed'
+                  ) {
+                    return statusTransportResult('unexpected_response');
+                  }
+                  const data = Object.freeze({
+                    ...common,
+                    state: 'failed' as const,
+                    error: Object.freeze({ code: 'operation_failed' as const }),
+                  });
+                  return Object.freeze({ ok: true, kind: 'failed', status: 200, data });
+                }
+                case 'dead_lettered': {
+                  if (
+                    !hasExactKeys(payload, ['schemaVersion', 'operationId', 'operationType', 'state', 'error'])
+                    || !hasNoRetryAfter(response)
+                    || !isRecord(payload.error)
+                    || !hasExactKeys(payload.error, ['code'])
+                    || payload.error.code !== 'operation_dead_lettered'
+                  ) {
+                    return statusTransportResult('unexpected_response');
+                  }
+                  const data = Object.freeze({
+                    ...common,
+                    state: 'dead_lettered' as const,
+                    error: Object.freeze({ code: 'operation_dead_lettered' as const }),
+                  });
+                  return Object.freeze({ ok: true, kind: 'dead_lettered', status: 200, data });
+                }
+                default:
+                  return statusTransportResult('unexpected_response');
+              }
+            }
+
+            function decodeExactStatusError<TType extends string, TOutcome>(
+              payload: Readonly<Record<string, unknown>>,
+              status: 404 | 410 | 500,
+              kind: 'unavailable' | 'expired' | 'internal',
+              code: 'operation_unavailable' | 'operation_expired' | 'internal_error',
+            ): OperationStatusResult<TType, TOutcome> {
+              if (!hasExactKeys(payload, ['status', 'code']) || payload.status !== 'error' || payload.code !== code) {
+                return statusTransportResult('unexpected_response');
+              }
+
+              if (status === 404 && kind === 'unavailable' && code === 'operation_unavailable') {
+                return Object.freeze({ ok: false, kind, status, error: Object.freeze({ code }) });
+              }
+              if (status === 410 && kind === 'expired' && code === 'operation_expired') {
+                return Object.freeze({ ok: false, kind, status, error: Object.freeze({ code }) });
+              }
+              if (status === 500 && kind === 'internal' && code === 'internal_error') {
+                return Object.freeze({ ok: false, kind, status, error: Object.freeze({ code }) });
+              }
+
+              return statusTransportResult('unexpected_response');
+            }
+
+            function decodeRetryAfterSeconds(response: OperationFetchResponseSnapshot): number | undefined {
+              let value: unknown;
+              try {
+                value = response.getHeader('retry-after');
+              } catch {
+                return undefined;
+              }
+              if (typeof value !== 'string' || !/^[1-9][0-9]*$/.test(value)) {
+                return undefined;
+              }
+              const seconds = Number(value);
+              return Number.isSafeInteger(seconds) && seconds > 0 ? seconds : undefined;
+            }
+
+            function hasNoRetryAfter(response: OperationFetchResponseSnapshot): boolean {
+              try {
+                return response.getHeader('retry-after') === null;
+              } catch {
+                return false;
+              }
+            }
+
+            function isPositiveSafeInteger(value: unknown): value is number {
+              return typeof value === 'number' && Number.isSafeInteger(value) && value > 0;
+            }
+
+            function isUtcMicrosecondTimestamp(value: unknown): value is string {
+              if (typeof value !== 'string') {
+                return false;
+              }
+              const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})\.(\d{6})Z$/.exec(value);
+              if (match === null) {
+                return false;
+              }
+              const year = Number(match[1]);
+              const month = Number(match[2]);
+              const day = Number(match[3]);
+              const hour = Number(match[4]);
+              const minute = Number(match[5]);
+              const second = Number(match[6]);
+              if (month < 1 || month > 12 || hour > 23 || minute > 59 || second > 59) {
+                return false;
+              }
+              const leap = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+              const days = [31, leap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+              return day >= 1 && day <= days[month - 1];
             }
 
             function decodeOutcome<TOutcome>(
@@ -876,9 +1395,31 @@ final readonly class FrontendTypeScriptGenerator
               return typeof value === 'string' && value.length > 0;
             }
 
+            function isCanonicalOperationId(value: unknown): value is string {
+              return typeof value === 'string'
+                && /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(value);
+            }
+
             function transportResult(
               code: 'missing_fetch' | 'invalid_base_url' | 'network_error' | 'aborted' | 'unexpected_response',
             ): OperationFailureResult<never> {
+              return Object.freeze({
+                ok: false,
+                kind: 'transport',
+                status: null,
+                error: Object.freeze({ code }),
+              });
+            }
+
+            function statusTransportResult(
+              code:
+                | 'invalid_operation_id'
+                | 'missing_fetch'
+                | 'invalid_base_url'
+                | 'network_error'
+                | 'aborted'
+                | 'unexpected_response',
+            ): OperationStatusResult<never, never> {
               return Object.freeze({
                 ok: false,
                 kind: 'transport',
@@ -897,6 +1438,7 @@ final readonly class FrontendTypeScriptGenerator
         $outcomeName = $operation->exportName . 'Outcome';
         $fieldName = $operation->exportName . 'Field';
         $resultName = $operation->exportName . 'Result';
+        $statusResultName = $operation->exportName . 'StatusResult';
         $urlFields = array_values(array_filter(
             $operation->value->fields,
             static fn(FrontendValueFieldContract $field): bool => in_array(
@@ -913,9 +1455,12 @@ final readonly class FrontendTypeScriptGenerator
         };
         /** @var list<string> $lines */
         $lines = [
-            sprintf("import { buildOperationRequest, buildOperationUrl, fetchOperation } from '%sclient';", $import),
             sprintf(
-                "import type { %s, OperationCallOptions, OperationRequest, OperationRequestOptions } from '%stypes';",
+                "import { buildOperationRequest, buildOperationUrl, fetchOperation, fetchOperationStatus } from '%sclient';",
+                $import,
+            ),
+            sprintf(
+                "import type { %s, OperationCallOptions, OperationRequest, OperationRequestOptions, OperationStatusResult } from '%stypes';",
                 $resultType,
                 $import,
             ),
@@ -951,6 +1496,12 @@ final readonly class FrontendTypeScriptGenerator
             'InlineVoidOperationResult' => sprintf('%s<%s>', $resultType, $fieldName),
             default => sprintf('%s<%s, %s>', $resultType, $outcomeName, $fieldName),
         });
+        $lines[] = sprintf(
+            'export type %s = OperationStatusResult<%s, %s>;',
+            $statusResultName,
+            $this->json($operation->typeId),
+            $outcomeName,
+        );
 
         $lines[] = '';
         $lines[] = 'const bindings = Object.freeze([';
@@ -997,6 +1548,23 @@ final readonly class FrontendTypeScriptGenerator
         $lines[] = '  ] as const),';
         $lines[] = '});';
         $lines[] = '';
+        $lines[] = 'const statusResponseContract = Object.freeze({';
+        $lines[] = sprintf('  operationType: %s as const,', $this->json($operation->typeId));
+        $lines[] = sprintf('  outcomeMode: %s as const,', $this->json($operation->outcome->mode));
+        $lines[] = '  outcomeFields: Object.freeze([';
+        foreach ($operation->outcome->fields as $field) {
+            $lines[] =
+                '    Object.freeze('
+                . $this->json([
+                    'name' => $field->name,
+                    'type' => $field->type,
+                    'nullable' => $field->nullable,
+                ])
+                . '),';
+        }
+        $lines[] = '  ] as const),';
+        $lines[] = '});';
+        $lines[] = '';
         $lines[] = sprintf('export const %s = Object.freeze({', $operation->exportName);
         $lines[] = sprintf('  type: %s as const,', $this->json($operation->typeId));
         $lines[] = sprintf('  method: %s as const,', $this->json($operation->method));
@@ -1018,6 +1586,16 @@ final readonly class FrontendTypeScriptGenerator
             '    return buildOperationRequest(%s, %s, bindings, value, options);',
             $this->json($operation->method),
             $this->json($operation->path),
+        );
+        $lines[] = '  },';
+        $lines[] = sprintf(
+            '  status(operationId: string, options?: OperationCallOptions): Promise<%s> {',
+            $statusResultName,
+        );
+        $lines[] = sprintf(
+            '    return fetchOperationStatus<%s, %s>(operationId, options, statusResponseContract);',
+            $this->json($operation->typeId),
+            $outcomeName,
         );
         $lines[] = '  },';
         $lines[] = sprintf(

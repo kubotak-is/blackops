@@ -40,7 +40,7 @@ final class FrontendTypeScriptGeneratorTest extends TestCase
         $marker = FrontendGenerationMarker::decode($first->files['manifest.json']);
         self::assertSame('frontend-generation-build', $marker->applicationBuildId);
         self::assertMatchesRegularExpression('/^[a-f0-9]{64}$/D', $marker->contractHash);
-        self::assertStringContainsString('"schemaVersion": 2', $first->files['manifest.json']);
+        self::assertStringContainsString('"schemaVersion": 3', $first->files['manifest.json']);
 
         $operation = $first->files['operations/order/create-order.ts'];
         self::assertStringContainsString('export const CreateOrder = Object.freeze({', $operation);
@@ -54,10 +54,17 @@ final class FrontendTypeScriptGeneratorTest extends TestCase
             $operation,
         );
         self::assertStringContainsString('fetch(value: CreateOrderValue, options?: OperationCallOptions)', $operation);
+        self::assertStringContainsString('status(operationId: string, options?: OperationCallOptions)', $operation);
         self::assertStringContainsString('Promise<CreateOrderResult>', $operation);
+        self::assertStringContainsString('Promise<CreateOrderStatusResult>', $operation);
         self::assertStringContainsString('export type CreateOrderOutcome', $operation);
         self::assertStringContainsString('export type CreateOrderField =', $operation);
         self::assertStringContainsString('export type CreateOrderResult =', $operation);
+        self::assertStringContainsString(
+            'export type CreateOrderStatusResult = OperationStatusResult<"order.create", CreateOrderOutcome>;',
+            $operation,
+        );
+        self::assertStringNotContainsString('.wait(', $operation);
     }
 
     public function testGeneratesValueAndUrlTypesFromPropertyNamesAndBindingSources(): void
@@ -199,6 +206,15 @@ final class FrontendTypeScriptGeneratorTest extends TestCase
             $source,
         );
         self::assertStringContainsString('mode: "inline_void" as const', $source);
+        self::assertStringContainsString('outcomeMode: "void" as const', $source);
+        self::assertStringContainsString(
+            'export type ShowWelcomeStatusResult = OperationStatusResult<"welcome.show", ShowWelcomeOutcome>;',
+            $source,
+        );
+        self::assertStringContainsString(
+            'status(operationId: string, options?: OperationCallOptions): Promise<ShowWelcomeStatusResult>',
+            $source,
+        );
         self::assertStringContainsString('Promise<ShowWelcomeResult>', $source);
     }
 
@@ -224,6 +240,13 @@ final class FrontendTypeScriptGeneratorTest extends TestCase
             "kind: 'transport'",
             'status: null',
             "'missing_fetch' | 'invalid_base_url' | 'network_error' | 'aborted' | 'unexpected_response'",
+            'export type OperationStatusResult<TType extends string, TOutcome>',
+            "kind: 'retry_scheduled'",
+            "kind: 'dead_lettered'",
+            "kind: 'authentication'",
+            "kind: 'unavailable'",
+            "kind: 'expired'",
+            "'invalid_operation_id'",
         ] as $contract) {
             self::assertStringContainsString($contract, $types);
         }
@@ -303,7 +326,13 @@ final class FrontendTypeScriptGeneratorTest extends TestCase
             $source,
         );
         self::assertStringContainsString('mode: "deferred" as const', $source);
-        self::assertStringNotContainsString('outcomeFields:', $source);
+        $fetchContract = substr(
+            $source,
+            strpos($source, 'const responseContract'),
+            strpos($source, 'const statusResponseContract') - strpos($source, 'const responseContract'),
+        );
+        self::assertStringNotContainsString('outcomeFields:', $fetchContract);
+        self::assertStringContainsString('outcomeFields:', $source);
         self::assertStringNotContainsString('InlineOutcomeOperationResult', $source);
         self::assertStringNotContainsString('InlineVoidOperationResult', $source);
     }
@@ -368,11 +397,59 @@ final class FrontendTypeScriptGeneratorTest extends TestCase
         ] as $contract) {
             self::assertStringContainsString($contract, $client);
         }
-        foreach (['retry', 'backoff', 'poll', 'credential-secret', 'sensitive-value'] as $forbidden) {
+        foreach (['backoff', 'poll', 'credential-secret', 'sensitive-value'] as $forbidden) {
             self::assertStringNotContainsString($forbidden, strtolower($client));
         }
         self::assertStringNotContainsString('message:', $client);
         self::assertStringNotContainsString('stack:', $client);
+    }
+
+    public function testGeneratedClientStrictlyDecodesOneShotStatusResource(): void
+    {
+        $client = new FrontendTypeScriptGenerator()->generate(FrontendContractFixture::artifact())->files['client.ts'];
+
+        foreach ([
+            'export async function fetchOperationStatus<TType extends string, TOutcome>',
+            "return statusTransportResult('invalid_operation_id')",
+            '/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/',
+            'url = joinBaseUrl(options.baseUrl, `/operations/${operationId}`)',
+            "method: 'GET'",
+            'headers: statusRequestHeaders(options.headers)',
+            "normalized === 'content-type' || names.has(normalized)",
+            'received = await operationFetch(url, Object.freeze(request))',
+            'payload.schemaVersion !== 1',
+            'payload.operationId !== requestedOperationId',
+            'payload.operationType !== contract.operationType',
+            "case 'accepted'",
+            "case 'running'",
+            "case 'retry_scheduled'",
+            "case 'completed'",
+            "case 'rejected'",
+            "case 'failed'",
+            "case 'dead_lettered'",
+            "payload.error.code !== 'operation_failed'",
+            "payload.error.code !== 'operation_dead_lettered'",
+            "contract.outcomeMode === 'void'",
+            'outcome = undefined as TOutcome',
+            'decodeOutcome<TOutcome>(payload.outcome, contract.outcomeFields)',
+            'decodeRetryAfterSeconds(response)',
+            '!/^[1-9][0-9]*$/.test(value)',
+            "response.getHeader('retry-after') === null",
+            'Number.isSafeInteger(value) && value > 0',
+            'isUtcMicrosecondTimestamp(payload.retryAt)',
+            'response.status === 401',
+            "payload.category !== 'unauthorized'",
+            'response.status === 404',
+            'response.status === 410',
+            'response.status === 500',
+        ] as $contract) {
+            self::assertStringContainsString($contract, $client);
+        }
+
+        foreach (['setTimeout', 'setInterval', '.wait(', 'backoff', 'pollOperation'] as $forbidden) {
+            self::assertStringNotContainsString($forbidden, $client);
+        }
+        self::assertSame(1, substr_count($client, 'await operationFetch(url, Object.freeze(request))'));
     }
 
     public function testRejectsTraversalAndInvalidOrDuplicatePathBindingMetadata(): void

@@ -151,6 +151,16 @@ Polling Hintは202とStatus Resourceで同じ内部定数を使用する。Class
 
 ApplicationのGET Routeが`/operations/{operationId}`と同じ二Segmentを使用する場合、Build時に予約Route Collisionとして拒否する。Parameter名が異なるDynamic RouteとStatic Segmentも同様である。GET以外またはSegment数が異なるRouteは既存規則を維持する。
 
+## Generated TypeScript Client
+
+全HTTP OperationのGenerated Objectは、Operationを実行する`.fetch()`とは独立した`.status(operationId, options)`を持つ。このMethodはCanonical lowercase UUIDv7を送信前に検証し、一回だけStatus ResourceをGETする。ValueやOperation RouteのBindingは使わず、呼出単位の`baseUrl`、Headers、Credentials、Signal、Injected Fetchだけを再利用する。
+
+Generated Resultは`accepted`、`running`、`retry_scheduled`、`completed`、`rejected`、`failed`、`dead_lettered`をLiteralでNarrowingできる。CompletedはOperation固有のScalar／Nullable OutcomeへDecodeし、`EmptyOutcome`のWire `{}`は`undefined`へ変換する。Rejected、Failed、Dead LetteredはStatus Query成功なので`ok: true`であり、401、404、410、500とTransport Failureは`ok: false`で区別する。
+
+DecoderはSchema Version、Requested Operation ID、Generated Operation Type、State別のExact Key、Attempt、UTC Microseconds、Safe Error Codeを検査する。Non-terminal StateだけCanonicalな正整数`Retry-After`を要求し、`retryAfterSeconds`として返す。Terminal Stateに同Headerがある場合やContract不一致は`unexpected_response`になる。Raw Body、Credential、Exception DetailはResultへ保持しない。
+
+`.status()`はPolling、Retry、Timer、Cacheを実装しない。`.fetch()`もDeferred 202の後にStatusを自動取得しない。有限待機を行う`.wait()`は別のFrontend Runtime Capabilityとして扱う。
+
 ## Adapter Rules
 
 - `findSubject()`は認可前に呼ばれるため、最小Subject以外をSELECT／Decodeしない

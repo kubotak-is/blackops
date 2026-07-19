@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-19T21:30:35+09:00
+Updated At: 2026-07-19T21:54:41+09:00
 
 ## Current Phase
 
@@ -16,13 +16,13 @@ Specifications: `develop/spec/25-sensitive-projection.md`、`develop/spec/67-ope
 
 ## Task Status
 
-Ready
+Accepted
 
-P16-004は`196636b`でCommit／Push済み。P16-005 Task Packetを作成し、Generated Operation Objectの一回取得`.status()`、7 State／Typed Outcome、Strict Operation ID／Type／Schema、Retry-After、401／404／410／500、Safe Transport、Marker 3、Temporary Strict TypeScript／Runtime Evidenceを実装可能な状態にした。`.wait()`、Polling、Frontend Fixture／CI、Quickstart、WebsiteはTask範囲外である。
+GPT-5.6 Luna High WorkerのP16-005実装をReviewし、独立再検証後にAcceptedとした。全Generated HTTP Operation Objectの一回取得`.status()`、7 State／Typed Outcome、Strict Operation ID／Type／Schema／Retry-After、401／404／410／500、Safe Transport、Marker 3をTask Packetの許可範囲で追加した。Orchestrator再実行で対象45 tests／414 assertions、全1420 tests／5588 assertions、Frontend build→generate→check→Strict TypeScript／Node Runtime→cleanupと全品質Guardが成功した。`.wait()`、Polling、Frontend Fixture／CI、Quickstart、Website、HTTP／Public PHP API／Manifest Schemaは変更していない。
 
 ## Last Accepted Task
 
-P16-004-http-status-resource
+P16-005-generated-status-capability
 
 ## Pending Decisions
 
@@ -53,9 +53,43 @@ P16-004-http-status-resource
 
 ## Required Next Action
 
-1. P16-005 Task PacketをCommit／Pushする。
-2. GPT-5.6 Luna High WorkerへP16-005を委譲する。
-3. OrchestratorがGenerated Type／Runtime／Sensitive境界をReviewし、独立再検証後にCommitする。
+1. OrchestratorがP16-005をCommit／Pushする。
+2. P16-006のTask Packetを作成する。
+3. P16-006でGenerated `.wait()`とPermanent Frontend CI Evidenceを実装する。
+
+## P16-005 Generated Status Capability Worker Verification
+
+```text
+docker compose run --rm app composer validate --strict
+docker compose run --rm app composer validate --strict examples/quickstart/composer.json
+docker compose run --rm app mago format --check src tests
+docker compose run --rm app mago lint
+docker compose run --rm app mago analyze
+Result: Composer Root／Quickstart valid。Mago全成功。
+
+docker compose run --rm app vendor/bin/phpunit --display-deprecations \
+  tests/Internal/Frontend \
+  tests/Internal/Console/FrontendGenerateCommandTest.php \
+  tests/Internal/Console/FrontendCheckCommandTest.php
+Result: OK (45 tests, 414 assertions)。
+
+docker compose run --rm app vendor/bin/phpunit --display-deprecations
+Result: OK (1420 tests, 5588 assertions)。
+
+docker compose run --rm app vendor/bin/deptrac
+Result: Violations 0 / Skipped 0 / Uncovered 0 / Allowed 2526 / Warnings 0 / Errors 0。
+
+Frontend Fixture build:compile -> frontend:generate -> frontend:check -> pnpm test -> clean
+Temporary DOMなしStrict TypeScript／Node Runtime Status Evidence
+Result: 全成功。7 State、Typed／Empty Outcome、Identity／Retry-After／HTTP／Transport、single fetch、no auto-status、Freezeを確認し、生成物をCleanup済み。
+
+Management ID／Sensitive／Polling／Tracking／git diff --check Guards
+Result: 全成功。
+```
+
+### P16-005 Worker Notes
+
+`.status()`はCanonical lowercase UUIDv7を送信前に検証し、Operation Route Bindingを使わずFramework Status Resourceへ一回だけGETする。Operation固有Status Resultは7 State、Completed Outcome、EmptyOutcome、Retry Hint、401／404／410／500、Safe TransportをStrict Decodeする。既存`.fetch()` Unionと挙動は変更せず、`.wait()`、Polling、Retry、Timer、Global Mutable Clientを追加していない。Markerは3へ更新し、Owned Legacy 1／2の置換を維持した。詳細は`develop/orchestration/reports/P16-005-generated-status-capability.md`を参照する。
 
 ## P16-004 HTTP Status Resource Worker Verification
 

@@ -40,14 +40,19 @@ final class FrontendOutputWriterTest extends TestCase
 
     public function testReplacesKnownLegacyOwnedTreeWithCurrentMarker(): void
     {
-        $output = $this->directory . '/legacy';
-        mkdir($output);
-        file_put_contents($output . '/client.ts', 'legacy');
-        file_put_contents($output . '/manifest.json', $this->markerWithSchema(1, 'legacy-build'));
+        foreach ([1, 2] as $legacyVersion) {
+            $output = $this->directory . '/legacy-' . $legacyVersion;
+            mkdir($output);
+            file_put_contents($output . '/client.ts', 'legacy');
+            file_put_contents($output . '/manifest.json', $this->markerWithSchema($legacyVersion, 'legacy-build'));
 
-        self::assertSame(2, new FrontendOutputWriter()->write($this->tree('current-build', 'current'), $output));
-        self::assertSame('current', file_get_contents($output . '/client.ts'));
-        self::assertStringContainsString('"schemaVersion": 2', (string) file_get_contents($output . '/manifest.json'));
+            self::assertSame(2, new FrontendOutputWriter()->write($this->tree('current-build', 'current'), $output));
+            self::assertSame('current', file_get_contents($output . '/client.ts'));
+            self::assertStringContainsString(
+                '"schemaVersion": 3',
+                (string) file_get_contents($output . '/manifest.json'),
+            );
+        }
     }
 
     public function testRejectsUnknownMarkerVersionWithoutChangingTree(): void
@@ -138,7 +143,7 @@ final class FrontendOutputWriterTest extends TestCase
     private function markerWithSchema(int $schemaVersion, string $buildId): string
     {
         return str_replace(
-            '"schemaVersion": 2',
+            '"schemaVersion": 3',
             sprintf('"schemaVersion": %d', $schemaVersion),
             new FrontendGenerationMarker($buildId, str_repeat('a', 64))->encode(),
         );

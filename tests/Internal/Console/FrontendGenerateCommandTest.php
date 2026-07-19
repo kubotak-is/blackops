@@ -79,8 +79,20 @@ final class FrontendGenerateCommandTest extends TestCase
             self::assertStringNotContainsString($forbidden, $allBytes);
         }
         self::assertStringContainsString('fetch(', strtolower($allBytes));
+        self::assertStringContainsString('status(', strtolower($allBytes));
         self::assertStringContainsString('promise<', strtolower($allBytes));
-        foreach (['retry', 'backoff', 'poll', 'react', 'vue', 'svelte', 'inertia', 'vite'] as $forbidden) {
+        foreach ([
+            'backoff',
+            'poll',
+            '.wait(',
+            'settimeout',
+            'setinterval',
+            'react',
+            'vue',
+            'svelte',
+            'inertia',
+            'vite',
+        ] as $forbidden) {
             self::assertStringNotContainsString($forbidden, strtolower($allBytes));
         }
     }
