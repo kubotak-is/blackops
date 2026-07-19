@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-19T21:54:41+09:00
+Updated At: 2026-07-19T21:59:02+09:00
 
 ## Current Phase
 
@@ -8,17 +8,17 @@ Phase 16: Deferred Status and Outcome API
 
 ## Current Task
 
-Task ID: P16-005-generated-status-capability
+Task ID: P16-006-generated-wait-and-frontend-ci
 
-Task Packet: `develop/orchestration/tasks/P16-005-generated-status-capability.md`
+Task Packet: `develop/orchestration/tasks/P16-006-generated-wait-and-frontend-ci.md`
 
 Specifications: `develop/spec/25-sensitive-projection.md`、`develop/spec/67-operation-frontend-bridge.md`、`develop/spec/69-deferred-status-and-outcome-api.md`、`develop/spec/70-phase-16-delivery-plan.md`、`develop/decisions/100-phase-15-operation-frontend-bridge.md`、`develop/decisions/102-phase-16-deferred-status-and-outcome-api.md`
 
 ## Task Status
 
-Accepted
+Ready
 
-GPT-5.6 Luna High WorkerのP16-005実装をReviewし、独立再検証後にAcceptedとした。全Generated HTTP Operation Objectの一回取得`.status()`、7 State／Typed Outcome、Strict Operation ID／Type／Schema／Retry-After、401／404／410／500、Safe Transport、Marker 3をTask Packetの許可範囲で追加した。Orchestrator再実行で対象45 tests／414 assertions、全1420 tests／5588 assertions、Frontend build→generate→check→Strict TypeScript／Node Runtime→cleanupと全品質Guardが成功した。`.wait()`、Polling、Frontend Fixture／CI、Quickstart、Website、HTTP／Public PHP API／Manifest Schemaは変更していない。
+P16-006 Task Packetを作成した。全Generated HTTP Operation ObjectへRequired Abort Signalと有限Deadlineを持つ`.wait()`を追加し、Retry-After、Terminal停止、Abort、Timeout、Error即時停止、Timer／Clock注入、Cleanup、並行Wait分離をPermanent Frontend Fixture／CIで固定する。`.fetch()`自動Polling、任意Retry Policy、Global Mutable State、Quickstart／Website／HTTP／Public PHP API／Manifest Schema変更は対象外とする。
 
 ## Last Accepted Task
 
@@ -53,9 +53,9 @@ P16-005-generated-status-capability
 
 ## Required Next Action
 
-1. OrchestratorがP16-005をCommit／Pushする。
-2. P16-006のTask Packetを作成する。
-3. P16-006でGenerated `.wait()`とPermanent Frontend CI Evidenceを実装する。
+1. OrchestratorがP16-006 Task PacketをCommit／Pushする。
+2. GPT-5.6 Luna High WorkerへP16-006実装を委譲する。
+3. Orchestratorが差分Review、Permanent Frontend Evidence、全品質Gateを再実行する。
 
 ## P16-005 Generated Status Capability Worker Verification
 
