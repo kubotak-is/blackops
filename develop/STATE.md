@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-20T02:20:05+09:00
+Updated At: 2026-07-20T02:25:32+09:00
 
 ## Current Phase
 
@@ -8,17 +8,17 @@ Phase 17: Full-stack Reference Application - In Progress
 
 ## Current Task
 
-Task ID: P17-002-application-and-sveltekit-foundation
+Task ID: P17-003-identity-session-and-bff-boundary
 
-Task Packet: `develop/orchestration/tasks/P17-002-application-and-sveltekit-foundation.md`
+Task Packet: `develop/orchestration/tasks/P17-003-identity-session-and-bff-boundary.md`
 
 Specifications: `develop/spec/60-post-phase-10-roadmap.md`、`develop/spec/71-full-stack-reference-application.md`、`develop/spec/72-phase-17-delivery-plan.md`
 
 ## Task Status
 
-Accepted
+Ready
 
-P17-002をAcceptedとした。独立Community Board Layout、PHP／PostgreSQL／Worker／SvelteKit Compose、Server-only Generated Output、Application-owned `.server.ts` Wrapper、Welcome OperationからSSR Landing、Safe Failure、Foundation Consumer E2E、独立CI Jobを実装した。Orchestrator再実行でもClean Install、Real HTTP Journey、Svelte、Mago、Full PHPUnit 1430 tests／5679 assertions、Deptrac 0違反が成功した。Generated／Dependency／Build／Runtime ArtifactはCleanup済み。Identity、Post、Digest、Final Visual Design、Reicon、Framework Production Code、Quickstartは変更していない。
+P17-003 Task PacketをReadyとした。Application-owned Authentication Router、User／Session Repository、Password Hash、Opaque Session Hash、Expiry／Revocation／Rotation、BlackOps `HttpAuthenticator`、Authorized Current User Operation、SvelteKit Form Action／HttpOnly Cookie、Sensitive Guardを実装する。CredentialをOperation、Journal、Outcome、Generated Contract、Browser JavaScriptへ入れず、Authentication以外を既存BlackOps Handlerへ委譲する。Post、Comment、Digest、Final Visual Design、Reicon、Framework Production Code、Quickstartは変更しない。
 
 ## Last Accepted Task
 
@@ -54,9 +54,9 @@ P17-002-application-and-sveltekit-foundation
 
 ## Required Next Action
 
-1. OrchestratorがP17-002 Accepted差分をCommitする。
-2. OrchestratorがP17-003 Identity, Session, and BFF BoundaryのTask Packetを作成する。
-3. GPT-5.6 Luna High WorkerがP17-003を実装する。
+1. OrchestratorがP17-003 Task Packet／CheckpointをCommitする。
+2. GPT-5.6 Luna High WorkerがP17-003を実装し、Report／STATEを更新する。
+3. Orchestratorが差分をReviewし、独立再検証後にCommitする。
 
 ## P17-002 Application and SvelteKit Foundation Worker Verification
 
