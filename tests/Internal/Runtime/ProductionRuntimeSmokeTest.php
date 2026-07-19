@@ -39,6 +39,7 @@ final class ProductionRuntimeSmokeTest extends TestCase
         $serviceProviders = $this->path('service-providers');
         $operationManifest = $this->path('operation-manifest');
         $httpManifest = $this->path('http-manifest');
+        $frontendManifest = $this->path('frontend-manifest');
         $containerPath = $this->path('container');
         $containerClass = 'SmokeContainer' . bin2hex(random_bytes(8));
         $containerNamespace = __NAMESPACE__ . '\\Generated';
@@ -50,6 +51,7 @@ final class ProductionRuntimeSmokeTest extends TestCase
             'service-providers' => $serviceProviders,
             'operation-manifest' => $operationManifest,
             'http-manifest' => $httpManifest,
+            'frontend-manifest' => $frontendManifest,
             'container' => $containerPath,
             '--application-build-id' => 'build-runtime-smoke',
             '--container-class' => $containerClass,

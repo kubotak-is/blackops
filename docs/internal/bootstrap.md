@@ -32,7 +32,7 @@ The current command set is:
 
 | Command | Class | Responsibility |
 | --- | --- | --- |
-| `build:compile` | `BlackOps\Internal\Console\ApplicationBuildCompileCommand` | Compile operation manifest, HTTP manifest, and runtime container together. |
+| `build:compile` | `BlackOps\Internal\Console\ApplicationBuildCompileCommand` | Compile operation, HTTP, and frontend contract manifests plus the runtime container together. |
 | `operation:list` | `BlackOps\Internal\Console\ApplicationOperationListCommand` | Discover application operations and list their type ID, definition, and execution strategy. |
 | `blackops:operation-manifest:compile` | `BlackOps\Internal\Console\CompileOperationManifestCommand` | Compile the operation manifest from explicit providers and optional development discovery. |
 | `blackops:http-manifest:compile` | `BlackOps\Internal\Console\CompileHttpManifestCommand` | Compile the HTTP manifest from explicit providers and optional development discovery. |
@@ -46,7 +46,7 @@ The current command set is:
 | `database:migrate` | `BlackOps\Internal\Console\DatabaseMigrationMigrateCommand` | Apply or dry-run the versioned PostgreSQL framework baseline. |
 | `database:status` | `BlackOps\Internal\Console\DatabaseMigrationStatusCommand` | Show applied and pending framework migration versions without changing the database. |
 
-For normal build pipelines, prefer the unified build command so operation metadata, HTTP route metadata, and container definitions are generated from the same provider set.
+For normal build pipelines, prefer the unified build command so operation metadata, HTTP route metadata, frontend contract metadata, and container definitions are generated from the same provider set.
 
 The worker command requires an application-composed `WorkerLoop`. Its signal heartbeat must be shared with the handler guard and must use a dedicated DBAL connection. See [Deferred Worker Runtime](worker-runtime.md) for the composition and shutdown contract.
 
@@ -154,6 +154,7 @@ blackops:build:compile \
   config/blackops/services.php \
   var/cache/blackops/operations.php \
   var/cache/blackops/http.php \
+  var/cache/blackops/frontend.php \
   var/cache/blackops/container.php \
   --application-build-id=release-2026-07-11.1 \
   --container-class=CompiledContainer \
@@ -168,24 +169,28 @@ The positional outputs are:
 
 - operation manifest PHP file
 - HTTP manifest PHP file
+- frontend contract manifest PHP file
 - dumped runtime container PHP file
 
 `--application-build-id` is required. Build pipelines should supply an immutable identifier for the application
 release, such as a source revision or deployment build number. The command writes the exact same identifier to the
-operation and HTTP manifests. Changing the requested build ID also invalidates a matching development fingerprint,
+operation, HTTP, and frontend contract manifests. Changing the requested build ID also invalidates a matching development fingerprint,
 so an earlier release's manifests are not reused.
 
-Each manifest is a PHP array with a versioned envelope:
+Each manifest is a PHP array with a versioned envelope. `schemaVersion` is owned by each artifact type; the
+operation and frontend contract manifests currently use version 1, while the HTTP manifest uses version 2:
 
 ```php
 return [
-    'schemaVersion' => 1,
+    'schemaVersion' => 1, // Example: use the artifact type's current schema version.
     'applicationBuildId' => 'release-2026-07-11.1',
     'payload' => [
-        // Operation or HTTP metadata.
+        // Operation, HTTP, or frontend contract metadata.
     ],
 ];
 ```
+
+The frontend contract contains only routed Operation metadata required by later TypeScript generation: normalized scalar types, nullability, requiredness, binding source and transport name, validation rule metadata, sensitive-input presence, outcome shape, execution strategy, and deterministic module/export names. It excludes constructor default values, examples, runtime values, credentials, environment data, and absolute source paths. Unsupported types, sensitive outcome properties, mismatched source manifests, and naming collisions fail the build instead of falling back to `any` or source rediscovery.
 
 The generated artifacts contain scalar values, arrays, class names, synthetic runtime service definitions, and Ray.Aop proxy classes. They must not contain credentials, resolved database connection parameters, tokens, environment secrets, closures, or live service instances. `DatabaseManager`, the default DBAL `Connection`, and the internal transaction runtime are synthetic definitions. HTTP and deferred worker composition set them before resolving application handlers, policies, or middleware. The transaction runtime receives the same execution-scope provider used by inline or deferred operation execution. Container compilation validates transactional connection names against the accepted configuration snapshot but does not connect to a database.
 
@@ -202,6 +207,8 @@ Inline execution writes successful canonical terminal records inside a shared ap
 The `--lock` option guards a build output set with a local lock file. Use it when multiple build processes could write the same artifacts.
 
 The `--fingerprint` option stores a lightweight hash for build inputs. When the fingerprint still matches and all output artifacts exist, the command skips regeneration.
+
+Freshness requires the operation, HTTP, and frontend contract manifests to carry the requested Application Build ID and a supported schema. Production HTTP and Worker runtime deliberately do not load the frontend contract artifact; it is a build-time input for the later frontend generator only.
 
 The default fingerprint input set includes:
 

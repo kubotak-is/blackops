@@ -24,6 +24,7 @@ use BlackOps\Core\Registry\OperationProvider;
 use BlackOps\Http\Attribute\Route;
 use BlackOps\Http\Routing\HttpOperationManifestFile;
 use BlackOps\Internal\Console\CompileBuildArtifactsCommand;
+use BlackOps\Internal\Frontend\FrontendContractManifestFile;
 use BlackOps\Internal\Registry\OperationManifestFile;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
@@ -52,6 +53,7 @@ final class CompileBuildArtifactsCommandTest extends TestCase
             'service-providers' => $serviceProviders,
             'operation-manifest' => $operationManifest,
             'http-manifest' => $httpManifest,
+            'frontend-manifest' => $this->path('required-frontend-manifest'),
             'container' => $containerPath,
             '--application-build-id' => 'build-required-self-handled',
             '--container-class' => $class,
@@ -76,6 +78,7 @@ final class CompileBuildArtifactsCommandTest extends TestCase
         $serviceProviders = $this->path('service-providers');
         $operationManifest = $this->path('operation-manifest');
         $httpManifest = $this->path('http-manifest');
+        $frontendManifest = $this->path('frontend-manifest');
         $containerPath = $this->path('container');
         $fingerprint = $this->path('fingerprint');
         $class = 'BuildContainer' . bin2hex(random_bytes(8));
@@ -88,6 +91,7 @@ final class CompileBuildArtifactsCommandTest extends TestCase
             'service-providers' => $serviceProviders,
             'operation-manifest' => $operationManifest,
             'http-manifest' => $httpManifest,
+            'frontend-manifest' => $frontendManifest,
             'container' => $containerPath,
             '--application-build-id' => 'build-artifacts-123',
             '--container-class' => $class,
@@ -98,6 +102,7 @@ final class CompileBuildArtifactsCommandTest extends TestCase
 
         $operationArtifact = new OperationManifestFile()->loadArtifact($operationManifest);
         $httpArtifact = new HttpOperationManifestFile()->loadArtifact($httpManifest);
+        $frontendArtifact = new FrontendContractManifestFile()->loadArtifact($frontendManifest);
         $httpMatch = $httpArtifact->manifest->toRegistry([new BuildOperation()])->match('GET', '/build');
         require_once $containerPath;
         $containerClass = $namespace . '\\' . $class;
@@ -107,6 +112,7 @@ final class CompileBuildArtifactsCommandTest extends TestCase
         self::assertSame('build-artifacts-123', $operationArtifact->applicationBuildId);
         self::assertSame(2, $httpArtifact->schemaVersion);
         self::assertSame($operationArtifact->applicationBuildId, $httpArtifact->applicationBuildId);
+        self::assertSame($operationArtifact->applicationBuildId, $frontendArtifact->applicationBuildId);
         self::assertSame('build.operation', $httpArtifact->manifest->dispatcherData[0]['GET']['/build']);
         self::assertSame(
             BuildOperation::class,
@@ -135,6 +141,7 @@ final class CompileBuildArtifactsCommandTest extends TestCase
             'service-providers' => $serviceProviders,
             'operation-manifest' => $operationManifest,
             'http-manifest' => $httpManifest,
+            'frontend-manifest' => $this->path('fingerprint-frontend-manifest'),
             'container' => $containerPath,
             '--application-build-id' => 'build-fingerprint-123',
             '--fingerprint' => $fingerprint,
@@ -162,6 +169,7 @@ final class CompileBuildArtifactsCommandTest extends TestCase
             'service-providers' => $serviceProviders,
             'operation-manifest' => $operationManifest,
             'http-manifest' => $httpManifest,
+            'frontend-manifest' => $this->path('build-id-frontend-manifest'),
             'container' => $containerPath,
             '--application-build-id' => 'build-fingerprint-first',
             '--fingerprint' => $fingerprint,
@@ -196,6 +204,7 @@ final class CompileBuildArtifactsCommandTest extends TestCase
             'service-providers' => $serviceProviders,
             'operation-manifest' => $operationManifest,
             'http-manifest' => $httpManifest,
+            'frontend-manifest' => $this->path('mismatch-frontend-manifest'),
             'container' => $containerPath,
             '--application-build-id' => 'build-fingerprint-match',
             '--fingerprint' => $fingerprint,
@@ -235,6 +244,7 @@ final class CompileBuildArtifactsCommandTest extends TestCase
             'service-providers' => $serviceProviders,
             'operation-manifest' => $operationManifest,
             'http-manifest' => $httpManifest,
+            'frontend-manifest' => $this->path('composer-frontend-manifest'),
             'container' => $containerPath,
             '--application-build-id' => 'build-composer-123',
             '--container-class' => $class,
@@ -289,6 +299,7 @@ final class CompileBuildArtifactsCommandTest extends TestCase
             'service-providers' => $serviceProviders,
             'operation-manifest' => $operationManifest,
             'http-manifest' => $httpManifest,
+            'frontend-manifest' => $this->path('installed-frontend-manifest'),
             'container' => $containerPath,
             '--application-build-id' => 'build-installed-123',
             '--container-class' => $class,
@@ -326,6 +337,7 @@ final class CompileBuildArtifactsCommandTest extends TestCase
             'service-providers' => $serviceProviders,
             'operation-manifest' => $operationManifest,
             'http-manifest' => $httpManifest,
+            'frontend-manifest' => $this->path('composer-fingerprint-frontend-manifest'),
             'container' => $containerPath,
             '--application-build-id' => 'build-composer-fingerprint',
             '--fingerprint' => $fingerprint,
@@ -367,6 +379,7 @@ final class CompileBuildArtifactsCommandTest extends TestCase
             'service-providers' => $serviceProviders,
             'operation-manifest' => $operationManifest,
             'http-manifest' => $httpManifest,
+            'frontend-manifest' => $this->path('installed-fingerprint-frontend-manifest'),
             'container' => $containerPath,
             '--application-build-id' => 'build-installed-fingerprint',
             '--fingerprint' => $fingerprint,
@@ -404,6 +417,7 @@ final class CompileBuildArtifactsCommandTest extends TestCase
             'service-providers' => $this->path('service-providers'),
             'operation-manifest' => $this->path('operation-manifest'),
             'http-manifest' => $this->path('http-manifest'),
+            'frontend-manifest' => $this->path('frontend-manifest'),
             'container' => $this->path('container'),
             '--application-build-id' => 'build-missing-config',
         ]);
@@ -423,6 +437,7 @@ final class CompileBuildArtifactsCommandTest extends TestCase
             'service-providers' => $serviceProviders,
             'operation-manifest' => $this->path('operation-manifest'),
             'http-manifest' => $this->path('http-manifest'),
+            'frontend-manifest' => $this->path('frontend-manifest'),
             'container' => $this->path('container'),
         ]);
     }

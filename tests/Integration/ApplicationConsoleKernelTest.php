@@ -222,6 +222,7 @@ final class ApplicationConsoleKernelTest extends TestCase
                 'application_build_id' => 'console-integration',
                 'operation_manifest' => $directory . '/var/build/operations.php',
                 'http_manifest' => $directory . '/var/build/http.php',
+                'frontend_manifest' => $directory . '/var/build/frontend.php',
                 'container' => $directory . '/var/build/container.php',
                 'container_class' => $containerClass,
                 'container_namespace' => __NAMESPACE__ . '\\Generated',

@@ -232,9 +232,10 @@ final class ApplicationConsoleKernelTest extends TestCase
             $config,
             'app',
             sprintf(
-                "return ['build' => ['application_build_id' => 'generator-build', 'operation_manifest' => '%s', 'http_manifest' => '%s', 'container' => '%s', 'container_class' => 'CompiledContainer', 'container_namespace' => 'App\\\\Generated']];",
+                "return ['build' => ['application_build_id' => 'generator-build', 'operation_manifest' => '%s', 'http_manifest' => '%s', 'frontend_manifest' => '%s', 'container' => '%s', 'container_class' => 'CompiledContainer', 'container_namespace' => 'App\\\\Generated']];",
                 $build . '/operations.php',
                 $build . '/http.php',
+                $build . '/frontend.php',
                 $build . '/container.php',
             ),
         );
@@ -258,6 +259,7 @@ final class ApplicationConsoleKernelTest extends TestCase
 
         self::assertFileExists($build . '/operations.php');
         self::assertFileExists($build . '/http.php');
+        self::assertFileExists($build . '/frontend.php');
         self::assertFileExists($build . '/container.php');
         self::assertSame(
             'App\\Feature\\' . $feature . '\\' . $action . '\\' . $action,

@@ -104,7 +104,7 @@ MVP後に残す主要項目:
 ### Phase 15: Operation Frontend Bridge
 
 - [x] Bridgeの初期Depth、Operation Object API、Frontend Target、生成／Sensitive境界をD100で決定する
-- [ ] Operation／HTTP Manifestから言語中立なFrontend Contract Manifestを生成する
+- [x] Operation／HTTP Manifestから言語中立なFrontend Contract Manifestを生成する
 - [ ] `.url()`／`.toRequest()`／Readonly Metadataを持つTypeScript Operation Objectを生成する
 - [ ] `.fetch()`とInline／Deferred／Rejected／Failure／Transport Typed Resultを実装する
 - [ ] `frontend:check`、TypeScript Compile／Runtime Test、CI連携を実装する

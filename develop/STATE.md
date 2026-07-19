@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-19T13:44:53+09:00
+Updated At: 2026-07-19T14:15:18+09:00
 
 ## Current Phase
 
@@ -16,13 +16,13 @@ Specifications: `develop/spec/01-core-model.md`、`develop/spec/04-handler-and-r
 
 ## Task Status
 
-Ready
+Accepted
 
-Phase 14はAccepted／Closedである。D100はD／A／A／A／Aで確定した。Frontend APIはCallable／Thenableではなく、`.fetch()`、`.toRequest()`、`.url()`、Readonly Metadataを持つimmutable Operation Objectとする。Operation Frontend Bridge Specification、Phase 15 Delivery Plan、最初のFrontend Contract Manifest Task Packetを作成した。
+P15-002のFrontend Contract DTO／Compiler／Codec／Atomic File、Application／Legacy Build、Freshness、Quickstart Config、Internal Documentationを実装した。Orchestrator ReviewでHTTP重複Metadataの完全一致とinvalid write時の既存Artifact保持Testを追加し、Artifact Schema、Sensitive／Unsupported Type、Build ID／Freshness、Runtime非接続を確認した。Orchestrator Target 71 tests／633 assertions、Full 1243 tests／4583 assertions、Composer、Mago、Deptrac、Guardは全成功しAcceptedとした。
 
 ## Last Accepted Task
 
-P14-007-consumer-experience-and-closeout
+P15-002-frontend-contract-manifest
 
 ## Pending Decisions
 
@@ -48,13 +48,44 @@ P14-007-consumer-experience-and-closeout
 
 ## Known Blockers
 
-P15-002を妨げるBlockerはない。Documentation WebsiteはUser判断どおり未公開であり、Phase 15でもPublication／Deployを行わない。
+P15-002を妨げるBlockerはない。初回Full Suiteで検出した既存Fixture 4ファイルはOrchestratorがTask Packetへ追加し、必須Frontend Artifact Config／Legacy Command引数を同期済みである。Documentation WebsiteはUser判断どおり未公開であり、Publication／Deployは行わない。
 
 ## Required Next Action
 
-1. OrchestratorがD100、Specification、Delivery Plan、P15-002 Task PacketをCommit／Pushする。
-2. GPT-5.6 Luna High WorkerへP15-002を実装依頼する。
-3. Worker Report後、OrchestratorがArtifact Schema、Sensitive／Unsupported Type、Build ID／Freshnessを独立Reviewする。
+1. P15-002の変更をCommit／Pushする。
+2. P15-003 Operation Object and Request Generation Task Packetを作成する。
+3. P15-003ではTypeScript ESM Tree、`.url()`／`.toRequest()`、Readonly Metadata、安全なOutput／Atomic Replaceを実装する。
+
+## P15-002 Frontend Contract Manifest Worker Verification
+
+```text
+docker compose run --rm app composer validate --strict
+docker compose run --rm app composer validate --strict examples/quickstart/composer.json
+docker compose run --rm app mago format --check src tests examples
+docker compose run --rm app mago lint
+docker compose run --rm app mago analyze
+Result: Composer Root／Quickstart valid。Mago全成功。
+
+docker compose run --rm app vendor/bin/phpunit --display-deprecations <P15-002 required targets>
+Result: OK (62 tests, 424 assertions)。
+
+docker compose run --rm app vendor/bin/phpunit --display-deprecations
+Result: OK (1243 tests, 4583 assertions)。
+
+docker compose run --rm app vendor/bin/deptrac
+Result: Violations 0 / Skipped 0 / Uncovered 0 / Allowed 2257 / Warnings 0 / Errors 0。
+
+Management Comment ID、Runtime Frontend Artifact Import、TypeScript／JavaScript Addition、git diff --check Guard
+Result: 成功。
+```
+
+### P15-002 Orchestrator Review Corrections
+
+初回Full Suiteで必須`frontend_manifest`／Legacy Command引数を持たない既存Fixture 4ファイルを検出した。OrchestratorがTask Packetへ変更可能Fileを追加し、Production ContractをOptionalへ弱めずFixtureだけを同期した。
+
+Frontend Contract CompilerはDefinition／Valueだけでなく、HTTP Manifestへ重複保存されるHandler／Outcome／StrategyもOperation Metadataと完全一致を要求するよう修正した。Artifact File Testはinvalid Schema loadだけでなく、既存Valid Artifactへのinvalid writeでBytes不変、Temporary cleanup、既存Artifact再Loadを検証するよう強化した。
+
+独立ReviewでTask PacketのTarget一式は71 tests／633 assertions、Full PHPUnitは1243 tests／4583 assertionsで成功した。Composer Root／Quickstart、Mago format／lint／analyze、Deptrac（Violations 0／Warnings 0／Errors 0）、Management／Runtime Import／TypeScript追加／diff Guardも成功した。Internal Bootstrap DocumentationへArtifact Type別Schema Versionを明記し、P15-002をAcceptedとした。
 
 ## P14-007 Consumer Experience and Closeout Worker Verification
 

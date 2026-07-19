@@ -190,6 +190,10 @@ final class QuickstartApplicationArchitectureTest extends TestCase
         self::assertStringContainsString("'discovery'", $operations);
         self::assertStringContainsString("'providers' => []", $operations);
         self::assertStringContainsString('ApplicationServiceProvider::class', $application);
+        self::assertStringContainsString(
+            "'frontend_manifest' => dirname(__DIR__) . '/var/build/frontend.php'",
+            $application,
+        );
         self::assertStringContainsString('AuthenticationMiddleware::class', $middleware);
         self::assertStringNotContainsString('sampleToken', $welcomeValue . $reportValue);
         self::assertStringNotContainsString('apiToken', $welcomeValue . $reportValue);

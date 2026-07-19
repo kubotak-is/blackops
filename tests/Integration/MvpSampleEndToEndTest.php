@@ -333,7 +333,16 @@ final class MvpSampleEndToEndTest extends TestCase
         self::assertSame('[masked]', $observedReport->data['value']['recipientEmail']);
     }
 
-    /** @return array{operation: string, http: string, container: string, class: string, namespace: string} */
+    /**
+     * @return array{
+     *     operation: string,
+     *     http: string,
+     *     frontend: string,
+     *     container: string,
+     *     class: string,
+     *     namespace: string
+     * }
+     */
     private function compileArtifacts(): array
     {
         $root = dirname(__DIR__, levels: 2);
@@ -347,6 +356,7 @@ final class MvpSampleEndToEndTest extends TestCase
         $paths = [
             'operation' => $directory . '/operations.php',
             'http' => $directory . '/http.php',
+            'frontend' => $directory . '/frontend.php',
             'container' => $directory . '/container.php',
             'class' => $class,
             'namespace' => $namespace,
@@ -357,6 +367,7 @@ final class MvpSampleEndToEndTest extends TestCase
             'application_build_id' => self::BUILD_ID,
             'operation_manifest' => $paths['operation'],
             'http_manifest' => $paths['http'],
+            'frontend_manifest' => $paths['frontend'],
             'container' => $paths['container'],
             'container_class' => $class,
             'container_namespace' => $namespace,
@@ -413,7 +424,14 @@ final class MvpSampleEndToEndTest extends TestCase
     }
 
     /**
-     * @param array{operation: string, http: string, container: string, class: string, namespace: string} $paths
+     * @param array{
+     *     operation: string,
+     *     http: string,
+     *     frontend: string,
+     *     container: string,
+     *     class: string,
+     *     namespace: string
+     * } $paths
      */
     private function loadArtifacts(array $paths): \BlackOps\Internal\Runtime\ProductionRuntimeArtifacts
     {

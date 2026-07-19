@@ -1,6 +1,6 @@
 # Installed Application Status
 
-Status: Phase 14 main Preview complete; Framework and Skeleton 1.1.0 Published
+Status: Phase 15 Frontend Contract Manifest in progress; Framework and Skeleton 1.1.0 Published
 
 この文書はRepositoryのPhase Acceptance Evidenceを記録するFramework実装者向け資料であり、公開Documentation WebsiteのContent Sourceには含めない。利用者向けの現行機能と制約は[Guide MVP Status](../guide/mvp-status.md)を参照する。
 
@@ -70,6 +70,14 @@ examples/quickstart/
 Operation自身がHandlerを兼ねるSelf-handled形式を標準とする。Constructor Dependencyなどで責務を分ける場合はOptional `#[HandledBy]` とSeparate Handlerを利用できる。Operation DiscoveryとDI Container生成はBuild時だけに行われ、Production HTTP／Worker RuntimeはCompile済みArtifactへFail-fastする。
 
 Default Compose ServiceはPostgreSQLとWorker Mode HTTPだけである。Composer Install、Artifact Build、Migration、Deferred Worker、Scheduler、Retention Purgeは明示CommandまたはProfileで実行する。Classic HTTPは`classic-mode` ProfileのFallbackである。変更を伴うPurgeは追加の`--confirm`を要求する。
+
+## Phase 15 Frontend Contract Boundary
+
+Application-aware `build:compile` はOperation／HTTP Manifestと同じApplication Build IDで `var/build/frontend.php` を生成する。この言語中立ArtifactにはHTTP Routeを持つOperationだけを含め、Operation Type、Method／Path、Inline／Deferred、Value Binding、Validation、Sensitive Input有無、Outcome、決定的なModule／Export名を保持する。
+
+Frontend ContractはTypeScript Sourceではなく、後続の`frontend:generate`がSource Reflectionへ戻らずに生成するためのBuild Artifactである。Scalar以外の型、Sensitive Outcome、Manifest不整合、Case-insensitive Naming CollisionはBuild Errorになる。Constructor Default実値、Credential、Environment、Example、Absolute Source Pathは保存しない。
+
+Production HTTP／Worker RuntimeはFrontend Contractを読み込まない。Backend Runtimeの起動Artifactは従来どおりOperation Manifest、HTTP Manifest、Containerであり、Frontend ArtifactはBuild／Generation境界だけに留まる。
 
 ## Phase 8 Publication Evidence
 

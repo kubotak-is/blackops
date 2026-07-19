@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace BlackOps\Internal\Console;
 
+use BlackOps\Http\Routing\HttpOperationManifestArtifact;
+use BlackOps\Http\Routing\HttpOperationManifestArtifactCodec;
 use BlackOps\Http\Routing\HttpOperationManifestFile;
 use BlackOps\Http\Routing\HttpRouteCompiler;
 use BlackOps\Internal\Aop\RuntimeAopCompiler;
@@ -16,7 +18,10 @@ use BlackOps\Internal\Application\ApplicationOperationDiscovery;
 use BlackOps\Internal\DependencyInjection\RuntimeContainerCompiler;
 use BlackOps\Internal\DependencyInjection\RuntimeContainerDumper;
 use BlackOps\Internal\DependencyInjection\ServiceProviderConfigLoader;
+use BlackOps\Internal\Frontend\FrontendContractCompiler;
+use BlackOps\Internal\Frontend\FrontendContractManifestFile;
 use BlackOps\Internal\Registry\OperationDefinitionFactory;
+use BlackOps\Internal\Registry\OperationManifestArtifact;
 use BlackOps\Internal\Registry\OperationManifestFile;
 use BlackOps\Internal\Registry\OperationProviderCompiler;
 use BlackOps\Internal\Registry\OperationProviderConfigLoader;
@@ -51,13 +56,15 @@ final class ApplicationBuildCompileCommand extends Command
         ))->compile($operations, $discovered);
         $definitions = new OperationDefinitionFactory()->classNamesFromProviders($operations, $discovered);
         $middleware = ApplicationHttpMiddlewareConfiguration::fromConfiguration($this->configuration->configuration());
+        $http = new HttpRouteCompiler($registry)->compileManifest($definitions);
+        $frontend = new FrontendContractCompiler()->compile(
+            new OperationManifestArtifact(OperationManifestFile::SCHEMA_VERSION, $buildId, $registry),
+            new HttpOperationManifestArtifact(HttpOperationManifestArtifactCodec::SCHEMA_VERSION, $buildId, $http),
+        );
 
         new OperationManifestFile()->write($registry, $build->operationManifest, $buildId);
-        new HttpOperationManifestFile()->write(
-            new HttpRouteCompiler($registry)->compileManifest($definitions),
-            $build->httpManifest,
-            $buildId,
-        );
+        new HttpOperationManifestFile()->write($http, $build->httpManifest, $buildId);
+        new FrontendContractManifestFile()->write($frontend, $build->frontendManifest, $buildId);
 
         $compiler = new RuntimeContainerCompiler();
         $container = $compiler->builder();

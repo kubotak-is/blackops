@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace BlackOps\Internal\Console;
 
+use BlackOps\Http\Routing\HttpOperationManifestArtifact;
+use BlackOps\Http\Routing\HttpOperationManifestArtifactCodec;
 use BlackOps\Http\Routing\HttpOperationManifestFile;
 use BlackOps\Http\Routing\HttpRouteCompiler;
 use BlackOps\Internal\Build\BuildArtifactFingerprintGuard;
@@ -11,7 +13,10 @@ use BlackOps\Internal\Build\BuildArtifactProviderLoader;
 use BlackOps\Internal\Build\BuildLock;
 use BlackOps\Internal\DependencyInjection\RuntimeContainerCompiler;
 use BlackOps\Internal\DependencyInjection\RuntimeContainerDumper;
+use BlackOps\Internal\Frontend\FrontendContractCompiler;
+use BlackOps\Internal\Frontend\FrontendContractManifestFile;
 use BlackOps\Internal\Registry\OperationDefinitionFactory;
+use BlackOps\Internal\Registry\OperationManifestArtifact;
 use BlackOps\Internal\Registry\OperationManifestFile;
 use BlackOps\Internal\Registry\OperationProviderCompiler;
 use InvalidArgumentException;
@@ -33,6 +38,7 @@ final class CompileBuildArtifactsCommand extends Command
         private readonly OperationDefinitionFactory $definitions = new OperationDefinitionFactory(),
         private readonly OperationManifestFile $operationManifests = new OperationManifestFile(),
         private readonly HttpOperationManifestFile $httpManifests = new HttpOperationManifestFile(),
+        private readonly FrontendContractManifestFile $frontendManifests = new FrontendContractManifestFile(),
         private readonly RuntimeContainerCompiler $containerCompiler = new RuntimeContainerCompiler(),
         private readonly RuntimeContainerDumper $containerDumper = new RuntimeContainerDumper(),
         private readonly BuildArtifactFreshnessChecker $freshness = new BuildArtifactFreshnessChecker(),
@@ -55,6 +61,11 @@ final class CompileBuildArtifactsCommand extends Command
                 'Path to the generated PHP operation manifest file.',
             )
             ->addArgument('http-manifest', InputArgument::REQUIRED, 'Path to the generated PHP HTTP manifest file.')
+            ->addArgument(
+                'frontend-manifest',
+                InputArgument::REQUIRED,
+                'Path to the generated PHP frontend contract manifest file.',
+            )
             ->addArgument('container', InputArgument::REQUIRED, 'Path to the generated PHP container file.')
             ->addOption(
                 'application-build-id',
@@ -112,6 +123,7 @@ final class CompileBuildArtifactsCommand extends Command
         return Command::SUCCESS;
     }
 
+    /** @mago-expect lint:halstead */
     private function compile(InputInterface $input): void
     {
         $applicationBuildId = $this->requiredStringOption($input, 'application-build-id');
@@ -125,13 +137,14 @@ final class CompileBuildArtifactsCommand extends Command
         );
         $operationManifest = $this->stringArgument($input, 'operation-manifest');
         $httpManifest = $this->stringArgument($input, 'http-manifest');
+        $frontendManifest = $this->stringArgument($input, 'frontend-manifest');
         $container = $this->stringArgument($input, 'container');
 
         if ($this->freshness->isFresh(
             $fingerprint,
             $fingerprintInputs,
-            [$operationManifest, $httpManifest, $container],
-            ['operation' => $operationManifest, 'http' => $httpManifest],
+            [$operationManifest, $httpManifest, $frontendManifest, $container],
+            ['operation' => $operationManifest, 'http' => $httpManifest, 'frontend' => $frontendManifest],
             $applicationBuildId,
         )) {
             return;
@@ -145,12 +158,18 @@ final class CompileBuildArtifactsCommand extends Command
         );
         $registry = $this->operationCompiler->compile($providers->operationProviders);
         $definitions = $this->definitions->classNamesFromProviders($providers->operationProviders);
-        $this->operationManifests->write($registry, $operationManifest, $applicationBuildId);
-        $this->httpManifests->write(
-            new HttpRouteCompiler($registry)->compileManifest($definitions),
-            $httpManifest,
-            $applicationBuildId,
+        $http = new HttpRouteCompiler($registry)->compileManifest($definitions);
+        $frontend = new FrontendContractCompiler()->compile(
+            new OperationManifestArtifact(OperationManifestFile::SCHEMA_VERSION, $applicationBuildId, $registry),
+            new HttpOperationManifestArtifact(
+                HttpOperationManifestArtifactCodec::SCHEMA_VERSION,
+                $applicationBuildId,
+                $http,
+            ),
         );
+        $this->operationManifests->write($registry, $operationManifest, $applicationBuildId);
+        $this->httpManifests->write($http, $httpManifest, $applicationBuildId);
+        $this->frontendManifests->write($frontend, $frontendManifest, $applicationBuildId);
 
         $builder = $this->containerCompiler->builder();
         $this->containerCompiler->apply($builder, $providers->serviceProviders);

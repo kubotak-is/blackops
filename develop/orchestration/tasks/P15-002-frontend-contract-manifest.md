@@ -70,6 +70,10 @@ TypeScript Source、Frontend Runtime、`frontend:generate`／`frontend:check`は
 - `tests/Internal/Console/CompileBuildArtifactsCommandTest.php`
 - New `tests/Internal/Console/BuildArtifactFreshnessCheckerTest.php`
 - `tests/Architecture/QuickstartApplicationArchitectureTest.php`
+- `tests/Integration/ApplicationConsoleKernelTest.php`（必須Frontend Manifest Fixture同期だけ）
+- `tests/Integration/ApplicationHttpRuntimeTest.php`（必須Frontend Manifest Fixture同期だけ）
+- `tests/Integration/MvpSampleEndToEndTest.php`（必須Frontend Manifest Fixture同期だけ）
+- `tests/Internal/Runtime/ProductionRuntimeSmokeTest.php`（Legacy Build Command引数Fixture同期だけ）
 - P15-002専用の新規`tests/Fixtures/**`
 
 ### Quickstart and Documentation
@@ -198,7 +202,11 @@ docker compose run --rm app vendor/bin/phpunit --display-deprecations \
   tests/Internal/Console/ApplicationBuildCompileCommandTest.php \
   tests/Internal/Console/CompileBuildArtifactsCommandTest.php \
   tests/Internal/Console/BuildArtifactFreshnessCheckerTest.php \
-  tests/Architecture/QuickstartApplicationArchitectureTest.php
+  tests/Architecture/QuickstartApplicationArchitectureTest.php \
+  tests/Integration/ApplicationConsoleKernelTest.php \
+  tests/Integration/ApplicationHttpRuntimeTest.php \
+  tests/Integration/MvpSampleEndToEndTest.php \
+  tests/Internal/Runtime/ProductionRuntimeSmokeTest.php
 docker compose run --rm app vendor/bin/phpunit --display-deprecations
 docker compose run --rm app vendor/bin/deptrac
 ! rg -n 'Spec(ification)?[[:space:]]*[0-9]+|D[0-9]{3}|P[0-9]+-[0-9]+|TODO\.md:[0-9]+' src tests --glob '*.php'

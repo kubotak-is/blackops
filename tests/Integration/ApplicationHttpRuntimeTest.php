@@ -242,6 +242,7 @@ final class ApplicationHttpRuntimeTest extends TestCase
             'build' => [
                 'operation_manifest' => $directory . '/missing-operations.php',
                 'http_manifest' => $directory . '/missing-http.php',
+                'frontend_manifest' => $directory . '/missing-frontend.php',
                 'container' => $directory . '/missing-container.php',
                 'container_class' => 'MissingContainer',
                 'container_namespace' => '',
@@ -261,7 +262,16 @@ final class ApplicationHttpRuntimeTest extends TestCase
         }
     }
 
-    /** @return array{operation: string, http: string, container: string, class: string, namespace: string} */
+    /**
+     * @return array{
+     *     operation: string,
+     *     http: string,
+     *     frontend: string,
+     *     container: string,
+     *     class: string,
+     *     namespace: string
+     * }
+     */
     private function compileArtifacts(bool $withAuthorizationFixture = false): array
     {
         $directory = $this->directory();
@@ -270,6 +280,7 @@ final class ApplicationHttpRuntimeTest extends TestCase
         $paths = [
             'operation' => $directory . '/operations.php',
             'http' => $directory . '/http.php',
+            'frontend' => $directory . '/frontend.php',
             'container' => $directory . '/container.php',
             'class' => $class,
             'namespace' => $namespace,
@@ -284,6 +295,7 @@ final class ApplicationHttpRuntimeTest extends TestCase
             'application_build_id' => self::BUILD_ID,
             'operation_manifest' => $paths['operation'],
             'http_manifest' => $paths['http'],
+            'frontend_manifest' => $paths['frontend'],
             'container' => $paths['container'],
             'container_class' => $class,
             'container_namespace' => $namespace,
@@ -318,8 +330,17 @@ final class ApplicationHttpRuntimeTest extends TestCase
         return $paths;
     }
 
-    /** @param array{operation: string, http: string, container: string, class: string, namespace: string} $paths */
-    /** @param array<array-key, mixed>|null $logging */
+    /**
+     * @param array{
+     *     operation: string,
+     *     http: string,
+     *     frontend: string,
+     *     container: string,
+     *     class: string,
+     *     namespace: string
+     * } $paths
+     * @param array<array-key, mixed>|null $logging
+     */
     private function application(array $paths, ?array $logging = null): Application
     {
         $directory = $this->directory();
@@ -329,6 +350,7 @@ final class ApplicationHttpRuntimeTest extends TestCase
             'build' => [
                 'operation_manifest' => $paths['operation'],
                 'http_manifest' => $paths['http'],
+                'frontend_manifest' => $paths['frontend'],
                 'container' => $paths['container'],
                 'container_class' => $paths['class'],
                 'container_namespace' => $paths['namespace'],

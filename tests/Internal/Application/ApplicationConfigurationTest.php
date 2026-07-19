@@ -67,9 +67,10 @@ final class ApplicationConfigurationTest extends TestCase
             $config,
             'app',
             sprintf(
-                "return ['build' => ['operation_manifest' => '%s', 'http_manifest' => '%s', 'container' => '%s', 'container_class' => 'Container', 'container_namespace' => '']];",
+                "return ['build' => ['operation_manifest' => '%s', 'http_manifest' => '%s', 'frontend_manifest' => '%s', 'container' => '%s', 'container_class' => 'Container', 'container_namespace' => '']];",
                 $directory . '/operations.php',
                 $directory . '/http.php',
+                $directory . '/frontend.php',
                 $directory . '/container.php',
             ),
         );

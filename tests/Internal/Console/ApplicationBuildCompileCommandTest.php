@@ -19,6 +19,7 @@ use BlackOps\Database\DatabaseManager;
 use BlackOps\Internal\Application\ApplicationConfigurationSnapshot;
 use BlackOps\Internal\Console\ApplicationBuildCompileCommand;
 use BlackOps\Internal\Execution\ExecutionScopeProvider;
+use BlackOps\Internal\Frontend\FrontendContractManifestFile;
 use BlackOps\Internal\Registry\OperationManifestFile;
 use BlackOps\Internal\Transaction\RuntimeTransactionServiceInjector;
 use BlackOps\Tests\Fixtures\Aop\TransactionalOperation;
@@ -42,6 +43,7 @@ final class ApplicationBuildCompileCommandTest extends TestCase
     {
         $operationManifest = $this->path('operation-manifest');
         $httpManifest = $this->path('http-manifest');
+        $frontendManifest = $this->path('frontend-manifest');
         $containerPath = $this->path('container');
         $class = 'ApplicationBuildContainer' . bin2hex(random_bytes(8));
         $namespace = __NAMESPACE__ . '\\Generated';
@@ -53,6 +55,7 @@ final class ApplicationBuildCompileCommandTest extends TestCase
                     'build' => [
                         'operation_manifest' => $operationManifest,
                         'http_manifest' => $httpManifest,
+                        'frontend_manifest' => $frontendManifest,
                         'container' => $containerPath,
                         'container_class' => $class,
                         'container_namespace' => $namespace,
@@ -87,6 +90,10 @@ final class ApplicationBuildCompileCommandTest extends TestCase
             ->findByTypeId('application.build.transactional');
 
         self::assertSame(0, $status);
+        self::assertSame(
+            'application-build-authorization',
+            new FrontendContractManifestFile()->loadArtifact($frontendManifest)->applicationBuildId,
+        );
         self::assertSame(ApplicationBuildAuthorizationPolicy::class, $metadata?->authorizationPolicy);
         self::assertSame('app', $transactionalMetadata?->transactionConnection);
         self::assertInstanceOf(

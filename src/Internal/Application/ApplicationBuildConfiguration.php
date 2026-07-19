@@ -11,6 +11,7 @@ final readonly class ApplicationBuildConfiguration
     private function __construct(
         public string $operationManifest,
         public string $httpManifest,
+        public string $frontendManifest,
         public string $container,
         public string $containerClass,
         public string $containerNamespace,
@@ -28,11 +29,19 @@ final readonly class ApplicationBuildConfiguration
 
         $operationManifest = self::absolutePath($build, 'operation_manifest');
         $httpManifest = self::absolutePath($build, 'http_manifest');
+        $frontendManifest = self::absolutePath($build, 'frontend_manifest');
         $container = self::absolutePath($build, 'container');
         $containerClass = self::identifier($build, 'container_class');
         $containerNamespace = self::namespace($build);
 
-        return new self($operationManifest, $httpManifest, $container, $containerClass, $containerNamespace);
+        return new self(
+            $operationManifest,
+            $httpManifest,
+            $frontendManifest,
+            $container,
+            $containerClass,
+            $containerNamespace,
+        );
     }
 
     /** @param array<array-key, mixed> $build */

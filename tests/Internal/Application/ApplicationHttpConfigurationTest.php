@@ -23,12 +23,16 @@ final class ApplicationHttpConfigurationTest extends TestCase
         yield 'missing build section' => [['app' => []], 'app.build'];
         yield 'relative operation manifest' => [self::configuration('relative.php'), 'operation_manifest'];
         yield 'empty HTTP manifest' => [self::configuration('/operations.php', ''), 'http_manifest'];
+        yield 'relative frontend manifest' => [
+            self::configuration('/operations.php', '/http.php', 'frontend.php'),
+            'frontend_manifest',
+        ];
         yield 'invalid container class' => [
-            self::configuration('/operations.php', '/http.php', '/container.php', 'Invalid-Class'),
+            self::configuration('/operations.php', '/http.php', '/frontend.php', '/container.php', 'Invalid-Class'),
             'container_class',
         ];
         yield 'invalid namespace type' => [
-            self::configuration('/operations.php', '/http.php', '/container.php', 'Container', 42),
+            self::configuration('/operations.php', '/http.php', '/frontend.php', '/container.php', 'Container', 42),
             'container_namespace',
         ];
     }
@@ -49,6 +53,7 @@ final class ApplicationHttpConfigurationTest extends TestCase
 
         self::assertSame('/operations.php', $configuration->operationManifest);
         self::assertSame('/http.php', $configuration->httpManifest);
+        self::assertSame('/frontend.php', $configuration->frontendManifest);
         self::assertSame('/container.php', $configuration->container);
         self::assertSame('CompiledContainer', $configuration->containerClass);
         self::assertSame('', $configuration->containerNamespace);
@@ -201,6 +206,7 @@ final class ApplicationHttpConfigurationTest extends TestCase
     private static function configuration(
         string $operationManifest = '/operations.php',
         string $httpManifest = '/http.php',
+        string $frontendManifest = '/frontend.php',
         string $container = '/container.php',
         string $containerClass = 'CompiledContainer',
         mixed $containerNamespace = '',
@@ -210,6 +216,7 @@ final class ApplicationHttpConfigurationTest extends TestCase
                 'build' => [
                     'operation_manifest' => $operationManifest,
                     'http_manifest' => $httpManifest,
+                    'frontend_manifest' => $frontendManifest,
                     'container' => $container,
                     'container_class' => $containerClass,
                     'container_namespace' => $containerNamespace,
