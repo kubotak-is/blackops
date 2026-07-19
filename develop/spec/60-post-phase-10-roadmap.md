@@ -85,9 +85,10 @@ Terminal Queryを最小Vertical Slice候補とし、Local ViewerとProduction運
 - Typed OutcomeとTerminal Errorの安全な表現
 - HTTP Status／Outcome Endpoint、`Location`、Polling Contract
 - Authentication／Authorization、Tenant、Retention境界
+- Generated Operation Objectの`.status()`／`.wait()`
 - Quickstart、Integration Test、Tutorial
 
-Generated ClientへのPolling統合はPhase 15のContractを利用する後続Taskとし、Phase 16の必須完了条件にはしない。
+Generated ClientへのPolling統合はPhase 15のOperation Object Contractを利用し、Phase 16の必須完了条件とする。`.fetch()`は自動Pollingせず、明示的な`.status()`とAbort可能で有限な`.wait()`を追加する。詳細は[Deferred Status and Outcome API](69-deferred-status-and-outcome-api.md)を正本とする。
 
 ## Phase 17: Reliability and Delivery
 

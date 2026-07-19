@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-19T17:50:14+09:00
+Updated At: 2026-07-19T19:44:29+09:00
 
 ## Current Phase
 
@@ -8,17 +8,17 @@ Phase 16: Deferred Status and Outcome API
 
 ## Current Task
 
-Task ID: P16-001-deferred-status-and-outcome-decision
+Task ID: P16-002-public-status-query-contract
 
-Task Packet: Not created. User Decision pending in `develop/decisions/102-phase-16-deferred-status-and-outcome-api.md`.
+Task Packet: `develop/orchestration/tasks/P16-002-public-status-query-contract.md`
 
-Specifications: `develop/spec/02-lifecycle-and-journal.md`、`develop/spec/05-http.md`、`develop/spec/06-auth-and-middleware.md`、`develop/spec/25-sensitive-projection.md`、`develop/spec/30-lifecycle-state-machine.md`、`develop/spec/38-data-retention-and-deletion.md`、`develop/spec/60-post-phase-10-roadmap.md`、`develop/spec/65-operation-diagnostics.md`、`develop/spec/67-operation-frontend-bridge.md`、`develop/decisions/093-post-phase-10-roadmap.md`、`develop/decisions/102-phase-16-deferred-status-and-outcome-api.md`
+Specifications: `develop/spec/01-core-model.md`、`develop/spec/06-auth-and-middleware.md`、`develop/spec/17-core-api.md`、`develop/spec/25-sensitive-projection.md`、`develop/spec/29-handler-result-contract.md`、`develop/spec/30-lifecycle-state-machine.md`、`develop/spec/38-data-retention-and-deletion.md`、`develop/spec/65-operation-diagnostics.md`、`develop/spec/69-deferred-status-and-outcome-api.md`、`develop/spec/70-phase-16-delivery-plan.md`、`develop/decisions/102-phase-16-deferred-status-and-outcome-api.md`
 
 ## Task Status
 
-Waiting for User Decision
+Ready for Worker
 
-Phase 15はP15-006でAccepted済みである。Phase 16のPublic HTTP Resource、State Model、Authorization、Retention、Generated `.status()`／`.wait()`境界をD102でUser確認中である。Security Contractが未決のためProduction Code実装は開始しない。
+Phase 15はP15-006でAccepted済みである。D102は7問すべてAでDecidedとなり、単一Status Resource、7 State、専用Query Authorizer、404／410 Retention境界、Typed Outcome、Generated `.status()`／有限`.wait()`を仕様化した。P16-002でDatabase／HTTP非依存のPublic Query Contractから実装を開始する。
 
 ## Last Accepted Task
 
@@ -49,13 +49,13 @@ P15-006-consumer-experience-and-closeout
 
 ## Known Blockers
 
-Phase 16のProduction Code開始はD102 Question 4とQuestion 6のUser回答が必要である。Documentation WebsiteはUser判断どおり未公開であり、Publication／Deployは行わない。
+なし。Documentation WebsiteはUser判断どおり未公開であり、Publication／Deployは行わない。
 
 ## Required Next Action
 
-1. Userが`develop/decisions/102-phase-16-deferred-status-and-outcome-api.md`の7問に回答する。
-2. OrchestratorがD102をDecidedにし、Phase 16 Specification／Delivery Plan／Task Packetを作成する。
-3. GPT-5.6 Luna High WorkerがTask単位で実装し、OrchestratorがReview／Commitする。
+1. OrchestratorがP16-001のDecision／Specification／Delivery Plan／Task PacketをReviewしてCommitする。
+2. GPT-5.6 Luna High WorkerがP16-002を実装し、Report／STATEを同期する。
+3. OrchestratorがP16-002をReview、独立再検証、Commitする。
 
 ## P15-006 Consumer Experience and Closeout Worker Verification
 

@@ -83,6 +83,8 @@
 | [66-phase-14-delivery-plan.md](66-phase-14-delivery-plan.md) | Failure相関からDiagnostics Consumer ExperienceまでのPhase 14 Task順序 |
 | [67-operation-frontend-bridge.md](67-operation-frontend-bridge.md) | Operation Object、Frontend Contract Manifest、Typed Fetch、生成／Drift境界 |
 | [68-phase-15-delivery-plan.md](68-phase-15-delivery-plan.md) | Frontend ContractからConsumer ExperienceまでのPhase 15 Task順序 |
+| [69-deferred-status-and-outcome-api.md](69-deferred-status-and-outcome-api.md) | Public Status Query、Query認可、Retention、HTTP Resource、Generated Polling境界 |
+| [70-phase-16-delivery-plan.md](70-phase-16-delivery-plan.md) | Public Query ContractからConsumer ExperienceまでのPhase 16 Task順序 |
 
 ## 決定の参照
 
@@ -187,3 +189,6 @@
 | [D097](../decisions/097-phase-14-operation-diagnostics.md) | Phase 14 Operation Diagnostics | Decided |
 | [D098](../decisions/098-deferred-acceptance-failure-lifecycle.md) | Deferred Acceptance Failure Lifecycle | Decided |
 | [D099](../decisions/099-production-logging-configuration.md) | Production Logging Configuration | Decided |
+| [D100](../decisions/100-phase-15-operation-frontend-bridge.md) | Phase 15 Operation Frontend Bridge | Decided |
+| [D101](../decisions/101-http-scalar-binding-coercion.md) | HTTP Scalar Binding Coercion | Decided |
+| [D102](../decisions/102-phase-16-deferred-status-and-outcome-api.md) | Phase 16 Deferred Status and Outcome API | Decided |

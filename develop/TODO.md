@@ -113,8 +113,14 @@ MVP後に残す主要項目:
 
 ### Phase 16: Deferred Status and Outcome API
 
-- [ ] Operation IDによるStatus／Outcome HTTP Contractを提供する
-- [ ] Polling、Typed Outcome、認証認可境界を定義する
+- [x] D102で単一Resource、7 State、専用Query Authorizer、Retention、Generated `.status()`／`.wait()`を決定する
+- [x] Status／Outcome ContractとPhase 16 Delivery Planを仕様化する
+- [ ] Public PHP Status QueryとFail-closed専用Query Authorizerを実装する
+- [ ] PostgreSQL Status ProjectionとRetention境界を実装する
+- [ ] `GET /operations/{operationId}`とDeferred 202の`Location`／`Retry-After`を実装する
+- [ ] Generated `.status()`とTyped Outcome Decoderを実装する
+- [ ] Abort可能で有限なGenerated `.wait()`とFrontend CIを実装する
+- [ ] Quickstart／Skeleton／Guide／Website Source／Consumer E2Eを同期してPhase 16をCloseする
 
 ### Phase 17: Reliability and Delivery
 
