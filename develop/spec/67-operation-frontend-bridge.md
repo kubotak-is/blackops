@@ -161,6 +161,8 @@ Path／QueryがないOperationの`url()`は引数なしとする。Required Path
 - Constructor DefaultのOptional Fieldが未指定ならRequestへ含めず、Server側Defaultを使用する
 - Method、Path、Binding由来Header、Body、Framework管理`Content-Type`はCall Optionで上書きできない
 
+Path／Query／HeaderのScalarはD101のServer Bindingと同じCanonical文字列へ変換する。`string`はそのまま、`int`／`float`は有限な10進／JSON Number表現、`bool`は小文字`true`／`false`を使用する。Nullableの`null`とOptionalの`undefined`はPathでは許可せず、Query／Headerでは送信を省略する。PHPの弱いCastや`1`／`0` Boolean Aliasを生成しない。
+
 Operation-owned HeaderとCall Option HeaderがCase-insensitiveに衝突する場合はOperation-owned Headerを使用する。Credential Headerの自動保存、Token取得、CSRF取得は行わない。
 
 ## Client Runtime and Options

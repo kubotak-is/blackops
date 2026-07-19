@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-19T14:21:06+09:00
+Updated At: 2026-07-19T14:26:09+09:00
 
 ## Current Phase
 
@@ -8,17 +8,17 @@ Phase 15: Operation Frontend Bridge
 
 ## Current Task
 
-Task ID: P15-003-operation-object-request-generation
+Task ID: P15-003A-http-scalar-binding-coercion
 
-Task Packet: `develop/orchestration/tasks/P15-003-operation-object-request-generation.md`
+Task Packet: `develop/orchestration/tasks/P15-003A-http-scalar-binding-coercion.md`
 
-Specifications: `develop/spec/01-core-model.md`、`develop/spec/04-handler-and-result.md`、`develop/spec/05-http.md`、`develop/spec/08-registry-and-manifest.md`、`develop/spec/25-sensitive-projection.md`、`develop/spec/50-operation-authoring-and-build-discovery.md`、`develop/spec/60-post-phase-10-roadmap.md`、`develop/spec/67-operation-frontend-bridge.md`、`develop/spec/68-phase-15-delivery-plan.md`、`develop/decisions/100-phase-15-operation-frontend-bridge.md`
+Specifications: `develop/spec/05-http.md`、`develop/spec/25-sensitive-projection.md`、`develop/spec/67-operation-frontend-bridge.md`、`develop/spec/68-phase-15-delivery-plan.md`、`develop/decisions/086-operation-value-validation.md`、`develop/decisions/087-http-binding-rejection-lifecycle.md`、`develop/decisions/101-http-scalar-binding-coercion.md`
 
 ## Task Status
 
-Blocked — D101 User Answer Required
+Ready
 
-P15-002はAccepted／Push済みである。P15-003 Task Packetの実装直前監査で、現在のHTTP BinderはPath／Query／Headerを文字列として受ける一方、`int`／`float`／`bool`宣言へ変換せず必ず型不一致になることを確認した。Frontend生成側だけで補正できないPublic HTTP Contractのため、D101でNon-body Scalar CoercionをUser確認中である。
+D101はA／A／Aで確定した。Path／Query／HeaderのCanonical文字列を宣言型へ厳密変換し、Invalid値を既存Operation ID付き422へ統合する。P15-003AをServer側Binding正本の先行TaskとしてReadyにし、Accepted後にP15-003のGenerated Request Runtimeへ同じ変換を実装する。
 
 ## Last Accepted Task
 
@@ -45,17 +45,17 @@ P15-002-frontend-contract-manifest
 17. D097はA／A／A／A／A／A／Aで確定。Failure相関を先に修復し、内部Query Model、CLI、Development Local ViewerまでをPhase 14で実装し、Public API／OTelを後続Phaseへ送る。
 18. D098はAで確定。Operation ID発行後、Attempt開始前の予期しないThrowableは、受付TransactionのRollback後に別TransactionでAttemptなしの`received -> operation.failed`へ到達する。
 19. D099はA／A／A／Aで確定。Built-in JSONL、限定Stream、Invalid Config Fail-fast／Runtime Failure Best-effort、Disable不可を採用する。
-20. D101は未決定。Path／Query／HeaderのNative Scalarを厳密Coercionするか、stringだけへ制限するかUser回答が必要である。
+20. D101はA／A／Aで確定。Path／Query／HeaderのNative Scalarを厳密Coercionし、Canonical形式と既存422 Failure Surfaceを採用する。
 
 ## Known Blockers
 
-P15-003はD101のUser回答待ちである。Frontend生成側だけでPath／Query／Header ScalarをCastしてServerの現行Binding不一致を隠さない。Documentation WebsiteはUser判断どおり未公開であり、Publication／Deployは行わない。
+P15-003Aを妨げるBlockerはない。P15-003 Operation Object GenerationはP15-003A Acceptedまで待機する。Documentation WebsiteはUser判断どおり未公開であり、Publication／Deployは行わない。
 
 ## Required Next Action
 
-1. UserがD101のQ1〜Q3へ回答する。
-2. OrchestratorがDecision、HTTP／Frontend Specification、P15-003 Task Packetを同期してCommit／Pushする。
-3. HTTP Scalar Binding修正を先行Taskとして切り出すか、P15-003 Scopeへ含めるかを確定後、GPT-5.6 Luna High Workerへ依頼する。
+1. D101、HTTP／Frontend Specification、P15-003A Task Packet、STATEをCommit／Pushする。
+2. GPT-5.6 Luna High WorkerへP15-003Aを実装依頼する。
+3. Worker Report後、OrchestratorがCanonical Decode、422 Lifecycle、Sensitive／Raw Value非露出を独立Reviewする。
 
 ## P15-002 Frontend Contract Manifest Worker Verification
 

@@ -1,6 +1,6 @@
 # D101: HTTP Scalar Binding Coercion
 
-Status: Draft — User Answer Required
+Status: Decided
 
 ## Context
 
@@ -42,7 +42,7 @@ URLとHeaderがWire上で文字列なのは通常であり、利用者が`#[From
 
 [ANSWER]
 
-
+A
 
 [/ANSWER]
 
@@ -64,7 +64,7 @@ Frontend生成とServer Decodeを同一規則へ固定でき、`"false"`がPHP C
 
 [ANSWER]
 
-
+A
 
 [/ANSWER]
 
@@ -86,7 +86,7 @@ Field名と宣言型に対する不一致は既存Binding Failureの責務であ
 
 [ANSWER]
 
-
+A
 
 [/ANSWER]
 
@@ -100,6 +100,30 @@ Field名と宣言型に対する不一致は既存Binding Failureの責務であ
 - `int`／`float`／`bool`のPath／Query／Headerを実RequestでRound-trip Testする
 - Invalid文字列は既存のOperation ID付き422 Binding Rejectionへ統合する
 - Coercion RuleをPublic Guide／Validation／Troubleshootingへ後続Consumer Taskで記載する
+
+## Decision
+
+[DECISION]
+
+1. Path／Query／HeaderのCanonical文字列は、OperationValueの宣言型に基づいてFrameworkが`int`／`float`／`bool`へ厳密変換する。
+2. `int`は符号付き10進整数、`float`はJSON Number相当の有限数、`bool`は小文字`true`／`false`だけを許可する。空白、空文字、`1`／`0`、`yes`／`no`、Locale表現、NaN／Infinity、部分一致を拒否する。
+3. 変換不能値は既存のOperation ID付き422 Binding Rejectionへ統合する。空文字を`null`へ変換せず、Missing／Default／Required規則を維持する。
+4. BodyはJSON Decode後のNative Scalarを従来どおり検査し、文字列からのCoercionを行わない。
+
+[/DECISION]
+
+## Consequences
+
+[CONSEQUENCES]
+
+- `#[FromPath] public int $id`、`#[FromQuery] public float $rate`、`#[FromHeader] public bool $dryRun`を実HTTP Requestから型どおりに受け取れる。
+- Frontend生成Runtimeは同じCanonical形式をPath／Query／Headerへ書き、ServerとRound-tripできる。
+- PHPの弱いCastやHTML Form固有のBoolean Aliasに依存しない。
+- NullableはMissingまたはBodyの明示`null`だけで扱い、Non-bodyの空文字とMissingを区別する。
+- Invalid ScalarはProtocol 400ではなくField Bindingの422となり、Raw InputをResponse／Journalへ含めない。
+- Form固有Codec、Enum、DateTime、Custom Parserは別の明示Contractとして将来追加する。
+
+[/CONSEQUENCES]
 
 ## References
 

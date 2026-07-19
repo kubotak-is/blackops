@@ -1,6 +1,6 @@
 # P15-003: Operation Object and Request Generation
 
-Status: Blocked — D101 User Answer Required
+Status: Blocked — P15-003A Prerequisite
 
 ## Goal
 
@@ -54,7 +54,7 @@ P15-002のFrontend Contract Manifestだけを入力として、Framework-neutral
 - `develop/decisions/100-phase-15-operation-frontend-bridge.md`
 - `develop/decisions/101-http-scalar-binding-coercion.md`
 
-P15-003の実装前にD101を確定し、Path／Query／Headerの`int`／`float`／`bool`をServerとGenerated Runtimeで同一Contractへ揃える。D101未決定のままFrontend側だけで文字列化またはCastしない。
+D101はA／A／Aで確定した。P15-003AでPath／Query／Headerの`int`／`float`／`bool`をServer側へ先行実装し、Accepted後に同じCanonical変換をGenerated Runtimeへ実装する。
 
 ## Files Allowed to Change
 

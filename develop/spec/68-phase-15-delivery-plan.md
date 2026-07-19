@@ -41,6 +41,7 @@ Acceptance Gate:
 
 ## P15-003: Operation Object and Request Generation
 
+- D101に従い、Path／Query／HeaderのNative Scalarを厳密変換するHTTP Binding修正をP15-003Aで先行する
 - Optional `config/frontend.php`と安全なOutput Path Validationを追加する
 - `frontend:generate`をProject Console KernelへLazy登録する
 - Deterministic TypeScript ESM Tree、Marker、Atomic Replaceを実装する
@@ -51,6 +52,7 @@ Acceptance Gate:
 
 Acceptance Gate:
 
+- `int`／`float`／`bool`のPath／Query／HeaderがCanonical文字列とServer宣言型の間でRound-tripし、Invalid値は既存422へ統合される
 - Quickstart Contractから決定的なModule Treeを生成できる
 - 同じContractから二回生成したBytesが一致する
 - `url()`と`toRequest()`が実HTTP Binderと同じTransport Shapeを返す

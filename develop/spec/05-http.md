@@ -48,6 +48,21 @@ final readonly class UpdateOrderValue implements OperationValue
 
 単純なJSON Bodyでは、入力元Attributeがないプロパティを同名キーからBindingできる。
 
+### Non-body Scalar Coercion
+
+Path、Query、HeaderはWire上のCanonical文字列をOperationValueの宣言型へ厳密変換する。BodyはJSON Decode後のNative Scalarを型検査し、Body文字列から別Scalar型へ変換しない。
+
+| 宣言型 | Path／Query／Headerで許可する形式 |
+| --- | --- |
+| `string` | 入力文字列をそのまま使用 |
+| `int` | 符号付き10進整数。前後空白、空文字、先頭`+`、小数、指数を拒否 |
+| `float` | JSON Number相当の有限数。前後空白、NaN、Infinity、Locale表現を拒否 |
+| `bool` | 小文字`true`または`false`だけ。`1`／`0`、大文字、`yes`／`no`を拒否 |
+
+`int`はPHP実行環境の整数範囲を超える値を拒否する。`float`は変換後も有限でなければ拒否する。Nullable型でも空文字を`null`へ変換しない。MissingだけがConstructor Defaultを使い、Required FieldのMissingは従来どおりBinding Failureになる。
+
+変換不能値は型不一致と同じOperation ID付きHTTP 422、Category `validation`、Code `validation.failed`へ統合する。Raw文字列や変換詳細をResponse、Violation、Observed Journalへ含めない。
+
 ## HTTPメソッド
 
 GETとHEADはInline Strategyに限定し、Request Bodyを禁止する。
