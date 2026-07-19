@@ -1,0 +1,31 @@
+{
+    "name": "blackops/community-board-example",
+    "description": "Full-stack BlackOps community board reference application.",
+    "type": "project",
+    "license": "MIT",
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../..",
+            "options": {
+                "symlink": true
+            }
+        }
+    ],
+    "require": {
+        "php": ">=8.5",
+        "blackops/framework": "dev-main",
+        "vlucas/phpdotenv": "^5.6",
+        "nyholm/psr7": "^1.8",
+        "nyholm/psr7-server": "^1.1",
+        "laminas/laminas-httphandlerrunner": "^2.13"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    }
+}

@@ -126,12 +126,12 @@ MVP後に残す主要項目:
 
 - [x] D103でRoadmap順序、BlackOps Board Scope、BFF、Authentication、Deferred Journey、Persistence、Design、Publication境界を決定する
 - [x] Full-stack Reference Application仕様とPhase 17 Delivery Planを作成する
-- [ ] `examples/community-board/`のApplication／SvelteKit／Compose Foundationを構築する
+- [x] `examples/community-board/`のApplication／SvelteKit／Compose Foundationを構築する
 - [ ] Application-owned Authentication EndpointとSvelteKit Server-only Sessionを実装する
 - [ ] Post／CommentのInline Operation、Validation、Authorization、Transactionを実装する
 - [ ] Generated Operation ObjectをServer-only BFFへ接続し、投稿Journeyを実装する
 - [ ] Deferred `GenerateWeeklyDigest`とStatus／Wait／Typed Outcome UIを実装する
-- [ ] Taste SkillをDesign Directionへ適用し、Accessibility／Responsive／State UIを完成する
+- [ ] Taste SkillをDesign Directionへ適用し、Reicon、Accessibility／Responsive／State UIを完成する
 - [ ] Real Browser E2E、CI、Screenshot、README／Guideを同期してPhase 17をCloseする
 
 ### Phase 18: Reliability and Delivery

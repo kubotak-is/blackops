@@ -16,6 +16,83 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  community-board-foundation:
+    name: Community Board foundation
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Configure container user
+        run: |
+          set -euo pipefail
+          printf 'HOST_UID=%s\n' "$(id -u)" >> "${GITHUB_ENV}"
+          printf 'HOST_GID=%s\n' "$(id -g)" >> "${GITHUB_ENV}"
+
+      - name: Install pinned frontend toolchain
+        uses: jdx/mise-action@v4
+        with:
+          install: true
+          cache: true
+
+      - name: Verify frontend toolchain versions
+        run: |
+          set -euo pipefail
+          test "$(node --version)" = "v24.18.0"
+          test "$(pnpm --version)" = "11.12.0"
+
+      - name: Validate Compose and build images
+        run: |
+          set -euo pipefail
+          docker compose -f examples/community-board/compose.yaml config >/dev/null
+          docker compose -f examples/community-board/compose.yaml build app http frontend
+
+      - name: Install locked dependencies
+        run: |
+          set -euo pipefail
+          docker compose -f examples/community-board/compose.yaml run --rm app composer validate --strict
+          docker compose -f examples/community-board/compose.yaml run --rm app \
+            composer install --no-interaction --prefer-dist --no-progress
+          pnpm --dir examples/community-board/frontend install --frozen-lockfile
+
+      - name: Test Community Board foundation
+        run: bash tests/Consumer/community-board-foundation.sh
+
+      - name: Guard generated and sensitive artifacts
+        run: |
+          set -euo pipefail
+          if git ls-files \
+            examples/community-board/.env \
+            examples/community-board/vendor \
+            examples/community-board/var/build \
+            examples/community-board/var/log \
+            examples/community-board/frontend/node_modules \
+            examples/community-board/frontend/src/lib/server/blackops/generated \
+            examples/community-board/frontend/.svelte-kit \
+            examples/community-board/frontend/build | grep -q .; then
+            echo "Community Board runtime and generated artifacts must not be tracked." >&2
+            exit 1
+          fi
+          git diff --exit-code -- examples/quickstart
+
+      - name: Clean up Community Board
+        if: always()
+        run: |
+          docker compose -f examples/community-board/compose.yaml down --volumes --remove-orphans
+          rm -rf \
+            examples/community-board/vendor \
+            examples/community-board/var/build/* \
+            examples/community-board/var/log/* \
+            examples/community-board/frontend/node_modules \
+            examples/community-board/frontend/src/lib/server/blackops/generated \
+            examples/community-board/frontend/.svelte-kit \
+            examples/community-board/frontend/build
+          rm -f examples/community-board/.env
+
   frontend:
     name: Frontend contract and runtime
     runs-on: ubuntu-latest

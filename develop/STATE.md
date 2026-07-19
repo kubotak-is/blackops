@@ -1,10 +1,10 @@
 # Orchestration State
 
-Updated At: 2026-07-20T00:36:45+09:00
+Updated At: 2026-07-20T02:20:05+09:00
 
 ## Current Phase
 
-Phase 17: Full-stack Reference Application - Decision Planning
+Phase 17: Full-stack Reference Application - In Progress
 
 ## Current Task
 
@@ -16,13 +16,13 @@ Specifications: `develop/spec/60-post-phase-10-roadmap.md`、`develop/spec/71-fu
 
 ## Task Status
 
-Ready
+Accepted
 
-P17-002 Task Packetを作成した。独立Community Board Layout、Compose、SvelteKit Server-only Generated Output、Welcome OperationからSSR LandingまでのFoundationを実装対象とする。Identity、Post、Digest、Final Visual Design、Framework Production Codeは範囲外である。GPT-5.6 Luna High Workerの実装開始待ち。
+P17-002をAcceptedとした。独立Community Board Layout、PHP／PostgreSQL／Worker／SvelteKit Compose、Server-only Generated Output、Application-owned `.server.ts` Wrapper、Welcome OperationからSSR Landing、Safe Failure、Foundation Consumer E2E、独立CI Jobを実装した。Orchestrator再実行でもClean Install、Real HTTP Journey、Svelte、Mago、Full PHPUnit 1430 tests／5679 assertions、Deptrac 0違反が成功した。Generated／Dependency／Build／Runtime ArtifactはCleanup済み。Identity、Post、Digest、Final Visual Design、Reicon、Framework Production Code、Quickstartは変更していない。
 
 ## Last Accepted Task
 
-P16-007-consumer-experience-and-closeout
+P17-002-application-and-sveltekit-foundation
 
 ## Pending Decisions
 
@@ -46,7 +46,7 @@ P16-007-consumer-experience-and-closeout
 18. D098はAで確定。Operation ID発行後、Attempt開始前の予期しないThrowableは、受付TransactionのRollback後に別TransactionでAttemptなしの`received -> operation.failed`へ到達する。
 19. D099はA／A／A／Aで確定。Built-in JSONL、限定Stream、Invalid Config Fail-fast／Runtime Failure Best-effort、Disable不可を採用する。
 20. D101はA／A／Aで確定。Path／Query／HeaderのNative Scalarを厳密Coercionし、Canonical形式と既存422 Failure Surfaceを採用する。
-21. D103はA／A／A／A／A／A／A／Aで確定。Phase 17をFull-stack Reference Applicationとし、Server-only SvelteKit BFF、Application-owned Authentication、Deferred Digest、DBAL、Taste Skill適用範囲、Local-only Deliveryを採用する。
+21. D103はA／A／A／A／A／A／A／Aで確定。Phase 17をFull-stack Reference Applicationとし、Server-only SvelteKit BFF、Application-owned Authentication、Deferred Digest、DBAL、Taste Skill適用範囲、Reicon、Local-only Deliveryを採用する。
 
 ## Known Blockers
 
@@ -54,9 +54,27 @@ P16-007-consumer-experience-and-closeout
 
 ## Required Next Action
 
-1. OrchestratorがP17-002 Task PacketをReview／Commitする。
-2. GPT-5.6 Luna High WorkerがP17-002を実装する。
-3. OrchestratorがReportと差分をReviewし、独立Verification後にCommitする。
+1. OrchestratorがP17-002 Accepted差分をCommitする。
+2. OrchestratorがP17-003 Identity, Session, and BFF BoundaryのTask Packetを作成する。
+3. GPT-5.6 Luna High WorkerがP17-003を実装する。
+
+## P17-002 Application and SvelteKit Foundation Worker Verification
+
+```text
+Community Board Compose: config、app／http／frontend build成功。
+Locked install: Composer 42 packages、pnpm 155 lock entries、Frozen Install成功。
+Application: database:migrate 2、build:compile、frontend:generate 4 files、frontend:check fresh成功。
+SvelteKit: check 0 errors／0 warnings、Vitest 4 passed、adapter-node production build成功。
+Consumer E2E: Real HTTP SvelteKit SSR -> .server.ts -> Generated Operation -> BlackOps Welcome成功。Backend停止時Safe Unavailable、Server-only Import、Browser Secret／Path、Tracking、Quickstart Guard成功。
+Setup: 初回.env copy、再実行時非上書き、Runtime Directory保持、暗黙Side Effectなし。
+Root: Composer Root／Quickstart valid、Mago format／lint／analyze成功、PHPUnit OK (1430 tests, 5679 assertions)、Deptrac違反0。
+Management ID／Quickstart Diff／Tracking／git diff --check Guards: 全成功。
+Generated／Dependency／Build／Runtime Artifact: Cleanup済み。
+```
+
+### P17-002 Worker Notes
+
+SvelteKit Event FetchとFramework-neutral Generated `OperationFetch`のSignal Type差はApplication-owned `.server.ts` Adapterで吸収した。Generated ModuleをImportするApplication SourceはWrapperだけであり、`+page.server.ts`とBrowser SourceはSafe View Modelへだけ依存する。Transport／Unexpected／5xxはRaw Body、Internal URL、Credentialを返さないUnavailable Stateへ閉じる。Foundation UIはText-only Neutralとし、User指定のReiconとFinal Designは後続Taskへ送った。詳細は`develop/orchestration/reports/P17-002-application-and-sveltekit-foundation.md`を参照する。
 
 ## P16-007 Consumer Experience and Phase Closeout Worker Verification
 

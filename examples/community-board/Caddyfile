@@ -1,0 +1,18 @@
+{
+	auto_https off
+
+	frankenphp {
+		max_requests {$FRANKENPHP_MAX_REQUESTS:1000}
+	}
+}
+
+:80 {
+	root * /workspace/examples/community-board/public
+	php_server {
+		worker {
+			file /workspace/examples/community-board/public/worker.php
+			num 1
+			match *
+		}
+	}
+}

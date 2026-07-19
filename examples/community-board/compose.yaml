@@ -1,0 +1,87 @@
+services:
+  postgres:
+    image: postgres:18
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-community_board}
+      POSTGRES_USER: ${POSTGRES_USER:-blackops}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-blackops}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-blackops} -d ${POSTGRES_DB:-community_board}"]
+      interval: 2s
+      timeout: 5s
+      retries: 20
+    volumes:
+      - postgres_data:/var/lib/postgresql
+
+  app:
+    profiles: ["tools"]
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        UID: ${HOST_UID:-1000}
+        GID: ${HOST_GID:-1000}
+    user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
+    working_dir: /workspace/examples/community-board
+    volumes:
+      - ../..:/workspace
+    environment: &application-environment
+      APP_BUILD_ID: ${APP_BUILD_ID:-community-board-local}
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:-community_board}
+      POSTGRES_USER: ${POSTGRES_USER:-blackops}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-blackops}
+      BLACKOPS_SCHEMA: ${BLACKOPS_SCHEMA:-blackops}
+      FRANKENPHP_MAX_REQUESTS: ${FRANKENPHP_MAX_REQUESTS:-1000}
+      WORKER_ID: ${WORKER_ID:-community-board-worker-1}
+      WORKER_LEASE_SECONDS: ${WORKER_LEASE_SECONDS:-60}
+      WORKER_HEARTBEAT_SECONDS: ${WORKER_HEARTBEAT_SECONDS:-10}
+      WORKER_GRACE_SECONDS: ${WORKER_GRACE_SECONDS:-20}
+      WORKER_CONTINUE_AFTER_HANDLER_FAILURE: ${WORKER_CONTINUE_AFTER_HANDLER_FAILURE:-true}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  http:
+    build:
+      context: .
+      dockerfile: Dockerfile.frankenphp
+    working_dir: /workspace/examples/community-board
+    volumes:
+      - ../..:/workspace
+      - ./Caddyfile:/etc/frankenphp/Caddyfile:ro
+    environment: *application-environment
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "${BLACKOPS_DEBUG_PORT:-8081}:80"
+
+  worker:
+    profiles: ["worker"]
+    extends:
+      service: app
+    command: ["php", "blackops", "worker:run"]
+
+  frontend:
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+    user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
+    working_dir: /workspace/examples/community-board/frontend
+    volumes:
+      - ../..:/workspace
+    environment:
+      HOST: 0.0.0.0
+      PORT: 3000
+      ORIGIN: ${FRONTEND_ORIGIN:-http://localhost:5173}
+      BLACKOPS_BASE_URL: ${BLACKOPS_BASE_URL:-http://http}
+    command: ["node", "build"]
+    depends_on:
+      - http
+    ports:
+      - "${FRONTEND_PORT:-5173}:3000"
+
+volumes:
+  postgres_data:

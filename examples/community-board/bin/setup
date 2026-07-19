@@ -1,0 +1,75 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+function failSetup(string $message): never
+{
+    fwrite(STDERR, "Setup failed: {$message}.\n");
+    exit(1);
+}
+
+function createDirectory(string $path, string $relativePath): void
+{
+    if (file_exists($path)) {
+        if (!is_dir($path)) {
+            failSetup("{$relativePath} must be a directory");
+        }
+
+        fwrite(STDOUT, "Kept existing {$relativePath}/ directory.\n");
+        return;
+    }
+
+    if (!mkdir($path, 0775, recursive: true) && !is_dir($path)) {
+        failSetup("{$relativePath} directory could not be created");
+    }
+
+    fwrite(STDOUT, "Created {$relativePath}/ directory.\n");
+}
+
+$projectRoot = dirname(__DIR__);
+$environment = $projectRoot . '/.env';
+
+if (file_exists($environment)) {
+    if (!is_file($environment)) {
+        failSetup('.env must be a file');
+    }
+
+    fwrite(STDOUT, "Kept existing .env unchanged.\n");
+} else {
+    $example = $projectRoot . '/.env.example';
+    if (!is_file($example) || !is_readable($example)) {
+        failSetup('.env.example must be a readable file');
+    }
+
+    $contents = file_get_contents($example);
+    if (!is_string($contents) || file_put_contents($environment, $contents, LOCK_EX) !== strlen($contents)) {
+        if (is_file($environment)) {
+            unlink($environment);
+        }
+
+        failSetup('.env could not be copied from .env.example');
+    }
+
+    fwrite(STDOUT, "Created .env from .env.example.\n");
+}
+
+createDirectory($projectRoot . '/var/build', 'var/build');
+createDirectory($projectRoot . '/var/log', 'var/log');
+
+fwrite(STDOUT, <<<'STEPS'
+
+Next steps:
+  docker compose build app http frontend
+  docker compose run --rm app composer install --no-interaction --prefer-dist --no-progress
+  pnpm --dir frontend install --frozen-lockfile
+  docker compose run --rm app php blackops database:migrate
+  docker compose run --rm app php blackops build:compile
+  docker compose run --rm app php blackops frontend:generate
+  docker compose run --rm app php blackops frontend:check
+  pnpm --dir frontend run check
+  pnpm --dir frontend run test
+  pnpm --dir frontend run build
+  docker compose up -d postgres http frontend
+
+STEPS);
