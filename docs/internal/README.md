@@ -42,6 +42,7 @@ Framework実装者向けのArchitectureと実装ガイドを管理する。
 - [Installed Application Status and Phase 7 Evidence](installed-application-status.md)
 - [Skeleton Publication](skeleton-publication.md)
 - [Typed Outcome Store](outcome-store.md)
+- [Status Query Contract](status-query.md)
 - [HTTP API Slice](http-api-slice.md)
 - [Retention Policy](retention-policy.md)
 - [Retention Hold](retention-hold.md)

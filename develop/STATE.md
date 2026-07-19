@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-19T19:44:29+09:00
+Updated At: 2026-07-19T20:03:25+09:00
 
 ## Current Phase
 
@@ -16,13 +16,13 @@ Specifications: `develop/spec/01-core-model.md`、`develop/spec/06-auth-and-midd
 
 ## Task Status
 
-Ready for Worker
+Accepted
 
-Phase 15はP15-006でAccepted済みである。D102は7問すべてAでDecidedとなり、単一Status Resource、7 State、専用Query Authorizer、404／410 Retention境界、Typed Outcome、Generated `.status()`／有限`.wait()`を仕様化した。P16-002でDatabase／HTTP非依存のPublic Query Contractから実装を開始する。
+P16-002はAccepted。7 StateのPublic Status Aggregate／Result、専用Query Authorizerと既定Deny、Safe Query Exception、Subject -> Authorizer -> Detailの二段階Internal Sourceを実装した。Orchestrator独立ReviewとTarget 42 tests／171 assertions、Full 1370 tests／5260 assertions、Composer／Mago／Deptrac／Guardが成功した。
 
 ## Last Accepted Task
 
-P15-006-consumer-experience-and-closeout
+P16-002-public-status-query-contract
 
 ## Pending Decisions
 
@@ -53,9 +53,43 @@ P15-006-consumer-experience-and-closeout
 
 ## Required Next Action
 
-1. OrchestratorがP16-001のDecision／Specification／Delivery Plan／Task PacketをReviewしてCommitする。
-2. GPT-5.6 Luna High WorkerがP16-002を実装し、Report／STATEを同期する。
-3. OrchestratorがP16-002をReview、独立再検証、Commitする。
+1. OrchestratorがP16-002をCommit／Pushする。
+2. OrchestratorがP16-003 PostgreSQL Status Projection and RetentionのTask Packetを用意する。
+3. GPT-5.6 Luna High WorkerがP16-003を実装し、OrchestratorがReview／Commitする。
+
+## P16-002 Public Status Query Contract Worker Verification
+
+```text
+docker compose run --rm app composer validate --strict
+docker compose run --rm app composer validate --strict examples/quickstart/composer.json
+docker compose run --rm app mago format --check src tests
+docker compose run --rm app mago lint
+docker compose run --rm app mago analyze
+Result: Composer Root／Quickstart valid。Mago全成功。
+
+docker compose run --rm app vendor/bin/phpunit --display-deprecations \
+  tests/Status tests/Internal/Status tests/Architecture/PublicApiArchitectureTest.php
+Result: OK (42 tests, 171 assertions)。
+
+docker compose run --rm app vendor/bin/phpunit --display-deprecations
+Result: OK (1370 tests, 5260 assertions)。
+
+docker compose run --rm app vendor/bin/deptrac
+Result: Violations 0 / Skipped 0 / Uncovered 0 / Allowed 2344 / Warnings 0 / Errors 0。
+
+Management Comment ID／git diff --check Guard
+Result: 成功。
+```
+
+### P16-002 Worker Notes
+
+Public `OperationStatus`はState別Named Constructorで、Attempt 1始まり、UTC Retry At、Typed Outcome、Rejected Safe Category／Code、Failed／Dead Lettered固定Codeを強制する。Queryは認可前の最小Subjectだけを読み、Unknown／DenyでDetailを読まず同じUnavailableを返す。Allow後のみExpiredまたはDetailを返し、Source／Authorizer障害はRaw Detailを持たない安定Codeへ正規化する。詳細は`develop/orchestration/reports/P16-002-public-status-query-contract.md`を参照する。
+
+### P16-002 Orchestrator Review
+
+Public APIのState別Named Constructor、Result／Authorizer／Exceptionの`#[PublicApi]`境界、Internal Source DTO非露出を確認した。Unknown／DenyでDetail Sourceを呼ばず同じUnavailableとなり、ExpiredとDetailはAllow後だけ到達する。Subject／Detail ID／Type不一致とSource／Authorizer ThrowableはRaw Detailなしの安定Codeへ変換される。
+
+Orchestrator再実行でComposer Root／Quickstart、Mago format／lint／analyze、Target 42 tests／171 assertions、Full 1370 tests／5260 assertions、Deptrac 0違反／0警告／0エラー、Management ID Guard、`git diff --check`が成功した。範囲逸脱と仕様矛盾はなくAcceptedとした。
 
 ## P15-006 Consumer Experience and Closeout Worker Verification
 
