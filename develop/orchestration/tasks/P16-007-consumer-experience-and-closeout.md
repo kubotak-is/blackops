@@ -149,7 +149,7 @@ const terminal = await GenerateReport.wait(accepted.data.operationId, {
 
 - `.status()`の7 StateとErrorをTypecheckでNarrowingする
 - `.wait()`はTerminal 4 State／FailureだけをNarrowingし、Non-terminalを返り型へ持たない
-- Typed `ReportGenerated` Outcomeの`reportName`／`downloadPath`をCompletedから読む
+- Typed `ReportGenerated` Outcomeの既存Public Property `reportName`／`location`をCompletedから読む
 - `.fetch()`は202後に自動Status／WaitしないことをFetch回数／URLで確認する
 - DOMなしQuickstart TypeScriptを維持する
 - Node実行では購読可能な小さいStructural SignalをApplication-owned Test Helperとして使ってよい
