@@ -1,6 +1,6 @@
 # P15-003: Operation Object and Request Generation
 
-Status: Blocked — P15-003A Prerequisite
+Status: Blocked — P15-003B Prerequisite
 
 ## Goal
 
@@ -54,7 +54,7 @@ P15-002のFrontend Contract Manifestだけを入力として、Framework-neutral
 - `develop/decisions/100-phase-15-operation-frontend-bridge.md`
 - `develop/decisions/101-http-scalar-binding-coercion.md`
 
-D101はA／A／Aで確定した。P15-003AでPath／Query／Headerの`int`／`float`／`bool`をServer側へ先行実装し、Accepted後に同じCanonical変換をGenerated Runtimeへ実装する。
+D101はA／A／Aで確定し、P15-003AのServer側Scalar BindingはAcceptedである。P15-003BでFrontend Contract Schema Version 2へNative Scalar Kindを保持し、Accepted後に同じCanonical変換をGenerated Runtimeへ実装する。
 
 ## Files Allowed to Change
 

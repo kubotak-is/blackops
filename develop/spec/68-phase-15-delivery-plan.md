@@ -42,6 +42,7 @@ Acceptance Gate:
 ## P15-003: Operation Object and Request Generation
 
 - D101に従い、Path／Query／HeaderのNative Scalarを厳密変換するHTTP Binding修正をP15-003Aで先行する
+- P15-003BでFrontend Contract ArtifactをSchema Version 2へ上げ、PHP `int`／`float`を`integer`／`float` Scalar Kindとして区別する
 - Optional `config/frontend.php`と安全なOutput Path Validationを追加する
 - `frontend:generate`をProject Console KernelへLazy登録する
 - Deterministic TypeScript ESM Tree、Marker、Atomic Replaceを実装する

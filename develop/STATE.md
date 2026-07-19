@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-19T14:42:30+09:00
+Updated At: 2026-07-19T14:47:16+09:00
 
 ## Current Phase
 
@@ -8,17 +8,17 @@ Phase 15: Operation Frontend Bridge
 
 ## Current Task
 
-Task ID: P15-003A-http-scalar-binding-coercion
+Task ID: P15-003B-frontend-scalar-kind
 
-Task Packet: `develop/orchestration/tasks/P15-003A-http-scalar-binding-coercion.md`
+Task Packet: `develop/orchestration/tasks/P15-003B-frontend-scalar-kind.md`
 
-Specifications: `develop/spec/05-http.md`、`develop/spec/25-sensitive-projection.md`、`develop/spec/67-operation-frontend-bridge.md`、`develop/spec/68-phase-15-delivery-plan.md`、`develop/decisions/086-operation-value-validation.md`、`develop/decisions/087-http-binding-rejection-lifecycle.md`、`develop/decisions/101-http-scalar-binding-coercion.md`
+Specifications: `develop/spec/05-http.md`、`develop/spec/67-operation-frontend-bridge.md`、`develop/spec/68-phase-15-delivery-plan.md`、`develop/decisions/100-phase-15-operation-frontend-bridge.md`、`develop/decisions/101-http-scalar-binding-coercion.md`
 
 ## Task Status
 
-Accepted
+Ready
 
-D101に従うPath／Query／HeaderのCanonical Scalar Decode、Body非Coercion、Operation ID付き422、Sequence 1 Rejected、Deferred非受付、Sensitive／Raw非露出を実装した。Orchestrator Target 88 tests／386 assertions、Full 1295 tests／4787 assertions、Composer、Mago、Deptrac、Guardは全成功しAcceptedとした。
+P15-003AはAccepted／Push済みである。次工程監査でFrontend ContractがPHP `int`／`float`を同じ`number`へ正規化し、D101のCanonical Encodeを区別できないことを確認した。P15-003BでArtifact Schema Version 2へ上げ、Native Scalar Kindを保持する補正をReadyとした。
 
 ## Last Accepted Task
 
@@ -49,13 +49,13 @@ P15-003A-http-scalar-binding-coercion
 
 ## Known Blockers
 
-P15-003Aを妨げるBlockerはない。P15-003開始前に、Frontend Contractが`int`／`float`を同じ`number`へ正規化しているためD101のCanonical Encodeを区別できないSchema不整合をTask Packetへ補正する。Documentation WebsiteはUser判断どおり未公開であり、Publication／Deployは行わない。
+P15-003Bを妨げるBlockerはない。P15-003 Operation Object GenerationはP15-003B Acceptedまで待機する。Documentation WebsiteはUser判断どおり未公開であり、Publication／Deployは行わない。
 
 ## Required Next Action
 
-1. P15-003AをCommit／Pushする。
-2. P15-003 Task PacketへNative Scalar Kind保持とFrontend Manifest Schema Version補正を追加する。
-3. 補正後、GPT-5.6 Luna High WorkerへP15-003 Operation Object and Request Generationを依頼する。
+1. P15-003B Task PacketとSpecification補正をCommit／Pushする。
+2. GPT-5.6 Luna High WorkerへP15-003Bを実装依頼する。
+3. Worker Report後、OrchestratorがSchema Version、Scalar Kind、Build ID／Freshnessを独立Reviewする。
 
 ## P15-003A HTTP Scalar Binding Coercion Worker Verification
 
