@@ -48,7 +48,7 @@ P15-004で実HTTP Responseと確定Specificationが矛盾する場合、Generate
 - `develop/spec/25-sensitive-projection.md`
 - `develop/spec/67-operation-frontend-bridge.md`
 - `develop/spec/68-phase-15-delivery-plan.md`
-- `develop/decisions/094-experimental-versioning-and-release-surface.md`
+- `develop/decisions/094-stable-1-1-release-contract.md`
 - `develop/decisions/100-phase-15-operation-frontend-bridge.md`
 - `develop/decisions/101-http-scalar-binding-coercion.md`
 - `develop/orchestration/reports/P15-003-operation-object-request-generation.md`

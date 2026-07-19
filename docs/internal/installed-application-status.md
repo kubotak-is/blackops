@@ -81,9 +81,11 @@ Frontend Contract Schema Version 2はPHP Native Scalar Kindを`string`、`intege
 
 Production HTTP／Worker RuntimeはFrontend Contractを読み込まない。Backend Runtimeの起動Artifactは従来どおりOperation Manifest、HTTP Manifest、Containerであり、Frontend ArtifactはBuild／Generation境界だけに留まる。
 
-Project Consoleは`frontend:generate`をLazy登録し、`config/frontend.php`欠落時はApplication Root配下の`resources/js/blackops`へ生成する。CommandはBuild IDとSchemaを検証したFrontend Contractだけを読み、`types.ts`、`client.ts`、Ownership Marker、Operation Moduleを決定的に生成する。Operation Moduleはfrozen Operation ObjectとReadonly Metadata、`.url()`、`.toRequest()`を持ち、Path／Query／Header／Body、Optional／Nullable、D101 Native Scalar、Protected Header、HTTP／HTTPS Base URLを共通Request Runtimeへ接続する。Body Bindingが定義されたOperationは実値の有無にかかわらずJSON ObjectをSerializeし、全Optional Body Field未指定でも`{}`と`Content-Type: application/json`を生成する。
+Project Consoleは`frontend:generate`をLazy登録し、`config/frontend.php`欠落時はApplication Root配下の`resources/js/blackops`へ生成する。CommandはBuild IDとSchemaを検証したFrontend Contractだけを読み、`types.ts`、`client.ts`、Ownership Marker、Operation Moduleを決定的に生成する。Operation Moduleはfrozen Operation ObjectとReadonly Metadata、`.url()`、`.toRequest()`、`.fetch()`を持ち、Path／Query／Header／Body、Optional／Nullable、D101 Native Scalar、Protected Header、HTTP／HTTPS Base URLを共通Runtimeへ接続する。Body Bindingが定義されたOperationは実値の有無にかかわらずJSON ObjectをSerializeし、全Optional Body Field未指定でも`{}`と`Content-Type: application/json`を生成する。
 
-OutputはApplication Root配下に限定し、Root自身、外部Path、Symlink、Non-marker Directoryを拒否する。Temporary Treeの全FileとMarkerをRead-backした後だけBackup Renameで置換し、失敗時は既存Treeを復元する。Generated MarkerはGenerator Schema、Application Build ID、Canonical Contract Hashだけを持ち、時刻、Credential、Runtime Value、Absolute Source Pathを含めない。HTTP送信、Response Decode、Typed Result、`frontend:check`、TypeScript Toolchainは後続Taskである。
+`.fetch()`はBrowser既定または呼出単位のInjected Structural Fetchを使い、Inline Outcome 200、Inline Void 204、Deferred 202と、Protocol／Rejected／Validation／Internal／TransportをOperation固有Result Unionへ変換する。204以外はJSON Media Type、Object、既知Key、Discriminant、Category、Operation固有Outcome Scalar／Validation Fieldを検査する。Raw Body、Credential、Exception Message／StackはResultへ出さず、Operation IDは実Responseに存在する場合だけ保持する。Retry、Polling、Cache、Global Mutable Clientは持たない。
+
+OutputはApplication Root配下に限定し、Root自身、外部Path、Symlink、Non-marker Directoryを拒否する。Temporary Treeの全FileとCurrent MarkerをRead-backした後だけBackup Renameで置換し、失敗時は既存Treeを復元する。Generated Marker Schemaは2であり、Ownership判定だけ既知Legacy Schema 1を受理して更新可能にする。MarkerはApplication Build ID、Canonical Contract Hashだけを持ち、時刻、Credential、Runtime Value、Absolute Source Pathを含めない。`frontend:check`とTypeScript Toolchainは後続Taskである。
 
 ## Phase 8 Publication Evidence
 

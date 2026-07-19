@@ -78,7 +78,9 @@ final class FrontendGenerateCommandTest extends TestCase
         foreach (['credential-secret', 'local-example', 'sensitive-value', 'default-must-not-appear'] as $forbidden) {
             self::assertStringNotContainsString($forbidden, $allBytes);
         }
-        foreach (['fetch(', 'promise<', 'react', 'vue', 'svelte', 'inertia', 'vite'] as $forbidden) {
+        self::assertStringContainsString('fetch(', strtolower($allBytes));
+        self::assertStringContainsString('promise<', strtolower($allBytes));
+        foreach (['retry', 'backoff', 'poll', 'react', 'vue', 'svelte', 'inertia', 'vite'] as $forbidden) {
             self::assertStringNotContainsString($forbidden, strtolower($allBytes));
         }
     }

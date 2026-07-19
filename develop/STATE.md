@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-19T15:43:29+09:00
+Updated At: 2026-07-19T16:13:42+09:00
 
 ## Current Phase
 
@@ -12,17 +12,17 @@ Task ID: P15-004-typed-fetch-runtime-results
 
 Task Packet: `develop/orchestration/tasks/P15-004-typed-fetch-runtime-results.md`
 
-Specifications: `develop/spec/04-handler-and-result.md`、`develop/spec/05-http.md`、`develop/spec/08-registry-and-manifest.md`、`develop/spec/25-sensitive-projection.md`、`develop/spec/67-operation-frontend-bridge.md`、`develop/spec/68-phase-15-delivery-plan.md`、`develop/decisions/094-experimental-versioning-and-release-surface.md`、`develop/decisions/100-phase-15-operation-frontend-bridge.md`、`develop/decisions/101-http-scalar-binding-coercion.md`
+Specifications: `develop/spec/04-handler-and-result.md`、`develop/spec/05-http.md`、`develop/spec/08-registry-and-manifest.md`、`develop/spec/25-sensitive-projection.md`、`develop/spec/67-operation-frontend-bridge.md`、`develop/spec/68-phase-15-delivery-plan.md`、`develop/decisions/094-stable-1-1-release-contract.md`、`develop/decisions/100-phase-15-operation-frontend-bridge.md`、`develop/decisions/101-http-scalar-binding-coercion.md`
 
 ## Task Status
 
-Ready
+Accepted
 
-P15-003はAccepted／Push済みである。P15-004ではOperation Objectへ`.fetch()`を追加し、Browser既定／Injected Fetch、Inline／Deferred成功、Protocol／Rejected／Validation／Internal、Transport ErrorをFramework-neutralなTyped Resultへ変換する。
+Operation Objectの`.fetch()`、Structural Fetch、Operation固有Result Union、Strict Response Decode、Transport／Sensitive境界、Legacy Marker 1からCurrent Marker 2への安全な置換を実装した。Worker／Orchestrator Gate、DOMなしStrict TypeScript Compile、Generated JavaScriptの44 Runtime Assertionが成功し、P15-004をAcceptedとした。
 
 ## Last Accepted Task
 
-P15-003-operation-object-request-generation
+P15-004-typed-fetch-runtime-results
 
 ## Pending Decisions
 
@@ -49,12 +49,48 @@ P15-003-operation-object-request-generation
 
 ## Known Blockers
 
-P15-004を妨げるBlockerはない。Documentation WebsiteはUser判断どおり未公開であり、Publication／Deployは行わない。
+P15-005を妨げる既知Blockerはない。Documentation WebsiteはUser判断どおり未公開であり、Publication／Deployは行わない。
 
 ## Required Next Action
 
-1. GPT-5.6 Luna High WorkerがP15-004を実装する。
-2. OrchestratorがGenerated Type、実HTTP Response Shape、Narrowing、Transport／Sensitive境界を独立Reviewする。
+1. P15-004をTask単位でCommit／Pushする。
+2. P15-005 Drift and Frontend Build IntegrationのTask Packetを作成する。
+
+## P15-004 Typed Fetch Runtime and Results Worker Verification
+
+```text
+docker compose run --rm app composer validate --strict
+docker compose run --rm app composer validate --strict examples/quickstart/composer.json
+docker compose run --rm app mago format --check src tests examples
+docker compose run --rm app mago lint
+docker compose run --rm app mago analyze
+Result: Composer Root／Quickstart valid。Mago全成功。
+
+docker compose run --rm app vendor/bin/phpunit --display-deprecations \
+  tests/Internal/Frontend \
+  tests/Internal/Console/FrontendGenerateCommandTest.php
+Result: OK (32 tests, 282 assertions)。
+
+docker compose run --rm app vendor/bin/phpunit --display-deprecations
+Result: OK (1320 tests, 5026 assertions)。
+
+docker compose run --rm app vendor/bin/deptrac
+Result: Violations 0 / Skipped 0 / Uncovered 0 / Allowed 2262 / Warnings 0 / Errors 0。
+
+Existing TypeScript Compiler Strict Check
+Result: Temporary Generated TreeのType Check成功。Temporary Treeは削除済み。
+
+Management Comment ID、Generated Sensitive／Forbidden Runtime Surface、git diff --check Guard
+Result: 成功。
+```
+
+### P15-004 Worker Notes
+
+`types.ts`へStructural Fetchと成功Mode別Result Union、`client.ts`へInjected／Browser Fetch選択、Strict Response Snapshot／Decode、Transport Error変換を追加した。Operation ModuleはOutcome／Validation Field／Result Typeと`.fetch()`を生成する。Marker Schemaを2へ上げ、Ownership判定だけKnown Legacy 1を受理して既存Generated Treeを更新できるようにした。HTTP Responderと確定Specificationの矛盾はない。
+
+### P15-004 Orchestrator Review
+
+実HTTP ResponderとのShape一致を確認した。Temporary Generated TreeをDOMなしStrict TypeScriptでCompileし、生成JavaScriptでInline／Deferred成功、全Failure／Transport分類、Scalar、Malformed Response、Fetch選択、Programmer Error、Raw Secret非露出を含む44 Runtime Assertionが成功した。Orchestrator再実行のTargetは32 tests／282 assertions、Fullは1320 tests／5026 assertions、Composer／Mago／Deptrac／全Guardも成功した。Legacy Marker 1のOwnership移行とCurrent Marker 2限定の新規Tree検証を確認しAcceptedとした。
 
 ## P15-003 Operation Object and Request Generation Worker Verification
 

@@ -38,6 +38,36 @@ final class FrontendOutputWriterTest extends TestCase
         self::assertSame([], glob(dirname($output) . '/.blackops-frontend-*') ?: []);
     }
 
+    public function testReplacesKnownLegacyOwnedTreeWithCurrentMarker(): void
+    {
+        $output = $this->directory . '/legacy';
+        mkdir($output);
+        file_put_contents($output . '/client.ts', 'legacy');
+        file_put_contents($output . '/manifest.json', $this->markerWithSchema(1, 'legacy-build'));
+
+        self::assertSame(2, new FrontendOutputWriter()->write($this->tree('current-build', 'current'), $output));
+        self::assertSame('current', file_get_contents($output . '/client.ts'));
+        self::assertStringContainsString('"schemaVersion": 2', (string) file_get_contents($output . '/manifest.json'));
+    }
+
+    public function testRejectsUnknownMarkerVersionWithoutChangingTree(): void
+    {
+        $output = $this->directory . '/unknown';
+        mkdir($output);
+        file_put_contents($output . '/client.ts', 'application-owned');
+        file_put_contents($output . '/manifest.json', $this->markerWithSchema(99, 'unknown-build'));
+
+        try {
+            new FrontendOutputWriter()->write($this->tree('current-build', 'generated'), $output);
+            self::fail('Unknown generated frontend marker was accepted.');
+        } catch (InvalidArgumentException $exception) {
+            self::assertStringContainsString('marker is invalid', $exception->getMessage());
+        }
+
+        self::assertSame('application-owned', file_get_contents($output . '/client.ts'));
+        self::assertStringContainsString('"schemaVersion": 99', (string) file_get_contents($output . '/manifest.json'));
+    }
+
     public function testRejectsNonMarkerDirectoryAndSymlinkWithoutChangingThem(): void
     {
         $nonMarker = $this->directory . '/non-marker';
@@ -103,6 +133,15 @@ final class FrontendOutputWriterTest extends TestCase
             'client.ts' => $client,
             'manifest.json' => new FrontendGenerationMarker($buildId, str_repeat('a', 64))->encode(),
         ]);
+    }
+
+    private function markerWithSchema(int $schemaVersion, string $buildId): string
+    {
+        return str_replace(
+            '"schemaVersion": 2',
+            sprintf('"schemaVersion": %d', $schemaVersion),
+            new FrontendGenerationMarker($buildId, str_repeat('a', 64))->encode(),
+        );
     }
 
     private function remove(string $path): void

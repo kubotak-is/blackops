@@ -105,7 +105,7 @@ final readonly class FrontendOutputWriter
         if ($contents === false) {
             throw new InvalidArgumentException('Generated frontend ownership marker cannot be read.');
         }
-        FrontendGenerationMarker::decode($contents);
+        FrontendGenerationMarker::decodeOwned($contents);
     }
 
     private function createParent(string $parent): void
