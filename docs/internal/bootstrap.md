@@ -178,11 +178,11 @@ operation, HTTP, and frontend contract manifests. Changing the requested build I
 so an earlier release's manifests are not reused.
 
 Each manifest is a PHP array with a versioned envelope. `schemaVersion` is owned by each artifact type; the
-operation and frontend contract manifests currently use version 1, while the HTTP manifest uses version 2:
+operation manifest currently uses version 1, while the HTTP and frontend contract manifests use version 2:
 
 ```php
 return [
-    'schemaVersion' => 1, // Example: use the artifact type's current schema version.
+    'schemaVersion' => 2, // HTTP/frontend example; the operation manifest currently uses version 1.
     'applicationBuildId' => 'release-2026-07-11.1',
     'payload' => [
         // Operation, HTTP, or frontend contract metadata.
@@ -190,7 +190,14 @@ return [
 ];
 ```
 
-The frontend contract contains only routed Operation metadata required by later TypeScript generation: normalized scalar types, nullability, requiredness, binding source and transport name, validation rule metadata, sensitive-input presence, outcome shape, execution strategy, and deterministic module/export names. It excludes constructor default values, examples, runtime values, credentials, environment data, and absolute source paths. Unsupported types, sensitive outcome properties, mismatched source manifests, and naming collisions fail the build instead of falling back to `any` or source rediscovery.
+The frontend contract contains only routed Operation metadata required by later TypeScript generation. Its scalar
+kinds preserve PHP native intent as `string`, `integer`, `float`, or `boolean`; a later generator can map both
+numeric kinds to TypeScript `number` without losing the distinction needed for request encoding and outcome
+decoding. The artifact also records nullability, requiredness, binding source and transport name, validation rule
+metadata, sensitive-input presence, outcome shape, execution strategy, and deterministic module/export names. It
+excludes constructor default values, examples, runtime values, credentials, environment data, and absolute source
+paths. Unsupported types, sensitive outcome properties, mismatched source manifests, and naming collisions fail the
+build instead of falling back to `any` or source rediscovery.
 
 The generated artifacts contain scalar values, arrays, class names, synthetic runtime service definitions, and Ray.Aop proxy classes. They must not contain credentials, resolved database connection parameters, tokens, environment secrets, closures, or live service instances. `DatabaseManager`, the default DBAL `Connection`, and the internal transaction runtime are synthetic definitions. HTTP and deferred worker composition set them before resolving application handlers, policies, or middleware. The transaction runtime receives the same execution-scope provider used by inline or deferred operation execution. Container compilation validates transactional connection names against the accepted configuration snapshot but does not connect to a database.
 

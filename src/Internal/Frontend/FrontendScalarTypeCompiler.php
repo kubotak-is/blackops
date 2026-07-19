@@ -55,7 +55,8 @@ final readonly class FrontendScalarTypeCompiler
 
         return match ($type->getName()) {
             'string' => 'string',
-            'int', 'float' => 'number',
+            'int' => 'integer',
+            'float' => 'float',
             'bool' => 'boolean',
             default => throw new InvalidArgumentException('Frontend contract does not support this scalar type.'),
         };

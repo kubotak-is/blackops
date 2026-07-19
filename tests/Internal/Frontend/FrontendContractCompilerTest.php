@@ -146,11 +146,11 @@ final class FrontendContractCompilerTest extends TestCase
         self::assertSame('inline', $order->strategy);
         self::assertSame('outcome', $order->outcome->mode);
         self::assertSame(
-            ['created', 'note', 'total'],
+            ['count', 'created', 'note', 'total'],
             array_map(static fn($field): string => $field->name, $order->outcome->fields),
         );
         self::assertSame(
-            ['boolean', 'string', 'number'],
+            ['integer', 'boolean', 'string', 'float'],
             array_map(static fn($field): string => $field->type, $order->outcome->fields),
         );
 
@@ -166,6 +166,9 @@ final class FrontendContractCompilerTest extends TestCase
         self::assertSame(['query', 'filter'], [$fields['filter']->source, $fields['filter']->transportName]);
         self::assertFalse($fields['filter']->required);
         self::assertTrue($fields['filter']->nullable);
+        self::assertSame('boolean', $fields['expedited']->type);
+        self::assertSame('integer', $fields['quantity']->type);
+        self::assertSame('float', $fields['total']->type);
         self::assertTrue($fields['secret']->sensitive);
         self::assertSame(
             ['choice'],
@@ -375,6 +378,8 @@ final readonly class FrontendCreateValue implements OperationValue
         public string $reference,
         #[Range(min: 1, max: 5000)]
         public float $total,
+        public int $quantity,
+        public bool $expedited,
         #[Choice(['draft', 'confirmed'])]
         public string $state,
         #[FromQuery]
@@ -387,6 +392,7 @@ final readonly class FrontendCreateValue implements OperationValue
 final readonly class FrontendCreated implements Outcome
 {
     public function __construct(
+        public int $count,
         public bool $created,
         public float $total,
         public ?string $note,

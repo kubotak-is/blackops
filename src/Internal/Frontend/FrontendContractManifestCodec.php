@@ -13,7 +13,9 @@ use InvalidArgumentException;
  */
 final readonly class FrontendContractManifestCodec
 {
-    public const SCHEMA_VERSION = 1;
+    public const SCHEMA_VERSION = 2;
+
+    private const array SCALAR_TYPES = ['string', 'integer', 'float', 'boolean'];
 
     /**
      * @return array{schemaVersion: int, applicationBuildId: string, payload: array{operations: list<array<string, mixed>>}}
@@ -144,7 +146,7 @@ final readonly class FrontendContractManifestCodec
 
         return new FrontendValueFieldContract(
             $this->string($data, 'name'),
-            $this->oneOf($data, 'type', ['string', 'number', 'boolean']),
+            $this->oneOf($data, 'type', self::SCALAR_TYPES),
             $this->boolean($data, 'nullable'),
             $this->boolean($data, 'required'),
             $this->oneOf($data, 'source', ['path', 'query', 'header', 'body']),
@@ -181,7 +183,7 @@ final readonly class FrontendContractManifestCodec
 
         return new FrontendOutcomeFieldContract(
             $this->string($data, 'name'),
-            $this->oneOf($data, 'type', ['string', 'number', 'boolean']),
+            $this->oneOf($data, 'type', self::SCALAR_TYPES),
             $this->boolean($data, 'nullable'),
         );
     }

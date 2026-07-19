@@ -111,6 +111,7 @@ final class CompileBuildArtifactsCommandTest extends TestCase
         self::assertSame(0, $status);
         self::assertSame('build-artifacts-123', $operationArtifact->applicationBuildId);
         self::assertSame(2, $httpArtifact->schemaVersion);
+        self::assertSame(FrontendContractManifestFile::SCHEMA_VERSION, $frontendArtifact->schemaVersion);
         self::assertSame($operationArtifact->applicationBuildId, $httpArtifact->applicationBuildId);
         self::assertSame($operationArtifact->applicationBuildId, $frontendArtifact->applicationBuildId);
         self::assertSame('build.operation', $httpArtifact->manifest->dispatcherData[0]['GET']['/build']);

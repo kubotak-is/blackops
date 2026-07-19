@@ -1,6 +1,6 @@
 # Installed Application Status
 
-Status: Phase 15 Frontend Contract Manifest in progress; Framework and Skeleton 1.1.0 Published
+Status: Phase 15 Frontend Operation Generation in progress; Framework and Skeleton 1.1.0 Published
 
 この文書はRepositoryのPhase Acceptance Evidenceを記録するFramework実装者向け資料であり、公開Documentation WebsiteのContent Sourceには含めない。利用者向けの現行機能と制約は[Guide MVP Status](../guide/mvp-status.md)を参照する。
 
@@ -76,6 +76,8 @@ Default Compose ServiceはPostgreSQLとWorker Mode HTTPだけである。Compose
 Application-aware `build:compile` はOperation／HTTP Manifestと同じApplication Build IDで `var/build/frontend.php` を生成する。この言語中立ArtifactにはHTTP Routeを持つOperationだけを含め、Operation Type、Method／Path、Inline／Deferred、Value Binding、Validation、Sensitive Input有無、Outcome、決定的なModule／Export名を保持する。
 
 Frontend ContractはTypeScript Sourceではなく、後続の`frontend:generate`がSource Reflectionへ戻らずに生成するためのBuild Artifactである。Scalar以外の型、Sensitive Outcome、Manifest不整合、Case-insensitive Naming CollisionはBuild Errorになる。Constructor Default実値、Credential、Environment、Example、Absolute Source Pathは保存しない。
+
+Frontend Contract Schema Version 2はPHP Native Scalar Kindを`string`、`integer`、`float`、`boolean`としてValueとOutcomeの両方に保持する。Legacy Version 1、旧`number`、未知KindはBuild Artifactとして拒否し、Freshness Checkで再Build対象にする。
 
 Production HTTP／Worker RuntimeはFrontend Contractを読み込まない。Backend Runtimeの起動Artifactは従来どおりOperation Manifest、HTTP Manifest、Containerであり、Frontend ArtifactはBuild／Generation境界だけに留まる。
 

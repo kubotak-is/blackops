@@ -16,6 +16,7 @@ use BlackOps\Core\OperationValue;
 use BlackOps\Core\Outcome;
 use BlackOps\Core\Registry\OperationProvider;
 use BlackOps\Database\DatabaseManager;
+use BlackOps\Http\Routing\HttpOperationManifestFile;
 use BlackOps\Internal\Application\ApplicationConfigurationSnapshot;
 use BlackOps\Internal\Console\ApplicationBuildCompileCommand;
 use BlackOps\Internal\Execution\ExecutionScopeProvider;
@@ -88,12 +89,15 @@ final class ApplicationBuildCompileCommandTest extends TestCase
         $transactionalMetadata = new OperationManifestFile()
             ->load($operationManifest)
             ->findByTypeId('application.build.transactional');
+        $operationArtifact = new OperationManifestFile()->loadArtifact($operationManifest);
+        $httpArtifact = new HttpOperationManifestFile()->loadArtifact($httpManifest);
+        $frontendArtifact = new FrontendContractManifestFile()->loadArtifact($frontendManifest);
 
         self::assertSame(0, $status);
-        self::assertSame(
-            'application-build-authorization',
-            new FrontendContractManifestFile()->loadArtifact($frontendManifest)->applicationBuildId,
-        );
+        self::assertSame(FrontendContractManifestFile::SCHEMA_VERSION, $frontendArtifact->schemaVersion);
+        self::assertSame('application-build-authorization', $operationArtifact->applicationBuildId);
+        self::assertSame($operationArtifact->applicationBuildId, $httpArtifact->applicationBuildId);
+        self::assertSame($operationArtifact->applicationBuildId, $frontendArtifact->applicationBuildId);
         self::assertSame(ApplicationBuildAuthorizationPolicy::class, $metadata?->authorizationPolicy);
         self::assertSame('app', $transactionalMetadata?->transactionConnection);
         self::assertInstanceOf(
