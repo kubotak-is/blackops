@@ -1,6 +1,6 @@
 # P15-003: Operation Object and Request Generation
 
-Status: Blocked — P15-003B Prerequisite
+Status: Ready
 
 ## Goal
 
@@ -54,7 +54,7 @@ P15-002のFrontend Contract Manifestだけを入力として、Framework-neutral
 - `develop/decisions/100-phase-15-operation-frontend-bridge.md`
 - `develop/decisions/101-http-scalar-binding-coercion.md`
 
-D101はA／A／Aで確定し、P15-003AのServer側Scalar BindingはAcceptedである。P15-003BでFrontend Contract Schema Version 2へNative Scalar Kindを保持し、Accepted後に同じCanonical変換をGenerated Runtimeへ実装する。
+D101はA／A／Aで確定し、P15-003AのServer側Scalar BindingとP15-003BのFrontend Contract Schema Version 2はAcceptedである。Generated RuntimeはArtifactのNative Scalar Kindから同じCanonical変換を実装する。
 
 ## Files Allowed to Change
 
@@ -172,6 +172,8 @@ Value Fieldがない場合も`.toRequest()`の第1引数はReadonly empty object
 - `credentials`と`signal`は値を変換せず`OperationRequest`へ渡す
 - Header名／値へ改行を含む場合は安全なGeneration／Runtime Errorにする
 
+Non-body ScalarはArtifact Kindに従ってD101のCanonical文字列へ変換する。`integer`は`Number.isSafeInteger()`を満たす有限整数だけを許可し、`float`は`Number.isFinite()`を満たす値だけを許可する。JavaScriptで正確に表現できない64-bit Integerを丸めて送信せず、ApplicationはそのようなIdentifierを`string`として宣言する。`boolean`は小文字`true`／`false`、`string`は値をそのまま使用する。Pathの`null`／`undefined`、Runtime Type不一致、Unsafe Integer、NaN／Infinityは送信Requestを作らず安全なRuntime Errorにする。
+
 `baseUrl`はHTTP／HTTPS OriginとOptional Base Pathだけを許可する。Credential、Query、Fragmentを拒否し、Trailing SlashとOperation Relative Pathを決定的に結合する。Global Mutable Client Configurationを追加しない。
 
 ## Output Safety and Atomicity
@@ -195,6 +197,7 @@ Value Fieldがない場合も`.toRequest()`の第1引数はReadonly empty object
 - [ ] Value／URL Parameter TypeがRequired／Optional／Nullable／Sensitiveを正しく表す
 - [ ] Path／Query／Header／Body BindingがHTTP Contractと一致する
 - [ ] JSON Body、`Content-Type`、Header Conflict、Base URLを安全に処理する
+- [ ] `integer`／`float`／`boolean`をD101形式へ変換し、Unsafe Integer／NaN／Infinityを拒否する
 - [ ] Non-marker Directory、Symlink、Application外Path、Traversalを拒否する
 - [ ] Generation Failureで既存有効Treeを保持しTemporary／BackupをCleanupする
 - [ ] Source Reflection、Credential、Default実値、Example、Absolute Source Pathを生成物へ含めない

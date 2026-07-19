@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-19T14:59:41+09:00
+Updated At: 2026-07-19T15:00:52+09:00
 
 ## Current Phase
 
@@ -8,17 +8,17 @@ Phase 15: Operation Frontend Bridge
 
 ## Current Task
 
-Task ID: P15-003B-frontend-scalar-kind
+Task ID: P15-003-operation-object-request-generation
 
-Task Packet: `develop/orchestration/tasks/P15-003B-frontend-scalar-kind.md`
+Task Packet: `develop/orchestration/tasks/P15-003-operation-object-request-generation.md`
 
-Specifications: `develop/spec/05-http.md`、`develop/spec/67-operation-frontend-bridge.md`、`develop/spec/68-phase-15-delivery-plan.md`、`develop/decisions/100-phase-15-operation-frontend-bridge.md`、`develop/decisions/101-http-scalar-binding-coercion.md`
+Specifications: `develop/spec/05-http.md`、`develop/spec/08-registry-and-manifest.md`、`develop/spec/25-sensitive-projection.md`、`develop/spec/44-public-application-bootstrap-api.md`、`develop/spec/48-public-console-kernel-composition.md`、`develop/spec/50-operation-authoring-and-build-discovery.md`、`develop/spec/67-operation-frontend-bridge.md`、`develop/spec/68-phase-15-delivery-plan.md`、`develop/decisions/092-project-cli-command-names.md`、`develop/decisions/094-experimental-versioning-and-release-surface.md`、`develop/decisions/100-phase-15-operation-frontend-bridge.md`、`develop/decisions/101-http-scalar-binding-coercion.md`
 
 ## Task Status
 
 Accepted
 
-Frontend Contract Schema Version 2、Value／Outcomeの4 Native Scalar Kind、Legacy Version 1／旧`number`／未知Kind拒否、Build ID／Freshness、Runtime非接続を実装した。Orchestrator Target 35 tests／335 assertions、Full 1298 tests／4810 assertions、Composer、Mago、Deptrac、Guardは全成功しAcceptedとした。
+P15-003AのServer Scalar BindingとP15-003BのFrontend Contract Schema Version 2はAccepted／Push済みである。Frontend ContractだけからTypeScript ESM Tree、immutable Operation Object、`.url()`／`.toRequest()`、Readonly Metadata、安全なOutput／Replaceを生成するP15-003をReadyとした。
 
 ## Last Accepted Task
 
@@ -49,13 +49,13 @@ P15-003B-frontend-scalar-kind
 
 ## Known Blockers
 
-P15-003Bを妨げるBlockerはない。P15-003 Operation Object Generationを開始できる。Documentation WebsiteはUser判断どおり未公開であり、Publication／Deployは行わない。
+P15-003を妨げるBlockerはない。Documentation WebsiteはUser判断どおり未公開であり、Publication／Deployは行わない。
 
 ## Required Next Action
 
-1. P15-003BをCommit／Pushする。
-2. P15-003 Operation Object and Request Generation Task PacketをReadyへ更新する。
-3. GPT-5.6 Luna High WorkerへP15-003を実装依頼する。
+1. P15-003 Ready CheckpointをCommit／Pushする。
+2. GPT-5.6 Luna High WorkerへP15-003を実装依頼する。
+3. Worker Report後、OrchestratorがGenerated Tree、Binding一致、Output Safety／Rollbackを独立Reviewする。
 
 ## P15-003B Frontend Scalar Kind Worker Verification
 
