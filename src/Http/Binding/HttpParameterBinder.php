@@ -15,6 +15,10 @@ use ReflectionParameter;
 
 final readonly class HttpParameterBinder
 {
+    public function __construct(
+        private HttpBoundScalarDecoder $scalars = new HttpBoundScalarDecoder(),
+    ) {}
+
     /**
      * @param array<string, string> $pathParameters
      * @param array<array-key, mixed> $query
@@ -30,15 +34,15 @@ final readonly class HttpParameterBinder
         $name = $parameter->getName();
 
         if (($source = $this->attribute($parameter, FromPath::class)) !== null) {
-            return $this->fromArray($pathParameters, $source->name ?? $name, $name);
+            return $this->fromNonBodyArray($parameter, $pathParameters, $source->name ?? $name);
         }
 
         if (($source = $this->attribute($parameter, FromQuery::class)) !== null) {
-            return $this->fromArray($query, $source->name ?? $name, $name);
+            return $this->fromNonBodyArray($parameter, $query, $source->name ?? $name);
         }
 
         if (($source = $this->attribute($parameter, FromHeader::class)) !== null) {
-            return $this->fromHeader($request, $source->name ?? $name);
+            return $this->fromHeader($parameter, $request, $source->name ?? $name);
         }
 
         if (($source = $this->attribute($parameter, FromBody::class)) !== null) {
@@ -89,12 +93,30 @@ final readonly class HttpParameterBinder
         return BoundHttpValue::found($value);
     }
 
-    private function fromHeader(ServerRequestInterface $request, string $name): BoundHttpValue
+    /**
+     * @param array<array-key, mixed> $values
+     */
+    private function fromNonBodyArray(ReflectionParameter $parameter, array $values, string $name): BoundHttpValue
     {
+        if (!array_key_exists($name, $values)) {
+            return BoundHttpValue::missing();
+        }
+
+        /** @var mixed $value */
+        $value = $values[$name];
+
+        return BoundHttpValue::found($this->scalars->decode($parameter, $value));
+    }
+
+    private function fromHeader(
+        ReflectionParameter $parameter,
+        ServerRequestInterface $request,
+        string $name,
+    ): BoundHttpValue {
         if (!$request->hasHeader($name)) {
             return BoundHttpValue::missing();
         }
 
-        return BoundHttpValue::found($request->getHeaderLine($name));
+        return BoundHttpValue::found($this->scalars->decode($parameter, $request->getHeaderLine($name)));
     }
 }

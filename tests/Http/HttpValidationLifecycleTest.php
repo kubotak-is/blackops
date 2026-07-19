@@ -19,6 +19,7 @@ use BlackOps\Core\Registry\OperationRegistry;
 use BlackOps\Core\Validation\Attribute\Email;
 use BlackOps\Core\Validation\Attribute\Regex;
 use BlackOps\Execution\Dispatcher;
+use BlackOps\Http\Attribute\FromQuery;
 use BlackOps\Http\Binding\OperationValueBinder;
 use BlackOps\Http\DeferredOperationAcceptor;
 use BlackOps\Http\OperationRequestHandler;
@@ -179,6 +180,33 @@ final class HttpValidationLifecycleTest extends TestCase
         self::assertSame($payload['violations'], $observer->records[1]->data['reason']['violations']);
     }
 
+    public function testInvalidSensitiveQueryScalarReturnsSafeCorrelatedBindingRejection(): void
+    {
+        $raw = '01-sensitive-page';
+        $journal = new ValidationRecordingJournal();
+        $observer = new ValidationRecordingObserver();
+        $handler = $this->handler(Inline::class, $journal, $observer);
+        $request = $this->request(
+            '{"email":"reader@example.com","quantity":1,"secret":"token-safe"}',
+        )->withQueryParams(['page' => $raw]);
+
+        $response = $handler->handle($request);
+        $payload = json_decode((string) $response->getBody(), true, flags: JSON_THROW_ON_ERROR);
+
+        self::assertSame(422, $response->getStatusCode());
+        self::assertIsArray($payload);
+        self::assertSame('validation', $payload['category']);
+        self::assertSame('validation.failed', $payload['code']);
+        self::assertSame([['field' => 'page', 'rule' => 'type', 'code' => 'binding.type']], $payload['violations']);
+        self::assertMatchesRegularExpression('/^[0-9a-f-]{36}$/', $payload['operationId']);
+        self::assertStringNotContainsString($raw, (string) $response->getBody());
+        self::assertCount(1, $journal->records);
+        self::assertSame(JournalEvent::OperationRejected, $journal->records[0]->event);
+        self::assertSame(1, $journal->records[0]->sequence);
+        self::assertStringNotContainsString($raw, serialize($journal->records));
+        self::assertStringNotContainsString($raw, serialize($observer->records));
+    }
+
     public function testDeferredValueFailureIsRejectedBeforeAcceptance(): void
     {
         $journal = new ValidationRecordingJournal();
@@ -194,6 +222,25 @@ final class HttpValidationLifecycleTest extends TestCase
             [JournalEvent::OperationReceived, JournalEvent::OperationRejected],
             array_map(static fn(JournalRecord $record): JournalEvent => $record->event, $journal->records),
         );
+        self::assertSame('deferred', $journal->records[0]->operation->strategy);
+    }
+
+    public function testDeferredScalarBindingFailureDoesNotReachAcceptance(): void
+    {
+        $journal = new ValidationRecordingJournal();
+        $observer = new ValidationRecordingObserver();
+        $deferred = new ValidationFailingDeferredAcceptor();
+        $handler = $this->handler(Deferred::class, $journal, $observer, $deferred);
+        $request = $this->request(
+            '{"email":"reader@example.com","quantity":1,"secret":"token-safe"}',
+        )->withQueryParams(['page' => '01']);
+
+        $response = $handler->handle($request);
+
+        self::assertSame(422, $response->getStatusCode());
+        self::assertFalse($deferred->accepted);
+        self::assertSame([JournalEvent::OperationRejected], array_column($journal->records, 'event'));
+        self::assertSame([1], array_column($journal->records, 'sequence'));
         self::assertSame('deferred', $journal->records[0]->operation->strategy);
     }
 
@@ -259,6 +306,9 @@ final readonly class ValidateSubmissionValue implements OperationValue
         #[Sensitive]
         #[Regex('/^token-[a-z]+$/')]
         public string $secret,
+        #[Sensitive]
+        #[FromQuery]
+        public int $page = 1,
     ) {}
 }
 

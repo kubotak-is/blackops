@@ -152,6 +152,19 @@ curl -sS -X POST -H 'Content-Type: application/json' \
 {"status":"rejected","operationId":"019f32ab-2be0-7b38-a0a7-1ab2f9687697","category":"validation","code":"validation.failed","violations":[{"field":"quantity","rule":"required","code":"binding.required"}]}
 ```
 
+Path、Query、Headerの値はWire上で文字列です。Value Constructorで`int`、`float`、`bool`を宣言すると、BlackOpsは次のCanonical形式だけを型変換します。Canonicalとは、同じ値を常に一つの曖昧さのない文字列で表す形式です。
+
+| 宣言型 | 受理するPath／Query／Header | 拒否例 |
+| --- | --- | --- |
+| `string` | 入力文字列をそのまま保持。空文字も受理 | 文字列以外 |
+| `int` | `0`、`-1`、`42`などPHP Integer範囲内の10進整数 | `+1`、`01`、`-0`、`1.0`、`1e2`、範囲外 |
+| `float` | `42`、`-0`、`1.5`、`1.25e+2`などJSON Number形式の有限数 | `+1`、`01`、`.5`、`1.`、`NaN`、`Infinity`、Overflow |
+| `bool` | 小文字の`true`または`false` | `TRUE`、`False`、`1`、`0`、`yes` |
+
+前後空白はすべて拒否します。Nullableな型でも空文字や文字列`null`を`null`へ変換しません。QueryやHeaderそのものがMissingの場合だけConstructor Defaultを使います。
+
+JSON Bodyは別の境界です。JSON Numberの`42`やBooleanの`false`はNative型として受理しますが、文字列`"42"`を`int`へ、`"false"`を`bool`へ変換しません。変換できないNon-body Scalarも同じ`binding.type`の422となり、Raw入力や変換理由はResponseとObserved Journalへ出力しません。
+
 ### 宣言的Value Validationは422
 
 BindingでTyped Valueを作った後、Execution Strategyを選ぶ前にPropertyへ付いた利用可能なAttributeを検証します。全Violationを集約し、`field`、`rule`、安定`code`だけをResponseとRejected Journalへ残します。Raw Input、Sensitive Value、Attribute設定は出しません。

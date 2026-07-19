@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-19T14:26:09+09:00
+Updated At: 2026-07-19T14:42:30+09:00
 
 ## Current Phase
 
@@ -16,13 +16,13 @@ Specifications: `develop/spec/05-http.md`、`develop/spec/25-sensitive-projectio
 
 ## Task Status
 
-Ready
+Accepted
 
-D101はA／A／Aで確定した。Path／Query／HeaderのCanonical文字列を宣言型へ厳密変換し、Invalid値を既存Operation ID付き422へ統合する。P15-003AをServer側Binding正本の先行TaskとしてReadyにし、Accepted後にP15-003のGenerated Request Runtimeへ同じ変換を実装する。
+D101に従うPath／Query／HeaderのCanonical Scalar Decode、Body非Coercion、Operation ID付き422、Sequence 1 Rejected、Deferred非受付、Sensitive／Raw非露出を実装した。Orchestrator Target 88 tests／386 assertions、Full 1295 tests／4787 assertions、Composer、Mago、Deptrac、Guardは全成功しAcceptedとした。
 
 ## Last Accepted Task
 
-P15-002-frontend-contract-manifest
+P15-003A-http-scalar-binding-coercion
 
 ## Pending Decisions
 
@@ -49,13 +49,46 @@ P15-002-frontend-contract-manifest
 
 ## Known Blockers
 
-P15-003Aを妨げるBlockerはない。P15-003 Operation Object GenerationはP15-003A Acceptedまで待機する。Documentation WebsiteはUser判断どおり未公開であり、Publication／Deployは行わない。
+P15-003Aを妨げるBlockerはない。P15-003開始前に、Frontend Contractが`int`／`float`を同じ`number`へ正規化しているためD101のCanonical Encodeを区別できないSchema不整合をTask Packetへ補正する。Documentation WebsiteはUser判断どおり未公開であり、Publication／Deployは行わない。
 
 ## Required Next Action
 
-1. D101、HTTP／Frontend Specification、P15-003A Task Packet、STATEをCommit／Pushする。
-2. GPT-5.6 Luna High WorkerへP15-003Aを実装依頼する。
-3. Worker Report後、OrchestratorがCanonical Decode、422 Lifecycle、Sensitive／Raw Value非露出を独立Reviewする。
+1. P15-003AをCommit／Pushする。
+2. P15-003 Task PacketへNative Scalar Kind保持とFrontend Manifest Schema Version補正を追加する。
+3. 補正後、GPT-5.6 Luna High WorkerへP15-003 Operation Object and Request Generationを依頼する。
+
+## P15-003A HTTP Scalar Binding Coercion Worker Verification
+
+```text
+docker compose run --rm app composer validate --strict
+docker compose run --rm app composer validate --strict examples/quickstart/composer.json
+docker compose run --rm app mago format --check src tests examples
+docker compose run --rm app mago lint
+docker compose run --rm app mago analyze
+Result: Composer Root／Quickstart valid。Mago全成功。
+
+docker compose run --rm app vendor/bin/phpunit --display-deprecations <P15-003A required targets>
+Result: OK (88 tests, 386 assertions)。
+
+docker compose run --rm app vendor/bin/phpunit --display-deprecations
+Result: OK (1295 tests, 4787 assertions)。
+
+docker compose run --rm app vendor/bin/deptrac
+Result: Violations 0 / Skipped 0 / Uncovered 0 / Allowed 2257 / Warnings 0 / Errors 0。
+
+Management Comment ID、TypeScript／JavaScript追加、Migration追加、git diff --check Guard
+Result: 成功。
+```
+
+### P15-003A Worker Notes
+
+Non-body ScalarだけをSource-aware Decoderへ通し、Bodyは既存Native Type Matcherへ留めた。Invalid Sensitive QueryはOperation ID付き422、Sequence 1のRejected一件だけとなり、Raw ValueはResponse／Canonical Rejected Data／Observed Journalへ出ていない。Deferred Scalar Binding FailureはAcceptorへ到達せず、既存PostgreSQL Deferred Binding Failure回帰と併せて202／Transport永続化を行わないことを確認した。
+
+### P15-003A Orchestrator Review
+
+Targetは88 tests／386 assertions、Full PHPUnitは1295 tests／4787 assertionsで成功した。Composer Root／Quickstart、Mago format／lint／analyze、Deptrac（Violations 0／Warnings 0／Errors 0）、Management／TypeScript／Migration／diff Guardも成功した。Canonical Decode、Body非Coercion、422 Lifecycle、Deferred非受付、Sensitive／Raw非露出を確認しAcceptedとした。
+
+次工程監査でFrontend ContractがPHP `int`／`float`を同じ`number`へ正規化している不整合を検出した。Server側TaskはAcceptedとし、Generated RuntimeがD101を実装できるようP15-003でFrontend Manifest SchemaへNative Scalar Kindを保持する。
 
 ## P15-002 Frontend Contract Manifest Worker Verification
 

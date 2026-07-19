@@ -103,6 +103,8 @@ Validation BackendはSymfony Validatorですが、ApplicationはBlackOps Namespa
 
 `FromBody`、`FromHeader`、`FromPath`、`FromQuery`の名前を省略するとProperty／Parameter名を使います。一つのValueへ複数の入力元を無秩序に混在させず、Route Contractが読み取れる形にしてください。
 
+`FromPath`、`FromQuery`、`FromHeader`はWire文字列を宣言した`string`、`int`、`float`、`bool`へ厳密にBindします。Booleanは小文字の`true`／`false`だけ、数値は空白や先頭`+`のないCanonical形式だけを受理します。`FromBody`はJSON Decoderが返すNative型を検査し、Body文字列を別のScalar型へ変換しません。詳細は[Validation](validation.md#binding-failureは422)を参照してください。
+
 ## Typed標準形の全体例
 
 ```php
