@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-19T23:15:39+09:00
+Updated At: 2026-07-19T23:25:15+09:00
 
 ## Current Phase
 
@@ -8,17 +8,17 @@ Phase 16: Deferred Status and Outcome API
 
 ## Current Task
 
-Task ID: P16-007-consumer-experience-and-closeout
+Task ID: P16-003B-canonical-journal-timestamp-precision
 
-Task Packet: `develop/orchestration/tasks/P16-007-consumer-experience-and-closeout.md`
+Task Packet: `develop/orchestration/tasks/P16-003B-canonical-journal-timestamp-precision.md`
 
-Specifications: `develop/spec/25-sensitive-projection.md`、`develop/spec/67-operation-frontend-bridge.md`、`develop/spec/69-deferred-status-and-outcome-api.md`、`develop/spec/70-phase-16-delivery-plan.md`、`develop/decisions/100-phase-15-operation-frontend-bridge.md`、`develop/decisions/102-phase-16-deferred-status-and-outcome-api.md`
+Specifications: `develop/spec/24-lifecycle-event-data.md`、`develop/spec/35-postgresql-transport-schema.md`、`develop/spec/37-postgresql-table-layout.md`、`develop/spec/69-deferred-status-and-outcome-api.md`、`develop/decisions/102-phase-16-deferred-status-and-outcome-api.md`
 
 ## Task Status
 
 Ready
 
-P16-003AをAccepted／Push済みとし、保持していたP16-007途中差分を再開する。Task PacketへNode Test Helperと、Quickstart明示Status Authorizer登録に伴う既存Application Runtime Test期待同期を追加した。Framework既定Denyは専用Resolver／Authorization回帰で維持する。
+P16-007の途中差分を保持して再度一時停止し、PostgreSQL Canonical Journal DataのRetry／Dead Letter時刻が`DATE_ATOM` Encodeでマイクロ秒を失う不整合を独立補正する。既存`TimeCodec`でUTCマイクロ秒を保持し、Legacy秒精度Decode互換とStatusの厳密時刻照合を維持する。
 
 ## Last Accepted Task
 
@@ -49,13 +49,15 @@ P16-003A-journal-execution-actor-continuity
 
 ## Known Blockers
 
-なし。Documentation WebsiteはUser判断どおり未公開であり、Publication／Deployは行わない。
+1. P16-003BでCanonical Journal DataのRetry／Dead Letter時刻精度を補正する。P16-007 Real HTTP JourneyはこのTask受理まで一時停止する。
+
+Documentation WebsiteはUser判断どおり未公開であり、Publication／Deployは行わない。
 
 ## Required Next Action
 
-1. OrchestratorがP16-007再開境界をCommit／Pushする。
-2. GPT-5.6 Luna High Workerが保持済み差分からP16-007を再開する。
-3. OrchestratorがReal HTTP／Documentation／全品質Gateを再実行してPhase 16をCloseする。
+1. OrchestratorがP16-003B Task PacketをCommit／Pushする。
+2. GPT-5.6 Luna High WorkerがCodec修正と実Database回帰を実装する。
+3. Orchestratorが別Commitとして受理後、P16-007を再開してReal HTTP／Documentation／全品質Gateを完走する。
 
 ## P16-006 Generated Wait Capability and Frontend CI Worker Verification
 
