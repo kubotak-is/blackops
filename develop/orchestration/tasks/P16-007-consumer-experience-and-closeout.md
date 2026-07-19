@@ -167,7 +167,7 @@ const terminal = await GenerateReport.wait(accepted.data.operationId, {
 5. First AttemptはRetry Scheduled、Delay後のSecond AttemptはCompletedになる
 6. `.wait()`が同じOperation IDのCompletedとTyped `ReportGenerated` Outcomeを返す
 7. Worker未起動の別Operationまたは短いDeadlineが有限`poll_timeout`になり、後続Worker処理を壊さない
-8. Missing／Invalid TokenはAuthentication 401、UnknownまたはDenyはSafe 404になりDetailを露出しない
+8. Missing TokenはAnonymousとしてAuthorizerがDenyしUnknownと同じSafe 404、Invalid TokenはAuthentication Middlewareで401となり、どちらもDetailを露出しない
 9. Terminalへ余分なRetry-Afterがなく、Malformed／5xxを自動Retryしない既存Generated Evidenceを弱めない
 
 E2EのProcess協調は固定Sleepだけに依存せず、Database Stateまたは安全な出力Fileを有限回PollしてNode Wait開始を確認してからWorkerを進める。Background ProcessはTrapで停止・回収する。
