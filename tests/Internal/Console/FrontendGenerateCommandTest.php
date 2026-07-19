@@ -80,13 +80,13 @@ final class FrontendGenerateCommandTest extends TestCase
         }
         self::assertStringContainsString('fetch(', strtolower($allBytes));
         self::assertStringContainsString('status(', strtolower($allBytes));
+        self::assertStringContainsString('wait(', strtolower($allBytes));
         self::assertStringContainsString('promise<', strtolower($allBytes));
         foreach ([
             'backoff',
-            'poll',
-            '.wait(',
-            'settimeout',
             'setinterval',
+            'exponential',
+            'jitter',
             'react',
             'vue',
             'svelte',

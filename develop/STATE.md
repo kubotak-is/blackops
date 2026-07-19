@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-19T21:59:02+09:00
+Updated At: 2026-07-19T22:30:27+09:00
 
 ## Current Phase
 
@@ -16,13 +16,13 @@ Specifications: `develop/spec/25-sensitive-projection.md`、`develop/spec/67-ope
 
 ## Task Status
 
-Ready
+Accepted
 
-P16-006 Task Packetを作成した。全Generated HTTP Operation ObjectへRequired Abort Signalと有限Deadlineを持つ`.wait()`を追加し、Retry-After、Terminal停止、Abort、Timeout、Error即時停止、Timer／Clock注入、Cleanup、並行Wait分離をPermanent Frontend Fixture／CIで固定する。`.fetch()`自動Polling、任意Retry Policy、Global Mutable State、Quickstart／Website／HTTP／Public PHP API／Manifest Schema変更は対象外とする。
+GPT-5.6 Luna High WorkerのP16-006実装をReviewし、Orchestrator独立再検証後にAcceptedとした。全Generated HTTP Operation ObjectへRequired Abort Signalと有限Deadlineを持つ`.wait()`を追加し、in-flight Status Requestを含むDeadline／Abort Race、Retry-After、Terminal停止、Error即時停止、Timer／Clock注入、全Cleanup、並行Wait分離をPermanent Frontend Fixture／既存CI Test Scriptで固定した。Wait固有ResultはTerminal 4 Stateだけを成功型に含み、単発Status／Fetch ResultへWait専用Codeを混ぜない。対象46 tests／460 assertions、全1421 tests／5634 assertions、Frontend Runtimeと全品質Guardが成功した。
 
 ## Last Accepted Task
 
-P16-005-generated-status-capability
+P16-006-generated-wait-and-frontend-ci
 
 ## Pending Decisions
 
@@ -53,9 +53,42 @@ P16-005-generated-status-capability
 
 ## Required Next Action
 
-1. OrchestratorがP16-006 Task PacketをCommit／Pushする。
-2. GPT-5.6 Luna High WorkerへP16-006実装を委譲する。
-3. Orchestratorが差分Review、Permanent Frontend Evidence、全品質Gateを再実行する。
+1. OrchestratorがP16-006をCommit／Pushする。
+2. P16-007 Consumer Experience and CloseoutのTask Packetを作成する。
+3. Quickstart／Skeleton／Guide／Website Source／Consumer E2Eを同期してPhase 16をCloseする。Website Publication／Deployは行わない。
+
+## P16-006 Generated Wait Capability and Frontend CI Worker Verification
+
+```text
+docker compose run --rm app composer validate --strict
+docker compose run --rm app composer validate --strict examples/quickstart/composer.json
+docker compose run --rm app mago format --check src tests
+docker compose run --rm app mago lint
+docker compose run --rm app mago analyze
+Result: Composer Root／Quickstart valid。Mago全成功。
+
+docker compose run --rm app vendor/bin/phpunit --display-deprecations \
+  tests/Internal/Frontend \
+  tests/Internal/Console/FrontendGenerateCommandTest.php \
+  tests/Internal/Console/FrontendCheckCommandTest.php
+Result: OK (46 tests, 460 assertions)。
+
+docker compose run --rm app vendor/bin/phpunit --display-deprecations
+Result: OK (1421 tests, 5634 assertions)。
+
+docker compose run --rm app vendor/bin/deptrac
+Result: Violations 0 / Skipped 0 / Uncovered 0 / Allowed 2526 / Warnings 0 / Errors 0。
+
+Frontend Fixture build:compile -> frontend:generate -> frontend:check -> pnpm test -> clean
+Result: 全成功。DOMなしStrict TypeScript、7 State／Terminal-only Wait Narrowing、never-resolving in-flight Fetch Deadline、Abort／Cleanup Race、Parallel IsolationをPermanent Evidenceで確認し、生成物をCleanup済み。
+
+Management ID／Sensitive／Forbidden Policy／Tracking／git diff --check Guards
+Result: 全成功。
+```
+
+### P16-006 Worker Notes
+
+`.wait()`は購読可能なStructural Abort Signalと正のSafe Integer Deadlineを必須化し、各in-flight Status RequestもDeadline TimerとRaceする。Strict Decode済みNon-terminalだけが`Retry-After`に従い、Terminal／HTTP／Transport Failureは即時停止する。Wait ResultはTerminal 4 StateとFailureだけを持ち、Status／Fetch ResultをWait専用Codeで広げない。Request／SleepのTimer登録中に同期Abortされる境界を含め、全経路でTimerをClearしListenerをRemoveする。Markerは4へ更新し、Owned Legacy 1／2／3の置換を維持した。詳細は`develop/orchestration/reports/P16-006-generated-wait-and-frontend-ci.md`を参照する。
 
 ## P16-005 Generated Status Capability Worker Verification
 

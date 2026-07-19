@@ -159,7 +159,11 @@ Generated Resultは`accepted`、`running`、`retry_scheduled`、`completed`、`r
 
 DecoderはSchema Version、Requested Operation ID、Generated Operation Type、State別のExact Key、Attempt、UTC Microseconds、Safe Error Codeを検査する。Non-terminal StateだけCanonicalな正整数`Retry-After`を要求し、`retryAfterSeconds`として返す。Terminal Stateに同Headerがある場合やContract不一致は`unexpected_response`になる。Raw Body、Credential、Exception DetailはResultへ保持しない。
 
-`.status()`はPolling、Retry、Timer、Cacheを実装しない。`.fetch()`もDeferred 202の後にStatusを自動取得しない。有限待機を行う`.wait()`は別のFrontend Runtime Capabilityとして扱う。
+`.status()`はPolling、Retry、Timer、Cacheを実装しない。`.fetch()`もDeferred 202の後にStatusを自動取得しない。
+
+`.wait(operationId, options)`はTerminal Stateまでの明示的な有限待機を提供する。購読可能なStructural Abort Signalと正のSafe Integer `maxWaitMilliseconds`は必須である。各Status RequestはAbortと固定DeadlineのTimerに競合し、Non-terminal ResponseだけがStrict Decode済み`Retry-After`に従って次のQueryへ進む。Terminal 4 State、401／404／410／500、Transport Failureは即時返却し、Wait固有Result型からNon-terminal Stateを除外する。
+
+Clock、Timer、Fetchは呼出単位のStructural Typeとして注入でき、DOM／Node型へ依存しない。Pre-abort、in-flight Abort、sleep中Abort、Timeout、成功、Errorの全経路でInvocation所有TimerをClearしListenerをRemoveする。一つのWaitのSignal、Deadline、Timer、Fetchは別のWaitと共有されず、`poll_timeout`／`invalid_wait_options`／Abort Reason／Elapsed／Deadline／Raw Errorを詳細情報として露出しない。
 
 ## Adapter Rules
 

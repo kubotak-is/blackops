@@ -6,7 +6,7 @@
     "postinstall": "node scripts/prepare.mjs",
     "typecheck": "tsc --project tsconfig.json",
     "runtime:compile": "tsc --project tsconfig.runtime.json && node scripts/write-runtime-package.mjs",
-    "test": "pnpm run typecheck && pnpm run runtime:compile && node scripts/runtime-test.mjs && node scripts/module-shape-test.mjs",
+    "test": "pnpm run typecheck && pnpm run runtime:compile && node scripts/runtime-test.mjs && node scripts/status-wait-runtime-test.mjs && node scripts/module-shape-test.mjs",
     "clean": "node scripts/clean.mjs"
   },
   "devDependencies": {

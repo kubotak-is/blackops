@@ -103,6 +103,33 @@ final readonly class FrontendTypeScriptGenerator
               fetch?: OperationFetch;
             }>;
 
+            export type OperationWaitSignal = Readonly<{
+              aborted: boolean;
+              reason?: unknown;
+              addEventListener(
+                type: 'abort',
+                listener: () => void,
+                options?: Readonly<{ once?: boolean }>,
+              ): void;
+              removeEventListener(type: 'abort', listener: () => void): void;
+            }>;
+
+            export type OperationWaitClock = Readonly<{
+              nowMilliseconds(): number;
+            }>;
+
+            export type OperationWaitTimer = Readonly<{
+              setTimeout(callback: () => void, milliseconds: number): unknown;
+              clearTimeout(handle: unknown): void;
+            }>;
+
+            export type OperationWaitOptions = Omit<OperationCallOptions, 'signal'> & Readonly<{
+              signal: OperationWaitSignal;
+              maxWaitMilliseconds: number;
+              clock?: OperationWaitClock;
+              timer?: OperationWaitTimer;
+            }>;
+
             export type DeferredAcknowledgement = Readonly<{
               operationId: string;
               acceptedAt: string;
@@ -146,6 +173,18 @@ final readonly class FrontendTypeScriptGenerator
                 | 'invalid_base_url'
                 | 'network_error'
                 | 'aborted'
+                | 'unexpected_response';
+            }>;
+
+            export type OperationWaitTransportError = Readonly<{
+              code:
+                | 'invalid_operation_id'
+                | 'missing_fetch'
+                | 'invalid_base_url'
+                | 'network_error'
+                | 'aborted'
+                | 'invalid_wait_options'
+                | 'poll_timeout'
                 | 'unexpected_response';
             }>;
 
@@ -282,6 +321,62 @@ final readonly class FrontendTypeScriptGenerator
                   error: OperationStatusTransportError;
                 }>;
 
+            export type OperationWaitResult<TType extends string, TOutcome> =
+              | Readonly<{
+                  ok: true;
+                  kind: 'completed';
+                  status: 200;
+                  data: OperationCompletedStatus<TType, TOutcome>;
+                }>
+              | Readonly<{
+                  ok: true;
+                  kind: 'rejected';
+                  status: 200;
+                  data: OperationRejectedStatus<TType>;
+                }>
+              | Readonly<{
+                  ok: true;
+                  kind: 'failed';
+                  status: 200;
+                  data: OperationFailedStatus<TType>;
+                }>
+              | Readonly<{
+                  ok: true;
+                  kind: 'dead_lettered';
+                  status: 200;
+                  data: OperationDeadLetteredStatus<TType>;
+                }>
+              | Readonly<{
+                  ok: false;
+                  kind: 'authentication';
+                  status: 401;
+                  error: Readonly<{ code: string }>;
+                }>
+              | Readonly<{
+                  ok: false;
+                  kind: 'unavailable';
+                  status: 404;
+                  error: Readonly<{ code: 'operation_unavailable' }>;
+                }>
+              | Readonly<{
+                  ok: false;
+                  kind: 'expired';
+                  status: 410;
+                  error: Readonly<{ code: 'operation_expired' }>;
+                }>
+              | Readonly<{
+                  ok: false;
+                  kind: 'internal';
+                  status: 500;
+                  error: Readonly<{ code: 'internal_error' }>;
+                }>
+              | Readonly<{
+                  ok: false;
+                  kind: 'transport';
+                  status: null;
+                  error: OperationWaitTransportError;
+                }>;
+
             export type OperationFailureResult<TField extends string> =
               | Readonly<{ ok: false; kind: 'protocol'; status: 400; error: ProtocolError }>
               | Readonly<{
@@ -333,6 +428,11 @@ final readonly class FrontendTypeScriptGenerator
               OperationRequest,
               OperationRequestOptions,
               OperationStatusResult,
+              OperationWaitClock,
+              OperationWaitOptions,
+              OperationWaitSignal,
+              OperationWaitTimer,
+              OperationWaitResult,
               ValidationRejection,
               ValidationViolation,
             } from './types';
@@ -794,6 +894,510 @@ final readonly class FrontendTypeScriptGenerator
                 operationId,
                 contract,
               );
+            }
+
+            export async function waitForOperationStatus<TType extends string, TOutcome>(
+              operationId: string,
+              options: OperationWaitOptions,
+              contract: OperationStatusResponseContract<TType>,
+            ): Promise<OperationWaitResult<TType, TOutcome>> {
+              if (!isCanonicalOperationId(operationId)) {
+                return waitTransportResult('invalid_operation_id');
+              }
+
+              const wait = resolveWaitInvocation(options);
+              if (wait === undefined) {
+                return waitTransportResult('invalid_wait_options');
+              }
+              const initialAbort = readWaitAbort(wait.signal);
+              if (initialAbort === undefined) {
+                return waitTransportResult('invalid_wait_options');
+              }
+              if (initialAbort) {
+                return waitTransportResult('aborted');
+              }
+
+              const startedAt = readWaitClock(wait.clock);
+              if (startedAt === undefined || wait.maxWaitMilliseconds > Number.MAX_SAFE_INTEGER - startedAt) {
+                return waitTransportResult('invalid_wait_options');
+              }
+              const deadline = startedAt + wait.maxWaitMilliseconds;
+              let previousClock = startedAt;
+
+              while (true) {
+                const beforeRequestAbort = readWaitAbort(wait.signal);
+                if (beforeRequestAbort === undefined) {
+                  return waitTransportResult('invalid_wait_options');
+                }
+                if (beforeRequestAbort) {
+                  return waitTransportResult('aborted');
+                }
+
+                const beforeRequest = readWaitClock(wait.clock, previousClock);
+                if (beforeRequest === undefined) {
+                  return waitTransportResult('invalid_wait_options');
+                }
+                previousClock = beforeRequest;
+                if (beforeRequest >= deadline) {
+                  return waitTransportResult('poll_timeout');
+                }
+
+                const request = await fetchOperationStatusWithinWait<TType, TOutcome>(
+                  operationId,
+                  options,
+                  contract,
+                  wait.signal,
+                  wait.timer,
+                  deadline - beforeRequest,
+                );
+                if (request.kind === 'aborted') {
+                  return waitTransportResult('aborted');
+                }
+                if (request.kind === 'poll_timeout') {
+                  return waitTransportResult('poll_timeout');
+                }
+                if (request.kind === 'invalid_wait_options') {
+                  return waitTransportResult('invalid_wait_options');
+                }
+                const result = request.result;
+                if (!result.ok) {
+                  return result;
+                }
+                if (!isNonTerminalStatus(result)) {
+                  return result;
+                }
+
+                const observedAt = readWaitClock(wait.clock, previousClock);
+                if (observedAt === undefined) {
+                  return waitTransportResult('invalid_wait_options');
+                }
+                previousClock = observedAt;
+                if (observedAt >= deadline) {
+                  return waitTransportResult('poll_timeout');
+                }
+
+                const remaining = deadline - observedAt;
+                const retryMilliseconds = result.retryAfterSeconds > Number.MAX_SAFE_INTEGER / 1000
+                  ? Number.MAX_SAFE_INTEGER
+                  : result.retryAfterSeconds * 1000;
+                const reachesDeadline = retryMilliseconds >= remaining;
+                const delay = reachesDeadline ? remaining : retryMilliseconds;
+                const sleep = await sleepForOperationWait(wait.signal, wait.timer, delay);
+                if (sleep === 'aborted') {
+                  return waitTransportResult('aborted');
+                }
+                if (sleep === 'invalid_wait_options') {
+                  return waitTransportResult('invalid_wait_options');
+                }
+
+                const afterSleepAbort = readWaitAbort(wait.signal);
+                if (afterSleepAbort === undefined) {
+                  return waitTransportResult('invalid_wait_options');
+                }
+                if (afterSleepAbort) {
+                  return waitTransportResult('aborted');
+                }
+                const afterSleep = readWaitClock(wait.clock, previousClock);
+                if (afterSleep === undefined) {
+                  return waitTransportResult('invalid_wait_options');
+                }
+                previousClock = afterSleep;
+                if (reachesDeadline || afterSleep >= deadline) {
+                  return waitTransportResult('poll_timeout');
+                }
+              }
+            }
+
+            type OperationWaitInvocation = Readonly<{
+              signal: OperationWaitSignal;
+              maxWaitMilliseconds: number;
+              clock: OperationWaitClock;
+              timer: OperationWaitTimer;
+            }>;
+
+            type OperationWaitSleepResult = 'elapsed' | 'aborted' | 'invalid_wait_options';
+
+            type OperationWaitRequestResult<TType extends string, TOutcome> =
+              | Readonly<{ kind: 'status'; result: OperationStatusResult<TType, TOutcome> }>
+              | Readonly<{ kind: 'aborted' }>
+              | Readonly<{ kind: 'poll_timeout' }>
+              | Readonly<{ kind: 'invalid_wait_options' }>;
+
+            function resolveWaitInvocation(options: unknown): OperationWaitInvocation | undefined {
+              try {
+                if (!isRecord(options) || !Number.isSafeInteger(options.maxWaitMilliseconds)
+                  || (options.maxWaitMilliseconds as number) <= 0) {
+                  return undefined;
+                }
+                const signal = options.signal;
+                if (!isRecord(signal)
+                  || typeof signal.addEventListener !== 'function'
+                  || typeof signal.removeEventListener !== 'function') {
+                  return undefined;
+                }
+                const clock = resolveWaitClock(options.clock);
+                const timer = resolveWaitTimer(options.timer);
+                if (clock === undefined || timer === undefined) {
+                  return undefined;
+                }
+
+                return Object.freeze({
+                  signal: signal as OperationWaitSignal,
+                  maxWaitMilliseconds: options.maxWaitMilliseconds as number,
+                  clock,
+                  timer,
+                });
+              } catch {
+                return undefined;
+              }
+            }
+
+            function resolveWaitClock(value: unknown): OperationWaitClock | undefined {
+              if (value !== undefined) {
+                return isRecord(value) && typeof value.nowMilliseconds === 'function'
+                  ? value as OperationWaitClock
+                  : undefined;
+              }
+
+              try {
+                const now = Date.now;
+                return typeof now === 'function'
+                  ? Object.freeze({ nowMilliseconds: (): number => now.call(Date) })
+                  : undefined;
+              } catch {
+                return undefined;
+              }
+            }
+
+            function resolveWaitTimer(value: unknown): OperationWaitTimer | undefined {
+              if (value !== undefined) {
+                return isRecord(value)
+                  && typeof value.setTimeout === 'function'
+                  && typeof value.clearTimeout === 'function'
+                  ? value as OperationWaitTimer
+                  : undefined;
+              }
+
+              try {
+                const runtime = globalThis as unknown as Readonly<{
+                  setTimeout?: unknown;
+                  clearTimeout?: unknown;
+                }>;
+                const schedule = runtime.setTimeout;
+                const cancel = runtime.clearTimeout;
+                if (typeof schedule !== 'function' || typeof cancel !== 'function') {
+                  return undefined;
+                }
+
+                return Object.freeze({
+                  setTimeout: (callback: () => void, milliseconds: number): unknown => (
+                    schedule.call(runtime, callback, milliseconds)
+                  ),
+                  clearTimeout: (handle: unknown): void => {
+                    cancel.call(runtime, handle);
+                  },
+                });
+              } catch {
+                return undefined;
+              }
+            }
+
+            function readWaitAbort(signal: OperationWaitSignal): boolean | undefined {
+              try {
+                return typeof signal.aborted === 'boolean' ? signal.aborted : undefined;
+              } catch {
+                return undefined;
+              }
+            }
+
+            function readWaitClock(clock: OperationWaitClock, previous?: number): number | undefined {
+              try {
+                const value = clock.nowMilliseconds();
+                return Number.isSafeInteger(value)
+                  && value >= 0
+                  && (previous === undefined || value >= previous)
+                  ? value
+                  : undefined;
+              } catch {
+                return undefined;
+              }
+            }
+
+            function isNonTerminalStatus<TType extends string, TOutcome>(
+              result: OperationStatusResult<TType, TOutcome>,
+            ): result is Extract<OperationStatusResult<TType, TOutcome>, Readonly<{
+              ok: true;
+              kind: 'accepted' | 'running' | 'retry_scheduled';
+            }>> {
+              return result.ok
+                && (result.kind === 'accepted' || result.kind === 'running' || result.kind === 'retry_scheduled');
+            }
+
+            function fetchOperationStatusWithinWait<TType extends string, TOutcome>(
+              operationId: string,
+              options: OperationWaitOptions,
+              contract: OperationStatusResponseContract<TType>,
+              signal: OperationWaitSignal,
+              timer: OperationWaitTimer,
+              remainingMilliseconds: number,
+            ): Promise<OperationWaitRequestResult<TType, TOutcome>> {
+              return new Promise((resolve): void => {
+                let settled = false;
+                let listenerMayBeRegistered = false;
+                let timerRegistered = false;
+                let timerFiredBeforeRegistration = false;
+                let timerRegistrationInProgress = false;
+                let abortDuringTimerRegistration = false;
+                let timerHandle: unknown;
+
+                const finish = (
+                  result: OperationWaitRequestResult<TType, TOutcome>,
+                ): void => {
+                  if (settled) {
+                    return;
+                  }
+                  settled = true;
+                  let cleanupFailed = false;
+                  if (timerRegistered) {
+                    try {
+                      timer.clearTimeout(timerHandle);
+                    } catch {
+                      cleanupFailed = true;
+                    }
+                  }
+                  if (listenerMayBeRegistered) {
+                    try {
+                      signal.removeEventListener('abort', onAbort);
+                    } catch {
+                      cleanupFailed = true;
+                    }
+                  }
+                  resolve(cleanupFailed && result.kind !== 'aborted'
+                    ? Object.freeze({ kind: 'invalid_wait_options' })
+                    : result);
+                };
+                const onAbort = (): void => {
+                  if (timerRegistrationInProgress) {
+                    abortDuringTimerRegistration = true;
+                    return;
+                  }
+                  finish(Object.freeze({ kind: 'aborted' }));
+                };
+
+                listenerMayBeRegistered = true;
+                try {
+                  signal.addEventListener('abort', onAbort, Object.freeze({ once: true }));
+                } catch {
+                  finish(Object.freeze({ kind: 'invalid_wait_options' }));
+                  return;
+                }
+                if (settled) {
+                  return;
+                }
+                const afterRegistration = readWaitAbort(signal);
+                if (afterRegistration === undefined) {
+                  finish(Object.freeze({ kind: 'invalid_wait_options' }));
+                  return;
+                }
+                if (afterRegistration) {
+                  finish(Object.freeze({ kind: 'aborted' }));
+                  return;
+                }
+
+                fetchOperationStatus<TType, TOutcome>(operationId, options, contract).then(
+                  (result): void => {
+                    const afterRequestAbort = readWaitAbort(signal);
+                    if (afterRequestAbort === undefined) {
+                      finish(Object.freeze({ kind: 'invalid_wait_options' }));
+                    } else if (afterRequestAbort) {
+                      finish(Object.freeze({ kind: 'aborted' }));
+                    } else {
+                      finish(Object.freeze({ kind: 'status', result }));
+                    }
+                  },
+                  (): void => {
+                    finish(Object.freeze({
+                      kind: 'status',
+                      result: statusTransportResult('unexpected_response'),
+                    }));
+                  },
+                );
+
+                armWaitRequestDeadline();
+
+                function armWaitRequestDeadline(): void {
+                  if (settled) {
+                    return;
+                  }
+                  const beforeTimer = readWaitAbort(signal);
+                  if (beforeTimer === undefined) {
+                    finish(Object.freeze({ kind: 'invalid_wait_options' }));
+                    return;
+                  }
+                  if (beforeTimer) {
+                    finish(Object.freeze({ kind: 'aborted' }));
+                    return;
+                  }
+
+                  timerRegistrationInProgress = true;
+                  try {
+                    timerHandle = timer.setTimeout((): void => {
+                      if (!timerRegistered) {
+                        timerFiredBeforeRegistration = true;
+                        return;
+                      }
+                      const atDeadline = readWaitAbort(signal);
+                      finish(
+                        Object.freeze({
+                          kind: atDeadline === true ? 'aborted' : atDeadline === false
+                            ? 'poll_timeout'
+                            : 'invalid_wait_options',
+                        }),
+                      );
+                    }, remainingMilliseconds);
+                    timerRegistered = true;
+                  } catch {
+                    timerRegistrationInProgress = false;
+                    finish(Object.freeze({ kind: abortDuringTimerRegistration
+                      ? 'aborted'
+                      : 'invalid_wait_options' }));
+                    return;
+                  }
+                  timerRegistrationInProgress = false;
+                  if (abortDuringTimerRegistration) {
+                    finish(Object.freeze({ kind: 'aborted' }));
+                    return;
+                  }
+                  if (timerFiredBeforeRegistration) {
+                    const atDeadline = readWaitAbort(signal);
+                    finish(
+                      Object.freeze({
+                        kind: atDeadline === true ? 'aborted' : atDeadline === false
+                          ? 'poll_timeout'
+                          : 'invalid_wait_options',
+                      }),
+                    );
+                    return;
+                  }
+                  if (settled) {
+                    return;
+                  }
+
+                  const afterTimer = readWaitAbort(signal);
+                  if (afterTimer === undefined) {
+                    finish(Object.freeze({ kind: 'invalid_wait_options' }));
+                  } else if (afterTimer) {
+                    finish(Object.freeze({ kind: 'aborted' }));
+                  }
+                }
+              });
+            }
+
+            function sleepForOperationWait(
+              signal: OperationWaitSignal,
+              timer: OperationWaitTimer,
+              milliseconds: number,
+            ): Promise<OperationWaitSleepResult> {
+              const beforeRegistration = readWaitAbort(signal);
+              if (beforeRegistration === undefined) {
+                return Promise.resolve('invalid_wait_options');
+              }
+              if (beforeRegistration) {
+                return Promise.resolve('aborted');
+              }
+
+              return new Promise((resolve): void => {
+                let settled = false;
+                let listenerMayBeRegistered = false;
+                let timerRegistered = false;
+                let timerFiredBeforeRegistration = false;
+                let timerRegistrationInProgress = false;
+                let abortDuringTimerRegistration = false;
+                let timerHandle: unknown;
+
+                const finish = (result: OperationWaitSleepResult): void => {
+                  if (settled) {
+                    return;
+                  }
+                  settled = true;
+                  let cleanupFailed = false;
+                  if (timerRegistered) {
+                    try {
+                      timer.clearTimeout(timerHandle);
+                    } catch {
+                      cleanupFailed = true;
+                    }
+                  }
+                  if (listenerMayBeRegistered) {
+                    try {
+                      signal.removeEventListener('abort', onAbort);
+                    } catch {
+                      cleanupFailed = true;
+                    }
+                  }
+                  resolve(cleanupFailed && result !== 'aborted' ? 'invalid_wait_options' : result);
+                };
+                const onAbort = (): void => {
+                  if (timerRegistrationInProgress) {
+                    abortDuringTimerRegistration = true;
+                    return;
+                  }
+                  finish('aborted');
+                };
+
+                listenerMayBeRegistered = true;
+                try {
+                  signal.addEventListener('abort', onAbort, Object.freeze({ once: true }));
+                } catch {
+                  finish('invalid_wait_options');
+                  return;
+                }
+                if (settled) {
+                  return;
+                }
+
+                const afterRegistration = readWaitAbort(signal);
+                if (afterRegistration === undefined) {
+                  finish('invalid_wait_options');
+                  return;
+                }
+                if (afterRegistration) {
+                  finish('aborted');
+                  return;
+                }
+
+                timerRegistrationInProgress = true;
+                try {
+                  timerHandle = timer.setTimeout((): void => {
+                    if (!timerRegistered) {
+                      timerFiredBeforeRegistration = true;
+                      return;
+                    }
+                    finish('elapsed');
+                  }, milliseconds);
+                  timerRegistered = true;
+                } catch {
+                  timerRegistrationInProgress = false;
+                  finish(abortDuringTimerRegistration ? 'aborted' : 'invalid_wait_options');
+                  return;
+                }
+                timerRegistrationInProgress = false;
+                if (abortDuringTimerRegistration) {
+                  finish('aborted');
+                  return;
+                }
+                if (timerFiredBeforeRegistration) {
+                  finish('elapsed');
+                  return;
+                }
+
+                const afterTimer = readWaitAbort(signal);
+                if (afterTimer === undefined) {
+                  finish('invalid_wait_options');
+                } else if (afterTimer) {
+                  finish('aborted');
+                }
+              });
             }
 
             function statusRequestHeaders(
@@ -1427,6 +2031,25 @@ final readonly class FrontendTypeScriptGenerator
                 error: Object.freeze({ code }),
               });
             }
+
+            function waitTransportResult(
+              code:
+                | 'invalid_operation_id'
+                | 'missing_fetch'
+                | 'invalid_base_url'
+                | 'network_error'
+                | 'aborted'
+                | 'invalid_wait_options'
+                | 'poll_timeout'
+                | 'unexpected_response',
+            ): OperationWaitResult<never, never> {
+              return Object.freeze({
+                ok: false,
+                kind: 'transport',
+                status: null,
+                error: Object.freeze({ code }),
+              });
+            }
             CLIENT . "\n";
     }
 
@@ -1439,6 +2062,7 @@ final readonly class FrontendTypeScriptGenerator
         $fieldName = $operation->exportName . 'Field';
         $resultName = $operation->exportName . 'Result';
         $statusResultName = $operation->exportName . 'StatusResult';
+        $waitResultName = $operation->exportName . 'WaitResult';
         $urlFields = array_values(array_filter(
             $operation->value->fields,
             static fn(FrontendValueFieldContract $field): bool => in_array(
@@ -1456,11 +2080,11 @@ final readonly class FrontendTypeScriptGenerator
         /** @var list<string> $lines */
         $lines = [
             sprintf(
-                "import { buildOperationRequest, buildOperationUrl, fetchOperation, fetchOperationStatus } from '%sclient';",
+                "import { buildOperationRequest, buildOperationUrl, fetchOperation, fetchOperationStatus, waitForOperationStatus } from '%sclient';",
                 $import,
             ),
             sprintf(
-                "import type { %s, OperationCallOptions, OperationRequest, OperationRequestOptions, OperationStatusResult } from '%stypes';",
+                "import type { %s, OperationCallOptions, OperationRequest, OperationRequestOptions, OperationStatusResult, OperationWaitOptions, OperationWaitResult } from '%stypes';",
                 $resultType,
                 $import,
             ),
@@ -1499,6 +2123,12 @@ final readonly class FrontendTypeScriptGenerator
         $lines[] = sprintf(
             'export type %s = OperationStatusResult<%s, %s>;',
             $statusResultName,
+            $this->json($operation->typeId),
+            $outcomeName,
+        );
+        $lines[] = sprintf(
+            'export type %s = OperationWaitResult<%s, %s>;',
+            $waitResultName,
             $this->json($operation->typeId),
             $outcomeName,
         );
@@ -1594,6 +2224,16 @@ final readonly class FrontendTypeScriptGenerator
         );
         $lines[] = sprintf(
             '    return fetchOperationStatus<%s, %s>(operationId, options, statusResponseContract);',
+            $this->json($operation->typeId),
+            $outcomeName,
+        );
+        $lines[] = '  },';
+        $lines[] = sprintf(
+            '  wait(operationId: string, options: OperationWaitOptions): Promise<%s> {',
+            $waitResultName,
+        );
+        $lines[] = sprintf(
+            '    return waitForOperationStatus<%s, %s>(operationId, options, statusResponseContract);',
             $this->json($operation->typeId),
             $outcomeName,
         );

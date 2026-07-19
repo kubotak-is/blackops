@@ -40,7 +40,7 @@ final class FrontendTypeScriptGeneratorTest extends TestCase
         $marker = FrontendGenerationMarker::decode($first->files['manifest.json']);
         self::assertSame('frontend-generation-build', $marker->applicationBuildId);
         self::assertMatchesRegularExpression('/^[a-f0-9]{64}$/D', $marker->contractHash);
-        self::assertStringContainsString('"schemaVersion": 3', $first->files['manifest.json']);
+        self::assertStringContainsString('"schemaVersion": 4', $first->files['manifest.json']);
 
         $operation = $first->files['operations/order/create-order.ts'];
         self::assertStringContainsString('export const CreateOrder = Object.freeze({', $operation);
@@ -55,8 +55,10 @@ final class FrontendTypeScriptGeneratorTest extends TestCase
         );
         self::assertStringContainsString('fetch(value: CreateOrderValue, options?: OperationCallOptions)', $operation);
         self::assertStringContainsString('status(operationId: string, options?: OperationCallOptions)', $operation);
+        self::assertStringContainsString('wait(operationId: string, options: OperationWaitOptions)', $operation);
         self::assertStringContainsString('Promise<CreateOrderResult>', $operation);
         self::assertStringContainsString('Promise<CreateOrderStatusResult>', $operation);
+        self::assertStringContainsString('Promise<CreateOrderWaitResult>', $operation);
         self::assertStringContainsString('export type CreateOrderOutcome', $operation);
         self::assertStringContainsString('export type CreateOrderField =', $operation);
         self::assertStringContainsString('export type CreateOrderResult =', $operation);
@@ -64,7 +66,14 @@ final class FrontendTypeScriptGeneratorTest extends TestCase
             'export type CreateOrderStatusResult = OperationStatusResult<"order.create", CreateOrderOutcome>;',
             $operation,
         );
-        self::assertStringNotContainsString('.wait(', $operation);
+        self::assertStringContainsString(
+            'export type CreateOrderWaitResult = OperationWaitResult<"order.create", CreateOrderOutcome>;',
+            $operation,
+        );
+        self::assertStringContainsString(
+            'return waitForOperationStatus<"order.create", CreateOrderOutcome>',
+            $operation,
+        );
     }
 
     public function testGeneratesValueAndUrlTypesFromPropertyNamesAndBindingSources(): void
@@ -215,6 +224,10 @@ final class FrontendTypeScriptGeneratorTest extends TestCase
             'status(operationId: string, options?: OperationCallOptions): Promise<ShowWelcomeStatusResult>',
             $source,
         );
+        self::assertStringContainsString(
+            'wait(operationId: string, options: OperationWaitOptions): Promise<ShowWelcomeWaitResult>',
+            $source,
+        );
         self::assertStringContainsString('Promise<ShowWelcomeResult>', $source);
     }
 
@@ -247,12 +260,33 @@ final class FrontendTypeScriptGeneratorTest extends TestCase
             "kind: 'unavailable'",
             "kind: 'expired'",
             "'invalid_operation_id'",
+            'export type OperationWaitSignal',
+            "addEventListener(\n    type: 'abort'",
+            "removeEventListener(type: 'abort'",
+            'export type OperationWaitClock',
+            'nowMilliseconds(): number',
+            'export type OperationWaitTimer',
+            'export type OperationWaitOptions',
+            'export type OperationWaitResult<TType extends string, TOutcome>',
+            'export type OperationWaitTransportError',
+            'signal: OperationWaitSignal',
+            'maxWaitMilliseconds: number',
+            "'invalid_wait_options'",
+            "'poll_timeout'",
         ] as $contract) {
             self::assertStringContainsString($contract, $types);
         }
         foreach (['Window', 'RequestInit', 'NodeJS', 'react', 'vue', 'svelte'] as $forbidden) {
             self::assertStringNotContainsString($forbidden, $types);
         }
+        $statusTransport = substr(
+            $types,
+            strpos($types, 'export type OperationStatusTransportError'),
+            strpos($types, 'export type OperationWaitTransportError')
+            - strpos($types, 'export type OperationStatusTransportError'),
+        );
+        self::assertStringNotContainsString('invalid_wait_options', $statusTransport);
+        self::assertStringNotContainsString('poll_timeout', $statusTransport);
     }
 
     public function testGeneratesOperationSpecificOutcomeFieldAndResultContracts(): void
@@ -397,7 +431,7 @@ final class FrontendTypeScriptGeneratorTest extends TestCase
         ] as $contract) {
             self::assertStringContainsString($contract, $client);
         }
-        foreach (['backoff', 'poll', 'credential-secret', 'sensitive-value'] as $forbidden) {
+        foreach (['exponential', 'jitter', 'credential-secret', 'sensitive-value'] as $forbidden) {
             self::assertStringNotContainsString($forbidden, strtolower($client));
         }
         self::assertStringNotContainsString('message:', $client);
@@ -446,10 +480,44 @@ final class FrontendTypeScriptGeneratorTest extends TestCase
             self::assertStringContainsString($contract, $client);
         }
 
-        foreach (['setTimeout', 'setInterval', '.wait(', 'backoff', 'pollOperation'] as $forbidden) {
+        foreach (['setInterval', 'backoff', 'pollOperation'] as $forbidden) {
             self::assertStringNotContainsString($forbidden, $client);
         }
         self::assertSame(1, substr_count($client, 'await operationFetch(url, Object.freeze(request))'));
+    }
+
+    public function testGeneratedClientWaitsWithFiniteDeadlineAbortAndInvocationLocalRuntime(): void
+    {
+        $client = new FrontendTypeScriptGenerator()->generate(FrontendContractFixture::artifact())->files['client.ts'];
+
+        foreach ([
+            'export async function waitForOperationStatus<TType extends string, TOutcome>',
+            'options: OperationWaitOptions',
+            "return waitTransportResult('invalid_wait_options')",
+            "return waitTransportResult('poll_timeout')",
+            'const deadline = startedAt + wait.maxWaitMilliseconds',
+            'fetchOperationStatus<TType, TOutcome>(operationId, options, contract).then(',
+            'isNonTerminalStatus(result)',
+            'result.retryAfterSeconds * 1000',
+            'const reachesDeadline = retryMilliseconds >= remaining',
+            'const delay = reachesDeadline ? remaining : retryMilliseconds',
+            'sleepForOperationWait(wait.signal, wait.timer, delay)',
+            "sleep === 'aborted'",
+            'readWaitClock(wait.clock, previousClock)',
+            'value >= previous',
+            "signal.addEventListener('abort', onAbort, Object.freeze({ once: true }))",
+            "signal.removeEventListener('abort', onAbort)",
+            'timer.clearTimeout(timerHandle)',
+            'const runtime = globalThis as unknown as Readonly<{',
+            'setTimeout?: unknown',
+            'clearTimeout?: unknown',
+        ] as $contract) {
+            self::assertStringContainsString($contract, $client);
+        }
+
+        foreach (['setInterval', 'exponential', 'backoff', 'jitter', 'retryCount', 'globalClient'] as $forbidden) {
+            self::assertStringNotContainsString($forbidden, $client);
+        }
     }
 
     public function testRejectsTraversalAndInvalidOrDuplicatePathBindingMetadata(): void
