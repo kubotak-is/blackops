@@ -33,6 +33,7 @@ The current command set is:
 | Command | Class | Responsibility |
 | --- | --- | --- |
 | `build:compile` | `BlackOps\Internal\Console\ApplicationBuildCompileCommand` | Compile operation, HTTP, and frontend contract manifests plus the runtime container together. |
+| `frontend:generate` | `BlackOps\Internal\Console\FrontendGenerateCommand` | Generate the deterministic TypeScript operation-object tree from the current frontend contract manifest. |
 | `operation:list` | `BlackOps\Internal\Console\ApplicationOperationListCommand` | Discover application operations and list their type ID, definition, and execution strategy. |
 | `blackops:operation-manifest:compile` | `BlackOps\Internal\Console\CompileOperationManifestCommand` | Compile the operation manifest from explicit providers and optional development discovery. |
 | `blackops:http-manifest:compile` | `BlackOps\Internal\Console\CompileHttpManifestCommand` | Compile the HTTP manifest from explicit providers and optional development discovery. |
@@ -47,6 +48,27 @@ The current command set is:
 | `database:status` | `BlackOps\Internal\Console\DatabaseMigrationStatusCommand` | Show applied and pending framework migration versions without changing the database. |
 
 For normal build pipelines, prefer the unified build command so operation metadata, HTTP route metadata, frontend contract metadata, and container definitions are generated from the same provider set.
+
+TypeScript generation is a separate explicit step:
+
+```bash
+php blackops build:compile
+php blackops frontend:generate
+```
+
+`frontend:generate` loads only the accepted `app.build.frontend_manifest`; it does not rediscover PHP source or implicitly run `build:compile`. The artifact Application Build ID must match `app.build.application_build_id`. Missing, unsupported, corrupt, or stale artifacts fail before the output tree changes.
+
+`config/frontend.php` is optional. Its only setting is an absolute output path beneath the Application Root:
+
+```php
+return [
+    'output' => dirname(__DIR__) . '/resources/js/blackops',
+];
+```
+
+When the file is absent, `resources/js/blackops` is used. The generator rejects the Application Root itself, external paths, files, symlinks, symlink ancestors, and non-empty directories without a valid BlackOps ownership marker. It writes and verifies a temporary tree beside the output, replaces an existing owned tree through a backup rename, restores the prior tree on replacement failure, and cleans successful temporary or backup state.
+
+The generated tree contains `types.ts`, `client.ts`, `manifest.json`, and one module per routed Operation. `manifest.json` records the generator schema, Application Build ID, and canonical frontend-contract hash without timestamps or source paths. Each module exports a frozen PascalCase Operation Object with readonly `type`, `method`, `path`, and `strategy`, plus `.url()` and `.toRequest()`. Request generation applies the same native scalar rules as HTTP binding, protects Operation-owned headers and `Content-Type`, and validates optional base URLs without adding HTTP execution or response decoding. An Operation with at least one body binding always serializes a JSON object and sets `Content-Type: application/json`; when every body field is optional and omitted, the body is `{}`. `.fetch()` and drift checking remain later Phase 15 steps.
 
 The worker command requires an application-composed `WorkerLoop`. Its signal heartbeat must be shared with the handler guard and must use a dedicated DBAL connection. See [Deferred Worker Runtime](worker-runtime.md) for the composition and shutdown contract.
 

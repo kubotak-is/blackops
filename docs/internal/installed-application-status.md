@@ -75,11 +75,15 @@ Default Compose ServiceはPostgreSQLとWorker Mode HTTPだけである。Compose
 
 Application-aware `build:compile` はOperation／HTTP Manifestと同じApplication Build IDで `var/build/frontend.php` を生成する。この言語中立ArtifactにはHTTP Routeを持つOperationだけを含め、Operation Type、Method／Path、Inline／Deferred、Value Binding、Validation、Sensitive Input有無、Outcome、決定的なModule／Export名を保持する。
 
-Frontend ContractはTypeScript Sourceではなく、後続の`frontend:generate`がSource Reflectionへ戻らずに生成するためのBuild Artifactである。Scalar以外の型、Sensitive Outcome、Manifest不整合、Case-insensitive Naming CollisionはBuild Errorになる。Constructor Default実値、Credential、Environment、Example、Absolute Source Pathは保存しない。
+Frontend ContractはTypeScript Sourceではなく、`frontend:generate`がSource Reflectionへ戻らずに生成するためのBuild Artifactである。Scalar以外の型、Sensitive Outcome、Manifest不整合、Case-insensitive Naming CollisionはBuild Errorになる。Constructor Default実値、Credential、Environment、Example、Absolute Source Pathは保存しない。
 
 Frontend Contract Schema Version 2はPHP Native Scalar Kindを`string`、`integer`、`float`、`boolean`としてValueとOutcomeの両方に保持する。Legacy Version 1、旧`number`、未知KindはBuild Artifactとして拒否し、Freshness Checkで再Build対象にする。
 
 Production HTTP／Worker RuntimeはFrontend Contractを読み込まない。Backend Runtimeの起動Artifactは従来どおりOperation Manifest、HTTP Manifest、Containerであり、Frontend ArtifactはBuild／Generation境界だけに留まる。
+
+Project Consoleは`frontend:generate`をLazy登録し、`config/frontend.php`欠落時はApplication Root配下の`resources/js/blackops`へ生成する。CommandはBuild IDとSchemaを検証したFrontend Contractだけを読み、`types.ts`、`client.ts`、Ownership Marker、Operation Moduleを決定的に生成する。Operation Moduleはfrozen Operation ObjectとReadonly Metadata、`.url()`、`.toRequest()`を持ち、Path／Query／Header／Body、Optional／Nullable、D101 Native Scalar、Protected Header、HTTP／HTTPS Base URLを共通Request Runtimeへ接続する。Body Bindingが定義されたOperationは実値の有無にかかわらずJSON ObjectをSerializeし、全Optional Body Field未指定でも`{}`と`Content-Type: application/json`を生成する。
+
+OutputはApplication Root配下に限定し、Root自身、外部Path、Symlink、Non-marker Directoryを拒否する。Temporary Treeの全FileとMarkerをRead-backした後だけBackup Renameで置換し、失敗時は既存Treeを復元する。Generated MarkerはGenerator Schema、Application Build ID、Canonical Contract Hashだけを持ち、時刻、Credential、Runtime Value、Absolute Source Pathを含めない。HTTP送信、Response Decode、Typed Result、`frontend:check`、TypeScript Toolchainは後続Taskである。
 
 ## Phase 8 Publication Evidence
 

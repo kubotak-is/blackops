@@ -9,6 +9,7 @@ use BlackOps\Internal\Console\ApplicationBuildCompileCommand;
 use BlackOps\Internal\Console\ApplicationOperationListCommand;
 use BlackOps\Internal\Console\DatabaseMigrationMigrateCommand;
 use BlackOps\Internal\Console\DatabaseMigrationStatusCommand;
+use BlackOps\Internal\Console\FrontendGenerateCommand;
 use BlackOps\Internal\Console\MakeMigrationCommand;
 use BlackOps\Internal\Console\MakeOperationCommand;
 use BlackOps\Internal\Console\OperationInspectCommand;
@@ -51,6 +52,11 @@ final class ApplicationConsoleCommandFactory
         return new MakeMigrationCommand(
             new MigrationGenerator($this->configuration->basePath(), dirname(__DIR__, levels: 3) . '/resources/stubs'),
         );
+    }
+
+    public function frontendGenerate(): Command
+    {
+        return new FrontendGenerateCommand($this->configuration);
     }
 
     public function databaseStatus(): Command

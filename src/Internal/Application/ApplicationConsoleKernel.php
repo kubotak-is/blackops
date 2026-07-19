@@ -8,6 +8,7 @@ use BlackOps\Internal\Console\ApplicationBuildCompileCommand;
 use BlackOps\Internal\Console\ApplicationOperationListCommand;
 use BlackOps\Internal\Console\DatabaseMigrationMigrateCommand;
 use BlackOps\Internal\Console\DatabaseMigrationStatusCommand;
+use BlackOps\Internal\Console\FrontendGenerateCommand;
 use BlackOps\Internal\Console\LazyFrameworkCommand;
 use BlackOps\Internal\Console\MakeMigrationCommand;
 use BlackOps\Internal\Console\MakeOperationCommand;
@@ -44,6 +45,7 @@ final readonly class ApplicationConsoleKernel
         SchedulerDaemonCommand::NAME,
         OperationInspectCommand::NAME,
         OperationViewerCommand::NAME,
+        FrontendGenerateCommand::NAME,
     ];
 
     private Application $application;
@@ -130,6 +132,12 @@ final readonly class ApplicationConsoleKernel
                 ApplicationBuildCompileCommand::NAME,
                 'Compile application operation, HTTP, and container artifacts.',
                 $factory->build(...),
+                $none,
+            ),
+            new LazyFrameworkCommand(
+                FrontendGenerateCommand::NAME,
+                'Generate TypeScript operation objects from the frontend contract.',
+                $factory->frontendGenerate(...),
                 $none,
             ),
             new LazyFrameworkCommand(

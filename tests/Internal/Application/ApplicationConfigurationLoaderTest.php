@@ -10,6 +10,23 @@ use PHPUnit\Framework\TestCase;
 
 final class ApplicationConfigurationLoaderTest extends TestCase
 {
+    public function testLoadsOptionalFrontendConfiguration(): void
+    {
+        $directory = sys_get_temp_dir() . '/blackops-frontend-config-loader-' . bin2hex(random_bytes(6));
+        mkdir($directory);
+        file_put_contents($directory . '/frontend.php', '<?php return ["output" => "/app/resources/generated"];');
+
+        try {
+            self::assertSame(
+                ['output' => '/app/resources/generated'],
+                new ApplicationConfigurationLoader()->load($directory)['frontend'],
+            );
+        } finally {
+            unlink($directory . '/frontend.php');
+            rmdir($directory);
+        }
+    }
+
     public function testLoadsDiagnosticsConfigurationIntoTheAcceptedSnapshotInput(): void
     {
         $directory = sys_get_temp_dir() . '/blackops-diagnostics-config-' . bin2hex(random_bytes(6));

@@ -19,6 +19,7 @@ final readonly class ApplicationConfigurationLoader
         'retention',
         'diagnostics',
         'logging',
+        'frontend',
     ];
 
     /** @return array<string, array<array-key, mixed>> */
