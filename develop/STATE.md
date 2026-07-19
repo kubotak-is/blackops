@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-19T20:49:50+09:00
+Updated At: 2026-07-19T20:53:15+09:00
 
 ## Current Phase
 
@@ -8,17 +8,17 @@ Phase 16: Deferred Status and Outcome API
 
 ## Current Task
 
-Task ID: P16-003-postgresql-status-projection
+Task ID: P16-004-http-status-resource
 
-Task Packet: `develop/orchestration/tasks/P16-003-postgresql-status-projection.md`
+Task Packet: `develop/orchestration/tasks/P16-004-http-status-resource.md`
 
-Specifications: `develop/spec/02-lifecycle-and-journal.md`、`develop/spec/11-durable-journal-and-transactions.md`、`develop/spec/24-lifecycle-event-data.md`、`develop/spec/25-sensitive-projection.md`、`develop/spec/30-lifecycle-state-machine.md`、`develop/spec/35-postgresql-transport-schema.md`、`develop/spec/36-postgresql-transaction-boundaries.md`、`develop/spec/37-postgresql-table-layout.md`、`develop/spec/38-data-retention-and-deletion.md`、`develop/spec/65-operation-diagnostics.md`、`develop/spec/69-deferred-status-and-outcome-api.md`、`develop/spec/70-phase-16-delivery-plan.md`、`develop/decisions/102-phase-16-deferred-status-and-outcome-api.md`
+Specifications: `develop/spec/05-http.md`、`develop/spec/06-auth-and-middleware.md`、`develop/spec/25-sensitive-projection.md`、`develop/spec/38-data-retention-and-deletion.md`、`develop/spec/42-installed-application-boundary.md`、`develop/spec/44-public-application-bootstrap-api.md`、`develop/spec/47-public-http-runtime-configuration.md`、`develop/spec/50-operation-authoring-and-build-discovery.md`、`develop/spec/69-deferred-status-and-outcome-api.md`、`develop/spec/70-phase-16-delivery-plan.md`、`develop/decisions/102-phase-16-deferred-status-and-outcome-api.md`
 
 ## Task Status
 
-Accepted
+Ready
 
-GPT-5.6 Luna High Workerの実装とOrchestrator修正要求をReviewし、P16-003をAcceptedとした。Internal SubjectからExpired Flagを除き、Allow後のDetail ResultでStatus／Expiredを判定する。既存PostgreSQL Schemaから認可前最小Subjectと認可後Projectionを実装し、Inline／Deferred全State、Typed Outcome、Safe Rejection、Dead Letter、Retention、Integrityを実DBで検証した。Detailは同一Connectionの`REPEATABLE READ, READ ONLY` Snapshotを使う。DBAL／PDO連鎖だけをStorage、それ以外のCanonical Journal／Outcome読取失敗をDecodeへ分類した。Journalが存在するDetailでは認可時SubjectとOrigin Actorを厳密照合し、認可後Actor変更をIntegrity Failureにする。Orchestrator独立再検証で対象110 tests／498 assertions、全1393 tests／5379 assertionsと全品質Guardが成功した。MigrationとPublic APIは変更していない。
+P16-003は`de5899c`でCommit／Push済み。P16-004 Task Packetを作成し、Framework予約`GET /operations/{operationId}`、Application Status Authorizerと既定Deny、7 State JSON、200／404／410／500、Safe Header、Deferred 202の`Location`／`Retry-After`、Classic／Worker共通Compositionを実装可能な状態にした。Frontend、Quickstart、Website、SchemaはTask範囲外である。
 
 ## Last Accepted Task
 
@@ -53,9 +53,9 @@ P16-003-postgresql-status-projection
 
 ## Required Next Action
 
-1. OrchestratorがP16-003をCommit／Pushする。
-2. P16-004のTask Packetを作成する。
-3. P16-004で`GET /operations/{operationId}`とDeferred 202の`Location`／`Retry-After`を実装する。
+1. P16-004 Task PacketをCommit／Pushする。
+2. GPT-5.6 Luna High WorkerへP16-004を委譲する。
+3. OrchestratorがHTTP Security／Route／CompositionをReviewし、独立再検証後にCommitする。
 
 ## P16-003 PostgreSQL Status Projection Worker Verification
 
