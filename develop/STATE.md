@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-21T01:50:09+09:00
+Updated At: 2026-07-21T01:55:55+09:00
 
 ## Current Phase
 
@@ -8,17 +8,17 @@ Phase 17: Full-stack Reference Application - In Progress
 
 ## Current Task
 
-Task ID: P17-007-deferred-digest-and-progress
+Task ID: P17-007A-aop-class-constant-attributes
 
-Task Packet: `develop/orchestration/tasks/P17-007-deferred-digest-and-progress.md`
+Task Packet: `develop/orchestration/tasks/P17-007A-aop-class-constant-attributes.md`
 
-Specifications: `develop/spec/71-full-stack-reference-application.md`、`develop/spec/72-phase-17-delivery-plan.md`
+Specifications: `develop/spec/09-runtime-and-di.md`、`develop/spec/64-phase-13-delivery-plan.md`
 
 ## Task Status
 
-Accepted
+Ready
 
-OrchestratorがP17-007のDomain／Infrastructure境界、Migration、Deferred Retry、Actor／Status Authorization、Generated Status／Wait、SvelteKit BFF、Immutable SnapshotをReviewした。独立Digest E2E、Root PHPUnit 1471 tests／5810 assertions、Mago、Deptrac 0 violations、Guardが成功したためAcceptedとする。
+P17-007A Task Packetで、Ray.Aop 2.20.0の複数typed class-constant Attribute compile gapを最小再現し、dependency-nativeな解決を優先する。Vendor Fork／直接修正は行わず、安全に解決できなければBlockerとして返す。
 
 ## Last Accepted Task
 
@@ -59,8 +59,9 @@ P17-007-deferred-digest-and-progress
 
 ## Required Next Action
 
-1. Ray.Aopの複数class-constant Attribute制約を小さなFramework修正Taskとして解消し、Community Boardの`ExecuteWith`をtyped表記へ戻す。
-2. その後、P17-008でTaste SkillとReiconを用いたVisual Designを開始する。
+1. P17-007A Task Packetを独立Commit／Pushする。
+2. GPT-5.6 Luna High Workerへ委譲する。
+3. Accepted後、P17-008でTaste SkillとReiconを用いたVisual Designを開始する。
 
 ## P17-007 Deferred Digest and Progress Worker Verification
 
