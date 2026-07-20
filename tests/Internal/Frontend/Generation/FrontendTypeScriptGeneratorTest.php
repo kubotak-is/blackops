@@ -10,6 +10,7 @@ use BlackOps\Internal\Frontend\FrontendContractManifestCodec;
 use BlackOps\Internal\Frontend\FrontendOperationContract;
 use BlackOps\Internal\Frontend\FrontendOutcomeContract;
 use BlackOps\Internal\Frontend\FrontendOutcomeFieldContract;
+use BlackOps\Internal\Frontend\FrontendOutcomeTypeContract;
 use BlackOps\Internal\Frontend\FrontendValueContract;
 use BlackOps\Internal\Frontend\FrontendValueFieldContract;
 use BlackOps\Internal\Frontend\Generation\FrontendGenerationMarker;
@@ -40,7 +41,7 @@ final class FrontendTypeScriptGeneratorTest extends TestCase
         $marker = FrontendGenerationMarker::decode($first->files['manifest.json']);
         self::assertSame('frontend-generation-build', $marker->applicationBuildId);
         self::assertMatchesRegularExpression('/^[a-f0-9]{64}$/D', $marker->contractHash);
-        self::assertStringContainsString('"schemaVersion": 4', $first->files['manifest.json']);
+        self::assertStringContainsString('"schemaVersion": 5', $first->files['manifest.json']);
 
         $operation = $first->files['operations/order/create-order.ts'];
         self::assertStringContainsString('export const CreateOrder = Object.freeze({', $operation);
@@ -304,10 +305,10 @@ final class FrontendTypeScriptGeneratorTest extends TestCase
                 new FrontendValueFieldContract('attempt', 'integer', true, false, 'body', 'attempt', false, []),
             ]),
             new FrontendOutcomeContract('App\\ReportCreated', 'outcome', [
-                new FrontendOutcomeFieldContract('reportId', 'string', false),
-                new FrontendOutcomeFieldContract('sequence', 'integer', false),
-                new FrontendOutcomeFieldContract('ratio', 'float', true),
-                new FrontendOutcomeFieldContract('visible', 'boolean', false),
+                new FrontendOutcomeFieldContract('reportId', $this->scalar('string')),
+                new FrontendOutcomeFieldContract('sequence', $this->scalar('integer')),
+                new FrontendOutcomeFieldContract('ratio', $this->scalar('float', true)),
+                new FrontendOutcomeFieldContract('visible', $this->scalar('boolean')),
             ]),
         );
         $source = new FrontendTypeScriptGenerator()->generate(
@@ -328,7 +329,10 @@ final class FrontendTypeScriptGeneratorTest extends TestCase
             $source,
         );
         self::assertStringContainsString('mode: "inline_outcome" as const', $source);
-        self::assertStringContainsString('Object.freeze({"name":"ratio","type":"float","nullable":true})', $source);
+        self::assertStringContainsString(
+            'Object.freeze({"name":"ratio","type":{"kind":"scalar","nullable":true,"scalar":"float"}} as const)',
+            $source,
+        );
         self::assertStringContainsString('return fetchOperation<CreateReportOutcome, CreateReportField>(', $source);
     }
 
@@ -344,7 +348,7 @@ final class FrontendTypeScriptGeneratorTest extends TestCase
             'deferred',
             new FrontendValueContract('App\\GenerateReportValue', []),
             new FrontendOutcomeContract('App\\ReportGenerated', 'outcome', [
-                new FrontendOutcomeFieldContract('reportId', 'string', false),
+                new FrontendOutcomeFieldContract('reportId', $this->scalar('string')),
             ]),
         );
         $source = new FrontendTypeScriptGenerator()->generate(
@@ -369,6 +373,196 @@ final class FrontendTypeScriptGeneratorTest extends TestCase
         self::assertStringContainsString('outcomeFields:', $source);
         self::assertStringNotContainsString('InlineOutcomeOperationResult', $source);
         self::assertStringNotContainsString('InlineVoidOperationResult', $source);
+    }
+
+    public function testGeneratesReadonlyRecursiveDtoAndListTypesFromOneSchema(): void
+    {
+        $ownerFields = [
+            new FrontendOutcomeFieldContract('id', $this->scalar('string')),
+            new FrontendOutcomeFieldContract('name', $this->scalar('string')),
+        ];
+        $itemFields = [
+            new FrontendOutcomeFieldContract(
+                'owner',
+                new FrontendOutcomeTypeContract('dto', true, class: 'App\\OwnerSummary', fields: $ownerFields),
+            ),
+            new FrontendOutcomeFieldContract('quantity', $this->scalar('integer')),
+        ];
+        $operation = new FrontendOperationContract(
+            'order.list',
+            'App\\ListOrders',
+            'ListOrders',
+            'operations/order/list-orders.ts',
+            'GET',
+            '/orders',
+            'inline',
+            new FrontendValueContract('App\\ListOrdersValue', []),
+            new FrontendOutcomeContract('App\\OrdersListed', 'outcome', [
+                new FrontendOutcomeFieldContract(
+                    'items',
+                    new FrontendOutcomeTypeContract('list', false, class: 'App\\OrderSummary', fields: $itemFields),
+                ),
+                new FrontendOutcomeFieldContract(
+                    'owner',
+                    new FrontendOutcomeTypeContract('dto', true, class: 'App\\OwnerSummary', fields: $ownerFields),
+                ),
+            ]),
+        );
+
+        $source = new FrontendTypeScriptGenerator()->generate(
+            new FrontendContractManifestArtifact(
+                FrontendContractManifestCodec::SCHEMA_VERSION,
+                'structured-generation',
+                new FrontendContractManifest([$operation]),
+            ),
+        )->files[$operation->module];
+
+        self::assertStringContainsString('export type OrderSummary = Readonly<{', $source);
+        self::assertStringContainsString('readonly owner: OwnerSummary | null;', $source);
+        self::assertStringContainsString('export type OwnerSummary = Readonly<{', $source);
+        self::assertStringContainsString('readonly items: ReadonlyArray<OrderSummary>;', $source);
+        self::assertStringContainsString('"kind":"list"', $source);
+        self::assertStringContainsString('"class":"App\\\\OrderSummary"', $source);
+
+        $client = new FrontendTypeScriptGenerator()->generate(
+            new FrontendContractManifestArtifact(
+                FrontendContractManifestCodec::SCHEMA_VERSION,
+                'structured-generation',
+                new FrontendContractManifest([$operation]),
+            ),
+        )->files['client.ts'];
+        foreach ([
+            'decodeOutcomeValue(payload[field.name], field.type)',
+            'Object.defineProperty(decoded, field.name',
+            "type.kind === 'dto'",
+            'Array.isArray(value)',
+            'Object.freeze(decoded)',
+            'hasExactKeys(payload, fields.map',
+        ] as $contract) {
+            self::assertStringContainsString($contract, $client);
+        }
+    }
+
+    public function testRejectsDtoNamesThatCollideWithEveryOperationGeneratedIdentifier(): void
+    {
+        foreach ([
+            'Createorder',
+            'CreateOrderValue',
+            'CreateOrderUrlParameters',
+            'CreateOrderOutcome',
+            'CreateOrderField',
+            'CreateOrderResult',
+            'CreateOrderStatusResult',
+            'CreateOrderWaitResult',
+            'InlineOutcomeOperationResult',
+            'OperationCallOptions',
+            'OperationRequest',
+            'OperationRequestOptions',
+            'OperationStatusResult',
+            'OperationWaitOptions',
+            'OperationWaitResult',
+        ] as $reservedName) {
+            $operation = $this->operationWithOutcomeFields([
+                new FrontendOutcomeFieldContract('summary', new FrontendOutcomeTypeContract(
+                    'dto',
+                    false,
+                    class: 'App\\' . $reservedName,
+                    fields: [new FrontendOutcomeFieldContract('id', $this->scalar('string'))],
+                )),
+            ]);
+
+            try {
+                new FrontendTypeScriptGenerator()->generate(
+                    new FrontendContractManifestArtifact(
+                        FrontendContractManifestCodec::SCHEMA_VERSION,
+                        'reserved-name-build',
+                        new FrontendContractManifest([$operation]),
+                    ),
+                );
+                self::fail('Expected operation-generated DTO name collision for ' . $reservedName . '.');
+            } catch (InvalidArgumentException $exception) {
+                self::assertStringContainsString('operation-generated identifier', $exception->getMessage());
+            }
+        }
+    }
+
+    public function testRejectsDtoNameThatCollidesWithSelectedDeferredResultTypeImport(): void
+    {
+        $operation = $this->operationWithOutcomeFields([
+            new FrontendOutcomeFieldContract('summary', new FrontendOutcomeTypeContract(
+                'dto',
+                false,
+                class: 'App\\DeferredOperationResult',
+                fields: [new FrontendOutcomeFieldContract('id', $this->scalar('string'))],
+            )),
+        ], strategy: 'deferred');
+
+        try {
+            $this->generateOperation($operation);
+            self::fail('Expected selected deferred result type import collision.');
+        } catch (InvalidArgumentException $exception) {
+            self::assertStringContainsString('operation-generated identifier', $exception->getMessage());
+        }
+    }
+
+    public function testRejectsConflictingSchemasForTheSameDtoClassAndAllowsIdenticalReuse(): void
+    {
+        $first = new FrontendOutcomeTypeContract(
+            'dto',
+            false,
+            class: 'App\\SharedSummary',
+            fields: [new FrontendOutcomeFieldContract('id', $this->scalar('string'))],
+        );
+        $conflicting = new FrontendOutcomeTypeContract(
+            'dto',
+            false,
+            class: 'App\\SharedSummary',
+            fields: [new FrontendOutcomeFieldContract('count', $this->scalar('integer'))],
+        );
+        $identical = new FrontendOutcomeTypeContract(
+            'dto',
+            false,
+            class: 'App\\SharedSummary',
+            fields: [new FrontendOutcomeFieldContract('id', $this->scalar('string'))],
+        );
+
+        try {
+            $this->generateOperation($this->operationWithOutcomeFields([
+                new FrontendOutcomeFieldContract('first', $first),
+                new FrontendOutcomeFieldContract('second', $conflicting),
+            ]));
+            self::fail('Expected conflicting DTO schemas to be rejected.');
+        } catch (InvalidArgumentException $exception) {
+            self::assertStringContainsString('conflicting recursive schemas', $exception->getMessage());
+        }
+
+        $source = $this->generateOperation($this->operationWithOutcomeFields([
+            new FrontendOutcomeFieldContract('first', $first),
+            new FrontendOutcomeFieldContract('second', $identical),
+        ]));
+        self::assertSame(1, substr_count($source, 'export type SharedSummary = Readonly<{'));
+    }
+
+    public function testUnknownOutcomeKindFailsSafelyAtManifestEncodeAndGeneration(): void
+    {
+        $operation = $this->operationWithOutcomeFields([
+            new FrontendOutcomeFieldContract('value', new FrontendOutcomeTypeContract('unknown', false)),
+        ]);
+
+        foreach ([
+            'manifest encode' => static fn() => new FrontendContractManifestCodec()->encode(
+                new FrontendContractManifest([$operation]),
+                'unknown-kind-build',
+            ),
+            'generation' => fn() => $this->generateOperation($operation),
+        ] as $boundary => $call) {
+            try {
+                $call();
+                self::fail('Expected safe unknown outcome kind failure at ' . $boundary . '.');
+            } catch (InvalidArgumentException $exception) {
+                self::assertStringContainsString('outcome', $exception->getMessage());
+            }
+        }
     }
 
     public function testGeneratedClientStrictlyDecodesHttpResponseAndOperationFields(): void
@@ -567,5 +761,41 @@ final class FrontendTypeScriptGeneratorTest extends TestCase
             ),
             new FrontendOutcomeContract('App\\OrderCreated', 'outcome', []),
         );
+    }
+
+    /**
+     * @param list<FrontendOutcomeFieldContract> $fields
+     * @param 'inline'|'deferred' $strategy
+     */
+    private function operationWithOutcomeFields(array $fields, string $strategy = 'inline'): FrontendOperationContract
+    {
+        return new FrontendOperationContract(
+            'order.create',
+            'App\\CreateOrder',
+            'CreateOrder',
+            'operations/order/create-order.ts',
+            'POST',
+            '/orders',
+            $strategy,
+            new FrontendValueContract('App\\CreateOrderValue', []),
+            new FrontendOutcomeContract('App\\OrderCreated', 'outcome', $fields),
+        );
+    }
+
+    private function generateOperation(FrontendOperationContract $operation): string
+    {
+        return new FrontendTypeScriptGenerator()->generate(
+            new FrontendContractManifestArtifact(
+                FrontendContractManifestCodec::SCHEMA_VERSION,
+                'crafted-outcome-build',
+                new FrontendContractManifest([$operation]),
+            ),
+        )->files[$operation->module];
+    }
+
+    /** @param 'string'|'integer'|'float'|'boolean' $kind */
+    private function scalar(string $kind, bool $nullable = false): FrontendOutcomeTypeContract
+    {
+        return new FrontendOutcomeTypeContract('scalar', $nullable, $kind);
     }
 }

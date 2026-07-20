@@ -10,6 +10,7 @@ use BlackOps\Internal\Frontend\FrontendContractManifestCodec;
 use BlackOps\Internal\Frontend\FrontendOperationContract;
 use BlackOps\Internal\Frontend\FrontendOutcomeContract;
 use BlackOps\Internal\Frontend\FrontendOutcomeFieldContract;
+use BlackOps\Internal\Frontend\FrontendOutcomeTypeContract;
 use BlackOps\Internal\Frontend\FrontendValueContract;
 use BlackOps\Internal\Frontend\FrontendValueFieldContract;
 
@@ -53,7 +54,10 @@ final readonly class FrontendContractFixture
                     ),
                 ]),
                 new FrontendOutcomeContract('App\\Feature\\Order\\OrderCreated', 'outcome', [
-                    new FrontendOutcomeFieldContract('orderId', 'string', false),
+                    new FrontendOutcomeFieldContract(
+                        'orderId',
+                        new FrontendOutcomeTypeContract('scalar', false, 'string'),
+                    ),
                 ]),
             ),
         ]);

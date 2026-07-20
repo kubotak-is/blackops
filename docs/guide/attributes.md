@@ -1,6 +1,6 @@
 # Attributes Reference
 
-BlackOpsはOperation、Transaction、Value Validation、HTTP Binding、Observed Journal ProjectionのMetadataをPHP Attributeで宣言します。このPageは利用者向けPublic Attribute 21件をSourceと照合しています。`PublicApi` marker自身はFrameworkが公開境界を管理するためのMetadataであり、Application Authoringには使いません。
+BlackOpsはOperation、Transaction、Value Validation、HTTP Binding、Observed Journal ProjectionのMetadataをPHP Attributeで宣言します。このPageは利用者向けPublic Attribute 22件をSourceと照合しています。`PublicApi` marker自身はFrameworkが公開境界を管理するためのMetadataであり、Application Authoringには使いません。
 
 ## Operation Attributes
 
@@ -13,8 +13,42 @@ BlackOpsはOperation、Transaction、Value Validation、HTTP Binding、Observed 
 | `BlackOps\Core\Attribute\Accepts` | Accepted `OperationValue`を明示する | Operation Class | `#[Accepts(PlaceOrderValue::class)]` | 不要。第一引数から推論する |
 | `BlackOps\Core\Attribute\Returns` | `Outcome` Classを明示する | Operation Class | `#[Returns(OrderPlaced::class)]` | 不要。Return Typeから推論する |
 | `BlackOps\Core\Attribute\Sensitive` | Observed ProjectionでPropertyをOmit／Mask／Hashする | `OperationValue` Property | `#[Sensitive(SensitiveMode::Mask)]` | Sensitive Propertyだけで使う |
+| `BlackOps\Core\Attribute\ListOf` | OutcomeのTyped DTO ListでElement Classを宣言する | 非Nullable `array` Outcome Property | `#[ListOf(PostSummary::class)]` | Structured Outcome Listだけで使う |
 
 Typed Self-handled標準形では、`handle(ConcreteValue $value): ConcreteOutcome`のNative Signatureを正本にします。`#[Accepts]`／`#[Returns]`を併記した場合は推論型との完全一致が必要です。新しい単純なOperationへは追加しないでください。
+
+### Structured Outcome
+
+Nested ResponseはJSON文字列へ変換せず、`OutcomeData`と`#[ListOf]`で型を保ったまま返せます。
+
+```php
+use BlackOps\Core\Attribute\ListOf;
+use BlackOps\Core\Outcome;
+use BlackOps\Core\OutcomeData;
+
+final readonly class PostSummary implements OutcomeData
+{
+    public function __construct(
+        public string $id,
+        public string $title,
+    ) {}
+}
+
+final readonly class ListPostsOutcome implements Outcome
+{
+    /** @param list<PostSummary> $posts */
+    public function __construct(
+        #[ListOf(PostSummary::class)]
+        public array $posts,
+        public ?PostSummary $featured,
+        public int $total,
+    ) {}
+}
+```
+
+Scalarは`string`、`int`、`float`、`bool`とNullable、Nested型は具象`final readonly OutcomeData`、Listは非Nullable `array`＋`#[ListOf]`だけを使用できます。Map、Scalar List、Enum、DateTime、Union、任意Object、Element型のないArrayは対応しません。Nested DTOのFieldはすべてPublic Constructor-promoted Propertyにしてください。
+
+この契約はOutput専用です。`OutcomeData`や`#[ListOf]`を追加しても、`OperationValue`のNested Object／Array HTTP Input BindingやArray Validationは有効になりません。
 
 `#[HandledBy]`はDecorator、複数実装切替等でOperation DefinitionとHandlerを分けるCompatibility形に限って使います。Typed Self-handled `handle()`と同時に指定するとBuildがAmbiguousとして拒否します。
 

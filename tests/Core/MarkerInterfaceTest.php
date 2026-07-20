@@ -8,6 +8,7 @@ use BlackOps\Core\Attribute\PublicApi;
 use BlackOps\Core\Operation;
 use BlackOps\Core\OperationValue;
 use BlackOps\Core\Outcome;
+use BlackOps\Core\OutcomeData;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
@@ -37,9 +38,17 @@ final class MarkerInterfaceTest extends TestCase
         self::assertSame([], $reflection->getMethods(), 'Outcome must not declare any methods.');
     }
 
+    public function testOutcomeDataIsMarkerInterfaceWithoutMethods(): void
+    {
+        $reflection = new ReflectionClass(OutcomeData::class);
+
+        self::assertTrue($reflection->isInterface(), 'OutcomeData must be an interface.');
+        self::assertSame([], $reflection->getMethods(), 'OutcomeData must not declare any methods.');
+    }
+
     public function testMarkerInterfacesAreMarkedPublicApi(): void
     {
-        foreach ([Operation::class, OperationValue::class, Outcome::class] as $marker) {
+        foreach ([Operation::class, OperationValue::class, Outcome::class, OutcomeData::class] as $marker) {
             $reflection = new ReflectionClass($marker);
             $attributes = $reflection->getAttributes(PublicApi::class);
 

@@ -14,6 +14,20 @@ final readonly class CreateOrder implements Operation
 {
     public function handle(CreateOrderValue $value): OrderCreated
     {
-        return new OrderCreated('order-' . $value->reference, 7, $value->amount, $value->active);
+        $owner = new OrderOwner('Alice', 'owner-1');
+
+        return new OrderCreated(
+            new EmptyMetadata(),
+            new EmptyMetadata(),
+            [new EmptyMetadata(), new EmptyMetadata()],
+            new EmptyMetadata(),
+            'order-' . $value->reference,
+            7,
+            $value->amount,
+            $value->active,
+            $owner,
+            null,
+            [new OrderLine($owner, 'product-1', 1)],
+        );
     }
 }

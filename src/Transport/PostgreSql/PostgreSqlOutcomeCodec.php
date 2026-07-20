@@ -10,7 +10,7 @@ use Throwable;
 
 final readonly class PostgreSqlOutcomeCodec
 {
-    public const SCHEMA_VERSION = 1;
+    public const SCHEMA_VERSION = 2;
 
     public function __construct(
         private PostgreSqlJournalValueCodec $values = new PostgreSqlJournalValueCodec(),

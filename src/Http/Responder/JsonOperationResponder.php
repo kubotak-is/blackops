@@ -8,17 +8,17 @@ use BlackOps\Core\EmptyOutcome;
 use BlackOps\Core\Execution\DeferredAcknowledgement;
 use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Core\OperationResult;
-use BlackOps\Core\Outcome;
 use BlackOps\Core\Rejection\RejectionCategory;
 use BlackOps\Core\Time\TimeCodec;
 use BlackOps\Core\Validation\Violation;
 use BlackOps\Http\Status\OperationStatusHttpContract;
+use BlackOps\Outcome\Internal\StructuredOutcomeNormalizer;
 use JsonException;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamFactoryInterface;
-use ReflectionClass;
 use RuntimeException;
+use stdClass;
 
 final readonly class JsonOperationResponder
 {
@@ -26,6 +26,7 @@ final readonly class JsonOperationResponder
         private ResponseFactoryInterface $responses,
         private StreamFactoryInterface $streams,
         private TimeCodec $time = new TimeCodec(),
+        private StructuredOutcomeNormalizer $outcomes = new StructuredOutcomeNormalizer(),
     ) {}
 
     public function respond(OperationResult $result): ResponseInterface
@@ -48,7 +49,9 @@ final readonly class JsonOperationResponder
             return $this->responses->createResponse(204);
         }
 
-        return $this->json(200, $this->normalizeOutcome($outcome));
+        $payload = $this->outcomes->normalize($outcome);
+
+        return $this->json(200, $payload === [] ? new stdClass() : $payload);
     }
 
     public function respondAcknowledgement(DeferredAcknowledgement $acknowledgement): ResponseInterface
@@ -108,27 +111,9 @@ final readonly class JsonOperationResponder
     }
 
     /**
-     * @return array<string, mixed>
+     * @param array<string, mixed>|stdClass $payload
      */
-    private function normalizeOutcome(Outcome $outcome): array
-    {
-        $data = [];
-
-        foreach (new ReflectionClass($outcome)->getProperties() as $property) {
-            if (!$property->isPublic()) {
-                continue;
-            }
-
-            $data[$property->getName()] = $property->getValue($outcome);
-        }
-
-        return $data;
-    }
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    private function json(int $status, array $payload): ResponseInterface
+    private function json(int $status, array|stdClass $payload): ResponseInterface
     {
         try {
             $body = json_encode($payload, JSON_THROW_ON_ERROR);

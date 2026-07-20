@@ -6,6 +6,8 @@ namespace BlackOps\Internal\Frontend\Generation;
 
 use BlackOps\Internal\Frontend\FrontendContractManifestArtifact;
 use BlackOps\Internal\Frontend\FrontendOperationContract;
+use BlackOps\Internal\Frontend\FrontendOutcomeFieldContract;
+use BlackOps\Internal\Frontend\FrontendOutcomeTypeContract;
 use BlackOps\Internal\Frontend\FrontendValueFieldContract;
 use InvalidArgumentException;
 use JsonException;
@@ -16,6 +18,7 @@ use JsonException;
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:kan-defect
  * @mago-expect lint:no-else-clause
+ * @mago-expect lint:too-many-methods
  */
 final readonly class FrontendTypeScriptGenerator
 {
@@ -449,10 +452,28 @@ final readonly class FrontendTypeScriptGenerator
               nullable: boolean;
             }>;
 
+            export type OperationOutcomeType =
+              | Readonly<{
+                  kind: 'scalar';
+                  nullable: boolean;
+                  scalar: OperationScalarKind;
+                }>
+              | Readonly<{
+                  kind: 'dto';
+                  nullable: boolean;
+                  class: string;
+                  fields: readonly OperationOutcomeField[];
+                }>
+              | Readonly<{
+                  kind: 'list';
+                  nullable: false;
+                  class: string;
+                  fields: readonly OperationOutcomeField[];
+                }>;
+
             export type OperationOutcomeField = Readonly<{
               name: string;
-              type: OperationScalarKind;
-              nullable: boolean;
+              type: OperationOutcomeType;
             }>;
 
             export type InlineOutcomeResponseContract<TField extends string> = Readonly<{
@@ -1809,13 +1830,56 @@ final readonly class FrontendTypeScriptGenerator
               if (!hasExactKeys(payload, fields.map((field): string => field.name))) {
                 return undefined;
               }
+              const decoded: Record<string, unknown> = {};
               for (const field of fields) {
-                if (!isOutcomeScalar(payload[field.name], field)) {
+                const value = decodeOutcomeValue(payload[field.name], field.type);
+                if (value === invalidOutcomeValue) {
                   return undefined;
                 }
+                Object.defineProperty(decoded, field.name, {
+                  value,
+                  enumerable: true,
+                  configurable: false,
+                  writable: false,
+                });
               }
 
-              return Object.freeze({ ...payload }) as TOutcome;
+              return Object.freeze(decoded) as TOutcome;
+            }
+
+            const invalidOutcomeValue = Symbol('invalid-outcome-value');
+
+            function decodeOutcomeValue(
+              value: unknown,
+              type: OperationOutcomeType,
+            ): unknown | typeof invalidOutcomeValue {
+              if (value === null) {
+                return type.nullable ? null : invalidOutcomeValue;
+              }
+              if (type.kind === 'scalar') {
+                return isOutcomeScalar(value, type.scalar) ? value : invalidOutcomeValue;
+              }
+              if (type.kind === 'dto') {
+                return isRecord(value)
+                  ? decodeOutcome<Record<string, unknown>>(value, type.fields) ?? invalidOutcomeValue
+                  : invalidOutcomeValue;
+              }
+              if (!Array.isArray(value)) {
+                return invalidOutcomeValue;
+              }
+              const decoded: unknown[] = [];
+              for (const element of value) {
+                if (!isRecord(element)) {
+                  return invalidOutcomeValue;
+                }
+                const item = decodeOutcome<Record<string, unknown>>(element, type.fields);
+                if (item === undefined) {
+                  return invalidOutcomeValue;
+                }
+                decoded.push(item);
+              }
+
+              return Object.freeze(decoded);
             }
 
             function decodeAcknowledgement(
@@ -1964,11 +2028,8 @@ final readonly class FrontendTypeScriptGenerator
               }
             }
 
-            function isOutcomeScalar(value: unknown, field: OperationOutcomeField): boolean {
-              if (value === null) {
-                return field.nullable;
-              }
-              switch (field.type) {
+            function isOutcomeScalar(value: unknown, type: OperationScalarKind): boolean {
+              switch (type) {
                 case 'string': return typeof value === 'string';
                 case 'integer': return typeof value === 'number' && Number.isSafeInteger(value);
                 case 'float': return typeof value === 'number' && Number.isFinite(value);
@@ -2101,7 +2162,23 @@ final readonly class FrontendTypeScriptGenerator
         }
 
         $lines[] = '';
-        foreach ($this->outcomeTypeDeclaration($outcomeName, $operation) as $line) {
+        foreach ($this->outcomeTypeDeclaration($outcomeName, $operation, [
+            $operation->exportName,
+            $valueName,
+            $urlName,
+            $outcomeName,
+            $fieldName,
+            $resultName,
+            $statusResultName,
+            $waitResultName,
+            $resultType,
+            'OperationCallOptions',
+            'OperationRequest',
+            'OperationRequestOptions',
+            'OperationStatusResult',
+            'OperationWaitOptions',
+            'OperationWaitResult',
+        ]) as $line) {
             $lines[] = $line;
         }
         $lines[] = '';
@@ -2160,14 +2237,7 @@ final readonly class FrontendTypeScriptGenerator
         if ($operation->strategy === 'inline' && $operation->outcome->mode === 'outcome') {
             $lines[] = '  outcomeFields: Object.freeze([';
             foreach ($operation->outcome->fields as $field) {
-                $lines[] =
-                    '    Object.freeze('
-                    . $this->json([
-                        'name' => $field->name,
-                        'type' => $field->type,
-                        'nullable' => $field->nullable,
-                    ])
-                    . '),';
+                $lines[] = '    Object.freeze(' . $this->json($this->outcomeFieldMetadata($field)) . ' as const),';
             }
             $lines[] = '  ] as const),';
         }
@@ -2183,14 +2253,7 @@ final readonly class FrontendTypeScriptGenerator
         $lines[] = sprintf('  outcomeMode: %s as const,', $this->json($operation->outcome->mode));
         $lines[] = '  outcomeFields: Object.freeze([';
         foreach ($operation->outcome->fields as $field) {
-            $lines[] =
-                '    Object.freeze('
-                . $this->json([
-                    'name' => $field->name,
-                    'type' => $field->type,
-                    'nullable' => $field->nullable,
-                ])
-                . '),';
+            $lines[] = '    Object.freeze(' . $this->json($this->outcomeFieldMetadata($field)) . ' as const),';
         }
         $lines[] = '  ] as const),';
         $lines[] = '});';
@@ -2256,9 +2319,15 @@ final readonly class FrontendTypeScriptGenerator
         return implode("\n", $lines) . "\n";
     }
 
-    /** @return list<string> */
-    private function outcomeTypeDeclaration(string $name, FrontendOperationContract $operation): array
-    {
+    /**
+     * @param list<string> $reservedNames
+     * @return list<string>
+     */
+    private function outcomeTypeDeclaration(
+        string $name,
+        FrontendOperationContract $operation,
+        array $reservedNames,
+    ): array {
         if ($operation->outcome->mode === 'void') {
             return [sprintf('export type %s = undefined;', $name)];
         }
@@ -2266,23 +2335,146 @@ final readonly class FrontendTypeScriptGenerator
             return [sprintf('export type %s = Readonly<Record<never, never>>;', $name)];
         }
 
-        $lines = [sprintf('export type %s = Readonly<{', $name)];
+        $dtoFields = [];
         foreach ($operation->outcome->fields as $field) {
-            $type = match ($field->type) {
-                'string' => 'string',
-                'integer', 'float' => 'number',
-                'boolean' => 'boolean',
-                default => throw new InvalidArgumentException('Frontend outcome scalar kind is invalid.'),
-            };
+            $this->collectOutcomeDtoFields($field->type, $dtoFields);
+        }
+        ksort($dtoFields);
+
+        $lines = [];
+        $dtoNames = [];
+        $reserved = array_map(strtolower(...), $reservedNames);
+        foreach ($dtoFields as $class => $fields) {
+            $typeName = $this->outcomeDtoName($class);
+            $nameKey = strtolower($typeName);
+            if (array_key_exists($nameKey, $dtoNames) && $dtoNames[$nameKey] !== $class) {
+                throw new InvalidArgumentException('Frontend outcome DTO short class name is ambiguous.');
+            }
+            $dtoNames[$nameKey] = $class;
+            if (in_array($nameKey, $reserved, strict: true)) {
+                throw new InvalidArgumentException(
+                    'Frontend outcome DTO type conflicts with an operation-generated identifier.',
+                );
+            }
+            foreach ($this->outcomeObjectTypeDeclaration($typeName, $fields) as $line) {
+                $lines[] = $line;
+            }
+            $lines[] = '';
+        }
+
+        foreach ($this->outcomeObjectTypeDeclaration($name, $operation->outcome->fields) as $line) {
+            $lines[] = $line;
+        }
+
+        return $lines;
+    }
+
+    /**
+     * @param list<FrontendOutcomeFieldContract> $fields
+     * @return list<string>
+     */
+    private function outcomeObjectTypeDeclaration(string $name, array $fields): array
+    {
+        $lines = [sprintf('export type %s = Readonly<{', $name)];
+        foreach ($fields as $field) {
             $lines[] = sprintf(
                 '  readonly %s: %s;',
                 $this->propertyName($field->name),
-                $type . ($field->nullable ? ' | null' : ''),
+                $this->outcomeTypeScriptType($field->type),
             );
         }
         $lines[] = '}>;';
 
         return $lines;
+    }
+
+    private function outcomeTypeScriptType(FrontendOutcomeTypeContract $type): string
+    {
+        $value = match ($type->kind) {
+            'scalar' => match ($type->scalar) {
+                'string' => 'string',
+                'integer', 'float' => 'number',
+                'boolean' => 'boolean',
+                default => throw new InvalidArgumentException('Frontend outcome scalar kind is invalid.'),
+            },
+            'dto' => $this->outcomeDtoName($type->class),
+            'list' => sprintf('ReadonlyArray<%s>', $this->outcomeDtoName($type->class)),
+        };
+
+        return $value . ($type->nullable ? ' | null' : '');
+    }
+
+    /** @param array<class-string, list<FrontendOutcomeFieldContract>> $dtoFields */
+    private function collectOutcomeDtoFields(FrontendOutcomeTypeContract $type, array &$dtoFields): void
+    {
+        if ($type->kind === 'scalar') {
+            return;
+        }
+
+        $class = $type->class;
+        if ($class === null || $class === '') {
+            throw new InvalidArgumentException('Frontend outcome DTO class is invalid.');
+        }
+        if (array_key_exists($class, $dtoFields)) {
+            if ($this->outcomeFieldsMetadata($dtoFields[$class]) !== $this->outcomeFieldsMetadata($type->fields)) {
+                throw new InvalidArgumentException('Frontend outcome DTO class has conflicting recursive schemas.');
+            }
+
+            return;
+        }
+
+        $dtoFields[$class] = $type->fields;
+        foreach ($type->fields as $field) {
+            $this->collectOutcomeDtoFields($field->type, $dtoFields);
+        }
+    }
+
+    private function outcomeDtoName(?string $class): string
+    {
+        if ($class === null || $class === '') {
+            throw new InvalidArgumentException('Frontend outcome DTO class is invalid.');
+        }
+
+        $separator = strrpos(haystack: $class, needle: '\\');
+        $name = $separator === false ? $class : substr($class, $separator + 1);
+        if (preg_match('/^[A-Z][A-Za-z0-9]*$/D', $name) !== 1) {
+            throw new InvalidArgumentException('Frontend outcome DTO short class name is invalid.');
+        }
+
+        return $name;
+    }
+
+    /** @return array{name: string, type: array<string, mixed>} */
+    private function outcomeFieldMetadata(FrontendOutcomeFieldContract $field): array
+    {
+        return [
+            'name' => $field->name,
+            'type' => $this->outcomeTypeMetadata($field->type),
+        ];
+    }
+
+    /** @param list<FrontendOutcomeFieldContract> $fields @return list<array{name: string, type: array<string, mixed>}> */
+    private function outcomeFieldsMetadata(array $fields): array
+    {
+        return array_map($this->outcomeFieldMetadata(...), $fields);
+    }
+
+    /** @return array<string, mixed> */
+    private function outcomeTypeMetadata(FrontendOutcomeTypeContract $type): array
+    {
+        return match ($type->kind) {
+            'scalar' => [
+                'kind' => 'scalar',
+                'nullable' => $type->nullable,
+                'scalar' => $type->scalar,
+            ],
+            'dto', 'list' => [
+                'kind' => $type->kind,
+                'nullable' => $type->nullable,
+                'class' => $type->class,
+                'fields' => array_map($this->outcomeFieldMetadata(...), $type->fields),
+            ],
+        };
     }
 
     /**
@@ -2349,6 +2541,7 @@ final readonly class FrontendTypeScriptGenerator
                 throw new InvalidArgumentException('Frontend operation outcome field is invalid.');
             }
             $outcomeNames[] = $field->name;
+            $this->assertOutcomeType($field->type);
         }
 
         $matches = [];
@@ -2375,6 +2568,40 @@ final readonly class FrontendTypeScriptGenerator
             )
         ) {
             throw new InvalidArgumentException('Frontend operation path bindings are invalid.');
+        }
+    }
+
+    private function assertOutcomeType(FrontendOutcomeTypeContract $type): void
+    {
+        if ($type->kind === 'scalar') {
+            if (
+                !in_array($type->scalar, ['string', 'integer', 'float', 'boolean'], strict: true)
+                || $type->class !== null
+                || $type->fields !== []
+            ) {
+                throw new InvalidArgumentException('Frontend outcome scalar contract is invalid.');
+            }
+
+            return;
+        }
+
+        if (
+            !in_array($type->kind, ['dto', 'list'], strict: true)
+            || $type->scalar !== null
+            || $type->class === null
+            || $type->class === ''
+            || $type->kind === 'list' && $type->nullable
+        ) {
+            throw new InvalidArgumentException('Frontend outcome DTO contract is invalid.');
+        }
+
+        $names = [];
+        foreach ($type->fields as $field) {
+            if ($field->name === '' || in_array($field->name, $names, strict: true)) {
+                throw new InvalidArgumentException('Frontend nested outcome field is invalid.');
+            }
+            $names[] = $field->name;
+            $this->assertOutcomeType($field->type);
         }
     }
 

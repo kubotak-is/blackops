@@ -53,10 +53,14 @@ final readonly class SensitiveProjectionFilter
     /**
      * @param array<array-key, mixed> $values
      *
-     * @return array<string, mixed>
+     * @return array<array-key, mixed>
      */
     public function projectArray(array $values): array
     {
+        if (array_is_list($values)) {
+            return array_map($this->projectValue(...), $values);
+        }
+
         $projection = [];
 
         foreach (array_keys($values) as $key) {

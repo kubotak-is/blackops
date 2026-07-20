@@ -6,11 +6,15 @@ namespace BlackOps\Tests\Transport\PostgreSql;
 
 use BlackOps\Core\ActorContext;
 use BlackOps\Core\ActorRef;
+use BlackOps\Core\Attribute\ListOf;
 use BlackOps\Core\Identifier\AttemptId;
 use BlackOps\Core\Identifier\CorrelationId;
 use BlackOps\Core\Identifier\JournalRecordId;
 use BlackOps\Core\Identifier\OperationId;
+use BlackOps\Core\Outcome;
+use BlackOps\Core\OutcomeData;
 use BlackOps\Journal\Data\AttemptRetryScheduledData;
+use BlackOps\Journal\Data\OperationCompletedData;
 use BlackOps\Journal\Data\OperationDeadLetteredData;
 use BlackOps\Journal\EmptyJournalData;
 use BlackOps\Journal\JournalData;
@@ -118,6 +122,29 @@ final class PostgreSqlJournalRecordCodecTest extends TestCase
         $legacy = $codec->decode(str_replace('2026-07-19T14:22:56.143069Z', '2026-07-19T14:22:56+00:00', $encoded));
         self::assertInstanceOf(OperationDeadLetteredData::class, $legacy->data);
         self::assertSame('2026-07-19T14:22:56.000000+00:00', $legacy->data->movedAt->format('Y-m-d\TH:i:s.uP'));
+    }
+
+    public function testRoundTripsStructuredCompletedOutcomeThroughCanonicalJournalCodec(): void
+    {
+        $author = new JournalOutcomeAuthor('author-1', 'Alice');
+        $outcome = new JournalStructuredOutcome(
+            [
+                new JournalOutcomeItem($author, 'item-1'),
+                new JournalOutcomeItem(null, 'item-2'),
+            ],
+            $author,
+            1.0,
+        );
+        $codec = new PostgreSqlJournalRecordCodec();
+
+        $decoded = $codec->decode($codec->encode($this->record(
+            event: JournalEvent::OperationCompleted,
+            data: new OperationCompletedData($outcome),
+        )));
+
+        self::assertInstanceOf(OperationCompletedData::class, $decoded->data);
+        self::assertEquals($outcome, $decoded->data->outcome);
+        self::assertSame(1.0, $decoded->data->outcome->ratio);
     }
 
     #[DataProvider('invalidActors')]
@@ -233,4 +260,31 @@ final class PostgreSqlJournalRecordCodecTest extends TestCase
             $data ?? new EmptyJournalData(),
         );
     }
+}
+
+final readonly class JournalOutcomeAuthor implements OutcomeData
+{
+    public function __construct(
+        public string $id,
+        public string $name,
+    ) {}
+}
+
+final readonly class JournalOutcomeItem implements OutcomeData
+{
+    public function __construct(
+        public ?JournalOutcomeAuthor $author,
+        public string $id,
+    ) {}
+}
+
+final readonly class JournalStructuredOutcome implements Outcome
+{
+    /** @param list<JournalOutcomeItem> $items */
+    public function __construct(
+        #[ListOf(JournalOutcomeItem::class)]
+        public array $items,
+        public JournalOutcomeAuthor $author,
+        public float $ratio,
+    ) {}
 }

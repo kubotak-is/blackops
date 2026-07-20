@@ -8,7 +8,6 @@ final readonly class FrontendOutcomeFieldContract
 {
     public function __construct(
         public string $name,
-        public string $type,
-        public bool $nullable,
+        public FrontendOutcomeTypeContract $type,
     ) {}
 }

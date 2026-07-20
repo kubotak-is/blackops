@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace BlackOps\Transport\PostgreSql;
 
+use BlackOps\Core\Outcome;
+use BlackOps\Outcome\Internal\StructuredOutcomeValueCodec;
 use ReflectionClass;
 use RuntimeException;
 
@@ -13,6 +15,7 @@ final readonly class PostgreSqlJournalValueCodec
 
     public function __construct(
         private PostgreSqlJson $json = new PostgreSqlJson(),
+        private StructuredOutcomeValueCodec $outcomes = new StructuredOutcomeValueCodec(),
     ) {}
 
     /**
@@ -20,6 +23,10 @@ final readonly class PostgreSqlJournalValueCodec
      */
     public function encode(object $value): array
     {
+        if ($value instanceof Outcome) {
+            return $this->outcomes->encode($value);
+        }
+
         $properties = [];
 
         foreach (new ReflectionClass($value)->getProperties() as $property) {
@@ -39,6 +46,10 @@ final readonly class PostgreSqlJournalValueCodec
 
         if (!class_exists($class)) {
             throw new RuntimeException('Stored value type is invalid.');
+        }
+
+        if (is_subclass_of($class, Outcome::class)) {
+            return $this->outcomes->decode($value);
         }
 
         return $this->decodeObject($class, $this->json->array($value, 'properties'));

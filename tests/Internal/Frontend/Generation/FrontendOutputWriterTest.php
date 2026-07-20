@@ -49,7 +49,7 @@ final class FrontendOutputWriterTest extends TestCase
             self::assertSame(2, new FrontendOutputWriter()->write($this->tree('current-build', 'current'), $output));
             self::assertSame('current', file_get_contents($output . '/client.ts'));
             self::assertStringContainsString(
-                '"schemaVersion": 4',
+                '"schemaVersion": 5',
                 (string) file_get_contents($output . '/manifest.json'),
             );
         }
@@ -143,7 +143,7 @@ final class FrontendOutputWriterTest extends TestCase
     private function markerWithSchema(int $schemaVersion, string $buildId): string
     {
         return str_replace(
-            '"schemaVersion": 4',
+            '"schemaVersion": 5',
             sprintf('"schemaVersion": %d', $schemaVersion),
             new FrontendGenerationMarker($buildId, str_repeat('a', 64))->encode(),
         );

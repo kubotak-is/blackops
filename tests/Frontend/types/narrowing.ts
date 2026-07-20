@@ -20,7 +20,9 @@ function acceptInline(result: CreateOrderResult): string {
   if (result.ok) {
     const status: 200 = result.status;
     const kind: 'completed' = result.kind;
-    return `${kind}:${status}:${result.data.orderId}`;
+    const ownerId: string = result.data.owner.id;
+    const lines: ReadonlyArray<import('../fixture/resources/js/blackops/operations/order/create-order').OrderLine> = result.data.lines;
+    return `${kind}:${status}:${result.data.orderId}:${ownerId}:${lines.length}`;
   }
 
   if (result.kind === 'validation') {
@@ -84,7 +86,7 @@ function acceptStatus(result: CreateOrderStatusResult): string {
   }
   if (result.kind === 'completed') {
     const state: 'completed' = result.data.state;
-    return `${state}:${result.data.outcome.orderId}:${result.data.outcome.total}`;
+    return `${state}:${result.data.outcome.orderId}:${result.data.outcome.owner.displayName}`;
   }
   if (result.kind === 'rejected') {
     const state: 'rejected' = result.data.state;

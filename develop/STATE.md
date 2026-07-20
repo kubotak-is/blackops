@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-20T08:40:45+09:00
+Updated At: 2026-07-20T09:43:15+09:00
 
 ## Current Phase
 
@@ -16,13 +16,13 @@ Specifications: `develop/spec/73-structured-outcome-contract.md`、`develop/spec
 
 ## Task Status
 
-Ready for Worker
+Accepted
 
-D104はA／A／A／D／Aで確定した。Public `OutcomeData`／`#[ListOf]`、Output-only Structured Shape、Frontend再帰Contract、PostgreSQL Outcome Codec Version 2を実装する。Version 1互換は維持せず、既存Local Dataは再作成する。P17-004 Task PacketはReadyであり、Community Board Domainへ進む前にFramework Capabilityを独立実装する。
+GPT-5.6 Luna High WorkerがP17-004とOrchestrator Review Fixを完了し、Orchestratorが差分と独立Quality Gateを受け入れた。Public `OutcomeData`／`#[ListOf]`、Outcome Layer所有の再帰Contract、Frontend Manifest Schema 3／Marker 5、Inline／Status共通Projection、PostgreSQL Outcome Codec Version 2、Canonical Journal、Sensitive Projectionを実装した。ReviewでDTO Generated／Imported Identifier衝突、同一FQCN Schema不一致、未知Outcome KindのSafe Failure、`__proto__` own-property安全性、zero-field Nested DTOのJSON Object投影を追加検証した。
 
 ## Last Accepted Task
 
-P17-003-identity-session-and-bff-boundary
+P17-004-structured-outcome-contract
 
 ## Pending Decisions
 
@@ -55,9 +55,32 @@ P17-003-identity-session-and-bff-boundary
 
 ## Required Next Action
 
-1. GPT-5.6 Luna High WorkerがP17-004 Task Packetを実装し、Report／STATEを更新する。
-2. Orchestratorが変更をReviewし、独立Quality Gateを実行する。
-3. Acceptedなら独立Commit／Pushし、P17-005 Post／Comment Task Packetへ進む。
+1. P17-004を独立Commit／Pushする。
+2. P17-005 Post／Comment Task Packetを確定し、GPT-5.6 Luna High Workerへ委譲する。
+
+## P17-004 Structured Outcome Contract Worker Verification
+
+```text
+Public／Contract: OutcomeData MarkerとListOf Property Attributeを追加。Scalar／Nullable／DTO／Nullable DTO／list<DTO>を再帰Compileし、Cycle、Unsupported、Invalid DTO／List、SensitiveをFail-fast。
+
+Frontend: Manifest Schema 3、Marker 5、Operation-local Readonly DTO／ReadonlyArray、Strict Recursive Decoder／Freezeを実装。Permanent FixtureのEmpty／Multiple／Wrong Element／Unknown／Missing／Wrong Scalar／Wrong List／Sparse／Freeze MatrixとStatus／Waitが成功。`__proto__`はown data propertyとして保持し、Prototype Pollutionなし。
+
+HTTP／Persistence: InlineとCompleted StatusのNested JSON完全一致。zero-field Nested／Nullable／List DTOは`{}`、zero-field Rootも既存`{}`を維持。PostgreSQL Outcome Schema 2でNested／List／Nullable／float 1.0 Round-trip、Schema 1／未知／Corrupt／Wrong Shape拒否。Canonical operation.completedも同ShapeをRound-trip。
+
+Projection／Input Boundary: Nested Omit／Mask／Hash、List Numeric Key／順序保持が成功。OperationValue Array Inputは引き続きbinding.typeで拒否。
+
+Quality: Composer Root／Quickstart valid。Mago format／lint／analyze成功。Orchestrator Focused PHPUnit OK (146 tests, 752 assertions)。Full PHPUnit OK (1471 tests, 5810 assertions)。Deptrac Violations 0。Frontend Build／Generate／Fresh／Typecheck／Runtime／Clean成功。
+
+Guards: Community Board／Quickstart Diffなし。Public API Count 149、Public Attribute Count 22。Generated／Build Artifact cleanup済み。Worker Commitなし。
+```
+
+### P17-004 Worker Notes
+
+共有Structured Outcomeは`BlackOps\Outcome\Internal`が所有する。Orchestrator承認によりTask Packetを機械的に拡張し、Http LayerからOutcome Layerへの依存許可とFrontend Freshness TestのSchema固定値除去を行った。Deptrac SkipやHttp／TransportからInternal Layerへの広い依存は追加していない。詳細は`develop/orchestration/reports/P17-004-structured-outcome-contract.md`を参照する。
+
+### P17-004 Orchestrator Review Fixes
+
+DTO Short Nameは全Operation-generated Identifier、選択されるResult Type、Operation Moduleの全固定Imported Type IdentifierとCase-insensitive比較する。同一DTO FQCNをcrafted Manifestが再利用するときはRecursive Schemaの完全一致を要求し、異なるSchemaを最初の定義へ黙って集約しない。未知Outcome KindはManifest EncodeとGenerationの両境界でSafe `InvalidArgumentException`へ閉じる。Decoderは`__proto__`を安全なown data propertyとして構築し、zero-field Nested／Nullable／List DTOをJSON Objectとして扱う。Generator PHPUnit 19 tests／292 assertions、Internal Frontend PHPUnit 48 tests／440 assertions、Normalizer／HTTP／Generator Focused 52 tests／437 assertions、Generated Runtime、Mago、Deptracが再成功した。
 
 ## P17-003 Identity, Session, and BFF Boundary Worker Verification
 

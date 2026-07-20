@@ -7,6 +7,7 @@ namespace BlackOps\Http\Status;
 use BlackOps\Core\EmptyOutcome;
 use BlackOps\Core\Outcome;
 use BlackOps\Core\Time\TimeCodec;
+use BlackOps\Outcome\Internal\StructuredOutcomeNormalizer;
 use BlackOps\Status\OperationStatus;
 use BlackOps\Status\OperationStatusExpired;
 use BlackOps\Status\OperationStatusFound;
@@ -18,17 +19,16 @@ use LogicException;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamFactoryInterface;
-use ReflectionClass;
 use RuntimeException;
 use stdClass;
 
-/** @mago-expect lint:cyclomatic-complexity */
 final readonly class OperationStatusJsonResponder
 {
     public function __construct(
         private ResponseFactoryInterface $responses,
         private StreamFactoryInterface $streams,
         private TimeCodec $time = new TimeCodec(),
+        private StructuredOutcomeNormalizer $outcomes = new StructuredOutcomeNormalizer(),
     ) {}
 
     public function respond(OperationStatusResult $result): ResponseInterface
@@ -125,14 +125,7 @@ final readonly class OperationStatusJsonResponder
             return new stdClass();
         }
 
-        $payload = [];
-        foreach (new ReflectionClass($outcome)->getProperties() as $property) {
-            if (!$property->isPublic() || $property->isStatic()) {
-                continue;
-            }
-
-            $payload[$property->getName()] = $property->getValue($outcome);
-        }
+        $payload = $this->outcomes->normalize($outcome);
 
         return $payload === [] ? new stdClass() : $payload;
     }

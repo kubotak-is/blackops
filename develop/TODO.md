@@ -129,7 +129,7 @@ MVP後に残す主要項目:
 - [x] `examples/community-board/`のApplication／SvelteKit／Compose Foundationを構築する
 - [x] Application-owned Authentication EndpointとSvelteKit Server-only Sessionを実装する
 - [x] D104でStructured OutcomeのNested DTO／Typed List／Persistence境界を決定する
-- [ ] P17-004でStructured OutcomeをHTTP／Persistence／Frontendへ実装する
+- [x] P17-004でStructured OutcomeをHTTP／Persistence／Frontendへ実装する
 - [ ] Post／CommentのInline Operation、Validation、Authorization、Transactionを実装する
 - [ ] Generated Operation ObjectをServer-only BFFへ接続し、投稿Journeyを実装する
 - [ ] Deferred `GenerateWeeklyDigest`とStatus／Wait／Typed Outcome UIを実装する

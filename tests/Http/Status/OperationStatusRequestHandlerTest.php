@@ -5,9 +5,13 @@ declare(strict_types=1);
 namespace BlackOps\Tests\Http\Status;
 
 use BlackOps\Core\ActorRef;
+use BlackOps\Core\Attribute\ListOf;
 use BlackOps\Core\EmptyOutcome;
 use BlackOps\Core\Identifier\OperationId;
+use BlackOps\Core\OperationResult;
 use BlackOps\Core\Outcome;
+use BlackOps\Core\OutcomeData;
+use BlackOps\Http\Responder\JsonOperationResponder;
 use BlackOps\Http\Status\OperationStatusJsonResponder;
 use BlackOps\Http\Status\OperationStatusRequestHandler;
 use BlackOps\Status\Exception\OperationStatusQueryException;
@@ -93,7 +97,7 @@ final class OperationStatusRequestHandlerTest extends TestCase
             true,
         ];
         yield 'completed' => [
-            OperationStatus::completed($id, 'report.generate', new StatusHttpOutcome('report-1042', 'private')),
+            OperationStatus::completed($id, 'report.generate', new StatusHttpOutcome('report-1042')),
             [...$common, 'state' => 'completed', 'outcome' => ['reportId' => 'report-1042']],
             false,
         ];
@@ -132,6 +136,61 @@ final class OperationStatusRequestHandlerTest extends TestCase
         ));
 
         self::assertStringContainsString('"outcome":{}', (string) $response->getBody());
+    }
+
+    public function testInlineAndCompletedStatusShareTheSameStructuredOutcomeShape(): void
+    {
+        $author = new StatusAuthorOutcomeData('author-1', 'Alice');
+        $outcome = new StatusStructuredOutcome([
+            new StatusItemOutcomeData($author, 'item-1'),
+            new StatusItemOutcomeData(null, 'item-2'),
+        ], $author);
+
+        $inline = new JsonOperationResponder($this->psr17, $this->psr17)->respond(OperationResult::completed($outcome));
+        $status = new OperationStatusJsonResponder(
+            $this->psr17,
+            $this->psr17,
+        )->respond(new OperationStatusFound(OperationStatus::completed(
+            OperationId::fromString(self::OPERATION_ID),
+            'report.generate',
+            $outcome,
+        )));
+        $inlinePayload = json_decode((string) $inline->getBody(), true, flags: JSON_THROW_ON_ERROR);
+        $statusPayload = json_decode((string) $status->getBody(), true, flags: JSON_THROW_ON_ERROR);
+
+        self::assertSame(
+            [
+                'author' => ['id' => 'author-1', 'name' => 'Alice'],
+                'items' => [
+                    ['author' => ['id' => 'author-1', 'name' => 'Alice'], 'id' => 'item-1'],
+                    ['author' => null, 'id' => 'item-2'],
+                ],
+            ],
+            $inlinePayload,
+        );
+        self::assertSame($inlinePayload, $statusPayload['outcome']);
+    }
+
+    public function testInlineAndCompletedStatusEncodeZeroFieldDtoAsJsonObjects(): void
+    {
+        $empty = new StatusZeroFieldOutcomeData();
+        $outcome = new StatusZeroFieldNestedOutcome([$empty, new StatusZeroFieldOutcomeData()], $empty, $empty);
+
+        $inline = new JsonOperationResponder($this->psr17, $this->psr17)->respond(OperationResult::completed($outcome));
+        $status = new OperationStatusJsonResponder(
+            $this->psr17,
+            $this->psr17,
+        )->respond(new OperationStatusFound(OperationStatus::completed(
+            OperationId::fromString(self::OPERATION_ID),
+            'report.generate',
+            $outcome,
+        )));
+
+        self::assertSame('{"items":[{},{}],"nested":{},"optional":{}}', (string) $inline->getBody());
+        self::assertStringContainsString(
+            '"outcome":{"items":[{},{}],"nested":{},"optional":{}}',
+            (string) $status->getBody(),
+        );
     }
 
     /** @return iterable<string, array{OperationStatusResult, int, string}> */
@@ -205,6 +264,11 @@ final class OperationStatusRequestHandlerTest extends TestCase
                 'report.generate',
                 new InvalidJsonStatusOutcome("\xB1\x31"),
             ))),
+            new RecordingStatusQuery(new OperationStatusFound(OperationStatus::completed(
+                OperationId::fromString(self::OPERATION_ID),
+                'report.generate',
+                new InvalidListStatusOutcome(['not-a-list' => new StatusAuthorOutcomeData('author-1', 'Alice')]),
+            ))),
         ];
 
         foreach ($failures as $query) {
@@ -263,13 +327,10 @@ final class RecordingStatusQuery implements OperationStatusQuery
     }
 }
 
-final class StatusHttpOutcome implements Outcome
+final readonly class StatusHttpOutcome implements Outcome
 {
-    public static string $shared = 'not-instance-outcome-data';
-
     public function __construct(
-        public readonly string $reportId,
-        private readonly string $secret,
+        public string $reportId,
     ) {}
 }
 
@@ -277,5 +338,53 @@ final readonly class InvalidJsonStatusOutcome implements Outcome
 {
     public function __construct(
         public string $value,
+    ) {}
+}
+
+final readonly class StatusAuthorOutcomeData implements OutcomeData
+{
+    public function __construct(
+        public string $id,
+        public string $name,
+    ) {}
+}
+
+final readonly class StatusItemOutcomeData implements OutcomeData
+{
+    public function __construct(
+        public ?StatusAuthorOutcomeData $author,
+        public string $id,
+    ) {}
+}
+
+final readonly class StatusStructuredOutcome implements Outcome
+{
+    /** @param list<StatusItemOutcomeData> $items */
+    public function __construct(
+        #[ListOf(StatusItemOutcomeData::class)]
+        public array $items,
+        public StatusAuthorOutcomeData $author,
+    ) {}
+}
+
+final readonly class StatusZeroFieldOutcomeData implements OutcomeData {}
+
+final readonly class StatusZeroFieldNestedOutcome implements Outcome
+{
+    /** @param list<StatusZeroFieldOutcomeData> $items */
+    public function __construct(
+        #[ListOf(StatusZeroFieldOutcomeData::class)]
+        public array $items,
+        public StatusZeroFieldOutcomeData $nested,
+        public ?StatusZeroFieldOutcomeData $optional,
+    ) {}
+}
+
+final readonly class InvalidListStatusOutcome implements Outcome
+{
+    /** @param array<array-key, mixed> $items */
+    public function __construct(
+        #[ListOf(StatusAuthorOutcomeData::class)]
+        public array $items,
     ) {}
 }

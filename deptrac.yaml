@@ -109,6 +109,7 @@ deptrac:
     Http:
       - Core
       - Execution
+      - Outcome
       - Status
       - Library
     Logging:

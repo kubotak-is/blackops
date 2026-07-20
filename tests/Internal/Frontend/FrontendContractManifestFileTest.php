@@ -56,10 +56,15 @@ final class FrontendContractManifestFileTest extends TestCase
     public function testRejectsLegacyAndUnknownValueAndOutcomeScalarKinds(): void
     {
         foreach (['number', 'decimal'] as $invalidType) {
-            foreach ([['value', 0], ['outcome', 0]] as [$section, $index]) {
-                $artifact = $this->validArtifact();
-                $artifact['payload']['operations'][0][$section]['fields'][$index]['type'] = $invalidType;
+            $artifacts = [];
+            $value = $this->validArtifact();
+            $value['payload']['operations'][0]['value']['fields'][0]['type'] = $invalidType;
+            $artifacts[] = $value;
+            $outcome = $this->validArtifact();
+            $outcome['payload']['operations'][0]['outcome']['fields'][0]['type']['scalar'] = $invalidType;
+            $artifacts[] = $outcome;
 
+            foreach ($artifacts as $artifact) {
                 try {
                     new FrontendContractManifestCodec()->decode($artifact);
                     self::fail('Expected invalid frontend scalar kind.');
@@ -70,17 +75,81 @@ final class FrontendContractManifestFileTest extends TestCase
         }
     }
 
-    public function testDecodesAllVersionTwoScalarKindsForValuesAndOutcomes(): void
+    public function testDecodesAllVersionThreeScalarKindsForValuesAndOutcomes(): void
     {
         foreach (['string', 'integer', 'float', 'boolean'] as $type) {
             $artifact = $this->validArtifact();
             $artifact['payload']['operations'][0]['value']['fields'][0]['type'] = $type;
-            $artifact['payload']['operations'][0]['outcome']['fields'][0]['type'] = $type;
+            $artifact['payload']['operations'][0]['outcome']['fields'][0]['type']['scalar'] = $type;
 
             $manifest = new FrontendContractManifestCodec()->decode($artifact)->manifest;
 
             self::assertSame($type, $manifest->operations[0]->value->fields[0]->type);
-            self::assertSame($type, $manifest->operations[0]->outcome->fields[0]->type);
+            self::assertSame($type, $manifest->operations[0]->outcome->fields[0]->type->scalar);
+        }
+    }
+
+    public function testRoundTripsRecursiveDtoAndListSchema(): void
+    {
+        $artifact = $this->validArtifact();
+        $artifact['payload']['operations'][0]['outcome']['fields'][0]['type'] = [
+            'kind' => 'list',
+            'nullable' => false,
+            'class' => 'App\\OrderSummary',
+            'fields' => [[
+                'name' => 'owner',
+                'type' => [
+                    'kind' => 'dto',
+                    'nullable' => true,
+                    'class' => 'App\\OwnerSummary',
+                    'fields' => [[
+                        'name' => 'id',
+                        'type' => ['kind' => 'scalar', 'nullable' => false, 'scalar' => 'string'],
+                    ]],
+                ],
+            ]],
+        ];
+
+        $codec = new FrontendContractManifestCodec();
+        $decoded = $codec->decode($artifact);
+        $encoded = $codec->encode($decoded->manifest, $decoded->applicationBuildId);
+
+        self::assertSame($artifact, $encoded);
+        $type = $decoded->manifest->operations[0]->outcome->fields[0]->type;
+        self::assertSame('list', $type->kind);
+        self::assertSame('dto', $type->fields[0]->type->kind);
+        self::assertTrue($type->fields[0]->type->nullable);
+    }
+
+    public function testRejectsCorruptRecursiveOutcomeSchema(): void
+    {
+        $cases = [];
+        $unknown = $this->validArtifact();
+        $unknown['payload']['operations'][0]['outcome']['fields'][0]['type']['credential'] = 'secret';
+        $cases[] = $unknown;
+        $nullableList = $this->validArtifact();
+        $nullableList['payload']['operations'][0]['outcome']['fields'][0]['type'] = [
+            'kind' => 'list',
+            'nullable' => true,
+            'class' => 'App\\Item',
+            'fields' => [],
+        ];
+        $cases[] = $nullableList;
+        $missingClass = $this->validArtifact();
+        $missingClass['payload']['operations'][0]['outcome']['fields'][0]['type'] = [
+            'kind' => 'dto',
+            'nullable' => false,
+            'fields' => [],
+        ];
+        $cases[] = $missingClass;
+
+        foreach ($cases as $artifact) {
+            try {
+                new FrontendContractManifestCodec()->decode($artifact);
+                self::fail('Expected corrupt recursive outcome schema.');
+            } catch (InvalidArgumentException $exception) {
+                self::assertStringContainsString('outcome', $exception->getMessage());
+            }
         }
     }
 
@@ -144,8 +213,11 @@ final class FrontendContractManifestFileTest extends TestCase
                         'mode' => 'outcome',
                         'fields' => [[
                             'name' => 'total',
-                            'type' => 'float',
-                            'nullable' => false,
+                            'type' => [
+                                'kind' => 'scalar',
+                                'nullable' => false,
+                                'scalar' => 'float',
+                            ],
                         ]],
                     ],
                 ]],

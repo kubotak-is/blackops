@@ -28,6 +28,7 @@ use BlackOps\Http\Attribute\FromPath;
 use BlackOps\Http\Attribute\FromQuery;
 use BlackOps\Http\Attribute\Route;
 use BlackOps\Http\Binding\OperationValueBinder;
+use BlackOps\Http\Binding\OperationValueBindingException;
 use BlackOps\Http\DeferredOperationAcceptor;
 use BlackOps\Http\OperationRequestHandler;
 use BlackOps\Http\Responder\JsonOperationResponder;
@@ -169,6 +170,16 @@ final class OperationRequestHandlerTest extends TestCase
             '{"status":"rejected","operationId":"019f32ab-2be0-7b38-a0a7-1ab2f9687697","category":"forbidden","code":"authorization.welcome_forbidden"}',
             (string) $response->getBody(),
         );
+    }
+
+    public function testZeroFieldNonEmptyOutcomeIsAJsonObject(): void
+    {
+        $response = $this->httpHandler(new FixedDispatcher(OperationResult::completed(
+            new ZeroFieldOutcomeFixture(),
+        )))->handle($this->request('GET', '/welcome'));
+
+        self::assertSame(200, $response->getStatusCode());
+        self::assertSame('{}', (string) $response->getBody());
     }
 
     public function testAuthenticatedRequestActorIsPassedAsCompleteActorContext(): void
@@ -399,6 +410,20 @@ final class OperationRequestHandlerTest extends TestCase
         self::assertSame('hello', $value->note);
     }
 
+    public function testStructuredOutcomeSupportDoesNotEnableArrayOperationValueInput(): void
+    {
+        try {
+            new OperationValueBinder()->bind(ArrayInputValueFixture::class, $this->request(
+                'POST',
+                '/items',
+                '{"items":[{"id":"item-1"}]}',
+            ));
+            self::fail('Expected array input binding to remain unsupported.');
+        } catch (OperationValueBindingException $exception) {
+            self::assertSame('binding.type', $exception->violations()[0]->code);
+        }
+    }
+
     public function testDynamicPathRoutePassesPathParametersToBinder(): void
     {
         $dispatcher = new RecordingDispatcher(OperationResult::completed(new WelcomeShown('ok')));
@@ -607,12 +632,22 @@ final readonly class BoundHttpValueFixture implements OperationValue
     ) {}
 }
 
+final readonly class ArrayInputValueFixture implements OperationValue
+{
+    /** @param list<array{id: string}> $items */
+    public function __construct(
+        public array $items,
+    ) {}
+}
+
 final readonly class WelcomeShown implements Outcome
 {
     public function __construct(
         public string $message,
     ) {}
 }
+
+final readonly class ZeroFieldOutcomeFixture implements Outcome {}
 
 /** @implements OperationHandler<WelcomeValue, WelcomeShown> */
 final readonly class WelcomeHandler implements OperationHandler

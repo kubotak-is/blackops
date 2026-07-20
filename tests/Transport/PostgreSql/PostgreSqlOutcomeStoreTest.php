@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace BlackOps\Tests\Transport\PostgreSql;
 
+use BlackOps\Core\Attribute\ListOf;
 use BlackOps\Core\Execution\DeferredOperationMessage;
 use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Core\Outcome;
+use BlackOps\Core\OutcomeData;
 use BlackOps\Outcome\Exception\OutcomeStoreException;
 use BlackOps\Outcome\OutcomeRecord;
 use BlackOps\Outcome\OutcomeStore;
@@ -93,6 +95,31 @@ final class PostgreSqlOutcomeStoreTest extends TestCase
         self::assertSame('2026-07-12T00:30:00.000000+00:00', $record->completedAt()->format('Y-m-d\TH:i:s.uP'));
     }
 
+    public function testVersionTwoRoundTripsStructuredOutcomeListsNullableDtoAndFloat(): void
+    {
+        $this->markCompleted();
+        $id = OperationId::fromString(self::OPERATION_ID);
+        $author = new PostgreSqlOutcomeAuthor('author-1', 'Alice');
+        $outcome = new PostgreSqlStructuredOutcome(
+            [
+                new PostgreSqlOutcomeItem($author, 'item-1'),
+                new PostgreSqlOutcomeItem(null, 'item-2'),
+            ],
+            $author,
+            1.0,
+        );
+        $this->store->save(new OutcomeRecord($id, $outcome, new DateTimeImmutable('2026-07-12T00:30:00Z')));
+
+        $record = $this->store->find($id);
+
+        self::assertNotNull($record);
+        self::assertEquals($outcome, $record->outcome());
+        self::assertSame(1.0, $record->outcome()->ratio);
+        self::assertSame(2, $this->connection->fetchOne('SELECT schema_version FROM '
+        . self::SCHEMA
+        . '.outcomes WHERE operation_id = :operation_id', ['operation_id' => self::OPERATION_ID]));
+    }
+
     public function testUnknownOperationReturnsNull(): void
     {
         self::assertNull($this->store->find(OperationId::fromString('019f32ab-2be0-7b38-a0a7-1ab2f9687903')));
@@ -152,9 +179,19 @@ final class PostgreSqlOutcomeStoreTest extends TestCase
         $this->store->find(OperationId::fromString(self::OPERATION_ID));
     }
 
+    public function testVersionOneSchemaIsRejectedWithoutFallback(): void
+    {
+        $this->insertRaw(PostgreSqlStoredOutcome::class, 1, $this->payload(PostgreSqlStoredOutcome::class));
+
+        $this->expectException(OutcomeStoreException::class);
+        $this->expectExceptionMessage('schema version');
+
+        $this->store->find(OperationId::fromString(self::OPERATION_ID));
+    }
+
     public function testCorruptPayloadFails(): void
     {
-        $this->insertRaw(PostgreSqlStoredOutcome::class, 1, '{broken');
+        $this->insertRaw(PostgreSqlStoredOutcome::class, 2, '{broken');
 
         $this->expectException(OutcomeStoreException::class);
         $this->expectExceptionMessage('payload is corrupt');
@@ -164,7 +201,7 @@ final class PostgreSqlOutcomeStoreTest extends TestCase
 
     public function testPayloadTypeMismatchFails(): void
     {
-        $this->insertRaw(AnotherPostgreSqlStoredOutcome::class, 1, $this->payload(PostgreSqlStoredOutcome::class));
+        $this->insertRaw(AnotherPostgreSqlStoredOutcome::class, 2, $this->payload(PostgreSqlStoredOutcome::class));
 
         $this->expectException(OutcomeStoreException::class);
         $this->expectExceptionMessage('type does not match');
@@ -172,10 +209,34 @@ final class PostgreSqlOutcomeStoreTest extends TestCase
         $this->store->find(OperationId::fromString(self::OPERATION_ID));
     }
 
+    public function testStoredFieldShapeMismatchFails(): void
+    {
+        $this->insertRaw(PostgreSqlStoredOutcome::class, 2, json_encode([
+            '__class' => PostgreSqlStoredOutcome::class,
+            'properties' => ['message' => 'stored', 'unknown' => 'not-allowed'],
+        ], JSON_THROW_ON_ERROR));
+
+        $this->expectException(OutcomeStoreException::class);
+        $this->expectExceptionMessage('payload is corrupt');
+
+        $this->store->find(OperationId::fromString(self::OPERATION_ID));
+    }
+
+    public function testUnknownOutcomeClassFails(): void
+    {
+        $class = 'Unknown\\StoredOutcome';
+        $this->insertRaw($class, 2, $this->payload($class));
+
+        $this->expectException(OutcomeStoreException::class);
+        $this->expectExceptionMessage('type is not an Outcome');
+
+        $this->store->find(OperationId::fromString(self::OPERATION_ID));
+    }
+
     public function testRestoredNonOutcomeFails(): void
     {
         PostgreSqlNotOutcome::$constructions = 0;
-        $this->insertRaw(PostgreSqlNotOutcome::class, 1, $this->payload(PostgreSqlNotOutcome::class));
+        $this->insertRaw(PostgreSqlNotOutcome::class, 2, $this->payload(PostgreSqlNotOutcome::class));
 
         $this->expectException(OutcomeStoreException::class);
         $this->expectExceptionMessage('type is not an Outcome');
@@ -255,6 +316,33 @@ final readonly class AnotherPostgreSqlStoredOutcome implements Outcome
 {
     public function __construct(
         public string $message,
+    ) {}
+}
+
+final readonly class PostgreSqlOutcomeAuthor implements OutcomeData
+{
+    public function __construct(
+        public string $id,
+        public string $name,
+    ) {}
+}
+
+final readonly class PostgreSqlOutcomeItem implements OutcomeData
+{
+    public function __construct(
+        public ?PostgreSqlOutcomeAuthor $author,
+        public string $id,
+    ) {}
+}
+
+final readonly class PostgreSqlStructuredOutcome implements Outcome
+{
+    /** @param list<PostgreSqlOutcomeItem> $items */
+    public function __construct(
+        #[ListOf(PostgreSqlOutcomeItem::class)]
+        public array $items,
+        public PostgreSqlOutcomeAuthor $author,
+        public float $ratio,
     ) {}
 }
 

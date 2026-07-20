@@ -151,7 +151,7 @@ final class FrontendContractCompilerTest extends TestCase
         );
         self::assertSame(
             ['integer', 'boolean', 'string', 'float'],
-            array_map(static fn($field): string => $field->type, $order->outcome->fields),
+            array_map(static fn($field): ?string => $field->type->scalar, $order->outcome->fields),
         );
 
         $fields = [];

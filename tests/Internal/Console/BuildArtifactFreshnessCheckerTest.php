@@ -39,7 +39,13 @@ final class BuildArtifactFreshnessCheckerTest extends TestCase
         self::assertTrue($checker->isFresh($fingerprint, [$input], $outputs, $manifests, 'fresh-build'));
 
         $frontendSource = (string) file_get_contents($frontend);
-        $legacySource = str_replace("'schemaVersion' => 2,", "'schemaVersion' => 1,", $frontendSource);
+        $currentSchema = FrontendContractManifestFile::SCHEMA_VERSION;
+        $legacySchema = $currentSchema - 1;
+        $legacySource = str_replace(
+            "'schemaVersion' => {$currentSchema},",
+            "'schemaVersion' => {$legacySchema},",
+            $frontendSource,
+        );
         self::assertNotSame($frontendSource, $legacySource);
         file_put_contents($frontend, $legacySource);
         self::assertFalse($checker->isFresh($fingerprint, [$input], $outputs, $manifests, 'fresh-build'));

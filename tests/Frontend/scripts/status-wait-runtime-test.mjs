@@ -585,10 +585,29 @@ const defaultRuntime = await CreateOrder.wait(operationId, {
   signal: defaultSignal.signal,
   maxWaitMilliseconds: 1_000,
   fetch: async () => jsonResponse(200, statusPayload('order.create', 'completed', {
-    outcome: { active: true, orderId: 'default-runtime', sequence: 1, total: 1.5 },
+    outcome: {
+      ['__proto__']: {},
+      active: true,
+      emptyMetadata: {},
+      emptyMetadataItems: [{}, {}],
+      lines: [],
+      optionalEmptyMetadata: {},
+      optionalOwner: null,
+      orderId: 'default-runtime',
+      owner: { displayName: 'Runtime', id: 'owner-runtime' },
+      sequence: 1,
+      total: 1.5,
+    },
   })),
 });
 assert.equal(defaultRuntime.kind, 'completed');
+assert.equal(Object.hasOwn(defaultRuntime.data.outcome, '__proto__'), true);
+assert.deepEqual(defaultRuntime.data.outcome.__proto__, {});
+assert.ok(Object.isFrozen(defaultRuntime.data.outcome.__proto__));
+assert.equal(Object.getPrototypeOf(defaultRuntime.data.outcome), Object.prototype);
+assert.equal(Object.prototype.polluted, undefined);
+assert.ok(Object.isFrozen(defaultRuntime.data.outcome.emptyMetadata));
+assert.ok(Object.isFrozen(defaultRuntime.data.outcome.emptyMetadataItems[0]));
 assert.equal(defaultSignal.activeListeners, 0);
 
 if (originalFetch === undefined) {

@@ -57,6 +57,39 @@ final class SensitiveProjectionFilterTest extends TestCase
 
         new SensitiveProjectionFilter()->projectObject(new SensitiveHashOnlyFixture('customer-1'));
     }
+
+    public function testRecursivelyProjectsNestedObjectsAndPreservesListKeysAndOrder(): void
+    {
+        $projection = new SensitiveProjectionFilter('projection-secret')->projectObject(new SensitiveListFixture([
+            new SensitiveProjectionFixture('alice', 'secret-a', 'alice@example.test', 'customer-1'),
+            new SensitiveProjectionFixture('bob', 'secret-b', 'bob@example.test', 'customer-2'),
+        ]));
+
+        self::assertSame([0, 1], array_keys($projection['items']));
+        self::assertSame(['alice', 'bob'], array_column($projection['items'], 'name'));
+        self::assertArrayNotHasKey('password', $projection['items'][0]);
+        self::assertSame('[masked]', $projection['items'][1]['email']);
+        self::assertSame(
+            'hmac-sha256:' . hash_hmac('sha256', 'customer-2', 'projection-secret'),
+            $projection['items'][1]['customerId'],
+        );
+    }
+
+    public function testListElementsAreNotTreatedAsReservedAssociativeKeys(): void
+    {
+        $projection = new SensitiveProjectionFilter()->projectArray([
+            ['token' => 'secret', 'value' => 'first'],
+            ['password' => 'secret', 'value' => 'second'],
+        ]);
+
+        self::assertSame(
+            [
+                0 => ['value' => 'first'],
+                1 => ['value' => 'second'],
+            ],
+            $projection,
+        );
+    }
 }
 
 final readonly class SensitiveProjectionFixture
@@ -77,5 +110,13 @@ final readonly class SensitiveHashOnlyFixture
     public function __construct(
         #[Sensitive(SensitiveMode::Hash)]
         public string $customerId,
+    ) {}
+}
+
+final readonly class SensitiveListFixture
+{
+    /** @param list<SensitiveProjectionFixture> $items */
+    public function __construct(
+        public array $items,
     ) {}
 }
