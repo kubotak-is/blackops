@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-20T23:19:04+09:00
+Updated At: 2026-07-21T00:42:43+09:00
 
 ## Current Phase
 
@@ -16,9 +16,9 @@ Specifications: `develop/spec/71-full-stack-reference-application.md`、`develop
 
 ## Task Status
 
-Awaiting User Decision
+Decided
 
-P17-006は`d543bc4`としてCommit／Push済み。P17-007のMigration／DomainService／Outcome／Retry Evidenceを変えるWeek境界、保存Content、再生成、Development／Test Failure AdapterをD107の4問として提示した。回答まではP17-007 Production CodeとTask Packetを確定しない。
+UserはD107へA／A／A／Aと回答した。UTC ISO Week、件数だけのImmutable Digest Snapshot、成功Requestごとの新規Row、Development／Test限定First-attempt Failure Adapter、Server-only Status／Wait BFFを確定し、Phase 17 Specificationへ同期した。
 
 ## Last Accepted Task
 
@@ -50,17 +50,17 @@ P17-006-generated-operations-and-sveltekit-product-journey
 22. D104はA／A／A／D／Aで確定。Outcome OutputへReadonly Nested DTO／Typed Listを追加し、`OutcomeData`／`#[ListOf]`、PostgreSQL Outcome Codec Version 2、Version 1非互換、独立P17-004を採用する。
 23. D105はAで確定。PostをHard Deleteし、配下CommentもForeign Key Cascadeで同じTransaction内に削除する。Application Data RetentionとUser削除は未決のままとする。
 24. D106でBoard Domain／Infrastructure分離とDomainServiceへの業務ロジック集約を確定した。DomainはBlackOps／Doctrine／Symfonyへ依存しない。
-25. D107はWeek境界、Digest Content／削除後Snapshot、同一User／Week再生成、Development／Test Failure Adapterの回答待ちである。
+25. D107はA／A／A／Aで確定。UTC ISO Week、件数だけのImmutable Snapshot、成功Requestごとの新規Row、Development／Test限定Failure Adapterを採用する。
 
 ## Known Blockers
 
-D107のUser回答待ち。Documentation WebsiteはUser判断どおり未公開であり、Publication／Deployは行わない。
+なし。Documentation WebsiteはUser判断どおり未公開であり、Publication／Deployは行わない。
 
 ## Required Next Action
 
-1. UserがD107のQuestion 1から4へ回答する。
-2. OrchestratorがD107とPhase 17 Specificationを確定する。
-3. P17-007 Deferred Weekly Digest／Status UIのTask Packetを作成し、GPT-5.6 Luna High Workerへ委譲する。
+1. D107とPhase 17 Specificationの同期を独立Commit／Pushする。
+2. P17-007 Deferred Weekly Digest／Status UIのTask Packetを作成する。
+3. P17-007をGPT-5.6 Luna High Workerへ委譲する。
 
 ## P17-006 Generated Operations and SvelteKit Product Journey Worker Verification
 

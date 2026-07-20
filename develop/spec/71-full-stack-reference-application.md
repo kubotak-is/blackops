@@ -127,7 +127,8 @@ board_digests
 - SessionはToken Hash、User ID、Issued At、Expires At、Revoked Atを持つ。
 - PostはAuthor ID、Title、Body、Created At、Updated Atを持つ。
 - CommentはPost ID、Author ID、Body、Created Atを持つ。
-- DigestはRequested User ID、Week、Statusに依存しない保存済みContent、集計数、Created Atを持つ。
+- DigestはUUID ID、Requested User ID、ISO Week、Statusに依存しない保存済みPlain Text Content、Post Count、Comment Count、Created Atを持つ。Requested User／WeekをUniqueにせず、成功したGenerate Requestごとに新しいImmutable Rowを作る。
+- Digest Contentは件数だけから決定的に生成し、Post Title／Body／PreviewとComment本文を保存しない。後からPostをHard Deleteしても既存Digest Snapshotは書き換えず、再生成時はその時点で存在するRowだけを改めて集計する。
 - PostはHard Deleteし、配下CommentもForeign Key Cascadeで同じTransaction内に削除する。削除後はFeed／Detail／Digestの対象外とし、復元機能を持たない。
 - Hard Deleteの対象はApplication Tableである。Canonical JournalはFramework Retention Contractに従ってOperationValueを保持し得るため、Post削除をJournal Scrubbingとして扱わない。
 - Application Data RetentionとUser削除はInitial Scopeで無断決定せず、必要になった時点でDecisionへ返す。
@@ -158,7 +159,7 @@ Mutation Operationは`#[Transactional]`を使い、業務更新と成功Terminal
 - Registration: Email形式、Password Length、Display Name Length
 - Post: Title Length、Body Length
 - Comment: Body Length
-- Digest: ISO WeekのCanonical形式
+- Digest: ISO WeekのCanonical `YYYY-Www`形式と、そのISO Yearに実在するWeek
 - Path／Query Native Scalarは既存HTTP Coercion Contractを使う
 - 422 ResponseはGenerated Validation ResultからSvelteKit Form ErrorへField単位で投影する
 - Password、Session Credential、Authorization HeaderをValidationのRejected ValueやUIへ反射しない
@@ -168,6 +169,8 @@ Mutation Operationは`#[Transactional]`を使い、業務更新と成功Terminal
 ## Deferred Digest Journey
 
 `GenerateWeeklyDigest`は指定週の、認可されたUserが参照可能なPost／Commentを集計して`board_digests`へ保存する。
+
+集計境界はUTCのISO Weekとし、月曜00:00以上、翌月曜00:00未満を対象にする。実行時点でApplication Tableに存在するPost／Commentだけを数え、Plain Text Contentは件数から決定的に生成する。同じUser／Weekの再実行は新しいDigest ID／Rowを作る。
 
 ```text
 SvelteKit Form Action
@@ -186,6 +189,7 @@ SvelteKit Form Action
 - `.wait()`はRequest Abort Signalと有限`maxWaitMilliseconds`を必須とする。
 - UIは少なくともaccepted、running、retry_scheduled、completed、failedを区別する。
 - Retryを見せるためにProduction Logicへ意図的Failureを埋め込まない。Deterministic Failure AdapterはTest／Development Compositionだけに限定する。
+- Failure AdapterはOperation実行境界のApplication-owned Portとし、ProductionはNo-op、Development／Testだけが明示Configuration時にAttempt 1をRetryable Failureにする。Failure FlagをOperationValueやBrowserへ追加しない。
 - Digest OutcomeはCredential、Raw Post Body全体、Journal Dataを含めず、Digest ID、Week、集計数等のSafe Fieldだけを返す。
 
 ## Authorization

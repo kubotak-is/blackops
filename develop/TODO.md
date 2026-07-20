@@ -133,7 +133,7 @@ MVP後に残す主要項目:
 - [x] D105でCommunity BoardのPost削除方式とComment保持境界を決定する
 - [x] Post／CommentのInline Operation、Validation、Authorization、Transactionを実装する
 - [x] Generated Operation ObjectをServer-only BFFへ接続し、投稿Journeyを実装する
-- [ ] D107でDeferred DigestのWeek、Content、再生成、Failure Adapterを決定する
+- [x] D107でDeferred DigestのWeek、Content、再生成、Failure Adapterを決定する
 - [ ] Deferred `GenerateWeeklyDigest`とStatus／Wait／Typed Outcome UIを実装する
 - [ ] Taste SkillをDesign Directionへ適用し、`reicon.dev`をIcon Sourceとして、Accessibility／Responsive／State UIを完成する
 - [ ] Real Browser E2E、CI、Screenshot、README／Guideを同期してPhase 17をCloseする
