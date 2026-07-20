@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-20T23:13:03+09:00
+Updated At: 2026-07-20T23:19:04+09:00
 
 ## Current Phase
 
@@ -8,17 +8,17 @@ Phase 17: Full-stack Reference Application - In Progress
 
 ## Current Task
 
-Task ID: P17-006-generated-operations-and-sveltekit-product-journey
+Task ID: D107-community-board-deferred-digest
 
-Task Packet: `develop/orchestration/tasks/P17-006-generated-operations-and-sveltekit-product-journey.md`
+Decision: `develop/decisions/107-community-board-deferred-digest.md`
 
 Specifications: `develop/spec/71-full-stack-reference-application.md`、`develop/spec/72-phase-17-delivery-plan.md`
 
 ## Task Status
 
-Accepted
+Awaiting User Decision
 
-GPT-5.6 Luna High WorkerがP17-006を実装し、OrchestratorがServer-only Import、Safe Projection、Action Error Surface、Real HTTP JourneyをReviewして受け入れた。6 Generated OperationをSvelteKit Server-only Wrapperへ接続し、Feed／Create／Detail／Comment／Edit／Delete、Owner UI、Browser Bundle／Sensitive Guardが完成した。PHP Domain／Infrastructure／Operation／Migrationは変更していない。
+P17-006は`d543bc4`としてCommit／Push済み。P17-007のMigration／DomainService／Outcome／Retry Evidenceを変えるWeek境界、保存Content、再生成、Development／Test Failure AdapterをD107の4問として提示した。回答まではP17-007 Production CodeとTask Packetを確定しない。
 
 ## Last Accepted Task
 
@@ -50,16 +50,17 @@ P17-006-generated-operations-and-sveltekit-product-journey
 22. D104はA／A／A／D／Aで確定。Outcome OutputへReadonly Nested DTO／Typed Listを追加し、`OutcomeData`／`#[ListOf]`、PostgreSQL Outcome Codec Version 2、Version 1非互換、独立P17-004を採用する。
 23. D105はAで確定。PostをHard Deleteし、配下CommentもForeign Key Cascadeで同じTransaction内に削除する。Application Data RetentionとUser削除は未決のままとする。
 24. D106でBoard Domain／Infrastructure分離とDomainServiceへの業務ロジック集約を確定した。DomainはBlackOps／Doctrine／Symfonyへ依存しない。
+25. D107はWeek境界、Digest Content／削除後Snapshot、同一User／Week再生成、Development／Test Failure Adapterの回答待ちである。
 
 ## Known Blockers
 
-なし。Documentation WebsiteはUser判断どおり未公開であり、Publication／Deployは行わない。
+D107のUser回答待ち。Documentation WebsiteはUser判断どおり未公開であり、Publication／Deployは行わない。
 
 ## Required Next Action
 
-1. P17-006を独立Commit／Pushする。
-2. P17-007 Deferred Weekly Digest／Status UIのTask Packetを確定する。
-3. P17-007をGPT-5.6 Luna High Workerへ委譲する。
+1. UserがD107のQuestion 1から4へ回答する。
+2. OrchestratorがD107とPhase 17 Specificationを確定する。
+3. P17-007 Deferred Weekly Digest／Status UIのTask Packetを作成し、GPT-5.6 Luna High Workerへ委譲する。
 
 ## P17-006 Generated Operations and SvelteKit Product Journey Worker Verification
 
