@@ -198,3 +198,4 @@
 | [D103](../decisions/103-full-stack-reference-application.md) | Full-stack Reference Application | Decided |
 | [D104](../decisions/104-structured-outcome-contract.md) | Structured Outcome Contract | Decided |
 | [D105](../decisions/105-community-board-deletion-policy.md) | Community Board Deletion Policy | Decided |
+| [D106](../decisions/106-community-board-domain-layering.md) | Community Board Domain Layering | Decided |

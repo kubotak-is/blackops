@@ -10,6 +10,7 @@ Status: Ready
 
 - `board_posts`／`board_comments` Application Migration
 - Application-owned Board Repository、Clock、UUIDv7 ID Generator
+- `app/Domain/Board`のDomainService／Model／Portと`app/Infrastructure`の技術Adapter分離
 - List／Show／Create／Update／Delete PostとAdd Comment Inline Operation
 - Paginated Post Summary、Post Detail、Comment ListのStructured Outcome
 - Native Path／Query／Body BindingとOperationValue Validation
@@ -39,6 +40,7 @@ Status: Ready
 - `develop/decisions/103-full-stack-reference-application.md`
 - `develop/decisions/104-structured-outcome-contract.md`
 - `develop/decisions/105-community-board-deletion-policy.md`
+- `develop/decisions/106-community-board-domain-layering.md`
 - `develop/spec/05-http.md`
 - `develop/spec/06-auth-and-middleware.md`
 - `develop/spec/11-durable-journal-and-transactions.md`
@@ -133,6 +135,7 @@ Canonical Operation／HTTP Surfaceを次で固定する。
 - AOP Proxy生成に必要なOperation Class制約を守り、Transactional Operationを`final`にしない
 - HandlerはTyped Valueを直接受け取り、成功時のNative Outcomeだけを返す
 - Business Rejectionは`OperationRejectedException`を使い、手書き`OperationResult`を返さない
+- OperationはActor ID取得、DomainService呼出、Domain ResultからOutcomeへの変換、Domain ExceptionからPublic Rejectionへの変換だけを担当し、Repositoryを直接操作しない
 
 ## Validation and Canonical Input
 
@@ -215,12 +218,12 @@ CommentAdded implements Outcome
 - Actor Type `user`だけをAuthenticatedとして扱う
 - List／Show／Create／Add CommentはAuthenticated Userへ許可する
 - Update／DeleteはCurrent ActorがPost Authorのときだけ成功する
-- Update／DeleteはTransaction内でPost RowをLockし、存在確認とOwnership確認を同じSnapshotで行う
+- DomainServiceはUpdate／Delete時にTransaction内でPost RowをLockし、存在確認とOwnership確認を同じSnapshotで行う
 - Unknown Post、Malformed UUID、Non-owner Postは全て`OperationRejectedException::notFound('board.post.not_found')`へ閉じ、Status、Code、JSON Shapeを一致させる
 - `AuthorizationDecision::forbid()`による403でOwnershipの存在を漏らさない。`#[Authorize]`はAuthentication Gateを担当し、Application-owned Owner CheckをMutation Transaction内で行う
 - Add CommentはTransaction内で対象PostをLock／確認する。DeleteとのRaceでOrphan CommentやRaw Foreign Key Errorを返さない
 - Show unknownとAdd Comment unknownも同じ`board.post.not_found`を使う
-- RepositoryはCurrent ActorをGlobalから読まず、Operationから明示User IDを受け取る
+- RepositoryとDomainServiceはCurrent ActorをGlobalから読まず、Operationから明示User IDを受け取る
 
 ## Transaction and Deletion Contract
 
@@ -235,7 +238,12 @@ CommentAdded implements Outcome
 ## Repository and DI Contract
 
 - Doctrine DBALとDefault `Doctrine\DBAL\Connection` Constructor Injectionを使う
-- `BoardRepository` Interfaceと`DoctrineBoardRepository`実装をApplication Codeとして持つ
+- `app/Domain/Board/**`は`BoardService`、Domain Model／Read Model、Domain Exception、`BoardRepository`／Clock／ID Generator Portを所有する
+- `app/Infrastructure/**`は`DoctrineBoardRepository`、System Clock、Symfony UUIDv7 Generatorを所有する
+- Domain LayerはBlackOps、Doctrine DBAL、Symfony UID等のFramework／Infrastructure型へ依存しない
+- `BoardService`はList／Show／Create／Update／Delete／Add CommentのUse Caseと業務判断を所有し、OperationはRepositoryへ直接依存しない
+- Domain FailureはDomain Exceptionで表し、Operation境界だけが`OperationRejectedException::notFound('board.post.not_found')`へ変換する
+- `#[Transactional]`はMutation Operationへ維持し、DomainServiceへBlackOps Attributeを付けない
 - ORM、Active Record、Framework Repository Base Class、Generic CRUD Serviceを導入しない
 - ApplicationServiceProviderでRepository、Clock、ID GeneratorのInterface Bindingを明示する
 - SQL ResultをOperationへ直接Arrayで返さず、Application-owned Read Modelへ厳密に変換する
@@ -249,7 +257,8 @@ Example PHPUnitで少なくとも次を恒久化する。
 - Validation Attribute／Limit／Default Pagination Contract
 - Structured OutcomeのNested DTO／Typed List Shape
 - Repository Feed／Detail Ordering、Pagination、Count、Empty Page
-- Create／Update／Delete／CommentとUUID／UTC Timestamp
+- DomainServiceのCreate／Update／Delete／Comment、Owner／存在判断、UUID／UTC Timestamp
+- OperationがDomainServiceへ委譲し、Domain ExceptionだけをSafe Public Rejectionへ変換すること
 - Owner成功、Non-owner／Unknown／Malformed UUIDの同一404
 - Delete CascadeとDelete／Add Comment競合の整合性
 - Transaction Rollback時に部分更新が残らないこと
@@ -276,6 +285,7 @@ Foundation／Identity Consumer E2Eも回帰させない。CIのCommunity Board J
 
 - [ ] Post／Comment MigrationがForeign Key、Index、Length、Cascade Contractを持つ
 - [ ] Application-owned Repository、Clock、UUIDv7 GeneratorがDIされる
+- [ ] Domain／Infrastructureが分離され、Domain LogicがDomainServiceに集約される
 - [ ] 6つのInline Operation Type／Route／Value／OutcomeがCanonical Contractどおりである
 - [ ] Post／Comment Validationが422 Field Errorを返す
 - [ ] Feed／DetailがStructured Outcomeと決定的Pagination／Orderingを返す
