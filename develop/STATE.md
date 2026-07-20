@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-21T00:42:43+09:00
+Updated At: 2026-07-21T00:44:35+09:00
 
 ## Current Phase
 
@@ -8,17 +8,17 @@ Phase 17: Full-stack Reference Application - In Progress
 
 ## Current Task
 
-Task ID: D107-community-board-deferred-digest
+Task ID: P17-007-deferred-digest-and-progress
 
-Decision: `develop/decisions/107-community-board-deferred-digest.md`
+Task Packet: `develop/orchestration/tasks/P17-007-deferred-digest-and-progress.md`
 
 Specifications: `develop/spec/71-full-stack-reference-application.md`、`develop/spec/72-phase-17-delivery-plan.md`
 
 ## Task Status
 
-Decided
+Ready
 
-UserはD107へA／A／A／Aと回答した。UTC ISO Week、件数だけのImmutable Digest Snapshot、成功Requestごとの新規Row、Development／Test限定First-attempt Failure Adapter、Server-only Status／Wait BFFを確定し、Phase 17 Specificationへ同期した。
+D107は`d990927`としてCommit／Push済み。P17-007 Task PacketでDigest Domain／Migration、Deferred／Transactional Operation、Status Authorizer、Development／Test Failure Adapter、Generated Fetch／Status／Wait、SvelteKit Progress、Real Worker Retry Journeyを固定した。Framework Production Codeは変更対象外とする。
 
 ## Last Accepted Task
 
@@ -58,9 +58,9 @@ P17-006-generated-operations-and-sveltekit-product-journey
 
 ## Required Next Action
 
-1. D107とPhase 17 Specificationの同期を独立Commit／Pushする。
-2. P17-007 Deferred Weekly Digest／Status UIのTask Packetを作成する。
-3. P17-007をGPT-5.6 Luna High Workerへ委譲する。
+1. P17-007 Task Packetを独立Commit／Pushする。
+2. P17-007をGPT-5.6 Luna High Workerへ委譲する。
+3. Worker完了後、OrchestratorがDomain境界、Retry Actor、Status／Wait、Immutable SnapshotをReview／独立再検証する。
 
 ## P17-006 Generated Operations and SvelteKit Product Journey Worker Verification
 
