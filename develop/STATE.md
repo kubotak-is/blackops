@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-20T22:26:57+09:00
+Updated At: 2026-07-20T22:30:11+09:00
 
 ## Current Phase
 
@@ -8,17 +8,17 @@ Phase 17: Full-stack Reference Application - In Progress
 
 ## Current Task
 
-Task ID: P17-005-post-and-comment-operations
+Task ID: P17-006-generated-operations-and-sveltekit-product-journey
 
-Task Packet: `develop/orchestration/tasks/P17-005-post-and-comment-operations.md`
+Task Packet: `develop/orchestration/tasks/P17-006-generated-operations-and-sveltekit-product-journey.md`
 
 Specifications: `develop/spec/71-full-stack-reference-application.md`、`develop/spec/72-phase-17-delivery-plan.md`
 
 ## Task Status
 
-Accepted
+Ready
 
-GPT-5.6 Luna High WorkerがP17-005を実装し、OrchestratorがDomain／Infrastructure依存、BoardService責務、Operation境界、Sensitive GuardをReviewして受け入れた。Application-owned Post／Comment Migration、6 Inline Operation、Structured Outcome、Validation、Owner-only Mutation、Hard Delete Cascade、Example／Real HTTP Test、CI／READMEが完成した。Framework `src/**`、Quickstart、SvelteKit Product Sourceは変更していない。
+P17-005は`01f9ade`としてCommit／Push済み。P17-006 Task Packetを作成し、Generated OperationをSvelteKit Server-only BFFへ接続するFeed／Detail／Create／Edit／Delete／Comment Journey、Safe Result Projection、Browser Bundle／Sensitive Guardを固定した。PHP Domain／Infrastructure／OperationはP17-006の変更対象外とする。
 
 ## Last Accepted Task
 
@@ -57,9 +57,9 @@ P17-005-post-and-comment-operations
 
 ## Required Next Action
 
-1. P17-005を独立Commit／Pushする。
-2. P17-006 Server-only BFF／Post JourneyのTask Packetを確定する。
-3. P17-006をGPT-5.6 Luna High Workerへ委譲する。
+1. P17-006 Task Packetを独立Commit／Pushする。
+2. P17-006をGPT-5.6 Luna High Workerへ委譲する。
+3. Worker完了後、OrchestratorがServer-only Import、Safe Projection、Real HTTP JourneyをReview／独立再検証する。
 
 ## P17-005 Post and Comment Operations Worker Verification
 
