@@ -310,9 +310,12 @@ if git -C "${ROOT}" ls-files \
     exit 1
 fi
 
-test "$(rg -l 'blackops/generated|\./generated' \
+wrapper_imports=$(rg -l 'blackops/generated|\./generated' \
     "${ROOT}/examples/community-board/frontend/src" \
-    --glob '!lib/server/blackops/generated/**')" = \
-    "${ROOT}/examples/community-board/frontend/src/lib/server/blackops/operations.server.ts"
+    --glob '!lib/server/blackops/generated/**' | sort)
+expected_wrapper_imports=$(printf '%s\n%s' \
+    "${ROOT}/examples/community-board/frontend/src/lib/server/blackops/board.server.ts" \
+    "${ROOT}/examples/community-board/frontend/src/lib/server/blackops/operations.server.ts")
+test "${wrapper_imports}" = "${expected_wrapper_imports}"
 
 printf 'Community Board identity journey passed.\n'

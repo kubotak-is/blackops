@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-20T22:30:11+09:00
+Updated At: 2026-07-20T23:13:03+09:00
 
 ## Current Phase
 
@@ -16,13 +16,13 @@ Specifications: `develop/spec/71-full-stack-reference-application.md`、`develop
 
 ## Task Status
 
-Ready
+Accepted
 
-P17-005は`01f9ade`としてCommit／Push済み。P17-006 Task Packetを作成し、Generated OperationをSvelteKit Server-only BFFへ接続するFeed／Detail／Create／Edit／Delete／Comment Journey、Safe Result Projection、Browser Bundle／Sensitive Guardを固定した。PHP Domain／Infrastructure／OperationはP17-006の変更対象外とする。
+GPT-5.6 Luna High WorkerがP17-006を実装し、OrchestratorがServer-only Import、Safe Projection、Action Error Surface、Real HTTP JourneyをReviewして受け入れた。6 Generated OperationをSvelteKit Server-only Wrapperへ接続し、Feed／Create／Detail／Comment／Edit／Delete、Owner UI、Browser Bundle／Sensitive Guardが完成した。PHP Domain／Infrastructure／Operation／Migrationは変更していない。
 
 ## Last Accepted Task
 
-P17-005-post-and-comment-operations
+P17-006-generated-operations-and-sveltekit-product-journey
 
 ## Pending Decisions
 
@@ -57,9 +57,29 @@ P17-005-post-and-comment-operations
 
 ## Required Next Action
 
-1. P17-006 Task Packetを独立Commit／Pushする。
-2. P17-006をGPT-5.6 Luna High Workerへ委譲する。
-3. Worker完了後、OrchestratorがServer-only Import、Safe Projection、Real HTTP JourneyをReview／独立再検証する。
+1. P17-006を独立Commit／Pushする。
+2. P17-007 Deferred Weekly Digest／Status UIのTask Packetを確定する。
+3. P17-007をGPT-5.6 Luna High Workerへ委譲する。
+
+## P17-006 Generated Operations and SvelteKit Product Journey Worker Verification
+
+```text
+Boundary: 6 Generated Operationをboard.server.tsだけから呼び、Injected Fetch／Private Base URL／Bearer Credentialを呼出し単位に限定。BrowserはSvelteKit Originだけを使用する。
+
+Product: 認証必須Feed、Create、Detail、Comment、Owner Edit／Deleteを標準HTML Formで実装。OwnerはServer計算し、Author IDはBrowserへ渡さない。
+
+Safe Projection: 401 Login、同一404、409、422 Field Map、503 Internal／Malformed／Transportへ縮約。Operation ID、Raw Backend Detail、Internal URL、Credentialを返さない。Form replayは100 Unicode CharacterへClamp。
+
+Frontend: Svelte check 0 errors／0 warnings、Vitest 5 files／26 tests、adapter-node build成功。Client BuildへGenerated Path／Operation Class、Private Env、Base URL、Cookie名、Authorization／Bearerなし。
+
+Real HTTP: Product Journeyと既存Foundation／Identity／Post Comment Journeyが成功。Alice／Bob、Empty／Validation、Create／Feed／Detail／Comment／Edit／Delete、Non-owner同一404、Session、Backend-down Load／Action 503を完走。
+
+Example／Root: Example PHPUnit OK (33 tests, 388 assertions)。Composer valid、Mago format／lint／analyze成功、Root PHPUnit OK (1471 tests, 5810 assertions)、Deptrac違反0。
+
+Scope／Artifacts: Framework src、Quickstart、Community Board PHP App／Migration Diffなし。ReiconはUser指定どおりP17-008へ記録し、本Taskでは未導入。Runtime／Generated／Dependency Artifact cleanup済み。Worker Commitなし。
+```
+
+詳細は`develop/orchestration/reports/P17-006-generated-operations-and-sveltekit-product-journey.md`を参照する。
 
 ## P17-005 Post and Comment Operations Worker Verification
 

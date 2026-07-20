@@ -25,13 +25,14 @@
 
   {#if data.currentUser}
     <p data-testid="current-user">Signed in as {data.currentUser.displayName} ({data.currentUser.email})</p>
+    <p><a href="/posts">Browse posts</a> or <a href="/posts/new">write a post</a>.</p>
   {:else if !data.identityAvailable}
     <p role="status">Identity service is temporarily unavailable.</p>
   {:else}
     <p><a href="/register">Create an account</a> or <a href="/login">log in</a>.</p>
   {/if}
 
-  <p>Posts, comments, and deferred digests arrive in later phases.</p>
+  <p>Read posts and join the conversation. Deferred digests arrive in a later phase.</p>
 </main>
 
 <style>

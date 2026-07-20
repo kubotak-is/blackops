@@ -8,6 +8,7 @@
   <a href="/">BlackOps Board</a>
   <nav aria-label="Account">
     {#if data.currentUser}
+      <a href="/posts">Posts</a>
       <a href="/me">{data.currentUser.displayName}</a>
       <form method="POST" action="/logout">
         <button type="submit">Log out</button>

@@ -132,9 +132,9 @@ MVP後に残す主要項目:
 - [x] P17-004でStructured OutcomeをHTTP／Persistence／Frontendへ実装する
 - [x] D105でCommunity BoardのPost削除方式とComment保持境界を決定する
 - [x] Post／CommentのInline Operation、Validation、Authorization、Transactionを実装する
-- [ ] Generated Operation ObjectをServer-only BFFへ接続し、投稿Journeyを実装する
+- [x] Generated Operation ObjectをServer-only BFFへ接続し、投稿Journeyを実装する
 - [ ] Deferred `GenerateWeeklyDigest`とStatus／Wait／Typed Outcome UIを実装する
-- [ ] Taste SkillをDesign Directionへ適用し、Reicon、Accessibility／Responsive／State UIを完成する
+- [ ] Taste SkillをDesign Directionへ適用し、`reicon.dev`をIcon Sourceとして、Accessibility／Responsive／State UIを完成する
 - [ ] Real Browser E2E、CI、Screenshot、README／Guideを同期してPhase 17をCloseする
 
 ### Phase 18: Reliability and Delivery

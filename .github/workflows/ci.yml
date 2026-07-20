@@ -17,7 +17,7 @@ concurrency:
 
 jobs:
   community-board-foundation:
-    name: Community Board foundation, identity, and posts
+    name: Community Board full-stack product journey
     runs-on: ubuntu-latest
     timeout-minutes: 25
 
@@ -67,6 +67,9 @@ jobs:
 
       - name: Test Community Board posts and comments
         run: bash tests/Consumer/community-board-post-comment.sh
+
+      - name: Test Community Board product journey
+        run: bash tests/Consumer/community-board-product-journey.sh
 
       - name: Guard generated and sensitive artifacts
         run: |

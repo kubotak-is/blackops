@@ -1,6 +1,6 @@
 # P17-006: Generated Operations and SvelteKit Product Journey
 
-Status: Ready
+Status: Accepted
 
 ## Goal
 
@@ -214,22 +214,22 @@ New `tests/Consumer/community-board-product-journey.sh`はClean Databaseと実Sv
 
 ## Acceptance Criteria
 
-- [ ] 6 Generated Operation ObjectをApplication-owned `.server.ts` Wrapperから使う
-- [ ] Generated SourceとCredential InjectionがSvelteKit Server-only境界に留まる
-- [ ] Feed、Detail、Create、Edit、Delete、CommentのPage Server Load／Form Actionが完走する
-- [ ] 422、401、404、409、Internal／TransportをSafe View／Action Dataへ投影する
-- [ ] Authenticated／Owner UIとBackend Authorization境界が一致する
-- [ ] Standard HTML FormでJavaScriptなしのProduct Journeyが成立する
-- [ ] Browser Bundle／Client ImportへGenerated Source、Internal Base URL、Credentialが入らない
-- [ ] Vitest、Svelte Check、Production Buildが成功する
-- [ ] Real HTTP Product JourneyがSvelteKitを入口に全操作を完走する
-- [ ] Foundation、Identity、Post／Comment Consumer E2Eが回帰しない
-- [ ] PHP Domain／Infrastructure／Operation／Migrationを変更しない
-- [ ] Framework `src/**`、Quickstart／Skeleton Sourceを変更しない
-- [ ] Reicon／別Icon Libraryをまだ追加しない
-- [ ] Generated／Dependency／Runtime／Build Artifactを追跡しない
-- [ ] Required Quality Gateが成功する
-- [ ] WorkerはCommitしない
+- [x] 6 Generated Operation ObjectをApplication-owned `.server.ts` Wrapperから使う
+- [x] Generated SourceとCredential InjectionがSvelteKit Server-only境界に留まる
+- [x] Feed、Detail、Create、Edit、Delete、CommentのPage Server Load／Form Actionが完走する
+- [x] 422、401、404、409、Internal／TransportをSafe View／Action Dataへ投影する
+- [x] Authenticated／Owner UIとBackend Authorization境界が一致する
+- [x] Standard HTML FormでJavaScriptなしのProduct Journeyが成立する
+- [x] Browser Bundle／Client ImportへGenerated Source、Internal Base URL、Credentialが入らない
+- [x] Vitest、Svelte Check、Production Buildが成功する
+- [x] Real HTTP Product JourneyがSvelteKitを入口に全操作を完走する
+- [x] Foundation、Identity、Post／Comment Consumer E2Eが回帰しない
+- [x] PHP Domain／Infrastructure／Operation／Migrationを変更しない
+- [x] Framework `src/**`、Quickstart／Skeleton Sourceを変更しない
+- [x] Reicon／別Icon Libraryをまだ追加しない
+- [x] Generated／Dependency／Runtime／Build Artifactを追跡しない
+- [x] Required Quality Gateが成功する
+- [x] WorkerはCommitしない
 
 ## Required Commands
 
@@ -296,4 +296,3 @@ git diff --exit-code -- src examples/quickstart examples/community-board/app exa
 - Acceptance Criteria
 - Remaining Issues
 - Suggested Next Action
-

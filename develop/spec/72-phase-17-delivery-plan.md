@@ -151,8 +151,8 @@ Documentation WebsiteとCommunity BoardのExternal Publication／Deployは行わ
 - [x] Independent Community Board Foundationが起動する
 - [x] Server-only BFFとApplication-owned AuthenticationがCredentialを安全に扱う
 - [x] Structured OutcomeがNested DTO／Typed ListをHTTP／Persistence／Frontendで一貫して扱う
-- [ ] Post／Comment JourneyがValidation／Authorization／Transaction付きで完走する
-- [ ] Generated Operation ObjectがSvelteKit Serverだけから使われる
+- [x] Post／Comment JourneyがValidation／Authorization／Transaction付きで完走する
+- [x] Generated Operation ObjectがSvelteKit Serverだけから使われる
 - [ ] Deferred Digestが202からStatus／Wait／Typed Outcome／表示まで完走する
 - [ ] Accessible／Responsive Product UIとReal Browser E2Eが完成する
 - [ ] README／Guide／CI／Consumer／Website Gateが成功する

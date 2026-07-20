@@ -2,7 +2,7 @@
 
 `examples/community-board/` is an independent full-stack reference application. It consumes the repository root framework through a Composer path repository, but it is not part of `blackops/skeleton` and does not change `examples/quickstart/`.
 
-The application contains the unauthenticated `ShowBoardWelcome` Operation, an Application-owned identity and session boundary, and authenticated Post／Comment Operations. Registration, login, current-user display, and logout run through SvelteKit server actions. The browser-facing Post／Comment journey, deferred digests, and final visual design remain for later tasks.
+The application contains the unauthenticated `ShowBoardWelcome` Operation, an Application-owned identity and session boundary, and authenticated Post／Comment Operations. Registration, login, current-user display, logout, the paginated feed, post create/edit/delete, detail, and comments run through SvelteKit server loads and actions. Deferred digests and final visual design remain for later tasks.
 
 ## Runtime topology
 
@@ -54,7 +54,9 @@ pnpm --dir frontend run test
 pnpm --dir frontend run build
 ```
 
-The Generated Output lives under `frontend/src/lib/server/blackops/generated/` and is ignored. Only `frontend/src/lib/server/blackops/operations.server.ts` imports it. Server loads call that Application-owned wrapper and expose a small safe view model to pages.
+The Generated Output lives under `frontend/src/lib/server/blackops/generated/` and is ignored. Only Application-owned wrappers below `frontend/src/lib/server/blackops/*.server.ts` import it. Routes call those wrappers and expose small safe view models and form failures; generated results, backend URLs, operation identifiers, and raw session credentials never enter page data or browser code.
+
+The authenticated product routes are `/posts`, `/posts/new`, `/posts/{postId}`, and `/posts/{postId}/edit`. They use standard HTML forms and remain usable without client-side JavaScript. Owner actions are hidden for other users, while the PHP application remains the authorization boundary and conceals unknown, malformed, and non-owned resources behind the same safe not-found result.
 
 Registration and login move the authentication response token directly into the `community_board_session` cookie. It is `HttpOnly`, `SameSite=Strict`, and scoped to `/`. Secure cookies are the default; local plain HTTP must explicitly set `SESSION_COOKIE_SECURE=false`. The cookie max age uses `SESSION_TTL_SECONDS` and never exceeds the backend session TTL.
 
@@ -111,3 +113,13 @@ bash tests/Consumer/community-board-post-comment.sh
 ```
 
 It checks migration and generated-contract freshness, authentication and validation, feed and detail projections, owner-only mutations with resource concealment, comment ordering, hard-delete cascade, and sensitive-data boundaries against real PostgreSQL and HTTP.
+
+Run the browser-facing product journey:
+
+```bash
+bash tests/Consumer/community-board-product-journey.sh
+```
+
+It drives registration, feed, create, comment, edit, and delete entirely through SvelteKit, checks safe authentication and backend-failure behavior, and verifies that generated clients, private configuration, credentials, and backend details stay out of browser artifacts and rendered responses.
+
+The current pages intentionally use minimal semantic controls. Final visual design and icon integration are deferred; the planned icon source is [Reicon](https://reicon.dev).
