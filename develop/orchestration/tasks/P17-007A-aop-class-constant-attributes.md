@@ -1,6 +1,6 @@
 # P17-007A: AOP Class-constant Attributes
 
-Status: Ready
+Status: Blocked
 
 ## Goal
 

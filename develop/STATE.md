@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-21T01:55:55+09:00
+Updated At: 2026-07-21T02:09:09+09:00
 
 ## Current Phase
 
@@ -16,9 +16,9 @@ Specifications: `develop/spec/09-runtime-and-di.md`、`develop/spec/64-phase-13-
 
 ## Task Status
 
-Ready
+Blocked - Awaiting D108
 
-P17-007A Task Packetで、Ray.Aop 2.20.0の複数typed class-constant Attribute compile gapを最小再現し、dependency-nativeな解決を優先する。Vendor Fork／直接修正は行わず、安全に解決できなければBlockerとして返す。
+OrchestratorがP17-007Aの再現、Version比較、安全境界をReviewし、TaskをBlockedとした。Production／Test／Dependency／Example差分はなく、P17-007のliteral Strategy回避は機能的にAcceptedのままである。D108でPhase 17を先行するか、upstreamへ外部報告するかをUserに確認する。
 
 ## Last Accepted Task
 
@@ -51,17 +51,31 @@ P17-007-deferred-digest-and-progress
 23. D105はAで確定。PostをHard Deleteし、配下CommentもForeign Key Cascadeで同じTransaction内に削除する。Application Data RetentionとUser削除は未決のままとする。
 24. D106でBoard Domain／Infrastructure分離とDomainServiceへの業務ロジック集約を確定した。DomainはBlackOps／Doctrine／Symfonyへ依存しない。
 25. D107はA／A／A／Aで確定。UTC ISO Week、件数だけのImmutable Snapshot、成功Requestごとの新規Row、Development／Test限定Failure Adapterを採用する。
-26. P17-007 ReviewでRay.AopがTransactional Operation上の複数class-constant Attribute引数をcompileできないgapを確認した。Frameworkは変更せず、Security Policyをtypedに維持し、metadata-only Deferred Strategyだけをliteral class-stringへ限定して回避する。恒久対応は`develop/TODO.md`で追跡する。
+26. P17-007AでRay.Aop 2.20.0／2.19.1の両方が複数class-constant Attributeを同じParseErrorへ壊すことを確認した。安全なAdapterは成立せず、Security Policyをtypedに維持しmetadata-only Deferred Strategyだけをliteral class-stringへ限定するP17-007回避を継続する。Stable Dependency修正を`develop/TODO.md`で追跡する。
 
 ## Known Blockers
 
-なし。Documentation WebsiteはUser判断どおり未公開であり、Publication／Deployは行わない。
+Ray.Aopの解決可能Stable Releaseには、Attribute引数の`::class`をclass declarationと誤認するTokenizer gapがある。2.19.1／2.20.0で再現し、TaskのSafety Boundary内で完全typed表記へ戻す方法がない。Documentation WebsiteはUser判断どおり未公開であり、Publication／Deployは行わない。
 
 ## Required Next Action
 
-1. P17-007A Task Packetを独立Commit／Pushする。
-2. GPT-5.6 Luna High Workerへ委譲する。
-3. Accepted後、P17-008でTaste SkillとReiconを用いたVisual Designを開始する。
+1. Userが`develop/decisions/108-ray-aop-upstream-and-phase-order.md`に回答する。
+2. Phase先行が選ばれたらP17-008 Visual Designを開始する。
+3. Upstream Issue／PRが選ばれた場合は、外部書き込みを回答範囲内で実行する。
+
+## P17-007A AOP Class-constant Attributes Worker Verification
+
+```text
+Reproduction: readonly Transactional OperationへExecuteWith(Deferred::class)とAuthorize(FixturePolicy::class)を併置すると、Ray.Aopが生成16行目を`#[Authorize999 extends Authorize (...)]`へ破壊し、unexpected token extends／expecting ]のParseErrorとなる。
+
+Version: locked 2.20.0と直前2.19.1の両方で同じ失敗。Composer Repositoryから解決可能な最新Stableは2.20.0で、新しいReleased fixなし。比較後は2.20.0へ復元しComposer差分なし。
+
+Safety: Source置換、Vendor Compiler複製／Fork、Intermediate SubclassによるProxy Reflection変更、unreleased branchは不採用。Production／Test／Example差分をrevertし、P17-007のliteral Deferred Strategy回避を維持。
+
+Verification: Root Composer strict valid、locked install成功、diff／scope／artifact guard成功。Production差分なしのBlocked結果について、Orchestrator指示によりfull gatesとCommunity E2Eは未実行。Worker Commitなし。
+```
+
+詳細は`develop/orchestration/reports/P17-007A-aop-class-constant-attributes.md`を参照する。
 
 ## P17-007 Deferred Digest and Progress Worker Verification
 
