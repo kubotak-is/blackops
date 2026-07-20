@@ -134,7 +134,8 @@ MVP後に残す主要項目:
 - [x] Post／CommentのInline Operation、Validation、Authorization、Transactionを実装する
 - [x] Generated Operation ObjectをServer-only BFFへ接続し、投稿Journeyを実装する
 - [x] D107でDeferred DigestのWeek、Content、再生成、Failure Adapterを決定する
-- [ ] Deferred `GenerateWeeklyDigest`とStatus／Wait／Typed Outcome UIを実装する
+- [x] Deferred `GenerateWeeklyDigest`とStatus／Wait／Typed Outcome UIを実装する
+- [ ] Ray.AopがTransactional Operation上の複数class-constant Attribute引数をcompileできない制約を最小再現し、upstream修正またはFramework側の安全な回避を決定する
 - [ ] Taste SkillをDesign Directionへ適用し、`reicon.dev`をIcon Sourceとして、Accessibility／Responsive／State UIを完成する
 - [ ] Real Browser E2E、CI、Screenshot、README／Guideを同期してPhase 17をCloseする
 

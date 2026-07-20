@@ -153,7 +153,7 @@ Documentation WebsiteとCommunity BoardのExternal Publication／Deployは行わ
 - [x] Structured OutcomeがNested DTO／Typed ListをHTTP／Persistence／Frontendで一貫して扱う
 - [x] Post／Comment JourneyがValidation／Authorization／Transaction付きで完走する
 - [x] Generated Operation ObjectがSvelteKit Serverだけから使われる
-- [ ] Deferred Digestが202からStatus／Wait／Typed Outcome／表示まで完走する
+- [x] Deferred Digestが202からStatus／Wait／Typed Outcome／表示まで完走する
 - [ ] Accessible／Responsive Product UIとReal Browser E2Eが完成する
 - [ ] README／Guide／CI／Consumer／Website Gateが成功する
 - [ ] Quickstart／Skeleton／Publication Contractが回帰しない

@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-21T00:44:35+09:00
+Updated At: 2026-07-21T01:50:09+09:00
 
 ## Current Phase
 
@@ -16,13 +16,13 @@ Specifications: `develop/spec/71-full-stack-reference-application.md`、`develop
 
 ## Task Status
 
-Ready
+Accepted
 
-D107は`d990927`としてCommit／Push済み。P17-007 Task PacketでDigest Domain／Migration、Deferred／Transactional Operation、Status Authorizer、Development／Test Failure Adapter、Generated Fetch／Status／Wait、SvelteKit Progress、Real Worker Retry Journeyを固定した。Framework Production Codeは変更対象外とする。
+OrchestratorがP17-007のDomain／Infrastructure境界、Migration、Deferred Retry、Actor／Status Authorization、Generated Status／Wait、SvelteKit BFF、Immutable SnapshotをReviewした。独立Digest E2E、Root PHPUnit 1471 tests／5810 assertions、Mago、Deptrac 0 violations、Guardが成功したためAcceptedとする。
 
 ## Last Accepted Task
 
-P17-006-generated-operations-and-sveltekit-product-journey
+P17-007-deferred-digest-and-progress
 
 ## Pending Decisions
 
@@ -51,6 +51,7 @@ P17-006-generated-operations-and-sveltekit-product-journey
 23. D105はAで確定。PostをHard Deleteし、配下CommentもForeign Key Cascadeで同じTransaction内に削除する。Application Data RetentionとUser削除は未決のままとする。
 24. D106でBoard Domain／Infrastructure分離とDomainServiceへの業務ロジック集約を確定した。DomainはBlackOps／Doctrine／Symfonyへ依存しない。
 25. D107はA／A／A／Aで確定。UTC ISO Week、件数だけのImmutable Snapshot、成功Requestごとの新規Row、Development／Test限定Failure Adapterを採用する。
+26. P17-007 ReviewでRay.AopがTransactional Operation上の複数class-constant Attribute引数をcompileできないgapを確認した。Frameworkは変更せず、Security Policyをtypedに維持し、metadata-only Deferred Strategyだけをliteral class-stringへ限定して回避する。恒久対応は`develop/TODO.md`で追跡する。
 
 ## Known Blockers
 
@@ -58,9 +59,26 @@ P17-006-generated-operations-and-sveltekit-product-journey
 
 ## Required Next Action
 
-1. P17-007 Task Packetを独立Commit／Pushする。
-2. P17-007をGPT-5.6 Luna High Workerへ委譲する。
-3. Worker完了後、OrchestratorがDomain境界、Retry Actor、Status／Wait、Immutable SnapshotをReview／独立再検証する。
+1. Ray.Aopの複数class-constant Attribute制約を小さなFramework修正Taskとして解消し、Community Boardの`ExecuteWith`をtyped表記へ戻す。
+2. その後、P17-008でTaste SkillとReiconを用いたVisual Designを開始する。
+
+## P17-007 Deferred Digest and Progress Worker Verification
+
+```text
+Domain／Database: UTC ISO Week half-open range、Board全体のPost／Comment Count、決定的Grammar、成功RequestごとのUUIDv7 Row、Owner concealmentをDomainへ集約。Forward Migrationはcanonical ASCII YYYY-Www／Week 01..53 shape、RESTRICT FK、Content／Count Check、Owner／Created AtとComment Created At Indexを追加し、User／Week Uniqueなし。
+
+Deferred／Authorization: GenerateはDeferred／Transactional／Authenticated。Attempt必須、default No-opとcanonical envで選ぶFail-first Adapter、Attempt 1 Retry／Attempt 2 Completeを実workerで確認。StatusはCurrent／Originのsame userだけAllowし、Bob／Unknown／Malformedを同じ404へ閉じた。
+
+Frontend: Generated 13 files。digest.server.tsだけがDigest Generated Clientをimportし、Fetch／Status／Wait／Showをsafe DTOへ縮約。410 expiredのsafe 404をunit testで固定。SvelteKit Form、SSR Progress、2,500ms Wait BFF、Owner Detailを実装。Svelte check 0 errors／0 warnings、Vitest 6 files／40 tests、adapter-node build成功。
+
+Real HTTP: Digest Journeyと既存Foundation／Identity／Post Comment／Product Journeyの5本成功。1 Post／1 Comment、Retry、同週別ID、Hard Delete後0／0、Canonical Journal完全順序、Alice Origin／Authorization、Worker Execution Actor、Sensitive／Client Bundle Guardを完走。
+
+Example／Root: Example PHPUnit OK (59 tests, 545 assertions)。Composer valid、Mago format／lint／analyze成功、Root PHPUnit OK (1471 tests, 5810 assertions)、Deptrac違反0。
+
+Scope／Artifacts: Framework src、Root PHP tests、Quickstart／Skeleton、確定Spec Diffなし。ReiconはP17-008へ据え置き。Runtime／Generated／Dependency Artifact cleanup済み。Worker Commitなし。
+```
+
+詳細は`develop/orchestration/reports/P17-007-deferred-digest-and-progress.md`を参照する。
 
 ## P17-006 Generated Operations and SvelteKit Product Journey Worker Verification
 

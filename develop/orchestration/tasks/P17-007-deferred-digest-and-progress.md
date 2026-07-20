@@ -1,6 +1,6 @@
 # P17-007: Deferred Digest and Progress
 
-Status: Ready
+Status: Accepted
 
 ## Goal
 
@@ -339,26 +339,26 @@ New `tests/Consumer/community-board-digest.sh`は独立Compose Project／Clean P
 
 ## Acceptance Criteria
 
-- [ ] D107のUTC ISO Week／Immutable Count Snapshot／Multiple Row／Failure Adapterを実装する
-- [ ] `board_digests` MigrationがOwner、Content、Counts、Created Atを安全に保存する
-- [ ] DigestServiceがWeek、集計、Content、ID／Clock、Owner取得のDomain Logicを所有する
-- [ ] DomainはBlackOps／Doctrine／Symfony／Infrastructure／Featureへ依存しない
-- [ ] `GenerateWeeklyDigest`がDeferred／Transactional／Authenticatedで202を返す
-- [ ] Worker Attempt 1 RetryとAttempt 2 Completedが実Runtimeで成立する
-- [ ] `ShowDigest`がOwnerだけへ保存済みSafe Detailを返す
-- [ ] Status AuthorizerがCurrent／Origin User一致だけを許可する
-- [ ] Production No-opとDevelopment／Test Failure AdapterをBuild時に明示選択する
-- [ ] Generated `.fetch()`／`.status()`／`.wait()`をSvelteKit Server-only Wrapperから使う
-- [ ] Start／Progress／Wait Endpoint／Digest DetailがSvelteKit Same-originで完走する
-- [ ] accepted／running／retry_scheduled／completed／failedをSafe Viewへ投影する
-- [ ] Unknown／Deny／Expired／Malformed／Timeout／Abort／Transport／Internalを安全に扱う
-- [ ] Browser BundleへGenerated Source、Internal URL、Credential、Failure Flagが入らない
-- [ ] PHP／Frontend TestとReal HTTP＋Worker Digest Journeyが成功する
-- [ ] Existing Community Board 4 Consumer E2Eが回帰しない
-- [ ] Framework `src/**`、Root PHP tests、Quickstart／Skeleton Sourceを変更しない
-- [ ] Reicon／Visual Designをまだ追加しない
-- [ ] Required Quality GateとArtifact Cleanupが成功する
-- [ ] WorkerはCommitしない
+- [x] D107のUTC ISO Week／Immutable Count Snapshot／Multiple Row／Failure Adapterを実装する
+- [x] `board_digests` MigrationがOwner、Content、Counts、Created Atを安全に保存する
+- [x] DigestServiceがWeek、集計、Content、ID／Clock、Owner取得のDomain Logicを所有する
+- [x] DomainはBlackOps／Doctrine／Symfony／Infrastructure／Featureへ依存しない
+- [x] `GenerateWeeklyDigest`がDeferred／Transactional／Authenticatedで202を返す
+- [x] Worker Attempt 1 RetryとAttempt 2 Completedが実Runtimeで成立する
+- [x] `ShowDigest`がOwnerだけへ保存済みSafe Detailを返す
+- [x] Status AuthorizerがCurrent／Origin User一致だけを許可する
+- [x] Production No-opとDevelopment／Test Failure AdapterをBuild時に明示選択する
+- [x] Generated `.fetch()`／`.status()`／`.wait()`をSvelteKit Server-only Wrapperから使う
+- [x] Start／Progress／Wait Endpoint／Digest DetailがSvelteKit Same-originで完走する
+- [x] accepted／running／retry_scheduled／completed／failedをSafe Viewへ投影する
+- [x] Unknown／Deny／Expired／Malformed／Timeout／Abort／Transport／Internalを安全に扱う
+- [x] Browser BundleへGenerated Source、Internal URL、Credential、Failure Flagが入らない
+- [x] PHP／Frontend TestとReal HTTP＋Worker Digest Journeyが成功する
+- [x] Existing Community Board 4 Consumer E2Eが回帰しない
+- [x] Framework `src/**`、Root PHP tests、Quickstart／Skeleton Sourceを変更しない
+- [x] Reicon／Visual Designをまだ追加しない
+- [x] Required Quality GateとArtifact Cleanupが成功する
+- [x] WorkerはCommitしない
 
 ## Required Commands
 

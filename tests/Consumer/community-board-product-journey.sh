@@ -15,6 +15,10 @@ COMPOSE=(
 CURL=(curl --connect-timeout 3 --max-time 15)
 TEMP=$(mktemp -d)
 ENVIRONMENT_CREATED=false
+git -C "${ROOT}" diff --binary -- src examples/quickstart examples/community-board/app examples/community-board/migrations \
+    >"${TEMP}/source-before.diff"
+git -C "${ROOT}" status --short -- src examples/quickstart examples/community-board/app examples/community-board/migrations \
+    >"${TEMP}/source-before.status"
 
 assert_absent() {
     local label=$1
@@ -251,7 +255,12 @@ grep -Fq '"type":"failure","status":503' "${TEMP}/backend-down.action"
 grep -Fq 'The board service is temporarily unavailable.' "${TEMP}/backend-down.action"
 ! rg -q 'http://http|ECONNREFUSED|operationId|SQLSTATE|/workspace/|community_board_session' "${TEMP}/backend-down.action"
 
-git -C "${ROOT}" diff --exit-code -- src examples/quickstart examples/community-board/app examples/community-board/migrations
+git -C "${ROOT}" diff --binary -- src examples/quickstart examples/community-board/app examples/community-board/migrations \
+    >"${TEMP}/source-after.diff"
+cmp "${TEMP}/source-before.diff" "${TEMP}/source-after.diff"
+git -C "${ROOT}" status --short -- src examples/quickstart examples/community-board/app examples/community-board/migrations \
+    >"${TEMP}/source-after.status"
+cmp "${TEMP}/source-before.status" "${TEMP}/source-after.status"
 if git -C "${ROOT}" ls-files \
     examples/community-board/.env examples/community-board/vendor examples/community-board/var \
     examples/community-board/frontend/node_modules \

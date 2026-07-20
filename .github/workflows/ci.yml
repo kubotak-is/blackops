@@ -71,6 +71,9 @@ jobs:
       - name: Test Community Board product journey
         run: bash tests/Consumer/community-board-product-journey.sh
 
+      - name: Test Community Board deferred digest journey
+        run: bash tests/Consumer/community-board-digest.sh
+
       - name: Guard generated and sensitive artifacts
         run: |
           set -euo pipefail
@@ -78,6 +81,9 @@ jobs:
             examples/community-board/migrations/Version20260720023000.php >/dev/null
           git ls-files --error-unmatch \
             examples/community-board/migrations/Version20260720214000.php >/dev/null
+          git ls-files --error-unmatch \
+            examples/community-board/migrations/Version20260721010000.php >/dev/null
+          git ls-files --error-unmatch tests/Consumer/community-board-digest.sh >/dev/null
           if git ls-files \
             examples/community-board/.env \
             examples/community-board/vendor \

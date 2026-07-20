@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Board;
 
+use BlackOps\Core\Execution\Deferred;
 use BlackOps\Core\Execution\Inline;
 use PHPUnit\Framework\TestCase;
 
@@ -12,6 +13,8 @@ final class BoardBuildArtifactTest extends TestCase
     /** @var list<string> */
     private const array TYPES = [
         'board.comment.add',
+        'board.digest.show',
+        'board.digest.weekly.generate',
         'board.post.create',
         'board.post.delete',
         'board.post.list',
@@ -19,7 +22,7 @@ final class BoardBuildArtifactTest extends TestCase
         'board.post.update',
     ];
 
-    public function testOperationHttpAndFrontendArtifactsContainTheCanonicalSixOperations(): void
+    public function testOperationHttpAndFrontendArtifactsContainTheCanonicalOperations(): void
     {
         $build = dirname(__DIR__, 2) . '/var/build';
         $operations = $this->artifact($build . '/operations.php');
@@ -31,10 +34,12 @@ final class BoardBuildArtifactTest extends TestCase
         self::assertSame(self::TYPES, array_values(array_intersect(array_keys($operationMetadata), self::TYPES)));
         self::assertSame(self::TYPES, array_values(array_intersect(array_keys($frontendMetadata), self::TYPES)));
 
-        foreach (self::TYPES as $type) {
+        foreach (array_diff(self::TYPES, ['board.digest.weekly.generate']) as $type) {
             self::assertSame(Inline::class, $operationMetadata[$type]['strategy']);
             self::assertSame('inline', $frontendMetadata[$type]['strategy']);
         }
+        self::assertSame(Deferred::class, $operationMetadata['board.digest.weekly.generate']['strategy']);
+        self::assertSame('deferred', $frontendMetadata['board.digest.weekly.generate']['strategy']);
         foreach (['board.comment.add', 'board.post.create', 'board.post.delete', 'board.post.update'] as $type) {
             self::assertSame('app', $operationMetadata[$type]['transactionConnection']);
             self::assertTrue($operationMetadata[$type]['typedSelfHandledContext']);
@@ -46,6 +51,11 @@ final class BoardBuildArtifactTest extends TestCase
         self::assertSame('board.comment.add', $http['payload']['routes']['POST']['/posts/{postId}/comments']);
         self::assertSame('board.post.update', $http['payload']['routes']['PUT']['/posts/{postId}']);
         self::assertSame('board.post.delete', $http['payload']['routes']['DELETE']['/posts/{postId}']);
+        self::assertSame('board.digest.show', $http['payload']['routes']['GET']['/digests/{digestId}']);
+        self::assertSame('board.digest.weekly.generate', $http['payload']['routes']['POST']['/digests']);
+
+        self::assertSame('app', $operationMetadata['board.digest.weekly.generate']['transactionConnection']);
+        self::assertTrue($operationMetadata['board.digest.weekly.generate']['typedSelfHandledContext']);
 
         $listFields = $this->fieldsByName($frontendMetadata['board.post.list']['outcome']['fields']);
         self::assertSame('list', $listFields['posts']['type']['kind']);
