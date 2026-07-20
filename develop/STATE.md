@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-20T09:45:52+09:00
+Updated At: 2026-07-20T21:31:15+09:00
 
 ## Current Phase
 
@@ -8,17 +8,17 @@ Phase 17: Full-stack Reference Application - In Progress
 
 ## Current Task
 
-Decision ID: D105-community-board-deletion-policy
+Task ID: P17-005-post-and-comment-operations
 
-Decision: `develop/decisions/105-community-board-deletion-policy.md`
+Task Packet: `develop/orchestration/tasks/P17-005-post-and-comment-operations.md`
 
 Specifications: `develop/spec/71-full-stack-reference-application.md`、`develop/spec/72-phase-17-delivery-plan.md`
 
 ## Task Status
 
-Awaiting User Decision
+Ready
 
-P17-004はOrchestrator Reviewと独立Quality Gateを通過し、Commit `dc47d7b`としてorigin/mainへPush済みである。P17-005のTask Packet作成前に、確定仕様が明示的に未決としているPost削除方式とComment保持境界をD105へ切り出した。User回答を待ち、Production Code実装は開始していない。
+User回答によりD105をAで確定した。PostはApplication TableからHard Deleteし、配下CommentもForeign Key Cascadeで同じTransaction内に削除する。P17-005 Task Packetを作成し、Production Codeはまだ変更していない。
 
 ## Last Accepted Task
 
@@ -48,17 +48,17 @@ P17-004-structured-outcome-contract
 20. D101はA／A／Aで確定。Path／Query／HeaderのNative Scalarを厳密Coercionし、Canonical形式と既存422 Failure Surfaceを採用する。
 21. D103はA／A／A／A／A／A／A／Aで確定。Phase 17をFull-stack Reference Applicationとし、Server-only SvelteKit BFF、Application-owned Authentication、Deferred Digest、DBAL、Taste Skill適用範囲、Reicon、Local-only Deliveryを採用する。
 22. D104はA／A／A／D／Aで確定。Outcome OutputへReadonly Nested DTO／Typed Listを追加し、`OutcomeData`／`#[ListOf]`、PostgreSQL Outcome Codec Version 2、Version 1非互換、独立P17-004を採用する。
-23. D105は回答待ち。Community BoardのPost削除方式と配下Commentの保持境界を決定する。
+23. D105はAで確定。PostをHard Deleteし、配下CommentもForeign Key Cascadeで同じTransaction内に削除する。Application Data RetentionとUser削除は未決のままとする。
 
 ## Known Blockers
 
-D105のUser回答待ち。削除方式はApplication Schema、Repository Query、Digest集計、Retentionへ影響するため、P17-005 Production Codeを開始しない。Documentation WebsiteはUser判断どおり未公開であり、Publication／Deployは行わない。
+なし。Documentation WebsiteはUser判断どおり未公開であり、Publication／Deployは行わない。
 
 ## Required Next Action
 
-1. Userが`develop/decisions/105-community-board-deletion-policy.md`へ回答する。
-2. OrchestratorがD105を確定して仕様とP17-005 Task Packetへ反映する。
-3. P17-005をGPT-5.6 Luna High Workerへ委譲する。
+1. P17-005設計記録を独立Commit／Pushする。
+2. P17-005をGPT-5.6 Luna High Workerへ委譲する。
+3. Worker Report受領後、Orchestratorが差分とQuality Gateを独立Reviewする。
 
 ## P17-004 Structured Outcome Contract Worker Verification
 
