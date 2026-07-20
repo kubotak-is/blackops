@@ -1,6 +1,6 @@
 # P17-005: Post and Comment Operations
 
-Status: Ready
+Status: Accepted
 
 ## Goal
 
@@ -283,24 +283,24 @@ Foundation／Identity Consumer E2Eも回帰させない。CIのCommunity Board J
 
 ## Acceptance Criteria
 
-- [ ] Post／Comment MigrationがForeign Key、Index、Length、Cascade Contractを持つ
-- [ ] Application-owned Repository、Clock、UUIDv7 GeneratorがDIされる
-- [ ] Domain／Infrastructureが分離され、Domain LogicがDomainServiceに集約される
-- [ ] 6つのInline Operation Type／Route／Value／OutcomeがCanonical Contractどおりである
-- [ ] Post／Comment Validationが422 Field Errorを返す
-- [ ] Feed／DetailがStructured Outcomeと決定的Pagination／Orderingを返す
-- [ ] Authenticated UserだけがPost／Comment Operationを利用できる
-- [ ] Update／DeleteがOwnerだけに成功し、Non-owner／Unknown／Malformedを同じ404へ閉じる
-- [ ] Mutationが`#[Transactional]`で業務更新と成功LifecycleをCommitする
-- [ ] Post Hard DeleteがCommentをCascadeし、復元／Soft Deleteを追加しない
-- [ ] Add CommentとDeleteのRaceでOrphan／Raw Constraint Errorを返さない
-- [ ] Build Compile、Frontend Generate／Checkが6 OperationのStructured Contractを扱う
-- [ ] Example PHPUnitとReal HTTP Post／Comment E2Eが成功する
-- [ ] Foundation／Identity Consumer E2Eが回帰しない
-- [ ] CI、README、Migration Tracking、Artifact Cleanupが同期する
-- [ ] Framework `src/**`、Quickstart／Skeleton、SvelteKit Product Pageを変更しない
-- [ ] Required Quality Gateが成功する
-- [ ] WorkerはCommitしない
+- [x] Post／Comment MigrationがForeign Key、Index、Length、Cascade Contractを持つ
+- [x] Application-owned Repository、Clock、UUIDv7 GeneratorがDIされる
+- [x] Domain／Infrastructureが分離され、Domain LogicがDomainServiceに集約される
+- [x] 6つのInline Operation Type／Route／Value／OutcomeがCanonical Contractどおりである
+- [x] Post／Comment Validationが422 Field Errorを返す
+- [x] Feed／DetailがStructured Outcomeと決定的Pagination／Orderingを返す
+- [x] Authenticated UserだけがPost／Comment Operationを利用できる
+- [x] Update／DeleteがOwnerだけに成功し、Non-owner／Unknown／Malformedを同じ404へ閉じる
+- [x] Mutationが`#[Transactional]`で業務更新と成功LifecycleをCommitする
+- [x] Post Hard DeleteがCommentをCascadeし、復元／Soft Deleteを追加しない
+- [x] Add CommentとDeleteのRaceでOrphan／Raw Constraint Errorを返さない
+- [x] Build Compile、Frontend Generate／Checkが6 OperationのStructured Contractを扱う
+- [x] Example PHPUnitとReal HTTP Post／Comment E2Eが成功する
+- [x] Foundation／Identity Consumer E2Eが回帰しない
+- [x] CI、README、Migration Tracking、Artifact Cleanupが同期する
+- [x] Framework `src/**`、Quickstart／Skeleton、SvelteKit Product Pageを変更しない
+- [x] Required Quality Gateが成功する
+- [x] WorkerはCommitしない
 
 ## Required Commands
 

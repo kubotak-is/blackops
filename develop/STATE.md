@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-20T21:31:15+09:00
+Updated At: 2026-07-20T22:26:57+09:00
 
 ## Current Phase
 
@@ -16,13 +16,13 @@ Specifications: `develop/spec/71-full-stack-reference-application.md`、`develop
 
 ## Task Status
 
-Ready
+Accepted
 
-User回答によりD105をAで確定した。PostはApplication TableからHard Deleteし、配下CommentもForeign Key Cascadeで同じTransaction内に削除する。P17-005 Task Packetを作成し、Production Codeはまだ変更していない。
+GPT-5.6 Luna High WorkerがP17-005を実装し、OrchestratorがDomain／Infrastructure依存、BoardService責務、Operation境界、Sensitive GuardをReviewして受け入れた。Application-owned Post／Comment Migration、6 Inline Operation、Structured Outcome、Validation、Owner-only Mutation、Hard Delete Cascade、Example／Real HTTP Test、CI／READMEが完成した。Framework `src/**`、Quickstart、SvelteKit Product Sourceは変更していない。
 
 ## Last Accepted Task
 
-P17-004-structured-outcome-contract
+P17-005-post-and-comment-operations
 
 ## Pending Decisions
 
@@ -49,6 +49,7 @@ P17-004-structured-outcome-contract
 21. D103はA／A／A／A／A／A／A／Aで確定。Phase 17をFull-stack Reference Applicationとし、Server-only SvelteKit BFF、Application-owned Authentication、Deferred Digest、DBAL、Taste Skill適用範囲、Reicon、Local-only Deliveryを採用する。
 22. D104はA／A／A／D／Aで確定。Outcome OutputへReadonly Nested DTO／Typed Listを追加し、`OutcomeData`／`#[ListOf]`、PostgreSQL Outcome Codec Version 2、Version 1非互換、独立P17-004を採用する。
 23. D105はAで確定。PostをHard Deleteし、配下CommentもForeign Key Cascadeで同じTransaction内に削除する。Application Data RetentionとUser削除は未決のままとする。
+24. D106でBoard Domain／Infrastructure分離とDomainServiceへの業務ロジック集約を確定した。DomainはBlackOps／Doctrine／Symfonyへ依存しない。
 
 ## Known Blockers
 
@@ -56,9 +57,31 @@ P17-004-structured-outcome-contract
 
 ## Required Next Action
 
-1. P17-005設計記録を独立Commit／Pushする。
-2. P17-005をGPT-5.6 Luna High Workerへ委譲する。
-3. Worker Report受領後、Orchestratorが差分とQuality Gateを独立Reviewする。
+1. P17-005を独立Commit／Pushする。
+2. P17-006 Server-only BFF／Post JourneyのTask Packetを確定する。
+3. P17-006をGPT-5.6 Luna High Workerへ委譲する。
+
+## P17-005 Post and Comment Operations Worker Verification
+
+```text
+Architecture: app/Domain/BoardへBoardService、Model、Exception、Repository／Clock／ID Portを集約。app/InfrastructureへDoctrine DBAL、System Clock、Symfony UUIDv7 Adapterを分離。DomainはBlackOps／Doctrine／Symfonyへ非依存。
+
+Database／Operation: Post／Comment Migration 1、6 Inline Operation、Validation、Authenticated Policy、Owner-only Row Lock、Safe 404、Transactional Mutation、Hard Delete Cascadeを実装。
+
+Structured Outcome／Frontend: Deterministic Feed／Comment Order、UTF-8 240 Character Preview、Nested DTO／Typed Listを実装。Build成功、Generated 11 files、Fresh Check成功。
+
+Example: PHPUnit OK (33 tests, 388 assertions)。Repository Ordering／Pagination／Rollback／Cascade／Delete Race、DomainService、Operation Boundary、Migration、Build Artifact、再帰Domain Architecture Guardを確認。
+
+Frontend: Svelte check 0 errors／0 warnings、Vitest 4 files／16 tests、adapter-node build成功。
+
+Real HTTP: Foundation、Identity、Post／Comment Journeyが成功。Alice／Bob、401、422、Create／Feed／Detail／Comment／Update／Delete 204、同一404、DB Row 0を完走。Review修正後、Sensitive Guardを明示Failureへ変更し、既知Marker Fixture、全Container Credential検査、Application Surface限定SQL／Path／Config検査を再実行して成功。
+
+Root: Composer Root／Quickstart valid、Mago format／lint／analyze成功、PHPUnit OK (1471 tests, 5810 assertions)、Deptrac違反0。
+
+Scope／Artifacts: Framework src、Quickstart、SvelteKit Product Source Diffなし。Runtime／Generated／Dependency Artifact cleanup済み。Worker Commitなし。
+```
+
+詳細は`develop/orchestration/reports/P17-005-post-and-comment-operations.md`を参照する。User指定のReiconは後続Frontend Design Taskで使用する。
 
 ## P17-004 Structured Outcome Contract Worker Verification
 

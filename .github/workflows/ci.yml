@@ -17,7 +17,7 @@ concurrency:
 
 jobs:
   community-board-foundation:
-    name: Community Board foundation and identity
+    name: Community Board foundation, identity, and posts
     runs-on: ubuntu-latest
     timeout-minutes: 25
 
@@ -65,11 +65,16 @@ jobs:
       - name: Test Community Board identity
         run: bash tests/Consumer/community-board-identity.sh
 
+      - name: Test Community Board posts and comments
+        run: bash tests/Consumer/community-board-post-comment.sh
+
       - name: Guard generated and sensitive artifacts
         run: |
           set -euo pipefail
           git ls-files --error-unmatch \
             examples/community-board/migrations/Version20260720023000.php >/dev/null
+          git ls-files --error-unmatch \
+            examples/community-board/migrations/Version20260720214000.php >/dev/null
           if git ls-files \
             examples/community-board/.env \
             examples/community-board/vendor \
