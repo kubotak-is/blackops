@@ -197,3 +197,4 @@
 | [D102](../decisions/102-phase-16-deferred-status-and-outcome-api.md) | Phase 16 Deferred Status and Outcome API | Decided |
 | [D103](../decisions/103-full-stack-reference-application.md) | Full-stack Reference Application | Decided |
 | [D104](../decisions/104-structured-outcome-contract.md) | Structured Outcome Contract | Decided |
+| [D105](../decisions/105-community-board-deletion-policy.md) | Community Board Deletion Policy | Proposed |
