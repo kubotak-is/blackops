@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-22T02:20:22+09:00
+Updated At: 2026-07-22T02:21:36+09:00
 
 ## Current Phase
 
@@ -18,7 +18,7 @@ Specifications: Next phase not selected
 
 Phase Complete - Accepted
 
-P17-009BはAccepted。Root／Application README、Guide、Current Status、Website NavigationとCredential-free Screenshot Pipelineを同期した。Community BoardのClean Install、全Journey、Playwright Browser、Sensitive Guard、Framework Full Gate、Quickstart／Skeleton／Publication／Framework Update Gateが成功した。OrchestratorもWebsite 42 tests、Astro 0 errors／0 warnings／0 hints、30 public pagesのBuild／Navigation／Search／Screenshot Hash Check、Skeleton Publication Workflow、Scope／Artifact Guardを独立再検証した。Phase 17 Spec／Delivery Plan／Roadmap／TODOはComplete。External Publication／Deployは行っていない。
+P17-009BはAccepted。Root／Application README、Guide、Current Status、Website NavigationとCredential-free Screenshot Pipelineを同期した。Community BoardのClean Install、全Journey、Playwright Browser、Sensitive Guard、Framework Full Gate、Quickstart／Skeleton／Publication／Framework Update Gateが成功した。OrchestratorもWebsite 42 tests、Astro 0 errors／0 warnings／0 hints、30 public pagesのBuild／Navigation／Search／Screenshot Hash Check、Skeleton Publication Workflow、Scope／Artifact Guardを独立再検証した。Task Commit `3dcd7c0`からのSkeleton Publication HEAD Gateも成功した。Phase 17 Spec／Delivery Plan／Roadmap／TODOはComplete。External Publication／Deployは行っていない。
 
 ## Last Accepted Task
 
@@ -59,9 +59,7 @@ Active Implementation Blockerはない。Ray.Aop 2.19.1／2.20.0には複数clas
 
 ## Required Next Action
 
-1. OrchestratorがP17-009B成果物をCommitする。
-2. Task Commit後に`bash tests/Consumer/skeleton-publication.sh 1.1.0 HEAD`を実行する。
-3. Phase 18以降の次Taskを選定する。
+1. Phase 18以降の次Taskを選定する。
 
 ## P17-009B Community Board Documentation and Phase Closeout Worker Verification
 
@@ -76,7 +74,7 @@ Framework／Compatibility: Root／Community Composer strict、Mago format／lint
 
 Publication Workflow: 初回はQuickstartがHEADと同一でもTemporary Commitを要求してnothing to commitで停止。Orchestrator Scope Extensionで差分なしはHEAD、差分ありだけTemporary Commitとし、両経路を同Script内で固定。再実行成功。Publication／Split Contractは不変。
 
-Closeout: Phase 17 Spec／Delivery Plan／Roadmap／TODOをCompleteへ同期。External Publication／Deployなし。Generated／Dependency／Runtime／Browser／Website ArtifactはCleanup対象。Worker Commitなし。
+Closeout: Phase 17 Spec／Delivery Plan／Roadmap／TODOをCompleteへ同期。Task Commit 3dcd7c0からSkeleton Publication HEAD Gateも成功。External Publication／Deployなし。Generated／Dependency／Runtime／Browser／Website ArtifactはCleanup対象。Worker Commitなし。
 ```
 
 詳細は`develop/orchestration/reports/P17-009B-community-board-documentation-and-phase-closeout.md`を参照する。
