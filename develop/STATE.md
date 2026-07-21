@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-21T23:40:22+09:00
+Updated At: 2026-07-21T23:50:50+09:00
 
 ## Current Phase
 
@@ -16,13 +16,13 @@ Specifications: `develop/spec/52-phase-8-delivery-plan.md`、`develop/spec/61-ex
 
 ## Task Status
 
-In Progress - Worker Implementation
+Accepted
 
-User指摘により、FrameworkのComposer／Git ArchiveへRepository開発資産が含まれる現状を確認した。P17-007Bで`.gitattributes`、Composer Archive、CI Package Export Contractを実装する。D108はQuestion 2=B、Question 3=Nを受領したが、Question 1の選択が未記入のためPhase順序は確定せず保留する。
+Root `.gitattributes`をPackage Export Boundaryの正本として追加し、Composer `archive.exclude`と同じ除外集合へ同期した。Git／Composer両Archiveは`composer.json`、`src/`、Framework Migration、Generator Stub、Release文書だけを保持し、Composer strict validationとProduction Autoload生成を含むCI ContractがWorker／Orchestratorの両方で成功した。Framework Production Code、Quickstart、Community Boardに差分はない。D108はQuestion 2=B、Question 3=Nを受領したが、Question 1の選択が未記入のためPhase順序は確定せず保留する。
 
 ## Last Accepted Task
 
-P17-007-deferred-digest-and-progress
+P17-007B-composer-package-export-boundary
 
 ## Pending Decisions
 
@@ -59,9 +59,23 @@ Ray.Aopの解決可能Stable Releaseには、Attribute引数の`::class`をclass
 
 ## Required Next Action
 
-1. P17-007BでComposer Package Export Boundaryを実装、Review、Commitする。
+1. P17-007BのAccepted差分をCommitする。
 2. UserへD108 Question 1の選択を確認する。
 3. Phase先行が選ばれたらP17-008 Visual Designを開始する。
+
+## P17-007B Composer Package Export Boundary Worker Verification
+
+```text
+Boundary: `.gitattributes`のexport-ignoreを正本とし、Composer archive.excludeを同一Path集合へ同期。Repository automation、Orchestration、Docs、Examples、Tests、Container／Local Tooling、runtime、Git追跡外cache／env／vendorを除外。
+
+Required: composer.json、src 564 files、Framework Migration 2 files、Operation／Migration Generator Stub 4 files、LICENSE／README／CHANGELOG／UPGRADEを保持。Git Archiveは1,764 filesから575 filesへ縮小。
+
+Verification: Git／Composer両ArchiveのRoot allowlist、Required／Excluded、Composer strict validation、Production autoload、除外集合同期、Temporary cleanupが成功。Root Composer validate／install、Mago format、管理ID Guard、diff check、Production／Quickstart／Community Board Scope Guardも成功。
+
+Scope: Framework Production Code、Quickstart、Community Board、Tag／Release／Packagist差分なし。Full PHPUnit／DeptracはProduction PHP SourceとDependency集合に差分がないためTask Packetに従い省略。ユーザー所有D108差分は変更／stage／revertなし。Worker Commitなし。
+```
+
+詳細は`develop/orchestration/reports/P17-007B-composer-package-export-boundary.md`を参照する。
 
 ## P17-007A AOP Class-constant Attributes Worker Verification
 

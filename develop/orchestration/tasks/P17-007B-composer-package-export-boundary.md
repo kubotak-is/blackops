@@ -1,6 +1,6 @@
 # P17-007B: Composer Package Export Boundary
 
-Status: In Progress
+Status: Accepted
 
 ## Goal
 

@@ -1,0 +1,30 @@
+# Repository automation and development metadata
+/.gitattributes export-ignore
+/.agents export-ignore
+/.codex export-ignore
+/.github export-ignore
+/develop export-ignore
+/docs export-ignore
+/examples export-ignore
+/tests export-ignore
+
+# Container and local development tooling
+/.deptrac.cache export-ignore
+/.dockerignore export-ignore
+/.env export-ignore
+/.env.example export-ignore
+/.gitignore export-ignore
+/.phpunit.cache export-ignore
+/AGENTS.md export-ignore
+/Dockerfile export-ignore
+/Dockerfile.frankenphp export-ignore
+/compose.yaml export-ignore
+/composer.lock export-ignore
+/deptrac.yaml export-ignore
+/mago.toml export-ignore
+/mise.toml export-ignore
+/phpunit.xml export-ignore
+
+# Repository health-check application and development runtime
+/runtime export-ignore
+/vendor export-ignore

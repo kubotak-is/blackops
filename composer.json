@@ -40,6 +40,35 @@
             "BlackOps\\Tests\\": "tests/"
         }
     },
+    "archive": {
+        "exclude": [
+            "/.gitattributes",
+            "/.agents",
+            "/.codex",
+            "/.github",
+            "/develop",
+            "/docs",
+            "/examples",
+            "/tests",
+            "/.deptrac.cache",
+            "/.dockerignore",
+            "/.env",
+            "/.env.example",
+            "/.gitignore",
+            "/.phpunit.cache",
+            "/AGENTS.md",
+            "/Dockerfile",
+            "/Dockerfile.frankenphp",
+            "/compose.yaml",
+            "/composer.lock",
+            "/deptrac.yaml",
+            "/mago.toml",
+            "/mise.toml",
+            "/phpunit.xml",
+            "/runtime",
+            "/vendor"
+        ]
+    },
     "config": {
         "allow-plugins": {
             "carthage-software/mago-composer-plugin": true

@@ -107,6 +107,14 @@ Phase 16 CloseoutではQuickstartへApplication所有Status Authorizerと明示B
 
 Skeleton通常Installと`--no-scripts`、Publication Dry-run／Workflow、Framework UpdateはFrontend Config／Package／Lockfile／Application Source／Test Sourceをbytes単位で保持する。Backend-only Setupと既存Curl／Journal／Transaction／Worker／Diagnostics Journeyも同じConsumer E2Eで維持する。Documentation WebsiteはFrontend GuideをLocal／CIで生成・検証・Buildするが、外部Publicationは行わない。
 
+## Framework Package Export Boundary
+
+Root `.gitattributes`の`export-ignore`をFramework Source Archiveの正本とし、Composerの`archive.exclude`を同じ除外集合へ同期する。配布PackageのRootは`composer.json`、`src/`、`migrations/`、`resources/stubs/`、`LICENSE`、`README.md`、`CHANGELOG.md`、`UPGRADE.md`に限定する。
+
+`migrations/`はFramework Schema Loader、`resources/stubs/`はOperation／Migration GeneratorがPackage Rootから実行時に参照するため配布する。Rootの`runtime/`はRepository health-check applicationとFrankenPHP開発Runtimeであり、Framework library Sourceから参照しないため、Orchestration、CI、Test、Example、Container／Local Tooling、Cache、Vendorとともに除外する。
+
+`tests/Consumer/framework-package-export.sh`は未Commitの`.gitattributes`も反映するGit ArchiveとComposer Archiveを一時Directoryへ作成し、除外集合の一致、Root allowlist、Required Migration／Stub、Composer strict validation、Production autoload生成を検証する。TestはMain Working Tree、Docker Cache、Composer Cacheを変更せず、CIのQuality Jobでも実行する。
+
 ## Phase 8 Publication Evidence
 
 Skeletonには再実行可能な`bin/setup`とComposer `post-create-project-cmd`が実装済みである。Setupは未作成`.env`のCopyとLocal生成Directoryの準備だけを行い、既存`.env`を変更せず、外部ProcessやRuntime Side Effectを起動しない。`--no-scripts`利用時も`php bin/setup`で同じ準備を行える。

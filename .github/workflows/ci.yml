@@ -275,6 +275,9 @@ jobs:
           docker compose run --rm app composer validate --strict
           docker compose run --rm app composer validate --strict examples/quickstart/composer.json
 
+      - name: Validate framework package export
+        run: bash tests/Consumer/framework-package-export.sh
+
       - name: Run Mago
         run: |
           set -euo pipefail
