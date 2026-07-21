@@ -144,6 +144,7 @@ MVP後に残す主要項目:
 
 ### Phase 18: Reliability and Delivery
 
+- [ ] D109でIdempotency Key、Transactional Outbox、Relay／Replay、Community Board Journeyを決定する
 - [ ] Idempotency Keyと重複時Contractを実装する
 - [ ] Transactional Outbox、Relay、Replayを実装する
 
