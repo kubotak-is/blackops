@@ -1,14 +1,14 @@
 # Orchestration State
 
-Updated At: 2026-07-22T06:07:10+09:00
+Updated At: 2026-07-22T06:13:36+09:00
 
 ## Current Phase
 
-Phase 18: Application Ergonomics - Session Auth Package Preparation
+Phase 18: Application Ergonomics - Session Auth Contract Decision
 
 ## Current Task
 
-Task ID: P18-006 Session Auth Package and Generator Preparation
+Task ID: D111 Session Auth Package Contract
 
 Task Packet: Not created
 
@@ -16,9 +16,9 @@ Specifications: `develop/spec/74-application-ergonomics.md`、`develop/spec/75-p
 
 ## Task Status
 
-Accepted
+Awaiting User Input
 
-P18-005をOrchestratorが独立Reviewし、Public API、Option Compiler、Command Manifest Schema 2 Recovery、HTTP共通Lifecycle、Safe Output、Quickstartを受け入れた。Focused PHPUnit 692 tests／2033 assertions、Mago format、Deptrac 0 violations、Management ID／Community Board／diff Guardを再確認した。
+P18-005はAccepted、Commit／Push済みである。P18-006の実装前に、Package依存方向、Identity Provider、Token／Lifecycle、HTTP Adapter、Migration、Command接続、Generator範囲／ConflictをPublic／Security Contractとして固定するため、D111のUser Review待ちである。
 
 ## Last Accepted Task
 
@@ -54,6 +54,7 @@ P18-005-operation-console-adapter
 26. D108はA／B／Cで確定。Phase 17はmetadata-only Deferred Strategyのliteral class-string回避を維持して先行する。Ray.AopはPhase 21のTransaction専用Framework-owned Build-time Proxyで置き換え、upstreamへのIssue／PRは作成しない。
 27. D109はA／A／A／A／A／A／A／Aで確定。Idempotency、Outbox、Relay／Replay、Community Board JourneyのContractを採用する。
 28. D110はA／A／A／A／A／A／A／Aで確定。Application ErgonomicsをPhase 18としてReliabilityより先に実装し、Frontend、Environment、Dependency、Session Auth、Consoleの責任分界を採用する。
+29. D111でSession Auth Packageの依存方向、Identity、Token／Lifecycle、HTTP Adapter、Migration、Command接続、Generatorの公開／Security Contractを確定する。User回答待ちである。
 
 ## Known Blockers
 
@@ -61,8 +62,8 @@ Active Implementation Blockerはない。Ray.Aop 2.19.1／2.20.0には複数clas
 
 ## Required Next Action
 
-1. P18-006 Session Auth Package and GeneratorのPublic・Security Contractに未決事項がないか、D110、Spec 74／75、Community Boardの現行Identity実装を照合する。
-2. 未決事項があればDecisionのたたき台を作成してUser Reviewを求める。なければTask Packetを作成し、GPT-5.6 Luna High workerへ委譲する。
+1. Userが`develop/decisions/111-session-auth-package-contract.md`のQuestion 1から9へ回答する。
+2. Orchestratorが回答をDecision／Spec 74／75へ反映し、P18-006 Task Packetを作成してGPT-5.6 Luna High workerへ委譲する。
 
 ## P18-005 Operation Console Adapter Worker Verification
 

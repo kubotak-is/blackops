@@ -1,0 +1,205 @@
+# D111: Session Auth Package Contract
+
+Status: Proposed
+
+## Context
+
+D110は、任意Package `blackops/session-auth`がOpaque Token、Hash、TTL、Rotation、Revocation、Doctrine DBAL Store、Migration、HTTP Credential抽出を所有し、ApplicationがUser、Password、Registration、Authorization、Cookie／UIを所有すると決めた。P18-006では、この責任分界を独立Composer Package、Public API、Database Schema、HTTP Adapter、`php blackops make:auth` Generatorへ落とし込む。
+
+Community Boardの現行Identity実装は、32-byte Random Token、SHA-256 Hash、8時間のAbsolute TTL、Bearer Credential、Logout RevocationをApplication内に実装している。一方、`last_used_at`、明示Rotation、Expired Cleanup、Concurrent Rotation／Revocation、Cookie Adapter、Package Migrationは未実装である。
+
+Session Tokenの保存形式、並行制御、Migration History、PackageとFrameworkの依存方向は、後続Taskで暗黙に決めない。Public／Security Contractとして先に固定する。
+
+## Inherited Decisions
+
+- `blackops/framework` CoreはSession Auth Packageを必須依存にしない。
+- Raw TokenをDatabase、Journal、Outcome、Log、Command Output、Reportへ保存／出力しない。
+- User、Password Hash Policy、Registration、Account State、Role／Permission、Cookie Attribute、CSRF、Route／UIはApplicationが所有する。
+- Frameworkの`HttpAuthenticator`と`AuthenticationResult`をHTTP Authenticationの中立Contractとする。
+- Durable Actorは`ActorRef(id, type)`だけを保持し、Credential、Role、Permission、Claimを保持しない。
+- Applicationが直接利用するPackageはApplicationの`composer.json`へ明示する。
+- PackageのGitHub／Packagist Publication、Version Tag、Releaseは行わない。
+
+## Question 1: Packageの依存方向とRepository配置
+
+### Options
+
+- A: Monorepoの`packages/session-auth/`に独立`composer.json`を持つPackageとして置く。`blackops/session-auth`は`blackops/framework`のPublic HTTP／Actor Contractと`doctrine/dbal`に依存するが、`blackops/framework`からは依存しない。Consumer TestはComposer Path RepositoryでInstallする
+- B: Frameworkに依存しないSession Lifecycle Packageと、Framework HTTP Adapter Packageの2 Packageへ分ける
+- C: Root `src/`に実装し、Composerの`replace`だけで別Packageとして扱う
+
+### Recommendation
+
+Aを推奨する。
+
+依存の向きをIntegration PackageからFrameworkへの一方向にすれば、認証不要のApplicationにDBAL Sessionを持ち込まない。初期Capabilityを2 Packageへ分けるとInstallとVersion Compatibilityが不必要に複雑になる。Root `src/`と別Packageの二重所有は避ける。
+
+[ANSWER]
+
+[/ANSWER]
+
+## Question 2: Sessionが保存するIdentityとApplication Provider
+
+### Options
+
+- A: Session RowはApplicationが発行時に渡すOpaqueな`identity_id`だけを保持する。PackageはPublic `SessionIdentityProvider::resolve(string $identityId): ?ActorRef`を呼び、削除／停止済みUserをApplicationが無効化できるようにする。User TableへのForeign Keyは張らない
+- B: Session Rowへ`actor_id`と`actor_type`を保存し、Providerなしで直接`ActorRef`を復元する
+- C: PackageがUser Table／User Entity／Account Stateまで所有する
+
+### Recommendation
+
+Aを推奨する。
+
+Session StoreをApplicationのUser Schemaから独立させつつ、毎Requestで現在のAccount Stateを反映できる。Providerが返す`ActorRef`は既存のAuthorization／Deferred Contractへそのまま接続できる。
+
+[ANSWER]
+
+[/ANSWER]
+
+## Question 3: Token形式とHash
+
+### Options
+
+- A: CSPRNGの32 byteをpaddingなしBase64url 43文字にし、DatabaseへはSHA-256 Hashだけを保存する。Random Source／ClockはTest用Portから注入し、TokenとHashの`__toString()`／JSON変換は提供しない
+- B: 64 byte TokenとArgon2id Hashを保存する
+- C: UUID v7をRaw Tokenとしてそのまま保存する
+
+### Recommendation
+
+Aを推奨する。
+
+256 bitの予測不可能なTokenはOffline Guessに十分強く、決定的HashによるIndexed Lookupが可能である。Passwordと異なりLow-entropy Inputではないため、Argon2idの計算Costは実用上の利点よりRequest Costを増やす。
+
+[ANSWER]
+
+[/ANSWER]
+
+## Question 4: TTL、Last Used、Rotation、Revocation
+
+### Options
+
+- A: Default 8時間のAbsolute TTLを起動時Configurationで変更可能にする。認証時の`last_used_at`はDefault 5分間のTouch Intervalを超えた場合だけConditional Updateする。Rotationは明示APIで旧SessionをRevokeしてSuccessorを発行する単一Transactionとし、同時Rotationの先行者だけが成功する。Logout RevocationはIdempotent、CleanupはExpired／RevokedのRetention Cutoff以前だけを削除する
+- B: 認証のたびにExpiryを延長するSliding TTLとし、`last_used_at`を毎Request Updateする
+- C: TTLとLogoutだけを実装し、Last Used／Rotation／Cleanupは後続Phaseへ送る
+
+### Recommendation
+
+Aを推奨する。
+
+Absolute TTLは失効時刻が安定し、Touch Intervalは`last_used_at`の監査価値を保ちながら毎Request Writeを避ける。RotationとRevocationをTransaction／Conditional Updateで固定することで、旧Tokenの再利用と並行成功を防げる。
+
+[ANSWER]
+
+[/ANSWER]
+
+## Question 5: BearerとCookieのHTTP Adapter
+
+### Options
+
+- A: Packageは`BearerSessionAuthenticator`と`CookieSessionAuthenticator`を別々提供する。Applicationは一つを`HttpAuthenticator`へBindingし、Cookie AdapterのCookie名だけを起動時に渡す。Cookieの発行、`Secure`／`HttpOnly`／`SameSite`、Domain／Path、CSRFはApplicationが所有する
+- B: 一つのAdapterがBearerとCookieを同時に読み、Bearerを優先する
+- C: BearerだけをPackageで提供し、CookieはApplicationが実装する
+
+### Recommendation
+
+Aを推奨する。
+
+Credential SourceをBinding時に一つに固定し、二つのCredentialが同時に来た場合の暗黙優先順位を作らない。Packageは抽出と検証を所有するが、Browser Security PolicyはApplicationに残す。
+
+[ANSWER]
+
+[/ANSWER]
+
+## Question 6: Migrationの配布とTable所有
+
+### Options
+
+- A: PackageはPostgreSQL用のImmutable Forward Migration Templateを所有し、`make:auth`がApplicationの`migrations/`へ一度だけPublishする。Table名は`blackops_sessions`、User TableへのForeign Keyはなし、ApplicationのMigration Historyに取り込んだFileはPackage Updateで書き換えない
+- B: Framework Migration RunnerがInstall済みPackageのVendor Migration Directoryを自動発見し、Vendor内のMigrationを直接実行する
+- C: Packageが起動時にSchemaを自動作成／更新する
+
+### Recommendation
+
+Aを推奨する。
+
+Applicationが実行済みMigrationの履歴を所有でき、Vendor Updateで過去のMigrationが変化しない。Migrationは通常のGenerator Stubと異なり、Publish時点のImmutable Snapshotにすることが意図に合う。Runtime Schema Mutationは行わない。
+
+[ANSWER]
+
+[/ANSWER]
+
+## Question 7: `make:auth`のCommand接続
+
+### Options
+
+- A: `blackops/framework`はPackage非依存のBuilt-in `make:auth`入口だけを持ち、実行時に`blackops/session-auth`のGenerator PortがInstall済みか確認する。未InstallならSafeなInstall Guidanceで終了し、実装／StubはPackage側の現在Versionを呼ぶ
+- B: Composer PackageがFrameworkのConsole Extension Manifestを通じてCommandを自動登録する汎用Plugin Contractを新設する
+- C: Applicationが`MakeAuthCommand`を`config/app.php`へ明示登録する
+
+### Recommendation
+
+Aを推奨する。
+
+`php blackops make:auth`をInstall直後から予測可能にしつつ、生成LogicはPackage Updateで更新される。P18-006のためだけに汎用Plugin Discoveryを設計するより変更面を狭くできる。
+
+[ANSWER]
+
+[/ANSWER]
+
+## Question 8: Generatorが作るApplication Code
+
+### Options
+
+- A: `make:auth`はFramework-neutralなAPI Authentication Starterを生成する。Application-owned User Model／DBAL Repository／Password Verifier／Registration Policy／Identity Provider、Register／Login／Logout Operation、Service Provider、Configuration、User Migration／Package Session Migrationを含め、Build後にHTTP APIが動く状態にする。HTML／SvelteKit UI、Cookie発行、CSRFは生成しない
+- B: Identity Provider InterfaceとService Providerだけを生成し、User／Password／Operation／Migrationは利用者がすべて実装する
+- C: SvelteKitのLogin／Registration／Logout Page、Cookie、CSRFまで生成する
+
+### Recommendation
+
+Aを推奨する。
+
+認証の定型実装を実際に減らし、生成後のCodeをApplication固有Policyとして編集可能にする。同時にHeadless境界を守り、SvelteKitとBrowser Security PolicyまでPackageへ固定しない。
+
+[ANSWER]
+
+[/ANSWER]
+
+## Question 9: GeneratorのConflictと再実行
+
+### Options
+
+- A: DefaultはAll-or-nothing Preflightで一つでもConflictしたら何も書かない。`--force`はPackage-owned Generated Configuration／Adapterだけを更新可能にし、User、Repository、Password、Registration Policy、Operation、Migrationは上書きしない。完全生成済みの同一VersionではNo-op成功する
+- B: `--force`でMigrationを除く全生成Fileを上書きする
+- C: Conflict FileだけをSkipし、その他を部分生成する
+
+### Recommendation
+
+Aを推奨する。
+
+部分生成による半端なAuthentication Surfaceを作らず、Applicationが編集するDomain／Security PolicyをPackage Updateが破壊しない。
+
+[ANSWER]
+
+[/ANSWER]
+
+## Proposed Invariants
+
+- Raw Tokenは発行直後の呼出し側に一度だけ返し、Database／Log／Exception／Journal／Outcome／Reportへ永続化しない
+- Token Hash、Session ID、Identity IDをCredentialとして受理しない
+- Expired／Revoked／Rotated SessionはAuthenticationとRotationに使えない
+- Concurrent Rotationで有効なSuccessorを二つ発行しない
+- Invalid Credentialは存在有無、Expiry、Revocation、Account Stateの差をHTTP Errorへ反映しない
+- PackageはUser Password、Role／Permission、Cookie Attribute、CSRF、UIを保持しない
+- Framework RootのComposer Dependencyから`blackops/session-auth`を必須化しない
+- Application MigrationとApplication-owned FileをPackage Update／`--force`で上書きしない
+- RuntimeでApplication Source Scan／Attribute Reflection Fallbackを行わない
+- External Repository／Packagist／Tag／Releaseを作成しない
+
+## Traceability
+
+- Application Ergonomics: [D110](110-application-ergonomics.md)
+- Middleware and Authentication: [D095](095-phase-12-middleware-and-authorization-runtime.md)
+- Public Core API: [Spec 17](../spec/17-core-api.md)
+- Application Ergonomics: [Spec 74](../spec/74-application-ergonomics.md)
+- Phase 18 Delivery: [Spec 75](../spec/75-phase-18-delivery-plan.md)
+
