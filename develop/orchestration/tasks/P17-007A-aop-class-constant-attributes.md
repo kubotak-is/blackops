@@ -1,6 +1,6 @@
 # P17-007A: AOP Class-constant Attributes
 
-Status: Blocked
+Status: Closed - Dependency Gap Accepted by D108
 
 ## Goal
 

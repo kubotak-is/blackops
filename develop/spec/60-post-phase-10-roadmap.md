@@ -18,6 +18,7 @@ Phase 11 Stable 1.1 Release
             -> Phase 17 Full-stack Reference Application
               -> Phase 18 Reliability and Delivery
                 -> Phase 19 Security Hardening and Observability
+                  -> Phase 20 Framework-owned Transaction Interception
 ```
 
 ## Phase 11: Stable 1.1 Release
@@ -123,6 +124,17 @@ Community Boardの二重投稿防止と通知配送をConcrete Acceptance Journe
 - 構造化Log Schema Version
 - OpenTelemetry Trace／Metric Adapter
 - Health／ReadinessとWorker／Scheduler運用指標
+
+## Phase 20: Framework-owned Transaction Interception
+
+- Ray.Aopを置き換えるBuild-time Subclass Proxy Generator
+- `#[Transactional]`と`#[AfterCommit]`だけに限定したMethod Interception
+- PHP Public Method Signature、Inheritance、`readonly`、Reference、Variadic、Union／Intersection TypeのCompatibility Matrix
+- 決定的なGenerated Artifact、Stale Cleanup、Symfony DI Service登録
+- Operation固定Transaction Lifecycleと一般Service Interceptorの既存保証維持
+- Ray.Aop互換Regression、Migration、Dependency Removal Gate
+
+汎用AOP Engineは実装しない。Production RuntimeでのSource Scan／Proxy生成も導入しない。詳細なAPI、Code Generation方式、Task順序はPhase 17 Closeout後のDecision／Delivery Planで確定する。
 
 ## Deferred Ecosystem Scope
 

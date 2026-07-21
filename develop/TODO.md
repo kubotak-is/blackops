@@ -136,7 +136,7 @@ MVP後に残す主要項目:
 - [x] D107でDeferred DigestのWeek、Content、再生成、Failure Adapterを決定する
 - [x] Deferred `GenerateWeeklyDigest`とStatus／Wait／Typed Outcome UIを実装する
 - [x] Framework Source Archive／Composer PackageからRepository開発資産を除外し、Migration／Generator Stubを保持する
-- [ ] Ray.Aopの複数class-constant Attribute tokenizer修正を含むStable Releaseへ更新する。2.19.1／2.20.0は同じParseErrorを再現し、安全なFramework AdapterはSource加工／Reflection変更なしでは成立しない
+- [x] D108でliteral Strategy回避を維持してPhase 17を先行し、Framework-owned Transaction Interceptionを独立Phaseへ送る
 - [ ] Taste SkillをDesign Directionへ適用し、`reicon.dev`をIcon Sourceとして、Accessibility／Responsive／State UIを完成する
 - [ ] Real Browser E2E、CI、Screenshot、README／Guideを同期してPhase 17をCloseする
 
@@ -149,6 +149,11 @@ MVP後に残す主要項目:
 
 - [ ] Journal／Outcome参照制御、Tenant分離、暗号化Capabilityを強化する
 - [ ] 構造化Log SchemaとOpenTelemetry Adapterを提供する
+
+### Phase 20: Framework-owned Transaction Interception
+
+- [ ] PHP Signature Matrix、Generated Artifact、Symfony DI統合、Migration、Ray.Aop Removal GateをDecisionで確定する
+- [ ] `#[Transactional]`／`#[AfterCommit]`専用Build-time Proxyを実装し、Ray.Aopを削除する
 
 ### Deferred: Documentation Website Publication
 

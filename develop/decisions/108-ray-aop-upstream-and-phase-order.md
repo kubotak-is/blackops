@@ -1,6 +1,6 @@
 # D108: Ray.Aop Upstream and Phase Order
 
-Status: Proposed
+Status: Decided
 
 ## Context
 
@@ -71,6 +71,8 @@ Aを推奨する。
 
 上記Alternative Auditへ反映した。Ray.Aopを外すことは可能。ただし、現在のAttributeだけで任意ServiceをInterceptする使用感を維持する場合は、BlackOps所有のBuild-time Proxy生成が必要になる。
 
+A
+
 [/ANSWER]
 
 ## Question 2: AOPの長期方針
@@ -90,6 +92,7 @@ Bを推奨する。
 
 [ANSWER]
 
+B
 
 [/ANSWER]
 
@@ -109,6 +112,7 @@ Aを推奨する。
 
 [ANSWER]
 
+C：特に何もしない
 
 [/ANSWER]
 
@@ -121,6 +125,14 @@ Aを推奨する。
 - Question 2=C／Dなら、D096のPublic Contract変更、Migration、Documentation更新を置換Phaseより先に確定する
 - Question 3=A／BはGitHubへの外部書き込みを含み、本Decisionの回答をその実行許可とする
 - Stable Releaseで修正された後、Root Regression、Community Board compile／Digest E2Eを実行してliteral workaroundを削除する
+
+## Decision
+
+1. Question 1はAとする。P17-007のliteral Strategy回避をKnown Dependency Workaroundとして維持し、Phase 17はP17-008 Visual Designへ進む。
+2. Question 2はBとする。Ray.Aopは即時削除せず、`#[Transactional]`／`#[AfterCommit]`専用のFramework-owned Build-time Proxyを独立Phaseで設計・実装してから置き換える。汎用AOP Engineは作らない。
+3. Question 3はCとする。Ray.Aop upstreamへのIssue／PRは作成せず、Repository内Decision／Report／TODOだけで追跡する。
+4. Framework-owned Proxy Phaseでは、PHP Signature Matrix、Generated Artifact Contract、Symfony DI登録、Migration、Compatibility Test、Ray.Aop Removal Gateを実装前に確定する。
+5. Framework-owned Proxy Phaseの詳細なTask順序はPhase 17 Closeout後に別Decision／Delivery Planで確定する。
 
 ## Traceability
 

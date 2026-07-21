@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-21T23:50:50+09:00
+Updated At: 2026-07-22T00:04:53+09:00
 
 ## Current Phase
 
@@ -8,17 +8,17 @@ Phase 17: Full-stack Reference Application - In Progress
 
 ## Current Task
 
-Task ID: P17-007B-composer-package-export-boundary
+Task ID: P17-008-visual-accessibility-and-browser-e2e
 
-Task Packet: `develop/orchestration/tasks/P17-007B-composer-package-export-boundary.md`
+Task Packet: `develop/orchestration/tasks/P17-008-visual-accessibility-and-browser-e2e.md`
 
-Specifications: `develop/spec/52-phase-8-delivery-plan.md`、`develop/spec/61-experimental-release-contract.md`
+Specifications: `develop/spec/71-full-stack-reference-application.md`、`develop/spec/72-phase-17-delivery-plan.md`
 
 ## Task Status
 
-Accepted
+In Progress - Worker Implementation
 
-Root `.gitattributes`をPackage Export Boundaryの正本として追加し、Composer `archive.exclude`と同じ除外集合へ同期した。Git／Composer両Archiveは`composer.json`、`src/`、Framework Migration、Generator Stub、Release文書だけを保持し、Composer strict validationとProduction Autoload生成を含むCI ContractがWorker／Orchestratorの両方で成功した。Framework Production Code、Quickstart、Community Boardに差分はない。D108はQuestion 2=B、Question 3=Nを受領したが、Question 1の選択が未記入のためPhase順序は確定せず保留する。
+D108はA／B／Cで確定した。Phase 17はliteral Strategy回避を維持してP17-008へ進み、Ray.Aopは将来のFramework-owned Transaction Interception Phaseで置き換え、upstreamへのIssue／PRは作成しない。P17-008はTaste SkillのAudit／Pre-flight、Reicon Svelte、Accessible／Responsive Product UI、実Browser E2E、Screenshotを実装する。
 
 ## Last Accepted Task
 
@@ -51,17 +51,17 @@ P17-007B-composer-package-export-boundary
 23. D105はAで確定。PostをHard Deleteし、配下CommentもForeign Key Cascadeで同じTransaction内に削除する。Application Data RetentionとUser削除は未決のままとする。
 24. D106でBoard Domain／Infrastructure分離とDomainServiceへの業務ロジック集約を確定した。DomainはBlackOps／Doctrine／Symfonyへ依存しない。
 25. D107はA／A／A／Aで確定。UTC ISO Week、件数だけのImmutable Snapshot、成功Requestごとの新規Row、Development／Test限定Failure Adapterを採用する。
-26. P17-007AでRay.Aop 2.20.0／2.19.1の両方が複数class-constant Attributeを同じParseErrorへ壊すことを確認した。安全なAdapterは成立せず、Security Policyをtypedに維持しmetadata-only Deferred Strategyだけをliteral class-stringへ限定するP17-007回避を継続する。Stable Dependency修正を`develop/TODO.md`で追跡する。
+26. D108はA／B／Cで確定。Phase 17はmetadata-only Deferred Strategyのliteral class-string回避を維持して先行する。Ray.AopはPhase 20のTransaction専用Framework-owned Build-time Proxyで置き換え、upstreamへのIssue／PRは作成しない。
 
 ## Known Blockers
 
-Ray.Aopの解決可能Stable Releaseには、Attribute引数の`::class`をclass declarationと誤認するTokenizer gapがある。2.19.1／2.20.0で再現し、TaskのSafety Boundary内で完全typed表記へ戻す方法がない。Documentation WebsiteはUser判断どおり未公開であり、Publication／Deployは行わない。
+Active Implementation Blockerはない。Ray.Aop 2.19.1／2.20.0には複数class-constant AttributeのTokenizer gapがあるが、D108でPhase 17の先行とPhase 20での置換を確定した。Documentation WebsiteはUser判断どおり未公開であり、Publication／Deployは行わない。
 
 ## Required Next Action
 
-1. P17-007BのAccepted差分をCommitする。
-2. UserへD108 Question 1の選択を確認する。
-3. Phase先行が選ばれたらP17-008 Visual Designを開始する。
+1. P17-008でDesign System、Reicon、Accessibility、Responsive UIを実装する。
+2. Playwright Browser JourneyとCredential非表示Screenshotを追加する。
+3. OrchestratorがSkill Pre-flightを含めてReviewし、AcceptedならCommitする。
 
 ## P17-007B Composer Package Export Boundary Worker Verification
 
