@@ -75,8 +75,9 @@ grep -Fq 'The board service is temporarily unavailable.' "${TEMP}/unavailable.ht
 wrapper_imports=$(rg -l "blackops/generated|\./generated" \
     "${ROOT}/examples/community-board/frontend/src" \
     --glob '!lib/server/blackops/generated/**' | sort || true)
-expected_wrapper_imports=$(printf '%s\n%s' \
+expected_wrapper_imports=$(printf '%s\n%s\n%s' \
     "${ROOT}/examples/community-board/frontend/src/lib/server/blackops/board.server.ts" \
+    "${ROOT}/examples/community-board/frontend/src/lib/server/blackops/digest.server.ts" \
     "${ROOT}/examples/community-board/frontend/src/lib/server/blackops/operations.server.ts")
 test "${wrapper_imports}" = "${expected_wrapper_imports}"
 

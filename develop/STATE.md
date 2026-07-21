@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-22T00:04:53+09:00
+Updated At: 2026-07-22T00:59:06+09:00
 
 ## Current Phase
 
@@ -16,13 +16,13 @@ Specifications: `develop/spec/71-full-stack-reference-application.md`、`develop
 
 ## Task Status
 
-In Progress - Worker Implementation
+Accepted
 
-D108はA／B／Cで確定した。Phase 17はliteral Strategy回避を維持してP17-008へ進み、Ray.Aopは将来のFramework-owned Transaction Interception Phaseで置き換え、upstreamへのIssue／PRは作成しない。P17-008はTaste SkillのAudit／Pre-flight、Reicon Svelte、Accessible／Responsive Product UI、実Browser E2E、Screenshotを実装する。
+P17-008はTaste SkillのAudit／Pre-flight、公式Reicon Svelte、Accessible／Responsive Product UI、実Browser E2E、Credential-free Screenshotを実装した。Orchestratorは実Screenshot、Skill Pre-flight、ScopeをReviewし、Visible Dash Entity、Danger Hover、CI Timeout、Screenshot Drift Guardを修正した。正規生成順序のBrowser Consumerを独立再実行し、Frontend check／test／build、実Browser Journey 1 passed（12.1s）、Screenshot SHA一致を確認してAcceptedとした。
 
 ## Last Accepted Task
 
-P17-007B-composer-package-export-boundary
+P17-008-visual-accessibility-and-browser-e2e
 
 ## Pending Decisions
 
@@ -59,9 +59,28 @@ Active Implementation Blockerはない。Ray.Aop 2.19.1／2.20.0には複数clas
 
 ## Required Next Action
 
-1. P17-008でDesign System、Reicon、Accessibility、Responsive UIを実装する。
-2. Playwright Browser JourneyとCredential非表示Screenshotを追加する。
-3. OrchestratorがSkill Pre-flightを含めてReviewし、AcceptedならCommitする。
+1. P17-008をCommitする。
+2. P17-009 Task Packetを作成し、README／Guide、Clean Install、全品質Gateを同期してPhase 17をCloseする。
+
+## P17-008 Visual Accessibility and Browser E2E Worker Verification
+
+```text
+Design: preserve-redesign、Dial 6／4／5。Off-white／graphite＋Signal Orange、74rem Application Container、68ch Reading Column、14px Panel／9px Control、self-hosted Geist Variable Sans／Mono、Light／Dark Semantic Token、Reduced Motionを全Routeへ統合。
+
+Reicon: 公式reicon-svelte 1.0.102だけを使用。Root barrelの重複Icon exportを避け、公式individual export subpathから使用IconだけをStatic Import。CDN、別Icon Family、Dynamic Registry、hand-written SVGなし。
+
+Accessibility／Responsive: Skip Link、Main Landmark、aria-current、Keyboard Focus、Form Label／Helper／Error Association、Status Text／Icon、No-JS Refreshを実装。Playwrightで320px Horizontal Overflow 0、Mobile Navigation／Landing CTA、Light／Dark、Reduced Motion、主要Page axe Critical／Serious 0件を確認。
+
+Browser: 公式Playwright 1.61.1 ContainerからSvelteKit Originだけへ接続。Register、Logout、Login、Post Validation／Create／Feed／Detail／Comment／Edit、Digest Validation／Accepted／Retry／Completed、最終Logoutを完走し1 passed。1440 x 901のCredential-free固定Landing Screenshotを生成・目視確認。
+
+Compatibility: Route、Server Load／Action、Form Field、data-testid、Progressive Enhancement、Server-only Generated Client、Safe Error境界を維持。Orchestrator Scope ExtensionどおりFoundation／IdentityのGenerated Import Allowlistへ既存digest.server.tsだけを追加。
+
+Quality: Svelte check 0 errors／0 warnings、Vitest 6 files／40 tests、Production Build成功。Browser E2Eと既存5 Consumer成功。Root Composer strict、Mago format／lint／analyze、PHPUnit 1471 tests／5810 assertions、Deptrac 0 violations、Management ID／static dash／diff／Framework・Quickstart Guard成功。
+
+Artifacts: docs/guide/assets/community-board/blackops-board.pngだけを成果物として保持。Runtime／Generated／Dependency／Browser Artifact cleanup済み。Worker Commitなし。
+```
+
+詳細は`develop/orchestration/reports/P17-008-visual-accessibility-and-browser-e2e.md`を参照する。
 
 ## P17-007B Composer Package Export Boundary Worker Verification
 

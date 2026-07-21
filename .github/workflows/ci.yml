@@ -19,7 +19,7 @@ jobs:
   community-board-foundation:
     name: Community Board full-stack product journey
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 40
 
     steps:
       - name: Check out repository
@@ -59,6 +59,9 @@ jobs:
             composer install --no-interaction --prefer-dist --no-progress
           pnpm --dir examples/community-board/frontend install --frozen-lockfile
 
+      - name: Test Community Board browser journey
+        run: bash tests/Consumer/community-board-browser.sh
+
       - name: Test Community Board foundation
         run: bash tests/Consumer/community-board-foundation.sh
 
@@ -84,6 +87,17 @@ jobs:
           git ls-files --error-unmatch \
             examples/community-board/migrations/Version20260721010000.php >/dev/null
           git ls-files --error-unmatch tests/Consumer/community-board-digest.sh >/dev/null
+          git ls-files --error-unmatch tests/Consumer/community-board-browser.sh >/dev/null
+          git ls-files --error-unmatch \
+            docs/guide/assets/community-board/blackops-board.png >/dev/null
+          git diff --exit-code -- \
+            docs/guide/assets/community-board/blackops-board.png
+          if rg -n '—|–|&mdash;|&ndash;' \
+            examples/community-board/frontend/src \
+            --glob '*.svelte' --glob '*.ts' --glob '*.css'; then
+            echo "Community Board static copy must not contain em or en dashes." >&2
+            exit 1
+          fi
           if git ls-files \
             examples/community-board/.env \
             examples/community-board/vendor \
@@ -92,7 +106,9 @@ jobs:
             examples/community-board/frontend/node_modules \
             examples/community-board/frontend/src/lib/server/blackops/generated \
             examples/community-board/frontend/.svelte-kit \
-            examples/community-board/frontend/build | grep -q .; then
+            examples/community-board/frontend/build \
+            examples/community-board/frontend/test-results \
+            examples/community-board/frontend/playwright-report | grep -q .; then
             echo "Community Board runtime and generated artifacts must not be tracked." >&2
             exit 1
           fi
@@ -110,7 +126,9 @@ jobs:
             examples/community-board/frontend/node_modules \
             examples/community-board/frontend/src/lib/server/blackops/generated \
             examples/community-board/frontend/.svelte-kit \
-            examples/community-board/frontend/build
+            examples/community-board/frontend/build \
+            examples/community-board/frontend/test-results \
+            examples/community-board/frontend/playwright-report
           rm -f examples/community-board/.env
 
   frontend:

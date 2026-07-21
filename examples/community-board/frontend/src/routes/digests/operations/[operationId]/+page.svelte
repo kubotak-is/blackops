@@ -1,5 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import StatusIcon from '$lib/components/StatusIcon.svelte';
+  import Refresh from 'reicon-svelte/icons/Refresh';
   import type { PageProps } from './$types';
 
   let { data }: PageProps = $props();
@@ -38,9 +40,11 @@
 
 <svelte:head><title>Digest progress | BlackOps Board</title></svelte:head>
 
-<main>
-  <h1>Digest progress</h1>
-  <section role="status" aria-live="polite" data-state={data.status.state}>
+<main id="main-content" class="page page--reading">
+  <div class="page-heading"><h1>Digest progress</h1><p>Worker state is updated through the same-origin BFF.</p></div>
+  <section class:pending={data.status.state !== 'failed'} class="panel progress" role="status" aria-live="polite" data-state={data.status.state}>
+    <StatusIcon state={data.status.state} />
+    <div><h2>{data.status.state === 'retry_scheduled' ? 'Retry scheduled' : data.status.state === 'failed' ? 'Generation failed' : data.status.state === 'running' ? 'Generating digest' : 'Digest accepted'}</h2>
     {#if data.status.state === 'accepted'}
       <p>Your digest is waiting for a worker.</p>
     {:else if data.status.state === 'running'}
@@ -50,9 +54,15 @@
     {:else if data.status.state === 'failed'}
       <p>{data.status.message}</p>
     {/if}
+    </div>
   </section>
-  <p><a href={`/digests/operations/${encodeURIComponent(data.status.operationId)}`}>Refresh status</a></p>
-  <p><a href="/digests">Back to digest form</a></p>
+  <div class="actions progress-actions"><a class="button button--secondary" href={`/digests/operations/${encodeURIComponent(data.status.operationId)}`}><Refresh size={20} weight="Outline" aria-hidden="true" /> Refresh status</a><a href="/digests">Back to digest form</a></div>
 </main>
 
-<style>main { max-width: 42rem; margin: 0 auto; padding: 2rem 1.5rem; }</style>
+<style>
+  .progress { display: grid; grid-template-columns: auto 1fr; gap: 1rem; border-left: 4px solid var(--accent); }
+  .progress h2 { margin-bottom: 0.5rem; }
+  .progress p { margin-bottom: 0; color: var(--text-muted); }
+  .progress-actions { margin-top: 1.5rem; }
+  @media (prefers-reduced-motion: no-preference) { .progress.pending :global(svg) { animation: status-turn 1.8s ease-in-out infinite; } @keyframes status-turn { 50% { transform: rotate(18deg); } } }
+</style>

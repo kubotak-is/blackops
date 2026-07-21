@@ -1,5 +1,9 @@
 <script lang="ts">
   import { formatDate } from '$lib/presentation';
+  import ArrowLeft from 'reicon-svelte/icons/ArrowLeft';
+  import ChatPlus from 'reicon-svelte/icons/ChatPlus';
+  import Edit from 'reicon-svelte/icons/Edit';
+  import Trash from 'reicon-svelte/icons/Trash';
   import type { PageProps } from './$types';
 
   let { data, form }: PageProps = $props();
@@ -7,43 +11,43 @@
 
 <svelte:head><title>{data.post.title} | BlackOps Board</title></svelte:head>
 
-<main>
-  <p><a href="/posts">Back to posts</a></p>
-  <article>
+<main id="main-content" class="page">
+  <a class="back-link" href="/posts"><ArrowLeft size={20} weight="Outline" aria-hidden="true" /> Back to posts</a>
+  <article class="post reading-column">
     <h1>{data.post.title}</h1>
-    <p>By {data.post.authorDisplayName} · <time datetime={data.post.createdAt}>{formatDate(data.post.createdAt)}</time></p>
+    <p class="metadata">By {data.post.authorDisplayName}<br /><time datetime={data.post.createdAt}>{formatDate(data.post.createdAt)}</time></p>
     <p class="post-body">{data.post.body}</p>
   </article>
 
   {#if data.post.owner}
-    <section aria-label="Post actions">
-      <a href={`/posts/${data.post.id}/edit`}>Edit post</a>
+    <section class="owner-actions" aria-label="Post actions">
+      <a class="button button--secondary" href={`/posts/${data.post.id}/edit`}><Edit size={20} weight="Outline" aria-hidden="true" /> Edit post</a>
       <form method="POST" action="?/delete">
-        <button type="submit">Delete post</button>
+        <button class="button--danger" type="submit"><Trash size={20} weight="Outline" aria-hidden="true" /> Delete post</button>
       </form>
     </section>
   {/if}
 
-  {#if form?.message}<p role="alert">{form.message}</p>{/if}
+  {#if form?.message}<p class="notice notice--error" role="alert">{form.message}</p>{/if}
 
-  <section>
+  <section class="comments reading-column">
     <h2>Comments</h2>
     {#if data.post.comments.length === 0}
-      <p>No comments yet.</p>
+      <p class="helper">No comments yet.</p>
     {:else}
       <ol>
         {#each data.post.comments as comment (comment.id)}
           <li>
             <p>{comment.body}</p>
-            <p>By {comment.authorDisplayName} · <time datetime={comment.createdAt}>{formatDate(comment.createdAt)}</time></p>
+            <p class="metadata">By {comment.authorDisplayName}<br /><time datetime={comment.createdAt}>{formatDate(comment.createdAt)}</time></p>
           </li>
         {/each}
       </ol>
     {/if}
 
-    <h2>Add a comment</h2>
-    <form method="POST" action="?/comment">
-      <label for="comment-body">Comment</label>
+    <div class="comment-composer panel"><h2>Add a comment</h2>
+    <form class="form-stack" method="POST" action="?/comment">
+      <div class="field"><label for="comment-body">Comment</label>
       <textarea
         id="comment-body"
         name="body"
@@ -51,17 +55,23 @@
         aria-invalid={form?.fieldErrors?.body ? 'true' : undefined}
         aria-describedby={form?.fieldErrors?.body ? 'comment-body-error' : undefined}
       >{form?.values?.body ?? ''}</textarea>
-      {#if form?.fieldErrors?.body}<p id="comment-body-error">{form.fieldErrors.body}</p>{/if}
-      <button type="submit">Add comment</button>
-    </form>
+      {#if form?.fieldErrors?.body}<p id="comment-body-error" class="field-error" role="alert">{form.fieldErrors.body}</p>{/if}</div>
+      <button type="submit"><ChatPlus size={20} weight="Outline" aria-hidden="true" /> Add comment</button>
+    </form></div>
   </section>
 </main>
 
 <style>
-  main { max-width: 48rem; margin: 0 auto; padding: 2rem 1.5rem; }
+  .reading-column { max-width: 68ch; }
+  .post { margin-bottom: 2rem; }
   .post-body { white-space: pre-wrap; }
-  section[aria-label='Post actions'] { display: flex; align-items: center; gap: 1rem; }
-  section[aria-label='Post actions'] form { margin: 0; }
-  ol { padding-left: 1.5rem; }
-  textarea { display: block; width: 100%; margin: .5rem 0; font: inherit; }
+  .owner-actions { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 3rem; }
+  .owner-actions form { margin: 0; }
+  .comments { border-top: 1px solid var(--border); padding-top: 2rem; }
+  ol { margin: 0 0 3rem; padding: 0; list-style: none; }
+  li { padding: 1rem 0; }
+  li + li { border-top: 1px solid var(--border); }
+  li > p:first-child { font-size: 1.05rem; }
+  .comment-composer { margin-top: 2rem; }
+  @media (max-width: 35rem) { .owner-actions { align-items: stretch; flex-direction: column; } .owner-actions .button, .owner-actions button { width: 100%; } }
 </style>

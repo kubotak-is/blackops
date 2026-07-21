@@ -2,4 +2,6 @@
 /.svelte-kit/
 /build/
 /coverage/
+/test-results/
+/playwright-report/
 /src/lib/server/blackops/generated/

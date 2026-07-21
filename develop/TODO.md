@@ -137,8 +137,9 @@ MVP後に残す主要項目:
 - [x] Deferred `GenerateWeeklyDigest`とStatus／Wait／Typed Outcome UIを実装する
 - [x] Framework Source Archive／Composer PackageからRepository開発資産を除外し、Migration／Generator Stubを保持する
 - [x] D108でliteral Strategy回避を維持してPhase 17を先行し、Framework-owned Transaction Interceptionを独立Phaseへ送る
-- [ ] Taste SkillをDesign Directionへ適用し、`reicon.dev`をIcon Sourceとして、Accessibility／Responsive／State UIを完成する
-- [ ] Real Browser E2E、CI、Screenshot、README／Guideを同期してPhase 17をCloseする
+- [x] Taste SkillをDesign Directionへ適用し、`reicon.dev`をIcon Sourceとして、Accessibility／Responsive／State UIを完成する
+- [x] Real Browser E2E、CI、Credential-free Screenshotを追加する
+- [ ] README／Guide、Clean Install、全品質Gateを同期してPhase 17をCloseする
 
 ### Phase 18: Reliability and Delivery
 
