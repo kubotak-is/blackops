@@ -142,6 +142,10 @@ MVP後に残す主要項目:
 - [x] Deterministic SeedとClean Install Consumerを完成する
 - [x] README／Guide、Website、全品質Gateを同期してPhase 17をCloseする
 
+### Application Ergonomics Decision Gate
+
+- [ ] D110でFrontend Bound Client、Typed Environment、Dependency、Session Auth、Console DXと実装順を決定する
+
 ### Phase 18: Reliability and Delivery
 
 - [x] D109でIdempotency Key、Transactional Outbox、Relay／Replay、Community Board Journeyを決定する

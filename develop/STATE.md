@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-22T02:48:57+09:00
+Updated At: 2026-07-22T02:52:01+09:00
 
 ## Current Phase
 
@@ -8,17 +8,17 @@ Phase 18: Reliability and Delivery - Planning
 
 ## Current Task
 
-Task ID: Decision D110 Preparation
+Task ID: Decision D110
 
-Task Packet: not created yet
+Task Packet: `develop/decisions/110-application-ergonomics.md`
 
 Specifications: Phase 18 Specification／Delivery PlanはD110の優先順位確定後に作成する
 
 ## Task Status
 
-In Progress
+Awaiting User Decision
 
-D109はA／A／A／A／A／A／A／Aで確定した。任意Idempotency Key、認証Actor Scope、Canonical Value Fingerprint、独立Retention、固定IDのDeferred child Operation Outbox、Fencing付きRelay／Replay、Community BoardのDigest二重Submit／Comment通知Journeyを採用する。Application ErgonomicsをPhase 18実装の前後どちらに置くかを含め、D110へ判断項目を整理する。
+D110 Draftを作成した。Application ErgonomicsをReliabilityより先に置くか、Frontend Bound Client、Typed Environment／Configuration、Composer直接依存、任意Session Auth Package、Application Command Discovery／DI、Operation Console公開、Delivery順を回答待ちとする。D109のReliability Contractは確定済みであり、優先順位だけをD110で決める。
 
 ## Last Accepted Task
 
@@ -53,6 +53,7 @@ P17-009B-community-board-documentation-and-phase-closeout
 25. D107はA／A／A／Aで確定。UTC ISO Week、件数だけのImmutable Snapshot、成功Requestごとの新規Row、Development／Test限定Failure Adapterを採用する。
 26. D108はA／B／Cで確定。Phase 17はmetadata-only Deferred Strategyのliteral class-string回避を維持して先行する。Ray.AopはPhase 20のTransaction専用Framework-owned Build-time Proxyで置き換え、upstreamへのIssue／PRは作成しない。
 27. D109はA／A／A／A／A／A／A／Aで確定。Idempotency、Outbox、Relay／Replay、Community Board JourneyのContractを採用する。
+28. D110は回答待ち。Application Ergonomicsの責任分界とReliabilityに対する実装順を確定する。
 
 ## Known Blockers
 
@@ -60,8 +61,8 @@ Active Implementation Blockerはない。Ray.Aop 2.19.1／2.20.0には複数clas
 
 ## Required Next Action
 
-1. OrchestratorがApplication Ergonomicsの判断項目をD110へ整理する。
-2. User回答後、優先順位に従ってPhase 18 Specification／Delivery PlanまたはApplication Ergonomics Taskを作成する。
+1. Userが`develop/decisions/110-application-ergonomics.md`の8問へ回答する。
+2. OrchestratorがD110をDecidedへ確定し、選択したPhaseのSpecification／Delivery Planを作成する。
 
 ## P17-009B Community Board Documentation and Phase Closeout Worker Verification
 
