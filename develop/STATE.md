@@ -1,16 +1,16 @@
 # Orchestration State
 
-Updated At: 2026-07-22T03:48:04+09:00
+Updated At: 2026-07-22T04:21:03+09:00
 
 ## Current Phase
 
-Phase 18: Application Ergonomics - Frontend Bound Client Factory
+Phase 18: Application Ergonomics - Application Command Discovery Preparation
 
 ## Current Task
 
-Task ID: P18-003 Frontend Bound Client Factory
+Task ID: P18-004 Preparation
 
-Task Packet: `develop/orchestration/tasks/P18-003-frontend-bound-client-factory.md`
+Task Packet: not created yet
 
 Specifications: `develop/spec/74-application-ergonomics.md`、`develop/spec/75-phase-18-delivery-plan.md`
 
@@ -18,11 +18,11 @@ Specifications: `develop/spec/74-application-ergonomics.md`、`develop/spec/75-p
 
 In Progress
 
-P18-003のTask Packetを作成した。Generated Root `index.ts`、Framework-neutralな`createBlackOpsClient()`、SvelteKit-compatible Fetch、Header／Credential／Signal／Idempotency Binding、既存Unbound API互換、Marker／Permanent Fixture／Quickstart Consumerの境界を固定し、GPT-5.6 Luna High workerへ渡す準備が整った。
+P18-003をOrchestrator Reviewと独立再検証後にAcceptedとした。Generated Root `index.ts`、Framework-neutralな`createBlackOpsClient()`、SvelteKit-compatible Fetch、Header／Credential／Signal／Mutation専用Idempotency Binding、Safe Failure、既存Unbound API互換、Marker 6、Permanent Fixture、Quickstart実HTTP Consumerを完了した。次にP18-004 Application Command Discovery and DIのTask Packetを作成する。
 
 ## Last Accepted Task
 
-P18-002-typed-environment-and-configuration
+P18-003-frontend-bound-client-factory
 
 ## Pending Decisions
 
@@ -61,8 +61,24 @@ Active Implementation Blockerはない。Ray.Aop 2.19.1／2.20.0には複数clas
 
 ## Required Next Action
 
-1. GPT-5.6 Luna High workerがP18-003を実装・検証し、ReportとSTATEを更新する。
-2. Orchestratorが差分、Public TypeScript Contract、Security／Isolation、全GateをReviewする。
+1. OrchestratorがP18-004 Application Command Discovery and DIのTask Packetを作成する。
+2. GPT-5.6 Luna High workerへ実装・検証を依頼する。
+
+## P18-003 Frontend Bound Client Factory Worker Verification
+
+```text
+Public Contract: Generated Root index.tsとcreateBlackOpsClient()を追加。全Operationを決定的にExportし、Readonly／FrozenなBound .fetch()／.status()／.wait()／.toRequest()／.url()を提供。個別Moduleと既存Unbound APIを維持。
+
+Fetch／Binding: DOM／SvelteKit ImportなしのStrict ES2022 Structural Fetchでevent.fetch相当とNative Fetchを直接Binding。Base URL／FetchはFactory専用、Header／Credential／SignalはCallごとに合成・分離。
+
+Security／Isolation: Case-insensitive Header Merge、Operation-owned Header保護、Mutation専用Idempotency Key、禁止Override、Invalid BindingをNetwork 0のinvalid_client_optionsへ閉じた。Factory／Call／並列Mutationから独立し、Base URL／Credential／Raw Error等をResult／Error／生成物へ反射しない。
+
+Compatibility: Frontend Contract Manifest Schema 3は不変。Generated Tree Markerを6へ更新し、旧1から5のOwnership Cleanup、Fresh／Drift／Extra Fileを検証。Quickstart実HTTPはGenerated Root Factoryを使用。Community Board差分、外部Publication／Deploy、Worker Commitなし。
+
+Quality: Mago format／lint／analyze成功。Focused PHPUnit 31 tests／364 assertions、Full PHPUnit 1507 tests／5998 assertions、Deptrac 0 violations。Root／Quickstart Composer strict、Permanent Frontend、Quickstart Setup／E2E、Skeleton Create-project、Framework Update Generators、Website 42 tests／Build、Management ID／Community Board Scope／diff Guard成功。生成／Build／Dependency Artifact cleanup済み。
+```
+
+詳細は`develop/orchestration/reports/P18-003-frontend-bound-client-factory.md`を参照する。
 
 ## P18-002 Typed Environment and Configuration Closure Worker Verification
 

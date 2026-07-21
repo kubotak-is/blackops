@@ -1,6 +1,6 @@
 # P18-003: Frontend Bound Client Factory
 
-Status: Ready
+Status: Accepted
 
 ## Goal
 
@@ -40,7 +40,7 @@ Generated Frontend TreeへFramework-neutralな`createBlackOpsClient()`を追加�
 - `develop/decisions/102-phase-16-deferred-status-and-outcome-api.md`
 - `develop/decisions/110-application-ergonomics.md`
 - `develop/spec/67-operation-frontend-bridge.md`
-- `develop/spec/70-deferred-status-and-outcome-api.md`
+- `develop/spec/69-deferred-status-and-outcome-api.md`
 - `develop/spec/74-application-ergonomics.md`
 - `develop/spec/75-phase-18-delivery-plan.md`
 

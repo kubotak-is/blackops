@@ -8,6 +8,11 @@ import {
   type GenerateReportResult,
   type GenerateReportWaitResult,
 } from '../fixture/resources/js/blackops/operations/report/generate-report';
+import {
+  createBlackOpsClient,
+  CreateOrder as RootCreateOrder,
+  type OperationFetchResponse,
+} from '../fixture/resources/js/blackops';
 import type {
   OperationStatusResult,
   OperationWaitResult,
@@ -167,6 +172,58 @@ void GenerateReport.wait('01912345-6789-7abc-8def-0123456789ab', { signal: waitS
 // @ts-expect-error wait requires signal
 void GenerateReport.wait('01912345-6789-7abc-8def-0123456789ab', { maxWaitMilliseconds: 30_000 });
 
+type SvelteKitServerRequest = Readonly<{
+  method?: string;
+  headers?: Readonly<Record<string, string>>;
+  body?: string;
+  credentials?: 'omit' | 'same-origin' | 'include';
+  signal?: Readonly<{
+    aborted: boolean;
+    addEventListener(type: 'abort', listener: () => void): void;
+  }>;
+}>;
+
+type SvelteKitServerFetch = (
+  input: string | Readonly<{ url: string }>,
+  request?: SvelteKitServerRequest,
+) => Promise<OperationFetchResponse>;
+
+declare const eventFetch: SvelteKitServerFetch;
+const blackops = createBlackOpsClient({
+  baseUrl: 'https://api.example.test',
+  fetch: eventFetch,
+  headers: { Authorization: 'Bearer type-only-token' },
+  credentials: 'same-origin',
+});
+const orderValue = {
+  accountId: 42,
+  active: true,
+  amount: 12.5,
+  reference: 'order-42',
+  secretNote: 'type-only-sensitive-input',
+  traceId: 'trace-42',
+};
+void blackops.CreateOrder.fetch(orderValue, { idempotencyKey: 'order-42' });
+void blackops.CreateOrder.toRequest(orderValue, { idempotencyKey: 'order-42' });
+void blackops.CreateOrder.status('01912345-6789-7abc-8def-0123456789ab');
+void blackops.GenerateReport.wait('01912345-6789-7abc-8def-0123456789ab', {
+  signal: waitSignal,
+  maxWaitMilliseconds: 30_000,
+});
+const rootType: 'order.create' = RootCreateOrder.type;
+// @ts-expect-error bound calls cannot replace the factory fetch
+void blackops.CreateOrder.fetch(orderValue, { fetch: eventFetch });
+// @ts-expect-error bound calls cannot replace the factory base URL
+void blackops.CreateOrder.fetch(orderValue, { baseUrl: 'https://other.example.test' });
+// @ts-expect-error status GET does not accept an idempotency key
+void blackops.CreateOrder.status('01912345-6789-7abc-8def-0123456789ab', { idempotencyKey: 'invalid' });
+void blackops.GenerateReport.wait('01912345-6789-7abc-8def-0123456789ab', {
+  signal: waitSignal,
+  maxWaitMilliseconds: 30_000,
+  // @ts-expect-error wait GET does not accept an idempotency key
+  idempotencyKey: 'invalid',
+});
+
 void CreateOrder.fetch;
 void CreateOrder.status;
 void CreateOrder.wait;
@@ -185,3 +242,4 @@ void terminalWaitKind;
 void invalidStatusCode;
 void invalidFetchCode;
 void invalidWaitKind;
+void rootType;

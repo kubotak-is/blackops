@@ -97,7 +97,9 @@ return static fn (Environment $env): array => [
 
 `frontend:generate`と`frontend:check`はBuild済みFrontend Contractを読みます。GenerateはNon-marker Directoryを上書きせず、Temporary Treeを検証後にAtomic Replaceします。CheckはRead-onlyで、Fresh 0、Missing／Drift 1、Invalid 2を返します。Generated `resources/js/blackops/`はApplication Sourceではなく、Quickstartでは`.gitignore`対象です。
 
-生成する各HTTP Operation Objectは`.url()`、`.toRequest()`、`.fetch()`に加えて、一回取得の`.status()`と有限待機の`.wait()`を持ちます。Base URL、Credential、Fetch、Abort Signal、DeadlineはConfigへ保存せず呼出単位で渡します。
+生成Root `index.ts`は`createBlackOpsClient()`と全Operation／型をExportします。FactoryへBase URL、SvelteKit Server `event.fetch`またはGlobal Fetch、Default Header、Credential Modeを一度Bindingし、各HTTP Operationを`blackops.CreateOrder.fetch()`の形で呼べます。Call単位にはHeader、Credential、Abort Signalを渡し、Mutationの`.fetch()`／`.toRequest()`だけは専用`idempotencyKey`も受理します。
+
+Base URL、Credential、Fetch、Abort Signal、DeadlineはPHP ConfigやGenerated Manifestへ保存しません。FactoryはServer Requestごとに作り、Browser向けGlobal Singletonにしないでください。Backendの重複抑止はPhase 19で導入するため、現時点のIdempotency Keyは検証済みHeaderを送信するContractまでです。
 
 ## Database
 

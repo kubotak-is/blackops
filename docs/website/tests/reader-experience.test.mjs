@@ -246,7 +246,7 @@ test('core API reference covers every source type marked PublicApi without expos
   const reference = await guide('core-api.md');
   const sourceTypes = await publicApiTypes();
 
-  assert.equal(sourceTypes.length, 149);
+  assert.equal(sourceTypes.length, 150);
   for (const type of sourceTypes) assert.match(reference, new RegExp(type.replaceAll('\\', '\\\\')));
   assert.doesNotMatch(reference, /`BlackOps\\Core\\Attribute\\PublicApi` \|/);
   assert.doesNotMatch(reference, /BlackOps\\Internal\\[A-Za-z]/);

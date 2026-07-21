@@ -6,6 +6,7 @@ import {
   operationOptions,
 } from '../../resources/js/application/operations';
 import { testOperationWaitController } from './wait-signal';
+import { createBlackOpsClient } from '../../resources/js/blackops';
 import type { CreateOrderResult } from '../../resources/js/blackops/operations/order/create-order';
 import type { GenerateReportResult } from '../../resources/js/blackops/operations/report/generate-report';
 import type {
@@ -102,6 +103,12 @@ const welcomeMethod: 'GET' = ShowWelcome.method;
 const reportStrategy: 'deferred' = GenerateReport.strategy;
 const orderPath: '/orders' = CreateOrder.path;
 const failureStrategy: 'inline' = TriggerFailure.strategy;
+declare const serverFetch: (...arguments_: never[]) => unknown;
+const blackops = createBlackOpsClient({
+  baseUrl: 'http://127.0.0.1:8080',
+  fetch: serverFetch,
+  headers: { 'X-Sample-Token': 'type-only-token' },
+});
 
 void ShowWelcome.url();
 void GenerateReport.toRequest(
@@ -117,6 +124,7 @@ void GenerateReport.wait('018f22e2-7a13-7c90-8f3a-7d91b625eca9', {
 });
 waitController.abort();
 void CreateOrder.fetch;
+void blackops.ShowWelcome.fetch({});
 void TriggerFailure.fetch;
 void welcomeType;
 void welcomeMethod;

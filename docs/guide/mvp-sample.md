@@ -61,24 +61,27 @@ Migration、Build、Frontend生成はHTTP起動時に暗黙実行されません
 
 ## 3. Generated Operation Objectから呼ぶ
 
-PHP Operationを手書きでTypeScriptへ複製しません。生成済みModuleをまとめたApplication-owned `resources/js/application/operations.ts`からImportします。
+PHP Operationを手書きでTypeScriptへ複製しません。生成Rootから`createBlackOpsClient()`をImportし、Server RequestごとにBase URL、Fetch、Credentialを一度Bindingします。SvelteKitでは`event.fetch`をCastやAdapterなしでそのまま渡せます。
 
 ```ts
 import {
-  CreateOrder,
-  GenerateReport,
-  ShowWelcome,
-  TriggerFailure,
-  operationOptions,
-} from './resources/js/application/operations';
+  createBlackOpsClient,
+} from './resources/js/blackops';
 
-const options = operationOptions('local-example', 'http://127.0.0.1:8080');
+const blackops = createBlackOpsClient({
+  baseUrl: 'http://127.0.0.1:8080',
+  fetch: event.fetch,
+  headers: { 'X-Sample-Token': 'local-example' },
+  credentials: 'same-origin',
+});
 ```
+
+このFactoryはServer-only Moduleで作ります。Browser BundleへPrivate Base URLやCredentialを含めず、ApplicationはSessionから安全なHeaderだけを組み立てます。
 
 まず`.url()`へURLに必要なInputを渡します。Quickstartの4 OperationはPath／Query Parameterがないため引数は不要です。
 
 ```ts
-const url = ShowWelcome.url();
+const url = blackops.ShowWelcome.url();
 ```
 
 ```text
@@ -88,12 +91,11 @@ const url = ShowWelcome.url();
 `.toRequest()`は送信せず、Inputと呼出単位のCredentialからRequestを作ります。Sensitiveな`recipientEmail`は送信するWrite-only Inputですが、Generated SourceやResultへ値を埋め込みません。
 
 ```ts
-const request = GenerateReport.toRequest(
+const request = blackops.GenerateReport.toRequest(
   {
     reportName: 'weekly',
     recipientEmail: 'reports@example.com',
   },
-  options,
 );
 ```
 
@@ -112,7 +114,7 @@ const request = GenerateReport.toRequest(
 `.fetch()`は同じBindingで実HTTPへ送り、`ok`と`kind`で判別できるResultを返します。入力と出力は次の対になります。Operation IDと時刻は実行ごとに変わります。
 
 ```ts
-const welcome = await ShowWelcome.fetch({}, options);
+const welcome = await blackops.ShowWelcome.fetch({});
 ```
 
 ```json
@@ -120,9 +122,9 @@ const welcome = await ShowWelcome.fetch({}, options);
 ```
 
 ```ts
-const report = await GenerateReport.fetch(
+const report = await blackops.GenerateReport.fetch(
   { reportName: 'weekly', recipientEmail: 'reports@example.com' },
-  options,
+  { idempotencyKey: 'report-weekly-001' },
 );
 ```
 
@@ -131,9 +133,8 @@ const report = await GenerateReport.fetch(
 ```
 
 ```ts
-const validation = await GenerateReport.fetch(
+const validation = await blackops.GenerateReport.fetch(
   { reportName: '', recipientEmail: 'reports@example.com' },
-  options,
 );
 ```
 
@@ -142,7 +143,10 @@ const validation = await GenerateReport.fetch(
 ```
 
 ```ts
-const order = await CreateOrder.fetch({ reference: 'order-frontend-001' }, options);
+const order = await blackops.CreateOrder.fetch(
+  { reference: 'order-frontend-001' },
+  { idempotencyKey: 'order-frontend-001' },
+);
 ```
 
 ```json
@@ -150,9 +154,8 @@ const order = await CreateOrder.fetch({ reference: 'order-frontend-001' }, optio
 ```
 
 ```ts
-const internal = await TriggerFailure.fetch(
+const internal = await blackops.TriggerFailure.fetch(
   { reference: 'incident-frontend-001', sensitiveNote: 'private note' },
-  options,
 );
 ```
 
@@ -163,12 +166,13 @@ const internal = await TriggerFailure.fetch(
 Network Errorや到達不能はHTTP Statusを捏造せずTransport Resultになります。Thrown ErrorのMessageやRaw BodyはResultへ含みません。
 
 ```ts
-const transport = await ShowWelcome.fetch({}, {
-  ...options,
+const unavailable = createBlackOpsClient({
+  baseUrl: 'http://127.0.0.1:8080',
   fetch: async () => {
     throw new Error('connection detail must stay private');
   },
 });
+const transport = await unavailable.ShowWelcome.fetch({});
 ```
 
 ```json
@@ -178,10 +182,10 @@ const transport = await ShowWelcome.fetch({}, {
 MetadataはReadonly Literalとして同じObjectから参照できます。
 
 ```ts
-ShowWelcome.type;     // 'welcome.show'
-ShowWelcome.method;   // 'GET'
-ShowWelcome.path;     // '/welcome'
-ShowWelcome.strategy; // 'inline'
+blackops.ShowWelcome.type;     // 'welcome.show'
+blackops.ShowWelcome.method;   // 'GET'
+blackops.ShowWelcome.path;     // '/welcome'
+blackops.ShowWelcome.strategy; // 'inline'
 ```
 
 Generated ObjectはCallable／Thenableではありません。通信は`.fetch()`、一回の状態取得は`.status()`、有限待機は`.wait()`、Request参照は`.toRequest()`、URL参照は`.url()`と明示します。`.fetch()`は202後に自動Pollingしません。
@@ -189,7 +193,7 @@ Generated ObjectはCallable／Thenableではありません。通信は`.fetch()
 202で得たOperation IDを使い、現在状態を一回だけ取得します。
 
 ```ts
-const current = await GenerateReport.status(report.data.operationId, options);
+const current = await blackops.GenerateReport.status(report.data.operationId);
 ```
 
 ```json
@@ -200,8 +204,7 @@ BrowserでTerminal Stateまで待つ場合はnative `AbortController`と有限De
 
 ```ts
 const controller = new AbortController();
-const terminal = await GenerateReport.wait(report.data.operationId, {
-  ...options,
+const terminal = await blackops.GenerateReport.wait(report.data.operationId, {
   signal: controller.signal,
   maxWaitMilliseconds: 15_000,
 });
@@ -219,8 +222,7 @@ if (terminal.ok && terminal.kind === 'completed') {
 Worker未起動の別Operationへ短いDeadlineを指定すると、無限に待たず`poll_timeout`で停止します。これはOperationのCancelではなく、Workerは後から同じOperationを処理できます。
 
 ```ts
-const timedOut = await GenerateReport.wait(otherOperationId, {
-  ...options,
+const timedOut = await blackops.GenerateReport.wait(otherOperationId, {
   signal: new AbortController().signal,
   maxWaitMilliseconds: 150,
 });

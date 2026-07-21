@@ -38,8 +38,6 @@ final readonly class FrontendTypeScriptGenerator
         $marker = new FrontendGenerationMarker($artifact->applicationBuildId, $hash);
         $files = [
             'client.ts' => $this->clientSource(),
-            'manifest.json' => $marker->encode(),
-            'types.ts' => $this->typesSource(),
         ];
 
         foreach ($operations as $operation) {
@@ -49,6 +47,10 @@ final readonly class FrontendTypeScriptGenerator
             }
             $files[$operation->module] = $this->operationSource($operation);
         }
+
+        $files['index.ts'] = $this->indexSource($operations);
+        $files['manifest.json'] = $marker->encode();
+        $files['types.ts'] = $this->typesSource();
 
         return new FrontendGeneratedTree($files);
     }
@@ -68,6 +70,10 @@ final readonly class FrontendTypeScriptGenerator
               headers?: Readonly<Record<string, string>>;
               credentials?: OperationCredentials;
               signal?: OperationAbortSignal;
+            }>;
+
+            export type MutationOperationRequestOptions = OperationRequestOptions & Readonly<{
+              idempotencyKey?: string;
             }>;
 
             export type OperationRequest = Readonly<{
@@ -102,9 +108,36 @@ final readonly class FrontendTypeScriptGenerator
               request: OperationFetchRequest,
             ) => Promise<OperationFetchResponse>;
 
+            export type OperationFetchSource = (...arguments_: never[]) => unknown;
+
             export type OperationCallOptions = OperationRequestOptions & Readonly<{
               fetch?: OperationFetch;
             }>;
+
+            export type MutationOperationCallOptions = OperationCallOptions & Readonly<{
+              idempotencyKey?: string;
+            }>;
+
+            export type BlackOpsClientOptions = Readonly<{
+              baseUrl: string;
+              fetch: OperationFetchSource;
+              headers?: Readonly<Record<string, string>>;
+              credentials?: OperationCredentials;
+            }>;
+
+            export type BoundOperationRequestOptions = Readonly<{
+              headers?: Readonly<Record<string, string>>;
+              credentials?: OperationCredentials;
+              signal?: OperationAbortSignal;
+            }>;
+
+            export type BoundMutationOperationRequestOptions = BoundOperationRequestOptions & Readonly<{
+              idempotencyKey?: string;
+            }>;
+
+            export type BoundOperationCallOptions = BoundOperationRequestOptions;
+
+            export type BoundMutationOperationCallOptions = BoundMutationOperationRequestOptions;
 
             export type OperationWaitSignal = Readonly<{
               aborted: boolean;
@@ -127,6 +160,15 @@ final readonly class FrontendTypeScriptGenerator
             }>;
 
             export type OperationWaitOptions = Omit<OperationCallOptions, 'signal'> & Readonly<{
+              signal: OperationWaitSignal;
+              maxWaitMilliseconds: number;
+              clock?: OperationWaitClock;
+              timer?: OperationWaitTimer;
+            }>;
+
+            export type BoundOperationWaitOptions = Readonly<{
+              headers?: Readonly<Record<string, string>>;
+              credentials?: OperationCredentials;
               signal: OperationWaitSignal;
               maxWaitMilliseconds: number;
               clock?: OperationWaitClock;
@@ -166,7 +208,13 @@ final readonly class FrontendTypeScriptGenerator
             }>;
 
             export type OperationTransportError = Readonly<{
-              code: 'missing_fetch' | 'invalid_base_url' | 'network_error' | 'aborted' | 'unexpected_response';
+              code:
+                | 'missing_fetch'
+                | 'invalid_base_url'
+                | 'invalid_client_options'
+                | 'network_error'
+                | 'aborted'
+                | 'unexpected_response';
             }>;
 
             export type OperationStatusTransportError = Readonly<{
@@ -174,6 +222,7 @@ final readonly class FrontendTypeScriptGenerator
                 | 'invalid_operation_id'
                 | 'missing_fetch'
                 | 'invalid_base_url'
+                | 'invalid_client_options'
                 | 'network_error'
                 | 'aborted'
                 | 'unexpected_response';
@@ -184,6 +233,7 @@ final readonly class FrontendTypeScriptGenerator
                 | 'invalid_operation_id'
                 | 'missing_fetch'
                 | 'invalid_base_url'
+                | 'invalid_client_options'
                 | 'network_error'
                 | 'aborted'
                 | 'invalid_wait_options'
@@ -402,6 +452,13 @@ final readonly class FrontendTypeScriptGenerator
                   error: OperationTransportError;
                 }>;
 
+            export type InvalidClientOptionsResult = Readonly<{
+              ok: false;
+              kind: 'transport';
+              status: null;
+              error: Readonly<{ code: 'invalid_client_options' }>;
+            }>;
+
             export type InlineOutcomeOperationResult<TOutcome, TField extends string> =
               | Readonly<{ ok: true; kind: 'completed'; status: 200; data: TOutcome }>
               | OperationFailureResult<TField>;
@@ -420,10 +477,20 @@ final readonly class FrontendTypeScriptGenerator
     {
         return <<<'CLIENT'
             import type {
+              BlackOpsClientOptions,
+              BoundMutationOperationCallOptions,
+              BoundMutationOperationRequestOptions,
+              BoundOperationCallOptions,
+              BoundOperationRequestOptions,
+              BoundOperationWaitOptions,
               DeferredOperationResult,
               InlineOutcomeOperationResult,
               InlineVoidOperationResult,
+              InvalidClientOptionsResult,
+              MutationOperationCallOptions,
+              MutationOperationRequestOptions,
               OperationCallOptions,
+              OperationCredentials,
               OperationFailureResult,
               OperationFetch,
               OperationFetchRequest,
@@ -500,6 +567,16 @@ final readonly class FrontendTypeScriptGenerator
 
             type OperationInput = Readonly<Record<string, unknown>>;
 
+            export type OperationClientBinding =
+              | Readonly<{
+                  valid: true;
+                  baseUrl: string;
+                  fetch: OperationFetch;
+                  headers: Readonly<Record<string, string>>;
+                  credentials?: OperationCredentials;
+                }>
+              | Readonly<{ valid: false }>;
+
             type OperationFetchResponseSnapshot = Readonly<{
               status: number;
               getHeader(name: string): unknown;
@@ -507,6 +584,263 @@ final readonly class FrontendTypeScriptGenerator
             }>;
 
             class InvalidOperationBaseUrlError extends Error {}
+
+            class InvalidOperationClientOptionsError extends Error {}
+
+            export function createOperationClientBinding(options: BlackOpsClientOptions): OperationClientBinding {
+              try {
+                if (!isRecord(options) || typeof options.baseUrl !== 'string' || typeof options.fetch !== 'function') {
+                  return invalidOperationClientBinding();
+                }
+                joinBaseUrl(options.baseUrl, '/');
+                const headers = mergeBoundHeaders({}, options.headers);
+                const credentials = readCredentials(options.credentials);
+                const binding: {
+                  valid: true;
+                  baseUrl: string;
+                  fetch: OperationFetch;
+                  headers: Readonly<Record<string, string>>;
+                  credentials?: OperationCredentials;
+                } = {
+                  valid: true,
+                  baseUrl: options.baseUrl,
+                  fetch: options.fetch as unknown as OperationFetch,
+                  headers,
+                };
+                if (credentials !== undefined) {
+                  binding.credentials = credentials;
+                }
+
+                return Object.freeze(binding);
+              } catch {
+                return invalidOperationClientBinding();
+              }
+            }
+
+            export function bindOperationRequestOptions(
+              binding: OperationClientBinding,
+              options: BoundMutationOperationRequestOptions | undefined,
+              mutation: true,
+            ): MutationOperationRequestOptions;
+
+            export function bindOperationRequestOptions(
+              binding: OperationClientBinding,
+              options: BoundOperationRequestOptions | undefined,
+              mutation: false,
+            ): OperationRequestOptions;
+
+            export function bindOperationRequestOptions(
+              binding: OperationClientBinding,
+              options: BoundOperationRequestOptions | BoundMutationOperationRequestOptions | undefined,
+              mutation: boolean,
+            ): OperationRequestOptions | MutationOperationRequestOptions {
+              const merged = bindOperationOptions(binding, options, mutation);
+              const request: {
+                baseUrl: string;
+                headers: Readonly<Record<string, string>>;
+                credentials?: OperationCredentials;
+                signal?: OperationRequestOptions['signal'];
+                idempotencyKey?: string;
+              } = {
+                baseUrl: merged.baseUrl,
+                headers: merged.headers,
+              };
+              if (merged.credentials !== undefined) request.credentials = merged.credentials;
+              if (merged.signal !== undefined) request.signal = merged.signal;
+              if (merged.idempotencyKey !== undefined) request.idempotencyKey = merged.idempotencyKey;
+
+              return Object.freeze(request);
+            }
+
+            export function bindOperationCallOptions(
+              binding: OperationClientBinding,
+              options: BoundMutationOperationCallOptions | undefined,
+              mutation: true,
+            ): MutationOperationCallOptions;
+
+            export function bindOperationCallOptions(
+              binding: OperationClientBinding,
+              options: BoundOperationCallOptions | undefined,
+              mutation: false,
+            ): OperationCallOptions;
+
+            export function bindOperationCallOptions(
+              binding: OperationClientBinding,
+              options: BoundOperationCallOptions | BoundMutationOperationCallOptions | undefined,
+              mutation: boolean,
+            ): OperationCallOptions | MutationOperationCallOptions {
+              const merged = bindOperationOptions(binding, options, mutation);
+              const call: {
+                baseUrl: string;
+                fetch: OperationFetch;
+                headers: Readonly<Record<string, string>>;
+                credentials?: OperationCredentials;
+                signal?: OperationRequestOptions['signal'];
+                idempotencyKey?: string;
+              } = {
+                baseUrl: merged.baseUrl,
+                fetch: merged.fetch,
+                headers: merged.headers,
+              };
+              if (merged.credentials !== undefined) call.credentials = merged.credentials;
+              if (merged.signal !== undefined) call.signal = merged.signal;
+              if (merged.idempotencyKey !== undefined) call.idempotencyKey = merged.idempotencyKey;
+
+              return Object.freeze(call);
+            }
+
+            export function bindOperationWaitOptions(
+              binding: OperationClientBinding,
+              options: BoundOperationWaitOptions,
+            ): OperationWaitOptions {
+              if (!isRecord(options)) {
+                throw new InvalidOperationClientOptionsError('BlackOps client options are invalid.');
+              }
+              const merged = bindOperationOptions(binding, options, false);
+              const wait: {
+                baseUrl: string;
+                fetch: OperationFetch;
+                headers: Readonly<Record<string, string>>;
+                signal: OperationWaitOptions['signal'];
+                maxWaitMilliseconds: number;
+                credentials?: OperationCredentials;
+                clock?: OperationWaitOptions['clock'];
+                timer?: OperationWaitOptions['timer'];
+              } = {
+                baseUrl: merged.baseUrl,
+                fetch: merged.fetch,
+                headers: merged.headers,
+                signal: options.signal,
+                maxWaitMilliseconds: options.maxWaitMilliseconds,
+              };
+              if (merged.credentials !== undefined) wait.credentials = merged.credentials;
+              if (options.clock !== undefined) wait.clock = options.clock;
+              if (options.timer !== undefined) wait.timer = options.timer;
+
+              return Object.freeze(wait);
+            }
+
+            export function buildBoundOperationUrl(binding: OperationClientBinding, relativeUrl: string): string {
+              assertValidOperationClientBinding(binding);
+
+              return joinBaseUrl(binding.baseUrl, relativeUrl);
+            }
+
+            export function invalidClientOptionsResult(): InvalidClientOptionsResult {
+              return Object.freeze({
+                ok: false,
+                kind: 'transport',
+                status: null,
+                error: Object.freeze({ code: 'invalid_client_options' }),
+              });
+            }
+
+            function bindOperationOptions(
+              binding: OperationClientBinding,
+              options: unknown,
+              mutation: boolean,
+            ): Readonly<{
+              baseUrl: string;
+              fetch: OperationFetch;
+              headers: Readonly<Record<string, string>>;
+              credentials?: OperationCredentials;
+              signal?: OperationRequestOptions['signal'];
+              idempotencyKey?: string;
+            }> {
+              assertValidOperationClientBinding(binding);
+              if (options !== undefined && !isRecord(options)) {
+                throw new InvalidOperationClientOptionsError('BlackOps client options are invalid.');
+              }
+              const supplied = options ?? {};
+              if (Object.hasOwn(supplied, 'baseUrl') || Object.hasOwn(supplied, 'fetch')) {
+                throw new InvalidOperationClientOptionsError('BlackOps client options are invalid.');
+              }
+              const hasIdempotencyKey = Object.hasOwn(supplied, 'idempotencyKey');
+              if (hasIdempotencyKey && !mutation) {
+                throw new InvalidOperationClientOptionsError('BlackOps client options are invalid.');
+              }
+              const idempotencyKey = supplied.idempotencyKey;
+              if (hasIdempotencyKey && !isValidIdempotencyKey(idempotencyKey)) {
+                throw new InvalidOperationClientOptionsError('BlackOps client options are invalid.');
+              }
+              const credentials = readCredentials(
+                supplied.credentials === undefined ? binding.credentials : supplied.credentials,
+              );
+              const merged: {
+                baseUrl: string;
+                fetch: OperationFetch;
+                headers: Readonly<Record<string, string>>;
+                credentials?: OperationCredentials;
+                signal?: OperationRequestOptions['signal'];
+                idempotencyKey?: string;
+              } = {
+                baseUrl: binding.baseUrl,
+                fetch: binding.fetch,
+                headers: mergeBoundHeaders(binding.headers, supplied.headers),
+              };
+              if (credentials !== undefined) merged.credentials = credentials;
+              if (supplied.signal !== undefined) merged.signal = supplied.signal as OperationRequestOptions['signal'];
+              if (typeof idempotencyKey === 'string') merged.idempotencyKey = idempotencyKey;
+
+              return Object.freeze(merged);
+            }
+
+            function mergeBoundHeaders(
+              defaults: unknown,
+              overrides: unknown,
+            ): Readonly<Record<string, string>> {
+              const headers: Record<string, string> = {};
+              const names = new Map<string, string>();
+              for (const candidate of [defaults, overrides]) {
+                if (candidate === undefined) continue;
+                if (!isRecord(candidate)) {
+                  throw new InvalidOperationClientOptionsError('BlackOps client options are invalid.');
+                }
+                for (const [name, value] of Object.entries(candidate)) {
+                  if (typeof value !== 'string') {
+                    throw new InvalidOperationClientOptionsError('BlackOps client options are invalid.');
+                  }
+                  assertHeader(name, value);
+                  const normalized = name.toLowerCase();
+                  if (normalized === 'idempotency-key') {
+                    throw new InvalidOperationClientOptionsError('BlackOps client options are invalid.');
+                  }
+                  const previous = names.get(normalized);
+                  if (previous !== undefined) delete headers[previous];
+                  Object.defineProperty(headers, name, {
+                    value,
+                    enumerable: true,
+                    configurable: true,
+                  });
+                  names.set(normalized, name);
+                }
+              }
+
+              return Object.freeze(headers);
+            }
+
+            function readCredentials(value: unknown): OperationCredentials | undefined {
+              if (value === undefined) return undefined;
+              if (value === 'omit' || value === 'same-origin' || value === 'include') return value;
+
+              throw new InvalidOperationClientOptionsError('BlackOps client options are invalid.');
+            }
+
+            function isValidIdempotencyKey(value: unknown): value is string {
+              return typeof value === 'string' && value.length <= 255 && /^[\x21-\x7e]+$/.test(value);
+            }
+
+            function invalidOperationClientBinding(): OperationClientBinding {
+              return Object.freeze({ valid: false });
+            }
+
+            function assertValidOperationClientBinding(
+              binding: OperationClientBinding,
+            ): asserts binding is Extract<OperationClientBinding, { valid: true }> {
+              if (!binding.valid) {
+                throw new InvalidOperationClientOptionsError('BlackOps client options are invalid.');
+              }
+            }
 
             export function buildOperationUrl(
               pathTemplate: string,
@@ -556,13 +890,13 @@ final readonly class FrontendTypeScriptGenerator
               pathTemplate: string,
               bindings: readonly OperationBinding[],
               value: OperationInput,
-              options: OperationRequestOptions = {},
+              options: OperationRequestOptions | MutationOperationRequestOptions = {},
             ): OperationRequest {
               const urlBindings = bindings.filter(
                 (binding): boolean => binding.source === 'path' || binding.source === 'query',
               );
               const headers: Record<string, string> = {};
-              const protectedHeaders = new Set<string>(['content-type']);
+              const protectedHeaders = new Set<string>(['content-type', 'idempotency-key']);
               const body: Record<string, string | number | boolean | null> = {};
               const hasBody = bindings.some((binding): boolean => binding.source === 'body');
 
@@ -603,10 +937,24 @@ final readonly class FrontendTypeScriptGenerator
 
               for (const [name, headerValue] of Object.entries(options.headers ?? {})) {
                 assertHeader(name, headerValue);
-                if (!protectedHeaders.has(name.toLowerCase())) {
+                const normalized = name.toLowerCase();
+                if (normalized === 'idempotency-key') {
+                  throw new InvalidOperationClientOptionsError('BlackOps client options are invalid.');
+                }
+                if (!protectedHeaders.has(normalized)) {
                   headers[name] = headerValue;
                 }
               }
+
+              if (Object.hasOwn(options, 'idempotencyKey')) {
+                const idempotencyKey = (options as MutationOperationRequestOptions).idempotencyKey;
+                if (!isMutationMethod(method) || !isValidIdempotencyKey(idempotencyKey)) {
+                  throw new InvalidOperationClientOptionsError('BlackOps client options are invalid.');
+                }
+                headers['Idempotency-Key'] = idempotencyKey;
+              }
+
+              const credentials = readCredentials(options.credentials);
 
               const relativeUrl = buildOperationUrl(pathTemplate, urlBindings, value);
               const request: {
@@ -629,8 +977,8 @@ final readonly class FrontendTypeScriptGenerator
                   throw new Error('Operation body could not be serialized.');
                 }
               }
-              if (options.credentials !== undefined) {
-                request.credentials = options.credentials;
+              if (credentials !== undefined) {
+                request.credentials = credentials;
               }
               if (options.signal !== undefined) {
                 request.signal = options.signal;
@@ -690,9 +1038,13 @@ final readonly class FrontendTypeScriptGenerator
             }
 
             function assertHeader(name: string, value: string): void {
-              if (name === '' || /[\r\n]/.test(name) || /[\r\n]/.test(value)) {
-                throw new Error('Operation request header is invalid.');
+              if (!/^[!#$%&'*+.^_`|~0-9A-Za-z-]+$/.test(name) || /[\x00-\x1f\x7f]/.test(value)) {
+                throw new InvalidOperationClientOptionsError('BlackOps client options are invalid.');
               }
+            }
+
+            function isMutationMethod(method: string): boolean {
+              return method === 'POST' || method === 'PUT' || method === 'PATCH' || method === 'DELETE';
             }
 
             function joinBaseUrl(baseUrl: string | undefined, relativeUrl: string): string {
@@ -794,6 +1146,9 @@ final readonly class FrontendTypeScriptGenerator
                 if (error instanceof InvalidOperationBaseUrlError) {
                   return transportResult('invalid_base_url');
                 }
+                if (error instanceof InvalidOperationClientOptionsError) {
+                  return transportResult('invalid_client_options');
+                }
                 throw error;
               }
 
@@ -857,11 +1212,21 @@ final readonly class FrontendTypeScriptGenerator
               }
 
               let url: string;
+              let headers: Readonly<Record<string, string>>;
+              let credentials: OperationCredentials | undefined;
               try {
                 url = joinBaseUrl(options.baseUrl, `/operations/${operationId}`);
+                if (Object.hasOwn(options, 'idempotencyKey')) {
+                  throw new InvalidOperationClientOptionsError('BlackOps client options are invalid.');
+                }
+                headers = statusRequestHeaders(options.headers);
+                credentials = readCredentials(options.credentials);
               } catch (error: unknown) {
                 if (error instanceof InvalidOperationBaseUrlError) {
                   return statusTransportResult('invalid_base_url');
+                }
+                if (error instanceof InvalidOperationClientOptionsError) {
+                  return statusTransportResult('invalid_client_options');
                 }
                 throw error;
               }
@@ -878,10 +1243,10 @@ final readonly class FrontendTypeScriptGenerator
                 signal?: OperationFetchRequest['signal'];
               } = {
                 method: 'GET',
-                headers: statusRequestHeaders(options.headers),
+                headers,
               };
-              if (options.credentials !== undefined) {
-                request.credentials = options.credentials;
+              if (credentials !== undefined) {
+                request.credentials = credentials;
               }
               if (options.signal !== undefined) {
                 request.signal = options.signal;
@@ -1429,6 +1794,9 @@ final readonly class FrontendTypeScriptGenerator
               for (const [name, value] of Object.entries(configured ?? {})) {
                 assertHeader(name, value);
                 const normalized = name.toLowerCase();
+                if (normalized === 'idempotency-key') {
+                  throw new InvalidOperationClientOptionsError('BlackOps client options are invalid.');
+                }
                 if (normalized === 'content-type' || names.has(normalized)) {
                   continue;
                 }
@@ -2066,7 +2434,13 @@ final readonly class FrontendTypeScriptGenerator
             }
 
             function transportResult(
-              code: 'missing_fetch' | 'invalid_base_url' | 'network_error' | 'aborted' | 'unexpected_response',
+              code:
+                | 'missing_fetch'
+                | 'invalid_base_url'
+                | 'invalid_client_options'
+                | 'network_error'
+                | 'aborted'
+                | 'unexpected_response',
             ): OperationFailureResult<never> {
               return Object.freeze({
                 ok: false,
@@ -2081,6 +2455,7 @@ final readonly class FrontendTypeScriptGenerator
                 | 'invalid_operation_id'
                 | 'missing_fetch'
                 | 'invalid_base_url'
+                | 'invalid_client_options'
                 | 'network_error'
                 | 'aborted'
                 | 'unexpected_response',
@@ -2098,6 +2473,7 @@ final readonly class FrontendTypeScriptGenerator
                 | 'invalid_operation_id'
                 | 'missing_fetch'
                 | 'invalid_base_url'
+                | 'invalid_client_options'
                 | 'network_error'
                 | 'aborted'
                 | 'invalid_wait_options'
@@ -2114,6 +2490,248 @@ final readonly class FrontendTypeScriptGenerator
             CLIENT . "\n";
     }
 
+    /**
+     * @param list<FrontendOperationContract> $operations
+     * @mago-expect lint:halstead
+     */
+    private function indexSource(array $operations): string
+    {
+        /** @var list<string> $lines */
+        $lines = [
+            "import { bindOperationCallOptions, bindOperationRequestOptions, bindOperationWaitOptions, buildBoundOperationUrl, createOperationClientBinding, invalidClientOptionsResult } from './client';",
+            "import type { OperationClientBinding } from './client';",
+            "import type { BlackOpsClientOptions, BoundMutationOperationCallOptions, BoundMutationOperationRequestOptions, BoundOperationCallOptions, BoundOperationRequestOptions, BoundOperationWaitOptions, OperationRequest } from './types';",
+        ];
+
+        foreach ($operations as $operation) {
+            $module = './' . substr(string: $operation->module, offset: 0, length: -3);
+            $valueName = $operation->exportName . 'Value';
+            $urlName = $operation->exportName . 'UrlParameters';
+            $outcomeName = $operation->exportName . 'Outcome';
+            $fieldName = $operation->exportName . 'Field';
+            $resultName = $operation->exportName . 'Result';
+            $statusResultName = $operation->exportName . 'StatusResult';
+            $waitResultName = $operation->exportName . 'WaitResult';
+            $urlFields = array_filter(
+                $operation->value->fields,
+                static fn(FrontendValueFieldContract $field): bool => in_array(
+                    $field->source,
+                    ['path', 'query'],
+                    strict: true,
+                ),
+            );
+            $typeNames = [$valueName];
+            if ($urlFields !== []) {
+                $typeNames[] = $urlName;
+            }
+            array_push($typeNames, $outcomeName, $fieldName, $resultName, $statusResultName, $waitResultName);
+
+            $lines[] = sprintf(
+                "import { %s as %sOperation } from '%s';",
+                $operation->exportName,
+                $operation->exportName,
+                $module,
+            );
+            $lines[] = sprintf("import type { %s } from '%s';", implode(', ', $typeNames), $module);
+        }
+
+        $lines[] = '';
+        $lines[] = "export type * from './types';";
+        foreach ($operations as $operation) {
+            $module = './' . substr(string: $operation->module, offset: 0, length: -3);
+            $valueName = $operation->exportName . 'Value';
+            $urlName = $operation->exportName . 'UrlParameters';
+            $outcomeName = $operation->exportName . 'Outcome';
+            $fieldName = $operation->exportName . 'Field';
+            $resultName = $operation->exportName . 'Result';
+            $statusResultName = $operation->exportName . 'StatusResult';
+            $waitResultName = $operation->exportName . 'WaitResult';
+            $urlFields = array_filter(
+                $operation->value->fields,
+                static fn(FrontendValueFieldContract $field): bool => in_array(
+                    $field->source,
+                    ['path', 'query'],
+                    strict: true,
+                ),
+            );
+            $typeNames = [$valueName];
+            if ($urlFields !== []) {
+                $typeNames[] = $urlName;
+            }
+            array_push($typeNames, $outcomeName, $fieldName, $resultName, $statusResultName, $waitResultName);
+            $lines[] = sprintf("export { %s } from '%s';", $operation->exportName, $module);
+            $lines[] = sprintf("export type { %s } from '%s';", implode(', ', $typeNames), $module);
+        }
+
+        foreach ($operations as $operation) {
+            $valueName = $operation->exportName . 'Value';
+            $urlName = $operation->exportName . 'UrlParameters';
+            $resultName = $operation->exportName . 'Result';
+            $statusResultName = $operation->exportName . 'StatusResult';
+            $waitResultName = $operation->exportName . 'WaitResult';
+            $boundName = 'Bound' . $operation->exportName . 'Operation';
+            $mutation = in_array($operation->method, ['POST', 'PUT', 'PATCH', 'DELETE'], strict: true);
+            $requestOptionsName = $mutation ? 'BoundMutationOperationRequestOptions' : 'BoundOperationRequestOptions';
+            $callOptionsName = $mutation ? 'BoundMutationOperationCallOptions' : 'BoundOperationCallOptions';
+            $urlFields = array_filter(
+                $operation->value->fields,
+                static fn(FrontendValueFieldContract $field): bool => in_array(
+                    $field->source,
+                    ['path', 'query'],
+                    strict: true,
+                ),
+            );
+
+            $lines[] = '';
+            $lines[] = sprintf('export type %s = Readonly<{', $boundName);
+            $lines[] = sprintf('  readonly type: typeof %sOperation.type;', $operation->exportName);
+            $lines[] = sprintf('  readonly method: typeof %sOperation.method;', $operation->exportName);
+            $lines[] = sprintf('  readonly path: typeof %sOperation.path;', $operation->exportName);
+            $lines[] = sprintf('  readonly strategy: typeof %sOperation.strategy;', $operation->exportName);
+            $lines[] = $urlFields === [] ? '  url(): string;' : sprintf('  url(parameters: %s): string;', $urlName);
+            $lines[] = sprintf(
+                '  toRequest(value: %s, options?: %s): OperationRequest;',
+                $valueName,
+                $requestOptionsName,
+            );
+            $lines[] = sprintf(
+                '  fetch(value: %s, options?: %s): Promise<%s>;',
+                $valueName,
+                $callOptionsName,
+                $resultName,
+            );
+            $lines[] = sprintf(
+                '  status(operationId: string, options?: BoundOperationCallOptions): Promise<%s>;',
+                $statusResultName,
+            );
+            $lines[] = sprintf(
+                '  wait(operationId: string, options: BoundOperationWaitOptions): Promise<%s>;',
+                $waitResultName,
+            );
+            $lines[] = '}>;';
+        }
+
+        $lines[] = '';
+        $lines[] = 'export type BlackOpsClient = Readonly<{';
+        foreach ($operations as $operation) {
+            $lines[] = sprintf('  readonly %s: Bound%sOperation;', $operation->exportName, $operation->exportName);
+        }
+        $lines[] = '}>;';
+
+        foreach ($operations as $operation) {
+            $valueName = $operation->exportName . 'Value';
+            $urlName = $operation->exportName . 'UrlParameters';
+            $resultName = $operation->exportName . 'Result';
+            $statusResultName = $operation->exportName . 'StatusResult';
+            $waitResultName = $operation->exportName . 'WaitResult';
+            $boundName = 'Bound' . $operation->exportName . 'Operation';
+            $mutation = in_array($operation->method, ['POST', 'PUT', 'PATCH', 'DELETE'], strict: true);
+            $mutationLiteral = $mutation ? 'true' : 'false';
+            $requestOptionsName = $mutation ? 'BoundMutationOperationRequestOptions' : 'BoundOperationRequestOptions';
+            $callOptionsName = $mutation ? 'BoundMutationOperationCallOptions' : 'BoundOperationCallOptions';
+            $urlFields = array_filter(
+                $operation->value->fields,
+                static fn(FrontendValueFieldContract $field): bool => in_array(
+                    $field->source,
+                    ['path', 'query'],
+                    strict: true,
+                ),
+            );
+
+            $lines[] = '';
+            $lines[] = sprintf(
+                'function bind%s(binding: OperationClientBinding): %s {',
+                $operation->exportName,
+                $boundName,
+            );
+            $lines[] = '  return Object.freeze({';
+            foreach (['type', 'method', 'path', 'strategy'] as $property) {
+                $lines[] = sprintf('    %s: %sOperation.%s,', $property, $operation->exportName, $property);
+            }
+            if ($urlFields === []) {
+                $lines[] = '    url(): string {';
+                $lines[] = sprintf(
+                    '      return buildBoundOperationUrl(binding, %sOperation.url());',
+                    $operation->exportName,
+                );
+            } else {
+                $lines[] = sprintf('    url(parameters: %s): string {', $urlName);
+                $lines[] = sprintf(
+                    '      return buildBoundOperationUrl(binding, %sOperation.url(parameters));',
+                    $operation->exportName,
+                );
+            }
+            $lines[] = '    },';
+            $lines[] = sprintf(
+                '    toRequest(value: %s, options?: %s): OperationRequest {',
+                $valueName,
+                $requestOptionsName,
+            );
+            $lines[] = sprintf(
+                '      return %sOperation.toRequest(value, bindOperationRequestOptions(binding, options, %s));',
+                $operation->exportName,
+                $mutationLiteral,
+            );
+            $lines[] = '    },';
+            $lines[] = sprintf(
+                '    async fetch(value: %s, options?: %s): Promise<%s> {',
+                $valueName,
+                $callOptionsName,
+                $resultName,
+            );
+            $lines[] = '      try {';
+            $lines[] = sprintf(
+                '        return %sOperation.fetch(value, bindOperationCallOptions(binding, options, %s));',
+                $operation->exportName,
+                $mutationLiteral,
+            );
+            $lines[] = '      } catch {';
+            $lines[] = '        return invalidClientOptionsResult();';
+            $lines[] = '      }';
+            $lines[] = '    },';
+            $lines[] = sprintf(
+                '    async status(operationId: string, options?: BoundOperationCallOptions): Promise<%s> {',
+                $statusResultName,
+            );
+            $lines[] = '      try {';
+            $lines[] = sprintf(
+                '        return %sOperation.status(operationId, bindOperationCallOptions(binding, options, false));',
+                $operation->exportName,
+            );
+            $lines[] = '      } catch {';
+            $lines[] = '        return invalidClientOptionsResult();';
+            $lines[] = '      }';
+            $lines[] = '    },';
+            $lines[] = sprintf(
+                '    async wait(operationId: string, options: BoundOperationWaitOptions): Promise<%s> {',
+                $waitResultName,
+            );
+            $lines[] = '      try {';
+            $lines[] = sprintf(
+                '        return %sOperation.wait(operationId, bindOperationWaitOptions(binding, options));',
+                $operation->exportName,
+            );
+            $lines[] = '      } catch {';
+            $lines[] = '        return invalidClientOptionsResult();';
+            $lines[] = '      }';
+            $lines[] = '    },';
+            $lines[] = '  });';
+            $lines[] = '}';
+        }
+
+        $lines[] = '';
+        $lines[] = 'export function createBlackOpsClient(options: BlackOpsClientOptions): BlackOpsClient {';
+        $lines[] = '  const binding = createOperationClientBinding(options);';
+        $lines[] = '  return Object.freeze({';
+        foreach ($operations as $operation) {
+            $lines[] = sprintf('    %s: bind%s(binding),', $operation->exportName, $operation->exportName);
+        }
+        $lines[] = '  });';
+        $lines[] = '}';
+
+        return implode("\n", $lines) . "\n";
+    }
+
     /** @mago-expect lint:halstead */
     private function operationSource(FrontendOperationContract $operation): string
     {
@@ -2124,6 +2742,9 @@ final readonly class FrontendTypeScriptGenerator
         $resultName = $operation->exportName . 'Result';
         $statusResultName = $operation->exportName . 'StatusResult';
         $waitResultName = $operation->exportName . 'WaitResult';
+        $mutation = in_array($operation->method, ['POST', 'PUT', 'PATCH', 'DELETE'], strict: true);
+        $requestOptionsName = $mutation ? 'MutationOperationRequestOptions' : 'OperationRequestOptions';
+        $callOptionsName = $mutation ? 'MutationOperationCallOptions' : 'OperationCallOptions';
         $urlFields = array_values(array_filter(
             $operation->value->fields,
             static fn(FrontendValueFieldContract $field): bool => in_array(
@@ -2145,7 +2766,7 @@ final readonly class FrontendTypeScriptGenerator
                 $import,
             ),
             sprintf(
-                "import type { %s, OperationCallOptions, OperationRequest, OperationRequestOptions, OperationStatusResult, OperationWaitOptions, OperationWaitResult } from '%stypes';",
+                "import type { %s, MutationOperationCallOptions, MutationOperationRequestOptions, OperationCallOptions, OperationRequest, OperationRequestOptions, OperationStatusResult, OperationWaitOptions, OperationWaitResult } from '%stypes';",
                 $resultType,
                 $import,
             ),
@@ -2173,6 +2794,8 @@ final readonly class FrontendTypeScriptGenerator
             $waitResultName,
             $resultType,
             'OperationCallOptions',
+            'MutationOperationCallOptions',
+            'MutationOperationRequestOptions',
             'OperationRequest',
             'OperationRequestOptions',
             'OperationStatusResult',
@@ -2274,7 +2897,7 @@ final readonly class FrontendTypeScriptGenerator
             );
         }
         $lines[] = '  },';
-        $lines[] = sprintf('  toRequest(value: %s, options?: OperationRequestOptions): OperationRequest {', $valueName);
+        $lines[] = sprintf('  toRequest(value: %s, options?: %s): OperationRequest {', $valueName, $requestOptionsName);
         $lines[] = sprintf(
             '    return buildOperationRequest(%s, %s, bindings, value, options);',
             $this->json($operation->method),
@@ -2302,8 +2925,9 @@ final readonly class FrontendTypeScriptGenerator
         );
         $lines[] = '  },';
         $lines[] = sprintf(
-            '  fetch(value: %s, options?: OperationCallOptions): Promise<%s> {',
+            '  fetch(value: %s, options?: %s): Promise<%s> {',
             $valueName,
+            $callOptionsName,
             $resultName,
         );
         $lines[] = sprintf('    return fetchOperation<%s, %s>(', $outcomeName, $fieldName);

@@ -31,6 +31,7 @@ final class FrontendTypeScriptGeneratorTest extends TestCase
         self::assertSame(
             [
                 'client.ts',
+                'index.ts',
                 'manifest.json',
                 'operations/order/create-order.ts',
                 'types.ts',
@@ -41,7 +42,7 @@ final class FrontendTypeScriptGeneratorTest extends TestCase
         $marker = FrontendGenerationMarker::decode($first->files['manifest.json']);
         self::assertSame('frontend-generation-build', $marker->applicationBuildId);
         self::assertMatchesRegularExpression('/^[a-f0-9]{64}$/D', $marker->contractHash);
-        self::assertStringContainsString('"schemaVersion": 5', $first->files['manifest.json']);
+        self::assertStringContainsString('"schemaVersion": 6', $first->files['manifest.json']);
 
         $operation = $first->files['operations/order/create-order.ts'];
         self::assertStringContainsString('export const CreateOrder = Object.freeze({', $operation);
@@ -51,10 +52,13 @@ final class FrontendTypeScriptGeneratorTest extends TestCase
         self::assertStringContainsString('strategy: "inline" as const', $operation);
         self::assertStringContainsString('url(parameters: CreateOrderUrlParameters): string', $operation);
         self::assertStringContainsString(
-            'toRequest(value: CreateOrderValue, options?: OperationRequestOptions)',
+            'toRequest(value: CreateOrderValue, options?: MutationOperationRequestOptions)',
             $operation,
         );
-        self::assertStringContainsString('fetch(value: CreateOrderValue, options?: OperationCallOptions)', $operation);
+        self::assertStringContainsString(
+            'fetch(value: CreateOrderValue, options?: MutationOperationCallOptions)',
+            $operation,
+        );
         self::assertStringContainsString('status(operationId: string, options?: OperationCallOptions)', $operation);
         self::assertStringContainsString('wait(operationId: string, options: OperationWaitOptions)', $operation);
         self::assertStringContainsString('Promise<CreateOrderResult>', $operation);
@@ -75,6 +79,30 @@ final class FrontendTypeScriptGeneratorTest extends TestCase
             'return waitForOperationStatus<"order.create", CreateOrderOutcome>',
             $operation,
         );
+    }
+
+    public function testGeneratesRootBoundClientFactoryAndNamedExports(): void
+    {
+        $index = new FrontendTypeScriptGenerator()->generate(FrontendContractFixture::artifact())->files['index.ts'];
+
+        foreach ([
+            "import { CreateOrder as CreateOrderOperation } from './operations/order/create-order'",
+            "export { CreateOrder } from './operations/order/create-order'",
+            "export type * from './types'",
+            'export type BoundCreateOrderOperation = Readonly<{',
+            'readonly CreateOrder: BoundCreateOrderOperation;',
+            'url(parameters: CreateOrderUrlParameters): string;',
+            'toRequest(value: CreateOrderValue, options?: BoundMutationOperationRequestOptions)',
+            'fetch(value: CreateOrderValue, options?: BoundMutationOperationCallOptions)',
+            'status(operationId: string, options?: BoundOperationCallOptions)',
+            'wait(operationId: string, options: BoundOperationWaitOptions)',
+            'export function createBlackOpsClient(options: BlackOpsClientOptions): BlackOpsClient',
+            'const binding = createOperationClientBinding(options);',
+            'CreateOrder: bindCreateOrder(binding)',
+        ] as $contract) {
+            self::assertStringContainsString($contract, $index);
+        }
+        self::assertStringNotContainsString('svelte', strtolower($index));
     }
 
     public function testGeneratesValueAndUrlTypesFromPropertyNamesAndBindingSources(): void
@@ -109,7 +137,7 @@ final class FrontendTypeScriptGeneratorTest extends TestCase
             "return scalar ? 'true' : 'false'",
             "headers['Content-Type'] = 'application/json'",
             "const hasBody = bindings.some((binding): boolean => binding.source === 'body')",
-            'protectedHeaders.has(name.toLowerCase())',
+            'protectedHeaders.has(normalized)',
             'protectedHeaders.add(binding.transportName.toLowerCase())',
             'assertHeader(binding.transportName, headerValue)',
             'if (fieldValue === null && binding.nullable)',
@@ -253,7 +281,7 @@ final class FrontendTypeScriptGeneratorTest extends TestCase
             "kind: 'internal'; status: 500",
             "kind: 'transport'",
             'status: null',
-            "'missing_fetch' | 'invalid_base_url' | 'network_error' | 'aborted' | 'unexpected_response'",
+            "| 'invalid_client_options'",
             'export type OperationStatusResult<TType extends string, TOutcome>',
             "kind: 'retry_scheduled'",
             "kind: 'dead_lettered'",
@@ -642,7 +670,7 @@ final class FrontendTypeScriptGeneratorTest extends TestCase
             '/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/',
             'url = joinBaseUrl(options.baseUrl, `/operations/${operationId}`)',
             "method: 'GET'",
-            'headers: statusRequestHeaders(options.headers)',
+            'headers = statusRequestHeaders(options.headers)',
             "normalized === 'content-type' || names.has(normalized)",
             'received = await operationFetch(url, Object.freeze(request))',
             'payload.schemaVersion !== 1',

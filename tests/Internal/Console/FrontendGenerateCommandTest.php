@@ -60,6 +60,7 @@ final class FrontendGenerateCommandTest extends TestCase
 
         $generated = $this->directory . '/resources/js/blackops';
         self::assertFileExists($generated . '/client.ts');
+        self::assertFileExists($generated . '/index.ts');
         self::assertFileExists($generated . '/types.ts');
         self::assertFileExists($generated . '/operations/order/create-order.ts');
         self::assertSame(
@@ -67,10 +68,11 @@ final class FrontendGenerateCommandTest extends TestCase
             FrontendGenerationMarker::decode((string) file_get_contents($generated
             . '/manifest.json'))->applicationBuildId,
         );
-        self::assertSame("Generated 4 frontend files in resources/js/blackops.\n", $output->fetch());
+        self::assertSame("Generated 5 frontend files in resources/js/blackops.\n", $output->fetch());
 
         $allBytes = implode('', array_map(static fn(string $path): string => (string) file_get_contents($path), [
             $generated . '/client.ts',
+            $generated . '/index.ts',
             $generated . '/types.ts',
             $generated . '/manifest.json',
             $generated . '/operations/order/create-order.ts',

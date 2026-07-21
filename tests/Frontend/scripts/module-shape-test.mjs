@@ -3,6 +3,7 @@ import { readdir, readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 
 const operationsRoot = new URL('../fixture/resources/js/blackops/operations/', import.meta.url);
+const generatedRoot = new URL('../fixture/resources/js/blackops/index.ts', import.meta.url);
 
 async function sourceFiles(directory) {
   const entries = await readdir(directory, { withFileTypes: true });
@@ -30,5 +31,13 @@ for (const file of operationFiles) {
   assert.ok(imports.every((specifier) => /\/(client|types)$/.test(specifier)));
   assert.ok(imports.every((specifier) => !specifier.includes('/operations/')));
 }
+
+const rootSource = await readFile(generatedRoot, 'utf8');
+assert.match(rootSource, /export function createBlackOpsClient\(/);
+assert.match(rootSource, /export \{ CreateOrder \}/);
+assert.match(rootSource, /export \{ GenerateReport \}/);
+assert.ok(rootSource.indexOf('readonly CreateOrder:') < rootSource.indexOf('readonly GenerateReport:'));
+assert.ok(rootSource.indexOf('CreateOrder: bindCreateOrder') < rootSource.indexOf('GenerateReport: bindGenerateReport'));
+assert.doesNotMatch(rootSource, /server-token|private base|runtime-sensitive-input/i);
 
 process.stdout.write(`Frontend module shape assertions passed for ${operationFiles.length} operations.\n`);

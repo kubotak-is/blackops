@@ -97,6 +97,7 @@ test -f "${CONSUMER}/resources/js/blackops/operations/welcome/show-welcome.ts"
 test -f "${CONSUMER}/resources/js/blackops/operations/report/generate-report.ts"
 test -f "${CONSUMER}/resources/js/blackops/operations/order/create-order.ts"
 test -f "${CONSUMER}/resources/js/blackops/operations/diagnostics/failure/trigger-failure.ts"
+test -f "${CONSUMER}/resources/js/blackops/index.ts"
 HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php -r '
 $manifest = require "/app/var/build/operations.php";
 foreach ($manifest["payload"]["operations"] ?? [] as $operation) {

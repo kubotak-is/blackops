@@ -220,24 +220,24 @@ curl -sS -H 'X-Sample-Token: local-example' \
 Frontendでは生成したOperation Objectから同じ経路を型付きで使います。`.fetch()`は受付だけ、`.status()`は一回だけ取得し、`.wait()`はAbort可能な有限待機です。
 
 ```ts
-import { CreateInvoice } from './resources/js/blackops/operations/billing/invoice/create-invoice';
+import { createBlackOpsClient } from './resources/js/blackops';
 
-const options = {
+const blackops = createBlackOpsClient({
   baseUrl: 'http://127.0.0.1:8080',
+  fetch: event.fetch,
   headers: { 'X-Sample-Token': 'local-example' },
-};
-const accepted = await CreateInvoice.fetch({
+});
+const accepted = await blackops.CreateInvoice.fetch({
   customerName: 'Acme',
   email: 'billing@example.com',
   quantity: 2,
   billingReference: 'PO-2026-001',
-}, options);
+}, { idempotencyKey: 'invoice-po-2026-001' });
 
 if (accepted.ok && accepted.kind === 'accepted') {
-  const current = await CreateInvoice.status(accepted.data.operationId, options);
+  const current = await blackops.CreateInvoice.status(accepted.data.operationId);
   const controller = new AbortController();
-  const terminal = await CreateInvoice.wait(accepted.data.operationId, {
-    ...options,
+  const terminal = await blackops.CreateInvoice.wait(accepted.data.operationId, {
     signal: controller.signal,
     maxWaitMilliseconds: 15_000,
   });

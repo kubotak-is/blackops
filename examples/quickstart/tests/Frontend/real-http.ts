@@ -6,6 +6,7 @@ import {
   operationOptions,
 } from '../../resources/js/application/operations';
 import { testOperationWaitController } from './wait-signal';
+import { createBlackOpsClient } from '../../resources/js/blackops';
 import type {
   OperationFetch,
   OperationFetchRequest,
@@ -89,6 +90,11 @@ async function main(): Promise<void> {
   const failureSecret = requiredEnvironment('BLACKOPS_FRONTEND_FAILURE_SECRET');
   const rawTransportError = requiredEnvironment('BLACKOPS_FRONTEND_RAW_ERROR');
   const options = operationOptions(sampleToken, baseUrl);
+  const blackops = createBlackOpsClient({
+    baseUrl,
+    fetch: nativeFetch,
+    headers: { 'X-Sample-Token': sampleToken },
+  });
 
   assertEqual(ShowWelcome.type, 'welcome.show', 'Welcome type metadata');
   assertEqual(ShowWelcome.method, 'GET', 'Welcome method metadata');
@@ -115,7 +121,7 @@ async function main(): Promise<void> {
   assertEqual(reportRequest.headers['Content-Type'], 'application/json', 'Report content type');
   assertEqual(JSON.parse(reportRequest.body ?? '{}').recipientEmail, reportSecret, 'Report write-only input');
 
-  const welcome = await ShowWelcome.fetch({}, options);
+  const welcome = await blackops.ShowWelcome.fetch({});
   assert(welcome.ok && welcome.kind === 'completed', 'Welcome must complete.');
   assertEqual(welcome.status, 200, 'Welcome status');
   assertEqual(welcome.data.message, 'Welcome to BlackOps', 'Welcome outcome');
