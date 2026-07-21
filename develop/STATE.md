@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-22T00:59:06+09:00
+Updated At: 2026-07-22T01:02:07+09:00
 
 ## Current Phase
 
@@ -8,17 +8,17 @@ Phase 17: Full-stack Reference Application - In Progress
 
 ## Current Task
 
-Task ID: P17-008-visual-accessibility-and-browser-e2e
+Task ID: P17-009A-community-board-seed-and-clean-install
 
-Task Packet: `develop/orchestration/tasks/P17-008-visual-accessibility-and-browser-e2e.md`
+Task Packet: `develop/orchestration/tasks/P17-009A-community-board-seed-and-clean-install.md`
 
 Specifications: `develop/spec/71-full-stack-reference-application.md`、`develop/spec/72-phase-17-delivery-plan.md`
 
 ## Task Status
 
-Accepted
+Ready for Worker
 
-P17-008はTaste SkillのAudit／Pre-flight、公式Reicon Svelte、Accessible／Responsive Product UI、実Browser E2E、Credential-free Screenshotを実装した。Orchestratorは実Screenshot、Skill Pre-flight、ScopeをReviewし、Visible Dash Entity、Danger Hover、CI Timeout、Screenshot Drift Guardを修正した。正規生成順序のBrowser Consumerを独立再実行し、Frontend check／test／build、実Browser Journey 1 passed（12.1s）、Screenshot SHA一致を確認してAcceptedとした。
+P17-008はCommit／Push済み。P17-009 Closeout準備で、D103／Spec 71が要求しP17-002から後続へ送られたDeterministic Seedが未実装であることを確認した。P17-009をA（Application-owned Seed＋Clean Install）とB（README／Guide／Website／Full Gate Closeout）へ分け、P17-009A Task Packetを作成した。
 
 ## Last Accepted Task
 
@@ -59,8 +59,9 @@ Active Implementation Blockerはない。Ray.Aop 2.19.1／2.20.0には複数clas
 
 ## Required Next Action
 
-1. P17-008をCommitする。
-2. P17-009 Task Packetを作成し、README／Guide、Clean Install、全品質Gateを同期してPhase 17をCloseする。
+1. GPT-5.6 Luna High WorkerがP17-009Aを実装・検証する。
+2. OrchestratorがReview／独立再検証／Commitする。
+3. P17-009BでREADME／Guide、Website、全品質Gateを同期してPhase 17をCloseする。
 
 ## P17-008 Visual Accessibility and Browser E2E Worker Verification
 
