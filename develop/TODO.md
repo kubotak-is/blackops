@@ -142,22 +142,28 @@ MVP後に残す主要項目:
 - [x] Deterministic SeedとClean Install Consumerを完成する
 - [x] README／Guide、Website、全品質Gateを同期してPhase 17をCloseする
 
-### Application Ergonomics Decision Gate
+### Phase 18: Application Ergonomics
 
-- [ ] D110でFrontend Bound Client、Typed Environment、Dependency、Session Auth、Console DXと実装順を決定する
+- [x] D110でFrontend Bound Client、Typed Environment、Dependency、Session Auth、Console DXと実装順を決定する
+- [ ] Typed Environment／Configuration Closureを実装する
+- [ ] Frontend Bound Client Factoryを実装する
+- [ ] Application Command Discovery／DIを実装する
+- [ ] Operation Console Adapterを実装する
+- [ ] Session Auth Package／Generatorを実装する
+- [ ] Community Boardを簡素化し、Clean Install Consumerで検証する
 
-### Phase 18: Reliability and Delivery
+### Phase 19: Reliability and Delivery
 
 - [x] D109でIdempotency Key、Transactional Outbox、Relay／Replay、Community Board Journeyを決定する
 - [ ] Idempotency Keyと重複時Contractを実装する
 - [ ] Transactional Outbox、Relay、Replayを実装する
 
-### Phase 19: Security Hardening and Observability
+### Phase 20: Security Hardening and Observability
 
 - [ ] Journal／Outcome参照制御、Tenant分離、暗号化Capabilityを強化する
 - [ ] 構造化Log SchemaとOpenTelemetry Adapterを提供する
 
-### Phase 20: Framework-owned Transaction Interception
+### Phase 21: Framework-owned Transaction Interception
 
 - [ ] PHP Signature Matrix、Generated Artifact、Symfony DI統合、Migration、Ray.Aop Removal GateをDecisionで確定する
 - [ ] `#[Transactional]`／`#[AfterCommit]`専用Build-time Proxyを実装し、Ray.Aopを削除する

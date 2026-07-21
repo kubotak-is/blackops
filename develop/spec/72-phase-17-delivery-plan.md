@@ -25,7 +25,7 @@ Taskは依存順に実装し、同一Source Treeへ並行変更しない。各Ta
 Owner: Orchestrator
 
 - D103の8問とServer-only補足をDecidedにする
-- RoadmapをPhase 17 Reference Application、Phase 18 Reliability、Phase 19 Securityへ更新する
+- RoadmapをPhase 17 Reference Applicationへ更新し、後続Capabilityを独立Phaseとして維持する
 - Full-stack Reference Application仕様を固定する
 - Task境界、Acceptance Criteria、Framework Gapの停止条件を固定する
 - P17-002 Task Packetを作成する

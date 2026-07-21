@@ -1,24 +1,24 @@
 # Orchestration State
 
-Updated At: 2026-07-22T02:52:01+09:00
+Updated At: 2026-07-22T02:57:06+09:00
 
 ## Current Phase
 
-Phase 18: Reliability and Delivery - Planning
+Phase 18: Application Ergonomics - Planning
 
 ## Current Task
 
-Task ID: Decision D110
+Task ID: P18-001 Preparation
 
-Task Packet: `develop/decisions/110-application-ergonomics.md`
+Task Packet: not created yet
 
-Specifications: Phase 18 Specification／Delivery PlanはD110の優先順位確定後に作成する
+Specifications: Phase 18 Specification／Delivery Planを次に作成する
 
 ## Task Status
 
-Awaiting User Decision
+In Progress
 
-D110 Draftを作成した。Application ErgonomicsをReliabilityより先に置くか、Frontend Bound Client、Typed Environment／Configuration、Composer直接依存、任意Session Auth Package、Application Command Discovery／DI、Operation Console公開、Delivery順を回答待ちとする。D109のReliability Contractは確定済みであり、優先順位だけをD110で決める。
+D110はA／A／A／A／A／A／A／Aで確定した。Application Ergonomicsを新Phase 18とし、Typed Environment、Frontend Bound Client、Application Command Discovery／DI、Operation Console Adapter、Session Auth Package／Generator、Community Board簡素化の順に実装する。ReliabilityはPhase 19、SecurityはPhase 20、Framework-owned Transaction InterceptionはPhase 21へ移した。
 
 ## Last Accepted Task
 
@@ -51,18 +51,18 @@ P17-009B-community-board-documentation-and-phase-closeout
 23. D105はAで確定。PostをHard Deleteし、配下CommentもForeign Key Cascadeで同じTransaction内に削除する。Application Data RetentionとUser削除は未決のままとする。
 24. D106でBoard Domain／Infrastructure分離とDomainServiceへの業務ロジック集約を確定した。DomainはBlackOps／Doctrine／Symfonyへ依存しない。
 25. D107はA／A／A／Aで確定。UTC ISO Week、件数だけのImmutable Snapshot、成功Requestごとの新規Row、Development／Test限定Failure Adapterを採用する。
-26. D108はA／B／Cで確定。Phase 17はmetadata-only Deferred Strategyのliteral class-string回避を維持して先行する。Ray.AopはPhase 20のTransaction専用Framework-owned Build-time Proxyで置き換え、upstreamへのIssue／PRは作成しない。
+26. D108はA／B／Cで確定。Phase 17はmetadata-only Deferred Strategyのliteral class-string回避を維持して先行する。Ray.AopはPhase 21のTransaction専用Framework-owned Build-time Proxyで置き換え、upstreamへのIssue／PRは作成しない。
 27. D109はA／A／A／A／A／A／A／Aで確定。Idempotency、Outbox、Relay／Replay、Community Board JourneyのContractを採用する。
-28. D110は回答待ち。Application Ergonomicsの責任分界とReliabilityに対する実装順を確定する。
+28. D110はA／A／A／A／A／A／A／Aで確定。Application ErgonomicsをPhase 18としてReliabilityより先に実装し、Frontend、Environment、Dependency、Session Auth、Consoleの責任分界を採用する。
 
 ## Known Blockers
 
-Active Implementation Blockerはない。Ray.Aop 2.19.1／2.20.0には複数class-constant AttributeのTokenizer gapがあるが、D108でPhase 17の先行とPhase 20での置換を確定した。Documentation WebsiteはUser判断どおり未公開であり、Publication／Deployは行わない。
+Active Implementation Blockerはない。Ray.Aop 2.19.1／2.20.0には複数class-constant AttributeのTokenizer gapがあるが、D108とD110でPhase 17の先行とPhase 21での置換を確定した。Documentation WebsiteはUser判断どおり未公開であり、Publication／Deployは行わない。
 
 ## Required Next Action
 
-1. Userが`develop/decisions/110-application-ergonomics.md`の8問へ回答する。
-2. OrchestratorがD110をDecidedへ確定し、選択したPhaseのSpecification／Delivery Planを作成する。
+1. OrchestratorがPhase 18 Application Ergonomics Specification／Delivery Planを作成する。
+2. P18-002 Typed Environment／Configuration ClosureのTask Packetを作成し、workerへ依頼する。
 
 ## P17-009B Community Board Documentation and Phase Closeout Worker Verification
 

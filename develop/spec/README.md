@@ -199,3 +199,7 @@
 | [D104](../decisions/104-structured-outcome-contract.md) | Structured Outcome Contract | Decided |
 | [D105](../decisions/105-community-board-deletion-policy.md) | Community Board Deletion Policy | Decided |
 | [D106](../decisions/106-community-board-domain-layering.md) | Community Board Domain Layering | Decided |
+| [D107](../decisions/107-community-board-deferred-digest.md) | Community Board Deferred Digest | Decided |
+| [D108](../decisions/108-ray-aop-upstream-and-phase-order.md) | Ray.Aop Upstream and Phase Order | Decided |
+| [D109](../decisions/109-phase-18-idempotency-and-outbox.md) | Phase 19 Idempotency and Outbox | Decided |
+| [D110](../decisions/110-application-ergonomics.md) | Application Ergonomics | Decided |

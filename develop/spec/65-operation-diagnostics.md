@@ -114,7 +114,7 @@ operation.actors.execution.type
 - HTTP Request間、Deferred Attempt間、Long-running Worker Loop間でScopeを残さない。
 - Application Log Backend失敗はOperationを失敗させず吸収し、別SinkへFallbackしない。
 
-ApplicationはLog Sink、Delivery、Retention、Alertを所有する。FrameworkはPSR-3相関Decoratorと安全な既定Backendを構成できるが、外部CollectorへのDeliveryを保証しない。OpenTelemetry Adapterと安定したRemote Log SchemaはPhase 18で扱う。
+ApplicationはLog Sink、Delivery、Retention、Alertを所有する。FrameworkはPSR-3相関Decoratorと安全な既定Backendを構成できるが、外部CollectorへのDeliveryを保証しない。OpenTelemetry Adapterと安定したRemote Log SchemaはPhase 20で扱う。
 
 ## Internal Query Boundary
 
@@ -445,7 +445,7 @@ Viewer Session TokenはApplication User Authenticationではない。Production 
 | Terminal | Command、JSON Schema、Exit Code | Local Shell／CI Access Control |
 | Viewer | Enable Gate、Loopback、Token、Read-only | Quickstart Localだけ有効化、Productionで有効化しない |
 | Production Log | Correlation Decorator、Safe Framework Error | Sink、Delivery、Retention、Alert、Collector |
-| Remote Observability | Operation ID Fieldだけ準備 | Phase 18までAdapterなし |
+| Remote Observability | Operation ID Fieldだけ準備 | Phase 20までAdapterなし |
 
 Quickstart Consumerは`diagnostics.failure.trigger`を使い、Safe HTTP 500のOperation IDをHuman／JSON CLI、Local Viewer、Application／Framework JSONLへそのまま渡す。ViewerはPCNTLを持つ明示的なCLI Processで起動し、HTTP Clientと同じLocal Network NamespaceのLoopbackだけを使う。Token／CookieはTemporary Artifactとして回収し、通常Console、Report、Sourceへ残さない。
 
@@ -453,7 +453,7 @@ Quickstart Consumerは`diagnostics.failure.trigger`を使い、Safe HTTP 500のO
 
 - Phase 15: Generated Frontend ContractとOperation IDの接続。Diagnostics UIは生成しない。
 - Phase 16: Public Status／Outcome PHP／HTTP API、Polling、Authentication／Authorization、Tenant Access Policy。
-- Phase 18: Canonical Raw Access Control、Tenant分離、暗号化Capability、特権表示Audit、OpenTelemetry、Metric、Remote Exporter、Health／Readiness。
+- Phase 20: Canonical Raw Access Control、Tenant分離、暗号化Capability、特権表示Audit、OpenTelemetry、Metric、Remote Exporter、Health／Readiness。
 
 ## Traceability
 
