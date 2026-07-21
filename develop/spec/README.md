@@ -88,6 +88,8 @@
 | [71-full-stack-reference-application.md](71-full-stack-reference-application.md) | SvelteKit BFF、認証、投稿、Deferred Digestを統合するReference Application |
 | [72-phase-17-delivery-plan.md](72-phase-17-delivery-plan.md) | Full-stack Reference ApplicationのTask順序と受入境界 |
 | [73-structured-outcome-contract.md](73-structured-outcome-contract.md) | Readonly Nested DTO、Typed List、HTTP／Persistence／Frontendの共通Outcome Shape |
+| [74-application-ergonomics.md](74-application-ergonomics.md) | Typed Environment、Bound Client、Console、Session AuthのApplication責任境界 |
+| [75-phase-18-delivery-plan.md](75-phase-18-delivery-plan.md) | Application ErgonomicsのTask順序と受入境界 |
 
 ## 決定の参照
 

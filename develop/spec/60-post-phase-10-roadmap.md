@@ -120,7 +120,7 @@ Quickstart／Skeletonは変更せず、External HostingとDocumentation Website 
 - Community BoardのFrontend／Identity／Command／Dependency簡素化
 - Clean Install、Generated Artifact、Sensitive BoundaryのConsumer Gate
 
-CoreをSvelteKit、DBAL、Session Authenticationへ固定せず、Applicationが直接利用するVendor Packageは明示Dependencyとして維持する。詳細は[D110 Application Ergonomics](../decisions/110-application-ergonomics.md)を正本とする。
+CoreをSvelteKit、DBAL、Session Authenticationへ固定せず、Applicationが直接利用するVendor Packageは明示Dependencyとして維持する。詳細は[Application Ergonomics](74-application-ergonomics.md)と[Phase 18 Delivery Plan](75-phase-18-delivery-plan.md)を正本とする。
 
 ## Phase 19: Reliability and Delivery
 

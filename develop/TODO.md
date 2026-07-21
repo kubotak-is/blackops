@@ -145,6 +145,7 @@ MVP後に残す主要項目:
 ### Phase 18: Application Ergonomics
 
 - [x] D110でFrontend Bound Client、Typed Environment、Dependency、Session Auth、Console DXと実装順を決定する
+- [x] Phase 18 Specification／Delivery PlanとTask境界を確定する
 - [ ] Typed Environment／Configuration Closureを実装する
 - [ ] Frontend Bound Client Factoryを実装する
 - [ ] Application Command Discovery／DIを実装する
