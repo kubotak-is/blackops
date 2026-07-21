@@ -173,6 +173,8 @@ final readonly class GenerateWeeklyDigest
 }
 ```
 
+AttributeはCanonical Command NameとOptional Descriptionだけを保持する。Alias、Position Argument、Prompt、Rendererは初期Capabilityへ含めない。
+
 - AttributeがないOperationをConsoleへ公開しない
 - Command Nameは明示値だけを使い、Class名から推測しない
 - Build時にOperationValueのPublic Constructor-promoted Propertyをkebab-case Named Optionへ写像する
@@ -186,7 +188,28 @@ final readonly class GenerateWeeklyDigest
 - Exit Codeは成功／受付を0、CLI Shape／Binding／Validationを2、Rejected／Internal／Transport Failureを1とする
 - OutcomeのSensitive Projection、Rejected Safe Code、Internal Detail非表示をHTTP／Statusと同じContractで維持する
 
-Console入口はHTTP Credentialを再利用しない。Authorizationを要求するOperationではApplication-owned Console Actor ProviderがActorを供給し、未登録／失敗時はDenyする。CLI Optionから任意Actor IDを受け取ってなりすまさない。Console Actor Public APIの最小ShapeはTask実装前に既存ActorContextと整合させ、Task Packetで固定する。
+Value Option名はProperty名をASCII kebab-caseへ変換する。`userId`は`--user-id`、`URLValue`は`--url-value`、`user_id`は`--user-id`となる。同一Optionへの変換、Symfony Global Option、`--json`との衝突はBuild Errorとする。BooleanもFlagにせず`true`／`false`の値を要求する。省略はPHP Constructor Defaultがある場合だけDefaultを使い、NullableだけではRequiredを解除しない。
+
+Command ManifestはP18-004のSchema 1からSchema 2へ上げ、既存`commands`に加えて`operation_commands`を持つ。Operation EntryはApplication Build IDとOperation Manifestに対応するType ID、Definition、Value、Outcome、Strategy、Command Name／Description、順序付きOption Metadataを保存する。Source Path、Runtime Value、Credentialは保存しない。Schema 1／Missing／Invalid／Stale ArtifactではDiscovered Application CommandとOperation Commandを未登録にし、Framework `build:compile`による再生成を維持する。
+
+`--json`の一行JSONは`schemaVersion: 1`を持つ。Completedは`status`とSafe `outcome`、Acceptedは`status`、`operationId`、`acceptedAt`、Rejectedは`status`、Optional `operationId`、`category`、`code`、Valueを含まない`violations`、Internal Errorは`status: error`、`code: internal_error`、Optional `operationId`だけを返す。Human Outputも同じ情報だけを表示する。Unknown／Missing／Invalid OptionとValue ValidationはExit 2、Completed／Acceptedは0、Authorization／Business RejectionとInternal／Transport Failureは1とする。
+
+Console入口はHTTP Credentialを再利用しない。Public APIは次の最小Interfaceとする。
+
+```php
+namespace BlackOps\Console;
+
+use BlackOps\Core\ActorRef;
+
+interface ConsoleActorProvider
+{
+    public function actor(): ?ActorRef;
+}
+```
+
+ApplicationはService ProviderでこのInterfaceをBindingできる。Frameworkは返されたActorをOrigin／Authorizationとし、Execution Actorを`new ActorRef('console-runtime', 'system')`として`ActorContext`を構成する。Provider未登録または`null`ではOrigin／Authorizationを持たず、Authorizationが必要なOperationは既存PolicyでDenyする。Provider FailureはSafe Internal Errorへ閉じる。CLI OptionからActor ID／Typeを受け取らない。
+
+Build後のRuntimeはCommand Manifestと同じBuild IDのOperation Manifest／Compiled Containerだけを使い、Source ScanやAttribute Reflection Fallbackを行わない。Operation Definition、Validation、Authorization、Inline Dispatcher、Deferred Acceptance、Journal、Transaction、Outcome Normalization、Failure Reporting、Connection／Observation CleanupはHTTP Runtimeと同じ内部Composition責務を再利用し、Console固有にLifecycleを再実装しない。
 
 ## Session Authentication Integration
 

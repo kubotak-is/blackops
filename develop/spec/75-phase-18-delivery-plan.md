@@ -117,8 +117,8 @@ Documentation Website、Community Board、Session Auth Packageを外部公開し
 
 - [x] D110とPhase 18 Specification／Delivery PlanがDecidedである
 - [x] Typed Environment／Configuration Closureが実装される
-- [ ] Frontend Bound Client Factoryが実装される
-- [ ] Application Command Discovery／DIが実装される
+- [x] Frontend Bound Client Factoryが実装される
+- [x] Application Command Discovery／DIが実装される
 - [ ] Operation Console Adapterが実装される
 - [ ] Session Auth Package／Generatorが実装される
 - [ ] Community Boardが新Contractへ移行し、手動配線削減を証明する

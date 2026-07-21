@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-22T05:04:09+09:00
+Updated At: 2026-07-22T05:10:38+09:00
 
 ## Current Phase
 
@@ -8,17 +8,17 @@ Phase 18: Application Ergonomics - Operation Console Adapter Preparation
 
 ## Current Task
 
-Task ID: P18-005 Operation Console Adapter Preparation
+Task ID: P18-005 Operation Console Adapter
 
-Task Packet: Not created
+Task Packet: `develop/orchestration/tasks/P18-005-operation-console-adapter.md`
 
 Specifications: `develop/spec/74-application-ergonomics.md`、`develop/spec/75-phase-18-delivery-plan.md`
 
 ## Task Status
 
-Accepted
+Ready
 
-P18-004をOrchestratorがReviewしAcceptedとした。Configured `#[AsCommand]` Discovery、Command Manifest Schema 1、Compiled Container DI、Symfony Lazy Command、Framework／Discovered／Explicit Collision、Missing／Invalid／Stale ArtifactからのRecovery、Quickstart／Skeleton／Framework Update互換を固定した。Workerの全Required Gateに加え、OrchestratorがFocused PHPUnit 304 tests／982 assertions、Mago format、Deptrac 0 violations、Management ID／Community Board Scope／diff Guardを独立再検証した。
+P18-005のTask Packetを作成した。Public `#[ConsoleCommand]`と`ConsoleActorProvider`、Named Scalar Option、Command Manifest Schema 2、Artifact-only Runtime、Inline／Deferred Lifecycle、Human／JSON Output、Exit 0／1／2、Quickstart／Permanent Fixture境界を固定し、GPT-5.6 Luna High workerへ渡す準備が整った。
 
 ## Last Accepted Task
 
@@ -61,8 +61,8 @@ Active Implementation Blockerはない。Ray.Aop 2.19.1／2.20.0には複数clas
 
 ## Required Next Action
 
-1. P18-005 Operation Console AdapterのPublic Attribute、Build Metadata、Binding／Output／Exit Code、Console Actor Provider境界をTask Packetで固定する。
-2. GPT-5.6 Luna High workerへP18-005を委譲する。
+1. GPT-5.6 Luna High workerがP18-005を実装・検証し、ReportとSTATEを更新する。
+2. OrchestratorがPublic API、Option Compiler、Manifest Schema 2、Actor／Lifecycle、Output／Exit／Sensitive、全GateをReviewする。
 
 ## P18-004 Application Command Discovery and DI Worker Verification
 
