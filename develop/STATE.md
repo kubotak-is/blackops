@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-21T02:09:09+09:00
+Updated At: 2026-07-21T23:40:22+09:00
 
 ## Current Phase
 
@@ -8,17 +8,17 @@ Phase 17: Full-stack Reference Application - In Progress
 
 ## Current Task
 
-Task ID: P17-007A-aop-class-constant-attributes
+Task ID: P17-007B-composer-package-export-boundary
 
-Task Packet: `develop/orchestration/tasks/P17-007A-aop-class-constant-attributes.md`
+Task Packet: `develop/orchestration/tasks/P17-007B-composer-package-export-boundary.md`
 
-Specifications: `develop/spec/09-runtime-and-di.md`、`develop/spec/64-phase-13-delivery-plan.md`
+Specifications: `develop/spec/52-phase-8-delivery-plan.md`、`develop/spec/61-experimental-release-contract.md`
 
 ## Task Status
 
-Blocked - Awaiting D108
+In Progress - Worker Implementation
 
-OrchestratorがP17-007Aの再現、Version比較、安全境界をReviewし、TaskをBlockedとした。Production／Test／Dependency／Example差分はなく、P17-007のliteral Strategy回避は機能的にAcceptedのままである。D108でPhase 17を先行するか、upstreamへ外部報告するかをUserに確認する。
+User指摘により、FrameworkのComposer／Git ArchiveへRepository開発資産が含まれる現状を確認した。P17-007Bで`.gitattributes`、Composer Archive、CI Package Export Contractを実装する。D108はQuestion 2=B、Question 3=Nを受領したが、Question 1の選択が未記入のためPhase順序は確定せず保留する。
 
 ## Last Accepted Task
 
@@ -59,9 +59,9 @@ Ray.Aopの解決可能Stable Releaseには、Attribute引数の`::class`をclass
 
 ## Required Next Action
 
-1. Userが`develop/decisions/108-ray-aop-upstream-and-phase-order.md`に回答する。
-2. Phase先行が選ばれたらP17-008 Visual Designを開始する。
-3. Upstream Issue／PRが選ばれた場合は、外部書き込みを回答範囲内で実行する。
+1. P17-007BでComposer Package Export Boundaryを実装、Review、Commitする。
+2. UserへD108 Question 1の選択を確認する。
+3. Phase先行が選ばれたらP17-008 Visual Designを開始する。
 
 ## P17-007A AOP Class-constant Attributes Worker Verification
 
