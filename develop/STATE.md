@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-22T02:24:12+09:00
+Updated At: 2026-07-22T02:48:57+09:00
 
 ## Current Phase
 
@@ -8,17 +8,17 @@ Phase 18: Reliability and Delivery - Planning
 
 ## Current Task
 
-Task ID: Decision D109
+Task ID: Decision D110 Preparation
 
-Task Packet: `develop/decisions/109-phase-18-idempotency-and-outbox.md`
+Task Packet: not created yet
 
-Specifications: Phase 18 Specification／Delivery PlanはD109回答後に作成する
+Specifications: Phase 18 Specification／Delivery PlanはD110の優先順位確定後に作成する
 
 ## Task Status
 
-Awaiting User Decision
+In Progress
 
-D109 Draftを作成した。Phase 18の実装順序、Idempotency入口、Actor Scope、Fingerprint／重複Response、Retention、最初のOutbox Capability、Relay／Dead Letter／Replay、Community BoardのDigest二重Submit／Comment通知Journeyを回答待ちとする。既存のat-least-once、Direct／Outbox Adapter分離、Replay時の新Operation ID等はInherited Decisionとして維持する。
+D109はA／A／A／A／A／A／A／Aで確定した。任意Idempotency Key、認証Actor Scope、Canonical Value Fingerprint、独立Retention、固定IDのDeferred child Operation Outbox、Fencing付きRelay／Replay、Community BoardのDigest二重Submit／Comment通知Journeyを採用する。Application ErgonomicsをPhase 18実装の前後どちらに置くかを含め、D110へ判断項目を整理する。
 
 ## Last Accepted Task
 
@@ -52,7 +52,7 @@ P17-009B-community-board-documentation-and-phase-closeout
 24. D106でBoard Domain／Infrastructure分離とDomainServiceへの業務ロジック集約を確定した。DomainはBlackOps／Doctrine／Symfonyへ依存しない。
 25. D107はA／A／A／Aで確定。UTC ISO Week、件数だけのImmutable Snapshot、成功Requestごとの新規Row、Development／Test限定Failure Adapterを採用する。
 26. D108はA／B／Cで確定。Phase 17はmetadata-only Deferred Strategyのliteral class-string回避を維持して先行する。Ray.AopはPhase 20のTransaction専用Framework-owned Build-time Proxyで置き換え、upstreamへのIssue／PRは作成しない。
-27. D109は回答待ち。Phase 18のIdempotency、Outbox、Relay／Replay、Community Board Journeyを確定する。
+27. D109はA／A／A／A／A／A／A／Aで確定。Idempotency、Outbox、Relay／Replay、Community Board JourneyのContractを採用する。
 
 ## Known Blockers
 
@@ -60,8 +60,8 @@ Active Implementation Blockerはない。Ray.Aop 2.19.1／2.20.0には複数clas
 
 ## Required Next Action
 
-1. Userが`develop/decisions/109-phase-18-idempotency-and-outbox.md`の8問へ回答する。
-2. OrchestratorがD109をDecidedへ確定し、Phase 18 Specification／Delivery Planを作成する。
+1. OrchestratorがApplication Ergonomicsの判断項目をD110へ整理する。
+2. User回答後、優先順位に従ってPhase 18 Specification／Delivery PlanまたはApplication Ergonomics Taskを作成する。
 
 ## P17-009B Community Board Documentation and Phase Closeout Worker Verification
 
