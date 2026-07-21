@@ -8,6 +8,7 @@ use BlackOps\Application\Application;
 use BlackOps\Application\ApplicationBootstrapException;
 use BlackOps\Application\ApplicationBuilder;
 use BlackOps\Application\ConsoleKernel;
+use BlackOps\Application\Environment;
 use BlackOps\Core\Attribute\PublicApi;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -24,6 +25,7 @@ final class ApplicationTest extends TestCase
             ApplicationBuilder::class,
             ApplicationBootstrapException::class,
             ConsoleKernel::class,
+            Environment::class,
         ] as $type) {
             self::assertCount(1, new ReflectionClass($type)->getAttributes(PublicApi::class));
         }

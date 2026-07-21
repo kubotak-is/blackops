@@ -11,7 +11,6 @@ use Symfony\Component\Console\Command\Command;
 final readonly class ApplicationConfigurationSnapshot
 {
     /**
-     * @param array<string, string> $environment
      * @param array<string, array<array-key, mixed>> $configuration
      * @param list<OperationProvider|class-string<OperationProvider>> $operationProviders
      * @param list<ServiceProvider|class-string<ServiceProvider>> $serviceProviders
@@ -19,7 +18,6 @@ final readonly class ApplicationConfigurationSnapshot
      */
     public function __construct(
         private string $basePath,
-        private array $environment,
         private array $configuration,
         private array $operationProviders,
         private array $serviceProviders,
@@ -29,12 +27,6 @@ final readonly class ApplicationConfigurationSnapshot
     public function basePath(): string
     {
         return $this->basePath;
-    }
-
-    /** @return array<string, string> */
-    public function environment(): array
-    {
-        return $this->environment;
     }
 
     /** @return array<string, array<array-key, mixed>> */

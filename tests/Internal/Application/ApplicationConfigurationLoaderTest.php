@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BlackOps\Tests\Internal\Application;
 
+use BlackOps\Application\Environment;
 use BlackOps\Internal\Application\ApplicationConfigurationLoader;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
@@ -58,6 +59,28 @@ final class ApplicationConfigurationLoaderTest extends TestCase
             self::assertSame('snapshot', $loaded['logging']['backend']['channel']);
         } finally {
             unlink($path);
+            rmdir($directory);
+        }
+    }
+
+    public function testEvaluatesArrayAndEnvironmentClosureConfiguration(): void
+    {
+        $directory = sys_get_temp_dir() . '/blackops-environment-config-' . bin2hex(random_bytes(6));
+        mkdir($directory);
+        file_put_contents($directory . '/app.php', '<?php return ["value" => "array"];');
+        file_put_contents(
+            $directory . '/database.php',
+            '<?php use BlackOps\\Application\\Environment; return static fn (Environment $env): array => ["value" => $env->string("VALUE")];',
+        );
+
+        try {
+            $loaded = new ApplicationConfigurationLoader()->load($directory, new Environment(['VALUE' => 'closure']));
+
+            self::assertSame('array', $loaded['app']['value']);
+            self::assertSame('closure', $loaded['database']['value']);
+        } finally {
+            unlink($directory . '/app.php');
+            unlink($directory . '/database.php');
             rmdir($directory);
         }
     }

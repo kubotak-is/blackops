@@ -1,6 +1,6 @@
 # P18-002: Typed Environment and Configuration Closure
 
-Status: Ready
+Status: Accepted
 
 ## Goal
 
@@ -67,6 +67,7 @@ Do not add Environment to Compiled Container definitions, Build Artifact, Manife
 - `tests/Internal/Application/ApplicationRegistrationTest.php` only for Array／Closure registration equivalence
 - `tests/Integration/ApplicationHttpRuntimeTest.php` only for one-time Snapshot／Worker-safe composition evidence
 - `tests/Architecture/QuickstartApplicationArchitectureTest.php`
+- `tests/Internal/Console/ApplicationBuildCompileCommandTest.php` only to remove the deleted Internal Snapshot constructor argument（Orchestrator Scope Extension）
 - New or existing focused fixtures under `tests/Internal/Application/Fixture/**`
 
 Do not mechanically rewrite PostgreSQL integration tests that use `getenv()` as Test Harness input.
@@ -80,6 +81,7 @@ Do not mechanically rewrite PostgreSQL integration tests that use `getenv()` as 
 - `tests/Consumer/framework-update-generator.sh` only if the new canonical Configuration shape changes its expectation
 - `tests/Consumer/skeleton-create-project.sh` only if the split Skeleton expectation changes
 - Community Board Foundation／Clean Install Consumer only for canonical Configuration assertions
+- `tests/Consumer/community-board-foundation.sh` may replace its obsolete zero-diff assumption with a start/end status identity guard（Orchestrator Scope Extension）
 
 `examples/quickstart/bootstrap/app.php`と`examples/community-board/bootstrap/app.php`のDotenv／Process Environment Snapshotは維持する。`config/*.php`外のApplication Sourceを変更しない。
 
@@ -181,8 +183,8 @@ QuickstartとCommunity Boardの`config/app.php`、`database.php`、`execution.ph
 
 ```bash
 docker compose run --rm app mago format --check src tests examples/quickstart examples/community-board/app examples/community-board/tests
-docker compose run --rm app mago lint src tests
-docker compose run --rm app mago analyze src tests
+docker compose run --rm app mago lint
+docker compose run --rm app mago analyze
 docker compose run --rm app vendor/bin/phpunit
 docker compose run --rm app vendor/bin/deptrac analyse --config-file=deptrac.yaml --no-progress
 docker compose run --rm app composer validate --strict

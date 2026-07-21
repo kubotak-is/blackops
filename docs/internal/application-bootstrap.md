@@ -1,17 +1,17 @@
 # Application Bootstrap Internals
 
-Application Bootstrapは、Installed Applicationの入力をInternal Runtime Compositionへ渡せる検証済みSnapshotへ変換する境界である。Public入口は `Application::configure()`、`ApplicationBuilder`、`ApplicationBootstrapException` に限定する。
+Application Bootstrapは、Installed Applicationの入力をInternal Runtime Compositionへ渡せる検証済みSnapshotへ変換する境界である。Public入口は `Application::configure()`、`ApplicationBuilder`、`Environment`、`ApplicationBootstrapException` に限定する。
 
 ## Responsibilities
 
 - `ApplicationBasePath`: Application Rootの存在確認と正規化
-- `ApplicationEnvironment`: EnvironmentのKey／Value型検証
-- `ApplicationConfigurationLoader`: 認識済みConfig Fileの隔離された一回読込
+- Public `Environment`: EnvironmentのCopy、Key／Value型検証、型付きAccessor、安全なFailure
+- `ApplicationConfigurationLoader`: 認識済みConfig Fileの遅延読込とEnvironment Closureの一回評価
 - `ApplicationConfigurationRegistrations`: Config内の登録Sectionの抽出
 - `ApplicationMiddlewareValidator`: Global PSR-15 Middleware ClassのContract、生成可能性、重複を検証
 - `ApplicationProviderValidator`: Provider Contract、生成可能性、Identity重複の検証
 - `ApplicationCommandValidator`: Command型、生成可能性、IdentityとCommand Name競合の検証
-- `ApplicationConfigurationSnapshot`: Base Path、Environment、Config、登録を保持するImmutableなInternal Snapshot
+- `ApplicationConfigurationSnapshot`: Base Path、評価済みConfig、登録を保持するImmutableなInternal Snapshot
 - `ApplicationBuildConfiguration`／`ApplicationDatabaseConfiguration`: HTTP Runtime用Configの安全な型検証
 - `ApplicationHttpRuntime`: Handlerの遅延構成とApplication Instance単位のCache
 - `ApplicationHttpRuntimeComposer`: Artifact、Connection、Inline／Deferred境界の内部Composition
@@ -22,9 +22,9 @@ Application Bootstrapは、Installed Applicationの入力をInternal Runtime Com
 
 ## Composition Order
 
-BuilderはEnvironmentとConfigを各 `with...()` 呼出時にCaptureする。`create()` ではConfig由来のOperation Provider、Service Provider、Commandを先に取り出し、明示登録を後へ連結して検証する。同一Class Identityは先行登録を保持し、Command Nameが別Classと競合すると失敗する。
+BuilderはEnvironment入力とConfig Directoryを各 `with...()` 呼出時にCaptureする。Directoryの存在は即時検証するが、Config Fileの`require`とClosure評価は`create()`まで遅延する。`create()`は最終Environmentから一つのReadonly Instanceを作り、全Closureへ同じInstanceを一度だけ渡す。その後、Config由来のOperation Provider、Service Provider、Commandを先に取り出し、明示登録を後へ連結して検証する。同一Class Identityは先行登録を保持し、Command Nameが別Classと競合すると失敗する。
 
-Configの責務別MapはSnapshotへそのまま保持するが、Public APIからEnvironmentやConfig全体をDumpする経路は持たせない。Bootstrap Exceptionは入力値を埋め込まず、問題のあるEnvironment名、Config File、登録種別だけを示す。
+Configの責務別MapはSnapshotへ保持するが、Environment Instance／Raw Environment ArrayはSnapshot、Compiled Container、Manifestへ渡さない。Public APIからEnvironmentやConfig全体をDumpする経路も持たせない。Bootstrap Exceptionは入力値やClosure Throwable Detailを埋め込まず、問題のあるEnvironment名、Config File、登録種別だけを示す。
 
 Installed Quickstartは`config/app.php`の`services`へApplication所有の`ApplicationServiceProvider`を登録し、`HttpAuthenticator`を`SampleTokenAuthenticator`へBindingする。`config/middleware.php`はFrameworkの`AuthenticationMiddleware`をGlobal Pipelineへ登録する。Expected Sample TokenはAuthenticator構築時にEnvironmentから一度だけSnapshotし、RequestごとにEnvironmentを読み直さない。未設定または空白だけの値は構成時にFail-closedとし、Default CredentialへFallbackしない。Framework Containerへ渡すのはAuthenticator Serviceであり、Credential値そのものではない。
 

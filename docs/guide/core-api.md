@@ -1,6 +1,6 @@
 # Core API Types Reference
 
-このReferenceは現在の`main` Sourceで`#[PublicApi]`を持つ149型を一覧化しています。Application Authorはまず「Application構成」「Database」「Operation Authoring」「Validation」「Status／Outcome取得」の型を使い、Transport、Journal、Retention等のPortはAdapterを拡張するときだけ使ってください。
+このReferenceは現在の`main` Sourceで`#[PublicApi]`を持つ150型を一覧化しています。Application Authorはまず「Application構成」「Database」「Operation Authoring」「Validation」「Status／Outcome取得」の型を使い、Transport、Journal、Retention等のPortはAdapterを拡張するときだけ使ってください。
 
 `BlackOps\Core\Attribute\PublicApi` marker自身は利用者向けAPIではないため一覧へ含めません。内部実装Namespaceと`#[PublicApi]`を持たない実装型にも依存しないでください。Attributeの付与対象と標準形は[Attributes Reference](attributes.md)を確認してください。
 
@@ -10,6 +10,7 @@
 | --- | --- | --- | --- |
 | `BlackOps\Application\Application` | final readonly class | HTTP／Console Processの共通Application | `Application::configure()`からBootstrapする |
 | `BlackOps\Application\ApplicationBuilder` | final class | Environment、Config、Providerを組み立てる | `withEnvironment()`、`withConfiguration()`、`create()`を呼ぶ |
+| `BlackOps\Application\Environment` | final readonly class | 起動時Environmentを安全に型付きで読む | Config Closureで`string()`、`positiveInt()`、`bool()`等を呼ぶ |
 | `BlackOps\Application\ConsoleKernel` | final readonly class | Project CLIを実行する | Project Rootの`blackops`から`run()`を呼ぶ |
 | `BlackOps\Application\ApplicationBootstrapException` | exception class | Public Bootstrapの失敗を通知する | Entrypointで安全な起動Errorとして扱う |
 

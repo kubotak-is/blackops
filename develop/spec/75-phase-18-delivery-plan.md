@@ -116,7 +116,7 @@ Documentation Website、Community Board、Session Auth Packageを外部公開し
 ## Phase Acceptance Criteria
 
 - [x] D110とPhase 18 Specification／Delivery PlanがDecidedである
-- [ ] Typed Environment／Configuration Closureが実装される
+- [x] Typed Environment／Configuration Closureが実装される
 - [ ] Frontend Bound Client Factoryが実装される
 - [ ] Application Command Discovery／DIが実装される
 - [ ] Operation Console Adapterが実装される

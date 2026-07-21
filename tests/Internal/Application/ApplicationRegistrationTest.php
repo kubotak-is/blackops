@@ -72,6 +72,27 @@ final class ApplicationRegistrationTest extends TestCase
         self::assertSame([ConfigOperationProvider::class], $snapshot->operationProviders());
     }
 
+    public function testEnvironmentClosureRegistrationMatchesArrayRegistration(): void
+    {
+        $directory = $this->directory();
+        $config = $directory . '/config';
+        mkdir($config);
+        $this->writeConfig(
+            $config,
+            'operations',
+            'use BlackOps\\Application\\Environment; return static fn (Environment $env): array => ["providers" => [$env->string("PROVIDER")]];',
+        );
+
+        $snapshot = $this->snapshot(
+            Application::configure($directory)
+                ->withConfiguration()
+                ->withEnvironment(['PROVIDER' => ConfigOperationProvider::class])
+                ->create(),
+        );
+
+        self::assertSame([ConfigOperationProvider::class], $snapshot->operationProviders());
+    }
+
     public function testAcceptsGeneratorRegistrationInput(): void
     {
         $providers = (static function (): iterable {

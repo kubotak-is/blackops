@@ -6,6 +6,7 @@ namespace BlackOps\Tests\Internal\Application;
 
 use BlackOps\Application\Application;
 use BlackOps\Application\ApplicationBootstrapException;
+use BlackOps\Internal\Application\ApplicationConfigurationSnapshot;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -23,11 +24,11 @@ final class ApplicationBuilderTest extends TestCase
         );
 
         self::assertSame($directory, $snapshot->basePath());
-        self::assertSame([], $snapshot->environment());
         self::assertSame([], $snapshot->configuration());
         self::assertSame([], $snapshot->operationProviders());
         self::assertSame([], $snapshot->serviceProviders());
         self::assertSame([], $snapshot->commands());
+        self::assertFalse(method_exists(ApplicationConfigurationSnapshot::class, 'environment'));
     }
 
     /** @return iterable<string, array{string}> */
@@ -58,10 +59,7 @@ final class ApplicationBuilderTest extends TestCase
 
     public function testCapturesExplicitEnvironmentWithoutExposingInvalidValue(): void
     {
-        $snapshot = $this->snapshot(
-            Application::configure($this->directory())->withEnvironment(['APP_ENV' => 'testing'])->create(),
-        );
-        self::assertSame(['APP_ENV' => 'testing'], $snapshot->environment());
+        Application::configure($this->directory())->withEnvironment(['APP_ENV' => 'testing'])->create();
 
         try {
             Application::configure($this->directory())->withEnvironment(['PASSWORD' => ['plain-secret']]);
@@ -77,10 +75,18 @@ final class ApplicationBuilderTest extends TestCase
         putenv('BLACKOPS_CAPTURE_TEST=before');
 
         try {
-            $builder = Application::configure($this->directory())->withEnvironment();
+            $directory = $this->directory();
+            $config = $directory . '/config';
+            mkdir($config);
+            $this->writeConfig(
+                $config,
+                'app',
+                'use BlackOps\\Application\\Environment; return static fn (Environment $env): array => ["value" => $env->string("BLACKOPS_CAPTURE_TEST")];',
+            );
+            $builder = Application::configure($directory)->withEnvironment()->withConfiguration();
             putenv('BLACKOPS_CAPTURE_TEST=after');
 
-            self::assertSame('before', $this->snapshot($builder->create())->environment()['BLACKOPS_CAPTURE_TEST']);
+            self::assertSame('before', $this->snapshot($builder->create())->configuration()['app']['value']);
         } finally {
             putenv('BLACKOPS_CAPTURE_TEST');
         }

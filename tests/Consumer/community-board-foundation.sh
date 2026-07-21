@@ -14,6 +14,7 @@ COMPOSE=(
 )
 TEMP=$(mktemp -d)
 ENVIRONMENT_CREATED=false
+QUICKSTART_BEFORE=$(git -C "${ROOT}" status --short -- examples/quickstart)
 
 cleanup() {
     "${COMPOSE[@]}" down --volumes --remove-orphans >/dev/null 2>&1 || true
@@ -87,7 +88,7 @@ test "${wrapper_imports}" = "${expected_wrapper_imports}"
     "${ROOT}/examples/community-board/frontend/build/client" \
     "${ROOT}/examples/community-board/frontend/src/lib/server/blackops/generated"
 
-git -C "${ROOT}" diff --exit-code -- examples/quickstart
+test "${QUICKSTART_BEFORE}" = "$(git -C "${ROOT}" status --short -- examples/quickstart)"
 if git -C "${ROOT}" ls-files \
     examples/community-board/.env \
     examples/community-board/vendor \

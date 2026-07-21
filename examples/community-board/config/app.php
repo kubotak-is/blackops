@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 use App\ApplicationServiceProvider;
 use App\Console\CommunityBoardSeedCommand;
+use BlackOps\Application\Environment;
 
-return [
+return static fn(Environment $env): array => [
     'build' => [
-        'application_build_id' => $_ENV['APP_BUILD_ID'] ?? 'community-board-local',
+        'application_build_id' => $env->string('APP_BUILD_ID', 'community-board-local'),
         'operation_manifest' => dirname(__DIR__) . '/var/build/operations.php',
         'http_manifest' => dirname(__DIR__) . '/var/build/http.php',
         'frontend_manifest' => dirname(__DIR__) . '/var/build/frontend.php',

@@ -33,13 +33,13 @@ create(): Application
 
 Frameworkは `.env` Fileを探索または解析しない。Skeletonの `bootstrap/app.php` がDotenv Packageを呼び出した後に `withEnvironment()` を実行する。
 
-Environment値はStringを基本とし、Config ValidationがBoolean、Integer、Enum、Duration等の意味へ変換する。Secret値をError Message、Log、Debug Dumpへ出力してはならない。
+Environment値はPublic Readonly `Environment`へCopyして検証する。Config Closureは`string()`、`optionalString()`、`int()`、`positiveInt()`、`bool()`で型付き値を取得する。Secret値をError Message、Log、Debug Dumpへ出力してはならない。Environment全体を返すGetter、Global Helper、Runtime Mutationは提供しない。
 
 ### Configuration Directory
 
 `withConfiguration()` は責務別PHP Config Fileを読み込む。引数を省略した場合は `<basePath>/config` を使用する。
 
-Config Fileは読み込み時に副作用を起こさず、Configuration Dataを返す。存在するFileが配列以外を返す場合、未知の必須Key、無効な型、空の必須値はBootstrap Errorとする。
+Config Fileは読み込み時に副作用を起こさず、Configuration Dataの配列、またはPublic `Environment`を一つ受け取り配列を返すClosureを返す。Directoryは`withConfiguration()`で検証するが、File読込とClosure評価は`create()`まで遅延する。全Closureへ同じ最終Environment Instanceを一度だけ渡すため、`withEnvironment()`と`withConfiguration()`の呼出順に依存しない。Closure以外のCallable、Signature不正、配列以外の戻り値、未知の必須Key、無効な型、空の必須値はBootstrap Errorとする。
 
 少なくとも次のFileを認識する。
 
@@ -73,7 +73,7 @@ Configurationは次の順で構成する。後の明示指定が前のDefaultを
 
 Environment VariableとConfig Keyの対応は責務別Configが所有する。Frameworkは任意のEnvironment Variableを無条件にConfigへ展開しない。
 
-`create()` はConfigurationを検証し、以後のProcess Compositionで共有するSnapshotを持つ `Application` を返す。作成後のProcess EnvironmentまたはConfig File変更を暗黙に再読込しない。
+`create()` はEnvironmentとConfigurationを一度評価・検証し、以後のProcess Compositionで共有するConfiguration Snapshotを持つ `Application` を返す。Environment自体をConfiguration Snapshot、Compiled Container、Manifestへ保持しない。作成後のProcess EnvironmentまたはConfig File変更を暗黙に再読込しない。同じBuilderから再度`create()`する場合は、新しいEnvironment InstanceでConfigを一度評価する。
 
 ## Application Object
 

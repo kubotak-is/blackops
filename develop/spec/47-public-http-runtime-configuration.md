@@ -11,7 +11,9 @@ Installed ApplicationはInternal Runtime Class、Identifier Factory、Codec、Jo
 `config/app.php` の `build` Sectionは次のKeyを持つ。
 
 ```php
-return [
+use BlackOps\Application\Environment;
+
+return static fn (Environment $env): array => [
     'build' => [
         'operation_manifest' => dirname(__DIR__) . '/var/build/operations.php',
         'http_manifest' => dirname(__DIR__) . '/var/build/http.php',
@@ -38,11 +40,11 @@ return [
     'connections' => [
         'app' => [
             'driver' => 'pdo_pgsql',
-            'host' => $_ENV['POSTGRES_HOST'],
-            'port' => (int) $_ENV['POSTGRES_PORT'],
-            'dbname' => $_ENV['POSTGRES_DB'],
-            'user' => $_ENV['POSTGRES_USER'],
-            'password' => $_ENV['POSTGRES_PASSWORD'],
+            'host' => $env->string('POSTGRES_HOST'),
+            'port' => $env->positiveInt('POSTGRES_PORT'),
+            'dbname' => $env->string('POSTGRES_DB'),
+            'user' => $env->string('POSTGRES_USER'),
+            'password' => $env->string('POSTGRES_PASSWORD'),
         ],
     ],
     'framework' => [
@@ -52,7 +54,7 @@ return [
 ];
 ```
 
-Environment VariableとConnection Parameterの対応はApplication Configが所有する。FrameworkはEnvironment Variable名をHard Codeしない。
+Environment VariableとConnection Parameterの対応はApplication Configが所有する。FrameworkはEnvironment Variable名をHard Codeしない。Configuration Closureは`create()`時のPublic Readonly Environmentから型付き値を一度取得し、Environment自体やCredentialをCompiled Artifactへ保存しない。
 
 `default`と`framework.connection`は`connections`内のNameを参照する。各ConnectionはString Key Parameter Map、`framework.schema`は安全なPostgreSQL Identifierとして検証できる非空Stringでなければならない。既存の単一`connection`／`schema`形式は互換Shorthandとして受理する。Error MessageへPassword、DSN Credential、Token等の値を含めない。
 

@@ -9,7 +9,6 @@ use BlackOps\Internal\Application\ApplicationBasePath;
 use BlackOps\Internal\Application\ApplicationConfigurationLoader;
 use BlackOps\Internal\Application\ApplicationConfigurationRegistrations;
 use BlackOps\Internal\Application\ApplicationConfigurationSnapshot;
-use BlackOps\Internal\Application\ApplicationEnvironment;
 use BlackOps\Internal\Application\ApplicationRegistrationValidator;
 use InvalidArgumentException;
 use LogicException;
@@ -23,8 +22,7 @@ final class ApplicationBuilder
     /** @var array<string, string> */
     private array $environment = [];
 
-    /** @var array<string, array<array-key, mixed>> */
-    private array $configuration = [];
+    private ?string $configurationDirectory = null;
 
     /** @var list<mixed> */
     private array $operationProviders = [];
@@ -50,7 +48,9 @@ final class ApplicationBuilder
         $variables ??= $this->processEnvironment();
 
         try {
-            $this->environment = new ApplicationEnvironment()->validate($variables);
+            new Environment($variables);
+            /** @var array<string, string> $variables */
+            $this->environment = $variables;
         } catch (InvalidArgumentException $exception) {
             throw new ApplicationBootstrapException($exception->getMessage(), previous: $exception);
         }
@@ -62,9 +62,9 @@ final class ApplicationBuilder
     {
         try {
             $loader = new ApplicationConfigurationLoader();
-            $this->configuration = $directory === null
-                ? $loader->loadOptional($this->basePath . DIRECTORY_SEPARATOR . 'config')
-                : $loader->load($directory);
+            $this->configurationDirectory = $directory === null
+                ? $loader->resolveOptional($this->basePath . DIRECTORY_SEPARATOR . 'config')
+                : $loader->resolve($directory);
         } catch (InvalidArgumentException $exception) {
             throw new ApplicationBootstrapException($exception->getMessage(), previous: $exception);
         }
@@ -98,10 +98,13 @@ final class ApplicationBuilder
 
     public function create(): Application
     {
-        $validator = new ApplicationRegistrationValidator();
-        $configured = new ApplicationConfigurationRegistrations($this->configuration);
-
         try {
+            $environment = new Environment($this->environment);
+            $configuration = $this->configurationDirectory === null
+                ? []
+                : new ApplicationConfigurationLoader()->load($this->configurationDirectory, $environment);
+            $validator = new ApplicationRegistrationValidator();
+            $configured = new ApplicationConfigurationRegistrations($configuration);
             $operations = $validator->operationProviders([
                 ...$configured->operations(),
                 ...$this->operationProviders,
@@ -119,14 +122,7 @@ final class ApplicationBuilder
         }
 
         return $this->application(
-            new ApplicationConfigurationSnapshot(
-                $this->basePath,
-                $this->environment,
-                $this->configuration,
-                $operations,
-                $services,
-                $commands,
-            ),
+            new ApplicationConfigurationSnapshot($this->basePath, $configuration, $operations, $services, $commands),
         );
     }
 

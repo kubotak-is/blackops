@@ -127,6 +127,26 @@ final class QuickstartApplicationArchitectureTest extends TestCase
         }
     }
 
+    public function testInstalledConfigurationUsesTypedEnvironmentClosuresWithoutGlobalReads(): void
+    {
+        foreach ([$this->quickstart(), dirname($this->quickstart()) . '/community-board'] as $application) {
+            foreach ($this->phpFiles($application . '/config') as $path) {
+                $source = (string) file_get_contents($path);
+
+                self::assertStringNotContainsString('$_ENV', $source, $path);
+                self::assertStringNotContainsString('$_SERVER', $source, $path);
+                self::assertStringNotContainsString('getenv(', $source, $path);
+            }
+
+            foreach (['app', 'database', 'execution', 'retention'] as $name) {
+                $source = (string) file_get_contents($application . '/config/' . $name . '.php');
+
+                self::assertStringContainsString('use BlackOps\Application\Environment;', $source);
+                self::assertStringContainsString('static fn(Environment $env): array', $source);
+            }
+        }
+    }
+
     public function testProjectRootConsoleEntrypointUsesOnlyPublicApplicationApi(): void
     {
         $source = (string) file_get_contents($this->quickstart() . '/blackops');

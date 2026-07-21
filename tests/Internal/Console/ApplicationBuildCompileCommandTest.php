@@ -53,7 +53,6 @@ final class ApplicationBuildCompileCommandTest extends TestCase
         $namespace = __NAMESPACE__ . '\\Generated';
         $configuration = new ApplicationConfigurationSnapshot(
             dirname(__DIR__, 3),
-            [],
             [
                 'app' => [
                     'build' => [

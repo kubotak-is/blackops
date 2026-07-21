@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace BlackOps\Internal\Application;
 
+use Closure;
 use InvalidArgumentException;
+use ReflectionFunction;
+use Throwable;
 
 final readonly class ApplicationConfigurationLoader
 {
@@ -22,8 +25,7 @@ final readonly class ApplicationConfigurationLoader
         'frontend',
     ];
 
-    /** @return array<string, array<array-key, mixed>> */
-    public function load(string $directory): array
+    public function resolve(string $directory): string
     {
         $resolved = realpath($directory);
 
@@ -31,6 +33,18 @@ final readonly class ApplicationConfigurationLoader
             throw new InvalidArgumentException('Application configuration directory must be an existing directory.');
         }
 
+        return $resolved;
+    }
+
+    public function resolveOptional(string $directory): ?string
+    {
+        return is_dir($directory) ? $this->resolve($directory) : null;
+    }
+
+    /** @return array<string, array<array-key, mixed>> */
+    public function load(string $directory, ?object $environment = null): array
+    {
+        $resolved = $this->resolve($directory);
         $configuration = [];
 
         foreach (self::FILES as $name) {
@@ -40,16 +54,23 @@ final readonly class ApplicationConfigurationLoader
                 continue;
             }
 
-            $configuration[$name] = $this->arrayFromValue($this->requireFile($path), $name);
+            try {
+                $configuration[$name] = $this->arrayFromValue($this->requireFile($path), $name, $environment);
+            } catch (Throwable) {
+                throw new InvalidArgumentException(sprintf(
+                    'Application configuration file "%s.php" could not be evaluated safely.',
+                    $name,
+                ));
+            }
         }
 
         return $configuration;
     }
 
     /** @return array<string, array<array-key, mixed>> */
-    public function loadOptional(string $directory): array
+    public function loadOptional(string $directory, ?object $environment = null): array
     {
-        return is_dir($directory) ? $this->load($directory) : [];
+        return is_dir($directory) ? $this->load($directory, $environment) : [];
     }
 
     private function requireFile(string $path): mixed
@@ -58,15 +79,60 @@ final readonly class ApplicationConfigurationLoader
     }
 
     /** @return array<array-key, mixed> */
-    private function arrayFromValue(mixed $value, string $name): array
+    private function arrayFromValue(mixed $value, string $name, ?object $environment): array
     {
-        if (!is_array($value)) {
+        if (is_array($value)) {
+            return $value;
+        }
+
+        if (!$value instanceof Closure) {
             throw new InvalidArgumentException(sprintf(
-                'Application configuration file "%s.php" must return an array.',
+                'Application configuration file "%s.php" must return an array or Environment closure.',
                 $name,
             ));
         }
 
-        return $value;
+        $this->assertClosureSignature($value, $name);
+
+        return $this->arrayFromClosureResult($value($environment), $name);
+    }
+
+    /** @return array<array-key, mixed> */
+    private function arrayFromClosureResult(mixed $configuration, string $name): array
+    {
+        if (!is_array($configuration)) {
+            throw new InvalidArgumentException(sprintf(
+                'Application configuration closure "%s.php" must return an array.',
+                $name,
+            ));
+        }
+
+        return $configuration;
+    }
+
+    private function assertClosureSignature(Closure $closure, string $name): void
+    {
+        $reflection = new ReflectionFunction($closure);
+        $parameters = $reflection->getParameters();
+        $parameter = $parameters[0] ?? null;
+        $parameterType = $parameter?->getType();
+        $returnType = $reflection->getReturnType();
+
+        if (
+            [
+                count($parameters),
+                $reflection->getNumberOfRequiredParameters(),
+                $reflection->isStatic(),
+                $parameter?->isPassedByReference(),
+                $parameter?->isVariadic(),
+                (string) $parameterType,
+                (string) $returnType,
+            ] !== [1, 1, true, false, false, 'BlackOps\Application\Environment', 'array']
+        ) {
+            throw new InvalidArgumentException(sprintf(
+                'Application configuration closure "%s.php" must accept one Environment and return array.',
+                $name,
+            ));
+        }
     }
 }

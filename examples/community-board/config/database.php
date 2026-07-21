@@ -2,20 +2,22 @@
 
 declare(strict_types=1);
 
-return [
+use BlackOps\Application\Environment;
+
+return static fn(Environment $env): array => [
     'default' => 'app',
     'connections' => [
         'app' => [
             'driver' => 'pdo_pgsql',
-            'host' => $_ENV['POSTGRES_HOST'] ?? '127.0.0.1',
-            'port' => (int) ($_ENV['POSTGRES_PORT'] ?? '5432'),
-            'dbname' => $_ENV['POSTGRES_DB'] ?? 'community_board',
-            'user' => $_ENV['POSTGRES_USER'] ?? 'blackops',
-            'password' => $_ENV['POSTGRES_PASSWORD'] ?? 'blackops',
+            'host' => $env->string('POSTGRES_HOST', '127.0.0.1'),
+            'port' => $env->positiveInt('POSTGRES_PORT', 5432),
+            'dbname' => $env->string('POSTGRES_DB', 'community_board'),
+            'user' => $env->string('POSTGRES_USER', 'blackops'),
+            'password' => $env->string('POSTGRES_PASSWORD', 'blackops'),
         ],
     ],
     'framework' => [
         'connection' => 'app',
-        'schema' => $_ENV['BLACKOPS_SCHEMA'] ?? 'blackops',
+        'schema' => $env->string('BLACKOPS_SCHEMA', 'blackops'),
     ],
 ];
