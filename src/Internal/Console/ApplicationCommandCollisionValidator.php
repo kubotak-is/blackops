@@ -6,6 +6,7 @@ namespace BlackOps\Internal\Console;
 
 use InvalidArgumentException;
 
+/** @mago-expect lint:kan-defect */
 final readonly class ApplicationCommandCollisionValidator
 {
     /**
@@ -49,5 +50,32 @@ final readonly class ApplicationCommandCollisionValidator
         }
 
         return $discovered;
+    }
+
+    /**
+     * @param list<ApplicationCommandMetadata> $application
+     * @param list<OperationConsoleCommandMetadata> $operations
+     * @param list<string> $frameworkNames
+     */
+    public function validateOperationCommands(array $application, array $operations, array $frameworkNames): void
+    {
+        $names = array_fill_keys(keys: $frameworkNames, value: 'framework');
+        foreach ($application as $command) {
+            foreach ([$command->name, ...$command->aliases] as $name) {
+                $names[$name] = 'application';
+            }
+        }
+        foreach ($operations as $command) {
+            if (!array_key_exists($command->name, $names)) {
+                $names[$command->name] = 'operation';
+                continue;
+            }
+
+            throw new InvalidArgumentException(sprintf(
+                'Operation console command name "%s" conflicts with a %s command.',
+                $command->name,
+                $names[$command->name],
+            ));
+        }
     }
 }

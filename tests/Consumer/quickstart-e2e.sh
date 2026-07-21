@@ -111,9 +111,11 @@ exit(1);
 '
 HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php -r '
 $manifest = require "/app/var/build/commands.php";
-exit(($manifest["schema_version"] ?? null) === 1
+exit(($manifest["schema_version"] ?? null) === 2
     && ($manifest["application_build_id"] ?? null) === "quickstart-local"
-    && ($manifest["commands"] ?? null) === [] ? 0 : 1);
+    && ($manifest["commands"] ?? null) === []
+    && count($manifest["operation_commands"] ?? []) === 1
+    && ($manifest["operation_commands"][0]["name"] ?? null) === "order:create" ? 0 : 1);
 '
 
 schema_before=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
@@ -130,6 +132,29 @@ order_table_after_status=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres 
     "SELECT count(*) FROM information_schema.tables WHERE table_schema = 'public' AND table_name IN ('quickstart_orders', 'quickstart_order_commits')")
 test "${order_table_after_status}" = "0"
 HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops database:migrate
+
+console_reference="console-$RANDOM-$$"
+HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops order:create \
+    --reference="${console_reference}" --json > "${CONSUMER}/var/console-order.json"
+HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php -r '
+$data = json_decode(file_get_contents("/app/var/console-order.json"), true, 512, JSON_THROW_ON_ERROR);
+if ($data !== [
+    "schemaVersion" => 1,
+    "status" => "completed",
+    "outcome" => ["reference" => $argv[1], "status" => "created"],
+]) {
+    exit(1);
+}
+' "${console_reference}"
+console_order_count=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
+    "SELECT count(*) FROM public.quickstart_orders WHERE reference = '${console_reference}'")
+test "${console_order_count}" = "1"
+console_operation_id=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
+    "SELECT operation_id FROM blackops.journal WHERE event = 'operation.received' AND convert_from(encoded_record, 'UTF8') LIKE '%${console_reference}%' ORDER BY sequence LIMIT 1")
+test -n "${console_operation_id}"
+console_events=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
+    "SELECT string_agg(event, ',' ORDER BY sequence) FROM blackops.journal WHERE operation_id = '${console_operation_id}'::uuid")
+test "${console_events}" = "operation.received,attempt.started,attempt.succeeded,operation.completed"
 
 schema_after=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
     "SELECT count(*) FROM information_schema.schemata WHERE schema_name = 'blackops'")

@@ -1,28 +1,28 @@
 # Orchestration State
 
-Updated At: 2026-07-22T05:10:38+09:00
+Updated At: 2026-07-22T06:07:10+09:00
 
 ## Current Phase
 
-Phase 18: Application Ergonomics - Operation Console Adapter Preparation
+Phase 18: Application Ergonomics - Session Auth Package Preparation
 
 ## Current Task
 
-Task ID: P18-005 Operation Console Adapter
+Task ID: P18-006 Session Auth Package and Generator Preparation
 
-Task Packet: `develop/orchestration/tasks/P18-005-operation-console-adapter.md`
+Task Packet: Not created
 
 Specifications: `develop/spec/74-application-ergonomics.md`、`develop/spec/75-phase-18-delivery-plan.md`
 
 ## Task Status
 
-Ready
+Accepted
 
-P18-005のTask Packetを作成した。Public `#[ConsoleCommand]`と`ConsoleActorProvider`、Named Scalar Option、Command Manifest Schema 2、Artifact-only Runtime、Inline／Deferred Lifecycle、Human／JSON Output、Exit 0／1／2、Quickstart／Permanent Fixture境界を固定し、GPT-5.6 Luna High workerへ渡す準備が整った。
+P18-005をOrchestratorが独立Reviewし、Public API、Option Compiler、Command Manifest Schema 2 Recovery、HTTP共通Lifecycle、Safe Output、Quickstartを受け入れた。Focused PHPUnit 692 tests／2033 assertions、Mago format、Deptrac 0 violations、Management ID／Community Board／diff Guardを再確認した。
 
 ## Last Accepted Task
 
-P18-004-application-command-discovery-and-di
+P18-005-operation-console-adapter
 
 ## Pending Decisions
 
@@ -61,8 +61,26 @@ Active Implementation Blockerはない。Ray.Aop 2.19.1／2.20.0には複数clas
 
 ## Required Next Action
 
-1. GPT-5.6 Luna High workerがP18-005を実装・検証し、ReportとSTATEを更新する。
-2. OrchestratorがPublic API、Option Compiler、Manifest Schema 2、Actor／Lifecycle、Output／Exit／Sensitive、全GateをReviewする。
+1. P18-006 Session Auth Package and GeneratorのPublic・Security Contractに未決事項がないか、D110、Spec 74／75、Community Boardの現行Identity実装を照合する。
+2. 未決事項があればDecisionのたたき台を作成してUser Reviewを求める。なければTask Packetを作成し、GPT-5.6 Luna High workerへ委譲する。
+
+## P18-005 Operation Console Adapter Worker Verification
+
+```text
+Public Contract: #[PublicApi] ConsoleCommandとConsoleActorProviderを追加。明示Attributeだけを公開し、Canonical Nameを検証。Provider未登録／nullはOrigin／Authorizationなし、Provider Actorを両Contextへ使い、Execution Actorをconsole-runtime:systemへ固定。
+
+Build／Artifact: public constructor-promoted scalar／nullable／defaultだけをNamed Optionへ決定的にCompile。Unsupported、Sensitive、Global／json／変換後CollisionをBuild Errorにした。Command Manifest Schema 2へcommands／operation_commandsをExact Shape、同一Build ID、決定的Sort、Atomic Replaceで保存し、Schema 1／Missing／Invalid／Stale Recoveryを維持。
+
+Runtime: Manifest Metadataだけでlist／helpを構成し、実行時だけOperation Manifest／Compiled Containerを再検証。HTTPとApplicationOperationRuntimeComposer／ApplicationOperationInvocationLifecycleを共有し、Validation、Authorization、Inline／Deferred、Journal、Transaction、Connection、Observation、Scope Cleanupを再利用。Runtime Source Scan／Attribute Reflection Fallbackなし。
+
+Output: Completed Structured／Void、Accepted、Validation／Authorization／Business Rejected、Correlated／Uncorrelated InternalをHuman／Schema Version 1 JSONへ固定。成功／受付0、Binding／Validation2、その他1。Exact Shape／Encoding FailureをSafe Internalへ閉じ、入力、Sensitive、Credential、Throwable Detailを非露出。
+
+Quickstart: php blackops order:create --reference=<value> --jsonを実PostgreSQLで完走し、Typed Outcome、Order／After-commit Row、received／started／succeeded／completed Journalを検証。Skeleton Create-projectとFramework Updateも成功。Community Board差分、外部Publication／Deploy、Worker Commitなし。
+
+Quality: Mago format／lint／analyze成功。Focused PHPUnit 692 tests／2033 assertions、Full PHPUnit 1566 tests／6219 assertions、Deptrac 0 violations。Root／Quickstart Composer strict、Quickstart Setup／E2E、Skeleton Create-project、Framework Update Generator、Website 42 tests／31-page Build、Management ID／Community Board／diff Guard成功。生成／Build／Dependency Artifact cleanup済み。
+```
+
+詳細は`develop/orchestration/reports/P18-005-operation-console-adapter.md`を参照する。
 
 ## P18-004 Application Command Discovery and DI Worker Verification
 

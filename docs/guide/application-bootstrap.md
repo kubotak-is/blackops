@@ -43,6 +43,8 @@ use App\Feature\Order\DoctrineOrderRepository;
 use App\Feature\Order\OrderRepository;
 use App\Feature\Order\RecordOrderCommit;
 use App\UserInterface\Http\SampleTokenAuthenticator;
+use App\UserInterface\Console\SampleConsoleActorProvider;
+use BlackOps\Console\ConsoleActorProvider;
 use BlackOps\Core\DependencyInjection\ServiceProvider;
 use BlackOps\Core\DependencyInjection\ServiceRegistry;
 use BlackOps\Http\Authentication\HttpAuthenticator;
@@ -52,6 +54,7 @@ final readonly class ApplicationServiceProvider implements ServiceProvider
     public function register(ServiceRegistry $services): void
     {
         $services->autowire(HttpAuthenticator::class, SampleTokenAuthenticator::class);
+        $services->autowire(ConsoleActorProvider::class, SampleConsoleActorProvider::class);
         $services->autowire(OrderRepository::class, DoctrineOrderRepository::class);
         $services->autowire(CreateOrderCommand::class);
         $services->autowire(RecordOrderCommit::class);
@@ -86,5 +89,7 @@ exit($application->console()->run());
 ```
 
 `list`はCommand Manifestの名前／説明／Alias／Hiddenだけを読み、Command Constructor、Compiled Container、Database、PCNTL、Retention Serviceを構成しません。Command固有の`help`または実行時だけCompiled ContainerからCommandを解決します。Command ManifestがMissing／Invalid／StaleでもFramework Commandは残るため、`php blackops build:compile`で復旧できます。
+
+`#[ConsoleCommand]`で公開したOperationも同じManifestから登録します。認可主体が必要なApplicationは`ConsoleActorProvider`をService ProviderでBindingしてください。未Bindingまたは`actor() === null`ではOrigin／Authorization Actorを持たず、`#[Authorize]`付きOperationは既存Policyで拒否されます。FrameworkはExecution Actorを`console-runtime`に固定し、CLI OptionからActor IDやCredentialを受け取りません。
 
 Application ObjectやContainerをOperation、Value、Domain Serviceへ渡しません。業務DependencyはConstructor Injectionします。

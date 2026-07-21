@@ -1,0 +1,72 @@
+<?php
+
+declare(strict_types=1);
+
+namespace BlackOps\Internal\Application;
+
+use BlackOps\Internal\Authorization\AuthorizationEvaluator;
+use BlackOps\Internal\Authorization\AuthorizationPolicyResolver;
+use BlackOps\Internal\Database\RuntimeDatabaseServiceInjector;
+use BlackOps\Internal\Execution\ExecutionScopeProvider;
+use BlackOps\Internal\Identifier\IdentifierFactory;
+use BlackOps\Internal\Identifier\SymfonyUuidv7Generator;
+use BlackOps\Internal\Logging\MonologJsonlLoggerFactory;
+use BlackOps\Internal\Logging\RuntimeLoggingServiceInjector;
+use BlackOps\Internal\Registry\OperationManifestFile;
+use BlackOps\Internal\Runtime\RuntimeContainerArtifactLoader;
+use BlackOps\Internal\Transaction\OperationTransactionCoordinator;
+use BlackOps\Internal\Transaction\RuntimeTransactionServiceInjector;
+use BlackOps\Transport\PostgreSql\PostgreSqlCanonicalJournalStore;
+use BlackOps\Transport\PostgreSql\PostgreSqlSystemClock;
+
+final readonly class ApplicationOperationRuntimeComposer
+{
+    public function compose(ApplicationConfigurationSnapshot $configuration): ApplicationOperationRuntimeComposition
+    {
+        $build = ApplicationBuildConfiguration::fromConfiguration($configuration->configuration());
+        $operations = new OperationManifestFile()->loadArtifact($build->operationManifest);
+        $container = new RuntimeContainerArtifactLoader()->load(
+            $build->container,
+            $build->containerClass,
+            $build->containerNamespace,
+        );
+        $database = ApplicationDatabaseConfiguration::fromConfiguration($configuration->configuration());
+        $databases = $database->databaseManager();
+        new RuntimeDatabaseServiceInjector()->inject($container, $databases);
+        $scope = new ExecutionScopeProvider();
+        $logging = ApplicationLoggingConfiguration::fromConfiguration($configuration->configuration());
+        $logger = new RuntimeLoggingServiceInjector()->inject(
+            $container,
+            $scope,
+            new MonologJsonlLoggerFactory()->create($logging->stream, $logging->channel, $logging->minimumLevel),
+        );
+        $transactionRuntime = new RuntimeTransactionServiceInjector()->inject($container, $databases, $scope);
+        $connection = $databases->connection($database->frameworkConnection);
+        $clock = new PostgreSqlSystemClock();
+        $identifiers = new IdentifierFactory(new SymfonyUuidv7Generator(), $clock);
+        $journal = new PostgreSqlCanonicalJournalStore($connection, $database->schema);
+        $observations = new ApplicationJournalObservationFactory()->create($configuration->configuration());
+        $authorization = new AuthorizationEvaluator(new AuthorizationPolicyResolver($container));
+
+        return new ApplicationOperationRuntimeComposition(
+            $operations->applicationBuildId,
+            $operations->operations,
+            $container,
+            $databases,
+            $connection,
+            $clock,
+            $identifiers,
+            $journal,
+            $scope,
+            $logger,
+            $authorization,
+            new OperationTransactionCoordinator($transactionRuntime, $databases, $connection),
+            $observations,
+            new ApplicationOperationInvocationLifecycle(
+                $scope,
+                new ApplicationDatabaseConnectionLifecycle($databases),
+                $observations,
+            ),
+        );
+    }
+}

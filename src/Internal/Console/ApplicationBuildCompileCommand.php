@@ -62,6 +62,12 @@ final class ApplicationBuildCompileCommand extends Command
             defaultTransactionConnection: $database?->default,
             knownTransactionConnections: $database === null ? [] : array_keys($database->connections),
         ))->compile($operations, $discovered);
+        $operationCommands = new OperationConsoleMetadataCompiler()->compile($registry);
+        new ApplicationCommandCollisionValidator()->validateOperationCommands(
+            [...$explicitCommands, ...$discoveredCommands],
+            $operationCommands,
+            FrameworkCommandNames::all(),
+        );
         $definitions = new OperationDefinitionFactory()->classNamesFromProviders($operations, $discovered);
         $middleware = ApplicationHttpMiddlewareConfiguration::fromConfiguration($this->configuration->configuration());
         $http = new HttpRouteCompiler($registry)->compileManifest($definitions);
@@ -109,7 +115,12 @@ final class ApplicationBuildCompileCommand extends Command
             throw $throwable;
         }
 
-        new ApplicationCommandManifestFile()->write($discoveredCommands, $build->commandManifest, $buildId);
+        new ApplicationCommandManifestFile()->write(
+            $discoveredCommands,
+            $operationCommands,
+            $build->commandManifest,
+            $buildId,
+        );
 
         $output->writeln('Build artifacts written.');
 

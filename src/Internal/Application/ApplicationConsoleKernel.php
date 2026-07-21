@@ -15,6 +15,7 @@ use BlackOps\Internal\Console\FrontendGenerateCommand;
 use BlackOps\Internal\Console\LazyFrameworkCommand;
 use BlackOps\Internal\Console\MakeMigrationCommand;
 use BlackOps\Internal\Console\MakeOperationCommand;
+use BlackOps\Internal\Console\OperationConsoleCommand;
 use BlackOps\Internal\Console\OperationInspectCommand;
 use BlackOps\Internal\Console\OperationViewerCommand;
 use BlackOps\Internal\Console\RetentionPlanCommand;
@@ -69,6 +70,14 @@ final readonly class ApplicationConsoleKernel
                     $command->hidden,
                     static fn(): Command => $resolver->resolve($command->class),
                 ));
+            }
+            foreach ($manifest->operationCommands as $command) {
+                $this->application->addCommand(
+                    new OperationConsoleCommand($command, static fn() => new ApplicationOperationConsoleRuntimeComposer()->compose(
+                        $configuration,
+                        $command,
+                    )),
+                );
             }
         }
     }

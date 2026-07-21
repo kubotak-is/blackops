@@ -110,15 +110,8 @@ cp "${current_commands}"/*.php "${framework_repository}/src/Internal/Console/"
 cp "${current_dependency_injection}"/*.php "${framework_repository}/src/Internal/DependencyInjection/"
 cp "${current_frontend_generation}"/*.php "${framework_repository}/src/Internal/Frontend/Generation/"
 cp "${current_runtime}"/*.php "${framework_repository}/src/Internal/Runtime/"
-git -C "${framework_repository}" add resources/stubs src/Internal/Application/ApplicationConsoleKernel.php \
-    src/Internal/Application/ApplicationConsoleCommandFactory.php src/Internal/Application/ApplicationBuildConfiguration.php \
-    src/Internal/Application/ApplicationCommandContainerResolver.php src/Internal/Application/ApplicationCommandDiscovery.php \
-    src/Internal/Application/ApplicationCommandRuntimeManifest.php \
-    src/Internal/Application/ApplicationCommandRuntimeManifestLoader.php \
-    src/Internal/Application/ApplicationCommandValidator.php src/Internal/Application/ExplicitApplicationCommands.php \
-    src/Internal/Console src/Internal/DependencyInjection/RuntimeContainerCompiler.php \
-    src/Internal/Frontend/Generation src/Internal/Runtime/ProductionRuntimeArtifactLoader.php \
-    src/Internal/Runtime/RuntimeContainerArtifactLoader.php
+cp -a "${repository_root}/src/." "${framework_repository}/src/"
+git -C "${framework_repository}" add resources/stubs src
 git -C "${framework_repository}" commit --quiet -m 'Current framework fixture'
 git -C "${framework_repository}" tag 1.1.0
 
@@ -183,6 +176,7 @@ find \
     "${consumer_root}/app/ApplicationServiceProvider.php" \
     "${consumer_root}/app/Security/SampleUserAuthorizationPolicy.php" \
     "${consumer_root}/app/Security/SampleOperationStatusAuthorizer.php" \
+    "${consumer_root}/app/UserInterface/Console/SampleConsoleActorProvider.php" \
     "${consumer_root}/app/UserInterface/Http/SampleTokenAuthenticator.php" \
     "${consumer_root}/app/Feature/Welcome" \
     "${consumer_root}/app/Feature/Report" \
@@ -296,8 +290,10 @@ $routeFound = ($http["payload"]["routes"]["POST"]["/failures"] ?? null)
     === "diagnostics.failure.trigger";
 exit($typeFound
     && $routeFound
-    && ($commands["schema_version"] ?? null) === 1
-    && ($commands["commands"] ?? null) === [] ? 0 : 1);
+    && ($commands["schema_version"] ?? null) === 2
+    && ($commands["commands"] ?? null) === []
+    && count($commands["operation_commands"] ?? []) === 1
+    && ($commands["operation_commands"][0]["name"] ?? null) === "order:create" ? 0 : 1);
 '
 
 test "$(git -C "${repository_root}" status --short)" = "${source_before}"

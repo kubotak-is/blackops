@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BlackOps\Internal\Registry;
 
 use BlackOps\Core\Operation;
+use BlackOps\Core\Registry\OperationMetadata;
 use BlackOps\Core\Registry\OperationProvider;
 use BlackOps\Core\Registry\OperationRegistry;
 use InvalidArgumentException;
@@ -50,22 +51,27 @@ final readonly class OperationDefinitionFactory
      */
     public function fromRegistry(OperationRegistry $registry, ?callable $handlerResolver = null): array
     {
-        return array_map(function ($metadata) use ($handlerResolver): Operation {
-            if (strcmp($metadata->definition, $metadata->handler) !== 0) {
-                return $this->create($metadata->definition);
-            }
+        return array_map(fn(OperationMetadata $metadata): Operation => $this->fromMetadata(
+            $metadata,
+            $handlerResolver,
+        ), $registry->all());
+    }
 
-            if ($handlerResolver === null) {
-                throw new InvalidArgumentException('Self-handled operation requires a runtime handler resolver.');
-            }
+    /** @param (callable(class-string): object)|null $handlerResolver */
+    public function fromMetadata(OperationMetadata $metadata, ?callable $handlerResolver = null): Operation
+    {
+        if (strcmp($metadata->definition, $metadata->handler) !== 0) {
+            return $this->create($metadata->definition);
+        }
+        if ($handlerResolver === null) {
+            throw new InvalidArgumentException('Self-handled operation requires a runtime handler resolver.');
+        }
+        $definition = $handlerResolver($metadata->handler);
+        if (!$definition instanceof Operation) {
+            throw new InvalidArgumentException('Self-handled service must implement Operation.');
+        }
 
-            $definition = $handlerResolver($metadata->handler);
-            if (!$definition instanceof Operation) {
-                throw new InvalidArgumentException('Self-handled service must implement Operation.');
-            }
-
-            return $definition;
-        }, $registry->all());
+        return $definition;
     }
 
     /**

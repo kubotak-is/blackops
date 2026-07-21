@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace BlackOps\Tests\Internal\Console;
 
+use BlackOps\Core\Execution\Inline;
 use BlackOps\Internal\Console\ApplicationCommandCollisionValidator;
 use BlackOps\Internal\Console\ApplicationCommandMetadata;
+use BlackOps\Internal\Console\OperationConsoleCommandMetadata;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -57,6 +59,34 @@ final class ApplicationCommandCollisionValidatorTest extends TestCase
         yield 'framework alias' => [[$one], [], ['fixture:shared'], 'conflicts with a framework command'];
     }
 
+    public function testRejectsOperationCommandCollisionWithApplicationAliasAndFrameworkName(): void
+    {
+        $operation = new OperationConsoleCommandMetadata(
+            'fixture.operation',
+            CollisionOperation::class,
+            CollisionValue::class,
+            CollisionOutcome::class,
+            Inline::class,
+            'fixture:shared',
+            '',
+            [],
+        );
+        $application = self::command(CollisionOneCommand::class, 'fixture:one', ['fixture:shared']);
+
+        foreach ([[[$application], []], [[], ['fixture:shared']]] as [$commands, $framework]) {
+            try {
+                new ApplicationCommandCollisionValidator()->validateOperationCommands(
+                    $commands,
+                    [$operation],
+                    $framework,
+                );
+                self::fail('Expected operation command collision.');
+            } catch (InvalidArgumentException $exception) {
+                self::assertStringContainsString('conflicts with', $exception->getMessage());
+            }
+        }
+    }
+
     /**
      * @param class-string<Command> $class
      * @param list<string> $aliases
@@ -79,3 +109,9 @@ final class ApplicationCommandCollisionValidatorTest extends TestCase
 final class CollisionOneCommand extends Command {}
 
 final class CollisionTwoCommand extends Command {}
+
+final readonly class CollisionOperation implements \BlackOps\Core\Operation {}
+
+final readonly class CollisionValue implements \BlackOps\Core\OperationValue {}
+
+final readonly class CollisionOutcome implements \BlackOps\Core\Outcome {}

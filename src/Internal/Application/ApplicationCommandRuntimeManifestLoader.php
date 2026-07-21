@@ -32,10 +32,14 @@ final readonly class ApplicationCommandRuntimeManifestLoader
             return null;
         }
 
-        return new ApplicationCommandRuntimeManifest($build, new ApplicationCommandCollisionValidator()->merge(
-            $artifact->commands,
-            $explicit,
+        $validator = new ApplicationCommandCollisionValidator();
+        $commands = $validator->merge($artifact->commands, $explicit, $frameworkNames);
+        $validator->validateOperationCommands(
+            [...$explicit, ...$commands],
+            $artifact->operationCommands,
             $frameworkNames,
-        ));
+        );
+
+        return new ApplicationCommandRuntimeManifest($build, $commands, $artifact->operationCommands);
     }
 }

@@ -5,30 +5,20 @@ declare(strict_types=1);
 namespace BlackOps\Internal\Application;
 
 use BlackOps\Http\Responder\JsonOperationResponder;
-use BlackOps\Internal\Authorization\AuthorizationEvaluator;
-use BlackOps\Internal\Authorization\AuthorizationPolicyResolver;
+use BlackOps\Http\Routing\HttpOperationManifestFile;
 use BlackOps\Internal\Codec\ReflectionJsonOperationCodec;
-use BlackOps\Internal\Database\RuntimeDatabaseServiceInjector;
 use BlackOps\Internal\Execution\DeferredAcceptanceOrchestrator;
-use BlackOps\Internal\Execution\ExecutionScopeProvider;
 use BlackOps\Internal\ExecutionContext\ExecutionContextFactory;
 use BlackOps\Internal\Http\DeferredHttpOperationAcceptor;
 use BlackOps\Internal\Http\OperationStatusAuthorizerResolver;
-use BlackOps\Internal\Identifier\IdentifierFactory;
-use BlackOps\Internal\Identifier\SymfonyUuidv7Generator;
 use BlackOps\Internal\Journal\JournalRecordFactory;
-use BlackOps\Internal\Logging\MonologJsonlLoggerFactory;
-use BlackOps\Internal\Logging\RuntimeLoggingServiceInjector;
-use BlackOps\Internal\Runtime\ProductionRuntimeArtifactLoader;
+use BlackOps\Internal\Runtime\ProductionRuntimeArtifacts;
 use BlackOps\Internal\Runtime\ProductionRuntimeComposer;
 use BlackOps\Internal\Runtime\ProductionRuntimeDependencies;
 use BlackOps\Internal\Status\DefaultOperationStatusQuery;
 use BlackOps\Internal\Status\PostgreSqlOperationStatusSource;
-use BlackOps\Internal\Transaction\OperationTransactionCoordinator;
-use BlackOps\Internal\Transaction\RuntimeTransactionServiceInjector;
-use BlackOps\Transport\PostgreSql\PostgreSqlCanonicalJournalStore;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationSender;
-use BlackOps\Transport\PostgreSql\PostgreSqlSystemClock;
+use InvalidArgumentException;
 use LogicException;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\StreamFactoryInterface;
@@ -42,78 +32,55 @@ final readonly class ApplicationHttpRuntimeComposer
         $build = ApplicationBuildConfiguration::fromConfiguration($configuration->configuration());
         $database = ApplicationDatabaseConfiguration::fromConfiguration($configuration->configuration());
         $middleware = ApplicationHttpMiddlewareConfiguration::fromConfiguration($configuration->configuration());
-        $artifacts = new ProductionRuntimeArtifactLoader()->load(
-            $build->operationManifest,
-            $build->httpManifest,
-            $build->container,
-            $build->containerClass,
-            $build->containerNamespace,
-        );
-        $databases = $database->databaseManager();
-        new RuntimeDatabaseServiceInjector()->inject($artifacts->container, $databases);
-        $executionScope = new ExecutionScopeProvider();
-        $logging = ApplicationLoggingConfiguration::fromConfiguration($configuration->configuration());
-        $logger = new RuntimeLoggingServiceInjector()->inject(
-            $artifacts->container,
-            $executionScope,
-            new MonologJsonlLoggerFactory()->create($logging->stream, $logging->channel, $logging->minimumLevel),
-        );
-        $transactionRuntime = new RuntimeTransactionServiceInjector()->inject(
-            $artifacts->container,
-            $databases,
-            $executionScope,
-        );
-        $connection = $databases->connection($database->frameworkConnection);
-        $operationTransactions = new OperationTransactionCoordinator($transactionRuntime, $databases, $connection);
+        $operation = new ApplicationOperationRuntimeComposer()->compose($configuration);
+        $http = new HttpOperationManifestFile()->loadArtifact($build->httpManifest);
+        if ($http->applicationBuildId !== $operation->applicationBuildId) {
+            throw new InvalidArgumentException('HTTP runtime manifest application build ID does not match.');
+        }
+        $artifacts = new ProductionRuntimeArtifacts($operation->operations, $http->manifest, $operation->container);
         $httpMiddleware = new ApplicationHttpMiddlewareResolver($artifacts->container)->resolve($middleware);
-        $clock = new PostgreSqlSystemClock();
-        $identifiers = new IdentifierFactory(new SymfonyUuidv7Generator(), $clock);
-        $journal = new PostgreSqlCanonicalJournalStore($connection, $database->schema);
-        $sender = new PostgreSqlDeferredOperationSender($connection, $database->schema);
+        $sender = new PostgreSqlDeferredOperationSender($operation->connection, $database->schema);
         $acceptor = new DeferredHttpOperationAcceptor(
             $artifacts->operations,
-            new ExecutionContextFactory($identifiers, $clock),
+            new ExecutionContextFactory($operation->identifiers, $operation->clock),
             new ReflectionJsonOperationCodec(),
             new DeferredAcceptanceOrchestrator(
-                $connection,
+                $operation->connection,
                 $sender,
-                $journal,
-                new JournalRecordFactory($identifiers, $clock),
-                authorization: new AuthorizationEvaluator(new AuthorizationPolicyResolver($artifacts->container)),
-                scope: $executionScope,
+                $operation->journal,
+                new JournalRecordFactory($operation->identifiers, $operation->clock),
+                authorization: $operation->authorization,
+                scope: $operation->scope,
             ),
         );
         $psr17 = $this->psr17();
-        $observations = new ApplicationJournalObservationFactory()->create($configuration->configuration());
         $statusQuery = new DefaultOperationStatusQuery(
-            new PostgreSqlOperationStatusSource($connection, $artifacts->operations, $database->schema),
+            new PostgreSqlOperationStatusSource($operation->connection, $artifacts->operations, $database->schema),
             new OperationStatusAuthorizerResolver($artifacts->container)->resolve(),
         );
 
         $runtime = new ProductionRuntimeComposer()->composeWithDependencies(
             $artifacts,
             new ProductionRuntimeDependencies(
-                $clock,
-                $journal,
+                $operation->clock,
+                $operation->journal,
                 $psr17,
                 $psr17,
-                executionScope: $executionScope,
-                journalObservations: $observations?->pipeline(),
+                executionScope: $operation->scope,
+                journalObservations: $operation->observations?->pipeline(),
                 deferredOperationAcceptor: $acceptor,
                 httpMiddleware: $httpMiddleware,
-                operationTransactions: $operationTransactions,
-                executionLogger: $logger,
+                operationTransactions: $operation->transactions,
+                executionLogger: $operation->logger,
                 operationStatusQuery: $statusQuery,
             ),
         );
 
         return new ApplicationHttpRequestHandler(
             $runtime->httpHandler,
-            $runtime->executionScope,
-            new ApplicationDatabaseConnectionLifecycle($databases),
-            $observations,
+            $operation->lifecycle,
             new JsonOperationResponder($psr17, $psr17),
-            $logger,
+            $operation->logger,
         );
     }
 

@@ -267,7 +267,7 @@ Phase 18の最後にCommunity Boardを新Contractへ移行する。
 - [ ] Browser BundleとSafe ResultへCredential、Base URL、Raw Errorが出ない
 - [ ] `#[AsCommand]`がBuild時Discoveryされ、Constructor DependencyをCompiled Containerから受け取る
 - [ ] 明示Command登録が維持され、Name Collision／未解決DependencyがFail-fastする
-- [ ] `#[ConsoleCommand]`付きOperationだけがCLIへ現れ、Binding／Validation／Authorization／Inline／Deferred／Exit Codeを満たす
+- [x] `#[ConsoleCommand]`付きOperationだけがCLIへ現れ、Binding／Validation／Authorization／Inline／Deferred／Exit Codeを満たす
 - [ ] `blackops/session-auth`がCore非依存の任意PackageとしてSession Lifecycleを提供する
 - [ ] `make:auth`がApplication-owned接続点を安全に生成する
 - [ ] Community Boardの手動Transport／Identity／Command配線が削減され、主要Journeyが回帰しない

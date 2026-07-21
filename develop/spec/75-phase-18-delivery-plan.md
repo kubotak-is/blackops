@@ -119,7 +119,7 @@ Documentation Website、Community Board、Session Auth Packageを外部公開し
 - [x] Typed Environment／Configuration Closureが実装される
 - [x] Frontend Bound Client Factoryが実装される
 - [x] Application Command Discovery／DIが実装される
-- [ ] Operation Console Adapterが実装される
+- [x] Operation Console Adapterが実装される
 - [ ] Session Auth Package／Generatorが実装される
 - [ ] Community Boardが新Contractへ移行し、手動配線削減を証明する
 - [ ] Direct Dependency、Sensitive、Worker Reuse、Build Artifact境界がRegression Testで固定される

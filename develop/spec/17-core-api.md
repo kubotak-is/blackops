@@ -47,6 +47,8 @@ interface OperationHandler
 
 標準Typed Self-handled Operationは成功Outcomeを直接返し、予期された業務拒否では `OperationRejectedException` をthrowする。Frameworkが内部 `OperationResult` へ正規化する。Legacy Handlerは成功または業務拒否を `OperationResult` で返し、PHPDoc GenericでValue型を表現する。
 
+Console公開はOperation Classへ付けるPublic `#[ConsoleCommand]` Attributeで明示する。Console入口のOrigin／Authorization ActorはOptional Public `BlackOps\Console\ConsoleActorProvider`から取得し、CredentialやContainerをPublic Contractへ露出しない。両型は`#[PublicApi]`の互換性Contractとする。
+
 ## PHP Public API
 
 Framework利用者による直接利用を公式に想定し、SemVer上の後方互換性を管理する型には、BlackOps固有の `#[PublicApi]` Attributeを付ける。

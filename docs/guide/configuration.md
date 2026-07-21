@@ -82,7 +82,7 @@ return static fn (Environment $env): array => [
 ];
 ```
 
-Operation Manifest、HTTP Manifest、Frontend Contract Manifest、Command Manifest、Containerは同じBuild IDで作成します。`command_manifest`を省略した既存Applicationでは、Containerと同じDirectoryの`commands.php`を使います。Production HTTP／Worker RuntimeはFrontend／Command Contractを読みません。ProductionはBackend Artifact不足、Format不正、Build ID不一致時に起動を拒否し、Source DiscoveryへFallbackしません。
+Operation Manifest、HTTP Manifest、Frontend Contract Manifest、Command Manifest、Containerは同じBuild IDで作成します。Command Manifest Schema 2はSymfony Application Commandの`commands`と、`#[ConsoleCommand]` Operationの`operation_commands`を分離して保持します。`command_manifest`を省略した既存Applicationでは、Containerと同じDirectoryの`commands.php`を使います。Production HTTP／Worker RuntimeはFrontend／Command Contractを読みません。ProductionはBackend Artifact不足、Format不正、Build ID不一致時に起動を拒否し、Source DiscoveryへFallbackしません。
 
 ## Application Command
 

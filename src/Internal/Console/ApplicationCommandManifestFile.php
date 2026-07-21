@@ -11,15 +11,20 @@ use Throwable;
 /**
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:kan-defect
+ * @mago-expect lint:too-many-methods
  */
 final readonly class ApplicationCommandManifestFile
 {
-    public const int SCHEMA_VERSION = 1;
+    public const int SCHEMA_VERSION = 2;
 
-    /** @param list<ApplicationCommandMetadata> $commands */
-    public function write(array $commands, string $path, string $applicationBuildId): void
+    /**
+     * @param list<ApplicationCommandMetadata> $commands
+     * @param list<OperationConsoleCommandMetadata> $operationCommands
+     */
+    public function write(array $commands, array $operationCommands, string $path, string $applicationBuildId): void
     {
         $commands = $this->normalizeCommands($commands);
+        $operationCommands = $this->normalizeOperationCommands($operationCommands);
         $this->assertBuildId($applicationBuildId);
         $directory = dirname($path);
         if (!is_dir($directory)) {
@@ -32,7 +37,7 @@ final readonly class ApplicationCommandManifestFile
         }
 
         try {
-            $written = file_put_contents($temporary, $this->source($commands, $applicationBuildId));
+            $written = file_put_contents($temporary, $this->source($commands, $operationCommands, $applicationBuildId));
             if ($written === false) {
                 throw new RuntimeException('Application command manifest could not be written.');
             }
@@ -62,7 +67,10 @@ final readonly class ApplicationCommandManifestFile
 
     private function decodeArtifact(mixed $data): ApplicationCommandManifestArtifact
     {
-        if (!is_array($data) || array_keys($data) !== ['schema_version', 'application_build_id', 'commands']) {
+        if (
+            !is_array($data)
+            || array_keys($data) !== ['schema_version', 'application_build_id', 'commands', 'operation_commands']
+        ) {
             throw new InvalidArgumentException('Application command manifest must return an exact versioned array.');
         }
         if ($data['schema_version'] !== self::SCHEMA_VERSION) {
@@ -77,6 +85,10 @@ final readonly class ApplicationCommandManifestFile
         }
 
         $commands = array_map($this->decodeEntry(...), $data['commands']);
+        if (!is_array($data['operation_commands']) || !array_is_list($data['operation_commands'])) {
+            throw new InvalidArgumentException('Application command manifest operation commands must be a list.');
+        }
+        $operationCommands = array_map($this->decodeOperationEntry(...), $data['operation_commands']);
 
         $normalized = $this->normalizeCommands($commands);
         if ($normalized !== $commands) {
@@ -84,8 +96,18 @@ final readonly class ApplicationCommandManifestFile
                 'Application command manifest commands are not deterministically ordered.',
             );
         }
+        if ($this->normalizeOperationCommands($operationCommands) !== $operationCommands) {
+            throw new InvalidArgumentException(
+                'Application command manifest operation commands are not deterministically ordered.',
+            );
+        }
 
-        return new ApplicationCommandManifestArtifact(self::SCHEMA_VERSION, $data['application_build_id'], $commands);
+        return new ApplicationCommandManifestArtifact(
+            self::SCHEMA_VERSION,
+            $data['application_build_id'],
+            $commands,
+            $operationCommands,
+        );
     }
 
     private function requireFile(string $path): mixed
@@ -133,6 +155,83 @@ final readonly class ApplicationCommandManifestFile
         );
     }
 
+    private function decodeOperationEntry(mixed $entry): OperationConsoleCommandMetadata
+    {
+        $keys = ['type_id', 'definition', 'value', 'outcome', 'strategy', 'name', 'description', 'options'];
+        if (!is_array($entry) || array_keys($entry) !== $keys) {
+            throw new InvalidArgumentException('Operation console command manifest entry has an invalid shape.');
+        }
+        foreach (array_slice(array: $keys, offset: 0, length: 7) as $key) {
+            if (!is_string($entry[$key])) {
+                throw new InvalidArgumentException('Operation console command manifest entry has invalid values.');
+            }
+        }
+        if (!is_array($entry['options']) || !array_is_list($entry['options'])) {
+            throw new InvalidArgumentException('Operation console command manifest options must be a list.');
+        }
+
+        /** @var class-string<\BlackOps\Core\Operation> $definition */
+        $definition = $entry['definition'];
+        /** @var class-string<\BlackOps\Core\OperationValue> $value */
+        $value = $entry['value'];
+        /** @var class-string<\BlackOps\Core\Outcome> $outcome */
+        $outcome = $entry['outcome'];
+        /** @var class-string<\BlackOps\Core\Execution\ExecutionStrategy> $strategy */
+        $strategy = $entry['strategy'];
+        /** @var string $typeId */
+        $typeId = $entry['type_id'];
+        /** @var string $name */
+        $name = $entry['name'];
+        /** @var string $description */
+        $description = $entry['description'];
+        $options = array_map($this->decodeOption(...), $entry['options']);
+
+        return new OperationConsoleCommandMetadata(
+            $typeId,
+            $definition,
+            $value,
+            $outcome,
+            $strategy,
+            $name,
+            $description,
+            $options,
+        );
+    }
+
+    private function decodeOption(mixed $option): OperationConsoleOptionMetadata
+    {
+        $keys = ['property', 'name', 'type', 'nullable', 'required', 'default'];
+        if (!is_array($option) || array_keys($option) !== $keys) {
+            throw new InvalidArgumentException('Operation console command manifest option has an invalid shape.');
+        }
+        if (
+            !is_string($option['property'])
+            || !is_string($option['name'])
+            || !in_array($option['type'], ['string', 'int', 'float', 'bool'], strict: true)
+            || !is_bool($option['nullable'])
+            || !is_bool($option['required'])
+            || !is_string($option['default'])
+            && !is_int($option['default'])
+            && !is_float($option['default'])
+            && !is_bool($option['default'])
+            && $option['default'] !== null
+        ) {
+            throw new InvalidArgumentException('Operation console command manifest option has invalid values.');
+        }
+
+        $metadata = new OperationConsoleOptionMetadata(
+            $option['property'],
+            $option['name'],
+            $option['type'],
+            $option['nullable'],
+            $option['required'],
+            $option['default'],
+        );
+        $this->assertOption($metadata);
+
+        return $metadata;
+    }
+
     /**
      * @param list<ApplicationCommandMetadata> $commands
      * @return list<ApplicationCommandMetadata>
@@ -165,6 +264,93 @@ final readonly class ApplicationCommandManifestFile
         return $commands;
     }
 
+    /**
+     * @param list<OperationConsoleCommandMetadata> $commands
+     * @return list<OperationConsoleCommandMetadata>
+     */
+    private function normalizeOperationCommands(array $commands): array
+    {
+        usort(
+            $commands,
+            static fn($left, $right): int => [$left->name, $left->typeId] <=> [$right->name, $right->typeId],
+        );
+        $types = [];
+        $definitions = [];
+        $names = [];
+        foreach ($commands as $command) {
+            $this->assertOperationCommand($command);
+            if (
+                array_key_exists($command->typeId, $types)
+                || array_key_exists($command->definition, $definitions)
+                || array_key_exists($command->name, $names)
+            ) {
+                throw new InvalidArgumentException('Operation console command manifest contains a duplicate identity.');
+            }
+            $types[$command->typeId] = true;
+            $definitions[$command->definition] = true;
+            $names[$command->name] = true;
+            $properties = [];
+            $options = [];
+            foreach ($command->options as $option) {
+                $this->assertOption($option);
+                if (array_key_exists($option->property, $properties) || array_key_exists($option->name, $options)) {
+                    throw new InvalidArgumentException(
+                        'Operation console command manifest contains a duplicate option.',
+                    );
+                }
+                $properties[$option->property] = true;
+                $options[$option->name] = true;
+            }
+        }
+
+        return $commands;
+    }
+
+    private function assertOperationCommand(OperationConsoleCommandMetadata $command): void
+    {
+        if (
+            preg_match('/^[a-z0-9]+(?:\.[a-z0-9]+)*$/D', $command->typeId) !== 1
+            || preg_match('/^[^:]++(:[^:]++)*$/D', $command->name) !== 1
+            || preg_match('/[\x00-\x20\x7f|]/D', $command->name) === 1
+            || !$this->className($command->definition)
+            || !$this->className($command->value)
+            || !$this->className($command->outcome)
+            || !$this->className($command->strategy)
+        ) {
+            throw new InvalidArgumentException('Operation console command manifest identity is invalid.');
+        }
+    }
+
+    private function className(string $class): bool
+    {
+        return (
+            preg_match(
+                '/^[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*(?:\\\\[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)*$/D',
+                $class,
+            ) === 1
+        );
+    }
+
+    private function assertOption(OperationConsoleOptionMetadata $option): void
+    {
+        if (
+            preg_match('/^[A-Za-z_][A-Za-z0-9_]*$/D', $option->property) !== 1
+            || preg_match('/^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/D', $option->name) !== 1
+            || in_array($option->name, ['json', ...OperationConsoleMetadataCompiler::globalOptions()], strict: true)
+        ) {
+            throw new InvalidArgumentException('Operation console command manifest option identity is invalid.');
+        }
+        if ($option->required && $option->default !== null) {
+            throw new InvalidArgumentException('Required operation console option cannot have a default.');
+        }
+        if ($option->default === null && !$option->required && !$option->nullable) {
+            throw new InvalidArgumentException('Operation console option default is invalid.');
+        }
+        if ($option->default !== null && get_debug_type($option->default) !== $option->type) {
+            throw new InvalidArgumentException('Operation console option default type is invalid.');
+        }
+    }
+
     /** @param mixed $values
      * @return list<string>
      */
@@ -184,8 +370,11 @@ final readonly class ApplicationCommandManifestFile
         return $strings;
     }
 
-    /** @param list<ApplicationCommandMetadata> $commands */
-    private function source(array $commands, string $applicationBuildId): string
+    /**
+     * @param list<ApplicationCommandMetadata> $commands
+     * @param list<OperationConsoleCommandMetadata> $operationCommands
+     */
+    private function source(array $commands, array $operationCommands, string $applicationBuildId): string
     {
         $entries = array_map(static fn(ApplicationCommandMetadata $command): array => [
             'class' => $command->class,
@@ -196,6 +385,23 @@ final readonly class ApplicationCommandManifestFile
             'help' => $command->help,
             'usages' => $command->usages,
         ], $commands);
+        $operationEntries = array_map(static fn(OperationConsoleCommandMetadata $command): array => [
+            'type_id' => $command->typeId,
+            'definition' => $command->definition,
+            'value' => $command->value,
+            'outcome' => $command->outcome,
+            'strategy' => $command->strategy,
+            'name' => $command->name,
+            'description' => $command->description,
+            'options' => array_map(static fn(OperationConsoleOptionMetadata $option): array => [
+                'property' => $option->property,
+                'name' => $option->name,
+                'type' => $option->type,
+                'nullable' => $option->nullable,
+                'required' => $option->required,
+                'default' => $option->default,
+            ], $command->options),
+        ], $operationCommands);
 
         return (
             "<?php\n\ndeclare(strict_types=1);\n\nreturn "
@@ -203,6 +409,7 @@ final readonly class ApplicationCommandManifestFile
                 'schema_version' => self::SCHEMA_VERSION,
                 'application_build_id' => $applicationBuildId,
                 'commands' => $entries,
+                'operation_commands' => $operationEntries,
             ], return: true)
             . ";\n"
         );

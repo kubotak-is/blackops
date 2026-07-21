@@ -79,7 +79,36 @@ final class ApplicationCommandDiscoveryIntegrationTest extends TestCase
         self::assertStringContainsString('build:compile', $invalid->fetch());
         self::assertStringNotContainsString('credential-value', $invalid->fetch());
 
-        new ApplicationCommandManifestFile()->write([], $commands, 'stale-build');
+        file_put_contents(
+            $commands,
+            '<?php return '
+            . var_export([
+                'schema_version' => 2,
+                'application_build_id' => 'command-fixture',
+                'commands' => [],
+                'operation_commands' => [[
+                    'type_id' => 'fixture.operation',
+                    'definition' => 'Fixture\\Operation',
+                    'value' => 'Fixture\\Value',
+                    'outcome' => 'Fixture\\Outcome',
+                    'strategy' => 'Fixture\\Strategy',
+                    'name' => 'invalid::credential-value',
+                    'description' => '',
+                    'options' => [],
+                ]],
+            ], return: true)
+            . ';',
+        );
+        $corruptOperation = new BufferedOutput();
+        self::assertSame(0, Application::configure($directory)
+            ->withConfiguration()
+            ->create()
+            ->console()
+            ->run(new ArrayInput(['command' => 'list']), $corruptOperation));
+        self::assertStringContainsString('build:compile', $corruptOperation->fetch());
+        self::assertStringNotContainsString('credential-value', $corruptOperation->fetch());
+
+        new ApplicationCommandManifestFile()->write([], [], $commands, 'stale-build');
         $stale = new BufferedOutput();
         self::assertSame(0, Application::configure($directory)
             ->withConfiguration()

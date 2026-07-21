@@ -149,7 +149,7 @@ MVP後に残す主要項目:
 - [x] Typed Environment／Configuration Closureを実装する
 - [x] Frontend Bound Client Factoryを実装する
 - [x] Application Command Discovery／DIを実装する
-- [ ] Operation Console Adapterを実装する
+- [x] Operation Console Adapterを実装する
 - [ ] Session Auth Package／Generatorを実装する
 - [ ] Community Boardを簡素化し、Clean Install Consumerで検証する
 

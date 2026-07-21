@@ -1,8 +1,16 @@
 # Installed Application Status
 
-Status: Phase 15 Operation Frontend Bridge complete; Framework and Skeleton 1.1.0 Published
+Status: Phase 18 P18-005 Operation Console Adapter implemented; Phase 18 remains in progress
 
 この文書はRepositoryのPhase Acceptance Evidenceを記録するFramework実装者向け資料であり、公開Documentation WebsiteのContent Sourceには含めない。利用者向けの現行機能と制約は[Guide MVP Status](../guide/mvp-status.md)を参照する。
+
+## Phase 18 Operation Console Evidence
+
+`#[ConsoleCommand]`を付けたOperationだけがCommand Manifest Schema 2へ収録され、Scalar `OperationValue` Constructor PropertyをLong Named Optionとして公開する。Quickstartの`order:create`はProject Root `blackops`からTyped Outcome、Transaction、Canonical／Observed Journalまで実PostgreSQLで完走する。
+
+Operation CommandはHTTPと共通のCompiled Container、Validation、Authorization、Inline／Deferred、Journal、Transaction、Connection／Observation Cleanupを使う。Global List／HelpはManifest Metadataだけを読み、Source、Handler、Container、Database、`ConsoleActorProvider`を解決しない。Human／JSON出力はSafe Fieldだけを持ち、成功／受付をExit 0、Binding／Validationを2、その他Rejected／Internalを1へ固定する。
+
+本実装はFramework／QuickstartのLocal Sourceだけを更新し、Community Board、Session Auth Package、Documentation Website、Packageを外部公開しない。Phase 18全体のCloseoutはP18-006／P18-007に残る。
 
 `examples/quickstart/` はFeature-firstのInstalled Application Exampleと`blackops/skeleton`のSource of Truthである。Framework／Skeleton `1.0.0`はGitHubとPackagistへ公開済みで、Remote `composer create-project`も検証済みである。Current SourceとRelease DocumentationはExperimental `1.1.0`を対象とし、Project Root `blackops`、Generator、Application Migration、Validation、FrankenPHP Worker Modeを含む。`1.1.0`のTag／Packagist公開はPhase 11後続Taskであり、この文書更新は公開完了を意味しない。MVP CompleteとStable Package公開もProduction Readyを意味しない。
 
@@ -75,7 +83,7 @@ examples/quickstart/
 
 Operation自身がHandlerを兼ねるSelf-handled形式を標準とする。Constructor Dependencyなどで責務を分ける場合はOptional `#[HandledBy]` とSeparate Handlerを利用できる。Operation DiscoveryとDI Container生成はBuild時だけに行われ、Production HTTP／Worker RuntimeはCompile済みArtifactへFail-fastする。
 
-Application Maintenance Commandは`config/app.php`の`command_discovery` RootからBuild時だけ探索する。Symfony `#[AsCommand]` MetadataをSchema 1の`var/build/commands.php`へ保存し、Command Classは同じCompiled ContainerへAutowired Public Serviceとして登録する。Global CLI ListはManifest Metadataだけで表示し、個別Help／実行時にService Provider Bindingを使ってLazy解決する。Missing／Invalid／Stale ManifestでもFramework `build:compile`を維持する。
+Application Maintenance Commandは`config/app.php`の`command_discovery` RootからBuild時だけ探索する。Symfony `#[AsCommand]` Metadataと明示`#[ConsoleCommand]` OperationをSchema 2の`var/build/commands.php`へ分離して保存し、Application Command Classは同じCompiled ContainerへAutowired Public Serviceとして登録する。Global CLI ListとOperation HelpはManifest Metadataだけで表示し、実行時に必要なContainer／Operation RuntimeをLazy解決する。Schema 1／Missing／Invalid／Stale ManifestでもFramework `build:compile`を維持する。
 
 Default Compose ServiceはPostgreSQLとWorker Mode HTTPだけである。Composer Install、Artifact Build、Migration、Deferred Worker、Scheduler、Retention Purgeは明示CommandまたはProfileで実行する。Classic HTTPは`classic-mode` ProfileのFallbackである。変更を伴うPurgeは追加の`--confirm`を要求する。
 

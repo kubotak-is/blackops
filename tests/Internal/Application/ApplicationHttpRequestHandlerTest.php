@@ -8,6 +8,7 @@ use BlackOps\Http\Responder\JsonOperationResponder;
 use BlackOps\Internal\Application\ApplicationDatabaseConnectionLifecycle;
 use BlackOps\Internal\Application\ApplicationHttpRequestHandler;
 use BlackOps\Internal\Application\ApplicationJournalObservations;
+use BlackOps\Internal\Application\ApplicationOperationInvocationLifecycle;
 use BlackOps\Internal\Database\DoctrineDatabaseManager;
 use BlackOps\Internal\Execution\ExecutionScopeProvider;
 use BlackOps\Internal\Journal\JournalObservationPipeline;
@@ -167,18 +168,18 @@ final class ApplicationHttpRequestHandlerTest extends TestCase
         $psr17 = new \Nyholm\Psr7\Factory\Psr17Factory();
         $this->logger = new ApplicationRequestRecordingLogger();
         $this->scope = new ExecutionScopeProvider();
+        $connectionLifecycle = new ApplicationDatabaseConnectionLifecycle($this->manager($connection));
+        $observations = new ApplicationJournalObservations(
+            new JournalObservationPipeline(
+                new ObservedJournalRecordProjector(new SensitiveProjectionFilter()),
+                $aggregator,
+            ),
+            $aggregator,
+        );
 
         return new ApplicationHttpRequestHandler(
             $handler,
-            $this->scope,
-            new ApplicationDatabaseConnectionLifecycle($this->manager($connection)),
-            new ApplicationJournalObservations(
-                new JournalObservationPipeline(
-                    new ObservedJournalRecordProjector(new SensitiveProjectionFilter()),
-                    $aggregator,
-                ),
-                $aggregator,
-            ),
+            new ApplicationOperationInvocationLifecycle($this->scope, $connectionLifecycle, $observations),
             new JsonOperationResponder($psr17, $psr17),
             new ExecutionScopedLogger($this->logger, $this->scope),
         );

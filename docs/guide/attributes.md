@@ -1,6 +1,6 @@
 # Attributes Reference
 
-BlackOpsはOperation、Transaction、Value Validation、HTTP Binding、Observed Journal ProjectionのMetadataをPHP Attributeで宣言します。このPageは利用者向けPublic Attribute 22件をSourceと照合しています。`PublicApi` marker自身はFrameworkが公開境界を管理するためのMetadataであり、Application Authoringには使いません。
+BlackOpsはOperation、Transaction、Value Validation、HTTP Binding、Observed Journal ProjectionのMetadataをPHP Attributeで宣言します。このPageは利用者向けPublic Attribute 23件をSourceと照合しています。`PublicApi` marker自身はFrameworkが公開境界を管理するためのMetadataであり、Application Authoringには使いません。
 
 ## Operation Attributes
 
@@ -14,8 +14,11 @@ BlackOpsはOperation、Transaction、Value Validation、HTTP Binding、Observed 
 | `BlackOps\Core\Attribute\Returns` | `Outcome` Classを明示する | Operation Class | `#[Returns(OrderPlaced::class)]` | 不要。Return Typeから推論する |
 | `BlackOps\Core\Attribute\Sensitive` | Observed ProjectionでPropertyをOmit／Mask／Hashする | `OperationValue` Property | `#[Sensitive(SensitiveMode::Mask)]` | Sensitive Propertyだけで使う |
 | `BlackOps\Core\Attribute\ListOf` | OutcomeのTyped DTO ListでElement Classを宣言する | 非Nullable `array` Outcome Property | `#[ListOf(PostSummary::class)]` | Structured Outcome Listだけで使う |
+| `BlackOps\Core\Attribute\ConsoleCommand` | OperationをProject CLIへ明示公開する | Operation Class | `#[ConsoleCommand('order:create', 'Create an order.')]` | Console入口が必要なOperationへ一度だけ付ける |
 
 Typed Self-handled標準形では、`handle(ConcreteValue $value): ConcreteOutcome`のNative Signatureを正本にします。`#[Accepts]`／`#[Returns]`を併記した場合は推論型との完全一致が必要です。新しい単純なOperationへは追加しないでください。
+
+`#[ConsoleCommand]`を付けたOperationだけがCLIへ現れます。Command名は`segment:segment`形式のCanonical Nameを使い、Alias、空Segment、空白、Control Character、`|`を含めません。Console入力はScalarなpublic constructor-promoted PropertyだけをNamed Optionへ変換し、`#[Sensitive]`を含むValue／OutcomeはBuild時に拒否します。
 
 ### Structured Outcome
 

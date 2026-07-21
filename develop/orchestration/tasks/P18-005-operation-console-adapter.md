@@ -1,6 +1,6 @@
 # P18-005: Operation Console Adapter
 
-Status: Ready
+Status: Accepted
 
 ## Goal
 

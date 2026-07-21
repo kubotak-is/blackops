@@ -12,7 +12,7 @@ Application Bootstrapは、Installed Applicationの入力をInternal Runtime Com
 - `ApplicationProviderValidator`: Provider Contract、生成可能性、Identity重複の検証
 - `ApplicationCommandValidator`: 明示Commandの型、生成可能性、Identity、Canonical Name／Alias競合の検証
 - `ApplicationCommandDiscovery`: Configured Root限定の`#[AsCommand]`探索とConstructor非実行Metadata抽出
-- `ApplicationCommandManifestFile`: Schema 1、Build ID、Exact Shape、決定的順序、Atomic Replaceの検証
+- `ApplicationCommandManifestFile`: Schema 2、Build ID、Application／Operation CommandのExact Shape、決定的順序、Atomic Replaceの検証
 - `ApplicationCommandContainerResolver`: Command固有Help／実行時だけのCompiled Container読込とService解決
 - `ApplicationConfigurationSnapshot`: Base Path、評価済みConfig、登録を保持するImmutableなInternal Snapshot
 - `ApplicationBuildConfiguration`／`ApplicationDatabaseConfiguration`: HTTP Runtime用Configの安全な型検証
@@ -43,7 +43,9 @@ Worker AttemptではTransport Contextのorigin／authorizationを維持し、exe
 
 `Application` と `ApplicationBuilder` のconstructorはprivateである。生成BridgeはPublic型内部のprivate実装に閉じ、利用者がSnapshot Factoryを注入または差し替えるPublic Extension Pointは設けない。
 
-Console KernelもApplication Instance単位でCacheする。Framework Commandは名前、Description、Option Definitionを常時登録するが、実Command Factoryはexecute時だけ呼ぶ。Discovered Application Commandは同一Build IDのCommand ManifestだけからSymfony `LazyCommand`を登録する。Global `list`はConstructor、Container、Databaseを解決せず、Command固有Help／Definition／実行で初めてContainer Serviceを一度解決する。
+Console KernelもApplication Instance単位でCacheする。Framework Commandは名前、Description、Option Definitionを常時登録するが、実Command Factoryはexecute時だけ呼ぶ。Discovered Application Commandは同一Build IDのCommand ManifestだけからSymfony `LazyCommand`を登録し、Operation CommandはSchema 2のOption Metadataから軽量Adapterを登録する。Global `list`とOperation HelpはConstructor、Container、Database、Actor Providerを解決せず、Operation実行時に初めて共通Runtimeを構成する。
+
+HTTPとConsoleは`ApplicationOperationRuntimeComposer`でCompiled Container、Database、Journal、Transaction、Authorization、Deferred Transportを共有し、`ApplicationOperationInvocationLifecycle`でConnection prepare／finish、Observation flush、Execution Scope leak検査を一回の入口単位で実行する。Console側はHTTP Requestを合成せず、同じOperation Metadataから選択したDefinitionを解決する。
 
 Command ManifestがMissing／Invalid／Staleの場合はDiscovered Commandを登録しない。Framework `build:compile`は常に残り、Runtime Source ScanへFallbackせずRecovery Buildできる。Valid ManifestとFramework／Explicit Commandが衝突する場合、および明示Command同士が衝突する場合はBootstrap Errorである。
 
