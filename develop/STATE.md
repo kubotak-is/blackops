@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-22T01:44:55+09:00
+Updated At: 2026-07-22T01:47:55+09:00
 
 ## Current Phase
 
@@ -8,17 +8,17 @@ Phase 17: Full-stack Reference Application - In Progress
 
 ## Current Task
 
-Task ID: P17-009A-community-board-seed-and-clean-install
+Task ID: P17-009B-community-board-documentation-and-phase-closeout
 
-Task Packet: `develop/orchestration/tasks/P17-009A-community-board-seed-and-clean-install.md`
+Task Packet: `develop/orchestration/tasks/P17-009B-community-board-documentation-and-phase-closeout.md`
 
 Specifications: `develop/spec/71-full-stack-reference-application.md`、`develop/spec/72-phase-17-delivery-plan.md`
 
 ## Task Status
 
-Accepted
+Ready
 
-P17-009AはAccepted。Application-owned Deterministic Seed Command、Clean Install Consumer、CI、限定README、Testを実装した。Seedは3 User／3 Post／4 Commentを固定ID／UTC時刻で作成し、2回実行時の一意性、Seed外Data保持、Session／Operation／Journal／Outcome非生成、Migration前のSafe Failureを検証した。Orchestratorも依存物／VolumeなしからSetup、5 Migration、Build／Generate、2回Seed、通常Login、Feed／Detail／Comment表示、Credential非露出、Cleanupまで独立再検証した。Framework／Quickstart／Skeleton／Migration／Frontend Product SourceにDiffはない。
+P17-009B Task Packetを作成した。完成済みCommunity BoardをRoot／Application README、Guide、Documentation Websiteへ統合し、Quickstartとの差、SvelteKit BFF、Application-owned Authentication、Domain／Infrastructure、Deferred Digest、Seed、Troubleshootingを読者向けに説明する。Community Board、Framework、Quickstart、Skeleton Publication、WebsiteのFull Gateを完走してPhase 17をCloseする。External Publication／Deployは行わない。
 
 ## Last Accepted Task
 
@@ -59,8 +59,9 @@ Active Implementation Blockerはない。Ray.Aop 2.19.1／2.20.0には複数clas
 
 ## Required Next Action
 
-1. OrchestratorがP17-009AをCommitする。
-2. P17-009BでREADME／Guide、Website、全品質Gateを同期してPhase 17をCloseする。
+1. P17-009BをGPT-5.6 Luna High Workerへ委譲する。
+2. Orchestratorが成果物をReview／独立再検証／Commitする。
+3. Task Commit後にSkeleton Publication HEAD Gateを実行してPhase 17 Closeoutを確定する。
 
 ## P17-009A Community Board Seed and Clean Install Worker Verification
 
