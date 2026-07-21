@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\ApplicationServiceProvider;
+use App\Console\CommunityBoardSeedCommand;
 
 return [
     'build' => [
@@ -15,4 +16,5 @@ return [
         'container_namespace' => 'App\\Generated',
     ],
     'services' => [ApplicationServiceProvider::class],
+    'commands' => [CommunityBoardSeedCommand::class],
 ];

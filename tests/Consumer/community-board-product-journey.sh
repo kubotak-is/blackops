@@ -81,7 +81,7 @@ for _ in $(seq 1 30); do
     fi
     sleep 1
 done
-grep -Fq '<title>Register — BlackOps Board</title>' "${TEMP}/register-page.html"
+grep -Fq '<title>Register | BlackOps Board</title>' "${TEMP}/register-page.html"
 printf 'Product runtime is ready.\n'
 
 PASSWORD_MARKER="product-password-${RANDOM}-${RANDOM}-long"

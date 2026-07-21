@@ -1,6 +1,6 @@
 # P17-009A: Community Board Seed and Clean Install
 
-Status: Ready
+Status: Accepted
 
 ## Goal
 
@@ -65,8 +65,15 @@ Hostへ固定Portを要求せず、独立Compose Project／Volume、有限Timeou
 - `examples/community-board/config/app.php`
 - New `examples/community-board/tests/Console/**`
 - New `examples/community-board/tests/Seed/**`
+- `examples/community-board/app/Identity/IdentityService.php`（Orchestrator Scope Extension）
+- `examples/community-board/tests/Identity/IdentityServiceTest.php`（Orchestrator Scope Extension）
+- `examples/community-board/composer.json`（Orchestrator Scope Extension）
+- `examples/community-board/composer.lock`（Orchestrator Scope Extension）
 - `examples/community-board/README.md`（SeedとClean Setupの説明だけ。Full Documentation RewriteはP17-009B）
 - New `tests/Consumer/community-board-clean-install.sh`
+- `tests/Consumer/community-board-identity.sh`（Orchestrator Scope Extension）
+- `tests/Consumer/community-board-product-journey.sh`（Orchestrator Scope Extension）
+- `tests/Consumer/community-board-digest.sh`（Orchestrator Scope Extension）
 - `.github/workflows/ci.yml`
 - `develop/TODO.md`
 - `develop/STATE.md`
@@ -75,22 +82,30 @@ Hostへ固定Portを要求せず、独立Compose Project／Volume、有限Timeou
 
 既存Domain／Identity ServiceへSeedの再利用に不可欠な小さなPublic Methodが必要に見える場合、実装を広げずReportへBlockerとして返す。Framework `src/`、Quickstart、Skeleton、Migration、Frontend Product Source、Guide／Websiteは変更しない。
 
+## Orchestrator Scope Extension
+
+既存`IdentityService::register()`はUser作成と同じTransactionでRaw Session TokenとSession Rowを必ず作るため、Seed Contractの「Identity Application Service再利用」と「Session／Raw Token非生成」を同時に満たせないことをWorker監査で確認した。Orchestratorは`IdentityService.php`と既存Identity Service Testを変更可能範囲へ追加し、`register()`と新しい`provisionUser()`が同じUser準備／永続化処理を共有する最小変更を承認した。`register()`のUser＋Session同一Transaction保証は維持し、`provisionUser()`はTokenを発行せずUserだけをTransaction内で作成する。
+
+Application-owned CommandがSymfony Consoleを直接importするため、OrchestratorはCommunity Boardの`composer.json`／`composer.lock`も変更可能範囲へ追加した。既存Lockで解決済みのVersionを維持したまま、`symfony/console:^7.4`をApplicationのDirect Dependencyとして宣言する。
+
+既存Identity／Product Journey／Digest ConsumerはP17-008 Orchestrator Reviewで確定した`Register | BlackOps Board`に追随せず、旧em dash titleをreadinessとassertionで期待していた。Orchestratorはこの既存回帰不良を直すIdentity 2箇所、Product Journey 1箇所、Digest 1箇所だけを変更可能範囲へ追加した。
+
 ## Acceptance Criteria
 
-- [ ] `php blackops app:seed`がApplication Commandとして表示・実行される
-- [ ] 複数User／Post／Commentと公開Demo Credentialが決定的に定義される
-- [ ] Seedは既存Application／Domain Serviceを再利用し、CommandへDomain Logicを複製しない
-- [ ] SeedはSession／Raw Tokenを作らず、Operation／Journal／Outcomeを経由しない
-- [ ] 同じDatabaseで2回成功し、Seed Row数とNatural Identityが重複しない
-- [ ] Seed外User Dataを削除／変更しない
-- [ ] Migration前／Database Failureが非0かつSensitive情報なしで失敗する
-- [ ] Clean Install ConsumerがSetupからLogin／Seed表示まで完走する
-- [ ] CIがClean Install／Seed Contractを継続検証する
-- [ ] Community Board PHPUnitと既存Consumerに回帰がない
-- [ ] Framework `src/`、Quickstart、Skeleton、Migration、Frontend Product SourceにDiffがない
-- [ ] Runtime／Generated／Dependency ArtifactがCleanupされる
-- [ ] Report／TODO／STATEが実装と一致する
-- [ ] WorkerはCommitしない
+- [x] `php blackops app:seed`がApplication Commandとして表示・実行される
+- [x] 複数User／Post／Commentと公開Demo Credentialが決定的に定義される
+- [x] Seedは既存Application／Domain Serviceを再利用し、CommandへDomain Logicを複製しない
+- [x] SeedはSession／Raw Tokenを作らず、Operation／Journal／Outcomeを経由しない
+- [x] 同じDatabaseで2回成功し、Seed Row数とNatural Identityが重複しない
+- [x] Seed外User Dataを削除／変更しない
+- [x] Migration前／Database Failureが非0かつSensitive情報なしで失敗する
+- [x] Clean Install ConsumerがSetupからLogin／Seed表示まで完走する
+- [x] CIがClean Install／Seed Contractを継続検証する
+- [x] Community Board PHPUnitと既存Consumerに回帰がない
+- [x] Framework `src/`、Quickstart、Skeleton、Migration、Frontend Product SourceにDiffがない
+- [x] Runtime／Generated／Dependency ArtifactがCleanupされる
+- [x] Report／TODO／STATEが実装と一致する
+- [x] WorkerはCommitしない
 
 ## Required Commands
 

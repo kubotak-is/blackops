@@ -67,7 +67,7 @@ mise exec -- pnpm --dir "${ROOT}/examples/community-board/frontend" run build
 "${COMPOSE[@]}" up -d http frontend
 for _ in $(seq 1 30); do
     if "${CURL[@]}" --fail --silent "http://localhost:${FRONTEND_PORT}/register" >"${TEMP}/register-page.html" \
-        && grep -Fq '<title>Register — BlackOps Board</title>' "${TEMP}/register-page.html"; then
+        && grep -Fq '<title>Register | BlackOps Board</title>' "${TEMP}/register-page.html"; then
         break
     fi
     sleep 1
@@ -92,7 +92,7 @@ done
 "${COMPOSE[@]}" --profile worker ps --status running --services | grep -Fxq worker
 ! "${COMPOSE[@]}" --profile worker logs worker | grep -Fq 'could not open the JSONL journal'
 
-grep -Fq '<title>Register — BlackOps Board</title>' "${TEMP}/register-page.html"
+grep -Fq '<title>Register | BlackOps Board</title>' "${TEMP}/register-page.html"
 grep -Fq 'type="password"' "${TEMP}/register-page.html"
 grep -Fq 'Welcome to BlackOps Board' "${TEMP}/classic-welcome.json"
 printf 'Identity runtime is ready.\n'

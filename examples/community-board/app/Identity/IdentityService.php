@@ -19,12 +19,7 @@ final readonly class IdentityService
 
     public function register(string $email, string $displayName, string $password): AuthenticatedSession
     {
-        $emailDisplay = trim($email);
-        $emailCanonical = strtolower($emailDisplay);
-        $passwordHash = $this->passwords->hash($password);
-        $userId = $this->identifiers->generate();
-        $user = new User($userId, $emailDisplay, trim($displayName));
-        $now = $this->clock->now();
+        [$emailCanonical, $passwordHash, $user, $now] = $this->prepareUser($email, $displayName, $password);
         $rawToken = $this->tokens->issue();
 
         $this->repository->transactional(function () use (
@@ -34,18 +29,22 @@ final readonly class IdentityService
             $user,
             $now,
         ): void {
-            $this->repository->createUser(
-                id: $user->id,
-                emailCanonical: $emailCanonical,
-                emailDisplay: $user->email,
-                displayName: $user->displayName,
-                passwordHash: $passwordHash,
-                now: $now,
-            );
+            $this->persistUser($emailCanonical, $passwordHash, $user, $now);
             $this->createSession($user->id, $rawToken, $now);
         });
 
         return new AuthenticatedSession($user, $rawToken);
+    }
+
+    public function provisionUser(string $email, string $displayName, string $password): User
+    {
+        [$emailCanonical, $passwordHash, $user, $now] = $this->prepareUser($email, $displayName, $password);
+
+        $this->repository->transactional(function () use ($emailCanonical, $passwordHash, $user, $now): void {
+            $this->persistUser($emailCanonical, $passwordHash, $user, $now);
+        });
+
+        return $user;
     }
 
     public function login(string $email, string $password, ?string $currentRawToken): AuthenticatedSession
@@ -110,6 +109,35 @@ final readonly class IdentityService
             tokenHash: $this->tokens->hash($rawToken),
             issuedAt: $now,
             expiresAt: $now->add(new DateInterval('PT' . $this->settings->ttlSeconds . 'S')),
+        );
+    }
+
+    /** @return array{string, string, User, \DateTimeImmutable} */
+    private function prepareUser(string $email, string $displayName, string $password): array
+    {
+        $emailDisplay = trim($email);
+
+        return [
+            strtolower($emailDisplay),
+            $this->passwords->hash($password),
+            new User($this->identifiers->generate(), $emailDisplay, trim($displayName)),
+            $this->clock->now(),
+        ];
+    }
+
+    private function persistUser(
+        string $emailCanonical,
+        string $passwordHash,
+        User $user,
+        \DateTimeImmutable $now,
+    ): void {
+        $this->repository->createUser(
+            id: $user->id,
+            emailCanonical: $emailCanonical,
+            emailDisplay: $user->email,
+            displayName: $user->displayName,
+            passwordHash: $passwordHash,
+            now: $now,
         );
     }
 }

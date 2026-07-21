@@ -45,9 +45,12 @@ docker compose run --rm app php blackops database:migrate
 docker compose run --rm app php blackops build:compile
 docker compose run --rm app php blackops frontend:generate
 docker compose run --rm app php blackops frontend:check
+docker compose run --rm app php blackops app:seed
 ```
 
 The development-only Composer path repository points to `../..`. Do not copy Framework source into this application.
+
+`app:seed` creates three deterministic local users, three posts, and four comments. It is safe to run repeatedly and never creates a session; login creates the session through the normal authentication route. The primary public demo credential is `ada@blackops.local` / `BlackOpsBoardDemo!2026`. This password is an intentional local/test fixture, not a production secret. Change or remove the fixture before adapting the example for any non-local environment.
 
 ## Check and build SvelteKit
 
@@ -108,6 +111,14 @@ bash tests/Consumer/community-board-identity.sh
 ```
 
 It checks registration, HttpOnly cookie attributes, authorized current-user projection, server-side logout, revocation, login rotation, expiry, CSRF origin rejection, Classic/Worker parity, safe failures, and credential marker absence across database, BlackOps artifacts, generated code, browser build, SSR/action responses, and logs.
+
+Run the clean install journey from the repository root to reproduce setup from no `.env`, dependencies, generated output, runtime artifacts, or database volume:
+
+```bash
+bash tests/Consumer/community-board-clean-install.sh
+```
+
+It builds the images, installs both locked dependency sets, applies all five migrations, compiles and generates contracts, runs `app:seed` twice, logs in with the public demo credential, verifies the seeded feed and comments through SvelteKit HTML, and removes all generated state on success or failure.
 
 Run the Post／Comment journey:
 

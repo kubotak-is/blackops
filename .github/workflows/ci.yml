@@ -16,6 +16,32 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  community-board-clean-install:
+    name: Community Board clean install and seed
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Install pinned frontend toolchain
+        uses: jdx/mise-action@v4
+        with:
+          install: true
+          cache: true
+
+      - name: Verify frontend toolchain versions
+        run: |
+          set -euo pipefail
+          test "$(node --version)" = "v24.18.0"
+          test "$(pnpm --version)" = "11.12.0"
+
+      - name: Test clean install and deterministic seed
+        run: bash tests/Consumer/community-board-clean-install.sh
+
   community-board-foundation:
     name: Community Board full-stack product journey
     runs-on: ubuntu-latest
@@ -88,6 +114,7 @@ jobs:
             examples/community-board/migrations/Version20260721010000.php >/dev/null
           git ls-files --error-unmatch tests/Consumer/community-board-digest.sh >/dev/null
           git ls-files --error-unmatch tests/Consumer/community-board-browser.sh >/dev/null
+          git ls-files --error-unmatch tests/Consumer/community-board-clean-install.sh >/dev/null
           git ls-files --error-unmatch \
             docs/guide/assets/community-board/blackops-board.png >/dev/null
           git diff --exit-code -- \

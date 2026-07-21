@@ -139,7 +139,7 @@ MVP後に残す主要項目:
 - [x] D108でliteral Strategy回避を維持してPhase 17を先行し、Framework-owned Transaction Interceptionを独立Phaseへ送る
 - [x] Taste SkillをDesign Directionへ適用し、`reicon.dev`をIcon Sourceとして、Accessibility／Responsive／State UIを完成する
 - [x] Real Browser E2E、CI、Credential-free Screenshotを追加する
-- [ ] Deterministic SeedとClean Install Consumerを完成する
+- [x] Deterministic SeedとClean Install Consumerを完成する
 - [ ] README／Guide、Website、全品質Gateを同期してPhase 17をCloseする
 
 ### Phase 18: Reliability and Delivery

@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-22T01:02:07+09:00
+Updated At: 2026-07-22T01:44:55+09:00
 
 ## Current Phase
 
@@ -16,13 +16,13 @@ Specifications: `develop/spec/71-full-stack-reference-application.md`、`develop
 
 ## Task Status
 
-Ready for Worker
+Accepted
 
-P17-008はCommit／Push済み。P17-009 Closeout準備で、D103／Spec 71が要求しP17-002から後続へ送られたDeterministic Seedが未実装であることを確認した。P17-009をA（Application-owned Seed＋Clean Install）とB（README／Guide／Website／Full Gate Closeout）へ分け、P17-009A Task Packetを作成した。
+P17-009AはAccepted。Application-owned Deterministic Seed Command、Clean Install Consumer、CI、限定README、Testを実装した。Seedは3 User／3 Post／4 Commentを固定ID／UTC時刻で作成し、2回実行時の一意性、Seed外Data保持、Session／Operation／Journal／Outcome非生成、Migration前のSafe Failureを検証した。Orchestratorも依存物／VolumeなしからSetup、5 Migration、Build／Generate、2回Seed、通常Login、Feed／Detail／Comment表示、Credential非露出、Cleanupまで独立再検証した。Framework／Quickstart／Skeleton／Migration／Frontend Product SourceにDiffはない。
 
 ## Last Accepted Task
 
-P17-008-visual-accessibility-and-browser-e2e
+P17-009A-community-board-seed-and-clean-install
 
 ## Pending Decisions
 
@@ -59,9 +59,26 @@ Active Implementation Blockerはない。Ray.Aop 2.19.1／2.20.0には複数clas
 
 ## Required Next Action
 
-1. GPT-5.6 Luna High WorkerがP17-009Aを実装・検証する。
-2. OrchestratorがReview／独立再検証／Commitする。
-3. P17-009BでREADME／Guide、Website、全品質Gateを同期してPhase 17をCloseする。
+1. OrchestratorがP17-009AをCommitする。
+2. P17-009BでREADME／Guide、Website、全品質Gateを同期してPhase 17をCloseする。
+
+## P17-009A Community Board Seed and Clean Install Worker Verification
+
+```text
+Seed: Application-owned `app:seed`を追加し、固定UUID／UTC時刻／明示Fixtureで3 User、3 Post、4 Commentを構築。IdentityServiceのUser-only provisioningと既存BoardServiceを再利用し、Seed Commandへ業務規則を複製しない。
+
+Idempotency／Boundary: DB Transaction内でSeed所有RowをLock／照合し、完全一致はSkip、ID／Email／内容衝突はSafe Failure。2回実行でRow重複なし、Seed外User保持、Session／Operation／Journal／Outcome 0、Raw Token非発行を確認。
+
+Clean Install: `.env`、Runtime／Generated／Dependency Artifact、Database VolumeなしからSetup、Image Build、locked Composer、frozen pnpm、5 Migration、Build／Generate／Check、2回Seed、HTTP／SvelteKit起動、公開Demo Credentialによる通常Login、3 Post Feed／Detail／Comment表示を完走。成功／失敗TrapでContainer／Volume／ArtifactをCleanup。
+
+Sensitive: Migration前Failureは非0の固定Message。Command Output、Database Dump、HTTP／SSR、Container Log、Build／Generated／Clientへ公開Demo PasswordとRaw Session Tokenが露出しないことを検証。Seed中はSessionを作らず、通常Login後だけSession 1件。
+
+Regression／Quality: Community Board PHPUnit 64 tests／595 assertions。Foundation、Identity、Post Comment、Product Journey、Digest、Browser、Clean Install Consumer成功。Mago format／lint／analyze、Management ID Guard、diff／scope guard成功。既存ConsumerのP17-008確定title期待値だけをOrchestrator Scope Extension内で同期。
+
+Artifacts: Runtime／Generated／Dependency／Database Volume cleanup済み。Worker Commitなし。
+```
+
+詳細は`develop/orchestration/reports/P17-009A-community-board-seed-and-clean-install.md`を参照する。
 
 ## P17-008 Visual Accessibility and Browser E2E Worker Verification
 

@@ -63,7 +63,7 @@ for _ in $(seq 1 30); do
     fi
     sleep 1
 done
-grep -Fq '<title>Register — BlackOps Board</title>' "${TEMP}/register.html"
+grep -Fq '<title>Register | BlackOps Board</title>' "${TEMP}/register.html"
 
 PASSWORD_MARKER="digest-password-${RANDOM}-${RANDOM}-long"
 POST_MARKER="digest-post-content-${RANDOM}"

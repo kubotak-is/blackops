@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "66f5311ffe848a1d1fa74c33790940f7",
+    "content-hash": "e8fb7061acdaa8cb5d5f9354d3274d96",
     "packages": [
         {
             "name": "blackops/framework",
@@ -12,7 +12,7 @@
             "dist": {
                 "type": "path",
                 "url": "../..",
-                "reference": "7397fa3ee7d120b296632b28335074b2b2cfe881"
+                "reference": "e7e26a00edbbe4df44bedd77f8c4fc277b63fff3"
             },
             "require": {
                 "doctrine/dbal": "^4.4",
@@ -51,6 +51,35 @@
                 "psr-4": {
                     "BlackOps\\Tests\\": "tests/"
                 }
+            },
+            "archive": {
+                "exclude": [
+                    "/.gitattributes",
+                    "/.agents",
+                    "/.codex",
+                    "/.github",
+                    "/develop",
+                    "/docs",
+                    "/examples",
+                    "/tests",
+                    "/.deptrac.cache",
+                    "/.dockerignore",
+                    "/.env",
+                    "/.env.example",
+                    "/.gitignore",
+                    "/.phpunit.cache",
+                    "/AGENTS.md",
+                    "/Dockerfile",
+                    "/Dockerfile.frankenphp",
+                    "/compose.yaml",
+                    "/composer.lock",
+                    "/deptrac.yaml",
+                    "/mago.toml",
+                    "/mise.toml",
+                    "/phpunit.xml",
+                    "/runtime",
+                    "/vendor"
+                ]
             },
             "license": [
                 "MIT"

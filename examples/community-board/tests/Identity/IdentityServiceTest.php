@@ -18,6 +18,20 @@ use PHPUnit\Framework\TestCase;
 
 final class IdentityServiceTest extends TestCase
 {
+    public function testProvisioningCreatesOnlyANormalizedUserWithoutIssuingASession(): void
+    {
+        [$service, $repository] = $this->service();
+
+        $user = $service->provisionUser('  Demo@Example.COM  ', ' Demo User ', 'a documented public demo password');
+        $stored = $repository->users[$user->id];
+
+        self::assertSame('demo@example.com', $stored['canonical']);
+        self::assertSame('Demo@Example.COM', $user->email);
+        self::assertSame('Demo User', $user->displayName);
+        self::assertTrue(password_verify('a documented public demo password', $stored['stored']->passwordHash));
+        self::assertSame([], $repository->sessions);
+    }
+
     public function testRegistrationNormalizesEmailAndStoresOnlyArgonAndTokenHashes(): void
     {
         [$service, $repository] = $this->service();
