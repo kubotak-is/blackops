@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-22T04:21:03+09:00
+Updated At: 2026-07-22T04:25:22+09:00
 
 ## Current Phase
 
@@ -8,9 +8,9 @@ Phase 18: Application Ergonomics - Application Command Discovery Preparation
 
 ## Current Task
 
-Task ID: P18-004 Preparation
+Task ID: P18-004 Application Command Discovery and DI
 
-Task Packet: not created yet
+Task Packet: `develop/orchestration/tasks/P18-004-application-command-discovery-and-di.md`
 
 Specifications: `develop/spec/74-application-ergonomics.md`、`develop/spec/75-phase-18-delivery-plan.md`
 
@@ -18,7 +18,7 @@ Specifications: `develop/spec/74-application-ergonomics.md`、`develop/spec/75-p
 
 In Progress
 
-P18-003をOrchestrator Reviewと独立再検証後にAcceptedとした。Generated Root `index.ts`、Framework-neutralな`createBlackOpsClient()`、SvelteKit-compatible Fetch、Header／Credential／Signal／Mutation専用Idempotency Binding、Safe Failure、既存Unbound API互換、Marker 6、Permanent Fixture、Quickstart実HTTP Consumerを完了した。次にP18-004 Application Command Discovery and DIのTask Packetを作成する。
+P18-004のTask Packetを作成した。`app.command_discovery`、Command Manifest Schema 1、Compiled Container DI、Symfony Lazy Command、Framework／Discovered／Explicit Collision、Missing／Stale ArtifactからのRecovery、Quickstart／Permanent Fixture境界を固定し、GPT-5.6 Luna High workerへ渡す準備が整った。
 
 ## Last Accepted Task
 
@@ -61,8 +61,8 @@ Active Implementation Blockerはない。Ray.Aop 2.19.1／2.20.0には複数clas
 
 ## Required Next Action
 
-1. OrchestratorがP18-004 Application Command Discovery and DIのTask Packetを作成する。
-2. GPT-5.6 Luna High workerへ実装・検証を依頼する。
+1. GPT-5.6 Luna High workerがP18-004を実装・検証し、ReportとSTATEを更新する。
+2. OrchestratorがDiscovery、Manifest、Container DI、Lazy Runtime、Recovery、全GateをReviewする。
 
 ## P18-003 Frontend Bound Client Factory Worker Verification
 
