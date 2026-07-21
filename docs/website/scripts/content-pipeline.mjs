@@ -1,6 +1,8 @@
 import { createHash } from 'node:crypto';
-import { readdir, readFile, realpath, rm, mkdir, writeFile } from 'node:fs/promises';
+import { execFile } from 'node:child_process';
+import { copyFile, lstat, readdir, readFile, realpath, rm, mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { promisify } from 'node:util';
 
 const MARKDOWN_LINK = /(!?\[[^\]]*\])\(([^)]+)\)/g;
 const EXTERNAL_TARGET = /^(?:[a-z][a-z0-9+.-]*:|\/\/)/i;
@@ -9,6 +11,7 @@ const FORBIDDEN_CONTENT = [
   { pattern: /docs\/internal(?:\/|\b)/i, label: 'docs/internal' },
   { pattern: /develop\//i, label: 'develop/' },
 ];
+const execFileAsync = promisify(execFile);
 
 export async function generateContent({
   sourceRoot,
@@ -56,8 +59,9 @@ export async function generateContent({
   assertUniqueSlugs(records);
   const bySource = new Map(records.map((record) => [record.source, record]));
   const routes = new Set(records.map((record) => routeFor(record.slug)));
+  const referencedAssets = new Set();
   const outputs = records.map((record) => {
-    const body = rewriteAndValidateLinks(record, bySource, routes);
+    const body = rewriteAndValidateLinks(record, bySource, routes, referencedAssets);
     const content = `---\n${frontmatter(record, banner)}---\n${body}`;
 
     return {
@@ -75,8 +79,9 @@ export async function generateContent({
     null,
     2,
   )}\n`;
+  const assets = await validateAssets([...referencedAssets].sort(), sourceDirectory, repositoryDirectory);
 
-  await replaceGeneratedContent(contentRoot, manifestPath, outputs, manifest);
+  await replaceGeneratedContent(contentRoot, manifestPath, outputs, assets, manifest);
 
   return manifest;
 }
@@ -213,14 +218,24 @@ function assertUniqueSlugs(records) {
   }
 }
 
-function rewriteAndValidateLinks(record, bySource, routes) {
+function rewriteAndValidateLinks(record, bySource, routes, referencedAssets) {
   return mapProseLines(record.body, (line) =>
     line.replace(MARKDOWN_LINK, (match, label, target) => {
+      const image = label.startsWith('!');
       const normalized = normalizeLinkTarget(target);
-      if (normalized === null || normalized.startsWith('#')) {
+      if (normalized === null) {
+        if (image) {
+          throw new Error(`Documentation image must use a relative docs/guide asset in ${record.source}: ${target}`);
+        }
+        return match;
+      }
+      if (normalized.startsWith('#')) {
         return match;
       }
       if (normalized.startsWith('/')) {
+        if (image) {
+          throw new Error(`Documentation image must use a relative docs/guide asset in ${record.source}: ${target}`);
+        }
         const route = normalized.split(/[?#]/, 1)[0];
         if (!routes.has(route.endsWith('/') ? route : `${route}/`)) {
           throw new Error(`Broken internal documentation link in ${record.source}: ${target}`);
@@ -233,6 +248,16 @@ function rewriteAndValidateLinks(record, bySource, routes) {
       if (resolved === '..' || resolved.startsWith('../') || path.posix.isAbsolute(resolved)) {
         throw new Error(`Documentation link resolves outside docs/guide in ${record.source}: ${target}`);
       }
+      if (image) {
+        if (!resolved.startsWith('assets/') || path.posix.extname(resolved).toLowerCase() !== '.png') {
+          throw new Error(`Documentation image must reference a PNG below docs/guide/assets in ${record.source}: ${target}`);
+        }
+        referencedAssets.add(resolved);
+        const generatedTarget = path.posix.relative(path.posix.dirname(record.generated), resolved);
+        const relativeTarget = generatedTarget.startsWith('.') ? generatedTarget : `./${generatedTarget}`;
+
+        return `${label}(${relativeTarget}${suffix})`;
+      }
       const linked = bySource.get(resolved);
       if (linked === undefined) {
         throw new Error(`Broken internal documentation link in ${record.source}: ${target}`);
@@ -241,6 +266,44 @@ function rewriteAndValidateLinks(record, bySource, routes) {
       return `${label}(${routeFor(linked.slug)}${suffix})`;
     }),
   );
+}
+
+async function validateAssets(sources, sourceDirectory, repositoryDirectory) {
+  if (sources.length > 0 && repositoryDirectory === null) {
+    throw new Error('Documentation assets require a repository root for tracking validation.');
+  }
+
+  const assets = [];
+  for (const source of sources) {
+    const absolute = path.join(sourceDirectory, ...source.split('/'));
+    let status;
+    try {
+      status = await lstat(absolute);
+    } catch {
+      throw new Error(`Documentation asset does not exist: ${source}`);
+    }
+    if (!status.isFile() || status.isSymbolicLink()) {
+      throw new Error(`Documentation asset must be a regular file: ${source}`);
+    }
+
+    const repositoryRelative = path.relative(repositoryDirectory, absolute).split(path.sep).join('/');
+    if (repositoryRelative === '..' || repositoryRelative.startsWith('../') || path.posix.isAbsolute(repositoryRelative)) {
+      throw new Error(`Documentation asset resolves outside the repository: ${source}`);
+    }
+    try {
+      await execFileAsync(
+        'git',
+        ['-C', repositoryDirectory, 'ls-files', '--error-unmatch', '--', repositoryRelative],
+        { encoding: 'utf8' },
+      );
+    } catch {
+      throw new Error(`Documentation asset must be tracked by git: ${source}`);
+    }
+
+    assets.push({ source, absolute });
+  }
+
+  return assets;
 }
 
 function normalizeLinkTarget(target) {
@@ -288,7 +351,7 @@ function mapProseLines(markdown, transform) {
     .join('\n');
 }
 
-async function replaceGeneratedContent(contentRoot, manifestPath, outputs, manifest) {
+async function replaceGeneratedContent(contentRoot, manifestPath, outputs, assets, manifest) {
   await rm(contentRoot, { recursive: true, force: true });
   await rm(path.dirname(manifestPath), { recursive: true, force: true });
   await mkdir(contentRoot, { recursive: true });
@@ -298,6 +361,11 @@ async function replaceGeneratedContent(contentRoot, manifestPath, outputs, manif
     const target = path.join(contentRoot, ...output.generated.split('/'));
     await mkdir(path.dirname(target), { recursive: true });
     await writeFile(target, output.content, 'utf8');
+  }
+  for (const asset of assets) {
+    const target = path.join(contentRoot, ...asset.source.split('/'));
+    await mkdir(path.dirname(target), { recursive: true });
+    await copyFile(asset.absolute, target);
   }
   await writeFile(manifestPath, manifest, 'utf8');
 }

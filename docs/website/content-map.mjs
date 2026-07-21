@@ -88,6 +88,10 @@ export const contentMap = {
     slug: 'testing',
     description: 'BlackOps Applicationを検証するときの層と、既存の実行例への入口を確認する。',
   },
+  'community-board.md': {
+    slug: 'testing/community-board',
+    description: 'Application-owned Authentication、SvelteKit BFF、Inline／Deferred JourneyをLocal Full-stack Reference Applicationで確認する。',
+  },
   'deployment.md': {
     slug: 'deployment/worker-operations',
     description: 'HTTP WorkerとDeferred WorkerをProductionで運用するための責務と確認順を理解する。',

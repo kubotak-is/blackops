@@ -8,6 +8,22 @@ temporary_root="$(mktemp -d)"
 workflow_run="${temporary_root}/publish-step.sh"
 source_clone="${temporary_root}/source"
 
+commit_staged_source() {
+    local repository="$1"
+
+    if git -C "${repository}" diff --cached --quiet; then
+        git -C "${repository}" rev-parse HEAD
+        return
+    fi
+
+    GIT_AUTHOR_NAME='BlackOps Workflow Regression' \
+        GIT_AUTHOR_EMAIL='workflow-regression@blackops.dev' \
+        GIT_COMMITTER_NAME='BlackOps Workflow Regression' \
+        GIT_COMMITTER_EMAIL='workflow-regression@blackops.dev' \
+        git -C "${repository}" commit --quiet --message 'Test current skeleton working tree'
+    git -C "${repository}" rev-parse HEAD
+}
+
 fail() {
     printf 'Skeleton publication workflow regression failed: %s\n' "$1" >&2
     exit 1
@@ -39,18 +55,25 @@ awk '
 test -s "${workflow_run}" || fail 'publication run block was not found'
 bash -n "${workflow_run}"
 
+commit_regression_clone="${temporary_root}/commit-regression"
+git clone --quiet --no-hardlinks --no-tags "${repository_root}" "${commit_regression_clone}"
+unchanged_head="$(git -C "${commit_regression_clone}" rev-parse HEAD)"
+unchanged_source="$(commit_staged_source "${commit_regression_clone}")"
+test "${unchanged_source}" = "${unchanged_head}" \
+    || fail 'unchanged source created a temporary commit'
+printf 'publication workflow regression\n' > "${commit_regression_clone}/.publication-workflow-regression"
+git -C "${commit_regression_clone}" add .publication-workflow-regression
+changed_source="$(commit_staged_source "${commit_regression_clone}")"
+test "${changed_source}" != "${unchanged_head}" \
+    || fail 'changed source did not create a temporary commit'
+
 git clone --quiet --no-hardlinks --no-tags "${repository_root}" "${source_clone}"
 git -C "${source_clone}" rm -r --quiet examples/quickstart
 mkdir -p "${source_clone}/examples/quickstart"
 cp -a "${repository_root}/examples/quickstart/." "${source_clone}/examples/quickstart/"
 git -C "${source_clone}" add examples/quickstart
 git -C "${source_clone}" add --force examples/quickstart/tests/Frontend
-GIT_AUTHOR_NAME='BlackOps Workflow Regression' \
-    GIT_AUTHOR_EMAIL='workflow-regression@blackops.dev' \
-    GIT_COMMITTER_NAME='BlackOps Workflow Regression' \
-    GIT_COMMITTER_EMAIL='workflow-regression@blackops.dev' \
-    git -C "${source_clone}" commit --quiet --message 'Test current skeleton working tree'
-source_commit="$(git -C "${source_clone}" rev-parse HEAD)"
+source_commit="$(commit_staged_source "${source_clone}")"
 split_commit="$(git -C "${source_clone}" subtree split \
     --prefix=examples/quickstart "${source_commit}" 2> "${temporary_root}/split.log")"
 for required_path in \

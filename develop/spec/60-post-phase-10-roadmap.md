@@ -96,6 +96,8 @@ Generated ClientへのPolling統合はPhase 15のOperation Object Contractを利
 
 ## Phase 17: Full-stack Reference Application
 
+Status: Complete
+
 - `examples/community-board/`の独立したBlackOps Board Application
 - SvelteKit Same-origin BFFとServer-only Generated Operation Object
 - Application-owned User Registration、Password、Session、Login／Logout

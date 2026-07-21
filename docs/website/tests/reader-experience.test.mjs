@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import test from 'node:test';
@@ -81,6 +82,29 @@ test('landing presents the product title, three feature links, and Installation 
   ]);
   assert.match(contentMapSource, /actions: \[\s*\{ text: 'Installation', link: '\/getting-started\/installation\/'/s);
   assert.match(contentMapSource, /\{ text: 'Why BlackOps'.*variant: 'secondary'/);
+  assert.match(landing, /\[BlackOps Board\]\(community-board\.md\)/);
+});
+
+test('Community Board guide presents the local full-stack journey and credential-free evidence', async () => {
+  const [guideSource, testing, status, screenshot] = await Promise.all([
+    guide('community-board.md'),
+    guide('testing.md'),
+    guide('mvp-status.md'),
+    readFile(path.join(repositoryRoot, 'docs/guide/assets/community-board/blackops-board.png')),
+  ]);
+
+  assert.match(guideSource, /^# BlackOps Board Reference Application$/m);
+  assert.match(guideSource, /!\[BlackOps BoardのCredential-free Landing画面\]\(assets\/community-board\/blackops-board\.png\)/);
+  assert.equal(createHash('sha256').update(screenshot).digest('hex'), 'a7619b25d97b6ac1e4eba42888968d71fd1633102836a105a2d6c1c94501945d');
+  assert.match(guideSource, /Quickstart.*Frameworkの最短Contract/s);
+  assert.match(guideSource, /Browser[\s\S]*SvelteKit same-origin UI \/ BFF[\s\S]*Server-only Generated Operation Object/);
+  assert.match(guideSource, /app\/Domain\/Board\/[\s\S]*app\/Infrastructure\/[\s\S]*app\/Feature\//);
+  assert.match(guideSource, /PasswordとRaw Session TokenをOperation Value、Canonical Journal、Outcome、Generated Contract、Page Data、Browser Bundle、Logへ渡しません/);
+  for (const topic of ['Worker未起動', 'Seed Conflict', 'Port衝突', 'Generated Drift', 'Secure Cookie Local設定']) {
+    assert.match(guideSource, new RegExp(`^### ${topic}$`, 'm'));
+  }
+  assert.match(testing, /BlackOps Board.*Application-owned Authentication.*SvelteKit .*BFF/s);
+  assert.match(status, /Stable `1\.1\.0` Skeletonには含まれず、公開Hostも提供していません/);
 });
 
 test('static redirects preserve all four moved public URLs', async () => {
@@ -222,13 +246,13 @@ test('core API reference covers every source type marked PublicApi without expos
   const reference = await guide('core-api.md');
   const sourceTypes = await publicApiTypes();
 
-  assert.equal(sourceTypes.length, 147);
+  assert.equal(sourceTypes.length, 149);
   for (const type of sourceTypes) assert.match(reference, new RegExp(type.replaceAll('\\', '\\\\')));
   assert.doesNotMatch(reference, /`BlackOps\\Core\\Attribute\\PublicApi` \|/);
   assert.doesNotMatch(reference, /BlackOps\\Internal\\[A-Za-z]/);
 });
 
-test('attributes reference covers the twenty-one public authoring attributes and excludes the marker', async () => {
+test('attributes reference covers the twenty-two public authoring attributes and excludes the marker', async () => {
   const attributes = await guide('attributes.md');
   const expected = [
     'BlackOps\\Core\\Attribute\\Accepts',
@@ -257,7 +281,7 @@ test('attributes reference covers the twenty-one public authoring attributes and
   for (const attribute of expected) assert.match(attributes, new RegExp(attribute.replaceAll('\\', '\\\\')));
   const sourceTypes = (await publicApiTypes()).filter((type) => expected.includes(type));
   assert.deepEqual(sourceTypes, [...expected].sort());
-  assert.match(attributes, /Public Attribute 21件/);
+  assert.match(attributes, /Public Attribute 22件/);
   assert.match(attributes, /SensitiveMode.*Attributeではなく/s);
   assert.doesNotMatch(attributes, /`BlackOps\\Core\\Attribute\\PublicApi` \|/);
 });
@@ -322,6 +346,7 @@ test('diagram renderer and syntax parser are exact local dependencies', async ()
   assert.match(packageJson.scripts.check, /diagrams:check/);
   assert.match(packageJson.scripts.build, /diagrams:check/);
   assert.match(config, /mermaid\(\{/);
+  assert.match(config, /service: \{ entrypoint: 'astro\/assets\/services\/noop' \}/);
   assert.match(config, /autoTheme: true/);
   assert.match(config, /customCss: \['\.\/src\/styles\/diagram-responsive\.css'\]/);
   assert.doesNotMatch(config, /rehype-mermaid|playwright|@astrojs\/markdown-remark/);

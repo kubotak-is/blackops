@@ -5,6 +5,9 @@ import { sidebar } from './site-navigation.mjs';
 
 export default defineConfig({
   site: 'https://blackops-docs.pages.dev',
+  image: {
+    service: { entrypoint: 'astro/assets/services/noop' },
+  },
   integrations: [
     mermaid({
       autoTheme: true,

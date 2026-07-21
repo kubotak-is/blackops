@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -23,6 +24,7 @@ const routes = [
   '/database/outcomes/',
   '/database/retention/',
   '/testing/',
+  '/testing/community-board/',
   '/deployment/worker-operations/',
   '/security/',
   '/troubleshooting/',
@@ -60,6 +62,8 @@ requireJourney('/getting-started/quickstart/', '/getting-started/first-operation
 requireJourney('/getting-started/first-operation/', '/getting-started/directory-structure/');
 requireJourney('/getting-started/directory-structure/', '/getting-started/local-runtime/');
 requireJourney('/getting-started/first-operation/', '/operations/validation/');
+requireJourney('/', '/testing/community-board/');
+requireJourney('/testing/', '/testing/community-board/');
 
 requireText(pages.get('/getting-started/quickstart/'), 'diagnostics.failure.trigger', 'Quickstart failure operation');
 requireText(pages.get('/getting-started/quickstart/'), 'operation:inspect', 'Quickstart operation inspect');
@@ -77,6 +81,24 @@ requireText(pages.get('/security/'), 'Canonical DataとSafe Diagnostics', 'Diagn
 requireText(pages.get('/security/'), 'Frontend Operation Contractの境界', 'Frontend security boundary');
 requireText(pages.get('/troubleshooting/'), 'Operation ID付き500を調べる', 'Diagnostics troubleshooting');
 requireText(pages.get('/troubleshooting/'), 'Frontend Generated TreeがMissing／Drift', 'Frontend troubleshooting');
+const communityBoard = pages.get('/testing/community-board/');
+requireText(communityBoard, 'BlackOps Board Reference Application', 'Community Board title');
+requireText(communityBoard, 'alt="BlackOps BoardのCredential-free Landing画面"', 'Community Board screenshot alt');
+requireText(communityBoard, '/_astro/blackops-board.', 'Community Board local screenshot artifact');
+requireText(communityBoard, 'SvelteKit same-origin UI / BFF', 'Community Board architecture');
+requireText(communityBoard, 'Worker未起動', 'Community Board worker troubleshooting');
+requireText(communityBoard, 'External Publication／Deployは行っていません', 'Community Board publication boundary');
+const boardAssets = (await readdir(path.join(distRoot, '_astro')))
+  .filter((file) => /^blackops-board\.[A-Za-z0-9_-]+\.png$/.test(file));
+if (boardAssets.length !== 1) {
+  throw new Error(`Static site must contain one BlackOps Board screenshot; found ${boardAssets.length}.`);
+}
+const boardAssetHash = createHash('sha256')
+  .update(await readFile(path.join(distRoot, '_astro', boardAssets[0])))
+  .digest('hex');
+if (boardAssetHash !== 'a7619b25d97b6ac1e4eba42888968d71fd1633102836a105a2d6c1c94501945d') {
+  throw new Error('Static BlackOps Board screenshot does not preserve the credential-free source asset.');
+}
 
 const documentation = pages.get('/getting-started/installation/');
 for (const section of [
@@ -121,6 +143,7 @@ const responsiveContentRoutes = [
   '/troubleshooting/',
   '/security/',
   '/testing/',
+  '/testing/community-board/',
   '/deployment/worker-operations/',
   '/operations/validation/',
 ];

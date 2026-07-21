@@ -1,9 +1,13 @@
 import assert from 'node:assert/strict';
+import { execFile } from 'node:child_process';
 import { mkdtemp, mkdir, readFile, rm, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
+import { promisify } from 'node:util';
 import { generateContent } from '../scripts/content-pipeline.mjs';
+
+const execFileAsync = promisify(execFile);
 
 test('generates deterministic Starlight content and manifest without changing source', async (context) => {
   const fixture = await fixtureRoot(context);
@@ -143,6 +147,49 @@ test('rejects a link outside docs guide', async (context) => {
   await assert.rejects(() => generate(fixture), /resolves outside docs\/guide/);
 });
 
+test('copies a tracked PNG asset and rewrites its generated relative path', async (context) => {
+  const fixture = await fixtureRoot(context);
+  const image = Buffer.from('credential-free-png-fixture');
+  await sources(fixture.source, {
+    'README.md': '# Home\n\n![Board](assets/community-board/board.png)\n',
+    'assets/community-board/board.png': image,
+  });
+  await track(fixture.root, ['docs/guide/README.md', 'docs/guide/assets/community-board/board.png']);
+
+  const result = await generate(fixture);
+
+  assert.match(result.index, /!\[Board\]\(\.\/assets\/community-board\/board\.png\)/);
+  assert.deepEqual(
+    await readFile(path.join(fixture.root, 'output/content/assets/community-board/board.png')),
+    image,
+  );
+});
+
+test('rejects untracked, escaping, and non-PNG documentation assets', async (context) => {
+  const untracked = await fixtureRoot(context);
+  await sources(untracked.source, {
+    'README.md': '# Home\n\n![Board](assets/board.png)\n',
+    'assets/board.png': Buffer.from('untracked'),
+  });
+  await track(untracked.root, ['docs/guide/README.md']);
+  await assert.rejects(() => generate(untracked), /asset must be tracked by git/);
+
+  const escaping = await fixtureRoot(context);
+  await sources(escaping.source, { 'README.md': '# Home\n\n![Outside](../outside.png)\n' });
+  await assert.rejects(() => generate(escaping), /resolves outside docs\/guide/);
+
+  const unsupported = await fixtureRoot(context);
+  await sources(unsupported.source, {
+    'README.md': '# Home\n\n![Text](assets/board.txt)\n',
+    'assets/board.txt': 'not an image',
+  });
+  await assert.rejects(() => generate(unsupported), /must reference a PNG below docs\/guide\/assets/);
+
+  const external = await fixtureRoot(context);
+  await sources(external.source, { 'README.md': '# Home\n\n![Remote](https://example.test/board.png)\n' });
+  await assert.rejects(() => generate(external), /image must use a relative docs\/guide asset/);
+});
+
 test('rejects forbidden internal and development content', async (context) => {
   const internal = await fixtureRoot(context);
   await sources(internal.source, { 'README.md': '# Home\n\nSee docs/internal/architecture.md.\n' });
@@ -190,8 +237,13 @@ async function sources(root, files) {
   for (const [relative, content] of Object.entries(files)) {
     const target = path.join(root, relative);
     await mkdir(path.dirname(target), { recursive: true });
-    await writeFile(target, content, 'utf8');
+    await writeFile(target, content, typeof content === 'string' ? 'utf8' : undefined);
   }
+}
+
+async function track(root, files) {
+  await execFileAsync('git', ['init', '--quiet'], { cwd: root });
+  await execFileAsync('git', ['add', '--', ...files], { cwd: root });
 }
 
 async function generate(fixture, name = 'output') {

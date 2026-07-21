@@ -1,28 +1,28 @@
 # Orchestration State
 
-Updated At: 2026-07-22T01:47:55+09:00
+Updated At: 2026-07-22T02:20:22+09:00
 
 ## Current Phase
 
-Phase 17: Full-stack Reference Application - In Progress
+Phase 17: Full-stack Reference Application - Complete
 
 ## Current Task
 
-Task ID: P17-009B-community-board-documentation-and-phase-closeout
+Task ID: Not selected
 
-Task Packet: `develop/orchestration/tasks/P17-009B-community-board-documentation-and-phase-closeout.md`
+Task Packet: None
 
-Specifications: `develop/spec/71-full-stack-reference-application.md`、`develop/spec/72-phase-17-delivery-plan.md`
+Specifications: Next phase not selected
 
 ## Task Status
 
-Ready
+Phase Complete - Accepted
 
-P17-009B Task Packetを作成した。完成済みCommunity BoardをRoot／Application README、Guide、Documentation Websiteへ統合し、Quickstartとの差、SvelteKit BFF、Application-owned Authentication、Domain／Infrastructure、Deferred Digest、Seed、Troubleshootingを読者向けに説明する。Community Board、Framework、Quickstart、Skeleton Publication、WebsiteのFull Gateを完走してPhase 17をCloseする。External Publication／Deployは行わない。
+P17-009BはAccepted。Root／Application README、Guide、Current Status、Website NavigationとCredential-free Screenshot Pipelineを同期した。Community BoardのClean Install、全Journey、Playwright Browser、Sensitive Guard、Framework Full Gate、Quickstart／Skeleton／Publication／Framework Update Gateが成功した。OrchestratorもWebsite 42 tests、Astro 0 errors／0 warnings／0 hints、30 public pagesのBuild／Navigation／Search／Screenshot Hash Check、Skeleton Publication Workflow、Scope／Artifact Guardを独立再検証した。Phase 17 Spec／Delivery Plan／Roadmap／TODOはComplete。External Publication／Deployは行っていない。
 
 ## Last Accepted Task
 
-P17-009A-community-board-seed-and-clean-install
+P17-009B-community-board-documentation-and-phase-closeout
 
 ## Pending Decisions
 
@@ -59,9 +59,27 @@ Active Implementation Blockerはない。Ray.Aop 2.19.1／2.20.0には複数clas
 
 ## Required Next Action
 
-1. P17-009BをGPT-5.6 Luna High Workerへ委譲する。
-2. Orchestratorが成果物をReview／独立再検証／Commitする。
-3. Task Commit後にSkeleton Publication HEAD Gateを実行してPhase 17 Closeoutを確定する。
+1. OrchestratorがP17-009B成果物をCommitする。
+2. Task Commit後に`bash tests/Consumer/skeleton-publication.sh 1.1.0 HEAD`を実行する。
+3. Phase 18以降の次Taskを選定する。
+
+## P17-009B Community Board Documentation and Phase Closeout Worker Verification
+
+```text
+Documentation: Root README、Community Board README、Guide Landing／Testing／Current Status、新規Community Board Guideを同期。Quickstartとの目的差、Clean Setup、公開Local Fixture、Browser Journey、BFF／Domain／Infrastructure／Authentication／Worker境界、Troubleshootingを記録。
+
+Website: testing/community-boardを既存11 Section IAのTestingへ追加。追跡済みdocs/guide/assets PNGだけをbyte保持で生成するPipelineとAstro no-op Image Serviceを追加。42 tests、Astro 0 errors／0 warnings／0 hints、30 public pagesのBuild／Navigation／Search／Screenshot Hash Checkに成功。
+
+Community Board: Clean Install、Foundation、Identity、Post／Comment、Product Journey、Digest、Playwright Browserがすべて成功。Browser 1 passed、Frontend 6 files／40 tests、Sensitive Surface Guard成功。
+
+Framework／Compatibility: Root／Community Composer strict、Mago format／lint／analyze、PHPUnit 1471 tests／5810 assertions、Deptrac 0 violations。Quickstart Setup／E2E、Skeleton Create-project／Publication Dry-run／Publication Workflow、Framework Update Generator成功。
+
+Publication Workflow: 初回はQuickstartがHEADと同一でもTemporary Commitを要求してnothing to commitで停止。Orchestrator Scope Extensionで差分なしはHEAD、差分ありだけTemporary Commitとし、両経路を同Script内で固定。再実行成功。Publication／Split Contractは不変。
+
+Closeout: Phase 17 Spec／Delivery Plan／Roadmap／TODOをCompleteへ同期。External Publication／Deployなし。Generated／Dependency／Runtime／Browser／Website ArtifactはCleanup対象。Worker Commitなし。
+```
+
+詳細は`develop/orchestration/reports/P17-009B-community-board-documentation-and-phase-closeout.md`を参照する。
 
 ## P17-009A Community Board Seed and Clean Install Worker Verification
 

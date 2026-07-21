@@ -154,10 +154,10 @@ Documentation WebsiteとCommunity BoardのExternal Publication／Deployは行わ
 - [x] Post／Comment JourneyがValidation／Authorization／Transaction付きで完走する
 - [x] Generated Operation ObjectがSvelteKit Serverだけから使われる
 - [x] Deferred Digestが202からStatus／Wait／Typed Outcome／表示まで完走する
-- [ ] Accessible／Responsive Product UIとReal Browser E2Eが完成する
-- [ ] README／Guide／CI／Consumer／Website Gateが成功する
-- [ ] Quickstart／Skeleton／Publication Contractが回帰しない
-- [ ] External Publication／Deployを行わない
+- [x] Accessible／Responsive Product UIとReal Browser E2Eが完成する
+- [x] README／Guide／CI／Consumer／Website Gateが成功する
+- [x] Quickstart／Skeleton／Publication Contractが回帰しない
+- [x] External Publication／Deployを行わない
 
 ## Traceability
 

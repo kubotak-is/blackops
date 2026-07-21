@@ -38,6 +38,10 @@ test('keeps all eleven sections, moved pages, and the six-page Reference in exac
     'operations/generators',
     'operations/validation',
   ]);
+  assert.deepEqual(sidebar.find(({ label }) => label === 'Testing')?.items, [
+    'testing',
+    'testing/community-board',
+  ]);
   assert.deepEqual(sidebar.find(({ label }) => label === 'Reference')?.items, [
     'reference/core-api',
     'reference/attributes',

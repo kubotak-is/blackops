@@ -25,7 +25,7 @@ export const sidebar = [
     label: 'Data & Retention',
     items: ['database/transactions', 'database/migrations', 'database/outcomes', 'database/retention'],
   },
-  { label: 'Testing', items: ['testing'] },
+  { label: 'Testing', items: ['testing', 'testing/community-board'] },
   { label: 'Deployment', items: ['deployment/worker-operations'] },
   { label: 'Security', items: ['security'] },
   { label: 'Troubleshooting', items: ['troubleshooting'] },

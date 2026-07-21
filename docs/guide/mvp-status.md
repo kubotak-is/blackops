@@ -1,6 +1,6 @@
 # 現在の提供状況（Current Status）
 
-BlackOpsのLatest StableはFramework／Skeleton `1.1.0`です。このWebsite Sourceは`main` Document Channelであり、未ReleaseのPhase 12〜16 Surfaceも明示して説明します。WebsiteはLocal／CI Buildだけで、現在は公開していません。Stableとの差を次表で確認してください。
+BlackOpsのLatest StableはFramework／Skeleton `1.1.0`です。このWebsite Sourceは`main` Document Channelであり、未ReleaseのPhase 12〜17 Surfaceも明示して説明します。WebsiteはLocal／CI Buildだけで、現在は公開していません。Stableとの差を次表で確認してください。
 
 BlackOps固有のOperation、Claim、Journal、Outcome等は[用語集](glossary.md)で確認できます。
 
@@ -35,6 +35,7 @@ BlackOpsはExperimentalです。1.x Minor間のBackward CompatibilityとProducti
 | `frontend:generate`／`frontend:check` | Not available | Available（Experimental） |
 | Deferred Status Query／`GET /operations/{operationId}` | Not available | Available（Experimental） |
 | Generated `.status()`／finite `.wait()` | Not available | Available（Experimental） |
+| BlackOps Board Full-stack Reference Application | Not available | Available（Experimental、Local／CI only） |
 
 Stable Applicationを作る場合はVersionを明示します。
 
@@ -66,6 +67,9 @@ composer create-project blackops/skeleton my-app 1.1.0
 - Readonly Metadata、`.url()`、`.toRequest()`、Typed `.fetch()`とFrontend Drift Check
 - 認可前Subject Projection、Unknown／Deny 404、認可済みExpired 410を持つPublic Status Query／HTTP Resource
 - 7 Stateを一回取得するGenerated `.status()`と、Abort／Deadline必須の有限`.wait()`
+- Application-owned Authentication、SvelteKit BFF、Post／Comment、Deferred Digest、Real Browser E2Eを統合した[BlackOps Board](community-board.md)
+
+BlackOps BoardはRepository `main`だけのExperimental Local Reference Applicationです。Stable `1.1.0` Skeletonには含まれず、公開Hostも提供していません。Documentation Websiteと同様にSource、Local／CI Build、Consumer Evidenceだけを維持し、External Publication／Deployは将来の明示Taskへ分離しています。
 
 ## Known Constraints
 

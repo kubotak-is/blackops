@@ -1,147 +1,173 @@
-# BlackOps Board Foundation
+# BlackOps Board
 
-`examples/community-board/` is an independent full-stack reference application. It consumes the repository root framework through a Composer path repository, but it is not part of `blackops/skeleton` and does not change `examples/quickstart/`.
+BlackOps Board is the full-stack reference application for the repository `main` branch. It combines a BlackOps PHP backend, an Application-owned authentication boundary, PostgreSQL, a Deferred Worker, and a SvelteKit same-origin BFF. It is independent from the minimal `examples/quickstart/` application and is never copied into `blackops/skeleton`.
 
-The application contains the unauthenticated `ShowBoardWelcome` Operation, an Application-owned identity and session boundary, authenticated Post／Comment Operations, and a Deferred weekly digest. Registration, login, current-user display, logout, the paginated feed, post create/edit/delete, detail, comments, digest progress, and digest detail run through SvelteKit server loads and actions. Final visual design remains for a later task.
+![Credential-free BlackOps Board landing page](../../docs/guide/assets/community-board/blackops-board.png)
 
-## Runtime topology
+Use the Quickstart when you want the shortest Framework contract check. Use BlackOps Board when you want to see login, authorization, domain layering, generated server-only Operations, Inline mutations, Deferred progress, and an accessible Browser UI working together.
 
-```text
-Browser -> SvelteKit SSR/BFF -> .server.ts wrapper -> generated Operation -> BlackOps HTTP -> PostgreSQL
-                            \-> Application auth route (/auth/*)  -> PostgreSQL
-                                                     Deferred worker (profile)
-```
+## Clean local setup
 
-The browser connects to SvelteKit on `http://localhost:5173`. BlackOps is available separately on `http://localhost:8081` for local debugging. Browser code does not import generated Operations, read `BLACKOPS_BASE_URL`, or receive the raw session token in page/action data.
-
-`POST /auth/users`, `POST /auth/sessions`, and `DELETE /auth/sessions/current` belong to the application router. Other paths delegate to BlackOps. The authenticated `GET /me` Operation receives only a verified `ActorRef`. Passwords use Argon2id, and the database stores only the SHA-256 hash of each 256-bit opaque session token.
-
-Authenticated callers can use the following BlackOps Inline Operations through the HTTP boundary:
-
-| Method | Route | Behavior |
-|---|---|---|
-| `GET` | `/posts` | Deterministic paginated feed |
-| `GET` | `/posts/{postId}` | Post detail and ordered comments |
-| `POST` | `/posts` | Create a post |
-| `PUT` | `/posts/{postId}` | Update an owned post |
-| `DELETE` | `/posts/{postId}` | Delete an owned post and cascade its comments |
-| `POST` | `/posts/{postId}/comments` | Add a comment |
-| `GET` | `/digests/{digestId}` | Show an owned immutable digest |
-
-`POST /digests` accepts a canonical UTC ISO week and returns `202 Accepted`. The worker counts posts and comments inside that week's half-open UTC range, stores an immutable owner-scoped snapshot, and publishes a typed terminal outcome. `/digests/operations/{operationId}` provides an SSR progress surface backed by the authenticated status endpoint. For local retry testing only, set `DIGEST_FAIL_FIRST_ATTEMPT=true`; the default is `false`.
-
-Post titles accept 1–120 characters, post bodies 1–10,000 characters, and comment bodies 1–2,000 characters. Update and delete conceal unknown, malformed, and non-owned Post IDs behind the same safe 404 response. `app/Domain/Board/` owns the use cases, models, exceptions, and ports; `app/Infrastructure/` provides the Doctrine DBAL, system-clock, and Symfony UUIDv7 adapters. Deleting a post hard-deletes its comments through the database foreign key in the same transaction.
-
-## Prepare the application
-
-Run each step explicitly from this directory. Setup only copies `.env.example` when `.env` is absent and creates runtime directories; it does not install dependencies, migrate, build, generate, or start services.
+Run these commands from `examples/community-board/`. The sequence starts from no `.env`, dependency directory, generated contract, runtime artifact, or database volume. `bin/setup` only creates `.env` from `.env.example` when needed and prepares runtime directories; each later side effect remains an explicit command.
 
 ```bash
 php bin/setup
 docker compose build app http frontend
-docker compose run --rm app composer install --no-interaction --prefer-dist --no-progress
-pnpm --dir frontend install --frozen-lockfile
+docker compose run --rm --no-deps app composer install --no-interaction --prefer-dist --no-progress
+mise exec -- pnpm --dir frontend install --frozen-lockfile
+docker compose up -d postgres
 docker compose run --rm app php blackops database:migrate
 docker compose run --rm app php blackops build:compile
 docker compose run --rm app php blackops frontend:generate
 docker compose run --rm app php blackops frontend:check
 docker compose run --rm app php blackops app:seed
+mise exec -- pnpm --dir frontend run check
+mise exec -- pnpm --dir frontend run test
+mise exec -- pnpm --dir frontend run build
+docker compose --profile worker up -d postgres http frontend worker
 ```
 
-The development-only Composer path repository points to `../..`. Do not copy Framework source into this application.
+The locked Composer path repository points to `../..`; do not copy Framework source into this application. The seed command is repeat-safe. It creates three fixed local users, three posts, and four comments without creating a session or dispatching a BlackOps Operation.
 
-`app:seed` creates three deterministic local users, three posts, and four comments. It is safe to run repeatedly and never creates a session; login creates the session through the normal authentication route. The primary public demo credential is `ada@blackops.local` / `BlackOpsBoardDemo!2026`. This password is an intentional local/test fixture, not a production secret. Change or remove the fixture before adapting the example for any non-local environment.
+Log in at `http://localhost:5173/login` with:
 
-## Check and build SvelteKit
-
-```bash
-pnpm --dir frontend run check
-pnpm --dir frontend run test
-pnpm --dir frontend run build
+```text
+Email: ada@blackops.local
+Password: BlackOpsBoardDemo!2026
 ```
 
-The Generated Output lives under `frontend/src/lib/server/blackops/generated/` and is ignored. Only Application-owned wrappers below `frontend/src/lib/server/blackops/*.server.ts` import it. Routes call those wrappers and expose small safe view models and form failures; generated results, backend URLs, and raw session credentials never enter page data or browser code. The opaque operation ID is the only operation metadata exposed for the progress route and its same-origin wait request.
+This is a public Local／Test Fixture, not a production secret. Change or remove it before adapting the example for a non-local environment. Login sends the password to the Application-owned authentication route and creates the session normally; seed does not bypass authentication.
 
-The authenticated product routes include `/posts`, `/posts/new`, `/posts/{postId}`, `/posts/{postId}/edit`, `/digests`, `/digests/operations/{operationId}`, and `/digests/{digestId}`. They use standard HTML forms and remain usable without client-side JavaScript. Owner actions are hidden for other users, while the PHP application remains the authorization boundary and conceals unknown, malformed, and non-owned resources behind the same safe not-found result.
+## Follow the browser journey
 
-Registration and login move the authentication response token directly into the `community_board_session` cookie. It is `HttpOnly`, `SameSite=Strict`, and scoped to `/`. Secure cookies are the default; local plain HTTP must explicitly set `SESSION_COOKIE_SECURE=false`. The cookie max age uses `SESSION_TTL_SECONDS` and never exceeds the backend session TTL.
+The browser talks only to `http://localhost:5173`. `http://localhost:8081` exposes the PHP runtime for local debugging, but the Product UI never calls it directly.
 
-## Start the local runtime
+| URL or action | Input | Expected result |
+| --- | --- | --- |
+| `/login` | Public Local／Test Fixture above | Redirect to `/me`; one HttpOnly session is created |
+| `/posts` | Open after login | Three seeded posts and their authors appear |
+| `/posts/019b1000-0001-7000-8000-000000000101` | Open the seeded welcome post | Ada owns the post; Grace and Linus comments appear in order |
+| `/posts/new` | Enter a title and body | Inline create returns the new detail page; blank fields show associated validation errors |
+| Post detail | Add a comment | Inline comment create returns the detail with the new comment |
+| Owned post detail | Edit or delete | Owner action succeeds; another user receives the same safe 404 as an unknown post |
+| `/digests` | Enter `2026-W30` | Deferred request returns 202 and redirects to the progress page |
+| Digest progress | Keep the Worker running | UI moves through accepted／running and then completed; a retry state appears when the local failure adapter is enabled |
+| Digest detail | Follow the completed result | Immutable typed outcome displays the ISO week, post count, comment count, and generated time |
 
-After the explicit preparation and build steps:
+To demonstrate a real retry locally, stop the runtime, set `DIGEST_FAIL_FIRST_ATTEMPT=true` in `.env`, and start the Worker profile again. The adapter fails Attempt 1 only in the explicit Development／Test composition. Leave the default `false` for the ordinary runtime.
 
-```bash
-docker compose up -d postgres http frontend
+## Understand the runtime boundary
+
+```text
+Browser
+  -> SvelteKit :5173
+     -> page server load / form action / same-origin wait endpoint
+        -> Application-owned *.server.ts wrapper
+           -> server-only generated Operation object
+              -> BlackOps PHP HTTP runtime
+                 -> Application Domain + Doctrine DBAL -> PostgreSQL
+                 -> Deferred transport -> Worker -> typed Outcome
+
+SvelteKit server
+  -> Application-owned /auth/* routes -> User + hashed Session in PostgreSQL
 ```
 
-Start the Deferred Worker only when a later feature needs it:
+SvelteKit is the BFF. Generated code lives in `frontend/src/lib/server/blackops/generated/`, and only Application-owned `frontend/src/lib/server/blackops/*.server.ts` wrappers import it. Page data contains small screen-specific view models. Browser JavaScript receives neither the generated Operation implementation nor `BLACKOPS_BASE_URL`, the Authorization header, or the raw session token.
 
-```bash
-docker compose --profile worker up -d worker
-```
+## See where application rules live
 
-The Classic PHP front controller is an explicit local fallback and uses the same `bootstrap/http.php` composition as FrankenPHP Worker Mode:
+- `app/Domain/Board/` owns post existence, ownership, row-lock decisions, Post／Comment creation order, digest week calculation, immutable digest content, models, exceptions, and Repository／Clock／ID ports.
+- `app/Infrastructure/` owns Doctrine DBAL SQL, PostgreSQL locking, system clocks, UUID adapters, the Development digest attempt adapter, and deterministic seed composition.
+- `app/Feature/` Operations coordinate BlackOps Value／Actor input with Domain Services and map Domain results or failures to public Outcomes and safe rejections.
+- Mutation Operations own the Framework transaction boundary. Domain Services do not import BlackOps attributes or start transactions.
+- The Application-owned authentication router handles registration, login, logout, password verification, and session rotation outside the Operation manifest.
 
-```bash
-docker compose --profile classic-mode up -d http-classic
-```
+The application uses official `reicon-svelte` individual static exports for general UI icons. It does not load an icon CDN, icon font, or a second general-purpose icon family.
 
-FrankenPHP, the Classic fallback, and the Deferred Worker all run with `HOST_UID:HOST_GID` (default `1000:1000`). The FrankenPHP container keeps Caddy's writable config and data below `/tmp`, so every runtime writer can share application files such as `var/log/journal.jsonl` without depending on startup order.
+## Keep credentials out of Operations
 
-Open `http://localhost:5173`. Stop and remove local state with:
+Passwords are Argon2id hashes at rest. Session credentials are cryptographically random, and PostgreSQL stores only their SHA-256 hashes. Registration and login return the raw token once to the SvelteKit server, which writes an `HttpOnly`, `SameSite=Strict`, path-wide cookie. Production cookies must remain Secure; Local HTTP works only because `.env.example` explicitly sets `SESSION_COOKIE_SECURE=false`.
 
-```bash
-docker compose down --volumes --remove-orphans
-```
+Authentication never becomes an Operation. Passwords and raw session tokens do not enter Operation Values, the canonical Journal, Outcomes, generated contracts, page data, browser bundles, or logs. The PHP authenticator verifies the token and gives BlackOps only an `ActorRef`. Owner and digest status authorization still run at the PHP boundary, so hiding a button in SvelteKit is not the security control.
 
-## Test the foundation journey
+## Run permanent evidence
 
-From the repository root:
-
-```bash
-bash tests/Consumer/community-board-foundation.sh
-```
-
-The Consumer test checks real SvelteKit-to-BlackOps SSR, the safe unavailable state, the server-only import boundary, and generated/build/tracking guards.
-
-Run the identity journey as well:
-
-```bash
-bash tests/Consumer/community-board-identity.sh
-```
-
-It checks registration, HttpOnly cookie attributes, authorized current-user projection, server-side logout, revocation, login rotation, expiry, CSRF origin rejection, Classic/Worker parity, safe failures, and credential marker absence across database, BlackOps artifacts, generated code, browser build, SSR/action responses, and logs.
-
-Run the clean install journey from the repository root to reproduce setup from no `.env`, dependencies, generated output, runtime artifacts, or database volume:
+Run the complete clean-install journey from the repository root when you want the strongest application-level check:
 
 ```bash
 bash tests/Consumer/community-board-clean-install.sh
 ```
 
-It builds the images, installs both locked dependency sets, applies all five migrations, compiles and generates contracts, runs `app:seed` twice, logs in with the public demo credential, verifies the seeded feed and comments through SvelteKit HTML, and removes all generated state on success or failure.
+It removes local state, installs both locked dependency sets, applies all five migrations, compiles and checks generated contracts, seeds twice, logs in normally, checks seed HTML and sensitive boundaries, and cleans containers, volumes, dependencies, and generated artifacts on success or failure.
 
-Run the Post／Comment journey:
+The focused consumers isolate failures:
 
 ```bash
+bash tests/Consumer/community-board-foundation.sh
+bash tests/Consumer/community-board-identity.sh
 bash tests/Consumer/community-board-post-comment.sh
-```
-
-It checks migration and generated-contract freshness, authentication and validation, feed and detail projections, owner-only mutations with resource concealment, comment ordering, hard-delete cascade, and sensitive-data boundaries against real PostgreSQL and HTTP.
-
-Run the browser-facing product journey:
-
-```bash
 bash tests/Consumer/community-board-product-journey.sh
+bash tests/Consumer/community-board-digest.sh
+bash tests/Consumer/community-board-browser.sh
 ```
 
-It drives registration, feed, create, comment, edit, and delete entirely through SvelteKit, checks safe authentication and backend-failure behavior, and verifies that generated clients, private configuration, credentials, and backend details stay out of browser artifacts and rendered responses.
+- Foundation checks SvelteKit SSR, backend-unavailable behavior, generation drift, and server-only imports.
+- Identity checks registration, rotation, revocation, expiry, CSRF, cookies, Classic／Worker parity, and credential non-exposure.
+- Post／Comment checks Domain rules, validation, authorization concealment, transactions, ordering, and hard-delete cascade.
+- Product Journey drives all Inline actions through SvelteKit and checks safe screen projections.
+- Digest drives 202, finite wait, retry, completion, immutable snapshots, typed outcome, and owner-only status／detail.
+- Browser runs the complete accessible Chromium journey, responsive and reduced-motion checks, axe checks, and the credential-free screenshot.
 
-Run the Deferred digest journey:
+## Troubleshooting
+
+### Digest stays accepted because the Worker is not running
+
+**Symptom:** `/digests/operations/{operationId}` continues to show “Digest accepted.”
+
+**Verify:** Run `docker compose --profile worker ps` and confirm that `worker` is running. Inspect it with `docker compose --profile worker logs worker`.
+
+**Fix:** Start it with `docker compose --profile worker up -d worker`. Keep PostgreSQL and the PHP runtime running while the Worker claims the Deferred Operation.
+
+### Seed reports a conflict
+
+**Symptom:** `php blackops app:seed` exits nonzero with the fixed safe failure message after a seeded row was edited manually.
+
+**Verify:** Check whether the fixed seed IDs or `@blackops.local` emails now contain different display names, timestamps, content, relationships, or password hashes. The command intentionally does not print the conflicting value.
+
+**Fix:** Preserve non-seed data, then restore the changed seed-owned row to the source fixture or recreate the local database volume with `docker compose down --volumes`. Seed never updates, truncates, or deletes a conflicting row automatically.
+
+### A host port is already in use
+
+**Symptom:** Compose cannot bind `5173`, `8081`, or `8082`.
+
+**Verify:** Run `docker compose ps` and inspect other local processes using the reported port.
+
+**Fix:** Set unused values for `FRONTEND_PORT`, `BLACKOPS_DEBUG_PORT`, and `BLACKOPS_CLASSIC_DEBUG_PORT` in `.env`. Keep `FRONTEND_ORIGIN` aligned with `FRONTEND_PORT`, then rebuild and restart the frontend.
+
+### Generated frontend contract is missing or drifted
+
+**Symptom:** SvelteKit import or type checks fail, or `php blackops frontend:check` reports Missing／Drift.
+
+**Verify:** Run `docker compose run --rm app php blackops build:compile` and then `docker compose run --rm app php blackops frontend:check`.
+
+**Fix:** Regenerate with `docker compose run --rm app php blackops frontend:generate`, rerun `frontend:check`, and then rebuild SvelteKit. Do not edit files inside the generated directory.
+
+### Login loops on Local HTTP
+
+**Symptom:** Login succeeds server-side, but the browser does not send the session cookie and redirects back to `/login`.
+
+**Verify:** Confirm that the local URL uses plain HTTP and inspect `SESSION_COOKIE_SECURE` plus `FRONTEND_ORIGIN` in `.env`.
+
+**Fix:** Use `SESSION_COOKIE_SECURE=false` only for the documented Local HTTP origin. Set it to `true` behind HTTPS in every non-local environment; do not weaken the production cookie to work around TLS configuration.
+
+## Stop and clean local state
 
 ```bash
-bash tests/Consumer/community-board-digest.sh
+docker compose --profile worker --profile classic-mode down --volumes --remove-orphans
+rm -rf vendor var/build var/log var/phpunit frontend/node_modules \
+  frontend/src/lib/server/blackops/generated frontend/.svelte-kit frontend/build \
+  frontend/test-results frontend/playwright-report
+rm -f .env
 ```
 
-It verifies accepted progress, finite wait fallback, first-attempt retry, second-attempt completion, immutable same-week snapshots, hard-delete recounting, status and detail ownership concealment, and browser-sensitive boundaries against the real worker and PostgreSQL transport.
-
-The current pages intentionally use minimal semantic controls. Final visual design and icon integration are deferred; the planned icon source is [Reicon](https://reicon.dev).
+The permanent consumers perform equivalent cleanup automatically. The application and Documentation Website are Local／CI examples; this repository does not publish or host them externally.

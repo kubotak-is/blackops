@@ -140,7 +140,7 @@ MVP後に残す主要項目:
 - [x] Taste SkillをDesign Directionへ適用し、`reicon.dev`をIcon Sourceとして、Accessibility／Responsive／State UIを完成する
 - [x] Real Browser E2E、CI、Credential-free Screenshotを追加する
 - [x] Deterministic SeedとClean Install Consumerを完成する
-- [ ] README／Guide、Website、全品質Gateを同期してPhase 17をCloseする
+- [x] README／Guide、Website、全品質Gateを同期してPhase 17をCloseする
 
 ### Phase 18: Reliability and Delivery
 
