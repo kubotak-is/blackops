@@ -50,6 +50,8 @@ namespace BlackOps\Application;
 
 final readonly class Environment
 {
+    /** @param array<array-key, mixed> $variables */
+    public function __construct(array $variables);
     public function string(string $name, ?string $default = null): string;
     public function optionalString(string $name): ?string;
     public function int(string $name, ?int $default = null): int;
@@ -59,6 +61,7 @@ final readonly class Environment
 ```
 
 - Constructorへ渡す値は`array<string, string>`だけを受理し、外部MutationからCopyして保持する
+- Constructor／Accessorの不正入力はRaw Valueを含まない`InvalidArgumentException`とし、Application Bootstrapは既存`ApplicationBootstrapException`へ包む
 - `string()`、`int()`、`positiveInt()`、`bool()`は値がなくDefaultもない場合に起動失敗する
 - `optionalString()`は未定義なら`null`、定義済みの空文字列は空文字列を返す
 - `int()`は10進整数、`positiveInt()`は1以上だけを受理する

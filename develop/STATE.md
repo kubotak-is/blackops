@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-22T03:03:24+09:00
+Updated At: 2026-07-22T03:07:21+09:00
 
 ## Current Phase
 
@@ -8,17 +8,17 @@ Phase 18: Application Ergonomics - Planning
 
 ## Current Task
 
-Task ID: P18-002 Preparation
+Task ID: P18-002
 
-Task Packet: not created yet
+Task Packet: `develop/orchestration/tasks/P18-002-typed-environment-and-configuration.md`
 
 Specifications: `develop/spec/74-application-ergonomics.md`、`develop/spec/75-phase-18-delivery-plan.md`
 
 ## Task Status
 
-In Progress
+Ready for Worker
 
-D110、Phase 18 Application Ergonomics Specification、Delivery Planを確定した。P18-002からP18-007までをTyped Environment、Bound Client、Command Discovery、Operation Console、Session Auth、Community Board移行の依存順に実装する。次にP18-002 Task Packetを作成する。
+D110、Phase 18 Specification／Delivery Planを確定し、P18-002 Task Packetを作成した。Public Environment、Configuration Closureの一回評価、Builder呼出順非依存、Quickstart／Community Board Configuration移行を実装する。Environment全体をCompiled Artifact／Containerへ保存せず、config外の既存Environment利用はScope外とする。
 
 ## Last Accepted Task
 
@@ -61,8 +61,8 @@ Active Implementation Blockerはない。Ray.Aop 2.19.1／2.20.0には複数clas
 
 ## Required Next Action
 
-1. OrchestratorがP18-002 Typed Environment／Configuration ClosureのTask Packetを作成する。
-2. GPT-5.6 Luna High workerへ実装を依頼する。
+1. GPT-5.6 Luna High workerがP18-002を実装・検証し、Report／STATEを更新する。
+2. OrchestratorがScope、Public Contract、Sensitive Boundary、品質GateをReviewする。
 
 ## P17-009B Community Board Documentation and Phase Closeout Worker Verification
 
