@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BlackOps\Internal\Application;
 
+use BlackOps\Internal\Console\ApplicationCommandMetadata;
 use InvalidArgumentException;
 use ReflectionClass;
 use Symfony\Component\Console\Command\Command;
@@ -47,21 +48,19 @@ final readonly class ApplicationCommandValidator
         }
 
         $command = $entry instanceof Command ? $entry : $this->instantiate($class);
-        $name = $command->getName();
-        if ($name === null || $name === '') {
-            throw new InvalidArgumentException('Application command must define a non-empty command name.');
-        }
-
-        $registered = $names[$name] ?? null;
-        if ($registered !== null && $registered !== $class) {
-            throw new InvalidArgumentException(sprintf(
-                'Application command name "%s" is registered by more than one command.',
-                $name,
-            ));
+        $metadata = ApplicationCommandMetadata::fromCommand($command);
+        foreach ([$metadata->name, ...$metadata->aliases] as $name) {
+            $registered = $names[$name] ?? null;
+            if ($registered !== null && $registered !== $class) {
+                throw new InvalidArgumentException(sprintf(
+                    'Application command name or alias "%s" is registered by more than one command.',
+                    $name,
+                ));
+            }
+            $names[$name] = $class;
         }
 
         $identities[$class] = true;
-        $names[$name] = $class;
         $commands[] = $entry;
     }
 

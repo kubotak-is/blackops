@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace BlackOps\Internal\Application;
 
 use BlackOps\Internal\Console\ApplicationBuildCompileCommand;
+use BlackOps\Internal\Console\ApplicationCommandCollisionValidator;
 use BlackOps\Internal\Console\ApplicationOperationListCommand;
 use BlackOps\Internal\Console\DatabaseMigrationMigrateCommand;
 use BlackOps\Internal\Console\DatabaseMigrationStatusCommand;
+use BlackOps\Internal\Console\FrameworkCommandNames;
 use BlackOps\Internal\Console\FrontendCheckCommand;
 use BlackOps\Internal\Console\FrontendGenerateCommand;
 use BlackOps\Internal\Console\LazyFrameworkCommand;
@@ -20,10 +22,9 @@ use BlackOps\Internal\Console\RetentionPurgeCommand;
 use BlackOps\Internal\Console\SchedulerDaemonCommand;
 use BlackOps\Internal\Console\SchedulerRunCommand;
 use BlackOps\Internal\Console\WorkerRunCommand;
-use InvalidArgumentException;
-use ReflectionClass;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Command\LazyCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -31,25 +32,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 final readonly class ApplicationConsoleKernel
 {
-    /** @var list<string> */
-    private const FRAMEWORK_COMMANDS = [
-        ApplicationBuildCompileCommand::NAME,
-        ApplicationOperationListCommand::NAME,
-        MakeOperationCommand::NAME,
-        MakeMigrationCommand::NAME,
-        DatabaseMigrationStatusCommand::NAME,
-        DatabaseMigrationMigrateCommand::NAME,
-        WorkerRunCommand::NAME,
-        RetentionPlanCommand::NAME,
-        RetentionPurgeCommand::NAME,
-        SchedulerRunCommand::NAME,
-        SchedulerDaemonCommand::NAME,
-        OperationInspectCommand::NAME,
-        OperationViewerCommand::NAME,
-        FrontendGenerateCommand::NAME,
-        FrontendCheckCommand::NAME,
-    ];
-
     private Application $application;
 
     public function __construct(ApplicationConfigurationSnapshot $configuration)
@@ -64,36 +46,36 @@ final readonly class ApplicationConsoleKernel
             $this->application->addCommand($command);
         }
 
-        foreach ($configuration->commands() as $entry) {
-            $command = $entry instanceof Command ? $entry : new ReflectionClass($entry)->newInstance();
-            $name = $command->getName();
-            if ($name !== null) {
-                $this->assertApplicationCommandNameIsAvailable($name);
-            }
-
-            /** @var list<string> $aliases */
-            $aliases = $command->getAliases();
-            foreach ($aliases as $alias) {
-                $this->assertApplicationCommandNameIsAvailable($alias);
-            }
-
+        $explicit = ExplicitApplicationCommands::from($configuration->commands());
+        $explicitMetadata = $explicit->metadata();
+        $frameworkNames = FrameworkCommandNames::all();
+        new ApplicationCommandCollisionValidator()->merge([], $explicitMetadata, $frameworkNames);
+        foreach ($explicit->commands() as $command) {
             $this->application->addCommand($command);
+        }
+
+        $manifest = new ApplicationCommandRuntimeManifestLoader()->load(
+            $configuration,
+            $explicitMetadata,
+            $frameworkNames,
+        );
+        if ($manifest !== null) {
+            $resolver = new ApplicationCommandContainerResolver($configuration, $manifest->build);
+            foreach ($manifest->commands as $command) {
+                $this->application->addCommand(new LazyCommand(
+                    $command->name,
+                    $command->aliases,
+                    $command->description ?? '',
+                    $command->hidden,
+                    static fn(): Command => $resolver->resolve($command->class),
+                ));
+            }
         }
     }
 
     public function run(?InputInterface $input, ?OutputInterface $output): int
     {
         return $this->application->run($input, $output);
-    }
-
-    private function assertApplicationCommandNameIsAvailable(string $name): void
-    {
-        if (in_array($name, self::FRAMEWORK_COMMANDS, strict: true)) {
-            throw new InvalidArgumentException(sprintf(
-                'Application command name "%s" conflicts with a framework command.',
-                $name,
-            ));
-        }
     }
 
     /** @return list<LazyFrameworkCommand> */
@@ -132,7 +114,7 @@ final readonly class ApplicationConsoleKernel
             )->withCanonicalSynopsis('operation:inspect <operation-id> [--json]'),
             new LazyFrameworkCommand(
                 ApplicationBuildCompileCommand::NAME,
-                'Compile application operation, HTTP, and container artifacts.',
+                'Compile application operation, HTTP, command, and container artifacts.',
                 $factory->build(...),
                 $none,
             ),

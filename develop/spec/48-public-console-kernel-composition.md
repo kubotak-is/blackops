@@ -74,6 +74,7 @@ return [
         'application_build_id' => 'my-app',
         'operation_manifest' => dirname(__DIR__) . '/var/build/operations.php',
         'http_manifest' => dirname(__DIR__) . '/var/build/http.php',
+        'command_manifest' => dirname(__DIR__) . '/var/build/commands.php',
         'container' => dirname(__DIR__) . '/var/build/container.php',
         'container_class' => 'CompiledContainer',
         'container_namespace' => 'App\\Generated',
@@ -81,11 +82,17 @@ return [
 ];
 ```
 
+`app.command_discovery`はBuild時に走査するApplication Source RootのListであり、欠落または空ListではCommandを自動Discoveryしない。`command_manifest`を省略した既存ApplicationはContainer Artifactと同じDirectoryの`commands.php`を使う。
+
 `application_build_id` は空でないStringとする。Application-aware Build CommandはSnapshotのOperation Provider／Service ProviderをCompileし、同じBuild IDでOperation ManifestとHTTP Manifestを生成し、指定Class／NamespaceのContainerを指定Pathへ生成する。
 
 Provider Config FileとArtifact Pathの必須CLI引数は持たない。既存のLock、Fingerprint等の任意Build最適化は、Application-aware Contractへ安全に適用できる範囲でOptionとして維持できる。
 
 `operation:list` は同じSnapshotのOperation ProviderをCompileして表示し、Source Discovery用必須CLI引数を要求しない。Production BuildとHTTP起動はSource DiscoveryへFallbackしない。
+
+Application-aware BuildはSymfony `#[AsCommand]` MetadataをConstructor実行なしで抽出し、Schema 1のPHP Array Command ManifestへAtomicに保存する。Command ClassはApplication Service Provider適用後にAutowired Public Serviceとして登録し、同じService IDのApplication定義を優先する。Unresolved Constructor Dependency、Framework／Discovered／Explicit NameまたはAlias衝突はBuild Errorとする。
+
+新ProcessのConsole KernelはValidで同じBuild IDのCommand ManifestからSymfony `LazyCommand`を登録する。Global `list`はManifest Metadataだけを使い、Command固有Help／Definition／実行時に同じCompiled ContainerからCommand Serviceを一度だけ解決する。Missing／Invalid／Stale ManifestではDiscovered Commandを登録せず、Framework `build:compile`を含むBuilt-in Commandを維持する。Runtime Source Scan、Reflection Fallback、`new $class()`は行わない。
 
 ## Database and Migration
 

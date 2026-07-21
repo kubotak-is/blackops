@@ -33,6 +33,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\DependencyInjection\ContainerInterface as SymfonyContainerInterface;
 use Symfony\Component\DependencyInjection\Reference;
 
@@ -200,6 +201,32 @@ final class RuntimeContainerCompilerTest extends TestCase
 
         self::assertInstanceOf(ContainerMiddleware::class, $middleware);
         self::assertSame('dependency-ready', $middleware->dependency->value);
+    }
+
+    public function testRegistersApplicationCommandAsAutowiredPublicService(): void
+    {
+        $compiler = new RuntimeContainerCompiler();
+        $builder = $compiler->builder();
+        $builder->register(ContainerDependency::class)->setAutowired(true);
+
+        $compiler->registerApplicationCommands($builder, [ContainerApplicationCommand::class]);
+        $compiler->registerApplicationCommands($builder, [ContainerApplicationCommand::class]);
+
+        $command = $compiler->compile($builder)->get(ContainerApplicationCommand::class);
+        self::assertInstanceOf(ContainerApplicationCommand::class, $command);
+        self::assertSame('dependency-ready', $command->dependency->value);
+    }
+
+    public function testApplicationProviderCommandBindingWinsOverAutomaticRegistration(): void
+    {
+        $compiler = new RuntimeContainerCompiler();
+        $builder = $compiler->builder();
+        $expected = new ContainerApplicationCommand(new ContainerDependency('explicit'));
+        $compiler->apply($builder, [new ExplicitApplicationCommandProvider($expected)]);
+
+        $compiler->registerApplicationCommands($builder, [ContainerApplicationCommand::class]);
+
+        self::assertSame($expected, $compiler->compile($builder)->get(ContainerApplicationCommand::class));
     }
 
     public function testExplicitProviderMiddlewareBindingWinsOverAutomaticRegistration(): void
@@ -479,5 +506,26 @@ final readonly class ExplicitDatabaseManagerProvider implements ServiceProvider
     public function register(ServiceRegistry $services): void
     {
         $services->set(DatabaseManager::class, $this->databases);
+    }
+}
+
+final class ContainerApplicationCommand extends Command
+{
+    public function __construct(
+        public ContainerDependency $dependency,
+    ) {
+        parent::__construct('container:application');
+    }
+}
+
+final readonly class ExplicitApplicationCommandProvider implements ServiceProvider
+{
+    public function __construct(
+        private ContainerApplicationCommand $command,
+    ) {}
+
+    public function register(ServiceRegistry $services): void
+    {
+        $services->set(ContainerApplicationCommand::class, $this->command);
     }
 }

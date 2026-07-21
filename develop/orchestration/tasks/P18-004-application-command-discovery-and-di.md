@@ -1,6 +1,6 @@
 # P18-004: Application Command Discovery and DI
 
-Status: Ready
+Status: Accepted
 
 ## Goal
 

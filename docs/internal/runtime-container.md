@@ -20,6 +20,8 @@ The internal build artifacts command can run container compilation together with
 
 Application build automatically registers every compiled handler class as a public autowired service after applying application service providers. Existing definitions, aliases, and service instances are preserved, so an explicit application binding wins. Typed and Legacy Self-handled definitions and Separate handlers follow the same rule; interface dependencies remain the responsibility of an application service provider.
 
+Application build applies the same provider-first rule to discovered Symfony commands. Each `#[AsCommand]` class is registered as an autowired public service only when its service ID is not already defined. Container compilation validates required constructor dependencies without constructing the command. Runtime command composition loads only the dumped container and resolves the expected command class through PSR-11; it never uses `new $class()` or scans source.
+
 Build artifact generation can be guarded by a local build lock so concurrent compile processes do not write the same artifact set at the same time.
 
 Build artifact generation can store a lightweight fingerprint of explicit input files. When the fingerprint still matches and the operation manifest, HTTP manifest, and container file all exist, generation can be skipped.
@@ -32,6 +34,8 @@ The production runtime artifact loader is the internal bootstrap boundary for ge
 the operation and HTTP manifest schema versions, application build IDs, and payloads. It rejects manifests from
 different application builds before loading the dumped runtime container file, then verifies that the configured
 container class implements PSR-11. It does not perform dynamic operation scan or rebuild artifacts at runtime.
+
+The focused runtime container artifact loader is shared by HTTP／Worker artifact loading and the application command resolver. A valid Command Manifest can be listed while the container is missing; only command-specific help or execution attempts the load and closes failure to a safe application bootstrap error. Synthetic logger services are injected at that lazy boundary. Database and transaction services are injected only when database configuration exists, so kernel construction and global listing never open a connection.
 
 For Self-handled metadata, HTTP composition, deferred execution, and lease recovery resolve the handler from this compiled container and reuse that exact object as the operation definition. Handler resolution verifies that the resolved object matches the class recorded in metadata. Separate-handler operation definitions continue to use their no-argument construction path.
 

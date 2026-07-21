@@ -67,6 +67,8 @@ test -f "${package_root}/app/UserInterface/Http/SampleTokenAuthenticator.php"
 grep -q 'SAMPLE_API_TOKEN=local-example' "${package_root}/.env.example"
 grep -q 'AuthenticationMiddleware::class' "${package_root}/config/middleware.php"
 grep -q 'ApplicationServiceProvider::class' "${package_root}/config/app.php"
+grep -q "'command_manifest'" "${package_root}/config/app.php"
+grep -q "'command_discovery'" "${package_root}/config/app.php"
 grep -q 'OperationStatusAuthorizer::class, SampleOperationStatusAuthorizer::class' \
     "${package_root}/app/ApplicationServiceProvider.php"
 ! grep -R -q 'sampleToken\|apiToken' "${package_root}/app"
@@ -161,6 +163,7 @@ test -x "${normal_project}/blackops"
 test ! -e "${normal_project}/bin/"'blackops'
 test ! -e "${normal_project}/var/build/operations.php"
 test ! -e "${normal_project}/var/build/http.php"
+test ! -e "${normal_project}/var/build/commands.php"
 test ! -e "${normal_project}/var/build/container.php"
 test ! -e "${normal_project}/var/log/journal.jsonl"
 test ! -d "${normal_project}/node_modules"
@@ -199,6 +202,7 @@ test -n "$(find "${normal_project}/migrations" -maxdepth 1 -type f -name 'Versio
 run_php /smoke/normal/blackops build:compile \
     > "${temporary_root}/normal-build.out"
 test -f "${normal_project}/var/build/operations.php"
+test -f "${normal_project}/var/build/commands.php"
 
 test ! -d "${package_root}/resources/stubs"
 test ! -d "${normal_project}/resources/stubs"

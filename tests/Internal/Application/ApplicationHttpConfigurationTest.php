@@ -27,6 +27,9 @@ final class ApplicationHttpConfigurationTest extends TestCase
             self::configuration('/operations.php', '/http.php', 'frontend.php'),
             'frontend_manifest',
         ];
+        $invalidCommandManifest = self::configuration();
+        $invalidCommandManifest['app']['build']['command_manifest'] = 'commands.php';
+        yield 'relative command manifest' => [$invalidCommandManifest, 'command_manifest'];
         yield 'invalid container class' => [
             self::configuration('/operations.php', '/http.php', '/frontend.php', '/container.php', 'Invalid-Class'),
             'container_class',
@@ -54,9 +57,17 @@ final class ApplicationHttpConfigurationTest extends TestCase
         self::assertSame('/operations.php', $configuration->operationManifest);
         self::assertSame('/http.php', $configuration->httpManifest);
         self::assertSame('/frontend.php', $configuration->frontendManifest);
+        self::assertSame('/commands.php', $configuration->commandManifest);
         self::assertSame('/container.php', $configuration->container);
         self::assertSame('CompiledContainer', $configuration->containerClass);
         self::assertSame('', $configuration->containerNamespace);
+
+        $explicit = self::configuration();
+        $explicit['app']['build']['command_manifest'] = '/build/application-commands.php';
+        self::assertSame(
+            '/build/application-commands.php',
+            ApplicationBuildConfiguration::fromConfiguration($explicit)->commandManifest,
+        );
     }
 
     public function testRejectsInvalidDatabaseConfigurationWithoutExposingConnectionValues(): void

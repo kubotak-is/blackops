@@ -75,6 +75,8 @@ Application-aware `build:compile` と `operation:list` は次を行う。
 
 DiscoveryはCommand実行時だけ行い、HTTP／Worker Runtime Compositionから呼ばない。
 
+Symfony Application CommandのDiscovery Rootは`app.command_discovery`であり、Operationの`operations.discovery`とは独立する。両者は`build:compile`でだけ走査されるが、Operation ManifestとCommand Manifestを混在させず、CommandのMetadata／Container DIはConsole Compositionが所有する。
+
 ## Provider Extension
 
 `OperationProvider` はOptional Extension Pointとして維持する。

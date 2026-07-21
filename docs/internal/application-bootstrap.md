@@ -10,7 +10,10 @@ Application Bootstrapは、Installed Applicationの入力をInternal Runtime Com
 - `ApplicationConfigurationRegistrations`: Config内の登録Sectionの抽出
 - `ApplicationMiddlewareValidator`: Global PSR-15 Middleware ClassのContract、生成可能性、重複を検証
 - `ApplicationProviderValidator`: Provider Contract、生成可能性、Identity重複の検証
-- `ApplicationCommandValidator`: Command型、生成可能性、IdentityとCommand Name競合の検証
+- `ApplicationCommandValidator`: 明示Commandの型、生成可能性、Identity、Canonical Name／Alias競合の検証
+- `ApplicationCommandDiscovery`: Configured Root限定の`#[AsCommand]`探索とConstructor非実行Metadata抽出
+- `ApplicationCommandManifestFile`: Schema 1、Build ID、Exact Shape、決定的順序、Atomic Replaceの検証
+- `ApplicationCommandContainerResolver`: Command固有Help／実行時だけのCompiled Container読込とService解決
 - `ApplicationConfigurationSnapshot`: Base Path、評価済みConfig、登録を保持するImmutableなInternal Snapshot
 - `ApplicationBuildConfiguration`／`ApplicationDatabaseConfiguration`: HTTP Runtime用Configの安全な型検証
 - `ApplicationHttpRuntime`: Handlerの遅延構成とApplication Instance単位のCache
@@ -40,7 +43,9 @@ Worker AttemptではTransport Contextのorigin／authorizationを維持し、exe
 
 `Application` と `ApplicationBuilder` のconstructorはprivateである。生成BridgeはPublic型内部のprivate実装に閉じ、利用者がSnapshot Factoryを注入または差し替えるPublic Extension Pointは設けない。
 
-Console KernelもApplication Instance単位でCacheする。Command名、Description、Option Definitionは常時登録するが、実Command Factoryはexecute時だけ呼ぶ。これにより`list`／`help`はDBAL Connection、Artifact、PCNTLを生成しない。
+Console KernelもApplication Instance単位でCacheする。Framework Commandは名前、Description、Option Definitionを常時登録するが、実Command Factoryはexecute時だけ呼ぶ。Discovered Application Commandは同一Build IDのCommand ManifestだけからSymfony `LazyCommand`を登録する。Global `list`はConstructor、Container、Databaseを解決せず、Command固有Help／Definition／実行で初めてContainer Serviceを一度解決する。
+
+Command ManifestがMissing／Invalid／Staleの場合はDiscovered Commandを登録しない。Framework `build:compile`は常に残り、Runtime Source ScanへFallbackせずRecovery Buildできる。Valid ManifestとFramework／Explicit Commandが衝突する場合、および明示Command同士が衝突する場合はBootstrap Errorである。
 
 `make:operation`と`make:migration`も同じLazy Descriptorとして登録する。Kernel構成時はOperation Source、Migration Directory、Framework Stubを読まず、Command実行時だけApplication Base PathとFramework Package内StubをGeneratorへ渡す。Application CommandはGenerator名を上書きできない。
 

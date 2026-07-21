@@ -21,11 +21,13 @@ $application = Application::configure(dirname(__DIR__))
 
 Configは呼出時に一度だけ読み、`create()`後のFile変更を自動反映しません。各設定のShapeは[Configuration Reference](configuration.md)を参照してください。
 
-## OperationとService
+## Operation、Service、Command
 
 `config/operations.php`のDiscovery RootはBuild時にOperationを探索します。通常のApplication OperationをProviderへ列挙する必要はありません。PackageやApplication外Sourceを登録する場合だけ`providers`を使います。
 
 Typed Self-handled OperationはBuildでHandler Serviceとして自動登録されます。Repository Interface等のApplication固有DependencyをBindingする場合は、Service Providerを`config/app.php`の`services`へ登録します。Builderの`withOperations()`、`withServices()`、`withCommands()`から明示登録を追加することもできます。
+
+Application Maintenance CommandはSymfonyの`#[AsCommand]`を付け、`config/app.php`の`command_discovery`へSource Rootを指定します。`build:compile`がCommandを探索してCompiled Containerへ登録するため、Required Constructor DependencyをService Providerから注入できます。`commands`と`withCommands()`はPackage Command、Instance、明示Override／追加用として維持されます。
 
 QuickstartではOperationをProviderへ列挙せず、Repository Interface、Transactional Command、After Commit Serviceだけを登録します。Default DBAL `Connection`はFrameworkがRuntimeでSynthetic Serviceとして注入するため、ApplicationがCredential付きConnectionをProviderで作る必要はありません。
 
@@ -83,6 +85,6 @@ $application = require __DIR__ . '/bootstrap/app.php';
 exit($application->console()->run());
 ```
 
-`list`と`help`ではDatabase、Artifact、PCNTL、Retention Serviceを構成しません。対象Commandの実行時だけ必要なRuntimeを遅延構成します。
+`list`はCommand Manifestの名前／説明／Alias／Hiddenだけを読み、Command Constructor、Compiled Container、Database、PCNTL、Retention Serviceを構成しません。Command固有の`help`または実行時だけCompiled ContainerからCommandを解決します。Command ManifestがMissing／Invalid／StaleでもFramework Commandは残るため、`php blackops build:compile`で復旧できます。
 
 Application ObjectやContainerをOperation、Value、Domain Serviceへ渡しません。業務DependencyはConstructor Injectionします。

@@ -58,9 +58,11 @@ Optional Fileが存在しない場合のDefaultはFrameworkが所有する。Pro
 
 `withServices()` はConfig由来のService Providerへ明示Providerを追加する。各要素は `ServiceProvider` InstanceまたはそのClass Nameでなければならない。
 
-`withCommands()` はApplication独自のSymfony Console Commandを追加する。Framework標準Commandの実装はFramework Packageが所有する。
+`withCommands()` はApplication独自のSymfony Console Commandを明示追加する。Configured Sourceの`#[AsCommand]`付きCommandはBuild時に自動Discoveryし、Compiled ContainerからConstructor Injectionする。明示登録はPackage Command、Instance、同一ClassのOverride／追加に使用し、Framework標準Commandの実装はFramework Packageが所有する。
 
 重複するProvider／Commandは、同一Identityを二重登録せず、競合するCommand NameはBootstrap Errorとする。
+
+Command Discovery Rootは`app.command_discovery`で明示し、欠落または空Listでは探索しない。Discovery結果は同じApplication Build IDのCommand Manifestへ固定し、通常のConsole List、HTTP、WorkerはSourceを探索しない。Missing／Invalid／Stale Command ManifestはDiscovered Commandを未登録として扱い、Framework `build:compile`によるRecoveryを維持する。
 
 ## Configuration Precedence
 

@@ -8,7 +8,9 @@ framework_repository="${temporary_root}/framework"
 current_stubs="${temporary_root}/current-stubs"
 current_commands="${temporary_root}/current-commands"
 current_application="${temporary_root}/current-application"
+current_dependency_injection="${temporary_root}/current-dependency-injection"
 current_frontend_generation="${temporary_root}/current-frontend-generation"
+current_runtime="${temporary_root}/current-runtime"
 consumer_root="${temporary_root}/consumer"
 composer_home="${temporary_root}/composer-home"
 source_before="$(git -C "${repository_root}" status --short)"
@@ -36,20 +38,32 @@ run_composer() {
 }
 
 mkdir -p "${framework_repository}" "${current_stubs}" "${current_commands}" "${current_application}" \
-    "${current_frontend_generation}" \
+    "${current_dependency_injection}" "${current_frontend_generation}" "${current_runtime}" \
     "${consumer_root}" "${composer_home}"
 git -C "${repository_root}" archive HEAD | tar -x -C "${framework_repository}"
 cp -a "${repository_root}/examples/quickstart/." "${consumer_root}/"
 cp -a "${repository_root}/resources/stubs/." "${current_stubs}/"
 cp "${repository_root}/src/Internal/Application/ApplicationConsoleKernel.php" \
     "${repository_root}/src/Internal/Application/ApplicationConsoleCommandFactory.php" \
+    "${repository_root}/src/Internal/Application/ApplicationBuildConfiguration.php" \
+    "${repository_root}/src/Internal/Application/ApplicationCommandContainerResolver.php" \
+    "${repository_root}/src/Internal/Application/ApplicationCommandDiscovery.php" \
+    "${repository_root}/src/Internal/Application/ApplicationCommandRuntimeManifest.php" \
+    "${repository_root}/src/Internal/Application/ApplicationCommandRuntimeManifestLoader.php" \
+    "${repository_root}/src/Internal/Application/ApplicationCommandValidator.php" \
+    "${repository_root}/src/Internal/Application/ExplicitApplicationCommands.php" \
     "${current_application}/"
 cp "${repository_root}/src/Internal/Console/ApplicationBuildCompileCommand.php" \
+    "${repository_root}/src/Internal/Console/ApplicationCommandCollisionValidator.php" \
+    "${repository_root}/src/Internal/Console/ApplicationCommandManifestArtifact.php" \
+    "${repository_root}/src/Internal/Console/ApplicationCommandManifestFile.php" \
+    "${repository_root}/src/Internal/Console/ApplicationCommandMetadata.php" \
     "${repository_root}/src/Internal/Console/ApplicationOperationListCommand.php" \
     "${repository_root}/src/Internal/Console/DatabaseMigrationMigrateCommand.php" \
     "${repository_root}/src/Internal/Console/DatabaseMigrationStatusCommand.php" \
     "${repository_root}/src/Internal/Console/LazyFrameworkCommand.php" \
     "${repository_root}/src/Internal/Console/FrontendCheckCommand.php" \
+    "${repository_root}/src/Internal/Console/FrameworkCommandNames.php" \
     "${repository_root}/src/Internal/Console/MakeOperationCommand.php" \
     "${repository_root}/src/Internal/Console/MakeMigrationCommand.php" \
     "${repository_root}/src/Internal/Console/RetentionPlanCommand.php" \
@@ -58,12 +72,17 @@ cp "${repository_root}/src/Internal/Console/ApplicationBuildCompileCommand.php" 
     "${repository_root}/src/Internal/Console/SchedulerRunCommand.php" \
     "${repository_root}/src/Internal/Console/WorkerRunCommand.php" \
     "${current_commands}/"
+cp "${repository_root}/src/Internal/DependencyInjection/RuntimeContainerCompiler.php" \
+    "${current_dependency_injection}/"
 cp "${repository_root}/src/Internal/Frontend/Generation/FrontendTreeCheckInspectionException.php" \
     "${repository_root}/src/Internal/Frontend/Generation/FrontendTreeCheckFilesystem.php" \
     "${repository_root}/src/Internal/Frontend/Generation/FrontendTreeCheckState.php" \
     "${repository_root}/src/Internal/Frontend/Generation/FrontendTreeChecker.php" \
     "${repository_root}/src/Internal/Frontend/Generation/NativeFrontendTreeCheckFilesystem.php" \
     "${current_frontend_generation}/"
+cp "${repository_root}/src/Internal/Runtime/ProductionRuntimeArtifactLoader.php" \
+    "${repository_root}/src/Internal/Runtime/RuntimeContainerArtifactLoader.php" \
+    "${current_runtime}/"
 
 git -C "${framework_repository}" init --quiet --initial-branch=main
 git -C "${framework_repository}" config user.name 'BlackOps Consumer Test'
@@ -88,10 +107,18 @@ mkdir -p "${framework_repository}/resources/stubs"
 cp -a "${current_stubs}/." "${framework_repository}/resources/stubs/"
 cp "${current_application}"/*.php "${framework_repository}/src/Internal/Application/"
 cp "${current_commands}"/*.php "${framework_repository}/src/Internal/Console/"
+cp "${current_dependency_injection}"/*.php "${framework_repository}/src/Internal/DependencyInjection/"
 cp "${current_frontend_generation}"/*.php "${framework_repository}/src/Internal/Frontend/Generation/"
+cp "${current_runtime}"/*.php "${framework_repository}/src/Internal/Runtime/"
 git -C "${framework_repository}" add resources/stubs src/Internal/Application/ApplicationConsoleKernel.php \
-    src/Internal/Application/ApplicationConsoleCommandFactory.php src/Internal/Console \
-    src/Internal/Frontend/Generation
+    src/Internal/Application/ApplicationConsoleCommandFactory.php src/Internal/Application/ApplicationBuildConfiguration.php \
+    src/Internal/Application/ApplicationCommandContainerResolver.php src/Internal/Application/ApplicationCommandDiscovery.php \
+    src/Internal/Application/ApplicationCommandRuntimeManifest.php \
+    src/Internal/Application/ApplicationCommandRuntimeManifestLoader.php \
+    src/Internal/Application/ApplicationCommandValidator.php src/Internal/Application/ExplicitApplicationCommands.php \
+    src/Internal/Console src/Internal/DependencyInjection/RuntimeContainerCompiler.php \
+    src/Internal/Frontend/Generation src/Internal/Runtime/ProductionRuntimeArtifactLoader.php \
+    src/Internal/Runtime/RuntimeContainerArtifactLoader.php
 git -C "${framework_repository}" commit --quiet -m 'Current framework fixture'
 git -C "${framework_repository}" tag 1.1.0
 
@@ -250,6 +277,7 @@ grep -q 'handle(AfterUpdateValue \$value): AfterUpdateOutcome' "${after_operatio
 grep -q "return 'AfterUpdateSchema';" "${after_migration}"
 
 run_php blackops build:compile > "${temporary_root}/build.out"
+test -f "${consumer_root}/var/build/commands.php"
 run_php blackops frontend:generate > "${temporary_root}/frontend-generate.out"
 run_php blackops frontend:check > "${temporary_root}/frontend-check.out"
 grep -q '^Frontend generated tree is fresh in resources/js/blackops\.$' \
@@ -259,13 +287,17 @@ grep -q 'diagnostics.failure.trigger' "${temporary_root}/operations.out"
 run_php -r '
 $operations = require "/smoke/consumer/var/build/operations.php";
 $http = require "/smoke/consumer/var/build/http.php";
+$commands = require "/smoke/consumer/var/build/commands.php";
 $typeFound = false;
 foreach ($operations["payload"]["operations"] ?? [] as $operation) {
     $typeFound = $typeFound || ($operation["typeId"] ?? null) === "diagnostics.failure.trigger";
 }
 $routeFound = ($http["payload"]["routes"]["POST"]["/failures"] ?? null)
     === "diagnostics.failure.trigger";
-exit($typeFound && $routeFound ? 0 : 1);
+exit($typeFound
+    && $routeFound
+    && ($commands["schema_version"] ?? null) === 1
+    && ($commands["commands"] ?? null) === [] ? 0 : 1);
 '
 
 test "$(git -C "${repository_root}" status --short)" = "${source_before}"

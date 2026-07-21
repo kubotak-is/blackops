@@ -75,6 +75,8 @@ examples/quickstart/
 
 Operation自身がHandlerを兼ねるSelf-handled形式を標準とする。Constructor Dependencyなどで責務を分ける場合はOptional `#[HandledBy]` とSeparate Handlerを利用できる。Operation DiscoveryとDI Container生成はBuild時だけに行われ、Production HTTP／Worker RuntimeはCompile済みArtifactへFail-fastする。
 
+Application Maintenance Commandは`config/app.php`の`command_discovery` RootからBuild時だけ探索する。Symfony `#[AsCommand]` MetadataをSchema 1の`var/build/commands.php`へ保存し、Command Classは同じCompiled ContainerへAutowired Public Serviceとして登録する。Global CLI ListはManifest Metadataだけで表示し、個別Help／実行時にService Provider Bindingを使ってLazy解決する。Missing／Invalid／Stale ManifestでもFramework `build:compile`を維持する。
+
 Default Compose ServiceはPostgreSQLとWorker Mode HTTPだけである。Composer Install、Artifact Build、Migration、Deferred Worker、Scheduler、Retention Purgeは明示CommandまたはProfileで実行する。Classic HTTPは`classic-mode` ProfileのFallbackである。変更を伴うPurgeは追加の`--confirm`を要求する。
 
 ## Phase 15 Frontend Contract Boundary

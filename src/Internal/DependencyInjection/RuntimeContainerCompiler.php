@@ -16,6 +16,7 @@ use InvalidArgumentException;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**
@@ -112,6 +113,18 @@ final readonly class RuntimeContainerCompiler
             }
 
             $builder->register($policy)->setAutowired(true)->setPublic(true);
+        }
+    }
+
+    /** @param iterable<class-string<Command>> $commands */
+    public function registerApplicationCommands(ContainerBuilder $builder, iterable $commands): void
+    {
+        foreach ($commands as $command) {
+            if ($builder->has($command)) {
+                continue;
+            }
+
+            $builder->register($command)->setAutowired(true)->setPublic(true);
         }
     }
 

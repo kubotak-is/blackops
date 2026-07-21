@@ -12,6 +12,7 @@ final readonly class ApplicationBuildConfiguration
         public string $operationManifest,
         public string $httpManifest,
         public string $frontendManifest,
+        public string $commandManifest,
         public string $container,
         public string $containerClass,
         public string $containerNamespace,
@@ -31,6 +32,9 @@ final readonly class ApplicationBuildConfiguration
         $httpManifest = self::absolutePath($build, 'http_manifest');
         $frontendManifest = self::absolutePath($build, 'frontend_manifest');
         $container = self::absolutePath($build, 'container');
+        $commandManifest = array_key_exists('command_manifest', $build)
+            ? self::absolutePath($build, 'command_manifest')
+            : rtrim(dirname($container), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'commands.php';
         $containerClass = self::identifier($build, 'container_class');
         $containerNamespace = self::namespace($build);
 
@@ -38,6 +42,7 @@ final readonly class ApplicationBuildConfiguration
             $operationManifest,
             $httpManifest,
             $frontendManifest,
+            $commandManifest,
             $container,
             $containerClass,
             $containerNamespace,

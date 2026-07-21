@@ -7,7 +7,7 @@ php blackops list
 php blackops help build:compile
 ```
 
-`list`／`help`はDatabase接続、Migration Scan、Artifact Load、PCNTL、Retention Runtimeを要求しません。
+`list`はDatabase接続、Migration Scan、Compiled Container、PCNTL、Retention Runtimeを要求しません。ValidなCommand ManifestがあればApplication CommandのMetadataだけを表示します。Command固有の`help`は、そのCommandのDefinitionを得るためCompiled Containerから一度だけ解決します。
 
 ## BuildとDiscovery
 
@@ -16,7 +16,9 @@ operation:list
 build:compile
 ```
 
-Operation ListとBuildだけが`config/operations.php`のSource Rootを探索します。BuildはOperation Manifest、HTTP Manifest、Frontend Contract Manifest、DI Containerを同じBuild IDで生成します。TypeScript Source Treeは変更しません。
+Operation ListとBuildだけが`config/operations.php`のOperation Source Rootを探索します。Buildはさらに`config/app.php`の`command_discovery` RootからSymfony `#[AsCommand]`を探索し、Operation Manifest、HTTP Manifest、Frontend Contract Manifest、Command Manifest、DI Containerを同じBuild IDで生成します。TypeScript Source Treeは変更しません。
+
+Command ManifestがMissing／Invalid／Build ID不一致の場合、Application Commandは登録せずFramework Commandだけで起動します。Source ScanへFallbackしないため、壊れたArtifactからも`php blackops build:compile`で復旧できます。
 
 ## Frontend
 

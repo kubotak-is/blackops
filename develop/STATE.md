@@ -1,28 +1,28 @@
 # Orchestration State
 
-Updated At: 2026-07-22T04:25:22+09:00
+Updated At: 2026-07-22T05:04:09+09:00
 
 ## Current Phase
 
-Phase 18: Application Ergonomics - Application Command Discovery Preparation
+Phase 18: Application Ergonomics - Operation Console Adapter Preparation
 
 ## Current Task
 
-Task ID: P18-004 Application Command Discovery and DI
+Task ID: P18-005 Operation Console Adapter Preparation
 
-Task Packet: `develop/orchestration/tasks/P18-004-application-command-discovery-and-di.md`
+Task Packet: Not created
 
 Specifications: `develop/spec/74-application-ergonomics.md`、`develop/spec/75-phase-18-delivery-plan.md`
 
 ## Task Status
 
-In Progress
+Accepted
 
-P18-004のTask Packetを作成した。`app.command_discovery`、Command Manifest Schema 1、Compiled Container DI、Symfony Lazy Command、Framework／Discovered／Explicit Collision、Missing／Stale ArtifactからのRecovery、Quickstart／Permanent Fixture境界を固定し、GPT-5.6 Luna High workerへ渡す準備が整った。
+P18-004をOrchestratorがReviewしAcceptedとした。Configured `#[AsCommand]` Discovery、Command Manifest Schema 1、Compiled Container DI、Symfony Lazy Command、Framework／Discovered／Explicit Collision、Missing／Invalid／Stale ArtifactからのRecovery、Quickstart／Skeleton／Framework Update互換を固定した。Workerの全Required Gateに加え、OrchestratorがFocused PHPUnit 304 tests／982 assertions、Mago format、Deptrac 0 violations、Management ID／Community Board Scope／diff Guardを独立再検証した。
 
 ## Last Accepted Task
 
-P18-003-frontend-bound-client-factory
+P18-004-application-command-discovery-and-di
 
 ## Pending Decisions
 
@@ -61,8 +61,26 @@ Active Implementation Blockerはない。Ray.Aop 2.19.1／2.20.0には複数clas
 
 ## Required Next Action
 
-1. GPT-5.6 Luna High workerがP18-004を実装・検証し、ReportとSTATEを更新する。
-2. OrchestratorがDiscovery、Manifest、Container DI、Lazy Runtime、Recovery、全GateをReviewする。
+1. P18-005 Operation Console AdapterのPublic Attribute、Build Metadata、Binding／Output／Exit Code、Console Actor Provider境界をTask Packetで固定する。
+2. GPT-5.6 Luna High workerへP18-005を委譲する。
+
+## P18-004 Application Command Discovery and DI Worker Verification
+
+```text
+Discovery: Configured app.command_discovery RootだけをSafe Scanし、Symfony #[AsCommand] MetadataをConstructorなしで抽出。Attributeなしを無視し、Non-command／Abstract／Multiple Attribute／Invalid Name・AliasをSafe Build Failureへ閉じた。
+
+Artifact: Command Manifest Schema 1を同じApplication Build IDで決定的／Atomicに発行。Exact Shape、Duplicate Class／Name／Alias、Stale Buildを検証し、失敗Buildでは旧Manifestを保持、Empty Discovery成功時は旧Entryを削除する。
+
+Container／Runtime: Discovered CommandをPublic Autowire Serviceへ登録し、Application Service Provider Definitionを優先。Symfony LazyCommandによりGlobal ListではConstructor／Container／Databaseを解決せず、固有Help／実行時だけ同じCompiled ContainerからRequired Constructor Dependencyを解決する。
+
+Collision／Recovery: Framework／Discovered／ExplicitのName／Aliasを全組合せ検証。同じClassのExplicit登録を優先し、旧blackops:*は非予約を維持。Missing／Invalid／Stale ManifestはBuilt-in build:compileを維持し、Valid Manifestの設定衝突はBootstrap Error、Missing Containerは実行時Safe Failureとした。
+
+Quality: Mago format／lint／analyze成功。Focused PHPUnit 304 tests／982 assertions、Full PHPUnit 1535 tests／6093 assertions、Deptrac 0 violations。Root／Quickstart Composer strict、Quickstart Setup／E2E、Skeleton Create-project、Framework Update Generator、Website 42 tests／Build、Management ID／Community Board Scope／diff Guard成功。生成／Build／Dependency Artifact cleanup済み。
+
+Scope: Community Board Source／Config／Command／Service Provider、外部Publication／Deploy、Worker Commitなし。
+```
+
+詳細は`develop/orchestration/reports/P18-004-application-command-discovery-and-di.md`を参照する。
 
 ## P18-003 Frontend Bound Client Factory Worker Verification
 

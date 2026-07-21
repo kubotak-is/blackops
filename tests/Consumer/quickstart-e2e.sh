@@ -88,6 +88,7 @@ HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops build:compile
 test -f "${CONSUMER}/var/build/operations.php"
 test -f "${CONSUMER}/var/build/http.php"
 test -f "${CONSUMER}/var/build/frontend.php"
+test -f "${CONSUMER}/var/build/commands.php"
 test -f "${CONSUMER}/var/build/container.php"
 HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops frontend:generate
 HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops frontend:check \
@@ -107,6 +108,12 @@ foreach ($manifest["payload"]["operations"] ?? [] as $operation) {
     }
 }
 exit(1);
+'
+HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php -r '
+$manifest = require "/app/var/build/commands.php";
+exit(($manifest["schema_version"] ?? null) === 1
+    && ($manifest["application_build_id"] ?? null) === "quickstart-local"
+    && ($manifest["commands"] ?? null) === [] ? 0 : 1);
 '
 
 schema_before=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \

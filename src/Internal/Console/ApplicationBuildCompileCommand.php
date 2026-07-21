@@ -11,10 +11,12 @@ use BlackOps\Http\Routing\HttpRouteCompiler;
 use BlackOps\Internal\Aop\RuntimeAopCompiler;
 use BlackOps\Internal\Application\ApplicationBuildConfiguration;
 use BlackOps\Internal\Application\ApplicationBuildId;
+use BlackOps\Internal\Application\ApplicationCommandDiscovery;
 use BlackOps\Internal\Application\ApplicationConfigurationSnapshot;
 use BlackOps\Internal\Application\ApplicationDatabaseConfiguration;
 use BlackOps\Internal\Application\ApplicationHttpMiddlewareConfiguration;
 use BlackOps\Internal\Application\ApplicationOperationDiscovery;
+use BlackOps\Internal\Application\ExplicitApplicationCommands;
 use BlackOps\Internal\DependencyInjection\RuntimeContainerCompiler;
 use BlackOps\Internal\DependencyInjection\RuntimeContainerDumper;
 use BlackOps\Internal\DependencyInjection\ServiceProviderConfigLoader;
@@ -46,6 +48,12 @@ final class ApplicationBuildCompileCommand extends Command
         $operations = new OperationProviderConfigLoader()->fromEntries($this->configuration->operationProviders());
         $services = new ServiceProviderConfigLoader()->fromEntries($this->configuration->serviceProviders());
         $discovered = new ApplicationOperationDiscovery()->discover($this->configuration);
+        $explicitCommands = ExplicitApplicationCommands::from($this->configuration->commands())->metadata();
+        $discoveredCommands = new ApplicationCommandCollisionValidator()->merge(
+            new ApplicationCommandDiscovery()->discover($this->configuration),
+            $explicitCommands,
+            FrameworkCommandNames::all(),
+        );
         $applicationConfiguration = $this->configuration->configuration();
         $database = is_array($applicationConfiguration['database'] ?? null)
             ? ApplicationDatabaseConfiguration::fromConfiguration($applicationConfiguration)
@@ -73,6 +81,11 @@ final class ApplicationBuildCompileCommand extends Command
         $compiler->registerHandlers($container, $registry);
         $compiler->registerAuthorizationPolicies($container, $registry);
         $compiler->registerHttpMiddleware($container, $middleware->http);
+        $compiler->registerApplicationCommands($container, array_map(
+            /** @return class-string<Command> */
+            static fn(ApplicationCommandMetadata $command): string => $command->class,
+            $discoveredCommands,
+        ));
         $aop = new RuntimeAopCompiler();
 
         try {
@@ -95,6 +108,8 @@ final class ApplicationBuildCompileCommand extends Command
 
             throw $throwable;
         }
+
+        new ApplicationCommandManifestFile()->write($discoveredCommands, $build->commandManifest, $buildId);
 
         $output->writeln('Build artifacts written.');
 

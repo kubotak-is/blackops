@@ -74,6 +74,7 @@ return static fn (Environment $env): array => [
         'operation_manifest' => dirname(__DIR__) . '/var/build/operations.php',
         'http_manifest' => dirname(__DIR__) . '/var/build/http.php',
         'frontend_manifest' => dirname(__DIR__) . '/var/build/frontend.php',
+        'command_manifest' => dirname(__DIR__) . '/var/build/commands.php',
         'container' => dirname(__DIR__) . '/var/build/container.php',
         'container_class' => 'CompiledContainer',
         'container_namespace' => 'App\\Generated',
@@ -81,7 +82,23 @@ return static fn (Environment $env): array => [
 ];
 ```
 
-Operation Manifest、HTTP Manifest、Frontend Contract Manifest、Containerは同じBuild IDで作成します。Production HTTP／Worker RuntimeはFrontend Contractを読みません。ProductionはBackend Artifact不足、Format不正、Build ID不一致時に起動を拒否し、Source DiscoveryへFallbackしません。
+Operation Manifest、HTTP Manifest、Frontend Contract Manifest、Command Manifest、Containerは同じBuild IDで作成します。`command_manifest`を省略した既存Applicationでは、Containerと同じDirectoryの`commands.php`を使います。Production HTTP／Worker RuntimeはFrontend／Command Contractを読みません。ProductionはBackend Artifact不足、Format不正、Build ID不一致時に起動を拒否し、Source DiscoveryへFallbackしません。
+
+## Application Command
+
+```php
+return [
+    'command_discovery' => [dirname(__DIR__) . '/app'],
+    'services' => [App\ApplicationServiceProvider::class],
+    'commands' => [],
+];
+```
+
+`command_discovery`は存在する絶対DirectoryのListです。欠落または空Listでは自動Discoveryを行いません。重複する実Pathは一度だけ走査し、Application Rootや`vendor/`を暗黙に追加しません。走査は`build:compile`だけで実行し、HTTP、Worker、通常の`list`ではSourceへ戻りません。
+
+Symfony `#[AsCommand]`付きの具象`Command`だけを発見します。Command ConstructorはBuild時に実行せず、Compiled ContainerへAutowired Public Serviceとして登録します。Interface Dependencyは`services`のService ProviderでBindingしてください。Providerが同じService IDを明示登録した場合は、その定義が自動登録より優先されます。
+
+`commands`は従来どおりCommand Instanceまたは引数なしで生成できるClassを明示追加します。Discoveryと明示登録が同じClassなら明示登録を優先します。Framework、Discovery、明示登録のCanonical Name／Alias衝突はCase-sensitiveに拒否します。旧`blackops:*`名はFramework予約ではありません。
 
 ## Frontend Generation
 
