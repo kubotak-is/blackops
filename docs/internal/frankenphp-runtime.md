@@ -10,9 +10,9 @@ The tag pattern, Debian recommendation, PHP 8.5 availability, and extension help
 
 ```text
 FrankenPHP/Caddy :80
-  -> runtime/frankenphp/public/index.php
+  -> application public/index.php or worker.php
+  -> BlackOps\Http\SapiRuntime
   -> SuperglobalServerRequestFactory
-  -> application bootstrap from BLACKOPS_APPLICATION_BOOTSTRAP
   -> PSR-15 RequestHandlerInterface
   -> PSR-7 ResponseInterface
   -> SapiResponseEmitter
@@ -57,7 +57,7 @@ Database credentials are supplied through `POSTGRES_*` environment variables. Th
 
 ## Quickstart Worker Mode
 
-`examples/quickstart/public/worker.php` loads Composer, the application bootstrap, the configuration snapshot, compiled manifests and container, and the public PSR-15 handler before entering `frankenphp_handle_request()`. The request callback only creates a PSR-7 request, invokes the cached handler, and emits its PSR-7 response. It catches `Throwable` inside the callback so one failed request does not terminate the worker. This follows the [official Worker Mode lifecycle](https://frankenphp.dev/docs/worker/).
+`BlackOps\Http\SapiRuntime` owns request creation, response emission, the fixed safe 500 boundary, and the FrankenPHP callback loop. Public entrypoints load the application and call `SapiRuntime::run()` (Classic) or `SapiRuntime::runWorker()` (Worker); they do not import PSR-17, Laminas, or FrankenPHP APIs. The request callback catches `Throwable` inside the callback so one failed request does not terminate the worker. This follows the [official Worker Mode lifecycle](https://frankenphp.dev/docs/worker/).
 
 `ApplicationHttpRequestHandler` owns the reusable runtime's request boundary:
 

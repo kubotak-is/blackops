@@ -10,6 +10,7 @@ use BlackOps\Application\ApplicationBuilder;
 use BlackOps\Application\ConsoleKernel;
 use BlackOps\Application\Environment;
 use BlackOps\Core\Attribute\PublicApi;
+use BlackOps\Http\SapiRuntime;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Server\RequestHandlerInterface;
 use ReflectionClass;
@@ -26,6 +27,7 @@ final class ApplicationTest extends TestCase
             ApplicationBootstrapException::class,
             ConsoleKernel::class,
             Environment::class,
+            SapiRuntime::class,
         ] as $type) {
             self::assertCount(1, new ReflectionClass($type)->getAttributes(PublicApi::class));
         }
@@ -77,6 +79,27 @@ final class ApplicationTest extends TestCase
             ],
             $publicMethods,
         );
+    }
+
+    public function testSapiRuntimeExposesOnlyClassicAndWorkerEntrypoints(): void
+    {
+        $runtime = new ReflectionClass(SapiRuntime::class);
+
+        self::assertTrue($runtime->isFinal());
+        self::assertTrue($runtime->getConstructor()?->isPrivate());
+        self::assertSame(
+            ['run', 'runWorker'],
+            array_map(
+                static fn(ReflectionMethod $method): string => $method->getName(),
+                $runtime->getMethods(ReflectionMethod::IS_PUBLIC),
+            ),
+        );
+
+        foreach (['run', 'runWorker'] as $method) {
+            $reflection = $runtime->getMethod($method);
+            self::assertSame('void', (string) $reflection->getReturnType());
+            self::assertSame(Application::class, (string) $reflection->getParameters()[0]->getType());
+        }
     }
 
     public function testConsoleKernelHasOnlyRunAsPublicMethod(): void

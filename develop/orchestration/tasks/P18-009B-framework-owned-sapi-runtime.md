@@ -1,6 +1,6 @@
 # P18-009B: Framework-owned SAPI Runtime
 
-Status: Ready
+Status: Accepted
 
 ## Goal
 
@@ -70,15 +70,15 @@ UUID Production Code、`resources/stubs/**`、Application Composer Dependency削
 
 ## Acceptance Criteria
 
-- [ ] Public `SapiRuntime`がClassic／Workerの2 Methodだけを提供する
-- [ ] Default EntrypointがNyholm／Laminas／Worker Loopを直接Import／実装しない
-- [ ] Classic Success／Request Failure／Handler Failure／Emit FailureがSafe Contractを満たす
-- [ ] Worker複数Request、例外後Request、Environment Restore、Cleanup、GCが成功する
-- [ ] Safe 500が固定JSONだけを返しSensitive／Raw Throwableを露出しない
-- [ ] `Application::http()` Custom Adapter／Test／Community Board Outer Boundaryが回帰しない
-- [ ] Quickstart／Community Board Classic／Worker Consumerが成功する
-- [ ] Full PHPUnit、Mago、Deptrac、Composer Strict、Public API／Management ID／diff Guardが成功する
-- [ ] UUID／Dependency削除／Distribution／外部Publication差分なし、Worker Commitなし
+- [x] Public `SapiRuntime`がClassic／Workerの2 Methodだけを提供する
+- [x] Default EntrypointがNyholm／Laminas／Worker Loopを直接Import／実装しない
+- [x] Classic Success／Request Failure／Handler Failure／Emit FailureがSafe Contractを満たす
+- [x] Worker複数Request、例外後Request、Environment Restore、Cleanup、GCが成功する
+- [x] Safe 500が固定JSONだけを返しSensitive／Raw Throwableを露出しない
+- [x] `Application::http()` Custom Adapter／Test／Community Board Outer Boundaryが回帰しない
+- [x] Quickstart／Community Board Classic／Worker Consumerが成功する
+- [x] Full PHPUnit、Mago、Deptrac、Composer Strict、Public API／Management ID／diff Guardが成功する
+- [x] UUID／Dependency削除／Distribution／外部Publication差分なし、Worker Commitなし
 
 ## Required Commands
 

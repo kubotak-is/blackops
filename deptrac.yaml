@@ -117,7 +117,9 @@ deptrac:
       - Core
     Http:
       - Core
+      - Application
       - Execution
+      - Internal
       - Outcome
       - Status
       - Library

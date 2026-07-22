@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-23T01:21:20+09:00
+Updated At: 2026-07-23T02:18:57+09:00
 
 ## Current Phase
 
@@ -8,9 +8,9 @@ Post-Phase 18 Application Runtime and Bootstrap Follow-up
 
 ## Current Task
 
-Task ID: P18-009B Framework-owned SAPI Runtime
+Task ID: P18-009C Public UUIDv7 Generator and Consumer Adoption
 
-Task Packet: `develop/orchestration/tasks/P18-009B-framework-owned-sapi-runtime.md`
+Task Packet: `develop/orchestration/tasks/P18-009C-public-uuidv7-generator-and-consumer-adoption.md`
 
 References: `develop/decisions/114-application-runtime-and-bootstrap-dependency-boundary.md`、`develop/spec/78-application-runtime-and-bootstrap.md`、`develop/spec/79-phase-18-runtime-follow-up-delivery-plan.md`
 
@@ -20,11 +20,11 @@ Ready for Worker
 
 D114はA／A／A／Aで確定した。P18-009をEnvironment File Bootstrap、Framework-owned SAPI Runtime、Public UUIDv7 Generator／Consumer Adoption、Distribution／Dependency Closeoutの4 Taskへ分割した。P18-009AでPublic Builder CapabilityとQuickstart Consumerを実装する。DBAL／MigrationsはDirect Dependencyを維持する。
 
-P18-009AをOrchestrator Review／独立VerificationでAcceptedとした。Framework-owned Dotenv Dependency、`ApplicationBuilder::withEnvironmentFile()`、Process優先／Optional File／Safe Failure／create単位Snapshot、成功時の`$_ENV`互換同期、Quickstart Bootstrap移行を実装した。Worker Full PHPUnit 1,715 tests／6,851 assertions、Focused 31 tests／345 assertions、Mago、Deptrac、Composer Strict、Quickstart Setupが成功し、Orchestrator独立Quickstart E2Eも完走した。Worker Commitなし。次はP18-009B Framework-owned SAPI Runtimeを実装する。
+P18-009BをOrchestrator Review／独立VerificationでAcceptedとした。Public `SapiRuntime`、Classic／Worker Safe Failure、string-only `$_ENV`復元、Cleanup／GC、Quickstart／Community Board薄型Entrypointを実装した。Worker Full PHPUnit 1,721 tests／6,877 assertionsとQuickstart Worker Consumer、Orchestrator Focused 23 tests／342 assertions、Mago、Deptrac、Community Board Identity Worker／Classic Consumerが成功した。Worker Commitなし。次はP18-009C Public UUIDv7 Generator／Consumer Adoptionを実装する。
 
 ## Last Accepted Task
 
-P18-009A-environment-file-bootstrap
+P18-009B-framework-owned-sapi-runtime
 
 ## Pending Decisions
 
@@ -67,8 +67,8 @@ Active Implementation Blockerはない。Current SchemaとMigration Schemaが一
 
 ## Required Next Action
 
-1. Orchestrator CodexがAccepted済み`P18-009A-environment-file-bootstrap`をCommitする。
-2. GPT-5.6 Luna High Workerへ`P18-009B-framework-owned-sapi-runtime`を委譲する。
+1. Orchestrator CodexがAccepted済み`P18-009B-framework-owned-sapi-runtime`をCommitする。
+2. GPT-5.6 Luna High Workerへ`P18-009C-public-uuidv7-generator-and-consumer-adoption`を委譲する。
 
 ## D114 Application Runtime and Bootstrap Decision Review
 
@@ -81,6 +81,20 @@ Delivery: P18-009A Environment、P18-009B SAPI Runtime、P18-009C UUIDv7／Consu
 ```
 
 詳細は`develop/decisions/114-application-runtime-and-bootstrap-dependency-boundary.md`、`develop/spec/78-application-runtime-and-bootstrap.md`、`develop/spec/79-phase-18-runtime-follow-up-delivery-plan.md`を参照する。
+
+## P18-009B Framework-owned SAPI Runtime Orchestrator Verification
+
+```text
+Public API／Runtime: BlackOps\\Http\\SapiRuntimeへrun(Application)／runWorker(Application)だけを公開。Framework-owned PSR-17 Request生成、Response Emit、fixed JSON 500、FrankenPHP Loopを実装し、Application::http() Escape Hatchを維持した。
+
+Failure／Security: Request／Handler／Emitter Failureをclass-only logへ閉じ、headers未送信ならqueued headerを除去してfixed 500を再Emitする。Workerは一Request Failure後も継続し、string-only $_ENV Baseline復元、Application Handler Cleanup、GCを完了する。
+
+Consumers: Quickstart／Community Board Classic／Worker EntrypointをApplication BootstrapとSapiRuntime呼出だけへ縮小。Quickstart Worker bootstrap／flush／reconnect／multi-request／restart／memory／Classic fallbackとCommunity Board Identity Default Worker／Classic実HTTPが完走した。
+
+Quality: Worker Full PHPUnit 1721 tests／6877 assertions。Orchestrator Focused 23 tests／342 assertions、Mago Analyze、Deptrac 0 violations／2854 allowed、Community Board PHP 49 tests／548 assertions、Frontend 43 tests、Svelte 0 errors／0 warnings、Management ID／diff Guard成功。UUID／Dependency削除／Distribution／外部Publication差分なし、Worker Commitなし。
+```
+
+詳細は`develop/orchestration/reports/P18-009B-framework-owned-sapi-runtime.md`を参照する。
 
 ## P18-009A Environment File Bootstrap Orchestrator Verification
 

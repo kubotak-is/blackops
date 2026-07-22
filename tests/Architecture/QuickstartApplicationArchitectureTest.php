@@ -113,18 +113,38 @@ final class QuickstartApplicationArchitectureTest extends TestCase
         self::assertArrayNotHasKey('App\\', $rootComposer['autoload-dev']['psr-4']);
     }
 
-    public function testApplicationUsesNoInternalApiAndLaminasStaysInEmitterEntrypoint(): void
+    public function testPublicHttpEntrypointsUseFrameworkRuntimeBoundary(): void
     {
         foreach ($this->phpFiles($this->quickstart()) as $path) {
             $source = (string) file_get_contents($path);
             self::assertStringNotContainsString('BlackOps\\Internal', $source, $path);
 
-            if (str_contains($source, 'Laminas\\')) {
-                self::assertContains($path, [
-                    $this->quickstart() . '/public/index.php',
-                    $this->quickstart() . '/public/worker.php',
-                ]);
+            if (str_contains($path, '/public/index.php') || str_contains($path, '/public/worker.php')) {
+                self::assertStringNotContainsString('Nyholm\\', $source, $path);
+                self::assertStringNotContainsString('Laminas\\', $source, $path);
+                self::assertStringNotContainsString('frankenphp_handle_request', $source, $path);
             }
+        }
+
+        self::assertStringContainsString(
+            'SapiRuntime::run($application);',
+            (string) file_get_contents($this->quickstart() . '/public/index.php'),
+        );
+        self::assertStringContainsString(
+            'SapiRuntime::runWorker($application);',
+            (string) file_get_contents($this->quickstart() . '/public/worker.php'),
+        );
+
+        $community = dirname($this->quickstart()) . '/community-board/public';
+        foreach ([
+            'index.php' => 'SapiRuntime::run($application);',
+            'worker.php' => 'SapiRuntime::runWorker($application);',
+        ] as $file => $call) {
+            $source = (string) file_get_contents($community . '/' . $file);
+            self::assertStringContainsString($call, $source);
+            self::assertStringNotContainsString('Nyholm\\', $source);
+            self::assertStringNotContainsString('Laminas\\', $source);
+            self::assertStringNotContainsString('frankenphp_handle_request', $source);
         }
     }
 

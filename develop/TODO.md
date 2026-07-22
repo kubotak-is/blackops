@@ -173,7 +173,7 @@ MVP後に残す主要項目:
 - [x] D114でHTTP Runtime、Environment Bootstrap、UUIDv7のApplication Direct Dependency境界とPhase 19前のDelivery順を確定する
 - [x] Runtime Bootstrap Follow-upを`P18-009A`から`P18-009D`へ分割する
 - [x] Public Environment File BootstrapとQuickstart Consumerを実装する
-- [ ] Framework-owned Classic／FrankenPHP SAPI Runtimeを実装する
+- [x] Framework-owned Classic／FrankenPHP SAPI Runtimeを実装する
 - [ ] Public UUIDv7 GeneratorとAuth／Community Board Consumerを実装する
 - [ ] Skeleton／Documentation／Dependency Auditを同期してRuntime Follow-upをCloseする
 

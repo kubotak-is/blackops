@@ -6,6 +6,7 @@ includes = [
   "vendor/doctrine/event-manager",
   "vendor/doctrine/migrations",
   "vendor/nikic/fast-route/src",
+  "vendor/nyholm/psr7/src",
   "vendor/monolog/monolog/src/Monolog",
   "vendor/psr/clock",
   "vendor/psr/container",
