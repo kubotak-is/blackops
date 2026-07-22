@@ -151,6 +151,7 @@ MVP後に残す主要項目:
 - [x] Application Command Discovery／DIを実装する
 - [x] Operation Console Adapterを実装する
 - [x] Session Authentication CoreをFramework同梱のOpt-in Capabilityとして実装する
+- [ ] D112でRaw Session Tokenを通常Outcomeへ載せずHTTPへ一度だけ返す境界を決定する
 - [ ] `make:auth` GeneratorとFresh Consumerを実装する
 - [ ] Community Boardを簡素化し、Clean Install Consumerで検証する
 
