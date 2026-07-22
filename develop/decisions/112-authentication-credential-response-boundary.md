@@ -1,6 +1,6 @@
 # D112: Authentication Credential Response Boundary
 
-Status: Proposed
+Status: Discussion
 
 ## Context
 
@@ -52,9 +52,44 @@ BlackOpsのOperation中心モデルを維持しながら、CredentialをDurable 
 
 [ANSWER]
 
-
+予約済みのインターフェースを持って、それをOutcomeに実装していると回避するなどの方法はどうでしょうか？
 
 [/ANSWER]
+
+### Review
+
+可能であり、Option Aの具体化としてその形が最も自然である。
+
+Public `EphemeralOutcome` Marker Interfaceを`Outcome`のSubtypeとして予約すれば、Operationの「正常終了は型付きOutcomeを返す」という既存Authoring Modelを維持できる。
+
+```php
+interface EphemeralOutcome extends Outcome {}
+```
+
+ただし、Interfaceを判定するだけではSecurity Boundaryにならない。誤ってDeferred化、Console公開、Journal Encodeされた場合にRaw Tokenが漏れるため、Frameworkが次の制約をまとめて強制する必要がある。
+
+- OperationのDeclared Return Typeが`EphemeralOutcome`実装Classなら、`#[Route]`と明示的なInline Strategyを必須にする
+- Deferred Strategy、`#[ConsoleCommand]`、Outcome Store、Status／Wait Response ShapeをBuild Errorにする
+- Operation Manifest／HTTP ManifestへEphemeral Flagを固定し、Runtimeの実値とも一致検証する
+- Handlerが返したEphemeral OutcomeはInline ResultからHTTP Responderへ同一Request中だけ渡す
+- Canonical `operation.completed`にはEphemeral Objectを渡さず、Credentialを含まない`EmptyOutcome`を記録する
+- JSON Response生成前にShapeをBuild検証し、Responderは値を一度だけ投影してLog／Exception Detailへ含めない
+- Frontend Generatorは直接`fetch()`のResponse Typeだけを生成し、`.status()`／`.wait()`を公開しない
+- Ephemeral Outcome内のCredential Propertyには`#[Sensitive]`を必須にし、通常Outcomeでは従来どおりSensitive Propertyを拒否する
+
+これにより、生成するRegister／Loginは`EphemeralOutcome`でRaw TokenをHTTPへ返し、Logoutは通常の`void` Operationにできる。Lifecycle自体はJournalへ残るが、CredentialだけがDurable Surfaceへ入らない。
+
+`EphemeralOutcome`はSession Auth専用品にせず、API KeyやPassword Reset Tokenなど「一度だけ呼出し元へ返し、再取得させないSecret」に再利用できる。ただし初期実装ではHTTP Inline以外へ用途を広げない。
+
+### Revised Recommendation
+
+Option Aを、Public `EphemeralOutcome extends Outcome`と上記Build／Runtime Guardで実装することを推奨する。
+
+[CONFIRM]
+
+この具体化でOption Aとして確定してよいか。
+
+[/CONFIRM]
 
 ## Decision
 

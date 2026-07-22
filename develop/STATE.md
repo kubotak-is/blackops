@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-22T11:43:40+09:00
+Updated At: 2026-07-22T13:09:36+09:00
 
 ## Current Phase
 
@@ -18,7 +18,7 @@ Specifications: `develop/decisions/112-authentication-credential-response-bounda
 
 Awaiting User Decision
 
-P18-006AはAccepted／push済み。P18-006BのTask Packet具体化中に、Login OperationがRaw Session Tokenを通常Outcomeで返すとCanonical Journal／Outcome Storeへ保存され、D111のRaw Token非永続化Invariantと衝突することを確認した。D112でInline-only Ephemeral HTTP ResultとPSR-15 Authentication Adapterのどちらを採用するかUser判断を待つ。
+P18-006AはAccepted／push済み。D112のUser提案を受け、Option AをPublic `EphemeralOutcome extends Outcome` MarkerとBuild／Runtime Guardで具体化した。Route付き明示Inlineだけを許可し、Deferred／Console／Status／Wait／Outcome Storeを拒否、Canonical Journalへ`EmptyOutcome`だけを記録するContractの最終確認を待つ。
 
 ## Last Accepted Task
 
@@ -55,15 +55,15 @@ P18-006A-session-authentication-core
 27. D109はA／A／A／A／A／A／A／Aで確定。Idempotency、Outbox、Relay／Replay、Community Board JourneyのContractを採用する。
 28. D110はA／A／A／A／A／A／A／Aで確定。Application ErgonomicsをPhase 18としてReliabilityより先に実装し、Frontend、Environment、Dependency、Session Auth、Consoleの責任分界を採用する。
 29. D111はA／A／A／A／A／A／A／A／Aで確定。Session AuthenticationをFramework同梱のOpt-in Capabilityとし、Identity、Token／Lifecycle、HTTP Adapter、Migration、Built-in Generatorの公開／Security Contractを採用する。
-30. D112は回答待ち。Raw Session TokenをOperation Outcomeへ載せずHTTP Clientへ一度だけ返す境界を確定する。
+30. D112は最終確認待ち。Public `EphemeralOutcome extends Outcome`とBuild／Runtime GuardでRaw Session TokenをHTTPへ一度だけ返す案を具体化した。
 
 ## Known Blockers
 
-P18-006BはD112のUser回答待ち。Raw Tokenを通常Outcomeへ返す実装はD111のSecurity Contractに反するため開始しない。Ray.Aop 2.19.1／2.20.0には複数class-constant AttributeのTokenizer gapがあるが、D108とD110でPhase 17の先行とPhase 21での置換を確定した。Documentation WebsiteはUser判断どおり未公開であり、Publication／Deployは行わない。
+P18-006BはD112の最終確認待ち。Raw Tokenを通常のDurable Outcomeへ返す実装はD111のSecurity Contractに反するため開始しない。Ray.Aop 2.19.1／2.20.0には複数class-constant AttributeのTokenizer gapがあるが、D108とD110でPhase 17の先行とPhase 21での置換を確定した。Documentation WebsiteはUser判断どおり未公開であり、Publication／Deployは行わない。
 
 ## Required Next Action
 
-1. `develop/decisions/112-authentication-credential-response-boundary.md`へUserが回答する。
+1. `develop/decisions/112-authentication-credential-response-boundary.md`の`[CONFIRM]`へUserが回答する。
 2. 回答を仕様へ同期し、必要ならEphemeral Result CoreをP18-006Bより前の独立Taskへ分割する。
 3. Auth Generator and Fresh ConsumerのTask Packetを作成し、GPT-5.6 Luna High workerへ委譲する。
 
