@@ -143,6 +143,8 @@ Canonical `operation.completed` Journal Dataも同じStructured Value規則でOu
 
 HTTP Frontend ContractのOutcome Rootまたは到達可能なNested DTOに`#[Sensitive]` Propertyがある場合、`build:compile`をFailさせる。ListのElement DTOも再帰検査対象とする。
 
+例外は`EphemeralOutcome` Rootだけとする。Ephemeral OutcomeのCredential Propertyは`#[Sensitive]`を必須とし、Inline HTTP Responseへ一度だけ投影するが、Canonical Journal／Outcome Store／StatusへStructured Valueとして渡さない。Nested DTOへSensitive Propertyを隠す構造は許可せず、Credential FieldをRootで明示する。PropertyなしEphemeral OutcomeはSecret Inputだけを非永続化する用途で許可する。
+
 Observer Projectionの共通Filterは防御的に次を満たす。
 
 - PHP ListのNumeric Keyと順序を保持する

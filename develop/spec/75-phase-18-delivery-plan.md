@@ -13,8 +13,9 @@ P18-001 Decision, Specification, and Delivery Plan
       -> P18-004 Application Command Discovery and DI
         -> P18-005 Operation Console Adapter
           -> P18-006A Session Authentication Core
-            -> P18-006B Auth Generator and Fresh Consumer
-              -> P18-007 Community Board Migration and Phase Closeout
+            -> P18-006B Ephemeral Outcome Contract
+              -> P18-006C Auth Generator and Fresh Consumer
+                -> P18-007 Community Board Migration and Phase Closeout
 ```
 
 Taskを並行実装しない。各TaskはPublic Contract、Unit／Integration Test、QuickstartまたはPermanent Fixtureを完成してから次へ進む。Community Board全体の書換えはP18-007まで行わず、先行Taskでは必要な最小Consumerだけを使う。
@@ -90,7 +91,21 @@ Status: Accepted.
 - Concurrent Rotation／Revocation、Last-used Touch、Sensitive Surfaceを実PostgreSQLで固定する
 - Sessionを登録しないExisting ConsumerのBuild／Runtimeを回帰する
 
-## P18-006B: Auth Generator and Fresh Consumer
+## P18-006B: Ephemeral Outcome Contract
+
+Status: Ready.
+
+- Public `EphemeralOutcome extends Outcome` Markerを追加する
+- Route付き明示Inlineだけを許可し、Deferred／Console／Status／Wait／Outcome Storeを拒否する
+- Ephemeral OperationのReceived Valueを`EmptyJournalData`、Completed Outcomeを`EmptyOutcome`として記録する
+- 実Ephemeral Outcomeを同一HTTP Request中だけResponseへ一度投影する
+- Credential Propertyの`#[Sensitive]`、Manifest整合、Runtime Type、Safe Failureを固定する
+- Frontend Generatorで直接`fetch()`だけを型生成し、Status／Waitを省く
+- Permanent FixtureでRaw SecretがJournal／Outcome／Log／Artifactへ残らないことを検証する
+
+Auth Session Core、Generator、Community Boardは変更しない。
+
+## P18-006C: Auth Generator and Fresh Consumer
 
 - Built-in `make:auth` Command／Generator／Stubを実装する
 - User、DBAL Repository、Password Verifier、Registration Policy、Identity Provider、Register／Login／Logout Operationを生成する
@@ -139,6 +154,6 @@ Documentation WebsiteとCommunity Boardを外部公開せず、Session Authentic
 
 ## Traceability
 
-- Decisions: [D110 Application Ergonomics](../decisions/110-application-ergonomics.md)、[D111 Session Authentication Contract](../decisions/111-session-auth-package-contract.md)
+- Decisions: [D110 Application Ergonomics](../decisions/110-application-ergonomics.md)、[D111 Session Authentication Contract](../decisions/111-session-auth-package-contract.md)、[D112 Authentication Credential Response Boundary](../decisions/112-authentication-credential-response-boundary.md)
 - Contract: [Application Ergonomics](74-application-ergonomics.md)
 - Roadmap: [Post Phase 10 Roadmap](60-post-phase-10-roadmap.md)

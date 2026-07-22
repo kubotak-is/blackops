@@ -56,6 +56,8 @@ Framework Invocation BoundaryはNative Outcome／Void／`OperationRejectedExcept
 
 OutcomeはNative Scalarに加え、`OutcomeData`を実装するReadonly DTOと`#[ListOf]`で宣言したTyped ListをOutput Shapeとして持てる。Structured Shapeの詳細とUnsupported Typeは[Structured Outcome Contract](73-structured-outcome-contract.md)を正本とする。
 
+Raw Session Token等を一度だけHTTPへ返すOperationは、通常Outcomeではなく`EphemeralOutcome`を実装した具象Outcomeを返す。Ephemeral OutcomeもNative Signatureから推論するが、Route付き明示Inlineだけを許可する。Credential Propertyは`#[Sensitive]`を必須とし、実値はJournal、Outcome Store、Status、Consoleへ渡さない。Frameworkは受付／完了Lifecycleだけを安全な空Dataで記録する。
+
 Legacy Self-handled／Separate Handlerは互換Contractとして次を使用する。
 
 - `OperationResult::completed($outcome)`：成功
@@ -89,6 +91,6 @@ Frameworkは `OperationRejectedException` だけをRejectedへ変換する。そ
 
 - 第一引数：OperationValue
 - Optional第二引数：ExecutionContext
-- Return Type：成功Outcomeまたはvoid
+- Return Type：成功Outcome、HTTP Inline専用Ephemeral Outcome、またはvoid
 
 Legacy／Separate Handlerでは `#[Accepts]`、`#[HandledBy]`、`#[Returns]` を維持する。Operation RegistryおよびCIはNative Signature、Attribute、Manifestの整合性を検証する。

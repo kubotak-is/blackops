@@ -48,6 +48,8 @@ Operation ManifestとHTTP ManifestのHandler Fieldは維持する。Self-handled
 
 Operation DefinitionはMetadata／Route CompileのためにInstance化しない。Operation Type、Accepted Value、Handler、Outcome、Execution Strategy、HTTP RouteはDefinition ClassのReflectionから読む。
 
+Declared Outcomeが`EphemeralOutcome`を実装する場合、CompilerはRouteと明示`#[ExecuteWith(Inline::class)]`を必須にし、Deferred、Routeなし、`#[ConsoleCommand]`を拒否する。Operation／HTTP／Frontend Manifestへ同じEphemeral Flagを出力し、Runtime Attribute ReflectionへFallbackしない。Ephemeral OperationのSensitive Value／OutcomeはBuild SampleやArtifactへ含めない。
+
 このためSelf-handled OperationはRequired Constructor Dependencyを持てる。Instance生成はRuntime ContainerがHandlerを解決する時だけ行う。
 
 ## Application Discovery Configuration

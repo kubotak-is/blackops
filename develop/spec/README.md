@@ -205,3 +205,5 @@
 | [D108](../decisions/108-ray-aop-upstream-and-phase-order.md) | Ray.Aop Upstream and Phase Order | Decided |
 | [D109](../decisions/109-phase-18-idempotency-and-outbox.md) | Phase 19 Idempotency and Outbox | Decided |
 | [D110](../decisions/110-application-ergonomics.md) | Application Ergonomics | Decided |
+| [D111](../decisions/111-session-auth-package-contract.md) | Session Authentication Contract | Decided |
+| [D112](../decisions/112-authentication-credential-response-boundary.md) | Authentication Credential Response Boundary | Decided |

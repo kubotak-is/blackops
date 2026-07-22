@@ -1,24 +1,24 @@
 # Orchestration State
 
-Updated At: 2026-07-22T13:09:36+09:00
+Updated At: 2026-07-22T13:17:41+09:00
 
 ## Current Phase
 
-Phase 18: Application Ergonomics - Credential Response Decision
+Phase 18: Application Ergonomics - Ephemeral Outcome Contract
 
 ## Current Task
 
-Task ID: D112 Authentication Credential Response Boundary
+Task ID: P18-006B Ephemeral Outcome Contract
 
-Task Packet: Not created
+Task Packet: `develop/orchestration/tasks/P18-006B-ephemeral-outcome-contract.md`
 
-Specifications: `develop/decisions/112-authentication-credential-response-boundary.md`、`develop/spec/74-application-ergonomics.md`、`develop/spec/75-phase-18-delivery-plan.md`
+Specifications: `develop/spec/04-handler-and-result.md`、`develop/spec/05-http.md`、`develop/spec/17-core-api.md`、`develop/spec/24-lifecycle-event-data.md`、`develop/spec/50-operation-authoring-and-build-discovery.md`、`develop/spec/67-operation-frontend-bridge.md`、`develop/spec/69-deferred-status-and-outcome-api.md`、`develop/spec/73-structured-outcome-contract.md`、`develop/spec/74-application-ergonomics.md`、`develop/spec/75-phase-18-delivery-plan.md`
 
 ## Task Status
 
-Awaiting User Decision
+Ready
 
-P18-006AはAccepted／push済み。D112のUser提案を受け、Option AをPublic `EphemeralOutcome extends Outcome` MarkerとBuild／Runtime Guardで具体化した。Route付き明示Inlineだけを許可し、Deferred／Console／Status／Wait／Outcome Storeを拒否、Canonical Journalへ`EmptyOutcome`だけを記録するContractの最終確認を待つ。
+D112をAで確定した。Public `EphemeralOutcome extends Outcome`をRoute付き明示Inlineだけに限定し、Received Valueを`EmptyJournalData`、Completed実Outcomeを`EmptyOutcome`へ置換してLifecycleだけを記録する。P18-006BでCore／HTTP／Status／Frontend Contractを実装し、P18-006CでAuth Generatorへ接続する。
 
 ## Last Accepted Task
 
@@ -55,17 +55,17 @@ P18-006A-session-authentication-core
 27. D109はA／A／A／A／A／A／A／Aで確定。Idempotency、Outbox、Relay／Replay、Community Board JourneyのContractを採用する。
 28. D110はA／A／A／A／A／A／A／Aで確定。Application ErgonomicsをPhase 18としてReliabilityより先に実装し、Frontend、Environment、Dependency、Session Auth、Consoleの責任分界を採用する。
 29. D111はA／A／A／A／A／A／A／A／Aで確定。Session AuthenticationをFramework同梱のOpt-in Capabilityとし、Identity、Token／Lifecycle、HTTP Adapter、Migration、Built-in Generatorの公開／Security Contractを採用する。
-30. D112は最終確認待ち。Public `EphemeralOutcome extends Outcome`とBuild／Runtime GuardでRaw Session TokenをHTTPへ一度だけ返す案を具体化した。
+30. D112はAで確定。Public `EphemeralOutcome extends Outcome`、Route付き明示Inline限定、Value／Outcome非永続化、HTTP一回投影、Frontend Status／Wait非公開を採用する。
 
 ## Known Blockers
 
-P18-006BはD112の最終確認待ち。Raw Tokenを通常のDurable Outcomeへ返す実装はD111のSecurity Contractに反するため開始しない。Ray.Aop 2.19.1／2.20.0には複数class-constant AttributeのTokenizer gapがあるが、D108とD110でPhase 17の先行とPhase 21での置換を確定した。Documentation WebsiteはUser判断どおり未公開であり、Publication／Deployは行わない。
+Active Implementation Blockerはない。Ray.Aop 2.19.1／2.20.0には複数class-constant AttributeのTokenizer gapがあるが、D108とD110でPhase 17の先行とPhase 21での置換を確定した。Documentation WebsiteはUser判断どおり未公開であり、Publication／Deployは行わない。
 
 ## Required Next Action
 
-1. `develop/decisions/112-authentication-credential-response-boundary.md`の`[CONFIRM]`へUserが回答する。
-2. 回答を仕様へ同期し、必要ならEphemeral Result CoreをP18-006Bより前の独立Taskへ分割する。
-3. Auth Generator and Fresh ConsumerのTask Packetを作成し、GPT-5.6 Luna High workerへ委譲する。
+1. P18-006BをGPT-5.6 Luna High workerへ委譲する。
+2. OrchestratorがPublic／Security／Lifecycle／Frontend境界を独立Reviewする。
+3. Accepted後、P18-006C Auth Generator and Fresh ConsumerのTask Packetを作成する。
 
 ## P18-005 Operation Console Adapter Worker Verification
 

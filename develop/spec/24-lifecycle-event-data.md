@@ -33,6 +33,17 @@ OperationCompletedData
 
 Observer向けProjectionとRetention PolicyはCanonical Outcomeの保存から分離する。
 
+## Ephemeral Operation Data
+
+`EphemeralOutcome`を返すHTTP Inline Operationは、Password等のCredential InputとRaw Token等のResponseをCanonical Journalへ保存しない。
+
+- `operation.received`は`EmptyJournalData`で受付事実だけを記録する
+- `attempt.started`／`attempt.succeeded`は通常どおり記録する
+- `operation.completed`は実際のEphemeral Outcomeではなく`EmptyOutcome`を持つ`OperationCompletedData`を記録する
+- Rejected／Failedは既存のSafe Error Dataだけを記録し、入力／出力値を含めない
+
+これによりLifecycle、Operation ID、時刻、Actor相関を維持しつつ、Ephemeral Operationを再現／再取得不能にする。
+
 ## Failure Data
 
 `AttemptFailedData` と `OperationFailedData` は安全な構造化Errorを保持する。

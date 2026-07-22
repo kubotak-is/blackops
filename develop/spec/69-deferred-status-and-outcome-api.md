@@ -77,6 +77,8 @@ OperationStatusError
 
 Completed OutcomeはOperation固有の`Outcome` Objectである。型なし配列、Raw JSON、`mixed`へ変換しない。値のない完了は既存`EmptyOutcome`で表す。Nested DTO／Typed Listは[Structured Outcome Contract](73-structured-outcome-contract.md)と同じShapeで保存・HTTP投影・Frontend Decodeする。
 
+`EphemeralOutcome`を返すOperationはStatus Query対象外とする。認可前に存在を露出せず、認可後も`OperationStatusUnavailable`として扱う。Canonical Journalには`EmptyOutcome`だけが残るため、Declared Ephemeral Typeとして復元または推測しない。Generated ClientはEphemeral Operationへ`.status()`／`.wait()`を生成しない。
+
 Query失敗はSafeなPublic Exceptionで表し、少なくとも次の安定Codeを持つ。
 
 ```text

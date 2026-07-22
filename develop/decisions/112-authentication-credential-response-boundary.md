@@ -1,6 +1,6 @@
 # D112: Authentication Credential Response Boundary
 
-Status: Discussion
+Status: Decided
 
 ## Context
 
@@ -72,12 +72,13 @@ interface EphemeralOutcome extends Outcome {}
 - Deferred Strategy、`#[ConsoleCommand]`、Outcome Store、Status／Wait Response ShapeをBuild Errorにする
 - Operation Manifest／HTTP ManifestへEphemeral Flagを固定し、Runtimeの実値とも一致検証する
 - Handlerが返したEphemeral OutcomeはInline ResultからHTTP Responderへ同一Request中だけ渡す
+- Canonical `operation.received`にはPassword等を含むOperationValueを渡さず、`EmptyJournalData`で受付事実だけを記録する
 - Canonical `operation.completed`にはEphemeral Objectを渡さず、Credentialを含まない`EmptyOutcome`を記録する
 - JSON Response生成前にShapeをBuild検証し、Responderは値を一度だけ投影してLog／Exception Detailへ含めない
 - Frontend Generatorは直接`fetch()`のResponse Typeだけを生成し、`.status()`／`.wait()`を公開しない
 - Ephemeral Outcome内のCredential Propertyには`#[Sensitive]`を必須にし、通常Outcomeでは従来どおりSensitive Propertyを拒否する
 
-これにより、生成するRegister／Loginは`EphemeralOutcome`でRaw TokenをHTTPへ返し、Logoutは通常の`void` Operationにできる。Lifecycle自体はJournalへ残るが、CredentialだけがDurable Surfaceへ入らない。
+これにより、生成するRegister／Loginは`EphemeralOutcome`でRaw TokenをHTTPへ返す。LogoutもSensitiveなCurrent Token InputをCanonical Journalへ残さないため、Propertyを持たないEphemeral Outcomeを返す。Lifecycle自体はJournalへ残るが、CredentialだけがDurable Surfaceへ入らない。
 
 `EphemeralOutcome`はSession Auth専用品にせず、API KeyやPassword Reset Tokenなど「一度だけ呼出し元へ返し、再取得させないSecret」に再利用できる。ただし初期実装ではHTTP Inline以外へ用途を広げない。
 
@@ -89,13 +90,22 @@ Option Aを、Public `EphemeralOutcome extends Outcome`と上記Build／Runtime 
 
 この具体化でOption Aとして確定してよいか。
 
+Aで確定
+
 [/CONFIRM]
 
 ## Decision
 
 [DECISION]
 
-User回答待ち。
+1. Public `BlackOps\Core\EphemeralOutcome`を`Outcome`のSubtype Marker Interfaceとして追加する。
+2. Declared Outcomeが`EphemeralOutcome`を実装するOperationは、`#[Route]`付きの明示Inline Strategyだけを許可する。Deferred、Console公開、Status／Wait、Outcome StoreをBuild／Runtimeで拒否する。
+3. Ephemeral OperationのCanonical `operation.received`は`EmptyJournalData`だけを保持し、Password等を含むOperationValueを保存しない。LifecycleとOperation IDは通常どおり記録する。
+4. Ephemeral OperationのCanonical `operation.completed`は`EmptyOutcome`だけを保持し、実際のEphemeral OutcomeをJournal／Outcome Storeへ渡さない。
+5. 実際のEphemeral Outcomeは同一RequestのInline ResultからHTTP Responderへだけ渡し、一度だけJSON投影する。Credential Propertyには`#[Sensitive]`を必須とする。
+6. Operation／HTTP／Frontend ManifestへEphemeral Metadataを固定し、Declared TypeとRuntime Valueの不一致を拒否する。
+7. Frontend GeneratorはEphemeral Operationの直接`fetch()` Response Typeを生成するが、`.status()`／`.wait()`を公開しない。
+8. 初期ScopeはHTTP Inlineに限定し、Session Auth以外にもAPI Key／Password Reset Token等の一度だけ返すSecretへ再利用可能な汎用Contractとする。Secret Inputだけを非永続化するLogoutもPropertyなしEphemeral Outcomeで同じ境界へ入れる。
 
 [/DECISION]
 
@@ -103,7 +113,11 @@ User回答待ち。
 
 [CONSEQUENCES]
 
-User回答後にP18-006BのTask分割、Generated File Contract、Fresh Consumer Contractを確定する。
+- P18-006BをEphemeral Outcome Core、P18-006CをAuth Generator and Fresh Consumerへ分割する。
+- 「No operation stays in the dark」は維持するが、Ephemeral Operationは再現用Value／Outcomeを持たないLifecycle Recordとして扱う。
+- Ephemeral OperationはDeferred Replay、Console実行、Status Outcome再取得に使えない。
+- 通常Outcomeと通常OperationValueのCanonical Persistence Contractは変更しない。
+- D111のRegister／Login OperationはSecret-bearing Ephemeral Outcomeを返し、Logout OperationはPropertyなしEphemeral Outcomeを返す。
 
 [/CONSEQUENCES]
 

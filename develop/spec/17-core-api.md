@@ -19,9 +19,16 @@ interface OperationValue
 interface Outcome
 {
 }
+
+#[PublicApi]
+interface EphemeralOutcome extends Outcome
+{
+}
 ```
 
 業務Classは対応するInterfaceを実装する。標準Typed Self-handled OperationのValueとOutcomeはNative `handle()` SignatureからBuild時に推論する。
+
+`EphemeralOutcome`はHTTP Clientへ一度だけ返し、Canonical Journal／Outcome Store／Statusへ保存しないSecret-bearing Outcomeを表す。通常OutcomeのSubtypeとしてAuthoring Modelを維持するが、Route付きの明示Inline Operationだけに限定し、Deferred／Console／Status／Waitでは利用できない。
 
 ## Operation Handler
 
