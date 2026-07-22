@@ -12,6 +12,7 @@ final readonly class SeedUser
         public string $id,
         public string $email,
         public string $displayName,
+        #[\SensitiveParameter]
         public string $password,
         public DateTimeImmutable $createdAt,
     ) {}

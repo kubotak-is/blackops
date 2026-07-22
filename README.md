@@ -38,8 +38,9 @@ cd my-app
 docker compose build app http
 docker compose run --rm app composer install
 docker compose run --rm app php blackops operation:list
-docker compose run --rm app php blackops build:compile
 docker compose run --rm app php blackops database:migrate
+docker compose run --rm app php blackops build:compile
+docker compose run --rm app php blackops database:seed
 docker compose up -d
 ```
 
@@ -85,8 +86,10 @@ Project Rootに置く薄い`blackops` EntrypointからFramework所有Generator�
 ```bash
 php blackops make:operation Billing/CreateInvoice --type=billing.invoice.create
 php blackops make:migration CreateOrdersTable
+php blackops make:seeder Catalog/ProductSeeder
 php blackops build:compile
 php blackops database:migrate --dry-run
+php blackops database:seed
 ```
 
 Framework UpdateはProject Rootの`blackops`や生成済みSourceを書き換えません。更新後のCommandとStubは、その後に新規生成するFileへ反映されます。

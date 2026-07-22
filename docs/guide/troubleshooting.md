@@ -2,6 +2,22 @@
 
 問題が起きたら、表示された症状だけで判断せず、原因候補を確認してから修正します。Operation IDは一つの処理を受付からTerminal Stateまで追跡する識別子です。出力やLogへCredentialを貼り付けないでください。
 
+## `database:seed`がArtifact Errorになる
+
+**Symptom:** `Database seeding artifacts are unavailable.`または`Database seeding runtime could not be resolved.`が表示されます。
+
+**Likely Cause:** Root Seederを追加・変更した後に`build:compile`していない、Application Build IDが変わった、またはCompiled Containerが欠落しています。
+
+**Fix:** Migrationを適用し、現在のSourceと設定でBuildしてからSeedを再実行します。
+
+```bash
+php blackops database:migrate
+php blackops build:compile
+php blackops database:seed
+```
+
+`Database seeding failed.`の場合はApplication Seederが失敗しています。CommandはSQL、投入値、Credential、Throwableを意図的に表示しません。Application側の安全なLogとDatabase状態を確認し、Transaction、Conflict、再実行方針を修正してください。
+
 ## Typed Self-handled Signature Error
 
 **Symptom:** `build:compile`がTyped Self-handled `handle()`のSignature Errorを表示します。

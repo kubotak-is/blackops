@@ -76,6 +76,7 @@ for required_path in composer.json README.md bin/setup blackops bootstrap/app.ph
     app/Feature/Diagnostics/TriggerFailure/TriggerFailure.php \
     app/Feature/Diagnostics/TriggerFailure/TriggerFailureValue.php \
     app/Feature/Diagnostics/TriggerFailure/FailureTriggered.php \
+    app/Infrastructure/Seed/DatabaseSeeder.php \
     app/Security/SampleOperationStatusAuthorizer.php \
     config/diagnostics.php config/frontend.php config/logging.php \
     migrations/Version20260718000000.php package.json pnpm-lock.yaml \

@@ -183,12 +183,13 @@ READMEは少なくとも次を説明する。
 - Dependency Install
 - `build:compile`
 - `database:status`／`migrate`
+- `database:seed`
 - HTTP起動
 - Welcome Request
 - Deferred Report Request
 - Worker Run
 - Retention Plan／Dry Run
-- Worker、Migration、Build、Purgeが暗黙実行されないこと
+- Worker、Migration、Build、Seed、Purgeが暗黙実行されないこと
 - Starter FeatureをDirectory単位で削除する方法
 - Failure ResponseのOperation IDをHuman／JSON InspectとLocal Viewerへ渡す方法
 

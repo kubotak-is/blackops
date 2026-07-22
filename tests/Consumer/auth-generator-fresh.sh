@@ -9,6 +9,8 @@ PROJECT="blackops-auth-fresh-${RANDOM}-$$"
 PORT=$((27000 + RANDOM % 1000))
 OVERRIDE="${TEMP}/compose.install.yaml"
 SOURCE_BEFORE=$(git -C "${ROOT}" status --short)
+COMMUNITY_BOARD_DIFF_BEFORE=$(git -C "${ROOT}" diff --binary -- examples/community-board)
+COMMUNITY_BOARD_STATUS_BEFORE=$(git -C "${ROOT}" status --short -- examples/community-board)
 PASSWORD="FreshAuth!${RANDOM}Secure"
 EMAIL="fresh-${RANDOM}-$$@blackops.test"
 
@@ -240,7 +242,8 @@ done
 
 HTTP_PORT="${PORT}" "${COMPOSE[@]}" run --rm app composer validate --strict
 test "$(git -C "${ROOT}" status --short)" = "${SOURCE_BEFORE}"
-git -C "${ROOT}" diff --exit-code -- examples/community-board
+test "${COMMUNITY_BOARD_DIFF_BEFORE}" = "$(git -C "${ROOT}" diff --binary -- examples/community-board)"
+test "${COMMUNITY_BOARD_STATUS_BEFORE}" = "$(git -C "${ROOT}" status --short -- examples/community-board)"
 
 cleanup
 trap - EXIT

@@ -9,9 +9,11 @@ use App\Domain\Identity\PasswordHasher;
 use App\Domain\Identity\User;
 use App\Domain\Identity\UserRepository;
 use App\Infrastructure\Persistence\DoctrineBoardRepository;
+use BlackOps\Database\Seeder;
 use Doctrine\DBAL\Connection;
 
-final readonly class CommunityBoardSeeder
+/** @mago-expect lint:kan-defect */
+final readonly class CommunityBoardSeeder implements Seeder
 {
     public function __construct(
         private Connection $connection,
@@ -20,9 +22,14 @@ final readonly class CommunityBoardSeeder
         private CommunityBoardSeedDataset $dataset = new CommunityBoardSeedDataset(),
     ) {}
 
+    public function run(): void
+    {
+        $this->seed();
+    }
+
     public function seed(): SeedResult
     {
-        return $this->connection->transactional(fn(): SeedResult => $this->seedInTransaction());
+        return $this->connection->transactional($this->seedInTransaction(...));
     }
 
     private function seedInTransaction(): SeedResult

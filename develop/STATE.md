@@ -1,28 +1,28 @@
 # Orchestration State
 
-Updated At: 2026-07-22T23:16:09+09:00
+Updated At: 2026-07-23T00:08:03+09:00
 
 ## Current Phase
 
-Post-Phase 18 Application Ergonomics Follow-up - P18-008B Accepted
+Post-Phase 18 Application Ergonomics Follow-up - Complete
 
 ## Current Task
 
-Task ID: P18-008C Seeder Consumer Adoption and Follow-up Closeout
+Task ID: Phase 19 Reliability and Delivery Planning
 
-Task Packet: `develop/orchestration/tasks/P18-008C-seeder-consumer-adoption-and-closeout.md`
+Task Packet: Not created
 
 Specifications: `develop/spec/76-database-seeding.md`、`develop/spec/77-phase-18-follow-up-delivery-plan.md`
 
 ## Task Status
 
-Planned
+P18-008C Accepted - Next Decision Pending
 
-P18-008BをOrchestrator Reviewと独立Quality Gate後にAcceptedとした。次はQuickstart／Skeleton／Community BoardをFramework Database Seederへ移行し、Community BoardのSeeder用Symfony Commandと不要なDirect Dependencyを削除する。
+P18-008CをOrchestrator Reviewと独立Quality Gate後にAcceptedとした。Phase 18 Follow-upは完了し、次はPhase 19 Reliability and DeliveryのTask策定、またはApplication Direct Dependency境界のDecisionを行う。
 
 ## Last Accepted Task
 
-P18-008B-seeder-console-and-generator
+P18-008C-seeder-consumer-adoption-and-closeout
 
 ## Pending Decisions
 
@@ -64,9 +64,23 @@ Active Implementation Blockerはない。Current SchemaとMigration Schemaが一
 
 ## Required Next Action
 
-1. P18-008Bを意味のある単位でCommitする。
-2. P18-008Cを開始し、Quickstart／Skeleton／Community BoardをFramework Database Seederへ移行する。
-3. Consumer／Frontend／Website／Package Exportを回帰し、残Composer Dependencyの所有境界をReportする。
+1. P18-008Cを意味のある単位でCommitする。
+2. HTTP Runtime／Identifier／DotenvのApplication Direct Dependency境界を次Decision候補として整理する。
+3. Phase 19 Reliability and DeliveryのDelivery Orderと最初のTask Packetを確定する。
+
+## P18-008C Seeder Consumer Adoption and Follow-up Closeout Orchestrator Verification
+
+```text
+Seeder Adoption: Quickstart／Skeletonへ空の標準DatabaseSeederを追加。Community Boardは標準RootからSeederRunnerで既存Application Seederを明示実行し、Transaction、決定性、再実行、Domain Service再利用を維持した。
+
+Console／Dependency: CommunityBoardSeedCommand、app:seed、手動Seeder Service登録を削除。Application SourceのSymfony Console Importを0にし、Community Boardのsymfony/console Direct Dependencyを削除した。残Direct Dependencyは実Importを監査し、別Decision候補をReportした。
+
+Consumer／Website: Community Board Existing／Clean／Identity／Post Comment／Product／Digest／Browser、Quickstart Setup／E2E、Skeleton Publication／Create-project、Framework Update／Package Export、Auth Fresh、Worker Modeを完走。Website 42 tests、Astro 0 diagnostics、31-page Build成功。
+
+Quality: Orchestrator Focused 17 tests／308 assertions、Full PHPUnit 1,706 tests／6,830 assertions、Community Board Clean Install、Website 42 tests／Astro 0 diagnostics／31 pages、Mago Format／Lint／Analyze、Deptrac 0 violations／2,839 allowed、Composer Strict、Management ID／Script Syntax／Scope／diff Guard成功。Process-local default Seeder FQCN衝突は該当Testだけ隔離した。External Publication／Deploy、Framework Production変更、Worker Commitなし。生成／Dependency／Runtime Artifact cleanup済み。既存Root PostgreSQLは停止せずhealthyを維持。
+```
+
+詳細は`develop/orchestration/reports/P18-008C-seeder-consumer-adoption-and-closeout.md`を参照する。
 
 ## P18-008B Seeder Console and Generator Orchestrator Verification
 

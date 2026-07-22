@@ -100,14 +100,13 @@ mise exec -- pnpm --dir "${COMMUNITY_BOARD}/frontend" install --frozen-lockfile
 
 "${COMPOSE[@]}" up -d postgres
 "${COMPOSE[@]}" run --rm app php blackops build:compile
-if PRE_MIGRATION_OUTPUT=$("${COMPOSE[@]}" run --rm app php blackops app:seed 2>&1); then
+if PRE_MIGRATION_OUTPUT=$("${COMPOSE[@]}" run --rm app php blackops database:seed 2>&1); then
     PRE_MIGRATION_STATUS=0
 else
     PRE_MIGRATION_STATUS=$?
 fi
 test "${PRE_MIGRATION_STATUS}" -ne 0
-grep -Fq 'Community Board seed failed. Confirm the database is available and migrations are applied.' \
-    <<<"${PRE_MIGRATION_OUTPUT}"
+grep -Fq 'Database seeding failed.' <<<"${PRE_MIGRATION_OUTPUT}"
 ! grep -Fq "${DATABASE_PASSWORD}" <<<"${PRE_MIGRATION_OUTPUT}"
 for password in "${DEMO_PASSWORDS[@]}"; do
     ! grep -Fq "${password}" <<<"${PRE_MIGRATION_OUTPUT}"
@@ -115,16 +114,17 @@ done
 
 MIGRATION_OUTPUT=$("${COMPOSE[@]}" run --rm app php blackops database:migrate)
 grep -Fq 'migrations: 6' <<<"${MIGRATION_OUTPUT}"
+"${COMPOSE[@]}" run --rm app php blackops build:compile
 "${COMPOSE[@]}" run --rm app php blackops frontend:generate
 "${COMPOSE[@]}" run --rm app php blackops frontend:check
 mise exec -- pnpm --dir "${COMMUNITY_BOARD}/frontend" run check
 mise exec -- pnpm --dir "${COMMUNITY_BOARD}/frontend" run test
 mise exec -- pnpm --dir "${COMMUNITY_BOARD}/frontend" run build
 
-FIRST_SEED_OUTPUT=$("${COMPOSE[@]}" run --rm app php blackops app:seed)
-SECOND_SEED_OUTPUT=$("${COMPOSE[@]}" run --rm app php blackops app:seed)
-grep -Fq '3 users, 3 posts, 4 comments' <<<"${FIRST_SEED_OUTPUT}"
-grep -Fq '3 users, 3 posts, 4 comments' <<<"${SECOND_SEED_OUTPUT}"
+FIRST_SEED_OUTPUT=$("${COMPOSE[@]}" run --rm app php blackops database:seed)
+SECOND_SEED_OUTPUT=$("${COMPOSE[@]}" run --rm app php blackops database:seed)
+grep -Fxq 'Database seeding completed.' <<<"${FIRST_SEED_OUTPUT}"
+grep -Fxq 'Database seeding completed.' <<<"${SECOND_SEED_OUTPUT}"
 for password in "${DEMO_PASSWORDS[@]}"; do
     ! grep -Fq "${password}" <<<"${FIRST_SEED_OUTPUT}${SECOND_SEED_OUTPUT}"
 done

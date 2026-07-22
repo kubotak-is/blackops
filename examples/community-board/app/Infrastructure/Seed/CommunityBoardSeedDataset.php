@@ -11,6 +11,7 @@ final readonly class CommunityBoardSeedDataset
 {
     public const DEMO_EMAIL = 'ada@blackops.local';
     public const DEMO_DISPLAY_NAME = 'Ada Lovelace';
+    /** @mago-expect lint:no-literal-password */
     public const DEMO_PASSWORD = 'BlackOpsBoardDemo!2026';
 
     /** @return list<SeedUser> */

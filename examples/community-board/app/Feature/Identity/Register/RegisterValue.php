@@ -21,6 +21,7 @@ final readonly class RegisterValue implements OperationValue
         #[Length(min: 1, max: 80)]
         public string $displayName,
         #[Sensitive]
+        #[\SensitiveParameter]
         #[NotBlank]
         #[Length(min: 12, max: 128)]
         public string $password,

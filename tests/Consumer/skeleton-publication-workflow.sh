@@ -80,6 +80,7 @@ for required_path in \
     app/Feature/Diagnostics/TriggerFailure/TriggerFailure.php \
     app/Feature/Diagnostics/TriggerFailure/TriggerFailureValue.php \
     app/Feature/Diagnostics/TriggerFailure/FailureTriggered.php \
+    app/Infrastructure/Seed/DatabaseSeeder.php \
     app/Security/SampleOperationStatusAuthorizer.php \
     config/diagnostics.php config/frontend.php config/logging.php \
     package.json pnpm-lock.yaml resources/js/application/operations.ts \

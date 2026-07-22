@@ -47,17 +47,18 @@ mkdir -p var/build var/log
 ```bash
 docker compose build app http
 pnpm install --frozen-lockfile
+docker compose run --rm app php blackops database:migrate
 docker compose run --rm app php blackops build:compile
+docker compose run --rm app php blackops database:seed
 docker compose run --rm app php blackops frontend:generate
 docker compose run --rm app php blackops frontend:check
 pnpm test
-docker compose run --rm app php blackops database:migrate
 docker compose up -d
 ```
 
 BuildはSourceからOperation／HTTP／Frontend Contract ManifestとDI Containerを生成します。`frontend:generate`はContractから`resources/js/blackops/`へTypeScript ESMを生成し、`frontend:check`は現在のContractとPath／Bytesが一致するかを非破壊で確認します。`pnpm test`はDOMなしStrict TypeScriptでGenerated SourceとApplication-owned Consumer Sourceを検査します。
 
-Migration、Build、Frontend生成はHTTP起動時に暗黙実行されません。`docker compose up -d`はHealthyなPostgreSQLとWorker Mode HTTPだけを起動し、Deferred WorkerやSchedulerを勝手に常駐させません。Frontendを使わないApplicationはpnpm以降のFrontend Stepを省略できます。Classic Modeは`classic-mode` Profileの明示Fallbackです。
+Migration、Build、Seed、Frontend生成はHTTP起動時に暗黙実行されません。Install直後の空Root Seederも明示的に実行し、`database:migrate -> build:compile -> database:seed`のDeployment順序を確認します。`docker compose up -d`はHealthyなPostgreSQLとWorker Mode HTTPだけを起動し、Deferred WorkerやSchedulerを勝手に常駐させません。Frontendを使わないApplicationはpnpm以降のFrontend Stepを省略できます。Classic Modeは`classic-mode` Profileの明示Fallbackです。
 
 ## 3. Generated Operation Objectから呼ぶ
 

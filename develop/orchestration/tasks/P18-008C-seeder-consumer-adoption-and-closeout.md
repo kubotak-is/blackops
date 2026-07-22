@@ -1,6 +1,6 @@
 # P18-008C: Seeder Consumer Adoption and Follow-up Closeout
 
-Status: Planned
+Status: Accepted
 
 ## Goal
 
@@ -68,16 +68,16 @@ Framework Production `src/**`、`resources/stubs/**`は変更禁止とする。P
 
 ## Acceptance Criteria
 
-- [ ] Quickstart／Skeletonが標準DatabaseSeederを持ち、Install直後のSeed Journeyが成功する
-- [ ] Community Boardが`database:seed`から既存Fixtureを投入できる
-- [ ] Community BoardのTransaction／Deterministic／Idempotent／Domain Service再利用が維持される
-- [ ] Seeder用Symfony Command、`app:seed`、明示Seeder Service登録がなくなる
-- [ ] Community Board SourceがSymfony Consoleを直接Importせず、Direct Dependencyを削除できる
-- [ ] Existing Volume／Clean Install／HTTP／Deferred／Browser Journeyが成功する
-- [ ] Quickstart／Skeleton／Framework Update／Package Export／Websiteが成功する
-- [ ] 残Composer Dependencyの所有境界と次Decision候補がReportされる
-- [ ] Full PHP／Frontend／Consumer／Website Quality Gateが成功する
-- [ ] External Publication／Deployなし、Worker Commitなし
+- [x] Quickstart／Skeletonが標準DatabaseSeederを持ち、Install直後のSeed Journeyが成功する
+- [x] Community Boardが`database:seed`から既存Fixtureを投入できる
+- [x] Community BoardのTransaction／Deterministic／Idempotent／Domain Service再利用が維持される
+- [x] Seeder用Symfony Command、`app:seed`、明示Seeder Service登録がなくなる
+- [x] Community Board SourceがSymfony Consoleを直接Importせず、Direct Dependencyを削除できる
+- [x] Existing Volume／Clean Install／HTTP／Deferred／Browser Journeyが成功する
+- [x] Quickstart／Skeleton／Framework Update／Package Export／Websiteが成功する
+- [x] 残Composer Dependencyの所有境界と次Decision候補がReportされる
+- [x] Full PHP／Frontend／Consumer／Website Quality Gateが成功する
+- [x] External Publication／Deployなし、Worker Commitなし
 
 ## Required Commands
 

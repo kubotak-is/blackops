@@ -53,6 +53,12 @@ Stubへ次を追加しない。
 
 生成Classは`App\Migrations`のDoctrine `AbstractMigration` subclassで、constructorを宣言しない。このためApplication Migration RuntimeはDBAL ConnectionとLoggerだけを渡すDoctrine標準Constructorで生成できる。GeneratorはDB Connection、Migration Runner、Build、Composer、Source Discoveryを構成しない。
 
+## Seeder Generator Flow
+
+`make:seeder`はPascalCase SegmentのRoot／Nested Nameを`app/Infrastructure/Seed/`配下のPathと`App\Infrastructure\Seed` Namespaceへ変換する。Framework PackageのSeeder StubからPublic `Seeder`を実装する空の`run(): void`を一つ生成し、`ProjectFileWriter`のAtomic／No-overwrite境界を再利用する。
+
+GeneratorはRoot／Childを推測せず、Database接続、Migration、Build、Seeder実行を行わない。Framework Update Consumerは既存Root Seederをbyte単位で保持し、更新後Packageから新しいNested Seederを生成する。
+
 ## Framework Update Verification
 
 Consumer SmokeはRepository History上の旧Commitを固定せず、Repository外の一時Directoryへ同じFramework Sourceから2つのLocal Composer Versionを作る。旧版相当はFramework所有Stubへ有効な識別Marker、Operation／Migration Command出力へ`Legacy Created:` Prefixを持つ。Current版はRepositoryのStubとCommand Sourceをそのまま持つ。

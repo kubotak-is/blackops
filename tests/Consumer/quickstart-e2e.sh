@@ -132,6 +132,9 @@ order_table_after_status=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres 
     "SELECT count(*) FROM information_schema.tables WHERE table_schema = 'public' AND table_name IN ('quickstart_orders', 'quickstart_order_commits')")
 test "${order_table_after_status}" = "0"
 HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops database:migrate
+HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops build:compile
+HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops database:seed \
+    | grep -Fx 'Database seeding completed.'
 
 console_reference="console-$RANDOM-$$"
 HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops order:create \

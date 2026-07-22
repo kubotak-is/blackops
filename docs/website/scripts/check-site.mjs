@@ -21,6 +21,7 @@ const routes = [
   '/execution/context/',
   '/database/transactions/',
   '/database/migrations/',
+  '/database/seeding/',
   '/database/outcomes/',
   '/database/retention/',
   '/testing/',

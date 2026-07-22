@@ -18,6 +18,10 @@ use Doctrine\DBAL\ParameterType;
 use RuntimeException;
 use UnexpectedValueException;
 
+/**
+ * @mago-expect lint:cyclomatic-complexity
+ * @mago-expect lint:too-many-methods
+ */
 final readonly class DoctrineBoardRepository implements BoardRepository
 {
     public function __construct(

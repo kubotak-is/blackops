@@ -51,10 +51,13 @@ fi
 "${COMPOSE[@]}" run --rm app php blackops frontend:check
 
 COMMAND_LIST=$("${COMPOSE[@]}" run --rm app php blackops list --raw)
-grep -Eq '^app:seed[[:space:]]' <<<"${COMMAND_LIST}"
+grep -Eq '^database:seed[[:space:]]' <<<"${COMMAND_LIST}"
+! grep -Eq '^app:seed[[:space:]]' <<<"${COMMAND_LIST}"
 grep -Eq '^board:welcome[[:space:]]' <<<"${COMMAND_LIST}"
-"${COMPOSE[@]}" run --rm app php blackops help app:seed >"${TEMP}/seed-help.txt"
-grep -Fq 'Seed deterministic Community Board application data.' "${TEMP}/seed-help.txt"
+"${COMPOSE[@]}" run --rm app php blackops help database:seed >"${TEMP}/seed-help.txt"
+grep -Fq 'database:seed' "${TEMP}/seed-help.txt"
+"${COMPOSE[@]}" run --rm app php blackops database:seed \
+    | grep -Fx 'Database seeding completed.'
 "${COMPOSE[@]}" run --rm app php blackops help board:welcome >"${TEMP}/welcome-help.txt"
 grep -Fq 'Show the Community Board welcome message.' "${TEMP}/welcome-help.txt"
 "${COMPOSE[@]}" run --rm app php blackops board:welcome --json >"${TEMP}/welcome-command.json"

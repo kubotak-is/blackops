@@ -21,7 +21,7 @@ final readonly class UpdatePostValue implements OperationValue
         public string $title,
         #[FromBody]
         #[NotBlank]
-        #[Length(min: 1, max: 10000)]
+        #[Length(min: 1, max: 10_000)]
         public string $body,
     ) {}
 }

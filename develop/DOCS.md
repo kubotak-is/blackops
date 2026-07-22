@@ -13,6 +13,8 @@
 - [MVP Sample](../docs/guide/mvp-sample.md)
 - [Runtime Bootstrap](../docs/guide/runtime-bootstrap.md)
 - [Data Retention](../docs/guide/retention.md)
+- [Database Seeding](../docs/guide/database-seeding.md)
+- [Database Seeding Internals](../docs/internal/database-seeding.md)
 - [Architecture and Sequences](../docs/internal/architecture.md)
 - [MVP and Consumer End-to-End](../docs/internal/mvp-e2e.md)
 - [Framework Specification Index](spec/README.md)

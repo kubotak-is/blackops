@@ -40,6 +40,7 @@ BlackOpsはExperimentalです。1.x Minor間のBackward CompatibilityとProducti
 | Application `#[AsCommand]` Discovery／DI | Not available | Available（Experimental） |
 | Operation `#[ConsoleCommand]` Adapter | Not available | Available（Experimental） |
 | Opt-in Session Core／`make:auth` | Not available | Available（Experimental） |
+| Database Seeder／`database:seed`／`make:seeder` | Not available | Available（Experimental） |
 | BlackOps Board Full-stack Reference Application | Not available | Available（Experimental、Local／CI only） |
 
 Stable Applicationを作る場合はVersionを明示します。
@@ -76,6 +77,7 @@ composer create-project blackops/skeleton my-app 1.1.0
 - Server Fetch、Base URL、Header、CredentialをRequest単位で固定するGenerated Bound Client
 - Symfony `#[AsCommand]`のBuild-time Discovery／Constructor DIと`#[ConsoleCommand]` Operation Adapter
 - Opaque Token、Hash保存、TTL、Touch、Rotation、Revocation、Cleanupを持つOpt-in Session Coreと`make:auth`
+- Build-time Discovery、Compiled Container DI、明示順の子Seederを持つDatabase Seederと`database:seed`／`make:seeder`
 - Application-owned Identity、Ephemeral Auth Operation、SvelteKit BFF、Post／Comment、Deferred Digest、Real Browser E2Eを統合した[BlackOps Board](community-board.md)
 
 BlackOps BoardはRepository `main`だけのExperimental Local Reference Applicationです。Stable `1.1.0` Skeletonには含まれず、公開Hostも提供していません。Documentation Websiteと同様にSource、Local／CI Build、Consumer Evidenceだけを維持し、External Publication／Deployは将来の明示Taskへ分離しています。

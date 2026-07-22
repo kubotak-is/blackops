@@ -2,7 +2,7 @@
 
 Install済みApplicationでは、Project Rootの`blackops`からFrameworkが提供するGeneratorを実行できます。生成対象となる[Operation](glossary.md#operation)は、Applicationが実行したい一つの意図と処理単位です。
 
-> **Release:** `make:operation`と`make:migration`はExperimental Stable `1.1.0`で利用できます。生成済みSourceはApplication所有であり、Framework Updateでは変更されません。
+> **Release:** `make:operation`と`make:migration`はExperimental Stable `1.1.0`で利用できます。`make:seeder`はRepository `main`のExperimental Surfaceです。生成済みSourceはApplication所有であり、Framework Updateでは変更されません。
 
 ## Operationを生成する
 
@@ -47,7 +47,7 @@ php blackops build:compile
 
 ## Framework Updates
 
-Project Rootの`blackops`はApplication所有のBootstrapであり、Framework CommandやStubのCopyではありません。通常のComposer Updateで`blackops/framework`を更新すると、Entrypointを変更せずに更新後の`make:operation`／`make:migration`とStubを利用できます。
+Project Rootの`blackops`はApplication所有のBootstrapであり、Framework CommandやStubのCopyではありません。通常のComposer Updateで`blackops/framework`を更新すると、Entrypointを変更せずに更新後の`make:operation`／`make:migration`／`make:seeder`とStubを利用できます。
 
 ```bash
 composer update blackops/framework
@@ -78,3 +78,19 @@ php blackops database:migrate
 ```
 
 Commandは最初の生成時だけ`migrations/`を作ります。同じ秒のVersion Fileがすでに存在する場合は上書きせず失敗します。CommandはFile生成だけを行い、Database接続、Migration適用、Composer更新、Artifact Buildを行いません。
+
+## Seederを生成する
+
+Application固有のSeederはPascalCaseのClass名から生成します。Slashで区切るとSeed Directory内へNestできます。
+
+```bash
+php blackops make:seeder DatabaseSeeder
+php blackops make:seeder Catalog/ProductSeeder
+```
+
+```text
+app/Infrastructure/Seed/DatabaseSeeder.php
+app/Infrastructure/Seed/Catalog/ProductSeeder.php
+```
+
+生成Classは`BlackOps\Database\Seeder`を実装し、空の`run(): void`を持ちます。Database接続、Migration、Build、Seed実行、Rootへの自動登録は行いません。子Seederの実行順はRoot `DatabaseSeeder`へ明示してください。詳しくは[Database Seeding](database-seeding.md)を参照してください。

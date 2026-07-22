@@ -183,6 +183,7 @@ find \
     "${consumer_root}/app/Feature/Report" \
     "${consumer_root}/app/Feature/Order" \
     "${consumer_root}/app/Feature/Diagnostics" \
+    "${consumer_root}/app/Infrastructure/Seed/DatabaseSeeder.php" \
     "${consumer_root}/config/diagnostics.php" \
     "${consumer_root}/config/frontend.php" \
     "${consumer_root}/config/logging.php" \
@@ -306,6 +307,8 @@ test "$(<"${temporary_root}/after-auth-noop.out")" = 'Authentication starter is 
 
 run_php blackops build:compile > "${temporary_root}/build.out"
 test -f "${consumer_root}/var/build/commands.php"
+run_php blackops database:seed > "${temporary_root}/database-seed.out"
+grep -Fxq 'Database seeding completed.' "${temporary_root}/database-seed.out"
 run_php blackops frontend:generate > "${temporary_root}/frontend-generate.out"
 run_php blackops frontend:check > "${temporary_root}/frontend-check.out"
 grep -q '^Frontend generated tree is fresh in resources/js/blackops\.$' \

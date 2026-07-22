@@ -16,6 +16,8 @@ COMPOSE=(
 CURL=(curl --connect-timeout 3 --max-time 15)
 TEMP=$(mktemp -d)
 ENVIRONMENT_CREATED=false
+QUICKSTART_DIFF_BEFORE=$(git -C "${ROOT}" diff --binary -- examples/quickstart)
+QUICKSTART_STATUS_BEFORE=$(git -C "${ROOT}" status --short -- examples/quickstart)
 
 cleanup() {
     "${COMPOSE[@]}" --profile classic-mode --profile worker down --volumes --remove-orphans >/dev/null 2>&1 || true
@@ -298,7 +300,8 @@ printf 'Sensitive surface guards passed.\n'
 test "$(<"${TEMP}/database-failure-status")" = '500'
 test "$(<"${TEMP}/database-failure.json")" = '{"status":"error","code":"internal_error"}'
 
-git -C "${ROOT}" diff --exit-code -- examples/quickstart
+test "${QUICKSTART_DIFF_BEFORE}" = "$(git -C "${ROOT}" diff --binary -- examples/quickstart)"
+test "${QUICKSTART_STATUS_BEFORE}" = "$(git -C "${ROOT}" status --short -- examples/quickstart)"
 if git -C "${ROOT}" ls-files \
     examples/community-board/.env \
     examples/community-board/vendor \

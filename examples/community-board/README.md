@@ -20,7 +20,7 @@ docker compose run --rm app php blackops database:migrate
 docker compose run --rm app php blackops build:compile
 docker compose run --rm app php blackops frontend:generate
 docker compose run --rm app php blackops frontend:check
-docker compose run --rm app php blackops app:seed
+docker compose run --rm app php blackops database:seed
 mise exec -- pnpm --dir frontend run check
 mise exec -- pnpm --dir frontend run test
 mise exec -- pnpm --dir frontend run build
@@ -133,7 +133,7 @@ bash tests/Consumer/community-board-browser.sh
 
 ### Seed reports a conflict
 
-**Symptom:** `php blackops app:seed` exits nonzero with the fixed safe failure message after a seeded row was edited manually.
+**Symptom:** `php blackops database:seed` exits nonzero with the fixed safe failure message after a seeded row was edited manually.
 
 **Verify:** Check whether the fixed seed IDs or `@blackops.local` emails now contain different display names, timestamps, content, relationships, or password hashes. The command intentionally does not print the conflicting value.
 

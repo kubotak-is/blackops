@@ -11,6 +11,7 @@ final readonly class LoginCompleted implements EphemeralOutcome
 {
     public function __construct(
         #[Sensitive]
+        #[\SensitiveParameter]
         public string $token,
         public string $issuedAt,
         public string $expiresAt,

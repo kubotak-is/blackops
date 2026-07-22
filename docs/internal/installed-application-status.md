@@ -1,8 +1,14 @@
 # Installed Application Status
 
-Status: Phase 18 P18-005 Operation Console Adapter implemented; Phase 18 remains in progress
+Status: Phase 18 follow-up Database Seeder consumer adoption implemented; Phase 19 remains planned
 
 この文書はRepositoryのPhase Acceptance Evidenceを記録するFramework実装者向け資料であり、公開Documentation WebsiteのContent Sourceには含めない。利用者向けの現行機能と制約は[Guide MVP Status](../guide/mvp-status.md)を参照する。
+
+## Phase 18 Database Seeder Follow-up Evidence
+
+Quickstart／Skeletonは標準`app/Infrastructure/Seed/DatabaseSeeder.php`を配布し、`database:migrate -> build:compile -> database:seed`をInstall直後の明示Journeyとする。Community BoardはRoot Seederが`SeederRunner`から既存の決定論的Seederを実行し、Application Transaction、Idempotency、Conflict判定、Domain Service再利用を維持する。
+
+SeederはBuild-time DiscoveryとCompiled Container DIを使うため、Service Providerへの個別登録は不要である。Community BoardのSeeder専用Symfony Commandと直接`Symfony\Component\Console` Importは削除し、Application `composer.json`からDirect Dependencyを外した。Framework Packageのtransitive dependencyであることとは区別する。
 
 ## Phase 18 Operation Console Evidence
 
@@ -53,6 +59,7 @@ examples/quickstart/
   app/Feature/Welcome/ShowWelcome/
   app/Feature/Report/GenerateReport/
   app/Feature/Diagnostics/TriggerFailure/
+  app/Infrastructure/Seed/DatabaseSeeder.php
   blackops
   bin/setup
   bootstrap/app.php
@@ -77,7 +84,7 @@ examples/quickstart/
   README.md
 ```
 
-このTreeは [Project Root Entrypoint Decision](../../develop/decisions/083-project-root-blackops-entrypoint.md) と [Feature-first Quickstart Application](../../develop/spec/49-feature-first-quickstart-application.md) に従う。[Installed Application Layout](../../develop/spec/43-installed-application-layout-and-bootstrap.md) の一般的なApplication所有境界は維持し、CLI配置だけを後続Decisionで更新した。`app/Infrastructure/` と `migrations/` は必要になったApplicationが追加する任意の配置先であり、空Directoryとしては配布しない。`tests/Frontend/`はApplication-owned Test Sourceとして配布する。Generated `resources/js/blackops/`、`node_modules/`、Frontend Emit、Generated Artifact、Log、`.env`、`vendor/`、`composer.lock` はSourceへ含めない。
+このTreeは [Project Root Entrypoint Decision](../../develop/decisions/083-project-root-blackops-entrypoint.md) と [Feature-first Quickstart Application](../../develop/spec/49-feature-first-quickstart-application.md) に従う。[Installed Application Layout](../../develop/spec/43-installed-application-layout-and-bootstrap.md) の一般的なApplication所有境界は維持し、CLI配置だけを後続Decisionで更新した。`app/Infrastructure/`は通常任意だが、現行SkeletonはFramework Database Seederの標準入口だけを配布する。`migrations/`はOrder Journeyを所有する。`tests/Frontend/`はApplication-owned Test Sourceとして配布する。Generated `resources/js/blackops/`、`node_modules/`、Frontend Emit、Generated Artifact、Log、`.env`、`vendor/`、`composer.lock` はSourceへ含めない。
 
 ## Authoring and Process Boundary
 

@@ -46,6 +46,7 @@ The current command set is:
 | `scheduler:daemon` | `BlackOps\Internal\Console\SchedulerDaemonCommand` | Run registered maintenance tasks repeatedly with an explicit interval. |
 | `worker:run` | `BlackOps\Internal\Console\WorkerRunCommand` | Run the single-claim deferred worker with recovery, heartbeat, and graceful shutdown. |
 | `database:migrate` | `BlackOps\Internal\Console\DatabaseMigrationMigrateCommand` | Apply or dry-run the versioned PostgreSQL framework baseline. |
+| `database:seed` | `BlackOps\Internal\Console\DatabaseSeedCommand` | Run the application root seeder from a fresh compiled container. |
 | `database:status` | `BlackOps\Internal\Console\DatabaseMigrationStatusCommand` | Show applied and pending framework migration versions without changing the database. |
 
 For normal build pipelines, prefer the unified build command so operation metadata, HTTP route metadata, frontend contract metadata, and container definitions are generated from the same provider set.

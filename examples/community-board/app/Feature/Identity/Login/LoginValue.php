@@ -18,10 +18,12 @@ final readonly class LoginValue implements OperationValue
         #[Length(max: 254)]
         public string $email,
         #[Sensitive]
+        #[\SensitiveParameter]
         #[NotBlank]
         #[Length(min: 12, max: 128)]
         public string $password,
         #[Sensitive]
+        #[\SensitiveParameter]
         public ?string $currentToken = null,
     ) {}
 }

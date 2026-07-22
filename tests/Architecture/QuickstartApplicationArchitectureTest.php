@@ -27,6 +27,7 @@ final class QuickstartApplicationArchitectureTest extends TestCase
             'app/Feature/Diagnostics/TriggerFailure/TriggerFailure.php',
             'app/Feature/Diagnostics/TriggerFailure/TriggerFailureValue.php',
             'app/Feature/Diagnostics/TriggerFailure/FailureTriggered.php',
+            'app/Infrastructure/Seed/DatabaseSeeder.php',
             'app/Security/SampleUserAuthorizationPolicy.php',
             'app/UserInterface/Http/SampleTokenAuthenticator.php',
             'blackops',

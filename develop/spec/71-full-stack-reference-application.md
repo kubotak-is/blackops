@@ -233,7 +233,9 @@ BlackOps Deferred Worker
 SvelteKit Development／Preview Server
 ```
 
-Seedは複数User、Post、Commentを決定的に作成する。SecretをRepositoryへ固定せず、Demo CredentialはLocal／Test用途であることをREADMEへ明記する。Setupを再実行可能にし、Migration、Build、Frontend Generate、Seed、Service Startの副作用をCommandごとに分離する。
+SeedはFramework-owned `database:seed`から標準Root `App\Infrastructure\Seed\DatabaseSeeder`を解決し、`SeederRunner`でApplication-owned Child Seederを明示順に実行する。専用Symfony Application CommandとSeederのService Provider登録を要求しない。
+
+Child SeederはApplication Transaction、固定UUID／UTC時刻、既存Seed RowとのConflict判定、再実行時のIdempotency、Board Domain Service再利用を所有し、複数User、Post、Commentを決定的に作成する。SecretをRepositoryへ固定せず、Demo CredentialはLocal／Test用途であることをREADMEへ明記する。Setupを再実行可能にし、Migration、Build、Frontend Generate、Seed、Service Startの副作用をCommandごとに分離する。標準順序は`database:migrate -> build:compile -> database:seed`とする。
 
 ## Testing and CI
 

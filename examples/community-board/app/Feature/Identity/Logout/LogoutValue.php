@@ -13,6 +13,7 @@ final readonly class LogoutValue implements OperationValue
 {
     public function __construct(
         #[Sensitive]
+        #[\SensitiveParameter]
         #[NotBlank]
         #[Length(min: 43, max: 43)]
         public string $token,

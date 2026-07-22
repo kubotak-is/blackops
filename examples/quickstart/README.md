@@ -16,12 +16,13 @@ docker compose build app http
 docker compose run --rm app composer install
 pnpm install --frozen-lockfile
 docker compose run --rm app php blackops operation:list
+docker compose run --rm app php blackops database:status
+docker compose run --rm app php blackops database:migrate
 docker compose run --rm app php blackops build:compile
+docker compose run --rm app php blackops database:seed
 docker compose run --rm app php blackops frontend:generate
 docker compose run --rm app php blackops frontend:check
 pnpm test
-docker compose run --rm app php blackops database:status
-docker compose run --rm app php blackops database:migrate
 docker compose up -d
 ```
 
@@ -235,3 +236,16 @@ php blackops database:migrate
 ```
 
 Generator自身はDatabase接続、Migration適用、Buildを行わない。Application Migrationがない場合、空の`migrations/`は不要である。
+
+## Creating and Running a Seeder
+
+Install直後のSkeletonは標準Root `app/Infrastructure/Seed/DatabaseSeeder.php`を持つ。追加SeederはFramework所有Generatorで作り、Rootから明示順に実行する。
+
+```bash
+php blackops make:seeder Catalog/ProductSeeder
+php blackops database:migrate
+php blackops build:compile
+php blackops database:seed
+```
+
+Migration、Build、Seedは互いを暗黙実行しない。SeederはBuild時に検出されるため、Source変更後は必ず再Buildする。Transaction、再実行方針、Conflict処理はApplicationが所有する。

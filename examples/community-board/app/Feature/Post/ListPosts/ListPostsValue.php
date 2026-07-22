@@ -12,7 +12,7 @@ final readonly class ListPostsValue implements OperationValue
 {
     public function __construct(
         #[FromQuery]
-        #[Range(min: 1, max: 10000)]
+        #[Range(min: 1, max: 10_000)]
         public int $page = 1,
         #[FromQuery]
         #[Range(min: 1, max: 50)]

@@ -76,3 +76,11 @@ final class Version20260718000000 extends AbstractMigration
 Database Commandは実行時に`Version*.php`を直接読み込みます。Parse Error、`App\Migrations`以外のNamespace、File名と異なるClass、`AbstractMigration`でないClassを検出すると失敗します。`migrations`がFileまたはsymlinkの場合も無視せず拒否します。
 
 HTTP、Worker、Scheduler、Build、Consoleの`list`／`help`はMigration Directoryを読み込まず、MigrationやDDLを暗黙実行しません。
+
+初期Dataも投入するDeploymentでは、Migration後にApplicationをBuildしてからRoot Seederを実行します。Seederの作り方と責任境界は[Database Seeding](database-seeding.md)を参照してください。
+
+```bash
+php blackops database:migrate
+php blackops build:compile
+php blackops database:seed
+```

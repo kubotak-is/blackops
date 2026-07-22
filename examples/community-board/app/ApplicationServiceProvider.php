@@ -17,7 +17,6 @@ use App\Infrastructure\Deferred\NoOpDigestAttemptGate;
 use App\Infrastructure\Identifier\SymfonyBoardIdGenerator;
 use App\Infrastructure\Persistence\DoctrineBoardRepository;
 use App\Infrastructure\Persistence\DoctrineDigestRepository;
-use App\Infrastructure\Seed\CommunityBoardSeeder;
 use App\Security\BoardOperationStatusAuthorizer;
 use BlackOps\Core\DependencyInjection\ServiceProvider;
 use BlackOps\Core\DependencyInjection\ServiceRegistry;
@@ -35,7 +34,6 @@ final readonly class ApplicationServiceProvider implements ServiceProvider
         $services->autowire(BoardService::class);
         $services->autowire(DigestRepository::class, DoctrineDigestRepository::class);
         $services->autowire(DigestService::class);
-        $services->autowire(CommunityBoardSeeder::class);
         $services->autowire(BoardClock::class, SystemBoardClock::class);
         $services->autowire(BoardIdGenerator::class, SymfonyBoardIdGenerator::class);
         $services->autowire(OperationStatusAuthorizer::class, BoardOperationStatusAuthorizer::class);

@@ -28,8 +28,8 @@ use LogicException;
 readonly class GenerateWeeklyDigest implements Operation
 {
     public function __construct(
-        private readonly DigestService $digests,
-        private readonly DigestAttemptGate $attempts,
+        private DigestService $digests,
+        private DigestAttemptGate $attempts,
     ) {}
 
     #[Transactional]

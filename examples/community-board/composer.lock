@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e8fb7061acdaa8cb5d5f9354d3274d96",
+    "content-hash": "66f5311ffe848a1d1fa74c33790940f7",
     "packages": [
         {
             "name": "blackops/framework",
@@ -12,7 +12,7 @@
             "dist": {
                 "type": "path",
                 "url": "../..",
-                "reference": "e7e26a00edbbe4df44bedd77f8c4fc277b63fff3"
+                "reference": "f358515c9ab089e7817a72b318f1bbf36416492c"
             },
             "require": {
                 "doctrine/dbal": "^4.4",

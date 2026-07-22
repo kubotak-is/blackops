@@ -128,22 +128,23 @@ Test終了時はCompose Project／Volume／Container／Image／Temp Directoryを
 4. Build時点でFramework Schemaが存在しない
 5. `database:status` はRead-only
 6. `database:migrate` 明示実行後だけSchemaが存在
-7. Default `postgres`／Worker Mode `http` 起動
-8. `GET /welcome` が200／Expected JSON
-9. Welcome Sensitive Header Raw値がJSONLに存在せずMask値が存在
-10. 認証付き`POST /failures`がSafe 500／UUIDv7 Operation ID
-11. FailureがReceived／Attempt Started／Attempt Failed／Operation Failedへ到達
-12. Human／JSON Inspectが同じID、Failed State、Timeline、Attempt、Availability、Maskを表示
-13. PCNTLを持つnamed CLI ContainerでViewerを明示起動し、同じNetwork NamespaceからLoopback HTTPを検証
-14. ViewerのTokenなし404、Bootstrap／Session、Canonical Path、GET／HEAD、POST 405が成立
-15. Application／Framework JSONLが同じOperation IDを持ち、Credential／Sensitive／Exception Message／Raw Actor IDを出さない
-16. `POST /reports` が202／Operation ID
-17. Worker 1回目でRetry Scheduled
-18. Due Time後のWorker再実行でCompleted
-19. PostgreSQL Operation StateがCompleted
-20. Outcome Rowが存在し、Encoded Outcomeが保存される
-21. Retention PlanとPurge Dry Runが成功
-22. Scheduler／Purge Confirmは実行しない
+7. Migration後に再`build:compile`し、標準Rootで`database:seed`が成功
+8. Default `postgres`／Worker Mode `http` 起動
+9. `GET /welcome` が200／Expected JSON
+10. Welcome Sensitive Header Raw値がJSONLに存在せずMask値が存在
+11. 認証付き`POST /failures`がSafe 500／UUIDv7 Operation ID
+12. FailureがReceived／Attempt Started／Attempt Failed／Operation Failedへ到達
+13. Human／JSON Inspectが同じID、Failed State、Timeline、Attempt、Availability、Maskを表示
+14. PCNTLを持つnamed CLI ContainerでViewerを明示起動し、同じNetwork NamespaceからLoopback HTTPを検証
+15. ViewerのTokenなし404、Bootstrap／Session、Canonical Path、GET／HEAD、POST 405が成立
+16. Application／Framework JSONLが同じOperation IDを持ち、Credential／Sensitive／Exception Message／Raw Actor IDを出さない
+17. `POST /reports` が202／Operation ID
+18. Worker 1回目でRetry Scheduled
+19. Due Time後のWorker再実行でCompleted
+20. PostgreSQL Operation StateがCompleted
+21. Outcome Rowが存在し、Encoded Outcomeが保存される
+22. Retention PlanとPurge Dry Runが成功
+23. Scheduler／Purge Confirmは実行しない
 
 ## Consumer Test Entrypoint
 

@@ -5,6 +5,9 @@
 ```text
 app/
   ApplicationServiceProvider.php
+  Infrastructure/
+    Seed/
+      DatabaseSeeder.php
   Security/
     SampleOperationStatusAuthorizer.php
   Feature/
@@ -76,7 +79,7 @@ tsconfig.runtime.json
 
 `app/Feature/<Feature>/<Action>/`がUse Caseの単位です。WelcomeやReportはDirectoryごと削除でき、Provider一覧やBootstrapを編集する必要はありません。DiagnosticsのTriggerFailureはOperation IDから失敗を追跡するLocal Exampleで、Production Featureとして必要なければDirectoryごと削除できます。`config/operations.php`のDiscovery Rootへ追加したOperationと、`config/app.php`の`command_discovery` Rootへ追加した`#[AsCommand]`は次回Buildで検出されます。
 
-Application固有のRepository、External Service、Clock等はFeatureの内部または任意の`app/Infrastructure/`へ配置できます。Install直後のSkeletonはDatabase／Transaction例としてOrder Featureと`migrations/Version20260718000000.php`を含みます。追加Migrationは`php blackops make:migration Description`で生成してください。
+Application固有のRepository、External Service、Clock等はFeatureの内部または`app/Infrastructure/`へ配置できます。Install直後のSkeletonは標準Root `app/Infrastructure/Seed/DatabaseSeeder.php`と、Database／Transaction例としてOrder Feature、`migrations/Version20260718000000.php`を含みます。追加Seederは`php blackops make:seeder Name`、追加Migrationは`php blackops make:migration Description`で生成してください。
 
 ## Process Boundary
 

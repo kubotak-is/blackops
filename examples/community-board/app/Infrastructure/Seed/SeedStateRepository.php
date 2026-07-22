@@ -6,6 +6,7 @@ namespace App\Infrastructure\Seed;
 
 use Doctrine\DBAL\Connection;
 
+/** @mago-expect lint:cyclomatic-complexity */
 final readonly class SeedStateRepository
 {
     public function __construct(

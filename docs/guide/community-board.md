@@ -30,14 +30,14 @@ docker compose run --rm app php blackops database:migrate
 docker compose run --rm app php blackops build:compile
 docker compose run --rm app php blackops frontend:generate
 docker compose run --rm app php blackops frontend:check
-docker compose run --rm app php blackops app:seed
+docker compose run --rm app php blackops database:seed
 mise exec -- pnpm --dir frontend run check
 mise exec -- pnpm --dir frontend run test
 mise exec -- pnpm --dir frontend run build
 docker compose --profile worker up -d postgres http frontend worker
 ```
 
-`bin/setup`は`.env`とRuntime Directoryだけを準備します。Dependency Install、Migration、Build、Generate、Seed、Startを暗黙に実行しません。`app:seed`は固定した3 User、3 Post、4 Commentを作り、同じDatabaseで再実行しても重複しません。
+`bin/setup`は`.env`とRuntime Directoryだけを準備します。Dependency Install、Migration、Build、Generate、Seed、Startを暗黙に実行しません。`database:seed`はRoot `DatabaseSeeder`からCommunity Board Seederを実行し、固定した3 User、3 Post、4 Commentを作ります。同じDatabaseで再実行しても重複しません。
 
 `http://localhost:5173/login`を開き、次を入力します。
 
@@ -120,7 +120,7 @@ Foundation、Identity、Post／Comment、Product Journey、Digest、BrowserのCo
 
 ### Seed Conflict
 
-**Symptom:** `php blackops app:seed`が固定の安全なMessageで非0終了します。
+**Symptom:** `php blackops database:seed`が固定の安全なMessageで非0終了します。
 
 **Verify:** 固定Seed IDまたは`@blackops.local` EmailのRowが、Source Fixtureと異なる表示名、時刻、本文、関連、Password Hashへ手動変更されていないか確認します。
 

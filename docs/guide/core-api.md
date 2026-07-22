@@ -1,6 +1,6 @@
 # Core API Types Reference
 
-このReferenceは現在の`main` Sourceで`#[PublicApi]`を持つ163型を一覧化しています。Application Authorはまず「Application構成」「Database」「Operation Authoring」「Validation」「Status／Outcome取得」の型を使い、Transport、Journal、Retention等のPortはAdapterを拡張するときだけ使ってください。
+このReferenceは現在の`main` Sourceで`#[PublicApi]`を持つ165型を一覧化しています。Application Authorはまず「Application構成」「Database」「Operation Authoring」「Validation」「Status／Outcome取得」の型を使い、Transport、Journal、Retention等のPortはAdapterを拡張するときだけ使ってください。
 
 `BlackOps\Core\Attribute\PublicApi` marker自身は利用者向けAPIではないため一覧へ含めません。内部実装Namespaceと`#[PublicApi]`を持たない実装型にも依存しないでください。Attributeの付与対象と標準形は[Attributes Reference](attributes.md)を確認してください。
 
@@ -25,6 +25,8 @@
 | `BlackOps\Database\AfterCommitFailure` | final readonly value object | Commit後CallbackのService、Method、Cause、登録時Contextを保持する | Failure Reporterで失敗を観測する |
 | `BlackOps\Database\AfterCommitFailureReporter` | interface | Commit後Callback失敗の通知先 | Application固有の監視AdapterをService Providerで登録する |
 | `BlackOps\Database\Exception\TransactionException` | exception class | Transaction所有権、Rollback-only、DBAL境界の失敗を通知する | 安全なMessageとPrevious Throwableを扱う |
+| `BlackOps\Database\Seeder` | interface | Application Seederの実行Contract | Root Seederと子Seederで`run(): void`を実装する |
+| `BlackOps\Database\SeederRunner` | interface | Compile済みSeederを順序付きで実行する | Root Seederから子SeederのClass名を渡す |
 
 Default Connectionだけを使うRepositoryは`Doctrine\DBAL\Connection`を直接Constructor Injectionできます。Named ConnectionはContainerやGlobal Helperではなく`DatabaseManager::connection($name)`で選択します。Transaction Attributeの制約とContainer管理境界は[Attributes Reference](attributes.md#transaction-attributes)、実行保証は[Database and Transactions](database-and-transactions.md)を参照してください。
 

@@ -98,9 +98,12 @@ Frontend BridgeはRepository `main`のExperimental Surfaceであり、Stable `1.
 ```text
 database:status
 database:migrate
+database:seed
 ```
 
 Status、Dry-run、MigrateはFramework MigrationとApplication Migrationを一つの明示Deployment Flowで扱います。
+
+`database:seed`はFreshなCompiled ContainerからApplicationのRoot Seederを一度実行します。標準順序は`database:migrate -> build:compile -> database:seed`です。MigrationやBuildを暗黙実行しません。
 
 ## Execution
 
@@ -140,8 +143,9 @@ PlanとDry-runは変更を行いません。Purgeは`--confirm`を要求し、Sc
 make:operation
 make:migration
 make:auth
+make:seeder
 ```
 
-`make:operation`と`make:migration`はExperimental Stable `1.1.0`で利用できます。`make:auth`はRepository `main`のExperimental Commandで、Application-owned Identity Domain、DBAL Adapter、Ephemeral Register／Login／Logout、Session Migrationを一度だけ生成します。詳細は[Project Generators](project-generators.md)と[Session Authentication Starter](security.md#session-authentication-starter)を参照してください。生成済みApplication SourceはFramework Updateで自動変更されません。
+`make:operation`と`make:migration`はExperimental Stable `1.1.0`で利用できます。`make:auth`と`make:seeder`はRepository `main`のExperimental Commandです。`make:auth`はApplication-owned Identity Domain、DBAL Adapter、Ephemeral Register／Login／Logout、Session Migrationを一度だけ生成します。`make:seeder`は`app/Infrastructure/Seed/`へ空のSeederを生成します。詳細は[Project Generators](project-generators.md)、[Database Seeding](database-seeding.md)、[Session Authentication Starter](security.md#session-authentication-starter)を参照してください。生成済みApplication SourceはFramework Updateで自動変更されません。
 
 `1.0.0`の`bin/blackops`と`blackops:*` Project Commandは互換対象ではありません。`1.1.0`への移行ではProject Root `blackops`とPrefixなしCommandへ更新してください。

@@ -9,6 +9,8 @@ use BlackOps\Internal\Application\ApplicationSeederConfiguration;
 use BlackOps\Internal\Application\ApplicationSeederDiscovery;
 use BlackOps\Tests\Internal\Application\Fixture\SeederDiscovery\NotASeeder;
 use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 
 require_once __DIR__ . '/Fixture/SeederDiscovery/FixtureSeeders.php';
@@ -17,6 +19,8 @@ final class ApplicationSeederDiscoveryTest extends TestCase
 {
     use ApplicationTestDirectories;
 
+    #[RunInSeparateProcess]
+    #[PreserveGlobalState(false)]
     public function testMissingDefaultRootIsOptionalAndPresentDefaultRootIsSelected(): void
     {
         $basePath = $this->directory();

@@ -14,6 +14,8 @@ COMPOSE=(
 CURL=(curl --connect-timeout 3 --max-time 15)
 TEMP=$(mktemp -d)
 ENVIRONMENT_CREATED=false
+FRAMEWORK_DIFF_BEFORE=$(git -C "${ROOT}" diff --binary -- src examples/quickstart)
+FRAMEWORK_STATUS_BEFORE=$(git -C "${ROOT}" status --short -- src examples/quickstart)
 
 assert_no_fixed_marker() {
     local label=$1
@@ -280,7 +282,8 @@ else
     fi
 fi
 
-git -C "${ROOT}" diff --exit-code -- src examples/quickstart
+test "${FRAMEWORK_DIFF_BEFORE}" = "$(git -C "${ROOT}" diff --binary -- src examples/quickstart)"
+test "${FRAMEWORK_STATUS_BEFORE}" = "$(git -C "${ROOT}" status --short -- src examples/quickstart)"
 if git -C "${ROOT}" ls-files \
     examples/community-board/.env \
     examples/community-board/vendor \

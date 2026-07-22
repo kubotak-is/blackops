@@ -76,6 +76,10 @@ export const contentMap = {
     slug: 'database/migrations',
     description: 'FrameworkとApplicationのPostgreSQL Migrationを明示Commandで確認・適用する。',
   },
+  'database-seeding.md': {
+    slug: 'database/seeding',
+    description: 'Root Seeder、子Seederの明示順、Migration／Build／Seedの実行境界を確認する。',
+  },
   'outcome-retrieval.md': {
     slug: 'database/outcomes',
     description: 'Deferred OperationのStatusとTyped OutcomeをPublic ResourceまたはPHP Adapterから安全に取得する。',
