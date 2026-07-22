@@ -19,6 +19,7 @@ final class DatabaseMigrationRunnerTest extends TestCase
 {
     private const SCHEMA = 'blackops_database_migration';
     private const LEGACY_SCHEMA = 'blackops_database_migration_legacy';
+    private const CURRENT_SCHEMA = 'blackops_database_migration_current';
 
     private Connection $connection;
 
@@ -30,6 +31,7 @@ final class DatabaseMigrationRunnerTest extends TestCase
         $this->connection = $this->connection();
         $this->connection->executeStatement('DROP SCHEMA IF EXISTS ' . self::SCHEMA . ' CASCADE');
         $this->connection->executeStatement('DROP SCHEMA IF EXISTS ' . self::LEGACY_SCHEMA . ' CASCADE');
+        $this->connection->executeStatement('DROP SCHEMA IF EXISTS ' . self::CURRENT_SCHEMA . ' CASCADE');
     }
 
     protected function tearDown(): void
@@ -198,6 +200,54 @@ final class DatabaseMigrationRunnerTest extends TestCase
             2,
             (int) $this->connection->fetchOne('SELECT count(*) FROM ' . self::SCHEMA . '.schema_migrations'),
         );
+    }
+
+    public function testExistingMetadataInCurrentSchemaSupportsStatusAndRepeatedMigrate(): void
+    {
+        $initialSearchPath = $this->connection->fetchOne('SHOW search_path');
+        $this->connection->executeStatement('SET search_path TO ' . self::CURRENT_SCHEMA . ', public');
+
+        try {
+            $first = new DatabaseMigrationRunner($this->connection, self::CURRENT_SCHEMA);
+            self::assertSame(2, $first->migrate()->migrations);
+            self::assertSame(self::CURRENT_SCHEMA, $this->connection->fetchOne('SELECT current_schema()'));
+            $metadataBefore = $this->metadataRows(self::CURRENT_SCHEMA);
+            $configuredSearchPath = $this->connection->fetchOne('SHOW search_path');
+
+            $second = new DatabaseMigrationRunner($this->connection, self::CURRENT_SCHEMA);
+            $status = $second->status();
+            $result = $second->migrate();
+
+            self::assertCount(2, $status->appliedVersions);
+            self::assertSame([], $status->pendingVersions);
+            self::assertSame(0, $result->migrations);
+            self::assertSame([], $result->sql);
+            self::assertSame($metadataBefore, $this->metadataRows(self::CURRENT_SCHEMA));
+            self::assertSame($configuredSearchPath, $this->connection->fetchOne('SHOW search_path'));
+        } finally {
+            $this->connection->executeStatement('RESET search_path');
+        }
+
+        self::assertSame($initialSearchPath, $this->connection->fetchOne('SHOW search_path'));
+    }
+
+    public function testStatusAndDryRunDoNotCreateSchemaWhenTargetWouldBecomeCurrent(): void
+    {
+        $initialSearchPath = $this->connection->fetchOne('SHOW search_path');
+        $this->connection->executeStatement('SET search_path TO ' . self::CURRENT_SCHEMA . ', public');
+
+        try {
+            $runner = new DatabaseMigrationRunner($this->connection, self::CURRENT_SCHEMA);
+
+            self::assertCount(2, $runner->status()->pendingVersions);
+            self::assertSame(2, $runner->dryRun()->migrations);
+            self::assertFalse($this->schemaExists(self::CURRENT_SCHEMA));
+            self::assertSame(self::CURRENT_SCHEMA . ', public', $this->connection->fetchOne('SHOW search_path'));
+        } finally {
+            $this->connection->executeStatement('RESET search_path');
+        }
+
+        self::assertSame($initialSearchPath, $this->connection->fetchOne('SHOW search_path'));
     }
 
     public function testApplicationMigrationRunsAfterFrameworkMigrationsAndSharesMetadata(): void
@@ -434,6 +484,37 @@ final class DatabaseMigrationRunnerTest extends TestCase
         self::assertCount(3, $runner->dependencyFactory()->getMetadataStorage()->getExecutedMigrations());
     }
 
+    public function testApplyUpgradesLegacyMetadataWhenTargetSchemaIsCurrent(): void
+    {
+        $this->connection->executeStatement('CREATE SCHEMA ' . self::CURRENT_SCHEMA);
+        $this->connection->executeStatement('CREATE TABLE ' . self::CURRENT_SCHEMA . '.schema_migrations (
+            version text PRIMARY KEY,
+            applied_at timestamptz NOT NULL
+        )');
+        $this->connection->executeStatement(
+            'INSERT INTO ' . self::CURRENT_SCHEMA . '.schema_migrations (version, applied_at)
+            VALUES (:version, :applied_at)',
+            ['version' => 'LegacyCurrentVersion', 'applied_at' => '2026-07-11 15:00:00+00'],
+        );
+        $this->connection->executeStatement('SET search_path TO ' . self::CURRENT_SCHEMA . ', public');
+
+        try {
+            $runner = new DatabaseMigrationRunner($this->connection, self::CURRENT_SCHEMA);
+            $runner->migrate();
+
+            self::assertSame('2026-07-11 15:00:00', $this->connection->fetchOne(
+                'SELECT executed_at::text
+                    FROM ' . self::CURRENT_SCHEMA . '.schema_migrations
+                    WHERE version = :version',
+                ['version' => 'LegacyCurrentVersion'],
+            ));
+            self::assertCount(3, $runner->dependencyFactory()->getMetadataStorage()->getExecutedMigrations());
+            self::assertSame(self::CURRENT_SCHEMA . ', public', $this->connection->fetchOne('SHOW search_path'));
+        } finally {
+            $this->connection->executeStatement('RESET search_path');
+        }
+    }
+
     public function testBaselineDownIsIrreversible(): void
     {
         $runner = new DatabaseMigrationRunner($this->connection, self::SCHEMA);
@@ -487,6 +568,17 @@ final class DatabaseMigrationRunnerTest extends TestCase
         ]);
 
         return $types;
+    }
+
+    /** @return list<array{version: string, executed_at: null|string, execution_time: null|int}> */
+    private function metadataRows(string $schema): array
+    {
+        /** @var list<array{version: string, executed_at: null|string, execution_time: null|int}> $rows */
+        $rows = $this->connection->fetchAllAssociative('SELECT version, executed_at::text, execution_time
+            FROM ' . $schema . '.schema_migrations
+            ORDER BY version');
+
+        return $rows;
     }
 
     private function schemaExists(string $schema): bool

@@ -1,8 +1,8 @@
 # P18-007: Community Board Migration and Phase Closeout
 
-Status: Blocked by P18-006D
+Status: Ready
 
-P18-006DでCurrent SchemaとMigration Schemaが一致する既存DatabaseのDoctrine Metadata初期化を修正後、このTaskを再開する。途中のCommunity Board移行差分は未コミットのまま保持し、P18-006Dへ混ぜない。
+P18-006DでCurrent SchemaとMigration Schemaが一致する既存DatabaseのDoctrine Metadata初期化を修正した。途中のCommunity Board移行差分を保持した状態から再開する。
 
 ## Goal
 

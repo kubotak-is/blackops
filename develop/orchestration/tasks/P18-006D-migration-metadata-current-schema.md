@@ -1,6 +1,6 @@
 # P18-006D: Migration Metadata Current Schema
 
-Status: Ready
+Status: Accepted
 
 ## Goal
 

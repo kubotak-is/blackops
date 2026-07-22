@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-22T16:51:09+09:00
+Updated At: 2026-07-22T17:02:19+09:00
 
 ## Current Phase
 
@@ -16,13 +16,13 @@ Specifications: `develop/spec/42-installed-application-boundary.md`、`develop/s
 
 ## Task Status
 
-Ready
+Accepted
 
-P18-007の既存Volume Forward Migrationで、Current SchemaとMigration Schemaが同じ場合にDoctrineが既存Metadata Tableを再作成するFramework不具合を検出した。User承認によりP18-006Dへ独立分離し、Community Board差分を保持したまま修正開始待ちである。
+Current SchemaとMigration Schemaが一致する場合だけDoctrine Metadata Table名を非修飾化し、既存物理Tableを正しく認識する修正を受け入れた。Focused 19 tests／78 assertions、Full 1662 tests／6673 assertions、Deptrac 0 violations、Community Board既存Volumeのmigrate 1件→再migrate 0件→pending 0件を確認した。Repository全体のMago lint 133 errors／analyze 329 errorsはP18-006D外の既存Baselineであり、変更Production File単体はNo issues、format checkは成功した。
 
 ## Last Accepted Task
 
-P18-006C-auth-generator-and-fresh-consumer
+P18-006D-migration-metadata-current-schema
 
 ## Pending Decisions
 
@@ -59,13 +59,13 @@ P18-006C-auth-generator-and-fresh-consumer
 
 ## Known Blockers
 
-P18-007はP18-006D完了まで一時停止する。Database User=`blackops`かつFramework Schema=`blackops`の既存Volumeでは、Doctrine Metadata Storageが既存`blackops.schema_migrations`をCurrent Schema内の非修飾名として認識し、修飾設定名との比較に失敗して`42P07 Duplicate table`となる。Ray.Aop 2.19.1／2.20.0のTokenizer gapはD108とD110でPhase 21置換を確定済みである。Documentation Websiteは未公開であり、Publication／Deployは行わない。
+Active Implementation Blockerはない。Current SchemaとMigration Schemaが一致するDoctrine Metadata不具合はP18-006Dで修正済みである。Ray.Aop 2.19.1／2.20.0のTokenizer gapはD108とD110でPhase 21置換を確定済みである。Documentation Websiteは未公開であり、Publication／Deployは行わない。
 
 ## Required Next Action
 
-1. GPT-5.6 Luna High workerへP18-006Dを依頼し、Framework Migration Metadata初期化を独立修正する。
-2. OrchestratorがCurrent／Non-current Schema、Fresh／Existing／Legacy Migrationを独立Reviewする。
-3. P18-006Dを独立Commit後、保持中のP18-007 Community Board移行を再開する。
+1. P18-006Dを独立Commitする。
+2. 保持中のP18-007 Community Board移行をGPT-5.6 Luna High workerで再開する。
+3. OrchestratorがIdentity／Migration／Frontend／Command責任分界と全Consumerを独立Reviewする。
 
 ## P18-006C Auth Generator and Fresh Consumer Worker Verification
 

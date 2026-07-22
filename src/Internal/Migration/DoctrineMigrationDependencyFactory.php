@@ -32,7 +32,7 @@ final readonly class DoctrineMigrationDependencyFactory
         $migrationLogger = $logger ?? new NullLogger();
 
         $metadata = new TableMetadataStorageConfiguration();
-        $metadata->setTableName($schemaName->doctrineTable('schema_migrations'));
+        $metadata->setTableName(self::metadataTableName($connection, $schemaName));
 
         $configuration = new Configuration();
         $configuration->addMigrationsDirectory(
@@ -75,6 +75,14 @@ final readonly class DoctrineMigrationDependencyFactory
         });
 
         return $factory;
+    }
+
+    /** @return non-empty-string */
+    private static function metadataTableName(Connection $connection, PostgreSqlMigrationSchema $schema): string
+    {
+        return $connection->fetchOne('SELECT current_schema()') === $schema->name()
+            ? 'schema_migrations'
+            : $schema->doctrineTable('schema_migrations');
     }
 
     private static function applicationMigrationDirectory(?string $directory): ?string
