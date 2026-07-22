@@ -20,6 +20,14 @@ final readonly class SymfonyServiceRegistry implements ServiceRegistry
 
     public function set(string $id, object $service): void
     {
-        $this->builder->set($id, $service);
+        $definition = new ServiceObjectFactory()->definition($service);
+
+        if ($definition === null) {
+            $this->builder->set($id, $service);
+
+            return;
+        }
+
+        $this->builder->setDefinition($id, $definition->setPublic(true));
     }
 }

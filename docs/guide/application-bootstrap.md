@@ -93,3 +93,28 @@ exit($application->console()->run());
 `#[ConsoleCommand]`で公開したOperationも同じManifestから登録します。認可主体が必要なApplicationは`ConsoleActorProvider`をService ProviderでBindingしてください。未Bindingまたは`actor() === null`ではOrigin／Authorization Actorを持たず、`#[Authorize]`付きOperationは既存Policyで拒否されます。FrameworkはExecution Actorを`console-runtime`に固定し、CLI OptionからActor IDやCredentialを受け取りません。
 
 Application ObjectやContainerをOperation、Value、Domain Serviceへ渡しません。業務DependencyはConstructor Injectionします。
+
+## Session AuthenticationをOpt-in登録する
+
+Framework同梱のSession Coreは、`SessionServiceProvider`を追加したApplicationだけで有効になります。BearerとCookieは同時に解釈せず、Applicationが一方を選びます。
+
+```php
+use App\Identity\ApplicationSessionIdentityProvider;
+use BlackOps\Auth\Session\SessionConfiguration;
+use BlackOps\Auth\Session\SessionServiceProvider;
+
+return [
+    'services' => [
+        SessionServiceProvider::bearer(
+            ApplicationSessionIdentityProvider::class,
+            new SessionConfiguration(ttlSeconds: 28_800, touchIntervalSeconds: 300),
+        ),
+    ],
+];
+```
+
+CookieをCredential Sourceにする場合は`SessionServiceProvider::cookie(ApplicationSessionIdentityProvider::class, 'application_session')`を使います。Cookieの発行、`Secure`／`HttpOnly`／`SameSite`、Path／Domain、CSRFはApplicationが所有します。どちらも`AuthenticationMiddleware`のGlobal登録は別途必要です。
+
+`SessionManager`はLogin／Logout Application ServiceへConstructor Injectionします。`issue()`が返すRaw Tokenは発行直後にBearer Responseまたは安全なCookieへ変換し、Operation Value、Outcome、Journal、Logへ渡さないでください。`rotate()`は旧Sessionの失効とSuccessorの発行を一つのTransactionで行い、`revoke()`はnull／Malformed／Unknown／Expired／Revokedでも安全に完了します。
+
+Session CoreはDefault 8時間のAbsolute TTLとDefault 5分間隔の`last_used_at`更新を持ちます。`cleanup($cutoff)`はCutoffより古いExpired／Revoked Rowだけを削除します。SchemaはRuntimeが自動作成しません。`resources/stubs/auth-session-migration.php.stub`をApplication Migration Historyへ取り込み、Migrationを明示実行してください。`make:auth`による一度だけのPublishは後続のGenerator対応で追加します。

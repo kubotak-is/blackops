@@ -1,28 +1,28 @@
 # Orchestration State
 
-Updated At: 2026-07-22T10:43:08+09:00
+Updated At: 2026-07-22T11:35:57+09:00
 
 ## Current Phase
 
-Phase 18: Application Ergonomics - Session Authentication Core
+Phase 18: Application Ergonomics - Auth Generator Preparation
 
 ## Current Task
 
-Task ID: P18-006A Session Authentication Core
+Task ID: P18-006B Auth Generator and Fresh Consumer Preparation
 
-Task Packet: `develop/orchestration/tasks/P18-006A-session-authentication-core.md`
+Task Packet: Not created
 
 Specifications: `develop/spec/74-application-ergonomics.md`、`develop/spec/75-phase-18-delivery-plan.md`
 
 ## Task Status
 
-Ready for Worker
+Accepted
 
-D111とSpec 74／75に基づき、P18-006をCoreの006A、Generator／Fresh Consumerの006Bに分割した。P18-006A Task PacketはFramework同梱のOpt-in `BlackOps\Auth\Session`、Opaque Identity、32-byte Token／SHA-256、Absolute TTL／Touch／Rotation／Revocation／Cleanup、PostgreSQL Store／Migration Template、Bearer／Cookie Adapter、Sensitive／Concurrent／Existing Consumer Gateを固定し、Worker委譲可能である。
+P18-006AをOrchestratorが独立ReviewしAcceptedとした。ReviewでPublic AuthenticatorのInternal Port判定をPublic `SessionManager::authenticate(): ?ActorRef`へ置き換え、Authenticationの`FOR SHARE`／UPDATE Lock Upgrade DeadlockをConditional `UPDATE ... RETURNING`／SELECTに修正し、同時Authentication実DB Testで固定した。Orchestratorはfocused 48 tests／210 assertions、Mago format、通常lint 0 issue、Deptrac 0 violations／0 uncovered、Management ID／Community Board／diff／Artifact Guardを再確認した。
 
 ## Last Accepted Task
 
-P18-005-operation-console-adapter
+P18-006A-session-authentication-core
 
 ## Pending Decisions
 
@@ -62,8 +62,8 @@ Active Implementation Blockerはない。Ray.Aop 2.19.1／2.20.0には複数clas
 
 ## Required Next Action
 
-1. P18-006A Task PacketをGPT-5.6 Luna High workerへ委譲する。
-2. WorkerはCommunity Boardを変更せずPermanent Consumerで実装／検証し、Report／STATEをReady for Reviewへ更新する。
+1. P18-006B Auth Generator and Fresh ConsumerのTask Packetを作成する。
+2. Built-in `make:auth`、All-or-nothing／No-overwrite、Application-owned Starter、Migration Publish、Fresh ConsumerをGPT-5.6 Luna High workerへ委譲する。
 
 ## P18-005 Operation Console Adapter Worker Verification
 

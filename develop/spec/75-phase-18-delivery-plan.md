@@ -81,6 +81,8 @@ Operation Console Attributeは追加しない。
 
 ## P18-006A: Session Authentication Core
 
+Status: Accepted.
+
 - Framework同梱のOpt-in `BlackOps\Auth\Session` Public APIを実装する
 - Opaque Token、Hash、TTL、Rotation、Revocation、Cleanupを実装する
 - Doctrine DBAL Store、Migration Template、Bearer／Cookie HTTP Authenticator Adapterを実装する

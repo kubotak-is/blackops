@@ -10,6 +10,10 @@ deptrac:
       collectors:
         - type: classNameRegex
           value: '/^BlackOps\\Application(\\|$)/'
+    - name: Auth
+      collectors:
+        - type: classNameRegex
+          value: '/^BlackOps\\Auth(\\|$)/'
     - name: Database
       collectors:
         - type: classNameRegex
@@ -88,6 +92,11 @@ deptrac:
       - Core
       - Internal
       - Library
+    Auth:
+      - Core
+      - Http
+      - Internal
+      - Library
     Database:
       - Core
       - Library
@@ -133,4 +142,5 @@ deptrac:
       - Outcome
       - Status
       - Database
+      - Auth
       - Library

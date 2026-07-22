@@ -49,6 +49,10 @@ interface OperationHandler
 
 Console公開はOperation Classへ付けるPublic `#[ConsoleCommand]` Attributeで明示する。Console入口のOrigin／Authorization ActorはOptional Public `BlackOps\Console\ConsoleActorProvider`から取得し、CredentialやContainerをPublic Contractへ露出しない。両型は`#[PublicApi]`の互換性Contractとする。
 
+Session Authenticationは`BlackOps\Auth\Session`配下の`#[PublicApi]`型で提供する。`SessionManager`はIssue／Authenticate／Rotate／Revoke／Cleanupを所有し、AuthenticateはRaw Tokenを受けてCurrent `ActorRef` または`null`を返す。Identity ID、Token Hash、Stored SessionはPublic APIへ返さない。`SessionIdentityProvider`のThrowableはInvalid Credentialへ丸めず上位Failure Boundaryへ伝播する。
+
+`RawSessionToken`はPublic Constructor／Property、`__toString()`、JSON変換を持たず、明示的な`reveal()`だけでRaw Valueを取得する。`IssuedSession`はToken／Issued At／Expires Atだけを露出し、Session ID／Identity ID／Token Hashを露出しない。
+
 ## PHP Public API
 
 Framework利用者による直接利用を公式に想定し、SemVer上の後方互換性を管理する型には、BlackOps固有の `#[PublicApi]` Attributeを付ける。

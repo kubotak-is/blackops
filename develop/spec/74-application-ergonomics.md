@@ -226,6 +226,10 @@ Frameworkが所有する。
 - Opaque `identity_id`を現在の`ActorRef`へ解決する`SessionIdentityProvider`
 - Safe Failure、Clock／Random注入、Concurrent Rotation／Revocation Test
 
+Public `SessionManager::authenticate()`はRaw Tokenを受け、Store Lookup／Conditional Touchと`SessionIdentityProvider::resolve()`を一つのFramework Serviceで完了して`?ActorRef`を返す。Bearer／Cookie AdapterがInternal Portへ`instanceof`する構造はとらない。Provider ThrowableはInvalid Sessionへ丸めない。
+
+Opt-in登録はPublic `SessionServiceProvider::bearer()`／`::cookie()`で行い、ApplicationがInternal ImplementationをImportしない。Cookie名は検証済み`SessionCookieName`としてAdapterへ渡すが、Cookie発行／Attribute／CSRFは所有しない。
+
 Applicationが所有する。
 
 - User Entity／Repository／Provider
@@ -269,7 +273,7 @@ Phase 18の最後にCommunity Boardを新Contractへ移行する。
 - [ ] `#[AsCommand]`がBuild時Discoveryされ、Constructor DependencyをCompiled Containerから受け取る
 - [ ] 明示Command登録が維持され、Name Collision／未解決DependencyがFail-fastする
 - [x] `#[ConsoleCommand]`付きOperationだけがCLIへ現れ、Binding／Validation／Authorization／Inline／Deferred／Exit Codeを満たす
-- [ ] `BlackOps\Auth\Session`がFramework同梱のOpt-in CapabilityとしてSession Lifecycleを提供する
+- [x] `BlackOps\Auth\Session`がFramework同梱のOpt-in CapabilityとしてSession Lifecycleを提供する
 - [ ] `make:auth`がApplication-owned接続点を安全に生成する
 - [ ] Community Boardの手動Transport／Identity／Command配線が削減され、主要Journeyが回帰しない
 - [ ] Application Composer Dependencyが直接Import規則と一致する

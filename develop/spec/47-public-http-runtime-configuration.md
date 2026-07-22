@@ -79,6 +79,8 @@ HTTP RuntimeはDatabaseManagerから`framework.connection`を解決し、Deferre
 
 Inline RouteとDeferred Routeは同じCompile済みOperation／HTTP Manifestを使う。Operation MetadataのExecution StrategyがDeferredの場合だけDeferred Acceptorへ渡す。
 
+Opt-in Session Authenticationを登録したApplicationでは、Compiled Containerの`SessionManager`がDefault DBAL Connectionを使い、選択したBearerまたはCookie AuthenticatorがRaw TokenをCurrent `ActorRef`へ解決する。Unknown／Expired／Revoked／Rotated／Identity Missingは同じ`authentication.invalid_session`とし、Provider／Database FailureはInvalid Credentialへ丸めない。Request終了時の既存Connection Health／Transaction Cleanupを共有し、Raw Token、Actor、Stored SessionをProcess Serviceに保持しない。
+
 ## Application API
 
 `Application` は次をPublic APIとして追加する。

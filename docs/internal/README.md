@@ -11,6 +11,7 @@ Framework実装者向けのArchitectureと実装ガイドを管理する。
 - [Documentation Website Delivery](documentation-website.md)
 - [Bootstrap](bootstrap.md)
 - [Application Bootstrap](application-bootstrap.md)
+- [Session Authentication Core](session-authentication.md)
 - [Project Generators and Framework Update Boundary](project-generators.md)
 - [FrankenPHP Reference Runtime](frankenphp-runtime.md)
 - [Runtime Dependencies](runtime-dependencies.md)
