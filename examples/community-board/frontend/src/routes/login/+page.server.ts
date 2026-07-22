@@ -1,7 +1,7 @@
 import { loginIdentity } from '$lib/server/auth/auth-client.server';
 import { loginFailureData } from '$lib/server/auth/form-errors.server';
 import {
-  SESSION_COOKIE_NAME,
+  resolveSessionToken,
   setSessionCookie,
 } from '$lib/server/auth/session.server';
 import { fail, redirect } from '@sveltejs/kit';
@@ -17,7 +17,7 @@ export const actions: Actions = {
     const form = await request.formData();
     const email = stringField(form, 'email');
     const password = stringField(form, 'password');
-    const currentToken = cookies.get(SESSION_COOKIE_NAME) ?? null;
+    const currentToken = resolveSessionToken(cookies);
     const result = await loginIdentity(fetch, { email, password }, currentToken);
 
     if (!result.ok) {

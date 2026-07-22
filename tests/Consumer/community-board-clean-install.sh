@@ -99,6 +99,7 @@ test -d "${COMMUNITY_BOARD}/var/log"
 mise exec -- pnpm --dir "${COMMUNITY_BOARD}/frontend" install --frozen-lockfile
 
 "${COMPOSE[@]}" up -d postgres
+"${COMPOSE[@]}" run --rm app php blackops build:compile
 if PRE_MIGRATION_OUTPUT=$("${COMPOSE[@]}" run --rm app php blackops app:seed 2>&1); then
     PRE_MIGRATION_STATUS=0
 else
@@ -113,8 +114,7 @@ for password in "${DEMO_PASSWORDS[@]}"; do
 done
 
 MIGRATION_OUTPUT=$("${COMPOSE[@]}" run --rm app php blackops database:migrate)
-grep -Fq 'migrations: 5' <<<"${MIGRATION_OUTPUT}"
-"${COMPOSE[@]}" run --rm app php blackops build:compile
+grep -Fq 'migrations: 6' <<<"${MIGRATION_OUTPUT}"
 "${COMPOSE[@]}" run --rm app php blackops frontend:generate
 "${COMPOSE[@]}" run --rm app php blackops frontend:check
 mise exec -- pnpm --dir "${COMMUNITY_BOARD}/frontend" run check
@@ -135,7 +135,7 @@ SEED_COUNTS=$("${COMPOSE[@]}" exec -T postgres psql -U blackops -d community_boa
         (SELECT count(*) FROM public.board_posts WHERE id::text LIKE '019b1000-0001-%'),
         (SELECT count(*) FROM public.board_comments WHERE id::text LIKE '019b1000-0002-%'),
         (SELECT count(DISTINCT email_canonical) FROM public.board_users WHERE id::text LIKE '019b1000-0000-%'),
-        (SELECT count(*) FROM public.board_sessions),
+        (SELECT count(*) FROM public.blackops_sessions),
         (SELECT count(*) FROM blackops.operations),
         (SELECT count(*) FROM blackops.journal),
         (SELECT count(*) FROM blackops.outcomes);")
@@ -193,7 +193,7 @@ for surface in \
 done
 
 test "$("${COMPOSE[@]}" exec -T postgres psql -U blackops -d community_board -Atc \
-    'SELECT count(*) FROM public.board_sessions')" = '1'
+    'SELECT count(*) FROM public.blackops_sessions')" = '1'
 if git -C "${ROOT}" ls-files \
     examples/community-board/.env examples/community-board/vendor examples/community-board/var \
     examples/community-board/frontend/node_modules \

@@ -2,6 +2,7 @@ import { env } from '$env/dynamic/private';
 import type { Cookies } from '@sveltejs/kit';
 
 export const SESSION_COOKIE_NAME = 'community_board_session';
+const SESSION_TOKEN_PATTERN = /^[A-Za-z0-9_-]{43}$/;
 
 type CookieOptions = Parameters<Cookies['set']>[2];
 
@@ -34,6 +35,21 @@ export function sessionCookieOptions(
 
 export function setSessionCookie(cookies: Cookies, rawToken: string): void {
   cookies.set(SESSION_COOKIE_NAME, rawToken, sessionCookieOptions());
+}
+
+export function normalizeSessionToken(rawToken: string | undefined): string | null {
+  return rawToken !== undefined && SESSION_TOKEN_PATTERN.test(rawToken) ? rawToken : null;
+}
+
+export function resolveSessionToken(cookies: Cookies): string | null {
+  const storedToken = cookies.get(SESSION_COOKIE_NAME);
+  const canonicalToken = normalizeSessionToken(storedToken);
+
+  if (storedToken !== undefined && canonicalToken === null) {
+    clearSessionCookie(cookies);
+  }
+
+  return canonicalToken;
 }
 
 export function clearSessionCookie(cookies: Cookies): void {

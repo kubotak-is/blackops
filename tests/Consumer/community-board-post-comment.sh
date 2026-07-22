@@ -101,14 +101,14 @@ BOB_EMAIL="post-bob-${RANDOM}-$$@example.test"
 "${CURL[@]}" --silent --fail \
     --header 'Content-Type: application/json' \
     --data "{\"email\":\"${ALICE_EMAIL}\",\"displayName\":\"Alice\",\"password\":\"${PASSWORD_MARKER}\"}" \
-    "http://127.0.0.1:${BLACKOPS_PORT}/auth/users" >"${TEMP}/alice-register.json"
+    "http://127.0.0.1:${BLACKOPS_PORT}/auth/register" >"${TEMP}/alice-register.json"
 "${CURL[@]}" --silent --fail \
     --header 'Content-Type: application/json' \
     --data "{\"email\":\"${BOB_EMAIL}\",\"displayName\":\"Bob\",\"password\":\"${PASSWORD_MARKER}\"}" \
-    "http://127.0.0.1:${BLACKOPS_PORT}/auth/users" >"${TEMP}/bob-register.json"
+    "http://127.0.0.1:${BLACKOPS_PORT}/auth/register" >"${TEMP}/bob-register.json"
 
-ALICE_TOKEN=$(sed -n 's/.*"sessionToken":"\([^"]*\)".*/\1/p' "${TEMP}/alice-register.json")
-BOB_TOKEN=$(sed -n 's/.*"sessionToken":"\([^"]*\)".*/\1/p' "${TEMP}/bob-register.json")
+ALICE_TOKEN=$(sed -n 's/.*"token":"\([^"]*\)".*/\1/p' "${TEMP}/alice-register.json")
+BOB_TOKEN=$(sed -n 's/.*"token":"\([^"]*\)".*/\1/p' "${TEMP}/bob-register.json")
 test "${#ALICE_TOKEN}" -eq 43
 test "${#BOB_TOKEN}" -eq 43
 test "${ALICE_TOKEN}" != "${BOB_TOKEN}"

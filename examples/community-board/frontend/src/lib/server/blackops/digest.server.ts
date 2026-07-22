@@ -1,13 +1,7 @@
 import { env } from '$env/dynamic/private';
-import { ShowDigest } from './generated/operations/board/digest/show-digest';
 import { GenerateWeeklyDigest } from './generated/operations/board/digest/weekly/generate-weekly-digest';
-import type {
-  OperationAbortSignal,
-  OperationCallOptions,
-  OperationFetch,
-  OperationWaitOptions,
-} from './generated/types';
-import type { ServerFetch } from './operations.server';
+import { createServerBlackOpsClient } from './client.server';
+import type { ServerFetch } from './client.server';
 
 const unavailableMessage = 'The digest service is temporarily unavailable. Please try again.';
 const failedMessage = 'Digest generation could not be completed.';
@@ -53,34 +47,6 @@ function failure(
 
 function unavailable(): DigestFailure {
   return failure('unavailable', 503, unavailableMessage);
-}
-
-function isNativeAbortSignal(signal: OperationAbortSignal | undefined): signal is AbortSignal {
-  return signal !== undefined && 'addEventListener' in signal;
-}
-
-function operationFetch(serverFetch: ServerFetch): OperationFetch {
-  return async (url, request) => serverFetch(url, {
-    method: request.method,
-    headers: request.headers,
-    body: request.body,
-    credentials: request.credentials,
-    signal: isNativeAbortSignal(request.signal) ? request.signal : undefined,
-  });
-}
-
-function callOptions(
-  serverFetch: ServerFetch,
-  rawToken: string,
-  baseUrl: string | undefined,
-): OperationCallOptions | null {
-  if (baseUrl === undefined || baseUrl.trim() === '') return null;
-
-  return {
-    baseUrl,
-    fetch: operationFetch(serverFetch),
-    headers: { Authorization: `Bearer ${rawToken}` },
-  };
 }
 
 function mapBoundaryFailure(result: Readonly<{
@@ -171,10 +137,10 @@ export async function startWeeklyDigest(
   week: string,
   baseUrl: string | undefined = env.BLACKOPS_BASE_URL,
 ): Promise<StartDigestResult> {
-  const options = callOptions(serverFetch, rawToken, baseUrl);
-  if (options === null) return unavailable();
+  const blackops = createServerBlackOpsClient(serverFetch, rawToken, baseUrl);
+  if (blackops === null) return unavailable();
   try {
-    const result = await GenerateWeeklyDigest.fetch({ week }, options);
+    const result = await blackops.GenerateWeeklyDigest.fetch({ week });
     if (result.ok) return Object.freeze({ ok: true as const, operationId: result.data.operationId });
     if (result.kind === 'validation') {
       return failure('validation', 422, 'Please enter a valid ISO week.', Object.freeze({ week: 'Please enter a valid ISO week.' }));
@@ -191,10 +157,10 @@ export async function loadDigestStatus(
   operationId: string,
   baseUrl: string | undefined = env.BLACKOPS_BASE_URL,
 ): Promise<DigestStatusView> {
-  const options = callOptions(serverFetch, rawToken, baseUrl);
-  if (options === null) return unavailable();
+  const blackops = createServerBlackOpsClient(serverFetch, rawToken, baseUrl);
+  if (blackops === null) return unavailable();
   try {
-    return mapStatus(await GenerateWeeklyDigest.status(operationId, options));
+    return mapStatus(await blackops.GenerateWeeklyDigest.status(operationId));
   } catch {
     return unavailable();
   }
@@ -208,11 +174,10 @@ export async function waitForDigest(
   maxWaitMilliseconds: number,
   baseUrl: string | undefined = env.BLACKOPS_BASE_URL,
 ): Promise<DigestStatusView> {
-  const options = callOptions(serverFetch, rawToken, baseUrl);
-  if (options === null) return unavailable();
-  const waitOptions: OperationWaitOptions = { ...options, signal, maxWaitMilliseconds };
+  const blackops = createServerBlackOpsClient(serverFetch, rawToken, baseUrl);
+  if (blackops === null) return unavailable();
   try {
-    const result = mapWait(await GenerateWeeklyDigest.wait(operationId, waitOptions));
+    const result = mapWait(await blackops.GenerateWeeklyDigest.wait(operationId, { signal, maxWaitMilliseconds }));
     return result === 'timeout'
       ? loadDigestStatus(serverFetch, rawToken, operationId, baseUrl)
       : result;
@@ -227,10 +192,10 @@ export async function loadDigest(
   digestId: string,
   baseUrl: string | undefined = env.BLACKOPS_BASE_URL,
 ): Promise<LoadDigestResult> {
-  const options = callOptions(serverFetch, rawToken, baseUrl);
-  if (options === null) return unavailable();
+  const blackops = createServerBlackOpsClient(serverFetch, rawToken, baseUrl);
+  if (blackops === null) return unavailable();
   try {
-    const result = await ShowDigest.fetch({ digestId }, options);
+    const result = await blackops.ShowDigest.fetch({ digestId });
     if (!result.ok) return mapBoundaryFailure(result);
     return Object.freeze({
       ok: true as const,

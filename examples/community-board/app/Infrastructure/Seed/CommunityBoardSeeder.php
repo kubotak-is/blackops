@@ -5,12 +5,9 @@ declare(strict_types=1);
 namespace App\Infrastructure\Seed;
 
 use App\Domain\Board\BoardService;
-use App\Http\DatabaseConnectionFactory;
-use App\Identity\DoctrineIdentityRepository;
-use App\Identity\IdentityService;
-use App\Identity\PasswordHasher;
-use App\Identity\SessionSettings;
-use App\Identity\SessionToken;
+use App\Domain\Identity\PasswordHasher;
+use App\Domain\Identity\User;
+use App\Domain\Identity\UserRepository;
 use App\Infrastructure\Persistence\DoctrineBoardRepository;
 use Doctrine\DBAL\Connection;
 
@@ -18,31 +15,19 @@ final readonly class CommunityBoardSeeder
 {
     public function __construct(
         private Connection $connection,
-        private bool $closeConnection = false,
+        private UserRepository $users,
+        private PasswordHasher $passwords,
         private CommunityBoardSeedDataset $dataset = new CommunityBoardSeedDataset(),
     ) {}
 
-    /** @param array<string, string> $environment */
-    public static function fromEnvironment(array $environment): self
-    {
-        return new self(DatabaseConnectionFactory::fromEnvironment($environment)->create(), closeConnection: true);
-    }
-
     public function seed(): SeedResult
     {
-        try {
-            return $this->connection->transactional(fn(): SeedResult => $this->seedInTransaction());
-        } finally {
-            if ($this->closeConnection) {
-                $this->connection->close();
-            }
-        }
+        return $this->connection->transactional(fn(): SeedResult => $this->seedInTransaction());
     }
 
     private function seedInTransaction(): SeedResult
     {
         $state = new SeedStateRepository($this->connection);
-        $identityRepository = new DoctrineIdentityRepository($this->connection);
         $boardRepository = new DoctrineBoardRepository($this->connection);
 
         foreach ($this->dataset->users() as $user) {
@@ -50,15 +35,17 @@ final readonly class CommunityBoardSeeder
                 continue;
             }
 
-            $identity = new IdentityService(
-                $identityRepository,
-                new PasswordHasher(),
-                new SessionToken(),
-                new FixedSeedClock($user->createdAt),
-                new FixedSeedIdentifierGenerator($user->id),
-                new SessionSettings(28_800),
+            $this->users->save(
+                new User(
+                    $user->id,
+                    $user->email,
+                    strtolower($user->email),
+                    $user->displayName,
+                    $this->passwords->hash($user->password),
+                    $user->createdAt,
+                    $user->createdAt,
+                ),
             );
-            $identity->provisionUser($user->email, $user->displayName, $user->password);
         }
 
         foreach ($this->dataset->posts() as $post) {

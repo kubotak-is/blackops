@@ -1,18 +1,10 @@
 import { env } from '$env/dynamic/private';
-import { AddComment } from './generated/operations/board/comment/add-comment';
-import { CreatePost } from './generated/operations/board/post/create-post';
-import { DeletePost } from './generated/operations/board/post/delete-post';
-import { ListPosts } from './generated/operations/board/post/list-posts';
-import { ShowPost } from './generated/operations/board/post/show-post';
-import { UpdatePost } from './generated/operations/board/post/update-post';
 import type {
-  OperationAbortSignal,
-  OperationCallOptions,
   OperationFailureResult,
-  OperationFetch,
   ValidationViolation,
 } from './generated/types';
-import type { ServerFetch } from './operations.server';
+import { createServerBlackOpsClient } from './client.server';
+import type { ServerFetch } from './client.server';
 
 export const POSTS_PER_PAGE = 20;
 
@@ -78,37 +70,6 @@ export type BoardResult<T> = Readonly<{ ok: true; data: T }> | BoardFailure;
 type MutationSuccess = Readonly<{ ok: true }>;
 export type MutationResult = MutationSuccess | BoardFailure;
 export type CreatePostResult = Readonly<{ ok: true; postId: string }> | BoardFailure;
-
-function isNativeAbortSignal(signal: OperationAbortSignal | undefined): signal is AbortSignal {
-  return signal !== undefined && 'addEventListener' in signal;
-}
-
-function operationFetch(serverFetch: ServerFetch): OperationFetch {
-  return async (url, request) =>
-    serverFetch(url, {
-      method: request.method,
-      headers: request.headers,
-      body: request.body,
-      credentials: request.credentials,
-      signal: isNativeAbortSignal(request.signal) ? request.signal : undefined,
-    });
-}
-
-function callOptions(
-  serverFetch: ServerFetch,
-  rawToken: string,
-  baseUrl: string | undefined,
-): OperationCallOptions | null {
-  if (baseUrl === undefined || baseUrl.trim() === '') {
-    return null;
-  }
-
-  return {
-    baseUrl,
-    fetch: operationFetch(serverFetch),
-    headers: { Authorization: `Bearer ${rawToken}` },
-  };
-}
 
 function emptyFieldErrors(): Readonly<Record<string, string>> {
   return Object.freeze({});
@@ -214,11 +175,11 @@ export async function loadPostFeed(
   page: number,
   baseUrl: string | undefined = env.BLACKOPS_BASE_URL,
 ): Promise<BoardResult<FeedPageView>> {
-  const options = callOptions(serverFetch, rawToken, baseUrl);
-  if (options === null) return unavailable();
+  const blackops = createServerBlackOpsClient(serverFetch, rawToken, baseUrl);
+  if (blackops === null) return unavailable();
 
   try {
-    const result = await ListPosts.fetch({ page, perPage: POSTS_PER_PAGE }, options);
+    const result = await blackops.ListPosts.fetch({ page, perPage: POSTS_PER_PAGE });
     if (!result.ok) return mapFailure(result);
     if (result.kind !== 'completed') return unavailable();
 
@@ -256,11 +217,11 @@ export async function loadPostDetail(
   currentUserId: string,
   baseUrl: string | undefined = env.BLACKOPS_BASE_URL,
 ): Promise<BoardResult<PostDetailView>> {
-  const options = callOptions(serverFetch, rawToken, baseUrl);
-  if (options === null) return unavailable();
+  const blackops = createServerBlackOpsClient(serverFetch, rawToken, baseUrl);
+  if (blackops === null) return unavailable();
 
   try {
-    const result = await ShowPost.fetch({ postId }, options);
+    const result = await blackops.ShowPost.fetch({ postId });
     if (!result.ok) return mapFailure(result);
     if (result.kind !== 'completed') return unavailable();
 
@@ -298,11 +259,11 @@ export async function createPost(
   values: Readonly<{ title: string; body: string }>,
   baseUrl: string | undefined = env.BLACKOPS_BASE_URL,
 ): Promise<CreatePostResult> {
-  const options = callOptions(serverFetch, rawToken, baseUrl);
-  if (options === null) return unavailable();
+  const blackops = createServerBlackOpsClient(serverFetch, rawToken, baseUrl);
+  if (blackops === null) return unavailable();
 
   try {
-    const result = await CreatePost.fetch(values, options);
+    const result = await blackops.CreatePost.fetch(values);
     if (!result.ok) return mapFailure(result, new Set(['title', 'body']));
     if (result.kind !== 'completed') return unavailable();
     return Object.freeze({ ok: true as const, postId: result.data.postId });
@@ -317,11 +278,11 @@ export async function updatePost(
   values: Readonly<{ postId: string; title: string; body: string }>,
   baseUrl: string | undefined = env.BLACKOPS_BASE_URL,
 ): Promise<MutationResult> {
-  const options = callOptions(serverFetch, rawToken, baseUrl);
-  if (options === null) return unavailable();
+  const blackops = createServerBlackOpsClient(serverFetch, rawToken, baseUrl);
+  if (blackops === null) return unavailable();
 
   try {
-    const result = await UpdatePost.fetch(values, options);
+    const result = await blackops.UpdatePost.fetch(values);
     if (!result.ok) return mapFailure(result, new Set(['title', 'body']));
     return Object.freeze({ ok: true as const });
   } catch {
@@ -335,11 +296,11 @@ export async function deletePost(
   postId: string,
   baseUrl: string | undefined = env.BLACKOPS_BASE_URL,
 ): Promise<MutationResult> {
-  const options = callOptions(serverFetch, rawToken, baseUrl);
-  if (options === null) return unavailable();
+  const blackops = createServerBlackOpsClient(serverFetch, rawToken, baseUrl);
+  if (blackops === null) return unavailable();
 
   try {
-    const result = await DeletePost.fetch({ postId }, options);
+    const result = await blackops.DeletePost.fetch({ postId });
     if (!result.ok) return mapFailure(result);
     return Object.freeze({ ok: true as const });
   } catch {
@@ -353,11 +314,11 @@ export async function addComment(
   values: Readonly<{ postId: string; body: string }>,
   baseUrl: string | undefined = env.BLACKOPS_BASE_URL,
 ): Promise<MutationResult> {
-  const options = callOptions(serverFetch, rawToken, baseUrl);
-  if (options === null) return unavailable();
+  const blackops = createServerBlackOpsClient(serverFetch, rawToken, baseUrl);
+  if (blackops === null) return unavailable();
 
   try {
-    const result = await AddComment.fetch(values, options);
+    const result = await blackops.AddComment.fetch(values);
     if (!result.ok) return mapFailure(result, new Set(['body']));
     return Object.freeze({ ok: true as const });
   } catch {

@@ -1,9 +1,8 @@
 import { env } from '$env/dynamic/private';
-import { ShowCurrentUser } from './generated/operations/board/identity/current/user/show-current-user';
-import { ShowBoardWelcome } from './generated/operations/board/welcome/show-board-welcome';
-import type { OperationAbortSignal, OperationFetch } from './generated/types';
+import { createServerBlackOpsClient } from './client.server';
+import type { ServerFetch } from './client.server';
 
-export type ServerFetch = typeof globalThis.fetch;
+export type { ServerFetch } from './client.server';
 
 export type BoardWelcomeView =
   | Readonly<{
@@ -32,34 +31,17 @@ const unavailableWelcome = Object.freeze({
   message: 'The board service is temporarily unavailable.',
 });
 
-function isNativeAbortSignal(signal: OperationAbortSignal | undefined): signal is AbortSignal {
-  return signal !== undefined && 'addEventListener' in signal;
-}
-
-function operationFetch(serverFetch: ServerFetch): OperationFetch {
-  return async (url, request) =>
-    serverFetch(url, {
-      method: request.method,
-      headers: request.headers,
-      body: request.body,
-      credentials: request.credentials,
-      signal: isNativeAbortSignal(request.signal) ? request.signal : undefined,
-    });
-}
-
 export async function loadBoardWelcome(
   serverFetch: ServerFetch,
   baseUrl: string | undefined = env.BLACKOPS_BASE_URL,
 ): Promise<BoardWelcomeView> {
-  if (baseUrl === undefined || baseUrl.trim() === '') {
+  const blackops = createServerBlackOpsClient(serverFetch, null, baseUrl);
+  if (blackops === null) {
     return unavailableWelcome;
   }
 
   try {
-    const result = await ShowBoardWelcome.fetch({}, {
-      baseUrl,
-      fetch: operationFetch(serverFetch),
-    });
+    const result = await blackops.ShowBoardWelcome.fetch({});
 
     if (!result.ok || result.kind !== 'completed') {
       return unavailableWelcome;
@@ -80,19 +62,13 @@ export async function loadCurrentUser(
   rawToken: string,
   baseUrl: string | undefined = env.BLACKOPS_BASE_URL,
 ): Promise<CurrentSessionView> {
-  if (baseUrl === undefined || baseUrl.trim() === '') {
+  const blackops = createServerBlackOpsClient(serverFetch, rawToken, baseUrl);
+  if (blackops === null) {
     return Object.freeze({ state: 'unavailable' });
   }
 
   try {
-    const result = await ShowCurrentUser.fetch(
-      {},
-      {
-        baseUrl,
-        fetch: operationFetch(serverFetch),
-        headers: { Authorization: `Bearer ${rawToken}` },
-      },
-    );
+    const result = await blackops.ShowCurrentUser.fetch({});
 
     if (!result.ok) {
       return Object.freeze({ state: result.status === 401 ? 'invalid' : 'unavailable' });

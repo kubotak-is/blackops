@@ -50,6 +50,25 @@ fi
 "${COMPOSE[@]}" run --rm app php blackops frontend:generate
 "${COMPOSE[@]}" run --rm app php blackops frontend:check
 
+COMMAND_LIST=$("${COMPOSE[@]}" run --rm app php blackops list --raw)
+grep -Eq '^app:seed[[:space:]]' <<<"${COMMAND_LIST}"
+grep -Eq '^board:welcome[[:space:]]' <<<"${COMMAND_LIST}"
+"${COMPOSE[@]}" run --rm app php blackops help app:seed >"${TEMP}/seed-help.txt"
+grep -Fq 'Seed deterministic Community Board application data.' "${TEMP}/seed-help.txt"
+"${COMPOSE[@]}" run --rm app php blackops help board:welcome >"${TEMP}/welcome-help.txt"
+grep -Fq 'Show the Community Board welcome message.' "${TEMP}/welcome-help.txt"
+"${COMPOSE[@]}" run --rm app php blackops board:welcome --json >"${TEMP}/welcome-command.json"
+grep -Fq '"status":"completed"' "${TEMP}/welcome-command.json"
+grep -Fq '"message":"Welcome to BlackOps Board"' "${TEMP}/welcome-command.json"
+grep -Fq '"summary":"A server-rendered reference application powered by BlackOps Operations."' \
+    "${TEMP}/welcome-command.json"
+WELCOME_OPERATION_ID=$("${COMPOSE[@]}" exec -T postgres psql -U blackops -d community_board -Atc \
+    "SELECT operation_id FROM blackops.journal WHERE event = 'operation.completed' AND convert_from(encoded_record, 'UTF8') LIKE '%Welcome to BlackOps Board%' LIMIT 1")
+test -n "${WELCOME_OPERATION_ID}"
+test "$("${COMPOSE[@]}" exec -T postgres psql -U blackops -d community_board -Atc \
+    "SELECT string_agg(event, ',' ORDER BY sequence) FROM blackops.journal WHERE operation_id = '${WELCOME_OPERATION_ID}'::uuid")" \
+    = 'operation.received,attempt.started,attempt.succeeded,operation.completed'
+
 mise exec -- pnpm --dir "${ROOT}/examples/community-board/frontend" run check
 mise exec -- pnpm --dir "${ROOT}/examples/community-board/frontend" run test
 mise exec -- pnpm --dir "${ROOT}/examples/community-board/frontend" run build
@@ -76,10 +95,12 @@ grep -Fq 'The board service is temporarily unavailable.' "${TEMP}/unavailable.ht
 wrapper_imports=$(rg -l "blackops/generated|\./generated" \
     "${ROOT}/examples/community-board/frontend/src" \
     --glob '!lib/server/blackops/generated/**' | sort || true)
-expected_wrapper_imports=$(printf '%s\n%s\n%s' \
+expected_wrapper_imports=$(printf '%s\n%s\n%s\n%s' \
+    "${ROOT}/examples/community-board/frontend/src/lib/server/auth/auth-client.server.ts" \
     "${ROOT}/examples/community-board/frontend/src/lib/server/blackops/board.server.ts" \
-    "${ROOT}/examples/community-board/frontend/src/lib/server/blackops/digest.server.ts" \
-    "${ROOT}/examples/community-board/frontend/src/lib/server/blackops/operations.server.ts")
+    "${ROOT}/examples/community-board/frontend/src/lib/server/blackops/client.server.ts" \
+    "${ROOT}/examples/community-board/frontend/src/lib/server/blackops/digest.server.ts"
+)
 test "${wrapper_imports}" = "${expected_wrapper_imports}"
 
 ! rg -n 'BLACKOPS_BASE_URL|http://http|POSTGRES_PASSWORD|community-board-local' \

@@ -1,6 +1,6 @@
 # BlackOps Board
 
-BlackOps Board is the full-stack reference application for the repository `main` branch. It combines a BlackOps PHP backend, an Application-owned authentication boundary, PostgreSQL, a Deferred Worker, and a SvelteKit same-origin BFF. It is independent from the minimal `examples/quickstart/` application and is never copied into `blackops/skeleton`.
+BlackOps Board is the full-stack reference application for the repository `main` branch. It combines a BlackOps PHP backend, Application-owned identity rules, the opt-in BlackOps Session Core, PostgreSQL, a Deferred Worker, and a SvelteKit same-origin BFF. It is independent from the minimal `examples/quickstart/` application and is never copied into `blackops/skeleton`.
 
 ![Credential-free BlackOps Board landing page](../../docs/guide/assets/community-board/blackops-board.png)
 
@@ -69,7 +69,9 @@ Browser
                  -> Deferred transport -> Worker -> typed Outcome
 
 SvelteKit server
-  -> Application-owned /auth/* routes -> User + hashed Session in PostgreSQL
+  -> Generated Register / Login / Logout Operation object
+     -> BlackOps Ephemeral HTTP lifecycle
+        -> Application Identity domain + Framework Session Core -> PostgreSQL
 ```
 
 SvelteKit is the BFF. Generated code lives in `frontend/src/lib/server/blackops/generated/`, and only Application-owned `frontend/src/lib/server/blackops/*.server.ts` wrappers import it. Page data contains small screen-specific view models. Browser JavaScript receives neither the generated Operation implementation nor `BLACKOPS_BASE_URL`, the Authorization header, or the raw session token.
@@ -80,7 +82,8 @@ SvelteKit is the BFF. Generated code lives in `frontend/src/lib/server/blackops/
 - `app/Infrastructure/` owns Doctrine DBAL SQL, PostgreSQL locking, system clocks, UUID adapters, the Development digest attempt adapter, and deterministic seed composition.
 - `app/Feature/` Operations coordinate BlackOps Value／Actor input with Domain Services and map Domain results or failures to public Outcomes and safe rejections.
 - Mutation Operations own the Framework transaction boundary. Domain Services do not import BlackOps attributes or start transactions.
-- The Application-owned authentication router handles registration, login, logout, password verification, and session rotation outside the Operation manifest.
+- `app/Domain/Identity/` owns User, Password, Email canonicalization, Registration Policy, and credential verification without importing BlackOps, Doctrine, or Symfony.
+- `app/Feature/Identity/` owns thin Ephemeral Register／Login／Logout Operations; `app/Infrastructure/Identity/` connects the User Repository and Session Identity Provider.
 
 The application uses official `reicon-svelte` individual static exports for general UI icons. It does not load an icon CDN, icon font, or a second general-purpose icon family.
 
@@ -88,7 +91,7 @@ The application uses official `reicon-svelte` individual static exports for gene
 
 Passwords are Argon2id hashes at rest. Session credentials are cryptographically random, and PostgreSQL stores only their SHA-256 hashes. Registration and login return the raw token once to the SvelteKit server, which writes an `HttpOnly`, `SameSite=Strict`, path-wide cookie. Production cookies must remain Secure; Local HTTP works only because `.env.example` explicitly sets `SESSION_COOKIE_SECURE=false`.
 
-Authentication never becomes an Operation. Passwords and raw session tokens do not enter Operation Values, the canonical Journal, Outcomes, generated contracts, page data, browser bundles, or logs. The PHP authenticator verifies the token and gives BlackOps only an `ActorRef`. Owner and digest status authorization still run at the PHP boundary, so hiding a button in SvelteKit is not the security control.
+Register, Login, and Logout are explicit Inline／Transactional／Ephemeral Operations. Their Sensitive inputs and credential outcomes are available only while rendering the current HTTP response: the Framework records empty received／completed projections and does not persist them to the Outcome Store. Passwords and raw session tokens do not enter the canonical Journal, generated artifacts, page data, browser bundles, or logs. The Framework Session authenticator verifies the token and gives the Operation runtime only an `ActorRef`. Owner and digest status authorization still run at the PHP boundary, so hiding a button in SvelteKit is not the security control.
 
 ## Run permanent evidence
 
@@ -98,7 +101,7 @@ Run the complete clean-install journey from the repository root when you want th
 bash tests/Consumer/community-board-clean-install.sh
 ```
 
-It removes local state, installs both locked dependency sets, applies all five migrations, compiles and checks generated contracts, seeds twice, logs in normally, checks seed HTML and sensitive boundaries, and cleans containers, volumes, dependencies, and generated artifacts on success or failure.
+It removes local state, installs both locked dependency sets, applies all six migrations, compiles and checks generated contracts, seeds twice, logs in normally, checks seed HTML and sensitive boundaries, and cleans containers, volumes, dependencies, and generated artifacts on success or failure.
 
 The focused consumers isolate failures:
 

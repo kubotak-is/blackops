@@ -4,19 +4,15 @@ declare(strict_types=1);
 
 namespace App\Tests\Seed;
 
-use App\Http\DatabaseConnectionFactory;
-use App\Identity\DoctrineIdentityRepository;
-use App\Identity\IdentityService;
-use App\Identity\PasswordHasher;
-use App\Identity\SessionSettings;
-use App\Identity\SessionToken;
+use App\Domain\Identity\PasswordHasher;
+use App\Domain\Identity\User;
+use App\Infrastructure\Identity\DoctrineUserRepository;
 use App\Infrastructure\Seed\CommunityBoardSeedDataset;
 use App\Infrastructure\Seed\CommunityBoardSeeder;
-use App\Infrastructure\Seed\FixedSeedClock;
-use App\Infrastructure\Seed\FixedSeedIdentifierGenerator;
+use BlackOps\Database\DatabaseManager;
 use DateTimeImmutable;
-use DateTimeZone;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DriverManager;
 use PHPUnit\Framework\TestCase;
 
 final class CommunityBoardSeederTest extends TestCase
@@ -27,7 +23,14 @@ final class CommunityBoardSeederTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->connection = DatabaseConnectionFactory::fromEnvironment($this->environment())->create();
+        $this->connection = DriverManager::getConnection([
+            'driver' => 'pdo_pgsql',
+            'host' => $this->environment('POSTGRES_HOST', 'postgres'),
+            'port' => (int) $this->environment('POSTGRES_PORT', '5432'),
+            'dbname' => $this->environment('POSTGRES_DB', 'community_board'),
+            'user' => $this->environment('POSTGRES_USER', 'blackops'),
+            'password' => $this->environment('POSTGRES_PASSWORD', 'blackops'),
+        ]);
         $this->connection->beginTransaction();
     }
 
@@ -41,20 +44,25 @@ final class CommunityBoardSeederTest extends TestCase
 
     public function testSeedIsIdempotentAndPreservesNonSeedDataAndRuntimeBoundaries(): void
     {
-        $identity = new IdentityService(
-            new DoctrineIdentityRepository($this->connection),
-            new PasswordHasher(),
-            new SessionToken(),
-            new FixedSeedClock(new DateTimeImmutable('2026-07-21T00:00:00Z', new DateTimeZone('UTC'))),
-            new FixedSeedIdentifierGenerator(self::NON_SEED_USER),
-            new SessionSettings(28_800),
+        $passwords = new PasswordHasher();
+        $users = new DoctrineUserRepository(new TestDatabaseManager($this->connection));
+        $now = new DateTimeImmutable('2026-07-21T00:00:00+00:00');
+        $users->save(
+            new User(
+                self::NON_SEED_USER,
+                'outside@example.com',
+                'outside@example.com',
+                'Outside User',
+                $passwords->hash('OutsideUserPassword!2026'),
+                $now,
+                $now,
+            ),
         );
-        $identity->provisionUser('outside@example.com', 'Outside User', 'OutsideUserPassword!2026');
 
-        $sessionsBefore = $this->rowCount('public.board_sessions');
+        $sessionsBefore = $this->rowCount('public.blackops_sessions');
         $operationsBefore = $this->rowCount('blackops.operations');
         $journalBefore = $this->rowCount('blackops.journal');
-        $seeder = new CommunityBoardSeeder($this->connection);
+        $seeder = new CommunityBoardSeeder($this->connection, $users, $passwords);
 
         $first = $seeder->seed();
         $second = $seeder->seed();
@@ -64,7 +72,7 @@ final class CommunityBoardSeederTest extends TestCase
         self::assertSame(3, $this->seedCount('board_users'));
         self::assertSame(3, $this->seedCount('board_posts'));
         self::assertSame(4, $this->seedCount('board_comments'));
-        self::assertSame($sessionsBefore, $this->rowCount('public.board_sessions'));
+        self::assertSame($sessionsBefore, $this->rowCount('public.blackops_sessions'));
         self::assertSame($operationsBefore, $this->rowCount('blackops.operations'));
         self::assertSame($journalBefore, $this->rowCount('blackops.journal'));
         self::assertSame('Outside User', $this->connection->fetchOne('SELECT display_name FROM public.board_users WHERE id = :id', [
@@ -78,17 +86,11 @@ final class CommunityBoardSeederTest extends TestCase
         self::assertTrue(password_verify(CommunityBoardSeedDataset::DEMO_PASSWORD, $hash));
     }
 
-    /** @return array<string, string> */
-    private function environment(): array
+    private function environment(string $name, string $default): string
     {
-        $environment = [];
-        foreach ($_ENV as $name => $value) {
-            if (is_string($name) && is_string($value)) {
-                $environment[$name] = $value;
-            }
-        }
+        $value = getenv($name);
 
-        return $environment;
+        return is_string($value) && $value !== '' ? $value : $default;
     }
 
     private function rowCount(string $table): int
@@ -102,5 +104,17 @@ final class CommunityBoardSeederTest extends TestCase
             "SELECT count(*) FROM public.{$table} WHERE id::text LIKE '019b1000-%' AND id <> :non_seed_user",
             ['non_seed_user' => self::NON_SEED_USER],
         );
+    }
+}
+
+final readonly class TestDatabaseManager implements DatabaseManager
+{
+    public function __construct(
+        private Connection $connection,
+    ) {}
+
+    public function connection(?string $name = null): Connection
+    {
+        return $this->connection;
     }
 }

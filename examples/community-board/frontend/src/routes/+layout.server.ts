@@ -1,13 +1,13 @@
 import { loadCurrentUser } from '$lib/server/blackops/operations.server';
 import {
   clearSessionCookie,
-  SESSION_COOKIE_NAME,
+  resolveSessionToken,
 } from '$lib/server/auth/session.server';
 import type { LayoutServerLoad } from './$types';
 
 export const load: LayoutServerLoad = async ({ cookies, fetch }) => {
-  const rawToken = cookies.get(SESSION_COOKIE_NAME);
-  if (rawToken === undefined) {
+  const rawToken = resolveSessionToken(cookies);
+  if (rawToken === null) {
     return { currentUser: null, identityAvailable: true };
   }
 

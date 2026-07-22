@@ -1,0 +1,27 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Feature\Identity\Login;
+
+use BlackOps\Core\Attribute\Sensitive;
+use BlackOps\Core\OperationValue;
+use BlackOps\Core\Validation\Attribute\Email;
+use BlackOps\Core\Validation\Attribute\Length;
+use BlackOps\Core\Validation\Attribute\NotBlank;
+
+final readonly class LoginValue implements OperationValue
+{
+    public function __construct(
+        #[NotBlank]
+        #[Email]
+        #[Length(max: 254)]
+        public string $email,
+        #[Sensitive]
+        #[NotBlank]
+        #[Length(min: 12, max: 128)]
+        public string $password,
+        #[Sensitive]
+        public ?string $currentToken = null,
+    ) {}
+}

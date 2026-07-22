@@ -1,4 +1,4 @@
-import { clearSessionCookie, SESSION_COOKIE_NAME } from '$lib/server/auth/session.server';
+import { clearSessionCookie, resolveSessionToken } from '$lib/server/auth/session.server';
 import type { BoardFailure } from '$lib/server/blackops/board.server';
 import { error, redirect, type Cookies } from '@sveltejs/kit';
 
@@ -11,8 +11,8 @@ export async function requireBoardSession(
   cookies: Cookies,
   parent: () => Promise<LayoutIdentity>,
 ): Promise<Readonly<{ rawToken: string; user: NonNullable<LayoutIdentity['currentUser']> }>> {
-  const rawToken = cookies.get(SESSION_COOKIE_NAME);
-  if (rawToken === undefined) {
+  const rawToken = resolveSessionToken(cookies);
+  if (rawToken === null) {
     redirect(303, '/login');
   }
 
@@ -31,8 +31,8 @@ export async function requireBoardSession(
 export async function requireBoardActionSession(
   cookies: Cookies,
 ): Promise<Readonly<{ rawToken: string }>> {
-  const rawToken = cookies.get(SESSION_COOKIE_NAME);
-  if (rawToken === undefined) {
+  const rawToken = resolveSessionToken(cookies);
+  if (rawToken === null) {
     redirect(303, '/login');
   }
 

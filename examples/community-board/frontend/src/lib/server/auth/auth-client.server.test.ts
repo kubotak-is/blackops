@@ -19,10 +19,11 @@ describe('server-only authentication client', () => {
 
       return Response.json(
         {
-          user: { id: 'user-id', email: 'person@example.com', displayName: 'Person' },
-          sessionToken: token,
+          token,
+          issuedAt: '2026-07-22T00:00:00+00:00',
+          expiresAt: '2026-07-22T08:00:00+00:00',
         },
-        { status: 201 },
+        { status: 200 },
       );
     };
 
@@ -38,22 +39,25 @@ describe('server-only authentication client', () => {
 
     expect(result).toEqual({
       ok: true,
-      user: { id: 'user-id', email: 'person@example.com', displayName: 'Person' },
       sessionToken: token,
     });
     expect(calls).toEqual([
-      { url: 'http://blackops.test/auth/users', authorization: null },
+      { url: 'http://blackops.test/auth/register', authorization: null },
     ]);
     expect(JSON.stringify(result)).not.toContain('password-marker-not-returned');
   });
 
   it('injects the current bearer only for login rotation', async () => {
-    let authorization: string | null = null;
+    const requests: Array<{ authorization: string | null; body: unknown }> = [];
     const serverFetch: ServerFetch = async (_input, init) => {
-      authorization = new Headers(init?.headers).get('authorization');
+      requests.push({
+        authorization: new Headers(init?.headers).get('authorization'),
+        body: JSON.parse(String(init?.body)),
+      });
       return Response.json({
-        user: { id: 'user-id', email: 'person@example.com', displayName: 'Person' },
-        sessionToken: token,
+        token,
+        issuedAt: '2026-07-22T00:00:00+00:00',
+        expiresAt: '2026-07-22T08:00:00+00:00',
       });
     };
 
@@ -63,22 +67,45 @@ describe('server-only authentication client', () => {
       'B'.repeat(43),
       'http://blackops.test',
     );
+    await loginIdentity(
+      serverFetch,
+      { email: 'person@example.com', password: 'a sufficiently long password' },
+      null,
+      'http://blackops.test',
+    );
 
-    expect(authorization).toBe(`Bearer ${'B'.repeat(43)}`);
+    expect(requests).toEqual([
+      {
+        authorization: null,
+        body: {
+          currentToken: 'B'.repeat(43),
+          email: 'person@example.com',
+          password: 'a sufficiently long password',
+        },
+      },
+      {
+        authorization: null,
+        body: {
+          currentToken: null,
+          email: 'person@example.com',
+          password: 'a sufficiently long password',
+        },
+      },
+    ]);
   });
 
-  it('projects validation fields but never rejected values or raw details', async () => {
+  it('projects only generated validation fields without rejected values', async () => {
     const password = 'short-password-marker';
     const serverFetch: ServerFetch = async () =>
       Response.json(
         {
-          status: 'error',
-          code: 'identity.validation_failed',
+          status: 'rejected',
+          operationId: '019f32ab-2be0-7b38-a0a7-1ab2f9687698',
+          category: 'validation',
+          code: 'validation.failed',
           violations: [
-            { field: 'password', code: 'identity.password.too_short', rejected: password },
-            { field: 'internal', code: 'raw-sql-detail' },
+            { field: 'password', rule: 'Length', code: 'validation.length' },
           ],
-          detail: 'postgresql://private-host/absolute/path',
         },
         { status: 422 },
       );
@@ -94,15 +121,14 @@ describe('server-only authentication client', () => {
       ok: false,
       status: 422,
       code: 'identity.validation_failed',
-      fieldErrors: { password: 'identity.password.too_short' },
+      fieldErrors: { password: 'validation.length' },
     });
     expect(serialized).not.toContain(password);
     expect(serialized).not.toContain('private-host');
-    expect(serialized).not.toContain('raw-sql-detail');
   });
 
   it('fails closed for malformed success and transport errors', async () => {
-    const malformed: ServerFetch = async () => Response.json({ sessionToken: token });
+    const malformed: ServerFetch = async () => Response.json({ token });
     const failed: ServerFetch = async () => {
       throw new Error('ECONNREFUSED http://private-backend');
     };
@@ -124,7 +150,7 @@ describe('server-only authentication client', () => {
     });
   });
 
-  it('uses DELETE for server-side logout and swallows backend failures', async () => {
+  it('uses the generated logout operation and swallows backend failures', async () => {
     let method: string | undefined;
     let authorization: string | null = null;
     const serverFetch: ServerFetch = async (_input, init) => {
@@ -136,7 +162,7 @@ describe('server-only authentication client', () => {
     await expect(
       logoutIdentity(serverFetch, token, 'http://blackops.test'),
     ).resolves.toBeUndefined();
-    expect(method).toBe('DELETE');
+    expect(method).toBe('POST');
     expect(authorization).toBe(`Bearer ${token}`);
   });
 });

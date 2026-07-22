@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Infrastructure\Seed;
 
 use App\Domain\Board\BoardClock;
-use App\Identity\IdentityClock;
+use App\Domain\Identity\IdentityClock;
 use DateTimeImmutable;
 
 final readonly class FixedSeedClock implements BoardClock, IdentityClock

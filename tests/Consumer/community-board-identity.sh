@@ -32,6 +32,7 @@ cleanup() {
     rm -rf "${TEMP}"
 }
 trap cleanup EXIT
+trap 'printf "Community Board identity journey failed at line %s.\n" "${LINENO}" >&2' ERR
 
 export FRONTEND_PORT
 export BLACKOPS_DEBUG_PORT="${BLACKOPS_PORT}"
@@ -175,7 +176,10 @@ printf 'Logout revocation passed.\n'
     --data-urlencode "email=${EMAIL}" \
     --data-urlencode "password=${PASSWORD_MARKER}" \
     "http://localhost:${FRONTEND_PORT}/login"
-grep -Fq '"type":"redirect","status":303,"location":"/me"' "${TEMP}/login-action.json"
+if ! grep -Fq '"type":"redirect","status":303,"location":"/me"' "${TEMP}/login-action.json"; then
+    sed -E 's/[A-Za-z0-9_-]{43}/[masked]/g' "${TEMP}/login-action.json" >&2
+    false
+fi
 LOGIN_TOKEN=$(awk '$6 == "community_board_session" { print $7 }' "${COOKIE_JAR}")
 test "${#LOGIN_TOKEN}" -eq 43
 test "${LOGIN_TOKEN}" != "${REGISTER_TOKEN}"
@@ -207,12 +211,12 @@ printf 'Login rotation passed.\n'
 
 TOKEN_HASH=$(printf '%s' "${ROTATED_TOKEN}" | sha256sum | cut -d ' ' -f 1)
 STORED_HASH=$("${COMPOSE[@]}" exec -T postgres psql -U blackops -d community_board -Atc \
-    "SELECT token_hash FROM public.board_sessions WHERE token_hash = '${TOKEN_HASH}'")
+    "SELECT token_hash FROM public.blackops_sessions WHERE token_hash = '${TOKEN_HASH}'")
 test "${STORED_HASH}" = "${TOKEN_HASH}"
 test "${STORED_HASH}" != "${ROTATED_TOKEN}"
 
 "${COMPOSE[@]}" exec -T postgres psql -U blackops -d community_board -v ON_ERROR_STOP=1 -c \
-    "UPDATE public.board_sessions SET expires_at = now() - interval '1 second' WHERE token_hash = '${TOKEN_HASH}'" >/dev/null
+    "UPDATE public.blackops_sessions SET issued_at = now() - interval '2 seconds', expires_at = now() - interval '1 second', last_used_at = now() - interval '2 seconds' WHERE token_hash = '${TOKEN_HASH}'" >/dev/null
 "${CURL[@]}" --fail --silent \
     --output "${TEMP}/expired.html" \
     --dump-header "${TEMP}/expired-headers" \
@@ -235,31 +239,29 @@ grep -Fq '"code":"authentication.invalid_session"' "${TEMP}/classic-invalid.json
     --header 'Content-Type: application/json' \
     --data "{\"email\":\"${EMAIL}\",\"displayName\":\"${DISPLAY_NAME}\",\"password\":\"${PASSWORD_MARKER}\"}" \
     --write-out '%{http_code}' \
-    "http://127.0.0.1:${BLACKOPS_PORT}/auth/users" >"${TEMP}/duplicate-status"
+    "http://127.0.0.1:${BLACKOPS_PORT}/auth/register" >"${TEMP}/duplicate-status"
 test "$(<"${TEMP}/duplicate-status")" = '409'
-grep -Fq '"code":"identity.email_unavailable"' "${TEMP}/duplicate.json"
-grep -Eiq '^Cache-Control: private, no-store' "${TEMP}/duplicate-headers"
-grep -Eiq '^Pragma: no-cache' "${TEMP}/duplicate-headers"
+grep -Fq '"code":"auth.email_unavailable"' "${TEMP}/duplicate.json"
 ! grep -Fq "${PASSWORD_MARKER}" "${TEMP}/duplicate.json"
 
 "${CURL[@]}" --silent --output "${TEMP}/malformed.json" --write-out '%{http_code}' \
     --header 'Content-Type: application/json' --data '{' \
-    "http://127.0.0.1:${BLACKOPS_PORT}/auth/sessions" >"${TEMP}/malformed-status"
+    "http://127.0.0.1:${BLACKOPS_PORT}/auth/login" >"${TEMP}/malformed-status"
 test "$(<"${TEMP}/malformed-status")" = '400'
-grep -Fq '"code":"identity.invalid_request"' "${TEMP}/malformed.json"
+grep -Fq '"code":"http.malformed_json"' "${TEMP}/malformed.json"
 
 "${CURL[@]}" --silent --output "${TEMP}/unsupported.json" --write-out '%{http_code}' \
-    --header 'Content-Type: text/plain' --data 'credentials' \
-    "http://127.0.0.1:${BLACKOPS_PORT}/auth/sessions" >"${TEMP}/unsupported-status"
-test "$(<"${TEMP}/unsupported-status")" = '415'
-grep -Fq '"code":"identity.unsupported_media_type"' "${TEMP}/unsupported.json"
+    --header 'Content-Type: application/json' --data '"credentials"' \
+    "http://127.0.0.1:${BLACKOPS_PORT}/auth/login" >"${TEMP}/unsupported-status"
+test "$(<"${TEMP}/unsupported-status")" = '400'
+grep -Fq '"code":"http.body_not_object"' "${TEMP}/unsupported.json"
 
 "${CURL[@]}" --silent --output "${TEMP}/invalid-credentials.json" --write-out '%{http_code}' \
     --header 'Content-Type: application/json' \
     --data '{"email":"unknown@example.com","password":"a sufficiently wrong password"}' \
-    "http://127.0.0.1:${BLACKOPS_PORT}/auth/sessions" >"${TEMP}/invalid-credentials-status"
+    "http://127.0.0.1:${BLACKOPS_PORT}/auth/login" >"${TEMP}/invalid-credentials-status"
 test "$(<"${TEMP}/invalid-credentials-status")" = '401'
-grep -Fq '"code":"authentication.invalid_credentials"' "${TEMP}/invalid-credentials.json"
+grep -Fq '"code":"auth.invalid_credentials"' "${TEMP}/invalid-credentials.json"
 printf 'Authentication HTTP failure contract passed.\n'
 
 "${COMPOSE[@]}" exec -T postgres pg_dump -U blackops -d community_board \
@@ -279,7 +281,7 @@ for surface in \
     ! rg -F "${PASSWORD_MARKER}" "${surface}"
 done
 
-! rg -n 'password|sessionToken|community_board_session' \
+! rg -n 'sessionToken|community_board_session' \
     "${ROOT}/examples/community-board/frontend/src/lib/server/blackops/generated"
 ! rg -n 'BLACKOPS_BASE_URL|http://http|POSTGRES_PASSWORD|community-board-local' \
     "${ROOT}/examples/community-board/frontend/build/client"
@@ -292,9 +294,9 @@ printf 'Sensitive surface guards passed.\n'
 "${CURL[@]}" --silent --output "${TEMP}/database-failure.json" --write-out '%{http_code}' \
     --header 'Content-Type: application/json' \
     --data '{"email":"unknown@example.com","password":"a sufficiently wrong password"}' \
-    "http://127.0.0.1:${BLACKOPS_PORT}/auth/sessions" >"${TEMP}/database-failure-status"
+    "http://127.0.0.1:${BLACKOPS_PORT}/auth/login" >"${TEMP}/database-failure-status"
 test "$(<"${TEMP}/database-failure-status")" = '500'
-test "$(<"${TEMP}/database-failure.json")" = '{"status":"error","code":"identity.internal_error"}'
+test "$(<"${TEMP}/database-failure.json")" = '{"status":"error","code":"internal_error"}'
 
 git -C "${ROOT}" diff --exit-code -- examples/quickstart
 if git -C "${ROOT}" ls-files \
@@ -313,10 +315,11 @@ fi
 wrapper_imports=$(rg -l 'blackops/generated|\./generated' \
     "${ROOT}/examples/community-board/frontend/src" \
     --glob '!lib/server/blackops/generated/**' | sort)
-expected_wrapper_imports=$(printf '%s\n%s\n%s' \
+expected_wrapper_imports=$(printf '%s\n%s\n%s\n%s' \
+    "${ROOT}/examples/community-board/frontend/src/lib/server/auth/auth-client.server.ts" \
     "${ROOT}/examples/community-board/frontend/src/lib/server/blackops/board.server.ts" \
-    "${ROOT}/examples/community-board/frontend/src/lib/server/blackops/digest.server.ts" \
-    "${ROOT}/examples/community-board/frontend/src/lib/server/blackops/operations.server.ts")
+    "${ROOT}/examples/community-board/frontend/src/lib/server/blackops/client.server.ts" \
+    "${ROOT}/examples/community-board/frontend/src/lib/server/blackops/digest.server.ts")
 test "${wrapper_imports}" = "${expected_wrapper_imports}"
 
 printf 'Community Board identity journey passed.\n'

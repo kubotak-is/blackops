@@ -35,7 +35,7 @@ final class DoctrineDigestRepositoryTest extends TestCase
             'password' => $_ENV['POSTGRES_PASSWORD'] ?? 'blackops',
         ]);
         $this->connection->executeStatement(
-            'TRUNCATE public.board_digests, public.board_comments, public.board_posts, public.board_sessions, public.board_users CASCADE',
+            'TRUNCATE public.board_digests, public.board_comments, public.board_posts, public.blackops_sessions, public.board_users CASCADE',
         );
         foreach ([[self::ALICE, 'alice'], [self::BOB, 'bob']] as [$id, $name]) {
             $this->connection->insert('public.board_users', [
@@ -56,7 +56,7 @@ final class DoctrineDigestRepositoryTest extends TestCase
             $this->connection->rollBack();
         }
         $this->connection->executeStatement(
-            'TRUNCATE public.board_digests, public.board_comments, public.board_posts, public.board_sessions, public.board_users CASCADE',
+            'TRUNCATE public.board_digests, public.board_comments, public.board_posts, public.blackops_sessions, public.board_users CASCADE',
         );
         $this->connection->close();
     }

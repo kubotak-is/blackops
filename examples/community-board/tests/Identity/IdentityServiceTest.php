@@ -4,125 +4,146 @@ declare(strict_types=1);
 
 namespace App\Tests\Identity;
 
-use App\Identity\IdentityService;
-use App\Identity\PasswordHasher;
-use App\Identity\SessionSettings;
-use App\Identity\SessionToken;
-use App\Tests\Support\FrozenIdentityClock;
-use App\Tests\Support\InMemoryIdentityRepository;
-use App\Tests\Support\SequenceUuidGenerator;
-use DateInterval;
+use App\Domain\Identity\EnabledRegistrationPolicy;
+use App\Domain\Identity\Exception\DuplicateEmail;
+use App\Domain\Identity\Exception\InvalidCredentials;
+use App\Domain\Identity\IdentityClock;
+use App\Domain\Identity\IdentityIdentifier;
+use App\Domain\Identity\IdentityService;
+use App\Domain\Identity\PasswordHasher;
+use App\Domain\Identity\User;
+use App\Domain\Identity\UserRepository;
 use DateTimeImmutable;
-use DateTimeZone;
 use PHPUnit\Framework\TestCase;
 
 final class IdentityServiceTest extends TestCase
 {
-    public function testProvisioningCreatesOnlyANormalizedUserWithoutIssuingASession(): void
+    public function testRegistrationNormalizesIdentityAndKeepsDomainVendorNeutral(): void
     {
         [$service, $repository] = $this->service();
 
-        $user = $service->provisionUser('  Demo@Example.COM  ', ' Demo User ', 'a documented public demo password');
-        $stored = $repository->users[$user->id];
+        $user = $service->register('  Person@Example.COM  ', ' Person ', 'a sufficiently long password');
 
-        self::assertSame('demo@example.com', $stored['canonical']);
-        self::assertSame('Demo@Example.COM', $user->email);
-        self::assertSame('Demo User', $user->displayName);
-        self::assertTrue(password_verify('a documented public demo password', $stored['stored']->passwordHash));
-        self::assertSame([], $repository->sessions);
+        self::assertSame('019b1111-1111-7111-8111-111111111111', $user->id);
+        self::assertSame('Person@Example.COM', $user->email);
+        self::assertSame('person@example.com', $user->canonicalEmail);
+        self::assertSame('Person', $user->displayName);
+        self::assertTrue(password_verify('a sufficiently long password', $user->passwordHash));
+        self::assertSame($user, $repository->findByEmail('person@example.com'));
+        self::assertSame('2026-07-20T00:00:00+00:00', $user->createdAt->format(DATE_ATOM));
     }
 
-    public function testRegistrationNormalizesEmailAndStoresOnlyArgonAndTokenHashes(): void
+    public function testDuplicateAndInvalidCredentialsUseDomainFailures(): void
     {
-        [$service, $repository] = $this->service();
+        [$service] = $this->service();
+        $service->register('person@example.com', 'Person', 'a sufficiently long password');
 
-        $session = $service->register('  Person@Example.COM  ', ' Person ', 'a sufficiently long password');
-        $stored = $repository->users[$session->user->id];
-        $tokenHash = hash('sha256', $session->rawToken);
+        try {
+            $service->register('PERSON@example.com', 'Someone else', 'another long password value');
+            self::fail('Duplicate canonical email must be rejected.');
+        } catch (DuplicateEmail) {
+        }
 
-        self::assertSame('person@example.com', $stored['canonical']);
-        self::assertSame('Person@Example.COM', $stored['stored']->email);
-        self::assertSame('Person', $stored['stored']->displayName);
-        self::assertTrue(password_verify('a sufficiently long password', $stored['stored']->passwordHash));
-        self::assertSame('argon2id', password_get_info($stored['stored']->passwordHash)['algoName']);
-        self::assertMatchesRegularExpression('/\\A[A-Za-z0-9_-]{43}\\z/D', $session->rawToken);
-        self::assertArrayHasKey($tokenHash, $repository->sessions);
-        self::assertArrayNotHasKey($session->rawToken, $repository->sessions);
-    }
-
-    public function testExpiryRevocationAndLoginRotationInvalidateOldSessions(): void
-    {
-        [$service, $repository, $clock] = $this->service(ttl: 60);
-        $registered = $service->register('person@example.com', 'Person', 'a sufficiently long password');
-
-        self::assertNotNull($service->authenticate($registered->rawToken));
-
-        $rotated = $service->login('PERSON@example.com', 'a sufficiently long password', $registered->rawToken);
-        self::assertNull($service->authenticate($registered->rawToken));
-        self::assertNotNull($service->authenticate($rotated->rawToken));
-
-        $service->logout($rotated->rawToken);
-        self::assertNull($service->authenticate($rotated->rawToken));
-        $service->logout($rotated->rawToken);
-
-        $fresh = $service->login('person@example.com', 'a sufficiently long password', null);
-        $clock->current = $clock->current->add(new DateInterval('PT61S'));
-        self::assertNull($service->authenticate($fresh->rawToken));
-        self::assertCount(3, $repository->sessions);
-    }
-
-    public function testSuccessfulLoginRehashesAnOutdatedArgon2idHash(): void
-    {
-        [$service, $repository, $clock] = $this->service();
-        $password = 'a sufficiently long password';
-        $outdatedHash = password_hash($password, PASSWORD_ARGON2ID, [
-            'memory_cost' => 8,
-            'time_cost' => 1,
-            'threads' => 1,
-        ]);
-        self::assertIsString($outdatedHash);
-
-        $repository->createUser(
+        self::assertSame(
             '019b1111-1111-7111-8111-111111111111',
-            'person@example.com',
-            'person@example.com',
-            'Person',
-            $outdatedHash,
-            $clock->now(),
+            $service->authenticate('PERSON@example.com', 'a sufficiently long password')->id,
         );
-        $service->login('person@example.com', $password, null);
 
-        $updated = $repository->findByCanonicalEmail('person@example.com');
-        self::assertNotNull($updated);
-        self::assertNotSame($outdatedHash, $updated->passwordHash);
-        self::assertFalse(password_needs_rehash($updated->passwordHash, PASSWORD_ARGON2ID));
+        foreach ([
+            ['person@example.com',  'wrong password value'],
+            ['missing@example.com', 'wrong password value'],
+        ] as [$email, $password]) {
+            try {
+                $service->authenticate($email, $password);
+                self::fail('Invalid credentials must be rejected.');
+            } catch (InvalidCredentials) {
+            }
+        }
     }
 
-    /** @return array{IdentityService, InMemoryIdentityRepository, FrozenIdentityClock} */
-    private function service(int $ttl = 28_800): array
+    /** @return array{IdentityService, MemoryUserRepository} */
+    private function service(): array
     {
-        $repository = new InMemoryIdentityRepository();
-        $clock = new FrozenIdentityClock(new DateTimeImmutable('2026-07-20T00:00:00+00:00', new DateTimeZone('UTC')));
-        $identifiers = new SequenceUuidGenerator([
-            '019b1111-1111-7111-8111-111111111111',
-            '019b1111-1111-7111-8111-111111111112',
-            '019b1111-1111-7111-8111-111111111113',
-            '019b1111-1111-7111-8111-111111111114',
-            '019b1111-1111-7111-8111-111111111115',
-            '019b1111-1111-7111-8111-111111111116',
-        ]);
+        $repository = new MemoryUserRepository();
 
         return [
             new IdentityService(
                 $repository,
                 new PasswordHasher(),
-                new SessionToken(),
-                $clock,
-                $identifiers,
-                new SessionSettings($ttl),
+                new EnabledRegistrationPolicy(),
+                new FixedIdentityIdentifier('019b1111-1111-7111-8111-111111111111'),
+                new FixedIdentityClock(new DateTimeImmutable('2026-07-20T00:00:00+00:00')),
             ),
             $repository,
-            $clock,
         ];
+    }
+}
+
+final class MemoryUserRepository implements UserRepository
+{
+    /** @var array<string, User> */
+    private array $users = [];
+
+    public function findByEmail(string $canonicalEmail): ?User
+    {
+        foreach ($this->users as $user) {
+            if ($user->canonicalEmail === $canonicalEmail) {
+                return $user;
+            }
+        }
+
+        return null;
+    }
+
+    public function findById(string $id): ?User
+    {
+        return $this->users[$id] ?? null;
+    }
+
+    public function save(User $user): void
+    {
+        if ($this->findByEmail($user->canonicalEmail) !== null) {
+            throw new DuplicateEmail();
+        }
+
+        $this->users[$user->id] = $user;
+    }
+
+    public function updatePasswordHash(string $id, string $passwordHash): void
+    {
+        $user = $this->users[$id];
+        $this->users[$id] = new User(
+            $user->id,
+            $user->email,
+            $user->canonicalEmail,
+            $user->displayName,
+            $passwordHash,
+            $user->createdAt,
+            $user->updatedAt,
+        );
+    }
+}
+
+final readonly class FixedIdentityIdentifier implements IdentityIdentifier
+{
+    public function __construct(
+        private string $id,
+    ) {}
+
+    public function generate(): string
+    {
+        return $this->id;
+    }
+}
+
+final readonly class FixedIdentityClock implements IdentityClock
+{
+    public function __construct(
+        private DateTimeImmutable $now,
+    ) {}
+
+    public function now(): DateTimeImmutable
+    {
+        return $this->now;
     }
 }

@@ -9,57 +9,25 @@ use App\Feature\Digest\DigestAttemptGate;
 use App\Infrastructure\Deferred\FailFirstDigestAttemptGate;
 use App\Infrastructure\Deferred\NoOpDigestAttemptGate;
 use BlackOps\Core\DependencyInjection\ServiceRegistry;
-use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class DigestCompositionTest extends TestCase
 {
-    /** @return iterable<string, array{?string, class-string}> */
+    /** @return iterable<string, array{bool, class-string}> */
     public static function gateConfigurations(): iterable
     {
-        yield 'default' => [null, NoOpDigestAttemptGate::class];
-        yield 'false' => ['false', NoOpDigestAttemptGate::class];
-        yield 'true' => ['true', FailFirstDigestAttemptGate::class];
+        yield 'false' => [false, NoOpDigestAttemptGate::class];
+        yield 'true' => [true, FailFirstDigestAttemptGate::class];
     }
 
     /** @param class-string $expected */
     #[DataProvider('gateConfigurations')]
-    public function testProviderSelectsAttemptGateDuringRegistration(?string $value, string $expected): void
+    public function testProviderSelectsAttemptGateDuringRegistration(bool $value, string $expected): void
     {
-        $original = $_ENV['DIGEST_FAIL_FIRST_ATTEMPT'] ?? null;
-        try {
-            if ($value === null) {
-                unset($_ENV['DIGEST_FAIL_FIRST_ATTEMPT']);
-            } else {
-                $_ENV['DIGEST_FAIL_FIRST_ATTEMPT'] = $value;
-            }
-            $registry = new RecordingServiceRegistry();
-            new ApplicationServiceProvider()->register($registry);
-            self::assertSame($expected, $registry->classes[DigestAttemptGate::class]);
-        } finally {
-            if ($original === null) {
-                unset($_ENV['DIGEST_FAIL_FIRST_ATTEMPT']);
-            } else {
-                $_ENV['DIGEST_FAIL_FIRST_ATTEMPT'] = $original;
-            }
-        }
-    }
-
-    public function testProviderFailsFastForNonCanonicalFlag(): void
-    {
-        $original = $_ENV['DIGEST_FAIL_FIRST_ATTEMPT'] ?? null;
-        try {
-            $_ENV['DIGEST_FAIL_FIRST_ATTEMPT'] = 'TRUE';
-            $this->expectException(InvalidArgumentException::class);
-            new ApplicationServiceProvider()->register(new RecordingServiceRegistry());
-        } finally {
-            if ($original === null) {
-                unset($_ENV['DIGEST_FAIL_FIRST_ATTEMPT']);
-            } else {
-                $_ENV['DIGEST_FAIL_FIRST_ATTEMPT'] = $original;
-            }
-        }
+        $registry = new RecordingServiceRegistry();
+        new ApplicationServiceProvider($value)->register($registry);
+        self::assertSame($expected, $registry->classes[DigestAttemptGate::class]);
     }
 }
 

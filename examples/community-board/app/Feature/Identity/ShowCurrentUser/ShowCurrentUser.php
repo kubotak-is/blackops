@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Feature\Identity\ShowCurrentUser;
 
-use App\Identity\IdentityRepository;
+use App\Domain\Identity\UserRepository;
 use App\Security\AuthenticatedUserPolicy;
 use BlackOps\Core\Attribute\Authorize;
 use BlackOps\Core\Attribute\OperationType;
@@ -19,7 +19,7 @@ use LogicException;
 final readonly class ShowCurrentUser implements Operation
 {
     public function __construct(
-        private IdentityRepository $users,
+        private UserRepository $users,
     ) {}
 
     public function handle(ShowCurrentUserValue $value, ExecutionContext $context): CurrentUserShown

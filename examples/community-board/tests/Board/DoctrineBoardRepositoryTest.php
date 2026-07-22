@@ -151,7 +151,7 @@ final class DoctrineBoardRepositoryTest extends TestCase
     private function clearDatabase(): void
     {
         $this->connection->executeStatement(
-            'TRUNCATE public.board_comments, public.board_posts, public.board_sessions, public.board_users CASCADE',
+            'TRUNCATE public.board_comments, public.board_posts, public.blackops_sessions, public.board_users CASCADE',
         );
     }
 

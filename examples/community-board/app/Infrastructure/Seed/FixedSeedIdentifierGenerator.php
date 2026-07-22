@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace App\Infrastructure\Seed;
 
 use App\Domain\Board\BoardIdGenerator;
-use App\Identity\UuidGenerator;
+use App\Domain\Identity\IdentityIdentifier;
 use LogicException;
 
-final class FixedSeedIdentifierGenerator implements BoardIdGenerator, UuidGenerator
+final class FixedSeedIdentifierGenerator implements BoardIdGenerator, IdentityIdentifier
 {
     private bool $issued = false;
 
