@@ -107,6 +107,8 @@ Auth Session Core、Generator、Community Boardは変更しない。
 
 ## P18-006C: Auth Generator and Fresh Consumer
 
+Status: Implemented, pending Orchestrator review.
+
 - Built-in `make:auth` Command／Generator／Stubを実装する
 - User、DBAL Repository、Password Verifier、Registration Policy、Identity Provider、Register／Login／Logout Operationを生成する
 - Service Provider、Configuration、User Migration／Framework Session Migrationを生成する
@@ -146,7 +148,7 @@ Documentation WebsiteとCommunity Boardを外部公開せず、Session Authentic
 - [x] Frontend Bound Client Factoryが実装される
 - [x] Application Command Discovery／DIが実装される
 - [x] Operation Console Adapterが実装される
-- [ ] Session Authentication／Generatorが実装される
+- [x] Session Authentication／Generatorが実装される
 - [ ] Community Boardが新Contractへ移行し、手動配線削減を証明する
 - [ ] Direct Dependency、Sensitive、Worker Reuse、Build Artifact境界がRegression Testで固定される
 - [ ] Full PHP／Frontend／Consumer／Website Quality Gateが成功する

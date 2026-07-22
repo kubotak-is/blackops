@@ -153,7 +153,7 @@ MVP後に残す主要項目:
 - [x] Session Authentication CoreをFramework同梱のOpt-in Capabilityとして実装する
 - [x] D112でPublic Ephemeral Outcomeと非永続化Lifecycle境界を決定する
 - [x] Ephemeral Outcome CoreとFrontend直接Fetch Contractを実装する
-- [ ] `make:auth` GeneratorとFresh Consumerを実装する
+- [x] `make:auth` GeneratorとFresh Consumerを実装する
 - [ ] Community Boardを簡素化し、Clean Install Consumerで検証する
 
 ### Phase 19: Reliability and Delivery

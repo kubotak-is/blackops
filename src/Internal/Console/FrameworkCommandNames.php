@@ -14,6 +14,7 @@ final readonly class FrameworkCommandNames
             ApplicationOperationListCommand::NAME,
             MakeOperationCommand::NAME,
             MakeMigrationCommand::NAME,
+            MakeAuthCommand::NAME,
             DatabaseMigrationStatusCommand::NAME,
             DatabaseMigrationMigrateCommand::NAME,
             WorkerRunCommand::NAME,

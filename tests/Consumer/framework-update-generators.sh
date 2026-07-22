@@ -64,6 +64,7 @@ cp "${repository_root}/src/Internal/Console/ApplicationBuildCompileCommand.php" 
     "${repository_root}/src/Internal/Console/LazyFrameworkCommand.php" \
     "${repository_root}/src/Internal/Console/FrontendCheckCommand.php" \
     "${repository_root}/src/Internal/Console/FrameworkCommandNames.php" \
+    "${repository_root}/src/Internal/Console/MakeAuthCommand.php" \
     "${repository_root}/src/Internal/Console/MakeOperationCommand.php" \
     "${repository_root}/src/Internal/Console/MakeMigrationCommand.php" \
     "${repository_root}/src/Internal/Console/RetentionPlanCommand.php" \
@@ -240,10 +241,18 @@ cmp "${current_stubs}/operation.php.stub" \
     "${consumer_root}/vendor/blackops/framework/resources/stubs/operation.php.stub"
 cmp "${current_stubs}/migration.php.stub" \
     "${consumer_root}/vendor/blackops/framework/resources/stubs/migration.php.stub"
+cmp "${current_stubs}/auth-config.php.stub" \
+    "${consumer_root}/vendor/blackops/framework/resources/stubs/auth-config.php.stub"
+cmp "${current_stubs}/auth-register.php.stub" \
+    "${consumer_root}/vendor/blackops/framework/resources/stubs/auth-register.php.stub"
 cmp "${repository_root}/src/Internal/Console/MakeOperationCommand.php" \
     "${consumer_root}/vendor/blackops/framework/src/Internal/Console/MakeOperationCommand.php"
 cmp "${repository_root}/src/Internal/Console/MakeMigrationCommand.php" \
     "${consumer_root}/vendor/blackops/framework/src/Internal/Console/MakeMigrationCommand.php"
+cmp "${repository_root}/src/Internal/Console/MakeAuthCommand.php" \
+    "${consumer_root}/vendor/blackops/framework/src/Internal/Console/MakeAuthCommand.php"
+cmp "${repository_root}/src/Internal/Generator/AuthGenerator.php" \
+    "${consumer_root}/vendor/blackops/framework/src/Internal/Generator/AuthGenerator.php"
 
 run_php blackops make:operation Upgrade/AfterUpdate --type=upgrade.after \
     > "${temporary_root}/after-operation.out"
@@ -270,6 +279,17 @@ grep -q "#\[OperationType('upgrade.after')\]" "${after_operation_directory}/Afte
 grep -q 'handle(AfterUpdateValue \$value): AfterUpdateOutcome' "${after_operation_directory}/AfterUpdate.php"
 grep -q "return 'AfterUpdateSchema';" "${after_migration}"
 
+run_php blackops make:auth > "${temporary_root}/after-auth.out"
+test "$(grep -c '^Created: ' "${temporary_root}/after-auth.out")" = '27'
+grep -q '^Created: app/Domain/Identity/User.php$' "${temporary_root}/after-auth.out"
+grep -q '^Created: app/Infrastructure/Identity/ApplicationSessionIdentityProvider.php$' \
+    "${temporary_root}/after-auth.out"
+grep -q '^Created: app/Feature/Identity/Register/Register.php$' "${temporary_root}/after-auth.out"
+grep -q '^Created: config/auth.php$' "${temporary_root}/after-auth.out"
+grep -q '^Created: migrations/Version20260722000100.php$' "${temporary_root}/after-auth.out"
+run_php blackops make:auth > "${temporary_root}/after-auth-noop.out"
+test "$(<"${temporary_root}/after-auth-noop.out")" = 'Authentication starter is already current.'
+
 run_php blackops build:compile > "${temporary_root}/build.out"
 test -f "${consumer_root}/var/build/commands.php"
 run_php blackops frontend:generate > "${temporary_root}/frontend-generate.out"
@@ -278,6 +298,9 @@ grep -q '^Frontend generated tree is fresh in resources/js/blackops\.$' \
     "${temporary_root}/frontend-check.out"
 run_php blackops operation:list > "${temporary_root}/operations.out"
 grep -q 'diagnostics.failure.trigger' "${temporary_root}/operations.out"
+grep -q 'auth.register' "${temporary_root}/operations.out"
+grep -q 'auth.login' "${temporary_root}/operations.out"
+grep -q 'auth.logout' "${temporary_root}/operations.out"
 run_php -r '
 $operations = require "/smoke/consumer/var/build/operations.php";
 $http = require "/smoke/consumer/var/build/http.php";

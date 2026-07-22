@@ -240,6 +240,12 @@ Applicationが所有する。
 
 `php blackops make:auth`はBuilt-in Command／Generatorとして、上記Application責務の接続点とAPI Authentication Starterを生成する。User／Repository／Password／Registration Policy／Identity Provider、Register／Login／Logout Operation、Service Provider、Configuration、User／Session Migrationを含め、HTML／SvelteKit／Cookie発行／CSRFは生成しない。
 
+生成先は`app/Domain/Identity`、`app/Infrastructure/Identity`、`app/Feature/Identity`へ分離する。DomainはBlackOps／Doctrine／Symfonyに依存せず、Email canonicalization、Password Hash／Verify／Rehash、Registration可否、Duplicate／Invalid Credential判断を`IdentityService`とDomain Policyへ置く。OperationはDomain FailureからStable Rejectionへの写像とSession発行／失効だけを担当する。
+
+`config/auth.php`は同じ`Environment` SnapshotからRegistration Enabled、Session TTL、Touch Intervalを型付きで読み、`auth.services`を既存`app.services`の後へMergeする。File欠落時は既存Registrationを変えない。
+
+Generator Version 1は`config/auth.php`へMarkerを持つ。Target 0件だけをFirst Runとし、全Target＋Current Markerは内容非比較のNo-op、Partial／Unknown StateはZero-write Errorとする。`--force`はFramework-owned `config/auth.php`、`AuthServiceProvider.php`、`ApplicationSessionIdentityProvider.php`だけを更新し、Domain、Repository、Operation、User／Session Migrationを上書きしない。
+
 Register／LoginはPublic `EphemeralOutcome`を返すRoute付き明示Inline Operationとし、Passwordを含むReceived ValueとRaw Tokenを含む実OutcomeをCanonical Journal／Outcome Store／Statusへ保存しない。Lifecycleは空Dataで記録する。LogoutもCurrent Raw Token Inputを保存しないPropertyなしEphemeral Outcomeを返し、安全に失効させる。
 
 GeneratorはAll-or-nothing Preflightと同一VersionのNo-op Successを保証する。既存Fileを無断上書きせず、`--force`でもApplication-owned User／Repository／Password／Policy／Operation／Migrationを置換しない。
@@ -276,7 +282,7 @@ Phase 18の最後にCommunity Boardを新Contractへ移行する。
 - [ ] 明示Command登録が維持され、Name Collision／未解決DependencyがFail-fastする
 - [x] `#[ConsoleCommand]`付きOperationだけがCLIへ現れ、Binding／Validation／Authorization／Inline／Deferred／Exit Codeを満たす
 - [x] `BlackOps\Auth\Session`がFramework同梱のOpt-in CapabilityとしてSession Lifecycleを提供する
-- [ ] `make:auth`がApplication-owned接続点を安全に生成する
+- [x] `make:auth`がApplication-owned接続点を安全に生成する
 - [ ] Community Boardの手動Transport／Identity／Command配線が削減され、主要Journeyが回帰しない
 - [ ] Application Composer Dependencyが直接Import規則と一致する
 - [ ] Full Framework／Quickstart／Skeleton／Community Board／Frontend／Website Gateが成功する

@@ -13,6 +13,7 @@ use BlackOps\Internal\Console\FrameworkCommandNames;
 use BlackOps\Internal\Console\FrontendCheckCommand;
 use BlackOps\Internal\Console\FrontendGenerateCommand;
 use BlackOps\Internal\Console\LazyFrameworkCommand;
+use BlackOps\Internal\Console\MakeAuthCommand;
 use BlackOps\Internal\Console\MakeMigrationCommand;
 use BlackOps\Internal\Console\MakeOperationCommand;
 use BlackOps\Internal\Console\OperationConsoleCommand;
@@ -163,6 +164,17 @@ final readonly class ApplicationConsoleKernel
                     'description',
                     InputArgument::REQUIRED,
                     'Migration description in PascalCase.',
+                ),
+            ),
+            new LazyFrameworkCommand(
+                MakeAuthCommand::NAME,
+                'Generate a bearer session authentication starter.',
+                $factory->makeAuth(...),
+                static fn(Command $command): Command => $command->addOption(
+                    'force',
+                    null,
+                    InputOption::VALUE_NONE,
+                    'Update framework-owned authentication files.',
                 ),
             ),
             new LazyFrameworkCommand(

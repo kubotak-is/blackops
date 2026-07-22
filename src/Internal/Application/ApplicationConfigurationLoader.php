@@ -23,6 +23,7 @@ final readonly class ApplicationConfigurationLoader
         'diagnostics',
         'logging',
         'frontend',
+        'auth',
     ];
 
     public function resolve(string $directory): string

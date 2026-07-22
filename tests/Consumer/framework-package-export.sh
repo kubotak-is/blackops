@@ -80,7 +80,14 @@ validate_package() {
         resources/stubs/operation.php.stub \
         resources/stubs/operation-value.php.stub \
         resources/stubs/operation-outcome.php.stub \
-        resources/stubs/migration.php.stub; do
+        resources/stubs/migration.php.stub \
+        resources/stubs/auth-config.php.stub \
+        resources/stubs/auth-service-provider.php.stub \
+        resources/stubs/auth-register.php.stub \
+        resources/stubs/auth-login.php.stub \
+        resources/stubs/auth-logout.php.stub \
+        resources/stubs/auth-user-migration.php.stub \
+        resources/stubs/auth-session-migration.php.stub; do
         test -f "${package_root}/${required_path}" \
             || fail "${package_name} archive is missing required path: ${required_path}"
     done

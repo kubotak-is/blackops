@@ -11,6 +11,7 @@ use BlackOps\Internal\Console\DatabaseMigrationMigrateCommand;
 use BlackOps\Internal\Console\DatabaseMigrationStatusCommand;
 use BlackOps\Internal\Console\FrontendCheckCommand;
 use BlackOps\Internal\Console\FrontendGenerateCommand;
+use BlackOps\Internal\Console\MakeAuthCommand;
 use BlackOps\Internal\Console\MakeMigrationCommand;
 use BlackOps\Internal\Console\MakeOperationCommand;
 use BlackOps\Internal\Console\OperationInspectCommand;
@@ -19,6 +20,7 @@ use BlackOps\Internal\Console\WorkerRunCommand;
 use BlackOps\Internal\Diagnostics\OperationDiagnosticsResult;
 use BlackOps\Internal\Diagnostics\Viewer\OperationViewerRouter;
 use BlackOps\Internal\Diagnostics\Viewer\OperationViewerTokens;
+use BlackOps\Internal\Generator\AuthGenerator;
 use BlackOps\Internal\Generator\MigrationGenerator;
 use BlackOps\Internal\Generator\OperationGenerator;
 use BlackOps\Internal\Migration\DatabaseMigrationRunner;
@@ -52,6 +54,13 @@ final class ApplicationConsoleCommandFactory
     {
         return new MakeMigrationCommand(
             new MigrationGenerator($this->configuration->basePath(), dirname(__DIR__, levels: 3) . '/resources/stubs'),
+        );
+    }
+
+    public function makeAuth(): Command
+    {
+        return new MakeAuthCommand(
+            new AuthGenerator($this->configuration->basePath(), dirname(__DIR__, levels: 3) . '/resources/stubs'),
         );
     }
 

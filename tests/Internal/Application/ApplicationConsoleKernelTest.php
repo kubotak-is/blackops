@@ -50,6 +50,7 @@ final class ApplicationConsoleKernelTest extends TestCase
             'operation:list',
             'make:operation',
             'make:migration',
+            'make:auth',
             'database:status',
             'database:migrate',
             'worker:run',
@@ -88,6 +89,13 @@ final class ApplicationConsoleKernelTest extends TestCase
             'command_name' => 'make:migration',
         ]), $migrationHelp));
         self::assertStringContainsString('PascalCase', $migrationHelp->fetch());
+
+        $authHelp = new BufferedOutput();
+        self::assertSame(0, $kernel->run(new ArrayInput([
+            'command' => 'help',
+            'command_name' => 'make:auth',
+        ]), $authHelp));
+        self::assertStringContainsString('--force', $authHelp->fetch());
     }
 
     public function testRunsApplicationCommand(): void
@@ -191,6 +199,18 @@ final class ApplicationConsoleKernelTest extends TestCase
     {
         $application = Application::configure($this->directory())
             ->withCommands([ConsoleKernelMigrationGeneratorConflictingCommand::class])
+            ->create();
+
+        $this->expectException(ApplicationBootstrapException::class);
+        $this->expectExceptionMessage('conflicts with a framework command');
+
+        $application->console();
+    }
+
+    public function testRejectsApplicationCommandThatConflictsWithAuthGenerator(): void
+    {
+        $application = Application::configure($this->directory())
+            ->withCommands([ConsoleKernelAuthGeneratorConflictingCommand::class])
             ->create();
 
         $this->expectException(ApplicationBootstrapException::class);
@@ -384,6 +404,14 @@ final class ConsoleKernelMigrationGeneratorConflictingCommand extends Command
     public function __construct()
     {
         parent::__construct('make:migration');
+    }
+}
+
+final class ConsoleKernelAuthGeneratorConflictingCommand extends Command
+{
+    public function __construct()
+    {
+        parent::__construct('make:auth');
     }
 }
 

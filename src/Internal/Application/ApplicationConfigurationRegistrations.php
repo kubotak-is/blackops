@@ -24,7 +24,10 @@ final readonly class ApplicationConfigurationRegistrations
     /** @return list<mixed> */
     public function services(): array
     {
-        return $this->listFromSection('app', 'services');
+        return [
+            ...$this->listFromSection('app', 'services'),
+            ...$this->listFromSection('auth', 'services'),
+        ];
     }
 
     /** @return list<mixed> */

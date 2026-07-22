@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-22T14:24:46+09:00
+Updated At: 2026-07-22T15:23:22+09:00
 
 ## Current Phase
 
@@ -16,9 +16,9 @@ Specifications: `develop/spec/06-auth-and-middleware.md`、`develop/spec/17-core
 
 ## Task Status
 
-Ready
+Review Ready
 
-D111／D112に基づき、Built-in `make:auth`、Domain／Infrastructure／Feature分離、Auth Configuration Merge、All-or-nothing／No-overwrite、Fresh Consumerを実装するTask Packetを作成した。Production実装開始待ちである。
+Orchestrator ReviewのCommit前Findingを修正した。未知EmailもDummy Hashで同じPassword APIを必ず1回通り、Atomic Replaceはrename直後にrename-invariant Fingerprintを再検証して競合内容を復元する。Auth StateはDirectory TargetをComplete扱いせず、Root外／inside-root Symlink AncestorをZero-writeで拒否する。Focused Generator、Fresh Consumer、Mago、Diff Guardを再実行済みである。
 
 ## Last Accepted Task
 
@@ -63,8 +63,26 @@ Active Implementation Blockerはない。Ray.Aop 2.19.1／2.20.0には複数clas
 
 ## Required Next Action
 
-1. GPT-5.6 Luna High workerへP18-006Cを依頼する。
-2. Orchestratorが生成物のApplication責任分界、Secret非永続化、Fresh Consumerを独立Reviewする。
+1. OrchestratorがP18-006CのGenerator State、Application責任分界、Secret非永続化、Fresh Consumerを独立Reviewする。
+2. Commit後にFramework Package Export Gateを再実行し、Accept後はP18-007 Community Board Migration and Phase Closeoutへ進む。
+
+## P18-006C Auth Generator and Fresh Consumer Worker Verification
+
+```text
+Command／Generator: Built-in php blackops make:authをFramework予約／Lazy Factoryへ追加。全27 TargetとStubをPreflightし、First Atomic Create、Current No-op、Partial Zero-write、Older限定--force、Directory Target／Root外・inside-root Symlink Ancestor拒否、rename前後Race／Failure Rollbackを固定。--forceはConfig／Service Provider／Session Identity Adapterの3 Fileだけを置換し、Domain／Operation／Migrationを保持する。
+
+Generated Architecture: app/Domain/IdentityへUser、Password、Registration Policy、IdentityServiceを集約しVendor Import 0。未知EmailもDummy Hashを使うverifyCredentialからpassword_verifyを必ず1回実行する。app/Infrastructure/IdentityへDBAL User Repository、Identifier、Session Identity Adapter、app/Feature/Identityへ薄いRegister／Login／Logoutを生成。3 OperationはRoute付き明示Inline／Transactional／Ephemeralである。
+
+Configuration: Optional config/auth.phpを同じEnvironment Snapshotで評価し、app.services後にauth.servicesをMerge。Auth FileなしApplicationは不変。Generated ConfigはRegistration Enabled、Session TTL、Touch Intervalを型付きで読み、SessionServiceProvider::bearer()を明示Opt-inする。
+
+Fresh Consumer: Working Tree PackageとDoctrine直接RequirementからGenerate、Migration、Build、Frontendを実行。実PostgreSQL／HTTPでRegister、Duplicate、Login、Invalid Credential同一401、Actor解決、Rotate、Expire、Logout冪等、Revoke、Cleanupを完走。Auth Ephemeral Outcome Row 0、Generated Clientはfetchのみ、Database／Build／Log／Generated Tree／Command OutputのRaw Password／Token 0件を確認。
+
+Quality: Focused PHPUnit 31 tests／151 assertions、Orchestrator Review修正後Generator 46 tests／195 assertions、Full PHPUnit 1654 tests／6623 assertions。Mago format／lint／analyze成功、Deptrac 0 violations／2792 allowed。Root／Quickstart Composer strict、Quickstart Setup／E2E、Skeleton Create-project、Framework Update、Permanent Frontend、Website 42 tests／Astro 0 diagnostics／31-route Build、Management ID／Community Board／diff Guard成功。
+
+Scope／Cleanup: Community Board Source差分0、禁止Public Session／Ephemeral API差分0、外部Publication／Deployなし。Fresh／Frontend／Websiteの生成・Dependency・Runtime Artifact cleanup済み。Git HEAD ArchiveはWorker Commit禁止によりCommit後Orchestrator再実行とし、Package Required Auth Stub Guardを追加した。Worker Commitなし。
+```
+
+詳細は`develop/orchestration/reports/P18-006C-auth-generator-and-fresh-consumer.md`を参照する。
 
 ## P18-006B Ephemeral Outcome Contract Worker Verification
 

@@ -16,12 +16,19 @@ final readonly class ProjectFileWriter
     /** @var Closure(string, string, int): void */
     private Closure $beforePublish;
 
+    /** @var Closure(string, string, int): void */
+    private Closure $afterBackup;
+
     /**
      * @param null|Closure(string, string): int $writeFile
      * @param null|Closure(string, string, int): void $beforePublish
+     * @param null|Closure(string, string, int): void $afterBackup
      */
-    public function __construct(?Closure $writeFile = null, ?Closure $beforePublish = null)
-    {
+    public function __construct(
+        ?Closure $writeFile = null,
+        ?Closure $beforePublish = null,
+        ?Closure $afterBackup = null,
+    ) {
         $this->writeFile = $writeFile ?? static function (string $path, string $contents): int {
             $written = file_put_contents($path, $contents, LOCK_EX);
             if ($written === false) {
@@ -35,6 +42,7 @@ final readonly class ProjectFileWriter
             string $_target,
             int $_index,
         ): void {};
+        $this->afterBackup = $afterBackup ?? static function (string $_backup, string $_target, int $_index): void {};
     }
 
     /** @param array<string, string> $files Project-relative path to complete contents. */
@@ -44,6 +52,15 @@ final readonly class ProjectFileWriter
         $targets = project_file_targets($root, $files);
         project_assert_file_targets_available($targets);
         project_write_files($root, $targets, $files, $this->writeFile, $this->beforePublish);
+    }
+
+    /** @param array<string, string> $files Project-relative path to complete replacement contents. */
+    public function replace(string $basePath, array $files): void
+    {
+        $root = project_file_root($basePath);
+        $targets = project_file_targets($root, $files);
+        project_assert_file_targets_replaceable($targets);
+        project_replace_files($root, $targets, $files, $this->writeFile, $this->beforePublish, $this->afterBackup);
     }
 }
 
@@ -93,6 +110,9 @@ function project_assert_existing_ancestor_within_root(string $root, string $targ
     if ($resolved === false || $resolved !== $root && !str_starts_with($resolved, $root . DIRECTORY_SEPARATOR)) {
         throw new InvalidArgumentException('Generated file path resolves outside the application.');
     }
+    if ($resolved !== $ancestor) {
+        throw new InvalidArgumentException('Generated file ancestor must not resolve through a symbolic link.');
+    }
 }
 
 function project_assert_safe_relative_path(string $path): void
@@ -115,6 +135,16 @@ function project_assert_file_targets_available(array $targets): void
     foreach ($targets as $relative => $target) {
         if (file_exists($target) || is_link($target)) {
             throw new InvalidArgumentException(sprintf('Generated file already exists: %s', $relative));
+        }
+    }
+}
+
+/** @param array<string, string> $targets */
+function project_assert_file_targets_replaceable(array $targets): void
+{
+    foreach ($targets as $relative => $target) {
+        if (is_link($target) || !is_file($target)) {
+            throw new InvalidArgumentException(sprintf('Generated file cannot be updated: %s', $relative));
         }
     }
 }
@@ -152,6 +182,117 @@ function project_write_files(
     } finally {
         restore_error_handler();
     }
+}
+
+/**
+ * @param array<string, string> $targets
+ * @param array<string, string> $files
+ * @param Closure(string, string): int $writeFile
+ * @param Closure(string, string, int): void $beforePublish
+ * @param Closure(string, string, int): void $afterBackup
+ * @mago-expect lint:cyclomatic-complexity
+ * @mago-expect lint:excessive-parameter-list
+ * @mago-expect lint:kan-defect
+ */
+function project_replace_files(
+    string $root,
+    array $targets,
+    array $files,
+    Closure $writeFile,
+    Closure $beforePublish,
+    Closure $afterBackup,
+): void {
+    /** @var array{temporary: list<string>, targets: list<string>, directories: list<string>} $prepare */
+    $prepare = ['temporary' => [], 'targets' => [], 'directories' => []];
+    /** @var array<string, string> $backups */
+    $backups = [];
+    /** @var list<string> $installed */
+    $installed = [];
+    set_error_handler(static fn(int $_severity, string $_message, string $_file, int $_line): bool => true);
+
+    try {
+        try {
+            project_prepare_files($root, $targets, $files, $writeFile, $prepare);
+            $index = 0;
+            foreach ($targets as $relative => $target) {
+                $temporary = $prepare['temporary'][$index];
+                $before = project_file_fingerprint($target);
+                $beforeRename = project_file_rename_fingerprint($target);
+                $beforePublish($temporary, $target, $index);
+                if ($before === null || $beforeRename === null || $before !== project_file_fingerprint($target)) {
+                    throw new InvalidArgumentException(sprintf('Generated file changed while updating: %s', $relative));
+                }
+
+                $backup = dirname($target) . '/.blackops-' . basename($target) . '-backup-' . bin2hex(random_bytes(8));
+                if (!rename($target, $backup)) {
+                    throw new InvalidArgumentException(sprintf('Unable to update generated file: %s', $relative));
+                }
+                $backups[$target] = $backup;
+                $afterBackup($backup, $target, $index);
+                if ($beforeRename !== project_file_rename_fingerprint($backup)) {
+                    throw new InvalidArgumentException(sprintf('Generated file changed while updating: %s', $relative));
+                }
+                if (!link($temporary, $target)) {
+                    throw new InvalidArgumentException(sprintf('Unable to update generated file: %s', $relative));
+                }
+                $installed[] = $target;
+                if (!unlink($temporary)) {
+                    throw new InvalidArgumentException(sprintf('Unable to finalize generated file: %s', $relative));
+                }
+                ++$index;
+            }
+
+            foreach ($backups as $backup) {
+                project_remove_file($backup);
+            }
+        } catch (Throwable $exception) {
+            foreach ($prepare['temporary'] as $temporary) {
+                project_remove_file($temporary);
+            }
+            foreach (array_reverse($installed) as $target) {
+                project_remove_file($target);
+            }
+            foreach (array_reverse($backups, true) as $target => $backup) {
+                if (!file_exists($target) && !is_link($target)) {
+                    rename($backup, $target);
+
+                    continue;
+                }
+
+                project_remove_file($backup);
+            }
+
+            if ($exception instanceof InvalidArgumentException) {
+                throw $exception;
+            }
+
+            throw new InvalidArgumentException('Project file update failed.');
+        }
+    } finally {
+        restore_error_handler();
+    }
+}
+
+function project_file_fingerprint(string $path): ?string
+{
+    $stat = lstat($path);
+    $hash = is_file($path) && !is_link($path) ? hash_file('sha256', $path) : false;
+    if ($stat === false || $hash === false) {
+        return null;
+    }
+
+    return implode(':', [$stat['dev'], $stat['ino'], $stat['size'], $stat['mtime'], $stat['ctime'], $hash]);
+}
+
+function project_file_rename_fingerprint(string $path): ?string
+{
+    $stat = lstat($path);
+    $hash = is_file($path) && !is_link($path) ? hash_file('sha256', $path) : false;
+    if ($stat === false || $hash === false) {
+        return null;
+    }
+
+    return implode(':', [$stat['dev'], $stat['ino'], $stat['size'], $stat['mtime'], $hash]);
 }
 
 /**

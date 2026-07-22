@@ -6,11 +6,46 @@ namespace BlackOps\Tests\Internal\Application;
 
 use BlackOps\Application\Environment;
 use BlackOps\Internal\Application\ApplicationConfigurationLoader;
+use BlackOps\Internal\Application\ApplicationConfigurationRegistrations;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 
 final class ApplicationConfigurationLoaderTest extends TestCase
 {
+    public function testLoadsAuthConfigurationAndMergesServicesAfterApplicationServices(): void
+    {
+        $directory = sys_get_temp_dir() . '/blackops-auth-config-loader-' . bin2hex(random_bytes(6));
+        mkdir($directory);
+        file_put_contents($directory . '/app.php', '<?php return ["services" => ["application"]];');
+        file_put_contents(
+            $directory . '/auth.php',
+            '<?php use BlackOps\\Application\\Environment; return static fn (Environment $env): array => ["services" => [$env->string("AUTH_PROVIDER")]];',
+        );
+
+        try {
+            $loaded = new ApplicationConfigurationLoader()->load($directory, new Environment([
+                'AUTH_PROVIDER' => 'authentication',
+            ]));
+
+            self::assertSame(
+                ['application', 'authentication'],
+                new ApplicationConfigurationRegistrations($loaded)->services(),
+            );
+        } finally {
+            unlink($directory . '/app.php');
+            unlink($directory . '/auth.php');
+            rmdir($directory);
+        }
+    }
+
+    public function testMissingAuthConfigurationDoesNotChangeApplicationServices(): void
+    {
+        self::assertSame(
+            ['application'],
+            new ApplicationConfigurationRegistrations(['app' => ['services' => ['application']]])->services(),
+        );
+    }
+
     public function testLoadsOptionalFrontendConfiguration(): void
     {
         $directory = sys_get_temp_dir() . '/blackops-frontend-config-loader-' . bin2hex(random_bytes(6));

@@ -28,4 +28,6 @@ RotationはOld Rowを`FOR UPDATE`でLockし、Successor InsertとOld Rowの`revo
 
 `SessionManager::authenticate()`がStoreのOpaque IdentityをApplication ProviderのCurrent `ActorRef`へ解決する。Bearer／Cookie AdapterはSessionManagerだけに依存し、Internal Typeの`instanceof`やRuntime Fallbackを行わない。
 
+Application-owned User／Password／Operationの生成と更新境界は[Authentication Generator](auth-generator.md)を参照する。
+
 Malformed／Unknown／Expired／Revoked／Rotated／Identity Missingは`authentication.invalid_session`で同じ外部Surfaceにする。DBAL／Clock／Random／Identity Provider ThrowableはInvalid Credentialへ丸めず、Application HTTP RuntimeのSafe Internal Failure Boundaryへ伝播する。Raw Token／Hash／Identity IDをException Message、Journal、Outcome、Log、Reportへ出さない。
