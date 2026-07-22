@@ -1,6 +1,6 @@
 # P18-006C: Auth Generator and Fresh Consumer
 
-Status: Review Ready
+Status: Accepted
 
 ## Goal
 

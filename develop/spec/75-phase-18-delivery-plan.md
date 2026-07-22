@@ -107,7 +107,7 @@ Auth Session Core、Generator、Community Boardは変更しない。
 
 ## P18-006C: Auth Generator and Fresh Consumer
 
-Status: Implemented, pending Orchestrator review.
+Status: Accepted.
 
 - Built-in `make:auth` Command／Generator／Stubを実装する
 - User、DBAL Repository、Password Verifier、Registration Policy、Identity Provider、Register／Login／Logout Operationを生成する
