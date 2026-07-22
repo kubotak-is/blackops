@@ -1,0 +1,12 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{ namespace }};
+
+use BlackOps\Database\Seeder;
+
+final readonly class {{ class }} implements Seeder
+{
+    public function run(): void {}
+}

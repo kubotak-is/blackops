@@ -103,6 +103,8 @@ Migration Commandは `config/database.php` の`framework.connection`と`framewor
 
 `database:seed`はFreshなCompiled ContainerからApplication Root Seederを解決し、明示実行時だけ一度呼び出す。Migration、Build、Transaction、Truncate、Operation Lifecycleを暗黙実行しない。Root Convention、Build-time Discovery、Runner、Safe Outputの正本は[Database Seeding](76-database-seeding.md)とする。
 
+Application-aware BuildはApplication Build IDをCompiled Container Parameterへ固定する。`database:seed`はAccepted ConfigurationのBuild IDとの一致を実行時に確認し、Parameter欠落または不一致をStale ArtifactとしてRoot解決前に拒否する。
+
 ## Worker Configuration
 
 `config/execution.php` は次を持つ。

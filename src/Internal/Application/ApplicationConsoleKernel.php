@@ -9,6 +9,7 @@ use BlackOps\Internal\Console\ApplicationCommandCollisionValidator;
 use BlackOps\Internal\Console\ApplicationOperationListCommand;
 use BlackOps\Internal\Console\DatabaseMigrationMigrateCommand;
 use BlackOps\Internal\Console\DatabaseMigrationStatusCommand;
+use BlackOps\Internal\Console\DatabaseSeedCommand;
 use BlackOps\Internal\Console\FrameworkCommandNames;
 use BlackOps\Internal\Console\FrontendCheckCommand;
 use BlackOps\Internal\Console\FrontendGenerateCommand;
@@ -16,6 +17,7 @@ use BlackOps\Internal\Console\LazyFrameworkCommand;
 use BlackOps\Internal\Console\MakeAuthCommand;
 use BlackOps\Internal\Console\MakeMigrationCommand;
 use BlackOps\Internal\Console\MakeOperationCommand;
+use BlackOps\Internal\Console\MakeSeederCommand;
 use BlackOps\Internal\Console\OperationConsoleCommand;
 use BlackOps\Internal\Console\OperationInspectCommand;
 use BlackOps\Internal\Console\OperationViewerCommand;
@@ -167,6 +169,16 @@ final readonly class ApplicationConsoleKernel
                 ),
             ),
             new LazyFrameworkCommand(
+                MakeSeederCommand::NAME,
+                'Generate an application database seeder.',
+                $factory->makeSeeder(...),
+                static fn(Command $command): Command => $command->addArgument(
+                    'name',
+                    InputArgument::REQUIRED,
+                    'Seeder name as one or more PascalCase segments.',
+                ),
+            ),
+            new LazyFrameworkCommand(
                 MakeAuthCommand::NAME,
                 'Generate a bearer session authentication starter.',
                 $factory->makeAuth(...),
@@ -188,6 +200,12 @@ final readonly class ApplicationConsoleKernel
                 'Apply or preview BlackOps database migrations.',
                 $factory->databaseMigrate(...),
                 static fn(Command $command): Command => $command->addOption('dry-run', null, InputOption::VALUE_NONE),
+            ),
+            new LazyFrameworkCommand(
+                DatabaseSeedCommand::NAME,
+                'Run the compiled application database root seeder.',
+                $factory->databaseSeed(...),
+                $none,
             ),
             new LazyFrameworkCommand(
                 WorkerRunCommand::NAME,

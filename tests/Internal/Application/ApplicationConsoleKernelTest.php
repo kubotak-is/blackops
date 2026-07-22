@@ -50,9 +50,11 @@ final class ApplicationConsoleKernelTest extends TestCase
             'operation:list',
             'make:operation',
             'make:migration',
+            'make:seeder',
             'make:auth',
             'database:status',
             'database:migrate',
+            'database:seed',
             'worker:run',
             'retention:plan',
             'retention:purge',
@@ -90,12 +92,20 @@ final class ApplicationConsoleKernelTest extends TestCase
         ]), $migrationHelp));
         self::assertStringContainsString('PascalCase', $migrationHelp->fetch());
 
+        $seederHelp = new BufferedOutput();
+        self::assertSame(0, $kernel->run(new ArrayInput([
+            'command' => 'help',
+            'command_name' => 'make:seeder',
+        ]), $seederHelp));
+        self::assertStringContainsString('PascalCase', $seederHelp->fetch());
+
         $authHelp = new BufferedOutput();
         self::assertSame(0, $kernel->run(new ArrayInput([
             'command' => 'help',
             'command_name' => 'make:auth',
         ]), $authHelp));
         self::assertStringContainsString('--force', $authHelp->fetch());
+        self::assertDirectoryDoesNotExist($directory . '/app');
     }
 
     public function testRunsApplicationCommand(): void
@@ -219,6 +229,23 @@ final class ApplicationConsoleKernelTest extends TestCase
         $application->console();
     }
 
+    public function testRejectsApplicationCommandsThatConflictWithSeederCommands(): void
+    {
+        foreach ([
+            ConsoleKernelSeederGeneratorConflictingCommand::class,
+            ConsoleKernelSeederConflictingCommand::class,
+        ] as $command) {
+            $application = Application::configure($this->directory())->withCommands([$command])->create();
+
+            try {
+                $application->console();
+                self::fail('Expected framework seeder command collision.');
+            } catch (ApplicationBootstrapException $exception) {
+                self::assertStringContainsString('conflicts with a framework command', $exception->getMessage());
+            }
+        }
+    }
+
     public function testMigrationGeneratorDoesNotResolveDatabaseConfigurationOrBuildArtifacts(): void
     {
         $directory = $this->directory();
@@ -239,6 +266,42 @@ final class ApplicationConsoleKernelTest extends TestCase
         self::assertStringContainsString('Created: migrations/Version', $output->fetch());
         self::assertCount(1, glob($directory . '/migrations/Version*.php') ?: []);
         self::assertDirectoryDoesNotExist($directory . '/var/build');
+    }
+
+    public function testSeederGeneratorDoesNotResolveDatabaseConfigurationOrBuildArtifacts(): void
+    {
+        $directory = $this->directory();
+        $config = $directory . '/config';
+        mkdir($config);
+        $this->writeConfig(
+            $config,
+            'database',
+            "return ['connection' => ['driver' => 'not-a-driver'], 'schema' => 'invalid-schema'];",
+        );
+        $application = Application::configure($directory)->withConfiguration()->create();
+        $output = new BufferedOutput();
+
+        self::assertSame(0, $application->console()->run(new ArrayInput([
+            'command' => 'make:seeder',
+            'name' => 'DatabaseSeeder',
+        ]), $output));
+        self::assertSame("Created: app/Infrastructure/Seed/DatabaseSeeder.php\n", $output->fetch());
+        self::assertFileExists($directory . '/app/Infrastructure/Seed/DatabaseSeeder.php');
+        self::assertDirectoryDoesNotExist($directory . '/var/build');
+    }
+
+    public function testDatabaseSeedMissingArtifactsReturnsOwnedFailureWithoutImplicitBuild(): void
+    {
+        $directory = $this->directory();
+        $application = Application::configure($directory)->create();
+        $output = new BufferedOutput();
+
+        self::assertSame(1, $application->console()->run(new ArrayInput([
+            'command' => 'database:seed',
+        ]), $output));
+        self::assertSame("Database seeding artifacts are unavailable.\n", $output->fetch());
+        self::assertDirectoryDoesNotExist($directory . '/var');
+        self::assertDirectoryDoesNotExist($directory . '/migrations');
     }
 
     public function testGeneratedOperationCompilesWithApplicationBuild(): void
@@ -412,6 +475,24 @@ final class ConsoleKernelAuthGeneratorConflictingCommand extends Command
     public function __construct()
     {
         parent::__construct('make:auth');
+    }
+}
+
+/** @mago-expect lint:single-class-per-file */
+final class ConsoleKernelSeederGeneratorConflictingCommand extends Command
+{
+    public function __construct()
+    {
+        parent::__construct('make:seeder');
+    }
+}
+
+/** @mago-expect lint:single-class-per-file */
+final class ConsoleKernelSeederConflictingCommand extends Command
+{
+    public function __construct()
+    {
+        parent::__construct('database:seed');
     }
 }
 

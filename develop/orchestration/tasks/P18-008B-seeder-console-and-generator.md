@@ -1,6 +1,6 @@
 # P18-008B: Seeder Console and Generator
 
-Status: Planned
+Status: Accepted
 
 ## Goal
 
@@ -58,16 +58,16 @@ Framework-owned `database:seed`と`make:seeder`をProject Consoleへ追加する
 
 ## Acceptance Criteria
 
-- [ ] `database:seed`がFramework Built-inとして常時一覧に現れる
-- [ ] Fresh ContainerのRootを一度実行し、固定成功Message／Exit 0を返す
-- [ ] Unconfigured／Artifact／Resolution／Seeder FailureがSafe Message／Exit 1になる
-- [ ] Migration／Build／HTTP／Workerを暗黙実行しない
-- [ ] `make:seeder`がRoot／Nested Classを正しいPath／Namespaceへ生成する
-- [ ] Invalid Input、Traversal、Symlink、Collision、Write Failureで既存Fileを変更しない
-- [ ] Framework Update後もProject Entrypoint不変で新Command／Stubを利用できる
-- [ ] Existing Command Discovery／Operation Console／Migration／Generatorが回帰しない
-- [ ] Full PHPUnit、Mago、Deptrac、Consumer／Guardが成功する
-- [ ] Example／公開Documentation／外部Publication差分なし、Worker Commitなし
+- [x] `database:seed`がFramework Built-inとして常時一覧に現れる
+- [x] Fresh ContainerのRootを一度実行し、固定成功Message／Exit 0を返す
+- [x] Unconfigured／Artifact／Resolution／Seeder FailureがSafe Message／Exit 1になる
+- [x] Migration／Build／HTTP／Workerを暗黙実行しない
+- [x] `make:seeder`がRoot／Nested Classを正しいPath／Namespaceへ生成する
+- [x] Invalid Input、Traversal、Symlink、Collision、Write Failureで既存Fileを変更しない
+- [x] Framework Update後もProject Entrypoint不変で新Command／Stubを利用できる
+- [x] Existing Command Discovery／Operation Console／Migration／Generatorが回帰しない
+- [x] Full PHPUnit、Mago、Deptrac、Consumer／Guardが成功する
+- [x] Example／公開Documentation／外部Publication差分なし、Worker Commitなし
 
 ## Required Commands
 

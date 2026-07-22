@@ -241,6 +241,8 @@ cmp "${current_stubs}/operation.php.stub" \
     "${consumer_root}/vendor/blackops/framework/resources/stubs/operation.php.stub"
 cmp "${current_stubs}/migration.php.stub" \
     "${consumer_root}/vendor/blackops/framework/resources/stubs/migration.php.stub"
+cmp "${current_stubs}/seeder.php.stub" \
+    "${consumer_root}/vendor/blackops/framework/resources/stubs/seeder.php.stub"
 cmp "${current_stubs}/auth-config.php.stub" \
     "${consumer_root}/vendor/blackops/framework/resources/stubs/auth-config.php.stub"
 cmp "${current_stubs}/auth-register.php.stub" \
@@ -251,14 +253,20 @@ cmp "${repository_root}/src/Internal/Console/MakeMigrationCommand.php" \
     "${consumer_root}/vendor/blackops/framework/src/Internal/Console/MakeMigrationCommand.php"
 cmp "${repository_root}/src/Internal/Console/MakeAuthCommand.php" \
     "${consumer_root}/vendor/blackops/framework/src/Internal/Console/MakeAuthCommand.php"
+cmp "${repository_root}/src/Internal/Console/MakeSeederCommand.php" \
+    "${consumer_root}/vendor/blackops/framework/src/Internal/Console/MakeSeederCommand.php"
 cmp "${repository_root}/src/Internal/Generator/AuthGenerator.php" \
     "${consumer_root}/vendor/blackops/framework/src/Internal/Generator/AuthGenerator.php"
+cmp "${repository_root}/src/Internal/Generator/SeederGenerator.php" \
+    "${consumer_root}/vendor/blackops/framework/src/Internal/Generator/SeederGenerator.php"
 
 run_php blackops make:operation Upgrade/AfterUpdate --type=upgrade.after \
     > "${temporary_root}/after-operation.out"
 sleep 1
 run_php blackops make:migration AfterUpdateSchema \
     > "${temporary_root}/after-migration.out"
+run_php blackops make:seeder Upgrade/AfterUpdateSeeder \
+    > "${temporary_root}/after-seeder.out"
 
 ! grep -q 'Legacy Created:' "${temporary_root}/after-operation.out" "${temporary_root}/after-migration.out"
 grep -q '^Created: app/Feature/Upgrade/AfterUpdate/AfterUpdate.php$' \
@@ -269,15 +277,21 @@ grep -q '^Created: app/Feature/Upgrade/AfterUpdate/AfterUpdateOutcome.php$' \
     "${temporary_root}/after-operation.out"
 grep -Eq '^Created: migrations/Version[0-9]{14}\.php$' \
     "${temporary_root}/after-migration.out"
+grep -q '^Created: app/Infrastructure/Seed/Upgrade/AfterUpdateSeeder.php$' \
+    "${temporary_root}/after-seeder.out"
 
 after_operation_directory="${consumer_root}/app/Feature/Upgrade/AfterUpdate"
 after_migration_relative="$(sed -n 's/^Created: //p' "${temporary_root}/after-migration.out")"
 after_migration="${consumer_root}/${after_migration_relative}"
+after_seeder="${consumer_root}/app/Infrastructure/Seed/Upgrade/AfterUpdateSeeder.php"
 test -n "${after_migration}"
 ! grep -R -q 'Legacy fixture stub' "${after_operation_directory}" "${after_migration}"
 grep -q "#\[OperationType('upgrade.after')\]" "${after_operation_directory}/AfterUpdate.php"
 grep -q 'handle(AfterUpdateValue \$value): AfterUpdateOutcome' "${after_operation_directory}/AfterUpdate.php"
 grep -q "return 'AfterUpdateSchema';" "${after_migration}"
+grep -q 'namespace App\\Infrastructure\\Seed\\Upgrade;' "${after_seeder}"
+grep -q 'final readonly class AfterUpdateSeeder implements Seeder' "${after_seeder}"
+grep -q 'public function run(): void {}' "${after_seeder}"
 
 run_php blackops make:auth > "${temporary_root}/after-auth.out"
 test "$(grep -c '^Created: ' "${temporary_root}/after-auth.out")" = '27'

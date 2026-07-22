@@ -9,11 +9,13 @@ use BlackOps\Internal\Console\ApplicationBuildCompileCommand;
 use BlackOps\Internal\Console\ApplicationOperationListCommand;
 use BlackOps\Internal\Console\DatabaseMigrationMigrateCommand;
 use BlackOps\Internal\Console\DatabaseMigrationStatusCommand;
+use BlackOps\Internal\Console\DatabaseSeedCommand;
 use BlackOps\Internal\Console\FrontendCheckCommand;
 use BlackOps\Internal\Console\FrontendGenerateCommand;
 use BlackOps\Internal\Console\MakeAuthCommand;
 use BlackOps\Internal\Console\MakeMigrationCommand;
 use BlackOps\Internal\Console\MakeOperationCommand;
+use BlackOps\Internal\Console\MakeSeederCommand;
 use BlackOps\Internal\Console\OperationInspectCommand;
 use BlackOps\Internal\Console\OperationViewerCommand;
 use BlackOps\Internal\Console\WorkerRunCommand;
@@ -23,6 +25,7 @@ use BlackOps\Internal\Diagnostics\Viewer\OperationViewerTokens;
 use BlackOps\Internal\Generator\AuthGenerator;
 use BlackOps\Internal\Generator\MigrationGenerator;
 use BlackOps\Internal\Generator\OperationGenerator;
+use BlackOps\Internal\Generator\SeederGenerator;
 use BlackOps\Internal\Migration\DatabaseMigrationRunner;
 use Symfony\Component\Console\Command\Command;
 
@@ -57,6 +60,13 @@ final class ApplicationConsoleCommandFactory
         );
     }
 
+    public function makeSeeder(): Command
+    {
+        return new MakeSeederCommand(
+            new SeederGenerator($this->configuration->basePath(), dirname(__DIR__, levels: 3) . '/resources/stubs'),
+        );
+    }
+
     public function makeAuth(): Command
     {
         return new MakeAuthCommand(
@@ -82,6 +92,11 @@ final class ApplicationConsoleCommandFactory
     public function databaseMigrate(): Command
     {
         return new DatabaseMigrationMigrateCommand($this->migrationRunner());
+    }
+
+    public function databaseSeed(): Command
+    {
+        return new DatabaseSeedCommand(fn() => new ApplicationSeederRuntimeResolver()->resolve($this->configuration));
     }
 
     public function worker(): Command

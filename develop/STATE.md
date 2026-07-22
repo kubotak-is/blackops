@@ -1,28 +1,28 @@
 # Orchestration State
 
-Updated At: 2026-07-22T22:55:10+09:00
+Updated At: 2026-07-22T23:16:09+09:00
 
 ## Current Phase
 
-Post-Phase 18 Application Ergonomics Follow-up - P18-008A Accepted
+Post-Phase 18 Application Ergonomics Follow-up - P18-008B Accepted
 
 ## Current Task
 
-Task ID: P18-008A Seeder Core and Build Discovery
+Task ID: P18-008C Seeder Consumer Adoption and Follow-up Closeout
 
-Task Packet: `develop/orchestration/tasks/P18-008A-seeder-core-and-build-discovery.md`
+Task Packet: `develop/orchestration/tasks/P18-008C-seeder-consumer-adoption-and-closeout.md`
 
 Specifications: `develop/spec/76-database-seeding.md`、`develop/spec/77-phase-18-follow-up-delivery-plan.md`
 
 ## Task Status
 
-Accepted
+Planned
 
-P18-008AをAcceptedとした。Public `Seeder`／`SeederRunner`、標準／明示Configuration、Build-only Discovery、Private Compiled Locator、Root Runtime、Ordered／Nested／Cycle／Safe Failureを実装した。Orchestrator Reviewで未解決Seeder DIによるArtifact順序不整合を修正し、6種の既存Artifact保持を固定した。Orchestrator Focused 17 tests／78 assertions、Full PHPUnit 1,679 tests／6,751 assertions、Mago、Deptrac 0 violations／2,820 allowed、Composer Strict、Management ID／Runtime Scan／diff Guardが成功した。
+P18-008BをOrchestrator Reviewと独立Quality Gate後にAcceptedとした。次はQuickstart／Skeleton／Community BoardをFramework Database Seederへ移行し、Community BoardのSeeder用Symfony Commandと不要なDirect Dependencyを削除する。
 
 ## Last Accepted Task
 
-P18-008A-seeder-core-and-build-discovery
+P18-008B-seeder-console-and-generator
 
 ## Pending Decisions
 
@@ -64,9 +64,23 @@ Active Implementation Blockerはない。Current SchemaとMigration Schemaが一
 
 ## Required Next Action
 
-1. P18-008Aを実装単位でCommitする。
-2. GPT-5.6 Luna High workerへP18-008B Seeder Console and Generatorを依頼する。
-3. P18-008B Accepted後にP18-008Cを実装し、その後Phase 19へ進む。
+1. P18-008Bを意味のある単位でCommitする。
+2. P18-008Cを開始し、Quickstart／Skeleton／Community BoardをFramework Database Seederへ移行する。
+3. Consumer／Frontend／Website／Package Exportを回帰し、残Composer Dependencyの所有境界をReportする。
+
+## P18-008B Seeder Console and Generator Orchestrator Verification
+
+```text
+Console: Framework Built-in database:seed／make:seederを常時登録。List／HelpではContainer、Database、Seed Source、Stubを解決せず、実行時だけFactoryから実Commandを生成する。
+
+Freshness／Failure: Compiled ContainerへApplication Build IDを固定し、Accepted Configurationと一致する場合だけRootを解決する。Success／Unconfigured／Artifact／Resolution／Seeder Failureは固定Message／Exitへ閉じ、-vvvでもApplication Throwable、SQL、Seed Valueを露出しない。
+
+Generator: Root／Nested PascalCaseをFramework-owned Stubから標準Path／Namespaceへ生成。Traversal、Existing Target、Symlink Ancestor、Write／Publish Race、Stub Read RaceをAtomic／No-overwrite境界で拒否する。
+
+Quality: Orchestrator Focused 41 tests／143 assertions、Full PHPUnit 1,706 tests／6,828 assertions、Mago Format／Lint／Analyze、Deptrac 0 violations／2,839 allowed、Composer Strict、Framework Update Consumer、Management ID／Runtime Scan／Scope／diff Guard成功。Example／公開Documentation／外部Publication差分なし、Worker Commitなし。
+```
+
+詳細は`develop/orchestration/reports/P18-008B-seeder-console-and-generator.md`を参照する。
 
 ## P18-008A Seeder Core and Build Discovery Orchestrator Verification
 

@@ -31,6 +31,8 @@ Console Command、Generator、Example Sourceは変更しない。
 
 ## P18-008B: Seeder Console and Generator
 
+Status: Accepted.
+
 - Built-in `database:seed`をFramework Console Kernelへ追加する
 - Safe Output、Exit Code、Verbosity、Lazy Dependency境界を実装する
 - `make:seeder <Name>`、Nested Name、Stub、Atomic／No-overwrite Safetyを実装する
@@ -66,8 +68,8 @@ Seeder以外のDotenv、HTTP Runtime、UUID、DBAL／Migrations Wrapperは変更
 
 - [x] D113とDatabase Seeding仕様がDecidedである
 - [x] Public Seeder API、Build-time Discovery、Compiled Locator、Cycle Guardが実装される
-- [ ] `database:seed`がFramework-owned Safe Commandとして動く
-- [ ] `make:seeder`が安全にRoot／Nested Seederを生成する
+- [x] `database:seed`がFramework-owned Safe Commandとして動く
+- [x] `make:seeder`が安全にRoot／Nested Seederを生成する
 - [ ] Quickstart／SkeletonがInstall直後と同じSeeder Layoutを持つ
 - [ ] Community BoardがSeeder用Application Commandを持たず、Seed Journeyを回帰する
 - [ ] Community Boardの`symfony/console` Direct Dependencyを削除できる

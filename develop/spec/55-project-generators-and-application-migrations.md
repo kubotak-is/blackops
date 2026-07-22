@@ -90,6 +90,8 @@ HTTP、Worker、Scheduler、Build、Consoleの`list`／`help`はApplication Migr
 
 Seeder GeneratorはFile生成だけを行い、Configuration変更、Database接続、Migration、Build、Seed実行、Composer Dump-autoloadを行わない。入力、Nested Path、既存File、Symlink、Atomic Write、Stub OwnershipはOperation／Migration Generatorと同じFile Safety Contractを使う。Seeder RuntimeとCommandの正本は[Database Seeding](76-database-seeding.md)とする。
 
+成功時は生成したProject Relative Pathを`Created: <path>`として一行だけ表示する。Framework Update後もProject所有`blackops`を変更せず、更新済みFramework Packageの`make:seeder`と`seeder.php.stub`を利用する。
+
 ## File Safety
 
 Generatorはすべての入力、Target Path、既存File衝突をWrite前に検証する。Operationの3 Targetの一つでも存在する場合は何も変更しない。初期Versionでは`--force`を提供しない。
