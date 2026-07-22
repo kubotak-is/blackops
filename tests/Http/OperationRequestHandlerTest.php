@@ -7,6 +7,7 @@ namespace BlackOps\Tests\Http;
 use BlackOps\Core\ActorContext;
 use BlackOps\Core\ActorRef;
 use BlackOps\Core\EmptyOutcome;
+use BlackOps\Core\EphemeralOutcome;
 use BlackOps\Core\Execution\Inline;
 use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Core\Operation;
@@ -180,6 +181,61 @@ final class OperationRequestHandlerTest extends TestCase
 
         self::assertSame(200, $response->getStatusCode());
         self::assertSame('{}', (string) $response->getBody());
+    }
+
+    public function testEphemeralOutcomeReturnsExactJsonAndEmptyEphemeralOutcomeReturnsObject(): void
+    {
+        foreach ([
+            [new HttpEphemeralOutcome('raw-secret-must-not-appear'), '{"token":"raw-secret-must-not-appear"}'],
+            [new EmptyHttpEphemeralOutcome(), '{}'],
+        ] as [$outcome, $expected]) {
+            $handler = new OperationRequestHandler(
+                new HttpRouteRegistry([new HttpOperationRoute(
+                    'GET',
+                    '/welcome',
+                    new ShowWelcome(),
+                    WelcomeValue::class,
+                    $outcome::class,
+                    true,
+                )]),
+                new OperationValueBinder(),
+                new FixedDispatcher(OperationResult::completed($outcome)),
+                new JsonOperationResponder($this->psr17, $this->psr17),
+                $this->psr17,
+                new NoopValidationRejectionRecorder(),
+            );
+
+            $response = $handler->handle($this->request('GET', '/welcome'));
+            self::assertSame(200, $response->getStatusCode());
+            self::assertSame($expected, (string) $response->getBody());
+        }
+    }
+
+    public function testHttpManifestMismatchFailsWithoutDumpingEphemeralValue(): void
+    {
+        $handler = new OperationRequestHandler(
+            new HttpRouteRegistry([new HttpOperationRoute(
+                'GET',
+                '/welcome',
+                new ShowWelcome(),
+                WelcomeValue::class,
+                WelcomeShown::class,
+                false,
+            )]),
+            new OperationValueBinder(),
+            new FixedDispatcher(OperationResult::completed(new HttpEphemeralOutcome('raw-secret-must-not-appear'))),
+            new JsonOperationResponder($this->psr17, $this->psr17),
+            $this->psr17,
+            new NoopValidationRejectionRecorder(),
+        );
+
+        try {
+            $handler->handle($this->request('GET', '/welcome'));
+            self::fail('Expected HTTP manifest mismatch.');
+        } catch (\RuntimeException $exception) {
+            self::assertStringContainsString('manifest contract', $exception->getMessage());
+            self::assertStringNotContainsString('raw-secret-must-not-appear', $exception->getMessage());
+        }
     }
 
     public function testAuthenticatedRequestActorIsPassedAsCompleteActorContext(): void
@@ -648,6 +704,16 @@ final readonly class WelcomeShown implements Outcome
 }
 
 final readonly class ZeroFieldOutcomeFixture implements Outcome {}
+
+final readonly class HttpEphemeralOutcome implements EphemeralOutcome
+{
+    public function __construct(
+        #[\BlackOps\Core\Attribute\Sensitive]
+        public string $token,
+    ) {}
+}
+
+final readonly class EmptyHttpEphemeralOutcome implements EphemeralOutcome {}
 
 /** @implements OperationHandler<WelcomeValue, WelcomeShown> */
 final readonly class WelcomeHandler implements OperationHandler

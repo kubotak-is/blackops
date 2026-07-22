@@ -8,6 +8,7 @@ use BlackOps\Console\ConsoleActorProvider;
 use BlackOps\Core\ActorContext;
 use BlackOps\Core\ActorRef;
 use BlackOps\Core\EmptyOutcome;
+use BlackOps\Core\EphemeralOutcome;
 use BlackOps\Core\Execution\Deferred;
 use BlackOps\Core\Execution\DeferredAcknowledgement;
 use BlackOps\Core\Operation;
@@ -28,6 +29,7 @@ use BlackOps\Outcome\Internal\StructuredOutcomeNormalizer;
 use Psr\Container\ContainerInterface;
 use Throwable;
 
+/** @mago-expect lint:cyclomatic-complexity */
 final readonly class OperationConsoleRuntime
 {
     /** @mago-expect lint:excessive-parameter-list */
@@ -93,6 +95,9 @@ final readonly class OperationConsoleRuntime
         $metadata = $this->operations->findByTypeId($command->typeId) ?? throw new \LogicException(
             'Operation console definition is unavailable.',
         );
+        if (is_a($metadata->outcome, EphemeralOutcome::class, allow_string: true)) {
+            throw new \LogicException('Ephemeral operations are unavailable through the console runtime.');
+        }
 
         return new OperationDefinitionFactory()->fromMetadata(
             $metadata,

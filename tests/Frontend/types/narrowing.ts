@@ -9,6 +9,10 @@ import {
   type GenerateReportWaitResult,
 } from '../fixture/resources/js/blackops/operations/report/generate-report';
 import {
+  IssueCredential,
+  type IssueCredentialResult,
+} from '../fixture/resources/js/blackops/operations/identity/credential/issue-credential';
+import {
   createBlackOpsClient,
   CreateOrder as RootCreateOrder,
   type OperationFetchResponse,
@@ -50,6 +54,15 @@ function acceptDeferred(result: GenerateReportResult): string {
     return `${kind}:${status}:${result.data.operationId}`;
   }
 
+  return `${result.kind}:${result.status}`;
+}
+
+function acceptEphemeral(result: IssueCredentialResult): string {
+  if (result.ok) {
+    const status: 200 = result.status;
+    const token: string = result.data.token;
+    return `${status}:${token}:${result.data.expiresAt}`;
+  }
   return `${result.kind}:${result.status}`;
 }
 
@@ -210,6 +223,14 @@ void blackops.GenerateReport.wait('01912345-6789-7abc-8def-0123456789ab', {
   signal: waitSignal,
   maxWaitMilliseconds: 30_000,
 });
+void blackops.IssueCredential.fetch({ identity: 'user-1', password: 'type-only-secret' });
+// @ts-expect-error ephemeral bound operations do not expose status
+void blackops.IssueCredential.status('01912345-6789-7abc-8def-0123456789ab');
+// @ts-expect-error ephemeral bound operations do not expose wait
+void blackops.IssueCredential.wait('01912345-6789-7abc-8def-0123456789ab', {
+  signal: waitSignal,
+  maxWaitMilliseconds: 30_000,
+});
 const rootType: 'order.create' = RootCreateOrder.type;
 // @ts-expect-error bound calls cannot replace the factory fetch
 void blackops.CreateOrder.fetch(orderValue, { fetch: eventFetch });
@@ -230,8 +251,14 @@ void CreateOrder.wait;
 void GenerateReport.fetch;
 void GenerateReport.status;
 void GenerateReport.wait;
+void IssueCredential.fetch;
+// @ts-expect-error ephemeral operations do not expose status
+void IssueCredential.status;
+// @ts-expect-error ephemeral operations do not expose wait
+void IssueCredential.wait;
 void acceptInline;
 void acceptDeferred;
+void acceptEphemeral;
 void acceptStatus;
 void acceptWait;
 void acceptEmptyOutcome;

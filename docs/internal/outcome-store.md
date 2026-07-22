@@ -33,6 +33,8 @@ commit
 
 Rejected and supervised failure paths never call the outcome writer. Existing canonical journal outcome data remains unchanged and is independent from outcome-table retention.
 
+`EphemeralOutcome` is never a store input in a valid runtime graph. Inline completion records an `EmptyOutcome` while returning the actual object only to the direct caller. The PostgreSQL codec also rejects an actual `EphemeralOutcome` defensively, so a manually composed or corrupted path cannot create an outcome row.
+
 ## Retention transaction
 
 `PostgreSqlRetentionPlanner` selects outcome rows by `completed_at + outcome retention <= now` and excludes any operation with an active hold. `PostgreSqlOutcomeRetentionDeleteService` checks the hold again in its delete statement to close the plan-to-execution race.

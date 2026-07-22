@@ -39,6 +39,9 @@ final readonly class DefaultOperationStatusQuery implements OperationStatusQuery
         }
 
         $detail = $this->readDetail($subject);
+        if ($detail instanceof OperationStatusDetailUnavailable) {
+            return new OperationStatusUnavailable();
+        }
         if ($detail instanceof OperationStatusDetailExpired) {
             return new OperationStatusExpired();
         }

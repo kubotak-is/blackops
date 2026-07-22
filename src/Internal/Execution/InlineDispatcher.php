@@ -67,6 +67,7 @@ final readonly class InlineDispatcher implements Dispatcher, ValidationRejection
         ?JournalObservationPipeline $observations = null,
         private ExecutionScopeProvider $scope = new ExecutionScopeProvider(),
         private HandlerInvoker $invoker = new HandlerInvoker(),
+        private EphemeralOutcomeRuntimeValidator $ephemeralOutcomes = new EphemeralOutcomeRuntimeValidator(),
         private ?AuthorizationEvaluator $authorization = null,
         private ?OperationTransactionCoordinator $transactions = null,
         ?OperationMetadataResolver $metadataResolver = null,
@@ -366,7 +367,10 @@ final readonly class InlineDispatcher implements Dispatcher, ValidationRejection
         \BlackOps\Core\ExecutionContext $context,
     ): OperationResult {
         try {
-            return $this->invoker->invoke($metadata, $handler, $envelope, $context);
+            $result = $this->invoker->invoke($metadata, $handler, $envelope, $context);
+            $this->ephemeralOutcomes->validate($metadata, $result);
+
+            return $result;
         } catch (OperationRejectedException $rejected) {
             return OperationResult::rejected($rejected->reason(), $envelope->id());
         }

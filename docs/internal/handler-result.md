@@ -8,6 +8,8 @@
 
 標準形では具象Outcomeを直接returnする。`void` ReturnはFrameworkがEmptyOutcomeへ変換する。`OperationResult::completed()`はLegacy Self-handledとSeparate Handlerの互換APIとして維持する。
 
+`EphemeralOutcome`もInvokerでは通常のCompleted Resultへ正規化する。Runtime ValidatorはDeclared Classとの完全一致、Structured Shape、JSON Encoding可能性をTransaction Commit前に検査する。失敗はRaw Property値やThrowable Detailを含まない`OperationExecutionFailed`へ閉じ、Transactional Operationの業務更新と成功TerminalをRollbackする。
+
 ## Rejected
 
 標準形では `OperationRejectedException::validation()` 等をthrowする。`OperationResult::rejected($reason)`はLegacy互換APIである。

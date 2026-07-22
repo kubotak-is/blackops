@@ -6,11 +6,13 @@ namespace BlackOps\Internal\Registry;
 
 use BlackOps\Core\Attribute\Accepts;
 use BlackOps\Core\Attribute\Authorize;
+use BlackOps\Core\Attribute\ConsoleCommand;
 use BlackOps\Core\Attribute\ExecuteWith;
 use BlackOps\Core\Attribute\HandledBy;
 use BlackOps\Core\Attribute\OperationType;
 use BlackOps\Core\Attribute\Returns;
 use BlackOps\Core\Authorization\AuthorizationPolicy;
+use BlackOps\Core\EphemeralOutcome;
 use BlackOps\Core\Execution\ExecutionStrategy;
 use BlackOps\Core\Execution\Inline;
 use BlackOps\Core\Operation;
@@ -18,6 +20,7 @@ use BlackOps\Core\OperationValue;
 use BlackOps\Core\Outcome;
 use BlackOps\Core\Registry\OperationMetadata;
 use BlackOps\Database\Attribute\Transactional;
+use BlackOps\Http\Attribute\Route;
 use InvalidArgumentException;
 use ReflectionClass;
 
@@ -29,6 +32,7 @@ final readonly class OperationMetadataCompiler
         ?OperationValueOutcomeCompiler $valueOutcomes = null,
         private ?string $defaultTransactionConnection = null,
         private array $knownTransactionConnections = [],
+        private EphemeralOutcomeContractCompiler $ephemeralOutcomes = new EphemeralOutcomeContractCompiler(),
     ) {
         $this->valueOutcomes = $valueOutcomes ?? new OperationValueOutcomeCompiler($this->handlers);
     }
@@ -85,6 +89,10 @@ final readonly class OperationMetadataCompiler
             $this->assertImplements($authorizationPolicy, AuthorizationPolicy::class);
         }
         $transactionConnection = $this->transactionConnection($reflection, $handler);
+        $ephemeral = is_a($outcome, EphemeralOutcome::class, allow_string: true);
+        if ($ephemeral) {
+            $this->assertEphemeralOperation($reflection, $outcome, $strategyAttributes, $strategy);
+        }
 
         return new OperationMetadata(
             $type->id,
@@ -99,6 +107,32 @@ final readonly class OperationMetadataCompiler
             $authorizationPolicy,
             $transactionConnection,
         );
+    }
+
+    /**
+     * @param ReflectionClass<Operation> $definition
+     * @param class-string<\BlackOps\Core\Outcome> $outcome
+     * @param list<\ReflectionAttribute<ExecuteWith>> $strategyAttributes
+     */
+    private function assertEphemeralOperation(
+        ReflectionClass $definition,
+        string $outcome,
+        array $strategyAttributes,
+        string $strategy,
+    ): void {
+        $routes = $definition->getAttributes(Route::class);
+        if (count($routes) !== 1) {
+            throw new InvalidArgumentException('Ephemeral operation requires exactly one HTTP Route.');
+        }
+        if (count($strategyAttributes) !== 1 || $strategy !== Inline::class) {
+            throw new InvalidArgumentException('Ephemeral operation requires an explicit Inline execution strategy.');
+        }
+        if ($definition->getAttributes(ConsoleCommand::class) !== []) {
+            throw new InvalidArgumentException('Ephemeral operation must not declare ConsoleCommand.');
+        }
+
+        /** @var class-string<EphemeralOutcome> $outcome */
+        $this->ephemeralOutcomes->compile($outcome);
     }
 
     /** @param ReflectionClass<Operation> $definition @param class-string $handler */

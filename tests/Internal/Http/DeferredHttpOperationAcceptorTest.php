@@ -6,6 +6,7 @@ namespace BlackOps\Tests\Internal\Http;
 
 use BlackOps\Core\Codec\OperationCodec;
 use BlackOps\Core\EmptyOutcome;
+use BlackOps\Core\EphemeralOutcome;
 use BlackOps\Core\Execution\Deferred;
 use BlackOps\Core\Execution\Inline;
 use BlackOps\Core\Operation;
@@ -51,6 +52,26 @@ final class DeferredHttpOperationAcceptorTest extends TestCase
         ]));
 
         self::assertTrue($acceptor->accepts(new ProxiedAcceptorOperation()));
+    }
+
+    public function testRejectsTamperedEphemeralDeferredMetadataBeforeEncoding(): void
+    {
+        $operation = new AcceptorOperation();
+        $metadata = new OperationMetadata(
+            'acceptor.ephemeral',
+            AcceptorOperation::class,
+            AcceptorValue::class,
+            AcceptorOperation::class,
+            AcceptorEphemeralOutcome::class,
+            Deferred::class,
+        );
+        $acceptor = $this->acceptor(new OperationRegistry([$metadata]));
+
+        self::assertFalse($acceptor->accepts($operation));
+
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage('Ephemeral operations cannot use deferred execution.');
+        $acceptor->accept($operation, new AcceptorValue());
     }
 
     private function acceptor(OperationRegistry $registry): DeferredHttpOperationAcceptor
@@ -117,3 +138,5 @@ final readonly class OtherAcceptorOperation implements Operation {}
 final readonly class MissingAcceptorOperation implements Operation {}
 
 final readonly class AcceptorValue implements OperationValue {}
+
+final readonly class AcceptorEphemeralOutcome implements EphemeralOutcome {}

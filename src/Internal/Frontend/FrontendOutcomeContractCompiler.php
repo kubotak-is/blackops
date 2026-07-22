@@ -18,14 +18,17 @@ final readonly class FrontendOutcomeContractCompiler
     ) {}
 
     /** @param class-string<Outcome> $outcome */
-    public function compile(string $outcome): FrontendOutcomeContract
+    /** @mago-expect lint:no-boolean-flag-parameter */
+    public function compile(string $outcome, bool $ephemeral = false): FrontendOutcomeContract
     {
         if ($outcome === EmptyOutcome::class) {
             return new FrontendOutcomeContract($outcome, 'void', []);
         }
 
         $shape = $this->outcomes->compile($outcome);
-        $this->assertNotSensitive($shape, $outcome);
+        if (!$ephemeral) {
+            $this->assertNotSensitive($shape, $outcome);
+        }
         $this->assertUniqueDtoNames($shape);
         $fields = array_values(array_map($this->field(...), $shape->fields));
 

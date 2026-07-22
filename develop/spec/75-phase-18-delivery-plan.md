@@ -93,7 +93,7 @@ Status: Accepted.
 
 ## P18-006B: Ephemeral Outcome Contract
 
-Status: Ready.
+Status: Accepted.
 
 - Public `EphemeralOutcome extends Outcome` Markerを追加する
 - Route付き明示Inlineだけを許可し、Deferred／Console／Status／Wait／Outcome Storeを拒否する

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BlackOps\Transport\PostgreSql;
 
+use BlackOps\Core\EphemeralOutcome;
 use BlackOps\Core\Identifier\AttemptId;
 use BlackOps\Core\OperationValue;
 use BlackOps\Core\Outcome;
@@ -41,6 +42,9 @@ final readonly class PostgreSqlJournalDataCodec
         }
 
         if ($data instanceof OperationCompletedData) {
+            if ($data->outcome instanceof EphemeralOutcome) {
+                throw new RuntimeException('Ephemeral outcomes cannot be encoded in canonical journal data.');
+            }
             return ['class' => OperationCompletedData::class, 'value' => $this->values->encode($data->outcome)];
         }
 

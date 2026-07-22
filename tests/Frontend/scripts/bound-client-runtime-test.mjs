@@ -9,7 +9,7 @@ globalThis.fetch = async () => {
   throw new Error('Generated root modules must not fetch during import.');
 };
 
-const { createBlackOpsClient, CreateOrder, GenerateReport } = require('../.build/runtime/index.js');
+const { createBlackOpsClient, CreateOrder, GenerateReport, IssueCredential } = require('../.build/runtime/index.js');
 const { buildOperationRequest } = require('../.build/runtime/client.js');
 assert.equal(importFetchCalls, 0);
 
@@ -110,8 +110,12 @@ clientOptions.fetch = async () => {
 assert.ok(Object.isFrozen(blackops));
 assert.ok(Object.isFrozen(blackops.CreateOrder));
 assert.ok(Object.isFrozen(blackops.GenerateReport));
+assert.ok(Object.isFrozen(blackops.IssueCredential));
 assert.equal(blackops.CreateOrder.type, CreateOrder.type);
 assert.equal(blackops.GenerateReport.type, GenerateReport.type);
+assert.equal(blackops.IssueCredential.type, IssueCredential.type);
+assert.equal(Object.hasOwn(blackops.IssueCredential, 'status'), false);
+assert.equal(Object.hasOwn(blackops.IssueCredential, 'wait'), false);
 assert.equal(
   blackops.CreateOrder.url({ accountId: 42, active: true, filter: 'open' }),
   'https://api.example.test/v1/accounts/42/orders?active=true&q=open',

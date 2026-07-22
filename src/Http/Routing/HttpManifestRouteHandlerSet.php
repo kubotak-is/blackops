@@ -10,7 +10,7 @@ final readonly class HttpManifestRouteHandlerSet
 {
     /**
      * @param array<string, array<string, string>> $routes
-     * @param array<string, array<string, string>> $operations
+     * @param array<string, array<string, string|bool>> $operations
      *
      * @return array<string, true>
      */

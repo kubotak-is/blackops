@@ -6,12 +6,17 @@ namespace BlackOps\Tests\Internal\Registry;
 
 use BlackOps\Core\Attribute\Accepts;
 use BlackOps\Core\Attribute\Authorize;
+use BlackOps\Core\Attribute\ExecuteWith;
 use BlackOps\Core\Attribute\OperationType;
 use BlackOps\Core\Attribute\Returns;
+use BlackOps\Core\Attribute\Sensitive;
 use BlackOps\Core\Authorization\AuthorizationDecision;
 use BlackOps\Core\Authorization\AuthorizationPolicy;
 use BlackOps\Core\Authorization\AuthorizationRequest;
 use BlackOps\Core\EmptyOutcome;
+use BlackOps\Core\EphemeralOutcome;
+use BlackOps\Core\Execution\Deferred;
+use BlackOps\Core\Execution\Inline;
 use BlackOps\Core\ExecutionContext;
 use BlackOps\Core\Operation;
 use BlackOps\Core\OperationResult;
@@ -19,6 +24,7 @@ use BlackOps\Core\OperationValue;
 use BlackOps\Core\Outcome;
 use BlackOps\Core\Registry\OperationRegistry;
 use BlackOps\Database\Attribute\Transactional;
+use BlackOps\Http\Attribute\Route;
 use BlackOps\Internal\Registry\OperationManifestMetadataCodec;
 use BlackOps\Internal\Registry\OperationMetadataCompiler;
 use InvalidArgumentException;
@@ -172,6 +178,48 @@ final class OperationManifestMetadataCodecTest extends TestCase
         new OperationManifestMetadataCodec()->decode($data);
     }
 
+    public function testRejectsMissingOrTamperedEphemeralFlag(): void
+    {
+        foreach ([null, true] as $flag) {
+            $data = $this->encoded();
+            if ($flag === null) {
+                unset($data['operations'][0]['ephemeral']);
+            } else {
+                $data['operations'][0]['ephemeral'] = $flag;
+            }
+
+            try {
+                new OperationManifestMetadataCodec()->decode($data);
+                self::fail('Expected ephemeral manifest metadata rejection.');
+            } catch (InvalidArgumentException $exception) {
+                self::assertStringContainsString('manifest', $exception->getMessage());
+            }
+        }
+    }
+
+    public function testRejectsEphemeralFlagTamperedToFalseAndDeferredStrategy(): void
+    {
+        $codec = new OperationManifestMetadataCodec();
+        $metadata = new OperationMetadataCompiler()->compile(EphemeralManifestOperation::class);
+        $encoded = $codec->encode(new OperationRegistry([$metadata]));
+
+        foreach ([
+            ['ephemeral' => false, 'strategy' => Inline::class],
+            ['ephemeral' => true, 'strategy' => Deferred::class],
+        ] as $tampered) {
+            $data = $encoded;
+            $data['operations'][0]['ephemeral'] = $tampered['ephemeral'];
+            $data['operations'][0]['strategy'] = $tampered['strategy'];
+
+            try {
+                $codec->decode($data);
+                self::fail('Expected ephemeral manifest metadata rejection.');
+            } catch (InvalidArgumentException $exception) {
+                self::assertStringContainsString('ephemeral', $exception->getMessage());
+            }
+        }
+    }
+
     /** @return array{operations: list<array<string, string|bool>>} */
     private function encoded(): array
     {
@@ -186,6 +234,25 @@ final readonly class ManifestValue implements OperationValue {}
 final readonly class OtherManifestValue implements OperationValue {}
 
 final readonly class OtherManifestOutcome implements Outcome {}
+
+final readonly class EphemeralManifestOutcome implements EphemeralOutcome
+{
+    public function __construct(
+        #[Sensitive]
+        public string $token,
+    ) {}
+}
+
+#[OperationType('manifest.ephemeral')]
+#[Route('POST', '/manifest-ephemeral')]
+#[ExecuteWith(Inline::class)]
+final readonly class EphemeralManifestOperation implements Operation
+{
+    public function handle(ManifestValue $value): EphemeralManifestOutcome
+    {
+        return new EphemeralManifestOutcome('not-an-artifact');
+    }
+}
 
 final readonly class ManifestAuthorizationPolicy implements AuthorizationPolicy
 {

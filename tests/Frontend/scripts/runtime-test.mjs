@@ -11,6 +11,7 @@ globalThis.fetch = async () => {
 
 const { CreateOrder } = require('../.build/runtime/operations/order/create-order.js');
 const { GenerateReport } = require('../.build/runtime/operations/report/generate-report.js');
+const { IssueCredential } = require('../.build/runtime/operations/identity/credential/issue-credential.js');
 assert.equal(importFetchCalls, 0);
 
 function jsonResponse(status, payload) {
@@ -163,6 +164,48 @@ assert.deepEqual(deferred, {
 });
 assert.ok(Object.isFrozen(GenerateReport));
 assert.ok(Object.isFrozen(deferred));
+
+const ephemeral = await IssueCredential.fetch(
+  { identity: 'user-1', password: 'runtime-password-must-not-leak' },
+  {
+    fetch: async () => jsonResponse(200, {
+      expiresAt: '2026-07-23T00:00:00+00:00',
+      token: 'runtime-token-returned-once',
+    }),
+  },
+);
+assert.deepEqual(ephemeral, {
+  ok: true,
+  kind: 'completed',
+  status: 200,
+  data: {
+    expiresAt: '2026-07-23T00:00:00+00:00',
+    token: 'runtime-token-returned-once',
+  },
+});
+assert.equal(Object.hasOwn(IssueCredential, 'status'), false);
+assert.equal(Object.hasOwn(IssueCredential, 'wait'), false);
+assert.ok(Object.isFrozen(IssueCredential));
+assert.ok(Object.isFrozen(ephemeral));
+assert.ok(Object.isFrozen(ephemeral.data));
+
+const malformedEphemeral = await IssueCredential.fetch(
+  { identity: 'user-1', password: 'runtime-password-must-not-leak' },
+  {
+    fetch: async () => jsonResponse(200, {
+      expiresAt: '2026-07-23T00:00:00+00:00',
+      token: 'runtime-token-returned-once',
+      rawCredential: 'must-not-survive',
+    }),
+  },
+);
+assert.deepEqual(malformedEphemeral, {
+  ok: false,
+  kind: 'transport',
+  status: null,
+  error: { code: 'unexpected_response' },
+});
+assert.doesNotMatch(JSON.stringify(malformedEphemeral), /runtime-token|rawCredential|must-not-survive/);
 
 const validation = await CreateOrder.fetch(
   {

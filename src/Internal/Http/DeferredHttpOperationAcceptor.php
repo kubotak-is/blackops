@@ -6,6 +6,7 @@ namespace BlackOps\Internal\Http;
 
 use BlackOps\Core\ActorContext;
 use BlackOps\Core\Codec\OperationCodec;
+use BlackOps\Core\EphemeralOutcome;
 use BlackOps\Core\Execution\Deferred;
 use BlackOps\Core\Execution\DeferredAcknowledgement;
 use BlackOps\Core\Execution\DeferredOperationMessage;
@@ -38,7 +39,11 @@ final readonly class DeferredHttpOperationAcceptor implements DeferredOperationA
     {
         $metadata = $this->metadataResolver->resolve($definition);
 
-        return $metadata !== null && $metadata->strategy === Deferred::class;
+        return (
+            $metadata !== null
+            && !is_a($metadata->outcome, EphemeralOutcome::class, allow_string: true)
+            && $metadata->strategy === Deferred::class
+        );
     }
 
     public function accept(
@@ -52,6 +57,9 @@ final readonly class DeferredHttpOperationAcceptor implements DeferredOperationA
 
         if ($metadata->strategy !== Deferred::class) {
             throw new LogicException('Deferred HTTP acceptor requires the Deferred execution strategy.');
+        }
+        if (is_a($metadata->outcome, EphemeralOutcome::class, allow_string: true)) {
+            throw new LogicException('Ephemeral operations cannot use deferred execution.');
         }
 
         $context = $this->contexts->receive(actorContext: $actorContext);

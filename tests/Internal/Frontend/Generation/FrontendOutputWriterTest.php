@@ -40,7 +40,7 @@ final class FrontendOutputWriterTest extends TestCase
 
     public function testReplacesKnownLegacyOwnedTreeWithCurrentMarker(): void
     {
-        foreach ([1, 2, 3, 4, 5] as $legacyVersion) {
+        foreach ([1, 2, 3, 4, 5, 6] as $legacyVersion) {
             $output = $this->directory . '/legacy-' . $legacyVersion;
             mkdir($output);
             file_put_contents($output . '/client.ts', 'legacy');
@@ -49,7 +49,7 @@ final class FrontendOutputWriterTest extends TestCase
             self::assertSame(2, new FrontendOutputWriter()->write($this->tree('current-build', 'current'), $output));
             self::assertSame('current', file_get_contents($output . '/client.ts'));
             self::assertStringContainsString(
-                '"schemaVersion": 6',
+                '"schemaVersion": 7',
                 (string) file_get_contents($output . '/manifest.json'),
             );
         }
@@ -143,7 +143,7 @@ final class FrontendOutputWriterTest extends TestCase
     private function markerWithSchema(int $schemaVersion, string $buildId): string
     {
         return str_replace(
-            '"schemaVersion": 6',
+            '"schemaVersion": 7',
             sprintf('"schemaVersion": %d', $schemaVersion),
             new FrontendGenerationMarker($buildId, str_repeat('a', 64))->encode(),
         );

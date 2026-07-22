@@ -1,6 +1,6 @@
 # P18-006B: Ephemeral Outcome Contract
 
-Status: Ready
+Status: Accepted
 
 ## Goal
 

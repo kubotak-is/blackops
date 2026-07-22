@@ -50,6 +50,8 @@ Public Status Query／HTTP Resourceはこれらを区別します。`OutcomeRead
 
 CompletedだけがOutcome Recordを作ります。Rejected、Failed、Retry Scheduled、Dead Letter、Claim Lost、Grace Timeoutは成功Outcomeを作りません。値のない成功を表す`EmptyOutcome`も型付きOutcomeとして保存します。
 
+`EphemeralOutcome`は例外です。HTTPへ一度だけ返すCredential ResponseなのでOutcome Rowを作らず、認可済みStatus Queryにも`operation_unavailable`を返します。Journal上の`EmptyOutcome`をDeclared Ephemeral Classへ復元しないでください。
+
 PostgreSQL Storeは最初の完了結果を上書きせず、重複Saveを拒否します。未対応Schema Version、破損Payload、保存型の不一致、`Outcome`を実装しない値は`OutcomeStoreException`になります。
 
 ## Retention

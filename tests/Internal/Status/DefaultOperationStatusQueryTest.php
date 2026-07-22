@@ -10,6 +10,7 @@ use BlackOps\Internal\Status\DefaultOperationStatusQuery;
 use BlackOps\Internal\Status\OperationStatusDetail;
 use BlackOps\Internal\Status\OperationStatusDetailExpired;
 use BlackOps\Internal\Status\OperationStatusDetailResult;
+use BlackOps\Internal\Status\OperationStatusDetailUnavailable;
 use BlackOps\Internal\Status\OperationStatusSource;
 use BlackOps\Internal\Status\OperationStatusSourceException;
 use BlackOps\Internal\Status\OperationStatusSubject;
@@ -77,6 +78,19 @@ final class DefaultOperationStatusQueryTest extends TestCase
         self::assertSame(['subject', 'authorize', 'detail'], $calls->calls);
         self::assertSame('current-user', $authorizer->request?->currentActor()?->id());
         self::assertSame('origin-user', $authorizer->request?->originActor()?->id());
+    }
+
+    public function testEphemeralStatusBecomesUnavailableOnlyAfterAuthorization(): void
+    {
+        $calls = new StatusCallLog();
+        $source = new FakeOperationStatusSource($calls, $this->subject(), new OperationStatusDetailUnavailable());
+        $authorizer = new FakeOperationStatusAuthorizer($calls, OperationStatusAuthorizationDecision::allow());
+
+        $result = new DefaultOperationStatusQuery($source, $authorizer)->find($this->operationId());
+
+        self::assertInstanceOf(OperationStatusUnavailable::class, $result);
+        self::assertSame(['subject', 'authorize', 'detail'], $calls->calls);
+        self::assertNotNull($authorizer->request);
     }
 
     public function testAllowOnAvailableSubjectReadsDetailAndReturnsFound(): void

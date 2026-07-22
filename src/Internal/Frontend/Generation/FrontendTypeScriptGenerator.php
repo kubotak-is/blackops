@@ -2524,7 +2524,10 @@ final readonly class FrontendTypeScriptGenerator
             if ($urlFields !== []) {
                 $typeNames[] = $urlName;
             }
-            array_push($typeNames, $outcomeName, $fieldName, $resultName, $statusResultName, $waitResultName);
+            array_push($typeNames, $outcomeName, $fieldName, $resultName);
+            if (!$operation->ephemeral) {
+                array_push($typeNames, $statusResultName, $waitResultName);
+            }
 
             $lines[] = sprintf(
                 "import { %s as %sOperation } from '%s';",
@@ -2558,7 +2561,10 @@ final readonly class FrontendTypeScriptGenerator
             if ($urlFields !== []) {
                 $typeNames[] = $urlName;
             }
-            array_push($typeNames, $outcomeName, $fieldName, $resultName, $statusResultName, $waitResultName);
+            array_push($typeNames, $outcomeName, $fieldName, $resultName);
+            if (!$operation->ephemeral) {
+                array_push($typeNames, $statusResultName, $waitResultName);
+            }
             $lines[] = sprintf("export { %s } from '%s';", $operation->exportName, $module);
             $lines[] = sprintf("export type { %s } from '%s';", implode(', ', $typeNames), $module);
         }
@@ -2600,14 +2606,16 @@ final readonly class FrontendTypeScriptGenerator
                 $callOptionsName,
                 $resultName,
             );
-            $lines[] = sprintf(
-                '  status(operationId: string, options?: BoundOperationCallOptions): Promise<%s>;',
-                $statusResultName,
-            );
-            $lines[] = sprintf(
-                '  wait(operationId: string, options: BoundOperationWaitOptions): Promise<%s>;',
-                $waitResultName,
-            );
+            if (!$operation->ephemeral) {
+                $lines[] = sprintf(
+                    '  status(operationId: string, options?: BoundOperationCallOptions): Promise<%s>;',
+                    $statusResultName,
+                );
+                $lines[] = sprintf(
+                    '  wait(operationId: string, options: BoundOperationWaitOptions): Promise<%s>;',
+                    $waitResultName,
+                );
+            }
             $lines[] = '}>;';
         }
 
@@ -2689,32 +2697,34 @@ final readonly class FrontendTypeScriptGenerator
             $lines[] = '        return invalidClientOptionsResult();';
             $lines[] = '      }';
             $lines[] = '    },';
-            $lines[] = sprintf(
-                '    async status(operationId: string, options?: BoundOperationCallOptions): Promise<%s> {',
-                $statusResultName,
-            );
-            $lines[] = '      try {';
-            $lines[] = sprintf(
-                '        return %sOperation.status(operationId, bindOperationCallOptions(binding, options, false));',
-                $operation->exportName,
-            );
-            $lines[] = '      } catch {';
-            $lines[] = '        return invalidClientOptionsResult();';
-            $lines[] = '      }';
-            $lines[] = '    },';
-            $lines[] = sprintf(
-                '    async wait(operationId: string, options: BoundOperationWaitOptions): Promise<%s> {',
-                $waitResultName,
-            );
-            $lines[] = '      try {';
-            $lines[] = sprintf(
-                '        return %sOperation.wait(operationId, bindOperationWaitOptions(binding, options));',
-                $operation->exportName,
-            );
-            $lines[] = '      } catch {';
-            $lines[] = '        return invalidClientOptionsResult();';
-            $lines[] = '      }';
-            $lines[] = '    },';
+            if (!$operation->ephemeral) {
+                $lines[] = sprintf(
+                    '    async status(operationId: string, options?: BoundOperationCallOptions): Promise<%s> {',
+                    $statusResultName,
+                );
+                $lines[] = '      try {';
+                $lines[] = sprintf(
+                    '        return %sOperation.status(operationId, bindOperationCallOptions(binding, options, false));',
+                    $operation->exportName,
+                );
+                $lines[] = '      } catch {';
+                $lines[] = '        return invalidClientOptionsResult();';
+                $lines[] = '      }';
+                $lines[] = '    },';
+                $lines[] = sprintf(
+                    '    async wait(operationId: string, options: BoundOperationWaitOptions): Promise<%s> {',
+                    $waitResultName,
+                );
+                $lines[] = '      try {';
+                $lines[] = sprintf(
+                    '        return %sOperation.wait(operationId, bindOperationWaitOptions(binding, options));',
+                    $operation->exportName,
+                );
+                $lines[] = '      } catch {';
+                $lines[] = '        return invalidClientOptionsResult();';
+                $lines[] = '      }';
+                $lines[] = '    },';
+            }
             $lines[] = '  });';
             $lines[] = '}';
         }
@@ -2760,18 +2770,31 @@ final readonly class FrontendTypeScriptGenerator
             default => 'InlineOutcomeOperationResult',
         };
         /** @var list<string> $lines */
-        $lines = [
-            sprintf(
-                "import { buildOperationRequest, buildOperationUrl, fetchOperation, fetchOperationStatus, waitForOperationStatus } from '%sclient';",
-                $import,
-            ),
-            sprintf(
-                "import type { %s, MutationOperationCallOptions, MutationOperationRequestOptions, OperationCallOptions, OperationRequest, OperationRequestOptions, OperationStatusResult, OperationWaitOptions, OperationWaitResult } from '%stypes';",
-                $resultType,
-                $import,
-            ),
-            '',
-        ];
+        $lines = $operation->ephemeral
+            ? [
+                sprintf(
+                    "import { buildOperationRequest, buildOperationUrl, fetchOperation } from '%sclient';",
+                    $import,
+                ),
+                sprintf(
+                    "import type { %s, MutationOperationCallOptions, MutationOperationRequestOptions, OperationCallOptions, OperationRequest, OperationRequestOptions } from '%stypes';",
+                    $resultType,
+                    $import,
+                ),
+                '',
+            ]
+            : [
+                sprintf(
+                    "import { buildOperationRequest, buildOperationUrl, fetchOperation, fetchOperationStatus, waitForOperationStatus } from '%sclient';",
+                    $import,
+                ),
+                sprintf(
+                    "import type { %s, MutationOperationCallOptions, MutationOperationRequestOptions, OperationCallOptions, OperationRequest, OperationRequestOptions, OperationStatusResult, OperationWaitOptions, OperationWaitResult } from '%stypes';",
+                    $resultType,
+                    $import,
+                ),
+                '',
+            ];
         foreach ($this->typeDeclaration($valueName, $operation->value->fields) as $line) {
             $lines[] = $line;
         }
@@ -2820,18 +2843,20 @@ final readonly class FrontendTypeScriptGenerator
             'InlineVoidOperationResult' => sprintf('%s<%s>', $resultType, $fieldName),
             default => sprintf('%s<%s, %s>', $resultType, $outcomeName, $fieldName),
         });
-        $lines[] = sprintf(
-            'export type %s = OperationStatusResult<%s, %s>;',
-            $statusResultName,
-            $this->json($operation->typeId),
-            $outcomeName,
-        );
-        $lines[] = sprintf(
-            'export type %s = OperationWaitResult<%s, %s>;',
-            $waitResultName,
-            $this->json($operation->typeId),
-            $outcomeName,
-        );
+        if (!$operation->ephemeral) {
+            $lines[] = sprintf(
+                'export type %s = OperationStatusResult<%s, %s>;',
+                $statusResultName,
+                $this->json($operation->typeId),
+                $outcomeName,
+            );
+            $lines[] = sprintf(
+                'export type %s = OperationWaitResult<%s, %s>;',
+                $waitResultName,
+                $this->json($operation->typeId),
+                $outcomeName,
+            );
+        }
 
         $lines[] = '';
         $lines[] = 'const bindings = Object.freeze([';
@@ -2871,16 +2896,18 @@ final readonly class FrontendTypeScriptGenerator
         $lines[] = '  ] as const),';
         $lines[] = '});';
         $lines[] = '';
-        $lines[] = 'const statusResponseContract = Object.freeze({';
-        $lines[] = sprintf('  operationType: %s as const,', $this->json($operation->typeId));
-        $lines[] = sprintf('  outcomeMode: %s as const,', $this->json($operation->outcome->mode));
-        $lines[] = '  outcomeFields: Object.freeze([';
-        foreach ($operation->outcome->fields as $field) {
-            $lines[] = '    Object.freeze(' . $this->json($this->outcomeFieldMetadata($field)) . ' as const),';
+        if (!$operation->ephemeral) {
+            $lines[] = 'const statusResponseContract = Object.freeze({';
+            $lines[] = sprintf('  operationType: %s as const,', $this->json($operation->typeId));
+            $lines[] = sprintf('  outcomeMode: %s as const,', $this->json($operation->outcome->mode));
+            $lines[] = '  outcomeFields: Object.freeze([';
+            foreach ($operation->outcome->fields as $field) {
+                $lines[] = '    Object.freeze(' . $this->json($this->outcomeFieldMetadata($field)) . ' as const),';
+            }
+            $lines[] = '  ] as const),';
+            $lines[] = '});';
+            $lines[] = '';
         }
-        $lines[] = '  ] as const),';
-        $lines[] = '});';
-        $lines[] = '';
         $lines[] = sprintf('export const %s = Object.freeze({', $operation->exportName);
         $lines[] = sprintf('  type: %s as const,', $this->json($operation->typeId));
         $lines[] = sprintf('  method: %s as const,', $this->json($operation->method));
@@ -2904,26 +2931,28 @@ final readonly class FrontendTypeScriptGenerator
             $this->json($operation->path),
         );
         $lines[] = '  },';
-        $lines[] = sprintf(
-            '  status(operationId: string, options?: OperationCallOptions): Promise<%s> {',
-            $statusResultName,
-        );
-        $lines[] = sprintf(
-            '    return fetchOperationStatus<%s, %s>(operationId, options, statusResponseContract);',
-            $this->json($operation->typeId),
-            $outcomeName,
-        );
-        $lines[] = '  },';
-        $lines[] = sprintf(
-            '  wait(operationId: string, options: OperationWaitOptions): Promise<%s> {',
-            $waitResultName,
-        );
-        $lines[] = sprintf(
-            '    return waitForOperationStatus<%s, %s>(operationId, options, statusResponseContract);',
-            $this->json($operation->typeId),
-            $outcomeName,
-        );
-        $lines[] = '  },';
+        if (!$operation->ephemeral) {
+            $lines[] = sprintf(
+                '  status(operationId: string, options?: OperationCallOptions): Promise<%s> {',
+                $statusResultName,
+            );
+            $lines[] = sprintf(
+                '    return fetchOperationStatus<%s, %s>(operationId, options, statusResponseContract);',
+                $this->json($operation->typeId),
+                $outcomeName,
+            );
+            $lines[] = '  },';
+            $lines[] = sprintf(
+                '  wait(operationId: string, options: OperationWaitOptions): Promise<%s> {',
+                $waitResultName,
+            );
+            $lines[] = sprintf(
+                '    return waitForOperationStatus<%s, %s>(operationId, options, statusResponseContract);',
+                $this->json($operation->typeId),
+                $outcomeName,
+            );
+            $lines[] = '  },';
+        }
         $lines[] = sprintf(
             '  fetch(value: %s, options?: %s): Promise<%s> {',
             $valueName,
@@ -3136,6 +3165,7 @@ final readonly class FrontendTypeScriptGenerator
             || str_contains($operation->path, "\r")
             || str_contains($operation->path, "\n")
             || !in_array($operation->strategy, ['inline', 'deferred'], strict: true)
+            || $operation->ephemeral && $operation->strategy !== 'inline'
             || !in_array($operation->outcome->mode, ['outcome', 'void'], strict: true)
             || $operation->outcome->mode === 'void' && $operation->outcome->fields !== []
         ) {

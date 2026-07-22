@@ -8,7 +8,7 @@ use InvalidArgumentException;
 
 final readonly class HttpOperationManifestArtifactCodec
 {
-    public const SCHEMA_VERSION = 2;
+    public const SCHEMA_VERSION = 3;
 
     public function __construct(
         private HttpOperationManifestPayloadCodec $payloads = new HttpOperationManifestPayloadCodec(),

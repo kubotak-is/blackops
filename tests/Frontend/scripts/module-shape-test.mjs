@@ -20,7 +20,7 @@ async function sourceFiles(directory) {
 }
 
 const operationFiles = await sourceFiles(operationsRoot);
-assert.equal(operationFiles.length, 2);
+assert.equal(operationFiles.length, 3);
 
 for (const file of operationFiles) {
   const source = await readFile(file, 'utf8');
@@ -36,8 +36,17 @@ const rootSource = await readFile(generatedRoot, 'utf8');
 assert.match(rootSource, /export function createBlackOpsClient\(/);
 assert.match(rootSource, /export \{ CreateOrder \}/);
 assert.match(rootSource, /export \{ GenerateReport \}/);
+assert.match(rootSource, /export \{ IssueCredential \}/);
 assert.ok(rootSource.indexOf('readonly CreateOrder:') < rootSource.indexOf('readonly GenerateReport:'));
 assert.ok(rootSource.indexOf('CreateOrder: bindCreateOrder') < rootSource.indexOf('GenerateReport: bindGenerateReport'));
+assert.doesNotMatch(rootSource, /IssueCredentialStatusResult|IssueCredentialWaitResult/);
+
+const ephemeralSource = await readFile(
+  new URL('../fixture/resources/js/blackops/operations/identity/credential/issue-credential.ts', import.meta.url),
+  'utf8',
+);
+assert.match(ephemeralSource, /IssueCredential\.fetch|fetch\(value: IssueCredentialValue/);
+assert.doesNotMatch(ephemeralSource, /status\(operationId|wait\(operationId|StatusResult|WaitResult/);
 assert.doesNotMatch(rootSource, /server-token|private base|runtime-sensitive-input/i);
 
 process.stdout.write(`Frontend module shape assertions passed for ${operationFiles.length} operations.\n`);

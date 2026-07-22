@@ -12,6 +12,7 @@ use BlackOps\Core\Authorization\AuthorizationDecision;
 use BlackOps\Core\Authorization\AuthorizationPolicy;
 use BlackOps\Core\Authorization\AuthorizationRequest;
 use BlackOps\Core\EmptyOutcome;
+use BlackOps\Core\EphemeralOutcome;
 use BlackOps\Core\Exception\OperationRejectedException;
 use BlackOps\Core\Execution\Inline;
 use BlackOps\Core\ExecutionContext;
@@ -46,7 +47,9 @@ use BlackOps\Internal\Transaction\OperationTransactionCoordinator;
 use BlackOps\Internal\Transaction\TransactionRuntime;
 use BlackOps\Journal\CanonicalJournalWriter;
 use BlackOps\Journal\Data\AttemptFailedData;
+use BlackOps\Journal\Data\OperationCompletedData;
 use BlackOps\Journal\Data\OperationFailedData;
+use BlackOps\Journal\EmptyJournalData;
 use BlackOps\Journal\Exception\JournalObservationFailed;
 use BlackOps\Journal\Exception\JournalWriteFailed;
 use BlackOps\Journal\Exception\LifecycleTransitionException;
@@ -65,6 +68,136 @@ use Psr\Container\ContainerInterface;
 
 final class InlineDispatcherTest extends TestCase
 {
+    public function testEphemeralResultReturnsToCallerButOnlyEmptyCanonicalDataReachesJournalAndObserver(): void
+    {
+        $journal = new RecordingJournalWriter();
+        $observer = new RecordingJournalObserver();
+        $handler = new EphemeralDispatchHandler('raw-secret-must-not-appear');
+        $metadata = new OperationMetadata(
+            'dispatch.ephemeral',
+            DispatchOperation::class,
+            DispatchValue::class,
+            $handler::class,
+            EphemeralDispatchOutcome::class,
+            Inline::class,
+        );
+
+        $result = $this->dispatcher(
+            $handler,
+            $journal,
+            observations: new JournalObservationPipeline(
+                new ObservedJournalRecordProjector(new SensitiveProjectionFilter('projection-key')),
+                new JournalObserverAggregator([new JournalObserverBinding('ephemeral', $observer)]),
+            ),
+            metadata: $metadata,
+        )->dispatch(new DispatchOperation(), new DispatchValue('hello', 'input-secret-must-not-appear'));
+
+        $outcome = $result->outcome();
+        self::assertInstanceOf(EphemeralDispatchOutcome::class, $outcome);
+        self::assertSame('raw-secret-must-not-appear', $outcome->token);
+        self::assertInstanceOf(EmptyJournalData::class, $journal->records[0]->data);
+        $completed = $journal->records[3]->data;
+        self::assertInstanceOf(OperationCompletedData::class, $completed);
+        self::assertInstanceOf(EmptyOutcome::class, $completed->outcome);
+        self::assertCount(4, $observer->records);
+        $surface = serialize([$journal->records, $observer->records]);
+        self::assertStringNotContainsString('raw-secret-must-not-appear', $surface);
+        self::assertStringNotContainsString('input-secret-must-not-appear', $surface);
+    }
+
+    public function testEphemeralProjectionFailureRollsBackBeforeCommitAndRecordsSafeFailure(): void
+    {
+        $connection = DriverManager::getConnection(['driver' => 'pdo_sqlite', 'memory' => true]);
+        $connection->executeStatement('CREATE TABLE business_updates (value TEXT NOT NULL)');
+        [$coordinator, $scope] = $this->transactionCoordinator($connection);
+        $handler = new TransactionalInlineDispatchHandler(
+            $connection,
+            OperationResult::completed(new EphemeralDispatchOutcome("\xB1\x31")),
+        );
+        $journal = new RecordingJournalWriter();
+        $metadata = new OperationMetadata(
+            'dispatch.ephemeral.invalid',
+            DispatchOperation::class,
+            DispatchValue::class,
+            $handler::class,
+            EphemeralDispatchOutcome::class,
+            Inline::class,
+            transactionConnection: 'app',
+        );
+
+        try {
+            $this->dispatcher(
+                $handler,
+                $journal,
+                scope: $scope,
+                metadata: $metadata,
+                transactions: $coordinator,
+            )->dispatch(new DispatchOperation(), new DispatchValue('invalid'));
+            self::fail('Expected ephemeral projection failure.');
+        } catch (OperationExecutionFailed $failure) {
+            self::assertSame(
+                'Ephemeral operation outcome cannot be projected safely.',
+                $failure->primaryFailure()->getMessage(),
+            );
+            self::assertStringNotContainsString("\xB1\x31", $failure->getMessage());
+        }
+
+        self::assertSame([], $connection->fetchFirstColumn('SELECT value FROM business_updates'));
+        self::assertSame(
+            [
+                JournalEvent::OperationReceived,
+                JournalEvent::AttemptStarted,
+                JournalEvent::AttemptFailed,
+                JournalEvent::OperationFailed,
+            ],
+            array_column($journal->records, 'event'),
+        );
+        self::assertInstanceOf(EmptyJournalData::class, $journal->records[0]->data);
+        self::assertStringNotContainsString("\xB1\x31", serialize($journal->records));
+    }
+
+    public function testUndeclaredEphemeralResultFailsBeforeActualOutcomeReachesCanonicalWriter(): void
+    {
+        $journal = new RecordingJournalWriter();
+        $handler = new EphemeralDispatchHandler('undeclared-credential-must-not-reach-writer');
+        $metadata = new OperationMetadata(
+            'dispatch.ephemeral.undeclared',
+            DispatchOperation::class,
+            DispatchValue::class,
+            $handler::class,
+            EmptyOutcome::class,
+            Inline::class,
+        );
+
+        try {
+            $this->dispatcher($handler, $journal, metadata: $metadata)->dispatch(
+                new DispatchOperation(),
+                new DispatchValue('ordinary-input'),
+            );
+            self::fail('Expected undeclared ephemeral outcome failure.');
+        } catch (OperationExecutionFailed $failure) {
+            self::assertSame(
+                'Ephemeral operation outcome does not match its declared contract.',
+                $failure->primaryFailure()->getMessage(),
+            );
+            self::assertStringNotContainsString('undeclared-credential-must-not-reach-writer', $failure->getMessage());
+        }
+
+        self::assertSame(
+            [
+                JournalEvent::OperationReceived,
+                JournalEvent::AttemptStarted,
+                JournalEvent::AttemptFailed,
+                JournalEvent::OperationFailed,
+            ],
+            array_column($journal->records, 'event'),
+        );
+        self::assertStringNotContainsString(
+            'undeclared-credential-must-not-reach-writer',
+            serialize($journal->records),
+        );
+    }
+
     public function testDispatchBuildsAttemptEnvelopeAndReturnsHandlerResult(): void
     {
         $journal = new RecordingJournalWriter();
@@ -774,6 +907,26 @@ final readonly class DispatchValue implements OperationValue
 }
 
 final readonly class OtherDispatchValue implements OperationValue {}
+
+final readonly class EphemeralDispatchOutcome implements EphemeralOutcome
+{
+    public function __construct(
+        #[Sensitive]
+        public string $token,
+    ) {}
+}
+
+final readonly class EphemeralDispatchHandler implements OperationHandler
+{
+    public function __construct(
+        private string $token,
+    ) {}
+
+    public function handle(OperationEnvelope $operation): OperationResult
+    {
+        return OperationResult::completed(new EphemeralDispatchOutcome($this->token));
+    }
+}
 
 /** @implements OperationHandler<DispatchValue, EmptyOutcome> */
 final readonly class DispatchHandler implements OperationHandler

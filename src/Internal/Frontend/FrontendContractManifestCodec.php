@@ -13,7 +13,7 @@ use InvalidArgumentException;
  */
 final readonly class FrontendContractManifestCodec
 {
-    public const SCHEMA_VERSION = 3;
+    public const SCHEMA_VERSION = 4;
 
     private const array SCALAR_TYPES = ['string', 'integer', 'float', 'boolean'];
 
@@ -80,6 +80,7 @@ final readonly class FrontendContractManifestCodec
             'method' => $operation->method,
             'path' => $operation->path,
             'strategy' => $operation->strategy,
+            'ephemeral' => $operation->ephemeral,
             'value' => [
                 'class' => $operation->value->class,
                 'fields' => array_map(static fn(FrontendValueFieldContract $field): array => [
@@ -110,9 +111,23 @@ final readonly class FrontendContractManifestCodec
         if (!is_array($data)) {
             throw new InvalidArgumentException('Frontend contract operation entry is invalid.');
         }
+        $this->assertExactKeys($data, [
+            'typeId',
+            'definition',
+            'exportName',
+            'module',
+            'method',
+            'path',
+            'strategy',
+            'ephemeral',
+            'value',
+            'outcome',
+        ]);
 
         $value = $this->section($data, 'value');
         $outcome = $this->section($data, 'outcome');
+        $this->assertExactKeys($value, ['class', 'fields']);
+        $this->assertExactKeys($outcome, ['class', 'mode', 'fields']);
 
         return new FrontendOperationContract(
             $this->string($data, 'typeId'),
@@ -131,6 +146,7 @@ final readonly class FrontendContractManifestCodec
                 $this->oneOf($outcome, 'mode', ['outcome', 'void']),
                 $this->decodeList($outcome, 'fields', $this->decodeOutcomeField(...)),
             ),
+            $this->boolean($data, 'ephemeral'),
         );
     }
 
@@ -139,6 +155,16 @@ final readonly class FrontendContractManifestCodec
         if (!is_array($data)) {
             throw new InvalidArgumentException('Frontend contract value field is invalid.');
         }
+        $this->assertExactKeys($data, [
+            'name',
+            'type',
+            'nullable',
+            'required',
+            'source',
+            'transportName',
+            'sensitive',
+            'validations',
+        ]);
 
         return new FrontendValueFieldContract(
             $this->string($data, 'name'),

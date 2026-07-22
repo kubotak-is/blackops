@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BlackOps\Http\Routing;
 
+use BlackOps\Core\EphemeralOutcome;
 use BlackOps\Core\Operation;
 use BlackOps\Core\Registry\OperationRegistry;
 use BlackOps\Http\Attribute\Route;
@@ -67,6 +68,7 @@ final readonly class HttpRouteCompiler
                 'handler' => $metadata->handler,
                 'outcome' => $metadata->outcome,
                 'strategy' => $metadata->strategy,
+                'ephemeral' => is_a($metadata->outcome, EphemeralOutcome::class, allow_string: true),
             ];
         }
 

@@ -58,6 +58,67 @@ public function handle(RebuildIndexValue $value): void
 
 Frameworkは成功時に`EmptyOutcome`へ正規化します。
 
+## Credentialを一度だけ返す
+
+LoginやToken Rotationのように、成功値をHTTP Clientへ返す一方でJournalやOutcome Storeへ残したくない場合は`EphemeralOutcome`を使います。Ephemeralは「そのHTTP Response中だけ有効な投影」を意味し、Lifecycleそのものを隠す機能ではありません。
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Feature\Identity\IssueCredential;
+
+use BlackOps\Core\Attribute\ExecuteWith;
+use BlackOps\Core\Attribute\OperationType;
+use BlackOps\Core\Attribute\Sensitive;
+use BlackOps\Core\EphemeralOutcome;
+use BlackOps\Core\Execution\Inline;
+use BlackOps\Core\Operation;
+use BlackOps\Core\OperationValue;
+use BlackOps\Http\Attribute\FromBody;
+use BlackOps\Http\Attribute\Route;
+
+final readonly class IssueCredentialValue implements OperationValue
+{
+    public function __construct(
+        #[FromBody]
+        public string $email,
+        #[FromBody]
+        #[Sensitive]
+        public string $password,
+    ) {}
+}
+
+final readonly class CredentialIssued implements EphemeralOutcome
+{
+    public function __construct(
+        #[Sensitive]
+        public string $token,
+        public string $expiresAt,
+    ) {}
+}
+
+#[OperationType('identity.credential.issue')]
+#[Route('POST', '/credentials')]
+#[ExecuteWith(Inline::class)]
+final readonly class IssueCredential implements Operation
+{
+    public function __construct(private CredentialService $credentials) {}
+
+    public function handle(IssueCredentialValue $value): CredentialIssued
+    {
+        return $this->credentials->issue($value->email, $value->password);
+    }
+}
+```
+
+このOperationにはHTTP Routeと明示的なInline Strategyが必要です。Deferred、Console、Routeなし、暗黙のInlineはBuild Errorになります。Credential名を持つOutcome Propertyには`#[Sensitive]`を付け、CredentialをNested DTOへ隠さずRoot Propertyとして宣言してください。
+
+HTTPは`CredentialIssued`をJSON 200で一度返します。PropertyがないEphemeral Outcomeは`{}`を返します。Canonical JournalにはReceivedを空Data、Completedを`EmptyOutcome`として記録し、Outcome StoreへRowを作りません。Status APIは認可後もUnavailableとなり、Generated Frontend Objectには`.fetch()`、`.toRequest()`、`.url()`だけを生成して`.status()`と`.wait()`を公開しません。
+
+PHPからInline Dispatcherを直接呼ぶ場合は実Outcomeを受け取れますが、FrameworkのJournal、Observer、Status、Console、Deferred経路から復元できません。認証・認可、Cookie、CSRF、暗号化、Browser Storage、Token Rotationは引き続きApplicationが設計します。
+
 ## 予期された業務拒否
 
 ValidationやBusiness Ruleによる予期された拒否だけを`OperationRejectedException`で通知します。

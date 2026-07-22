@@ -144,7 +144,7 @@ final class ProductionRuntimeArtifactLoaderTest extends TestCase
         $this->writeOperationManifest($operationManifest);
         file_put_contents(
             $httpManifest,
-            "<?php return ['schemaVersion' => 2, 'applicationBuildId' => 'build-runtime-artifact', 'payload' => ['routes' => [], 'operations' => [], 'dispatcherData' => ['invalid']]];",
+            "<?php return ['schemaVersion' => 3, 'applicationBuildId' => 'build-runtime-artifact', 'payload' => ['routes' => [], 'operations' => [], 'dispatcherData' => ['invalid']]];",
         );
 
         $this->expectException(InvalidArgumentException::class);
@@ -182,6 +182,7 @@ final class ProductionRuntimeArtifactLoaderTest extends TestCase
                         'handler' => RuntimeArtifactHandler::class,
                         'outcome' => EmptyOutcome::class,
                         'strategy' => Inline::class,
+                        'ephemeral' => false,
                     ],
                 ],
                 new FastRouteDispatcherDataCompiler()->compile($routes),

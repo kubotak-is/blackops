@@ -339,6 +339,7 @@ final class FrontendContractCompilerTest extends TestCase
                 'handler' => $metadata['handler'] ?? $metadata['definition'],
                 'outcome' => $metadata['outcome'] ?? EmptyOutcome::class,
                 'strategy' => $metadata['strategy'] ?? Inline::class,
+                'ephemeral' => $metadata['ephemeral'] ?? false,
             ];
         }
 

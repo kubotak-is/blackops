@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace BlackOps\Internal\Registry;
 
 use BlackOps\Core\Authorization\AuthorizationPolicy;
+use BlackOps\Core\EphemeralOutcome;
 use BlackOps\Core\Execution\ExecutionStrategy;
+use BlackOps\Core\Execution\Inline;
 use BlackOps\Core\Operation;
 use BlackOps\Core\OperationValue;
 use BlackOps\Core\Outcome;
@@ -13,6 +15,7 @@ use BlackOps\Core\Registry\OperationMetadata;
 use BlackOps\Core\Registry\OperationRegistry;
 use InvalidArgumentException;
 
+/** @mago-expect lint:cyclomatic-complexity */
 final readonly class OperationManifestMetadataCodec
 {
     public function __construct(
@@ -32,6 +35,7 @@ final readonly class OperationManifestMetadataCodec
                 'handler' => $metadata->handler,
                 'outcome' => $metadata->outcome,
                 'strategy' => $metadata->strategy,
+                'ephemeral' => is_a($metadata->outcome, EphemeralOutcome::class, allow_string: true),
                 'typedSelfHandled' => $metadata->typedSelfHandled,
                 'typedSelfHandledContext' => $metadata->typedSelfHandledContext,
                 ...(
@@ -89,19 +93,38 @@ final readonly class OperationManifestMetadataCodec
             $outcome,
         );
 
+        $ephemeral = $this->boolField($entry, 'ephemeral');
+        if ($ephemeral !== is_a($outcome, \BlackOps\Core\EphemeralOutcome::class, allow_string: true)) {
+            throw new InvalidArgumentException('Operation manifest ephemeral metadata is invalid.');
+        }
+        $strategy = $this->classField($entry, 'strategy', ExecutionStrategy::class);
+        if ($ephemeral && $strategy !== Inline::class) {
+            throw new InvalidArgumentException('Operation manifest ephemeral execution strategy is invalid.');
+        }
+
         return new OperationMetadata(
             $this->stringField($entry, 'typeId'),
             $definition,
             $value,
             $handler,
             $outcome,
-            $this->classField($entry, 'strategy', ExecutionStrategy::class),
+            $strategy,
             $typedSelfHandled,
             $typedSelfHandledContext,
             $typedSelfHandledMode,
             $this->authorizationPolicy($entry),
             $this->optionalStringField($entry, 'transactionConnection'),
         );
+    }
+
+    /** @param array<array-key, mixed> $entry */
+    private function boolField(array $entry, string $key): bool
+    {
+        if (!array_key_exists($key, $entry) || !is_bool($entry[$key])) {
+            throw new InvalidArgumentException('Operation manifest metadata entry is invalid.');
+        }
+
+        return $entry[$key];
     }
 
     /** @param array<array-key, mixed> $entry */

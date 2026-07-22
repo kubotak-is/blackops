@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BlackOps\Internal\Application;
 
+use BlackOps\Core\EphemeralOutcome;
 use BlackOps\Internal\Codec\ReflectionJsonOperationCodec;
 use BlackOps\Internal\Console\OperationConsoleCommandMetadata;
 use BlackOps\Internal\Console\OperationConsoleRuntime;
@@ -29,6 +30,7 @@ final readonly class ApplicationOperationConsoleRuntimeComposer
         $metadata = $runtime->operations->findByTypeId($command->typeId);
         if (
             $metadata === null
+            || is_a($metadata->outcome, EphemeralOutcome::class, allow_string: true)
             || $metadata->definition !== $command->definition
             || $metadata->value !== $command->value
             || $metadata->outcome !== $command->outcome

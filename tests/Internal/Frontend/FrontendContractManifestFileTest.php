@@ -75,6 +75,16 @@ final class FrontendContractManifestFileTest extends TestCase
         }
     }
 
+    public function testRejectsManifestWithoutEphemeralFlag(): void
+    {
+        $artifact = $this->validArtifact();
+        unset($artifact['payload']['operations'][0]['ephemeral']);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('schema is invalid');
+        new FrontendContractManifestCodec()->decode($artifact);
+    }
+
     public function testDecodesAllVersionThreeScalarKindsForValuesAndOutcomes(): void
     {
         foreach (['string', 'integer', 'float', 'boolean'] as $type) {
@@ -195,6 +205,7 @@ final class FrontendContractManifestFileTest extends TestCase
                     'method' => 'POST',
                     'path' => '/orders',
                     'strategy' => 'inline',
+                    'ephemeral' => false,
                     'value' => [
                         'class' => 'App\\CreateOrderValue',
                         'fields' => [[

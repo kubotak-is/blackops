@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BlackOps\Tests\Transport\PostgreSql;
 
 use BlackOps\Core\Attribute\ListOf;
+use BlackOps\Core\EphemeralOutcome;
 use BlackOps\Core\Execution\DeferredOperationMessage;
 use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Core\Outcome;
@@ -152,6 +153,28 @@ final class PostgreSqlOutcomeStoreTest extends TestCase
                 new DateTimeImmutable(),
             ),
         );
+    }
+
+    public function testEphemeralOutcomeCannotBeStored(): void
+    {
+        $this->markCompleted();
+        $id = OperationId::fromString(self::OPERATION_ID);
+
+        try {
+            $this->store->save(
+                new OutcomeRecord(
+                    $id,
+                    new PostgreSqlEphemeralOutcome('raw-secret-must-not-appear'),
+                    new DateTimeImmutable(),
+                ),
+            );
+            self::fail('Expected ephemeral outcome storage to fail.');
+        } catch (OutcomeStoreException $exception) {
+            self::assertStringContainsString('Ephemeral outcomes cannot be stored', $exception->getMessage());
+            self::assertStringNotContainsString('raw-secret-must-not-appear', $exception->getMessage());
+        }
+
+        self::assertSame(0, $this->connection->fetchOne('SELECT COUNT(*) FROM ' . self::SCHEMA . '.outcomes'));
     }
 
     public function testSaveForNonCompletedOperationFailsWithoutCreatingOutcome(): void
@@ -309,6 +332,13 @@ final readonly class PostgreSqlStoredOutcome implements Outcome
 {
     public function __construct(
         public string $message,
+    ) {}
+}
+
+final readonly class PostgreSqlEphemeralOutcome implements EphemeralOutcome
+{
+    public function __construct(
+        public string $token,
     ) {}
 }
 

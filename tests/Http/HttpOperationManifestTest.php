@@ -70,6 +70,7 @@ final class HttpOperationManifestTest extends TestCase
                     'handler' => ManifestOperation::class,
                     'outcome' => EmptyOutcome::class,
                     'strategy' => Inline::class,
+                    'ephemeral' => false,
                 ],
             ],
             new FastRouteDispatcherDataCompiler()->compile($routes),

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BlackOps\Internal\Status;
 
 use BlackOps\Core\ActorRef;
+use BlackOps\Core\EphemeralOutcome;
 use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Core\Outcome;
 use BlackOps\Core\Registry\OperationRegistry;
@@ -80,6 +81,11 @@ final readonly class PostgreSqlOperationStatusSource implements OperationStatusS
 
     public function readDetail(OperationStatusSubject $subject): OperationStatusDetailResult
     {
+        $metadata = $this->registry->findByTypeId($subject->operationType);
+        if ($metadata !== null && is_a($metadata->outcome, EphemeralOutcome::class, allow_string: true)) {
+            return new OperationStatusDetailUnavailable();
+        }
+
         if ($this->connection->isTransactionActive()) {
             throw OperationStatusSourceException::storageFailed();
         }

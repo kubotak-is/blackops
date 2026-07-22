@@ -42,7 +42,7 @@ final class FrontendTypeScriptGeneratorTest extends TestCase
         $marker = FrontendGenerationMarker::decode($first->files['manifest.json']);
         self::assertSame('frontend-generation-build', $marker->applicationBuildId);
         self::assertMatchesRegularExpression('/^[a-f0-9]{64}$/D', $marker->contractHash);
-        self::assertStringContainsString('"schemaVersion": 6', $first->files['manifest.json']);
+        self::assertStringContainsString('"schemaVersion": 7', $first->files['manifest.json']);
 
         $operation = $first->files['operations/order/create-order.ts'];
         self::assertStringContainsString('export const CreateOrder = Object.freeze({', $operation);

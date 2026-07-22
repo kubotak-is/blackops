@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BlackOps\Internal\Frontend;
 
+use BlackOps\Core\EphemeralOutcome;
 use BlackOps\Core\Execution\Deferred;
 use BlackOps\Core\Execution\Inline;
 use BlackOps\Core\Registry\OperationMetadata;
@@ -51,6 +52,7 @@ final readonly class FrontendContractCompiler
             }
             $this->assertMetadata($metadata, $httpMetadata);
             [$export, $module] = $this->names->compile($metadata->definition, $metadata->typeId);
+            $ephemeral = is_a($metadata->outcome, EphemeralOutcome::class, allow_string: true);
 
             $contracts[] = new FrontendOperationContract(
                 $metadata->typeId,
@@ -61,7 +63,8 @@ final readonly class FrontendContractCompiler
                 $path,
                 $this->strategy($metadata->strategy),
                 $this->values->compile($metadata->value, $method, $path),
-                $this->outcomes->compile($metadata->outcome),
+                $this->outcomes->compile($metadata->outcome, $ephemeral),
+                $ephemeral,
             );
         }
 
@@ -70,7 +73,7 @@ final readonly class FrontendContractCompiler
         return new FrontendContractManifest($contracts);
     }
 
-    /** @param array<string, string> $http */
+    /** @param array<string, string|bool> $http */
     private function assertMetadata(OperationMetadata $operation, array $http): void
     {
         if (
@@ -79,6 +82,7 @@ final readonly class FrontendContractCompiler
             || ($http['handler'] ?? null) !== $operation->handler
             || ($http['outcome'] ?? null) !== $operation->outcome
             || ($http['strategy'] ?? null) !== $operation->strategy
+            || ($http['ephemeral'] ?? null) !== is_a($operation->outcome, EphemeralOutcome::class, allow_string: true)
         ) {
             throw new InvalidArgumentException('Frontend contract operation and HTTP metadata do not match.');
         }

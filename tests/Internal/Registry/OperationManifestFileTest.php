@@ -66,7 +66,7 @@ final class OperationManifestFileTest extends TestCase
         $path = $this->manifestPath();
         file_put_contents(
             $path,
-            "<?php return ['schemaVersion' => 1, 'applicationBuildId' => 'build-1', 'payload' => ['operations' => [['typeId' => 'broken']]]];",
+            "<?php return ['schemaVersion' => 2, 'applicationBuildId' => 'build-1', 'payload' => ['operations' => [['typeId' => 'broken']]]];",
         );
 
         $this->expectException(InvalidArgumentException::class);
@@ -92,7 +92,7 @@ final class OperationManifestFileTest extends TestCase
         $path = $this->manifestPath();
         file_put_contents(
             $path,
-            "<?php return ['schemaVersion' => 2, 'applicationBuildId' => 'build-1', 'payload' => ['operations' => []]];",
+            "<?php return ['schemaVersion' => 1, 'applicationBuildId' => 'build-1', 'payload' => ['operations' => []]];",
         );
 
         $this->expectException(InvalidArgumentException::class);
@@ -103,7 +103,7 @@ final class OperationManifestFileTest extends TestCase
     public function testRejectsManifestWithoutApplicationBuildId(): void
     {
         $path = $this->manifestPath();
-        file_put_contents($path, "<?php return ['schemaVersion' => 1, 'payload' => ['operations' => []]];");
+        file_put_contents($path, "<?php return ['schemaVersion' => 2, 'payload' => ['operations' => []]];");
 
         $this->expectException(InvalidArgumentException::class);
 

@@ -9,7 +9,7 @@ use JsonException;
 
 final readonly class FrontendGenerationMarker
 {
-    public const SCHEMA_VERSION = 6;
+    public const SCHEMA_VERSION = 7;
 
     public function __construct(
         public string $applicationBuildId,
@@ -43,7 +43,7 @@ final readonly class FrontendGenerationMarker
 
     public static function decodeOwned(string $contents): self
     {
-        return self::decodeVersioned($contents, [1, 2, 3, 4, 5, self::SCHEMA_VERSION]);
+        return self::decodeVersioned($contents, [1, 2, 3, 4, 5, 6, self::SCHEMA_VERSION]);
     }
 
     /** @param non-empty-list<int> $schemaVersions */

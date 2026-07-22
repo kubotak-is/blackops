@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace BlackOps\Http\Responder;
 
 use BlackOps\Core\EmptyOutcome;
+use BlackOps\Core\EphemeralOutcome;
 use BlackOps\Core\Execution\DeferredAcknowledgement;
 use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Core\OperationResult;
 use BlackOps\Core\Rejection\RejectionCategory;
 use BlackOps\Core\Time\TimeCodec;
 use BlackOps\Core\Validation\Violation;
+use BlackOps\Http\Routing\HttpOperationRoute;
 use BlackOps\Http\Status\OperationStatusHttpContract;
 use BlackOps\Outcome\Internal\StructuredOutcomeNormalizer;
 use JsonException;
@@ -52,6 +54,21 @@ final readonly class JsonOperationResponder
         $payload = $this->outcomes->normalize($outcome);
 
         return $this->json(200, $payload === [] ? new stdClass() : $payload);
+    }
+
+    public function respondForRoute(OperationResult $result, HttpOperationRoute $route): ResponseInterface
+    {
+        if ($result->isRejected() || $route->outcome === null || $route->ephemeral === null) {
+            return $this->respond($result);
+        }
+
+        $outcome = $result->outcome();
+        $actualEphemeral = $outcome instanceof EphemeralOutcome;
+        if ($outcome::class !== $route->outcome || $actualEphemeral !== $route->ephemeral) {
+            throw new RuntimeException('Operation outcome does not match the HTTP manifest contract.');
+        }
+
+        return $this->respond($result);
     }
 
     public function respondAcknowledgement(DeferredAcknowledgement $acknowledgement): ResponseInterface

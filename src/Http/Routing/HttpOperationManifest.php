@@ -8,11 +8,12 @@ use BlackOps\Core\Operation;
 use BlackOps\Core\OperationValue;
 use InvalidArgumentException;
 
+/** @mago-expect lint:cyclomatic-complexity */
 final readonly class HttpOperationManifest
 {
     /**
      * @param array<string, array<string, string>> $routes
-     * @param array<string, array<string, string>> $operations
+     * @param array<string, array<string, string|bool>> $operations
      * @param array{
      *     0: array<string, array<string, string>>,
      *     1: array<string, list<array{
@@ -30,7 +31,7 @@ final readonly class HttpOperationManifest
     /**
      * @return array{
      *     routes: array<string, array<string, string>>,
-     *     operations: array<string, array<string, string>>,
+     *     operations: array<string, array<string, string|bool>>,
      *     dispatcherData: array{
      *         0: array<string, array<string, string>>,
      *         1: array<string, list<array{
@@ -90,7 +91,19 @@ final readonly class HttpOperationManifest
                     throw new InvalidArgumentException('HTTP manifest operation value class is invalid.');
                 }
 
-                $routes[$typeId] = new HttpOperationRoute($method, $path, $definition, $value);
+                $outcome = $operation['outcome'] ?? null;
+                $ephemeral = $operation['ephemeral'] ?? false;
+                if (!is_string($outcome) || !is_a($outcome, \BlackOps\Core\Outcome::class, allow_string: true)) {
+                    throw new InvalidArgumentException('HTTP manifest operation outcome class is invalid.');
+                }
+                if (
+                    !is_bool($ephemeral)
+                    || $ephemeral !== is_a($outcome, \BlackOps\Core\EphemeralOutcome::class, allow_string: true)
+                ) {
+                    throw new InvalidArgumentException('HTTP manifest operation ephemeral flag is invalid.');
+                }
+
+                $routes[$typeId] = new HttpOperationRoute($method, $path, $definition, $value, $outcome, $ephemeral);
             }
         }
 

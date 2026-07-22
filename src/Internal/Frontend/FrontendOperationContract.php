@@ -6,6 +6,7 @@ namespace BlackOps\Internal\Frontend;
 
 final readonly class FrontendOperationContract
 {
+    /** @mago-expect lint:excessive-parameter-list */
     public function __construct(
         public string $typeId,
         public string $definition,
@@ -16,5 +17,6 @@ final readonly class FrontendOperationContract
         public string $strategy,
         public FrontendValueContract $value,
         public FrontendOutcomeContract $outcome,
+        public bool $ephemeral = false,
     ) {}
 }

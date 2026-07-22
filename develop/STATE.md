@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-22T13:17:41+09:00
+Updated At: 2026-07-22T14:19:14+09:00
 
 ## Current Phase
 
@@ -16,13 +16,13 @@ Specifications: `develop/spec/04-handler-and-result.md`、`develop/spec/05-http.
 
 ## Task Status
 
-Ready
+Accepted
 
-D112をAで確定した。Public `EphemeralOutcome extends Outcome`をRoute付き明示Inlineだけに限定し、Received Valueを`EmptyJournalData`、Completed実Outcomeを`EmptyOutcome`へ置換してLifecycleだけを記録する。P18-006BでCore／HTTP／Status／Frontend Contractを実装し、P18-006CでAuth Generatorへ接続する。
+D112のPublic `EphemeralOutcome` Marker、Route付き明示Inline限定、Value／Outcome非永続化、HTTP一回投影、Frontend Status／Wait非公開を実装した。Orchestrator ReviewでLegacy Handlerの未宣言Ephemeral Outcome経路を修正し、独立品質Gateを含めて受け入れた。
 
 ## Last Accepted Task
 
-P18-006A-session-authentication-core
+P18-006B-ephemeral-outcome-contract
 
 ## Pending Decisions
 
@@ -63,9 +63,26 @@ Active Implementation Blockerはない。Ray.Aop 2.19.1／2.20.0には複数clas
 
 ## Required Next Action
 
-1. P18-006BをGPT-5.6 Luna High workerへ委譲する。
-2. OrchestratorがPublic／Security／Lifecycle／Frontend境界を独立Reviewする。
-3. Accepted後、P18-006C Auth Generator and Fresh ConsumerのTask Packetを作成する。
+1. P18-006C Auth Generator and Fresh ConsumerのTask Packetを作成する。
+2. `make:auth`の生成境界とFresh Consumerを実装し、P18-007 Community Board移行前にFramework側の利用感を固定する。
+
+## P18-006B Ephemeral Outcome Contract Worker Verification
+
+```text
+Public Contract: #[PublicApi] EphemeralOutcome extends Outcome Marker 1型だけを追加。Methodなし。Public OperationMetadataへEphemeral Propertyを追加せず、Declared OutcomeからInternalで導出する。
+
+Build／Artifact: Route一つ＋明示Inlineを必須とし、Implicit Inline／Deferred／Routeなし／Console／Unsafe Shape／CredentialのSensitive欠落／Nested Sensitiveを拒否。Operation Manifest Schema 2、HTTP Schema 3、Frontend Schema 4、Generation Marker 7へ更新し、Missing／型不一致／両方向Flag改ざん／Deferred化／Cross-artifact欠落を拒否する。
+
+Runtime／Persistence: Handler ResultをTransaction Commit前にDeclared／Actual Ephemeral性の両方向一致、Declared Class、Structured Shape、JSON Encoding可能性まで検証。通常Outcome Metadataから実Ephemeralを返すLegacy改ざんもCanonical Writer前に拒否する。呼出元には正当な実Outcomeを返し、Canonical ReceivedはEmptyJournalData、CompletedはOperationCompletedData(EmptyOutcome)。Observer／PostgreSQL Journal／Outcome Storeへ実Value／実Outcomeを渡さず、Outcome Rowは0件。Projection FailureはOperation ID付きSafe Failureとなり業務更新をRollbackする。
+
+HTTP／Status／Console／Deferred: HTTPはExact JSON 200、Propertyなしは{}。StatusはSubject取得とAuthorization後にUnavailable。Console Runtime、Deferred Acceptor、Operation／HTTP／Command Manifest改ざん経路を実行前に拒否する。
+
+Frontend: Bound／Unbound双方でfetch／toRequest／urlだけを生成し、Ephemeral固有status／wait TypeとRuntime Methodを生成しない。Strict TypeScript、Injected Fetch、Malformed Response Safe Error、Module ShapeをPermanent Fixtureで検証した。
+
+Quality: Focused PHPUnit 75 tests／258 assertions、Full PHPUnit 1641 tests／6539 assertions。Mago format／lint／analyze成功、Deptrac 0 violations／2782 allowed。Root／Quickstart Composer strict、Quickstart Setup／E2E、Skeleton Create-project、Framework Update Generator、Permanent Frontend、Website 42 tests／31-page Build、Management ID／Community Board／diff Guard成功。生成／Build／Dependency Artifact cleanup済み。
+```
+
+詳細は`develop/orchestration/reports/P18-006B-ephemeral-outcome-contract.md`を参照する。
 
 ## P18-005 Operation Console Adapter Worker Verification
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BlackOps\Transport\PostgreSql;
 
+use BlackOps\Core\EphemeralOutcome;
 use BlackOps\Core\Outcome;
 use BlackOps\Outcome\Exception\OutcomeStoreException;
 use Throwable;
@@ -19,6 +20,10 @@ final readonly class PostgreSqlOutcomeCodec
 
     public function encode(Outcome $outcome): PostgreSqlEncodedOutcome
     {
+        if ($outcome instanceof EphemeralOutcome) {
+            throw new OutcomeStoreException('Ephemeral outcomes cannot be stored.');
+        }
+
         try {
             return new PostgreSqlEncodedOutcome(
                 $outcome::class,
@@ -49,6 +54,9 @@ final readonly class PostgreSqlOutcomeCodec
 
         if (!class_exists($type) || !is_subclass_of($type, Outcome::class)) {
             throw new OutcomeStoreException('PostgreSQL outcome type is not an Outcome.');
+        }
+        if (is_subclass_of($type, EphemeralOutcome::class)) {
+            throw new OutcomeStoreException('Ephemeral outcomes cannot be restored.');
         }
 
         try {

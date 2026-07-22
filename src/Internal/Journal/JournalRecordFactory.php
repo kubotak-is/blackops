@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace BlackOps\Internal\Journal;
 
+use BlackOps\Core\EmptyOutcome;
+use BlackOps\Core\EphemeralOutcome;
 use BlackOps\Core\ExecutionContext;
 use BlackOps\Core\Operation;
 use BlackOps\Core\OperationEnvelope;
@@ -48,7 +50,9 @@ final readonly class JournalRecordFactory
             $metadata,
             $sequence,
             JournalEvent::OperationReceived,
-            new OperationReceivedData($envelope->value()),
+            is_a($metadata->outcome, EphemeralOutcome::class, allow_string: true)
+                ? new EmptyJournalData()
+                : new OperationReceivedData($envelope->value()),
         );
     }
 
@@ -123,7 +127,9 @@ final readonly class JournalRecordFactory
             $metadata,
             $sequence,
             JournalEvent::OperationCompleted,
-            new OperationCompletedData($outcome),
+            new OperationCompletedData(
+                is_a($metadata->outcome, EphemeralOutcome::class, allow_string: true) ? new EmptyOutcome() : $outcome,
+            ),
         );
     }
 

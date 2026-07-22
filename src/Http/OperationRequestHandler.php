@@ -112,7 +112,7 @@ final readonly class OperationRequestHandler implements RequestHandlerInterface
 
         $result = $this->dispatcher->dispatch($match->route->operation, $value, $actorContext);
 
-        return $this->responder->respond($result);
+        return $this->responder->respondForRoute($result, $match->route);
     }
 
     private function actorContext(ServerRequestInterface $request): ?ActorContext
