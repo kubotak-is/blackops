@@ -1,24 +1,24 @@
 # Orchestration State
 
-Updated At: 2026-07-22T10:37:45+09:00
+Updated At: 2026-07-22T10:43:08+09:00
 
 ## Current Phase
 
-Phase 18: Application Ergonomics - Session Authentication Task Preparation
+Phase 18: Application Ergonomics - Session Authentication Core
 
 ## Current Task
 
-Task ID: P18-006 Session Authentication and Generator Preparation
+Task ID: P18-006A Session Authentication Core
 
-Task Packet: Not created
+Task Packet: `develop/orchestration/tasks/P18-006A-session-authentication-core.md`
 
 Specifications: `develop/spec/74-application-ergonomics.md`、`develop/spec/75-phase-18-delivery-plan.md`
 
 ## Task Status
 
-Decision Accepted
+Ready for Worker
 
-D111はQuestion 1から6のUser回答Aを受け、Question 7から9をD110／Spec 74の既存不変条件からAで確定した。Session Authenticationは`blackops/framework`同梱の`BlackOps\Auth\Session` Opt-in Capabilityとし、Opaque Identity、32-byte Token／SHA-256、Absolute TTL／Touch／Rotation／Revocation／Cleanup、Bearer／Cookie Adapter、Application Migration Publish、Built-in `make:auth`を採用する。D110、Spec 74／75、TODOは同じ境界へ同期済みである。
+D111とSpec 74／75に基づき、P18-006をCoreの006A、Generator／Fresh Consumerの006Bに分割した。P18-006A Task PacketはFramework同梱のOpt-in `BlackOps\Auth\Session`、Opaque Identity、32-byte Token／SHA-256、Absolute TTL／Touch／Rotation／Revocation／Cleanup、PostgreSQL Store／Migration Template、Bearer／Cookie Adapter、Sensitive／Concurrent／Existing Consumer Gateを固定し、Worker委譲可能である。
 
 ## Last Accepted Task
 
@@ -62,8 +62,8 @@ Active Implementation Blockerはない。Ray.Aop 2.19.1／2.20.0には複数clas
 
 ## Required Next Action
 
-1. OrchestratorがP18-006 Session Authentication and GeneratorのTask Packetを作成する。
-2. Task PacketをGPT-5.6 Luna High workerへ委譲し、Community Boardを変更せずPermanent Consumerで実装／検証する。
+1. P18-006A Task PacketをGPT-5.6 Luna High workerへ委譲する。
+2. WorkerはCommunity Boardを変更せずPermanent Consumerで実装／検証し、Report／STATEをReady for Reviewへ更新する。
 
 ## P18-005 Operation Console Adapter Worker Verification
 

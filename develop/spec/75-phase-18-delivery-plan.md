@@ -12,8 +12,9 @@ P18-001 Decision, Specification, and Delivery Plan
     -> P18-003 Frontend Bound Client Factory
       -> P18-004 Application Command Discovery and DI
         -> P18-005 Operation Console Adapter
-          -> P18-006 Session Authentication and Generator
-            -> P18-007 Community Board Migration and Phase Closeout
+          -> P18-006A Session Authentication Core
+            -> P18-006B Auth Generator and Fresh Consumer
+              -> P18-007 Community Board Migration and Phase Closeout
 ```
 
 Taskを並行実装しない。各TaskはPublic Contract、Unit／Integration Test、QuickstartまたはPermanent Fixtureを完成してから次へ進む。Community Board全体の書換えはP18-007まで行わず、先行Taskでは必要な最小Consumerだけを使う。
@@ -78,12 +79,20 @@ Operation Console Attributeは追加しない。
 
 位置引数、Prompt、Wait、Renderer Pluginは追加しない。
 
-## P18-006: Session Authentication and Generator
+## P18-006A: Session Authentication Core
 
 - Framework同梱のOpt-in `BlackOps\Auth\Session` Public APIを実装する
 - Opaque Token、Hash、TTL、Rotation、Revocation、Cleanupを実装する
-- Doctrine DBAL Store、Forward Migration、HTTP Authenticator Adapterを実装する
+- Doctrine DBAL Store、Migration Template、Bearer／Cookie HTTP Authenticator Adapterを実装する
 - User Provider等のApplication-owned Portを最小化する
+- Concurrent Rotation／Revocation、Last-used Touch、Sensitive Surfaceを実PostgreSQLで固定する
+- Sessionを登録しないExisting ConsumerのBuild／Runtimeを回帰する
+
+## P18-006B: Auth Generator and Fresh Consumer
+
+- Built-in `make:auth` Command／Generator／Stubを実装する
+- User、DBAL Repository、Password Verifier、Registration Policy、Identity Provider、Register／Login／Logout Operationを生成する
+- Service Provider、Configuration、User Migration／Framework Session Migrationを生成する
 - `make:auth` GeneratorとConflict／No-overwrite／Fresh Install Testを実装する
 - Session Configuration／Binding／MigrationのないApplicationでCapabilityが有効化しないことをGuardする
 - Fresh ConsumerでGenerate、Migration、Login／Logout／Expiry／Rotation／Revocationを完走する
@@ -102,7 +111,7 @@ Session Authentication用の外部Repository作成、Packagist登録、Tag／Rel
 - Guide、Reference、Security、CLI、Configuration、Example READMEを同期する
 - Full Quality Gateを実行しPhase 18をCloseする
 
-Documentation WebsiteとCommunity Boardを外部公開しず、Session Authentication用の別Package／Repositoryを作成しない。
+Documentation WebsiteとCommunity Boardを外部公開せず、Session Authentication用の別Package／Repositoryを作成しない。
 
 ## Dependency and Ownership Rules
 
