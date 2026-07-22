@@ -1,24 +1,24 @@
 # Orchestration State
 
-Updated At: 2026-07-22T18:07:08+09:00
+Updated At: 2026-07-22T22:10:32+09:00
 
 ## Current Phase
 
-Phase 18: Application Ergonomics - Complete
+Post-Phase 18 Application Ergonomics Follow-up - Ready
 
 ## Current Task
 
-Task ID: P18-007 Community Board Migration and Phase Closeout
+Task ID: P18-008A Seeder Core and Build Discovery
 
-Task Packet: `develop/orchestration/tasks/P18-007-community-board-migration-and-phase-closeout.md`
+Task Packet: `develop/orchestration/tasks/P18-008A-seeder-core-and-build-discovery.md`
 
-Specifications: `develop/spec/67-operation-frontend-bridge.md`、`develop/spec/69-deferred-status-and-outcome-api.md`、`develop/spec/71-full-stack-reference-application.md`、`develop/spec/72-phase-17-delivery-plan.md`、`develop/spec/73-structured-outcome-contract.md`、`develop/spec/74-application-ergonomics.md`、`develop/spec/75-phase-18-delivery-plan.md`
+Specifications: `develop/spec/76-database-seeding.md`、`develop/spec/77-phase-18-follow-up-delivery-plan.md`
 
 ## Task Status
 
-Accepted
+Ready
 
-Community BoardをFramework Session Core、Bound Frontend Client、Command Discovery、Operation Consoleへ移行し、Phase 18を完了した。既存Volume／Clean Install、全Consumer、Framework／Website Gate、Before／After計測、Documentationを受け入れた。account-switchでは旧Userの有効SessionをRevokeしてから新User用SessionをIssueする。
+D113をA／A／A／修正版A／A／A／Aで確定した。Public `Seeder`／`SeederRunner`、Build-time Discovery、Compiled Locator、Framework-owned `database:seed`／`make:seeder`、Application-owned Transaction境界を仕様化し、P18-008A／B／Cへ分割した。Production Codeは未変更である。
 
 ## Last Accepted Task
 
@@ -56,6 +56,7 @@ P18-007-community-board-migration-and-phase-closeout
 28. D110はA／A／A／A／A／A／A／Aで確定。Application ErgonomicsをPhase 18としてReliabilityより先に実装し、Frontend、Environment、Dependency、Session Auth、Consoleの責任分界を採用する。
 29. D111はA／A／A／A／A／A／A／A／Aで確定。Session AuthenticationをFramework同梱のOpt-in Capabilityとし、Identity、Token／Lifecycle、HTTP Adapter、Migration、Built-in Generatorの公開／Security Contractを採用する。
 30. D112はAで確定。Public `EphemeralOutcome extends Outcome`、Route付き明示Inline限定、Value／Outcome非永続化、HTTP一回投影、Frontend Status／Wait非公開を採用する。
+31. D113はA／A／A／修正版A／A／A／Aで確定。Database Seederを汎用Application Commandから分離し、Public Runner、Build-time Child Discovery、Framework-owned Console／Generator、Application-owned Transaction境界を採用する。
 
 ## Known Blockers
 
@@ -63,9 +64,9 @@ Active Implementation Blockerはない。Current SchemaとMigration Schemaが一
 
 ## Required Next Action
 
-1. Phase 19 Reliability and Deliveryの最初のTaskとしてIdempotency Key実装境界をTask Packetへ落とす。
-2. D109の受付、保存、重複時Contractと既存HTTP／Deferred／Frontend境界を再確認する。
-3. Nullable PropertyへString Validation Attributeを付けた場合のnull Contractを独立Taskとして扱う時期を決める。
+1. GPT-5.6 Luna High workerへ`P18-008A`を依頼する。
+2. OrchestratorがReportと差分をReviewし、独立Quality Gate後にCommitする。
+3. P18-008A Accepted後にP18-008B、P18-008Cを順に実装し、その後Phase 19へ進む。
 
 ## P18-007 Community Board Migration and Phase Closeout Worker Verification
 

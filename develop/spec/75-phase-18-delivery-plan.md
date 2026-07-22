@@ -16,6 +16,9 @@ P18-001 Decision, Specification, and Delivery Plan
             -> P18-006B Ephemeral Outcome Contract
               -> P18-006C Auth Generator and Fresh Consumer
                 -> P18-007 Community Board Migration and Phase Closeout
+                  -> P18-008A Seeder Core and Build Discovery
+                    -> P18-008B Seeder Console and Generator
+                      -> P18-008C Seeder Consumer Adoption and Follow-up Closeout
 ```
 
 Taskを並行実装しない。各TaskはPublic Contract、Unit／Integration Test、QuickstartまたはPermanent Fixtureを完成してから次へ進む。Community Board全体の書換えはP18-007まで行わず、先行Taskでは必要な最小Consumerだけを使う。
@@ -133,6 +136,10 @@ Status: Complete.
 - Full Quality Gateを実行しPhase 18をCloseする
 
 Documentation WebsiteとCommunity Boardを外部公開せず、Session Authentication用の別Package／Repositoryを作成しない。
+
+## P18-008: Database Seeder Follow-up
+
+P18-007 Closeout後に見つかったSeeder用Application Commandの過剰な利用者責務を、D113と[Phase 18 Follow-up Delivery Plan](77-phase-18-follow-up-delivery-plan.md)に基づいてP18-008A／B／Cで解消する。Phase 18本体のAccepted Evidenceは変更せず、Follow-upを完了してからPhase 19へ進む。
 
 ## Dependency and Ownership Rules
 

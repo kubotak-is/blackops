@@ -163,6 +163,12 @@ MVP後に残す主要項目:
 - [ ] Idempotency Keyと重複時Contractを実装する
 - [ ] Transactional Outbox、Relay、Replayを実装する
 
+### Post-Phase 18 Application Ergonomics Follow-up
+
+- [x] D113でDatabase Seeder、Framework-owned `database:seed`／`make:seeder`、Compiled Container DI、Application責任境界を確定する
+- [x] Seeder Core、Console、Generator、Consumer移行を`P18-008A`／`P18-008B`／`P18-008C`へ分割する
+- [ ] Community BoardからSeeder用Symfony Console実装と不要になった直接Dependencyを削除し、Clean Installで再検証する
+
 ### Phase 20: Security Hardening and Observability
 
 - [ ] Journal／Outcome参照制御、Tenant分離、暗号化Capabilityを強化する

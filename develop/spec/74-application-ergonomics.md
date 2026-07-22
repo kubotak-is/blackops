@@ -149,6 +149,8 @@ ApplicationはServer-only Factoryを一つ作り、Domain固有のSafe View Mode
 
 Application Maintenance CommandはSymfony Consoleの標準`#[AsCommand]`を使う。
 
+Database Seederはこの汎用Command境界の例外であり、Framework-owned `database:seed`とPublic `Seeder`／`SeederRunner`を標準形とする。Cache Warm、External System同期、独自Maintenance等、Framework標準Capabilityで表現できないCommandだけが`#[AsCommand]`を直接使う。詳細は[Database Seeding](76-database-seeding.md)を正本とする。
+
 - Configured Application Source PathだけをBuild時に走査する
 - Attribute付きでInstantiableなSymfony `Command` Classを決定的にDiscoveryする
 - Discovery結果をBuild Artifactへ保存し、Production RuntimeでSource Scanしない

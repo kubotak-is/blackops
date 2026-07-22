@@ -2,7 +2,7 @@
 
 ## Scope
 
-Installed ApplicationのProject RootにあるProject所有`blackops`から、Framework Package所有のOperation／Migration Generatorを実行する。生成物はApplication所有Sourceとなり、生成後の編集と保守はApplicationが行う。
+Installed ApplicationのProject RootにあるProject所有`blackops`から、Framework Package所有のOperation／Migration／Seeder Generatorを実行する。生成物はApplication所有Sourceとなり、生成後の編集と保守はApplicationが行う。
 
 ## Framework Commands
 
@@ -11,11 +11,12 @@ Framework Console Kernelは次のCommandを常時登録する。
 ```text
 make:operation
 make:migration
+make:seeder
 ```
 
 Command Class、入力検証、File生成、StubはFramework Packageが所有する。Projectの`blackops`と`bootstrap/app.php`はGenerator実装を持たない。Kernelの`list`／`help`はSource Scan、Migration Directory Scan、Database接続、Buildを行わない。
 
-Application独自Commandはこの2つの名前を上書きできない。
+Application独自Commandはこの3つの名前を上書きできない。
 
 ## Operation Generator
 
@@ -83,11 +84,17 @@ Doctrine Directory FinderがVersion Fileを直接Loadするため、Application 
 
 HTTP、Worker、Scheduler、Build、Consoleの`list`／`help`はApplication MigrationをScanまたは適用しない。
 
+## Seeder Generator
+
+公式形式は`php blackops make:seeder DatabaseSeeder`または`php blackops make:seeder Board/PostSeeder`とする。PascalCase Segmentから`app/Infrastructure/Seed/`配下のPathと`App\Infrastructure\Seed` Namespaceを決定し、Public `Seeder`を実装する空の`run(): void`を生成する。
+
+Seeder GeneratorはFile生成だけを行い、Configuration変更、Database接続、Migration、Build、Seed実行、Composer Dump-autoloadを行わない。入力、Nested Path、既存File、Symlink、Atomic Write、Stub OwnershipはOperation／Migration Generatorと同じFile Safety Contractを使う。Seeder RuntimeとCommandの正本は[Database Seeding](76-database-seeding.md)とする。
+
 ## File Safety
 
 Generatorはすべての入力、Target Path、既存File衝突をWrite前に検証する。Operationの3 Targetの一つでも存在する場合は何も変更しない。初期Versionでは`--force`を提供しない。
 
-複数Fileは同じTarget Directory内のTemporary Fileへ完全にWriteしてから確定する。確定途中で失敗した場合は、このCommandが作成したTemporary／Target Fileだけを除去する。既存Fileと既存Directoryは削除しない。
+複数Fileは同じTarget Directory内のTemporary Fileへ完全にWriteしてから確定する。単一File Generatorも同じDirectoryのTemporary Fileから確定する。確定途中で失敗した場合は、このCommandが作成したTemporary／Target Fileだけを除去する。既存Fileと既存Directoryは削除しない。
 
 Error MessageはApplication Absolute Path、Credential、Stub内部Pathを不必要に公開せず、修正可能なInputと衝突Targetを示す。成功時は生成したProject Relative Pathを表示する。
 
@@ -104,6 +111,7 @@ Framework Updateは生成済みOperation／Migrationを変更しない。新Stub
 - 正常なOperation 3 File生成とBuild成功
 - 不正Path／Type拒否、Traversal不在、既存File非上書き、部分生成不在
 - MigrationのUTC Version／Description／Namespace／Method生成
+- SeederのRoot／Nested Path、Namespace、Public Interface／Method生成
 - `make:migration`のDatabase／Build Side Effect不在
 - Application MigrationなしのFramework-only Status／Migrate互換
 - FrameworkとApplication MigrationのStatus／Dry-run／Migrate統合
@@ -111,6 +119,7 @@ Framework Updateは生成済みOperation／Migrationを変更しない。新Stub
 - `list`／`help`のDB／Migration Scan不在
 - Framework Update前後でProject Entrypointと生成済みFileが不変
 - Framework Update後の新Command／新Stub利用
+- Seeder GeneratorのDatabase／Migration／Build／Seed Side Effect不在
 
 ## Traceability
 

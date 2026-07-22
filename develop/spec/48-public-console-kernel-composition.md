@@ -53,6 +53,7 @@ operation:inspect
 operation:viewer
 database:status
 database:migrate
+database:seed
 worker:run
 retention:plan
 retention:purge
@@ -60,7 +61,7 @@ scheduler:run
 scheduler:daemon
 ```
 
-Project Root Entrypointと組み合わせる公式形式は`php blackops build:compile`とする。FrameworkはPrefixなしCanonical名だけを予約し、旧`blackops:*` Project CLI名はAliasとして登録または予約しない。Applicationは旧名を独自Command名またはAliasとして利用できる。Generatorの`make:operation`と`make:migration`にはPrefixを付けない。
+Project Root Entrypointと組み合わせる公式形式は`php blackops build:compile`とする。FrameworkはPrefixなしCanonical名だけを予約し、旧`blackops:*` Project CLI名はAliasとして登録または予約しない。Applicationは旧名を独自Command名またはAliasとして利用できる。Generatorの`make:operation`、`make:migration`、`make:seeder`にはPrefixを付けない。
 
 個別Manifest／Container Compile Commandは内部の低レベルToolingとして維持するが、Installed Applicationの標準Kernelへ登録しない。
 
@@ -99,6 +100,8 @@ Application-aware BuildはSymfony `#[AsCommand]` Metadataと、Operation `#[Cons
 Migration Commandは `config/database.php` の`framework.connection`と`framework.schema`を使用し、Command実行時にDatabaseManagerから一つのDBAL ConnectionとDatabase Migration Runnerを構成する。
 
 `database:status` はSchemaを変更しない。`database:migrate` だけが明示実行によりFramework Migrationを適用する。Kernel構成、Command一覧、HTTP、Build、Worker起動はMigrationまたはDDLを暗黙実行しない。
+
+`database:seed`はFreshなCompiled ContainerからApplication Root Seederを解決し、明示実行時だけ一度呼び出す。Migration、Build、Transaction、Truncate、Operation Lifecycleを暗黙実行しない。Root Convention、Build-time Discovery、Runner、Safe Outputの正本は[Database Seeding](76-database-seeding.md)とする。
 
 ## Worker Configuration
 
