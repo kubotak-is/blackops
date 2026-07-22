@@ -72,7 +72,7 @@ Stableと`main` Previewの準備方法、利用可能なEndpointの差は[利用
 
 ## Full-stack Reference Application
 
-[BlackOps Board](examples/community-board/README.md)は、Repository `main`だけで提供するLocal Full-stack Reference Applicationです。QuickstartがFrameworkの最短ContractをHTTPとWorkerで確認するのに対し、BlackOps BoardはApplication-owned Authentication、SvelteKit Same-origin BFF、DBAL Domain Repository、Inline Post／Comment、Deferred Digest、Accessible Product UIまでを一つのBrowser Journeyで示します。
+[BlackOps Board](examples/community-board/README.md)は、Repository `main`だけで提供するLocal Full-stack Reference Applicationです。QuickstartがFrameworkの最短ContractをHTTPとWorkerで確認するのに対し、BlackOps BoardはApplication-owned Identity、Framework Session Core、Generated Ephemeral Auth Operation、SvelteKit Same-origin BFF、DBAL Domain Repository、Inline Post／Comment、Deferred Digest、Accessible Product UIまでを一つのBrowser Journeyで示します。
 
 [Community Board Guide](docs/guide/community-board.md)は、空のLocal StateからSetup、Seed、通常Login、Inline／Deferred Journeyを再現し、BrowserからPostgreSQL／Workerまでの責任境界を説明します。公開Demo CredentialはLocal／Test Fixtureであり、Stable `1.1.0` Skeletonには含まれません。Community BoardとDocumentation Websiteは外部Hostingしていません。
 

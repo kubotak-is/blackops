@@ -11,7 +11,7 @@ BlackOps Boardは、Repository `main`のFramework機能を実際のBrowser Journ
 | 入口 | 適した目的 | 含む範囲 |
 | --- | --- | --- |
 | [Quickstart](mvp-sample.md) | Frameworkの最短Contractを確認したい | Typed Operation、Inline／Deferred HTTP、Worker、Journal、Status／Outcome、Generated Operation Object |
-| BlackOps Board | Application全体の責任分界をBrowserから追いたい | Application-owned Authentication、Domain／Infrastructure、SvelteKit BFF、Inline CRUD、Deferred Progress、Accessible UI、Real Browser E2E |
+| BlackOps Board | Application全体の責任分界をBrowserから追いたい | Application-owned Identity、Framework Session Core、SvelteKit BFF、Inline CRUD、Deferred Progress、Accessible UI、Real Browser E2E |
 
 最初のOperationを自分で書く場合は[チュートリアル](first-operation.md)へ進んでください。BlackOps BoardはCore API一覧の代わりではなく、完成したApplicationで各Contractがどう接続されるかを説明するExample Guideです。
 
@@ -73,12 +73,14 @@ Browser
                  -> Deferred Transport -> Worker -> Typed Outcome
 
 SvelteKit server
-  -> Application-owned /auth/* Router -> User / hashed Session -> PostgreSQL
+  -> Generated Register / Login / Logout Operation Object
+     -> BlackOps Ephemeral HTTP Lifecycle
+        -> Identity Domain + Framework Session Core -> PostgreSQL
 ```
 
 BrowserはSvelteKit Originだけへ接続します。Generated Moduleは`frontend/src/lib/server/blackops/generated/`へ出力し、Application-owned `.server.ts` WrapperだけがImportします。Page Server LoadとForm Actionは画面に必要なSafe View Modelへ縮約し、BrowserへBackend URLやRaw Errorを透過しません。
 
-`app/Domain/Board/`はPostの存在、Owner判定、Row Lockを伴う更新／削除、Post／Comment生成、Digest集計等の業務規則を所有します。`app/Infrastructure/`はDoctrine DBAL SQL、Clock、UUID、Seed、Development Retry Adapter等の技術詳細を所有します。`app/Feature/`のOperationはValueとActorをDomain Serviceへ渡し、Domain ResultをOutcomeへ変換するCoordinationに留まります。
+`app/Domain/Board/`はPostの存在、Owner判定、Row Lockを伴う更新／削除、Post／Comment生成、Digest集計等の業務規則を所有します。`app/Domain/Identity/`はUser、Password、Email正規化、Registration Policyを所有し、BlackOps／Doctrine／Symfonyへ依存しません。`app/Infrastructure/`はDoctrine DBAL SQL、Clock、UUID、Session Identity接続、Seed、Development Retry Adapter等の技術詳細を所有します。`app/Feature/`のOperationはValueとActorをDomain Serviceへ渡し、Domain ResultをOutcomeへ変換するCoordinationに留まります。
 
 Mutation Operationの`#[Transactional]`がApplication ConnectionのTransaction境界を作ります。Domain ServiceはBlackOps Attributeへ依存せず、Transactionを開始しません。Database／TransactionのFramework Contractは[DatabaseとTransaction](database-and-transactions.md)、Deferred Stateは[Outcome Retrieval](outcome-retrieval.md)を参照してください。
 
@@ -90,9 +92,9 @@ Weekly DigestはDeferred Operationです。`.fetch()`は202を返すだけで自
 
 ## AuthenticationとSensitive Dataを分離する
 
-AuthenticationはOperationではありません。PHPのApplication-owned RouterがRegistration、Login、Logoutを処理し、その他のRouteをBlackOpsへ委譲します。PasswordはArgon2id Hash、Session TokenはSHA-256 HashだけをPostgreSQLへ保存します。Raw TokenはLogin時にSvelteKit Serverへ一度だけ返し、`HttpOnly`、`SameSite=Strict`、Path `/`のCookieへ入れます。
+Register／Login／Logoutは明示Inline／Transactional／Ephemeral Operationです。Generated Operation Objectから通常のBlackOps HTTP Runtimeへ送り、Application-owned Identity DomainとFramework Session Coreへ接続します。PasswordはArgon2id Hash、Session TokenはSHA-256 HashだけをPostgreSQLへ保存します。Raw TokenはRegister／Login時にSvelteKit Serverへ一度だけ返し、`HttpOnly`、`SameSite=Strict`、Path `/`のCookieへ入れます。
 
-PasswordとRaw Session TokenをOperation Value、Canonical Journal、Outcome、Generated Contract、Page Data、Browser Bundle、Logへ渡しません。BlackOps Runtimeは認証済みの`ActorRef`だけを受け取り、PHP側のOwner PolicyとStatus Authorizerが最終判断を行います。Generated TypeやSvelteKitでのButton非表示は認証・認可を代替しません。一般的な責務表は[Security](security.md)を参照してください。
+PasswordとRaw Session Tokenは`#[Sensitive]`なEphemeral Value／Outcomeにだけ存在します。FrameworkはReceived Valueを空Projection、Completed Outcomeを空OutcomeとしてJournalへ記録し、Outcome Store、Status API、Generated Artifact、Page Data、Browser Bundle、LogへCredentialを残しません。通常の認証済みOperationへ渡すのは`ActorRef`だけで、PHP側のOwner PolicyとStatus Authorizerが最終判断を行います。Generated TypeやSvelteKitでのButton非表示は認証・認可を代替しません。一般的な責務表は[Security](security.md)を参照してください。
 
 Local HTTPでは`.env.example`が`SESSION_COOKIE_SECURE=false`を明示します。HTTPSを使う非Local環境では`true`を必須にし、TLS設定の回避目的でCookieを弱めないでください。
 

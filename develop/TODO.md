@@ -154,7 +154,8 @@ MVP後に残す主要項目:
 - [x] D112でPublic Ephemeral Outcomeと非永続化Lifecycle境界を決定する
 - [x] Ephemeral Outcome CoreとFrontend直接Fetch Contractを実装する
 - [x] `make:auth` GeneratorとFresh Consumerを実装する
-- [ ] Community Boardを簡素化し、Clean Install Consumerで検証する
+- [x] Community Boardを簡素化し、Clean Install Consumerで検証する
+- [ ] Nullable PropertyへString系Validation Attributeを付けた場合、`null`をskipするかwrong-targetにするかのValidation Contractを確定する
 
 ### Phase 19: Reliability and Delivery
 

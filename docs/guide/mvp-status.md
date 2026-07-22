@@ -35,6 +35,11 @@ BlackOpsはExperimentalです。1.x Minor間のBackward CompatibilityとProducti
 | `frontend:generate`／`frontend:check` | Not available | Available（Experimental） |
 | Deferred Status Query／`GET /operations/{operationId}` | Not available | Available（Experimental） |
 | Generated `.status()`／finite `.wait()` | Not available | Available（Experimental） |
+| Typed `Environment`／Configuration Closure | Not available | Available（Experimental） |
+| Generated Bound `createBlackOpsClient()` | Not available | Available（Experimental） |
+| Application `#[AsCommand]` Discovery／DI | Not available | Available（Experimental） |
+| Operation `#[ConsoleCommand]` Adapter | Not available | Available（Experimental） |
+| Opt-in Session Core／`make:auth` | Not available | Available（Experimental） |
 | BlackOps Board Full-stack Reference Application | Not available | Available（Experimental、Local／CI only） |
 
 Stable Applicationを作る場合はVersionを明示します。
@@ -67,13 +72,17 @@ composer create-project blackops/skeleton my-app 1.1.0
 - Readonly Metadata、`.url()`、`.toRequest()`、Typed `.fetch()`とFrontend Drift Check
 - 認可前Subject Projection、Unknown／Deny 404、認可済みExpired 410を持つPublic Status Query／HTTP Resource
 - 7 Stateを一回取得するGenerated `.status()`と、Abort／Deadline必須の有限`.wait()`
-- Application-owned Authentication、SvelteKit BFF、Post／Comment、Deferred Digest、Real Browser E2Eを統合した[BlackOps Board](community-board.md)
+- 起動時に一回評価するTyped `Environment`／Configuration Closure
+- Server Fetch、Base URL、Header、CredentialをRequest単位で固定するGenerated Bound Client
+- Symfony `#[AsCommand]`のBuild-time Discovery／Constructor DIと`#[ConsoleCommand]` Operation Adapter
+- Opaque Token、Hash保存、TTL、Touch、Rotation、Revocation、Cleanupを持つOpt-in Session Coreと`make:auth`
+- Application-owned Identity、Ephemeral Auth Operation、SvelteKit BFF、Post／Comment、Deferred Digest、Real Browser E2Eを統合した[BlackOps Board](community-board.md)
 
 BlackOps BoardはRepository `main`だけのExperimental Local Reference Applicationです。Stable `1.1.0` Skeletonには含まれず、公開Hostも提供していません。Documentation Websiteと同様にSource、Local／CI Build、Consumer Evidenceだけを維持し、External Publication／Deployは将来の明示Taskへ分離しています。
 
 ## Known Constraints
 
-- Session／JWT／OAuth／API Key等のProduction認証方式、Actor Repository、Permission Storeは提供しない
+- Session Coreは提供するが、User／Password／Registration Policy、Cookie／CSRF、JWT／OAuth／API Key、Actor Repository、Permission StoreはApplication責務
 - Production Status Authorization Policy、Tenant Model、Role／Permission Repositoryは提供しない
 - 無限Wait、任意Backoff／Jitter、Global Generated Client、Cache／Offline Queueは提供しない
 - Transactional Outbox Relayは提供しない

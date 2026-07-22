@@ -98,12 +98,13 @@ test('Community Board guide presents the local full-stack journey and credential
   assert.equal(createHash('sha256').update(screenshot).digest('hex'), 'a7619b25d97b6ac1e4eba42888968d71fd1633102836a105a2d6c1c94501945d');
   assert.match(guideSource, /Quickstart.*Frameworkの最短Contract/s);
   assert.match(guideSource, /Browser[\s\S]*SvelteKit same-origin UI \/ BFF[\s\S]*Server-only Generated Operation Object/);
-  assert.match(guideSource, /app\/Domain\/Board\/[\s\S]*app\/Infrastructure\/[\s\S]*app\/Feature\//);
-  assert.match(guideSource, /PasswordとRaw Session TokenをOperation Value、Canonical Journal、Outcome、Generated Contract、Page Data、Browser Bundle、Logへ渡しません/);
+  assert.match(guideSource, /app\/Domain\/Board\/[\s\S]*app\/Domain\/Identity\/[\s\S]*app\/Infrastructure\/[\s\S]*app\/Feature\//);
+  assert.match(guideSource, /PasswordとRaw Session Tokenは`#\[Sensitive\]`なEphemeral Value／Outcomeにだけ存在します/);
+  assert.match(guideSource, /Outcome Store、Status API、Generated Artifact、Page Data、Browser Bundle、LogへCredentialを残しません/);
   for (const topic of ['Worker未起動', 'Seed Conflict', 'Port衝突', 'Generated Drift', 'Secure Cookie Local設定']) {
     assert.match(guideSource, new RegExp(`^### ${topic}$`, 'm'));
   }
-  assert.match(testing, /BlackOps Board.*Application-owned Authentication.*SvelteKit .*BFF/s);
+  assert.match(testing, /BlackOps Board.*Application-owned Identity.*Framework Session Core.*SvelteKit .*BFF/s);
   assert.match(status, /Stable `1\.1\.0` Skeletonには含まれず、公開Hostも提供していません/);
 });
 

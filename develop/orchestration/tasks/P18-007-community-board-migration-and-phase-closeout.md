@@ -1,6 +1,6 @@
 # P18-007: Community Board Migration and Phase Closeout
 
-Status: Ready
+Status: Accepted
 
 P18-006DでCurrent SchemaとMigration Schemaが一致する既存DatabaseのDoctrine Metadata初期化を修正した。途中のCommunity Board移行差分を保持した状態から再開する。
 

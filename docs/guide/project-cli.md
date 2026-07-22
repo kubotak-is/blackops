@@ -139,8 +139,9 @@ PlanとDry-runは変更を行いません。Purgeは`--confirm`を要求し、Sc
 ```text
 make:operation
 make:migration
+make:auth
 ```
 
-この2 CommandはExperimental Stable `1.1.0`で利用できます。詳細は[Project Generators](project-generators.md)を参照してください。生成済みApplication SourceはFramework Updateで自動変更されません。
+`make:operation`と`make:migration`はExperimental Stable `1.1.0`で利用できます。`make:auth`はRepository `main`のExperimental Commandで、Application-owned Identity Domain、DBAL Adapter、Ephemeral Register／Login／Logout、Session Migrationを一度だけ生成します。詳細は[Project Generators](project-generators.md)と[Session Authentication Starter](security.md#session-authentication-starter)を参照してください。生成済みApplication SourceはFramework Updateで自動変更されません。
 
 `1.0.0`の`bin/blackops`と`blackops:*` Project Commandは互換対象ではありません。`1.1.0`への移行ではProject Root `blackops`とPrefixなしCommandへ更新してください。

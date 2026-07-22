@@ -1,28 +1,28 @@
 # Orchestration State
 
-Updated At: 2026-07-22T17:02:19+09:00
+Updated At: 2026-07-22T18:07:08+09:00
 
 ## Current Phase
 
-Phase 18: Application Ergonomics - Migration Metadata Prerequisite
+Phase 18: Application Ergonomics - Complete
 
 ## Current Task
 
-Task ID: P18-006D Migration Metadata Current Schema
+Task ID: P18-007 Community Board Migration and Phase Closeout
 
-Task Packet: `develop/orchestration/tasks/P18-006D-migration-metadata-current-schema.md`
+Task Packet: `develop/orchestration/tasks/P18-007-community-board-migration-and-phase-closeout.md`
 
-Specifications: `develop/spec/42-installed-application-boundary.md`、`develop/spec/44-public-application-bootstrap-api.md`、`develop/spec/55-project-generators-and-application-migrations.md`、`develop/spec/56-phase-9-delivery-plan.md`
+Specifications: `develop/spec/67-operation-frontend-bridge.md`、`develop/spec/69-deferred-status-and-outcome-api.md`、`develop/spec/71-full-stack-reference-application.md`、`develop/spec/72-phase-17-delivery-plan.md`、`develop/spec/73-structured-outcome-contract.md`、`develop/spec/74-application-ergonomics.md`、`develop/spec/75-phase-18-delivery-plan.md`
 
 ## Task Status
 
 Accepted
 
-Current SchemaとMigration Schemaが一致する場合だけDoctrine Metadata Table名を非修飾化し、既存物理Tableを正しく認識する修正を受け入れた。Focused 19 tests／78 assertions、Full 1662 tests／6673 assertions、Deptrac 0 violations、Community Board既存Volumeのmigrate 1件→再migrate 0件→pending 0件を確認した。Repository全体のMago lint 133 errors／analyze 329 errorsはP18-006D外の既存Baselineであり、変更Production File単体はNo issues、format checkは成功した。
+Community BoardをFramework Session Core、Bound Frontend Client、Command Discovery、Operation Consoleへ移行し、Phase 18を完了した。既存Volume／Clean Install、全Consumer、Framework／Website Gate、Before／After計測、Documentationを受け入れた。account-switchでは旧Userの有効SessionをRevokeしてから新User用SessionをIssueする。
 
 ## Last Accepted Task
 
-P18-006D-migration-metadata-current-schema
+P18-007-community-board-migration-and-phase-closeout
 
 ## Pending Decisions
 
@@ -63,9 +63,27 @@ Active Implementation Blockerはない。Current SchemaとMigration Schemaが一
 
 ## Required Next Action
 
-1. P18-006Dを独立Commitする。
-2. 保持中のP18-007 Community Board移行をGPT-5.6 Luna High workerで再開する。
-3. OrchestratorがIdentity／Migration／Frontend／Command責任分界と全Consumerを独立Reviewする。
+1. Phase 19 Reliability and Deliveryの最初のTaskとしてIdempotency Key実装境界をTask Packetへ落とす。
+2. D109の受付、保存、重複時Contractと既存HTTP／Deferred／Frontend境界を再確認する。
+3. Nullable PropertyへString Validation Attributeを付けた場合のnull Contractを独立Taskとして扱う時期を決める。
+
+## P18-007 Community Board Migration and Phase Closeout Worker Verification
+
+```text
+Identity／HTTP: Application IdentityをDomain／Infrastructure／Featureへ分離。User／Password／RegistrationはVendor非依存Domainへ残し、DBAL／UID／Session Identity AdapterをInfrastructureへ移動。Register／Login／LogoutをRoute付きInline／Transactional／Ephemeral Operationとして通常HTTP Runtimeへ統合し、Custom Authentication Router／Handler／Token Codec／Session Storeを削除した。
+
+Session: Framework Session CoreへHash、TTL、Touch、Rotation、Revocation、Cleanupを委譲。同一UserのCurrent TokenはRotate、別Userの有効Tokenは旧TokenをRevokeして新TokenをIssue、Invalid／Expired Tokenは安全に無視してIssueする。Focused 3 tests／12 assertions、修正後Identity ConsumerはCommunity Board PHP 49 tests／550 assertionsを含め成功した。
+
+Frontend／Command: SvelteKit event.fetch、Base URL、Bearer CredentialをGenerated createBlackOpsClientへRequest単位でBinding。Custom operationFetch Adapterを0にし、Vitest 7 files／43 tests、Svelte Check／Build成功。app:seedは#[AsCommand]＋Constructor DI、board:welcomeは#[ConsoleCommand]で共通Operation Lifecycle、Journal、Outcomeを確認した。
+
+Migration／Measurement: Existing VolumeとFresh Databaseの全6 Migrationを完走し、board_sessionsをblackops_sessionsへForward Migration。Identity／Authentication PHPは27 files／1,116 LOCから29 files／715 LOCへ401 LOC削減、Frontend Wiringは10 files／1,146 LOCから11 files／1,011 LOCへ135 LOC削減。Custom Token Codec 2、Session Lifecycle 4、Auth Router 3、Frontend Fetch Adapter 3 filesをすべて0にした。
+
+Quality: 全7 Community Board Consumer、Root／Quickstart／Community Board Composer strict、Full PHPUnit 1,662 tests／6,673 assertions、Mago format／lint／analyze、Deptrac 0 violations／2,793 allowed、Quickstart／Skeleton／Framework Export、Website 42 tests／31-page Build、Security／Environment／Generated／diff Guard成功。外部Publication／Deploy、Framework src／Quickstart Source変更、Worker Commitなし。生成／Dependency／Runtime Artifact cleanup済み。
+
+Remaining: Nullable PropertyへString Validation Attributeを付与した場合のnull Contractはdevelop/TODO.mdへ記録。全Examples一括Formatには既存Quickstart 1件の範囲外違反があり、P18-007では変更していない。Active Blockerなし。
+```
+
+詳細は`develop/orchestration/reports/P18-007-community-board-migration-and-phase-closeout.md`を参照する。
 
 ## P18-006C Auth Generator and Fresh Consumer Worker Verification
 

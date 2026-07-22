@@ -274,19 +274,19 @@ Phase 18の最後にCommunity Boardを新Contractへ移行する。
 
 ## Acceptance Criteria
 
-- [ ] Typed EnvironmentとConfiguration Closureが一回だけ評価され、Array Configurationが回帰しない
-- [ ] Quickstart／Skeleton／Community BoardのConfigurationから直接`$_ENV`参照がなくなる
-- [ ] Bound ClientがSvelteKit Server `fetch`をAdapterなしで受け取り、全Generated Operationを型付きで呼べる
-- [ ] Browser BundleとSafe ResultへCredential、Base URL、Raw Errorが出ない
-- [ ] `#[AsCommand]`がBuild時Discoveryされ、Constructor DependencyをCompiled Containerから受け取る
-- [ ] 明示Command登録が維持され、Name Collision／未解決DependencyがFail-fastする
+- [x] Typed EnvironmentとConfiguration Closureが一回だけ評価され、Array Configurationが回帰しない
+- [x] Quickstart／Skeleton／Community BoardのConfigurationから直接`$_ENV`参照がなくなる
+- [x] Bound ClientがSvelteKit Server `fetch`をAdapterなしで受け取り、全Generated Operationを型付きで呼べる
+- [x] Browser BundleとSafe ResultへCredential、Base URL、Raw Errorが出ない
+- [x] `#[AsCommand]`がBuild時Discoveryされ、Constructor DependencyをCompiled Containerから受け取る
+- [x] 明示Command登録が維持され、Name Collision／未解決DependencyがFail-fastする
 - [x] `#[ConsoleCommand]`付きOperationだけがCLIへ現れ、Binding／Validation／Authorization／Inline／Deferred／Exit Codeを満たす
 - [x] `BlackOps\Auth\Session`がFramework同梱のOpt-in CapabilityとしてSession Lifecycleを提供する
 - [x] `make:auth`がApplication-owned接続点を安全に生成する
-- [ ] Community Boardの手動Transport／Identity／Command配線が削減され、主要Journeyが回帰しない
-- [ ] Application Composer Dependencyが直接Import規則と一致する
-- [ ] Full Framework／Quickstart／Skeleton／Community Board／Frontend／Website Gateが成功する
-- [ ] Documentation WebsiteとCommunity Boardを外部公開しず、Session Authentication用の別Package／Repositoryを作成しない
+- [x] Community Boardの手動Transport／Identity／Command配線が削減され、主要Journeyが回帰しない
+- [x] Application Composer Dependencyが直接Import規則と一致する
+- [x] Full Framework／Quickstart／Skeleton／Community Board／Frontend／Website Gateが成功する
+- [x] Documentation WebsiteとCommunity Boardを外部公開せず、Session Authentication用の別Package／Repositoryを作成しない
 
 ## Traceability
 

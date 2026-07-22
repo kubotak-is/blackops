@@ -5,6 +5,7 @@ Installed Applicationは責務別のPHP Configを`config/`に置きます。Fram
 | File | Responsibility |
 | --- | --- |
 | `app.php` | Build Artifact、Application Service Provider、Application Command |
+| `auth.php` | Optional Session Authentication ConfigurationとService Provider |
 | `database.php` | Default／Named Doctrine DBAL ConnectionとFramework Store |
 | `operations.php` | Build-time Discovery RootとOptional Operation Provider |
 | `execution.php` | Worker ID、Lease、Heartbeat、Grace、Supervision |
@@ -99,6 +100,10 @@ return [
 Symfony `#[AsCommand]`付きの具象`Command`だけを発見します。Command ConstructorはBuild時に実行せず、Compiled ContainerへAutowired Public Serviceとして登録します。Interface Dependencyは`services`のService ProviderでBindingしてください。Providerが同じService IDを明示登録した場合は、その定義が自動登録より優先されます。
 
 `commands`は従来どおりCommand Instanceまたは引数なしで生成できるClassを明示追加します。Discoveryと明示登録が同じClassなら明示登録を優先します。Framework、Discovery、明示登録のCanonical Name／Alias衝突はCase-sensitiveに拒否します。旧`blackops:*`名はFramework予約ではありません。
+
+## Session Authentication
+
+`php blackops make:auth`が生成するOptional `config/auth.php`も同じ`Environment` Snapshotを一度だけ受け取ります。Registration有効化、Session TTL、Touch Intervalを型付きで検証し、`auth.services`を`app.services`の後へMergeします。FileがないApplicationではSession Capabilityを登録しません。KeyとDefaultは[Session Authentication Starter](security.md#環境を設定する)を参照してください。
 
 ## Frontend Generation
 

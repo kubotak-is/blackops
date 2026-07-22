@@ -108,15 +108,17 @@ Status: Complete
 - Taste SkillをDesign Directionに使うAccessible／Responsive Product UI
 - Local Compose、Seed、Real Browser E2E、Screenshot／Guide、CI
 
-Quickstart／Skeletonは変更せず、External HostingとDocumentation Website Publicationを含めない。Authentication EndpointはOperation外のApplication-owned HTTP Boundaryとし、BrowserからBlackOpsへの直接通信とCredentialのJournal保存を行わない。詳細は[Full-stack Reference Application](71-full-stack-reference-application.md)を正本とする。
+Quickstart／Skeletonは変更せず、External HostingとDocumentation Website Publicationを含めない。Phase 17時点のAuthentication EndpointはOperation外のApplication-owned HTTP Boundaryとしたが、Phase 18でEphemeral OperationとFramework Session Coreへ移行した。BrowserからBlackOpsへの直接通信とCredentialのJournal保存は引き続き行わない。詳細は[Full-stack Reference Application](71-full-stack-reference-application.md)と[Application Ergonomics](74-application-ergonomics.md)を正本とする。
 
 ## Phase 18: Application Ergonomics
+
+Status: Complete
 
 - Typed `Environment` SnapshotとConfiguration Closure
 - Framework-neutralなFrontend Bound Client Factory
 - Symfony `#[AsCommand]`のBuild時DiscoveryとCompiled Container DI
 - 明示的`#[ConsoleCommand]`によるOperation Console Adapter
-- 任意の`blackops/session-auth` Packageと`make:auth` Generator
+- Framework同梱のOpt-in `BlackOps\Auth\Session` Capabilityと`make:auth` Generator
 - Community BoardのFrontend／Identity／Command／Dependency簡素化
 - Clean Install、Generated Artifact、Sensitive BoundaryのConsumer Gate
 

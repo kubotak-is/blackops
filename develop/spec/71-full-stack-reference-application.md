@@ -32,8 +32,9 @@ Browser
      - HttpOnly Session Cookie
      - Server-only Generated Operation Wrapper
        -> PHP Application Front Controller
-          - Application-owned Authentication Router
           - BlackOps Application HTTP Handler
+            - Ephemeral Register／Login／Logout Operation
+            - Framework Session Authentication
             -> PostgreSQL
             -> Deferred Worker
 ```
@@ -46,11 +47,12 @@ BrowserはSvelteKit Originだけへ接続する。BlackOps HTTP Base URL、Appli
 examples/community-board/
 ├── app/
 │   ├── Domain/
-│   │   └── Board/
+│   │   ├── Board/
+│   │   └── Identity/
 │   ├── Infrastructure/
 │   ├── Feature/
-│   ├── Http/
 │   ├── Security/
+│   ├── AuthServiceProvider.php
 │   └── ApplicationServiceProvider.php
 ├── bootstrap/
 ├── config/
@@ -87,14 +89,14 @@ OperationはBlackOps／HTTPのApplication Boundaryとし、Value／ActorをDomai
 
 ## Authentication and Session Boundary
 
-AuthenticationはOperationとして実装しない。PHP Front ControllerのApplication-owned RouterがAuthentication Routeを処理し、それ以外を`Application::http()`のBlackOps Handlerへ委譲する。
+Phase 18以降、Registration／Login／LogoutはBlackOpsの明示Inline／Transactional／Ephemeral Operationとして実装する。PHP Front Controllerは`Application::http()`だけを公開し、独自Authentication Routerを持たない。
 
 Initial Authentication Routeは概念上、次を持つ。
 
 ```text
-POST   /auth/users
-POST   /auth/sessions
-DELETE /auth/sessions/current
+POST   /auth/register
+POST   /auth/login
+POST   /auth/logout
 ```
 
 - User PasswordはPHPのCurrent Recommended Password Hashで保存し、PlaintextをLog、Journal、Outcome、Frontend Artifactへ含めない。
@@ -103,12 +105,12 @@ DELETE /auth/sessions/current
 - SvelteKitはCredentialをHttpOnly／SameSite Cookieへ保存し、Browser JavaScriptへ返さない。
 - Production CookieはSecureを必須とし、Local HTTPでは明示ConfigurationでのみSecureなしを許可する。
 - SvelteKit ServerはBlackOps API呼出時にCredentialをAuthorization Headerへ付与する。
-- Application `HttpAuthenticator`はCredential Hash、Expiry、Revocationを検証し、`ActorRef`だけをRuntimeへ渡す。
+- Framework Session AuthenticatorはCredential Hash、Expiry、Revocationを検証し、Application `SessionIdentityProvider`で現在有効な`ActorRef`だけをRuntimeへ渡す。
 - Login成功時にSessionをRotationし、Logout時にServer側Sessionを失効する。
 - Authentication Responseは`Cache-Control: private, no-store`とする。
 - Registration／LoginのValidation ErrorはCredential存在を過剰に漏らさない安定Codeへ投影する。
 
-Authentication RouterはApplication Codeであり、FrameworkのOperation Manifest、Frontend Contract、Journalへ含めない。Outer RouterのUnknown Route、Method、Malformed Body、FailureはSafe Responseを返し、BlackOps Routeと衝突させない。
+User、Password、Registration PolicyはApplication Domain、User RepositoryとSession Identity接続はInfrastructureが所有する。Register／Login／LogoutのOperation Value／Outcomeは`#[Sensitive]`かつ`EphemeralOutcome`とし、Frontend Contractには直接`.fetch()`可能な型だけを生成する。Canonical JournalはReceived／Completedを空Projectionで記録し、Outcome Store、Status／Wait、LogへCredentialを保存しない。
 
 ## Data Model
 
@@ -116,7 +118,7 @@ Application Migrationは最低限、次のTableを所有する。
 
 ```text
 board_users
-board_sessions
+blackops_sessions
 board_posts
 board_comments
 board_digests
@@ -238,7 +240,7 @@ Seedは複数User、Post、Commentを決定的に作成する。SecretをReposit
 最低限、次をPermanent Evidenceにする。
 
 - PHP Unit／Integration Test
-- Authentication RouterとSession Lifecycle Test
+- Ephemeral Authentication OperationとFramework Session Lifecycle Test
 - Operation Validation／Authorization／Transaction Test
 - Frontend Generate／CheckとStrict TypeScript Test
 - Server-only Import／Browser Bundle Secret Guard

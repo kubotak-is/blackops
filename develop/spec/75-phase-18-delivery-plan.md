@@ -120,6 +120,8 @@ Session Authentication用の外部Repository作成、Packagist登録、Tag／Rel
 
 ## P18-007: Community Board Migration and Phase Closeout
 
+Status: Complete.
+
 - Community BoardをTyped Configuration、Bound Client、Command Discovery、Session Authへ移行する
 - User／Password／Registration／Role／Safe View ModelをApplicationに維持する
 - Seed CommandをConstructor DIへ移し、Operation Console Journeyを一つ追加する
@@ -149,10 +151,10 @@ Documentation WebsiteとCommunity Boardを外部公開せず、Session Authentic
 - [x] Application Command Discovery／DIが実装される
 - [x] Operation Console Adapterが実装される
 - [x] Session Authentication／Generatorが実装される
-- [ ] Community Boardが新Contractへ移行し、手動配線削減を証明する
-- [ ] Direct Dependency、Sensitive、Worker Reuse、Build Artifact境界がRegression Testで固定される
-- [ ] Full PHP／Frontend／Consumer／Website Quality Gateが成功する
-- [ ] External Publication／Deployを行わない
+- [x] Community Boardが新Contractへ移行し、手動配線削減を証明する
+- [x] Direct Dependency、Sensitive、Worker Reuse、Build Artifact境界がRegression Testで固定される
+- [x] Full PHP／Frontend／Consumer／Website Quality Gateが成功する
+- [x] External Publication／Deployを行わない
 
 ## Traceability
 
