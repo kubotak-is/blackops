@@ -1,24 +1,24 @@
 # Orchestration State
 
-Updated At: 2026-07-23T00:08:03+09:00
+Updated At: 2026-07-23T00:11:42+09:00
 
 ## Current Phase
 
-Post-Phase 18 Application Ergonomics Follow-up - Complete
+Post-Phase 18 Application Runtime Dependency Follow-up - Decision Pending
 
 ## Current Task
 
-Task ID: Phase 19 Reliability and Delivery Planning
+Task ID: D114 Application Runtime and Bootstrap Dependency Boundary
 
-Task Packet: Not created
+Decision: `develop/decisions/114-application-runtime-and-bootstrap-dependency-boundary.md`
 
-Specifications: `develop/spec/76-database-seeding.md`、`develop/spec/77-phase-18-follow-up-delivery-plan.md`
+References: `develop/decisions/110-application-ergonomics.md`、`develop/decisions/114-application-runtime-and-bootstrap-dependency-boundary.md`
 
 ## Task Status
 
-P18-008C Accepted - Next Decision Pending
+Awaiting User Decision
 
-P18-008CをOrchestrator Reviewと独立Quality Gate後にAcceptedとした。Phase 18 Follow-upは完了し、次はPhase 19 Reliability and DeliveryのTask策定、またはApplication Direct Dependency境界のDecisionを行う。
+P18-008CはAccepted commit `b7d8d81`で完了した。D113が別Decisionへ送ったHTTP Runtime、Environment Bootstrap、UUIDv7のApplication Direct Dependency境界をD114へ起票し、回答を待っている。DBAL／MigrationsはD110どおりDirect Dependencyを維持する。
 
 ## Last Accepted Task
 
@@ -57,6 +57,7 @@ P18-008C-seeder-consumer-adoption-and-closeout
 29. D111はA／A／A／A／A／A／A／A／Aで確定。Session AuthenticationをFramework同梱のOpt-in Capabilityとし、Identity、Token／Lifecycle、HTTP Adapter、Migration、Built-in Generatorの公開／Security Contractを採用する。
 30. D112はAで確定。Public `EphemeralOutcome extends Outcome`、Route付き明示Inline限定、Value／Outcome非永続化、HTTP一回投影、Frontend Status／Wait非公開を採用する。
 31. D113はA／A／A／修正版A／A／A／Aで確定。Database Seederを汎用Application Commandから分離し、Public Runner、Build-time Child Discovery、Framework-owned Console／Generator、Application-owned Transaction境界を採用する。
+32. D114は未決。Phase 19前のFollow-up順、Framework-owned SAPI Runtime、Environment File Bootstrap、Public UUIDv7 Generatorを判断する。
 
 ## Known Blockers
 
@@ -64,9 +65,9 @@ Active Implementation Blockerはない。Current SchemaとMigration Schemaが一
 
 ## Required Next Action
 
-1. P18-008Cを意味のある単位でCommitする。
-2. HTTP Runtime／Identifier／DotenvのApplication Direct Dependency境界を次Decision候補として整理する。
-3. Phase 19 Reliability and DeliveryのDelivery Orderと最初のTask Packetを確定する。
+1. Userが`develop/decisions/114-application-runtime-and-bootstrap-dependency-boundary.md`のQuestion 1から4へ回答する。
+2. Orchestratorが回答をReviewし、Decision／Specification／Delivery Planへ確定する。
+3. 採用ScopeをTask Packetへ分割するか、Phase 19 Reliability and Deliveryへ進む。
 
 ## P18-008C Seeder Consumer Adoption and Follow-up Closeout Orchestrator Verification
 
