@@ -1,4 +1,4 @@
-# D111: Session Auth Package Contract
+# D111: Session Authentication Contract
 
 Status: Proposed
 
@@ -20,19 +20,34 @@ Session Tokenの保存形式、並行制御、Migration History、PackageとFram
 - Applicationが直接利用するPackageはApplicationの`composer.json`へ明示する。
 - PackageのGitHub／Packagist Publication、Version Tag、Releaseは行わない。
 
-## Question 1: Packageの依存方向とRepository配置
+## Question 1: Framework同梱か独立Packageか
 
-### Options
+### User Comment
 
-- A: Monorepoの`packages/session-auth/`に独立`composer.json`を持つPackageとして置く。`blackops/session-auth`は`blackops/framework`のPublic HTTP／Actor Contractと`doctrine/dbal`に依存するが、`blackops/framework`からは依存しない。Consumer TestはComposer Path RepositoryでInstallする
-- B: Frameworkに依存しないSession Lifecycle Packageと、Framework HTTP Adapter Packageの2 Packageへ分ける
-- C: Root `src/`に実装し、Composerの`replace`だけで別Packageとして扱う
+> A
+>
+> ところでsession-authとしてるのはなぜ？
+> blackops/authではだめなの？また、パッケージを分ける明確な理由はなに？Laravelは同梱してなかったっけ？
 
-### Recommendation
+### Review
+
+LaravelはBrowser向けAuthenticationとSessionを`laravel/framework`に同梱し、Sanctum／PassportのようなAPI Token／OAuth Capabilityを別Packageにしている。
+
+BlackOpsはすでにDoctrine DBAL、Doctrine Migrations、PSR-7、Actor、HTTP Authentication、DI、Project CLIをFrameworkの必須Capabilityとして持つ。Session Authenticationを別PackageにしてもFrameworkの依存を減らせず、Compatibility Matrix、Release、Publication、Install Commandを増やす。現時点で別Packageにする明確な技術的利点はない。
+
+`blackops/auth`はPassword、Session、JWT、OAuth、MFA、Authorizationまで所有するように見える広い名前である。今回のCapabilityはSession Token Lifecycleだけなので、別Packageであれば`session-auth`が正確だが、Framework同梱に変更する場合はPackage名自体が不要になる。Public Namespaceを`BlackOps\Auth\Session`とすることで、Auth配下のSession Capabilityであることを表現できる。
+
+### Revised Options
+
+- A: Session Authenticationを`blackops/framework`へ同梱する。Public APIは`BlackOps\Auth\Session`配下に置き、Configuration／Service Binding／Migrationを追加したApplicationだけが有効化する。`blackops/auth`／`blackops/session-auth`は作らない
+- B: D110どおり`blackops/session-auth`を別Packageにする
+- C: Authentication全般を所有する`blackops/auth`を別Packageとして作り、将来のJWT／OAuth／MFAも同じPackageへ追加する
+
+### Revised Recommendation
 
 Aを推奨する。
 
-依存の向きをIntegration PackageからFrameworkへの一方向にすれば、認証不要のApplicationにDBAL Sessionを持ち込まない。初期Capabilityを2 Packageへ分けるとInstallとVersion Compatibilityが不必要に複雑になる。Root `src/`と別Packageの二重所有は避ける。
+Laravelに近いFramework同梱のOpt-in Capabilityとし、別Package化はFrameworkと独立したVersioning／Dependency／Release Cycleが必要になった時点で再検討する。
 
 [ANSWER]
 
@@ -202,4 +217,3 @@ Aを推奨する。
 - Public Core API: [Spec 17](../spec/17-core-api.md)
 - Application Ergonomics: [Spec 74](../spec/74-application-ergonomics.md)
 - Phase 18 Delivery: [Spec 75](../spec/75-phase-18-delivery-plan.md)
-

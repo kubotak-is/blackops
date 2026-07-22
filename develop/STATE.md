@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-22T06:13:36+09:00
+Updated At: 2026-07-22T10:28:03+09:00
 
 ## Current Phase
 
@@ -18,7 +18,7 @@ Specifications: `develop/spec/74-application-ergonomics.md`、`develop/spec/75-p
 
 Awaiting User Input
 
-P18-005はAccepted、Commit／Push済みである。P18-006の実装前に、Package依存方向、Identity Provider、Token／Lifecycle、HTTP Adapter、Migration、Command接続、Generator範囲／ConflictをPublic／Security Contractとして固定するため、D111のUser Review待ちである。
+P18-005はAccepted、Commit／Push済みである。D111 Question 1のUser Commentを受け、LaravelのFramework同梱Auth／Sessionと任意API Auth Packageの境界を確認した。BlackOpsはDBAL／Migrations／HTTP／Actorをすでに必須依存とするため、別Package化に明確な依存分離効果はない。Question 1をFramework同梱の`BlackOps\Auth\Session` Opt-in Capability推奨へ改訂し、Userの再回答待ちである。
 
 ## Last Accepted Task
 
@@ -62,8 +62,9 @@ Active Implementation Blockerはない。Ray.Aop 2.19.1／2.20.0には複数clas
 
 ## Required Next Action
 
-1. Userが`develop/decisions/111-session-auth-package-contract.md`のQuestion 1から9へ回答する。
-2. Orchestratorが回答をDecision／Spec 74／75へ反映し、P18-006 Task Packetを作成してGPT-5.6 Luna High workerへ委譲する。
+1. Userが`develop/decisions/111-session-auth-package-contract.md`の改訂Question 1へ回答する。
+2. Question 1確定後、その境界に合わせてQuestion 2から9を再検討／回答する。
+3. Orchestratorが回答をDecision／Spec 74／75へ反映し、P18-006 Task Packetを作成してGPT-5.6 Luna High workerへ委譲する。
 
 ## P18-005 Operation Console Adapter Worker Verification
 
