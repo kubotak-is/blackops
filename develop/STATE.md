@@ -1,24 +1,24 @@
 # Orchestration State
 
-Updated At: 2026-07-22T15:34:10+09:00
+Updated At: 2026-07-22T16:51:09+09:00
 
 ## Current Phase
 
-Phase 18: Application Ergonomics - Community Board Migration and Phase Closeout
+Phase 18: Application Ergonomics - Migration Metadata Prerequisite
 
 ## Current Task
 
-Task ID: P18-007 Community Board Migration and Phase Closeout
+Task ID: P18-006D Migration Metadata Current Schema
 
-Task Packet: `develop/orchestration/tasks/P18-007-community-board-migration-and-phase-closeout.md`
+Task Packet: `develop/orchestration/tasks/P18-006D-migration-metadata-current-schema.md`
 
-Specifications: `develop/spec/67-operation-frontend-bridge.md`、`develop/spec/69-deferred-status-and-outcome-api.md`、`develop/spec/71-full-stack-reference-application.md`、`develop/spec/72-phase-17-delivery-plan.md`、`develop/spec/73-structured-outcome-contract.md`、`develop/spec/74-application-ergonomics.md`、`develop/spec/75-phase-18-delivery-plan.md`
+Specifications: `develop/spec/42-installed-application-boundary.md`、`develop/spec/44-public-application-bootstrap-api.md`、`develop/spec/55-project-generators-and-application-migrations.md`、`develop/spec/56-phase-9-delivery-plan.md`
 
 ## Task Status
 
 Ready
 
-Community BoardをFramework Session Core、Bound Client、Command Discovery、Operation Consoleへ移行し、Before／Afterを実測してPhase 18をCloseするTask Packetを作成した。Production実装開始待ちである。
+P18-007の既存Volume Forward Migrationで、Current SchemaとMigration Schemaが同じ場合にDoctrineが既存Metadata Tableを再作成するFramework不具合を検出した。User承認によりP18-006Dへ独立分離し、Community Board差分を保持したまま修正開始待ちである。
 
 ## Last Accepted Task
 
@@ -59,12 +59,13 @@ P18-006C-auth-generator-and-fresh-consumer
 
 ## Known Blockers
 
-Active Implementation Blockerはない。Ray.Aop 2.19.1／2.20.0には複数class-constant AttributeのTokenizer gapがあるが、D108とD110でPhase 17の先行とPhase 21での置換を確定した。Documentation WebsiteはUser判断どおり未公開であり、Publication／Deployは行わない。
+P18-007はP18-006D完了まで一時停止する。Database User=`blackops`かつFramework Schema=`blackops`の既存Volumeでは、Doctrine Metadata Storageが既存`blackops.schema_migrations`をCurrent Schema内の非修飾名として認識し、修飾設定名との比較に失敗して`42P07 Duplicate table`となる。Ray.Aop 2.19.1／2.20.0のTokenizer gapはD108とD110でPhase 21置換を確定済みである。Documentation Websiteは未公開であり、Publication／Deployは行わない。
 
 ## Required Next Action
 
-1. GPT-5.6 Luna High workerへP18-007を依頼する。
-2. OrchestratorがIdentity／Migration／Frontend／Command責任分界と全Consumerを独立Reviewする。
+1. GPT-5.6 Luna High workerへP18-006Dを依頼し、Framework Migration Metadata初期化を独立修正する。
+2. OrchestratorがCurrent／Non-current Schema、Fresh／Existing／Legacy Migrationを独立Reviewする。
+3. P18-006Dを独立Commit後、保持中のP18-007 Community Board移行を再開する。
 
 ## P18-006C Auth Generator and Fresh Consumer Worker Verification
 
