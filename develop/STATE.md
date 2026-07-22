@@ -1,10 +1,10 @@
 # Orchestration State
 
-Updated At: 2026-07-22T22:10:32+09:00
+Updated At: 2026-07-22T22:55:10+09:00
 
 ## Current Phase
 
-Post-Phase 18 Application Ergonomics Follow-up - Ready
+Post-Phase 18 Application Ergonomics Follow-up - P18-008A Accepted
 
 ## Current Task
 
@@ -16,13 +16,13 @@ Specifications: `develop/spec/76-database-seeding.md`、`develop/spec/77-phase-1
 
 ## Task Status
 
-Ready
+Accepted
 
-D113をA／A／A／修正版A／A／A／Aで確定した。Public `Seeder`／`SeederRunner`、Build-time Discovery、Compiled Locator、Framework-owned `database:seed`／`make:seeder`、Application-owned Transaction境界を仕様化し、P18-008A／B／Cへ分割した。Production Codeは未変更である。
+P18-008AをAcceptedとした。Public `Seeder`／`SeederRunner`、標準／明示Configuration、Build-only Discovery、Private Compiled Locator、Root Runtime、Ordered／Nested／Cycle／Safe Failureを実装した。Orchestrator Reviewで未解決Seeder DIによるArtifact順序不整合を修正し、6種の既存Artifact保持を固定した。Orchestrator Focused 17 tests／78 assertions、Full PHPUnit 1,679 tests／6,751 assertions、Mago、Deptrac 0 violations／2,820 allowed、Composer Strict、Management ID／Runtime Scan／diff Guardが成功した。
 
 ## Last Accepted Task
 
-P18-007-community-board-migration-and-phase-closeout
+P18-008A-seeder-core-and-build-discovery
 
 ## Pending Decisions
 
@@ -64,9 +64,23 @@ Active Implementation Blockerはない。Current SchemaとMigration Schemaが一
 
 ## Required Next Action
 
-1. GPT-5.6 Luna High workerへ`P18-008A`を依頼する。
-2. OrchestratorがReportと差分をReviewし、独立Quality Gate後にCommitする。
-3. P18-008A Accepted後にP18-008B、P18-008Cを順に実装し、その後Phase 19へ進む。
+1. P18-008Aを実装単位でCommitする。
+2. GPT-5.6 Luna High workerへP18-008B Seeder Console and Generatorを依頼する。
+3. P18-008B Accepted後にP18-008Cを実装し、その後Phase 19へ進む。
+
+## P18-008A Seeder Core and Build Discovery Orchestrator Verification
+
+```text
+Public API／Build: Seeder::run(): voidとSeederRunner::run(class-string<Seeder> ...$seeders): voidの2 Interfaceを追加。標準／明示RootとDiscoveryをBuild時だけ評価し、Instantiable SeederをPrivate Autowired Service／Compiled Locatorへ固定した。Runtime Scan、Reflection Fallback、動的Constructionなし。
+
+Composition／Failure: RootはSeederRunner一つからChildを順序付き実行。Nested、Empty、Sequential Repeat、Unknown、Invalid Locator、Cycle、Child Exception Stopを固定し、Application Throwable Detailを破棄する。Transaction、Journal、Outcomeは追加しない。
+
+Artifact Safety: Orchestrator Reviewで未解決Seeder DIの検証順序を修正。Seeder検出時だけ独立Container CopyをPreflight Compileし、Operation／HTTP／Frontend／Command Manifest、Container、AOP Artifactの6 Sentinelを既存内容のまま維持する。
+
+Quality: Orchestrator Focused 17 tests／78 assertions、Full PHPUnit 1,679 tests／6,751 assertions、Mago Format／Lint／Analyze、Deptrac 0 violations／2,820 allowed、Composer Strict、Management ID／Runtime Scan／diff Guard成功。Task PacketのTests-wide Mago引数はRepository標準Commandへ修正。Console／Generator／Examples／外部Publication差分なし、Worker Commitなし。
+```
+
+詳細は`develop/orchestration/reports/P18-008A-seeder-core-and-build-discovery.md`を参照する。
 
 ## P18-007 Community Board Migration and Phase Closeout Worker Verification
 

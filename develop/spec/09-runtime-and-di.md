@@ -60,6 +60,14 @@ final readonly class AnalyticsRepository
 
 Default Connectionだけを使うRepositoryは`Doctrine\DBAL\Connection`を直接Constructor Injectionできる。Named ConnectionはDatabaseManagerから明示的に選択する。Container、Global Helper、Static FacadeをRepositoryへ渡さない。
 
+## Seeder Dependency Injection
+
+Application-aware Buildは標準または明示Discovery Rootから`Seeder`実装を検出し、Compiled ContainerのPrivate Autowired Serviceへ登録する。Application Service Providerが同じClassを明示定義した場合は、その定義を尊重する。
+
+`SeederRunner`のFramework実装は、検出済みSeederだけを参照できるCompiled Service Locatorを受け取る。Root Seeder、Child Seeder、Runner、LocatorをApplicationへContainerとして公開せず、Framework内部のCompiled Seeder RuntimeだけをRuntime解決境界とする。Seeder ConstructorはBuild-time Discoveryでは実行せず、Root実行時に同じCompiled Containerから遅延解決する。
+
+RuntimeでSeeder Sourceを再走査せず、Reflectionまたは動的な`new $class()`へFallbackしない。
+
 ## Build-time Method Interception
 
 `#[Transactional]`と`#[AfterCommit]`はRay.AopによるBuild時Method Interceptionを使用する。Ray.Diへ移行せず、Symfony DIのService Definitionを正本とする。

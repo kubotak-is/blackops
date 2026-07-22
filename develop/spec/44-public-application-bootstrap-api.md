@@ -50,6 +50,8 @@ Config Fileは読み込み時に副作用を起こさず、Configuration Dataの
 - `journal.php`
 - `logging.php`
 
+`database.php`はConnection／Framework Schemaに加えてOptionalな`seeding.root`と`seeding.discovery`を扱う。省略時は`App\Infrastructure\Seed\DatabaseSeeder`と`<basePath>/app/Infrastructure/Seed`を標準Conventionとする。標準DirectoryまたはRootが存在しないApplicationはSeeding未構成として既存Processを維持し、明示値の不正はBuild Failureにする。
+
 Optional Fileが存在しない場合のDefaultはFrameworkが所有する。Productionに必要な値が不足する場合は、安全でない推測やDevelopment DefaultへのFallbackを行わず起動を失敗させる。
 
 ### Providers and Commands
@@ -59,6 +61,8 @@ Optional Fileが存在しない場合のDefaultはFrameworkが所有する。Pro
 `withServices()` はConfig由来のService Providerへ明示Providerを追加する。各要素は `ServiceProvider` InstanceまたはそのClass Nameでなければならない。
 
 `withCommands()` はApplication独自のSymfony Console Commandを明示追加する。Configured Sourceの`#[AsCommand]`付きCommandはBuild時に自動Discoveryし、Compiled ContainerからConstructor Injectionする。明示登録はPackage Command、Instance、同一ClassのOverride／追加に使用し、Framework標準Commandの実装はFramework Packageが所有する。
+
+SeederはApplication Commandとは別のDatabase Capabilityである。Application-aware BuildはSeederをBuild時にだけDiscoveryし、Private Service／Compiled Locator／Root Runtimeへ固定する。HTTP、Worker、通常Console CompositionはSeeder Sourceを探索しない。
 
 重複するProvider／Commandは、同一Identityを二重登録せず、競合するCommand NameはBootstrap Errorとする。
 

@@ -1,6 +1,6 @@
 # P18-008A: Seeder Core and Build Discovery
 
-Status: Ready
+Status: Accepted
 
 ## Goal
 
@@ -64,23 +64,23 @@ Console／Generator Production Code、`resources/stubs/**`、`examples/**`、`do
 
 ## Acceptance Criteria
 
-- [ ] Public APIが`Seeder`と`SeederRunner`の2 Interfaceだけを追加する
-- [ ] Standard／Explicit RootとDiscoveryが仕様どおり検証される
-- [ ] Seeder Constructorを実行せずBuild-time Discoveryできる
-- [ ] 検出済みSeederがCompiled ContainerからConstructor DIで解決される
-- [ ] RunnerがArgument順、Nested、Empty、Unknown、Cycle、Exception Stopを保証する
-- [ ] Missing Standard SeederのExisting ApplicationがBuild／HTTP／Consoleで回帰しない
-- [ ] Runtime Scan／Reflection Fallback／Dynamic Constructionがない
-- [ ] Full PHPUnit、Mago、Deptrac、Public API／Management ID／diff Guardが成功する
-- [ ] Console／Generator／Example／外部Publication差分なし、Worker Commitなし
+- [x] Public APIが`Seeder`と`SeederRunner`の2 Interfaceだけを追加する
+- [x] Standard／Explicit RootとDiscoveryが仕様どおり検証される
+- [x] Seeder Constructorを実行せずBuild-time Discoveryできる
+- [x] 検出済みSeederがCompiled ContainerからConstructor DIで解決される
+- [x] RunnerがArgument順、Nested、Empty、Unknown、Cycle、Exception Stopを保証する
+- [x] Missing Standard SeederのExisting ApplicationがBuild／HTTP／Consoleで回帰しない
+- [x] Runtime Scan／Reflection Fallback／Dynamic Constructionがない
+- [x] Full PHPUnit、Mago、Deptrac、Public API／Management ID／diff Guardが成功する
+- [x] Console／Generator／Example／外部Publication差分なし、Worker Commitなし
 
 ## Required Commands
 
 ```bash
 docker compose run --rm app vendor/bin/phpunit
 docker compose run --rm app mago format --check src tests
-docker compose run --rm app mago lint src tests
-docker compose run --rm app mago analyze src tests
+docker compose run --rm app mago lint
+docker compose run --rm app mago analyze
 docker compose run --rm app vendor/bin/deptrac analyse --config-file=deptrac.yaml --no-progress
 ! rg -n 'Spec(ification)?[[:space:]]*[0-9]+|D[0-9]{3}|P[0-9]+-[0-9]+|TODO\.md:[0-9]+' src tests --glob '*.php'
 git diff --check
@@ -96,4 +96,3 @@ git diff --check
 - Ordered／Nested／Unknown／Cycle／Failure Matrix
 - Runtime Scan／Reflection不在Evidence
 - Commandsと実結果、未実行理由、Remaining Issue
-

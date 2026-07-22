@@ -15,6 +15,7 @@ Phase 18はHeadless CoreをSvelteKitや特定のUser／Password／UI実装へ固
 - Symfony `#[AsCommand]`のBuild-time DiscoveryとCompiled Container DI
 - 明示的な`#[ConsoleCommand]` Operation Adapter
 - Framework同梱のOpt-in `BlackOps\Auth\Session`と`make:auth` Generator
+- Framework-owned Database Seeder Contract、Build-time Discovery、Compiled Container DI
 - Quickstart、Composer Skeleton、Community Board、Guide、Consumer Gate
 
 次は対象外とする。
@@ -40,6 +41,7 @@ Phase 18はHeadless CoreをSvelteKitや特定のUser／Password／UI実装へ固
 | Maintenance Command | Discovery、Container DI、Name Collision検証 | Command本体、運用Policy |
 | Operation Command | 明示公開、Value Binding、Lifecycle、Safe Output | 公開名、Operation、Console Actor Policy |
 | Session Auth | Token Lifecycle、Hash、TTL、Revocation、DBAL Store、Credential抽出 | User、Password、Registration、Route／UI、Authorization Role |
+| Database Seeder | Seeder／Runner Contract、Build-time Discovery、Compiled Locator、標準Command | Seed Data、Domain Service利用、Transaction、再実行Policy |
 
 ## Environment Snapshot
 

@@ -60,6 +60,25 @@ Session Authenticationは`BlackOps\Auth\Session`配下の`#[PublicApi]`型で提
 
 `RawSessionToken`はPublic Constructor／Property、`__toString()`、JSON変換を持たず、明示的な`reveal()`だけでRaw Valueを取得する。`IssuedSession`はToken／Issued At／Expires Atだけを露出し、Session ID／Identity ID／Token Hashを露出しない。
 
+Database Seedingは`BlackOps\Database`配下の次の2 InterfaceだけをPublic Contractとする。
+
+```php
+#[PublicApi]
+interface Seeder
+{
+    public function run(): void;
+}
+
+#[PublicApi]
+interface SeederRunner
+{
+    /** @param class-string<Seeder> ...$seeders */
+    public function run(string ...$seeders): void;
+}
+```
+
+Runner実装、Compiled Locator、Root解決、Runtime Failure型はInternal APIとし、Public Signatureへ露出しない。
+
 ## PHP Public API
 
 Framework利用者による直接利用を公式に想定し、SemVer上の後方互換性を管理する型には、BlackOps固有の `#[PublicApi]` Attributeを付ける。

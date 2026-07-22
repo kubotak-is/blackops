@@ -84,8 +84,9 @@ Framework Production `src/**`、`resources/stubs/**`は変更禁止とする。P
 ```bash
 docker compose run --rm app vendor/bin/phpunit
 docker compose run --rm app mago format --check src tests examples/quickstart/app examples/community-board/app examples/community-board/tests
-docker compose run --rm app mago lint src tests examples/quickstart/app examples/community-board/app examples/community-board/tests
-docker compose run --rm app mago analyze src tests
+docker compose run --rm app mago lint
+docker compose run --rm app mago lint examples/quickstart/app examples/community-board/app
+docker compose run --rm app mago analyze
 docker compose run --rm app vendor/bin/deptrac analyse --config-file=deptrac.yaml --no-progress
 docker compose run --rm app composer validate --strict
 docker compose run --rm app composer validate --strict --working-dir=examples/quickstart
@@ -106,4 +107,3 @@ Task Packet記載以外のConsumer／Frontend／Website CommandはRepository内S
 - Full Consumer／Frontend／Website／Package Export Gate
 - Remaining Composer Dependency Auditと次Decision候補
 - Commandsと実結果、未実行理由、Remaining Issue
-

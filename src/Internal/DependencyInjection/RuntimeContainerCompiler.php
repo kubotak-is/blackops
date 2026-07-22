@@ -8,6 +8,10 @@ use BlackOps\Core\DependencyInjection\ServiceProvider;
 use BlackOps\Core\Registry\OperationRegistry;
 use BlackOps\Database\AfterCommitFailureReporter;
 use BlackOps\Database\DatabaseManager;
+use BlackOps\Database\Seeder;
+use BlackOps\Database\SeederRunner;
+use BlackOps\Internal\Seeder\CompiledSeederRunner;
+use BlackOps\Internal\Seeder\CompiledSeederRuntime;
 use BlackOps\Internal\Transaction\DefaultAfterCommitFailureReporter;
 use BlackOps\Internal\Transaction\TransactionRuntime;
 use BlackOps\Internal\Transaction\TransactionRuntimeAccessor;
@@ -17,7 +21,9 @@ use Psr\Container\ContainerInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\DependencyInjection\Argument\ServiceLocatorArgument;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Reference;
 
 /**
  * @mago-expect lint:cyclomatic-complexity
@@ -126,6 +132,43 @@ final readonly class RuntimeContainerCompiler
 
             $builder->register($command)->setAutowired(true)->setPublic(true);
         }
+    }
+
+    /**
+     * @param list<class-string<Seeder>> $seeders
+     * @param class-string<Seeder>|null $root
+     */
+    public function registerSeeders(ContainerBuilder $builder, array $seeders, ?string $root): void
+    {
+        if (
+            $builder->has(SeederRunner::class)
+            || $builder->has(CompiledSeederRunner::class)
+            || $builder->has(CompiledSeederRuntime::class)
+        ) {
+            throw new InvalidArgumentException('Seeder runtime services cannot be redefined by a service provider.');
+        }
+
+        $references = [];
+        foreach ($seeders as $seeder) {
+            if (!is_a($seeder, Seeder::class, allow_string: true)) {
+                throw new InvalidArgumentException('Discovered seeder must implement the Seeder interface.');
+            }
+            if (!$builder->has($seeder)) {
+                $builder->register($seeder)->setAutowired(true)->setPublic(false);
+            }
+
+            $references[$seeder] = new Reference($seeder);
+        }
+
+        $builder
+            ->register(CompiledSeederRunner::class)
+            ->setArguments([new ServiceLocatorArgument($references)])
+            ->setPublic(false);
+        $builder->setAlias(SeederRunner::class, CompiledSeederRunner::class)->setPublic(false);
+        $builder
+            ->register(CompiledSeederRuntime::class)
+            ->setArguments([new Reference(SeederRunner::class), $root])
+            ->setPublic(true);
     }
 
     /** @param list<string> $middleware */

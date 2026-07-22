@@ -16,9 +16,11 @@ use BlackOps\Internal\Application\ApplicationConfigurationSnapshot;
 use BlackOps\Internal\Application\ApplicationDatabaseConfiguration;
 use BlackOps\Internal\Application\ApplicationHttpMiddlewareConfiguration;
 use BlackOps\Internal\Application\ApplicationOperationDiscovery;
+use BlackOps\Internal\Application\ApplicationSeederDiscovery;
 use BlackOps\Internal\Application\ExplicitApplicationCommands;
 use BlackOps\Internal\DependencyInjection\RuntimeContainerCompiler;
 use BlackOps\Internal\DependencyInjection\RuntimeContainerDumper;
+use BlackOps\Internal\DependencyInjection\RuntimeContainerPreflightCompiler;
 use BlackOps\Internal\DependencyInjection\ServiceProviderConfigLoader;
 use BlackOps\Internal\Frontend\FrontendContractCompiler;
 use BlackOps\Internal\Frontend\FrontendContractManifestFile;
@@ -41,6 +43,7 @@ final class ApplicationBuildCompileCommand extends Command
         parent::__construct(self::NAME);
     }
 
+    /** @mago-expect lint:halstead */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $build = ApplicationBuildConfiguration::fromConfiguration($this->configuration->configuration());
@@ -48,6 +51,7 @@ final class ApplicationBuildCompileCommand extends Command
         $operations = new OperationProviderConfigLoader()->fromEntries($this->configuration->operationProviders());
         $services = new ServiceProviderConfigLoader()->fromEntries($this->configuration->serviceProviders());
         $discovered = new ApplicationOperationDiscovery()->discover($this->configuration);
+        $seeders = new ApplicationSeederDiscovery()->discover($this->configuration);
         $explicitCommands = ExplicitApplicationCommands::from($this->configuration->commands())->metadata();
         $discoveredCommands = new ApplicationCommandCollisionValidator()->merge(
             new ApplicationCommandDiscovery()->discover($this->configuration),
@@ -76,10 +80,6 @@ final class ApplicationBuildCompileCommand extends Command
             new HttpOperationManifestArtifact(HttpOperationManifestArtifactCodec::SCHEMA_VERSION, $buildId, $http),
         );
 
-        new OperationManifestFile()->write($registry, $build->operationManifest, $buildId);
-        new HttpOperationManifestFile()->write($http, $build->httpManifest, $buildId);
-        new FrontendContractManifestFile()->write($frontend, $build->frontendManifest, $buildId);
-
         $compiler = new RuntimeContainerCompiler();
         $container = $compiler->builder();
         $compiler->apply($container, $services);
@@ -92,6 +92,10 @@ final class ApplicationBuildCompileCommand extends Command
             static fn(ApplicationCommandMetadata $command): string => $command->class,
             $discoveredCommands,
         ));
+        $compiler->registerSeeders($container, $seeders->seeders, $seeders->root);
+        if ($seeders->seeders !== []) {
+            new RuntimeContainerPreflightCompiler()->compile($container);
+        }
         $aop = new RuntimeAopCompiler();
 
         try {
@@ -115,6 +119,9 @@ final class ApplicationBuildCompileCommand extends Command
             throw $throwable;
         }
 
+        new OperationManifestFile()->write($registry, $build->operationManifest, $buildId);
+        new HttpOperationManifestFile()->write($http, $build->httpManifest, $buildId);
+        new FrontendContractManifestFile()->write($frontend, $build->frontendManifest, $buildId);
         new ApplicationCommandManifestFile()->write(
             $discoveredCommands,
             $operationCommands,

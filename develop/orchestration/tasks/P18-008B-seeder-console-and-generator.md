@@ -74,8 +74,8 @@ Framework-owned `database:seed`と`make:seeder`をProject Consoleへ追加する
 ```bash
 docker compose run --rm app vendor/bin/phpunit
 docker compose run --rm app mago format --check src tests
-docker compose run --rm app mago lint src tests
-docker compose run --rm app mago analyze src tests
+docker compose run --rm app mago lint
+docker compose run --rm app mago analyze
 docker compose run --rm app vendor/bin/deptrac analyse --config-file=deptrac.yaml --no-progress
 docker compose run --rm app composer validate --strict
 ! rg -n 'Spec(ification)?[[:space:]]*[0-9]+|D[0-9]{3}|P[0-9]+-[0-9]+|TODO\.md:[0-9]+' src tests --glob '*.php'
@@ -91,4 +91,3 @@ git diff --check
 - Generator Input／Path／Atomic Safety Matrix
 - Framework Update Consumer Evidence
 - Commandsと実結果、未実行理由、Remaining Issue
-
