@@ -150,7 +150,7 @@ MVP後に残す主要項目:
 - [x] Frontend Bound Client Factoryを実装する
 - [x] Application Command Discovery／DIを実装する
 - [x] Operation Console Adapterを実装する
-- [ ] Session Auth Package／Generatorを実装する
+- [ ] Session Authentication／Generatorを実装する
 - [ ] Community Boardを簡素化し、Clean Install Consumerで検証する
 
 ### Phase 19: Reliability and Delivery

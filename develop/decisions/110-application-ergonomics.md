@@ -127,6 +127,10 @@ Token保存とExpiry等のSecurity-sensitiveな定型処理を一つの検証対
 A
 [/ANSWER]
 
+### Superseded Boundary
+
+D111で別Package前提だけを置き換えた。Session Authenticationは`blackops/framework`同梱の`BlackOps\Auth\Session` Opt-in Capabilityとし、User／Password／Registration／Authorization／Cookie／UIをApplicationに残す責任分界は維持する。
+
 ## Question 6: Application CommandのDiscoveryとDI
 
 ### Options
@@ -193,10 +197,10 @@ Application Ergonomicsを新しいPhase 18として、次のContractで実装す
 2. GeneratorはFramework-neutralな`createBlackOpsClient`を出力し、Transportを一度Bindingした`blackops.CreatePost.fetch(value)`形式を提供する。SvelteKit固有のSessionとSafe UI ProjectionはApplicationが所有する。
 3. PublicなReadonly `Environment` Snapshotと型付きAccessorを追加し、Configuration Fileは既存Arrayまたは`static fn (Environment $env): array`を返せるようにする。Example／Skeletonから直接の`$_ENV`参照を除く。
 4. Application Sourceが直接ImportするPackageはApplicationの`composer.json`へ明示する。DBAL等をBlackOps固有APIで全面Wrapperせず、まとまったCapabilityだけを任意のFirst-party Integrationとして提供する。
-5. `blackops/session-auth`と`php blackops make:auth`を任意Capabilityとして提供する。PackageはSession Token Lifecycle、DBAL Store、Migration、HTTP Credential抽出を所有し、User、Password／Registration Policy、Route／UI接続はApplicationが所有する。
+5. `BlackOps\Auth\Session`と`php blackops make:auth`をFramework同梱の任意Capabilityとして提供する。FrameworkはSession Token Lifecycle、DBAL Store、Migration、HTTP Credential抽出を所有し、User、Password／Registration Policy、Route／UI接続はApplicationが所有する。詳細ContractはD111を正本とする。
 6. Symfony `#[AsCommand]`をBuild時Discoveryし、Compiled ContainerからConstructor Injectionする。明示的な`commands`／`withCommands()`はOverride／追加用に維持する。
 7. `#[ConsoleCommand]`を付けたOperationだけCLIへ公開する。OperationValueは最初のCapabilityではNamed Optionへ写像し、既存LifecycleとStrategyを再利用する。Outcome／Operation ID、`--json`、安定Exit Code、Sensitive非表示を共通化する。
-8. Typed Environment、Frontend Bound Client、Application Command Discovery／DI、Operation Console Adapter、Session Auth Package／Generator、Community Board簡素化／Clean Install Consumerの順にDeliveryする。
+8. Typed Environment、Frontend Bound Client、Application Command Discovery／DI、Operation Console Adapter、Session Authentication／Generator、Community Board簡素化／Clean Install Consumerの順にDeliveryする。
 
 [/DECISION]
 
@@ -209,7 +213,7 @@ Application Ergonomicsを新しいPhase 18として、次のContractで実装す
 - EnvironmentはBootstrap時に一度Snapshotされ、Configuration Closureの評価後にRequest／Operation単位で再読込しない。
 - Arrayを返す既存Configurationを維持しつつ、Example／Skeletonは型付きClosureを標準形にする。
 - Applicationは直接利用するVendor Packageを明示し、Frameworkの推移的依存へ依存しない。
-- Session AuthはCoreへ組み込まず、別Package／Generator／Consumer Gateを持つ。
+- Session AuthはFramework同梱のOpt-in Capabilityとし、Generator／Consumer Gateを持つ。
 - Application Maintenance CommandとOperation Commandを別ContractとしてBuildする。
 - Community Boardは生成物を除く手動Frontend配線、Identity実装、Command登録、不要Dependencyがどれだけ減ったかをPhase Closeoutで検証する。
 
@@ -223,7 +227,7 @@ Application Ergonomicsを新しいPhase 18として、次のContractで実装す
 - Configuration Accessorは欠落、型不正、範囲不正を起動時にSafe Failureとして報告する
 - Applicationが直接利用するVendor APIを推移的依存に頼らない
 - DBALを隠す目的だけのBlackOps Query／Repository APIを作らない
-- Session AuthをCoreの必須依存にしない
+- Session AuthをConfiguration／Binding／Migrationなしで有効化しない
 - User、Password Policy、Registration、Authorization RoleはApplicationが所有する
 - RuntimeでApplication SourceをScanせず、Discovery結果をBuild Artifactへ固定する
 - Command Constructor DependencyはCompiled Containerが解決する

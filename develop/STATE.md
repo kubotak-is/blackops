@@ -1,14 +1,14 @@
 # Orchestration State
 
-Updated At: 2026-07-22T10:28:03+09:00
+Updated At: 2026-07-22T10:37:45+09:00
 
 ## Current Phase
 
-Phase 18: Application Ergonomics - Session Auth Contract Decision
+Phase 18: Application Ergonomics - Session Authentication Task Preparation
 
 ## Current Task
 
-Task ID: D111 Session Auth Package Contract
+Task ID: P18-006 Session Authentication and Generator Preparation
 
 Task Packet: Not created
 
@@ -16,9 +16,9 @@ Specifications: `develop/spec/74-application-ergonomics.md`、`develop/spec/75-p
 
 ## Task Status
 
-Awaiting User Input
+Decision Accepted
 
-P18-005はAccepted、Commit／Push済みである。D111 Question 1のUser Commentを受け、LaravelのFramework同梱Auth／Sessionと任意API Auth Packageの境界を確認した。BlackOpsはDBAL／Migrations／HTTP／Actorをすでに必須依存とするため、別Package化に明確な依存分離効果はない。Question 1をFramework同梱の`BlackOps\Auth\Session` Opt-in Capability推奨へ改訂し、Userの再回答待ちである。
+D111はQuestion 1から6のUser回答Aを受け、Question 7から9をD110／Spec 74の既存不変条件からAで確定した。Session Authenticationは`blackops/framework`同梱の`BlackOps\Auth\Session` Opt-in Capabilityとし、Opaque Identity、32-byte Token／SHA-256、Absolute TTL／Touch／Rotation／Revocation／Cleanup、Bearer／Cookie Adapter、Application Migration Publish、Built-in `make:auth`を採用する。D110、Spec 74／75、TODOは同じ境界へ同期済みである。
 
 ## Last Accepted Task
 
@@ -54,7 +54,7 @@ P18-005-operation-console-adapter
 26. D108はA／B／Cで確定。Phase 17はmetadata-only Deferred Strategyのliteral class-string回避を維持して先行する。Ray.AopはPhase 21のTransaction専用Framework-owned Build-time Proxyで置き換え、upstreamへのIssue／PRは作成しない。
 27. D109はA／A／A／A／A／A／A／Aで確定。Idempotency、Outbox、Relay／Replay、Community Board JourneyのContractを採用する。
 28. D110はA／A／A／A／A／A／A／Aで確定。Application ErgonomicsをPhase 18としてReliabilityより先に実装し、Frontend、Environment、Dependency、Session Auth、Consoleの責任分界を採用する。
-29. D111でSession Auth Packageの依存方向、Identity、Token／Lifecycle、HTTP Adapter、Migration、Command接続、Generatorの公開／Security Contractを確定する。User回答待ちである。
+29. D111はA／A／A／A／A／A／A／A／Aで確定。Session AuthenticationをFramework同梱のOpt-in Capabilityとし、Identity、Token／Lifecycle、HTTP Adapter、Migration、Built-in Generatorの公開／Security Contractを採用する。
 
 ## Known Blockers
 
@@ -62,9 +62,8 @@ Active Implementation Blockerはない。Ray.Aop 2.19.1／2.20.0には複数clas
 
 ## Required Next Action
 
-1. Userが`develop/decisions/111-session-auth-package-contract.md`の改訂Question 1へ回答する。
-2. Question 1確定後、その境界に合わせてQuestion 2から9を再検討／回答する。
-3. Orchestratorが回答をDecision／Spec 74／75へ反映し、P18-006 Task Packetを作成してGPT-5.6 Luna High workerへ委譲する。
+1. OrchestratorがP18-006 Session Authentication and GeneratorのTask Packetを作成する。
+2. Task PacketをGPT-5.6 Luna High workerへ委譲し、Community Boardを変更せずPermanent Consumerで実装／検証する。
 
 ## P18-005 Operation Console Adapter Worker Verification
 

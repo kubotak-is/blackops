@@ -12,7 +12,7 @@ P18-001 Decision, Specification, and Delivery Plan
     -> P18-003 Frontend Bound Client Factory
       -> P18-004 Application Command Discovery and DI
         -> P18-005 Operation Console Adapter
-          -> P18-006 Session Auth Package and Generator
+          -> P18-006 Session Authentication and Generator
             -> P18-007 Community Board Migration and Phase Closeout
 ```
 
@@ -78,17 +78,17 @@ Operation Console Attributeは追加しない。
 
 位置引数、Prompt、Wait、Renderer Pluginは追加しない。
 
-## P18-006: Session Auth Package and Generator
+## P18-006: Session Authentication and Generator
 
-- 独立Composer Package境界`blackops/session-auth`を作成する
+- Framework同梱のOpt-in `BlackOps\Auth\Session` Public APIを実装する
 - Opaque Token、Hash、TTL、Rotation、Revocation、Cleanupを実装する
 - Doctrine DBAL Store、Forward Migration、HTTP Authenticator Adapterを実装する
 - User Provider等のApplication-owned Portを最小化する
 - `make:auth` GeneratorとConflict／No-overwrite／Fresh Install Testを実装する
-- Root FrameworkがPackageを必須DependencyにしないことをGuardする
-- Local Path Repository ConsumerでInstall、Migration、Login／Logout／Expiry／Revocationを完走する
+- Session Configuration／Binding／MigrationのないApplicationでCapabilityが有効化しないことをGuardする
+- Fresh ConsumerでGenerate、Migration、Login／Logout／Expiry／Rotation／Revocationを完走する
 
-外部Repository作成、Packagist登録、Tag／Releaseは行わない。独立配布が必要になった時点でUserへPublication判断を求める。
+Session Authentication用の外部Repository作成、Packagist登録、Tag／Releaseは行わない。独立配布が必要になった時点で新しいDecisionを作成する。
 
 ## P18-007: Community Board Migration and Phase Closeout
 
@@ -102,7 +102,7 @@ Operation Console Attributeは追加しない。
 - Guide、Reference、Security、CLI、Configuration、Example READMEを同期する
 - Full Quality Gateを実行しPhase 18をCloseする
 
-Documentation Website、Community Board、Session Auth Packageを外部公開しない。
+Documentation WebsiteとCommunity Boardを外部公開しず、Session Authentication用の別Package／Repositoryを作成しない。
 
 ## Dependency and Ownership Rules
 
@@ -120,7 +120,7 @@ Documentation Website、Community Board、Session Auth Packageを外部公開し
 - [x] Frontend Bound Client Factoryが実装される
 - [x] Application Command Discovery／DIが実装される
 - [x] Operation Console Adapterが実装される
-- [ ] Session Auth Package／Generatorが実装される
+- [ ] Session Authentication／Generatorが実装される
 - [ ] Community Boardが新Contractへ移行し、手動配線削減を証明する
 - [ ] Direct Dependency、Sensitive、Worker Reuse、Build Artifact境界がRegression Testで固定される
 - [ ] Full PHP／Frontend／Consumer／Website Quality Gateが成功する
@@ -128,6 +128,6 @@ Documentation Website、Community Board、Session Auth Packageを外部公開し
 
 ## Traceability
 
-- Decision: [D110 Application Ergonomics](../decisions/110-application-ergonomics.md)
+- Decisions: [D110 Application Ergonomics](../decisions/110-application-ergonomics.md)、[D111 Session Authentication Contract](../decisions/111-session-auth-package-contract.md)
 - Contract: [Application Ergonomics](74-application-ergonomics.md)
 - Roadmap: [Post Phase 10 Roadmap](60-post-phase-10-roadmap.md)
