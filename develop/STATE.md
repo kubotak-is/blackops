@@ -1,24 +1,24 @@
 # Orchestration State
 
-Updated At: 2026-07-22T14:19:14+09:00
+Updated At: 2026-07-22T14:24:46+09:00
 
 ## Current Phase
 
-Phase 18: Application Ergonomics - Ephemeral Outcome Contract
+Phase 18: Application Ergonomics - Auth Generator and Fresh Consumer
 
 ## Current Task
 
-Task ID: P18-006B Ephemeral Outcome Contract
+Task ID: P18-006C Auth Generator and Fresh Consumer
 
-Task Packet: `develop/orchestration/tasks/P18-006B-ephemeral-outcome-contract.md`
+Task Packet: `develop/orchestration/tasks/P18-006C-auth-generator-and-fresh-consumer.md`
 
-Specifications: `develop/spec/04-handler-and-result.md`、`develop/spec/05-http.md`、`develop/spec/17-core-api.md`、`develop/spec/24-lifecycle-event-data.md`、`develop/spec/50-operation-authoring-and-build-discovery.md`、`develop/spec/67-operation-frontend-bridge.md`、`develop/spec/69-deferred-status-and-outcome-api.md`、`develop/spec/73-structured-outcome-contract.md`、`develop/spec/74-application-ergonomics.md`、`develop/spec/75-phase-18-delivery-plan.md`
+Specifications: `develop/spec/06-auth-and-middleware.md`、`develop/spec/17-core-api.md`、`develop/spec/44-public-application-bootstrap-api.md`、`develop/spec/50-operation-authoring-and-build-discovery.md`、`develop/spec/55-project-generators-and-application-migrations.md`、`develop/spec/67-operation-frontend-bridge.md`、`develop/spec/73-structured-outcome-contract.md`、`develop/spec/74-application-ergonomics.md`、`develop/spec/75-phase-18-delivery-plan.md`
 
 ## Task Status
 
-Accepted
+Ready
 
-D112のPublic `EphemeralOutcome` Marker、Route付き明示Inline限定、Value／Outcome非永続化、HTTP一回投影、Frontend Status／Wait非公開を実装した。Orchestrator ReviewでLegacy Handlerの未宣言Ephemeral Outcome経路を修正し、独立品質Gateを含めて受け入れた。
+D111／D112に基づき、Built-in `make:auth`、Domain／Infrastructure／Feature分離、Auth Configuration Merge、All-or-nothing／No-overwrite、Fresh Consumerを実装するTask Packetを作成した。Production実装開始待ちである。
 
 ## Last Accepted Task
 
@@ -63,8 +63,8 @@ Active Implementation Blockerはない。Ray.Aop 2.19.1／2.20.0には複数clas
 
 ## Required Next Action
 
-1. P18-006C Auth Generator and Fresh ConsumerのTask Packetを作成する。
-2. `make:auth`の生成境界とFresh Consumerを実装し、P18-007 Community Board移行前にFramework側の利用感を固定する。
+1. GPT-5.6 Luna High workerへP18-006Cを依頼する。
+2. Orchestratorが生成物のApplication責任分界、Secret非永続化、Fresh Consumerを独立Reviewする。
 
 ## P18-006B Ephemeral Outcome Contract Worker Verification
 
