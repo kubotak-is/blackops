@@ -20,6 +20,7 @@ includes = [
   "vendor/symfony/dependency-injection",
   "vendor/symfony/stopwatch",
   "vendor/symfony/translation-contracts",
+  "vendor/vlucas/phpdotenv/src",
   "vendor/symfony/uid",
   "vendor/symfony/validator",
 ]

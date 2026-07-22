@@ -170,7 +170,12 @@ MVP後に残す主要項目:
 - [x] Public Seeder API、Build-time Discovery、Compiled Container Locator、Cycle Guardを実装する
 - [x] Framework-owned `database:seed`／`make:seeder`を実装する
 - [x] Community BoardからSeeder用Symfony Console実装と不要になった直接Dependencyを削除し、Clean Installで再検証する
-- [ ] D114でHTTP Runtime、Environment Bootstrap、UUIDv7のApplication Direct Dependency境界とPhase 19前のDelivery順を確定する
+- [x] D114でHTTP Runtime、Environment Bootstrap、UUIDv7のApplication Direct Dependency境界とPhase 19前のDelivery順を確定する
+- [x] Runtime Bootstrap Follow-upを`P18-009A`から`P18-009D`へ分割する
+- [x] Public Environment File BootstrapとQuickstart Consumerを実装する
+- [ ] Framework-owned Classic／FrankenPHP SAPI Runtimeを実装する
+- [ ] Public UUIDv7 GeneratorとAuth／Community Board Consumerを実装する
+- [ ] Skeleton／Documentation／Dependency Auditを同期してRuntime Follow-upをCloseする
 
 ### Phase 20: Security Hardening and Observability
 

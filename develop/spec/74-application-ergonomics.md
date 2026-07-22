@@ -34,7 +34,7 @@ Phase 18はHeadless CoreをSvelteKitや特定のUser／Password／UI実装へ固
 
 | Area | Framework／Integration | Application |
 | --- | --- | --- |
-| Environment | Process／Dotenvから渡された値のSnapshot、型付き読取、Safe Failure | Dotenv読込、Secret Injection、値の選定 |
+| Environment | Process／Optional `.env`の一回Snapshot、型付き読取、Safe Failure | External Secret Loader、値の選定 |
 | Configuration | Closure評価、Shape検証、Compiled Snapshot | Connection、Path、Retention等の値 |
 | Frontend Client | Operation型、Request、Fetch／Status／Wait、Transport Binding | Server-only配置、Session Header、Safe View Model |
 | Composer | Public Package境界、任意Integration | 直接ImportするPackageの明示Dependency |
@@ -72,7 +72,7 @@ final readonly class Environment
 - Failure MessageはVariable名と期待型を含めてよいが、Raw Valueを含めない
 - Array全体を返すPublic API、Runtime Mutation、Global Singleton、Global `env()` Helperを追加しない
 
-`withEnvironment()`へ値を明示しない場合の既存Process Environment取得は維持する。DotenvはInstalled ApplicationのBootstrap責務であり、Frameworkは`.env` Fileを暗黙に探索しない。
+`withEnvironment()`へ値を明示しない場合の既存Process Environment取得は維持する。Default Installed Applicationは明示的な`withEnvironmentFile()`でProcess EnvironmentとOptional `.env`を一度だけSnapshotする。FrameworkはBuilder Methodを呼ばないApplicationの`.env`を暗黙に探索しない。詳細は[Application Runtime and Bootstrap](78-application-runtime-and-bootstrap.md)を正本とする。
 
 ## Configuration Closure
 
@@ -143,7 +143,7 @@ ApplicationはServer-only Factoryを一つ作り、Domain固有のSafe View Mode
 - Application SourceがVendor PackageのClass、Interface、Function、Attributeを直接利用する場合、そのPackageをApplicationの`require`へ明示する
 - `blackops/framework`が同じPackageへ依存していることを、Applicationの直接Dependency省略理由にしない
 - Applicationから直接ImportしなくなったPackageは、Consumer Testで不要と確認した後に削除する
-- BlackOpsはDoctrine DBAL、PSR-7、Symfony Console、Dotenvを名前変更だけのWrapperで包まない
+- BlackOpsはDoctrine DBAL、Symfony Consoleを名前変更だけのWrapperで包まない。PSR-7 SAPI Adapter、Environment File Bootstrap、UUIDv7 GeneratorはFramework-owned Runtime CapabilityとしてD114の限定Contractで提供する
 - 任意Integration Packageは独立したCapability、Dependency、Migration、Test、Versioning境界を持つ場合だけ作る
 - Root Framework Packageへ任意Integrationを`require`しない
 

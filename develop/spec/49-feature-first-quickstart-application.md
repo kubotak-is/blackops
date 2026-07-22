@@ -109,7 +109,7 @@ return Application::configure(dirname(__DIR__))
     ->create();
 ```
 
-`.env` がないProduction Environmentでも起動可能とする。既存Process Environmentは `.env` より優先する。FrameworkはDotenv Classを参照しない。
+`.env` がないProduction Environmentでも起動可能とする。既存Process Environmentは `.env` より優先する。Quickstart SourceはDotenv Classを参照せず、Framework-owned Environment File Capabilityを明示的に有効化する。
 
 ## HTTP Entrypoint
 

@@ -1,6 +1,6 @@
 # D114: Application Runtime and Bootstrap Dependency Boundary
 
-Status: Awaiting User Decision
+Status: Decided
 
 ## Context
 
@@ -58,7 +58,7 @@ Aを推奨する。
 3領域はいずれもApplication Bootstrapの定型配線であり、Idempotency／Outbox Contractとは独立している。Phase番号を変えず小さいFollow-upとして閉じれば、Phase 19のCommunity Board Journeyを薄い標準Runtime上で実装できる。
 
 [ANSWER]
-
+A
 [/ANSWER]
 
 ## Question 2: HTTP／FrankenPHP Runtime Boundary
@@ -78,7 +78,7 @@ Aを推奨する。
 Framework Runtimeは認証、CORS、Application Error文言を所有せず、Requestを既存Handlerへ渡してResponseをEmitするだけとする。Raw Throwable、Credential、Request Bodyを出力しない。
 
 [ANSWER]
-
+A
 [/ANSWER]
 
 ## Question 3: Dotenv and Environment Bootstrap
@@ -98,7 +98,7 @@ QuickstartとCommunity Boardは同じProcess Environment merge、`safeLoad()`、
 `.env`欠落はLocal／Production双方で許可し、型・範囲検証は引き続き`Environment` AccessorとConfigurationが行う。Environment値をContainer Dump、Manifest、Logへ保存しない。
 
 [ANSWER]
-
+A
 [/ANSWER]
 
 ## Question 4: Application UUIDv7 Generation
@@ -116,7 +116,7 @@ Aを推奨する。
 BlackOps自身がUUIDv7を一貫して生成しており、Algorithmを明示した小さいContractならEntity ID Frameworkを再発明せずに定型Adapterを薄くできる。Domainは引き続き自分の`BoardIdGenerator`／`IdentityIdentifier`を所有し、InfrastructureだけがBlackOps Generatorへ依存する。CはDomainのID PolicyまでFrameworkへ持ち込むため採用しない。
 
 [ANSWER]
-
+A
 [/ANSWER]
 
 ## Fixed Boundary in This Decision
@@ -153,6 +153,38 @@ Phase 19のIdempotency／Outbox Production Codeは混在させない。
 - DBAL／Migrationsを隠すだけのWrapperを追加しない
 - Documentation Website／Community Boardを外部公開しない
 
+## Decision
+
+[DECISION]
+
+1. HTTP Runtime、Environment Bootstrap、UUIDv7境界をPost-Phase 18 Follow-up `P18-009`として実装し、Community BoardのDependencyを再監査してからPhase 19へ進む。
+2. Framework-owned SAPI Runtimeを追加し、Classic HTTPとFrankenPHP Worker ModeのRequest生成、Response Emit、Safe 500、Environment Restore、Request後GCをFrameworkが所有する。
+3. `Application::http()`のPSR-15 `RequestHandlerInterface`境界はCustom Server Adapter／Test向けPublic Escape Hatchとして維持する。
+4. Application Builderへ明示的なEnvironment File読込Capabilityを追加する。Process EnvironmentとOptional `.env`をBootstrap時に一度だけSnapshotし、Request／Operationごとに再読込しない。
+5. 既存`withEnvironment(array)`はTest、External Secret Loader、Custom Bootstrap向けに維持する。Environment値をCompiled Container、Manifest、Generated Source、Logへ保存しない。
+6. Public UUIDv7 Generator ContractとFramework Default Serviceを提供する。Application Infrastructure AdapterはGeneratorをConstructor Injectionし、Domain固有Identifier Interface／Valueへ変換する。
+7. Auth GeneratorとCommunity BoardからSymfony UIDの直接Importを削除する。Domainは引き続きApplication固有Identifier Contractを所有し、BlackOpsの型を参照しない。
+8. `doctrine/dbal`と`doctrine/migrations`はApplication SourceがVendor APIを直接利用するためApplication Direct Dependencyを維持し、BlackOps固有Wrapperを追加しない。
+9. ApplicationがNyholm、Laminas、Dotenv、Symfony UIDを直接利用するCustom Overrideは許可する。その場合はApplication Direct Dependencyへ明示する。
+10. `P18-009`はEnvironment Bootstrap、SAPI Runtime、UUIDv7／Consumer移行、Distribution／Documentation／Dependency Closeoutの4 Taskへ分割し、Phase 19 Production Codeを混在させない。
+
+[/DECISION]
+
+## Consequences
+
+[CONSEQUENCES]
+
+- Default `bootstrap/app.php`、Classic Entrypoint、FrankenPHP Worker EntrypointからVendor Runtime Importと定型配線を削減できる。
+- Classic／WorkerのSafe Failure、Environment Restore、Request後Cleanupを一つのFramework Contractとして回帰できる。
+- PSR-15 Handlerを直接必要とするTest、RoadRunner等のCustom Adapter、Application-owned Outer Routerは既存`Application::http()`を継続利用できる。
+- Default BootstrapはDotenv実装を直接Importせず、`.env`がないProductionでもProcess Environmentだけで起動できる。
+- TestとExternal Secret Loaderは解決済みArrayを`withEnvironment()`へ渡せるため、Environment Fileの使用を強制されない。
+- UUIDv7生成のAlgorithmだけをFramework Capabilityとして共有し、Domain Entity、Repository、Identifier Value Objectの所有権はApplicationへ残る。
+- Quickstart／Community Boardは不要になったNyholm、Laminas、Dotenv、Symfony UID Direct Dependencyを、Source ImportとConsumer Gateの確認後に削除できる。
+- DBAL／MigrationsはApplicationが実APIを利用する限りDirect Dependencyとして残り、Dependency数だけを減らすWrapperは導入しない。
+
+[/CONSEQUENCES]
+
 ## Traceability
 
 - Dependency Boundary: [D110 Application Ergonomics](110-application-ergonomics.md)
@@ -160,4 +192,6 @@ Phase 19のIdempotency／Outbox Production Codeは混在させない。
 - Worker Runtime: [D085 Worker Mode Default](085-worker-mode-default.md)
 - Installed Layout: [Installed Application Layout and Bootstrap](../spec/43-installed-application-layout-and-bootstrap.md)
 - Application Ergonomics: [Application Ergonomics](../spec/74-application-ergonomics.md)
+- Runtime Contract: [Application Runtime and Bootstrap](../spec/78-application-runtime-and-bootstrap.md)
+- Delivery Plan: [Phase 18 Runtime Follow-up Delivery Plan](../spec/79-phase-18-runtime-follow-up-delivery-plan.md)
 - Next Phase: [D109 Phase 19 Idempotency and Outbox](109-phase-18-idempotency-and-outbox.md)

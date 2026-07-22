@@ -39,6 +39,7 @@ final class ApplicationTest extends TestCase
 
         foreach ([
             'withEnvironment',
+            'withEnvironmentFile',
             'withConfiguration',
             'withOperations',
             'withServices',
@@ -65,7 +66,15 @@ final class ApplicationTest extends TestCase
         );
         sort($publicMethods);
         self::assertSame(
-            ['create', 'withCommands', 'withConfiguration', 'withEnvironment', 'withOperations', 'withServices'],
+            [
+                'create',
+                'withCommands',
+                'withConfiguration',
+                'withEnvironment',
+                'withEnvironmentFile',
+                'withOperations',
+                'withServices',
+            ],
             $publicMethods,
         );
     }

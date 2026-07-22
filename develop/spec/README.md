@@ -92,6 +92,8 @@
 | [75-phase-18-delivery-plan.md](75-phase-18-delivery-plan.md) | Application ErgonomicsのTask順序と受入境界 |
 | [76-database-seeding.md](76-database-seeding.md) | Framework-owned Seed Command、Seeder／Runner、Build、Generator境界 |
 | [77-phase-18-follow-up-delivery-plan.md](77-phase-18-follow-up-delivery-plan.md) | Seeder CoreからConsumer移行までのPhase 18 Follow-up順序 |
+| [78-application-runtime-and-bootstrap.md](78-application-runtime-and-bootstrap.md) | Environment File、Classic／Worker SAPI Runtime、Public UUIDv7 Generator境界 |
+| [79-phase-18-runtime-follow-up-delivery-plan.md](79-phase-18-runtime-follow-up-delivery-plan.md) | Runtime BootstrapからDependency CloseoutまでのPhase 18 Follow-up順序 |
 
 ## 決定の参照
 
@@ -210,3 +212,4 @@
 | [D111](../decisions/111-session-auth-package-contract.md) | Session Authentication Contract | Decided |
 | [D112](../decisions/112-authentication-credential-response-boundary.md) | Authentication Credential Response Boundary | Decided |
 | [D113](../decisions/113-database-seeder-contract.md) | Database Seeder Contract | Decided |
+| [D114](../decisions/114-application-runtime-and-bootstrap-dependency-boundary.md) | Application Runtime and Bootstrap Dependency Boundary | Decided |

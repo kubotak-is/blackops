@@ -128,6 +128,15 @@ final class QuickstartApplicationArchitectureTest extends TestCase
         }
     }
 
+    public function testQuickstartBootstrapUsesFrameworkEnvironmentFileCapability(): void
+    {
+        $source = (string) file_get_contents($this->quickstart() . '/bootstrap/app.php');
+
+        self::assertStringContainsString('->withEnvironmentFile()', $source);
+        self::assertStringNotContainsString('Dotenv\\', $source);
+        self::assertStringNotContainsString('$_ENV', $source);
+    }
+
     public function testInstalledConfigurationUsesTypedEnvironmentClosuresWithoutGlobalReads(): void
     {
         foreach ([$this->quickstart(), dirname($this->quickstart()) . '/community-board'] as $application) {

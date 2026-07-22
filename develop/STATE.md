@@ -1,28 +1,30 @@
 # Orchestration State
 
-Updated At: 2026-07-23T00:11:42+09:00
+Updated At: 2026-07-23T01:21:20+09:00
 
 ## Current Phase
 
-Post-Phase 18 Application Runtime Dependency Follow-up - Decision Pending
+Post-Phase 18 Application Runtime and Bootstrap Follow-up
 
 ## Current Task
 
-Task ID: D114 Application Runtime and Bootstrap Dependency Boundary
+Task ID: P18-009B Framework-owned SAPI Runtime
 
-Decision: `develop/decisions/114-application-runtime-and-bootstrap-dependency-boundary.md`
+Task Packet: `develop/orchestration/tasks/P18-009B-framework-owned-sapi-runtime.md`
 
-References: `develop/decisions/110-application-ergonomics.md`、`develop/decisions/114-application-runtime-and-bootstrap-dependency-boundary.md`
+References: `develop/decisions/114-application-runtime-and-bootstrap-dependency-boundary.md`、`develop/spec/78-application-runtime-and-bootstrap.md`、`develop/spec/79-phase-18-runtime-follow-up-delivery-plan.md`
 
 ## Task Status
 
-Awaiting User Decision
+Ready for Worker
 
-P18-008CはAccepted commit `b7d8d81`で完了した。D113が別Decisionへ送ったHTTP Runtime、Environment Bootstrap、UUIDv7のApplication Direct Dependency境界をD114へ起票し、回答を待っている。DBAL／MigrationsはD110どおりDirect Dependencyを維持する。
+D114はA／A／A／Aで確定した。P18-009をEnvironment File Bootstrap、Framework-owned SAPI Runtime、Public UUIDv7 Generator／Consumer Adoption、Distribution／Dependency Closeoutの4 Taskへ分割した。P18-009AでPublic Builder CapabilityとQuickstart Consumerを実装する。DBAL／MigrationsはDirect Dependencyを維持する。
+
+P18-009AをOrchestrator Review／独立VerificationでAcceptedとした。Framework-owned Dotenv Dependency、`ApplicationBuilder::withEnvironmentFile()`、Process優先／Optional File／Safe Failure／create単位Snapshot、成功時の`$_ENV`互換同期、Quickstart Bootstrap移行を実装した。Worker Full PHPUnit 1,715 tests／6,851 assertions、Focused 31 tests／345 assertions、Mago、Deptrac、Composer Strict、Quickstart Setupが成功し、Orchestrator独立Quickstart E2Eも完走した。Worker Commitなし。次はP18-009B Framework-owned SAPI Runtimeを実装する。
 
 ## Last Accepted Task
 
-P18-008C-seeder-consumer-adoption-and-closeout
+P18-009A-environment-file-bootstrap
 
 ## Pending Decisions
 
@@ -57,7 +59,7 @@ P18-008C-seeder-consumer-adoption-and-closeout
 29. D111はA／A／A／A／A／A／A／A／Aで確定。Session AuthenticationをFramework同梱のOpt-in Capabilityとし、Identity、Token／Lifecycle、HTTP Adapter、Migration、Built-in Generatorの公開／Security Contractを採用する。
 30. D112はAで確定。Public `EphemeralOutcome extends Outcome`、Route付き明示Inline限定、Value／Outcome非永続化、HTTP一回投影、Frontend Status／Wait非公開を採用する。
 31. D113はA／A／A／修正版A／A／A／Aで確定。Database Seederを汎用Application Commandから分離し、Public Runner、Build-time Child Discovery、Framework-owned Console／Generator、Application-owned Transaction境界を採用する。
-32. D114は未決。Phase 19前のFollow-up順、Framework-owned SAPI Runtime、Environment File Bootstrap、Public UUIDv7 Generatorを判断する。
+32. D114はA／A／A／Aで確定。Phase 19前にP18-009を実施し、Framework-owned SAPI Runtime、Environment File Bootstrap、Public UUIDv7 Generator、Consumer Dependency Closeoutを順に実装する。
 
 ## Known Blockers
 
@@ -65,9 +67,34 @@ Active Implementation Blockerはない。Current SchemaとMigration Schemaが一
 
 ## Required Next Action
 
-1. Userが`develop/decisions/114-application-runtime-and-bootstrap-dependency-boundary.md`のQuestion 1から4へ回答する。
-2. Orchestratorが回答をReviewし、Decision／Specification／Delivery Planへ確定する。
-3. 採用ScopeをTask Packetへ分割するか、Phase 19 Reliability and Deliveryへ進む。
+1. Orchestrator CodexがAccepted済み`P18-009A-environment-file-bootstrap`をCommitする。
+2. GPT-5.6 Luna High Workerへ`P18-009B-framework-owned-sapi-runtime`を委譲する。
+
+## D114 Application Runtime and Bootstrap Decision Review
+
+```text
+Decision: Question 1から4はすべてA。Environment File、Classic／Worker SAPI Runtime、UUIDv7をPhase 19前のP18-009としてFirst-party Capabilityへ移す。
+
+Boundary: Application::http()はPSR-15 Escape Hatchとして維持。withEnvironment(array)はTest／External Loader向けに維持。Domain IdentifierはApplication所有、DBAL／MigrationsはDirect Dependencyを維持する。
+
+Delivery: P18-009A Environment、P18-009B SAPI Runtime、P18-009C UUIDv7／Consumer、P18-009D Distribution／Dependency Closeoutの順とし、Phase 19 Production Codeと混在させない。
+```
+
+詳細は`develop/decisions/114-application-runtime-and-bootstrap-dependency-boundary.md`、`develop/spec/78-application-runtime-and-bootstrap.md`、`develop/spec/79-phase-18-runtime-follow-up-delivery-plan.md`を参照する。
+
+## P18-009A Environment File Bootstrap Orchestrator Verification
+
+```text
+Public API: ApplicationBuilder::withEnvironmentFile()を追加。Default／Explicit Optional File、Process Environment優先、Last Explicit Source、Configuration順序非依存、create単位Snapshotを実装した。
+
+Compatibility／Security: 成功したResolved SnapshotをBootstrap時に一度だけ$_ENVへ同期し、putenv()／$_SERVERは変更しない。Parse／Shape Failureでは部分同期せず、Raw Value／Parser ThrowableをSafe Bootstrap Errorへ露出しない。
+
+Consumer: Quickstart BootstrapからDotenv Vendor配線を除去。Worker Quickstart Setup成功、Orchestrator独立Quickstart E2E完走。
+
+Quality: Worker Full PHPUnit 1715 tests／6851 assertions。Orchestrator Focused 31 tests／345 assertions、Mago Analyze、Deptrac 0 violations／2840 allowed、Management ID／diff Guard成功。HTTP Runtime／UUID／Community Board／Dependency削除／外部Publication差分なし、Worker Commitなし。
+```
+
+詳細は`develop/orchestration/reports/P18-009A-environment-file-bootstrap.md`を参照する。
 
 ## P18-008C Seeder Consumer Adoption and Follow-up Closeout Orchestrator Verification
 

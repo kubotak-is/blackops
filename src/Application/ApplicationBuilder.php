@@ -9,6 +9,7 @@ use BlackOps\Internal\Application\ApplicationBasePath;
 use BlackOps\Internal\Application\ApplicationConfigurationLoader;
 use BlackOps\Internal\Application\ApplicationConfigurationRegistrations;
 use BlackOps\Internal\Application\ApplicationConfigurationSnapshot;
+use BlackOps\Internal\Application\ApplicationEnvironmentFile;
 use BlackOps\Internal\Application\ApplicationRegistrationValidator;
 use InvalidArgumentException;
 use LogicException;
@@ -21,6 +22,10 @@ final class ApplicationBuilder
 
     /** @var array<string, string> */
     private array $environment = [];
+
+    private ?string $environmentFile = null;
+
+    private bool $environmentFileSelected = false;
 
     private ?string $configurationDirectory = null;
 
@@ -51,9 +56,20 @@ final class ApplicationBuilder
             new Environment($variables);
             /** @var array<string, string> $variables */
             $this->environment = $variables;
+            $this->environmentFile = null;
+            $this->environmentFileSelected = false;
         } catch (InvalidArgumentException $exception) {
             throw new ApplicationBootstrapException($exception->getMessage(), previous: $exception);
         }
+
+        return $this;
+    }
+
+    public function withEnvironmentFile(?string $path = null): self
+    {
+        $this->environment = [];
+        $this->environmentFile = $path ?? $this->basePath . DIRECTORY_SEPARATOR . '.env';
+        $this->environmentFileSelected = true;
 
         return $this;
     }
@@ -99,7 +115,14 @@ final class ApplicationBuilder
     public function create(): Application
     {
         try {
-            $environment = new Environment($this->environment);
+            $environmentFile = $this->environmentFileSelected ? new ApplicationEnvironmentFile() : null;
+            $variables = $environmentFile === null
+                ? $this->environment
+                : $environmentFile->load($this->environmentFile ?? '', $this->processEnvironment());
+            $environment = new Environment($variables);
+            if ($environmentFile !== null) {
+                $environmentFile->synchronize($variables);
+            }
             $configuration = $this->configurationDirectory === null
                 ? []
                 : new ApplicationConfigurationLoader()->load($this->configurationDirectory, $environment);
