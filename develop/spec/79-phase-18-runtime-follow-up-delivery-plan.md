@@ -11,7 +11,9 @@ P18-009A Environment File Bootstrap
   -> P18-009B Framework-owned SAPI Runtime
     -> P18-009C Public UUIDv7 Generator and Consumer Adoption
       -> P18-009D Distribution, Documentation, Dependency Audit, and Closeout
-        -> Phase 19 Reliability and Delivery
+        -> P18-009D1 SAPI Location Status Correction
+          -> P18-009D Resume and Closeout
+            -> Phase 19 Reliability and Delivery
 ```
 
 Taskを並行実装しない。各TaskはWorker Report、Orchestrator Review、独立Verification、Commitを完了してから次へ進む。
@@ -55,7 +57,7 @@ SAPI Runtime Contract、Distribution Dependency削除、公開Documentation Clos
 
 ## P18-009D: Distribution, Documentation, Dependency Audit, and Closeout
 
-Status: Planned.
+Status: In Progress.
 
 - Skeleton／Create-project／Framework Update／Package Exportへ新BootstrapとEntrypointを同期する
 - Quickstart／Community Boardから未使用のDotenv、Nyholm、Laminas、Symfony UID Direct Dependencyを削除する
@@ -65,6 +67,18 @@ Status: Planned.
 - Runtime Follow-upを閉じ、Phase 19へSTATEを進める
 
 External Publication／DeployとPhase 19 Production Codeは変更しない。
+
+## P18-009D1: SAPI Location Status Correction
+
+Status: Accepted.
+
+- Quickstart E2Eで検出した`Location`付き202 Responseの302上書きを補正する
+- Headerを検証後にEmitし、明示StatusをBodyより前かつHeaderより後に確定する
+- Public API、Application Response Contract、Worker Loopを変更しない
+- Focused／Full PHPUnitとQuickstart実HTTP E2Eで回帰を固定する
+- Accepted後にP18-009Dの残りConsumer Gateへ戻る
+
+Application／Distribution／Dependency／Documentation差分は変更しない。
 
 ## Dependency and Ownership Rules
 

@@ -44,13 +44,14 @@ final class SapiResponseEmitter
     public function emit(ResponseInterface $response, string $requestMethod): void
     {
         SapiResponseHeaders::validate($response);
-        ($this->statusEmitter)($response->getStatusCode());
 
         foreach ($response->getHeaders() as $name => $values) {
             foreach ($values as $value) {
                 ($this->headerEmitter)((string) $name . ': ' . $value);
             }
         }
+
+        ($this->statusEmitter)($response->getStatusCode());
 
         if (strtoupper($requestMethod) === 'HEAD') {
             return;

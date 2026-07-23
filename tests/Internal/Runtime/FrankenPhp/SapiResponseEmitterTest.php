@@ -61,6 +61,40 @@ final class SapiResponseEmitterTest extends TestCase
         self::assertSame(0, $bodyCalls);
     }
 
+    public function testEmitsLocationBeforeExplicitStatusAndBody(): void
+    {
+        $events = [];
+        $emitter = new SapiResponseEmitter(
+            static function (int $status) use (&$events): void {
+                $events[] = 'status:' . $status;
+            },
+            static function (string $header) use (&$events): void {
+                $events[] = 'header:' . $header;
+            },
+            static function (string $chunk) use (&$events): void {
+                $events[] = 'body:' . $chunk;
+            },
+        );
+
+        $emitter->emit(
+            new Response(
+                202,
+                ['Location' => '/operations/019f0000-0000-7000-8000-000000000001'],
+                Stream::create('{"status":"accepted"}'),
+            ),
+            'POST',
+        );
+
+        self::assertSame(
+            [
+                'header:Location: /operations/019f0000-0000-7000-8000-000000000001',
+                'status:202',
+                'body:{"status":"accepted"}',
+            ],
+            $events,
+        );
+    }
+
     public function testRejectsHeaderInjectionBeforeEmission(): void
     {
         $emissions = [];
