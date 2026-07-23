@@ -22,6 +22,19 @@ composer update blackops/framework --with-all-dependencies
 
 FrameworkはApplication所有のEntrypoint、生成済みOperation、Migration、Configurationを自動更新しません。
 
+### 1.1.1 Preview: Runtime Boundary and Application Dependencies
+
+Repository `main`のSkeleton／Community Boardへ移行する場合、`bootstrap/app.php`を次の形へ更新し、Applicationの直接ImportがないRuntime Packageを`composer.json`から削除してLockを再生成します。
+
+```php
+return Application::configure(dirname(__DIR__))
+    ->withEnvironmentFile()
+    ->withConfiguration()
+    ->create();
+```
+
+`public/index.php`は`SapiRuntime::run($application)`、Workerは`SapiRuntime::runWorker($application)`を呼びます。`vlucas/phpdotenv`、`nyholm/psr7`、`nyholm/psr7-server`、`laminas/laminas-httphandlerrunner`、`symfony/uid`は標準RuntimeのFramework-owned Dependencyです。ApplicationがDBAL／Migrationsを実Importする場合は、それらをDirect Dependencyとして残してください。外部LoaderやCustom PSR-15 Adapterを選ぶApplicationは、利用Packageを明示的に再追加します。
+
 ### 2. Project CLIをRoot Entrypointへ置き換える
 
 Application Rootで次をそのまま実行し、Skeleton `1.1.0`と同じEntrypointを新規作成します。旧`bin/blackops`は`dirname(__DIR__)`をApplication Rootとして使う実装のため、単純な`mv bin/blackops blackops`ではPath解決が壊れます。

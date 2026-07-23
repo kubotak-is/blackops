@@ -6,7 +6,7 @@ Installed ApplicationはApplication Rootを起点にPublic `Application` Builder
 use BlackOps\Application\Application;
 
 $application = Application::configure(dirname(__DIR__))
-    ->withEnvironment($environment)
+    ->withEnvironmentFile()
     ->withConfiguration()
     ->create();
 ```
@@ -15,7 +15,7 @@ $application = Application::configure(dirname(__DIR__))
 
 ## EnvironmentとConfiguration
 
-`withEnvironment()`へ文字列Key／Valueの配列を渡します。引数を省略した場合は呼出時のProcess Environmentを一度だけCaptureします。FrameworkはDotenvを提供せず、Skeletonが`.env`とProcess Environmentを解決します。
+既定のInstalled Applicationは`withEnvironmentFile()`でProcess EnvironmentとOptional `.env`を一度だけSnapshotします。Process Environmentが`.env`より優先され、`.env`がない場合も起動できます。Testや外部Secret Loaderなど、解決済みの値を渡す場合だけ`withEnvironment(array)`を使います。Dotenv実装はFrameworkが所有し、ApplicationはVendor Runtime Classを直接Importしません。
 
 `withConfiguration()`は既定で`<application-root>/config`を読みます。認識するFileは`app.php`、`database.php`、`operations.php`、`execution.php`、`journal.php`、`middleware.php`、`retention.php`の7つです。存在しない既定Directoryは空Configとして扱い、未知Fileは読みません。
 
@@ -63,6 +63,18 @@ final readonly class ApplicationServiceProvider implements ServiceProvider
 ```
 
 ## HTTP Process
+
+公式のClassic／Worker Entrypointは`BlackOps\Http\SapiRuntime`へApplicationを渡すだけです。
+
+```php
+use BlackOps\Http\SapiRuntime;
+
+require dirname(__DIR__) . '/vendor/autoload.php';
+$application = require dirname(__DIR__) . '/bootstrap/app.php';
+SapiRuntime::run($application); // WorkerはrunWorker($application)
+```
+
+Request生成、Response Emit、Safe 500、Worker LoopはFrameworkが所有します。`Application::http()`はCustom PSR-15 AdapterやTest向けのEscape Hatchです。
 
 ```php
 $handler = $application->http();

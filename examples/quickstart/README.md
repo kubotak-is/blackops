@@ -28,6 +28,8 @@ docker compose up -d
 
 Composer `create-project`は`post-create-project-cmd`から同じ`bin/setup`を実行する。`--no-scripts`で作成した場合、またはSetupを明示的に再実行する場合はProject Root内外のどのWorking Directoryからでも`php /path/to/my-app/bin/setup`を実行できる。Setupは`.env`がない場合だけ`.env.example`をCopyし、`var/build/`と`var/log/`を準備する。既存`.env`は変更しない。
 
+Quickstartの`bootstrap/app.php`はFrameworkの`withEnvironmentFile()`でProcess Environmentを優先してOptional `.env`を一度だけSnapshotします。Classic／Workerの`public/index.php`／`public/worker.php`は`BlackOps\Http\SapiRuntime`へApplicationを渡すだけです。Environment、PSR-7、SAPI Emit、UUIDv7のRuntime実装はFrameworkが所有するため、Skeleton Composer MetadataへそのRuntime Packageを重複宣言しません。DBAL／MigrationsなどApplicationが実ImportするPackageだけをApplication Direct Dependencyとして追加します。
+
 ```bash
 composer create-project blackops/skeleton my-app 1.1.0
 ```

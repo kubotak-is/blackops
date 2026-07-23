@@ -33,6 +33,8 @@ Release Automationは次を失敗条件とする。
 - Split結果のRootに正しい `blackops/skeleton` Composer Metadataがない
 - Split結果にRepository内部だけで成立するPath Repositoryが残る
 
+Skeleton Composer MetadataはFramework Constraintだけを直接宣言する。Environment File、SAPI Runtime、PSR-7／PSR-17、UUIDv7のFramework-owned Runtime DependencyをDistributionへ重複宣言せず、DBAL／MigrationsなどApplication Sourceが実ImportするPackageだけをApplication側で宣言する。
+
 Skeleton独自VersionまたはFrameworkと異なるRelease Cycleは採用しない。必要性が生じた場合はVersion Policyを再決定する。
 
 初回Public Stable Versionは`1.0.0`とする。Framework Repositoryの`1.0.0` TagをTriggerとして、Skeleton Split Commitにも同じTagを付ける。SkeletonのFramework Constraintは`^1.0`とする。公開済みSkeleton `1.0.0`はlightweight tagであるためImmutableなLegacyとして維持し、削除、移動、annotated tagへの置換を行わない。

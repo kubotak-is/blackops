@@ -134,10 +134,24 @@ if (($composer["name"] ?? null) !== "blackops/skeleton"
     || ($composer["require"]["blackops/framework"] ?? null) !== $expectedConstraint
     || ($composer["scripts"]["post-create-project-cmd"] ?? null) !== "@php bin/setup"
     || array_key_exists("repositories", $composer)
-    || array_key_exists("version", $composer)) {
+    || array_key_exists("version", $composer)
+    || array_intersect([
+        "vlucas/phpdotenv",
+        "nyholm/psr7",
+        "nyholm/psr7-server",
+        "laminas/laminas-httphandlerrunner",
+        "symfony/uid",
+    ], array_keys($composer["require"] ?? [])) !== []) {
     exit(1);
 }
 ' "${expected_constraint}" || fail 'Composer metadata or framework constraint is invalid'
+
+grep -Fq -- '->withEnvironmentFile()' "${distribution_root}/bootstrap/app.php" \
+    || fail 'distribution bootstrap does not enable the framework environment file capability'
+grep -Fq -- 'SapiRuntime::run($application);' "${distribution_root}/public/index.php" \
+    || fail 'distribution classic entrypoint does not use SapiRuntime'
+grep -Fq -- 'SapiRuntime::runWorker($application);' "${distribution_root}/public/worker.php" \
+    || fail 'distribution worker entrypoint does not use SapiRuntime'
 
 docker run --rm \
     --user "$(id -u):$(id -g)" \

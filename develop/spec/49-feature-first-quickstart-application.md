@@ -28,8 +28,7 @@ examples/quickstart/
           ShowWelcome.php
           WelcomeValue.php
           WelcomeShown.php
-  bin/
-    blackops
+  blackops
   bootstrap/
     app.php
   config/
@@ -61,16 +60,14 @@ Quickstart Localの`config/diagnostics.php`だけがDevelopment Viewerを`enable
 
 QuickstartのComposer Package Nameは `blackops/skeleton`、Application Namespaceは `App\` とする。`composer.lock` は含めない。
 
-Runtime Dependencyは次を直接宣言する。
+Applicationが直接利用するRuntime／Database Dependencyだけを宣言する。
 
 ```text
 php                                  >=8.5
 blackops/framework                   same release major/minor
-vlucas/phpdotenv                     ^5.6
-nyholm/psr7                          ^1.8
-nyholm/psr7-server                   ^1.1
-laminas/laminas-httphandlerrunner    ^2.13
 ```
+
+Environment File、PSR-7 Request／Response、SAPI Emit、UUIDv7はFramework-owned Runtime Capabilityである。ApplicationがDBAL／Migration APIを実Importする場合は、そのDirect Dependencyを宣言する。Framework Root PackageのRuntime実装DependencyをSkeletonへ重複宣言しない。
 
 Main Repositoryだけで成立するPath Repositoryを `composer.json` へ保存しない。Local Consumer検証はCommandまたは一時Copy側でFramework Path Repository／Versionを注入し、配布Sourceを変更しない。
 
@@ -100,11 +97,11 @@ Application Code、Test、Bootstrap、Config、Entrypointは `BlackOps\Internal`
 
 ## Application Bootstrap
 
-`bootstrap/app.php` はComposer Autoloader読込後にSkeleton所有のDotenvを安全に読み、Public Builderだけを使ってApplicationを返す。
+`bootstrap/app.php` はPublic BuilderでFramework-owned Environment File Capabilityを有効化し、Applicationを返す。
 
 ```php
 return Application::configure(dirname(__DIR__))
-    ->withEnvironment($resolvedEnvironment)
+    ->withEnvironmentFile()
     ->withConfiguration()
     ->create();
 ```
@@ -116,11 +113,9 @@ return Application::configure(dirname(__DIR__))
 `public/index.php` は次だけを行う。
 
 1. Composer Autoloaderと `bootstrap/app.php` を読む
-2. Nyholm PSR-17 FactoryとServer Request Creatorを構成する
-3. `$application->http()` へRequestを渡す
-4. Laminas SAPI EmitterでResponseをEmitする
+2. `SapiRuntime::run($application)`を呼ぶ
 
-Laminas型はこのFileだけに置く。HTTP EntrypointはInternal Runtime、Container、DBAL Connection、Artifact Loaderを参照せず、BuildやMigrationを実行しない。
+Request生成、Response Emit、Safe 500はFramework-owned `SapiRuntime`が担当する。HTTP EntrypointはPSR-7実装、Laminas、FrankenPHP Loop、Internal Runtime、Container、DBAL Connection、Artifact Loaderを参照せず、BuildやMigrationを実行しない。Worker Entrypointは`SapiRuntime::runWorker($application)`を呼ぶ。
 
 FrankenPHP Worker Mode用EntrypointはApplicationをProcess起動時に一度構成し、Request LoopへPublic HTTP Handlerを渡す。Worker ModeはInstall直後のDefault HTTPとし、Request終了時のScope Cleanup、Journal Flush、Connection Recovery、例外隔離、Memory上限、`max_requests` RestartをConsumer E2Eで継続検証する。Classic Front Controllerは明示ProfileのFallbackとして維持する。
 
@@ -142,7 +137,7 @@ Framework Command実装やRuntime DependencyをProject側で生成しない。
 
 ### database.php
 
-DotenvまたはProcess Environmentから解決したDBAL ParameterとFramework Schemaを返す。CredentialをRepositoryへ直書きしない。
+FrameworkのEnvironment Snapshotから解決したDBAL ParameterとFramework Schemaを返す。CredentialをRepositoryへ直書きしない。
 
 ### execution.php
 

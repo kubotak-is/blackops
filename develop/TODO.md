@@ -175,7 +175,7 @@ MVP後に残す主要項目:
 - [x] Public Environment File BootstrapとQuickstart Consumerを実装する
 - [x] Framework-owned Classic／FrankenPHP SAPI Runtimeを実装する
 - [x] Public UUIDv7 GeneratorとAuth／Community Board Consumerを実装する
-- [ ] Skeleton／Documentation／Dependency Auditを同期してRuntime Follow-upをCloseする
+- [x] Skeleton／Documentation／Dependency Auditを同期してRuntime Follow-upをCloseする
 
 ### Phase 20: Security Hardening and Observability
 

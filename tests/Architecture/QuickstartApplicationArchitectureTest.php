@@ -88,15 +88,7 @@ final class QuickstartApplicationArchitectureTest extends TestCase
         self::assertArrayNotHasKey('version', $composer);
         self::assertSame('@php bin/setup', $composer['scripts']['post-create-project-cmd']);
         self::assertSame('>=8.5', $composer['require']['php']);
-        foreach ([
-            'blackops/framework',
-            'vlucas/phpdotenv',
-            'nyholm/psr7',
-            'nyholm/psr7-server',
-            'laminas/laminas-httphandlerrunner',
-        ] as $dependency) {
-            self::assertArrayHasKey($dependency, $composer['require']);
-        }
+        self::assertSame(['php', 'blackops/framework'], array_keys($composer['require']));
 
         self::assertStringNotContainsString(
             'composer.lock',
@@ -167,6 +159,12 @@ final class QuickstartApplicationArchitectureTest extends TestCase
         self::assertStringContainsString('->withEnvironmentFile()', $source);
         self::assertStringNotContainsString('Dotenv\\', $source);
         self::assertStringNotContainsString('$_ENV', $source);
+
+        $community = dirname($this->quickstart()) . '/community-board/bootstrap/app.php';
+        $communitySource = (string) file_get_contents($community);
+        self::assertStringContainsString('->withEnvironmentFile()', $communitySource);
+        self::assertStringNotContainsString('Dotenv\\', $communitySource);
+        self::assertStringNotContainsString('$_ENV', $communitySource);
     }
 
     public function testInstalledConfigurationUsesTypedEnvironmentClosuresWithoutGlobalReads(): void

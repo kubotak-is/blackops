@@ -1,6 +1,6 @@
 # P18-009D: Runtime Distribution, Dependency Audit, and Closeout
 
-Status: Ready
+Status: Accepted
 
 ## Goal
 
@@ -69,15 +69,15 @@ Framework Production `src/**`とPublic Contractは変更禁止とする。不足
 
 ## Acceptance Criteria
 
-- [ ] Skeleton Bootstrap／Classic／Worker EntrypointがVendor Runtimeを直接Importしない
-- [ ] Create-project／Publication Dry-run／Framework Update／Package Exportが成功する
-- [ ] Quickstart／Community Boardから未使用のDotenv／Nyholm／Laminas／Symfony UID Direct Dependencyを削除できる
-- [ ] DBAL／Migrations Direct DependencyがApplication実Importと一致する
-- [ ] Quickstart／Community Board Existing／Clean／Classic／Worker／Auth／Board／Deferred／Browserが成功する
-- [ ] Guide／Internal Docs／WebsiteがFinal Public Contractと一致する
-- [ ] Full PHP／Frontend／Consumer／Website Quality Gateが成功する
-- [ ] TODO／Delivery Plan／STATEがRuntime Follow-up完了とPhase 19 Next Actionを示す
-- [ ] External Publication／Deployなし、Framework Production差分なし、Worker Commitなし
+- [x] Skeleton Bootstrap／Classic／Worker EntrypointがVendor Runtimeを直接Importしない
+- [x] Create-project／Publication Dry-run／Framework Update／Package Exportが成功する
+- [x] Quickstart／Community Boardから未使用のDotenv／Nyholm／Laminas／Symfony UID Direct Dependencyを削除できる
+- [x] DBAL／Migrations Direct DependencyがApplication実Importと一致する
+- [x] Quickstart／Community Board Existing／Clean／Classic／Worker／Auth／Board／Deferred／Browserが成功する
+- [x] Guide／Internal Docs／WebsiteがFinal Public Contractと一致する
+- [x] Full PHP／Frontend／Consumer／Website Quality Gateが成功する
+- [x] TODO／Delivery Plan／STATEがRuntime Follow-up完了とPhase 19 Next Actionを示す
+- [x] External Publication／Deployなし、Framework Production差分なし、Worker Commitなし
 
 ## Required Commands
 

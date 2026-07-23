@@ -26,7 +26,7 @@ FrankenPHP/Caddy :80
 
 ## Reference composition
 
-The repository bootstrap at `runtime/frankenphp/bootstrap.php` is only a health-check application. Real applications replace `BLACKOPS_APPLICATION_BOOTSTRAP` with a file that loads immutable build artifacts, composes runtime dependencies and returns the PSR-15 handler:
+The repository bootstrap at `runtime/frankenphp/bootstrap.php` is only a health-check application. A standard installed application uses `public/index.php`／`public/worker.php` and `BlackOps\Http\SapiRuntime`; the following lower-level composition is an escape hatch for custom runtimes that intentionally own the PSR-15 adapter:
 
 ```php
 <?php

@@ -29,6 +29,8 @@ docker compose --profile worker up -d postgres http frontend worker
 
 The locked Composer path repository points to `../..`; do not copy Framework source into this application. The seed command is repeat-safe. It creates three fixed local users, three posts, and four comments without creating a session or dispatching a BlackOps Operation.
 
+The application bootstrap enables the framework-owned `withEnvironmentFile()` capability, and the Classic／Worker front controllers call `BlackOps\Http\SapiRuntime`. The application declares only the Doctrine DBAL and Migrations packages it imports directly; Environment File, PSR-7／SAPI runtime, and UUIDv7 dependencies remain owned by the Framework package.
+
 Log in at `http://localhost:5173/login` with:
 
 ```text

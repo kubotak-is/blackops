@@ -94,6 +94,23 @@ test -d "${COMMUNITY_BOARD}/var/log"
 
 "${COMPOSE[@]}" build app http frontend
 "${COMPOSE[@]}" run --rm --no-deps app composer validate --strict
+"${COMPOSE[@]}" run --rm --no-deps app php -r '
+$composer = json_decode(file_get_contents("composer.json"), true, 512, JSON_THROW_ON_ERROR);
+$required = $composer["require"] ?? [];
+foreach (["vlucas/phpdotenv", "nyholm/psr7", "nyholm/psr7-server", "laminas/laminas-httphandlerrunner", "symfony/uid"] as $dependency) {
+    if (array_key_exists($dependency, $required)) {
+        fwrite(STDERR, "unused runtime dependency remains: {$dependency}\n");
+        exit(1);
+    }
+}
+ksort($required);
+if (array_keys($required) !== ["blackops/framework", "doctrine/dbal", "doctrine/migrations", "php"]) {
+    fwrite(STDERR, "unexpected application direct dependencies\n");
+    exit(1);
+}
+'
+grep -Fq -- '->withEnvironmentFile()' "${COMMUNITY_BOARD}/bootstrap/app.php"
+! rg -n 'Dotenv\\|Nyholm\\|Laminas\\|Symfony\\Component\\Uid' "${COMMUNITY_BOARD}/bootstrap" "${COMMUNITY_BOARD}/public" "${COMMUNITY_BOARD}/app"
 "${COMPOSE[@]}" run --rm --no-deps app \
     composer install --no-interaction --prefer-dist --no-progress
 mise exec -- pnpm --dir "${COMMUNITY_BOARD}/frontend" install --frozen-lockfile

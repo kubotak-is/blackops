@@ -33,7 +33,7 @@ Installed Quickstartは`config/app.php`の`services`へApplication所有の`Appl
 
 ## Process Boundary
 
-SnapshotはHTTP Runtime Compositionが利用し、将来のConsole Compositionも同じInstanceを再利用する。`http()` の初回呼出だけがArtifactとConnectionを構成し、以後は同じPSR-15 Handlerを返す。`Application` はContainer Locator、Config Getter、Dotenv Loaderを持たない。
+SnapshotはHTTP Runtime Compositionが利用し、将来のConsole Compositionも同じInstanceを再利用する。`http()` の初回呼出だけがArtifactとConnectionを構成し、以後は同じPSR-15 Handlerを返す。`Application` はContainer Locator、Config Getter、Dotenv Loaderを持たない。`withEnvironmentFile()`がFramework-owned LoaderでOptional `.env`とProcess EnvironmentをBootstrap時に一度だけ解決し、`withEnvironment(array)`は外部Loader／Test向けの解決済み値境界として維持する。
 
 HTTP ComposerはOperation／HTTP ManifestとContainerをFail-fastでLoadし、単一DBAL ConnectionをCanonical Journal、Deferred Sender、Acceptance Transactionへ共有する。Inline／Deferredは同じCompiled RegistryとHTTP Manifestを使う。Global MiddlewareはConfig登録順にCompiled Containerから解決し、最初の登録を最外層としてHTTP Operation Handlerを包む。ComposerはMigration、DDL、Build、Source Discoveryを呼び出さない。
 

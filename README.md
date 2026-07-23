@@ -28,6 +28,8 @@ cd my-app
 
 `blackops new`専用Installerは提供していません。Composer標準の`create-project`が公式の作成方法です。
 
+生成されたApplicationはFramework-owned `withEnvironmentFile()`と`BlackOps\Http\SapiRuntime`を利用するため、Dotenv／PSR-7／SAPI／UUIDv7 Runtime PackageをApplication Composerへ重複宣言しません。DBAL／MigrationsなどApplication Sourceが直接ImportするPackageだけを追加します。
+
 このCommandが作成するのはStable `1.1.0`のApplicationです。StableにはHeader AuthenticationとPhase 13のDatabase／Transaction Journeyが未収録で、`POST /orders`も含まれません。
 
 ## Repository main Preview Quickstart

@@ -18,7 +18,7 @@ Installed Applicationは責務別のPHP Configを`config/`に置きます。Fram
 
 ## Environment
 
-Frameworkは`.env`を読みません。Skeletonの`bootstrap/app.php`がProcess Environmentを優先してDotenvを読み、解決済み文字列を`Application::configure(...)->withEnvironment($environment)`へ渡します。
+既定のSkeleton／Installed Applicationは`bootstrap/app.php`で`withEnvironmentFile()`を明示し、FrameworkがProcess Environmentを優先してOptional `.env`を一度だけSnapshotします。Applicationが独自LoaderやSecret Managerを使う場合は解決済み文字列を`withEnvironment($environment)`へ渡し、そのPackageをApplication Direct Dependencyとして管理します。
 
 SecretをConfig Sourceへ直書きせず、Process Manager、Container Runtime、Deployment PlatformからEnvironmentとして渡してください。Productionは`.env` Fileを必須としません。
 
