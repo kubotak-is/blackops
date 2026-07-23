@@ -14,9 +14,11 @@ use BlackOps\Core\Identifier\CausationId;
 use BlackOps\Core\Identifier\CorrelationId;
 use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Core\Time\TimeCodec;
+use BlackOps\Idempotency\IdempotencyKeyHash;
 use DateTimeImmutable;
 use Throwable;
 
+/** @mago-expect lint:too-many-methods */
 final readonly class ExecutionContextHydrator
 {
     private const string RESERVED_SECURITY_FIELD_PATTERN = '/(?:^|[^a-z0-9])(?:password|token|secret|credential|session|api[_-]?key|bearer|jwt|claims?|roles?|permissions?)(?:[^a-z0-9]|$)/i';
@@ -43,6 +45,7 @@ final readonly class ExecutionContextHydrator
             $attempt === null ? null : $this->hydrateAttempt($attempt),
             $this->optionalTime($context, 'deadline'),
             $this->hydrateActors($context),
+            $this->hydrateIdempotencyKeyHash($context),
         );
     }
 
@@ -99,6 +102,32 @@ final readonly class ExecutionContextHydrator
     }
 
     /**
+     * @param array<string, mixed> $context
+     */
+    private function hydrateIdempotencyKeyHash(array $context): ?IdempotencyKeyHash
+    {
+        $encoded = $this->reader->optionalObject($context, 'idempotency_key_hash');
+
+        if ($encoded === null) {
+            return null;
+        }
+
+        $this->assertFields($encoded, ['version', 'digest']);
+
+        try {
+            return new IdempotencyKeyHash(
+                $this->reader->int($encoded, 'version'),
+                $this->reader->string($encoded, 'digest'),
+            );
+        } catch (Throwable $exception) {
+            throw new OperationCodecException(
+                'Encoded context contains an invalid idempotency key hash.',
+                previous: $exception,
+            );
+        }
+    }
+
+    /**
      * @param array<string, mixed> $actor
      */
     private function hydrateActor(array $actor): ActorRef
@@ -123,7 +152,7 @@ final readonly class ExecutionContextHydrator
         sort($expected);
 
         if ($fields !== $expected) {
-            throw new OperationCodecException('Encoded actor context contains unknown or missing fields.');
+            throw new OperationCodecException('Encoded context object contains unknown or missing fields.');
         }
     }
 

@@ -1,6 +1,6 @@
 # P19-002: Idempotency Core Contract
 
-Status: Ready
+Status: Complete
 
 ## Goal
 
@@ -58,6 +58,7 @@ HTTP／PHP入口とPostgreSQL Adapterを追加する前に、Idempotency Key、O
 - `tests/Architecture/PublicApiArchitectureTest.php`
 - `develop/spec/17-core-api.md`
 - `develop/spec/19-execution-context-api.md`
+- `develop/spec/80-reliability-and-delivery.md`
 - `develop/orchestration/tasks/P19-002-idempotency-core-contract.md`
 - `develop/orchestration/reports/P19-002-idempotency-core-contract.md`
 - `develop/STATE.md`
@@ -91,7 +92,7 @@ HTTP／PHP入口とPostgreSQL Adapterを追加する前に、Idempotency Key、O
 - ScopeはOperation Type ID、authorization Actor type／id、KeyをField境界付きでHash化する
 - FingerprintはOperation Type、Value Type、宣言Property順、型、null／値境界、String byte lengthを含む
 - Sensitive PropertyはHash入力へ含めるが、Canonical Representation全体をBuffer化・保存・返却・Error表示しない
-- Unsupported Value Shapeは既存Operation Value Contractと同じBuild／Runtime Failureへ閉じる
+- 既存Canonical Operation Codecが扱う有限Floatは決定的に表現し、非有限FloatとUnsupported Value Shapeは既存Operation Value Contractと同じBuild／Runtime Failureへ閉じる
 - Algorithm／Canonical Codec VersionをResultへ保持する
 
 ### Storage Port

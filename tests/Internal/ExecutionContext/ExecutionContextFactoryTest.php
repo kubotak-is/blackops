@@ -6,11 +6,11 @@ namespace BlackOps\Tests\Internal\ExecutionContext;
 
 use BlackOps\Core\ActorContext;
 use BlackOps\Core\ActorRef;
-use BlackOps\Core\ExecutionContext;
 use BlackOps\Core\Identifier\AttemptId;
 use BlackOps\Core\Identifier\CausationId;
 use BlackOps\Core\Identifier\CorrelationId;
 use BlackOps\Core\Identifier\OperationId;
+use BlackOps\Idempotency\IdempotencyKey;
 use BlackOps\Internal\ExecutionContext\ExecutionContextFactory;
 use BlackOps\Internal\Identifier\IdentifierFactory;
 use BlackOps\Internal\Identifier\SymfonyUuidv7Generator;
@@ -21,6 +21,7 @@ use LogicException;
 use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
 
+/** @mago-expect lint:too-many-methods */
 final class ExecutionContextFactoryTest extends TestCase
 {
     public function testReceiveProducesRootContextWithCorrelationIdFromOperationId(): void
@@ -53,6 +54,22 @@ final class ExecutionContextFactoryTest extends TestCase
         $context = $this->factory()->receive(null, $actors);
 
         self::assertSame($actors, $context->actorContext());
+    }
+
+    public function testReceiveHashesOptionalKeyAndAttemptPreservesItWhileChildDoesNotInheritIt(): void
+    {
+        $factory = $this->factoryWithClock([
+            '2026-07-02T12:34:56.123456Z',
+            '2026-07-02T12:40:00.000000Z',
+            '2026-07-02T12:41:00.000000Z',
+        ]);
+        $root = $factory->receive(null, null, new IdempotencyKey('request-123'));
+        $attempt = $factory->startAttempt($root, 1);
+        $child = $factory->createChild($root);
+
+        self::assertNotNull($root->idempotencyKeyHash());
+        self::assertTrue($root->idempotencyKeyHash()?->equals($attempt->idempotencyKeyHash()));
+        self::assertNull($child->idempotencyKeyHash());
     }
 
     public function testReceivePreservesProvidedDeadline(): void
@@ -408,7 +425,7 @@ final class ExecutionContextFactoryTest extends TestCase
 
             public function now(): DateTimeImmutable
             {
-                if (!isset($this->times[$this->index])) {
+                if (!array_key_exists($this->index, $this->times)) {
                     throw new LogicException('SequenceClock has no more queued timestamps.');
                 }
 

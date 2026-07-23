@@ -1,0 +1,41 @@
+<?php
+
+declare(strict_types=1);
+
+namespace BlackOps\Internal\Idempotency;
+
+use InvalidArgumentException;
+
+final readonly class IdempotencyScopeHash
+{
+    public const int VERSION = 1;
+
+    public function __construct(
+        private int $version,
+        private string $digest,
+    ) {
+        if ($version !== self::VERSION || !preg_match('/\A[0-9a-f]{64}\z/', $digest)) {
+            throw new InvalidArgumentException('Idempotency scope hash is invalid.');
+        }
+    }
+
+    public function version(): int
+    {
+        return $this->version;
+    }
+
+    public function digest(): string
+    {
+        return $this->digest;
+    }
+
+    public function equals(self $other): bool
+    {
+        return $this->version === $other->version && hash_equals($this->digest, $other->digest);
+    }
+
+    public function __toString(): string
+    {
+        return $this->digest;
+    }
+}

@@ -10,6 +10,7 @@ use BlackOps\Core\AttemptContext;
 use BlackOps\Core\ExecutionContext;
 use BlackOps\Core\Identifier\CausationId;
 use BlackOps\Core\Identifier\CorrelationId;
+use BlackOps\Idempotency\IdempotencyKey;
 use BlackOps\Internal\Identifier\IdentifierFactory;
 use DateTimeImmutable;
 use InvalidArgumentException;
@@ -32,8 +33,11 @@ final readonly class ExecutionContextFactory
         private ClockInterface $clock,
     ) {}
 
-    public function receive(?DateTimeImmutable $deadline = null, ?ActorContext $actorContext = null): ExecutionContext
-    {
+    public function receive(
+        ?DateTimeImmutable $deadline = null,
+        ?ActorContext $actorContext = null,
+        ?IdempotencyKey $idempotencyKey = null,
+    ): ExecutionContext {
         $operationId = $this->identifiers->newOperationId();
         $correlationId = CorrelationId::fromString($operationId->toString());
 
@@ -45,6 +49,7 @@ final readonly class ExecutionContextFactory
             null,
             $deadline,
             $actorContext,
+            $idempotencyKey?->hash(),
         );
     }
 
@@ -70,6 +75,7 @@ final readonly class ExecutionContextFactory
             $attempt,
             $context->deadline(),
             $this->resolveActorContext($context->actorContext(), $executionActor),
+            $context->idempotencyKeyHash(),
         );
     }
 
@@ -90,6 +96,7 @@ final readonly class ExecutionContextFactory
             null,
             $resolvedDeadline,
             $this->resolveActorContext($parent->actorContext(), $executionActor),
+            null,
         );
     }
 

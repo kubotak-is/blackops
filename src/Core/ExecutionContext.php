@@ -8,13 +8,14 @@ use BlackOps\Core\Attribute\PublicApi;
 use BlackOps\Core\Identifier\CausationId;
 use BlackOps\Core\Identifier\CorrelationId;
 use BlackOps\Core\Identifier\OperationId;
+use BlackOps\Idempotency\IdempotencyKeyHash;
 use DateTimeImmutable;
 use DateTimeZone;
 
 /**
  * Operationの伝播と追跡に必要な不変Metadataを保持する不変Context。
  *
- * Tenant、Idempotency Key、Context ExtensionはOptional Getterとして後方互換な拡張で後続追加する。
+ * TenantとContext ExtensionはOptional Getterとして後方互換な拡張で追加する。
  *
  * 生成と遷移はInternal Factoryが行い、利用者はGetterでの読み取りのみを許可する。
  * 公開 `with...()` Methodは提供しない。
@@ -33,6 +34,7 @@ final readonly class ExecutionContext
         private ?AttemptContext $attempt = null,
         ?DateTimeImmutable $deadline = null,
         private ?ActorContext $actorContext = null,
+        private ?IdempotencyKeyHash $idempotencyKeyHash = null,
     ) {
         $this->receivedAt = $this->toUtc($receivedAt);
         $this->deadline = $deadline === null ? null : $this->toUtc($deadline);
@@ -71,6 +73,11 @@ final readonly class ExecutionContext
     public function actorContext(): ?ActorContext
     {
         return $this->actorContext;
+    }
+
+    public function idempotencyKeyHash(): ?IdempotencyKeyHash
+    {
+        return $this->idempotencyKeyHash;
     }
 
     private function toUtc(DateTimeImmutable $time): DateTimeImmutable

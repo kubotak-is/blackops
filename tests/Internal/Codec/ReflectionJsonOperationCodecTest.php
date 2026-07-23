@@ -24,6 +24,7 @@ use DateTimeImmutable;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
+/** @mago-expect lint:too-many-methods */
 final class ReflectionJsonOperationCodecTest extends TestCase
 {
     public function testEncodesAndDecodesOperationValueAndExecutionContext(): void
@@ -236,7 +237,7 @@ final class ReflectionJsonOperationCodecTest extends TestCase
 
     private function encodedContextWithActors(mixed $actors): string
     {
-        $context = json_decode($this->encodedContextWithoutActors(), true, flags: JSON_THROW_ON_ERROR);
+        $context = json_decode($this->encodedContextWithoutActors(), associative: true, flags: JSON_THROW_ON_ERROR);
         $context['actors'] = $actors;
 
         return json_encode($context, JSON_THROW_ON_ERROR);
@@ -244,7 +245,7 @@ final class ReflectionJsonOperationCodecTest extends TestCase
 
     private function encodedContextWithTopLevelField(string $field, mixed $value): string
     {
-        $context = json_decode($this->encodedContextWithoutActors(), true, flags: JSON_THROW_ON_ERROR);
+        $context = json_decode($this->encodedContextWithoutActors(), associative: true, flags: JSON_THROW_ON_ERROR);
         $context[$field] = $value;
 
         return json_encode($context, JSON_THROW_ON_ERROR);
@@ -275,8 +276,10 @@ final class ReflectionJsonOperationCodecTest extends TestCase
     }
 }
 
+/** @mago-expect lint:single-class-per-file */
 final readonly class CodecReportOperation implements Operation {}
 
+/** @mago-expect lint:single-class-per-file */
 final readonly class CodecReportValue implements OperationValue
 {
     /**
@@ -290,6 +293,7 @@ final readonly class CodecReportValue implements OperationValue
     ) {}
 }
 
+/** @mago-expect lint:single-class-per-file */
 final readonly class CodecDefaultValue implements OperationValue
 {
     public function __construct(
@@ -299,6 +303,7 @@ final readonly class CodecDefaultValue implements OperationValue
     ) {}
 }
 
+/** @mago-expect lint:single-class-per-file */
 final readonly class CodecObjectValue implements OperationValue
 {
     public function __construct(
@@ -306,4 +311,5 @@ final readonly class CodecObjectValue implements OperationValue
     ) {}
 }
 
+/** @mago-expect lint:single-class-per-file */
 abstract class CodecReportHandler implements OperationHandler {}

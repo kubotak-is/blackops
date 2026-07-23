@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-23T23:26:58+09:00
+Updated At: 2026-07-23T23:55:26+09:00
 
 ## Current Phase
 
@@ -16,7 +16,28 @@ References: `develop/decisions/109-phase-18-idempotency-and-outbox.md`、`develo
 
 ## Task Status
 
-P19-001 Accepted - P19-002 Ready
+P19-002 Accepted - Commit／Push Pending
+
+## P19-002 Orchestrator Acceptance
+
+```text
+2026-07-23T23:55:26+09:00
+OrchestratorはPublic APIをKey／Hashだけへ限定し、Storage ContractをInternalへ戻した。HTTP Snapshotの先取りを除去し、Retention期限後もPurgeまではRecordを保持する。Fingerprintは宣言型境界、Sensitive Streaming、有限Floatの決定表現を持ち、非有限Floatを安全に拒否する。Focused PHPUnit 59 tests／149 assertions、Full PHPUnit 1,744 tests／6,936 assertions、変更Scope Mago Lint、Full Format、Deptrac 0 violations／2,884 allowed、Management ID／diff Guardが成功した。P19-002をAcceptedとし、Commit／Push／CIへ進む。
+```
+
+## P19-002 Worker Start Checkpoint
+
+```text
+2026-07-23T23:29:39+09:00
+Task Packet and referenced reliability, delivery, ExecutionContext, and idempotency decision documents reviewed. Implementation scope is limited to the core key/hash, context propagation and codec, versioned scope/fingerprint, and in-memory atomic storage contracts. HTTP, dispatcher lifecycle, PostgreSQL, retention, outbox, and consumer surfaces remain untouched. Worker Commitなし.
+```
+
+## P19-002 Worker Completion Checkpoint
+
+```text
+2026-07-23T23:54:11+09:00
+Implemented the opaque IdempotencyKey／IdempotencyKeyHash public values, Internal ExecutionContext hash propagation and deferred codec compatibility, Internal versioned scope／fingerprint streamers, typed processing／terminal records without HTTP snapshots, and an unregistered in-memory atomic store fixture. Added focused public API／codec／context／storage tests and core API specification updates. Focused PHPUnit 59 tests／149 assertions, Mago format check, scoped Mago lint, Deptrac 0 violations, management-ID scan, and diff check passed. Full Mago lint rerun was blocked by intermittent Docker API permission denial; full Mago analyze reports existing repository-wide test dependency baseline. HTTP／Dispatcher／PostgreSQL／Retention／Outbox／Consumer surfaces remain unchanged. Worker Commitなし。Orchestrator Review待ち.
+```
 
 P19-001でD109をReliability and Delivery確定仕様、Failure Matrix、依存順付きDelivery Planへ具体化した。Idempotencyは認証／認可後にActor ScopeとCanonical Fingerprintを評価し、Raw Keyを保存せず、Ephemeral OutcomeとAnonymous KeyをUnsupportedとする。Outboxは同じNamed Connection InstanceのTransaction内だけ原子的とし、Relay再配送、Dead Letter再開、Operation Replay、Observer ReplayのIdentityを分離した。最初のProduction Task `P19-002-idempotency-core-contract`はReadyである。
 
@@ -32,7 +53,7 @@ P18-009CをOrchestrator Review／独立VerificationでAcceptedとした。Public
 
 ## Last Accepted Task
 
-P19-001-decision-specification-and-failure-matrix
+P19-002-idempotency-core-contract
 
 ## Pending Decisions
 
@@ -75,8 +96,8 @@ Active Implementation／CI Blockerはない。P18-009D3はCommit `d17b24f`とし
 
 ## Required Next Action
 
-1. GPT-5.6 Luna High workerへP19-002を依頼する。
-2. Worker Report後、OrchestratorがPublic API、Context伝播、Sensitive境界、Storage Contractを独立Reviewする。
+1. P19-002をCommit／Pushし、GitHub Actionsを確認する。
+2. CI成功後、P19-003 HTTP／PHP Duplicate Lifecycle and Retention Task Packetを作成する。
 
 ## P19-001 Orchestrator Acceptance
 

@@ -31,6 +31,7 @@ final readonly class ExecutionContextNormalizer
             'attempt' => $this->normalizeAttempt($context->attempt()),
             'deadline' => $deadline === null ? null : $this->time->format($deadline),
             'actors' => $this->normalizeActors($context->actorContext()),
+            'idempotency_key_hash' => $this->normalizeIdempotencyKeyHash($context),
         ];
     }
 
@@ -64,6 +65,20 @@ final readonly class ExecutionContextNormalizer
             'authorization' => $this->normalizeActor($actors->authorization()),
             'execution' => $this->normalizeActor($actors->execution()),
         ];
+    }
+
+    /**
+     * @return array{version: int, digest: string}|null
+     */
+    private function normalizeIdempotencyKeyHash(ExecutionContext $context): ?array
+    {
+        $hash = $context->idempotencyKeyHash();
+
+        if ($hash === null) {
+            return null;
+        }
+
+        return ['version' => $hash->version(), 'digest' => $hash->digest()];
     }
 
     /**

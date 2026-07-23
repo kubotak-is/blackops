@@ -34,6 +34,8 @@ Production Codeは変更しない。
 
 ## P19-002: Idempotency Core Contract
 
+Status: Accepted.
+
 - Public Key／Opaque Hash ValueとShape Invariantを実装する
 - ExecutionContext Root／Attempt／Deferred Codec／Child非伝播を実装する
 - Version付きScope／Fingerprint Canonicalizerを実装する

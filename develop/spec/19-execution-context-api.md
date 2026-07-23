@@ -8,7 +8,8 @@ Operation ID、受付時刻、Correlation ID、Causation ID、Actor Context、De
 
 利用者による継承や独自実装は認めない。アプリケーション固有Metadataは登録済みContext Extensionで扱う。
 
-Tenant、Idempotency Key、Context Extensionの型とPolicyは後続Taskで追加する。
+TenantとContext Extensionの型とPolicyは後続Taskで追加する。IdempotencyはRaw Keyではなく
+OptionalなOpaque `IdempotencyKeyHash`だけをContextへ保持する。
 
 ## Public API
 
@@ -21,6 +22,7 @@ public function __construct(
     ?AttemptContext $attempt = null,
     ?\DateTimeImmutable $deadline = null,
     ?ActorContext $actorContext = null,
+    ?\BlackOps\Idempotency\IdempotencyKeyHash $idempotencyKeyHash = null,
 );
 
 public function operationId(): OperationId;
@@ -30,9 +32,10 @@ public function causationId(): ?CausationId;
 public function attempt(): ?AttemptContext;
 public function deadline(): ?\DateTimeImmutable;
 public function actorContext(): ?ActorContext;
+public function idempotencyKeyHash(): ?\BlackOps\Idempotency\IdempotencyKeyHash;
 ```
 
-Actorを持たない既存Call Siteとの後方互換性を保つため、`actorContext`はConstructorの末尾へ追加する。Anonymous HTTP Operationでもexecution Actorを確定できるRuntimeではActorContextを生成し、Framework内部のActor未設定経路だけ`null`を許容する。
+Actorを持たない既存Call Siteとの後方互換性を保つため、`actorContext`と`idempotencyKeyHash`はConstructor末尾へ追加する。Anonymous HTTP Operationでもexecution Actorを確定できるRuntimeではActorContextを生成し、Framework内部のActor未設定経路だけ`null`を許容する。
 
 ActorContextはorigin、authorization、executionを区別する。Actor ID／Typeだけを保持し、Credential、Role、Permission、Claimを含めない。詳細は[Authentication and HTTP Middleware](06-auth-and-middleware.md)を正本とする。
 
@@ -89,11 +92,14 @@ Factoryは `BlackOps\Internal\ExecutionContext` に配置し、IdentifierFactory
 - `startAttempt()` は新しいAttempt ID、指定された1始まりのAttempt番号、UTC開始時刻を持つ新Contextを返し、指定された場合はexecution Actorだけを置き換える
 - Deadline到達後のAttempt開始は `\LogicException` で拒否する
 - `createChild()` は新しいOperation ID、親Correlation ID、親Operation IDを値とするCausation ID、UTC受付時刻を持ち、Attemptを持たない。originとauthorizationを継承し、指定された場合はexecution Actorだけを置き換える
+- Root `receive()` はOptionalなIdempotency KeyをHash化して保持し、`startAttempt()` は同じHashを維持する。`createChild()` は新しいOperation IdentityのためHashを継承しない
 - 子Deadlineは親Deadlineより後にできない。省略時は親Deadlineを継承する
 
 ## Codec
 
-Execution Transport用Context Codecは`actors` Objectを追加する。既存Payloadとの互換性のためField欠落を`actorContext === null`としてDecodeする。
+Execution Transport用Context Codecは`actors` ObjectとOptionalな`idempotency_key_hash` Objectを追加する。既存Payloadとの互換性のためField欠落を`actorContext === null`／`idempotencyKeyHash() === null`としてDecodeする。
+
+`idempotency_key_hash`は`version`と`digest`だけを持ち、未知Version、Invalid Digest、Unexpected FieldをCodec Errorとして拒否する。Raw KeyはEncodeしない。
 
 ```json
 {
