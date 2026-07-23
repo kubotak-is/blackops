@@ -28,8 +28,7 @@ final readonly class IdempotencyScopeHasher
         return new IdempotencyScopeHash(IdempotencyScopeHash::VERSION, hash_final($stream));
     }
 
-    /** @param resource $stream */
-    private function field($stream, string $value): void
+    private function field(\HashContext $stream, string $value): void
     {
         hash_update($stream, pack('N', strlen($value)));
         hash_update($stream, $value);

@@ -135,3 +135,7 @@ The fixture retains records past `expiresAt`; a retained record always wins the 
 ## Suggested Next Action
 
 Create P19-003 for HTTP／PHP duplicate lifecycle, PostgreSQL idempotency persistence, and independent retention without changing the accepted P19-002 Core Contract.
+
+## P19-002A CI Contract Closeout
+
+The post-acceptance CI run identified analyzer-only contract drift: incremental hash helpers were documented as `resource` while PHP 8.5 infers `HashContext`, and the nullable implementation property obscured the already-required non-null `IdempotencyClaimResult::record()` return. These corrections preserve runtime semantics and public signatures. The Core API Guide and reader guard were synchronized from 167 to 169 Public API types, explicitly adding `IdempotencyKey` and `IdempotencyKeyHash`; Internal idempotency types remain absent from the guide.

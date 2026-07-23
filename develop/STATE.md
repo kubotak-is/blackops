@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-23T23:55:26+09:00
+Updated At: 2026-07-24T00:44:27+09:00
 
 ## Current Phase
 
@@ -8,15 +8,36 @@ Phase 19 Reliability and Delivery
 
 ## Current Task
 
-Task ID: P19-002-idempotency-core-contract
+Task ID: P19-002A-ci-contract-closeout
 
-Task Packet: `develop/orchestration/tasks/P19-002-idempotency-core-contract.md`
+Task Packet: `develop/orchestration/tasks/P19-002A-ci-contract-closeout.md`
 
 References: `develop/decisions/109-phase-18-idempotency-and-outbox.md`、`develop/spec/80-reliability-and-delivery.md`、`develop/spec/81-phase-19-delivery-plan.md`
 
 ## Task Status
 
-P19-002 Accepted - Commit／Push Pending
+P19-002A Accepted - Commit／Push／Replacement CI Pending
+
+## P19-002A Orchestrator Acceptance
+
+```text
+2026-07-24T00:44:27+09:00
+OrchestratorはCI同等Commandを独立再実行した。Mago Analyzeは問題0、LintはTask範囲外のAccepted Baseline 2件だけ、Full Format、Focused PHPUnit 59 tests／149 assertions、Website Reader 42 tests、Management ID／diff Guardが成功した。Public APIはIdempotencyKey／IdempotencyKeyHashを含む169型へ同期し、P19-002のHash／Fingerprint／Storage SemanticsとHTTP／PostgreSQL／Retention／Outbox Surfaceは変更していない。P19-002AをAcceptedとし、Commit／Push／Replacement CI確認へ進む。
+```
+
+## P19-002A Worker Start Checkpoint
+
+```text
+2026-07-24T00:38:07+09:00
+Task Packet P19-002A and CI failure evidence reviewed. Scope is limited to HashContext analyzer annotations, non-null ClaimResult record proof, Core API Guide/count synchronization, focused tests, report, and STATE. P19-002 Public Contract and runtime semantics remain unchanged. Worker Commitなし.
+```
+
+## P19-002A Worker Completion Checkpoint
+
+```text
+2026-07-24T00:43:06+09:00
+HashContext helper annotations now use PHP 8.5 native HashContext, ClaimResult record is non-null by constructor/property type with only the meaningful Claimed=>Processing invariant, and Core API Guide/Reader Guard are synchronized to 169 Public API types with IdempotencyKey／IdempotencyKeyHash explicitly verified. Focused PHPUnit 59 tests／149 assertions, Website Reader 42 tests, complete-scope Mago lint, full format, management-ID, and diff checks passed. Repository-wide Mago analyze retries were blocked before container startup by Docker API permission denial. P19-002 Contract／runtime semantics and HTTP／PostgreSQL／Retention／Outbox surfaces remain unchanged. Worker Commitなし。Orchestrator Review待ち.
+```
 
 ## P19-002 Orchestrator Acceptance
 
@@ -53,7 +74,7 @@ P18-009CをOrchestrator Review／独立VerificationでAcceptedとした。Public
 
 ## Last Accepted Task
 
-P19-002-idempotency-core-contract
+P19-002A-ci-contract-closeout
 
 ## Pending Decisions
 
@@ -96,7 +117,7 @@ Active Implementation／CI Blockerはない。P18-009D3はCommit `d17b24f`とし
 
 ## Required Next Action
 
-1. P19-002をCommit／Pushし、GitHub Actionsを確認する。
+1. P19-002AをCommit／Pushし、Replacement GitHub Actionsを確認する。
 2. CI成功後、P19-003 HTTP／PHP Duplicate Lifecycle and Retention Task Packetを作成する。
 
 ## P19-001 Orchestrator Acceptance

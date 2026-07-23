@@ -8,22 +8,10 @@ final readonly class IdempotencyClaimResult
 {
     public function __construct(
         private IdempotencyClaimStatus $status,
-        private ProcessingRecord|TerminalRecord|null $record,
+        private ProcessingRecord|TerminalRecord $record,
     ) {
-        if ($record === null) {
-            throw new \InvalidArgumentException('An idempotency claim result must contain a record.');
-        }
-
         if ($status === IdempotencyClaimStatus::Claimed && !$record instanceof ProcessingRecord) {
             throw new \InvalidArgumentException('A claimed result must contain a processing record.');
-        }
-
-        if (
-            $status !== IdempotencyClaimStatus::Claimed
-            && !$record instanceof ProcessingRecord
-            && !$record instanceof TerminalRecord
-        ) {
-            throw new \InvalidArgumentException('An existing result must contain an idempotency record.');
         }
     }
 

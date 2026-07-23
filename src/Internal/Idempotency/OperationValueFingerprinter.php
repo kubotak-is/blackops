@@ -35,8 +35,7 @@ final readonly class OperationValueFingerprinter
         return new OperationFingerprint(self::CODEC_VERSION, hash_final($stream));
     }
 
-    /** @param resource $stream */
-    private function value($stream, mixed $value): void
+    private function value(\HashContext $stream, mixed $value): void
     {
         if ($value === null) {
             hash_update($stream, data: "null\0");
@@ -75,8 +74,7 @@ final readonly class OperationValueFingerprinter
         throw new OperationCodecException('Operation value property type is not supported by the fingerprint codec.');
     }
 
-    /** @param resource $stream */
-    private function array($stream, array $value): void
+    private function array(\HashContext $stream, array $value): void
     {
         $keys = array_keys($value);
         $isList = $keys === [] || $keys === range(0, count($keys) - 1);
@@ -97,8 +95,7 @@ final readonly class OperationValueFingerprinter
         hash_update($stream, data: "array-end\0");
     }
 
-    /** @param resource $stream */
-    private function token($stream, string $type, string $value): void
+    private function token(\HashContext $stream, string $type, string $value): void
     {
         hash_update($stream, $type);
         hash_update($stream, pack('N', strlen($value)));
