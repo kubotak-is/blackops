@@ -16,6 +16,7 @@ use BlackOps\Internal\Execution\InlineDispatcher;
 use BlackOps\Internal\ExecutionContext\ExecutionContextFactory;
 use BlackOps\Internal\Http\HttpMiddlewarePipeline;
 use BlackOps\Internal\Http\OperationFailureErrorBoundary;
+use BlackOps\Internal\Idempotency\IdempotencyRecovery;
 use BlackOps\Internal\Identifier\IdentifierFactory;
 use BlackOps\Internal\Identifier\SymfonyUuidv7Generator;
 use BlackOps\Internal\Journal\JournalRecordFactory;
@@ -58,6 +59,17 @@ final readonly class ProductionRuntimeComposer
             $scope,
         );
         $authorization = new AuthorizationEvaluator(new AuthorizationPolicyResolver($artifacts->container));
+        $responder = new JsonOperationResponder($dependencies->responses, $dependencies->streams);
+        $recovery =
+            $dependencies->idempotencyStore !== null && $dependencies->journalReader !== null
+                ? new IdempotencyRecovery(
+                    $dependencies->journalReader,
+                    $dependencies->idempotencyStore,
+                    $responder,
+                    $dependencies->idempotencyConnection,
+                    $dependencies->idempotencySchema,
+                )
+                : null;
         $dispatcher = new InlineDispatcher(
             $artifacts->operations,
             new ExecutionContextFactory($identifiers, $dependencies->clock),
@@ -68,6 +80,9 @@ final readonly class ProductionRuntimeComposer
             scope: $scope,
             authorization: $authorization,
             transactions: $dependencies->operationTransactions,
+            idempotency: $dependencies->idempotencyStore,
+            idempotencyRetention: $dependencies->idempotencyRetention,
+            idempotencyRecovery: $recovery,
         );
         $handlers = new HandlerResolver($artifacts->container);
         $routes = $artifacts->http->toRegistry($this->definitions->fromRegistry(
@@ -75,7 +90,6 @@ final readonly class ProductionRuntimeComposer
             $handlers->resolve(...),
         ));
 
-        $responder = new JsonOperationResponder($dependencies->responses, $dependencies->streams);
         $status = $dependencies->operationStatusQuery === null
             ? null
             : new OperationStatusRequestHandler(
@@ -91,11 +105,13 @@ final readonly class ProductionRuntimeComposer
             $dispatcher,
             $dependencies->deferredOperationAcceptor,
             $status,
+            $dependencies->idempotencyStore,
         );
         $httpHandler = new OperationFailureErrorBoundary(
             $operationHandler,
             $responder,
             new FrameworkOperationFailureReporter($logger, $scope),
+            $dependencies->idempotencyStore,
         );
 
         return new ProductionRuntimeComposition(

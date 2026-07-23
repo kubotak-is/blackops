@@ -88,7 +88,7 @@ final class ApplicationConsoleKernelTest extends TestCase
         self::assertFalse($this->schemaExists($connection));
 
         $status = $this->runCommand($kernel, 'database:status');
-        self::assertStringContainsString('pending: 2', $status);
+        self::assertStringContainsString('pending: 3', $status);
         self::assertFalse($this->schemaExists($connection));
         $this->runCommand($kernel, 'database:migrate');
         self::assertStringContainsString('No pending migrations.', $this->runCommand($kernel, 'database:migrate'));

@@ -13,6 +13,7 @@ use DateTimeImmutable;
  * Deterministic fixture for exercising the atomic store contract. It is not
  * registered by any production runtime composer.
  */
+/** @mago-expect lint:cyclomatic-complexity */
 final class InMemoryIdempotencyStore implements IdempotencyStore
 {
     /** @var array<string, ProcessingRecord|TerminalRecord> */
@@ -76,5 +77,41 @@ final class InMemoryIdempotencyStore implements IdempotencyStore
     public function find(IdempotencyScopeHash $scope): ProcessingRecord|TerminalRecord|null
     {
         return $this->records[$scope->version() . ':' . $scope->digest()] ?? null;
+    }
+
+    public function attachResponse(OperationId $operationId, IdempotencyResponseSnapshot $snapshot): bool
+    {
+        foreach ($this->records as $scope => $record) {
+            if (!$record instanceof TerminalRecord || !$record->operationId()->equals($operationId)) {
+                continue;
+            }
+            $this->records[$scope] = new TerminalRecord(
+                $record->scope(),
+                $record->key(),
+                $record->fingerprint(),
+                $record->operationId(),
+                $record->strategy(),
+                $record->createdAt(),
+                $record->expiresAt(),
+                $snapshot,
+                $record->result(),
+                $record->acceptedAt(),
+            );
+
+            return true;
+        }
+
+        return false;
+    }
+
+    public function response(OperationId $operationId): ?IdempotencyResponseSnapshot
+    {
+        foreach ($this->records as $record) {
+            if ($record instanceof TerminalRecord && $record->operationId()->equals($operationId)) {
+                return $record->response();
+            }
+        }
+
+        return null;
     }
 }

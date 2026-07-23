@@ -20,6 +20,7 @@ final readonly class PostgreSqlRetentionPurgeService implements RetentionPurgeSe
         private PostgreSqlOutcomeRetentionDeleteService $outcomes,
         private PostgreSqlDeadLetterRetentionDeleteService $deadLetters,
         private PostgreSqlJournalRetentionDeleteService $journals,
+        private ?PostgreSqlIdempotencyRetentionDeleteService $idempotency = null,
     ) {}
 
     public function purge(
@@ -36,6 +37,7 @@ final readonly class PostgreSqlRetentionPurgeService implements RetentionPurgeSe
             $this->deadLetters->delete($plan, $policyRef, $actor),
             $this->outcomes->delete($plan, $policyRef, $actor),
             $this->journals->delete($plan, $policyRef, $actor),
+            $this->idempotency?->delete($plan, $policyRef, $actor) ?? 0,
         );
     }
 }

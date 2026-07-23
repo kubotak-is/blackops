@@ -46,6 +46,12 @@ final class RetentionPurgeCommand extends Command
             ->addOption('journal-days', null, InputOption::VALUE_REQUIRED, 'Canonical journal retention days.')
             ->addOption('outcome-days', null, InputOption::VALUE_REQUIRED, 'Outcome retention days.')
             ->addOption('dead-letter-days', null, InputOption::VALUE_REQUIRED, 'Dead letter retention days.')
+            ->addOption(
+                'idempotency-record-days',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'Idempotency record retention days.',
+            )
             ->addOption('policy-ref', null, InputOption::VALUE_REQUIRED, 'Retention policy reference.')
             ->addOption('actor', null, InputOption::VALUE_REQUIRED, 'Retention purge actor reference.');
     }
@@ -71,6 +77,7 @@ final class RetentionPurgeCommand extends Command
                 'journal' => count($plan->forTarget(RetentionTarget::Journal)),
                 'outcome' => count($plan->forTarget(RetentionTarget::Outcome)),
                 'dead_letter' => count($plan->forTarget(RetentionTarget::DeadLetter)),
+                'idempotency_record' => count($plan->forTarget(RetentionTarget::IdempotencyRecord)),
             ]);
 
             return Command::SUCCESS;
@@ -87,6 +94,7 @@ final class RetentionPurgeCommand extends Command
         $output->writeln('planned: ' . $result->plan()->count());
         $output->writeln('transport_payload_purged: ' . $result->transportPayloadsPurged());
         $output->writeln('dead_letters_deleted: ' . $result->deadLettersDeleted());
+        $output->writeln('idempotency_records_deleted: ' . $result->idempotencyRecordsDeleted());
         $output->writeln('total_affected: ' . $result->totalAffected());
 
         return Command::SUCCESS;
@@ -112,6 +120,7 @@ final class RetentionPurgeCommand extends Command
             RetentionPeriod::days($this->positiveIntOption($input, 'journal-days')),
             RetentionPeriod::days($this->positiveIntOption($input, 'outcome-days')),
             RetentionPeriod::days($this->positiveIntOption($input, 'dead-letter-days')),
+            RetentionPeriod::days($this->idempotencyDays($input)),
         );
     }
 
@@ -137,5 +146,21 @@ final class RetentionPurgeCommand extends Command
         }
 
         return (string) $input->getOption($name);
+    }
+
+    private function idempotencyDays(InputInterface $input): int
+    {
+        /** @var mixed $value */
+        $value = $input->getOption('idempotency-record-days');
+        if (is_string($value) && ctype_digit($value) && (int) $value > 0) {
+            return (int) $value;
+        }
+
+        return max(
+            $this->positiveIntOption($input, 'transport-payload-days'),
+            $this->positiveIntOption($input, 'journal-days'),
+            $this->positiveIntOption($input, 'outcome-days'),
+            $this->positiveIntOption($input, 'dead-letter-days'),
+        );
     }
 }

@@ -1,8 +1,8 @@
 # Data Retentionを運用する
 
-BlackOpsはTransport Payload、Canonical [Journal](glossary.md#journal)、[Outcome](glossary.md#outcome)、[Dead Letter](glossary.md#dead-letter)を独立した保持期間で管理します。Productionでは4つの期間を明示し、未設定のPolicyでPurgeを実行しないでください。
+BlackOpsはTransport Payload、Canonical [Journal](glossary.md#journal)、[Outcome](glossary.md#outcome)、[Dead Letter](glossary.md#dead-letter)、Idempotency Recordを独立した保持対象として管理します。`idempotency_record_days`を省略した場合は既存4期間の最長値を使います。
 
-Public Console Kernelは`config/retention.php`の4期間、`policy_ref`、`actor`をRetention Plan／PurgeとSchedulerで共有します。Command Optionを省略すると、このAccepted Policyを使います。
+Public Console Kernelは`config/retention.php`の既存4期間と任意の`idempotency_record_days`、`policy_ref`、`actor`をRetention Plan／PurgeとSchedulerで共有します。Idempotency期間を省略した場合は既存4期間の最長値を使います。Command Optionを省略すると、このAccepted Policyを使います。
 
 候補を確認するときは、副作用のないPlan Commandを使います。
 
@@ -12,6 +12,7 @@ retention:plan
   --journal-days=30
   --outcome-days=14
   --dead-letter-days=90
+  --idempotency-record-days=90
 ```
 
 Purge Commandは`--dry-run`または`--confirm`のどちらかを要求します。Confirm時は監査用のPolicy ReferenceとActorも指定します。
@@ -23,6 +24,7 @@ retention:purge
   --journal-days=30
   --outcome-days=14
   --dead-letter-days=90
+  --idempotency-record-days=90
   --policy-ref=production-retention-v1
   --actor=system:retention
 ```
@@ -37,7 +39,7 @@ Plan後にJournalが追加された場合やActive Holdを設定した場合、P
 
 ## Retention Hold
 
-[Retention Hold](glossary.md#retention)はOperation IDを指定して保持期間による削除を止めます。Inline OperationにもOperations行を追加せずHoldを設定できます。HoldがActiveな間、PlannerとPurgeはPayload、Journal、Outcome、Dead Letterを対象外にし、明示解除後に再び候補へ含めます。
+[Retention Hold](glossary.md#retention)はOperation IDを指定して保持期間による削除を止めます。Inline OperationにもOperations行を追加せずHoldを設定できます。HoldがActiveな間、PlannerとPurgeはPayload、Journal、Outcome、Dead Letter、Idempotency Recordを対象外にし、明示解除後に再び候補へ含めます。
 
 ## Purge Audit
 

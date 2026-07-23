@@ -79,7 +79,7 @@ Generated `.fetch()`はHTTP Responseを検証し、Validation／Internal／Trans
 
 Generated Typeは認証、認可、暗号化、Access Control、Retentionを代替しません。Server-only `createBlackOpsClient()`へRequestごとのSession／TokenからDefault HeaderをBindingし、Browser向けGlobal Mutable Clientへ保存しないでください。FactoryとCall HeaderはCopy／Freezeされ、Case-insensitiveにMergeされます。Operation由来Header、Generated `Content-Type`、専用Optionから作る`Idempotency-Key`は任意Headerで上書きできません。
 
-ApplicationはCORS、CSRF、TLS、Browser Storage、Token Rotation、Frontend Source Map／Build Artifactの公開範囲を管理します。`config/frontend.php`へCredentialやBase URLを保存しません。不正なBase URL、Fetch、Header、Credential、Idempotency KeyはNetwork Call前に`invalid_client_options`へ丸め、値やThrown ErrorをResultへ含めません。Backend側のIdempotency保存／重複抑止はPhase 19まで保証されません。
+ApplicationはCORS、CSRF、TLS、Browser Storage、Token Rotation、Frontend Source Map／Build Artifactの公開範囲を管理します。`config/frontend.php`へCredentialやBase URLを保存しません。不正なBase URL、Fetch、Header、Credential、Idempotency KeyはNetwork Call前に`invalid_client_options`へ丸め、値やThrown ErrorをResultへ含めません。BackendのIdempotency RecordはRaw Key、Credential、Canonical Value、任意Headerを保存せず、認証・認可後の同じScope／FingerprintだけをReplayします。
 
 ## Status参照の認可
 

@@ -173,7 +173,8 @@ final readonly class PostgreSqlDeferredOperationSchema
                     'transport_payload',
                     'journal',
                     'outcome',
-                    'dead_letter'
+                    'dead_letter',
+                    'idempotency_record'
                 )),
                 affected_count integer NOT NULL CHECK (affected_count >= 1),
                 policy text NOT NULL CHECK (policy <> ''),

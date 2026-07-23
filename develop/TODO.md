@@ -162,13 +162,13 @@ MVP後に残す主要項目:
 - [x] D109でIdempotency Key、Transactional Outbox、Relay／Replay、Community Board Journeyを決定する
 - [x] P19-001でReliability and Delivery仕様、Failure Matrix、Delivery Planを確定する
 - [x] P19-002でIdempotency Key／ExecutionContext／Scope／Fingerprint／Storage Contractを実装する
-- [ ] P19-003でHTTP／PHP Duplicate Lifecycle、PostgreSQL Store、Retentionを実装する
+- [x] P19-003でHTTP／PHP Duplicate Lifecycle、PostgreSQL Store、Retentionを実装する
 - [ ] P19-004でTransactional Outbox Persistenceと同一Connection Transaction参加を実装する
 - [ ] P19-005でRelay Claim／Retry／Fencing／Dead Letter CLIを実装する
 - [ ] P19-006でCanonical Observer Replayを実装する
 - [ ] P19-007でCommunity Board Digest／Notification Journeyを実装する
 - [ ] P19-008でGuide、Consumer、Full Gate、Phase Closeoutを完了する
-- [ ] Idempotency Keyと重複時Contractを実装する
+- [x] Idempotency Keyと重複時Contractを実装する
 - [ ] Transactional Outbox、Relay、Replayを実装する
 
 ### Post-Phase 18 Application Ergonomics Follow-up

@@ -26,9 +26,11 @@ final class DeferredHttpOperationAcceptorTest extends TestCase
     {
         $method = new ReflectionMethod(DeferredHttpOperationAcceptor::class, 'accept');
 
-        self::assertCount(3, $method->getParameters());
+        self::assertCount(4, $method->getParameters());
         self::assertTrue($method->getParameters()[2]->isOptional());
         self::assertNull($method->getParameters()[2]->getDefaultValue());
+        self::assertTrue($method->getParameters()[3]->isOptional());
+        self::assertNull($method->getParameters()[3]->getDefaultValue());
     }
 
     public function testAcceptsOnlyRegisteredDeferredOperation(): void

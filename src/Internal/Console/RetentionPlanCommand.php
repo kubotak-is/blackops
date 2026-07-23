@@ -39,7 +39,13 @@ final class RetentionPlanCommand extends Command
             )
             ->addOption('journal-days', null, InputOption::VALUE_REQUIRED, 'Canonical journal retention days.')
             ->addOption('outcome-days', null, InputOption::VALUE_REQUIRED, 'Outcome retention days.')
-            ->addOption('dead-letter-days', null, InputOption::VALUE_REQUIRED, 'Dead letter retention days.');
+            ->addOption('dead-letter-days', null, InputOption::VALUE_REQUIRED, 'Dead letter retention days.')
+            ->addOption(
+                'idempotency-record-days',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'Idempotency record retention days.',
+            );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -52,6 +58,7 @@ final class RetentionPlanCommand extends Command
         $output->writeln('journal: ' . count($plan->forTarget(RetentionTarget::Journal)));
         $output->writeln('outcome: ' . count($plan->forTarget(RetentionTarget::Outcome)));
         $output->writeln('dead_letter: ' . count($plan->forTarget(RetentionTarget::DeadLetter)));
+        $output->writeln('idempotency_record: ' . count($plan->forTarget(RetentionTarget::IdempotencyRecord)));
 
         foreach ($plan->items() as $item) {
             $output->writeln(sprintf(
@@ -73,6 +80,7 @@ final class RetentionPlanCommand extends Command
             RetentionPeriod::days($this->positiveIntOption($input, 'journal-days')),
             RetentionPeriod::days($this->positiveIntOption($input, 'outcome-days')),
             RetentionPeriod::days($this->positiveIntOption($input, 'dead-letter-days')),
+            RetentionPeriod::days($this->idempotencyDays($input)),
         );
     }
 
@@ -89,5 +97,21 @@ final class RetentionPlanCommand extends Command
         }
 
         return (int) $value;
+    }
+
+    private function idempotencyDays(InputInterface $input): int
+    {
+        /** @var mixed $value */
+        $value = $input->getOption('idempotency-record-days');
+        if (is_string($value) && ctype_digit($value) && (int) $value > 0) {
+            return (int) $value;
+        }
+
+        return max(
+            $this->positiveIntOption($input, 'transport-payload-days'),
+            $this->positiveIntOption($input, 'journal-days'),
+            $this->positiveIntOption($input, 'outcome-days'),
+            $this->positiveIntOption($input, 'dead-letter-days'),
+        );
     }
 }

@@ -29,4 +29,8 @@ interface IdempotencyStore
     ): bool;
 
     public function find(IdempotencyScopeHash $scope): ProcessingRecord|TerminalRecord|null;
+
+    public function attachResponse(OperationId $operationId, IdempotencyResponseSnapshot $snapshot): bool;
+
+    public function response(OperationId $operationId): ?IdempotencyResponseSnapshot;
 }

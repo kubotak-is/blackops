@@ -69,6 +69,31 @@ final class RetentionPlanCommandTest extends TestCase
             '--outcome-days' => '14',
         ]);
     }
+
+    public function testCommandPrintsIdempotencyTargetAndUsesExplicitRetentionOption(): void
+    {
+        $planner = new RecordingRetentionPlanner(new RetentionPlan([
+            new RetentionPlanItem(
+                OperationId::fromString(self::OPERATION_ID),
+                RetentionTarget::IdempotencyRecord,
+                new DateTimeImmutable('2026-07-08T00:00:00Z'),
+                new DateTimeImmutable('2026-07-09T00:00:00Z'),
+            ),
+        ]));
+        $tester = new CommandTester(
+            new RetentionPlanCommand($planner, new FixedRetentionPlanCommandClock('2026-07-11T00:00:00Z')),
+        );
+
+        self::assertSame(0, $tester->execute([
+            '--transport-payload-days' => '1',
+            '--journal-days' => '30',
+            '--outcome-days' => '14',
+            '--dead-letter-days' => '2',
+            '--idempotency-record-days' => '3',
+        ]));
+        self::assertSame(259_200, $planner->policy?->idempotencyRecordRetention()->secondsValue());
+        self::assertStringContainsString('idempotency_record: 1', $tester->getDisplay());
+    }
 }
 
 final class RecordingRetentionPlanner implements RetentionPlanner

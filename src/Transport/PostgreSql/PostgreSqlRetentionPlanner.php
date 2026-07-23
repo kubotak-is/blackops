@@ -19,12 +19,14 @@ final readonly class PostgreSqlRetentionPlanner implements RetentionPlanner
 {
     private PostgreSqlDeferredOperationSchema $schema;
     private PostgreSqlJournalSchema $journalSchema;
+    private string $schemaName;
 
     public function __construct(
         private Connection $connection,
         string $schema = 'blackops',
         private int $limitPerTarget = 1_000,
     ) {
+        $this->schemaName = $schema;
         $this->schema = new PostgreSqlDeferredOperationSchema($schema);
         $this->journalSchema = new PostgreSqlJournalSchema($schema);
     }
@@ -37,6 +39,7 @@ final readonly class PostgreSqlRetentionPlanner implements RetentionPlanner
                 ...$this->journalItems($policy, $now),
                 ...$this->outcomeItems($policy, $now),
                 ...$this->deadLetterItems($policy, $now),
+                ...$this->idempotencyItems($policy, $now),
             ]);
         } catch (Throwable $exception) {
             if ($exception instanceof DeferredTransportException) {
@@ -176,6 +179,38 @@ final readonly class PostgreSqlRetentionPlanner implements RetentionPlanner
         return array_map(fn(array $row): RetentionPlanItem => $this->item(
             $row,
             RetentionTarget::Outcome,
+            $period->secondsValue(),
+        ), $rows);
+    }
+
+    /** @return list<RetentionPlanItem> */
+    private function idempotencyItems(RetentionPolicy $policy, DateTimeImmutable $now): array
+    {
+        $table = new PostgreSqlIdempotencySchema($this->schemaName)->table();
+        $exists = $this->connection->fetchOne('SELECT to_regclass(:table)', ['table' => $table]);
+        if ($exists === null || $exists === false) {
+            return [];
+        }
+        $holds = $this->schema->retentionHoldsTable();
+        $period = $policy->idempotencyRecordRetention();
+        $cutoff = $now->modify('-' . $period->secondsValue() . ' seconds');
+        $rows = $this->connection->fetchAllAssociative(
+            "SELECT operation_id::text AS operation_id, created_at::text AS basis_at
+            FROM {$table} r
+            WHERE r.state = 'terminal'
+                AND r.created_at <= :cutoff
+                AND NOT EXISTS (
+                    SELECT 1 FROM {$holds} h
+                    WHERE h.operation_id = r.operation_id AND h.released_at IS NULL
+                )
+            ORDER BY r.expires_at, r.operation_id
+            LIMIT {$this->limitPerTarget}",
+            ['cutoff' => $this->formatTimestamp($cutoff)],
+        );
+
+        return array_map(fn(array $row): RetentionPlanItem => $this->item(
+            $row,
+            RetentionTarget::IdempotencyRecord,
             $period->secondsValue(),
         ), $rows);
     }

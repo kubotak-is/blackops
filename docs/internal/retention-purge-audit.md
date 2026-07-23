@@ -19,6 +19,7 @@ transport_payload
 journal
 outcome
 dead_letter
+idempotency_record
 ```
 
 この種別はRetention Policyの対象と対応するが、監査Recordでは実際にPurge処理が影響を与えた対象を明示するために独立した型として扱う。
@@ -103,4 +104,4 @@ created_at
 
 `PostgreSqlRetentionPurgeAuditStore` は `RetentionPurgeAuditPort` を実装し、Recordの各Fieldをそのまま保存する。StoreはPayloadやContextを受け取らず、System Logへの配送も担当しない。
 
-Journal PurgeではOperation ID単位の削除Record数を `affected_count` とする。Plan後のHoldやJournal追加でSkipした0件処理はAuditへ保存しない。
+Journal PurgeではOperation ID単位の削除Record数を `affected_count` とする。Idempotency Record Purgeでは削除したRecord数を記録する。Plan後のHoldや新規Record追加でSkipした0件処理はAuditへ保存しない。

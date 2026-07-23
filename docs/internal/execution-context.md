@@ -47,6 +47,8 @@ final readonly class ExecutionContext
         ?CausationId $causationId = null,
         ?AttemptContext $attempt = null,
         ?\DateTimeImmutable $deadline = null,
+        ?ActorContext $actorContext = null,
+        ?IdempotencyKeyHash $idempotencyKeyHash = null,
     );
 
     public function operationId(): OperationId;
@@ -55,6 +57,8 @@ final readonly class ExecutionContext
     public function causationId(): ?CausationId;
     public function attempt(): ?AttemptContext;
     public function deadline(): ?\DateTimeImmutable;
+    public function actorContext(): ?ActorContext;
+    public function idempotencyKeyHash(): ?IdempotencyKeyHash;
 }
 ```
 
@@ -62,7 +66,7 @@ final readonly class ExecutionContext
 - ConstructorはPublic APIであり、利用者とInternal Factory双方で不正状態を作らない。
 - `receivedAt` と `deadline`（非null時）はConstructorでUTCへ正規化する。
 - 公開 `with...()` Methodは提供しない。生成後の改変は不可で、状態遷移は新ExecutionContextをInternal Factoryが構築することで表現する（Spec 19、D050）。
-- P1-002のScopeでは Actor、Tenant、Idempotency Key、Context Extension は未実装とする。これらは後続TaskでOptional Getterとして後方互換な拡張で追加する（D050）。
+- Actor ContextとOpaque Idempotency Key HashはOptional Metadataとして保持する。Raw Key、Credential、Scope、FingerprintはContextへ保存しない。TenantとContext ExtensionはこのContextの責務外である。
 
 ## Internal ExecutionContextFactory
 

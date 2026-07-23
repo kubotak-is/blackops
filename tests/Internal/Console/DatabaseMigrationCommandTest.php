@@ -51,16 +51,16 @@ final class DatabaseMigrationCommandTest extends TestCase
         $pending = new CommandTester(new DatabaseMigrationStatusCommand($this->runner));
         self::assertSame(0, $pending->execute([]));
         self::assertStringContainsString('applied: 0', $pending->getDisplay());
-        self::assertStringContainsString('pending: 2', $pending->getDisplay());
+        self::assertStringContainsString('pending: 3', $pending->getDisplay());
 
         $migrate = new CommandTester(new DatabaseMigrationMigrateCommand($this->runner));
         self::assertSame(0, $migrate->execute([], ['interactive' => false]));
         self::assertStringContainsString('Database migrations applied', $migrate->getDisplay());
-        self::assertStringContainsString('migrations: 2', $migrate->getDisplay());
+        self::assertStringContainsString('migrations: 3', $migrate->getDisplay());
 
         $applied = new CommandTester(new DatabaseMigrationStatusCommand($this->runner));
         self::assertSame(0, $applied->execute([]));
-        self::assertStringContainsString('applied: 2', $applied->getDisplay());
+        self::assertStringContainsString('applied: 3', $applied->getDisplay());
         self::assertStringContainsString('pending: 0', $applied->getDisplay());
     }
 
@@ -125,7 +125,7 @@ final class DatabaseMigrationCommandTest extends TestCase
 
         $status = new CommandTester(new DatabaseMigrationStatusCommand($runner));
         self::assertSame(0, $status->execute([]));
-        self::assertStringContainsString('pending: 3', $status->getDisplay());
+        self::assertStringContainsString('pending: 4', $status->getDisplay());
         self::assertStringContainsString('App\\Migrations\\' . $version, $status->getDisplay());
 
         $dryRunRunner = new DatabaseMigrationRunner(
@@ -144,11 +144,11 @@ final class DatabaseMigrationCommandTest extends TestCase
         );
         $migrate = new CommandTester(new DatabaseMigrationMigrateCommand($migrateRunner));
         self::assertSame(0, $migrate->execute([], ['interactive' => false]));
-        self::assertStringContainsString('migrations: 3', $migrate->getDisplay());
+        self::assertStringContainsString('migrations: 4', $migrate->getDisplay());
 
         $applied = new CommandTester(new DatabaseMigrationStatusCommand($migrateRunner));
         self::assertSame(0, $applied->execute([]));
-        self::assertStringContainsString('applied: 3', $applied->getDisplay());
+        self::assertStringContainsString('applied: 4', $applied->getDisplay());
         self::assertStringContainsString('App\\Migrations\\' . $version, $applied->getDisplay());
     }
 }

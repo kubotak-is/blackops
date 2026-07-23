@@ -4,13 +4,17 @@ declare(strict_types=1);
 
 namespace BlackOps\Internal\Runtime;
 
+use BlackOps\Core\Retention\RetentionPeriod;
 use BlackOps\Http\DeferredOperationAcceptor;
 use BlackOps\Internal\Execution\ExecutionScopeProvider;
+use BlackOps\Internal\Idempotency\IdempotencyStore;
 use BlackOps\Internal\Journal\JournalObservationPipeline;
 use BlackOps\Internal\Logging\ExecutionScopedLogger;
 use BlackOps\Internal\Transaction\OperationTransactionCoordinator;
+use BlackOps\Journal\CanonicalJournalReader;
 use BlackOps\Journal\CanonicalJournalWriter;
 use BlackOps\Status\OperationStatusQuery;
+use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\StreamFactoryInterface;
@@ -35,5 +39,10 @@ final readonly class ProductionRuntimeDependencies
         public ?OperationTransactionCoordinator $operationTransactions = null,
         public ?ExecutionScopedLogger $executionLogger = null,
         public ?OperationStatusQuery $operationStatusQuery = null,
+        public ?IdempotencyStore $idempotencyStore = null,
+        public ?RetentionPeriod $idempotencyRetention = null,
+        public ?CanonicalJournalReader $journalReader = null,
+        public ?Connection $idempotencyConnection = null,
+        public string $idempotencySchema = 'blackops',
     ) {}
 }

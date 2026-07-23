@@ -12,6 +12,7 @@ use InvalidArgumentException;
 
 final readonly class TerminalRecord
 {
+    /** @mago-expect lint:excessive-parameter-list */
     public function __construct(
         private IdempotencyScopeHash $scope,
         private IdempotencyKeyHash $key,
@@ -20,6 +21,9 @@ final readonly class TerminalRecord
         private ExecutionStrategy $strategy,
         private DateTimeImmutable $createdAt,
         private DateTimeImmutable $expiresAt,
+        private ?IdempotencyResponseSnapshot $response = null,
+        private ?IdempotencyResultSnapshot $result = null,
+        private ?DateTimeImmutable $acceptedAt = null,
     ) {
         if ($expiresAt <= $createdAt) {
             throw new InvalidArgumentException('Idempotency record expiry must be later than creation.');
@@ -64,5 +68,20 @@ final readonly class TerminalRecord
     public function expiresAt(): DateTimeImmutable
     {
         return $this->expiresAt;
+    }
+
+    public function response(): ?IdempotencyResponseSnapshot
+    {
+        return $this->response;
+    }
+
+    public function result(): ?IdempotencyResultSnapshot
+    {
+        return $this->result;
+    }
+
+    public function acceptedAt(): ?DateTimeImmutable
+    {
+        return $this->acceptedAt;
     }
 }

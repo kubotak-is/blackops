@@ -16,6 +16,7 @@ use BlackOps\Core\OperationResult;
 use BlackOps\Core\OperationValue;
 use BlackOps\Core\Registry\OperationRegistry;
 use BlackOps\Http\DeferredOperationAcceptor;
+use BlackOps\Idempotency\IdempotencyKey;
 use BlackOps\Internal\Execution\DeferredAcceptanceOrchestrator;
 use BlackOps\Internal\ExecutionContext\ExecutionContextFactory;
 use BlackOps\Internal\Registry\OperationMetadataResolver;
@@ -50,6 +51,7 @@ final readonly class DeferredHttpOperationAcceptor implements DeferredOperationA
         Operation $definition,
         OperationValue $value,
         ?ActorContext $actorContext = null,
+        ?IdempotencyKey $idempotencyKey = null,
     ): DeferredAcknowledgement|OperationResult {
         $metadata = $this->metadataResolver->resolve($definition) ?? throw new LogicException(
             'Deferred operation definition is not registered.',
@@ -62,7 +64,13 @@ final readonly class DeferredHttpOperationAcceptor implements DeferredOperationA
             throw new LogicException('Ephemeral operations cannot use deferred execution.');
         }
 
-        $context = $this->contexts->receive(actorContext: $actorContext);
+        if ($idempotencyKey !== null && $actorContext?->authorization() === null) {
+            return OperationResult::rejected(\BlackOps\Core\Rejection\RejectionReason::businessRule(
+                'idempotency_requires_authenticated_actor',
+            ));
+        }
+
+        $context = $this->contexts->receive(actorContext: $actorContext, idempotencyKey: $idempotencyKey);
         $strategy = new Deferred();
         $envelope = new OperationEnvelope($definition, $value, $context, $strategy);
         $encoded = $this->codec->encode($metadata, $value, $context);

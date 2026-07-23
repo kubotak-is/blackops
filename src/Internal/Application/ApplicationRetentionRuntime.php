@@ -7,6 +7,7 @@ namespace BlackOps\Internal\Application;
 use BlackOps\Internal\Scheduler\MaintenanceScheduler;
 use BlackOps\Internal\Scheduler\RetentionMaintenanceTask;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeadLetterRetentionDeleteService;
+use BlackOps\Transport\PostgreSql\PostgreSqlIdempotencyRetentionDeleteService;
 use BlackOps\Transport\PostgreSql\PostgreSqlJournalRetentionDeleteService;
 use BlackOps\Transport\PostgreSql\PostgreSqlOutcomeRetentionDeleteService;
 use BlackOps\Transport\PostgreSql\PostgreSqlRetentionPlanner;
@@ -38,6 +39,7 @@ final readonly class ApplicationRetentionRuntime
             new PostgreSqlOutcomeRetentionDeleteService($connection, $audit, $database->schema, $this->clock),
             new PostgreSqlDeadLetterRetentionDeleteService($connection, $audit, $database->schema, $this->clock),
             new PostgreSqlJournalRetentionDeleteService($connection, $audit, $database->schema, $this->clock),
+            new PostgreSqlIdempotencyRetentionDeleteService($connection, $audit, $database->schema, $this->clock),
         );
         $this->scheduler = new MaintenanceScheduler([
             new RetentionMaintenanceTask(

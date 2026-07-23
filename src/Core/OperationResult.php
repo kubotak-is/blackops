@@ -27,6 +27,7 @@ final readonly class OperationResult
         ?Outcome $outcome,
         private ?RejectionReason $rejectionReason,
         private ?OperationId $operationId,
+        private bool $replayed = false,
     ) {
         $this->outcome = $outcome;
     }
@@ -38,9 +39,9 @@ final readonly class OperationResult
      *
      * @return self<TCompleted>
      */
-    public static function completed(Outcome $outcome = new EmptyOutcome()): self
+    public static function completed(Outcome $outcome = new EmptyOutcome(), ?OperationId $operationId = null): self
     {
-        return new self($outcome, null, null);
+        return new self($outcome, null, $operationId);
     }
 
     /**
@@ -76,5 +77,15 @@ final readonly class OperationResult
     public function operationId(): ?OperationId
     {
         return $this->operationId;
+    }
+
+    public function isReplayed(): bool
+    {
+        return $this->replayed;
+    }
+
+    public function asReplayed(): self
+    {
+        return new self($this->outcome, $this->rejectionReason, $this->operationId, true);
     }
 }

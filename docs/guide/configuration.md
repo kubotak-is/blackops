@@ -14,7 +14,7 @@ Installed Applicationは責務別のPHP Configを`config/`に置きます。Fram
 | `diagnostics.php` | Local Diagnostics ViewerのEnable GateとLoopback Address |
 | `frontend.php` | Generated TypeScript ESMのApplication Root内Output |
 | `middleware.php` | Global PSR-15 HTTP Middlewareの登録順 |
-| `retention.php` | Payload、Journal、Outcome、Dead Letterの保持期間、Policy、Actor |
+| `retention.php` | Payload、Journal、Outcome、Dead Letter、Idempotency Recordの保持期間、Policy、Actor |
 
 ## Environment
 
@@ -121,7 +121,7 @@ return static fn (Environment $env): array => [
 
 生成Root `index.ts`は`createBlackOpsClient()`と全Operation／型をExportします。FactoryへBase URL、SvelteKit Server `event.fetch`またはGlobal Fetch、Default Header、Credential Modeを一度Bindingし、各HTTP Operationを`blackops.CreateOrder.fetch()`の形で呼べます。Call単位にはHeader、Credential、Abort Signalを渡し、Mutationの`.fetch()`／`.toRequest()`だけは専用`idempotencyKey`も受理します。
 
-Base URL、Credential、Fetch、Abort Signal、DeadlineはPHP ConfigやGenerated Manifestへ保存しません。FactoryはServer Requestごとに作り、Browser向けGlobal Singletonにしないでください。Backendの重複抑止はPhase 19で導入するため、現時点のIdempotency Keyは検証済みHeaderを送信するContractまでです。
+Base URL、Credential、Fetch、Abort Signal、DeadlineはPHP ConfigやGenerated Manifestへ保存しません。FactoryはServer Requestごとに作り、Browser向けGlobal Singletonにしないでください。MutationのIdempotency Keyは検証済みHeaderとして送信され、Backendは認証・認可後にKeyのScope／FingerprintをClaimして同じ副作用の再実行を抑止します。
 
 ## Database
 

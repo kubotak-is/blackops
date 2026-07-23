@@ -64,6 +64,7 @@ final class ApplicationRetentionCommandFactory
             'journal-days' => $configuration->journalDays,
             'outcome-days' => $configuration->outcomeDays,
             'dead-letter-days' => $configuration->deadLetterDays,
+            'idempotency-record-days' => $configuration->idempotencyRecordDays,
         ] as $name => $days) {
             $command
                 ->getDefinition()

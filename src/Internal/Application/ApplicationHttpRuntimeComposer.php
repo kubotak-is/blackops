@@ -14,12 +14,15 @@ use BlackOps\Internal\Execution\DeferredAcceptanceOrchestrator;
 use BlackOps\Internal\ExecutionContext\ExecutionContextFactory;
 use BlackOps\Internal\Http\DeferredHttpOperationAcceptor;
 use BlackOps\Internal\Http\OperationStatusAuthorizerResolver;
+use BlackOps\Internal\Idempotency\IdempotencyRecovery;
+use BlackOps\Internal\Idempotency\PostgreSqlIdempotencyStore;
 use BlackOps\Internal\Journal\JournalRecordFactory;
 use BlackOps\Internal\Runtime\ProductionRuntimeArtifacts;
 use BlackOps\Internal\Runtime\ProductionRuntimeComposer;
 use BlackOps\Internal\Runtime\ProductionRuntimeDependencies;
 use BlackOps\Internal\Status\DefaultOperationStatusQuery;
 use BlackOps\Internal\Status\PostgreSqlOperationStatusSource;
+use BlackOps\Journal\CanonicalJournalReader;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationSender;
 use InvalidArgumentException;
 use LogicException;
@@ -28,12 +31,16 @@ use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use ReflectionClass;
 
+/** @mago-expect lint:cyclomatic-complexity */
 final readonly class ApplicationHttpRuntimeComposer
 {
     public function compose(ApplicationConfigurationSnapshot $configuration): RequestHandlerInterface
     {
         $build = ApplicationBuildConfiguration::fromConfiguration($configuration->configuration());
         $database = ApplicationDatabaseConfiguration::fromConfiguration($configuration->configuration());
+        $retention = array_key_exists('retention', $configuration->configuration())
+            ? ApplicationRetentionConfiguration::fromConfiguration($configuration->configuration())
+            : null;
         $middleware = ApplicationHttpMiddlewareConfiguration::fromConfiguration($configuration->configuration());
         $operation = new ApplicationOperationRuntimeComposer()->compose($configuration);
         $http = new HttpOperationManifestFile()->loadArtifact($build->httpManifest);
@@ -44,6 +51,19 @@ final readonly class ApplicationHttpRuntimeComposer
         $artifacts = new ProductionRuntimeArtifacts($operation->operations, $http->manifest, $operation->container);
         $httpMiddleware = new ApplicationHttpMiddlewareResolver($artifacts->container)->resolve($middleware);
         $sender = new PostgreSqlDeferredOperationSender($operation->connection, $database->schema);
+        $idempotency = new PostgreSqlIdempotencyStore($operation->connection, $database->schema);
+        if (!$operation->journal instanceof CanonicalJournalReader) {
+            throw new LogicException('PostgreSQL journal reader is unavailable for idempotency recovery.');
+        }
+        $psr17 = $this->psr17();
+        $responder = new JsonOperationResponder($psr17, $psr17);
+        $recovery = new IdempotencyRecovery(
+            $operation->journal,
+            $idempotency,
+            $responder,
+            $operation->connection,
+            $database->schema,
+        );
         $acceptor = new DeferredHttpOperationAcceptor(
             $artifacts->operations,
             new ExecutionContextFactory($operation->identifiers, $operation->clock),
@@ -55,9 +75,11 @@ final readonly class ApplicationHttpRuntimeComposer
                 new JournalRecordFactory($operation->identifiers, $operation->clock),
                 authorization: $operation->authorization,
                 scope: $operation->scope,
+                idempotency: $idempotency,
+                idempotencyRetention: $retention?->policy->idempotencyRecordRetention(),
+                idempotencyRecovery: $recovery,
             ),
         );
-        $psr17 = $this->psr17();
         $statusQuery = new DefaultOperationStatusQuery(
             new PostgreSqlOperationStatusSource($operation->connection, $artifacts->operations, $database->schema),
             new OperationStatusAuthorizerResolver($artifacts->container)->resolve(),
@@ -77,13 +99,18 @@ final readonly class ApplicationHttpRuntimeComposer
                 operationTransactions: $operation->transactions,
                 executionLogger: $operation->logger,
                 operationStatusQuery: $statusQuery,
+                idempotencyStore: $idempotency,
+                idempotencyRetention: $retention?->policy->idempotencyRecordRetention(),
+                journalReader: $operation->journal,
+                idempotencyConnection: $operation->connection,
+                idempotencySchema: $database->schema,
             ),
         );
 
         return new ApplicationHttpRequestHandler(
             $runtime->httpHandler,
             $operation->lifecycle,
-            new JsonOperationResponder($psr17, $psr17),
+            $responder,
             $operation->logger,
         );
     }

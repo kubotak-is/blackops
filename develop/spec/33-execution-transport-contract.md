@@ -24,11 +24,13 @@ Durable保存に成功したSenderは次を返す。
 DeferredAcknowledgement
   operationId
   acceptedAt
+  replayed
 ```
 
 失敗時は専用Exceptionを投げる。Acknowledgementは処理完了ではなく、Frameworkが後続実行の責任を引き受けたことを表す。
 
 HTTP AdapterはAcknowledgementをHTTP 202 Responseへ変換できる。
+Replay時は`replayed`だけを保持し、HTTP Adapterが`Idempotency-Replayed: true`と`Cache-Control: private, no-store`へ投影する。
 
 ## Claim
 

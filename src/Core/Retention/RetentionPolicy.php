@@ -14,6 +14,7 @@ final readonly class RetentionPolicy
         private RetentionPeriod $journalRetention,
         private RetentionPeriod $outcomeRetention,
         private RetentionPeriod $deadLetterRetention,
+        private ?RetentionPeriod $idempotencyRecordRetention = null,
     ) {}
 
     public function transportPayloadRetention(): RetentionPeriod
@@ -43,6 +44,23 @@ final readonly class RetentionPolicy
             RetentionTarget::Journal => $this->journalRetention,
             RetentionTarget::Outcome => $this->outcomeRetention,
             RetentionTarget::DeadLetter => $this->deadLetterRetention,
+            RetentionTarget::IdempotencyRecord => $this->idempotencyRecordRetention(),
         };
+    }
+
+    public function idempotencyRecordRetention(): RetentionPeriod
+    {
+        if ($this->idempotencyRecordRetention !== null) {
+            return $this->idempotencyRecordRetention;
+        }
+
+        $seconds = max(
+            $this->transportPayloadRetention->secondsValue(),
+            $this->journalRetention->secondsValue(),
+            $this->outcomeRetention->secondsValue(),
+            $this->deadLetterRetention->secondsValue(),
+        );
+
+        return RetentionPeriod::seconds($seconds);
     }
 }

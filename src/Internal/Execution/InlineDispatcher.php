@@ -17,11 +17,22 @@ use BlackOps\Core\OperationValue;
 use BlackOps\Core\Registry\OperationMetadata;
 use BlackOps\Core\Registry\OperationRegistry;
 use BlackOps\Core\Rejection\RejectionReason;
+use BlackOps\Core\Retention\RetentionPeriod;
 use BlackOps\Core\Validation\Violation;
 use BlackOps\Execution\Dispatcher;
 use BlackOps\Execution\ValidationRejectionRecorder;
+use BlackOps\Idempotency\IdempotencyKey;
 use BlackOps\Internal\Authorization\AuthorizationEvaluator;
 use BlackOps\Internal\ExecutionContext\ExecutionContextFactory;
+use BlackOps\Internal\Idempotency\IdempotencyClaimStatus;
+use BlackOps\Internal\Idempotency\IdempotencyRecovery;
+use BlackOps\Internal\Idempotency\IdempotencyReplayFailure;
+use BlackOps\Internal\Idempotency\IdempotencyResultSnapshot;
+use BlackOps\Internal\Idempotency\IdempotencyScopeHasher;
+use BlackOps\Internal\Idempotency\IdempotencyStore;
+use BlackOps\Internal\Idempotency\OperationValueFingerprinter;
+use BlackOps\Internal\Idempotency\ProcessingRecord;
+use BlackOps\Internal\Idempotency\TerminalRecord;
 use BlackOps\Internal\Journal\InlineSequence;
 use BlackOps\Internal\Journal\JournalObservationPipeline;
 use BlackOps\Internal\Journal\JournalObserverAggregator;
@@ -47,6 +58,7 @@ use Throwable;
  *
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:too-many-methods
+ * @mago-expect lint:kan-defect
  */
 final readonly class InlineDispatcher implements Dispatcher, ValidationRejectionRecorder
 {
@@ -71,6 +83,11 @@ final readonly class InlineDispatcher implements Dispatcher, ValidationRejection
         private ?AuthorizationEvaluator $authorization = null,
         private ?OperationTransactionCoordinator $transactions = null,
         ?OperationMetadataResolver $metadataResolver = null,
+        private ?IdempotencyStore $idempotency = null,
+        private IdempotencyScopeHasher $idempotencyScopes = new IdempotencyScopeHasher(),
+        private OperationValueFingerprinter $idempotencyFingerprints = new OperationValueFingerprinter(),
+        private ?RetentionPeriod $idempotencyRetention = null,
+        private ?IdempotencyRecovery $idempotencyRecovery = null,
     ) {
         $this->validator = new OperationValueValidator();
         $this->metadataResolver = $metadataResolver ?? new OperationMetadataResolver($registry);
@@ -93,7 +110,15 @@ final readonly class InlineDispatcher implements Dispatcher, ValidationRejection
         Operation $definition,
         OperationValue $value,
         ?ActorContext $actorContext = null,
+        ?IdempotencyKey $idempotencyKey = null,
     ): OperationResult {
+        if ($idempotencyKey !== null && $actorContext?->authorization() === null) {
+            return OperationResult::rejected(RejectionReason::businessRule('idempotency_requires_authenticated_actor'));
+        }
+        if ($idempotencyKey !== null && $this->idempotency === null) {
+            throw new LogicException('Idempotency store is unavailable.');
+        }
+
         $metadata = $this->metadata($definition);
 
         if ($metadata->strategy !== Inline::class) {
@@ -108,9 +133,26 @@ final readonly class InlineDispatcher implements Dispatcher, ValidationRejection
         $receivedEnvelope = new OperationEnvelope(
             $definition,
             $value,
-            $this->contexts->receive(actorContext: $actorContext),
+            $this->contexts->receive(actorContext: $actorContext, idempotencyKey: $idempotencyKey),
             new Inline(),
         );
+        $authorizationRejection = null;
+        $authorizationPreEvaluated = false;
+        $claim = null;
+        if ($idempotencyKey !== null) {
+            $authorizationRejection = $this->authorizationRejection($metadata, $receivedEnvelope);
+            $authorizationPreEvaluated = true;
+            if ($authorizationRejection === null) {
+                $claim = $this->claimBeforeLifecycle($metadata, $receivedEnvelope, $idempotencyKey);
+                if ($claim->status() !== IdempotencyClaimStatus::Claimed) {
+                    return $this->duplicateResult($claim);
+                }
+            }
+        }
+        $processing = $claim?->record();
+        if ($processing !== null && !$processing instanceof ProcessingRecord) {
+            throw new LogicException('Idempotency claim did not return a processing record.');
+        }
         $envelope = $receivedEnvelope;
         $state = null;
         $primaryFailure = null;
@@ -147,6 +189,10 @@ final readonly class InlineDispatcher implements Dispatcher, ValidationRejection
                     &$state,
                     $sequence,
                     &$primaryFailure,
+                    $idempotencyKey,
+                    $processing,
+                    $authorizationRejection,
+                    $authorizationPreEvaluated,
                 ): OperationResult {
                     return $this->executeAttempt(
                         $metadata,
@@ -155,12 +201,31 @@ final readonly class InlineDispatcher implements Dispatcher, ValidationRejection
                         $state,
                         $sequence,
                         $primaryFailure,
+                        $idempotencyKey,
+                        $processing,
+                        $authorizationRejection,
+                        $authorizationPreEvaluated,
                     );
                 },
                 $metadata->typeId,
             );
         } catch (Throwable $failure) {
             $primaryFailure ??= $failure;
+            if ($processing instanceof ProcessingRecord && $state !== null && $this->idempotency !== null) {
+                $safeFailure = IdempotencyResultSnapshot::internalFailure($envelope->id());
+                $terminal = new TerminalRecord(
+                    $processing->scope(),
+                    $processing->key(),
+                    $processing->fingerprint(),
+                    $envelope->id(),
+                    $processing->strategy(),
+                    $processing->createdAt(),
+                    $processing->expiresAt(),
+                    null,
+                    $safeFailure,
+                );
+                $this->idempotency->terminalize($envelope->id(), $terminal);
+            }
             $journalRecorded = false;
             $recordingFailure = null;
 
@@ -199,8 +264,19 @@ final readonly class InlineDispatcher implements Dispatcher, ValidationRejection
         LifecycleState &$state,
         InlineSequence $sequence,
         ?Throwable &$primaryFailure,
+        ?IdempotencyKey $idempotencyKey,
+        ?ProcessingRecord $processing,
+        ?RejectionReason $preAuthorizationRejection,
+        bool $authorizationPreEvaluated,
     ): OperationResult {
-        $authorizationResult = $this->authorize($metadata, $envelope, $state, $sequence);
+        $authorizationResult = $this->authorize(
+            $metadata,
+            $envelope,
+            $state,
+            $sequence,
+            $preAuthorizationRejection,
+            $authorizationPreEvaluated,
+        );
         if ($authorizationResult !== null) {
             return $authorizationResult;
         }
@@ -238,7 +314,7 @@ final readonly class InlineDispatcher implements Dispatcher, ValidationRejection
                     $this->observations->observe($record);
                 }
 
-                return $result;
+                return $this->terminalizeIdempotency($result, $processing, $idempotencyKey, $envelope->id());
             }
 
             $state = $this->appendLifecycleRecord(
@@ -257,7 +333,7 @@ final readonly class InlineDispatcher implements Dispatcher, ValidationRejection
                 ),
             );
 
-            return $result;
+            return $this->terminalizeIdempotency($result, $processing, $idempotencyKey, $envelope->id());
         }
 
         $rejected = OperationResult::rejected($result->rejectionReason(), $envelope->id());
@@ -272,7 +348,84 @@ final readonly class InlineDispatcher implements Dispatcher, ValidationRejection
             ),
         );
 
-        return $rejected;
+        return $this->terminalizeIdempotency($rejected, $processing, $idempotencyKey, $envelope->id());
+    }
+
+    private function claimBeforeLifecycle(
+        OperationMetadata $metadata,
+        OperationEnvelope $envelope,
+        IdempotencyKey $key,
+    ): \BlackOps\Internal\Idempotency\IdempotencyClaimResult {
+        $actor = $envelope->context()->actorContext()?->authorization() ?? throw new LogicException(
+            'Idempotency actor is unavailable.',
+        );
+        $store = $this->idempotency ?? throw new LogicException('Idempotency store is unavailable.');
+        $retention = $this->idempotencyRetention ?? throw new LogicException('Idempotency retention is unavailable.');
+        return $store->claim(
+            $this->idempotencyScopes->hash($metadata->typeId, $actor, $key),
+            $key->hash(),
+            $this->idempotencyFingerprints->fingerprint($metadata->typeId, $envelope->value()),
+            $envelope->id(),
+            new Inline(),
+            $envelope->context()->receivedAt(),
+            $retention->expiresAt($envelope->context()->receivedAt()),
+        );
+    }
+
+    private function duplicateResult(\BlackOps\Internal\Idempotency\IdempotencyClaimResult $claim): OperationResult
+    {
+        if ($claim->status() === IdempotencyClaimStatus::ExistingConflict) {
+            return OperationResult::rejected(RejectionReason::conflict('idempotency_conflict'));
+        }
+        $record = $claim->record();
+        if ($record instanceof ProcessingRecord) {
+            if ($this->idempotencyRecovery !== null) {
+                $recovered = $this->idempotencyRecovery->inline($record);
+                if ($recovered !== null) {
+                    return $recovered;
+                }
+            }
+            return OperationResult::rejected(RejectionReason::conflict('idempotency_in_progress'));
+        }
+        $snapshot = $record->result();
+        if ($snapshot?->isInternalFailure() === true) {
+            throw new IdempotencyReplayFailure($snapshot->internalFailureOperationId());
+        }
+
+        return $snapshot?->result()->asReplayed() ?? OperationResult::rejected(RejectionReason::conflict(
+            'idempotency_expired',
+        ));
+    }
+
+    private function terminalizeIdempotency(
+        OperationResult $result,
+        ?ProcessingRecord $processing,
+        ?IdempotencyKey $key,
+        OperationId $operationId,
+    ): OperationResult {
+        if ($processing === null || $key === null || $this->idempotency === null) {
+            return $result;
+        }
+
+        $replay = $result->isCompleted()
+            ? OperationResult::completed($result->outcome(), $operationId)
+            : OperationResult::rejected($result->rejectionReason(), $operationId);
+        $terminal = new TerminalRecord(
+            $processing->scope(),
+            $processing->key(),
+            $processing->fingerprint(),
+            $operationId,
+            $processing->strategy(),
+            $processing->createdAt(),
+            $processing->expiresAt(),
+            null,
+            new IdempotencyResultSnapshot($replay),
+        );
+        if (!$this->idempotency->terminalize($operationId, $terminal)) {
+            throw new LogicException('Idempotency terminalization failed.');
+        }
+
+        return $replay;
     }
 
     /**
@@ -487,11 +640,15 @@ final readonly class InlineDispatcher implements Dispatcher, ValidationRejection
         };
     }
 
+    /** @mago-expect lint:excessive-parameter-list */
+    /** @mago-expect lint:no-boolean-flag-parameter */
     private function authorize(
         OperationMetadata $metadata,
         OperationEnvelope $envelope,
         LifecycleState $state,
         InlineSequence $sequence,
+        ?RejectionReason $preAuthorizationRejection = null,
+        bool $authorizationPreEvaluated = false,
     ): ?OperationResult {
         if ($metadata->authorizationPolicy === null) {
             return null;
@@ -501,7 +658,9 @@ final readonly class InlineDispatcher implements Dispatcher, ValidationRejection
             throw new LogicException('Authorization evaluator is unavailable.');
         }
 
-        $rejection = $this->authorization->evaluate($metadata, $envelope);
+        $rejection = $authorizationPreEvaluated
+            ? $preAuthorizationRejection
+            : $this->authorization->evaluate($metadata, $envelope);
         if ($rejection === null) {
             return null;
         }
@@ -517,6 +676,21 @@ final readonly class InlineDispatcher implements Dispatcher, ValidationRejection
             ),
         );
 
-        return OperationResult::rejected($rejection, $envelope->id());
+        return OperationResult::rejected(
+            $rejection,
+            $envelope->context()->idempotencyKeyHash() === null ? $envelope->id() : null,
+        );
+    }
+
+    private function authorizationRejection(OperationMetadata $metadata, OperationEnvelope $envelope): ?RejectionReason
+    {
+        if ($metadata->authorizationPolicy === null) {
+            return null;
+        }
+        if ($this->authorization === null) {
+            throw new LogicException('Authorization evaluator is unavailable.');
+        }
+
+        return $this->authorization->evaluate($metadata, $envelope);
     }
 }

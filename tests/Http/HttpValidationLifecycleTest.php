@@ -26,6 +26,7 @@ use BlackOps\Http\OperationRequestHandler;
 use BlackOps\Http\Responder\JsonOperationResponder;
 use BlackOps\Http\Routing\HttpOperationRoute;
 use BlackOps\Http\Routing\HttpRouteRegistry;
+use BlackOps\Idempotency\IdempotencyKey;
 use BlackOps\Internal\Execution\HandlerResolver;
 use BlackOps\Internal\Execution\InlineDispatcher;
 use BlackOps\Internal\ExecutionContext\ExecutionContextFactory;
@@ -347,6 +348,7 @@ final class ValidationFailingDeferredAcceptor implements DeferredOperationAccept
         Operation $definition,
         OperationValue $value,
         ?ActorContext $actorContext = null,
+        ?IdempotencyKey $idempotencyKey = null,
     ): DeferredAcknowledgement|OperationResult {
         $this->accepted = true;
         self::fail('Deferred acceptance should not run after validation failure.');

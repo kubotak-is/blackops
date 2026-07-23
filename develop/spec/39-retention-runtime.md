@@ -11,6 +11,7 @@ MVPは次を実装する。
 - Framework Maintenance Scheduler Worker
 - Retention Hold
 - Purge Audit
+- Idempotency Record独立Retention
 
 ## CLI
 
@@ -29,7 +30,7 @@ Scheduler WorkerはScheduled Operation Strategyとは別のFramework保守Runtim
 
 Retention期間に暗黙の既定値を設けない。
 
-ProductionではTransport Payload、Canonical Journal、Outcome、Dead LetterのPolicyを明示設定する。未設定時は起動時またはManifest Compile時に警告し、Purgeを実行しない。
+ProductionではTransport Payload、Canonical Journal、Outcome、Dead LetterのPolicyを明示設定する。Idempotency Record期間はOptionalで、未指定時は既存4期間の最長値を使う。未設定時は起動時またはManifest Compile時に警告し、Purgeを実行しない。
 
 ## Retention Hold
 

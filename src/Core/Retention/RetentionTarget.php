@@ -13,4 +13,5 @@ enum RetentionTarget: string
     case Journal = 'journal';
     case Outcome = 'outcome';
     case DeadLetter = 'dead_letter';
+    case IdempotencyRecord = 'idempotency_record';
 }

@@ -50,11 +50,13 @@ statusはread-onlyである。SchemaやMetadata Tableが存在しないfresh Dat
 
 ## Baseline Boundary
 
-BaselineはOperations、Journal、Outcomes、Dead Letters、Retention Holds、Retention Purge Auditsと現在のConstraint／Indexを作成する。DoctrineのMetadata bootstrapが `schema_migrations` を作成し、適用後にBaseline Versionを一行記録する。
+BaselineはOperations、Journal、Outcomes、Dead Letters、Retention Holds、Retention Purge Auditsと現在のConstraint／Indexを作成する。Idempotency Recordsは追加のVersioned Migrationで作成し、DoctrineのMetadata bootstrapが `schema_migrations` を作成し、適用後に各Versionを記録する。
 
 現在のprogrammatic test helperが先に空Tableを作成している場合に限りadoptできるよう、Baselineは `IF NOT EXISTS` を使用する。これは任意のSchema driftを修復する仕組みではない。Productionは最初からVersioned Migrationを使用する。
 
 Baseline downはData Lossを避けるため常にIrreversibleとして拒否する。
+
+Idempotency Record migrationは`idempotency_records` Table、ScopeのPrimary Key、Operation IDのUnique Constraint、Response／Result Projection CHECK、terminal expiry indexを作成する。MigrationとProgrammatic Schema Helperは同じVersioned Shapeを定義し、処理中Recordを暗黙に削除しない。
 
 Baseline後の追加VersionはRetention HoldとPurge AuditのOperation参照外部キーを削除する。どちらもOperations行を持たないInline Operation IDを保存するための独立した識別Tableであり、IndexとUUID列は維持する。このMigrationも既存Inline参照を失わずにdownできないためIrreversibleである。
 

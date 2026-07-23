@@ -16,6 +16,7 @@ use BlackOps\Core\EphemeralOutcome;
 use BlackOps\Core\Exception\OperationRejectedException;
 use BlackOps\Core\Execution\Inline;
 use BlackOps\Core\ExecutionContext;
+use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Core\Operation;
 use BlackOps\Core\OperationEnvelope;
 use BlackOps\Core\OperationHandler;
@@ -24,9 +25,11 @@ use BlackOps\Core\OperationValue;
 use BlackOps\Core\Registry\OperationMetadata;
 use BlackOps\Core\Registry\OperationRegistry;
 use BlackOps\Core\Rejection\RejectionReason;
+use BlackOps\Core\Retention\RetentionPeriod;
 use BlackOps\Database\AfterCommitFailure;
 use BlackOps\Database\AfterCommitFailureReporter;
 use BlackOps\Database\DatabaseManager;
+use BlackOps\Idempotency\IdempotencyKey;
 use BlackOps\Internal\Authorization\AuthorizationEvaluator;
 use BlackOps\Internal\Authorization\AuthorizationPolicyResolver;
 use BlackOps\Internal\Execution\ExecutionScopeProvider;
@@ -34,6 +37,11 @@ use BlackOps\Internal\Execution\HandlerResolver;
 use BlackOps\Internal\Execution\InlineDispatcher;
 use BlackOps\Internal\Execution\OperationExecutionFailed;
 use BlackOps\Internal\ExecutionContext\ExecutionContextFactory;
+use BlackOps\Internal\Idempotency\IdempotencyScopeHasher;
+use BlackOps\Internal\Idempotency\IdempotencyStore;
+use BlackOps\Internal\Idempotency\InMemoryIdempotencyStore;
+use BlackOps\Internal\Idempotency\OperationValueFingerprinter;
+use BlackOps\Internal\Idempotency\TerminalRecord;
 use BlackOps\Internal\Identifier\IdentifierFactory;
 use BlackOps\Internal\Identifier\Uuidv7Generator;
 use BlackOps\Internal\Journal\JournalObservationPipeline;
@@ -65,9 +73,186 @@ use LogicException;
 use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
 use Psr\Container\ContainerInterface;
+use ReflectionClass;
 
 final class InlineDispatcherTest extends TestCase
 {
+    public function testKeyedCompletedReplayKeepsTypedResultOperationAndJournalIdentity(): void
+    {
+        $store = new InMemoryIdempotencyStore();
+        $journal = new RecordingJournalWriter();
+        $observer = new RecordingJournalObserver();
+        $handler = new CountingDispatchHandler();
+        $dispatcher = $this->dispatcher(
+            $handler,
+            $journal,
+            observations: new JournalObservationPipeline(
+                new ObservedJournalRecordProjector(new SensitiveProjectionFilter('projection-key')),
+                new JournalObserverAggregator([new JournalObserverBinding('inline', $observer)]),
+            ),
+            idempotency: $store,
+            retention: RetentionPeriod::days(3),
+        );
+        $actor = new ActorRef('user-123', 'user');
+        $key = new IdempotencyKey('inline-replay-key');
+        $context = new ActorContext($actor, $actor, $actor);
+
+        $first = $dispatcher->dispatch(
+            new DispatchOperation(),
+            new DispatchValue('same', 'inline-secret'),
+            $context,
+            $key,
+        );
+        $journalCount = count($journal->records);
+        $second = $dispatcher->dispatch(
+            new DispatchOperation(),
+            new DispatchValue('same', 'inline-secret'),
+            $context,
+            $key,
+        );
+
+        self::assertTrue($first->isCompleted());
+        self::assertTrue($second->isCompleted());
+        self::assertSame($first->operationId()?->toString(), $second->operationId()?->toString());
+        self::assertTrue($second->isReplayed());
+        self::assertSame(1, $handler->calls);
+        self::assertCount($journalCount, $journal->records);
+        self::assertStringNotContainsString('inline-replay-key', serialize($store));
+        self::assertStringNotContainsString('inline-replay-key', serialize($journal->records));
+        self::assertStringNotContainsString('inline-secret', serialize($store));
+        self::assertStringNotContainsString('inline-secret', serialize($observer->records));
+    }
+
+    public function testKeyedRejectedReplayConflictProcessingAndExpiredMatrix(): void
+    {
+        $actor = new ActorRef('user-123', 'user');
+        $context = new ActorContext($actor, $actor, $actor);
+        $key = new IdempotencyKey('matrix-key');
+        $store = new InMemoryIdempotencyStore();
+        $handler = new RejectingDispatchHandler();
+        $dispatcher = $this->dispatcher($handler, idempotency: $store, retention: RetentionPeriod::days(3));
+        $first = $dispatcher->dispatch(new DispatchOperation(), new DispatchValue('same'), $context, $key);
+        $replay = $dispatcher->dispatch(new DispatchOperation(), new DispatchValue('same'), $context, $key);
+        $conflict = $dispatcher->dispatch(new DispatchOperation(), new DispatchValue('different'), $context, $key);
+
+        self::assertTrue($first->isRejected());
+        self::assertSame($first->rejectionReason()->code(), $replay->rejectionReason()->code());
+        self::assertSame($first->operationId()?->toString(), $replay->operationId()?->toString());
+        self::assertTrue($replay->isReplayed());
+        self::assertSame('idempotency_conflict', $conflict->rejectionReason()->code());
+        self::assertNull($conflict->operationId());
+
+        $processingStore = new InMemoryIdempotencyStore();
+        $scope = new IdempotencyScopeHasher()->hash('dispatch.test', $actor, $key);
+        $fingerprint = new OperationValueFingerprinter()->fingerprint('dispatch.test', new DispatchValue('processing'));
+        $operationId = OperationId::fromString('019f32ab-2be0-7b38-a0a7-1ab2f9687697');
+        $processingStore->claim(
+            $scope,
+            $key->hash(),
+            $fingerprint,
+            $operationId,
+            new Inline(),
+            new DateTimeImmutable('2026-07-06T00:00:00Z'),
+            new DateTimeImmutable('2026-07-09T00:00:00Z'),
+        );
+        $processing = $this->dispatcher(
+            new CountingDispatchHandler(),
+            idempotency: $processingStore,
+            retention: RetentionPeriod::days(3),
+        )->dispatch(new DispatchOperation(), new DispatchValue('processing'), $context, $key);
+        self::assertSame('idempotency_in_progress', $processing->rejectionReason()->code());
+        self::assertNull($processing->operationId());
+
+        $expiredStore = new InMemoryIdempotencyStore();
+        $expiredStore->claim(
+            $scope,
+            $key->hash(),
+            $fingerprint,
+            $operationId,
+            new Inline(),
+            new DateTimeImmutable('2026-07-06T00:00:00Z'),
+            new DateTimeImmutable('2026-07-09T00:00:00Z'),
+        );
+        $expiredStore->terminalize(
+            $operationId,
+            new TerminalRecord(
+                $scope,
+                $key->hash(),
+                $fingerprint,
+                $operationId,
+                new Inline(),
+                new DateTimeImmutable('2026-07-06T00:00:00Z'),
+                new DateTimeImmutable('2026-07-09T00:00:00Z'),
+            ),
+        );
+        $expired = $this->dispatcher(
+            new CountingDispatchHandler(),
+            idempotency: $expiredStore,
+            retention: RetentionPeriod::days(3),
+        )->dispatch(new DispatchOperation(), new DispatchValue('processing'), $context, $key);
+        self::assertSame('idempotency_expired', $expired->rejectionReason()->code());
+        self::assertNull($expired->operationId());
+    }
+
+    public function testKeyedAuthorizationIsEvaluatedOncePerCallAndDenialBypassesRecord(): void
+    {
+        $policy = new RecordingDispatchPolicy(AuthorizationDecision::allow());
+        $store = new InMemoryIdempotencyStore();
+        $handler = new CountingDispatchHandler();
+        $dispatcher = $this->dispatcher(
+            $handler,
+            idempotency: $store,
+            retention: RetentionPeriod::days(3),
+            policy: $policy,
+            metadata: $this->authorizedMetadata($handler),
+        );
+        $actor = new ActorRef('user-123', 'user');
+        $context = new ActorContext($actor, $actor, $actor);
+        $key = new IdempotencyKey('auth-key');
+        $dispatcher->dispatch(new DispatchOperation(), new DispatchValue('same'), $context, $key);
+        $dispatcher->dispatch(new DispatchOperation(), new DispatchValue('same'), $context, $key);
+        self::assertSame(2, $policy->calls);
+
+        $deny = new RecordingDispatchPolicy(AuthorizationDecision::forbid('authorization.denied'));
+        $deniedHandler = new CountingDispatchHandler();
+        $denied = $this->dispatcher(
+            $deniedHandler,
+            idempotency: $store,
+            retention: RetentionPeriod::days(3),
+            policy: $deny,
+            metadata: $this->authorizedMetadata($deniedHandler),
+        )->dispatch(new DispatchOperation(), new DispatchValue('same'), $context, $key);
+        self::assertSame('authorization.denied', $denied->rejectionReason()->code());
+        self::assertSame(1, $deny->calls);
+        self::assertSame(0, $deniedHandler->calls);
+        self::assertNull($denied->operationId());
+        $replayed = $dispatcher->dispatch(new DispatchOperation(), new DispatchValue('same'), $context, $key);
+        self::assertTrue($replayed->isReplayed());
+        self::assertSame(
+            $replayed->operationId()?->toString(),
+            $dispatcher
+                ->dispatch(new DispatchOperation(), new DispatchValue('same'), $context, $key)
+                ->operationId()
+                ?->toString(),
+        );
+    }
+
+    public function testAnonymousKeyedDispatchIsRejectedWithoutStoreRecordOrOperationId(): void
+    {
+        $store = new InMemoryIdempotencyStore();
+        $result = $this->dispatcher(
+            new CountingDispatchHandler(),
+            idempotency: $store,
+            retention: RetentionPeriod::days(3),
+        )->dispatch(new DispatchOperation(), new DispatchValue('secret'), null, new IdempotencyKey('anonymous-key'));
+
+        self::assertSame('idempotency_requires_authenticated_actor', $result->rejectionReason()->code());
+        self::assertNull($result->operationId());
+        $records = new ReflectionClass($store)->getProperty('records');
+        $records->setAccessible(true);
+        self::assertSame([], $records->getValue($store));
+    }
+
     public function testEphemeralResultReturnsToCallerButOnlyEmptyCanonicalDataReachesJournalAndObserver(): void
     {
         $journal = new RecordingJournalWriter();
@@ -794,6 +979,8 @@ final class InlineDispatcherTest extends TestCase
         ?OperationMetadata $metadata = null,
         ?AuthorizationPolicy $policy = null,
         ?OperationTransactionCoordinator $transactions = null,
+        ?IdempotencyStore $idempotency = null,
+        ?RetentionPeriod $retention = null,
     ): InlineDispatcher {
         $metadata ??= new OperationMetadata(
             'dispatch.test',
@@ -846,6 +1033,8 @@ final class InlineDispatcherTest extends TestCase
             $scope ?? new ExecutionScopeProvider(),
             authorization: $authorization,
             transactions: $transactions,
+            idempotency: $idempotency,
+            idempotencyRetention: $retention,
         );
     }
 

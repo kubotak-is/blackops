@@ -87,6 +87,27 @@ final class OperationResultTest extends TestCase
         $this->expectException(LogicException::class);
         $result->rejectionReason();
     }
+
+    public function testCompletedResultCanCarryReplayOperationIdWithoutChangingDefault(): void
+    {
+        $id = OperationId::fromString(self::OPERATION_ID);
+        $original = OperationResult::completed();
+        $replayed = OperationResult::completed(new EmptyOutcome(), $id)->asReplayed();
+
+        self::assertNull($original->operationId());
+        self::assertSame($id->toString(), $replayed->operationId()?->toString());
+        self::assertTrue($replayed->isReplayed());
+    }
+
+    public function testRejectedReplayKeepsStableReasonAndOperationId(): void
+    {
+        $id = OperationId::fromString(self::OPERATION_ID);
+        $result = OperationResult::rejected(RejectionReason::conflict('idempotency_conflict'), $id)->asReplayed();
+
+        self::assertSame('idempotency_conflict', $result->rejectionReason()->code());
+        self::assertSame($id->toString(), $result->operationId()?->toString());
+        self::assertTrue($result->isReplayed());
+    }
 }
 
 final readonly class ResultOutcomeFixture implements Outcome

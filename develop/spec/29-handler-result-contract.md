@@ -37,6 +37,7 @@ Legacy Handler利用者は公開Static FactoryだけでResultを生成する。
 ```php
 OperationResult::completed($outcome);
 OperationResult::completed();
+OperationResult::completed($outcome, $operationId); // Idempotency Replay correlation
 OperationResult::rejected($reason);
 ```
 
@@ -47,6 +48,8 @@ public function isCompleted(): bool;
 public function isRejected(): bool;
 public function outcome(): Outcome;
 public function rejectionReason(): RejectionReason;
+public function operationId(): ?OperationId;
+public function isReplayed(): bool;
 ```
 
 状態に合わないAccessorは `\LogicException` を投げる。

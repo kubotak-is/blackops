@@ -14,6 +14,7 @@ use BlackOps\Core\Time\TimeCodec;
 use BlackOps\Core\Validation\Violation;
 use BlackOps\Http\Routing\HttpOperationRoute;
 use BlackOps\Http\Status\OperationStatusHttpContract;
+use BlackOps\Internal\Idempotency\IdempotencyResponseSnapshot;
 use BlackOps\Outcome\Internal\StructuredOutcomeNormalizer;
 use JsonException;
 use Psr\Http\Message\ResponseFactoryInterface;
@@ -22,6 +23,10 @@ use Psr\Http\Message\StreamFactoryInterface;
 use RuntimeException;
 use stdClass;
 
+/**
+ * @mago-expect lint:too-many-methods
+ * @mago-expect lint:cyclomatic-complexity
+ */
 final readonly class JsonOperationResponder
 {
     public function __construct(
@@ -37,23 +42,29 @@ final readonly class JsonOperationResponder
             $reason = $result->rejectionReason();
             $operationId = $result->operationId();
 
-            return $this->json($this->statusFor($reason->category()), [
+            $response = $this->json($this->statusFor($reason->category()), [
                 'status' => 'rejected',
                 ...($operationId === null ? [] : ['operationId' => $operationId->toString()]),
                 'category' => $reason->category()->value,
                 'code' => $reason->code(),
             ]);
+
+            return $result->isReplayed() ? $this->replayHeaders($response) : $response;
         }
 
         $outcome = $result->outcome();
 
         if ($outcome instanceof EmptyOutcome) {
-            return $this->responses->createResponse(204);
+            $response = $this->responses->createResponse(204);
+
+            return $result->isReplayed() ? $this->replayHeaders($response) : $response;
         }
 
         $payload = $this->outcomes->normalize($outcome);
 
-        return $this->json(200, $payload === [] ? new stdClass() : $payload);
+        $response = $this->json(200, $payload === [] ? new stdClass() : $payload);
+
+        return $result->isReplayed() ? $this->replayHeaders($response) : $response;
     }
 
     public function respondForRoute(OperationResult $result, HttpOperationRoute $route): ResponseInterface
@@ -73,7 +84,7 @@ final readonly class JsonOperationResponder
 
     public function respondAcknowledgement(DeferredAcknowledgement $acknowledgement): ResponseInterface
     {
-        return $this
+        $response = $this
             ->json(202, [
                 'status' => 'accepted',
                 'operationId' => $acknowledgement->operationId()->toString(),
@@ -82,6 +93,8 @@ final readonly class JsonOperationResponder
             ->withHeader('Location', '/operations/' . $acknowledgement->operationId()->toString())
             ->withHeader('Retry-After', (string) OperationStatusHttpContract::POLLING_HINT_SECONDS)
             ->withHeader('Cache-Control', OperationStatusHttpContract::CACHE_CONTROL);
+
+        return $acknowledgement->isReplayed() ? $this->replayHeaders($response) : $response;
     }
 
     public function respondProtocolError(string $code): ResponseInterface
@@ -107,6 +120,39 @@ final readonly class JsonOperationResponder
             'status' => 'error',
             'code' => 'internal_error',
         ]);
+    }
+
+    public function snapshot(ResponseInterface $response): IdempotencyResponseSnapshot
+    {
+        $headers = [];
+        foreach (['content-type', 'location', 'retry-after'] as $name) {
+            if (!$response->hasHeader($name)) {
+                continue;
+            }
+            $headers[$name] = $response->getHeaderLine($name);
+        }
+
+        $body = (string) $response->getBody();
+        if ($response->getBody()->isSeekable()) {
+            $response->getBody()->rewind();
+        }
+
+        return new IdempotencyResponseSnapshot(
+            IdempotencyResponseSnapshot::VERSION,
+            $response->getStatusCode(),
+            $headers,
+            $body,
+        );
+    }
+
+    public function respondSnapshot(IdempotencyResponseSnapshot $snapshot): ResponseInterface
+    {
+        $response = $this->responses->createResponse($snapshot->status());
+        foreach ($snapshot->headers() as $name => $value) {
+            $response = $response->withHeader($name, $value);
+        }
+
+        return $this->replayHeaders($response->withBody($this->streams->createStream($snapshot->body())));
     }
 
     /**
@@ -154,5 +200,10 @@ final readonly class JsonOperationResponder
             RejectionCategory::Conflict => 409,
             RejectionCategory::BusinessRule => 400,
         };
+    }
+
+    private function replayHeaders(ResponseInterface $response): ResponseInterface
+    {
+        return $response->withHeader('Idempotency-Replayed', 'true')->withHeader('Cache-Control', 'private, no-store');
     }
 }

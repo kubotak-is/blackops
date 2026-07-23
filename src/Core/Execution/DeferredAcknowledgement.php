@@ -14,6 +14,7 @@ final readonly class DeferredAcknowledgement
     public function __construct(
         private OperationId $operationId,
         private DateTimeImmutable $acceptedAt,
+        private bool $replayed = false,
     ) {}
 
     public function operationId(): OperationId
@@ -24,5 +25,10 @@ final readonly class DeferredAcknowledgement
     public function acceptedAt(): DateTimeImmutable
     {
         return $this->acceptedAt;
+    }
+
+    public function isReplayed(): bool
+    {
+        return $this->replayed;
     }
 }

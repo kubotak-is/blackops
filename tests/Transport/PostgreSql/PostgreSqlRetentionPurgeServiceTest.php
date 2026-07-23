@@ -4,15 +4,31 @@ declare(strict_types=1);
 
 namespace BlackOps\Tests\Transport\PostgreSql;
 
+use BlackOps\Core\ActorRef;
 use BlackOps\Core\Execution\DeferredOperationMessage;
+use BlackOps\Core\Execution\Inline;
 use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Core\Identifier\RetentionPurgeAuditId;
+use BlackOps\Core\OperationResult;
+use BlackOps\Core\Rejection\RejectionReason;
 use BlackOps\Core\Retention\RetentionActorRef;
 use BlackOps\Core\Retention\RetentionPeriod;
 use BlackOps\Core\Retention\RetentionPolicy;
 use BlackOps\Core\Retention\RetentionPolicyRef;
+use BlackOps\Core\Retention\RetentionTarget;
+use BlackOps\Idempotency\IdempotencyKey;
+use BlackOps\Internal\Idempotency\IdempotencyClaimStatus;
+use BlackOps\Internal\Idempotency\IdempotencyResultSnapshot;
+use BlackOps\Internal\Idempotency\IdempotencyScopeHash;
+use BlackOps\Internal\Idempotency\IdempotencyScopeHasher;
+use BlackOps\Internal\Idempotency\OperationFingerprint;
+use BlackOps\Internal\Idempotency\OperationValueFingerprinter;
+use BlackOps\Internal\Idempotency\PostgreSqlIdempotencyStore;
+use BlackOps\Internal\Idempotency\ProcessingRecord;
+use BlackOps\Internal\Idempotency\TerminalRecord;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeadLetterRetentionDeleteService;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationSender;
+use BlackOps\Transport\PostgreSql\PostgreSqlIdempotencyRetentionDeleteService;
 use BlackOps\Transport\PostgreSql\PostgreSqlJournalRetentionDeleteService;
 use BlackOps\Transport\PostgreSql\PostgreSqlJournalSchema;
 use BlackOps\Transport\PostgreSql\PostgreSqlOutcomeRetentionDeleteService;
@@ -27,6 +43,7 @@ use Doctrine\DBAL\DriverManager;
 use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
 
+/** @mago-expect lint:too-many-methods */
 final class PostgreSqlRetentionPurgeServiceTest extends TestCase
 {
     private const SCHEMA = 'blackops_p5_010';
@@ -47,6 +64,8 @@ final class PostgreSqlRetentionPurgeServiceTest extends TestCase
             new DateTimeImmutable('2026-07-10T00:00:01.000000Z'),
         );
         $this->sender->migrate();
+        $idempotency = new PostgreSqlIdempotencyStore($this->connection, self::SCHEMA);
+        $idempotency->migrate();
         foreach (new PostgreSqlJournalSchema(self::SCHEMA)->statements() as $statement) {
             $this->connection->executeStatement($statement);
         }
@@ -67,6 +86,7 @@ final class PostgreSqlRetentionPurgeServiceTest extends TestCase
             new PostgreSqlOutcomeRetentionDeleteService($this->connection, $audit, self::SCHEMA, $clock, $ids),
             new PostgreSqlDeadLetterRetentionDeleteService($this->connection, $audit, self::SCHEMA, $clock, $ids),
             new PostgreSqlJournalRetentionDeleteService($this->connection, $audit, self::SCHEMA, $clock, $ids),
+            new PostgreSqlIdempotencyRetentionDeleteService($this->connection, $audit, self::SCHEMA, $clock, $ids),
         );
     }
 
@@ -80,6 +100,7 @@ final class PostgreSqlRetentionPurgeServiceTest extends TestCase
                 RetentionPeriod::days(30),
                 RetentionPeriod::days(14),
                 RetentionPeriod::days(2),
+                RetentionPeriod::days(1),
             ),
             RetentionPolicyRef::fromString('production-retention-v1'),
             RetentionActorRef::fromString('system:retention'),
@@ -91,12 +112,287 @@ final class PostgreSqlRetentionPurgeServiceTest extends TestCase
         self::assertSame(1, $result->outcomesDeleted());
         self::assertSame(1, $result->deadLettersDeleted());
         self::assertSame(2, $result->journalsDeleted());
+        self::assertSame(0, $result->idempotencyRecordsDeleted());
         self::assertSame(6, $result->totalAffected());
         self::assertNull($this->operationPayload(self::PAYLOAD_OPERATION));
         self::assertNull($this->operationPayload(self::DEAD_LETTER_OPERATION));
         self::assertFalse($this->deadLetterExists(self::DEAD_LETTER_OPERATION));
         self::assertFalse($this->outcomeExists(self::PAYLOAD_OPERATION));
         self::assertSame(5, $this->auditCount());
+    }
+
+    public function testIdempotencyRecordPurgeHonorsRetentionAndAudit(): void
+    {
+        $store = new PostgreSqlIdempotencyStore($this->connection, self::SCHEMA);
+        $key = new IdempotencyKey('retention-key');
+        $now = new DateTimeImmutable('2026-07-12T00:00:00Z');
+        $scope = new IdempotencyScopeHasher()->hash('retention.operation', new ActorRef('u-1', 'user'), $key);
+        $value = new class implements \BlackOps\Core\OperationValue {
+            public string $value = 'safe';
+        };
+        $fingerprint = new OperationValueFingerprinter()->fingerprint('retention.operation', $value);
+        $operation = OperationId::fromString('019f32ab-2be0-7b38-a0a7-1ab2f9688e21');
+        $created = $now->modify('-3 days');
+        $claim = $store->claim(
+            $scope,
+            $key->hash(),
+            $fingerprint,
+            $operation,
+            new Inline(),
+            $created,
+            $created->modify('+1 day'),
+        );
+        $record = $claim->record();
+        self::assertInstanceOf(\BlackOps\Internal\Idempotency\ProcessingRecord::class, $record);
+        $store->terminalize(
+            $operation,
+            new TerminalRecord(
+                $record->scope(),
+                $record->key(),
+                $record->fingerprint(),
+                $operation,
+                new Inline(),
+                $created,
+                $created->modify('+1 day'),
+                null,
+                new IdempotencyResultSnapshot(OperationResult::rejected(
+                    RejectionReason::conflict('fixture'),
+                    $operation,
+                )),
+            ),
+        );
+
+        $result = $this->service->purge(
+            new RetentionPolicy(
+                RetentionPeriod::days(1),
+                RetentionPeriod::days(30),
+                RetentionPeriod::days(14),
+                RetentionPeriod::days(2),
+                RetentionPeriod::days(1),
+            ),
+            RetentionPolicyRef::fromString('production-retention-v1'),
+            RetentionActorRef::fromString('system:retention'),
+            $now,
+        );
+
+        self::assertSame(1, $result->idempotencyRecordsDeleted());
+        self::assertSame(
+            1,
+            (int) $this->connection->fetchOne(
+                'SELECT count(*) FROM '
+                . self::SCHEMA
+                . '.retention_purge_audits WHERE target = \'idempotency_record\'',
+            ),
+        );
+    }
+
+    public function testExpiredIdempotencyRecordRemainsNonReclaimableWhileRetained(): void
+    {
+        [$store, $scope, $key, $fingerprint, $original] = $this->idempotencyRecord(
+            'retained-key',
+            '019f32ab-2be0-7b38-a0a7-1ab2f9688e31',
+        );
+        $now = new DateTimeImmutable('2026-07-12T00:00:00Z');
+        $replacement = OperationId::fromString('019f32ab-2be0-7b38-a0a7-1ab2f9688e32');
+
+        $claim = $store->claim(
+            $scope,
+            $key->hash(),
+            $fingerprint,
+            $replacement,
+            new Inline(),
+            $now,
+            $now->modify('+1 day'),
+        );
+
+        self::assertSame(IdempotencyClaimStatus::ExistingSameFingerprint, $claim->status());
+        self::assertSame($original->toString(), $claim->record()->operationId()->toString());
+        $plan = new PostgreSqlRetentionPlanner($this->connection, self::SCHEMA)->plan($this->retentionPolicy(), $now);
+        self::assertCount(1, $plan->forTarget(RetentionTarget::IdempotencyRecord));
+        self::assertSame(
+            $original->toString(),
+            $plan->forTarget(RetentionTarget::IdempotencyRecord)[0]->operationId()->toString(),
+        );
+    }
+
+    public function testActiveLegalHoldExcludesIdempotencyRecordFromPlanAndPurge(): void
+    {
+        [$store, $scope, $key, $fingerprint, $operation] = $this->idempotencyRecord(
+            'held-key',
+            '019f32ab-2be0-7b38-a0a7-1ab2f9688e33',
+        );
+        $this->hold($operation->toString(), '019f32ab-2be0-7b38-a0a7-1ab2f9688e34');
+        $now = new DateTimeImmutable('2026-07-12T00:00:00Z');
+        $plan = new PostgreSqlRetentionPlanner($this->connection, self::SCHEMA)->plan($this->retentionPolicy(), $now);
+        self::assertCount(0, $plan->forTarget(RetentionTarget::IdempotencyRecord));
+
+        $result = $this->service->purge(
+            $this->retentionPolicy(),
+            RetentionPolicyRef::fromString('production-retention-v1'),
+            RetentionActorRef::fromString('system:retention'),
+            $now,
+        );
+        self::assertSame(0, $result->idempotencyRecordsDeleted());
+        self::assertNotNull($store->find($scope));
+        self::assertStringContainsString($key->hash()->digest(), $this->storedIdempotencyRow($operation)['key_hash']);
+    }
+
+    public function testHoldPlacedAfterDryRunBlocksPurgeThenReleaseAllowsNewClaimAndSafeAudit(): void
+    {
+        [$store, $scope, $key, $fingerprint, $operation] = $this->idempotencyRecord(
+            'lifecycle-key',
+            '019f32ab-2be0-7b38-a0a7-1ab2f9688e35',
+        );
+        $now = new DateTimeImmutable('2026-07-12T00:00:00Z');
+        $policy = $this->retentionPolicy();
+        $plan = new PostgreSqlRetentionPlanner($this->connection, self::SCHEMA)->plan($policy, $now);
+        self::assertCount(1, $plan->forTarget(RetentionTarget::IdempotencyRecord));
+
+        $holdId = '019f32ab-2be0-7b38-a0a7-1ab2f9688e36';
+        $this->hold($operation->toString(), $holdId);
+        $delete = $this->idempotencyDeleteService('019f32ab-2be0-7b38-a0a7-1ab2f9688e37');
+        self::assertSame(0, $delete->delete(
+            $plan,
+            RetentionPolicyRef::fromString('production-retention-v1'),
+            RetentionActorRef::fromString('system:retention'),
+        ));
+        self::assertNotNull($store->find($scope));
+
+        $this->connection->executeStatement('UPDATE ' . self::SCHEMA . '.retention_holds
+             SET released_at = :released_at, released_by = :released_by
+             WHERE hold_id = :hold_id', [
+            'released_at' => '2026-07-12 00:00:00+00',
+            'released_by' => 'legal-team',
+            'hold_id' => $holdId,
+        ]);
+        self::assertSame(1, $delete->delete(
+            $plan,
+            RetentionPolicyRef::fromString('production-retention-v1'),
+            RetentionActorRef::fromString('system:retention'),
+        ));
+        self::assertNull($store->find($scope));
+
+        $audit = $this->connection->fetchAssociative('SELECT operation_id::text AS operation_id, target, affected_count, policy, purged_by FROM '
+        . self::SCHEMA
+        . '.retention_purge_audits WHERE target = :target', ['target' => 'idempotency_record']);
+        self::assertIsArray($audit);
+        self::assertSame($operation->toString(), $audit['operation_id']);
+        self::assertSame('idempotency_record', $audit['target']);
+        self::assertSame('1', (string) $audit['affected_count']);
+        self::assertSame('production-retention-v1', $audit['policy']);
+        self::assertSame('system:retention', $audit['purged_by']);
+        self::assertStringNotContainsString('lifecycle-key', implode('|', array_map('strval', $audit)));
+        self::assertStringNotContainsString($scope->digest(), implode('|', array_map('strval', $audit)));
+        self::assertStringNotContainsString($fingerprint->digest(), implode('|', array_map('strval', $audit)));
+
+        $replacement = OperationId::fromString('019f32ab-2be0-7b38-a0a7-1ab2f9688e38');
+        $claim = $store->claim(
+            $scope,
+            $key->hash(),
+            $fingerprint,
+            $replacement,
+            new Inline(),
+            $now,
+            $now->modify('+1 day'),
+        );
+        self::assertSame(IdempotencyClaimStatus::Claimed, $claim->status());
+        self::assertSame($replacement->toString(), $claim->record()->operationId()->toString());
+    }
+
+    private function retentionPolicy(): RetentionPolicy
+    {
+        return new RetentionPolicy(
+            RetentionPeriod::days(30),
+            RetentionPeriod::days(30),
+            RetentionPeriod::days(30),
+            RetentionPeriod::days(30),
+            RetentionPeriod::days(1),
+        );
+    }
+
+    /** @return array{PostgreSqlIdempotencyStore, IdempotencyScopeHash, IdempotencyKey, OperationFingerprint, OperationId} */
+    private function idempotencyRecord(string $keyValue, string $operationValue): array
+    {
+        $store = new PostgreSqlIdempotencyStore($this->connection, self::SCHEMA);
+        $key = new IdempotencyKey($keyValue);
+        $scope = new IdempotencyScopeHasher()->hash('retention.operation', new ActorRef('u-1', 'user'), $key);
+        $value = new class implements \BlackOps\Core\OperationValue {
+            public string $value = 'safe';
+        };
+        $fingerprint = new OperationValueFingerprinter()->fingerprint('retention.operation', $value);
+        $operation = OperationId::fromString($operationValue);
+        $created = new DateTimeImmutable('2026-07-09T00:00:00Z');
+        $claim = $store->claim(
+            $scope,
+            $key->hash(),
+            $fingerprint,
+            $operation,
+            new Inline(),
+            $created,
+            $created->modify('+1 day'),
+        );
+        $record = $claim->record();
+        self::assertInstanceOf(ProcessingRecord::class, $record);
+        self::assertTrue($store->terminalize(
+            $operation,
+            new \BlackOps\Internal\Idempotency\TerminalRecord(
+                $record->scope(),
+                $record->key(),
+                $record->fingerprint(),
+                $operation,
+                new Inline(),
+                $created,
+                $created->modify('+1 day'),
+                null,
+                new IdempotencyResultSnapshot(OperationResult::rejected(
+                    RejectionReason::conflict('retention.fixture'),
+                    $operation,
+                )),
+            ),
+        ));
+
+        return [$store, $scope, $key, $fingerprint, $operation];
+    }
+
+    private function hold(string $operationId, string $holdId): void
+    {
+        $this->connection->executeStatement(
+            'INSERT INTO '
+            . self::SCHEMA
+            . '.retention_holds (
+                hold_id, operation_id, category, reason, placed_at, placed_by
+            ) VALUES (:hold_id, :operation_id, :category, :reason, :placed_at, :placed_by)',
+            [
+                'hold_id' => $holdId,
+                'operation_id' => $operationId,
+                'category' => 'legal',
+                'reason' => 'retention test',
+                'placed_at' => '2026-07-11 00:00:00+00',
+                'placed_by' => 'legal-team',
+            ],
+        );
+    }
+
+    private function idempotencyDeleteService(string $auditId): PostgreSqlIdempotencyRetentionDeleteService
+    {
+        return new PostgreSqlIdempotencyRetentionDeleteService(
+            $this->connection,
+            new PostgreSqlRetentionPurgeAuditStore($this->connection, self::SCHEMA),
+            self::SCHEMA,
+            new FixedPurgeServiceClock('2026-07-12T00:00:00.000000Z'),
+            new FixedPurgeServiceAuditIdGenerator([$auditId]),
+        );
+    }
+
+    /** @return array<string, mixed> */
+    private function storedIdempotencyRow(OperationId $operation): array
+    {
+        $row = $this->connection->fetchAssociative('SELECT * FROM '
+        . self::SCHEMA
+        . '.idempotency_records WHERE operation_id = :operation_id', ['operation_id' => $operation->toString()]);
+        self::assertIsArray($row);
+
+        return $row;
     }
 
     private function seedRows(): void

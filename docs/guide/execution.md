@@ -37,6 +37,10 @@ sequenceDiagram
 
 InlineはHTTP Request内で`operation.received`から直接Attemptを開始し、OperationのOutcomeをHTTP Responseへ変換して返します。DeferredはValueとContextをDurable Storeへ保存し、`operation.accepted`の後にHTTP 202とOperation IDを返します。Workerは後から[Claim](glossary.md#claim)を取得し、Attempt、Outcome保存、完了Journalを実行します。
 
+MutationのPOST／PUT／PATCH／DELETEでは、認証・認可後にOptional `Idempotency-Key`をAtomic Claimします。同じFingerprintのTerminal ResultはTyped Resultまたは安全なHTTP Responseとして再利用し、Replay Responseだけに`Idempotency-Replayed: true`と`Cache-Control: private, no-store`を投影します。GET／HEAD、Anonymous Actor、Ephemeral OutcomeではKeyを受理しません。
+
+Malformed Key、複数Key、未対応Method、Anonymous Actor、Ephemeral OutcomeはClaim前に安全な4xxとして拒否します。異なるFingerprintや既存のIn-Progress ClaimはConflictとして扱い、既存結果がなく期限切れなら再実行せずHTTP 409の安定Code `idempotency_expired`を返します。Key付きHandlerがThrowableを投げた場合はFailure Boundaryが内部詳細を保存せず安全な失敗結果をJournalへ確定し、同じKeyの再送はHandlerを再実行せずその失敗結果をReplayします。
+
 ## Inline HTTP
 
 ```php

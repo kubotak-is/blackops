@@ -39,6 +39,7 @@ Framework実装者向けのArchitectureと実装ガイドを管理する。
 - Journal and Transaction Flow
 - PostgreSQL Adapter
 - [PostgreSQL Journal Store](postgresql-journal-store.md)
+- [Idempotency](idempotency.md)
 - [Database Migrations](database-migrations.md)
 - [Database Seeding](database-seeding.md)
 - [MVP End-to-End](mvp-e2e.md)

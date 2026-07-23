@@ -62,7 +62,8 @@ final class RetentionPurgeCommandTest extends TestCase
         self::assertSame('production-retention-v1', $purge->policyRef?->toString());
         self::assertSame('system:retention', $purge->actor?->toString());
         self::assertStringContainsString('Retention purge applied', $tester->getDisplay());
-        self::assertStringContainsString('total_affected: 3', $tester->getDisplay());
+        self::assertStringContainsString('idempotency_records_deleted: 1', $tester->getDisplay());
+        self::assertStringContainsString('total_affected: 4', $tester->getDisplay());
     }
 
     public function testRejectsMissingMode(): void
@@ -106,6 +107,7 @@ final class RetentionPurgeCommandTest extends TestCase
             '--journal-days' => '30',
             '--outcome-days' => '14',
             '--dead-letter-days' => '2',
+            '--idempotency-record-days' => '1',
         ], $override);
     }
 
@@ -160,7 +162,7 @@ final class PurgeCommandService implements RetentionPurgeService
         $this->actor = $actor;
         $this->now = $now;
 
-        return new RetentionPurgeResult(new RetentionPlan([]), 1, 2);
+        return new RetentionPurgeResult(new RetentionPlan([]), 1, 2, idempotencyRecordsDeleted: 1);
     }
 }
 

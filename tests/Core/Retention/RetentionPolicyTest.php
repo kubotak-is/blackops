@@ -71,5 +71,6 @@ final class RetentionPolicyTest extends TestCase
         self::assertSame($journal, $policy->forTarget(RetentionTarget::Journal));
         self::assertSame($outcome, $policy->forTarget(RetentionTarget::Outcome));
         self::assertSame($deadLetter, $policy->forTarget(RetentionTarget::DeadLetter));
+        self::assertSame(90 * 86_400, $policy->forTarget(RetentionTarget::IdempotencyRecord)->secondsValue());
     }
 }

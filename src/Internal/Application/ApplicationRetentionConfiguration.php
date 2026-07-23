@@ -20,6 +20,7 @@ final readonly class ApplicationRetentionConfiguration
         public int $journalDays,
         public int $outcomeDays,
         public int $deadLetterDays,
+        public int $idempotencyRecordDays,
     ) {}
 
     /** @param array<string, array<array-key, mixed>> $configuration */
@@ -34,6 +35,9 @@ final readonly class ApplicationRetentionConfiguration
         $journal = self::positiveInt($retention, 'journal_days');
         $outcome = self::positiveInt($retention, 'outcome_days');
         $deadLetter = self::positiveInt($retention, 'dead_letter_days');
+        $idempotency = array_key_exists('idempotency_record_days', $retention)
+            ? self::positiveInt($retention, 'idempotency_record_days')
+            : max($transport, $journal, $outcome, $deadLetter);
         $policyRef = self::requiredString($retention, 'policy_ref');
         $actor = self::requiredString($retention, 'actor');
 
@@ -43,6 +47,7 @@ final readonly class ApplicationRetentionConfiguration
                 RetentionPeriod::days($journal),
                 RetentionPeriod::days($outcome),
                 RetentionPeriod::days($deadLetter),
+                RetentionPeriod::days($idempotency),
             ),
             RetentionPolicyRef::fromString($policyRef),
             RetentionActorRef::fromString($actor),
@@ -50,6 +55,7 @@ final readonly class ApplicationRetentionConfiguration
             $journal,
             $outcome,
             $deadLetter,
+            $idempotency,
         );
     }
 

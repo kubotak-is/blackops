@@ -28,9 +28,11 @@ PHP Object Serializationへ依存しない。PayloadとContextは、別途定義
 ```text
 operationId
 acceptedAt
+replayed
 ```
 
 Handler実行完了やOutcome確定は表さない。HTTP AdapterはこれをHTTP 202 Responseへ変換できる。
+Duplicate acceptance replay sets `replayed` while retaining the original operation ID and acceptance time. The HTTP adapter projects this marker as `Idempotency-Replayed: true` and `Cache-Control: private, no-store`; the typed acknowledgement itself does not carry HTTP headers.
 
 ## Claim
 

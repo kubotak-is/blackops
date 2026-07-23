@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace BlackOps\Tests\Http;
 
-use BlackOps\Core\ActorContext;
 use BlackOps\Core\ActorRef;
 use BlackOps\Core\Authorization\AuthorizationDecision;
 use BlackOps\Core\Authorization\AuthorizationPolicy;
@@ -16,9 +15,9 @@ use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Core\Operation;
 use BlackOps\Core\OperationHandler;
 use BlackOps\Core\OperationValue;
-use BlackOps\Core\Outcome;
 use BlackOps\Core\Registry\OperationMetadata;
 use BlackOps\Core\Registry\OperationRegistry;
+use BlackOps\Core\Retention\RetentionPeriod;
 use BlackOps\Core\Validation\Attribute\NotBlank;
 use BlackOps\Http\Attribute\Route;
 use BlackOps\Http\Binding\OperationValueBinder;
@@ -26,6 +25,7 @@ use BlackOps\Http\OperationRequestHandler;
 use BlackOps\Http\Responder\JsonOperationResponder;
 use BlackOps\Http\Routing\HttpOperationRoute;
 use BlackOps\Http\Routing\HttpRouteRegistry;
+use BlackOps\Idempotency\IdempotencyKey;
 use BlackOps\Internal\Authorization\AuthorizationEvaluator;
 use BlackOps\Internal\Authorization\AuthorizationPolicyResolver;
 use BlackOps\Internal\Codec\ReflectionJsonOperationCodec;
@@ -36,6 +36,10 @@ use BlackOps\Internal\Execution\InlineDispatcher;
 use BlackOps\Internal\ExecutionContext\ExecutionContextFactory;
 use BlackOps\Internal\Http\DeferredHttpOperationAcceptor;
 use BlackOps\Internal\Http\OperationFailureErrorBoundary;
+use BlackOps\Internal\Idempotency\IdempotencyScopeHasher;
+use BlackOps\Internal\Idempotency\IdempotencyStore;
+use BlackOps\Internal\Idempotency\InMemoryIdempotencyStore;
+use BlackOps\Internal\Idempotency\OperationValueFingerprinter;
 use BlackOps\Internal\Identifier\IdentifierFactory;
 use BlackOps\Internal\Identifier\Uuidv7Generator;
 use BlackOps\Internal\Journal\JournalRecordFactory;
@@ -59,6 +63,7 @@ use Psr\Log\NullLogger;
 use RuntimeException;
 use Throwable;
 
+/** @mago-expect lint:too-many-methods */
 final class DeferredOperationRequestHandlerTest extends TestCase
 {
     private const SCHEMA = 'blackops_p3_008';
@@ -240,6 +245,163 @@ final class DeferredOperationRequestHandlerTest extends TestCase
         self::assertStringNotContainsString('permission', $operationRow['context']);
     }
 
+    public function testKeyedDeferredAcceptanceReplaysSafe202AndAvoidsDuplicateEnqueueAndJournal(): void
+    {
+        $store = new InMemoryIdempotencyStore();
+        $policy = new DeferredHttpAuthorizationPolicy(AuthorizationDecision::allow());
+        $handler = $this->handler(new ReflectionJsonOperationCodec(), $policy, $store);
+        $actor = new ActorRef('user-123', 'user');
+        $request = $this->psr17
+            ->createServerRequest('POST', '/reports')
+            ->withHeader('Idempotency-Key', 'deferred-replay-key')
+            ->withAttribute(ActorRef::class, $actor)
+            ->withBody($this->psr17->createStream('{"reportName":"weekly"}'));
+
+        $first = $handler->handle($request);
+        $firstRecords = $this->records();
+        $second = $handler->handle($request);
+        $secondRecords = $this->records();
+
+        self::assertSame(202, $first->getStatusCode());
+        self::assertSame(202, $second->getStatusCode());
+        self::assertSame((string) $first->getBody(), (string) $second->getBody());
+        self::assertSame($first->getHeaderLine('Location'), $second->getHeaderLine('Location'));
+        self::assertSame('true', $second->getHeaderLine('Idempotency-Replayed'));
+        self::assertSame('private, no-store', $second->getHeaderLine('Cache-Control'));
+        self::assertSame(
+            array_map(static fn(JournalRecord $record): JournalEvent => $record->event, $firstRecords),
+            array_map(static fn(JournalRecord $record): JournalEvent => $record->event, $secondRecords),
+        );
+        self::assertSame(array_column($firstRecords, 'sequence'), array_column($secondRecords, 'sequence'));
+        self::assertSame(1, (int) $this->connection->fetchOne('SELECT count(*) FROM ' . self::SCHEMA . '.operations'));
+        self::assertSame(2, $policy->calls);
+
+        $snapshot = $store->response(OperationId::fromString(self::OPERATION_ID));
+        self::assertNotNull($snapshot);
+        self::assertSame(['content-type', 'location', 'retry-after'], array_keys($snapshot->headers()));
+        self::assertStringNotContainsString('deferred-replay-key', serialize($snapshot));
+        self::assertStringNotContainsString('weekly', serialize($snapshot));
+        self::assertStringNotContainsString('credential', serialize($snapshot));
+    }
+
+    public function testKeyedDeferredConflictAndProcessingRejectWithoutOperationIdOrEnqueue(): void
+    {
+        $store = new InMemoryIdempotencyStore();
+        $policy = new DeferredHttpAuthorizationPolicy(AuthorizationDecision::allow());
+        $handler = $this->handler(new ReflectionJsonOperationCodec(), $policy, $store);
+        $actor = new ActorRef('user-123', 'user');
+        $first = $this->psr17
+            ->createServerRequest('POST', '/reports')
+            ->withHeader('Idempotency-Key', 'deferred-conflict-key')
+            ->withAttribute(ActorRef::class, $actor)
+            ->withBody($this->psr17->createStream('{"reportName":"weekly"}'));
+
+        self::assertSame(202, $handler->handle($first)->getStatusCode());
+        $records = $this->records();
+        $conflict = $handler->handle($first->withBody($this->psr17->createStream('{"reportName":"daily"}')));
+
+        self::assertSame(409, $conflict->getStatusCode());
+        self::assertSame(
+            '{"status":"rejected","category":"conflict","code":"idempotency_conflict"}',
+            (string) $conflict->getBody(),
+        );
+        self::assertStringNotContainsString('operationId', (string) $conflict->getBody());
+        $afterConflict = $this->records();
+        self::assertSame(
+            array_map(static fn(JournalRecord $record): JournalEvent => $record->event, $records),
+            array_map(static fn(JournalRecord $record): JournalEvent => $record->event, $afterConflict),
+        );
+        self::assertSame(array_column($records, 'sequence'), array_column($afterConflict, 'sequence'));
+        self::assertSame(1, (int) $this->connection->fetchOne('SELECT count(*) FROM ' . self::SCHEMA . '.operations'));
+
+        $processingKey = new IdempotencyKey('deferred-processing-key');
+        $processingScope = new IdempotencyScopeHasher()->hash('report.generate', $actor, $processingKey);
+        $processingFingerprint = new OperationValueFingerprinter()->fingerprint(
+            'report.generate',
+            new ReportRequestValue('processing'),
+        );
+        $processingId = OperationId::fromString('019f32ab-2be0-7b38-a0a7-1ab2f9687716');
+        self::assertTrue(
+            $store
+                ->claim(
+                    $processingScope,
+                    $processingKey->hash(),
+                    $processingFingerprint,
+                    $processingId,
+                    new Deferred(),
+                    new DateTimeImmutable('2026-07-10T00:00:00Z'),
+                    new DateTimeImmutable('2026-07-13T00:00:00Z'),
+                )
+                ->claimed(),
+        );
+        $processing = $handler->handle(
+            $this->psr17
+                ->createServerRequest('POST', '/reports')
+                ->withHeader('Idempotency-Key', 'deferred-processing-key')
+                ->withAttribute(ActorRef::class, $actor)
+                ->withBody($this->psr17->createStream('{"reportName":"processing"}')),
+        );
+
+        self::assertSame(409, $processing->getStatusCode());
+        self::assertSame(
+            '{"status":"rejected","category":"conflict","code":"idempotency_in_progress"}',
+            (string) $processing->getBody(),
+        );
+        self::assertStringNotContainsString('operationId', (string) $processing->getBody());
+        self::assertSame(1, (int) $this->connection->fetchOne('SELECT count(*) FROM ' . self::SCHEMA . '.operations'));
+    }
+
+    public function testKeyedDeferredAuthorizationReevaluatesAndDenialDoesNotReplayOrEnqueue(): void
+    {
+        $store = new InMemoryIdempotencyStore();
+        $policy = new DeferredHttpAuthorizationPolicy(AuthorizationDecision::allow());
+        $handler = $this->handler(new ReflectionJsonOperationCodec(), $policy, $store);
+        $actor = new ActorRef('user-123', 'user');
+        $request = $this->psr17
+            ->createServerRequest('POST', '/reports')
+            ->withHeader('Idempotency-Key', 'deferred-auth-key')
+            ->withAttribute(ActorRef::class, $actor)
+            ->withBody($this->psr17->createStream('{"reportName":"weekly"}'));
+
+        $first = $handler->handle($request);
+        self::assertSame(202, $first->getStatusCode());
+        $records = $this->records();
+        $policy->setDecision(AuthorizationDecision::forbid('authorization.report_forbidden'));
+        $denied = $handler->handle($request);
+        $deniedPayload = json_decode((string) $denied->getBody(), associative: true, flags: JSON_THROW_ON_ERROR);
+
+        self::assertSame(403, $denied->getStatusCode());
+        self::assertSame('rejected', $deniedPayload['status']);
+        self::assertSame('forbidden', $deniedPayload['category']);
+        self::assertSame('authorization.report_forbidden', $deniedPayload['code']);
+        self::assertArrayNotHasKey('operationId', $deniedPayload);
+        self::assertFalse($denied->hasHeader('Idempotency-Replayed'));
+        self::assertSame(2, $policy->calls);
+        $afterDenied = $this->records();
+        self::assertSame(
+            array_map(static fn(JournalRecord $record): JournalEvent => $record->event, $records),
+            array_map(static fn(JournalRecord $record): JournalEvent => $record->event, $afterDenied),
+        );
+        self::assertSame(array_column($records, 'sequence'), array_column($afterDenied, 'sequence'));
+        self::assertSame(1, (int) $this->connection->fetchOne('SELECT count(*) FROM ' . self::SCHEMA . '.operations'));
+        self::assertNotNull($store->response(OperationId::fromString(self::OPERATION_ID)));
+
+        $policy->setDecision(AuthorizationDecision::allow());
+        $restored = $handler->handle($request);
+        $afterRestored = $this->records();
+        self::assertSame(202, $restored->getStatusCode());
+        self::assertSame('true', $restored->getHeaderLine('Idempotency-Replayed'));
+        self::assertSame((string) $first->getBody(), (string) $restored->getBody());
+        self::assertSame(
+            array_map(static fn(JournalRecord $record): JournalEvent => $record->event, $records),
+            array_map(static fn(JournalRecord $record): JournalEvent => $record->event, $afterRestored),
+        );
+        self::assertSame(array_column($records, 'sequence'), array_column($afterRestored, 'sequence'));
+        $scope = new IdempotencyScopeHasher()->hash('report.generate', $actor, new IdempotencyKey('deferred-auth-key'));
+        self::assertSame(self::OPERATION_ID, $store->find($scope)?->operationId()->toString());
+        self::assertSame(3, $policy->calls);
+    }
+
     public function testPolicyBackendFailureReturnsSafeCorrelatedErrorAndAttemptlessTerminalJournal(): void
     {
         $failure = new RuntimeException('authorization backend credential detail');
@@ -269,8 +431,11 @@ final class DeferredOperationRequestHandlerTest extends TestCase
         self::assertNull($records[1]->attempt);
     }
 
-    private function handler(OperationCodec $codec, ?AuthorizationPolicy $policy = null): RequestHandlerInterface
-    {
+    private function handler(
+        OperationCodec $codec,
+        ?AuthorizationPolicy $policy = null,
+        ?IdempotencyStore $idempotency = null,
+    ): RequestHandlerInterface {
         $clock = new DeferredHttpClock();
         $identifiers = new IdentifierFactory(new DeferredHttpUuidv7Generator(), $clock);
         $sender = new PostgreSqlDeferredOperationSender(
@@ -291,6 +456,8 @@ final class DeferredOperationRequestHandlerTest extends TestCase
             authorization: $policy === null
                 ? null
                 : new AuthorizationEvaluator(new AuthorizationPolicyResolver(new DeferredHttpPolicyContainer($policy))),
+            idempotency: $idempotency,
+            idempotencyRetention: $idempotency === null ? null : RetentionPeriod::days(3),
         );
         $dispatcher = new InlineDispatcher(
             $registry,
@@ -319,6 +486,8 @@ final class DeferredOperationRequestHandlerTest extends TestCase
                 $codec,
                 $orchestrator,
             ),
+            status: null,
+            idempotency: $idempotency,
         );
         $scope = new ExecutionScopeProvider();
 
@@ -407,9 +576,14 @@ final class DeferredHttpAuthorizationPolicy implements AuthorizationPolicy
     public ?AuthorizationRequest $request = null;
 
     public function __construct(
-        private readonly AuthorizationDecision $decision,
+        private AuthorizationDecision $decision,
         private readonly ?Throwable $failure = null,
     ) {}
+
+    public function setDecision(AuthorizationDecision $decision): void
+    {
+        $this->decision = $decision;
+    }
 
     public function decide(AuthorizationRequest $request): AuthorizationDecision
     {
@@ -474,6 +648,10 @@ final class DeferredHttpUuidv7Generator implements Uuidv7Generator
         '019f32ab-2be0-7b38-a0a7-1ab2f9687714',
         '019f32ab-2be0-7b38-a0a7-1ab2f9687715',
         '019f32ab-2be0-7b38-a0a7-1ab2f9687716',
+        '019f32ab-2be0-7b38-a0a7-1ab2f9687717',
+        '019f32ab-2be0-7b38-a0a7-1ab2f9687718',
+        '019f32ab-2be0-7b38-a0a7-1ab2f9687719',
+        '019f32ab-2be0-7b38-a0a7-1ab2f968771a',
     ];
 
     public function generate(DateTimeImmutable $time): string

@@ -1,6 +1,6 @@
 # P19-003: HTTP and PHP Duplicate Lifecycle and Retention
 
-Status: Ready
+Status: Accepted
 
 ## Goal
 
@@ -54,12 +54,15 @@ P19-002のIdempotency Core Contractを実Operation入口へ接続し、HTTP Muta
 ## Files Allowed to Change
 
 - `src/Execution/Dispatcher.php`
+- `src/Core/OperationResult.php`
+- `src/Core/Execution/DeferredAcknowledgement.php`
 - `src/Http/DeferredOperationAcceptor.php`
 - `src/Http/OperationRequestHandler.php`
 - `src/Http/Responder/JsonOperationResponder.php`
 - `src/Core/Retention/**`
 - `src/Internal/Application/ApplicationHttpRuntimeComposer.php`
 - `src/Internal/Application/ApplicationOperationRuntimeComposer.php`
+- `src/Internal/Application/ApplicationRetentionCommandFactory.php`
 - `src/Internal/Application/ApplicationRetentionConfiguration.php`
 - `src/Internal/Application/ApplicationRetentionRuntime.php`
 - `src/Internal/Console/RetentionPlanCommand.php`
@@ -75,25 +78,33 @@ P19-002のIdempotency Core Contractを実Operation入口へ接続し、HTTP Muta
 - `src/Transport/PostgreSql/PostgreSqlRetention*.php`
 - `migrations/postgresql/**`
 - `tests/Execution/**`
+- `tests/Core/OperationResultTest.php`
+- `tests/Core/Execution/**`
 - `tests/Core/Retention/**`
 - `tests/Http/**`
 - `tests/Internal/Application/**`
 - `tests/Internal/Console/Retention*.php`
+- `tests/Internal/Console/DatabaseMigrationCommandTest.php`
 - `tests/Internal/Execution/**`
 - `tests/Internal/Http/**`
 - `tests/Internal/Idempotency/**`
+- `tests/Internal/Migration/**`
 - `tests/Internal/Retention/**`
 - `tests/Architecture/PublicApiArchitectureTest.php`
+- `tests/Integration/ApplicationConsoleKernelTest.php`
 - `tests/Transport/PostgreSql/**`
 - `tests/Consumer/frankenphp-worker-mode.sh`
 - `docs/guide/core-api.md`
 - `docs/guide/configuration.md`
 - `docs/guide/execution.md`
+- `docs/guide/glossary.md`
 - `docs/guide/retention.md`
 - `docs/guide/security.md`
 - `docs/internal/**`
 - `docs/website/tests/reader-experience.test.mjs`
 - `develop/spec/17-core-api.md`
+- `develop/spec/29-handler-result-contract.md`
+- `develop/spec/33-execution-transport-contract.md`
 - `develop/spec/38-data-retention-and-deletion.md`
 - `develop/spec/39-retention-runtime.md`
 - `develop/spec/47-public-http-runtime-configuration.md`
@@ -136,6 +147,8 @@ P19-002のIdempotency Core Contractを実Operation入口へ接続し、HTTP Muta
 - InlineはCompleted、Business／Conflict Rejected、Safe Internal FailureをTerminal化する
 - DeferredはDurable Acceptance成功時の202だけをTerminal化し、後続Worker Stateに関係なく同じ202／Operation IDを返す
 - PHP Replayは元のTyped Outcome／RejectionとOperation IDを再構成し、HTTP Headerを混在させない
+- `OperationResult::completed()`は既存Callを維持した末尾Optional `OperationId`を受け、初回とReplayのCompleted Resultへ同じIDを保持できる
+- `OperationResult`と`DeferredAcknowledgement`はHTTP Headerを保持せず、後方互換なReplay状態だけを表現し、HTTP ResponderがReplay Headerへ投影する
 - KeyなしHTTP／PHP Lifecycleと既存Status APIは不変にする
 
 ### PostgreSQL and Recovery
@@ -172,17 +185,17 @@ P19-002のIdempotency Core Contractを実Operation入口へ接続し、HTTP Muta
 
 ## Acceptance Criteria
 
-- [ ] KeyなしHTTP／PHP Dispatchの既存挙動が回帰しない
-- [ ] Invalid／multiple／unsupported／anonymous KeyがOperation IDとRecordなしで拒否される
-- [ ] Binding／Validation／Authentication／Authorization後にだけClaimされる
-- [ ] Same／Conflict／Processing／Inline Terminal／Deferred Terminal／Expired MatrixがHTTPとPHPで固定される
-- [ ] Replay Header／Cache-ControlとSafe Snapshot Allowlistが固定される
-- [ ] PostgreSQL Concurrent Claim／Terminalize／Crash Recovery／Integrity Failureが検証される
-- [ ] Record保持中はKey再利用不可、Purge後だけ再利用可能になる
-- [ ] Hold／Plan／Purge／Audit／SchedulerがIdempotency Targetを扱う
-- [ ] Worker ReuseとSensitive BoundaryでRaw Key／Value／Credentialが残らない
-- [ ] Public API Architecture、Docs Reader、Deptrac、Full PHPUnitが成功する
-- [ ] Outbox／Relay／Replay／Community Board差分がない
+- [x] KeyなしHTTP／PHP Dispatchの既存挙動が回帰しない
+- [x] Invalid／multiple／unsupported／anonymous KeyがOperation IDとRecordなしで拒否される
+- [x] Binding／Validation／Authentication／Authorization後にだけClaimされる
+- [x] Same／Conflict／Processing／Inline Terminal／Deferred Terminal／Expired MatrixがHTTPとPHPで固定される
+- [x] Replay Header／Cache-ControlとSafe Snapshot Allowlistが固定される
+- [x] PostgreSQL Concurrent Claim／Terminalize／Crash Recovery／Integrity Failureが検証される
+- [x] Record保持中はKey再利用不可、Purge後だけ再利用可能になる
+- [x] Hold／Plan／Purge／Audit／SchedulerがIdempotency Targetを扱う
+- [x] Worker ReuseとSensitive BoundaryでRaw Key／Value／Credentialが残らない
+- [x] Public API Architecture、Docs Reader、Deptrac、Full PHPUnitが成功する
+- [x] Outbox／Relay／Replay／Community Board差分がない
 
 ## Required Commands
 

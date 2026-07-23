@@ -17,6 +17,8 @@ flowchart LR
     FC --> Routes[Compiled Route Registry]
     Routes --> Inline[Inline Dispatcher]
     Routes --> Accept[Deferred Acceptor]
+    Inline --> Idempotency[(PostgreSQL Idempotency Records)]
+    Accept --> Idempotency
     Inline --> Handler[Typed Handler]
     Inline --> Journal[(PostgreSQL Canonical Journal)]
     Accept --> Operations[(PostgreSQL Operations)]
@@ -33,6 +35,7 @@ flowchart LR
     Retention --> Journal
     Retention --> Outcomes
     Retention --> Dead
+    Retention --> Idempotency
     Retention --> Audit[(Purge Audit)]
     Retention --> SystemLog[Fail-closed System Log]
 ```
@@ -155,11 +158,22 @@ sequenceDiagram
 
 Only supervised handler failures are eligible for loop continuation. Claim, metadata, transaction, recovery, and settlement failures terminate the worker. Stale workers cannot commit completion after losing the fencing token.
 
+## Idempotency Boundary
+
+Keyed mutation requests claim a scope only after authentication and
+authorization. The idempotency store owns the unique scope boundary, typed
+result projection, safe HTTP snapshot, and processing-to-terminal transition.
+Duplicate decisions never invoke the handler again. A complete canonical
+journal can be used by the internal recovery service to reconstruct a terminal
+result or deferred acceptance. Insufficient but valid evidence leaves a record
+processing for later inspection; corrupt or contradictory evidence becomes a
+safe internal failure.
+
 ## Retention Boundary
 
 Retention planning is read-only. Confirmed purge rechecks Active Hold and target freshness before changing data. Each deletion/tombstone and Database Purge Audit are in one transaction. The audit decorator calls the Database Audit first and the payload-free PSR-3 System Log second; logger failure rolls the database transaction back.
 
-Retention holds and purge audits retain typed Operation IDs without a foreign key to Operations so Inline operations can be protected and audited. Retention services do not delete Operations rows.
+Retention holds and purge audits retain typed Operation IDs without a foreign key to Operations so Inline operations and idempotency records can be protected and audited. Retention services do not delete Operations rows. Idempotency records are a fifth independent target and are deleted only after terminal eligibility and hold rechecks.
 
 ## Extension and Ownership Boundaries
 

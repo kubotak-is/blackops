@@ -9,6 +9,7 @@ use BlackOps\Core\Execution\DeferredAcknowledgement;
 use BlackOps\Core\Operation;
 use BlackOps\Core\OperationResult;
 use BlackOps\Core\OperationValue;
+use BlackOps\Idempotency\IdempotencyKey;
 
 interface DeferredOperationAcceptor
 {
@@ -18,5 +19,6 @@ interface DeferredOperationAcceptor
         Operation $definition,
         OperationValue $value,
         ?ActorContext $actorContext = null,
+        ?IdempotencyKey $idempotencyKey = null,
     ): DeferredAcknowledgement|OperationResult;
 }
