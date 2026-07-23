@@ -17,5 +17,4 @@ return static fn(Environment $env): array => [
         'container_namespace' => 'App\\Generated',
     ],
     'services' => [new ApplicationServiceProvider($env->bool('DIGEST_FAIL_FIRST_ATTEMPT', false))],
-    'command_discovery' => [dirname(__DIR__) . '/app/Console'],
 ];

@@ -94,6 +94,7 @@ test -d "${COMMUNITY_BOARD}/var/log"
 
 "${COMPOSE[@]}" build app http frontend
 "${COMPOSE[@]}" run --rm --no-deps app composer validate --strict
+! rg -n "command_discovery|app/Console" "${COMMUNITY_BOARD}/config/app.php"
 "${COMPOSE[@]}" run --rm --no-deps app php -r '
 $composer = json_decode(file_get_contents("composer.json"), true, 512, JSON_THROW_ON_ERROR);
 $required = $composer["require"] ?? [];
