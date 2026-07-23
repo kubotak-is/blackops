@@ -126,6 +126,8 @@ CoreをSvelteKit、DBAL、Session Authenticationへ固定せず、Applicationが
 
 ## Phase 19: Reliability and Delivery
 
+Status: In Progress
+
 - Idempotency Keyの受付、保存、重複時Contract
 - Transactional Outbox Persistence AdapterとRelay
 - Canonical JournalからObserver Projectionを再送するCLI
@@ -133,6 +135,7 @@ CoreをSvelteKit、DBAL、Session Authenticationへ固定せず、Applicationが
 - HandlerのIdempotency責務とFramework支援
 
 Community Boardの二重投稿防止と通知配送をConcrete Acceptance Journeyとして利用する。
+詳細は[Reliability and Delivery](80-reliability-and-delivery.md)と[Phase 19 Delivery Plan](81-phase-19-delivery-plan.md)を正本とする。
 
 ## Phase 20: Security Hardening and Observability
 

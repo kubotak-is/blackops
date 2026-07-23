@@ -94,6 +94,8 @@
 | [77-phase-18-follow-up-delivery-plan.md](77-phase-18-follow-up-delivery-plan.md) | Seeder CoreからConsumer移行までのPhase 18 Follow-up順序 |
 | [78-application-runtime-and-bootstrap.md](78-application-runtime-and-bootstrap.md) | Environment File、Classic／Worker SAPI Runtime、Public UUIDv7 Generator境界 |
 | [79-phase-18-runtime-follow-up-delivery-plan.md](79-phase-18-runtime-follow-up-delivery-plan.md) | Runtime BootstrapからDependency CloseoutまでのPhase 18 Follow-up順序 |
+| [80-reliability-and-delivery.md](80-reliability-and-delivery.md) | Idempotency、Transactional Outbox、Relay／Replayの契約とFailure Matrix |
+| [81-phase-19-delivery-plan.md](81-phase-19-delivery-plan.md) | Idempotency CoreからCommunity Board統合までのPhase 19 Task順序 |
 
 ## 決定の参照
 

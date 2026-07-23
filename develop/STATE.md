@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-07-23T21:11:19+09:00
+Updated At: 2026-07-23T23:26:58+09:00
 
 ## Current Phase
 
@@ -8,15 +8,17 @@ Phase 19 Reliability and Delivery
 
 ## Current Task
 
-Task ID: Phase 19 Reliability and Delivery Planning
+Task ID: P19-002-idempotency-core-contract
 
-Task Packet: Not created
+Task Packet: `develop/orchestration/tasks/P19-002-idempotency-core-contract.md`
 
-References: `develop/decisions/109-phase-18-idempotency-and-outbox.md`、`develop/spec/60-post-phase-10-roadmap.md`
+References: `develop/decisions/109-phase-18-idempotency-and-outbox.md`、`develop/spec/80-reliability-and-delivery.md`、`develop/spec/81-phase-19-delivery-plan.md`
 
 ## Task Status
 
-P18-009D3 Accepted - Phase 19 Next Task Pending
+P19-001 Accepted - P19-002 Ready
+
+P19-001でD109をReliability and Delivery確定仕様、Failure Matrix、依存順付きDelivery Planへ具体化した。Idempotencyは認証／認可後にActor ScopeとCanonical Fingerprintを評価し、Raw Keyを保存せず、Ephemeral OutcomeとAnonymous KeyをUnsupportedとする。Outboxは同じNamed Connection InstanceのTransaction内だけ原子的とし、Relay再配送、Dead Letter再開、Operation Replay、Observer ReplayのIdentityを分離した。最初のProduction Task `P19-002-idempotency-core-contract`はReadyである。
 
 GitHub Actions Run `30004535286`で残ったCommunity Board Browser／Clean Installの失敗原因を、削除済み`app/Console`を参照するstale `app.command_discovery`設定と確定した。P18-009D3で不要設定を除去し、Clean Install Guardを追加した。WorkerのBrowser／Clean Installと全品質Gateに加え、OrchestratorがFocused PHPUnit 17 tests／70 assertions、Fresh Clean Install、Management ID／Shell Syntax／diff Guardを独立再検証してAcceptedとした。Commit `d17b24f`のGitHub Actions Run `30005659143`は全5 Job、Documentation Delivery Run `30005659104`も成功した。
 
@@ -30,7 +32,7 @@ P18-009CをOrchestrator Review／独立VerificationでAcceptedとした。Public
 
 ## Last Accepted Task
 
-P18-009D3-community-board-command-discovery-clean-checkout
+P19-001-decision-specification-and-failure-matrix
 
 ## Pending Decisions
 
@@ -73,7 +75,15 @@ Active Implementation／CI Blockerはない。P18-009D3はCommit `d17b24f`とし
 
 ## Required Next Action
 
-1. D109とPhase 19 RoadmapからDelivery Orderと最初のTask Packetを策定する。
+1. GPT-5.6 Luna High workerへP19-002を依頼する。
+2. Worker Report後、OrchestratorがPublic API、Context伝播、Sensitive境界、Storage Contractを独立Reviewする。
+
+## P19-001 Orchestrator Acceptance
+
+```text
+2026-07-23T23:26:58+09:00
+D109と既存ExecutionContext／Transaction／Retention／Status／Community Board仕様を照合し、Phase 19の確定仕様、Failure Matrix、Delivery Orderを作成した。P19-001はDocumentation-onlyでProduction Code／Test Codeを変更していない。P19-002 Task PacketをReadyとし、Production実装をLuna workerへ渡す。
+```
 
 ## P18-009D3 GitHub Actions Closeout
 
