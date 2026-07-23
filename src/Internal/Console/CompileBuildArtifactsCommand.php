@@ -173,6 +173,7 @@ final class CompileBuildArtifactsCommand extends Command
 
         $builder = $this->containerCompiler->builder();
         $this->containerCompiler->apply($builder, $providers->serviceProviders);
+        $this->containerCompiler->registerUuidv7Generator($builder);
         $this->containerCompiler->registerHandlers($builder, $registry);
         $this->containerCompiler->registerAuthorizationPolicies($builder, $registry);
         $this->containerCompiler->compile($builder);

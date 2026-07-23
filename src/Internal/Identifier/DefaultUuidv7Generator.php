@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Infrastructure\Identifier;
+namespace BlackOps\Internal\Identifier;
 
-use App\Domain\Board\BoardIdGenerator;
+use BlackOps\Identifier\Uuidv7Generator;
 use Symfony\Component\Uid\UuidV7;
 
-final readonly class SymfonyBoardIdGenerator implements BoardIdGenerator
+final readonly class DefaultUuidv7Generator implements Uuidv7Generator
 {
     public function generate(): string
     {

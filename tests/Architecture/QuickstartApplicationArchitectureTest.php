@@ -146,6 +146,18 @@ final class QuickstartApplicationArchitectureTest extends TestCase
             self::assertStringNotContainsString('Laminas\\', $source);
             self::assertStringNotContainsString('frankenphp_handle_request', $source);
         }
+
+        $identity = (string) file_get_contents(
+            dirname($this->quickstart()) . '/community-board/app/Infrastructure/Identity/RandomIdentityIdentifier.php',
+        );
+        self::assertStringContainsString('BlackOps\\Identifier\\Uuidv7Generator', $identity);
+        self::assertStringNotContainsString('Symfony\\Component\\Uid', $identity);
+
+        $board = (string) file_get_contents(
+            dirname($this->quickstart()) . '/community-board/app/Infrastructure/Identifier/Uuidv7BoardIdGenerator.php',
+        );
+        self::assertStringContainsString('BlackOps\\Identifier\\Uuidv7Generator', $board);
+        self::assertStringNotContainsString('Symfony\\Component\\Uid', $board);
     }
 
     public function testQuickstartBootstrapUsesFrameworkEnvironmentFileCapability(): void

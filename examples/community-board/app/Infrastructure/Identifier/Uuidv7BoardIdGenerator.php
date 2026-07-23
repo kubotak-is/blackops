@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Infrastructure\Identity;
+namespace App\Infrastructure\Identifier;
 
-use App\Domain\Identity\IdentityIdentifier;
+use App\Domain\Board\BoardIdGenerator;
 use BlackOps\Identifier\Uuidv7Generator;
 
-final readonly class RandomIdentityIdentifier implements IdentityIdentifier
+final readonly class Uuidv7BoardIdGenerator implements BoardIdGenerator
 {
     public function __construct(
         private Uuidv7Generator $uuids,

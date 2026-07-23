@@ -114,6 +114,8 @@ interface Uuidv7Generator
 
 Framework Application ContainerはDefault Serviceを`Uuidv7Generator`へBindingする。DefaultはCanonical lowercase RFC 4122 UUIDv7文字列を返し、Symfony UID等のVendor型をPublic Signatureへ露出しない。
 
+ContainerはDefault／明示OverrideのいずれもFramework-owned Validation Adapterを通し、形式・Version・Variantが不正な値をApplication Dataへ渡さず固定Runtime Failureへ閉じる。TestではContractを実装した決定的GeneratorをService Providerから注入できる。
+
 - 一回の`generate()`は新しいUUIDv7文字列を一つ返す
 - Default Serviceの無効な結果はApplication Dataへ渡さずFramework Runtime Failureにする
 - ApplicationはService ProviderでContractを明示Overrideでき、Testでは決定的Generatorを注入できる

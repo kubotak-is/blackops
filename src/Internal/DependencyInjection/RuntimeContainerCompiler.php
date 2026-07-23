@@ -10,6 +10,9 @@ use BlackOps\Database\AfterCommitFailureReporter;
 use BlackOps\Database\DatabaseManager;
 use BlackOps\Database\Seeder;
 use BlackOps\Database\SeederRunner;
+use BlackOps\Identifier\Uuidv7Generator;
+use BlackOps\Internal\Identifier\DefaultUuidv7Generator;
+use BlackOps\Internal\Identifier\ValidatedUuidv7Generator;
 use BlackOps\Internal\Seeder\CompiledSeederRunner;
 use BlackOps\Internal\Seeder\CompiledSeederRuntime;
 use BlackOps\Internal\Transaction\DefaultAfterCommitFailureReporter;
@@ -23,11 +26,13 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\DependencyInjection\Argument\ServiceLocatorArgument;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 
 /**
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:kan-defect
+ * @mago-expect lint:too-many-methods
  */
 final readonly class RuntimeContainerCompiler
 {
@@ -53,6 +58,36 @@ final readonly class RuntimeContainerCompiler
         foreach ($providers as $provider) {
             $provider->register($registry);
         }
+    }
+
+    public function registerUuidv7Generator(ContainerBuilder $builder): void
+    {
+        $source = Uuidv7Generator::class . '.source';
+
+        if (!$builder->has(Uuidv7Generator::class)) {
+            $builder->register($source, DefaultUuidv7Generator::class)->setPublic(false);
+        }
+
+        if ($builder->has(Uuidv7Generator::class)) {
+            if ($builder->hasDefinition(Uuidv7Generator::class)) {
+                $builder->setDefinition($source, $builder->getDefinition(Uuidv7Generator::class));
+                $builder->removeDefinition(Uuidv7Generator::class);
+            } else {
+                $service = $builder->get(Uuidv7Generator::class);
+                if (!is_object($service)) {
+                    throw new InvalidArgumentException('UUID generator override is invalid.');
+                }
+                $builder->set($source, $service);
+                $builder->set(Uuidv7Generator::class, null);
+            }
+        }
+
+        $builder->setDefinition(
+            Uuidv7Generator::class,
+            new Definition(ValidatedUuidv7Generator::class)
+                ->setArgument(0, new Reference($source))
+                ->setPublic(true),
+        );
     }
 
     public function registerHandlers(ContainerBuilder $builder, OperationRegistry $operations): void

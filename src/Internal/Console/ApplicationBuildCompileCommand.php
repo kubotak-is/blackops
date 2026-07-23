@@ -84,6 +84,7 @@ final class ApplicationBuildCompileCommand extends Command
         $container = $compiler->builder();
         $container->setParameter('blackops.application_build_id', $buildId);
         $compiler->apply($container, $services);
+        $compiler->registerUuidv7Generator($container);
         $compiler->registerDatabaseServices($container);
         $compiler->registerHandlers($container, $registry);
         $compiler->registerAuthorizationPolicies($container, $registry);

@@ -125,6 +125,8 @@ board_digests
 ```
 
 - Primary KeyはUUIDv7またはFrameworkと衝突しないApplication-owned IDとする。
+
+InfrastructureのIdentifier AdapterはPublic `BlackOps\Identifier\Uuidv7Generator`をConstructor Injectionし、Domainが所有する`BoardIdGenerator`／`IdentityIdentifier` Portへ変換する。DomainはFrameworkおよびVendor UUID APIへ依存しない。
 - User EmailはCanonical比較用の正規化値と表示値を分離し、Unique制約を持つ。
 - SessionはToken Hash、User ID、Issued At、Expires At、Revoked Atを持つ。
 - PostはAuthor ID、Title、Body、Created At、Updated Atを持つ。

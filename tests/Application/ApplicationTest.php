@@ -11,6 +11,7 @@ use BlackOps\Application\ConsoleKernel;
 use BlackOps\Application\Environment;
 use BlackOps\Core\Attribute\PublicApi;
 use BlackOps\Http\SapiRuntime;
+use BlackOps\Identifier\Uuidv7Generator;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Server\RequestHandlerInterface;
 use ReflectionClass;
@@ -28,6 +29,7 @@ final class ApplicationTest extends TestCase
             ConsoleKernel::class,
             Environment::class,
             SapiRuntime::class,
+            Uuidv7Generator::class,
         ] as $type) {
             self::assertCount(1, new ReflectionClass($type)->getAttributes(PublicApi::class));
         }
@@ -100,6 +102,18 @@ final class ApplicationTest extends TestCase
             self::assertSame('void', (string) $reflection->getReturnType());
             self::assertSame(Application::class, (string) $reflection->getParameters()[0]->getType());
         }
+    }
+
+    public function testUuidv7GeneratorExposesOnlyCanonicalStringGeneration(): void
+    {
+        $reflection = new ReflectionClass(Uuidv7Generator::class);
+
+        self::assertTrue($reflection->isInterface());
+        self::assertSame(
+            ['generate'],
+            array_map(static fn(ReflectionMethod $method): string => $method->getName(), $reflection->getMethods()),
+        );
+        self::assertSame('string', (string) $reflection->getMethod('generate')->getReturnType());
     }
 
     public function testConsoleKernelHasOnlyRunAsPublicMethod(): void

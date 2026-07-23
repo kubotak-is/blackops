@@ -1,6 +1,6 @@
 # P18-009C: Public UUIDv7 Generator and Consumer Adoption
 
-Status: Ready
+Status: Accepted
 
 ## Goal
 

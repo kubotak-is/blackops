@@ -23,6 +23,8 @@ CausationId
 
 IdentifierFactoryが利用するUUID生成源とClockは内部Portとして注入可能にする。
 
+Application Infrastructure向けには、Frameworkが`BlackOps\Identifier\Uuidv7Generator::generate(): string`をDefault Serviceとして提供する。Defaultおよび明示Overrideの結果はContainer境界でCanonical lowercase UUIDv7へ検証し、Vendor UUID型はPublic Signatureへ露出させない。
+
 ## 文字列表現
 
 各ID型は次のPHP Public APIを提供する。

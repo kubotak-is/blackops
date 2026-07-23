@@ -1,6 +1,6 @@
 # P18-009D: Runtime Distribution, Dependency Audit, and Closeout
 
-Status: Planned
+Status: Ready
 
 ## Goal
 
