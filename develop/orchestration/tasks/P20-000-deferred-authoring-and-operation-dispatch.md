@@ -126,7 +126,7 @@ $this->operations->dispatch(
 ## Required Commands
 
 ```bash
-docker compose run --rm app mago format --check src tests examples/quickstart/app examples/community-board/app
+docker compose run --rm app mago format --check src tests examples
 docker compose run --rm app mago lint
 docker compose run --rm app mago analyze
 docker compose run --rm app vendor/bin/phpunit --display-deprecations

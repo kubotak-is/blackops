@@ -73,3 +73,7 @@ Commit the accepted P20-000 implementation and run the GitHub Actions acceptance
 - Clarified the Core API `TransactionalOutbox` row as a low-level compatibility API; new Application Coordination should inject `Operations`.
 - Added permanent compiler coverage for repeated `#[Deferred]` rejection, separate from the Deferred/ExecuteWith conflict test.
 - Focused compiler/outbox suite: 42 tests / 103 assertions PASS. Mago format check, management-ID guard, and `git diff --check` PASS. Final Accepted/STATE closeout remains with Orchestrator.
+
+## CI Follow-up
+
+GitHub Run `30111599275` reported one Mago format failure in `examples/community-board/tests/Board/PostOperationContractTest.php`. The tracked diff was independently verified to contain only the import ordering correction (`BlackOps\Execution\DispatchReceipt`／`Operations` moved before `BlackOps\Http` imports); no runtime or vendor traversal changes are present. A single-file Docker Mago format check passed (`All files are already formatted`), and the Management-ID guard plus `git diff --check` passed. No commit was created.
