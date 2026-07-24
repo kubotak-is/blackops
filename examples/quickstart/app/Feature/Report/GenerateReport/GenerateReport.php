@@ -6,9 +6,8 @@ namespace App\Feature\Report\GenerateReport;
 
 use App\Security\SampleUserAuthorizationPolicy;
 use BlackOps\Core\Attribute\Authorize;
-use BlackOps\Core\Attribute\ExecuteWith;
+use BlackOps\Core\Attribute\Deferred;
 use BlackOps\Core\Attribute\OperationType;
-use BlackOps\Core\Execution\Deferred;
 use BlackOps\Core\ExecutionContext;
 use BlackOps\Core\Operation;
 use BlackOps\Http\Attribute\Route;
@@ -16,7 +15,7 @@ use LogicException;
 
 #[Route(method: 'POST', path: '/reports')]
 #[OperationType('report.generate')]
-#[ExecuteWith(Deferred::class)]
+#[Deferred]
 #[Authorize(SampleUserAuthorizationPolicy::class)]
 final readonly class GenerateReport implements Operation
 {

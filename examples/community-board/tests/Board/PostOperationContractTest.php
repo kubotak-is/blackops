@@ -5,11 +5,9 @@ declare(strict_types=1);
 namespace App\Tests\Board;
 
 use App\Domain\Board\BoardService;
-use App\Domain\Notification\NotificationService;
 use App\Feature\Comment\AddComment\AddComment;
 use App\Feature\Comment\AddComment\AddCommentValue;
 use App\Feature\Comment\CommentDetail;
-use App\Feature\Notification\NotifyPostOwner\NotifyPostOwner;
 use App\Feature\Post\CreatePost\CreatePost;
 use App\Feature\Post\CreatePost\CreatePostValue;
 use App\Feature\Post\DeletePost\DeletePost;
@@ -25,7 +23,6 @@ use App\Feature\Post\UpdatePost\UpdatePost;
 use App\Feature\Post\UpdatePost\UpdatePostValue;
 use App\Tests\Support\FrozenBoardClock;
 use App\Tests\Support\InMemoryBoardRepository;
-use App\Tests\Support\InMemoryNotificationRepository;
 use App\Tests\Support\SequenceBoardIdGenerator;
 use BlackOps\Core\ActorContext;
 use BlackOps\Core\ActorRef;
@@ -34,7 +31,6 @@ use BlackOps\Core\Exception\OperationRejectedException;
 use BlackOps\Core\ExecutionContext;
 use BlackOps\Core\Identifier\CorrelationId;
 use BlackOps\Core\Identifier\OperationId;
-use BlackOps\Core\Identifier\OutboxRecordId;
 use BlackOps\Core\Operation;
 use BlackOps\Core\OperationValue;
 use BlackOps\Core\OutcomeData;
@@ -45,8 +41,8 @@ use BlackOps\Database\Attribute\Transactional;
 use BlackOps\Http\Attribute\FromBody;
 use BlackOps\Http\Attribute\FromPath;
 use BlackOps\Http\Attribute\FromQuery;
-use BlackOps\Outbox\OutboxRegistration;
-use BlackOps\Outbox\TransactionalOutbox;
+use BlackOps\Execution\DispatchReceipt;
+use BlackOps\Execution\Operations;
 use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
@@ -126,26 +122,19 @@ final class PostOperationContractTest extends TestCase
         $postId = '019b2000-0000-7000-8000-000000000001';
         $repository = new InMemoryBoardRepository();
         $repository->createPost($postId, $owner, 'Post', 'Body', new DateTimeImmutable('2026-07-24T00:00:00Z'));
-        $notifications = new NotificationService(
-            new InMemoryNotificationRepository(),
-            new SequenceBoardIdGenerator(['019b3000-0000-7000-8000-000000000001']),
-            new FrozenBoardClock(new DateTimeImmutable('2026-07-24T00:00:00Z')),
-        );
-        $outbox = new RecordingTransactionalOutbox();
+        $operations = new RecordingOperations();
         $operation = new AddComment(
             new BoardService(
                 $repository,
                 new FrozenBoardClock(new DateTimeImmutable('2026-07-24T00:00:00Z')),
                 new SequenceBoardIdGenerator(['019b3000-0000-7000-8000-000000000002']),
             ),
-            $outbox,
-            $notifications,
+            $operations,
         );
 
         $operation->handle(new AddCommentValue($postId, 'Comment'), $this->context($author));
 
-        self::assertNotNull($outbox->definition);
-        self::assertSame(NotifyPostOwner::class, $outbox->definition::class);
+        self::assertSame(\App\Feature\Notification\NotifyPostOwner\NotifyPostOwner::class, $operations->definition);
     }
 
     public function testOperationBoundaryMapsDomainNotFoundToSafeRejection(): void
@@ -196,20 +185,19 @@ final class PostOperationContractTest extends TestCase
     }
 }
 
-final class RecordingTransactionalOutbox implements TransactionalOutbox
+final class RecordingOperations implements Operations
 {
-    public ?Operation $definition = null;
+    public ?string $definition = null;
 
-    public function register(
-        Operation $definition,
+    public function dispatch(
+        string $definition,
         OperationValue $value,
         ?DateTimeImmutable $availableAt = null,
         ?ActorRef $executionActor = null,
-    ): OutboxRegistration {
+    ): DispatchReceipt {
         $this->definition = $definition;
 
-        return new OutboxRegistration(
-            OutboxRecordId::fromString('019b4000-0000-7000-8000-000000000001'),
+        return new DispatchReceipt(
             OperationId::fromString('019b4000-0000-7000-8000-000000000002'),
             new DateTimeImmutable('2026-07-24T00:00:00Z'),
         );

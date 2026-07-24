@@ -11,6 +11,8 @@ use BlackOps\Core\Operation;
 use BlackOps\Core\OperationValue;
 use BlackOps\Core\Registry\OperationMetadata;
 use BlackOps\Core\Registry\OperationRegistry;
+use BlackOps\Execution\DispatchReceipt;
+use BlackOps\Execution\Operations;
 use BlackOps\Internal\Execution\ExecutionScopeProvider;
 use BlackOps\Internal\ExecutionContext\ExecutionContextFactory;
 use BlackOps\Internal\Identifier\IdentifierFactory;
@@ -25,7 +27,7 @@ use InvalidArgumentException;
 use LogicException;
 use Psr\Clock\ClockInterface;
 
-final readonly class TransactionalOutboxRuntime implements TransactionalOutbox
+final readonly class TransactionalOutboxRuntime implements TransactionalOutbox, Operations
 {
     /** @mago-expect lint:excessive-parameter-list */
     public function __construct(
@@ -41,20 +43,50 @@ final readonly class TransactionalOutboxRuntime implements TransactionalOutbox
         private ClockInterface $clock,
     ) {}
 
+    public function dispatch(
+        string $definition,
+        OperationValue $value,
+        ?DateTimeImmutable $availableAt = null,
+        ?ActorRef $executionActor = null,
+    ): DispatchReceipt {
+        $metadata = $this->operations->findByDefinition($definition);
+        if (!$metadata instanceof OperationMetadata) {
+            throw new InvalidArgumentException('Deferred operation definition is not registered.');
+        }
+        if ($metadata->strategy !== Deferred::class) {
+            throw new InvalidArgumentException('Transactional operation dispatch requires a deferred operation.');
+        }
+        if (!$value instanceof $metadata->value) {
+            throw new InvalidArgumentException('Operation dispatch value does not match metadata.');
+        }
+        $registration = $this->registerMetadata($metadata, $value, $availableAt, $executionActor);
+
+        return new DispatchReceipt($registration->operationId(), $registration->recordedAt());
+    }
+
     public function register(
         Operation $definition,
         OperationValue $value,
         ?DateTimeImmutable $availableAt = null,
         ?ActorRef $executionActor = null,
     ): OutboxRegistration {
-        $parent = $this->scope->current();
-        if ($parent === null) {
-            throw new LogicException('Transactional outbox registration requires an active operation context.');
-        }
-
         $metadata = $this->operations->findByDefinition($definition::class);
         if (!$metadata instanceof OperationMetadata) {
             throw new InvalidArgumentException('Outbox operation definition is not registered.');
+        }
+
+        return $this->registerMetadata($metadata, $value, $availableAt, $executionActor);
+    }
+
+    private function registerMetadata(
+        OperationMetadata $metadata,
+        OperationValue $value,
+        ?DateTimeImmutable $availableAt,
+        ?ActorRef $executionActor,
+    ): OutboxRegistration {
+        $parent = $this->scope->current();
+        if ($parent === null) {
+            throw new LogicException('Transactional outbox registration requires an active operation context.');
         }
         if ($metadata->strategy !== Deferred::class) {
             throw new InvalidArgumentException('Transactional outbox registration requires a deferred operation.');

@@ -12,7 +12,7 @@ use App\Feature\Digest\DigestAttemptGate;
 use App\Security\AuthenticatedUser;
 use App\Security\AuthenticatedUserPolicy;
 use BlackOps\Core\Attribute\Authorize;
-use BlackOps\Core\Attribute\ExecuteWith;
+use BlackOps\Core\Attribute\Deferred;
 use BlackOps\Core\Attribute\OperationType;
 use BlackOps\Core\Exception\OperationRejectedException;
 use BlackOps\Core\ExecutionContext;
@@ -23,7 +23,7 @@ use LogicException;
 
 #[Route(method: 'POST', path: '/digests')]
 #[OperationType('board.digest.weekly.generate')]
-#[ExecuteWith('BlackOps\\Core\\Execution\\Deferred')]
+#[Deferred]
 #[Authorize(AuthenticatedUserPolicy::class)]
 readonly class GenerateWeeklyDigest implements Operation
 {

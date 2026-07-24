@@ -10,6 +10,7 @@ use BlackOps\Database\AfterCommitFailureReporter;
 use BlackOps\Database\DatabaseManager;
 use BlackOps\Database\Seeder;
 use BlackOps\Database\SeederRunner;
+use BlackOps\Execution\Operations;
 use BlackOps\Identifier\Uuidv7Generator;
 use BlackOps\Internal\Identifier\DefaultUuidv7Generator;
 use BlackOps\Internal\Identifier\ValidatedUuidv7Generator;
@@ -146,11 +147,15 @@ final readonly class RuntimeContainerCompiler
                 'Transaction runtime service cannot be redefined by a service provider.',
             );
         }
+        if ($builder->has(Operations::class)) {
+            throw new InvalidArgumentException('Operation dispatch service cannot be redefined by a service provider.');
+        }
 
         $builder->register(TransactionRuntime::class, TransactionRuntime::class)->setSynthetic(true)->setPublic(true);
         $builder->register(TransactionRuntimeAccessor::class)->setPublic(true);
 
         $builder->register(TransactionalOutbox::class, TransactionalOutbox::class)->setSynthetic(true)->setPublic(true);
+        $builder->register(Operations::class, Operations::class)->setSynthetic(true)->setPublic(true);
     }
 
     public function registerAuthorizationPolicies(ContainerBuilder $builder, OperationRegistry $operations): void

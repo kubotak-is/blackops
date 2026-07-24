@@ -145,6 +145,46 @@ final class TransactionalOutboxRuntimeTest extends TestCase
         self::assertNull($child->idempotencyKeyHash());
     }
 
+    public function testDispatchDoesNotConstructDefinitionAndReturnsPublicReceipt(): void
+    {
+        $runtime = new TransactionalOutboxRuntime(
+            new OperationRegistry([
+                new OperationMetadata(
+                    'fixture.outbox.child',
+                    NeverConstructedOutboxChild::class,
+                    OutboxChildValue::class,
+                    NeverConstructedOutboxChild::class,
+                    OutboxChildOutcome::class,
+                    Deferred::class,
+                ),
+            ]),
+            new FixtureCodec(new ContextCapture()),
+            $this->scope,
+            $this->transactionRuntime,
+            $this->app,
+            'app',
+            new PostgreSqlOutboxStore($this->app, 'outbox_runtime_test'),
+            new ExecutionContextFactory(
+                $identifiers = new IdentifierFactory(new SymfonyUuidv7Generator(), $clock = new FixtureClock()),
+                $clock,
+            ),
+            $identifiers,
+            $clock,
+        );
+        $parent = $this->parent();
+        $receipt = null;
+
+        $this->transactionRuntime->transactional('app', function () use ($runtime, $parent, &$receipt): void {
+            $this->scope->run($parent, function () use ($runtime, &$receipt): void {
+                $receipt = $runtime->dispatch(NeverConstructedOutboxChild::class, new OutboxChildValue());
+            });
+        });
+
+        self::assertNotNull($receipt);
+        self::assertSame('UTC', $receipt->dispatchedAt()->getTimezone()->getName());
+        self::assertSame(1, (int) $this->app->fetchOne('SELECT count(*) FROM "outbox_runtime_test"."outbox_records"'));
+    }
+
     public function testInlineParentCanRegisterDeferredChild(): void
     {
         $this->transactionRuntime->transactional('app', function (): void {
@@ -485,6 +525,14 @@ final readonly class OutboxParent implements Operation {}
 final readonly class OutboxParentValue implements OperationValue {}
 
 final readonly class OutboxChild implements Operation {}
+
+final readonly class NeverConstructedOutboxChild implements Operation
+{
+    public function __construct()
+    {
+        throw new \RuntimeException('Dispatch must not construct child definitions.');
+    }
+}
 
 final readonly class OutboxChildValue implements OperationValue {}
 

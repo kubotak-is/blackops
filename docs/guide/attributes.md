@@ -1,13 +1,14 @@
 # Attributes Reference
 
-BlackOpsはOperation、Transaction、Value Validation、HTTP Binding、Observed Journal ProjectionのMetadataをPHP Attributeで宣言します。このPageは利用者向けPublic Attribute 23件をSourceと照合しています。`PublicApi` marker自身はFrameworkが公開境界を管理するためのMetadataであり、Application Authoringには使いません。
+BlackOpsはOperation、Transaction、Value Validation、HTTP Binding、Observed Journal ProjectionのMetadataをPHP Attributeで宣言します。このPageは利用者向けPublic Attribute 24件をSourceと照合しています。`PublicApi` marker自身はFrameworkが公開境界を管理するためのMetadataであり、Application Authoringには使いません。
 
 ## Operation Attributes
 
 | Attribute | 用途 | 付与対象 | 最小例 | Typed Self-handled標準形 |
 | --- | --- | --- | --- | --- |
 | `BlackOps\Core\Attribute\OperationType` | 永続的なdot-separated Operation Type IDを宣言する | Operation Class | `#[OperationType('order.place')]` | 必須 |
-| `BlackOps\Core\Attribute\ExecuteWith` | Inline以外のExecution Strategyを選ぶ | Operation Class | `#[ExecuteWith(Deferred::class)]` | Deferred時だけ必要。省略時はInline |
+| `BlackOps\Core\Attribute\Deferred` | OperationをDeferred実行へ切り替える | Operation Class | `#[Deferred]` | Deferred時だけ付ける。省略時はInline |
+| `BlackOps\Core\Attribute\ExecuteWith` | Inline以外のExecution Strategyを選ぶ互換Attribute | Operation Class | `#[ExecuteWith(Deferred::class)]` | 既存Application互換用。`Deferred`との併置はBuild Error |
 | `BlackOps\Core\Attribute\Authorize` | Operationへ認可Policyを結び付ける | Operation Class | `#[Authorize(PlaceOrderPolicy::class)]` | 認可が必要なOperationへ一度だけ付ける |
 | `BlackOps\Core\Attribute\HandledBy` | Separate Handler Classを指定する | Operation Class | `#[HandledBy(PlaceOrderHandler::class)]` | 不要。Separate Handler互換形だけで使う |
 | `BlackOps\Core\Attribute\Accepts` | Accepted `OperationValue`を明示する | Operation Class | `#[Accepts(PlaceOrderValue::class)]` | 不要。第一引数から推論する |

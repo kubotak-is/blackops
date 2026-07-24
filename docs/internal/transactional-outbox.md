@@ -4,4 +4,4 @@
 
 PostgreSQL `outbox_records`は専用Migrationで作成する。Relay前のStateは`pending`、State Versionは初期値`1`から状態遷移ごとに単調増加し、Claim／Lease／Retry／Dead Letterの状態遷移を同じRecord Identityへ適用する。Application MutationとOutbox Insertは同じDBAL ConnectionのTransactionへ参加し、最外Commitで同時に確定する。Nested RequiredがRollback-onlyになると最外TransactionがMutationとOutboxをまとめてRollbackし、Rowは残らない。Relayはat-least-onceで、Lease／FencingとDead Letter再開を備える。
 
-Public CapabilityはOperation Coordination／Application Infrastructureへ注入し、Domainへ依存させない。Direct Deferred Transportは既存のまま維持し、Persistenceだけを選択的に利用する。
+Public Capabilityは`BlackOps\Execution\Operations`としてOperation Coordination／Application Infrastructureへ注入し、Domainへ依存させない。`dispatch()`はCompiled Operation MetadataとDefinition class-string／Valueを検証し、Child Definitionを構築せず既存PersistenceへEnvelopeを委譲する。Worker実行時にCompiled ContainerからDefinitionを解決する。Direct Deferred Transportは既存のまま維持し、Persistenceだけを選択的に利用する。

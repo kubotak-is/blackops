@@ -98,16 +98,15 @@ namespace App\Feature\Billing\CreateInvoice;
 
 use App\Security\SampleUserAuthorizationPolicy;
 use BlackOps\Core\Attribute\Authorize;
-use BlackOps\Core\Attribute\ExecuteWith;
+use BlackOps\Core\Attribute\Deferred;
 use BlackOps\Core\Attribute\OperationType;
-use BlackOps\Core\Execution\Deferred;
 use BlackOps\Core\ExecutionContext;
 use BlackOps\Core\Operation;
 use BlackOps\Http\Attribute\Route;
 
 #[Route(method: 'POST', path: '/invoices')]
 #[OperationType('billing.invoice.create')]
-#[ExecuteWith(Deferred::class)]
+#[Deferred]
 #[Authorize(SampleUserAuthorizationPolicy::class)]
 final readonly class CreateInvoice implements Operation
 {

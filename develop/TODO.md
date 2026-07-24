@@ -187,6 +187,8 @@ MVP後に残す主要項目:
 
 ### Phase 20: Security Hardening and Observability
 
+- [x] `#[Deferred]`とTransactional `Operations::dispatch()`でApplication child Operation authoringを簡素化する
+- [ ] Scheduled Application Operationの入口、Timezone、Misfire、Overlap、Identity、Idempotencyを別Decisionで確定する
 - [ ] Journal／Outcome参照制御、Tenant分離、暗号化Capabilityを強化する
 - [ ] 構造化Log SchemaとOpenTelemetry Adapterを提供する
 

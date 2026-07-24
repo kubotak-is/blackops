@@ -7,12 +7,14 @@ namespace BlackOps\Internal\Registry;
 use BlackOps\Core\Attribute\Accepts;
 use BlackOps\Core\Attribute\Authorize;
 use BlackOps\Core\Attribute\ConsoleCommand;
+use BlackOps\Core\Attribute\Deferred as DeferredAttribute;
 use BlackOps\Core\Attribute\ExecuteWith;
 use BlackOps\Core\Attribute\HandledBy;
 use BlackOps\Core\Attribute\OperationType;
 use BlackOps\Core\Attribute\Returns;
 use BlackOps\Core\Authorization\AuthorizationPolicy;
 use BlackOps\Core\EphemeralOutcome;
+use BlackOps\Core\Execution\Deferred;
 use BlackOps\Core\Execution\ExecutionStrategy;
 use BlackOps\Core\Execution\Inline;
 use BlackOps\Core\Operation;
@@ -24,7 +26,10 @@ use BlackOps\Http\Attribute\Route;
 use InvalidArgumentException;
 use ReflectionClass;
 
-/** @mago-expect lint:cyclomatic-complexity */
+/**
+ * @mago-expect lint:cyclomatic-complexity
+ * @mago-expect lint:kan-defect
+ */
 final readonly class OperationMetadataCompiler
 {
     public function __construct(
@@ -60,6 +65,22 @@ final readonly class OperationMetadataCompiler
         if (count($authorizationAttributes) > 1) {
             throw new InvalidArgumentException('Operation definition must not repeat Authorize.');
         }
+        $strategyAttributes = $reflection->getAttributes(ExecuteWith::class);
+        if (count($strategyAttributes) > 1) {
+            throw new InvalidArgumentException('Operation definition must not repeat ExecuteWith.');
+        }
+        $deferredAttributes = $reflection->getAttributes(DeferredAttribute::class);
+        if (count($deferredAttributes) > 1) {
+            throw new InvalidArgumentException('Operation definition must not repeat Deferred.');
+        }
+        if ($deferredAttributes !== [] && $strategyAttributes !== []) {
+            throw new InvalidArgumentException('Operation definition must not combine Deferred and ExecuteWith.');
+        }
+        $strategy = match (true) {
+            $deferredAttributes !== [] => Deferred::class,
+            $strategyAttributes === [] => Inline::class,
+            default => $strategyAttributes[0]->newInstance()->strategy,
+        };
         $type = $typeAttributes[0]->newInstance();
         [$value, $outcome] = $this->valueOutcomes->compile(
             $reflection,
@@ -74,11 +95,6 @@ final readonly class OperationMetadataCompiler
             $value,
             $outcome,
         );
-        $strategyAttributes = $reflection->getAttributes(ExecuteWith::class);
-        if (count($strategyAttributes) > 1) {
-            throw new InvalidArgumentException('Operation definition must not repeat ExecuteWith.');
-        }
-        $strategy = $strategyAttributes === [] ? Inline::class : $strategyAttributes[0]->newInstance()->strategy;
         $this->assertImplements($value, OperationValue::class);
         $this->assertImplements($outcome, Outcome::class);
         $this->assertImplements($strategy, ExecutionStrategy::class);

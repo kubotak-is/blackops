@@ -6,6 +6,7 @@ namespace BlackOps\Internal\Application;
 
 use BlackOps\Core\ActorRef;
 use BlackOps\Core\Supervision\ExponentialBackoffSupervisionPolicy;
+use BlackOps\Execution\Operations;
 use BlackOps\Internal\Authorization\AuthorizationEvaluator;
 use BlackOps\Internal\Authorization\AuthorizationPolicyResolver;
 use BlackOps\Internal\Codec\ReflectionJsonOperationCodec;
@@ -75,21 +76,20 @@ final readonly class ApplicationWorkerComposer
         if (!$artifacts->container instanceof Container) {
             throw new \InvalidArgumentException('Runtime container does not support outbox service injection.');
         }
-        $artifacts->container->set(
-            TransactionalOutbox::class,
-            new TransactionalOutboxRuntime(
-                $artifacts->operations,
-                new ReflectionJsonOperationCodec(),
-                $executionScope,
-                $transactionRuntime,
-                $main,
-                $database->frameworkConnection,
-                new PostgreSqlOutboxStore($main, $database->schema),
-                new ExecutionContextFactory($identifiers, $clock),
-                $identifiers,
-                $clock,
-            ),
+        $outbox = new TransactionalOutboxRuntime(
+            $artifacts->operations,
+            new ReflectionJsonOperationCodec(),
+            $executionScope,
+            $transactionRuntime,
+            $main,
+            $database->frameworkConnection,
+            new PostgreSqlOutboxStore($main, $database->schema),
+            new ExecutionContextFactory($identifiers, $clock),
+            $identifiers,
+            $clock,
         );
+        $artifacts->container->set(TransactionalOutbox::class, $outbox);
+        $artifacts->container->set(Operations::class, $outbox);
         $services = new DeferredWorkerRuntimeServices(
             $artifacts->operations,
             new ReflectionJsonOperationCodec(),

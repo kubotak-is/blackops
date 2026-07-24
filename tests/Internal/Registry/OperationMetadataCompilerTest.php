@@ -6,6 +6,7 @@ namespace BlackOps\Tests\Internal\Registry;
 
 use BlackOps\Core\Attribute\Accepts;
 use BlackOps\Core\Attribute\Authorize;
+use BlackOps\Core\Attribute\Deferred;
 use BlackOps\Core\Attribute\ExecuteWith;
 use BlackOps\Core\Attribute\HandledBy;
 use BlackOps\Core\Attribute\OperationType;
@@ -14,6 +15,7 @@ use BlackOps\Core\Authorization\AuthorizationDecision;
 use BlackOps\Core\Authorization\AuthorizationPolicy;
 use BlackOps\Core\Authorization\AuthorizationRequest;
 use BlackOps\Core\EmptyOutcome;
+use BlackOps\Core\Execution\Deferred as DeferredStrategy;
 use BlackOps\Core\Execution\ExecutionStrategy;
 use BlackOps\Core\Execution\Inline;
 use BlackOps\Core\ExecutionContext;
@@ -113,6 +115,29 @@ final class OperationMetadataCompilerTest extends TestCase
         $metadata = new OperationMetadataCompiler()->compile(ExplicitStrategyOperationFixture::class);
 
         self::assertSame(MetadataStrategyFixture::class, $metadata->strategy);
+    }
+
+    public function testCanonicalDeferredAttributeCompilesToDeferredStrategy(): void
+    {
+        $metadata = new OperationMetadataCompiler()->compile(CanonicalDeferredOperationFixture::class);
+
+        self::assertSame(DeferredStrategy::class, $metadata->strategy);
+    }
+
+    public function testCanonicalDeferredAttributeCannotBeCombinedWithExecuteWith(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('combine Deferred and ExecuteWith');
+
+        new OperationMetadataCompiler()->compile(ConflictingDeferredOperationFixture::class);
+    }
+
+    public function testRejectsRepeatedCanonicalDeferredAttribute(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('must not repeat Deferred');
+
+        new OperationMetadataCompiler()->compile(RepeatedDeferredOperationFixture::class);
     }
 
     public function testCompilesSelfHandledOperationWithoutHandledBy(): void
@@ -424,6 +449,44 @@ final readonly class MetadataStrategyFixture implements ExecutionStrategy {}
 #[Returns(EmptyOutcome::class)]
 #[ExecuteWith(MetadataStrategyFixture::class)]
 final readonly class ExplicitStrategyOperationFixture implements Operation {}
+
+#[OperationType('welcome.canonical.deferred')]
+#[Accepts(MetadataValueFixture::class)]
+#[Returns(EmptyOutcome::class)]
+#[Deferred]
+final readonly class CanonicalDeferredOperationFixture implements Operation
+{
+    public function handle(MetadataValueFixture $value): OperationResult
+    {
+        return OperationResult::completed();
+    }
+}
+
+#[OperationType('welcome.conflicting.deferred')]
+#[Accepts(MetadataValueFixture::class)]
+#[Returns(EmptyOutcome::class)]
+#[Deferred]
+#[ExecuteWith(DeferredStrategy::class)]
+final readonly class ConflictingDeferredOperationFixture implements Operation
+{
+    public function handle(MetadataValueFixture $value): OperationResult
+    {
+        return OperationResult::completed();
+    }
+}
+
+#[OperationType('welcome.repeated.deferred')]
+#[Accepts(MetadataValueFixture::class)]
+#[Returns(EmptyOutcome::class)]
+#[Deferred]
+#[Deferred]
+final readonly class RepeatedDeferredOperationFixture implements Operation
+{
+    public function handle(MetadataValueFixture $value): OperationResult
+    {
+        return OperationResult::completed();
+    }
+}
 
 #[OperationType('welcome.invalid')]
 #[Accepts(\stdClass::class)]

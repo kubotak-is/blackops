@@ -31,7 +31,7 @@ public function handle(ShowWelcomeValue $value): ShowWelcomeOutcome
 }
 ```
 
-GeneratorはRoute、HTTP Method、Execution Strategy、`ExecutionContext`を推測しません。HTTP公開やDeferred実行が必要なOperationだけへ、それぞれのAttributeと処理を追加してください。
+GeneratorはRoute、HTTP Method、Execution Strategy、`ExecutionContext`を推測しません。HTTP公開やDeferred実行が必要なOperationだけへ、それぞれのAttribute（Deferredは`#[Deferred]`）と処理を追加してください。
 
 ## Safety and Build
 

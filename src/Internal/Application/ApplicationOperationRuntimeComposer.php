@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BlackOps\Internal\Application;
 
+use BlackOps\Execution\Operations;
 use BlackOps\Internal\Authorization\AuthorizationEvaluator;
 use BlackOps\Internal\Authorization\AuthorizationPolicyResolver;
 use BlackOps\Internal\Codec\ReflectionJsonOperationCodec;
@@ -53,21 +54,20 @@ final readonly class ApplicationOperationRuntimeComposer
         if (!$container instanceof Container) {
             throw new \InvalidArgumentException('Runtime container does not support outbox service injection.');
         }
-        $container->set(
-            TransactionalOutbox::class,
-            new TransactionalOutboxRuntime(
-                $operations->operations,
-                new ReflectionJsonOperationCodec(),
-                $scope,
-                $transactionRuntime,
-                $connection,
-                $database->frameworkConnection,
-                new PostgreSqlOutboxStore($connection, $database->schema),
-                new ExecutionContextFactory($identifiers, $clock),
-                $identifiers,
-                $clock,
-            ),
+        $outbox = new TransactionalOutboxRuntime(
+            $operations->operations,
+            new ReflectionJsonOperationCodec(),
+            $scope,
+            $transactionRuntime,
+            $connection,
+            $database->frameworkConnection,
+            new PostgreSqlOutboxStore($connection, $database->schema),
+            new ExecutionContextFactory($identifiers, $clock),
+            $identifiers,
+            $clock,
         );
+        $container->set(TransactionalOutbox::class, $outbox);
+        $container->set(Operations::class, $outbox);
         $journal = new PostgreSqlCanonicalJournalStore($connection, $database->schema);
         $observations = new ApplicationJournalObservationFactory()->create($configuration->configuration());
         $authorization = new AuthorizationEvaluator(new AuthorizationPolicyResolver($container));

@@ -19,6 +19,7 @@ use BlackOps\Core\OperationValue;
 use BlackOps\Core\Registry\OperationMetadata;
 use BlackOps\Core\Registry\OperationRegistry;
 use BlackOps\Database\DatabaseManager;
+use BlackOps\Execution\Operations;
 use BlackOps\Http\Authentication\AuthenticationMiddleware;
 use BlackOps\Http\Authentication\AuthenticationResult;
 use BlackOps\Http\Authentication\HttpAuthenticator;
@@ -275,6 +276,19 @@ final class RuntimeContainerCompilerTest extends TestCase
         self::assertSame($outbox, $container->get(ContainerOutboxConsumer::class)->outbox);
     }
 
+    public function testRegistersSyntheticOperationsForConstructorInjection(): void
+    {
+        $compiler = new RuntimeContainerCompiler();
+        $builder = $compiler->builder();
+        $compiler->registerDatabaseServices($builder);
+        $builder->register(ContainerOperationsConsumer::class)->setAutowired(true)->setPublic(true);
+        $container = $compiler->compile($builder);
+        $operations = $this->createStub(Operations::class);
+        $container->set(Operations::class, $operations);
+
+        self::assertSame($operations, $container->get(ContainerOperationsConsumer::class)->operations);
+    }
+
     public function testRejectsProviderDatabaseRuntimeServiceRedefinitionWithoutOverwritingIt(): void
     {
         $compiler = new RuntimeContainerCompiler();
@@ -520,6 +534,13 @@ final readonly class ContainerOutboxConsumer
 {
     public function __construct(
         public TransactionalOutbox $outbox,
+    ) {}
+}
+
+final readonly class ContainerOperationsConsumer
+{
+    public function __construct(
+        public Operations $operations,
     ) {}
 }
 

@@ -3,7 +3,7 @@
 BlackOpsは、PHP 8.5向けのHeadless Operation Frameworkです。一つの型付きOperationをInline HTTPとDurable Deferredの両方へ接続し、受理から完了までのLifecycleをJournalへ残します。
 
 <div class="landing-feature-grid">
-  <a class="landing-feature-link" href="/operations/authoring/"><code>#[Route]</code><strong>Operationが中心</strong><span><code>#[Route]</code>で同期API、<code>#[ExecuteWith(Deferred)]</code>で非同期化。HTTPもコンソールコマンドもJobも、すべてはOperation。</span></a>
+  <a class="landing-feature-link" href="/operations/authoring/"><code>#[Route]</code><strong>Operationが中心</strong><span><code>#[Route]</code>で同期API、<code>#[Deferred]</code>で非同期化。HTTPもコンソールコマンドもJobも、すべてはOperation。</span></a>
   <a class="landing-feature-link" href="/concepts/lifecycle/"><code>Journal</code><strong>Journalですべてを可視化</strong><span>受理・試行・リトライ・拒否・完了をFWが自動でJournalへ記録。「なぜ失敗したか」をフレームワークが記録する。</span></a>
   <a class="landing-feature-link" href="/execution/http-and-deferred/"><code>Deferred</code><strong>非同期処理を標準装備</strong><span>リトライ／バックオフ／重複防止／Dead Letter／型付きOutcome保存をPostgreSQLで標準提供。</span></a>
 </div>

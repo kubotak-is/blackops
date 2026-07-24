@@ -1,6 +1,20 @@
 # Orchestration State
 
-Updated At: 2026-07-24T22:06:38+09:00
+Updated At: 2026-07-25T02:03:16+09:00
+
+## P20-000 Orchestrator Acceptance
+
+```text
+2026-07-25T02:03:16+09:00
+Canonical #[Deferred]、Public Operations::dispatch／DispatchReceipt、metadata/value-only Outbox登録、HTTP／Worker／Console DI、Quickstart／Community Board／Guide／Internal Reference同期を独立Reviewした。Reviewでchild Definitionをdispatch時に構築しないInvariantへ実装を補正し、Internal説明と低Level TransactionalOutbox位置付け、重複#[Deferred]回帰を同期した。Full Framework PHPUnit 1879 tests／7583 assertions、Mago format／lint／analyze、Deptrac 0 violations、Focused compiler／outbox 42 tests／103 assertions、Quickstart E2E、Package Export、Community Board clean install／post-comment／product／digest、Website 42 tests／33 pages、Management ID／diff guardが成功した。ScheduledBy、汎用Bus、Direct Deferred Acceptance、Manifest／Migration、Ray.Aop、External Publication／DeployへScopeを広げず、P20-000をAcceptedとする。Worker Commitなし。次はCommit／Push／GitHub Actions acceptanceである。
+```
+
+## P20-000 Orchestrator Start Checkpoint
+
+```text
+2026-07-24T23:24:55+09:00
+Phase 19 Closeout後のUser Design Reviewで、Canonical Deferred記法を引数なし#[Deferred]、Transactional child Operation発行をOperations::dispatch(OperationClass::class, OperationValue)とする方針を確定し、D115／Spec 82／P20-000 Task Packetへ記録した。Existing ExecuteWith／TransactionalOutboxは互換維持し、Operations dispatchはactive Operation ContextとFramework-owned root Transaction内のDeferred child登録だけに限定する。ScheduledByはConsoleCommandから独立した将来入口として記録するが、本Taskでは実装しない。Production実装はLuna High Workerへ渡し、Ray.Aop、Manifest Schema、Migration、汎用Bus、External Publication／DeployへScopeを広げない。
+```
 
 ## P19-008 GitHub Actions Closeout
 
@@ -126,6 +140,20 @@ Task Packet、参照Spec／Decision、P19-004／P19-005 Report、既存Community
 ```
 
 ## Current Task
+
+## P20-000 Worker Completion Checkpoint
+
+```text
+2026-07-24T23:46:54+09:00
+Canonical #[Deferred] compiler normalization／conflict fail-fast、Public Operations::dispatch metadata/value-only facade／DispatchReceipt、TransactionalOutbox shared persistence／context／identity、HTTP／Worker／Console synthetic DI binding、Quickstart／Community Board／fixture migration、Guide／Core API／Website syncを実装した。Focused 61 tests／132 assertions、Outbox 14／45、Framework PHPUnit 1879／7583（accepted deprecation 1）、Mago format／lint／analyze、Deptrac 0 violations、Quickstart E2E、Package Export、Community Board clean install／post-comment、Website test 42／check／buildが成功。Product／Digest reached Community PHPUnit 55／582 but consumer pnpm non-TTY purge／Docker socket permission blocked completion; Orchestrator rerun required. Report更新済み。Worker Commitなし、Review待ち。
+```
+
+## P20-000 Worker Start Checkpoint
+
+```text
+2026-07-24T23:28:26+09:00
+Task Packet、D115、Spec 82、参照Spec／Decisionを確認した。Canonical #[Deferred]／ExecuteWith互換と競合検証、Public Operations::dispatch facade／Dispatch Receipt、既存TransactionalOutbox persistence再利用、HTTP／Worker／Console／Command DI binding、Quickstart／Community Board migrationをPacket許可範囲へ限定して実装する。ScheduledBy、汎用Bus、Direct Deferred acceptance、Ray.Aop／Manifest／Migration変更は行わない。Worker Commitなし。
+```
 
 ## P19-008 Worker Completion Checkpoint
 

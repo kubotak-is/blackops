@@ -96,6 +96,7 @@
 | [79-phase-18-runtime-follow-up-delivery-plan.md](79-phase-18-runtime-follow-up-delivery-plan.md) | Runtime BootstrapからDependency CloseoutまでのPhase 18 Follow-up順序 |
 | [80-reliability-and-delivery.md](80-reliability-and-delivery.md) | Idempotency、Transactional Outbox、Relay／Replayの契約とFailure Matrix |
 | [81-phase-19-delivery-plan.md](81-phase-19-delivery-plan.md) | Idempotency CoreからCommunity Board統合までのPhase 19 Task順序 |
+| [82-operation-dispatch-and-deferred-authoring.md](82-operation-dispatch-and-deferred-authoring.md) | `#[Deferred]`、Transactional child Operation dispatch、将来のScheduled入口境界 |
 
 ## 決定の参照
 
@@ -215,3 +216,4 @@
 | [D112](../decisions/112-authentication-credential-response-boundary.md) | Authentication Credential Response Boundary | Decided |
 | [D113](../decisions/113-database-seeder-contract.md) | Database Seeder Contract | Decided |
 | [D114](../decisions/114-application-runtime-and-bootstrap-dependency-boundary.md) | Application Runtime and Bootstrap Dependency Boundary | Decided |
+| [D115](../decisions/115-deferred-authoring-and-operation-dispatch.md) | Deferred Authoring and Operation Dispatch | Decided |
