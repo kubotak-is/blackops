@@ -1,4 +1,4 @@
-# P10-007: Project CLI Command Names Report
+# P10-007: BlackOps CLI Command Names Report
 
 Status: Accepted
 

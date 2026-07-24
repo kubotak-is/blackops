@@ -75,7 +75,7 @@ Reference
   Core API Types
   Attributes
   Configuration
-  Project CLI
+  BlackOps CLI
   Application Bootstrap
   Glossary
 ```
@@ -352,7 +352,7 @@ A
 1. Sidebarは提案した11 SectionとPage順へ再編する。
 2. Getting StartedはInstallation、Quickstart、Tutorial、Directory Structure、Local Runtimeの順とする。
 3. LifecycleはOverview、Security／Troubleshooting／Releasesは独立Sectionへ移動する。
-4. ReferenceはCore API、Attributes、Configuration、Project CLI、Application Bootstrap、Glossaryだけを置く。
+4. ReferenceはCore API、Attributes、Configuration、BlackOps CLI、Application Bootstrap、Glossaryだけを置く。
 5. `Execution`を`Execution & Workers`、`Database`を`Data & Retention`へ改名し、既存URLは維持する。
 6. Testing／Deploymentは入口Pageを追加し、詳細Guideの全面執筆は後続Taskへ分離する。
 7. 移動する既存URLへStatic 301 Redirectを用意する。

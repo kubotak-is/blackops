@@ -13,7 +13,7 @@ Experimental `1.1.0` Release CandidateのPackage Constraint、Local／Consumer V
 - `CHANGELOG.md`と`UPGRADE.md`の作成
 - `1.0.0`からのBreaking／Added／Changed／Known Limitationの利用者向け記録
 - Project Root `blackops`、Canonical Command、Worker Mode、Validation、Generator、Application MigrationのUpgrade手順
-- README、Quickstart、Installation、Current Status、Project CLI、Generator PageのStable `1.1.0`同期
+- README、Quickstart、Installation、Current Status、BlackOps CLI、Generator PageのStable `1.1.0`同期
 - Experimental／Backward Compatibility未保証の明示
 - Website Version Banner、Description、Test、Artifact Checkの`1.1.0`同期
 - Internal Release／Consumer Documentationの現行化
@@ -22,7 +22,7 @@ Experimental `1.1.0` Release CandidateのPackage Constraint、Local／Consumer V
 ## Out of Scope
 
 - 新Feature
-- Project CLI Surfaceの再変更
+- BlackOps CLI Surfaceの再変更
 - Release Candidate Full Gate
 - `1.1.0` Tag、Skeleton Distribution、Packagist、GitHub Release作成
 - Documentation WebsiteのCloudflare公開

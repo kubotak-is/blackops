@@ -4,7 +4,7 @@ Status: Accepted
 
 ## Goal
 
-Experimental `1.1.0` Releaseに向け、Project CLIから旧`blackops:*`互換Aliasを削除し、`1.0.0`からのBreaking Surfaceを後続のCHANGELOG／UPGRADEへ使える形で監査する。
+Experimental `1.1.0` Releaseに向け、BlackOps CLIから旧`blackops:*`互換Aliasを削除し、`1.0.0`からのBreaking Surfaceを後続のCHANGELOG／UPGRADEへ使える形で監査する。
 
 ## In Scope
 
@@ -52,7 +52,7 @@ Experimental `1.1.0` Releaseに向け、Project CLIから旧`blackops:*`互換Al
 ## Constraints
 
 - Production CodeはGPT-5.6 Luna High workerが変更し、Review前にCommitしない
-- Internal Compiler Commandの`blackops:*`名をProject CLI Aliasと誤認して変更しない
+- Internal Compiler Commandの`blackops:*`名をBlackOps CLI Aliasと誤認して変更しない
 - PrefixなしCanonical Command名は変更しない
 - Applicationが旧`blackops:*`名をCustom Commandとして使用することは許可する
 - `1.0.0`との互換性は成功条件ではない。差分を正確に記録する
@@ -60,10 +60,10 @@ Experimental `1.1.0` Releaseに向け、Project CLIから旧`blackops:*`互換Al
 
 ## Acceptance Criteria
 
-- [x] Project CLI CommandがLegacy Aliasを持たない
+- [x] BlackOps CLI CommandがLegacy Aliasを持たない
 - [x] Legacy Alias名がFramework予約名として拒否されない
 - [x] PrefixなしCanonical Command名、または同名をAliasに持つApplication Commandは競合時にFail-fastする
-- [x] Canonical Project CLI CommandのIntegration Testが成功する
+- [x] Canonical BlackOps CLI CommandのIntegration Testが成功する
 - [x] SkeletonにProject Root `blackops`があり、`bin/blackops`がない
 - [x] `1.0.0`からのBreaking／Additive SurfaceがReportへ分類される
 - [x] Required Quality Commandsが成功する

@@ -4,7 +4,7 @@ Status: Ready
 
 ## Goal
 
-P14-003の内部`OperationDiagnosticsQuery`を、Installed ApplicationのCanonical Project CLI `php blackops operation:viewer`から明示起動するDevelopment限定Local Viewerへ接続する。
+P14-003の内部`OperationDiagnosticsQuery`を、Installed ApplicationのCanonical BlackOps CLI `php blackops operation:viewer`から明示起動するDevelopment限定Local Viewerへ接続する。
 
 Viewerは既定無効、Loopback限定、起動ごとのRandom Token必須、Read-only、Server-renderedとする。Terminalと同じSafe Aggregateだけを表示し、Canonical Store、Raw Value、Actor ID、Exception／Dead Letter Message、CredentialをHTTP Surfaceへ出さない。
 

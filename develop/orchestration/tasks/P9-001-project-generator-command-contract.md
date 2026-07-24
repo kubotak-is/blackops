@@ -8,7 +8,7 @@ Status: Completed
 
 ## In Scope
 
-- 既存Project CLI／Console Kernel／Quickstart Operation Layoutの確認
+- 既存BlackOps CLI／Console Kernel／Quickstart Operation Layoutの確認
 - Generator Commandの利用者向けContract設計
 - Application MigrationとFramework Migrationの実行境界設計
 - 既存File保護とFramework Update追従方針

@@ -127,7 +127,7 @@ Framework Updateは生成済みOperation／Migrationを変更しない。新Stub
 
 - Decision: [D080 Project Generator Command Contract](../decisions/080-project-generator-command-contract.md)
 - Entrypoint: [D083 Project Root BlackOps Entrypoint](../decisions/083-project-root-blackops-entrypoint.md)
-- Command Names: [D092 Project CLI Command Names](../decisions/092-project-cli-command-names.md)
+- Command Names: [D092 BlackOps CLI Command Names](../decisions/092-project-cli-command-names.md)
 - Roadmap: [Developer Experience Roadmap](41-developer-experience-roadmap.md)
 - Console: [Public Console Kernel Composition](48-public-console-kernel-composition.md)
 - Operation: [Operation Authoring and Build Discovery](50-operation-authoring-and-build-discovery.md)

@@ -6,7 +6,7 @@ Status: Accepted
 
 LandingからQuickstart、Generator Tutorial、Validation、Runtimeへ進むReader Journeyを現行`main` Public APIへ同期した。LandingはQuickstartをPrimary CTAとし、Keyboard操作可能な4 Feature Link Blockを追加した。QuickstartはComposer InstallからInline、Deferred受付、Worker完了まで自己完結させ、Tutorialは`php blackops make:operation`で生成する3 Fileと利用者が編集する完成形を分離した。
 
-全公開CLI例をProject Rootの`php blackops`へ統一した。Latest Stable `1.0.0`が従来の`bin` Directory Entrypointを持ち、Generator、7 Validation Attribute、Application Migration Runtime、FrankenPHP Worker Modeを含まない差もInstallation、Quickstart、Tutorial、Project CLI、Current Statusへ明記した。
+全公開CLI例をProject Rootの`php blackops`へ統一した。Latest Stable `1.0.0`が従来の`bin` Directory Entrypointを持ち、Generator、7 Validation Attribute、Application Migration Runtime、FrankenPHP Worker Modeを含まない差もInstallation、Quickstart、Tutorial、BlackOps CLI、Current Statusへ明記した。
 
 Validation GuideはSymfony Validatorを内部Backendとして使うBlackOps所有7 Attribute、Protocol 400、Binding 422、Value 422、手動Cross-field、Business Rejection、Inline／Deferred差を成功Input／OutputとRejected Response／Journalで説明する。`Count`は実装済みだが現行HTTP BinderがNon-scalar Inputを拒否するためHTTP Valueでは利用できない制約も公開した。
 

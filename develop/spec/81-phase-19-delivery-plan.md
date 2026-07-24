@@ -109,7 +109,7 @@ Community Board Product Journeyは変更しない。
 ## P19-008: Consumer, Documentation, and Phase Closeout
 
 - QuickstartまたはPermanent FixtureでIdempotency／Outbox／Relay／Replayを完走する
-- Skeleton、Config、Migration、Project CLI、Upgrade、Guide、Internal Referenceを同期する
+- Skeleton、Config、Migration、BlackOps CLI、Upgrade、Guide、Internal Referenceを同期する
 - Community Board Clean Install、Product、Digest、Notification、Browserを完走する
 - Framework Full PHPUnit、Mago、Deptrac、Frontend、Publication Dry-run、Websiteを回帰する
 - Retention、Sensitive、Worker Reuse、Artifact、Migration Current Schemaを検証する

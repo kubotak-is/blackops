@@ -10,7 +10,7 @@ Post-MVPのDeveloper Experienceとして、次の4つを実現したい。
 
 1. 実際のInstall後Applicationと同じDirectory構成を持つExamples
 2. `composer create-project` でApplication Skeletonを生成するInstall Experience
-3. Laravel `artisan` のようにOperation／Migration等の雛形生成とFramework Commandを提供するProject CLI
+3. Laravel `artisan` のようにOperation／Migration等の雛形生成とFramework Commandを提供するBlackOps CLI
 4. Repository内の `docs/website` にAstro Starlightで構築するDocumentation Website
 
 Composerの `create-project` は、Project Packageの取得と依存Installを行う標準的なProject Bootstrap境界である。`post-root-package-install` と `post-create-project-cmd` もRoot Project側で使用できる。
@@ -185,7 +185,7 @@ Websiteは静的BuildしてCloudflare PagesへDeployする。
 
 [/ANSWER]
 
-## Question 8: Project CLI Entrypoint
+## Question 8: BlackOps CLI Entrypoint
 
 Install後Applicationが使うLaravel `artisan` 相当のCommand Entrypointをどこに置くか。
 

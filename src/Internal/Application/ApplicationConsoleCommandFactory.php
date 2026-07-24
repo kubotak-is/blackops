@@ -18,6 +18,9 @@ use BlackOps\Internal\Console\MakeOperationCommand;
 use BlackOps\Internal\Console\MakeSeederCommand;
 use BlackOps\Internal\Console\OperationInspectCommand;
 use BlackOps\Internal\Console\OperationViewerCommand;
+use BlackOps\Internal\Console\OutboxDeadLetterRetryCommand;
+use BlackOps\Internal\Console\OutboxRelayDaemonCommand;
+use BlackOps\Internal\Console\OutboxRelayRunCommand;
 use BlackOps\Internal\Console\WorkerRunCommand;
 use BlackOps\Internal\Diagnostics\OperationDiagnosticsResult;
 use BlackOps\Internal\Diagnostics\Viewer\OperationViewerRouter;
@@ -102,6 +105,28 @@ final class ApplicationConsoleCommandFactory
     public function worker(): Command
     {
         return new WorkerRunCommand(new ApplicationWorkerComposer()->compose($this->configuration)->loop);
+    }
+
+    public function outboxRelayRun(): Command
+    {
+        return new OutboxRelayRunCommand(new ApplicationOutboxRuntime($this->configuration)->relay);
+    }
+
+    public function outboxRelayDaemon(): Command
+    {
+        $runtime = new ApplicationOutboxRuntime($this->configuration);
+        return new OutboxRelayDaemonCommand(
+            $runtime->relay,
+            ApplicationOutboxRelayConfiguration::fromConfiguration(
+                $this->configuration->configuration(),
+            )->pollIntervalMilliseconds,
+        );
+    }
+
+    public function outboxDeadLetterRetry(): Command
+    {
+        $runtime = new ApplicationOutboxRuntime($this->configuration);
+        return new OutboxDeadLetterRetryCommand($runtime->store, $runtime->clock);
     }
 
     public function operationInspect(): Command

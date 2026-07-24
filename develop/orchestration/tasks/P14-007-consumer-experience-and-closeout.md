@@ -16,7 +16,7 @@ Quickstart／Skeleton、Guide／Reference／Security／Troubleshooting、Framewo
 - Local ViewerのEnable、明示起動、Bootstrap Token、Session、Read-only、Timelineを実Consumerで検証する
 - Quickstart Local用Application JSONL Logging Configを追加し、Application／Framework Log相関を実出力で確認する
 - Quickstart READMEと利用者向けQuickstartへRequest／Response／CLI／JSON／Viewer／JSONLを入力と出力の対で記載する
-- Project CLI、Configuration、Security、Troubleshooting、Directory Structure、Current Statusを実装へ同期する
+- BlackOps CLI、Configuration、Security、Troubleshooting、Directory Structure、Current Statusを実装へ同期する
 - Framework UpdateとSkeleton通常／`--no-scripts` Create-projectへ新FeatureとConfigを同期する
 - Quickstart／Integration／Architecture／Consumer／Website Testを更新する
 - Full PHP／Consumer／Website Quality Gateを実行する

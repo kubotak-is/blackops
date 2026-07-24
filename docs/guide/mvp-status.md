@@ -15,7 +15,7 @@ BlackOpsはExperimentalです。1.x Minor間のBackward CompatibilityとProducti
 | Lifecycle Journal／Sensitive Projection | Available | Available |
 | Typed Outcome Retrieval／Retention | Available | Available |
 | Composer Skeleton | Available | Available |
-| Project CLI Entrypoint | Project Root `blackops` | Project Root `blackops` |
+| BlackOps CLI Entrypoint | Project Root `blackops` | Project Root `blackops` |
 | `make:operation`／`make:migration` | Available | Available |
 | Application Migration Runtime | Available | Available |
 | 7 Value Validation Attribute／422 Lifecycle | Available | Available |

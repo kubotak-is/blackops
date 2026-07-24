@@ -34,17 +34,57 @@ final readonly class PostgreSqlOutboxSchema
                 available_at timestamptz NOT NULL,
                 recorded_at timestamptz NOT NULL,
                 connection_name text NOT NULL CHECK (connection_name <> ''),
-                state text NOT NULL DEFAULT 'pending' CHECK (state = 'pending'),
-                state_version bigint NOT NULL DEFAULT 1 CHECK (state_version = 1)
+                state text NOT NULL DEFAULT 'pending' CHECK (state IN ('pending','leased','retry_scheduled','sent','dead_lettered')),
+                state_version bigint NOT NULL DEFAULT 1 CHECK (state_version >= 1),
+                relay_id text NULL,
+                lease_expires_at timestamptz NULL,
+                fencing_token bigint NOT NULL DEFAULT 0 CHECK (fencing_token >= 0),
+                attempt_count integer NOT NULL DEFAULT 0 CHECK (attempt_count >= 0),
+                next_attempt_at timestamptz NULL,
+                failure_fingerprint text NULL,
+                failure_fingerprint_version integer NULL,
+                leased_at timestamptz NULL,
+                sent_at timestamptz NULL,
+                dead_lettered_at timestamptz NULL
             )",
-            "CREATE INDEX IF NOT EXISTS outbox_records_pending_idx
-                ON {$table} (available_at, record_id)
-                WHERE state = 'pending'",
+            "ALTER TABLE {$table} ADD COLUMN IF NOT EXISTS relay_id text NULL",
+            "ALTER TABLE {$table} ADD COLUMN IF NOT EXISTS lease_expires_at timestamptz NULL",
+            "ALTER TABLE {$table} ADD COLUMN IF NOT EXISTS fencing_token bigint NOT NULL DEFAULT 0 CHECK (fencing_token >= 0)",
+            "ALTER TABLE {$table} ADD COLUMN IF NOT EXISTS attempt_count integer NOT NULL DEFAULT 0 CHECK (attempt_count >= 0)",
+            "ALTER TABLE {$table} ADD COLUMN IF NOT EXISTS next_attempt_at timestamptz NULL",
+            "ALTER TABLE {$table} ADD COLUMN IF NOT EXISTS failure_fingerprint text NULL",
+            "ALTER TABLE {$table} ADD COLUMN IF NOT EXISTS failure_fingerprint_version integer NULL",
+            "ALTER TABLE {$table} ADD COLUMN IF NOT EXISTS leased_at timestamptz NULL",
+            "ALTER TABLE {$table} ADD COLUMN IF NOT EXISTS sent_at timestamptz NULL",
+            "ALTER TABLE {$table} ADD COLUMN IF NOT EXISTS dead_lettered_at timestamptz NULL",
+            "ALTER TABLE {$table} DROP CONSTRAINT IF EXISTS outbox_records_state_check",
+            "ALTER TABLE {$table} DROP CONSTRAINT IF EXISTS outbox_records_state_version_check",
+            "ALTER TABLE {$table} ADD CONSTRAINT outbox_records_state_check CHECK (state IN ('pending','leased','retry_scheduled','sent','dead_lettered'))",
+            "ALTER TABLE {$table} ADD CONSTRAINT outbox_records_state_version_check CHECK (state_version >= 1)",
+            "CREATE INDEX IF NOT EXISTS outbox_records_claim_idx
+                ON {$table} (COALESCE(next_attempt_at, available_at), record_id)
+                WHERE state IN ('pending','retry_scheduled') OR (state = 'leased' AND lease_expires_at IS NOT NULL)",
+            "CREATE INDEX IF NOT EXISTS outbox_records_lease_idx ON {$table} (lease_expires_at, record_id) WHERE state = 'leased'",
+            "CREATE TABLE IF NOT EXISTS {$this->retryAuditTable()} (
+                audit_id uuid PRIMARY KEY,
+                record_id uuid NOT NULL,
+                operation_id uuid NOT NULL,
+                actor text NOT NULL CHECK (actor <> ''),
+                reason text NOT NULL CHECK (reason <> ''),
+                retried_at timestamptz NOT NULL,
+                previous_attempt_count integer NOT NULL CHECK (previous_attempt_count >= 0)
+            )",
+            "CREATE INDEX IF NOT EXISTS outbox_dead_letter_retry_audits_record_idx ON {$this->retryAuditTable()} (record_id, retried_at)",
         ];
     }
 
     public function table(): string
     {
         return $this->identifier->qualify('outbox_records');
+    }
+
+    public function retryAuditTable(): string
+    {
+        return $this->identifier->qualify('outbox_dead_letter_retry_audits');
     }
 }

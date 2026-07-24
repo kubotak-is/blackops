@@ -12,7 +12,7 @@ P15-002のFrontend Contract Manifestだけを入力として、Framework-neutral
 
 - Optional `config/frontend.php`とDefault Output `resources/js/blackops`
 - Application Root配下だけを許可するFrontend Output Configuration
-- `frontend:generate` Project CLI CommandとLazy Registration
+- `frontend:generate` BlackOps CLI CommandとLazy Registration
 - Frontend Contract ManifestのLoad、Build ID、Schema、Contract Hash
 - Deterministic TypeScript ESM Tree
 - 共通`types.ts`／`client.ts`、Operation Module、Ownership Marker `manifest.json`

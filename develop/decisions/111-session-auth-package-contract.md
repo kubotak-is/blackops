@@ -33,7 +33,7 @@ Session Tokenの保存形式、並行制御、Migration History、PackageとFram
 
 LaravelはBrowser向けAuthenticationとSessionを`laravel/framework`に同梱し、Sanctum／PassportのようなAPI Token／OAuth Capabilityを別Packageにしている。
 
-BlackOpsはすでにDoctrine DBAL、Doctrine Migrations、PSR-7、Actor、HTTP Authentication、DI、Project CLIをFrameworkの必須Capabilityとして持つ。Session Authenticationを別PackageにしてもFrameworkの依存を減らせず、Compatibility Matrix、Release、Publication、Install Commandを増やす。現時点で別Packageにする明確な技術的利点はない。
+BlackOpsはすでにDoctrine DBAL、Doctrine Migrations、PSR-7、Actor、HTTP Authentication、DI、BlackOps CLIをFrameworkの必須Capabilityとして持つ。Session Authenticationを別PackageにしてもFrameworkの依存を減らせず、Compatibility Matrix、Release、Publication、Install Commandを増やす。現時点で別Packageにする明確な技術的利点はない。
 
 `blackops/auth`はPassword、Session、JWT、OAuth、MFA、Authorizationまで所有するように見える広い名前である。今回のCapabilityはSession Token Lifecycleだけなので、別Packageであれば`session-auth`が正確だが、Framework同梱に変更する場合はPackage名自体が不要になる。Public Namespaceを`BlackOps\Auth\Session`とすることで、Auth配下のSession Capabilityであることを表現できる。
 

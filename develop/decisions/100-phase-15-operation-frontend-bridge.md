@@ -241,13 +241,13 @@ A
 
 - A: `php blackops frontend:generate`を明示Commandとして追加し、現在のOperation／HTTP Build Artifactを検証してTypeScriptを決定的に全再生成する。`php blackops frontend:check`でDriftを検出する。`build:compile`はBackend Artifactだけを作り、`package.json`のFrontend Build ScriptまたはCIが`build:compile -> frontend:generate -> frontend build`を順に呼ぶ。Vite Pluginは後続Phaseへ送る
 - B: `php blackops build:compile`がBackend ArtifactとTypeScriptを常に同時生成する。Frontendを持たないApplicationにも生成先設定を必須にする
-- C: Phase 15からNode PackageとVite Pluginを提供し、Vite Dev／BuildがPHP Commandを自動実行する。Project CLIの明示生成は補助とする
+- C: Phase 15からNode PackageとVite Pluginを提供し、Vite Dev／BuildがPHP Commandを自動実行する。BlackOps CLIの明示生成は補助とする
 
 ### Recommendation
 
 Aを推奨する。
 
-Backend-only ApplicationへNode／Frontend Directoryを要求せず、生成の入口はFramework Update後も現在のProject CLIから解決される。Vite固有Process管理、Windows／WSL Path、PHP起動、Watch、Stale Route Cacheに相当する問題をPhase 15へ持ち込まない。Drift CheckをCIへ置けば、生成物をCommitするApplicationと`.gitignore`するApplicationの両方を支援できる。
+Backend-only ApplicationへNode／Frontend Directoryを要求せず、生成の入口はFramework Update後も現在のBlackOps CLIから解決される。Vite固有Process管理、Windows／WSL Path、PHP起動、Watch、Stale Route Cacheに相当する問題をPhase 15へ持ち込まない。Drift CheckをCIへ置けば、生成物をCommitするApplicationと`.gitignore`するApplicationの両方を支援できる。
 
 既定出力先候補は`resources/js/blackops/`とし、Application Configで変更可能にする。生成中断時に半端なTreeを残さないAtomic Replaceと、生成元Build IDを持つManifestを必須とする。
 

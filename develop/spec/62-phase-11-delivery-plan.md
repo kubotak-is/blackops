@@ -6,7 +6,7 @@
 
 ## P11-001: Release Surface Reset
 
-- Project CLIの旧`blackops:*` Aliasと予約を削除する
+- BlackOps CLIの旧`blackops:*` Aliasと予約を削除する
 - PrefixなしCanonical CommandとProject Root `blackops`だけを公式Surfaceとして検証する
 - `1.0.0`からのPublic API／Entrypoint／Command／Database／Configuration差分を監査する
 - Breaking SurfaceをReportへ固定し、後続のCHANGELOG／UPGRADE入力にする
@@ -57,7 +57,7 @@ P11-001 Release Surface Reset
 
 ## Phase Acceptance Criteria
 
-- [x] Project CLIの公式SurfaceがProject Root `blackops`とPrefixなしCanonical Commandだけである
+- [x] BlackOps CLIの公式SurfaceがProject Root `blackops`とPrefixなしCanonical Commandだけである
 - [x] `1.0.0`からのBreaking SurfaceとMigrationがDocumentedである
 - [x] Skeleton `1.1.0`がFramework `^1.1`を要求する
 - [x] CHANGELOG、UPGRADE、README、GuideがLatest StableとExperimental Policyに一致する

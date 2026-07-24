@@ -2,7 +2,7 @@
 
 ## Scope
 
-MVP後のDeveloper Experienceは、Install直後のApplication、Composer Project Bootstrap、Project CLI、Documentation Websiteを一貫した利用体験として提供する。
+MVP後のDeveloper Experienceは、Install直後のApplication、Composer Project Bootstrap、BlackOps CLI、Documentation Websiteを一貫した利用体験として提供する。
 
 実装順序は次のとおりとする。
 

@@ -158,7 +158,7 @@ A
 
 Aを推奨する。
 
-Phase 10の主目的をSingle Source Buildと公開経路の確立に置きながら、初見の利用者がInstall、Quickstart、Project CLIへ到達できる入口は用意する。古いAPI説明や管理番号参照など、移行時に判明した本文課題は一覧化し、公開を止める重大な誤りだけ同じPhaseで修正する。
+Phase 10の主目的をSingle Source Buildと公開経路の確立に置きながら、初見の利用者がInstall、Quickstart、BlackOps CLIへ到達できる入口は用意する。古いAPI説明や管理番号参照など、移行時に判明した本文課題は一覧化し、公開を止める重大な誤りだけ同じPhaseで修正する。
 
 [ANSWER]
 
@@ -185,7 +185,7 @@ docs/website/         -- Astro Starlight Project、生成処理、Website Asset
 /operations/...       -- Operation Authoring、Generator、Lifecycle
 /execution/...        -- HTTP、Inline、Deferred、Worker
 /database/...         -- Migration、Outcome、Retention
-/reference/...        -- Configuration、Project CLI、Status
+/reference/...        -- Configuration、BlackOps CLI、Status
 ```
 
 LocalとCIはmiseで固定したNode.js 24 LTS／pnpm 11とLockfileを使用し、Content生成、Astro Type Check、Static Build、Internal Link Checkを順に実行する。GitHub ActionsはPull RequestをPreview Branch、`main`をProductionとしてDirect Uploadする。

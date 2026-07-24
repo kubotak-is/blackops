@@ -22,7 +22,7 @@ Landingは`BlackOps — The PHP Framework`、Installation／Why BlackOps CTA、O
 | Security | Security & Sensitive Data |
 | Troubleshooting | Troubleshooting / FAQ |
 | Releases | Current Status |
-| Reference | Core API Types、Attributes、Configuration、Project CLI、Application Bootstrap、Glossary |
+| Reference | Core API Types、Attributes、Configuration、BlackOps CLI、Application Bootstrap、Glossary |
 
 `site-navigation.mjs`は11 Labelの完全一致、全Pageの一意配置、Missing／Duplicate／Unknown／Reorderedを拒否する。Tutorialだけは公開Page Titleを変えずSidebar Labelを`Tutorial`へ固定した。
 

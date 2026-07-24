@@ -152,7 +152,7 @@ if (accepted.ok && accepted.kind === 'accepted') {
 
 ## Worker
 
-Project CLIからWorkerを起動します。
+BlackOps CLIからWorkerを起動します。
 
 ```bash
 php blackops worker:run --idle-sleep-milliseconds=1000
@@ -168,4 +168,4 @@ PCNTL [Heartbeat](glossary.md#heartbeat)はHandler実行中だけ[Lease](glossar
 
 HTTPとWorkerはCompile済みOperation Manifest、HTTP Manifest、DI Containerだけを読み込みます。Runtime起動時にSource Discovery、Artifact Compile、Database MigrationへFallbackしません。Artifact不足、Schema Version不正、Build ID不一致は起動エラーです。
 
-BuildとRuntimeの入口は[Project CLI](project-cli.md)、Contextの読み取りは[Execution Context](execution-context.md)を参照してください。
+BuildとRuntimeの入口は[BlackOps CLI](project-cli.md)、Contextの読み取りは[Execution Context](execution-context.md)を参照してください。

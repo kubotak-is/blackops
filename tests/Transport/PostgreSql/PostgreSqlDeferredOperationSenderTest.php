@@ -270,13 +270,86 @@ final class PostgreSqlDeferredOperationSenderTest extends TestCase
         self::assertSame('2026-07-10T00:00:01.123456Z', $row['accepted_at']);
     }
 
-    public function testDuplicateOperationIdFailsWithDeferredTransportException(): void
+    public function testDuplicateOperationIdWithSameMessageIsReplayed(): void
     {
         $this->sender->enqueue($this->message());
 
-        $this->expectException(DeferredTransportException::class);
+        self::assertTrue($this->sender->enqueue($this->message())->isReplayed());
+    }
 
+    public function testDuplicateOperationIdAcrossTwoConnectionsIsReplayedAtomically(): void
+    {
         $this->sender->enqueue($this->message());
+        $second = new PostgreSqlDeferredOperationSender(
+            $this->connection(),
+            self::SCHEMA,
+            new DateTimeImmutable('2026-07-10T00:00:02.123456Z'),
+        );
+
+        $acknowledgement = $second->enqueue($this->message());
+
+        self::assertTrue($acknowledgement->isReplayed());
+        self::assertSame(
+            '2026-07-10T00:00:01.123456+00:00',
+            $acknowledgement->acceptedAt()->format('Y-m-d\\TH:i:s.uP'),
+        );
+        self::assertSame(1, (int) $this->connection->fetchOne('SELECT count(*) FROM ' . self::SCHEMA . '.operations'));
+    }
+
+    public function testDuplicateOperationIdWithMismatchedMessageFailsWithoutOverwritingOriginal(): void
+    {
+        $this->sender->enqueue($this->message());
+        $mismatches = [
+            new DeferredOperationMessage(
+                OperationId::fromString(self::OPERATION_ID),
+                'report.other',
+                1,
+                '{"reportId":"r1"}',
+                '{"correlationId":"c1"}',
+                new DateTimeImmutable('2026-07-10T00:00:00.000000Z'),
+            ),
+            new DeferredOperationMessage(
+                OperationId::fromString(self::OPERATION_ID),
+                'report.generate',
+                2,
+                '{"reportId":"r1"}',
+                '{"correlationId":"c1"}',
+                new DateTimeImmutable('2026-07-10T00:00:00.000000Z'),
+            ),
+            new DeferredOperationMessage(
+                OperationId::fromString(self::OPERATION_ID),
+                'report.generate',
+                1,
+                '{"reportId":"changed"}',
+                '{"correlationId":"c1"}',
+                new DateTimeImmutable('2026-07-10T00:00:00.000000Z'),
+            ),
+            new DeferredOperationMessage(
+                OperationId::fromString(self::OPERATION_ID),
+                'report.generate',
+                1,
+                '{"reportId":"r1"}',
+                '{"correlationId":"changed"}',
+                new DateTimeImmutable('2026-07-10T00:00:01.000000Z'),
+            ),
+        ];
+        foreach ($mismatches as $mismatch) {
+            try {
+                $this->sender->enqueue($mismatch);
+                self::fail('Mismatched duplicate was accepted.');
+            } catch (DeferredTransportException) {
+                self::assertSame(
+                    1,
+                    (int) $this->connection->fetchOne('SELECT count(*) FROM ' . self::SCHEMA . '.operations'),
+                );
+                self::assertSame(
+                    '{"reportId":"r1"}',
+                    $this->connection->fetchOne(
+                        'SELECT convert_from(encoded_payload, \'UTF8\') FROM ' . self::SCHEMA . '.operations',
+                    ),
+                );
+            }
+        }
     }
 
     private function message(): DeferredOperationMessage

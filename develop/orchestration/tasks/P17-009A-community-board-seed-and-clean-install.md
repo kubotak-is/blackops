@@ -26,7 +26,7 @@ P17-008までに、Authentication、Board Domain／Infrastructure、Post／Comme
 
 ## Seed Command Contract
 
-- Project CLI名は`php blackops app:seed`とする。
+- BlackOps CLI名は`php blackops app:seed`とする。
 - SeedはFramework CommandではなくCommunity Board Application-owned Symfony Commandとする。
 - User、Post、Commentをそれぞれ複数件作成し、空のFeedだけでなくOwner／別User／Commentの表示と操作を確認できる内容にする。
 - Demo Email、Display Name、Password、Post／Comment ContentはSourceで明示されたLocal／Test Fixtureとし、READMEで公開Demo Credentialであることを明示する。

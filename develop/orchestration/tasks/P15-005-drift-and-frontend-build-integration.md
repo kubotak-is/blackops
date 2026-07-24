@@ -10,7 +10,7 @@ Canonical Build順序を`build:compile -> frontend:generate -> frontend:check ->
 
 ## In Scope
 
-- `frontend:check` Project CLI CommandとLazy Registration
+- `frontend:check` BlackOps CLI CommandとLazy Registration
 - Expected Generated Treeと既存OutputのPath／Bytes／余剰File比較
 - Fresh／Missing／Drift／InvalidのExit Contract
 - Drift Checkの完全なRead-only動作

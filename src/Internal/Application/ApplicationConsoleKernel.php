@@ -21,6 +21,9 @@ use BlackOps\Internal\Console\MakeSeederCommand;
 use BlackOps\Internal\Console\OperationConsoleCommand;
 use BlackOps\Internal\Console\OperationInspectCommand;
 use BlackOps\Internal\Console\OperationViewerCommand;
+use BlackOps\Internal\Console\OutboxDeadLetterRetryCommand;
+use BlackOps\Internal\Console\OutboxRelayDaemonCommand;
+use BlackOps\Internal\Console\OutboxRelayRunCommand;
 use BlackOps\Internal\Console\RetentionPlanCommand;
 use BlackOps\Internal\Console\RetentionPurgeCommand;
 use BlackOps\Internal\Console\SchedulerDaemonCommand;
@@ -252,6 +255,35 @@ final readonly class ApplicationConsoleKernel
                     InputOption::VALUE_REQUIRED,
                     default: '60',
                 )->addOption('iterations', null, InputOption::VALUE_REQUIRED),
+            ),
+            new LazyFrameworkCommand(
+                OutboxRelayRunCommand::NAME,
+                'Deliver pending transactional outbox records.',
+                $factory->outboxRelayRun(...),
+                static fn(Command $command): Command => $command->addOption(
+                    'batches',
+                    null,
+                    InputOption::VALUE_REQUIRED,
+                )->addOption('until-empty', null, InputOption::VALUE_NONE),
+            ),
+            new LazyFrameworkCommand(
+                OutboxRelayDaemonCommand::NAME,
+                'Run transactional outbox delivery on an interval.',
+                $factory->outboxRelayDaemon(...),
+                static fn(Command $command): Command => $command->addOption(
+                    'interval-milliseconds',
+                    null,
+                    InputOption::VALUE_REQUIRED,
+                )->addOption('iterations', null, InputOption::VALUE_REQUIRED),
+            ),
+            new LazyFrameworkCommand(
+                OutboxDeadLetterRetryCommand::NAME,
+                'Retry one dead-lettered transactional outbox record.',
+                $factory->outboxDeadLetterRetry(...),
+                static fn(Command $command): Command => $command
+                    ->addArgument('record-id', InputArgument::REQUIRED)
+                    ->addOption('actor', null, InputOption::VALUE_REQUIRED)
+                    ->addOption('reason', null, InputOption::VALUE_REQUIRED),
             ),
         ];
     }

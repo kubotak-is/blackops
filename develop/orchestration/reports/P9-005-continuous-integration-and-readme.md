@@ -8,7 +8,7 @@ Status: Accepted
 
 Workflow権限は`contents: read`だけとし、同一Workflow／Refの古いRunをCancelする。成功／失敗にかかわらずDocker Compose ResourceをCleanupする。Release TagとSkeleton Publicationは既存の独立Workflowへ残した。
 
-Root `README.md`を追加し、CI／Packagist／PHP／License Badge、Framework概要、公開版とMain BranchのStatus差、公式Install、Quickstart、Phase 9 Project CLI、開発品質Command、Documentation導線、Licenseを記載した。Development Setupに残っていた旧Worker Model表記もAGENTS／D077へ同期した。
+Root `README.md`を追加し、CI／Packagist／PHP／License Badge、Framework概要、公開版とMain BranchのStatus差、公式Install、Quickstart、Phase 9 BlackOps CLI、開発品質Command、Documentation導線、Licenseを記載した。Development Setupに残っていた旧Worker Model表記もAGENTS／D077へ同期した。
 
 ## Changed Files
 

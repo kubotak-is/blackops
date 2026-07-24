@@ -12,6 +12,7 @@ use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 use Throwable;
 
+/** @mago-expect lint:cyclomatic-complexity */
 final readonly class PostgreSqlDeferredOperationSender implements OperationSender
 {
     private const CONTENT_TYPE = 'application/vnd.blackops.deferred-operation+json';
@@ -76,7 +77,7 @@ final readonly class PostgreSqlDeferredOperationSender implements OperationSende
         )";
 
         try {
-            $this->connection->executeStatement($sql, [
+            $inserted = $this->connection->executeStatement($sql . ' ON CONFLICT (operation_id) DO NOTHING', [
                 'operation_id' => $message->operationId()->toString(),
                 'operation_type' => $message->operationType(),
                 'schema_version' => $message->schemaVersion(),
@@ -91,7 +92,33 @@ final readonly class PostgreSqlDeferredOperationSender implements OperationSende
                 'available_at' => $this->formatTimestamp($message->availableAt()),
                 'accepted_at' => $this->formatTimestamp($acceptedAt),
             ]);
+            if ((int) $inserted === 0) {
+                $existing = $this->connection->fetchAssociative(
+                    "SELECT operation_type, schema_version,
+                        convert_from(encoded_payload, 'UTF8') AS encoded_payload,
+                        convert_from(encoded_context, 'UTF8') AS encoded_context,
+                        content_type, encoding, key_id, available_at, accepted_at
+                    FROM {$table} WHERE operation_id=:operation_id",
+                    ['operation_id' => $message->operationId()->toString()],
+                );
+                if (!is_array($existing)) {
+                    throw new DeferredTransportException('Deferred operation duplicate could not be read safely.');
+                }
+                if (!$this->sameMessage($existing, $message)) {
+                    throw new DeferredTransportException(
+                        'Deferred operation duplicate has mismatched message integrity.',
+                    );
+                }
+                return new DeferredAcknowledgement(
+                    $message->operationId(),
+                    new DateTimeImmutable((string) $existing['accepted_at']),
+                    replayed: true,
+                );
+            }
         } catch (Throwable $exception) {
+            if ($exception instanceof DeferredTransportException) {
+                throw $exception;
+            }
             throw new DeferredTransportException(
                 'Failed to enqueue PostgreSQL deferred operation.',
                 previous: $exception,
@@ -133,6 +160,23 @@ final readonly class PostgreSqlDeferredOperationSender implements OperationSende
     private function formatTimestamp(DateTimeImmutable $time): string
     {
         return $time->format('Y-m-d H:i:s.uP');
+    }
+
+    /** @param array<string, mixed> $existing */
+    private function sameMessage(array $existing, DeferredOperationMessage $message): bool
+    {
+        return (
+            $existing['operation_type'] === $message->operationType()
+            && (int) $existing['schema_version'] === $message->schemaVersion()
+            && $existing['encoded_payload'] === $message->encodedPayload()
+            && $existing['encoded_context'] === $message->encodedContext()
+            && $existing['content_type'] === self::CONTENT_TYPE
+            && $existing['encoding'] === self::ENCODING
+            && $existing['key_id'] === null
+            && $this->formatTimestamp(
+                new DateTimeImmutable((string) $existing['available_at']),
+            ) === $this->formatTimestamp($message->availableAt())
+        );
     }
 
     private function acceptedAt(): DateTimeImmutable

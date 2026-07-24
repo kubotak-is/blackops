@@ -334,7 +334,7 @@ my-app/
 
 - Feature-first LayoutとPublic Application APIを確定仕様へ反映する。
 - Public Bootstrap API、Quickstart Application、Local Runtime／Consumer E2Eを独立Taskへ分割する。
-- Project CLIのGeneratorはPhase 9でFeature／Action Directoryを生成する。
+- BlackOps CLIのGeneratorはPhase 9でFeature／Action Directoryを生成する。
 
 [/CONSEQUENCES]
 

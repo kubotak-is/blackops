@@ -4,9 +4,9 @@ Status: Accepted
 
 ## Summary
 
-Experimental `1.1.0` Release Surfaceから旧`blackops:*` Project CLI Aliasとその予約を削除した。Project CLIはProject Root `blackops`とPrefixなしCanonical CommandだけをFramework所有Surfaceとする。旧Command名はApplication Commandとして利用でき、Canonical Command名またはそれをAliasに持つApplication CommandはFail-fastする。
+Experimental `1.1.0` Release Surfaceから旧`blackops:*` BlackOps CLI Aliasとその予約を削除した。BlackOps CLIはProject Root `blackops`とPrefixなしCanonical CommandだけをFramework所有Surfaceとする。旧Command名はApplication Commandとして利用でき、Canonical Command名またはそれをAliasに持つApplication CommandはFail-fastする。
 
-`1.0.0`からのPublic API、Entrypoint、Command、Database Metadata、Configuration、HTTP Surfaceを監査し、破壊的変更、追加、不変部分を下記へ固定した。Internal Compiler Commandの`blackops:*`名はProject CLI Surfaceではないため変更していない。
+`1.0.0`からのPublic API、Entrypoint、Command、Database Metadata、Configuration、HTTP Surfaceを監査し、破壊的変更、追加、不変部分を下記へ固定した。Internal Compiler Commandの`blackops:*`名はBlackOps CLI Surfaceではないため変更していない。
 
 ## Changed Files
 
@@ -40,7 +40,7 @@ Audit Baseはannotated tag `1.0.0`、CurrentはP11-001 Working Treeである。
 | Surface | `1.0.0` | `1.1.0` Candidate | Migration Input |
 | --- | --- | --- | --- |
 | Project Entrypoint | `php bin/blackops ...` | `php blackops ...` | Project Rootの`blackops`を使い、旧`bin/blackops`を削除する |
-| Project CLI Command | `blackops:build:compile`等9 Command | `build:compile`等のPrefixなし9 Command | Script、Process Manager、Compose CommandをCanonical名へ更新する |
+| BlackOps CLI Command | `blackops:build:compile`等9 Command | `build:compile`等のPrefixなし9 Command | Script、Process Manager、Compose CommandをCanonical名へ更新する |
 | Legacy Name Ownership | 旧`blackops:*`名はFramework Command | Alias登録もFramework予約もしない | Application独自Commandとして使用可能 |
 | HTTP Protocol Error | JSON Decode／Body Shape失敗はTyped Error Response Contractなし | malformed JSONとNon-object Bodyを安定Code付き400 JSONで応答 | Clientは`status=error`と`code`を扱う |
 | HTTP Binding Error | Missing／Type Failureは422 Lifecycle Contractなし | Operation IDとViolation付き422 Rejected | Clientは`operationId`、`category`、`code`、`violations`を扱う |
@@ -64,7 +64,7 @@ Audit Baseはannotated tag `1.0.0`、CurrentはP11-001 Working Treeである。
 
 - `#[PublicApi]` Source Typeは111から119へ増加し、削除はない。追加は`Choice`、`Count`、`Email`、`Length`、`NotBlank`、`Range`、`Regex`、`Violation`の8型である。
 - `RejectionReason::validation()`はOptional `list<Violation>`引数と`violations()` Getterを追加した。既存の1引数Callは維持される。
-- `make:operation`と`make:migration`をProject CLIへ追加した。
+- `make:operation`と`make:migration`をBlackOps CLIへ追加した。
 - `App\Migrations`のApplication Migration Discovery、Framework先行Ordering、共通Doctrine Metadata Tableを追加した。
 - OperationValue Validation Runtimeと`400` Protocol／`422` Binding／Value Validation Lifecycleを追加した。
 - `symfony/validator:^7.4`をFramework Runtime Dependencyへ追加した。
@@ -80,7 +80,7 @@ Audit Baseはannotated tag `1.0.0`、CurrentはP11-001 Working Treeである。
 
 ## Decisions and Assumptions
 
-- D094のExperimental Compatibility Policyに従い、旧Project CLI Aliasと旧EntrypointのBackward Compatibilityを成功条件にしない。
+- D094のExperimental Compatibility Policyに従い、旧BlackOps CLI Aliasと旧EntrypointのBackward Compatibilityを成功条件にしない。
 - `ApplicationConsoleKernel` Canonical Name SetだけをFramework予約の正本とし、Legacy ConstantとLazy Command Alias Parameterも削除した。
 - Framework Update Consumer SmokeはProject Root `blackops`と生成済みSourceの不変性を検証し、旧`bin/blackops`の不変性は検証しない。
 - Release DocumentationのUser-facing Migration手順とVersion Metadata更新はP11-002のScopeとする。
@@ -111,7 +111,7 @@ docker compose run --rm app vendor/bin/deptrac
 Result: Violations 0 / Skipped 0 / Uncovered 0 / Allowed 1712 / Warnings 0 / Errors 0。
 
 bash tests/Consumer/quickstart-e2e.sh
-Result: Quickstart Consumer E2E成功。Canonical Project CLIでGenerator、Build、Migration、HTTP、Validation、Workerを検証。
+Result: Quickstart Consumer E2E成功。Canonical BlackOps CLIでGenerator、Build、Migration、HTTP、Validation、Workerを検証。
 
 bash tests/Consumer/framework-update-generators.sh
 Result: Framework Update Generator Smoke成功。Project Root Entrypointと生成済みSourceの不変、Current Stub／Command、Canonical Buildを検証。
@@ -127,10 +127,10 @@ Result: Shell Syntax、Management ID Guard、Diff Checkはすべて成功。
 
 ## Acceptance Criteria
 
-- [x] Project CLI CommandがLegacy Aliasを持たない
+- [x] BlackOps CLI CommandがLegacy Aliasを持たない
 - [x] Legacy Alias名がFramework予約名として拒否されない
 - [x] PrefixなしCanonical Command名、または同名をAliasに持つApplication Commandは競合時にFail-fastする
-- [x] Canonical Project CLI CommandのIntegration Testが成功する
+- [x] Canonical BlackOps CLI CommandのIntegration Testが成功する
 - [x] SkeletonにProject Root `blackops`があり、`bin/blackops`がない
 - [x] `1.0.0`からのBreaking／Additive SurfaceがReportへ分類される
 - [x] Required Quality Commandsが成功する

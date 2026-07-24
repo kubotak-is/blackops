@@ -19,7 +19,7 @@ SeederはMigrationと同様に、多くのApplicationで目的と実行方法が
 
 ## Inherited Decisions
 
-- Project CLIの公式形式は`php blackops <command>`であり、Framework Command名に`blackops:` Prefixを付けない。
+- BlackOps CLIの公式形式は`php blackops <command>`であり、Framework Command名に`blackops:` Prefixを付けない。
 - Framework標準CommandはFramework Packageが所有し、Project EntrypointはFramework Update後もその実装を利用する。
 - RuntimeでApplication SourceをScanせず、Build ArtifactとCompiled Containerを正本とする。
 - Application SourceがVendor APIを直接利用する場合、そのPackageをApplicationの直接Dependencyへ明示する。

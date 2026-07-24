@@ -266,4 +266,8 @@ return [
 
 Quickstartの`SampleTokenAuthenticator`は`SAMPLE_API_TOKEN`をConstructorで一度だけ読み、RequestごとにはEnvironmentを参照しません。未設定、空文字、空白だけの値はRuntime構成Errorとして拒否し、既知のDefault TokenへFallbackしません。Local値は`.env.example`だけで提供します。Production Applicationは認証方式とSecret Sourceを選び、Credentialではなく`ActorRef`だけをFrameworkへ渡します。
 
-BootstrapのLoading Boundaryは[Application Bootstrap](application-bootstrap.md)、実行Commandは[Project CLI](project-cli.md)を参照してください。
+BootstrapのLoading Boundaryは[Application Bootstrap](application-bootstrap.md)、実行Commandは[BlackOps CLI](project-cli.md)を参照してください。
+
+## Outbox relay
+
+Deferred Outbox配送は`config/execution.php`の`execution.outbox_relay`で設定します。Relay IDは必須で、その他は安全な既定値（`batch_size=50`、`lease_seconds=60`、`heartbeat_seconds=10`、`grace_seconds=20`、`max_attempts=8`、`initial_backoff_seconds=1`、`max_backoff_seconds=300`、`poll_interval_milliseconds=1000`）を使用します。HeartbeatはLeaseより短く、初期Backoffは最大値以下でなければなりません。

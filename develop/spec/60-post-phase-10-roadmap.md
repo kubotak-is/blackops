@@ -2,7 +2,7 @@
 
 ## Goal
 
-Phase 7からPhase 10で完成したInstalled Application、Composer Skeleton、Project CLI、Validation、Worker Runtime、Repository DocumentationをStable Releaseへ届け、その後にApplication開発と運用に必要なRuntime機能を依存順に実装する。
+Phase 7からPhase 10で完成したInstalled Application、Composer Skeleton、BlackOps CLI、Validation、Worker Runtime、Repository DocumentationをStable Releaseへ届け、その後にApplication開発と運用に必要なRuntime機能を依存順に実装する。
 
 Documentation WebsiteのCloudflare公開はRoadmapの完了条件に含めない。Repository内Source、Website Build、Search、Artifact Guard、CIは維持し、公開再開はUserが明示した将来Taskで扱う。
 

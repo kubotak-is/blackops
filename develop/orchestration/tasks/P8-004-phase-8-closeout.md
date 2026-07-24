@@ -18,7 +18,7 @@ Status: Completed
 - Phase 8 Acceptance Criteria Evidence
 - Full Quality Suite、既存Consumer E2E、Local Create-project、Publication Dry Run再実行
 - TODO、Phase Plan、Task Report、STATEのCloseout同期
-- Phase 9 Project CLIへのHandoff
+- Phase 9 BlackOps CLIへのHandoff
 
 ## Out of Scope
 

@@ -35,7 +35,7 @@ return Application::configure(dirname(__DIR__))
 
 `public/index.php`は`SapiRuntime::run($application)`、Workerは`SapiRuntime::runWorker($application)`を呼びます。`vlucas/phpdotenv`、`nyholm/psr7`、`nyholm/psr7-server`、`laminas/laminas-httphandlerrunner`、`symfony/uid`は標準RuntimeのFramework-owned Dependencyです。ApplicationがDBAL／Migrationsを実Importする場合は、それらをDirect Dependencyとして残してください。外部LoaderやCustom PSR-15 Adapterを選ぶApplicationは、利用Packageを明示的に再追加します。
 
-### 2. Project CLIをRoot Entrypointへ置き換える
+### 2. BlackOps CLIをRoot Entrypointへ置き換える
 
 Application Rootで次をそのまま実行し、Skeleton `1.1.0`と同じEntrypointを新規作成します。旧`bin/blackops`は`dirname(__DIR__)`をApplication Rootとして使う実装のため、単純な`mv bin/blackops blackops`ではPath解決が壊れます。
 
@@ -67,7 +67,7 @@ rm bin/blackops
 
 Framework UpdateだけではApplication所有のEntrypoint PathやSourceは変わりません。この手順ではSkeleton `1.1.0`の完全版を使い、`__DIR__`がApplication Rootを指す状態を明示的に作ります。
 
-### 3. Project CLI Command名を置換する
+### 3. BlackOps CLI Command名を置換する
 
 | 1.0.0 | 1.1.0 |
 | --- | --- |

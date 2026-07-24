@@ -50,7 +50,7 @@ export const contentMap = {
   },
   'project-generators.md': {
     slug: 'operations/generators',
-    description: 'Project CLIからOperationとMigrationを安全に生成し、Framework更新後のStubを利用する。',
+    description: 'BlackOps CLIからOperationとMigrationを安全に生成し、Framework更新後のStubを利用する。',
   },
   'operation-lifecycle.md': {
     slug: 'concepts/lifecycle',

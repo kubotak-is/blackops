@@ -37,7 +37,7 @@ Task／Report／STATEだけを更新するCommitはRelease Sourceへ含めない
 ## Out of Scope
 
 - 新Feature、Production Code、Public APIの変更
-- Release Version、Compatibility Policy、Project CLI Surfaceの変更
+- Release Version、Compatibility Policy、BlackOps CLI Surfaceの変更
 - `1.1.0` Tag作成またはPush
 - Skeleton Distribution Repository更新
 - Packagist Mutation

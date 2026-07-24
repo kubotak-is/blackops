@@ -74,8 +74,8 @@ requireText(pages.get('/getting-started/quickstart/'), 'Application／PHP CLI／
 requireText(pages.get('/getting-started/quickstart/'), 'Generated Operation Objectから呼ぶ', 'Quickstart frontend journey');
 requireText(pages.get('/getting-started/quickstart/'), 'ShowWelcome.fetch', 'Quickstart frontend inline call');
 requireText(pages.get('/getting-started/quickstart/'), 'GenerateReport.toRequest', 'Quickstart frontend request descriptor');
-requireText(pages.get('/reference/project-cli/'), 'operation:inspect', 'Project CLI diagnostics command');
-requireText(pages.get('/reference/project-cli/'), 'frontend:check', 'Project CLI frontend drift command');
+requireText(pages.get('/reference/project-cli/'), 'operation:inspect', 'BlackOps CLI diagnostics command');
+requireText(pages.get('/reference/project-cli/'), 'frontend:check', 'BlackOps CLI frontend drift command');
 requireText(pages.get('/reference/configuration/'), 'application.jsonl', 'Application JSONL configuration');
 requireText(pages.get('/reference/configuration/'), 'resources/js/blackops', 'Frontend output configuration');
 requireText(pages.get('/security/'), 'Canonical DataとSafe Diagnostics', 'Diagnostics security boundary');

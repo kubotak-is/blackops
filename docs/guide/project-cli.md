@@ -1,4 +1,4 @@
-# Project CLI Reference（Command一覧）
+# BlackOps CLI Reference（Command一覧）
 
 Project Rootの`blackops`はApplication所有の薄いEntrypointです。Framework Packageが提供するCommandを、ApplicationのConfiguration Snapshotから起動します。EntrypointへCommand実装をCopyしないため、`composer update blackops/framework`後は同じ入口から更新済みCommandを利用できます。
 
@@ -149,3 +149,7 @@ make:seeder
 `make:operation`と`make:migration`はExperimental Stable `1.1.0`で利用できます。`make:auth`と`make:seeder`はRepository `main`のExperimental Commandです。`make:auth`はApplication-owned Identity Domain、DBAL Adapter、Ephemeral Register／Login／Logout、Session Migrationを一度だけ生成します。`make:seeder`は`app/Infrastructure/Seed/`へ空のSeederを生成します。詳細は[Project Generators](project-generators.md)、[Database Seeding](database-seeding.md)、[Session Authentication Starter](security.md#session-authentication-starter)を参照してください。生成済みApplication SourceはFramework Updateで自動変更されません。
 
 `1.0.0`の`bin/blackops`と`blackops:*` Project Commandは互換対象ではありません。`1.1.0`への移行ではProject Root `blackops`とPrefixなしCommandへ更新してください。
+
+## Outbox delivery
+
+BlackOps CLIは`outbox:relay:run`、`outbox:relay:daemon`、`outbox:dead-letter:retry <record-id> --actor=<actor> --reason=<reason>`を提供します。出力は件数だけで、Payload、Context、SQL、Credential、Throwableの詳細は表示しません。

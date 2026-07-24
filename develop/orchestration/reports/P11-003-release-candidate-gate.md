@@ -240,7 +240,7 @@ Create-projectの最初の実行は他Consumerとの並列実行中に、Install
 
 - `CHANGELOG.md`のAdded／Changed／Removedは119 Public API、7 Validation Attribute、`symfony/validator:^7.4`、Generator、Application Migration、HTTP 400／422、Worker Mode、Root Entrypoint、9 Canonical Commandと一致する。
 - `UPGRADE.md`のRoot `blackops`完全版はSkeleton SourceとWebsite Testでbyte一致し、単純な`mv`を案内しない。
-- 旧9 `blackops:*`名はApplication Command競合TestのFixtureとInternal Compiler Commandを除き、公式Project CLIとして残っていない。
+- 旧9 `blackops:*`名はApplication Command競合TestのFixtureとInternal Compiler Commandを除き、公式BlackOps CLIとして残っていない。
 - Skeletonは`blackops/framework:^1.1`を要求し、`composer.lock`、`vendor/`、`.env`、生成Build／Log Stateを配布Sourceへ含めない。
 - Known LimitationsのAuthentication／Authorization、Sensitive Data、Deferred Status API、Binder Array、Database／Transport／Telemetry Adapter境界は現在の実装とGuideに一致する。
 - Experimental、1.x Minor間Backward Compatibility未保証、Production Readiness未保証の表示はREADME、Guide、Website、CHANGELOG、UPGRADEで一致する。

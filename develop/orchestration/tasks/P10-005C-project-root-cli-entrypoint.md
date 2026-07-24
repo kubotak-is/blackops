@@ -4,7 +4,7 @@ Status: Accepted
 
 ## Goal
 
-次回Skeleton ReleaseのProject CLIを`bin/blackops`からProject Rootの`blackops`へ移し、公式実行形式を`php blackops`へ統一する。
+次回Skeleton ReleaseのBlackOps CLIを`bin/blackops`からProject Rootの`blackops`へ移し、公式実行形式を`php blackops`へ統一する。
 
 ## In Scope
 

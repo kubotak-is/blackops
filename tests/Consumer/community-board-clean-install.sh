@@ -131,7 +131,7 @@ for password in "${DEMO_PASSWORDS[@]}"; do
 done
 
 MIGRATION_OUTPUT=$("${COMPOSE[@]}" run --rm app php blackops database:migrate)
-grep -Fq 'migrations: 8' <<<"${MIGRATION_OUTPUT}"
+grep -Fq 'migrations: 9' <<<"${MIGRATION_OUTPUT}"
 "${COMPOSE[@]}" run --rm app php blackops build:compile
 "${COMPOSE[@]}" run --rm app php blackops frontend:generate
 "${COMPOSE[@]}" run --rm app php blackops frontend:check

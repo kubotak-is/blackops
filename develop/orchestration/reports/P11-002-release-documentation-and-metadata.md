@@ -12,7 +12,7 @@ Experimental `1.1.0` Release CandidateのPackage Constraint、Local／Consumer F
 
 - Root Release Surface: `CHANGELOG.md`、`UPGRADE.md`、`README.md`、`Dockerfile`
 - Skeleton: `examples/quickstart/composer.json`、`examples/quickstart/README.md`
-- Public Guide: Installation、Quickstart、Tutorial、Current Status、Project CLI、Generator、Guide Index
+- Public Guide: Installation、Quickstart、Tutorial、Current Status、BlackOps CLI、Generator、Guide Index
 - Internal Documentation: Development Setup、Consumer E2E、Publication、Installed Application Status
 - Website: README、Content Map、Site Check、Guide Code Test
 - Consumer Fixture: Quickstart E2E、Worker Mode、Create-project、Publication Dry Run

@@ -4,7 +4,7 @@ Status: Accepted
 
 ## Goal
 
-Public `#[ConsoleCommand]`を明示したOperationだけをProject CLIへ公開し、OperationValueのScalar Constructor PropertyをNamed Optionへ写像する。CommandはHTTPと同じBuild済みOperation Metadata、Compiled Container、Validation、Authorization、Inline／Deferred Lifecycle、Journal、Transaction、Outcome Contractを再利用し、ApplicationがConsole入口用Actorを最小Public Providerから供給できるようにする。
+Public `#[ConsoleCommand]`を明示したOperationだけをBlackOps CLIへ公開し、OperationValueのScalar Constructor PropertyをNamed Optionへ写像する。CommandはHTTPと同じBuild済みOperation Metadata、Compiled Container、Validation、Authorization、Inline／Deferred Lifecycle、Journal、Transaction、Outcome Contractを再利用し、ApplicationがConsole入口用Actorを最小Public Providerから供給できるようにする。
 
 CLIは入力値やThrowable Detailを反射せず、Human Outputと`--json`の双方でCompleted／Accepted／Rejected／Internalを安定して表示する。Framework Built-in、Symfony Application Command、Operation Commandの名前衝突をBuild／Bootstrapで拒否し、壊れたArtifactから`build:compile`できるP18-004のRecovery境界を維持する。
 

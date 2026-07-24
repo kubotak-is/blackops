@@ -99,7 +99,7 @@ Acceptance Gate:
 - Quickstart／SkeletonへFrontend Configと生成Journeyを追加する
 - Welcome Inline、Report Deferred、Order Transaction、Failure OperationをGenerated Objectから実HTTP実行するConsumer E2Eを追加する
 - `fetch()`、`toRequest()`、`url()`、Metadata、Typed Resultを入力と実出力の対でGuideへ記載する
-- Project CLI、Configuration、Security、Troubleshooting、Directory Structure、Current Statusを同期する
+- BlackOps CLI、Configuration、Security、Troubleshooting、Directory Structure、Current Statusを同期する
 - Skeleton通常／`--no-scripts`、Publication Dry-run／Workflow、Framework Updateを同期する
 - Website Test／Check／Buildを実行するが外部公開しない
 - Full PHP／Consumer／Frontend／Website Gateを完走してPhase 15をCloseする

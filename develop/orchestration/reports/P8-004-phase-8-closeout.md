@@ -27,7 +27,7 @@ composer create-project blackops/skeleton /smoke/my-app --no-interaction --prefe
 
 明示Versionの両InstallはSkeleton `1.0.0`と38 Runtime Packageを取得し、Lockへ`blackops/framework:1.0.0`を記録した。Version省略の公式Commandも最新Stable `1.0.0`を選択した。通常Installは`post-create-project-cmd`から`.env`をbyte-for-byte Copyし、`var/build`／`var/log`を保持した。Build Artifact、Journal、Database、Migrationは生成されなかった。
 
-`--no-scripts` Install直後は`.env`がなく、Manual `php bin/setup`で同じ状態を作成した。Setup再実行前後の`.env` Hashは一致した。両ProjectのComposer Metadataに`repositories`／`version`はなく、Consumer AutoloadからFramework Application、Welcome、Report ClassをLoadできた。Project CLIのCommand Listに`blackops:build:compile`が存在した。
+`--no-scripts` Install直後は`.env`がなく、Manual `php bin/setup`で同じ状態を作成した。Setup再実行前後の`.env` Hashは一致した。両ProjectのComposer Metadataに`repositories`／`version`はなく、Consumer AutoloadからFramework Application、Welcome、Report ClassをLoadできた。BlackOps CLIのCommand Listに`blackops:build:compile`が存在した。
 
 Docker Container／Image／Network／VolumeはSmoke前後で一致し、一時Directoryを削除した。最初の検証Harnessは2つの独立Composer Autoloaderを同じPHP Processへ読み込み、Composer生成Init Class名の衝突で終了した。Install結果に問題はなく、Projectごとに独立PHP Processへ修正した再実行が全項目に成功した。
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BlackOps\Internal\Application;
 
 use BlackOps\Internal\Scheduler\MaintenanceScheduler;
+use BlackOps\Internal\Scheduler\OutboxRelayMaintenanceTask;
 use BlackOps\Internal\Scheduler\RetentionMaintenanceTask;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeadLetterRetentionDeleteService;
 use BlackOps\Transport\PostgreSql\PostgreSqlIdempotencyRetentionDeleteService;
@@ -41,13 +42,19 @@ final readonly class ApplicationRetentionRuntime
             new PostgreSqlJournalRetentionDeleteService($connection, $audit, $database->schema, $this->clock),
             new PostgreSqlIdempotencyRetentionDeleteService($connection, $audit, $database->schema, $this->clock),
         );
-        $this->scheduler = new MaintenanceScheduler([
+        $tasks = [
             new RetentionMaintenanceTask(
                 $this->purge,
                 $this->configuration->policy,
                 $this->configuration->policyRef,
                 $this->configuration->actor,
             ),
-        ]);
+        ];
+        /** @var mixed $outboxRelay */
+        $outboxRelay = $snapshot->configuration()['execution']['outbox_relay'] ?? null;
+        if ($outboxRelay !== null) {
+            $tasks[] = new OutboxRelayMaintenanceTask(new ApplicationOutboxRuntime($snapshot)->relay);
+        }
+        $this->scheduler = new MaintenanceScheduler($tasks);
     }
 }

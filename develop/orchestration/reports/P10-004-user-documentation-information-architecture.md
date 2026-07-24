@@ -4,7 +4,7 @@
 
 Framework利用者向けDocumentationを18 Pageの日本語単一Locale Siteへ再編した。LandingからStable `1.0.0` Install、Directory Structure、最初のTyped Self-handled Operation、Local Runtimeまでを連続Linkで接続し、Getting Started、Operations、Execution、Database、Referenceの5 Sectionへ全公開Guideを配置した。
 
-`docs/website/content-map.mjs`をSource Relative Pathから公開Slug／Metadataへの正本とし、`site-navigation.mjs`で5 Section Sidebarを明示した。全PageへDocument Channel `main`、Latest Stable `1.0.0`、mainが未Release変更を含み得る旨を表示する。Stable `1.0.0`に未収録のGenerator／Application MigrationをStable機能と誤認しないよう、Install、Generator、Project CLI、Current Statusで区別した。
+`docs/website/content-map.mjs`をSource Relative Pathから公開Slug／Metadataへの正本とし、`site-navigation.mjs`で5 Section Sidebarを明示した。全PageへDocument Channel `main`、Latest Stable `1.0.0`、mainが未Release変更を含み得る旨を表示する。Stable `1.0.0`に未収録のGenerator／Application MigrationをStable機能と誤認しないよう、Install、Generator、BlackOps CLI、Current Statusで区別した。
 
 ## Information Architecture
 
@@ -50,7 +50,7 @@ Pagefind Entryが日本語18 PageをIndexし、Fallback 404を除外すること
 
 ## Existing Guide Migration and Removed Content
 
-- `runtime-bootstrap.md`: Install／SetupをInstallation、Compose起動をLocal Runtime、HTTP／WorkerをExecution、Config／BuildをApplication Bootstrap／Project CLIへ移行した。
+- `runtime-bootstrap.md`: Install／SetupをInstallation、Compose起動をLocal Runtime、HTTP／WorkerをExecution、Config／BuildをApplication Bootstrap／BlackOps CLIへ移行した。
 - `runtime-bootstrap.md`: 旧Standalone `bin/console`、`config/blackops/*`、Application Provider File、`ProductionRuntimeComposer`を使う説明は、現行Installed Application Public APIではないため公開Guideから除去した。現行`bin/blackops`／`config/*.php`／Build-time Discoveryへ置換済みである。
 - `mvp-sample.md`: Repository Root PHPUnit／Dev Autoload等のFramework検証手順を公開Quickstartから除外し、利用者がInstall後に実行するInline／Deferred／Worker手順へ置換した。検証履歴はInternal StatusとCloseout Reportに維持される。
 - `mvp-status.md`: Test Class名、Commit／Phase根拠を含むDefinition of Done Tableを公開Current Statusから除外した。利用者向けCapability／Stable-main差／制約を残し、完了根拠は`docs/internal/installed-application-status.md`のMVP Completion Evidenceへ移した。
@@ -141,7 +141,7 @@ Result: No output.
 ## Orchestrator Review
 
 - Stable `1.0.0`のInstall済みWelcomeをGetting Startedの標準例とし、`make:operation`／`make:migration`／Application Migration Runtimeをmainの未Release機能として分離できていることを確認した。
-- First Operationの3 Code BlockとQuickstart Sourceのbyte一致、Typed Self-handled Signature、Optional Context、Native Outcome／Void、Rejection Exception、Application Builder、Project CLIのPublic API整合を確認した。
+- First Operationの3 Code BlockとQuickstart Sourceのbyte一致、Typed Self-handled Signature、Optional Context、Native Outcome／Void、Rejection Exception、Application Builder、BlackOps CLIのPublic API整合を確認した。
 - 初回Reviewで明示SlugのPath Traversal／欠落Guardを追加させた。再Review中にWorkerがSource相対Linkの`.md` href残存を検出し、全内部LinkをPublic Routeへ変換してArtifact Guardを追加した。
 - Frozen Install、Node Test、Content／Astro Check、Static Build、18 PageのUser Journey／Version Notice／Accessibility Markup、Pagefind実Search、Artifact Boundary、Quickstart Mago Analyze、PHP Format、管理番号Guard、`git diff --check`を再実行し、すべて成功した。
 - Guideから除外したAcceptance Evidenceと旧Runtime説明の移行先がReportに列挙され、利用者向け情報が失われていないことを確認した。
@@ -162,7 +162,7 @@ Mago / PHPUnit / Deptrac: success (1m6s)
 - InstallからFirst Operation／Local Runtimeへの連続導線: Satisfied
 - 5利用者Sectionへの全公開Guide配置: Satisfied
 - Current Typed Self-handled Operation／Value／Outcome: Satisfied
-- Project CLI、HTTP／Deferred、Migration／Outcome／Retention入口: Satisfied
+- BlackOps CLI、HTTP／Deferred、Migration／Outcome／Retention入口: Satisfied
 - `main`とLatest Stable `1.0.0`の差: Satisfied
 - Internal／Contributor／Acceptance Content排除: Satisfied
 - Mobile／Keyboard／Skip Link／Contrast／Search: Satisfied

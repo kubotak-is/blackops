@@ -61,7 +61,7 @@ scheduler:run
 scheduler:daemon
 ```
 
-Project Root Entrypointと組み合わせる公式形式は`php blackops build:compile`とする。FrameworkはPrefixなしCanonical名だけを予約し、旧`blackops:*` Project CLI名はAliasとして登録または予約しない。Applicationは旧名を独自Command名またはAliasとして利用できる。Generatorの`make:operation`、`make:migration`、`make:seeder`にはPrefixを付けない。
+Project Root Entrypointと組み合わせる公式形式は`php blackops build:compile`とする。FrameworkはPrefixなしCanonical名だけを予約し、旧`blackops:*` BlackOps CLI名はAliasとして登録または予約しない。Applicationは旧名を独自Command名またはAliasとして利用できる。Generatorの`make:operation`、`make:migration`、`make:seeder`にはPrefixを付けない。
 
 個別Manifest／Container Compile Commandは内部の低レベルToolingとして維持するが、Installed Applicationの標準Kernelへ登録しない。
 
@@ -174,7 +174,7 @@ Symfony ConsoleがExceptionを表示する場合もPrevious ExceptionのCredenti
 - `list`／`help` がDatabase、Artifact、PCNTLなしでFramework Commandを表示する
 - `operation:inspect`のMissing／Malformed IDがCommand所有のExit 2となり、Queryを構成しない
 - Custom Commandを実行でき、Canonical Framework Command名競合を拒否する
-- 旧`blackops:*` Project CLI名がFramework Command一覧に現れず、Application Commandとして利用できる
+- 旧`blackops:*` BlackOps CLI名がFramework Command一覧に現れず、Application Commandとして利用できる
 - Application-aware Build／Operation ListがSnapshot ProviderとBuild Configを使う
 - Migration Status／Migrateが明示実行だけで動作する
 - Workerが別Heartbeat Connection、同一Signal Instance、Compile済みArtifactを使う
@@ -185,7 +185,7 @@ Symfony ConsoleがExceptionを表示する場合もPrevious ExceptionのCredenti
 ## Traceability
 
 - Decision: [Public Console Kernel Composition](../decisions/068-public-console-kernel-composition.md)
-- Command Names: [Project CLI Command Names](../decisions/092-project-cli-command-names.md)
+- Command Names: [BlackOps CLI Command Names](../decisions/092-project-cli-command-names.md)
 - Bootstrap API: [Public Application Bootstrap API](44-public-application-bootstrap-api.md)
 - HTTP Runtime: [Public HTTP Runtime Configuration](47-public-http-runtime-configuration.md)
 - Worker: [Worker Runtime](../../docs/internal/worker-runtime.md)

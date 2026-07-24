@@ -52,7 +52,7 @@ MVP後に残す主要項目:
 - [x] `make:operation` と `make:migration` を提供する
 - [x] Migration／Worker／Build／Retention／Scheduler CommandをApplicationから構成する
 - [x] Framework UpdateでCommand実装とGenerator Stubが更新されることを検証する
-- [x] Project CLIのCanonical Commandから重複する `blackops:` Prefixを除去する
+- [x] BlackOps CLIのCanonical Commandから重複する `blackops:` Prefixを除去する
 
 ### Phase 10: Documentation Website
 
@@ -67,7 +67,7 @@ MVP後に残す主要項目:
 ### Phase 11: Stable 1.1 Release
 
 - [x] Stable `1.0.0`からのBreaking／Additive SurfaceとUpgrade Pathを監査する
-- [x] Main BranchのProject CLI、Typed Operation、Validation、Worker ModeをRelease Noteへ固定する
+- [x] Main BranchのBlackOps CLI、Typed Operation、Validation、Worker ModeをRelease Noteへ固定する
 - [x] Framework／Skeleton `1.1.0`のConsumer／Publication Gateを実行する
 - [x] `composer create-project blackops/skeleton:^1.1`からQuickstartを完走する
 

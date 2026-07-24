@@ -88,7 +88,7 @@ Task指定の`bash tests/Consumer/skeleton-publication.sh 1.1.0 HEAD`は、Orche
 
 ## Guide／Website Evidence
 
-GuideへFrontend Installation／Tutorial、Project CLI Exit Contract、`config/frontend.php`、Security責任境界、4系統のTroubleshooting、Install直後／Generate後Directory、Frontend Testing、Stable／main Statusを追加した。Core API／Attribute ReferenceへInternal Generator DTOを混ぜず、既存Stable／main Banner、Landing Title、Information Architectureを維持した。
+GuideへFrontend Installation／Tutorial、BlackOps CLI Exit Contract、`config/frontend.php`、Security責任境界、4系統のTroubleshooting、Install直後／Generate後Directory、Frontend Testing、Stable／main Statusを追加した。Core API／Attribute ReferenceへInternal Generator DTOを混ぜず、既存Stable／main Banner、Landing Title、Information Architectureを維持した。
 
 Websiteは`content:generate`、39 Content／Reader Regression、Astro Check、Static Build、Artifact Boundary、Navigation／Accessibility／Pagefind Checkが成功した。30 PageをLocal BuildしたがDeploy／Cloudflare変更は行っていない。
 

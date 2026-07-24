@@ -13,7 +13,7 @@ Phase 7のInstalled Application Example and Skeleton Layoutを、現行Quickstar
 - Application／Bootstrap／EntrypointのPublic API Boundary確認
 - Feature-first削除単位とSelf-handled Operation導線確認
 - Explicit Build／Migration／Worker／Maintenance Process Boundary確認
-- Public HTTP／Console CompositionとProject CLI確認
+- Public HTTP／Console CompositionとBlackOps CLI確認
 - Root Dev AutoloadなしConsumer copy-install E2E証拠
 - Guide／Internals／Quickstart README導線の同期
 - Phase 8へ渡すPackage Source Boundaryと未実装範囲の明記

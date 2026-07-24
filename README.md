@@ -5,7 +5,7 @@
 [![PHP](https://img.shields.io/badge/PHP-%3E%3D8.5-777BB4.svg)](https://www.php.net/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-BlackOpsは、PHP 8.5向けのHeadless Operation Frameworkです。同期HTTP実行とPostgreSQLを使ったDeferred実行を同じOperation Modelで扱い、Lifecycle Journal、Retry、Outcome、Retention、Project CLIを提供します。
+BlackOpsは、PHP 8.5向けのHeadless Operation Frameworkです。同期HTTP実行とPostgreSQLを使ったDeferred実行を同じOperation Modelで扱い、Lifecycle Journal、Retry、Outcome、Retention、BlackOps CLIを提供します。
 
 Repository `main`ではNamed Doctrine DBAL Connection、Constructor Injection、`#[Transactional]`付きOperation／Service、Nested Required、`#[AfterCommit]`を利用できます。Latest Stable `1.1.0`にはまだ収録されていません。
 
@@ -81,7 +81,7 @@ Stableと`main` Previewの準備方法、利用可能なEndpointの差は[利用
 
 [![BlackOps BoardのCredential-free Landing画面](docs/guide/assets/community-board/blackops-board.png)](docs/guide/community-board.md)
 
-## Project CLI
+## BlackOps CLI
 
 Project Rootに置く薄い`blackops` EntrypointからFramework所有Generatorを利用できます。
 

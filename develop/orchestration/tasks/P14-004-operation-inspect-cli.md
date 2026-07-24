@@ -4,7 +4,7 @@ Status: Ready
 
 ## Goal
 
-P14-003の内部`OperationDiagnosticsQuery`を、Installed ApplicationのCanonical Project CLI `php blackops operation:inspect <operation-id>`へ接続する。
+P14-003の内部`OperationDiagnosticsQuery`を、Installed ApplicationのCanonical BlackOps CLI `php blackops operation:inspect <operation-id>`へ接続する。
 
 既定Human表示と`--json` Version 1は同じSafe Aggregateを表し、Found Dataはstdout、Invalid／Unavailable／Diagnostics Failureはstderrへだけ出力する。Database Configuration SnapshotとFramework Connectionを再利用し、Command実行時までDatabase／Reader／Queryを構成しない。
 

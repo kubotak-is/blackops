@@ -64,7 +64,7 @@ Status: Accepted
 
 - [x] SidebarがD090の11 SectionとPage順に一致する
 - [x] Getting StartedがInstallation、Quickstart、Tutorial、Directory Structure、Local Runtimeの順である
-- [x] ReferenceがCore API、Attributes、Configuration、Project CLI、Application Bootstrap、Glossaryだけを持つ
+- [x] ReferenceがCore API、Attributes、Configuration、BlackOps CLI、Application Bootstrap、Glossaryだけを持つ
 - [x] Lifecycle、Security、Troubleshooting、Current Statusが新Section／URLへ移動する
 - [x] Testing／Deployment入口Pageが未提供機能を誤認させない
 - [x] Landing Titleが`BlackOps — The PHP Framework`である

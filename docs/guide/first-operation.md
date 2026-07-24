@@ -1,6 +1,6 @@
 # チュートリアル: Operationを作る
 
-Project CLIから`Billing/CreateInvoice`の骨格を生成し、HTTPで受け付けるDeferred Operationへ仕上げます。
+BlackOps CLIから`Billing/CreateInvoice`の骨格を生成し、HTTPで受け付けるDeferred Operationへ仕上げます。
 
 > **Release:** このTutorialはExperimental Stable `1.1.0`のProject Root `blackops`、`make:operation`、宣言的Validation Attributeを使用します。Step 4以降の`#[Authorize]`とSample Token Authenticationは`main`の未Release Surfaceであり、Repository Quickstart向けです。
 
