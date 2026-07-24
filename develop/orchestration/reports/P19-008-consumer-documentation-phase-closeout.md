@@ -77,6 +77,9 @@ Community Board clean install and every fresh consumer applied 11 migrations, ge
 - `docker compose run --rm app vendor/bin/phpunit` — PASS, 1,875 / 7,576.
 - Mago format／lint／analyze and Deptrac — PASS as recorded above.
 - Documentation website test／check／build — PASS as recorded above.
+- `bash tests/Consumer/framework-package-export.sh` — PASS from closeout commit `2d5082a`.
+- `bash tests/Consumer/skeleton-publication.sh --dry-run` — PASS from closeout commit `2d5082a`.
+- One concurrent publication dry-run observed the script's Docker-state guard while package export had a temporary container; the required sequential rerun passed with no source or distribution correction.
 
 ## Acceptance Criteria
 
@@ -104,4 +107,4 @@ No P19-008 blockers remain. Mago's existing note/help baseline and PHPUnit's acc
 
 ## Suggested Next Action
 
-Orchestrator review this report and STATE checkpoint, commit the Phase 19 closeout, push `main`, and verify the resulting GitHub Actions CI and Documentation Delivery runs.
+Push the accepted Phase 19 closeout, then verify the resulting GitHub Actions CI and Documentation Delivery runs.
