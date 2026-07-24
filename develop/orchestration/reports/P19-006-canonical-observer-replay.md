@@ -1,6 +1,6 @@
 # P19-006 Canonical Observer Replay Report
 
-Status: Reviewed — package and clean-install acceptance pending
+Status: Accepted
 
 ## Summary
 
@@ -102,6 +102,8 @@ Replay selection reads `encoded_record` only. No replay path writes the canonica
 - Orchestrator frozen Full PHPUnit — PASS (1,875 tests, 7,576 assertions, 1 accepted deprecation).
 - Orchestrator frozen quality gates — PASS: Mago format/check, Mago analyze (`No issues found`), Mago lint exit 0 with only unrelated baseline note/help, and Deptrac 0 violations.
 - Orchestrator frozen documentation gates — PASS: 42/42 reader tests and a 32-page website build including `/reference/observer-replay/`, artifact validation, navigation, accessibility, and Pagefind checks.
+- `bash tests/Consumer/framework-package-export.sh` against implementation commit `4bab9ac` — PASS.
+- `bash tests/Consumer/community-board-clean-install.sh` against implementation commit `4bab9ac` — PASS: 10 migrations, application build, frontend generation/fresh check, Svelte check, 43 frontend tests, production build, database snapshot, and HTTP journey.
 
 ## Acceptance Criteria
 
@@ -111,12 +113,12 @@ Replay selection reads `encoded_record` only. No replay path writes the canonica
 - [x] Additive checkpoint/audit migration and schema helper additions.
 - [x] Real PostgreSQL selector/checkpoint/audit/failure/flush/resume matrix and direct migration up/down parity tests are covered by focused suites.
 - [x] Full PHPUnit, Mago, Deptrac, and documentation website gates pass under Orchestrator verification.
-- [ ] Framework package export and fresh Community Board clean install remain pending against a committed HEAD archive.
+- [x] Framework package export and fresh Community Board clean install pass against committed HEAD `4bab9ac`.
 
 ## Remaining Issues
 
-No implementation blocker remains. Package export and fresh clean install require the reviewed files to exist in `git archive HEAD`, so they follow the implementation commit.
+None.
 
 ## Suggested Next Action
 
-Commit the reviewed implementation, run package export and Community Board clean install against that HEAD, then complete acceptance.
+Close the implementation and acceptance commits in GitHub Actions, then start P19-007 Community Board Reliability Journey.

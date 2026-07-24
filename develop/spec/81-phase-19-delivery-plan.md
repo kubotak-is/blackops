@@ -137,7 +137,7 @@ External Publication／Deployは行わない。
 - [x] HTTP／PHP Duplicate Lifecycleと独立Retentionが実装される
 - [x] Transactional Outboxが同一Named Connectionへ原子的に参加する
 - [x] Relay Claim／Retry／Fencing／Dead Letter CLIが実装される
-- [ ] Canonical Observer ReplayがRecord Identityを維持する
+- [x] Canonical Observer ReplayがRecord Identityを維持する
 - [ ] Community BoardのDigest／Notification JourneyがBrowserから完走する
 - [ ] Sensitive、Crash、Worker Reuse、Migration、Retention回帰が固定される
 - [ ] Full Framework／Consumer／Frontend／Website Gateが成功する

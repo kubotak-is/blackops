@@ -1,6 +1,6 @@
 # P19-006: Canonical Observer Replay
 
-Status: In Progress
+Status: Accepted
 
 ## Goal
 

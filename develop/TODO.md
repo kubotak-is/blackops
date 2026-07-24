@@ -165,11 +165,11 @@ MVP後に残す主要項目:
 - [x] P19-003でHTTP／PHP Duplicate Lifecycle、PostgreSQL Store、Retentionを実装する
 - [x] P19-004でTransactional Outbox Persistenceと同一Connection Transaction参加を実装する
 - [x] P19-005でRelay Claim／Retry／Fencing／Dead Letter CLIを実装する
-- [ ] P19-006でCanonical Observer Replayを実装する
+- [x] P19-006でCanonical Observer Replayを実装する
 - [ ] P19-007でCommunity Board Digest／Notification Journeyを実装する
 - [ ] P19-008でGuide、Consumer、Full Gate、Phase Closeoutを完了する
 - [x] Idempotency Keyと重複時Contractを実装する
-- [ ] Transactional Outbox、Relay、Replayを実装する
+- [x] Transactional Outbox、Relay、Replayを実装する
 
 ### Post-Phase 18 Application Ergonomics Follow-up
 
