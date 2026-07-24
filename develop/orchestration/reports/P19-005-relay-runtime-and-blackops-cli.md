@@ -1,6 +1,6 @@
 # P19-005 Relay Runtime and BlackOps CLI Report
 
-Status: Orchestrator review passed; consumer verification pending
+Status: Accepted
 
 ## Summary
 
@@ -127,9 +127,11 @@ stored in relay audit or failure fingerprint fields, or emitted by commands.
 - Management-ID guard and `git diff --check` — PASS.
 - Documentation website test/build — PASS (42 reader tests; 32 static pages;
   artifact boundary, navigation/accessibility, and Pagefind checks passed).
-- Package export was attempted but correctly stopped because the new migration
-  is uncommitted and therefore absent from `git archive`; rerun after review
-  commit. Community Board clean install and Deptrac were not rerun.
+- Framework Package Export — PASS against reviewed implementation commit
+  `7e72173`.
+- Fresh Community Board Clean Install — PASS, including 9 migrations,
+  compile/generation freshness, Svelte check, 43 frontend tests, frontend
+  production build, seed determinism, and HTTP journey.
 
 ## Acceptance Criteria
 
@@ -146,16 +148,15 @@ stored in relay audit or failure fingerprint fields, or emitted by commands.
   dead-letter, stale settlement, command option/output, daemon reuse, scheduler
   isolation, configuration validation, and exact duplicate-integrity matrices
   are directly tested.
-- [ ] Package export and Community Board clean install require the reviewed
-  implementation commit because package export reads `git archive HEAD`.
+- [x] Framework Package Export and Fresh Community Board Clean Install pass
+  against reviewed implementation commit `7e72173`.
 
 ## Remaining Issues
 
-The package export and Community Board clean-install commands remain for
-post-review commit verification.
+No remaining issue is known within the Task scope.
 No production scope outside the packet was changed.
 
 ## Suggested Next Action
 
-Create the reviewed implementation commit, then verify package export and the
-fresh Community Board clean install against that exact `HEAD`.
+Create the closeout commit, push `main`, and verify GitHub Actions plus
+Documentation Delivery for the resulting `HEAD`.

@@ -1,6 +1,6 @@
 # P19-005: Relay Runtime and BlackOps CLI
 
-Status: Orchestrator review passed; consumer verification pending
+Status: Accepted
 
 ## Goal
 
