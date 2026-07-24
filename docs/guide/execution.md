@@ -71,7 +71,7 @@ readonly class PlaceOrder implements Operation
 
 MutationとOutbox Rowは最外Commitで同時に残ります。ThrowableまたはInsert Failureでは両方Rollbackされ、Nested Requiredの途中でRollback-onlyになった場合も最外ScopeがRollbackするためRowは残りません。登録結果はOutbox Record ID、child Operation ID、UTC登録時刻だけを公開します。
 
-現在のTransactional Outbox CapabilityはOutbox PersistenceとClaim前の`pending` Stateまでを提供します。Relay、Retry、Dead Letter、Replayは後続機能であり、この段階では送信完了を表現しません。Outboxを使わないDeferred呼出は既存Direct Transportの受付契約を維持します。
+Transactional OutboxはOutbox Persistence、有限BatchのRelay、Retry／Backoff、Lease／Fencing、Dead Letter再開までを提供します。配送はat-least-onceであり、Relay停止中の`pending` Rowは再開後に同じchild Operation Identityで再配送されます。Outboxを使わないDeferred呼出は既存Direct Transportの受付契約を維持します。
 
 MutationのPOST／PUT／PATCH／DELETEでは、認証・認可後にOptional `Idempotency-Key`をAtomic Claimします。同じFingerprintのTerminal ResultはTyped Resultまたは安全なHTTP Responseとして再利用し、Replay Responseだけに`Idempotency-Replayed: true`と`Cache-Control: private, no-store`を投影します。GET／HEAD、Anonymous Actor、Ephemeral OutcomeではKeyを受理しません。
 

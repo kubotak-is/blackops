@@ -93,6 +93,8 @@ Product journey passes one-shot `outbox:relay:run`, `worker:run`, then resets th
 - Browser Playwright asserts native-form HTTP 303 responses and `Location` headers; Bob comment completion is asserted before signaling the controller, which waits for notification count 1 after each relay/worker pass.
 - `bash tests/Consumer/framework-package-export.sh` — PASS from implementation commit `fc39c15`.
 - `bash tests/Consumer/community-board-clean-install.sh` — PASS from implementation commit `fc39c15`, including dependency installation, 11 migrations, generated-client freshness, 46 frontend tests, production build, database snapshot, and live HTTP startup.
+- GitHub Actions CI Run `30087475600` — PASS, all five jobs including the complete Community Board browser/foundation/identity/post-comment/product/digest chain.
+- Documentation Delivery Run `30087475591` — PASS for the verified website artifact and credential boundary; production deployment was skipped by the existing credential gate.
 - Review correction: canonical outbox test now asserts exact `NotifyPostOwner::class` (not merely `assertInstanceOf`), preventing proxy subclasses from satisfying the contract. Focused correction run passes 10 tests / 73 assertions.
 
 ## Acceptance Criteria

@@ -42,6 +42,9 @@ BlackOpsはExperimentalです。1.x Minor間のBackward CompatibilityとProducti
 | Opt-in Session Core／`make:auth` | Not available | Available（Experimental） |
 | Database Seeder／`database:seed`／`make:seeder` | Not available | Available（Experimental） |
 | BlackOps Board Full-stack Reference Application | Not available | Available（Experimental、Local／CI only） |
+| Optional Idempotency Key／Duplicate Replay | Not available | Available（Experimental、Actor-scoped） |
+| Transactional Outbox Relay／Retry／Fencing／Dead Letter | Not available | Available（Experimental、at-least-once） |
+| Canonical Observer Replay／Checkpoint／Resume | Not available | Available（Experimental、Canonical read-only） |
 
 Stable Applicationを作る場合はVersionを明示します。
 
@@ -87,10 +90,10 @@ BlackOps BoardはRepository `main`だけのExperimental Local Reference Applicat
 - Session Coreは提供するが、User／Password／Registration Policy、Cookie／CSRF、JWT／OAuth／API Key、Actor Repository、Permission StoreはApplication責務
 - Production Status Authorization Policy、Tenant Model、Role／Permission Repositoryは提供しない
 - 無限Wait、任意Backoff／Jitter、Global Generated Client、Cache／Offline Queueは提供しない
-- Transactional Outbox Relayは提供しない
+- Transactional Outboxは同一Named Connectionへの原子登録、有限Relay、Retry／Backoff、Lease／Fencing、Dead Letter再開を提供する（at-least-once。外部配送のExactly Onceは提供しない）
 - Canonical Journal／Transport PayloadのEncryption Adapterは提供しない
 - Remote OpenTelemetry、CloudWatch、SQS、Kafka、SQLite、MySQL Adapterは提供しない
-- Observer Replay CLI、Admin UI、Scheduled Operation Strategyは提供しない
+- Observer Replay CLIはCanonical Journalを変更せず、現在のSensitive Projectionを再適用する有限Batch／Checkpoint／Resume／Audit操作として提供する。Admin UIとScheduled Operation Strategyは提供しない
 - Array／Nested ObjectのHTTP Binding、宣言的DB照合、Cross-field Attribute、Custom Callbackは提供しない。`Count` Validatorは実装済みだが現行HTTP BinderからArrayを渡せない
 - Production CertificationやExperimental Public API Contractを超える互換性保証は提供しない。1.x Minor間のBackward Compatibilityも保証しない
 - DiagnosticsのPublic PHP Query API、Remote Viewer、OpenTelemetry／Metric／Collectorは提供しない

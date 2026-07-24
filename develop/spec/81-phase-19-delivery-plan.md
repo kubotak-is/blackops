@@ -114,6 +114,8 @@ Status: Accepted.
 
 ## P19-008: Consumer, Documentation, and Phase Closeout
 
+Status: Accepted.
+
 - QuickstartまたはPermanent FixtureでIdempotency／Outbox／Relay／Replayを完走する
 - Skeleton、Config、Migration、BlackOps CLI、Upgrade、Guide、Internal Referenceを同期する
 - Community Board Clean Install、Product、Digest、Notification、Browserを完走する
@@ -143,9 +145,9 @@ External Publication／Deployは行わない。
 - [x] Relay Claim／Retry／Fencing／Dead Letter CLIが実装される
 - [x] Canonical Observer ReplayがRecord Identityを維持する
 - [x] Community BoardのDigest／Notification JourneyがBrowserから完走する
-- [ ] Sensitive、Crash、Worker Reuse、Migration、Retention回帰が固定される
-- [ ] Full Framework／Consumer／Frontend／Website Gateが成功する
-- [ ] External Publication／Deployを行わない
+- [x] Sensitive、Crash、Worker Reuse、Migration、Retention回帰が固定される
+- [x] Full Framework／Consumer／Frontend／Website Gateが成功する
+- [x] External Publication／Deployを行わない
 
 ## Traceability
 

@@ -180,4 +180,4 @@ Retention holds and purge audits retain typed Operation IDs without a foreign ke
 - Applications own DB connections, credentials, provider config, console registration, environment loading, and deployment.
 - Framework adapters expose PostgreSQL, Monolog JSONL, FastRoute, Symfony DI, Nyholm PSR-7, and FrankenPHP reference integrations.
 - Production migrations are explicit deployment commands; HTTP and workers never run DDL automatically.
-- Authentication, authorization, encryption, remote observability, queue adapters, and outbox relay are post-MVP extension work.
+- Authentication, authorization, encryption, and remote observability remain application or integration boundaries. Transactional Outbox persistence, relay, retry, fencing, and dead-letter recovery are implemented framework capabilities; external queue providers and exactly-once delivery remain out of scope.

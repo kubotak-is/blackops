@@ -2,6 +2,6 @@
 
 `TransactionalOutboxRuntime`は、active `ExecutionScope`と`TransactionRuntime`の最上位Scopeを照合してから、child Identityの発行・Codec Encode・PostgreSQL Insertを行う。ScopeのConnection Name、Connection object identity、`isTransactionActive()`、Transaction nesting level `1`をすべて検証し、Frameworkが所有しないTransactionへ書き込まない。同じConnectionのNested Requiredは最上位Scopeへ参加できるが、別Connectionが最上位にある場合、Manual Transactionでnestingを変更またはcommitした場合、所有者不明の場合は登録前に拒否する。
 
-PostgreSQL `outbox_records`は専用Migrationで作成する。Relay前のStateは`pending`、State Versionは`1`に固定し、Claim／Lease／Retry／Dead Letter列は先取りしない。Application MutationとOutbox Insertは同じDBAL ConnectionのTransactionへ参加し、最外Commitで同時に確定する。Nested RequiredがRollback-onlyになると最外TransactionがMutationとOutboxをまとめてRollbackし、Rowは残らない。
+PostgreSQL `outbox_records`は専用Migrationで作成する。Relay前のStateは`pending`、State Versionは初期値`1`から状態遷移ごとに単調増加し、Claim／Lease／Retry／Dead Letterの状態遷移を同じRecord Identityへ適用する。Application MutationとOutbox Insertは同じDBAL ConnectionのTransactionへ参加し、最外Commitで同時に確定する。Nested RequiredがRollback-onlyになると最外TransactionがMutationとOutboxをまとめてRollbackし、Rowは残らない。Relayはat-least-onceで、Lease／FencingとDead Letter再開を備える。
 
 Public CapabilityはOperation Coordination／Application Infrastructureへ注入し、Domainへ依存させない。Direct Deferred Transportは既存のまま維持し、Persistenceだけを選択的に利用する。

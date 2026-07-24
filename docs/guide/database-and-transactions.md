@@ -136,7 +136,7 @@ readonly class RecordOrderCommit
 
 Callbackは同期Best-effortです。一つが失敗しても後続CallbackとCommit済みDatabaseを変更せず、自動Retryもしません。Application固有の`AfterCommitFailureReporter`をService Providerで登録すると、Service Class、Method、Cause、登録時の任意`ExecutionContext`を受け取れます。Reporter自身が失敗しても後続Callbackを止めません。
 
-Process Crashを越えるDeliveryが必要なら、After Commitではなく`TransactionalOutbox`へDeferred child Operationを登録してください。Outbox Persistenceは利用できますが、Relay／Retry／Dead Letterはまだ提供していないため、現時点ではRowの原子的な保存までが保証範囲です。外部Email／Webhook／Message Brokerへの送信完了は表現しません。
+Process Crashを越えるDeliveryが必要なら、After Commitではなく`TransactionalOutbox`へDeferred child Operationを登録してください。Outbox Rowは業務Mutationと同じNamed ConnectionのTransactionへ原子的に保存され、Relay／Retry／Dead Letter再開はat-least-onceで同じchild Operation Identityを再利用します。外部Email／Webhook／Message Brokerへの送信完了やExactly Onceは表現しません。
 
 ## Operationとの保証差
 

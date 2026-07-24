@@ -428,7 +428,7 @@ attempt.succeeded
 operation.completed
 ```
 
-After Commitは同期Best-effortで、Callback失敗やProcess Crashを越えた自動Retryを行いません。Email、Webhook、Message Publishなどの確実なDeliveryにはTransactional Outboxが必要ですが、現行FrameworkはOutbox Persistence／Relayをまだ提供していません。詳しい保証差は[Database and Transactions](database-and-transactions.md)を参照してください。
+After Commitは同期Best-effortで、Callback失敗やProcess Crashを越えた自動Retryを行いません。Email、Webhook、Message Publishなどのat-least-once DeliveryにはTransactional Outboxを使い、Relayの停止／再開、Retry、Dead Letter再開を明示的に運用します。詳しい保証差は[Database and Transactions](database-and-transactions.md)を参照してください。
 
 ## 7. Deferred Operationを受け付ける
 
