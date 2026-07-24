@@ -61,6 +61,8 @@ Outbox／Relay、Community Board Product Journeyは変更しない。
 
 ## P19-004: Transactional Outbox Persistence
 
+Status: Accepted.
+
 - Deferred child Operationを登録するPublic Capabilityを実装する
 - 固定Outbox Record／child Operation IDとContext親子関係を実装する
 - 同一Named ConnectionのTransaction参加とRollbackを実装する
@@ -131,7 +133,7 @@ External Publication／Deployは行わない。
 - [x] D109とPhase 19 Specification／Failure Matrix／Delivery PlanがDecidedである
 - [x] Idempotency Core Value／Context／Storage Contractが実装される
 - [x] HTTP／PHP Duplicate Lifecycleと独立Retentionが実装される
-- [ ] Transactional Outboxが同一Named Connectionへ原子的に参加する
+- [x] Transactional Outboxが同一Named Connectionへ原子的に参加する
 - [ ] Relay Claim／Retry／Fencing／Dead Letter CLIが実装される
 - [ ] Canonical Observer ReplayがRecord Identityを維持する
 - [ ] Community BoardのDigest／Notification JourneyがBrowserから完走する

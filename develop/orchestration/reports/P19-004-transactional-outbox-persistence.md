@@ -1,6 +1,6 @@
 # P19-004 Transactional Outbox Persistence Report
 
-Status: Implementation Accepted - Consumer Verification Pending
+Status: Accepted
 
 ## Summary
 
@@ -96,8 +96,8 @@ Implemented the bounded Transactional Outbox persistence surface. A Public `Tran
 - `! rg -n 'Spec(ification)?[[:space:]]*[0-9]+|D[0-9]{3}|P[0-9]+-[0-9]+|TODO\\.md:[0-9]+' src tests --glob '*.php'` — PASS
 - `git diff --check` — PASS
 - `docker compose run --rm app vendor/bin/phpunit` — PASS (1,825 tests, 7,370 assertions, 1 accepted deprecation; Orchestrator rerun)
-- `bash tests/Consumer/framework-package-export.sh` — Not completed in worker mode because the script archives `HEAD` and this worker is not permitted to commit the new migration; Orchestrator should run it after review staging/commit.
-- `bash tests/Consumer/community-board-clean-install.sh` — Not completed in worker mode for the same uncommitted-migration archive/consumer handoff constraint; migration expectation was updated from 7 to 8.
+- `bash tests/Consumer/framework-package-export.sh` — PASS against reviewed implementation Commit `218c945`; Framework package archive includes the new PostgreSQL migration.
+- `bash tests/Consumer/community-board-clean-install.sh` — PASS against reviewed implementation Commit `218c945`; 8 migrations, build, seed, generated frontend freshness, Svelte check, 43 frontend tests, production build, and HTTP journey succeeded.
 
 ## Acceptance Criteria
 
@@ -107,13 +107,13 @@ Implemented the bounded Transactional Outbox persistence surface. A Public `Tran
 - [x] PostgreSQL table, constraints, pending state/version, migration, and schema parity implemented and tested.
 - [x] Direct Transport remains unchanged; existing Idempotency／Retention paths were included in the full run.
 - [x] Sensitive payload and exception boundaries avoid SQL, credentials, connection parameters, and Throwable details.
-- [x] Full PHPUnit succeeds after the migration-count fixture was synchronized; Consumer clean install/package export remain Orchestrator post-commit checks because their archive input is `HEAD`.
+- [x] Full PHPUnit, package export, and Fresh Community Board clean install succeed after the migration-count fixture was synchronized.
 - [x] Relay／Retry／Dead Letter／Replay／Community Board Product Journey were not changed.
 
 ## Remaining Issues
 
-The consumer package/export scripts archive `HEAD`; they must be rerun after the Orchestrator includes the new migration in the reviewed commit. No worker commit was created. Orchestrator review accepted the implementation and the full local PHPUnit and transaction matrix are green.
+None. GitHub Actions verification follows the accepted local closeout.
 
 ## Suggested Next Action
 
-Commit the reviewed implementation, then run package export and Community Board clean install against the committed HEAD archive. If those and GitHub CI succeed, close P19-004 and prepare the P19-005 Relay Runtime and CLI Task Packet.
+Push the accepted closeout and verify GitHub CI／Documentation Delivery. After final HEAD succeeds, prepare the P19-005 Relay Runtime and CLI Task Packet.
