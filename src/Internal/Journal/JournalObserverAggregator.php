@@ -23,6 +23,12 @@ final readonly class JournalObserverAggregator
         return $this->observers === [];
     }
 
+    /** @return list<JournalObserverBinding> */
+    public function bindings(): array
+    {
+        return $this->observers;
+    }
+
     public function observe(ObservedJournalRecord $record): JournalObservationResult
     {
         return $this->dispatch(static function (JournalObserverBinding $binding) use ($record): void {

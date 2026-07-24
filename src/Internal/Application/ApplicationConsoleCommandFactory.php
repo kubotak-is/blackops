@@ -12,6 +12,7 @@ use BlackOps\Internal\Console\DatabaseMigrationStatusCommand;
 use BlackOps\Internal\Console\DatabaseSeedCommand;
 use BlackOps\Internal\Console\FrontendCheckCommand;
 use BlackOps\Internal\Console\FrontendGenerateCommand;
+use BlackOps\Internal\Console\JournalObserverReplayCommand;
 use BlackOps\Internal\Console\MakeAuthCommand;
 use BlackOps\Internal\Console\MakeMigrationCommand;
 use BlackOps\Internal\Console\MakeOperationCommand;
@@ -30,6 +31,10 @@ use BlackOps\Internal\Generator\MigrationGenerator;
 use BlackOps\Internal\Generator\OperationGenerator;
 use BlackOps\Internal\Generator\SeederGenerator;
 use BlackOps\Internal\Migration\DatabaseMigrationRunner;
+use BlackOps\Internal\Projection\ObservedJournalRecordProjector;
+use BlackOps\Internal\Projection\SensitiveProjectionFilter;
+use BlackOps\Internal\Replay\ObserverReplayRuntime;
+use BlackOps\Transport\PostgreSql\PostgreSqlObserverReplayStore;
 use Symfony\Component\Console\Command\Command;
 
 /** @mago-expect lint:too-many-methods */
@@ -127,6 +132,22 @@ final class ApplicationConsoleCommandFactory
     {
         $runtime = new ApplicationOutboxRuntime($this->configuration);
         return new OutboxDeadLetterRetryCommand($runtime->store, $runtime->clock);
+    }
+
+    public function journalObserverReplay(): Command
+    {
+        $database = ApplicationDatabaseConfiguration::fromConfiguration($this->configuration->configuration());
+        $connection = $database->databaseManager()->connection($database->frameworkConnection);
+        $targets = new ApplicationJournalObservationFactory()->replayTargets(
+            $this->configuration->configuration(),
+        ) ?? new \BlackOps\Internal\Replay\ObserverReplayTargetRegistry([]);
+        return new JournalObserverReplayCommand(
+            new ObserverReplayRuntime(
+                new PostgreSqlObserverReplayStore($connection, $database->schema),
+                $targets,
+                new ObservedJournalRecordProjector(new SensitiveProjectionFilter()),
+            ),
+        );
     }
 
     public function operationInspect(): Command

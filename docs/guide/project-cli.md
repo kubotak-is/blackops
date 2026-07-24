@@ -9,6 +9,8 @@ php blackops help build:compile
 
 `list`はDatabase接続、Migration Scan、Compiled Container、PCNTL、Retention Runtimeを要求しません。ValidなCommand ManifestがあればApplication CommandのMetadataだけを表示します。Command固有の`help`は、そのCommandのDefinitionを得るためCompiled Containerから一度だけ解決します。
 
+Canonical Journal の Observer 再配送は [Observer Replay](observer-replay.md) を参照してください。`journal:observer:replay` の Selector、Dry-run、Confirm、Resume、At-least-once と安全な Audit 境界を説明しています。
+
 ## BuildとDiscovery
 
 ```text

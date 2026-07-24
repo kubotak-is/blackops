@@ -31,6 +31,7 @@ final readonly class FrameworkCommandNames
             OperationViewerCommand::NAME,
             FrontendGenerateCommand::NAME,
             FrontendCheckCommand::NAME,
+            JournalObserverReplayCommand::NAME,
         ];
     }
 }

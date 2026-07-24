@@ -34,6 +34,7 @@ const routes = [
   '/reference/attributes/',
   '/reference/configuration/',
   '/reference/project-cli/',
+  '/reference/observer-replay/',
   '/reference/application-bootstrap/',
   '/reference/glossary/',
 ];

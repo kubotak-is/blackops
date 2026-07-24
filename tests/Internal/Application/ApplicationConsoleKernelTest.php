@@ -60,6 +60,7 @@ final class ApplicationConsoleKernelTest extends TestCase
             'retention:purge',
             'scheduler:run',
             'scheduler:daemon',
+            'journal:observer:replay',
         ] as $name) {
             self::assertStringContainsString($name, $listing);
         }
@@ -105,7 +106,54 @@ final class ApplicationConsoleKernelTest extends TestCase
             'command_name' => 'make:auth',
         ]), $authHelp));
         self::assertStringContainsString('--force', $authHelp->fetch());
+        $replayHelp = new BufferedOutput();
+        self::assertSame(0, $kernel->run(new ArrayInput([
+            'command' => 'help',
+            'command_name' => 'journal:observer:replay',
+        ]), $replayHelp));
+        $help = $replayHelp->fetch();
+        foreach ([
+            '--operation-id',
+            '--record-id',
+            '--from',
+            '--to',
+            '--observer',
+            '--batch-size',
+            '--dry-run',
+            '--confirm',
+            '--checkpoint',
+            '--resume',
+            '--actor',
+            '--reason',
+        ] as $option) {
+            self::assertStringContainsString($option, $help);
+        }
         self::assertDirectoryDoesNotExist($directory . '/app');
+    }
+
+    public function testReplayListAndHelpDoNotTouchConfiguredJsonlPath(): void
+    {
+        $directory = $this->directory();
+        $config = $directory . '/config';
+        mkdir($config);
+        $path = $directory . '/var/nonexistent-replay.jsonl';
+        mkdir($directory . '/var');
+        $this->writeConfig(
+            $config,
+            'journal',
+            "return ['jsonl' => ['enabled' => true, 'path' => '" . addslashes($path) . "', 'delivery' => 'required']];",
+        );
+        $application = Application::configure($directory)->withConfiguration()->create();
+        $kernel = $application->console();
+        $list = new BufferedOutput();
+        self::assertSame(0, $kernel->run(new ArrayInput(['command' => 'list']), $list));
+        self::assertFileDoesNotExist($path);
+        $help = new BufferedOutput();
+        self::assertSame(0, $kernel->run(new ArrayInput([
+            'command' => 'help',
+            'command_name' => 'journal:observer:replay',
+        ]), $help));
+        self::assertFileDoesNotExist($path);
     }
 
     public function testRunsApplicationCommand(): void
@@ -165,6 +213,16 @@ final class ApplicationConsoleKernelTest extends TestCase
         $this->expectException(ApplicationBootstrapException::class);
         $this->expectExceptionMessage('conflicts with a framework command');
 
+        $application->console();
+    }
+
+    public function testRejectsApplicationCommandThatConflictsWithObserverReplay(): void
+    {
+        $application = Application::configure($this->directory())
+            ->withCommands([ConsoleKernelReplayConflictingCommand::class])
+            ->create();
+        $this->expectException(ApplicationBootstrapException::class);
+        $this->expectExceptionMessage('conflicts with a framework command');
         $application->console();
     }
 
@@ -427,6 +485,14 @@ final class ConsoleKernelConflictingCommand extends Command
     public function __construct()
     {
         parent::__construct('worker:run');
+    }
+}
+
+final class ConsoleKernelReplayConflictingCommand extends Command
+{
+    public function __construct()
+    {
+        parent::__construct('journal:observer:replay');
     }
 }
 

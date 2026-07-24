@@ -56,7 +56,7 @@ final class DatabaseMigrationRunnerTest extends TestCase
         $runner = new DatabaseMigrationRunner($this->connection, self::SCHEMA);
         $migrations = $runner->dependencyFactory()->getMigrationPlanCalculator()->getMigrations();
 
-        self::assertCount(5, $migrations);
+        self::assertCount(6, $migrations);
         self::assertSame(
             'BlackOps\\Migrations\\PostgreSql\\Version20260712000000',
             (string) $migrations->getFirst()->getVersion(),
@@ -77,6 +77,7 @@ final class DatabaseMigrationRunnerTest extends TestCase
                 'BlackOps\\Migrations\\PostgreSql\\Version20260724000000',
                 'BlackOps\\Migrations\\PostgreSql\\Version20260724010000',
                 'BlackOps\\Migrations\\PostgreSql\\Version20260724100000',
+                'BlackOps\\Migrations\\PostgreSql\\Version20260724110000',
             ],
             $status->pendingVersions,
         );
@@ -90,7 +91,7 @@ final class DatabaseMigrationRunnerTest extends TestCase
         $result = $runner->dryRun();
 
         self::assertTrue($result->dryRun);
-        self::assertSame(5, $result->migrations);
+        self::assertSame(6, $result->migrations);
         self::assertNotEmpty($result->sql);
         self::assertStringContainsString('CREATE TABLE IF NOT EXISTS "' . self::SCHEMA . '"."operations"', implode(
             "\n",
@@ -118,12 +119,14 @@ final class DatabaseMigrationRunnerTest extends TestCase
         $result = $runner->migrate();
 
         self::assertFalse($result->dryRun);
-        self::assertSame(5, $result->migrations);
+        self::assertSame(6, $result->migrations);
         self::assertSame(
             [
                 'dead_letters',
                 'idempotency_records',
                 'journal',
+                'observer_replay_audits',
+                'observer_replay_checkpoints',
                 'operations',
                 'outbox_dead_letter_retry_audits',
                 'outbox_records',
@@ -152,7 +155,7 @@ final class DatabaseMigrationRunnerTest extends TestCase
             'column' => 'version',
         ]));
         self::assertSame(
-            5,
+            6,
             (int) $this->connection->fetchOne('SELECT count(*) FROM ' . self::SCHEMA . '.schema_migrations'),
         );
         self::assertSame(1, (int) $this->connection->fetchOne('SELECT count(*)
@@ -187,7 +190,7 @@ final class DatabaseMigrationRunnerTest extends TestCase
 
         $metadata = $runner->dependencyFactory()->getMetadataStorage();
         $metadata->ensureInitialized();
-        self::assertCount(5, $metadata->getExecutedMigrations());
+        self::assertCount(6, $metadata->getExecutedMigrations());
     }
 
     public function testApplyWithNoPendingMigrationSucceedsWithoutChangingVersionRows(): void
@@ -200,10 +203,10 @@ final class DatabaseMigrationRunnerTest extends TestCase
 
         self::assertSame(0, $result->migrations);
         self::assertSame([], $result->sql);
-        self::assertCount(5, $status->appliedVersions);
+        self::assertCount(6, $status->appliedVersions);
         self::assertSame([], $status->pendingVersions);
         self::assertSame(
-            5,
+            6,
             (int) $this->connection->fetchOne('SELECT count(*) FROM ' . self::SCHEMA . '.schema_migrations'),
         );
     }
@@ -215,7 +218,7 @@ final class DatabaseMigrationRunnerTest extends TestCase
 
         try {
             $first = new DatabaseMigrationRunner($this->connection, self::CURRENT_SCHEMA);
-            self::assertSame(5, $first->migrate()->migrations);
+            self::assertSame(6, $first->migrate()->migrations);
             self::assertSame(self::CURRENT_SCHEMA, $this->connection->fetchOne('SELECT current_schema()'));
             $metadataBefore = $this->metadataRows(self::CURRENT_SCHEMA);
             $configuredSearchPath = $this->connection->fetchOne('SHOW search_path');
@@ -224,7 +227,7 @@ final class DatabaseMigrationRunnerTest extends TestCase
             $status = $second->status();
             $result = $second->migrate();
 
-            self::assertCount(5, $status->appliedVersions);
+            self::assertCount(6, $status->appliedVersions);
             self::assertSame([], $status->pendingVersions);
             self::assertSame(0, $result->migrations);
             self::assertSame([], $result->sql);
@@ -245,8 +248,8 @@ final class DatabaseMigrationRunnerTest extends TestCase
         try {
             $runner = new DatabaseMigrationRunner($this->connection, self::CURRENT_SCHEMA);
 
-            self::assertCount(5, $runner->status()->pendingVersions);
-            self::assertSame(5, $runner->dryRun()->migrations);
+            self::assertCount(6, $runner->status()->pendingVersions);
+            self::assertSame(6, $runner->dryRun()->migrations);
             self::assertFalse($this->schemaExists(self::CURRENT_SCHEMA));
             self::assertSame(self::CURRENT_SCHEMA . ', public', $this->connection->fetchOne('SHOW search_path'));
         } finally {
@@ -284,6 +287,7 @@ final class DatabaseMigrationRunnerTest extends TestCase
                 'BlackOps\\Migrations\\PostgreSql\\Version20260724000000',
                 'BlackOps\\Migrations\\PostgreSql\\Version20260724010000',
                 'BlackOps\\Migrations\\PostgreSql\\Version20260724100000',
+                'BlackOps\\Migrations\\PostgreSql\\Version20260724110000',
                 'App\\Migrations\\' . $version,
                 'App\\Migrations\\' . $secondVersion,
             ],
@@ -292,7 +296,7 @@ final class DatabaseMigrationRunnerTest extends TestCase
 
         $dryRun = $runner->dryRun();
         $sql = implode("\n", $dryRun->sql);
-        self::assertSame(7, $dryRun->migrations);
+        self::assertSame(8, $dryRun->migrations);
         $frameworkPosition = strpos($sql, 'CREATE TABLE IF NOT EXISTS "' . self::SCHEMA . '"."operations"');
         $applicationPosition = strpos($sql, 'CREATE TABLE "' . self::SCHEMA . '"."application_records"');
         $secondApplicationPosition = strpos($sql, 'ALTER TABLE "' . self::SCHEMA . '"."application_records"');
@@ -310,7 +314,7 @@ final class DatabaseMigrationRunnerTest extends TestCase
         );
         $result = $runner->migrate();
 
-        self::assertSame(7, $result->migrations);
+        self::assertSame(8, $result->migrations);
         self::assertSame(1, (int) $this->connection->fetchOne('SELECT count(*)
                 FROM information_schema.tables
                 WHERE table_schema = :schema
@@ -319,7 +323,7 @@ final class DatabaseMigrationRunnerTest extends TestCase
             'table' => 'application_records',
         ]));
         self::assertSame(
-            7,
+            8,
             (int) $this->connection->fetchOne('SELECT count(*) FROM ' . self::SCHEMA . '.schema_migrations'),
         );
         self::assertSame([], $runner->status()->pendingVersions);
@@ -440,9 +444,9 @@ final class DatabaseMigrationRunnerTest extends TestCase
 
         $result = $runner->migrate();
 
-        self::assertSame(5, $result->migrations);
+        self::assertSame(6, $result->migrations);
         self::assertSame(
-            5,
+            6,
             (int) $this->connection->fetchOne('SELECT count(*) FROM ' . self::SCHEMA . '.schema_migrations'),
         );
         self::assertSame([], $runner->status()->pendingVersions);
@@ -451,6 +455,8 @@ final class DatabaseMigrationRunnerTest extends TestCase
                 'dead_letters',
                 'idempotency_records',
                 'journal',
+                'observer_replay_audits',
+                'observer_replay_checkpoints',
                 'operations',
                 'outbox_dead_letter_retry_audits',
                 'outbox_records',
@@ -460,6 +466,60 @@ final class DatabaseMigrationRunnerTest extends TestCase
                 'schema_migrations',
             ],
             $this->tables(self::SCHEMA),
+        );
+        self::assertSame(
+            [
+                'selector_kind',
+                'selector_operation_id',
+                'selector_record_id',
+                'selector_from',
+                'selector_to',
+                'target_names',
+            ],
+            $this->columns(self::SCHEMA, 'observer_replay_checkpoints', [
+                'selector_kind',
+                'selector_operation_id',
+                'selector_record_id',
+                'selector_from',
+                'selector_to',
+                'target_names',
+            ]),
+        );
+        self::assertSame(['target_names'], $this->columns(self::SCHEMA, 'observer_replay_audits', ['target_names']));
+        self::assertGreaterThanOrEqual(
+            5,
+            (int) $this->connection->fetchOne(
+                'SELECT count(*) FROM information_schema.check_constraints WHERE constraint_schema = :schema AND constraint_name LIKE :pattern',
+                ['schema' => self::SCHEMA, 'pattern' => '%replay%'],
+            ),
+        );
+    }
+
+    public function testCanonicalObserverReplayMigrationDownDropsOnlyItsTablesAndIndex(): void
+    {
+        $runner = new DatabaseMigrationRunner($this->connection, self::SCHEMA);
+        $available = $runner->dependencyFactory()->getMigrationPlanCalculator()->getMigrations()->getItems();
+        $migration = null;
+        foreach ($available as $candidate) {
+            if (
+                $candidate->getMigration()->getDescription()
+                === 'Add canonical observer replay checkpoints and audit records.'
+            ) {
+                $migration = $candidate->getMigration();
+                break;
+            }
+        }
+        self::assertNotNull($migration);
+
+        $migration->down(new Schema());
+        $sql = array_map(static fn(object $query): string => $query->getStatement(), $migration->getSql());
+        self::assertSame(
+            [
+                'DROP INDEX IF EXISTS "' . self::SCHEMA . '"."observer_replay_audits_checkpoint_idx"',
+                'DROP TABLE IF EXISTS "' . self::SCHEMA . '"."observer_replay_audits"',
+                'DROP TABLE IF EXISTS "' . self::SCHEMA . '"."observer_replay_checkpoints"',
+            ],
+            $sql,
         );
     }
 
@@ -493,7 +553,7 @@ final class DatabaseMigrationRunnerTest extends TestCase
                 WHERE version = :version',
             ['version' => 'LegacyVersion'],
         ));
-        self::assertCount(6, $runner->dependencyFactory()->getMetadataStorage()->getExecutedMigrations());
+        self::assertCount(7, $runner->dependencyFactory()->getMetadataStorage()->getExecutedMigrations());
     }
 
     public function testApplyUpgradesLegacyMetadataWhenTargetSchemaIsCurrent(): void
@@ -520,7 +580,7 @@ final class DatabaseMigrationRunnerTest extends TestCase
                     WHERE version = :version',
                 ['version' => 'LegacyCurrentVersion'],
             ));
-            self::assertCount(6, $runner->dependencyFactory()->getMetadataStorage()->getExecutedMigrations());
+            self::assertCount(7, $runner->dependencyFactory()->getMetadataStorage()->getExecutedMigrations());
             self::assertSame(self::CURRENT_SCHEMA . ', public', $this->connection->fetchOne('SHOW search_path'));
         } finally {
             $this->connection->executeStatement('RESET search_path');
@@ -545,12 +605,18 @@ final class DatabaseMigrationRunnerTest extends TestCase
     public function testOutboxRelayMigrationDownPreservesOriginalTableContract(): void
     {
         $runner = new DatabaseMigrationRunner($this->connection, self::SCHEMA);
-        $migration = $runner
-            ->dependencyFactory()
-            ->getMigrationPlanCalculator()
-            ->getMigrations()
-            ->getLast()
-            ->getMigration();
+        $available = $runner->dependencyFactory()->getMigrationPlanCalculator()->getMigrations()->getItems();
+        $migration = null;
+        foreach ($available as $candidate) {
+            if (
+                $candidate->getMigration()->getDescription()
+                === 'Add relay leasing, retry, fencing, and dead-letter audit persistence.'
+            ) {
+                $migration = $candidate->getMigration();
+                break;
+            }
+        }
+        self::assertNotNull($migration);
 
         $migration->down(new Schema());
         $sql = array_map(static fn(object $query): string => $query->getStatement(), $migration->getSql());
@@ -591,6 +657,22 @@ final class DatabaseMigrationRunnerTest extends TestCase
     }
 
     /** @return list<string> */
+    /** @param list<string>|null $only */
+    private function columns(string $schema, string $table, ?array $only = null): array
+    {
+        $sql = 'SELECT column_name FROM information_schema.columns WHERE table_schema = :schema AND table_name = :table';
+        $params = ['schema' => $schema, 'table' => $table];
+        $types = [];
+        if ($only !== null) {
+            $sql .= ' AND column_name IN (:columns)';
+            $params['columns'] = $only;
+            $types['columns'] = \Doctrine\DBAL\ArrayParameterType::STRING;
+        }
+        $sql .= ' ORDER BY ordinal_position';
+        $rows = $this->connection->fetchFirstColumn($sql, $params, $types);
+        return array_values(array_map('strval', $rows));
+    }
+
     private function tables(string $schema): array
     {
         return $this->connection->fetchFirstColumn('SELECT table_name

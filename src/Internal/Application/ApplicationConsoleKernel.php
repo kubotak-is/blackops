@@ -13,6 +13,7 @@ use BlackOps\Internal\Console\DatabaseSeedCommand;
 use BlackOps\Internal\Console\FrameworkCommandNames;
 use BlackOps\Internal\Console\FrontendCheckCommand;
 use BlackOps\Internal\Console\FrontendGenerateCommand;
+use BlackOps\Internal\Console\JournalObserverReplayCommand;
 use BlackOps\Internal\Console\LazyFrameworkCommand;
 use BlackOps\Internal\Console\MakeAuthCommand;
 use BlackOps\Internal\Console\MakeMigrationCommand;
@@ -282,6 +283,24 @@ final readonly class ApplicationConsoleKernel
                 $factory->outboxDeadLetterRetry(...),
                 static fn(Command $command): Command => $command
                     ->addArgument('record-id', InputArgument::REQUIRED)
+                    ->addOption('actor', null, InputOption::VALUE_REQUIRED)
+                    ->addOption('reason', null, InputOption::VALUE_REQUIRED),
+            ),
+            new LazyFrameworkCommand(
+                JournalObserverReplayCommand::NAME,
+                'Replay canonical journal records to selected observers.',
+                $factory->journalObserverReplay(...),
+                static fn(Command $command): Command => $command
+                    ->addOption('operation-id', null, InputOption::VALUE_REQUIRED)
+                    ->addOption('record-id', null, InputOption::VALUE_REQUIRED)
+                    ->addOption('from', null, InputOption::VALUE_REQUIRED)
+                    ->addOption('to', null, InputOption::VALUE_REQUIRED)
+                    ->addOption('observer', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY)
+                    ->addOption('batch-size', null, InputOption::VALUE_REQUIRED, default: '100')
+                    ->addOption('dry-run', null, InputOption::VALUE_NONE)
+                    ->addOption('confirm', null, InputOption::VALUE_NONE)
+                    ->addOption('checkpoint', null, InputOption::VALUE_REQUIRED)
+                    ->addOption('resume', null, InputOption::VALUE_REQUIRED)
                     ->addOption('actor', null, InputOption::VALUE_REQUIRED)
                     ->addOption('reason', null, InputOption::VALUE_REQUIRED),
             ),

@@ -6,6 +6,7 @@ namespace BlackOps\Internal\Application;
 
 use BlackOps\Internal\Journal\JournalObservationPipeline;
 use BlackOps\Internal\Journal\JournalObserverAggregator;
+use BlackOps\Internal\Replay\ObserverReplayTargetRegistry;
 
 final readonly class ApplicationJournalObservations
 {
@@ -22,5 +23,10 @@ final readonly class ApplicationJournalObservations
     public function flush(): void
     {
         $this->observers->flush();
+    }
+
+    public function replayTargets(): ObserverReplayTargetRegistry
+    {
+        return new ObserverReplayTargetRegistry($this->observers->bindings());
     }
 }

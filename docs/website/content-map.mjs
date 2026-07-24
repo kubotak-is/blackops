@@ -112,6 +112,10 @@ export const contentMap = {
     slug: 'reference/project-cli',
     description: 'Project Rootのblackopsから利用できるBuild、Worker、Operation Inspect／Viewer、Retention Commandを確認する。',
   },
+  'observer-replay.md': {
+    slug: 'reference/observer-replay',
+    description: 'BlackOps CLIでCanonical JournalをObserverへ安全に再配送するSelector、Dry-run、Resume、Audit境界を確認する。',
+  },
   'troubleshooting.md': {
     slug: 'troubleshooting',
     description: '202、Status 404／410、有限Wait、Operation ID付き500、Worker、Journalの問題を症状から解決する。',

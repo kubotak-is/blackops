@@ -35,6 +35,7 @@ final readonly class JsonlJournalRecordEncoder
         return [
             'schemaVersion' => $record->schemaVersion,
             'kind' => 'journal',
+            'recordId' => $record->recordId->toString(),
             'event' => $record->event->value,
             'occurredAt' => $this->time($record->occurredAt),
             'sequence' => $record->sequence,

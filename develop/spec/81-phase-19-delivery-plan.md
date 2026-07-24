@@ -74,6 +74,8 @@ Relay Loop、Dead Letter再開、Observer Replayは変更しない。
 
 ## P19-005: Relay Runtime and CLI
 
+Status: Accepted.
+
 - PostgreSQL Claim／Lease／Heartbeat／Fencing／有限Batchを実装する
 - 同じRecord／child Operation IDで既存Deferred Transportへ配送する
 - 指数Backoff、最大Attempt、Dead Letter、Lease切れRecoveryを実装する
@@ -134,7 +136,7 @@ External Publication／Deployは行わない。
 - [x] Idempotency Core Value／Context／Storage Contractが実装される
 - [x] HTTP／PHP Duplicate Lifecycleと独立Retentionが実装される
 - [x] Transactional Outboxが同一Named Connectionへ原子的に参加する
-- [ ] Relay Claim／Retry／Fencing／Dead Letter CLIが実装される
+- [x] Relay Claim／Retry／Fencing／Dead Letter CLIが実装される
 - [ ] Canonical Observer ReplayがRecord Identityを維持する
 - [ ] Community BoardのDigest／Notification JourneyがBrowserから完走する
 - [ ] Sensitive、Crash、Worker Reuse、Migration、Retention回帰が固定される

@@ -47,6 +47,7 @@ test('keeps all eleven sections, moved pages, and the six-page Reference in exac
     'reference/attributes',
     'reference/configuration',
     'reference/project-cli',
+    'reference/observer-replay',
     'reference/application-bootstrap',
     'reference/glossary',
   ]);
