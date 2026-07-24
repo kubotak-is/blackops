@@ -37,6 +37,9 @@ assert_absent() {
 }
 
 cleanup() {
+    "${COMPOSE[@]}" exec -T postgres psql -U blackops -d community_board -c \
+        'DROP TRIGGER IF EXISTS board_test_fail_comment_insert ON public.board_comments; DROP TRIGGER IF EXISTS board_test_fail_outbox_insert ON blackops.outbox_records; DROP FUNCTION IF EXISTS public.board_test_fail_comment_insert(); DROP FUNCTION IF EXISTS public.board_test_fail_outbox_insert();' \
+        >/dev/null 2>&1 || true
     "${COMPOSE[@]}" down --volumes --remove-orphans >/dev/null 2>&1 || true
     rm -rf \
         "${ROOT}/examples/community-board/var/build" \
@@ -124,6 +127,13 @@ grep -Eq '"type":"redirect","status":303,"location":"/posts/[0-9a-f-]{36}"' "${T
 POST_ID=$(sed -n 's/.*"location":"\/posts\/\([0-9a-f-]*\)".*/\1/p' "${TEMP}/create.action")
 test "${#POST_ID}" -eq 36
 
+"${CURL[@]}" --silent --output "${TEMP}/self-comment.action" --cookie "${ALICE_COOKIES}" \
+    --header "Origin: ${FRONTEND_ORIGIN}" --header 'Content-Type: application/x-www-form-urlencoded' \
+    --data-urlencode 'body=Alice self comment' "http://localhost:${FRONTEND_PORT}/posts/${POST_ID}?/comment"
+grep -Fq "\"type\":\"redirect\",\"status\":303" "${TEMP}/self-comment.action"
+test "$("${COMPOSE[@]}" exec -T postgres psql -U blackops -d community_board -Atc \
+    'SELECT count(*) FROM blackops.outbox_records')" = '0'
+
 "${CURL[@]}" --fail --silent --cookie "${ALICE_COOKIES}" \
     "http://localhost:${FRONTEND_PORT}/posts/${POST_ID}" >"${TEMP}/alice-detail.html"
 grep -Fq '<h1>First post</h1>' "${TEMP}/alice-detail.html"
@@ -144,10 +154,113 @@ grep -Fq '"type":"redirect","status":303,"location":"/me"' "${TEMP}/bob-register
 BOB_TOKEN=$(awk '$6 == "community_board_session" { print $7 }' "${BOB_COOKIES}")
 test "${#BOB_TOKEN}" -eq 43
 
+# Force comment persistence to fail and verify the surrounding transaction
+# leaves no outbox row. Remove the temporary trigger before the next case.
+"${COMPOSE[@]}" exec -T postgres psql -U blackops -d community_board <<'SQL'
+CREATE FUNCTION public.board_test_fail_comment_insert() RETURNS trigger
+LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'forced comment insert failure'; END; $$;
+CREATE TRIGGER board_test_fail_comment_insert
+BEFORE INSERT ON public.board_comments
+FOR EACH ROW EXECUTE FUNCTION public.board_test_fail_comment_insert();
+SQL
+COMMENT_COUNT_BEFORE_FAILURE=$("${COMPOSE[@]}" exec -T postgres psql -U blackops -d community_board -Atc 'SELECT count(*) FROM public.board_comments')
+COMMENT_FAILURE_STATUS=$("${CURL[@]}" --silent --output "${TEMP}/comment-insert-failure.action" --write-out '%{http_code}' \
+    --cookie "${BOB_COOKIES}" --header "Origin: ${FRONTEND_ORIGIN}" --header 'Content-Type: application/x-www-form-urlencoded' \
+    --data-urlencode 'body=Comment insert failure' "http://localhost:${FRONTEND_PORT}/posts/${POST_ID}?/comment")
+test "${COMMENT_FAILURE_STATUS}" = '200'
+grep -Fq '"type":"failure","status":503' "${TEMP}/comment-insert-failure.action"
+grep -Fq 'The board service is temporarily unavailable.' "${TEMP}/comment-insert-failure.action"
+test $("${COMPOSE[@]}" exec -T postgres psql -U blackops -d community_board -Atc 'SELECT count(*) FROM blackops.outbox_records') = '0'
+test $("${COMPOSE[@]}" exec -T postgres psql -U blackops -d community_board -Atc 'SELECT count(*) FROM public.board_comments') = "${COMMENT_COUNT_BEFORE_FAILURE}"
+"${COMPOSE[@]}" exec -T postgres psql -U blackops -d community_board <<'SQL'
+DROP TRIGGER board_test_fail_comment_insert ON public.board_comments;
+DROP FUNCTION public.board_test_fail_comment_insert();
+SQL
+
+# Force outbox persistence to fail and verify the comment is rolled back.
+"${COMPOSE[@]}" exec -T postgres psql -U blackops -d community_board <<'SQL'
+CREATE FUNCTION public.board_test_fail_outbox_insert() RETURNS trigger
+LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'forced outbox insert failure'; END; $$;
+CREATE TRIGGER board_test_fail_outbox_insert
+BEFORE INSERT ON blackops.outbox_records
+FOR EACH ROW EXECUTE FUNCTION public.board_test_fail_outbox_insert();
+SQL
+COMMENT_COUNT_BEFORE_OUTBOX_FAILURE=$("${COMPOSE[@]}" exec -T postgres psql -U blackops -d community_board -Atc 'SELECT count(*) FROM public.board_comments')
+OUTBOX_FAILURE_STATUS=$("${CURL[@]}" --silent --output "${TEMP}/outbox-insert-failure.action" --write-out '%{http_code}' \
+    --cookie "${BOB_COOKIES}" --header "Origin: ${FRONTEND_ORIGIN}" --header 'Content-Type: application/x-www-form-urlencoded' \
+    --data-urlencode 'body=Outbox insert failure' "http://localhost:${FRONTEND_PORT}/posts/${POST_ID}?/comment")
+test "${OUTBOX_FAILURE_STATUS}" = '200'
+grep -Fq '"type":"failure","status":503' "${TEMP}/outbox-insert-failure.action"
+grep -Fq 'The board service is temporarily unavailable.' "${TEMP}/outbox-insert-failure.action"
+test $("${COMPOSE[@]}" exec -T postgres psql -U blackops -d community_board -Atc 'SELECT count(*) FROM public.board_comments') = "${COMMENT_COUNT_BEFORE_OUTBOX_FAILURE}"
+test $("${COMPOSE[@]}" exec -T postgres psql -U blackops -d community_board -Atc 'SELECT count(*) FROM blackops.outbox_records') = '0'
+"${COMPOSE[@]}" exec -T postgres psql -U blackops -d community_board <<'SQL'
+DROP TRIGGER board_test_fail_outbox_insert ON blackops.outbox_records;
+DROP FUNCTION public.board_test_fail_outbox_insert();
+SQL
+
 "${CURL[@]}" --silent --output "${TEMP}/comment.action" --cookie "${BOB_COOKIES}" \
+    --write-out '%{http_code}' >"${TEMP}/comment.http-status" \
     --header "Origin: ${FRONTEND_ORIGIN}" --header 'Content-Type: application/x-www-form-urlencoded' \
     --data-urlencode 'body=Bob was here' "http://localhost:${FRONTEND_PORT}/posts/${POST_ID}?/comment"
-grep -Fq "\"type\":\"redirect\",\"status\":303,\"location\":\"/posts/${POST_ID}\"" "${TEMP}/comment.action"
+if ! grep -Fq '"type":"redirect","status":303' "${TEMP}/comment.action" || \
+    ! grep -Fq "\"location\":\"/posts/${POST_ID}\"" "${TEMP}/comment.action"; then
+    printf 'Normal Bob comment diagnostic (HTTP %s):\n' "$(<"${TEMP}/comment.http-status")" >&2
+    sed -n '1,120p' "${TEMP}/comment.action" >&2
+    "${COMPOSE[@]}" exec -T postgres psql -U blackops -d community_board -c \
+        "SELECT tgname, tgenabled FROM pg_trigger WHERE tgrelid IN ('public.board_comments'::regclass, 'blackops.outbox_records'::regclass) AND NOT tgisinternal ORDER BY tgname" >&2 || true
+    "${COMPOSE[@]}" logs --no-color http frontend >&2 || true
+    exit 1
+fi
+
+test "$("${COMPOSE[@]}" exec -T postgres psql -U blackops -d community_board -Atc \
+    "SELECT count(*) FROM blackops.outbox_records WHERE state = 'pending'")" = '1'
+test "$("${COMPOSE[@]}" exec -T postgres psql -U blackops -d community_board -Atc \
+    'SELECT count(*) FROM public.board_notifications')" = '0'
+"${COMPOSE[@]}" run --rm app php blackops outbox:relay:run --until-empty >/dev/null
+"${COMPOSE[@]}" run --rm app php blackops worker:run --iterations=1 --idle-sleep-milliseconds=1 >/dev/null
+test "$("${COMPOSE[@]}" exec -T postgres psql -U blackops -d community_board -Atc \
+    'SELECT count(*) FROM public.board_notifications')" = '1'
+"${COMPOSE[@]}" exec -T postgres psql -U blackops -d community_board -c \
+    "UPDATE blackops.outbox_records SET state = 'pending', relay_id = NULL, lease_expires_at = NULL, sent_at = NULL WHERE operation_id = (SELECT operation_id FROM blackops.outbox_records ORDER BY recorded_at DESC LIMIT 1)" >/dev/null
+"${COMPOSE[@]}" run --rm app php blackops outbox:relay:run --until-empty >/dev/null
+"${COMPOSE[@]}" run --rm app php blackops worker:run --iterations=1 --idle-sleep-milliseconds=1 >/dev/null
+test "$("${COMPOSE[@]}" exec -T postgres psql -U blackops -d community_board -Atc \
+    'SELECT count(*) FROM public.board_notifications')" = '1'
+
+# Keep a child pending while deleting its source post and comment, then prove
+# the deferred delivery still creates Alice's notification.
+"${CURL[@]}" --silent --output "${TEMP}/source-delete-post.action" --cookie "${ALICE_COOKIES}" \
+    --header "Origin: ${FRONTEND_ORIGIN}" --header 'Content-Type: application/x-www-form-urlencoded' \
+    --data-urlencode 'title=Source deletion fixture' --data-urlencode 'body=Removed before delivery' \
+    "http://localhost:${FRONTEND_PORT}/posts/new"
+SOURCE_DELETE_POST_ID=$(sed -n 's/.*"location":"\/posts\/\([0-9a-f-]*\)".*/\1/p' "${TEMP}/source-delete-post.action")
+test "${#SOURCE_DELETE_POST_ID}" -eq 36
+"${CURL[@]}" --silent --output "${TEMP}/source-delete-comment.action" --cookie "${BOB_COOKIES}" \
+    --header "Origin: ${FRONTEND_ORIGIN}" --header 'Content-Type: application/x-www-form-urlencoded' \
+    --data-urlencode 'body=Removed source comment' "http://localhost:${FRONTEND_PORT}/posts/${SOURCE_DELETE_POST_ID}?/comment"
+grep -Fq '"type":"redirect","status":303' "${TEMP}/source-delete-comment.action"
+test "$("${COMPOSE[@]}" exec -T postgres psql -U blackops -d community_board -Atc \
+    "SELECT count(*) FROM blackops.outbox_records WHERE state = 'pending'")" = '1'
+"${CURL[@]}" --silent --output "${TEMP}/source-delete.action" --cookie "${ALICE_COOKIES}" \
+    --header "Origin: ${FRONTEND_ORIGIN}" --header 'Content-Type: application/x-www-form-urlencoded' --data '' \
+    "http://localhost:${FRONTEND_PORT}/posts/${SOURCE_DELETE_POST_ID}?/delete"
+grep -Fq '"type":"redirect","status":303,"location":"/posts"' "${TEMP}/source-delete.action"
+test "$("${COMPOSE[@]}" exec -T postgres psql -U blackops -d community_board -Atc \
+    "SELECT count(*) FROM public.board_posts WHERE id = '${SOURCE_DELETE_POST_ID}'::uuid")" = '0'
+test "$("${COMPOSE[@]}" exec -T postgres psql -U blackops -d community_board -Atc \
+    "SELECT count(*) FROM public.board_comments WHERE post_id = '${SOURCE_DELETE_POST_ID}'::uuid")" = '0'
+"${COMPOSE[@]}" run --rm app php blackops outbox:relay:run --until-empty >/dev/null
+"${COMPOSE[@]}" run --rm app php blackops worker:run --iterations=1 --idle-sleep-milliseconds=1 >/dev/null
+test "$("${COMPOSE[@]}" exec -T postgres psql -U blackops -d community_board -Atc \
+    'SELECT count(*) FROM public.board_notifications')" = '2'
+
+"${CURL[@]}" --fail --silent --cookie "${ALICE_COOKIES}" \
+    "http://localhost:${FRONTEND_PORT}/notifications" >"${TEMP}/alice-notifications.html"
+grep -Fq 'Someone commented on your post.' "${TEMP}/alice-notifications.html"
+"${CURL[@]}" --fail --silent --cookie "${BOB_COOKIES}" \
+    "http://localhost:${FRONTEND_PORT}/notifications" >"${TEMP}/bob-notifications.html"
+grep -Fq 'No notifications yet.' "${TEMP}/bob-notifications.html"
 
 "${CURL[@]}" --fail --silent --cookie "${BOB_COOKIES}" \
     "http://localhost:${FRONTEND_PORT}/posts/${POST_ID}" >"${TEMP}/bob-detail.html"
@@ -215,7 +328,7 @@ printf 'Not-found and session behavior passed.\n'
 
 "${COMPOSE[@]}" logs --no-color frontend >"${TEMP}/frontend.log"
 CLIENT_BUILD="${ROOT}/examples/community-board/frontend/build/client"
-for marker in BLACKOPS_BASE_URL community_board_session 'blackops/generated' ListPosts ShowPost CreatePost UpdatePost DeletePost AddComment '$env/dynamic/private' 'Authorization' 'Bearer '; do
+for marker in BLACKOPS_BASE_URL community_board_session 'blackops/generated' ListPosts ShowPost CreatePost UpdatePost DeletePost AddComment ListNotifications '$env/dynamic/private' 'Authorization' 'Bearer '; do
     assert_absent 'browser build' "${marker}" "${CLIENT_BUILD}"
 done
 

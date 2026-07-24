@@ -10,7 +10,12 @@ import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ cookies, parent }) => {
   await requireBoardSession(cookies, parent);
-  return { week: currentUtcIsoWeek() };
+  const bytes = new Uint8Array(24);
+  globalThis.crypto.getRandomValues(bytes);
+  return {
+    week: currentUtcIsoWeek(),
+    idempotencyKey: Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join(''),
+  };
 };
 
 export const actions: Actions = {
@@ -18,7 +23,8 @@ export const actions: Actions = {
     const session = await requireBoardActionSession(cookies);
     const form = await request.formData();
     const week = formString(form, 'week');
-    const result = await startWeeklyDigest(fetch, session.rawToken, week);
+    const idempotencyKey = formString(form, 'idempotencyKey');
+    const result = await startWeeklyDigest(fetch, session.rawToken, week, idempotencyKey);
     if (!result.ok) {
       if (result.kind === 'authentication') {
         clearSessionCookie(cookies);
@@ -28,7 +34,7 @@ export const actions: Actions = {
         success: false as const,
         message: result.message,
         fieldErrors: result.fieldErrors,
-        values: { week: week.slice(0, 8) },
+        values: { week: week.slice(0, 8), idempotencyKey },
       });
     }
 

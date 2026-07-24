@@ -3,6 +3,7 @@
   import BrandMark from '$lib/components/BrandMark.svelte';
   import '$lib/styles/global.css';
   import Calendar from 'reicon-svelte/icons/Calendar';
+  import Bell from 'reicon-svelte/icons/Bell';
   import FileText from 'reicon-svelte/icons/FileText';
   import Login from 'reicon-svelte/icons/Login';
   import Logout from 'reicon-svelte/icons/Logout';
@@ -21,6 +22,7 @@
     {#if data.currentUser}
       <a href="/posts" aria-current={page.url.pathname.startsWith('/posts') ? 'page' : undefined}><FileText size={20} weight="Outline" aria-hidden="true" /> <span>Posts</span></a>
       <a href="/digests" aria-current={page.url.pathname.startsWith('/digests') ? 'page' : undefined}><Calendar size={20} weight="Outline" aria-hidden="true" /> <span>Digests</span></a>
+      <a href="/notifications" aria-current={page.url.pathname.startsWith('/notifications') ? 'page' : undefined}><Bell size={20} weight="Outline" aria-hidden="true" /> <span>Notifications</span></a>
       <a href="/me" aria-current={page.url.pathname === '/me' ? 'page' : undefined}><User size={20} weight="Outline" aria-hidden="true" /> <span>{data.currentUser.displayName}</span></a>
       <form method="POST" action="/logout">
         <button class="nav-action" type="submit"><Logout size={20} weight="Outline" aria-hidden="true" /> <span>Log out</span></button>

@@ -104,6 +104,8 @@ Replay selection reads `encoded_record` only. No replay path writes the canonica
 - Orchestrator frozen documentation gates — PASS: 42/42 reader tests and a 32-page website build including `/reference/observer-replay/`, artifact validation, navigation, accessibility, and Pagefind checks.
 - `bash tests/Consumer/framework-package-export.sh` against implementation commit `4bab9ac` — PASS.
 - `bash tests/Consumer/community-board-clean-install.sh` against implementation commit `4bab9ac` — PASS: 10 migrations, application build, frontend generation/fresh check, Svelte check, 43 frontend tests, production build, database snapshot, and HTTP journey.
+- GitHub Actions CI Run `30073464604` — PASS: Documentation Website, Mago/PHPUnit/Deptrac, Frontend Contract/Runtime, Community Board Clean Install/Seed, and Full-stack Product Journey all succeeded.
+- Documentation Delivery Run `30073464621` — PASS: verified artifact build and delivery workflow succeeded; production deploy remained skipped by the existing credential gate.
 
 ## Acceptance Criteria
 

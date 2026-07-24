@@ -16,11 +16,16 @@ CURL=(curl --connect-timeout 3 --max-time 15)
 TEMP=$(mktemp -d)
 ENVIRONMENT_CREATED=false
 CONTROLLER_PID=
+NOTIFICATION_CONTROLLER_PID=
 
 cleanup() {
     if test -n "${CONTROLLER_PID}"; then
         kill "${CONTROLLER_PID}" >/dev/null 2>&1 || true
         wait "${CONTROLLER_PID}" >/dev/null 2>&1 || true
+    fi
+    if test -n "${NOTIFICATION_CONTROLLER_PID}"; then
+        kill "${NOTIFICATION_CONTROLLER_PID}" >/dev/null 2>&1 || true
+        wait "${NOTIFICATION_CONTROLLER_PID}" >/dev/null 2>&1 || true
     fi
     "${COMPOSE[@]}" down --volumes --remove-orphans >/dev/null 2>&1 || true
     rm -rf \
@@ -97,10 +102,54 @@ coordinate_digest_worker() {
         sleep 0.1
     done
     "${COMPOSE[@]}" run --rm app php blackops worker:run --iterations=1 --idle-sleep-milliseconds=1
+    wait_for_signal digest-second-requested
+    "${COMPOSE[@]}" run --rm app php blackops worker:run --iterations=1 --idle-sleep-milliseconds=1
+    wait_for_signal second-retry-observed
+    for _ in $(seq 1 100); do
+        if test "$("${COMPOSE[@]}" exec -T postgres psql -U blackops -d community_board -Atc \
+            "SELECT CASE WHEN available_at <= clock_timestamp() THEN 1 ELSE 0 END FROM blackops.operations ORDER BY created_at DESC LIMIT 1")" = '1'; then
+            break
+        fi
+        sleep 0.1
+    done
+    "${COMPOSE[@]}" run --rm app php blackops worker:run --iterations=1 --idle-sleep-milliseconds=1
+}
+
+coordinate_notification_worker() {
+    wait_for_signal notification-requested
+    "${COMPOSE[@]}" run --rm app php blackops outbox:relay:run --until-empty >/dev/null
+    "${COMPOSE[@]}" run --rm app php blackops worker:run --iterations=1 --idle-sleep-milliseconds=1 >/dev/null
+    for _ in $(seq 1 100); do
+        if test "$("${COMPOSE[@]}" exec -T postgres psql -U blackops -d community_board -Atc \
+            'SELECT count(*) FROM public.board_notifications')" = '1'; then
+            break
+        fi
+        sleep 0.1
+    done
+    test "$("${COMPOSE[@]}" exec -T postgres psql -U blackops -d community_board -Atc \
+        'SELECT count(*) FROM public.board_notifications')" = '1'
+    touch "${COMMUNITY_BOARD_SYNC_DIRECTORY}/notification-delivery-complete"
+    wait_for_signal notification-replay-requested
+    "${COMPOSE[@]}" exec -T postgres psql -U blackops -d community_board -c \
+        "UPDATE blackops.outbox_records SET state = 'pending', relay_id = NULL, lease_expires_at = NULL, sent_at = NULL WHERE operation_id = (SELECT operation_id FROM blackops.outbox_records ORDER BY recorded_at DESC LIMIT 1)" >/dev/null
+    "${COMPOSE[@]}" run --rm app php blackops outbox:relay:run --until-empty >/dev/null
+    "${COMPOSE[@]}" run --rm app php blackops worker:run --iterations=1 --idle-sleep-milliseconds=1 >/dev/null
+    for _ in $(seq 1 100); do
+        if test "$("${COMPOSE[@]}" exec -T postgres psql -U blackops -d community_board -Atc \
+            'SELECT count(*) FROM public.board_notifications')" = '1'; then
+            break
+        fi
+        sleep 0.1
+    done
+    test "$("${COMPOSE[@]}" exec -T postgres psql -U blackops -d community_board -Atc \
+        'SELECT count(*) FROM public.board_notifications')" = '1'
+    touch "${COMMUNITY_BOARD_SYNC_DIRECTORY}/notification-replayed"
 }
 
 coordinate_digest_worker &
 CONTROLLER_PID=$!
+coordinate_notification_worker &
+NOTIFICATION_CONTROLLER_PID=$!
 docker run --rm --init --ipc=host --network host \
     --user "$(id -u):$(id -g)" \
     --volume "${ROOT}:/workspace" \
@@ -114,6 +163,8 @@ docker run --rm --init --ipc=host --network host \
     node_modules/.bin/playwright test
 wait "${CONTROLLER_PID}"
 CONTROLLER_PID=
+wait "${NOTIFICATION_CONTROLLER_PID}"
+NOTIFICATION_CONTROLLER_PID=
 
 test -s "${ROOT}/docs/guide/assets/community-board/blackops-board.png"
 printf 'Community Board browser journey passed.\n'

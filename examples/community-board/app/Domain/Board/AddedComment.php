@@ -11,6 +11,8 @@ final readonly class AddedComment
     public function __construct(
         public string $commentId,
         public string $postId,
+        public string $authorId,
+        public string $postOwnerId,
         public DateTimeImmutable $createdAt,
     ) {}
 }

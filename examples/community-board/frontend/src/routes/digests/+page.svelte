@@ -24,6 +24,7 @@
     />
     <p id="week-helper" class="helper">Use the format YYYY-Www, for example 2026-W30.</p>
     {#if form?.fieldErrors?.week}<p id="week-error" class="field-error" role="alert">{form.fieldErrors.week}</p>{/if}</div>
+    <input type="hidden" name="idempotencyKey" value={form?.values?.idempotencyKey ?? data.idempotencyKey} />
     <button type="submit"><Calendar size={20} weight="Outline" aria-hidden="true" /> Generate digest</button>
   </form>
 </main>

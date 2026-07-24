@@ -15,6 +15,7 @@ final class BoardBuildArtifactTest extends TestCase
         'board.comment.add',
         'board.digest.show',
         'board.digest.weekly.generate',
+        'board.notification.list',
         'board.post.create',
         'board.post.delete',
         'board.post.list',
@@ -40,6 +41,8 @@ final class BoardBuildArtifactTest extends TestCase
         }
         self::assertSame(Deferred::class, $operationMetadata['board.digest.weekly.generate']['strategy']);
         self::assertSame('deferred', $frontendMetadata['board.digest.weekly.generate']['strategy']);
+        self::assertArrayHasKey('board.notification.notify', $operationMetadata);
+        self::assertSame(Deferred::class, $operationMetadata['board.notification.notify']['strategy']);
         foreach (['board.comment.add', 'board.post.create', 'board.post.delete', 'board.post.update'] as $type) {
             self::assertSame('app', $operationMetadata[$type]['transactionConnection']);
             self::assertTrue($operationMetadata[$type]['typedSelfHandledContext']);
@@ -53,6 +56,7 @@ final class BoardBuildArtifactTest extends TestCase
         self::assertSame('board.post.delete', $http['payload']['routes']['DELETE']['/posts/{postId}']);
         self::assertSame('board.digest.show', $http['payload']['routes']['GET']['/digests/{digestId}']);
         self::assertSame('board.digest.weekly.generate', $http['payload']['routes']['POST']['/digests']);
+        self::assertSame('board.notification.list', $http['payload']['routes']['GET']['/notifications']);
 
         self::assertSame('app', $operationMetadata['board.digest.weekly.generate']['transactionConnection']);
         self::assertTrue($operationMetadata['board.digest.weekly.generate']['typedSelfHandledContext']);

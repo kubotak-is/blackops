@@ -131,16 +131,24 @@ export function digestLocation(digestId: string): string {
   return `/digests/${encodeURIComponent(digestId)}`;
 }
 
+function validIdempotencyKey(value: string): boolean {
+  return value.length >= 1 && value.length <= 255 && /^[\x21-\x7e]+$/.test(value);
+}
+
 export async function startWeeklyDigest(
   serverFetch: ServerFetch,
   rawToken: string,
   week: string,
+  idempotencyKey: string,
   baseUrl: string | undefined = env.BLACKOPS_BASE_URL,
 ): Promise<StartDigestResult> {
+  if (!validIdempotencyKey(idempotencyKey)) {
+    return failure('validation', 422, 'Please refresh the form and try again.', Object.freeze({ idempotencyKey: 'Please refresh the form and try again.' }));
+  }
   const blackops = createServerBlackOpsClient(serverFetch, rawToken, baseUrl);
   if (blackops === null) return unavailable();
   try {
-    const result = await blackops.GenerateWeeklyDigest.fetch({ week });
+    const result = await blackops.GenerateWeeklyDigest.fetch({ week }, { idempotencyKey });
     if (result.ok) return Object.freeze({ ok: true as const, operationId: result.data.operationId });
     if (result.kind === 'validation') {
       return failure('validation', 422, 'Please enter a valid ISO week.', Object.freeze({ week: 'Please enter a valid ISO week.' }));

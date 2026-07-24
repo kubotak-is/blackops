@@ -18,21 +18,23 @@ const json = (body: unknown, status = 200, headers: Record<string, string> = {})
 
 describe('digest operation boundary', () => {
   it('starts through the generated deferred fetch with per-call bearer injection', async () => {
-    let call: { url: string; authorization: string | null; body: unknown } | undefined;
+    let call: { url: string; authorization: string | null; idempotencyKey: string | null; body: unknown } | undefined;
     const fetch: ServerFetch = async (input, init) => {
       call = {
         url: String(input),
         authorization: new Headers(init?.headers).get('authorization'),
+        idempotencyKey: new Headers(init?.headers).get('idempotency-key'),
         body: JSON.parse(String(init?.body)),
       };
       return json({ status: 'accepted', operationId, acceptedAt: '2026-07-21T00:00:00.000000Z' }, 202);
     };
 
-    await expect(startWeeklyDigest(fetch, 'secret-token', '2026-W30', 'http://blackops.test'))
+    await expect(startWeeklyDigest(fetch, 'secret-token', '2026-W30', 'digest-key', 'http://blackops.test'))
       .resolves.toEqual({ ok: true, operationId });
     expect(call).toEqual({
       url: 'http://blackops.test/digests',
       authorization: 'Bearer secret-token',
+      idempotencyKey: 'digest-key',
       body: { week: '2026-W30' },
     });
   });
@@ -44,7 +46,7 @@ describe('digest operation boundary', () => {
       category: 'validation',
       code: 'validation.failed',
       violations: [],
-    }, 422), 'credential', '2021-W53', 'http://private-backend');
+    }, 422), 'credential', '2021-W53', 'digest-key', 'http://private-backend');
 
     expect(result).toEqual({
       ok: false,
@@ -54,6 +56,12 @@ describe('digest operation boundary', () => {
       fieldErrors: { week: 'Please enter a valid ISO week.' },
     });
     expect(JSON.stringify(result)).not.toMatch(/credential|private-backend|019b4000/);
+  });
+
+  it('rejects a tampered key before transport without returning the raw value', async () => {
+    const result = await startWeeklyDigest(async () => { throw new Error('must not call'); }, 'token', '2026-W30', 'bad key', 'http://private');
+    expect(result).toMatchObject({ ok: false, kind: 'validation', status: 422 });
+    expect(JSON.stringify(result)).not.toContain('bad key');
   });
 
   it.each([

@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { access, mkdir, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 
 const baseURL = process.env.COMMUNITY_BOARD_BASE_URL ?? 'http://localhost:5173';
@@ -19,6 +19,14 @@ async function expectAccessible(page: Page): Promise<void> {
 async function signal(name: string): Promise<void> {
   if (syncDirectory === undefined) throw new Error('COMMUNITY_BOARD_SYNC_DIRECTORY is required.');
   await writeFile(resolve(syncDirectory, name), 'ready\n', 'utf8');
+}
+
+async function waitForSignal(name: string): Promise<void> {
+  if (syncDirectory === undefined) throw new Error('COMMUNITY_BOARD_SYNC_DIRECTORY is required.');
+  for (let attempt = 0; attempt < 300; attempt += 1) {
+    try { await access(resolve(syncDirectory, name)); return; } catch { await new Promise((resolvePromise) => setTimeout(resolvePromise, 100)); }
+  }
+  throw new Error(`Timed out waiting for ${name}`);
 }
 
 test('real browser journey remains accessible and credential-free', async ({ page }) => {
@@ -118,6 +126,9 @@ test('real browser journey remains accessible and credential-free', async ({ pag
   await expectAccessible(page);
   const digestForm = page.locator('form.digest-form');
   const weekInput = page.getByLabel('ISO week');
+  const idempotencyInput = digestForm.locator('input[name="idempotencyKey"]');
+  const firstKey = await idempotencyInput.inputValue();
+  expect(firstKey).toMatch(/^[0-9a-f]{48}$/);
   await digestForm.evaluate((form: HTMLFormElement) => { form.noValidate = true; });
   await weekInput.fill('invalid');
   await page.getByRole('button', { name: 'Generate digest' }).click();
@@ -126,11 +137,18 @@ test('real browser journey remains accessible and credential-free', async ({ pag
   await expect(weekInput).toHaveAttribute('aria-describedby', /week-error/);
   await weekInput.fill('2026-W30');
   expect(await weekInput.evaluate((input: HTMLInputElement) => input.checkValidity())).toBe(true);
+  const firstResponsePromise = page.waitForResponse((response) => (
+    response.url().endsWith('/digests') && response.request().method() === 'POST'
+  ));
   await page.getByRole('button', { name: 'Generate digest' }).click();
+  const firstResponse = await firstResponsePromise;
+  expect(firstResponse.status()).toBe(303);
+  expect(firstResponse.headers().location).toMatch(/^\/digests\/operations\/[0-9a-f-]{36}$/);
   if (page.url().endsWith('/digests')) {
     throw new Error(`Digest submission did not redirect: ${(await page.getByRole('alert').allInnerTexts()).join(' | ')}`);
   }
   await expect(page).toHaveURL(/\/digests\/operations\/[0-9a-f-]{36}$/);
+  const firstOperationLocation = new URL(page.url()).pathname;
   await expect(page.locator('[data-state="accepted"]')).toBeVisible();
   await signal('digest-requested');
   await expect(page.getByRole('heading', { name: 'Retry scheduled' })).toBeVisible({ timeout: 30_000 });
@@ -139,6 +157,48 @@ test('real browser journey remains accessible and credential-free', async ({ pag
   await signal('retry-observed');
   await expect(page).toHaveURL(/\/digests\/[0-9a-f-]{36}$/, { timeout: 30_000 });
   await expect(page.getByText('Completed')).toBeVisible();
+  await expectAccessible(page);
+  const firstDigestLocation = new URL(page.url()).pathname;
+
+  await page.goto('/digests');
+  const replayForm = page.locator('form.digest-form');
+  await replayForm.locator('input[name="idempotencyKey"]').evaluate((element, key) => {
+    (element as HTMLInputElement).value = key;
+  }, firstKey);
+  await page.getByLabel('ISO week').fill('2026-W30');
+  const replayResponsePromise = page.waitForResponse((response) => (
+    response.url().endsWith('/digests') && response.request().method() === 'POST'
+  ));
+  await page.getByRole('button', { name: 'Generate digest' }).click();
+  const replayResponse = await replayResponsePromise;
+  expect(replayResponse.status()).toBe(303);
+  expect(replayResponse.headers().location).toBe(firstOperationLocation);
+  await expect(page).toHaveURL(firstDigestLocation);
+  await expect(page.getByText('Completed')).toBeVisible();
+
+  const freshResponse = await page.goto('/digests');
+  expect(freshResponse?.status()).toBe(200);
+  const secondKey = await page.locator('form.digest-form input[name="idempotencyKey"]').inputValue();
+  expect(secondKey).toMatch(/^[0-9a-f]{48}$/);
+  expect(secondKey).not.toBe(firstKey);
+  const secondResponsePromise = page.waitForResponse((response) => (
+    response.url().endsWith('/digests') && response.request().method() === 'POST'
+  ));
+  await page.getByLabel('ISO week').fill('2026-W30');
+  await page.getByRole('button', { name: 'Generate digest' }).click();
+  const secondResponse = await secondResponsePromise;
+  expect(secondResponse.status()).toBe(303);
+  const secondLocation = secondResponse.headers().location;
+  expect(secondLocation).toMatch(/^\/digests\/operations\/[0-9a-f-]{36}$/);
+  expect(secondLocation).not.toBe(firstOperationLocation);
+  await expect(page).toHaveURL(/\/digests\/operations\/[0-9a-f-]{36}$/);
+  await expect(page.locator('[data-state="accepted"]')).toBeVisible();
+  await signal('digest-second-requested');
+  await expect(page.getByRole('heading', { name: 'Retry scheduled' })).toBeVisible({ timeout: 30_000 });
+  await signal('second-retry-observed');
+  await expect(page).toHaveURL(/\/digests\/[0-9a-f-]{36}$/, { timeout: 30_000 });
+  await expect(page.getByText('Completed')).toBeVisible();
+  expect(new URL(page.url()).pathname).not.toBe(firstDigestLocation);
   await expectAccessible(page);
 
   await page.getByRole('link', { name: 'Posts', exact: true }).click();
@@ -151,4 +211,49 @@ test('real browser journey remains accessible and credential-free', async ({ pag
   await page.getByRole('button', { name: 'Log out' }).click();
   await expect(page).toHaveURL(/\/login$/);
   await expect(page.getByRole('link', { name: 'Register' })).toBeVisible();
+});
+
+test('independent Alice and Bob sessions deliver one notification after relay and duplicate delivery', async ({ page, browser }) => {
+  const unique = `${Date.now()}-${Math.floor(Math.random() * 1_000_000)}`;
+  const password = `notification-password-${unique}-long`;
+  const bob = await browser.newPage();
+  const register = async (target: Page, name: string): Promise<void> => {
+    await target.goto('/register');
+    await target.getByLabel('Email').fill(`${name}-${unique}@example.test`);
+    await target.getByLabel('Display name').fill(name);
+    await target.getByLabel('Password').fill(password);
+    await target.getByRole('button', { name: 'Register' }).click();
+    await expect(target).toHaveURL(/\/me$/);
+  };
+
+  await register(page, 'Alice');
+  await register(bob, 'Bob');
+  await page.goto('/posts/new');
+  await page.getByLabel('Title').fill(`Notification post ${unique}`);
+  await page.getByLabel('Body').fill('Notification body');
+  await page.getByRole('button', { name: 'Publish post' }).click();
+  await expect(page).toHaveURL(/\/posts\/[0-9a-f-]{36}$/);
+  const postUrl = page.url();
+  await bob.goto(postUrl);
+  await bob.getByLabel('Comment').fill('Bob notification comment');
+  await bob.getByRole('button', { name: 'Add comment' }).click();
+  await expect(bob).toHaveURL(postUrl);
+  await expect(bob.getByText('Bob notification comment')).toBeVisible();
+  await page.goto('/notifications');
+  await expect(page.getByText('No notifications yet.')).toBeVisible();
+  await signal('notification-requested');
+  await waitForSignal('notification-delivery-complete');
+  await expect.poll(async () => {
+    await page.reload();
+    return await page.getByText('Someone commented on your post.').count();
+  }, { timeout: 30_000 }).toBe(1);
+  await bob.goto('/notifications');
+  await expect(bob.getByText('No notifications yet.')).toBeVisible();
+  await signal('notification-replay-requested');
+  await waitForSignal('notification-replayed');
+  await expect.poll(async () => {
+    await page.reload();
+    return await page.getByText('Someone commented on your post.').count();
+  }, { timeout: 30_000 }).toBe(1);
+  await bob.close();
 });

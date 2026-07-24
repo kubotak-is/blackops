@@ -51,7 +51,8 @@ final readonly class BoardService
     public function addComment(string $postId, string $authorId, string $body): AddedComment
     {
         $this->requireValidPostId($postId);
-        if ($this->posts->lockPostAuthorId($postId) === null) {
+        $postOwnerId = $this->posts->lockPostAuthorId($postId);
+        if ($postOwnerId === null) {
             throw new PostNotFound();
         }
 
@@ -59,7 +60,7 @@ final readonly class BoardService
         $now = $this->clock->now();
         $this->posts->createComment($commentId, $postId, $authorId, $body, $now);
 
-        return new AddedComment($commentId, $postId, $now);
+        return new AddedComment($commentId, $postId, $authorId, $postOwnerId, $now);
     }
 
     private function requireLockedOwner(string $postId, string $actorId): void
