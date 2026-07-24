@@ -1,6 +1,6 @@
 # P19-007 Community Board Reliability Journey Report
 
-Status: Implementation complete; ready for Orchestrator review and acceptance.
+Status: Accepted.
 
 ## Summary
 
@@ -91,6 +91,8 @@ Product journey passes one-shot `outbox:relay:run`, `worker:run`, then resets th
 - Digest consumer also covers same-key/different-week safe conflict, transport-unavailable K1 preservation with backend stop/restart, and different-actor K1 replay isolation (Bob receives a distinct completed operation, never O1).
 - Form failure assertions account for SvelteKit devalue serialization: each action requires the `idempotencyKey` field and exactly one occurrence of the raw K1 value, without assuming a literal JSON key/value pair.
 - Browser Playwright asserts native-form HTTP 303 responses and `Location` headers; Bob comment completion is asserted before signaling the controller, which waits for notification count 1 after each relay/worker pass.
+- `bash tests/Consumer/framework-package-export.sh` — PASS from implementation commit `fc39c15`.
+- `bash tests/Consumer/community-board-clean-install.sh` — PASS from implementation commit `fc39c15`, including dependency installation, 11 migrations, generated-client freshness, 46 frontend tests, production build, database snapshot, and live HTTP startup.
 - Review correction: canonical outbox test now asserts exact `NotifyPostOwner::class` (not merely `assertInstanceOf`), preventing proxy subclasses from satisfying the contract. Focused correction run passes 10 tests / 73 assertions.
 
 ## Acceptance Criteria
@@ -104,8 +106,8 @@ Product journey passes one-shot `outbox:relay:run`, `worker:run`, then resets th
 
 ## Remaining Issues
 
-- No implementation blockers remain. Acceptance and closeout review are pending Orchestrator decision.
+- No P19-007 blockers remain.
 
 ## Suggested Next Action
 
-Orchestrator reviews the completed evidence and records acceptance/closeout.
+Proceed to P19-008 Consumer, Documentation, and Phase Closeout.

@@ -87,6 +87,8 @@ Operation Replay、Observer Replay、Community Board UIは変更しない。
 
 ## P19-006: Canonical Observer Replay
 
+Status: Accepted.
+
 - Canonical Record IDを維持するObserver Replay Serviceを実装する
 - Operation／Record／時刻範囲と対象Observerの選択を実装する
 - Dry-run、有限Batch、Checkpoint、監査を実装する
@@ -97,6 +99,8 @@ Operation Replay、Observer Replay、Community Board UIは変更しない。
 Community Board Product Journeyは変更しない。
 
 ## P19-007: Community Board Reliability Journey
+
+Status: Accepted.
 
 - Digest FormへServer-generated Idempotency Keyを接続する
 - 同じKeyの二重Submitを同じ202／Operation ID／Digestへ収束させる
@@ -138,7 +142,7 @@ External Publication／Deployは行わない。
 - [x] Transactional Outboxが同一Named Connectionへ原子的に参加する
 - [x] Relay Claim／Retry／Fencing／Dead Letter CLIが実装される
 - [x] Canonical Observer ReplayがRecord Identityを維持する
-- [ ] Community BoardのDigest／Notification JourneyがBrowserから完走する
+- [x] Community BoardのDigest／Notification JourneyがBrowserから完走する
 - [ ] Sensitive、Crash、Worker Reuse、Migration、Retention回帰が固定される
 - [ ] Full Framework／Consumer／Frontend／Website Gateが成功する
 - [ ] External Publication／Deployを行わない
