@@ -38,6 +38,16 @@ final class TransactionRuntime
         $this->reporter = $reporter;
     }
 
+    public function currentScope(): ?TransactionScope
+    {
+        $index = array_key_last($this->transactionalInvocations);
+        if ($index === null) {
+            return null;
+        }
+
+        return $this->scopes[$this->transactionalInvocations[$index]] ?? null;
+    }
+
     /**
      * @template TResult
      * @param Closure(): TResult $callback

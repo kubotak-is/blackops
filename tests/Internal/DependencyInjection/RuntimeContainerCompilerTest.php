@@ -26,6 +26,7 @@ use BlackOps\Http\Console\DumpHttpManifestCommand;
 use BlackOps\Http\Routing\HttpOperationManifestFile;
 use BlackOps\Internal\DependencyInjection\RuntimeContainerCompiler;
 use BlackOps\Internal\Execution\HandlerResolver;
+use BlackOps\Outbox\TransactionalOutbox;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
@@ -261,6 +262,19 @@ final class RuntimeContainerCompilerTest extends TestCase
         self::assertSame($connection, $consumer->connection);
     }
 
+    public function testRegistersSyntheticTransactionalOutboxForConstructorInjection(): void
+    {
+        $compiler = new RuntimeContainerCompiler();
+        $builder = $compiler->builder();
+        $compiler->registerDatabaseServices($builder);
+        $builder->register(ContainerOutboxConsumer::class)->setAutowired(true)->setPublic(true);
+        $container = $compiler->compile($builder);
+        $outbox = $this->createStub(TransactionalOutbox::class);
+        $container->set(TransactionalOutbox::class, $outbox);
+
+        self::assertSame($outbox, $container->get(ContainerOutboxConsumer::class)->outbox);
+    }
+
     public function testRejectsProviderDatabaseRuntimeServiceRedefinitionWithoutOverwritingIt(): void
     {
         $compiler = new RuntimeContainerCompiler();
@@ -275,6 +289,18 @@ final class RuntimeContainerCompilerTest extends TestCase
             self::assertSame($expected, $builder->get(DatabaseManager::class));
             self::assertStringNotContainsString('credential', $exception->getMessage());
         }
+    }
+
+    public function testRejectsProviderTransactionalOutboxRedefinitionAsRuntimeBoundary(): void
+    {
+        $compiler = new RuntimeContainerCompiler();
+        $builder = $compiler->builder();
+        $expected = $this->createStub(TransactionalOutbox::class);
+        $compiler->apply($builder, [new ExplicitTransactionalOutboxProvider($expected)]);
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Transaction runtime service');
+        $compiler->registerDatabaseServices($builder);
     }
 
     public function testAutowiresAuthenticationMiddlewareWithProviderAuthenticatorAndDefaultPsr17Factories(): void
@@ -490,6 +516,13 @@ final readonly class ContainerDatabaseConsumer
     ) {}
 }
 
+final readonly class ContainerOutboxConsumer
+{
+    public function __construct(
+        public TransactionalOutbox $outbox,
+    ) {}
+}
+
 final readonly class ContainerLoggerConsumer
 {
     public function __construct(
@@ -506,6 +539,18 @@ final readonly class ExplicitDatabaseManagerProvider implements ServiceProvider
     public function register(ServiceRegistry $services): void
     {
         $services->set(DatabaseManager::class, $this->databases);
+    }
+}
+
+final readonly class ExplicitTransactionalOutboxProvider implements ServiceProvider
+{
+    public function __construct(
+        private TransactionalOutbox $outbox,
+    ) {}
+
+    public function register(ServiceRegistry $services): void
+    {
+        $services->set(TransactionalOutbox::class, $this->outbox);
     }
 }
 

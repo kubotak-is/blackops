@@ -12,6 +12,7 @@ use BlackOps\Core\Identifier\CorrelationId;
 use BlackOps\Core\Identifier\IdentifierBehavior;
 use BlackOps\Core\Identifier\JournalRecordId;
 use BlackOps\Core\Identifier\OperationId;
+use BlackOps\Core\Identifier\OutboxRecordId;
 use BlackOps\Core\Identifier\RetentionHoldId;
 use BlackOps\Core\Identifier\RetentionPurgeAuditId;
 use PHPUnit\Framework\TestCase;
@@ -32,6 +33,7 @@ final class IdentifierTest extends TestCase
             'CausationId' => [CausationId::class],
             'RetentionHoldId' => [RetentionHoldId::class],
             'RetentionPurgeAuditId' => [RetentionPurgeAuditId::class],
+            'OutboxRecordId' => [OutboxRecordId::class],
         ];
     }
 

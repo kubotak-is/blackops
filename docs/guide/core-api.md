@@ -1,6 +1,6 @@
 # Core API Types Reference
 
-このReferenceは現在の`main` Sourceで`#[PublicApi]`を持つ169型を一覧化しています。Application Authorはまず「Application構成」「Database」「Operation Authoring」「Validation」「Status／Outcome取得」の型を使い、Transport、Journal、Retention等のPortはAdapterを拡張するときだけ使ってください。
+このReferenceは現在の`main` Sourceで`#[PublicApi]`を持つ172型を一覧化しています。Application Authorはまず「Application構成」「Database」「Operation Authoring」「Validation」「Status／Outcome取得」の型を使い、Transport、Journal、Retention等のPortはAdapterを拡張するときだけ使ってください。
 
 `BlackOps\Core\Attribute\PublicApi` marker自身は利用者向けAPIではないため一覧へ含めません。内部実装Namespaceと`#[PublicApi]`を持たない実装型にも依存しないでください。Attributeの付与対象と標準形は[Attributes Reference](attributes.md)を確認してください。
 
@@ -172,6 +172,7 @@ HTTPの`GET /operations/{operationId}`とGenerated `.status()`／`.wait()`はこ
 | `BlackOps\Core\Identifier\JournalRecordId` | final readonly value object | Journal Recordを識別する | Journal AdapterでRecordを扱う |
 | `BlackOps\Core\Identifier\RetentionHoldId` | final readonly value object | Retention Holdを識別する | Holdの作成／解除を相関する |
 | `BlackOps\Core\Identifier\RetentionPurgeAuditId` | final readonly value object | Purge Auditを識別する | Database AuditとSystem Logを相関する |
+| `BlackOps\Core\Identifier\OutboxRecordId` | final readonly value object | Outbox Recordを一意に識別する | Outbox登録と将来のRelayを相関する |
 | `BlackOps\Identifier\Uuidv7Generator` | interface | Application-owned UUIDv7文字列を生成する | Identifier AdapterへConstructor Injectionし、`generate(): string`を呼ぶ |
 
 ## Execution StrategyとTransport Port
@@ -191,6 +192,13 @@ HTTPの`GET /operations/{operationId}`とGenerated `.status()`／`.wait()`はこ
 | `BlackOps\Core\Execution\ClaimSettlement` | interface | Claim成功／失敗確定Port | Fencing付きSettlementを実装する |
 | `BlackOps\Core\Execution\ExecutionTransport` | aggregate interface | Sender／Receiver／Heartbeat／Settlementを束ねる | 一体型Transport Adapterを実装する |
 | `BlackOps\Core\Exception\DeferredTransportException` | exception class | Deferred Transport失敗を通知する | Adapter Errorを境界Exceptionへ変換する |
+
+## Transactional Outbox
+
+| Namespace／Type | Kind | Purpose | Typical Use |
+| --- | --- | --- | --- |
+| `BlackOps\Outbox\TransactionalOutbox` | interface | Framework管理TransactionへDeferred child Operationを登録する | Operation Coordination／Application InfrastructureへConstructor Injectionする |
+| `BlackOps\Outbox\OutboxRegistration` | final readonly value object | Outbox Record ID、child Operation ID、登録時刻を保持する | 登録結果を監査・相関する |
 
 ## CodecとDependency Injection
 

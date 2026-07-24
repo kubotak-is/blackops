@@ -4,15 +4,25 @@ declare(strict_types=1);
 
 namespace BlackOps\Internal\Application;
 
+use BlackOps\Internal\Codec\ReflectionJsonOperationCodec;
 use BlackOps\Internal\Database\RuntimeDatabaseServiceInjector;
 use BlackOps\Internal\Execution\ExecutionScopeProvider;
+use BlackOps\Internal\ExecutionContext\ExecutionContextFactory;
+use BlackOps\Internal\Identifier\IdentifierFactory;
+use BlackOps\Internal\Identifier\SymfonyUuidv7Generator;
 use BlackOps\Internal\Logging\MonologJsonlLoggerFactory;
 use BlackOps\Internal\Logging\RuntimeLoggingServiceInjector;
+use BlackOps\Internal\Outbox\TransactionalOutboxRuntime;
+use BlackOps\Internal\Registry\OperationManifestFile;
 use BlackOps\Internal\Runtime\RuntimeContainerArtifactLoader;
 use BlackOps\Internal\Transaction\RuntimeTransactionServiceInjector;
+use BlackOps\Outbox\TransactionalOutbox;
+use BlackOps\Transport\PostgreSql\PostgreSqlOutboxStore;
+use BlackOps\Transport\PostgreSql\PostgreSqlSystemClock;
 use InvalidArgumentException;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\DependencyInjection\Container;
 use Throwable;
 
 final class ApplicationCommandContainerResolver
@@ -64,7 +74,29 @@ final class ApplicationCommandContainerResolver
             $database = ApplicationDatabaseConfiguration::fromConfiguration($this->configuration->configuration());
             $databases = $database->databaseManager();
             new RuntimeDatabaseServiceInjector()->inject($container, $databases);
-            new RuntimeTransactionServiceInjector()->inject($container, $databases, $scope);
+            $transactions = new RuntimeTransactionServiceInjector()->inject($container, $databases, $scope);
+            $connection = $databases->connection($database->frameworkConnection);
+            $clock = new PostgreSqlSystemClock();
+            $identifiers = new IdentifierFactory(new SymfonyUuidv7Generator(), $clock);
+            $operations = new OperationManifestFile()->loadArtifact($this->build->operationManifest);
+            if (!$container instanceof Container) {
+                throw new InvalidArgumentException('Runtime container does not support outbox service injection.');
+            }
+            $container->set(
+                TransactionalOutbox::class,
+                new TransactionalOutboxRuntime(
+                    $operations->operations,
+                    new ReflectionJsonOperationCodec(),
+                    $scope,
+                    $transactions,
+                    $connection,
+                    $database->frameworkConnection,
+                    new PostgreSqlOutboxStore($connection, $database->schema),
+                    new ExecutionContextFactory($identifiers, $clock),
+                    $identifiers,
+                    $clock,
+                ),
+            );
         }
 
         return $this->container = $container;

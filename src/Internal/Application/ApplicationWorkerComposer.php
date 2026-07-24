@@ -25,17 +25,22 @@ use BlackOps\Internal\Journal\JournalRecordFactory;
 use BlackOps\Internal\Logging\FrameworkOperationFailureReporter;
 use BlackOps\Internal\Logging\MonologJsonlLoggerFactory;
 use BlackOps\Internal\Logging\RuntimeLoggingServiceInjector;
+use BlackOps\Internal\Outbox\TransactionalOutboxRuntime;
 use BlackOps\Internal\Runtime\ProductionRuntimeArtifactLoader;
 use BlackOps\Internal\Transaction\OperationTransactionCoordinator;
 use BlackOps\Internal\Transaction\RuntimeTransactionServiceInjector;
+use BlackOps\Outbox\TransactionalOutbox;
 use BlackOps\Transport\PostgreSql\PostgreSqlCanonicalJournalStore;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationLifecycleStore;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationReceiver;
+use BlackOps\Transport\PostgreSql\PostgreSqlOutboxStore;
 use BlackOps\Transport\PostgreSql\PostgreSqlOutcomeStore;
 use BlackOps\Transport\PostgreSql\PostgreSqlSystemClock;
+use Symfony\Component\DependencyInjection\Container;
 
 final readonly class ApplicationWorkerComposer
 {
+    /** @mago-expect lint:halstead */
     public function compose(ApplicationConfigurationSnapshot $configuration): ApplicationWorkerComposition
     {
         $build = ApplicationBuildConfiguration::fromConfiguration($configuration->configuration());
@@ -67,6 +72,24 @@ final readonly class ApplicationWorkerComposer
         $heartbeat = $database->databaseManager()->connection($database->frameworkConnection);
         $clock = new PostgreSqlSystemClock();
         $identifiers = new IdentifierFactory(new SymfonyUuidv7Generator(), $clock);
+        if (!$artifacts->container instanceof Container) {
+            throw new \InvalidArgumentException('Runtime container does not support outbox service injection.');
+        }
+        $artifacts->container->set(
+            TransactionalOutbox::class,
+            new TransactionalOutboxRuntime(
+                $artifacts->operations,
+                new ReflectionJsonOperationCodec(),
+                $executionScope,
+                $transactionRuntime,
+                $main,
+                $database->frameworkConnection,
+                new PostgreSqlOutboxStore($main, $database->schema),
+                new ExecutionContextFactory($identifiers, $clock),
+                $identifiers,
+                $clock,
+            ),
+        );
         $services = new DeferredWorkerRuntimeServices(
             $artifacts->operations,
             new ReflectionJsonOperationCodec(),

@@ -9,6 +9,7 @@ use BlackOps\Core\Identifier\CausationId;
 use BlackOps\Core\Identifier\CorrelationId;
 use BlackOps\Core\Identifier\JournalRecordId;
 use BlackOps\Core\Identifier\OperationId;
+use BlackOps\Core\Identifier\OutboxRecordId;
 use BlackOps\Core\Identifier\RetentionHoldId;
 use BlackOps\Core\Identifier\RetentionPurgeAuditId;
 use Psr\Clock\ClockInterface;
@@ -61,6 +62,11 @@ final readonly class IdentifierFactory
     public function newRetentionPurgeAuditId(): RetentionPurgeAuditId
     {
         return RetentionPurgeAuditId::fromString($this->generate());
+    }
+
+    public function newOutboxRecordId(): OutboxRecordId
+    {
+        return OutboxRecordId::fromString($this->generate());
     }
 
     private function generate(): string

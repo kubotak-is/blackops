@@ -9,6 +9,7 @@ use BlackOps\Core\Identifier\CausationId;
 use BlackOps\Core\Identifier\CorrelationId;
 use BlackOps\Core\Identifier\JournalRecordId;
 use BlackOps\Core\Identifier\OperationId;
+use BlackOps\Core\Identifier\OutboxRecordId;
 use BlackOps\Core\Identifier\RetentionHoldId;
 use BlackOps\Core\Identifier\RetentionPurgeAuditId;
 use BlackOps\Internal\Identifier\IdentifierFactory;
@@ -35,6 +36,7 @@ final class IdentifierFactoryTest extends TestCase
         $causation = $factory->newCausationId();
         $retentionHold = $factory->newRetentionHoldId();
         $retentionPurgeAudit = $factory->newRetentionPurgeAuditId();
+        $outboxRecord = $factory->newOutboxRecordId();
 
         self::assertInstanceOf(OperationId::class, $operation);
         self::assertInstanceOf(AttemptId::class, $attempt);
@@ -43,6 +45,7 @@ final class IdentifierFactoryTest extends TestCase
         self::assertInstanceOf(CausationId::class, $causation);
         self::assertInstanceOf(RetentionHoldId::class, $retentionHold);
         self::assertInstanceOf(RetentionPurgeAuditId::class, $retentionPurgeAudit);
+        self::assertInstanceOf(OutboxRecordId::class, $outboxRecord);
 
         foreach ([
             $operation,
@@ -52,6 +55,7 @@ final class IdentifierFactoryTest extends TestCase
             $causation,
             $retentionHold,
             $retentionPurgeAudit,
+            $outboxRecord,
         ] as $id) {
             $value = $id->toString();
             self::assertMatchesRegularExpression(
@@ -115,6 +119,7 @@ final class IdentifierFactoryTest extends TestCase
         self::assertSame($fixed, $factory->newCausationId()->toString());
         self::assertSame($fixed, $factory->newRetentionHoldId()->toString());
         self::assertSame($fixed, $factory->newRetentionPurgeAuditId()->toString());
+        self::assertSame($fixed, $factory->newOutboxRecordId()->toString());
     }
 
     private function fixedClock(string $time): ClockInterface

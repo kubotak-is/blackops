@@ -18,6 +18,7 @@ use BlackOps\Internal\Seeder\CompiledSeederRuntime;
 use BlackOps\Internal\Transaction\DefaultAfterCommitFailureReporter;
 use BlackOps\Internal\Transaction\TransactionRuntime;
 use BlackOps\Internal\Transaction\TransactionRuntimeAccessor;
+use BlackOps\Outbox\TransactionalOutbox;
 use Doctrine\DBAL\Connection;
 use InvalidArgumentException;
 use Psr\Container\ContainerInterface;
@@ -140,8 +141,16 @@ final readonly class RuntimeContainerCompiler
             );
         }
 
+        if ($builder->has(TransactionalOutbox::class)) {
+            throw new InvalidArgumentException(
+                'Transaction runtime service cannot be redefined by a service provider.',
+            );
+        }
+
         $builder->register(TransactionRuntime::class, TransactionRuntime::class)->setSynthetic(true)->setPublic(true);
         $builder->register(TransactionRuntimeAccessor::class)->setPublic(true);
+
+        $builder->register(TransactionalOutbox::class, TransactionalOutbox::class)->setSynthetic(true)->setPublic(true);
     }
 
     public function registerAuthorizationPolicies(ContainerBuilder $builder, OperationRegistry $operations): void

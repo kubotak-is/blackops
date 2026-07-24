@@ -37,6 +37,42 @@ sequenceDiagram
 
 InlineはHTTP Request内で`operation.received`から直接Attemptを開始し、OperationのOutcomeをHTTP Responseへ変換して返します。DeferredはValueとContextをDurable Storeへ保存し、`operation.accepted`の後にHTTP 202とOperation IDを返します。Workerは後から[Claim](glossary.md#claim)を取得し、Attempt、Outcome保存、完了Journalを実行します。
 
+## Transactional Outboxへの登録
+
+Application MutationとDeferred child Operationを同じFramework管理Transactionへ結び付ける場合は、`TransactionalOutbox`をConstructor Injectionします。
+
+```php
+use BlackOps\Core\Operation;
+use BlackOps\Database\Attribute\Transactional;
+use BlackOps\Outbox\TransactionalOutbox;
+
+readonly class PlaceOrder implements Operation
+{
+    public function __construct(
+        private OrderRepository $orders,
+        private TransactionalOutbox $outbox,
+    ) {}
+
+    #[Transactional(connection: 'app')]
+    public function handle(PlaceOrderValue $value): OrderPlaced
+    {
+        $this->orders->place($value->orderId);
+        $this->outbox->register(
+            new NotifyOrderOwner(),
+            new NotifyOrderOwnerValue($value->orderId),
+        );
+
+        return new OrderPlaced($value->orderId);
+    }
+}
+```
+
+`NotifyOrderOwner`はDeferred Strategyとして登録します。Outboxへ登録できるのはDeferred child Operationだけです。親OperationのExecution ContextからCorrelation／Causation／Actor／Deadlineを継承し、親Idempotency Key Hashは子へ渡しません。OutboxはApplication Database ConfigurationのFramework Named Connectionと同じConnection Instanceを所有するFramework管理Transaction内でのみ動作します。Transaction外、別Connectionが最上位にある場合、Manual Transactionによるnesting変更／commit、または所有者不明のTransactionではFail-fastし、Direct TransportへFallbackしません。同じConnectionのNested Requiredは外側のScopeへ参加できます。
+
+MutationとOutbox Rowは最外Commitで同時に残ります。ThrowableまたはInsert Failureでは両方Rollbackされ、Nested Requiredの途中でRollback-onlyになった場合も最外ScopeがRollbackするためRowは残りません。登録結果はOutbox Record ID、child Operation ID、UTC登録時刻だけを公開します。
+
+P19-004はOutbox PersistenceとClaim前の`pending` Stateまでを提供します。Relay、Retry、Dead Letter、Replayは後続Taskであり、この段階では送信完了を表現しません。Outboxを使わないDeferred呼出は既存Direct Transportの受付契約を維持します。
+
 MutationのPOST／PUT／PATCH／DELETEでは、認証・認可後にOptional `Idempotency-Key`をAtomic Claimします。同じFingerprintのTerminal ResultはTyped Resultまたは安全なHTTP Responseとして再利用し、Replay Responseだけに`Idempotency-Replayed: true`と`Cache-Control: private, no-store`を投影します。GET／HEAD、Anonymous Actor、Ephemeral OutcomeではKeyを受理しません。
 
 Malformed Key、複数Key、未対応Method、Anonymous Actor、Ephemeral OutcomeはClaim前に安全な4xxとして拒否します。異なるFingerprintや既存のIn-Progress ClaimはConflictとして扱い、既存結果がなく期限切れなら再実行せずHTTP 409の安定Code `idempotency_expired`を返します。Key付きHandlerがThrowableを投げた場合はFailure Boundaryが内部詳細を保存せず安全な失敗結果をJournalへ確定し、同じKeyの再送はHandlerを再実行せずその失敗結果をReplayします。

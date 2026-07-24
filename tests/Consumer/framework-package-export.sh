@@ -77,6 +77,7 @@ validate_package() {
         UPGRADE.md \
         migrations/postgresql/Version20260712000000.php \
         migrations/postgresql/Version20260712010000.php \
+        migrations/postgresql/Version20260724010000.php \
         resources/stubs/operation.php.stub \
         resources/stubs/operation-value.php.stub \
         resources/stubs/operation-outcome.php.stub \
