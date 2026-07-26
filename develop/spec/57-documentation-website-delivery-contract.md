@@ -1,5 +1,7 @@
 # Documentation Website Delivery Contract
 
+> Superseded for the documentation runtime and reader presentation by [Blume Documentation Experience](83-blume-documentation-experience.md) and D116. The `docs/guide/` source, public URL, redirect, static `dist/`, and delivery boundaries remain authoritative.
+
 ## Scope
 
 BlackOpsの公開Documentation Websiteは、Framework利用者がInstallからOperation実装、HTTP／Deferred実行、Database／運用機能まで辿れる日本語の静的Siteとする。Framework Contributor、内部Architecture、Task／Acceptance Evidenceは公開対象にしない。
@@ -11,7 +13,7 @@ Directoryの責務は次とする。
 ```text
 docs/guide/     公開WebsiteのMarkdown Source of Truth
 docs/internal/  Repository内で読むFramework実装者向け資料
-docs/website/   Astro Starlight Project、生成処理、Website固有Asset
+docs/website/   Blume Project、生成処理、Website固有Asset
 ```
 
 公開本文は`docs/guide/`だけを編集する。Website用Markdownを手動で複製または編集しない。`docs/internal/`、`develop/`、Task Report、Decision、SpecificationをPage、Navigation、Search Index、Static Artifactへ含めない。
@@ -20,10 +22,10 @@ docs/website/   Astro Starlight Project、生成処理、Website固有Asset
 
 ## Generated Content
 
-Starlightが読むContentはBuild前に`docs/guide/`から生成する。
+Blumeが読むContentはBuild前に`docs/guide/`から生成する。
 
 - Source Relative Pathまたは明示Metadataから公開Slugを決定する
-- 先頭H1をPage Titleとして取得し、Starlight Frontmatterへ補う
+- 先頭H1をPage Titleとして取得し、Blume Frontmatterへ補う
 - Websiteで重複する先頭H1を生成本文から除く
 - SourceのCode Fence、Mermaid、Table、Link、Heading Hierarchyを保持する
 - Source外Path参照、重複Slug、Title不在、不正Frontmatter、壊れた内部LinkをFail-fastする
@@ -59,7 +61,7 @@ Sidebar Labelは`Execution & Workers`と`Data & Retention`を使用する。Refe
 
 ## Website Presentation
 
-Astro Starlightの標準Search、Sidebar、Table of Contents、Code Highlight、Dark Mode、Mobile Navigation、SEO Metadata、Skip Linkを使用する。独自UIはBlackOps Brand、Landing、Version Noticeなど必要最小限にする。
+Blumeの標準Search、Sidebar、Table of Contents、Code Highlight、Dark Mode、Mobile Navigation、SEO Metadata、Skip Linkを使用する。独自UIはBlackOps Brand、Landing、Version Noticeなど必要最小限にする。
 
 WebsiteはMain Branchの最新Documentを公開する。Headerまたは全Pageで認識できる位置に次を表示する。
 
@@ -84,7 +86,7 @@ mise exec -- pnpm --dir docs/website run build
 
 少なくとも次のScriptを提供する。
 
-- `content:generate`: Sourceから未追跡Starlight ContentとManifestを再生成する
+- `content:generate`: Sourceから未追跡Blume ContentとManifestを再生成する
 - `content:check`: 重複Slug、Title、内部Link、公開対象外Path、生成決定性を検証する
 - `check`: Content CheckとAstro Type Checkを実行する
 - `build`: Contentを再生成して静的Siteを`dist/`へBuildする
@@ -106,9 +108,9 @@ Build後に公開禁止Path／代表的Internal Title／管理用IdentifierがAr
 
 ## Cloudflare Pages Delivery
 
-Cloudflare Pages Project名は`blackops-docs`とし、初期Production Hostは`blackops-docs.pages.dev`とする。Custom Domainは初期Scope外とする。
+Cloudflare Pages Project名は`blackops-php`とし、初期Production Hostは`blackops-php.pages.dev`とする。Custom Domainは初期Scope外とする。
 
-このDelivery Contractは公開再開時に使用するDormant Contractである。Credential-gated Workflowは維持するが、Project作成、Credential登録、Preview／Production Deploy、Live VerificationはPhase 10のAcceptanceに含めない。UserがWebsite公開を明示的に再開した場合だけ、独立したPublication Taskとして実行する。
+UserはWebsite公開を再開した。Cloudflare Pages Direct Upload Project、GitHub Environment Secret、`docs-production`の`main` Deployment Branch ruleをExternal Configurationとして準備し、独立したPublication TaskでRepository設定、Preview／Production Deploy、Live Verificationを完了する。
 
 GitHub Actionsは同一のInstall／Check／Buildを実行したArtifactをWrangler Direct Uploadする。
 
@@ -126,7 +128,7 @@ Direct Upload ProjectはGit Integration Projectと混在させない。Project�
 - `docs/guide/`だけからContentが生成される
 - 同一入力から生成Manifestが決定的である
 - Title不在、重複Slug、壊れた内部Linkが失敗する
-- Astro Type CheckとStatic Buildが成功する
+- Blume Type CheckとStatic Buildが成功する
 - LandingからGetting Started、Operation、Execution、Database、Referenceへ到達できる
 - Mobile Navigation、Keyboard Navigation、Color Contrast、Skip Linkを確認する
 - `docs/internal/`、`develop/`、Credential、Absolute PathがArtifactへ含まれない
@@ -137,6 +139,7 @@ Direct Upload ProjectはGit Integration Projectと混在させない。Project�
 ## Traceability
 
 - Decision: [D081 Documentation Website Delivery Contract](../decisions/081-documentation-website-delivery-contract.md)
+- Publication: [D129 Documentation Website Publication](../decisions/129-documentation-website-publication.md)
 - Roadmap: [Developer Experience Roadmap](41-developer-experience-roadmap.md)
 - Delivery Plan: [Phase 10 Delivery Plan](58-phase-10-delivery-plan.md)
 - Publication Timing: [Post Phase 10 Roadmap](60-post-phase-10-roadmap.md)

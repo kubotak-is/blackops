@@ -6,10 +6,11 @@ import path from 'node:path';
 import test from 'node:test';
 import { promisify } from 'node:util';
 import { generateContent } from '../scripts/content-pipeline.mjs';
+import { slugifyHeading, validateLinkLabels } from '../scripts/check-content.mjs';
 
 const execFileAsync = promisify(execFile);
 
-test('generates deterministic Starlight content and manifest without changing source', async (context) => {
+test('generates deterministic Blume content and manifest without changing source', async (context) => {
   const fixture = await fixtureRoot(context);
   await sources(fixture.source, {
     'README.md': '# Home\n\n[Guide](guide.md)\n\n```text\n# Preserved\n```\n\n```mermaid\nflowchart LR\n    accTitle: Example\n    accDescr: Example relationship\n    A --> B\n```\n\n| A | B |\n| - | - |\n',
@@ -35,10 +36,31 @@ test('generates deterministic Starlight content and manifest without changing so
     manifest.pages.map(({ source, generated, slug, title }) => ({ source, generated, slug, title })),
     [
       { source: 'guide.md', generated: 'guide.md', slug: 'guide', title: 'Guide' },
-      { source: 'README.md', generated: 'index.md', slug: 'index', title: 'Home' },
+      { source: 'README.md', generated: 'index.mdx', slug: 'index', title: 'Home' },
     ],
   );
+  assert.equal(await fileExists(path.join(fixture.root, 'first/content/index.mdx')), true);
+  assert.equal(await fileExists(path.join(fixture.root, 'first/content/index.md')), false);
+  assert.equal(await fileExists(path.join(fixture.root, 'first/content/guide.md')), true);
   assert.ok(manifest.pages.every(({ hash }) => /^[0-9a-f]{64}$/.test(hash)));
+});
+
+test('removes the previous generated extension when Mermaid content changes', async (context) => {
+  const fixture = await fixtureRoot(context);
+  await sources(fixture.source, {
+    'README.md': '# Home\n\n```mermaid\nflowchart LR\n    A --> B\n```\n',
+  });
+
+  const first = await generate(fixture);
+  assert.match(first.manifest, /"generated": "index\.mdx"/);
+  assert.equal(await fileExists(path.join(fixture.root, 'output/content/index.mdx')), true);
+
+  await sources(fixture.source, { 'README.md': '# Home\n\nNo diagram.\n' });
+  const second = await generate(fixture);
+
+  assert.match(second.manifest, /"generated": "index\.md"/);
+  assert.equal(await fileExists(path.join(fixture.root, 'output/content/index.md')), true);
+  assert.equal(await fileExists(path.join(fixture.root, 'output/content/index.mdx')), false);
 });
 
 test('rejects a page without a level-one title', async (context) => {
@@ -79,8 +101,8 @@ test('applies explicit public slugs and page metadata', async (context) => {
 
   assert.equal(JSON.parse(manifest).pages[0].slug, 'getting-started/install');
   assert.match(content, /description: "Install BlackOps\."/);
-  assert.match(content, /template: "splash"/);
-  assert.match(content, /banner: \{"content":"Channel: main"\}/);
+  assert.doesNotMatch(content, /template:/);
+  assert.doesNotMatch(content, /banner:/);
 });
 
 test('rejects incomplete or stale public metadata', async (context) => {
@@ -138,6 +160,32 @@ test('rejects a broken internal link', async (context) => {
   await sources(fixture.source, { 'README.md': '# Home\n\n[Missing](missing.md)\n' });
 
   await assert.rejects(() => generate(fixture), /Broken internal documentation link/);
+});
+
+test('link labels resolve Japanese and duplicate heading fragments and reject drift', async (context) => {
+  const fixture = await fixtureRoot(context);
+  await sources(fixture.source, {
+    'README.md': '# Home\n\n[操作](glossary.md#操作)\n[同じ見出し](glossary.md#同じ見出し-1)\n',
+    'glossary.md': '# Glossary\n\n## 操作\n\n## 同じ見出し\n\n## 同じ見出し\n',
+  });
+
+  assert.equal(slugifyHeading('Binding Failureは422'), 'binding-failureは422');
+  await validateLinkLabels(fixture.source);
+
+  await sources(fixture.source, { 'README.md': '# Home\n\n[Wrong](glossary.md)\n' });
+  await assert.rejects(() => validateLinkLabels(fixture.source), /must match target heading/);
+
+  await sources(fixture.source, { 'README.md': '# Home\n\n[Missing](glossary.md#存在しない)\n' });
+  await assert.rejects(() => validateLinkLabels(fixture.source), /fragment does not exist/);
+
+  await sources(fixture.source, { 'README.md': '# Home\n\n[Missing](missing.md)\n' });
+  await assert.rejects(() => validateLinkLabels(fixture.source), /target does not exist/);
+
+  await sources(fixture.source, { 'README.md': '# Home\n\n[Glossary](glossary.md)\n' });
+  await assert.rejects(
+    () => validateLinkLabels(fixture.source, { allowList: new Set(['README.md|glossary.md|Unused']) }),
+    /allow list contains unused entries/,
+  );
 });
 
 test('rejects a link outside docs guide', async (context) => {
@@ -258,6 +306,27 @@ async function generate(fixture, name = 'output') {
 
   return {
     manifest,
-    index: await readFile(path.join(contentRoot, 'index.md'), 'utf8'),
+    index: await readGeneratedIndex(contentRoot),
   };
+}
+
+async function readGeneratedIndex(contentRoot) {
+  for (const extension of ['mdx', 'md']) {
+    try {
+      return await readFile(path.join(contentRoot, `index.${extension}`), 'utf8');
+    } catch {
+      // Try the other generated extension.
+    }
+  }
+
+  throw new Error('Generated index page is missing.');
+}
+
+async function fileExists(file) {
+  try {
+    await readFile(file);
+    return true;
+  } catch {
+    return false;
+  }
 }

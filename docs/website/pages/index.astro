@@ -1,0 +1,123 @@
+---
+import PageLayout from 'blume/components/layout/PageLayout.astro';
+import data from 'blume:data';
+import '../theme.css';
+
+const { config } = data;
+---
+
+<PageLayout
+  site={{ title: config.title, description: config.description }}
+  logo={config.logo}
+  banner={config.banner}
+  navigation={data.navigation}
+  fontCssVars={data.fontCssVars}
+  themeMode={config.theme.mode}
+  searchEnabled={config.search.enabled}
+  locale="ja"
+  ui={data.ui}
+  siteUrl={config.site}
+  ogEnabled={config.og.enabled}
+  page={{ title: 'BlackOps - The PHP Framework', description: config.description, route: '/' }}
+>
+  <main class="landing-shell">
+    <section class="landing-hero" aria-labelledby="landing-title">
+      <div class="landing-hero-glow" aria-hidden="true"></div>
+      <div class="landing-hero-content">
+        <h1 id="landing-title"><span class="landing-brand">BlackOps</span><span class="landing-tagline">The PHP Framework</span></h1>
+        <div class="landing-actions" aria-label="Documentation actions">
+          <a class="landing-button landing-button-primary" href="/getting-started/installation">Install <span aria-hidden="true">↗</span></a>
+          <a class="landing-button landing-button-secondary" href="/concepts/why-blackops">What's BlackOps <span aria-hidden="true">↗</span></a>
+        </div>
+        <div class="landing-command-wrap">
+          <span class="landing-command-label">Stable 1.1.0</span>
+          <pre class="landing-command"><code>composer create-project blackops/skeleton my-app 1.1.0</code></pre>
+        </div>
+      </div>
+
+      <div class="landing-product-visual" aria-label="Operation Model">
+        <div class="landing-code-panel">
+          <div class="landing-panel-bar"><span class="landing-panel-dot"></span><span>GenerateReport.php</span><span class="landing-panel-status">PHP</span></div>
+          <pre><code><span class="syntax-keyword">#[Route(method: </span><span class="syntax-string">'POST'</span><span class="syntax-keyword">, path: </span><span class="syntax-string">'/reports'</span><span class="syntax-keyword">)]</span>
+<span class="syntax-keyword">#[Deferred]</span>
+<span class="syntax-keyword">final readonly class</span> GenerateReport <span class="syntax-keyword">implements</span> Operation
+&#123;
+    <span class="syntax-keyword">public function</span> handle(
+        GenerateReportValue $value,
+        ExecutionContext $context,
+    ): ReportGenerated
+    &#123;
+        return new ReportGenerated(
+            $value->reportName,
+            '/reports/generated/' . $value->reportName . '.json',
+        );
+    &#125;
+&#125;</code></pre>
+        </div>
+        <div class="landing-lifecycle-panel">
+          <div class="landing-panel-bar"><span>Lifecycle Journal</span><span class="landing-panel-status">Durable</span></div>
+          <ol class="landing-lifecycle">
+            <li><span class="lifecycle-node lifecycle-node-done"></span><span>Received</span><small>operation.received</small></li>
+            <li><span class="lifecycle-node lifecycle-node-active"></span><span>Accepted</span><small>operation.accepted</small></li>
+            <li><span class="lifecycle-node"></span><span>Running</span><small>attempt.started</small></li>
+            <li><span class="lifecycle-node"></span><span>Finalizing</span><small>attempt.succeeded</small></li>
+            <li><span class="lifecycle-node"></span><span>Completed</span><small>operation.completed</small></li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <section class="landing-features" aria-labelledby="landing-features-title">
+      <div class="landing-section-heading">
+        <span class="landing-section-index">01</span>
+        <h2 id="landing-features-title">BlackOpsの特徴</h2>
+      </div>
+      <div class="landing-features-grid">
+        <article class="landing-feature landing-feature-operation">
+          <div class="landing-feature-visual landing-operation-visual" aria-hidden="true">
+            <span class="operation-line"><i>#[Route]</i> <b>/reports</b></span>
+            <span class="operation-line"><i>#[Deferred]</i> <b>GenerateReport</b></span>
+            <span class="operation-line operation-line-muted">HTTP <em>→</em> Worker <em>→</em> Outcome</span>
+          </div>
+          <div class="landing-feature-copy">
+            <h3>Operation</h3>
+            <p>#[Route]で同期API、#[Deferred]で非同期化します。HTTPリクエストもコンソールコマンドもJobも、すべてはOperationで統一されます。</p>
+            <a href="/getting-started/first-operation">Operationを始める <span aria-hidden="true">→</span></a>
+          </div>
+        </article>
+        <article class="landing-feature landing-feature-journal">
+          <div class="landing-feature-visual landing-journal-visual" aria-hidden="true">
+            <span><b>operation.received</b><i></i></span><span><b>attempt.retry_scheduled</b><i></i></span><span><b>operation.completed</b><i></i></span>
+          </div>
+          <div class="landing-feature-copy">
+            <h3>Journal</h3>
+            <p>受理・試行・リトライ・拒否・完了をFrameworkが自動でJournalへ記録します。「なぜ失敗したか」をFrameworkが記録します。</p>
+            <a href="/concepts/journal">Journalを読む <span aria-hidden="true">→</span></a>
+          </div>
+        </article>
+        <article class="landing-feature landing-feature-headless">
+          <div class="landing-feature-visual landing-client-visual" aria-hidden="true">
+            <code><span>build:compile</span><span>frontend:generate</span><span>frontend:check</span></code>
+          </div>
+          <div class="landing-feature-copy">
+            <h3>Headless</h3>
+            <p>BlackOpsはフロントエンドを持ちません。代わりに、JavaScript向けに接続クライアントのコードを自動生成します。フロントエンドはNext.jsでもNuxtでもSvelteKitでもお好きなFrameworkと組み合わせられます。</p>
+            <a href="/frontend">Frontendを接続する <span aria-hidden="true">→</span></a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="landing-next" aria-labelledby="landing-next-title">
+      <div>
+        <span class="landing-section-index">02</span>
+        <h2 id="landing-next-title">最初のOperationを始める</h2>
+      </div>
+      <div class="landing-next-links">
+        <a href="/getting-started/quickstart">Quickstart and Skeleton <span aria-hidden="true">↗</span></a>
+        <a href="/getting-started/first-operation">First Operation tutorial <span aria-hidden="true">↗</span></a>
+        <a href="/execution/http-and-deferred">Execution and Workers <span aria-hidden="true">↗</span></a>
+      </div>
+    </section>
+  </main>
+</PageLayout>

@@ -1,4 +1,4 @@
-# Databaseへ初期Dataを投入する
+# Seeder
 
 BlackOpsはApplication Databaseへ初期値、Development Fixture、Demo Dataを投入するため、Framework所有の`database:seed` CommandとApplication所有のSeederを提供します。Seederは[Operation](glossary.md#operation)ではなく、HTTP LifecycleやJournalを通らない明示的な保守処理です。
 

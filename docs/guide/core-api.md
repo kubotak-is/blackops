@@ -1,8 +1,8 @@
-# Core API Types Reference
+# Core API
 
 このReferenceは現在の`main` Sourceで`#[PublicApi]`を持つ175型を一覧化しています。Application Authorはまず「Application構成」「Database」「Operation Authoring」「Validation」「Status／Outcome取得」の型を使い、Transport、Journal、Retention等のPortはAdapterを拡張するときだけ使ってください。
 
-`BlackOps\Core\Attribute\PublicApi` marker自身は利用者向けAPIではないため一覧へ含めません。内部実装Namespaceと`#[PublicApi]`を持たない実装型にも依存しないでください。Attributeの付与対象と標準形は[Attributes Reference](attributes.md)を確認してください。
+`BlackOps\Core\Attribute\PublicApi` marker自身は利用者向けAPIではないため一覧へ含めません。内部実装Namespaceと`#[PublicApi]`を持たない実装型にも依存しないでください。Attributeの付与対象と標準形は[Attributes](attributes.md)を確認してください。
 
 ## Application構成
 
@@ -28,7 +28,7 @@
 | `BlackOps\Database\Seeder` | interface | Application Seederの実行Contract | Root Seederと子Seederで`run(): void`を実装する |
 | `BlackOps\Database\SeederRunner` | interface | Compile済みSeederを順序付きで実行する | Root Seederから子SeederのClass名を渡す |
 
-Default Connectionだけを使うRepositoryは`Doctrine\DBAL\Connection`を直接Constructor Injectionできます。Named ConnectionはContainerやGlobal Helperではなく`DatabaseManager::connection($name)`で選択します。Transaction Attributeの制約とContainer管理境界は[Attributes Reference](attributes.md#transaction-attributes)、実行保証は[Database and Transactions](database-and-transactions.md)を参照してください。
+Default Connectionだけを使うRepositoryは`Doctrine\DBAL\Connection`を直接Constructor Injectionできます。Named ConnectionはContainerやGlobal Helperではなく`DatabaseManager::connection($name)`で選択します。Transaction Attributeの制約とContainer管理境界は[Transaction Attributes](attributes.md#transaction-attributes)、実行保証は[Transaction](database-and-transactions.md)を参照してください。
 
 ## Operation Authoringと実行Context
 
@@ -57,9 +57,9 @@ Default Connectionだけを使うRepositoryは`Doctrine\DBAL\Connection`を直�
 | --- | --- | --- | --- |
 | `BlackOps\Core\Attribute\OperationType` | attribute class | 永続Operation Type IDを宣言する | 全Operation Classへ付ける |
 | `BlackOps\Core\Attribute\Deferred` | attribute class | Canonical Deferred executionを指定する | `#[Deferred]`をOperation Classへ付ける |
-| `BlackOps\Core\Attribute\ExecuteWith` | attribute class | Execution Strategyを指定する互換形 | 既存Deferred Operationの互換維持 |
+| `BlackOps\Core\Attribute\ExecuteWith` | attribute class | Execution Strategyを明示するCompatibility形 | Deferredは`#[Deferred]`がCanonical。InlineはAttributeを省略する |
 | `BlackOps\Core\Attribute\Authorize` | attribute class | OperationのAuthorization Policyを指定する | 認可が必要なOperationへ付ける |
-| `BlackOps\Core\Attribute\Sensitive` | attribute class | Observed Projection Modeを指定する | SensitiveなValue Propertyへ付ける |
+| `BlackOps\Core\Attribute\Sensitive` | attribute class | Value／Outcome PropertyのObserved Projection Modeを指定する | SensitiveなValueまたはOutcome Propertyへ付ける |
 | `BlackOps\Core\Attribute\ListOf` | attribute class | Outcomeの`list<OutcomeData>` Element型を宣言する | 非Nullable `array` Propertyへ一度だけ付ける |
 | `BlackOps\Core\Attribute\SensitiveMode` | enum | Omit／Mask／Hashを選ぶ | `#[Sensitive]`の引数に使う |
 | `BlackOps\Core\Attribute\Accepts` | attribute class | Accepted Valueを明示する | Legacy／Separate互換形で使う |
@@ -230,7 +230,7 @@ HTTPの`GET /operations/{operationId}`とGenerated `.status()`／`.wait()`はこ
 | `BlackOps\Core\Rejection\RejectionReason` | final readonly value object | Categoryと安定Codeを保持する | Rejection Response／Journalで読む |
 | `BlackOps\Core\Supervision\RetryableException` | interface | Retry可能なThrowableを示す | 一時障害Exceptionで実装する |
 | `BlackOps\Core\Supervision\SupervisionPolicy` | interface | FailureからActionを決める | Custom Retry Policyを実装する |
-| `BlackOps\Core\Supervision\ExponentialBackoffSupervisionPolicy` | final readonly class | Exponential Backoffを提供する | 既定のRetry Policyとして構成する |
+| `BlackOps\Core\Supervision\ExponentialBackoffSupervisionPolicy` | final readonly class | Exponential Backoffを提供する | Framework Workerの固定既定Retry Policy。Custom Worker Adapterでのみ構成する |
 | `BlackOps\Core\Supervision\SupervisionAction` | enum | Retry／Fail／Dead Letter Actionを表す | Policy結果を分岐する |
 | `BlackOps\Core\Supervision\SupervisionDecision` | final readonly value object | Action、Delay、Reasonを保持する | Worker RuntimeへPolicy判断を返す |
 | `BlackOps\Core\Exception\InvalidIdentifierException` | exception class | 不正UUIDv7を通知する | Identifier Inputを400等へ変換する |
@@ -318,4 +318,4 @@ HTTPの`GET /operations/{operationId}`とGenerated `.status()`／`.wait()`はこ
 - Transport、Journal、RetentionのPortはAdapterを実装するときだけ使います。
 - 内部実装Namespaceや`#[PublicApi]`のない具象実装をApplicationのContractにしません。
 
-現行機能と未提供Surfaceは[Current Status](mvp-status.md)を確認してください。
+現行機能と未提供Surfaceは[Releases](mvp-status.md)を確認してください。

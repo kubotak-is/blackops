@@ -1,6 +1,510 @@
 # Orchestration State
 
-Updated At: 2026-07-25T02:14:40+09:00
+Updated At: 2026-07-27T01:59:58+09:00
+
+## P20-009F Orchestrator Acceptance
+
+```text
+2026-07-27T01:59:58+09:00
+OrchestratorはP20-009FのWorkflow Event／Ref条件、Environment／Concurrency／Artifact分離、`blackops-php` Project名、Blume Canonical URL、D129／Specification／運用文書を独立Reviewした。Website test 62、check 38 pages、build 39 pagesのWorker Evidenceに加え、YAML Parse、Project／Environment Guard、旧Project名Guard、git diff --checkを再実行してPASSした。GitHub Environment Secretは両Environment各2件、docs-productionはmain Branch policyあり。Required Reviewerとmain repository branch protectionは未設定で、Production HostはHTTP 522のため、Remote Deploy前の追加保護と初回公開をRemaining Issueへ記録した。Repository同期Task P20-009FをAcceptedとする。Commit／Push／Remote Deploy／Live Verificationは未実行。
+```
+
+## P20-009F Review Correction Checkpoint
+
+```text
+2026-07-27T01:59:30+09:00
+Orchestrator Review correctionを反映し、Required Reviewerを必須ではなく任意の追加保護として現行運用文書へ明記した。GitHub API MetadataではRequired Reviewer未設定、main repository branch protectionなしであることをReportへ記録した。Orchestratorの`curl -I https://blackops-php.pages.dev/`は2026-07-27 01:58 JST時点HTTP 522で、Hostは応答するがProduction公開未完了のEvidenceとした。Production設定変更、Remote Deploy、Commitは行っていない。P20-009FはReview Pending。
+```
+
+## P20-009F Worker Checkpoint
+
+```text
+2026-07-27T01:56:10+09:00
+P20-009FのRepository設定を、D129／Specification 57の`blackops-php` Projectと`https://blackops-php.pages.dev` Canonical URLへ同期した。Preview／Productionは分離されたGitHub Environment SecretとConcurrencyを維持し、Build済み`docs/website/dist/`だけをWrangler Direct UploadするWorkflow条件を確認した。現行運用文書のProject、Host、Environment Metadata、Live Verification、Rollbackを更新し、D081のD129部分Supersession、Spec index、TODO、Task Statusを同期した。Website test 62、Blume check 38 pages、static build 39 pages、Workflow YAML parse、Artifact／Secret／旧Project名 Guard、Mago format、Management-ID Guard、git diff --checkはPASS。Remote Deploy／Live Verificationは実行していない。P20-009FはReview Pending、Worker Commitなし。
+```
+
+## P20-009F Orchestrator Start Checkpoint
+
+```text
+2026-07-27T01:51:28+09:00
+UserはDocumentation Website公開を再開し、GitHub Environment `docs-preview`／`docs-production`へCloudflare API TokenとAccount IDを登録した。OrchestratorはSecret値を取得せずMetadataを確認し、両Environmentに2 Secret、`docs-production`にCustom Deployment Branch policy `main`があることを確認した。D129でCloudflare Pages Direct Upload Project名を旧`blackops-docs`から`blackops-php`、初期Hostを`blackops-php.pages.dev`へ変更する。P20-009FはWorkflow、Blume Canonical URL、Specification、運用手順、Website Gateを同期し、Remote Deploy前のReview PendingまでをLuna High Workerへ委譲する。Custom Domain、Git Integration、Website本文／Theme、Framework Production Code、Commit／Push／Remote Workflow実行はWorker Scope外。既存Phase 20 Working Tree差分を保持し、Worker Commitは行わない。
+```
+
+## P20-009D／P20-009E Orchestrator Acceptance
+
+```text
+2026-07-27T00:23:48+09:00
+OrchestratorはP20-009D Journal Parameter TableとP20-009E Observed Journal Wire Shapeを独立Reviewした。Projector→Encoder targeted PHPUnit 8 tests／57 assertions、Website 62 tests、Targeted Mago lintはProduction error／warningなしでPASSした。Worker実行のTargeted PHPUnit 13／70、Full PHPUnit 1883／7608、Website check 38 pages、build 39 pages、Mago format、Management-ID Guard、git diff --checkもPASS。Mago lint／analyzeとDeptracのRepository-wide既存baseline FailureはReportへ記録済み。Playwright ChromiumでDesktop 1440px Light／DarkとMobile 390pxを確認し、Lifecycle 10 rows、Parameter Table 9／7／6／4／27 rows、Sidebar current、13px text、局所横Scroll、Page Overflowなしを確認した。Documentation Reviewer再Reviewは前回P1／P2／P3をすべてResolved、新規Findingなし。Empty Object `{}`、Nested Empty Outcome `{}`、Empty List `[]`、Identifier UUIDv7 String、UTC RFC3339 Microseconds、任意StringableのSensitive迂回禁止をAcceptanceし、P20-009D／P20-009EをAcceptedとする。Local Blume dev serverはhttp://localhost:4323/で稼働中。Commitなし。
+```
+
+## P20-009E Documentation Reviewer Correction Checkpoint
+
+```text
+2026-07-27T00:22:45+09:00
+P20-009D Task／ReportをP20-009E後の現行状態へ統合し、Event固有data 27 rows、operation.received通常／Ephemeral Variant分離、Historical Runtime ProbeのResolved化を反映した。Specification 94 Traceabilityを実在する22／23／24へ修正し、Journal GuideのEmptyJournalData件数依存表現を除去。Website test 62、check 38 pages、git diff --checkはPASS。P20-009EはReview Pending、Commitなし。
+```
+
+## P20-009E Worker Final Correction Checkpoint
+
+```text
+2026-07-27T00:18:42+09:00
+Orchestrator指摘へ対応し、Encoderのnormalize object分岐をnormalizeObjectへ抽出、top-level data変換をrecordへ統合してMago method／halstead閾値を維持した。新規Regressionのjson_decodeはassociative: falseへ変更。変更3ファイルTargeted Mago lintはPASS（既存fixture single-class-per-file warning 4件のみ）、Targeted PHPUnit 13 tests／70 assertions PASS、Mago format check／Management-ID Guard／git diff --check PASS。Reportを最終結果へ同期し、P20-009EはReview Pending、Commitなし。
+```
+
+## P20-009E Worker Final Verification Checkpoint
+
+```text
+2026-07-27T00:08:02+09:00
+Required verification completed. Full PHPUnit 1883 tests／7608 assertions PASS（1 deprecation）、Website test 62／check 38 pages／build 39 pages PASS、Mago format PASS、Management-ID Guard PASS、git diff --check PASS。Mago lintは既存baseline 1646 issues（147 errors）でFAIL、Mago analyzeは既存baseline 1026 issues（362 errors）でFAIL、Deptracはvendor Nikic parser syntax errorでFAIL。Reportへ記録し、P20-009D／P20-009EをReview Pending、TODO完了へ同期。Worker Commitなし。
+```
+
+## P20-009E Worker Completion Checkpoint
+
+```text
+2026-07-26T23:47:41+09:00
+P20-009EでSensitiveProjectionFilter／JsonlJournalRecordEncoderを修正し、Empty Object／Empty List Shape、Framework Identifier UUIDv7 String、UTC RFC3339 Microseconds、任意Application StringableのSensitive Filter迂回禁止をProjector→Encoder Regressionで固定した。Journal Guideのoperation.received通常／Ephemeral Rowを分離し、P20-009D Task／Report／TODOをReview Pending／完了へ同期した。Targeted PHPUnit 13 tests／70 assertions、Website test 62 testsはPASS。Full PHPUnit、Website check／build、Mago、Deptrac、Management-ID Guard、git diff --checkは後続検証で実行し、Worker Commitは行わない。
+```
+
+## P20-009E Orchestrator Start Checkpoint
+
+```text
+2026-07-26T23:39:17+09:00
+UserはP20-009D Reviewで検出したObserved Journal Runtime Projection不整合のProduction Code修正を承認した。D128でEmpty Object `{}`／Empty List `[]`のShape分離、Framework IdentifierのUUIDv7 String化、DateTimeInterfaceのUTC RFC 3339 Microseconds化、任意StringableによるSensitive Filter迂回禁止を確定した。P20-009EはProjector→Encoder End-to-end Regression、Empty／Retry／Dead Letter／Nested Empty Outcome／Sensitive Stringable、Journal received通常／Ephemeral Table分離をScopeとする。Canonical Store、Event集合、Public Operation API、Website Theme、Stable 1.1.0は変更しない。Luna High Workerへ実装を委譲し、Worker Commitは行わない。
+```
+
+## P20-009D Orchestrator Review Blocker Checkpoint
+
+```text
+2026-07-26T23:35:07+09:00
+Orchestratorは5 Parameter TableとRegressionをReviewし、Playwright ChromiumでDesktop 1440px Light／Dark、Mobile 390pxのTable可読性、局所横Scroll、Page Overflowなし、Sidebar currentを確認した。一方、Projector→EncoderのRuntime Probeで、SensitiveProjectionFilterがEmptyJournalDataを`[]`、Retry Data内のAttemptId／DateTimeImmutableを`[]`へ変換する既存のContract不整合を検出した。Guideが示す`{}`／UUID String／RFC 3339 Timestampは現行実出力と一致しない。Production Code修正はDocumentation-only TaskのScope外であるため、P20-009DをAwaiting User Decisionとし、TODOを未完了へ戻した。推奨は後続TaskでProjection／Encodingを修正し、Projector→Encoder Regressionを追加してからTableをAcceptanceすること。Commitなし。
+```
+
+## P20-009D Worker Accuracy Correction Completion Checkpoint
+
+```text
+2026-07-26T23:32:05+09:00
+`operation.correlationId`をRoot＝Operation ID／子Operation＝親Correlation継承、`operation.causationId`を子Operationの親Operation ID／Root nullとして具体化し、Guide regressionへ追加した。Website test 62／62、git diff --checkはPASS。Reportを同期し、Review Pending、Commitなしを維持する。
+```
+
+## P20-009D Worker Completion Checkpoint
+
+```text
+2026-07-26T23:23:59+09:00
+P20-009DでJournal JSONL直後のField説明を5 Markdown Tableへ置換した。Top-level 9、operation 7、actors／Actor nullable、attempt 4、Event固有data 26 rowsをEncoder／Projector／Journal Data型へ照合し、10 Event、EmptyJournalData、Ephemeral received `{}`、Violation array item、Sensitive Message責務、Outcome Store境界を固定した。Landing／Navigation／Theme／JSONL Example／後続Section／Framework srcは変更していない。Website test 62、check 38 pages、build 39 pages／artifact／site check、Mago format、Management-ID guard、git diff --checkはPASS。Browser実測はOrchestrator担当のため未実施。Report／TODO／Taskを同期し、Review Pending、Commitなしとする。
+```
+
+## P20-009D Worker Start Checkpoint
+
+```text
+2026-07-26T23:18:41+09:00
+Task Packet P20-009D、Specification 94、P20-009C、JournalEvent／Journal Data／EmptyJournalData、ObservedJournalRecordProjector、JsonlJournalRecordEncoderを確認した。`docs/guide/journal.md`のObserved JSONL直後にTop-level、operation、operation.actors／Actor、attempt、Event固有dataの5 Markdown Table（Parameter／Type／説明）を追加し、Encoder／Projector／10 Data型の実装境界へ同期する。JSONL Example、Landing／Navigation／Theme、後続Section、Framework src/**は変更しない。Regression、Report、TODO、STATEを同期し、Worker Commitは行わない。
+```
+
+## P20-009D Orchestrator Start Checkpoint
+
+```text
+2026-07-26T23:17:29+09:00
+User Reviewを受け、Journal PageのObserved JSONL Parameter説明を文章列挙からTableへ変更する。Specification 94へTop-level、Operation、Actors、Attempt、Event固有dataの5 Table、Parameter／Type／説明、10 Lifecycle Event、Nullable、Desktop／Mobile可読性を追加した。JSONL Example、Journal Contract、Landing／Navigation、Theme、OpenTelemetry／Replay／Retention／Security本文、Stable 1.1.0は変更しない。P20-009DをLuna High Workerへ渡し、Worker Commitは行わない。Local Blume dev serverはWorkerのcheck／build競合を避けるため一時停止し、Acceptance後に再起動する。
+```
+
+## P20-009C Orchestrator Acceptance
+
+```text
+2026-07-26T23:09:12+09:00
+OrchestratorはJournal Implementation、Guide、Navigation、Landing、Regressionを独立Reviewした。Read-only Documentation Reviewerの初回P1 3件（Deferred JSONLのAccepted／Sequence／Identifier関係、Inline／Deferred Outcome Store境界、ActorContext全体nullable）をCorrectionし、再Reviewで全件Resolved／Remainingなしを確認した。Observed JSONLはreceived seq1 → accepted seq2 → attempt.started seq3、Record IDとOperation ID分離、Root Correlation＝Operation、Causation null、Actor mask／nullable、Event固有dataへ同期した。OpenTelemetry Adapter／Exporter／Configurationは未実装で、Span／Metric／Trace mappingは将来候補に限定した。Orchestrator再実行はWebsite 61 tests、Blume check 38 pages、build 39 pages／artifact／site check、Mago format、Management-ID guard、git diff --checkをPASSした。Playwright ChromiumでDesktop 1440px Light／DarkとMobile 390pxのJournal H1、Sidebar current、JSONL／Configuration Code、横Overflowなしを確認し、Landing 3 Featureは高さ452.84px、各1 CTA、Journal direct linkを維持した。最初のcheckは起動中dev server保護Guardで停止し、server停止後の直列再実行でPASSした。Framework src/**、Journal Contract、Theme、Stable 1.1.0は変更せず、Worker／Orchestrator Commitなし。P20-009CをAcceptedとする。
+```
+
+## P20-009C Worker Final Wording Correction Checkpoint
+
+```text
+2026-07-26T23:08:46+09:00
+`guide-code.test.mjs`の`records[1].data` assertion messageを`operation.accepted uses EmptyJournalData`へ修正し、`records[2]`の`attempt.started` assertionは維持した。Website test 61／61、git diff --checkはPASS。Reportを同期し、Review Pending、Commitなしを維持する。
+```
+
+## P20-009C Worker P1 Correction Completion Checkpoint
+
+```text
+2026-07-26T23:05:22+09:00
+Deferred Observed JSONLをRuntime-validな`operation.received` seq1 → `operation.accepted` seq2 → `attempt.started` seq3へ修正し、3 Record IDの一意性、Operation IDとの差、Correlation＝Operation、Causation null、ActorContext nullable、受付HTTP／Worker execution typeをRegressionへ固定した。Journal Event dataとOutcome Store Rowの境界、Deferred Outcome保存とInline HTTP Responseのみの差をGuideへ明記した。Website test 61、check 38 pages、build 39 pages／artifact／site check、Mago format、Management-ID guard、git diff --checkはPASS。Report／STATEを同期し、Review Pending、Commitなしを維持する。
+```
+
+## P20-009C Worker P1 Correction Checkpoint
+
+```text
+2026-07-26T23:04:26+09:00
+Documentation Reviewer P1指摘を反映中。Deferred Observed JSONLをRuntime-validな`operation.received` seq1 → `operation.accepted` seq2 → `attempt.started` seq3へ修正し、Record／Operation／Correlation ID関係、ActorContext nullable境界、Inline／Deferred Outcome Store差分をGuideへ明記する。Regression、Report、STATEを同期し、Website test／check／build、Mago format、Management-ID guard、git diff --checkを再実行する。Commitは行わない。
+```
+
+## P20-009C Worker Correction Completion Checkpoint
+
+```text
+2026-07-26T22:22:25+09:00
+Correction後のWebsite test 61／61、check 38 pages、build 39 pages／artifact／site checkを直列実行してPASSした。Mago format、Management-ID guard、git diff --checkもPASS。Journal JSONLへ`config/journal.php`の編集可能な設定例とObserved Journal Linkを追加し、best_effortの非blocking Failure契約、Canonical暗号化／KMSのApplication／Infrastructure／運用責務を明記した。Landing Journal Cardは単一CTA `/concepts/journal`へ戻し、check-site guardを同期した。Report／STATEを更新し、Review Pending、Commitなしを維持する。
+```
+
+## P20-009C Worker Correction Checkpoint
+
+```text
+2026-07-26T22:20:32+09:00
+Orchestrator Review指摘を反映し、Landing Journal Featureを単一CTAの`/concepts/journal`へ戻し、Website `check-site.mjs`のLanding guardも同Routeへ同期した。Journal JSONL設定へ`config/journal.php`のParse可能なPHP例、Configuration Page Link、Application-owned編集Fileを追加した。`best_effort`はObserver FailureをOperation失敗にしない契約へ補正し、Canonical保存時暗号化／KMSはFramework設定APIではなくApplication／Infrastructure／運用責務と明記した。Reader regression、Reportを同期し、Website test／check／buildを再実行する。Commitは行わない。
+```
+
+## P20-009C Worker Completion Checkpoint
+
+```text
+2026-07-26T22:18:03+09:00
+P20-009C Journal Guide、Content Map、Operation Sidebar（Lifecycle直後のJournal）、Landing Journal CTA、README／Core Concepts／Lifecycle／Observer Replay cross-link、JSONL／Reader／Navigation regressionを完了した。Observed JSONLはJsonlJournalRecordEncoderのTop-level／Operation／Actor／Attempt Fieldへ一致させ、Observed projectorのActor ID `[masked]`と`attempt.started`のEmptyJournalData `{}`を固定した。Canonical／Observed／Sensitive、絶対Path／writable parent、best_effort／required、Replay、Retention／Access Control／暗号化／Key管理、OpenTelemetry未実装と将来候補境界を説明した。Website test 61、check 38 pages、build 39 pages／artifact／site check、Mago format、Management-ID guard、git diff --checkはPASS。Task Report、TODO、STATEを同期し、TaskをReview Pendingとする。既存Phase20 Working Tree差分を保持し、Worker Commitは行わない。
+```
+
+## P20-009C Worker Start Checkpoint
+
+```text
+2026-07-26T22:11:04+09:00
+Task Packet P20-009C、D127、Specification 94、Journal source contractsを確認した。Reader-facing Journal Guide `/concepts/journal`、Operation内Lifecycle直後のJournal導線、Landing CTA、Canonical／Observed境界、現行Lifecycle 10件、JsonlJournalRecordEncoder準拠のObserved JSONL、event-specific data、JSONL設定、Observer Replay、Retention／Security、OpenTelemetry未実装と将来候補を許可されたDocumentation／Website／Spec／Decision／State／Reportファイルへ実装する。Framework src/**、Journal Contract、Website Theme、Stable 1.1.0は変更しない。既存Phase20 Working Tree差分を保持し、Worker Commitは行わない。
+```
+
+## P20-009C Orchestrator Start Checkpoint
+
+```text
+2026-07-26T22:08:02+09:00
+User依頼を受け、Landingで訴求しているJournalを独立したReader-facing Guideとして追加する。D127／Specification 94でPublic Route `/concepts/journal`、Operation SectionのLifecycle直後、Landing Journal CTA、Canonical／Observed境界、Lifecycle Event 10件、Observed JSONLのEncoder準拠構造、Event固有data、JSONL設定、Observer Replay、Retention／Securityを確定した。OpenTelemetryはRepository mainでAdapter／Exporter／Configuration未実装と明示し、Span／Span Event／Metric／Correlation接続は将来の候補方向としてのみ説明する。Framework src/**、Journal Contract、Website Theme、Stable 1.1.0は変更しない。P20-009CのDocumentation実装をLuna High Workerへ渡し、Worker Commitは行わない。
+```
+
+## P20-009B Orchestrator Acceptance
+
+```text
+2026-07-26T21:58:44+09:00
+OrchestratorはCompiler、Typed／Legacy Fixture、Auth Generator、Community Board／Consumer Fixture、Public／Internal Documentation、D112／D126、Specificationsを独立Reviewした。EphemeralOutcomeはStrategy AttributeなしでInlineへ正規化され、Existing ExecuteWith(Inline::class)はCompatibilityとして維持する。Canonical #[Deferred]、互換ExecuteWith(Deferred::class)、Custom Strategy、Routeなし、Console公開はすべてCompiler Testで拒否し、Route、Sensitive Shape、Journal／Outcome Store／Status／Frontend非永続化境界を維持した。初回ReviewでPublic Guide 3件、二回目ReviewでSpecification 7件／Internal Documentation／Community Board READMEの旧明示Inline表現、最終ReviewでCanonical #[Deferred]直接Regression不足を差し戻し、すべてCorrectionした。Orchestrator再実行はTargeted PHPUnit 27 tests／147 assertions、Website 59 tests、Mago format、literal ExecuteWith／Guide／Specification stale guard、Management ID guard、git diff --checkをPASSした。Worker実行のPostgreSQL Ephemeral、Auth Generator Fresh、Community Board Identity、Website check 37 pages／build 38 pages、Full PHPUnit 1881 tests／7586 assertionsもPASS。Mago lint／analyzeとDeptracは既存Repository-wide Baseline FailureをReportへ記録し、本Task差分によるFailureはない。D112をPartially Superseded by D126、P20-009BをAcceptedとし、Stable 1.1.0、Manifest Schema、Journal、Outcome Store、Status API、Frontend Contractは変更していない。Worker／Orchestrator Commitなし。
+```
+
+## P20-009B Worker Start Checkpoint
+
+```text
+2026-07-26T21:35:00+09:00
+Task Packet P20-009BとD126／Specifications 50・82・93を確認した。EphemeralOutcomeの安全境界はexactly one HTTP Route、Console禁止、解決後Inline Strategy、Sensitive Shapeで維持し、AttributeなしをCanonical Inlineとして受理する。既存Explicit Inlineはテストで互換維持し、Auth Generator／Community Board／Consumer／Frontend／PostgreSQL FixtureとReader-facing Guideから重複指定を削除する。Phase20の既存Working Tree差分を保持し、許可Fileのみ変更する。Worker Commitは行わない。
+```
+
+## P20-009B Worker Completion Checkpoint
+
+```text
+2026-07-26T21:42:30+09:00
+P20-009BのCompiler解決後Inline Guard、暗黙Inline／Explicit Inline互換／Deferred・Custom・Route・Console拒否Regression、Auth Generator／Community Board／Auth Consumer／Frontend／PostgreSQL Fixture同期、Authentication／Operation／Attribute／Core API Guide同期、Website reader regressionを完了した。Targeted PHPUnit（26 tests／145 assertions、PostgreSQL 1／17）、Auth Generator Fresh、Community Board Identity、Website test 58、check 37 pages、build 38 pages、Full PHPUnit 1881 tests、Mago format、Management-ID guard、git diff --checkは成功した。Mago lint／analyze、Deptracは既存Repository問題で失敗し、stale-guide guardは許可範囲外のdocs/guide/security.md:13だけが残る。ReportへEvidenceとRemaining Issuesを記録し、TaskをReview Pendingとする。Worker Commitは行わない。
+```
+
+## P20-009B Worker Correction Completion Checkpoint
+
+```text
+2026-07-26T21:47:10+09:00
+Orchestrator Correctionで追加されたdocs/guide/community-board.md、docs/guide/glossary.md、docs/guide/security.mdの旧明示Inline表現を暗黙Inline契約へ同期した。Legacy Ephemeral Compiler FixtureをAttributeなしへ変更し、Explicit Inline互換は別Fixtureで維持した。Website reader regressionへ3 Guideのassertionを追加し、Website test 58、check 37 pages、build 38 pages、artifact／site guard、stale-guide guard、ExecuteWith guard、git diff --checkを直列実行してPASSした。Mago lint／analyze／Deptracの既存Baselineは変更せずReportからout-of-scope findingを除去した。TaskをReview Pendingとし、Worker Commitは行わない。
+```
+
+## P20-009B Worker Second Correction Completion Checkpoint
+
+```text
+2026-07-26T21:54:20+09:00
+Specification監査CorrectionでD112をPartially Superseded by D126へ更新し、README index statusを同期した。Specifications 04／17／71／74／75／87／90、docs/internal/auth-generator.md、docs/internal/ephemeral-outcome.md、examples/community-board/README.mdを、Strategy Attribute省略時Inline、既存ExecuteWith(Inline)互換、Route／Sensitive／Journal／Outcome Store／Status／Console／Deferred境界維持へ同期した。Website authoritative-source regressionを追加し59 tests、check 37 pages、build 38 pages、Mago format、Management-ID guard、authoritative stale-phrase guard、git diff --checkをPASSした。Mago lint／analyze／Deptracの既存Baselineは変更せず、TaskをReview Pendingとする。Worker Commitは行わない。
+```
+
+## P20-009B Worker Third Correction Completion Checkpoint
+
+```text
+2026-07-26T21:58:40+09:00
+Independent Reviewで不足していたCanonical `#[Deferred]`付きEphemeral Operation Fixtureを追加し、既存互換`#[ExecuteWith(Deferred::class)]`拒否と並ぶData Providerケースへ固定した。Targeted PHPUnitは27 tests／147 assertionsでPASS、変更PHPのMago format、Corrected authoritative-source shell guard（Management ID／明示Inline／Guide／Specification・Internal stale phrase）、git diff --checkもPASSした。既存Mago lint／analyze／Deptrac Baselineは変更せず、Reportのassertion数とSummaryを更新した。TaskをReview Pendingとし、Worker Commitは行わない。
+```
+
+## P20-009B Orchestrator Start Checkpoint
+
+```text
+2026-07-26T21:30:14+09:00
+User判断により、EphemeralOutcomeを返すHTTP Operationの明示#[ExecuteWith(Inline::class)]を不要にする。D126／Specification 93でAttributeなしの既定InlineをCanonicalとし、Ephemeral Outcome、exactly one Route、Console禁止、解決後Inline Strategy、Sensitive Shapeによる安全境界へ整理した。Existing Explicit InlineとExecuteWith Public APIは互換維持し、Deferred／Custom Strategyは拒否する。Auth Generator Stub、Community Board Identity、Auth Consumer Fixture、Ephemeral Frontend／PostgreSQL Fixture、Reader-facing Guideから重複指定と不要Importを削除する。Manifest Schema、Journal、Outcome Store、Status API、Frontend Contract、Stable 1.1.0、Scheduled Operation、Ray.Aopは変更しない。P20-009BのProduction実装をLuna High Workerへ渡し、Worker Commitは行わない。
+```
+
+## P20-009A Orchestrator Acceptance
+
+```text
+2026-07-26T21:03:52+09:00
+OrchestratorはDocumentation Reviewer Profile、D125、Specification 92、Task Packet、AGENTS登録をReviewした。Profileはgpt-5.6-sol／highのRead-only責務とし、Implementation／Stable Tagを優先するEvidence Hierarchy、Accuracy／Runnable Journey／IA／Editorial／Visual／Accessibility／Artifact Lane、Desktop 1440px Light／DarkとMobile 390pxの実Browser、Mermaid実寸／局所Scroll、P1／P2／P3 Finding Format、未検証のNot Verified、既存Review非上書きを固定した。現Sessionは起動時のAgent Profile一覧をHot Reloadできないため、新Profile名によるSpawnは次Session確認事項とした。代わりに独立AgentがProfileとSpecificationを明示的に読み、Outcome保存境界のRead-only Trialを実施し、Implementation／Test／Specificationの照合、No Finding、Positive Finding、LimitationsをEvidence付きで返した。TrialはFile編集、Test、Build、Commitを行っていない。docs/documentation-review.mdは現在のWorking Treeに存在しないため、D117〜D124／Specification 84〜91／Task ReportをRegression Historyの正本とし、当該Fileは存在する場合だけ読むOptional Contextへ補正した。TOML Parse、Codex strict-config help、Reference Guard、Role Guard、Mago format、Management ID Comment Guard、git diff --checkをPASSし、Documentation本文、Website Runtime、Framework src/**を変更せずP20-009AをAcceptedとする。
+```
+
+## P20-009A Orchestrator Start Checkpoint
+
+```text
+2026-07-26T20:50:15+09:00
+User依頼を受け、これまでのDocumentation Reviewで発見したStable／main混同、実装と異なるRoute／Status／Code Example、Host／Container前提不足、Link／Sidebar退行、未指定Copy追加、Desktop／Mobile Layout、Code clipping、SVG描画済みだが読めないMermaidを再利用可能な専用Reviewerへ固定する。D125／Specification 92でgpt-5.6-sol highのRead-only Documentation Reviewer、Evidence Hierarchy、Accuracy／Runnable Journey／IA／Editorial／Visual／Accessibility／Artifact Lane、実Browser必須、P1／P2／P3 Finding Formatを確定した。Reviewerは修正、Commit、Push、Deployを行わず、OrchestratorがFindingのTask化とAcceptanceを担当する。Documentation本文、Website Runtime、Framework src/**は変更しない。
+```
+
+## P20-008A Orchestrator Acceptance
+
+```text
+2026-07-26T20:44:32+09:00
+OrchestratorはLocal Theme CSS、Artifact Guard、README、localhost:4322のPlaywright Chromium実表示を独立Reviewした。Desktop Lightの4 RouteはArticle／Host／Output／SVGがすべて672pxとなり、修正前約300pxから2.24倍へ拡大した。Execution DiagramはDark Theme後も672px×542.69px、SVG 1、busy=false、error=false、Document／Article Overflow=falseを維持した。Mobile 390pxの4 RouteはArticle／Host client幅342px、Host scroll幅672px、Output／SVG幅672px、初期scrollLeft=0で、Execution DiagramをscrollLeft=330まで移動して右端へ到達できることを確認した。最終GateはWebsite 57 tests、Blume check 37 pages 0 errors／warnings／hints、static build 38 pages／37 routes、Artifact／Site Guard、Mago format、Management ID／diff guardが成功した。Diagram Source、Blume Package、Generated Content、Public Route、Framework src/**、External Publication／Deployは変更せず、Worker Commitなし。P20-008AをAcceptedとし、次はP20-010 Task-oriented Guide増強を扱う。
+```
+
+## P20-008A Worker Correction Checkpoint
+
+```text
+2026-07-26T20:44:03+09:00
+Orchestrator ReviewでREADMEのIn Scope同期漏れを受領し、`docs/website/README.md` Mermaid節へDesktop Article幅、Mobile 42rem Host内横Scroll、Artifact寸法CSS Guard、Browser実寸／Page Overflow／Light-Dark確認の責務を追記した。Report Changed Files／Summaryを同期し、Website test 57件とgit diff --checkを再実行してPASSした。Worker Commitは行わず、Review Pendingを維持する。
+```
+
+## P20-008A Worker Completion Checkpoint
+
+```text
+2026-07-26T20:40:27+09:00
+P20-008AのLocal Theme CSS、Artifact Guard、Reader Experience Regressionを実装し、Artifact GuardはDesktop／Mobile可読性に必要なhost/output/SVG寸法トークンを検証する。Website test 57件、check（Blume check 37 pages）、build（38 pages／37 routes、Artifact／Site Guard）、Mago format、Management-ID guard、git diff --checkをPASSした。DesktopはArticle幅672px、MobileはHost342px／Output・SVG672pxとなるOrchestrator提供のCSS Probe Evidenceへ照合した。Worker Browser実測は未実行のため、Light／Dark／390px視覚ReviewをOrchestratorへ返す。Diagram Source、Blume Package、Generated Content、Public Route、Framework src/**、External Publication／Deployは変更せず、Worker Commitなし。TaskをReview Pendingとする。
+```
+
+## P20-008A Worker Start Checkpoint
+
+```text
+2026-07-26T20:37:41+09:00
+P20-008AのD124／Specification 91表示契約とBlume Mermaid DOMを確認し、約300pxのShrink-to-fitをLocal Theme CSSで解消する。`blume-mermaid`を本文幅へ広げ、直接のOutputを42rem以上、SVGをwidth:100%／height:autoへ固定して、Desktop本文幅利用とMobile Host内横Scrollを両立する。Artifact GuardとReader Experience Regressionを同期し、Diagram Source、Blume Package、Generated Content、Public Route、Framework src/**は変更しない。WorkerはRequired Gate後にReport／STATE／TODOを更新し、Browser実測はOrchestrator Reviewへ返す。
+```
+
+## P20-008A Orchestrator Start Checkpoint
+
+```text
+2026-07-26T20:33:00+09:00
+User実画面ReviewでMermaid Diagramが小さく判読不能である指摘を受領した。Playwright Chromiumで4 Routeを計測し、Desktop 1440pxのArticle幅672pxに対して全Output／SVGが約300pxへShrink-to-fitし、Execution DiagramはViewBox幅1450pxを約300pxへ縮小していることを確認した。D124／Specification 91でDesktop本文幅95%以上かつ640px以上、Mobileは640px以上の描画幅を維持してHost内部だけ横Scroll、Page Overflowなし、Light／Dark／Accessibility維持を確定した。P20-008AをLuna High Workerへ渡し、Diagram Source、Blume Package、Generated Content、Public Route、Framework src/**、External Publication／Deployは変更しない。
+```
+
+## P20-009 Orchestrator Acceptance
+
+```text
+2026-07-26T17:44:31+09:00
+Orchestratorは第3回Review P1全18件、Landing／Banner Source、Static Artifact、localhost:4322のPlaywright Chromium実表示を独立Reviewした。Desktop Light 1440pxではFeature三要素が幅397.33px前後／高さ452.84pxの均等三列、Dark Theme切替後も横Overflowなし、Mobile 390pxではx=20px／幅350pxの一列で横Overflowなしを確認した。指定Banner、Install／What's BlackOps Hero CTA、Hero GitHub CTA不在、Header GitHub exact URL、multiline PHP Sample、およびWhat's BlackOps／First Operation／LifecycleのHTTP 200とH1を確認した。最終GateはWebsite 57 tests、sequential Blume check 37 pages 0 errors／warnings／hints、static build 38 pages／37 routes、Artifact／Site Guard、Auth Generator Fresh Consumer、Mago format、Management ID／diff guardが成功した。Framework src/**、Generator Stub、Skeleton、Stable Tag、Public Slug、External Publication／Deployは変更せず、Worker Commitなし。P20-009をAcceptedとし、次はP20-010 Task-oriented Guide増強を扱う。
+```
+
+## P20-009 Browser Review Correction Checkpoint
+
+```text
+2026-07-26T17:41:28+09:00
+Orchestrator Browser ReviewでLanding PHP Sampleの長い`ReportGenerated`行がDesktop／MobileのCode Panel右端で見切れるEvidenceを受領した。`return new ReportGenerated()`をMago-style複数行へ変更し、Source Regression／Built Site Guardを同期した。Website test 57件、check、build（38 pages／37 routes、Artifact／Site Guard）、git diff --checkを再実行してPASS。Browser Reviewは修正後のDesktop Light／Dark、390px Mobile確認待ち、Review Pending、Worker Commitなし。
+```
+
+## P20-009 Worker Completion Checkpoint
+
+```text
+2026-07-26T17:31:19+09:00
+P20-009のLanding CTA／PHP Sample／指定Banner／Feature Copy、Stable／main Deferred記法、Authentication 401／422とProtected GET /me、Inline／Deferred Outcome境界、第3回Review P1正確性、Guide Link Label GuardをTask Packet許可Fileへ反映した。Link GuardはFragmentなしをTarget H1、Fragment付きをTarget Headingへ照合し、日本語Slug、重複Heading suffix、Missing Target／Fragment、Unused Allow ListをRegression Fixtureで検証する。Website test 57件、check（Content／Diagram／Blume validate／Blume check）、static build（38 pages／37 routes、Artifact／Site Guard）、Auth Generator Fresh Consumer、Mago format、Management ID、git diff --checkはPASS。Framework src/**、Generator Stub、Skeleton、Stable Tag、Public Slug、External Publicationは変更していない。Browser Desktop Light／Dark、390px Mobileの最終視覚ReviewはOrchestrator確認待ちで、Worker Commitなし。TaskをReview Pendingとする。
+```
+
+## P20-009 Worker Start Checkpoint
+
+```text
+2026-07-26T16:55:11+09:00
+P20-009の指定Source（D123／Specification 90／第3回Review）を確認し、Landing／Banner、Stable／main Deferred境界、P1-1〜18、Internal Link H1 Guard、Auth Consumer 401／422境界をTask Packet許可Fileへ限定する。P2／P3、Framework `src/**`、Generator Stub、Skeleton、Stable Tag、Public Slug、External Publicationは変更しない。既存P20-001〜008のWorking Tree差分を保持し、Production Documentation／Website／Consumer Testを実装してRequired Gate後にReport／STATE／TODOを同期する。
+```
+
+## P20-009 Orchestrator Start Checkpoint
+
+```text
+2026-07-26T16:51:24+09:00
+UserのLanding／Header修正と第3回Documentation Reviewを、現行Blume Source、Repository main、Auth Generator Stub、Quickstart、Consumer Test、Stable Tag 1.1.0へ照合した。StableはDeferred Capabilityを持つが記法は#[ExecuteWith(Deferred::class)]で、#[Deferred]はmainのCanonical Authoringである。Inline DispatcherはOutcome Recordを保存せず、Deferred Workerだけが保存する。D123／Specification 90でLanding GitHub CTAをWhat's BlackOpsへ変更しHeader GitHub iconを維持、PHP Sample構文／Indent、指定Banner一文、P1正確性18件、Internal Link H1 Guardを確定した。P20-010はP2 Task-oriented Content、P20-011以降はP3文章／Site UXへ分離する。Framework src/**、Generator Stub、Skeleton、Stable Tag、Public Slug、External Deployは変更せず、P20-009のProduction Documentation実装をLuna High Workerへ渡す。
+```
+
+## P20-008 Orchestrator Acceptance
+
+```text
+2026-07-26T11:34:14+09:00
+OrchestratorはContent Pipeline、Regression Test、Static Artifact、localhost:4322の実Browserを独立Reviewした。Mermaidを含む4 Pageだけが.mdx、通常33 Pageが.mdへ生成され、各対象Artifactはnative <blume-mermaid>各1、data-language="mermaid"各0、Local Runtime、accTitle／accDescrを持つ。Playwright Chromiumでは4 Routeすべてtargets=1／svg=1／busy=0／error=false／pageOverflow=false、Dark Theme再描画、390px Mobile、SVG role／title／descriptionを確認した。初回ReviewでREADMEがArtifact GuardにBrowser SVG確認まで含めた不正確な説明を差し戻し、StaticとBrowserの責務を分離した。最終GateはWebsite 55 tests、Blume check 37 pages 0 errors／warnings／hints、static build 38 pages／37 public routes、Artifact／Site Guard、Mago format、Management ID／diff guardが成功した。Diagram Source、Guide本文、Public Slug、Landing／Navigation、Framework src/**、External Publication／Deployは変更せず、Worker Commitなし。P20-008をAcceptedとし、次はP20-009 Reference欠番を扱う。
+```
+
+## P20-008 Browser Contract Correction Checkpoint
+
+```text
+2026-07-26T11:33:37+09:00
+Orchestrator ReviewでREADMEのArtifact GuardとBrowser Verificationの責務が混在していたため、Artifact Guardはnative target／Mermaid Code Block不在／Local Renderer Bundle、SVG描画／Theme切替／Responsive OverflowはBrowser Verificationと明記するよう修正した。Orchestrator Browser evidenceではlocalhost:4322の4 Routeがtargets=1、svgs=1、codeBlocks=0、busy=0、error=false、pageOverflow=false、Dark Theme後もsvg=1、390px Mobileもsvg=1／pageOverflow=false／targetOverflow=false、SVG accessibility role／title／descriptionを確認済み。Correction後はWebsite test 55件とgit diff --checkを再実行してPASS（check／build、Mago、Management-ID guardは直前の同一実装でPASS済み）。TaskはReview Pending、Worker Commitなし。
+```
+
+## P20-008 Worker Completion Checkpoint
+
+```text
+2026-07-26T11:31:42+09:00
+P20-008のMermaid Pageだけの`.mdx`生成、通常Pageの`.md`維持、Manifest／旧拡張子除去Regression、native `<blume-mermaid>` Artifact／Site Guard、README同期を完了した。Website test 55件、check（Content／Diagram／Blume validate／Blume check）、static build 38 pages／37 public routes、Mago format、Management-ID guard、git diff --checkはPASS。4対象RouteのBuilt HTMLでnative target各1、`data-language="mermaid"`各0、`accTitle`／`accDescr`各1、Error Marker各0を確認した。Browser SVG、Light／Dark、Mobile ScreenshotはWorker sandboxのloopback接続失敗とBrowser実行環境不在で未実行のため、Reportへ正確に記録しOrchestrator Browser Reviewへ返す。TODOのP20-008実装項目を完了（視覚Review待ち）へ更新した。Diagram Source、Guide本文、Public Route、Landing／Navigation、Framework `src/**`は変更せず、Worker Commitなし。TaskをReview Pendingへ更新する。
+```
+
+## P20-008 Worker Start Checkpoint
+
+```text
+2026-07-26T11:29:29+09:00
+P20-008実装を開始し、Mermaid Fenceを含むPageだけを`.mdx`へ生成するContent Pipeline、Blume native `<blume-mermaid>`を正本とするArtifact／Site Guard、Manifest／旧拡張子除去のRegression Test、Website README同期を実装した。Diagram Source、既存Public Route、Guide本文、Landing／Navigation、Framework `src/**`は変更しない。次に追加Regression TestとRequired Gate、Browser検証可否を確認し、Report／STATEを完了Evidenceへ同期する。
+```
+
+## P20-008 Orchestrator Start Checkpoint
+
+```text
+2026-07-26T11:23:13+09:00
+User実画面Reviewで4つのMermaid Fenceが図ではなくCode Blockとして表示される退行を確認した。Source Diagramではなく、Content Pipelineが全Pageを.mdへ固定し、BlumeのMDX専用Mermaid Pluginを通していないことが原因である。既存Artifact／Site Guardもdata-language="mermaid"をRender Targetとして数え、壊れた状態を成功と誤判定していた。D122／Specification 89でMermaid Pageだけの.mdx生成、通常Pageの.md維持、<blume-mermaid> Artifact、Browser SVG、Light／Dark／Mobileの受入境界を確定し、P20-008をLuna High Workerへ渡す。Diagram Source、Public Slug、Landing、Navigation、Framework src/**、External Publication／Deployは変更しない。
+```
+
+## P20-007 Orchestrator Acceptance
+
+```text
+2026-07-26T11:17:22+09:00
+OrchestratorはStable Tag、current Quickstart、Auth Generator Stub、Guide Source、Blume Artifact、localhost実HTTPを独立Reviewした。初回ReviewでQuickstart Outcomeをgeneric例と混同した誤り、Generated Clientを使わないtry-client、Logout Header契約、Authentication英語化／疑似Stubを差し戻した。再Reviewで相対Import、Result narrowing、重複H2、Stable Runtimeへのmain Token混入を差し戻し、最終ReviewでTypeScript 6のTS5112を実Commandから検出して--ignoreConfig／--ignoreDeprecations 6.0へ補正した。最終GateはWebsite 53 tests、Blume check 37 pages 0 errors／warnings／hints、static build 38 pages／37 public routes、Artifact／Site Guard、Quickstart Consumer E2E、Auth Generator Fresh Consumer、Mago format、Management ID／diff guardが成功した。localhost:4322はLanding、Quickstart、AuthenticationをHTTP 200で配信し、最新try-client、Step 4 Anchor、User Migration、Authentication Error Codeを含む。Framework src/**、Generator Stub、Example Source、Consumer Test、Stable Tag、Public Slug、External Publication／Deployは変更せず、Worker Commitなし。P20-007をAcceptedとし、次はP20-008 Reference欠番を扱う。
+```
+
+## P20-007 Worker Final Correction Checkpoint
+
+```text
+2026-07-26T04:33:15+09:00
+Orchestrator検証で検出されたTS5112へ対応し、try-clientのCompile Commandへ`--ignoreConfig --ignoreDeprecations 6.0`を追加した。CommonJSでTop-level awaitを使わないasync mainへ変更し、非completed Resultは固定Errorをthrowして非0終了とする。Generated Treeを持つ一時Consumerで同一CommandのCompile成功を確認したが、HTTP Runtime実行はsandboxのDocker／loopback権限で到達不能だったためPASSを主張しない。Authentication生成物一覧へUser Migration Version20260722000000.phpを追加した。Website 53 tests、content／diagram／Blume validateは再PASS、TaskはReview PendingのままOrchestrator Review待ち。
+```
+
+## P20-007 Worker Review Correction Checkpoint
+
+```text
+2026-07-26T04:25:35+09:00
+Orchestrator Reviewを受け、Quickstartの旧Anchor互換H2を削除してtesting.mdのLinkをStep 4へ同期した。try-client.tsは../../resources/js/blackopsからGenerated ClientをImportし、Result Unionをnarrowしたうえで既存TypeScript Compiler、CommonJS runtime marker、Nodeで実行するCommandへ補正した。Authenticationは未実装雛形ではなくGeneratorが生成するPasswordHasher、Register try/catch／Session発行、config/auth.php Environment設定の正確なExcerptへ更新した。Runtime BootstrapはStable匿名Welcomeを先に示し、Token Headerをmain Preview限定Calloutへ分離した。Website 53 tests、content／diagram／Blume validateは再PASS。Blume buildのfont server bind EPERMは継続する。
+```
+
+## P20-007 Worker Start Checkpoint
+
+```text
+2026-07-26T04:12:37+09:00
+P20-007の実装を開始した。InstallationをStable 1.1.0のDocker Compose完走Lane（PostgreSQL起動、container migration／build、匿名Welcome HTTP 200、停止）へ整理し、database:seed／Frontend／pnpm／AuthenticationをStable手順から除外した。QuickstartへStable Handoff、current QuickstartのPHP Source説明、Node 24 global fetchのtry-client.ts、SvelteKit event.fetchの補足、Outcome／Operation IDの実行境界を追加した。First Operation、Authentication、Local Runtime、Outbox、Console CommandをSpecification 88／Consumer Testの実在Commandへ寄せた。次にWebsite regression testと全Required Gateを実行する。Framework src/**、Generator Stub、Example Source、Consumer Test、Stable Tag、Public Slug、External Deployは変更しない。
+```
+
+## P20-007 Worker Completion Checkpoint
+
+```text
+2026-07-26T04:24:33+09:00
+P20-007のStable／main onboarding実装を完了した。InstallationはStable 1.1.0をPostgreSQL起動、Container migration／build、匿名Welcome HTTP 200、停止まで明示する。QuickstartはStable HandoffをFirst Operation Step 1〜3へ接続し、current QuickstartのPHP Operation／Value／Outcome（ReportGeneratedのreportName／location）をGenerated Clientより前に提示する。main Previewのtests/Frontend/try-client.tsは生成RootをcreateBlackOpsClientへ接続し、既存TypeScript CompilerとCommonJS runtime markerでNode実行する。First OperationのStable／main境界、Authenticationのmain限定・stub準拠Starter骨格・Register／Login／Logout期待Status、Local Runtimeの匿名Stable／Token付きmain、Worker／Scheduler Profile、Outbox dispatch／relay、Console Operation Command、Troubleshooting Cross-linkを同期した。Website 53 tests、content／diagrams／Blume validate、Quickstart Consumer E2E、Auth Generator Fresh Consumer、Mago format、Management-ID／diff guard、git diff --checkはPASS。Blume buildはsandboxのfont server bind EPERMで停止し、site:checkはbuild artifact不在のため未実行。Framework src/**、Generator Stub、Example Source、Consumer Test、Stable Tag、Public Slug、External Deployは変更していない。TaskをReview Pendingとし、Orchestrator Reviewを待つ。
+```
+
+## P20-007 Orchestrator Start Checkpoint
+
+```text
+2026-07-26T04:04:51+09:00
+第2回Documentation Reviewの次優先であるStable onboardingを、Tag 1.1.0のQuickstart、current examples/quickstart、Auth Generator Stub、auth-generator-fresh Consumer Testと照合した。現InstallationはStableに存在しないSeederをmain手順へ混在させ、PostgreSQL明示起動とWelcome確認を欠く。QuickstartはStable読者を行き止まりにし、Generated Clientより前のPHP Sourceと実行可能なTypeScript手順を欠く。First OperationはHost／ContainerとStable／main境界が曖昧で、Authenticationはmain限定注記、生成物骨格、再Build、期待Responseを欠く。D121／Specification 88でStable完走Laneとmain Preview Laneを分離し、P20-007をInstallation、Quickstart、First Operation、Authentication、Local Runtime、低コストCross-linkへ限定した。Framework src/**、Generator Stub、Example Source、Stable Tag、Public Slug、External Publication／Deployは変更せず、Production Documentation実装をLuna High Workerへ渡す。
+```
+
+## P20-006 Orchestrator Acceptance
+
+```text
+2026-07-26T04:01:07+09:00
+OrchestratorはSource、通常Blume Artifact、Desktop 1440px Light／Dark、Mobile 390px Lightを独立Reviewした。初回ReviewでUser主要求のFeature均等化が未実装だったためWorkerへ差し戻し、Operation／Journal／HeadlessをDesktop均等三列、960px未満一列、共通border／padding／gap／Visual min-height／本文／Link基準へ補正した。二回目ReviewでDeferred Outcome例のreportName重複を検出し、実在するoperationIdとexact-one regression testへ修正した。旧Page title Link、Sensitive Value／Outcome対象、ExecuteWith／Deferred／Ephemeral Inline、無効GitHub edit link、Sidebar単一正本、旧Starlight StyleはSourceとArtifactへ一致する。Task Packetの--sl-* guardは--globを--の後へ置いた誤りによるfalse-positiveを検出し、正しい引数順へ直してゼロ件を再確認した。Website 51 tests、通常check 0 errors／warnings／hints、通常build 38 pages／37 public routes、Artifact／Site Guard、Mago format、Management ID／diff guardが成功した。Header GitHub icon、Sidebar aria-current、Public Slug、Redirect、Search、Bannerを維持し、localhost:4322はHTTP 200。Framework src/**、Public API、External Publication／Deployは変更せず、Worker Commitなし。P20-006をAcceptedとし、次はP20-007 Stable Onboardingを扱う。
+```
+
+## P20-006 Orchestrator Start Checkpoint
+
+```text
+2026-07-26T03:38:24+09:00
+User実画面ReviewでLandingのOperationだけが大きく、Journal／Headlessが右Columnへ積まれた非対称Layoutは、同格三要素の比較関係とReading Orderを不明瞭にしていることを確認した。第2回Documentation Reviewでは、前回の正確性／Navigation修正を評価する一方、旧Page titleの被Link文言、Sensitive対象、ExecuteWith説明、Outcome Property、GitHub edit link、Sidebar二重管理、旧Starlight Styleを即時回収対象として指摘している。D120／Specification 87でDesktop均等三列／Mobile一列、同寸法のVisual／本文／Link基準、Header GitHub icon維持と無効edit link除去、site-navigation.mjs単一正本を確定した。Stable onboarding、Authentication、Reference、Testing／Deployment、文章編集は後続Taskへ分離し、P20-006のProduction実装をLuna High Workerへ渡す。Framework src/**、Public API、Public Slug、Redirect、External Publication／Deployは変更しない。
+```
+
+## P20-005 Orchestrator Acceptance
+
+```text
+2026-07-26T03:04:54+09:00
+OrchestratorはSource、Static Artifact、localhost実HTTP、Playwright ChromiumのDesktop 1440px Light／Dark、Mobile 390px Light、Validation詳細Page Darkを独立Reviewした。初回Browser ReviewでDesktop BrandとCode Panelの重なり、Mobile Journal／Headlessの狭い二列、Operation本文とLinkの過大な空白を差し戻し、最終形ではBrandとCodeのBounding Box非重複、Mobile feature一列、Document横Overflowなしを確認した。Blume native Header GitHub iconは全Pageでexact Repository URL、Accessible Label、target=_blank、rel=noreferrerを持ち、Hero CTAも維持する。Sidebarは全36 non-index Public PageでCanonical hrefとaria-current=pageが一意に一致し、Light／Darkの背景、Foreground、左Accent Markerが視認できる。localhost:4322をContent生成込みで再起動し、Landing、Install、First Operation、Lifecycle、Frontend、ValidationはHTTP 200。Website 50 tests、Static Site Guard 37 routes、WorkerのBlume check／build 38 pages、Orchestrator Mago format、Management ID／diff guardが成功した。P20-005をAcceptedとする。Framework src/**、Guide本文、Validation Public API、Public Slug、Redirect、External Deployは変更せず、Worker Commitなし。
+```
+
+## P20-005 Orchestrator Start Checkpoint
+
+```text
+2026-07-26T02:31:11+09:00
+User実画面ReviewでP20-004 LandingがAstro公式Websiteを参考にした水準へ達せず、巨大文字、余白、罫線中心でDeveloper Toolとしての奥行きと実物感が不足していることを確認した。公式Astroの現在のLandingを参照し、中央集約Hero、即時開始CTA／Command、実物を見せるProduct ExpressionをBlackOpsのOperation Code、Lifecycle、Generated Clientへ翻訳するD119／Specification 86を確定した。詳細PageのSidebar非選択はBlumeの仕様ではなく、Configの末尾Slash付きhrefとGenerated Current Routeの末尾Slashなしによる厳密比較失敗であることをSource／Artifactから特定した。P20-005でCanonical Route、aria-current Artifact Guard、明確なActive Styleを実装する。Operation／Outcome InterfaceとValue Validation Extensionの議論はUser合意により停止し、本Taskで変更しない。Framework src/**、Guide本文、Public Slug、Redirect、External Publication／DeployへScopeを広げず、Production実装はLuna High Workerへ渡す。
+```
+
+## P20-004 Orchestrator Acceptance
+
+```text
+2026-07-26T02:14:36+09:00
+OrchestratorはCustom Landingの実装をSource、Static Artifact、localhost実HTTP、Playwright ChromiumのDesktop 1440px／Mobile 390px／Dark Themeで独立Reviewした。初回ReviewでBlume実RouteのHTTP確認不足、削除Hero Copyの相反assert、二回目ReviewでThe PHP Frameworkの三行折返しとBanner raw HTML露出を差し戻した。最終形ではBlackOps主見出し／一行の小Tagline、Install／GitHub／Stable Command、BlackOpsの特徴、Operation主の非対称Grid、Mobile一列、Blume Banner link APIを確認した。Landing全same-origin hrefはBuild Artifactの実Fileへ解決し、localhostのLanding／Install／Operation／Journal／Frontend／Quickstart／ExecutionはHTTP 200。Website 50 tests、Blume validate、38-page static build、Artifact／Search／Landing link guard、Mago format、Management ID／diff guardが成功した。P20-004をAcceptedとする。Framework src/**とValidation Public APIは変更せず、Worker Commitなし。
+```
+
+## P20-004 Banner and Tagline Correction Checkpoint
+
+```text
+2026-07-26T01:15:00+09:00
+Landing taglineへwhite-space: nowrapを追加し、390pxでも1行表示を保証した。Blume Bannerをraw HTMLからlink APIへ移行し、built HTMLのReleases実anchorとescaped markup禁止assertを追加した。Website 50 tests、git diff --check成功。実サーバーはsandbox bind EPERMのため再起動できず、HTTP確認は環境制約としてReportへ記録。
+```
+
+## P20-004 Route Correction Checkpoint
+
+```text
+2026-07-26T01:13:32+09:00
+実Blume route形式に合わせ、Custom Landingの全same-origin hrefを末尾slashなしへ修正した。check-siteのartifact resolverはextensionless pathを`<path>/index.html`へ、拡張子付きassetをそのまま解決する。Website 50 testsとgit diff --checkは成功。localhost:4322でのcurl検証はBlume devがsandboxのbind EPERMで起動できず、HTTP status未取得。Reportへ記録し、Worker Commitなし。
+```
+
+## P20-004 Worker Completion Checkpoint
+
+```text
+2026-07-26T00:59:38+09:00
+Custom LandingをBlackOps主見出し／小さいThe PHP Framework、Install／GitHub／Stable 1.1.0 command、BlackOpsの特徴、Operation主の非対称Featureへ再構成した。Operation／Journal／Headless本文を維持し、指定Public URLへ修正した。check-siteへLandingの全same-origin hrefをdist static artifactへ解決するGuard、GitHub exact URL／各Feature linkのassertを追加した。Website 50 tests、content／diagram／Blume validate --strict、Blume check --isolated 37 pages 0 errors、Management ID guard、git diff --checkが成功した。通常のbuild／checkは既存Blume runtimeまたはsandbox font-server bind EPERMのため完走せず、isolated buildも同じEPERMで停止した。Worker Commitなし、Orchestrator Review待ち。
+```
+
+## P20-004 Orchestrator Start Checkpoint
+
+```text
+2026-07-26T00:47:36+09:00
+User実画面ReviewでCustom LandingのOperation／Journal導線が利用不能だったこと、Framework名とTaglineが同じScaleであること、Hero説明がFeature本文と重複すること、均等三列Layoutと「3つの特徴」の表現が不適切であることを確認した。D118／Specification 85でLandingだけをAstro公式Websiteを参考に再構成し、BlackOpsを主見出し、The PHP Frameworkを補助見出し、Hero長文を削除、Install／GitHub／Stable Install Command、BlackOpsの特徴、Operation主Featureの非対称Grid、Custom Astro Page専用Link Guardを確定した。Operation／Journal／Headless本文、Public Slug、Sidebar、Banner、Search、Framework src/**、External Publication／Deployは維持する。OperationValue／Outcome／Operationのabstract class化とCustom Validation Hookは設計議論として分離し、本TaskのProduction実装はLuna High Workerへ渡す。
+```
+
+## P20-003 Orchestrator Acceptance
+
+```text
+2026-07-25T23:29:09+09:00
+OrchestratorはReview A-6の5件、全36 non-index Public SlugのSidebar一意配置、D117 Label／H1同期、日本語Version Banner、README相対LinkをSourceと独立照合した。初回ReviewでDatabase Closureの誤配置、Sensitive Modeの節配置、Raw HTML Link、Blumeと不一致な独自Anchor Sluggerを差し戻し、最終形ではBlume validate --strictを唯一のRendered Anchor正本としてcheck／buildへ必須化した。最終GateはWebsite 49 tests、Content／Diagram／Blume validate／Blume check 37 pages 0 errors、Static 38 pages、Artifact／Search 37 routes、Mago format、Management ID／diff guardが成功した。Blume Dev Serverをhttp://localhost:4322/で起動し、Landing、What's BlackOps、Configuration、ValidationのHTTP 200を確認した。Landingの指定Hero／Operation／Journal／Headless本文と三列Grid、Public Slug、Redirect、Framework src/**、External Publication／Deployへ差分はない。P20-003をAcceptedとし、次はStable 1.1.0で完走できる入門動線とQuickstartを扱う。Worker Commitなし。
+```
+
+## P20-003 Orchestrator Start Checkpoint
+
+```text
+2026-07-25T22:48:59+09:00
+Userがdocs/documentation-review.mdへ全37公開Pageとlocalhost実画面の学習者向けReviewを記録した。Reviewは正確性5件、Sidebar孤立6 Page、Stable入門動線、Task-oriented Guide、Site UX、文章編集を指摘している。D117／Spec 84で段階的な改善順を確定し、最初のP20-003を正確性5件、全Public SlugのSidebar一意配置、Fragment Anchor Validation、日本語Version Bannerへ限定した。Whats BlackOpsはReviewの文法指摘を反映してWhat's BlackOpsへ補正する一方、Why BlackOpsには戻さない。Landing指定本文、Public Slug、Framework src/**、Stable Release、External Publication／Deployは変更せず、Production実装はLuna High Workerへ渡す。
+```
+
+## P20-003 Worker Completion Checkpoint
+
+```text
+2026-07-25T23:01:25+09:00
+Review A-6の5件（Sensitive対象、Config一覧、2つのFragment Link、Database Closure、Transactional child例）をSourceへ同期した。D117／Specification 84のSidebarをsite-navigation.mjs／blume.config.tsへ反映し、全Public SlugのMissing／Duplicate／Unknown／順序Guard、全Sidebar Label／H1同期を追加した。Anchor authorityをBlume `validate --strict`へ一本化し、check／build経路へ必須化した。What's BlackOpsをREADME、H1、CTA、Sidebarへ統一し、日本語一行Version BannerとReleases Linkへ更新した。README Feature GridのGitHub相対Link、contentMapの未使用Banner定義削除、D116／Spec83のSupersession同期を完了した。Website 49 tests、Blume validate／check 37 pages 0 errors、Management ID guard、git diff --checkが成功した。Buildはsandboxのfont-server bind EPERMで完走できず、Mago最終再実行は中断されたためOrchestrator環境で再確認が必要。Worker Commitなし、Orchestrator Review待ち。
+```
+
+## P20-002 Orchestrator Acceptance
+
+```text
+2026-07-25T11:01:12+09:00
+Orchestratorは指定Landing Copy、同一三列／Mobile一列Grid、Whats BlackOpsと全30 Sidebar Label／H1、Authentication、Authorization、Frontendの利用者向け手順を実装Sourceと独立照合した。ReviewでAuth Migration／Route／Logout、Authorization Public API／Status Authorizer null境界、Frontend Result narrowing／bound wait option、Blume Browser Title、BlackOps CLI呼称を補正した。最終GateはWebsite 46 tests、Blume check 37 pages 0 errors、Static 38 pages、Artifact／Search 37 routes、Mago format、Management ID／diff guardが成功した。Blume Dev Serverは既存4321使用中のためhttp://localhost:4322/で起動し、HTTP 200を確認した。Framework src/**、Public API、External Publication／Deployへ差分はない。P20-002をAcceptedとする。Worker Commitなし。
+```
+
+## P20-002 Worker Completion Checkpoint
+
+```text
+2026-07-25T10:58:55+09:00
+P20-002の指定Landing CopyをHero／Operation／Journal／Headlessへ完全一致で反映し、ONE MODEL / TWO PATHS等の未指定CopyとSection Numberを除去した。三要素を同一landing-feature GridのDesktop三列／Mobile一列へ統一し、linkのbottom alignment、Whats BlackOps／ConsoleCommand／Tutorial Board Navigationと全Sidebar対象Page H1を同期した。Authenticationの正確なUser／Session Migration、DBAL／Migrations／make:auth／生成File／Environment Default／Request、Authorizationのcompile可能なPolicy／Binding／Deferred再認可／Status Authorizer null/type/id境界、FrontendのQuickstart準拠import／Result narrowing／global fetch／bound wait options／build:compile／frontend:generate／frontend:check／output／Wrapper／Drift導線を追加した。Blume titleとREADME em dashを統一し、why導入とBlackOps CLI呼称を補正した。build済みLanding textContentでexact／forbidden copyを検証した。Website 46 tests、Blume check 0 errors、38-page build／Artifact／Search／Site check、Mago format、Management ID guard、git diff --checkが成功した。Generated dist／.blume／.astro／.generatedをCleanupし、Worker Commitなし、Orchestrator Review待ち。
+```
+
+## P20-002 Orchestrator Start Checkpoint
+
+```text
+2026-07-25T10:31:43+09:00
+User実画面ReviewでP20-001 Landingが指定Copyを要約／英文化し、未指定のONE MODEL / TWO PATHS Blockと非対称Feature Layoutを追加していたこと、Whats BlackOpsとPage Title、Auth／FrontendのReader Journeyが不足していたことを確認した。D116／Spec 83をUser指定本文の完全一致、未指定Copy禁止、三要素の同一Grid、Whats BlackOps Label、Sidebar PageのReader Task Structureへ補正し、P20-002 Task Packetを作成した。Authはmake:authからMigration／設定／Request、FrontendはHeadless方針からbuild:compile／frontend:generate／output Path／Import／接続／Driftまでを一Pageで完走させる。Blume Version、Framework src/**、Public Slug、External Publication／DeployへScopeを広げず、Production実装はLuna High Workerへ渡す。
+```
+
+## P20-001 Orchestrator Acceptance
+
+```text
+2026-07-25T03:22:51+09:00
+Astro StarlightからBlume 1.1.4へのDocumentation Website移行を独立Reviewした。ReviewでTutorialをBlackOps Board Reference Applicationへ修正し、ConsoleCommand Label、Headless Landing Source、2.x Notice、Redirect、D081／D090／Spec 57／59／61のSupersessionを同期した。Workerが削減した旧Reader Contract Testを復元し、Public API／Attribute／Security／Tutorial／Troubleshooting／Diagram／Voice保証を維持した。最終GateはWebsite 45 tests、Blume check 37 pages 0 errors、Static 38 pages、Artifact／Search 37 routes、Mago format、Management ID／diff guardが成功した。Blume Dev Serverは既存4321使用中のためhttp://localhost:4322/でNetwork公開し、HTTP 200を確認した。External Publication／Deploy、Framework src/**、Public APIへ差分はない。P20-001をAcceptedとする。Worker Commitなし。
+```
+
+## P20-001 Worker Start Checkpoint
+
+```text
+2026-07-25T02:35:47+09:00
+P20-001 Task PacketとD116／Spec 83を確認し、Blume 1.1.4のCLI／config／custom Page APIへ実装を限定する。docs/guide単一正本、既存Slug／Redirect／dist Artifact、docs.ymlのInstall／Test／Check／Build境界は維持し、Starlight Integrationを除去する。LandingはBlume PageLayoutのOperation-first非対称構成、全Page Banner、Spec 83 Sidebar、新規5 Guide Pageを実装する。Framework PHP、Scheduled Operation、External Publication／Deploy、Cloudflare Credentialは変更しない。
+```
+
+## P20-001 Orchestrator Start Checkpoint
+
+```text
+2026-07-25T02:29:19+09:00
+User要望を受け、Documentation WebsiteをAstro StarlightからBlumeへ移行するD116／Spec 83／P20-001 Task Packetを確定した。docs/guide単一正本、既存Public URL、dist Artifact、Cloudflare Direct Upload境界は維持し、Operation／Journal／Headlessの非対称Landing、1.x Experimental／2.x Production Ready予定の全Page Notice、利用者向けSidebar、新しいConsole Command／Outbox／Authentication／Authorization／Frontend入口をScopeとする。入力案の誤記はWhat's BlackOps、Quickstart and Skeleton、Deferred、Execution and Workersへ正規化する。Framework src/**、Scheduled Operation、2.0 Release Contract、External Publication／DeployへScopeを広げず、Production実装はLuna High Workerへ渡す。
+```
 
 ## P20-000 GitHub Actions Closeout
 
@@ -147,6 +651,34 @@ Task Packet、参照Spec／Decision、P19-004／P19-005 Report、既存Community
 ```
 
 ## Current Task
+
+## P20-006 Worker Completion Checkpoint
+
+```text
+2026-07-26T03:53:14+09:00
+P20-006のDocumentation Review即時項目を実装した。LandingはOperation／Journal／Headlessを960px以上で均等三列、狭幅で指定順一列へ整え、全Featureへ同じborder／padding／gap／Visual min-heightを適用し、既存Visual／指定Copy／CTA／Stable Commandを維持した。Guideの旧Page title Link、Sensitive対象、ExecuteWith／Deferred説明、Deferred Outcomeの不存在location参照を補正し、旧Label再流入Guardを追加した。Blume Layout extension pointでeditUrlをnull化し、Header GitHub icon／Landing CTAを維持したまま無効edit anchorをSemanticに出力しない。site-navigation.mjsのblumeSidebarをblume.config.tsから参照する単一正本へ移行し、未使用Starlight CSSを削除した。Website test 51/51、content／diagram／Blume validate、isolated Blume check／build 38 pages、Mago format、Management ID／--sl-*／git diff --checkが成功。通常check／buildは共有localhost:4322のBlume dev server保護により未実行。Task PacketをReview Pendingへ更新、Report作成済み、Worker Commitなし、Orchestrator Review待ち。
+```
+
+## P20-006 Review Correction Checkpoint
+
+```text
+2026-07-26T03:59:13+09:00
+Orchestrator ReviewでOutcome Retrieval completed例の`reportName`重複を指摘されたため、2行目を実在する`operationId`へ修正した。reader-experience testへcompleted例の`reportName`／`operationId`各1回のGuardを追加した。Website test 51/51、content／diagram／Blume validate、isolated Blume check 0 errors、git diff --checkが成功。通常checkは共有localhost:4323のBlume dev server保護で停止。ReportへCorrectionを追記、Commitなし、Orchestrator Review待ち。
+```
+
+## P20-005 Worker Completion Checkpoint
+
+```text
+2026-07-26T02:42:00+09:00
+LandingをBlackOps主見出し／小さいThe PHP Framework、Install／GitHub／Stable 1.1.0 command、実在Public APIのOperation Code、Canonical Lifecycle（Received→Accepted→Running→Finalizing→Completed）、Generated Client command visualへ再構成した。Operation／Journal／Headless指定本文とLink Targetは維持し、Header logo textをBlackOpsへ限定した。blume.config.tsのSidebar hrefをBanner／Redirectを除き末尾Slashなしへ正規化し、check-siteへ全37 non-index public routeのCanonical Sidebar aria-current=page一意GuardとActive Marker CSS Guardを追加した。Website test 50/50、check（Content／Diagram／Blume validate／Typecheck）、build 38 pages／Artifact／Site 37 routes、Mago format、Management ID Guard、git diff --checkが成功。Framework src/**、Guide本文、Public Slug、Redirect、External Deployは変更していない。Worker Commitなし、Orchestrator Review待ち。
+```
+
+## P20-005 Browser Review Correction Checkpoint
+
+```text
+2026-07-26T02:52:21+09:00
+Orchestrator提供の1440px／390px Screenshot Reviewを反映し、Landing brand max sizeを8.5remへ制限、Journal／Headless right featureを全Breakpointでvisual→copy一列へ変更、Operation linkを本文直下へ固定した。Blume native github owner／repo設定を追加し、check-siteで全Built Pageのexact Repository URL、Accessible Label、target=_blank、rel=noreferrerをArtifact Guardした。Website test 50/50、isolated Blume check／build（38 pages）、isolated GitHub Header Artifact確認、git diff --checkが成功。通常check／buildは共有localhost:4322 Blume dev serverが実行中のため未実行。Worker Commitなし、Orchestrator Review待ち。
+```
 
 ## P20-000 Worker Completion Checkpoint
 

@@ -97,6 +97,18 @@
 | [80-reliability-and-delivery.md](80-reliability-and-delivery.md) | Idempotency、Transactional Outbox、Relay／Replayの契約とFailure Matrix |
 | [81-phase-19-delivery-plan.md](81-phase-19-delivery-plan.md) | Idempotency CoreからCommunity Board統合までのPhase 19 Task順序 |
 | [82-operation-dispatch-and-deferred-authoring.md](82-operation-dispatch-and-deferred-authoring.md) | `#[Deferred]`、Transactional child Operation dispatch、将来のScheduled入口境界 |
+| [83-blume-documentation-experience.md](83-blume-documentation-experience.md) | Blume Website、Operation／Journal／Headless Landing、Experimental Notice、利用者向けNavigation |
+| [84-documentation-learning-journey.md](84-documentation-learning-journey.md) | 正確性、全Page Navigation、Stable入門動線、Task-oriented Guide、Site UXの段階的改善 |
+| [85-documentation-landing-visual-hierarchy.md](85-documentation-landing-visual-hierarchy.md) | Landingの視覚階層、GitHub導線、非対称Feature、Custom Page Link Integrity |
+| [86-documentation-brand-expression-and-active-navigation.md](86-documentation-brand-expression-and-active-navigation.md) | Astro参照のLanding Product Expression、Header GitHub導線、Sidebar現在地表示 |
+| [87-documentation-second-review-and-feature-parity.md](87-documentation-second-review-and-feature-parity.md) | Landing Feature均等化、第2回Review退行、Website正本整合 |
+| [88-executable-stable-onboarding.md](88-executable-stable-onboarding.md) | Stable 1.1完走導線、main Preview Quickstart、Authentication手順 |
+| [89-blume-mermaid-rendering.md](89-blume-mermaid-rendering.md) | Mermaid PageのMDX生成、Blume native描画、Artifact／Browser Contract |
+| [90-documentation-third-review-accuracy.md](90-documentation-third-review-accuracy.md) | 第3回ReviewのLanding／Banner、P1正確性、Internal Link H1 Guard |
+| [91-mermaid-diagram-legibility.md](91-mermaid-diagram-legibility.md) | Mermaid DiagramのDesktop可読幅、Mobile局所横Scroll、Browser寸法Contract |
+| [92-documentation-review-agent.md](92-documentation-review-agent.md) | Read-only Documentation Reviewer、Evidence Hierarchy、Browser Review、Finding Format |
+| [93-implicit-inline-ephemeral-outcome.md](93-implicit-inline-ephemeral-outcome.md) | Ephemeral Outcomeの暗黙Inline、Security Guard、ExecuteWith互換境界 |
+| [94-journal-documentation.md](94-journal-documentation.md) | Journal独立Guide、Observed JSONL、Security、OpenTelemetry将来構想 |
 
 ## 決定の参照
 
@@ -213,7 +225,21 @@
 | [D109](../decisions/109-phase-18-idempotency-and-outbox.md) | Phase 19 Idempotency and Outbox | Decided |
 | [D110](../decisions/110-application-ergonomics.md) | Application Ergonomics | Decided |
 | [D111](../decisions/111-session-auth-package-contract.md) | Session Authentication Contract | Decided |
-| [D112](../decisions/112-authentication-credential-response-boundary.md) | Authentication Credential Response Boundary | Decided |
+| [D112](../decisions/112-authentication-credential-response-boundary.md) | Authentication Credential Response Boundary | Partially Superseded by D126 |
 | [D113](../decisions/113-database-seeder-contract.md) | Database Seeder Contract | Decided |
 | [D114](../decisions/114-application-runtime-and-bootstrap-dependency-boundary.md) | Application Runtime and Bootstrap Dependency Boundary | Decided |
 | [D115](../decisions/115-deferred-authoring-and-operation-dispatch.md) | Deferred Authoring and Operation Dispatch | Decided |
+| [D116](../decisions/116-blume-documentation-site.md) | Blume Documentation Site | Decided |
+| [D117](../decisions/117-documentation-learning-journey.md) | Documentation Learning Journey | Decided |
+| [D118](../decisions/118-documentation-landing-visual-hierarchy.md) | Documentation Landing Visual Hierarchy | Decided |
+| [D119](../decisions/119-documentation-brand-expression-and-active-navigation.md) | Documentation Brand Expression and Active Navigation | Decided |
+| [D120](../decisions/120-documentation-second-review-and-feature-parity.md) | Documentation Second Review and Feature Parity | Decided |
+| [D121](../decisions/121-executable-stable-onboarding.md) | Executable Stable Onboarding | Decided |
+| [D122](../decisions/122-blume-mermaid-rendering.md) | Blume Mermaid Rendering | Decided |
+| [D123](../decisions/123-documentation-third-review-accuracy.md) | Documentation Third Review Accuracy | Decided |
+| [D124](../decisions/124-mermaid-diagram-legibility.md) | Mermaid Diagram Legibility | Decided |
+| [D125](../decisions/125-documentation-review-agent.md) | Documentation Review Agent | Decided |
+| [D126](../decisions/126-implicit-inline-ephemeral-outcome.md) | Implicit Inline Ephemeral Outcome | Decided |
+| [D127](../decisions/127-journal-documentation.md) | Journal Documentation | Decided |
+| [D128](../decisions/128-observed-journal-wire-shape.md) | Observed Journal Wire Shape | Decided |
+| [D129](../decisions/129-documentation-website-publication.md) | Documentation Website Publication | Decided |

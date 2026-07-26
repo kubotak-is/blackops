@@ -1,6 +1,10 @@
 # D090: Documentation Information Architecture
 
-Status: Decided
+Status: Superseded for the public theme, landing, and sidebar by D116; preserved URL and content-source boundaries remain applicable.
+
+## Supersession
+
+D116 and Specification 83 replace this Decision's proposed section labels, landing feature blocks, and Starlight-specific presentation. Existing public content and route compatibility continue unless explicitly changed by the Blume contract.
 
 ## Context
 

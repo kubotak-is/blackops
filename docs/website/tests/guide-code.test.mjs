@@ -26,7 +26,7 @@ test('tutorial starts from the current generator and contains complete edited so
   const command = 'php blackops make:operation Billing/CreateInvoice --type=billing.invoice.create';
   const phpBlocks = [...tutorial.matchAll(/```php\n([\s\S]*?)\n```/g)].map((match) => match[1]);
 
-  assert.match(tutorial, /^# チュートリアル: Operationを作る$/m);
+  assert.match(tutorial, /^# First Operation$/m);
   assert.ok(tutorial.indexOf(command) < tutorial.indexOf('```php'));
   for (const file of ['CreateInvoice.php', 'CreateInvoiceValue.php', 'CreateInvoiceOutcome.php']) {
     assert.match(tutorial, new RegExp(`Created: app/Feature/Billing/CreateInvoice/${file.replace('.', '\\.')}`));
@@ -76,7 +76,9 @@ test('Welcome requests authenticate unless they intentionally demonstrate anonym
   }
 
   assert.deepEqual(anonymousExamples, [
+    'installation.md: curl -i http://127.0.0.1:8080/welcome',
     'mvp-sample.md: curl -i http://127.0.0.1:8080/welcome',
+    'runtime-bootstrap.md: curl http://127.0.0.1:8080/welcome',
     'troubleshooting.md: curl -i http://127.0.0.1:8080/welcome',
   ]);
 });
@@ -137,6 +139,93 @@ test('guide JSON and JSONL examples stay parseable and free of raw tutorial secr
   }
 });
 
+test('Journal JSONL example matches the observed encoder envelope and lifecycle set', async () => {
+  const source = await guide('journal.md');
+  const block = source.match(/```jsonl\n([\s\S]*?)\n```/)?.[1] ?? '';
+  assert.ok(block);
+  const records = block.split('\n').map((line) => JSON.parse(line));
+  const topLevel = ['schemaVersion', 'kind', 'recordId', 'event', 'occurredAt', 'sequence', 'operation', 'attempt', 'data'];
+  const operation = ['id', 'type', 'schemaVersion', 'strategy', 'correlationId', 'causationId', 'actors'];
+  const actor = ['origin', 'authorization', 'execution'];
+  const attempt = ['id', 'number', 'startedAt'];
+  const events = [
+    'operation.received', 'operation.accepted', 'attempt.started', 'attempt.succeeded',
+    'attempt.failed', 'attempt.retry_scheduled', 'operation.completed', 'operation.rejected',
+    'operation.failed', 'operation.dead_lettered',
+  ];
+
+  for (const event of events) assert.match(source, new RegExp('`' + event.replace('.', '\\.') + '`'));
+
+  for (const record of records) {
+    assert.deepEqual(Object.keys(record), topLevel);
+    assert.equal(record.kind, 'journal');
+    assert.match(record.occurredAt, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}Z$/);
+    assert.deepEqual(Object.keys(record.operation), operation);
+    assert.deepEqual(Object.keys(record.operation.actors), actor);
+    for (const actorRef of Object.values(record.operation.actors)) {
+      if (actorRef !== null) assert.equal(actorRef.id, '[masked]');
+    }
+    if (record.attempt !== null) assert.deepEqual(Object.keys(record.attempt), attempt);
+  }
+  assert.deepEqual(records.map(({ event, sequence }) => [event, sequence]), [
+    ['operation.received', 1],
+    ['operation.accepted', 2],
+    ['attempt.started', 3],
+  ]);
+  assert.equal(new Set(records.map(({ recordId }) => recordId)).size, 3);
+  assert.ok(records.every(({ recordId, operation }) => recordId !== operation.id));
+  assert.ok(records.every(({ operation }) => operation.correlationId === operation.id && operation.causationId === null));
+  assert.ok(records.every(({ operation }) => operation.actors === null || ['origin', 'authorization', 'execution'].every((key) => key in operation.actors)));
+  assert.ok(records.every(({ event }) => events.includes(event)));
+  assert.notDeepEqual(records[0].data, records[1].data, 'data is event-specific');
+  assert.deepEqual(records[1].data, {}, 'operation.accepted uses EmptyJournalData');
+  assert.deepEqual(records[2].data, {}, 'attempt.started uses EmptyJournalData');
+  assert.match(source, /Sensitive Filter/);
+  assert.match(source, /data` はEvent固有/);
+  assert.match(source, /DeferredではTyped OutcomeをOutcome Storeへ保存/);
+  assert.match(source, /InlineではHTTP Responseだけへ返し、Outcome Store Rowを作成しません/);
+  assert.match(source, /ActorContextがない場合は全体が`null`/);
+});
+
+test('Journal parameter contract uses five complete implementation-aligned tables', async () => {
+  const source = await guide('journal.md');
+  const sections = [
+    ['### Top-level Record', '### `operation`', 9],
+    ['### `operation`', '### `operation.actors`／Actor', 7],
+    ['### `operation.actors`／Actor', '### `attempt`', 6],
+    ['### `attempt`', '### Event固有`data`', 4],
+    ['### Event固有`data`', '## JSONLの設定', 27],
+  ];
+
+  for (const [heading, nextHeading, expectedRows] of sections) {
+    const section = source.slice(source.indexOf(heading), source.indexOf(nextHeading));
+    assert.ok(section.startsWith(heading), heading);
+    assert.match(section, heading === '### Event固有`data`'
+      ? /\| Event \| Parameter \| Type \| 説明 \|/
+      : /\| Parameter \| Type \| 説明 \|/);
+    assert.equal(section.split('\n').filter((line) => line.startsWith('| `')).length, expectedRows, heading);
+  }
+
+  for (const event of [
+    'operation.received', 'operation.accepted', 'attempt.started', 'attempt.succeeded',
+    'attempt.failed', 'attempt.retry_scheduled', 'operation.completed', 'operation.rejected',
+    'operation.failed', 'operation.dead_lettered',
+  ]) assert.ok(source.includes('`' + event + '`'), event);
+  assert.match(source, /\| `operation\.accepted` \| `data` \|[\s\S]*EmptyJournalData/);
+  assert.match(source, /\| `operation\.received`（通常） \| `data\.value` \|/);
+  assert.match(source, /\| `operation\.received`（Ephemeral） \| `data` \|[\s\S]*EmptyJournalData/);
+  assert.match(source, /\| `attempt\.started` \| `data` \|[\s\S]*EmptyJournalData/);
+  assert.match(source, /\| `attempt\.succeeded` \| `data` \|[\s\S]*EmptyJournalData/);
+  assert.match(source, /Ephemeral OutcomeではJournalRecordFactoryがEmptyJournalDataを使うため`\{\}`/);
+  assert.match(source, /\| `operation\.rejected` \| `data\.reason\.violations` \| `array<object>`/);
+  assert.match(source, /RootではOperation IDと同じUUID値。子Operationは親のCorrelationを引き継ぐ/);
+  assert.match(source, /子Operationを発生させた親Operation IDと同じUUID値。Rootでは`null`/);
+  for (const parameter of ['data.reason.violations[].field', 'data.reason.violations[].rule', 'data.reason.violations[].code']) {
+    assert.ok(source.includes(parameter), parameter);
+  }
+  assert.match(source, /Exception Message。SecretをMessageへ含めない/);
+});
+
 test('guide presents the Stable 1.1 release surface and experimental policy consistently', async () => {
   const installation = await guide('installation.md');
   const quickstart = await guide('mvp-sample.md');
@@ -159,6 +248,51 @@ test('guide presents the Stable 1.1 release surface and experimental policy cons
   assert.match(status, /Named DBAL Connection／Default Connection DI \| Not available \| Available/);
   assert.match(status, /`#\[Transactional\]` Operation／Service \| Not available \| Available/);
   assert.match(status, /Backward Compatibility/);
+});
+
+test('stable installation is an executable anonymous Docker lane', async () => {
+  const installation = await guide('installation.md');
+  const stable = installation.slice(installation.indexOf('## Stable 1.1.0を作成する'), installation.indexOf('## Composer Scriptを使わない場合'));
+
+  for (const command of ['docker compose build app http', 'docker compose up -d postgres', 'database:migrate', 'build:compile', 'docker compose up -d http', 'curl -i http://127.0.0.1:8080/welcome', 'docker compose down']) {
+    assert.match(stable, new RegExp(command.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+  }
+  for (const forbidden of ['database:seed', 'make:auth', 'frontend:generate', 'pnpm']) {
+    assert.doesNotMatch(stable, new RegExp(forbidden));
+  }
+  assert.match(installation, /composer create-project --no-scripts blackops\/skeleton my-app 1\.1\.0[\s\S]*php bin\/setup/);
+});
+
+test('main onboarding names the executable client, auth contract, and runtime links', async () => {
+  const [quickstart, auth, runtime, outbox, consoleGuide, execution] = await Promise.all([
+    guide('mvp-sample.md'),
+    guide('authentication.md'),
+    guide('runtime-bootstrap.md'),
+    guide('outbox.md'),
+    guide('console-command.md'),
+    guide('execution.md'),
+  ]);
+
+  assert.match(quickstart, /try-client\.ts/);
+  assert.match(quickstart, /pnpm exec tsc[\s\S]*tests\/Frontend\/try-client\.ts/);
+  assert.match(quickstart, /--ignoreConfig --ignoreDeprecations 6\.0/);
+  assert.match(quickstart, /try-client failed/);
+  assert.match(quickstart, /global `fetch`/);
+  assert.match(quickstart, /terminal\.data\.outcome\.reportName/);
+  assert.match(quickstart, /operation-id-from-accepted-response/);
+  assert.doesNotMatch(quickstart, /OPERATION_ID='019[a-f0-9-]+'/);
+  assert.match(auth, /Repository `main` Preview/);
+  for (const expected of ['auth.email_unavailable', 'auth.invalid_credentials', 'wrong horse battery staple', 'validation.length', 'binding.required', '200、43文字', '409、code', '401、code', '422', 'AuthenticationMiddleware::class']) {
+    assert.match(auth, new RegExp(expected.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+  }
+  assert.match(runtime, /docker compose --profile worker up -d worker/);
+  assert.match(runtime, /docker compose --profile maintenance up -d scheduler/);
+  assert.match(outbox, /Operations::dispatch\(\)/);
+  assert.match(outbox, /outbox:relay:run --until-empty/);
+  assert.match(consoleGuide, /project-cli\.md#operation-command/);
+  const outboxExample = execution.match(/## Transactional Outboxへの登録[\s\S]*?```php\n([\s\S]*?)\n```/)?.[1] ?? '';
+  assert.match(outboxExample, /readonly class PlaceOrder implements Operation/);
+  assert.doesNotMatch(outboxExample, /final readonly class PlaceOrder/);
 });
 
 test('Docker-only quickstart keeps the local viewer inside its reachable network boundary', async () => {

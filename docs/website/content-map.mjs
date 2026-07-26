@@ -1,20 +1,7 @@
-export const versionBanner = {
-  content:
-    '<strong>Document Channel:</strong> <code>main</code> · <strong>Latest Stable:</strong> <code>1.1.0</code> · Experimental: 1.x Minor間のBackward Compatibilityは保証しません。',
-};
-
 export const contentMap = {
   'README.md': {
     slug: 'index',
     description: 'BlackOpsをインストールし、最初のOperationからHTTP・Deferred・Database運用まで進むための利用者向けドキュメント。',
-    template: 'splash',
-    hero: {
-      tagline: 'PHP 8.5で、同期HTTPとDeferred処理を同じOperation Modelから構築する。',
-      actions: [
-        { text: 'Installation', link: '/getting-started/installation/', icon: 'rocket' },
-        { text: 'Why BlackOps', link: '/concepts/why-blackops/', variant: 'secondary' },
-      ],
-    },
   },
   'why-blackops.md': {
     slug: 'concepts/why-blackops',
@@ -56,6 +43,10 @@ export const contentMap = {
     slug: 'concepts/lifecycle',
     description: 'Operationの受付から完了、拒否、再試行、失敗までのLifecycleを理解する。',
   },
+  'journal.md': {
+    slug: 'concepts/journal',
+    description: 'Canonical JournalとObserved Projection、Lifecycle Event、JSONL、Replay、Securityの境界を理解する。',
+  },
   'validation.md': {
     slug: 'operations/validation',
     description: 'Protocol、Binding、Value、Business ValidationのRejected境界と7 Attributeを理解する。',
@@ -67,6 +58,14 @@ export const contentMap = {
   'execution-context.md': {
     slug: 'execution/context',
     description: 'ExecutionContextからOperation ID、相関情報、Actor Context、Deferred Attemptを読み取る。',
+  },
+  'console-command.md': {
+    slug: 'execution/console-command',
+    description: 'ConsoleCommandからOperationを起動する責務と、HTTP／Deferredとの境界を確認する。',
+  },
+  'outbox.md': {
+    slug: 'execution/outbox',
+    description: 'Transactional Outboxの原子登録、Relay、at-least-once、重複耐性の境界を確認する。',
   },
   'database-and-transactions.md': {
     slug: 'database/transactions',
@@ -123,6 +122,18 @@ export const contentMap = {
   'security.md': {
     slug: 'security',
     description: 'Status AuthorizationとCanonical Restricted Data、HTTP・Frontend・Diagnosticsの責任分界を確認する。',
+  },
+  'authentication.md': {
+    slug: 'auth/authentication',
+    description: 'Opt-in Session CoreとApplication-owned Identityの責任境界を確認する。',
+  },
+  'authorization.md': {
+    slug: 'auth/authorization',
+    description: '`#[Authorize]`、Actor Context、Deferred再認可、Resource所有権の境界を確認する。',
+  },
+  'frontend.md': {
+    slug: 'frontend',
+    description: 'Generated JavaScript／TypeScript ClientとFrontend Frameworkの選択境界を確認する。',
   },
   'core-api.md': {
     slug: 'reference/core-api',

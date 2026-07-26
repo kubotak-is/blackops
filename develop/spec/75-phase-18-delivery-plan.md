@@ -99,7 +99,7 @@ Status: Accepted.
 Status: Accepted.
 
 - Public `EphemeralOutcome extends Outcome` Markerを追加する
-- Route付き明示Inlineだけを許可し、Deferred／Console／Status／Wait／Outcome Storeを拒否する
+- Strategy Attribute省略時はInlineへ解決し、既存`#[ExecuteWith(Inline::class)]`は互換形として受理する。Routeと解決後Inlineだけを許可し、Deferred／Console／Status／Wait／Outcome Storeを拒否する
 - Ephemeral OperationのReceived Valueを`EmptyJournalData`、Completed Outcomeを`EmptyOutcome`として記録する
 - 実Ephemeral Outcomeを同一HTTP Request中だけResponseへ一度投影する
 - Credential Propertyの`#[Sensitive]`、Manifest整合、Runtime Type、Safe Failureを固定する

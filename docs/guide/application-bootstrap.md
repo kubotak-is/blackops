@@ -1,4 +1,4 @@
-# ApplicationをBootstrapする
+# Application Bootstrap
 
 Installed ApplicationはApplication Rootを起点にPublic `Application` BuilderからHTTPとConsoleの共通Configuration Snapshotを作ります。
 
@@ -17,9 +17,9 @@ $application = Application::configure(dirname(__DIR__))
 
 既定のInstalled Applicationは`withEnvironmentFile()`でProcess EnvironmentとOptional `.env`を一度だけSnapshotします。Process Environmentが`.env`より優先され、`.env`がない場合も起動できます。Testや外部Secret Loaderなど、解決済みの値を渡す場合だけ`withEnvironment(array)`を使います。Dotenv実装はFrameworkが所有し、ApplicationはVendor Runtime Classを直接Importしません。
 
-`withConfiguration()`は既定で`<application-root>/config`を読みます。認識するFileは`app.php`、`database.php`、`operations.php`、`execution.php`、`journal.php`、`middleware.php`、`retention.php`の7つです。存在しない既定Directoryは空Configとして扱い、未知Fileは読みません。
+`withConfiguration()`は既定で`<application-root>/config`を読みます。認識する設定ファイルは[Configuration](configuration.md)の一覧（`app.php`、`database.php`、`operations.php`、`execution.php`、`journal.php`、`middleware.php`、`retention.php`、`auth.php`、`logging.php`、`diagnostics.php`、`frontend.php`）と一致します。存在しない既定Directoryは空Configとして扱い、一覧にないファイルは読みません。
 
-Configは呼出時に一度だけ読み、`create()`後のFile変更を自動反映しません。各設定のShapeは[Configuration Reference](configuration.md)を参照してください。
+Configは呼出時に一度だけ読み、`create()`後のFile変更を自動反映しません。各設定のShapeは[Configuration](configuration.md)を参照してください。
 
 ## Operation、Service、Command
 
@@ -124,6 +124,8 @@ return [
     ],
 ];
 ```
+
+`make:auth`の`config/auth.php`は同じSession登録を環境変数から構成する書き方です。`app.php`と`auth.php`の両方で同じService IDを登録すると、後からMergeされる`auth.php`側が有効になります。登録はどちらか一方だけにしてください。
 
 CookieをCredential Sourceにする場合は`SessionServiceProvider::cookie(ApplicationSessionIdentityProvider::class, 'application_session')`を使います。Cookieの発行、`Secure`／`HttpOnly`／`SameSite`、Path／Domain、CSRFはApplicationが所有します。どちらも`AuthenticationMiddleware`のGlobal登録は別途必要です。
 

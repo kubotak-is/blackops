@@ -4,7 +4,7 @@
 
 ## Build Contract
 
-CompilerはDeclared OutcomeからEphemeral Flagを導出し、Operation、HTTP、Frontendの各Manifestへ同じFlagを保存する。Routeが一つであること、`#[ExecuteWith(Inline::class)]`が明示されていること、Console Commandがないことを検証する。Manifest DecoderとApplication ComposerもFlag、Declared Type、Strategy、HTTP Metadataを相互検証し、Artifact改ざん時にReflection Fallbackしない。
+CompilerはDeclared OutcomeからEphemeral Flagを導出し、Operation、HTTP、Frontendの各Manifestへ同じFlagを保存する。Strategy Attributeを省略したOperationはInlineへ解決し、既存の`#[ExecuteWith(Inline::class)]`は互換形として受理する。Routeが一つであること、解決後StrategyがInlineであること、Console Commandがないことを検証する。Manifest DecoderとApplication ComposerもFlag、Declared Type、Strategy、HTTP Metadataを相互検証し、Artifact改ざん時にReflection Fallbackしない。
 
 Ephemeral Outcomeはfinal readonlyな具象Classとpublic constructor-promoted Propertyだけを使う。Credential名のRoot Propertyには`#[Sensitive]`が必要である。Nested DTO内のSensitive Propertyは拒否し、Credential境界をRootで明示する。
 

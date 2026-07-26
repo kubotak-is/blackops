@@ -1,6 +1,6 @@
-# インストール
+# Install
 
-BlackOps Applicationは、Packagistで公開済みのSkeletonからComposer標準の`create-project`で作成します。PHP 8.5、Composer、Docker Composeを利用できる環境を用意してください。Repository `main`のFrontend Operation生成を使う場合だけ、Node 24とpnpm 11も必要です。Backend-only ApplicationはNodeを必要としません。
+BlackOps Applicationは、Packagistで公開済みのSkeletonからComposer標準の`create-project`で作成します。Stableの手順はPHP 8.5、Composer、Docker Composeだけで完走します。Node、pnpm、Authentication、Seeder、Frontend生成はStableのInstallに含めません。
 
 ## Stable 1.1.0を作成する
 
@@ -13,17 +13,27 @@ cd my-app
 
 Composer ScriptはProject所有の`bin/setup`を実行します。`.env`が存在しない場合だけ`.env.example`をCopyし、`var/build/`と`var/log/`を準備します。既存の`.env`は上書きしません。
 
-SetupはDocker、Composer／pnpm Install、Database、Migration、Artifact Build、Frontend生成、TypeScript Test、Worker、Scheduler、Retentionを起動しません。Applicationの状態を変える処理は、以降の明示Commandで実行します。
+SetupはDocker、Database、Migration、Artifact Build、Worker、Schedulerを起動しません。Applicationの状態を変える処理は、以降の明示Commandで実行します。
 
-Repository `main`のSkeletonでは、Databaseを起動した後にMigration、Build、Seedを明示実行します。標準Root Seederが最初から含まれるため、追加設定は不要です。
+Project Rootで、Application ContainerとPostgreSQLを順に準備します。HostのPHP CLIとContainer CLIを混在させず、`php blackops`はすべてContainer内で実行します。
 
 ```bash
-php blackops database:migrate
-php blackops build:compile
-php blackops database:seed
+docker compose build app http
+docker compose up -d postgres
+docker compose run --rm app php blackops database:migrate
+docker compose run --rm app php blackops build:compile
+docker compose up -d http
+curl -i http://127.0.0.1:8080/welcome
+docker compose down
 ```
 
-Stable `1.1.0`にはDatabase Seederがまだ含まれません。上記3 StepのSeed部分はRepository `main` Preview向けです。
+期待結果はHTTP `200`と次のJSONです。
+
+```json
+{"message":"Welcome to BlackOps"}
+```
+
+`/welcome`はStableの匿名Inline Operationなので、認証HeaderなしでHTTP 200を返します。Responseを確認したら`docker compose down`で停止します。MigrationとBuildはHTTP起動へ暗黙に含まれません。
 
 ## Composer Scriptを使わない場合
 
@@ -31,16 +41,17 @@ Script実行を禁止する環境では、同じSetupを手動で実行します
 
 ```bash
 composer create-project --no-scripts blackops/skeleton my-app 1.1.0
-php my-app/bin/setup
 cd my-app
+php bin/setup
 ```
 
 `bin/setup`は再実行可能です。既存`.env`を保持したまま不足するLocal Directoryだけを確認できます。
+Setup後は上記Stable Runtime手順（PostgreSQL起動、Container migration／build、匿名Welcome確認、停止）へそのまま合流します。
 
 ## Release Policy
 
-Stable `1.1.0`にはProject Root `blackops`、Generator、Application Migration Runtime、7 Validation Attribute、FrankenPHP Worker Modeが含まれます。このWebsiteは`main` Document Channelであり、Global Middleware、Authentication、Durable ActorContext、`#[Authorize]`、Frontend Operation Bridge等の未Release Surfaceも扱います。Stableとの差は[Current Status](mvp-status.md#stableとmain)で明示します。
+Stable `1.1.0`にはProject Root `blackops`、Generator、Application Migration Runtime、7 Validation Attribute、FrankenPHP Worker Modeが含まれます。このWebsiteは`main` Document Channelであり、Global Middleware、Authentication、Durable ActorContext、`#[Authorize]`、Frontend Operation Bridge等の未Release Surfaceも扱います。Stableとの差は[Stableとmain](mvp-status.md#stableとmain)で明示します。
 
-BlackOpsはExperimentalです。1.x Minor間のBackward CompatibilityとProduction Readinessを保証しません。Upgrade前にRelease NoteとUpgrade Guideを確認し、検証環境でApplicationをTestしてください。[Current Status](mvp-status.md)には利用可能な機能と既知の制約をまとめています。
+BlackOpsはExperimentalです。1.x Minor間のBackward CompatibilityとProduction Readinessを保証しません。Upgrade前にRelease NoteとUpgrade Guideを確認し、検証環境でApplicationをTestしてください。[Releases](mvp-status.md)には利用可能な機能と既知の制約をまとめています。
 
-公開済みStableを使う場合は上記提供範囲に留めてください。[Quickstart](mvp-sample.md)の認証付きJourneyはRepository `main` Previewの再現手順から始まります。
+公開済みStableを使う場合は上記提供範囲に留めてください。[Quickstart and Skeleton](mvp-sample.md)の認証付きJourneyはRepository `main` Previewの再現手順から始まります。接続や起動で詰まった場合は[Troubleshooting](troubleshooting.md)を参照してください。

@@ -1,4 +1,4 @@
-# TroubleshootingとFAQ
+# Troubleshooting
 
 問題が起きたら、表示された症状だけで判断せず、原因候補を確認してから修正します。Operation IDは一つの処理を受付からTerminal Stateまで追跡する識別子です。出力やLogへCredentialを貼り付けないでください。
 

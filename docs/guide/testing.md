@@ -1,4 +1,4 @@
-# Testing Overview
+# Testing
 
 BlackOps ApplicationのTestは、Operationの業務規則、HTTP BindingとValidation、Inline／Deferredの実行境界、Databaseを含むWorker経路を分けて確認します。BlackOps専用のTesting APIやTest Runnerは提供していないため、Applicationが選んだPHP Test Frameworkと実Runtimeを組み合わせてください。
 
@@ -6,12 +6,12 @@ BlackOps ApplicationのTestは、Operationの業務規則、HTTP BindingとValid
 
 | 層 | 確認すること | 既存の入口 |
 | --- | --- | --- |
-| Operation | 型付きValueからOutcomeまたは業務Rejectedを返す | [Operation Authoring](operations.md) |
-| HTTP Boundary | Route、Binding、宣言的Value Validation、Status／JSON | [Validation](validation.md) |
-| Inline／Deferred | 同じOperation ModelでResponseと受付境界が分かれる | [HTTP、Inline、Deferred](execution.md) |
-| Frontend Contract | Generate／Drift、DOMなしStrict Type、`.url()`／`.toRequest()`／`.fetch()`／`.status()`／`.wait()`のRequestとResult | [Quickstart](mvp-sample.md#3-generated-operation-objectから呼ぶ) |
-| Consumer E2E | Build、Migration、HTTP、Worker、Journal、Outcomeを実Processでつなぐ | [Quickstart](mvp-sample.md) |
-| Full-stack Browser | Application-owned Identity、Framework Session、Ephemeral Auth、SvelteKit BFF、Inline／Deferred UI、Sensitive Boundary、Accessibility | [BlackOps Board](community-board.md) |
+| Operation | 型付きValueからOutcomeまたは業務Rejectedを返す | [Authoring](operations.md) |
+| HTTP Boundary | Route、Binding、宣言的Value Validation、Status／JSON | [Value and Validation](validation.md) |
+| Inline／Deferred | 同じOperation ModelでResponseと受付境界が分かれる | [Inline and Deferred](execution.md) |
+| Frontend Contract | Generate／Drift、DOMなしStrict Type、`.url()`／`.toRequest()`／`.fetch()`／`.status()`／`.wait()`のRequestとResult | [4. Generated Operation Objectから呼ぶ](mvp-sample.md#4-generated-operation-objectから呼ぶ) |
+| Consumer E2E | Build、Migration、HTTP、Worker、Journal、Outcomeを実Processでつなぐ | [Quickstart and Skeleton](mvp-sample.md) |
+| Full-stack Browser | Application-owned Identity、Framework Session、Ephemeral Auth、SvelteKit BFF、Inline／Deferred UI、Sensitive Boundary、Accessibility | [BlackOps Board Reference Application](community-board.md) |
 
 Unit TestだけでDeferred処理のDurabilityを保証したと判断しないでください。少なくともApplicationと同じPostgreSQL SchemaへMigrationを適用し、HTTP 202のOperation IDを使ってWorker後のJournalとOutcomeを確認します。
 
@@ -37,6 +37,6 @@ Deferred Journeyでは、`.fetch()`が一回のPOSTだけで202を返すこと�
 
 Browser Testはnative `AbortController`、DOMなしNode Testは購読可能なStructural Signal Helperを使います。Sensitive Input、Credential、Actor ID、Worker ID、Raw Transport ErrorをGenerated Tree、Typed Result、Application／Observed Logで検索し、非露出を固定してください。
 
-QuickstartはFrameworkの最短Contractを実HTTPへ接続します。BlackOps BoardはそのContractをApplication-owned Identity、Framework Session Core、Ephemeral Auth Operation、Domain／Infrastructure、SvelteKit Same-origin BFF、Deferred Progress UIへ広げたReference Applicationです。[BlackOps Board Guide](community-board.md)では、Clean Installと個別Consumer、実Browser E2Eの使い分けを確認できます。
+QuickstartはFrameworkの最短Contractを実HTTPへ接続します。BlackOps BoardはそのContractをApplication-owned Identity、Framework Session Core、Ephemeral Auth Operation、Domain／Infrastructure、SvelteKit Same-origin BFF、Deferred Progress UIへ広げたReference Applicationです。[BlackOps Board Reference Application](community-board.md)では、Clean Installと個別Consumer、実Browser E2Eの使い分けを確認できます。
 
-再現可能なInput／Outputは[チュートリアル](first-operation.md)、失敗時の調査順は[Troubleshooting](troubleshooting.md)を参照してください。
+再現可能なInput／Outputは[First Operation](first-operation.md)、失敗時の調査順は[Troubleshooting](troubleshooting.md)を参照してください。

@@ -2,6 +2,8 @@
 
 `journal:observer:replay` は、Canonical Journal の Record を指定した Observer へ現在の Projection で再配送する BlackOps CLI です。通常の Journal Observation や Outbox Retry とは別の、明示的な運用操作として実行します。
 
+これは完了済みOperationをHandlerへ再実行するOperation Replayではありません。Journalの構造とCanonical／Observedの境界は[Journal](journal.md)を参照してください。
+
 ## Selector と実行モード
 
 Selector は次のいずれか一つだけを指定します。

@@ -107,7 +107,7 @@ final readonly class OperationMetadataCompiler
         $transactionConnection = $this->transactionConnection($reflection, $handler);
         $ephemeral = is_a($outcome, EphemeralOutcome::class, allow_string: true);
         if ($ephemeral) {
-            $this->assertEphemeralOperation($reflection, $outcome, $strategyAttributes, $strategy);
+            $this->assertEphemeralOperation($reflection, $outcome, $strategy);
         }
 
         return new OperationMetadata(
@@ -128,20 +128,15 @@ final readonly class OperationMetadataCompiler
     /**
      * @param ReflectionClass<Operation> $definition
      * @param class-string<\BlackOps\Core\Outcome> $outcome
-     * @param list<\ReflectionAttribute<ExecuteWith>> $strategyAttributes
      */
-    private function assertEphemeralOperation(
-        ReflectionClass $definition,
-        string $outcome,
-        array $strategyAttributes,
-        string $strategy,
-    ): void {
+    private function assertEphemeralOperation(ReflectionClass $definition, string $outcome, string $strategy): void
+    {
         $routes = $definition->getAttributes(Route::class);
         if (count($routes) !== 1) {
             throw new InvalidArgumentException('Ephemeral operation requires exactly one HTTP Route.');
         }
-        if (count($strategyAttributes) !== 1 || $strategy !== Inline::class) {
-            throw new InvalidArgumentException('Ephemeral operation requires an explicit Inline execution strategy.');
+        if ($strategy !== Inline::class) {
+            throw new InvalidArgumentException('Ephemeral operation requires the Inline execution strategy.');
         }
         if ($definition->getAttributes(ConsoleCommand::class) !== []) {
             throw new InvalidArgumentException('Ephemeral operation must not declare ConsoleCommand.');

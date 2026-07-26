@@ -32,7 +32,7 @@ CompilerはこのAttributeをManifest上の`BlackOps\Core\Execution\Deferred` St
 
 互換性のため`#[ExecuteWith(...)]`を維持するが、`#[Deferred]`との併置、同じStrategyの重複指定、矛盾するStrategy指定はBuild Errorにする。RuntimeはSource ReflectionへFallbackせず、Compile済みManifestの正規化済みStrategyだけを使う。
 
-Ephemeral Outcomeの明示Inline Contractは本変更で緩和しない。Inline専用Attributeまたは既存`ExecuteWith(Inline::class)`の将来方針は別Taskで決める。
+Ephemeral OutcomeはAttributeなしの既定Inlineを受理する。互換`#[ExecuteWith(Inline::class)]`も維持するがCanonical Authoringには使用せず、Deferred、Inline以外のStrategy、Routeなし、Console公開を拒否する。詳細はSpecification 93を正本とする。
 
 ## Transactional Child Dispatch
 
@@ -90,6 +90,7 @@ Scheduled Application OperationではCron／Calendar、Timezone、Misfire、Over
 ## Compatibility
 
 - Existing `#[ExecuteWith(Deferred::class)]`は同じManifest Strategyを生成する。
+- Existing `#[ExecuteWith(Inline::class)]`は同じInline Manifest Strategyを生成するが、Ephemeral Outcomeを含むCanonical Inline Authoringでは省略する。
 - Existing `TransactionalOutbox::register()`は同じOutbox Persistenceを利用できる。
 - Manifest Schema、Journal Strategy Identity、Transport Payload、Migrationは変更しない。
 - Ray.Aop DependencyとTransaction Proxy生成は変更しない。

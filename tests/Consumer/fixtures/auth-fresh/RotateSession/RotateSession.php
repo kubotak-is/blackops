@@ -6,7 +6,6 @@ namespace App\Feature\AuthProbe\RotateSession;
 
 use BlackOps\Auth\Session\InvalidSessionException;
 use BlackOps\Auth\Session\SessionManager;
-use BlackOps\Core\Attribute\ExecuteWith;
 use BlackOps\Core\Attribute\OperationType;
 use BlackOps\Core\Exception\OperationRejectedException;
 use BlackOps\Core\Operation;
@@ -14,7 +13,6 @@ use BlackOps\Database\Attribute\Transactional;
 use BlackOps\Http\Attribute\Route;
 
 #[Route(method: 'POST', path: '/auth-probe/rotate')]
-#[ExecuteWith('BlackOps\\Core\\Execution\\Inline')]
 #[OperationType('auth.probe.rotate')]
 readonly class RotateSession implements Operation
 {

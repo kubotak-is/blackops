@@ -6,12 +6,32 @@ namespace BlackOps\Internal\Projection;
 
 use BlackOps\Core\Attribute\Sensitive;
 use BlackOps\Core\Attribute\SensitiveMode;
+use BlackOps\Core\Identifier\AttemptId;
+use BlackOps\Core\Identifier\CausationId;
+use BlackOps\Core\Identifier\CorrelationId;
+use BlackOps\Core\Identifier\JournalRecordId;
+use BlackOps\Core\Identifier\OperationId;
+use BlackOps\Core\Identifier\OutboxRecordId;
+use BlackOps\Core\Identifier\RetentionHoldId;
+use BlackOps\Core\Identifier\RetentionPurgeAuditId;
 use ReflectionClass;
 use ReflectionProperty;
 
 final readonly class SensitiveProjectionFilter
 {
     private const MASK = '[masked]';
+
+    /** @var list<class-string> */
+    private const FRAMEWORK_IDENTIFIER_TYPES = [
+        AttemptId::class,
+        CausationId::class,
+        CorrelationId::class,
+        JournalRecordId::class,
+        OperationId::class,
+        OutboxRecordId::class,
+        RetentionHoldId::class,
+        RetentionPurgeAuditId::class,
+    ];
 
     private SensitiveValueHasher $hasher;
 
@@ -68,7 +88,7 @@ final readonly class SensitiveProjectionFilter
                 continue;
             }
 
-            if ($this->keyMatcher()->matches($key)) {
+            if ($this->keys->matches($key)) {
                 continue;
             }
 
@@ -82,11 +102,7 @@ final readonly class SensitiveProjectionFilter
     {
         $attributes = $property->getAttributes(Sensitive::class);
 
-        if ($attributes === []) {
-            return null;
-        }
-
-        return $attributes[0]->newInstance();
+        return ($attributes[0] ?? null)?->newInstance();
     }
 
     private function projectValue(mixed $value, ?SensitiveMode $mode = null): mixed
@@ -96,7 +112,7 @@ final readonly class SensitiveProjectionFilter
         }
 
         if ($mode === SensitiveMode::Hash) {
-            return $this->valueHasher()->hash($value);
+            return $this->hasher->hash($value);
         }
 
         if (is_array($value)) {
@@ -104,19 +120,32 @@ final readonly class SensitiveProjectionFilter
         }
 
         if (is_object($value)) {
-            return $this->projectObject($value);
+            return $this->projectObjectValue($value);
         }
 
         return $value;
     }
 
-    private function valueHasher(): SensitiveValueHasher
+    private function projectObjectValue(object $value): object|array
     {
-        return $this->hasher;
+        if ($this->isWireScalar($value)) {
+            return $value;
+        }
+
+        $projection = $this->projectObject($value);
+
+        return $projection === [] ? new \stdClass() : $projection;
     }
 
-    private function keyMatcher(): SensitiveKeyMatcher
+    private function isWireScalar(object $value): bool
     {
-        return $this->keys;
+        return in_array(
+            true,
+            [
+                $value instanceof \DateTimeInterface,
+                in_array($value::class, self::FRAMEWORK_IDENTIFIER_TYPES, strict: true),
+            ],
+            strict: true,
+        );
     }
 }

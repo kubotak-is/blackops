@@ -35,6 +35,6 @@ Generated `AuthServiceProvider`はApplication Portだけを登録する。`Sessi
 
 ## Security Boundary
 
-Register／Login／LogoutはRoute付き明示Inline Ephemeral Operationである。Ray.AopのTokenizer gapを避けるため、`ExecuteWith`は既存のmetadata literal方式でInline Class-stringを記述する。`#[Transactional]`対象OperationはProxy生成可能な非final readonly Classにする。
+Register／Login／LogoutはRoute付きEphemeral Operationであり、Strategy Attributeを省略してInlineへ解決する。既存の`#[ExecuteWith(Inline::class)]`は互換形として受理するが、GeneratorはCanonicalな暗黙Inlineを出力する。`#[Transactional]`対象OperationはProxy生成可能な非final readonly Classにする。
 
 Fresh ConsumerはWorking Tree PackageからGeneratorを実行し、DomainのVendor非依存、No-op／Conflict／Force、Migration、Container Compile、Frontend Direct Fetch、実PostgreSQLのIssue／Authenticate／Rotate／Expire／Revoke／Cleanup、Raw Secret非永続化を検証する。Consumer ProbeはTemporary ConsumerだけへCopyし、Committed Exampleを変更しない。

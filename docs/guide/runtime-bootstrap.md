@@ -1,4 +1,4 @@
-# Local Runtimeを起動する
+# Local Runtime
 
 InstallしたApplicationは、Docker ComposeでPHP 8.5 CLI、FrankenPHP 1、PostgreSQL 18を起動できます。依存Install、Artifact Build、MigrationはImage起動へ含まれないため、順番に明示実行します。OperationのRuntime検索情報を持つ[Manifest](glossary.md#manifest)はBuildで生成します。
 
@@ -42,17 +42,17 @@ HTTPやWorkerの起動時にMigrationは実行されません。Application Migr
 docker compose up -d
 ```
 
-既定Portは`8080`です。`.env`の`HTTP_PORT`で変更できます。Welcome Operationを実行します。
+既定Portは`8080`です。`.env`の`HTTP_PORT`で変更できます。Stable `1.1.0`の`/welcome`は匿名Inline Operationです。
 
 ```bash
-read -rsp 'Sample token: ' SAMPLE_TOKEN && printf '\n'
-curl -H "X-Sample-Token: ${SAMPLE_TOKEN}" http://127.0.0.1:8080/welcome
-unset SAMPLE_TOKEN
+curl http://127.0.0.1:8080/welcome
 ```
 
 ```json
 {"message":"Welcome to BlackOps"}
 ```
+
+Repository `main` PreviewでSample Authenticationを有効にした場合だけ、同じPreview内の全Requestへ`X-Sample-Token: local-example`を付けます。
 
 FrankenPHPはLocalではplain HTTPのWorker Modeで動作します。TLS、Domain、Process SupervisionはDeployment環境が所有します。
 
@@ -84,7 +84,7 @@ Deferred OperationはHTTP Processとは別のWorkerで実行します。
 
 ```bash
 docker compose run --rm app php blackops worker:run --iterations=1
-docker compose --profile worker up worker
+docker compose --profile worker up -d worker
 ```
 
 SchedulerとRetentionも明示Profile／Commandだけで開始します。
@@ -92,7 +92,7 @@ SchedulerとRetentionも明示Profile／Commandだけで開始します。
 ```bash
 docker compose run --rm app php blackops retention:plan
 docker compose run --rm app php blackops retention:purge --dry-run
-docker compose --profile maintenance up scheduler
+docker compose --profile maintenance up -d scheduler
 ```
 
 変更を伴うPurgeは`--confirm`を明示するまで実行されません。作業後はLocal Runtimeを停止できます。
@@ -101,4 +101,4 @@ docker compose --profile maintenance up scheduler
 docker compose down
 ```
 
-InlineとDeferredを続けて試す場合は[Quickstart](mvp-sample.md)へ進んでください。Runtime構成の詳細は[Application Bootstrap](application-bootstrap.md)と[Execution](execution.md)を参照してください。
+InlineとDeferredを続けて試す場合は[Quickstart and Skeleton](mvp-sample.md)へ進んでください。Runtime構成の詳細は[Application Bootstrap](application-bootstrap.md)と[Inline and Deferred](execution.md)を参照してください。起動、Token、Migrationの問題は[Troubleshooting](troubleshooting.md)へ戻ってください。

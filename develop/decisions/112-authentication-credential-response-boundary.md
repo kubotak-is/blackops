@@ -1,6 +1,8 @@
 # D112: Authentication Credential Response Boundary
 
-Status: Decided
+Status: Partially Superseded by D126
+
+> D126 supersedes Decision item 2's requirement for an explicit Inline attribute. Ephemeral Operations without a strategy attribute resolve to Inline by default; the Route, resolved-Inline, Deferred／Console rejection, and non-persistence guards remain in force.
 
 ## Context
 
@@ -99,7 +101,7 @@ Aで確定
 [DECISION]
 
 1. Public `BlackOps\Core\EphemeralOutcome`を`Outcome`のSubtype Marker Interfaceとして追加する。
-2. Declared Outcomeが`EphemeralOutcome`を実装するOperationは、`#[Route]`付きの明示Inline Strategyだけを許可する。Deferred、Console公開、Status／Wait、Outcome StoreをBuild／Runtimeで拒否する。
+2. Declared Outcomeが`EphemeralOutcome`を実装するOperationは、`#[Route]`付きで解決後StrategyがInlineの場合だけを許可する。Strategy Attribute省略時はInlineへ解決し、既存の`#[ExecuteWith(Inline::class)]`は互換形として受理する。Deferred、Console公開、Status／Wait、Outcome StoreをBuild／Runtimeで拒否する。
 3. Ephemeral OperationのCanonical `operation.received`は`EmptyJournalData`だけを保持し、Password等を含むOperationValueを保存しない。LifecycleとOperation IDは通常どおり記録する。
 4. Ephemeral OperationのCanonical `operation.completed`は`EmptyOutcome`だけを保持し、実際のEphemeral OutcomeをJournal／Outcome Storeへ渡さない。
 5. 実際のEphemeral Outcomeは同一RequestのInline ResultからHTTP Responderへだけ渡し、一度だけJSON投影する。Credential Propertyには`#[Sensitive]`を必須とする。

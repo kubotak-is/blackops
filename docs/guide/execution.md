@@ -1,4 +1,4 @@
-# HTTP、Inline、Deferredの実行
+# Inline and Deferred
 
 Operationの実行経路はDirectoryではなくMetadataで決まります。HTTP Routeを持つOperationはCompile済みHTTP Manifestへ登録され、Execution Strategyを指定しない場合はInline、`Deferred`を指定した場合はDurable受付になります。
 
@@ -42,11 +42,13 @@ InlineはHTTP Request内で`operation.received`から直接Attemptを開始し�
 Application MutationとDeferred child Operationを同じFramework管理Transactionへ結び付ける場合は、`Operations`をConstructor Injectionします。
 
 ```php
+use BlackOps\Core\Attribute\OperationType;
 use BlackOps\Core\Operation;
 use BlackOps\Core\Attribute\Deferred;
 use BlackOps\Database\Attribute\Transactional;
 use BlackOps\Execution\Operations;
 
+#[OperationType('order.place')]
 readonly class PlaceOrder implements Operation
 {
     public function __construct(
@@ -57,18 +59,28 @@ readonly class PlaceOrder implements Operation
     #[Transactional(connection: 'app')]
     public function handle(PlaceOrderValue $value): OrderPlaced
     {
-        $this->orders->place($value->orderId);
+        $order = $this->orders->place($value->customerId, $value->productCode, $value->quantity);
         $this->operations->dispatch(
             NotifyOrderOwner::class,
-            new NotifyOrderOwnerValue($value->orderId),
+            new NotifyOrderOwnerValue($order->id()),
         );
 
-        return new OrderPlaced($value->orderId);
+        return new OrderPlaced($order->id());
+    }
+}
+
+#[OperationType('order.notify-owner')]
+#[Deferred]
+final readonly class NotifyOrderOwner implements Operation
+{
+    public function handle(NotifyOrderOwnerValue $value): NotificationSent
+    {
+        return new NotificationSent($value->orderId);
     }
 }
 ```
 
-`NotifyOrderOwner`には引数なしの`#[Deferred]`を付けます。`Operations::dispatch()`へ渡せるのはDeferred child Operationだけです。親OperationのExecution ContextからCorrelation／Causation／Actor／Deadlineを継承し、親Idempotency Key Hashは子へ渡しません。OutboxはApplication Database ConfigurationのFramework Named Connectionと同じConnection Instanceを所有するFramework管理Transaction内でのみ動作します。Transaction外、別Connectionが最上位にある場合、Manual Transactionによるnesting変更／commit、または所有者不明のTransactionではFail-fastし、Direct TransportへFallbackしません。同じConnectionのNested Requiredは外側のScopeへ参加できます。
+`NotifyOrderOwner`は`final`なDeferred child Operationとして`#[OperationType]`と引数なしの`#[Deferred]`を付けます。`Operations::dispatch()`へ渡せるのはDeferred child Operationだけです。親OperationのExecution ContextからCorrelation／Causation／Actor／Deadlineを継承し、親Idempotency Key Hashは子へ渡しません。OutboxはApplication Database ConfigurationのFramework Named Connectionと同じConnection Instanceを所有するFramework管理Transaction内でのみ動作します。Transaction外、別Connectionが最上位にある場合、Manual Transactionによるnesting変更／commit、または所有者不明のTransactionではFail-fastし、Direct TransportへFallbackしません。同じConnectionのNested Requiredは外側のScopeへ参加できます。
 
 MutationとOutbox Rowは最外Commitで同時に残ります。ThrowableまたはInsert Failureでは両方Rollbackされ、Nested Requiredの途中でRollback-onlyになった場合も最外ScopeがRollbackするためRowは残りません。登録結果はchild Operation IDとUTC dispatch時刻だけを公開し、Outbox Record IDは露出しません。
 

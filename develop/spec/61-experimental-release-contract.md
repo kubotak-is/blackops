@@ -1,5 +1,7 @@
 # Experimental Release Contract
 
+Documentation WebsiteはProduction Readyを2.xから予定していることを表示する。これは将来方針であり、2.x Releaseの保証ではない。BlackOps 1.xはExperimentalであり、Minor Version間の互換性とProduction Readinessを保証しない。
+
 ## Scope
 
 BlackOpsはFull-stack機能が揃いPublic Readinessを別Decisionで宣言するまで実験ProjectとしてReleaseする。Phase 11ではFramework／Skeleton `1.1.0`を公開する。

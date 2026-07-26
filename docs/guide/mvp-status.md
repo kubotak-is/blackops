@@ -1,8 +1,8 @@
-# 現在の提供状況（Current Status）
+# Releases
 
 BlackOpsのLatest StableはFramework／Skeleton `1.1.0`です。このWebsite Sourceは`main` Document Channelであり、未ReleaseのPhase 12〜17 Surfaceも明示して説明します。WebsiteはLocal／CI Buildだけで、現在は公開していません。Stableとの差を次表で確認してください。
 
-BlackOps固有のOperation、Claim、Journal、Outcome等は[用語集](glossary.md)で確認できます。
+BlackOps固有のOperation、Claim、Journal、Outcome等は[Glossary](glossary.md)で確認できます。
 
 BlackOpsはExperimentalです。1.x Minor間のBackward CompatibilityとProduction Readinessを保証しません。ApplicationはDatabase Credential、Deployment、Process Supervision、Authentication／Authorization、Access Control、Encryption、Retention Policy、Operational Monitoringを所有します。
 
@@ -81,7 +81,7 @@ composer create-project blackops/skeleton my-app 1.1.0
 - Symfony `#[AsCommand]`のBuild-time Discovery／Constructor DIと`#[ConsoleCommand]` Operation Adapter
 - Opaque Token、Hash保存、TTL、Touch、Rotation、Revocation、Cleanupを持つOpt-in Session Coreと`make:auth`
 - Build-time Discovery、Compiled Container DI、明示順の子Seederを持つDatabase Seederと`database:seed`／`make:seeder`
-- Application-owned Identity、Ephemeral Auth Operation、SvelteKit BFF、Post／Comment、Deferred Digest、Real Browser E2Eを統合した[BlackOps Board](community-board.md)
+- Application-owned Identity、Ephemeral Auth Operation、SvelteKit BFF、Post／Comment、Deferred Digest、Real Browser E2Eを統合した[BlackOps Board Reference Application](community-board.md)
 
 BlackOps BoardはRepository `main`だけのExperimental Local Reference Applicationです。Stable `1.1.0` Skeletonには含まれず、公開Hostも提供していません。Documentation Websiteと同様にSource、Local／CI Build、Consumer Evidenceだけを維持し、External Publication／Deployは将来の明示Taskへ分離しています。
 

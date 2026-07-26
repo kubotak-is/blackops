@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace BlackOps\Tests\Internal\Frontend;
 
-use BlackOps\Core\Attribute\ExecuteWith;
 use BlackOps\Core\Attribute\OperationType;
 use BlackOps\Core\Attribute\Sensitive;
 use BlackOps\Core\EphemeralOutcome;
-use BlackOps\Core\Execution\Inline;
 use BlackOps\Core\Operation;
 use BlackOps\Core\OperationValue;
 use BlackOps\Core\Registry\OperationRegistry;
@@ -99,7 +97,6 @@ final readonly class FrontendTokenIssued implements EphemeralOutcome
 
 #[OperationType('auth.login')]
 #[Route('POST', '/auth/login')]
-#[ExecuteWith(Inline::class)]
 final readonly class FrontendLoginOperation implements Operation
 {
     public function handle(FrontendLoginValue $value): FrontendTokenIssued

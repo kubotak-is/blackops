@@ -1,4 +1,4 @@
-# Operationを実装する
+# Authoring
 
 BlackOpsの標準Authoringは、Applicationが実行したい一つの意図である[Operation](glossary.md#operation)自身がNative Typed `handle()`を持つTyped Self-handled形式です。Value、Outcome、Optional ContextをPHP Signatureで宣言し、BuildがMetadataとHandler登録を生成します。
 
@@ -17,10 +17,26 @@ final readonly class PlaceOrder implements Operation
 
     public function handle(PlaceOrderValue $value): OrderPlaced
     {
-        $order = $this->orders->place($value->customerId, $value->items);
+        $order = $this->orders->place($value->customerId, $value->productCode, $value->quantity);
 
         return new OrderPlaced($order->id());
     }
+}
+```
+
+```php
+final readonly class PlaceOrderValue implements OperationValue
+{
+    public function __construct(
+        public string $customerId,
+        public string $productCode,
+        public int $quantity,
+    ) {}
+}
+
+final readonly class OrderPlaced implements Outcome
+{
+    public function __construct(public string $orderId) {}
 }
 ```
 
@@ -69,11 +85,9 @@ declare(strict_types=1);
 
 namespace App\Feature\Identity\IssueCredential;
 
-use BlackOps\Core\Attribute\ExecuteWith;
 use BlackOps\Core\Attribute\OperationType;
 use BlackOps\Core\Attribute\Sensitive;
 use BlackOps\Core\EphemeralOutcome;
-use BlackOps\Core\Execution\Inline;
 use BlackOps\Core\Operation;
 use BlackOps\Core\OperationValue;
 use BlackOps\Http\Attribute\FromBody;
@@ -101,7 +115,6 @@ final readonly class CredentialIssued implements EphemeralOutcome
 
 #[OperationType('identity.credential.issue')]
 #[Route('POST', '/credentials')]
-#[ExecuteWith(Inline::class)]
 final readonly class IssueCredential implements Operation
 {
     public function __construct(private CredentialService $credentials) {}
@@ -113,7 +126,7 @@ final readonly class IssueCredential implements Operation
 }
 ```
 
-このOperationにはHTTP Routeと明示的なInline Strategyが必要です。Deferred、Console、Routeなし、暗黙のInlineはBuild Errorになります。Credential名を持つOutcome Propertyには`#[Sensitive]`を付け、CredentialをNested DTOへ隠さずRoot Propertyとして宣言してください。
+このOperationにはHTTP Routeが必要です。AttributeなしのExecution StrategyはInlineへ解決されます。Deferred、Console、Routeなし、Inline以外のStrategyはBuild Errorになります。Credential名を持つOutcome Propertyには`#[Sensitive]`を付け、CredentialをNested DTOへ隠さずRoot Propertyとして宣言してください。
 
 HTTPは`CredentialIssued`をJSON 200で一度返します。PropertyがないEphemeral Outcomeは`{}`を返します。Canonical JournalにはReceivedを空Data、Completedを`EmptyOutcome`として記録し、Outcome StoreへRowを作りません。Status APIは認可後もUnavailableとなり、Generated Frontend Objectには`.fetch()`、`.toRequest()`、`.url()`だけを生成して`.status()`と`.wait()`を公開しません。
 
@@ -139,4 +152,4 @@ if (!$this->inventory->isAvailable($value->items)) {
 
 Decoratorや複数実装の切替等で責務を分ける場合は、`#[HandledBy]`と`OperationHandler`を使うCompatibility形を選べます。新しい単純なUse CaseではTyped Self-handledを優先してください。
 
-Sourceを追加したら`php blackops build:compile`でSignatureとMetadataを検証します。Generatorを利用する場合は[Operation Generator](project-generators.md)を参照してください。
+Sourceを追加したら`php blackops build:compile`でSignatureとMetadataを検証します。Generatorを利用する場合は[Generators](project-generators.md)を参照してください。

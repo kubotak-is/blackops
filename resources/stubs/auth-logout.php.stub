@@ -5,14 +5,12 @@ declare(strict_types=1);
 namespace App\Feature\Identity\Logout;
 
 use BlackOps\Auth\Session\SessionManager;
-use BlackOps\Core\Attribute\ExecuteWith;
 use BlackOps\Core\Attribute\OperationType;
 use BlackOps\Core\Operation;
 use BlackOps\Database\Attribute\Transactional;
 use BlackOps\Http\Attribute\Route;
 
 #[Route(method: 'POST', path: '/auth/logout')]
-#[ExecuteWith('BlackOps\\Core\\Execution\\Inline')]
 #[OperationType('auth.logout')]
 readonly class Logout implements Operation
 {
