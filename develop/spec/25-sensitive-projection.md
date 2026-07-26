@@ -13,6 +13,10 @@ Canonical Journal
 
 Framework共通Sensitive Filterが最低安全基準を適用する。AdapterはRaw Payloadへアクセスできず、出力先固有の追加Filterだけを適用できる。
 
+ProjectionはObjectとListのShapeを維持する。空Objectは`{}`、空Listは`[]`としてObserver Adapterへ渡す。Framework管理IdentifierはCanonical lowercase UUIDv7 String、`DateTimeInterface`はUTC、Microseconds付きRFC 3339 Stringへ正規化できる。
+
+任意のApplication `Stringable`を安全なScalarとして信頼してはならない。Application ObjectはPublic PropertyのProjectionを通し、`__toString()`でSensitive Propertyを迂回させない。
+
 ## Sensitive Mode
 
 `#[Sensitive]` は次の処理方式を持つ。

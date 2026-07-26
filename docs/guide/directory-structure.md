@@ -1,6 +1,6 @@
-# Directory構成
+# Directory
 
-公式Skeletonは、Applicationが実行したい一つの意図である[Operation](glossary.md#operation)と、Value、Outcome、ResponderをFeatureとActionの単位でまとめます。
+公式Skeletonは、Applicationが実行したい一つの意図である[Operation](glossary.md#operation)と、Value、OutcomeをFeatureとActionの単位でまとめます。
 
 ```text
 app/
@@ -10,6 +10,12 @@ app/
       DatabaseSeeder.php
   Security/
     SampleOperationStatusAuthorizer.php
+    SampleUserAuthorizationPolicy.php
+  UserInterface/
+    Console/
+      SampleConsoleActorProvider.php
+    Http/
+      SampleTokenAuthenticator.php
   Feature/
     Diagnostics/
       TriggerFailure/
@@ -42,12 +48,14 @@ bootstrap/
   app.php
 config/
   app.php
+  auth.php
   database.php
+  diagnostics.php
   execution.php
   frontend.php
   journal.php
   logging.php
-  diagnostics.php
+  middleware.php
   operations.php
   retention.php
 public/

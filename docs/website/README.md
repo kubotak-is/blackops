@@ -1,55 +1,38 @@
 # BlackOps Documentation Website
 
-Astro Starlightで構築するBlackOps利用者向けDocumentation Websiteである。公開本文の編集元はRepository Rootの`docs/guide/`だけであり、このProject内へ本文を手動Copyしない。
+Blumeで構築する利用者向けDocumentation Websiteです。公開本文の編集元はRepository Rootの`docs/guide/`だけであり、このProject内へ本文を手動Copyしません。
 
-## Toolchain
-
-Repository RootでNode.jsとpnpmを導入する。
+## Local workflow
 
 ```bash
 mise install
 mise exec -- pnpm --dir docs/website install --frozen-lockfile
-```
-
-Node.jsとpnpmのVersionは`mise.toml`、`package.json`、CIで一致させる。Dependency更新時は`package.json`と`pnpm-lock.yaml`を同じCommitで更新する。
-
-## Development
-
-```bash
 mise exec -- pnpm --dir docs/website run test
 mise exec -- pnpm --dir docs/website run check
 mise exec -- pnpm --dir docs/website run build
 mise exec -- pnpm --dir docs/website run dev
 ```
 
-`content:generate`は`docs/guide/`からStarlight ContentとManifestを生成する。生成先の`src/content/docs/`と`.generated/`、Astro出力の`dist/`はGit管理しない。生成物を直接編集しても次回実行で全置換されるため、本文変更は必ず`docs/guide/`へ行う。
+`content:generate`は`docs/guide/`からBlume ContentとManifestを生成します。生成先の`src/content/docs/`と`.generated/`、Static出力の`dist/`はGit管理しません。生成物を直接編集しても次回実行で全置換されるため、本文変更は必ず`docs/guide/`へ行います。
 
-GeneratorはTitle、Slug、内部Link、Source境界を検証する。`docs/internal/`、`develop/`、Repository Absolute Pathは公開Contentへ取り込まない。
+`blume.config.ts`はBlume標準のHeader、Sidebar、Search、Table of Contents、Theme、Skip Link、Mobile Navigationを有効にし、Sidebarを利用者の学習順へ固定します。Landingだけは`pages/index.astro`のCustom Pageで指定されたHeroと、Desktop三列／Mobile一列の三要素Gridを構成します。
 
-`content-map.mjs`はSource Relative Pathから公開Slug／Page MetadataへのMapping、`site-navigation.mjs`はOverviewからReferenceまでの11 SectionとPage順を管理する。Source追加時は両方を更新する。未登録Source、欠落Source、重複Slug、Sidebar未配置／重複／未知SlugはBuild前に拒否される。
+## Content and URL boundary
 
-`public/_redirects`は役割変更で移動したLifecycle、Security、Troubleshooting、Current Statusの旧URLを新URLへ301 Redirectする。Slugを変更するときはSource Link、Content Map、Sidebar、Redirect、Search／Artifact Testを同じ変更単位で更新する。
+`content-map.mjs`はSource Relative Pathから公開Slug／Page Metadataへ決定的にMappingし、未登録Source、欠落Source、重複Slug、壊れたLinkはBuild前に拒否します。`docs/internal/`、`develop/`、Task／Reportは公開Page、Navigation、Search、Artifactへ含めません。
 
-Static Build後の`site:check`はLanding CTA、InstallからLocal Runtimeまでの連続Link、11 Section、301 Redirect、全PageのVersion Notice、Starlight標準Skip Link／Mobile Menu／Search Shortcut／Theme Selector、Pagefind日本語Indexと実Searchを検証する。LandingのProduct Page装飾は`html[data-has-hero]`配下へ限定し、本文Layoutへ広げない。Starlight標準のContrastとKeyboard Interactionを維持し、`prefers-reduced-motion: reduce`ではCard Transitionを停止する。
+既存のPublic Slugと`public/_redirects`は維持します。Slugを変更するときはSource Link、Content Map、Sidebar、Redirect、Search／Artifact Testを同じ変更単位で更新してください。
 
-## Reader-facing Terminology
+## Version notice
 
-本文は日本語の能動態を主体にし、Class、Method、Attribute、Command、JSON Field等の正確なSymbolは英語のCode表記を維持する。BlackOps固有Termは初出段落で一行定義するかGlossaryへLinkし、一般的なPHP／HTTP／SQL用語は重複定義しない。同じ概念の日本語名と英語名を無秩序に切り替えない。
+BlumeのDismiss不可Bannerを全Pageへ表示します。本文は`BlackOps1.xは試験的なバージョンです。Production Readyは2.xを予定しています。`とし、Releases Linkを維持します。将来計画をRelease済みの保証として表現しません。
 
-Reader Experienceを改善するときもLatest Stable `1.1.0`、Experimental Compatibility Policy、`main`との差、Failure、未実装機能、Security／運用制約を削らない。利用者が次に行うActionと、その制約が必要な理由へ言い換える。
+## Mermaid and assets
 
-## Mermaid Diagrams
+Mermaid Fenceを含むPageだけを`.mdx`へ生成し、通常Pageは`.md`を維持します。Blume native `<blume-mermaid>`がExact PinしたLocal `mermaid` DependencyでParseし、外部CDNへ接続しません。各FenceはAccessible Metadataと隣接する自然な説明を持ち、DesktopではDiagramをArticle幅で表示し、Mobileでは42rem以上の可読幅をHost内だけ横Scrollさせます。Artifact GuardはBuild後の`<blume-mermaid>` Render Target、`data-language="mermaid"` Code Block不在、Local Renderer Bundle、および可読幅の寸法CSSを確認します。SVGの実寸、Page Overflow、Light／Dark Theme切替、Responsive OverflowはBrowser Verificationで確認します。
 
-Mermaid DiagramはStarlight公式Resourcesに掲載された`astro-mermaid`と`mermaid`をExact PinしたLocal Dependencyで描画する。外部CDNへ接続せず、Static HTMLの`pre.mermaid`描画Targetを、同梱したClient RuntimeがBrowser内でSVGへ変換する。各`mermaid` Fenceは`accTitle`と`accDescr`を持ち、直後の自然な本文またはTableにも同じ関係を記載する。
-
-`diagrams:check`は`check`と`build`の前に固定したMermaid Parserで4つのSourceをParseし、構文ErrorとAccessible Metadata欠落をFail-fastする。`check-artifact`と`site:check`は4つの描画Target、Local Renderer Chunk、Text Alternative、外部Diagram CDN不在を検証する。Static ArtifactにSourceとTargetだけがあり、Rendererが同梱されない状態は許可しない。
-
-`autoTheme: true`によりStarlightの`data-theme`を追跡し、LightではMermaid `default`、Darkでは`dark` Themeで再描画する。Diagramの色やClient Runtimeを変更する場合は、両Themeでの可読性、Accessible Name／Description、外部Network Request不在をBrowserで再確認する。
-
-`src/styles/diagram-responsive.css`はContent Containerの最小幅を解除し、`pre.mermaid`を本文幅へ制約する。50 rem以下のViewportではSVGの最小幅を60 remとしてNodeとLabelの可読性を保ち、Diagram Target内のHorizontal Scrollで図の全領域へ移動できるようにする。Page全体にはHorizontal Overflowを発生させない。Responsive RuleはSource Test、Artifact Guard、Site Checkで維持する。
+`docs/guide/assets/`のTracked PNGはContent Pipelineが検証してStatic Artifactへコピーします。Artifact Guardは公開禁止Path、Credential、Repository Absolute Path、Source Mapの混入を拒否します。
 
 ## Delivery
 
-`.github/workflows/docs.yml`はPull Requestと`main`で同じTest／Check／Buildを実行し、検証済みの`dist/`だけをCloudflare Pages Project `blackops-docs`へDirect Uploadする。Fork Pull RequestはSecretなしでBuildまで実行し、DeployだけをSkipする。Cloudflare Project、GitHub Environment、Secret、Rollbackの設定は[Documentation Website Delivery](../internal/documentation-website.md)を参照する。
-
-Wranglerは`package.json`とLockfileでExact Pinする。`pnpm-workspace.yaml`の`allowBuilds`は、Astroが使う`esbuild`に加え、Wranglerの実行Dependencyである`sharp`と`workerd`のInstall Scriptだけを許可する。
+`.github/workflows/docs.yml`はPull Requestと`main`で同じInstall／Test／Check／Buildを実行し、検証済みの`docs/website/dist/`だけをArtifactとしてCloudflare Pages Direct Uploadへ渡します。Project、Credential、Custom Domain、External PublicationはこのTaskのScope外です。

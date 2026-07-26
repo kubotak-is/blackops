@@ -1,6 +1,6 @@
 # Documentation Website Delivery
 
-BlackOpsの利用者向けDocumentation Websiteは、GitHub Actionsで検証した`docs/website/dist/`だけをCloudflare Pages Project `blackops-docs`へDirect Uploadする。Cloudflare Git Integrationは使用しない。
+BlackOpsの利用者向けDocumentation Websiteは、GitHub Actionsで検証した`docs/website/dist/`だけをCloudflare Pages Project `blackops-php`へDirect Uploadする。Cloudflare Git Integrationは使用しない。
 
 ## Delivery Boundary
 
@@ -22,8 +22,8 @@ External ConfigurationはRepositoryへ保存せず、Repository管理者がCloud
 
 1. Cloudflare DashboardのWorkers & PagesからPages Applicationを作成する。
 2. Git Repository連携ではなくDirect Uploadを選択する。
-3. Project名を`blackops-docs`、Production Branchを`main`にする。
-4. 初期Hostが`blackops-docs.pages.dev`であることを確認する。
+3. Project名を`blackops-php`、Production Branchを`main`にする。
+4. 初期Hostが`blackops-php.pages.dev`であることを確認する。
 
 Direct Upload Projectは同じProjectのままGit Integrationへ切り替えられない。作成方法と制約は[Cloudflare Pages Direct Upload](https://developers.cloudflare.com/pages/get-started/direct-upload/)を参照する。Custom DomainとDNSはこのDeliveryの対象外である。
 
@@ -39,15 +39,15 @@ GitHub RepositoryのSettings、Environmentsで次の2 Environmentを作成する
 各Environmentへ、対応するCloudflare CredentialをEnvironment Secretとして登録する。
 
 - `CLOUDFLARE_API_TOKEN`: 対象Environment用のCustom API Token
-- `CLOUDFLARE_ACCOUNT_ID`: `blackops-docs`を所有するAccount ID
+- `CLOUDFLARE_ACCOUNT_ID`: `blackops-php`を所有するAccount ID
 
-`docs-production`にはDeployment Branch ruleで`main`だけを許可し、Required Reviewerを有効にする。これによりPull RequestがWorkflowを変更してもProduction Secret／Environmentへ進めない境界をGitHub側でも維持できる。Preview TokenとProduction Tokenを同じ値にしない。Token値とAccount IDをRepository File、Artifact、Workflow Logへ記録しない。
+`docs-production`にはDeployment Branch ruleで`main`だけを許可する。Required Reviewerは任意の追加保護として設定できるが、現行Metadataでは未設定である。これによりPull RequestがWorkflowを変更してもProduction Secret／Environmentへ進めない境界をGitHub側でも維持できる。Preview TokenとProduction Tokenを同じ値にしない。Token値とAccount IDをRepository File、Artifact、Workflow Logへ記録しない。
 
 Secretが未登録の場合、WorkflowはCredentialの値を表示せずDeployだけをNotice付きでSkipする。ProjectとSecretの作成後にWorkflowを再実行する。
 
 ## Current External Status
 
-Repository内のWebsite Build、Artifact Guard、Preview／Production Workflow境界は実装済みである。2026-07-16時点ではWebsite公開を延期しており、Cloudflare Pages Project、Environment Secret、Production Protection Ruleを設定していない。Production Deploy StepはCredential未設定時にSkipされ、`blackops-docs.pages.dev`も利用できない。これはPhase 10のBlockerではない。Userが公開再開を明示した場合だけ、独立したPublication Taskで上記設定、Production、同一Repository Pull Request Preview、Live Verificationを実行する。
+Repository内のWebsite Build、Artifact Guard、Preview／Production Workflow境界は実装済みである。Userが公開再開を明示し、Publication targetをCloudflare Pages Project `blackops-php`へ同期した。`docs-preview`／`docs-production` Environment Secretと`docs-production`の`main` Deployment Branch policyを設定し、GitHub API Metadataで各Environmentに必要なSecretが存在することと、ProductionのBranch policyを確認済みである。Required Reviewerは未設定で、main repository branch protectionも存在しない（remote deploy前に追加を推奨する安全設定）。OrchestratorのHTTP probeでは2026-07-27 01:58 JST時点で`https://blackops-php.pages.dev/`がHTTP 522を返したため、Hostは応答するがProduction公開は未完了である。Cloudflare Projectの存在、初回Remote Deploy、Credential有効性、Production URLのLive Verificationは未完了であり、推測で成功扱いにしない。
 
 ## Local Verification
 
@@ -70,15 +70,15 @@ Local検証ではDeployしない。Remote UploadはGitHub Actionsへ任せ、Pro
 Pull Requestでは`Build documentation artifact`が成功した後、同一Repositoryの場合だけ`Deploy pull request preview`を確認する。Fork Pull RequestではBuild成功とPreview DeployのSkipを確認する。`main`では`Deploy main production`が成功してから、少なくとも次を確認する。
 
 ```bash
-curl --fail --silent --show-error --location https://blackops-docs.pages.dev/
-curl --fail --silent --show-error --location https://blackops-docs.pages.dev/getting-started/installation/
-curl --fail --silent --show-error --location https://blackops-docs.pages.dev/pagefind/pagefind.js
+curl --fail --silent --show-error --location https://blackops-php.pages.dev/
+curl --fail --silent --show-error --location https://blackops-php.pages.dev/getting-started/installation/
+curl --fail --silent --show-error --location https://blackops-php.pages.dev/pagefind/pagefind.js
 ```
 
 さらにBrowserでMobile Navigation、Keyboard Navigation、Search、主要Assetを確認する。Production URLまたはPreview URLが作成されるまでは、Live Verificationを成功扱いにしない。
 
 ## Rollback and Credential Rotation
 
-Production障害時はCloudflare DashboardでWorkers & Pages、`blackops-docs`、Deploymentsを開き、直前の正常なProduction DeploymentのMenuからRollbackする。Preview DeploymentはRollback先にできない。詳細は[Cloudflare Pages Rollbacks](https://developers.cloudflare.com/pages/configuration/rollbacks/)を参照する。
+Production障害時はCloudflare DashboardでWorkers & Pages、`blackops-php`、Deploymentsを開き、直前の正常なProduction DeploymentのMenuからRollbackする。Preview DeploymentはRollback先にできない。詳細は[Cloudflare Pages Rollbacks](https://developers.cloudflare.com/pages/configuration/rollbacks/)を参照する。
 
 Token漏えいの疑いがある場合は、Cloudflareで該当Tokenを直ちに無効化し、新しい最小権限Tokenを作成して対応するGitHub Environment Secretだけを更新する。過去のWorkflow LogとArtifactも確認し、Preview用とProduction用を独立してRotationする。

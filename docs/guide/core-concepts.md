@@ -1,4 +1,4 @@
-# 中核概念（Core Concepts）
+# Core Concepts
 
 BlackOpsは、Applicationの意図を表すOperationを中心に、型付きInput／Output、Execution Strategy、追跡Context、Lifecycle Journalを組み合わせます。
 
@@ -40,4 +40,4 @@ Operation ID、Correlation、Causation、Attempt等、追跡と伝播に必要�
 
 同じOperationをRequest内で実行するInlineか、Durable受付後にWorkerが実行するDeferredかを選ぶ境界です。Strategyが変わってもOperationValue、Operation、Outcomeの型は変わりません。
 
-次は[Operation Lifecycle](operation-lifecycle.md)で受付、Attempt、Retry、Terminal Stateの違いを確認します。用語をまとめて確認する場合は[Glossary](glossary.md)を参照してください。
+次は[Lifecycle](operation-lifecycle.md)で受付、Attempt、Retry、Terminal Stateの違いを確認し、[Journal](journal.md)でCanonicalとObservedの記録境界を確認します。用語をまとめて確認する場合は[Glossary](glossary.md)を参照してください。

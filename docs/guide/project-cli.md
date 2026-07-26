@@ -1,4 +1,4 @@
-# BlackOps CLI Reference（Command一覧）
+# BlackOps CLI
 
 Project Rootの`blackops`はApplication所有の薄いEntrypointです。Framework Packageが提供するCommandを、ApplicationのConfiguration Snapshotから起動します。EntrypointへCommand実装をCopyしないため、`composer update blackops/framework`後は同じ入口から更新済みCommandを利用できます。
 
@@ -33,37 +33,37 @@ use BlackOps\Core\Operation;
 use BlackOps\Core\OperationValue;
 use BlackOps\Core\Outcome;
 
-#[ConsoleCommand('order:create', 'Create an order.')]
-#[OperationType('order.create')]
-final readonly class CreateOrder implements Operation
+#[ConsoleCommand('report:export', 'Export a report.')]
+#[OperationType('report.export')]
+final readonly class ExportReport implements Operation
 {
-    public function handle(CreateOrderValue $value): OrderCreated
+    public function handle(ExportReportValue $value): ReportExported
     {
-        return new OrderCreated($value->reference, 'created');
+        return new ReportExported($value->reportName, '/reports/' . $value->reportName . '.json');
     }
 }
 
-final readonly class CreateOrderValue implements OperationValue
+final readonly class ExportReportValue implements OperationValue
 {
-    public function __construct(public string $reference) {}
+    public function __construct(public string $reportName) {}
 }
 
-final readonly class OrderCreated implements Outcome
+final readonly class ReportExported implements Outcome
 {
     public function __construct(
-        public string $reference,
-        public string $status,
+        public string $reportName,
+        public string $location,
     ) {}
 }
 ```
 
 ```bash
 php blackops build:compile
-php blackops order:create --reference=A-100 --json
+php blackops report:export --report-name=weekly --json
 ```
 
 ```json
-{"schemaVersion":1,"status":"completed","outcome":{"reference":"A-100","status":"created"}}
+{"schemaVersion":1,"status":"completed","outcome":{"reportName":"weekly","location":"/reports/weekly.json"}}
 ```
 
 CommandはHTTPと同じValidation、Authorization、Inline／Deferred Lifecycle、Journal、Transactionを通ります。`--json`は一行JSONをstdoutへ出し、成功／Deferred受付はExit 0、CLI Binding／ValidationはExit 2、その他Rejected／Internal ErrorはExit 1です。位置引数、未知Option、配列／Object／Enum入力、`#[Sensitive]`を含むValueやOutcomeは受け付けません。省略できるのはConstructor Defaultを持つOptionだけです。
@@ -148,7 +148,7 @@ make:auth
 make:seeder
 ```
 
-`make:operation`と`make:migration`はExperimental Stable `1.1.0`で利用できます。`make:auth`と`make:seeder`はRepository `main`のExperimental Commandです。`make:auth`はApplication-owned Identity Domain、DBAL Adapter、Ephemeral Register／Login／Logout、Session Migrationを一度だけ生成します。`make:seeder`は`app/Infrastructure/Seed/`へ空のSeederを生成します。詳細は[Project Generators](project-generators.md)、[Database Seeding](database-seeding.md)、[Session Authentication Starter](security.md#session-authentication-starter)を参照してください。生成済みApplication SourceはFramework Updateで自動変更されません。
+`make:operation`と`make:migration`はExperimental Stable `1.1.0`で利用できます。`make:auth`と`make:seeder`はRepository `main`のExperimental Commandです。`make:auth`はApplication-owned Identity Domain、DBAL Adapter、Ephemeral Register／Login／Logout、Session Migrationを一度だけ生成します。`make:seeder`は`app/Infrastructure/Seed/`へ空のSeederを生成します。詳細は[Generators](project-generators.md)、[Seeder](database-seeding.md)、[Session Authentication Starter](security.md#session-authentication-starter)を参照してください。生成済みApplication SourceはFramework Updateで自動変更されません。
 
 `1.0.0`の`bin/blackops`と`blackops:*` Commandは互換対象ではありません。`1.1.0`への移行ではProject Root `blackops`とPrefixなしCommandへ更新してください。
 

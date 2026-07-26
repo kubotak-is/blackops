@@ -1,8 +1,6 @@
-# Data Retentionを運用する
+# Retention
 
-BlackOpsはTransport Payload、Canonical [Journal](glossary.md#journal)、[Outcome](glossary.md#outcome)、[Dead Letter](glossary.md#dead-letter)、Idempotency Recordを独立した保持対象として管理します。`idempotency_record_days`を省略した場合は既存4期間の最長値を使います。
-
-Public Console Kernelは`config/retention.php`の既存4期間と任意の`idempotency_record_days`、`policy_ref`、`actor`をRetention Plan／PurgeとSchedulerで共有します。Idempotency期間を省略した場合は既存4期間の最長値を使います。Command Optionを省略すると、このAccepted Policyを使います。
+BlackOpsは基本4期間 — Transport Payload、Canonical [Journal](glossary.md#journal)、[Outcome](glossary.md#outcome)、[Dead Letter](glossary.md#dead-letter) — と任意の`idempotency_record_days`（省略時は4期間の最長値）を独立した保持対象として管理します。Public Console Kernelは`config/retention.php`のこれらと`policy_ref`、`actor`をPlan／PurgeとSchedulerで共有し、Command Option省略時のAccepted Policyとして使います。
 
 候補を確認するときは、副作用のないPlan Commandを使います。
 
@@ -39,7 +37,7 @@ Plan後にJournalが追加された場合やActive Holdを設定した場合、P
 
 ## Retention Hold
 
-[Retention Hold](glossary.md#retention)はOperation IDを指定して保持期間による削除を止めます。Inline OperationにもOperations行を追加せずHoldを設定できます。HoldがActiveな間、PlannerとPurgeはPayload、Journal、Outcome、Dead Letter、Idempotency Recordを対象外にし、明示解除後に再び候補へ含めます。
+[Retention](glossary.md#retention)はOperation IDを指定して保持期間による削除を止めます。Inline OperationにもOperations行を追加せずHoldを設定できます。HoldがActiveな間、PlannerとPurgeはPayload、Journal、Outcome、Dead Letter、Idempotency Recordを対象外にし、明示解除後に再び候補へ含めます。
 
 ## Purge Audit
 

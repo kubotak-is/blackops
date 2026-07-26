@@ -1,4 +1,4 @@
-# SecurityとSensitive Data
+# Security
 
 BlackOpsはOperation Lifecycleを追跡し、Observed Sinkへ出すSensitive値を制御する境界を提供します。一方、Application全体のSecurity Policyは決めません。Frameworkが提供する保護と、Application／運用が実装する保護を分けて設計してください。
 
@@ -10,7 +10,7 @@ BlackOpsはOperation Lifecycleを追跡し、Observed Sinkへ出すSensitive値�
 | --- | --- | --- |
 | Typed Input | `OperationValue`とBinding Metadataを検証する | 業務Validation、入力Size制限、Content Policyを実装する |
 | Frontend Contract | HTTP Operationの入力名／型、Request Binding、Typed Resultを生成し、Sensitive実値をArtifact／Resultへ含めない | Credential注入、Authentication／Authorization、CORS／CSRF、Browser Storage、生成物の配布範囲を管理する |
-| Ephemeral Outcome | Route付き明示Inlineだけで実値をHTTPへ一度返し、Canonical Journal／Outcome Store／Status／Console／Deferredへ保存しない | Response受領後のCookie化、CSRF、暗号化、Browser Storage、Token Rotation／失効を管理する |
+| Ephemeral Outcome | HTTP Route付きでInlineへ解決されたOperationだけが実値をHTTPへ一度返し、Canonical Journal／Outcome Store／Status／Console／Deferredへ保存しない | Response受領後のCookie化、CSRF、暗号化、Browser Storage、Token Rotation／失効を管理する |
 | Sensitive Projection | `#[Sensitive]`に従いObserved JournalでOmit／Mask／Hashする | 対象PropertyとModeを選び、Raw値を独自Logへ出さない |
 | Lifecycle Journal | Event、Sequence、Operation／Attempt MetadataのShapeを提供する | Sinkの保存先、閲覧権限、監査、可用性を構成する |
 | Public／Internal API | `#[PublicApi]`付き型とInternal Namespaceを区別する | Public APIだけへ依存し、Upgrade時に互換性を確認する |
@@ -100,37 +100,9 @@ Quickstartの`SampleOperationStatusAuthorizer`は、両Actorが存在し、ど�
 
 ## Session Authentication Starter
 
-BlackOpsはBearer SessionのToken生成、Hash保存、TTL、Rotation、RevocationをFramework側で提供します。User、Password、登録可否はApplicationが所有し、`make:auth`が編集可能なStarterとして生成します。
+`make:auth`の生成、Build、Migration、Register／Login／LogoutのCopy可能な手順は[Authentication](authentication.md)を正本とします。Securityでは生成物の責務境界と環境設定だけを扱い、同じCommandやcurl例を重複管理しません。
 
-### 生成する
-
-生成されるRepositoryとMigrationはDoctrine DBAL／Migrationsを直接使うため、Applicationの直接依存として宣言します。
-
-```bash
-composer require doctrine/dbal:^4.4 doctrine/migrations:^3.9
-php blackops make:auth
-composer dump-autoload
-php blackops database:migrate
-php blackops build:compile
-php blackops frontend:generate
-```
-
-Install直後のSkeletonは`AuthenticationMiddleware`をHTTP Pipelineへ登録済みです。別構成のApplicationでは、`config/middleware.php`のHTTP Pipelineに同Middlewareがあることを確認してください。
-
-Generatorは次の責務を分離します。
-
-```text
-app/
-├── Domain/Identity/          User、Password、登録Policy、IdentityService
-├── Infrastructure/Identity/ DBAL Repository、ID生成、Session Identity接続
-├── Feature/Identity/        Register、Login、Logout Operation
-└── AuthServiceProvider.php
-config/auth.php
-migrations/Version20260722000000.php
-migrations/Version20260722000100.php
-```
-
-DomainはBlackOps、Doctrine、Symfonyへ依存しません。OperationはValidation済みInputを`IdentityService`へ渡し、Domain Failureを公開可能なRejection Codeへ変換するだけです。
+BlackOpsはBearer SessionのToken生成、Hash保存、TTL、Rotation、RevocationをFramework側で提供します。User、Password、登録可否はApplicationが所有し、`make:auth`が編集可能なStarterとして生成します。Install直後のSkeletonは`AuthenticationMiddleware`をHTTP Pipelineへ登録済みです。別構成のApplicationでは、`config/middleware.php`のHTTP Pipelineに同Middlewareがあることを確認してください。
 
 ### 環境を設定する
 
@@ -144,49 +116,7 @@ DomainはBlackOps、Doctrine、Symfonyへ依存しません。OperationはValida
 
 Auth Configurationの`services`は既存`config/app.php`の`app.services`の後へ決定的にMergeされます。`config/auth.php`がないApplicationの登録結果は変わりません。
 
-### Register、Login、Logoutを呼ぶ
-
-RegisterはUser保存とSession発行を同じOperation Transactionで完了します。
-
-```bash
-curl -X POST http://localhost:8080/auth/register \
-  -H 'Content-Type: application/json' \
-  --data '{"email":"ada@example.com","displayName":"Ada","password":"correct horse battery staple"}'
-```
-
-```json
-{"expiresAt":"2026-07-22T15:00:00+00:00","issuedAt":"2026-07-22T07:00:00+00:00","token":"<43-character-token>"}
-```
-
-LoginはUser不存在とPassword不一致を区別せず、同じ`auth.invalid_credentials`で拒否します。
-
-```bash
-curl -X POST http://localhost:8080/auth/login \
-  -H 'Content-Type: application/json' \
-  --data '{"email":"ada@example.com","password":"correct horse battery staple"}'
-```
-
-```json
-{"expiresAt":"2026-07-22T15:05:00+00:00","issuedAt":"2026-07-22T07:05:00+00:00","token":"<43-character-token>"}
-```
-
-Bearer TokenはApplicationの認証済みRequestに付けます。
-
-```http
-Authorization: Bearer <43-character-token>
-```
-
-LogoutはCurrent Raw TokenをBodyで受け取り、同じTokenを複数回渡しても成功します。
-
-```bash
-curl -X POST http://localhost:8080/auth/logout \
-  -H 'Content-Type: application/json' \
-  --data '{"token":"<43-character-token>"}'
-```
-
-```json
-{}
-```
+Register／Login／Logoutの期待Status、401／422の境界、Bearer／Cookie Tokenの扱いは[Authentication](authentication.md)で確認してください。
 
 Register／Login／Logoutは`EphemeralOutcome`です。Raw PasswordとTokenはCanonical Journal、Outcome Store、Status、Generated Artifactへ保存されません。Tokenを返すのはRegister／LoginのHTTP Response一回だけです。Applicationは受領後の安全な保管、Cookie発行、CSRF、Access Controlを所有します。
 
@@ -212,7 +142,7 @@ Migrationは生成時点のImmutable Snapshotです。Framework Update後も実�
 
 Applicationは`HttpAuthenticator`を実装し、Credentialなしを`AuthenticationResult::anonymous()`、有効なCredentialを`authenticated(new ActorRef($id, $type))`、不正Credentialを`invalid('authentication.invalid')`として返せます。Framework同梱のOpt-in Session Coreを使う場合は`BearerSessionAuthenticator`または`CookieSessionAuthenticator`を選びます。JWT／OAuth／API KeyとUser／Password／Account State PolicyはApplicationが所有します。
 
-Session Coreは32-byte CSPRNG TokenとSHA-256 Hash保存、Absolute TTL、Rotation／Revocation／Cleanupを所有します。通常のOperation ValueへRaw TokenやPasswordを渡しません。`make:auth`のRegister／Login／Logoutだけは`#[Sensitive]`なEphemeral Value／Outcomeとして現在のHTTP Response中に扱い、Canonical Journalへ空Projection、Outcome Storeへ非保存とします。ApplicationはRaw Tokenを発行直後に必要なCredential Surfaceへ変換し、通常のJournal、Outcome、Logへ残しません。Cookieの`Secure`／`HttpOnly`／`SameSite`、Domain／Path、CSRF、Encryption、Access Control、Retention期間はApplication責務です。登録方法とMigration境界は[Application Bootstrap](application-bootstrap.md#session-authenticationをopt-in登録する)を参照してください。
+Session Coreは32-byte CSPRNG TokenとSHA-256 Hash保存、Absolute TTL、Rotation／Revocation／Cleanupを所有します。通常のOperation ValueへRaw TokenやPasswordを渡しません。`make:auth`のRegister／Login／Logoutだけは`#[Sensitive]`なEphemeral Value／Outcomeとして現在のHTTP Response中に扱い、Canonical Journalへ空Projection、Outcome Storeへ非保存とします。ApplicationはRaw Tokenを発行直後に必要なCredential Surfaceへ変換し、通常のJournal、Outcome、Logへ残しません。Cookieの`Secure`／`HttpOnly`／`SameSite`、Domain／Path、CSRF、Encryption、Access Control、Retention期間はApplication責務です。登録方法とMigration境界は[Session AuthenticationをOpt-in登録する](application-bootstrap.md#session-authenticationをopt-in登録する)を参照してください。
 
 Frameworkの`AuthenticationMiddleware`はCredential自体をResult、Request Attribute、ExecutionContext、Journalへコピーしません。Authenticated時に渡すのはID／Typeだけの`ActorRef`です。Invalid時はOperation IDを発行せず、安定Codeだけを含む401 JSONを返します。AuthenticatorのBackend障害はInvalidへ丸めず、上位のHTTP Error境界へ伝播します。
 
@@ -282,4 +212,4 @@ Local Viewerは既定無効、明示起動、Loopback限定、起動ごとのRan
 - Retention Period、Legal Hold、Purge承認を文書化する
 - Credential RotationとIncident Responseを検証する
 
-既知の提供範囲は[Current Status](mvp-status.md)、設定は[Configuration Reference](configuration.md)を確認してください。
+既知の提供範囲は[Releases](mvp-status.md)、設定は[Configuration](configuration.md)を確認してください。

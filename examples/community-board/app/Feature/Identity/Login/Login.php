@@ -8,7 +8,6 @@ use App\Domain\Identity\Exception\InvalidCredentials;
 use App\Domain\Identity\IdentityService;
 use BlackOps\Auth\Session\IssuedSession;
 use BlackOps\Auth\Session\SessionManager;
-use BlackOps\Core\Attribute\ExecuteWith;
 use BlackOps\Core\Attribute\OperationType;
 use BlackOps\Core\Exception\OperationRejectedException;
 use BlackOps\Core\Operation;
@@ -16,7 +15,6 @@ use BlackOps\Database\Attribute\Transactional;
 use BlackOps\Http\Attribute\Route;
 
 #[Route(method: 'POST', path: '/auth/login')]
-#[ExecuteWith('BlackOps\\Core\\Execution\\Inline')]
 #[OperationType('auth.login')]
 readonly class Login implements Operation
 {

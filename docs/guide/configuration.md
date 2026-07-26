@@ -1,4 +1,4 @@
-# Configuration Reference（設定一覧）
+# Configuration
 
 Installed Applicationは責務別のPHP Configを`config/`に置きます。Frameworkは存在する既知Fileだけを読み、各Fileは配列、または`Environment`を受け取って配列を返すClosureを返します。
 
@@ -103,7 +103,7 @@ Symfony `#[AsCommand]`付きの具象`Command`だけを発見します。Command
 
 ## Session Authentication
 
-`php blackops make:auth`が生成するOptional `config/auth.php`も同じ`Environment` Snapshotを一度だけ受け取ります。Registration有効化、Session TTL、Touch Intervalを型付きで検証し、`auth.services`を`app.services`の後へMergeします。FileがないApplicationではSession Capabilityを登録しません。KeyとDefaultは[Session Authentication Starter](security.md#環境を設定する)を参照してください。
+`php blackops make:auth`が生成するOptional `config/auth.php`も同じ`Environment` Snapshotを一度だけ受け取ります。Registration有効化、Session TTL、Touch Intervalを型付きで検証し、`auth.services`を`app.services`の後へMergeします。FileがないApplicationではSession Capabilityを登録しません。KeyとDefaultは[環境を設定する](security.md#環境を設定する)を参照してください。
 
 ## Frontend Generation
 
@@ -126,7 +126,9 @@ Base URL、Credential、Fetch、Abort Signal、DeadlineはPHP ConfigやGenerated
 ## Database
 
 ```php
-return [
+use BlackOps\Application\Environment;
+
+return static fn (Environment $env): array => [
     'default' => 'app',
     'connections' => [
         'app' => [
@@ -185,6 +187,8 @@ return static fn (Environment $env): array => [
 `execution.worker.id`はClaimのLease Ownerと、Journalへ記録するWorker System Actorの両方に使います。Actor TypeはFrameworkが`system`へ固定します。同じProcess内のMain ConnectionとHeartbeat ConnectionはWorker IDを共有しますが、DBAL Connection Instanceは分離されます。
 
 Deferred Operationの受付ActorはTransport Contextへ維持されます。WorkerがAttemptを開始すると、origin／authorization Actorは受付時のまま、execution Actorだけが`execution.worker.id`／`system`へ置き換わります。Worker用の別Actor設定はありません。
+
+Framework WorkerのOperation Retryは固定既定値です。最大3 Attempt、初期1秒、倍率2.0、最大60秒、Jitter 20%で、`config/execution.php`に回数やBackoffを変更するKeyはありません。変更が必要な場合だけCustom Worker Adapterへ`SupervisionPolicy`実装を構成します。`outbox_relay.max_attempts`はOutbox再配送の上限であり、Operation Retryとは別の契約です。
 
 ## Observed Journal
 

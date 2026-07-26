@@ -44,11 +44,18 @@ final class AuthGeneratorTest extends TestCase
 
         $register = (string) file_get_contents($directory . '/app/Feature/Identity/Register/Register.php');
         self::assertStringContainsString("#[Route(method: 'POST', path: '/auth/register')]", $register);
-        self::assertStringContainsString("#[ExecuteWith('BlackOps\\\\Core\\\\Execution\\\\Inline')]", $register);
+        self::assertStringNotContainsString('ExecuteWith', $register);
         self::assertStringContainsString('#[Transactional]', $register);
         self::assertStringContainsString('$this->identity->register(', $register);
         self::assertStringNotContainsString('password_hash(', $register);
         self::assertStringNotContainsString('fetchAssociative(', $register);
+
+        foreach (['Login/Login.php', 'Logout/Logout.php'] as $relative) {
+            self::assertStringNotContainsString(
+                'ExecuteWith',
+                (string) file_get_contents($directory . '/app/Feature/Identity/' . $relative),
+            );
+        }
 
         $passwords = (string) file_get_contents($directory . '/app/Domain/Identity/PasswordHasher.php');
         self::assertStringContainsString('private string $dummyHash;', $passwords);

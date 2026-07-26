@@ -1,4 +1,4 @@
-# Database Migrationを適用する
+# Migration
 
 ApplicationのDeployment工程からBlackOpsのPostgreSQL TableへMigrationを明示的に適用します。HTTP ServerやWorkerの起動時にはMigrationを実行しません。
 
@@ -7,8 +7,16 @@ ApplicationのDeployment工程からBlackOpsのPostgreSQL TableへMigrationを�
 Public Console KernelはMigration Commandを常時登録し、対象Commandを実行したときだけ`config/database.php`の解決済みConnection ParameterとSchemaからRunnerを構成します。
 
 ```php
+// config/database.php（単一Connection互換形）
 return [
-    'connection' => $resolvedDbalParameters,
+    'connection' => [
+        'driver' => 'pdo_pgsql',
+        'host' => 'postgres',
+        'port' => 5432,
+        'dbname' => 'blackops',
+        'user' => 'blackops',
+        'password' => 'blackops',
+    ],
     'schema' => 'blackops',
 ];
 ```
@@ -77,10 +85,12 @@ Database Commandは実行時に`Version*.php`を直接読み込みます。Parse
 
 HTTP、Worker、Scheduler、Build、Consoleの`list`／`help`はMigration Directoryを読み込まず、MigrationやDDLを暗黙実行しません。
 
-初期Dataも投入するDeploymentでは、Migration後にApplicationをBuildしてからRoot Seederを実行します。Seederの作り方と責任境界は[Database Seeding](database-seeding.md)を参照してください。
+初期Dataも投入するDeploymentでは、Migration後にApplicationをBuildしてからRoot Seederを実行します。Seederの作り方と責任境界は[Seeder](database-seeding.md)を参照してください。
 
 ```bash
 php blackops database:migrate
 php blackops build:compile
 php blackops database:seed
 ```
+
+BlackOpsはRollback Commandを提供しません。`down()`はDoctrine Migrations互換の定義ですが、Framework CLIから実行する経路はありません。Migrationを取り消す場合は、逆操作を新しいForward Migrationとして適用してください。設定の実例は[Database](configuration.md#database)を参照します。

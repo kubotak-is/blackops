@@ -1,4 +1,4 @@
-# Attributes Reference
+# Attributes
 
 BlackOpsはOperation、Transaction、Value Validation、HTTP Binding、Observed Journal ProjectionのMetadataをPHP Attributeで宣言します。このPageは利用者向けPublic Attribute 24件をSourceと照合しています。`PublicApi` marker自身はFrameworkが公開境界を管理するためのMetadataであり、Application Authoringには使いません。
 
@@ -8,12 +8,12 @@ BlackOpsはOperation、Transaction、Value Validation、HTTP Binding、Observed 
 | --- | --- | --- | --- | --- |
 | `BlackOps\Core\Attribute\OperationType` | 永続的なdot-separated Operation Type IDを宣言する | Operation Class | `#[OperationType('order.place')]` | 必須 |
 | `BlackOps\Core\Attribute\Deferred` | OperationをDeferred実行へ切り替える | Operation Class | `#[Deferred]` | Deferred時だけ付ける。省略時はInline |
-| `BlackOps\Core\Attribute\ExecuteWith` | Inline以外のExecution Strategyを選ぶ互換Attribute | Operation Class | `#[ExecuteWith(Deferred::class)]` | 既存Application互換用。`Deferred`との併置はBuild Error |
+| `BlackOps\Core\Attribute\ExecuteWith` | Execution Strategyを明示するCompatibility Attribute | Operation Class | `#[ExecuteWith(Deferred::class)]` | Canonical Deferredは引数なし`#[Deferred]`。InlineはAttributeを省略する |
 | `BlackOps\Core\Attribute\Authorize` | Operationへ認可Policyを結び付ける | Operation Class | `#[Authorize(PlaceOrderPolicy::class)]` | 認可が必要なOperationへ一度だけ付ける |
 | `BlackOps\Core\Attribute\HandledBy` | Separate Handler Classを指定する | Operation Class | `#[HandledBy(PlaceOrderHandler::class)]` | 不要。Separate Handler互換形だけで使う |
 | `BlackOps\Core\Attribute\Accepts` | Accepted `OperationValue`を明示する | Operation Class | `#[Accepts(PlaceOrderValue::class)]` | 不要。第一引数から推論する |
 | `BlackOps\Core\Attribute\Returns` | `Outcome` Classを明示する | Operation Class | `#[Returns(OrderPlaced::class)]` | 不要。Return Typeから推論する |
-| `BlackOps\Core\Attribute\Sensitive` | Observed ProjectionでPropertyをOmit／Mask／Hashする | `OperationValue` Property | `#[Sensitive(SensitiveMode::Mask)]` | Sensitive Propertyだけで使う |
+| `BlackOps\Core\Attribute\Sensitive` | Observed ProjectionでPropertyをOmit／Mask／Hashする | `OperationValue`／`Outcome` Property | `#[Sensitive(SensitiveMode::Mask)]` | Sensitive Propertyだけで使う |
 | `BlackOps\Core\Attribute\ListOf` | OutcomeのTyped DTO ListでElement Classを宣言する | 非Nullable `array` Outcome Property | `#[ListOf(PostSummary::class)]` | Structured Outcome Listだけで使う |
 | `BlackOps\Core\Attribute\ConsoleCommand` | OperationをBlackOps CLIへ明示公開する | Operation Class | `#[ConsoleCommand('order:create', 'Create an order.')]` | Console入口が必要なOperationへ一度だけ付ける |
 
@@ -58,6 +58,25 @@ Scalarは`string`、`int`、`float`、`bool`とNullable、Nested型は具象`fin
 
 `#[Authorize]`は`AuthorizationPolicy`を実装するClassを一つ指定します。複数条件は複数Attributeではなく、一つのApplication Policy内で組み合わせてください。BuildはPolicy Contractを検証し、PolicyをCompiled ContainerへAutowired登録します。Service Providerで同じPolicyを登録した場合はApplication側のBindingを優先します。
 
+### Sensitive Mode
+
+`BlackOps\Core\Attribute\SensitiveMode`はAttributeではなく、`#[Sensitive]`のModeを選ぶPublic enumです。
+
+```php
+use BlackOps\Core\Attribute\Sensitive;
+use BlackOps\Core\Attribute\SensitiveMode;
+
+final readonly class InviteMemberValue implements OperationValue
+{
+    public function __construct(
+        #[Sensitive(SensitiveMode::Mask)]
+        public string $inviteeEmail,
+    ) {}
+}
+```
+
+`Omit`はFieldを除外し、`Mask`は`[masked]`へ置換し、`Hash`は一方向Digestへ置換します。どのModeも認証、認可、暗号化、Access Control、Retentionを代替しません。
+
 ## Transaction Attributes
 
 | Attribute | 用途 | 付与対象 | 最小例 |
@@ -94,26 +113,7 @@ AOP ProxyはBuild時に`var/build/aop/`へ生成され、Compiled Containerか�
 
 Operation Proxy上のTransaction Interceptorは意図的にPass-throughです。実行時はManifestの解決済みConnection Metadataを固定Lifecycleが読み、AOPと二重にTransactionを開始しません。
 
-`AfterCommit` Methodは明示的な`void` Return Typeが必要で、Static、`final`、Generator、Reference Return、Reference Parameterは使えません。Transaction内の呼出は最外Commit後までQueueされ、Rollbackでは破棄されます。Transaction外では通常のMethod Callとして即時実行されます。Nested、Manual Transaction、失敗時の保証は[Database and Transactions](database-and-transactions.md)を確認してください。
-
-### Sensitive Mode
-
-`BlackOps\Core\Attribute\SensitiveMode`はAttributeではなく、`#[Sensitive]`のModeを選ぶPublic enumです。
-
-```php
-use BlackOps\Core\Attribute\Sensitive;
-use BlackOps\Core\Attribute\SensitiveMode;
-
-final readonly class PlaceOrderValue implements OperationValue
-{
-    public function __construct(
-        #[Sensitive(SensitiveMode::Mask)]
-        public string $recipientEmail,
-    ) {}
-}
-```
-
-`Omit`はFieldを除外し、`Mask`は`[masked]`へ置換し、`Hash`は一方向Digestへ置換します。どのModeも認証、認可、暗号化、Access Control、Retentionを代替しません。
+`AfterCommit` Methodは明示的な`void` Return Typeが必要で、Static、`final`、Generator、Reference Return、Reference Parameterは使えません。Transaction内の呼出は最外Commit後までQueueされ、Rollbackでは破棄されます。Transaction外では通常のMethod Callとして即時実行されます。Nested、Manual Transaction、失敗時の保証は[Transaction](database-and-transactions.md)を確認してください。
 
 ## Value Validation Attributes
 
@@ -127,7 +127,7 @@ final readonly class PlaceOrderValue implements OperationValue
 | `BlackOps\Core\Validation\Attribute\Count` | Collectionの要素数を検証する | `array`等のProperty | `#[Count(min: 1, max: 20)]`。現行HTTP BinderはArray Input非対応 |
 | `BlackOps\Core\Validation\Attribute\Choice` | 許可したScalarへ厳密一致させる | Scalar Property | `#[Choice(['JPY', 'USD'])]` |
 
-Validation BackendはSymfony Validatorですが、ApplicationはBlackOps Namespaceの7 AttributeだけをContractとして使います。Binding後、Inline／Deferred Strategyを選ぶ前に全Violationを集約します。`Count`のValidatorは実装済みですが、現行HTTP BinderはNon-scalar Inputを`binding.type`として拒否するためHTTP Valueでは利用できません。`Length`、`Range`、`Count`の違いとRejected Lifecycleは[Validation](validation.md)を参照してください。
+Validation BackendはSymfony Validatorですが、ApplicationはBlackOps Namespaceの7 AttributeだけをContractとして使います。Binding後、Inline／Deferred Strategyを選ぶ前に全Violationを集約します。`Count`のValidatorは実装済みですが、現行HTTP BinderはNon-scalar Inputを`binding.type`として拒否するためHTTP Valueでは利用できません。`Length`、`Range`、`Count`の違いとRejected Lifecycleは[Value and Validation](validation.md)を参照してください。
 
 ## HTTP Attributes
 
@@ -141,7 +141,7 @@ Validation BackendはSymfony Validatorですが、ApplicationはBlackOps Namespa
 
 `FromBody`、`FromHeader`、`FromPath`、`FromQuery`の名前を省略するとProperty／Parameter名を使います。一つのValueへ複数の入力元を無秩序に混在させず、Route Contractが読み取れる形にしてください。
 
-`FromPath`、`FromQuery`、`FromHeader`はWire文字列を宣言した`string`、`int`、`float`、`bool`へ厳密にBindします。Booleanは小文字の`true`／`false`だけ、数値は空白や先頭`+`のないCanonical形式だけを受理します。`FromBody`はJSON Decoderが返すNative型を検査し、Body文字列を別のScalar型へ変換しません。詳細は[Validation](validation.md#binding-failureは422)を参照してください。
+`FromPath`、`FromQuery`、`FromHeader`はWire文字列を宣言した`string`、`int`、`float`、`bool`へ厳密にBindします。Booleanは小文字の`true`／`false`だけ、数値は空白や先頭`+`のないCanonical形式だけを受理します。`FromBody`はJSON Decoderが返すNative型を検査し、Body文字列を別のScalar型へ変換しません。詳細は[Binding Failureは422](validation.md#binding-failureは422)を参照してください。
 
 ## Typed標準形の全体例
 
@@ -154,13 +154,17 @@ use BlackOps\Http\Attribute\Route;
 #[Route(method: 'POST', path: '/orders')]
 #[OperationType('order.place')]
 #[Authorize(PlaceOrderPolicy::class)]
-final readonly class PlaceOrder implements Operation
+readonly class PlaceOrder implements Operation
 {
+    public function __construct(private OrderRepository $orders) {}
+
     public function handle(PlaceOrderValue $value): OrderPlaced
     {
-        return new OrderPlaced($value->orderId);
+        $order = $this->orders->place($value->customerId, $value->productCode, $value->quantity);
+
+        return new OrderPlaced($order->id());
     }
 }
 ```
 
-この標準形には`#[Accepts]`、`#[Returns]`、`#[HandledBy]`がありません。BuildがSignatureからValue、Outcome、Handlerを確定します。Authoringの詳細は[Operation Authoring](operations.md)、Security境界は[SecurityとSensitive Data](security.md)を確認してください。
+この標準形には`#[Accepts]`、`#[Returns]`、`#[HandledBy]`がありません。BuildがSignatureからValue、Outcome、Handlerを確定します。Authoringの詳細は[Authoring](operations.md)、Security境界は[Security](security.md)を確認してください。

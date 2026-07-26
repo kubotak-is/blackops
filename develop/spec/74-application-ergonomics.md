@@ -250,7 +250,7 @@ Applicationが所有する。
 
 Generator Version 1は`config/auth.php`へMarkerを持つ。Target 0件だけをFirst Runとし、全Target＋Current Markerは内容非比較のNo-op、Partial／Unknown StateはZero-write Errorとする。`--force`はFramework-owned `config/auth.php`、`AuthServiceProvider.php`、`ApplicationSessionIdentityProvider.php`だけを更新し、Domain、Repository、Operation、User／Session Migrationを上書きしない。
 
-Register／LoginはPublic `EphemeralOutcome`を返すRoute付き明示Inline Operationとし、Passwordを含むReceived ValueとRaw Tokenを含む実OutcomeをCanonical Journal／Outcome Store／Statusへ保存しない。Lifecycleは空Dataで記録する。LogoutもCurrent Raw Token Inputを保存しないPropertyなしEphemeral Outcomeを返し、安全に失効させる。
+Register／LoginはPublic `EphemeralOutcome`を返すRoute付きOperationとし、Strategy Attributeを省略してInlineへ解決する。既存の`#[ExecuteWith(Inline::class)]`は互換形として受理するが、Canonical Authoringでは使用しない。Passwordを含むReceived ValueとRaw Tokenを含む実OutcomeをCanonical Journal／Outcome Store／Statusへ保存しない。Lifecycleは空Dataで記録する。LogoutもCurrent Raw Token Inputを保存しないPropertyなしEphemeral Outcomeを返し、安全に失効させる。
 
 GeneratorはAll-or-nothing Preflightと同一VersionのNo-op Successを保証する。既存Fileを無断上書きせず、`--force`でもApplication-owned User／Repository／Password／Policy／Operation／Migrationを置換しない。
 

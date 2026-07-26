@@ -89,7 +89,7 @@ OperationはBlackOps／HTTPのApplication Boundaryとし、Value／ActorをDomai
 
 ## Authentication and Session Boundary
 
-Phase 18以降、Registration／Login／LogoutはBlackOpsの明示Inline／Transactional／Ephemeral Operationとして実装する。PHP Front Controllerは`Application::http()`だけを公開し、独自Authentication Routerを持たない。
+Phase 18以降、Registration／Login／LogoutはStrategy Attributeを省略してInlineへ解決されるTransactional／Ephemeral Operationとして実装する。既存の`#[ExecuteWith(Inline::class)]`は互換形であり、Canonical Authoringでは使用しない。PHP Front Controllerは`Application::http()`だけを公開し、独自Authentication Routerを持たない。
 
 Initial Authentication Routeは概念上、次を持つ。
 

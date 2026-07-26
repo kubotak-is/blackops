@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace BlackOps\Tests\Transport\PostgreSql;
 
-use BlackOps\Core\Attribute\ExecuteWith;
 use BlackOps\Core\Attribute\OperationType;
 use BlackOps\Core\Attribute\Sensitive;
 use BlackOps\Core\EphemeralOutcome;
-use BlackOps\Core\Execution\Inline;
 use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Core\Operation;
 use BlackOps\Core\OperationValue;
@@ -156,7 +154,6 @@ final readonly class PostgreSqlEphemeralTokenIssued implements EphemeralOutcome
 
 #[OperationType('identity.issue')]
 #[Route('POST', '/identity/issue')]
-#[ExecuteWith(Inline::class)]
 final readonly class PostgreSqlEphemeralOperation implements Operation
 {
     public function handle(PostgreSqlEphemeralValue $value): PostgreSqlEphemeralTokenIssued

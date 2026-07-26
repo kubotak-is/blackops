@@ -19,7 +19,6 @@ export async function generateContent({
   manifestPath,
   repositoryRoot,
   contentMap = null,
-  banner = null,
 }) {
   const sourceDirectory = await realpath(sourceRoot);
   const repositoryDirectory = repositoryRoot === undefined ? null : await realpath(repositoryRoot);
@@ -34,6 +33,7 @@ export async function generateContent({
     const markdown = normalizeNewlines(await readFile(absolute, 'utf8'));
     validatePublicContent(markdown, source, repositoryDirectory);
     const { title, body } = extractTitle(markdown, source);
+    const mdx = hasMermaidFence(markdown);
     const metadata = contentMap?.[source] ?? null;
     if (contentMap !== null && metadata === null) {
       throw new Error(`Documentation source is missing public metadata: ${source}`);
@@ -41,10 +41,11 @@ export async function generateContent({
     const slug = metadata === null ? slugFor(source) : publicSlug(metadata.slug, source);
     records.push({
       source,
-      generated: `${slug}.md`,
+      generated: `${slug}.${mdx ? 'mdx' : 'md'}`,
       slug,
       title,
       body,
+      mdx,
       metadata,
     });
   }
@@ -62,7 +63,7 @@ export async function generateContent({
   const referencedAssets = new Set();
   const outputs = records.map((record) => {
     const body = rewriteAndValidateLinks(record, bySource, routes, referencedAssets);
-    const content = `---\n${frontmatter(record, banner)}---\n${body}`;
+    const content = `---\n${frontmatter(record)}---\n${body}`;
 
     return {
       ...record,
@@ -94,13 +95,10 @@ function publicSlug(value, source) {
   return value;
 }
 
-function frontmatter(record, banner) {
+function frontmatter(record) {
   const values = {
     title: record.title,
     description: record.metadata?.description,
-    template: record.metadata?.template,
-    hero: record.metadata?.hero,
-    banner,
   };
 
   return Object.entries(values)
@@ -193,6 +191,27 @@ function extractTitle(markdown, source) {
   return { title, body: lines.join('\n') };
 }
 
+function hasMermaidFence(markdown) {
+  let fenceMarker = null;
+
+  for (const line of markdown.split('\n')) {
+    const fence = line.match(/^\s*(```+|~~~+)(.*)$/);
+    if (fence === null) continue;
+
+    const marker = fence[1][0];
+    const info = fence[2].trim();
+    if (fenceMarker === null) {
+      if (info === 'mermaid') return true;
+      fenceMarker = marker;
+      continue;
+    }
+
+    if (marker === fenceMarker) fenceMarker = null;
+  }
+
+  return false;
+}
+
 function slugFor(source) {
   const withoutExtension = source.slice(0, -3);
   const segments = withoutExtension.split('/');
@@ -262,7 +281,6 @@ function rewriteAndValidateLinks(record, bySource, routes, referencedAssets) {
       if (linked === undefined) {
         throw new Error(`Broken internal documentation link in ${record.source}: ${target}`);
       }
-
       return `${label}(${routeFor(linked.slug)}${suffix})`;
     }),
   );

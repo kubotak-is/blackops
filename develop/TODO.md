@@ -188,6 +188,23 @@ MVP後に残す主要項目:
 ### Phase 20: Security Hardening and Observability
 
 - [x] `#[Deferred]`とTransactional `Operations::dispatch()`でApplication child Operation authoringを簡素化する
+- [x] Documentation WebsiteをBlumeへ移行し、Operation／Journal／Headless、Experimental Notice、利用者向けNavigationを再構成する
+- [x] Landing指定文言とSidebar対象Pageの利用者向けHow-toを補正する（P20-002）
+- [x] Documentation Reviewの正確性5件、孤立Page、Anchor／Navigation Guardを補正する（P20-003）
+- [x] LandingのLink Integrity、視覚階層、GitHub導線を再設計する（P20-004）
+- [x] Astro参照のLanding再設計、Sidebar現在地表示、Blume native Header GitHub導線を補正する（P20-005）
+- [x] 第2回Documentation Reviewの即時退行、Landing Feature均等化、Website正本を補正する（P20-006）
+- [x] Stable 1.1.0で完走できる入門動線とQuickstartを再建する（P20-007）
+- [x] Mermaid PageをBlume native Diagramとして描画し、Artifact／Browser Guardを補正する（P20-008）
+- [x] 第3回Documentation ReviewのLanding／Banner、P1正確性、Internal Link H1 Guardを補正する（P20-009）
+- [x] Mermaid DiagramをDesktop本文幅とMobile局所横Scrollで判読可能にする（P20-008A）
+- [x] Accuracy／User Journey／Browser実表示をEvidence付きで確認するDocumentation Reviewerを整備する（P20-009A）
+- [x] Ephemeral Outcomeから明示Inline `#[ExecuteWith]`を不要にし、Generator／Example／Guideを暗黙Inlineへ統一する（P20-009B）
+- [x] JournalのJSON構造、運用、安全境界、OpenTelemetry将来構想を独立Guideへ統合する（P20-009C）
+- [x] Journal JSONLのParameter説明をTableへ整理する（P20-009D、P20-009EでRuntime Projection修正後にAcceptance）
+- [x] Observed Journalの空Object、Identifier、日時Wire Shapeを修正する（P20-009E）
+- [ ] Testing／Deployment／Referenceを含むTask-oriented Guideを増強する（P20-010）
+- [ ] Site UXを増強し、全Pageの文章編集Passを行う（P20-011以降）
 - [ ] Scheduled Application Operationの入口、Timezone、Misfire、Overlap、Identity、Idempotencyを別Decisionで確定する
 - [ ] Journal／Outcome参照制御、Tenant分離、暗号化Capabilityを強化する
 - [ ] 構造化Log SchemaとOpenTelemetry Adapterを提供する
@@ -199,8 +216,8 @@ MVP後に残す主要項目:
 
 ### Deferred: Documentation Website Publication
 
-- [ ] Userが公開再開を明示した後、Cloudflare Project／GitHub Environmentを設定する
-- [ ] Preview／Production DeployとLive Verificationを実行する
+- [x] Userが公開再開を明示し、Cloudflare Project／GitHub Environmentを設定する
+- [ ] `blackops-php`へRepository設定を同期し、Preview／Production DeployとLive Verificationを実行する（P20-009F）。Repository設定の同期はReview Pending。Remote Deploy／Live VerificationはOrchestrator／Userの実行Gate。
 
 ## 現在の優先事項
 

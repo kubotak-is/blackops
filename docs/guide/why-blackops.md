@@ -1,4 +1,8 @@
-# BlackOpsを選ぶ理由（Why BlackOps）
+# What's BlackOps
+
+BlackOpsはPHP 8.5向けのHeadless Operation Frameworkです。`#[Route]`で同期HTTP、`#[Deferred]`でDeferred Worker、`#[ConsoleCommand]`でCLIから同じOperationを起動し、Lifecycle Journalで実行事実を追跡します。HeadlessなのでUIを持たず、生成したJavaScript Client CodeをNext.js、NuxtJS、SvelteKitなどのFrontendへ接続できます。
+
+一つのOperation Modelに型付きInput、Outcome、Execution Contextを集約し、InlineとDeferredの実行経路を同じLifecycle境界で扱います。
 
 同期HTTPと非同期Jobを別々のModelで実装すると、同じ業務上の意図でもLifecycle、Retry、Trace、Outcomeの扱いが実行経路ごとに分かれます。障害調査ではController、Queue、Worker、Application Logを横断し、「処理を受理したのか」「何回試したのか」「最終結果は何か」を組み立て直さなければなりません。
 
@@ -6,7 +10,7 @@ BlackOpsは、Applicationが実行したい一つの意図を[Operation](glossar
 
 ## Headless Operation Framework
 
-BlackOpsのHeadlessは、画面やTemplate Engine、Authentication UIを提供しないという意味だけではありません。Domain OperationをHTTP Controller、CLI Command、Deferred Workerなどの入口から分離し、Applicationが必要なAdapterとPresentationを選べるRuntimeです。
+BlackOpsのHeadlessはUIを提供せず、JavaScript Client Codeを生成してFrontendへ接続するRuntimeです。Session Core、Authentication Middleware、Authorization PolicyのFramework境界を提供し、User、Password、Registration、Cookie／CSRF、Role、Tenant、Resource PolicyはApplicationが所有します。Domain OperationはHTTP Controller、BlackOps CLI、Deferred Workerなどの入口から分離できます。
 
 BlackOpsはWeb Application全体を置き換えません。既存のRouter、Authentication、Template、Frontendと組み合わせながら、追跡可能にしたい処理をOperationとして実行できます。
 
@@ -20,11 +24,9 @@ BlackOpsはWeb Application全体を置き換えません。既存のRouter、Aut
 - `ExecutionContext`がOperation ID、Correlation、Causation、Attemptを伝播します。
 - `Journal`がLifecycleで起きた事実を追記します。
 
-実行経路ごとの差は[Core Concepts](core-concepts.md)と[Inline／Deferred Execution](execution.md)で確認できます。
+実行経路ごとの差は[Core Concepts](core-concepts.md)と[Inline and Deferred](execution.md)で確認できます。
 
-## No operation stays in the dark
-
-> No operation stays in the dark.
+## Lifecycle Journalで実行事実を追跡する
 
 FrameworkがOperationとして受理した処理は、Inline／Deferredを問わずLifecycle Journalへ記録します。受理、Attempt開始、完了、業務拒否、失敗、Retryなどの事実をOperation IDから追跡できます。
 

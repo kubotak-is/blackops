@@ -1,5 +1,7 @@
 # Documentation Reader Experience
 
+> Superseded for theme runtime, landing presentation, version notice, and sidebar labels by [Blume Documentation Experience](83-blume-documentation-experience.md) and D116. Reader-facing content and preserved public routes remain in force unless the Blume specification states otherwise.
+
 ## Audience and Learning Path
 
 公開Websiteの主対象は、Laravel、Symfonyまたは同等のApplication Frameworkを利用した経験がある中級PHP開発者とする。読者はBlackOps固有用語を知らない前提とし、次の順序で理解できるようにする。

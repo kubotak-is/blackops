@@ -56,7 +56,7 @@ Framework Invocation BoundaryはNative Outcome／Void／`OperationRejectedExcept
 
 OutcomeはNative Scalarに加え、`OutcomeData`を実装するReadonly DTOと`#[ListOf]`で宣言したTyped ListをOutput Shapeとして持てる。Structured Shapeの詳細とUnsupported Typeは[Structured Outcome Contract](73-structured-outcome-contract.md)を正本とする。
 
-Raw Session Token等を一度だけHTTPへ返すOperationは、通常Outcomeではなく`EphemeralOutcome`を実装した具象Outcomeを返す。Ephemeral OutcomeもNative Signatureから推論するが、Route付き明示Inlineだけを許可する。Credential Propertyは`#[Sensitive]`を必須とし、実値はJournal、Outcome Store、Status、Consoleへ渡さない。Frameworkは受付／完了Lifecycleだけを安全な空Dataで記録する。
+Raw Session Token等を一度だけHTTPへ返すOperationは、通常Outcomeではなく`EphemeralOutcome`を実装した具象Outcomeを返す。Ephemeral OutcomeもNative Signatureから推論し、Strategy Attributeを省略したOperationはInlineへ解決する。既存の`#[ExecuteWith(Inline::class)]`は互換形として受理するが、Canonical Authoringでは使用しない。Route、解決後Inline、Credential Propertyの`#[Sensitive]`を必須とし、実値はJournal、Outcome Store、Status、Consoleへ渡さない。Frameworkは受付／完了Lifecycleだけを安全な空Dataで記録する。
 
 Legacy Self-handled／Separate Handlerは互換Contractとして次を使用する。
 

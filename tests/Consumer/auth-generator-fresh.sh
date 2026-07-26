@@ -166,20 +166,33 @@ LOGIN_TOKEN=$(json_token "${TEMP}/login.json")
 test "${#LOGIN_TOKEN}" = '43'
 test "${LOGIN_TOKEN}" != "${REGISTER_TOKEN}"
 
-for case in wrong missing; do
-    case "${case}" in
-        wrong) INVALID_EMAIL="${EMAIL}" ;;
-        missing) INVALID_EMAIL="missing-${EMAIL}" ;;
-    esac
-    STATUS=$(curl --silent --output "${TEMP}/invalid-${case}.json" --write-out '%{http_code}' \
-        -X POST "http://127.0.0.1:${PORT}/auth/login" -H 'Content-Type: application/json' \
-        --data "{\"email\":\"${INVALID_EMAIL}\",\"password\":\"${PASSWORD}-wrong\"}")
-    test "${STATUS}" = '401'
-done
-WRONG_SAFE=$(sed -E 's/,"operationId":"[^"]*"//' "${TEMP}/invalid-wrong.json")
-MISSING_SAFE=$(sed -E 's/,"operationId":"[^"]*"//' "${TEMP}/invalid-missing.json")
-test "${WRONG_SAFE}" = "${MISSING_SAFE}"
+STATUS=$(curl --silent --output "${TEMP}/invalid-wrong.json" --write-out '%{http_code}' \
+    -X POST "http://127.0.0.1:${PORT}/auth/login" -H 'Content-Type: application/json' \
+    --data "{\"email\":\"${EMAIL}\",\"password\":\"${PASSWORD}-wrong\"}")
+test "${STATUS}" = '401'
 grep -Fq '"code":"auth.invalid_credentials"' "${TEMP}/invalid-wrong.json"
+
+STATUS=$(curl --silent --output "${TEMP}/invalid-missing-user.json" --write-out '%{http_code}' \
+    -X POST "http://127.0.0.1:${PORT}/auth/login" -H 'Content-Type: application/json' \
+    --data "{\"email\":\"missing-${EMAIL}\",\"password\":\"${PASSWORD}-wrong\"}")
+test "${STATUS}" = '401'
+WRONG_SAFE=$(sed -E 's/,"operationId":"[^"]*"//' "${TEMP}/invalid-wrong.json")
+MISSING_SAFE=$(sed -E 's/,"operationId":"[^"]*"//' "${TEMP}/invalid-missing-user.json")
+test "${WRONG_SAFE}" = "${MISSING_SAFE}"
+
+STATUS=$(curl --silent --output "${TEMP}/invalid-short.json" --write-out '%{http_code}' \
+    -X POST "http://127.0.0.1:${PORT}/auth/login" -H 'Content-Type: application/json' \
+    --data "{\"email\":\"${EMAIL}\",\"password\":\"short\"}")
+test "${STATUS}" = '422'
+grep -Fq '"code":"validation.failed"' "${TEMP}/invalid-short.json"
+grep -Fq '"code":"validation.length"' "${TEMP}/invalid-short.json"
+
+STATUS=$(curl --silent --output "${TEMP}/invalid-missing-password.json" --write-out '%{http_code}' \
+    -X POST "http://127.0.0.1:${PORT}/auth/login" -H 'Content-Type: application/json' \
+    --data "{\"email\":\"${EMAIL}\"}")
+test "${STATUS}" = '422'
+grep -Fq '"code":"validation.failed"' "${TEMP}/invalid-missing-password.json"
+grep -Fq '"code":"binding.required"' "${TEMP}/invalid-missing-password.json"
 
 USER_ID=$(HTTP_PORT="${PORT}" "${COMPOSE[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
     "SELECT id FROM public.users WHERE email = '${EMAIL}'")

@@ -1,4 +1,4 @@
-# Database and Transactions
+# Transaction
 
 BlackOpsはDoctrine DBALの`Connection`をそのまま使い、Transaction境界だけをFrameworkへ統合します。ORM、Active Record、Repository基底Class、SQL Wrapperは提供しません。RepositoryはDefault `Connection`または`DatabaseManager`をConstructor Injectionしてください。
 
@@ -69,6 +69,8 @@ Deferred WorkerのHeartbeatはApplication用`DatabaseManager`とは別Managerの
 ## Transactional Service
 
 DI Containerが管理する非`final` ServiceのClassまたはPublic Methodへ`#[Transactional]`を付けます。Connectionを省略すると`config/database.php`の`default`を使います。
+
+`#[Transactional]`はBuild時にAOP Proxyを生成するため、付与するClassはOperationを含めて`final`にできません。`make:operation`の生成物は`final`なので、`#[Transactional]`を付ける場合は`final`を外してください。`final`のままでは`AOP target class ... must not be final`で拒否されます。
 
 ```php
 <?php

@@ -134,7 +134,7 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: >-
           wrangler pages deploy docs/website/dist
-          --project-name=blackops-docs
+          --project-name=blackops-php
           --branch=pr-${{ github.event.pull_request.number }}
 
   production:
@@ -191,5 +191,5 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: >-
           wrangler pages deploy docs/website/dist
-          --project-name=blackops-docs
+          --project-name=blackops-php
           --branch=main

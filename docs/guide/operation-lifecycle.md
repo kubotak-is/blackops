@@ -1,6 +1,6 @@
-# Operation Lifecycleを理解する
+# Lifecycle
 
-BlackOpsはInlineとDeferredを同じLifecycle Modelで記録します。ApplicationはOperation IDを相関Keyとして受付からTerminal Stateまで追跡できます。
+BlackOpsはInlineとDeferredを同じLifecycle Modelで記録します。ApplicationはOperation IDを相関Keyとして受付からTerminal Stateまで追跡できます。Outcome RecordはDeferred完了時だけ保存し、Inline OutcomeはHTTP Responseだけへ返します。
 
 ## 共通Lifecycle
 
@@ -55,8 +55,10 @@ Retryable ExceptionはSupervision Policyに従い`attempt.failed`と`attempt.ret
 
 ## Outcome
 
-CompletedだけがTyped Outcomeを保存します。Rejected、Failed、Retry Scheduled、Dead Letter、Claim LostはOutcome Recordを作成しません。詳細は[Outcome Retrieval](outcome-retrieval.md)を参照してください。
+DeferredのCompletedだけがTyped Outcomeを保存します。Inline completedはHTTP ResponseだけへOutcomeを返し、Outcome Recordを作成しません。Rejected、Failed、Retry Scheduled、Dead Letter、Claim LostはOutcome Recordを作成しません。詳細は[Outcome](outcome-retrieval.md)を参照してください。
 
-JournalとOutcomeは別々の保持期間を設定できます。Operation単位のHoldと安全なPurgeについては[Data Retention](retention.md)を参照してください。
+JournalとOutcomeは別々の保持期間を設定できます。Operation単位のHoldと安全なPurgeについては[Retention](retention.md)を参照してください。
 
-仕組みを理解したら[Installation](installation.md)からApplicationを作成します。
+Lifecycle EventのObserved JSONL、Canonical／Observedの境界、Observer Replayは[Journal](journal.md)で確認できます。
+
+仕組みを理解したら[Install](installation.md)からApplicationを作成します。

@@ -6,6 +6,7 @@ namespace BlackOps\Tests\Internal\Registry;
 
 use BlackOps\Core\Attribute\Accepts;
 use BlackOps\Core\Attribute\ConsoleCommand;
+use BlackOps\Core\Attribute\Deferred as DeferredAttribute;
 use BlackOps\Core\Attribute\ExecuteWith;
 use BlackOps\Core\Attribute\HandledBy;
 use BlackOps\Core\Attribute\OperationType;
@@ -14,6 +15,7 @@ use BlackOps\Core\Attribute\Returns;
 use BlackOps\Core\Attribute\Sensitive;
 use BlackOps\Core\EphemeralOutcome;
 use BlackOps\Core\Execution\Deferred;
+use BlackOps\Core\Execution\ExecutionStrategy;
 use BlackOps\Core\Execution\Inline;
 use BlackOps\Core\Operation;
 use BlackOps\Core\OperationEnvelope;
@@ -53,8 +55,15 @@ final class EphemeralOutcomeContractCompilerTest extends TestCase
         self::assertSame(TokenIssued::class, $legacy->outcome);
     }
 
+    public function testCompilesImplicitInlineEphemeralOutcome(): void
+    {
+        $metadata = new OperationMetadataCompiler()->compile(ImplicitInlineEphemeralOperation::class);
+
+        self::assertSame(Inline::class, $metadata->strategy);
+    }
+
     #[DataProvider('invalidOperationProvider')]
-    public function testRejectsOperationsOutsideExplicitInlineHttpBoundary(string $operation, string $message): void
+    public function testRejectsOperationsOutsideInlineHttpBoundary(string $operation, string $message): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage($message);
@@ -65,8 +74,9 @@ final class EphemeralOutcomeContractCompilerTest extends TestCase
     /** @return iterable<string, array{class-string<Operation>, string}> */
     public static function invalidOperationProvider(): iterable
     {
-        yield 'implicit inline' => [ImplicitInlineEphemeralOperation::class, 'explicit Inline'];
-        yield 'deferred' => [DeferredEphemeralOperation::class, 'explicit Inline'];
+        yield 'deferred' => [DeferredEphemeralOperation::class, 'Inline execution strategy'];
+        yield 'canonical deferred' => [CanonicalDeferredEphemeralOperation::class, 'Inline execution strategy'];
+        yield 'custom strategy' => [CustomEphemeralOperation::class, 'Inline execution strategy'];
         yield 'route-less' => [RouteLessEphemeralOperation::class, 'exactly one HTTP Route'];
         yield 'console' => [ConsoleEphemeralOperation::class, 'must not declare ConsoleCommand'];
     }
@@ -134,7 +144,6 @@ final readonly class LegacyEphemeralHandler implements OperationHandler
 #[HandledBy(LegacyEphemeralHandler::class)]
 #[Returns(TokenIssued::class)]
 #[Route('POST', '/ephemeral-legacy')]
-#[ExecuteWith(Inline::class)]
 final readonly class LegacyEphemeralOperation implements Operation {}
 
 #[OperationType('ephemeral.implicit')]
@@ -151,6 +160,30 @@ final readonly class ImplicitInlineEphemeralOperation implements Operation
 #[Route('POST', '/ephemeral-deferred')]
 #[ExecuteWith(Deferred::class)]
 final readonly class DeferredEphemeralOperation implements Operation
+{
+    public function handle(EphemeralValue $value): TokenIssued
+    {
+        return new TokenIssued('raw-secret-must-not-appear', 'later');
+    }
+}
+
+#[OperationType('ephemeral.deferred.canonical')]
+#[Route('POST', '/ephemeral-deferred-canonical')]
+#[DeferredAttribute]
+final readonly class CanonicalDeferredEphemeralOperation implements Operation
+{
+    public function handle(EphemeralValue $value): TokenIssued
+    {
+        return new TokenIssued('raw-secret-must-not-appear', 'later');
+    }
+}
+
+final readonly class CustomEphemeralStrategy implements ExecutionStrategy {}
+
+#[OperationType('ephemeral.custom')]
+#[Route('POST', '/ephemeral-custom')]
+#[ExecuteWith(CustomEphemeralStrategy::class)]
+final readonly class CustomEphemeralOperation implements Operation
 {
     public function handle(EphemeralValue $value): TokenIssued
     {

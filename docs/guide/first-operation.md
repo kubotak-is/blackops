@@ -1,15 +1,19 @@
-# チュートリアル: Operationを作る
+# First Operation
 
 BlackOps CLIから`Billing/CreateInvoice`の骨格を生成し、HTTPで受け付けるDeferred Operationへ仕上げます。
 
-> **Release:** このTutorialはExperimental Stable `1.1.0`のProject Root `blackops`、`make:operation`、宣言的Validation Attributeを使用します。Step 4以降の`#[Authorize]`とSample Token Authenticationは`main`の未Release Surfaceであり、Repository Quickstart向けです。
+このPageは[Install](installation.md)のStable HTTP 200確認、または[Quickstart and Skeleton](mvp-sample.md)のRepository `main` Preview準備が完了したProject Rootを前提にします。Step 1〜3（Generator、Value、Outcome）に加えて、`#[Route]`、Deferred実行、WorkerはStable `1.1.0`でも利用できます。main Preview限定なのは、Step 4の`#[Authorize]`とSample Token Header、Step 5のFrontend検証、Step 6・7のStatus Resourceです。Stableではこれらを除いて実行してください。Container CLIを使う場合は`docker compose run --rm app`を各Commandの前へ付け、Hostの`php blackops`と混在させません。
+
+起動、Migration、Buildで詰まった場合は[Troubleshooting](troubleshooting.md)を参照してください。
+
+> **Release:** このTutorialはExperimental Stable `1.1.0`のProject Root `blackops`、`make:operation`、宣言的Validation Attributeを使用します。`#[Authorize]`とSample Token Authentication、Frontend／Status Resourceは`main`の未Release Surfaceであり、Repository Quickstart向けです。
 
 ## 1. Generatorから始める
 
 Project Rootで実行します。
 
 ```bash
-php blackops make:operation Billing/CreateInvoice --type=billing.invoice.create
+docker compose run --rm app php blackops make:operation Billing/CreateInvoice --type=billing.invoice.create
 ```
 
 ```text
@@ -120,6 +124,8 @@ final readonly class CreateInvoice implements Operation
     }
 }
 ```
+
+main PreviewではCanonical Attributeの`#[Deferred]`を使います。Stable `1.1.0`で同じDeferred実行を指定する場合は、`use BlackOps\Core\Attribute\ExecuteWith;`と`use BlackOps\Core\Execution\Deferred;`を追加し、`#[ExecuteWith(Deferred::class)]`へ置き換えてください。Stableへ`#[Deferred]`を案内しないことが重要です。
 
 Value型とOutcome型は`handle()` Signatureから推論されます。`Accepts`、`Returns`、Handler用Interfaceは不要です。`ExecutionContext`が不要なら第二引数ごと省略できます。
 
@@ -251,7 +257,7 @@ if (accepted.ok && accepted.kind === 'accepted') {
 }
 ```
 
-Canonical PostgreSQL Journalは監査と再現の正本としてActor IDとRaw Valueを保持します。Database暗号化、Access Control、RetentionはApplication／運用の責務です。PHP AdapterからOutcomeだけを読む低Level ContractはPublic `OutcomeReader`です。Pending、Terminal、Expiredを区別するときは[Outcome Retrieval](outcome-retrieval.md)のStatus Queryを主経路にしてください。
+Canonical PostgreSQL Journalは監査と再現の正本としてActor IDとRaw Valueを保持します。Database暗号化、Access Control、RetentionはApplication／運用の責務です。PHP AdapterからOutcomeだけを読む低Level ContractはPublic `OutcomeReader`です。Pending、Terminal、Expiredを区別するときは[Outcome](outcome-retrieval.md)のStatus Queryを主経路にしてください。
 
 作業後はRuntimeを停止します。
 
@@ -259,4 +265,4 @@ Canonical PostgreSQL Journalは監査と再現の正本としてActor IDとRaw V
 docker compose down
 ```
 
-Getting Startedを続ける場合は[Directory Structure](directory-structure.md)でApplicationが所有する配置を確認してください。宣言的Rule、Cross-field Validation、Business Rejectionの詳細は[Validation](validation.md)を参照します。
+Getting Startedを続ける場合は[Directory](directory-structure.md)でApplicationが所有する配置を確認してください。宣言的Rule、Cross-field Validation、Business Rejectionの詳細は[Value and Validation](validation.md)を参照します。

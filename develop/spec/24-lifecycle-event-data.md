@@ -64,3 +64,7 @@ Stack Trace、File Path、引数値はCanonical Journalの必須Fieldにしな�
 追加Dataを持たないEventは共通の `EmptyJournalData` を使用する。
 
 Wire上は空Object `{}` とし、`data` Fieldを省略または `null` にしない。
+
+Observed JSONLでもObject Shapeを維持する。PHP内部の空Array表現へ潰してJSON Array `[]`にしてはならない。`OperationCompletedData`が持つ`EmptyOutcome`もNested Empty Object `{}`として表現し、Empty List `[]`とは区別する。
+
+Retry Scheduled／Dead Letter DataのFramework IdentifierはCanonical lowercase UUIDv7 String、日時はUTC、Microseconds付きRFC 3339 Stringへ変換する。

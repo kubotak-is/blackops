@@ -1,123 +1,77 @@
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+import path from 'node:path';
 import test from 'node:test';
 import { sidebar, validateNavigation } from '../site-navigation.mjs';
+import { contentMap } from '../content-map.mjs';
+import { repositoryRoot } from '../scripts/website-paths.mjs';
 
-test('puts the five Getting Started pages in the required order with the Tutorial label', () => {
-  const gettingStarted = sidebar.find(({ label }) => label === 'Getting Started');
-
-  assert.deepEqual(gettingStarted?.items, [
-    'getting-started/installation',
-    'getting-started/quickstart',
-    { label: 'Tutorial', link: 'getting-started/first-operation' },
-    'getting-started/directory-structure',
-    'getting-started/local-runtime',
-  ]);
-});
-
-test('keeps all eleven sections, moved pages, and the six-page Reference in exact order', () => {
+test('matches the D117 section order and public labels', () => {
   assert.deepEqual(sidebar.map(({ label }) => label), [
-    'Overview',
+    'Introduction',
     'Getting Started',
-    'Operations',
-    'Execution & Workers',
-    'Data & Retention',
+    'Operation',
+    'Execution and Workers',
+    'Database',
+    'Auth',
+    'Frontend',
     'Testing',
+    'Tutorial',
     'Deployment',
     'Security',
     'Troubleshooting',
     'Releases',
     'Reference',
   ]);
-  assert.deepEqual(sidebar.find(({ label }) => label === 'Overview')?.items, [
-    'concepts/why-blackops',
-    'concepts/core-concepts',
-    'concepts/lifecycle',
+  const labels = sidebar.flatMap(({ items }) => items.map((item) => typeof item === 'string' ? item : item.label));
+  for (const label of ["What's BlackOps", 'Core Concepts', 'Quickstart and Skeleton', 'First Operation', 'Authoring', 'Generators', 'Inline and Deferred', 'Execution Context', 'ConsoleCommand', 'Outbox', 'Lifecycle', 'Journal', 'Retention', 'Authentication', 'Authorization']) {
+    assert.ok(labels.includes(label) || sidebar.some((section) => section.label === label), label);
+  }
+  assert.deepEqual(sidebar.find((section) => section.label === 'Tutorial')?.items, [
+    { label: 'BlackOps Board Reference Application', link: 'testing/community-board' },
   ]);
-  assert.deepEqual(sidebar.find(({ label }) => label === 'Operations')?.items, [
-    'operations/authoring',
-    'operations/generators',
-    'operations/validation',
-  ]);
-  assert.deepEqual(sidebar.find(({ label }) => label === 'Testing')?.items, [
-    'testing',
-    'testing/community-board',
-  ]);
-  assert.deepEqual(sidebar.find(({ label }) => label === 'Reference')?.items, [
-    'reference/core-api',
-    'reference/attributes',
-    'reference/configuration',
-    'reference/project-cli',
-    'reference/observer-replay',
-    'reference/application-bootstrap',
-    'reference/glossary',
-  ]);
-  assert.deepEqual(sidebar.find(({ label }) => label === 'Security')?.items, ['security']);
-  assert.deepEqual(sidebar.find(({ label }) => label === 'Troubleshooting')?.items, ['troubleshooting']);
-  assert.deepEqual(sidebar.find(({ label }) => label === 'Releases')?.items, ['releases/current-status']);
 });
 
-test('accepts one placement for every mapped public page in eleven sections', () => {
-  const contentMap = {
-    'README.md': { slug: 'index' },
-    'why.md': { slug: 'concepts/why' },
-    'install.md': { slug: 'getting-started/install' },
-    'operation.md': { slug: 'operations/authoring' },
-    'execution.md': { slug: 'execution/http' },
-    'database.md': { slug: 'database/migrations' },
-    'testing.md': { slug: 'testing' },
-    'deployment.md': { slug: 'deployment/worker-operations' },
-    'security.md': { slug: 'security' },
-    'troubleshooting.md': { slug: 'troubleshooting' },
-    'status.md': { slug: 'releases/current-status' },
-    'reference.md': { slug: 'reference/configuration' },
-  };
-  const navigation = [
-    { label: 'Overview', items: ['concepts/why'] },
-    { label: 'Getting Started', items: ['getting-started/install'] },
-    { label: 'Operations', items: ['operations/authoring'] },
-    { label: 'Execution & Workers', items: ['execution/http'] },
-    { label: 'Data & Retention', items: ['database/migrations'] },
-    { label: 'Testing', items: ['testing'] },
-    { label: 'Deployment', items: ['deployment/worker-operations'] },
-    { label: 'Security', items: ['security'] },
-    { label: 'Troubleshooting', items: ['troubleshooting'] },
-    { label: 'Releases', items: ['releases/current-status'] },
-    { label: 'Reference', items: ['reference/configuration'] },
-  ];
-
-  assert.doesNotThrow(() => validateNavigation(contentMap, navigation));
+test('accepts every mapped public content exactly once in the sidebar', () => {
+  assert.doesNotThrow(() => validateNavigation(contentMap));
 });
 
-test('rejects missing, duplicate, unknown, or reordered sidebar placement', () => {
-  const contentMap = {
-    'README.md': { slug: 'index' },
-    'install.md': { slug: 'getting-started/install' },
-  };
-  const sections = (gettingStarted) => [
-    { label: 'Overview', items: [] },
-    { label: 'Getting Started', items: gettingStarted },
-    { label: 'Operations', items: [] },
-    { label: 'Execution & Workers', items: [] },
-    { label: 'Data & Retention', items: [] },
-    { label: 'Testing', items: [] },
-    { label: 'Deployment', items: [] },
-    { label: 'Security', items: [] },
-    { label: 'Troubleshooting', items: [] },
-    { label: 'Releases', items: [] },
-    { label: 'Reference', items: [] },
-  ];
+test('rejects reordered, duplicate, and unknown sidebar entries', () => {
+  const duplicate = sidebar.map((section) => ({ ...section, items: [...section.items] }));
+  duplicate[1].items.push('getting-started/installation');
+  assert.throws(() => validateNavigation(contentMap, duplicate), /duplicate public slugs/);
 
-  assert.throws(() => validateNavigation(contentMap, sections([])), /not placed in the sidebar/);
-  assert.throws(
-    () => validateNavigation(contentMap, sections(['getting-started/install', 'getting-started/install'])),
-    /duplicate public slugs/,
-  );
-  assert.throws(
-    () => validateNavigation(contentMap, sections(['getting-started/install', 'getting-started/missing'])),
-    /unknown public documentation/,
-  );
-  assert.throws(
-    () => validateNavigation(contentMap, [...sections(['getting-started/install'])].reverse()),
-    /required public sections in order/,
-  );
+  const unknown = sidebar.map((section) => ({ ...section, items: [...section.items] }));
+  unknown[1].items.push('getting-started/missing');
+  assert.throws(() => validateNavigation(contentMap, unknown), /unknown public documentation/);
+
+  const missing = sidebar.map((section) => ({ ...section, items: [...section.items] }));
+  missing[1].items = missing[1].items.slice(0, -1);
+  assert.throws(() => validateNavigation(contentMap, missing), /Sidebar is missing public documentation/);
+
+  const reordered = sidebar.map((section) => ({ ...section, items: [...section.items] }));
+  reordered[1].items.reverse();
+  assert.throws(() => validateNavigation(contentMap, reordered), /Sidebar public entries must match/);
+
+  assert.throws(() => validateNavigation(contentMap, [...sidebar].reverse()), /required public sections in order/);
+});
+
+test('keeps every sidebar reader label synchronized with its source H1', async () => {
+  const pages = new Map([
+    ["What's BlackOps", 'why-blackops.md'], ['Core Concepts', 'core-concepts.md'], ['Install', 'installation.md'], ['Quickstart and Skeleton', 'mvp-sample.md'],
+    ['First Operation', 'first-operation.md'], ['Directory', 'directory-structure.md'], ['Local Runtime', 'runtime-bootstrap.md'], ['Authoring', 'operations.md'],
+    ['Generators', 'project-generators.md'], ['Value and Validation', 'validation.md'], ['Outcome', 'outcome-retrieval.md'], ['Lifecycle', 'operation-lifecycle.md'], ['Journal', 'journal.md'],
+    ['Inline and Deferred', 'execution.md'], ['Execution Context', 'execution-context.md'], ['ConsoleCommand', 'console-command.md'], ['Outbox', 'outbox.md'], ['Transaction', 'database-and-transactions.md'],
+    ['Retention', 'retention.md'],
+    ['Migration', 'database-migrations.md'], ['Seeder', 'database-seeding.md'], ['Authentication', 'authentication.md'],
+    ['Authorization', 'authorization.md'], ['Frontend', 'frontend.md'], ['Testing', 'testing.md'],
+    ['BlackOps Board Reference Application', 'community-board.md'], ['Deployment', 'deployment.md'], ['Security', 'security.md'],
+    ['Troubleshooting', 'troubleshooting.md'], ['Releases', 'mvp-status.md'], ['Core API', 'core-api.md'],
+    ['Attributes', 'attributes.md'], ['Configuration', 'configuration.md'], ['BlackOps CLI', 'project-cli.md'],
+    ['Observer Replay', 'observer-replay.md'], ['Application Bootstrap', 'application-bootstrap.md'], ['Glossary', 'glossary.md'],
+  ]);
+  for (const [label, source] of pages) {
+    const content = await readFile(path.join(repositoryRoot, 'docs/guide', source), 'utf8');
+    assert.match(content, new RegExp(`^# ${label.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&')}$`, 'm'), label);
+  }
 });

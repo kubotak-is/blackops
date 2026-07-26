@@ -1,6 +1,14 @@
 # D081: Documentation Website Delivery Contract
 
-Status: Partially Superseded by D093
+Status: Partially Superseded by D093, D116, and D129
+
+## D129 Supersession
+
+D129はCloudflare Pages Project名`blackops-docs`と初期Host `blackops-docs.pages.dev`の決定だけを、`blackops-php`と`blackops-php.pages.dev`へ置き換える。Direct Upload、Artifact、Credential、Preview／Production分離の境界は維持する。
+
+## D116 Supersession
+
+D116 supersedes this Decision's Astro Starlight runtime, theme, and presentation details. The `docs/guide/` ownership, public URL and redirect preservation, static `dist/` artifact, Cloudflare Direct Upload boundary, and credential separation remain in force.
 
 ## Supersession
 

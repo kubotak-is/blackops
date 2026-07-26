@@ -1,4 +1,4 @@
-# Project Generatorを使う
+# Generators
 
 Install済みApplicationでは、Project Rootの`blackops`からFrameworkが提供するGeneratorを実行できます。生成対象となる[Operation](glossary.md#operation)は、Applicationが実行したい一つの意図と処理単位です。
 
@@ -93,4 +93,4 @@ app/Infrastructure/Seed/DatabaseSeeder.php
 app/Infrastructure/Seed/Catalog/ProductSeeder.php
 ```
 
-生成Classは`BlackOps\Database\Seeder`を実装し、空の`run(): void`を持ちます。Database接続、Migration、Build、Seed実行、Rootへの自動登録は行いません。子Seederの実行順はRoot `DatabaseSeeder`へ明示してください。詳しくは[Database Seeding](database-seeding.md)を参照してください。
+生成Classは`BlackOps\Database\Seeder`を実装し、空の`run(): void`を持ちます。Database接続、Migration、Build、Seed実行、Rootへの自動登録は行いません。子Seederの実行順はRoot `DatabaseSeeder`へ明示してください。詳しくは[Seeder](database-seeding.md)を参照してください。

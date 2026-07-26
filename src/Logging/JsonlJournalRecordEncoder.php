@@ -7,6 +7,14 @@ namespace BlackOps\Logging;
 use BlackOps\Core\ActorContext;
 use BlackOps\Core\ActorRef;
 use BlackOps\Core\Attribute\PublicApi;
+use BlackOps\Core\Identifier\AttemptId;
+use BlackOps\Core\Identifier\CausationId;
+use BlackOps\Core\Identifier\CorrelationId;
+use BlackOps\Core\Identifier\JournalRecordId;
+use BlackOps\Core\Identifier\OperationId;
+use BlackOps\Core\Identifier\OutboxRecordId;
+use BlackOps\Core\Identifier\RetentionHoldId;
+use BlackOps\Core\Identifier\RetentionPurgeAuditId;
 use BlackOps\Journal\JournalAttempt;
 use BlackOps\Journal\JournalOperation;
 use BlackOps\Journal\ObservedJournalRecord;
@@ -14,11 +22,22 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
 use JsonException;
-use Stringable;
 
 #[PublicApi]
 final readonly class JsonlJournalRecordEncoder
 {
+    /** @var list<class-string> */
+    private const FRAMEWORK_IDENTIFIER_TYPES = [
+        AttemptId::class,
+        CausationId::class,
+        CorrelationId::class,
+        JournalRecordId::class,
+        OperationId::class,
+        OutboxRecordId::class,
+        RetentionHoldId::class,
+        RetentionPurgeAuditId::class,
+    ];
+
     /**
      * @throws JsonException
      */
@@ -41,7 +60,7 @@ final readonly class JsonlJournalRecordEncoder
             'sequence' => $record->sequence,
             'operation' => $this->operation($record->operation),
             'attempt' => $record->attempt === null ? null : $this->attempt($record->attempt),
-            'data' => $this->normalize($record->data),
+            'data' => $record->data === [] ? new \stdClass() : $this->array($record->data),
         ];
     }
 
@@ -114,12 +133,25 @@ final readonly class JsonlJournalRecordEncoder
             return $this->time($value);
         }
 
-        if ($value instanceof Stringable) {
-            return (string) $value;
-        }
-
         if (is_array($value)) {
             return $this->array($value);
+        }
+
+        if (is_object($value)) {
+            return $this->normalizeObject($value);
+        }
+
+        return null;
+    }
+
+    private function normalizeObject(object $value): mixed
+    {
+        if ($value instanceof \stdClass) {
+            return (object) $this->array(get_object_vars($value));
+        }
+
+        if (in_array($value::class, self::FRAMEWORK_IDENTIFIER_TYPES, strict: true)) {
+            return $value->toString();
         }
 
         return null;

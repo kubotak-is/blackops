@@ -48,8 +48,8 @@ test('reader orientation explains the headless unified model and its journal bou
   const why = await guide('why-blackops.md');
 
   assert.match(why, /Headless Operation Framework/);
-  assert.match(why, /HTTP Controller、CLI Command、Deferred Workerなどの入口から分離/);
-  assert.match(why, /No operation stays in the dark/);
+  assert.match(why, /HTTP Controller、BlackOps CLI、Deferred Workerなどの入口から分離/);
+  assert.match(why, /Lifecycle Journalで実行事実を追跡する/);
   assert.match(why, /Operationとして受理する前のProtocol Error/);
   assert.match(why, /一対一のAPI移植表ではありません/);
   for (const mapping of [
@@ -63,26 +63,105 @@ test('reader orientation explains the headless unified model and its journal bou
   }
 });
 
-test('landing presents the product title, three feature links, and Installation as the primary action', async () => {
+test('guide landing source keeps the exact product title and three claims', async () => {
   const landing = await guide('README.md');
-  const contentMapSource = await readFile(path.join(repositoryRoot, 'docs/website/content-map.mjs'), 'utf8');
-  const links = [...landing.matchAll(/<a class="landing-feature-link" href="([^"]+)">/g)];
 
-  assert.match(landing, /^# BlackOps — The PHP Framework$/m);
-  assert.equal(links.length, 3);
-  for (const value of [
-    'Operationが中心',
-    'Journalですべてを可視化',
-    '非同期処理を標準装備',
-  ]) assert.match(landing, new RegExp(value));
-  assert.deepEqual(links.map((link) => link[1]), [
-    '/operations/authoring/',
-    '/concepts/lifecycle/',
-    '/execution/http-and-deferred/',
+  assert.match(landing, /^# BlackOps - The PHP Framework$/m);
+  for (const value of ['Operation', 'Journal', 'BlackOpsはフロントエンドを持ちません', 'JavaScript向けに接続クライアントのコードを自動生成します']) {
+    assert.match(landing, new RegExp(value));
+  }
+  assert.match(landing, /\]\(frontend\.md\)/);
+});
+
+test('landing product contract keeps the why link and exact Deferred sample', async () => {
+  const landing = await readFile(path.join(repositoryRoot, 'docs/website/pages/index.astro'), 'utf8');
+
+  assert.match(landing, /href="\/concepts\/why-blackops"/);
+  assert.doesNotMatch(landing, /href="https:\/\/github\.com\/kubotak-is\/blackops"/);
+  const sample = landing.match(/<pre><code>([\s\S]*?)<\/code><\/pre>/)?.[1] ?? '';
+  const rendered = sample
+    .replace(/<[^>]+>/g, '')
+    .replace(/&#123;/g, '{')
+    .replace(/&#125;/g, '}');
+  assert.match(rendered, /#\[Route\(method: 'POST', path: '\/reports'\)\]/);
+  assert.match(rendered, /#\[Deferred\]/);
+  assert.match(rendered, /\n    public function handle\(\n        GenerateReportValue \$value,\n        ExecutionContext \$context,\n    \): ReportGenerated\n    \{\n        return new ReportGenerated\(\n            \$value->reportName,\n            '\/reports\/generated\/' \. \$value->reportName \. '\.json',\n        \);\n    \}/);
+});
+
+test('Journal guide is reachable from the landing CTA and explains its reader boundary', async () => {
+  const [landing, journal] = await Promise.all([
+    readFile(path.join(repositoryRoot, 'docs/website/pages/index.astro'), 'utf8'),
+    guide('journal.md'),
   ]);
-  assert.match(contentMapSource, /actions: \[\s*\{ text: 'Installation', link: '\/getting-started\/installation\/'/s);
-  assert.match(contentMapSource, /\{ text: 'Why BlackOps'.*variant: 'secondary'/);
-  assert.match(landing, /\[BlackOps Board\]\(community-board\.md\)/);
+
+  const journalCard = landing.match(/<article class="landing-feature landing-feature-journal">([\s\S]*?)<\/article>/)?.[1] ?? '';
+  assert.match(journalCard, /<h3>Journal<\/h3>[\s\S]*href="\/concepts\/journal"/);
+  assert.equal((journalCard.match(/<a href=/g) ?? []).length, 1, 'Journal feature has one CTA');
+  assert.match(journal, /^# Journal$/m);
+  for (const phrase of [
+    'Canonical Journal',
+    'Observed Projection',
+    'Canonical PostgreSQL Journalの公開シリアライズではありません',
+    'Observer Replay',
+    'Operation Replayとは別物',
+    '絶対Path',
+    'best_effort',
+    "'path' => dirname(__DIR__) . '/var/log/journal.jsonl'",
+    'Observer FailureをOperationの失敗にせず',
+    '保存時暗号化',
+    '鍵の生成・保管・Rotation・失効',
+    'OpenTelemetryのAdapter、Exporter、Configurationは実装されていません',
+    'Public Contractではありません',
+  ]) assert.ok(journal.includes(phrase), phrase);
+});
+
+test('ephemeral outcome guides use implicit Inline authoring', async () => {
+  const [authentication, operations, attributes, coreApi, communityBoard, glossary, security] = await Promise.all([
+    guide('authentication.md'),
+    guide('operations.md'),
+    guide('attributes.md'),
+    guide('core-api.md'),
+    guide('community-board.md'),
+    guide('glossary.md'),
+    guide('security.md'),
+  ]);
+
+  assert.doesNotMatch(authentication, /ExecuteWith|Execution\\\\Inline/);
+  assert.match(operations, /AttributeなしのExecution StrategyはInlineへ解決されます/);
+  assert.doesNotMatch(operations, /明示的なInline Strategy|暗黙のInlineはBuild Error/);
+  assert.match(attributes, /InlineはAttributeを省略する/);
+  assert.match(coreApi, /InlineはAttributeを省略する/);
+  assert.match(communityBoard, /AttributeなしでInlineへ解決される/);
+  assert.match(glossary, /Execution Strategy Attributeを省略するとInlineへ解決され/);
+  assert.match(security, /HTTP Route付きでInlineへ解決されたOperation/);
+});
+
+test('authoritative Ephemeral sources keep the implicit Inline contract', async () => {
+  const files = [
+    'develop/spec/04-handler-and-result.md',
+    'develop/spec/17-core-api.md',
+    'develop/spec/71-full-stack-reference-application.md',
+    'develop/spec/74-application-ergonomics.md',
+    'develop/spec/75-phase-18-delivery-plan.md',
+    'develop/spec/87-documentation-second-review-and-feature-parity.md',
+    'develop/spec/90-documentation-third-review-accuracy.md',
+    'docs/internal/auth-generator.md',
+    'docs/internal/ephemeral-outcome.md',
+    'examples/community-board/README.md',
+  ];
+  const sources = await Promise.all(files.map((file) => readFile(path.join(repositoryRoot, file), 'utf8')));
+  const [d112, specificationIndex] = await Promise.all([
+    readFile(path.join(repositoryRoot, 'develop/decisions/112-authentication-credential-response-boundary.md'), 'utf8'),
+    readFile(path.join(repositoryRoot, 'develop/spec/README.md'), 'utf8'),
+  ]);
+
+  for (const source of sources) {
+    assert.doesNotMatch(source, /Route付き明示Inline|Inline実行を選ぶ場合は.*必要|Inline明示を必須/);
+    assert.match(source, /Inlineへ解決|resolves to Inline|resolves to inline/);
+  }
+  assert.match(d112, /Status: Partially Superseded by D126/);
+  assert.match(d112, /D126 supersedes Decision item 2/);
+  assert.match(specificationIndex, /D112.*Partially Superseded by D126/);
 });
 
 test('Community Board guide presents the local full-stack journey and credential-free evidence', async () => {
@@ -138,6 +217,25 @@ test('four Mermaid diagrams include accessible source descriptions and prose alt
   assert.match(sources[3], /\| Identifier \| 関係 \|/);
 });
 
+test('Mermaid artifact guards require native elements and reject syntax-highlighted fences', async () => {
+  const [artifact, site] = await Promise.all([
+    readFile(path.join(repositoryRoot, 'docs/website/scripts/check-artifact.mjs'), 'utf8'),
+    readFile(path.join(repositoryRoot, 'docs/website/scripts/check-site.mjs'), 'utf8'),
+  ]);
+
+  assert.match(artifact, /<blume-mermaid/);
+  assert.match(artifact, /mermaidCodeBlockCount/);
+  assert.match(artifact, /mermaidCodeBlockCount !== 0/);
+  assert.match(artifact, /mermaidLegibilityStylesheetCount/);
+  assert.match(artifact, /max-width:700px/);
+  assert.match(artifact, /min-width:42rem/);
+  assert.match(artifact, /height:auto/);
+  assert.match(artifact, /width:100%/);
+  assert.match(site, /<blume-mermaid/);
+  assert.match(site, /data-language="mermaid"/);
+  assert.match(site, /must not contain a Mermaid syntax-highlighted code block/);
+});
+
 test('glossary defines every required BlackOps term', async () => {
   const glossary = await guide('glossary.md');
   const terms = [
@@ -167,7 +265,7 @@ test('guided tutorial pairs runnable inputs with parseable JSON and masked JSONL
   const jsonBlocks = [...tutorial.matchAll(/```json\n([\s\S]*?)\n```/g)].map((match) => match[1]);
   const jsonlBlocks = [...tutorial.matchAll(/```jsonl\n([\s\S]*?)\n```/g)].map((match) => match[1]);
 
-  assert.match(tutorial, /^# チュートリアル: Operationを作る$/m);
+  assert.match(tutorial, /^# First Operation$/m);
   assert.match(tutorial, /php blackops make:operation Billing\/CreateInvoice --type=billing\.invoice\.create/);
   assert.ok(tutorial.indexOf('make:operation') < tutorial.indexOf('```php'));
   assert.match(tutorial, /HTTP 202/);
@@ -337,50 +435,146 @@ test('every public guide uses Japanese prose and avoids specification-style sent
   for (const file of files) {
     const body = prose(await guide(file));
     assert.match(body, /[ぁ-んァ-ヶ一-龠]/, file);
+    if (file === 'README.md') continue;
     assert.doesNotMatch(body, /(?:する|される|である|ものとする)。$/m, file);
   }
 });
 
-test('diagram renderer and syntax parser are exact local dependencies', async () => {
+test('Blume runtime keeps diagrams local and the landing responsive', async () => {
   const packageJson = JSON.parse(await readFile(path.join(repositoryRoot, 'docs/website/package.json'), 'utf8'));
-  const config = await readFile(path.join(repositoryRoot, 'docs/website/astro.config.mjs'), 'utf8');
-  const responsiveCss = await readFile(
-    path.join(repositoryRoot, 'docs/website/src/styles/diagram-responsive.css'),
-    'utf8',
-  );
+  const config = await readFile(path.join(repositoryRoot, 'docs/website/blume.config.ts'), 'utf8');
+  const theme = await readFile(path.join(repositoryRoot, 'docs/website/theme.css'), 'utf8');
+  const landing = await readFile(path.join(repositoryRoot, 'docs/website/pages/index.astro'), 'utf8');
 
-  assert.equal(packageJson.devDependencies['astro-mermaid'], '2.1.0');
+  assert.equal(packageJson.dependencies.blume, '1.1.4');
+  assert.equal(packageJson.devDependencies.astro, '7.0.7');
   assert.equal(packageJson.devDependencies.jsdom, '29.1.1');
   assert.equal(packageJson.devDependencies.mermaid, '11.16.0');
   assert.equal(packageJson.scripts['diagrams:check'], 'node scripts/check-diagrams.mjs');
   assert.match(packageJson.scripts.check, /diagrams:check/);
   assert.match(packageJson.scripts.build, /diagrams:check/);
-  assert.match(config, /mermaid\(\{/);
-  assert.match(config, /service: \{ entrypoint: 'astro\/assets\/services\/noop' \}/);
-  assert.match(config, /autoTheme: true/);
-  assert.match(config, /customCss: \['\.\/src\/styles\/diagram-responsive\.css'\]/);
-  assert.doesNotMatch(config, /rehype-mermaid|playwright|@astrojs\/markdown-remark/);
-  assert.doesNotMatch(config, /cdn\.jsdelivr\.net|unpkg\.com|cdnjs\.cloudflare\.com/);
-  assert.match(responsiveCss, /> pre\.mermaid/);
-  assert.match(responsiveCss, /max-inline-size: 100%/);
-  assert.match(responsiveCss, /min-inline-size: 0/);
-  assert.match(responsiveCss, /overflow-x: auto/);
-  assert.match(responsiveCss, /overflow-wrap: anywhere/);
-  assert.match(responsiveCss, /:not\(pre\) > code/);
-  assert.match(responsiveCss, /pre:not\(\.mermaid\)/);
-  assert.match(responsiveCss, /> table/);
-  assert.match(responsiveCss, /inline-size: max-content/);
-  assert.doesNotMatch(responsiveCss, /overflow-x: clip/);
-  assert.match(responsiveCss, /> pre\.mermaid > svg/);
-  assert.match(responsiveCss, /max-inline-size: none !important/);
-  assert.match(responsiveCss, /@media \(max-width: 50rem\)/);
-  assert.match(responsiveCss, /min-inline-size: 60rem/);
-  assert.match(responsiveCss, /aria-roledescription='sequence'/);
-  assert.match(responsiveCss, /min-inline-size: 72rem/);
-  assert.match(responsiveCss, /\.landing-feature-grid/);
-  assert.match(responsiveCss, /\.landing-feature-link:focus-visible/);
-  assert.match(responsiveCss, /html\[data-has-hero\]/);
-  assert.match(responsiveCss, /grid-template-columns: repeat\(3, minmax\(0, 1fr\)\)/);
-  assert.match(responsiveCss, /@media \(prefers-reduced-motion: reduce\)/);
-  assert.match(responsiveCss, /transition: none/);
+  assert.match(config, /search: \{ provider: 'orama' \}/);
+  assert.match(config, /output: 'static'/);
+  assert.match(config, /title: 'BlackOps - The PHP Framework'/);
+  assert.match(config, /github: \{ owner: 'kubotak-is', repo: 'blackops' \}/);
+  assert.doesNotMatch(config, /BlackOps — The PHP Framework/);
+  assert.match(theme, /\.landing-shell/);
+  assert.match(theme, /prefers-reduced-motion/);
+  assert.match(theme, /blume-mermaid \{[\s\S]*display: block !important/);
+  assert.match(theme, /blume-mermaid > div \{[\s\S]*min-width: 42rem/);
+  assert.match(theme, /blume-mermaid svg \{[\s\S]*height: auto[\s\S]*width: 100%/);
+  assert.match(theme, /\.landing-feature a:focus-visible/);
+  assert.match(theme, /\.landing-feature a \{ margin-top: auto; padding-top: 1\.5rem; \}/);
+  assert.match(theme, /\.landing-features-grid[\s\S]*grid-template-columns: repeat\(3, minmax\(0, 1fr\)\)/);
+  assert.doesNotMatch(theme, /\.landing-feature-operation[\s\S]*grid-row: 1 \/ span 2/);
+  assert.match(theme, /\.landing-brand[\s\S]*clamp\(4\.5rem, 9vw, 8\.5rem\)/);
+  assert.match(theme, /@media \(max-width: 959px\)[\s\S]*\.landing-features-grid \{ grid-template-columns: 1fr; \}/);
+  assert.match(theme, /\.landing-feature-operation \.landing-feature-copy a \{ margin-top: auto; \}/);
+  assert.match(theme, /\.landing-tagline[\s\S]*white-space: nowrap/);
+  assert.match(theme, /@media \(max-width: 700px\)[\s\S]*\.landing-features-grid \{ display: flex; flex-direction: column; \}/);
+  for (const copy of [
+    'BlackOps</span><span class="landing-tagline">The PHP Framework',
+    'BlackOpsの特徴',
+    'composer create-project blackops/skeleton my-app 1.1.0',
+    'HTTPリクエストもコンソールコマンドもJobも、すべてはOperationで統一されます。',
+    '受理・試行・リトライ・拒否・完了をFrameworkが自動でJournalへ記録します。「なぜ失敗したか」をFrameworkが記録します。',
+    'BlackOpsはフロントエンドを持ちません。代わりに、JavaScript向けに接続クライアントのコードを自動生成します。',
+    'フロントエンドはNext.jsでもNuxtでもSvelteKitでもお好きなFrameworkと組み合わせられます。',
+  ]) assert.ok(landing.includes(copy), copy);
+  for (const forbidden of ['BlackOpsの3つの特徴', 'BlackOpsは、PHP 8.5向けのHeadless Operation Frameworkです。同期HTTP実行とPostgreSQLを使ったDeferred実行を同じOperation Modelで扱い、Lifecycle Journal、Retry、Outcome、Retention、BlackOps CLIを提供します。', 'ONE MODEL / TWO PATHS', 'Operation ↔ Execution', 'Inline HTTP or durable Deferred', 'THE BLACKOPS SHAPE', 'Make the work explicit.', 'Nothing stays in the dark.', 'Bring your frontend.']) {
+    assert.ok(!landing.includes(forbidden), forbidden);
+  }
+});
+
+test('Blume strict validation is mandatory after content generation', async () => {
+  const packageJson = JSON.parse(await readFile(path.join(repositoryRoot, 'docs/website/package.json'), 'utf8'));
+  assert.match(packageJson.scripts['blume:validate'], /validate-content\.mjs/);
+  assert.match(packageJson.scripts.check, /blume:validate/);
+  assert.match(packageJson.scripts.build, /blume:validate/);
+  assert.match(await readFile(path.join(repositoryRoot, 'docs/website/scripts/validate-content.mjs'), 'utf8'), /validate', '--strict/);
+});
+
+test('custom landing links have a permanent static-artifact guard', async () => {
+  const checkSite = await readFile(path.join(repositoryRoot, 'docs/website/scripts/check-site.mjs'), 'utf8');
+  assert.match(checkSite, /validateLandingLinks/);
+  assert.match(checkSite, /Landing link does not resolve to a static artifact/);
+  assert.match(checkSite, new RegExp('getting-started/first-operation'));
+  assert.match(checkSite, new RegExp('concepts/lifecycle'));
+  assert.match(checkSite, new RegExp('href="/frontend'));
+  assert.ok(checkSite.includes('const githubAnchor'));
+  assert.ok(checkSite.includes('github\\.com'));
+  assert.match(checkSite, /aria-label=/);
+  assert.match(checkSite, /target="_blank"/);
+  assert.match(checkSite, /rel="noreferrer"/);
+  assert.match(checkSite, /invalid GitHub edit link/);
+});
+
+test('documentation links and examples stay synchronized with current page contracts', async () => {
+  const sources = await Promise.all(
+    (await readdir(path.join(repositoryRoot, 'docs/guide')))
+      .filter((file) => file.endsWith('.md'))
+      .map((file) => readFile(path.join(repositoryRoot, 'docs/guide', file), 'utf8')),
+  );
+  const source = sources.join('\n');
+  for (const retired of ['[Testing Overview](', '[DatabaseとTransaction](', '[Current Status](', '[チュートリアル: Operationを作る](']) {
+    assert.doesNotMatch(source, new RegExp(retired.replace(/[()[\]]/g, '\\$&')), retired);
+  }
+  const quickstart = await guide('mvp-sample.md');
+  const genericOutcome = await guide('outcome-retrieval.md');
+  assert.match(quickstart, /outcome\.location/);
+  assert.doesNotMatch(genericOutcome, /outcome\.location/);
+  assert.match(source, /ValueまたはOutcome Property/);
+  assert.match(source, /Canonical Deferredは引数なし`#\[Deferred\]`/);
+  const outcomeExample = (await guide('outcome-retrieval.md')).match(/```ts\n([\s\S]*?)```/)?.[1] ?? '';
+  assert.equal((outcomeExample.match(/outcome\.reportName/g) ?? []).length, 1);
+  assert.equal((outcomeExample.match(/outcome\.operationId/g) ?? []).length, 1);
+});
+
+test('Database configuration example is a standalone Environment closure', async () => {
+  const configuration = await guide('configuration.md');
+  const database = configuration.match(/## Database[\s\S]*?```php\n([\s\S]*?)```/)?.[1] ?? '';
+  assert.match(database, /use BlackOps\\Application\\Environment;/);
+  assert.match(database, /return static fn \(Environment \$env\): array => \[/);
+  assert.match(database, /\$env->string\('POSTGRES_HOST'\)/);
+  assert.doesNotMatch(database, /return static fn[\s\S]*?\nreturn \[/);
+});
+
+test('Validation guide links the corrected Japanese anchors', async () => {
+  const validation = await guide('validation.md');
+  assert.match(validation, /application-bootstrap\.md#operationservicecommand/);
+  assert.match(validation, /operations\.md#予期された業務拒否/);
+});
+
+test('Blume configuration fixes the public policy, locale, and preserved redirects', async () => {
+  const config = await readFile(path.join(repositoryRoot, 'docs/website/blume.config.ts'), 'utf8');
+  assert.match(config, /dismissible: false/);
+  assert.match(config, /BlackOps1\.xは試験的なバージョンです。Production Readyは2\.xを予定しています。/);
+  assert.doesNotMatch(config, /ドキュメントチャンネル/);
+  assert.match(config, /link: \{ href: '\/releases\/current-status\/', text: 'Releases' \}/);
+  assert.doesNotMatch(config, /<a href=/);
+  assert.match(config, /locales: \[\{ code: 'ja'/);
+  assert.match(config, /from: '\/reference\/security\//);
+  assert.match(config, /from: '\/reference\/troubleshooting\//);
+});
+
+test('Blume navigation keeps the Tutorial Board entry and ConsoleCommand label', async () => {
+  const navigation = await readFile(path.join(repositoryRoot, 'docs/website/site-navigation.mjs'), 'utf8');
+  assert.match(navigation, /label: 'ConsoleCommand'/);
+  assert.match(navigation, /BlackOps Board Reference Application/);
+  assert.match(navigation, /testing\/community-board/);
+});
+
+test('new Blume guide pages describe only implemented boundaries', async () => {
+  const pages = await Promise.all(['console-command.md', 'outbox.md', 'authentication.md', 'authorization.md', 'frontend.md'].map(guide));
+  for (const page of pages) {
+    assert.match(page, /^# /m);
+    assert.doesNotMatch(page, /Exactly Onceを提供します|Next\.js Adapterを提供します|Nuxt Adapterを提供します|SvelteKit Adapterを提供します/);
+  }
+  assert.match(pages[4], /JavaScript／TypeScriptのGenerated Client/);
+});
+
+test('Blume content metadata carries the forward-looking 2.x notice without legacy page templates', async () => {
+  const source = await readFile(path.join(repositoryRoot, 'docs/website/content-map.mjs'), 'utf8');
+  assert.doesNotMatch(source, /Production Readyは2\.xから予定/);
+  assert.doesNotMatch(source, /template:|hero:/);
 });

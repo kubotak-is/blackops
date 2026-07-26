@@ -1,0 +1,9 @@
+---
+import RootLayout from 'blume/components/layout/RootLayout.astro';
+
+const props = Astro.props as any;
+---
+
+<RootLayout {...props} editUrl={null}>
+  <slot />
+</RootLayout>

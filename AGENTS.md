@@ -6,8 +6,11 @@ Model／Profileの正本はRepository内設定とする。
 
 - Orchestrator: `.codex/config.toml`の`gpt-5.6-sol`／`high`
 - Worker: `.codex/agents/worker.toml`の`gpt-5.6-luna`／`high`
+- Documentation Reviewer: `.codex/agents/documentation-reviewer.toml`の`gpt-5.6-sol`／`high`
 
 Worker ProcessへModel Metadataが環境変数として公開されないことだけをBlockerにしない。Codexが設定値を拒否した場合、指定Modelへアクセスできない場合、または別ModelへFallbackしたことを実行環境が明示した場合だけ、OrchestratorへBlockerとして返す。
+
+Documentation ReviewerはRead-onlyで、Documentation本文やProduction Codeを修正しない。FindingをEvidence付きでOrchestratorへ返し、Task Packet化とAcceptanceはOrchestratorが行う。Review Contractの正本は`develop/spec/92-documentation-review-agent.md`とする。
 
 ## Source of Truth
 

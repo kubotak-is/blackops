@@ -14,13 +14,13 @@ const forbidden = [
 ];
 
 let diagramCount = 0;
+let mermaidCodeBlockCount = 0;
 let accessibleTitleCount = 0;
 let accessibleDescriptionCount = 0;
-let rendererEntryCount = 0;
-let mermaidCoreCount = 0;
-let responsiveStylesheetCount = 0;
-let responsiveContentStylesheetCount = 0;
 let landingStylesheetCount = 0;
+let mermaidLegibilityStylesheetCount = 0;
+let mermaidRuntimeCount = 0;
+
 for (const file of await files(distRoot)) {
   const content = (await readFile(file)).toString('utf8');
   for (const [pattern, label] of forbidden) {
@@ -32,75 +32,42 @@ for (const file of await files(distRoot)) {
     throw new Error(`Static artifact must not contain source maps: ${path.relative(distRoot, file)}`);
   }
   if (file.endsWith('.html')) {
-    diagramCount += (content.match(/<pre[^>]*class="mermaid"/g) ?? []).length;
+    diagramCount += (content.match(/<blume-mermaid(?:\s|>)/g) ?? []).length;
+    mermaidCodeBlockCount += (content.match(/data-language="mermaid"/g) ?? []).length;
     accessibleTitleCount += (content.match(/accTitle:/g) ?? []).length;
     accessibleDescriptionCount += (content.match(/accDescr:/g) ?? []).length;
   }
-  if (file.endsWith('.js')) {
-    if (content.includes('pre.mermaid') && content.includes('data-processed') && content.includes('mermaid.core')) {
-      rendererEntryCount += 1;
-    }
-    if (path.basename(file).startsWith('mermaid.core.')) {
-      mermaidCoreCount += 1;
-    }
+  if (file.endsWith('.js') && path.basename(file).startsWith('mermaid.core.')) {
+    mermaidRuntimeCount += 1;
   }
-  if (
-    file.endsWith('.css') &&
-    content.includes('pre.mermaid') &&
-    content.includes('min-inline-size:0') &&
-    content.includes('max-inline-size:100%') &&
-    content.includes('min-inline-size:60rem') &&
-    content.includes('min-inline-size:72rem') &&
-    content.includes('landing-feature-grid') &&
-    (content.includes('overflow-x:auto') || content.includes('overflow:auto hidden'))
-  ) {
-    responsiveStylesheetCount += 1;
-  }
-  if (
-    file.endsWith('.css') &&
-    content.includes('pre:not(.mermaid)') &&
-    content.includes('overflow-wrap:anywhere') &&
-    content.includes('white-space:normal') &&
-    content.includes('inline-size:max-content') &&
-    !content.includes('overflow-x:clip')
-  ) {
-    responsiveContentStylesheetCount += 1;
-  }
-  if (
-    file.endsWith('.css') &&
-    content.includes('html[data-has-hero]') &&
-    content.includes('grid-template-columns:repeat(3,minmax(0,1fr))') &&
-    content.includes('landing-feature-link:focus-visible') &&
-    content.includes('prefers-reduced-motion:reduce') &&
-    content.includes('transition:none')
-  ) {
+  if (file.endsWith('.css') && content.includes('.landing-shell') && content.includes('prefers-reduced-motion:reduce')) {
     landingStylesheetCount += 1;
+  }
+  if (
+    file.endsWith('.css') &&
+    content.includes('blume-mermaid') &&
+    content.includes('max-width:700px') &&
+    content.includes('min-width:42rem') &&
+    content.includes('height:auto') &&
+    content.includes('width:100%')
+  ) {
+    mermaidLegibilityStylesheetCount += 1;
   }
 }
 
-if (diagramCount !== 4) {
-  throw new Error(`Static artifact must contain four Mermaid render targets; found ${diagramCount}.`);
-}
-if (accessibleTitleCount !== 4 || accessibleDescriptionCount !== 4) {
+if (diagramCount !== 4 || mermaidCodeBlockCount !== 0 || accessibleTitleCount !== 4 || accessibleDescriptionCount !== 4) {
   throw new Error(
-    `Static artifact must preserve four accTitle and accDescr values; found ${accessibleTitleCount} and ${accessibleDescriptionCount}.`,
+    `Static artifact must contain four native Mermaid targets, no Mermaid code blocks, and accessible metadata; found ${diagramCount}, ${mermaidCodeBlockCount}, ${accessibleTitleCount}, and ${accessibleDescriptionCount}.`,
   );
 }
-if (rendererEntryCount !== 1 || mermaidCoreCount !== 1) {
-  throw new Error(
-    `Static artifact must contain one local Mermaid renderer entry and core chunk; found ${rendererEntryCount} and ${mermaidCoreCount}.`,
-  );
+if (mermaidRuntimeCount !== 1) {
+  throw new Error(`Static artifact must contain one local Mermaid renderer core; found ${mermaidRuntimeCount}.`);
 }
-if (responsiveStylesheetCount !== 1) {
-  throw new Error(`Static artifact must contain one responsive Mermaid stylesheet; found ${responsiveStylesheetCount}.`);
+if (landingStylesheetCount < 1) {
+  throw new Error(`Static artifact must contain an accessible landing stylesheet; found ${landingStylesheetCount}.`);
 }
-if (responsiveContentStylesheetCount !== 1) {
-  throw new Error(
-    `Static artifact must contain one responsive prose, code, and table stylesheet; found ${responsiveContentStylesheetCount}.`,
-  );
-}
-if (landingStylesheetCount !== 1) {
-  throw new Error(`Static artifact must contain one accessible landing stylesheet; found ${landingStylesheetCount}.`);
+if (mermaidLegibilityStylesheetCount < 1) {
+  throw new Error(`Static artifact must contain Mermaid legibility CSS; found ${mermaidLegibilityStylesheetCount}.`);
 }
 
 function escapePattern(value) {
@@ -114,11 +81,8 @@ async function files(root) {
   async function visit(directory) {
     for (const entry of await readdir(directory, { withFileTypes: true })) {
       const absolute = path.join(directory, entry.name);
-      if (entry.isDirectory()) {
-        await visit(absolute);
-      } else if (entry.isFile()) {
-        result.push(absolute);
-      }
+      if (entry.isDirectory()) await visit(absolute);
+      else if (entry.isFile()) result.push(absolute);
     }
   }
   await visit(root);

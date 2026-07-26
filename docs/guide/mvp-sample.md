@@ -1,18 +1,18 @@
-# Quickstart
+# Quickstart and Skeleton
 
-Repository `main`のPreview Applicationを準備し、Header Authentication、Inline HTTP、Database Transaction、After Commit、Deferred Workerを一続きで確認します。ここで説明するAuthentication／AuthorizationとDatabase／Transaction Exampleは未Release Surfaceです。Experimental Stable `1.1.0`との差は[Current Status](mvp-status.md)で確認してください。
+このPageはRepository `main`のPreview Applicationを準備し、Header Authentication、Inline HTTP、Database Transaction、After Commit、Deferred Workerを一続きで確認します。Stable `1.1.0`のInstallは[Install](installation.md)で先に完了してください。ここで説明するAuthentication／AuthorizationとDatabase／Transaction Exampleは未Release Surfaceです。Experimental Stable `1.1.0`との差は[Releases](mvp-status.md)で確認してください。
 
 ## 1. 実行Channelを選ぶ
 
 ### Stable 1.1.0
 
-公開済みSkeletonだけを試す場合はVersionを固定します。
+公開済みSkeletonだけを試す場合はVersionを固定し、[First Operation](first-operation.md)のStep 1〜3へ進みます。
 
 ```bash
 composer create-project blackops/skeleton my-app 1.1.0
 ```
 
-StableにはGlobal Middleware、Authentication、`#[Authorize]`がないため、このPageのStep 2以降は実行できません。Stableの正確な提供範囲は[Current Status](mvp-status.md#stableとmain)で確認してください。
+StableにはGlobal Middleware、Authentication、`#[Authorize]`がないためFrontend Operation Bridgeもありません。このPageのmain Preview Step 2以降へ進まず、InstallのHTTP 200確認後に[First Operation](first-operation.md)のStep 1〜3（Generator、Value、Outcome）を実行してください。Stableの正確な提供範囲は[Stableとmain](mvp-status.md#stableとmain)で確認してください。
 
 ### Repository main Preview
 
@@ -42,6 +42,8 @@ mkdir -p var/build var/log
 
 `SAMPLE_API_TOKEN=local-example`は`.env.example`からLocal Previewへ入ります。未設定または空文字の場合、Sample Authenticatorは既知値へFallbackせずRuntime構成を失敗させます。以降は`blackops-preview`をProject Rootとして実行します。
 
+接続できない、またはContainerの状態が分からない場合は[Troubleshooting](troubleshooting.md)を参照してください。
+
 ## 2. Image、Artifact、Databaseを準備する
 
 ```bash
@@ -60,9 +62,80 @@ BuildはSourceからOperation／HTTP／Frontend Contract ManifestとDI Container
 
 Migration、Build、Seed、Frontend生成はHTTP起動時に暗黙実行されません。Install直後の空Root Seederも明示的に実行し、`database:migrate -> build:compile -> database:seed`のDeployment順序を確認します。`docker compose up -d`はHealthyなPostgreSQLとWorker Mode HTTPだけを起動し、Deferred WorkerやSchedulerを勝手に常駐させません。Frontendを使わないApplicationはpnpm以降のFrontend Stepを省略できます。Classic Modeは`classic-mode` Profileの明示Fallbackです。
 
-## 3. Generated Operation Objectから呼ぶ
+## 3. PHP Operationを先に確認する
 
-PHP Operationを手書きでTypeScriptへ複製しません。生成Rootから`createBlackOpsClient()`をImportし、Server RequestごとにBase URL、Fetch、Credentialを一度Bindingします。SvelteKitでは`event.fetch`をCastやAdapterなしでそのまま渡せます。
+Generated ClientはPHP OperationのContractを複製しません。Previewへ含まれる`examples/quickstart`の実装を先に確認します。`app/Feature/Welcome/ShowWelcome/ShowWelcome.php`は`GET /welcome`、Operation Type `welcome.show`を持つInline Operationです。`app/Feature/Welcome/ShowWelcome/WelcomeValue.php`は空のInput、`WelcomeShown.php`は`message` Outcomeを返します。
+
+```php
+use App\Security\SampleUserAuthorizationPolicy;
+use BlackOps\Core\Attribute\Authorize;
+
+#[Route(method: 'GET', path: '/welcome')]
+#[OperationType('welcome.show')]
+#[Authorize(SampleUserAuthorizationPolicy::class)]
+final readonly class ShowWelcome implements Operation
+{
+    public function handle(WelcomeValue $value): WelcomeShown
+    {
+        return new WelcomeShown('Welcome to BlackOps');
+    }
+}
+```
+
+これはRepository `main` Previewの`/welcome`です。Stable Skeletonの`/welcome`は匿名で、`#[Authorize]`とSample Token Headerを含みません。
+
+```php
+final readonly class WelcomeValue implements OperationValue {}
+
+final readonly class WelcomeShown implements Outcome
+{
+    public function __construct(public string $message) {}
+}
+```
+
+`app/Feature/Report/GenerateReport/GenerateReport.php`は`POST /reports`、Operation Type `report.generate`を持つDeferred Operationです。`GenerateReportValue`の`reportName`とwrite-only `recipientEmail`から、`ReportGenerated`の`reportName`と`location`を返します。
+
+## 4. Generated Operation Objectから呼ぶ
+
+PHP Operationを手書きでTypeScriptへ複製しません。まずProject Rootの`tests/Frontend/try-client.ts`へ、生成RootとNode 24のglobal `fetch`を使う最小Clientを書きます。追加Dependencyは不要です。
+
+```ts
+import { createBlackOpsClient } from '../../resources/js/blackops';
+
+const blackops = createBlackOpsClient({
+  baseUrl: 'http://127.0.0.1:8080',
+  fetch,
+  headers: { 'X-Sample-Token': 'local-example' },
+});
+
+async function main(): Promise<void> {
+  const response = await blackops.ShowWelcome.fetch({});
+  if (response.ok && response.kind === 'completed') {
+    console.log(response.status, response.data);
+    return;
+  }
+
+  throw new Error('Welcome request did not complete.');
+}
+
+main().catch(() => {
+  throw new Error('try-client failed.');
+});
+```
+
+HTTPを起動したProject Rootで実行します。
+
+```bash
+pnpm exec tsc --ignoreConfig --ignoreDeprecations 6.0 --strict --target ES2022 \
+  --module CommonJS --moduleResolution Node10 --lib ES2022,DOM --rootDir . \
+  --outDir .build tests/Frontend/try-client.ts
+node tests/Frontend/write-runtime-package.mjs
+node .build/tests/Frontend/try-client.js
+```
+
+期待結果は`200 { message: 'Welcome to BlackOps' }`です。SvelteKitではServer-side Requestの補足として`event.fetch`を渡せますが、汎用JavaScriptの前提にはしません。
+
+生成Rootから`createBlackOpsClient()`をImportし、Server RequestごとにBase URL、Fetch、Credentialを一度Bindingします。
 
 ```ts
 import {
@@ -212,6 +285,7 @@ const terminal = await blackops.GenerateReport.wait(report.data.operationId, {
 
 if (terminal.ok && terminal.kind === 'completed') {
   terminal.data.outcome.reportName;
+  terminal.data.operationId;
   terminal.data.outcome.location;
 }
 ```
@@ -233,7 +307,7 @@ const timedOut = await blackops.GenerateReport.wait(otherOperationId, {
 {"ok":false,"kind":"transport","status":null,"error":{"code":"poll_timeout"}}
 ```
 
-## 4. Inline Operationをcurlで呼ぶ
+## 5. Inline Operationをcurlで呼ぶ
 
 ```bash
 curl -sS -H 'X-Sample-Token: local-example' http://127.0.0.1:8080/welcome
@@ -252,7 +326,7 @@ curl -i http://127.0.0.1:8080/welcome
 curl -i -H 'X-Sample-Token: invalid' http://127.0.0.1:8080/welcome
 ```
 
-## 5. 失敗をOperation IDで調べる
+## 6. 失敗をOperation IDで調べる
 
 Quickstartの`diagnostics.failure.trigger`は、認証済みInline Operationを意図的に失敗させるLocal Exampleです。入力の`reference`はApplication Logの相関用、`sensitiveNote`はSafe SurfaceのMask確認用です。
 
@@ -369,7 +443,7 @@ http://127.0.0.1:8082/?token=<one-time-bootstrap-token>
 
 `var/log/application.jsonl`にはApplication RecordとFramework Failure Recordが同じOperation／Attempt／Correlation IDで残ります。`reference`はApplication Contextにありますが、`sensitiveNote`、Exception Message、Credential、Raw Actor IDはありません。Canonical JournalはRestricted Dataのため、DatabaseのAccess Control、Encryption、RetentionをApplicationで管理してください。
 
-## 6. Transactional OperationでOrderを作る
+## 7. Transactional OperationでOrderを作る
 
 Install直後のOrder FeatureはRepository、Transactional Command、Transactional Operation、After Commit Serviceの関係を実行可能な形で示します。まずInputを送ります。
 
@@ -428,9 +502,9 @@ attempt.succeeded
 operation.completed
 ```
 
-After Commitは同期Best-effortで、Callback失敗やProcess Crashを越えた自動Retryを行いません。Email、Webhook、Message Publishなどのat-least-once DeliveryにはTransactional Outboxを使い、Relayの停止／再開、Retry、Dead Letter再開を明示的に運用します。詳しい保証差は[Database and Transactions](database-and-transactions.md)を参照してください。
+After Commitは同期Best-effortで、Callback失敗やProcess Crashを越えた自動Retryを行いません。Email、Webhook、Message Publishなどのat-least-once DeliveryにはTransactional Outboxを使い、Relayの停止／再開、Retry、Dead Letter再開を明示的に運用します。詳しい保証差は[Transaction](database-and-transactions.md)を参照してください。
 
-## 7. Deferred Operationを受け付ける
+## 8. Deferred Operationを受け付ける
 
 ```bash
 curl -sS -X POST -H 'Content-Type: application/json' \
@@ -448,7 +522,7 @@ HTTP 202はHandler完了ではなく、ValueとContextをPostgreSQLへDurableに
 同じCredentialでPublic Status Resourceを読むと、Worker未起動中は`accepted`と正整数`Retry-After`を返します。
 
 ```bash
-OPERATION_ID='019f32ab-2be0-7b38-a0a7-1ab2f9687697'
+OPERATION_ID='<operation-id-from-accepted-response>'
 curl -i -H 'X-Sample-Token: local-example' \
   "http://127.0.0.1:8080/operations/${OPERATION_ID}"
 ```
@@ -475,7 +549,7 @@ curl -sS -X POST -H 'Content-Type: application/json' \
 {"status":"rejected","operationId":"019f32ab-2be0-7b38-a0a7-1ab2f9687698","category":"validation","code":"validation.failed","violations":[{"field":"reportName","rule":"not_blank","code":"validation.not_blank"}]}
 ```
 
-## 8. Workerで完了させる
+## 9. Workerで完了させる
 
 Sample Reportは一回目のAttemptでRetryを要求し、二回目で成功します。
 
@@ -495,14 +569,14 @@ Canonical Journalではauthorization Actorが`quickstart-user`のまま維持さ
 `var/log/journal.jsonl`はHTTP ProcessのObserved Projectionです。Inline Welcomeと、HTTP内で完了するValidation Rejection等ではActor IDと`recipientEmail`を`[masked]`にしますが、Worker Eventは追記しません。Valid Deferred Reportの完了をJSONLで待たないでください。Header CredentialはMask対象として保存するのではなく、最初からValue／Transport／Journalへ含めません。
 
 ```bash
-VALIDATION_OPERATION_ID='019f32ab-2be0-7b38-a0a7-1ab2f9687698'
+VALIDATION_OPERATION_ID='<operation-id-from-validation-response>'
 grep "$VALIDATION_OPERATION_ID" var/log/journal.jsonl
 ```
 
 Deferred Reportの受理から完了まではCanonical PostgreSQL Journalで確認します。
 
 ```bash
-OPERATION_ID='019f32ab-2be0-7b38-a0a7-1ab2f9687697'
+OPERATION_ID='<operation-id-from-accepted-response>'
 docker compose exec -T postgres psql -U blackops -d blackops -Atc "
 SELECT sequence || '|' || event || '|' ||
        (convert_from(encoded_record, 'UTF8')::jsonb #>> '{operation,actors,authorization,id}') || '|' ||
@@ -534,12 +608,12 @@ Worker完了後は同じStatus ResourceがTyped Outcomeを返し、Terminal Resp
 
 Quickstartの`SampleOperationStatusAuthorizer`は、Current Actorと受付時のOrigin Actorがともに`user`で、ID／Typeが完全一致するときだけAllowします。これはLocal Exampleであり、ProductionのTenant／Role／Resource Policyではありません。Header欠落はAnonymousのためUnknown／Denyと同じ404、不正TokenはSubject読取前の401です。Operation IDはSecretではありませんが、知っているだけでは参照権限を得ません。
 
-PHP AdapterからOutcomeだけを直接読む場合はPublic `OutcomeReader`を利用します。Pending、Terminal、Expiredを区別する主経路はStatus Resourceです。詳しくは[Outcome Retrieval](outcome-retrieval.md)を参照してください。
+PHP AdapterからOutcomeだけを直接読む場合はPublic `OutcomeReader`を利用します。Pending、Terminal、Expiredを区別する主経路はStatus Resourceです。詳しくは[Outcome](outcome-retrieval.md)を参照してください。
 
-## 9. 終了する
+## 10. 終了する
 
 ```bash
 docker compose down
 ```
 
-次は[チュートリアル: Operationを作る](first-operation.md)で、Generatorが作った3 FileへRoute、Value Validation、Deferred Strategyを追加します。
+次は[First Operation](first-operation.md)で、Generatorが作った3 FileへRoute、Value Validation、Deferred Strategyを追加します。起動、Token、Migration、Buildの問題は[Troubleshooting](troubleshooting.md)へ戻ってください。

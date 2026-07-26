@@ -10,10 +10,10 @@ BlackOps Boardは、Repository `main`のFramework機能を実際のBrowser Journ
 
 | 入口 | 適した目的 | 含む範囲 |
 | --- | --- | --- |
-| [Quickstart](mvp-sample.md) | Frameworkの最短Contractを確認したい | Typed Operation、Inline／Deferred HTTP、Worker、Journal、Status／Outcome、Generated Operation Object |
+| [Quickstart and Skeleton](mvp-sample.md) | Frameworkの最短Contractを確認したい | Typed Operation、Inline／Deferred HTTP、Worker、Journal、Status／Outcome、Generated Operation Object |
 | BlackOps Board | Application全体の責任分界をBrowserから追いたい | Application-owned Identity、Framework Session Core、SvelteKit BFF、Inline CRUD、Deferred Progress、Accessible UI、Real Browser E2E |
 
-最初のOperationを自分で書く場合は[チュートリアル](first-operation.md)へ進んでください。BlackOps BoardはCore API一覧の代わりではなく、完成したApplicationで各Contractがどう接続されるかを説明するExample Guideです。
+最初のOperationを自分で書く場合は[First Operation](first-operation.md)へ進んでください。BlackOps BoardはCore API一覧の代わりではなく、完成したApplicationで各Contractがどう接続されるかを説明するExample Guideです。
 
 ## 空のLocal Stateから起動する
 
@@ -82,17 +82,17 @@ BrowserはSvelteKit Originだけへ接続します。Generated Moduleは`fronten
 
 `app/Domain/Board/`はPostの存在、Owner判定、Row Lockを伴う更新／削除、Post／Comment生成、Digest集計等の業務規則を所有します。`app/Domain/Identity/`はUser、Password、Email正規化、Registration Policyを所有し、BlackOps／Doctrine／Symfonyへ依存しません。`app/Infrastructure/`はDoctrine DBAL SQL、Clock、UUID、Session Identity接続、Seed、Development Retry Adapter等の技術詳細を所有します。`app/Feature/`のOperationはValueとActorをDomain Serviceへ渡し、Domain ResultをOutcomeへ変換するCoordinationに留まります。
 
-Mutation Operationの`#[Transactional]`がApplication ConnectionのTransaction境界を作ります。Domain ServiceはBlackOps Attributeへ依存せず、Transactionを開始しません。Database／TransactionのFramework Contractは[DatabaseとTransaction](database-and-transactions.md)、Deferred Stateは[Outcome Retrieval](outcome-retrieval.md)を参照してください。
+Mutation Operationの`#[Transactional]`がApplication ConnectionのTransaction境界を作ります。Domain ServiceはBlackOps Attributeへ依存せず、Transactionを開始しません。Database／TransactionのFramework Contractは[Transaction](database-and-transactions.md)、Deferred Stateは[Outcome](outcome-retrieval.md)を参照してください。
 
 ## InlineとDeferredの境界を読む
 
 Post Feed／Detail／Create／Edit／DeleteとComment CreateはInline Operationです。HTTP Request内でValidation、Authorization、Domain Mutation、Outcomeまで終わります。Malformed／Unknown／Non-owner Resourceは、存在を推測できない同じSafe Resultへ縮約します。
 
-Weekly DigestはDeferred Operationです。`.fetch()`は202を返すだけで自動Pollingしません。SvelteKit ServerがCurrent Sessionを付けた`.status()`またはAbort／Deadline必須の`.wait()`を呼びます。BrowserはSame-origin Wait Endpointだけへ接続し、BlackOps Status Resourceへ直接接続しません。Lifecycleの一般Contractは[HTTP、Inline、Deferred](execution.md)で確認できます。
+Weekly DigestはDeferred Operationです。`.fetch()`は202を返すだけで自動Pollingしません。SvelteKit ServerがCurrent Sessionを付けた`.status()`またはAbort／Deadline必須の`.wait()`を呼びます。BrowserはSame-origin Wait Endpointだけへ接続し、BlackOps Status Resourceへ直接接続しません。Lifecycleの一般Contractは[Inline and Deferred](execution.md)で確認できます。
 
 ## AuthenticationとSensitive Dataを分離する
 
-Register／Login／Logoutは明示Inline／Transactional／Ephemeral Operationです。Generated Operation Objectから通常のBlackOps HTTP Runtimeへ送り、Application-owned Identity DomainとFramework Session Coreへ接続します。PasswordはArgon2id Hash、Session TokenはSHA-256 HashだけをPostgreSQLへ保存します。Raw TokenはRegister／Login時にSvelteKit Serverへ一度だけ返し、`HttpOnly`、`SameSite=Strict`、Path `/`のCookieへ入れます。
+Register／Login／LogoutはAttributeなしでInlineへ解決されるTransactional／Ephemeral Operationです。Generated Operation Objectから通常のBlackOps HTTP Runtimeへ送り、Application-owned Identity DomainとFramework Session Coreへ接続します。PasswordはArgon2id Hash、Session TokenはSHA-256 HashだけをPostgreSQLへ保存します。Raw TokenはRegister／Login時にSvelteKit Serverへ一度だけ返し、`HttpOnly`、`SameSite=Strict`、Path `/`のCookieへ入れます。
 
 PasswordとRaw Session Tokenは`#[Sensitive]`なEphemeral Value／Outcomeにだけ存在します。FrameworkはReceived Valueを空Projection、Completed Outcomeを空OutcomeとしてJournalへ記録し、Outcome Store、Status API、Generated Artifact、Page Data、Browser Bundle、LogへCredentialを残しません。通常の認証済みOperationへ渡すのは`ActorRef`だけで、PHP側のOwner PolicyとStatus Authorizerが最終判断を行います。Generated TypeやSvelteKitでのButton非表示は認証・認可を代替しません。一般的な責務表は[Security](security.md)を参照してください。
 
@@ -106,7 +106,7 @@ Repository RootでClean Installを実行すると、依存物とDatabase Volume�
 bash tests/Consumer/community-board-clean-install.sh
 ```
 
-Foundation、Identity、Post／Comment、Product Journey、Digest、BrowserのConsumerは問題領域を分離します。Browser Consumerは実ChromiumでRegister、Logout、Login、Validation、Post、Comment、Edit、Digest Retry／Completion、Logoutを完走し、Keyboard、320px Layout、Light／Dark、Reduced Motion、axe、Credential非露出も検証します。Testingの組み立て方は[Testing Overview](testing.md)を参照してください。
+Foundation、Identity、Post／Comment、Product Journey、Digest、BrowserのConsumerは問題領域を分離します。Browser Consumerは実ChromiumでRegister、Logout、Login、Validation、Post、Comment、Edit、Digest Retry／Completion、Logoutを完走し、Keyboard、320px Layout、Light／Dark、Reduced Motion、axe、Credential非露出も検証します。Testingの組み立て方は[Testing](testing.md)を参照してください。
 
 ## Troubleshooting
 
