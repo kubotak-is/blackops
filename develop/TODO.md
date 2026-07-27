@@ -217,7 +217,7 @@ MVP後に残す主要項目:
 ### Deferred: Documentation Website Publication
 
 - [x] Userが公開再開を明示し、Cloudflare Project／GitHub Environmentを設定する
-- [ ] `blackops-php`へRepository設定を同期し、Preview／Production DeployとLive Verificationを実行する（P20-009F）。Repository設定の同期はReview Pending。Remote Deploy／Live VerificationはOrchestrator／Userの実行Gate。
+- [x] `blackops-php`へRepository設定を同期し、Preview／Production DeployとLive Verificationを実行する（P20-009F／P20-009G）。Production Deploy、Top／Installation／Blume Search IndexのHTTP 200、Desktop Keyboard／Mobile Button Searchを確認済み。
 
 ## 現在の優先事項
 

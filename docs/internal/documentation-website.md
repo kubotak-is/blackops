@@ -72,7 +72,7 @@ Pull Requestでは`Build documentation artifact`が成功した後、同一Repos
 ```bash
 curl --fail --silent --show-error --location https://blackops-php.pages.dev/
 curl --fail --silent --show-error --location https://blackops-php.pages.dev/getting-started/installation/
-curl --fail --silent --show-error --location https://blackops-php.pages.dev/pagefind/pagefind.js
+curl --fail --silent --show-error --location https://blackops-php.pages.dev/blume-search.json
 ```
 
 さらにBrowserでMobile Navigation、Keyboard Navigation、Search、主要Assetを確認する。Production URLまたはPreview URLが作成されるまでは、Live Verificationを成功扱いにしない。

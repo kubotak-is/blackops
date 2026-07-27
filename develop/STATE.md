@@ -1,6 +1,27 @@
 # Orchestration State
 
-Updated At: 2026-07-27T01:59:58+09:00
+Updated At: 2026-07-27T08:06:27+09:00
+
+## P20-009G Orchestrator Acceptance
+
+```text
+2026-07-27T08:06:27+09:00
+OrchestratorはP20-009GのD129／D130／Specification 57／運用手順とProduction Evidenceを独立Reviewした。Documentation Production run 30212941358はSUCCESS、Top／Installation／Blume Search IndexはHTTP 200、旧Pagefind assetは想定どおりHTTP 404。Playwright 1.61.1 ChromiumでProductionを実測し、DesktopはControl+K、Mobile 390×844はSearch Buttonから`Journal`を入力し、両方でJournal Pageを先頭に含む検索結果を確認した（2 tests PASS）。Required text guard、Mago format、Management-ID guard、git diff --checkもPASS。PagefindからBlume Oramaへの運用契約補正と初回Publication Live VerificationをAcceptanceし、P20-009GをAccepted、TODOを完了とする。Custom Domain、Version別Deploy、Git IntegrationはOut of Scope。Commitなし。
+```
+
+## P20-009G Worker Completion Checkpoint
+
+```text
+2026-07-27T02:43:00+09:00
+P20-009Gで現行運用手順のLive Search確認をStarlight／Pagefind AssetからBlume Oramaの`/blume-search.json`へ同期し、D129／Specification 57／D130のSearch契約を照合した。Production run 30212941358はSUCCESS、Top／Installation／`/blume-search.json`はHTTP 200、旧`/pagefind/pagefind.js`はHTTP 404という外部Evidenceを推測せずReportへ記録した。Browser上のSearch操作はOrchestrator／User GateのReview Pendingとして残し、Historical Checkpoint、Website Runtime／Artifact、Cloudflare設定、Framework Production Codeは変更していない。Required text／link／diff guardはPASS、Worker Commitなし。
+```
+
+## P20-009G Orchestrator Start Checkpoint
+
+```text
+2026-07-27T02:40:40+09:00
+User Review後、PR #1をmerge commit 42cf27807919078f9d0e82e4b1f6a2e2b9debb8dでmainへMergeした。Documentation Production run 30212941358はBuildとCloudflare Pages DeployをSUCCESS。Production TopとInstallationはHTTP 200、旧Pagefind assetはHTTP 404、Blume Oramaの実Search Index `/blume-search.json`はHTTP 200だった。Deploy FailureではなくD129／運用手順に残ったStarlight時代のLive Verification契約不整合と判断し、D130でBlume Search IndexとBrowser Searchを正本とする。P20-009GをLuna High Workerへ委譲し、Website Runtime／Artifact、Cloudflare設定、Framework Production Codeは変更しない。Worker Commitなし。
+```
 
 ## P20-009F Orchestrator Acceptance
 
