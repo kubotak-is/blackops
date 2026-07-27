@@ -243,3 +243,4 @@
 | [D127](../decisions/127-journal-documentation.md) | Journal Documentation | Decided |
 | [D128](../decisions/128-observed-journal-wire-shape.md) | Observed Journal Wire Shape | Decided |
 | [D129](../decisions/129-documentation-website-publication.md) | Documentation Website Publication | Decided |
+| [D130](../decisions/130-blume-production-search-verification.md) | Blume Production Search Verification | Decided |

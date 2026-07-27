@@ -134,12 +134,13 @@ Direct Upload ProjectはGit Integration Projectと混在させない。Project�
 - `docs/internal/`、`develop/`、Credential、Absolute PathがArtifactへ含まれない
 - Credential-gated Workflow上でPull Request Previewと`main` Productionが同じBuild Artifact Contractを使う
 
-公開再開時のPublication Taskでは、追加でProduction URLが200を返し、主要Page／Asset／Searchが利用できることを検証する。
+公開再開時のPublication Taskでは、追加でProduction URLと主要PageがHTTP 200を返し、Blume Oramaの`/blume-search.json`が取得でき、Browser上のSearchが利用できることを検証する。
 
 ## Traceability
 
 - Decision: [D081 Documentation Website Delivery Contract](../decisions/081-documentation-website-delivery-contract.md)
 - Publication: [D129 Documentation Website Publication](../decisions/129-documentation-website-publication.md)
+- Search Verification: [D130 Blume Production Search Verification](../decisions/130-blume-production-search-verification.md)
 - Roadmap: [Developer Experience Roadmap](41-developer-experience-roadmap.md)
 - Delivery Plan: [Phase 10 Delivery Plan](58-phase-10-delivery-plan.md)
 - Publication Timing: [Post Phase 10 Roadmap](60-post-phase-10-roadmap.md)
