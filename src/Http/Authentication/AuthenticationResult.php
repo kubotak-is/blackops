@@ -7,6 +7,7 @@ namespace BlackOps\Http\Authentication;
 use BlackOps\Core\ActorRef;
 use BlackOps\Core\Attribute\PublicApi;
 use BlackOps\Core\Rejection\RejectionReason;
+use BlackOps\Core\TenantRef;
 
 #[PublicApi]
 final readonly class AuthenticationResult
@@ -18,6 +19,7 @@ final readonly class AuthenticationResult
     private function __construct(
         private int $state,
         private ?ActorRef $actor = null,
+        private ?TenantRef $tenant = null,
         private ?string $code = null,
     ) {}
 
@@ -26,9 +28,9 @@ final readonly class AuthenticationResult
         return new self(self::ANONYMOUS);
     }
 
-    public static function authenticated(ActorRef $actor): self
+    public static function authenticated(ActorRef $actor, ?TenantRef $tenant = null): self
     {
-        return new self(self::AUTHENTICATED, actor: $actor);
+        return new self(self::AUTHENTICATED, actor: $actor, tenant: $tenant);
     }
 
     public static function invalid(string $code): self
@@ -59,5 +61,10 @@ final readonly class AuthenticationResult
     public function code(): ?string
     {
         return $this->code;
+    }
+
+    public function tenant(): ?TenantRef
+    {
+        return $this->tenant;
     }
 }

@@ -12,6 +12,7 @@ use BlackOps\Core\Identifier\CausationId;
 use BlackOps\Core\Identifier\CorrelationId;
 use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Core\ScheduleContext;
+use BlackOps\Core\TenantRef;
 use BlackOps\Idempotency\IdempotencyKey;
 use BlackOps\Internal\Identifier\IdentifierFactory;
 use DateTimeImmutable;
@@ -39,6 +40,7 @@ final readonly class ExecutionContextFactory
         ?DateTimeImmutable $deadline = null,
         ?ActorContext $actorContext = null,
         ?IdempotencyKey $idempotencyKey = null,
+        ?TenantRef $tenant = null,
     ): ExecutionContext {
         $operationId = $this->identifiers->newOperationId();
         $correlationId = CorrelationId::fromString($operationId->toString());
@@ -53,6 +55,7 @@ final readonly class ExecutionContextFactory
             $actorContext,
             $idempotencyKey?->hash(),
             null,
+            $tenant,
         );
     }
 
@@ -61,6 +64,7 @@ final readonly class ExecutionContextFactory
         DateTimeImmutable $receivedAt,
         ScheduleContext $schedule,
         ?ActorContext $actorContext = null,
+        ?TenantRef $tenant = null,
     ): ExecutionContext {
         return new ExecutionContext(
             $operationId,
@@ -72,6 +76,7 @@ final readonly class ExecutionContextFactory
             $actorContext,
             null,
             $schedule,
+            $tenant,
         );
     }
 
@@ -99,6 +104,7 @@ final readonly class ExecutionContextFactory
             $this->resolveActorContext($context->actorContext(), $executionActor),
             $context->idempotencyKeyHash(),
             $context->schedule(),
+            $context->tenant(),
         );
     }
 
@@ -120,6 +126,8 @@ final readonly class ExecutionContextFactory
             $resolvedDeadline,
             $this->resolveActorContext($parent->actorContext(), $executionActor),
             null,
+            null,
+            $parent->tenant(),
         );
     }
 

@@ -11,6 +11,7 @@ use BlackOps\Core\Identifier\AttemptId;
 use BlackOps\Core\Identifier\CorrelationId;
 use BlackOps\Core\Identifier\JournalRecordId;
 use BlackOps\Core\Identifier\OperationId;
+use BlackOps\Core\TenantRef;
 use BlackOps\Journal\Exception\JournalObservationFailed;
 use BlackOps\Journal\JournalAttempt;
 use BlackOps\Journal\JournalEvent;
@@ -68,6 +69,30 @@ final class JsonlJournalObserverTest extends TestCase
             self::assertTrue($reflection->isFinal());
             self::assertCount(1, $reflection->getAttributes(PublicApi::class));
         }
+    }
+
+    public function testJsonlOmitsRawTenantId(): void
+    {
+        $record = self::record();
+        $operation = new JournalOperation(
+            $record->operation->id,
+            $record->operation->type,
+            $record->operation->schemaVersion,
+            $record->operation->strategy,
+            $record->operation->correlationId,
+            tenant: new TenantRef('account', 'tenant-secret-id'),
+        );
+        $record = new ObservedJournalRecord(
+            $record->recordId,
+            $record->schemaVersion,
+            $record->event,
+            $record->occurredAt,
+            $record->sequence,
+            $operation,
+            $record->attempt,
+            $record->data,
+        );
+        self::assertStringNotContainsString('tenant-secret-id', new JsonlJournalRecordEncoder()->encode($record));
     }
 
     public function testInvalidStreamIsRejected(): void

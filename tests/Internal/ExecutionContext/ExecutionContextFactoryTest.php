@@ -10,6 +10,7 @@ use BlackOps\Core\Identifier\AttemptId;
 use BlackOps\Core\Identifier\CausationId;
 use BlackOps\Core\Identifier\CorrelationId;
 use BlackOps\Core\Identifier\OperationId;
+use BlackOps\Core\TenantRef;
 use BlackOps\Idempotency\IdempotencyKey;
 use BlackOps\Internal\ExecutionContext\ExecutionContextFactory;
 use BlackOps\Internal\Identifier\IdentifierFactory;
@@ -54,6 +55,22 @@ final class ExecutionContextFactoryTest extends TestCase
         $context = $this->factory()->receive(null, $actors);
 
         self::assertSame($actors, $context->actorContext());
+    }
+
+    public function testTenantSurvivesReceiveAttemptAndChildWithoutOverride(): void
+    {
+        $tenant = new TenantRef('account', 'tenant-1');
+        $factory = $this->factoryWithClock([
+            '2026-07-02T12:34:56.123456Z',
+            '2026-07-02T12:35:00.000000Z',
+            '2026-07-02T12:36:00.000000Z',
+        ]);
+        $root = $factory->receive(tenant: $tenant);
+        $attempt = $factory->startAttempt($root, 1);
+        $child = $factory->createChild($root);
+        self::assertSame($tenant, $root->tenant());
+        self::assertSame($tenant, $attempt->tenant());
+        self::assertSame($tenant, $child->tenant());
     }
 
     public function testReceiveHashesOptionalKeyAndAttemptPreservesItWhileChildDoesNotInheritIt(): void

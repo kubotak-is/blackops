@@ -209,8 +209,8 @@ MVP後に残す主要項目:
 - [x] Scheduled Application Operationの入口、Timezone、Misfire、Overlap、Identity、Idempotencyを別Decisionで確定する（D134／P20-013、Accepted）
 - [x] Scheduled Application OperationをAuthoring／Persistence／Invocation／CLI／Guideに分割して実装する（Specification 98／P20-014A〜E、Accepted）
 - [x] Journal／Outcome参照制御、Tenant分離、暗号化CapabilityのContractを確定する（D135／Specification 99／P20-015、Accepted）
-- [ ] TenantRefとRoot／Child／Worker／Retry Tenant伝播を実装する（P20-016A、Ready）
-- [ ] XChaCha20-Poly1305 EnvelopeとStorage Key Providerを実装する（P20-016B、P20-016A後）
+- [x] TenantRefとRoot／Child／Worker／Retry Tenant伝播を実装する（P20-016A、Accepted）
+- [ ] XChaCha20-Poly1305 EnvelopeとStorage Key Providerを実装する（P20-016B、Ready）
 - [ ] PostgreSQL Tenant MetadataとDecode前Isolationを実装する（P20-016C、P20-016B後）
 - [ ] Tenant-aware StatusとDefault-deny Journal／Outcome Readを実装する（P20-016D、P20-016C後）
 - [ ] Journal／Deferred Payload／Context／OutcomeをEncrypted Envelopeへ移行する（P20-016E、P20-016D後）

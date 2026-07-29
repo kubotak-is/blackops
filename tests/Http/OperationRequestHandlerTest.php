@@ -577,6 +577,18 @@ final class OperationRequestHandlerTest extends TestCase
         self::assertSame($actor, $dispatcher->actorContext?->execution());
     }
 
+    public function testTenantAttributeIsPassedToDispatcherUnchanged(): void
+    {
+        $dispatcher = new RecordingDispatcher(OperationResult::completed(new WelcomeShown('ok')));
+        $tenant = new \BlackOps\Core\TenantRef('account', 'tenant-http');
+        $response = $this->httpHandler($dispatcher)->handle($this->request('GET', '/welcome')->withAttribute(
+            \BlackOps\Core\TenantRef::class,
+            $tenant,
+        ));
+        self::assertSame(200, $response->getStatusCode());
+        self::assertSame($tenant, $dispatcher->tenant);
+    }
+
     public function testNonActorReservedAttributeIsIgnored(): void
     {
         $dispatcher = new RecordingDispatcher(OperationResult::completed(new WelcomeShown('ok')));
@@ -602,6 +614,30 @@ final class OperationRequestHandlerTest extends TestCase
         $this->expectException(LogicException::class);
 
         $handler->handle($this->request('GET', '/welcome'));
+    }
+
+    public function testDeferredAcceptorReceivesExactRequestTenant(): void
+    {
+        $tenant = new \BlackOps\Core\TenantRef('account', 'tenant-deferred');
+        $acceptor = new CompletedDeferredAcceptor();
+        $handler = new OperationRequestHandler(
+            new HttpRouteRegistry([new HttpOperationRoute('GET', '/welcome', new ShowWelcome(), WelcomeValue::class)]),
+            new OperationValueBinder(),
+            new FailingDispatcher(),
+            new JsonOperationResponder($this->psr17, $this->psr17),
+            $this->psr17,
+            new NoopValidationRejectionRecorder(),
+            $acceptor,
+        );
+        $this->expectException(LogicException::class);
+        try {
+            $handler->handle($this->request('GET', '/welcome')->withAttribute(
+                \BlackOps\Core\TenantRef::class,
+                $tenant,
+            ));
+        } finally {
+            self::assertSame($tenant, $acceptor->tenant);
+        }
     }
 
     public function testManualValidationRejectionKeepsLegacyResponseShape(): void
@@ -1270,6 +1306,7 @@ final readonly class FixedDispatcher implements Dispatcher
         OperationValue $value,
         ?ActorContext $actorContext = null,
         ?IdempotencyKey $idempotencyKey = null,
+        ?\BlackOps\Core\TenantRef $tenant = null,
     ): OperationResult {
         return $this->result;
     }
@@ -1282,6 +1319,7 @@ final readonly class FailingDispatcher implements Dispatcher
         OperationValue $value,
         ?ActorContext $actorContext = null,
         ?IdempotencyKey $idempotencyKey = null,
+        ?\BlackOps\Core\TenantRef $tenant = null,
     ): OperationResult {
         self::fail('Dispatcher should not be called.');
     }
@@ -1397,6 +1435,7 @@ final class RecordingDispatcher implements Dispatcher
 {
     public ?OperationValue $value = null;
     public ?ActorContext $actorContext = null;
+    public ?\BlackOps\Core\TenantRef $tenant = null;
 
     public function __construct(
         private readonly OperationResult $result,
@@ -1407,16 +1446,20 @@ final class RecordingDispatcher implements Dispatcher
         OperationValue $value,
         ?ActorContext $actorContext = null,
         ?IdempotencyKey $idempotencyKey = null,
+        ?\BlackOps\Core\TenantRef $tenant = null,
     ): OperationResult {
         $this->value = $value;
         $this->actorContext = $actorContext;
+        $this->tenant = $tenant;
 
         return $this->result;
     }
 }
 
-final readonly class CompletedDeferredAcceptor implements DeferredOperationAcceptor
+final class CompletedDeferredAcceptor implements DeferredOperationAcceptor
 {
+    public ?\BlackOps\Core\TenantRef $tenant = null;
+
     public function accepts(Operation $definition): bool
     {
         return true;
@@ -1427,7 +1470,9 @@ final readonly class CompletedDeferredAcceptor implements DeferredOperationAccep
         OperationValue $value,
         ?ActorContext $actorContext = null,
         ?IdempotencyKey $idempotencyKey = null,
+        ?\BlackOps\Core\TenantRef $tenant = null,
     ): \BlackOps\Core\Execution\DeferredAcknowledgement|OperationResult {
+        $this->tenant = $tenant;
         return OperationResult::completed();
     }
 }

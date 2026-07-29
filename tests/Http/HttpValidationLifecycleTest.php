@@ -349,6 +349,7 @@ final class ValidationFailingDeferredAcceptor implements DeferredOperationAccept
         OperationValue $value,
         ?ActorContext $actorContext = null,
         ?IdempotencyKey $idempotencyKey = null,
+        ?\BlackOps\Core\TenantRef $tenant = null,
     ): DeferredAcknowledgement|OperationResult {
         $this->accepted = true;
         self::fail('Deferred acceptance should not run after validation failure.');

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BlackOps\Internal\Console;
 
 use BlackOps\Console\ConsoleActorProvider;
+use BlackOps\Console\ConsoleTenantProvider;
 use BlackOps\Core\ActorContext;
 use BlackOps\Core\ActorRef;
 use BlackOps\Core\EmptyOutcome;
@@ -15,6 +16,7 @@ use BlackOps\Core\Operation;
 use BlackOps\Core\OperationResult;
 use BlackOps\Core\Registry\OperationRegistry;
 use BlackOps\Core\Rejection\RejectionCategory;
+use BlackOps\Core\TenantRef;
 use BlackOps\Core\Time\TimeCodec;
 use BlackOps\Internal\Application\ApplicationOperationInvocationLifecycle;
 use BlackOps\Internal\Execution\ExecutionScopeProvider;
@@ -82,10 +84,10 @@ final readonly class OperationConsoleRuntime
             return $this->validationResult($operationId->toString(), $violations);
         }
 
-        $actor = $this->actorContext();
+        [$actor, $tenant] = $this->contextInputs();
         $executed = $command->strategy === Deferred::class
-            ? $this->deferred->accept($definition, $bound, $actor)
-            : $this->inline->dispatch($definition, $bound, $actor);
+            ? $this->deferred->accept($definition, $bound, $actor, null, $tenant)
+            : $this->inline->dispatch($definition, $bound, $actor, null, $tenant);
 
         return $this->result($executed);
     }
@@ -105,7 +107,8 @@ final readonly class OperationConsoleRuntime
         );
     }
 
-    private function actorContext(): ActorContext
+    /** @return array{0: ActorContext, 1: TenantRef|null} */
+    private function contextInputs(): array
     {
         $actor = null;
         if ($this->container->has(ConsoleActorProvider::class)) {
@@ -117,7 +120,25 @@ final readonly class OperationConsoleRuntime
             $actor = $provider->actor();
         }
 
-        return new ActorContext($actor, $actor, new ActorRef('console-runtime', 'system'));
+        $tenant = null;
+        if ($this->container->has(ConsoleTenantProvider::class)) {
+            try {
+                $tenant = $this->tenantProvider($this->container->get(ConsoleTenantProvider::class))->tenant();
+            } catch (Throwable $exception) {
+                throw new \LogicException('Console tenant could not be resolved.', previous: $exception);
+            }
+        }
+
+        return [new ActorContext($actor, $actor, new ActorRef('console-runtime', 'system')), $tenant];
+    }
+
+    private function tenantProvider(mixed $provider): ConsoleTenantProvider
+    {
+        if (!$provider instanceof ConsoleTenantProvider) {
+            throw new \LogicException('Console tenant provider has an invalid runtime type.');
+        }
+
+        return $provider;
     }
 
     private function result(DeferredAcknowledgement|OperationResult $result): OperationConsoleInvocationResult

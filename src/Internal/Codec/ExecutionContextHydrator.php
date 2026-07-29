@@ -14,12 +14,16 @@ use BlackOps\Core\Identifier\CausationId;
 use BlackOps\Core\Identifier\CorrelationId;
 use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Core\ScheduleContext;
+use BlackOps\Core\TenantRef;
 use BlackOps\Core\Time\TimeCodec;
 use BlackOps\Idempotency\IdempotencyKeyHash;
 use DateTimeImmutable;
 use Throwable;
 
-/** @mago-expect lint:too-many-methods */
+/**
+ * @mago-expect lint:too-many-methods
+ * @mago-expect lint:cyclomatic-complexity
+ */
 final readonly class ExecutionContextHydrator
 {
     private const string RESERVED_SECURITY_FIELD_PATTERN = '/(?:^|[^a-z0-9])(?:password|token|secret|credential|session|api[_-]?key|bearer|jwt|claims?|roles?|permissions?)(?:[^a-z0-9]|$)/i';
@@ -48,7 +52,23 @@ final readonly class ExecutionContextHydrator
             $this->hydrateActors($context),
             $this->hydrateIdempotencyKeyHash($context),
             $this->hydrateSchedule($context),
+            $this->hydrateTenant($context),
         );
+    }
+
+    /** @param array<string, mixed> $context */
+    private function hydrateTenant(array $context): ?TenantRef
+    {
+        $tenant = $this->reader->optionalObject($context, 'tenant');
+        if ($tenant === null) {
+            return null;
+        }
+        $this->assertFields($tenant, ['type', 'id']);
+        try {
+            return new TenantRef($this->reader->string($tenant, 'type'), $this->reader->string($tenant, 'id'));
+        } catch (Throwable $exception) {
+            throw new OperationCodecException('Encoded context contains an invalid tenant.', previous: $exception);
+        }
     }
 
     /** @param array<string, mixed> $context */

@@ -86,6 +86,7 @@ final readonly class JournalRecordBuilder
                 $context->causationId(),
                 $context->actorContext(),
                 $context->schedule(),
+                $context->tenant(),
             ),
             $attempt === null ? null : new JournalAttempt($attempt->id(), $attempt->number(), $attempt->startedAt()),
             $data,

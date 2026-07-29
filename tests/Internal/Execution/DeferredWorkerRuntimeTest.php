@@ -35,6 +35,7 @@ use BlackOps\Core\Supervision\ExponentialBackoffSupervisionPolicy;
 use BlackOps\Core\Supervision\RetryableException;
 use BlackOps\Core\Supervision\SupervisionDecision;
 use BlackOps\Core\Supervision\SupervisionPolicy;
+use BlackOps\Core\TenantRef;
 use BlackOps\Database\AfterCommitFailure;
 use BlackOps\Database\AfterCommitFailureReporter;
 use BlackOps\Database\DatabaseManager;
@@ -128,7 +129,8 @@ final class DeferredWorkerRuntimeTest extends TestCase
     public function testWorkerRunsClaimedOperationToCompletion(): void
     {
         $handler = new CompletingWorkerReportHandler();
-        $this->accept();
+        $tenant = new TenantRef('account', 'tenant-worker');
+        $this->accept(tenant: $tenant);
         $claim = $this->receiver->claim(new \BlackOps\Core\Execution\ClaimRequest(
             new DateTimeImmutable('2026-07-10T00:01:00.000000Z'),
         ));
@@ -166,6 +168,10 @@ final class DeferredWorkerRuntimeTest extends TestCase
             self::assertNull($record->operation->actorContext?->authorization());
             self::assertSame('worker-a', $record->operation->actorContext?->execution()->id());
             self::assertSame('system', $record->operation->actorContext?->execution()->type());
+        }
+        foreach ($records as $record) {
+            self::assertSame($tenant->type(), $record->operation->tenant?->type());
+            self::assertSame($tenant->id(), $record->operation->tenant?->id());
         }
         $storedOutcome = $this->outcomes->find(OperationId::fromString(self::OPERATION_ID));
         self::assertNotNull($storedOutcome);
@@ -965,7 +971,7 @@ final class DeferredWorkerRuntimeTest extends TestCase
     public function testWorkerSchedulesRetryAndWrapsRetryableHandlerException(): void
     {
         $handler = new RetryableThrowingWorkerReportHandler();
-        $this->accept();
+        $this->accept(tenant: new TenantRef('account', 'tenant-retry'));
         $claim = $this->receiver->claim(new \BlackOps\Core\Execution\ClaimRequest(
             new DateTimeImmutable('2026-07-10T00:01:00.000000Z'),
         ));
@@ -982,6 +988,10 @@ final class DeferredWorkerRuntimeTest extends TestCase
 
         $row = $this->operationRow();
         $records = $this->records();
+
+        foreach ($records as $record) {
+            self::assertSame('tenant-retry', $record->operation->tenant?->id());
+        }
 
         self::assertSame('retry_scheduled', $row['state']);
         self::assertSame(1, (int) $row['attempt_number']);
@@ -1087,7 +1097,7 @@ final class DeferredWorkerRuntimeTest extends TestCase
     public function testLeaseExpiredRecoveryRecordsAttemptFailureAndSchedulesRetry(): void
     {
         $actors = self::userActors();
-        $this->accept(actors: $actors);
+        $this->accept(actors: $actors, tenant: new TenantRef('account', 'tenant-lease'));
         $claim = $this->receiver->claim(new \BlackOps\Core\Execution\ClaimRequest(
             new DateTimeImmutable('2026-07-10T00:01:00.000000Z'),
         ));
@@ -1127,6 +1137,7 @@ final class DeferredWorkerRuntimeTest extends TestCase
         self::assertSame(2, $records[4]->data->nextAttemptNumber);
         self::assertSame('2026-07-10T00:02:01+00:00', $records[4]->data->scheduledAt->format(DATE_ATOM));
         foreach (array_slice($records, 2) as $record) {
+            self::assertSame('tenant-lease', $record->operation->tenant?->id());
             self::assertEquals($actors->origin(), $record->operation->actorContext?->origin());
             self::assertEquals($actors->authorization(), $record->operation->actorContext?->authorization());
             self::assertSame('worker-a', $record->operation->actorContext?->execution()->id());
@@ -1291,6 +1302,7 @@ final class DeferredWorkerRuntimeTest extends TestCase
         ?ActorContext $actors = null,
         ?AuthorizationPolicy $authorizationPolicy = null,
         bool $scheduled = false,
+        ?TenantRef $tenant = null,
     ): void {
         $metadata ??= $this->metadata(scheduled: $scheduled);
         $context = new ExecutionContext(
@@ -1301,6 +1313,7 @@ final class DeferredWorkerRuntimeTest extends TestCase
             schedule: $scheduled
                 ? new ScheduleContext('reports.daily', new DateTimeImmutable('2026-07-10T00:00:00Z'), 'UTC')
                 : null,
+            tenant: $tenant,
         );
         $value = new WorkerReportValue('weekly');
         $encoded = $this->codec->encode($metadata, $value, $context);

@@ -14,6 +14,7 @@ use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Core\Outcome;
 use BlackOps\Core\OutcomeData;
 use BlackOps\Core\ScheduleContext;
+use BlackOps\Core\TenantRef;
 use BlackOps\Journal\Data\AttemptRetryScheduledData;
 use BlackOps\Journal\Data\OperationCompletedData;
 use BlackOps\Journal\Data\OperationDeadLetteredData;
@@ -57,6 +58,18 @@ final class PostgreSqlJournalRecordCodecTest extends TestCase
         self::assertSame('user', $actors?->authorization()?->type());
         self::assertSame('http-runtime-789', $actors?->execution()->id());
         self::assertSame('system', $actors?->execution()->type());
+    }
+
+    public function testRoundTripsTenantAndRejectsPartialTenant(): void
+    {
+        $codec = new PostgreSqlJournalRecordCodec();
+        $record = $this->record(tenant: new TenantRef('account', 'tenant-secret-id'));
+        $decoded = $codec->decode($codec->encode($record));
+        self::assertSame('tenant-secret-id', $decoded->operation->tenant?->id());
+        $payload = json_decode($codec->encode($record), true, flags: JSON_THROW_ON_ERROR);
+        unset($payload['operation']['tenant']['id']);
+        $this->expectException(RuntimeException::class);
+        $codec->decode(json_encode($payload, JSON_THROW_ON_ERROR));
     }
 
     public function testEncodesNullActorsAndDecodesLegacyPayloadWithoutActors(): void
@@ -294,6 +307,7 @@ final class PostgreSqlJournalRecordCodecTest extends TestCase
     private function record(
         ?ActorContext $actors = null,
         ?ScheduleContext $schedule = null,
+        ?TenantRef $tenant = null,
         JournalEvent $event = JournalEvent::OperationReceived,
         ?JournalData $data = null,
     ): JournalRecord {
@@ -311,6 +325,7 @@ final class PostgreSqlJournalRecordCodecTest extends TestCase
                 CorrelationId::fromString(self::ID),
                 actorContext: $actors,
                 schedule: $schedule,
+                tenant: $tenant,
             ),
             null,
             $data ?? new EmptyJournalData(),

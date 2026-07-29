@@ -9,6 +9,7 @@ use BlackOps\Core\ExecutionContext;
 use BlackOps\Core\Identifier\CorrelationId;
 use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Core\ScheduleContext;
+use BlackOps\Core\TenantRef;
 use BlackOps\Idempotency\IdempotencyKey;
 use BlackOps\Internal\Codec\ExecutionContextJsonCodec;
 use DateTimeImmutable;
@@ -32,6 +33,35 @@ final class ExecutionContextJsonCodecTest extends TestCase
         self::assertStringContainsString('idempotency_key_hash', $encoded);
         self::assertStringNotContainsString('raw-secret-key', $encoded);
         self::assertTrue($context->idempotencyKeyHash()?->equals($decoded->idempotencyKeyHash()));
+    }
+
+    public function testTenantRoundTripsWithoutCredentials(): void
+    {
+        $tenant = new TenantRef('account', 'tenant-1');
+        $context = new ExecutionContext(
+            OperationId::fromString('019f32ab-2be0-7b38-a0a7-1ab2f9687701'),
+            new DateTimeImmutable('2026-07-23T00:00:00Z'),
+            CorrelationId::fromString('019f32ab-2be0-7b38-a0a7-1ab2f9687702'),
+            tenant: $tenant,
+        );
+        $decoded = new ExecutionContextJsonCodec()->decode(new ExecutionContextJsonCodec()->encode($context));
+        self::assertSame($tenant->type(), $decoded->tenant()?->type());
+        self::assertSame($tenant->id(), $decoded->tenant()?->id());
+    }
+
+    public function testInvalidTenantShapeFailsSafely(): void
+    {
+        $payload = [
+            'operation_id' => '019f32ab-2be0-7b38-a0a7-1ab2f9687701',
+            'received_at' => '2026-07-23T00:00:00Z',
+            'correlation_id' => '019f32ab-2be0-7b38-a0a7-1ab2f9687702',
+            'causation_id' => null,
+            'attempt' => null,
+            'deadline' => null,
+            'tenant' => ['id' => 'tenant-1'],
+        ];
+        $this->expectException(OperationCodecException::class);
+        new ExecutionContextJsonCodec()->decode(json_encode($payload, JSON_THROW_ON_ERROR));
     }
 
     public function testMissingHashFieldRemainsBackwardCompatible(): void

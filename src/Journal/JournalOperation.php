@@ -10,6 +10,7 @@ use BlackOps\Core\Identifier\CausationId;
 use BlackOps\Core\Identifier\CorrelationId;
 use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Core\ScheduleContext;
+use BlackOps\Core\TenantRef;
 use InvalidArgumentException;
 
 #[PublicApi]
@@ -24,6 +25,7 @@ final readonly class JournalOperation
         public ?CausationId $causationId = null,
         public ?ActorContext $actorContext = null,
         public ?ScheduleContext $schedule = null,
+        public ?TenantRef $tenant = null,
     ) {
         if (!preg_match('/^[a-z0-9]+(?:\.[a-z0-9]+)*$/', $type)) {
             throw new InvalidArgumentException('Journal operation requires a valid type identifier.');

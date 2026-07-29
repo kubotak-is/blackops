@@ -18,6 +18,7 @@ use BlackOps\Core\Registry\OperationMetadata;
 use BlackOps\Core\Registry\OperationRegistry;
 use BlackOps\Core\Rejection\RejectionReason;
 use BlackOps\Core\Retention\RetentionPeriod;
+use BlackOps\Core\TenantRef;
 use BlackOps\Core\Validation\Violation;
 use BlackOps\Execution\Dispatcher;
 use BlackOps\Execution\ValidationRejectionRecorder;
@@ -110,12 +111,12 @@ final readonly class InlineDispatcher implements Dispatcher, ScheduledInlineDisp
         return $this->validator->validate($value);
     }
 
-    /** @mago-expect lint:halstead */
     public function dispatch(
         Operation $definition,
         OperationValue $value,
         ?ActorContext $actorContext = null,
         ?IdempotencyKey $idempotencyKey = null,
+        ?TenantRef $tenant = null,
     ): OperationResult {
         if ($idempotencyKey !== null && $actorContext?->authorization() === null) {
             return OperationResult::rejected(RejectionReason::businessRule('idempotency_requires_authenticated_actor'));
@@ -137,7 +138,7 @@ final readonly class InlineDispatcher implements Dispatcher, ScheduledInlineDisp
         $receivedEnvelope = new OperationEnvelope(
             $definition,
             $value,
-            $this->contexts->receive(actorContext: $actorContext, idempotencyKey: $idempotencyKey),
+            $this->contexts->receive(actorContext: $actorContext, idempotencyKey: $idempotencyKey, tenant: $tenant),
             new Inline(),
         );
         return $this->dispatchEnvelope($metadata, $receivedEnvelope, $idempotencyKey);

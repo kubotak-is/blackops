@@ -15,6 +15,7 @@ use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Core\OperationValue;
 use BlackOps\Core\Rejection\RejectionReason;
 use BlackOps\Core\ScheduleContext;
+use BlackOps\Core\TenantRef;
 use BlackOps\Core\Validation\Violation;
 use BlackOps\Internal\Projection\ObservedJournalRecordProjector;
 use BlackOps\Internal\Projection\SensitiveProjectionFilter;
@@ -63,6 +64,30 @@ final class ObservedJournalRecordProjectorTest extends TestCase
         self::assertSame($canonical->event, $observed->event);
         self::assertSame($canonical->operation, $observed->operation);
         self::assertSame(['value' => ['message' => 'hello']], $observed->data);
+    }
+
+    public function testObservedProjectionOmitsRawTenantId(): void
+    {
+        $record = new JournalRecord(
+            JournalRecordId::fromString(self::ID),
+            1,
+            JournalEvent::OperationReceived,
+            new DateTimeImmutable('2026-07-07T00:00:00Z'),
+            1,
+            new JournalOperation(
+                OperationId::fromString(self::ID),
+                'projection.test',
+                1,
+                'inline',
+                CorrelationId::fromString(self::ID),
+                tenant: new TenantRef('account', 'tenant-secret-id'),
+            ),
+            null,
+            new EmptyJournalData(),
+        );
+        $observed = new ObservedJournalRecordProjector(new SensitiveProjectionFilter())->project($record);
+        self::assertNull($observed->operation->tenant);
+        self::assertStringNotContainsString('tenant-secret-id', json_encode($observed, JSON_THROW_ON_ERROR));
     }
 
     public function testProjectsSafeRejectedReasonWithoutRawValue(): void

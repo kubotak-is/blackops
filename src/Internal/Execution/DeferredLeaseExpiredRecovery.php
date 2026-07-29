@@ -102,6 +102,7 @@ final readonly class DeferredLeaseExpiredRecovery implements ExpiredAttemptRecov
                 ),
                 $context->idempotencyKeyHash(),
                 $context->schedule(),
+                $context->tenant(),
             ),
             new Deferred(),
         );

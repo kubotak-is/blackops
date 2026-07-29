@@ -9,6 +9,7 @@ use BlackOps\Core\Attribute\PublicApi;
 use BlackOps\Core\Operation;
 use BlackOps\Core\OperationResult;
 use BlackOps\Core\OperationValue;
+use BlackOps\Core\TenantRef;
 use BlackOps\Idempotency\IdempotencyKey;
 
 #[PublicApi]
@@ -19,5 +20,6 @@ interface Dispatcher
         OperationValue $value,
         ?ActorContext $actorContext = null,
         ?IdempotencyKey $idempotencyKey = null,
+        ?TenantRef $tenant = null,
     ): OperationResult;
 }

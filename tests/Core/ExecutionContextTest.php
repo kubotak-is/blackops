@@ -14,6 +14,7 @@ use BlackOps\Core\Identifier\CausationId;
 use BlackOps\Core\Identifier\CorrelationId;
 use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Core\ScheduleContext;
+use BlackOps\Core\TenantRef;
 use DateTimeImmutable;
 use DateTimeZone;
 use PHPUnit\Framework\TestCase;
@@ -55,6 +56,19 @@ final class ExecutionContextTest extends TestCase
         self::assertNull($context->deadline());
         self::assertNull($context->actorContext());
         self::assertNull($context->schedule());
+        self::assertNull($context->tenant());
+    }
+
+    public function testTenantIsOptionalImmutableValue(): void
+    {
+        $tenant = new TenantRef('account', 'tenant-1');
+        $context = new ExecutionContext(
+            OperationId::fromString(self::OPERATION_V7),
+            new DateTimeImmutable('2026-07-02T12:34:56Z'),
+            CorrelationId::fromString(self::CORRELATION_V7),
+            tenant: $tenant,
+        );
+        self::assertSame($tenant, $context->tenant());
     }
 
     public function testScheduleContextIsExposedWithoutChangingExistingFields(): void

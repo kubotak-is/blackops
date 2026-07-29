@@ -12,6 +12,7 @@ use BlackOps\Core\OperationValue;
 use BlackOps\Core\Registry\OperationMetadata;
 use BlackOps\Core\Registry\OperationScheduleMetadata;
 use BlackOps\Core\ScheduleContext;
+use BlackOps\Core\TenantRef;
 use BlackOps\Internal\ExecutionContext\ExecutionContextFactory;
 use BlackOps\Internal\Identifier\IdentifierFactory;
 use BlackOps\Internal\Identifier\Uuidv7Generator;
@@ -19,6 +20,7 @@ use BlackOps\Internal\Scheduling\ScheduledOperationEnvelopeFactory;
 use BlackOps\Internal\Scheduling\ScheduledRuntimeActor;
 use BlackOps\Internal\Scheduling\ScheduleOccurrence;
 use BlackOps\Scheduling\ScheduledActorProvider;
+use BlackOps\Scheduling\ScheduledTenantProvider;
 use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
@@ -92,6 +94,49 @@ final class ScheduledOperationEnvelopeFactoryTest extends TestCase
 
         self::assertNull($envelope->context()->actorContext()?->authorization());
         self::assertEquals(ScheduledRuntimeActor::ref(), $envelope->context()->actorContext()?->execution());
+    }
+
+    public function testTenantProviderIsIndependentAndPropagatesTenant(): void
+    {
+        $tenant = new TenantRef('account', 'tenant-secret-id');
+        $factory = new ScheduledOperationEnvelopeFactory($this->contexts(), null, new class($tenant) implements
+            ScheduledTenantProvider {
+            public function __construct(
+                private TenantRef $tenant,
+            ) {}
+
+            public function tenant(ScheduleContext $context): ?TenantRef
+            {
+                return $this->tenant;
+            }
+        });
+        $envelope = $factory->create(
+            $this->metadata(),
+            new ScheduledTestOperation(),
+            new ScheduledTestValue(),
+            $this->occurrence(),
+            new Inline(),
+        );
+        self::assertSame($tenant, $envelope->context()->tenant());
+    }
+
+    public function testTenantProviderFailureDoesNotFallbackToTenantlessContext(): void
+    {
+        $factory = new ScheduledOperationEnvelopeFactory($this->contexts(), null, new class implements
+            ScheduledTenantProvider {
+            public function tenant(ScheduleContext $context): ?TenantRef
+            {
+                throw new \RuntimeException('tenant provider failed');
+            }
+        });
+        $this->expectException(\LogicException::class);
+        $factory->create(
+            $this->metadata(),
+            new ScheduledTestOperation(),
+            new ScheduledTestValue(),
+            $this->occurrence(),
+            new Inline(),
+        );
     }
 
     public function testValueConstructionRejectsConstructorRequiredValue(): void

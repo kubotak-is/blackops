@@ -19,6 +19,8 @@ use DateTimeZone;
  *
  * 生成と遷移はInternal Factoryが行い、利用者はGetterでの読み取りのみを許可する。
  * 公開 `with...()` Methodは提供しない。
+ *
+ * @mago-expect lint:excessive-parameter-list
  */
 #[PublicApi]
 final readonly class ExecutionContext
@@ -36,6 +38,7 @@ final readonly class ExecutionContext
         private ?ActorContext $actorContext = null,
         private ?IdempotencyKeyHash $idempotencyKeyHash = null,
         private ?ScheduleContext $schedule = null,
+        private ?TenantRef $tenant = null,
     ) {
         $this->receivedAt = $this->toUtc($receivedAt);
         $this->deadline = $deadline === null ? null : $this->toUtc($deadline);
@@ -84,6 +87,11 @@ final readonly class ExecutionContext
     public function schedule(): ?ScheduleContext
     {
         return $this->schedule;
+    }
+
+    public function tenant(): ?TenantRef
+    {
+        return $this->tenant;
     }
 
     private function toUtc(DateTimeImmutable $time): DateTimeImmutable

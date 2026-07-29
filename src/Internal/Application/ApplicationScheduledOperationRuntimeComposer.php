@@ -18,6 +18,7 @@ use BlackOps\Internal\Scheduling\ScheduledOperationRunner;
 use BlackOps\Internal\Scheduling\ScheduledOperationRuntime;
 use BlackOps\Internal\Scheduling\ScheduleEvaluator;
 use BlackOps\Scheduling\ScheduledActorProvider;
+use BlackOps\Scheduling\ScheduledTenantProvider;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationSender;
 use InvalidArgumentException;
 use Psr\Container\ContainerInterface;
@@ -31,6 +32,9 @@ final readonly class ApplicationScheduledOperationRuntimeComposer
         $database = ApplicationDatabaseConfiguration::fromConfiguration($configuration->configuration());
         $scheduledOccurrences = new PostgreSqlScheduledOccurrenceLifecycle($runtime->connection, $database->schema);
         $provider = $this->provider($runtime->container, $runtime->operations);
+        $tenantProvider = $runtime->container->has(ScheduledTenantProvider::class)
+            ? $this->tenantProvider($runtime->container->get(ScheduledTenantProvider::class))
+            : null;
         $contexts = new ExecutionContextFactory($runtime->identifiers, $runtime->clock);
         $records = new JournalRecordFactory($runtime->identifiers, $runtime->clock);
         $inline = new InlineDispatcher(
@@ -56,7 +60,7 @@ final readonly class ApplicationScheduledOperationRuntimeComposer
             scheduledOccurrences: $scheduledOccurrences,
         );
         $scheduledRuntime = new ScheduledOperationRuntime(
-            new ScheduledOperationEnvelopeFactory($contexts, $provider),
+            new ScheduledOperationEnvelopeFactory($contexts, $provider, $tenantProvider),
             $inline,
             $deferred,
             new ReflectionJsonOperationCodec(),
@@ -75,6 +79,14 @@ final readonly class ApplicationScheduledOperationRuntimeComposer
                 $runtime->clock,
             ),
         );
+    }
+
+    private function tenantProvider(mixed $provider): ScheduledTenantProvider
+    {
+        if (!$provider instanceof ScheduledTenantProvider) {
+            throw new InvalidArgumentException('Scheduled tenant provider configuration is invalid.');
+        }
+        return $provider;
     }
 
     /** @return ScheduledActorProvider|null */

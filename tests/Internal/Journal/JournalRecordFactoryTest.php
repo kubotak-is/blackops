@@ -19,6 +19,7 @@ use BlackOps\Core\OperationHandler;
 use BlackOps\Core\OperationValue;
 use BlackOps\Core\Registry\OperationMetadata;
 use BlackOps\Core\Rejection\RejectionReason;
+use BlackOps\Core\TenantRef;
 use BlackOps\Core\Validation\Violation;
 use BlackOps\Internal\Identifier\IdentifierFactory;
 use BlackOps\Internal\Identifier\Uuidv7Generator;
@@ -127,6 +128,50 @@ final class JournalRecordFactoryTest extends TestCase
         self::assertSame($actors, $record->operation->actorContext);
         self::assertSame('user-123', $record->operation->actorContext?->origin()?->id());
         self::assertSame('http-runtime', $record->operation->actorContext?->execution()->id());
+    }
+
+    public function testCopiesTenantIntoCanonicalJournalOperation(): void
+    {
+        $tenant = new TenantRef('account', 'tenant-secret-id');
+        $context = new ExecutionContext(
+            OperationId::fromString(self::ID),
+            new DateTimeImmutable('2026-07-06T12:00:00Z'),
+            CorrelationId::fromString(self::ID),
+            tenant: $tenant,
+        );
+        $factory = new JournalRecordFactory(
+            new IdentifierFactory(new class implements Uuidv7Generator {
+                public function generate(DateTimeImmutable $time): string
+                {
+                    return JournalRecordFactoryTest::ID;
+                }
+            }, new class implements ClockInterface {
+                public function now(): DateTimeImmutable
+                {
+                    return new DateTimeImmutable('2026-07-06T12:00:00Z');
+                }
+            }),
+            new class implements ClockInterface {
+                public function now(): DateTimeImmutable
+                {
+                    return new DateTimeImmutable('2026-07-06T12:00:00Z');
+                }
+            },
+        );
+        $metadata = new OperationMetadata(
+            'journal.test',
+            JournalOperationFixture::class,
+            JournalValueFixture::class,
+            JournalHandlerFixture::class,
+            EmptyOutcome::class,
+            Inline::class,
+        );
+        $record = $factory->operationReceived(
+            new OperationEnvelope(new JournalOperationFixture(), new JournalValueFixture('x'), $context, new Inline()),
+            $metadata,
+            1,
+        );
+        self::assertSame($tenant, $record->operation->tenant);
     }
 
     public function testCreatesAcceptedRecordForDeferredOperation(): void

@@ -12,6 +12,7 @@ use BlackOps\Core\Identifier\CorrelationId;
 use BlackOps\Core\Identifier\JournalRecordId;
 use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Core\ScheduleContext;
+use BlackOps\Core\TenantRef;
 use BlackOps\Core\Time\TimeCodec;
 use BlackOps\Journal\JournalAttempt;
 use BlackOps\Journal\JournalEvent;
@@ -21,7 +22,10 @@ use DateTimeImmutable;
 use RuntimeException;
 use Throwable;
 
-/** @mago-expect lint:cyclomatic-complexity */
+/**
+ * @mago-expect lint:cyclomatic-complexity
+ * @mago-expect lint:too-many-methods
+ */
 final readonly class PostgreSqlJournalRecordCodec
 {
     public function __construct(
@@ -65,7 +69,7 @@ final readonly class PostgreSqlJournalRecordCodec
      */
     private function encodeOperation(JournalOperation $operation): array
     {
-        return [
+        $encoded = [
             'id' => $operation->id->toString(),
             'type' => $operation->type,
             'schemaVersion' => $operation->schemaVersion,
@@ -75,6 +79,10 @@ final readonly class PostgreSqlJournalRecordCodec
             'actors' => $this->encodeActors($operation->actorContext),
             'schedule' => $this->encodeSchedule($operation->schedule),
         ];
+        if ($operation->tenant !== null) {
+            $encoded['tenant'] = ['type' => $operation->tenant->type(), 'id' => $operation->tenant->id()];
+        }
+        return $encoded;
     }
 
     /**
@@ -120,7 +128,31 @@ final readonly class PostgreSqlJournalRecordCodec
             $this->decodeCausationId($operation),
             $this->decodeActors($operation),
             $this->decodeSchedule($operation),
+            $this->decodeTenant($operation),
         );
+    }
+
+    /** @param array<array-key, mixed> $operation */
+    private function decodeTenant(array $operation): ?TenantRef
+    {
+        /** @var mixed $tenant */
+        $tenant = $operation['tenant'] ?? null;
+        if ($tenant === null) {
+            return null;
+        }
+        if (!is_array($tenant)) {
+            throw new RuntimeException('Stored journal tenant context must be an object.');
+        }
+        $fields = array_keys($tenant);
+        sort($fields);
+        if ($fields !== ['id', 'type']) {
+            throw new RuntimeException('Stored journal tenant context contains unknown or missing fields.');
+        }
+        try {
+            return new TenantRef($this->json->string($tenant, 'type'), $this->json->string($tenant, 'id'));
+        } catch (Throwable $exception) {
+            throw new RuntimeException('Stored journal tenant context is invalid.', previous: $exception);
+        }
     }
 
     /** @return array{name: string, scheduled_at: string, timezone: string}|null */

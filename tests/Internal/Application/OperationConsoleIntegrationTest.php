@@ -6,6 +6,7 @@ namespace BlackOps\Tests\Internal\Application;
 
 use BlackOps\Application\Application;
 use BlackOps\Console\ConsoleActorProvider;
+use BlackOps\Console\ConsoleTenantProvider;
 use BlackOps\Core\ActorRef;
 use BlackOps\Core\Attribute\Authorize;
 use BlackOps\Core\Attribute\ConsoleCommand;
@@ -88,6 +89,19 @@ final class OperationConsoleIntegrationTest extends TestCase
             '--name' => 'Ada',
             '--json' => true,
         ]), $inline));
+        self::assertSame('tenant-console', ConsoleFixtureRuntime::$tenant?->id());
+        ConsoleFixtureTenantProvider::$throw = true;
+        $failedTenant = new BufferedOutput();
+        self::assertSame(1, $runtime->console()->run(new ArrayInput([
+            'command' => 'fixture:inline',
+            '--name' => 'Ada',
+            '--json' => true,
+        ]), $failedTenant));
+        $failedPayload = $failedTenant->fetch();
+        self::assertStringContainsString('internal_error', $failedPayload);
+        self::assertStringNotContainsString('tenant-provider-failure', $failedPayload);
+        self::assertSame('tenant-console', ConsoleFixtureRuntime::$tenant?->id());
+        ConsoleFixtureTenantProvider::$throw = false;
         self::assertSame(
             [
                 'schemaVersion' => 1,
@@ -270,7 +284,28 @@ final readonly class ConsoleFixtureServiceProvider implements ServiceProvider
     public function register(ServiceRegistry $services): void
     {
         $services->autowire(ConsoleActorProvider::class, ConsoleFixtureActorProvider::class);
+        $services->autowire(ConsoleTenantProvider::class, ConsoleFixtureTenantProvider::class);
     }
+}
+
+final class ConsoleFixtureTenantProvider implements ConsoleTenantProvider
+{
+    public static bool $throw = false;
+    public static int $calls = 0;
+
+    public function tenant(): ?\BlackOps\Core\TenantRef
+    {
+        self::$calls++;
+        if (self::$throw) {
+            throw new \RuntimeException('tenant-provider-failure');
+        }
+        return new \BlackOps\Core\TenantRef('account', 'tenant-console');
+    }
+}
+
+final class ConsoleFixtureRuntime
+{
+    public static ?\BlackOps\Core\TenantRef $tenant = null;
 }
 
 final class ConsoleFixtureActorProvider implements ConsoleActorProvider
@@ -307,6 +342,7 @@ final readonly class ConsoleInlineOperation implements Operation
 {
     public function handle(ConsoleInlineValue $value, ExecutionContext $context): ConsoleInlineOutcome
     {
+        ConsoleFixtureRuntime::$tenant = $context->tenant();
         return new ConsoleInlineOutcome(
             'Hello ' . $value->name,
             $context->actorContext()?->origin()?->id() ?? 'none',

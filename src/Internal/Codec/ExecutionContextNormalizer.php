@@ -23,8 +23,9 @@ final readonly class ExecutionContextNormalizer
     public function normalize(ExecutionContext $context): array
     {
         $deadline = $context->deadline();
+        $tenant = $context->tenant();
 
-        return [
+        $normalized = [
             'operation_id' => $context->operationId()->toString(),
             'received_at' => $this->time->format($context->receivedAt()),
             'correlation_id' => $context->correlationId()->toString(),
@@ -35,6 +36,10 @@ final readonly class ExecutionContextNormalizer
             'idempotency_key_hash' => $this->normalizeIdempotencyKeyHash($context),
             'schedule' => $this->normalizeSchedule($context->schedule()),
         ];
+        if ($tenant !== null) {
+            $normalized['tenant'] = ['type' => $tenant->type(), 'id' => $tenant->id()];
+        }
+        return $normalized;
     }
 
     /**

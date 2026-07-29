@@ -138,6 +138,7 @@ final class TransactionalOutboxRuntimeTest extends TestCase
         self::assertSame('origin-user', $child->actorContext()?->origin()?->id());
         self::assertSame('auth-user', $child->actorContext()?->authorization()?->id());
         self::assertSame('override-worker', $child->actorContext()?->execution()->id());
+        self::assertSame('tenant-outbox', $child->tenant()?->id());
         self::assertSame(
             $parent->context()->deadline()?->format(DateTimeImmutable::ATOM),
             $child->deadline()?->format(DateTimeImmutable::ATOM),
@@ -434,6 +435,7 @@ final class TransactionalOutboxRuntimeTest extends TestCase
                 new ActorRef('exec-user', 'user'),
             ),
             new IdempotencyKey('parent-key'),
+            tenant: new \BlackOps\Core\TenantRef('account', 'tenant-outbox'),
         );
 
         return new OperationEnvelope(new OutboxParent(), new OutboxParentValue(), $context, $strategy);

@@ -13,6 +13,7 @@ use BlackOps\Core\Registry\OperationMetadata;
 use BlackOps\Core\ScheduleContext;
 use BlackOps\Internal\ExecutionContext\ExecutionContextFactory;
 use BlackOps\Scheduling\ScheduledActorProvider;
+use BlackOps\Scheduling\ScheduledTenantProvider;
 use LogicException;
 use ReflectionClass;
 
@@ -21,6 +22,7 @@ final readonly class ScheduledOperationEnvelopeFactory
     public function __construct(
         private ExecutionContextFactory $contexts,
         private ?ScheduledActorProvider $actors = null,
+        private ?ScheduledTenantProvider $tenants = null,
     ) {}
 
     public function create(
@@ -55,11 +57,16 @@ final readonly class ScheduledOperationEnvelopeFactory
             throw new LogicException('Authorized scheduled operation requires an actor provider.');
         }
         $actorContext = new ActorContext($actor, $actor, ScheduledRuntimeActor::ref());
+        try {
+            $tenant = $this->tenants?->tenant($context);
+        } catch (\Throwable $exception) {
+            throw new LogicException('Scheduled tenant could not be resolved.', previous: $exception);
+        }
 
         return new OperationEnvelope(
             $definition,
             $value,
-            $this->contexts->receiveScheduled($operationId, $occurrence->evaluatedAt, $context, $actorContext),
+            $this->contexts->receiveScheduled($operationId, $occurrence->evaluatedAt, $context, $actorContext, $tenant),
             $strategy,
         );
     }

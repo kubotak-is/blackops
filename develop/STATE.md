@@ -1,6 +1,57 @@
 # Orchestration State
 
-Updated At: 2026-07-29T19:17:59+09:00
+Updated At: 2026-07-29T20:35:29+09:00
+
+## P20-016A Orchestrator Acceptance
+
+```text
+2026-07-29T20:35:29+09:00
+OrchestratorはP20-016AをSpecification 99、Public API、Root／Child／Outbox／Deferred Context、Worker／Retry／Lease Recovery、Canonical／Observed Journalへ照合した。形式だけのTenantRef Assertionを実Runtime Regressionへ置換し、HTTP Deferred、Console Provider Success／Failure、Scheduled Provider Failure、Transactional Outbox、Worker Completion／Retry／Lease Recoveryを直接固定した。Composer Validate、Full PHPUnit 2019 tests／7981 assertions（既存deprecation 1）、Mago Format、Changed-source Lint、Full Analyze、Scheduled Consumer、Management-ID Guard、git diff --checkはPASS。Broad Mago Lintは既存78件、Deptracは既存Vendor ParserのPHP 8.5 Parse ErrorでBLOCKED。Current SourceにTerminal Operation Replay Runtimeは存在しないため推測APIを追加せず、Specification 99の将来不変条件を維持した。P20-016AをAcceptedとし、次TaskをP20-016B Storage Protection Coreとする。Commit／Push／DeployはこのCheckpoint時点で未実行。
+```
+
+## P20-016A Tenant Context and Propagation Worker Completion
+
+```text
+2026-07-29T20:08:00+09:00
+WorkerはP20-016Aを実装し、TenantRef、Optional ExecutionContext Tenant、HTTP Authentication／Middleware、Console／Scheduled Tenant Provider、Public Dispatcher末尾Tenant、Child／Deferred／Retry／Lease Recovery Context Codec、Canonical Journal Tenant境界を同期した。Observed Journal ProjectionへRaw Tenant IDは出さない。既存Terminal Operation Replay Public APIはCurrent Sourceに存在せず、新規Replay APIは推測実装していないためCurrent Source gapとしてReportへ記録した。Production CodeのCommit／Push／Deployは未実行。Review Pending。
+```
+
+## P20-016A Authentication Tenant Attribute Boundary Correction
+
+```text
+2026-07-29T20:14:00+09:00
+Review Findingを補正した。AuthenticationMiddlewareは認証処理開始時に既存TenantRef request attributeを除去し、authenticated Resultが検証済みTenantを返した場合だけ再設定する。Anonymous／authenticated(actor, null)で上流の未検証TenantをRootへ流さないRegression Testを追加した。Review Pending、Commit／Push／Deployなし。
+```
+
+## P20-016A Acceptance Matrix Test Completion
+
+```text
+2026-07-29T20:20:00+09:00
+TenantRef trim／empty、ExecutionContext tenant getter／Factory receive-attempt-child inheritance、Context JSON tenant round-trip／invalid shape、AuthenticationResult／Middleware pre-seeded tenant removal、Journal tenant identityを直接固定するTestを追加した。Focused 60 tests／154 assertions、Full 1996 tests／7917 assertions（既存deprecation 1）はPASS。Commit／Push／Deployなし、Review Pending。
+```
+
+## P20-016A Correction 2 Direct Branch Tests
+
+```text
+2026-07-29T20:28:00+09:00
+認証済みTenantのMiddleware設定、OperationRequestHandlerのDispatcher Tenant引渡し、Console／Scheduled Tenant Provider Port独立性、Dispatcher末尾Optional Tenantを直接固定するTestを追加した。Correction Focused 49 tests／186 assertions PASS。Full Suiteは直前の1996 tests／7917 assertions PASSからProduction分岐変更なし。Full SuiteをTest追加後に再実行し、2012 tests／7947 assertions PASS（既存deprecation 1）を確認した。Commit／Push／Deployなし。
+```
+
+Correction 2 named-file coverage was added. Focused named-file suites: 57 tests／195 assertions PASS; Console integration plus Deferred worker suites: 36 tests／435 assertions PASS. `rg` now finds tenant coverage in all named files. Commit／Push／Deployなし。
+
+## P20-016A Orchestrator Scope Correction
+
+```text
+2026-07-29T20:02:00+09:00
+OrchestratorはWorkerのFoundational差分をTask Packetへ照合し、P20-016A In ScopeのHTTP Root Tenant伝播とCanonical Journal Tenant round-tripに必要だがFiles Allowedから欠落していたsrc/Http/DeferredOperationAcceptor.php、src/Http/OperationRequestHandler.php、src/Transport/PostgreSql/PostgreSqlJournalRecordCodec.phpを確認した。新CapabilityへのScope拡張ではなく既定Acceptanceを実現する最小File境界の補正としてTask Packetへ追加した。PostgreSQL Tenant Column／Query／Migration、Read Authorization、Encryption、Rotation、Public Guideは引き続き範囲外。Worker Commit／Push／Deployなし。
+```
+
+## P20-016A Tenant Context and Propagation Worker Start
+
+```text
+2026-07-29T19:57:56+09:00
+OrchestratorはP20-015 Accepted、Specification 99、P20-016A Task Packet、Commit ad1d576、Clean Working Treeを照合し、P20-016AをIn Progressとした。ScopeはTenantRef、ExecutionContext Optional Tenant、HTTP／Console／Scheduled／Public Root Entry、Child／Outbox／Deferred Worker／Retry／Lease Recovery／Replayの不変伝播、Canonical／Observed JournalのSafe境界、Application Compositionに限定する。PostgreSQL Tenant Column、Read Authorization、Encryption、Rotation、Public Guideは範囲外。Production実装をGPT-5.6 Luna High workerへ依頼し、WorkerはReport／STATE／TODOを同期してReview前にCommitしない。Push／Deployなし。
+```
 
 ## P20-015 Tenant Isolation and Protected Operation Data Contract Acceptance
 

@@ -11,6 +11,7 @@ use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Core\OperationResult;
 use BlackOps\Core\OperationValue;
 use BlackOps\Core\Rejection\RejectionReason;
+use BlackOps\Core\TenantRef;
 use BlackOps\Execution\Dispatcher;
 use BlackOps\Execution\ValidationRejectionRecorder;
 use BlackOps\Http\Binding\HttpProtocolException;
@@ -81,7 +82,7 @@ final readonly class OperationRequestHandler implements RequestHandlerInterface
             return $rejection;
         }
 
-        return $this->execute($match, $bound, $this->actorContext($request), $idempotencyKey);
+        return $this->execute($match, $bound, $this->actorContext($request), $this->tenant($request), $idempotencyKey);
     }
 
     private function bind(HttpRouteMatch $match, ServerRequestInterface $request): OperationValue|ResponseInterface
@@ -115,12 +116,13 @@ final readonly class OperationRequestHandler implements RequestHandlerInterface
         HttpRouteMatch $match,
         OperationValue $value,
         ?ActorContext $actorContext,
+        ?TenantRef $tenant,
         ?IdempotencyKey $idempotencyKey,
     ): ResponseInterface {
         if ($this->deferred !== null && $this->deferred->accepts($match->route->operation)) {
             $result = $idempotencyKey === null
-                ? $this->deferred->accept($match->route->operation, $value, $actorContext)
-                : $this->deferred->accept($match->route->operation, $value, $actorContext, $idempotencyKey);
+                ? $this->deferred->accept($match->route->operation, $value, $actorContext, null, $tenant)
+                : $this->deferred->accept($match->route->operation, $value, $actorContext, $idempotencyKey, $tenant);
 
             if ($result instanceof DeferredAcknowledgement) {
                 $response = $this->responder->respondAcknowledgement($result);
@@ -142,11 +144,24 @@ final readonly class OperationRequestHandler implements RequestHandlerInterface
             return $this->persistResponse($response, $result->operationId(), $idempotencyKey, $result->isReplayed());
         }
 
-        $result = $this->dispatcher->dispatch($match->route->operation, $value, $actorContext, $idempotencyKey);
+        $result = $this->dispatcher->dispatch(
+            $match->route->operation,
+            $value,
+            $actorContext,
+            $idempotencyKey,
+            $tenant,
+        );
 
         $response = $this->responder->respondForRoute($result, $match->route);
 
         return $this->persistResponse($response, $result->operationId(), $idempotencyKey, $result->isReplayed());
+    }
+
+    private function tenant(ServerRequestInterface $request): ?TenantRef
+    {
+        /** @var mixed $attribute */
+        $attribute = $request->getAttribute(TenantRef::class);
+        return $attribute instanceof TenantRef ? $attribute : null;
     }
 
     /** @mago-expect lint:no-boolean-flag-parameter */
