@@ -9,6 +9,7 @@ use BlackOps\Core\Attribute\Authorize;
 use BlackOps\Core\Attribute\ExecuteWith;
 use BlackOps\Core\Attribute\OperationType;
 use BlackOps\Core\Attribute\Returns;
+use BlackOps\Core\Attribute\ScheduledBy;
 use BlackOps\Core\Attribute\Sensitive;
 use BlackOps\Core\Authorization\AuthorizationDecision;
 use BlackOps\Core\Authorization\AuthorizationPolicy;
@@ -53,6 +54,52 @@ final class OperationManifestMetadataCodecTest extends TestCase
 
         self::assertSame(ManifestAuthorizationPolicy::class, $encoded['operations'][0]['authorizationPolicy']);
         self::assertSame(ManifestAuthorizationPolicy::class, $decoded->authorizationPolicy);
+    }
+
+    public function testRoundTripsScheduleMetadataAndRejectsTampering(): void
+    {
+        $metadata = new OperationMetadataCompiler()->compile(ScheduledManifestOperation::class);
+        $codec = new OperationManifestMetadataCodec();
+        $encoded = $codec->encode(new OperationRegistry([$metadata]));
+
+        self::assertSame(
+            ['name' => 'reports.manifest', 'cron' => '0 0 * * *', 'timezone' => 'UTC'],
+            $encoded['operations'][0]['schedule'],
+        );
+        self::assertSame('reports.manifest', $codec->decode($encoded)[0]->schedule?->name);
+
+        foreach ([
+            ['schedule' => ['name' => 'Bad.Name', 'cron' => '0 0 * * *', 'timezone' => 'UTC'], 'needle' => 'Bad.Name'],
+            [
+                'schedule' => ['name' => 'reports.manifest', 'cron' => '0 0 * * *', 'timezone' => 'Local/Host'],
+                'needle' => 'Local/Host',
+            ],
+            [
+                'schedule' => ['name' => 'reports.manifest', 'cron' => '5/2 * * * *', 'timezone' => 'UTC'],
+                'needle' => '5/2',
+            ],
+            ['schedule' => ['name' => 'reports.manifest', 'cron' => '0 0 * * *'], 'needle' => null],
+            [
+                'schedule' => [
+                    'name' => 'reports.manifest',
+                    'cron' => '0 0 * * *',
+                    'timezone' => 'UTC',
+                    'extra' => true,
+                ],
+                'needle' => null,
+            ],
+        ] as $invalid) {
+            $data = $encoded;
+            $data['operations'][0]['schedule'] = $invalid['schedule'];
+            try {
+                $codec->decode($data);
+                self::fail('Expected malformed schedule rejection.');
+            } catch (InvalidArgumentException $exception) {
+                if ($invalid['needle'] !== null) {
+                    self::assertStringNotContainsString($invalid['needle'], $exception->getMessage());
+                }
+            }
+        }
     }
 
     public function testOmitsAuthorizationPolicyAndLoadsLegacyManifestWithoutField(): void
@@ -220,7 +267,7 @@ final class OperationManifestMetadataCodecTest extends TestCase
         }
     }
 
-    /** @return array{operations: list<array<string, string|bool>>} */
+    /** @return array{operations: list<array<string, mixed>>} */
     private function encoded(): array
     {
         $metadata = new OperationMetadataCompiler()->compile(ManifestTypedOperation::class);
@@ -295,5 +342,17 @@ final readonly class ManifestTypedOperation implements Operation
     public function handle(ManifestValue $value, ExecutionContext $context): OperationResult
     {
         return OperationResult::completed();
+    }
+}
+
+#[OperationType('manifest.scheduled')]
+#[Accepts(ManifestValue::class)]
+#[Returns(OtherManifestOutcome::class)]
+#[ScheduledBy('reports.manifest', '0 0 * * *')]
+final readonly class ScheduledManifestOperation implements Operation
+{
+    public function handle(ManifestValue $value): OtherManifestOutcome
+    {
+        return new OtherManifestOutcome();
     }
 }

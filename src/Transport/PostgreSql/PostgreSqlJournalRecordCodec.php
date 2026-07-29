@@ -11,6 +11,7 @@ use BlackOps\Core\Identifier\CausationId;
 use BlackOps\Core\Identifier\CorrelationId;
 use BlackOps\Core\Identifier\JournalRecordId;
 use BlackOps\Core\Identifier\OperationId;
+use BlackOps\Core\ScheduleContext;
 use BlackOps\Core\Time\TimeCodec;
 use BlackOps\Journal\JournalAttempt;
 use BlackOps\Journal\JournalEvent;
@@ -72,6 +73,7 @@ final readonly class PostgreSqlJournalRecordCodec
             'correlationId' => $operation->correlationId->toString(),
             'causationId' => $operation->causationId?->toString(),
             'actors' => $this->encodeActors($operation->actorContext),
+            'schedule' => $this->encodeSchedule($operation->schedule),
         ];
     }
 
@@ -117,7 +119,48 @@ final readonly class PostgreSqlJournalRecordCodec
             CorrelationId::fromString($this->json->string($operation, 'correlationId')),
             $this->decodeCausationId($operation),
             $this->decodeActors($operation),
+            $this->decodeSchedule($operation),
         );
+    }
+
+    /** @return array{name: string, scheduled_at: string, timezone: string}|null */
+    private function encodeSchedule(?ScheduleContext $schedule): ?array
+    {
+        if ($schedule === null) {
+            return null;
+        }
+
+        return [
+            'name' => $schedule->name(),
+            'scheduled_at' => $this->time->format($schedule->scheduledAt()),
+            'timezone' => $schedule->timezone(),
+        ];
+    }
+
+    /** @param array<array-key, mixed> $operation */
+    private function decodeSchedule(array $operation): ?ScheduleContext
+    {
+        if (!array_key_exists('schedule', $operation) || $operation['schedule'] === null) {
+            return null;
+        }
+        if (!is_array($operation['schedule'])) {
+            throw new RuntimeException('Stored journal schedule context must be an object.');
+        }
+        $schedule = $operation['schedule'];
+        $fields = array_keys($schedule);
+        sort($fields);
+        if ($fields !== ['name', 'scheduled_at', 'timezone']) {
+            throw new RuntimeException('Stored journal schedule context contains unknown or missing fields.');
+        }
+        try {
+            return new ScheduleContext(
+                $this->json->string($schedule, 'name'),
+                new DateTimeImmutable($this->json->string($schedule, 'scheduled_at')),
+                $this->json->string($schedule, 'timezone'),
+            );
+        } catch (Throwable $exception) {
+            throw new RuntimeException('Stored journal schedule context is invalid.', previous: $exception);
+        }
     }
 
     private function decodeActors(array $operation): ?ActorContext

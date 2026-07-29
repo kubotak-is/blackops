@@ -23,11 +23,18 @@ const pages = new Map();
 for (const route of routes) pages.set(route, await readFile(htmlPath(route), 'utf8'));
 const configSource = await readFile(path.join(websiteRoot, 'blume.config.ts'), 'utf8');
 const navigationSource = await readFile(path.join(websiteRoot, 'site-navigation.mjs'), 'utf8');
+const contentMapSource = await readFile(path.join(websiteRoot, 'content-map.mjs'), 'utf8');
 if (!configSource.includes("import { blumeSidebar } from './site-navigation.mjs';") || !configSource.includes('items: blumeSidebar')) {
   throw new Error('Blume sidebar must be generated from site-navigation.mjs.');
 }
 if (navigationSource.includes('Testing Overview') || navigationSource.includes('DatabaseとTransaction') || navigationSource.includes('Current Status')) {
   throw new Error('Sidebar source contains a retired page title.');
+}
+if (!navigationSource.includes('root: item.link') || !navigationSource.includes('root: items[0]')) {
+  throw new Error('Sidebar source must feed canonical content roots to native Blume navigation.');
+}
+if (!contentMapSource.includes('editUrlForRoute') || !contentMapSource.includes('/docs/guide/')) {
+  throw new Error('Content map must provide tracked docs/guide Edit URLs.');
 }
 const sidebarHrefLines = [...configSource.matchAll(/href:\s*'([^']+)'/g)].map(([, href]) => href);
 for (const href of sidebarHrefLines) {
@@ -84,9 +91,15 @@ for (const [route, html] of pages) {
   if (html.includes('&lt;a href=')) throw new Error(`${route} contains escaped banner markup.`);
   requireText(html, '<html dir="ltr" lang="ja">', `${route} Japanese locale`);
   requireText(html, 'href="#blume-content"', `${route} skip link`);
-  if (/href="[^" ]+\.md(?:[?#][^" ]*)?"/.test(html)) throw new Error(`${route} contains a source Markdown link.`);
-  if (/href="https:\/\/github\.com\/[^" ]+\/edit\/main\//.test(html)) {
-    throw new Error(`${route} contains an invalid GitHub edit link.`);
+  const markdownLinks = [...html.matchAll(/href="([^" ]+\.md(?:[?#][^" ]*)?)"/g)].map(([, href]) => href);
+  if (markdownLinks.some((href) => !href.startsWith('https://github.com/kubotak-is/blackops/edit/main/docs/guide/'))) {
+    throw new Error(`${route} contains a source Markdown link.`);
+  }
+  const editLinks = [...html.matchAll(/href="(https:\/\/github\.com\/[^\"]+\/edit\/main\/[^\"]+)"/g)].map(([, href]) => href);
+  for (const href of editLinks) {
+    if (!href.startsWith('https://github.com/kubotak-is/blackops/edit/main/docs/guide/') || /(?:\.generated|dist|\.mdx?\/)/.test(href)) {
+      throw new Error(`${route} contains an invalid GitHub edit link: ${href}`);
+    }
   }
   const githubAnchor = html.match(/<a\b[^>]*href="https:\/\/github\.com\/kubotak-is\/blackops"[^>]*>/)?.[0];
   if (!githubAnchor || !/aria-label="[^"]+"/.test(githubAnchor) || !/target="_blank"/.test(githubAnchor) || !/rel="noreferrer"/.test(githubAnchor)) {

@@ -112,43 +112,43 @@ Foundation、Identity、Post／Comment、Product Journey、Digest、BrowserのCo
 
 ### Worker未起動
 
-**Symptom:** Digest Progressがacceptedのまま進みません。
+**症状:** Digest Progressがacceptedのまま進みません。
 
-**Verify:** `docker compose --profile worker ps`で`worker`を確認し、`docker compose --profile worker logs worker`でClaimの有無を確認します。
+**確認方法:** `docker compose --profile worker ps`で`worker`を確認し、`docker compose --profile worker logs worker`でClaimの有無を確認します。
 
-**Fix:** `docker compose --profile worker up -d worker`を実行します。PostgreSQLとPHP HTTP Runtimeも同時に起動しておきます。
+**修正方法:** `docker compose --profile worker up -d worker`を実行します。PostgreSQLとPHP HTTP Runtimeも同時に起動しておきます。
 
 ### Seed Conflict
 
-**Symptom:** `php blackops database:seed`が固定の安全なMessageで非0終了します。
+**症状:** `php blackops database:seed`が固定の安全なMessageで非0終了します。
 
-**Verify:** 固定Seed IDまたは`@blackops.local` EmailのRowが、Source Fixtureと異なる表示名、時刻、本文、関連、Password Hashへ手動変更されていないか確認します。
+**確認方法:** 固定Seed IDまたは`@blackops.local` EmailのRowが、Source Fixtureと異なる表示名、時刻、本文、関連、Password Hashへ手動変更されていないか確認します。
 
-**Fix:** Seed外Dataを保持したまま該当Seed Rowを元へ戻すか、完全なLocal Resetなら`docker compose down --volumes`を実行します。SeedはConflict Rowを自動更新、削除、truncateしません。
+**修正方法:** Seed外Dataを保持したまま該当Seed Rowを元へ戻すか、完全なLocal Resetなら`docker compose down --volumes`を実行します。SeedはConflict Rowを自動更新、削除、truncateしません。
 
 ### Port衝突
 
-**Symptom:** Composeが`5173`、`8081`、`8082`のBindに失敗します。
+**症状:** Composeが`5173`、`8081`、`8082`のBindに失敗します。
 
-**Verify:** `docker compose ps`とHost側のPort利用状況を確認します。
+**確認方法:** `docker compose ps`とHost側のPort利用状況を確認します。
 
-**Fix:** `.env`の`FRONTEND_PORT`、`BLACKOPS_DEBUG_PORT`、`BLACKOPS_CLASSIC_DEBUG_PORT`を空きPortへ変更します。`FRONTEND_ORIGIN`もFrontend Portへ合わせてから再起動します。
+**修正方法:** `.env`の`FRONTEND_PORT`、`BLACKOPS_DEBUG_PORT`、`BLACKOPS_CLASSIC_DEBUG_PORT`を空きPortへ変更します。`FRONTEND_ORIGIN`もFrontend Portへ合わせてから再起動します。
 
 ### Generated Drift
 
-**Symptom:** `frontend:check`がMissing／Driftを返すか、SvelteKitのImport／Type Checkが失敗します。
+**症状:** `frontend:check`がMissing／Driftを返すか、SvelteKitのImport／Type Checkが失敗します。
 
-**Verify:** `php blackops build:compile`の後に`php blackops frontend:check`を実行します。
+**確認方法:** `php blackops build:compile`の後に`php blackops frontend:check`を実行します。
 
-**Fix:** `php blackops frontend:generate`で再生成し、`frontend:check`とFrontend Buildをやり直します。Generated Directoryを手編集しません。
+**修正方法:** `php blackops frontend:generate`で再生成し、`frontend:check`とFrontend Buildをやり直します。Generated Directoryを手編集しません。
 
 ### Secure Cookie Local設定
 
-**Symptom:** Local Login後もCookieが送信されず、`/login`へ戻ります。
+**症状:** Local Login後もCookieが送信されず、`/login`へ戻ります。
 
-**Verify:** URLがHTTPかHTTPSか、`.env`の`SESSION_COOKIE_SECURE`と`FRONTEND_ORIGIN`が一致するか確認します。
+**確認方法:** URLがHTTPかHTTPSか、`.env`の`SESSION_COOKIE_SECURE`と`FRONTEND_ORIGIN`が一致するか確認します。
 
-**Fix:** 文書化したLocal HTTPだけで`SESSION_COOKIE_SECURE=false`を使います。非Local HTTPSでは`true`へ戻し、TLS終端とOriginを修正します。
+**修正方法:** 文書化したLocal HTTPだけで`SESSION_COOKIE_SECURE=false`を使います。非Local HTTPSでは`true`へ戻し、TLS終端とOriginを修正します。
 
 停止と完全Cleanupには次を使います。
 
@@ -156,4 +156,4 @@ Foundation、Identity、Post／Comment、Product Journey、Digest、BrowserのCo
 docker compose --profile worker --profile classic-mode down --volumes --remove-orphans
 ```
 
-Community BoardとDocumentation WebsiteはLocal／CIだけで検証しています。External Publication／Deployは行っていません。
+Community BoardはLocal／CIだけで検証し、公開Hostを提供していません。Documentation WebsiteはCloudflare Pagesへ公開しています。

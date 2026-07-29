@@ -7,6 +7,7 @@ namespace BlackOps\Internal\Execution;
 use BlackOps\Internal\Journal\JournalRecordFactory;
 use BlackOps\Internal\Journal\LifecycleStateMachine;
 use BlackOps\Internal\Logging\FrameworkOperationFailureReporter;
+use BlackOps\Internal\Scheduling\PostgreSqlScheduledOccurrenceLifecycle;
 use BlackOps\Internal\Transaction\OperationTransactionCoordinator;
 use BlackOps\Journal\CanonicalJournalWriter;
 use BlackOps\Outcome\OutcomeWriter;
@@ -28,5 +29,6 @@ final readonly class DeferredWorkerRuntimeStorage
         public ExecutionScopeProvider $scope = new ExecutionScopeProvider(),
         public ?OperationTransactionCoordinator $transactions = null,
         public ?FrameworkOperationFailureReporter $failureReporter = null,
+        public ?PostgreSqlScheduledOccurrenceLifecycle $scheduledOccurrences = null,
     ) {}
 }

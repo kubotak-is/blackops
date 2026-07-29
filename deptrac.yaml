@@ -6,6 +6,10 @@ deptrac:
       collectors:
         - type: classNameRegex
           value: '/^BlackOps\\Core(\\|$)/'
+    - name: Scheduling
+      collectors:
+        - type: classNameRegex
+          value: '/^BlackOps\\Scheduling(\\|$)/'
     - name: Application
       collectors:
         - type: classNameRegex
@@ -88,6 +92,8 @@ deptrac:
           value: '/^Symfony\\Component\\Validator(\\|$)/'
   ruleset:
     Core: ~
+    Scheduling:
+      - Core
     Application:
       - Core
       - Internal
@@ -135,6 +141,7 @@ deptrac:
       - Library
     Internal:
       - Core
+      - Scheduling
       - Journal
       - Execution
       - Transport

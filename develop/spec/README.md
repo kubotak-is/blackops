@@ -109,6 +109,10 @@
 | [92-documentation-review-agent.md](92-documentation-review-agent.md) | Read-only Documentation Reviewer、Evidence Hierarchy、Browser Review、Finding Format |
 | [93-implicit-inline-ephemeral-outcome.md](93-implicit-inline-ephemeral-outcome.md) | Ephemeral Outcomeの暗黙Inline、Security Guard、ExecuteWith互換境界 |
 | [94-journal-documentation.md](94-journal-documentation.md) | Journal独立Guide、Observed JSONL、Security、OpenTelemetry将来構想 |
+| [95-task-oriented-operations-documentation.md](95-task-oriented-operations-documentation.md) | Testing、Deployment、ConsoleCommand、Outbox、BlackOps CLIの実行可能な利用者Journey |
+| [96-documentation-site-ux.md](96-documentation-site-ux.md) | Blume Callout、Code Copy、Previous／Next、Edit Link、日本語Font、Responsive Article UX |
+| [97-documentation-editorial-style.md](97-documentation-editorial-style.md) | 全Public Pageの表記Guideline、一般語の日本語化、Page種別Reader Contract、文章編集Pass |
+| [98-scheduled-application-operation.md](98-scheduled-application-operation.md) | ScheduledBy、Schedule Context、Cron／Timezone、Misfire／Overlap、Occurrence、Actor、BlackOps CLI |
 
 ## 決定の参照
 
@@ -244,3 +248,8 @@
 | [D128](../decisions/128-observed-journal-wire-shape.md) | Observed Journal Wire Shape | Decided |
 | [D129](../decisions/129-documentation-website-publication.md) | Documentation Website Publication | Decided |
 | [D130](../decisions/130-blume-production-search-verification.md) | Blume Production Search Verification | Decided |
+| [D131](../decisions/131-task-oriented-operations-documentation.md) | Task-oriented Operations Documentation | Decided |
+| [D132](../decisions/132-documentation-site-ux.md) | Documentation Site UX | Decided |
+| [D133](../decisions/133-documentation-editorial-style.md) | Documentation Editorial Style | Decided |
+| [D134](../decisions/134-scheduled-application-operation.md) | Scheduled Application Operation | Decided |
+| [D135](../decisions/135-tenant-isolation-and-protected-operation-data.md) | Tenant Isolation and Protected Operation Data | User Decision Pending |

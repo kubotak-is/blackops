@@ -22,6 +22,7 @@ use BlackOps\Internal\Console\OperationViewerCommand;
 use BlackOps\Internal\Console\OutboxDeadLetterRetryCommand;
 use BlackOps\Internal\Console\OutboxRelayDaemonCommand;
 use BlackOps\Internal\Console\OutboxRelayRunCommand;
+use BlackOps\Internal\Console\ScheduledOperationRunCommand;
 use BlackOps\Internal\Console\WorkerRunCommand;
 use BlackOps\Internal\Diagnostics\OperationDiagnosticsResult;
 use BlackOps\Internal\Diagnostics\Viewer\OperationViewerRouter;
@@ -110,6 +111,11 @@ final class ApplicationConsoleCommandFactory
     public function worker(): Command
     {
         return new WorkerRunCommand(new ApplicationWorkerComposer()->compose($this->configuration)->loop);
+    }
+
+    public function scheduledOperationRun(): Command
+    {
+        return new ScheduledOperationRunCommand(fn() => new ApplicationScheduledOperationRuntimeComposer()->compose($this->configuration)->runner);
     }
 
     public function outboxRelayRun(): Command

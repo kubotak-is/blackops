@@ -251,6 +251,15 @@ final readonly class DeferredWorkerRuntime implements DeferredClaimRuntime
         $this->storage->outcomes->save(
             new OutcomeRecord($claim->message()->operationId(), $result->outcome(), $completedAt),
         );
+        if ($envelope->context()->schedule() !== null && $this->storage->scheduledOccurrences !== null) {
+            $this->storage->scheduledOccurrences->transition(
+                $envelope->id(),
+                'accepted',
+                'completed',
+                null,
+                $completedAt,
+            );
+        }
     }
 
     private function reject(
@@ -268,6 +277,15 @@ final readonly class DeferredWorkerRuntime implements DeferredClaimRuntime
                 $reservation->sequence,
                 $result->rejectionReason(),
             ));
+            if ($envelope->context()->schedule() !== null && $this->storage->scheduledOccurrences !== null) {
+                $this->storage->scheduledOccurrences->transition(
+                    $envelope->id(),
+                    'accepted',
+                    'rejected',
+                    $result->rejectionReason()->code(),
+                    $this->storage->clock->now(),
+                );
+            }
         });
     }
 

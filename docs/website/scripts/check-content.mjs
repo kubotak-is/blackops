@@ -6,6 +6,7 @@ import { generateContent } from './content-pipeline.mjs';
 import { contentRoot, manifestPath, repositoryRoot, sourceRoot } from './website-paths.mjs';
 import { contentMap } from '../content-map.mjs';
 import { validateNavigation } from '../site-navigation.mjs';
+import { validateEditorial } from './editorial-guard.mjs';
 
 // A link label may intentionally describe a subsection rather than the target page.
 // Keep these exceptions explicit and reject entries that no longer occur.
@@ -14,6 +15,8 @@ const linkLabelAllowList = new Set([]);
 async function main() {
   validateNavigation(contentMap);
   await validateLinkLabels(sourceRoot);
+  await validateEditorialSources(sourceRoot);
+  validateEditorialDescriptions(contentMap);
   const temporary = await mkdtemp(path.join(tmpdir(), 'blackops-docs-check-'));
 
   try {
@@ -111,6 +114,20 @@ export async function validateLinkLabels(root, { allowList = linkLabelAllowList 
   }
   const unused = [...allowList].filter((entry) => !used.has(entry));
   if (unused.length > 0) throw new Error(`Internal link text allow list contains unused entries: ${unused.join(', ')}`);
+}
+
+export async function validateEditorialSources(root) {
+  for (const entry of await readdir(root, { withFileTypes: true })) {
+    if (!entry.isFile() || !entry.name.endsWith('.md')) continue;
+    const file = path.join(root, entry.name);
+    validateEditorial(await readFile(file, 'utf8'), { file: entry.name });
+  }
+}
+
+export function validateEditorialDescriptions(map) {
+  for (const [source, metadata] of Object.entries(map)) {
+    validateEditorial(metadata.description, { file: `${source} (content-map description)` });
+  }
 }
 
 export function slugifyHeading(value) {

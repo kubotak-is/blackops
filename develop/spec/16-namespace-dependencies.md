@@ -4,6 +4,7 @@
 
 ```text
 Core       -> 外部Adapter Namespaceへ依存しない
+Scheduling -> Core
 Database   -> Core, Library
 Journal    -> Core
 Execution  -> Core, Journal
@@ -11,7 +12,7 @@ Transport  -> Core, Journal, Execution
 Http       -> Core, Execution
 Logging    -> Core, Journal
 Console    -> Core, Journal, Execution, Transport
-Internal   -> 対応する公開Namespaceおよび採用Library
+Internal   -> 対応する公開Namespaceおよび採用Library（Scheduled RuntimeはSchedulingへ依存可能）
 ```
 
 矢印は左側が右側へ依存できることを表す。記載のない逆向き依存と循環依存は禁止する。

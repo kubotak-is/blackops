@@ -29,6 +29,7 @@ use BlackOps\Internal\Registry\OperationManifestArtifact;
 use BlackOps\Internal\Registry\OperationManifestFile;
 use BlackOps\Internal\Registry\OperationProviderCompiler;
 use BlackOps\Internal\Registry\OperationProviderConfigLoader;
+use BlackOps\Scheduling\ScheduledActorProvider;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -84,6 +85,18 @@ final class ApplicationBuildCompileCommand extends Command
         $container = $compiler->builder();
         $container->setParameter('blackops.application_build_id', $buildId);
         $compiler->apply($container, $services);
+        if (
+            array_any(
+                $registry->all(),
+                static fn(\BlackOps\Core\Registry\OperationMetadata $metadata): bool => (
+                    $metadata->schedule !== null
+                    && $metadata->authorizationPolicy !== null
+                ),
+            )
+            && !$container->has(ScheduledActorProvider::class)
+        ) {
+            throw new \InvalidArgumentException('Authorized scheduled operations require a scheduled actor provider.');
+        }
         $compiler->registerUuidv7Generator($container);
         $compiler->registerDatabaseServices($container);
         $compiler->registerHandlers($container, $registry);

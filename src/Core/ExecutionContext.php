@@ -35,6 +35,7 @@ final readonly class ExecutionContext
         ?DateTimeImmutable $deadline = null,
         private ?ActorContext $actorContext = null,
         private ?IdempotencyKeyHash $idempotencyKeyHash = null,
+        private ?ScheduleContext $schedule = null,
     ) {
         $this->receivedAt = $this->toUtc($receivedAt);
         $this->deadline = $deadline === null ? null : $this->toUtc($deadline);
@@ -78,6 +79,11 @@ final readonly class ExecutionContext
     public function idempotencyKeyHash(): ?IdempotencyKeyHash
     {
         return $this->idempotencyKeyHash;
+    }
+
+    public function schedule(): ?ScheduleContext
+    {
+        return $this->schedule;
     }
 
     private function toUtc(DateTimeImmutable $time): DateTimeImmutable

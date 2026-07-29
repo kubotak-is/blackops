@@ -23,6 +23,9 @@ use BlackOps\Internal\Idempotency\ProcessingRecord;
 use BlackOps\Internal\Idempotency\TerminalRecord;
 use BlackOps\Internal\Journal\JournalRecordFactory;
 use BlackOps\Internal\Journal\LifecycleStateMachine;
+use BlackOps\Internal\Scheduling\PostgreSqlScheduledOccurrenceLifecycle;
+use BlackOps\Internal\Scheduling\ScheduledDeferredAcceptor;
+use BlackOps\Internal\Validation\OperationValueValidator;
 use BlackOps\Journal\CanonicalJournalWriter;
 use BlackOps\Journal\Data\OperationFailedData;
 use BlackOps\Journal\JournalEvent;
@@ -36,8 +39,10 @@ use Throwable;
  * @mago-expect lint:excessive-parameter-list
  * @mago-expect lint:excessive-nesting
  */
-final readonly class DeferredAcceptanceOrchestrator
+final readonly class DeferredAcceptanceOrchestrator implements ScheduledDeferredAcceptor
 {
+    private OperationValueValidator $validator;
+
     public function __construct(
         private Connection $connection,
         private PostgreSqlDeferredOperationSender $sender,
@@ -51,7 +56,10 @@ final readonly class DeferredAcceptanceOrchestrator
         private OperationValueFingerprinter $idempotencyFingerprints = new OperationValueFingerprinter(),
         private ?RetentionPeriod $idempotencyRetention = null,
         private ?IdempotencyRecovery $idempotencyRecovery = null,
-    ) {}
+        private ?PostgreSqlScheduledOccurrenceLifecycle $scheduledOccurrences = null,
+    ) {
+        $this->validator = new OperationValueValidator();
+    }
 
     /** @mago-expect lint:halstead */
     public function accept(
@@ -72,6 +80,27 @@ final readonly class DeferredAcceptanceOrchestrator
                     $failures,
                 ): DeferredAcknowledgement|OperationResult {
                     try {
+                        $violations = $this->validator->validate($envelope->value());
+                        if ($envelope->context()->schedule() !== null && $violations !== []) {
+                            $reason = RejectionReason::validation('validation.failed', $violations);
+                            $received = $this->records->operationReceived($envelope, $metadata, 1);
+                            $state = $this->lifecycle->next(null, JournalEvent::OperationReceived);
+                            $this->journal->append($received);
+                            $rejected = $this->records->operationRejected($envelope, $metadata, 2, $reason);
+                            $this->lifecycle->next($state, JournalEvent::OperationRejected);
+                            $this->journal->append($rejected);
+                            if ($this->scheduledOccurrences !== null) {
+                                $this->scheduledOccurrences->transition(
+                                    $envelope->id(),
+                                    'claimed',
+                                    'rejected',
+                                    'validation_failed',
+                                    $rejected->occurredAt,
+                                );
+                            }
+
+                            return OperationResult::rejected($reason, $envelope->id());
+                        }
                         $authorizationRejection = $this->authorize($metadata, $envelope);
 
                         if ($authorizationRejection !== null) {
@@ -79,12 +108,22 @@ final readonly class DeferredAcceptanceOrchestrator
                             $state = $this->lifecycle->next(null, JournalEvent::OperationReceived);
                             $this->journal->append($received);
                             $this->lifecycle->next($state, JournalEvent::OperationRejected);
-                            $this->journal->append($this->records->operationRejected(
+                            $rejected = $this->records->operationRejected(
                                 $envelope,
                                 $metadata,
                                 2,
                                 $authorizationRejection,
-                            ));
+                            );
+                            $this->journal->append($rejected);
+                            if ($envelope->context()->schedule() !== null && $this->scheduledOccurrences !== null) {
+                                $this->scheduledOccurrences->transition(
+                                    $envelope->id(),
+                                    'claimed',
+                                    'rejected',
+                                    $authorizationRejection->code(),
+                                    $rejected->occurredAt,
+                                );
+                            }
 
                             return OperationResult::rejected(
                                 $authorizationRejection,
@@ -152,6 +191,15 @@ final readonly class DeferredAcceptanceOrchestrator
                         $this->lifecycle->next($state, JournalEvent::OperationAccepted);
                         $this->journal->append($accepted);
                         $this->sender->advanceNextSequence($message, 3);
+                        if ($envelope->context()->schedule() !== null && $this->scheduledOccurrences !== null) {
+                            $this->scheduledOccurrences->transition(
+                                $envelope->id(),
+                                'claimed',
+                                'accepted',
+                                null,
+                                $acknowledgement->acceptedAt(),
+                            );
+                        }
 
                         if ($processing !== null && $this->idempotency !== null) {
                             $terminal = new TerminalRecord(
@@ -200,12 +248,22 @@ final readonly class DeferredAcceptanceOrchestrator
                 $state = $this->lifecycle->next(null, JournalEvent::OperationReceived);
                 $this->journal->append($received);
                 $this->lifecycle->next($state, JournalEvent::OperationFailed);
-                $this->journal->append($this->records->terminal()->operationFailed(
+                $failed = $this->records->terminal()->operationFailed(
                     $envelope,
                     $metadata,
                     2,
                     new OperationFailedData($primaryFailure::class, $primaryFailure->getMessage(), false),
-                ));
+                );
+                $this->journal->append($failed);
+                if ($envelope->context()->schedule() !== null && $this->scheduledOccurrences !== null) {
+                    $this->scheduledOccurrences->transition(
+                        $envelope->id(),
+                        'claimed',
+                        'failed',
+                        'deferred_acceptance_failed',
+                        $failed->occurredAt,
+                    );
+                }
             });
         } catch (Throwable $failure) {
             $recordingFailure = $failure;

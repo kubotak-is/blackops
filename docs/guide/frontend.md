@@ -2,6 +2,10 @@
 
 BlackOpsはUI、Template Engine、Next.js／Nuxt／SvelteKit Adapterを提供しません。`#[Route]`を持つHTTP OperationからJavaScript／TypeScriptのGenerated ClientとOperation Objectを作り、FrontendとHTTP Contractを接続します。
 
+:::info[Application boundary]
+Generated ClientはHTTP Contractの出力です。UI、BFF、Credential、Base URL、CSRF、Token管理はApplicationと選択したFrontend Frameworkが所有します。
+:::
+
 ## Generated Clientの境界
 
 Generated ClientはOperationの入力名、型、Request Binding、Typed Outcome、`.url()`、`.toRequest()`、Typed `.fetch()`を提供します。Credential、Token、実値、Secret、Global Mutable Clientは生成物へ含めません。Server-onlyの`createBlackOpsClient()`へRequestごとのSessionをBindingする設計はApplicationが所有します。
@@ -32,7 +36,7 @@ return [
 
 Generated Treeを直接編集せず、Application-owned WrapperからImportします。Wrapperの呼出単位でBase URLとCredentialを注入し、`.url()`、`.toRequest()`、`.fetch()`を使います。Deferred Operationは受付後に返されたOperation IDから`.status()`、有限`.wait()`でOutcomeを取得します。
 
-OperationやRouteを変更したら、Compile、Generate、Checkを同じ順序で再実行します。`frontend:check`がGenerated Driftを報告した場合は手編集で合わせず、Sourceを直して再生成し、差分をReviewします。Next.js、NuxtJS、SvelteKitの選択はApplication側で行い、BlackOpsは固有AdapterやUI Componentを提供しません。
+OperationやRouteを変更したら、Compile、Generate、Checkを同じ順序で再実行します。`frontend:check`がGenerated Driftを報告した場合は手編集で合わせず、Sourceを直して再生成し、差分をReviewします。Next.js、Nuxt、SvelteKitの選択はApplication側で行い、BlackOpsは固有AdapterやUI Componentを提供しません。
 
 ## Server Requestから呼ぶ
 

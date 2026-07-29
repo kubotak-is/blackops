@@ -35,4 +35,4 @@ Mermaid Fenceを含むPageだけを`.mdx`へ生成し、通常Pageは`.md`を維
 
 ## Delivery
 
-`.github/workflows/docs.yml`はPull Requestと`main`で同じInstall／Test／Check／Buildを実行し、検証済みの`docs/website/dist/`だけをArtifactとしてCloudflare Pages Direct Uploadへ渡します。Project、Credential、Custom Domain、External PublicationはこのTaskのScope外です。
+`.github/workflows/docs.yml`はPull Requestと`main`で同じInstall／Test／Check／Buildを実行し、検証済みの`docs/website/dist/`だけをArtifactとしてCloudflare Pages Direct Uploadへ渡します。公開Websiteは`https://blackops-php.pages.dev`です。Project CredentialとCustom DomainはRepositoryへ保存しません。

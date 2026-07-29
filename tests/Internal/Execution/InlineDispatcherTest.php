@@ -26,6 +26,8 @@ use BlackOps\Core\Registry\OperationMetadata;
 use BlackOps\Core\Registry\OperationRegistry;
 use BlackOps\Core\Rejection\RejectionReason;
 use BlackOps\Core\Retention\RetentionPeriod;
+use BlackOps\Core\ScheduleContext;
+use BlackOps\Core\Validation\Attribute\NotBlank;
 use BlackOps\Database\AfterCommitFailure;
 use BlackOps\Database\AfterCommitFailureReporter;
 use BlackOps\Database\DatabaseManager;
@@ -251,6 +253,39 @@ final class InlineDispatcherTest extends TestCase
         $records = new ReflectionClass($store)->getProperty('records');
         $records->setAccessible(true);
         self::assertSame([], $records->getValue($store));
+    }
+
+    public function testScheduledDispatchValidatesFixedEnvelopeBeforeHandlerLifecycle(): void
+    {
+        $journal = new RecordingJournalWriter();
+        $metadata = new OperationMetadata(
+            'dispatch.scheduled.validation',
+            DispatchOperation::class,
+            ScheduledInvalidValue::class,
+            DispatchHandler::class,
+            EmptyOutcome::class,
+            Inline::class,
+            schedule: new \BlackOps\Core\Registry\OperationScheduleMetadata('reports.daily', '* * * * *', 'UTC'),
+        );
+        $dispatcher = $this->dispatcher(new DispatchHandler(), $journal, metadata: $metadata);
+        $operationId = OperationId::fromString('019f32ab-2be0-7b38-a0a7-1ab2f9687701');
+        $context = new ExecutionContext(
+            $operationId,
+            new DateTimeImmutable('2026-07-23T00:00:00.123456Z'),
+            \BlackOps\Core\Identifier\CorrelationId::fromString($operationId->toString()),
+            schedule: new ScheduleContext('reports.daily', new DateTimeImmutable('2026-07-23T00:00:00Z'), 'UTC'),
+        );
+        $result = $dispatcher->dispatchScheduled(
+            new OperationEnvelope(new DispatchOperation(), new ScheduledInvalidValue(''), $context, new Inline()),
+            $metadata,
+        );
+
+        self::assertTrue($result->isRejected());
+        self::assertSame('validation.failed', $result->rejectionReason()->code());
+        self::assertSame(
+            [JournalEvent::OperationReceived, JournalEvent::OperationRejected],
+            array_map(static fn(JournalRecord $record): JournalEvent => $record->event, $journal->records),
+        );
     }
 
     public function testEphemeralResultReturnsToCallerButOnlyEmptyCanonicalDataReachesJournalAndObserver(): void
@@ -1092,6 +1127,14 @@ final readonly class DispatchValue implements OperationValue
         public string $password = 'secret',
         #[Sensitive(SensitiveMode::Hash)]
         public string $customerId = '',
+    ) {}
+}
+
+final readonly class ScheduledInvalidValue implements OperationValue
+{
+    public function __construct(
+        #[NotBlank]
+        public string $message,
     ) {}
 }
 

@@ -80,7 +80,11 @@ final readonly class NotifyOrderOwner implements Operation
 }
 ```
 
-`NotifyOrderOwner`は`final`なDeferred child Operationとして`#[OperationType]`と引数なしの`#[Deferred]`を付けます。`Operations::dispatch()`へ渡せるのはDeferred child Operationだけです。親OperationのExecution ContextからCorrelation／Causation／Actor／Deadlineを継承し、親Idempotency Key Hashは子へ渡しません。OutboxはApplication Database ConfigurationのFramework Named Connectionと同じConnection Instanceを所有するFramework管理Transaction内でのみ動作します。Transaction外、別Connectionが最上位にある場合、Manual Transactionによるnesting変更／commit、または所有者不明のTransactionではFail-fastし、Direct TransportへFallbackしません。同じConnectionのNested Requiredは外側のScopeへ参加できます。
+`NotifyOrderOwner`は`final`なDeferred child Operationとして`#[OperationType]`と引数なしの`#[Deferred]`を付けます。`Operations::dispatch()`へ渡せるのはDeferred child Operationだけです。親OperationのExecution ContextからCorrelation／Causation／Actor／Deadlineを継承し、親Idempotency Key Hashは子へ渡しません。
+
+OutboxはApplication Database ConfigurationのFramework Named Connectionと同じConnection Instanceを所有するFramework管理Transaction内でのみ動作します。Transaction外、別Connectionが最上位にある場合、Manual Transactionによるnesting変更／commit、または所有者不明のTransactionではFail-fastし、Direct TransportへFallbackしません。
+
+同じConnectionのNested Requiredは外側のScopeへ参加できます。
 
 MutationとOutbox Rowは最外Commitで同時に残ります。ThrowableまたはInsert Failureでは両方Rollbackされ、Nested Requiredの途中でRollback-onlyになった場合も最外ScopeがRollbackするためRowは残りません。登録結果はchild Operation IDとUTC dispatch時刻だけを公開し、Outbox Record IDは露出しません。
 
@@ -176,8 +180,10 @@ PCNTL [Heartbeat](glossary.md#heartbeat)はHandler実行中だけ[Lease](glossar
 
 `SIGTERM`／`SIGINT`では新しいClaimを停止し、Grace Period内で実行中Handlerの完了を待ちます。Heartbeat失敗やGrace Timeout時はClaimを成功扱いせず、Lease ExpiryとRecoveryへ委ねます。
 
-## Runtime Boundary
+## Runtimeの境界
 
 HTTPとWorkerはCompile済みOperation Manifest、HTTP Manifest、DI Containerだけを読み込みます。Runtime起動時にSource Discovery、Artifact Compile、Database MigrationへFallbackしません。Artifact不足、Schema Version不正、Build ID不一致は起動エラーです。
 
 BuildとRuntimeの入口は[BlackOps CLI](project-cli.md)、Contextの読み取りは[Execution Context](execution-context.md)を参照してください。
+
+定期実行も同じLifecycleを使います。[Scheduled Operation](scheduled-operation.md)のInlineは通常Dispatcher、Deferredは通常Acceptance／Transport／Workerへ接続されます。`ScheduledBy`だけでDeferredへ変わることはありません。

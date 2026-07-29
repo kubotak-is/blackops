@@ -17,7 +17,7 @@ export const contentMap = {
   },
   'directory-structure.md': {
     slug: 'getting-started/directory-structure',
-    description: 'Feature-first SkeletonのDirectory構成とApplicationが所有する責務を理解する。',
+    description: 'Feature-first Skeletonのディレクトリ構成とApplicationが所有する責務を理解する。',
   },
   'first-operation.md': {
     slug: 'getting-started/first-operation',
@@ -35,9 +35,13 @@ export const contentMap = {
     slug: 'operations/authoring',
     description: 'Typed Self-handled Operation、Value、Outcome、業務拒否の標準的な書き方を説明する。',
   },
+  'scheduled-operation.md': {
+    slug: 'operations/scheduled-operation',
+    description: 'Repository mainのScheduledBy、Inline／Deferred、Schedule Context、Actor Provider、one-shot CLI、Recoveryを完走する。',
+  },
   'project-generators.md': {
     slug: 'operations/generators',
-    description: 'BlackOps CLIからOperationとMigrationを安全に生成し、Framework更新後のStubを利用する。',
+    description: 'BlackOps CLIからOperationとMigrationを安全に生成し、Framework更新後のStubを利用する手順を確認する。',
   },
   'operation-lifecycle.md': {
     slug: 'concepts/lifecycle',
@@ -73,7 +77,7 @@ export const contentMap = {
   },
   'database-migrations.md': {
     slug: 'database/migrations',
-    description: 'FrameworkとApplicationのPostgreSQL Migrationを明示Commandで確認・適用する。',
+    description: 'FrameworkとApplicationのPostgreSQL Migrationを明示的なコマンドで確認・適用する。',
   },
   'database-seeding.md': {
     slug: 'database/seeding',
@@ -85,7 +89,7 @@ export const contentMap = {
   },
   'retention.md': {
     slug: 'database/retention',
-    description: 'Payload、Journal、Outcome、Dead Letterの保持期間、Hold、Purgeを運用する。',
+    description: 'Payload、Journal、Outcome、Dead Letter、Idempotency Recordの保持期間、Hold、Purgeを運用する。',
   },
   'testing.md': {
     slug: 'testing',
@@ -109,7 +113,7 @@ export const contentMap = {
   },
   'project-cli.md': {
     slug: 'reference/project-cli',
-    description: 'Project Rootのblackopsから利用できるBuild、Worker、Operation Inspect／Viewer、Retention Commandを確認する。',
+    description: 'Project Rootのblackopsから利用できるBuild、Worker、Operation Inspect／Viewer、Retentionコマンドを確認する。',
   },
   'observer-replay.md': {
     slug: 'reference/observer-replay',
@@ -145,10 +149,22 @@ export const contentMap = {
   },
   'mvp-status.md': {
     slug: 'releases/current-status',
-    description: 'Stable 1.1.0とmain ExperimentalのStatus／Outcome、Frontend、Diagnostics、Transaction機能差を確認する。',
+    description: 'Stable 1.1.0とmainの試験的SurfaceにおけるStatus／Outcome、Frontend、Diagnostics、Transactionの機能差を確認する。',
   },
   'glossary.md': {
     slug: 'reference/glossary',
     description: 'Attempt、Claim、Lease、Fencing、Journal、Outcome等のBlackOps固有用語を確認する。',
   },
 };
+
+const EDIT_BASE = 'https://github.com/kubotak-is/blackops/edit/main/docs/guide/';
+
+export function sourceForRoute(route) {
+  const slug = route === '/' ? 'index' : route.replace(/^\/+|\/+$/g, '');
+  return Object.entries(contentMap).find(([, metadata]) => metadata.slug === slug)?.[0] ?? null;
+}
+
+export function editUrlForRoute(route) {
+  const source = sourceForRoute(route);
+  return source === null || source === 'README.md' ? null : `${EDIT_BASE}${source}`;
+}

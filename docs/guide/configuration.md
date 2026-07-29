@@ -217,9 +217,9 @@ return [
 ];
 ```
 
-Canonical Keyは`driver`、`stream`、`channel`、`minimum_level`です。Phase 14のDriverは`jsonl`だけで、Fileがない場合は`php://stderr`／`blackops`／`info`を使います。`stream`は`php://stderr`、`php://stdout`、絶対Local File Pathのみを受け付け、Relative Path、任意PHP Wrapper、Network URIを拒否します。
+Canonical Keyは`driver`、`stream`、`channel`、`minimum_level`です。この構成のDriverは`jsonl`だけで、ファイルがない場合は`php://stderr`／`blackops`／`info`を使います。`stream`は`php://stderr`、`php://stdout`、絶対ローカルパスのみを受け付け、相対パス、任意PHP Wrapper、Network URIを拒否します。
 
-FrameworkはConfigをHTTP／Worker Process構成時に一度だけ検証し、RequestやLog RecordごとにFileや`$_ENV`を再読込しません。無効なDriver／Stream／Levelは起動時にFail-fastします。起動後のOpen／Write FailureはBest-effortで吸収し、元のOperation、Journal、HTTP Response、Worker Loopを変えません。Directory作成、Permission、Rotation、Disk Capacity、RetentionはApplication／運用の責務です。
+FrameworkはConfigをHTTP／Worker Process構成時に一度だけ検証し、RequestやLog Recordごとにファイルや`$_ENV`を再読込しません。無効なDriver／Stream／Levelは起動時にFail-fastします。起動後のOpen／Write FailureはBest-effortで吸収し、元のOperation、Journal、HTTP Response、Worker Loopを変えません。Directory作成、Permission、Rotation、Disk Capacity、RetentionはApplication／運用の責務です。
 
 ## Local Diagnostics Viewer
 
@@ -271,6 +271,8 @@ return [
 Quickstartの`SampleTokenAuthenticator`は`SAMPLE_API_TOKEN`をConstructorで一度だけ読み、RequestごとにはEnvironmentを参照しません。未設定、空文字、空白だけの値はRuntime構成Errorとして拒否し、既知のDefault TokenへFallbackしません。Local値は`.env.example`だけで提供します。Production Applicationは認証方式とSecret Sourceを選び、Credentialではなく`ActorRef`だけをFrameworkへ渡します。
 
 BootstrapのLoading Boundaryは[Application Bootstrap](application-bootstrap.md)、実行Commandは[BlackOps CLI](project-cli.md)を参照してください。
+
+Release時のMigration、Build Artifact、Frontend生成、HTTP／Worker／Relay／MaintenanceのProcess境界は[Deployment](deployment.md)へ、CommandのOptionとExitは[BlackOps CLI](project-cli.md)へ戻ります。
 
 ## Outbox relay
 

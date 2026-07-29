@@ -124,7 +124,7 @@ Generated Frontend Objectは3 Operationとも`.fetch()`、`.toRequest()`、`.url
 
 ### 再実行と更新
 
-同じGenerator Versionの全Fileがある場合、通常実行は内容を比較せず次を返します。
+同じGenerator Versionの全ファイルがある場合、通常実行は内容を比較せず次を返します。
 
 ```text
 Authentication starter is already current.
@@ -140,15 +140,27 @@ Migrationは生成時点のImmutable Snapshotです。Framework Update後も実�
 
 ## HTTP Authenticationの境界
 
-Applicationは`HttpAuthenticator`を実装し、Credentialなしを`AuthenticationResult::anonymous()`、有効なCredentialを`authenticated(new ActorRef($id, $type))`、不正Credentialを`invalid('authentication.invalid')`として返せます。Framework同梱のOpt-in Session Coreを使う場合は`BearerSessionAuthenticator`または`CookieSessionAuthenticator`を選びます。JWT／OAuth／API KeyとUser／Password／Account State PolicyはApplicationが所有します。
+Applicationは`HttpAuthenticator`を実装します。Credentialなしは`AuthenticationResult::anonymous()`、有効なCredentialは`authenticated(new ActorRef($id, $type))`、不正Credentialは`invalid('authentication.invalid')`として返します。
 
-Session Coreは32-byte CSPRNG TokenとSHA-256 Hash保存、Absolute TTL、Rotation／Revocation／Cleanupを所有します。通常のOperation ValueへRaw TokenやPasswordを渡しません。`make:auth`のRegister／Login／Logoutだけは`#[Sensitive]`なEphemeral Value／Outcomeとして現在のHTTP Response中に扱い、Canonical Journalへ空Projection、Outcome Storeへ非保存とします。ApplicationはRaw Tokenを発行直後に必要なCredential Surfaceへ変換し、通常のJournal、Outcome、Logへ残しません。Cookieの`Secure`／`HttpOnly`／`SameSite`、Domain／Path、CSRF、Encryption、Access Control、Retention期間はApplication責務です。登録方法とMigration境界は[Session AuthenticationをOpt-in登録する](application-bootstrap.md#session-authenticationをopt-in登録する)を参照してください。
+Framework同梱のOpt-in Session Coreを使う場合は`BearerSessionAuthenticator`または`CookieSessionAuthenticator`を選びます。JWT／OAuth／API KeyとUser／Password／Account State PolicyはApplicationが所有します。
 
-Frameworkの`AuthenticationMiddleware`はCredential自体をResult、Request Attribute、ExecutionContext、Journalへコピーしません。Authenticated時に渡すのはID／Typeだけの`ActorRef`です。Invalid時はOperation IDを発行せず、安定Codeだけを含む401 JSONを返します。AuthenticatorのBackend障害はInvalidへ丸めず、上位のHTTP Error境界へ伝播します。
+Session Coreは32-byte CSPRNG TokenとSHA-256 Hash保存、Absolute TTL、Rotation／Revocation／Cleanupを所有します。通常のOperation ValueへRaw TokenやPasswordを渡しません。
 
-Authenticated Resultの`ActorRef`は予約Request Attributeを経由し、Operationの`ActorContext`へ接続されます。HTTP入口では同じ参照がorigin／authorization／execution Actorになります。Anonymous RequestにはActorContextを追加しません。`config/middleware.php`へAuthentication Middlewareを登録しても認可Policyは自動では決まらないため、Operation単位で`#[Authorize]`を宣言してください。
+`make:auth`のRegister／Login／Logoutだけは`#[Sensitive]`なEphemeral Value／Outcomeとして現在のHTTP Response中に扱い、Canonical Journalへ空Projection、Outcome Storeへ非保存とします。ApplicationはRaw Tokenを発行直後に必要なCredential Surfaceへ変換し、通常のJournal、Outcome、Logへ残しません。
 
-Quickstartの`X-Sample-Token`はLocal Development用の最小Exampleです。AuthenticatorはExpected TokenをApplication Runtime構成時に一度だけSnapshotし、比較に`hash_equals()`を使います。`SAMPLE_API_TOKEN`の未設定、空文字、空白だけの値は構成ErrorとしてFail-closedにし、既知TokenへFallbackしません。Header値はOperation ValueへBindせず、Response、ExecutionContext、Transport、Journal、Outcomeへ保存しません。ProductionではApplicationがSession、Bearer Token、External IdP等とSecret管理へ置き換えてください。
+Cookieの`Secure`／`HttpOnly`／`SameSite`、Domain／Path、CSRF、Encryption、Access Control、Retention期間はApplication責務です。登録方法とMigration境界は[Session AuthenticationをOpt-in登録する](application-bootstrap.md#session-authenticationをopt-in登録する)を参照してください。
+
+Frameworkの`AuthenticationMiddleware`はCredential自体をResult、Request Attribute、ExecutionContext、Journalへコピーしません。Authenticated時に渡すのはID／Typeだけの`ActorRef`です。
+
+Invalid時はOperation IDを発行せず、安定Codeだけを含む401 JSONを返します。AuthenticatorのBackend障害はInvalidへ丸めず、上位のHTTP Error境界へ伝播します。
+
+Authenticated Resultの`ActorRef`は予約Request Attributeを経由し、Operationの`ActorContext`へ接続されます。HTTP入口では同じ参照がorigin／authorization／execution Actorになります。Anonymous RequestにはActorContextを追加しません。
+
+`config/middleware.php`へAuthentication Middlewareを登録しても認可Policyは自動では決まらないため、Operation単位で`#[Authorize]`を宣言してください。
+
+Quickstartの`X-Sample-Token`はLocal Development用の最小Exampleです。AuthenticatorはExpected TokenをApplication Runtime構成時に一度だけSnapshotし、比較に`hash_equals()`を使います。
+
+`SAMPLE_API_TOKEN`の未設定、空文字、空白だけの値は構成ErrorとしてFail-closedにし、既知TokenへFallbackしません。Header値はOperation ValueへBindせず、Response、ExecutionContext、Transport、Journal、Outcomeへ保存しません。ProductionではApplicationがSession、Bearer Token、External IdP等とSecret管理へ置き換えてください。
 
 Header欠落と不正Headerは同じ401でも境界が異なります。
 

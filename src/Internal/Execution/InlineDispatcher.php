@@ -41,6 +41,8 @@ use BlackOps\Internal\Journal\LifecycleStateMachine;
 use BlackOps\Internal\Projection\ObservedJournalRecordProjector;
 use BlackOps\Internal\Projection\SensitiveProjectionFilter;
 use BlackOps\Internal\Registry\OperationMetadataResolver;
+use BlackOps\Internal\Scheduling\PostgreSqlScheduledOccurrenceLifecycle;
+use BlackOps\Internal\Scheduling\ScheduledInlineDispatcher;
 use BlackOps\Internal\Transaction\OperationTransactionCoordinator;
 use BlackOps\Internal\Validation\OperationValueValidator;
 use BlackOps\Journal\CanonicalJournalWriter;
@@ -49,6 +51,7 @@ use BlackOps\Journal\Data\OperationFailedData;
 use BlackOps\Journal\JournalEvent;
 use BlackOps\Journal\JournalRecord;
 use BlackOps\Journal\LifecycleState;
+use BlackOps\Transport\PostgreSql\PostgreSqlSystemClock;
 use Closure;
 use LogicException;
 use Throwable;
@@ -60,7 +63,7 @@ use Throwable;
  * @mago-expect lint:too-many-methods
  * @mago-expect lint:kan-defect
  */
-final readonly class InlineDispatcher implements Dispatcher, ValidationRejectionRecorder
+final readonly class InlineDispatcher implements Dispatcher, ScheduledInlineDispatcher, ValidationRejectionRecorder
 {
     private JournalObservationPipeline $observations;
 
@@ -88,6 +91,8 @@ final readonly class InlineDispatcher implements Dispatcher, ValidationRejection
         private OperationValueFingerprinter $idempotencyFingerprints = new OperationValueFingerprinter(),
         private ?RetentionPeriod $idempotencyRetention = null,
         private ?IdempotencyRecovery $idempotencyRecovery = null,
+        private ?PostgreSqlScheduledOccurrenceLifecycle $scheduledOccurrences = null,
+        private \Psr\Clock\ClockInterface $clock = new PostgreSqlSystemClock(),
     ) {
         $this->validator = new OperationValueValidator();
         $this->metadataResolver = $metadataResolver ?? new OperationMetadataResolver($registry);
@@ -129,13 +134,100 @@ final readonly class InlineDispatcher implements Dispatcher, ValidationRejection
             throw new LogicException('Operation value does not match registered metadata.');
         }
 
-        $sequence = new InlineSequence();
         $receivedEnvelope = new OperationEnvelope(
             $definition,
             $value,
             $this->contexts->receive(actorContext: $actorContext, idempotencyKey: $idempotencyKey),
             new Inline(),
         );
+        return $this->dispatchEnvelope($metadata, $receivedEnvelope, $idempotencyKey);
+    }
+
+    public function dispatchScheduled(OperationEnvelope $receivedEnvelope, OperationMetadata $metadata): OperationResult
+    {
+        if ($metadata->strategy !== Inline::class || !$receivedEnvelope->strategy() instanceof Inline) {
+            throw new LogicException('Scheduled inline dispatch requires the Inline execution strategy.');
+        }
+        if ($receivedEnvelope->context()->schedule() === null) {
+            throw new LogicException('Scheduled inline dispatch requires a schedule context.');
+        }
+        if (
+            !$receivedEnvelope->definition() instanceof $metadata->definition
+            || !$receivedEnvelope->value() instanceof $metadata->value
+        ) {
+            throw new LogicException('Scheduled inline envelope metadata does not match.');
+        }
+        $violations = $this->validator->validate($receivedEnvelope->value());
+        if ($violations !== []) {
+            $reason = RejectionReason::validation('validation.failed', $violations);
+            $state = $this->appendLifecycleRecord(
+                null,
+                JournalEvent::OperationReceived,
+                fn(): JournalRecord => $this->journalRecords->operationReceived($receivedEnvelope, $metadata, 1),
+            );
+            $rejectedRecord = $this->journalRecords->operationRejected($receivedEnvelope, $metadata, 2, $reason);
+            $this->appendLifecycleRecord(
+                $state,
+                JournalEvent::OperationRejected,
+                static fn(): JournalRecord => $rejectedRecord,
+            );
+            if ($this->scheduledOccurrences !== null) {
+                $this->scheduledOccurrences->transition(
+                    $receivedEnvelope->id(),
+                    'claimed',
+                    'rejected',
+                    'validation_failed',
+                    $rejectedRecord->occurredAt,
+                );
+            }
+
+            return OperationResult::rejected($reason, $receivedEnvelope->id());
+        }
+        try {
+            $result = $this->dispatchEnvelope($metadata, $receivedEnvelope, null);
+            if ($this->scheduledOccurrences !== null) {
+                $this->scheduledOccurrences->transition(
+                    $receivedEnvelope->id(),
+                    'claimed',
+                    $result->isCompleted() ? 'completed' : 'rejected',
+                    $result->isCompleted() ? null : $result->rejectionReason()->code(),
+                    $this->clock->now(),
+                );
+            }
+            return $result;
+        } catch (OperationExecutionFailed $failure) {
+            if ($this->scheduledOccurrences !== null) {
+                $this->scheduledOccurrences->transition(
+                    $receivedEnvelope->id(),
+                    'claimed',
+                    'failed',
+                    'inline_execution_failed',
+                    $this->clock->now(),
+                );
+            }
+            throw $failure;
+        } catch (Throwable $failure) {
+            if ($this->scheduledOccurrences !== null) {
+                $this->scheduledOccurrences->transition(
+                    $receivedEnvelope->id(),
+                    'claimed',
+                    'failed',
+                    'inline_execution_failed',
+                    $this->clock->now(),
+                );
+            }
+            throw $failure;
+        }
+    }
+
+    private function dispatchEnvelope(
+        OperationMetadata $metadata,
+        OperationEnvelope $receivedEnvelope,
+        ?IdempotencyKey $idempotencyKey,
+    ): OperationResult {
+        $definition = $receivedEnvelope->definition();
+        $value = $receivedEnvelope->value();
+        $sequence = new InlineSequence();
         $authorizationRejection = null;
         $authorizationPreEvaluated = false;
         $claim = null;

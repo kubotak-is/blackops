@@ -13,6 +13,8 @@ use BlackOps\Core\OperationValue;
 use BlackOps\Core\Outcome;
 use BlackOps\Core\Registry\OperationMetadata;
 use BlackOps\Core\Registry\OperationRegistry;
+use BlackOps\Core\Registry\OperationScheduleMetadata;
+use BlackOps\Internal\Scheduling\CronExpression;
 use InvalidArgumentException;
 
 /** @mago-expect lint:cyclomatic-complexity */
@@ -23,7 +25,7 @@ final readonly class OperationManifestMetadataCodec
     ) {}
 
     /**
-     * @return array{operations: list<array<string, string|bool>>}
+     * @return array{operations: list<array<string, mixed>>}
      */
     public function encode(OperationRegistry $registry): array
     {
@@ -57,6 +59,17 @@ final readonly class OperationManifestMetadataCodec
                         ? []
                         : [
                             'transactionConnection' => $metadata->transactionConnection,
+                        ]
+                ),
+                ...(
+                    $metadata->schedule === null
+                        ? []
+                        : [
+                            'schedule' => [
+                                'name' => $metadata->schedule->name,
+                                'cron' => $metadata->schedule->cron,
+                                'timezone' => $metadata->schedule->timezone,
+                            ],
                         ]
                 ),
             ], $registry->all()),
@@ -102,6 +115,8 @@ final readonly class OperationManifestMetadataCodec
             throw new InvalidArgumentException('Operation manifest ephemeral execution strategy is invalid.');
         }
 
+        $schedule = $this->schedule($entry);
+
         return new OperationMetadata(
             $this->stringField($entry, 'typeId'),
             $definition,
@@ -114,7 +129,34 @@ final readonly class OperationManifestMetadataCodec
             $typedSelfHandledMode,
             $this->authorizationPolicy($entry),
             $this->optionalStringField($entry, 'transactionConnection'),
+            $schedule,
         );
+    }
+
+    /** @param array<array-key, mixed> $entry */
+    private function schedule(array $entry): ?OperationScheduleMetadata
+    {
+        if (!array_key_exists('schedule', $entry)) {
+            return null;
+        }
+        if (!is_array($entry['schedule'])) {
+            throw new InvalidArgumentException('Operation manifest schedule metadata is invalid.');
+        }
+        $schedule = $entry['schedule'];
+        if (array_keys($schedule) !== ['name', 'cron', 'timezone']) {
+            throw new InvalidArgumentException('Operation manifest schedule metadata is invalid.');
+        }
+        try {
+            CronExpression::parse($this->stringField($schedule, 'cron'));
+            $metadata = new OperationScheduleMetadata(
+                $this->stringField($schedule, 'name'),
+                $this->stringField($schedule, 'cron'),
+                $this->stringField($schedule, 'timezone'),
+            );
+        } catch (InvalidArgumentException) {
+            throw new InvalidArgumentException('Operation manifest schedule metadata is invalid.');
+        }
+        return $metadata;
     }
 
     /** @param array<array-key, mixed> $entry */

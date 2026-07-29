@@ -21,6 +21,8 @@ use BlackOps\Core\OperationHandler;
 use BlackOps\Core\OperationValue;
 use BlackOps\Core\Registry\OperationMetadata;
 use BlackOps\Core\Registry\OperationRegistry;
+use BlackOps\Core\Registry\OperationScheduleMetadata;
+use BlackOps\Core\ScheduleContext;
 use BlackOps\Internal\Authorization\AuthorizationEvaluator;
 use BlackOps\Internal\Authorization\AuthorizationPolicyResolver;
 use BlackOps\Internal\Codec\ReflectionJsonOperationCodec;
@@ -31,6 +33,8 @@ use BlackOps\Internal\Http\DeferredHttpOperationAcceptor;
 use BlackOps\Internal\Identifier\IdentifierFactory;
 use BlackOps\Internal\Identifier\Uuidv7Generator;
 use BlackOps\Internal\Journal\JournalRecordFactory;
+use BlackOps\Internal\Scheduling\PostgreSqlScheduledOccurrenceLifecycle;
+use BlackOps\Internal\Scheduling\PostgreSqlScheduleStore;
 use BlackOps\Journal\Data\OperationFailedData;
 use BlackOps\Journal\Data\OperationReceivedData;
 use BlackOps\Journal\EmptyJournalData;
@@ -69,6 +73,7 @@ final class PostgreSqlDeferredAcceptanceOrchestratorTest extends TestCase
         $this->journal = new PostgreSqlCanonicalJournalStore($this->connection, self::SCHEMA);
         $this->sender->migrate();
         $this->journal->migrate();
+        new PostgreSqlScheduleStore($this->connection, self::SCHEMA)->migrate();
     }
 
     public function testAcceptStoresOperationStateAndAcceptanceJournalInOneTransaction(): void
@@ -191,6 +196,34 @@ final class PostgreSqlDeferredAcceptanceOrchestratorTest extends TestCase
         self::assertSame([1, 2], array_column($this->records(), 'sequence'));
     }
 
+    public function testScheduledAcceptanceUpdatesClaimedOccurrenceWithAcknowledgementInstant(): void
+    {
+        $this->connection->executeStatement(
+            'INSERT INTO '
+            . self::SCHEMA
+            . '.schedule_states (schedule_name, operation_type, cursor_at, created_at, updated_at) VALUES (\'reports.daily\', \'report.generate\', \'2026-07-10 00:00:00+00\', \'2026-07-10 00:00:00+00\', \'2026-07-10 00:00:00+00\')',
+        );
+        $this->connection->executeStatement(
+            'INSERT INTO '
+            . self::SCHEMA
+            . '.schedule_occurrences (schedule_name, scheduled_at, evaluated_at, state, operation_id, created_at, updated_at) VALUES (\'reports.daily\', \'2026-07-10 00:00:00+00\', \'2026-07-10 00:00:00.123456+00\', \'claimed\', :operation, \'2026-07-10 00:00:00.123456+00\', \'2026-07-10 00:00:00.123456+00\')',
+            ['operation' => self::OPERATION_ID],
+        );
+        $acknowledgement = $this->orchestrator(scheduled: true)->accept(
+            $this->message(),
+            $this->envelope(schedule: true),
+            $this->metadata(schedule: true),
+        );
+
+        self::assertSame(self::OPERATION_ID, $acknowledgement->operationId()->toString());
+        self::assertSame('accepted', $this->connection->fetchOne('SELECT state FROM '
+        . self::SCHEMA
+        . '.schedule_occurrences WHERE operation_id = :operation', ['operation' => self::OPERATION_ID]));
+        self::assertSame('2026-07-10 00:00:01.123456+00', $this->connection->fetchOne('SELECT accepted_at::text FROM '
+        . self::SCHEMA
+        . '.schedule_occurrences WHERE operation_id = :operation', ['operation' => self::OPERATION_ID]));
+    }
+
     public function testAuthorizationFailureRollsBackAcceptanceAndRecordsAttemptlessTerminalFailure(): void
     {
         $primaryFailure = new RuntimeException('authorization backend credential detail');
@@ -223,8 +256,10 @@ final class PostgreSqlDeferredAcceptanceOrchestratorTest extends TestCase
         self::assertFalse($records[1]->data->retryable);
     }
 
-    private function orchestrator(?AuthorizationPolicy $policy = null): DeferredAcceptanceOrchestrator
-    {
+    private function orchestrator(
+        ?AuthorizationPolicy $policy = null,
+        bool $scheduled = false,
+    ): DeferredAcceptanceOrchestrator {
         $clock = new FixedDeferredAcceptanceClock();
         $identifiers = new IdentifierFactory(new DeferredAcceptanceUuidv7Generator(), $clock);
 
@@ -238,7 +273,85 @@ final class PostgreSqlDeferredAcceptanceOrchestratorTest extends TestCase
                 : new AuthorizationEvaluator(new AuthorizationPolicyResolver(
                     new DeferredAcceptancePolicyContainer($policy),
                 )),
+            scheduledOccurrences: $scheduled
+                ? new PostgreSqlScheduledOccurrenceLifecycle($this->connection, self::SCHEMA)
+                : null,
         );
+    }
+
+    public function testScheduledAuthorizationRejectionTerminalizesOccurrenceSafely(): void
+    {
+        $this->connection->executeStatement(
+            'INSERT INTO '
+            . self::SCHEMA
+            . '.schedule_states (schedule_name, operation_type, cursor_at, created_at, updated_at) VALUES (\'reports.daily\', \'report.generate\', \'2026-07-10 00:00:00+00\', \'2026-07-10 00:00:00+00\', \'2026-07-10 00:00:00+00\')',
+        );
+        $this->connection->executeStatement(
+            'INSERT INTO '
+            . self::SCHEMA
+            . '.schedule_occurrences (schedule_name, scheduled_at, evaluated_at, state, operation_id, created_at, updated_at) VALUES (\'reports.daily\', \'2026-07-10 00:00:00+00\', \'2026-07-10 00:00:00.123456+00\', \'claimed\', :operation, \'2026-07-10 00:00:00.123456+00\', \'2026-07-10 00:00:00.123456+00\')',
+            ['operation' => self::OPERATION_ID],
+        );
+        $policy = new DeferredAcceptancePolicy(AuthorizationDecision::forbid('authorization.report_forbidden'));
+        $actor = new ActorRef('user-123', 'user');
+        $result = $this->orchestrator($policy, scheduled: true)->accept(
+            $this->message(),
+            $this->envelope(new ActorContext($actor, $actor, $actor), schedule: true),
+            $this->metadata(DeferredAcceptancePolicy::class, schedule: true),
+        );
+
+        self::assertSame('authorization.report_forbidden', $result->rejectionReason()->code());
+        self::assertSame('rejected', $this->connection->fetchOne('SELECT state FROM '
+        . self::SCHEMA
+        . '.schedule_occurrences WHERE operation_id = :operation', ['operation' => self::OPERATION_ID]));
+    }
+
+    public function testScheduledAcceptanceRollbackLeavesNoAcceptedOperationAndCompensatesFailure(): void
+    {
+        $this->connection->executeStatement(
+            'INSERT INTO '
+            . self::SCHEMA
+            . '.schedule_states (schedule_name, operation_type, cursor_at, created_at, updated_at) VALUES (\'reports.daily\', \'report.generate\', \'2026-07-10 00:00:00+00\', \'2026-07-10 00:00:00+00\', \'2026-07-10 00:00:00+00\')',
+        );
+        $this->connection->executeStatement(
+            'INSERT INTO '
+            . self::SCHEMA
+            . '.schedule_occurrences (schedule_name, scheduled_at, evaluated_at, state, operation_id, created_at, updated_at) VALUES (\'reports.daily\', \'2026-07-10 00:00:00+00\', \'2026-07-10 00:00:00.123456+00\', \'claimed\', :operation, \'2026-07-10 00:00:00.123456+00\', \'2026-07-10 00:00:00.123456+00\')',
+            ['operation' => self::OPERATION_ID],
+        );
+        $this->connection->executeStatement(
+            'CREATE FUNCTION '
+            . self::SCHEMA
+            . '.reject_schedule_acceptance() RETURNS trigger LANGUAGE plpgsql AS \'BEGIN IF NEW.state = \'\'accepted\'\' THEN RAISE EXCEPTION \'\'scheduled occurrence acceptance unavailable\'\'; END IF; RETURN NEW; END;\'',
+        );
+        $this->connection->executeStatement(
+            'CREATE TRIGGER reject_schedule_acceptance BEFORE UPDATE ON '
+            . self::SCHEMA
+            . '.schedule_occurrences FOR EACH ROW EXECUTE FUNCTION '
+            . self::SCHEMA
+            . '.reject_schedule_acceptance()',
+        );
+
+        try {
+            $this->orchestrator(scheduled: true)->accept(
+                $this->message(),
+                $this->envelope(schedule: true),
+                $this->metadata(schedule: true),
+            );
+            self::fail('Expected scheduled acceptance failure.');
+        } catch (OperationExecutionFailed) {
+            self::assertSame(
+                0,
+                (int) $this->connection->fetchOne('SELECT count(*) FROM ' . self::SCHEMA . '.operations'),
+            );
+            self::assertSame(
+                [JournalEvent::OperationReceived, JournalEvent::OperationFailed],
+                array_column($this->records(), 'event'),
+            );
+            self::assertSame('failed', $this->connection->fetchOne('SELECT state FROM '
+            . self::SCHEMA
+            . '.schedule_occurrences WHERE operation_id = :operation', ['operation' => self::OPERATION_ID]));
+        }
     }
 
     private function message(): DeferredOperationMessage
@@ -253,8 +366,11 @@ final class PostgreSqlDeferredAcceptanceOrchestratorTest extends TestCase
         );
     }
 
-    private function envelope(?ActorContext $actorContext = null, ?Operation $definition = null): OperationEnvelope
-    {
+    private function envelope(
+        ?ActorContext $actorContext = null,
+        ?Operation $definition = null,
+        bool $schedule = false,
+    ): OperationEnvelope {
         return new OperationEnvelope(
             $definition ?? new DeferredAcceptedOperation(),
             new DeferredAcceptedValue('report-1'),
@@ -263,13 +379,16 @@ final class PostgreSqlDeferredAcceptanceOrchestratorTest extends TestCase
                 new DateTimeImmutable('2026-07-10T00:00:00.000000Z'),
                 CorrelationId::fromString(self::CORRELATION_ID),
                 actorContext: $actorContext,
+                schedule: $schedule
+                    ? new ScheduleContext('reports.daily', new DateTimeImmutable('2026-07-10T00:00:00Z'), 'UTC')
+                    : null,
             ),
             new Deferred(),
         );
     }
 
     /** @param class-string<AuthorizationPolicy>|null $policy */
-    private function metadata(?string $policy = null): OperationMetadata
+    private function metadata(?string $policy = null, bool $schedule = false): OperationMetadata
     {
         return new OperationMetadata(
             'report.generate',
@@ -278,6 +397,7 @@ final class PostgreSqlDeferredAcceptanceOrchestratorTest extends TestCase
             DeferredAcceptedHandler::class,
             EmptyOutcome::class,
             Deferred::class,
+            schedule: $schedule ? new OperationScheduleMetadata('reports.daily', '* * * * *', 'UTC') : null,
             authorizationPolicy: $policy,
         );
     }

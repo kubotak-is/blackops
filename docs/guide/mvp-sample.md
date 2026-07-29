@@ -1,6 +1,10 @@
 # Quickstart and Skeleton
 
-このPageはRepository `main`のPreview Applicationを準備し、Header Authentication、Inline HTTP、Database Transaction、After Commit、Deferred Workerを一続きで確認します。Stable `1.1.0`のInstallは[Install](installation.md)で先に完了してください。ここで説明するAuthentication／AuthorizationとDatabase／Transaction Exampleは未Release Surfaceです。Experimental Stable `1.1.0`との差は[Releases](mvp-status.md)で確認してください。
+このページはRepository `main`のPreview Applicationを準備し、Header Authentication、Inline HTTP、Database Transaction、After Commit、Deferred Workerを一続きで確認します。Stable `1.1.0`のInstallは[Install](installation.md)で先に完了してください。ここで説明するAuthentication／AuthorizationとDatabase／Transaction Exampleは未Release Surfaceです。Experimental Stable `1.1.0`との差は[Releases](mvp-status.md)で確認してください。
+
+:::warning[Repository main Preview]
+このページのStep 2以降は未Release Surfaceです。公開済みStable SkeletonのInstall手順とは分けて実行し、提供範囲は[Releases](mvp-status.md)で確認してください。
+:::
 
 ## 1. 実行Channelを選ぶ
 
@@ -12,7 +16,7 @@
 composer create-project blackops/skeleton my-app 1.1.0
 ```
 
-StableにはGlobal Middleware、Authentication、`#[Authorize]`がないためFrontend Operation Bridgeもありません。このPageのmain Preview Step 2以降へ進まず、InstallのHTTP 200確認後に[First Operation](first-operation.md)のStep 1〜3（Generator、Value、Outcome）を実行してください。Stableの正確な提供範囲は[Stableとmain](mvp-status.md#stableとmain)で確認してください。
+StableにはGlobal Middleware、Authentication、`#[Authorize]`がないためFrontend Operation Bridgeもありません。このページのmain Preview Step 2以降へ進まず、InstallのHTTP 200確認後に[First Operation](first-operation.md)のStep 1〜3（Generator、Value、Outcome）を実行してください。Stableの正確な提供範囲は[Stableとmain](mvp-status.md#stableとmain)で確認してください。
 
 ### Repository main Preview
 

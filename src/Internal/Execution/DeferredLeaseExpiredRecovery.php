@@ -100,6 +100,8 @@ final readonly class DeferredLeaseExpiredRecovery implements ExpiredAttemptRecov
                     $context->actorContext()?->authorization(),
                     $this->services->executionActor,
                 ),
+                $context->idempotencyKeyHash(),
+                $context->schedule(),
             ),
             new Deferred(),
         );

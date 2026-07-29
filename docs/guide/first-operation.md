@@ -2,11 +2,13 @@
 
 BlackOps CLIから`Billing/CreateInvoice`の骨格を生成し、HTTPで受け付けるDeferred Operationへ仕上げます。
 
-このPageは[Install](installation.md)のStable HTTP 200確認、または[Quickstart and Skeleton](mvp-sample.md)のRepository `main` Preview準備が完了したProject Rootを前提にします。Step 1〜3（Generator、Value、Outcome）に加えて、`#[Route]`、Deferred実行、WorkerはStable `1.1.0`でも利用できます。main Preview限定なのは、Step 4の`#[Authorize]`とSample Token Header、Step 5のFrontend検証、Step 6・7のStatus Resourceです。Stableではこれらを除いて実行してください。Container CLIを使う場合は`docker compose run --rm app`を各Commandの前へ付け、Hostの`php blackops`と混在させません。
+このページは[Install](installation.md)のStable HTTP 200確認、または[Quickstart and Skeleton](mvp-sample.md)のRepository `main` Preview準備が完了したProject Rootを前提にします。Step 1〜3（Generator、Value、Outcome）に加えて、`#[Route]`、Deferred実行、WorkerはStable `1.1.0`でも利用できます。main Preview限定なのは、Step 4の`#[Authorize]`とSample Token Header、Step 5のFrontend検証、Step 6・7のStatus Resourceです。Stableではこれらを除いて実行してください。Container CLIを使う場合は`docker compose run --rm app`を各コマンドの前へ付け、Hostの`php blackops`と混在させません。
+
+:::info[Channel boundary]
+Step 1〜3はExperimental Stable `1.1.0`、`#[Authorize]`、Sample Token Authentication、Frontend、Status ResourceはRepository `main` Preview向けです。StableではPreview限定のStepを実行しないでください。
+:::
 
 起動、Migration、Buildで詰まった場合は[Troubleshooting](troubleshooting.md)を参照してください。
-
-> **Release:** このTutorialはExperimental Stable `1.1.0`のProject Root `blackops`、`make:operation`、宣言的Validation Attributeを使用します。`#[Authorize]`とSample Token Authentication、Frontend／Status Resourceは`main`の未Release Surfaceであり、Repository Quickstart向けです。
 
 ## 1. Generatorから始める
 

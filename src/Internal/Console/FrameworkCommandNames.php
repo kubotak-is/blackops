@@ -20,6 +20,7 @@ final readonly class FrameworkCommandNames
             DatabaseMigrationMigrateCommand::NAME,
             DatabaseSeedCommand::NAME,
             WorkerRunCommand::NAME,
+            ScheduledOperationRunCommand::NAME,
             RetentionPlanCommand::NAME,
             RetentionPurgeCommand::NAME,
             SchedulerRunCommand::NAME,

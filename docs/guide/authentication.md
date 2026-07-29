@@ -2,6 +2,10 @@
 
 この章はRepository `main` PreviewでSession Starterの生成とHTTP境界を確認する手順です。AuthenticationはStable `1.1.0`には含まれません。[Repository main Preview](mvp-sample.md#repository-main-preview)を完了したProject Rootから実行し、問題は[Troubleshooting](troubleshooting.md)で確認します。
 
+:::warning[Repository main Preview]
+Session StarterとAuthentication MiddlewareはStable `1.1.0`には含まれません。Application-owned Identity、Password、Session Transportを確認できるPreview環境でのみ実行してください。
+:::
+
 ## Application-owned Starterを生成する
 
 FrameworkはSession CoreとAuthentication Middlewareの境界だけを提供します。User、Password Hash、Registration Policy、Session Transport、Cookie／CSRFはApplicationの責任です。
@@ -251,4 +255,4 @@ curl -i http://127.0.0.1:8080/me \
 # 401、code: authentication.invalid_session
 ```
 
-有効Tokenの`GET /me`は200、TokenなしまたはLogout済みは401になります。`/welcome`はAuthenticationを明示的に付けない限り匿名のままです。Raw Password、Session Token、Cookie、CSRF Token、Authorization HeaderはOperation Value、Outcome、Journal、Log、Task Reportへ出力しません。Cookie方式を選ぶ場合は`CookieSessionAuthenticator`と[Security](security.md)の責務表を確認してください。
+有効Tokenの`GET /me`は200、TokenなしまたはLogout済みは401になります。`/welcome`はAuthenticationを明示的に付けない限り匿名のままです。Raw Password、Session Token、Cookie、CSRF Token、Authorization HeaderはOperation Value、Outcome、Journal、Log、運用報告へ出力しません。Cookie方式を選ぶ場合は`CookieSessionAuthenticator`と[Security](security.md)の責務表を確認してください。

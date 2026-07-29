@@ -87,6 +87,9 @@ final readonly class DeferredFailureSupervisor
             $reservation->sequence,
             new AttemptRetryScheduledData($attempt->id(), $attempt->number() + 1, $scheduledAt, $delayMilliseconds),
         ));
+        if ($envelope->context()->schedule() !== null && $this->storage->scheduledOccurrences !== null) {
+            $this->storage->scheduledOccurrences->transition($envelope->id(), 'accepted', 'accepted', null, $now);
+        }
     }
 
     private function failOperation(
@@ -108,6 +111,15 @@ final readonly class DeferredFailureSupervisor
                     new OperationFailedData($exception::class, $exception->getMessage(), false),
                 ),
         );
+        if ($envelope->context()->schedule() !== null && $this->storage->scheduledOccurrences !== null) {
+            $this->storage->scheduledOccurrences->transition(
+                $envelope->id(),
+                'accepted',
+                'failed',
+                'deferred_execution_failed',
+                $this->storage->clock->now(),
+            );
+        }
     }
 
     private function deadLetterOperation(
@@ -133,6 +145,15 @@ final readonly class DeferredFailureSupervisor
                 ->terminal()
                 ->operationDeadLettered($envelope, $metadata, $reservation->sequence, $data),
         );
+        if ($envelope->context()->schedule() !== null && $this->storage->scheduledOccurrences !== null) {
+            $this->storage->scheduledOccurrences->transition(
+                $envelope->id(),
+                'accepted',
+                'dead_lettered',
+                'deferred_dead_lettered',
+                $movedAt,
+            );
+        }
     }
 
     private function addMilliseconds(DateTimeImmutable $time, int $milliseconds): DateTimeImmutable

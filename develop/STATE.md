@@ -1,6 +1,328 @@
 # Orchestration State
 
-Updated At: 2026-07-27T08:06:27+09:00
+Updated At: 2026-07-29T10:32:34+09:00
+
+## P20-015 Tenant Isolation and Protected Operation Data Decision Checkpoint
+
+```text
+2026-07-29T10:32:34+09:00
+P20-014E Acceptance後、Phase 20残件のJournal／Outcome参照制御、Tenant分離、暗号化CapabilityをCurrent ExecutionContext、Entry Adapter、Status Query、Raw Journal／Outcome Port、PostgreSQL Schema、Retention、Replay、Idempotency、Outboxへ照合した。Tenantが未実装で、Statusだけが既定Deny、encoded_record等はbytea内Plain JSONかつSQL Projectionへ依存するため、Tenant Clear SubjectとProtected Blobを一体で決めるD135／P20-015を作成した。RecommendationはOptional TenantRef、Entry-owned Tenant Source、不変伝播、Tenant Metadata、Default-deny Direct Read、XChaCha20-Poly1305 Envelope、明示3 Mode、Bounded Rotation CLIで、Question 1〜8はUser Decision Pending。Production Code／Test／Migration、Commit／Push／Deployなし。
+```
+
+## P20-014E Orchestrator Acceptance
+
+```text
+2026-07-29T10:32:34+09:00
+OrchestratorはScheduled Operation GuideをSpecification 98、Current Source／Test、Stable 1.1.0へ照合した。Documentation Reviewer先行FindingのOperationMetadata public property、固定FireOnce misfire、Exit 1出力境界、任意時刻の初回accepted=0、Read-only SQL実行ContextをCorrectionし、Website test 74、check 0 errors／warnings／hints、build 40 pages／artifact／site check、Focused PHPUnit 18 tests／40 assertions、scheduled-operation Consumer、Mago format、Management-ID Guard、git diff --checkはPASS。Read-only Documentation Reviewerは8 Routes×Desktop 1440px Light／Dark×Mobile 390pxの24条件、Mobile Navigation、局所Code Scroll、Guide内18 Linkを実Browserで確認し、最終P1 0／P2 0／P3 0でAcceptした。P20-014EとP20-014A〜EのScheduled Application Operation SliceをAcceptedとする。Phase 20にはJournal／Outcome参照制御等とOpenTelemetry Adapterが残る。Commit／Push／Deployなし。
+```
+
+## P20-014E Documentation Review Correction Completion Checkpoint
+
+```text
+2026-07-29T02:13:59+09:00
+Correction本文を完了した。Core API property、固定FireOnce misfire、Framework Schema／Docker SQL、Occurrence Failureとtop-level runtime_error、daily初回accepted=0と`* * * * *`検証手順を同期し、accuracy regressionを追加した。Website test 74、check 0 errors／warnings／hints、build 40 pages／artifact／site check、git diff --checkはPASS。Task／Report／TODOをCorrection Review Pendingへ同期し、Browser再ReviewとOrchestrator Acceptanceを待つ。Production Code、Commit／Push／Deployなし。
+```
+
+## P20-014E Documentation Review Correction Checkpoint
+
+```text
+2026-07-29T02:12:06+09:00
+Documentation ReviewerのAccuracy／Journey指摘を補正した。OperationScheduleMetadataのTypical Useをpublic readonly OperationMetadata::$scheduleへ修正し、skipped_misfireを固定FireOnce cursor／最新一致Slot契約へ変更、Framework Schema付きRead-only SQLとDocker／Project Root実行場所を明記した。Scheduled CLIのOccurrence Failure集計とTop-level runtime_errorを分離し、daily 0:00 JSTの初回accepted=0正常系、Count Shape例、検証用`* * * * *`手順を追加した。Website accuracy regressionを追加し、Task／Report／TODOをCorrection Review Pendingへ同期する。本文補正後はWebsite test／check／buildを直列実行し、Commit／Push／Deployなし。
+```
+
+## P20-014E Documentation Completion Worker Review Pending Checkpoint
+
+```text
+2026-07-29T02:07:00+09:00
+P20-014E Guide completionを終えた。ScheduledActorProviderの`config/app.php` `services`登録、旧Scheduled Operation未提供claimの削除、accepted時のOperation IDをOccurrence Queryから取得する手順、Core APIのOperationScheduleMetadata、heading-aligned cross-link、Website page matrixを補正した。Website test 73、check（0 errors／warnings／hints）、build 40 pages／artifact／site check、Focused PHPUnit 18 tests／40 assertions、scheduled-operation Consumer CLI／recovery／concurrency、Mago format、Management-ID Guard、git diff --checkはPASS。Browser実測とDocumentation Reviewer判定はOrchestratorへ委譲し、TaskをReview Pendingとする。Production Code、Commit／Push／Deployなし。
+```
+
+## P20-014E Documentation Completion Worker Start Checkpoint
+
+```text
+2026-07-29T02:02:08+09:00
+P20-014Eの既存Guide差分をTask／Specification 98／Documentation Review Contractへ照合した。Orchestrator指摘のApplication Schedule one-shotとMaintenance Scheduler分離、AttributesのCount／ScheduledBy説明、BlackOps CLIのSchedule rowと旧未実装claim、Scheduled Troubleshooting、Journal Schedule Parameter Tableを補正する。許可されたdocs／Website／Report／STATE／TODO／Taskだけを変更し、Production Code、Consumer、Migration、Commit／Push／Deployは行わない。TaskをIn Progressとする。
+```
+
+## P20-014E Orchestrator Ready Checkpoint
+
+```text
+2026-07-29T01:50:56+09:00
+P20-014D Acceptance後、Specification 98の最終SliceをP20-014E Scheduled Operation Guide／Documentation ReviewとしてTask Packet化した。Repository main限定Callout、ScheduledBy Authoring、Inline／Deferred、Schedule Context、ScheduledActorProvider、Build／Migration／one-shot CLI／Worker、Count／Exit、Misfire／Overlap／Recovery、Occurrence／Journal相関、External Supervisor、Maintenance Scheduler分離、Reference／Releases／Troubleshooting同期をScopeとする。Landing／Theme、Production Code、Daemon／Manifest Generatorは変更しない。TaskをReadyとし、Documentation実装後はRead-only Documentation Reviewerで受入する。Commit／Push／Deployなし。
+```
+
+## P20-014D Orchestrator Acceptance
+
+```text
+2026-07-29T01:48:56+09:00
+OrchestratorはP20-014Dのone-shot operation:schedule:run、Human／JSON Count、Exit 0／1／2、Schedule名順、claimed-first Recovery、固定Operation ID、Compiled Container Definition、ScheduledActorProvider Build／Bootstrap validation、同一Connection／Schema／Clock、Inline／Deferred通常Lifecycle、Application Worker terminal hook、session advisory lock、Crash／二Process収束、Canonical Journal exactly-onceを独立Reviewした。CorrectionでSymfony pre-execute unknown optionを実Application Kernelでもsafe configuration_error／Exit 2へ補正し、Definition Resolver境界を直接固定した。Focused PHPUnit 382 tests／1434 assertions、Correction 43 tests／240 assertions、Consumer Journey、最終Full PHPUnit 1994 tests／7912 assertions、Mago format、Changed-source Mago analyze、Architecture／Scheduling 20 tests／330 assertions、shell syntax、Management-ID Guard、git diff --checkはPASS。Fullには既存PHP 8.5 deprecation 1件のみ。Broad MagoとDeptracは既存Repository Blockerを記録した。P20-014DをAcceptedとし、次はP20-014E Guide／Documentation Reviewへ進む。Commit／Push／Deployなし。
+```
+
+## P20-014D Worker Verification Checkpoint
+
+```text
+2026-07-29T01:42:00+09:00
+P20-014D direct regression gaps were completed. ScheduledOperationRunner tests now cover deterministic Schedule-name order, claimed recovery with fixed Operation ID and terminal completion, misfire／overlap aggregation, and claimed invocation failure category. CLI no-schedule Human output is exact. ApplicationBuildCompileCommand tests cover authorized ScheduledActorProvider missing／registered; ApplicationScheduledOperationRuntimeComposer tests cover Build ID and Provider boundaries. Consumer assertions now verify Inline transactional, Deferred, crash recovery, and concurrent race Journal event sequences exactly once, one Operation ID, and one row per slot. Consumer diagnosis found the transactional Inline fixture was final and incompatible with required AOP proxy generation; ScheduledInlineProbe is now proxyable, and the kept fixture build:compile passed. Focused PHPUnit 18 tests／129 assertions, Mago format check, bash -n, and git diff --check passed. Consumer full journey remains for Orchestrator rerun after the build fix. Task is Review Pending; Commit／Push／Deployなし。
+```
+
+## P20-014D Correction Checkpoint
+
+```text
+2026-07-29T01:47:30+09:00
+Correction cycle completed. ScheduledOperationRunCommand now converts Symfony Console input-binding exceptions to safe configuration_error output and Exit 2, with pre-bind --json detection. ApplicationConsoleKernel registers operation:schedule:run directly so unknown options are handled by the command boundary rather than LazyFrameworkCommand. Direct human／JSON unknown-option tests and Application Kernel route tests pass. ScheduledOperationDefinitionResolver direct tests cover self-handled compiled instance reuse, constructorless definition construction, and required-constructor rejection. Correction focused suite 30 tests／123 assertions PASS; complete P20-014D focused PHP set 43 tests／240 assertions PASS; Mago format, management-ID guard, and git diff --check PASS. Task remains Review Pending, no commit／push／deploy.
+```
+
+## P20-014D Worker Start Checkpoint
+
+```text
+2026-07-29T00:33:45+09:00
+P20-014D Task Packet、Specification 98／02／03／06／09／16／18／19／21／31／32／33／35／36／40／68、D134、Accepted P20-014A〜C Report／Sourceを確認した。Compiled Manifest／Container、同一Connection／Schema／Clock、one-shot operation:schedule:run、Application Worker scheduled lifecycle hook、Crash／Concurrency Consumer Evidenceを実装する。Maintenance scheduler、HTTP／ConsoleCommand／child contract、Guide／Website、既存Phase 20差分は変更しない。TaskをIn Progressへ同期し、Commit／Push／Deployなし。
+```
+
+## P20-014D Orchestrator Ready Checkpoint
+
+```text
+2026-07-29T00:29:15+09:00
+P20-014C Acceptance後、Specification 98の次SliceをP20-014D Scheduled Operation CLI／Application Composition／Consumer EvidenceとしてTask Packet化した。一回実行`operation:schedule:run`、Human／JSON Count、Exit 0／1／2、Schedule名順、claimed-first Recovery、Compiled Container Definition／ScheduledActorProvider、同一Connection／Schema／Clock、Application Worker terminal hook、Crash／二Process収束をScopeとする。Application Schedule Daemon、Supervisor管理、Guide／WebsiteはP20-014E以降へ残す。TaskをReadyとし、Production実装をLuna High Workerへ委譲する。Existing Phase 20 Working Tree差分を保持し、Worker Commitなし。
+```
+
+## P20-014C Orchestrator Acceptance
+
+```text
+2026-07-29T00:29:15+09:00
+OrchestratorはP20-014CのPublic ScheduledActorProvider、固定Scheduled Root、Runtime invoke Inline／Deferred分岐、通常Validation／Authorization、Schedule Context Codec／Canonical／Observed Journal、Occurrence expected-state transition、Deferred acceptance／worker rollback、Retry／Dead Letter／Lease Recoveryを独立Reviewした。Focused PHPUnit 210 tests／1014 assertions、Full PHPUnit 1971 tests／7856 assertions、Runtime seam 4 tests／23 assertions、Architecture／Scheduling 20 tests／330 assertions、Mago format check、Changed-source Mago analyze、Management-ID Guard、git diff --checkはPASS。Fullには既存PHP 8.5 ReflectionProperty deprecation 1件のみ。Broad MagoとDeptracはRepository既存Blocker。P20-014CをAcceptedとし、次はP20-014D Application Composition／一回実行BlackOps CLI／Consumer crash・concurrency evidenceへ進む。Commit／Push／Deployなし。
+```
+
+## P20-014C Worker Completion Checkpoint
+
+```text
+2026-07-29T00:28:04+09:00
+P20-014C ScheduledActorProvider、固定Scheduled Root Context、引数なしValue構築、Inline／Deferred validation・authorization・Journal・transport接続、Schedule Context codec／Canonical／Observed projection、Occurrence expected-state lifecycle、Deferred worker／retry／dead-letter／lease recovery維持、PSR-20 terminal clockを実装した。Focused PHPUnit 210 tests／1014 assertions、最新Full PHPUnit 1971 tests／7856 assertions PASS（PHP8.5 ReflectionProperty deprecation 1件）。Earlier full runの既存Outbox heartbeat flaky 1件は対象単独4 tests／22 assertions PASSと最新Full rerun PASSで再現しなかった。Changed-source Mago analyze（No issues found）、Mago format check、ID Guard、git diff --checkはPASS、Runtime seam notices解消。Broad Magoは既存1057 issues、Deptracは既存Nikic parser errorでBLOCKED。TaskをReview Pending、Report作成、Commit／Push／Deployなし。
+```
+
+## P20-014C Worker Start Checkpoint
+
+```text
+2026-07-28T23:33:20+09:00
+P20-014C最新Task Packet（Spec 02／03／06／16／18／19／21／22／23／25／31／32／33／35／36／98、D134、Deptrac／Architecture追加）を再確認した。ScheduledActorProvider、固定execution Actor、Scheduled Root Context、Inline／Deferred共通seam、Context／Journal Codec、Occurrence guarded transition、Transaction／Recoveryを実装する。CLI／Composition／Supervisor／Consumer／Guideは変更しない。TaskをIn Progressへ同期し、Commit／Push／Deployなし。
+```
+
+## P20-014C Orchestrator Ready Checkpoint
+
+```text
+2026-07-28T23:30:46+09:00
+P20-014B Acceptance後、Specification 98の次SliceをP20-014C Scheduled Operation Invocation／LifecycleとしてTask Packet化した。Public ScheduledActorProvider、Framework-fixed execution Actor、固定Occurrence Operation IDのScheduled Root Context、引数なしValue構築、既存Inline／Deferred Lifecycle接続、Deferred Context Codec／Worker Retry、Canonical／Observed Journal Schedule Context、Occurrence accepted／terminal transitionと同一Transaction RollbackをScopeとする。CLI／Application Composition／Supervisor／Consumer／GuideはP20-014D以降へ残す。TaskをReadyとし、Production実装をLuna High Workerへ委譲する。Existing Phase 20 Working Tree差分を保持し、Worker Commitなし。
+```
+
+## P20-014B Orchestrator Acceptance
+
+```text
+2026-07-28T23:28:02+09:00
+OrchestratorはP20-014BのPostgreSQL Schedule State／Occurrence、Forward Migration、Calendar Evaluator、Misfire／Overlap、DST、Concurrency／Rollback、claimed Recovery、UTC Timestamp精度をTask／Specificationへ照合した。時刻精度Correction後の独立Focused PHPUnit 55 tests／171 assertions、Full PHPUnit 1938 tests／7730 assertions、Mago format check、Changed Source targeted Mago analyze、Management-ID Guard、git diff --checkはPASS。Fullには既存PHP 8.5 ReflectionProperty deprecation 1件のみ。Broad MagoとDeptracはRepository既存Blocker、package export実行はWorker no-commitによりgit archive HEADへ新Migrationが入らないCommit-bound Gateだが、Export Contractへの必須Path追加は確認した。P20-014BをAcceptedとし、次はP20-014C Invocation／Actor／Transport／JournalをTask Packet化する。Commit／Push／Deployなし。
+```
+
+## P20-014B Worker Completion Checkpoint — Time Precision Correction
+
+```text
+2026-07-28T23:25:31+09:00
+ScheduleEvaluatorのClock instantをUTCで保持し、`scheduled_at`／`cursor_at`だけMinute floor、`evaluated_at`／`created_at`／`updated_at`と返却Occurrenceの`evaluatedAt`は秒・microsecondsを保持するよう補正した。`00:00:42.123456Z` DB-backed fixtureで監査TimestampとMinute境界を固定した。Focused Schedule／Migration PHPUnit 55 tests／171 assertions、Targeted Mago analyze、Mago format／format check、Full PHPUnit 1938 tests／7730 assertions（PHP8.5 deprecation 1件）PASS。TaskをReview Pending、Commit／Push／Deployなし。
+```
+
+## P20-014B Worker Completion Checkpoint — Console Regression Correction
+
+```text
+2026-07-28T23:20:13+09:00
+P20-014B Console Regression Correctionを完了した。DatabaseMigrationCommandTest／ApplicationConsoleKernelTestのFramework 7件、Application併用8件、pending／migrate／applied期待値を同期した。Individual Console PHPUnit 6 tests／89 assertions、Focused Schedule／Migration 54 tests／164 assertions、Full PHPUnit 1937 tests／7723 assertions PASS（PHP8.5 ReflectionProperty deprecation 1件）。TaskをReview Pendingとし、Production Source変更なし、Commit／Push／Deployなし。Package ExportはWorker未Commitのためgit archive HEADが新Migrationを含められずBLOCKED。
+```
+
+## P20-014B Worker Completion Checkpoint
+
+```text
+2026-07-28T23:16:10+09:00
+P20-014B PostgreSQL Schedule State／Occurrence、Calendar Evaluator、DST／misfire／overlap／recovery／rollback／two-connection convergenceを実装した。Focused migration/schema/scheduling PHPUnit 54 tests／164 assertions PASS（実PostgreSQL、Spring Gap、Fall Back first UTC、Wildcard／List／Range／Step／DOW 7、accepted overlap、cursor／recovery deterministic order、SQL parityを含む）。Targeted Mago analyze／format check、Management-ID Guard、git diff --check PASS。Full PHPUnitは既存Console migration期待値3件（pending 6/7が新Migration追加で7/8）でFAIL、Broad MagoはRepository既存Test解析Finding、Deptracは既存Nikic parser error、package exportはWorker未Commitのためgit archive HEADへ新Migrationを含められずFAIL（Composer archiveには環境の未追跡空`.claude` rootも出現）。TaskをReview Pendingとし、Commit／Push／Deployなし。
+```
+
+## P20-014B Worker Start Checkpoint
+
+```text
+2026-07-28T22:40:53+09:00
+P20-014B Task Packet／Specification 98／D134／PostgreSQL schema・migration・DBAL conventionsを確認した。Schedule State／Occurrence persistence、UTC cursor／FireOnce／Misfire／Overlap、DST calendar evaluation、row lock／unique convergence、Recovery Queryを実装する。Invocation／Actor／Transport／Journal／CLI／Composition／Guideは変更しない。P20-014BをIn Progressとし、既存Phase 20差分を保持、Commit／Push／Deployなし。
+```
+
+## P20-014B Orchestrator Ready Checkpoint
+
+```text
+2026-07-28T22:38:19+09:00
+P20-014A Acceptance後、Specification 98の次SliceをP20-014B PostgreSQL Schedule State／Occurrence／Calendar EvaluatorとしてTask Packet化した。schedule_statesのOperation Type／UTC Cursor、schedule_occurrencesのUTC Slot／State／Safe Category／Nullable固定Operation ID、Schema Helper／Forward Migration、First Evaluation、Cursor exclusive、FireOnce Misfire、Overlap Skip、DST Gap／Overlap first UTC、二Connection収束、Transaction Rollback、claimed Recovery QueryをScopeとする。Invocation／Actor／Authorization／Transport／Journal／CLI／Application Composition／Guideは接続しない。TaskをReadyとし、Production実装をLuna High Workerへ委譲する。Existing Phase 20 Working Tree差分を保持し、Commit／Push／Deployなし。
+```
+
+## P20-014A Orchestrator Acceptance
+
+```text
+2026-07-28T22:35:41+09:00
+OrchestratorはP20-014AのPublic Attribute Shape、Schedule Context、Metadata／Registry、Compiler、Manifest Schema 3、Cron Parser ModelをTask／Specificationへ照合した。Correction CycleでManifest DecoderのScheduledBy Reflection fallback、意図へ到達しないSchema fixture、Malformed Schedule coverage、未使用Validator、DOM／DOW OR常時true、DOW 7 Sunday normalizationを補正した。Focused PHPUnit 420 tests／961 assertions、最終Full PHPUnit 1912 tests／7659 assertions、Mago format、Changed Source targeted Mago analyze、Management-ID Guard、git diff --checkはPASS。Full初回のOutbox heartbeat timing failureは単独retryと最終FullでPASSした。Broad MagoはRepository既存Test解析Finding、Deptracは既存NikicFileReferenceVisitor Parser errorでBLOCKED。P20-014AをAcceptedとし、次はP20-014B PostgreSQL Schedule State／Occurrence／EvaluatorをTask Packet化する。Commit／Push／Deployなし。
+```
+
+## P20-014A Worker Completion Checkpoint
+
+```text
+2026-07-28T22:26:05+09:00
+P20-014A Authoring／Manifestを実装した。Public ScheduledBy（UTC／IANA／5 Field Cron validation）、ScheduleContext（UTC normalization）、OperationScheduleMetadata、ExecutionContext::schedule()、Schedule name Registry index、shared Internal CronExpression parser（DOM／DOW OR model、numeric wildcard／list／range／step、single-value step拒否、DOW 7→0 normalization）、Scheduled Value shape／private/abstract/required constructor／Ephemeral rejection、Repeated ScheduledBy／Inline／Deferred strategy tests、Manifest Schedule round-trip／Schema 3／payload validationを追加した。Focused PHPUnitは420 tests／961 assertions PASS。Full PHPUnitは1909 tests／7645 assertions中、既存Outbox heartbeat test 1件のflaky failure（PHP8.5 deprecation 1件）。Targeted Mago analyze／format check、Management-ID Guard、git diff --checkはPASS。Deptracは既存Parser errorで未完了。P20-014AをReview Pendingとし、Commit／Push／Deployなし。
+```
+
+## P20-014A Orchestrator Ready Checkpoint
+
+```text
+2026-07-28T22:04:47+09:00
+D134の確定回答をSpecification 98へ同期し、Scheduled Application OperationをP20-014A Authoring／Manifest、P20-014B PostgreSQL／Evaluator、P20-014C Invocation／Actor／Journal、P20-014D CLI／Composition／Consumer、P20-014E Guide／Documentation Reviewへ分割した。最初のP20-014AはPublic `ScheduledBy`、ScheduleContext、OperationScheduleMetadata、5 Field POSIX Cron Build Validation、Schedule名Registry、Operation Manifest Schema 3だけを実装する。Runtime／Transport／Journal／Database／CLI／Guide／New Dependencyは変更しない。Task PacketをReadyとし、Production実装をLuna High Workerへ委譲する。Existing Phase 20 Working Tree差分を保持し、Worker Commitなし。
+```
+
+## P20-013 Scheduled Application Operation Decision Acceptance
+
+```text
+2026-07-28T21:59:21+09:00
+UserはD134 Question 1〜8のRecommendation A一式を承認した。一Operation一Schedule、明示Identity、5 Field POSIX Cron／IANA Timezone、必須引数なしOperationValue、ExecutionContext Schedule Context、FireOnce、Overlap Skip、PostgreSQL Occurrence一意制約、ScheduledActorProvider、一回実行`operation:schedule:run`を確定した。D134をDecided、P20-013をAccepted、TODO／Decision Index／Reportを同期する。次はSpecification 98とPublic Attribute／Schedule Context／Manifest Contractの最初のProduction Taskを作成する。Production Code／Guide／Website、Commit／Push／Deployは未変更。
+```
+
+## P20-013 Scheduled Application Operation Decision Checkpoint
+
+```text
+2026-07-28T20:53:20+09:00
+P20-012 Acceptance後のPhase 20残件を照合し、次TaskをScheduled Application Operation Contractと確定した。D115／Specification 82とCurrent Operation Metadata、Console Value Binding、Deferred Acceptance、Idempotency、ExecutionContext、Maintenance Scheduler、Actor Sourceを監査した。Cron Attributeだけでは未定義となるOperationValue生成、Schedule Context、Actor、Occurrence Persistence、Journal、CLIをP20-013／D134へ追加した。Recommendationは一Operation一Schedule、明示Identity、5 Field Cron／IANA Timezone、必須引数なしValue、ExecutionContext Schedule Context、FireOnce、Overlap Skip、PostgreSQL Occurrence一意制約、ScheduledActorProvider、`operation:schedule:run`である。D134 Question 1〜8はUser Decision Pending。Production Code／Guide／Website、Commit／Push／Deployは変更していない。
+```
+
+## P20-012 Orchestrator Acceptance
+
+```text
+2026-07-28T17:29:30+09:00
+OrchestratorはD133／Specification 97／P20-012、全38 Source Coverage、Publication／Retention／Observer Replay Accuracy、Editorial GuardをSource／Runtime Testへ照合した。Correction Cycleで内部運用語、一般語、Community Board確認ラベル、長段落、state-aware HTML Comment、content-map description、Comment内PHP／Shell／Mermaid fence境界を補正した。Orchestrator再実行のWebsite test 73、check 38 pages、build 39 pages／artifact／site guard、Mago format、Management-ID Guard、git diff --checkはPASS。最新localhost:4322で全38 Routeを1440px Light／Darkと390px Lightの計114条件、Clipboard成功／失敗、重点5 PageとSearch Artifactを確認し、Current Source、active navigation、overflowなし、指定Landingを確認した。Documentation Reviewerの最終判定はP1／P2／P3なし、Recommendation Accept。P20-012をAcceptedとし、Commit／Push／PR／External Deployは未実行。
+```
+
+## P20-012 Final P2 Guard Checkpoint
+
+```text
+2026-07-28T17:27:40+09:00
+Editorial GuardのHTML Comment処理をfence判定より前へ移し、複数行CommentがPHP／Shell／Mermaid fenced code全体を非表示として除外するstate-aware処理へ修正した。Comment終了後の可視禁止語拒否と、Comment内の3言語fence許可をFixtureで固定した。Website test 73、check 38 pages、Management-ID Guard、git diff --checkはPASS。Magoの以前の必須実行はPASS、最終retryはDocker API permission deniedでBLOCKED。Task／TODO／ReportをReview Pendingへ同期し、Commit／Push／Deployなし。
+```
+
+## P20-012 Final Correction Checkpoint
+
+```text
+2026-07-28T17:18:29+09:00
+P20-012 Correctionを完了した。READMEの既定Worker／メニュー／検索、installationの明示的なコマンド、database-migrationsのディレクトリ表現、runtime-bootstrapの既定Worker Modeを利用者向け日本語へ同期した。Community Boardの確認方法ラベル、deployment／project-cli／project-generators／console-command／executionの見出しとリンク、outboxのプロセス一覧リンク、security／execution／project-cliの長段落をContract維持のまま分割した。Editorial Guardはstate-aware HTML Comment、content-map description、Task Report／Consumer Evidence／Phase番号／内部Evidence語を検査し、single／multiline commentとpositive／negative fixtureを追加した。Website test 73、check 38 pages、Mago format、Management-ID Guard、git diff --checkはPASS。39-page外部Build／artifact／site guardはPASS、最終sandbox再BuildはBlume font serverのlisten EPERMで失敗した。Task／TODO／ReportをReview Pendingへ同期し、Commit／Push／Deployなし。
+```
+
+## P20-012 Correction Cycle Checkpoint
+
+```text
+2026-07-28T16:20:02+09:00
+Orchestrator再監査で判明したP3内部運用語を利用者向け日本語へ修正した。authenticationのTask Report、configurationのPhase 14／File／Local File Path、mvp-statusのConsumer Evidence／External Publication／Deploy、testingのConsumer Evidence／保守Evidence／Worker Retry Evidenceを除去し、Community BoardとDocumentation Websiteの公開状態をBoard Local／CI only・Website Cloudflare Pagesへ再分離した。Editorial GuardへTask Report、Consumer Evidence、Phase番号、保守Evidence、Worker Retry Evidence、stale shared publication claimの表示Prose検査と保護Fixtureを追加した。Retentionのidempotency_record_days省略時の最長値とPlan成功Exit Code 0を復元する。P20-012をIn Progressへ戻し、再検証後Review Pendingへ同期する。
+```
+
+## P20-012 Worker Completion Checkpoint
+
+```text
+2026-07-28T16:14:19+09:00
+全38 `docs/guide/*.md`をSpecification 97のPage Type MatrixでReviewし、変更不要PageもCoverageへ記録した。PublicationをCloudflare Pages公開済み、BlackOps BoardをLocal／CI onlyへ分離し、RetentionへHost／ContainerのPlan／Purge dry-run／confirmとRuntime出力、Observer Replayへdry-run／confirm／resumeの3 Modeを反映した。Fence／Inline Code aware Editorial Guardは表示Prose、Code Comment、Mermaid accTitle／accDescr／quoted Labelを検査し、Execution Token、Exact Output、JSON／JSONL、Inline Code、Link Target、HTML Comment、Mermaid Syntaxを保護するFixtureを追加した。Website test 71、check 38 pages、build 39 pages／artifact／site guard、Mago format、Management-ID Guard、git diff --checkはPASS。Task／TODO／ReportをReview Pendingへ同期し、Commit／Push／Deploy、Framework src、Example／Consumer、Generated Content／distは変更していない。
+```
+
+## P20-012 Worker Start Checkpoint
+
+```text
+2026-07-28T16:03:06+09:00
+Task Packet P20-012、D133、Specification 97、D117／Specification 84、Specification 92／59、D129／D130、既存P20-007〜P20-011 Reportを正本順に確認した。全38 `docs/guide/*.md`をPage Type Matrixへ割り当て、Glossary／Public API Conceptを保護し、Publication、Retention、Observer Replay、Editorial Guard、Content Map DescriptionをAccuracy Evidenceと照合する。P20-012をIn Progressへ同期し、Landing exact-copy、Public Contract、IA／Slug／H1、既存P20差分、Framework src／Example／Consumer／Stable tag、Generated Content／dist、Commit／Push／Deployを変更しない。
+```
+
+## P20-012 Orchestrator Ready Checkpoint
+
+```text
+2026-07-28T16:02:05+09:00
+Documentation Reviewerの全Site Baselineで、Documentation Website公開状態の古い説明、Retentionのコピー不能な省略Command、Observer Replayのdry-run／confirm／resume境界、Public Concept保護一覧、Editorial Guardの可視Mermaid／Code Comment境界、38 SourceのPage Type割当を確認した。D133／Specification 97／P20-012へGlossaryとPublic APIを正本とするConcept保護、38/38 Coverage Matrix、Host／Container Retention手順と期待出力、Replay 3 Mode、表示Prose／Comment／Mermaid Labelを対象にしたGuard Fixture、既存Landing exact-copy Fixtureを反映した。P20-012をReadyとし、全Page文章編集とRegression実装をLuna High Workerへ委譲する。Framework src、Public API、Landing、IA、Stable tag、Commit／Push／Deployは変更しない。
+```
+
+## P20-012 Orchestrator Draft Checkpoint
+
+```text
+2026-07-28T15:48:08+09:00
+D117／Specification 84の最終Editorial StageとしてP20-012をDraftした。全38 docs/guide Sourceを横断監査し、BlackOps ConceptとOfficial Product名を維持したまま、Page／File／Command／Example等の一般語、NuxtJS、Latest Stable、Document Channel、Troubleshooting English Label、仕様書調の混在を確認した。D133／Specification 97で日本語のです・ます調、Version Lane、Concept／How-to／Reference／TroubleshootingのReader Contract、Fence／Inline Code aware Guardを定義した。Releasesに残るDocumentation Website未公開の古い説明はD129／D130／P20-009G Acceptanceへ同期する。Landing指定Copy／Layout、Public Slug、Navigation、H1、Header、Banner、Search、Site UX、Framework Production Code、Stable tag、Commit／Push／Deployは変更しない。Documentation Reviewerの全Site Baseline Findingを反映してTask PacketをReadyにしてからLuna High Workerへ委譲する。
+```
+
+## P20-011 Orchestrator Acceptance
+
+```text
+2026-07-28T15:15:04+09:00
+OrchestratorはP20-011のCallout／Code Copy／Previous-Next／Edit Link／Japanese Font／Inline Code／Landing境界をD132／Specification 96へ照合した。Playwright Chromium 1.61.1で全38 Public Routeを1440px Light／Darkと390px Lightの3条件、計114 Page checksで測定し、HTTP 200、H1、Sidebar current、Canonical Pagination、Tracked docs/guide Edit URL、Header GitHub、Japanese Font、7 Callout、Page Overflowなしを確認した。Clipboard成功はExact Code Text、失敗はwrite 1回を実測し、双方でFocus保持と日本語Label／aria-live Statusを確認した。Landing／Install／First Operation／Outboxの12 Screenshotを目視し、指定Hero／CTA／三Feature、Light-Dark、Mobile一列、Callout、Paginationの崩れなし。Orchestrator再実行のWebsite test 69、check 38 pages、Management-ID Guard、git diff --checkもPASS。Documentation Reviewerの最終判定はP1／P2／P3なし、Recommendation Accept。P20-011をAcceptedとし、Commit／Push／PR／External Deployは未実行。次はP20-012の表記Guidelineと全Page文章編集Pass。
+```
+
+## P20-011 Worker Completion Checkpoint
+
+```text
+2026-07-28T14:47:13+09:00
+P20-011の許可FileへBlume native Callout、Canonical Sidebar root Pagination、content-mapのTracked docs/guide Edit URL、日本語UI／Font Stack、Inline Code Wrap、Landing decorative section number削除を反映した。Callout／MermaidのFence-aware MDX判定をRegressionで固定し、Install／Quickstart／First Operation／Authentication／Frontend／Outbox／Deploymentの7 PageへStable／main／Risk境界Calloutを接続した。NoEditLayoutはBlume native Clipboard／Check／Focusを維持し、native buttonのcopy→check Mutationを監視して成功／失敗aria-live statusを通知するため、read-only ClipboardでもwriteTextの二重実行をしない。Blume visible chromeのExport／Generatingも日本語UIへ補完した。Website test 69、check 38 pages、build 39 pages／artifact／site guard、Mago format、Management-ID Guard、git diff --checkはPASS。Generated Content／dist、Framework src、Dependency、Commit／Push／Deployは変更していない。Browser Desktop／Dark／Mobile 390pxの最終視覚確認はOrchestrator Reviewへ委譲し、P20-011をReview Pending、Worker Commitなしとする。
+```
+
+## P20-011 Worker Start Checkpoint
+
+```text
+2026-07-28T14:08:53+09:00
+Task Packet P20-011、D132、Specification 96、D117／Specification 84、Specification 87／90／92、Blume 1.1.4 native sourceを確認した。Preserve redesignとして既存Landing／IA／Public Slug／Sidebar／blue-teal／Light-Darkを維持し、Callout fence-aware MDX判定、native PaginationのCanonical Sidebar Adapter、content-map Source Edit Link、Japanese UI／Font Stack、native Code Copyの成功／失敗Accessible Status、Inline Code Wrap、Landing decorative 01／02削除を許可Fileへ実装する。Generated Content／dist、Framework src、Dependency、Commit／Push／Deployは変更しない。P20-011をIn Progressとし、Review Pendingで返す。
+```
+
+## P20-011 Orchestrator Start Checkpoint
+
+```text
+2026-07-28T14:03:03+09:00
+Userの継続指示を受け、D117の順序に従いSite UXと全Page文章編集を分離し、P20-011を開始した。Preserve redesignとしてDesign Variance 5／Motion 3／Density 5を採用し、既存Blume 1.1.4、BlackOps Theme、Public Slug、Sidebar、Landing指定Copy／CTA／三Feature、Header、Banner、Search、Redirectを維持する。Baseline BrowserではNative Code Copyが英語`Copy code`、Callout／Edit Link／Paginationが0件、First Operation 390pxがpage scrollWidth 439／clientWidth 390だった。Generated NavigationのManual EntryはpageIdが空でNative Paginationへ渡らず、Generated Source Edit URLはdocs/website/src/content/docsを指すためNoEditLayoutが無効化している。D132／Specification 96でNative Component優先、Callout MDX判定、Canonical Sidebar Pagination Adapter、content-mapからdocs/guide Edit Link、Japanese Font Stack、Inline Code Wrap、Decorative Landing Section Number削除を確定した。P20-011 Task PacketをReadyとし、全Page文章編集はP20-012へ残す。Framework src、Blume Version、New Dependency、Commit／Push／Deployは変更しない。
+```
+
+## P20-010 Orchestrator Acceptance
+
+```text
+2026-07-28T01:39:06+09:00
+OrchestratorはTesting／Deployment／ConsoleCommand／Outbox／BlackOps CLIをCurrent Console Source、Consumer／Example、Stable tag 1.1.0へ独立照合した。Documentation Reviewerが検出したObserver Replay／Retention必須Option、Testing Outbox Evidence、Outbox Recipe完走性と、Orchestratorが検出したoperation:list Source Discovery、Dead Letter必須値、Outbox 390px横OverflowをCorrectionした。最終Reviewer判定はP1／P2／P3すべてNone、Recommendation Accept。Orchestrator再実行のWebsite test 64、check 38 pages、build 39 pages／artifact／site guard、Mago format、Management-ID guard、git diff --checkはPASS。Playwrightで全5 RouteのHTTP 200、H1、Sidebar current各1件、Desktop 1440px Light／DarkとMobile 390pxのPage Overflowなし、Table／Codeの局所横Scrollを確認した。P20-010をAccepted、TODOを完了とする。Commit／Push／PR／External Deployは未実行。
+```
+
+## P20-010 Browser Correction Checkpoint
+
+```text
+2026-07-28T01:33:49+09:00
+Orchestratorの390px Browser実測で`/execution/outbox`の本文inline code pathがpage scrollWidth 502／clientWidth 390を生んだため、配置一覧後の長いinline pathをbasenameへ短縮した。完全Pathはfenced textの配置一覧に維持し、Theme／CSSとfenced code blockのlocal scrollは変更していない。Website test 64、check 38 pages、git diff --checkはPASS。Task／ReportはReview Pending、Commitなし。
+```
+
+## P20-010 Correction Verification Checkpoint
+
+```text
+2026-07-28T01:28:45+09:00
+CLI Source照合Correctionを反映した。`operation:list`はApplicationConfigurationSnapshot＋ApplicationOperationDiscoveryでSourceをDiscoverしMetadata Compilerで表示するRuntimeであり、Build Artifact依存ではないことをMatrix／本文へ明記した。Dead Letter Matrixの`--actor --reason`を値付き`--actor=<actor> --reason=<reason>`へ修正し、値なしInvalidArgumentException契約と一致させた。Website test 64、check 38 pages、Community Board product journey、git diff --checkはPASS。Task／ReportはReview Pending、Commitなし。
+```
+
+## P20-010 Correction Checkpoint
+
+```text
+2026-07-28T01:25:20+09:00
+Documentation Reviewer候補FindingをCorrectionした。CLI Observer Replayへ必須Selector／Observer／Checkpoint／Actor／Reason、Retentionへ必須daysとPurge dry-run／confirmの実行例、TestingへOutbox Evidenceとしてcommunity-board-product-journey.shを反映した。Outbox GuideはCommunity Board Source準拠のfile placement、Value／Outcome／Repository／Infrastructure境界、Root Operation、Deferred child、Dispatch Receiptをfile別PHP fenceへ補完した。Website test 64、check 38 pages、build 39 pages／artifact／site guard、git diff --checkはPASS。HostにPHP binaryがないためPHP fence regressionはStatic fallback（double Backslashなし・class宣言）を通過。Task／ReportはReview Pending、Commitなし。
+```
+
+## P20-010 Worker Completion Checkpoint
+
+```text
+2026-07-28T01:12:01+09:00
+P20-010でTesting／Deployment／ConsoleCommand／Outbox／BlackOps CLIをTask-oriented Guideへ整理し、Testing 5 Layer／Negative Matrix、Release Journey／Process Matrix／Smoke／Shutdown／Rollback、Console Attribute→Build→Help→Human／JSON→Exit→Authorization、Outbox Dispatch→Commit→Relay→Worker→Status／Journal→Retry／Dead Letter、CLI Task Matrixを実装した。Current Console Source、Consumer／Example Evidence、Stable tag 1.1.0へ照合し、Migration→Build順、Application-owned Health Route、SchedulerのSupervisor停止、Frontend transport code、DispatchReceipt child IDを補正した。Website test 64、check 38 pages、build 39 pages／artifact／site guard、Quickstart E2E、Community Board Digest、Mago format、Management-ID guard、git diff --checkはPASS。Task／TODO／ReportをReview Pendingへ同期し、Framework src、Consumer／Example、Site UX、Stable tag、Commit／Push／Deployは変更していない。
+```
+
+## P20-010 Worker Start Checkpoint
+
+```text
+2026-07-28T00:54:23+09:00
+Task Packet P20-010、D131、Specification 95、D117／Specification 84、Documentation Reviewer契約を確認した。Testing／Deployment／ConsoleCommand／Outbox／BlackOps CLIの既存Guideと、src/Internal/Console/**、tests/Consumer/**、examples/quickstart/**、examples/community-board/**、Stable tag 1.1.0をAccuracy Evidenceとして照合する。許可されたdocs/guide、Website regression、Decision／Specification／TODO／STATE／Reportだけを変更し、Framework src、Consumer Test、Example、Migration、Site UX、Stable tag、Commit／Push／Deployは変更しない。WorkerはReview Pendingで返し、Commitしない。
+```
+
+## P20-010 Orchestrator Start Checkpoint
+
+```text
+2026-07-28T00:49:50+09:00
+Userの進行指示を受け、Phase 20の次Task P20-010を開始した。現行GuideとD117／Specification 84を照合し、Testing／Deploymentは確認事項中心、ConsoleCommand／Outboxは実行手順がBlackOps CLI Reference等へ分散し、CLI ReferenceはProcess、変更有無、主要Option、期待結果を比較しにくいことを確認した。D131／Specification 95でTask Recipe共通要素、Testing 5 Layer、Deployment Process Matrix、ConsoleCommand、Outbox、Task-oriented CLI Reference、Stable／main境界を確定した。Auth／Frontend／Databaseの既存手順、Public Slug、Navigation、Landing、Theme、Search、Framework Production Codeは変更せず、P20-011以降のSite UX／全Page編集を分離する。P20-010 Task PacketをReadyとし、Luna High WorkerへDocumentation実装を委譲する。
+```
 
 ## P20-009G Orchestrator Acceptance
 

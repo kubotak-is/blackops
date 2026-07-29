@@ -1,6 +1,6 @@
 # Attributes
 
-BlackOpsはOperation、Transaction、Value Validation、HTTP Binding、Observed Journal ProjectionのMetadataをPHP Attributeで宣言します。このPageは利用者向けPublic Attribute 24件をSourceと照合しています。`PublicApi` marker自身はFrameworkが公開境界を管理するためのMetadataであり、Application Authoringには使いません。
+BlackOpsはOperation、Transaction、Value Validation、HTTP Binding、Observed Journal ProjectionのMetadataをPHP Attributeで宣言します。このページは利用者向けPublic Attribute 25件をSourceと照合しています。`PublicApi` marker自身はFrameworkが公開境界を管理するためのMetadataであり、Application Authoringには使いません。
 
 ## Operation Attributes
 
@@ -168,3 +168,13 @@ readonly class PlaceOrder implements Operation
 ```
 
 この標準形には`#[Accepts]`、`#[Returns]`、`#[HandledBy]`がありません。BuildがSignatureからValue、Outcome、Handlerを確定します。Authoringの詳細は[Authoring](operations.md)、Security境界は[Security](security.md)を確認してください。
+
+`#[ConsoleCommand]`を付けたOperationのBuild、Help、Human／JSON、Exit、Authorizationは[ConsoleCommand](console-command.md)の実行手順で確認できます。
+
+## ScheduledBy
+
+| Attribute | 用途 | 付与対象 | 最小例 |
+| --- | --- | --- | --- |
+| `BlackOps\Core\Attribute\ScheduledBy` | Application Scheduleの名前、5 Field Cron、IANA Timezoneを宣言する | Operation Class | `#[ScheduledBy(name: 'reports.daily', cron: '0 0 * * *', timezone: 'Asia/Tokyo')]` |
+
+`ScheduledBy`は非Repeatableで、同じApplication内のSchedule名は一意です。Execution Strategyは変更せず、InlineはExecution Strategy Attributeを省略し、Deferredは`#[Deferred]`を使います。詳細は[Scheduled Operation](scheduled-operation.md)を参照してください。

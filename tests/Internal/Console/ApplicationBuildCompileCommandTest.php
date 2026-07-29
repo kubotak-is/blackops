@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace BlackOps\Tests\Internal\Console;
 
+use BlackOps\Core\ActorRef;
 use BlackOps\Core\Attribute\Authorize;
 use BlackOps\Core\Attribute\OperationType;
+use BlackOps\Core\Attribute\ScheduledBy;
 use BlackOps\Core\Authorization\AuthorizationDecision;
 use BlackOps\Core\Authorization\AuthorizationPolicy;
 use BlackOps\Core\Authorization\AuthorizationRequest;
@@ -15,6 +17,7 @@ use BlackOps\Core\Operation;
 use BlackOps\Core\OperationValue;
 use BlackOps\Core\Outcome;
 use BlackOps\Core\Registry\OperationProvider;
+use BlackOps\Core\ScheduleContext;
 use BlackOps\Database\DatabaseManager;
 use BlackOps\Http\Routing\HttpOperationManifestFile;
 use BlackOps\Internal\Application\ApplicationConfigurationSnapshot;
@@ -23,6 +26,7 @@ use BlackOps\Internal\Execution\ExecutionScopeProvider;
 use BlackOps\Internal\Frontend\FrontendContractManifestFile;
 use BlackOps\Internal\Registry\OperationManifestFile;
 use BlackOps\Internal\Transaction\RuntimeTransactionServiceInjector;
+use BlackOps\Scheduling\ScheduledActorProvider;
 use BlackOps\Status\OperationStatusAuthorizationDecision;
 use BlackOps\Status\OperationStatusAuthorizationRequest;
 use BlackOps\Status\OperationStatusAuthorizer;
@@ -139,6 +143,73 @@ final class ApplicationBuildCompileCommandTest extends TestCase
         }
     }
 
+    public function testRejectsAuthorizedScheduledOperationWhenActorProviderIsMissing(): void
+    {
+        $configuration = $this->scheduledConfiguration(
+            [ApplicationBuildScheduledOperationProvider::class],
+            [],
+            'application-build-scheduled-missing-provider',
+        );
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('scheduled actor provider');
+
+        new CommandTester(new ApplicationBuildCompileCommand($configuration))->execute([]);
+    }
+
+    public function testRegistersConfiguredScheduledActorProviderInCompiledContainer(): void
+    {
+        $configuration = $this->scheduledConfiguration(
+            [ApplicationBuildScheduledOperationProvider::class],
+            [ApplicationBuildScheduledActorServiceProvider::class],
+            'application-build-scheduled-provider',
+        );
+        $build = $configuration->configuration()['app']['build'];
+        $containerPath = (string) $build['container'];
+        $containerClass = __NAMESPACE__ . '\\GeneratedScheduled\\' . (string) $build['container_class'];
+
+        self::assertSame(0, new CommandTester(new ApplicationBuildCompileCommand($configuration))->execute([]));
+        require_once $containerPath;
+
+        $container = new $containerClass();
+        self::assertInstanceOf(
+            ApplicationBuildScheduledActorProvider::class,
+            $container->get(ScheduledActorProvider::class),
+        );
+    }
+
+    /** @param list<class-string<OperationProvider>> $operations @param list<class-string<ServiceProvider>> $services */
+    private function scheduledConfiguration(
+        array $operations,
+        array $services,
+        string $buildId,
+    ): ApplicationConfigurationSnapshot {
+        return new ApplicationConfigurationSnapshot(
+            dirname(__DIR__, 3),
+            [
+                'app' => [
+                    'build' => [
+                        'operation_manifest' => $this->path('scheduled-operation-manifest-' . bin2hex(random_bytes(4))),
+                        'http_manifest' => $this->path('scheduled-http-manifest-' . bin2hex(random_bytes(4))),
+                        'frontend_manifest' => $this->path('scheduled-frontend-manifest-' . bin2hex(random_bytes(4))),
+                        'container' => $this->path('scheduled-container-' . bin2hex(random_bytes(4))),
+                        'container_class' => 'ScheduledApplicationBuildContainer' . bin2hex(random_bytes(4)),
+                        'container_namespace' => __NAMESPACE__ . '\\GeneratedScheduled',
+                        'application_build_id' => $buildId,
+                    ],
+                ],
+                'database' => [
+                    'default' => 'app',
+                    'connections' => ['app' => ['driver' => 'pdo_pgsql']],
+                    'framework' => ['connection' => 'app', 'schema' => 'blackops'],
+                ],
+            ],
+            $operations,
+            $services,
+            [],
+        );
+    }
+
     private function path(string $name): string
     {
         return $this->directory . '/' . $name . '.php';
@@ -230,6 +301,53 @@ final readonly class ApplicationBuildAuthorizationPolicy implements Authorizatio
         public ApplicationBuildPolicyDependency $dependency,
     ) {}
 
+    public function decide(AuthorizationRequest $request): AuthorizationDecision
+    {
+        return AuthorizationDecision::allow();
+    }
+}
+
+final readonly class ApplicationBuildScheduledOperationProvider implements OperationProvider
+{
+    public function definitions(): iterable
+    {
+        return [ApplicationBuildScheduledOperation::class];
+    }
+}
+
+final readonly class ApplicationBuildScheduledActorServiceProvider implements ServiceProvider
+{
+    public function register(ServiceRegistry $services): void
+    {
+        $services->autowire(ScheduledActorProvider::class, ApplicationBuildScheduledActorProvider::class);
+    }
+}
+
+final readonly class ApplicationBuildScheduledActorProvider implements ScheduledActorProvider
+{
+    public function actor(ScheduleContext $context): ?ActorRef
+    {
+        return null;
+    }
+}
+
+final readonly class ApplicationBuildScheduledValue implements OperationValue {}
+
+final readonly class ApplicationBuildScheduledOutcome implements Outcome {}
+
+#[OperationType('application.build.scheduled')]
+#[ScheduledBy(name: 'application.build.scheduled', cron: '* * * * *')]
+#[Authorize(ApplicationBuildScheduledAuthorizationPolicy::class)]
+final readonly class ApplicationBuildScheduledOperation implements Operation
+{
+    public function handle(ApplicationBuildScheduledValue $value): ApplicationBuildScheduledOutcome
+    {
+        return new ApplicationBuildScheduledOutcome();
+    }
+}
+
+final readonly class ApplicationBuildScheduledAuthorizationPolicy implements AuthorizationPolicy
+{
     public function decide(AuthorizationRequest $request): AuthorizationDecision
     {
         return AuthorizationDecision::allow();

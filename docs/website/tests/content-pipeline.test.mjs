@@ -63,6 +63,23 @@ test('removes the previous generated extension when Mermaid content changes', as
   assert.equal(await fileExists(path.join(fixture.root, 'output/content/index.mdx')), false);
 });
 
+test('uses MDX for native callouts while ignoring callout text inside fenced code', async (context) => {
+  const fixture = await fixtureRoot(context);
+  await sources(fixture.source, {
+    'README.md': '# Home\n\n:::info[Stable]\nUse the stable install.\n:::\n\n```text\n:::warning\nnot a directive\n:::\n```\n',
+  });
+
+  const result = await generate(fixture);
+  assert.match(result.manifest, /"generated": "index\.mdx"/);
+  assert.equal(await fileExists(path.join(fixture.root, 'output/content/index.mdx')), true);
+
+  await sources(fixture.source, { 'README.md': '# Home\n\n```text\n:::warning\nnot a directive\n:::\n```\n' });
+  const plain = await generate(fixture);
+  assert.match(plain.manifest, /"generated": "index\.md"/);
+  assert.equal(await fileExists(path.join(fixture.root, 'output/content/index.md')), true);
+  assert.equal(await fileExists(path.join(fixture.root, 'output/content/index.mdx')), false);
+});
+
 test('rejects a page without a level-one title', async (context) => {
   const fixture = await fixtureRoot(context);
   await sources(fixture.source, { 'missing.md': '## Missing\n' });

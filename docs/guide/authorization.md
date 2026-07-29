@@ -103,3 +103,5 @@ $services->autowire(OperationStatusAuthorizer::class, InvoiceStatusAuthorizer::c
 ```
 
 RequestのCurrent／Origin ActorとDecisionを使うStatus専用Policyであり、Operationの`#[Authorize]`とは別の責務です。
+
+Scheduled Operationの`#[Authorize]`はConsole用Actorと共用しません。Application-owned `ScheduledActorProvider`をService ProviderへBindingし、Schedule ContextからOrigin／Authorization Actorを解決します。登録手順とProvider欠落時のBuild Errorは[Authorized ScheduleのProvider](scheduled-operation.md#authorized-scheduleのprovider)を参照してください。

@@ -131,6 +131,19 @@ final class ApplicationConsoleKernelTest extends TestCase
         self::assertDirectoryDoesNotExist($directory . '/app');
     }
 
+    public function testScheduledUnknownOptionReturnsSafeExitTwoThroughApplicationKernel(): void
+    {
+        $application = Application::configure($this->directory())->create();
+        $output = new BufferedOutput();
+
+        self::assertSame(2, $application->console()->run(new ArrayInput([
+            'command' => 'operation:schedule:run',
+            '--unknown' => true,
+            '--json' => true,
+        ]), $output));
+        self::assertSame('{"schemaVersion":1,"status":"failed","code":"configuration_error"}' . "\n", $output->fetch());
+    }
+
     public function testReplayListAndHelpDoNotTouchConfiguredJsonlPath(): void
     {
         $directory = $this->directory();

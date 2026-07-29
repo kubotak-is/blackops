@@ -1,33 +1,121 @@
 # Retention
 
-BlackOpsは基本4期間 — Transport Payload、Canonical [Journal](glossary.md#journal)、[Outcome](glossary.md#outcome)、[Dead Letter](glossary.md#dead-letter) — と任意の`idempotency_record_days`（省略時は4期間の最長値）を独立した保持対象として管理します。Public Console Kernelは`config/retention.php`のこれらと`policy_ref`、`actor`をPlan／PurgeとSchedulerで共有し、Command Option省略時のAccepted Policyとして使います。
+BlackOpsはTransport Payload、Canonical [Journal](glossary.md#journal)、[Outcome](glossary.md#outcome)、[Dead Letter](glossary.md#dead-letter)、Idempotency Recordの5つを独立した保持対象として管理します。`config/retention.php`の期間、`policy_ref`、`actor`はPlan／PurgeとSchedulerで共有するAccepted Policyです。`idempotency_record_days`を省略した場合は、4つの基本期間の最長値をIdempotency Recordの期間に使います。
 
-候補を確認するときは、副作用のないPlan Commandを使います。
+## 1. Planを確認する
 
-```text
-retention:plan
-  --transport-payload-days=7
-  --journal-days=30
-  --outcome-days=14
-  --dead-letter-days=90
+Planは候補を読むだけで、DatabaseやJournalを変更しません。Project RootのHostでは次を実行します。
+
+```bash
+php blackops retention:plan \
+  --transport-payload-days=7 \
+  --journal-days=30 \
+  --outcome-days=14 \
+  --dead-letter-days=90 \
   --idempotency-record-days=90
 ```
 
-Purge Commandは`--dry-run`または`--confirm`のどちらかを要求します。Confirm時は監査用のPolicy ReferenceとActorも指定します。
+Containerから実行する場合は、同じ引数を`app`へ渡します。
+
+```bash
+docker compose run --rm app php blackops retention:plan \
+  --transport-payload-days=7 \
+  --journal-days=30 \
+  --outcome-days=14 \
+  --dead-letter-days=90 \
+  --idempotency-record-days=90
+```
+
+成功時の終了Codeは0です。次の形式を返します。`N`は候補件数で、候補がある場合は対象ごとのIDと期限も続きます。
 
 ```text
-retention:purge
-  --confirm
-  --transport-payload-days=7
-  --journal-days=30
-  --outcome-days=14
-  --dead-letter-days=90
+Retention plan
+Total: N
+transport_payload: N
+journal: N
+outcome: N
+dead_letter: N
+idempotency_record: N
+```
+
+## 2. PurgeをDry-runする
+
+変更前にPurgeの対象を再確認します。`--dry-run`は副作用がなく、Planと同じ5対象の件数を返します。
+
+```bash
+php blackops retention:purge \
+  --dry-run \
+  --transport-payload-days=7 \
+  --journal-days=30 \
+  --outcome-days=14 \
+  --dead-letter-days=90 \
   --idempotency-record-days=90
-  --policy-ref=production-retention-v1
+```
+
+```bash
+docker compose run --rm app php blackops retention:purge \
+  --dry-run \
+  --transport-payload-days=7 \
+  --journal-days=30 \
+  --outcome-days=14 \
+  --dead-letter-days=90 \
+  --idempotency-record-days=90
+```
+
+成功時の終了Codeは0です。出力は次のとおりで、`--dry-run`ではPurge Auditも保存しません。
+
+```text
+Retention purge dry run
+Total: N
+transport_payload: N
+journal: N
+outcome: N
+dead_letter: N
+idempotency_record: N
+```
+
+## 3. 承認済みのPurgeを実行する
+
+対象とPolicyを確認した後だけ`--confirm`を使います。Policy ReferenceとActorはPurge Auditへ記録されます。
+
+```bash
+php blackops retention:purge \
+  --confirm \
+  --transport-payload-days=7 \
+  --journal-days=30 \
+  --outcome-days=14 \
+  --dead-letter-days=90 \
+  --idempotency-record-days=90 \
+  --policy-ref=production-retention-v1 \
   --actor=system:retention
 ```
 
-Kernel構成、`list`、`help`ではRetention ConnectionやPurge Serviceを構成せず、Purgeも実行しません。`retention:purge --confirm`または明示的なScheduler Commandだけが変更を開始します。
+Containerでは同じ確認済みCommandを次のように実行します。
+
+```bash
+docker compose run --rm app php blackops retention:purge \
+  --confirm \
+  --transport-payload-days=7 \
+  --journal-days=30 \
+  --outcome-days=14 \
+  --dead-letter-days=90 \
+  --idempotency-record-days=90 \
+  --policy-ref=production-retention-v1 \
+  --actor=system:retention
+```
+
+変更が適用された場合は次の形式を返します。`total_affected`は実際に変更した件数です。
+
+```text
+Retention purge applied
+planned: N
+transport_payload_purged: N
+dead_letters_deleted: N
+idempotency_records_deleted: N
+total_affected: N
+```
+
+`--confirm`だけがPayload、Journal、Outcome、Dead Letter、Idempotency Recordを変更し、Purge Auditを同じDatabase Transactionで保存します。`list`、`help`、Kernel構成の読み込みはPurgeを開始しません。Active Retention HoldのOperationはPlanとPurgeの対象外です。
 
 ## Journal Retention
 

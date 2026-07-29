@@ -13,6 +13,7 @@ use BlackOps\Core\Identifier\AttemptId;
 use BlackOps\Core\Identifier\CausationId;
 use BlackOps\Core\Identifier\CorrelationId;
 use BlackOps\Core\Identifier\OperationId;
+use BlackOps\Core\ScheduleContext;
 use BlackOps\Core\Time\TimeCodec;
 use BlackOps\Idempotency\IdempotencyKeyHash;
 use DateTimeImmutable;
@@ -46,7 +47,28 @@ final readonly class ExecutionContextHydrator
             $this->optionalTime($context, 'deadline'),
             $this->hydrateActors($context),
             $this->hydrateIdempotencyKeyHash($context),
+            $this->hydrateSchedule($context),
         );
+    }
+
+    /** @param array<string, mixed> $context */
+    private function hydrateSchedule(array $context): ?ScheduleContext
+    {
+        $schedule = $this->reader->optionalObject($context, 'schedule');
+        if ($schedule === null) {
+            return null;
+        }
+
+        $this->assertFields($schedule, ['name', 'scheduled_at', 'timezone']);
+        try {
+            return new ScheduleContext(
+                $this->reader->string($schedule, 'name'),
+                $this->parseTime($this->reader->string($schedule, 'scheduled_at')),
+                $this->reader->string($schedule, 'timezone'),
+            );
+        } catch (Throwable $exception) {
+            throw new OperationCodecException('Encoded context contains an invalid schedule.', previous: $exception);
+        }
     }
 
     /**

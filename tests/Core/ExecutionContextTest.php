@@ -13,6 +13,7 @@ use BlackOps\Core\Identifier\AttemptId;
 use BlackOps\Core\Identifier\CausationId;
 use BlackOps\Core\Identifier\CorrelationId;
 use BlackOps\Core\Identifier\OperationId;
+use BlackOps\Core\ScheduleContext;
 use DateTimeImmutable;
 use DateTimeZone;
 use PHPUnit\Framework\TestCase;
@@ -53,6 +54,25 @@ final class ExecutionContextTest extends TestCase
         self::assertNull($context->attempt());
         self::assertNull($context->deadline());
         self::assertNull($context->actorContext());
+        self::assertNull($context->schedule());
+    }
+
+    public function testScheduleContextIsExposedWithoutChangingExistingFields(): void
+    {
+        $schedule = new ScheduleContext('reports.daily', new DateTimeImmutable('2026-07-02T12:00:00Z'), 'UTC');
+        $context = new ExecutionContext(
+            OperationId::fromString(self::OPERATION_V7),
+            new DateTimeImmutable('2026-07-02T12:34:56.123456Z'),
+            CorrelationId::fromString(self::CORRELATION_V7),
+            null,
+            null,
+            null,
+            null,
+            null,
+            $schedule,
+        );
+
+        self::assertSame($schedule, $context->schedule());
     }
 
     public function testGettersReturnConstructorValues(): void

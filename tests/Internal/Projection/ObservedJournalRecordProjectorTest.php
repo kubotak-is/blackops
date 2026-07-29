@@ -14,6 +14,7 @@ use BlackOps\Core\Identifier\JournalRecordId;
 use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Core\OperationValue;
 use BlackOps\Core\Rejection\RejectionReason;
+use BlackOps\Core\ScheduleContext;
 use BlackOps\Core\Validation\Violation;
 use BlackOps\Internal\Projection\ObservedJournalRecordProjector;
 use BlackOps\Internal\Projection\SensitiveProjectionFilter;
@@ -145,6 +146,48 @@ final class ObservedJournalRecordProjectorTest extends TestCase
         self::assertSame('system', $actors?->execution()->type());
         self::assertStringNotContainsString('authorization-user-123', serialize($observed));
         self::assertStringNotContainsString('http-runtime-456', serialize($observed));
+    }
+
+    public function testPreservesScheduleContextWhileMaskingActors(): void
+    {
+        $schedule = new ScheduleContext(
+            'reports.daily',
+            new DateTimeImmutable('2026-07-22T09:00:00.654321Z'),
+            'Asia/Tokyo',
+        );
+        $canonical = new JournalRecord(
+            JournalRecordId::fromString(self::ID),
+            1,
+            JournalEvent::OperationReceived,
+            new DateTimeImmutable('2026-07-07T00:00:00Z'),
+            1,
+            new JournalOperation(
+                OperationId::fromString(self::ID),
+                'projection.test',
+                1,
+                'inline',
+                CorrelationId::fromString(self::ID),
+                actorContext: new ActorContext(
+                    new ActorRef('provider-user', 'user'),
+                    new ActorRef('provider-user', 'user'),
+                    new ActorRef('scheduled-runtime', 'system'),
+                ),
+                schedule: $schedule,
+            ),
+            null,
+            new EmptyJournalData(),
+        );
+
+        $observed = new ObservedJournalRecordProjector(new SensitiveProjectionFilter())->project($canonical);
+
+        self::assertSame('reports.daily', $observed->operation->schedule?->name());
+        self::assertSame('Asia/Tokyo', $observed->operation->schedule?->timezone());
+        self::assertSame(
+            '2026-07-22T09:00:00.654321Z',
+            $observed->operation->schedule?->scheduledAt()->format('Y-m-d\\TH:i:s.u\\Z'),
+        );
+        self::assertStringNotContainsString('provider-user', serialize($observed->operation->schedule));
+        self::assertStringNotContainsString('scheduled-runtime', serialize($observed->operation->schedule));
     }
 
     public function testProjectorEncoderPreservesObservedJournalWireShapes(): void

@@ -58,7 +58,7 @@ FrankenPHPはLocalではplain HTTPのWorker Modeで動作します。TLS、Domai
 
 ### Worker ModeのRequest境界
 
-Default Worker ModeはApplication、Environment、Configuration、Compile済みRuntimeをProcess起動時に一度だけ構成します。
+既定のWorker ModeはApplication、Environment、Configuration、Compile済みRuntimeをProcess起動時に一度だけ構成します。
 
 ```bash
 docker compose up -d http

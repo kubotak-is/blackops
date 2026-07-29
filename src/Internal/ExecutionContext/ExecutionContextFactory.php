@@ -10,6 +10,8 @@ use BlackOps\Core\AttemptContext;
 use BlackOps\Core\ExecutionContext;
 use BlackOps\Core\Identifier\CausationId;
 use BlackOps\Core\Identifier\CorrelationId;
+use BlackOps\Core\Identifier\OperationId;
+use BlackOps\Core\ScheduleContext;
 use BlackOps\Idempotency\IdempotencyKey;
 use BlackOps\Internal\Identifier\IdentifierFactory;
 use DateTimeImmutable;
@@ -50,6 +52,26 @@ final readonly class ExecutionContextFactory
             $deadline,
             $actorContext,
             $idempotencyKey?->hash(),
+            null,
+        );
+    }
+
+    public function receiveScheduled(
+        OperationId $operationId,
+        DateTimeImmutable $receivedAt,
+        ScheduleContext $schedule,
+        ?ActorContext $actorContext = null,
+    ): ExecutionContext {
+        return new ExecutionContext(
+            $operationId,
+            $receivedAt,
+            CorrelationId::fromString($operationId->toString()),
+            null,
+            null,
+            null,
+            $actorContext,
+            null,
+            $schedule,
         );
     }
 
@@ -76,6 +98,7 @@ final readonly class ExecutionContextFactory
             $context->deadline(),
             $this->resolveActorContext($context->actorContext(), $executionActor),
             $context->idempotencyKeyHash(),
+            $context->schedule(),
         );
     }
 

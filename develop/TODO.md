@@ -203,10 +203,12 @@ MVP後に残す主要項目:
 - [x] JournalのJSON構造、運用、安全境界、OpenTelemetry将来構想を独立Guideへ統合する（P20-009C）
 - [x] Journal JSONLのParameter説明をTableへ整理する（P20-009D、P20-009EでRuntime Projection修正後にAcceptance）
 - [x] Observed Journalの空Object、Identifier、日時Wire Shapeを修正する（P20-009E）
-- [ ] Testing／Deployment／Referenceを含むTask-oriented Guideを増強する（P20-010）
-- [ ] Site UXを増強し、全Pageの文章編集Passを行う（P20-011以降）
-- [ ] Scheduled Application Operationの入口、Timezone、Misfire、Overlap、Identity、Idempotencyを別Decisionで確定する
-- [ ] Journal／Outcome参照制御、Tenant分離、暗号化Capabilityを強化する
+- [x] Testing／Deployment／Referenceを含むTask-oriented Guideを増強する（P20-010）
+- [x] Blume native Callout、Copy、Previous／Next、Edit Link、日本語Fontを接続する（P20-011、Accepted）
+- [x] 表記Guidelineを確定し、全Pageの文章編集Passを行う（P20-012、Accepted）
+- [x] Scheduled Application Operationの入口、Timezone、Misfire、Overlap、Identity、Idempotencyを別Decisionで確定する（D134／P20-013、Accepted）
+- [x] Scheduled Application OperationをAuthoring／Persistence／Invocation／CLI／Guideに分割して実装する（Specification 98／P20-014A〜E、Accepted）
+- [~] Journal／Outcome参照制御、Tenant分離、暗号化Capabilityを強化する（D135／P20-015、User Decision Pending）
 - [ ] 構造化Log SchemaとOpenTelemetry Adapterを提供する
 
 ### Phase 21: Framework-owned Transaction Interception

@@ -40,7 +40,7 @@ Pendingがない状態で`migrate`を再実行すると、`No pending migrations
 
 ## Application Migrations
 
-Project Rootに`migrations/`がある場合、Database CommandはFramework Migrationに加えて`App\Migrations`の`Version*.php`を読み込みます。DirectoryがないApplicationはFramework Migrationだけを扱うため、空Directoryを作る必要はありません。
+Project Rootに`migrations/`がある場合、Database CommandはFramework Migrationに加えて`App\Migrations`の`Version*.php`を読み込みます。ディレクトリがないApplicationはFramework Migrationだけを扱うため、空のディレクトリを作る必要はありません。
 
 Application MigrationはFramework Migrationと同じConnection、Framework Schema内の`schema_migrations` Metadata Table、transactional／all-or-nothing設定を共有します。RunnerはFramework Migrationを先に実行し、その後にApplication MigrationをVersion Class順で実行します。
 

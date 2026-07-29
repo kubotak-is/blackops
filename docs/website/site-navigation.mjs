@@ -17,6 +17,7 @@ export const sidebar = [
     label: 'Operation',
     items: [
       { label: 'Authoring', link: 'operations/authoring' },
+      { label: 'Scheduled Operation', link: 'operations/scheduled-operation' },
       { label: 'Generators', link: 'operations/generators' },
       { label: 'Value and Validation', link: 'operations/validation' },
       { label: 'Outcome', link: 'database/outcomes' },
@@ -91,16 +92,16 @@ const itemSlug = (item) => typeof item === 'string' ? item : item.link;
 
 const blumeItem = (item, sectionLabel) => {
   if (typeof item === 'string') {
-    return { label: sectionLabel, href: `/${item}` };
+    return { label: sectionLabel, root: item };
   }
 
-  return { label: item.label, href: `/${item.link}` };
+  return { label: item.label, root: item.link };
 };
 
 export const blumeSidebar = sidebar.map(({ label, items }) => ({
   label,
   ...(items.length === 1 && typeof items[0] === 'string'
-    ? { href: `/${items[0]}` }
+    ? { root: items[0] }
     : { items: items.map((item) => blumeItem(item, label)) }),
 }));
 

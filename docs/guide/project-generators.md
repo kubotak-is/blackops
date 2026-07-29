@@ -33,7 +33,7 @@ public function handle(ShowWelcomeValue $value): ShowWelcomeOutcome
 
 GeneratorはRoute、HTTP Method、Execution Strategy、`ExecutionContext`を推測しません。HTTP公開やDeferred実行が必要なOperationだけへ、それぞれのAttribute（Deferredは`#[Deferred]`）と処理を追加してください。
 
-## Safety and Build
+## 安全確認とビルド
 
 3 Targetの一つでも存在すると、Generatorは既存Fileを上書きせず、何も生成しません。`--force`は提供しません。成功時は生成したProject Relative Pathだけを表示します。
 
@@ -43,9 +43,9 @@ GeneratorはFileだけを作成し、Composer、Database、Network、Artifact Bu
 php blackops build:compile
 ```
 
-`blackops/framework` PackageがGenerator Stubを所有します。Framework Update後に新しく生成するFileには更新済みStubを使いますが、Applicationが所有する生成済みFileは変更しません。
+`blackops/framework` PackageがGenerator Stubを所有します。Framework Update後に新しく生成するファイルには更新済みStubを使いますが、Applicationが所有する生成済みファイルは変更しません。
 
-## Framework Updates
+## Framework更新
 
 Project Rootの`blackops`はApplication所有のBootstrapであり、Framework CommandやStubのCopyではありません。通常のComposer Updateで`blackops/framework`を更新すると、Entrypointを変更せずに更新後の`make:operation`／`make:migration`／`make:seeder`とStubを利用できます。
 
@@ -63,7 +63,7 @@ Application固有のDatabase変更はPascalCaseのDescriptionから生成しま�
 php blackops make:migration CreateOrdersTable
 ```
 
-CommandはUTCの現在時刻から次のFileを作ります。
+CommandはUTCの現在時刻から次のファイルを作ります。
 
 ```text
 migrations/VersionYYYYMMDDHHMMSS.php

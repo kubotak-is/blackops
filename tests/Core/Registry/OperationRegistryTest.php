@@ -12,6 +12,7 @@ use BlackOps\Core\OperationHandler;
 use BlackOps\Core\OperationValue;
 use BlackOps\Core\Registry\OperationMetadata;
 use BlackOps\Core\Registry\OperationRegistry;
+use BlackOps\Core\Registry\OperationScheduleMetadata;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
@@ -50,6 +51,35 @@ final class OperationRegistryTest extends TestCase
         } catch (InvalidArgumentException $exception) {
             self::assertStringNotContainsString('duplicate.show', $exception->getMessage());
         }
+    }
+
+    public function testIndexesScheduleNameAndRejectsDuplicate(): void
+    {
+        $schedule = new OperationScheduleMetadata('reports.daily', '0 0 * * *', 'UTC');
+        $first = new OperationMetadata(
+            'one.show',
+            RegistryOperationOne::class,
+            RegistryValue::class,
+            RegistryHandler::class,
+            EmptyOutcome::class,
+            Inline::class,
+            schedule: $schedule,
+        );
+        self::assertSame($first, new OperationRegistry([$first])->findByScheduleName('reports.daily'));
+
+        $this->expectException(InvalidArgumentException::class);
+        new OperationRegistry([
+            $first,
+            new OperationMetadata(
+                'two.show',
+                RegistryOperationTwo::class,
+                RegistryValue::class,
+                RegistryHandler::class,
+                EmptyOutcome::class,
+                Inline::class,
+                schedule: $schedule,
+            ),
+        ]);
     }
 
     private function metadata(string $typeId, string $definition): OperationMetadata

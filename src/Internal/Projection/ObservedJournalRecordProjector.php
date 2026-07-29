@@ -52,6 +52,7 @@ final readonly class ObservedJournalRecordProjector
                 $this->maskActor($actors->authorization()),
                 new ActorRef('[masked]', $actors->execution()->type()),
             ),
+            $operation->schedule,
         );
     }
 

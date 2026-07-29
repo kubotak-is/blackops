@@ -109,6 +109,10 @@ final readonly class ApplicationWorkerComposer
             scope: $executionScope,
             transactions: $operationTransactions,
             failureReporter: new FrameworkOperationFailureReporter($logger, $executionScope),
+            scheduledOccurrences: new \BlackOps\Internal\Scheduling\PostgreSqlScheduledOccurrenceLifecycle(
+                $main,
+                $database->schema,
+            ),
         );
         $receiver = new PostgreSqlDeferredOperationReceiver(
             $main,

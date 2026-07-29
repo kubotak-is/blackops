@@ -1,30 +1,59 @@
 # Deployment
 
-Productionでは、Requestを受けるHTTP WorkerとDeferred Operationを処理するWorkerを別Processとして管理します。BlackOpsはKubernetes、systemd、Supervisor等のOrchestrator Integrationを提供しません。Process配置、TLS、Secret配布、Health Check、Resource Limit、Restart Policy、MonitoringはApplicationと運用環境が所有します。
+DeploymentはApplication／運用環境の責務です。FrameworkはKubernetes、systemd、Supervisor、TLS、Secret配布、Health Check、Resource Limit、Restart Policyを提供しません。Stable `1.1.0`のReleaseとRepository `main`のExperimental Surfaceを混ぜず、同じBuild IDのArtifactを全Processへ渡します。
 
-## Deploy前の順序
+:::warning[Operator responsibility]
+Process監督、TLS、Secret配布、Health Check、Resource Limit、Restart Policyは運用環境で構成します。Frameworkはこれらを自動提供しません。
+:::
 
-1. Releaseと同じSourceからDependencyとCompile済み[Application Bootstrap](application-bootstrap.md)を作ります。
-2. [Migration](database-migrations.md)のStatusとDry Runを確認し、明示的に適用します。
-3. Frontend利用時は同じBuildから`frontend:generate`と`frontend:check`を実行します。
-4. HTTP WorkerとDeferred Workerへ同じBuild ID、Artifact、Database Configurationを渡します。
-5. `OperationStatusAuthorizer`をProduction PolicyへBindingします。
-6. HTTP WorkerのRequest上限とRestart、Deferred WorkerのHeartbeat、Retry、Graceful Shutdownを設定します。
-7. Journal、Outcome、Dead Letter、Process Exit、Database接続を監視します。
-8. [Retention](retention.md)の期間、Hold、Purge Auditを運用Policyとして確定します。
+## リリース手順
 
-[Local Runtime](runtime-bootstrap.md)のCompose構成はApplicationを手元で動かすReferenceであり、そのままProduction Topologyを規定しません。Production ImageはRuntime起動時にSource Discovery、Artifact Compile、MigrationへFallbackしない構成にしてください。
+すべてProject Rootで実行します。Docker構成では`docker compose run --rm app`を各コマンドの前に付けます。
 
-QuickstartのSame-origin Status AuthorizerをProduction Tenant Policyとしてそのまま使わず、Authentication、Tenant／Resource認可、TLS、Canonical Store暗号化、Access Control、Retentionを構成します。FrontendとBackendのBuildがずれると`.status()`／`.wait()`は`unexpected_response`で安全に停止します。
+1. **Releaseを固定する。** Git revision、Composer／Node lockfile、PHP Runtime、環境設定を記録します。Runtime起動時のSource DiscoveryやCompileへFallbackさせません。
+2. **Databaseを確認する。** `php blackops database:status`でApplied／Pendingを確認し、`php blackops database:migrate --dry-run`でSQLを確認します。
+3. **Migrationを明示適用する。** 承認した同じArtifactで`php blackops database:migrate`を実行します。FrameworkはRollback SQLや後方互換性を自動提供しません。
+4. **ArtifactをCompileする。** `php blackops build:compile`を一度実行し、Operation／HTTP／Frontend ManifestとDI Containerを同じBuild IDで作ります。
+5. **Frontendを検証する。** Frontendを使う場合だけ`php blackops frontend:generate`、`php blackops frontend:check`、Applicationの`pnpm test`を行います。Generated Treeは手編集しません。
+6. **Processへ配布する。** HTTP Worker、Deferred Worker、Outbox Relayへ同じArtifact、Database Configuration、Secretを渡します。RelayはDeferred Workerと別Processです。
+7. **ScheduleとMaintenanceを分離する。** Application Scheduleは外部Supervisorから`operation:schedule:run`を一回ずつ起動し、Deferredだけ別Processの`worker:run`で完了させます。Retentionを使う場合の`scheduler:run`／`scheduler:daemon`はFramework Maintenance専用です。
+8. **Smokeする。** HTTPの`200`／`202`、Status／Outcome、Journal／Log、Worker、Outbox Relay、必要なRetention結果を確認します。Credential、Canonical Payload、Throwable、SQLは公開Outputへ出しません。
+9. **停止とRollbackを判断する。** Deferred Worker／Relayは実装されたSignal境界で新規Claim／Batchを止め、Maintenance Scheduler DaemonはSupervisorへ停止を委ねます。Application Scheduleの確実な一回評価には外部Schedulerから`operation:schedule:run --json`を起動し、`scheduler:run`はRetention等のMaintenanceだけに使います。Lease Recovery、Database状態、Artifact互換性を確認します。Migrationを戻せない場合はRollbackを宣言せず、Forward Fixまたは復旧手順を選びます。
 
-## Workerの停止と回復
+## プロセス一覧
 
-Deferred Workerへ`SIGTERM`または`SIGINT`を送り、新しいClaimを止めてGrace Period内のHandler完了を待ちます。Heartbeat失敗やGrace Timeout時は成功として確定せず、Lease ExpiryとRecoveryへ委ねます。Retry Scheduled、Failed、Dead Letterを同じ成功扱いにせず、[Inline and Deferred](execution.md)と[Troubleshooting](troubleshooting.md)のLifecycleを監視へ反映してください。
+| Process | Command／入口 | 常駐条件 | 監視するもの | 停止境界 |
+| --- | --- | --- | --- | --- |
+| HTTP Worker | ApplicationのHTTP Runtime（FrankenPHP等） | HTTP Requestを受ける間 | Status、5xx、DB接続、Request上限 | 新規Requestを止め、処理中Requestの終了を待つ |
+| Deferred Worker | `php blackops worker:run`（`--iterations`省略で常駐） | Deferred RowをClaimする間 | Claim、Heartbeat、Retry、Dead Letter、Process Exit | 新規Claimを止め、処理中AttemptをGrace期間で終了／Lease Recovery |
+| Outbox Relay | `php blackops outbox:relay:run`または`outbox:relay:daemon` | Pending Outbox Rowを配送する間 | claimed／sent／retried／dead-lettered／stale | Batch境界で停止。Relay完了はchild Handler完了を意味しない |
+| Maintenance Scheduler | `php blackops scheduler:run`または`scheduler:daemon` | Retention等のDue Maintenanceを実行する間 | task数、affected数、Purge Audit、Exit | `scheduler:run`は1回で終了。Daemonの停止はSupervisorへ委ね、Application Operationを起動しない |
+| Application Schedule | `php blackops operation:schedule:run --json` | 外部Cron／systemd／Kubernetesが一回起動 | evaluated／accepted／misfire／overlap／failed、Occurrence、Journal | Commandは一回で終了。Application Schedule Daemonは提供せず、Maintenance `scheduler:*`と混ぜない |
 
-`.wait()`のDeadline超過はOperationのCancelではありません。Clientが`poll_timeout`を返してもWorkerは処理を継続できます。Client待機時間とWorker処理SLOを別に監視し、無限WaitでProcess Supervisorの責務を代替しません。
+WorkerとRelayのDatabase／Schemaが異なると`202`後にOutcomeが進みません。Health Checkの復旧は業務QueryやTransactionの自動Retry、Exactly-onceを意味しません。再配送可能な外部副作用にはIdempotency KeyまたはTransactional Outboxを設計します。
 
-HTTP Request／Deferred Attemptの開始時、BlackOpsは生成済みApplication ConnectionをHealth Checkします。切断を検知すると同じDBAL ObjectをCloseして一度だけ再接続し、復旧しなければそのRequest／Attemptを失敗させます。正常終了時はConnectionを再利用しますが、Transaction Leakまたは処理中のThrowableでは生成済みApplication ConnectionをCloseするため、次回の開始境界で再接続されます。Heartbeat ConnectionはApplication Connectionとは別Lifecycleです。
+## Smoke／Shutdown／Recovery
 
-この回復境界は業務QueryやTransactionのRetryではありません。Database停止中の5xx／Worker Exitを監視し、Database復旧後に新しいRequest／Attemptが成功することをDeploy前に確認してください。Commit結果不明時の自動再実行やExactly-onceをBlackOpsへ期待せず、重複可能性がある処理にはIdempotency KeyやTransactional Outboxを用意します。
+最低限、次の順で安全な値だけを確認します。
 
-公開前には[Security](security.md)の責任分界と[Releases](mvp-status.md)のStable／`main`差、既知制約を確認してください。
+```bash
+php blackops database:status
+php blackops operation:list
+curl -i 'http://127.0.0.1:8080/<application-health-route>'
+php blackops worker:run --iterations=1 --idle-sleep-milliseconds=1
+php blackops outbox:relay:run --until-empty
+php blackops operation:inspect <operation-id> --json
+```
+
+`<application-health-route>`と`<operation-id>`はApplicationが定義した値へ置き換えます。Frameworkは標準Health Routeを追加しません。HTTP、Deferred、Outbox、Status／Outcome、Journal／Logの各結果を別々に記録し、Relayの`sent`だけでHandler成功と判断しません。
+
+Deferred WorkerとRelay Daemonは実装された`SIGTERM`／`SIGINT`境界で新しいClaim／Batchを止め、Grace Period後に終了します。Maintenance Scheduler DaemonにはFrameworkのGraceful Signal Handlerがないため、停止はSupervisorへ委ねます。Application Scheduleの一回評価と停止境界には外部Schedulerから`operation:schedule:run --json`を起動し、Maintenanceの一回実行だけに`scheduler:run`を使います。HeartbeatまたはLeaseが失効したAttemptは成功扱いにせずRecoveryへ委ねます。Database復旧後は新しいRequest／Attemptで再確認します。
+
+## Rollback判断
+
+- Artifactだけを戻しても適用済みMigrationと互換性がない場合はRollbackしない。
+- Pending Migration、Build ID、Frontend Generated Tree、HTTP／Worker／RelayのVersionが一致しない場合はReleaseを停止します。
+- 失敗したMigrationのSQL、Credential、Canonical PayloadをSupport Ticketや公開Logへコピーしない。
+- RetentionのPurge後はCanonical Recordの復元を前提にせず、Hold／Auditを先に確認します。
+
+Release Surfaceと既知制約は[Releases](mvp-status.md)を、Artifact／Migration失敗は[Troubleshooting](troubleshooting.md)を参照してください。

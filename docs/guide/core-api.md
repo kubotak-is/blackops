@@ -319,3 +319,16 @@ HTTPの`GET /operations/{operationId}`とGenerated `.status()`／`.wait()`はこ
 - 内部実装Namespaceや`#[PublicApi]`のない具象実装をApplicationのContractにしません。
 
 現行機能と未提供Surfaceは[Releases](mvp-status.md)を確認してください。
+
+日常のBuild、Operation実行、Worker、Relay、DiagnosticsをTask順で確認する場合は[BlackOps CLI](project-cli.md)へ進みます。Console入口の実行とExit契約は[ConsoleCommand](console-command.md)を参照してください。
+
+## Scheduled Operation API
+
+| Namespace／Type | Kind | Purpose | Typical Use |
+| --- | --- | --- | --- |
+| `BlackOps\Core\Attribute\ScheduledBy` | final readonly attribute | Schedule名、Cron、Timezoneを宣言する | Operation Classへ一つ付ける |
+| `BlackOps\Core\Registry\OperationScheduleMetadata` | final readonly value object | Compile済みScheduleの名前、Cron、Timezoneを保持する | `OperationMetadata::$schedule`（または`->schedule`）から読む |
+| `BlackOps\Core\ScheduleContext` | final readonly value object | Schedule名、UTC定刻、設定Timezoneを読む | `ExecutionContext::schedule()`から読む |
+| `BlackOps\Scheduling\ScheduledActorProvider` | interface | Authorized ScheduleのActorを解決する | Application Service ProviderでBindingする |
+
+`ScheduledBy`はRepository `main`のExperimental Surfaceです。Value、CLI、Provider、Occurrenceの手順は[Scheduled Operation](scheduled-operation.md)を参照してください。
