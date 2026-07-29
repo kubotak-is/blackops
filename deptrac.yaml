@@ -54,6 +54,10 @@ deptrac:
       collectors:
         - type: classNameRegex
           value: '/^BlackOps\\Console(\\|$)/'
+    - name: StorageProtection
+      collectors:
+        - type: classNameRegex
+          value: '/^BlackOps\\StorageProtection(\\|$)/'
     - name: Internal
       collectors:
         - type: classNameRegex
@@ -139,6 +143,8 @@ deptrac:
       - Execution
       - Transport
       - Library
+    StorageProtection:
+      - Core
     Internal:
       - Core
       - Scheduling
@@ -152,4 +158,5 @@ deptrac:
       - Status
       - Database
       - Auth
+      - StorageProtection
       - Library

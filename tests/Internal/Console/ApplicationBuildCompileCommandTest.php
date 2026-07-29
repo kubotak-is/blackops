@@ -18,6 +18,7 @@ use BlackOps\Core\OperationValue;
 use BlackOps\Core\Outcome;
 use BlackOps\Core\Registry\OperationProvider;
 use BlackOps\Core\ScheduleContext;
+use BlackOps\Core\TenantRef;
 use BlackOps\Database\DatabaseManager;
 use BlackOps\Http\Routing\HttpOperationManifestFile;
 use BlackOps\Internal\Application\ApplicationConfigurationSnapshot;
@@ -25,11 +26,15 @@ use BlackOps\Internal\Console\ApplicationBuildCompileCommand;
 use BlackOps\Internal\Execution\ExecutionScopeProvider;
 use BlackOps\Internal\Frontend\FrontendContractManifestFile;
 use BlackOps\Internal\Registry\OperationManifestFile;
+use BlackOps\Internal\StorageProtection\BopdEnvelopeCodec;
 use BlackOps\Internal\Transaction\RuntimeTransactionServiceInjector;
 use BlackOps\Scheduling\ScheduledActorProvider;
 use BlackOps\Status\OperationStatusAuthorizationDecision;
 use BlackOps\Status\OperationStatusAuthorizationRequest;
 use BlackOps\Status\OperationStatusAuthorizer;
+use BlackOps\StorageProtection\StorageKey;
+use BlackOps\StorageProtection\StorageKeyProvider;
+use BlackOps\StorageProtection\StoragePurpose;
 use BlackOps\Tests\Fixtures\Aop\TransactionalOperation;
 use BlackOps\Tests\Fixtures\Aop\TransactionalService;
 use Doctrine\DBAL\Connection;
@@ -118,6 +123,7 @@ final class ApplicationBuildCompileCommandTest extends TestCase
             ApplicationBuildStatusAuthorizer::class,
             $container->get(OperationStatusAuthorizer::class),
         );
+        self::assertInstanceOf(BopdEnvelopeCodec::class, $container->get(BopdEnvelopeCodec::class));
         $connection = $this->transactionConnection();
         $databases = $this->createStub(DatabaseManager::class);
         $databases->method('connection')->willReturn($connection);
@@ -268,6 +274,20 @@ final readonly class ApplicationBuildServiceProvider implements ServiceProvider
         $services->autowire(ApplicationBuildPolicyDependency::class);
         $services->autowire(TransactionalService::class);
         $services->autowire(OperationStatusAuthorizer::class, ApplicationBuildStatusAuthorizer::class);
+        $services->autowire(StorageKeyProvider::class, ApplicationBuildStorageKeyProvider::class);
+    }
+}
+
+final readonly class ApplicationBuildStorageKeyProvider implements StorageKeyProvider
+{
+    public function activeKey(?TenantRef $tenant, StoragePurpose $purpose): StorageKey
+    {
+        return new StorageKey('application:v1', str_repeat('a', 32));
+    }
+
+    public function key(string $keyId, ?TenantRef $tenant, StoragePurpose $purpose): StorageKey
+    {
+        return new StorageKey($keyId, str_repeat('a', 32));
     }
 }
 

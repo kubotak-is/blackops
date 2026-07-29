@@ -16,10 +16,15 @@ use BlackOps\Internal\Identifier\DefaultUuidv7Generator;
 use BlackOps\Internal\Identifier\ValidatedUuidv7Generator;
 use BlackOps\Internal\Seeder\CompiledSeederRunner;
 use BlackOps\Internal\Seeder\CompiledSeederRuntime;
+use BlackOps\Internal\StorageProtection\BopdEnvelopeCodec;
+use BlackOps\Internal\StorageProtection\CanonicalAssociatedData;
+use BlackOps\Internal\StorageProtection\NonceSource;
+use BlackOps\Internal\StorageProtection\RandomNonceSource;
 use BlackOps\Internal\Transaction\DefaultAfterCommitFailureReporter;
 use BlackOps\Internal\Transaction\TransactionRuntime;
 use BlackOps\Internal\Transaction\TransactionRuntimeAccessor;
 use BlackOps\Outbox\TransactionalOutbox;
+use BlackOps\StorageProtection\StorageKeyProvider;
 use Doctrine\DBAL\Connection;
 use InvalidArgumentException;
 use Psr\Container\ContainerInterface;
@@ -90,6 +95,40 @@ final readonly class RuntimeContainerCompiler
                 ->setArgument(0, new Reference($source))
                 ->setPublic(true),
         );
+    }
+
+    /**
+     * Register the framework codec only when an application supplies the key
+     * provider. The provider binding itself remains application-owned.
+     */
+    public function registerStorageProtection(ContainerBuilder $builder): void
+    {
+        if (!$this->hasStorageProvider($builder)) {
+            return;
+        }
+
+        if (!$builder->has(CanonicalAssociatedData::class)) {
+            $builder->register(CanonicalAssociatedData::class)->setPublic(false);
+        }
+        if (!$builder->has(NonceSource::class)) {
+            $builder->register(RandomNonceSource::class)->setPublic(false);
+            $builder->setAlias(NonceSource::class, RandomNonceSource::class)->setPublic(false);
+        }
+        if (!$builder->has(BopdEnvelopeCodec::class)) {
+            $builder
+                ->register(BopdEnvelopeCodec::class)
+                ->setArguments([
+                    new Reference(StorageKeyProvider::class),
+                    new Reference(CanonicalAssociatedData::class),
+                    new Reference(NonceSource::class),
+                ])
+                ->setPublic(true);
+        }
+    }
+
+    private function hasStorageProvider(ContainerBuilder $builder): bool
+    {
+        return $builder->has(StorageKeyProvider::class);
     }
 
     public function registerHandlers(ContainerBuilder $builder, OperationRegistry $operations): void

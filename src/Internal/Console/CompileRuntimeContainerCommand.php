@@ -48,6 +48,7 @@ final class CompileRuntimeContainerCommand extends Command
         $builder = $this->compiler->builder();
         $this->compiler->apply($builder, $this->providers->load($this->stringArgument($input, 'config')));
         $this->compiler->registerUuidv7Generator($builder);
+        $this->compiler->registerStorageProtection($builder);
         $this->compiler->compile($builder);
         $this->dumper->dump(
             $builder,

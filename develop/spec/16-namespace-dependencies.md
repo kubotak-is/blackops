@@ -12,6 +12,7 @@ Transport  -> Core, Journal, Execution
 Http       -> Core, Execution
 Logging    -> Core, Journal
 Console    -> Core, Journal, Execution, Transport
+StorageProtection -> Core
 Internal   -> 対応する公開Namespaceおよび採用Library（Scheduled RuntimeはSchedulingへ依存可能）
 ```
 
@@ -29,6 +30,7 @@ Deptracを開発依存として採用し、NamespaceをLayerとして定義す�
 - CIで解析を実行する
 - 違反がある場合はCIを失敗させる
 - Namespaceを追加する場合はLayerとRulesetも更新する
+- `StorageProtection` Public ContractはCoreのTenant Identity／PublicApi Attributeだけへ依存し、暗号実装はInternalへ閉じる
 
 Dependency競合が生じる場合は、PHARまたは分離したComposer Binaryとして導入する。
 

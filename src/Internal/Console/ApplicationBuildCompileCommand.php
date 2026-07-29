@@ -98,6 +98,7 @@ final class ApplicationBuildCompileCommand extends Command
             throw new \InvalidArgumentException('Authorized scheduled operations require a scheduled actor provider.');
         }
         $compiler->registerUuidv7Generator($container);
+        $compiler->registerStorageProtection($container);
         $compiler->registerDatabaseServices($container);
         $compiler->registerHandlers($container, $registry);
         $compiler->registerAuthorizationPolicies($container, $registry);

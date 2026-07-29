@@ -1,6 +1,50 @@
 # Orchestration State
 
-Updated At: 2026-07-29T20:35:29+09:00
+Updated At: 2026-07-29T22:37:05+09:00
+
+## P20-016B Storage Protection Core Orchestrator Acceptance
+
+```text
+2026-07-29T22:37:05+09:00
+OrchestratorはP20-016BをSpecification 99、BOPD v1 Binary Layout、Canonical AAD、Application-owned StorageKeyProvider、Safe Failure、三つのCompiled Container経路へ照合した。Framework Codecを使わない独立libsodium計算でもKnown-answer Envelope Hexが一致した。ReviewでAADへのKey ID Binding、固定Tenant Field Shape、Envelope Key ID Read、Compile時Provider非生成／非呼出、Strict Length／Trailing Parse、Exception Trace／Debug／Serialization Secret Guard、三経路Artifact Resolution、ext-sodium Platform Requirementを補強した。最終Focused PHPUnit 30 tests／175 assertions、Full PHPUnit 2033 tests／8090 assertions（既存Deprecation 1）、Composer Validate、Mago Format、Production-only Lint／Analyze、Broad Analyze、Management-ID Guard、git diff --checkはPASS。Broad Mago Lintは既存88件、Deptracは既存Vendor ParserのPHP 8.5 Parse ErrorでBLOCKED。framework-package-exportはHEAD非管理のLocal Empty .claude DirectoryをComposer Archiveが含めるためBLOCKEDし、P20-016B差分起因ではない。P20-016BをAcceptedとし、次TaskをP20-016Cとする。Commit／Push／DeployはこのCheckpoint時点で未実行。
+```
+
+## P20-016B Storage Protection Core Static Hardening — Review Pending
+
+```text
+2026-07-29T22:34:39+09:00
+Production-only Mago lint／analyze findings were corrected without changing the BOPD contract: typed nonce/tag/length constants, strict unpack helpers, safe SensitiveParameterValue material return, named substr arguments, and parser lint expectations. Changed-source lint and analyze now report No issues; focused 30 tests／175 assertions PASS. Broad Mago lint baseline is 88 findings; Deptrac is blocked before graph generation by existing vendor PHP 8.5 parser error at NikicFileReferenceVisitor.php:106. A final full PHPUnit rerun was attempted but Docker daemon permission denied; previous full 2033／8090 PASS remains valid before type-only hardening. Report updated; Commit／Push／Deployなし.
+```
+
+## P20-016B Storage Protection Core Worker Complete — Review Pending
+
+```text
+2026-07-29T22:31:00+09:00
+P20-016BのPublic StoragePurpose／StorageKey／StorageKeyProvider、SensitiveParameter付きKey Material、Canonical AAD、BOPD v1 XChaCha20-Poly1305 Codec、Strict Parse／Fail-closed Exception、三つのCompiled Container Command経路のProvider Bindingを実装した。ext-sodiumをcomposer.json／composer.lockへ追加し、deptrac Layer／Namespace仕様を更新した。Focused PHPUnit 30 tests／175 assertions、Full PHPUnit 2033 tests／8090 assertions（既存Deprecation 1）、Composer Validate、Mago Format、Management-ID Guard、git diff --checkはPASS。framework-package-export Consumerは既存`.claude` unexpected archive rootで失敗。Broad Mago／DeptracはDocker daemon permission deniedにより未完了で、Orchestratorが再実行する。Reportを同期し、TaskをWorker Complete — Review Pending、Commit／Push／Deployなし。
+```
+
+Updated At: 2026-07-29T22:11:25+09:00
+
+## P20-016B Sodium Platform Requirement Scope Correction
+
+```text
+2026-07-29T22:11:25+09:00
+OrchestratorはP20-016Bのlibsodium XChaCha20-Poly1305固定ContractとComposer Metadataを照合し、Current PHP 8.5 ContainerではSodiumが利用可能だがFramework Packageがext-sodiumを宣言していないことを確認した。Install成功後のUndefined Function／Constant Failureを防ぐため、New third-party Package禁止を維持したままext-sodium Platform Requirementをcomposer.json／composer.lockへ追加する最小Scope補正をTask Packetへ記録した。任意Crypto Package／Algorithm Pluginは引き続き禁止。Worker Commit／Push／Deployなし。
+```
+
+## P20-016B Orchestrator Scope Correction
+
+```text
+2026-07-29T22:06:00+09:00
+OrchestratorはApplication Compositionの実Compile経路を照合し、RuntimeContainerCompilerのStorage Protection登録をClassic／Worker／CLI共通Artifactへ接続する3つのInternal Compile Commandと対応TestがP20-016B Files Allowedから欠落していることを確認した。既定In ScopeのCompiled Runtime Bindingを成立させる最小File境界としてTask Packetへ追加した。Application固有Key Provider Class、Key Material、CredentialをArtifactへ保存する変更は許可せず、Adapter配線は引き続き範囲外。Worker Commit／Push／Deployなし。
+```
+
+## P20-016B Storage Protection Core Worker Start
+
+```text
+2026-07-29T22:00:12+09:00
+OrchestratorはP20-016A Accepted、Commit 28ebcba、Clean Working Tree、Specification 99、D135、P20-016B Task Packetを照合し、P20-016BをIn Progressとした。ScopeはPublic Storage Purpose／Key／Provider、Internal Protection Context／Canonical AAD／BOPD v1 Envelope、libsodium XChaCha20-Poly1305、Safe Failure、Application Composition、Known-answer／Randomized／Tamper／Secret Exposure Evidenceに限定する。PostgreSQL Migration、Protected Adapter配線、Read Authorization、Rotation CLI、KMS Adapter、Public Guideは範囲外。Production実装をGPT-5.6 Luna High Workerへ依頼し、WorkerはReport／STATE／TODOを同期してReview前にCommitしない。Push／Deployなし。
+```
 
 ## P20-016A Orchestrator Acceptance
 

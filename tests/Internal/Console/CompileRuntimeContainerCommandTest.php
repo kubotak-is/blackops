@@ -6,7 +6,12 @@ namespace BlackOps\Tests\Internal\Console;
 
 use BlackOps\Core\DependencyInjection\ServiceProvider;
 use BlackOps\Core\DependencyInjection\ServiceRegistry;
+use BlackOps\Core\TenantRef;
 use BlackOps\Internal\Console\CompileRuntimeContainerCommand;
+use BlackOps\Internal\StorageProtection\BopdEnvelopeCodec;
+use BlackOps\StorageProtection\StorageKey;
+use BlackOps\StorageProtection\StorageKeyProvider;
+use BlackOps\StorageProtection\StoragePurpose;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -38,6 +43,7 @@ final class CompileRuntimeContainerCommandTest extends TestCase
 
         self::assertInstanceOf(ContainerInterface::class, $container);
         self::assertInstanceOf(CommandConfiguredService::class, $container->get(CommandConfiguredService::class));
+        self::assertInstanceOf(BopdEnvelopeCodec::class, $container->get(BopdEnvelopeCodec::class));
     }
 
     public function testRejectsMissingProviderConfig(): void
@@ -66,7 +72,21 @@ final readonly class CommandConfigProvider implements ServiceProvider
     public function register(ServiceRegistry $services): void
     {
         $services->autowire(CommandConfiguredService::class);
+        $services->autowire(StorageKeyProvider::class, CommandStorageKeyProvider::class);
     }
 }
 
 final readonly class CommandConfiguredService {}
+
+final readonly class CommandStorageKeyProvider implements StorageKeyProvider
+{
+    public function activeKey(?TenantRef $tenant, StoragePurpose $purpose): StorageKey
+    {
+        return new StorageKey('command:v1', str_repeat('c', 32));
+    }
+
+    public function key(string $keyId, ?TenantRef $tenant, StoragePurpose $purpose): StorageKey
+    {
+        return new StorageKey($keyId, str_repeat('c', 32));
+    }
+}
