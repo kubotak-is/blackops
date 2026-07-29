@@ -208,7 +208,15 @@ MVP後に残す主要項目:
 - [x] 表記Guidelineを確定し、全Pageの文章編集Passを行う（P20-012、Accepted）
 - [x] Scheduled Application Operationの入口、Timezone、Misfire、Overlap、Identity、Idempotencyを別Decisionで確定する（D134／P20-013、Accepted）
 - [x] Scheduled Application OperationをAuthoring／Persistence／Invocation／CLI／Guideに分割して実装する（Specification 98／P20-014A〜E、Accepted）
-- [~] Journal／Outcome参照制御、Tenant分離、暗号化Capabilityを強化する（D135／P20-015、User Decision Pending）
+- [x] Journal／Outcome参照制御、Tenant分離、暗号化CapabilityのContractを確定する（D135／Specification 99／P20-015、Accepted）
+- [ ] TenantRefとRoot／Child／Worker／Retry Tenant伝播を実装する（P20-016A、Ready）
+- [ ] XChaCha20-Poly1305 EnvelopeとStorage Key Providerを実装する（P20-016B、P20-016A後）
+- [ ] PostgreSQL Tenant MetadataとDecode前Isolationを実装する（P20-016C、P20-016B後）
+- [ ] Tenant-aware StatusとDefault-deny Journal／Outcome Readを実装する（P20-016D、P20-016C後）
+- [ ] Journal／Deferred Payload／Context／OutcomeをEncrypted Envelopeへ移行する（P20-016E、P20-016D後）
+- [ ] Outbox／Dead Letter Reason／Idempotency Response／Resultを保護する（P20-016F、P20-016E後）
+- [ ] Storage Key Rotation CLI、Audit、Checkpoint／Resumeを実装する（P20-016G、P20-016F後）
+- [ ] Tenant／Storage ProtectionのGuideとDocumentation Reviewを完了する（P20-016H、P20-016G後）
 - [ ] 構造化Log SchemaとOpenTelemetry Adapterを提供する
 
 ### Phase 21: Framework-owned Transaction Interception

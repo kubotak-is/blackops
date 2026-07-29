@@ -1,6 +1,76 @@
 # Orchestration State
 
-Updated At: 2026-07-29T10:32:34+09:00
+Updated At: 2026-07-29T19:17:59+09:00
+
+## P20-015 Tenant Isolation and Protected Operation Data Contract Acceptance
+
+```text
+2026-07-29T19:17:59+09:00
+OrchestratorはD135のQuestion 1〜8がすべてRecommendation Aで確定したことを照合し、確定Specification 99へTenantRef、Entry Source／不変伝播、PostgreSQL Restricted Clear Tenant／Origin Actor Subject、Tenant-aware Status、Default-deny Journal／Outcome Read、XChaCha20-Poly1305 Envelope、Application-owned StorageKeyProvider、Required Protection、Breaking Upgrade Guard、Bounded Rotation CLIを統合した。Production DeliveryをP20-016A〜Hへ依存順に分割し、各Taskへ変更可能File、Implementation Constraints、Acceptance、Required Commands、Report境界を定義した。D135 Answer A count 8、Specification Reference、Task Structure／Dependency、Required Source Audit、new file trailing whitespace、git diff --checkをPASSした。Production Code／Test／Migrationは変更していないためExisting Suiteは未実行。P20-015をAcceptedとし、次TaskをP20-016A Tenant Context and Propagationとする。Commit／Push／DeployはこのCheckpoint時点で未実行。
+```
+
+## P20-015 D135 Question 8 Decision and Decision Close Checkpoint
+
+```text
+2026-07-29T19:03:14+09:00
+UserはD135 Question 8をRecommendation Aで承認した。StorageKeyProviderはTenant Ref／Storage PurposeからActive Write Keyを選択でき、ReadはEnvelope Key IDを使う。BlackOps CLIのBounded storage:protection:plan／storage:protection:rotateはDry-run、Explicit Confirm、Actor、Reason、Audit、Checkpoint／Resume、Compare-and-swapを必須とし、Payload／Key Materialを表示しない。旧KeyはDatabase、Backup、Replica、Dead Letter、Retention上で必要なEnvelopeが0になるまで削除しない。Question 1〜8がすべてAで確定したためD135をDecidedとし、次工程を確定Specification／Production Task Packet分割とした。Production Code／Test／Migration、Commit／Push／Deployなし。
+```
+
+## P20-015 D135 Question 7 Decision Checkpoint
+
+```text
+2026-07-29T19:00:04+09:00
+Userは改訂したD135 Question 7をRecommendation Aで承認した。Protected StorageはEncrypted Envelopeを常時必須とし、disabled／migration Mode、Legacy Plaintext Dual-read、自動変換を提供しない。Provider未設定、Envelope Header欠落、Unknown Version／Key、Tag不一致はFail-closedとする。旧Schema／Plaintext Rowを検出したUpgradeはData変更前に停止し、利用者がDatabase Reset／RecreateまたはFramework外のOffline変換を明示選択する。Question 8はUser Decision Pending。Production Code／Test／Migration、Commit／Push／Deployなし。
+```
+
+## P20-015 D135 Question 7 Compatibility Direction Checkpoint
+
+```text
+2026-07-29T18:57:59+09:00
+UserはBlackOps 1.xがExperimentalであるため、旧Plaintext Contractとの破壊的変更を許容すると表明した。これを受けてQuestion 7をRequired ProtectionとBreaking Upgradeへ改訂し、disabled／migration Mode、Legacy Plaintext Dual-read、自動変換をRecommendationから除外した。既存Dataの無断削除は行わず、旧Schema／Plaintext Rowを検出したUpgradeは変更前に停止し、Database Reset／RecreateまたはFramework外のOffline変換を利用者が明示選択する。Question 7の改訂OptionとQuestion 8はUser Decision Pending。Production Code／Test／Migration、Commit／Push／Deployなし。
+```
+
+## P20-015 D135 Question 6 Decision Checkpoint
+
+```text
+2026-07-29T18:39:46+09:00
+UserはD135 Question 6をRecommendation Aで承認した。Frameworkはlibsodium XChaCha20-Poly1305のVersion付きAuthenticated Encryption Envelope Codecを提供し、Nonce、Authentication Tag、Associated Dataを管理する。ApplicationはStorageKeyProviderからActive Key ID／32-byte Write KeyとKey ID指定Read Keyを供給し、KMS／Secret Manager接続を所有する。任意Algorithm Pluginは初期Scope外とし、Key MaterialをRepository、Build Artifact、Manifest、Exception、Log、Journalへ出さず、Frameworkは永続Cacheしない。Question 7以降はUser Decision Pending。Production Code／Test／Migration、Commit／Push／Deployなし。
+```
+
+## P20-015 D135 Question 5 Decision Checkpoint
+
+```text
+2026-07-29T15:49:39+09:00
+UserはD135 Question 5をRecommendation Aで承認した。Canonical Journal Record、Deferred Payload／Context、Outcome Payload、Outbox Payload／Context、Dead Letter Reason、Idempotency保存Response／Result等の復元可能なFramework-owned Sensitive Storage FieldをVersion付きAuthenticated Encryption Envelopeで保護する。Operation ID／Type、State、Sequence、Timestamp、Tenant Ref、Schema Version等のLifecycle Query MetadataはRestricted Clear Columnとして残す。Associated DataはStorage Purpose、Field Contract、Operation／Tenant Identity等をBindingし、Ciphertext差し替えを拒否する。Question 6以降はUser Decision Pending。Production Code／Test／Migration、Commit／Push／Deployなし。
+```
+
+## P20-015 D135 Question 4 Decision Checkpoint
+
+```text
+2026-07-29T15:44:57+09:00
+UserはD135 Question 4をRecommendation Aで承認した。Existing Status APIをEnd-user Typed Outcomeの標準Surfaceとして維持し、Status AuthorizationへCurrent／Origin Tenantを追加する。直接PHP Journal／Outcome参照はDefault-deny OperationDataReadAuthorizerとResource Kind／Purposeを持つQuery PortでAllow後だけ復号／Decodeする。Raw CanonicalJournalReader／OutcomeReaderはInfrastructure SPIへ再分類し、Application Reader Journeyと同じDI Bindingで公開しない。operation:inspectはSafe Projectionを維持しRaw Dumpへ拡張しない。Question 5以降はUser Decision Pending。Production Code／Test／Migration、Commit／Push／Deployなし。
+```
+
+## P20-015 D135 Question 3 Decision Checkpoint
+
+```text
+2026-07-29T15:04:23+09:00
+UserはD135 Question 3をRecommendation Aで承認した。Operation-owned PostgreSQL RowへNullable tenant_type／tenant_idのRestricted Clear Metadataを追加し、Tenant-scoped QueryはTenantとOperation IDを同じPredicate／Indexへ含める。Status Subject、Worker Claim、Retention、ReplayはEncrypted BlobをDecodeせず必要最小Columnを読む。同じOperation内のTenant不一致はIntegrity Failureとし、Legacy RowはTenantなしのまま維持して自動推測しない。Database／Schema per TenantはApplicationが追加採用できるがFramework標準へ強制しない。Question 4以降はUser Decision Pending。Production Code／Test／Migration、Commit／Push／Deployなし。
+```
+
+## P20-015 D135 Question 2 Decision Checkpoint
+
+```text
+2026-07-29T14:28:38+09:00
+UserはD135 Question 2をRecommendation Aで承認した。HTTPはAuthenticationResultへOptional Tenantを添付し、Console／Scheduled RuntimeはActor Providerと共用しない専用Tenant Providerを使い、Public Dispatcherは末尾Optional Tenantを受ける。Child、Deferred Worker、Retry、Lease Recoveryは親Tenantを不変継承し、明示Replayは認可後に元Tenantを新Rootへ引き継ぐ。ActorやHeaderだけからTenantを無条件推測せず、Cross-tenant処理は別Rootと専用認可を要求する。Question 3以降はUser Decision Pending。Production Code／Test／Migration、Commit／Push／Deployなし。
+```
+
+## P20-015 D135 Question 1 Decision Checkpoint
+
+```text
+2026-07-29T14:16:32+09:00
+UserはD135 Question 1をRecommendation Aで承認した。TenantはActor／OperationValueと分離したPublic immutable TenantRef(type, id)とし、ExecutionContext::tenant(): ?TenantRefで読む。TenantなしRootを許可し、Tenant Directory、Membership、Role、Plan、CredentialはTenantRefへ含めない。Root Operation中のTenantは不変とする。Question 2以降は引き続き一件ずつUser Decision Pending。Production Code／Test／Migration、Commit／Push／Deployなし。
+```
 
 ## P20-015 Tenant Isolation and Protected Operation Data Decision Checkpoint
 

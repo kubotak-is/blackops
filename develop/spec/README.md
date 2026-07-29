@@ -113,6 +113,7 @@
 | [96-documentation-site-ux.md](96-documentation-site-ux.md) | Blume Callout、Code Copy、Previous／Next、Edit Link、日本語Font、Responsive Article UX |
 | [97-documentation-editorial-style.md](97-documentation-editorial-style.md) | 全Public Pageの表記Guideline、一般語の日本語化、Page種別Reader Contract、文章編集Pass |
 | [98-scheduled-application-operation.md](98-scheduled-application-operation.md) | ScheduledBy、Schedule Context、Cron／Timezone、Misfire／Overlap、Occurrence、Actor、BlackOps CLI |
+| [99-tenant-isolation-and-protected-operation-data.md](99-tenant-isolation-and-protected-operation-data.md) | TenantRef、Tenant伝播、Default-deny Data Read、Encrypted Envelope、Rotation、Breaking Upgrade境界 |
 
 ## 決定の参照
 
@@ -252,4 +253,4 @@
 | [D132](../decisions/132-documentation-site-ux.md) | Documentation Site UX | Decided |
 | [D133](../decisions/133-documentation-editorial-style.md) | Documentation Editorial Style | Decided |
 | [D134](../decisions/134-scheduled-application-operation.md) | Scheduled Application Operation | Decided |
-| [D135](../decisions/135-tenant-isolation-and-protected-operation-data.md) | Tenant Isolation and Protected Operation Data | User Decision Pending |
+| [D135](../decisions/135-tenant-isolation-and-protected-operation-data.md) | Tenant Isolation and Protected Operation Data | Decided |

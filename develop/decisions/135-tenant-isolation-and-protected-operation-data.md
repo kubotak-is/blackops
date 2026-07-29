@@ -1,6 +1,6 @@
 # D135: Tenant Isolation and Protected Operation Data
 
-Status: User Decision Pending
+Status: Decided
 
 ## Context
 
@@ -15,7 +15,7 @@ Phase 16は`GET /operations/{operationId}`と`OperationStatusQuery`へ、認可�
 - `CanonicalJournalReader`と`OutcomeReader`はRaw Storage Portであり、Application向けRead Policyを要求しない。
 - Canonical Journal、Deferred Payload／Context、Outcome、Outbox Payloadは`bytea`だが、内容はPlain JSONである。Dead Letter ReasonとIdempotency Response／ResultもPlain Columnに残る。
 - Status Subject、Observer Replay等はPostgreSQLで`convert_from(..., 'UTF8')::jsonb`を使うため、単純にCiphertextへ置換すると認可前Subjectと運用機能が壊れる。
-- Key選択、Authenticated Encryption、Associated Data、Legacy Plaintext移行、Rotation、失敗時の安全な挙動が決まっていない。
+- Key選択、Authenticated Encryption、Associated Data、旧Plaintext Schemaの拒否境界、Rotation、失敗時の安全な挙動が決まっていない。
 
 TenantをPayload内だけへ追加すると、認可前に復号が必要になり、誤TenantのDataへ触れてからPolicyを評価することになる。暗号化だけを先行すると、Current SQL Projection、Retention、Replay、Status Queryを破壊する。Tenant Identity、Clear Metadata、Restricted Raw Port、Encrypted Blobを一つのContractとして確定する。
 
@@ -41,7 +41,7 @@ TenantをPayload内だけへ追加すると、認可前に復号が必要にな�
 - End-user QueryとFramework Infrastructure Raw Portを区別する
 - Canonical／Outcome／Transport BlobをAuthenticated Encryptionで保護する
 - CiphertextのRow／Field差し替えをAssociated Dataで拒否する
-- Existing Plaintext Rowを停止時間なしで段階移行できる
+- Experimental v1の旧Plaintext Schemaを暗黙互換せず、安全に検出して拒否できる
 - Key Rotation中のCrash、Retry、旧Key読取を決定的に扱う
 - Key MaterialをRepository、Build Artifact、Manifest、Log、Journalへ保存しない
 
@@ -63,6 +63,7 @@ ActorとTenantは多対多になり得て、Service ActorやScheduled Actorが�
 
 [ANSWER]
 
+A
 
 [/ANSWER]
 
@@ -84,6 +85,7 @@ HTTP AnonymousはTenantなしを許可する。Tenant Headerだけを無条件�
 
 [ANSWER]
 
+A
 
 [/ANSWER]
 
@@ -91,7 +93,7 @@ HTTP AnonymousはTenantなしを許可する。Tenant Headerだけを無条件�
 
 ### Options
 
-- A: Operation-owned PostgreSQL RowへNullable Tenant Type／IDのClear Metadataを追加し、Operation IDとTenantをQuery／Constraint／Indexで併用する。Status認可前Subject、Worker Claim、Retention、ReplayはEncrypted BlobをDecodeせず必要最小Columnだけを読む。Legacy RowはTenantなしのまま扱い、自動推測しない
+- A: Operation-owned PostgreSQL RowへNullable Tenant Type／IDのClear Metadataを追加し、Operation IDとTenantをQuery／Constraint／Indexで併用する。Status認可前Subject、Worker Claim、Retention、ReplayはEncrypted BlobをDecodeせず必要最小Columnだけを読む。TenantなしRowは明示的なGlobal／Single-tenant Operationだけに使い、Tenantを自動推測しない
 - B: TenantはEncrypted ExecutionContext内だけに保存し、Query後に復号して一致を確認する
 - C: ApplicationごとにDatabaseまたはSchemaを完全分離し、Framework RowへTenant Metadataを追加しない
 
@@ -107,6 +109,7 @@ Database／Schema分離はApplicationが追加で採用できるが、Framework�
 
 [ANSWER]
 
+A
 
 [/ANSWER]
 
@@ -130,6 +133,7 @@ Framework内部のStatus Projection、Worker、Idempotency Recovery、Observer R
 
 [ANSWER]
 
+A
 
 [/ANSWER]
 
@@ -151,6 +155,7 @@ EnvelopeはVersion、Algorithm、Key ID、Nonce、Ciphertext、Authentication Ta
 
 [ANSWER]
 
+A
 
 [/ANSWER]
 
@@ -172,31 +177,35 @@ Key Materialは`#[SensitiveParameter]`で受け、Repository、Environment Snaps
 
 [ANSWER]
 
+A
 
 [/ANSWER]
 
-## Question 7: Protection Mode and Legacy Plaintext
+## Question 7: Required Protection and Breaking Upgrade
 
 ### Options
 
-- A: `disabled`、`migration`、`required`の明示Modeを持つ。`disabled`はPlaintext read/write、`migration`はEncrypted write＋Legacy Plaintext read、`required`はEncrypted write/readだけとする。ModeとProvider不整合はBootstrap Errorで、Decrypt Failure時にPlaintextへFallbackしない
-- B: Providerがあれば暗号化し、失敗したら自動的にPlaintextへ保存／読取する
-- C: Encryption有効化時にExisting Plaintext Rowを一括Migrationし、完了までApplicationを停止する
+- A: Protected Storageは常にEncrypted Envelopeを必須とし、`disabled`／`migration` ModeとLegacy Plaintext Dual-readを提供しない。旧SchemaまたはPlaintext Rowを検出したUpgradeは安全に停止し、利用者がDatabase Reset／RecreateまたはFramework外のOffline変換を明示的に選ぶ
+- B: Encryptionは必須にするが、Legacy Plaintext Readだけを一時的なCompatibilityとして残す
+- C: `disabled`、`migration`、`required`の3 Modeを提供し、段階移行をFrameworkが支援する
 
 ### Recommendation
 
 Aを推奨する。
 
-自動FallbackはKey障害時に平文を増やす。全件停止Migrationは大規模Journal／Outcomeで長時間停止を要求する。明示3 Modeなら、既存Applicationは`disabled`を維持し、`migration`で新規Writeを保護しながら段階変換し、Plaintext残数が0になってから`required`へ移れる。
+BlackOps 1.xはExperimentalであり、Production Readyは2.xからを予定する。v1開発中の旧Plaintext ContractへRuntime互換を持たせるより、保護を必須化して実装／運用Surfaceを小さく保つ。Provider未設定はBootstrap Errorとし、New Write／ReadはEncrypted Envelopeだけを受理する。
 
-Envelope HeaderがないRowだけをLegacy Plaintextと判定する。Envelopeらしいが壊れている、Unknown Version、Unknown Key、Tag不一致はCorrupt／Protection Failureであり、Plaintextとして再解釈しない。`required`はLegacy PlaintextをSafe Errorで拒否する。
+Breaking Upgradeは既存Dataの無断削除を意味しない。Migrationは旧Schemaまたは保護対象の既存Plaintext Rowを検出したらDataを変更せず停止し、Safe ErrorでReset／RecreateまたはApplication-owned Offline変換が必要であることを示す。FrameworkはPlaintextを自動変換、Tenant推測、自動削除しない。
+
+Envelope Header欠落、Envelopeらしいが壊れているData、Unknown Version／Key、Tag不一致はすべてProtection Failureであり、Plaintextとして再解釈しない。
 
 [ANSWER]
 
+A
 
 [/ANSWER]
 
-## Question 8: Key Rotation, Tenant Keys, and Migration CLI
+## Question 8: Key Rotation, Tenant Keys, and Rotation CLI
 
 ### Options
 
@@ -214,6 +223,7 @@ Rotationは新規Write Keyの切替と既存EnvelopeのRe-encryptを分ける。
 
 [ANSWER]
 
+A
 
 [/ANSWER]
 
@@ -224,7 +234,7 @@ Question 1〜8でAを採用する場合、Production Deliveryは少なくとも�
 1. TenantRef、ExecutionContext、Entry Provider、Child／Retry／Replay Propagation
 2. PostgreSQL Tenant Columns、Migration、Identity／Integrity、Status Subject
 3. Default-deny Journal／Outcome Query AuthorizationとInfrastructure Raw Port分離
-4. Sodium Envelope、Storage Key Provider、Protection Mode
+4. Sodium Envelope、Storage Key Provider、Required Protection、Breaking Upgrade Guard
 5. Journal／Transport／Outcome／Outbox／Dead Letter Reason／Idempotency Adapter Protection
 6. Plan／Rotate CLI、Audit、Checkpoint／Resume、Crash／Concurrency Consumer Evidence
 7. Guide、Security、Deployment、Troubleshooting、Reference、Documentation Review

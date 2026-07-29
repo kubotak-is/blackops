@@ -1,12 +1,12 @@
 # P20-015: Tenant Isolation and Protected Operation Data Contract
 
-Status: User Decision Pending
+Status: Accepted
 
 ## Goal
 
 Phase 20のJournal／Outcome参照制御、Tenant分離、暗号化CapabilityをProduction Code変更前に確定する。
 
-Tenant Identity／伝播、PostgreSQL Clear Subject、Status／Journal／Outcome Read Policy、Protected Storage Scope、Authenticated Encryption、Legacy Plaintext移行、Key Rotationを一つのDecisionへ整理し、実装可能なSliceへ分割する。
+Tenant Identity／伝播、PostgreSQL Clear Subject、Status／Journal／Outcome Read Policy、Protected Storage Scope、Authenticated Encryption、旧Plaintext Contractの拒否境界、Key Rotationを一つのDecisionへ整理し、実装可能なSliceへ分割する。
 
 ## Source of Truth
 
@@ -40,7 +40,7 @@ Tenant Identity／伝播、PostgreSQL Clear Subject、Status／Journal／Outcome
 - Infrastructure Raw PortとEnd-user Query Portの分離
 - Journal／Transport／Outcome／Outbox／Dead Letter Reason／Idempotency Response／ResultのProtection Scope
 - Authenticated Encryption Envelope、AAD、Algorithm、Key Provider
-- Protection Mode、Legacy Plaintext、Corrupt Envelope境界
+- Required Protection、Breaking Upgrade、Corrupt Envelope境界
 - Key Rotation、Plan／Rotate CLI、Audit、Checkpoint／Resume
 - D135 Question、Recommendation、User回答
 - Decision後のSpecification／Production Task分割
@@ -59,11 +59,20 @@ Tenant Identity／伝播、PostgreSQL Clear Subject、Status／Journal／Outcome
 ## Files Allowed to Change
 
 - `develop/decisions/135-tenant-isolation-and-protected-operation-data.md`
+- `develop/spec/99-tenant-isolation-and-protected-operation-data.md`
 - `develop/spec/README.md`
 - `develop/TODO.md`
 - `develop/STATE.md`
 - This Task Packet
 - `develop/orchestration/reports/P20-015-tenant-isolation-and-protected-operation-data-contract.md`
+- `develop/orchestration/tasks/P20-016A-tenant-context-and-propagation.md`
+- `develop/orchestration/tasks/P20-016B-storage-protection-core.md`
+- `develop/orchestration/tasks/P20-016C-postgresql-tenant-isolation.md`
+- `develop/orchestration/tasks/P20-016D-operation-data-read-authorization.md`
+- `develop/orchestration/tasks/P20-016E-core-operation-storage-protection.md`
+- `develop/orchestration/tasks/P20-016F-reliability-storage-protection.md`
+- `develop/orchestration/tasks/P20-016G-storage-key-rotation.md`
+- `develop/orchestration/tasks/P20-016H-tenant-protection-documentation.md`
 
 User回答後に確定Specificationを追加する。Production Codeまたは上記以外の変更が必要なら実装を広げず、Reportへ記録する。
 
@@ -75,7 +84,7 @@ User回答後に確定Specificationを追加する。Production Codeまたは上
 4. Existing Status AuthorizerとRaw Journal／Outcome Readerをどう分離するか。
 5. どのFramework-owned Blobを保護し、どのMetadataをQuery用Clear Columnに残すか。
 6. Algorithm、Nonce、AAD、Envelope、Key Materialの責任をFramework／Applicationでどう分けるか。
-7. Existing Plaintext Rowを停止時間なしで暗号化へ移行し、Corrupt EnvelopeをFail-closedにできるか。
+7. Experimental v1の旧Plaintext Contractを暗黙互換せず、既存Dataを無断変更せずにFail-closedで拒否できるか。
 8. Per-tenant／Purpose Key、Rotation、Audit、Checkpoint、Crash Recoveryをどう扱うか。
 
 ## Acceptance Criteria
@@ -87,11 +96,11 @@ User回答後に確定Specificationを追加する。Production Codeまたは上
 - [x] PostgreSQL Clear SubjectとTenant Integrity候補を示す
 - [x] Journal／Outcome Read Authorization候補を示す
 - [x] Protected Storage Scope、AEAD、AAD、Key Provider候補を示す
-- [x] Protection Mode、Legacy Plaintext、Rotation候補を示す
-- [ ] User回答をD135へ反映し、D135をDecidedにする
-- [ ] 確定SpecificationとProduction Task Packetへ分割する
+- [x] Required Protection、Breaking Upgrade Guard、Rotation候補を示す
+- [x] User回答をD135へ反映し、D135をDecidedにする
+- [x] 確定SpecificationとProduction Task Packetへ分割する
 - [x] Production Codeを変更しない
-- [x] STATE／TODO／Decision Index／Reportを同期し、Commitしない
+- [x] STATE／TODO／Decision Index／Reportを同期する
 
 ## Required Commands
 
@@ -100,7 +109,7 @@ rg -n "Tenant|OperationStatusAuthorizer|CanonicalJournalReader|OutcomeReader|enc
 git diff --check
 ```
 
-Production Code／Testは変更しないため、Existing SuiteはこのDecision Pending時点で再実行しない。User回答後の確定SpecificationでMigration、Crypto Known-answer、Tamper、Tenant Isolation、Crash／RotationのTest Matrixを定義する。
+Production Code／Testは変更しないため、Contract確定段階ではExisting Suiteを再実行しない。次の確定SpecificationでMigration、Crypto Known-answer、Tamper、Tenant Isolation、Crash／RotationのTest Matrixを定義する。
 
 ## Completion Report
 
