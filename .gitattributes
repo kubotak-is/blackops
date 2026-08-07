@@ -2,6 +2,7 @@
 /.gitattributes export-ignore
 /.agents export-ignore
 /.codex export-ignore
+/.claude export-ignore
 /.github export-ignore
 /develop export-ignore
 /docs export-ignore

@@ -1,6 +1,27 @@
 # Orchestration State
 
-Updated At: 2026-08-08T00:37:46+09:00
+Updated At: 2026-08-08T00:46:25+09:00
+
+## P20-016C Post-commit Package Correction Accepted
+
+```text
+2026-08-08T00:46:25+09:00
+Orchestratorは/.claudeのexport-ignore／Composer archive.exclude／Consumer excluded-path同期を独立Reviewし、Exact framework-package-exportでGit／Composer両Archive、Version20260803000000、許可Root Inventory、抽出Package Composer validation／autoloadをPASS確認した。Standalone composer validate、shell syntax、git diff checkもPASS。P20-016Cを再Acceptedとし、追補Commit後にP20-016Eを開始する。Push／Deployなし。
+```
+
+## P20-016C Post-commit Package Correction Review Pending
+
+```text
+2026-08-08T00:46:12+09:00
+Accepted commit 3671ca0のpost-commit framework-package-exportでComposer archiveへ混入した空の/.claude rootを、.gitattributes／composer.json／Consumer excluded-path contractへ同期除外した。Exact bash tests/Consumer/framework-package-export.shはGit／Composer双方PASSし、Migration Version20260803000000とallowed root inventoryを確認。Standalone Composer validateもretryでPASS。Task／Report／TODOをReview Pendingへ更新。P20-016E開始・Push／Deployなし。
+```
+
+## P20-016C Post-commit Package Correction Start
+
+```text
+2026-08-08T00:42:49+09:00
+Accepted P20-016C／Dを3671ca0としてCommit後、git archive HEADが新Migrationを含む状態でframework-package-exportを再実行した。Migration欠落は解消したが、Composer archiveだけがlocal empty .claude directoryをRootへ含め、許可inventory外としてFAILした。Git archiveは影響を受けない。Repository automation metadataをpackageから除外する既存Contractの最小Correctionとして.gitattributes、composer.json、Consumer testをFiles Allowedへ追加し、同Workerへ修正を委譲する。P20-016E開始はCorrection Acceptance後。Push／Deployなし。
+```
 
 ## P20-016D Accepted
 

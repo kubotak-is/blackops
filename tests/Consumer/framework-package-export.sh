@@ -105,6 +105,7 @@ validate_package() {
         .gitattributes \
         .agents \
         .codex \
+        .claude \
         .github \
         develop \
         docs \

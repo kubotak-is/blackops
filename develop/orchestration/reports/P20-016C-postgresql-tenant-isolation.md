@@ -8,6 +8,8 @@ Implemented restricted clear tenant metadata across PostgreSQL operation-owned s
 
 See the working-tree diff. Changes are limited to the Task Packet allow-list, including PostgreSQL Transport schemas/stores, Internal Idempotency/Execution/Scheduling/Retention, Core carrier files approved by Scope Corrections, migration/package inventory, tests/report/state files.
 
+Post-commit correction files: `.gitattributes`, `composer.json`, `tests/Consumer/framework-package-export.sh`, Task/Report/TODO/STATE synchronization.
+
 ## Decisions and Assumptions
 
 - Tenant and origin pairs remain both-null or both-present; no legacy inference or payload decode is used for subject reads.
@@ -38,10 +40,14 @@ See the working-tree diff. Changes are limited to the Task Packet allow-list, in
 - Orchestrator broad `mago lint`: repository baseline FAIL (83 findings: 9 errors, 28 warnings, 29 notes, 17 help); no task-diff error remains.
 - Orchestrator broad `mago analyze`: PASS with 17 warnings and zero errors.
 - Orchestrator `vendor/bin/deptrac`: repository tooling FAIL at `vendor/deptrac/deptrac/src/DefaultBehavior/Ast/Parser/Helpers/NikicFileReferenceVisitor.php:106` under PHP 8.5.
-- Orchestrator `bash tests/Consumer/framework-package-export.sh`: pre-commit FAIL because `git archive HEAD` cannot include the untracked `Version20260803000000.php`. A separate Composer archive inspection confirmed `migrations/postgresql/Version20260803000000.php` is present, and the required package inventory includes it. No commit was made merely to satisfy this pre-commit limitation.
+- The earlier pre-commit archive limitation is resolved by accepted commit `3671ca0`; the exact post-commit export now passes.
 - `! rg -n 'convert_from\\([^)]*encoded_(record|payload|context)' src tests`: PASS (zero matches, including Consumer shell journeys).
 - Management-ID guard, Consumer encoded-field guard, touched Consumer shell syntax, and `git diff --check`: PASS.
 - Consumer SQL uses clear columns; no test or journey decodes or inspects restricted blobs in SQL.
+- Post-commit package correction excluded `/.claude` from both `.gitattributes` and `composer.json` archive rules and synchronized the Consumer excluded-path contract. Exact `bash tests/Consumer/framework-package-export.sh`: PASS for both Git and Composer archives, including `Version20260803000000.php` and the allowed root inventory.
+- Post-correction shell syntax, encoded-field guard, management-ID guard, and `git diff --check`: PASS.
+- Post-correction `docker compose run --rm app mago format --check src tests`: PASS.
+- Standalone `docker compose run --rm app composer validate --strict`: PASS after retry; package-export validation also passed Composer validation for both extracted archives.
 
 ## Acceptance Criteria
 
@@ -53,14 +59,14 @@ See the working-tree diff. Changes are limited to the Task Packet allow-list, in
 - PASS: Status subject uses only restricted clear columns and the encoded-field SQL projection guard has zero matches.
 - PASS: tenant-aware idempotency scope v2 and scheduled candidate/global-skip behavior are covered.
 - PASS: global/single-tenant behavior and the full suite remain green.
-- PASS: Task, Report, STATE, and TODO are synchronized; worker made no commit.
+- PASS: Task, Report, STATE, and TODO are synchronized; the package correction is independently accepted and worker made no commit.
 
 ## Remaining Issues
 
 - Broad Mago lint retains the repository baseline outside this Task: 83 findings including 9 errors. Task-diff error-level findings are clean.
 - Deptrac cannot parse its own vendor visitor on the repository PHP 8.5 runtime; this is the recorded tooling baseline, not a dependency violation result.
-- The exact Git package archive cannot include the new migration until a later authorized commit. Composer archive inclusion and package inventory are verified now.
+- No remaining command blocker; the initial Docker API permission failure was transient and the retry passed.
 
 ## Suggested Next Action
 
-Proceed to P20-016D for tenant-aware Status and default-deny Journal/Outcome reads. Commit/push remains a separate user-authorized handoff; no commit, push, or deploy was performed.
+Commit the accepted package-metadata correction, then proceed to P20-016E. No push or deploy was performed.

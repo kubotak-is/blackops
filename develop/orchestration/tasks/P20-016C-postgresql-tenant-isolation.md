@@ -74,6 +74,8 @@ Operation-owned PostgreSQL RowへRestricted Clear Tenant／Origin Actor Subject�
 - Corresponding files under `tests/Internal/Status/**`
 - Corresponding files under `tests/Internal/Migration/**`
 - Migration／package export Consumer scripts
+- `.gitattributes`
+- `composer.json`
 - `tests/Integration/MvpSampleEndToEndTest.php`
 - `tests/Integration/ApplicationConsoleKernelTest.php`
 - `tests/Http/DeferredOperationRequestHandlerTest.php`
