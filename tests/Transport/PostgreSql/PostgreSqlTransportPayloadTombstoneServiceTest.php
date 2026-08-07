@@ -164,8 +164,8 @@ final class PostgreSqlTransportPayloadTombstoneServiceTest extends TestCase
     {
         $row = $this->connection->fetchAssociative(
             'SELECT
-                convert_from(encoded_payload, \'UTF8\') AS encoded_payload,
-                convert_from(encoded_context, \'UTF8\') AS encoded_context,
+                encode(encoded_payload, \'escape\') AS encoded_payload,
+                encode(encoded_context, \'escape\') AS encoded_context,
                 to_char(payload_purged_at AT TIME ZONE \'UTC\', \'YYYY-MM-DD"T"HH24:MI:SS.US"Z"\') AS payload_purged_at
             FROM ' . self::SCHEMA . '.operations
             WHERE operation_id = :operation_id',

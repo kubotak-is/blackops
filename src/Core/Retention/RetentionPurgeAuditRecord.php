@@ -7,6 +7,7 @@ namespace BlackOps\Core\Retention;
 use BlackOps\Core\Attribute\PublicApi;
 use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Core\Identifier\RetentionPurgeAuditId;
+use BlackOps\Core\TenantRef;
 use DateTimeImmutable;
 use DateTimeZone;
 use InvalidArgumentException;
@@ -22,6 +23,7 @@ final readonly class RetentionPurgeAuditRecord
         private RetentionPolicyRef $policy,
         private DateTimeImmutable $purgedAt,
         private RetentionActorRef $purgedBy,
+        private ?TenantRef $tenant = null,
     ) {
         if ($affectedCount < 1) {
             throw new InvalidArgumentException('Retention purge affected count must be positive.');
@@ -61,5 +63,10 @@ final readonly class RetentionPurgeAuditRecord
     public function purgedBy(): RetentionActorRef
     {
         return $this->purgedBy;
+    }
+
+    public function tenant(): ?TenantRef
+    {
+        return $this->tenant;
     }
 }

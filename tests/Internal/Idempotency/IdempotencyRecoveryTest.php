@@ -501,8 +501,18 @@ final class RecoveryRaceStore implements IdempotencyStore
         ExecutionStrategy $strategy,
         DateTimeImmutable $createdAt,
         DateTimeImmutable $expiresAt,
+        ?\BlackOps\Core\TenantRef $tenant = null,
     ): IdempotencyClaimResult {
-        return $this->delegate->claim($scope, $key, $fingerprint, $operationId, $strategy, $createdAt, $expiresAt);
+        return $this->delegate->claim(
+            $scope,
+            $key,
+            $fingerprint,
+            $operationId,
+            $strategy,
+            $createdAt,
+            $expiresAt,
+            $tenant,
+        );
     }
 
     public function terminalize(

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BlackOps\Transport\PostgreSql;
 
 use BlackOps\Core\Identifier\OperationId;
+use BlackOps\Core\TenantRef;
 use BlackOps\Outcome\Exception\OutcomeStoreException;
 use BlackOps\Outcome\OutcomeRecord;
 use BlackOps\Outcome\OutcomeStore;
@@ -12,6 +13,7 @@ use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 use Throwable;
 
+/** @mago-expect lint:cyclomatic-complexity */
 final readonly class PostgreSqlOutcomeStore implements OutcomeStore
 {
     private PostgreSqlOutcomeSchema $schema;
@@ -46,12 +48,16 @@ final readonly class PostgreSqlOutcomeStore implements OutcomeStore
                     operation_id,
                     outcome_type,
                     schema_version,
+                    tenant_type,
+                    tenant_id,
                     encoded_payload,
                     completed_at
                 ) SELECT
                     :operation_id,
                     :outcome_type,
                     :schema_version,
+                    o.tenant_type,
+                    o.tenant_id,
                     convert_to(:encoded_payload, 'UTF8'),
                     :completed_at
                 FROM {$this->schema->operationsTable()} o
@@ -87,7 +93,7 @@ final readonly class PostgreSqlOutcomeStore implements OutcomeStore
                 "SELECT
                     outcome_type,
                     schema_version,
-                    convert_from(encoded_payload, 'UTF8') AS encoded_payload,
+                    encoded_payload,
                     completed_at::text AS completed_at
                 FROM {$table}
                 WHERE operation_id = :operation_id",
@@ -103,7 +109,7 @@ final readonly class PostgreSqlOutcomeStore implements OutcomeStore
                 $this->codec->decode(
                     $this->string($row, 'outcome_type'),
                     $this->integer($row, 'schema_version'),
-                    $this->string($row, 'encoded_payload'),
+                    PostgreSqlBytea::string($row['encoded_payload'] ?? null),
                 ),
                 new DateTimeImmutable($this->string($row, 'completed_at')),
             );
@@ -113,6 +119,44 @@ final readonly class PostgreSqlOutcomeStore implements OutcomeStore
             }
 
             throw new OutcomeStoreException('Failed to find PostgreSQL outcome.', previous: $exception);
+        }
+    }
+
+    public function findForTenant(OperationId $operationId, ?TenantRef $tenant): ?OutcomeRecord
+    {
+        $table = $this->schema->table();
+        try {
+            $row = $this->connection->fetchAssociative(
+                "SELECT outcome_type, schema_version,
+                    encoded_payload,
+                    completed_at::text AS completed_at
+                 FROM {$table}
+                 WHERE operation_id = :operation_id
+                   AND tenant_type IS NOT DISTINCT FROM :tenant_type
+                   AND tenant_id IS NOT DISTINCT FROM :tenant_id",
+                [
+                    'operation_id' => $operationId->toString(),
+                    'tenant_type' => $tenant?->type(),
+                    'tenant_id' => $tenant?->id(),
+                ],
+            );
+            if ($row === false) {
+                return null;
+            }
+            return new OutcomeRecord(
+                $operationId,
+                $this->codec->decode(
+                    $this->string($row, 'outcome_type'),
+                    $this->integer($row, 'schema_version'),
+                    PostgreSqlBytea::string($row['encoded_payload'] ?? null),
+                ),
+                new DateTimeImmutable($this->string($row, 'completed_at')),
+            );
+        } catch (Throwable $exception) {
+            if ($exception instanceof OutcomeStoreException) {
+                throw $exception;
+            }
+            throw new OutcomeStoreException('Failed to find PostgreSQL tenant outcome.', previous: $exception);
         }
     }
 

@@ -90,6 +90,7 @@ final readonly class ApplicationWorkerComposer
         );
         $artifacts->container->set(TransactionalOutbox::class, $outbox);
         $artifacts->container->set(Operations::class, $outbox);
+        new OperationDataRuntimeInjector()->inject($artifacts->container, $main, $database->schema);
         $services = new DeferredWorkerRuntimeServices(
             $artifacts->operations,
             new ReflectionJsonOperationCodec(),

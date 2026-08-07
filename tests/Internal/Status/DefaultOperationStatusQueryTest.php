@@ -6,6 +6,7 @@ namespace BlackOps\Tests\Internal\Status;
 
 use BlackOps\Core\ActorRef;
 use BlackOps\Core\Identifier\OperationId;
+use BlackOps\Core\TenantRef;
 use BlackOps\Internal\Status\DefaultOperationStatusQuery;
 use BlackOps\Internal\Status\OperationStatusDetail;
 use BlackOps\Internal\Status\OperationStatusDetailExpired;
@@ -109,6 +110,39 @@ final class DefaultOperationStatusQueryTest extends TestCase
         self::assertSame('report.generate', $authorizer->request?->operationType());
         self::assertNull($authorizer->request?->currentActor());
         self::assertNull($authorizer->request?->originActor());
+    }
+
+    public function testTenantAuthorizationMatrixPreservesCurrentAndOriginScopes(): void
+    {
+        foreach ([
+            'none' => null,
+            'same' => new TenantRef('customer', 'tenant-a'),
+            'cross' => new TenantRef('customer', 'tenant-b'),
+        ] as $label => $currentTenant) {
+            $calls = new StatusCallLog();
+            $subject = new OperationStatusSubject(
+                $this->operationId(),
+                'report.generate',
+                null,
+                new TenantRef('customer', 'tenant-a'),
+            );
+            $source = new FakeOperationStatusSource(
+                $calls,
+                $subject,
+                new OperationStatusDetail(OperationStatus::accepted($this->operationId(), 'report.generate')),
+            );
+            $authorizer = new FakeOperationStatusAuthorizer($calls, OperationStatusAuthorizationDecision::allow());
+
+            $result = new DefaultOperationStatusQuery($source, $authorizer)->findForTenant(
+                $this->operationId(),
+                null,
+                $currentTenant,
+            );
+
+            self::assertInstanceOf(OperationStatusFound::class, $result, $label);
+            self::assertSame($currentTenant, $authorizer->request?->currentTenant(), $label);
+            self::assertSame('tenant-a', $authorizer->request?->originTenant()?->id(), $label);
+        }
     }
 
     public function testMismatchedSubjectFailsIntegrityBeforeAuthorization(): void

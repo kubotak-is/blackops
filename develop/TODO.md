@@ -211,8 +211,8 @@ MVP後に残す主要項目:
 - [x] Journal／Outcome参照制御、Tenant分離、暗号化CapabilityのContractを確定する（D135／Specification 99／P20-015、Accepted）
 - [x] TenantRefとRoot／Child／Worker／Retry Tenant伝播を実装する（P20-016A、Accepted）
 - [x] XChaCha20-Poly1305 EnvelopeとStorage Key Providerを実装する（P20-016B、Accepted）
-- [ ] PostgreSQL Tenant MetadataとDecode前Isolationを実装する（P20-016C、P20-016B後）
-- [ ] Tenant-aware StatusとDefault-deny Journal／Outcome Readを実装する（P20-016D、P20-016C後）
+- [x] PostgreSQL Tenant MetadataとDecode前Isolationを実装する（P20-016C、Accepted）
+- [x] Tenant-aware StatusとDefault-deny Journal／Outcome Readを実装する（P20-016D、Accepted）
 - [ ] Journal／Deferred Payload／Context／OutcomeをEncrypted Envelopeへ移行する（P20-016E、P20-016D後）
 - [ ] Outbox／Dead Letter Reason／Idempotency Response／Resultを保護する（P20-016F、P20-016E後）
 - [ ] Storage Key Rotation CLI、Audit、Checkpoint／Resumeを実装する（P20-016G、P20-016F後）

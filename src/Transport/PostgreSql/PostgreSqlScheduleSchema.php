@@ -18,7 +18,7 @@ final readonly class PostgreSqlScheduleSchema
     {
         $states = $this->table('schedule_states');
         $occurrences = $this->table('schedule_occurrences');
-        return [
+        $statements = [
             'CREATE SCHEMA IF NOT EXISTS ' . $this->identifier->quoted(),
             "CREATE TABLE IF NOT EXISTS {$states} (
                 schedule_name text PRIMARY KEY CHECK (schedule_name ~ '^[a-z0-9]+(?:\\.[a-z0-9]+)*$'),
@@ -34,6 +34,8 @@ final readonly class PostgreSqlScheduleSchema
                 state text NOT NULL CHECK (state IN ('claimed','accepted','completed','rejected','failed','dead_lettered','skipped_misfire','skipped_overlap')),
                 category text NULL CHECK (category IS NULL OR category <> ''),
                 operation_id uuid NULL UNIQUE,
+                tenant_type text NULL,
+                tenant_id text NULL,
                 accepted_at timestamptz NULL,
                 created_at timestamptz NOT NULL,
                 updated_at timestamptz NOT NULL,
@@ -45,6 +47,8 @@ final readonly class PostgreSqlScheduleSchema
             "CREATE INDEX IF NOT EXISTS schedule_occurrences_recovery_idx ON {$occurrences} (schedule_name, scheduled_at, created_at) WHERE state = 'claimed'",
             "CREATE INDEX IF NOT EXISTS schedule_occurrences_state_idx ON {$occurrences} (schedule_name, state, scheduled_at)",
         ];
+
+        return array_merge($statements, PostgreSqlTenantMetadata::alter($occurrences, 'schedule_occurrences'));
     }
 
     public function statesTable(): string

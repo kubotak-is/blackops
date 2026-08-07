@@ -1,6 +1,6 @@
 # P20-016D: Operation Data Read Authorization
 
-Status: Ready
+Status: Accepted
 
 ## Goal
 
@@ -49,6 +49,7 @@ Status AuthorizationをTenant-awareにし、ApplicationからCanonical Journal�
 - `src/Internal/Http/OperationStatusAuthorizerResolver.php`
 - `src/Internal/Diagnostics/**`
 - `src/Internal/Application/**`
+- `src/Internal/DependencyInjection/RuntimeContainerCompiler.php`
 - `src/Application/ApplicationBuilder.php`
 - `src/Http/Status/**`
 - `src/Transport/PostgreSql/PostgreSqlStatusReader.php`
@@ -58,8 +59,11 @@ Status AuthorizationをTenant-awareにし、ApplicationからCanonical Journal�
 - Corresponding files under `tests/Internal/OperationData/**`
 - Corresponding files under `tests/Internal/Diagnostics/**`
 - Corresponding files under `tests/Internal/Application/**`
+- `tests/Internal/DependencyInjection/RuntimeContainerCompilerTest.php`
 - Corresponding files under `tests/Http/Status/**`
 - Corresponding PostgreSQL query tests
+- `tests/Journal/JournalPortTest.php`
+- `tests/Outcome/OutcomeRecordTest.php`
 - `deptrac.yaml`
 - `develop/spec/16-namespace-dependencies.md`
 - `develop/spec/99-tenant-isolation-and-protected-operation-data.md`
@@ -87,17 +91,17 @@ Status AuthorizationをTenant-awareにし、ApplicationからCanonical Journal�
 
 ## Acceptance Criteria
 
-- [ ] Status AuthorizerがCurrent／Origin Tenantを受ける
-- [ ] Tenantなし／あり、Same／Cross TenantのStatus Authorization Matrixが固定される
-- [ ] Journal／Outcome QueryがFound／Unavailableを型で区別する
-- [ ] 未Binding／Deny／Unknown／Tenant不一致でDecoderが呼ばれない
-- [ ] Authorizer ThrowableとStorage／Decode／Integrity FailureがStable Safe Codeになる
-- [ ] Raw ReaderがInfrastructure Runtimeでは使え、Application Reader Bindingから取得できない
-- [ ] Status HTTPの401／404／410／500とTyped Outcomeを維持する
-- [ ] `operation:inspect`がSafe Projectionだけを返す
-- [ ] Cross-tenant Information LeakがResponse／Timing対策可能Pathで抑制される
-- [ ] Full Suite／Architecture Guardが成功する
-- [ ] Report／STATE／TODOを同期し、WorkerはCommitしない
+- [x] Status AuthorizerがCurrent／Origin Tenantを受ける
+- [x] Tenantなし／あり、Same／Cross TenantのStatus Authorization Matrixが固定される
+- [x] Journal／Outcome QueryがFound／Unavailableを型で区別する
+- [x] 未Binding／Deny／Unknown／Tenant不一致でDecoderが呼ばれない
+- [x] Authorizer ThrowableとStorage／Decode／Integrity FailureがStable Safe Codeになる
+- [x] Raw ReaderがInfrastructure Runtimeでは使え、Application Reader Bindingから取得できない
+- [x] Status HTTPの401／404／410／500とTyped Outcomeを維持する
+- [x] `operation:inspect`がSafe Projectionだけを返す
+- [x] Cross-tenant Information LeakがResponse／Timing対策可能Pathで抑制される
+- [x] Full Suite／Architecture Guardが成功する
+- [x] Report／STATE／TODOを同期し、WorkerはCommitしない
 
 ## Required Commands
 

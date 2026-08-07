@@ -22,13 +22,14 @@ final class OutcomeRecordTest extends TestCase
     {
         foreach ([
             OutcomeRecord::class,
-            OutcomeReader::class,
             OutcomeWriter::class,
             OutcomeStore::class,
             OutcomeStoreException::class,
         ] as $type) {
             self::assertCount(1, new ReflectionClass($type)->getAttributes(PublicApi::class));
         }
+
+        self::assertCount(0, new ReflectionClass(OutcomeReader::class)->getAttributes(PublicApi::class));
 
         self::assertContains(OutcomeReader::class, class_implements(OutcomeStore::class));
         self::assertContains(OutcomeWriter::class, class_implements(OutcomeStore::class));

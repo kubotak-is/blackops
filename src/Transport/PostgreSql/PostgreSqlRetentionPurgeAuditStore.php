@@ -29,6 +29,8 @@ final readonly class PostgreSqlRetentionPurgeAuditStore implements RetentionPurg
                 "INSERT INTO {$table} (
                     audit_id,
                     operation_id,
+                    tenant_type,
+                    tenant_id,
                     target,
                     affected_count,
                     policy,
@@ -37,15 +39,20 @@ final readonly class PostgreSqlRetentionPurgeAuditStore implements RetentionPurg
                 ) VALUES (
                     :audit_id,
                     :operation_id,
+                    :tenant_type,
+                    :tenant_id,
                     :target,
                     :affected_count,
                     :policy,
                     :purged_at,
                     :purged_by
-                )",
+                )
+                ",
                 [
                     'audit_id' => $record->id()->toString(),
                     'operation_id' => $record->operationId()->toString(),
+                    'tenant_type' => $record->tenant()?->type(),
+                    'tenant_id' => $record->tenant()?->id(),
                     'target' => $record->target()->value,
                     'affected_count' => $record->affectedCount(),
                     'policy' => $record->policy()->toString(),

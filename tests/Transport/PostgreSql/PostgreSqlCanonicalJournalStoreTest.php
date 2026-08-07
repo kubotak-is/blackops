@@ -229,7 +229,7 @@ final class PostgreSqlCanonicalJournalStoreTest extends TestCase
 
         $records = array_values(iterator_to_array($this->store->records(OperationId::fromString(self::OPERATION_ID))));
         $encoded = $this->connection->fetchOne(
-            "SELECT convert_from(encoded_record, 'UTF8') FROM " . self::SCHEMA . '.journal',
+            "SELECT encode(encoded_record, 'escape') FROM " . self::SCHEMA . '.journal',
         );
 
         self::assertCount(1, $records);
@@ -277,7 +277,7 @@ final class PostgreSqlCanonicalJournalStoreTest extends TestCase
 
         $records = array_values(iterator_to_array($this->store->records(OperationId::fromString(self::OPERATION_ID))));
         $encoded = $this->connection->fetchOne(
-            "SELECT convert_from(encoded_record, 'UTF8') FROM " . self::SCHEMA . '.journal',
+            "SELECT encode(encoded_record, 'escape') FROM " . self::SCHEMA . '.journal',
         );
 
         self::assertCount(1, $records);

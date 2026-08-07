@@ -6,6 +6,7 @@ namespace BlackOps\Core\Retention;
 
 use BlackOps\Core\Attribute\PublicApi;
 use BlackOps\Core\Identifier\OperationId;
+use BlackOps\Core\TenantRef;
 use DateTimeImmutable;
 use DateTimeZone;
 use InvalidArgumentException;
@@ -18,6 +19,7 @@ final readonly class RetentionPlanItem
         private RetentionTarget $target,
         private DateTimeImmutable $basisAt,
         private DateTimeImmutable $eligibleAt,
+        private ?TenantRef $tenant = null,
     ) {
         if ($eligibleAt < $basisAt) {
             throw new InvalidArgumentException('Retention plan item eligible time must not be before basis time.');
@@ -42,6 +44,11 @@ final readonly class RetentionPlanItem
     public function eligibleAt(): DateTimeImmutable
     {
         return $this->utc($this->eligibleAt);
+    }
+
+    public function tenant(): ?TenantRef
+    {
+        return $this->tenant;
     }
 
     private function utc(DateTimeImmutable $time): DateTimeImmutable

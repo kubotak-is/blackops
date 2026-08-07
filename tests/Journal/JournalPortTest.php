@@ -22,7 +22,6 @@ final class JournalPortTest extends TestCase
     {
         foreach ([
             CanonicalJournalWriter::class,
-            CanonicalJournalReader::class,
             CanonicalJournalStore::class,
             JournalObserver::class,
             FlushableJournalObserver::class,
@@ -32,6 +31,8 @@ final class JournalPortTest extends TestCase
         ] as $type) {
             self::assertCount(1, new ReflectionClass($type)->getAttributes(PublicApi::class));
         }
+
+        self::assertCount(0, new ReflectionClass(CanonicalJournalReader::class)->getAttributes(PublicApi::class));
 
         $store = new ReflectionClass(CanonicalJournalStore::class);
         self::assertTrue($store->implementsInterface(CanonicalJournalWriter::class));

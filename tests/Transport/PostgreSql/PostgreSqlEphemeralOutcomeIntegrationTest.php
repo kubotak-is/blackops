@@ -103,7 +103,7 @@ final class PostgreSqlEphemeralOutcomeIntegrationTest extends TestCase
         self::assertInstanceOf(\BlackOps\Core\EmptyOutcome::class, $records[3]->data->outcome);
 
         $databaseDump = $connection->fetchOne(
-            "SELECT string_agg(convert_from(encoded_record, 'UTF8'), '') FROM " . self::SCHEMA . '.journal',
+            "SELECT string_agg(encode(encoded_record, 'escape'), '') FROM " . self::SCHEMA . '.journal',
         );
         self::assertIsString($databaseDump);
         foreach ([self::INPUT_SECRET, self::OUTPUT_SECRET, '"password"', '"token"'] as $forbidden) {

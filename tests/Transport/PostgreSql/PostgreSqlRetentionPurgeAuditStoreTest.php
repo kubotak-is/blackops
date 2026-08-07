@@ -86,6 +86,8 @@ final class PostgreSqlRetentionPurgeAuditStoreTest extends TestCase
                 'purged_at',
                 'purged_by',
                 'created_at',
+                'tenant_type',
+                'tenant_id',
             ],
             $columns,
         );

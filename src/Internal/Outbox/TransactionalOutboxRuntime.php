@@ -120,6 +120,8 @@ final readonly class TransactionalOutboxRuntime implements TransactionalOutbox, 
             $availableAt ?? $recordedAt,
             $recordedAt,
             $this->connectionName,
+            tenant: $child->tenant(),
+            originActor: $child->actorContext()?->origin(),
         );
         $this->store->insert($record);
 

@@ -6,7 +6,9 @@ namespace BlackOps\Http\Status;
 
 use BlackOps\Core\ActorRef;
 use BlackOps\Core\Identifier\OperationId;
+use BlackOps\Core\TenantRef;
 use BlackOps\Status\OperationStatusQuery;
+use BlackOps\Status\TenantAwareOperationStatusQuery;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -51,10 +53,15 @@ final readonly class OperationStatusRequestHandler implements RequestHandlerInte
             /** @var mixed $attribute */
             $attribute = $request->getAttribute(ActorRef::class);
 
-            return $this->responder->respond($this->query->find(
-                $operationId,
-                $attribute instanceof ActorRef ? $attribute : null,
-            ));
+            $actor = $attribute instanceof ActorRef ? $attribute : null;
+            /** @var mixed $tenantAttribute */
+            $tenantAttribute = $request->getAttribute(TenantRef::class);
+            $tenant = $tenantAttribute instanceof TenantRef ? $tenantAttribute : null;
+            $result = $this->query instanceof TenantAwareOperationStatusQuery
+                ? $this->query->findForTenant($operationId, $actor, $tenant)
+                : $this->query->find($operationId, $actor);
+
+            return $this->responder->respond($result);
         } catch (Throwable) {
             return $this->responder->internalError();
         }

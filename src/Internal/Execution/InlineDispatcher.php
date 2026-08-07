@@ -179,6 +179,7 @@ final readonly class InlineDispatcher implements Dispatcher, ScheduledInlineDisp
                     'rejected',
                     'validation_failed',
                     $rejectedRecord->occurredAt,
+                    $receivedEnvelope->context()->tenant(),
                 );
             }
 
@@ -193,6 +194,7 @@ final readonly class InlineDispatcher implements Dispatcher, ScheduledInlineDisp
                     $result->isCompleted() ? 'completed' : 'rejected',
                     $result->isCompleted() ? null : $result->rejectionReason()->code(),
                     $this->clock->now(),
+                    $receivedEnvelope->context()->tenant(),
                 );
             }
             return $result;
@@ -204,6 +206,7 @@ final readonly class InlineDispatcher implements Dispatcher, ScheduledInlineDisp
                     'failed',
                     'inline_execution_failed',
                     $this->clock->now(),
+                    $receivedEnvelope->context()->tenant(),
                 );
             }
             throw $failure;
@@ -215,6 +218,7 @@ final readonly class InlineDispatcher implements Dispatcher, ScheduledInlineDisp
                     'failed',
                     'inline_execution_failed',
                     $this->clock->now(),
+                    $receivedEnvelope->context()->tenant(),
                 );
             }
             throw $failure;
@@ -455,13 +459,14 @@ final readonly class InlineDispatcher implements Dispatcher, ScheduledInlineDisp
         $store = $this->idempotency ?? throw new LogicException('Idempotency store is unavailable.');
         $retention = $this->idempotencyRetention ?? throw new LogicException('Idempotency retention is unavailable.');
         return $store->claim(
-            $this->idempotencyScopes->hash($metadata->typeId, $actor, $key),
+            $this->idempotencyScopes->hash($metadata->typeId, $actor, $key, $envelope->context()->tenant()),
             $key->hash(),
             $this->idempotencyFingerprints->fingerprint($metadata->typeId, $envelope->value()),
             $envelope->id(),
             new Inline(),
             $envelope->context()->receivedAt(),
             $retention->expiresAt($envelope->context()->receivedAt()),
+            $envelope->context()->tenant(),
         );
     }
 

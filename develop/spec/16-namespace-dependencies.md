@@ -13,6 +13,7 @@ Http       -> Core, Execution
 Logging    -> Core, Journal
 Console    -> Core, Journal, Execution, Transport
 StorageProtection -> Core
+OperationData -> Core, Journal, Outcome
 Internal   -> 対応する公開Namespaceおよび採用Library（Scheduled RuntimeはSchedulingへ依存可能）
 ```
 
@@ -31,6 +32,7 @@ Deptracを開発依存として採用し、NamespaceをLayerとして定義す�
 - 違反がある場合はCIを失敗させる
 - Namespaceを追加する場合はLayerとRulesetも更新する
 - `StorageProtection` Public ContractはCoreのTenant Identity／PublicApi Attributeだけへ依存し、暗号実装はInternalへ閉じる
+- `OperationData` Public Query／Result／Authorization ContractはCoreのActor／Tenant／Operation ID、Journal Record、およびOutcome Recordだけへ依存する。PostgreSQL Adapter、Default-deny Resolver、Codec境界は`BlackOps\Internal\OperationData`へ置き、Raw ReaderをPublic Application Bindingへ公開しない。
 
 Dependency競合が生じる場合は、PHARまたは分離したComposer Binaryとして導入する。
 

@@ -197,12 +197,13 @@ final class PostgreSqlJournalRetentionDeleteServiceTest extends TestCase
     {
         $recordId = $this->recordId($operationId, $sequence);
         $this->connection->executeStatement('INSERT INTO ' . self::SCHEMA . '.journal (
-            record_id, operation_id, sequence, event, schema_version, occurred_at, encoded_record
+            record_id, operation_id, operation_type, sequence, event, schema_version, occurred_at, encoded_record
         ) VALUES (
-            :record_id, :operation_id, :sequence, :event, 1, :occurred_at, convert_to(:record, \'UTF8\')
+            :record_id, :operation_id, :operation_type, :sequence, :event, 1, :occurred_at, convert_to(:record, \'UTF8\')
         )', [
             'record_id' => $recordId,
             'operation_id' => $operationId,
+            'operation_type' => 'operation.tested',
             'sequence' => $sequence,
             'event' => 'operation.tested',
             'occurred_at' => $occurredAt,

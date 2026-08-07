@@ -38,6 +38,7 @@ use Throwable;
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:excessive-parameter-list
  * @mago-expect lint:excessive-nesting
+ * @mago-expect lint:kan-defect
  */
 final readonly class DeferredAcceptanceOrchestrator implements ScheduledDeferredAcceptor
 {
@@ -96,6 +97,7 @@ final readonly class DeferredAcceptanceOrchestrator implements ScheduledDeferred
                                     'rejected',
                                     'validation_failed',
                                     $rejected->occurredAt,
+                                    $envelope->context()->tenant(),
                                 );
                             }
 
@@ -122,6 +124,7 @@ final readonly class DeferredAcceptanceOrchestrator implements ScheduledDeferred
                                     'rejected',
                                     $authorizationRejection->code(),
                                     $rejected->occurredAt,
+                                    $envelope->context()->tenant(),
                                 );
                             }
 
@@ -143,7 +146,12 @@ final readonly class DeferredAcceptanceOrchestrator implements ScheduledDeferred
                             $retention = $this->idempotencyRetention ?? throw new LogicException(
                                 'Idempotency retention is unavailable.',
                             );
-                            $scope = $this->idempotencyScopes->hash($metadata->typeId, $actor, $keyHash);
+                            $scope = $this->idempotencyScopes->hash(
+                                $metadata->typeId,
+                                $actor,
+                                $keyHash,
+                                $envelope->context()->tenant(),
+                            );
                             $claim = $store->claim(
                                 $scope,
                                 $keyHash,
@@ -152,6 +160,7 @@ final readonly class DeferredAcceptanceOrchestrator implements ScheduledDeferred
                                 new Deferred(),
                                 $envelope->context()->receivedAt(),
                                 $retention->expiresAt($envelope->context()->receivedAt()),
+                                $envelope->context()->tenant(),
                             );
                             if ($claim->status() === IdempotencyClaimStatus::ExistingConflict) {
                                 return OperationResult::rejected(RejectionReason::conflict('idempotency_conflict'));
@@ -198,6 +207,7 @@ final readonly class DeferredAcceptanceOrchestrator implements ScheduledDeferred
                                 'accepted',
                                 null,
                                 $acknowledgement->acceptedAt(),
+                                $envelope->context()->tenant(),
                             );
                         }
 
@@ -262,6 +272,7 @@ final readonly class DeferredAcceptanceOrchestrator implements ScheduledDeferred
                         'failed',
                         'deferred_acceptance_failed',
                         $failed->occurredAt,
+                        $envelope->context()->tenant(),
                     );
                 }
             });

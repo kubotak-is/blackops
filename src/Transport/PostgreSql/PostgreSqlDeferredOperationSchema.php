@@ -25,7 +25,8 @@ final readonly class PostgreSqlDeferredOperationSchema
         $retentionHolds = $this->identifier->qualify('retention_holds');
         $retentionPurgeAudits = $this->identifier->qualify('retention_purge_audits');
 
-        return [
+        /** @var list<string> $statements */
+        $statements = [
             "CREATE SCHEMA IF NOT EXISTS {$schema}",
             "CREATE TABLE IF NOT EXISTS {$operations} (
                 operation_id uuid PRIMARY KEY,
@@ -189,6 +190,22 @@ final readonly class PostgreSqlDeferredOperationSchema
             "CREATE INDEX IF NOT EXISTS retention_purge_audits_purged_at_idx
                 ON {$retentionPurgeAudits} (purged_at, audit_id)",
         ];
+
+        foreach ([
+            ['table' => $operations, 'name' => 'operations', 'origin' => true],
+            ['table' => $outcomes, 'name' => 'outcomes', 'origin' => false],
+            ['table' => $deadLetters, 'name' => 'dead_letters', 'origin' => false],
+            ['table' => $retentionHolds, 'name' => 'retention_holds', 'origin' => false],
+            ['table' => $retentionPurgeAudits, 'name' => 'retention_purge_audits', 'origin' => false],
+        ] as $metadata) {
+            $statements = array_merge($statements, PostgreSqlTenantMetadata::alter(
+                $metadata['table'],
+                $metadata['name'],
+                $metadata['origin'],
+            ));
+        }
+
+        return $statements;
     }
 
     public function operationsTable(): string

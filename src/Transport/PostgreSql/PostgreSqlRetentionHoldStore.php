@@ -16,9 +16,11 @@ use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
 use Throwable;
 
+/** @mago-expect lint:cyclomatic-complexity */
 final readonly class PostgreSqlRetentionHoldStore implements RetentionHoldPort
 {
     private PostgreSqlDeferredOperationSchema $schema;
+    private PostgreSqlJournalSchema $journalSchema;
 
     public function __construct(
         private Connection $connection,
@@ -27,6 +29,7 @@ final readonly class PostgreSqlRetentionHoldStore implements RetentionHoldPort
         private PostgreSqlRetentionHoldIdGenerator $ids = new SymfonyRetentionHoldIdGenerator(),
     ) {
         $this->schema = new PostgreSqlDeferredOperationSchema($schema);
+        $this->journalSchema = new PostgreSqlJournalSchema($schema);
     }
 
     public function place(
@@ -40,10 +43,43 @@ final readonly class PostgreSqlRetentionHoldStore implements RetentionHoldPort
             $id = $this->ids->generate($this->clock->now());
             $hold = new RetentionHold($id, $operationId, $category, $reason, $placedAt, $placedBy);
             $table = $this->schema->retentionHoldsTable();
-            $this->connection->executeStatement(
+            $journalTable = $this->journalSchema->journalTable();
+            $journalExists = $this->connection->fetchOne('SELECT to_regclass(:table)', ['table' => $journalTable]);
+            $subjects = $this->connection->fetchAllAssociative(
+                $journalExists === false || $journalExists === null
+                    ? "SELECT DISTINCT tenant_type, tenant_id
+                       FROM {$this->schema->operationsTable()}
+                       WHERE operation_id = :operation_id"
+                    : "SELECT DISTINCT tenant_type, tenant_id
+                       FROM (
+                           SELECT tenant_type, tenant_id
+                           FROM {$this->schema->operationsTable()}
+                           WHERE operation_id = :operation_id
+                           UNION ALL
+                           SELECT tenant_type, tenant_id
+                           FROM {$journalTable}
+                           WHERE operation_id = :operation_id
+                       ) AS operation_subjects",
+                ['operation_id' => $operationId->toString()],
+            );
+            if ($subjects === []) {
+                throw new DeferredTransportException('Retention hold operation subject is unavailable.');
+            }
+            $subject = $subjects[0];
+            foreach ($subjects as $candidate) {
+                if (
+                    ($candidate['tenant_type'] ?? null) !== ($subject['tenant_type'] ?? null)
+                    || ($candidate['tenant_id'] ?? null) !== ($subject['tenant_id'] ?? null)
+                ) {
+                    throw new DeferredTransportException('Retention hold operation tenant subject is inconsistent.');
+                }
+            }
+            $inserted = $this->connection->executeStatement(
                 "INSERT INTO {$table} (
                     hold_id,
                     operation_id,
+                    tenant_type,
+                    tenant_id,
                     category,
                     reason,
                     placed_at,
@@ -51,20 +87,28 @@ final readonly class PostgreSqlRetentionHoldStore implements RetentionHoldPort
                 ) VALUES (
                     :hold_id,
                     :operation_id,
+                    :tenant_type,
+                    :tenant_id,
                     :category,
                     :reason,
                     :placed_at,
                     :placed_by
-                )",
+                )
+                ",
                 [
                     'hold_id' => $hold->id()->toString(),
                     'operation_id' => $operationId->toString(),
+                    'tenant_type' => $subject['tenant_type'] ?? null,
+                    'tenant_id' => $subject['tenant_id'] ?? null,
                     'category' => $category->value,
                     'reason' => $hold->reason(),
                     'placed_at' => $this->formatTimestamp($hold->placedAt()),
                     'placed_by' => $placedBy->toString(),
                 ],
             );
+            if ((int) $inserted !== 1) {
+                throw new DeferredTransportException('Retention hold operation subject insert was not unique.');
+            }
 
             return $hold;
         } catch (Throwable $exception) {

@@ -107,7 +107,7 @@ final class PostgreSqlObserverReplayStoreTest extends TestCase
         $this->connection->executeStatement(
             'INSERT INTO "'
             . self::SCHEMA
-            . '"."journal" (record_id, operation_id, sequence, event, schema_version, occurred_at, encoded_record) VALUES (:record,:operation,1,:event,1,:at,convert_to(:encoded,\'UTF8\'))',
+            . '"."journal" (record_id, operation_id, operation_type, sequence, event, schema_version, occurred_at, encoded_record) VALUES (:record,:operation,\'operation.replay\',1,:event,1,:at,convert_to(:encoded,\'UTF8\'))',
             [
                 'record' => '019f32ab-2be0-7b38-a0a7-1ab2f968769a',
                 'operation' => '019f32ab-2be0-7b38-a0a7-1ab2f9687697',
@@ -157,7 +157,7 @@ final class PostgreSqlObserverReplayStoreTest extends TestCase
         $this->connection->executeStatement(
             'INSERT INTO "'
             . self::SCHEMA
-            . '"."journal" (record_id, operation_id, sequence, event, schema_version, occurred_at, encoded_record) VALUES (:record,:operation,1,:event,1,:at,convert_to(:encoded,\'UTF8\'))',
+            . '"."journal" (record_id, operation_id, operation_type, sequence, event, schema_version, occurred_at, encoded_record) VALUES (:record,:operation,\'operation.replay\',1,:event,1,:at,convert_to(:encoded,\'UTF8\'))',
             [
                 'record' => $record->recordId->toString(),
                 'operation' => $operation->toString(),
@@ -275,7 +275,7 @@ final class PostgreSqlObserverReplayStoreTest extends TestCase
             $this->connection->executeStatement(
                 'INSERT INTO "'
                 . self::SCHEMA
-                . '"."journal" (record_id, operation_id, sequence, event, schema_version, occurred_at, encoded_record) VALUES (:record,:operation,:sequence,:event,1,:at,convert_to(:encoded,\'UTF8\'))',
+                . '"."journal" (record_id, operation_id, operation_type, sequence, event, schema_version, occurred_at, encoded_record) VALUES (:record,:operation,\'operation.replay\',:sequence,:event,1,:at,convert_to(:encoded,\'UTF8\'))',
                 [
                     'record' => $id,
                     'operation' => $operation->toString(),
@@ -323,7 +323,7 @@ final class PostgreSqlObserverReplayStoreTest extends TestCase
             $this->connection->executeStatement(
                 'INSERT INTO "'
                 . self::SCHEMA
-                . '"."journal" (record_id, operation_id, sequence, event, schema_version, occurred_at, encoded_record) VALUES (:record,:operation,:sequence,:event,1,:at,convert_to(:encoded,\'UTF8\'))',
+                . '"."journal" (record_id, operation_id, operation_type, sequence, event, schema_version, occurred_at, encoded_record) VALUES (:record,:operation,\'operation.replay\',:sequence,:event,1,:at,convert_to(:encoded,\'UTF8\'))',
                 [
                     'record' => $id,
                     'operation' => $operation->toString(),

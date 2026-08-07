@@ -1344,10 +1344,20 @@ final class CountingIdempotencyStore implements IdempotencyStore
         ExecutionStrategy $strategy,
         DateTimeImmutable $createdAt,
         DateTimeImmutable $expiresAt,
+        ?\BlackOps\Core\TenantRef $tenant = null,
     ): IdempotencyClaimResult {
         ++$this->claims;
 
-        return $this->inner->claim($scope, $key, $fingerprint, $operationId, $strategy, $createdAt, $expiresAt);
+        return $this->inner->claim(
+            $scope,
+            $key,
+            $fingerprint,
+            $operationId,
+            $strategy,
+            $createdAt,
+            $expiresAt,
+            $tenant,
+        );
     }
 
     public function seedClaim(
@@ -1358,8 +1368,18 @@ final class CountingIdempotencyStore implements IdempotencyStore
         ExecutionStrategy $strategy,
         DateTimeImmutable $createdAt,
         DateTimeImmutable $expiresAt,
+        ?\BlackOps\Core\TenantRef $tenant = null,
     ): IdempotencyClaimResult {
-        return $this->inner->claim($scope, $key, $fingerprint, $operationId, $strategy, $createdAt, $expiresAt);
+        return $this->inner->claim(
+            $scope,
+            $key,
+            $fingerprint,
+            $operationId,
+            $strategy,
+            $createdAt,
+            $expiresAt,
+            $tenant,
+        );
     }
 
     public function terminalize(
@@ -1403,8 +1423,18 @@ final class AttachFailureIdempotencyStore implements IdempotencyStore
         ExecutionStrategy $strategy,
         DateTimeImmutable $createdAt,
         DateTimeImmutable $expiresAt,
+        ?\BlackOps\Core\TenantRef $tenant = null,
     ): IdempotencyClaimResult {
-        return $this->inner->claim($scope, $key, $fingerprint, $operationId, $strategy, $createdAt, $expiresAt);
+        return $this->inner->claim(
+            $scope,
+            $key,
+            $fingerprint,
+            $operationId,
+            $strategy,
+            $createdAt,
+            $expiresAt,
+            $tenant,
+        );
     }
 
     public function terminalize(

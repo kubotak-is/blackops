@@ -521,8 +521,8 @@ final class DeferredOperationRequestHandlerTest extends TestCase
                 operation_type,
                 state,
                 next_sequence,
-                convert_from(encoded_payload, \'UTF8\') AS payload,
-                convert_from(encoded_context, \'UTF8\') AS context
+                encode(encoded_payload, \'escape\') AS payload,
+                encode(encoded_context, \'escape\') AS context
             FROM ' . self::SCHEMA . '.operations');
 
         self::assertIsArray($row);

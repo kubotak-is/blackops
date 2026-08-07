@@ -69,6 +69,7 @@ final readonly class PostgreSqlOperationStatusSource implements OperationStatusS
                 $subject->originActorId === null
                     ? null
                     : new ActorRef($subject->originActorId, (string) $subject->originActorType),
+                $subject->tenant,
             );
         } catch (OperationStatusSourceException $exception) {
             throw $exception;

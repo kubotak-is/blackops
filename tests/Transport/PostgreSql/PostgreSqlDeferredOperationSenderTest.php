@@ -160,8 +160,8 @@ final class PostgreSqlDeferredOperationSenderTest extends TestCase
         );
 
         $row = $this->connection->fetchAssociative('SELECT
-                encoded_payload,
-                encoded_context,
+                encode(encoded_payload, \'escape\') AS encoded_payload,
+                encode(encoded_context, \'escape\') AS encoded_context,
                 to_char(payload_purged_at AT TIME ZONE \'UTC\', \'YYYY-MM-DD"T"HH24:MI:SS.US"Z"\') AS payload_purged_at
             FROM ' . self::SCHEMA . '.operations');
 
@@ -240,8 +240,8 @@ final class PostgreSqlDeferredOperationSenderTest extends TestCase
                 operation_id::text,
                 operation_type,
                 schema_version,
-                convert_from(encoded_payload, 'UTF8') AS encoded_payload,
-                convert_from(encoded_context, 'UTF8') AS encoded_context,
+                encode(encoded_payload, 'escape') AS encoded_payload,
+                encode(encoded_context, 'escape') AS encoded_context,
                 content_type,
                 encoding,
                 key_id,
@@ -345,7 +345,7 @@ final class PostgreSqlDeferredOperationSenderTest extends TestCase
                 self::assertSame(
                     '{"reportId":"r1"}',
                     $this->connection->fetchOne(
-                        'SELECT convert_from(encoded_payload, \'UTF8\') FROM ' . self::SCHEMA . '.operations',
+                        "SELECT encode(encoded_payload, 'escape') FROM " . self::SCHEMA . '.operations',
                     ),
                 );
             }

@@ -7,6 +7,7 @@ namespace BlackOps\Tests\Status;
 use BlackOps\Core\ActorRef;
 use BlackOps\Core\Attribute\PublicApi;
 use BlackOps\Core\Identifier\OperationId;
+use BlackOps\Core\TenantRef;
 use BlackOps\Status\DenyOperationStatusAuthorizer;
 use BlackOps\Status\OperationStatusAuthorizationDecision;
 use BlackOps\Status\OperationStatusAuthorizationRequest;
@@ -43,6 +44,23 @@ final class OperationStatusAuthorizationTest extends TestCase
 
         self::assertNull($request->currentActor());
         self::assertNull($request->originActor());
+    }
+
+    public function testRequestCarriesCurrentAndOriginTenantScopes(): void
+    {
+        $current = new TenantRef('customer', 'tenant-a');
+        $origin = new TenantRef('customer', 'tenant-b');
+        $request = new OperationStatusAuthorizationRequest(
+            OperationId::fromString(self::OPERATION_ID),
+            'report.generate',
+            null,
+            null,
+            $current,
+            $origin,
+        );
+
+        self::assertSame($current, $request->currentTenant());
+        self::assertSame($origin, $request->originTenant());
     }
 
     public function testRequestRejectsInvalidOperationType(): void

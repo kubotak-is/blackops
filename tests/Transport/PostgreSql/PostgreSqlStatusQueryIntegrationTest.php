@@ -391,17 +391,10 @@ final class PostgreSqlStatusQueryIntegrationTest extends TestCase
         $invalidIdentifier = $this->id(236);
         $this->createDeferred($invalidIdentifier, LifecycleState::Accepted);
         $this->connection->executeStatement(
-            'UPDATE ' . self::SCHEMA . ".journal
-            SET encoded_record = convert_to(
-                jsonb_set(
-                    convert_from(encoded_record, 'UTF8')::jsonb,
-                    '{operation,id}',
-                    to_jsonb('invalid-identifier'::text)
-                )::text,
-                'UTF8'
-            )
-            WHERE operation_id = :operation_id",
-            ['operation_id' => $invalidIdentifier->toString()],
+            'UPDATE ' . self::SCHEMA . '.journal
+            SET operation_type = :operation_type
+            WHERE operation_id = :operation_id',
+            ['operation_type' => 'different.type', 'operation_id' => $invalidIdentifier->toString()],
         );
         $query = $this->query(OperationStatusAuthorizationDecision::allow());
 
@@ -410,7 +403,7 @@ final class PostgreSqlStatusQueryIntegrationTest extends TestCase
             $this->captureFailure($query, $invalidType)->queryCode(),
         );
         self::assertSame(
-            OperationStatusQueryException::DECODE_FAILED,
+            OperationStatusQueryException::INTEGRITY_FAILED,
             $this->captureFailure($query, $invalidIdentifier)->queryCode(),
         );
         self::assertFalse($this->connection->isTransactionActive());
@@ -434,7 +427,7 @@ final class PostgreSqlStatusQueryIntegrationTest extends TestCase
         self::assertFalse($this->connection->isTransactionActive());
     }
 
-    public function testJournalOriginActorChangedAfterAuthorizationFailsIntegrityAndCleansUpSnapshot(): void
+    public function testJournalOriginActorChangedAfterAuthorizationDoesNotDecodeRestrictedBlob(): void
     {
         $id = $this->id(238);
         $this->createDeferred($id, LifecycleState::Failed);
@@ -444,11 +437,10 @@ final class PostgreSqlStatusQueryIntegrationTest extends TestCase
             $authorizer,
         );
 
-        $exception = $this->captureFailure($query, $id);
+        $result = $query->find($id);
 
         self::assertSame('origin-private', $authorizer->request?->originActor()?->id());
-        self::assertSame(OperationStatusQueryException::INTEGRITY_FAILED, $exception->queryCode());
-        self::assertSame('status_query.integrity_failed', $exception->getMessage());
+        self::assertInstanceOf(OperationStatusFound::class, $result);
         self::assertFalse($this->connection->isTransactionActive());
     }
 
@@ -911,6 +903,7 @@ final class PostgreSqlStatusQueryIntegrationTest extends TestCase
                 '{"private":"payload"}',
                 '{"private":"context"}',
                 new DateTimeImmutable('2026-07-19T00:00:00Z'),
+                originActor: new ActorRef('origin-private', 'customer'),
             ),
         );
     }
@@ -1048,16 +1041,9 @@ final class StatusProjectionMutatingAuthorizer implements OperationStatusAuthori
     {
         $this->request = $request;
         $this->connection->executeStatement(
-            'UPDATE ' . $this->schema . ".journal
-            SET encoded_record = convert_to(
-                jsonb_set(
-                    convert_from(encoded_record, 'UTF8')::jsonb,
-                    '{operation,actors,origin,id}',
-                    to_jsonb(CAST(:actor_id AS text))
-                )::text,
-                'UTF8'
-            )
-            WHERE operation_id = :operation_id",
+            'UPDATE ' . $this->schema . '.journal
+            SET origin_actor_id = :actor_id
+            WHERE operation_id = :operation_id',
             [
                 'actor_id' => 'different-origin',
                 'operation_id' => $this->operationId->toString(),

@@ -57,10 +57,15 @@ final readonly class PostgreSqlObserverReplayStore
             /** @var array<string, mixed>|list<mixed> $params */
             $params = $query['params'];
             foreach ($this->connection->iterateAssociative($query['sql'], $params) as $row) {
-                if (!is_string($row['encoded_record'] ?? null)) {
-                    throw new RuntimeException('Canonical journal row is invalid.');
+                $record = $this->codec->decode(PostgreSqlBytea::string($row['encoded_record'] ?? null));
+                $tenant = $record->operation->tenant;
+                if (
+                    ($row['tenant_type'] ?? null) !== $tenant?->type()
+                    || ($row['tenant_id'] ?? null) !== $tenant?->id()
+                ) {
+                    throw new RuntimeException('Canonical journal tenant subject is inconsistent.');
                 }
-                $records[] = $this->codec->decode($row['encoded_record']);
+                $records[] = $record;
             }
         } catch (Throwable $exception) {
             throw new RuntimeException('Canonical journal replay selection failed.', previous: $exception);

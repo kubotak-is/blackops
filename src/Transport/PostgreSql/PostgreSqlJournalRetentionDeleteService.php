@@ -55,6 +55,7 @@ final readonly class PostgreSqlJournalRetentionDeleteService
                             $policy,
                             $purgedAt,
                             $actor,
+                            $item->tenant(),
                         ),
                     );
                     $deleted += $affected;
@@ -83,6 +84,8 @@ final readonly class PostgreSqlJournalRetentionDeleteService
                 SELECT j.operation_id
                 FROM {$journal} j
                 WHERE j.operation_id = :operation_id
+                    AND j.tenant_type IS NOT DISTINCT FROM :tenant_type
+                    AND j.tenant_id IS NOT DISTINCT FROM :tenant_id
                 GROUP BY j.operation_id
                 HAVING MAX(j.occurred_at) = :basis_at
                     AND NOT EXISTS (
@@ -95,12 +98,16 @@ final readonly class PostgreSqlJournalRetentionDeleteService
                 DELETE FROM {$journal} j
                 USING eligible e
                 WHERE j.operation_id = e.operation_id
+                    AND j.tenant_type IS NOT DISTINCT FROM :tenant_type
+                    AND j.tenant_id IS NOT DISTINCT FROM :tenant_id
                 RETURNING 1
             )
             SELECT count(*) FROM deleted",
             [
                 'operation_id' => $item->operationId()->toString(),
                 'basis_at' => $item->basisAt()->format('Y-m-d H:i:s.uP'),
+                'tenant_type' => $item->tenant()?->type(),
+                'tenant_id' => $item->tenant()?->id(),
             ],
         );
 

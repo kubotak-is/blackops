@@ -1,6 +1,181 @@
 # Orchestration State
 
-Updated At: 2026-07-29T22:37:05+09:00
+Updated At: 2026-08-08T00:37:46+09:00
+
+## P20-016D Accepted
+
+```text
+2026-08-08T00:37:46+09:00
+Orchestrator independent reviewでP20-016DをAcceptedとした。Focused 123 tests／534 assertions、Full PHPUnit 2061 tests／8254 assertions（既存Deprecation 1）、Composer validate、format、changed-source analyze、管理番号Comment Guard、git diff checkがPASS。Broad mago analyzeは11 warnings／0 errors、broad mago lintはP20-016C時点と同じ既知baseline 83 findings／9 errors。Deptracはvendor NikicFileReferenceVisitor.php:106のPHP 8.5 parser incompatibilityで実行不能だが、OperationData Layer設定読込と依存方向を手動照合し、Full SuiteのPublicApi Architecture Guardを確認した。初回Full Suiteで範囲外Outbox heartbeat timing testが1回失敗したが単独再実行PASS、安定treeでの全体再実行PASS。Task／Report／TODOを同期し、Commit／Push／Deployなし。次はP20-016E。
+```
+
+## P20-016D Review Pending Checkpoint
+
+```text
+2026-08-08T00:30:26+09:00
+Worker実装をReview Pendingへ引き渡す。OperationData Public NamespaceのDeptrac Layer／Namespace Dependency仕様、Raw Reader SPI再分類、Application Seederを含む全DB runtime injection、PostgreSQL subject／decode／integrity分類、Status tenant matrix、HTTP TenantRef、Synthetic DI contractを同期した。Targeted lint／analyzeはNo issues、focused 114 tests／494 assertions PASS、Task／Report／TODOをReview Pendingへ更新。Full／broad gatesはOrchestrator確認待ち。Worker Commit／Push／Deployなし。
+```
+
+## P20-016D Worker Implementation Checkpoint
+
+```text
+2026-08-08T00:26:24+09:00
+OperationData query contracts, tenant-scoped PostgreSQL subjects/readers, post-authorize decode ordering, stable failure classification, Status tenant matrix, HTTP TenantRef propagation, and synthetic runtime DI bindings are implemented. Focused Status/HTTP/OperationData/DI/Journal/Outcome/PostgreSQL tests pass (114 tests／494 assertions). Raw Journal/Outcome readers are infrastructure SPI (no PublicApi) and runtime containers bind only authorized query contracts. Completion Report created; full verification and independent review remain. Worker Commit／Push／Deployなし。
+```
+
+## P20-016D Orchestrator Scope Correction 2
+
+```text
+2026-08-08T00:14:08+09:00
+Application Handler／CommandがOperationJournalQuery／OperationOutcomeQueryをconstructorで利用するには、Runtime後付けだけでなくBuild時Compiled ContainerへSynthetic Contractが必要である。既存RuntimeContainerCompilerがFramework Runtime Service定義の正規境界であり、これを変更しなければAutowire Compileが失敗するため、同Compilerと限定Contract TestをFiles Allowedへ追加した。Authorized QueryはApplicationOperation／Worker Runtimeで注入し、Raw CanonicalJournalReader／OutcomeReaderは同Bindingへ公開しない。Production scopeはDI成立に必要な最小範囲のみ。Worker Commit／Push／Deployなし。
+```
+
+## P20-016D Orchestrator Scope Correction
+
+```text
+2026-08-08T00:12:40+09:00
+Raw CanonicalJournalReader／OutcomeReaderをPublic Application APIからInfrastructure SPIへ再分類する既定Scopeには、#[PublicApi]を前提にする既存tests/Journal/JournalPortTest.phpとtests/Outcome/OutcomeRecordTest.phpの同期が不可避である。Production scopeを広げず、この2 Test FileだけをFiles Allowedへ追加した。Worker Commit／Push／Deployなし。
+```
+
+## P20-016D Operation Data Read Authorization Start
+
+```text
+2026-08-08T00:00:16+09:00
+P20-016DをIn Progressとして開始した。P20-016CはAccepted済みだが未Commitのため、そのworking-tree差分をbaselineとして保持し、DのTask Packet allow-listだけを同じGPT-5.6 Luna High workerへ委譲する。Status current／origin tenant認可、Default-deny Journal／Outcome typed query、Subject→Authorize→Blob Read／Decode順序、Raw ReaderのInfrastructure DI分離、HTTP／Diagnostics regressionを対象とする。Commit／Push／Deployなし。
+```
+
+## P20-016C Accepted
+
+```text
+2026-08-04T01:44:39+09:00
+Orchestrator reviewでP20-016CをAcceptedとした。Dedicated PostgreSqlTenantIsolationTest 10 tests／91 assertions、Full PHPUnit 2043 tests／8180 assertions（既存Deprecation 1）、Composer validate、format、mago analyze 0 errors、changed-source lint、encoded-field／Management-ID guard、shell syntax、git diff checkがPASS。Broad mago lintは既知baselineのみ83 findings／9 errors、DeptracはvendorのPHP 8.5 parser incompatibilityでFAIL。Package Export本Commandは未追跡Migrationをgit archive HEADが含めないpre-commit制約で停止したが、Composer archiveへVersion20260803000000が含まれることとinventory同期を確認した。Task／Report／TODOを同期し、Commit／Push／Deployなし。次はP20-016D。
+```
+
+## P20-016C Final Full Suite Evidence Checkpoint
+
+```text
+2026-08-03T03:04:17+09:00
+Orchestrator確認のFull PHPUnit 2043 tests／8180 assertions（既存Deprecation 1）PASSをReportへ反映。TenantMetadata return-shape analyze correction後もbroad mago analyze 0 errorsを維持。Commit／Push／Deployなし。
+```
+
+## P20-016C Analyze Return-Shape Checkpoint
+
+```text
+2026-08-03T03:03:18+09:00
+PostgreSqlTenantMetadata::alterへ@return list<string>とDeferredOperationSchema statementsのlist annotationを追加し、changed-source mago analyzeはNo issues、broad mago analyzeは17 warnings／0 errors（DBAL mixed row、既存StatusReader比較、Jsonl generic objectのみ）を確認。Commit／Push／Deployなし。
+```
+
+## P20-016C Lint Threshold and DocBlock Correction Checkpoint
+
+```text
+2026-08-03T03:01:38+09:00
+Changed production filesの既存閾値に対するmago-expect（RetentionHoldStore cyclomatic、RetentionPlanner methods、OutcomeStore cyclomatic、Deferred Message Codec cyclomatic、Outbox kan-defect統合、DeferredAcceptanceOrchestrator kan-defect）を追加し、StatusReader DocBlockのorigin_actor_type後のcommaを修正。限定mago lintはNo issues、Dedicated PostgreSqlTenantIsolationTestは10 tests／91 assertions PASS。Commit／Push／Deployなし。
+```
+
+## P20-016C Constraint Matrix and Deterministic Duplicate Evidence Checkpoint
+
+```text
+2026-08-03T02:58:17+09:00
+Dedicated PostgreSqlTenantIsolationTestは10 tests／91 assertions PASS。Operations representative DMLでtenant／origin both-null accepted、partial（両方向）とempty type/id rejectedを明示し、same-IDはTenant A enqueue成功後Tenant BをDeferredTransportExceptionで拒否、raw tenant IDなし、保存rowはAのみ・count 1を確認した。Open transaction SKIP LOCKED concurrency evidenceは維持。Commit／Push／Deployなし。
+```
+
+## P20-016C Dedicated Migration, Retention, and Replay Evidence Checkpoint
+
+```text
+2026-08-03T02:55:46+09:00
+Dedicated PostgreSqlTenantIsolationTestは10 tests／76 assertions PASS。旧7 migration chain適用後のVersion20260803000000 empty schemaでtenant pair 9件／origin actor pair 3件を確認し、non-empty operations guardをtransaction rollbackしてrow／encoded bytes不変を確認した。RetentionPlannerのTenant A/B plan item、wrong-tenant delete 0／正tenant delete、PurgeAudit tenant保存、Observer Replay time selectionのA/B carrierとclear tenant改竄RuntimeExceptionを追加で固定。Commit／Push／Deployなし。
+```
+
+## P20-016C Dedicated Receiver Evidence Checkpoint
+
+```text
+2026-08-03T02:44:48+09:00
+Dedicated PostgreSqlTenantIsolationTestは7 tests／57 assertions PASS。Same-ID異Tenant Sender safe failureと、2つのDB ConnectionでTenant A/B Deferred Receiver claim carrierを分離した証跡を独立test名へ分割した。Reportのtest名一覧を同期。Commit／Push／Deployなし。
+```
+
+## P20-016C Dedicated Evidence Completion Checkpoint
+
+```text
+2026-08-03T02:42:48+09:00
+Dedicated PostgreSqlTenantIsolationTestを追加し、6 tests／54 assertions PASS。Fresh／current／empty／nonempty migration guard、9-table tenant pair＋operations／journal／outbox origin exact constraint definition、partial／empty DML reject、wrong-tenant Journal／Outcome no-decode、Idempotency scope、Outbox carrier、Retention Hold tenant、Schedule global-null／tenant accepted row、same-operation duplicate convergenceを固定した。Full PHPUnit 2039 tests／8143 assertions（既存Deprecation 1）PASS。Mago format check、Composer validate、convert_from／Management-ID／git diff check PASS。Correction Review Pending、Commit／Push／Deployなし。
+```
+
+## P20-016C Orchestrator Scope Correction 5 and Evidence Gap
+
+```text
+2026-08-03T02:34:39+09:00
+OrchestratorはWorkerのCorrection Review Pending差分とFull Suite 2033 tests／8089 assertionsを照合した。IdempotencyStoreのTenant引数追加とFramework Migration 8件化により、既存Full Suiteを維持するためtests/Http/OperationRequestHandlerTest.php、tests/Internal/Console/DatabaseMigrationCommandTest.php、tests/Integration/ApplicationConsoleKernelTest.phpのTest Double／件数同期が不可避であるため、最小Scope CorrectionとしてFiles Allowedへ追加した。一方、Worker差分は既存Test名／Fixture更新だけで新規Test Caseがなく、Task Packetが要求するMulti-tenant PostgreSQL Integration／Concurrency、Constraint Matrix、Migration Guard、Tenant不一致Non-decode Evidenceを満たさない。TaskはCorrection Review Pendingのまま未受入とし、同WorkerへDedicated Evidence追加を返す。Commit／Push／Deployなし。
+```
+
+## P20-016C Full Verification Checkpoint
+
+```text
+2026-08-03T02:33:07+09:00
+Full PHPUnit 2033 tests／8089 assertions（既存Deprecation 1）PASS。HTTP／Console Idempotency test doubles、bytea fixture、Migration command countを同期した。Composer validate --strict、Mago format --check src tests、convert_from encoded-field guard（src／tests／Consumer shell）、Management-ID guard、git diff --check PASS。Task-scoped suite 404 tests／1907 assertionsもPASS。Correction Review Pending、Report同期済み、Commit／Push／Deployなし。
+```
+
+## P20-016C Correction Review Pending Checkpoint
+
+```text
+2026-08-03T02:27:18+09:00
+Consumer journeyを含むconvert_from(encoded_record|payload|context) guardを0件へ同期し、clear-column／encode(bytea, escape)検証へ更新した。Migration／Status／Retention／Replay／Outbox／Deferred Worker fixturesを同期し、focused clear-subject/migration suite 46 tests／207 assertions、追加 diagnostics/retention/replay/worker suite 58 tests／495 assertions、Task-scoped PostgreSQL／tenant suite 404 tests／1907 assertions（既存Deprecation 1）PASS。Mago format、management-ID guard、git diff --check PASS。TaskをCorrection Review Pendingへ戻し、Report同期済み。Commit／Push／Deployなし。
+```
+
+## P20-016C Correction Cycle Worker Checkpoint 2
+
+```text
+2026-08-03T02:09:40+09:00
+OutboxをTenant／Origin Actor clear metadata対象へ同期し、Schema helper／Version20260803000000 migrationへorigin pair columns、constraints、guardを追加した。Migration／Schema guardはtableが存在し非emptyかつrequired columnが欠ける場合だけrejectし、journalのoperation_typeもrequired setへ含めた。Mago format／format checkはPASS。Outbox runtime focused testsはPASS、Migration focused suiteは新Migration件数を旧fixtureが期待するため11 failures（実装エラーではなくfixture drift）。Review待ち、Commit／Push／Deployなし。
+```
+
+## P20-016C Correction Cycle Worker Checkpoint
+
+```text
+2026-08-03T02:03:35+09:00
+Correction cycle removed production PostgreSQL convert_from projections, made Journal-only schemas independent of Operations existence, added tenant carriers to Status subjects and Transactional Outbox, tightened Idempotency tenant predicates, and fixed Retention Hold/Purge Audit SQL. Mago formatting and git diff --check passed. Existing focused fixtures still require clear-subject/migration-guard updates; full required gates remain Orchestrator work. Report synchronized; Commit／Push／Deployなし.
+```
+
+## P20-016C Orchestrator Scope Correction 4 and Review Finding
+
+```text
+2026-08-03T01:59:44+09:00
+Orchestratorの初回Focused Reviewは82 tests中12 errors／14 failuresで未受入。Journal-only Inline Storeが存在しないOperations Tableを参照するProduction Regression、旧Status JSON Projection／Migration 7件前提／Schema ShapeのFixture未同期、Required convert_from Guard 29件を確認した。Task PacketのRequired Guardを成立させる最小Test／Consumer境界としてtests/Integration/MvpSampleEndToEndTest.php、tests/Http/DeferredOperationRequestHandlerTest.php、tests/Consumer/quickstart-e2e.sh、tests/Consumer/community-board-foundation.sh、tests/Consumer/community-board-digest.shをFiles Allowedへ追加する。ProductionはJournal-only経路を維持したまま、Operations Rowが存在する場合だけClear Subject整合性を追加検査する。既存Testは新Clear Metadata／Migration 8件へ更新し、Dedicated Cross-tenant／Constraint／Migration Guard／Decoder Non-call Evidenceを追加する。TaskはCorrection In Progressへ戻し、Worker Commit／Push／Deployなし。
+```
+
+## P20-016C PostgreSQL Tenant Isolation Worker Completion — Review Pending
+
+```text
+2026-08-03T01:59:44+09:00
+Worker implemented P20-016C allow-listed PostgreSQL tenant/origin clear metadata, pair constraints/indexes, forward migration guard and package inventory, Idempotency scope v2, Deferred/Outbox carriers, clear-column Status subject, tenant-scoped Journal/Outcome paths, retention/schedule tenant propagation, and no-payload-decode integrity predicates. Previous migrations were not rewritten. Mago formatting passed for changed files; focused smoke tests passed for updated basic paths, while legacy tests asserting removed JSON projection/old migration counts and strict subject mismatch remain for Orchestrator review. Full required gates were not completed after Docker permission interruption. Report synchronized; Review Pending; Commit／Push／Deployなし.
+```
+
+## P20-016C Orchestrator Scope Correction 3
+
+```text
+2026-08-03T01:46:46+09:00
+OrchestratorはRetention Planner／Delete／Audit経路を照合し、Operation IDとTimestampだけのRetentionPlanItemおよびPurge Audit Recordでは、Journal削除後のInline Operationを含めてRow Tenantを保持できず、別RowのTenant再利用防止とRetention Evidence Tenantを成立させられないことを確認した。既定In Scopeを実現する最小Carrierとしてsrc/Core/Retention/RetentionPlanItem.php、src/Core/Retention/RetentionPurgeAuditRecord.phpと対応Core TestをFiles Allowedへ追加した。末尾Optional Tenantで既存Global Journeyを維持し、PlannerはClear Row TenantをItemへ固定、Deleteは同じTenant Predicateを使い、AuditはItem Tenantを保存する。Public Retention Policy／CLI Shape変更は許可しない。Worker Commit／Push／Deployなし。
+```
+
+## P20-016C Orchestrator Scope Correction 2
+
+```text
+2026-08-03T01:37:12+09:00
+OrchestratorはDeferred／Outbox RuntimeのTenant／Origin Actor Carrierを照合し、Current DeferredOperationMessageがEncoded Payload／Contextしか持たないため、AdapterがBlobをDecodeせずOperations／Outbox Clear Metadataを書けないことを確認した。P20-016C In ScopeのDecode-before-isolationを成立させる最小File境界としてDeferredOperationMessage、HTTP Deferred生成元、In-memory Retry Carrierと対応TestをFiles Allowedへ追加した。Scheduled生成元は既存src/Internal/Scheduling/**、Outbox生成／RelayとPostgreSQL Codecは既存許可範囲に含まれる。Outcome TenantはOperations RowからINSERT SELECTで継承できるためPublic Outcome ContractやDeferred Workerは追加しない。Tenant-aware Status Authorization／Public Query ContractはP20-016Dへ維持し、P20-016CはClear SubjectとEncoded JSON Projection除去までとする。Worker Commit／Push／Deployなし。
+```
+
+## P20-016C Orchestrator Scope Correction
+
+```text
+2026-08-03T01:36:09+09:00
+OrchestratorはIdempotency Scopeの実Runtime経路を照合し、HasherへTenantを追加するだけではInline／Deferred ClaimへCurrent Tenantが渡らず、P20-016C In ScopeのTenant別Idempotency独立性を実現できないことを確認した。既定Acceptanceを成立させる最小File境界としてsrc/Internal/Execution/InlineDispatcher.php、src/Internal/Execution/DeferredAcceptanceOrchestrator.phpと対応するtests/Internal/Execution/**をFiles Allowedへ追加した。Idempotency以外のExecution Lifecycle変更、HTTP Contract変更、Protected Adapter配線は許可しない。Worker Commit／Push／Deployなし。
+```
+
+## P20-016C PostgreSQL Tenant Isolation Worker Start
+
+```text
+2026-08-03T01:34:27+09:00
+OrchestratorはP20-016B Accepted／Commit 1b949fc、Clean Working Tree、Specification 99、D135、P20-016C Task Packetと参照仕様を照合し、P20-016CをIn Progressとした。ScopeはOperation-owned PostgreSQL RowのRestricted Clear Tenant／Origin Actor Subject、Both-null／Both-present Constraint、Tenant＋Record Identity Predicate／Index、Status SubjectのEncoded JSON Projection除去、Idempotency Tenant Scope、Worker／Retention／Replay／ScheduleのRow単位Tenant保持、Schema Helper／Migration／Package Export／Multi-tenant Evidenceに限定する。Protected Blob Encryption配線、Application向けJournal／Outcome Read Authorization、Rotation CLI、RLS、Public Guideは範囲外。Production実装をGPT-5.6 Luna High Workerへ依頼し、WorkerはReport／STATE／TODOを同期してReview前にCommitしない。Push／Deployなし。
+```
 
 ## P20-016B Storage Protection Core Orchestrator Acceptance
 

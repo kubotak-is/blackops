@@ -12,6 +12,7 @@ use BlackOps\Core\Retention\RetentionActorRef;
 use BlackOps\Core\Retention\RetentionHoldCategory;
 use BlackOps\Core\Retention\RetentionHoldPort;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationSender;
+use BlackOps\Transport\PostgreSql\PostgreSqlJournalSchema;
 use BlackOps\Transport\PostgreSql\PostgreSqlRetentionHoldIdGenerator;
 use BlackOps\Transport\PostgreSql\PostgreSqlRetentionHoldStore;
 use DateTimeImmutable;
@@ -48,6 +49,9 @@ final class PostgreSqlRetentionHoldStoreTest extends TestCase
             new FixedRetentionHoldIdGenerator([self::HOLD_ID, self::SECOND_HOLD_ID]),
         );
         $this->sender->migrate();
+        foreach (new PostgreSqlJournalSchema(self::SCHEMA)->statements() as $statement) {
+            $this->connection->executeStatement($statement);
+        }
         $this->sender->enqueue($this->message());
     }
 
@@ -131,6 +135,24 @@ final class PostgreSqlRetentionHoldStoreTest extends TestCase
     public function testPlaceAndReleaseInlineOperationWithoutOperationsRow(): void
     {
         $operationId = OperationId::fromString(self::INLINE_OPERATION_ID);
+        $this->connection->executeStatement('DELETE FROM '
+        . self::SCHEMA
+        . '.operations WHERE operation_id = :operation_id', ['operation_id' => self::INLINE_OPERATION_ID]);
+        $this->connection->executeStatement('INSERT INTO ' . self::SCHEMA . '.journal (
+                record_id, operation_id, operation_type, sequence, event, attempt_id,
+                schema_version, occurred_at, tenant_type, tenant_id,
+                origin_actor_type, origin_actor_id, encoded_record
+            ) VALUES (
+                :record_id, :operation_id, :operation_type, 1, :event, NULL,
+                1, :occurred_at, NULL, NULL, NULL, NULL, decode(:encoded_record, \'base64\')
+            )', [
+            'record_id' => '019f32ab-2be0-7b38-a0a7-1ab2f9688910',
+            'operation_id' => self::INLINE_OPERATION_ID,
+            'operation_type' => 'inline.operation',
+            'event' => 'operation.received',
+            'occurred_at' => '2026-07-10 00:00:00+00',
+            'encoded_record' => 'e30=',
+        ]);
         $hold = $this->store->place(
             $operationId,
             RetentionHoldCategory::Audit,

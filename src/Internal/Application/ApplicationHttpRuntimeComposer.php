@@ -84,7 +84,6 @@ final readonly class ApplicationHttpRuntimeComposer
             new PostgreSqlOperationStatusSource($operation->connection, $artifacts->operations, $database->schema),
             new OperationStatusAuthorizerResolver($artifacts->container)->resolve(),
         );
-
         $runtime = new ProductionRuntimeComposer()->composeWithDependencies(
             $artifacts,
             new ProductionRuntimeDependencies(

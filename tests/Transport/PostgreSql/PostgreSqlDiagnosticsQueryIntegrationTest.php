@@ -68,6 +68,7 @@ final class PostgreSqlDiagnosticsQueryIntegrationTest extends TestCase
                 '{"private":"payload"}',
                 '{"private":"context"}',
                 new DateTimeImmutable('2026-07-18T00:00:00Z'),
+                originActor: new ActorRef('private-origin', 'customer'),
             ),
         );
 

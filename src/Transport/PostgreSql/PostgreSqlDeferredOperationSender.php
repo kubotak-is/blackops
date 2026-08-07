@@ -55,6 +55,7 @@ final readonly class PostgreSqlDeferredOperationSender implements OperationSende
             content_type,
             encoding,
             key_id,
+            tenant_type, tenant_id, origin_actor_type, origin_actor_id,
             state,
             state_version,
             next_sequence,
@@ -69,6 +70,7 @@ final readonly class PostgreSqlDeferredOperationSender implements OperationSende
             :content_type,
             :encoding,
             :key_id,
+            :tenant_type, :tenant_id, :origin_actor_type, :origin_actor_id,
             :state,
             :state_version,
             :next_sequence,
@@ -86,6 +88,10 @@ final readonly class PostgreSqlDeferredOperationSender implements OperationSende
                 'content_type' => self::CONTENT_TYPE,
                 'encoding' => self::ENCODING,
                 'key_id' => null,
+                'tenant_type' => $message->tenant()?->type(),
+                'tenant_id' => $message->tenant()?->id(),
+                'origin_actor_type' => $message->originActor()?->type(),
+                'origin_actor_id' => $message->originActor()?->id(),
                 'state' => 'accepted',
                 'state_version' => 1,
                 'next_sequence' => 1,
@@ -95,11 +101,17 @@ final readonly class PostgreSqlDeferredOperationSender implements OperationSende
             if ((int) $inserted === 0) {
                 $existing = $this->connection->fetchAssociative(
                     "SELECT operation_type, schema_version,
-                        convert_from(encoded_payload, 'UTF8') AS encoded_payload,
-                        convert_from(encoded_context, 'UTF8') AS encoded_context,
+                        tenant_type, tenant_id, origin_actor_type, origin_actor_id,
+                        encoded_payload, encoded_context,
                         content_type, encoding, key_id, available_at, accepted_at
-                    FROM {$table} WHERE operation_id=:operation_id",
-                    ['operation_id' => $message->operationId()->toString()],
+                    FROM {$table} WHERE operation_id=:operation_id
+                        AND tenant_type IS NOT DISTINCT FROM :tenant_type
+                        AND tenant_id IS NOT DISTINCT FROM :tenant_id",
+                    [
+                        'operation_id' => $message->operationId()->toString(),
+                        'tenant_type' => $message->tenant()?->type(),
+                        'tenant_id' => $message->tenant()?->id(),
+                    ],
                 );
                 if (!is_array($existing)) {
                     throw new DeferredTransportException('Deferred operation duplicate could not be read safely.');
@@ -168,11 +180,15 @@ final readonly class PostgreSqlDeferredOperationSender implements OperationSende
         return (
             $existing['operation_type'] === $message->operationType()
             && (int) $existing['schema_version'] === $message->schemaVersion()
-            && $existing['encoded_payload'] === $message->encodedPayload()
-            && $existing['encoded_context'] === $message->encodedContext()
+            && PostgreSqlBytea::string($existing['encoded_payload'] ?? null) === $message->encodedPayload()
+            && PostgreSqlBytea::string($existing['encoded_context'] ?? null) === $message->encodedContext()
             && $existing['content_type'] === self::CONTENT_TYPE
             && $existing['encoding'] === self::ENCODING
             && $existing['key_id'] === null
+            && $existing['tenant_type'] === $message->tenant()?->type()
+            && $existing['tenant_id'] === $message->tenant()?->id()
+            && $existing['origin_actor_type'] === $message->originActor()?->type()
+            && $existing['origin_actor_id'] === $message->originActor()?->id()
             && $this->formatTimestamp(
                 new DateTimeImmutable((string) $existing['available_at']),
             ) === $this->formatTimestamp($message->availableAt())

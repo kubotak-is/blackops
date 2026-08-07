@@ -20,7 +20,7 @@ final readonly class PostgreSqlOutcomeSchema
         $operations = $this->identifier->qualify('operations');
         $outcomes = $this->table();
 
-        return [
+        $statements = [
             "CREATE SCHEMA IF NOT EXISTS {$schema}",
             "CREATE TABLE IF NOT EXISTS {$outcomes} (
                 operation_id uuid PRIMARY KEY,
@@ -39,6 +39,8 @@ final readonly class PostgreSqlOutcomeSchema
             "CREATE INDEX IF NOT EXISTS outcomes_completed_at_idx
                 ON {$outcomes} (completed_at, operation_id)",
         ];
+
+        return array_merge($statements, PostgreSqlTenantMetadata::alter($outcomes, 'outcomes'));
     }
 
     public function table(): string

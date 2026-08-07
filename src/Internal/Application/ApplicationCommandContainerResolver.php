@@ -97,6 +97,7 @@ final class ApplicationCommandContainerResolver
             );
             $container->set(TransactionalOutbox::class, $outbox);
             $container->set(Operations::class, $outbox);
+            new OperationDataRuntimeInjector()->inject($container, $connection, $database->schema);
         }
 
         return $this->container = $container;

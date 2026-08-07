@@ -6,25 +6,37 @@ namespace BlackOps\Internal\Status;
 
 use BlackOps\Core\ActorRef;
 use BlackOps\Core\Identifier\OperationId;
+use BlackOps\Core\TenantRef;
 use BlackOps\Status\Exception\OperationStatusQueryException;
 use BlackOps\Status\OperationStatusAuthorizationRequest;
 use BlackOps\Status\OperationStatusAuthorizer;
 use BlackOps\Status\OperationStatusExpired;
 use BlackOps\Status\OperationStatusFound;
-use BlackOps\Status\OperationStatusQuery;
 use BlackOps\Status\OperationStatusResult;
 use BlackOps\Status\OperationStatusUnavailable;
+use BlackOps\Status\TenantAwareOperationStatusQuery;
 use Throwable;
 
-final readonly class DefaultOperationStatusQuery implements OperationStatusQuery
+final readonly class DefaultOperationStatusQuery implements TenantAwareOperationStatusQuery
 {
     public function __construct(
         private OperationStatusSource $source,
         private OperationStatusAuthorizer $authorizer,
     ) {}
 
-    public function find(OperationId $operationId, ?ActorRef $currentActor = null): OperationStatusResult
-    {
+    public function find(
+        OperationId $operationId,
+        ?ActorRef $currentActor = null,
+        ?TenantRef $currentTenant = null,
+    ): OperationStatusResult {
+        return $this->findForTenant($operationId, $currentActor, $currentTenant);
+    }
+
+    public function findForTenant(
+        OperationId $operationId,
+        ?ActorRef $currentActor = null,
+        ?TenantRef $currentTenant = null,
+    ): OperationStatusResult {
         $subject = $this->findSubject($operationId);
         if ($subject === null) {
             return new OperationStatusUnavailable();
@@ -34,7 +46,7 @@ final readonly class DefaultOperationStatusQuery implements OperationStatusQuery
             throw OperationStatusQueryException::integrityFailed();
         }
 
-        if (!$this->isAllowed($subject, $currentActor)) {
+        if (!$this->isAllowed($subject, $currentActor, $currentTenant)) {
             return new OperationStatusUnavailable();
         }
 
@@ -70,8 +82,11 @@ final readonly class DefaultOperationStatusQuery implements OperationStatusQuery
         }
     }
 
-    private function isAllowed(OperationStatusSubject $subject, ?ActorRef $currentActor): bool
-    {
+    private function isAllowed(
+        OperationStatusSubject $subject,
+        ?ActorRef $currentActor,
+        ?TenantRef $currentTenant,
+    ): bool {
         try {
             return $this->authorizer
                 ->decide(
@@ -80,6 +95,8 @@ final readonly class DefaultOperationStatusQuery implements OperationStatusQuery
                         $subject->operationType,
                         $currentActor,
                         $subject->originActor,
+                        $currentTenant,
+                        $subject->tenant,
                     ),
                 )
                 ->isAllowed();

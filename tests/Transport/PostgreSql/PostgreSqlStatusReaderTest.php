@@ -51,6 +51,7 @@ final class PostgreSqlStatusReaderTest extends TestCase
                 '{"private":"payload-secret"}',
                 '{"private":"context-secret"}',
                 new DateTimeImmutable('2026-07-19T10:00:00+09:00'),
+                originActor: new ActorRef('origin-private-id', 'customer'),
             ),
         );
         $this->journal = new PostgreSqlCanonicalJournalStore($this->connection, self::SCHEMA);
@@ -70,20 +71,20 @@ final class PostgreSqlStatusReaderTest extends TestCase
         self::assertSame('origin-private-id', $subject->originActorId);
         self::assertSame('customer', $subject->originActorType);
         self::assertSame(
-            ['operationId', 'operationType', 'originActorId', 'originActorType'],
+            ['operationId', 'operationType', 'originActorId', 'originActorType', 'tenant'],
             array_keys(get_object_vars($subject)),
         );
         self::assertStringNotContainsString('secret', json_encode($subject, JSON_THROW_ON_ERROR));
     }
 
-    public function testOperationsRowWithoutJournalKeepsOriginActorNull(): void
+    public function testOperationsRowWithoutJournalKeepsOriginActorClearSubject(): void
     {
         $subject = $this->reader->findSubject($this->operationId());
 
         self::assertNotNull($subject);
         self::assertSame('status.reader', $subject->operationType);
-        self::assertNull($subject->originActorId);
-        self::assertNull($subject->originActorType);
+        self::assertSame('origin-private-id', $subject->originActorId);
+        self::assertSame('customer', $subject->originActorType);
     }
 
     public function testJournalOnlySubjectSupportsInlineAndPreAcceptanceTerminalIdentity(): void
@@ -109,7 +110,13 @@ final class PostgreSqlStatusReaderTest extends TestCase
 
     public function testOperationsAndJournalTypeMismatchIsIntegrityFailure(): void
     {
-        $this->journal->append($this->received($this->operationId(), 'status.other', 'deferred'));
+        $this->journal->append($this->received($this->operationId(), 'status.reader', 'deferred'));
+        $this->connection->executeStatement('UPDATE '
+        . self::SCHEMA
+        . '.journal SET operation_type = :operation_type WHERE operation_id = :operation_id', [
+            'operation_type' => 'status.other',
+            'operation_id' => self::OPERATION_ID,
+        ]);
 
         try {
             $this->reader->findSubject($this->operationId());
@@ -124,12 +131,12 @@ final class PostgreSqlStatusReaderTest extends TestCase
     {
         $this->journal->append($this->received($this->operationId(), 'status.reader', 'deferred'));
         $this->connection->executeStatement(
-            'UPDATE ' . self::SCHEMA . ".journal
-            SET encoded_record = convert_to(
-                (convert_from(encoded_record, 'UTF8')::jsonb #- '{operation,actors,origin,type}')::text,
-                'UTF8'
-            )
-            WHERE operation_id = :operation_id",
+            'ALTER TABLE ' . self::SCHEMA . '.journal DROP CONSTRAINT IF EXISTS journal_origin_actor_pair_check',
+        );
+        $this->connection->executeStatement(
+            'UPDATE ' . self::SCHEMA . '.journal
+            SET origin_actor_type = NULL
+            WHERE operation_id = :operation_id',
             ['operation_id' => self::OPERATION_ID],
         );
 
@@ -177,8 +184,9 @@ final class PostgreSqlStatusReaderTest extends TestCase
         self::assertIsInt($end);
         $subjectSource = substr($source, $start, $end - $start);
 
-        self::assertStringContainsString("#>> '{operation,type}' AS operation_type", $subjectSource);
-        self::assertStringContainsString("#>> '{operation,actors,origin,id}' AS origin_actor_id", $subjectSource);
+        self::assertStringContainsString('operation_type', $subjectSource);
+        self::assertStringContainsString('origin_actor_id', $subjectSource);
+        self::assertStringNotContainsString('encoded_record', $subjectSource);
         self::assertStringNotContainsString('AS encoded_record', $subjectSource);
         self::assertStringNotContainsString('encoded_payload', $subjectSource);
         self::assertStringNotContainsString('encoded_context', $subjectSource);

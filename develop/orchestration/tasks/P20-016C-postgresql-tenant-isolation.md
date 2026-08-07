@@ -1,6 +1,6 @@
 # P20-016C: PostgreSQL Tenant Isolation
 
-Status: Ready
+Status: Accepted
 
 ## Goal
 
@@ -45,7 +45,14 @@ Operation-owned PostgreSQL RowへRestricted Clear Tenant／Origin Actor Subject�
 ## Files Allowed to Change
 
 - `src/Transport/PostgreSql/**`
+- `src/Core/Execution/DeferredOperationMessage.php`
+- `src/Core/Retention/RetentionPlanItem.php`
+- `src/Core/Retention/RetentionPurgeAuditRecord.php`
+- `src/Internal/Http/DeferredHttpOperationAcceptor.php`
+- `src/Transport/InMemory/InMemoryOperationRecord.php`
 - `src/Internal/Idempotency/**`
+- `src/Internal/Execution/InlineDispatcher.php`
+- `src/Internal/Execution/DeferredAcceptanceOrchestrator.php`
 - `src/Internal/Outbox/**`
 - `src/Internal/Scheduling/**`
 - `src/Internal/Retention/**`
@@ -54,7 +61,12 @@ Operation-owned PostgreSQL RowへRestricted Clear Tenant／Origin Actor Subject�
 - `src/Internal/Migration/**`
 - `migrations/postgresql/**`
 - Corresponding files under `tests/Transport/PostgreSql/**`
+- `tests/Core/Execution/DeferredOperationMessageTest.php`
+- Corresponding files under `tests/Core/Retention/**`
+- Corresponding files under `tests/Internal/Http/**`
+- Corresponding files under `tests/Transport/InMemory/**`
 - Corresponding files under `tests/Internal/Idempotency/**`
+- Corresponding files under `tests/Internal/Execution/**`
 - Corresponding files under `tests/Internal/Outbox/**`
 - Corresponding files under `tests/Internal/Scheduling/**`
 - Corresponding files under `tests/Internal/Retention/**`
@@ -62,6 +74,14 @@ Operation-owned PostgreSQL RowへRestricted Clear Tenant／Origin Actor Subject�
 - Corresponding files under `tests/Internal/Status/**`
 - Corresponding files under `tests/Internal/Migration/**`
 - Migration／package export Consumer scripts
+- `tests/Integration/MvpSampleEndToEndTest.php`
+- `tests/Integration/ApplicationConsoleKernelTest.php`
+- `tests/Http/DeferredOperationRequestHandlerTest.php`
+- `tests/Http/OperationRequestHandlerTest.php`
+- `tests/Internal/Console/DatabaseMigrationCommandTest.php`
+- `tests/Consumer/quickstart-e2e.sh`
+- `tests/Consumer/community-board-foundation.sh`
+- `tests/Consumer/community-board-digest.sh`
 - `develop/spec/99-tenant-isolation-and-protected-operation-data.md`
 - `develop/TODO.md`
 - `develop/STATE.md`
@@ -88,18 +108,18 @@ Operation-owned PostgreSQL RowへRestricted Clear Tenant／Origin Actor Subject�
 
 ## Acceptance Criteria
 
-- [ ] Schema HelperとMigrationが全対象TableのTenant／Origin Subject Contractを一致して作る
-- [ ] Fresh Migration、Current Schema、Dry-run、Package Exportが同期する
-- [ ] Both-null／partial Tenant／partial Actor Constraint MatrixをDatabaseで検証する
-- [ ] Tenant AからTenant BのOperation／Journal／Outcome／Idempotency／Outbox／Dead Letterを取得できない
-- [ ] Tenant不一致時にEncoded Blob Decoderが呼ばれない
-- [ ] Same Operation Tenant不一致がSafe Integrity Failureになる
-- [ ] Status Subjectが`convert_from(encoded_...)::jsonb`へ依存しない
-- [ ] Worker／Retention／ReplayがRowごとのTenantを混同しない
-- [ ] Idempotency KeyがTenantごとに独立Scopeになる
-- [ ] Scheduled実行候補だけTenantを保持し、Skip Contractを維持する
-- [ ] Existing Global／Single-tenant JourneyとFull Suiteを維持する
-- [ ] Report／STATE／TODOを同期し、WorkerはCommitしない
+- [x] Schema HelperとMigrationが全対象TableのTenant／Origin Subject Contractを一致して作る
+- [x] Fresh Migration、Current Schema、Dry-run、Package Exportが同期する
+- [x] Both-null／partial Tenant／partial Actor Constraint MatrixをDatabaseで検証する
+- [x] Tenant AからTenant BのOperation／Journal／Outcome／Idempotency／Outbox／Dead Letterを取得できない
+- [x] Tenant不一致時にEncoded Blob Decoderが呼ばれない
+- [x] Same Operation Tenant不一致がSafe Integrity Failureになる
+- [x] Status Subjectが`convert_from(encoded_...)::jsonb`へ依存しない
+- [x] Worker／Retention／ReplayがRowごとのTenantを混同しない
+- [x] Idempotency KeyがTenantごとに独立Scopeになる
+- [x] Scheduled実行候補だけTenantを保持し、Skip Contractを維持する
+- [x] Existing Global／Single-tenant JourneyとFull Suiteを維持する
+- [x] Report／STATE／TODOを同期し、WorkerはCommitしない
 
 ## Required Commands
 

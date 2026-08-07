@@ -56,6 +56,8 @@ final class PostgreSqlOutcomeStoreTest extends TestCase
                 'schema_version' => 'integer',
                 'encoded_payload' => 'bytea',
                 'completed_at' => 'timestamp with time zone',
+                'tenant_type' => 'text',
+                'tenant_id' => 'text',
             ],
             $columns,
         );

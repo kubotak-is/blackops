@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace BlackOps\Core\Execution;
 
+use BlackOps\Core\ActorRef;
 use BlackOps\Core\Attribute\PublicApi;
 use BlackOps\Core\Identifier\OperationId;
+use BlackOps\Core\TenantRef;
 use DateTimeImmutable;
 use InvalidArgumentException;
 
@@ -19,6 +21,8 @@ final readonly class DeferredOperationMessage
         private string $encodedPayload,
         private string $encodedContext,
         private DateTimeImmutable $availableAt,
+        private ?TenantRef $tenant = null,
+        private ?ActorRef $originActor = null,
     ) {
         if ($operationType === '') {
             throw new InvalidArgumentException('Operation type must not be empty.');
@@ -57,5 +61,15 @@ final readonly class DeferredOperationMessage
     public function availableAt(): DateTimeImmutable
     {
         return $this->availableAt;
+    }
+
+    public function tenant(): ?TenantRef
+    {
+        return $this->tenant;
+    }
+
+    public function originActor(): ?ActorRef
+    {
+        return $this->originActor;
     }
 }

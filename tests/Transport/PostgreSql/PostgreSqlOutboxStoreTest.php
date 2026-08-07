@@ -207,6 +207,11 @@ final class PostgreSqlOutboxStoreTest extends TestCase
             'outbox_test',
         );
         $this->applyMigration($old);
+        $this->connection->executeStatement('ALTER TABLE outbox_test.outbox_records
+            ADD COLUMN tenant_type text NULL,
+            ADD COLUMN tenant_id text NULL,
+            ADD COLUMN origin_actor_type text NULL,
+            ADD COLUMN origin_actor_id text NULL');
         $store = new PostgreSqlOutboxStore($this->connection, 'outbox_test');
         $store->insert($this->record(
             '019f45b2-7c2d-7abc-8def-0123456789ab',

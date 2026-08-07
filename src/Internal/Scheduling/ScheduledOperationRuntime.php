@@ -53,6 +53,8 @@ final readonly class ScheduledOperationRuntime
             $encoded->encodedPayload(),
             $encoded->encodedContext(),
             $occurrence->scheduledAt,
+            $envelope->context()->tenant(),
+            $envelope->context()->actorContext()?->origin(),
         );
 
         return $this->deferred->accept($message, $envelope, $metadata);

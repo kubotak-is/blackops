@@ -42,6 +42,10 @@ deptrac:
       collectors:
         - type: classNameRegex
           value: '/^BlackOps\\Status(\\|$)/'
+    - name: OperationData
+      collectors:
+        - type: classNameRegex
+          value: '/^BlackOps\\OperationData(\\|$)/'
     - name: Http
       collectors:
         - type: classNameRegex
@@ -125,6 +129,10 @@ deptrac:
       - Core
     Status:
       - Core
+    OperationData:
+      - Core
+      - Journal
+      - Outcome
     Http:
       - Core
       - Application
@@ -156,6 +164,7 @@ deptrac:
       - Console
       - Outcome
       - Status
+      - OperationData
       - Database
       - Auth
       - StorageProtection

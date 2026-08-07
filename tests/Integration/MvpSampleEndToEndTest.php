@@ -482,10 +482,10 @@ final class MvpSampleEndToEndTest extends TestCase
             WHERE operation_id IN (
                 SELECT operation_id
                 FROM ' . self::SCHEMA . '.journal
-                WHERE convert_from(encoded_record, \'UTF8\') LIKE :type
+                WHERE operation_type = :type
             )
             LIMIT 1',
-            ['type' => '%"type":"' . $type . '"%'],
+            ['type' => $type],
         );
         self::assertIsString($operationId);
 

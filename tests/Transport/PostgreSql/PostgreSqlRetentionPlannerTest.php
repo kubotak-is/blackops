@@ -120,7 +120,7 @@ final class PostgreSqlRetentionPlannerTest extends TestCase
         $row = $this->connection->fetchAssociative(
             'SELECT
                 state,
-                convert_from(encoded_payload, \'UTF8\') AS encoded_payload,
+                encode(encoded_payload, \'escape\') AS encoded_payload,
                 payload_purged_at
             FROM ' . self::SCHEMA . '.operations
             WHERE operation_id = :operation_id',
@@ -174,12 +174,13 @@ final class PostgreSqlRetentionPlannerTest extends TestCase
     {
         $recordId = $this->recordId($operationId, $sequence);
         $this->connection->executeStatement('INSERT INTO ' . self::SCHEMA . '.journal (
-            record_id, operation_id, sequence, event, schema_version, occurred_at, encoded_record
+            record_id, operation_id, operation_type, sequence, event, schema_version, occurred_at, encoded_record
         ) VALUES (
-            :record_id, :operation_id, :sequence, :event, 1, :occurred_at, convert_to(:record, \'UTF8\')
+            :record_id, :operation_id, :operation_type, :sequence, :event, 1, :occurred_at, convert_to(:record, \'UTF8\')
         )', [
             'record_id' => $recordId,
             'operation_id' => $operationId,
+            'operation_type' => 'operation.tested',
             'sequence' => $sequence,
             'event' => 'operation.tested',
             'occurred_at' => $occurredAt,

@@ -19,7 +19,7 @@ final readonly class PostgreSqlOutboxSchema
         $schema = $this->identifier->quoted();
         $table = $this->table();
 
-        return [
+        $statements = [
             "CREATE SCHEMA IF NOT EXISTS {$schema}",
             "CREATE TABLE IF NOT EXISTS {$table} (
                 record_id uuid PRIMARY KEY,
@@ -76,6 +76,10 @@ final readonly class PostgreSqlOutboxSchema
             )",
             "CREATE INDEX IF NOT EXISTS outbox_dead_letter_retry_audits_record_idx ON {$this->retryAuditTable()} (record_id, retried_at)",
         ];
+
+        $statements = array_merge($statements, PostgreSqlTenantMetadata::alter($table, 'outbox_records', true));
+
+        return $statements;
     }
 
     public function table(): string

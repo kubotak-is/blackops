@@ -27,7 +27,11 @@ use BlackOps\Http\Console\DumpHttpManifestCommand;
 use BlackOps\Http\Routing\HttpOperationManifestFile;
 use BlackOps\Internal\DependencyInjection\RuntimeContainerCompiler;
 use BlackOps\Internal\Execution\HandlerResolver;
+use BlackOps\Journal\CanonicalJournalReader;
+use BlackOps\OperationData\OperationJournalQuery;
+use BlackOps\OperationData\OperationOutcomeQuery;
 use BlackOps\Outbox\TransactionalOutbox;
+use BlackOps\Outcome\OutcomeReader;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
@@ -261,6 +265,28 @@ final class RuntimeContainerCompilerTest extends TestCase
         self::assertInstanceOf(ContainerDatabaseConsumer::class, $consumer);
         self::assertSame($databases, $consumer->databases);
         self::assertSame($connection, $consumer->connection);
+    }
+
+    public function testRegistersSyntheticAuthorizedOperationDataQueriesWithoutRawReaderBindings(): void
+    {
+        $compiler = new RuntimeContainerCompiler();
+        $builder = $compiler->builder();
+        $compiler->registerDatabaseServices($builder);
+        $builder->register(ContainerOperationDataConsumer::class)->setAutowired(true)->setPublic(true);
+
+        $container = $compiler->compile($builder);
+        $journal = $this->createStub(OperationJournalQuery::class);
+        $outcome = $this->createStub(OperationOutcomeQuery::class);
+        self::assertInstanceOf(SymfonyContainerInterface::class, $container);
+        $container->set(OperationJournalQuery::class, $journal);
+        $container->set(OperationOutcomeQuery::class, $outcome);
+
+        $consumer = $container->get(ContainerOperationDataConsumer::class);
+
+        self::assertSame($journal, $consumer->journal);
+        self::assertSame($outcome, $consumer->outcome);
+        self::assertFalse($container->has(CanonicalJournalReader::class));
+        self::assertFalse($container->has(OutcomeReader::class));
     }
 
     public function testRegistersSyntheticTransactionalOutboxForConstructorInjection(): void
@@ -541,6 +567,14 @@ final readonly class ContainerOperationsConsumer
 {
     public function __construct(
         public Operations $operations,
+    ) {}
+}
+
+final readonly class ContainerOperationDataConsumer
+{
+    public function __construct(
+        public OperationJournalQuery $journal,
+        public OperationOutcomeQuery $outcome,
     ) {}
 }
 

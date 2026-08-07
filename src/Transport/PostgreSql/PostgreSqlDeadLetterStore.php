@@ -24,17 +24,23 @@ final readonly class PostgreSqlDeadLetterStore
                 operation_id,
                 final_attempt_id,
                 final_attempt_number,
+                tenant_type,
+                tenant_id,
                 reason_type,
                 reason_message,
                 moved_at
-            ) VALUES (
+            ) SELECT
                 :operation_id,
                 :final_attempt_id,
                 :final_attempt_number,
+                o.tenant_type,
+                o.tenant_id,
                 :reason_type,
                 :reason_message,
                 :moved_at
-            )",
+            FROM {$this->schema->operationsTable()} o
+            WHERE o.operation_id = :operation_id
+            ",
             [
                 'operation_id' => $claim->message()->operationId()->toString(),
                 'final_attempt_id' => $data->finalAttemptId?->toString(),

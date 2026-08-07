@@ -89,6 +89,8 @@ final readonly class DeferredHttpOperationAcceptor implements DeferredOperationA
                 $encoded->encodedPayload(),
                 $encoded->encodedContext(),
                 $context->receivedAt(),
+                $context->tenant(),
+                $context->actorContext()?->origin(),
             ),
             $envelope,
             $metadata,

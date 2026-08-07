@@ -56,7 +56,7 @@ final class DatabaseMigrationRunnerTest extends TestCase
         $runner = new DatabaseMigrationRunner($this->connection, self::SCHEMA);
         $migrations = $runner->dependencyFactory()->getMigrationPlanCalculator()->getMigrations();
 
-        self::assertCount(7, $migrations);
+        self::assertCount(8, $migrations);
         self::assertSame(
             'BlackOps\\Migrations\\PostgreSql\\Version20260712000000',
             (string) $migrations->getFirst()->getVersion(),
@@ -79,6 +79,7 @@ final class DatabaseMigrationRunnerTest extends TestCase
                 'BlackOps\\Migrations\\PostgreSql\\Version20260724100000',
                 'BlackOps\\Migrations\\PostgreSql\\Version20260724110000',
                 'BlackOps\\Migrations\\PostgreSql\\Version20260728133000',
+                'BlackOps\\Migrations\\PostgreSql\\Version20260803000000',
             ],
             $status->pendingVersions,
         );
@@ -92,7 +93,7 @@ final class DatabaseMigrationRunnerTest extends TestCase
         $result = $runner->dryRun();
 
         self::assertTrue($result->dryRun);
-        self::assertSame(7, $result->migrations);
+        self::assertSame(8, $result->migrations);
         self::assertNotEmpty($result->sql);
         self::assertStringContainsString('CREATE TABLE IF NOT EXISTS "' . self::SCHEMA . '"."operations"', implode(
             "\n",
@@ -120,7 +121,7 @@ final class DatabaseMigrationRunnerTest extends TestCase
         $result = $runner->migrate();
 
         self::assertFalse($result->dryRun);
-        self::assertSame(7, $result->migrations);
+        self::assertSame(8, $result->migrations);
         self::assertSame(
             [
                 'dead_letters',
@@ -158,7 +159,7 @@ final class DatabaseMigrationRunnerTest extends TestCase
             'column' => 'version',
         ]));
         self::assertSame(
-            7,
+            8,
             (int) $this->connection->fetchOne('SELECT count(*) FROM ' . self::SCHEMA . '.schema_migrations'),
         );
         self::assertSame(2, (int) $this->connection->fetchOne('SELECT count(*)
@@ -195,7 +196,7 @@ final class DatabaseMigrationRunnerTest extends TestCase
 
         $metadata = $runner->dependencyFactory()->getMetadataStorage();
         $metadata->ensureInitialized();
-        self::assertCount(7, $metadata->getExecutedMigrations());
+        self::assertCount(8, $metadata->getExecutedMigrations());
     }
 
     public function testApplyWithNoPendingMigrationSucceedsWithoutChangingVersionRows(): void
@@ -208,10 +209,10 @@ final class DatabaseMigrationRunnerTest extends TestCase
 
         self::assertSame(0, $result->migrations);
         self::assertSame([], $result->sql);
-        self::assertCount(7, $status->appliedVersions);
+        self::assertCount(8, $status->appliedVersions);
         self::assertSame([], $status->pendingVersions);
         self::assertSame(
-            7,
+            8,
             (int) $this->connection->fetchOne('SELECT count(*) FROM ' . self::SCHEMA . '.schema_migrations'),
         );
     }
@@ -223,7 +224,7 @@ final class DatabaseMigrationRunnerTest extends TestCase
 
         try {
             $first = new DatabaseMigrationRunner($this->connection, self::CURRENT_SCHEMA);
-            self::assertSame(7, $first->migrate()->migrations);
+            self::assertSame(8, $first->migrate()->migrations);
             self::assertSame(self::CURRENT_SCHEMA, $this->connection->fetchOne('SELECT current_schema()'));
             $metadataBefore = $this->metadataRows(self::CURRENT_SCHEMA);
             $configuredSearchPath = $this->connection->fetchOne('SHOW search_path');
@@ -232,7 +233,7 @@ final class DatabaseMigrationRunnerTest extends TestCase
             $status = $second->status();
             $result = $second->migrate();
 
-            self::assertCount(7, $status->appliedVersions);
+            self::assertCount(8, $status->appliedVersions);
             self::assertSame([], $status->pendingVersions);
             self::assertSame(0, $result->migrations);
             self::assertSame([], $result->sql);
@@ -253,8 +254,8 @@ final class DatabaseMigrationRunnerTest extends TestCase
         try {
             $runner = new DatabaseMigrationRunner($this->connection, self::CURRENT_SCHEMA);
 
-            self::assertCount(7, $runner->status()->pendingVersions);
-            self::assertSame(7, $runner->dryRun()->migrations);
+            self::assertCount(8, $runner->status()->pendingVersions);
+            self::assertSame(8, $runner->dryRun()->migrations);
             self::assertFalse($this->schemaExists(self::CURRENT_SCHEMA));
             self::assertSame(self::CURRENT_SCHEMA . ', public', $this->connection->fetchOne('SHOW search_path'));
         } finally {
@@ -294,6 +295,7 @@ final class DatabaseMigrationRunnerTest extends TestCase
                 'BlackOps\\Migrations\\PostgreSql\\Version20260724100000',
                 'BlackOps\\Migrations\\PostgreSql\\Version20260724110000',
                 'BlackOps\\Migrations\\PostgreSql\\Version20260728133000',
+                'BlackOps\\Migrations\\PostgreSql\\Version20260803000000',
                 'App\\Migrations\\' . $version,
                 'App\\Migrations\\' . $secondVersion,
             ],
@@ -302,7 +304,7 @@ final class DatabaseMigrationRunnerTest extends TestCase
 
         $dryRun = $runner->dryRun();
         $sql = implode("\n", $dryRun->sql);
-        self::assertSame(9, $dryRun->migrations);
+        self::assertSame(10, $dryRun->migrations);
         $frameworkPosition = strpos($sql, 'CREATE TABLE IF NOT EXISTS "' . self::SCHEMA . '"."operations"');
         $applicationPosition = strpos($sql, 'CREATE TABLE "' . self::SCHEMA . '"."application_records"');
         $secondApplicationPosition = strpos($sql, 'ALTER TABLE "' . self::SCHEMA . '"."application_records"');
@@ -320,7 +322,7 @@ final class DatabaseMigrationRunnerTest extends TestCase
         );
         $result = $runner->migrate();
 
-        self::assertSame(9, $result->migrations);
+        self::assertSame(10, $result->migrations);
         self::assertSame(1, (int) $this->connection->fetchOne('SELECT count(*)
                 FROM information_schema.tables
                 WHERE table_schema = :schema
@@ -329,7 +331,7 @@ final class DatabaseMigrationRunnerTest extends TestCase
             'table' => 'application_records',
         ]));
         self::assertSame(
-            9,
+            10,
             (int) $this->connection->fetchOne('SELECT count(*) FROM ' . self::SCHEMA . '.schema_migrations'),
         );
         self::assertSame([], $runner->status()->pendingVersions);
@@ -450,9 +452,9 @@ final class DatabaseMigrationRunnerTest extends TestCase
 
         $result = $runner->migrate();
 
-        self::assertSame(7, $result->migrations);
+        self::assertSame(8, $result->migrations);
         self::assertSame(
-            7,
+            8,
             (int) $this->connection->fetchOne('SELECT count(*) FROM ' . self::SCHEMA . '.schema_migrations'),
         );
         self::assertSame([], $runner->status()->pendingVersions);
@@ -561,7 +563,7 @@ final class DatabaseMigrationRunnerTest extends TestCase
                 WHERE version = :version',
             ['version' => 'LegacyVersion'],
         ));
-        self::assertCount(8, $runner->dependencyFactory()->getMetadataStorage()->getExecutedMigrations());
+        self::assertCount(9, $runner->dependencyFactory()->getMetadataStorage()->getExecutedMigrations());
     }
 
     public function testApplyUpgradesLegacyMetadataWhenTargetSchemaIsCurrent(): void
@@ -588,7 +590,7 @@ final class DatabaseMigrationRunnerTest extends TestCase
                     WHERE version = :version',
                 ['version' => 'LegacyCurrentVersion'],
             ));
-            self::assertCount(8, $runner->dependencyFactory()->getMetadataStorage()->getExecutedMigrations());
+            self::assertCount(9, $runner->dependencyFactory()->getMetadataStorage()->getExecutedMigrations());
             self::assertSame(self::CURRENT_SCHEMA . ', public', $this->connection->fetchOne('SHOW search_path'));
         } finally {
             $this->connection->executeStatement('RESET search_path');

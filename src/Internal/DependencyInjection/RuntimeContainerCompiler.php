@@ -23,6 +23,8 @@ use BlackOps\Internal\StorageProtection\RandomNonceSource;
 use BlackOps\Internal\Transaction\DefaultAfterCommitFailureReporter;
 use BlackOps\Internal\Transaction\TransactionRuntime;
 use BlackOps\Internal\Transaction\TransactionRuntimeAccessor;
+use BlackOps\OperationData\OperationJournalQuery;
+use BlackOps\OperationData\OperationOutcomeQuery;
 use BlackOps\Outbox\TransactionalOutbox;
 use BlackOps\StorageProtection\StorageKeyProvider;
 use Doctrine\DBAL\Connection;
@@ -133,6 +135,7 @@ final readonly class RuntimeContainerCompiler
 
     public function registerHandlers(ContainerBuilder $builder, OperationRegistry $operations): void
     {
+        $this->registerOperationDataQueries($builder);
         $this->registerRuntimeLogger($builder);
 
         foreach ($operations->all() as $operation) {
@@ -195,6 +198,26 @@ final readonly class RuntimeContainerCompiler
 
         $builder->register(TransactionalOutbox::class, TransactionalOutbox::class)->setSynthetic(true)->setPublic(true);
         $builder->register(Operations::class, Operations::class)->setSynthetic(true)->setPublic(true);
+        $this->registerOperationDataQueries($builder);
+    }
+
+    /**
+     * Application consumers resolve authorized query contracts from the compiled runtime container.
+     * Concrete query objects are injected after database and tenant context are available.
+     */
+    public function registerOperationDataQueries(ContainerBuilder $builder): void
+    {
+        foreach ([OperationJournalQuery::class, OperationOutcomeQuery::class] as $contract) {
+            if ($builder->has($contract)) {
+                if (!$builder->hasDefinition($contract) || !$builder->getDefinition($contract)->isSynthetic()) {
+                    throw new InvalidArgumentException('Operation data query runtime service cannot be redefined.');
+                }
+
+                continue;
+            }
+
+            $builder->register($contract, $contract)->setSynthetic(true)->setPublic(true);
+        }
     }
 
     public function registerAuthorizationPolicies(ContainerBuilder $builder, OperationRegistry $operations): void

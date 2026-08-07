@@ -409,12 +409,13 @@ final class PostgreSqlRetentionPurgeServiceTest extends TestCase
     {
         $recordId = $this->recordId($operationId, $sequence);
         $this->connection->executeStatement('INSERT INTO ' . self::SCHEMA . '.journal (
-            record_id, operation_id, sequence, event, schema_version, occurred_at, encoded_record
+            record_id, operation_id, operation_type, sequence, event, schema_version, occurred_at, encoded_record
         ) VALUES (
-            :record_id, :operation_id, :sequence, :event, 1, :occurred_at, convert_to(:record, \'UTF8\')
+            :record_id, :operation_id, :operation_type, :sequence, :event, 1, :occurred_at, convert_to(:record, \'UTF8\')
         )', [
             'record_id' => $recordId,
             'operation_id' => $operationId,
+            'operation_type' => 'operation.tested',
             'sequence' => $sequence,
             'event' => 'operation.tested',
             'occurred_at' => $occurredAt,
@@ -482,7 +483,7 @@ final class PostgreSqlRetentionPurgeServiceTest extends TestCase
     private function operationPayload(string $operationId): ?string
     {
         $payload = $this->connection->fetchOne(
-            'SELECT convert_from(encoded_payload, \'UTF8\')
+            'SELECT encoded_payload
             FROM ' . self::SCHEMA . '.operations
             WHERE operation_id = :operation_id',
             ['operation_id' => $operationId],

@@ -11,6 +11,7 @@ use BlackOps\Core\Execution\Inline;
 use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Core\OperationResult;
 use BlackOps\Core\Rejection\RejectionCategory;
+use BlackOps\Core\TenantRef;
 use BlackOps\Idempotency\IdempotencyKeyHash;
 use BlackOps\Transport\PostgreSql\PostgreSqlIdempotencySchema;
 use BlackOps\Transport\PostgreSql\PostgreSqlOutcomeCodec;
@@ -57,6 +58,7 @@ final readonly class PostgreSqlIdempotencyStore implements IdempotencyStore
         ExecutionStrategy $strategy,
         DateTimeImmutable $createdAt,
         DateTimeImmutable $expiresAt,
+        ?TenantRef $tenant = null,
     ): IdempotencyClaimResult {
         try {
             $table = $this->schema->table();
@@ -64,13 +66,15 @@ final readonly class PostgreSqlIdempotencyStore implements IdempotencyStore
                 "INSERT INTO {$table} (
                     scope_version, scope_hash, key_version, key_hash,
                     fingerprint_version, fingerprint_hash, operation_id,
+                    tenant_type, tenant_id,
                     strategy, state, created_at, expires_at
                 ) VALUES (
                     :scope_version, :scope_hash, :key_version, :key_hash,
                     :fingerprint_version, :fingerprint_hash, :operation_id,
+                    :tenant_type, :tenant_id,
                     :strategy, 'processing', :created_at, :expires_at
                 ) ON CONFLICT (scope_version, scope_hash) DO NOTHING",
-                $this->params($scope, $key, $fingerprint, $operationId, $strategy, $createdAt, $expiresAt),
+                $this->params($scope, $key, $fingerprint, $operationId, $strategy, $createdAt, $expiresAt, $tenant),
             );
             if ((int) $inserted === 1) {
                 return new IdempotencyClaimResult(
@@ -80,8 +84,15 @@ final readonly class PostgreSqlIdempotencyStore implements IdempotencyStore
             }
 
             $row = $this->connection->fetchAssociative(
-                "SELECT * FROM {$table} WHERE scope_version = :scope_version AND scope_hash = :scope_hash",
-                ['scope_version' => $scope->version(), 'scope_hash' => $scope->digest()],
+                "SELECT * FROM {$table} WHERE scope_version = :scope_version AND scope_hash = :scope_hash
+                        AND tenant_type IS NOT DISTINCT FROM :tenant_type
+                        AND tenant_id IS NOT DISTINCT FROM :tenant_id",
+                [
+                    'scope_version' => $scope->version(),
+                    'scope_hash' => $scope->digest(),
+                    'tenant_type' => $tenant?->type(),
+                    'tenant_id' => $tenant?->id(),
+                ],
             );
             if (!is_array($row)) {
                 throw new DeferredTransportException('PostgreSQL idempotency claim row is missing.');
@@ -269,6 +280,7 @@ final readonly class PostgreSqlIdempotencyStore implements IdempotencyStore
         ExecutionStrategy $strategy,
         DateTimeImmutable $createdAt,
         DateTimeImmutable $expiresAt,
+        ?TenantRef $tenant,
     ): array {
         return [
             'scope_version' => $scope->version(),
@@ -281,6 +293,8 @@ final readonly class PostgreSqlIdempotencyStore implements IdempotencyStore
             'strategy' => $strategy::class,
             'created_at' => $createdAt->format('Y-m-d H:i:s.uP'),
             'expires_at' => $expiresAt->format('Y-m-d H:i:s.uP'),
+            'tenant_type' => $tenant?->type(),
+            'tenant_id' => $tenant?->id(),
         ];
     }
 

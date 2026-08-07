@@ -41,7 +41,7 @@ final readonly class PostgreSqlDeadLetterRetentionDeleteService
                 foreach ($plan->forTarget(RetentionTarget::DeadLetter) as $item) {
                     $purgedAt = $this->clock->now();
 
-                    if ($this->deleteDeadLetter($item->operationId()->toString()) !== 1) {
+                    if ($this->deleteDeadLetter($item) !== 1) {
                         continue;
                     }
 
@@ -54,6 +54,7 @@ final readonly class PostgreSqlDeadLetterRetentionDeleteService
                             $policy,
                             $purgedAt,
                             $actor,
+                            $item->tenant(),
                         ),
                     );
                     ++$deleted;
@@ -79,7 +80,7 @@ final readonly class PostgreSqlDeadLetterRetentionDeleteService
         }
     }
 
-    private function deleteDeadLetter(string $operationId): int
+    private function deleteDeadLetter(\BlackOps\Core\Retention\RetentionPlanItem $item): int
     {
         $deadLetters = $this->schema->deadLettersTable();
         $holds = $this->schema->retentionHoldsTable();
@@ -87,13 +88,19 @@ final readonly class PostgreSqlDeadLetterRetentionDeleteService
         return (int) $this->connection->executeStatement(
             "DELETE FROM {$deadLetters} d
             WHERE d.operation_id = :operation_id
+                AND d.tenant_type IS NOT DISTINCT FROM :tenant_type
+                AND d.tenant_id IS NOT DISTINCT FROM :tenant_id
                 AND NOT EXISTS (
                     SELECT 1
                     FROM {$holds} h
                     WHERE h.operation_id = d.operation_id
                         AND h.released_at IS NULL
                 )",
-            ['operation_id' => $operationId],
+            [
+                'operation_id' => $item->operationId()->toString(),
+                'tenant_type' => $item->tenant()?->type(),
+                'tenant_id' => $item->tenant()?->id(),
+            ],
         );
     }
 }

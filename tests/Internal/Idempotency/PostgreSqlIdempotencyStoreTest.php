@@ -433,7 +433,7 @@ final class PostgreSqlIdempotencyStoreTest extends TestCase
             self::assertStringContainsString($fragment, $migration);
         }
         self::assertSame(
-            1,
+            2,
             (int) $this->connection->fetchOne('SELECT count(*) FROM pg_indexes WHERE schemaname = :schema AND tablename = :table AND indexdef ILIKE :pattern', [
                 'schema' => self::SCHEMA,
                 'table' => 'idempotency_records',

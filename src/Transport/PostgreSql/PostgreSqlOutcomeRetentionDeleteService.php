@@ -39,7 +39,7 @@ final readonly class PostgreSqlOutcomeRetentionDeleteService
                 foreach ($plan->forTarget(RetentionTarget::Outcome) as $item) {
                     $purgedAt = $this->clock->now();
 
-                    if ($this->deleteOutcome($item->operationId()->toString()) !== 1) {
+                    if ($this->deleteOutcome($item) !== 1) {
                         continue;
                     }
 
@@ -52,6 +52,7 @@ final readonly class PostgreSqlOutcomeRetentionDeleteService
                             $policy,
                             $purgedAt,
                             $actor,
+                            $item->tenant(),
                         ),
                     );
                     ++$deleted;
@@ -71,7 +72,7 @@ final readonly class PostgreSqlOutcomeRetentionDeleteService
         }
     }
 
-    private function deleteOutcome(string $operationId): int
+    private function deleteOutcome(\BlackOps\Core\Retention\RetentionPlanItem $item): int
     {
         $outcomes = $this->schema->outcomesTable();
         $holds = $this->schema->retentionHoldsTable();
@@ -79,13 +80,19 @@ final readonly class PostgreSqlOutcomeRetentionDeleteService
         return (int) $this->connection->executeStatement(
             "DELETE FROM {$outcomes} o
             WHERE o.operation_id = :operation_id
+                AND o.tenant_type IS NOT DISTINCT FROM :tenant_type
+                AND o.tenant_id IS NOT DISTINCT FROM :tenant_id
                 AND NOT EXISTS (
                     SELECT 1
                     FROM {$holds} h
                     WHERE h.operation_id = o.operation_id
                         AND h.released_at IS NULL
                 )",
-            ['operation_id' => $operationId],
+            [
+                'operation_id' => $item->operationId()->toString(),
+                'tenant_type' => $item->tenant()?->type(),
+                'tenant_id' => $item->tenant()?->id(),
+            ],
         );
     }
 }

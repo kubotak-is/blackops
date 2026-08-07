@@ -68,6 +68,7 @@ final readonly class ApplicationOperationRuntimeComposer
         );
         $container->set(TransactionalOutbox::class, $outbox);
         $container->set(Operations::class, $outbox);
+        new OperationDataRuntimeInjector()->inject($container, $connection, $database->schema);
         $journal = new PostgreSqlCanonicalJournalStore($connection, $database->schema);
         $observations = new ApplicationJournalObservationFactory()->create($configuration->configuration());
         $authorization = new AuthorizationEvaluator(new AuthorizationPolicyResolver($container));

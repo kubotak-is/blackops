@@ -1341,6 +1341,8 @@ final class DeferredWorkerRuntimeTest extends TestCase
                 $encoded->encodedPayload(),
                 $encoded->encodedContext(),
                 $context->receivedAt(),
+                tenant: $tenant,
+                originActor: $actors?->origin(),
             ),
             $envelope,
             $metadata,

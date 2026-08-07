@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BlackOps\Internal\Scheduling;
 
 use BlackOps\Core\Identifier\OperationId;
+use BlackOps\Core\TenantRef;
 use BlackOps\Transport\PostgreSql\PostgreSqlScheduleSchema;
 use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
@@ -27,6 +28,7 @@ final readonly class PostgreSqlScheduledOccurrenceLifecycle
         string $targetState,
         ?string $category,
         DateTimeImmutable $at,
+        ?TenantRef $tenant = null,
     ): void {
         try {
             $this->assertTransition($expectedState, $targetState, $category);
@@ -36,13 +38,19 @@ final readonly class PostgreSqlScheduledOccurrenceLifecycle
                     SET state = :target_state,
                         category = :category,
                         accepted_at = COALESCE(:accepted_at, accepted_at),
+                        tenant_type = COALESCE(CAST(:tenant_type AS text), tenant_type),
+                        tenant_id = COALESCE(CAST(:tenant_id AS text), tenant_id),
                         updated_at = :updated_at
                     WHERE operation_id = :operation_id
-                        AND state = :expected_state",
+                        AND state = :expected_state
+                        AND (CAST(:tenant_type AS text) IS NULL OR tenant_type IS NULL OR tenant_type IS NOT DISTINCT FROM CAST(:tenant_type AS text))
+                        AND (CAST(:tenant_id AS text) IS NULL OR tenant_id IS NULL OR tenant_id IS NOT DISTINCT FROM CAST(:tenant_id AS text))",
                 [
                     'target_state' => $targetState,
                     'category' => $category,
                     'accepted_at' => $acceptedAt,
+                    'tenant_type' => $tenant?->type(),
+                    'tenant_id' => $tenant?->id(),
                     'updated_at' => $this->timestamp($at),
                     'operation_id' => $operationId->toString(),
                     'expected_state' => $expectedState,

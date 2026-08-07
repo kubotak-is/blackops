@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace BlackOps\Transport\PostgreSql;
 
+use BlackOps\Core\ActorRef;
 use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Core\Identifier\OutboxRecordId;
+use BlackOps\Core\TenantRef;
 use DateTimeImmutable;
 use InvalidArgumentException;
 
@@ -28,6 +30,8 @@ final readonly class PostgreSqlOutboxRecord
         public string $state = 'pending',
         public ?DateTimeImmutable $nextAttemptAt = null,
         public ?string $failureFingerprint = null,
+        public ?TenantRef $tenant = null,
+        public ?ActorRef $originActor = null,
     ) {
         if ($operationType === '' || $connectionName === '') {
             throw new InvalidArgumentException('Outbox record names must not be empty.');

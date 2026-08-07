@@ -21,7 +21,7 @@ final readonly class PostgreSqlIdempotencySchema
         $schema = PostgreSqlIdentifier::schema($this->schema)->quoted();
         $table = $this->table();
 
-        return [
+        $statements = [
             "CREATE SCHEMA IF NOT EXISTS {$schema}",
             "CREATE TABLE IF NOT EXISTS {$table} (
                 scope_version integer NOT NULL CHECK (scope_version >= 1),
@@ -72,5 +72,7 @@ final readonly class PostgreSqlIdempotencySchema
                 ON {$table} (expires_at, scope_version, scope_hash)
                 WHERE state = 'terminal'",
         ];
+
+        return array_merge($statements, PostgreSqlTenantMetadata::alter($table, 'idempotency_records'));
     }
 }

@@ -20,7 +20,7 @@ final class PostgreSqlObserverReplaySelectionQuery
         $where = [];
         $order = self::selectorWhere($selector, $where, $params, $cursor);
         $sql =
-            "SELECT convert_from(encoded_record, 'UTF8') AS encoded_record, sequence, occurred_at, record_id
+            "SELECT encoded_record, sequence, occurred_at, record_id, tenant_type, tenant_id
             FROM {$table} WHERE "
             . implode(' AND ', $where)
             . " ORDER BY {$order} LIMIT "

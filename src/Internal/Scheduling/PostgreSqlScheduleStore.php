@@ -49,7 +49,7 @@ final readonly class PostgreSqlScheduleStore
     public function recoverClaimed(string $scheduleName): array
     {
         $rows = $this->connection->fetchAllAssociative(
-            "SELECT schedule_name, scheduled_at, evaluated_at, state, category, operation_id::text AS operation_id, accepted_at FROM {$this->schema->occurrencesTable()} WHERE schedule_name = :name AND state = 'claimed' ORDER BY scheduled_at, created_at",
+            "SELECT schedule_name, scheduled_at, evaluated_at, state, category, operation_id::text AS operation_id, tenant_type, tenant_id, accepted_at FROM {$this->schema->occurrencesTable()} WHERE schedule_name = :name AND state = 'claimed' ORDER BY scheduled_at, created_at",
             ['name' => $scheduleName],
         );
         return array_map($this->fromRow(...), $rows);
@@ -58,7 +58,7 @@ final readonly class PostgreSqlScheduleStore
     public function occurrence(string $scheduleName, DateTimeImmutable $scheduledAt): ?ScheduleOccurrence
     {
         $row = $this->connection->fetchAssociative(
-            "SELECT schedule_name, scheduled_at, evaluated_at, state, category, operation_id::text AS operation_id, accepted_at FROM {$this->schema->occurrencesTable()} WHERE schedule_name = :name AND scheduled_at = :scheduled_at",
+            "SELECT schedule_name, scheduled_at, evaluated_at, state, category, operation_id::text AS operation_id, tenant_type, tenant_id, accepted_at FROM {$this->schema->occurrencesTable()} WHERE schedule_name = :name AND scheduled_at = :scheduled_at",
             ['name' => $scheduleName, 'scheduled_at' => $this->timestamp($scheduledAt)],
         );
         return $row === false ? null : $this->fromRow($row);
@@ -75,6 +75,9 @@ final readonly class PostgreSqlScheduleStore
             $row['category'] === null ? null : (string) $row['category'],
             $row['operation_id'] === null ? null : OperationId::fromString((string) $row['operation_id']),
             $row['accepted_at'] === null ? null : new DateTimeImmutable((string) $row['accepted_at']),
+            ($row['tenant_type'] ?? null) === null && ($row['tenant_id'] ?? null) === null
+                ? null
+                : new \BlackOps\Core\TenantRef((string) $row['tenant_type'], (string) $row['tenant_id']),
         );
     }
 

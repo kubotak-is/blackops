@@ -6,6 +6,7 @@ namespace BlackOps\Internal\Idempotency;
 
 use BlackOps\Core\Execution\ExecutionStrategy;
 use BlackOps\Core\Identifier\OperationId;
+use BlackOps\Core\TenantRef;
 use BlackOps\Idempotency\IdempotencyKeyHash;
 use DateTimeImmutable;
 
@@ -28,6 +29,7 @@ final class InMemoryIdempotencyStore implements IdempotencyStore
         ExecutionStrategy $strategy,
         DateTimeImmutable $createdAt,
         DateTimeImmutable $expiresAt,
+        ?TenantRef $tenant = null,
     ): IdempotencyClaimResult {
         $scopeKey = $scope->version() . ':' . $scope->digest();
         $existing = $this->records[$scopeKey] ?? null;

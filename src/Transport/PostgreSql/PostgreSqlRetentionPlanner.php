@@ -11,10 +11,12 @@ use BlackOps\Core\Retention\RetentionPlanItem;
 use BlackOps\Core\Retention\RetentionPlanner;
 use BlackOps\Core\Retention\RetentionPolicy;
 use BlackOps\Core\Retention\RetentionTarget;
+use BlackOps\Core\TenantRef;
 use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 use Throwable;
 
+/** @mago-expect lint:too-many-methods */
 final readonly class PostgreSqlRetentionPlanner implements RetentionPlanner
 {
     private PostgreSqlDeferredOperationSchema $schema;
@@ -60,6 +62,7 @@ final readonly class PostgreSqlRetentionPlanner implements RetentionPlanner
         $rows = $this->connection->fetchAllAssociative(
             "SELECT
                 j.operation_id::text AS operation_id,
+                j.tenant_type, j.tenant_id,
                 MAX(j.occurred_at)::text AS basis_at
             FROM {$journal} j
             WHERE NOT EXISTS (
@@ -68,7 +71,7 @@ final readonly class PostgreSqlRetentionPlanner implements RetentionPlanner
                 WHERE h.operation_id = j.operation_id
                     AND h.released_at IS NULL
             )
-            GROUP BY j.operation_id
+            GROUP BY j.operation_id, j.tenant_type, j.tenant_id
             HAVING MAX(j.occurred_at) <= :cutoff
             ORDER BY MAX(j.occurred_at), j.operation_id
             LIMIT {$this->limitPerTarget}",
@@ -94,6 +97,7 @@ final readonly class PostgreSqlRetentionPlanner implements RetentionPlanner
         $rows = $this->connection->fetchAllAssociative(
             "SELECT
                 operation_id::text AS operation_id,
+                o.tenant_type, o.tenant_id,
                 updated_at::text AS basis_at
             FROM {$operations} o
             WHERE o.state IN ('completed', 'rejected', 'failed', 'dead_lettered')
@@ -131,6 +135,7 @@ final readonly class PostgreSqlRetentionPlanner implements RetentionPlanner
         $rows = $this->connection->fetchAllAssociative(
             "SELECT
                 operation_id::text AS operation_id,
+                d.tenant_type, d.tenant_id,
                 moved_at::text AS basis_at
             FROM {$deadLetters} d
             WHERE d.moved_at <= :cutoff
@@ -162,6 +167,7 @@ final readonly class PostgreSqlRetentionPlanner implements RetentionPlanner
         $rows = $this->connection->fetchAllAssociative(
             "SELECT
                 operation_id::text AS operation_id,
+                o.tenant_type, o.tenant_id,
                 completed_at::text AS basis_at
             FROM {$outcomes} o
             WHERE o.completed_at <= :cutoff
@@ -195,7 +201,7 @@ final readonly class PostgreSqlRetentionPlanner implements RetentionPlanner
         $period = $policy->idempotencyRecordRetention();
         $cutoff = $now->modify('-' . $period->secondsValue() . ' seconds');
         $rows = $this->connection->fetchAllAssociative(
-            "SELECT operation_id::text AS operation_id, created_at::text AS basis_at
+            "SELECT operation_id::text AS operation_id, r.tenant_type, r.tenant_id, created_at::text AS basis_at
             FROM {$table} r
             WHERE r.state = 'terminal'
                 AND r.created_at <= :cutoff
@@ -227,7 +233,22 @@ final readonly class PostgreSqlRetentionPlanner implements RetentionPlanner
             $target,
             $basisAt,
             $basisAt->modify('+' . $seconds . ' seconds'),
+            $this->tenant($row),
         );
+    }
+
+    /** @param array<string, mixed> $row */
+    private function tenant(array $row): ?TenantRef
+    {
+        $type = $row['tenant_type'] ?? null;
+        $id = $row['tenant_id'] ?? null;
+        if ($type === null && $id === null) {
+            return null;
+        }
+        if (!is_string($type) || !is_string($id) || $type === '' || $id === '') {
+            throw new DeferredTransportException('Retention planner row contains a partial tenant subject.');
+        }
+        return new TenantRef($type, $id);
     }
 
     /**
