@@ -12,6 +12,7 @@ use BlackOps\Core\Retention\RetentionPlan;
 use BlackOps\Core\Retention\RetentionPlanItem;
 use BlackOps\Core\Retention\RetentionPolicyRef;
 use BlackOps\Core\Retention\RetentionTarget;
+use BlackOps\Transport\PostgreSql\PostgreSqlBytea;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationSender;
 use BlackOps\Transport\PostgreSql\PostgreSqlRetentionPurgeAuditIdGenerator;
 use BlackOps\Transport\PostgreSql\PostgreSqlRetentionPurgeAuditStore;
@@ -19,6 +20,7 @@ use BlackOps\Transport\PostgreSql\PostgreSqlTransportPayloadTombstoneService;
 use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\ParameterType;
 use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
 
@@ -41,6 +43,7 @@ final class PostgreSqlTransportPayloadTombstoneServiceTest extends TestCase
         $this->connection->executeStatement('DROP SCHEMA IF EXISTS ' . self::SCHEMA . ' CASCADE');
         $this->sender = new PostgreSqlDeferredOperationSender(
             $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
             self::SCHEMA,
             new DateTimeImmutable('2026-07-10T00:00:01.000000Z'),
         );
@@ -75,15 +78,36 @@ final class PostgreSqlTransportPayloadTombstoneServiceTest extends TestCase
         self::assertNull($eligible['encoded_payload']);
         self::assertNull($eligible['encoded_context']);
         self::assertSame('2026-07-12T00:00:00.000000Z', $eligible['payload_purged_at']);
-        self::assertSame('{"operationId":"' . self::HELD_OPERATION . '"}', $held['encoded_payload']);
-        self::assertSame('{"operationId":"' . self::NON_TERMINAL_OPERATION . '"}', $nonTerminal['encoded_payload']);
-        self::assertSame('{"operationId":"' . self::DEAD_LETTER_OPERATION . '"}', $deadLetter['encoded_payload']);
+        self::assertStringStartsWith('BOPD', $held['encoded_payload']);
+        self::assertStringStartsWith('BOPD', $nonTerminal['encoded_payload']);
+        self::assertStringStartsWith('BOPD', $deadLetter['encoded_payload']);
         self::assertSame(self::ELIGIBLE_OPERATION, $audit['operation_id']);
         self::assertSame('transport_payload', $audit['target']);
         self::assertSame(1, $audit['affected_count']);
         self::assertSame('production-retention-v1', $audit['policy']);
         self::assertSame('system:retention', $audit['purged_by']);
         self::assertArrayNotHasKey('encoded_payload', $audit);
+    }
+
+    public function testTombstoneDoesNotDecodeTamperedEligibleEnvelope(): void
+    {
+        $this->seedRows();
+        $payload = PostgreSqlBytea::string($this->connection->fetchOne('SELECT encoded_payload FROM '
+        . self::SCHEMA
+        . '.operations WHERE operation_id = :operation_id', ['operation_id' => self::ELIGIBLE_OPERATION]));
+        $payload[strlen($payload) - 1] = $payload[strlen($payload) - 1] ^ "\x01";
+        $this->connection->executeStatement(
+            'UPDATE ' . self::SCHEMA . '.operations SET encoded_payload = :payload WHERE operation_id = :operation_id',
+            ['payload' => $payload, 'operation_id' => self::ELIGIBLE_OPERATION],
+            ['payload' => ParameterType::BINARY],
+        );
+
+        self::assertSame(1, $this->service->tombstone(
+            $this->plan(),
+            RetentionPolicyRef::fromString('production-retention-v1'),
+            RetentionActorRef::fromString('system:retention'),
+        ));
+        self::assertNull($this->operationRow(self::ELIGIBLE_OPERATION)['encoded_payload']);
     }
 
     private function seedRows(): void

@@ -144,12 +144,14 @@ final class ApplicationConsoleCommandFactory
     {
         $database = ApplicationDatabaseConfiguration::fromConfiguration($this->configuration->configuration());
         $connection = $database->databaseManager()->connection($database->frameworkConnection);
+        $runtime = new ApplicationOperationRuntimeComposer()->compose($this->configuration);
+        $protection = ApplicationStorageProtectionResolver::resolve($runtime->container);
         $targets = new ApplicationJournalObservationFactory()->replayTargets(
             $this->configuration->configuration(),
         ) ?? new \BlackOps\Internal\Replay\ObserverReplayTargetRegistry([]);
         return new JournalObserverReplayCommand(
             new ObserverReplayRuntime(
-                new PostgreSqlObserverReplayStore($connection, $database->schema),
+                new PostgreSqlObserverReplayStore($connection, $protection, $database->schema),
                 $targets,
                 new ObservedJournalRecordProjector(new SensitiveProjectionFilter()),
             ),

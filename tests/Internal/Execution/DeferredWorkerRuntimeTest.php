@@ -73,6 +73,7 @@ use BlackOps\Journal\JournalRecord;
 use BlackOps\Outcome\Exception\OutcomeStoreException;
 use BlackOps\Outcome\OutcomeRecord;
 use BlackOps\Outcome\OutcomeWriter;
+use BlackOps\Tests\Transport\PostgreSql\PostgreSqlTestStorageProtection;
 use BlackOps\Transport\PostgreSql\PostgreSqlCanonicalJournalStore;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationLifecycleStore;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationReceiver;
@@ -110,12 +111,27 @@ final class DeferredWorkerRuntimeTest extends TestCase
         $this->connection->executeStatement('DROP SCHEMA IF EXISTS ' . self::SCHEMA . ' CASCADE');
         $this->sender = new PostgreSqlDeferredOperationSender(
             $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
             self::SCHEMA,
             new DateTimeImmutable('2026-07-10T00:00:01.000000Z'),
         );
-        $this->receiver = new PostgreSqlDeferredOperationReceiver($this->connection, self::SCHEMA, 'worker-a', 30);
-        $this->journal = new PostgreSqlCanonicalJournalStore($this->connection, self::SCHEMA);
-        $this->outcomes = new PostgreSqlOutcomeStore($this->connection, self::SCHEMA);
+        $this->receiver = new PostgreSqlDeferredOperationReceiver(
+            $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+            'worker-a',
+            30,
+        );
+        $this->journal = new PostgreSqlCanonicalJournalStore(
+            $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        );
+        $this->outcomes = new PostgreSqlOutcomeStore(
+            $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        );
         $this->codec = new ReflectionJsonOperationCodec();
         $this->sender->migrate();
         $this->receiver->migrate();
@@ -177,6 +193,29 @@ final class DeferredWorkerRuntimeTest extends TestCase
         self::assertNotNull($storedOutcome);
         self::assertInstanceOf(WorkerReportDone::class, $storedOutcome->outcome());
         self::assertSame('done-weekly', $storedOutcome->outcome()->message);
+    }
+
+    public function testWorkerRejectsContextOriginMismatchBeforeReservation(): void
+    {
+        $this->accept();
+        $this->connection->executeStatement('UPDATE '
+        . self::SCHEMA
+        . '.operations SET origin_actor_type = :type, origin_actor_id = :id WHERE operation_id = :operation', [
+            'type' => 'user',
+            'id' => 'clear-origin',
+            'operation' => self::OPERATION_ID,
+        ]);
+        $claim = $this->receiver->claim(new \BlackOps\Core\Execution\ClaimRequest(
+            new DateTimeImmutable('2026-07-10T00:01:00.000000Z'),
+        ));
+        self::assertNotNull($claim);
+
+        try {
+            $this->runtime(new CompletingWorkerReportHandler())->run($claim);
+            self::fail('A context origin mismatch must fail closed.');
+        } catch (DeferredTransportException) {
+            self::assertSame('running', $this->operationRow()['state']);
+        }
     }
 
     public function testWorkerReconnectsGeneratedConnectionBeforeResolvingHandler(): void
@@ -1290,16 +1329,18 @@ final class DeferredWorkerRuntimeTest extends TestCase
 
         $this->expectException(DeferredTransportException::class);
 
-        new PostgreSqlDeferredOperationLifecycleStore($this->connection, self::SCHEMA)->reserveFailed(
-            $stale,
-            new DateTimeImmutable('2026-07-10T00:02:00.000000Z'),
-        );
+        new PostgreSqlDeferredOperationLifecycleStore(
+            $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        )->reserveFailed($stale, new DateTimeImmutable('2026-07-10T00:02:00.000000Z'));
     }
 
     private function accept(
         ?OperationMetadata $metadata = null,
         ?Operation $definition = null,
         ?ActorContext $actors = null,
+        ?ActorContext $contextActors = null,
         ?AuthorizationPolicy $authorizationPolicy = null,
         bool $scheduled = false,
         ?TenantRef $tenant = null,
@@ -1309,7 +1350,7 @@ final class DeferredWorkerRuntimeTest extends TestCase
             OperationId::fromString(self::OPERATION_ID),
             new DateTimeImmutable('2026-07-10T00:00:00.000000Z'),
             CorrelationId::fromString(self::CORRELATION_ID),
-            actorContext: $actors,
+            actorContext: $contextActors ?? $actors,
             schedule: $scheduled
                 ? new ScheduleContext('reports.daily', new DateTimeImmutable('2026-07-10T00:00:00Z'), 'UTC')
                 : null,
@@ -1389,7 +1430,11 @@ final class DeferredWorkerRuntimeTest extends TestCase
                 $this->connection,
                 new JournalRecordFactory($identifiers, $clock),
                 $this->journal,
-                new PostgreSqlDeferredOperationLifecycleStore($this->connection, self::SCHEMA),
+                new PostgreSqlDeferredOperationLifecycleStore(
+                    $this->connection,
+                    PostgreSqlTestStorageProtection::codec(),
+                    self::SCHEMA,
+                ),
                 $clock,
                 $outcomes ?? $this->outcomes,
                 scope: $scope,
@@ -1446,7 +1491,11 @@ final class DeferredWorkerRuntimeTest extends TestCase
                 $this->connection,
                 new JournalRecordFactory($identifiers, $clock),
                 $this->journal,
-                new PostgreSqlDeferredOperationLifecycleStore($this->connection, self::SCHEMA),
+                new PostgreSqlDeferredOperationLifecycleStore(
+                    $this->connection,
+                    PostgreSqlTestStorageProtection::codec(),
+                    self::SCHEMA,
+                ),
                 $clock,
                 $this->outcomes,
                 scheduledOccurrences: $scheduled
@@ -1464,7 +1513,11 @@ final class DeferredWorkerRuntimeTest extends TestCase
         $clock = new DeferredWorkerClock();
         $identifiers = new IdentifierFactory(new DeferredWorkerRuntimeUuidv7Generator(), $clock);
         $metadata ??= $this->metadata();
-        $state = new PostgreSqlDeferredOperationLifecycleStore($this->connection, self::SCHEMA);
+        $state = new PostgreSqlDeferredOperationLifecycleStore(
+            $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        );
         $records = new JournalRecordFactory($identifiers, $clock);
         $context = $this->codec->decodeContext($claim->message()->schemaVersion(), $claim->message()->encodedContext());
         $reservation = $state->reserveAttemptStarted($claim, $clock->now());

@@ -6,6 +6,7 @@ namespace BlackOps\Transport\PostgreSql;
 
 use BlackOps\Core\AttemptContext;
 use BlackOps\Core\Execution\OperationClaim;
+use BlackOps\Internal\StorageProtection\BopdEnvelopeCodec;
 use BlackOps\Journal\Data\OperationDeadLetteredData;
 use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
@@ -19,12 +20,18 @@ final readonly class PostgreSqlDeferredOperationLifecycleStore
 
     public function __construct(
         private Connection $connection,
+        BopdEnvelopeCodec $protection,
         string $schema = 'blackops',
     ) {
         $this->schema = new PostgreSqlDeferredOperationSchema($schema);
         $this->sql = new PostgreSqlDeferredOperationLifecycleSql($connection, $this->schema);
         $this->deadLetters = new PostgreSqlDeadLetterStore($connection, $this->schema, $this->sql);
-        $this->leaseExpired = new PostgreSqlLeaseExpiredRecoveryStore($connection, $this->schema, $this->sql);
+        $this->leaseExpired = new PostgreSqlLeaseExpiredRecoveryStore(
+            $connection,
+            $this->schema,
+            $this->sql,
+            protection: $protection,
+        );
     }
 
     public function reserveAttemptStarted(

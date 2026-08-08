@@ -27,6 +27,9 @@ use BlackOps\Internal\Application\ApplicationConfigurationSnapshot;
 use BlackOps\Internal\Application\ApplicationDatabaseConnectionLifecycle;
 use BlackOps\Internal\Application\ApplicationWorkerComposer;
 use BlackOps\Internal\Execution\DeferredWorkerRuntime;
+use BlackOps\StorageProtection\StorageKey;
+use BlackOps\StorageProtection\StorageKeyProvider;
+use BlackOps\StorageProtection\StoragePurpose;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use FilesystemIterator;
@@ -88,7 +91,7 @@ final class ApplicationConsoleKernelTest extends TestCase
         self::assertFalse($this->schemaExists($connection));
 
         $status = $this->runCommand($kernel, 'database:status');
-        self::assertStringContainsString('pending: 8', $status);
+        self::assertStringContainsString('pending: 9', $status);
         self::assertFalse($this->schemaExists($connection));
         $this->runCommand($kernel, 'database:migrate');
         self::assertStringContainsString('No pending migrations.', $this->runCommand($kernel, 'database:migrate'));
@@ -111,7 +114,6 @@ final class ApplicationConsoleKernelTest extends TestCase
         /** @var array{operationId: string} $acknowledgement */
         $acknowledgement = json_decode((string) $response->getBody(), associative: true, flags: JSON_THROW_ON_ERROR);
         $operationId = OperationId::fromString($acknowledgement['operationId']);
-
         $inspect = $this->runCommand($kernel, 'operation:inspect', [
             'operation-id' => $operationId->toString(),
             '--json' => true,
@@ -279,9 +281,11 @@ final class ApplicationConsoleKernelTest extends TestCase
         array $options = [],
     ): string {
         $output = new BufferedOutput();
-        self::assertSame(0, $kernel->run(new ArrayInput(['command' => $command, ...$options]), $output));
+        $status = $kernel->run(new ArrayInput(['command' => $command, ...$options]), $output);
+        $display = $output->fetch();
+        self::assertSame(0, $status, $display);
 
-        return $output->fetch();
+        return $display;
     }
 
     private function assertWorkerComposition(Application $application): void
@@ -376,6 +380,20 @@ final readonly class ConsoleWorkerServiceProvider implements ServiceProvider
     public function register(ServiceRegistry $services): void
     {
         $services->autowire(ConsoleWorkerPolicyDependency::class);
+        $services->autowire(StorageKeyProvider::class, ConsoleStorageKeyProvider::class);
+    }
+}
+
+final readonly class ConsoleStorageKeyProvider implements StorageKeyProvider
+{
+    public function activeKey(?\BlackOps\Core\TenantRef $tenant, StoragePurpose $purpose): StorageKey
+    {
+        return $this->key('console-test', $tenant, $purpose);
+    }
+
+    public function key(string $keyId, ?\BlackOps\Core\TenantRef $tenant, StoragePurpose $purpose): StorageKey
+    {
+        return new StorageKey($keyId, str_repeat('c', SODIUM_CRYPTO_AEAD_XCHACHA20POLY1305_IETF_KEYBYTES));
     }
 }
 

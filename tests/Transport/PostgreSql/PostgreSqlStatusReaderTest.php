@@ -41,7 +41,11 @@ final class PostgreSqlStatusReaderTest extends TestCase
     {
         $this->connection = $this->connection();
         $this->connection->executeStatement('DROP SCHEMA IF EXISTS ' . self::SCHEMA . ' CASCADE');
-        $sender = new PostgreSqlDeferredOperationSender($this->connection, self::SCHEMA);
+        $sender = new PostgreSqlDeferredOperationSender(
+            $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        );
         $sender->migrate();
         $sender->enqueue(
             new DeferredOperationMessage(
@@ -54,7 +58,11 @@ final class PostgreSqlStatusReaderTest extends TestCase
                 originActor: new ActorRef('origin-private-id', 'customer'),
             ),
         );
-        $this->journal = new PostgreSqlCanonicalJournalStore($this->connection, self::SCHEMA);
+        $this->journal = new PostgreSqlCanonicalJournalStore(
+            $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        );
         $this->journal->migrate();
         $this->reader = new PostgreSqlStatusReader($this->connection, self::SCHEMA);
     }

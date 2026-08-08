@@ -18,6 +18,7 @@ use BlackOps\Transport\PostgreSql\PostgreSqlRetentionHoldStore;
 use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\ParameterType;
 use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
 
@@ -39,6 +40,7 @@ final class PostgreSqlRetentionHoldStoreTest extends TestCase
         $this->connection->executeStatement('DROP SCHEMA IF EXISTS ' . self::SCHEMA . ' CASCADE');
         $this->sender = new PostgreSqlDeferredOperationSender(
             $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
             self::SCHEMA,
             new DateTimeImmutable('2026-07-10T00:00:01.000000Z'),
         );
@@ -138,21 +140,30 @@ final class PostgreSqlRetentionHoldStoreTest extends TestCase
         $this->connection->executeStatement('DELETE FROM '
         . self::SCHEMA
         . '.operations WHERE operation_id = :operation_id', ['operation_id' => self::INLINE_OPERATION_ID]);
-        $this->connection->executeStatement('INSERT INTO ' . self::SCHEMA . '.journal (
+        $this->connection->executeStatement(
+            'INSERT INTO ' . self::SCHEMA . '.journal (
                 record_id, operation_id, operation_type, sequence, event, attempt_id,
-                schema_version, occurred_at, tenant_type, tenant_id,
+                schema_version, operation_schema_version, occurred_at, tenant_type, tenant_id,
                 origin_actor_type, origin_actor_id, encoded_record
             ) VALUES (
                 :record_id, :operation_id, :operation_type, 1, :event, NULL,
-                1, :occurred_at, NULL, NULL, NULL, NULL, decode(:encoded_record, \'base64\')
-            )', [
-            'record_id' => '019f32ab-2be0-7b38-a0a7-1ab2f9688910',
-            'operation_id' => self::INLINE_OPERATION_ID,
-            'operation_type' => 'inline.operation',
-            'event' => 'operation.received',
-            'occurred_at' => '2026-07-10 00:00:00+00',
-            'encoded_record' => 'e30=',
-        ]);
+                1, 1, :occurred_at, NULL, NULL, NULL, NULL, :encoded_record
+            )',
+            [
+                'record_id' => '019f32ab-2be0-7b38-a0a7-1ab2f9688910',
+                'operation_id' => self::INLINE_OPERATION_ID,
+                'operation_type' => 'inline.operation',
+                'event' => 'operation.received',
+                'occurred_at' => '2026-07-10 00:00:00+00',
+                'encoded_record' => PostgreSqlTestStorageProtection::journalEnvelope(
+                    '{}',
+                    '019f32ab-2be0-7b38-a0a7-1ab2f9688910',
+                    self::INLINE_OPERATION_ID,
+                    'inline.operation',
+                ),
+            ],
+            ['encoded_record' => ParameterType::BINARY],
+        );
         $hold = $this->store->place(
             $operationId,
             RetentionHoldCategory::Audit,

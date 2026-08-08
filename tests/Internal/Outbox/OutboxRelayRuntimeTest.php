@@ -12,6 +12,7 @@ use BlackOps\Core\Identifier\OutboxRecordId;
 use BlackOps\Internal\Outbox\OutboxRelayConfiguration;
 use BlackOps\Internal\Outbox\OutboxRelayRuntime;
 use BlackOps\Internal\Outbox\PcntlOutboxSignalHeartbeat;
+use BlackOps\Tests\Transport\PostgreSql\PostgreSqlTestStorageProtection;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationSender;
 use BlackOps\Transport\PostgreSql\PostgreSqlOutboxClaim;
 use BlackOps\Transport\PostgreSql\PostgreSqlOutboxRecord;
@@ -113,13 +114,23 @@ final class OutboxRelayRuntimeTest extends TestCase
         $now = new DateTimeImmutable('2026-07-24T01:02:04+00:00');
         $store = new PostgreSqlOutboxStore($this->connection, 'outbox_runtime_test');
         $store->insert($this->record('019f45b2-7c2d-7abc-8def-0123456789ab', '019f45b2-7c2d-7abc-8def-0123456789ac'));
-        $sender = new PostgreSqlDeferredOperationSender($this->connection, 'outbox_runtime_test', $now);
+        $sender = new PostgreSqlDeferredOperationSender(
+            $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
+            'outbox_runtime_test',
+            $now,
+        );
         $sender->migrate();
         $claim = $store->claimBatch('relay-a', 1, $now, 60)[0];
         $sender->enqueue($claim->message);
         $recoveryConnection = $this->connection();
         $recoveryStore = new PostgreSqlOutboxStore($recoveryConnection, 'outbox_runtime_test');
-        $recoverySender = new PostgreSqlDeferredOperationSender($recoveryConnection, 'outbox_runtime_test', $now);
+        $recoverySender = new PostgreSqlDeferredOperationSender(
+            $recoveryConnection,
+            PostgreSqlTestStorageProtection::codec(),
+            'outbox_runtime_test',
+            $now,
+        );
         $clock = new FrozenOutboxClock($now->modify('+61 seconds'));
         $runtime = new OutboxRelayRuntime(
             $recoveryStore,

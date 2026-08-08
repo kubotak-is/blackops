@@ -65,8 +65,12 @@ final readonly class PostgreSqlJournalSchema
                 event text NOT NULL,
                 attempt_id uuid NULL,
                 schema_version integer NOT NULL CHECK (schema_version >= 1),
+                operation_schema_version integer NOT NULL CHECK (operation_schema_version >= 1),
                 occurred_at timestamptz NOT NULL,
                 encoded_record bytea NOT NULL,
+                CONSTRAINT journal_bopd_envelope_check CHECK (
+                    substring(encoded_record FROM 1 FOR 4) = decode('424f5044', 'hex')
+                ),
                 UNIQUE (operation_id, sequence)
             )",
             "CREATE INDEX IF NOT EXISTS journal_operation_sequence_idx
@@ -128,9 +132,7 @@ final readonly class PostgreSqlJournalSchema
                 ON {$audits} (checkpoint_id, started_at)",
         ];
 
-        $statements = array_merge($statements, PostgreSqlTenantMetadata::alter($journal, 'journal', true));
-
-        return $statements;
+        return array_merge($statements, PostgreSqlTenantMetadata::alter($journal, 'journal', true));
     }
 
     public function journalTable(): string

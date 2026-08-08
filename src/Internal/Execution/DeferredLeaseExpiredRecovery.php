@@ -84,6 +84,7 @@ final readonly class DeferredLeaseExpiredRecovery implements ExpiredAttemptRecov
             $reservation->claim->message()->schemaVersion(),
             $reservation->claim->message()->encodedContext(),
         );
+        DeferredOperationContextValidator::assertMatches($reservation->claim->message(), $context);
 
         return new OperationEnvelope(
             $this->definition($metadata),

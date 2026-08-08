@@ -11,6 +11,7 @@ use BlackOps\Core\Execution\ClaimSettlement;
 use BlackOps\Core\Execution\OperationClaim;
 use BlackOps\Core\Execution\OperationReceiver;
 use BlackOps\Core\Identifier\OperationId;
+use BlackOps\Internal\StorageProtection\BopdEnvelopeCodec;
 use DateInterval;
 use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
@@ -28,6 +29,7 @@ final readonly class PostgreSqlDeferredOperationReceiver implements OperationRec
 
     public function __construct(
         private Connection $connection,
+        BopdEnvelopeCodec $protection,
         string $schema = 'blackops',
         string $leaseOwner = 'blackops-worker',
         int $leaseSeconds = 60,
@@ -44,7 +46,7 @@ final readonly class PostgreSqlDeferredOperationReceiver implements OperationRec
         $this->schema = new PostgreSqlDeferredOperationSchema($schema);
         $this->leaseDuration = new DateInterval('PT' . $leaseSeconds . 'S');
         $this->leases = new PostgreSqlDeferredOperationLeaseStore($connection, $this->schema, $leaseOwner);
-        $this->messages = new PostgreSqlDeferredOperationMessageCodec();
+        $this->messages = new PostgreSqlDeferredOperationMessageCodec($protection);
     }
 
     public function migrate(): void

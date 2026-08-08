@@ -13,6 +13,7 @@ use BlackOps\Internal\Replay\ObserverReplayRuntime;
 use BlackOps\Internal\Replay\ObserverReplayTargetRegistry;
 use BlackOps\Journal\JournalObserver;
 use BlackOps\Journal\ObservedJournalRecord;
+use BlackOps\Tests\Transport\PostgreSql\PostgreSqlTestStorageProtection;
 use BlackOps\Transport\PostgreSql\PostgreSqlObserverReplayStore;
 use Doctrine\DBAL\DriverManager;
 use PHPUnit\Framework\TestCase;
@@ -32,7 +33,7 @@ final class JournalObserverReplayCommandTest extends TestCase
             'password' => getenv('POSTGRES_PASSWORD') ?: 'blackops',
         ]);
         $runtime = new ObserverReplayRuntime(
-            new PostgreSqlObserverReplayStore($connection, 'blackops'),
+            new PostgreSqlObserverReplayStore($connection, PostgreSqlTestStorageProtection::codec(), 'blackops'),
             new ObserverReplayTargetRegistry([]),
             new ObservedJournalRecordProjector(new SensitiveProjectionFilter()),
         );
@@ -56,7 +57,7 @@ final class JournalObserverReplayCommandTest extends TestCase
         foreach (new \BlackOps\Transport\PostgreSql\PostgreSqlJournalSchema($schema)->statements() as $sql)
             $connection->executeStatement($sql);
         $runtime = new ObserverReplayRuntime(
-            new PostgreSqlObserverReplayStore($connection, $schema),
+            new PostgreSqlObserverReplayStore($connection, PostgreSqlTestStorageProtection::codec(), $schema),
             new ObserverReplayTargetRegistry([new JournalObserverBinding('noop', new NoopObserver())]),
             new ObservedJournalRecordProjector(new SensitiveProjectionFilter()),
         );
@@ -96,7 +97,7 @@ final class JournalObserverReplayCommandTest extends TestCase
         foreach (new \BlackOps\Transport\PostgreSql\PostgreSqlJournalSchema($schema)->statements() as $sql)
             $connection->executeStatement($sql);
         $runtime = new ObserverReplayRuntime(
-            new PostgreSqlObserverReplayStore($connection, $schema),
+            new PostgreSqlObserverReplayStore($connection, PostgreSqlTestStorageProtection::codec(), $schema),
             new ObserverReplayTargetRegistry([new JournalObserverBinding('noop', new NoopObserver())]),
             new ObservedJournalRecordProjector(new SensitiveProjectionFilter()),
         );
@@ -137,7 +138,7 @@ final class JournalObserverReplayCommandTest extends TestCase
             'password' => getenv('POSTGRES_PASSWORD') ?: 'blackops',
         ]);
         $runtime = new ObserverReplayRuntime(
-            new PostgreSqlObserverReplayStore($connection, 'blackops'),
+            new PostgreSqlObserverReplayStore($connection, PostgreSqlTestStorageProtection::codec(), 'blackops'),
             new ObserverReplayTargetRegistry([]),
             new ObservedJournalRecordProjector(new SensitiveProjectionFilter()),
         );
@@ -168,7 +169,7 @@ final class JournalObserverReplayCommandTest extends TestCase
             'password' => getenv('POSTGRES_PASSWORD') ?: 'blackops',
         ]);
         $runtime = new ObserverReplayRuntime(
-            new PostgreSqlObserverReplayStore($connection, 'blackops'),
+            new PostgreSqlObserverReplayStore($connection, PostgreSqlTestStorageProtection::codec(), 'blackops'),
             new ObserverReplayTargetRegistry([]),
             new ObservedJournalRecordProjector(new SensitiveProjectionFilter()),
         );

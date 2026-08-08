@@ -20,6 +20,7 @@ use BlackOps\Journal\EmptyJournalData;
 use BlackOps\Journal\JournalEvent;
 use BlackOps\Journal\JournalOperation;
 use BlackOps\Journal\JournalRecord;
+use BlackOps\OperationData\Exception\OperationOutcomeQueryException;
 use BlackOps\OperationData\OperationDataPurpose;
 use BlackOps\OperationData\OperationDataReadAuthorizationDecision;
 use BlackOps\OperationData\OperationDataReadAuthorizationRequest;
@@ -56,13 +57,14 @@ final class PostgreSqlOperationDataQueryIntegrationTest extends TestCase
             'password' => (string) (getenv('POSTGRES_PASSWORD') ?: 'blackops'),
         ]);
         $this->connection->executeStatement('DROP SCHEMA IF EXISTS ' . self::SCHEMA . ' CASCADE');
-        new PostgreSqlDeferredOperationSender($this->connection, self::SCHEMA)->migrate();
-        new PostgreSqlCanonicalJournalStore($this->connection, self::SCHEMA)->migrate();
-        new PostgreSqlOutcomeStore($this->connection, self::SCHEMA)->migrate();
+        $protection = PostgreSqlTestStorageProtection::codec();
+        new PostgreSqlDeferredOperationSender($this->connection, $protection, self::SCHEMA)->migrate();
+        new PostgreSqlCanonicalJournalStore($this->connection, $protection, self::SCHEMA)->migrate();
+        new PostgreSqlOutcomeStore($this->connection, $protection, self::SCHEMA)->migrate();
         $this->operationId = OperationId::fromString('019f32ab-2be0-7b38-a0a7-1ab2f9687901');
         $this->tenant = new TenantRef('customer', 'tenant-a');
 
-        new PostgreSqlDeferredOperationSender($this->connection, self::SCHEMA)->enqueue(
+        new PostgreSqlDeferredOperationSender($this->connection, $protection, self::SCHEMA)->enqueue(
             new \BlackOps\Core\Execution\DeferredOperationMessage(
                 $this->operationId,
                 'report.generate',
@@ -77,8 +79,8 @@ final class PostgreSqlOperationDataQueryIntegrationTest extends TestCase
         $this->connection->executeStatement('UPDATE '
         . self::SCHEMA
         . '.operations SET state = \'completed\' WHERE operation_id = :id', ['id' => $this->operationId->toString()]);
-        new PostgreSqlCanonicalJournalStore($this->connection, self::SCHEMA)->append($this->record());
-        new PostgreSqlOutcomeStore($this->connection, self::SCHEMA)->save(
+        new PostgreSqlCanonicalJournalStore($this->connection, $protection, self::SCHEMA)->append($this->record());
+        new PostgreSqlOutcomeStore($this->connection, $protection, self::SCHEMA)->save(
             new OutcomeRecord($this->operationId, new EmptyOutcome(), new DateTimeImmutable('2026-08-08T00:00:01Z')),
         );
     }
@@ -92,12 +94,20 @@ final class PostgreSqlOperationDataQueryIntegrationTest extends TestCase
         $journal = new DefaultOperationJournalQuery(
             $subject,
             $authorizer,
-            new PostgreSqlTenantScopedCanonicalJournalReader($this->connection, self::SCHEMA),
+            new PostgreSqlTenantScopedCanonicalJournalReader(
+                $this->connection,
+                PostgreSqlTestStorageProtection::codec(),
+                self::SCHEMA,
+            ),
         );
         $outcome = new DefaultOperationOutcomeQuery(
             $subject,
             $authorizer,
-            new PostgreSqlTenantScopedOutcomeReader($this->connection, self::SCHEMA),
+            new PostgreSqlTenantScopedOutcomeReader(
+                $this->connection,
+                PostgreSqlTestStorageProtection::codec(),
+                self::SCHEMA,
+            ),
         );
         $purpose = OperationDataPurpose::fromString('application.view');
 
@@ -126,6 +136,26 @@ final class PostgreSqlOperationDataQueryIntegrationTest extends TestCase
             $purpose,
         ));
         self::assertCount(2, $authorizer->requests);
+    }
+
+    public function testTamperedOutcomeEnvelopeIsClassifiedAsDecodeFailure(): void
+    {
+        $this->connection->executeStatement('UPDATE '
+        . self::SCHEMA
+        . '.outcomes SET encoded_payload = decode(\'424f5044\', \'hex\') WHERE operation_id = :id', [
+            'id' => $this->operationId->toString(),
+        ]);
+
+        try {
+            new PostgreSqlTenantScopedOutcomeReader(
+                $this->connection,
+                PostgreSqlTestStorageProtection::codec(),
+                self::SCHEMA,
+            )->findForTenant($this->operationId, $this->tenant);
+            self::fail('Tampered outcome envelope must fail closed.');
+        } catch (OperationOutcomeQueryException $exception) {
+            self::assertSame(OperationOutcomeQueryException::DECODE_FAILED, $exception->queryCode());
+        }
     }
 
     private function record(): JournalRecord

@@ -1,6 +1,76 @@
 # Orchestration State
 
-Updated At: 2026-08-08T00:46:25+09:00
+Updated At: 2026-08-08T03:55:23+09:00
+
+## P20-016E Accepted
+
+```text
+2026-08-08T03:55:23+09:00
+Orchestrator independent reviewでP20-016EをAcceptedとした。Task-scoped 303 tests／1898 assertions、Application fixture 10 tests／133 assertions、Full PHPUnit 2074 tests／8300 assertions（既存Deprecation 1）、Composer validate、format、broad analyze 29 warnings／0 errors、管理番号Comment Guard、shell syntax、git diff checkがPASS。Exact quickstartはfresh install、11 migrations、build、seed、HTTP、deferred retry／completion、masked diagnostics、retention、frontendを完走してPASS。Broad mago lintは既知baseline 82 findings／9 errors、Deptracはvendor NikicFileReferenceVisitor.php:106のPHP 8.5 parser incompatibility。Exact package exportは未追跡Version20260808000000.phpをgit archive HEADが含めないpre-commit制約で停止するが、Working TreeのComposer Archiveはmigration inventory、除外Root、strict validation、production autoloadをPASSした。Task／Report／TODO同期済み。P20-016EのCommit／Push／Deployなし。次はCommit許可後のExact Package Export、続いてP20-016F。
+```
+
+## P20-016E Orchestrator Scope Correction 6
+
+```text
+2026-08-08T02:16:44+09:00
+Full-suite review found ApplicationHttpRuntimeTest and the exact OperationConsoleIntegrationTest／ApplicationSeederConsoleIntegrationTest fixtures bootstrap protected runtimes without an explicit StorageKeyProvider. These three tests are the minimum fixture-only synchronization for P20-016E runtime coverage; test-owned deterministic providers are registered without env/default/static repository secrets. The same review found ObserverReplayStore::select return-shape metadata split across DocBlocks, causing broad analyze mixed `$batch` errors; the annotations were merged. Worker Commit／Push／Deployなし。
+```
+
+## P20-016E Final Worker Verification
+
+```text
+2026-08-08T02:11:44+09:00
+Final scoped PHPUnit rerun passes 293 tests／1765 assertions. Final mago format check passes; comment guard and git diff check pass. Report maps raw-wire, tamper, unknown-key, retention non-decode, replay, migration, and provider-missing evidence to named tests. Task／Report／TODO remain Review Pending for independent Orchestrator acceptance. Worker Commit／Push／Deployなし。
+```
+
+## P20-016E Worker Review Pending Checkpoint
+
+```text
+2026-08-08T02:09:57+09:00
+Task-scoped protected-storage fixture and acceptance matrix completed. Focused adapter/migration/resolver matrix passes 63 tests／430 assertions; expanded P20-016E PHPUnit scope passes 289 tests／1746 assertions. Added independent non-empty migration guard cases for journal／operations／outcomes, strict unknown-key and purpose／row／field／tag tamper coverage, payload/context ciphertext-swap rejection, raw BOPD assertions, retention non-decode, replay safe projection, and provider-missing bootstrap rejection. Changed-source Mago lint and format pass; analyze has warnings／0 errors. Task／Report／TODO await independent Orchestrator acceptance. Worker Commit／Push／Deployなし。
+```
+
+## P20-016E Orchestrator Scope Correction 5
+
+```text
+2026-08-08T01:49:16+09:00
+Task-scoped constructor auditで、JournalObserverReplayCommandTestがmandatory protected ObserverReplayStoreを、OutboxRelayRuntimeTestがOutboxから必須protected Deferred Senderへの配送を旧constructorで直接構成することを確認した。Replay CLI regressionとOutbox ciphertext自体を変更しないDeferred delivery regressionの最小fixture同期として、この2 Test FileだけをFiles Allowedへ追加した。Outbox Payload／Context保護はP20-016Fのまま変更しない。Worker Commit／Push／Deployなし。
+```
+
+## P20-016E Orchestrator Scope Correction 4
+
+```text
+2026-08-08T01:38:31+09:00
+Required quickstart-e2eが複製するexamples/quickstartはStorageKeyProviderを登録せず、mandatory protected runtimeがApplicationStorageProtectionResolverで必ずbootstrap拒否される静的経路を確認した。Runnable Consumerを維持する最小Application境界としてApplicationServiceProvider、env-backed SampleStorageKeyProvider新規File、key materialを含まない空の.env.example設定項目をFiles Allowedへ追加した。実KeyはConsumerが一時copyの.envへ毎回生成し、Repository、Artifact、Log、Reportへ保存しない。Public Guide更新はP20-016Hのまま。Worker Commit／Push／Deployなし。
+```
+
+## P20-016E Orchestrator Scope Correction 3
+
+```text
+2026-08-08T01:22:30+09:00
+独立配線Reviewで、P20-016DのDefault-deny認可後に呼ばれるPostgreSqlTenantScopedCanonicalJournalReader／PostgreSqlTenantScopedOutcomeReaderが、P20-016E ciphertextを旧Codecへ直接渡す経路を確認した。Status／Authorized Journal／Outcome QueryをAllow後だけ復号するTask Goalを成立させる不可避なProduction境界として、この2 FileをFiles Allowedへ追加した。OperationDataRuntimeInjectorから同じmandatory BopdEnvelopeCodecを渡し、Subject→Authorize→tenant predicate→Envelope decode順序を維持する。対応Integration Testは既存tests/Transport/PostgreSql許可範囲内。Worker Commit／Push／Deployなし。
+```
+
+## P20-016E Orchestrator Scope Correction 2
+
+```text
+2026-08-08T01:11:23+09:00
+PostgreSQL protected adapterのmandatory BopdEnvelopeCodec constructorとApplication bootstrap fail-closed化により、既存のApplicationHttpRuntimeTest、MvpSampleEndToEndTest、DeferredOperationRequestHandlerTest、OperationRequestHandlerTestが旧plaintext adapter fixtureを直接構成してTypeErrorとなる。P20-016EのHTTP／Inline／Deferred regressionを維持する最小同期として、この4 Test FileをFiles Allowedへ追加した。Production scopeは変更せず、固定Default Keyやoptional plaintext fallbackは導入しない。Worker Commit／Push／Deployなし。
+```
+
+## P20-016E Orchestrator Scope Correction
+
+```text
+2026-08-08T00:59:08+09:00
+P20-016Eの必須plaintext guard migration追加はframework migration総数を8から9へ変更し、Package Exportへ新Migrationを含める。この直接影響を同期するため、tests/Internal/Migration/DatabaseMigrationRunnerTest.php、tests/Internal/Console/DatabaseMigrationCommandTest.php、tests/Integration/ApplicationConsoleKernelTest.php、tests/Consumer/framework-package-export.shをFiles Allowedへ明示追加した。Production scopeは変更せず、既存migration count fixtureとpackage inventoryの最小同期だけを許可する。Worker Commit／Push／Deployなし。
+```
+
+## P20-016E Core Operation Storage Protection Start
+
+```text
+2026-08-08T00:49:16+09:00
+P20-016C／Dとpost-commit package correctionは3671ca0／0912965としてCommit済みで、Working Treeはclean、Exact framework-package-exportもPASSしている。P20-016EをIn Progressとして開始し、Canonical Journal、Deferred Payload／Context、Outcomeの必須Envelope、実Row AAD、認可後Decode、Retention非Decode、Replay bounded decode、Provider必須Bootstrap、non-empty plaintext schemaのdata不変guardをTask Packet境界で同じGPT-5.6 Luna High workerへ委譲する。Outbox／Dead Letter／Idempotency保護、Rotation、Guideは後続Taskへ維持する。P20-016EのCommit／Push／Deployなし。
+```
 
 ## P20-016C Post-commit Package Correction Accepted
 

@@ -33,6 +33,15 @@ trap cleanup EXIT
 mkdir -p "${CONSUMER}"
 cp -a "${ROOT}/examples/quickstart/." "${CONSUMER}/"
 cp "${CONSUMER}/.env.example" "${CONSUMER}/.env"
+case $- in
+    *x*) set +x ;;
+esac
+storage_key="$(head -c 32 /dev/urandom | base64 -w 0)"
+test -n "${storage_key}"
+decoded_storage_key_length="$(printf '%s' "${storage_key}" | base64 --decode | wc -c)"
+test "${decoded_storage_key_length}" -eq 32
+sed -i "s|^BLACKOPS_STORAGE_KEY=.*|BLACKOPS_STORAGE_KEY=${storage_key}|" "${CONSUMER}/.env"
+unset storage_key decoded_storage_key_length
 cp "${ROOT}/tests/Consumer/fixtures/viewer-request.php" "${CONSUMER}/tests/viewer-request.php"
 
 cat >"${INSTALL_OVERRIDE}" <<YAML
@@ -471,12 +480,30 @@ transport_payload=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U
     "SELECT operation_type FROM blackops.operations WHERE operation_id = '${operation_id}'::uuid")
 test -n "${transport_payload}"
 
-sleep 1
+worker_ready='0'
+for _ in $(seq 1 50); do
+    worker_ready=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
+        "SELECT CASE WHEN available_at <= clock_timestamp() THEN 1 ELSE 0 END FROM blackops.operations WHERE operation_id = '${operation_id}'::uuid")
+    if test "${worker_ready}" = '1'; then
+        break
+    fi
+    sleep 0.1
+done
+test "${worker_ready}" = '1'
 HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops worker:run --iterations=1 --idle-sleep-milliseconds=1
 state=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
     "SELECT state FROM blackops.operations WHERE operation_id = '${operation_id}'::uuid")
 test "${state}" = "retry_scheduled"
-sleep 2
+retry_ready='0'
+for _ in $(seq 1 50); do
+    retry_ready=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
+        "SELECT CASE WHEN available_at <= clock_timestamp() THEN 1 ELSE 0 END FROM blackops.operations WHERE operation_id = '${operation_id}'::uuid")
+    if test "${retry_ready}" = '1'; then
+        break
+    fi
+    sleep 0.1
+done
+test "${retry_ready}" = '1'
 HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops worker:run --iterations=1 --idle-sleep-milliseconds=1
 state=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
     "SELECT state FROM blackops.operations WHERE operation_id = '${operation_id}'::uuid")
@@ -489,8 +516,27 @@ canonical_actors=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U 
         ',' ORDER BY sequence
     ) FROM blackops.journal WHERE operation_id = '${operation_id}'::uuid")
 grep -q 'quickstart-user' <<<"${canonical_actors}"
-grep -q 'quickstart-worker-1' <<<"${canonical_actors}"
+! grep -q 'quickstart-worker-1' <<<"${canonical_actors}"
 ! grep -q "${operation_id}" "${CONSUMER}/var/log/journal.jsonl"
+
+HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops operation:inspect "${operation_id}" --json \
+    > "${CONSUMER}/var/deferred-inspect.json"
+HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php -r '
+$data = json_decode(file_get_contents("/app/var/deferred-inspect.json"), true, 512, JSON_THROW_ON_ERROR);
+$actors = $data["operation"]["actors"] ?? null;
+if (($data["status"] ?? null) !== "found"
+    || ($data["state"]["current"] ?? null) !== "completed"
+    || ($actors["origin"]["type"] ?? null) !== "user"
+    || ($actors["origin"]["id"] ?? null) !== "[masked]"
+    || ($actors["execution"]["type"] ?? null) !== "user"
+    || ($actors["execution"]["id"] ?? null) !== "[masked]"
+) {
+    exit(1);
+}
+'
+! grep -Fq 'quickstart-user' "${CONSUMER}/var/deferred-inspect.json"
+! grep -Fq 'quickstart-worker-1' "${CONSUMER}/var/deferred-inspect.json"
+! grep -Fq 'local-example' "${CONSUMER}/var/deferred-inspect.json"
 
 credential_rows=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
     "SELECT

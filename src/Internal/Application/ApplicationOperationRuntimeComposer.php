@@ -49,6 +49,7 @@ final readonly class ApplicationOperationRuntimeComposer
         );
         $transactionRuntime = new RuntimeTransactionServiceInjector()->inject($container, $databases, $scope);
         $connection = $databases->connection($database->frameworkConnection);
+        $protection = ApplicationStorageProtectionResolver::resolve($container);
         $clock = new PostgreSqlSystemClock();
         $identifiers = new IdentifierFactory(new SymfonyUuidv7Generator(), $clock);
         if (!$container instanceof Container) {
@@ -69,7 +70,7 @@ final readonly class ApplicationOperationRuntimeComposer
         $container->set(TransactionalOutbox::class, $outbox);
         $container->set(Operations::class, $outbox);
         new OperationDataRuntimeInjector()->inject($container, $connection, $database->schema);
-        $journal = new PostgreSqlCanonicalJournalStore($connection, $database->schema);
+        $journal = new PostgreSqlCanonicalJournalStore($connection, $protection, $database->schema);
         $observations = new ApplicationJournalObservationFactory()->create($configuration->configuration());
         $authorization = new AuthorizationEvaluator(new AuthorizationPolicyResolver($container));
 

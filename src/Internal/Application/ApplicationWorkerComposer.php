@@ -76,6 +76,7 @@ final readonly class ApplicationWorkerComposer
         if (!$artifacts->container instanceof Container) {
             throw new \InvalidArgumentException('Runtime container does not support outbox service injection.');
         }
+        $protection = ApplicationStorageProtectionResolver::resolve($artifacts->container);
         $outbox = new TransactionalOutboxRuntime(
             $artifacts->operations,
             new ReflectionJsonOperationCodec(),
@@ -103,10 +104,10 @@ final readonly class ApplicationWorkerComposer
         $storage = new DeferredWorkerRuntimeStorage(
             $main,
             new JournalRecordFactory($identifiers, $clock),
-            new PostgreSqlCanonicalJournalStore($main, $database->schema),
-            new PostgreSqlDeferredOperationLifecycleStore($main, $database->schema),
+            new PostgreSqlCanonicalJournalStore($main, $protection, $database->schema),
+            new PostgreSqlDeferredOperationLifecycleStore($main, $protection, $database->schema),
             $clock,
-            new PostgreSqlOutcomeStore($main, $database->schema),
+            new PostgreSqlOutcomeStore($main, $protection, $database->schema),
             scope: $executionScope,
             transactions: $operationTransactions,
             failureReporter: new FrameworkOperationFailureReporter($logger, $executionScope),
@@ -117,6 +118,7 @@ final readonly class ApplicationWorkerComposer
         );
         $receiver = new PostgreSqlDeferredOperationReceiver(
             $main,
+            $protection,
             $database->schema,
             $worker->id,
             $worker->leaseSeconds,
@@ -124,6 +126,7 @@ final readonly class ApplicationWorkerComposer
         );
         $heartbeatReceiver = new PostgreSqlDeferredOperationReceiver(
             $heartbeat,
+            $protection,
             $database->schema,
             $worker->id,
             $worker->leaseSeconds,

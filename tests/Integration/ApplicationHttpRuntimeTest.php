@@ -26,6 +26,9 @@ use BlackOps\Internal\Migration\DatabaseMigrationRunner;
 use BlackOps\Status\OperationStatusAuthorizationDecision;
 use BlackOps\Status\OperationStatusAuthorizationRequest;
 use BlackOps\Status\OperationStatusAuthorizer;
+use BlackOps\StorageProtection\StorageKey;
+use BlackOps\StorageProtection\StorageKeyProvider;
+use BlackOps\StorageProtection\StoragePurpose;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use FilesystemIterator;
@@ -397,6 +400,7 @@ final class ApplicationHttpRuntimeTest extends TestCase
             ->withOperations($withAuthorizationFixture ? [ApplicationRuntimeOperationProvider::class] : [])
             ->withServices([
                 \App\ApplicationServiceProvider::class,
+                ApplicationHttpStorageServiceProvider::class,
                 ...($withAuthorizationFixture ? [ApplicationRuntimeServiceProvider::class] : []),
             ]);
         $status = $builder->create()->console()->run(new ArrayInput([
@@ -532,6 +536,31 @@ final readonly class ApplicationRuntimeServiceProvider implements ServiceProvide
     {
         $services->autowire(ApplicationRuntimePolicyDependency::class);
         $services->autowire(OperationStatusAuthorizer::class, ApplicationRuntimeStatusAuthorizer::class);
+    }
+}
+
+final readonly class ApplicationHttpStorageServiceProvider implements ServiceProvider
+{
+    public function register(ServiceRegistry $services): void
+    {
+        $services->autowire(StorageKeyProvider::class, ApplicationHttpStorageKeyProvider::class);
+    }
+}
+
+final readonly class ApplicationHttpStorageKeyProvider implements StorageKeyProvider
+{
+    public function activeKey(?\BlackOps\Core\TenantRef $tenant, StoragePurpose $purpose): StorageKey
+    {
+        return $this->key('http-test-key', $tenant, $purpose);
+    }
+
+    public function key(string $keyId, ?\BlackOps\Core\TenantRef $tenant, StoragePurpose $purpose): StorageKey
+    {
+        if ($keyId !== 'http-test-key') {
+            throw new \InvalidArgumentException('Unknown storage key identifier.');
+        }
+
+        return new StorageKey($keyId, str_repeat('h', SODIUM_CRYPTO_AEAD_XCHACHA20POLY1305_IETF_KEYBYTES));
     }
 }
 

@@ -8,6 +8,7 @@ use BlackOps\Core\Exception\DeferredTransportException;
 use BlackOps\Core\Exception\OperationRejectedException;
 use BlackOps\Core\Execution\Deferred;
 use BlackOps\Core\Execution\OperationClaim;
+use BlackOps\Core\ExecutionContext;
 use BlackOps\Core\Operation;
 use BlackOps\Core\OperationEnvelope;
 use BlackOps\Core\OperationResult;
@@ -77,11 +78,12 @@ final readonly class DeferredWorkerRuntime implements DeferredClaimRuntime
     /** @mago-expect lint:halstead */
     private function runAttempt(OperationClaim $claim): OperationResult
     {
+        $context = $this->validateClaimContext($claim);
         $metadata = $this->metadata($claim);
         $handler = $this->services->handlers->resolve($metadata->handler);
         $definition = $this->definition($metadata, $handler);
         $value = $this->value($metadata, $claim);
-        $envelope = $this->startAttempt($claim, $metadata, $definition, $value);
+        $envelope = $this->startAttempt($claim, $metadata, $definition, $value, $context);
         try {
             $result = $this->execute($claim, $envelope, $handler, $metadata, $metadata->typeId);
         } catch (HandlerInvocationFailedException $exception) {
@@ -108,6 +110,25 @@ final readonly class DeferredWorkerRuntime implements DeferredClaimRuntime
         $this->reject($claim, $metadata, $envelope, $result);
 
         return $result;
+    }
+
+    private function validateClaimContext(OperationClaim $claim): ExecutionContext
+    {
+        try {
+            $context = $this->services->codec->decodeContext(
+                $claim->message()->schemaVersion(),
+                $claim->message()->encodedContext(),
+            );
+            DeferredOperationContextValidator::assertMatches($claim->message(), $context);
+            return $context;
+        } catch (DeferredTransportException $exception) {
+            throw $exception;
+        } catch (Throwable $exception) {
+            throw new DeferredTransportException(
+                'Deferred operation context could not be validated.',
+                previous: $exception,
+            );
+        }
     }
 
     private function execute(
@@ -167,6 +188,7 @@ final readonly class DeferredWorkerRuntime implements DeferredClaimRuntime
         OperationMetadata $metadata,
         Operation $definition,
         OperationValue $value,
+        ExecutionContext $context,
     ): OperationEnvelope {
         try {
             return $this->storage->connection->transactional(function () use (
@@ -174,11 +196,8 @@ final readonly class DeferredWorkerRuntime implements DeferredClaimRuntime
                 $metadata,
                 $definition,
                 $value,
+                $context,
             ): OperationEnvelope {
-                $context = $this->services->codec->decodeContext(
-                    $claim->message()->schemaVersion(),
-                    $claim->message()->encodedContext(),
-                );
                 $reservation = $this->storage->state->reserveAttemptStarted($claim, $this->storage->clock->now());
                 $envelope = new OperationEnvelope(
                     $definition,

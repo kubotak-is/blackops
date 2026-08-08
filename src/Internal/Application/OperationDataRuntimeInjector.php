@@ -28,12 +28,13 @@ final readonly class OperationDataRuntimeInjector
 
         $subjectReader = new PostgreSqlOperationDataSubjectReader(new PostgreSqlStatusReader($connection, $schema));
         $authorizer = new OperationDataReadAuthorizerResolver($container)->resolve();
+        $protection = ApplicationStorageProtectionResolver::resolve($container);
         $container->set(
             OperationJournalQuery::class,
             new DefaultOperationJournalQuery(
                 $subjectReader,
                 $authorizer,
-                new PostgreSqlTenantScopedCanonicalJournalReader($connection, $schema),
+                new PostgreSqlTenantScopedCanonicalJournalReader($connection, $protection, $schema),
             ),
         );
         $container->set(
@@ -41,7 +42,7 @@ final readonly class OperationDataRuntimeInjector
             new DefaultOperationOutcomeQuery(
                 $subjectReader,
                 $authorizer,
-                new PostgreSqlTenantScopedOutcomeReader($connection, $schema),
+                new PostgreSqlTenantScopedOutcomeReader($connection, $protection, $schema),
             ),
         );
     }

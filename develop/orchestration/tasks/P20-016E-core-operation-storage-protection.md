@@ -1,6 +1,6 @@
 # P20-016E: Core Operation Storage Protection
 
-Status: Ready
+Status: Accepted
 
 ## Goal
 
@@ -59,6 +59,8 @@ Canonical Journal、Deferred Operation Payload／Context、Outcomeを必須Encry
 - `src/Internal/Replay/**`
 - `src/Internal/Retention/**`
 - `src/Internal/Diagnostics/**`
+- `src/Internal/OperationData/PostgreSqlTenantScopedCanonicalJournalReader.php`
+- `src/Internal/OperationData/PostgreSqlTenantScopedOutcomeReader.php`
 - `src/Internal/Application/**`
 - `src/Application/ApplicationBuilder.php`
 - `src/Internal/Migration/**`
@@ -73,7 +75,22 @@ Canonical Journal、Deferred Operation Payload／Context、Outcomeを必須Encry
 - Corresponding files under `tests/Internal/Retention/**`
 - Corresponding files under `tests/Internal/Diagnostics/**`
 - Corresponding files under `tests/Internal/Application/**`
+- `tests/Internal/Application/OperationConsoleIntegrationTest.php`
+- `tests/Internal/Application/ApplicationSeederConsoleIntegrationTest.php`
+- `tests/Internal/Migration/DatabaseMigrationRunnerTest.php`
+- `tests/Internal/Console/DatabaseMigrationCommandTest.php`
+- `tests/Internal/Console/JournalObserverReplayCommandTest.php`
+- `tests/Internal/Outbox/OutboxRelayRuntimeTest.php`
+- `tests/Integration/ApplicationConsoleKernelTest.php`
+- `tests/Integration/ApplicationHttpRuntimeTest.php`
+- `tests/Integration/MvpSampleEndToEndTest.php`
+- `tests/Http/DeferredOperationRequestHandlerTest.php`
+- `tests/Http/OperationRequestHandlerTest.php`
+- `examples/quickstart/app/ApplicationServiceProvider.php`
+- `examples/quickstart/app/Security/SampleStorageKeyProvider.php`
+- `examples/quickstart/.env.example`
 - Migration／worker／status／replay Consumer scripts
+- `tests/Consumer/framework-package-export.sh`
 - `develop/spec/99-tenant-isolation-and-protected-operation-data.md`
 - `develop/TODO.md`
 - `develop/STATE.md`
@@ -101,19 +118,19 @@ Canonical Journal、Deferred Operation Payload／Context、Outcomeを必須Encry
 
 ## Acceptance Criteria
 
-- [ ] Journal／Deferred Payload／Context／OutcomeのDB bytesが`BOPD` Envelopeである
-- [ ] Raw OperationValue／Context／Outcome JSON断片がDBへ残らない
-- [ ] Inline／Deferred／Retry／Dead Letter前Lifecycleが通常どおり完走する
-- [ ] Status／Authorized Journal／Outcome QueryがAllow後だけ復号する
-- [ ] Wrong Tenant／Purpose／Row／Field、Unknown Key、Tag改ざんをSafe Failureにする
-- [ ] Tenant／Origin Subject不一致をDecode後のIntegrity Failureにする
-- [ ] Retention Tombstone／PurgeがCiphertext非Decodeで動作する
-- [ ] Observer ReplayがSafe Projectionだけを再配送する
-- [ ] ProviderなしBootstrapを拒否し、Key MaterialをArtifactへ保存しない
-- [ ] Non-empty旧Plaintext Schema UpgradeがData不変で停止する
-- [ ] Empty旧Schema／Fresh Migration／Package Exportが成功する
-- [ ] Full Suite／Consumer／Architecture Guardが成功する
-- [ ] Report／STATE／TODOを同期し、WorkerはCommitしない
+- [x] Journal／Deferred Payload／Context／OutcomeのDB bytesが`BOPD` Envelopeである
+- [x] Raw OperationValue／Context／Outcome JSON断片がDBへ残らない
+- [x] Inline／Deferred／Retry／Dead Letter前Lifecycleが通常どおり完走する
+- [x] Status／Authorized Journal／Outcome QueryがAllow後だけ復号する
+- [x] Wrong Tenant／Purpose／Row／Field、Unknown Key、Tag改ざんをSafe Failureにする
+- [x] Tenant／Origin Subject不一致をDecode後のIntegrity Failureにする
+- [x] Retention Tombstone／PurgeがCiphertext非Decodeで動作する
+- [x] Observer ReplayがSafe Projectionだけを再配送する
+- [x] ProviderなしBootstrapを拒否し、Key MaterialをArtifactへ保存しない
+- [x] Non-empty旧Plaintext Schema UpgradeがData不変で停止する
+- [x] Empty旧Schema／Fresh Migration／Package Exportが成功する
+- [x] Full Suite／Consumer／Architecture Guardが成功する
+- [x] Report／STATE／TODOを同期し、WorkerはCommitしない
 
 ## Required Commands
 

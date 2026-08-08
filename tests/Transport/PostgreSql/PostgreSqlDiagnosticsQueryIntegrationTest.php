@@ -58,7 +58,11 @@ final class PostgreSqlDiagnosticsQueryIntegrationTest extends TestCase
         $this->connection = $this->connection();
         $this->connection->executeStatement('DROP SCHEMA IF EXISTS ' . self::SCHEMA . ' CASCADE');
 
-        $sender = new PostgreSqlDeferredOperationSender($this->connection, self::SCHEMA);
+        $sender = new PostgreSqlDeferredOperationSender(
+            $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        );
         $sender->migrate();
         $sender->enqueue(
             new DeferredOperationMessage(
@@ -72,7 +76,11 @@ final class PostgreSqlDiagnosticsQueryIntegrationTest extends TestCase
             ),
         );
 
-        $this->journal = new PostgreSqlCanonicalJournalStore($this->connection, self::SCHEMA);
+        $this->journal = new PostgreSqlCanonicalJournalStore(
+            $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        );
         $this->journal->migrate();
         foreach ($this->completedRecords() as $record) {
             $this->journal->append($record);
@@ -87,7 +95,11 @@ final class PostgreSqlDiagnosticsQueryIntegrationTest extends TestCase
             ],
         );
 
-        $this->outcomes = new PostgreSqlOutcomeStore($this->connection, self::SCHEMA);
+        $this->outcomes = new PostgreSqlOutcomeStore(
+            $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        );
         $this->outcomes->save(
             new OutcomeRecord(
                 $this->operationId(),

@@ -12,6 +12,7 @@ require_once __DIR__ . '/../../../migrations/postgresql/Version20260724100000.ph
 require_once __DIR__ . '/../../../migrations/postgresql/Version20260724110000.php';
 require_once __DIR__ . '/../../../migrations/postgresql/Version20260728133000.php';
 require_once __DIR__ . '/../../../migrations/postgresql/Version20260803000000.php';
+require_once __DIR__ . '/../../../migrations/postgresql/Version20260808000000.php';
 
 use BlackOps\Core\Exception\DeferredTransportException;
 use BlackOps\Core\Execution\Deferred;
@@ -37,6 +38,7 @@ use BlackOps\Journal\JournalEvent;
 use BlackOps\Journal\JournalOperation;
 use BlackOps\Journal\JournalRecord;
 use BlackOps\Migrations\PostgreSql\Version20260803000000;
+use BlackOps\Migrations\PostgreSql\Version20260808000000;
 use BlackOps\Transport\PostgreSql\PostgreSqlCanonicalJournalStore;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationLeaseStore;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationMessageCodec;
@@ -58,6 +60,7 @@ use BlackOps\Transport\PostgreSql\PostgreSqlTenantMetadata;
 use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Schema\Schema;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
@@ -91,7 +94,11 @@ final class PostgreSqlTenantIsolationTest extends TestCase
             'password' => getenv('POSTGRES_PASSWORD') ?: 'blackops',
         ]);
         $this->connection->executeStatement('DROP SCHEMA IF EXISTS ' . self::SCHEMA . ' CASCADE');
-        new PostgreSqlDeferredOperationSender($this->connection, self::SCHEMA)->migrate();
+        new PostgreSqlDeferredOperationSender(
+            $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        )->migrate();
         foreach (new PostgreSqlJournalSchema(self::SCHEMA)->statements() as $statement) {
             $this->connection->executeStatement($statement);
         }
@@ -155,6 +162,7 @@ final class PostgreSqlTenantIsolationTest extends TestCase
         $emptySchema = self::SCHEMA . '_migration_empty';
         $this->applyOldMigrations($emptySchema);
         $this->applyTenantMigration($emptySchema);
+        $this->applyProtectionMigration($emptySchema);
 
         self::assertSame(
             9,
@@ -170,9 +178,17 @@ final class PostgreSqlTenantIsolationTest extends TestCase
                 'suffix' => '%_origin_actor_pair_check',
             ]),
         );
+        self::assertSame(
+            1,
+            (int) $this->connection->fetchOne(
+                'SELECT count(*) FROM information_schema.columns WHERE table_schema = :schema AND table_name = :table AND column_name = :column',
+                ['schema' => $emptySchema, 'table' => 'journal', 'column' => 'operation_schema_version'],
+            ),
+        );
 
         $nonEmptySchema = self::SCHEMA . '_migration_blocked';
         $this->applyOldMigrations($nonEmptySchema);
+        $this->applyTenantMigration($nonEmptySchema);
         $operations = '"' . $nonEmptySchema . '"."operations"';
         $this->connection->executeStatement(
             'INSERT INTO '
@@ -190,17 +206,45 @@ final class PostgreSqlTenantIsolationTest extends TestCase
                 'accepted_at' => '2026-08-03T00:00:00Z',
             ],
         );
+        $journal = '"' . $nonEmptySchema . '"."journal"';
+        $this->connection->executeStatement(
+            'INSERT INTO '
+            . $journal
+            . ' (record_id, operation_id, operation_type, sequence, event, schema_version, occurred_at, encoded_record) VALUES (:record_id, :operation_id, :operation_type, 1, :event, 1, :occurred_at, convert_to(:encoded_record, \'UTF8\'))',
+            [
+                'record_id' => '019f32ab-2be0-7b38-a0a7-1ab2f9688e03',
+                'operation_id' => self::OPERATION,
+                'operation_type' => 'migration.evidence',
+                'event' => 'operation.received',
+                'occurred_at' => '2026-08-03T00:00:00Z',
+                'encoded_record' => 'legacy-journal',
+            ],
+        );
+        $outcomes = '"' . $nonEmptySchema . '"."outcomes"';
+        $this->connection->executeStatement(
+            'INSERT INTO '
+            . $outcomes
+            . ' (operation_id, outcome_type, schema_version, encoded_payload, completed_at) VALUES (:operation_id, :outcome_type, 1, convert_to(:encoded_payload, \'UTF8\'), :completed_at)',
+            [
+                'operation_id' => self::OPERATION,
+                'outcome_type' => 'migration.evidence',
+                'encoded_payload' => 'legacy-outcome',
+                'completed_at' => '2026-08-03T00:00:00Z',
+            ],
+        );
         $before = $this->connection->fetchAssociative('SELECT operation_id, operation_type, state, state_version, next_sequence FROM '
         . $operations);
         $encodedBefore = $this->connection->fetchAssociative(
             'SELECT encode(encoded_payload, \'hex\') AS encoded_payload, encode(encoded_context, \'hex\') AS encoded_context FROM '
             . $operations,
         );
+        $journalBefore = $this->connection->fetchOne('SELECT encode(encoded_record, \'hex\') FROM ' . $journal);
+        $outcomeBefore = $this->connection->fetchOne('SELECT encode(encoded_payload, \'hex\') FROM ' . $outcomes);
 
         $this->connection->beginTransaction();
         $failure = null;
         try {
-            $this->applyTenantMigration($nonEmptySchema);
+            $this->applyProtectionMigration($nonEmptySchema);
         } catch (\Throwable $exception) {
             $failure = $exception;
         } finally {
@@ -218,21 +262,79 @@ final class PostgreSqlTenantIsolationTest extends TestCase
             'SELECT encode(encoded_payload, \'hex\') AS encoded_payload, encode(encoded_context, \'hex\') AS encoded_context FROM '
             . $operations,
         ));
+        self::assertSame(
+            $journalBefore,
+            $this->connection->fetchOne('SELECT encode(encoded_record, \'hex\') FROM ' . $journal),
+        );
+        self::assertSame(
+            $outcomeBefore,
+            $this->connection->fetchOne('SELECT encode(encoded_payload, \'hex\') FROM ' . $outcomes),
+        );
         self::assertStringNotContainsString('tenant-a', (string) $failure->getMessage());
         self::assertStringNotContainsString('payload', strtolower($failure->getMessage()));
         self::assertSame(
-            0,
+            1,
             (int) $this->connection->fetchOne(
                 'SELECT count(*) FROM information_schema.columns WHERE table_schema = :schema AND table_name = :table AND column_name = :column',
                 ['schema' => $nonEmptySchema, 'table' => 'operations', 'column' => 'tenant_type'],
             ),
         );
+        self::assertSame(
+            0,
+            (int) $this->connection->fetchOne(
+                'SELECT count(*) FROM information_schema.columns WHERE table_schema = :schema AND table_name = :table AND column_name = :column',
+                ['schema' => $nonEmptySchema, 'table' => 'journal', 'column' => 'operation_schema_version'],
+            ),
+        );
+    }
+
+    public function testProtectionMigrationGuardChecksEachProtectedTableIndependently(): void
+    {
+        foreach (['journal', 'operations', 'outcomes'] as $table) {
+            $schema = self::SCHEMA . '_guard_' . $table;
+            $this->applyOldMigrations($schema);
+            $this->applyTenantMigration($schema);
+            $this->seedLegacyProtectedRow($schema, $table);
+            $qualified = '"' . $schema . '"."' . $table . '"';
+            $bytesColumn = $table === 'journal'
+                ? 'encoded_record'
+                : ($table === 'operations' ? 'encoded_payload' : 'encoded_payload');
+            $before = $this->connection->fetchOne('SELECT encode(' . $bytesColumn . ', \'hex\') FROM ' . $qualified);
+
+            try {
+                $this->applyProtectionMigration($schema);
+                self::fail('Expected protected storage guard failure for ' . $table . '.');
+            } catch (\Throwable $exception) {
+                self::assertStringContainsString(
+                    'Protected storage migration requires an empty',
+                    $exception->getMessage(),
+                );
+            }
+
+            self::assertSame(1, (int) $this->connection->fetchOne('SELECT count(*) FROM ' . $qualified));
+            self::assertSame(
+                $before,
+                $this->connection->fetchOne('SELECT encode(' . $bytesColumn . ', \'hex\') FROM ' . $qualified),
+            );
+            self::assertSame(
+                0,
+                (int) $this->connection->fetchOne(
+                    'SELECT count(*) FROM information_schema.columns WHERE table_schema = :schema AND table_name = :table AND column_name = :column',
+                    ['schema' => $schema, 'table' => 'journal', 'column' => 'operation_schema_version'],
+                ),
+            );
+            $this->connection->executeStatement('DROP SCHEMA IF EXISTS "' . $schema . '" CASCADE');
+        }
     }
 
     public function testPairConstraintsRejectPartialAndEmptySubjectsAcrossTransportRows(): void
     {
         $operations = new PostgreSqlDeferredOperationSchema(self::SCHEMA)->operationsTable();
-        $sender = new PostgreSqlDeferredOperationSender($this->connection, self::SCHEMA);
+        $sender = new PostgreSqlDeferredOperationSender(
+            $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        );
         $sender->enqueue(
             new DeferredOperationMessage(
                 OperationId::fromString(self::OPERATION),
@@ -368,7 +470,11 @@ final class PostgreSqlTenantIsolationTest extends TestCase
     public function testWrongTenantRowsAreFilteredBeforeBlobDecodeAndOutboxCarriesTenant(): void
     {
         $operation = OperationId::fromString(self::OPERATION);
-        $sender = new PostgreSqlDeferredOperationSender($this->connection, self::SCHEMA);
+        $sender = new PostgreSqlDeferredOperationSender(
+            $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        );
         $sender->enqueue(
             new DeferredOperationMessage(
                 $operation,
@@ -384,7 +490,7 @@ final class PostgreSqlTenantIsolationTest extends TestCase
         $this->connection->executeStatement(
             'INSERT INTO '
             . $journal
-            . ' (record_id, operation_id, operation_type, sequence, event, schema_version, occurred_at, tenant_type, tenant_id, encoded_record) VALUES (:record, :operation, :type, 1, :event, 1, :at, :tenant_type, :tenant_id, decode(:blob, \'base64\'))',
+            . ' (record_id, operation_id, operation_type, sequence, event, schema_version, operation_schema_version, occurred_at, tenant_type, tenant_id, encoded_record) VALUES (:record, :operation, :type, 1, :event, 1, 1, :at, :tenant_type, :tenant_id, :blob)',
             [
                 'record' => '019f32ab-2be0-7b38-a0a7-1ab2f9688e02',
                 'operation' => self::OPERATION,
@@ -393,15 +499,24 @@ final class PostgreSqlTenantIsolationTest extends TestCase
                 'at' => '2026-08-03T00:00:00Z',
                 'tenant_type' => 'customer',
                 'tenant_id' => 'tenant-b',
-                'blob' => 'bm90LWpzb24=',
+                'blob' => PostgreSqlTestStorageProtection::journalEnvelope(
+                    'not-json',
+                    '019f32ab-2be0-7b38-a0a7-1ab2f9688e02',
+                    self::OPERATION,
+                    'tenant.evidence',
+                    1,
+                    new TenantRef('customer', 'tenant-b'),
+                ),
             ],
+            ['blob' => ParameterType::BINARY],
         );
         self::assertSame(
             [],
-            iterator_to_array(new PostgreSqlCanonicalJournalStore($this->connection, self::SCHEMA)->recordsForTenant(
-                $operation,
-                new TenantRef('customer', 'tenant-a'),
-            )),
+            iterator_to_array(new PostgreSqlCanonicalJournalStore(
+                $this->connection,
+                PostgreSqlTestStorageProtection::codec(),
+                self::SCHEMA,
+            )->recordsForTenant($operation, new TenantRef('customer', 'tenant-a'))),
         );
 
         $outbox = new PostgreSqlOutboxStore($this->connection, self::SCHEMA);
@@ -422,20 +537,31 @@ final class PostgreSqlTenantIsolationTest extends TestCase
         $claim = $outbox->claimBatch('evidence-relay', 1, new DateTimeImmutable('2026-08-03T00:00:01Z'), 60)[0];
         self::assertSame('tenant-a', $claim->message->tenant()?->id());
 
-        $outcomes = new PostgreSqlOutcomeStore($this->connection, self::SCHEMA);
+        $outcomes = new PostgreSqlOutcomeStore(
+            $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        );
         $outcomes->migrate();
         $this->connection->executeStatement(
             'INSERT INTO "'
             . self::SCHEMA
-            . '"."outcomes" (operation_id, outcome_type, schema_version, encoded_payload, completed_at, tenant_type, tenant_id) VALUES (:operation_id, :type, 1, decode(:blob, \'base64\'), :completed_at, :tenant_type, :tenant_id)',
+            . '"."outcomes" (operation_id, outcome_type, schema_version, encoded_payload, completed_at, tenant_type, tenant_id) VALUES (:operation_id, :type, 1, :blob, :completed_at, :tenant_type, :tenant_id)',
             [
                 'operation_id' => self::OPERATION,
                 'type' => 'invalid.outcome',
-                'blob' => 'bm90LWpzb24=',
+                'blob' => PostgreSqlTestStorageProtection::outcomeEnvelope(
+                    'not-json',
+                    self::OPERATION,
+                    'invalid.outcome',
+                    1,
+                    new TenantRef('customer', 'tenant-b'),
+                ),
                 'completed_at' => '2026-08-03T00:00:00Z',
                 'tenant_type' => 'customer',
                 'tenant_id' => 'tenant-b',
             ],
+            ['blob' => ParameterType::BINARY],
         );
         self::assertNull($outcomes->findForTenant($operation, new TenantRef('customer', 'tenant-a')));
 
@@ -510,7 +636,11 @@ final class PostgreSqlTenantIsolationTest extends TestCase
             )),
         );
 
-        $sender = new PostgreSqlDeferredOperationSender($this->connection, self::SCHEMA);
+        $sender = new PostgreSqlDeferredOperationSender(
+            $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        );
         $sender->enqueue(
             new DeferredOperationMessage(
                 OperationId::fromString(self::OPERATION),
@@ -638,7 +768,11 @@ final class PostgreSqlTenantIsolationTest extends TestCase
             $tenantB,
         );
 
-        $records = new PostgreSqlObserverReplayStore($this->connection, self::SCHEMA)->select(
+        $records = new PostgreSqlObserverReplayStore(
+            $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        )->select(
             PostgreSqlObserverReplaySelector::time(
                 new DateTimeImmutable('2026-08-01T00:00:00Z'),
                 new DateTimeImmutable('2026-08-03T00:00:00Z'),
@@ -659,7 +793,11 @@ final class PostgreSqlTenantIsolationTest extends TestCase
         );
         $this->insertReplayJournal($tampered, $tenantA);
         $this->expectException(RuntimeException::class);
-        new PostgreSqlObserverReplayStore($this->connection, self::SCHEMA)->select(
+        new PostgreSqlObserverReplayStore(
+            $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        )->select(
             PostgreSqlObserverReplaySelector::time(
                 new DateTimeImmutable('2026-08-01T00:00:00Z'),
                 new DateTimeImmutable('2026-08-03T00:00:00Z'),
@@ -672,7 +810,11 @@ final class PostgreSqlTenantIsolationTest extends TestCase
     public function testSameIdDifferentTenantSenderFailsSafely(): void
     {
         $operations = new PostgreSqlDeferredOperationSchema(self::SCHEMA)->operationsTable();
-        $sender = new PostgreSqlDeferredOperationSender($this->connection, self::SCHEMA);
+        $sender = new PostgreSqlDeferredOperationSender(
+            $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        );
         $sender->enqueue(
             new DeferredOperationMessage(
                 OperationId::fromString(self::OPERATION),
@@ -722,7 +864,11 @@ final class PostgreSqlTenantIsolationTest extends TestCase
 
     public function testOpenTransactionsSkipLockedClaimsPreserveTenantCarrier(): void
     {
-        $sender = new PostgreSqlDeferredOperationSender($this->connection, self::SCHEMA);
+        $sender = new PostgreSqlDeferredOperationSender(
+            $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        );
         $sender->enqueue(
             new DeferredOperationMessage(
                 OperationId::fromString(self::OPERATION),
@@ -765,7 +911,7 @@ final class PostgreSqlTenantIsolationTest extends TestCase
             $rowB = $right->selectEligible($at);
             self::assertNotNull($rowA);
             self::assertNotNull($rowB);
-            $codec = new PostgreSqlDeferredOperationMessageCodec();
+            $codec = new PostgreSqlDeferredOperationMessageCodec(PostgreSqlTestStorageProtection::codec());
             self::assertSame('tenant-a', $codec->fromRow($rowA)->tenant()?->id());
             self::assertSame('tenant-b', $codec->fromRow($rowB)->tenant()?->id());
         } finally {
@@ -777,7 +923,11 @@ final class PostgreSqlTenantIsolationTest extends TestCase
 
     private function seedTenantJournal(OperationId $operation, TenantRef $tenant, string $recordId): void
     {
-        new PostgreSqlDeferredOperationSender($this->connection, self::SCHEMA)->enqueue(
+        new PostgreSqlDeferredOperationSender(
+            $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        )->enqueue(
             new DeferredOperationMessage(
                 $operation,
                 'retention.evidence',
@@ -831,7 +981,7 @@ final class PostgreSqlTenantIsolationTest extends TestCase
         $this->connection->executeStatement(
             'INSERT INTO "'
             . self::SCHEMA
-            . '"."journal" (record_id, operation_id, operation_type, sequence, event, schema_version, occurred_at, tenant_type, tenant_id, encoded_record) VALUES (:record_id, :operation_id, :operation_type, :sequence, :event, :schema_version, :occurred_at, :tenant_type, :tenant_id, convert_to(:encoded, \'UTF8\'))',
+            . '"."journal" (record_id, operation_id, operation_type, sequence, event, schema_version, operation_schema_version, occurred_at, tenant_type, tenant_id, encoded_record) VALUES (:record_id, :operation_id, :operation_type, :sequence, :event, :schema_version, 1, :occurred_at, :tenant_type, :tenant_id, :encoded)',
             [
                 'record_id' => $record->recordId->toString(),
                 'operation_id' => $record->operation->id->toString(),
@@ -842,8 +992,9 @@ final class PostgreSqlTenantIsolationTest extends TestCase
                 'occurred_at' => $record->occurredAt->format('Y-m-d H:i:s.uP'),
                 'tenant_type' => $clearTenant->type(),
                 'tenant_id' => $clearTenant->id(),
-                'encoded' => new PostgreSqlJournalRecordCodec()->encode($record),
+                'encoded' => PostgreSqlTestStorageProtection::journalRecordEnvelope($record),
             ],
+            ['encoded' => ParameterType::BINARY],
         );
     }
 
@@ -859,6 +1010,63 @@ final class PostgreSqlTenantIsolationTest extends TestCase
     private function applyTenantMigration(string $schema): void
     {
         $this->applyMigration(Version20260803000000::class, $schema);
+    }
+
+    private function applyProtectionMigration(string $schema): void
+    {
+        $this->applyMigration(Version20260808000000::class, $schema);
+    }
+
+    private function seedLegacyProtectedRow(string $schema, string $table): void
+    {
+        $qualified = '"' . $schema . '"."' . $table . '"';
+        if ($table === 'journal') {
+            $this->connection->executeStatement(
+                'INSERT INTO '
+                . $qualified
+                . ' (record_id, operation_id, operation_type, sequence, event, schema_version, occurred_at, encoded_record) VALUES (:record_id, :operation_id, :operation_type, 1, :event, 1, :occurred_at, convert_to(\'legacy-journal\', \'UTF8\'))',
+                [
+                    'record_id' => '019f32ab-2be0-7b38-a0a7-1ab2f9688e03',
+                    'operation_id' => self::OPERATION,
+                    'operation_type' => 'migration.evidence',
+                    'event' => 'operation.received',
+                    'occurred_at' => '2026-08-03T00:00:00Z',
+                ],
+            );
+
+            return;
+        }
+        if ($table === 'operations') {
+            $this->connection->executeStatement(
+                'INSERT INTO '
+                . $qualified
+                . ' (operation_id, operation_type, schema_version, encoded_payload, encoded_context, content_type, encoding, state, state_version, next_sequence, available_at, accepted_at) VALUES (:operation_id, :operation_type, 1, convert_to(\'legacy-payload\', \'UTF8\'), convert_to(\'legacy-context\', \'UTF8\'), :content_type, :encoding, :state, 1, 1, :available_at, :accepted_at)',
+                [
+                    'operation_id' => self::OPERATION,
+                    'operation_type' => 'migration.evidence',
+                    'content_type' => 'application/json',
+                    'encoding' => 'json',
+                    'state' => 'accepted',
+                    'available_at' => '2026-08-03T00:00:00Z',
+                    'accepted_at' => '2026-08-03T00:00:00Z',
+                ],
+            );
+
+            return;
+        }
+        $this->connection->executeStatement(
+            'ALTER TABLE ' . $qualified . ' DROP CONSTRAINT IF EXISTS outcomes_operation_id_fkey',
+        );
+        $this->connection->executeStatement(
+            'INSERT INTO '
+            . $qualified
+            . ' (operation_id, outcome_type, schema_version, encoded_payload, completed_at) VALUES (:operation_id, :outcome_type, 1, convert_to(\'legacy-outcome\', \'UTF8\'), :completed_at)',
+            [
+                'operation_id' => self::OPERATION,
+                'outcome_type' => 'migration.evidence',
+                'completed_at' => '2026-08-03T00:00:00Z',
+            ],
+        );
     }
 
     /** @param class-string<object> $migrationClass */

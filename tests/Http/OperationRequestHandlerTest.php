@@ -91,7 +91,11 @@ final class OperationRequestHandlerTest extends TestCase
     {
         $connection = $this->connection();
         $connection->executeStatement('DROP SCHEMA IF EXISTS ' . self::SCHEMA . ' CASCADE');
-        $journal = new PostgreSqlCanonicalJournalStore($connection, self::SCHEMA);
+        $journal = new PostgreSqlCanonicalJournalStore(
+            $connection,
+            \BlackOps\Tests\Transport\PostgreSql\PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        );
         $journal->migrate();
         $store = new InMemoryIdempotencyStore();
         $operationHandler = new CountingWelcomeHandler();
@@ -371,7 +375,11 @@ final class OperationRequestHandlerTest extends TestCase
     {
         $connection = $this->connection();
         $connection->executeStatement('DROP SCHEMA IF EXISTS ' . self::SCHEMA . ' CASCADE');
-        $journal = new PostgreSqlCanonicalJournalStore($connection, self::SCHEMA);
+        $journal = new PostgreSqlCanonicalJournalStore(
+            $connection,
+            \BlackOps\Tests\Transport\PostgreSql\PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        );
         $journal->migrate();
         $handler = $this->httpHandler($this->inlineDispatcher(new WelcomeHandler(), $journal));
 
@@ -442,7 +450,11 @@ final class OperationRequestHandlerTest extends TestCase
     {
         $connection = $this->connection();
         $connection->executeStatement('DROP SCHEMA IF EXISTS ' . self::SCHEMA . ' CASCADE');
-        $journal = new PostgreSqlCanonicalJournalStore($connection, self::SCHEMA);
+        $journal = new PostgreSqlCanonicalJournalStore(
+            $connection,
+            \BlackOps\Tests\Transport\PostgreSql\PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        );
         $journal->migrate();
         $handler = $this->httpHandler($this->inlineDispatcher(new ThrowingWelcomeHandler(), $journal));
 
@@ -941,7 +953,11 @@ final class OperationRequestHandlerTest extends TestCase
     ): OperationRequestHandler {
         $connection = $this->connection();
         $connection->executeStatement('DROP SCHEMA IF EXISTS ' . self::SCHEMA . ' CASCADE');
-        $journal = new PostgreSqlCanonicalJournalStore($connection, self::SCHEMA);
+        $journal = new PostgreSqlCanonicalJournalStore(
+            $connection,
+            \BlackOps\Tests\Transport\PostgreSql\PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        );
         $journal->migrate();
         $dispatcher = $this->inlineDispatcher(
             $operationHandler,
@@ -970,7 +986,11 @@ final class OperationRequestHandlerTest extends TestCase
     {
         $connection = $this->connection();
         $connection->executeStatement('DROP SCHEMA IF EXISTS ' . self::SCHEMA . ' CASCADE');
-        $journal = new PostgreSqlCanonicalJournalStore($connection, self::SCHEMA);
+        $journal = new PostgreSqlCanonicalJournalStore(
+            $connection,
+            \BlackOps\Tests\Transport\PostgreSql\PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        );
         $journal->migrate();
         $dispatcher = $this->inlineDispatcher(
             $operationHandler,

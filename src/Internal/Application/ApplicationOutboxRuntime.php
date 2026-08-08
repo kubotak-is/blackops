@@ -24,6 +24,7 @@ final readonly class ApplicationOutboxRuntime
     {
         $database = ApplicationDatabaseConfiguration::fromConfiguration($snapshot->configuration());
         $connection = $database->databaseManager()->connection($database->frameworkConnection);
+        $runtime = new ApplicationOperationRuntimeComposer()->compose($snapshot);
         $this->clock = new PostgreSqlSystemClock();
         $this->store = new PostgreSqlOutboxStore($connection, $database->schema);
         $configuration = $this->configuration($snapshot);
@@ -33,7 +34,11 @@ final readonly class ApplicationOutboxRuntime
         );
         $this->relay = new OutboxRelayRuntime(
             $this->store,
-            new PostgreSqlDeferredOperationSender($connection, $database->schema),
+            new PostgreSqlDeferredOperationSender(
+                $connection,
+                ApplicationStorageProtectionResolver::resolve($runtime->container),
+                $database->schema,
+            ),
             $configuration,
             $this->clock,
             $heartbeatStore,

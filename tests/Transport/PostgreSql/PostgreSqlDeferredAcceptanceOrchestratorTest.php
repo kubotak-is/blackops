@@ -35,11 +35,13 @@ use BlackOps\Internal\Identifier\Uuidv7Generator;
 use BlackOps\Internal\Journal\JournalRecordFactory;
 use BlackOps\Internal\Scheduling\PostgreSqlScheduledOccurrenceLifecycle;
 use BlackOps\Internal\Scheduling\PostgreSqlScheduleStore;
+use BlackOps\Internal\StorageProtection\StorageProtectionContext;
 use BlackOps\Journal\Data\OperationFailedData;
 use BlackOps\Journal\Data\OperationReceivedData;
 use BlackOps\Journal\EmptyJournalData;
 use BlackOps\Journal\JournalEvent;
 use BlackOps\Journal\JournalRecord;
+use BlackOps\StorageProtection\StoragePurpose;
 use BlackOps\Transport\PostgreSql\PostgreSqlCanonicalJournalStore;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationSender;
 use DateTimeImmutable;
@@ -67,10 +69,15 @@ final class PostgreSqlDeferredAcceptanceOrchestratorTest extends TestCase
         $this->connection->executeStatement('DROP SCHEMA IF EXISTS ' . self::SCHEMA . ' CASCADE');
         $this->sender = new PostgreSqlDeferredOperationSender(
             $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
             self::SCHEMA,
             new DateTimeImmutable('2026-07-10T00:00:01.123456Z'),
         );
-        $this->journal = new PostgreSqlCanonicalJournalStore($this->connection, self::SCHEMA);
+        $this->journal = new PostgreSqlCanonicalJournalStore(
+            $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        );
         $this->sender->migrate();
         $this->journal->migrate();
         new PostgreSqlScheduleStore($this->connection, self::SCHEMA)->migrate();
@@ -143,8 +150,16 @@ final class PostgreSqlDeferredAcceptanceOrchestratorTest extends TestCase
 
         self::assertSame('019f32ab-2be0-7b38-a0a7-1ab2f9687699', $acknowledgement->operationId()->toString());
         self::assertSame('report.generate', $operationRow['operation_type']);
-        self::assertIsResource($operationRow['encoded_payload']);
-        self::assertSame('{"reportId":"report-1"}', stream_get_contents($operationRow['encoded_payload']));
+        self::assertSame('{"reportId":"report-1"}', PostgreSqlTestStorageProtection::codec()->decrypt(
+            hex2bin((string) $operationRow['encoded_payload']),
+            new StorageProtectionContext(
+                StoragePurpose::DeferredPayload,
+                $acknowledgement->operationId()->toString() . ':payload',
+                $acknowledgement->operationId()->toString(),
+                'report.generate',
+                1,
+            ),
+        ));
         self::assertSame('accepted', $operationRow['state']);
         self::assertSame(
             [JournalEvent::OperationReceived, JournalEvent::OperationAccepted],
@@ -407,7 +422,11 @@ final class PostgreSqlDeferredAcceptanceOrchestratorTest extends TestCase
      */
     private function operationRow(): array
     {
-        $row = $this->connection->fetchAssociative('SELECT * FROM ' . self::SCHEMA . '.operations');
+        $row = $this->connection->fetchAssociative(
+            'SELECT operation_id, operation_type, state, state_version, next_sequence, encode(encoded_payload, \'hex\') AS encoded_payload, encode(encoded_context, \'hex\') AS encoded_context, accepted_at, available_at FROM '
+            . self::SCHEMA
+            . '.operations',
+        );
 
         self::assertIsArray($row);
 

@@ -21,12 +21,12 @@ use BlackOps\Journal\JournalObserver;
 use BlackOps\Journal\JournalOperation;
 use BlackOps\Journal\JournalRecord;
 use BlackOps\Journal\ObservedJournalRecord;
-use BlackOps\Transport\PostgreSql\PostgreSqlJournalRecordCodec;
 use BlackOps\Transport\PostgreSql\PostgreSqlJournalSchema;
 use BlackOps\Transport\PostgreSql\PostgreSqlObserverReplaySelector;
 use BlackOps\Transport\PostgreSql\PostgreSqlObserverReplayStore;
 use DateTimeImmutable;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\ParameterType;
 use PHPUnit\Framework\TestCase;
 
 final class ObserverReplayRuntimeFailureTest extends TestCase
@@ -53,7 +53,6 @@ final class ObserverReplayRuntimeFailureTest extends TestCase
     public function testObserveFailureLeavesFailedRecordUnadvanced(): void
     {
         $operation = OperationId::fromString('019f32ab-2be0-7b38-a0a7-1ab2f9687697');
-        $codec = new PostgreSqlJournalRecordCodec();
         foreach (['019f32ab-2be0-7b38-a0a7-1ab2f968769a', '019f32ab-2be0-7b38-a0a7-1ab2f968769b'] as $index => $id) {
             $record = new JournalRecord(
                 JournalRecordId::fromString($id),
@@ -74,15 +73,19 @@ final class ObserverReplayRuntimeFailureTest extends TestCase
             $this->connection->executeStatement(
                 'INSERT INTO "'
                 . self::SCHEMA
-                . '"."journal" (record_id, operation_id, operation_type, sequence, event, schema_version, occurred_at, encoded_record) VALUES (:record,:operation,\'operation.replay\',:sequence,:event,1,:at,convert_to(:encoded,\'UTF8\'))',
+                . '"."journal" (record_id, operation_id, operation_type, sequence, event, schema_version, operation_schema_version, occurred_at, encoded_record) VALUES (:record,:operation,\'order.create\',:sequence,:event,1,1,:at,:encoded)',
                 [
                     'record' => $id,
                     'operation' => $operation->toString(),
                     'sequence' => $index + 1,
                     'event' => 'operation.received',
                     'at' => $record->occurredAt->format('Y-m-d H:i:s.uP'),
-                    'encoded' => $codec->encode($record),
+                    'encoded' =>
+                        \BlackOps\Tests\Transport\PostgreSql\PostgreSqlTestStorageProtection::journalRecordEnvelope(
+                            $record,
+                        ),
                 ],
+                ['encoded' => ParameterType::BINARY],
             );
         }
         $seen = new RecordingObserver();
@@ -91,7 +94,11 @@ final class ObserverReplayRuntimeFailureTest extends TestCase
             new JournalObserverBinding('failing', new FailingSequenceObserver(2)),
         ]);
         $runtime = new ObserverReplayRuntime(
-            new PostgreSqlObserverReplayStore($this->connection, self::SCHEMA),
+            new PostgreSqlObserverReplayStore(
+                $this->connection,
+                \BlackOps\Tests\Transport\PostgreSql\PostgreSqlTestStorageProtection::codec(),
+                self::SCHEMA,
+            ),
             $targets,
             new ObservedJournalRecordProjector(new SensitiveProjectionFilter()),
             2,
@@ -123,7 +130,6 @@ final class ObserverReplayRuntimeFailureTest extends TestCase
     public function testFlushFailureRedeliversSameRecordIdAndIdempotentTargetConverges(): void
     {
         $operation = OperationId::fromString('019f32ab-2be0-7b38-a0a7-1ab2f9687697');
-        $codec = new PostgreSqlJournalRecordCodec();
         foreach (['019f32ab-2be0-7b38-a0a7-1ab2f968769a', '019f32ab-2be0-7b38-a0a7-1ab2f968769b'] as $index => $id) {
             $record = new JournalRecord(
                 JournalRecordId::fromString($id),
@@ -144,20 +150,28 @@ final class ObserverReplayRuntimeFailureTest extends TestCase
             $this->connection->executeStatement(
                 'INSERT INTO "'
                 . self::SCHEMA
-                . '"."journal" (record_id, operation_id, operation_type, sequence, event, schema_version, occurred_at, encoded_record) VALUES (:record,:operation,\'operation.replay\',:sequence,:event,1,:at,convert_to(:encoded,\'UTF8\'))',
+                . '"."journal" (record_id, operation_id, operation_type, sequence, event, schema_version, operation_schema_version, occurred_at, encoded_record) VALUES (:record,:operation,\'order.create\',:sequence,:event,1,1,:at,:encoded)',
                 [
                     'record' => $id,
                     'operation' => $operation->toString(),
                     'sequence' => $index + 1,
                     'event' => 'operation.received',
                     'at' => $record->occurredAt->format('Y-m-d H:i:s.uP'),
-                    'encoded' => $codec->encode($record),
+                    'encoded' =>
+                        \BlackOps\Tests\Transport\PostgreSql\PostgreSqlTestStorageProtection::journalRecordEnvelope(
+                            $record,
+                        ),
                 ],
+                ['encoded' => ParameterType::BINARY],
             );
         }
         $target = new AcceptThenFlushFailObserver();
         $runtime = new ObserverReplayRuntime(
-            new PostgreSqlObserverReplayStore($this->connection, self::SCHEMA),
+            new PostgreSqlObserverReplayStore(
+                $this->connection,
+                \BlackOps\Tests\Transport\PostgreSql\PostgreSqlTestStorageProtection::codec(),
+                self::SCHEMA,
+            ),
             new ObserverReplayTargetRegistry([new JournalObserverBinding('target', $target)]),
             new ObservedJournalRecordProjector(new SensitiveProjectionFilter()),
             2,
@@ -204,17 +218,25 @@ final class ObserverReplayRuntimeFailureTest extends TestCase
         $this->connection->executeStatement(
             'INSERT INTO "'
             . self::SCHEMA
-            . '"."journal" (record_id, operation_id, operation_type, sequence, event, schema_version, occurred_at, encoded_record) VALUES (:record,:operation,\'operation.replay\',1,:event,1,:at,convert_to(:encoded,\'UTF8\'))',
+            . '"."journal" (record_id, operation_id, operation_type, sequence, event, schema_version, operation_schema_version, occurred_at, encoded_record) VALUES (:record,:operation,\'order.create\',1,:event,1,1,:at,:encoded)',
             [
                 'record' => $record->recordId->toString(),
                 'operation' => $operation->toString(),
                 'event' => 'operation.received',
                 'at' => $record->occurredAt->format('Y-m-d H:i:s.uP'),
-                'encoded' => new PostgreSqlJournalRecordCodec()->encode($record),
+                'encoded' =>
+                    \BlackOps\Tests\Transport\PostgreSql\PostgreSqlTestStorageProtection::journalRecordEnvelope(
+                        $record,
+                    ),
             ],
+            ['encoded' => ParameterType::BINARY],
         );
         $runtime = new ObserverReplayRuntime(
-            new PostgreSqlObserverReplayStore($this->connection, self::SCHEMA),
+            new PostgreSqlObserverReplayStore(
+                $this->connection,
+                \BlackOps\Tests\Transport\PostgreSql\PostgreSqlTestStorageProtection::codec(),
+                self::SCHEMA,
+            ),
             new ObserverReplayTargetRegistry([
                 new JournalObserverBinding('failing', new DropAuditAndFailObserver($this->connection, self::SCHEMA)),
             ]),

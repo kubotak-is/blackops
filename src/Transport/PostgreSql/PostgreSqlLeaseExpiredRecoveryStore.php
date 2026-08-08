@@ -9,18 +9,24 @@ use BlackOps\Core\Exception\DeferredTransportException;
 use BlackOps\Core\Execution\OperationClaim;
 use BlackOps\Core\Identifier\AttemptId;
 use BlackOps\Core\Identifier\OperationId;
+use BlackOps\Internal\StorageProtection\BopdEnvelopeCodec;
 use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 use SensitiveParameter;
 
 final readonly class PostgreSqlLeaseExpiredRecoveryStore
 {
+    private PostgreSqlDeferredOperationMessageCodec $messages;
+
     public function __construct(
         private Connection $connection,
         private PostgreSqlDeferredOperationSchema $schema,
         private PostgreSqlDeferredOperationLifecycleSql $sql,
-        private PostgreSqlDeferredOperationMessageCodec $messages = new PostgreSqlDeferredOperationMessageCodec(),
-    ) {}
+        BopdEnvelopeCodec $protection,
+        ?PostgreSqlDeferredOperationMessageCodec $messages = null,
+    ) {
+        $this->messages = $messages ?? new PostgreSqlDeferredOperationMessageCodec($protection);
+    }
 
     public function reserve(DateTimeImmutable $expiredAt): ?PostgreSqlLeaseExpiredReservation
     {

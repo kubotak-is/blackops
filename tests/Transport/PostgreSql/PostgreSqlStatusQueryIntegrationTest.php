@@ -71,10 +71,22 @@ final class PostgreSqlStatusQueryIntegrationTest extends TestCase
     {
         $this->connection = $this->connection();
         $this->connection->executeStatement('DROP SCHEMA IF EXISTS ' . self::SCHEMA . ' CASCADE');
-        new PostgreSqlDeferredOperationSender($this->connection, self::SCHEMA)->migrate();
-        $this->journal = new PostgreSqlCanonicalJournalStore($this->connection, self::SCHEMA);
+        new PostgreSqlDeferredOperationSender(
+            $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        )->migrate();
+        $this->journal = new PostgreSqlCanonicalJournalStore(
+            $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        );
         $this->journal->migrate();
-        $this->outcomes = new PostgreSqlOutcomeStore($this->connection, self::SCHEMA);
+        $this->outcomes = new PostgreSqlOutcomeStore(
+            $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        );
         $this->registry = new OperationRegistry([
             $this->metadata('status.inline.completed', StatusInlineCompletedOperation::class, Inline::class),
             $this->metadata('status.deferred', StatusDeferredOperation::class, Deferred::class),
@@ -433,14 +445,19 @@ final class PostgreSqlStatusQueryIntegrationTest extends TestCase
         $this->createDeferred($id, LifecycleState::Failed);
         $authorizer = new StatusProjectionMutatingAuthorizer($this->connection, $id, self::SCHEMA);
         $query = new DefaultOperationStatusQuery(
-            new PostgreSqlOperationStatusSource($this->connection, $this->registry, self::SCHEMA),
+            new PostgreSqlOperationStatusSource(
+                $this->connection,
+                $this->registry,
+                PostgreSqlTestStorageProtection::codec(),
+                self::SCHEMA,
+            ),
             $authorizer,
         );
 
-        $result = $query->find($id);
+        $exception = $this->captureFailure($query, $id);
 
         self::assertSame('origin-private', $authorizer->request?->originActor()?->id());
-        self::assertInstanceOf(OperationStatusFound::class, $result);
+        self::assertSame(OperationStatusQueryException::DECODE_FAILED, $exception->queryCode());
         self::assertFalse($this->connection->isTransactionActive());
     }
 
@@ -485,7 +502,12 @@ final class PostgreSqlStatusQueryIntegrationTest extends TestCase
     private function query(OperationStatusAuthorizationDecision $decision): DefaultOperationStatusQuery
     {
         return new DefaultOperationStatusQuery(
-            new PostgreSqlOperationStatusSource($this->connection, $this->registry, self::SCHEMA),
+            new PostgreSqlOperationStatusSource(
+                $this->connection,
+                $this->registry,
+                PostgreSqlTestStorageProtection::codec(),
+                self::SCHEMA,
+            ),
             new StatusProjectionAuthorizer($decision),
         );
     }
@@ -895,7 +917,11 @@ final class PostgreSqlStatusQueryIntegrationTest extends TestCase
 
     private function enqueue(OperationId $id): void
     {
-        new PostgreSqlDeferredOperationSender($this->connection, self::SCHEMA)->enqueue(
+        new PostgreSqlDeferredOperationSender(
+            $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        )->enqueue(
             new DeferredOperationMessage(
                 $id,
                 'status.deferred',

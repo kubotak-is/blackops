@@ -40,6 +40,7 @@ use BlackOps\Transport\PostgreSql\PostgreSqlTransportPayloadTombstoneService;
 use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\ParameterType;
 use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
 
@@ -60,6 +61,7 @@ final class PostgreSqlRetentionPurgeServiceTest extends TestCase
         $this->connection->executeStatement('DROP SCHEMA IF EXISTS ' . self::SCHEMA . ' CASCADE');
         $this->sender = new PostgreSqlDeferredOperationSender(
             $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
             self::SCHEMA,
             new DateTimeImmutable('2026-07-10T00:00:01.000000Z'),
         );
@@ -408,19 +410,28 @@ final class PostgreSqlRetentionPurgeServiceTest extends TestCase
     private function journal(string $operationId, int $sequence, string $occurredAt): void
     {
         $recordId = $this->recordId($operationId, $sequence);
-        $this->connection->executeStatement('INSERT INTO ' . self::SCHEMA . '.journal (
-            record_id, operation_id, operation_type, sequence, event, schema_version, occurred_at, encoded_record
+        $this->connection->executeStatement(
+            'INSERT INTO ' . self::SCHEMA . '.journal (
+            record_id, operation_id, operation_type, sequence, event, schema_version, operation_schema_version, occurred_at, encoded_record
         ) VALUES (
-            :record_id, :operation_id, :operation_type, :sequence, :event, 1, :occurred_at, convert_to(:record, \'UTF8\')
-        )', [
-            'record_id' => $recordId,
-            'operation_id' => $operationId,
-            'operation_type' => 'operation.tested',
-            'sequence' => $sequence,
-            'event' => 'operation.tested',
-            'occurred_at' => $occurredAt,
-            'record' => '{}',
-        ]);
+            :record_id, :operation_id, :operation_type, :sequence, :event, 1, 1, :occurred_at, :encoded_record
+        )',
+            [
+                'record_id' => $recordId,
+                'operation_id' => $operationId,
+                'operation_type' => 'operation.tested',
+                'sequence' => $sequence,
+                'event' => 'operation.tested',
+                'occurred_at' => $occurredAt,
+                'encoded_record' => PostgreSqlTestStorageProtection::journalEnvelope(
+                    '{}',
+                    $recordId,
+                    $operationId,
+                    'operation.tested',
+                ),
+            ],
+            ['encoded_record' => ParameterType::BINARY],
+        );
     }
 
     private function recordId(string $operationId, int $sequence): string
@@ -494,16 +505,20 @@ final class PostgreSqlRetentionPurgeServiceTest extends TestCase
 
     private function outcome(string $operationId, string $completedAt): void
     {
-        $this->connection->executeStatement('INSERT INTO ' . self::SCHEMA . '.outcomes (
+        $this->connection->executeStatement(
+            'INSERT INTO ' . self::SCHEMA . '.outcomes (
             operation_id, outcome_type, schema_version, encoded_payload, completed_at
         ) VALUES (
-            :operation_id, :outcome_type, 1, convert_to(:payload, \'UTF8\'), :completed_at
-        )', [
-            'operation_id' => $operationId,
-            'outcome_type' => 'retention.test',
-            'payload' => '{}',
-            'completed_at' => $completedAt,
-        ]);
+            :operation_id, :outcome_type, 1, :payload, :completed_at
+        )',
+            [
+                'operation_id' => $operationId,
+                'outcome_type' => 'retention.test',
+                'payload' => PostgreSqlTestStorageProtection::outcomeEnvelope('{}', $operationId, 'retention.test'),
+                'completed_at' => $completedAt,
+            ],
+            ['payload' => ParameterType::BINARY],
+        );
     }
 
     private function outcomeExists(string $operationId): bool

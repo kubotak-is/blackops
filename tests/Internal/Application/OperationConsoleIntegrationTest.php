@@ -26,6 +26,9 @@ use BlackOps\Core\Outcome;
 use BlackOps\Core\Registry\OperationProvider;
 use BlackOps\Core\Validation\Attribute\NotBlank;
 use BlackOps\Internal\Migration\DatabaseMigrationRunner;
+use BlackOps\StorageProtection\StorageKey;
+use BlackOps\StorageProtection\StorageKeyProvider;
+use BlackOps\StorageProtection\StoragePurpose;
 use Doctrine\DBAL\DriverManager;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -285,6 +288,24 @@ final readonly class ConsoleFixtureServiceProvider implements ServiceProvider
     {
         $services->autowire(ConsoleActorProvider::class, ConsoleFixtureActorProvider::class);
         $services->autowire(ConsoleTenantProvider::class, ConsoleFixtureTenantProvider::class);
+        $services->autowire(StorageKeyProvider::class, ConsoleFixtureStorageKeyProvider::class);
+    }
+}
+
+final readonly class ConsoleFixtureStorageKeyProvider implements StorageKeyProvider
+{
+    public function activeKey(?\BlackOps\Core\TenantRef $tenant, StoragePurpose $purpose): StorageKey
+    {
+        return $this->key('console-test-key', $tenant, $purpose);
+    }
+
+    public function key(string $keyId, ?\BlackOps\Core\TenantRef $tenant, StoragePurpose $purpose): StorageKey
+    {
+        if ($keyId !== 'console-test-key') {
+            throw new \InvalidArgumentException('Unknown storage key identifier.');
+        }
+
+        return new StorageKey($keyId, str_repeat('c', SODIUM_CRYPTO_AEAD_XCHACHA20POLY1305_IETF_KEYBYTES));
     }
 }
 

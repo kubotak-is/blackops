@@ -6,7 +6,11 @@ namespace BlackOps\Transport\PostgreSql;
 
 use BlackOps\Core\Identifier\JournalRecordId;
 use BlackOps\Core\Identifier\OperationId;
+use BlackOps\Core\TenantRef;
+use BlackOps\Internal\StorageProtection\BopdEnvelopeCodec;
+use BlackOps\Internal\StorageProtection\StorageProtectionContext;
 use BlackOps\Journal\JournalRecord;
+use BlackOps\StorageProtection\StoragePurpose;
 use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 use InvalidArgumentException;
@@ -28,6 +32,7 @@ final readonly class PostgreSqlObserverReplayStore
 
     public function __construct(
         private Connection $connection,
+        private BopdEnvelopeCodec $protection,
         string $schema = 'blackops',
         ?PostgreSqlJournalRecordCodec $codec = null,
     ) {
@@ -40,7 +45,10 @@ final readonly class PostgreSqlObserverReplayStore
         );
     }
 
-    /** @return array{records: list<JournalRecord>, hasMore: bool} */
+    /**
+     * @return array{records: list<JournalRecord>, hasMore: bool}
+     * @mago-expect lint:halstead
+     */
     public function select(PostgreSqlObserverReplaySelector $selector, int $limit, ?string $cursor): array
     {
         if ($limit < 1 || $limit > 1000) {
@@ -57,13 +65,37 @@ final readonly class PostgreSqlObserverReplayStore
             /** @var array<string, mixed>|list<mixed> $params */
             $params = $query['params'];
             foreach ($this->connection->iterateAssociative($query['sql'], $params) as $row) {
-                $record = $this->codec->decode(PostgreSqlBytea::string($row['encoded_record'] ?? null));
+                $encoded = PostgreSqlBytea::string($row['encoded_record'] ?? null);
+                $tenant = $this->tenant($row);
+                $encoded = $this->protection->decrypt(
+                    $encoded,
+                    new StorageProtectionContext(
+                        StoragePurpose::JournalRecord,
+                        (string) $row['record_id'],
+                        (string) $row['operation_id'],
+                        (string) $row['operation_type'],
+                        (int) $row['operation_schema_version'],
+                        $tenant,
+                    ),
+                );
+                $record = $this->codec->decode($encoded);
                 $tenant = $record->operation->tenant;
                 if (
                     ($row['tenant_type'] ?? null) !== $tenant?->type()
                     || ($row['tenant_id'] ?? null) !== $tenant?->id()
                 ) {
                     throw new RuntimeException('Canonical journal tenant subject is inconsistent.');
+                }
+                if (
+                    (string) $row['record_id'] !== $record->recordId->toString()
+                    || (string) $row['operation_id'] !== $record->operation->id->toString()
+                    || (string) $row['operation_type'] !== $record->operation->type
+                    || (int) $row['schema_version'] !== $record->schemaVersion
+                    || (int) $row['operation_schema_version'] !== $record->operation->schemaVersion
+                    || ($row['origin_actor_type'] ?? null) !== $record->operation->actorContext?->origin()?->type()
+                    || ($row['origin_actor_id'] ?? null) !== $record->operation->actorContext?->origin()?->id()
+                ) {
+                    throw new RuntimeException('Canonical journal clear metadata is inconsistent.');
                 }
                 $records[] = $record;
             }
@@ -75,6 +107,20 @@ final readonly class PostgreSqlObserverReplayStore
             array_pop($records);
         }
         return ['records' => $records, 'hasMore' => $hasMore];
+    }
+
+    /** @param array<string, mixed> $row */
+    private function tenant(array $row): ?TenantRef
+    {
+        $type = $row['tenant_type'] ?? null;
+        $id = $row['tenant_id'] ?? null;
+        if ($type === null && $id === null) {
+            return null;
+        }
+        if (!is_string($type) || $type === '' || !is_string($id) || $id === '') {
+            throw new RuntimeException('Canonical journal tenant subject is invalid.');
+        }
+        return new TenantRef($type, $id);
     }
 
     public function begin(PostgreSqlObserverReplayBeginRequest $request): PostgreSqlObserverReplayBinding

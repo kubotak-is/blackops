@@ -6,13 +6,17 @@ namespace BlackOps\Transport\PostgreSql;
 
 use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Core\TenantRef;
+use BlackOps\Internal\StorageProtection\BopdEnvelopeCodec;
+use BlackOps\Internal\StorageProtection\StorageProtectionContext;
 use BlackOps\Journal\CanonicalJournalStore;
 use BlackOps\Journal\Exception\JournalReadFailed;
 use BlackOps\Journal\Exception\JournalWriteFailed;
 use BlackOps\Journal\JournalRecord;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ParameterType;
 use Throwable;
 
+/** @mago-expect lint:cyclomatic-complexity */
 final readonly class PostgreSqlCanonicalJournalStore implements CanonicalJournalStore
 {
     private PostgreSqlJournalSchema $schema;
@@ -20,6 +24,7 @@ final readonly class PostgreSqlCanonicalJournalStore implements CanonicalJournal
 
     public function __construct(
         private Connection $connection,
+        private BopdEnvelopeCodec $protection,
         string $schema = 'blackops',
         ?PostgreSqlJournalRecordCodec $codec = null,
     ) {
@@ -66,6 +71,7 @@ final readonly class PostgreSqlCanonicalJournalStore implements CanonicalJournal
             event,
             attempt_id,
             schema_version,
+            operation_schema_version,
             occurred_at,
             tenant_type,
             tenant_id,
@@ -80,12 +86,13 @@ final readonly class PostgreSqlCanonicalJournalStore implements CanonicalJournal
             :event,
             :attempt_id,
             :schema_version,
+            :operation_schema_version,
             :occurred_at,
             :tenant_type,
             :tenant_id,
             :origin_actor_type,
             :origin_actor_id,
-            convert_to(:encoded_record, 'UTF8')
+            :encoded_record
         WHERE NOT EXISTS (
             SELECT 1 FROM {$table} existing
             WHERE existing.operation_id = :operation_id
@@ -100,21 +107,26 @@ final readonly class PostgreSqlCanonicalJournalStore implements CanonicalJournal
         {$operationsGuard}";
 
         try {
-            $inserted = $this->connection->executeStatement($sql, [
-                'record_id' => $record->recordId->toString(),
-                'operation_id' => $record->operation->id->toString(),
-                'operation_type' => $record->operation->type,
-                'sequence' => $record->sequence,
-                'event' => $record->event->value,
-                'attempt_id' => $record->attempt?->id->toString(),
-                'schema_version' => $record->schemaVersion,
-                'occurred_at' => $record->occurredAt->format('Y-m-d H:i:s.uP'),
-                'tenant_type' => $record->operation->tenant?->type(),
-                'tenant_id' => $record->operation->tenant?->id(),
-                'origin_actor_type' => $record->operation->actorContext?->origin()?->type(),
-                'origin_actor_id' => $record->operation->actorContext?->origin()?->id(),
-                'encoded_record' => $this->codec->encode($record),
-            ]);
+            $inserted = $this->connection->executeStatement(
+                $sql,
+                [
+                    'record_id' => $record->recordId->toString(),
+                    'operation_id' => $record->operation->id->toString(),
+                    'operation_type' => $record->operation->type,
+                    'sequence' => $record->sequence,
+                    'event' => $record->event->value,
+                    'attempt_id' => $record->attempt?->id->toString(),
+                    'schema_version' => $record->schemaVersion,
+                    'operation_schema_version' => $record->operation->schemaVersion,
+                    'occurred_at' => $record->occurredAt->format('Y-m-d H:i:s.uP'),
+                    'tenant_type' => $record->operation->tenant?->type(),
+                    'tenant_id' => $record->operation->tenant?->id(),
+                    'origin_actor_type' => $record->operation->actorContext?->origin()?->type(),
+                    'origin_actor_id' => $record->operation->actorContext?->origin()?->id(),
+                    'encoded_record' => $this->encode($record),
+                ],
+                ['encoded_record' => ParameterType::BINARY],
+            );
             if ((int) $inserted !== 1) {
                 throw new JournalWriteFailed('PostgreSQL journal operation tenant subject is inconsistent.');
             }
@@ -126,7 +138,9 @@ final readonly class PostgreSqlCanonicalJournalStore implements CanonicalJournal
     public function records(OperationId $operationId): iterable
     {
         $table = $this->schema->journalTable();
-        $sql = "SELECT encoded_record
+        $sql = "SELECT record_id::text AS record_id, operation_id::text AS operation_id,
+                    operation_type, schema_version, operation_schema_version, tenant_type, tenant_id,
+                    origin_actor_type, origin_actor_id, encoded_record
             FROM {$table}
             WHERE operation_id = :operation_id
             ORDER BY sequence ASC";
@@ -140,7 +154,7 @@ final readonly class PostgreSqlCanonicalJournalStore implements CanonicalJournal
                 /** @var mixed $payload */
                 $payload = $row['encoded_record'] ?? null;
 
-                yield $this->codec->decode(PostgreSqlBytea::string($payload));
+                yield $this->decode($row);
             }
         } catch (Throwable $exception) {
             throw new JournalReadFailed('Failed to read PostgreSQL journal records.', previous: $exception);
@@ -151,7 +165,9 @@ final readonly class PostgreSqlCanonicalJournalStore implements CanonicalJournal
     public function recordsForTenant(OperationId $operationId, ?TenantRef $tenant): iterable
     {
         $table = $this->schema->journalTable();
-        $sql = "SELECT encoded_record
+        $sql = "SELECT record_id::text AS record_id, operation_id::text AS operation_id,
+                    operation_type, schema_version, operation_schema_version, tenant_type, tenant_id,
+                    origin_actor_type, origin_actor_id, encoded_record
             FROM {$table}
             WHERE operation_id = :operation_id
               AND tenant_type IS NOT DISTINCT FROM :tenant_type
@@ -163,10 +179,71 @@ final readonly class PostgreSqlCanonicalJournalStore implements CanonicalJournal
                 'tenant_type' => $tenant?->type(),
                 'tenant_id' => $tenant?->id(),
             ]) as $row) {
-                yield $this->codec->decode(PostgreSqlBytea::string($row['encoded_record'] ?? null));
+                yield $this->decode($row);
             }
         } catch (Throwable $exception) {
             throw new JournalReadFailed('Failed to read PostgreSQL tenant journal records.', previous: $exception);
         }
+    }
+
+    /** @param array<string, mixed> $row */
+    private function decode(array $row): JournalRecord
+    {
+        $encoded = PostgreSqlBytea::string($row['encoded_record'] ?? null);
+        $tenant = $this->tenant($row);
+        $context = new StorageProtectionContext(
+            \BlackOps\StorageProtection\StoragePurpose::JournalRecord,
+            (string) $row['record_id'],
+            (string) $row['operation_id'],
+            (string) $row['operation_type'],
+            (int) $row['operation_schema_version'],
+            $tenant,
+        );
+        $encoded = $this->protection->decrypt($encoded, $context);
+        $record = $this->codec->decode($encoded);
+        if (
+            (string) $row['record_id'] !== $record->recordId->toString()
+            || (string) $row['operation_id'] !== $record->operation->id->toString()
+            || (string) $row['operation_type'] !== $record->operation->type
+            || (int) $row['schema_version'] !== $record->schemaVersion
+            || (int) $row['operation_schema_version'] !== $record->operation->schemaVersion
+            || ($row['tenant_type'] ?? null) !== $record->operation->tenant?->type()
+            || ($row['tenant_id'] ?? null) !== $record->operation->tenant?->id()
+            || ($row['origin_actor_type'] ?? null) !== $record->operation->actorContext?->origin()?->type()
+            || ($row['origin_actor_id'] ?? null) !== $record->operation->actorContext?->origin()?->id()
+        ) {
+            throw new JournalReadFailed('Canonical journal clear metadata is inconsistent.');
+        }
+        return $record;
+    }
+
+    /** @param array<string, mixed> $row */
+    private function tenant(array $row): ?TenantRef
+    {
+        $type = $row['tenant_type'] ?? null;
+        $id = $row['tenant_id'] ?? null;
+        if ($type === null && $id === null) {
+            return null;
+        }
+        if (!is_string($type) || $type === '' || !is_string($id) || $id === '') {
+            throw new JournalReadFailed('Canonical journal tenant subject is invalid.');
+        }
+        return new TenantRef($type, $id);
+    }
+
+    private function encode(JournalRecord $record): string
+    {
+        $encoded = $this->codec->encode($record);
+        return $this->protection->encrypt(
+            $encoded,
+            new StorageProtectionContext(
+                \BlackOps\StorageProtection\StoragePurpose::JournalRecord,
+                $record->recordId->toString(),
+                $record->operation->id->toString(),
+                $record->operation->type,
+                $record->operation->schemaVersion,
+                $record->operation->tenant,
+            ),
+        );
     }
 }

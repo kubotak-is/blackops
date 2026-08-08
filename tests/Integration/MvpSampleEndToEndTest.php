@@ -47,6 +47,7 @@ use BlackOps\Journal\JournalEvent;
 use BlackOps\Journal\JournalRecord;
 use BlackOps\Logging\JsonlJournalObserver;
 use BlackOps\Outcome\OutcomeRecord;
+use BlackOps\Tests\Transport\PostgreSql\PostgreSqlTestStorageProtection;
 use BlackOps\Transport\PostgreSql\PostgreSqlCanonicalJournalStore;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationLifecycleStore;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationReceiver;
@@ -109,7 +110,11 @@ final class MvpSampleEndToEndTest extends TestCase
         self::assertSame('report.generate', $httpArtifacts->http->routes['POST']['/reports']);
 
         $clock = new MvpSampleClock(new DateTimeImmutable('2026-07-12T00:00:00.123456Z'));
-        $journal = new PostgreSqlCanonicalJournalStore($httpConnection, self::SCHEMA);
+        $journal = new PostgreSqlCanonicalJournalStore(
+            $httpConnection,
+            PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        );
         $jsonl = fopen('php://temp', 'w+b');
         self::assertIsResource($jsonl);
         $observations = new JournalObservationPipeline(
@@ -137,7 +142,12 @@ final class MvpSampleEndToEndTest extends TestCase
         );
         $identifiers = new IdentifierFactory(new SymfonyUuidv7Generator(), $clock);
         $codec = new ReflectionJsonOperationCodec();
-        $sender = new PostgreSqlDeferredOperationSender($httpConnection, self::SCHEMA, $clock->now());
+        $sender = new PostgreSqlDeferredOperationSender(
+            $httpConnection,
+            PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+            $clock->now(),
+        );
         $acceptor = new DeferredHttpOperationAcceptor(
             $httpArtifacts->operations,
             new ExecutionContextFactory($identifiers, $clock),
@@ -232,6 +242,7 @@ final class MvpSampleEndToEndTest extends TestCase
         $firstWorkerArtifacts = $this->loadArtifacts($paths);
         $firstReceiver = new PostgreSqlDeferredOperationReceiver(
             $firstWorkerConnection,
+            PostgreSqlTestStorageProtection::codec(),
             self::SCHEMA,
             'mvp-worker-first',
             30,
@@ -258,12 +269,20 @@ final class MvpSampleEndToEndTest extends TestCase
                 JournalEvent::AttemptRetryScheduled,
             ],
             $this->events(
-                new PostgreSqlCanonicalJournalStore($firstWorkerConnection, self::SCHEMA),
+                new PostgreSqlCanonicalJournalStore(
+                    $firstWorkerConnection,
+                    PostgreSqlTestStorageProtection::codec(),
+                    self::SCHEMA,
+                ),
                 $reportOperationId,
             ),
         );
         $firstAttemptRecords = $this->records(
-            new PostgreSqlCanonicalJournalStore($firstWorkerConnection, self::SCHEMA),
+            new PostgreSqlCanonicalJournalStore(
+                $firstWorkerConnection,
+                PostgreSqlTestStorageProtection::codec(),
+                self::SCHEMA,
+            ),
             $reportOperationId,
         );
         foreach (array_slice($firstAttemptRecords, 2) as $record) {
@@ -279,6 +298,7 @@ final class MvpSampleEndToEndTest extends TestCase
         self::assertNotSame($firstWorkerArtifacts->container, $secondWorkerArtifacts->container);
         $secondReceiver = new PostgreSqlDeferredOperationReceiver(
             $secondWorkerConnection,
+            PostgreSqlTestStorageProtection::codec(),
             self::SCHEMA,
             'mvp-worker-restarted',
             30,
@@ -308,12 +328,20 @@ final class MvpSampleEndToEndTest extends TestCase
                 JournalEvent::OperationCompleted,
             ],
             $this->events(
-                new PostgreSqlCanonicalJournalStore($secondWorkerConnection, self::SCHEMA),
+                new PostgreSqlCanonicalJournalStore(
+                    $secondWorkerConnection,
+                    PostgreSqlTestStorageProtection::codec(),
+                    self::SCHEMA,
+                ),
                 $reportOperationId,
             ),
         );
         $completedRecords = $this->records(
-            new PostgreSqlCanonicalJournalStore($secondWorkerConnection, self::SCHEMA),
+            new PostgreSqlCanonicalJournalStore(
+                $secondWorkerConnection,
+                PostgreSqlTestStorageProtection::codec(),
+                self::SCHEMA,
+            ),
             $reportOperationId,
         );
         foreach (array_slice($completedRecords, 5) as $record) {
@@ -323,7 +351,11 @@ final class MvpSampleEndToEndTest extends TestCase
             self::assertSame('system', $record->operation->actorContext?->execution()->type());
         }
 
-        $outcome = new PostgreSqlOutcomeStore($this->connection(), self::SCHEMA)->find($reportOperationId);
+        $outcome = new PostgreSqlOutcomeStore(
+            $this->connection(),
+            PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        )->find($reportOperationId);
         self::assertInstanceOf(OutcomeRecord::class, $outcome);
         self::assertInstanceOf(self::REPORT_GENERATED, $outcome->outcome());
         self::assertSame('/reports/generated/weekly.json', $outcome->outcome()->location);
@@ -465,10 +497,18 @@ final class MvpSampleEndToEndTest extends TestCase
             new DeferredWorkerRuntimeStorage(
                 $connection,
                 new JournalRecordFactory($identifiers, $clock),
-                new PostgreSqlCanonicalJournalStore($connection, self::SCHEMA),
-                new PostgreSqlDeferredOperationLifecycleStore($connection, self::SCHEMA),
+                new PostgreSqlCanonicalJournalStore(
+                    $connection,
+                    PostgreSqlTestStorageProtection::codec(),
+                    self::SCHEMA,
+                ),
+                new PostgreSqlDeferredOperationLifecycleStore(
+                    $connection,
+                    PostgreSqlTestStorageProtection::codec(),
+                    self::SCHEMA,
+                ),
                 $clock,
-                new PostgreSqlOutcomeStore($connection, self::SCHEMA),
+                new PostgreSqlOutcomeStore($connection, PostgreSqlTestStorageProtection::codec(), self::SCHEMA),
             ),
             new DirectClaimExecutionGuard(),
         );

@@ -59,7 +59,11 @@ final readonly class PostgreSqlDeferredOperationSchema
                 current_attempt_id uuid NULL,
                 current_attempt_started_at timestamptz NULL,
                 created_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                updated_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP
+                updated_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                CONSTRAINT operations_bopd_payload_check CHECK (
+                    (encoded_payload IS NULL OR substring(encoded_payload FROM 1 FOR 4) = decode('424f5044', 'hex'))
+                    AND (encoded_context IS NULL OR substring(encoded_context FROM 1 FOR 4) = decode('424f5044', 'hex'))
+                )
             )",
             "ALTER TABLE {$operations}
                 ALTER COLUMN encoded_payload DROP NOT NULL",
@@ -123,7 +127,10 @@ final readonly class PostgreSqlDeferredOperationSchema
                 outcome_type text NOT NULL CHECK (outcome_type <> ''),
                 schema_version integer NOT NULL CHECK (schema_version >= 1),
                 encoded_payload bytea NOT NULL,
-                completed_at timestamptz NOT NULL
+                completed_at timestamptz NOT NULL,
+                CONSTRAINT outcomes_bopd_payload_check CHECK (
+                    substring(encoded_payload FROM 1 FOR 4) = decode('424f5044', 'hex')
+                )
             )",
             "ALTER TABLE {$outcomes}
                 DROP CONSTRAINT IF EXISTS outcomes_operation_id_fkey",

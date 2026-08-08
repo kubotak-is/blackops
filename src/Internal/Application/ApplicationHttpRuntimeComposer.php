@@ -50,7 +50,8 @@ final readonly class ApplicationHttpRuntimeComposer
         $this->validateHttpOperations($operation->operations, $http->manifest);
         $artifacts = new ProductionRuntimeArtifacts($operation->operations, $http->manifest, $operation->container);
         $httpMiddleware = new ApplicationHttpMiddlewareResolver($artifacts->container)->resolve($middleware);
-        $sender = new PostgreSqlDeferredOperationSender($operation->connection, $database->schema);
+        $protection = ApplicationStorageProtectionResolver::resolve($operation->container);
+        $sender = new PostgreSqlDeferredOperationSender($operation->connection, $protection, $database->schema);
         $idempotency = new PostgreSqlIdempotencyStore($operation->connection, $database->schema);
         if (!$operation->journal instanceof CanonicalJournalReader) {
             throw new LogicException('PostgreSQL journal reader is unavailable for idempotency recovery.');
@@ -81,7 +82,12 @@ final readonly class ApplicationHttpRuntimeComposer
             ),
         );
         $statusQuery = new DefaultOperationStatusQuery(
-            new PostgreSqlOperationStatusSource($operation->connection, $artifacts->operations, $database->schema),
+            new PostgreSqlOperationStatusSource(
+                $operation->connection,
+                $artifacts->operations,
+                $protection,
+                $database->schema,
+            ),
             new OperationStatusAuthorizerResolver($artifacts->container)->resolve(),
         );
         $runtime = new ProductionRuntimeComposer()->composeWithDependencies(

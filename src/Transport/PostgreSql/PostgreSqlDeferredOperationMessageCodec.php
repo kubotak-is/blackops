@@ -9,11 +9,18 @@ use BlackOps\Core\Exception\DeferredTransportException;
 use BlackOps\Core\Execution\DeferredOperationMessage;
 use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Core\TenantRef;
+use BlackOps\Internal\StorageProtection\BopdEnvelopeCodec;
+use BlackOps\Internal\StorageProtection\StorageProtectionContext;
+use BlackOps\StorageProtection\StoragePurpose;
 use DateTimeImmutable;
 
 /** @mago-expect lint:cyclomatic-complexity */
 final readonly class PostgreSqlDeferredOperationMessageCodec
 {
+    public function __construct(
+        private BopdEnvelopeCodec $protection,
+    ) {}
+
     /**
      * @param array<string, mixed> $row
      */
@@ -22,12 +29,40 @@ final readonly class PostgreSqlDeferredOperationMessageCodec
         $tenant = $this->nullableTenant($row);
         $origin = $this->nullableOriginActor($row);
 
+        $operationId = OperationId::fromString($this->string($row, 'operation_id'));
+        $operationType = $this->string($row, 'operation_type');
+        $schemaVersion = $this->integer($row, 'schema_version');
+        $payload = $this->bytea($row, 'encoded_payload');
+        $context = $this->bytea($row, 'encoded_context');
+        $payload = $this->protection->decrypt(
+            $payload,
+            new StorageProtectionContext(
+                StoragePurpose::DeferredPayload,
+                $operationId->toString() . ':payload',
+                $operationId->toString(),
+                $operationType,
+                $schemaVersion,
+                $tenant,
+            ),
+        );
+        $context = $this->protection->decrypt(
+            $context,
+            new StorageProtectionContext(
+                StoragePurpose::DeferredContext,
+                $operationId->toString() . ':context',
+                $operationId->toString(),
+                $operationType,
+                $schemaVersion,
+                $tenant,
+            ),
+        );
+
         return new DeferredOperationMessage(
-            OperationId::fromString($this->string($row, 'operation_id')),
-            $this->string($row, 'operation_type'),
-            $this->integer($row, 'schema_version'),
-            $this->bytea($row, 'encoded_payload'),
-            $this->bytea($row, 'encoded_context'),
+            $operationId,
+            $operationType,
+            $schemaVersion,
+            $payload,
+            $context,
             new DateTimeImmutable($this->string($row, 'available_at')),
             $tenant,
             $origin,

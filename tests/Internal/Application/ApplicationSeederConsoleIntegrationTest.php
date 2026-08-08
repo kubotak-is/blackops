@@ -9,6 +9,9 @@ use BlackOps\Core\DependencyInjection\ServiceRegistry;
 use BlackOps\Internal\Application\ApplicationConfigurationSnapshot;
 use BlackOps\Internal\Application\ApplicationConsoleKernel;
 use BlackOps\Internal\Console\ApplicationBuildCompileCommand;
+use BlackOps\StorageProtection\StorageKey;
+use BlackOps\StorageProtection\StorageKeyProvider;
+use BlackOps\StorageProtection\StoragePurpose;
 use BlackOps\Tests\Internal\Application\Fixture\SeederDiscovery\FixtureDatabaseSeeder;
 use BlackOps\Tests\Internal\Application\Fixture\SeederDiscovery\SeederFixtureDependency;
 use BlackOps\Tests\Internal\Application\Fixture\SeederDiscovery\SeederFixtureState;
@@ -148,5 +151,23 @@ final readonly class SeederConsoleFixtureServiceProvider implements ServiceProvi
     public function register(ServiceRegistry $services): void
     {
         $services->autowire(SeederFixtureDependency::class);
+        $services->autowire(StorageKeyProvider::class, SeederConsoleStorageKeyProvider::class);
+    }
+}
+
+final readonly class SeederConsoleStorageKeyProvider implements StorageKeyProvider
+{
+    public function activeKey(?\BlackOps\Core\TenantRef $tenant, StoragePurpose $purpose): StorageKey
+    {
+        return $this->key('seeder-test-key', $tenant, $purpose);
+    }
+
+    public function key(string $keyId, ?\BlackOps\Core\TenantRef $tenant, StoragePurpose $purpose): StorageKey
+    {
+        if ($keyId !== 'seeder-test-key') {
+            throw new \InvalidArgumentException('Unknown storage key identifier.');
+        }
+
+        return new StorageKey($keyId, str_repeat('s', SODIUM_CRYPTO_AEAD_XCHACHA20POLY1305_IETF_KEYBYTES));
     }
 }

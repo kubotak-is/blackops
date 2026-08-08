@@ -15,6 +15,7 @@ use BlackOps\Core\Retention\RetentionPolicyRef;
 use BlackOps\Core\Retention\RetentionPurgeAuditPort;
 use BlackOps\Core\Retention\RetentionPurgeAuditRecord;
 use BlackOps\Core\Retention\RetentionTarget;
+use BlackOps\Transport\PostgreSql\PostgreSqlBytea;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationSender;
 use BlackOps\Transport\PostgreSql\PostgreSqlOutcomeRetentionDeleteService;
 use BlackOps\Transport\PostgreSql\PostgreSqlRetentionPurgeAuditIdGenerator;
@@ -22,6 +23,7 @@ use BlackOps\Transport\PostgreSql\PostgreSqlRetentionPurgeAuditStore;
 use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\ParameterType;
 use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
 use RuntimeException;
@@ -38,7 +40,11 @@ final class PostgreSqlOutcomeRetentionDeleteServiceTest extends TestCase
     {
         $this->connection = $this->connection();
         $this->connection->executeStatement('DROP SCHEMA IF EXISTS ' . self::SCHEMA . ' CASCADE');
-        $sender = new PostgreSqlDeferredOperationSender($this->connection, self::SCHEMA);
+        $sender = new PostgreSqlDeferredOperationSender(
+            $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        );
         $sender->migrate();
 
         foreach ([self::ELIGIBLE, self::HELD] as $operationId) {
@@ -74,6 +80,32 @@ final class PostgreSqlOutcomeRetentionDeleteServiceTest extends TestCase
         self::assertSame(self::ELIGIBLE, $audit['operation_id']);
         self::assertSame('outcome', $audit['target']);
         self::assertSame(1, $audit['affected_count']);
+    }
+
+    public function testDeleteDoesNotDecodeTamperedEligibleOutcomeEnvelope(): void
+    {
+        $payload = PostgreSqlBytea::string($this->connection->fetchOne('SELECT encoded_payload FROM '
+        . self::SCHEMA
+        . '.outcomes WHERE operation_id = :operation_id', ['operation_id' => self::ELIGIBLE]));
+        $payload[strlen($payload) - 1] = $payload[strlen($payload) - 1] ^ "\x01";
+        $this->connection->executeStatement(
+            'UPDATE ' . self::SCHEMA . '.outcomes SET encoded_payload = :payload WHERE operation_id = :operation_id',
+            ['payload' => $payload, 'operation_id' => self::ELIGIBLE],
+            ['payload' => ParameterType::BINARY],
+        );
+        $service = new PostgreSqlOutcomeRetentionDeleteService(
+            $this->connection,
+            new PostgreSqlRetentionPurgeAuditStore($this->connection, self::SCHEMA),
+            self::SCHEMA,
+            new FixedOutcomeRetentionClock(),
+            new FixedOutcomeRetentionAuditIdGenerator(),
+        );
+
+        self::assertSame(1, $service->delete(
+            $this->plan([self::ELIGIBLE]),
+            RetentionPolicyRef::fromString('outcome-14-days'),
+            RetentionActorRef::fromString('system:retention'),
+        ));
     }
 
     public function testAuditFailureRollsBackOutcomeDelete(): void
@@ -116,17 +148,16 @@ final class PostgreSqlOutcomeRetentionDeleteServiceTest extends TestCase
     private function outcome(string $operationId): void
     {
         $this->connection->executeStatement(
-            'INSERT INTO '
-            . self::SCHEMA
-            . '.outcomes (
+            'INSERT INTO ' . self::SCHEMA . '.outcomes (
             operation_id, outcome_type, schema_version, encoded_payload, completed_at
-        ) VALUES (:operation_id, :type, 1, convert_to(:payload, \'UTF8\'), :completed_at)',
+        ) VALUES (:operation_id, :type, 1, :payload, :completed_at)',
             [
                 'operation_id' => $operationId,
                 'type' => 'retention.test',
-                'payload' => '{}',
+                'payload' => PostgreSqlTestStorageProtection::outcomeEnvelope('{}', $operationId, 'retention.test'),
                 'completed_at' => '2026-06-20 00:00:00+00:00',
             ],
+            ['payload' => ParameterType::BINARY],
         );
     }
 
