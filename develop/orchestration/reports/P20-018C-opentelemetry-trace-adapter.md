@@ -29,7 +29,7 @@ Producer, internal, consumer, schedule, maintenance, outbox relay, and observer 
 - Orchestrator Task-focused suite including Application composition — passed: 480 tests, 2,000 assertions; existing deprecation 1, PHPUnit deprecations 2, notices 9.
 - Full PHPUnit after final corrections — passed: 2,147 tests, 8,872 assertions; existing deprecation 1, PHPUnit deprecations 2, notices 9.
 - `bash tests/Consumer/quickstart-e2e.sh` — passed: `Quickstart consumer E2E passed.`
-- `bash tests/Consumer/framework-package-export.sh` — pre-commit pass; exact committed `git archive HEAD` evidence must be rerun after Orchestrator commit because this Task adds new files.
+- `bash tests/Consumer/framework-package-export.sh` — passed before commit and again from committed `87c444d`; Git and Composer package exports include the new Telemetry adapter and provider composition.
 - `composer validate --strict` and locked production `composer audit --no-dev` — passed; no advisories.
 - `mago format --check src tests` — passed.
 - Changed Production source `mago analyze` and `tests/Internal/Telemetry/RecordingTracerProvider.php` analyze — passed: `INFO No issues found.`

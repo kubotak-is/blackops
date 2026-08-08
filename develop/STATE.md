@@ -1,6 +1,13 @@
 # Orchestration State
 
-Updated At: 2026-08-09T03:20:41+09:00
+Updated At: 2026-08-09T03:23:30+09:00
+
+## P20-018C Post-commit Package Export Accepted
+
+```text
+2026-08-09T03:23:30+09:00
+Accepted P20-018Cを87c444dとしてCommit後、exact bash tests/Consumer/framework-package-export.shを再実行し、Official OpenTelemetry API-only dependency、ApplicationBuilder TracerProvider public composition、Internal Telemetry adapter、runtime span wiringを含むFramework Git／Composer Package Export ContractをPASS確認した。P20-018Cのpost-commit gateを完了し、次はP20-018D OpenTelemetry Metric Adapter。Push／Deployなし。
+```
 
 ## P20-018C OpenTelemetry Trace Adapter Accepted
 
