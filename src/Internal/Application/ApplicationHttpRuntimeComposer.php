@@ -11,6 +11,7 @@ use BlackOps\Http\Routing\HttpOperationManifest;
 use BlackOps\Http\Routing\HttpOperationManifestFile;
 use BlackOps\Internal\Codec\ReflectionJsonOperationCodec;
 use BlackOps\Internal\Execution\DeferredAcceptanceOrchestrator;
+use BlackOps\Internal\Execution\ExecutionScopeProvider;
 use BlackOps\Internal\ExecutionContext\ExecutionContextFactory;
 use BlackOps\Internal\Http\DeferredHttpOperationAcceptor;
 use BlackOps\Internal\Http\OperationStatusAuthorizerResolver;
@@ -73,13 +74,14 @@ final readonly class ApplicationHttpRuntimeComposer
                 $operation->connection,
                 $sender,
                 $operation->journal,
-                new JournalRecordFactory($operation->identifiers, $operation->clock),
+                new JournalRecordFactory($operation->identifiers, $operation->clock, $operation->telemetry),
                 authorization: $operation->authorization,
-                scope: $operation->scope,
+                scope: new ExecutionScopeProvider(),
                 idempotency: $idempotency,
                 idempotencyRetention: $retention?->policy->idempotencyRecordRetention(),
                 idempotencyRecovery: $recovery,
             ),
+            telemetryTracer: $operation->telemetry,
         );
         $statusQuery = new DefaultOperationStatusQuery(
             new PostgreSqlOperationStatusSource(

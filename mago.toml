@@ -24,6 +24,8 @@ includes = [
   "vendor/vlucas/phpdotenv/src",
   "vendor/symfony/uid",
   "vendor/symfony/validator",
+  "vendor/open-telemetry/api",
+  "vendor/open-telemetry/context",
 ]
 
 [analyzer]

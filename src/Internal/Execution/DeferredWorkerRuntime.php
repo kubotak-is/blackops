@@ -15,6 +15,8 @@ use BlackOps\Core\OperationResult;
 use BlackOps\Core\OperationValue;
 use BlackOps\Core\Registry\OperationMetadata;
 use BlackOps\Internal\Application\ApplicationDatabaseConnectionLifecycle;
+use BlackOps\Internal\Telemetry\TelemetrySpanScope;
+use BlackOps\Internal\Telemetry\TelemetryTracer;
 use BlackOps\Journal\JournalEvent;
 use BlackOps\Journal\LifecycleState;
 use BlackOps\Outcome\OutcomeRecord;
@@ -75,7 +77,6 @@ final readonly class DeferredWorkerRuntime implements DeferredClaimRuntime
         return $result;
     }
 
-    /** @mago-expect lint:halstead */
     private function runAttempt(OperationClaim $claim): OperationResult
     {
         $context = $this->validateClaimContext($claim);
@@ -83,33 +84,35 @@ final readonly class DeferredWorkerRuntime implements DeferredClaimRuntime
         $handler = $this->services->handlers->resolve($metadata->handler);
         $definition = $this->definition($metadata, $handler);
         $value = $this->value($metadata, $claim);
-        $envelope = $this->startAttempt($claim, $metadata, $definition, $value, $context);
+        [$envelope, $span] = $this->startAttempt($claim, $metadata, $definition, $value, $context);
         try {
             $result = $this->execute($claim, $envelope, $handler, $metadata, $metadata->typeId);
+            if ($result->isCompleted()) {
+                if (
+                    $metadata->transactionConnection === null
+                    || $this->storage->transactions === null
+                    || !$this->storage->transactions->sharesFrameworkConnection($metadata)
+                ) {
+                    $this->complete($claim, $metadata, $envelope, $result);
+                }
+
+                $span?->result('completed');
+                return $result;
+            }
+
+            $this->reject($claim, $metadata, $envelope, $result);
+            $span?->result('rejected');
+            return $result;
         } catch (HandlerInvocationFailedException $exception) {
-            $this->fail($claim, $metadata, $envelope, $exception->failure);
+            $this->fail($claim, $metadata, $envelope, $exception->failure, $span);
 
             throw new SupervisedHandlerFailureException(
                 'Deferred handler failure was recorded by supervision.',
                 previous: $exception->failure,
             );
+        } finally {
+            $span?->end();
         }
-
-        if ($result->isCompleted()) {
-            if (
-                $metadata->transactionConnection === null
-                || $this->storage->transactions === null
-                || !$this->storage->transactions->sharesFrameworkConnection($metadata)
-            ) {
-                $this->complete($claim, $metadata, $envelope, $result);
-            }
-
-            return $result;
-        }
-
-        $this->reject($claim, $metadata, $envelope, $result);
-
-        return $result;
     }
 
     private function validateClaimContext(OperationClaim $claim): ExecutionContext
@@ -183,13 +186,14 @@ final readonly class DeferredWorkerRuntime implements DeferredClaimRuntime
         ));
     }
 
+    /** @return array{0: OperationEnvelope, 1: ?TelemetrySpanScope} */
     private function startAttempt(
         OperationClaim $claim,
         OperationMetadata $metadata,
         Operation $definition,
         OperationValue $value,
         ExecutionContext $context,
-    ): OperationEnvelope {
+    ): array {
         try {
             return $this->storage->connection->transactional(function () use (
                 $claim,
@@ -197,7 +201,7 @@ final readonly class DeferredWorkerRuntime implements DeferredClaimRuntime
                 $definition,
                 $value,
                 $context,
-            ): OperationEnvelope {
+            ): array {
                 $reservation = $this->storage->state->reserveAttemptStarted($claim, $this->storage->clock->now());
                 $envelope = new OperationEnvelope(
                     $definition,
@@ -216,15 +220,27 @@ final readonly class DeferredWorkerRuntime implements DeferredClaimRuntime
                     throw new LogicException('Deferred worker attempt context was not created.');
                 }
 
-                $this->storage->state->recordCurrentAttempt($claim, $attempt, $this->storage->clock->now());
-                $this->storage->lifecycle->next(LifecycleState::Accepted, JournalEvent::AttemptStarted);
-                $this->storage->journal->append($this->storage->records->attemptStarted(
+                $span = $this->storage->telemetry?->operation(
                     $envelope,
-                    $metadata,
-                    $reservation->sequence,
-                ));
+                    $metadata->typeId,
+                    TelemetryTracer::KIND_CONSUMER,
+                );
 
-                return $envelope;
+                try {
+                    $this->storage->state->recordCurrentAttempt($claim, $attempt, $this->storage->clock->now());
+                    $this->storage->lifecycle->next(LifecycleState::Accepted, JournalEvent::AttemptStarted);
+                    $this->storage->journal->append($this->storage->records->attemptStarted(
+                        $envelope,
+                        $metadata,
+                        $reservation->sequence,
+                    ));
+                } catch (Throwable $failure) {
+                    $span?->fail($failure);
+                    $span?->end();
+                    throw $failure;
+                }
+
+                return [$envelope, $span];
             });
         } catch (Throwable $exception) {
             if ($exception instanceof DeferredTransportException) {
@@ -313,8 +329,10 @@ final readonly class DeferredWorkerRuntime implements DeferredClaimRuntime
         OperationMetadata $metadata,
         OperationEnvelope $envelope,
         Throwable $exception,
+        ?TelemetrySpanScope $span = null,
     ): void {
         $recordingFailure = null;
+        $span?->fail($exception);
 
         try {
             new DeferredFailureSupervisor($this->services, $this->storage)->record(
@@ -322,6 +340,7 @@ final readonly class DeferredWorkerRuntime implements DeferredClaimRuntime
                 $metadata,
                 $envelope,
                 $exception,
+                $span,
             );
         } catch (Throwable $failure) {
             $recordingFailure = $failure;
@@ -336,6 +355,7 @@ final readonly class DeferredWorkerRuntime implements DeferredClaimRuntime
         );
 
         if ($recordingFailure !== null) {
+            $span?->fail($recordingFailure);
             throw $recordingFailure;
         }
     }

@@ -25,6 +25,8 @@ use BlackOps\Internal\Scheduling\ScheduledOperationRunner;
 use BlackOps\Internal\Scheduling\ScheduledOperationRuntime;
 use BlackOps\Internal\Scheduling\ScheduleEvaluator;
 use BlackOps\Internal\Scheduling\ScheduleOccurrence;
+use BlackOps\Internal\Telemetry\TelemetryTracer;
+use BlackOps\Tests\Internal\Telemetry\RecordingTracerProvider;
 use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
@@ -131,6 +133,26 @@ final class ScheduledOperationRunnerTest extends TestCase
         );
     }
 
+    public function testRecordsSchedulerRuntimeSpanAroundEvaluation(): void
+    {
+        $provider = new RecordingTracerProvider();
+        $runner = $this->runner(
+            new RunnerClock(new DateTimeImmutable('2026-01-01T00:05:00Z')),
+            new RunnerDispatcher(null),
+            new TelemetryTracer($provider),
+        );
+
+        $runner->run();
+
+        self::assertCount(1, $provider->spans);
+        $span = $provider->spans[0];
+        self::assertSame('blackops.operation.schedule.evaluate', $span->name);
+        self::assertSame(TelemetryTracer::KIND_INTERNAL, $span->kind);
+        self::assertSame('scheduler', $span->attributes['blackops.runtime.kind']);
+        self::assertSame('completed', $span->attributes['blackops.result']);
+        self::assertTrue($span->ended);
+    }
+
     public function testAggregatesOverlapSkip(): void
     {
         $now = new DateTimeImmutable('2026-01-01T00:05:00Z');
@@ -153,8 +175,11 @@ final class ScheduledOperationRunnerTest extends TestCase
         self::assertSame(0, $result->failed);
     }
 
-    private function runner(RunnerClock $clock, RunnerDispatcher $dispatcher): ScheduledOperationRunner
-    {
+    private function runner(
+        RunnerClock $clock,
+        RunnerDispatcher $dispatcher,
+        ?TelemetryTracer $telemetry = null,
+    ): ScheduledOperationRunner {
         $metadata = [
             new OperationMetadata(
                 'runner.b',
@@ -211,6 +236,7 @@ final class ScheduledOperationRunnerTest extends TestCase
             new ScheduledOperationDefinitionResolver($container),
             $lifecycle,
             $clock,
+            $telemetry,
         );
     }
 

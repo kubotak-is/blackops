@@ -5,13 +5,16 @@ declare(strict_types=1);
 namespace BlackOps\Internal\Scheduling;
 
 use BlackOps\Core\Execution\DeferredAcknowledgement;
-use BlackOps\Core\Operation;
-use BlackOps\Core\OperationResult;
 use BlackOps\Core\Registry\OperationMetadata;
 use BlackOps\Core\Registry\OperationRegistry;
+use BlackOps\Internal\Telemetry\TelemetryTracer;
 use Psr\Clock\ClockInterface;
 use Throwable;
 
+/**
+ * @mago-expect lint:cyclomatic-complexity
+ * @mago-expect lint:kan-defect
+ */
 final readonly class ScheduledOperationRunner implements ScheduledOperationRunService
 {
     public function __construct(
@@ -22,9 +25,27 @@ final readonly class ScheduledOperationRunner implements ScheduledOperationRunSe
         private ScheduledOperationDefinitionResolver $definitions,
         private PostgreSqlScheduledOccurrenceLifecycle $occurrences,
         private ClockInterface $clock,
+        private ?TelemetryTracer $telemetry = null,
     ) {}
 
     public function run(): ScheduledOperationRunResult
+    {
+        $span = $this->telemetry?->start('blackops.operation.schedule.evaluate', attributes: [
+            'blackops.runtime.kind' => 'scheduler',
+        ]);
+        try {
+            $result = $this->runSchedules();
+            $span?->result($result->failed === 0 ? 'completed' : 'failed');
+            return $result;
+        } catch (Throwable $failure) {
+            $span?->fail($failure);
+            throw $failure;
+        } finally {
+            $span?->end();
+        }
+    }
+
+    private function runSchedules(): ScheduledOperationRunResult
     {
         $evaluated = 0;
         $accepted = 0;
@@ -36,8 +57,8 @@ final readonly class ScheduledOperationRunner implements ScheduledOperationRunSe
             static fn(OperationMetadata $metadata): bool => $metadata->schedule !== null,
         ));
         usort($scheduled, static fn(OperationMetadata $left, OperationMetadata $right): int => strcmp(
-            $left->schedule?->name ?? '',
-            $right->schedule?->name ?? '',
+            $left->schedule->name ?? '',
+            $right->schedule->name ?? '',
         ));
 
         foreach ($scheduled as $metadata) {

@@ -27,7 +27,9 @@ use BlackOps\Internal\Scheduling\ScheduledInlineDispatcher;
 use BlackOps\Internal\Scheduling\ScheduledOperationEnvelopeFactory;
 use BlackOps\Internal\Scheduling\ScheduledOperationRuntime;
 use BlackOps\Internal\Scheduling\ScheduleOccurrence;
+use BlackOps\Internal\Telemetry\TelemetryTracer;
 use BlackOps\Scheduling\ScheduledActorProvider;
+use BlackOps\Tests\Internal\Telemetry\RecordingTracerProvider;
 use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
@@ -108,6 +110,51 @@ final class ScheduledOperationRuntimeTest extends TestCase
         self::assertSame(self::OPERATION_ID, $result->operationId()->toString());
     }
 
+    public function testDeferredProducerNestsUnderScheduleEvaluationAndPersistsItsContext(): void
+    {
+        $provider = new RecordingTracerProvider();
+        $tracer = new TelemetryTracer($provider);
+        $codec = $this->createStub(OperationCodec::class);
+        $codec
+            ->method('encode')
+            ->willReturn(new EncodedOperationMessage('runtime.test', 1, '{"message":"ok"}', '{"schedule":{}}'));
+        $deferred = $this->createMock(ScheduledDeferredAcceptor::class);
+        $deferred
+            ->expects(self::once())
+            ->method('accept')
+            ->willReturnCallback(function () use ($tracer, $provider): DeferredAcknowledgement {
+                self::assertSame(
+                    $provider->spans[1]->getContext()->getSpanId(),
+                    explode('-', $tracer->currentContext()?->traceparent() ?? '')[2] ?? null,
+                );
+
+                return new DeferredAcknowledgement(
+                    OperationId::fromString(self::OPERATION_ID),
+                    new DateTimeImmutable('2026-07-22T09:00:00Z'),
+                );
+            });
+        $runtime = $this->runtime(null, $deferred, $codec, telemetry: $tracer);
+        $evaluate = $tracer->start('blackops.operation.schedule.evaluate', attributes: [
+            'blackops.runtime.kind' => 'scheduler',
+        ]);
+
+        try {
+            $runtime->invoke($this->metadata(Deferred::class), new RuntimeTestOperation(), $this->occurrence());
+        } finally {
+            $evaluate->result('completed');
+            $evaluate->end();
+        }
+
+        self::assertCount(2, $provider->spans);
+        self::assertSame('blackops.operation.schedule.evaluate', $provider->spans[0]->name);
+        self::assertSame('blackops.operation.accept', $provider->spans[1]->name);
+        self::assertSame(TelemetryTracer::KIND_PRODUCER, $provider->spans[1]->kind);
+        self::assertSame($provider->spans[0]->getContext()->getSpanId(), $provider->spans[1]->parent?->getSpanId());
+        self::assertSame('deferred', $provider->spans[1]->attributes['blackops.operation.strategy']);
+        self::assertSame('completed', $provider->spans[1]->attributes['blackops.result']);
+        self::assertTrue($provider->spans[1]->ended);
+    }
+
     public function testValueConstructionFailureTransitionsOccurrenceWithClockInstant(): void
     {
         $connection = $this->connection();
@@ -179,6 +226,7 @@ final class ScheduledOperationRuntimeTest extends TestCase
         ?ScheduledDeferredAcceptor $deferred,
         ?OperationCodec $codec = null,
         ?ScheduledActorProvider $actors = null,
+        ?TelemetryTracer $telemetry = null,
     ): ScheduledOperationRuntime {
         return new ScheduledOperationRuntime(
             new ScheduledOperationEnvelopeFactory($this->contexts(), $actors),
@@ -186,6 +234,8 @@ final class ScheduledOperationRuntimeTest extends TestCase
             $deferred ?? $this->createStub(ScheduledDeferredAcceptor::class),
             $codec ?? $this->createStub(OperationCodec::class),
             $this->clock(),
+            null,
+            $telemetry,
         );
     }
 

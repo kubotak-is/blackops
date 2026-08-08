@@ -86,6 +86,14 @@ Composer PackageはService Providerを公開し、Build時にContainer Definitio
 
 Operation ProviderはOperation DefinitionをManifestへ登録し、Service ProviderはHandlerやInfrastructure AdapterのService定義を登録する。一つのPackageが両方を提供できる。
 
+## Application Trace Provider
+
+Applicationは`ApplicationBuilder::withTracerProvider(?OpenTelemetry\\API\\Trace\\TracerProviderInterface)`で
+Application-owned OpenTelemetry ProviderをComposition Rootへ登録できる。ProviderはImmutableな
+Application Configuration Snapshotへ束縛し、HTTP、Worker、Console、Outbox、Schedule、Maintenance、
+Replayの各Runtimeへ同じSnapshot由来のTracerを渡す。未登録時はRuntime結果を変えないOfficial No-op
+Providerを使い、Global／StaticなProvider登録へFallbackしない。
+
 ## Long-running Worker
 
 Workerで再利用されるServiceは原則Statelessとする。

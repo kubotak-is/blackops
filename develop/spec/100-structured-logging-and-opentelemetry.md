@@ -168,7 +168,8 @@ Deferred／Outbox ContextはBOPD Encrypted Field内へ保存し、Clear Column�
 
 ### Instrumentation Scope
 
-Instrumentation Scope Nameは`blackops.framework`、VersionはPackage Versionを使う。ResourceとService NameはApplication Providerの値を尊重する。
+Instrumentation Scope Nameは`blackops.framework`、VersionはFramework Package Version
+`1.1.0`を使う。ResourceとService NameはApplication Providerの値を尊重する。
 
 ### Span Matrix
 
@@ -206,6 +207,13 @@ Deferred待機中、Retry待機中、Outbox待機中にSpanを開いたままに
 - `blackops.tenant.type`／`id=[masked]`
 - `error.type`のSafe Class／Code
 - `blackops.storage.purpose`のSafe Enum
+
+`blackops.result`は`completed`、`rejected`、`failed`、`retry_scheduled`、
+`dead_lettered`、`interrupted`の有限値だけを許可する。Runtime Failure Codeも
+Frameworkが定義した有限のASCII Codeだけを使い、自由文やThrowable Messageを記録しない。
+
+`blackops.runtime.kind`は`operation`、`worker`、`scheduler`、`maintenance`、
+`outbox_relay`、`observer_replay`の有限値だけを許可する。
 
 OperationValue、Outcome、Reason Message、Throwable Message／Stack、Raw Actor／Tenant／Key、SQL／Provider DetailをAttribute／Eventへ追加しない。Frameworkは`recordException()`でRaw Throwable Detailを自動記録せず、Span StatusとSafe `error.type`だけを設定する。
 

@@ -13,6 +13,8 @@ use BlackOps\Internal\Codec\ReflectionJsonOperationCodec;
 use BlackOps\Internal\Outbox\OutboxRelayConfiguration;
 use BlackOps\Internal\Outbox\OutboxRelayRuntime;
 use BlackOps\Internal\Outbox\PcntlOutboxSignalHeartbeat;
+use BlackOps\Internal\Telemetry\TelemetryTracer;
+use BlackOps\Tests\Internal\Telemetry\RecordingTracerProvider;
 use BlackOps\Tests\Transport\PostgreSql\PostgreSqlTestStorageProtection;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationSender;
 use BlackOps\Transport\PostgreSql\PostgreSqlOutboxClaim;
@@ -169,6 +171,7 @@ final class OutboxRelayRuntimeTest extends TestCase
         $store->insert($this->record('019f45b2-7c2d-7abc-8def-0123456789ab', '019f45b2-7c2d-7abc-8def-0123456789ac'));
         $store->insert($this->record('019f45b2-7c2d-7abc-8def-0123456789ad', '019f45b2-7c2d-7abc-8def-0123456789ae'));
         $clock = new FrozenOutboxClock($now);
+        $provider = new RecordingTracerProvider();
         $runtime = new OutboxRelayRuntime(
             $store,
             new SelectiveFailureSender(),
@@ -180,12 +183,20 @@ final class OutboxRelayRuntimeTest extends TestCase
                 maxBackoffSeconds: 4,
             ),
             $clock,
+            telemetry: new TelemetryTracer($provider),
         );
 
         $first = $runtime->runBatch();
         self::assertSame(2, $first->claimed);
         self::assertSame(1, $first->sent);
         self::assertSame(1, $first->retried);
+        self::assertCount(1, $provider->spans);
+        $span = $provider->spans[0];
+        self::assertSame('blackops.outbox.relay', $span->name);
+        self::assertSame(TelemetryTracer::KIND_INTERNAL, $span->kind);
+        self::assertSame('outbox_relay', $span->attributes['blackops.runtime.kind']);
+        self::assertSame('retry_scheduled', $span->attributes['blackops.result']);
+        self::assertTrue($span->ended);
         $next = new DateTimeImmutable((string) $this->connection->fetchOne(
             'SELECT next_attempt_at FROM "outbox_runtime_test"."outbox_records" WHERE state=\'retry_scheduled\'',
         ));

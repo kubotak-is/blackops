@@ -37,6 +37,7 @@ use BlackOps\Internal\Journal\JournalRecordFactory;
 use BlackOps\Internal\Scheduling\PostgreSqlScheduledOccurrenceLifecycle;
 use BlackOps\Internal\Scheduling\PostgreSqlScheduleStore;
 use BlackOps\Internal\StorageProtection\StorageProtectionContext;
+use BlackOps\Internal\Telemetry\TelemetryTracer;
 use BlackOps\Journal\Data\OperationFailedData;
 use BlackOps\Journal\Data\OperationReceivedData;
 use BlackOps\Journal\EmptyJournalData;
@@ -44,6 +45,7 @@ use BlackOps\Journal\JournalEvent;
 use BlackOps\Journal\JournalRecord;
 use BlackOps\StorageProtection\StoragePurpose;
 use BlackOps\Telemetry\TelemetryContext;
+use BlackOps\Tests\Internal\Telemetry\RecordingTracerProvider;
 use BlackOps\Transport\PostgreSql\PostgreSqlCanonicalJournalStore;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationSender;
 use DateTimeImmutable;
@@ -135,17 +137,23 @@ final class PostgreSqlDeferredAcceptanceOrchestratorTest extends TestCase
     {
         $clock = new FixedDeferredAcceptanceClock();
         $identifiers = new IdentifierFactory(new DeferredAcceptanceUuidv7Generator(), $clock);
+        $provider = new RecordingTracerProvider();
+        $tenant = new \BlackOps\Core\TenantRef('account', 'raw-http-tenant');
         $acceptor = new DeferredHttpOperationAcceptor(
             new OperationRegistry([$this->metadata()]),
             new ExecutionContextFactory($identifiers, $clock),
             new ReflectionJsonOperationCodec(),
             $this->orchestrator(),
+            telemetryTracer: new TelemetryTracer($provider),
         );
 
+        $actor = new ActorRef('raw-http-actor', 'user');
         $acknowledgement = $acceptor->accept(
             new ProxiedDeferredAcceptedOperation(),
             new DeferredAcceptedValue('report-1'),
-            telemetry: new TelemetryContext('00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01'),
+            actorContext: new ActorContext($actor, $actor, $actor),
+            tenant: $tenant,
+            telemetry: new TelemetryContext('00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01', 'vendor=value'),
         );
 
         $operationRow = $this->operationRow();
@@ -161,6 +169,7 @@ final class PostgreSqlDeferredAcceptanceOrchestratorTest extends TestCase
                 $acknowledgement->operationId()->toString(),
                 'report.generate',
                 1,
+                $tenant,
             ),
         ));
         self::assertSame('accepted', $operationRow['state']);
@@ -173,15 +182,39 @@ final class PostgreSqlDeferredAcceptanceOrchestratorTest extends TestCase
                 $acknowledgement->operationId()->toString(),
                 'report.generate',
                 1,
+                $tenant,
             ),
         );
+        self::assertCount(1, $provider->spans);
+        $span = $provider->spans[0];
+        $decodedTelemetry = new ExecutionContextJsonCodec()
+            ->decode($encodedContext)
+            ->telemetry();
+        self::assertNotNull($decodedTelemetry);
+        self::assertSame($span->getContext()->getTraceId(), explode('-', $decodedTelemetry->traceparent())[1]);
+        self::assertSame($span->getContext()->getSpanId(), explode('-', $decodedTelemetry->traceparent())[2]);
         self::assertSame(
-            '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01',
+            $span->getContext()->getTraceFlags(),
+            hexdec(explode('-', $decodedTelemetry->traceparent())[3]),
+        );
+        self::assertSame('4bf92f3577b34da6a3ce929d0e0e4736', $span->parent?->getTraceId());
+        self::assertSame('00f067aa0ba902b7', $span->parent?->getSpanId());
+        self::assertSame(
+            'vendor=value',
             new ExecutionContextJsonCodec()
                 ->decode($encodedContext)
                 ->telemetry()
-                ?->traceparent(),
+                ?->tracestate(),
         );
+        self::assertSame('blackops.operation.accept', $span->name);
+        self::assertSame(TelemetryTracer::KIND_PRODUCER, $span->kind);
+        self::assertSame('deferred', $span->attributes['blackops.operation.strategy']);
+        self::assertSame('[masked]', $span->attributes['blackops.actor.origin.id']);
+        self::assertSame('[masked]', $span->attributes['blackops.actor.authorization.id']);
+        self::assertSame('[masked]', $span->attributes['blackops.actor.execution.id']);
+        self::assertSame('[masked]', $span->attributes['blackops.tenant.id']);
+        self::assertSame('completed', $span->attributes['blackops.result']);
+        self::assertTrue($span->ended);
         self::assertSame(
             [JournalEvent::OperationReceived, JournalEvent::OperationAccepted],
             array_column($records, 'event'),
@@ -193,6 +226,40 @@ final class PostgreSqlDeferredAcceptanceOrchestratorTest extends TestCase
                 $records,
             ))),
         );
+    }
+
+    public function testHttpAcceptorRecordsRejectedProducerWhenOrchestratorRejects(): void
+    {
+        $clock = new FixedDeferredAcceptanceClock();
+        $identifiers = new IdentifierFactory(new DeferredAcceptanceUuidv7Generator(), $clock);
+        $provider = new RecordingTracerProvider();
+        $actor = new ActorRef('raw-http-actor', 'user');
+        $acceptor = new DeferredHttpOperationAcceptor(
+            new OperationRegistry([$this->metadata(DeferredAcceptancePolicy::class)]),
+            new ExecutionContextFactory($identifiers, $clock),
+            new ReflectionJsonOperationCodec(),
+            $this->orchestrator(new DeferredAcceptancePolicy(AuthorizationDecision::forbid(
+                'authorization.report_forbidden',
+            ))),
+            telemetryTracer: new TelemetryTracer($provider),
+        );
+
+        $result = $acceptor->accept(
+            new DeferredAcceptedOperation(),
+            new DeferredAcceptedValue('report-1'),
+            actorContext: new ActorContext($actor, $actor, $actor),
+            telemetry: new TelemetryContext('00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01'),
+        );
+
+        self::assertInstanceOf(\BlackOps\Core\OperationResult::class, $result);
+        self::assertSame('authorization.report_forbidden', $result->rejectionReason()->code());
+        self::assertCount(1, $provider->spans);
+        $span = $provider->spans[0];
+        self::assertSame('blackops.operation.accept', $span->name);
+        self::assertSame(TelemetryTracer::KIND_PRODUCER, $span->kind);
+        self::assertSame('rejected', $span->attributes['blackops.result']);
+        self::assertTrue($span->ended);
+        self::assertSame(0, (int) $this->connection->fetchOne('SELECT count(*) FROM ' . self::SCHEMA . '.operations'));
     }
 
     public function testDuplicateOperationRollsBackWithoutAdditionalJournalRecords(): void

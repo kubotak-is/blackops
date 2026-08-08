@@ -166,6 +166,7 @@ final class ApplicationConsoleCommandFactory
                 new PostgreSqlObserverReplayStore($connection, $protection, $database->schema),
                 $targets,
                 new ObservedJournalRecordProjector(new SensitiveProjectionFilter()),
+                telemetry: $runtime->telemetry,
             ),
         );
     }

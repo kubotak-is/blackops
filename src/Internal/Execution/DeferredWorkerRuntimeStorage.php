@@ -8,6 +8,7 @@ use BlackOps\Internal\Journal\JournalRecordFactory;
 use BlackOps\Internal\Journal\LifecycleStateMachine;
 use BlackOps\Internal\Logging\FrameworkOperationFailureReporter;
 use BlackOps\Internal\Scheduling\PostgreSqlScheduledOccurrenceLifecycle;
+use BlackOps\Internal\Telemetry\TelemetryTracer;
 use BlackOps\Internal\Transaction\OperationTransactionCoordinator;
 use BlackOps\Journal\CanonicalJournalWriter;
 use BlackOps\Outcome\OutcomeWriter;
@@ -30,5 +31,6 @@ final readonly class DeferredWorkerRuntimeStorage
         public ?OperationTransactionCoordinator $transactions = null,
         public ?FrameworkOperationFailureReporter $failureReporter = null,
         public ?PostgreSqlScheduledOccurrenceLifecycle $scheduledOccurrences = null,
+        public ?TelemetryTracer $telemetry = null,
     ) {}
 }

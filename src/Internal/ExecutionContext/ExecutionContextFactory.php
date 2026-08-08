@@ -139,6 +139,23 @@ final readonly class ExecutionContextFactory
         );
     }
 
+    public function withTelemetry(ExecutionContext $context, ?TelemetryContext $telemetry): ExecutionContext
+    {
+        return new ExecutionContext(
+            $context->operationId(),
+            $context->receivedAt(),
+            $context->correlationId(),
+            $context->causationId(),
+            $context->attempt(),
+            $context->deadline(),
+            $context->actorContext(),
+            $context->idempotencyKeyHash(),
+            $context->schedule(),
+            $context->tenant(),
+            $telemetry,
+        );
+    }
+
     private function resolveActorContext(?ActorContext $context, ?ActorRef $executionActor): ?ActorContext
     {
         if ($executionActor === null) {

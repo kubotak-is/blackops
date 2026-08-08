@@ -40,7 +40,7 @@ final readonly class ApplicationOperationConsoleRuntimeComposer
         }
 
         $contexts = new ExecutionContextFactory($runtime->identifiers, $runtime->clock);
-        $records = new JournalRecordFactory($runtime->identifiers, $runtime->clock);
+        $records = new JournalRecordFactory($runtime->identifiers, $runtime->clock, $runtime->telemetry);
         $inline = new InlineDispatcher(
             $runtime->operations,
             $contexts,

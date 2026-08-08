@@ -36,7 +36,7 @@ final readonly class ApplicationScheduledOperationRuntimeComposer
             ? $this->tenantProvider($runtime->container->get(ScheduledTenantProvider::class))
             : null;
         $contexts = new ExecutionContextFactory($runtime->identifiers, $runtime->clock);
-        $records = new JournalRecordFactory($runtime->identifiers, $runtime->clock);
+        $records = new JournalRecordFactory($runtime->identifiers, $runtime->clock, $runtime->telemetry);
         $inline = new InlineDispatcher(
             $runtime->operations,
             $contexts,
@@ -70,6 +70,7 @@ final readonly class ApplicationScheduledOperationRuntimeComposer
             new ReflectionJsonOperationCodec(),
             $runtime->clock,
             $scheduledOccurrences,
+            $runtime->telemetry,
         );
 
         return new ApplicationScheduledOperationRuntime(
@@ -81,6 +82,7 @@ final readonly class ApplicationScheduledOperationRuntimeComposer
                 new ScheduledOperationDefinitionResolver($runtime->container),
                 $scheduledOccurrences,
                 $runtime->clock,
+                $runtime->telemetry,
             ),
         );
     }

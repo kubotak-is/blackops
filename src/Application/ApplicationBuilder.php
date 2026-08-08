@@ -13,6 +13,7 @@ use BlackOps\Internal\Application\ApplicationEnvironmentFile;
 use BlackOps\Internal\Application\ApplicationRegistrationValidator;
 use InvalidArgumentException;
 use LogicException;
+use OpenTelemetry\API\Trace\TracerProviderInterface;
 use ReflectionClass;
 
 #[PublicApi]
@@ -37,6 +38,15 @@ final class ApplicationBuilder
 
     /** @var list<mixed> */
     private array $commands = [];
+
+    private ?TracerProviderInterface $tracerProvider = null;
+
+    public function withTracerProvider(?TracerProviderInterface $provider): self
+    {
+        $this->tracerProvider = $provider;
+
+        return $this;
+    }
 
     private function __construct(string $basePath)
     {
@@ -145,7 +155,14 @@ final class ApplicationBuilder
         }
 
         return $this->application(
-            new ApplicationConfigurationSnapshot($this->basePath, $configuration, $operations, $services, $commands),
+            new ApplicationConfigurationSnapshot(
+                $this->basePath,
+                $configuration,
+                $operations,
+                $services,
+                $commands,
+                $this->tracerProvider,
+            ),
         );
     }
 

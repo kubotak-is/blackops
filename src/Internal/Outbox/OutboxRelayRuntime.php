@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BlackOps\Internal\Outbox;
 
 use BlackOps\Core\Execution\OperationSender;
+use BlackOps\Internal\Telemetry\TelemetryTracer;
 use BlackOps\Transport\PostgreSql\PostgreSqlOutboxStore;
 use Closure;
 use DateTimeImmutable;
@@ -20,6 +21,7 @@ final readonly class OutboxRelayRuntime
         private ClockInterface $clock,
         private ?PostgreSqlOutboxStore $heartbeatStore = null,
         private ?PcntlOutboxSignalHeartbeat $signals = null,
+        private ?TelemetryTracer $telemetry = null,
     ) {}
 
     public function runBatch(?DateTimeImmutable $now = null): OutboxRelayResult
@@ -58,8 +60,34 @@ final readonly class OutboxRelayRuntime
         return $this->signals?->stopRequested() ?? false;
     }
 
-    /** @mago-expect lint:halstead */
     private function processBatch(DateTimeImmutable $now): OutboxRelayResult
+    {
+        $span = $this->telemetry?->start('blackops.outbox.relay', attributes: [
+            'blackops.runtime.kind' => 'outbox_relay',
+        ]);
+        try {
+            $result = $this->processBatchInSpan($now);
+            $span?->result($this->resultCode($result));
+            return $result;
+        } catch (Throwable $failure) {
+            $span?->fail($failure);
+            throw $failure;
+        } finally {
+            $span?->end();
+        }
+    }
+
+    private function resultCode(OutboxRelayResult $result): string
+    {
+        return match (true) {
+            $result->deadLettered > 0 => 'dead_lettered',
+            $result->retried > 0 => 'retry_scheduled',
+            default => 'completed',
+        };
+    }
+
+    /** @mago-expect lint:halstead */
+    private function processBatchInSpan(DateTimeImmutable $now): OutboxRelayResult
     {
         if ($this->stopRequested()) {
             return new OutboxRelayResult();

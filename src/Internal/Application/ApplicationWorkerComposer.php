@@ -28,6 +28,7 @@ use BlackOps\Internal\Logging\MonologJsonlLoggerFactory;
 use BlackOps\Internal\Logging\RuntimeLoggingServiceInjector;
 use BlackOps\Internal\Outbox\TransactionalOutboxRuntime;
 use BlackOps\Internal\Runtime\ProductionRuntimeArtifactLoader;
+use BlackOps\Internal\Telemetry\TelemetryTracer;
 use BlackOps\Internal\Transaction\OperationTransactionCoordinator;
 use BlackOps\Internal\Transaction\RuntimeTransactionServiceInjector;
 use BlackOps\Outbox\TransactionalOutbox;
@@ -56,12 +57,14 @@ final readonly class ApplicationWorkerComposer
         );
         $databases = $database->databaseManager();
         new RuntimeDatabaseServiceInjector()->inject($artifacts->container, $databases);
+        $telemetry = new TelemetryTracer($configuration->tracerProvider());
         $executionScope = new ExecutionScopeProvider();
         $logging = ApplicationLoggingConfiguration::fromConfiguration($configuration->configuration());
         $logger = new RuntimeLoggingServiceInjector()->inject(
             $artifacts->container,
             $executionScope,
             new MonologJsonlLoggerFactory()->create($logging->stream, $logging->channel, $logging->minimumLevel),
+            telemetry: $telemetry,
         );
         $transactionRuntime = new RuntimeTransactionServiceInjector()->inject(
             $artifacts->container,
@@ -88,6 +91,7 @@ final readonly class ApplicationWorkerComposer
             new ExecutionContextFactory($identifiers, $clock),
             $identifiers,
             $clock,
+            telemetry: $telemetry,
         );
         $artifacts->container->set(TransactionalOutbox::class, $outbox);
         $artifacts->container->set(Operations::class, $outbox);
@@ -103,7 +107,7 @@ final readonly class ApplicationWorkerComposer
         );
         $storage = new DeferredWorkerRuntimeStorage(
             $main,
-            new JournalRecordFactory($identifiers, $clock),
+            new JournalRecordFactory($identifiers, $clock, $telemetry),
             new PostgreSqlCanonicalJournalStore($main, $protection, $database->schema),
             new PostgreSqlDeferredOperationLifecycleStore($main, $protection, $database->schema),
             $clock,
@@ -115,6 +119,7 @@ final readonly class ApplicationWorkerComposer
                 $main,
                 $database->schema,
             ),
+            telemetry: $telemetry,
         );
         $receiver = new PostgreSqlDeferredOperationReceiver(
             $main,

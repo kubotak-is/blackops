@@ -1,6 +1,6 @@
 # P20-018C: OpenTelemetry Trace Adapter
 
-Status: Ready
+Status: Accepted
 
 ## Goal
 
@@ -47,6 +47,7 @@ Application-owned OpenTelemetry Tracer ProviderへFramework Lifecycleを接続�
 - `src/Telemetry/**`
 - `src/Internal/Telemetry/**`
 - `src/Internal/Execution/**`
+- `src/Internal/ExecutionContext/**` only for an immutable active-span telemetry transition
 - `src/Internal/Http/**`
 - `src/Http/**` only where operation span boundary requires it
 - `src/Internal/Outbox/**`
@@ -60,6 +61,7 @@ Application-owned OpenTelemetry Tracer ProviderへFramework Lifecycleを接続�
 - `src/Application/ApplicationBuilder.php`
 - Corresponding files under `tests/**`
 - Trace-focused Consumer fixtures under `tests/Consumer/**`
+- `mago.toml` only to register the installed OpenTelemetry API／Context packages as analyzer includes
 - `deptrac.yaml`
 - `develop/spec/09-runtime-and-di.md`
 - `develop/spec/16-namespace-dependencies.md`
@@ -87,17 +89,17 @@ Application-owned OpenTelemetry Tracer ProviderへFramework Lifecycleを接続�
 
 ## Acceptance Criteria
 
-- [ ] No-op ProviderでExisting Runtime結果が完全に維持される
-- [ ] Span Name／Kind／Parent Matrixが固定される
-- [ ] InlineとDeferred Acceptance／Workerが別Process Spanを持つ
-- [ ] Retryが別Span IDかつ同じPersisted Parentへ収束する
-- [ ] Outbox／Relay／Schedule／Maintenance／Replay Spanが境界どおり終了する
-- [ ] Structured JSONLとObserved JournalがActive Trace／Span相関を持つ
-- [ ] Safe Attribute allowlist以外を出さない
-- [ ] Telemetry API／Provider FailureがPrimary Lifecycleを変更しない
-- [ ] Nested／Exception／Signal Interruption後にActive Scopeが残らない
-- [ ] Focused／Full SuiteとConsumerが成功する
-- [ ] Report／STATE／TODOを同期し、WorkerはCommitしない
+- [x] No-op ProviderでExisting Runtime結果が完全に維持される
+- [x] Span Name／Kind／Parent Matrixが固定される
+- [x] InlineとDeferred Acceptance／Workerが別Process Spanを持つ
+- [x] Retryが別Span IDかつ同じPersisted Parentへ収束する
+- [x] Outbox／Relay／Schedule／Maintenance／Replay Spanが境界どおり終了する
+- [x] Structured JSONLとObserved JournalがActive Trace／Span相関を持つ
+- [x] Safe Attribute allowlist以外を出さない
+- [x] Telemetry API／Provider FailureがPrimary Lifecycleを変更しない
+- [x] Nested／Exception／Signal Interruption後にActive Scopeが残らない
+- [x] Focused／Full SuiteとConsumerが成功する
+- [x] Report／STATE／TODOを同期し、WorkerはCommitしない
 
 ## Required Commands
 

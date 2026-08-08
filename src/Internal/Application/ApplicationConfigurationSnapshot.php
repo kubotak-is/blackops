@@ -6,6 +6,7 @@ namespace BlackOps\Internal\Application;
 
 use BlackOps\Core\DependencyInjection\ServiceProvider;
 use BlackOps\Core\Registry\OperationProvider;
+use OpenTelemetry\API\Trace\TracerProviderInterface;
 use Symfony\Component\Console\Command\Command;
 
 final readonly class ApplicationConfigurationSnapshot
@@ -22,6 +23,7 @@ final readonly class ApplicationConfigurationSnapshot
         private array $operationProviders,
         private array $serviceProviders,
         private array $commands,
+        private ?TracerProviderInterface $tracerProvider = null,
     ) {}
 
     public function basePath(): string
@@ -51,5 +53,10 @@ final readonly class ApplicationConfigurationSnapshot
     public function commands(): array
     {
         return $this->commands;
+    }
+
+    public function tracerProvider(): ?TracerProviderInterface
+    {
+        return $this->tracerProvider;
     }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BlackOps\Internal\Logging;
 
 use BlackOps\Internal\Execution\ExecutionScopeProvider;
+use BlackOps\Internal\Telemetry\TelemetryTracer;
 use InvalidArgumentException;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -18,6 +19,7 @@ final readonly class RuntimeLoggingServiceInjector
         ContainerInterface $container,
         ExecutionScopeProvider $scope,
         ?LoggerInterface $backend = null,
+        ?TelemetryTracer $telemetry = null,
     ): ExecutionScopedLogger {
         if (!$container instanceof Container) {
             throw new InvalidArgumentException('Runtime container does not support logging service injection.');
@@ -37,6 +39,7 @@ final readonly class RuntimeLoggingServiceInjector
         $logger = new ExecutionScopedLogger(
             $backend ?? new MonologJsonlLoggerFactory()->create('php://stderr'),
             $scope,
+            telemetry: $telemetry,
         );
 
         try {

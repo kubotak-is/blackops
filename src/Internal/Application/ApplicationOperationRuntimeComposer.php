@@ -18,6 +18,7 @@ use BlackOps\Internal\Logging\RuntimeLoggingServiceInjector;
 use BlackOps\Internal\Outbox\TransactionalOutboxRuntime;
 use BlackOps\Internal\Registry\OperationManifestFile;
 use BlackOps\Internal\Runtime\RuntimeContainerArtifactLoader;
+use BlackOps\Internal\Telemetry\TelemetryTracer;
 use BlackOps\Internal\Transaction\OperationTransactionCoordinator;
 use BlackOps\Internal\Transaction\RuntimeTransactionServiceInjector;
 use BlackOps\Outbox\TransactionalOutbox;
@@ -40,12 +41,14 @@ final readonly class ApplicationOperationRuntimeComposer
         $database = ApplicationDatabaseConfiguration::fromConfiguration($configuration->configuration());
         $databases = $database->databaseManager();
         new RuntimeDatabaseServiceInjector()->inject($container, $databases);
-        $scope = new ExecutionScopeProvider();
+        $telemetry = new TelemetryTracer($configuration->tracerProvider());
+        $scope = new ExecutionScopeProvider($telemetry);
         $logging = ApplicationLoggingConfiguration::fromConfiguration($configuration->configuration());
         $logger = new RuntimeLoggingServiceInjector()->inject(
             $container,
             $scope,
             new MonologJsonlLoggerFactory()->create($logging->stream, $logging->channel, $logging->minimumLevel),
+            telemetry: $telemetry,
         );
         $transactionRuntime = new RuntimeTransactionServiceInjector()->inject($container, $databases, $scope);
         $connection = $databases->connection($database->frameworkConnection);
@@ -66,6 +69,7 @@ final readonly class ApplicationOperationRuntimeComposer
             new ExecutionContextFactory($identifiers, $clock),
             $identifiers,
             $clock,
+            telemetry: $telemetry,
         );
         $container->set(TransactionalOutbox::class, $outbox);
         $container->set(Operations::class, $outbox);
@@ -93,6 +97,7 @@ final readonly class ApplicationOperationRuntimeComposer
                 new ApplicationDatabaseConnectionLifecycle($databases),
                 $observations,
             ),
+            $telemetry,
         );
     }
 }

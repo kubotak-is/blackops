@@ -10,6 +10,7 @@ use BlackOps\Internal\Database\DoctrineDatabaseManager;
 use BlackOps\Internal\Execution\ExecutionScopeProvider;
 use BlackOps\Internal\Identifier\IdentifierFactory;
 use BlackOps\Internal\Logging\ExecutionScopedLogger;
+use BlackOps\Internal\Telemetry\TelemetryTracer;
 use BlackOps\Internal\Transaction\OperationTransactionCoordinator;
 use BlackOps\Journal\CanonicalJournalWriter;
 use Doctrine\DBAL\Connection;
@@ -34,5 +35,6 @@ final readonly class ApplicationOperationRuntimeComposition
         public OperationTransactionCoordinator $transactions,
         public ?ApplicationJournalObservations $observations,
         public ApplicationOperationInvocationLifecycle $lifecycle,
+        public TelemetryTracer $telemetry,
     ) {}
 }

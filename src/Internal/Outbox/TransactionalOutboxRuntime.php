@@ -16,6 +16,7 @@ use BlackOps\Execution\Operations;
 use BlackOps\Internal\Execution\ExecutionScopeProvider;
 use BlackOps\Internal\ExecutionContext\ExecutionContextFactory;
 use BlackOps\Internal\Identifier\IdentifierFactory;
+use BlackOps\Internal\Telemetry\TelemetryTracer;
 use BlackOps\Internal\Transaction\TransactionRuntime;
 use BlackOps\Outbox\OutboxRegistration;
 use BlackOps\Outbox\TransactionalOutbox;
@@ -26,6 +27,7 @@ use Doctrine\DBAL\Connection;
 use InvalidArgumentException;
 use LogicException;
 use Psr\Clock\ClockInterface;
+use Throwable;
 
 final readonly class TransactionalOutboxRuntime implements TransactionalOutbox, Operations
 {
@@ -41,6 +43,7 @@ final readonly class TransactionalOutboxRuntime implements TransactionalOutbox, 
         private ExecutionContextFactory $contexts,
         private IdentifierFactory $identifiers,
         private ClockInterface $clock,
+        private ?TelemetryTracer $telemetry = null,
     ) {}
 
     public function dispatch(
@@ -107,24 +110,42 @@ final readonly class TransactionalOutboxRuntime implements TransactionalOutbox, 
         }
 
         $recordedAt = $this->clock->now();
-        $child = $this->contexts->createChild($parent->context(), null, $executionActor);
-        $encoded = $this->codec->encode($metadata, $value, $child);
-        $recordId = $this->identifiers->newOutboxRecordId();
-        $record = new PostgreSqlOutboxRecord(
-            $recordId,
-            $child->operationId(),
-            $encoded->operationType(),
-            $encoded->schemaVersion(),
-            $encoded->encodedPayload(),
-            $encoded->encodedContext(),
-            $availableAt ?? $recordedAt,
-            $recordedAt,
-            $this->connectionName,
-            tenant: $child->tenant(),
-            originActor: $child->actorContext()?->origin(),
-        );
-        $this->store->insert($record);
+        $span = null;
+        try {
+            $child = $this->contexts->createChild($parent->context(), null, $executionActor);
+            $span = $this->telemetry?->operationContext(
+                $child,
+                'deferred',
+                $metadata->typeId,
+                TelemetryTracer::KIND_PRODUCER,
+            );
+            $producer = $this->telemetry?->currentContext();
+            $childContext = $producer === null ? $child : $this->contexts->withTelemetry($child, $producer);
+            $child = $childContext;
+            $encoded = $this->codec->encode($metadata, $value, $child);
+            $recordId = $this->identifiers->newOutboxRecordId();
+            $record = new PostgreSqlOutboxRecord(
+                $recordId,
+                $child->operationId(),
+                $encoded->operationType(),
+                $encoded->schemaVersion(),
+                $encoded->encodedPayload(),
+                $encoded->encodedContext(),
+                $availableAt ?? $recordedAt,
+                $recordedAt,
+                $this->connectionName,
+                tenant: $child->tenant(),
+                originActor: $child->actorContext()?->origin(),
+            );
+            $this->store->insert($record);
+            $span?->result('completed');
 
-        return new OutboxRegistration($recordId, $child->operationId(), $recordedAt);
+            return new OutboxRegistration($recordId, $child->operationId(), $recordedAt);
+        } catch (Throwable $failure) {
+            $span?->fail($failure);
+            throw $failure;
+        } finally {
+            $span?->end();
+        }
     }
 }

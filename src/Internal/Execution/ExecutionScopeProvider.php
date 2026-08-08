@@ -5,10 +5,17 @@ declare(strict_types=1);
 namespace BlackOps\Internal\Execution;
 
 use BlackOps\Core\OperationEnvelope;
+use BlackOps\Internal\Telemetry\TelemetryTracer;
 use Closure;
+use Throwable;
 
 final class ExecutionScopeProvider
 {
+    public function __construct(
+        private readonly ?TelemetryTracer $telemetry = null,
+        private readonly int $spanKind = TelemetryTracer::KIND_INTERNAL,
+    ) {}
+
     /**
      * @var list<OperationEnvelope>
      */
@@ -52,12 +59,17 @@ final class ExecutionScopeProvider
     {
         $this->stack[] = $envelope;
         $this->operationTypes[] = $operationTypeId;
+        $span = $this->telemetry?->operation($envelope, $operationTypeId, $this->spanKind);
 
         try {
             return $callback();
+        } catch (Throwable $failure) {
+            $span?->fail($failure);
+            throw $failure;
         } finally {
             array_pop($this->stack);
             array_pop($this->operationTypes);
+            $span?->end();
         }
     }
 }

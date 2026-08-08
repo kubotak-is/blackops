@@ -61,6 +61,7 @@ final readonly class ApplicationOutboxRuntime
                     $configuration->graceSeconds,
                 )
                 : null,
+            telemetry: $runtime->telemetry,
         );
     }
 

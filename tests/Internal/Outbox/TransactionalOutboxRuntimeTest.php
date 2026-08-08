@@ -27,9 +27,11 @@ use BlackOps\Internal\ExecutionContext\ExecutionContextFactory;
 use BlackOps\Internal\Identifier\IdentifierFactory;
 use BlackOps\Internal\Identifier\SymfonyUuidv7Generator;
 use BlackOps\Internal\Outbox\TransactionalOutboxRuntime;
+use BlackOps\Internal\Telemetry\TelemetryTracer;
 use BlackOps\Internal\Transaction\DefaultAfterCommitFailureReporter;
 use BlackOps\Internal\Transaction\TransactionRuntime;
 use BlackOps\Telemetry\TelemetryContext;
+use BlackOps\Tests\Internal\Telemetry\RecordingTracerProvider;
 use BlackOps\Tests\Transport\PostgreSql\PostgreSqlTestStorageProtection;
 use BlackOps\Transport\PostgreSql\PostgreSqlOutboxStore;
 use DateTimeImmutable;
@@ -46,6 +48,7 @@ final class TransactionalOutboxRuntimeTest extends TestCase
     private TransactionRuntime $transactionRuntime;
     private ExecutionScopeProvider $scope;
     private ContextCapture $captured;
+    private RecordingTracerProvider $telemetryProvider;
 
     protected function setUp(): void
     {
@@ -64,6 +67,7 @@ final class TransactionalOutboxRuntimeTest extends TestCase
         $transactions = new TransactionRuntime($databases, new DefaultAfterCommitFailureReporter(), $this->scope);
         $this->transactionRuntime = $transactions;
         $this->captured = new ContextCapture();
+        $this->telemetryProvider = new RecordingTracerProvider();
         $clock = new FixtureClock();
         $identifiers = new IdentifierFactory(new SymfonyUuidv7Generator(), $clock);
         $metadata = new OperationMetadata(
@@ -98,6 +102,7 @@ final class TransactionalOutboxRuntimeTest extends TestCase
             new ExecutionContextFactory($identifiers, $clock),
             $identifiers,
             $clock,
+            new TelemetryTracer($this->telemetryProvider),
         );
     }
 
@@ -152,7 +157,20 @@ final class TransactionalOutboxRuntimeTest extends TestCase
         self::assertSame('auth-user', $child->actorContext()?->authorization()?->id());
         self::assertSame('override-worker', $child->actorContext()?->execution()->id());
         self::assertSame('tenant-outbox', $child->tenant()?->id());
-        self::assertSame($parent->context()->telemetry()?->traceparent(), $child->telemetry()?->traceparent());
+        self::assertCount(1, $this->telemetryProvider->spans);
+        $span = $this->telemetryProvider->spans[0];
+        self::assertSame('blackops.operation.accept', $span->name);
+        self::assertSame(TelemetryTracer::KIND_PRODUCER, $span->kind);
+        self::assertSame('fixture.outbox.child', $span->attributes['blackops.operation.type']);
+        self::assertSame('deferred', $span->attributes['blackops.operation.strategy']);
+        self::assertSame($registration->operationId()->toString(), $span->attributes['blackops.operation.id']);
+        self::assertSame(
+            $span->getContext()->getTraceId(),
+            explode('-', $child->telemetry()?->traceparent() ?? '')[1] ?? null,
+        );
+        self::assertNotSame($parent->context()->telemetry()?->traceparent(), $child->telemetry()?->traceparent());
+        self::assertSame('completed', $span->attributes['blackops.result']);
+        self::assertTrue($span->ended);
         self::assertSame(
             $parent->context()->deadline()?->format(DateTimeImmutable::ATOM),
             $child->deadline()?->format(DateTimeImmutable::ATOM),

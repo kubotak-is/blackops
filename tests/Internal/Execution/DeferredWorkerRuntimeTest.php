@@ -62,6 +62,7 @@ use BlackOps\Internal\Logging\ExecutionScopedLogger;
 use BlackOps\Internal\Logging\FrameworkOperationFailureReporter;
 use BlackOps\Internal\Scheduling\PostgreSqlScheduledOccurrenceLifecycle;
 use BlackOps\Internal\Scheduling\PostgreSqlScheduleStore;
+use BlackOps\Internal\Telemetry\TelemetryTracer;
 use BlackOps\Internal\Transaction\OperationTransactionCoordinator;
 use BlackOps\Internal\Transaction\TransactionRuntime;
 use BlackOps\Journal\Data\AttemptFailedData;
@@ -74,6 +75,7 @@ use BlackOps\Outcome\Exception\OutcomeStoreException;
 use BlackOps\Outcome\OutcomeRecord;
 use BlackOps\Outcome\OutcomeWriter;
 use BlackOps\Telemetry\TelemetryContext;
+use BlackOps\Tests\Internal\Telemetry\RecordingTracerProvider;
 use BlackOps\Tests\Transport\PostgreSql\PostgreSqlTestStorageProtection;
 use BlackOps\Transport\PostgreSql\PostgreSqlCanonicalJournalStore;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationLifecycleStore;
@@ -154,7 +156,16 @@ final class DeferredWorkerRuntimeTest extends TestCase
 
         self::assertNotNull($claim);
 
-        $result = $this->runtime($handler)->run($claim);
+        $provider = new RecordingTracerProvider();
+        $result = $this->runtime($handler, telemetry: new TelemetryTracer($provider))->run($claim);
+
+        self::assertCount(1, $provider->spans);
+        $span = $provider->spans[0];
+        self::assertSame('blackops.operation.execute', $span->name);
+        self::assertSame(TelemetryTracer::KIND_CONSUMER, $span->kind);
+        self::assertSame('worker', $span->attributes['blackops.runtime.kind']);
+        self::assertSame('completed', $span->attributes['blackops.result']);
+        self::assertTrue($span->ended);
 
         $row = $this->operationRow();
         $records = $this->records();
@@ -1407,6 +1418,7 @@ final class DeferredWorkerRuntimeTest extends TestCase
         ?ExecutionScopeProvider $scope = null,
         ?FrameworkOperationFailureReporter $failureReporter = null,
         bool $scheduled = false,
+        ?TelemetryTracer $telemetry = null,
     ): DeferredWorkerRuntime {
         $clock = new DeferredWorkerClock();
         $identifiers = new IdentifierFactory(new DeferredWorkerRuntimeUuidv7Generator(), $clock);
@@ -1449,6 +1461,7 @@ final class DeferredWorkerRuntimeTest extends TestCase
                 scheduledOccurrences: $scheduled
                     ? new PostgreSqlScheduledOccurrenceLifecycle($this->connection, self::SCHEMA)
                     : null,
+                telemetry: $telemetry,
             ),
             $guard ?? new \BlackOps\Internal\Execution\DirectClaimExecutionGuard(),
             connections: $connections,

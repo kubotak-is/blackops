@@ -1,6 +1,97 @@
 # Orchestration State
 
-Updated At: 2026-08-09T00:06:10+09:00
+Updated At: 2026-08-09T03:20:41+09:00
+
+## P20-018C OpenTelemetry Trace Adapter Accepted
+
+```text
+2026-08-09T03:20:41+09:00
+Orchestrator independent reviewでP20-018CをAcceptedとした。Official typed OpenTelemetry API、per-Application immutable TracerProvider、blackops.framework／1.1.0 scope、active parent／persisted fallback、Deferred／Outbox Producer encrypted context、Worker retry Consumer、Relay／Schedule／Maintenance／Replay、finite result／runtime kind、masked actor／tenant、active JSONL／Journal correlation、Replay original correlation、failure isolation／finally cleanupをSourceとRecording Provider／PostgreSQL exact evidenceへ照合した。Independent exact 117 tests／837 assertions、Task-focused 480／2,000、Full 2,147／8,872、Quickstart、pre-commit package export、Composer strict／audit、Mago format、changed-source lint／analyze、management-ID guard、diff checkをPASS。Broad Magoは既存baseline、Deptracは既知vendor PHP 8.5 parser blockerとして分離した。Task／Report／TODO／STATEをAcceptedへ同期し、Worker Commitなし。次はOrchestrator Commit後のexact package exportとP20-018D。
+```
+
+## P20-018C Typed Outbox Operation Context Review Pending
+
+```text
+2026-08-09T01:49:12+09:00
+TransactionalOutboxRuntimeのtelemetry-only fake OperationEnvelopeを廃止し、Typed ExecutionContext／strategy／metadata typeをTelemetryTracer::operationContextへ渡す不変条件を修正した。Telemetry＋TransactionalOutbox focused 22 tests／85 assertions、HTTP Producer regression 1／25、changed-source analyze／format、guard／diff PASS。Outbox evidenceはchild operation type／strategy／IDとpersisted Producer contextを確認。Task／Report／TODO Review Pending、Broad gateはOrchestrator review。Worker Commit／Push／Deployなし。
+```
+
+## P20-018C Replay Correlation Distinction Review Pending
+
+```text
+2026-08-09T01:47:13+09:00
+Replay success evidence rerun PASS 1 test／11 assertions: stored original trace ID／span ID are both distinct from active blackops.observer.replay span while callback receives original correlation; result completed and span ended. Runtime suite report updated to 72 tests／607 assertions. Task／Report／TODO remain Review Pending; broad gates remain Orchestrator-owned. Worker Commit／Push／Deployなし。
+```
+
+## P20-018C HTTP Parent and Flags Evidence Review Pending
+
+```text
+2026-08-09T01:46:04+09:00
+HTTP Producer evidence rerun PASS 2 tests／33 assertions with remote parent trace/span, persisted Producer span ID, trace flags／tracestate, masked actor／tenant, success/rejection result, and encrypted context decode. Focused runtime／Telemetry／Scheduled／Outbox evidence remains green; Task／Report／TODO Review Pending. Broad gates remain Orchestrator review. Worker Commit／Push／Deployなし。
+```
+
+## P20-018C Final Focused Evidence Review Pending
+
+```text
+2026-08-09T01:45:07+09:00
+Final focused rerun PASS: runtime boundary 72 tests／606 assertions、HTTP Producer 2／28、Scheduled Runtime 5／33、Telemetry 8／29、Outbox BOPD 1／5。Changed-source Mago analyze／format、management-ID guard、git diff check PASS。HTTP success／reject、Scheduled Producer nesting、Replay original correlation、application／framework logger、Deferred／Outbox at-rest evidenceをReportのSpan／Parent tableへ同期し、Task／Report／TODOをReview Pendingへ保持する。Full／Consumer／Composer／Deptrac broad gateはOrchestrator reviewへ委譲。Worker Commit／Push／Deployなし。
+```
+
+## P20-018C Span Boundary and At-rest Evidence Review Pending
+
+```text
+2026-08-09T01:42:46+09:00
+HTTP Producer success／orchestrator rejection、Scheduled Deferred Producer nesting、Transactional Outbox insert、Worker Consumer、Relay／Schedule／Maintenance／Replay runtime、application／framework logger、Deferred／Outbox encrypted at-rest evidenceをRecording Provider／PostgreSQL exact testsで確認した。Focused runtime 71 tests／594 assertions、Telemetry 8／29、HTTP 2／28、Scheduled Producer 1／10、Outbox BOPD 1／5 PASS。Task／Report／TODOをReview Pendingへ同期し、Full／Consumer／Composer／Deptrac broad gateはOrchestratorへ委譲する。Worker Commit／Push／Deployなし。
+```
+
+## P20-018C Runtime Recording Evidence In Progress
+
+```text
+2026-08-09T01:36:44+09:00
+Recording fakeを公式ContextKeysで修正し、Telemetry 8 tests／29 assertions、runtime boundary 71 tests／594 assertionsをPASS確認した。Transactional Outbox Producer、Worker Consumer、Relay、Schedule evaluate、Maintenance、Observer Replay、active loggerのname／kind／result／ended evidenceを追加した。HTTP Producer exact recording、protected Deferred／Outbox decode、Replay original correlation／JSONL、Full／Consumer／Deptrac gateは未完了のためP20-018CをIn Progressのまま維持する。Worker Commit／Push／Deployなし。
+```
+
+## P20-018C Runtime Recording Evidence In Progress
+
+```text
+2026-08-09T01:24:59+09:00
+Second correctionのactual accept／insert Producer境界、worker attempt全体Consumer境界、finite result、masked actor／tenant、partial activation cleanup、Spec09 provider contractをSource上で確認した。ただしReport自身がRelay／Schedule／Maintenance／Replay runtime exact evidence、Replay original correlation、full JSONL、protected Outbox decodeを未確認と記録しており、Task AcceptanceのSpan Name／Kind／Parent／Close／Correlation Matrixを満たす変更Testが存在しない。さらにDeferred／Scheduled Producerはoperation()を使わず安全なOperation／Actor／Tenant属性を設定せず、retry／dead-letter supervisionでError Status／Safe error.typeを設定していない。P20-018CをIn Progressへ戻し、Production境界の限定補正とRecording Providerを使うruntime exact testをLuna High workerへ返す。Future時刻だった直前Checkpointを現在のJST時刻へ修正した。Worker Commit／Push／Deployなし。
+```
+
+## P20-018C Span Boundary and Worker Correlation Corrections Review Pending
+
+```text
+2026-08-09T02:20:00+09:00
+Deferred HTTP／Transactional Outbox Producerを実際のaccept／insert完了まで保持し、暗号化前のProducer Context、Worker Attempt開始JournalからTerminal／SupervisionまでのConsumer Span、有限result、actor／tenant masked属性、partial activation cleanup、Spec09 provider contractを補正した。Focused worker／producer／schedule／replay 81 tests／251 assertions、DeferredWorkerRuntime 34 tests／414 assertions、Telemetry／Journal／Execution 49 tests／463 assertions PASS、changed-source analyze No issues found。Task／Report／TODOをReview Pendingへ同期し、Worker Commit／Push／Deployなし。Relay／Schedule／Maintenance／Replayの追加runtime exact evidenceと最終広域ゲートはOrchestrator確認へ委譲する。
+```
+
+## P20-018C Exact Runtime Evidence Corrections In Progress
+
+```text
+2026-08-09T01:11:21+09:00
+Second independent reviewでtyped per-snapshot provider、official API、active parent優先、tracestate／flags、Journal active correlation、runtime compositionの主要構造は確認した。一方、Deferred HTTP Producer Spanがactual acceptance／Journal／enqueue前に終了し、Transactional Outbox Producer SpanもDB insert前に終了するため、failure／active correlation境界がSpecification 100と一致しない。blackops.resultとactor属性はallowlistだけでruntimeから設定されず、Provider／activate failureのpartial Span cleanup、Deferred／Outbox encrypted producer contextからWorker retry Consumerへ至るexact parent evidence、Relay／Schedule／Maintenance／Replay name-kind-close、Replay original correlation、active JSONL、failure isolationのruntime exact testも不足している。Reportの一部受入主張は現在のtest差分で裏付けられないためP20-018CをIn Progressへ戻し、Luna High workerへ限定修正を返す。Worker Commit／Push／Deployなし。
+```
+
+## P20-018C Orchestrator Review Corrections In Progress
+
+```text
+2026-08-09T00:29:46+09:00
+Independent reviewでP20-018CをIn Progressへ戻した。ApplicationBuilderのuntyped object＋process-global providerはApplication間のisolationを破り得る。Deferred／Transactional Outbox producerのactive Span Contextがencrypted ExecutionContextへ保存されず、Worker ConsumerがProducerではなく元incoming parentのsiblingになる。Canonical／Observed Journalはactive span correlationへ接続されておらず、Schedule evaluate spanはRunner／Runtimeで重複する。Application Outbox Relay／Observer Replay composition、instrumentation scope version、actor attributes、result/status、tracestate、public/internal namespace境界、active logger wireのevidenceも不足し、runtime exact testは未実装。Installed OpenTelemetry API／ContextをMago includeへ追加してReflection／object bridgeと新規analyze suppressionを除去し、typed per-Application provider、producer persistence、active Journal correlation、全runtime parent／ID／close／failure evidenceをTask scope内で修正する。Worker Commit／Push／Deployなし。
+```
+
+## P20-018C OpenTelemetry Trace Adapter Review Pending
+
+```text
+2026-08-09T00:24:30+09:00
+P20-018CのApplication-owned API-only Tracer bridge、blackops.framework scope、Inline／Deferred Acceptance／Worker Consumer、Transactional Outbox／Relay、Schedule／Maintenance／Observer Replay span境界、safe attribute allowlist、active JSONL correlation、finally detach／end、No-op／failure isolationを実装した。Focused PHPUnit 226 tests／1,090 assertions、format check、changed-source lint（errors 0）、changed-source analyze（OpenTelemetry vendor excludedのreflection-boundary advisoryのみ）を確認した。Full／Quickstart／Composer／broad Mago／Deptrac／management-IDはOrchestrator independent gate待ち。Task／Report／TODOをReview Pendingへ同期した。Worker Commit／Push／Deployなし。
+```
+
+## P20-018C OpenTelemetry Trace Adapter Start
+
+```text
+2026-08-09T00:07:14+09:00
+P20-018Bは3d87ae4、post-commit package verificationは106552aとしてCommit済みで、Working Tree cleanを確認した。P20-018CをIn Progressとして開始する。Application-owned TracerProvider、instrumentation scope blackops.framework、Deferred Acceptance／Outbox Producer、Inline Internal、Worker Consumer retry、Relay／Application Schedule／Maintenance／Observer Replay span、safe attribute allowlist、active correlation、finally detach／end、No-op／failure isolationをRepository設定どおりGPT-5.6 Luna High workerへ委譲する。Metric／SDK／Exporter／Collector／Healthは範囲外で、Local Docker Collector actual E2EはP20-018Eに維持する。Worker Commit／Push／Deployなし。
+```
 
 ## P20-018B Post-commit Package Export Accepted
 

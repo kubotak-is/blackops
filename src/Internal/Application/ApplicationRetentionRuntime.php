@@ -7,6 +7,7 @@ namespace BlackOps\Internal\Application;
 use BlackOps\Internal\Scheduler\MaintenanceScheduler;
 use BlackOps\Internal\Scheduler\OutboxRelayMaintenanceTask;
 use BlackOps\Internal\Scheduler\RetentionMaintenanceTask;
+use BlackOps\Internal\Telemetry\TelemetryTracer;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeadLetterRetentionDeleteService;
 use BlackOps\Transport\PostgreSql\PostgreSqlIdempotencyRetentionDeleteService;
 use BlackOps\Transport\PostgreSql\PostgreSqlJournalRetentionDeleteService;
@@ -55,6 +56,6 @@ final readonly class ApplicationRetentionRuntime
         if ($outboxRelay !== null) {
             $tasks[] = new OutboxRelayMaintenanceTask(new ApplicationOutboxRuntime($snapshot)->relay);
         }
-        $this->scheduler = new MaintenanceScheduler($tasks);
+        $this->scheduler = new MaintenanceScheduler($tasks, new TelemetryTracer($snapshot->tracerProvider()));
     }
 }

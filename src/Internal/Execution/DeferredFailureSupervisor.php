@@ -8,6 +8,7 @@ use BlackOps\Core\Execution\OperationClaim;
 use BlackOps\Core\OperationEnvelope;
 use BlackOps\Core\Registry\OperationMetadata;
 use BlackOps\Core\Supervision\SupervisionAction;
+use BlackOps\Internal\Telemetry\TelemetrySpanScope;
 use BlackOps\Journal\Data\AttemptFailedData;
 use BlackOps\Journal\Data\AttemptRetryScheduledData;
 use BlackOps\Journal\Data\OperationDeadLetteredData;
@@ -30,8 +31,15 @@ final readonly class DeferredFailureSupervisor
         OperationMetadata $metadata,
         OperationEnvelope $envelope,
         Throwable $exception,
+        ?TelemetrySpanScope $span = null,
     ): void {
-        $this->storage->connection->transactional(function () use ($claim, $metadata, $envelope, $exception): void {
+        $this->storage->connection->transactional(function () use (
+            $claim,
+            $metadata,
+            $envelope,
+            $exception,
+            $span,
+        ): void {
             $now = $this->storage->clock->now();
             $reservation = $this->storage->state->reserveFailed($claim, $now);
             $attempt = $envelope->context()->attempt();
@@ -62,6 +70,11 @@ final readonly class DeferredFailureSupervisor
                 SupervisionAction::Fail => $this->failOperation($claim, $metadata, $envelope, $exception),
                 SupervisionAction::DeadLetter => $this->deadLetterOperation($claim, $metadata, $envelope, $exception),
             };
+            $span?->result(match ($decision->action()) {
+                SupervisionAction::Retry => 'retry_scheduled',
+                SupervisionAction::DeadLetter => 'dead_lettered',
+                SupervisionAction::Fail => 'failed',
+            });
         });
     }
 

@@ -12,6 +12,7 @@ use BlackOps\Core\Execution\Inline;
 use BlackOps\Core\Operation;
 use BlackOps\Core\OperationResult;
 use BlackOps\Core\Registry\OperationMetadata;
+use BlackOps\Internal\Telemetry\TelemetryTracer;
 use BlackOps\Transport\PostgreSql\PostgreSqlSystemClock;
 use LogicException;
 use Psr\Clock\ClockInterface;
@@ -27,6 +28,7 @@ final readonly class ScheduledOperationRuntime
         private OperationCodec $codec,
         private ClockInterface $clock = new PostgreSqlSystemClock(),
         private ?PostgreSqlScheduledOccurrenceLifecycle $scheduledOccurrences = null,
+        private ?TelemetryTracer $telemetry = null,
     ) {}
 
     public function invokeInline(
@@ -45,19 +47,50 @@ final readonly class ScheduledOperationRuntime
         ScheduleOccurrence $occurrence,
     ): DeferredAcknowledgement|OperationResult {
         $envelope = $this->envelope($metadata, $definition, $occurrence, new Deferred());
-        $encoded = $this->codec->encode($metadata, $envelope->value(), $envelope->context());
-        $message = new DeferredOperationMessage(
-            $envelope->id(),
-            $encoded->operationType(),
-            $encoded->schemaVersion(),
-            $encoded->encodedPayload(),
-            $encoded->encodedContext(),
-            $occurrence->scheduledAt,
-            $envelope->context()->tenant(),
-            $envelope->context()->actorContext()?->origin(),
-        );
+        $span = $this->telemetry?->operation($envelope, $metadata->typeId, TelemetryTracer::KIND_PRODUCER);
+        try {
+            $producer = $this->telemetry?->currentContext();
+            if ($producer !== null) {
+                $envelope = new \BlackOps\Core\OperationEnvelope(
+                    $envelope->definition(),
+                    $envelope->value(),
+                    new \BlackOps\Core\ExecutionContext(
+                        $envelope->context()->operationId(),
+                        $envelope->context()->receivedAt(),
+                        $envelope->context()->correlationId(),
+                        $envelope->context()->causationId(),
+                        $envelope->context()->attempt(),
+                        $envelope->context()->deadline(),
+                        $envelope->context()->actorContext(),
+                        $envelope->context()->idempotencyKeyHash(),
+                        $envelope->context()->schedule(),
+                        $envelope->context()->tenant(),
+                        $producer,
+                    ),
+                    $envelope->strategy(),
+                );
+            }
+            $encoded = $this->codec->encode($metadata, $envelope->value(), $envelope->context());
+            $message = new DeferredOperationMessage(
+                $envelope->id(),
+                $encoded->operationType(),
+                $encoded->schemaVersion(),
+                $encoded->encodedPayload(),
+                $encoded->encodedContext(),
+                $occurrence->scheduledAt,
+                $envelope->context()->tenant(),
+                $envelope->context()->actorContext()?->origin(),
+            );
 
-        return $this->deferred->accept($message, $envelope, $metadata);
+            $result = $this->deferred->accept($message, $envelope, $metadata);
+            $span?->result($result instanceof OperationResult && $result->isRejected() ? 'rejected' : 'completed');
+            return $result;
+        } catch (Throwable $failure) {
+            $span?->fail($failure);
+            throw $failure;
+        } finally {
+            $span?->end();
+        }
     }
 
     public function invoke(

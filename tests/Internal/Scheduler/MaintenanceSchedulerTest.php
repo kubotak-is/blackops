@@ -18,6 +18,8 @@ use BlackOps\Internal\Scheduler\MaintenanceScheduler;
 use BlackOps\Internal\Scheduler\MaintenanceTask;
 use BlackOps\Internal\Scheduler\MaintenanceTaskResult;
 use BlackOps\Internal\Scheduler\RetentionMaintenanceTask;
+use BlackOps\Internal\Telemetry\TelemetryTracer;
+use BlackOps\Tests\Internal\Telemetry\RecordingTracerProvider;
 use DateTimeImmutable;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
@@ -41,6 +43,22 @@ final class MaintenanceSchedulerTest extends TestCase
         self::assertSame($now, $second->now);
         self::assertSame('first', $result->taskResults()[0]->taskName());
         self::assertSame('second', $result->taskResults()[1]->taskName());
+    }
+
+    public function testRecordsMaintenanceRuntimeSpanUntilTasksFinish(): void
+    {
+        $provider = new RecordingTracerProvider();
+        $scheduler = new MaintenanceScheduler([new SchedulerTestTask('recorded', 1)], new TelemetryTracer($provider));
+
+        $scheduler->run(new DateTimeImmutable('2026-07-11T00:00:00Z'));
+
+        self::assertCount(1, $provider->spans);
+        $span = $provider->spans[0];
+        self::assertSame('blackops.maintenance.run', $span->name);
+        self::assertSame(TelemetryTracer::KIND_INTERNAL, $span->kind);
+        self::assertSame('maintenance', $span->attributes['blackops.runtime.kind']);
+        self::assertSame('completed', $span->attributes['blackops.result']);
+        self::assertTrue($span->ended);
     }
 
     public function testRejectsInvalidTaskResult(): void

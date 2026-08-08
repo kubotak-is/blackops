@@ -10,6 +10,7 @@ use BlackOps\Core\Execution\Inline;
 use BlackOps\Core\OperationEnvelope;
 use BlackOps\Internal\Execution\ExecutionScopeProvider;
 use BlackOps\Internal\Projection\SensitiveProjectionFilter;
+use BlackOps\Internal\Telemetry\TelemetryTracer;
 use BlackOps\Telemetry\TelemetryCorrelation;
 use Psr\Log\AbstractLogger;
 use Psr\Log\LoggerInterface;
@@ -23,6 +24,7 @@ final class ExecutionScopedLogger extends AbstractLogger
         private LoggerInterface $inner,
         private ExecutionScopeProvider $scope,
         private SensitiveProjectionFilter $sensitive = new SensitiveProjectionFilter(),
+        private ?TelemetryTracer $telemetry = null,
     ) {}
 
     /**
@@ -95,16 +97,16 @@ final class ExecutionScopedLogger extends AbstractLogger
 
         if ($operation !== null) {
             $enriched['operation'] = $this->operation($operation);
-            $telemetry = $operation->context()->telemetry();
-            if ($telemetry !== null) {
-                $correlation = TelemetryCorrelation::fromContext($telemetry);
-                if ($correlation !== null) {
-                    $enriched['telemetry'] = [
-                        'traceId' => $correlation->traceId,
-                        'spanId' => $correlation->spanId,
-                        'sampled' => $correlation->sampled,
-                    ];
-                }
+            $correlation = $this->telemetry?->currentCorrelation();
+            if ($correlation === null && $operation->context()->telemetry() !== null) {
+                $correlation = TelemetryCorrelation::fromContext($operation->context()->telemetry());
+            }
+            if ($correlation instanceof TelemetryCorrelation) {
+                $enriched['telemetry'] = [
+                    'traceId' => $correlation->traceId,
+                    'spanId' => $correlation->spanId,
+                    'sampled' => $correlation->sampled,
+                ];
             }
             $attempt = $operation->context()->attempt();
             if ($attempt !== null) {
