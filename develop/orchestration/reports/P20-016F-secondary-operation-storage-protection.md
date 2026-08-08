@@ -49,6 +49,7 @@ Implemented mandatory BOPD protection for PostgreSQL secondary operation storage
 - `bash tests/Consumer/quickstart-e2e.sh`: PASS from a fresh consumer install through 12 migrations, build, seed, HTTP, deferred retry/completion, masked diagnostics, retention, and frontend checks.
 - Exact `bash tests/Consumer/framework-package-export.sh`: expected pre-commit stop because `git archive HEAD` cannot contain the untracked `Version20260808010000.php`. The same command created the Composer archive before stopping.
 - Working-tree Composer archive isolation check: PASS; `Version20260808010000.php`, allowed root inventory, exclusion contract, strict Composer validation, production classmap autoload, worktree preservation, and cleanup all passed.
+- Post-commit exact `bash tests/Consumer/framework-package-export.sh`: PASS after commit `02a561c`; both Git and Composer archives include `Version20260808010000.php` and pass root inventory, exclusion, strict validation, production autoload, worktree-preservation, and cleanup checks.
 
 ## Acceptance Criteria
 
@@ -60,12 +61,11 @@ Implemented mandatory BOPD protection for PostgreSQL secondary operation storage
 ## Remaining Issues
 
 - Deptrac remains blocked by its installed PHP 8.5-incompatible vendor parser at `NikicFileReferenceVisitor.php:106`.
-- Exact Git package export must be rerun after the accepted migration is committed because `git archive HEAD` intentionally excludes untracked files.
-- No P20-016F commit, push, or deploy was performed during worker implementation or Orchestrator review.
+- P20-016F was committed as `02a561c` after acceptance. No push or deploy was performed.
 
 ## Suggested Next Action
 
-Commit the accepted P20-016F change set when authorized, rerun the exact Git/Composer package export contract against that commit, then start P20-016G storage-key rotation.
+Start P20-016G storage-key rotation from the clean post-package-export checkpoint.
 
 ## Orchestrator Acceptance
 
