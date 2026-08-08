@@ -217,7 +217,13 @@ MVP後に残す主要項目:
 - [x] Outbox／Dead Letter Reason／Idempotency Response／Resultを保護する（P20-016F、Accepted）
 - [x] Storage Key Rotation CLI、Audit、Checkpoint／Resumeを実装する（P20-016G、Accepted）
 - [x] Tenant／Storage ProtectionのGuideとDocumentation Reviewを完了する（P20-016H、Accepted）
-- [ ] 構造化Log SchemaとOpenTelemetry Adapterを提供する
+- [x] 構造化Log Schema、OpenTelemetry Trace／Metric Adapter、Health／Readiness境界を確定する（D136／Specification 100／P20-017、Accepted）
+- [ ] Structured Record v1とCanonical JSONL Formatterを実装する（P20-018A）
+- [ ] W3C Telemetry ContextとProcess越しPropagationを実装する（P20-018B）
+- [ ] OpenTelemetry Trace AdapterとSpan Lifecycleを実装する（P20-018C）
+- [ ] 低Cardinality Metric AdapterとRuntime Instrumentationを実装する（P20-018D）
+- [ ] Liveness／ReadinessとLocal Docker Collector Consumerを実装する（P20-018E）
+- [ ] Observability GuideとDocumentation Reviewを完了する（P20-018F）
 
 ### Phase 21: Framework-owned Transaction Interception
 

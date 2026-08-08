@@ -1,6 +1,20 @@
 # Orchestration State
 
-Updated At: 2026-08-08T21:48:40+09:00
+Updated At: 2026-08-08T22:17:33+09:00
+
+## P20-017 Structured Logging and OpenTelemetry Contract Accepted
+
+```text
+2026-08-08T22:17:33+09:00
+UserはD136 Question 1〜8をすべてAで回答した。D136をDecidedとし、Canonical Structured Record v1、Actor／Tenant fixed mask、OpenTelemetry API-only Production Dependency、Application-owned SDK／Exporter／Collector、W3C Trace Context、Producer／Internal／Consumer Span、低Cardinality Metric、Explicit Liveness／Readiness Adapter、Best-effort Telemetry LifecycleをSpecification 100へ確定した。Official Collector DockerはOTLP HTTP 4318とdebug ExporterでLocal Trace／Metric確認が可能で、現時点の公式最新0.157.0 ImageはLocal未キャッシュ、既存ContainerはOTLP Port未使用。Local CollectorをFramework CapabilityではなくP20-018E Consumer Evidenceとし、P20-018A〜FへProduction／Documentation Deliveryを分割した。P20-017はAccepted。Production Code／Test／Dependency、Commit／Push／Deployなし。
+```
+
+## P20-017 Structured Logging and OpenTelemetry Decision Checkpoint
+
+```text
+2026-08-08T21:56:49+09:00
+P20-016Hはcd7ae5eとしてCommit済みで、Working Tree cleanを確認した。Phase 20残件をCurrent ExecutionScopedLogger、Monolog JSONL、Observed Journal Encoder、ExecutionContext、Worker／Outbox／Scheduler、composer.jsonへ照合した結果、BlackOps schemaVersion 1がMonolog context内へNestedされるWire不整合、Trace Context／OTel Provider／Metric／Health Surface未実装を確認した。D014／D015／D099／D135とOpenTelemetry PHP公式Contractを継承するD136／P20-017を作成し、RecommendationはCanonical Structured Record v1、Safe Mask、API-only Dependency、Application-owned SDK／Exporter、W3C Propagation、Process境界Span、低Cardinality Metric、Explicit Probe Port、Best-effort Telemetry Lifecycle。Question 1〜8はUser Decision Pending。Production Code／Test／Dependency、Commit／Push／Deployなし。
+```
 
 ## P20-016H Tenant Protection Documentation Accepted
 

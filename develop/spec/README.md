@@ -114,6 +114,7 @@
 | [97-documentation-editorial-style.md](97-documentation-editorial-style.md) | 全Public Pageの表記Guideline、一般語の日本語化、Page種別Reader Contract、文章編集Pass |
 | [98-scheduled-application-operation.md](98-scheduled-application-operation.md) | ScheduledBy、Schedule Context、Cron／Timezone、Misfire／Overlap、Occurrence、Actor、BlackOps CLI |
 | [99-tenant-isolation-and-protected-operation-data.md](99-tenant-isolation-and-protected-operation-data.md) | TenantRef、Tenant伝播、Default-deny Data Read、Encrypted Envelope、Rotation、Breaking Upgrade境界 |
+| [100-structured-logging-and-opentelemetry.md](100-structured-logging-and-opentelemetry.md) | Structured Record v1、W3C Trace、OpenTelemetry Trace／Metric、Health／Readiness、Local Collector境界 |
 
 ## 決定の参照
 
@@ -254,3 +255,4 @@
 | [D133](../decisions/133-documentation-editorial-style.md) | Documentation Editorial Style | Decided |
 | [D134](../decisions/134-scheduled-application-operation.md) | Scheduled Application Operation | Decided |
 | [D135](../decisions/135-tenant-isolation-and-protected-operation-data.md) | Tenant Isolation and Protected Operation Data | Decided |
+| [D136](../decisions/136-structured-logging-and-opentelemetry.md) | Structured Logging and OpenTelemetry | Decided |
