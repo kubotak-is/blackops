@@ -39,6 +39,7 @@ Boundedで監査可能なProtected Storage Key Rotationを実装し、read-only 
 - 管理番号Comment Guard、Consumer shell syntax、`git diff --check`: PASS。
 - Pre-commit exact `bash tests/Consumer/framework-package-export.sh`: 未追跡migrationを`git archive HEAD`が含めないため、期待どおりVersion20260808100000 missingで停止。
 - Working Tree Composer Archive contract: migration inventory、許可Root、除外Path、strict validation、production autoloadをPASS。
+- Commit `d869606`後のexact `bash tests/Consumer/framework-package-export.sh`: Git／Composer両Archive、Version20260808100000、許可Root、除外Path、strict validation、production autoloadをPASS。
 
 ## Acceptance Criteria
 
@@ -54,9 +55,8 @@ Boundedで監査可能なProtected Storage Key Rotationを実装し、read-only 
 ## Remaining Issues
 
 - Broad Mago baselineとDeptrac PHP 8.5 vendor parser blockerは既存Issueであり、このTaskでは範囲外。
-- Exact Git archive package evidenceはmigrationを含むP20-016G commit後に再実行する。
 - Replica、backup、retention上の旧key残存確認とold key削除はApplication運用者の別境界。
 
 ## Suggested Next Action
 
-P20-016Gをcommitし、exact framework package exportを再実行して追補記録した後、P20-016HのTenant／Storage Protection Documentationへ進む。External push／deployは行わない。
+P20-016HのTenant／Storage Protection Documentationへ進む。External push／deployは行わない。
