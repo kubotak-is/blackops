@@ -21,7 +21,7 @@ final readonly class ApplicationDiagnosticsQueryFactory
         $database = ApplicationDatabaseConfiguration::fromConfiguration($this->configuration->configuration());
         $connection = $database->databaseManager()->connection($database->frameworkConnection);
         $runtime = new ApplicationOperationRuntimeComposer()->compose($this->configuration);
-        $protection = ApplicationStorageProtectionResolver::resolve($runtime->container);
+        $protection = $runtime->protection;
 
         return new OperationDiagnosticsQuery(
             new PostgreSqlCanonicalJournalStore($connection, $protection, $database->schema),

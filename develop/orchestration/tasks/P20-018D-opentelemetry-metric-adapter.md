@@ -1,6 +1,6 @@
 # P20-018D: OpenTelemetry Metric Adapter
 
-Status: Ready
+Status: Accepted
 
 ## Goal
 
@@ -53,6 +53,7 @@ Application-owned OpenTelemetry Meter Providerへ低CardinalityのOperation／Wo
 - `src/Internal/Scheduler/**`
 - `src/Internal/Journal/**`
 - `src/Internal/Projection/**`
+- `src/Internal/Replay/**`
 - `src/Internal/StorageProtection/**`
 - `src/Transport/PostgreSql/**` only for bounded operational snapshot queries
 - `src/Internal/Application/**`
@@ -86,16 +87,16 @@ Application-owned OpenTelemetry Meter Providerへ低CardinalityのOperation／Wo
 
 ## Acceptance Criteria
 
-- [ ] 全Stable InstrumentのName／Type／UnitがExact Testで固定される
-- [ ] Result／Runtime／Scheduler／Failure Enumが有限である
-- [ ] Operation／Worker／Outbox／Scheduler Journeyが正しいData Pointを出す
-- [ ] Observer／Protection FailureがSafe Code／Purposeだけを出す
-- [ ] High-cardinality禁止Fieldが全Attributeから排除される
-- [ ] Active CounterがSuccess／Reject／Retry／Failure／Interruptionで0へ戻る
-- [ ] Queue SnapshotがDecodeなし／Bounded／Identityなしである
-- [ ] No-op／throwing ProviderでPrimary Lifecycleを維持する
-- [ ] Focused／Full SuiteとConsumerが成功する
-- [ ] Report／STATE／TODOを同期し、WorkerはCommitしない
+- [x] 全Stable InstrumentのName／Type／UnitがExact Testで固定される
+- [x] Result／Runtime／Scheduler／Failure Enumが有限である
+- [x] Operation／Worker／Outbox／Scheduler Journeyが正しいData Pointを出す
+- [x] Observer／Protection FailureがSafe Code／Purposeだけを出す
+- [x] High-cardinality禁止Fieldが全Attributeから排除される
+- [x] Active CounterがSuccess／Reject／Retry／Failure／Interruptionで0へ戻る
+- [x] Optional Queue Snapshotを追加する場合はDecodeなし／Bounded／Identityなしである（未追加はN/A）
+- [x] No-op／throwing ProviderでPrimary Lifecycleを維持する
+- [x] Focused／Full SuiteとConsumerが成功する
+- [x] Report／STATE／TODOを同期し、WorkerはCommitしない
 
 ## Required Commands
 

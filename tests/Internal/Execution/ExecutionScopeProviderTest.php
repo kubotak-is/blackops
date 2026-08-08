@@ -10,10 +10,15 @@ use BlackOps\Core\Identifier\CorrelationId;
 use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Core\Operation;
 use BlackOps\Core\OperationEnvelope;
+use BlackOps\Core\OperationResult;
 use BlackOps\Core\OperationValue;
+use BlackOps\Core\Rejection\RejectionReason;
 use BlackOps\Internal\Execution\ExecutionScopeProvider;
+use BlackOps\Internal\Telemetry\TelemetryMetrics;
 use BlackOps\Internal\Telemetry\TelemetryTracer;
+use BlackOps\Tests\Internal\Telemetry\RecordingMeterProvider;
 use DateTimeImmutable;
+use OpenTelemetry\API\Metrics\MeterProviderInterface;
 use OpenTelemetry\API\Trace\SpanBuilderInterface;
 use OpenTelemetry\API\Trace\SpanInterface;
 use OpenTelemetry\API\Trace\StatusCode;
@@ -111,6 +116,52 @@ final class ExecutionScopeProviderTest extends TestCase
         }
 
         self::assertNull($scope->current());
+    }
+
+    public function testRejectedOperationResultIsRecordedAsRejected(): void
+    {
+        $provider = new RecordingMeterProvider();
+        $scope = new ExecutionScopeProvider(metrics: new TelemetryMetrics($provider, ['test.operation']));
+
+        $scope->run(
+            self::envelope('rejected'),
+            static fn(): OperationResult => OperationResult::rejected(RejectionReason::businessRule('denied')),
+            'test.operation',
+        );
+
+        self::assertSame('rejected', $provider->instruments[0]->records[0]['attributes']['blackops.result']);
+        self::assertSame(1, $provider->instruments[1]->records[0]['amount']);
+        self::assertSame(-1, $provider->instruments[1]->records[1]['amount']);
+    }
+
+    public function testThrowingMeterProviderPreservesCallbackResultsAndStackCleanup(): void
+    {
+        $provider = $this->createMock(MeterProviderInterface::class);
+        $provider->method('getMeter')->willThrowException(new RuntimeException('meter unavailable'));
+        $scope = new ExecutionScopeProvider(metrics: new TelemetryMetrics($provider, ['test.operation']));
+
+        $result = $scope->run(
+            self::envelope('rejected'),
+            static fn(): OperationResult => OperationResult::rejected(RejectionReason::businessRule('denied')),
+            'test.operation',
+        );
+        self::assertTrue($result->isRejected());
+        self::assertNull($scope->current());
+
+        try {
+            $scope->run(
+                self::envelope('throwing'),
+                static function (): never {
+                    throw new RuntimeException('callback marker');
+                },
+                'test.operation',
+            );
+            self::fail('Expected callback failure.');
+        } catch (RuntimeException $failure) {
+            self::assertSame('callback marker', $failure->getMessage());
+        }
+        self::assertNull($scope->current());
+        self::assertNull($scope->currentOperationTypeId());
     }
 
     private static function envelope(string $message): OperationEnvelope

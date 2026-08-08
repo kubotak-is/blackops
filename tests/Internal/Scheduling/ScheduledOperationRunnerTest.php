@@ -25,7 +25,9 @@ use BlackOps\Internal\Scheduling\ScheduledOperationRunner;
 use BlackOps\Internal\Scheduling\ScheduledOperationRuntime;
 use BlackOps\Internal\Scheduling\ScheduleEvaluator;
 use BlackOps\Internal\Scheduling\ScheduleOccurrence;
+use BlackOps\Internal\Telemetry\TelemetryMetrics;
 use BlackOps\Internal\Telemetry\TelemetryTracer;
+use BlackOps\Tests\Internal\Telemetry\RecordingMeterProvider;
 use BlackOps\Tests\Internal\Telemetry\RecordingTracerProvider;
 use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
@@ -73,7 +75,12 @@ final class ScheduledOperationRunnerTest extends TestCase
         );
         $clock = new RunnerClock($now);
         $dispatcher = new RunnerDispatcher();
-        $runner = $this->runner($clock, $dispatcher);
+        $meterProvider = new RecordingMeterProvider();
+        $runner = $this->runner(
+            $clock,
+            $dispatcher,
+            metrics: new TelemetryMetrics($meterProvider, ['runner.a', 'runner.b']),
+        );
 
         $result = $runner->run();
 
@@ -109,6 +116,13 @@ final class ScheduledOperationRunnerTest extends TestCase
             . self::SCHEMA
             . '"."schedule_occurrences" WHERE schedule_name = \'runner.b\' AND scheduled_at = \'2026-01-01 00:05:00+00\'',
         ));
+        self::assertNotEmpty($meterProvider->instruments[6]->records);
+        self::assertSame(
+            'application',
+            $meterProvider->instruments[6]->records[0]['attributes']['blackops.scheduler.kind'],
+        );
+        self::assertSame('failed', $meterProvider->instruments[6]->records[0]['attributes']['blackops.result']);
+        self::assertNotEmpty($meterProvider->instruments[7]->records);
     }
 
     public function testAggregatesMisfireSkips(): void
@@ -179,6 +193,7 @@ final class ScheduledOperationRunnerTest extends TestCase
         RunnerClock $clock,
         RunnerDispatcher $dispatcher,
         ?TelemetryTracer $telemetry = null,
+        ?TelemetryMetrics $metrics = null,
     ): ScheduledOperationRunner {
         $metadata = [
             new OperationMetadata(
@@ -237,6 +252,7 @@ final class ScheduledOperationRunnerTest extends TestCase
             $lifecycle,
             $clock,
             $telemetry,
+            $metrics,
         );
     }
 

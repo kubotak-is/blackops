@@ -9,10 +9,12 @@ use BlackOps\Internal\StorageProtection\BopdEnvelopeCodec;
 use BlackOps\Internal\StorageProtection\CanonicalAssociatedData;
 use BlackOps\Internal\StorageProtection\NonceSource;
 use BlackOps\Internal\StorageProtection\StorageProtectionContext;
+use BlackOps\Internal\Telemetry\TelemetryMetrics;
 use BlackOps\StorageProtection\StorageKey;
 use BlackOps\StorageProtection\StorageKeyProvider;
 use BlackOps\StorageProtection\StorageProtectionException;
 use BlackOps\StorageProtection\StoragePurpose;
+use BlackOps\Tests\Internal\Telemetry\RecordingMeterProvider;
 use PHPUnit\Framework\TestCase;
 
 final class BopdEnvelopeCodecTest extends TestCase
@@ -175,6 +177,26 @@ final class BopdEnvelopeCodecTest extends TestCase
             foreach (['provider-marker', 'secret', 'tenant'] as $marker) {
                 self::assertStringNotContainsString($marker, $trace);
             }
+        }
+    }
+
+    public function testProviderFailureRecordsOnlySafeProtectionMetricAttributes(): void
+    {
+        $provider = new RecordingMeterProvider();
+        $codec = new BopdEnvelopeCodec(new ThrowingProvider(), metrics: new TelemetryMetrics($provider));
+
+        try {
+            $codec->encrypt('secret', $this->context());
+            self::fail('Expected protection failure.');
+        } catch (StorageProtectionException) {
+            self::assertSame(
+                'journal_record',
+                $provider->instruments[9]->records[0]['attributes']['blackops.storage.purpose'],
+            );
+            self::assertSame(
+                'encryption_failed',
+                $provider->instruments[9]->records[0]['attributes']['blackops.failure.code'],
+            );
         }
     }
 

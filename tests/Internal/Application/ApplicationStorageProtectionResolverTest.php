@@ -6,7 +6,9 @@ namespace BlackOps\Tests\Internal\Application;
 
 use BlackOps\Internal\Application\ApplicationStorageProtectionResolver;
 use BlackOps\Internal\StorageProtection\BopdEnvelopeCodec;
+use BlackOps\Internal\Telemetry\TelemetryMetrics;
 use BlackOps\StorageProtection\StorageKeyProvider;
+use BlackOps\Tests\Internal\Telemetry\RecordingMeterProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -34,6 +36,16 @@ final class ApplicationStorageProtectionResolverTest extends TestCase
         self::assertSame($codec, ApplicationStorageProtectionResolver::resolve(new ResolverTestContainer([
             BopdEnvelopeCodec::class => $codec,
         ])));
+    }
+
+    public function testRegisteredCodecCanBeReusedWithApplicationMetrics(): void
+    {
+        $codec = new BopdEnvelopeCodec($this->createStub(StorageKeyProvider::class));
+        $resolved = ApplicationStorageProtectionResolver::resolve(new ResolverTestContainer([
+            BopdEnvelopeCodec::class => $codec,
+        ]), new TelemetryMetrics(new RecordingMeterProvider()));
+
+        self::assertNotSame($codec, $resolved);
     }
 }
 

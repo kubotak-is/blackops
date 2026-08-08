@@ -51,7 +51,7 @@ final readonly class ApplicationHttpRuntimeComposer
         $this->validateHttpOperations($operation->operations, $http->manifest);
         $artifacts = new ProductionRuntimeArtifacts($operation->operations, $http->manifest, $operation->container);
         $httpMiddleware = new ApplicationHttpMiddlewareResolver($artifacts->container)->resolve($middleware);
-        $protection = ApplicationStorageProtectionResolver::resolve($operation->container);
+        $protection = $operation->protection;
         $sender = new PostgreSqlDeferredOperationSender($operation->connection, $protection, $database->schema);
         $idempotency = new PostgreSqlIdempotencyStore($operation->connection, $protection, $database->schema);
         if (!$operation->journal instanceof CanonicalJournalReader) {
@@ -76,7 +76,7 @@ final readonly class ApplicationHttpRuntimeComposer
                 $operation->journal,
                 new JournalRecordFactory($operation->identifiers, $operation->clock, $operation->telemetry),
                 authorization: $operation->authorization,
-                scope: new ExecutionScopeProvider(),
+                scope: new ExecutionScopeProvider(metrics: $operation->metrics),
                 idempotency: $idempotency,
                 idempotencyRetention: $retention?->policy->idempotencyRecordRetention(),
                 idempotencyRecovery: $recovery,

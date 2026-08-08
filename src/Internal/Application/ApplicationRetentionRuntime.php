@@ -7,6 +7,7 @@ namespace BlackOps\Internal\Application;
 use BlackOps\Internal\Scheduler\MaintenanceScheduler;
 use BlackOps\Internal\Scheduler\OutboxRelayMaintenanceTask;
 use BlackOps\Internal\Scheduler\RetentionMaintenanceTask;
+use BlackOps\Internal\Telemetry\TelemetryMetrics;
 use BlackOps\Internal\Telemetry\TelemetryTracer;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeadLetterRetentionDeleteService;
 use BlackOps\Transport\PostgreSql\PostgreSqlIdempotencyRetentionDeleteService;
@@ -30,6 +31,7 @@ final readonly class ApplicationRetentionRuntime
     public function __construct(ApplicationConfigurationSnapshot $snapshot)
     {
         $database = ApplicationDatabaseConfiguration::fromConfiguration($snapshot->configuration());
+        $metrics = new TelemetryMetrics($snapshot->meterProvider());
         $this->configuration = ApplicationRetentionConfiguration::fromConfiguration($snapshot->configuration());
         $connection = $database->databaseManager()->connection($database->frameworkConnection);
         $this->clock = new PostgreSqlSystemClock();
@@ -56,6 +58,6 @@ final readonly class ApplicationRetentionRuntime
         if ($outboxRelay !== null) {
             $tasks[] = new OutboxRelayMaintenanceTask(new ApplicationOutboxRuntime($snapshot)->relay);
         }
-        $this->scheduler = new MaintenanceScheduler($tasks, new TelemetryTracer($snapshot->tracerProvider()));
+        $this->scheduler = new MaintenanceScheduler($tasks, new TelemetryTracer($snapshot->tracerProvider()), $metrics);
     }
 }

@@ -14,7 +14,7 @@ final readonly class ApplicationStorageProtectionRuntime
     {
         $runtime = new ApplicationOperationRuntimeComposer()->compose($snapshot);
         $database = ApplicationDatabaseConfiguration::fromConfiguration($snapshot->configuration());
-        $codec = ApplicationStorageProtectionResolver::resolve($runtime->container);
+        $codec = $runtime->protection;
         $this->rotation = new PostgreSqlStorageProtectionRotation($runtime->connection, $codec, $database->schema);
     }
 }

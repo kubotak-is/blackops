@@ -1,6 +1,40 @@
 # Orchestration State
 
-Updated At: 2026-08-09T03:23:30+09:00
+Updated At: 2026-08-09T04:44:50+09:00
+
+## P20-018D OpenTelemetry Metric Adapter Accepted
+
+```text
+2026-08-09T04:44:50+09:00
+Orchestrator independent reviewでP20-018DをAcceptedとした。Typed per-Application MeterProvider、Official API-only No-op boundary、blackops.framework／1.1.0 scope、Stable 10 instrumentのName／Type／UCUM Unit、Compiled Operation Typeと有限Result／Runtime／Scheduler／Observer／Failure／Purpose属性、Active +1/-1 balance、Operation／Worker／Heartbeat／Outbox／Scheduler／Observer／Protection runtime wire、Provider／instrument failure isolationをSourceとRecording Provider evidenceへ照合した。Final independent required focused PHPUnit 223 tests／1,165 assertions、Full 2,164／8,990、Quickstart Consumer、pre-commit Framework package export、Composer strict／audit、Mago format、management-ID guard、diff checkをPASS。Broad Magoは既知baseline 75 findings（7 errors／25 warnings／29 notes／14 help）とanalyze 24 warningsへ戻りP20-018D driftなし、Deptracは既知PHP 8.5 vendor parser blockerとして分離した。Optional Queue Snapshotは未追加のためN/A。Task／Report／TODO／STATEをAcceptedへ同期し、Worker Commitなし。次はOrchestrator Commit後のexact package exportとP20-018E Local Docker Collector evidence。Push／Deployなし。
+```
+
+## P20-018D Second Orchestrator Review Corrections In Progress
+
+```text
+2026-08-09T04:20:17+09:00
+P20-018D worker correction evidence completed without commit: operation result matrix now covers all six finite terminal values with exact duration/active attributes and balance; worker claim matrix covers rejected, retry/dead-letter, invalid supervision, and interruption exception classes; maintenance and replay observe/flush failures preserve original throwables and emit exact safe labels; throwing MeterProvider preserves callback results and scope stack cleanup. Focused metric/worker/protection PHPUnit 73 tests／663 assertions and combined application/journal/replay/outbox/scheduling suite 469 tests／1,976 assertions passed. Changed-source analyze has no errors with three mixed-assignment warnings; targeted lint errors 0, format／diff／management-ID guard PASS. HTTP integration remains Orchestrator evidence (6 tests／73 assertions) without direct metric datapoint assertion; optional queue snapshot and broad/full/Consumer gates remain open. P20-018D remains In Progress; Worker Commit／Push／Deployなし。
+
+2026-08-09T04:31:33+09:00
+Orchestrator Full PHPUnit first run reached 2,164 tests／8,989 assertions with one failure because `tests/Application/ApplicationTest.php` omitted the new public `ApplicationBuilder::withMeterProvider` method from its exact fluent-shape list. Worker synchronized that test expectation only; the focused test passed 6 tests／39 assertions, and the rerun Full PHPUnit passed 2,164 tests／8,990 assertions with existing deprecation/notices only. Report records the correction; P20-018D remains In Progress with no commit／push／deploy.
+
+2026-08-09T04:41:55+09:00
+Final quality correction removed the three P20-018D changed-source lint warnings (ApplicationOperationRuntimeComposer／DeferredWorkerRuntime Halstead via small helpers; TelemetryMetrics no-isset and typed allowlist projection) and the corresponding TelemetryMetrics mixed-assignment analyze warning. Targeted changed-source `mago lint` and `mago analyze` both report No issues; ExecutionScopeProvider／ScheduledOperationRunner early branches were also simplified. Post-refactor focused suite passed 469 tests／1,976 assertions; full format, diff, and management-ID guards passed. Broad baseline drift remains Orchestrator-owned. P20-018D remains In Progress, no commit／push／deploy。
+```
+
+## P20-018D Runtime Instrumentation Evidence Update
+
+```text
+2026-08-09T03:57:19+09:00
+P20-018D correction turnでcompiled BopdEnvelopeCodecをimmutable cloneへ接続し、resolver／console／HTTP／outbox／schedule／worker／rotationの後続compositionで同じinstrumented cloneを使う。Metric instrumentごとのexact attribute allowlist、Compiled Operation Type allowlist、operation／worker attempt／relay／scheduler／observer境界分離、partial active increment failure balance、rejected／retry_scheduled／dead_lettered／interrupted result、maintenance／aggregator observer failureを補正した。Focused Deferred／Telemetry 59 tests／516 assertions、Internal application/journal/replay/outbox/scheduling 463 tests／1,918 assertions、changed-source analyze No issues (resolver mixed warnings only)、lint errors 0、format／diff／management-ID guard PASS。Optional queue snapshot、Full／Consumer／broad Mago／Deptrac／package exportは未実行。Reportは更新済みだがTaskはReview Pendingへ変更せずIn Progressを維持する。Worker Commit／Push／Deployなし。
+```
+
+## P20-018D OpenTelemetry Metric Adapter Start
+
+```text
+2026-08-09T03:25:18+09:00
+P20-018Cは87c444d、post-commit package verificationは3cda010としてCommit済みで、Working Tree cleanを確認した。D136 Question 6の回答AとSpecification 100のStable Instrument Matrixに従い、P20-018DをIn Progressとして開始する。Application-owned MeterProvider、blackops.framework scope、Operation／Worker／Outbox／Scheduler／Observer／Protectionの低Cardinality Metric、Active Counter balance、No-op／throwing Provider failure isolationをRepository設定どおりGPT-5.6 Luna High workerへ委譲する。SDK／Exporter／Collector／Healthは範囲外で、Local Docker Collector actual E2EはP20-018Eに維持する。Worker Commit／Push／Deployなし。
+```
 
 ## P20-018C Post-commit Package Export Accepted
 

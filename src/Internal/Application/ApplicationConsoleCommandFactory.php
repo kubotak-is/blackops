@@ -157,9 +157,10 @@ final class ApplicationConsoleCommandFactory
         $database = ApplicationDatabaseConfiguration::fromConfiguration($this->configuration->configuration());
         $connection = $database->databaseManager()->connection($database->frameworkConnection);
         $runtime = new ApplicationOperationRuntimeComposer()->compose($this->configuration);
-        $protection = ApplicationStorageProtectionResolver::resolve($runtime->container);
+        $protection = $runtime->protection;
         $targets = new ApplicationJournalObservationFactory()->replayTargets(
             $this->configuration->configuration(),
+            $runtime->metrics,
         ) ?? new \BlackOps\Internal\Replay\ObserverReplayTargetRegistry([]);
         return new JournalObserverReplayCommand(
             new ObserverReplayRuntime(
@@ -167,6 +168,7 @@ final class ApplicationConsoleCommandFactory
                 $targets,
                 new ObservedJournalRecordProjector(new SensitiveProjectionFilter()),
                 telemetry: $runtime->telemetry,
+                metrics: $runtime->metrics,
             ),
         );
     }

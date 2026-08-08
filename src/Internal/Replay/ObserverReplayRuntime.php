@@ -6,6 +6,7 @@ namespace BlackOps\Internal\Replay;
 
 use BlackOps\Internal\Journal\JournalObserverBinding;
 use BlackOps\Internal\Projection\ObservedJournalRecordProjector;
+use BlackOps\Internal\Telemetry\TelemetryMetrics;
 use BlackOps\Internal\Telemetry\TelemetryTracer;
 use BlackOps\Journal\Exception\JournalObservationFailed;
 use BlackOps\Transport\PostgreSql\PostgreSqlObserverReplayBeginRequest;
@@ -29,6 +30,7 @@ final readonly class ObserverReplayRuntime
         private ObservedJournalRecordProjector $projector,
         private int $batchSize = 100,
         private ?TelemetryTracer $telemetry = null,
+        private ?TelemetryMetrics $metrics = null,
     ) {
         if ($batchSize < 1 || $batchSize > 1000) {
             throw new InvalidArgumentException('Replay batch size must be between 1 and 1000.');
@@ -99,6 +101,7 @@ final readonly class ObserverReplayRuntime
             return $result;
         } catch (Throwable $failure) {
             $span?->fail($failure);
+            $this->metrics?->observerFailure('replay', 'replay_failed');
             throw $failure;
         } finally {
             $span?->end();

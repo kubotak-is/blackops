@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BlackOps\Internal\StorageProtection;
 
+use BlackOps\Internal\Telemetry\TelemetryMetrics;
 use BlackOps\StorageProtection\StorageKey;
 use BlackOps\StorageProtection\StorageKeyProvider;
 use BlackOps\StorageProtection\StorageProtectionException;
@@ -14,6 +15,7 @@ use Throwable;
  * so malformed bytes can never be reinterpreted as plaintext.
  *
  * @mago-expect lint:cyclomatic-complexity
+ * @mago-expect lint:too-many-methods
  */
 final readonly class BopdEnvelopeCodec
 {
@@ -28,7 +30,13 @@ final readonly class BopdEnvelopeCodec
         private StorageKeyProvider $keys,
         private CanonicalAssociatedData $aad = new CanonicalAssociatedData(),
         private NonceSource $nonces = new RandomNonceSource(),
+        private ?TelemetryMetrics $metrics = null,
     ) {}
+
+    public function withMetrics(?TelemetryMetrics $metrics): self
+    {
+        return new self($this->keys, $this->aad, $this->nonces, $metrics);
+    }
 
     public function encrypt(
         #[\SensitiveParameter]
@@ -70,6 +78,7 @@ final readonly class BopdEnvelopeCodec
                 . $tag
             );
         } catch (Throwable) {
+            $this->metrics?->protectionFailure($context->purpose->value, 'encryption_failed');
             throw StorageProtectionException::failure();
         }
     }
@@ -100,6 +109,7 @@ final readonly class BopdEnvelopeCodec
 
             return $plaintext;
         } catch (Throwable) {
+            $this->metrics?->protectionFailure($context->purpose->value, 'decryption_failed');
             throw StorageProtectionException::failure();
         }
     }
@@ -114,6 +124,7 @@ final readonly class BopdEnvelopeCodec
                 'digest' => hash('sha256', $envelope),
             ];
         } catch (Throwable) {
+            $this->metrics?->protectionFailure('unknown', 'header_parse_failed');
             throw StorageProtectionException::failure();
         }
     }
@@ -147,6 +158,7 @@ final readonly class BopdEnvelopeCodec
             }
             return $keyId;
         } catch (Throwable) {
+            $this->metrics?->protectionFailure('unknown', 'header_parse_failed');
             throw StorageProtectionException::failure();
         }
     }

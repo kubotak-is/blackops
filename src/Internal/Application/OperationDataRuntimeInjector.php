@@ -10,6 +10,7 @@ use BlackOps\Internal\OperationData\OperationDataReadAuthorizerResolver;
 use BlackOps\Internal\OperationData\PostgreSqlOperationDataSubjectReader;
 use BlackOps\Internal\OperationData\PostgreSqlTenantScopedCanonicalJournalReader;
 use BlackOps\Internal\OperationData\PostgreSqlTenantScopedOutcomeReader;
+use BlackOps\Internal\StorageProtection\BopdEnvelopeCodec;
 use BlackOps\OperationData\OperationJournalQuery;
 use BlackOps\OperationData\OperationOutcomeQuery;
 use BlackOps\Transport\PostgreSql\PostgreSqlStatusReader;
@@ -20,15 +21,19 @@ use Symfony\Component\DependencyInjection\Container;
 
 final readonly class OperationDataRuntimeInjector
 {
-    public function inject(ContainerInterface $container, Connection $connection, string $schema): void
-    {
+    public function inject(
+        ContainerInterface $container,
+        Connection $connection,
+        string $schema,
+        ?BopdEnvelopeCodec $protection = null,
+    ): void {
         if (!$container instanceof Container) {
             throw new InvalidArgumentException('Runtime container does not support operation data injection.');
         }
 
         $subjectReader = new PostgreSqlOperationDataSubjectReader(new PostgreSqlStatusReader($connection, $schema));
         $authorizer = new OperationDataReadAuthorizerResolver($container)->resolve();
-        $protection = ApplicationStorageProtectionResolver::resolve($container);
+        $protection ??= ApplicationStorageProtectionResolver::resolve($container);
         $container->set(
             OperationJournalQuery::class,
             new DefaultOperationJournalQuery(

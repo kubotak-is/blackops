@@ -12,6 +12,8 @@ use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Internal\Execution\PcntlSignalHeartbeat;
 use BlackOps\Internal\Execution\WorkerClaimLostException;
 use BlackOps\Internal\Execution\WorkerGracePeriodExceededException;
+use BlackOps\Internal\Telemetry\TelemetryMetrics;
+use BlackOps\Tests\Internal\Telemetry\RecordingMeterProvider;
 use DateTimeImmutable;
 use InvalidArgumentException;
 use LogicException;
@@ -72,18 +74,32 @@ final class SignalHeartbeatTest extends TestCase
             self::markTestSkipped('POSIX signal sending is unavailable.');
         }
 
-        $signals = new PcntlSignalHeartbeat(new RecordingSignalHeartbeat(fail: true), 1, 3, 2);
+        $provider = new RecordingMeterProvider();
+        $signals = new PcntlSignalHeartbeat(
+            new RecordingSignalHeartbeat(fail: true),
+            1,
+            3,
+            2,
+            metrics: new TelemetryMetrics($provider),
+        );
 
         $this->expectException(WorkerClaimLostException::class);
 
-        $signals->runLoop(fn(): mixed => $signals->run(self::claim(), static function (): never {
-            if (!posix_kill(getmypid(), SIGALRM)) {
-                throw new RuntimeException('SIGALRM could not be sent to the test process.');
-            }
-            pcntl_signal_dispatch();
+        try {
+            $signals->runLoop(fn(): mixed => $signals->run(self::claim(), static function (): never {
+                if (!posix_kill(getmypid(), SIGALRM)) {
+                    throw new RuntimeException('SIGALRM could not be sent to the test process.');
+                }
+                pcntl_signal_dispatch();
 
-            throw new RuntimeException('SIGALRM was not dispatched.');
-        }));
+                throw new RuntimeException('SIGALRM was not dispatched.');
+            }));
+        } finally {
+            self::assertSame(
+                'claim_lost',
+                $provider->instruments[3]->records[0]['attributes']['blackops.failure.code'],
+            );
+        }
     }
 
     public function testSigtermGraceExpiryInterruptsWithoutHeartbeatSupervision(): void

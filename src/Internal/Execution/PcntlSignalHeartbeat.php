@@ -6,6 +6,7 @@ namespace BlackOps\Internal\Execution;
 
 use BlackOps\Core\Execution\ClaimHeartbeat;
 use BlackOps\Core\Execution\OperationClaim;
+use BlackOps\Internal\Telemetry\TelemetryMetrics;
 use Closure;
 use InvalidArgumentException;
 use LogicException;
@@ -30,6 +31,7 @@ final class PcntlSignalHeartbeat implements WorkerSignalRuntime, ClaimExecutionG
         int $leaseSeconds,
         private readonly int $graceSeconds,
         ?Closure $availability = null,
+        private readonly ?TelemetryMetrics $metrics = null,
     ) {
         if ($heartbeatSeconds < 1 || $leaseSeconds < 1 || $heartbeatSeconds >= $leaseSeconds) {
             throw new InvalidArgumentException('Worker heartbeat interval must be positive and shorter than lease.');
@@ -138,6 +140,7 @@ final class PcntlSignalHeartbeat implements WorkerSignalRuntime, ClaimExecutionG
         try {
             $this->activeClaim = $this->heartbeat->heartbeat($this->activeClaim);
         } catch (Throwable $exception) {
+            $this->metrics?->heartbeatFailure('claim_lost');
             throw new WorkerClaimLostException('Worker heartbeat failed and claim was lost.', previous: $exception);
         }
 

@@ -94,6 +94,11 @@ Application Configuration Snapshotへ束縛し、HTTP、Worker、Console、Outbo
 Replayの各Runtimeへ同じSnapshot由来のTracerを渡す。未登録時はRuntime結果を変えないOfficial No-op
 Providerを使い、Global／StaticなProvider登録へFallbackしない。
 
+Applicationは`ApplicationBuilder::withMeterProvider(?OpenTelemetry\\API\\Metrics\\MeterProviderInterface)`でも
+Application-owned MeterProviderを登録できる。MeterProviderはImmutable Configuration Snapshotへ束縛し、
+未登録時はOfficial No-op MeterProviderを使う。Metric AdapterはTraceと同じ
+`blackops.framework`／`1.1.0` scopeを使い、Global／Static ProviderへFallbackしない。
+
 ## Long-running Worker
 
 Workerで再利用されるServiceは原則Statelessとする。

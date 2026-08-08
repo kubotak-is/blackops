@@ -32,14 +32,14 @@ final readonly class DeferredFailureSupervisor
         OperationEnvelope $envelope,
         Throwable $exception,
         ?TelemetrySpanScope $span = null,
-    ): void {
-        $this->storage->connection->transactional(function () use (
+    ): string {
+        return $this->storage->connection->transactional(function () use (
             $claim,
             $metadata,
             $envelope,
             $exception,
             $span,
-        ): void {
+        ): string {
             $now = $this->storage->clock->now();
             $reservation = $this->storage->state->reserveFailed($claim, $now);
             $attempt = $envelope->context()->attempt();
@@ -70,11 +70,13 @@ final readonly class DeferredFailureSupervisor
                 SupervisionAction::Fail => $this->failOperation($claim, $metadata, $envelope, $exception),
                 SupervisionAction::DeadLetter => $this->deadLetterOperation($claim, $metadata, $envelope, $exception),
             };
-            $span?->result(match ($decision->action()) {
+            $result = match ($decision->action()) {
                 SupervisionAction::Retry => 'retry_scheduled',
                 SupervisionAction::DeadLetter => 'dead_lettered',
                 SupervisionAction::Fail => 'failed',
-            });
+            };
+            $span?->result($result);
+            return $result;
         });
     }
 

@@ -62,6 +62,7 @@ use BlackOps\Internal\Logging\ExecutionScopedLogger;
 use BlackOps\Internal\Logging\FrameworkOperationFailureReporter;
 use BlackOps\Internal\Scheduling\PostgreSqlScheduledOccurrenceLifecycle;
 use BlackOps\Internal\Scheduling\PostgreSqlScheduleStore;
+use BlackOps\Internal\Telemetry\TelemetryMetrics;
 use BlackOps\Internal\Telemetry\TelemetryTracer;
 use BlackOps\Internal\Transaction\OperationTransactionCoordinator;
 use BlackOps\Internal\Transaction\TransactionRuntime;
@@ -75,6 +76,7 @@ use BlackOps\Outcome\Exception\OutcomeStoreException;
 use BlackOps\Outcome\OutcomeRecord;
 use BlackOps\Outcome\OutcomeWriter;
 use BlackOps\Telemetry\TelemetryContext;
+use BlackOps\Tests\Internal\Telemetry\RecordingMeterProvider;
 use BlackOps\Tests\Internal\Telemetry\RecordingTracerProvider;
 use BlackOps\Tests\Transport\PostgreSql\PostgreSqlTestStorageProtection;
 use BlackOps\Transport\PostgreSql\PostgreSqlCanonicalJournalStore;
@@ -283,6 +285,7 @@ final class DeferredWorkerRuntimeTest extends TestCase
 
     public function testWorkerClosesEveryGeneratedConnectionAfterSupervisedFailure(): void
     {
+        $meterProvider = new RecordingMeterProvider();
         $app = $this->createMock(Connection::class);
         $analytics = $this->createMock(Connection::class);
         foreach ([$app, $analytics] as $connection) {
@@ -297,15 +300,20 @@ final class DeferredWorkerRuntimeTest extends TestCase
         self::assertNotNull($claim);
 
         try {
-            $this->runtime(new ThrowingWorkerReportHandler(), connections: $this->lifecycle([
-                'app' => $app,
-                'analytics' => $analytics,
-            ]))->run($claim);
+            $this->runtime(
+                new ThrowingWorkerReportHandler(),
+                connections: $this->lifecycle([
+                    'app' => $app,
+                    'analytics' => $analytics,
+                ]),
+                metrics: new TelemetryMetrics($meterProvider, ['report.generate']),
+            )->run($claim);
             self::fail('Expected supervised handler failure.');
         } catch (SupervisedHandlerFailureException) {
         }
 
         self::assertSame('failed', $this->operationRow()['state']);
+        self::assertSame('failed', $meterProvider->instruments[0]->records[0]['attributes']['blackops.result']);
     }
 
     public function testWorkerReusesClosedConnectionObjectOnNextRetryAttempt(): void
@@ -797,12 +805,18 @@ final class DeferredWorkerRuntimeTest extends TestCase
         ]);
         $actors = self::userActors();
         $telemetry = new TelemetryContext('00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01');
+        $meterProvider = new RecordingMeterProvider();
         $this->accept($metadata, actors: $actors, authorizationPolicy: $policy, telemetry: $telemetry);
         $firstClaim = $this->receiver->claim(new \BlackOps\Core\Execution\ClaimRequest(
             new DateTimeImmutable('2026-07-10T00:01:00.000000Z'),
         ));
         self::assertNotNull($firstClaim);
-        $runtime = $this->runtime($handler, metadata: $metadata, authorizationPolicy: $policy);
+        $runtime = $this->runtime(
+            $handler,
+            metadata: $metadata,
+            authorizationPolicy: $policy,
+            metrics: new TelemetryMetrics($meterProvider, [$metadata->typeId]),
+        );
 
         try {
             $runtime->run($firstClaim);
@@ -819,6 +833,11 @@ final class DeferredWorkerRuntimeTest extends TestCase
         $result = $runtime->run($secondClaim);
 
         self::assertTrue($result->isCompleted());
+        self::assertSame(
+            'retry_scheduled',
+            $meterProvider->instruments[0]->records[0]['attributes']['blackops.result'],
+        );
+        self::assertSame('completed', $meterProvider->instruments[0]->records[1]['attributes']['blackops.result']);
         self::assertSame(1, $handler->calls);
         self::assertCount(3, $policy->requests);
         self::assertSame(2, $policy->requests[2]->context()->attempt()?->number());
@@ -1419,6 +1438,7 @@ final class DeferredWorkerRuntimeTest extends TestCase
         ?FrameworkOperationFailureReporter $failureReporter = null,
         bool $scheduled = false,
         ?TelemetryTracer $telemetry = null,
+        ?TelemetryMetrics $metrics = null,
     ): DeferredWorkerRuntime {
         $clock = new DeferredWorkerClock();
         $identifiers = new IdentifierFactory(new DeferredWorkerRuntimeUuidv7Generator(), $clock);
@@ -1465,6 +1485,7 @@ final class DeferredWorkerRuntimeTest extends TestCase
             ),
             $guard ?? new \BlackOps\Internal\Execution\DirectClaimExecutionGuard(),
             connections: $connections,
+            metrics: $metrics,
         );
     }
 

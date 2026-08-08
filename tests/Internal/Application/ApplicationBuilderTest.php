@@ -7,6 +7,7 @@ namespace BlackOps\Tests\Internal\Application;
 use BlackOps\Application\Application;
 use BlackOps\Application\ApplicationBootstrapException;
 use BlackOps\Internal\Application\ApplicationConfigurationSnapshot;
+use OpenTelemetry\API\Metrics\MeterProviderInterface;
 use OpenTelemetry\API\Trace\TracerProviderInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -41,6 +42,17 @@ final class ApplicationBuilderTest extends TestCase
             ->create();
 
         self::assertSame($provider, $this->snapshot($application)->tracerProvider());
+    }
+
+    public function testBuilderBindsMeterProviderIntoCreatedApplicationSnapshot(): void
+    {
+        $provider = $this->createMock(MeterProviderInterface::class);
+        $application = Application::configure($this->directory())
+            ->withMeterProvider($provider)
+            ->withConfiguration()
+            ->create();
+
+        self::assertSame($provider, $this->snapshot($application)->meterProvider());
     }
 
     /** @return iterable<string, array{string}> */

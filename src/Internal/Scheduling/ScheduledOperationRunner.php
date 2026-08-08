@@ -7,6 +7,7 @@ namespace BlackOps\Internal\Scheduling;
 use BlackOps\Core\Execution\DeferredAcknowledgement;
 use BlackOps\Core\Registry\OperationMetadata;
 use BlackOps\Core\Registry\OperationRegistry;
+use BlackOps\Internal\Telemetry\TelemetryMetrics;
 use BlackOps\Internal\Telemetry\TelemetryTracer;
 use Psr\Clock\ClockInterface;
 use Throwable;
@@ -26,6 +27,7 @@ final readonly class ScheduledOperationRunner implements ScheduledOperationRunSe
         private PostgreSqlScheduledOccurrenceLifecycle $occurrences,
         private ClockInterface $clock,
         private ?TelemetryTracer $telemetry = null,
+        private ?TelemetryMetrics $metrics = null,
     ) {}
 
     public function run(): ScheduledOperationRunResult
@@ -33,15 +35,19 @@ final readonly class ScheduledOperationRunner implements ScheduledOperationRunSe
         $span = $this->telemetry?->start('blackops.operation.schedule.evaluate', attributes: [
             'blackops.runtime.kind' => 'scheduler',
         ]);
+        $metric = $this->metrics?->schedulerScope('application');
         try {
             $result = $this->runSchedules();
             $span?->result($result->failed === 0 ? 'completed' : 'failed');
+            $metric?->result($result->failed === 0 ? 'completed' : 'failed');
             return $result;
         } catch (Throwable $failure) {
             $span?->fail($failure);
+            $metric?->fail();
             throw $failure;
         } finally {
             $span?->end();
+            $metric?->end();
         }
     }
 
@@ -92,10 +98,12 @@ final readonly class ScheduledOperationRunner implements ScheduledOperationRunSe
                     foreach ($evaluation->occurrences as $occurrence) {
                         if ($occurrence->state === 'skipped_misfire') {
                             ++$skippedMisfire;
+                            $this->metrics?->schedulerOccurrence('rejected', 'application');
                             continue;
                         }
                         if ($occurrence->state === 'skipped_overlap') {
                             ++$skippedOverlap;
+                            $this->metrics?->schedulerOccurrence('rejected', 'application');
                             continue;
                         }
                         if ($occurrence->state === 'claimed') {
@@ -126,18 +134,22 @@ final readonly class ScheduledOperationRunner implements ScheduledOperationRunSe
             if ($result instanceof DeferredAcknowledgement) {
                 $this->completeIfStillClaimed($occurrence, 'accepted');
                 ++$accepted;
+                $this->metrics?->schedulerOccurrence('completed', 'application');
                 return;
             }
             if ($result->isRejected()) {
                 $this->completeIfStillClaimed($occurrence, 'rejected', $result->rejectionReason()->code());
                 ++$failed;
-            } else {
-                $this->completeIfStillClaimed($occurrence, 'completed');
-                ++$accepted;
+                $this->metrics?->schedulerOccurrence('rejected', 'application');
+                return;
             }
+            $this->completeIfStillClaimed($occurrence, 'completed');
+            ++$accepted;
+            $this->metrics?->schedulerOccurrence('completed', 'application');
         } catch (Throwable) {
             $this->recordInvocationFailure($occurrence);
             ++$failed;
+            $this->metrics?->schedulerOccurrence('failed', 'application');
         }
     }
 

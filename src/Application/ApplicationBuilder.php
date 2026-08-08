@@ -13,6 +13,7 @@ use BlackOps\Internal\Application\ApplicationEnvironmentFile;
 use BlackOps\Internal\Application\ApplicationRegistrationValidator;
 use InvalidArgumentException;
 use LogicException;
+use OpenTelemetry\API\Metrics\MeterProviderInterface;
 use OpenTelemetry\API\Trace\TracerProviderInterface;
 use ReflectionClass;
 
@@ -40,10 +41,18 @@ final class ApplicationBuilder
     private array $commands = [];
 
     private ?TracerProviderInterface $tracerProvider = null;
+    private ?MeterProviderInterface $meterProvider = null;
 
     public function withTracerProvider(?TracerProviderInterface $provider): self
     {
         $this->tracerProvider = $provider;
+
+        return $this;
+    }
+
+    public function withMeterProvider(?MeterProviderInterface $provider): self
+    {
+        $this->meterProvider = $provider;
 
         return $this;
     }
@@ -162,6 +171,7 @@ final class ApplicationBuilder
                 $services,
                 $commands,
                 $this->tracerProvider,
+                $this->meterProvider,
             ),
         );
     }

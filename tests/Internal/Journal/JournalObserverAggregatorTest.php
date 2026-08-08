@@ -9,6 +9,8 @@ use BlackOps\Core\Identifier\JournalRecordId;
 use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Internal\Journal\JournalObserverAggregator;
 use BlackOps\Internal\Journal\JournalObserverBinding;
+use BlackOps\Internal\Replay\ObserverReplayTargetRegistry;
+use BlackOps\Internal\Telemetry\TelemetryMetrics;
 use BlackOps\Journal\Exception\JournalObservationFailed;
 use BlackOps\Journal\FlushableJournalObserver;
 use BlackOps\Journal\JournalDeliveryPolicy;
@@ -16,6 +18,7 @@ use BlackOps\Journal\JournalEvent;
 use BlackOps\Journal\JournalObserver;
 use BlackOps\Journal\JournalOperation;
 use BlackOps\Journal\ObservedJournalRecord;
+use BlackOps\Tests\Internal\Telemetry\RecordingMeterProvider;
 use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
 
@@ -37,6 +40,24 @@ final class JournalObserverAggregatorTest extends TestCase
         self::assertSame(['success'], $result->successfulObservers());
         self::assertSame('failing', $result->failures()[0]->observerName());
         self::assertSame(1, $success->observed);
+    }
+
+    public function testFailureRecordsSafeObserverMetricWithoutChangingBestEffortResult(): void
+    {
+        $provider = new RecordingMeterProvider();
+        $aggregator = new JournalObserverAggregator([new JournalObserverBinding(
+            'failing',
+            new FailingObserver(),
+        )], new TelemetryMetrics($provider));
+
+        $result = $aggregator->observe(self::record());
+
+        self::assertTrue($result->hasFailures());
+        self::assertSame('aggregator', $provider->instruments[8]->records[0]['attributes']['blackops.observer.kind']);
+        self::assertSame(
+            'observe_failed',
+            $provider->instruments[8]->records[0]['attributes']['blackops.failure.code'],
+        );
     }
 
     public function testRequiredFailureThrowsAfterTryingRemainingObservers(): void
@@ -80,6 +101,46 @@ final class JournalObserverAggregatorTest extends TestCase
         self::assertSame(['flushable'], $result->successfulObservers());
         self::assertSame(1, $flushable->flushed);
         self::assertSame(0, $plain->observed);
+    }
+
+    public function testReplayObserverFailureRecordsExactSafeMetric(): void
+    {
+        $provider = new RecordingMeterProvider();
+        $binding = new JournalObserverBinding('replay', new FailingObserver());
+        $registry = new ObserverReplayTargetRegistry([$binding], new TelemetryMetrics($provider));
+
+        try {
+            $registry->observe($binding, self::record());
+            self::fail('Expected replay observer failure.');
+        } catch (JournalObservationFailed) {
+            self::assertSame(
+                [
+                    'blackops.observer.kind' => 'replay',
+                    'blackops.failure.code' => 'observe_failed',
+                ],
+                $provider->instruments[8]->records[0]['attributes'],
+            );
+        }
+    }
+
+    public function testReplayFlushFailureRecordsExactSafeMetric(): void
+    {
+        $provider = new RecordingMeterProvider();
+        $binding = new JournalObserverBinding('replay', new FailingFlushableObserver());
+        $registry = new ObserverReplayTargetRegistry([$binding], new TelemetryMetrics($provider));
+
+        try {
+            $registry->flush($binding);
+            self::fail('Expected replay flush failure.');
+        } catch (JournalObservationFailed) {
+            self::assertSame(
+                [
+                    'blackops.observer.kind' => 'replay',
+                    'blackops.failure.code' => 'flush_failed',
+                ],
+                $provider->instruments[8]->records[0]['attributes'],
+            );
+        }
     }
 
     private static function record(): ObservedJournalRecord
@@ -135,5 +196,15 @@ final class FailingObserver implements JournalObserver
     public function observe(ObservedJournalRecord $record): void
     {
         throw new JournalObservationFailed('observer unavailable');
+    }
+}
+
+final class FailingFlushableObserver implements FlushableJournalObserver
+{
+    public function observe(ObservedJournalRecord $record): void {}
+
+    public function flush(): void
+    {
+        throw new JournalObservationFailed('flush unavailable');
     }
 }

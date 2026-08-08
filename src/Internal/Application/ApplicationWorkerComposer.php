@@ -28,6 +28,7 @@ use BlackOps\Internal\Logging\MonologJsonlLoggerFactory;
 use BlackOps\Internal\Logging\RuntimeLoggingServiceInjector;
 use BlackOps\Internal\Outbox\TransactionalOutboxRuntime;
 use BlackOps\Internal\Runtime\ProductionRuntimeArtifactLoader;
+use BlackOps\Internal\Telemetry\TelemetryMetrics;
 use BlackOps\Internal\Telemetry\TelemetryTracer;
 use BlackOps\Internal\Transaction\OperationTransactionCoordinator;
 use BlackOps\Internal\Transaction\RuntimeTransactionServiceInjector;
@@ -58,6 +59,10 @@ final readonly class ApplicationWorkerComposer
         $databases = $database->databaseManager();
         new RuntimeDatabaseServiceInjector()->inject($artifacts->container, $databases);
         $telemetry = new TelemetryTracer($configuration->tracerProvider());
+        $metrics = new TelemetryMetrics($configuration->meterProvider(), array_map(
+            static fn(\BlackOps\Core\Registry\OperationMetadata $metadata): string => $metadata->typeId,
+            $artifacts->operations->all(),
+        ));
         $executionScope = new ExecutionScopeProvider();
         $logging = ApplicationLoggingConfiguration::fromConfiguration($configuration->configuration());
         $logger = new RuntimeLoggingServiceInjector()->inject(
@@ -79,7 +84,7 @@ final readonly class ApplicationWorkerComposer
         if (!$artifacts->container instanceof Container) {
             throw new \InvalidArgumentException('Runtime container does not support outbox service injection.');
         }
-        $protection = ApplicationStorageProtectionResolver::resolve($artifacts->container);
+        $protection = ApplicationStorageProtectionResolver::resolve($artifacts->container, $metrics);
         $outbox = new TransactionalOutboxRuntime(
             $artifacts->operations,
             new ReflectionJsonOperationCodec(),
@@ -95,7 +100,7 @@ final readonly class ApplicationWorkerComposer
         );
         $artifacts->container->set(TransactionalOutbox::class, $outbox);
         $artifacts->container->set(Operations::class, $outbox);
-        new OperationDataRuntimeInjector()->inject($artifacts->container, $main, $database->schema);
+        new OperationDataRuntimeInjector()->inject($artifacts->container, $main, $database->schema, $protection);
         $services = new DeferredWorkerRuntimeServices(
             $artifacts->operations,
             new ReflectionJsonOperationCodec(),
@@ -142,12 +147,14 @@ final readonly class ApplicationWorkerComposer
             $worker->heartbeatSeconds,
             $worker->leaseSeconds,
             $worker->graceSeconds,
+            metrics: $metrics,
         );
         $runtime = new DeferredWorkerRuntime(
             $services,
             $storage,
             $signals,
             connections: new ApplicationDatabaseConnectionLifecycle($databases),
+            metrics: $metrics,
         );
         $loop = new DeferredWorkerLoop(
             new DeferredLeaseExpiredRecovery($services, $storage),
@@ -157,6 +164,7 @@ final readonly class ApplicationWorkerComposer
             $signals,
             $clock,
             continueAfterHandlerFailure: $worker->continueAfterHandlerFailure,
+            metrics: $metrics,
         );
 
         return new ApplicationWorkerComposition($loop, $main, $heartbeat, $signals);

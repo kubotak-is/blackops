@@ -13,7 +13,9 @@ use BlackOps\Internal\Codec\ReflectionJsonOperationCodec;
 use BlackOps\Internal\Outbox\OutboxRelayConfiguration;
 use BlackOps\Internal\Outbox\OutboxRelayRuntime;
 use BlackOps\Internal\Outbox\PcntlOutboxSignalHeartbeat;
+use BlackOps\Internal\Telemetry\TelemetryMetrics;
 use BlackOps\Internal\Telemetry\TelemetryTracer;
+use BlackOps\Tests\Internal\Telemetry\RecordingMeterProvider;
 use BlackOps\Tests\Internal\Telemetry\RecordingTracerProvider;
 use BlackOps\Tests\Transport\PostgreSql\PostgreSqlTestStorageProtection;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationSender;
@@ -172,6 +174,7 @@ final class OutboxRelayRuntimeTest extends TestCase
         $store->insert($this->record('019f45b2-7c2d-7abc-8def-0123456789ad', '019f45b2-7c2d-7abc-8def-0123456789ae'));
         $clock = new FrozenOutboxClock($now);
         $provider = new RecordingTracerProvider();
+        $meterProvider = new RecordingMeterProvider();
         $runtime = new OutboxRelayRuntime(
             $store,
             new SelectiveFailureSender(),
@@ -184,6 +187,7 @@ final class OutboxRelayRuntimeTest extends TestCase
             ),
             $clock,
             telemetry: new TelemetryTracer($provider),
+            metrics: new TelemetryMetrics($meterProvider),
         );
 
         $first = $runtime->runBatch();
@@ -197,6 +201,15 @@ final class OutboxRelayRuntimeTest extends TestCase
         self::assertSame('outbox_relay', $span->attributes['blackops.runtime.kind']);
         self::assertSame('retry_scheduled', $span->attributes['blackops.result']);
         self::assertTrue($span->ended);
+        self::assertSame(
+            'retry_scheduled',
+            $meterProvider->instruments[5]->records[0]['attributes']['blackops.result'],
+        );
+        self::assertSame('completed', $meterProvider->instruments[5]->records[1]['attributes']['blackops.result']);
+        self::assertSame(
+            'retry_scheduled',
+            $meterProvider->instruments[4]->records[0]['attributes']['blackops.result'],
+        );
         $next = new DateTimeImmutable((string) $this->connection->fetchOne(
             'SELECT next_attempt_at FROM "outbox_runtime_test"."outbox_records" WHERE state=\'retry_scheduled\'',
         ));
@@ -211,6 +224,7 @@ final class OutboxRelayRuntimeTest extends TestCase
 
         $clock->set($now->modify('+3 seconds'));
         self::assertSame(1, $runtime->runBatch()->deadLettered);
+        self::assertSame('dead_lettered', $meterProvider->instruments[5]->records[2]['attributes']['blackops.result']);
         self::assertSame(
             $fingerprint,
             $this->connection->fetchOne(

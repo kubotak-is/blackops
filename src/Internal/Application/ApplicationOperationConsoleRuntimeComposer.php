@@ -54,7 +54,7 @@ final readonly class ApplicationOperationConsoleRuntimeComposer
         );
         $sender = new PostgreSqlDeferredOperationSender(
             $runtime->connection,
-            ApplicationStorageProtectionResolver::resolve($runtime->container),
+            $runtime->protection,
             $this->schema($configuration),
         );
         $deferred = new DeferredHttpOperationAcceptor(

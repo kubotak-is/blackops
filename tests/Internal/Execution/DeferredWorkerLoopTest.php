@@ -17,8 +17,12 @@ use BlackOps\Internal\Execution\DeferredWorkerLoop;
 use BlackOps\Internal\Execution\ExpiredAttemptRecovery;
 use BlackOps\Internal\Execution\SupervisedHandlerFailureException;
 use BlackOps\Internal\Execution\WorkerClaimLostException;
+use BlackOps\Internal\Execution\WorkerExecutionInterruptedException;
+use BlackOps\Internal\Execution\WorkerGracePeriodExceededException;
 use BlackOps\Internal\Execution\WorkerSignalRuntime;
 use BlackOps\Internal\Execution\WorkerSleeper;
+use BlackOps\Internal\Telemetry\TelemetryMetrics;
+use BlackOps\Tests\Internal\Telemetry\RecordingMeterProvider;
 use Closure;
 use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
@@ -89,6 +93,61 @@ final class DeferredWorkerLoopTest extends TestCase
         self::assertSame(1, $loop->run(1));
         self::assertSame([$claim], $settlement->acknowledged);
         self::assertSame([], $settlement->released);
+    }
+
+    public function testRecordsWorkerClaimResultWithoutChangingSettlement(): void
+    {
+        $provider = new RecordingMeterProvider();
+        $claim = self::claim('019f32ab-2be0-7b38-a0a7-1ab2f9687801');
+        $settlement = new LoopSettlement();
+        $loop = new DeferredWorkerLoop(
+            new LoopRecovery(),
+            new LoopReceiver([$claim]),
+            new LoopRuntime([OperationResult::completed()]),
+            $settlement,
+            new LoopSignals(),
+            new LoopClock(),
+            new LoopSleeper(),
+            metrics: new TelemetryMetrics($provider),
+        );
+
+        self::assertSame(1, $loop->run(1));
+        self::assertSame([$claim], $settlement->acknowledged);
+        self::assertSame('completed', $provider->instruments[2]->records[0]['attributes']['blackops.result']);
+    }
+
+    public function testWorkerClaimResultMatrixUsesSafeTerminalValues(): void
+    {
+        $cases = [
+            [OperationResult::rejected(RejectionReason::businessRule('not_allowed')), 'rejected'],
+            [new SupervisedHandlerFailureException('retry', result: 'retry_scheduled'), 'retry_scheduled'],
+            [new SupervisedHandlerFailureException('dead', result: 'dead_lettered'), 'dead_lettered'],
+            [new SupervisedHandlerFailureException('invalid', result: 'not-safe'), 'failed'],
+            [new class('interrupted') extends WorkerExecutionInterruptedException {}, 'interrupted'],
+            [new WorkerClaimLostException('lost'), 'interrupted'],
+            [new WorkerGracePeriodExceededException('grace'), 'interrupted'],
+        ];
+
+        foreach ($cases as [$outcome, $expected]) {
+            $provider = new RecordingMeterProvider();
+            $claim = self::claim('019f32ab-2be0-7b38-a0a7-1ab2f9687801');
+            $settlement = new LoopSettlement();
+            $loop = new DeferredWorkerLoop(
+                new LoopRecovery(),
+                new LoopReceiver([$claim]),
+                new LoopRuntime([$outcome]),
+                $settlement,
+                new LoopSignals(),
+                new LoopClock(),
+                new LoopSleeper(),
+                metrics: new TelemetryMetrics($provider),
+            );
+            try {
+                $loop->run(1);
+            } catch (\Throwable) {
+            }
+            self::assertSame($expected, $provider->instruments[2]->records[0]['attributes']['blackops.result']);
+        }
     }
 
     public function testContinuesAfterSupervisedHandlerFailureWithoutAcknowledgingFailedClaim(): void

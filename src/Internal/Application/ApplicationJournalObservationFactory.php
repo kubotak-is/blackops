@@ -10,13 +10,14 @@ use BlackOps\Internal\Journal\JournalObserverBinding;
 use BlackOps\Internal\Journal\LazyJsonlJournalObserver;
 use BlackOps\Internal\Projection\ObservedJournalRecordProjector;
 use BlackOps\Internal\Projection\SensitiveProjectionFilter;
+use BlackOps\Internal\Telemetry\TelemetryMetrics;
 use BlackOps\Logging\JsonlJournalObserver;
 use InvalidArgumentException;
 
 final readonly class ApplicationJournalObservationFactory
 {
     /** @param array<string, array<array-key, mixed>> $configuration */
-    public function create(array $configuration): ?ApplicationJournalObservations
+    public function create(array $configuration, ?TelemetryMetrics $metrics = null): ?ApplicationJournalObservations
     {
         $jsonl = ApplicationJournalConfiguration::fromConfiguration($configuration);
         if (!$jsonl->enabled) {
@@ -36,7 +37,7 @@ final readonly class ApplicationJournalObservationFactory
         }
         $observers = new JournalObserverAggregator([
             new JournalObserverBinding('application-jsonl', new JsonlJournalObserver($stream), $jsonl->delivery),
-        ]);
+        ], $metrics);
 
         return new ApplicationJournalObservations(
             new JournalObservationPipeline(
@@ -44,12 +45,15 @@ final readonly class ApplicationJournalObservationFactory
                 $observers,
             ),
             $observers,
+            $metrics,
         );
     }
 
     /** @param array<string, array<array-key, mixed>> $configuration */
-    public function replayTargets(array $configuration): ?\BlackOps\Internal\Replay\ObserverReplayTargetRegistry
-    {
+    public function replayTargets(
+        array $configuration,
+        ?TelemetryMetrics $metrics = null,
+    ): ?\BlackOps\Internal\Replay\ObserverReplayTargetRegistry {
         $jsonl = ApplicationJournalConfiguration::fromConfiguration($configuration);
         if (!$jsonl->enabled) {
             return null;
@@ -60,6 +64,6 @@ final readonly class ApplicationJournalObservationFactory
                 new LazyJsonlJournalObserver($jsonl->path ?? ''),
                 $jsonl->delivery,
             ),
-        ]);
+        ], $metrics);
     }
 }

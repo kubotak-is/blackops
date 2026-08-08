@@ -221,7 +221,7 @@ MVP後に残す主要項目:
 - [x] Structured Record v1とCanonical JSONL Formatterを実装する（P20-018A、Accepted）
 - [x] W3C Telemetry ContextとProcess越しPropagationを実装する（P20-018B、Accepted）
 - [x] OpenTelemetry Trace AdapterとSpan Lifecycleを実装する（P20-018C、Accepted）
-- [ ] 低Cardinality Metric AdapterとRuntime Instrumentationを実装する（P20-018D）
+- [x] 低Cardinality Metric AdapterとRuntime Instrumentationを実装する（P20-018D、Accepted）
 - [ ] Liveness／ReadinessとLocal Docker Collector Consumerを実装する（P20-018E）
 - [ ] Observability GuideとDocumentation Reviewを完了する（P20-018F）
 

@@ -18,11 +18,14 @@ use BlackOps\Internal\Scheduler\MaintenanceScheduler;
 use BlackOps\Internal\Scheduler\MaintenanceTask;
 use BlackOps\Internal\Scheduler\MaintenanceTaskResult;
 use BlackOps\Internal\Scheduler\RetentionMaintenanceTask;
+use BlackOps\Internal\Telemetry\TelemetryMetrics;
 use BlackOps\Internal\Telemetry\TelemetryTracer;
+use BlackOps\Tests\Internal\Telemetry\RecordingMeterProvider;
 use BlackOps\Tests\Internal\Telemetry\RecordingTracerProvider;
 use DateTimeImmutable;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
 final class MaintenanceSchedulerTest extends TestCase
 {
@@ -48,7 +51,12 @@ final class MaintenanceSchedulerTest extends TestCase
     public function testRecordsMaintenanceRuntimeSpanUntilTasksFinish(): void
     {
         $provider = new RecordingTracerProvider();
-        $scheduler = new MaintenanceScheduler([new SchedulerTestTask('recorded', 1)], new TelemetryTracer($provider));
+        $meterProvider = new RecordingMeterProvider();
+        $scheduler = new MaintenanceScheduler(
+            [new SchedulerTestTask('recorded', 1)],
+            new TelemetryTracer($provider),
+            new TelemetryMetrics($meterProvider),
+        );
 
         $scheduler->run(new DateTimeImmutable('2026-07-11T00:00:00Z'));
 
@@ -59,6 +67,11 @@ final class MaintenanceSchedulerTest extends TestCase
         self::assertSame('maintenance', $span->attributes['blackops.runtime.kind']);
         self::assertSame('completed', $span->attributes['blackops.result']);
         self::assertTrue($span->ended);
+        self::assertSame(
+            'maintenance',
+            $meterProvider->instruments[6]->records[0]['attributes']['blackops.scheduler.kind'],
+        );
+        self::assertSame('completed', $meterProvider->instruments[7]->records[0]['attributes']['blackops.result']);
     }
 
     public function testRejectsInvalidTaskResult(): void
@@ -66,6 +79,36 @@ final class MaintenanceSchedulerTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
 
         new MaintenanceTaskResult('', 0, 'empty');
+    }
+
+    public function testRethrowsTaskFailureAndRecordsFailedSchedulerMetrics(): void
+    {
+        $failure = new RuntimeException('maintenance marker');
+        $provider = new RecordingMeterProvider();
+        $scheduler = new MaintenanceScheduler([new ThrowingSchedulerTask(
+            $failure,
+        )], metrics: new TelemetryMetrics($provider));
+
+        try {
+            $scheduler->run(new DateTimeImmutable('2026-07-11T00:00:00Z'));
+            self::fail('Expected maintenance failure.');
+        } catch (RuntimeException $caught) {
+            self::assertSame($failure, $caught);
+            self::assertSame('maintenance marker', $caught->getMessage());
+        }
+
+        self::assertSame(
+            ['blackops.scheduler.kind', 'blackops.result'],
+            array_keys($provider->instruments[6]->records[0]['attributes']),
+        );
+        self::assertSame('maintenance', $provider->instruments[6]->records[0]['attributes']['blackops.scheduler.kind']);
+        self::assertSame('failed', $provider->instruments[6]->records[0]['attributes']['blackops.result']);
+        self::assertSame(
+            ['blackops.scheduler.kind', 'blackops.result'],
+            array_keys($provider->instruments[7]->records[0]['attributes']),
+        );
+        self::assertSame('maintenance', $provider->instruments[7]->records[0]['attributes']['blackops.scheduler.kind']);
+        self::assertSame('failed', $provider->instruments[7]->records[0]['attributes']['blackops.result']);
     }
 
     public function testRetentionMaintenanceTaskRunsPurgeService(): void
@@ -113,6 +156,23 @@ final class SchedulerTestTask implements MaintenanceTask
         $this->now = $now;
 
         return new MaintenanceTaskResult($this->name, $this->affectedCount, 'done');
+    }
+}
+
+final class ThrowingSchedulerTask implements MaintenanceTask
+{
+    public function __construct(
+        private readonly RuntimeException $failure,
+    ) {}
+
+    public function name(): string
+    {
+        return 'throwing';
+    }
+
+    public function run(DateTimeImmutable $now): MaintenanceTaskResult
+    {
+        throw $this->failure;
     }
 }
 

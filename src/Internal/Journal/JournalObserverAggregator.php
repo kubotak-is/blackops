@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BlackOps\Internal\Journal;
 
+use BlackOps\Internal\Telemetry\TelemetryMetrics;
 use BlackOps\Journal\Exception\JournalObservationFailed;
 use BlackOps\Journal\FlushableJournalObserver;
 use BlackOps\Journal\ObservedJournalRecord;
@@ -16,6 +17,7 @@ final readonly class JournalObserverAggregator
      */
     public function __construct(
         private array $observers,
+        private ?TelemetryMetrics $metrics = null,
     ) {}
 
     public function isEmpty(): bool
@@ -52,6 +54,7 @@ final readonly class JournalObserverAggregator
                 $observer->flush();
                 $successfulObservers[] = $binding->name();
             } catch (JournalObservationFailed $exception) {
+                $this->metrics?->observerFailure('aggregator', 'flush_failed');
                 $failures[] = new JournalObserverFailure($binding->name(), $binding->policy(), $exception);
             }
         }
@@ -74,6 +77,7 @@ final readonly class JournalObserverAggregator
                 $dispatch($binding);
                 $successfulObservers[] = $binding->name();
             } catch (JournalObservationFailed $exception) {
+                $this->metrics?->observerFailure('aggregator', 'observe_failed');
                 $failures[] = new JournalObserverFailure($binding->name(), $binding->policy(), $exception);
             }
         }

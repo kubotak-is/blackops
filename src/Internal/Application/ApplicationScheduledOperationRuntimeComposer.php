@@ -52,11 +52,7 @@ final readonly class ApplicationScheduledOperationRuntimeComposer
         );
         $deferred = new DeferredAcceptanceOrchestrator(
             $runtime->connection,
-            new PostgreSqlDeferredOperationSender(
-                $runtime->connection,
-                ApplicationStorageProtectionResolver::resolve($runtime->container),
-                $database->schema,
-            ),
+            new PostgreSqlDeferredOperationSender($runtime->connection, $runtime->protection, $database->schema),
             $runtime->journal,
             $records,
             authorization: $runtime->authorization,
@@ -83,6 +79,7 @@ final readonly class ApplicationScheduledOperationRuntimeComposer
                 $scheduledOccurrences,
                 $runtime->clock,
                 $runtime->telemetry,
+                $runtime->metrics,
             ),
         );
     }
