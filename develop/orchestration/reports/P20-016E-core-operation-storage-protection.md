@@ -47,18 +47,17 @@ Implemented mandatory BOPD envelope use for canonical journal records, deferred 
 - `docker compose run --rm app mago lint`: known baseline only (82 findings: 9 errors, 27 warnings, 29 notes, 17 help messages); no task regression was identified and focused changed-source lint passes.
 - `docker compose run --rm app vendor/bin/deptrac`: cannot execute under PHP 8.5 because the vendored parser fails at `vendor/deptrac/deptrac/src/DefaultBehavior/Ast/Parser/Helpers/NikicFileReferenceVisitor.php:106`; this is the recorded baseline tooling incompatibility. Full-suite architecture guards pass.
 - `bash tests/Consumer/quickstart-e2e.sh`: PASS (`Quickstart consumer E2E passed.`), including fresh install, 11 migrations, build, seed, HTTP, retry/completion, status, diagnostics, retention, and frontend journeys.
-- `bash tests/Consumer/framework-package-export.sh`: expected pre-commit stop because `git archive HEAD` cannot contain untracked `Version20260808000000.php`. The same script's Composer archive validation was run independently against the working tree and passes required migration inventory, excluded roots, strict Composer validation, and production autoload generation.
+- `bash tests/Consumer/framework-package-export.sh`: PASS after commit `190d42a`; Git and Composer archives both contain `Version20260808000000.php`, satisfy the root inventory/exclusion contract, pass strict Composer validation, and generate the production autoloader.
 - Shell syntax, management-ID comment guard, and `git diff --check`: PASS.
 
 ## Acceptance Criteria
 
-Accepted. Mandatory envelope wire shape, no-plaintext storage, runtime bootstrap, tamper and tenant failures, migration rollback, authorization-before-decode, retention non-decode, replay projection, full suite, and consumer evidence all pass. Package inventory is synchronized and the working-tree Composer archive passes; the exact Git archive proof is deferred until an authorized commit because Git cannot archive an untracked migration from `HEAD`.
+Accepted. Mandatory envelope wire shape, no-plaintext storage, runtime bootstrap, tamper and tenant failures, migration rollback, authorization-before-decode, retention non-decode, replay projection, full suite, consumer journey, and exact Git/Composer package export evidence all pass.
 
 ## Remaining Issues
 
 - Broad Mago lint and Deptrac retain the documented baseline findings/tooling incompatibility above; neither is introduced by P20-016E.
-- The exact Git package-export command must be rerun after an authorized P20-016E commit so `git archive HEAD` contains `Version20260808000000.php`.
 
 ## Suggested Next Action
 
-After an authorized P20-016E commit, rerun the exact framework package export. Then start P20-016F for Outbox, Dead Letter, Idempotency, and Result protection.
+Start P20-016F for Outbox, Dead Letter, Idempotency, and Result protection.
