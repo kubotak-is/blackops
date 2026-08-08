@@ -41,6 +41,8 @@ BlackOpsはフロントエンドを持ちません。代わりに、JavaScript�
 
 設計から理解する場合は[What's BlackOps](why-blackops.md)、[Core Concepts](core-concepts.md)、[Lifecycle](operation-lifecycle.md)、[Journal](journal.md)の順に進みます。必要なページだけを探す場合は、左側のメニューまたは検索から[Authoring](operations.md)、[Inline and Deferred](execution.md)、[Testing](testing.md)、[Deployment](deployment.md)、[Troubleshooting](troubleshooting.md)へ進めます。
 
+Tenant付きOperation、Protected Storage、Breaking Upgrade、Key Rotationを導入する場合は、Repository `main`専用の[Tenant and Storage Protection](tenant-protection.md)をStep順に完走してください。Stable `1.1.0`にはこのTenant／Storage Protection契約がないため、Stable利用者は[Stableとmain](mvp-status.md#stableとmain)へ戻ってください。
+
 ApplicationのAuthentication実装を薄くする場合は、Framework同梱のOpt-in Session Coreを[Session AuthenticationをOpt-in登録する](application-bootstrap.md#session-authenticationをopt-in登録する)で登録し、[HTTP Authenticationの境界](security.md#http-authenticationの境界)でToken LifecycleとApplication責務の分界を確認できます。
 
 Install直後のApplicationへUser／Password／Register／Login／Logoutを追加する場合は、[Session Authentication Starter](security.md#session-authentication-starter)の`make:auth`手順を使います。

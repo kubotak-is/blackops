@@ -45,6 +45,10 @@ BlackOpsはExperimentalです。1.x Minor間のBackward CompatibilityとProducti
 | Optional Idempotency Key／Duplicate Replay | 未提供 | 利用可（試験的、Actor-scoped） |
 | Transactional Outbox Relay／Retry／Fencing／Dead Letter | 未提供 | 利用可（試験的、at-least-once） |
 | Canonical Observer Replay／Checkpoint／Resume | 未提供 | 利用可（試験的、Canonical read-only） |
+| TenantRef／Entry Tenant Propagation | 未提供 | 利用可（試験的、HTTP／Console／Scheduled／Dispatch） |
+| Default-deny Journal／Outcome Data Query | 未提供 | 利用可（試験的、Tenant／Actor／Purpose必須） |
+| BOPD v1 Protected Storage／StorageKeyProvider | 未提供 | 利用可（試験的、XChaCha20-Poly1305） |
+| `storage:protection:plan`／`rotate`／Resume | 未提供 | 利用可（試験的、Bounded／CAS／Audit） |
 | Scheduled Application Operation／`ScheduledBy`／one-shot CLI | 未提供 | 利用可（試験的、`operation:schedule:run`） |
 
 Stable Applicationを作る場合はVersionを明示します。
@@ -92,7 +96,7 @@ BlackOps BoardはRepository `main`だけの試験的Local Reference Application�
 - Production Status Authorization Policy、Tenant Model、Role／Permission Repositoryは提供しない
 - 無限Wait、任意Backoff／Jitter、Global Generated Client、Cache／Offline Queueは提供しない
 - Transactional Outboxは同一Named Connectionへの原子登録、有限Relay、Retry／Backoff、Lease／Fencing、Dead Letter再開を提供する（at-least-once。外部配送のExactly Onceは提供しない）
-- Canonical Journal／Transport PayloadのEncryption Adapterは提供しない
+- Canonical Journal、Deferred Payload／Context、Outcome、Outbox、Dead Letter、Idempotencyの復元可能FieldはBOPD v1 Envelopeで保護する。Key Material、KMS Vendor操作、Replica／Backup上の旧Key確認、旧Key削除は提供しない
 - Remote OpenTelemetry、CloudWatch、SQS、Kafka、SQLite、MySQL Adapterは提供しない
 - Observer Replay CLIはCanonical Journalを変更せず、現在のSensitive Projectionを再適用する有限Batch／Checkpoint／Resume／Audit操作として提供する。Admin UIは提供しない
 - Array／Nested ObjectのHTTP Binding、宣言的DB照合、Cross-field Attribute、Custom Callbackは提供しない。`Count` Validatorは実装済みだが現行HTTP BinderからArrayを渡せない

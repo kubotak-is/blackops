@@ -19,10 +19,10 @@ BlackOpsはOperation Lifecycleを追跡し、Observed Sinkへ出すSensitive値�
 | Console Operation | `#[ConsoleCommand]`を明示したScalar入力だけを公開し、CLI値とThrowable Detailを出力しない。Execution Actorを固定する | `ConsoleActorProvider`で安全なActor参照だけを返し、OS／運用側でCommand実行権限を制御する |
 | Authorization | `#[Authorize]`、Policy Contract、型付きRequest／Decision、Build時DI登録を提供する | Operation、Resource、TenantごとのPolicyと現在権限の検索を実装する |
 | Status Authorization | Subjectを最小情報へ投影し、Allow前にOutcome／Journal Detailを読まず、Unknown／Denyを同じ404へする | `OperationStatusAuthorizer`をBindingし、Current Actor、Origin Actor、Tenant／Resource Policyを評価する |
-| Tenant Isolation | 提供しない | Query、Credential、Schema／Database、Cache、LogでTenantを分離する |
+| Tenant Isolation | `TenantRef`、入口別Provider、Clear Tenant Predicate、Default-deny Status／Data Query、Child／Worker伝播を提供する | Membership、Role、Permission、Tenant Directory、Database／Cache／Logの運用Policyを実装する |
 | Transport Security | HTTP Adapter境界を提供する | TLS終端、Certificate、Network Policyを構成する |
-| 保存時暗号化 | 提供しない | Canonical Journal、Transport Payload、Outcome、Backupを暗号化する |
-| Key管理 | 提供しない | KMS／HSM、権限、Rotation、失効手順を運用する |
+| 保存時暗号化 | Framework-owned復元可能FieldをBOPD v1（XChaCha20-Poly1305）Envelopeへ保存する | `StorageKeyProvider`をSecret Manager／KMSへ接続し、Key MaterialをArtifact／Logへ出さない。Disk／Backup Encryptionを追加する |
+| Key管理 | `StorageKeyProvider`、Purpose／Tenant／AAD境界、Bounded Plan／Rotate、CAS／Checkpoint／Safe Outputを提供する | Key生成、KMS権限、旧KeyのRead期間、Replica／Backup／Retention確認、失効を運用する |
 | Sink Access Control | Journal Observer Contractを提供する | JSONL、Log Backend、Database、Object Storageの権限を制限する |
 | Backup／Restore | 提供しない | 暗号化Backup、Restore Test、破棄手順を運用する |
 | Retention | 対象別Period、Hold、Plan、Purge、AuditのPrimitiveを提供する | 保持期間、Legal Hold Policy、承認、監査保管を決める |
@@ -65,7 +65,7 @@ Hashは同一値の相関が必要な場合だけ使います。低Entropy値は
 - Retention Period／Legal Hold
 - Credential Rotation
 
-Observed JSONLでMaskできても、Canonical JournalやTransport Payloadには再現に必要な値が残る場合があります。保存先の暗号化、最小権限、保持期間、削除手順を必ず構成してください。
+Observed JSONLでMaskできても、`#[Sensitive]`はEnvelope、Tenant Isolation、Authorization、Retentionを代替しません。Canonical Journal、Transport Payload、Outcome、Outbox、Dead Letter、Idempotencyの復元可能FieldはBOPD Envelopeで保護され、保存先の最小権限、保持期間、削除手順を別途構成します。
 
 Actorも同じ責任分界に従います。Canonical Journalは監査正本としてorigin／authorization／execution ActorのIDとTypeを保持します。Observed JournalとJSONLではActor Typeとnull関係を維持しながら、すべてのActor IDを`[masked]`へ置き換えます。Role、Permission、Credential、Token、Session、ClaimはCanonical／Observedのどちらにも保存しません。
 
@@ -207,7 +207,7 @@ Route不一致、壊れたJSON、必要Header欠落等はOperation受理前のPr
 
 ## Canonical DataとSafe Diagnostics
 
-Canonical Journal、Deferred Transport Payload、Outcome Storeは再現性のためRaw Value、Raw Actor ID、Exception Messageを含み得るRestricted Dataです。Databaseへの最小権限、保存時暗号化、Backup、Retention、Purge AuditはApplication／運用が設計します。
+Canonical Journal、Deferred Transport Payload、Outcome Store、Outbox、Dead Letter、Idempotencyの復元可能FieldはBOPD Envelopeです。Tenant、Operation、State、Sequenceなどの最小Restricted MetadataだけがClearで、Raw Value、Outcome、Reason、Response、Key MaterialをDefault Diagnosticsへ出しません。Database／Backupの最小権限、At-rest Encryption、Retention、Purge AuditはApplication／運用が設計します。
 
 HTTP Error、Application／Framework JSONL Log、Observed Journal、`operation:inspect`、Local ViewerはSafe Diagnostics Surfaceです。ここではCredentialを除外し、`#[Sensitive]`を適用し、Actor IDを`[masked]`へ置き換え、Exception MessageではなくFailure Type／Classificationだけを示します。Raw表示に切り替えるCLI Optionはありません。
 

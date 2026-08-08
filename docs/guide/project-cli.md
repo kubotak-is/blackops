@@ -36,6 +36,8 @@ RuntimeはProject RootのHostまたはApplication Containerです。Containerで
 | Dead Letter（main） | `outbox:dead-letter:retry <record-id> --actor=<actor> --reason=<reason>` | Retry再開 | Database、監査Actor／Reason | `dead-letter retry scheduled`／`0` | [確認とFailure Journey](outbox.md#確認とfailure-journey) |
 | Observer Replay（main） | `journal:observer:replay --dry-run --operation-id=<uuidv7> --observer=application-jsonl --batch-size=100` | なし（Projection確認） | exactly one Selector、one or more `--observer`、`--batch-size` | selected／delivered／failed／`0` | [Observer Replay](observer-replay.md) |
 | Observer Replay（main） | `journal:observer:replay --confirm --operation-id=<uuidv7> --observer=application-jsonl --checkpoint=journal-replay-20260701 --actor=operator --reason="restore projection"` | Projection更新 | Selector、Observer、Checkpoint、Actor、Reason | selected／delivered／failed／`0` | [Observer Replay](observer-replay.md) |
+| Storage Protection（main） | `storage:protection:plan --purpose=journal_record --old-key-id=<old> --new-key-id=<new> --batch=100 --checkpoint=<scope> --json` | なし（Read-only） | Purpose、Tenant Pair、Old／New Key、Batch 1–1000、Checkpoint | `selected`／`remaining`、Exit `0`; 入力Error `2`; Storage Error `1` | [Tenant and Storage Protection](tenant-protection.md) |
+| Storage Protection（main） | `storage:protection:rotate --purpose=journal_record --old-key-id=<old> --new-key-id=<new> --batch=100 --checkpoint=<scope> --actor=<actor> --reason=<reason> --confirm --json` | BOPD EnvelopeのBounded Re-encrypt | Confirm、明示Checkpoint、Actor、Reason、CAS／Audit／Resume | `rotated`／`skipped`／`failed`／`remaining`、Exit `0`／`1`／`2` | [Tenant and Storage Protection](tenant-protection.md) |
 | Generator | `make:operation <Feature/Action> --type=<operation.type>`／`make:migration <Description>` | Application Source追加 | PHP filesystem | `Created: ...`／`0` | [Generators](project-generators.md) |
 | Generator（main） | `make:auth [--force]`／`make:seeder <Name>` | Application Source追加／更新 | Application filesystem | Created／Updated／`0` | [Session Authentication Starter](security.md#session-authentication-starter) |
 
@@ -108,6 +110,8 @@ Outboxは`outbox:relay:run --until-empty`またはDaemonでRelayし、別Process
 
 `journal:observer:replay`はCanonical Journalを変更せず、Selector／Observer／Checkpointを使って現在のSensitive Projectionを有限Batchで再適用します。`--dry-run`は変更せず、ConfirmにはActorとReasonが必要です。Checkpoint／Resumeの詳細は[Observer Replay](observer-replay.md)を参照してください。
 
+`storage:protection:plan`はHeader／Clear Metadataだけを読むRead-only Planです。`storage:protection:rotate`はConfirmなしではDry-runとなり、Confirm時は`--checkpoint`を明示し、非空`--actor`／`--reason`を必須にします。出力へPayload、Tenant Raw ID、Ciphertext、Nonce、Tag、Key Materialは含めません。`remaining`が0でもReplica、Backup、Dead Letter、Retention Windowは別途確認します。旧Keyを先に削除しないでください。
+
 ## Stable／main境界
 
-Stable `1.1.0`で案内できるのはProject Root `blackops`、`make:operation`／`make:migration`、Migration、Typed Operation、HTTP／Deferred、Worker、Journal、Outcome、RetentionのSurfaceです。Frontend Contract、Status／Diagnostics、Console Adapter、Outbox、`make:auth`／`make:seeder`、Observer Replay、BlackOps BoardはRepository `main`のExperimental Surfaceです。未Release機能をStable ApplicationのInstall手順へ混入させないでください。[Releases](mvp-status.md)の表を正本にします。
+Stable `1.1.0`で案内できるのはProject Root `blackops`、`make:operation`／`make:migration`、Migration、Typed Operation、HTTP／Deferred、Worker、Journal、Outcome、RetentionのSurfaceです。Tenant／Protected Storage、Frontend Contract、Status／Diagnostics、Console Adapter、Outbox、`make:auth`／`make:seeder`、Observer Replay、BlackOps BoardはRepository `main`のExperimental Surfaceです。未Release機能をStable ApplicationのInstall手順へ混入させないでください。[Releases](mvp-status.md)の表を正本にします。

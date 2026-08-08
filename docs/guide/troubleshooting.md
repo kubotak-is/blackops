@@ -305,11 +305,51 @@ docker compose ps postgres
 **修正方法:** PostgreSQLを起動し、正しいCredentialをEnvironmentから渡してMigrationを適用します。
 
 ```bash
-php blackops database:migrate --dry-run --no-interaction
-php blackops database:migrate --no-interaction
+php blackops database:migrate --dry-run
+php blackops database:migrate
 ```
 
 HTTP／Worker起動時の暗黙Migrationに頼りません。
+
+## `StorageKeyProvider`が未登録
+
+**症状:** HTTP、Worker、Console、Scheduled、Outbox、Status／Data Query、またはRotationのRuntime compositionがStorage Protectionを解決できず、安全なConfiguration／Storage Protection Errorで停止します。`build:compile`は`StorageKeyProvider`の必須Runtime検査を行わないため、Providerが未登録でも成功する場合があります。
+
+**考えられる原因:** Application Service Providerで`StorageKeyProvider::class`のBindingがない、`config/app.php`の`services`へProviderを登録していない、またはProvider ConstructorがContainerで解決できない状態です。
+
+**確認方法:** [2. Key ProviderをApplicationへ登録する](tenant-protection.md#2-key-providerをapplicationへ登録する)と[Application Command](configuration.md#application-command)を照合します。Storage Protectionを解決するRuntime composition（HTTP、Worker、Console等）を実行し、該当SurfaceのSafe Error／Responseだけを確認します。`build:compile`の成功だけではProvider登録を証明しません。Key Material、Credential、Constructor引数、Throwableを出力せず、`build:compile`には`--json` Optionがないことにも注意してください。
+
+**修正方法:** Application-owned `StorageKeyProvider`、`OperationDataReadAuthorizer`、`OperationStatusAuthorizer`、必要なTenant Providerを`ServiceRegistry::autowire()`で登録し、`config/app.php`へService Providerを追加してからBuildし、HTTP／Worker／Console等のRuntime compositionを再実行します。該当SurfaceのSource／Testで定義されたSafe Error／Responseを期待し、Keyを`set()`、Config、Manifest、Artifact、Logへ置かないでください。
+
+## Unknown Key／Tag Tamper
+
+**症状:** 認可済みのJournal／Outcome Read、Worker、または`storage:protection:rotate --confirm`がEnvelope Integrityを検証できず、安全な固定Failureへ縮約します。Rotation ConfirmのStorage／Protection FailureはExit `1`、Plan／RotateのInput／Configuration FailureはExit `2`です。Journal／Outcome Queryは`operation_journal.protection_failed`または`operation_outcome.protection_failed`等のPublic Safe Codeを返します。`storage:protection:plan`はHeader／Clear MetadataのRead-only集計であり、Unknown Key／Tag Tamperを検出しません。
+
+**考えられる原因:** BOPD HeaderのKey IDをProviderが解決できない、旧KeyのRead期間が終了している、AADのPurpose／Row／Operation／Tenant Scopeが異なる、またはCiphertext／Tagが改変されています。Malformed Headerも同じRuntime Protection Failureへ縮約されます。
+
+**確認方法:** 認可済みApplicationの`OperationJournalQuery::records()`または`OperationOutcomeQuery::find()`、Worker処理、Rotation Confirmを実際に実行し、該当Surfaceの固定Safe Code／Exitだけを確認します。Read-onlyの[5. DatabaseにRaw Valueがないことを確認する](tenant-protection.md#5-databaseにraw-valueがないことを確認する)のBOPD Prefix countと`operation:inspect`はClear lifecycle列のDiagnosticsであり、Envelope Integrity検査やTamper確認ではありません。FingerprintはRotation Auditの失敗記録だけを照合します。Envelope、Nonce、Tag、Key Material、Payload、Tenant Raw IDをSELECT、Log、Ticketへ出しません。
+
+**修正方法:** Unknown Keyなら旧Keyを削除せずRead可能なProviderへ一時的に復旧し、同じPurpose／Tenant Scopeで[Plan（Read-only）](tenant-protection.md#planread-only)を実行します。Tag TamperやAAD不一致はEnvelopeを手動編集せず、原因を隔離して承認済みBackup／Offline変換の手順へ戻します。RuntimeのPlaintext Fallbackは行いません。
+
+## 非空の旧Protected SchemaでMigrationが停止
+
+**症状:** `database:migrate`が変更前のSafe Migration Errorで停止し、Shellへ非ゼロ終了を返します。正確なTop-level終了値はApplicationのConsole Error境界で確認してください。旧保護対象Tableが非空でも、MigrationはRow内容を検査しません。
+
+**考えられる原因:** 既存の旧Protected SchemaにRowが残っており、Experimental v1の新しいEnvelope／Tenant契約へ自動変換できないためです。非空判定は安全停止のためだけに使われます。
+
+**確認方法:** Read-onlyのMigration StatusとTableの空／非空件数だけを確認します。`database:migrate --dry-run`を使い、Payload、Plaintext、Envelope Header、Key Material、Rowの内容をSELECTしません。`database:migrate`には`--no-interaction` Optionはありません。空Tableは`0`件、非空Tableは停止対象です。
+
+**修正方法:** 新規ApplicationではDatabaseをReset／RecreateしてからMigrationし、必要なDataはApplicationが承認したFramework外のOffline変換で別途移行します。既存Tableを直接ALTER、暗黙変換、削除して再実行しないでください。完了後に`database:migrate`、`build:compile`を順に実行します。
+
+## Rotationの`remaining`が0にならない
+
+**症状:** Confirm済みRotationはExit Code `0`でも`remaining`が残る、または一部Rowが`failed`／`skipped`になります。Protection／Runtime FailureならExit Codeは`1`、Input／Confirm／Config Errorなら`2`です。
+
+**考えられる原因:** Purpose、Tenant Pair、Old Key ID、Checkpointが一致していない、CAS競合でSkipされた、失敗Auditを修復していない、またはDatabase以外のReplica、Backup、Dead Letter、Retention Windowに旧Keyが残っています。
+
+**確認方法:** 同じScopeで`storage:protection:plan --json`を再実行し、`purpose`、Tenant Scope、Key ID、Checkpoint、`remaining`、`failed`だけを照合します。Read-only Planは全範囲を集計しますが、Payload、Nonce、Tag、Tenant Raw ID、Key Materialを出しません。失敗FingerprintとCheckpointを安全なAuditから確認します。
+
+**修正方法:** 旧KeyをRead可能なままにし、同じScope／Checkpointで`storage:protection:rotate --confirm --json`を再開します。Failed Auditを原因修復後に再処理し、CAS Skipは再Planで残件を確認します。Databaseの`remaining=0`を確認した後もReplica、Backup、Dead Letter、Retention Windowを別途確認し、すべての境界が完了するまで旧Keyを削除しません。
 
 ## journal.jsonlへ出力されない
 
@@ -330,13 +370,13 @@ test -d var/log && test -w var/log && printf 'journal directory is writable\n'
 
 ### OutcomeがPending／Not Found／Expiredか判別できない
 
-**症状:** `OutcomeReader::find()`が`null`を返し、処理中、未知のOperation ID、失敗、保持期限切れを区別できません。
+**症状:** `OperationOutcomeQuery::find()`が`OperationOutcomeUnavailable`になり、処理中、未知のOperation ID、失敗、保持期限切れを区別できません。
 
-**考えられる原因:** `OutcomeReader`は正常完了したOutcomeだけを返す低Level Contractです。Status Queryを使わず`null`だけで判定しています。
+**考えられる原因:** `OperationOutcomeQuery`はCurrent Actor、Current Tenant、`OperationDataPurpose`を受けるDefault-deny Queryです。Unknown、Tenant不一致、Deny、Retention削除は同じUnavailableになります。
 
 **確認方法:** Public `OperationStatusQuery`、`GET /operations/{operationId}`、またはGenerated `.status()`で現在Stateを確認します。
 
-**修正方法:** Public Status Resultを次のように分類します。PHP AdapterでOutcomeだけが必要な場合に限り`OutcomeReader`を使います。
+**修正方法:** Public Status Resultを次のように分類します。PHP AdapterでOutcomeだけが必要な場合も、認可済み`OperationOutcomeQuery`へ明示的なPurposeを渡します。
 
 | 判定 | Applicationが返す状態 |
 | --- | --- |

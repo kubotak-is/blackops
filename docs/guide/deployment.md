@@ -1,6 +1,6 @@
 # Deployment
 
-DeploymentはApplication／運用環境の責務です。FrameworkはKubernetes、systemd、Supervisor、TLS、Secret配布、Health Check、Resource Limit、Restart Policyを提供しません。Stable `1.1.0`のReleaseとRepository `main`のExperimental Surfaceを混ぜず、同じBuild IDのArtifactを全Processへ渡します。
+DeploymentはApplication／運用環境の責務です。FrameworkはKubernetes、systemd、Supervisor、TLS、Secret配布、Health Check、Resource Limit、Restart Policyを提供しません。Stable `1.1.0`のReleaseとRepository `main`のExperimental Surfaceを混ぜず、同じBuild IDのArtifactを全Processへ渡します。Tenant／Protected StorageとRotation CLIはRepository `main`のExperimental Surfaceです。
 
 :::warning[Operator responsibility]
 Process監督、TLS、Secret配布、Health Check、Resource Limit、Restart Policyは運用環境で構成します。Frameworkはこれらを自動提供しません。
@@ -16,9 +16,12 @@ Process監督、TLS、Secret配布、Health Check、Resource Limit、Restart Pol
 4. **ArtifactをCompileする。** `php blackops build:compile`を一度実行し、Operation／HTTP／Frontend ManifestとDI Containerを同じBuild IDで作ります。
 5. **Frontendを検証する。** Frontendを使う場合だけ`php blackops frontend:generate`、`php blackops frontend:check`、Applicationの`pnpm test`を行います。Generated Treeは手編集しません。
 6. **Processへ配布する。** HTTP Worker、Deferred Worker、Outbox Relayへ同じArtifact、Database Configuration、Secretを渡します。RelayはDeferred Workerと別Processです。
+   Protected RuntimeではApplication Service Providerへ`StorageKeyProvider`、Status／Data Read Authorizer、Console／Scheduled Tenant ProviderをBindingします。Providerが解決したKey MaterialやCredentialをBuild Artifact、Manifest、Log、Journalへコピーしません。TenantをHTTP Header、Console引数、Schedule名から暗黙推測しないでください。
 7. **ScheduleとMaintenanceを分離する。** Application Scheduleは外部Supervisorから`operation:schedule:run`を一回ずつ起動し、Deferredだけ別Processの`worker:run`で完了させます。Retentionを使う場合の`scheduler:run`／`scheduler:daemon`はFramework Maintenance専用です。
 8. **Smokeする。** HTTPの`200`／`202`、Status／Outcome、Journal／Log、Worker、Outbox Relay、必要なRetention結果を確認します。Credential、Canonical Payload、Throwable、SQLは公開Outputへ出しません。
 9. **停止とRollbackを判断する。** Deferred Worker／Relayは実装されたSignal境界で新規Claim／Batchを止め、Maintenance Scheduler DaemonはSupervisorへ停止を委ねます。Application Scheduleの確実な一回評価には外部Schedulerから`operation:schedule:run --json`を起動し、`scheduler:run`はRetention等のMaintenanceだけに使います。Lease Recovery、Database状態、Artifact互換性を確認します。Migrationを戻せない場合はRollbackを宣言せず、Forward Fixまたは復旧手順を選びます。
+10. **Protected Storageを確認する。** Fresh DatabaseではMigrationを適用してからBuild／Seedを実行します。旧Plaintext Rowを含む保護対象TableはMigrationが安全に停止するため、Reset／Recreateまたは承認済みOffline変換を選びます。RuntimeのMalformed／Unknown／Tampered EnvelopeはProtection Failureとして扱い、本文を出力しません。
+11. **Key Rotationを段階実行する。** Providerで旧Keyと新KeyをRead可能にし、`storage:protection:plan`（Read-only）→`storage:protection:rotate`のDry-run→明示`--confirm`→同じCheckpointでResume→`remaining=0`確認の順に進めます。Replica、Backup、Dead Letter、Retention Windowを別途確認し、旧Keyを先に削除しません。
 
 ## プロセス一覧
 

@@ -1,6 +1,6 @@
 # P20-016H: Tenant Isolation and Storage Protection Documentation
 
-Status: Ready
+Status: Accepted
 
 ## Goal
 
@@ -87,19 +87,19 @@ Tenantの設定、認可、Encrypted Storage、Key Provider、Breaking Upgrade�
 
 ## Acceptance Criteria
 
-- [ ] Required Reader Journeyを新規利用者が順に完走できる
-- [ ] Tenant Entry、Propagation、Global Operation境界が実装と一致する
-- [ ] Status／Journal／OutcomeのDefault-deny認可手順が実装可能である
-- [ ] Key Provider登録例がArtifactへKeyを埋め込まない
-- [ ] Protected／Clear Field表とEnvelope／AAD説明が実装と一致する
-- [ ] Experimental v1 Breaking Upgradeと既存Data非自動削除が明確である
-- [ ] Rotation CLIのOption、Output、Exit Code、Crash Resumeが実装と一致する
-- [ ] Security／Deployment／Troubleshooting／Reference／Releaseが同期する
-- [ ] Existing Navigation、Landing、Search、Responsive UXを維持する
-- [ ] Website Test／Check／BuildとFocused Consumerが成功する
-- [ ] Desktop Light／DarkとMobileでTable／Code／DiagramにPage-wide overflowがない
-- [ ] Documentation ReviewerのP1／P2 Findingが解消され、P3をAcceptance判断へ記録する
-- [ ] Report／STATE／TODOを同期し、WorkerはCommitしない
+- [x] Required Reader Journeyを新規利用者が順に完走できる
+- [x] Tenant Entry、Propagation、Global Operation境界が実装と一致する
+- [x] Status／Journal／OutcomeのDefault-deny認可手順が実装可能である
+- [x] Key Provider登録例がArtifactへKeyを埋め込まない
+- [x] Protected／Clear Field表とEnvelope／AAD説明が実装と一致する
+- [x] Experimental v1 Breaking Upgradeと既存Data非自動削除が明確である
+- [x] Rotation CLIのOption、Output、Exit Code、Crash Resumeが実装と一致する
+- [x] Security／Deployment／Troubleshooting／Reference／Releaseが同期する
+- [x] Existing Navigation、Landing、Search、Responsive UXを維持する
+- [x] Website Test／Check／BuildとFocused Consumerが成功する
+- [x] Desktop Light／DarkとMobileでTable／Code／DiagramにPage-wide overflowがない
+- [x] Documentation ReviewerのP1／P2 Findingが解消され、P3をAcceptance判断へ記録する
+- [x] Report／STATE／TODOを同期し、WorkerはCommitしない
 
 ## Required Commands
 

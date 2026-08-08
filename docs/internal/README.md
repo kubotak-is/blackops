@@ -47,6 +47,7 @@ Framework実装者向けのArchitectureと実装ガイドを管理する。
 - [Skeleton Publication](skeleton-publication.md)
 - [Typed Outcome Store](outcome-store.md)
 - [Status Query Contract](status-query.md)
+- [Tenant and Protected Storage Contract](tenant-protection.md)
 - [HTTP API Slice](http-api-slice.md)
 - [Retention Policy](retention-policy.md)
 - [Retention Hold](retention-hold.md)

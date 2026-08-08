@@ -127,6 +127,10 @@ export const contentMap = {
     slug: 'security',
     description: 'Status AuthorizationとCanonical Restricted Data、HTTP・Frontend・Diagnosticsの責任分界を確認する。',
   },
+  'tenant-protection.md': {
+    slug: 'security/tenant-protection',
+    description: 'Tenant伝播、Default-deny Data Read、BOPD Envelope、Breaking Upgrade、Storage Key Rotationを順に導入する。',
+  },
   'authentication.md': {
     slug: 'auth/authentication',
     description: 'Opt-in Session CoreとApplication-owned Identityの責任境界を確認する。',

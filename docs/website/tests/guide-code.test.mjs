@@ -48,7 +48,7 @@ test('tutorial starts from the current generator and contains complete edited so
   assert.match(phpBlocks[0], /Validation\\Attribute\\NotBlank/);
   assert.match(phpBlocks[0], /SensitiveMode::Mask/);
   assert.match(phpBlocks[2], /handle\(CreateInvoiceValue \$value, ExecutionContext \$context\): CreateInvoiceOutcome/);
-  assert.match(tutorial, /OutcomeReader/);
+  assert.match(tutorial, /OperationOutcomeQuery/);
   assert.match(tutorial, /Build artifacts written\./);
 });
 

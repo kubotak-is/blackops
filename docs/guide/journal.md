@@ -17,7 +17,7 @@ Canonical Journal (保護された正本)
   -> JSONLなどのObserver
 ```
 
-Sensitive値がObservedから消えることは、保存時暗号化の代わりにはなりません。Canonical Storeには保存時暗号化、Access Control、Retention、Key Rotationを別々の運用Policyとして設定してください。
+Sensitive値がObservedから消えることは、Tenant IsolationやAuthorizationの代わりにはなりません。Canonical Storeの復元可能FieldはFrameworkのBOPD v1 Envelopeによる保存時暗号化で保護されます。`StorageKeyProvider`、Access Control、Retention、Key Rotationを別々の運用Policyとして設定してください。
 
 ## Lifecycle Event
 
@@ -154,7 +154,7 @@ return [
 - Rotation、圧縮、Backup、Retention、Purgeを運用Schedulerで管理し、保持期間とLegal HoldをCanonical／Observedそれぞれに定める
 
 Scheduled RootのCanonical／Observed Operation Projectionには、Schedule名、Calendar上の定刻（UTC）、Timezoneだけを追加します。Actor ID、Credential、Raw Value、Cron Parser Stateは含めません。OccurrenceのOperation IDと同じIDでJournal Eventを相関する診断手順は[OccurrenceとJournalを安全に確認する](scheduled-operation.md#occurrenceとjournalを安全に確認する)を参照してください。
-- Canonical Storeの保存時暗号化、鍵の生成・保管・Rotation・失効はFrameworkのJournal設定APIではなく、Application／Infrastructure／運用の責務としてApplication Secret Storeまたは組織のKMSで管理する。鍵とJSONLを同じDirectoryへ置かない
+- Canonical StoreのEnvelope Keyは`StorageKeyProvider`から解決し、鍵の生成・保管・Rotation・失効はApplication／Infrastructure／運用の責務としてSecret Managerまたは組織のKMSで管理する。Key MaterialとJSONLを同じDirectoryやArtifactへ置かない
 
 JSONLはObserver Projectionです。Canonical StoreのRetention、Access Control、暗号化、鍵管理を省略する設定ではありません。
 

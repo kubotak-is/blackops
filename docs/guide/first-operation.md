@@ -259,7 +259,7 @@ if (accepted.ok && accepted.kind === 'accepted') {
 }
 ```
 
-Canonical PostgreSQL Journalは監査と再現の正本としてActor IDとRaw Valueを保持します。Database暗号化、Access Control、RetentionはApplication／運用の責務です。PHP AdapterからOutcomeだけを読む低Level ContractはPublic `OutcomeReader`です。Pending、Terminal、Expiredを区別するときは[Outcome](outcome-retrieval.md)のStatus Queryを主経路にしてください。
+Canonical PostgreSQL Journalは監査と再現の正本ですが、復元可能なRecordは必須のBOPD v1 Envelope（XChaCha20-Poly1305）として保存されます。Tenant、Operation、Sequenceなどの最小Query MetadataだけがClear Columnに残り、Database At-rest Encryptionは追加層です。PHP AdapterはDefault-deny `OperationJournalQuery`／`OperationOutcomeQuery`へCurrent Actor、Current Tenant、`OperationDataPurpose`を渡し、Allow後だけDecodeします。Pending、Terminal、Expiredを区別するときは[Outcome](outcome-retrieval.md)のStatus Queryを主経路にしてください。
 
 作業後はRuntimeを停止します。
 

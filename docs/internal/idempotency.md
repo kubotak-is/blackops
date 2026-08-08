@@ -53,7 +53,7 @@ response with `Idempotency-Replayed: true` and
 `Cache-Control: private, no-store`. Credentials, cookies, arbitrary application
 headers, and throwable details are not persisted.
 
-Missing typed result or snapshot data is an `idempotency_expired` response, not
+Response and typed-result projections are stored as BOPD `idempotency_response` and `idempotency_result` envelopes. Clear scope hash, operation identity/type, tenant pair, projection version, state, and expiry are used for lookup and retention; the protected bytes are decoded only after the scope/tenant guard. Missing typed result or snapshot data is an `idempotency_expired` response, not
 a new execution. Storage, decode, and attachment failures cross the safe
 internal-failure boundary; SQL, table names, raw keys, and exception details do
 not reach the caller.

@@ -445,7 +445,7 @@ http://127.0.0.1:8082/?token=<one-time-bootstrap-token>
 
 このURLを一度開くとSession Cookieへ交換し、`/operations/019f76f1-3fdc-7c18-9d62-b182d42df100`でHuman表示と同じFailed State、Timeline、Attempt、Mask済みValue／Actorを表示します。Tokenなしは404、POSTは405です。Bootstrap URLを貼り付けたり保存したりせず、調査後はProcessを終了します。
 
-`var/log/application.jsonl`にはApplication RecordとFramework Failure Recordが同じOperation／Attempt／Correlation IDで残ります。`reference`はApplication Contextにありますが、`sensitiveNote`、Exception Message、Credential、Raw Actor IDはありません。Canonical JournalはRestricted Dataのため、DatabaseのAccess Control、Encryption、RetentionをApplicationで管理してください。
+`var/log/application.jsonl`にはApplication RecordとFramework Failure Recordが同じOperation／Attempt／Correlation IDで残ります。`reference`はApplication Contextにありますが、`sensitiveNote`、Exception Message、Credential、Raw Actor IDはありません。Canonical Journalの復元可能なRecordはBOPD v1 Envelopeで保護され、Tenant／Operation／Sequenceなどの最小MetadataだけがQuery用にClearです。Database／Volume At-rest Encryption、Access Control、RetentionはEnvelopeに加える運用層です。
 
 ## 7. Transactional OperationでOrderを作る
 
@@ -602,7 +602,7 @@ ORDER BY sequence;
 8|operation.completed|quickstart-user|quickstart-worker-1
 ```
 
-Canonical JournalはRaw Business ValueとActor IDを保持する監査正本です。暗号化、Access Control、RetentionをApplication／運用で構成してください。
+Canonical Journalは監査正本ですが、復元可能なBusiness DataはBOPD v1 Envelopeへ保存されます。Clear列は認可前SubjectとLifecycle Queryに必要な最小Metadataだけです。Envelope、Access Control、Retention、Database At-rest Encryptionの責務を混同しないでください。
 
 Worker完了後は同じStatus ResourceがTyped Outcomeを返し、Terminal Responseに`Retry-After`は付きません。
 
@@ -612,7 +612,7 @@ Worker完了後は同じStatus ResourceがTyped Outcomeを返し、Terminal Resp
 
 Quickstartの`SampleOperationStatusAuthorizer`は、Current Actorと受付時のOrigin Actorがともに`user`で、ID／Typeが完全一致するときだけAllowします。これはLocal Exampleであり、ProductionのTenant／Role／Resource Policyではありません。Header欠落はAnonymousのためUnknown／Denyと同じ404、不正TokenはSubject読取前の401です。Operation IDはSecretではありませんが、知っているだけでは参照権限を得ません。
 
-PHP AdapterからOutcomeだけを直接読む場合はPublic `OutcomeReader`を利用します。Pending、Terminal、Expiredを区別する主経路はStatus Resourceです。詳しくは[Outcome](outcome-retrieval.md)を参照してください。
+PHP AdapterからOutcomeを読む場合はDefault-deny `OperationOutcomeQuery`へTenant／Actor／Purposeを渡します。Pending、Terminal、Expiredを区別する主経路はStatus Resourceです。詳しくは[Outcome](outcome-retrieval.md)と[Tenant and Storage Protection](tenant-protection.md)を参照してください。
 
 ## 10. 終了する
 

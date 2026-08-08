@@ -16,6 +16,52 @@ Installed Applicationは責務別のPHP Configを`config/`に置きます。Fram
 | `middleware.php` | Global PSR-15 HTTP Middlewareの登録順 |
 | `retention.php` | Payload、Journal、Outcome、Dead Letter、Idempotency Recordの保持期間、Policy、Actor |
 
+## Tenant and Protected Storage
+
+Tenant／Data Read／Storage Key ProviderはApplication Service Providerで明示Bindingします。Provider未登録のProtected RuntimeはBootstrapで停止し、既定のData Read AuthorizerはDenyです。
+
+```php
+use App\Security\ApplicationConsoleTenantProvider;
+use App\Security\ApplicationOperationDataReadAuthorizer;
+use App\Security\ApplicationScheduledTenantProvider;
+use App\Security\ApplicationTenantResolver;
+use App\Security\ConfiguredApplicationTenantResolver;
+use App\Security\SampleOperationStatusAuthorizer;
+use App\Security\SampleStorageKeyProvider;
+use BlackOps\Console\ConsoleTenantProvider;
+use BlackOps\OperationData\OperationDataReadAuthorizer;
+use BlackOps\Scheduling\ScheduledTenantProvider;
+use BlackOps\Status\OperationStatusAuthorizer;
+use BlackOps\StorageProtection\StorageKeyProvider;
+
+$services->autowire(StorageKeyProvider::class, SampleStorageKeyProvider::class);
+$services->autowire(ApplicationTenantResolver::class, ConfiguredApplicationTenantResolver::class);
+$services->autowire(OperationDataReadAuthorizer::class, ApplicationOperationDataReadAuthorizer::class);
+$services->autowire(OperationStatusAuthorizer::class, SampleOperationStatusAuthorizer::class);
+$services->autowire(ConsoleTenantProvider::class, ApplicationConsoleTenantProvider::class);
+$services->autowire(ScheduledTenantProvider::class, ApplicationScheduledTenantProvider::class);
+```
+
+Quickstartで既に提供する`SampleStorageKeyProvider`と`SampleOperationStatusAuthorizer`を使い、Tenant付きProviderと`ApplicationOperationDataReadAuthorizer`は[2. Key ProviderをApplicationへ登録する](tenant-protection.md#2-key-providerをapplicationへ登録する)に掲載した完全例から同じNamespaceへ配置してください。ProductionではSample実装をSecret Manager／KMS接続とApplication-owned Status／Data Policyへ置き換えます。`StorageKeyProvider`は`activeKey(?TenantRef, StoragePurpose)`と`key(string, ?TenantRef, StoragePurpose)`だけを実装し、Key MaterialをConfig、Manifest、Artifact、Logへ書きません。HTTPはAuthenticatorが`AuthenticationResult::authenticated($actor, $tenant)`を返し、Console／Scheduled ProviderはActor Providerと共有しません。詳細なRotation ScopeとExit Contractは[Tenant and Storage Protection](tenant-protection.md)を参照してください。
+
+### QuickstartのHTTPをTenant付きにする
+
+Quickstartの`/invoices`例をTenant付きで実行する場合は、`examples/quickstart/app/UserInterface/Http/SampleTokenAuthenticator.php`の`authenticate()`で、検証済みTokenに対応するTenantを`AuthenticationResult`へ渡します。既存のActor-only returnを次へ置き換えてください。
+
+```php
+use BlackOps\Core\ActorRef;
+use BlackOps\Core\TenantRef;
+use BlackOps\Http\Authentication\AuthenticationResult;
+
+// Tokenの空／不一致分岐は既存Fileのまま維持します。
+return AuthenticationResult::authenticated(
+    new ActorRef('quickstart-user', 'user'),
+    new TenantRef('account', 'local-example'),
+);
+```
+
+`local-example`はQuickstart専用の固定Tenant例です。ProductionではTokenの検証結果からApplication-owned Tenant Resolverが返す`TenantRef`へ置き換え、Tenant IDをCredentialや未検証Headerとして扱わないでください。HTTP Authenticatorの全境界は[HTTP Authenticationの境界](security.md#http-authenticationの境界)を参照します。変更後に`build:compile`し、Tenant Provider／StorageKeyProviderと同じApplication Service ProviderへBindingしてください。
+
 ## Environment
 
 既定のSkeleton／Installed Applicationは`bootstrap/app.php`で`withEnvironmentFile()`を明示し、FrameworkがProcess Environmentを優先してOptional `.env`を一度だけSnapshotします。Applicationが独自LoaderやSecret Managerを使う場合は解決済み文字列を`withEnvironment($environment)`へ渡し、そのPackageをApplication Direct Dependencyとして管理します。

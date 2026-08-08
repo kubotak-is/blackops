@@ -8,18 +8,19 @@ Deferred Transport Contractは、HTTP Process、Worker Runtime、Infrastructure 
 
 ## Message
 
-`DeferredOperationMessage` は、Process境界へ渡すためにCodec済みのOperation情報を保持する。
+`DeferredOperationMessage` は、Process境界へ渡すためにBOPD Codec済みのOperation情報を保持する。TenantはClear MetadataとしてRow／Contextへ束縛され、Payload／Context本文は復号可能なPlaintextではない。
 
 ```text
 operationId
 operationType
 schemaVersion
-encodedPayload
-encodedContext
+encodedPayload (BOPD `deferred_payload`)
+encodedContext (BOPD `deferred_context`)
+tenant type/id
 availableAt
 ```
 
-PHP Object Serializationへ依存しない。PayloadとContextは、別途定義されるCanonical Codecで文字列へ変換済みであることを前提にする。
+PHP Object Serializationへ依存しない。PayloadとContextは、`StorageKeyProvider`とCanonical AAD（Purpose、Record／Operation Identity、Schema Version、Tenant）を使うBOPD bytesであることを前提にする。Worker ClaimはClear Tenant／Operation Predicateを満たした後だけDecodeする。
 
 ## Acknowledgement
 
@@ -76,7 +77,6 @@ encoded_payload
 encoded_context
 content_type
 encoding
-key_id
 state
 state_version
 next_sequence
@@ -92,7 +92,7 @@ created_at
 updated_at
 ```
 
-PayloadとContextは不透明な`bytea`として保存する。Transportは内部構造を検索しない。初期Stateは`accepted`、初期Versionは`1`、初期Sequenceは`1`とする。
+PayloadとContextはBOPDの不透明な`bytea`として保存する。Transportは内部構造を検索しない。初期Stateは`accepted`、初期Versionは`1`、初期Sequenceは`1`とする。Clear Tenant PairはClaim／Retentionの最小Subjectに限って保持し、Envelope Key IDはClear Columnへ複製せずBOPD Headerから読み取る。
 
 PostgreSQL Senderは低レベルTransportであり、Canonical Journalは生成しない。Deferred受付の上位OrchestratorがOperation State保存とCanonical Journal記録を同一Transactionへ統合する。
 

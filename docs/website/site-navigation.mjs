@@ -54,7 +54,7 @@ export const sidebar = [
   { label: 'Testing', items: ['testing'] },
   { label: 'Tutorial', items: [{ label: 'BlackOps Board Reference Application', link: 'testing/community-board' }] },
   { label: 'Deployment', items: ['deployment/worker-operations'] },
-  { label: 'Security', items: ['security'] },
+  { label: 'Security', items: ['security', { label: 'Tenant and Storage Protection', link: 'security/tenant-protection' }] },
   { label: 'Troubleshooting', items: ['troubleshooting'] },
   { label: 'Releases', items: ['releases/current-status'] },
   {

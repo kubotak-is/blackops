@@ -216,7 +216,7 @@ MVP後に残す主要項目:
 - [x] Journal／Deferred Payload／Context／OutcomeをEncrypted Envelopeへ移行する（P20-016E、Accepted）
 - [x] Outbox／Dead Letter Reason／Idempotency Response／Resultを保護する（P20-016F、Accepted）
 - [x] Storage Key Rotation CLI、Audit、Checkpoint／Resumeを実装する（P20-016G、Accepted）
-- [ ] Tenant／Storage ProtectionのGuideとDocumentation Reviewを完了する（P20-016H、P20-016G後）
+- [x] Tenant／Storage ProtectionのGuideとDocumentation Reviewを完了する（P20-016H、Accepted）
 - [ ] 構造化Log SchemaとOpenTelemetry Adapterを提供する
 
 ### Phase 21: Framework-owned Transaction Interception

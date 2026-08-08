@@ -331,7 +331,7 @@ test('guided tutorial pairs runnable inputs with parseable JSON and masked JSONL
   assert.ok(tutorial.indexOf('make:operation') < tutorial.indexOf('```php'));
   assert.match(tutorial, /HTTP 202/);
   assert.match(tutorial, /Public Status Resource/);
-  assert.match(tutorial, /OutcomeReader/);
+  assert.match(tutorial, /OperationOutcomeQuery/);
   assert.ok(jsonBlocks.length >= 3);
   for (const block of jsonBlocks) JSON.parse(block);
   assert.equal(jsonlBlocks.length, 1);
@@ -367,6 +367,10 @@ test('troubleshooting covers every required symptom with four-part guidance', as
     '`.wait()`が`poll_timeout`を返す',
     '`.status()`／`.wait()`が`unexpected_response`を返す',
     'Migration未適用／PostgreSQL接続失敗',
+    '`StorageKeyProvider`が未登録',
+    'Unknown Key／Tag Tamper',
+    '非空の旧Protected SchemaでMigrationが停止',
+    'Rotationの`remaining`が0にならない',
     'journal.jsonlへ出力されない',
     'OutcomeがPending／Not Found／Expiredか判別できない',
     'Sensitive値がJournalで見えない',
@@ -379,6 +383,11 @@ test('troubleshooting covers every required symptom with four-part guidance', as
       assert.match(section, new RegExp(label.replaceAll('*', '\\*')));
     }
   }
+  assert.match(troubleshooting, /`build:compile`は`StorageKeyProvider`の必須Runtime検査を行わない/);
+  assert.match(troubleshooting, /Storage Protectionを解決するRuntime composition/);
+  assert.match(troubleshooting, /Prefix countと`operation:inspect`はClear lifecycle列のDiagnostics/);
+  assert.match(troubleshooting, /FingerprintはRotation Auditの失敗記録だけ/);
+  assert.doesNotMatch(troubleshooting, /build:compile`がConfiguration Errorで停止し/);
 });
 
 test('scheduled operation accuracy keeps metadata, misfire, runtime error, and runnable first-run guidance aligned', async () => {
@@ -431,11 +440,38 @@ test('security guide separates framework and application responsibilities', asyn
   assert.match(security, /Retention.*410/s);
 });
 
+test('tenant protection guide completes the protected-storage reader journey', async () => {
+  const source = await guide('tenant-protection.md');
+  const configuration = await guide('configuration.md');
+  for (const phrase of [
+    'Experimental', 'Stable `1.1.0`', 'TenantRef', 'AuthenticationResult::authenticated',
+    'ConsoleTenantProvider', 'ScheduledTenantProvider', 'StorageKeyProvider',
+    'OperationDataReadAuthorizer', 'OperationOutcomeQuery', 'BOPD v1',
+    'XChaCha20-Poly1305', 'OperationOutcomeUnavailable', 'database:migrate',
+    'storage:protection:plan', 'storage:protection:rotate', '--confirm',
+    '--checkpoint', '--actor', '--reason', 'remaining', 'Replica', 'Backup',
+    'dead_letter_reason', 'idempotency_response', 'idempotency_result',
+    'Exit Codeは成功（`0`）', '旧Keyを削除しない', 'Repository `main`専用',
+    'Stable `1.1.0`には`TenantRef`', 'count(encoded_record)',
+    'count(encoded_payload)', 'count(encoded_context)', 'count(encoded_reason)',
+    'count(encoded_response)', 'count(encoded_result)',
+    'all_non_null_rows_are_bopd', 'BOPD Envelope Header',
+    '6. HTTPで受け付ける', '3. Human／JSONで実行する',
+    'SampleStorageKeyProvider', 'BLACKOPS_STORAGE_KEY', 'base64_decode',
+    'OperationDataReadAuthorizationDecision::allow',
+    'SampleTokenAuthenticator.php', 'local-example', 'actor: new ActorRef',
+  ]) assert.ok(source.includes(phrase), phrase);
+  assert.match(configuration, /SampleTokenAuthenticator\.php/);
+  assert.match(configuration, /AuthenticationResult::authenticated[\s\S]*TenantRef/);
+  assert.doesNotMatch(source, /(?<![A-Za-z0-9_\/.-])[A-Za-z0-9+/]{40,}={0,2}(?![A-Za-z0-9_\/.-])/, 'guide must not contain key material');
+  assert.doesNotMatch(source, /\/home\/kubotak|C:\\\\/, 'guide must not contain absolute repository paths');
+});
+
 test('core API reference covers every source type marked PublicApi without exposing Internal types', async () => {
   const reference = await guide('core-api.md');
   const sourceTypes = await publicApiTypes();
 
-  assert.equal(sourceTypes.length, 179);
+  assert.equal(sourceTypes.length, 201);
   assert.ok(sourceTypes.includes('BlackOps\\Core\\EphemeralOutcome'));
   assert.ok(sourceTypes.includes('BlackOps\\Http\\SapiRuntime'));
   assert.ok(sourceTypes.includes('BlackOps\\Identifier\\Uuidv7Generator'));
@@ -579,14 +615,14 @@ test('all guide sources are mapped once and retain the editorial page-type matri
   const files = (await readdir(path.join(repositoryRoot, 'docs/guide')))
     .filter((file) => file.endsWith('.md'))
     .sort();
-  assert.equal(files.length, 39);
+  assert.equal(files.length, 40);
   assert.deepEqual(Object.keys(contentMap).sort(), files);
 
   const pageTypes = {
     Orientation: ['README.md'],
     Concept: ['core-concepts.md', 'execution-context.md', 'journal.md', 'operation-lifecycle.md', 'security.md', 'why-blackops.md'],
     Reference: ['attributes.md', 'configuration.md', 'core-api.md', 'directory-structure.md', 'glossary.md', 'mvp-status.md', 'project-cli.md'],
-    'How-to/Tutorial': ['application-bootstrap.md', 'authentication.md', 'authorization.md', 'community-board.md', 'console-command.md', 'database-and-transactions.md', 'database-migrations.md', 'database-seeding.md', 'deployment.md', 'execution.md', 'first-operation.md', 'frontend.md', 'installation.md', 'mvp-sample.md', 'observer-replay.md', 'operations.md', 'outbox.md', 'outcome-retrieval.md', 'project-generators.md', 'retention.md', 'runtime-bootstrap.md', 'scheduled-operation.md', 'testing.md', 'validation.md'],
+    'How-to/Tutorial': ['application-bootstrap.md', 'authentication.md', 'authorization.md', 'community-board.md', 'console-command.md', 'database-and-transactions.md', 'database-migrations.md', 'database-seeding.md', 'deployment.md', 'execution.md', 'first-operation.md', 'frontend.md', 'installation.md', 'mvp-sample.md', 'observer-replay.md', 'operations.md', 'outbox.md', 'outcome-retrieval.md', 'project-generators.md', 'retention.md', 'runtime-bootstrap.md', 'scheduled-operation.md', 'tenant-protection.md', 'testing.md', 'validation.md'],
     Troubleshooting: ['troubleshooting.md'],
   };
   const assigned = Object.values(pageTypes).flat().sort();
