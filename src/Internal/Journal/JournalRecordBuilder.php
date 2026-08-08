@@ -17,6 +17,7 @@ use BlackOps\Journal\JournalData;
 use BlackOps\Journal\JournalEvent;
 use BlackOps\Journal\JournalOperation;
 use BlackOps\Journal\JournalRecord;
+use BlackOps\Telemetry\TelemetryCorrelation;
 use LogicException;
 use Psr\Clock\ClockInterface;
 
@@ -87,6 +88,7 @@ final readonly class JournalRecordBuilder
                 $context->actorContext(),
                 $context->schedule(),
                 $context->tenant(),
+                TelemetryCorrelation::fromContext($context->telemetry()),
             ),
             $attempt === null ? null : new JournalAttempt($attempt->id(), $attempt->number(), $attempt->startedAt()),
             $data,

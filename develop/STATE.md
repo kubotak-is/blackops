@@ -1,6 +1,48 @@
 # Orchestration State
 
-Updated At: 2026-08-08T22:52:16+09:00
+Updated At: 2026-08-09T00:04:56+09:00
+
+## P20-018B Telemetry Context Propagation Accepted
+
+```text
+2026-08-09T00:04:56+09:00
+Orchestrator independent reviewでP20-018BをAcceptedとした。API-only open-telemetry/api Dependency、version-00 W3C TelemetryContext、HTTP／Direct Root／validation rejection、Child／Attempt／Deferred／Transactional Outbox／Worker Retryの伝播、BOPD暗号化Context、Canonical／Observed JournalとApplication／Framework／Journal JSONLのtop-level safe correlationをSource／Exact Testへ照合した。独立Focused PHPUnit 921 tests／3,802 assertions、差し戻し後のTargeted 61／196、Full PHPUnit 2,129／8,742（既存Deprecation 1）、Quickstart Consumer E2E、pre-commit Framework Package Export、Composer strict／audit、Mago format、changed-source analyze、管理番号Guard、git diff checkがPASS。Broad Magoは既知baseline、Deptracは既知vendor PHP 8.5 parser blocker。Task／Report／TODOをAcceptedへ同期した。Worker Commit／Push／Deployなし。次はOrchestrator Commit後のexact package exportとP20-018C。
+```
+
+## P20-018B Mago Analyze Corrections Complete
+
+```text
+2026-08-09T00:03:07+09:00
+Changed-source Mago analyze now reports No issues found after replacing analyzer-invisible OpenTelemetry static validators with exact local lowercase/non-zero ID validation, casting hex flags, caching optional telemetry, null-guarding correlation, and aligning PostgreSQL decoder array/mixed annotations. Changed-source Mago lint has no P20-018B errors (only two pre-existing halstead warnings), format check PASS, focused telemetry/codec/journal PASS 27 tests／61 assertions. Orchestrator reports Full PHPUnit 2,129 tests／8,742 assertions, focused 921／3,802, Quickstart PASS, and pre-commit package export PASS; post-commit package export remains pending commit. Deptrac remains known vendor PHP 8.5 parser blocker. Task／Report／TODO Review Pending. Worker Commit／Push／Deployなし。
+```
+
+## P20-018B Telemetry Context Propagation Review Pending (Corrections Complete)
+
+```text
+2026-08-08T23:50:31+09:00
+Review corrections complete. Deptrac now explicitly registers BlackOps\\Telemetry and OpenTelemetry\\ with documented narrow Core↔Telemetry marker dependency. Direct Dispatcher／Deferred acceptor identity, HTTP validation rejection propagation, Factory receive／attempt／child inheritance, protected Deferred／Transactional Outbox encrypted context, Worker retry persisted parent, and actual application／framework／Journal JSONL top-level safe telemetry wire evidence were added. Focused corrections PASS (146 tests／817 assertions plus Worker 34／414, formatter 14／83, validation 10／95); full PHPUnit had one existing heartbeat timing failure, isolated reproduction PASS, with 2,129 tests／8,737 assertions and 1 deprecation. Task／Report／TODO are Review Pending. Deptrac remains blocked only by known vendor PHP 8.5 parser. Worker Commit／Push／Deployなし。
+```
+
+## P20-018B Review Corrections In Progress
+
+```text
+2026-08-08T23:43:54+09:00
+Independent reviewで、Telemetry／OpenTelemetry namespaceのDeptrac登録、Direct Root／validation rejection／Factory identity、protected PostgreSQL Outbox／Deferred／Worker retry、top-level Structured／Journal telemetry wireの追加evidenceが必要と判定された。P20-018BをIn Progressへ戻し、Task scope内で最小修正と再検証を行う。Worker Commit／Push／Deployなし。
+```
+
+## P20-018B Telemetry Context Propagation Review Pending
+
+```text
+2026-08-08T23:38:46+09:00
+P20-018BのAPI-only OpenTelemetry Dependency、immutable version-00 W3C TelemetryContext、HTTP carrier抽出（binding/value rejectionを含む）、Direct Root／Child／Attempt／Deferred／Outbox context codec、Canonical／Observed Journal／Structured JSONLのsafe telemetry correlationを実装した。PostgreSQL canonical journal codecはtelemetry correlationをoptional backward-compatibleに保存し、Deferred Acceptance fixtureでencrypted contextにraw carrier／clear columnが出ないことを確認した。Focused suites、Full PHPUnit 2,123 tests／8,713 assertions（既存Deprecation 1）、Composer strict、Mago format、管理番号Guard、diff checkをPASS。Task／Report／TODOをReview Pendingへ同期した。Broad Mago／Deptrac baselineはReport記載。Worker Commit／Push／Deployなし。Orchestrator independent review待ち。
+```
+
+## P20-018B Telemetry Context Propagation Start
+
+```text
+2026-08-08T23:23:34+09:00
+P20-018Aは1c4dc3a、post-commit package verificationは2e512f3としてCommit済みで、Working Tree cleanを確認した。P20-018BをIn Progressとして開始する。導入前Composer Assessmentではopen-telemetry/api 1.10.0、open-telemetry/context 1.5.0、symfony/polyfill-php82 1.38.1の3 install、既存Package update／removeなし、advisory 0、Composer plugin／binaryなしを確認した。autoload.filesはTrace helper function、Fiber observer conditional initialization、PHP compatibility shimに限定され、公式OpenTelemetry subtree split／Symfony Package、Apache-2.0／MIT、既存psr/log ^3.0整合を確認したためAPI-only Production Dependencyとして採用する。Public immutable TelemetryContext、HTTP／Direct Root、Child／Deferred／Outbox／Worker Retry、Execution Context Codec、Journal safe correlationをRepository設定どおりGPT-5.6 Luna High workerへ委譲する。SDK／Exporter／Collector／Span／Metric／Healthは範囲外で、Local Docker Collector actual E2EはP20-018Eに維持する。Worker Commit／Push／Deployなし。
+```
 
 ## P20-018A Post-commit Package Export Accepted
 

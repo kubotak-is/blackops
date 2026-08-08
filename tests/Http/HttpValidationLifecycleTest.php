@@ -138,6 +138,17 @@ final class HttpValidationLifecycleTest extends TestCase
         self::assertSame(JournalEvent::OperationRejected, $journal->records[0]->event);
         self::assertSame(1, $journal->records[0]->sequence);
         self::assertSame($payload['operationId'], $journal->records[0]->operation->id->toString());
+        self::assertSame(
+            '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01',
+            $journal->records[0]->operation->telemetry === null
+                ? null
+                : sprintf(
+                    '00-%s-%s-%02x',
+                    $journal->records[0]->operation->telemetry->traceId,
+                    $journal->records[0]->operation->telemetry->spanId,
+                    $journal->records[0]->operation->telemetry->sampled ? 1 : 0,
+                ),
+        );
         self::assertInstanceOf(OperationRejectedData::class, $journal->records[0]->data);
         self::assertStringNotContainsString('sensitive-value', serialize($journal->records[0]->data));
         self::assertSame($observer->records[0]->data['reason']['violations'], $payload['violations']);
@@ -172,6 +183,7 @@ final class HttpValidationLifecycleTest extends TestCase
             array_map(static fn(JournalRecord $record): JournalEvent => $record->event, $journal->records),
         );
         self::assertSame([1, 2], array_column($journal->records, 'sequence'));
+        self::assertSame('4bf92f3577b34da6a3ce929d0e0e4736', $journal->records[0]->operation->telemetry?->traceId);
         self::assertInstanceOf(OperationReceivedData::class, $journal->records[0]->data);
         self::assertSame($secret, $journal->records[0]->data->value->secret);
         self::assertInstanceOf(OperationRejectedData::class, $journal->records[1]->data);
@@ -292,7 +304,10 @@ final class HttpValidationLifecycleTest extends TestCase
 
     private function request(string $body): ServerRequestInterface
     {
-        return $this->psr17->createServerRequest('POST', '/submissions')->withBody($this->psr17->createStream($body));
+        return $this->psr17
+            ->createServerRequest('POST', '/submissions')
+            ->withHeader('traceparent', '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01')
+            ->withBody($this->psr17->createStream($body));
     }
 }
 
@@ -350,6 +365,7 @@ final class ValidationFailingDeferredAcceptor implements DeferredOperationAccept
         ?ActorContext $actorContext = null,
         ?IdempotencyKey $idempotencyKey = null,
         ?\BlackOps\Core\TenantRef $tenant = null,
+        ?\BlackOps\Telemetry\TelemetryContext $telemetry = null,
     ): DeferredAcknowledgement|OperationResult {
         $this->accepted = true;
         self::fail('Deferred acceptance should not run after validation failure.');

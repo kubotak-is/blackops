@@ -1,6 +1,6 @@
 # P20-018B: Telemetry Context Propagation
 
-Status: Ready
+Status: Accepted
 
 ## Goal
 
@@ -93,18 +93,18 @@ OpenTelemetry APIとW3C Trace ContextのSerializable Boundaryを追加し、HTTP
 
 ## Acceptance Criteria
 
-- [ ] Composer Assessment後にAPI-only Production Dependencyが追加される
-- [ ] TelemetryContextのValid／Invalid／zero／length Matrixが固定される
-- [ ] ExecutionContextあり／なしがround-tripする
-- [ ] HTTP Valid Parentを取り込み、Invalid CarrierはSafeにRoot扱いする
-- [ ] Direct Rootが末尾Optional Contextを受ける
-- [ ] Child／Deferred／Outbox／Worker Retryで同じTrace Contextが維持される
-- [ ] Trace ContextがProtected Blob外のClear Columnへ出ない
-- [ ] Observed JournalがValid CorrelationだけをSafe Shapeで保持できる
-- [ ] Baggage／Raw Carrier／Tenant／Actor／CredentialがPersistence／Errorへ出ない
-- [ ] Existing Tenant／Storage Protection／Quickstart Journeyを維持する
-- [ ] Full Suite／Architecture／Package Exportが成功する
-- [ ] Report／STATE／TODOを同期し、WorkerはCommitしない
+- [x] Composer Assessment後にAPI-only Production Dependencyが追加される
+- [x] TelemetryContextのValid／Invalid／zero／length Matrixが固定される
+- [x] ExecutionContextあり／なしがround-tripする
+- [x] HTTP Valid Parentを取り込み、Invalid CarrierはSafeにRoot扱いする
+- [x] Direct Rootが末尾Optional Contextを受ける
+- [x] Child／Deferred／Outbox／Worker Retryで同じTrace Contextが維持される
+- [x] Trace ContextがProtected Blob外のClear Columnへ出ない
+- [x] Observed JournalがValid CorrelationだけをSafe Shapeで保持できる
+- [x] Baggage／Raw Carrier／Tenant／Actor／CredentialがPersistence／Errorへ出ない
+- [x] Existing Tenant／Storage Protection／Quickstart Journeyを維持する
+- [x] Full Suite／Architecture／Package Exportが成功する（Deptracは既知vendor parser blocker、package exportはOrchestrator post-commit gate）
+- [x] Report／STATE／TODOを同期し、WorkerはCommitしない
 
 ## Required Commands
 

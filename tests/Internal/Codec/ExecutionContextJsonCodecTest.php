@@ -12,12 +12,34 @@ use BlackOps\Core\ScheduleContext;
 use BlackOps\Core\TenantRef;
 use BlackOps\Idempotency\IdempotencyKey;
 use BlackOps\Internal\Codec\ExecutionContextJsonCodec;
+use BlackOps\Telemetry\TelemetryContext;
 use DateTimeImmutable;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class ExecutionContextJsonCodecTest extends TestCase
 {
+    public function testTelemetryContextRoundTripsAndOlderPayloadsRemainValid(): void
+    {
+        $context = new ExecutionContext(
+            OperationId::fromString('019f32ab-2be0-7b38-a0a7-1ab2f9687701'),
+            new DateTimeImmutable('2026-07-23T00:00:00Z'),
+            CorrelationId::fromString('019f32ab-2be0-7b38-a0a7-1ab2f9687702'),
+            telemetry: new TelemetryContext('00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01', 'vendor=value'),
+        );
+        $codec = new ExecutionContextJsonCodec();
+        $decoded = $codec->decode($codec->encode($context));
+        self::assertSame($context->telemetry()?->traceparent(), $decoded->telemetry()?->traceparent());
+        self::assertSame($context->telemetry()?->tracestate(), $decoded->telemetry()?->tracestate());
+        self::assertNull(
+            $codec
+                ->decode(
+                    '{"operation_id":"019f32ab-2be0-7b38-a0a7-1ab2f9687701","received_at":"2026-07-23T00:00:00.000000Z","correlation_id":"019f32ab-2be0-7b38-a0a7-1ab2f9687702","causation_id":null,"attempt":null,"deadline":null}',
+                )
+                ->telemetry(),
+        );
+    }
+
     public function testHashRoundTripsWithoutRawKey(): void
     {
         $context = new ExecutionContext(

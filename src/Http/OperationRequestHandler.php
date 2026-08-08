@@ -22,7 +22,9 @@ use BlackOps\Http\Routing\HttpRouteMatch;
 use BlackOps\Http\Routing\HttpRouteRegistry;
 use BlackOps\Http\Status\OperationStatusRequestHandler;
 use BlackOps\Idempotency\IdempotencyKey;
+use BlackOps\Internal\Http\TelemetryContextExtractor;
 use BlackOps\Internal\Idempotency\IdempotencyStore;
+use BlackOps\Telemetry\TelemetryContext;
 use InvalidArgumentException;
 use LogicException;
 use Psr\Http\Message\ResponseFactoryInterface;
@@ -31,6 +33,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
 /** @mago-expect lint:cyclomatic-complexity */
+/** @mago-expect lint:excessive-parameter-list */
 final readonly class OperationRequestHandler implements RequestHandlerInterface
 {
     public function __construct(
@@ -43,6 +46,7 @@ final readonly class OperationRequestHandler implements RequestHandlerInterface
         private ?DeferredOperationAcceptor $deferred = null,
         private ?OperationStatusRequestHandler $status = null,
         private ?IdempotencyStore $idempotency = null,
+        private TelemetryContextExtractor $telemetry = new TelemetryContextExtractor(),
     ) {}
 
     public function handle(ServerRequestInterface $request): ResponseInterface
@@ -57,6 +61,7 @@ final readonly class OperationRequestHandler implements RequestHandlerInterface
             return $this->responses->createResponse(404);
         }
 
+        $telemetry = $this->telemetry->extract($request);
         $idempotencyKey = $this->idempotencyKey($request);
         if ($idempotencyKey instanceof ResponseInterface) {
             return $idempotencyKey;
@@ -72,57 +77,78 @@ final readonly class OperationRequestHandler implements RequestHandlerInterface
             return $this->responses->createResponse(400);
         }
 
-        $bound = $this->bind($match, $request);
+        $bound = $this->bind($match, $request, $telemetry);
         if ($bound instanceof ResponseInterface) {
             return $bound;
         }
 
-        $rejection = $this->rejectInvalidValue($match, $bound);
+        $rejection = $this->rejectInvalidValue($match, $bound, $telemetry);
         if ($rejection !== null) {
             return $rejection;
         }
 
-        return $this->execute($match, $bound, $this->actorContext($request), $this->tenant($request), $idempotencyKey);
+        return $this->execute(
+            $match,
+            $bound,
+            $this->actorContext($request),
+            $this->tenant($request),
+            $idempotencyKey,
+            $telemetry,
+        );
     }
 
-    private function bind(HttpRouteMatch $match, ServerRequestInterface $request): OperationValue|ResponseInterface
-    {
+    private function bind(
+        HttpRouteMatch $match,
+        ServerRequestInterface $request,
+        ?TelemetryContext $telemetry,
+    ): OperationValue|ResponseInterface {
         try {
             return $this->binder->bind($match->route->value, $request, $match->pathParameters);
         } catch (HttpProtocolException $exception) {
             return $this->responder->respondProtocolError($exception->errorCode());
         } catch (OperationValueBindingException $exception) {
             $violations = $exception->violations();
-            $operationId = $this->validation->rejectBinding($match->route->operation, $violations);
+            $operationId = $this->validation->rejectBinding($match->route->operation, $violations, $telemetry);
 
             return $this->responder->respondValidationRejection($operationId, $violations);
         }
     }
 
-    private function rejectInvalidValue(HttpRouteMatch $match, OperationValue $value): ?ResponseInterface
-    {
+    private function rejectInvalidValue(
+        HttpRouteMatch $match,
+        OperationValue $value,
+        ?TelemetryContext $telemetry,
+    ): ?ResponseInterface {
         $violations = $this->validation->validate($value);
         if ($violations === []) {
             return null;
         }
 
-        $operationId = $this->validation->rejectValue($match->route->operation, $value, $violations);
+        $operationId = $this->validation->rejectValue($match->route->operation, $value, $violations, $telemetry);
 
         return $this->responder->respondValidationRejection($operationId, $violations);
     }
 
-    /** @mago-expect lint:halstead */
+    /** @mago-expect lint:excessive-parameter-list */
     private function execute(
         HttpRouteMatch $match,
         OperationValue $value,
         ?ActorContext $actorContext,
         ?TenantRef $tenant,
         ?IdempotencyKey $idempotencyKey,
+        ?TelemetryContext $telemetry,
     ): ResponseInterface {
         if ($this->deferred !== null && $this->deferred->accepts($match->route->operation)) {
             $result = $idempotencyKey === null
-                ? $this->deferred->accept($match->route->operation, $value, $actorContext, null, $tenant)
-                : $this->deferred->accept($match->route->operation, $value, $actorContext, $idempotencyKey, $tenant);
+                ? $this->deferred->accept($match->route->operation, $value, $actorContext, null, $tenant, $telemetry)
+                : $this->deferred->accept(
+                    $match->route->operation,
+                    $value,
+                    $actorContext,
+                    $idempotencyKey,
+                    $tenant,
+                    $telemetry,
+                );
 
             if ($result instanceof DeferredAcknowledgement) {
                 $response = $this->responder->respondAcknowledgement($result);
@@ -150,6 +176,7 @@ final readonly class OperationRequestHandler implements RequestHandlerInterface
             $actorContext,
             $idempotencyKey,
             $tenant,
+            $telemetry,
         );
 
         $response = $this->responder->respondForRoute($result, $match->route);

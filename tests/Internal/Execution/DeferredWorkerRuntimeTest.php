@@ -73,6 +73,7 @@ use BlackOps\Journal\JournalRecord;
 use BlackOps\Outcome\Exception\OutcomeStoreException;
 use BlackOps\Outcome\OutcomeRecord;
 use BlackOps\Outcome\OutcomeWriter;
+use BlackOps\Telemetry\TelemetryContext;
 use BlackOps\Tests\Transport\PostgreSql\PostgreSqlTestStorageProtection;
 use BlackOps\Transport\PostgreSql\PostgreSqlCanonicalJournalStore;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationLifecycleStore;
@@ -623,7 +624,8 @@ final class DeferredWorkerRuntimeTest extends TestCase
             AuthorizationDecision::allow(),
             AuthorizationDecision::allow(),
         ]);
-        $this->accept($metadata, actors: $actors, authorizationPolicy: $policy);
+        $telemetry = new TelemetryContext('00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01');
+        $this->accept($metadata, actors: $actors, authorizationPolicy: $policy, telemetry: $telemetry);
         $claim = $this->receiver->claim(new \BlackOps\Core\Execution\ClaimRequest(
             new DateTimeImmutable('2026-07-10T00:01:00.000000Z'),
         ));
@@ -783,7 +785,8 @@ final class DeferredWorkerRuntimeTest extends TestCase
             AuthorizationDecision::allow(),
         ]);
         $actors = self::userActors();
-        $this->accept($metadata, actors: $actors, authorizationPolicy: $policy);
+        $telemetry = new TelemetryContext('00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01');
+        $this->accept($metadata, actors: $actors, authorizationPolicy: $policy, telemetry: $telemetry);
         $firstClaim = $this->receiver->claim(new \BlackOps\Core\Execution\ClaimRequest(
             new DateTimeImmutable('2026-07-10T00:01:00.000000Z'),
         ));
@@ -808,6 +811,8 @@ final class DeferredWorkerRuntimeTest extends TestCase
         self::assertSame(1, $handler->calls);
         self::assertCount(3, $policy->requests);
         self::assertSame(2, $policy->requests[2]->context()->attempt()?->number());
+        self::assertSame($telemetry->traceparent(), $policy->requests[0]->context()->telemetry()?->traceparent());
+        self::assertSame($telemetry->traceparent(), $policy->requests[2]->context()->telemetry()?->traceparent());
         self::assertEquals($actors->authorization(), $policy->requests[2]->actor());
         self::assertSame('worker-a', $policy->requests[2]->context()->actorContext()?->execution()->id());
         self::assertSame(
@@ -1343,6 +1348,7 @@ final class DeferredWorkerRuntimeTest extends TestCase
         ?AuthorizationPolicy $authorizationPolicy = null,
         bool $scheduled = false,
         ?TenantRef $tenant = null,
+        ?TelemetryContext $telemetry = null,
     ): void {
         $metadata ??= $this->metadata(scheduled: $scheduled);
         $context = new ExecutionContext(
@@ -1354,6 +1360,7 @@ final class DeferredWorkerRuntimeTest extends TestCase
                 ? new ScheduleContext('reports.daily', new DateTimeImmutable('2026-07-10T00:00:00Z'), 'UTC')
                 : null,
             tenant: $tenant,
+            telemetry: $telemetry,
         );
         $value = new WorkerReportValue('weekly');
         $encoded = $this->codec->encode($metadata, $value, $context);

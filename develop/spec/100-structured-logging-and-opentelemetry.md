@@ -137,11 +137,14 @@ TelemetryContext
 ```
 
 - `traceparent`はW3C Trace ContextとしてValidでなければならない。
+- Serializable boundaryは現在W3C version `00`を受け付ける。`ff`および将来VersionはRaw carrierを保存せず、未対応としてParentなしに扱う。
 - `tracestate`はW3C GrammarとLength Limitを満たす場合だけ保持する。
 - BaggageはProperty、Constructor、Codec、Logへ追加しない。
 - ContextはCredential、Tenant、Actor、OperationValueを持たない。
 
 `ExecutionContext::telemetry(): ?TelemetryContext`を末尾Optional Extensionとして追加する。Public Root Dispatchは末尾Optional Telemetry Contextを受けられる。Child DispatchはOverrideを追加せず、現在のActive Spanから新しいProducer Contextを作る。
+
+Canonical／Observed JournalとStructured JSONLの`telemetry`は、Valid Contextから投影した`traceId`、`spanId`、`sampled`だけをTop-level correlationとして保持する。Raw `traceparent`／`tracestate`とBaggageはCanonical／Observed Journalの相関ShapeとStructured JSONLへ出さない。一方、Deferred／OutboxのExecutionContextでは既存BOPD暗号化境界内に保持する。
 
 ### Entry and Propagation
 

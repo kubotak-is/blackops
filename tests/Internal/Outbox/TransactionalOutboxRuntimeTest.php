@@ -29,6 +29,7 @@ use BlackOps\Internal\Identifier\SymfonyUuidv7Generator;
 use BlackOps\Internal\Outbox\TransactionalOutboxRuntime;
 use BlackOps\Internal\Transaction\DefaultAfterCommitFailureReporter;
 use BlackOps\Internal\Transaction\TransactionRuntime;
+use BlackOps\Telemetry\TelemetryContext;
 use BlackOps\Tests\Transport\PostgreSql\PostgreSqlTestStorageProtection;
 use BlackOps\Transport\PostgreSql\PostgreSqlOutboxStore;
 use DateTimeImmutable;
@@ -151,6 +152,7 @@ final class TransactionalOutboxRuntimeTest extends TestCase
         self::assertSame('auth-user', $child->actorContext()?->authorization()?->id());
         self::assertSame('override-worker', $child->actorContext()?->execution()->id());
         self::assertSame('tenant-outbox', $child->tenant()?->id());
+        self::assertSame($parent->context()->telemetry()?->traceparent(), $child->telemetry()?->traceparent());
         self::assertSame(
             $parent->context()->deadline()?->format(DateTimeImmutable::ATOM),
             $child->deadline()?->format(DateTimeImmutable::ATOM),
@@ -458,6 +460,7 @@ final class TransactionalOutboxRuntimeTest extends TestCase
             ),
             new IdempotencyKey('parent-key'),
             tenant: new \BlackOps\Core\TenantRef('account', 'tenant-outbox'),
+            telemetry: new TelemetryContext('00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01'),
         );
 
         return new OperationEnvelope(new OutboxParent(), new OutboxParentValue(), $context, $strategy);

@@ -58,6 +58,7 @@ final readonly class ObservedJournalRecordProjector
             $projectedActors,
             $operation->schedule,
             $operation->tenant === null ? null : new \BlackOps\Core\TenantRef($operation->tenant->type(), '[masked]'),
+            $operation->telemetry,
         );
     }
 

@@ -66,6 +66,9 @@ final class StructuredJsonlFormatter extends JsonFormatter
         if (array_key_exists('attempt', $context)) {
             $output['attempt'] = $this->attempt($context['attempt']);
         }
+        if (is_array($context['telemetry'] ?? null)) {
+            $output['telemetry'] = $this->sensitive->projectArray($context['telemetry']);
+        }
 
         return $this->toJson($output, true) . "\n";
     }

@@ -62,6 +62,10 @@ deptrac:
       collectors:
         - type: classNameRegex
           value: '/^BlackOps\\StorageProtection(\\|$)/'
+    - name: Telemetry
+      collectors:
+        - type: classNameRegex
+          value: '/^BlackOps\\Telemetry(\\|$)/'
     - name: Internal
       collectors:
         - type: classNameRegex
@@ -98,8 +102,11 @@ deptrac:
           value: '/^Symfony\\Component\\Uid(\\|$)/'
         - type: classNameRegex
           value: '/^Symfony\\Component\\Validator(\\|$)/'
+        - type: classNameRegex
+          value: '/^OpenTelemetry(\\|$)/'
   ruleset:
-    Core: ~
+    Core:
+      - Telemetry
     Scheduling:
       - Core
     Application:
@@ -153,6 +160,9 @@ deptrac:
       - Library
     StorageProtection:
       - Core
+    Telemetry:
+      - Core
+      - Library
     Internal:
       - Core
       - Scheduling

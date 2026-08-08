@@ -39,6 +39,13 @@ final readonly class ExecutionContextNormalizer
         if ($tenant !== null) {
             $normalized['tenant'] = ['type' => $tenant->type(), 'id' => $tenant->id()];
         }
+        $telemetry = $context->telemetry();
+        if ($telemetry !== null) {
+            $normalized['telemetry'] = [
+                'traceparent' => $telemetry->traceparent(),
+                'tracestate' => $telemetry->tracestate(),
+            ];
+        }
         return $normalized;
     }
 

@@ -18,6 +18,7 @@ use BlackOps\Core\TenantRef;
 use BlackOps\Internal\Execution\ExecutionScopeProvider;
 use BlackOps\Internal\Logging\ExecutionScopedLogger;
 use BlackOps\Internal\Logging\MonologJsonlLoggerFactory;
+use BlackOps\Telemetry\TelemetryContext;
 use DateTimeImmutable;
 use InvalidArgumentException;
 use JsonException;
@@ -189,6 +190,7 @@ final class MonologJsonlLoggerFactoryTest extends TestCase
         self::assertArrayNotHasKey('extra', $record);
         self::assertStringNotContainsString('plaintext-password', $contents);
         self::assertStringNotContainsString('plaintext-token', $contents);
+        self::assertArrayNotHasKey('telemetry', $record);
     }
 
     public function testOperationTenantAndScheduleAreMaskedAndUtc(): void
@@ -220,6 +222,56 @@ final class MonologJsonlLoggerFactoryTest extends TestCase
         self::assertSame('reports.daily', $record['operation']['schedule']['name']);
         self::assertSame('2026-07-11T00:10:11.123456Z', $record['operation']['schedule']['scheduledAt']);
         self::assertStringNotContainsString('tenant-secret-id', $jsonl);
+    }
+
+    public function testFormatterKeepsTelemetryTopLevelAndSafe(): void
+    {
+        $stream = $this->stream();
+        $scope = new ExecutionScopeProvider();
+        $logger = new ExecutionScopedLogger(new MonologJsonlLoggerFactory()->create($stream), $scope);
+        $scope->run(
+            self::envelope(telemetry: new TelemetryContext('00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01')),
+            static fn() => $logger->info('telemetry'),
+            'logging.operation',
+        );
+        $record = $this->record($this->contents($stream));
+        self::assertSame(
+            [
+                'traceId' => '4bf92f3577b34da6a3ce929d0e0e4736',
+                'spanId' => '00f067aa0ba902b7',
+                'sampled' => true,
+            ],
+            $record['telemetry'],
+        );
+        self::assertArrayNotHasKey('telemetry', $record['operation']);
+    }
+
+    public function testFrameworkLineKeepsTelemetryTopLevelAndSafe(): void
+    {
+        $stream = $this->stream();
+        $scope = new ExecutionScopeProvider();
+        $logger = new ExecutionScopedLogger(new MonologJsonlLoggerFactory()->create($stream), $scope);
+        $scope->run(
+            self::envelope(telemetry: new TelemetryContext(
+                '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01',
+                'vendor=private-state',
+            )),
+            static fn() => $logger->frameworkError(\RuntimeException::class, false),
+            'logging.operation',
+        );
+        $jsonl = $this->contents($stream);
+        $record = $this->record($jsonl);
+        self::assertSame(
+            [
+                'traceId' => '4bf92f3577b34da6a3ce929d0e0e4736',
+                'spanId' => '00f067aa0ba902b7',
+                'sampled' => true,
+            ],
+            $record['telemetry'],
+        );
+        self::assertArrayNotHasKey('telemetry', $record['operation']);
+        self::assertStringNotContainsString('00-4bf92f3577b34da6a3ce929d0e0e4736', $jsonl);
+        self::assertStringNotContainsString('private-state', $jsonl);
     }
 
     public function testFactoryBoundaryExposesOnlyPsrLoggerAndScalarConfiguration(): void
@@ -268,8 +320,11 @@ final class MonologJsonlLoggerFactoryTest extends TestCase
         return $record;
     }
 
-    private static function envelope(?TenantRef $tenant = null, ?ScheduleContext $schedule = null): OperationEnvelope
-    {
+    private static function envelope(
+        ?TenantRef $tenant = null,
+        ?ScheduleContext $schedule = null,
+        ?TelemetryContext $telemetry = null,
+    ): OperationEnvelope {
         return new OperationEnvelope(
             new MonologLoggingOperation(),
             new MonologLoggingValue(),
@@ -284,6 +339,7 @@ final class MonologJsonlLoggerFactoryTest extends TestCase
                 ),
                 schedule: $schedule,
                 tenant: $tenant,
+                telemetry: $telemetry,
             ),
             new Inline(),
         );

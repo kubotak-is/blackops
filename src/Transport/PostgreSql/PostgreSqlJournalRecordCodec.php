@@ -18,6 +18,7 @@ use BlackOps\Journal\JournalAttempt;
 use BlackOps\Journal\JournalEvent;
 use BlackOps\Journal\JournalOperation;
 use BlackOps\Journal\JournalRecord;
+use BlackOps\Telemetry\TelemetryCorrelation;
 use DateTimeImmutable;
 use RuntimeException;
 use Throwable;
@@ -25,6 +26,7 @@ use Throwable;
 /**
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:too-many-methods
+ * @mago-expect lint:kan-defect
  */
 final readonly class PostgreSqlJournalRecordCodec
 {
@@ -82,6 +84,13 @@ final readonly class PostgreSqlJournalRecordCodec
         if ($operation->tenant !== null) {
             $encoded['tenant'] = ['type' => $operation->tenant->type(), 'id' => $operation->tenant->id()];
         }
+        if ($operation->telemetry !== null) {
+            $encoded['telemetry'] = [
+                'traceId' => $operation->telemetry->traceId,
+                'spanId' => $operation->telemetry->spanId,
+                'sampled' => $operation->telemetry->sampled,
+            ];
+        }
         return $encoded;
     }
 
@@ -129,7 +138,35 @@ final readonly class PostgreSqlJournalRecordCodec
             $this->decodeActors($operation),
             $this->decodeSchedule($operation),
             $this->decodeTenant($operation),
+            $this->decodeTelemetry($operation),
         );
+    }
+
+    /** @param array<array-key, mixed> $operation */
+    private function decodeTelemetry(array $operation): ?TelemetryCorrelation
+    {
+        /** @var mixed $telemetry */
+        $telemetry = $operation['telemetry'] ?? null;
+        if ($telemetry === null) {
+            return null;
+        }
+        if (!is_array($telemetry)) {
+            throw new RuntimeException('Stored journal telemetry correlation must be an object.');
+        }
+        $fields = array_keys($telemetry);
+        sort($fields);
+        if ($fields !== ['sampled', 'spanId', 'traceId'] || !is_bool($telemetry['sampled'])) {
+            throw new RuntimeException('Stored journal telemetry correlation contains unknown or invalid fields.');
+        }
+        try {
+            return new TelemetryCorrelation(
+                $this->json->string($telemetry, 'traceId'),
+                $this->json->string($telemetry, 'spanId'),
+                $telemetry['sampled'],
+            );
+        } catch (Throwable $exception) {
+            throw new RuntimeException('Stored journal telemetry correlation is invalid.', previous: $exception);
+        }
     }
 
     /** @param array<array-key, mixed> $operation */

@@ -15,6 +15,7 @@ use BlackOps\Idempotency\IdempotencyKey;
 use BlackOps\Internal\ExecutionContext\ExecutionContextFactory;
 use BlackOps\Internal\Identifier\IdentifierFactory;
 use BlackOps\Internal\Identifier\SymfonyUuidv7Generator;
+use BlackOps\Telemetry\TelemetryContext;
 use DateTimeImmutable;
 use DateTimeZone;
 use InvalidArgumentException;
@@ -71,6 +72,22 @@ final class ExecutionContextFactoryTest extends TestCase
         self::assertSame($tenant, $root->tenant());
         self::assertSame($tenant, $attempt->tenant());
         self::assertSame($tenant, $child->tenant());
+    }
+
+    public function testTelemetrySurvivesReceiveAttemptAndChildWithoutOverride(): void
+    {
+        $telemetry = new TelemetryContext('00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01');
+        $factory = $this->factoryWithClock([
+            '2026-07-02T12:34:56.123456Z',
+            '2026-07-02T12:35:00.000000Z',
+            '2026-07-02T12:36:00.000000Z',
+        ]);
+        $root = $factory->receive(telemetry: $telemetry);
+        $attempt = $factory->startAttempt($root, 1);
+        $child = $factory->createChild($root);
+        self::assertSame($telemetry, $root->telemetry());
+        self::assertSame($telemetry, $attempt->telemetry());
+        self::assertSame($telemetry, $child->telemetry());
     }
 
     public function testReceiveHashesOptionalKeyAndAttemptPreservesItWhileChildDoesNotInheritIt(): void

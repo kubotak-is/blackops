@@ -9,6 +9,7 @@ use BlackOps\Core\Identifier\CausationId;
 use BlackOps\Core\Identifier\CorrelationId;
 use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Idempotency\IdempotencyKeyHash;
+use BlackOps\Telemetry\TelemetryContext;
 use DateTimeImmutable;
 use DateTimeZone;
 
@@ -39,6 +40,7 @@ final readonly class ExecutionContext
         private ?IdempotencyKeyHash $idempotencyKeyHash = null,
         private ?ScheduleContext $schedule = null,
         private ?TenantRef $tenant = null,
+        private ?TelemetryContext $telemetry = null,
     ) {
         $this->receivedAt = $this->toUtc($receivedAt);
         $this->deadline = $deadline === null ? null : $this->toUtc($deadline);
@@ -92,6 +94,11 @@ final readonly class ExecutionContext
     public function tenant(): ?TenantRef
     {
         return $this->tenant;
+    }
+
+    public function telemetry(): ?TelemetryContext
+    {
+        return $this->telemetry;
     }
 
     private function toUtc(DateTimeImmutable $time): DateTimeImmutable

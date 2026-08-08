@@ -15,6 +15,7 @@ use BlackOps\Core\ScheduleContext;
 use BlackOps\Core\TenantRef;
 use BlackOps\Idempotency\IdempotencyKey;
 use BlackOps\Internal\Identifier\IdentifierFactory;
+use BlackOps\Telemetry\TelemetryContext;
 use DateTimeImmutable;
 use InvalidArgumentException;
 use LogicException;
@@ -41,6 +42,7 @@ final readonly class ExecutionContextFactory
         ?ActorContext $actorContext = null,
         ?IdempotencyKey $idempotencyKey = null,
         ?TenantRef $tenant = null,
+        ?TelemetryContext $telemetry = null,
     ): ExecutionContext {
         $operationId = $this->identifiers->newOperationId();
         $correlationId = CorrelationId::fromString($operationId->toString());
@@ -56,15 +58,18 @@ final readonly class ExecutionContextFactory
             $idempotencyKey?->hash(),
             null,
             $tenant,
+            $telemetry,
         );
     }
 
+    /** @mago-expect lint:excessive-parameter-list */
     public function receiveScheduled(
         OperationId $operationId,
         DateTimeImmutable $receivedAt,
         ScheduleContext $schedule,
         ?ActorContext $actorContext = null,
         ?TenantRef $tenant = null,
+        ?TelemetryContext $telemetry = null,
     ): ExecutionContext {
         return new ExecutionContext(
             $operationId,
@@ -77,6 +82,7 @@ final readonly class ExecutionContextFactory
             null,
             $schedule,
             $tenant,
+            $telemetry,
         );
     }
 
@@ -105,6 +111,7 @@ final readonly class ExecutionContextFactory
             $context->idempotencyKeyHash(),
             $context->schedule(),
             $context->tenant(),
+            $context->telemetry(),
         );
     }
 
@@ -128,6 +135,7 @@ final readonly class ExecutionContextFactory
             null,
             null,
             $parent->tenant(),
+            $parent->telemetry(),
         );
     }
 

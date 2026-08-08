@@ -52,6 +52,7 @@ use BlackOps\Journal\Data\OperationFailedData;
 use BlackOps\Journal\JournalEvent;
 use BlackOps\Journal\JournalRecord;
 use BlackOps\Journal\LifecycleState;
+use BlackOps\Telemetry\TelemetryContext;
 use BlackOps\Transport\PostgreSql\PostgreSqlSystemClock;
 use Closure;
 use LogicException;
@@ -111,12 +112,14 @@ final readonly class InlineDispatcher implements Dispatcher, ScheduledInlineDisp
         return $this->validator->validate($value);
     }
 
+    /** @mago-expect lint:excessive-parameter-list */
     public function dispatch(
         Operation $definition,
         OperationValue $value,
         ?ActorContext $actorContext = null,
         ?IdempotencyKey $idempotencyKey = null,
         ?TenantRef $tenant = null,
+        ?TelemetryContext $telemetry = null,
     ): OperationResult {
         if ($idempotencyKey !== null && $actorContext?->authorization() === null) {
             return OperationResult::rejected(RejectionReason::businessRule('idempotency_requires_authenticated_actor'));
@@ -138,7 +141,12 @@ final readonly class InlineDispatcher implements Dispatcher, ScheduledInlineDisp
         $receivedEnvelope = new OperationEnvelope(
             $definition,
             $value,
-            $this->contexts->receive(actorContext: $actorContext, idempotencyKey: $idempotencyKey, tenant: $tenant),
+            $this->contexts->receive(
+                actorContext: $actorContext,
+                idempotencyKey: $idempotencyKey,
+                tenant: $tenant,
+                telemetry: $telemetry,
+            ),
             new Inline(),
         );
         return $this->dispatchEnvelope($metadata, $receivedEnvelope, $idempotencyKey);
@@ -655,10 +663,13 @@ final readonly class InlineDispatcher implements Dispatcher, ScheduledInlineDisp
     /**
      * @param list<Violation> $violations
      */
-    public function rejectBinding(Operation $definition, array $violations): OperationId
-    {
+    public function rejectBinding(
+        Operation $definition,
+        array $violations,
+        ?TelemetryContext $telemetry = null,
+    ): OperationId {
         $metadata = $this->metadata($definition);
-        $context = $this->contexts->receive();
+        $context = $this->contexts->receive(telemetry: $telemetry);
         $reason = RejectionReason::validation('validation.failed', $violations);
         $this->appendLifecycleRecord(
             null,
@@ -678,11 +689,15 @@ final readonly class InlineDispatcher implements Dispatcher, ScheduledInlineDisp
     /**
      * @param list<Violation> $violations
      */
-    public function rejectValue(Operation $definition, OperationValue $value, array $violations): OperationId
-    {
+    public function rejectValue(
+        Operation $definition,
+        OperationValue $value,
+        array $violations,
+        ?TelemetryContext $telemetry = null,
+    ): OperationId {
         $metadata = $this->metadata($definition);
         $this->assertValueMatches($metadata, $value);
-        $context = $this->contexts->receive();
+        $context = $this->contexts->receive(telemetry: $telemetry);
         $envelope = new OperationEnvelope($definition, $value, $context, $this->strategy($metadata));
         $state = $this->appendLifecycleRecord(
             null,

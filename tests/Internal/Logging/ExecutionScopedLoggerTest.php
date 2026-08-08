@@ -18,6 +18,7 @@ use BlackOps\Core\OperationEnvelope;
 use BlackOps\Core\OperationValue;
 use BlackOps\Internal\Execution\ExecutionScopeProvider;
 use BlackOps\Internal\Logging\ExecutionScopedLogger;
+use BlackOps\Telemetry\TelemetryContext;
 use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\AbstractLogger;
@@ -78,6 +79,28 @@ final class ExecutionScopedLoggerTest extends TestCase
         $scope->run(self::envelopeWithoutAttempt(), static fn() => $logger->info('accepted'), 'dispatch.test');
 
         self::assertArrayNotHasKey('attempt', $inner->records[0]['context']);
+    }
+
+    public function testTelemetryIsTopLevelSafeCorrelationAndNotNestedInOperation(): void
+    {
+        $inner = new RecordingPsrLogger();
+        $scope = new ExecutionScopeProvider();
+        $logger = new ExecutionScopedLogger($inner, $scope);
+        $scope->run(
+            self::envelope(telemetry: new TelemetryContext('00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01')),
+            static fn() => $logger->info('accepted'),
+            'dispatch.test',
+        );
+        $context = $inner->records[0]['context'];
+        self::assertSame(
+            [
+                'traceId' => '4bf92f3577b34da6a3ce929d0e0e4736',
+                'spanId' => '00f067aa0ba902b7',
+                'sampled' => true,
+            ],
+            $context['telemetry'],
+        );
+        self::assertArrayNotHasKey('telemetry', $context['operation']);
     }
 
     public function testFrameworkErrorUsesSafeClassificationAndMaskedActorCorrelation(): void
@@ -146,8 +169,10 @@ final class ExecutionScopedLoggerTest extends TestCase
         );
     }
 
-    private static function envelope(?ActorContext $actorContext = null): OperationEnvelope
-    {
+    private static function envelope(
+        ?ActorContext $actorContext = null,
+        ?TelemetryContext $telemetry = null,
+    ): OperationEnvelope {
         return new OperationEnvelope(
             new LoggingOperation(),
             new LoggingValue('hello'),
@@ -161,6 +186,7 @@ final class ExecutionScopedLoggerTest extends TestCase
                     new DateTimeImmutable('2026-07-07T00:00:01Z'),
                 ),
                 actorContext: $actorContext,
+                telemetry: $telemetry,
             ),
             new Inline(),
         );

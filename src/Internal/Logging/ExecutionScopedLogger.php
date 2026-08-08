@@ -10,6 +10,7 @@ use BlackOps\Core\Execution\Inline;
 use BlackOps\Core\OperationEnvelope;
 use BlackOps\Internal\Execution\ExecutionScopeProvider;
 use BlackOps\Internal\Projection\SensitiveProjectionFilter;
+use BlackOps\Telemetry\TelemetryCorrelation;
 use Psr\Log\AbstractLogger;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
@@ -94,6 +95,17 @@ final class ExecutionScopedLogger extends AbstractLogger
 
         if ($operation !== null) {
             $enriched['operation'] = $this->operation($operation);
+            $telemetry = $operation->context()->telemetry();
+            if ($telemetry !== null) {
+                $correlation = TelemetryCorrelation::fromContext($telemetry);
+                if ($correlation !== null) {
+                    $enriched['telemetry'] = [
+                        'traceId' => $correlation->traceId,
+                        'spanId' => $correlation->spanId,
+                        'sampled' => $correlation->sampled,
+                    ];
+                }
+            }
             $attempt = $operation->context()->attempt();
             if ($attempt !== null) {
                 $enriched['attempt'] = [

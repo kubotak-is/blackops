@@ -25,6 +25,7 @@ use BlackOps\Core\Registry\OperationScheduleMetadata;
 use BlackOps\Core\ScheduleContext;
 use BlackOps\Internal\Authorization\AuthorizationEvaluator;
 use BlackOps\Internal\Authorization\AuthorizationPolicyResolver;
+use BlackOps\Internal\Codec\ExecutionContextJsonCodec;
 use BlackOps\Internal\Codec\ReflectionJsonOperationCodec;
 use BlackOps\Internal\Execution\DeferredAcceptanceOrchestrator;
 use BlackOps\Internal\Execution\OperationExecutionFailed;
@@ -42,6 +43,7 @@ use BlackOps\Journal\EmptyJournalData;
 use BlackOps\Journal\JournalEvent;
 use BlackOps\Journal\JournalRecord;
 use BlackOps\StorageProtection\StoragePurpose;
+use BlackOps\Telemetry\TelemetryContext;
 use BlackOps\Transport\PostgreSql\PostgreSqlCanonicalJournalStore;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationSender;
 use DateTimeImmutable;
@@ -143,6 +145,7 @@ final class PostgreSqlDeferredAcceptanceOrchestratorTest extends TestCase
         $acknowledgement = $acceptor->accept(
             new ProxiedDeferredAcceptedOperation(),
             new DeferredAcceptedValue('report-1'),
+            telemetry: new TelemetryContext('00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01'),
         );
 
         $operationRow = $this->operationRow();
@@ -161,6 +164,24 @@ final class PostgreSqlDeferredAcceptanceOrchestratorTest extends TestCase
             ),
         ));
         self::assertSame('accepted', $operationRow['state']);
+        self::assertStringNotContainsString('traceparent', (string) $operationRow['encoded_context']);
+        $encodedContext = PostgreSqlTestStorageProtection::codec()->decrypt(
+            hex2bin((string) $operationRow['encoded_context']),
+            new StorageProtectionContext(
+                StoragePurpose::DeferredContext,
+                $acknowledgement->operationId()->toString() . ':context',
+                $acknowledgement->operationId()->toString(),
+                'report.generate',
+                1,
+            ),
+        );
+        self::assertSame(
+            '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01',
+            new ExecutionContextJsonCodec()
+                ->decode($encodedContext)
+                ->telemetry()
+                ?->traceparent(),
+        );
         self::assertSame(
             [JournalEvent::OperationReceived, JournalEvent::OperationAccepted],
             array_column($records, 'event'),

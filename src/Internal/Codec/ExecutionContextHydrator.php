@@ -17,6 +17,7 @@ use BlackOps\Core\ScheduleContext;
 use BlackOps\Core\TenantRef;
 use BlackOps\Core\Time\TimeCodec;
 use BlackOps\Idempotency\IdempotencyKeyHash;
+use BlackOps\Telemetry\TelemetryContext;
 use DateTimeImmutable;
 use Throwable;
 
@@ -53,7 +54,29 @@ final readonly class ExecutionContextHydrator
             $this->hydrateIdempotencyKeyHash($context),
             $this->hydrateSchedule($context),
             $this->hydrateTenant($context),
+            $this->hydrateTelemetry($context),
         );
+    }
+
+    /** @param array<string, mixed> $context */
+    private function hydrateTelemetry(array $context): ?TelemetryContext
+    {
+        $telemetry = $this->reader->optionalObject($context, 'telemetry');
+        if ($telemetry === null) {
+            return null;
+        }
+        $this->assertFields($telemetry, ['traceparent', 'tracestate']);
+        try {
+            return new TelemetryContext(
+                $this->reader->string($telemetry, 'traceparent'),
+                $this->reader->optionalString($telemetry, 'tracestate'),
+            );
+        } catch (Throwable $exception) {
+            throw new OperationCodecException(
+                'Encoded context contains an invalid telemetry context.',
+                previous: $exception,
+            );
+        }
     }
 
     /** @param array<string, mixed> $context */

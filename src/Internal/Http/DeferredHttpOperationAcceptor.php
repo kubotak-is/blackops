@@ -21,6 +21,7 @@ use BlackOps\Idempotency\IdempotencyKey;
 use BlackOps\Internal\Execution\DeferredAcceptanceOrchestrator;
 use BlackOps\Internal\ExecutionContext\ExecutionContextFactory;
 use BlackOps\Internal\Registry\OperationMetadataResolver;
+use BlackOps\Telemetry\TelemetryContext;
 use LogicException;
 
 final readonly class DeferredHttpOperationAcceptor implements DeferredOperationAcceptor
@@ -48,12 +49,14 @@ final readonly class DeferredHttpOperationAcceptor implements DeferredOperationA
         );
     }
 
+    /** @mago-expect lint:excessive-parameter-list */
     public function accept(
         Operation $definition,
         OperationValue $value,
         ?ActorContext $actorContext = null,
         ?IdempotencyKey $idempotencyKey = null,
         ?TenantRef $tenant = null,
+        ?TelemetryContext $telemetry = null,
     ): DeferredAcknowledgement|OperationResult {
         $metadata = $this->metadataResolver->resolve($definition) ?? throw new LogicException(
             'Deferred operation definition is not registered.',
@@ -76,6 +79,7 @@ final readonly class DeferredHttpOperationAcceptor implements DeferredOperationA
             actorContext: $actorContext,
             idempotencyKey: $idempotencyKey,
             tenant: $tenant,
+            telemetry: $telemetry,
         );
         $strategy = new Deferred();
         $envelope = new OperationEnvelope($definition, $value, $context, $strategy);

@@ -219,7 +219,7 @@ MVP後に残す主要項目:
 - [x] Tenant／Storage ProtectionのGuideとDocumentation Reviewを完了する（P20-016H、Accepted）
 - [x] 構造化Log Schema、OpenTelemetry Trace／Metric Adapter、Health／Readiness境界を確定する（D136／Specification 100／P20-017、Accepted）
 - [x] Structured Record v1とCanonical JSONL Formatterを実装する（P20-018A、Accepted）
-- [ ] W3C Telemetry ContextとProcess越しPropagationを実装する（P20-018B）
+- [x] W3C Telemetry ContextとProcess越しPropagationを実装する（P20-018B、Accepted）
 - [ ] OpenTelemetry Trace AdapterとSpan Lifecycleを実装する（P20-018C）
 - [ ] 低Cardinality Metric AdapterとRuntime Instrumentationを実装する（P20-018D）
 - [ ] Liveness／ReadinessとLocal Docker Collector Consumerを実装する（P20-018E）

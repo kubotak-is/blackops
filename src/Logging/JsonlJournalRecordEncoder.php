@@ -40,7 +40,7 @@ final readonly class JsonlJournalRecordEncoder
      */
     private function record(ObservedJournalRecord $record): array
     {
-        return [
+        $encoded = [
             'schemaVersion' => $record->schemaVersion,
             'kind' => 'journal',
             'recordId' => $record->recordId->toString(),
@@ -51,6 +51,14 @@ final readonly class JsonlJournalRecordEncoder
             'attempt' => $record->attempt === null ? null : $this->attempt($record->attempt),
             'data' => $record->data === [] ? new \stdClass() : $this->array($record->data),
         ];
+        if ($record->operation->telemetry !== null) {
+            $encoded['telemetry'] = [
+                'traceId' => $record->operation->telemetry->traceId,
+                'spanId' => $record->operation->telemetry->spanId,
+                'sampled' => $record->operation->telemetry->sampled,
+            ];
+        }
+        return $encoded;
     }
 
     /**
