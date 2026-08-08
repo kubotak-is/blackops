@@ -66,7 +66,7 @@ final class ObservedJournalRecordProjectorTest extends TestCase
         self::assertSame(['value' => ['message' => 'hello']], $observed->data);
     }
 
-    public function testObservedProjectionOmitsRawTenantId(): void
+    public function testObservedProjectionMasksTenantId(): void
     {
         $record = new JournalRecord(
             JournalRecordId::fromString(self::ID),
@@ -86,7 +86,8 @@ final class ObservedJournalRecordProjectorTest extends TestCase
             new EmptyJournalData(),
         );
         $observed = new ObservedJournalRecordProjector(new SensitiveProjectionFilter())->project($record);
-        self::assertNull($observed->operation->tenant);
+        self::assertSame('[masked]', $observed->operation->tenant?->id());
+        self::assertSame('account', $observed->operation->tenant?->type());
         self::assertStringNotContainsString('tenant-secret-id', json_encode($observed, JSON_THROW_ON_ERROR));
     }
 
@@ -338,6 +339,41 @@ final class ObservedJournalRecordProjectorTest extends TestCase
                 new OperationReceivedData(new FullyRedactedProjectionValue('fully-secret')),
             ))),
         );
+    }
+
+    public function testEncoderProjectsScheduleWithUtcNominalTime(): void
+    {
+        $record = new JournalRecord(
+            JournalRecordId::fromString(self::ID),
+            1,
+            JournalEvent::OperationReceived,
+            new DateTimeImmutable('2026-07-07T00:00:00Z'),
+            1,
+            new JournalOperation(
+                OperationId::fromString(self::ID),
+                'projection.test',
+                1,
+                'inline',
+                CorrelationId::fromString(self::ID),
+                schedule: new ScheduleContext(
+                    'reports.daily',
+                    new DateTimeImmutable('2026-07-07T09:10:11.123456', new DateTimeZone('Asia/Tokyo')),
+                    'Asia/Tokyo',
+                ),
+            ),
+            null,
+            new EmptyJournalData(),
+        );
+
+        $decoded = json_decode(
+            new JsonlJournalRecordEncoder()->encode(new ObservedJournalRecordProjector(
+                new SensitiveProjectionFilter(),
+            )->project($record)),
+            associative: false,
+            flags: JSON_THROW_ON_ERROR,
+        );
+        self::assertSame('reports.daily', $decoded->operation->schedule->name);
+        self::assertSame('2026-07-07T00:10:11.123456Z', $decoded->operation->schedule->scheduledAt);
     }
 
     private function record(JournalEvent $event, JournalData $data): JournalRecord

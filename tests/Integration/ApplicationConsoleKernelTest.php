@@ -134,7 +134,7 @@ final class ApplicationConsoleKernelTest extends TestCase
         $workerRecord = json_decode($workerLines[0], associative: true, flags: JSON_THROW_ON_ERROR);
         self::assertIsArray($workerRecord);
         self::assertSame('worker-custom', $workerRecord['channel']);
-        self::assertSame('ERROR', $workerRecord['level_name']);
+        self::assertSame('error', $workerRecord['level']);
         self::assertSame('Operation failed.', $workerRecord['message']);
         self::assertStringContainsString('Worker stopped.', $this->runCommand($kernel, 'worker:run', [
             '--iterations' => '1',

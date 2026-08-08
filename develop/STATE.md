@@ -1,6 +1,41 @@
 # Orchestration State
 
-Updated At: 2026-08-08T22:17:33+09:00
+Updated At: 2026-08-08T22:50:07+09:00
+
+## P20-018A Structured Record Schema Accepted
+
+```text
+2026-08-08T22:50:07+09:00
+Orchestrator independent reviewでP20-018AをAcceptedとした。Canonical FormatterのTop-level Application／Framework／Audit Wire、Operation／Attempt分離、stable inline／deferred strategy、UTC Microseconds、JSON Object Context、Observed Journal Actor／Tenant Encoder-boundary Mask、Schedule Projection、Retention Audit Domain Timestamp／Actor・Tenant MaskをSpecification 100とExact Testへ照合した。Review Correction後の独立Focused PHPUnit 50 tests／367 assertions、Full PHPUnit 2,110 tests／8,687 assertions（既存Deprecation 1）、Quickstart Consumer E2E、Composer strict validation、Mago format、changed-source lint／analyze、管理番号Guard、shell syntax、git diff checkがPASS。Broad Mago lint 83 findings／9 errors、broad analyze 24 warnings、Deptrac vendor NikicFileReferenceVisitor.php:106は既知baseline。New Dependency／OpenTelemetry実装なし。Task／Report／TODOをAcceptedへ同期し、Worker Commit／Push／Deployなし。次はCommit後にP20-018B。
+```
+
+## P20-018A Orchestrator Review Corrections Complete
+
+```text
+2026-08-08T22:44:21+09:00
+Review指摘を解消した。StructuredJsonlFormatterはApplication／Frameworkのtop-level contextを常にJSON Objectへ正規化し、nested listを保持する。Audit occurredAtはRetentionPurgeAuditRecordのtrusted purgedAtをUTC microsecondsへ変換し、Application／FrameworkはLogRecord時刻を維持する。Application Tenant／Schedule、Journal Schedule、non-null Audit Tenantのmask／UTC wire evidenceとempty object／top-level list context testを追加した。docs/internalの旧JsonFormatter／direct filter記述も同期した。Focused Logging／Projection／Retention 41 tests／224 assertions、Full PHPUnit 2,110 tests／8,687 assertions（既存Deprecation 1）、Quickstart Consumer E2E、Mago format／changed-source lint／analyze、guard、git diff checkがPASS。P20-018AをReview Pendingへ戻し、Worker Commit／Push／Deployなし。Orchestrator independent review待ち。
+```
+
+## P20-018A Orchestrator Review Corrections In Progress
+
+```text
+2026-08-08T22:40:11+09:00
+独立Reviewで、State Updated Atの同期、Monolog内部Fieldへの古いDocumentation参照、top-level contextのList Object保証、Application Tenant／Schedule、Journal Schedule、Audit TenantのExact Wire Evidence追加を指摘した。P20-018AをIn Progressへ戻し、範囲内の最小修正とFocused／Quality再検証を実施する。Worker Commit／Push／Deployなし。
+```
+
+## P20-018A Structured Record Schema Review Pending
+
+```text
+2026-08-08T22:36:58+09:00
+P20-018AのStructuredJsonlFormatter／ExecutionScopedLogger／Observed Journal Projection／Retention Audit Wireを実装し、Application／Framework／AuditのTop-level schemaVersion 1、kind、occurredAt、lowercase level、operation、Attempt正規化、Actor／Tenant固定Mask、Safe Failure、Monolog固有Field除外を固定した。Journal EncoderはActor／TenantをEncoder境界でもMaskし、Scheduleを安全なUTC Fieldとして出力する。Quickstart JSONL assertionとInternal／Integration Wire Test、Retention Audit文書、Monolog／Logger／Journal Specを同期した。Focused 45 tests／343 assertions、Full PHPUnit 2,105 tests／8,663 assertions（既存Deprecation 1）、Quickstart Consumer E2E、Composer validate、Mago format、変更Source lint／analyze、管理番号Guard、git diff checkがPASS。Broad Mago lintは既知baseline 83 findings／9 errors、broad analyzeは24 warnings、Deptracは既知vendor NikicFileReferenceVisitor.php:106 PHP 8.5 parser blocker。P20-018AはReview Pending、Worker Commit／Push／Deployなし。Orchestrator independent review待ち。
+```
+
+## P20-018A Structured Record Schema Start
+
+```text
+2026-08-08T22:20:49+09:00
+P20-017のContract Bundleはcdc8c60としてCommit済みで、Working Tree cleanを確認した。P20-018AをIn Progressとして開始し、Application／Framework／Journal／Audit JSONLの共通Top-level schemaVersion 1、UTC Microseconds、Operation／Attempt／Actor／Tenant／Failure Safe Projection、Monolog Nested Context廃止、Quickstart Wire EvidenceをRepository設定どおりGPT-5.6 Luna High workerへ委譲する。OpenTelemetry Dependency／Trace Context／Span／Metric／Health／Collectorは範囲外とし、Local Docker Collectorによる実通信確認はApplication-owned SDK／Exporterを扱うP20-018Eへ維持する。Worker Commit／Push／Deployなし。
+```
 
 ## P20-017 Structured Logging and OpenTelemetry Contract Accepted
 

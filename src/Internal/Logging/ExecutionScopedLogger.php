@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace BlackOps\Internal\Logging;
 
 use BlackOps\Core\ActorRef;
+use BlackOps\Core\Execution\Deferred;
+use BlackOps\Core\Execution\Inline;
 use BlackOps\Core\OperationEnvelope;
 use BlackOps\Internal\Execution\ExecutionScopeProvider;
 use BlackOps\Internal\Projection\SensitiveProjectionFilter;
@@ -58,9 +60,7 @@ final class ExecutionScopedLogger extends AbstractLogger
             $this->inner->log(LogLevel::ERROR, 'Application request failed.', [
                 'schemaVersion' => 1,
                 'kind' => 'framework',
-                'context' => [
-                    'failure' => ['classification' => 'internal_error', 'type' => $failureType],
-                ],
+                'context' => ['failure' => ['classification' => 'internal_error', 'type' => $failureType]],
             ]);
         } catch (Throwable) {
         }
@@ -94,6 +94,14 @@ final class ExecutionScopedLogger extends AbstractLogger
 
         if ($operation !== null) {
             $enriched['operation'] = $this->operation($operation);
+            $attempt = $operation->context()->attempt();
+            if ($attempt !== null) {
+                $enriched['attempt'] = [
+                    'id' => $attempt->id()->toString(),
+                    'number' => $attempt->number(),
+                    'startedAt' => $attempt->startedAt()->format('Y-m-d\TH:i:s.u\Z'),
+                ];
+            }
         }
 
         return $enriched;
@@ -105,16 +113,19 @@ final class ExecutionScopedLogger extends AbstractLogger
     private function operation(OperationEnvelope $operation): array
     {
         $context = $operation->context();
-        $attempt = $context->attempt();
         $actors = $context->actorContext();
+        $tenant = $context->tenant();
 
-        return [
+        $projected = [
             'id' => $context->operationId()->toString(),
             'type' => $this->scope->currentOperationTypeId(),
-            'attemptId' => $attempt === null ? null : $attempt->id()->toString(),
             'correlationId' => $context->correlationId()->toString(),
             'causationId' => $context->causationId()?->toString(),
-            'strategy' => $operation->strategy()::class,
+            'strategy' => match ($operation->strategy()::class) {
+                Inline::class => 'inline',
+                Deferred::class => 'deferred',
+                default => throw new \LogicException('Unsupported execution strategy.'),
+            },
             'actors' => $actors === null
                 ? null
                 : [
@@ -122,7 +133,23 @@ final class ExecutionScopedLogger extends AbstractLogger
                     'authorization' => $this->actor($actors->authorization()),
                     'execution' => $this->actor($actors->execution()),
                 ],
+            'tenant' => $tenant === null
+                ? null
+                : [
+                    'id' => '[masked]',
+                    'type' => $tenant->type(),
+                ],
         ];
+
+        $schedule = $context->schedule();
+        if ($schedule !== null) {
+            $projected['schedule'] = [
+                'name' => $schedule->name(),
+                'scheduledAt' => $schedule->scheduledAt()->format('Y-m-d\TH:i:s.u\Z'),
+            ];
+        }
+
+        return $projected;
     }
 
     /** @return array{id: string, type: string}|null */

@@ -58,8 +58,10 @@ Application LogとLifecycle Journal Logは共通の構造化Envelopeを使い、
 {
   "schemaVersion": 1,
   "kind": "application",
+  "occurredAt": "2026-07-07T00:00:00.000000Z",
   "level": "info",
   "message": "Order persisted",
+  "channel": "blackops",
   "operation": {
     "id": "019...",
     "type": "order.create"
@@ -74,6 +76,7 @@ Application LogとLifecycle Journal Logは共通の構造化Envelopeを使い、
 {
   "schemaVersion": 1,
   "kind": "journal",
+  "occurredAt": "2026-07-07T00:00:00.000000Z",
   "event": "operation.completed",
   "operation": {
     "id": "019...",

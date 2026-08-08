@@ -49,8 +49,9 @@ final class ExecutionScopedLoggerTest extends TestCase
         $context = $inner->records[0]['context'];
         self::assertSame(self::ID, $context['operation']['id']);
         self::assertSame('dispatch.test', $context['operation']['type']);
-        self::assertSame(self::ID, $context['operation']['attemptId']);
-        self::assertSame(Inline::class, $context['operation']['strategy']);
+        self::assertArrayNotHasKey('attemptId', $context['operation']);
+        self::assertSame(self::ID, $context['attempt']['id']);
+        self::assertSame('inline', $context['operation']['strategy']);
         self::assertSame('order-123', $context['context']['orderId']);
         self::assertArrayNotHasKey('password', $context['context']);
         self::assertSame(['id' => 'user-supplied'], $context['context']['operation']);
@@ -66,6 +67,17 @@ final class ExecutionScopedLoggerTest extends TestCase
         self::assertCount(1, $inner->records);
         self::assertArrayNotHasKey('operation', $inner->records[0]['context']);
         self::assertSame(['safe' => 'ok'], $inner->records[0]['context']['context']);
+    }
+
+    public function testOperationWithoutAttemptOmitsTopLevelAttempt(): void
+    {
+        $inner = new RecordingPsrLogger();
+        $scope = new ExecutionScopeProvider();
+        $logger = new ExecutionScopedLogger($inner, $scope);
+
+        $scope->run(self::envelopeWithoutAttempt(), static fn() => $logger->info('accepted'), 'dispatch.test');
+
+        self::assertArrayNotHasKey('attempt', $inner->records[0]['context']);
     }
 
     public function testFrameworkErrorUsesSafeClassificationAndMaskedActorCorrelation(): void
@@ -149,6 +161,20 @@ final class ExecutionScopedLoggerTest extends TestCase
                     new DateTimeImmutable('2026-07-07T00:00:01Z'),
                 ),
                 actorContext: $actorContext,
+            ),
+            new Inline(),
+        );
+    }
+
+    private static function envelopeWithoutAttempt(): OperationEnvelope
+    {
+        return new OperationEnvelope(
+            new LoggingOperation(),
+            new LoggingValue('hello'),
+            new ExecutionContext(
+                OperationId::fromString(self::ID),
+                new DateTimeImmutable('2026-07-07T00:00:00Z'),
+                CorrelationId::fromString(self::ID),
             ),
             new Inline(),
         );

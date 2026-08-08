@@ -87,11 +87,11 @@ Journal Recordは既存Version 1の`recordId`、`event`、`sequence`、`data`を
 | `causationId` | UUIDv7 string or null | Causationがない場合は`null` |
 | `actors` | object or null | origin／authorization／executionのSafe Projection |
 | `tenant` | object or null | TenantのSafe Projection |
-| `schedule` | object or null | Schedule名とNominal UTC時刻。Schedule Scopeだけ |
+| `schedule` | object or null | `{name, scheduledAt}`。Schedule Scopeだけ |
 
 Actorは`{"id":"[masked]","type":"..."}`または`null`、Tenantは`{"id":"[masked]","type":"..."}`または`null`とする。Raw Actor／Tenant IDとHashを出さない。
 
-Application／Frameworkの`attempt`は`id`、`number`、`startedAt`を持つ。既存`operation.attemptId`は廃止し、Top-level `attempt`へ正規化する。現在のMonolog Nested ShapeはExperimental `main`の不整合であり、Dual-write／Legacy Formatterを提供しない。
+Application／Frameworkの`attempt`はAttempt Scopeがある場合だけ出力し、`id`、`number`、`startedAt`を持つ。Attempt開始前は省略する。既存`operation.attemptId`は廃止し、Top-level `attempt`へ正規化する。現在のMonolog Nested ShapeはExperimental `main`の不整合であり、Dual-write／Legacy Formatterを提供しない。
 
 ### Telemetry Projection
 

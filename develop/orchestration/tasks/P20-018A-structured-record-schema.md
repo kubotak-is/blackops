@@ -1,6 +1,6 @@
 # P20-018A: Structured Record Schema
 
-Status: Ready
+Status: Accepted
 
 ## Goal
 
@@ -79,16 +79,16 @@ Application／Framework／Journal／Audit JSONLをBlackOps Structured Record `sc
 
 ## Acceptance Criteria
 
-- [ ] Application／Framework／Journal／Auditが共通Top-level Version 1を持つ
-- [ ] Monolog Nested ContextのSchema不整合が解消される
-- [ ] UTC Microseconds、LF、Empty Object／ListがExact Wire Testで固定される
-- [ ] Operation／Attempt FieldがSpecification 100へ一致する
-- [ ] Actor／Tenant Raw ID／Hashが全Recordから排除される
-- [ ] Payload／Outcome／Key／Provider／Throwable Detail Sentinelが出ない
-- [ ] Operation外System LogはOperation／Attemptを持たない
-- [ ] Existing Quickstart Failure Journeyが同じOperation IDでHTTP／Journal／Log相関できる
-- [ ] Focused／Full SuiteとConsumerが成功する
-- [ ] Report／STATE／TODOを同期し、WorkerはCommitしない
+- [x] Application／Framework／Journal／Auditが共通Top-level Version 1を持つ
+- [x] Monolog Nested ContextのSchema不整合が解消される
+- [x] UTC Microseconds、LF、Empty Object／ListがExact Wire Testで固定される
+- [x] Operation／Attempt FieldがSpecification 100へ一致する
+- [x] Actor／Tenant Raw ID／Hashが全Recordから排除される
+- [x] Payload／Outcome／Key／Provider／Throwable Detail Sentinelが出ない
+- [x] Operation外System LogはOperation／Attemptを持たない
+- [x] Existing Quickstart Failure Journeyが同じOperation IDでHTTP／Journal／Log相関できる
+- [x] Focused／Full SuiteとConsumerが成功する
+- [x] Report／STATE／TODOを同期し、WorkerはCommitしない
 
 ## Required Commands
 

@@ -13,11 +13,14 @@ context
 operation
   id
   type
-  attemptId
   correlationId
   causationId
   strategy
   actors
+  tenant
+  schedule (when scheduled)
+
+attempt (when an attempt exists)
 ```
 
 Operation Scope外では`operation`を付けない。Scope内では存在するIDだけを付け、架空のOperation IDやAttempt IDを生成しない。Actor IDは`[masked]`へ固定し、Actor Typeだけを維持する。Operation Value、Outcome、Exception Message、Stack Traceは自動Contextへ追加しない。

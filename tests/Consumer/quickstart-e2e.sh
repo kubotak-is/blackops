@@ -318,20 +318,23 @@ HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php -r '
 $records = [];
 foreach (file("/app/var/log/application.jsonl", FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [] as $line) {
     $record = json_decode($line, true, 512, JSON_THROW_ON_ERROR);
-    if (($record["context"]["operation"]["id"] ?? null) === $argv[1]) {
+    if (($record["operation"]["id"] ?? null) === $argv[1]) {
         $records[] = $record;
     }
 }
 if (count($records) !== 2
     || array_column($records, "message") !== ["Quickstart diagnostics failure requested.", "Operation failed."]
-    || ($records[0]["context"]["schemaVersion"] ?? null) !== 1
-    || ($records[0]["context"]["kind"] ?? null) !== "application"
-    || ($records[1]["context"]["schemaVersion"] ?? null) !== 1
-    || ($records[1]["context"]["kind"] ?? null) !== "framework"
-    || ($records[0]["context"]["context"]["reference"] ?? null) !== $argv[2]
-    || array_key_exists("sensitiveNote", $records[0]["context"]["context"] ?? [])
-    || ($records[0]["context"]["operation"]["actors"]["origin"]["id"] ?? null) !== "[masked]"
-    || ($records[1]["context"]["context"]["failure"]["classification"] ?? null) !== "internal_error") {
+    || ($records[0]["schemaVersion"] ?? null) !== 1
+    || ($records[0]["kind"] ?? null) !== "application"
+    || ($records[1]["schemaVersion"] ?? null) !== 1
+    || ($records[1]["kind"] ?? null) !== "framework"
+    || ($records[0]["context"]["reference"] ?? null) !== $argv[2]
+    || array_key_exists("sensitiveNote", $records[0]["context"] ?? [])
+    || ($records[0]["operation"]["actors"]["origin"]["id"] ?? null) !== "[masked]"
+    || ($records[1]["context"]["failure"]["classification"] ?? null) !== "internal_error"
+    || array_key_exists("datetime", $records[0])
+    || array_key_exists("level_name", $records[0])
+    || array_key_exists("extra", $records[0])) {
     exit(1);
 }
 ' "${failure_operation_id}" "${failure_reference}"

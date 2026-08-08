@@ -265,7 +265,7 @@ final class ApplicationHttpRuntimeTest extends TestCase
         $record = json_decode($lines[0], associative: true, flags: JSON_THROW_ON_ERROR);
         self::assertIsArray($record);
         self::assertSame('http-custom', $record['channel']);
-        self::assertSame('WARNING', $record['level_name']);
+        self::assertSame('warning', $record['level']);
         self::assertSame('authorization warning', $record['message']);
     }
 
@@ -308,8 +308,8 @@ final class ApplicationHttpRuntimeTest extends TestCase
         $record = json_decode(trim($contents), associative: true, flags: JSON_THROW_ON_ERROR);
         self::assertIsArray($record);
         self::assertSame('http-failure', $record['channel']);
-        self::assertSame($payload['operationId'], $record['context']['operation']['id']);
-        self::assertSame('framework', $record['context']['kind']);
+        self::assertSame($payload['operationId'], $record['operation']['id']);
+        self::assertSame('framework', $record['kind']);
     }
 
     public function testMissingArtifactFailsWithoutFallbackOrCredentialExposure(): void

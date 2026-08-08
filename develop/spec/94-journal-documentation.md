@@ -36,9 +36,11 @@ JSON例は`JsonlJournalRecordEncoder`の現在の出力へ一致させる。
 - Top Level: `schemaVersion`, `kind`, `recordId`, `event`, `occurredAt`, `sequence`, `operation`, `attempt`, `data`
 - `kind`: `journal`
 - `occurredAt`: UTC、Microseconds付きRFC 3339形式
-- `operation`: `id`, `type`, `schemaVersion`, `strategy`, `correlationId`, `causationId`, `actors`
+- `operation`: `id`, `type`, `schemaVersion`, `strategy`, `correlationId`, `causationId`, `actors`, `tenant`, optional `schedule`
 - `actors`: `origin`, `authorization`, `execution`
-- Actor: `{ "id": string, "type": string }`または`null`
+- Actor: `{ "id": "[masked]", "type": string }`または`null`
+- Tenant: `{ "id": "[masked]", "type": string }`または`null`
+- Schedule: `{ "name": string, "scheduledAt": UTC microseconds RFC 3339 string }`
 - `attempt`: `null`または`id`, `number`, `startedAt`
 - `data`: Event固有のSensitive Projection済みObject
 

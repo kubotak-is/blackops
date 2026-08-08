@@ -71,7 +71,7 @@ final class JsonlJournalObserverTest extends TestCase
         }
     }
 
-    public function testJsonlOmitsRawTenantId(): void
+    public function testJsonlMasksTenantAndActorIdsAtEncoderBoundary(): void
     {
         $record = self::record();
         $operation = new JournalOperation(
@@ -80,6 +80,11 @@ final class JsonlJournalObserverTest extends TestCase
             $record->operation->schemaVersion,
             $record->operation->strategy,
             $record->operation->correlationId,
+            actorContext: new \BlackOps\Core\ActorContext(
+                new \BlackOps\Core\ActorRef('actor-secret-id', 'user'),
+                null,
+                new \BlackOps\Core\ActorRef('runtime-secret-id', 'system'),
+            ),
             tenant: new TenantRef('account', 'tenant-secret-id'),
         );
         $record = new ObservedJournalRecord(
@@ -92,7 +97,11 @@ final class JsonlJournalObserverTest extends TestCase
             $record->attempt,
             $record->data,
         );
-        self::assertStringNotContainsString('tenant-secret-id', new JsonlJournalRecordEncoder()->encode($record));
+        $jsonl = new JsonlJournalRecordEncoder()->encode($record);
+        self::assertStringNotContainsString('tenant-secret-id', $jsonl);
+        self::assertStringNotContainsString('actor-secret-id', $jsonl);
+        self::assertStringNotContainsString('runtime-secret-id', $jsonl);
+        self::assertStringContainsString('"id":"[masked]"', $jsonl);
     }
 
     public function testInvalidStreamIsRejected(): void
