@@ -53,6 +53,33 @@ final class BopdEnvelopeCodecTest extends TestCase
         self::assertNotSame($this->nonce($first), $this->nonce($second));
     }
 
+    public function testHeaderScanReturnsKeyIdAndDigestWithoutDecrypting(): void
+    {
+        $codec = new BopdEnvelopeCodec(new FixtureKeyProvider(), new CanonicalAssociatedData(), new FixedNonce());
+        $envelope = $codec->encrypt('payload-marker', $this->context());
+
+        self::assertSame('primary:v1', $codec->keyId($envelope));
+        self::assertSame(hash('sha256', $envelope), $codec->header($envelope)['digest']);
+        self::assertStringNotContainsString('payload-marker', json_encode(
+            $codec->header($envelope),
+            JSON_THROW_ON_ERROR,
+        ));
+    }
+
+    public function testHeaderScanRejectsMalformedAndTruncatedBytesSafely(): void
+    {
+        $codec = new BopdEnvelopeCodec(new FixtureKeyProvider());
+        foreach (['', 'BOPD', 'BOPD' . "\x01\x01\x00\x04", "BOPD\x01\x01\x00\x02id"] as $bytes) {
+            try {
+                $codec->header($bytes);
+                self::fail('Expected malformed header failure.');
+            } catch (StorageProtectionException $exception) {
+                self::assertSame('Protected storage data is unavailable.', $exception->getMessage());
+                self::assertNull($exception->getPrevious());
+            }
+        }
+    }
+
     public function testCanonicalCodecDistinguishesNullAndPresentTenantValues(): void
     {
         $codec = new CanonicalAssociatedData();

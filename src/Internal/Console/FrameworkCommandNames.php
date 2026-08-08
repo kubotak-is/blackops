@@ -33,6 +33,8 @@ final readonly class FrameworkCommandNames
             FrontendGenerateCommand::NAME,
             FrontendCheckCommand::NAME,
             JournalObserverReplayCommand::NAME,
+            StorageProtectionPlanCommand::NAME,
+            StorageProtectionRotateCommand::NAME,
         ];
     }
 }

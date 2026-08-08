@@ -1,6 +1,6 @@
 # P20-016G: Storage Key Rotation
 
-Status: Ready
+Status: Accepted
 
 ## Goal
 
@@ -54,6 +54,9 @@ Protected StorageのKey RotationをBounded、Audited、Crash-resumable、Compare
 - Corresponding files under `tests/Internal/Console/**`
 - Corresponding files under `tests/Internal/Application/**`
 - Corresponding files under `tests/Transport/PostgreSql/**`
+- `tests/Internal/Migration/DatabaseMigrationRunnerTest.php`
+- `tests/Integration/ApplicationConsoleKernelTest.php`
+- `tests/Consumer/framework-package-export.sh`
 - CLI／rotation Consumer fixtures/scripts
 - `develop/spec/99-tenant-isolation-and-protected-operation-data.md`
 - `develop/TODO.md`
@@ -80,19 +83,19 @@ Protected StorageのKey RotationをBounded、Audited、Crash-resumable、Compare
 
 ## Acceptance Criteria
 
-- [ ] PlanがPurpose／Tenant／Key ScopeごとのSafe CountをRead-onlyで返す
-- [ ] RotateがDry-runではBytesを変更せず、Confirm時だけ変更する
-- [ ] Human／JSON ShapeとExit 0／1／2が固定される
-- [ ] Actor／Reason／Checkpointなし実変更を拒否する
-- [ ] CASがConcurrent Updateを上書きしない
-- [ ] Crash／Resumeが同じCheckpointからBoundedに完走する
-- [ ] Two-process実行が一Rowを二重更新しない
-- [ ] Wrong／Unavailable KeyとTampered EnvelopeをSafe FailureとしてAuditする
-- [ ] Payload／Tenant Raw ID／Key MaterialがCLI／Audit／Logへ露出しない
-- [ ] Database全Protected Purposeを対象にできる
-- [ ] Existing BlackOps CLI Help／Collision／Runtime Compositionを維持する
-- [ ] Full Suite／Consumer／Architecture Guardが成功する
-- [ ] Report／STATE／TODOを同期し、WorkerはCommitしない
+- [x] PlanがPurpose／Tenant／Key ScopeごとのSafe CountをRead-onlyで返す
+- [x] RotateがDry-runではBytesを変更せず、Confirm時だけ変更する
+- [x] Human／JSON ShapeとExit 0／1／2が固定される
+- [x] Actor／Reason／Checkpointなし実変更を拒否する
+- [x] CASがConcurrent Updateを上書きしない
+- [x] Crash／Resumeが同じCheckpointからBoundedに完走する
+- [x] Two-process実行が一Rowを二重更新しない
+- [x] Wrong／Unavailable KeyとTampered EnvelopeをSafe FailureとしてAuditする
+- [x] Payload／Tenant Raw ID／Key MaterialがCLI／Audit／Logへ露出しない
+- [x] Database全Protected Purposeを対象にできる
+- [x] Existing BlackOps CLI Help／Collision／Runtime Compositionを維持する
+- [x] Full Suite／Consumer／Architecture Guardが成功する
+- [x] Report／STATE／TODOを同期し、WorkerはCommitしない
 
 ## Required Commands
 

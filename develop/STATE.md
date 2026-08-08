@@ -1,6 +1,55 @@
 # Orchestration State
 
-Updated At: 2026-08-08T17:18:01+09:00
+Updated At: 2026-08-08T20:43:17+09:00
+
+## P20-016G Accepted
+
+```text
+2026-08-08T20:43:17+09:00
+Orchestrator independent reviewでP20-016GをAcceptedとした。Focused 51 tests／495 assertions、Full PHPUnit 2,104 tests／8,643 assertions（既存Deprecation 1）、storage-protection-rotation Consumer、Composer strict validation、format、P20-016G Production changed-source lint／analyze、管理番号Comment Guard、shell syntax、git diff checkがPASS。Full Suite初回のOutbox heartbeat timing failureは対象Test単独で再現せずPASSし、assertionを変更せずFull Suite再実行でPASSした。Broad mago lintは既知baseline 81 findings／9 errors、broad analyzeは25 warnings／0 errors、Deptracは既知のvendor NikicFileReferenceVisitor.php:106 PHP 8.5 parser incompatibility。Exact package exportは未追跡Version20260808100000.phpをgit archive HEADが含めないpre-commit制約で停止するが、Working Tree Composer Archiveはmigration inventory、除外Root、strict validation、production autoloadをPASSした。Task／Report／TODO同期済み。P20-016GのCommit／Push／Deployなし。次はCommit後のExact Package Export、続いてP20-016H。
+```
+
+## P20-016G Dedicated Evidence Corrections
+
+```text
+2026-08-08T17:39:20+09:00
+独立ReviewでDedicated Rotation Evidence不足を指摘されたためP20-016GをIn Progressへ戻す。Header malformed、Read-only plan、全9 Purposeのconfirmed rotate／AAD、CLI exit／redaction、safe failure fingerprint／resume、CAS、crash／bounded resume、two-process concurrency、advisory lock finallyの実行Testを追加する。Worker Commit／Push／Deployなし。
+```
+
+## P20-016G Dedicated Evidence Checkpoint
+
+```text
+2026-08-08T17:42:12+09:00
+Dedicated BOPD／scope suitesとPostgreSQL rotation suiteを追加し、14 tests／124 assertionsと3 rotation tests／28 assertionsがPASS。Journalのplan byte不変、confirmed rotate、AAD／new-key、checkpoint resume、CLI exit／JSON／redaction、tamper fingerprint／repair resumeを実行確認した。All-purpose、CAS race、two-process／advisory-lock finally evidenceは未完了のためIn Progress継続。Worker Commit／Push／Deployなし。
+```
+
+## P20-016G Concurrency and Durable Progress Checkpoint
+
+```text
+2026-08-08T18:32:00+09:00
+Rotation ownershipをschema＋checkpointのhashtextextendedによるpg_try_advisory_lock＋finally unlockへ変更し、各RowのCAS＋Checkpoint advance＋累積Audit counterを個別transactionでcommitする構造へ修正した。CAS predicateへtenant identityを追加し、planのold-key binary header filterをLIMIT前へ移動した。PostgreSQL rotation suite 8 tests／53 assertions、all-purpose non-empty matrix 1 test／135 assertions、lazy command 2 tests／5 assertions、kernel list/help 1 test／7 assertions、migration／console／kernel existing 31 tests／155 assertions PASS。実forked PostgreSQL CAS raceで競合差替えskip、crash後row1 bytes不変／row2のみrotate、interrupted audit failed fingerprintを確認し、Unavailable／Wrong New Key fingerprint、非ブロッキングownership再取得も実行確認。Consumer shell fixtureは作成済みだがDocker権限で実行待ち。Worker Commit／Push／Deployなし。
+```
+
+## P20-016G Worker Review Pending
+
+```text
+2026-08-08T17:33:39+09:00
+Bounded storage protection plan／rotate、header-only BOPD scan、all-purpose AAD projection、CAS更新、scope-bound checkpoint／audit、safe failure fingerprint、migration inventory、CLI compositionを実装した。Focused migration／console／kernel／storage suites 26 tests／174 assertions、format PASS、changed-source analyze 0 errorsを確認。P20-016Gは独立Orchestrator review待ち。Worker Commit／Push／Deployなし。
+```
+
+## P20-016G Orchestrator Scope Correction
+
+```text
+2026-08-08T17:20:48+09:00
+Rotation Audit／Checkpoint migration追加によりFramework Migration総数とPackage Inventoryが変わる。既存fixtureのうちtests/Internal/Migration/DatabaseMigrationRunnerTest.php、tests/Integration/ApplicationConsoleKernelTest.php、tests/Consumer/framework-package-export.shだけが直接その正本一覧／件数を固定しているため、Migration同期に必要な最小Test／Consumer scopeとしてFiles Allowedへ追加した。Production scopeは変更しない。Worker Commit／Push／Deployなし。
+```
+
+## P20-016G Storage Key Rotation Start
+
+```text
+2026-08-08T17:19:10+09:00
+P20-016Fは02a561c、post-commit package verificationは7614df8としてCommit済みで、Working Treeはclean、Exact framework-package-exportもPASSしている。P20-016GをIn Progressとして開始し、Bounded plan／rotate CLI、既定Dry-runとExplicit Confirm、Actor／Reason、Purpose／Tenant／Old・New Key Scope、CAS、Audit、Checkpoint／Resume、Crash／Two-process Concurrency、Key ID別Remaining CountをRepository設定どおりGPT-5.6 Luna High workerへ委譲する。Key生成／保存／削除、KMS Vendor、Guide／Websiteは範囲外に維持する。P20-016GのCommit／Push／Deployなし。
+```
 
 ## P20-016F Post-commit Package Export Accepted
 

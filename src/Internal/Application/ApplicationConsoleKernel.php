@@ -305,6 +305,7 @@ final readonly class ApplicationConsoleKernel
                     ->addOption('actor', null, InputOption::VALUE_REQUIRED)
                     ->addOption('reason', null, InputOption::VALUE_REQUIRED),
             ),
+            ...ApplicationStorageProtectionCommands::create($factory),
         ];
     }
 }

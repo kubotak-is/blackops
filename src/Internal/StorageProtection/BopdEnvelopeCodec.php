@@ -104,6 +104,53 @@ final readonly class BopdEnvelopeCodec
         }
     }
 
+    /** @return array{keyId: string, digest: string} */
+    public function header(string $envelope): array
+    {
+        try {
+            $parsed = $this->parse($envelope);
+            return [
+                'keyId' => $parsed['keyId'],
+                'digest' => hash('sha256', $envelope),
+            ];
+        } catch (Throwable) {
+            throw StorageProtectionException::failure();
+        }
+    }
+
+    public function keyId(string $envelope): string
+    {
+        return $this->header($envelope)['keyId'];
+    }
+
+    public function keyIdFromHeader(string $prefix): string
+    {
+        try {
+            if (
+                strlen($prefix) < 8
+                || substr($prefix, offset: 0, length: 4) !== self::MAGIC
+                || ord($prefix[4]) !== self::VERSION
+                || ord($prefix[5]) !== self::ALGORITHM
+            ) {
+                throw new \RuntimeException('Malformed envelope.');
+            }
+            $keyLength = $this->u16(substr($prefix, offset: 6, length: 2));
+            if ($keyLength < 1 || $keyLength > 128) {
+                throw new \RuntimeException('Malformed envelope.');
+            }
+            $keyId = substr($prefix, offset: 8, length: $keyLength);
+            if (
+                strlen($keyId) !== $keyLength
+                || preg_match('/^[A-Za-z0-9]+(?:[._:\/-][A-Za-z0-9]+)*$/D', $keyId) !== 1
+            ) {
+                throw new \RuntimeException('Malformed envelope.');
+            }
+            return $keyId;
+        } catch (Throwable) {
+            throw StorageProtectionException::failure();
+        }
+    }
+
     /**
      * @return array{keyId: string, nonce: string, ciphertext: string, tag: string}
      * @mago-expect lint:halstead

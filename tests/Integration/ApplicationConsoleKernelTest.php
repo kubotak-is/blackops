@@ -91,7 +91,7 @@ final class ApplicationConsoleKernelTest extends TestCase
         self::assertFalse($this->schemaExists($connection));
 
         $status = $this->runCommand($kernel, 'database:status');
-        self::assertStringContainsString('pending: 10', $status);
+        self::assertStringContainsString('pending: 11', $status);
         self::assertFalse($this->schemaExists($connection));
         $this->runCommand($kernel, 'database:migrate');
         self::assertStringContainsString('No pending migrations.', $this->runCommand($kernel, 'database:migrate'));
@@ -199,6 +199,21 @@ final class ApplicationConsoleKernelTest extends TestCase
             'console-worker',
             ConsoleWorkerAuthorizedOperation::$context->actorContext()?->execution()->id(),
         );
+    }
+
+    public function testStorageProtectionCommandsAreListedAndHelpBindsWithoutResolvingRuntime(): void
+    {
+        $application = $this->application($this->directory());
+        $kernel = $application->console();
+        $list = $this->runCommand($kernel, 'list');
+        self::assertStringContainsString('storage:protection:plan', $list);
+        self::assertStringContainsString('storage:protection:rotate', $list);
+        self::assertStringContainsString('--old-key-id', $this->runCommand($kernel, 'storage:protection:plan', [
+            '--help' => true,
+        ]));
+        self::assertStringContainsString('--confirm', $this->runCommand($kernel, 'storage:protection:rotate', [
+            '--help' => true,
+        ]));
     }
 
     private function application(string $directory): Application

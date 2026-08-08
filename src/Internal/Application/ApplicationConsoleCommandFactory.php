@@ -23,6 +23,8 @@ use BlackOps\Internal\Console\OutboxDeadLetterRetryCommand;
 use BlackOps\Internal\Console\OutboxRelayDaemonCommand;
 use BlackOps\Internal\Console\OutboxRelayRunCommand;
 use BlackOps\Internal\Console\ScheduledOperationRunCommand;
+use BlackOps\Internal\Console\StorageProtectionPlanCommand;
+use BlackOps\Internal\Console\StorageProtectionRotateCommand;
 use BlackOps\Internal\Console\WorkerRunCommand;
 use BlackOps\Internal\Diagnostics\OperationDiagnosticsResult;
 use BlackOps\Internal\Diagnostics\Viewer\OperationViewerRouter;
@@ -138,6 +140,16 @@ final class ApplicationConsoleCommandFactory
     {
         $runtime = new ApplicationOutboxRuntime($this->configuration);
         return new OutboxDeadLetterRetryCommand($runtime->store, $runtime->clock);
+    }
+
+    public function storageProtectionPlan(): Command
+    {
+        return new StorageProtectionPlanCommand(new ApplicationStorageProtectionRuntime($this->configuration)->rotation);
+    }
+
+    public function storageProtectionRotate(): Command
+    {
+        return new StorageProtectionRotateCommand(new ApplicationStorageProtectionRuntime($this->configuration)->rotation);
     }
 
     public function journalObserverReplay(): Command
