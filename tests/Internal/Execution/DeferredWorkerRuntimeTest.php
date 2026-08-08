@@ -1260,8 +1260,7 @@ final class DeferredWorkerRuntimeTest extends TestCase
         self::assertSame(self::OPERATION_ID, $deadLetter['operation_id']);
         self::assertSame($records[3]->attempt?->id->toString(), $deadLetter['final_attempt_id']);
         self::assertSame(1, (int) $deadLetter['final_attempt_number']);
-        self::assertSame(RuntimeException::class, $deadLetter['reason_type']);
-        self::assertSame('boom', $deadLetter['reason_message']);
+        self::assertSame('BOPD', $deadLetter['reason_magic']);
         self::assertSame('2026-07-10T00:02:00.000000Z', $deadLetter['moved_at']);
         self::assertSame(
             [
@@ -1654,8 +1653,7 @@ final class DeferredWorkerRuntimeTest extends TestCase
                 operation_id::text AS operation_id,
                 final_attempt_id::text AS final_attempt_id,
                 final_attempt_number,
-                reason_type,
-                reason_message,
+                convert_from(substring(encoded_reason FROM 1 FOR 4), \'UTF8\') AS reason_magic,
                 to_char(moved_at AT TIME ZONE \'UTC\', \'YYYY-MM-DD"T"HH24:MI:SS.US"Z"\') AS moved_at
             FROM ' . self::SCHEMA . '.dead_letters');
 

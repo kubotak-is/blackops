@@ -68,14 +68,12 @@ final class PostgreSqlDiagnosticsReaderTest extends TestCase
     public function testReadsDeadLetterWithoutRestrictedMessage(): void
     {
         $this->connection->executeStatement('INSERT INTO ' . self::SCHEMA . '.dead_letters (
-            operation_id, final_attempt_id, final_attempt_number, reason_type, reason_message, moved_at
+            operation_id, final_attempt_id, final_attempt_number, encoded_reason, moved_at
         ) VALUES (
-            :operation_id, :attempt_id, 1, :reason_type, :restricted, :moved_at
+            :operation_id, :attempt_id, 1, decode(\'424f5044\', \'hex\'), :moved_at
         )', [
             'operation_id' => self::OPERATION_ID,
             'attempt_id' => self::ATTEMPT_ID,
-            'reason_type' => \RuntimeException::class,
-            'restricted' => 'private failure detail',
             'moved_at' => '2026-07-18T00:00:05Z',
         ]);
 
@@ -85,7 +83,7 @@ final class PostgreSqlDiagnosticsReaderTest extends TestCase
         self::assertSame(self::OPERATION_ID, $detail->operationId);
         self::assertSame(self::ATTEMPT_ID, $detail->finalAttemptId);
         self::assertSame(1, $detail->finalAttemptNumber);
-        self::assertSame(\RuntimeException::class, $detail->reasonType);
+        self::assertSame('protected', $detail->reasonType);
         self::assertSame('2026-07-18T00:00:05.000000Z', $detail->movedAt);
         self::assertSame(
             ['operationId', 'finalAttemptId', 'finalAttemptNumber', 'reasonType', 'movedAt'],

@@ -501,6 +501,8 @@ final class RecoveryRaceStore implements IdempotencyStore
         ExecutionStrategy $strategy,
         DateTimeImmutable $createdAt,
         DateTimeImmutable $expiresAt,
+        string $operationType,
+        int $applicationSchemaVersion,
         ?\BlackOps\Core\TenantRef $tenant = null,
     ): IdempotencyClaimResult {
         return $this->delegate->claim(
@@ -511,6 +513,8 @@ final class RecoveryRaceStore implements IdempotencyStore
             $strategy,
             $createdAt,
             $expiresAt,
+            $operationType,
+            $applicationSchemaVersion,
             $tenant,
         );
     }

@@ -13,6 +13,7 @@ require_once __DIR__ . '/../../../migrations/postgresql/Version20260724110000.ph
 require_once __DIR__ . '/../../../migrations/postgresql/Version20260728133000.php';
 require_once __DIR__ . '/../../../migrations/postgresql/Version20260803000000.php';
 require_once __DIR__ . '/../../../migrations/postgresql/Version20260808000000.php';
+require_once __DIR__ . '/../../../migrations/postgresql/Version20260808010000.php';
 
 use BlackOps\Core\Exception\DeferredTransportException;
 use BlackOps\Core\Execution\Deferred;
@@ -29,6 +30,7 @@ use BlackOps\Core\Retention\RetentionPolicyRef;
 use BlackOps\Core\Retention\RetentionTarget;
 use BlackOps\Core\TenantRef;
 use BlackOps\Idempotency\IdempotencyKeyHash;
+use BlackOps\Internal\Codec\ReflectionJsonOperationCodec;
 use BlackOps\Internal\Idempotency\IdempotencyScopeHash;
 use BlackOps\Internal\Idempotency\OperationFingerprint;
 use BlackOps\Internal\Idempotency\PostgreSqlIdempotencyStore;
@@ -39,6 +41,7 @@ use BlackOps\Journal\JournalOperation;
 use BlackOps\Journal\JournalRecord;
 use BlackOps\Migrations\PostgreSql\Version20260803000000;
 use BlackOps\Migrations\PostgreSql\Version20260808000000;
+use BlackOps\Migrations\PostgreSql\Version20260808010000;
 use BlackOps\Transport\PostgreSql\PostgreSqlCanonicalJournalStore;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationLeaseStore;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationMessageCodec;
@@ -108,7 +111,11 @@ final class PostgreSqlTenantIsolationTest extends TestCase
         foreach (new PostgreSqlScheduleSchema(self::SCHEMA)->statements() as $statement) {
             $this->connection->executeStatement($statement);
         }
-        new PostgreSqlIdempotencyStore($this->connection, self::SCHEMA)->migrate();
+        new PostgreSqlIdempotencyStore(
+            $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        )->migrate();
     }
 
     public function testFreshCurrentAndEmptyLegacyMigrationShapesAndSafeNonEmptyGuard(): void
@@ -327,6 +334,142 @@ final class PostgreSqlTenantIsolationTest extends TestCase
         }
     }
 
+    public function testSecondaryProtectionMigrationGuardsEachLegacyTableWithoutChangingRowsOrSchema(): void
+    {
+        foreach (['outbox_records', 'dead_letters', 'idempotency_records'] as $table) {
+            $schema = self::SCHEMA . '_secondary_guard_' . $table;
+            $this->applyOldMigrations($schema);
+            $this->applyTenantMigration($schema);
+            $this->seedLegacySecondaryRow($schema, $table);
+            $qualified = '"' . $schema . '"."' . $table . '"';
+            $normalizeRow = static function (array $row): array {
+                foreach ($row as $key => $value) {
+                    if (is_resource($value)) {
+                        $row[$key] = stream_get_contents($value);
+                    }
+                }
+
+                return $row;
+            };
+            $beforeRow = $normalizeRow($this->connection->fetchAssociative('SELECT * FROM ' . $qualified));
+            $beforeColumns = $this->connection->fetchAllAssociative(
+                'SELECT column_name, data_type FROM information_schema.columns WHERE table_schema = :schema AND table_name = :table ORDER BY ordinal_position',
+                ['schema' => $schema, 'table' => $table],
+            );
+            $beforeConstraints = $this->connection->fetchFirstColumn('SELECT conname FROM pg_constraint WHERE connamespace = CAST(:schema AS regnamespace) ORDER BY conname', [
+                'schema' => $schema,
+            ]);
+
+            try {
+                $this->applySecondaryProtectionMigration($schema);
+                self::fail('Expected secondary protection guard failure for ' . $table . '.');
+            } catch (\Throwable $exception) {
+                self::assertStringContainsString(
+                    'Protected secondary storage migration requires an empty',
+                    $exception->getMessage(),
+                );
+                self::assertStringNotContainsString($schema, $exception->getMessage());
+                self::assertStringNotContainsString('legacy', strtolower($exception->getMessage()));
+            }
+
+            self::assertSame(
+                $beforeRow,
+                $normalizeRow($this->connection->fetchAssociative('SELECT * FROM ' . $qualified)),
+            );
+            self::assertSame($beforeColumns, $this->connection->fetchAllAssociative(
+                'SELECT column_name, data_type FROM information_schema.columns WHERE table_schema = :schema AND table_name = :table ORDER BY ordinal_position',
+                ['schema' => $schema, 'table' => $table],
+            ));
+            self::assertSame($beforeConstraints, $this->connection->fetchFirstColumn('SELECT conname FROM pg_constraint WHERE connamespace = CAST(:schema AS regnamespace) ORDER BY conname', [
+                'schema' => $schema,
+            ]));
+            $this->connection->executeStatement('DROP SCHEMA IF EXISTS "' . $schema . '" CASCADE');
+        }
+    }
+
+    public function testSecondaryProtectionMigrationUpgradesEmptyLegacyTablesWithProtectedConstraints(): void
+    {
+        $schema = self::SCHEMA . '_secondary_empty';
+        $this->applyOldMigrations($schema);
+        $this->applyTenantMigration($schema);
+        $this->applySecondaryProtectionMigration($schema);
+
+        foreach ([
+            ['outbox_records',      'encoded_payload'],
+            ['outbox_records',      'encoded_context'],
+            ['dead_letters',        'encoded_reason'],
+            ['idempotency_records', 'encoded_response'],
+            ['idempotency_records', 'encoded_result'],
+        ] as [$table, $column]) {
+            self::assertSame(
+                1,
+                (int) $this->connection->fetchOne(
+                    'SELECT count(*) FROM information_schema.columns WHERE table_schema = :schema AND table_name = :table AND column_name = :column',
+                    ['schema' => $schema, 'table' => $table, 'column' => $column],
+                ),
+            );
+        }
+        foreach ([
+            ['dead_letters',        'reason_type'],
+            ['dead_letters',        'reason_message'],
+            ['idempotency_records', 'response_version'],
+            ['idempotency_records', 'response_status'],
+            ['idempotency_records', 'response_headers'],
+            ['idempotency_records', 'response_body'],
+            ['idempotency_records', 'result_kind'],
+            ['idempotency_records', 'result_type'],
+            ['idempotency_records', 'result_schema_version'],
+            ['idempotency_records', 'result_payload'],
+            ['idempotency_records', 'rejection_category'],
+            ['idempotency_records', 'rejection_code'],
+        ] as [$table, $column]) {
+            self::assertSame(
+                0,
+                (int) $this->connection->fetchOne(
+                    'SELECT count(*) FROM information_schema.columns WHERE table_schema = :schema AND table_name = :table AND column_name = :column',
+                    ['schema' => $schema, 'table' => $table, 'column' => $column],
+                ),
+            );
+        }
+        self::assertSame(
+            1,
+            (int) $this->connection->fetchOne('SELECT count(*) FROM pg_constraint WHERE connamespace = CAST(:schema AS regnamespace) AND conname = :name', [
+                'schema' => $schema,
+                'name' => 'idempotency_record_operation_type_check',
+            ]),
+        );
+        self::assertSame(
+            1,
+            (int) $this->connection->fetchOne('SELECT count(*) FROM pg_constraint WHERE connamespace = CAST(:schema AS regnamespace) AND conname = :name', [
+                'schema' => $schema,
+                'name' => 'idempotency_record_application_schema_version_check',
+            ]),
+        );
+        self::assertSame(
+            1,
+            (int) $this->connection->fetchOne('SELECT count(*) FROM pg_constraint WHERE connamespace = CAST(:schema AS regnamespace) AND conname = :name', [
+                'schema' => $schema,
+                'name' => 'dead_letters_bopd_reason_check',
+            ]),
+        );
+        foreach ([
+            'outbox_records_bopd_payload_check',
+            'idempotency_record_response_bopd_check',
+            'idempotency_record_result_bopd_check',
+            'idempotency_record_response_projection_check',
+            'idempotency_record_result_projection_check',
+        ] as $constraint) {
+            self::assertSame(
+                1,
+                (int) $this->connection->fetchOne('SELECT count(*) FROM pg_constraint WHERE connamespace = CAST(:schema AS regnamespace) AND conname = :name', [
+                    'schema' => $schema,
+                    'name' => $constraint,
+                ]),
+            );
+        }
+        $this->connection->executeStatement('DROP SCHEMA IF EXISTS "' . $schema . '" CASCADE');
+    }
+
     public function testPairConstraintsRejectPartialAndEmptySubjectsAcrossTransportRows(): void
     {
         $operations = new PostgreSqlDeferredOperationSchema(self::SCHEMA)->operationsTable();
@@ -340,8 +483,12 @@ final class PostgreSqlTenantIsolationTest extends TestCase
                 OperationId::fromString(self::OPERATION),
                 'tenant.evidence',
                 1,
-                '{}',
-                '{}',
+                '{"operation_id":"'
+                . self::OPERATION
+                . '","received_at":"2026-08-03T00:00:00.000000Z","correlation_id":"019f32ab-2be0-7b38-a0a7-1ab2f9688e04","causation_id":null,"attempt":null,"deadline":null,"actors":null,"idempotency_key_hash":null,"schedule":null,"tenant":{"type":"customer","id":"tenant-a"}}',
+                '{"operation_id":"'
+                . self::OPERATION
+                . '","received_at":"2026-08-03T00:00:00.000000Z","correlation_id":"019f32ab-2be0-7b38-a0a7-1ab2f9688e04","causation_id":null,"attempt":null,"deadline":null,"actors":null,"idempotency_key_hash":null,"schedule":null,"tenant":{"type":"customer","id":"tenant-a"}}',
                 new DateTimeImmutable('2026-08-03T00:00:00Z'),
                 new TenantRef('customer', 'tenant-a'),
             ),
@@ -481,7 +628,9 @@ final class PostgreSqlTenantIsolationTest extends TestCase
                 'tenant.evidence',
                 1,
                 '{}',
-                '{}',
+                '{"operation_id":"'
+                . self::OPERATION
+                . '","received_at":"2026-08-03T00:00:00.000000Z","correlation_id":"019f32ab-2be0-7b38-a0a7-1ab2f9688e04","causation_id":null,"attempt":null,"deadline":null,"actors":null,"idempotency_key_hash":null,"schedule":null,"tenant":{"type":"customer","id":"tenant-a"}}',
                 new DateTimeImmutable('2026-08-03T00:00:00Z'),
                 new TenantRef('customer', 'tenant-a'),
             ),
@@ -519,7 +668,12 @@ final class PostgreSqlTenantIsolationTest extends TestCase
             )->recordsForTenant($operation, new TenantRef('customer', 'tenant-a'))),
         );
 
-        $outbox = new PostgreSqlOutboxStore($this->connection, self::SCHEMA);
+        $outbox = new PostgreSqlOutboxStore(
+            $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
+            new ReflectionJsonOperationCodec(),
+            self::SCHEMA,
+        );
         $outbox->insert(
             new \BlackOps\Transport\PostgreSql\PostgreSqlOutboxRecord(
                 \BlackOps\Core\Identifier\OutboxRecordId::fromString('019f32ab-2be0-7b38-a0a7-1ab2f9688e03'),
@@ -527,7 +681,9 @@ final class PostgreSqlTenantIsolationTest extends TestCase
                 'tenant.evidence',
                 1,
                 '{}',
-                '{}',
+                '{"operation_id":"'
+                . self::OPERATION
+                . '","received_at":"2026-08-03T00:00:00.000000Z","correlation_id":"019f32ab-2be0-7b38-a0a7-1ab2f9688e04","causation_id":null,"attempt":null,"deadline":null,"actors":null,"idempotency_key_hash":null,"schedule":null,"tenant":{"type":"customer","id":"tenant-a"}}',
                 new DateTimeImmutable('2026-08-03T00:00:00Z'),
                 new DateTimeImmutable('2026-08-03T00:00:00Z'),
                 'evidence',
@@ -565,7 +721,11 @@ final class PostgreSqlTenantIsolationTest extends TestCase
         );
         self::assertNull($outcomes->findForTenant($operation, new TenantRef('customer', 'tenant-a')));
 
-        $idempotency = new PostgreSqlIdempotencyStore($this->connection, self::SCHEMA);
+        $idempotency = new PostgreSqlIdempotencyStore(
+            $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        );
         $idempotency->migrate();
         $key = new IdempotencyKeyHash(1, str_repeat('b', 64));
         $fingerprint = new OperationFingerprint(1, str_repeat('c', 64));
@@ -579,6 +739,8 @@ final class PostgreSqlTenantIsolationTest extends TestCase
                     new Deferred(),
                     new DateTimeImmutable('2026-08-03T00:00:00Z'),
                     new DateTimeImmutable('2026-08-04T00:00:00Z'),
+                    'tenant.evidence',
+                    1,
                     new TenantRef('customer', 'tenant-a'),
                 )
                 ->claimed(),
@@ -593,6 +755,8 @@ final class PostgreSqlTenantIsolationTest extends TestCase
                     new Deferred(),
                     new DateTimeImmutable('2026-08-03T00:00:00Z'),
                     new DateTimeImmutable('2026-08-04T00:00:00Z'),
+                    'tenant.evidence',
+                    1,
                     new TenantRef('customer', 'tenant-b'),
                 )
                 ->claimed(),
@@ -1015,6 +1179,68 @@ final class PostgreSqlTenantIsolationTest extends TestCase
     private function applyProtectionMigration(string $schema): void
     {
         $this->applyMigration(Version20260808000000::class, $schema);
+    }
+
+    private function applySecondaryProtectionMigration(string $schema): void
+    {
+        $this->applyMigration(Version20260808010000::class, $schema);
+    }
+
+    private function seedLegacySecondaryRow(string $schema, string $table): void
+    {
+        $qualified = '"' . $schema . '"."' . $table . '"';
+        if ($table === 'outbox_records') {
+            $this->connection->executeStatement('INSERT INTO ' . $qualified . ' (
+                    record_id, operation_id, operation_type, schema_version, encoded_payload, encoded_context,
+                    content_type, encoding, available_at, recorded_at, connection_name
+                ) VALUES (
+                    :record_id, :operation_id, :operation_type, 1, convert_to(\'legacy-payload\', \'UTF8\'),
+                    convert_to(\'legacy-context\', \'UTF8\'), :content_type, :encoding, :available_at, :recorded_at, :connection_name
+                )', [
+                'record_id' => '019f32ab-2be0-7b38-a0a7-1ab2f9688e03',
+                'operation_id' => self::OPERATION,
+                'operation_type' => 'migration.evidence',
+                'content_type' => 'application/json',
+                'encoding' => 'json',
+                'available_at' => '2026-08-03T00:00:00Z',
+                'recorded_at' => '2026-08-03T00:00:00Z',
+                'connection_name' => 'app',
+            ]);
+
+            return;
+        }
+        if ($table === 'dead_letters') {
+            $this->connection->executeStatement(
+                'INSERT INTO '
+                . $qualified
+                . ' (
+                    operation_id, final_attempt_id, final_attempt_number, reason_type, reason_message, moved_at
+                ) VALUES (:operation_id, NULL, NULL, :reason_type, :reason_message, :moved_at)',
+                [
+                    'operation_id' => self::OPERATION,
+                    'reason_type' => 'LegacyFailure',
+                    'reason_message' => 'legacy-detail',
+                    'moved_at' => '2026-08-03T00:00:00Z',
+                ],
+            );
+
+            return;
+        }
+        $this->connection->executeStatement('INSERT INTO ' . $qualified . ' (
+                scope_version, scope_hash, key_version, key_hash, fingerprint_version, fingerprint_hash,
+                operation_id, strategy, state, created_at, expires_at
+            ) VALUES (
+                1, :scope_hash, 1, :key_hash, 1, :fingerprint_hash, :operation_id,
+                :strategy, \'processing\', :created_at, :expires_at
+            )', [
+            'scope_hash' => str_repeat('a', 64),
+            'key_hash' => str_repeat('b', 64),
+            'fingerprint_hash' => str_repeat('c', 64),
+            'operation_id' => self::OPERATION,
+            'strategy' => \BlackOps\Core\Execution\Inline::class,
+            'created_at' => '2026-08-03T00:00:00Z',
+            'expires_at' => '2026-08-04T00:00:00Z',
+        ]);
     }
 
     private function seedLegacyProtectedRow(string $schema, string $table): void

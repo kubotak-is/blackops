@@ -466,6 +466,8 @@ final readonly class InlineDispatcher implements Dispatcher, ScheduledInlineDisp
             new Inline(),
             $envelope->context()->receivedAt(),
             $retention->expiresAt($envelope->context()->receivedAt()),
+            $metadata->typeId,
+            1,
             $envelope->context()->tenant(),
         );
     }

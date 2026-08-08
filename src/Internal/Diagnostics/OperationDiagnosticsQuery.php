@@ -389,7 +389,6 @@ final readonly class OperationDiagnosticsQuery
                 !$data instanceof OperationDeadLetteredData
                 || $data->finalAttemptId?->toString() !== $deadLetter->finalAttemptId
                 || $data->finalAttemptNumber !== $deadLetter->finalAttemptNumber
-                || $data->reasonType !== $deadLetter->reasonType
                 || $this->time->format($data->movedAt) !== $deadLetter->movedAt
             ) {
                 throw OperationDiagnosticsException::integrityFailed();

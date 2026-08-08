@@ -25,7 +25,7 @@ final readonly class PostgreSqlDeferredOperationLifecycleStore
     ) {
         $this->schema = new PostgreSqlDeferredOperationSchema($schema);
         $this->sql = new PostgreSqlDeferredOperationLifecycleSql($connection, $this->schema);
-        $this->deadLetters = new PostgreSqlDeadLetterStore($connection, $this->schema, $this->sql);
+        $this->deadLetters = new PostgreSqlDeadLetterStore($connection, $this->schema, $this->sql, $protection);
         $this->leaseExpired = new PostgreSqlLeaseExpiredRecoveryStore(
             $connection,
             $this->schema,

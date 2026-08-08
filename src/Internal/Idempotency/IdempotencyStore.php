@@ -21,6 +21,8 @@ interface IdempotencyStore
         ExecutionStrategy $strategy,
         DateTimeImmutable $createdAt,
         DateTimeImmutable $expiresAt,
+        string $operationType,
+        int $applicationSchemaVersion,
         ?TenantRef $tenant = null,
     ): IdempotencyClaimResult;
 

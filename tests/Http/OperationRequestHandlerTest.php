@@ -1364,6 +1364,8 @@ final class CountingIdempotencyStore implements IdempotencyStore
         ExecutionStrategy $strategy,
         DateTimeImmutable $createdAt,
         DateTimeImmutable $expiresAt,
+        string $operationType = 'test.operation',
+        int $applicationSchemaVersion = 1,
         ?\BlackOps\Core\TenantRef $tenant = null,
     ): IdempotencyClaimResult {
         ++$this->claims;
@@ -1376,6 +1378,8 @@ final class CountingIdempotencyStore implements IdempotencyStore
             $strategy,
             $createdAt,
             $expiresAt,
+            $operationType,
+            $applicationSchemaVersion,
             $tenant,
         );
     }
@@ -1388,6 +1392,8 @@ final class CountingIdempotencyStore implements IdempotencyStore
         ExecutionStrategy $strategy,
         DateTimeImmutable $createdAt,
         DateTimeImmutable $expiresAt,
+        string $operationType = 'test.operation',
+        int $applicationSchemaVersion = 1,
         ?\BlackOps\Core\TenantRef $tenant = null,
     ): IdempotencyClaimResult {
         return $this->inner->claim(
@@ -1398,6 +1404,8 @@ final class CountingIdempotencyStore implements IdempotencyStore
             $strategy,
             $createdAt,
             $expiresAt,
+            $operationType,
+            $applicationSchemaVersion,
             $tenant,
         );
     }
@@ -1443,6 +1451,8 @@ final class AttachFailureIdempotencyStore implements IdempotencyStore
         ExecutionStrategy $strategy,
         DateTimeImmutable $createdAt,
         DateTimeImmutable $expiresAt,
+        string $operationType,
+        int $applicationSchemaVersion,
         ?\BlackOps\Core\TenantRef $tenant = null,
     ): IdempotencyClaimResult {
         return $this->inner->claim(
@@ -1453,6 +1463,8 @@ final class AttachFailureIdempotencyStore implements IdempotencyStore
             $strategy,
             $createdAt,
             $expiresAt,
+            $operationType,
+            $applicationSchemaVersion,
             $tenant,
         );
     }

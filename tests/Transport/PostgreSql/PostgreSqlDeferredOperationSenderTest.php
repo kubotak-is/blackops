@@ -103,8 +103,7 @@ final class PostgreSqlDeferredOperationSenderTest extends TestCase
         self::assertSame('uuid', $columns['operation_id']);
         self::assertSame('uuid', $columns['final_attempt_id']);
         self::assertSame('integer', $columns['final_attempt_number']);
-        self::assertSame('text', $columns['reason_type']);
-        self::assertSame('text', $columns['reason_message']);
+        self::assertSame('bytea', $columns['encoded_reason']);
         self::assertSame('timestamp with time zone', $columns['moved_at']);
         self::assertSame('timestamp with time zone', $columns['created_at']);
         self::assertSame(1, (int) $primaryKeyCount);

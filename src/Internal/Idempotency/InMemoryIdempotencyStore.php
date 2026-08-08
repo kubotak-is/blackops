@@ -29,6 +29,8 @@ final class InMemoryIdempotencyStore implements IdempotencyStore
         ExecutionStrategy $strategy,
         DateTimeImmutable $createdAt,
         DateTimeImmutable $expiresAt,
+        string $operationType = 'in-memory.operation',
+        int $applicationSchemaVersion = 1,
         ?TenantRef $tenant = null,
     ): IdempotencyClaimResult {
         $scopeKey = $scope->version() . ':' . $scope->digest();

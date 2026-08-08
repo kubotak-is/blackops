@@ -52,7 +52,7 @@ final readonly class ApplicationHttpRuntimeComposer
         $httpMiddleware = new ApplicationHttpMiddlewareResolver($artifacts->container)->resolve($middleware);
         $protection = ApplicationStorageProtectionResolver::resolve($operation->container);
         $sender = new PostgreSqlDeferredOperationSender($operation->connection, $protection, $database->schema);
-        $idempotency = new PostgreSqlIdempotencyStore($operation->connection, $database->schema);
+        $idempotency = new PostgreSqlIdempotencyStore($operation->connection, $protection, $database->schema);
         if (!$operation->journal instanceof CanonicalJournalReader) {
             throw new LogicException('PostgreSQL journal reader is unavailable for idempotency recovery.');
         }

@@ -83,6 +83,7 @@ validate_package() {
         migrations/postgresql/Version20260728133000.php \
         migrations/postgresql/Version20260803000000.php \
         migrations/postgresql/Version20260808000000.php \
+        migrations/postgresql/Version20260808010000.php \
         resources/stubs/operation.php.stub \
         resources/stubs/operation-value.php.stub \
         resources/stubs/operation-outcome.php.stub \

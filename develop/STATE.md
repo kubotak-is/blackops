@@ -1,6 +1,49 @@
 # Orchestration State
 
-Updated At: 2026-08-08T10:26:18+09:00
+Updated At: 2026-08-08T16:42:58+09:00
+
+## P20-016F Accepted
+
+```text
+2026-08-08T16:42:58+09:00
+Orchestrator independent reviewでP20-016FをAcceptedとした。Focused 234 tests／1,489 assertions、Full PHPUnit 2,086 tests／8,402 assertions（既存Deprecation 1）、Composer strict validation、format、broad analyze 25 warnings／0 errors、管理番号Comment Guard、shell syntax、git diff checkがPASS。Broad mago lintは既知baseline内の81 findings／9 errorsで、P20-016F changed-sourceはNo issues。Deptracは既知のvendor NikicFileReferenceVisitor.php:106 PHP 8.5 parser incompatibility。Fresh quickstartは12 migrations、build、seed、HTTP、deferred retry／completion、masked diagnostics、retention、frontendを完走してPASS。Exact package exportは未追跡Version20260808010000.phpをgit archive HEADが含めないpre-commit制約で停止するが、Working Tree Composer Archiveはmigration inventory、除外Root、strict validation、production autoloadをPASSした。Task／Report／TODO同期済み。P20-016FのCommit／Push／Deployなし。次はCommit許可後のExact Package Export、続いてP20-016G。
+```
+
+## P20-016F Targeted Corrections Worker Checkpoint
+
+Secondary migration inventory and console/kernel counts now include Version20260808010000. Independent non-empty outbox/dead-letter/idempotency guards assert row bytes, legacy columns, new columns, and constraints remain unchanged on failure; empty legacy upgrades assert protected constraint parity. Idempotency projection versions are strict version 1, with canonical scope/operation/tenant tamper evidence. Outbox tests cover row/purpose/tag/key, tenant, origin, and decoded-context mismatch rollback; retention proves undecodable idempotency projections are planned and purged without decode. Final focused PHPUnit batches pass 234 tests／1,489 assertions; changed-source Mago lint/analyze and format, management-ID guard, diff check, and Composer strict validation pass. Broad Mago analyze passes with 0 errors/25 warnings. Projection decoding now has a typed validated boundary; terminalize encoding helpers and typed outbox subjects clear introduced static-analysis findings without weakening fail-closed behavior. InlineDispatcher retains its pre-existing halstead lint warning and was not refactored. Worker Commit／Push／Deployなし。
+
+## P20-016F Orchestrator Scope Correction 3
+
+```text
+2026-08-08T11:08:36+09:00
+Version20260808010000追加によりFramework Migration総数は9から10へ変わる。DatabaseMigrationCommandTestとframework-package-exportは当初から許可済みだが、実Application Console Kernelのstatus表示fixtureも同じ総数を検証しているため、tests/Integration/ApplicationConsoleKernelTest.phpをMigration Inventory同期に必要な最小Test scopeとしてFiles Allowedへ追加した。Production scopeは変更しない。Worker Commit／Push／Deployなし。
+```
+
+## P20-016F Worker Checkpoint
+
+Secondary Outbox／Dead Letter／Idempotency protection implementation and fixture synchronization are complete. Focused suites, migration runner, formatter, comment guard, and diff check pass. DiagnosticsQuery reasonType comparison was removed after scope correction because diagnostics exposes only a protected marker. Full PHPUnit／Mago lint・analyze／Deptrac／Consumer E2E／package export remain for Orchestrator review. Worker Commit／Push／Deployなし。
+
+## P20-016F Orchestrator Scope Correction 2
+
+```text
+2026-08-08T11:02:45+09:00
+Dead Letter Reasonのclear column廃止後、PostgreSqlDiagnosticsReaderはReason Envelopeをdecodeせずprotected markerだけを返す。一方、OperationDiagnosticsQueryの既存Integrity CheckはJournal内Reason TypeとReaderのclear reason_type一致を前提にしており、この比較を残すと正しい保護済みRowをIntegrity Failureにする。Operation／Attempt／Moved Atの一致検証を維持し、Reason Type比較だけを削除する最小Production境界としてsrc/Internal/Diagnostics/OperationDiagnosticsQuery.phpをFiles Allowedへ追加した。Worker Commit／Push／Deployなし。
+```
+
+## P20-016F Orchestrator Scope Correction
+
+```text
+2026-08-08T10:31:14+09:00
+Idempotency Response／Result EnvelopeのAADへOperation Type／Application Schema Versionを実Rowから供給するには、Claim時にOperationMetadataを保持する必要がある。既存Call SiteはInlineDispatcherとDeferredAcceptanceOrchestratorであり、この2 Production Fileと対応TestだけをFiles Allowedへ追加した。HTTP SurfaceやPublic APIは変更せず、Production scopeはIdempotency AAD成立に必要な最小境界に限定する。Worker Commit／Push／Deployなし。
+```
+
+## P20-016F Secondary Operation Storage Protection Start
+
+```text
+2026-08-08T10:29:25+09:00
+P20-016Eは190d42a、post-commit package verificationはc77d303としてCommit済みで、Working Treeはclean、Exact framework-package-exportもPASSしている。P20-016FをIn Progressとして開始し、Transactional Outbox Payload／Context、Dead Letter Reason、Idempotency Response／Resultの必須Envelope、実Row AAD、Context Integrity、Retention／Status非Decode、non-empty plaintext schemaのdata／schema不変guardを同じGPT-5.6 Luna High workerへ委譲する。Rotation、Guide、Community Board移行は後続Taskへ維持する。P20-016FのCommit／Push／Deployなし。
+```
 
 ## P20-016E Post-commit Package Export Accepted
 

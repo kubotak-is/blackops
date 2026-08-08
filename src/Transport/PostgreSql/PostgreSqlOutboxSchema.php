@@ -45,7 +45,11 @@ final readonly class PostgreSqlOutboxSchema
                 failure_fingerprint_version integer NULL,
                 leased_at timestamptz NULL,
                 sent_at timestamptz NULL,
-                dead_lettered_at timestamptz NULL
+                dead_lettered_at timestamptz NULL,
+                CONSTRAINT outbox_records_bopd_payload_check CHECK (
+                    substring(encoded_payload FROM 1 FOR 4) = decode('424f5044', 'hex')
+                    AND substring(encoded_context FROM 1 FOR 4) = decode('424f5044', 'hex')
+                )
             )",
             "ALTER TABLE {$table} ADD COLUMN IF NOT EXISTS relay_id text NULL",
             "ALTER TABLE {$table} ADD COLUMN IF NOT EXISTS lease_expires_at timestamptz NULL",
@@ -57,6 +61,11 @@ final readonly class PostgreSqlOutboxSchema
             "ALTER TABLE {$table} ADD COLUMN IF NOT EXISTS leased_at timestamptz NULL",
             "ALTER TABLE {$table} ADD COLUMN IF NOT EXISTS sent_at timestamptz NULL",
             "ALTER TABLE {$table} ADD COLUMN IF NOT EXISTS dead_lettered_at timestamptz NULL",
+            "ALTER TABLE {$table} DROP CONSTRAINT IF EXISTS outbox_records_bopd_payload_check",
+            "ALTER TABLE {$table} ADD CONSTRAINT outbox_records_bopd_payload_check CHECK (
+                substring(encoded_payload FROM 1 FOR 4) = decode('424f5044', 'hex')
+                AND substring(encoded_context FROM 1 FOR 4) = decode('424f5044', 'hex')
+            )",
             "ALTER TABLE {$table} DROP CONSTRAINT IF EXISTS outbox_records_state_check",
             "ALTER TABLE {$table} DROP CONSTRAINT IF EXISTS outbox_records_state_version_check",
             "ALTER TABLE {$table} ADD CONSTRAINT outbox_records_state_check CHECK (state IN ('pending','leased','retry_scheduled','sent','dead_lettered'))",
@@ -77,9 +86,7 @@ final readonly class PostgreSqlOutboxSchema
             "CREATE INDEX IF NOT EXISTS outbox_dead_letter_retry_audits_record_idx ON {$this->retryAuditTable()} (record_id, retried_at)",
         ];
 
-        $statements = array_merge($statements, PostgreSqlTenantMetadata::alter($table, 'outbox_records', true));
-
-        return $statements;
+        return array_merge($statements, PostgreSqlTenantMetadata::alter($table, 'outbox_records', true));
     }
 
     public function table(): string

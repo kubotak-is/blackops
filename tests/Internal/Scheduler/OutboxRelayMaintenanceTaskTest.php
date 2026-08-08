@@ -7,12 +7,14 @@ namespace BlackOps\Tests\Internal\Scheduler;
 use BlackOps\Core\Execution\DeferredAcknowledgement;
 use BlackOps\Core\Execution\DeferredOperationMessage;
 use BlackOps\Core\Execution\OperationSender;
+use BlackOps\Internal\Codec\ReflectionJsonOperationCodec;
 use BlackOps\Internal\Outbox\OutboxRelayConfiguration;
 use BlackOps\Internal\Outbox\OutboxRelayRuntime;
 use BlackOps\Internal\Scheduler\MaintenanceScheduler;
 use BlackOps\Internal\Scheduler\MaintenanceTask;
 use BlackOps\Internal\Scheduler\MaintenanceTaskResult;
 use BlackOps\Internal\Scheduler\OutboxRelayMaintenanceTask;
+use BlackOps\Tests\Transport\PostgreSql\PostgreSqlTestStorageProtection;
 use BlackOps\Transport\PostgreSql\PostgreSqlOutboxStore;
 use BlackOps\Transport\PostgreSql\PostgreSqlSystemClock;
 use DateTimeImmutable;
@@ -35,7 +37,7 @@ final class OutboxRelayMaintenanceTaskTest extends TestCase
             'password' => (string) (getenv('POSTGRES_PASSWORD') ?: 'blackops'),
         ]);
         $this->connection->executeStatement('DROP SCHEMA IF EXISTS scheduler_outbox_test CASCADE');
-        new PostgreSqlOutboxStore($this->connection, 'scheduler_outbox_test')->migrate();
+        $this->store()->migrate();
     }
 
     protected function tearDown(): void
@@ -46,7 +48,7 @@ final class OutboxRelayMaintenanceTaskTest extends TestCase
 
     public function testRelayFailureIsIsolatedAndFiniteTaskReturnsSafeResult(): void
     {
-        $store = new PostgreSqlOutboxStore($this->connection, 'scheduler_outbox_test');
+        $store = $this->store();
         $runtime = new OutboxRelayRuntime(
             $store,
             new ThrowingSchedulerSender(),
@@ -63,6 +65,16 @@ final class OutboxRelayMaintenanceTaskTest extends TestCase
         self::assertSame(0, $result->taskResults()[0]->affectedCount());
         self::assertSame('Outbox relay failed safely.', $result->taskResults()[0]->summary());
         self::assertSame(3, $result->taskResults()[1]->affectedCount());
+    }
+
+    private function store(): PostgreSqlOutboxStore
+    {
+        return new PostgreSqlOutboxStore(
+            $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
+            new ReflectionJsonOperationCodec(),
+            'scheduler_outbox_test',
+        );
     }
 }
 

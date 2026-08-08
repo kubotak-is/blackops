@@ -214,8 +214,8 @@ MVP後に残す主要項目:
 - [x] PostgreSQL Tenant MetadataとDecode前Isolationを実装する（P20-016C、Accepted）
 - [x] Tenant-aware StatusとDefault-deny Journal／Outcome Readを実装する（P20-016D、Accepted）
 - [x] Journal／Deferred Payload／Context／OutcomeをEncrypted Envelopeへ移行する（P20-016E、Accepted）
-- [ ] Outbox／Dead Letter Reason／Idempotency Response／Resultを保護する（P20-016F、P20-016E後）
-- [ ] Storage Key Rotation CLI、Audit、Checkpoint／Resumeを実装する（P20-016G、P20-016F後）
+- [x] Outbox／Dead Letter Reason／Idempotency Response／Resultを保護する（P20-016F、Accepted）
+- [ ] Storage Key Rotation CLI、Audit、Checkpoint／Resumeを実装する（P20-016G）
 - [ ] Tenant／Storage ProtectionのGuideとDocumentation Reviewを完了する（P20-016H、P20-016G後）
 - [ ] 構造化Log SchemaとOpenTelemetry Adapterを提供する
 

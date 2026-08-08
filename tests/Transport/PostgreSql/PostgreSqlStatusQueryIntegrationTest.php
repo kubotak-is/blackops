@@ -937,14 +937,12 @@ final class PostgreSqlStatusQueryIntegrationTest extends TestCase
     private function insertDeadLetter(OperationId $id): void
     {
         $this->connection->executeStatement('INSERT INTO ' . self::SCHEMA . '.dead_letters (
-            operation_id, final_attempt_id, final_attempt_number, reason_type, reason_message, moved_at
+            operation_id, final_attempt_id, final_attempt_number, encoded_reason, moved_at
         ) VALUES (
-            :operation_id, :attempt_id, 1, :reason_type, :reason_message, :moved_at
+            :operation_id, :attempt_id, 1, decode(\'424f5044\', \'hex\'), :moved_at
         )', [
             'operation_id' => $id->toString(),
             'attempt_id' => $this->attemptId($id)->toString(),
-            'reason_type' => 'PrivateFailure',
-            'reason_message' => 'dead-private',
             'moved_at' => '2026-07-19T00:00:05.654321Z',
         ]);
     }

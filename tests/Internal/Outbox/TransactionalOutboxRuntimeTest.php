@@ -21,6 +21,7 @@ use BlackOps\Core\Registry\OperationMetadata;
 use BlackOps\Core\Registry\OperationRegistry;
 use BlackOps\Database\DatabaseManager;
 use BlackOps\Idempotency\IdempotencyKey;
+use BlackOps\Internal\Codec\ReflectionJsonOperationCodec;
 use BlackOps\Internal\Execution\ExecutionScopeProvider;
 use BlackOps\Internal\ExecutionContext\ExecutionContextFactory;
 use BlackOps\Internal\Identifier\IdentifierFactory;
@@ -28,6 +29,7 @@ use BlackOps\Internal\Identifier\SymfonyUuidv7Generator;
 use BlackOps\Internal\Outbox\TransactionalOutboxRuntime;
 use BlackOps\Internal\Transaction\DefaultAfterCommitFailureReporter;
 use BlackOps\Internal\Transaction\TransactionRuntime;
+use BlackOps\Tests\Transport\PostgreSql\PostgreSqlTestStorageProtection;
 use BlackOps\Transport\PostgreSql\PostgreSqlOutboxStore;
 use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
@@ -49,7 +51,12 @@ final class TransactionalOutboxRuntimeTest extends TestCase
         $this->app = DriverManager::getConnection($this->parameters());
         $this->other = DriverManager::getConnection($this->parameters());
         $this->app->executeStatement('DROP SCHEMA IF EXISTS outbox_runtime_test CASCADE');
-        new PostgreSqlOutboxStore($this->app, 'outbox_runtime_test')->migrate();
+        new PostgreSqlOutboxStore(
+            $this->app,
+            PostgreSqlTestStorageProtection::codec(),
+            new ReflectionJsonOperationCodec(),
+            'outbox_runtime_test',
+        )->migrate();
         $this->app->executeStatement('CREATE TABLE "outbox_runtime_test"."mutations" (id integer PRIMARY KEY)');
         $this->scope = new ExecutionScopeProvider();
         $databases = new FixtureDatabaseManager(['app' => $this->app, 'other' => $this->other]);
@@ -81,7 +88,12 @@ final class TransactionalOutboxRuntimeTest extends TestCase
             $transactions,
             $this->app,
             'app',
-            new PostgreSqlOutboxStore($this->app, 'outbox_runtime_test'),
+            new PostgreSqlOutboxStore(
+                $this->app,
+                PostgreSqlTestStorageProtection::codec(),
+                new FixtureCodec($this->captured),
+                'outbox_runtime_test',
+            ),
             new ExecutionContextFactory($identifiers, $clock),
             $identifiers,
             $clock,
@@ -164,7 +176,12 @@ final class TransactionalOutboxRuntimeTest extends TestCase
             $this->transactionRuntime,
             $this->app,
             'app',
-            new PostgreSqlOutboxStore($this->app, 'outbox_runtime_test'),
+            new PostgreSqlOutboxStore(
+                $this->app,
+                PostgreSqlTestStorageProtection::codec(),
+                new ReflectionJsonOperationCodec(),
+                'outbox_runtime_test',
+            ),
             new ExecutionContextFactory(
                 $identifiers = new IdentifierFactory(new SymfonyUuidv7Generator(), $clock = new FixtureClock()),
                 $clock,
@@ -414,7 +431,12 @@ final class TransactionalOutboxRuntimeTest extends TestCase
             $transactions,
             $connection,
             'app',
-            new PostgreSqlOutboxStore($connection, 'outbox_runtime_test'),
+            new PostgreSqlOutboxStore(
+                $connection,
+                PostgreSqlTestStorageProtection::codec(),
+                new ReflectionJsonOperationCodec(),
+                'outbox_runtime_test',
+            ),
             new ExecutionContextFactory($identifiers, $clock),
             $identifiers,
             $clock,

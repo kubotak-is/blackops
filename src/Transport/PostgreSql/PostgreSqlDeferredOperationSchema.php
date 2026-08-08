@@ -147,10 +147,12 @@ final readonly class PostgreSqlDeferredOperationSchema
                 final_attempt_number integer NULL CHECK (
                     final_attempt_number IS NULL OR final_attempt_number >= 1
                 ),
-                reason_type text NOT NULL CHECK (reason_type <> ''),
-                reason_message text NOT NULL,
+                encoded_reason bytea NOT NULL,
                 moved_at timestamptz NOT NULL,
-                created_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP
+                created_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                CONSTRAINT dead_letters_bopd_reason_check CHECK (
+                    substring(encoded_reason FROM 1 FOR 4) = decode('424f5044', 'hex')
+                )
             )",
             "CREATE INDEX IF NOT EXISTS dead_letters_moved_at_idx
                 ON {$deadLetters} (moved_at, operation_id)",

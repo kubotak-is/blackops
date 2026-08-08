@@ -31,19 +31,13 @@ final readonly class PostgreSqlIdempotencySchema
                 fingerprint_version integer NOT NULL CHECK (fingerprint_version >= 1),
                 fingerprint_hash char(64) NOT NULL,
                 operation_id uuid NOT NULL,
+                operation_type text NOT NULL CHECK (operation_type <> ''),
+                application_schema_version integer NOT NULL CHECK (application_schema_version >= 1),
                 strategy text NOT NULL CHECK (strategy <> ''),
                 state text NOT NULL CHECK (state IN ('processing', 'terminal')),
                 state_version bigint NOT NULL DEFAULT 1 CHECK (state_version >= 1),
-                response_version integer NULL,
-                response_status integer NULL,
-                response_headers jsonb NULL,
-                response_body text NULL,
-                result_kind text NULL CHECK (result_kind IN ('completed', 'rejected', 'internal_failure')),
-                result_type text NULL,
-                result_schema_version integer NULL,
-                result_payload text NULL,
-                rejection_category text NULL,
-                rejection_code text NULL,
+                encoded_response bytea NULL,
+                encoded_result bytea NULL,
                 accepted_at timestamptz NULL,
                 created_at timestamptz NOT NULL,
                 expires_at timestamptz NOT NULL,
@@ -51,14 +45,16 @@ final readonly class PostgreSqlIdempotencySchema
                 CONSTRAINT idempotency_record_operation_id_unique UNIQUE (operation_id),
                 CONSTRAINT idempotency_record_expiry_check CHECK (expires_at > created_at),
                 CONSTRAINT idempotency_record_response_projection_check CHECK (
-                    (response_version IS NULL AND response_status IS NULL AND response_headers IS NULL AND response_body IS NULL)
-                    OR (response_version IS NOT NULL AND response_status IS NOT NULL AND response_headers IS NOT NULL AND response_body IS NOT NULL)
+                    state = 'terminal' OR (encoded_response IS NULL AND encoded_result IS NULL)
                 ),
                 CONSTRAINT idempotency_record_result_projection_check CHECK (
-                    (result_kind IS NULL AND result_type IS NULL AND result_schema_version IS NULL AND result_payload IS NULL AND rejection_category IS NULL AND rejection_code IS NULL)
-                    OR (result_kind = 'completed' AND result_type IS NOT NULL AND result_schema_version IS NOT NULL AND result_payload IS NOT NULL AND rejection_category IS NULL AND rejection_code IS NULL)
-                    OR (result_kind = 'rejected' AND result_type IS NULL AND result_schema_version IS NULL AND result_payload IS NULL AND rejection_category IS NOT NULL AND rejection_code IS NOT NULL)
-                    OR (result_kind = 'internal_failure' AND result_type IS NULL AND result_schema_version IS NULL AND result_payload IS NULL AND rejection_category IS NULL AND rejection_code IS NULL)
+                    state = 'terminal' OR (encoded_response IS NULL AND encoded_result IS NULL)
+                ),
+                CONSTRAINT idempotency_record_response_bopd_check CHECK (
+                    encoded_response IS NULL OR substring(encoded_response FROM 1 FOR 4) = decode('424f5044', 'hex')
+                ),
+                CONSTRAINT idempotency_record_result_bopd_check CHECK (
+                    encoded_result IS NULL OR substring(encoded_result FROM 1 FOR 4) = decode('424f5044', 'hex')
                 ),
                 CONSTRAINT idempotency_record_accepted_at_check CHECK (
                     (state = 'processing' AND accepted_at IS NULL)

@@ -17,12 +17,14 @@ use BlackOps\Internal\Idempotency\IdempotencyClaimStatus;
 use BlackOps\Internal\Idempotency\IdempotencyRecordState;
 use BlackOps\Internal\Idempotency\IdempotencyResponseSnapshot;
 use BlackOps\Internal\Idempotency\IdempotencyResultSnapshot;
+use BlackOps\Internal\Idempotency\IdempotencyScopeHash;
 use BlackOps\Internal\Idempotency\IdempotencyScopeHasher;
 use BlackOps\Internal\Idempotency\OperationFingerprint;
 use BlackOps\Internal\Idempotency\OperationValueFingerprinter;
 use BlackOps\Internal\Idempotency\PostgreSqlIdempotencyStore;
 use BlackOps\Internal\Idempotency\ProcessingRecord;
 use BlackOps\Internal\Idempotency\TerminalRecord;
+use BlackOps\Tests\Transport\PostgreSql\PostgreSqlTestStorageProtection;
 use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
@@ -47,7 +49,11 @@ final class PostgreSqlIdempotencyStoreTest extends TestCase
             'password' => (string) getenv('POSTGRES_PASSWORD'),
         ]);
         $this->connection->executeStatement('DROP SCHEMA IF EXISTS ' . self::SCHEMA . ' CASCADE');
-        $this->store = new PostgreSqlIdempotencyStore($this->connection, self::SCHEMA);
+        $this->store = new PostgreSqlIdempotencyStore(
+            $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        );
         $this->store->migrate();
     }
 
@@ -75,6 +81,8 @@ final class PostgreSqlIdempotencyStoreTest extends TestCase
             new Inline(),
             $created,
             $created->modify('+1 day'),
+            'fixture.operation',
+            1,
         );
 
         self::assertSame(IdempotencyClaimStatus::Claimed, $claim->status());
@@ -89,6 +97,8 @@ final class PostgreSqlIdempotencyStoreTest extends TestCase
                     new Inline(),
                     $created,
                     $created->modify('+1 day'),
+                    'fixture.operation',
+                    1,
                 )
                 ->status(),
         );
@@ -110,7 +120,11 @@ final class PostgreSqlIdempotencyStoreTest extends TestCase
         );
         self::assertTrue($this->store->terminalize($operation, $terminal));
 
-        $reloaded = new PostgreSqlIdempotencyStore($this->connection, self::SCHEMA)->find($scope);
+        $reloaded = new PostgreSqlIdempotencyStore(
+            $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        )->find($scope);
         self::assertInstanceOf(TerminalRecord::class, $reloaded);
         self::assertSame('fixture.conflict', $reloaded->result()?->result()->rejectionReason()->code());
         self::assertSame($operation->toString(), $reloaded->result()?->result()->operationId()?->toString());
@@ -134,6 +148,8 @@ final class PostgreSqlIdempotencyStoreTest extends TestCase
             new Inline(),
             $created,
             $created->modify('+1 day'),
+            'fixture.operation',
+            1,
         );
         $record = $claim->record();
         self::assertInstanceOf(ProcessingRecord::class, $record);
@@ -152,7 +168,11 @@ final class PostgreSqlIdempotencyStoreTest extends TestCase
             ),
         ));
 
-        $reloaded = new PostgreSqlIdempotencyStore($this->connection, self::SCHEMA)->find($scope);
+        $reloaded = new PostgreSqlIdempotencyStore(
+            $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        )->find($scope);
         self::assertInstanceOf(TerminalRecord::class, $reloaded);
         self::assertInstanceOf(EmptyOutcome::class, $reloaded->result()?->result()->outcome());
     }
@@ -188,7 +208,11 @@ final class PostgreSqlIdempotencyStoreTest extends TestCase
                     usleep(1000);
                 }
                 try {
-                    $claim = new PostgreSqlIdempotencyStore($connection, self::SCHEMA)->claim(
+                    $claim = new PostgreSqlIdempotencyStore(
+                        $connection,
+                        PostgreSqlTestStorageProtection::codec(),
+                        self::SCHEMA,
+                    )->claim(
                         $scope,
                         $key->hash(),
                         $fingerprint,
@@ -196,6 +220,8 @@ final class PostgreSqlIdempotencyStoreTest extends TestCase
                         new Inline(),
                         $created,
                         $created->modify('+1 day'),
+                        'fixture.operation',
+                        1,
                     );
                     file_put_contents(
                         $results[$index],
@@ -318,6 +344,8 @@ final class PostgreSqlIdempotencyStoreTest extends TestCase
                 new Inline(),
                 $created,
                 $created->modify('+1 day'),
+                'fixture.operation',
+                1,
             );
             $record = $claim->record();
             self::assertInstanceOf(ProcessingRecord::class, $record);
@@ -350,7 +378,11 @@ final class PostgreSqlIdempotencyStoreTest extends TestCase
             ));
             $otherConnection = $this->connection();
             try {
-                $reloaded = new PostgreSqlIdempotencyStore($otherConnection, self::SCHEMA)->find($scope);
+                $reloaded = new PostgreSqlIdempotencyStore(
+                    $otherConnection,
+                    PostgreSqlTestStorageProtection::codec(),
+                    self::SCHEMA,
+                )->find($scope);
             } finally {
                 $otherConnection->close();
             }
@@ -389,26 +421,168 @@ final class PostgreSqlIdempotencyStoreTest extends TestCase
             ),
         ));
         $table = self::SCHEMA . '.idempotency_records';
-        foreach ([
-            ['response_version',      99],
-            ['result_schema_version', 99],
-            ['strategy',              'unknown.strategy'],
-        ] as [$column, $value]) {
-            $this->connection->executeStatement("UPDATE {$table} SET {$column} = :value", ['value' => $value]);
-            try {
-                $this->store->find($scope);
-                self::fail('Expected invalid idempotency row to fail closed.');
-            } catch (DeferredTransportException $exception) {
-                self::assertStringNotContainsString(self::SCHEMA, $exception->getMessage());
-                self::assertStringNotContainsString('SELECT', $exception->getMessage());
-                self::assertStringNotContainsString('fixture', $exception->getMessage());
-            }
-            $this->connection->executeStatement("UPDATE {$table} SET {$column} = :value", [
-                'value' => $column === 'strategy' ? Inline::class : 1,
-            ]);
+        try {
+            $this->connection->executeStatement("UPDATE {$table} SET encoded_response = convert_to('{}', 'utf8')");
+            $this->store->find($scope);
+            self::fail('Expected invalid idempotency row to fail closed.');
+        } catch (Throwable) {
+            self::assertTrue(true);
         }
         $this->expectException(Throwable::class);
         $this->connection->executeStatement("UPDATE {$table} SET response_status = NULL");
+    }
+
+    public function testResponseAndResultProjectionsAreProtectedBopdEnvelopes(): void
+    {
+        [$scope, $key, $fingerprint, $operation, $created] = $this->claimFixture('protected-projections');
+        $record = $this->store->find($scope);
+        self::assertInstanceOf(ProcessingRecord::class, $record);
+        self::assertTrue($this->store->terminalize(
+            $operation,
+            new TerminalRecord(
+                $scope,
+                $key,
+                $fingerprint,
+                $operation,
+                new Inline(),
+                $created,
+                $created->modify('+1 day'),
+                new IdempotencyResponseSnapshot(1, 200, ['Content-Type' => 'application/json'], '{}'),
+                new IdempotencyResultSnapshot(OperationResult::completed(new EmptyOutcome(), $operation)),
+            ),
+        ));
+        $row = $this->connection->fetchAssociative('SELECT encode(encoded_response, \'hex\') AS response, encode(encoded_result, \'hex\') AS result
+             FROM ' . self::SCHEMA . '.idempotency_records');
+        self::assertIsArray($row);
+        self::assertStringStartsWith('424f5044', (string) $row['response']);
+        self::assertStringStartsWith('424f5044', (string) $row['result']);
+        self::assertStringNotContainsString('Content-Type', (string) $row['response']);
+        self::assertStringNotContainsString('completed', (string) $row['result']);
+    }
+
+    public function testResponseResultFieldSwapAndCipherTamperFailClosedWithoutSensitiveDetails(): void
+    {
+        [$scope, $key, $fingerprint, $operation, $created] = $this->claimFixture('projection-swap');
+        $record = $this->store->find($scope);
+        self::assertInstanceOf(ProcessingRecord::class, $record);
+        self::assertTrue($this->store->terminalize(
+            $operation,
+            new TerminalRecord(
+                $scope,
+                $key,
+                $fingerprint,
+                $operation,
+                new Inline(),
+                $created,
+                $created->modify('+1 day'),
+                new IdempotencyResponseSnapshot(1, 200, ['Content-Type' => 'application/json'], '{}'),
+                new IdempotencyResultSnapshot(OperationResult::completed(new EmptyOutcome(), $operation)),
+            ),
+        ));
+        $table = self::SCHEMA . '.idempotency_records';
+        $this->connection->executeStatement("UPDATE {$table} SET encoded_result = encoded_response");
+        try {
+            $this->store->find($scope);
+            self::fail('Projection field swap was accepted.');
+        } catch (DeferredTransportException $exception) {
+            self::assertStringNotContainsString(self::SCHEMA, $exception->getMessage());
+            self::assertStringNotContainsString('test-key', $exception->getMessage());
+        }
+    }
+
+    public function testProjectionTagTamperAndUnknownKeyFailClosed(): void
+    {
+        foreach (['tag', 'key'] as $tamper) {
+            [$scope, $key, $fingerprint, $operation, $created] = $this->claimFixture('projection-' . $tamper);
+            $record = $this->store->find($scope);
+            self::assertInstanceOf(ProcessingRecord::class, $record);
+            self::assertTrue($this->store->terminalize(
+                $operation,
+                new TerminalRecord(
+                    $scope,
+                    $key,
+                    $fingerprint,
+                    $operation,
+                    new Inline(),
+                    $created,
+                    $created->modify('+1 day'),
+                    new IdempotencyResponseSnapshot(1, 200, ['Content-Type' => 'application/json'], '{}'),
+                    new IdempotencyResultSnapshot(OperationResult::completed(new EmptyOutcome(), $operation)),
+                ),
+            ));
+            $table = self::SCHEMA . '.idempotency_records';
+            if ($tamper === 'tag') {
+                $this->connection->executeStatement(
+                    "UPDATE {$table} SET encoded_response = set_byte(encoded_response, octet_length(encoded_response) - 1,
+                    (get_byte(encoded_response, octet_length(encoded_response) - 1) + 1) % 256)",
+                );
+            } else {
+                $this->connection->executeStatement(
+                    "UPDATE {$table} SET encoded_response = overlay(encoded_response placing convert_to('unknown1', 'UTF8') from 9 for 8)",
+                );
+            }
+            try {
+                $this->store->find($scope);
+                self::fail('Tampered idempotency projection was accepted.');
+            } catch (DeferredTransportException $exception) {
+                self::assertStringNotContainsString(self::SCHEMA, $exception->getMessage());
+                self::assertStringNotContainsString('test-key', $exception->getMessage());
+            }
+            $this->connection->executeStatement("TRUNCATE {$table}");
+        }
+    }
+
+    public function testWrongTenantAndOperationRowIdentityFailClosed(): void
+    {
+        foreach (['tenant', 'operation', 'scope'] as $mutation) {
+            [$scope, $key, $fingerprint, $operation] = $this->claimFixture('identity-' . $mutation);
+            $record = $this->store->find($scope);
+            self::assertInstanceOf(ProcessingRecord::class, $record);
+            self::assertTrue($this->store->terminalize(
+                $operation,
+                new TerminalRecord(
+                    $scope,
+                    $key,
+                    $fingerprint,
+                    $operation,
+                    new Inline(),
+                    $record->createdAt(),
+                    $record->expiresAt(),
+                    null,
+                    IdempotencyResultSnapshot::internalFailure($operation),
+                ),
+            ));
+            self::assertTrue($this->store->attachResponse(
+                $operation,
+                new IdempotencyResponseSnapshot(1, 200, ['Content-Type' => 'application/json'], '{}'),
+            ));
+            $table = self::SCHEMA . '.idempotency_records';
+            if ($mutation === 'tenant') {
+                $this->connection->executeStatement(
+                    "UPDATE {$table} SET tenant_type = 'customer', tenant_id = 'tenant-b'",
+                );
+            } elseif ($mutation === 'operation') {
+                $this->connection->executeStatement(
+                    "UPDATE {$table} SET operation_id = '019f8fbf-43b2-791c-9e4b-9d73d28e47ff'",
+                );
+            }
+            try {
+                $lookupScope = $mutation === 'scope' ? new IdempotencyScopeHash(2, str_repeat('d', 64)) : $scope;
+                if ($mutation === 'scope') {
+                    $this->connection->executeStatement(
+                        "UPDATE {$table} SET scope_hash = '" . str_repeat('d', 64) . "'",
+                    );
+                }
+                $this->store->find($lookupScope);
+                self::fail('Mutated idempotency row identity was accepted.');
+            } catch (DeferredTransportException $exception) {
+                self::assertStringNotContainsString(self::SCHEMA, $exception->getMessage());
+                self::assertStringNotContainsString('tenant-b', $exception->getMessage());
+                self::assertStringNotContainsString('test-key', $exception->getMessage());
+                self::assertStringNotContainsString('{}', $exception->getMessage());
+            }
+            $this->connection->executeStatement("TRUNCATE {$table}");
+        }
     }
 
     public function testSchemaHelperAndMigrationHaveUniqueProjectionChecksWithoutOperationIndex(): void
@@ -458,6 +632,8 @@ final class PostgreSqlIdempotencyStoreTest extends TestCase
             new Inline(),
             $created,
             $created->modify('+1 day'),
+            'fixture.operation',
+            1,
         );
 
         return [$scope, $key->hash(), $fingerprint, $operation, $created];

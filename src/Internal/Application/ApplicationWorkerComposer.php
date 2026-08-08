@@ -84,7 +84,7 @@ final readonly class ApplicationWorkerComposer
             $transactionRuntime,
             $main,
             $database->frameworkConnection,
-            new PostgreSqlOutboxStore($main, $database->schema),
+            new PostgreSqlOutboxStore($main, $protection, new ReflectionJsonOperationCodec(), $database->schema),
             new ExecutionContextFactory($identifiers, $clock),
             $identifiers,
             $clock,

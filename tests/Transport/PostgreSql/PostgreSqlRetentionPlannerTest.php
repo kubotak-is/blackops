@@ -264,20 +264,16 @@ final class PostgreSqlRetentionPlannerTest extends TestCase
                 operation_id,
                 final_attempt_id,
                 final_attempt_number,
-                reason_type,
-                reason_message,
+                encoded_reason,
                 moved_at
             ) VALUES (
                 :operation_id,
                 NULL,
                 NULL,
-                :reason_type,
-                :reason_message,
+                decode(\'424f5044\', \'hex\'),
                 :moved_at
             )', [
             'operation_id' => $operationId,
-            'reason_type' => \RuntimeException::class,
-            'reason_message' => 'boom',
             'moved_at' => $movedAt,
         ]);
     }

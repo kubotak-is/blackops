@@ -160,6 +160,8 @@ final readonly class DeferredAcceptanceOrchestrator implements ScheduledDeferred
                                 new Deferred(),
                                 $envelope->context()->receivedAt(),
                                 $retention->expiresAt($envelope->context()->receivedAt()),
+                                $metadata->typeId,
+                                1,
                                 $envelope->context()->tenant(),
                             );
                             if ($claim->status() === IdempotencyClaimStatus::ExistingConflict) {
