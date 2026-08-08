@@ -103,7 +103,7 @@ OpenTelemetry APIとW3C Trace ContextのSerializable Boundaryを追加し、HTTP
 - [x] Observed JournalがValid CorrelationだけをSafe Shapeで保持できる
 - [x] Baggage／Raw Carrier／Tenant／Actor／CredentialがPersistence／Errorへ出ない
 - [x] Existing Tenant／Storage Protection／Quickstart Journeyを維持する
-- [x] Full Suite／Architecture／Package Exportが成功する（Deptracは既知vendor parser blocker、package exportはOrchestrator post-commit gate）
+- [x] Full Suite／Architecture／Package Exportが成功する（Deptracは既知vendor parser blocker、package exportはOrchestratorがpost-commit確認済み）
 - [x] Report／STATE／TODOを同期し、WorkerはCommitしない
 
 ## Required Commands

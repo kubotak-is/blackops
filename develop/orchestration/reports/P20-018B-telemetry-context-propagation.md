@@ -57,7 +57,8 @@ Implemented API-only W3C trace context propagation from HTTP/direct roots throug
 - `docker compose run --rm app composer require open-telemetry/api:^1.10 --no-interaction`: PASS; 3 installs, 0 updates/removals, no advisories.
 - Focused PHPUnit (`tests/Telemetry`, Core ExecutionContext, Codec, Internal HTTP, PostgreSQL journal/deferred): PASS (52 tests / 139 assertions in final propagation/protected batch; earlier Core/HTTP batch 116 tests / 463 assertions).
 - `docker compose run --rm app vendor/bin/phpunit`: Orchestrator final rerun PASS (2,129 tests / 8,742 assertions; 1 pre-existing deprecation).
-- Orchestrator focused gate PASS (921 tests / 3,802 assertions), Quickstart Consumer E2E PASS, and pre-commit package export PASS. Post-commit package export remains pending the Orchestrator commit.
+- Orchestrator focused gate PASS (921 tests / 3,802 assertions), Quickstart Consumer E2E PASS, and pre-commit package export PASS.
+- After commit `3d87ae4`, exact `bash tests/Consumer/framework-package-export.sh`: PASS; committed Git and Composer archives include the telemetry context implementation and API-only dependency.
 - `docker compose run --rm app composer validate --strict`: PASS.
 - `docker compose run --rm app mago format --check src tests`: PASS after formatting changed files.
 - Changed-source `mago lint`: no P20-018B errors; two existing halstead warnings remain in `InlineDispatcher::dispatchEnvelope` and `StructuredJsonlFormatter::format`.
@@ -72,7 +73,7 @@ Implemented API-only W3C trace context propagation from HTTP/direct roots throug
 
 ## Acceptance Criteria
 
-All Task Packet criteria are checked in the Task Packet. Package Export remains an Orchestrator post-commit gate; Deptrac is blocked only by the recorded vendor PHP 8.5 parser incompatibility.
+All Task Packet criteria are checked in the Task Packet, including the post-commit package export. Deptrac is blocked only by the recorded vendor PHP 8.5 parser incompatibility.
 
 ## Remaining Issues
 
@@ -80,4 +81,4 @@ All Task Packet criteria are checked in the Task Packet. Package Export remains 
 
 ## Suggested Next Action
 
-Commit the accepted P20-018B change, rerun the exact package export against committed `HEAD`, and proceed to P20-018C. Local Collector actual E2E remains P20-018E.
+Proceed to P20-018C. Local Collector actual E2E remains P20-018E.

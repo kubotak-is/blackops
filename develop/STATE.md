@@ -1,6 +1,13 @@
 # Orchestration State
 
-Updated At: 2026-08-09T00:04:56+09:00
+Updated At: 2026-08-09T00:06:10+09:00
+
+## P20-018B Post-commit Package Export Accepted
+
+```text
+2026-08-09T00:06:10+09:00
+Accepted P20-018Bを3d87ae4としてCommit後、exact bash tests/Consumer/framework-package-export.shを再実行し、TelemetryContext／TelemetryCorrelation、HTTP extractor、propagation／codec／safe journal correlation、open-telemetry/api Production Dependencyを含むFramework Git／Composer Package Export ContractをPASS確認した。P20-018Bのpost-commit gateを完了し、次はP20-018C OpenTelemetry Trace Adapter。Push／Deployなし。
+```
 
 ## P20-018B Telemetry Context Propagation Accepted
 
