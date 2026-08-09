@@ -44,6 +44,7 @@ Consumer evidence passed against pinned Collector `0.158.0@sha256:5b97e6e3550ec6
 - Independent final `docker compose run --rm app vendor/bin/phpunit` — PASS, 2,176 tests / 9,025 assertions (1 deprecation, 2 PHPUnit deprecations, and 13 existing notices). An earlier isolated full run had one heartbeat timing assertion; the exact failing test passed without assertion changes and two clean full reruns passed.
 - Independent final `bash tests/Consumer/quickstart-e2e.sh` — PASS.
 - Independent pre-commit `bash tests/Consumer/framework-package-export.sh` — PASS for the working-tree Composer archive; committed-head Git archive proof remains the post-commit gate.
+- Post-commit exact `bash tests/Consumer/framework-package-export.sh` at `f8ebbf0` — PASS; Git and Composer package archives contain the accepted Operational Health source and export contract.
 - `docker compose run --rm app composer validate --strict` — PASS.
 - `docker compose run --rm app composer audit --locked` and `--locked --no-dev` — PASS, no advisories.
 - `docker compose run --rm app mago format src tests` and `mago format --check src tests` — PASS.
@@ -64,8 +65,8 @@ Consumer evidence passed against pinned Collector `0.158.0@sha256:5b97e6e3550ec6
 
 ## Remaining Issues
 
-The exact committed-head package export remains the post-commit gate because `git archive HEAD` cannot include untracked source before commit. Deptrac remains blocked by the recorded PHP 8.5 vendor parser incompatibility. No Worker commit/push/deploy was performed.
+Deptrac remains blocked by the recorded PHP 8.5 vendor parser incompatibility. The committed-head package export passed. No Worker commit/push/deploy was performed.
 
 ## Suggested Next Action
 
-Orchestrator should commit the accepted Task, rerun the exact package export against committed HEAD, record that evidence, and continue to P20-018F documentation and read-only documentation review.
+Continue to P20-018F documentation and read-only documentation review.
