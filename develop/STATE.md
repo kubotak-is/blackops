@@ -1,6 +1,13 @@
 # Orchestration State
 
-Updated At: 2026-08-09T04:44:50+09:00
+Updated At: 2026-08-09T04:46:24+09:00
+
+## P20-018D Post-commit Package Export Accepted
+
+```text
+2026-08-09T04:46:24+09:00
+Accepted P20-018Dを4a11be7としてCommit後、exact bash tests/Consumer/framework-package-export.shを再実行し、ApplicationBuilder MeterProvider public composition、Internal Metric adapter、Operation／Worker／Outbox／Scheduler／Observer／Protection instrumentationを含むFramework Git／Composer Package Export ContractをPASS確認した。P20-018Dのpost-commit gateを完了し、次はP20-018E Operational Health and Local Docker Collector Evidence。Push／Deployなし。
+```
 
 ## P20-018D OpenTelemetry Metric Adapter Accepted
 

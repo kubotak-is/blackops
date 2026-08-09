@@ -57,7 +57,7 @@ Identity fields, tenant/actor values, operation/attempt/correlation/trace IDs, s
 - Full PHPUnit — first run exposed one contract-test mismatch (`tests/Application/ApplicationTest.php`, missing `withMeterProvider` in the expected public method list); after the test-only correction, passed: 2,164 tests, 8,990 assertions (existing deprecation/notices only).
 - Final post-refactor Full PHPUnit — passed independently: 2,164 tests, 8,990 assertions (deprecation 1, PHPUnit deprecations 2, notices 13).
 - Quickstart Consumer E2E — passed independently after the final production refactor.
-- Framework package export — pre-commit Git/Composer contract passed; an exact post-commit rerun remains the handoff gate.
+- Framework package export — pre-commit contract passed; after commit `4a11be7`, the exact Git/Composer export contract passed again from committed `HEAD`.
 - `composer validate --strict` and `composer audit --locked --no-dev` — passed; `composer.json` is valid and no security advisories were found.
 - Post-refactor focused internal suite — passed: 469 tests, 1,976 assertions; full `mago format --check src tests`, `git diff --check`, and management-ID guard passed.
 - Runtime Outbox/Scheduling focused PHPUnit — passed: 112 tests, 395 assertions (existing PHPUnit notices/deprecation/notices only).
