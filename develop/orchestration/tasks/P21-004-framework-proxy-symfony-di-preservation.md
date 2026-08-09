@@ -1,6 +1,6 @@
 # P21-004: Framework Proxy Symfony DI Preservation
 
-Status: Ready
+Status: Accepted
 
 ## Goal
 
@@ -56,11 +56,11 @@ Do not modify P21-003 generator/artifact classes or existing Ray DI compiler pat
 
 ## Acceptance Criteria
 
-- [ ] Snapshot tests prove exact preservation of arguments, bindings, properties, visibility, shared, tags, conditionals, calls, configurator, file/deprecation, alias and identity.
-- [ ] Factory/lazy/abstract/decoration reject with stable safe codes; synthetic is N/A.
-- [ ] Generated Container resolves supported proxy and alias to the same shared instance.
-- [ ] Unsupported feature never falls back to original class.
-- [ ] Focused PHPUnit/Mago/format/management-ID/diff checks pass; Ray remains.
+- [x] Snapshot tests prove exact preservation of arguments, bindings, properties, visibility, shared, tags, conditionals, calls, configurator, file/deprecation, alias and identity.
+- [x] Factory/lazy/abstract/decoration reject with stable safe codes; synthetic is N/A.
+- [x] Generated Container resolves supported proxy and alias to the same shared instance.
+- [x] Unsupported feature never falls back to original class.
+- [x] Focused PHPUnit/Mago/format/management-ID/diff checks pass; Ray remains.
 
 ## Required Commands
 

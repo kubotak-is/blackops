@@ -1,6 +1,34 @@
 # Orchestration State
 
-Updated At: 2026-08-10T03:10:14+09:00
+Updated At: 2026-08-10T03:28:55+09:00
+
+## P21-004 Framework Proxy Symfony DI Preservation Accepted
+
+```text
+2026-08-10T03:28:55+09:00
+Orchestrator independent reviewでP21-004をAcceptedとした。全attributed Definitionとunsupported／dual ownershipをmutation前に検査し、P21-003 single batch artifactを生成・exact manifest load・full class map validation後に同じDefinition objectのclass referenceだけを置換することをSourceとfixtureへ照合した。Arguments／bindings／properties／public／shared／autowired／tags／autoconfigured／instanceof conditionals／ordered method calls（returnsClone含む）／valid configurator／file／deprecation、Alias target／visibility／deprecation／shared identity、safe factory sentinel否定、factory／lazy／synthetic／abstract／decoration、Ray／global Framework prefix conflict、non-target synthetic skip、no partial mutationを確認した。実compiled Containerでconstructor／property／ordered calls／configurator／file／aliasを実行し、focused 13 tests／49 assertions、Full 2,288／9,324、format、changed-source lint／analyze No issues、management-ID guard、diff check、pre-commit Framework package exportを独立PASS。Ray compatibility guardとexact fixtureはP21-006 removal manifest／P21-007 Files Allowedへ同期し、P21-005をReadyとする。Worker Commit／Push／Deployなし。
+```
+
+## P21-004 Framework Proxy Symfony DI Preservation Worker Correction Checkpoint
+
+```text
+2026-08-10T03:26:07+09:00
+P21-004 runnable-journey correction applied: the target now uses a method-level Transactional execute() while DI lifecycle methods remain unannotated; the configurator accepts the service instance, and the compiled-container fixture proves constructor injection, properties, ordered calls, returnsClone, configurator, file, alias, and shared identity. Focused PHPUnit 13 tests／49 assertions、full format、changed-source Mago lint／analyze、management-ID guard、diff checkをPASS。Worker Commit／Push／Deployなし。
+```
+
+## P21-004 Framework Proxy Symfony DI Preservation Worker Checkpoint
+
+```text
+2026-08-10T03:20:43+09:00
+P21-004 Worker implementation completed without commit. Framework Definition compiler now plans and validates all attributed targets before mutating any Definition, loads the exact P21-003 manifest, preserves the same Definition and alias objects while replacing only class metadata, records safe per-service Framework binding metadata, rejects unsupported Definition features and Ray/Framework dual ownership, and skips non-target synthetic definitions. Focused PHPUnit 13 tests／37 assertions、full format、changed-source Mago lint、management-ID guard、diff checkをPASS。Reportを作成し、Orchestrator independent review待ち。Worker Commit／Push／Deployなし。
+```
+
+## P21-004 Framework Proxy Symfony DI Preservation Start
+
+```text
+2026-08-10T03:10:40+09:00
+P21-003は9b73355、post-commit package exportは30cac09としてCommit済みでWorking Tree cleanを確認した。P21-004をIn Progressとして開始する。Accepted P21-002 metadata／ownershipとP21-003 generator／artifact seamをread-onlyで消費し、Symfony Definitionのclass referenceだけをFramework proxyへ置換してsame service ID／alias graph／arguments／bindings／properties／visibility／shared／tags／autoconfiguration／instanceof conditionals／method calls／configurator／file／deprecationを保存する。Factory／lazy／abstract／decorationはstable safe Build Error、SyntheticはAttribute target時だけ明示Errorとして扱い、unsupported featureのunproxied fallback、Ray／Framework dual proxy、Runtime Source Scanを禁止する。Generator／Artifact、Transaction Runtime、central profile integration、Ray／Composer、Public docsは変更しない。Repository設定どおりGPT-5.6 Luna High workerへ委譲し、Orchestratorが独立Reviewする。Worker Commit／Push／Deployなし。
+```
 
 ## P21-003 Post-commit Package Export Accepted
 

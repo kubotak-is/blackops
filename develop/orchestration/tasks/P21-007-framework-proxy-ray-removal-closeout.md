@@ -41,6 +41,9 @@ P21-006 accepted with synchronized Report/STATE and all removal gates green.
 - `src/Internal/Aop/FrameworkProxyContract/FrameworkProxyProfile.php` (remove the accepted legacy `ray` value/factory only; retain Framework identity)
 - `tests/Internal/Aop/FrameworkProxyContract/FrameworkProxyContractTest.php`
 - `tests/Internal/Aop/FrameworkProxyContract/FrameworkProxyOwnershipGuardTest.php`
+- `src/Internal/DependencyInjection/FrameworkProxyDefinitionCompiler.php` (remove the accepted Ray `WeavedInterface` compatibility guard only)
+- `tests/Internal/DependencyInjection/FrameworkProxyDefinitionCompilerTest.php`
+- `tests/Fixtures/DependencyInjection/FrameworkProxy/FrameworkProxyDefinitionFixtures.php`
 - `src/Internal/Console/ApplicationBuildCompileCommand.php`
 - `src/Internal/Console/FrameworkProxyProfileOption.php`
 - `src/Internal/Runtime/FrameworkProxyProfileLoader.php`
@@ -63,7 +66,7 @@ P21-006 accepted with synchronized Report/STATE and all removal gates green.
 - `develop/STATE.md`
 - `develop/orchestration/reports/P21-007-framework-proxy-ray-removal-closeout.md`
 
-No file may be deleted or edited unless the exact P21-006 removal manifest names the action and the manifest is reviewed at P21-007 start. The manifest MUST explicitly name removal of the accepted P21-002 profile's `ray` value/factory and its exact test updates; it MUST NOT replace that type with a duplicate profile identity. P21-007 MUST amend this Files Allowed section at start if the accepted manifest identifies an additional exact compatibility-profile target. Historical Decision/Report text must remain.
+No file may be deleted or edited unless the exact P21-006 removal manifest names the action and the manifest is reviewed at P21-007 start. The manifest MUST explicitly name removal of the accepted P21-002 profile's `ray` value/factory, the P21-004 Ray Definition guard/fixture, and their exact test updates; it MUST NOT replace that type with a duplicate profile identity. P21-007 MUST amend this Files Allowed section at start if the accepted manifest identifies an additional exact compatibility-profile target. Historical Decision/Report text must remain.
 
 ## Constraints
 

@@ -56,6 +56,8 @@ P21-005 accepted with synchronized Report/STATE.
 
 The central Application-aware build integration MUST expose exactly `build:compile --proxy-profile=ray|framework`; compatibility default is `ray`. The standalone legacy `blackops:build:compile` command is out of this profile surface because it does not invoke AOP. P21-004 and P21-005 provide seams only; central wiring and profile selection are intentionally deferred to this Task. RuntimeContainerDumper must load the immutable Build-ID/manifest artifact unit rather than hardcoded direct `aop` paths. The accepted `BlackOps\Internal\Aop\FrameworkProxyContract\FrameworkProxyProfile` is the sole profile identity and is read-only in this Task; the CLI option and loader consume it instead of adding another Build-layer profile type. Do not edit `composer.json`, `composer.lock`, Ray source adapters, or P21-002–P21-005 implementation files except the explicitly listed central Application-aware command/test, Dumper, and help-evidence files.
 
+The accepted removal manifest MUST name the P21-004 Ray compatibility guard in `FrameworkProxyDefinitionCompiler` and its exact DI test/fixture updates. Those references remain required during dual-profile compatibility and become explicit P21-007 removal targets.
+
 ## Constraints
 
 - Exactly one profile per build; no runtime chaining or unproxied fallback.
