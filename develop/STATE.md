@@ -1,6 +1,34 @@
 # Orchestration State
 
-Updated At: 2026-08-09T22:10:24+09:00
+Updated At: 2026-08-09T22:49:56+09:00
+
+## P21-001 Framework-owned Transaction Proxy Decision and Delivery Plan Accepted
+
+```text
+2026-08-09T22:49:56+09:00
+Orchestrator independent reviewでP21-001をAcceptedとした。D137の全7回答がA、D137／Specification 101／102がDecided、P21-002のみReady、P21-003〜P21-007が依存順Plannedであることを照合した。Reviewではlegacy Ray validatorをP21-002 read-onlyに限定し、P21-003のvalidator重複を禁止し、Application-aware `build:compile --proxy-profile=ray|framework`（compatibility default ray）とmanifest-aware RuntimeContainerDumperをP21-006へ明示した。AOPを使わないlegacy standalone commandを対象外とし、P21-007はaccepted removal manifestと隔離Consumer clean-installを必須化した。Final required inventory 1,064 lines、Mago format、management-ID guard、diff checkを独立PASS。Production Source／Test／Composer／Public docs変更なし。Worker Commit／Push／Deployなし。次はOrchestrator Commit後にP21-002を開始する。
+```
+
+## P21-001 Framework-owned Transaction Proxy Decision and Delivery Plan Review Pending
+
+```text
+2026-08-09T22:48:17+09:00
+User回答（D137 Questions 1〜7すべてA）を反映し、D137をDecidedへ更新した。Specification 101をnormative contract、Specification 102をPhase 21 Delivery Planとして作成し、P21-002 Ready、P21-003〜P21-007 Plannedの依存Task Packetを作成した。Signature Matrixはgenerator／by-reference return／by-reference parameterを初期両Attribute rejectとして固定し、Operation Lifecycle ownership／DI preservation／safe diagnostics／content-hash artifact／atomic publish／stale cleanup／Runtime no-scan／OPcache path／mutually-exclusive Ray／Framework profile／rollback／Removal Gateを同期した。P21-001 Task／Report／TODO／STATE／Decision indexをReview Pendingへ更新。Production Code／Test／Fixture／composer.json／composer.lock／Public docsは変更せず、Worker Commit／Push／Deployなし。Orchestrator independent review待ち。
+```
+
+## P21-001 Framework-owned Transaction Proxy Contract User Answer Pending
+
+```text
+2026-08-09T22:24:11+09:00
+P21-001 read-only auditを完了した。Current Ray.Aop 2.20.0／Symfony DI Definition mutation／Operation Transaction Lifecycle／PHP Signature guards／artifact behaviorをSource、Tests、vendor contractへ照合し、D137へCurrent evidence、support／reject／not-applicable Matrix、DI preservation、Build ID／content drift／atomic publish／stale cleanup、Operation no-double-intercept、Migration／Compatibility／Ray.Aop Removal Gate、7 Questions／Options／Recommendations／明示[ANSWER]欄を記録した。D137、Task、Report、TODO、Spec Decision indexをUser Answer Pendingへ同期し、Specification 101／Delivery Plan 102／Production Task Packetsは回答後まで未作成・未確定。Production Code／Test／Fixture／composer.json／composer.lock／Public docsは変更せず、required rg、git diff --check、git statusをPASS。Worker Commit／Push／Deployなし。Orchestrator independent reviewとUser回答待ち。
+```
+
+## P21-001 Framework-owned Transaction Proxy Contract Start
+
+```text
+2026-08-09T22:14:28+09:00
+P20-018Fはdb866beとしてCommit済みでWorking Tree cleanを確認した。Phase 20を完了し、D108で決定済みのRay.Aop置換をPhase 21として開始する。最初にP21-001でCurrent AOP／Symfony DI／Transaction RuntimeをRead-only auditし、PHP Signature Matrix、Generated Artifact、DI Definition preservation、Operation二重Intercept防止、Migration、Compatibility、Ray.Aop Removal GateをD137へQuestion／Recommendationとして整理する。User回答前にProduction Code／Test／Dependencyを変更せず、汎用AOP Engine、Runtime Source Scan、External Issue／PR、Commit／Push／Deployは範囲外。Repository設定どおりGPT-5.6 Luna High workerへTask Packet単位で委譲し、Orchestratorが独立Reviewする。
+```
 
 ## P20-018F Observability Documentation Accepted
 
