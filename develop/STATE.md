@@ -1,6 +1,48 @@
 # Orchestration State
 
-Updated At: 2026-08-09T23:39:35+09:00
+Updated At: 2026-08-10T01:33:36+09:00
+
+## P21-003 Framework Proxy Generator and Artifact Accepted
+
+```text
+2026-08-10T01:33:36+09:00
+Orchestrator independent reviewでP21-003をAcceptedとした。P21-002 metadata／ownership seamをread-onlyで消費するFramework subclass emitter、readonly-safe WeakMap initializer、full source／signature／context hash identity、data-only manifest、isolated syntax／actual class／parent／staging-path verification、same-filesystem atomic publish、active／previous retention、failed-build last-known-good、strict manifest/hash/map/inventory loader、idempotent exact load、different-path OPcache identity rejection、Runtime no Source ScanをSourceとfixtureへ照合した。別file継承methodのsame-size／mtime drift、valid PHP wrong-class、concurrent staging、tampered immutable unit、loader schema／symlink／pre-execution rejectionを含むfocused 59 tests／120 assertions、Full 2,275／9,275、format、changed-source lint／analyze 0 errors、management-ID guard、diff check、pre-commit Framework package exportを独立PASS。Ray／Symfony DI／Transaction Runtime／Composerは未変更。P21-004をReadyとする。Worker Commit／Push／Deployなし。
+```
+
+## P21-003 Generator and Artifact Correction Checkpoint
+
+```text
+2026-08-10T01:29:21+09:00
+Corrected P21-003 Builder／Generator／Loader strictness. Builder now validates the actual emitted proxy declaration, exact parent, and staging path in an isolated array-form PHP subprocess with active Composer autoload and drained pipes; failures use stable diagnostic codes and preserve last-known-good/index/staging. Manifest input identity includes target plus every proxied method's reflected declaring file hash under semantic class/method keys (without paths), and Loader binds target source hashes, preflights loaded identities, supports exact repeated loads, and rejects same FQCN from another path. Focused PHPUnit 59 tests／120 assertions PASS; full format, changed-source lint (advisory only), changed-source analyze (0 errors), management-ID guard, and diff check PASS. P21-003 Report Review Pending; Worker Commit／Push／Deployなし。Task status synchronization remains Orchestrator-owned.
+```
+
+## P21-003 Generator and Artifact Loader Strictness Checkpoint
+
+```text
+2026-08-10T00:45:21+09:00
+Loader signature now requires expected manifest hash before optional profile; exact manifest/entry schemas, FQCN/path/hash validation, duplicate identity checks, recursive inventory, map cardinality, and all-class preflight execute before generated files are required. Generator consumes P21-002 profile guard, rejects Ray mode, rejects duplicate source targets, and canonicalizes full-hash context identity separately from caller input hashes. Builder validates emitted extends identity, source hash results, strict index schema, and cleans index staging failures. Emitter forwards exact positional/named-variadic arguments, captures only the argument vector, handles Operation pass-through, and uses explicit reflection type branches. Focused PHPUnit is 54 tests／106 assertions PASS, including full P21-002 reject matrix, supported type/default/attribute rows, external input/list-assoc context identity, same-size/mtime drift, immutable reuse/retention/rollback, invalid-new-build preservation with concurrent staging, tampered immutable preservation, exact loader codes for profile/version/schema/input/source-path/directory/file/map/inventory/symlink mutations, wrong expected manifest hash, and empty/no-source-scan loading; changed-source Mago analyze is now 0 errors with advisory warnings/helpers only. Targeted format, management-ID, and diff checks are clean; latest lint output has advisory warnings only. P21-003 In Progress; Worker Commit／Push／Deployなし。
+```
+
+## P21-003 Generator and Artifact Follow-up Checkpoint
+
+```text
+2026-08-10T00:22:00+09:00
+Builder／Generatorをsingle batch pipelineへ置換し、legacy publish pathを削除した。PHP_BINARY -l array-form subprocess、full canonical batch inputHash、proxy FQCN／directory／manifest identity、explicit-context delegation、loader pre-require class-map validation／runtime version checks、stable artifact diagnostic code constantsを追加。Focused PHPUnitは5 tests／8 assertions PASS、format／diff clean。Changed-source Mago analyzeとbroad matrix／retention／tamper／concurrency fixturesは未完了で、Reportへ未達として記録。P21-003はIn Progress継続、Worker Commit／Push／Deployなし。
+```
+
+## P21-003 Framework Proxy Generator and Artifact Review Pending
+
+```text
+2026-08-09T23:57:31+09:00
+P21-003のFramework-owned subclass emitter、Transactional／AfterCommit narrow ABI、readonly-safe WeakMap initializer、multi-proxy staging／atomic publication、Build ID＋full input hash immutable path、JSON data-only manifest、active／previous retention、manifest-first Runtime loaderを実装した。P21-002 FrameworkProxyContract／Profile／Ownership／Signature／Diagnostic seamはread-onlyで消費し、Ray、Symfony DI、Transaction Runtime、Composerは変更していない。Docker direct smokeでComplexType＋Readonlyの2 proxy batch parse／loadをPASS、git diff --checkとmanagement-ID guardをPASS。Focused PHPUnit／format／lint／changed-source analyzeはDocker socket permission interruption後のrerun待ち。ReportをReview Pendingへ作成、Worker Commit／Push／Deployなし。
+```
+
+## P21-003 Framework Proxy Generator and Artifact Contract Start
+
+```text
+2026-08-09T23:40:30+09:00
+P21-002は18eafe3、post-commit package exportは8ef859fとしてCommit済みでWorking Tree cleanを確認した。P21-003をIn Progressとして開始する。Accepted FrameworkProxyContract seamをread-only入力として、Framework-owned PHP subclass generator、signature emission、Build ID／content-hash manifest、unique staging、parse／class／hash verification、same-filesystem atomic publish、failed-build last-known-good、post-success stale cleanup、drift loader、Runtime no-scan、OPcache-safe immutable pathを実装する。Symfony DI mutation、Transaction Runtime binding、central build profile integration、Ray／Composer removalは範囲外。後続PacketはP21-002のProfile／Connection identityを重複実装しないよう同期した。Repository設定どおりGPT-5.6 Luna High workerへ委譲し、Orchestratorが独立Reviewする。Worker Commit／Push／Deployなし。
+```
 
 ## P21-002 Post-commit Package Export Accepted
 

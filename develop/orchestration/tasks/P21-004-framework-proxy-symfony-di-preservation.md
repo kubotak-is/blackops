@@ -1,6 +1,6 @@
 # P21-004: Framework Proxy Symfony DI Preservation
 
-Status: Planned
+Status: Ready
 
 ## Goal
 

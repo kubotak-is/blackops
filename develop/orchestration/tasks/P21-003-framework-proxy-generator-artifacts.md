@@ -1,6 +1,6 @@
 # P21-003: Framework Proxy Generator and Artifact Contract
 
-Status: Ready
+Status: Accepted
 
 ## Goal
 
@@ -60,13 +60,13 @@ P21-003 must not modify P21-002 contract classes, Symfony DI compiler files, Tra
 
 ## Acceptance Criteria
 
-- [ ] Every support/reject Matrix row is generated or rejected deterministically.
-- [ ] Manifest records Build ID, profile, generator/PHP version, source/signature/proxy hashes and class map.
-- [ ] Staging, parse/class/hash verification, atomic publish, failed-build preservation, and post-success stale cleanup are tested.
-- [ ] Source drift with unchanged mtime/size invalidates artifacts.
-- [ ] Runtime loader rejects mismatched profile/Build ID/hash and performs no Source Scan.
-- [ ] OPcache-safe immutable path identity is demonstrated.
-- [ ] Focused PHPUnit/Mago/format/management-ID/diff checks pass; no Ray removal.
+- [x] Every support/reject Matrix row is generated or rejected deterministically.
+- [x] Manifest records Build ID, profile, generator/PHP version, source/signature/proxy hashes and class map.
+- [x] Staging, parse/class/hash verification, atomic publish, failed-build preservation, and post-success stale cleanup are tested.
+- [x] Source drift with unchanged mtime/size invalidates artifacts.
+- [x] Runtime loader rejects mismatched profile/Build ID/hash and performs no Source Scan.
+- [x] OPcache-safe immutable path identity is demonstrated.
+- [x] Focused PHPUnit/Mago/format/management-ID/diff checks pass; no Ray removal.
 
 ## Required Commands
 

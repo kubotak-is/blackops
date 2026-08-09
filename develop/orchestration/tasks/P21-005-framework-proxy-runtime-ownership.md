@@ -25,7 +25,7 @@ P21-004 accepted with synchronized Report/STATE.
 ## In Scope
 
 - Framework Transactional and AfterCommit proxy runtime bindings
-- Class/method precedence and named connection resolution
+- Consume accepted class/method precedence and named connection metadata; prove the runtime selects the resolved named connection without reimplementing P21-002 resolution
 - Required nested scope, rollback-only, manual transaction fail-fast, callback queue
 - Operation Inline/Deferred/self-handled pass-through ownership
 - General Service one-owner interception and Ray/Framework mode conflict
@@ -51,6 +51,8 @@ P21-004 accepted with synchronized Report/STATE.
 - `develop/STATE.md`
 
 Do not modify P21-002–P21-004 implementation files, Composer files, or delete Ray adapters.
+
+`FrameworkProxyConnectionGuard` and effective connection precedence remain owned by the accepted P21-002 contract seam. This Task consumes the resolved metadata and must not introduce a second connection resolver.
 
 ## Constraints
 

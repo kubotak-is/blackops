@@ -38,14 +38,15 @@ P21-006 accepted with synchronized Report/STATE and all removal gates green.
 
 - `src/Internal/Aop/**` Ray adapters only, as identified by the accepted removal manifest
 - `tests/Internal/Aop/**` Ray fixtures/tests only, as identified by the manifest
+- `src/Internal/Aop/FrameworkProxyContract/FrameworkProxyProfile.php` (remove the accepted legacy `ray` value/factory only; retain Framework identity)
+- `tests/Internal/Aop/FrameworkProxyContract/FrameworkProxyContractTest.php`
+- `tests/Internal/Aop/FrameworkProxyContract/FrameworkProxyOwnershipGuardTest.php`
 - `src/Internal/Console/ApplicationBuildCompileCommand.php`
 - `src/Internal/Console/FrameworkProxyProfileOption.php`
 - `src/Internal/Runtime/FrameworkProxyProfileLoader.php`
-- `src/Internal/Build/FrameworkProxyProfile.php`
 - `tests/Internal/Console/ApplicationBuildCompileCommandTest.php`
 - `tests/Internal/Console/FrameworkProxyProfileOptionTest.php`
 - `tests/Internal/Runtime/FrameworkProxyProfileLoaderTest.php`
-- `tests/Internal/Build/FrameworkProxyProfileTest.php`
 - `src/Internal/DependencyInjection/RuntimeContainerDumper.php`
 - `tests/Internal/DependencyInjection/RuntimeContainerDumperTest.php`
 - `tests/Internal/Application/ApplicationConsoleKernelTest.php`
@@ -62,7 +63,7 @@ P21-006 accepted with synchronized Report/STATE and all removal gates green.
 - `develop/STATE.md`
 - `develop/orchestration/reports/P21-007-framework-proxy-ray-removal-closeout.md`
 
-No file may be deleted or edited unless the exact P21-006 removal manifest names the action and the manifest is reviewed at P21-007 start. P21-007 MUST amend this Files Allowed section at start if the accepted manifest identifies an additional exact compatibility-profile target. Historical Decision/Report text must remain.
+No file may be deleted or edited unless the exact P21-006 removal manifest names the action and the manifest is reviewed at P21-007 start. The manifest MUST explicitly name removal of the accepted P21-002 profile's `ray` value/factory and its exact test updates; it MUST NOT replace that type with a duplicate profile identity. P21-007 MUST amend this Files Allowed section at start if the accepted manifest identifies an additional exact compatibility-profile target. Historical Decision/Report text must remain.
 
 ## Constraints
 
@@ -88,7 +89,8 @@ composer validate --strict
 test -f develop/orchestration/reports/P21-006-ray-removal-manifest.md
 bash tests/Consumer/framework-package-export.sh
 bash tests/Consumer/framework-proxy-removal-clean-install.sh
-! rg -n 'Ray\\\\Aop|Ray\.Aop|ray/aop|WeavedInterface|FrameworkProxyProfile.*ray' src tests composer.json composer.lock --glob '*.php' --glob '*.json' --glob '*.lock'
+! rg -n 'Ray\\Aop|Ray\.Aop|ray/aop|WeavedInterface|FrameworkProxyProfile.*ray' src tests composer.json composer.lock --glob '*.php' --glob '*.json' --glob '*.lock'
+! rg -n "FrameworkProxyProfile::RAY|FrameworkProxyProfile::ray|const RAY = 'ray'" src tests --glob '*.php'
 docker compose run --rm app mago format --check src tests
 ! rg -n 'Spec(ification)?[[:space:]]*[0-9]+|D[0-9]{3}|P[0-9]+-[0-9]+|TODO\.md:[0-9]+' src tests --glob '*.php'
 git diff --check
