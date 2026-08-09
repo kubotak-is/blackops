@@ -1,6 +1,6 @@
 # P21-006: Ray/Framework Compatibility and Migration
 
-Status: Planned
+Status: Ready
 
 ## Goal
 

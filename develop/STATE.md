@@ -1,6 +1,27 @@
 # Orchestration State
 
-Updated At: 2026-08-10T03:31:46+09:00
+Updated At: 2026-08-10T03:51:21+09:00
+
+## P21-005 Framework Proxy Runtime Ownership Accepted
+
+```text
+2026-08-10T03:51:21+09:00
+Orchestrator independent reviewでP21-005をAcceptedとした。P21-002 canonical ownership／resolved connection metadata、P21-003 invocation ABI、P21-004 Definition bindingだけをread-onlyで消費し、Service Required transaction、Operation Inline／Deferred／self-handled lifecycle pass-through、Operationを含むAfterCommit queue、binding source／generated proxy identity guardを確認した。Named connection、nested rollback-only、manual collision／leak、original Throwable identity、callback ordering／rollback discard／failure isolation、shared-connection Operation Terminal／Outcome atomicityとService保証差、Ray／Framework conflictをsourceとrunnable fixtureへ照合した。Focused 26 tests／55 assertions、Full 2,314／9,379、format、changed-source lint／analyze No issues、management-ID guard、diff check、pre-commit Framework package exportを独立PASS。P21-006をReadyとする。Worker Commit／Push／Deployなし。
+```
+
+## P21-005 Framework Proxy Runtime Ownership Worker Checkpoint
+
+```text
+2026-08-10T03:49:55+09:00
+P21-005 final bounded correction: Operation metadata validation now compares the lifecycle transaction connection only with the resolved `handle` method metadata; no unrelated method connection is over-rejected. Focused PHPUnit 26 tests／55 assertions、full format、changed-source Mago lint／analyze、management-ID guard、diff checkをPASS。ReportをReview Pendingへ更新。P21-006がcompiled-container initializer wiringを所有する。Worker Commit／Push／Deployなし。
+```
+
+## P21-005 Framework Proxy Runtime Ownership Start
+
+```text
+2026-08-10T03:32:27+09:00
+P21-004は0e1b18c、post-commit package export記録はb4c67e9としてCommit済みでWorking Tree cleanを確認した。P21-005をIn Progressとして開始する。Accepted P21-002 connection／ownership metadata、P21-003 invocation seam、P21-004 Definition bindingをread-onlyで消費し、一般ServiceのRequired Transaction／AfterCommit callback queueとOperation Lifecycle pass-throughを接続する。Inline／Deferred／self-handled／general Serviceのone-owner、rollback-only／manual mixing／callback ordering／failure isolation、Ray／Framework mode conflictを検証する。Generator／artifact／DI preservation、central profile integration、Ray／Composer、Public docsは変更しない。Repository設定どおりGPT-5.6 Luna High workerへ委譲し、Orchestratorが独立Reviewする。Worker Commit／Push／Deployなし。
+```
 
 ## P21-004 Post-commit Package Export Accepted
 

@@ -1,6 +1,6 @@
 # P21-005: Framework Proxy Transaction Runtime and Ownership
 
-Status: Ready
+Status: Accepted
 
 ## Goal
 
