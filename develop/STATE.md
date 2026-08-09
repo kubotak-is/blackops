@@ -1,6 +1,13 @@
 # Orchestration State
 
-Updated At: 2026-08-10T03:28:55+09:00
+Updated At: 2026-08-10T03:31:46+09:00
+
+## P21-004 Post-commit Package Export Accepted
+
+```text
+2026-08-10T03:31:46+09:00
+Accepted P21-004を0e1b18cとしてCommit後、exact `bash tests/Consumer/framework-package-export.sh`を再実行し、新規FrameworkProxyDefinition binding／compiler sourceを含むGit HEAD archiveとComposer worktree archiveのProduction autoload／exclude contractをPASS確認した。Working Tree不変とtemporary package cleanupもPASS。次はP21-005 Transaction／AfterCommit Runtime Ownership。Push／Deployなし。
+```
 
 ## P21-004 Framework Proxy Symfony DI Preservation Accepted
 
