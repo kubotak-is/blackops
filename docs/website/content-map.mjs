@@ -107,6 +107,10 @@ export const contentMap = {
     slug: 'reference/configuration',
     description: 'Application、Database、Execution、Journal、Logging、Diagnostics、Retentionの設定責務を確認する。',
   },
+  'observability.md': {
+    slug: 'reference/observability',
+    description: 'Repository mainのOpenTelemetry API-only Surface、W3C Correlation、Health Query、Docker Collector検証を完了する。',
+  },
   'application-bootstrap.md': {
     slug: 'reference/application-bootstrap',
     description: 'Public Application BuilderからHTTPとConsoleのProcess Boundaryを構成する。',

@@ -169,9 +169,69 @@ test('Journal guide is reachable from the landing CTA and explains its reader bo
     'Observer FailureをOperationの失敗にせず',
     '保存時暗号化',
     '鍵の生成・保管・Rotation・失効',
-    'OpenTelemetryのAdapter、Exporter、Configurationは実装されていません',
-    'Public Contractではありません',
+    '試験的なOpenTelemetry API-only Surface',
+    'ApplicationBuilder::withTracerProvider()',
   ]) assert.ok(journal.includes(phrase), phrase);
+});
+
+test('Observability guide keeps the local Collector journey executable and isolated', async () => {
+  const observability = await guide('observability.md');
+  for (const phrase of [
+    'Structured Record Version 1',
+    'Application／Framework／Journal／Audit',
+    'Audit RecordにはOperation、Attempt、Telemetryを出しません',
+    'Monologの`datetime`、`level_name`',
+    'Dual-write／Legacy Formatterはありません',
+    '"kind":"application"',
+    'open-telemetry/sdk:^1.15',
+    'open-telemetry/exporter-otlp:^1.4',
+    'php-http/guzzle7-adapter:^1.1',
+    'ApplicationBuilder::withTracerProvider()',
+    'ApplicationBuilder::withMeterProvider()',
+    'MeterProvider::builder()',
+    'OperationalHealthRequestHandler',
+    'OperationalHealthCliAdapter',
+    "bash tests/Consumer/opentelemetry-observability.sh",
+    'Collectorを起動しただけではTrace／Metricは生成されません',
+    'otel/opentelemetry-collector:0.158.0@sha256:',
+    'Collector停止でReadinessがFailになる',
+  ]) assert.ok(observability.includes(phrase), phrase);
+  assert.doesNotMatch(observability, /otelcol:latest|api[_-]?key|password\s*:/i);
+  assert.match(observability, /otel-collector-config\.yaml/);
+  assert.doesNotMatch(observability, /-p 4318:4318/);
+  assert.match(observability, /-p 127\.0\.0\.1:4318:4318/);
+  assert.match(observability, /OTEL_EXPORTER_OTLP_ENDPOINT=http:\/\/127\.0\.0\.1:4318/);
+  assert.match(observability, /OTEL_EXPORTER_OTLP_ENDPOINT=http:\/\/collector:4318/);
+  assert.match(observability, /getenv\(\)/);
+  assert.match(observability, /new Environment\(\$environmentSnapshot\)/);
+  assert.match(observability, /withEnvironment\(\$environmentSnapshot\)/);
+  assert.match(observability, /docker compose build app[\s\S]*tests\/Consumer\/opentelemetry-observability\.sh/);
+  assert.match(observability, /trap cleanup EXIT INT TERM/);
+});
+
+test('observability specifications preserve the main API-only boundary and current wire split', async () => {
+  const [spec10, spec94, observability] = await Promise.all([
+    readFile(path.join(repositoryRoot, 'develop/spec/10-logging-and-traceability.md'), 'utf8'),
+    readFile(path.join(repositoryRoot, 'develop/spec/94-journal-documentation.md'), 'utf8'),
+    guide('observability.md'),
+  ]);
+
+  assert.doesNotMatch(spec94, /OpenTelemetry Adapter、Exporter、Configurationが未実装であると明記/);
+  assert.match(spec94, /Stable `1\.1\.0`にはOpenTelemetry Adapter、Exporter、Operational Health Queryは含まれない/);
+  assert.match(spec94, /ApplicationがSDK、Exporter、Resource、Endpoint、Credential、Provider Compositionを所有/);
+  assert.match(spec10, /SDK／Exporter／Remote Delivery、Dashboardを所有しない/);
+  assert.match(spec10, /`open-telemetry\/api`によるAPI-only Span／Metric境界/);
+  assert.match(observability, /Application／Framework／Journal／Audit/);
+  assert.match(observability, /Audit RecordにはOperation、Attempt、Telemetryを出しません/);
+  assert.match(observability, /Application／Frameworkの`attempt`はnon-nullのAttempt Scope時だけ/);
+  assert.match(observability, /Journalの`attempt`は常時存在して`null`/);
+  const jsonl = observability.match(/```jsonl\n([\s\S]*?)\n```/)?.[1] ?? '';
+  const records = jsonl.split('\n').map((line) => JSON.parse(line));
+  assert.deepEqual(records.map(({ kind }) => kind), ['framework', 'journal', 'audit']);
+  assert.equal('operation' in records[0], false);
+  assert.equal(records[1].operation.schemaVersion, 1);
+  assert.equal(records[1].attempt, null);
+  assert.equal('telemetry' in records[2], false);
 });
 
 test('ephemeral outcome guides use implicit Inline authoring', async () => {
@@ -372,6 +432,7 @@ test('troubleshooting covers every required symptom with four-part guidance', as
     '非空の旧Protected SchemaでMigrationが停止',
     'Rotationの`remaining`が0にならない',
     'journal.jsonlへ出力されない',
+    'Local OpenTelemetry Collector／Traceが届かない',
     'OutcomeがPending／Not Found／Expiredか判別できない',
     'Sensitive値がJournalで見えない',
   ]) {
@@ -434,6 +495,11 @@ test('security guide separates framework and application responsibilities', asyn
   assert.match(security, /Header不一致.*Operationを受け付けずJournalなし.*Operation IDなし401/s);
   assert.match(security, /Credential、Role、Permission、ClaimのSnapshotはTransportやJournalへ保存しません/);
   assert.match(security, /Generated Typeは認証、認可、暗号化、Access Control、Retentionを代替しません/);
+  assert.match(security, /Observability Signal Safety/);
+  assert.match(security, /Operation／Attempt／Correlation／Causation/);
+  assert.match(security, /高Cardinality自由文/);
+  assert.match(security, /Primary Operation、Journal、Outcome、HTTP Response、Readinessを変えない/);
+  assert.ok(security.indexOf('## Observability Signal Safety') < security.indexOf('## Production Check'));
   assert.match(security, /Global Mutable Clientへ保存しないでください/);
   assert.match(security, /OperationStatusAuthorizer/);
   assert.match(security, /Unknown／Deny.*404/s);
@@ -471,7 +537,7 @@ test('core API reference covers every source type marked PublicApi without expos
   const reference = await guide('core-api.md');
   const sourceTypes = await publicApiTypes();
 
-  assert.equal(sourceTypes.length, 201);
+  assert.equal(sourceTypes.length, 215);
   assert.ok(sourceTypes.includes('BlackOps\\Core\\EphemeralOutcome'));
   assert.ok(sourceTypes.includes('BlackOps\\Http\\SapiRuntime'));
   assert.ok(sourceTypes.includes('BlackOps\\Identifier\\Uuidv7Generator'));
@@ -615,13 +681,13 @@ test('all guide sources are mapped once and retain the editorial page-type matri
   const files = (await readdir(path.join(repositoryRoot, 'docs/guide')))
     .filter((file) => file.endsWith('.md'))
     .sort();
-  assert.equal(files.length, 40);
+  assert.equal(files.length, 41);
   assert.deepEqual(Object.keys(contentMap).sort(), files);
 
   const pageTypes = {
     Orientation: ['README.md'],
     Concept: ['core-concepts.md', 'execution-context.md', 'journal.md', 'operation-lifecycle.md', 'security.md', 'why-blackops.md'],
-    Reference: ['attributes.md', 'configuration.md', 'core-api.md', 'directory-structure.md', 'glossary.md', 'mvp-status.md', 'project-cli.md'],
+    Reference: ['attributes.md', 'configuration.md', 'core-api.md', 'directory-structure.md', 'glossary.md', 'mvp-status.md', 'observability.md', 'project-cli.md'],
     'How-to/Tutorial': ['application-bootstrap.md', 'authentication.md', 'authorization.md', 'community-board.md', 'console-command.md', 'database-and-transactions.md', 'database-migrations.md', 'database-seeding.md', 'deployment.md', 'execution.md', 'first-operation.md', 'frontend.md', 'installation.md', 'mvp-sample.md', 'observer-replay.md', 'operations.md', 'outbox.md', 'outcome-retrieval.md', 'project-generators.md', 'retention.md', 'runtime-bootstrap.md', 'scheduled-operation.md', 'tenant-protection.md', 'testing.md', 'validation.md'],
     Troubleshooting: ['troubleshooting.md'],
   };

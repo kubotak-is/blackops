@@ -1,6 +1,6 @@
 # Core API
 
-このReferenceは現在の`main` Sourceで`#[PublicApi]`を持つ201型を一覧化しています。Application Authorはまず「Application構成」「Database」「Operation Authoring」「Validation」「Status／Outcome取得」の型を使い、Transport、Journal、Retention等のPortはAdapterを拡張するときだけ使ってください。
+このReferenceは現在の`main` Sourceで`#[PublicApi]`を持つ215型を一覧化しています。Application Authorはまず「Application構成」「Database」「Operation Authoring」「Validation」「Status／Outcome取得」の型を使い、Transport、Journal、Retention等のPortはAdapterを拡張するときだけ使ってください。
 
 `BlackOps\Core\Attribute\PublicApi` marker自身は利用者向けAPIではないため一覧へ含めません。内部実装Namespaceと`#[PublicApi]`を持たない実装型にも依存しないでください。Attributeの付与対象と標準形は[Attributes](attributes.md)を確認してください。
 
@@ -14,6 +14,25 @@
 | `BlackOps\Application\ConsoleKernel` | final readonly class | BlackOps CLIを実行する | Project Rootの`blackops`から`run()`を呼ぶ |
 | `BlackOps\Application\ApplicationBootstrapException` | exception class | Public Bootstrapの失敗を通知する | Entrypointで安全な起動Errorとして扱う |
 | `BlackOps\Console\ConsoleActorProvider` | interface | Console OperationのOrigin／Authorization Actorを供給する | Application Service Providerで任意Bindingする |
+
+## Observability
+
+| Namespace／Type | Kind | Purpose | Typical Use |
+| --- | --- | --- | --- |
+| `BlackOps\Telemetry\TelemetryContext` | final readonly class | W3C `traceparent`／`tracestate`のSerializable Context | HTTP、Deferred、Outbox、Worker Retryへ安全に伝播する |
+| `BlackOps\Telemetry\TelemetryCorrelation` | final readonly class | Trace／Span IDとSampled Flagを投影する | Structured JSONLの`telemetry`へSafe Fieldだけを渡す |
+| `BlackOps\Observability\OperationalHealthKind` | enum | `liveness`／`readiness`を選ぶ | Query、HTTP Handler、CLI Adapterへ渡す |
+| `BlackOps\Observability\OperationalHealthQuery` | interface | Health Reportを取得する | Application-owned Checkを構成する |
+| `BlackOps\Observability\OperationalHealthQueryFactory` | final class | CallbackからQueryを組み立てる | `requiredReadinessCheckCodes()`を使ってCheckを登録する |
+| `BlackOps\Observability\CallbackOperationalHealthQuery` | final class | Callback実装のHealth Query | ApplicationのBounded Checkを実行する |
+| `BlackOps\Observability\OperationalHealthCheckProvider` | interface | 個別のReadiness Checkを提供する | Compiled Artifact、Database等のSafe Checkを登録する |
+| `BlackOps\Observability\OperationalHealthCheck` | final readonly value object | Check CodeとPass／Failを保持する | `OperationalHealthReport`へSafe結果を入れる |
+| `BlackOps\Observability\OperationalHealthReport` | final readonly value object | Version 1のHealth結果を表す | JSON ResponseまたはCLI Outputへ変換する |
+| `BlackOps\Observability\OperationalHealthStatus` | enum | `pass`／`fail`を表す | HTTP StatusとCLI Exit Codeを決める |
+| `BlackOps\Http\Observability\OperationalHealthRequestHandler` | final readonly class | 明示したPSR-15 Health Routeを処理する | Application Routerへ`GET` Routeとして登録する |
+| `BlackOps\Http\Observability\OperationalHealthJsonResponder` | final readonly class | Health ReportをJSON Responseへ変換する | Pass `200`、Fail `503`、非`GET` `405`を返す |
+| `BlackOps\Console\Observability\OperationalHealthCliAdapter` | final readonly class | Health QueryをCLI向けへ適応する | JSON OutputとPass `0`／Fail `1`をSupervisorへ返す |
+| `BlackOps\Console\Observability\OperationalHealthCliFormatter` | final readonly class | Human／JSON Health Outputを整形する | `OperationalHealthCliAdapter`へ注入する |
 
 ## Database
 

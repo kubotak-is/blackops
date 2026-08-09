@@ -33,7 +33,7 @@ Config欠落時も上記をFramework既定とする。Phase 14のDriverは`jsonl
 - Backendは必ず`ExecutionScopedLogger`の内側へ置き、Application ServiceへDecoratorを`LoggerInterface`として注入する。
 - Backend Open／Write FailureはBest-effortで吸収し、Primary Throwable、Terminal Journal、HTTP Response、Worker Loopを変更しない。別Sinkへ暗黙Fallbackしない。
 
-Application／InfrastructureはLocal FileのDirectory、Permission、Rotation、Disk Capacityと、stdout／stderr以降のDelivery、Retention、Alertを所有する。FrameworkはDirectory作成、Remote Delivery、OpenTelemetry、Metric、Dashboardを行わない。
+Application／InfrastructureはLocal FileのDirectory、Permission、Rotation、Disk Capacityと、stdout／stderr以降のDelivery、Retention、Alertを所有する。FrameworkはDirectory作成、SDK／Exporter／Remote Delivery、Dashboardを所有しない。Repository `main`のFrameworkは`open-telemetry/api`によるAPI-only Span／Metric境界を提供するが、Provider Composition、SDK、Exporter、Collector、Remote BackendはApplication／Infrastructureの責務である。Stable `1.1.0`にはこのSurfaceを含めない。
 
 ## 自動Context
 
@@ -129,6 +129,8 @@ Logger ContextとJournal Recordは、Adapterへ渡す前にFW共通PipelineでSe
 OTel Trace ID／Span IDはOperation ID／Correlation IDと別に保持する。
 
 ExecutionContextへOTel Contextを伝播し、構造化Logへ双方のIDを記録して関連付ける。UUIDv7のOperation IDをOTel Trace IDとして流用しない。
+
+Repository `main`では`ApplicationBuilder::withTracerProvider()`と`withMeterProvider()`へApplication-owned Providerを渡し、Framework-owned Scope／Span／Metric InstrumentをNo-op可能なAPI-only境界で実行する。W3C ContextはHTTP、Deferred、Worker Retry、OutboxへProcess境界内で伝播する。FrameworkはOpenTelemetry SDK、OTLP Exporter、Collector、Credential、Remote Deliveryを構成または所有しない。Exporter／Provider FailureはPrimary Operation、Journal、HTTP Response、Readinessを変更しない。Stable `1.1.0`は既存JSONL／Operation Correlationだけを提供する。
 
 ## Delivery Policy
 

@@ -1,6 +1,41 @@
 # Orchestration State
 
-Updated At: 2026-08-09T18:10:34+09:00
+Updated At: 2026-08-09T22:10:24+09:00
+
+## P20-018F Observability Documentation Accepted
+
+```text
+2026-08-09T22:10:24+09:00
+OrchestratorはP20-018FをAcceptedとした。初回Documentation ReviewのP1=4／P2=2はHost／Container lane、固定Config名、loopback-only publish／no-publish、Environment Snapshot、fresh Consumer prerequisite／cleanup、Structured Record actual wire、Specification 10／94同期で全件解消し、Correction Re-reviewはP1=0／P2=0／P3=0、Acceptance permitted。Website 77 tests、check、build、exact OpenTelemetry Consumer、Mago format、management-ID guard、diff checkを独立PASSし、更新ArtifactをChromiumで7 Routes × Desktop 1440 Light／Dark・Mobile 390 Light／Dark＝28 cases、0 failures、代表4 screenshots目視確認した。固定Digest CollectorのHost laneも実起動し、Everything is ready、docker port 127.0.0.1:4318限定、対象Container／Network cleanupを確認。Task／Report／TODO／STATEをAcceptedへ同期し、Worker Commit／Push／Deployなし。次はP20-018FのOrchestrator Commit後、Phase 21 Ready Taskを確認する。
+```
+
+## P20-018F Documentation Review Corrections Complete
+
+```text
+2026-08-09T20:14:55+09:00
+Documentation ReviewerのP1=4／P2=2指摘を反映した。Host／Container Collector laneを固定Config名、loopback-only publish／no-publish、unique resource、trap cleanup、fresh Consumer build prerequisiteへ分離し、Structured Recordの実wire（kind別operation／attempt／telemetry）とSpecification 10／94のStable／main境界を同期した。Provider例は解決済み全Environment SnapshotをEnvironmentとwithEnvironmentへ同じく渡す実装可能な形へ補正した。Website test 77、check、build、Consumer OpenTelemetry、Mago format、management-ID guard、diff checkをPASS。Browser Light／Dark／MobileとDocumentation Reviewer AcceptanceはOrchestratorへ委譲し、Worker Commit／Push／Deployなし。Task／Report／TODOをReview Pendingへ戻す。
+```
+
+## P20-018F Documentation Review Corrections Start
+
+```text
+2026-08-09T20:03:48+09:00
+Documentation ReviewerがP1=4／P2=2のChanges Requiredを返したため、P20-018FをIn Progressへ戻した。Review Report本文は変更せず、Collector Host／Container lane、固定Config名、loopback publish、fresh Consumer prerequisite／cleanup、Structured Record actual wire、Specification 10／94同期、Website regression guardsを許可範囲内で修正する。Production Code、Dependency、Migration、Commit／Push／Deployは変更しない。
+```
+
+## P20-018F Worker Documentation Handoff
+
+```text
+2026-08-09T18:27:34+09:00
+P20-018FのPublic Observability Guideを追加し、Structured Record Version 1のApplication／Framework／Journal／Audit wireとMigration Notice、Journal／Deployment／Release Status／Core API／Security／Troubleshooting／Internal Observability、Website content-map／sidebar／testsを同期した。Application-owned SDK／Exporter／MeterProvider／Flush／Shutdown、OperationalHealth explicit PSR-15／CLI adapter、pinned Collector runbook、Consumer full matrix command、Collector／Provider／Invalid Context failure isolation、Signal allowlist／Maskを文書化した。Website test 76、check、build 41 pages、exact tests/Consumer/opentelemetry-observability.sh、Mago format、management-ID guard、diff checkをPASS。Actual Playwright／ChromiumはWorker環境にないためDesktop 1440 Light／Dark・Mobile 390 Browser EvidenceはNot Verified。Documentation Reviewer Reportは未作成で、OrchestratorのRead-only Review／Browser Review／Acceptance待ち。TaskをReview Pending、TODO／Reportを同期し、Worker Commit／Push／Deployなし。
+```
+
+## P20-018F Observability Documentation Start
+
+```text
+2026-08-09T18:12:18+09:00
+P20-018Eはf8ebbf0、post-commit package verificationはf9d84e4としてCommit済みで、Working Tree cleanを確認した。P20-018FをIn Progressとして開始する。Structured Record v1、Application-owned SDK／Exporter、W3C propagation、Span／Metric reference、explicit Health／Readiness adapters、pinned Local Collector runbook、failure isolation／troubleshootingをPublic／Internal DocumentationとWebsiteへ同期する。既存Documentation IA／visual languageを維持し、trust-first technical editorialとしてDesktop 1440px Light／Dark、Mobile 390px、Table／Code／Diagram overflowを実Browserで検証する。Documentation本文はRepository設定どおりGPT-5.6 Luna High workerへ委譲し、完了後にGPT-5.6 Sol High Documentation ReviewerがRead-only reviewする。External Publication／Deploy、Worker Commit／Pushなし。
+```
 
 ## P20-018E Post-commit Package Export Accepted
 

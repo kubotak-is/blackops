@@ -366,6 +366,22 @@ test -d var/log && test -w var/log && printf 'journal directory is writable\n'
 
 **修正方法:** `enabled=true`、既存の書込可能な絶対Path、`best_effort`または`required`を設定します。FrameworkはDirectoryを作らないため、Deploy／Setup工程でParent Directoryを準備します。
 
+## Local OpenTelemetry Collector／Traceが届かない
+
+**症状:** Local Collectorは起動するが、Trace／MetricがLogへ現れない、または停止後にReadinessがFailになります。
+
+**考えられる原因:** Collectorの起動だけではEmitterがSpan／Metricを作成しません。ApplicationのSDK／OTLP Exporterが未登録、`collector:4318/v1/traces`／`/v1/metrics`が別Network、Flush／Shutdownが未実行、`otel-collector-config.yaml`のConfig Mountが不正、またはReadinessへCollector接続を誤って含めています。
+
+**確認方法:** [Observability](observability.md)のProvider／MeterProvider／Health Adapter例を照合し、固定DigestのLocal手順をProject Rootで再実行します。
+
+```bash
+bash tests/Consumer/opentelemetry-observability.sh
+```
+
+この検証はHTTP→Inline、Deferred→Worker→Retry、Outbox Producer→Relay、Metric 10種、JSONL Correlation、Mask、Collector停止後のReadiness／一次処理を一度に確認します。`docker logs`だけを成功根拠にせず、JSONLとHealthの結果も確認してください。Raw Header、Credential、Payload、Outcome、Provider／Exception Detailを貼り付けません。
+
+**修正方法:** ApplicationとCollectorを同じLocal Networkへ置き、OTLP HTTP Endpointを`http://collector:4318`へ合わせ、Metric用Endpointを分けてFlush／Shutdownします。Invalid `traceparent`はRaw Headerを保存せずParentなしで処理します。Provider／Exporter FailureはNo-op／Best-effortへ縮退し、Primary OperationとReadinessを変更しません。CollectorをReadiness Checkから外し、Remote BackendやProduction ComposeへLocal設定をコピーしないでください。
+
 ## Outcome Status
 
 ### OutcomeがPending／Not Found／Expiredか判別できない

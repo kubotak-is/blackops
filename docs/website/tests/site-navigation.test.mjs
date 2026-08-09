@@ -76,7 +76,7 @@ test('keeps every sidebar reader label synchronized with its source H1', async (
     ['Authorization', 'authorization.md'], ['Frontend', 'frontend.md'], ['Testing', 'testing.md'],
     ['BlackOps Board Reference Application', 'community-board.md'], ['Deployment', 'deployment.md'], ['Security', 'security.md'], ['Tenant and Storage Protection', 'tenant-protection.md'],
     ['Troubleshooting', 'troubleshooting.md'], ['Releases', 'mvp-status.md'], ['Core API', 'core-api.md'],
-    ['Attributes', 'attributes.md'], ['Configuration', 'configuration.md'], ['BlackOps CLI', 'project-cli.md'],
+    ['Attributes', 'attributes.md'], ['Configuration', 'configuration.md'], ['Observability', 'observability.md'], ['BlackOps CLI', 'project-cli.md'],
     ['Observer Replay', 'observer-replay.md'], ['Application Bootstrap', 'application-bootstrap.md'], ['Glossary', 'glossary.md'],
   ]);
   for (const [label, source] of pages) {

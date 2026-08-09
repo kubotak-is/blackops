@@ -1,6 +1,6 @@
 # P20-018F: Observability Documentation and Review
 
-Status: Ready
+Status: Accepted
 
 ## Goal
 
@@ -76,19 +76,19 @@ Structured JSONL、OpenTelemetry Provider Composition、W3C Propagation、Trace�
 
 ## Acceptance Criteria
 
-- [ ] ReaderがStructured JSONLのCurrent WireをParseできる
-- [ ] API-only FrameworkとApplication SDK／Exporterの構成例が実装可能である
-- [ ] HTTP→Deferred Worker／Retry／OutboxのTrace相関を再現できる
-- [ ] Span／Metric Referenceが実装のName／Kind／Unit／属性へ一致する
-- [ ] 高Cardinality／Sensitive禁止Fieldが明確である
-- [ ] Liveness／Readinessの明示Route／CLI Journeyが実装と一致する
-- [ ] Pinned Local Collector RunbookがConsumerと同じ手順で完走する
-- [ ] Collector停止／Invalid Context／Provider Failure TroubleshootingがSafeである
-- [ ] Security／Deployment／Reference／Release Statusが同期する
-- [ ] Website Test／Check／BuildとFocused Consumerが成功する
-- [ ] Desktop Light／DarkとMobileでTable／Code／DiagramにPage-wide overflowがない
-- [ ] Documentation ReviewerのP1／P2 Findingが解消され、P3をAcceptance判断へ記録する
-- [ ] Report／STATE／TODOを同期し、WorkerはCommitしない
+- [x] ReaderがStructured JSONLのCurrent WireをParseできる
+- [x] API-only FrameworkとApplication SDK／Exporterの構成例が実装可能である
+- [x] HTTP→Deferred Worker／Retry／OutboxのTrace相関を再現できる
+- [x] Span／Metric Referenceが実装のName／Kind／Unit／属性へ一致する
+- [x] 高Cardinality／Sensitive禁止Fieldが明確である
+- [x] Liveness／Readinessの明示Route／CLI Journeyが実装と一致する
+- [x] Pinned Local Collector RunbookがConsumerと同じ手順で完走する
+- [x] Collector停止／Invalid Context／Provider Failure TroubleshootingがSafeである
+- [x] Security／Deployment／Reference／Release Statusが同期する
+- [x] Website Test／Check／BuildとFocused Consumerが成功する
+- [x] Desktop Light／DarkとMobileでTable／Code／DiagramにPage-wide overflowがない
+- [x] Documentation ReviewerのP1／P2 Findingが解消され、P3をAcceptance判断へ記録する
+- [x] Report／STATE／TODOを同期し、WorkerはCommitしない
 
 ## Required Commands
 

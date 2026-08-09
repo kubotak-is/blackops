@@ -63,6 +63,7 @@ export const sidebar = [
       { label: 'Core API', link: 'reference/core-api' },
       { label: 'Attributes', link: 'reference/attributes' },
       { label: 'Configuration', link: 'reference/configuration' },
+      { label: 'Observability', link: 'reference/observability' },
       { label: 'BlackOps CLI', link: 'reference/project-cli' },
       { label: 'Observer Replay', link: 'reference/observer-replay' },
       { label: 'Application Bootstrap', link: 'reference/application-bootstrap' },

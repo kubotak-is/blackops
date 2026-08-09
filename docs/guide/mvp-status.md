@@ -27,9 +27,11 @@ BlackOpsはExperimentalです。1.x Minor間のBackward CompatibilityとProducti
 | `#[Transactional]` Operation／Service | 未提供 | 利用可 |
 | Nested Required／`#[AfterCommit]` | 未提供 | 利用可 |
 | Long-running Connection Health Check／Reconnect | 未提供 | 利用可 |
+| OperationalHealthQuery／明示Health Route・CLI Adapter | 未提供 | 利用可（試験的、Application登録） |
 | Operation ID Diagnostics Human／JSON CLI | 未提供 | 利用可 |
 | Development Local Diagnostics Viewer | 未提供 | 利用可 |
 | Configurable Application／Framework JSONL Correlation | 未提供 | 利用可 |
+| OpenTelemetry API-only Trace／Metric Provider Composition | 未提供 | 利用可（試験的、Application SDK／Exporter） |
 | Frontend Contract Manifest／Operation Object生成 | 未提供 | 利用可（試験的） |
 | `.url()`／`.toRequest()`／Typed `.fetch()` | 未提供 | 利用可（試験的） |
 | `frontend:generate`／`frontend:check` | 未提供 | 利用可（試験的） |
@@ -77,6 +79,7 @@ composer create-project blackops/skeleton my-app 1.1.0
 - Operation IDからLifecycle／Attempt／Outcome Availabilityを読むSafe Human／JSON Diagnostics
 - 既定無効・Loopback限定・Token必須・Read-onlyのDevelopment Local Viewer
 - Process起動時に一度解決するApplication／Framework JSONL LoggingとOperation／Attempt／Correlation ID相関
+- OpenTelemetry API-only Provider Composition、W3C Context、固定Metric、OperationalHealth Query（Application-owned）
 - HTTP Operationから生成するFramework-neutral TypeScript ESM Operation Object
 - Readonly Metadata、`.url()`、`.toRequest()`、Typed `.fetch()`とFrontend Drift Check
 - 認可前Subject Projection、Unknown／Deny 404、認可済みExpired 410を持つPublic Status Query／HTTP Resource
@@ -97,11 +100,11 @@ BlackOps BoardはRepository `main`だけの試験的Local Reference Application�
 - 無限Wait、任意Backoff／Jitter、Global Generated Client、Cache／Offline Queueは提供しない
 - Transactional Outboxは同一Named Connectionへの原子登録、有限Relay、Retry／Backoff、Lease／Fencing、Dead Letter再開を提供する（at-least-once。外部配送のExactly Onceは提供しない）
 - Canonical Journal、Deferred Payload／Context、Outcome、Outbox、Dead Letter、Idempotencyの復元可能FieldはBOPD v1 Envelopeで保護する。Key Material、KMS Vendor操作、Replica／Backup上の旧Key確認、旧Key削除は提供しない
-- Remote OpenTelemetry、CloudWatch、SQS、Kafka、SQLite、MySQL Adapterは提供しない
+- Remote OpenTelemetry Backend、CloudWatch、SQS、Kafka、SQLite、MySQL Adapterは提供しない。Local Docker CollectorはApplication／Consumerが明示的に起動する検証手順だけを提供する
 - Observer Replay CLIはCanonical Journalを変更せず、現在のSensitive Projectionを再適用する有限Batch／Checkpoint／Resume／Audit操作として提供する。Admin UIは提供しない
 - Array／Nested ObjectのHTTP Binding、宣言的DB照合、Cross-field Attribute、Custom Callbackは提供しない。`Count` Validatorは実装済みだが現行HTTP BinderからArrayを渡せない
 - Production CertificationやExperimental Public API Contractを超える互換性保証は提供しない。1.x Minor間のBackward Compatibilityも保証しない
-- DiagnosticsのPublic PHP Query API、Remote Viewer、OpenTelemetry／Metric／Collectorは提供しない
+- DiagnosticsのPublic PHP Query APIとRemote Viewerは提供しない。OpenTelemetry／Metric／Healthの本番Backend、Dashboard、Collector自動起動も提供しない
 - Application Schedule Daemon、Supervisor／Kubernetes／systemd Manifest Generator、Schedule-specific Retentionは提供しない。one-shot CLIは[Scheduled Operation](scheduled-operation.md)の手順で外部Supervisorから起動する
 
 これらの不在はApplication側のSecurity／Operations設計が不要であることを意味しません。Stableと`main`の差を確認し、Deployment前に必要なAdapterと運用責務を明示してください。

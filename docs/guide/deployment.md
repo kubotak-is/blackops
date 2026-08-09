@@ -1,6 +1,6 @@
 # Deployment
 
-DeploymentはApplication／運用環境の責務です。FrameworkはKubernetes、systemd、Supervisor、TLS、Secret配布、Health Check、Resource Limit、Restart Policyを提供しません。Stable `1.1.0`のReleaseとRepository `main`のExperimental Surfaceを混ぜず、同じBuild IDのArtifactを全Processへ渡します。Tenant／Protected StorageとRotation CLIはRepository `main`のExperimental Surfaceです。
+DeploymentはApplication／運用環境の責務です。FrameworkはKubernetes、systemd、Supervisor、TLS、Secret配布、Health Check、Resource Limit、Restart Policyを提供しません。Stable `1.1.0`のReleaseとRepository `main`のExperimental Surfaceを混ぜず、同じBuild IDのArtifactを全Processへ渡します。Tenant／Protected StorageとRotation CLIはRepository `main`のExperimental Surfaceです。[Observability](observability.md)のProvider、Health Route／CLI、Local CollectorもApplicationが明示構成します。
 
 :::warning[Operator responsibility]
 Process監督、TLS、Secret配布、Health Check、Resource Limit、Restart Policyは運用環境で構成します。Frameworkはこれらを自動提供しません。
@@ -33,7 +33,7 @@ Process監督、TLS、Secret配布、Health Check、Resource Limit、Restart Pol
 | Maintenance Scheduler | `php blackops scheduler:run`または`scheduler:daemon` | Retention等のDue Maintenanceを実行する間 | task数、affected数、Purge Audit、Exit | `scheduler:run`は1回で終了。Daemonの停止はSupervisorへ委ね、Application Operationを起動しない |
 | Application Schedule | `php blackops operation:schedule:run --json` | 外部Cron／systemd／Kubernetesが一回起動 | evaluated／accepted／misfire／overlap／failed、Occurrence、Journal | Commandは一回で終了。Application Schedule Daemonは提供せず、Maintenance `scheduler:*`と混ぜない |
 
-WorkerとRelayのDatabase／Schemaが異なると`202`後にOutcomeが進みません。Health Checkの復旧は業務QueryやTransactionの自動Retry、Exactly-onceを意味しません。再配送可能な外部副作用にはIdempotency KeyまたはTransactional Outboxを設計します。
+WorkerとRelayのDatabase／Schemaが異なると`202`後にOutcomeが進みません。Health Checkの復旧は業務QueryやTransactionの自動Retry、Exactly-onceを意味しません。OpenTelemetry Exporter／Collectorの停止をReadinessへ結び付けないでください。再配送可能な外部副作用にはIdempotency KeyまたはTransactional Outboxを設計します。
 
 ## Smoke／Shutdown／Recovery
 

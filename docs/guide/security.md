@@ -213,6 +213,18 @@ HTTP Error、Application／Framework JSONL Log、Observed Journal、`operation:i
 
 Local Viewerは既定無効、明示起動、Loopback限定、起動ごとのRandom Bootstrap Token、Session Cookie、Read-only GET／HEAD、`Cache-Control: no-store`を組み合わせます。TokenをShell History、Chat、Ticket、共有Logへ貼らず、調査後はViewer Processを終了してください。このLocal GateはProductionのAuthentication／AuthorizationやRemote Support UIの代替ではありません。
 
+## Observability Signal Safety
+
+OpenTelemetryを有効にする場合も、次のFramework allowlistから外れる属性をSpan／Metric／JSONLへ追加しないでください。
+
+| Signal | 許可するField／Label | 常に除外するもの |
+| --- | --- | --- |
+| Span | Operation／Attempt／Correlation／Causationの参照、Strategy、Runtime、Safe Result、`error.type`、Storage Purpose、Schedule Name | Raw Actor／Tenant ID、Credential、Payload、Outcome、SQL、DSN、Key、Throwable Message／Stack、自由文 |
+| Metric | 固定Instrument、Result、Strategy、Runtime、Scheduler／Observer／Failure／Purposeの有限Enum | Operation／Attempt／Trace／Span ID、Actor／Tenant ID、Payload、Outcome、Credential、高Cardinality自由文 |
+| Structured JSONL | Version 1 Envelope、`traceId`、`spanId`、`sampled`、Mask済みActor／Tenant | `traceparent`、`tracestate`、Baggage、Exporter／Vendor属性、Raw Identity、Secret |
+
+Actor／TenantのTypeは分類に必要な場合だけ保持し、IDは`[masked]`です。Application MessageへCredentialやDomain Secretを入れない責任はApplicationに残ります。Provider、Exporter、Collectorが停止してもPrimary Operation、Journal、Outcome、HTTP Response、Readinessを変えないBest-effort境界を維持してください。Local Collectorの固定Image、Endpoint、停止確認は[Observability](observability.md)を正本にします。
+
 ## Production Check
 
 - Authentication／AuthorizationをOperation入口へ適用する

@@ -166,8 +166,8 @@ Observer Replayは、完了済みOperationをもう一度Handlerへ実行するO
 
 ## OpenTelemetryとの関係
 
-Repository mainにはOpenTelemetryのAdapter、Exporter、Configurationは実装されていません。したがって、SpanやMetricの出力を現行Public Contractとして構成しないでください。
+Repository `main`には、`open-telemetry/api`だけをProduction Dependencyとする試験的なOpenTelemetry API-only Surfaceがあります。ApplicationがSDK、Exporter、Resource、Endpoint、Credentialを構成し、`ApplicationBuilder::withTracerProvider()`／`withMeterProvider()`へProviderを渡します。Stable `1.1.0`には含まれません。[Observability](observability.md)でDocker上のLocal CollectorとHTTP→Deferred→Retry→Outboxの確認手順を完了できます。
 
-将来の候補方向として、Operation／AttemptをSpan、Lifecycle EventをSpan Event、Retry・Rejected・Failure・Dead LetterをMetric、Correlation／CausationをTrace Contextへ写像できます。これは設計候補であり、Field名・Sampling・Error処理を含むPublic Contractではありません。実装される場合も、Adapterが受け取るのはCanonicalではなくObserved Projectionです。
+Observed JSONLへ投影するTelemetryは`traceId`、`spanId`、`sampled`だけです。Raw `traceparent`／`tracestate`、Baggage、Exporter固有値、Payload、Outcome、Credential、Throwable Message／Stackは出力しません。ProviderまたはCollectorが停止してもPrimary Operation、Journal、Outcome、HTTP Response、Readinessは変わりません。
 
 次は[Lifecycle](operation-lifecycle.md)で状態遷移を確認し、保存期間は[Retention](retention.md)、再配送は[Observer Replay](observer-replay.md)へ進んでください。
