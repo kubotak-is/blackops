@@ -1,6 +1,6 @@
 # P21-003: Framework Proxy Generator and Artifact Contract
 
-Status: Planned
+Status: Ready
 
 ## Goal
 

@@ -1,6 +1,6 @@
 # P21-002: Framework Proxy Contract and Ownership Guard
 
-Status: Ready
+Status: Accepted
 
 ## Goal
 
@@ -56,13 +56,13 @@ Legacy `src/Internal/Aop/AopAttributeReader.php`, `AopAttributeTargetValidator.p
 
 ## Acceptance Criteria
 
-- [ ] Matrix rows compile to deterministic support/reject/N/A outcomes.
-- [ ] Generator, by-reference return, and by-reference parameter reject for both Attributes.
-- [ ] final/protected/private/static/constructor/destructor/property/parameter/repeated/conflict cases reject with stable codes.
-- [ ] readonly/non-final/variadic/union/intersection/DNF/default-value rows have metadata fixtures.
-- [ ] Operation is marked Lifecycle-owned and general Service is proxy-owned; profile conflict is rejected.
-- [ ] Focused PHPUnit, changed-source Mago, format, management-ID, and diff checks pass.
-- [ ] Report and STATE are Review Pending; Ray and dependencies remain unchanged.
+- [x] Matrix rows compile to deterministic support/reject/N/A outcomes.
+- [x] Generator, by-reference return, and by-reference parameter reject for both Attributes.
+- [x] final/protected/private/static/constructor/destructor/property/parameter/repeated/conflict cases reject with stable codes.
+- [x] readonly/non-final/variadic/union/intersection/DNF/default-value rows have metadata fixtures.
+- [x] Operation is marked Lifecycle-owned and general Service is proxy-owned; profile conflict is rejected.
+- [x] Focused PHPUnit, changed-source Mago, format, management-ID, and diff checks pass.
+- [x] Report and STATE are Review Pending; Ray and dependencies remain unchanged.
 
 ## Required Commands
 

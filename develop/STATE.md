@@ -1,6 +1,27 @@
 # Orchestration State
 
-Updated At: 2026-08-09T22:49:56+09:00
+Updated At: 2026-08-09T23:38:06+09:00
+
+## P21-002 Framework Proxy Contract and Ownership Guard Accepted
+
+```text
+2026-08-09T23:38:06+09:00
+Orchestrator independent reviewでP21-002をAcceptedとした。Method-level bare TransactionalがClass-level connectionを継承せずBuild defaultへ解決するprecedence、default有無／constant owner／private inherited default、実repeated Attribute、safe diagnostic context、Operation／Service lifecycle marker、Profile conflict、全support／reject／N/A MatrixをSourceとfixtureへ照合した。Final focused PHPUnit 40 tests／130 assertions、changed-source Mago lint／analyze、full format、management-ID guard、pre-commit Framework package export、diff checkをPASS。Full初回は既存Outbox heartbeat timing assertionが1件失敗（2,215 tests／9,151 assertions）したがAssertionを変更せずexact 1 test／4 assertionsとclean full rerun 2,215／9,152をPASSし、非再現flakyとして分離した。Legacy Ray validator／generator／interceptor、Composer／Dependency変更なし。P21-003をReadyとする。Worker Commit／Push／Deployなし。
+```
+
+## P21-002 Framework Proxy Contract and Ownership Guard Review Pending
+
+```text
+2026-08-09T23:36:09+09:00
+P21-002の新規`FrameworkProxyContract` seamを実装した。immutable `ray`／`framework` profile identity、source-class metadata、class／method Attribute precedence、Operation Lifecycle／general Service ownership marker、profile conflict guard、Signature Matrix support／reject／N/A、generator／reference return／reference parameter／visibility／static／final／constructor／destructor／property／parameter／conflict／default diagnostics、safe service／source／method／Attribute／Build ID fieldsを追加した。readonly／inherited／variadic／union／intersection／DNF／nullable／never／mixed／static／self／parent／scalar／array／constant／enum default／inaccessible private／inherited private／explicit constant-owner collision／unrelated Attribute fixture、repeated `Transactional`／`AfterCommit` fixture、build-context connection precedence regression、reject matrixを追加し、focused PHPUnit 40 tests／130 assertions、Mago format／lint／changed-source analyze、management-ID guard、diff checkをPASS。Legacy Ray validator／generator／interceptor、proxy generation／artifact／DI／runtime／Composer／Ray removalは未変更。ReportをReview Pendingへ更新し、Orchestrator independent review待ち。Worker Commit／Push／Deployなし。
+```
+
+## P21-002 Framework Proxy Contract and Ownership Guard Start
+
+```text
+2026-08-09T22:51:04+09:00
+P21-001は9c6e7adとしてCommit済みでWorking Tree cleanを確認した。P21-002をIn Progressとして開始する。Specification 101のimmutable metadata、Attribute precedence、Signature Matrix validator、safe diagnostic code、source-class Operation ownership／profile conflict guardを新規`FrameworkProxyContract` seamへ実装する。Legacy Ray validator／generator／interceptorはread-onlyで変更せず、Proxy生成、Artifact、Symfony DI統合、Transaction Runtime wiring、Composer／Ray削除は範囲外。Repository設定どおりGPT-5.6 Luna High workerへTask Packet単位で委譲し、Orchestratorが独立Reviewする。Worker Commit／Push／Deployなし。
+```
 
 ## P21-001 Framework-owned Transaction Proxy Decision and Delivery Plan Accepted
 

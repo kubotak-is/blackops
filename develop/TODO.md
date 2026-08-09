@@ -228,8 +228,8 @@ MVP後に残す主要項目:
 ### Phase 21: Framework-owned Transaction Interception
 
 - [x] PHP Signature Matrix、Generated Artifact、Symfony DI統合、Migration、Ray.Aop Removal GateをDecisionで確定する（P21-001、D137／Specification 101／102、Accepted）
-- [ ] P21-002 Contract／metadata／signature／ownership guardを実装する（Ready）
-- [ ] P21-003 Framework Proxy generator／artifact／manifest／driftを実装する（Planned、P21-002依存）
+- [x] P21-002 Contract／metadata／signature／ownership guardを実装する（Accepted）
+- [ ] P21-003 Framework Proxy generator／artifact／manifest／driftを実装する（Ready、P21-002 Accepted）
 - [ ] P21-004 Symfony DI Definition preservationを実装する（Planned、P21-003依存）
 - [ ] P21-005 Transaction／AfterCommit runtime ownershipを実装する（Planned、P21-004依存）
 - [ ] P21-006 Ray／Framework compatibility／migration／consumer matrixを実装する（Planned、P21-005依存）
