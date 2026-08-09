@@ -66,6 +66,10 @@ deptrac:
       collectors:
         - type: classNameRegex
           value: '/^BlackOps\\Telemetry(\\|$)/'
+    - name: Observability
+      collectors:
+        - type: classNameRegex
+          value: '/^BlackOps\\Observability(\\|$)/'
     - name: Internal
       collectors:
         - type: classNameRegex
@@ -142,6 +146,7 @@ deptrac:
       - Outcome
     Http:
       - Core
+      - Observability
       - Application
       - Execution
       - Internal
@@ -154,6 +159,7 @@ deptrac:
       - Library
     Console:
       - Core
+      - Observability
       - Journal
       - Execution
       - Transport
@@ -161,6 +167,9 @@ deptrac:
     StorageProtection:
       - Core
     Telemetry:
+      - Core
+      - Library
+    Observability:
       - Core
       - Library
     Internal:
@@ -178,4 +187,5 @@ deptrac:
       - Database
       - Auth
       - StorageProtection
+      - Observability
       - Library

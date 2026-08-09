@@ -1,6 +1,34 @@
 # Orchestration State
 
-Updated At: 2026-08-09T04:46:24+09:00
+Updated At: 2026-08-09T18:09:14+09:00
+
+## P20-018E Operational Health and Local Collector Accepted
+
+```text
+2026-08-09T18:09:14+09:00
+Orchestrator independent reviewでP20-018EをAcceptedとした。Public OperationalHealth Query／Report／Check、必須6 Readiness code、Dependency非参照Liveness、明示HTTP 200／503・no-store／CLI 0／1、throwing query／providerのsafe fallback、API-only Production Dependencyとrequire-dev SDK／Exporter境界をSource／Exact Testへ照合した。Final independent focused PHPUnit 390 tests／1,488 assertions、Full 2,176／9,025、pinned Collector OTLP HTTP Consumer、Quickstart、pre-commit Framework package export、Composer strict／locked audit／no-dev audit、Mago format、management-ID guard、diff checkをPASS。Collector E2EではSpan matrix、JSONL correlation、Metric 10件のName／Type／Unit／finite attribute、sentinel mask、停止後のPrimary Journey／Readiness isolation、deterministic cleanupを確認した。先行FullでHeartbeat timing failureが1回発生したが、Assertionを変更せずexact reproductionとclean full rerun 2回がPASS。Broad Magoは既知baseline、Deptracは既知PHP 8.5 vendor parser blocker。Task／Report／TODO／STATEをAcceptedへ同期し、Worker Commitなし。次はOrchestrator Commit後のexact package exportとP20-018F Documentation Review。Push／Deployなし。
+```
+
+## P20-018E Review Pending
+
+```text
+2026-08-09T18:03:06+09:00
+P20-018E worker implementation completed without commit. Version 1 OperationalHealth Query／Report／Check、public required readiness codes、explicit HTTP／CLI adapters、throwing-query/provider safe fallback、API-only production dependency boundary、pinned Collector Consumer fixtureを実装した。Escalated Docker E2E PASS: Collector 0.158.0 digest固定、OTLP HTTP 4318、server→inline child、deferred producer→worker retry、outbox producer→relay、schedule／maintenance、JSONL correlation、tenant／actor sentinel mask、metric 10件のName／Type／Unit／finite attribute、Collector停止後のbounded OTLP wrapper／Readiness isolation、named container／network／temp cleanup。Exact focused PHPUnit 390 tests／1,488 assertions、Composer strict、Mago format／lint／analyze、management-ID guard、diff／shell checks PASS。Full／Quickstart／exact package exportはOrchestrator gate。Task／Report／TODOをReview Pendingへ同期し、Worker Commit／Push／Deployなし。
+```
+
+## P20-018E Operational Health and Local Collector Start
+
+```text
+2026-08-09T10:04:54+09:00
+P20-018Dは4a11be7、post-commit package verificationはb494d70としてCommit済みで、Working Tree cleanを確認した。Official OpenTelemetry Collector Docker documentationとrelease repositoryを再確認し、2026-08-04 releaseのv0.158.0をcurrent fixed candidateとしてP20-018EをIn Progressへ更新した。otel/opentelemetry-collector:0.158.0はLocal未キャッシュ。OTLP HTTP 4318、receiver＋debug exporter、Consumer専用fixture、Production compose default不変更、SDK／Exporter／HTTP Clientはrequire-dev／Consumerのみ、Sensitive否定検証、Collector outage isolation、deterministic cleanupを維持する。Health／Readiness Production CodeとConsumer fixtureはRepository設定どおりGPT-5.6 Luna High workerへ委譲し、導入前Package／Image assessmentを先に行う。Worker Commit／Push／Deployなし。
+```
+
+## P20-018E Package and Image Assessment
+
+```text
+2026-08-09T10:07:24+09:00
+P20-018E導入前assessmentを完了した。Framework production dependencyは既存`open-telemetry/api` 1.10.0＋bounded context 1.5.0のみで、SDK／OTLP exporter／HTTP client／plugin／binary／credentialのComposer追加は不要。Consumer Collectorは`otel/opentelemetry-collector:0.158.0`、digest `sha256:5b97e6e3550ec6e48a71dba6f6304d349a293af8df4ee1f51da67be94fce2ecd`、user／entrypoint `10001:10001`／`/otelcol`を固定する。AssessmentをReportへ記録し、Health／Adapter／Consumer実装は未着手のためP20-018EをIn Progressで継続する。Worker Commit／Push／Deployなし。
+```
 
 ## P20-018D Post-commit Package Export Accepted
 

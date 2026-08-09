@@ -30,6 +30,9 @@
     },
     "require-dev": {
         "carthage-software/mago": "1.42.0",
+        "open-telemetry/sdk": "^1.15",
+        "open-telemetry/exporter-otlp": "^1.4",
+        "php-http/guzzle7-adapter": "^1.1",
         "phpunit/phpunit": "13.2.2",
         "deptrac/deptrac": "4.6.2"
     },

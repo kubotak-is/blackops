@@ -334,7 +334,7 @@ service:
       exporters: [debug]
 ```
 
-Collector Imageは`latest`ではなく、Task開始時に公式ReleaseとImageを確認した固定Versionを使う。P20-018の初期候補は`otel/opentelemetry-collector:0.157.0`である。PHP ConsumerはOTLP HTTP `http://otel-collector:4318`を使い、gRPC Extensionを必須にしない。
+Collector Imageは`latest`ではなく、Task開始時に公式ReleaseとImageを確認した固定Versionを使う。P20-018E開始時に確認したImageは`otel/opentelemetry-collector:0.158.0@sha256:5b97e6e3550ec6e48a71dba6f6304d349a293af8df4ee1f51da67be94fce2ecd`である。PHP ConsumerはOTLP HTTP `http://otel-collector:4318`を使い、gRPC Extensionを必須にしない。
 
 Consumerは少なくとも次を機械検証する。
 

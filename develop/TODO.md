@@ -222,7 +222,7 @@ MVP後に残す主要項目:
 - [x] W3C Telemetry ContextとProcess越しPropagationを実装する（P20-018B、Accepted）
 - [x] OpenTelemetry Trace AdapterとSpan Lifecycleを実装する（P20-018C、Accepted）
 - [x] 低Cardinality Metric AdapterとRuntime Instrumentationを実装する（P20-018D、Accepted）
-- [ ] Liveness／ReadinessとLocal Docker Collector Consumerを実装する（P20-018E）
+- [x] Liveness／ReadinessとLocal Docker Collector Consumerを実装する（P20-018E、Accepted）
 - [ ] Observability GuideとDocumentation Reviewを完了する（P20-018F）
 
 ### Phase 21: Framework-owned Transaction Interception

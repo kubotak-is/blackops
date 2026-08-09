@@ -1,6 +1,6 @@
 # P20-018E: Operational Health and Local Collector Evidence
 
-Status: Ready
+Status: Accepted
 
 ## Goal
 
@@ -82,7 +82,7 @@ Liveness／ReadinessのSafe Public Queryと明示Composition用HTTP／CLI Adapte
 - Route／CommandはApplicationが明示Compositionし、Framework Defaultへ自動登録しない
 - Framework `require`は`open-telemetry/api`だけを維持する
 - SDK／OTLP Exporter／HTTP ClientはConsumer／`require-dev`だけに置く
-- Collectorは`latest`を使わない。初期候補`0.157.0`をTask開始時に再確認し、固定Tag／可能ならDigestを記録する
+- Collectorは`latest`を使わない。Task開始時に公式最新と確認した`otel/opentelemetry-collector:0.158.0@sha256:5b97e6e3550ec6e48a71dba6f6304d349a293af8df4ee1f51da67be94fce2ecd`を固定する
 - OTLP HTTP `4318`を使い、ext-grpcを必須にしない
 - Collector ConfigはOTLP Receiver＋`debug` Exporterだけで、Remote Credentialを使わない
 - Collector LogへSensitive Sentinel／高Cardinality Labelがないことを否定検証する
@@ -91,22 +91,22 @@ Liveness／ReadinessのSafe Public Queryと明示Composition用HTTP／CLI Adapte
 
 ## Acceptance Criteria
 
-- [ ] Liveness／Readiness ReportのExact Version 1 Shapeが固定される
-- [ ] LivenessがDependency FailureでFailしない
-- [ ] ReadinessがDB／Migration／Required Composition FailureをSafe CodeでFailする
-- [ ] Telemetry Export FailureがReadiness／Primary Journeyを変えない
-- [ ] Explicit HTTP Adapterが200／503、JSON、no-storeを返し、Routeを自動追加しない
-- [ ] Explicit CLI AdapterがHuman／one-line JSONを安全に返す
-- [ ] Framework ArchiveのProduction DependencyがAPI-onlyである
-- [ ] Pinned CollectorがLocal Dockerで起動しOTLP HTTPを受ける
-- [ ] Inline／Deferred Retry／Outbox／Schedule／MaintenanceのSpan MatrixがCollector Logで確認できる
-- [ ] Structured JSONLとCollector Trace／Span IDが相関する
-- [ ] Stable Metric Name／Type／Unit／有限属性がCollector Logで確認できる
-- [ ] Sensitive Sentinel／Identity LabelがCollector Logにない
-- [ ] Collector停止中もPrimary Journey／Readinessが既存結果を維持する
-- [ ] Consumer Cleanup後に対象Container／Network／Volume／一時Artifactが残らない
-- [ ] Full Suite／Consumer／Package Exportが成功する
-- [ ] Report／STATE／TODOを同期し、WorkerはCommitしない
+- [x] Liveness／Readiness ReportのExact Version 1 Shapeが固定される
+- [x] LivenessがDependency FailureでFailしない
+- [x] ReadinessがDB／Migration／Required Composition FailureをSafe CodeでFailする
+- [x] Telemetry Export FailureがReadiness／Primary Journeyを変えない
+- [x] Explicit HTTP Adapterが200／503、JSON、no-storeを返し、Routeを自動追加しない
+- [x] Explicit CLI AdapterがHuman／one-line JSONを安全に返す
+- [x] Framework ArchiveのProduction DependencyがAPI-onlyである
+- [x] Pinned CollectorがLocal Dockerで起動しOTLP HTTPを受ける
+- [x] Inline／Deferred Retry／Outbox／Schedule／MaintenanceのSpan MatrixがCollector Logで確認できる
+- [x] Structured JSONLとCollector Trace／Span IDが相関する
+- [x] Stable Metric Name／Type／Unit／有限属性がCollector Logで確認できる
+- [x] Sensitive Sentinel／Identity LabelがCollector Logにない
+- [x] Collector停止中もPrimary Journey／Readinessが既存結果を維持する
+- [x] Consumer Cleanup後に対象Container／Network／Volume／一時Artifactが残らない
+- [x] Full Suite／Consumer／Package Exportが成功する
+- [x] Report／STATE／TODOを同期し、WorkerはCommitしない
 
 ## Required Commands
 
