@@ -224,6 +224,7 @@ MVP後に残す主要項目:
 - [x] 低Cardinality Metric AdapterとRuntime Instrumentationを実装する（P20-018D、Accepted）
 - [x] Liveness／ReadinessとLocal Docker Collector Consumerを実装する（P20-018E、Accepted）
 - [x] Observability GuideとDocumentation Reviewを完了する（P20-018F、Accepted）
+- [x] Local Grafana LGTMでTrace／Metricを閲覧するDevelopment-only Consumer Journeyを実装する（P20-018G、Accepted）
 
 ### Phase 21: Framework-owned Transaction Interception
 

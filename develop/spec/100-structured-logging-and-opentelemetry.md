@@ -352,6 +352,52 @@ Consumerは少なくとも次を機械検証する。
 
 Collector `debug` Logは一時Artifactとし、Secretを含まない否定検証後に削除する。Remote Backend、Credential、Production Deployは行わない。
 
+## Local Grafana LGTM Development Backend
+
+D138で定める `grafana/otel-lgtm` はDevelopment／Demo／Test専用のApplication-
+owned閲覧Backendである。FrameworkのProduction SDK、Exporter、Collector、
+Dashboard、Composer dependencyへ昇格させず、Default ComposeやLiveness／Readiness
+へ追加しない。固定Imageは次のOCI index digestを使う。
+
+```text
+grafana/otel-lgtm:0.29.2@sha256:af7242c1a9608faf6d26e6f235392fd0c32b67258228f9a3cfc96e724974930c
+```
+
+Consumerは毎回randomized Docker Network／Container／Temporary Artifactを作り、
+Grafana `3000`とOTLP HTTP `4318`だけをrandom loopback Host Portへpublishする。
+Tempo／PrometheusなどのBackend PortはHostへpublishせず、Grafana datasource
+proxyを介して確認する。既存Emitterは同Networkの `collector:4318` aliasへ送る。
+Prometheus OTLP ingestionへ送るLGTM ConsumerだけがEmitter Processへ
+`BLACKOPS_OTEL_METRIC_TEMPORALITY=cumulative`を渡し、Emitterが
+`OpenTelemetry\SDK\Metrics\Data\Temporality::CUMULATIVE`を選択する。未指定のEmitter
+は従来どおりExporterのDefault temporalityを使う。これはLGTMの受信条件を満たす
+Consumer設定であり、FrameworkのMetric Name／Type／Unit ContractやCollector
+Consumerの構成を変更しない。
+Grafana healthとTempo／Prometheus datasource provisioningを確認した後、Emitterの
+exact Trace IDをTempoから取得し、Prometheusで保存名へ正規化された
+`blackops.operation.duration`またはPrometheus正規化形
+`blackops_operation_duration_seconds`（Histogramの`_bucket`／`_sum`／`_count`を含む）
+seriesをqueryする。元のStable Instrument名 `blackops.operation.duration`はEmitter
+summaryで同時に検証し、これら二つの保存名正規化だけを許可する。
+
+ProbeはTempo／Prometheus Response全体を出力せず、Trace ResponseへSensitive
+Tenant／Actor sentinelがないこと、Metric resultの個別Operation／Attempt／Tenant
+／Actor／Trace／Key／Occurrence Identity Labelがないことも否定検証する。Grafana
+local login credentialは一時Process内だけで使い、Report／Artifact／Logへ出さない。
+Consumer停止時はContainer、Network、Temporary Artifactだけをtrapでcleanupし、
+既存 `blackops-otel-lgtm`を参照・停止・削除しない。`http://127.0.0.1:<grafana-port>`
+は閲覧Page、表示された`http://127.0.0.1:<otlp-port>`のOTLP `4318` mappingはingestion
+endpointでありUIではない。Remote Grafana、Cloud、TLS、Alert／SLO、Dashboard
+JSON、Persistent Volume、Production Deployは対象外である。
+
+ConsumerのNo-argument laneはProbe完了後にURLを表示せず終了する自動検証である。
+Contributorが画面を閲覧する`--interactive` laneだけはProbe後にProcessを待機させ、
+Grafana／OTLPのloopback URL、safe Trace ID、厳密にallowlistしたselected stored metric
+name（`metric=<stored-name>`）だけを表示し、Ctrl-C／TERMでtrap cleanupする。この出力は
+Credential、Backend Response、Trace／Metric Payload、Label dumpを含まない。
+Interactive laneの一時Grafana loginは既知のDevelopment値`admin/admin`であり、共有／
+Production環境へ持ち込まない。
+
 ## Delivery Plan
 
 1. P20-018A: Structured Record Schema、Canonical Formatter、Application／Framework／Journal／Audit Projection
@@ -360,6 +406,7 @@ Collector `debug` Logは一時Artifactとし、Secretを含まない否定検証
 4. P20-018D: Metric Adapter、Operation／Worker／Outbox／Scheduler／Failure Instrumentation
 5. P20-018E: Liveness／Readiness、Explicit Adapter、Local Docker Collector Consumer Evidence
 6. P20-018F: Public／Internal Guide、Security／Deployment／Troubleshooting、Documentation Review
+7. P20-018G: Development-only Local Grafana LGTM Trace／Metric dashboard Consumer
 
 各Production TaskはGPT-5.6 Luna High workerへ依頼し、WorkerはReview前にCommitしない。Documentation ReviewはRead-only Documentation ReviewerがEvidence付きFindingを返し、OrchestratorがAcceptanceする。
 
@@ -376,12 +423,14 @@ Collector `debug` Logは一時Artifactとし、Secretを含まない否定検証
 - Telemetry Export FailureがPrimary Operation／Readinessを変更しない
 - Framework ArchiveのProduction DependencyはOpenTelemetry APIだけである
 - Local Docker CollectorでTrace／Metric／Redaction／Failure Isolationを実証する
+- D138の固定Digest Local Grafana LGTMでTrace／MetricのTempo／Prometheus閲覧をConsumerとして実証する
 - Existing Full PHP／Consumer／Website Gateを維持する
 - Commit／Push／External DeployはOrchestratorの明示工程まで行わない
 
 ## Traceability
 
 - [D136 Structured Logging and OpenTelemetry](../decisions/136-structured-logging-and-opentelemetry.md)
+- [D138 Local Grafana LGTM Development Backend](../decisions/138-local-grafana-lgtm-development-backend.md)
 - [Logging and Traceability](10-logging-and-traceability.md)
 - [Runtime and Dependency Injection](09-runtime-and-di.md)
 - [Operation Diagnostics](65-operation-diagnostics.md)

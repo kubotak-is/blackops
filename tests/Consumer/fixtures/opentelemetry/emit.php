@@ -13,19 +13,26 @@ use OpenTelemetry\Contrib\Otlp\ContentTypes;
 use OpenTelemetry\Contrib\Otlp\MetricExporter;
 use OpenTelemetry\Contrib\Otlp\OtlpHttpTransportFactory;
 use OpenTelemetry\Contrib\Otlp\SpanExporter;
+use OpenTelemetry\SDK\Metrics\Data\Temporality;
 use OpenTelemetry\SDK\Metrics\MeterProvider;
 use OpenTelemetry\SDK\Metrics\MetricReader\ExportingReader;
 use OpenTelemetry\SDK\Trace\SpanProcessor\SimpleSpanProcessor;
 use OpenTelemetry\SDK\Trace\TracerProvider;
 
+$metricTemporality = getenv('BLACKOPS_OTEL_METRIC_TEMPORALITY');
+if ($metricTemporality !== false && $metricTemporality !== 'cumulative') {
+    fwrite(STDERR, "Unsupported metric temporality\n");
+    exit(2);
+}
+
 $transportFactory = new OtlpHttpTransportFactory();
 $spanExporter = new SpanExporter($transportFactory->create('http://collector:4318/v1/traces', ContentTypes::PROTOBUF));
 $tracerProvider = new TracerProvider(new SimpleSpanProcessor($spanExporter));
 
-$metricExporter = new MetricExporter($transportFactory->create(
-    'http://collector:4318/v1/metrics',
-    ContentTypes::PROTOBUF,
-));
+$metricTransport = $transportFactory->create('http://collector:4318/v1/metrics', ContentTypes::PROTOBUF);
+$metricExporter = $metricTemporality === 'cumulative'
+    ? new MetricExporter($metricTransport, Temporality::CUMULATIVE)
+    : new MetricExporter($metricTransport);
 $reader = new ExportingReader($metricExporter);
 $meterProvider = MeterProvider::builder()->addReader($reader)->build();
 $telemetry = new TelemetryTracer($tracerProvider);

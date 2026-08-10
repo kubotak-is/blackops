@@ -321,6 +321,64 @@ Collectorを起動しただけではTrace／Metricは生成されません。App
 
 Collectorの停止、Invalid Context、Provider／Exporter Failureは、Raw値やCredentialをLogへ出さないまま安全な有限Codeへ縮約します。Remote Collector、Dashboard、Alert、Production DeployはこのLocal手順の対象外です。[Deployment](deployment.md)、[Troubleshooting](troubleshooting.md)、[Security](security.md)も合わせて確認してください。
 
+## Local Grafana LGTMでTrace／Metricを見る
+
+開発・Demo・Testで画面から確認したい場合は、Application-owned Local
+Grafana LGTM Consumerを使います。FrameworkのProduction DependencyやDefault
+ComposeへGrafana／Tempo／Prometheusを追加する手順ではありません。`4318`はGrafana
+の画面ではなくOTLP HTTPの送信先です。
+
+CI／自動検証は次のNo-argument laneを使います。Probe完了後にContainerをcleanupし、
+URLを表示しません。
+
+```bash
+bash tests/Consumer/opentelemetry-grafana-lgtm.sh
+```
+
+ContributorがFresh checkoutから実際に画面を閲覧する一続きのJourneyは、Project Rootで
+Dockerを起動できることを確認し、Application imageをBuildしてからInteractive laneを
+実行します。
+
+```bash
+cd /path/to/blackops
+docker compose build app
+bash tests/Consumer/opentelemetry-grafana-lgtm.sh --interactive
+```
+
+Probeが完了すると、ScriptはGrafana／OTLP loopback URL、Trace ID、保存Metric名を表示し、
+Containerを停止せず待機します。表示されたGrafana URLを開き、GrafanaのExploreでTempo
+datasourceを選択して、`Trace=<trace-id>`の値をTrace ID queryへ入力します。次にPrometheus
+datasourceを選び、`metric=<stored-name>`の保存名を使って
+`{__name__="<stored-name>"}`を実行します。確認後、同じTerminalで`Ctrl-C`を押すと
+Container／Network／Temporary Artifactがcleanupされます。
+
+Interactive laneはGrafanaのlocal development login `admin/admin`を使います。これは
+この一時的なDevelopment／Demo／Test Consumerだけの既知値であり、Productionや共有
+Grafanaへ持ち込まないでください。Trace IDは安全な相関値ですが、Credential、Trace
+Payload、Backend ResponseはLog／Reportへ貼り付けません。
+
+Scriptは固定DigestのLGTMをランダムなNetwork／Containerへ起動し、Grafana `3000`
+とOTLP HTTP `4318`だけをランダムな`127.0.0.1` Portへ公開します。Tempo／Prometheus
+のBackend Portは公開せず、Grafana datasource proxy経由でProvisioning、Emitterの
+exact Trace ID、Tempoのnon-empty responseに含まれる
+`blackops.operation.execute` span、Prometheusのnon-empty sample、保存されたInstrument名
+`blackops.operation.duration`または
+正規化名`blackops_operation_duration_seconds`（Histogramでは`_bucket`／`_sum`／`_count`）を
+検証します。Prometheus OTLP ingestionへ送るこのLocal LGTM laneでは、Consumer scriptが
+Emitterへ`BLACKOPS_OTEL_METRIC_TEMPORALITY=cumulative`を渡します。これはLGTMへの配送
+条件だけで、既存Collector laneのDefault temporalityやFrameworkのMetric名／Schemaを変更
+しません。Interactive laneの成功出力に
+GrafanaのランダムPort（`http://127.0.0.1:<grafana-port>`）が表示されます。No-argument
+laneはURLを表示せず終了します。OTLP Host laneを手動で
+使う場合は`http://127.0.0.1:<otlp-port>`をApplicationの
+`OTEL_EXPORTER_OTLP_ENDPOINT`へ設定します。これはIngestion endpointであり閲覧Page
+ではありません。
+
+Scriptは終端・失敗・割込みの全経路で、自分が作成したContainer／Network／一時
+Artifactをcleanupします。Grafanaのlocal login値、Backend Response、Trace／Metric
+PayloadはLog／Reportへ貼り付けません。LGTM停止をReadinessまたはPrimary Operation
+Failureへ変換しないでください。
+
 ## Releaseと責務
 
 Stable `1.1.0`はStructured JSONLと既存のOperation Correlationを含みますが、Provider Composition、Trace／Metric Adapter、Operational Health Query、Local Collector連携はRepository `main`の試験的Surfaceです。1.x Minor間の互換性とProduction Readinessは保証されません。[Releases](mvp-status.md)でRelease Laneを確認し、ApplicationがSDK／Exporter／Route／CLI／Deployment／Credentialを所有することをレビューしてから導入してください。

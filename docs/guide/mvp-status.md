@@ -101,11 +101,11 @@ BlackOps BoardはRepository `main`だけの試験的Local Reference Application�
 - 無限Wait、任意Backoff／Jitter、Global Generated Client、Cache／Offline Queueは提供しない
 - Transactional Outboxは同一Named Connectionへの原子登録、有限Relay、Retry／Backoff、Lease／Fencing、Dead Letter再開を提供する（at-least-once。外部配送のExactly Onceは提供しない）
 - Canonical Journal、Deferred Payload／Context、Outcome、Outbox、Dead Letter、Idempotencyの復元可能FieldはBOPD v1 Envelopeで保護する。Key Material、KMS Vendor操作、Replica／Backup上の旧Key確認、旧Key削除は提供しない
-- Remote OpenTelemetry Backend、CloudWatch、SQS、Kafka、SQLite、MySQL Adapterは提供しない。Local Docker CollectorはApplication／Consumerが明示的に起動する検証手順だけを提供する
+- Remote OpenTelemetry Backend、Grafana Cloud、CloudWatch、SQS、Kafka、SQLite、MySQL Adapterは提供しない。Local Docker Collectorと固定DigestのGrafana LGTMはApplication／Consumerが明示的に起動するDevelopment／Demo／Test検証手順だけを提供する
 - Observer Replay CLIはCanonical Journalを変更せず、現在のSensitive Projectionを再適用する有限Batch／Checkpoint／Resume／Audit操作として提供する。Admin UIは提供しない
 - Array／Nested ObjectのHTTP Binding、宣言的DB照合、Cross-field Attribute、Custom Callbackは提供しない。`Count` Validatorは実装済みだが現行HTTP BinderからArrayを渡せない
 - Production CertificationやExperimental Public API Contractを超える互換性保証は提供しない。1.x Minor間のBackward Compatibilityも保証しない
-- DiagnosticsのPublic PHP Query APIとRemote Viewerは提供しない。OpenTelemetry／Metric／Healthの本番Backend、Dashboard、Collector自動起動も提供しない
+- DiagnosticsのPublic PHP Query APIとRemote Viewerは提供しない。OpenTelemetry／Metric／Healthの本番Backend、Remote Dashboard、Collector／LGTM自動起動も提供しない
 - Application Schedule Daemon、Supervisor／Kubernetes／systemd Manifest Generator、Schedule-specific Retentionは提供しない。one-shot CLIは[Scheduled Operation](scheduled-operation.md)の手順で外部Supervisorから起動する
 
 これらの不在はApplication側のSecurity／Operations設計が不要であることを意味しません。Stableと`main`の差を確認し、Deployment前に必要なAdapterと運用責務を明示してください。

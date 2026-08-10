@@ -114,7 +114,7 @@
 | [97-documentation-editorial-style.md](97-documentation-editorial-style.md) | 全Public Pageの表記Guideline、一般語の日本語化、Page種別Reader Contract、文章編集Pass |
 | [98-scheduled-application-operation.md](98-scheduled-application-operation.md) | ScheduledBy、Schedule Context、Cron／Timezone、Misfire／Overlap、Occurrence、Actor、BlackOps CLI |
 | [99-tenant-isolation-and-protected-operation-data.md](99-tenant-isolation-and-protected-operation-data.md) | TenantRef、Tenant伝播、Default-deny Data Read、Encrypted Envelope、Rotation、Breaking Upgrade境界 |
-| [100-structured-logging-and-opentelemetry.md](100-structured-logging-and-opentelemetry.md) | Structured Record v1、W3C Trace、OpenTelemetry Trace／Metric、Health／Readiness、Local Collector境界 |
+| [100-structured-logging-and-opentelemetry.md](100-structured-logging-and-opentelemetry.md) | Structured Record v1、W3C Trace、OpenTelemetry Trace／Metric、Health／Readiness、Local Collector／Local Grafana LGTM境界 |
 | [101-framework-owned-transaction-proxy.md](101-framework-owned-transaction-proxy.md) | Framework-owned Transactional／AfterCommit Proxy contract |
 | [102-phase-21-delivery-plan.md](102-phase-21-delivery-plan.md) | Phase 21 proxy replacement delivery order and removal gate |
 
@@ -259,3 +259,4 @@
 | [D135](../decisions/135-tenant-isolation-and-protected-operation-data.md) | Tenant Isolation and Protected Operation Data | Decided |
 | [D136](../decisions/136-structured-logging-and-opentelemetry.md) | Structured Logging and OpenTelemetry | Decided |
 | [D137](../decisions/137-framework-owned-transaction-proxy.md) | Framework-owned Transaction Proxy Contract | Decided |
+| [D138](../decisions/138-local-grafana-lgtm-development-backend.md) | Local Grafana LGTM Development Backend | Decided |

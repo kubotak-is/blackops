@@ -1,6 +1,76 @@
 # Orchestration State
 
-Updated At: 2026-08-10T14:15:03+09:00
+Updated At: 2026-08-10T18:09:58+09:00
+
+## P20-018G Accepted
+
+```text
+2026-08-10T18:09:58+09:00
+P20-018GをAcceptedとする。固定OCI index DigestのDevelopment-only Application-owned Grafana LGTM Consumerはrandomized resource、Grafana／OTLPだけのrandom loopback publish、Grafana health／Tempo exact Trace／Prometheus exact selected metric、Sensitive／high-cardinality guard、read-only source、normal／failure／interrupt cleanupを実証した。LGTM laneだけがCUMULATIVE temporalityを選び、既存Collector laneはDefaultを維持する。No-argument／interactive、existing Collector、Composer、Mago format、PHP syntax、Website 77 tests／check／42-page build、管理番号／diff guardをPASS。Documentation Reviewer最終再ReviewはP1=0／P2=0／P3=0。Browser visual reviewはReviewer環境からlocalhostへ到達できずNot Verifiedだが、Acceptanceを妨げるFindingなし。Task／Report／TODO／Spec／Decision／Guideを同期済み。Commit pending、Push／Deployなし。
+```
+
+## P20-018G Port and Interactive Output Contract Checkpoint
+
+```text
+2026-08-10T18:08:12+09:00
+Task Acceptance now identifies printed `http://127.0.0.1:<grafana-port>` as the Grafana viewing URL; the printed random OTLP host port and container `4318` are ingestion endpoints, not UI. D138, Specification 100, and Report synchronize the interactive output contract: loopback URLs, safe Trace ID, and strictly allowlisted `metric=<stored-name>` only, excluding credentials, backend responses, trace/metric payloads, and labels. Task remains Review Pending. Commit／Push／Deployなし。
+```
+
+## P20-018G Final Documentation Detail Checkpoint
+
+```text
+2026-08-10T17:46:07+09:00
+LGTM laneだけが`BLACKOPS_OTEL_METRIC_TEMPORALITY=cumulative`をEmitterへ渡し、既存Collector laneのDefault temporalityを維持する。Interactive Probe成功行はallowlist済み`metric=<stored-name>`を表示し、GuideはFresh checkout／`docker compose build app`／Tempo datasource exact Trace ID／Prometheus exact name query／Ctrl-C cleanupを実行可能な一続きへ補正した。Tempoのknown `blackops.operation.execute` spanとPrometheus non-empty sampleを明記し、公開Guide管理ID guard PASS。ReportはP1/P2修正中、Documentation Reviewer re-review pending。Commit／Push／Deployなし。
+```
+
+## P20-018G Documentation Review Correction Checkpoint
+
+```text
+2026-08-10T17:44:40+09:00
+Shared Emitterは`BLACKOPS_OTEL_METRIC_TEMPORALITY=cumulative`指定時だけCUMULATIVEを選択し、LGTM shellだけがenvを渡す。未指定Collector laneは従来Defaultのまま。Interactive GuideはFresh checkout→`docker compose build app`→interactive起動→ready URL／Trace／Metric query→Ctrl-C cleanupを一続きにし、公開GuideからD138管理番号を除去した。ReportはInteractive TTY ready、credential non-exposure、exit130、cleanup、Website 77／check／build、Composer／format／Consumer／static PASS、analyze制約を反映した。Documentation Reviewer P1/P2 correction re-review pending。Commit／Push／Deployなし。
+```
+
+## P20-018G Final Static Fixture Checkpoint
+
+```text
+2026-08-10T17:40:20+09:00
+lgtm-query.phpのmetric JSON `data`を一度arrayへ正規化し、Magoのpossibly-null-array-accessを解消した。対象2 FixtureのMago format/checkとphp -lはPASS。lgtm-query単体Mago analyzeはdynamic JSON mixed-assignment 9 warningsのみで終了0。emit.php単体analyzeはmain ComposerにConsumer-only OpenTelemetry SDK／Exporterがないためclass解決不能（26 errors等）で、Production依存追加は行わない。Task／ReportはReview Pending、Commit／Push／Deployなし。
+```
+
+## P20-018G Interactive Journey Checkpoint
+
+```text
+2026-08-10T17:29:59+09:00
+P20-018GのNo-argument ConsumerはGREEN証拠後にURLを表示せずcleanupして終了し、`--interactive`だけがDevelopment-onlyの文書化済みDisposable loginを使ってProbe後にloopback Grafana／OTLP URLとsafe Trace IDを表示し、Ctrl-C／TERMまで待機する。Unknown argumentはsafe exit 2。Interactive credentialsはstdoutへ出さずGuideだけへ記載し、trapはContainer／Network／Temporary Artifactを回収する。Task／ReportはReview Pending、Full quality／Documentation ReviewはOrchestrator pending。Commit／Push／Deployなし。
+```
+
+## P20-018G Worker Completion Checkpoint
+
+```text
+2026-08-10T17:26:08+09:00
+Orchestrator escalated both Consumer journeys to PASS: Grafana LGTM health／datasource provisioning、exact request-path Tempo lookup with non-empty known `blackops.operation.execute` span、Prometheus bounded metric-name discovery／exact selected stable family／non-empty sample、sensitive／high-cardinality guard、random loopback ports、read-only source、status comparison、cleanup; existing OpenTelemetry Collector Consumer and post-stop isolation also PASS. LGTM Emitter selects cumulative temporality for Prometheus OTLP ingestion only; Framework metric schema remains unchanged. Task／Report／TODO／Spec／Guide synchronized、Task is Review Pending. Composer／Mago／Website full gates and Documentation Reviewer remain pending independent review. Commit／Push／Deployなし。
+```
+
+## P20-018G Metric Temporality and Discovery Checkpoint
+
+```text
+2026-08-10T17:24:39+09:00
+Orchestrator escalated runs proved Tempo exact lookup and isolated the LGTM Prometheus failure to OTel PHP DELTA temporality, which LGTM's OTLP ingestion does not convert. Existing Consumer Emitter now selects `Temporality::CUMULATIVE` only for the Prometheus LGTM lane; Framework metric schema/names/units and Collector contract remain unchanged. Grafana probe retries bounded metric-name discovery, selects only dotted/normalized `blackops.operation.duration` family names, queries the exact selected name, and emits only safe filtered names on failure. The fourth LGTM Consumer rerun and existing Collector Consumer both PASS. Commit／Push／Deployなし。
+```
+
+## P20-018G Worker Implementation Checkpoint
+
+```text
+2026-08-10T15:55:29+09:00
+P20-018GのD138、固定Digest LGTM Consumer、Grafana datasource proxy probe、Spec／Roadmap／TODO、Public Guide、Reportを実装した。Consumerはrandomized network／container／temporary cleanup、loopback random Grafana 3000／OTLP HTTP 4318のみのHost publish、source read-only mount、前後git status不変、Tempo exact Trace ID、Prometheusへ正規化されたHistogram series、Sensitive／high-cardinality否定検証を持つ。Worker shellでのConsumer実行はDocker API socket permission deniedで開始前にBlocked（Resource生成なし）。Orchestrator escalated Docker run、Mago／Composer／Website gate、Documentation Review後にReview Pendingへ更新する。Commit／Push／Deployなし。
+```
+
+## P20-018G Local Grafana LGTM Dashboard Start
+
+```text
+2026-08-10T15:30:31+09:00
+UserはLocal OpenTelemetryの閲覧BackendにGrafanaを選択した。現行D136／Specification 100ではDashboard／Vendor Backendがscope外のため、Development／Demo／Test専用、Application-owned、Production dependency／Default Compose／Readiness／Remote Credentialなしの境界を新Decisionへ固定してP20-018Gを開始する。公式Grafana文書とRegistryを確認し、`grafana/otel-lgtm:0.29.2@sha256:af7242c1a9608faf6d26e6f235392fd0c32b67258228f9a3cfc96e724974930c`がlinux/amd64／arm64のOCI indexであること、現在のLocal Containerがhealthy、Grafana 3000とOTLP 4317／4318をloopback限定公開していることを確認した。TaskではHost公開を3000／4318だけに絞り、BlackOps Trace／MetricのTempo／Prometheus保存、Grafana datasource、Security、cleanup、GuideをConsumer evidenceへ固定する。Repository設定どおりGPT-5.6 Luna High workerへ委譲し、Documentation Reviewerを含む独立Review後にAcceptanceする。Commit／Push／Deployなし。
+```
 
 ## P21-007 and Phase 21 Accepted
 

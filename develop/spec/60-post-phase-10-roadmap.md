@@ -146,6 +146,9 @@ Phase 19のConsumer／Documentation／Full GateはP19-008で完了した。Exter
 - 構造化Log Schema Version
 - OpenTelemetry Trace／Metric Adapter
 - Health／ReadinessとWorker／Scheduler運用指標
+- Development／Demo／Test専用のLocal Grafana LGTM Trace／Metric閲覧Consumer
+
+Phase 20のLocal Grafana LGTM backendはD138でApplication-owned／Development-onlyへ限定する。Grafana、Tempo、PrometheusのHost公開、Default Compose、Production Dependency、Readiness、Remote Credential、Persistent Volume、DeploymentはこのRoadmapの完了条件に含めない。
 
 ## Phase 21: Framework-owned Transaction Interception
 

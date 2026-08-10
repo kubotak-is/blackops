@@ -223,7 +223,7 @@ OpenTelemetryを有効にする場合も、次のFramework allowlistから外れ
 | Metric | 固定Instrument、Result、Strategy、Runtime、Scheduler／Observer／Failure／Purposeの有限Enum | Operation／Attempt／Trace／Span ID、Actor／Tenant ID、Payload、Outcome、Credential、高Cardinality自由文 |
 | Structured JSONL | Version 1 Envelope、`traceId`、`spanId`、`sampled`、Mask済みActor／Tenant | `traceparent`、`tracestate`、Baggage、Exporter／Vendor属性、Raw Identity、Secret |
 
-Actor／TenantのTypeは分類に必要な場合だけ保持し、IDは`[masked]`です。Application MessageへCredentialやDomain Secretを入れない責任はApplicationに残ります。Provider、Exporter、Collectorが停止してもPrimary Operation、Journal、Outcome、HTTP Response、Readinessを変えないBest-effort境界を維持してください。Local Collectorの固定Image、Endpoint、停止確認は[Observability](observability.md)を正本にします。
+Actor／TenantのTypeは分類に必要な場合だけ保持し、IDは`[masked]`です。Application MessageへCredentialやDomain Secretを入れない責任はApplicationに残ります。Provider、Exporter、Collector、Local Grafana LGTMが停止してもPrimary Operation、Journal、Outcome、HTTP Response、Readinessを変えないBest-effort境界を維持してください。LGTM ProbeはTempo／Prometheus Response全体、local login値、Sensitive／High-cardinality Labelを出力せず、固定Digestとloopback Portだけを使います。Local Collector／LGTMの固定Image、Endpoint、停止確認は[Observability](observability.md)を正本にします。
 
 ## Production Check
 

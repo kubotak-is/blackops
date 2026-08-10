@@ -382,6 +382,28 @@ bash tests/Consumer/opentelemetry-observability.sh
 
 **修正方法:** ApplicationとCollectorを同じLocal Networkへ置き、OTLP HTTP Endpointを`http://collector:4318`へ合わせ、Metric用Endpointを分けてFlush／Shutdownします。Invalid `traceparent`はRaw Headerを保存せずParentなしで処理します。Provider／Exporter FailureはNo-op／Best-effortへ縮退し、Primary OperationとReadinessを変更しません。CollectorをReadiness Checkから外し、Remote BackendやProduction ComposeへLocal設定をコピーしないでください。
 
+## Grafana LGTMでTraceまたはMetricが見つからない
+
+**症状:** Grafanaは起動するが、TempoのTraceまたはPrometheusの
+`blackops.operation.duration`または`blackops_operation_duration_seconds`（Histogramの
+`_bucket`／`_sum`／`_count`）が表示されません。
+
+**確認方法:** `bash tests/Consumer/opentelemetry-grafana-lgtm.sh`をRepository root
+から再実行します。Scriptは固定Digest、Grafana health、Tempo／Prometheus
+Datasource、既存Emitterのexact Trace ID、固定Instrument名由来のMetric、
+Sensitive／High-cardinality禁止Label、loopback Port、Source checkout不変、cleanupを
+機械検証します。Backend Portを直接公開したり、Grafana APIのResponse全体をLogへ
+貼ったりしません。
+
+**修正方法:** LGTMのNetwork aliasが`collector`であること、Emitterが同じNetworkで
+OTLP HTTP `4318`へ送っていること、ProviderのFlush／Shutdownが完了していることを
+確認します。LGTM laneのEmitter起動へ`BLACKOPS_OTEL_METRIC_TEMPORALITY=cumulative`が
+渡っていることも確認します。既存Collector laneのEmitterは未指定のDefault temporality
+を維持します。Host laneでは`127.0.0.1:<random-otlp-port>`、Container laneでは
+`http://collector:4318`を使い分けます。Dashboard／Tempo／Prometheusの停止を
+Readinessへ追加せず、Remote CredentialやPersistent VolumeをLocal手順へ持ち込み
+ません。Grafana `3000`は閲覧Page、`4318`はIngestion endpointです。
+
 ## Outcome Status
 
 ### OutcomeがPending／Not Found／Expiredか判別できない
