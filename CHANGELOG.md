@@ -6,6 +6,8 @@ BlackOpsはExperimentalです。1.xのMinor Release間でも破壊的変更を�
 
 ## [Unreleased]
 
+このUnreleased entryは未公開の`1.2.0` Release Candidateを対象とします。完全な`1.2.0` Release Noteは、Release Gateで全変更とMigrationを確定した後続Taskで作成します。公開済み`1.1.0`の記録は変更しません。
+
 ### Added
 
 - Public `Seeder`／`SeederRunner`、Build-time Seeder Discovery、Framework-owned `database:seed`／`make:seeder`を追加した。

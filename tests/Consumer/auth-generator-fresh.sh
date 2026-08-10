@@ -45,7 +45,7 @@ INSTALL_COMPOSE=("${COMPOSE[@]}" -f "${OVERRIDE}")
 
 docker run --rm -v "${CONSUMER}:/app" -v "${ROOT}:/framework:ro" -w /app composer:2 \
     composer config repositories.framework \
-    '{"type":"path","url":"/framework","options":{"symlink":false,"versions":{"blackops/framework":"1.1.0"}}}'
+    '{"type":"path","url":"/framework","options":{"symlink":false,"versions":{"blackops/framework":"1.2.0"}}}'
 docker run --rm -v "${CONSUMER}:/app" -w /app composer:2 \
     composer require --no-update --no-interaction doctrine/dbal:^4.4 doctrine/migrations:^3.9
 

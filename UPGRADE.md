@@ -22,19 +22,6 @@ composer update blackops/framework --with-all-dependencies
 
 FrameworkはApplication所有のEntrypoint、生成済みOperation、Migration、Configurationを自動更新しません。
 
-### 1.1.1 Preview: Runtime Boundary and Application Dependencies
-
-Repository `main`のSkeleton／Community Boardへ移行する場合、`bootstrap/app.php`を次の形へ更新し、Applicationの直接ImportがないRuntime Packageを`composer.json`から削除してLockを再生成します。
-
-```php
-return Application::configure(dirname(__DIR__))
-    ->withEnvironmentFile()
-    ->withConfiguration()
-    ->create();
-```
-
-`public/index.php`は`SapiRuntime::run($application)`、Workerは`SapiRuntime::runWorker($application)`を呼びます。`vlucas/phpdotenv`、`nyholm/psr7`、`nyholm/psr7-server`、`laminas/laminas-httphandlerrunner`、`symfony/uid`は標準RuntimeのFramework-owned Dependencyです。ApplicationがDBAL／Migrationsを実Importする場合は、それらをDirect Dependencyとして残してください。外部LoaderやCustom PSR-15 Adapterを選ぶApplicationは、利用Packageを明示的に再追加します。
-
 ### 2. BlackOps CLIをRoot Entrypointへ置き換える
 
 Application Rootで次をそのまま実行し、Skeleton `1.1.0`と同じEntrypointを新規作成します。旧`bin/blackops`は`dirname(__DIR__)`をApplication Rootとして使う実装のため、単純な`mv bin/blackops blackops`ではPath解決が壊れます。
@@ -121,3 +108,18 @@ Inline、Deferred受付、Worker Retry、Outcome、JournalのSensitive Mask、Va
 php blackops make:operation Billing/CreateInvoice --type=billing.invoice.create
 php blackops make:migration CreateOrdersTable
 ```
+
+## 1.1.0から1.2.0 Preview
+
+このPreview sectionは未公開のRepository `main` candidateを説明します。`1.2.0`はLatest Stableではなく、完全なMigration／Release Noteと全Release Gateは後続Taskで確定します。公開済みStable `1.1.0`のInstall／Tag／Release／Packagistは変更しません。
+
+Repository `main`のSkeleton／Community Boardへ移行する場合、`bootstrap/app.php`を次の形へ更新し、Applicationの直接ImportがないRuntime Packageを`composer.json`から削除してLockを再生成します。
+
+```php
+return Application::configure(dirname(__DIR__))
+    ->withEnvironmentFile()
+    ->withConfiguration()
+    ->create();
+```
+
+`public/index.php`は`SapiRuntime::run($application)`、Workerは`SapiRuntime::runWorker($application)`を呼びます。`vlucas/phpdotenv`、`nyholm/psr7`、`nyholm/psr7-server`、`laminas/laminas-httphandlerrunner`、`symfony/uid`は標準RuntimeのFramework-owned Dependencyです。ApplicationがDBAL／Migrationsを実Importする場合は、それらをDirect Dependencyとして残してください。外部LoaderやCustom PSR-15 Adapterを選ぶApplicationは、利用Packageを明示的に再追加します。

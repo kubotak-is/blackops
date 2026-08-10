@@ -20,6 +20,7 @@ Phase 11 Stable 1.1 Release
                 -> Phase 19 Reliability and Delivery
                   -> Phase 20 Security Hardening and Observability
                     -> Phase 21 Framework-owned Transaction Interception
+                      -> Phase 22 Stable 1.2 Version Baseline and Release Gate
 ```
 
 ## Phase 11: Stable 1.1 Release
@@ -160,6 +161,10 @@ Phase 20のLocal Grafana LGTM backendはD138でApplication-owned／Development-o
 - Ray.Aop互換Regression、Migration、Dependency Removal Gate
 
 汎用AOP Engineは実装しない。Production RuntimeでのSource Scan／Proxy生成も導入しない。D137／Specification 101で契約を確定し、Specification 102とP21-002〜P21-007で、Contract Guard→Generator／Artifact→Symfony DI→Runtime Ownership→Compatibility／Migration→Ray Removalの順に実装した。Phase 21はP21-007のRemoval Gateを受入済みで、Framework-only artifact chainを維持する。
+
+## Phase 22: Stable 1.2 Version Baseline
+
+P22-001は公開済みStable `1.1.0`をImmutableな履歴として維持し、Repository `main`の未公開Release Candidateを`1.2.0`へ同期する。Main root version、OpenTelemetry scope、Skeleton Source、Candidate Consumer、active Documentationを更新し、Stable install journey、Tag／Release／Packagist claim、歴史的記録は変更しない。完全なRelease Gate、Tag、Publication、Packagist反映は後続Taskで扱う。
 
 ## Deferred Ecosystem Scope
 

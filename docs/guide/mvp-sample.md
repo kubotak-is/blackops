@@ -1,6 +1,6 @@
 # Quickstart and Skeleton
 
-このページはRepository `main`のPreview Applicationを準備し、Header Authentication、Inline HTTP、Database Transaction、After Commit、Deferred Workerを一続きで確認します。Stable `1.1.0`のInstallは[Install](installation.md)で先に完了してください。ここで説明するAuthentication／AuthorizationとDatabase／Transaction Exampleは未Release Surfaceです。Experimental Stable `1.1.0`との差は[Releases](mvp-status.md)で確認してください。
+このページはRepository `main`の`1.2.0` Preview Applicationを準備し、Header Authentication、Inline HTTP、Database Transaction、After Commit、Deferred Workerを一続きで確認します。Stable `1.1.0`のInstallは[Install](installation.md)で先に完了してください。ここで説明するAuthentication／AuthorizationとDatabase／Transaction Exampleは未Release Surfaceです。Experimental Stable `1.1.0`との差は[Releases](mvp-status.md)で確認してください。
 
 :::warning[Repository main Preview]
 このページのStep 2以降は未Release Surfaceです。公開済みStable SkeletonのInstall手順とは分けて実行し、提供範囲は[Releases](mvp-status.md)で確認してください。
@@ -33,7 +33,7 @@ cp -a examples/quickstart/. "$PREVIEW_DIR/"
 docker run --rm --user "$(id -u):$(id -g)" \
   -v "$PWD:/framework:ro" -v "$PREVIEW_DIR:/app" -w /app composer:2 \
   composer config repositories.framework \
-  '{"type":"path","url":"/framework","options":{"symlink":false,"versions":{"blackops/framework":"1.1.0"}}}'
+  '{"type":"path","url":"/framework","options":{"symlink":false,"versions":{"blackops/framework":"1.2.0"}}}'
 
 docker run --rm --user "$(id -u):$(id -g)" \
   -v "$PWD:/framework:ro" -v "$PREVIEW_DIR:/app" -w /app composer:2 \

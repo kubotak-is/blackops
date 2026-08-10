@@ -47,7 +47,7 @@ ProductionでViewerは既定無効である。通常HTTP RuntimeやWorker Runtim
 
 FrameworkのProduction Dependencyは`open-telemetry/api`だけである。`ApplicationBuilder::withTracerProvider()`と`withMeterProvider()`はApplicationが構成したProviderを受け取り、Framework-owned SDK、OTLP Exporter、Resource、Endpoint、Credential、CollectorをCompiled ContainerやManifestへ保存しない。Provider未登録時はNo-opで、Provider／Exporter／Flush FailureはPrimary Operation、Journal、Outcome、HTTP Response、Readinessを変更しない。
 
-Framework-owned Spanは`blackops.framework`／`1.1.0`で、HTTP／DB InstrumentationやDashboardはApplicationへ委ねる。HTTPのW3C `traceparent`／`tracestate`、Deferred／Outboxの暗号化Context、Worker RetryのAttempt Spanを境界ごとに扱う。Structured JSONLへ投影するのは`traceId`、`spanId`、`sampled`だけで、Actor／Tenantは`[masked]`とする。Metricは固定Name／Type／Unitと有限属性で、Identity／自由文をLabelへ入れない。
+Framework-owned Spanは`blackops.framework`／candidate `1.2.0`で、HTTP／DB InstrumentationやDashboardはApplicationへ委ねる。HTTPのW3C `traceparent`／`tracestate`、Deferred／Outboxの暗号化Context、Worker RetryのAttempt Spanを境界ごとに扱う。Structured JSONLへ投影するのは`traceId`、`spanId`、`sampled`だけで、Actor／Tenantは`[masked]`とする。Metricは固定Name／Type／Unitと有限属性で、Identity／自由文をLabelへ入れない。
 
 ## Health／Readiness Boundary
 

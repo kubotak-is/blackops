@@ -243,7 +243,8 @@ test('guide presents the Stable 1.1 release surface and experimental policy cons
   assert.match(quickstart, /blackops\/skeleton my-app 1\.1\.0/);
   assert.doesNotMatch(quickstart, /dev-main/);
   assert.match(quickstart, /StableにはGlobal Middleware、Authentication、`#\[Authorize\]`がない/);
-  assert.match(quickstart, /"symlink":false,"versions":\{"blackops\/framework":"1\.1\.0"\}/);
+  assert.match(quickstart, /"symlink":false,"versions":\{"blackops\/framework":"1\.2\.0"\}/);
+  assert.match(quickstart, /Repository `main`の`1\.2\.0` Preview Application/);
   assert.match(quickstart, /Local Path Repository/);
   assert.match(tutorial, /Experimental Stable `1\.1\.0`/);
   assert.match(generators, /Experimental Stable `1\.1\.0`/);

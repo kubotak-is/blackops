@@ -16,6 +16,8 @@ Distribution Repositoryへ機能変更を直接Commitしない。修正はMain R
 
 FrameworkとSkeletonは同じRelease Version Tagを使用する。新規Release Tagはannotated tag objectとして作成し、Tag Messageは`BlackOps Skeleton <version>`、Tagger IdentityはRelease Automation固定値とする。Tag Object ID自体の再現性は要求せず、TagをPeeledしたCommitが決定的なSkeleton Split Commitと一致することを要求する。
 
+公開済みStable `1.1.0`のTag／Split ArtifactはImmutableな履歴として扱う。Repository `main`のP22-001 candidateは`1.2.0`であり、以下のVersion Policy例は次期CandidateのPublication Gateを示す。P22-001ではTag、Push、Split Publication、Packagist反映を実行しない。
+
 例えばFramework `1.2.0` Releaseでは、Skeleton Split Commitにも `1.2.0` Tagを付ける。SkeletonのComposer Metadataは同じMajor／Minor系列のFrameworkをRequireする。
 
 ```json

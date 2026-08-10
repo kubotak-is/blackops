@@ -89,6 +89,7 @@ body {
 .landing-button-primary:hover { background: var(--bo-accent); border-color: var(--bo-accent); color: var(--bo-paper); }
 .landing-command-wrap { margin-top: 2rem; }
 .landing-command-label { color: var(--bo-muted); display: block; font: 600 .7rem/1 var(--blume-font-mono, ui-monospace, monospace); letter-spacing: .12em; text-transform: uppercase; }
+.landing-command-candidate { margin-top: .7rem; }
 .landing-command { border-left: 3px solid var(--bo-action); color: var(--bo-ink); font: 500 clamp(.75rem, 1.4vw, .95rem)/1.4 var(--blume-font-mono, ui-monospace, monospace); margin: .6rem 0 0; max-width: 100%; overflow-x: auto; padding: .75rem 1rem; white-space: nowrap; }
 
 .landing-product-visual { align-self: center; display: grid; gap: 1rem; justify-self: end; margin-top: clamp(3rem, 7vw, 6rem); max-width: 40rem; position: relative; transform: rotate(1.5deg); width: 100%; }

@@ -1,6 +1,41 @@
 # Orchestration State
 
-Updated At: 2026-08-10T18:13:07+09:00
+Updated At: 2026-08-10T18:54:38+09:00
+
+## P22-001 Stable 1.2 Version Baseline Accepted
+
+```text
+2026-08-10T18:54:38+09:00
+P22-001をAcceptedとする。公開済みLatest Stable／Install CTAは`1.1.0`を維持し、Repository `main`の未公開Release Candidateを`1.2.0`へ同期した。Docker rootは`1.2.0@dev`、Telemetry Trace／Metric scopeは`1.2.0`、Skeleton Sourceは`^1.2`となり、Version guard、Telemetry 13 tests／96 assertions、Composer strict、Mago format、create-project、working-tree publication dry run、publication workflow、fresh Quickstart E2E、Website 77 tests／check／42-page build、management-ID／diff guardを独立PASS。Cloudflare Pagesの現行公開状態とfiltered Working Tree Consumer説明をDocumentationへ同期し、Documentation Reviewer最終再読はP1=0／P2=0／P3=0。Browser visual reviewはReviewer環境からlocalhostへ到達できずNot Verifiedだが、Acceptanceを妨げるFindingなし。Commit後にexact `skeleton-publication.sh 1.2.0 HEAD`を実行する。Tag／Push／GitHub Release／Packagist／Skeleton publication／Deployなし。
+```
+
+## P22-001 Documentation Reviewer P1 Correction Checkpoint
+
+```text
+2026-08-10T18:53:00+09:00
+Documentation Reviewer P1 corrections applied within scope: README now states the published Cloudflare Pages URL and verified Local／CI build／public-artifact boundary; the duplicate Community Board paragraph was restored. Internal MVP E2E now describes the filtered Working Tree tar copy used by skeleton-create-project, including dotfile retention, generated-artifact exclusions, and var .gitignore restoration. Report records both corrections and narrows remaining release work to the post-commit exact `1.2.0 HEAD` publication probe plus complete Release Gate. Commit／Push／Deployなし、Review Pending。
+```
+
+## P22-001 Stable 1.2 Consumer Harness Correction Checkpoint
+
+```text
+2026-08-10T18:47:00+09:00
+OrchestratorのDocker Consumer runで、ignored `examples/quickstart/node_modules`を`cp -a`が持ち込み、create-projectのgenerated-artifact assertionとpublication dry-runのroot allowlistを失敗させる問題を再現した。P22-001許可範囲内で`tests/Consumer/skeleton-create-project.sh`と`tests/Consumer/skeleton-publication.sh`のworking-tree／dry-run copyをdotfile保持＋`.env`／composer.lock／vendor／nested node_modules／generated frontend／var files除外のtar copyへ補正し、`var/*/.gitignore`を復元した。Orchestrator独立再実行でcreate-projectとpublication dry-run（version=1.2.0、split=working-tree）はPASS。pre-commit HEADはまだ`^1.1`のため、`skeleton-publication.sh 1.2.0 HEAD` exact probeはaccepted commit後に実施する。Commit／Push／Deployなし、Orchestrator Review Pending。
+```
+
+## P22-001 Stable 1.2 Version Baseline Worker Checkpoint
+
+```text
+2026-08-10T18:31:36+09:00
+P22-001 worker実装でDecision D139、Specification 103、Roadmap／TODO、Version inventory guard、Main root／Telemetry／Skeleton／candidate Consumer、Stable／candidate Documentation境界を同期した。Stable `1.1.0` install／CTA／historical CHANGELOG／1.0→1.1 Upgradeは維持し、Repository `main`の未公開candidateを`1.2.0`へ固定した。Website test 77、check、build、Telemetry PHPUnit 13 tests／96 assertions、Composer validate、Mago format、management-ID guard、version guard、publication workflow、diff checkをPASS。Skeleton create-project／publication dry runはDocker API socket permission deniedで実行Blocked。Commit／Push／Deployなし、Orchestrator Review Pending。
+```
+
+## P22-001 Stable 1.2 Version Baseline Start
+
+```text
+2026-08-10T18:19:13+09:00
+UserはP20-018G closeout後にVersion更新を要求した。Local Git tagとGitHub ReleaseのLatest Stableは`1.1.0`で、mainは1.1.0から247 commits ahead。Experimental 1.xはMinor間breakingを許可し、Phase 12〜21の大幅なSurface追加をpatch `1.1.1`へ見せないため、次期Release Candidateを`1.2.0`とする。P22-001ではmain root／Telemetry scope／Skeleton constraint／candidate Consumer／active documentationを1.2系列へ同期するが、Latest Stable表示とStable 1.1 install journeyを維持し、Tag／Push／GitHub Release／Packagist／Skeleton publicationは後続Release Gateへ分離する。Repository設定どおりGPT-5.6 Luna High workerへ委譲し、Documentation Reviewerを含む独立Review後にAcceptanceする。Commit／Push／Deployなし。
+```
 
 ## P20-018G Git HEAD Closeout
 

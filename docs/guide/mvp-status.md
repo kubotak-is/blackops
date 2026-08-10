@@ -1,6 +1,6 @@
 # Releases
 
-BlackOpsのStableはFramework／Skeleton `1.1.0`です。Repository `main`の未Release Surfaceもこのドキュメントで明示します。Documentation WebsiteはCloudflare Pages（`https://blackops-php.pages.dev`）へ公開しています。Stableとの差を次表で確認してください。
+BlackOpsのStableはFramework／Skeleton `1.1.0`です。Repository `main`は未公開の`1.2.0` Release Candidateです。未Release Surfaceもこのドキュメントで明示します。Documentation WebsiteはCloudflare Pages（`https://blackops-php.pages.dev`）へ公開しています。Stableとの差を次表で確認してください。
 
 BlackOps固有のOperation、Claim、Journal、Outcome等は[Glossary](glossary.md)で確認できます。
 
@@ -8,7 +8,7 @@ BlackOpsはExperimentalです。1.x Minor間のBackward CompatibilityとProducti
 
 ## Stableとmain
 
-| Capability | Stable 1.1.0 | main Document |
+| Capability | Stable 1.1.0 | main 1.2.0 candidate |
 | --- | --- | --- |
 | Typed Self-handled Operation／Native Outcome | 利用可 | 利用可 |
 | Inline HTTP／Deferred HTTP／Worker Retry | 利用可 | 利用可 |

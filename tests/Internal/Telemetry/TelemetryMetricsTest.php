@@ -12,6 +12,7 @@ final class TelemetryMetricsTest extends TestCase
 {
     public function testCreatesStableInstrumentMatrixAndBalancesActiveCounter(): void
     {
+        self::assertSame('1.2.0', TelemetryMetrics::VERSION);
         $provider = new RecordingMeterProvider();
         $metrics = new TelemetryMetrics($provider, ['order.create']);
         self::assertSame(TelemetryMetrics::SCOPE, $provider->scopeName);

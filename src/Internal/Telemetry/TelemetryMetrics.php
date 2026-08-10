@@ -20,7 +20,7 @@ use OpenTelemetry\API\Metrics\UpDownCounterInterface;
 final class TelemetryMetrics
 {
     public const SCOPE = 'blackops.framework';
-    public const VERSION = '1.1.0';
+    public const VERSION = '1.2.0';
 
     /** @var list<string> */
     public const RESULTS = ['completed', 'rejected', 'failed', 'retry_scheduled', 'dead_lettered', 'interrupted'];

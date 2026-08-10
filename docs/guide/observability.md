@@ -140,7 +140,7 @@ Retryは同じTrace IDでも別Span IDです。待機中のDeferred／Retry／Ou
 
 ## SpanとMetricの参照
 
-FrameworkのInstrumentation Scopeは`blackops.framework`、Versionは`1.1.0`です。ApplicationのSpan／DB Instrumentationを重複生成しません。Frameworkが受け付ける結果は`completed`、`rejected`、`failed`、`retry_scheduled`、`dead_lettered`、`interrupted`の有限値です。
+FrameworkのInstrumentation Scopeは`blackops.framework`、VersionはRepository `main` candidateの`1.2.0`です。公開済みStable `1.1.0`のScope契約は変更しません。ApplicationのSpan／DB Instrumentationを重複生成しません。Frameworkが受け付ける結果は`completed`、`rejected`、`failed`、`retry_scheduled`、`dead_lettered`、`interrupted`の有限値です。
 
 Metricは次の10個で、値は秒または固定単位を使います。Labelへ個別のOperation ID、Attempt ID、Trace／Span ID、Actor／Tenant ID、自由文を入れません。
 

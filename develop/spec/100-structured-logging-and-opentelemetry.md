@@ -169,7 +169,7 @@ Deferred／Outbox ContextはBOPD Encrypted Field内へ保存し、Clear Column�
 ### Instrumentation Scope
 
 Instrumentation Scope Nameは`blackops.framework`、VersionはFramework Package Version
-`1.1.0`を使う。ResourceとService NameはApplication Providerの値を尊重する。
+`1.2.0`を使う。公開済みStable `1.1.0`のInstrumentation契約は変更しない。ResourceとService NameはApplication Providerの値を尊重する。
 
 ### Span Matrix
 

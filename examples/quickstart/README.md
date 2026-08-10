@@ -39,7 +39,7 @@ composer create-project --no-scripts blackops/skeleton my-app 1.1.0
 php my-app/bin/setup
 ```
 
-Framework Repository内のQuickstartへ直接`composer install`するだけでは、`blackops/framework:^1.1`がPackagistのStableへ解決され、`main` PreviewのSourceと一致しない。認証付き`/welcome`／`/reports`とPhase 13の`/orders`を試す場合は、[利用者向けQuickstartのRepository main Preview手順](../../docs/guide/mvp-sample.md#repository-main-preview)でFramework SourceをLocal Path Repositoryとして組み合わせる。準備後のPreview Directoryで`php bin/setup`を実行する。
+Framework Repository内のQuickstartへ直接`composer install`するだけでは、未公開の`blackops/framework:^1.2` candidateをPackagistから解決できず、`main` PreviewのSourceと一致しない。認証付き`/welcome`／`/reports`とPhase 13の`/orders`を試す場合は、[利用者向けQuickstartのRepository main Preview手順](../../docs/guide/mvp-sample.md#repository-main-preview)でFramework SourceをLocal Path Repositoryとして組み合わせ、version `1.2.0`を明示する。準備後のPreview Directoryで`php bin/setup`を実行する。
 
 Install、Build、MigrationはImage startupに含まれない。Default `docker compose up` はHealthyなPostgreSQLとWorker Mode HTTPだけを起動し、Deferred Worker、Scheduler、Migration、Retention Purgeは起動しない。HTTP Portは `.env` の `HTTP_PORT` で変更でき、既定は8080である。
 

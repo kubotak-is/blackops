@@ -22,7 +22,7 @@ use Throwable;
 final readonly class TelemetryTracer
 {
     public const SCOPE = 'blackops.framework';
-    public const VERSION = '1.1.0';
+    public const VERSION = '1.2.0';
     public const KIND_INTERNAL = SpanKind::KIND_INTERNAL;
     public const KIND_PRODUCER = SpanKind::KIND_PRODUCER;
     public const KIND_CONSUMER = SpanKind::KIND_CONSUMER;

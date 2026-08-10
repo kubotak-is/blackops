@@ -6,7 +6,7 @@ repository_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 dry_run=false
 if [[ "${1:-}" = '--dry-run' ]]; then
     dry_run=true
-    version=1.1.0
+    version=1.2.0
     source_ref=''
 else
     version="${1:-}"
@@ -16,6 +16,27 @@ fi
 fail() {
     printf 'Skeleton publication validation failed: %s\n' "$1" >&2
     exit 1
+}
+
+copy_worktree_source() {
+    local destination="$1"
+
+    tar \
+        --exclude='./.env' \
+        --exclude='./composer.lock' \
+        --exclude='./vendor' \
+        --exclude='node_modules' \
+        --exclude='*/node_modules' \
+        --exclude='./resources/js/blackops' \
+        --exclude='./.build' \
+        --exclude='*/.build' \
+        --exclude='./var/build/*' \
+        --exclude='./var/log/*' \
+        -C "${repository_root}/examples/quickstart" -cf - . \
+        | tar -C "${destination}" -xf -
+    mkdir -p "${destination}/var/build" "${destination}/var/log"
+    cp "${repository_root}/examples/quickstart/var/build/.gitignore" "${destination}/var/build/.gitignore"
+    cp "${repository_root}/examples/quickstart/var/log/.gitignore" "${destination}/var/log/.gitignore"
 }
 
 validate_version() {
@@ -56,7 +77,7 @@ trap cleanup EXIT
 
 mkdir -p "${distribution_root}"
 if [[ "${dry_run}" = true ]]; then
-    cp -a "${repository_root}/examples/quickstart/." "${distribution_root}/"
+    copy_worktree_source "${distribution_root}"
     split_commit='working-tree'
 else
     git clone --quiet --no-hardlinks --no-tags "${repository_root}" "${source_clone}"
