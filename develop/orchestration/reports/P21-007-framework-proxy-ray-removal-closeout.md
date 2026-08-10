@@ -1,6 +1,6 @@
 # P21-007 Ray Removal, Package Export, and Phase 21 Closeout
 
-Status: Review Pending
+Status: Accepted
 
 ## Summary
 
@@ -80,6 +80,10 @@ guard remain active.
   query in its own Ray-absence assertion. The assertion was tightened to
   `test ! -d vendor/ray`, and `bash -n`, the exact Consumer journey, the exact
   Task Ray scan, and `git diff --check` were rerun successfully.
+- Post-commit `f772f14` verification: exact Framework Git/Composer package
+  export, isolated 42-package clean install, `vendor/ray` absence, Framework
+  autoload/profile probe, `git grep` Ray/profile scans against `HEAD`, deleted
+  path checks, and clean worktree all PASS.
 
 ## Acceptance Criteria
 
@@ -90,16 +94,14 @@ guard remain active.
   focused and full PHPUnit pass.
 - [x] Framework profile is the sole selected profile; Runtime has no fallback
   or Source Scan.
-- [ ] TODO/STATE/Decision index/Report mark Phase 21 closeout Accepted.
+- [x] TODO/STATE/Decision index/Report mark Phase 21 closeout Accepted.
 
 ## Remaining Issues
 
-The reviewed working-tree gates pass. The remaining closeout step is to commit
-the removal, rerun package export and Ray scans against Git HEAD, and record
-that committed-archive evidence before final Acceptance. No worker commit,
+None. The working-tree and committed-archive gates pass. No worker commit,
 push, or deploy was performed.
 
 ## Suggested Next Action
 
-Commit the reviewed removal, prove the committed Git archive and Ray-absence
-contract, then mark P21-007 and Phase 21 Accepted.
+Phase 21 is complete. Continue only from a separately approved roadmap Task;
+do not restore the removed compatibility profile or exceptions.

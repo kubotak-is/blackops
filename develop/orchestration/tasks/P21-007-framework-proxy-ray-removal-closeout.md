@@ -1,6 +1,6 @@
 # P21-007: Ray Removal, Package Export, and Phase 21 Closeout
 
-Status: Review Pending
+Status: Accepted
 
 ## Goal
 
