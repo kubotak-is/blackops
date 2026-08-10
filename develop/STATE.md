@@ -1,6 +1,111 @@
 # Orchestration State
 
-Updated At: 2026-08-10T03:52:57+09:00
+Updated At: 2026-08-10T13:23:15+09:00
+
+## P21-006 Framework Proxy Compatibility and Migration Accepted
+
+```text
+2026-08-10T13:23:15+09:00
+Orchestrator independent reviewでP21-006をAcceptedとした。User選択どおりLegacy Ray 2.20.0の`never` compile failureとnamed variadic value-lossだけを互換期間の明示例外とし、Frameworkは両Signatureをsupport、no-fallbackとその他shared Signature／DI／Transaction／AfterCommit／Operation matrixを維持した。共通immutable Profile Unit、Build／profile／hash／inventory／realpath identity検証、二つの完全Build IDによるprevious Container rollback、strict collision guardをSourceとfresh-process fixtureへ照合した。Required 45 tests／274 assertions、Integration 10／262、Full 2,346／9,569、Consumer package export／isolated Composer 43 install、format、changed-source analyze 0 errors、管理番号guard、diff checkを独立PASS。Documentation ReviewerはP1=0／P2=0／P3=0でAcceptance許可。P21-007をReadyとし、accepted removal manifestでRayと二例外を同時削除する。Commit／Push／Deployなし。
+```
+
+## P21-006 Both Legacy Ray Exceptions Review Pending
+
+```text
+2026-08-10T12:11:53+09:00
+Framework named variadic正常動作（`named4`）とLegacy Ray value-loss（`named`）を、外側／内側とも15秒上限、generated source／sensitive fixture text非出力、temporary tree cleanup付きfresh-process evidenceへ固定した。Framework-only `never`／bounded Ray fatalと合わせ、User選択どおり二例外だけをDecision／Specification／Task／Guide／P21-007 removal manifestへ同期した。Orchestrator Required PHPUnit 45 tests／274 assertions、Compatibility 6／86を独立PASS。P21-006はReview Pending、Documentation final re-reviewとbroad regression待ち。Commit／Push／Deployなし。
+```
+
+## P21-006 Named Variadic Exception Decision
+
+```text
+2026-08-10T12:05:23+09:00
+UserはLegacy Ray named variadic value-lossを第二の互換期間例外としてDecision／Specificationへ記録し、P21-007でRayと一緒に削除する案を選択した。例外はRay 2.20.0の`never` compile failureとnamed variadic forwardingだけに限定し、Framework-owned generatorの両Signature support、no-fallback契約、その他shared matrixは変更しない。Framework正常動作とbounded Ray value-lossをfresh-process evidenceへ固定し、Documentation再Review／最終Acceptanceへ進む。Commit／Push／Deployなし。
+```
+
+## P21-006 Named Variadic Decision Blocker
+
+```text
+2026-08-10T11:51:30+09:00
+Documentation re-review P2補正でshared Signature matrixをnamed variadic、parent type、unrelated class／method／parameter Attributes、failure pathまで拡張した。Legacy Rayは`variadic(prefix: 'named', values: 4)`のnamed variadic valueを落として`named`を返し、Frameworkの`named4`とparity不一致になる。User決定はRay `never`だけの明示例外であり、第二例外へ勝手に拡張しないためP21-006はIn Progress。その他shared rows、Framework-only `never`、bounded Ray fatal、二つのreal complete buildによるprevious Container fresh load／cross-Build rejectionはPASSし、Orchestrator Required PHPUnitは43 tests／263 assertions。公開／内部Guideのcommon Profile Unit、loader chain、`never` migration、complete rollback記述も補正済み。Commit／Push／Deployなし。
+```
+
+## P21-006 Never Exception Matrix Review Pending
+
+```text
+2026-08-10T11:37:00+09:00
+User-selected exceptionをtest matrixへ反映し、Legacy Ray／Framework共通fresh runnerは`never`以外の全supported Signature row、DI、Transaction、AfterCommit、Operation、failure behaviorを実行する。Framework `never`は独立fresh runnerでcompile／runtime PASS、Ray PHP 8.5 fatalはbounded evidenceとして維持した。Orchestrator required PHPUnit 41 tests／238 assertions、artifact＋Framework補完matrix 60／131を独立PASS。Production／Legacy Ray sourceは追加変更なし。P21-006はReview PendingでDocumentation re-reviewと最終broad regression待ち。Commit／Push／Deployなし。
+```
+
+## P21-006 Legacy Ray Never Exception Decision
+
+```text
+2026-08-10T11:16:19+09:00
+UserはRay 2.20.0を一時修正せず、PHP 8.5でcompile不能となる`never` return rowだけを互換期間の明示例外としてDecision／Specificationへ記録する案を選択した。Framework-owned generatorの`never` support、no-fallback契約、その他すべてのshared Signature／DI／Lifecycle matrixは変更しない。P21-006は例外を反映したsame-profile matrixとFramework `never` evidenceの補正、独立Review／Acceptance待ち。P21-007でRay profileと例外対象を削除する。Commit／Push／Deployなし。
+```
+
+## P21-006 Consumer Accepted／Ray Never Decision Blocker
+
+```text
+2026-08-10T10:25:55+09:00
+Orchestrator-approved exact `bash tests/Consumer/framework-proxy-compatibility.sh` rerun PASS。Framework package export、isolated Composer 43 installs、`Mirroring from /repository`、Framework／Ray Production autoload、profile option、non-symlink vendor copy、Working Tree不変を確認した。先行runで発見したConsumer probeのnamespace過剰escapeはTask内で補正済み。P21-006の残件はSpecification 101が要求するsame supported Signature matrixとread-only Legacy Ray compilerの矛盾だけで、`never` Transactional methodはRay生成proxyが`A never-returning method must not return` PHP 8.5 Fatalとなる一方、Framework matrixはPASSする。TaskはIn Progress、Commit／Push／Deployなし。Rayを一時修正するか、明示的compatibility exceptionをDecision／Specへ記録するかOrchestrator判断待ち。
+```
+
+## P21-006 Consumer Escaping Correction Checkpoint
+
+```text
+2026-08-10T10:25:06+09:00
+Orchestrator Consumer run reached package mirroring then failed only the PHP autoload probe because framework compatibility class/interface literals in tests/Consumer/framework-proxy-compatibility.sh used doubled namespace separators. The script now emits PHP literals with the correct escaped separators for FrameworkProxyProfile, FrameworkProxyProfileLoader, and Ray WeavedInterface; bash -n and diff check pass. Exact Consumer rerun remains pending Orchestrator execution. Worker Commit／Push／Deployなし。
+```
+
+## P21-006 Compatibility Matrix Worker Checkpoint
+
+```text
+2026-08-10T10:18:15+09:00
+ApplicationBuildCompileCommandTest、FrameworkProxyCompatibilityTest、scheduled compiled-container assertions now compile in PHPUnit and execute all runtime checks in bounded proc_open runners using anonymous SQLite DBAL recording connections and DatabaseManager implementations. Focused required PHPUnit passes 40 tests／210 assertions; Framework generator/DI matrix passes 47／99. Proxy profile artifact publisher/loader now enforce manifest object/hash identity, exact Framework sibling directory, recursive inventory, file hashes, and symlink rejection; artifact focused tests pass 13／32. Ray legacy `never` support-row reproduction remains an explicit PHP 8.5 fatal blocker (`A never-returning method must not return`) with exact SignatureMatrix fixture/command recorded in Report; full dual-profile signature/DI parity is not claimed. Consumer Docker journey remains Orchestrator pending. Worker Commit／Push／Deployなし。
+```
+
+## P21-006 Profile Artifact Unit Checkpoint
+
+```text
+2026-08-10T09:59:02+09:00
+Documentation correction scope implemented: common immutable Build-ID/content-hash ProxyProfileArtifact manifest/publisher and prevalidation loader now bind Ray returned files or Framework manifest directory/hash as one atomic unit; central compile/dump uses the unit and emits zero-target Framework manifests. Ray identity preflight now requires exact target path and rejects anonymous/no-identity files before execution. Artifact publisher/loader tests pass 6 tests／13 assertions; full Ray/Framework runtime matrix remains blocked by same-process Ray compiler preloading and requires proc_open isolation. Consumer remains blocked by Docker API permission. Worker Commit／Push／Deployなし。
+```
+
+## P21-006 Documentation Review Correction Start
+
+```text
+2026-08-10T09:29:46+09:00
+Documentation ReviewerのRead-only reviewでP1=3／P2=3／P3=1となりAcceptance不可。Consumer exact scriptはOrchestrator escalated実行でpackage export後のisolated Composer installまで進んだが、Composer path repositoryがsymlink=false設定を反映せずSymlinkとなり非zero終了した。P1のうちStable/main表示、configuration artifact path、Ray profile manifest未記録を採用し、P2のunsupported signature migration、same full compatibility matrix、complete rollback runbookとP3 internal indexを補正する。P21-006 scopeへprofile別immutable compatibility artifact adapter／loaderとexact tests、configuration／release／internal index文書だけを追加する。Legacy Ray compiler、Operation／HTTP manifest schema、Public Website、Composer dependencyは変更しない。Worker Commit／Push／Deployなし。
+```
+
+## P21-006 Review-Correction Checkpoint
+
+```text
+2026-08-10T05:25:00+09:00
+Independent-review corrections applied without commit: Ray／Framework compatibility executes the same typed-variadic, constructor-DI/singleton, nested, rollback, and AfterCommit fixture matrix plus the same proxied Operation fixture; direct Operation handle has no transaction delta and the outer Required transaction adds exactly one begin/commit in both profiles. RuntimeContainerDumper has manifest-aware loader, mismatch, null-pair, and dual-input tests; two immutable complete Build IDs are loaded with cross-identity and cross-hash rejection; outer lazy build help exposes --proxy-profile; rollback docs select previous complete Container+manifest+artifact; consumer script invokes exact package export, isolated Composer install with symlink=false, vendor autoload checks, profile option surface checks, and worktree status check; Ray removal manifest names exact source/test/fixture/Composer/central/docs actions and retains global __BlackOpsProxy_ guard. Required focused PHPUnit passes with 40 tests／202 assertions, Mago format／scoped analyze, management-ID guard, and diff check pass. Consumer remains unchecked because shell Docker API access is permission denied. Report Status Review Pending. Worker Commit／Push／Deployなし。
+```
+
+## P21-006 Worker Implementation Checkpoint
+
+```text
+2026-08-10T04:25:00+09:00
+Implemented the single build:compile --proxy-profile=ray|framework option (default ray), Framework generator/Definition compiler integration, nested Definition runtime invocation wiring through the accepted P21-005 initializer seam, immutable FrameworkProxyProfileLoader container bootstrap, mixed-profile rejection, compatibility fixtures/tests/consumer journey, migration docs, and reviewed Ray removal manifest. Required focused PHPUnit 32 tests／150 assertions, compiled Framework journey, Mago format／scoped analyze, management-ID guard, and diff check pass. Consumer script is blocked by Docker API permission in its shell process and is handed to Orchestrator for rerun. Worker Commit／Push／Deployなし。
+```
+
+## P21-006 Task Scope Correction
+
+```text
+2026-08-10T03:55:48+09:00
+Orchestrator source reviewで、Application `build:compile`はApplicationConsoleKernelのLazyFrameworkCommandを外側に持つため、実Commandだけへ`--proxy-profile`を追加してもouter input validation／helpへ反映されないことを確認した。またRequired PHPUnitが`tests/Internal/Aop/FrameworkProxyCompatibility`を参照する一方でFiles Allowedから欠落していた。P21-006 Files AllowedへApplicationConsoleKernelのexact option definitionとcompatibility test directoryだけを追加し、P21-007へaccepted compatibility option removal targetを同期した。Factory／他Command／Ray sourceへScopeを広げない。Worker Commit／Push／Deployなし。
+```
+
+## P21-006 Ray／Framework Compatibility and Migration Start
+
+```text
+2026-08-10T03:53:19+09:00
+P21-005は86686b8、post-commit package export記録はe50d070としてCommit済みでWorking Tree cleanを確認した。P21-006をIn Progressとして開始する。Application-aware `build:compile --proxy-profile=ray|framework`（default ray）でprofileを一つだけ選び、accepted P21-002〜005 seamをcentral command／RuntimeContainerDumperへ接続する。Ray／Framework golden compatibility、manifest/profile mismatch／dual proxy、previous complete build rollback、OPcache-safe identity、Consumer clean install／package export、migration guide、reviewed Ray removal manifestを検証する。Standalone legacy command、Composer／Ray source deletion、P21-002〜005 implementation、Public Websiteは変更しない。Repository設定どおりGPT-5.6 Luna High workerへ委譲し、Orchestratorが独立Reviewする。Worker Commit／Push／Deployなし。
+```
 
 ## P21-005 Post-commit Package Export Accepted
 

@@ -58,6 +58,8 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use FilesystemIterator;
 use Nyholm\Psr7\Factory\Psr17Factory;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
 use Psr\Log\NullLogger;
@@ -77,6 +79,8 @@ final class MvpSampleEndToEndTest extends TestCase
     private const REPORT_GENERATED = 'App\\Feature\\Report\\GenerateReport\\ReportGenerated';
     private const WELCOME_SHOWN = 'App\\Feature\\Welcome\\ShowWelcome\\WelcomeShown';
 
+    #[RunInSeparateProcess]
+    #[PreserveGlobalState(false)]
     public function testCompiledSampleRunsInlineAndDeferredAcrossWorkerRestart(): void
     {
         $paths = $this->compileArtifacts();
@@ -419,16 +423,40 @@ final class MvpSampleEndToEndTest extends TestCase
                 'schema' => self::SCHEMA,
             ],
         ]);
-        $status = Application::configure($directory)
-            ->withConfiguration()
-            ->withServices([\App\ApplicationServiceProvider::class])
-            ->create()
-            ->console()
-            ->run(new ArrayInput(['command' => 'build:compile']), new BufferedOutput());
-
-        self::assertSame(0, $status);
+        $this->runBuildInChild(static function () use ($directory): int {
+            return Application::configure($directory)
+                ->withConfiguration()
+                ->withServices([\App\ApplicationServiceProvider::class])
+                ->create()
+                ->console()
+                ->run(new ArrayInput(['command' => 'build:compile']), new BufferedOutput());
+        });
 
         return $paths;
+    }
+
+    private function runBuildInChild(callable $build): void
+    {
+        self::assertTrue(function_exists('pcntl_fork'));
+        $pid = pcntl_fork();
+        self::assertNotSame(-1, $pid);
+        if ($pid === 0) {
+            ob_start();
+            try {
+                $status = $build();
+            } catch (\Throwable) {
+                $status = 1;
+            }
+            ob_end_clean();
+            $exitCode = is_int($status) && $status === 0 ? 0 : 1;
+            pcntl_exec(PHP_BINARY, ['-r', 'exit((int) $argv[1]);', (string) $exitCode]);
+            exit(1);
+        }
+
+        self::assertGreaterThan(0, $pid);
+        $status = 0;
+        pcntl_waitpid($pid, $status);
+        self::assertTrue(pcntl_wifexited($status) && pcntl_wexitstatus($status) === 0);
     }
 
     /** @param array<array-key, mixed> $configuration */

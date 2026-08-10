@@ -56,3 +56,4 @@ Framework実装者向けのArchitectureと実装ガイドを管理する。
 - [Maintenance Scheduler](maintenance-scheduler.md)
 - [Worker and Recovery](worker-runtime.md)
 - [Testing and Architecture Verification](core-contracts.md#public-api-architecture-guard)
+- [Framework Proxy Compatibility and Profile Artifacts](framework-proxy-compatibility.md)

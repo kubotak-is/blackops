@@ -232,8 +232,8 @@ MVP後に残す主要項目:
 - [x] P21-003 Framework Proxy generator／artifact／manifest／driftを実装する（Accepted）
 - [x] P21-004 Symfony DI Definition preservationを実装する（Accepted）
 - [x] P21-005 Transaction／AfterCommit runtime ownershipを実装する（Accepted）
-- [ ] P21-006 Ray／Framework compatibility／migration／consumer matrixを実装する（Ready、P21-005 Accepted）
-- [ ] P21-007 Ray removal／Composer／package export／Phase 21 closeoutを実装する（Planned、P21-006依存）
+- [x] P21-006 Ray／Framework compatibility／migration／consumer matrixを実装する（Accepted）
+- [ ] P21-007 Ray removal／Composer／package export／Phase 21 closeoutを実装する（Ready）
 
 ### Deferred: Documentation Website Publication
 

@@ -244,6 +244,14 @@ UserはQuestions 1〜7についてすべてOption Aを選択した。これに�
 6. MigrationはRayまたはFrameworkのmutually-exclusive build profileで行い、同じDefinitionへ二重Proxyを適用しない。Golden compatibility fixturesとprevious complete build rollbackを必須とする。
 7. Signature／DI／Lifecycle／Artifact／Migration／Consumer package-export／clean-install／namespace-removal gatesを全PASSした後、別Production TaskでRay source／fixtures／Composer dependencyを削除する。
 
+### P21-006 Compatibility Exceptions
+
+P21-006の実証で、Ray 2.20.0はPHP 8.5の`never` return methodに対して`return`を含むproxyを生成し、`A never-returning method must not return`でcompile不能になることが判明した。UserはLegacy Rayを一時修正する案ではなく、`never`を互換期間の明示例外として記録し、P21-007でRayを削除する案を選択した。
+
+その後の完全Matrix実証で、Rayの`func_get_args()`経路はextra named variadic valueを保持せず、`variadic(prefix: 'named', values: 4)`が`named4`ではなく`named`を返すことも判明した。UserはこれもLegacy Ray限定の第二例外として記録し、P21-007でRayと一緒に削除する案を選択した。
+
+二つの例外はLegacy Rayの互換fixtureだけに適用する。Framework-owned generatorの`never`／named variadic support、Build Error／no-fallback契約、その他すべてのshared Signature／DI／Lifecycle matrixは変更しない。P21-006はFrameworkで両Signatureのcompile／runtime evidence、Rayのbounded failure／value-loss evidence、その他の両profile parityを必須とし、P21-007受入れ時に例外対象そのものを削除する。
+
 ### Confirmed Consequences
 
 Specification 101、Phase 21 Delivery Plan 102、Production Task PacketをこのDecisionから分割する。Production実装は下記Task順で行い、各段階でRay pathを保持し、P21-007のRemoval GateまではRayを削除しない。

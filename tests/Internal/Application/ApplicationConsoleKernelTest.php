@@ -106,6 +106,12 @@ final class ApplicationConsoleKernelTest extends TestCase
             'command_name' => 'make:auth',
         ]), $authHelp));
         self::assertStringContainsString('--force', $authHelp->fetch());
+        $buildHelp = new BufferedOutput();
+        self::assertSame(0, $kernel->run(new ArrayInput([
+            'command' => 'help',
+            'command_name' => 'build:compile',
+        ]), $buildHelp));
+        self::assertStringContainsString('--proxy-profile=PROXY-PROFILE', $buildHelp->fetch());
         $replayHelp = new BufferedOutput();
         self::assertSame(0, $kernel->run(new ArrayInput([
             'command' => 'help',

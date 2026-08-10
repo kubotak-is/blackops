@@ -109,6 +109,8 @@ The compiled Container MUST require only files listed by its matching manifest. 
 
 During compatibility, an Application selects one build profile for the complete Application-aware compile with `build:compile --proxy-profile=ray|framework`. The default is `ray` until the removal gate is accepted. The standalone legacy `blackops:build:compile` command is not part of this surface because it does not invoke AOP. The profile is recorded in the manifest. Both modes run the same supported Signature, Transactional, AfterCommit, Operation lifecycle, DI preservation, failure diagnostic, and consumer package-export fixtures. Unsupported framework signatures remain explicitly on Ray until refactored; they are never silently unproxied. Central command/profile wiring and manifest-aware RuntimeContainerDumper integration are owned by P21-006 after the P21-004/P21-005 seams are accepted.
 
+The compatibility-period exceptions are limited to two legacy Ray 2.20.0 rows. On PHP 8.5, Ray generates a returning proxy body for `never` and compilation terminates with `A never-returning method must not return`. Ray also obtains invocation arguments with `func_get_args()`, so an extra named variadic value is dropped instead of being forwarded. The Ray compiler remains read-only because P21-007 removes it. These exceptions do not reclassify either signature: the Framework profile MUST compile and invoke `never`, MUST preserve named variadic keys and values, all other supported rows MUST run in both profiles, and neither profile may silently leave an attributed method unproxied. Compatibility evidence records the bounded Ray failures without persisting generated source or sensitive diagnostics.
+
 Rollback selects a previous complete Container plus matching manifest and artifact directory. It never enables a second interceptor at Runtime. The compatibility period ends only when all first-party and consumer fixtures pass in framework mode and no resolved Definition is a Ray proxy.
 
 ## Ray.Aop removal gate
@@ -119,7 +121,7 @@ Ray.Aop and `ext-tokenizer` MAY be removed only after all of the following are i
 2. Generator manifest, content drift, atomic publication, post-success cleanup, Runtime no-scan, and OPcache-safe identity tests pass.
 3. DI preservation tests pass for supported features and reject factory/lazy/synthetic/abstract/decoration boundaries.
 4. Inline, Deferred, self-handled, and general Service tests prove one Transaction owner and no double intercept.
-5. Ray/framework compatibility, migration, previous-build rollback, and consumer package-export tests pass.
+5. Ray/framework compatibility, migration, previous-build rollback, and consumer package-export tests pass, with only the recorded legacy-Ray `never` compilation and named-variadic forwarding exceptions; Framework support for both signatures and all other shared rows remain required.
 6. `rg` finds no Ray namespace, Composer dependency, `WeavedInterface`, AOP fixtures, or legacy proxy artifact outside historical Decision/Report references, and clean-install/export verification passes.
 7. A separately accepted removal Task deletes Ray source adapters, tests/fixtures, Composer entries, and compatibility profile. Until then Ray remains available.
 

@@ -52,6 +52,7 @@ BlackOpsはExperimentalです。1.x Minor間のBackward CompatibilityとProducti
 | BOPD v1 Protected Storage／StorageKeyProvider | 未提供 | 利用可（試験的、XChaCha20-Poly1305） |
 | `storage:protection:plan`／`rotate`／Resume | 未提供 | 利用可（試験的、Bounded／CAS／Audit） |
 | Scheduled Application Operation／`ScheduledBy`／one-shot CLI | 未提供 | 利用可（試験的、`operation:schedule:run`） |
+| Build Proxy Profile Artifact Unit（Ray／Framework、Build ID／Content Hash binding） | 未提供 | 利用可（試験的、`build:compile --proxy-profile`） |
 
 Stable Applicationを作る場合はVersionを明示します。
 

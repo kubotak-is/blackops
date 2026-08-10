@@ -11,6 +11,7 @@ use BlackOps\Internal\Console\DatabaseMigrationMigrateCommand;
 use BlackOps\Internal\Console\DatabaseMigrationStatusCommand;
 use BlackOps\Internal\Console\DatabaseSeedCommand;
 use BlackOps\Internal\Console\FrameworkCommandNames;
+use BlackOps\Internal\Console\FrameworkProxyProfileOption;
 use BlackOps\Internal\Console\FrontendCheckCommand;
 use BlackOps\Internal\Console\FrontendGenerateCommand;
 use BlackOps\Internal\Console\JournalObserverReplayCommand;
@@ -132,7 +133,9 @@ final readonly class ApplicationConsoleKernel
                 ApplicationBuildCompileCommand::NAME,
                 'Compile application operation, HTTP, command, and container artifacts.',
                 $factory->build(...),
-                $none,
+                static function (Command $command): void {
+                    FrameworkProxyProfileOption::configure($command);
+                },
             ),
             new LazyFrameworkCommand(
                 FrontendGenerateCommand::NAME,

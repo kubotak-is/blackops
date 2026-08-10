@@ -33,6 +33,8 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use FilesystemIterator;
 use Nyholm\Psr7\Factory\Psr17Factory;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use RecursiveDirectoryIterator;
@@ -72,6 +74,8 @@ final class ApplicationHttpRuntimeTest extends TestCase
         }
     }
 
+    #[RunInSeparateProcess]
+    #[PreserveGlobalState(false)]
     public function testComposesAndReusesInlineAndDeferredHttpRuntimeWithoutImplicitMigration(): void
     {
         $paths = $this->compileArtifacts();
@@ -145,6 +149,8 @@ final class ApplicationHttpRuntimeTest extends TestCase
         );
     }
 
+    #[RunInSeparateProcess]
+    #[PreserveGlobalState(false)]
     public function testDeferredAcknowledgementAndStatusUseCompiledAuthorizerAndPostgreSqlProjection(): void
     {
         $paths = $this->compileArtifacts(withAuthorizationFixture: true);
@@ -200,6 +206,8 @@ final class ApplicationHttpRuntimeTest extends TestCase
         self::assertSame($actor->type(), $authorization->originActor()->type());
     }
 
+    #[RunInSeparateProcess]
+    #[PreserveGlobalState(false)]
     public function testCompiledPolicyReceivesAuthenticatedActorInApplicationHttpRuntime(): void
     {
         $paths = $this->compileArtifacts(withAuthorizationFixture: true);
@@ -234,6 +242,8 @@ final class ApplicationHttpRuntimeTest extends TestCase
         self::assertInstanceOf(ExecutionScopedLogger::class, $policy->logger);
     }
 
+    #[RunInSeparateProcess]
+    #[PreserveGlobalState(false)]
     public function testHttpRuntimeUsesConfiguredJsonlStreamChannelAndMinimumLevel(): void
     {
         $paths = $this->compileArtifacts(withAuthorizationFixture: true);
@@ -269,6 +279,8 @@ final class ApplicationHttpRuntimeTest extends TestCase
         self::assertSame('authorization warning', $record['message']);
     }
 
+    #[RunInSeparateProcess]
+    #[PreserveGlobalState(false)]
     public function testEstablishedOperationFailureKeepsCorrelatedResponseThroughOuterBoundary(): void
     {
         $paths = $this->compileArtifacts(withAuthorizationFixture: true);
@@ -403,12 +415,37 @@ final class ApplicationHttpRuntimeTest extends TestCase
                 ApplicationHttpStorageServiceProvider::class,
                 ...($withAuthorizationFixture ? [ApplicationRuntimeServiceProvider::class] : []),
             ]);
-        $status = $builder->create()->console()->run(new ArrayInput([
-            'command' => 'build:compile',
-        ]), new BufferedOutput());
-        self::assertSame(0, $status);
+        $this->runBuildInChild(static function () use ($builder): int {
+            return $builder->create()->console()->run(new ArrayInput([
+                'command' => 'build:compile',
+            ]), new BufferedOutput());
+        });
 
         return $paths;
+    }
+
+    private function runBuildInChild(callable $build): void
+    {
+        self::assertTrue(function_exists('pcntl_fork'));
+        $pid = pcntl_fork();
+        self::assertNotSame(-1, $pid);
+        if ($pid === 0) {
+            ob_start();
+            try {
+                $status = $build();
+            } catch (\Throwable) {
+                $status = 1;
+            }
+            ob_end_clean();
+            $exitCode = is_int($status) && $status === 0 ? 0 : 1;
+            pcntl_exec(PHP_BINARY, ['-r', 'exit((int) $argv[1]);', (string) $exitCode]);
+            exit(1);
+        }
+
+        self::assertGreaterThan(0, $pid);
+        $status = 0;
+        pcntl_waitpid($pid, $status);
+        self::assertTrue(pcntl_wifexited($status) && pcntl_wexitstatus($status) === 0);
     }
 
     /**
@@ -454,9 +491,18 @@ final class ApplicationHttpRuntimeTest extends TestCase
             'path' => $this->journalPath,
             'delivery' => 'best_effort',
         ]]);
-        if ($logging !== null) {
-            $this->writeConfig($config, 'logging', $logging);
-        }
+        $this->writeConfig(
+            $config,
+            'logging',
+            $logging ?? [
+                'backend' => [
+                    'driver' => 'jsonl',
+                    'stream' => $directory . '/application.jsonl',
+                    'channel' => 'http-test',
+                    'minimum_level' => 'debug',
+                ],
+            ],
+        );
 
         return Application::configure($directory)->withConfiguration()->create();
     }

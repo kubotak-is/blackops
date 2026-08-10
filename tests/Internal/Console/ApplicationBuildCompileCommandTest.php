@@ -19,15 +19,11 @@ use BlackOps\Core\Outcome;
 use BlackOps\Core\Registry\OperationProvider;
 use BlackOps\Core\ScheduleContext;
 use BlackOps\Core\TenantRef;
-use BlackOps\Database\DatabaseManager;
 use BlackOps\Http\Routing\HttpOperationManifestFile;
 use BlackOps\Internal\Application\ApplicationConfigurationSnapshot;
 use BlackOps\Internal\Console\ApplicationBuildCompileCommand;
-use BlackOps\Internal\Execution\ExecutionScopeProvider;
 use BlackOps\Internal\Frontend\FrontendContractManifestFile;
 use BlackOps\Internal\Registry\OperationManifestFile;
-use BlackOps\Internal\StorageProtection\BopdEnvelopeCodec;
-use BlackOps\Internal\Transaction\RuntimeTransactionServiceInjector;
 use BlackOps\Scheduling\ScheduledActorProvider;
 use BlackOps\Status\OperationStatusAuthorizationDecision;
 use BlackOps\Status\OperationStatusAuthorizationRequest;
@@ -37,9 +33,7 @@ use BlackOps\StorageProtection\StorageKeyProvider;
 use BlackOps\StorageProtection\StoragePurpose;
 use BlackOps\Tests\Fixtures\Aop\TransactionalOperation;
 use BlackOps\Tests\Fixtures\Aop\TransactionalService;
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Ray\Aop\WeavedInterface;
 use Symfony\Component\Console\Tester\CommandTester;
 
 final class ApplicationBuildCompileCommandTest extends TestCase
@@ -91,9 +85,6 @@ final class ApplicationBuildCompileCommandTest extends TestCase
         );
 
         $status = new CommandTester(new ApplicationBuildCompileCommand($configuration))->execute([]);
-        require_once $containerPath;
-        $containerClass = $namespace . '\\' . $class;
-        $container = new $containerClass();
         $metadata = new OperationManifestFile()
             ->load($operationManifest)
             ->findByTypeId('application.build.authorized');
@@ -111,34 +102,18 @@ final class ApplicationBuildCompileCommandTest extends TestCase
         self::assertSame($operationArtifact->applicationBuildId, $frontendArtifact->applicationBuildId);
         self::assertSame(ApplicationBuildAuthorizationPolicy::class, $metadata?->authorizationPolicy);
         self::assertSame('app', $transactionalMetadata?->transactionConnection);
-        self::assertInstanceOf(
-            ApplicationBuildAuthorizationPolicy::class,
-            $container->get(ApplicationBuildAuthorizationPolicy::class),
-        );
-        self::assertInstanceOf(
-            ApplicationBuildPolicyDependency::class,
-            $container->get(ApplicationBuildAuthorizationPolicy::class)->dependency,
-        );
-        self::assertInstanceOf(
-            ApplicationBuildStatusAuthorizer::class,
-            $container->get(OperationStatusAuthorizer::class),
-        );
-        self::assertInstanceOf(BopdEnvelopeCodec::class, $container->get(BopdEnvelopeCodec::class));
-        $connection = $this->transactionConnection();
-        $databases = $this->createStub(DatabaseManager::class);
-        $databases->method('connection')->willReturn($connection);
-        $container->set(DatabaseManager::class, $databases);
-        $container->set(Connection::class, $connection);
-        new RuntimeTransactionServiceInjector()->inject($container, $databases, new ExecutionScopeProvider());
-        self::assertTrue($container->has(DatabaseManager::class));
-        self::assertTrue($container->has(Connection::class));
-        $transactional = $container->get(TransactionalService::class);
-        self::assertInstanceOf(WeavedInterface::class, $transactional);
-        self::assertNotInstanceOf(WeavedInterface::class, new TransactionalService());
-        self::assertSame('application-build-aop', $transactional->execute('application-build-aop'));
-        self::assertSame(1, $transactional->calls);
+        $runtime = $this->runCompiledContainer($containerPath, $namespace . '\\' . $class, 'application');
+        self::assertSame('application-build-aop', $runtime['service']);
+        self::assertSame(1, $runtime['calls']);
+        self::assertTrue($runtime['weaved']);
+        self::assertTrue($runtime['has_database']);
+        self::assertTrue($runtime['has_connection']);
+        self::assertTrue($runtime['policy']);
+        self::assertTrue($runtime['dependency']);
+        self::assertTrue($runtime['status']);
+        self::assertTrue($runtime['codec']);
         $source = (string) file_get_contents($containerPath);
-        self::assertStringContainsString("require_once __DIR__ . '/aop/", $source);
+        self::assertStringContainsString('ProxyProfileArtifactLoader', $source);
         self::assertStringNotContainsString('build-credential-that-must-not-appear', $source);
         self::assertStringNotContainsString("'password'", $source);
 
@@ -147,6 +122,53 @@ final class ApplicationBuildCompileCommandTest extends TestCase
             self::assertStringNotContainsString('build-credential-that-must-not-appear', $proxy);
             self::assertStringNotContainsString("'password'", $proxy);
         }
+    }
+
+    public function testFrameworkProfileDumpsAndInitializesGeneratedProxy(): void
+    {
+        $configuration = new ApplicationConfigurationSnapshot(
+            dirname(__DIR__, 3),
+            [
+                'app' => ['build' => [
+                    'operation_manifest' => $this->path('framework-operation-manifest'),
+                    'http_manifest' => $this->path('framework-http-manifest'),
+                    'frontend_manifest' => $this->path('framework-frontend-manifest'),
+                    'container' => $this->path('framework-container'),
+                    'container_class' => 'FrameworkBuildContainer' . bin2hex(random_bytes(8)),
+                    'container_namespace' => __NAMESPACE__ . '\\FrameworkGenerated',
+                    'application_build_id' => 'application-build-framework',
+                ]],
+                'database' => [
+                    'default' => 'app',
+                    'connections' => ['app' => ['driver' => 'pdo_pgsql']],
+                    'framework' => ['connection' => 'app', 'schema' => 'blackops'],
+                ],
+            ],
+            ['BlackOps\\Tests\\Internal\\Console\\ApplicationBuildOperationProvider'],
+            ['BlackOps\\Tests\\Internal\\Console\\ApplicationBuildServiceProvider'],
+            [],
+        );
+        $tester = new CommandTester(new ApplicationBuildCompileCommand($configuration));
+        self::assertSame(0, $tester->execute(['--proxy-profile' => 'framework']));
+        $build = $configuration->configuration()['app']['build'];
+        $runtime = $this->runCompiledContainer(
+            (string) $build['container'],
+            __NAMESPACE__ . '\\FrameworkGenerated\\' . $build['container_class'],
+            'application',
+        );
+        self::assertSame('application-build-aop', $runtime['service']);
+        self::assertSame(1, $runtime['calls']);
+        self::assertFalse($runtime['weaved']);
+        self::assertTrue($runtime['has_database']);
+        self::assertTrue($runtime['has_connection']);
+        self::assertTrue($runtime['policy']);
+        self::assertTrue($runtime['dependency']);
+        self::assertTrue($runtime['status']);
+        self::assertTrue($runtime['codec']);
+        self::assertStringContainsString(
+            'ProxyProfileArtifactLoader',
+            (string) file_get_contents((string) $build['container']),
+        );
     }
 
     public function testRejectsAuthorizedScheduledOperationWhenActorProviderIsMissing(): void
@@ -175,13 +197,41 @@ final class ApplicationBuildCompileCommandTest extends TestCase
         $containerClass = __NAMESPACE__ . '\\GeneratedScheduled\\' . (string) $build['container_class'];
 
         self::assertSame(0, new CommandTester(new ApplicationBuildCompileCommand($configuration))->execute([]));
-        require_once $containerPath;
+        $runtime = $this->runCompiledContainer($containerPath, $containerClass, 'scheduled');
+        self::assertTrue($runtime['scheduled_actor']);
+    }
 
-        $container = new $containerClass();
-        self::assertInstanceOf(
-            ApplicationBuildScheduledActorProvider::class,
-            $container->get(ScheduledActorProvider::class),
+    public function testPreviousCompleteBuildRollsBackAndCrossBuildUnitIsRejected(): void
+    {
+        $previous = $this->scheduledConfiguration(
+            [ApplicationBuildScheduledOperationProvider::class],
+            [ApplicationBuildScheduledActorServiceProvider::class],
+            'rollback-previous-' . bin2hex(random_bytes(3)),
         );
+        self::assertSame(0, new CommandTester(new ApplicationBuildCompileCommand($previous))->execute([]));
+        $current = $this->scheduledConfiguration(
+            [ApplicationBuildScheduledOperationProvider::class],
+            [ApplicationBuildScheduledActorServiceProvider::class],
+            'rollback-current-' . bin2hex(random_bytes(3)),
+        );
+        self::assertSame(0, new CommandTester(new ApplicationBuildCompileCommand($current))->execute([]));
+        $previousBuild = $previous->configuration()['app']['build'];
+        $currentBuild = $current->configuration()['app']['build'];
+        $previousClass = __NAMESPACE__ . '\\GeneratedScheduled\\' . $previousBuild['container_class'];
+        $previousRuntime = $this->runCompiledContainer(
+            (string) $previousBuild['container'],
+            $previousClass,
+            'scheduled',
+        );
+        self::assertTrue($previousRuntime['scheduled_actor']);
+        $mutated = $this->path('rollback-cross-build-container');
+        $source = (string) file_get_contents((string) $previousBuild['container']);
+        file_put_contents($mutated, str_replace(
+            (string) $previousBuild['application_build_id'],
+            (string) $currentBuild['application_build_id'],
+            $source,
+        ));
+        $this->runCompiledContainer($mutated, $previousClass, 'scheduled', expectFailure: true);
     }
 
     /** @param list<class-string<OperationProvider>> $operations @param list<class-string<ServiceProvider>> $services */
@@ -221,41 +271,59 @@ final class ApplicationBuildCompileCommandTest extends TestCase
         return $this->directory . '/' . $name . '.php';
     }
 
-    private function transactionConnection(): Connection
-    {
-        $active = false;
-        $level = 0;
-        $connection = $this->createStub(Connection::class);
-        $connection
-            ->method('isTransactionActive')
-            ->willReturnCallback(static function () use (&$active): bool {
-                return $active;
-            });
-        $connection
-            ->method('getTransactionNestingLevel')
-            ->willReturnCallback(static function () use (&$level): int {
-                return $level;
-            });
-        $connection
-            ->method('beginTransaction')
-            ->willReturnCallback(static function () use (&$active, &$level): void {
-                $active = true;
-                $level = 1;
-            });
-        $connection
-            ->method('commit')
-            ->willReturnCallback(static function () use (&$active, &$level): void {
-                $active = false;
-                $level = 0;
-            });
-        $connection
-            ->method('rollBack')
-            ->willReturnCallback(static function () use (&$active, &$level): void {
-                $active = false;
-                $level = 0;
-            });
-
-        return $connection;
+    /** @return array<string,mixed> */
+    private function runCompiledContainer(
+        string $path,
+        string $class,
+        string $scenario,
+        bool $expectFailure = false,
+    ): array {
+        $process = proc_open(
+            [
+                PHP_BINARY,
+                dirname(__DIR__) . '/Aop/FrameworkProxyCompatibility/runtime-runner.php',
+                $path,
+                $class,
+                $scenario,
+            ],
+            [1 => ['pipe', 'w'], 2 => ['pipe', 'w']],
+            $pipes,
+        );
+        self::assertIsResource($process);
+        stream_set_blocking($pipes[1], false);
+        stream_set_blocking($pipes[2], false);
+        $started = microtime(true);
+        $stdout = '';
+        $stderr = '';
+        while (true) {
+            $status = proc_get_status($process);
+            $stdout .= (string) stream_get_contents($pipes[1]);
+            $stderr .= (string) stream_get_contents($pipes[2]);
+            if (!$status['running']) {
+                break;
+            }
+            if ((microtime(true) - $started) > 15.0) {
+                proc_terminate($process);
+                self::fail('compiled container runner timed out');
+            }
+            usleep(10_000);
+        }
+        $stdout .= (string) stream_get_contents($pipes[1]);
+        $stderr .= (string) stream_get_contents($pipes[2]);
+        fclose($pipes[1]);
+        fclose($pipes[2]);
+        $exit = proc_close($process);
+        if ($exit === -1 && isset($status['exitcode'])) {
+            $exit = (int) $status['exitcode'];
+        }
+        if ($expectFailure) {
+            self::assertNotSame(0, $exit, trim($stderr . "\n" . $stdout));
+            return [];
+        }
+        self::assertSame(0, $exit, trim($stderr . "\n" . $stdout));
+        $decoded = json_decode(trim($stdout), true);
+        self::assertIsArray($decoded, $stderr);
+        return $decoded;
     }
 }
 

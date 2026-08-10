@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace BlackOps\Internal\DependencyInjection;
 
+use BlackOps\Internal\Aop\FrameworkProxyArtifact\FrameworkProxyArtifactManifest;
+use BlackOps\Internal\Aop\FrameworkProxyContract\FrameworkProxyProfile;
+use BlackOps\Internal\Aop\ProxyProfileArtifact\ProxyProfileArtifactManifest;
 use InvalidArgumentException;
 use RuntimeException;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -18,6 +21,11 @@ final readonly class RuntimeContainerDumper
         string $class,
         string $namespace = '',
         array $requiredFiles = [],
+        string|FrameworkProxyProfile $profile = FrameworkProxyProfile::RAY,
+        ?FrameworkProxyArtifactManifest $frameworkManifest = null,
+        ?string $frameworkArtifactDirectory = null,
+        ?ProxyProfileArtifactManifest $profileArtifact = null,
+        ?string $profileArtifactDirectory = null,
     ): void {
         $this->assertIdentifier($class, 'container class');
 
@@ -43,9 +51,95 @@ final readonly class RuntimeContainerDumper
             throw new RuntimeException('Runtime container dump must be a single PHP file.');
         }
 
-        $source .= $this->requiredFileSource($requiredFiles, $directory);
+        $profile = FrameworkProxyProfile::from($profile);
+        if (($profileArtifact === null) !== ($profileArtifactDirectory === null)) {
+            throw new InvalidArgumentException('Runtime proxy profile artifact manifest and directory must be paired.');
+        }
+        if ($profileArtifact !== null) {
+            if (
+                $requiredFiles !== []
+                || $frameworkManifest !== null
+                || $frameworkArtifactDirectory !== null
+                || !$profileArtifact->profile->equals($profile)
+            ) {
+                throw new InvalidArgumentException('Runtime container cannot mix proxy profile artifact inputs.');
+            }
+            $source .= $this->profileArtifactSource($profileArtifact, $profileArtifactDirectory, $directory, $profile);
+            $this->write($source, $directory, $path);
+            return;
+        }
+        $frameworkInputs = $frameworkManifest !== null || $frameworkArtifactDirectory !== null;
+        if ($profile->equals(FrameworkProxyProfile::FRAMEWORK)) {
+            if ($requiredFiles !== [] || ($frameworkManifest === null) !== ($frameworkArtifactDirectory === null)) {
+                throw new InvalidArgumentException('Runtime container cannot mix or omit Framework proxy artifacts.');
+            }
+        } elseif ($frameworkInputs) {
+            throw new InvalidArgumentException('Runtime container cannot mix Ray and Framework proxy artifacts.');
+        }
+        $source .= $profile->equals(FrameworkProxyProfile::RAY)
+            ? $this->requiredFileSource($requiredFiles, $directory)
+            : $this->frameworkFileSource($frameworkManifest, $frameworkArtifactDirectory, $directory);
 
         $this->write($source, $directory, $path);
+    }
+
+    private function profileArtifactSource(
+        ProxyProfileArtifactManifest $manifest,
+        ?string $artifactDirectory,
+        string $containerDirectory,
+        FrameworkProxyProfile $profile,
+    ): string {
+        if (
+            $artifactDirectory === null
+            || !is_dir($artifactDirectory)
+            || basename($artifactDirectory) !== $manifest->applicationBuildId . '-' . $manifest->contentHash
+        ) {
+            throw new InvalidArgumentException('Runtime proxy profile artifact is invalid.');
+        }
+        if (dirname($artifactDirectory) !== $containerDirectory . DIRECTORY_SEPARATOR . 'proxy-profiles') {
+            throw new InvalidArgumentException('Runtime proxy profile artifact location is invalid.');
+        }
+        return sprintf(
+            "\n(new \\BlackOps\\Internal\\Runtime\\ProxyProfileArtifactLoader())->load(__DIR__ . '/proxy-profiles/%s', %s, %s, %s);\n",
+            basename($artifactDirectory),
+            var_export($manifest->applicationBuildId, true),
+            var_export($manifest->contentHash, true),
+            var_export($profile->value, true),
+        );
+    }
+
+    private function frameworkFileSource(
+        ?FrameworkProxyArtifactManifest $manifest,
+        ?string $artifactDirectory,
+        string $containerDirectory,
+    ): string {
+        if ($manifest === null) {
+            return '';
+        }
+        if ($manifest->profile->value !== FrameworkProxyProfile::FRAMEWORK || $manifest->files === []) {
+            throw new InvalidArgumentException('Runtime framework proxy artifact is invalid.');
+        }
+        if (
+            $artifactDirectory === null
+            || !is_dir($artifactDirectory)
+            || basename($artifactDirectory) !== $manifest->applicationBuildId . '-' . $manifest->inputHash
+        ) {
+            throw new InvalidArgumentException('Runtime framework proxy artifact is invalid.');
+        }
+        $root = realpath($artifactDirectory);
+        if ($root === false || realpath($containerDirectory) === false) {
+            throw new InvalidArgumentException('Runtime framework proxy artifact is invalid.');
+        }
+        if (dirname($artifactDirectory) !== $containerDirectory . DIRECTORY_SEPARATOR . 'framework-proxies') {
+            throw new InvalidArgumentException('Runtime framework proxy artifact location is invalid.');
+        }
+        $relativeRoot = 'framework-proxies/' . basename($artifactDirectory);
+        return sprintf(
+            "\n(new \\BlackOps\\Internal\\Runtime\\FrameworkProxyProfileLoader())->load(__DIR__ . '/%s', %s, %s, 'framework');\n",
+            $relativeRoot,
+            var_export($manifest->applicationBuildId, true),
+            var_export($manifest->manifestHash, true),
+        );
     }
 
     /** @param list<string> $requiredFiles */

@@ -34,6 +34,8 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use FilesystemIterator;
 use Nyholm\Psr7\Factory\Psr17Factory;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -68,6 +70,8 @@ final class ApplicationConsoleKernelTest extends TestCase
         }
     }
 
+    #[RunInSeparateProcess]
+    #[PreserveGlobalState(false)]
     public function testApplicationConsoleBuildsMigratesProcessesAndMaintainsExplicitly(): void
     {
         $directory = $this->directory();
@@ -156,6 +160,8 @@ final class ApplicationConsoleKernelTest extends TestCase
         ));
     }
 
+    #[RunInSeparateProcess]
+    #[PreserveGlobalState(false)]
     public function testApplicationWorkerUsesConfiguredSystemActorAndCompiledPolicy(): void
     {
         $directory = $this->directory();
@@ -295,12 +301,44 @@ final class ApplicationConsoleKernelTest extends TestCase
         string $command,
         array $options = [],
     ): string {
+        if ($command === 'build:compile') {
+            $this->runBuildInChild(static function () use ($kernel, $command, $options): int {
+                return $kernel->run(new ArrayInput(['command' => $command, ...$options]), new BufferedOutput());
+            });
+
+            return '';
+        }
+
         $output = new BufferedOutput();
         $status = $kernel->run(new ArrayInput(['command' => $command, ...$options]), $output);
         $display = $output->fetch();
         self::assertSame(0, $status, $display);
 
         return $display;
+    }
+
+    private function runBuildInChild(callable $build): void
+    {
+        self::assertTrue(function_exists('pcntl_fork'));
+        $pid = pcntl_fork();
+        self::assertNotSame(-1, $pid);
+        if ($pid === 0) {
+            ob_start();
+            try {
+                $status = $build();
+            } catch (\Throwable) {
+                $status = 1;
+            }
+            ob_end_clean();
+            $exitCode = is_int($status) && $status === 0 ? 0 : 1;
+            pcntl_exec(PHP_BINARY, ['-r', 'exit((int) $argv[1]);', (string) $exitCode]);
+            exit(1);
+        }
+
+        self::assertGreaterThan(0, $pid);
+        $status = 0;
+        pcntl_waitpid($pid, $status);
+        self::assertTrue(pcntl_wifexited($status) && pcntl_wexitstatus($status) === 0);
     }
 
     private function assertWorkerComposition(Application $application): void
