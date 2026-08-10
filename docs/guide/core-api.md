@@ -2,7 +2,7 @@
 
 このReferenceは現在の`main` Sourceで`#[PublicApi]`を持つ215型を一覧化しています。Application Authorはまず「Application構成」「Database」「Operation Authoring」「Validation」「Status／Outcome取得」の型を使い、Transport、Journal、Retention等のPortはAdapterを拡張するときだけ使ってください。
 
-`BlackOps\Core\Attribute\PublicApi` marker自身は利用者向けAPIではないため一覧へ含めません。内部実装Namespaceと`#[PublicApi]`を持たない実装型にも依存しないでください。Attributeの付与対象と標準形は[Attributes](attributes.md)を確認してください。
+`BlackOps\Core\Attribute\PublicApi` marker自身は利用者向けAPIではないため一覧へ含めません。内部実装Namespaceと`#[PublicApi]`を持たない実装型にも依存しないでください。`CanonicalJournalReader`／`OutcomeReader`はPublicApi markerを持たないInfrastructure SPIとして内部Adapterへ再分類され、Applicationの読み取りはOperationData Queryを使います。Readerの型／Methodを含むPublicApi aggregate StoreのAdapter境界はJournal／Outcome節に記載します。Attributeの付与対象と標準形は[Attributes](attributes.md)を確認してください。
 
 ## Application構成
 
@@ -281,7 +281,6 @@ HTTPの`GET /operations/{operationId}`とGenerated `.status()`／`.wait()`はこ
 | `BlackOps\Journal\JournalDeliveryPolicy` | enum | Best effort／Required配送を選ぶ | Observer Pipelineを構成する |
 | `BlackOps\Journal\JournalObserver` | interface | Projection済みRecord受信Port | Custom Log／Telemetry Sinkを実装する |
 | `BlackOps\Journal\FlushableJournalObserver` | interface | Flush可能なObserver Contract | Bufferを持つSinkで実装する |
-| `BlackOps\Journal\CanonicalJournalReader` | Infrastructure SPI | Protected Canonical Recordを読む | Worker／Status Projection／Replay等の内部Adapterだけで使う |
 | `BlackOps\Journal\CanonicalJournalWriter` | interface | Canonical Recordを追記する | Durable Journal Adapterで実装する |
 | `BlackOps\Journal\CanonicalJournalStore` | aggregate interface | ReaderとWriterを束ねる | 一体型Canonical Storeで実装する |
 | `BlackOps\Logging\JsonlJournalRecordEncoder` | final readonly class | Observed RecordをJSONLへEncodeする | File／Stream Observerで使う |

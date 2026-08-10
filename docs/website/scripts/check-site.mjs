@@ -47,6 +47,11 @@ const cssAssets = await Promise.all(
 );
 const styles = cssAssets.join('\n');
 const landing = pages.get('/');
+const releases = pages.get('/releases/current-status');
+requireText(releases, 'CHANGELOG%2Emd', 'Release notes CHANGELOG link');
+requireText(releases, 'UPGRADE%2Emd', 'Release notes UPGRADE link');
+requireText(releases, '9つのMigration', 'Release notes migration boundary');
+requireText(releases, 'annotated Tag <code>1.1.0</code>', 'Release notes stable-to-candidate evidence');
 requireText(landing, '<h1 id="landing-title"><span class="landing-brand">BlackOps</span><span class="landing-tagline">The PHP Framework</span></h1>', 'Landing product heading');
 requireText(landing, 'href="/getting-started/installation"', 'Landing Installation action');
 requireText(landing, 'href="/concepts/why-blackops"', "Landing What's BlackOps action");

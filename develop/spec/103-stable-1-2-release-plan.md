@@ -1,6 +1,6 @@
 # Specification 103: Stable 1.2 Release Plan
 
-Status: Decided (P22-001 baseline)
+Status: Decided (P22-002 accepted; P22-003 fixed-SHA gate pending)
 
 ## Release lanes
 
@@ -22,11 +22,13 @@ Stable install commands and historical release evidence continue to use `1.1.0`.
 
 ## Documentation contract
 
-README, Guides, Internal documentation, CHANGELOG Unreleased, and UPGRADE Preview explicitly identify the `1.2.0` candidate without calling it Latest Stable or published. The Stable onboarding remains executable from the existing `1.1.0` Tag.
+README, Guides, Internal documentation, CHANGELOG Unreleased, and UPGRADE Preview explicitly identify the `1.2.0` candidate without calling it Latest Stable or published. The Releases guide links the canonical root CHANGELOG/UPGRADE and actual-tag Consumer. The Stable onboarding remains executable from the existing `1.1.0` Tag.
 
 ## Release gate boundary
 
-P22-001 establishes the version baseline and focused inventory evidence only. Complete `1.2.0` Release Notes／Migration, quality and Consumer full gate, annotated Tag, Skeleton split publication, Packagist, GitHub Release, and deployment are subsequent work.
+P22-001 establishes the version baseline and P22-002 completes the Release Notes／Migration documentation and actual-tag Consumer evidence. Complete `1.2.0` quality/full gate, annotated Tag, Skeleton split publication, Packagist, GitHub Release, and deployment are subsequent work.
+
+Delivery is split into explicit checkpoints. P22-002 audits `1.1.0...main`, completes CHANGELOG／UPGRADE and the actual Stable-to-candidate Framework Update journey. P22-003 fixes a Release Candidate SHA and executes the full local／CI gate. P22-004 may perform Tag／Push／Skeleton／Packagist／GitHub Release／Remote Smoke only after separate authorization; preceding Tasks do not mutate external publication state.
 
 ## Traceability
 

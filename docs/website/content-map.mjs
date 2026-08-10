@@ -157,7 +157,7 @@ export const contentMap = {
   },
   'mvp-status.md': {
     slug: 'releases/current-status',
-    description: 'Stable 1.1.0と未公開main 1.2.0 candidateのStatus／Outcome、Frontend、Diagnostics、Transactionの機能差を確認する。',
+    description: 'Stable 1.1.0から未公開main 1.2.0 candidateへ移行するRelease Notes、9つのMigration、Rollback境界、Status／Outcome、Frontend、Diagnostics、Transactionの差分を確認する。',
   },
   'glossary.md': {
     slug: 'reference/glossary',

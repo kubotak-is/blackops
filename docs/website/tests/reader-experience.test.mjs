@@ -547,6 +547,10 @@ test('core API reference covers every source type marked PublicApi without expos
   for (const type of sourceTypes) assert.match(reference, new RegExp(type.replaceAll('\\', '\\\\')));
   assert.doesNotMatch(reference, /`BlackOps\\Core\\Attribute\\PublicApi` \|/);
   assert.doesNotMatch(reference, /BlackOps\\Internal\\[A-Za-z]/);
+  assert.doesNotMatch(reference, /\| `BlackOps\\Journal\\CanonicalJournalReader` \|/);
+  assert.match(reference, /CanonicalJournalReader.*PublicApi markerを持たないInfrastructure SPI/);
+  assert.match(reference, /`BlackOps\\Journal\\CanonicalJournalStore`/);
+  assert.match(reference, /`BlackOps\\Outcome\\OutcomeStore`/);
 });
 
 test('attributes reference covers the twenty-five public authoring attributes and excludes the marker', async () => {

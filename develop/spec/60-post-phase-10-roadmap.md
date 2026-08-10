@@ -4,7 +4,7 @@
 
 Phase 7からPhase 10で完成したInstalled Application、Composer Skeleton、BlackOps CLI、Validation、Worker Runtime、Repository DocumentationをStable Releaseへ届け、その後にApplication開発と運用に必要なRuntime機能を依存順に実装する。
 
-Documentation WebsiteのCloudflare公開はRoadmapの完了条件に含めない。Repository内Source、Website Build、Search、Artifact Guard、CIは維持し、公開再開はUserが明示した将来Taskで扱う。
+Documentation WebsiteのCloudflare公開、Build、Search、Artifact Guard、CIは現行の完了済みSurfaceとして維持する。Custom DomainとVersion Selector、複数Releaseの切替UIはDeferred Ecosystem Scopeに残す。
 
 ## Delivery Order
 
@@ -109,7 +109,7 @@ Status: Complete
 - Taste SkillをDesign Directionに使うAccessible／Responsive Product UI
 - Local Compose、Seed、Real Browser E2E、Screenshot／Guide、CI
 
-Quickstart／Skeletonは変更せず、External HostingとDocumentation Website Publicationを含めない。Phase 17時点のAuthentication EndpointはOperation外のApplication-owned HTTP Boundaryとしたが、Phase 18でEphemeral OperationとFramework Session Coreへ移行した。BrowserからBlackOpsへの直接通信とCredentialのJournal保存は引き続き行わない。詳細は[Full-stack Reference Application](71-full-stack-reference-application.md)と[Application Ergonomics](74-application-ergonomics.md)を正本とする。
+Quickstart／Skeletonは変更せず、External Hostingを含めない。Documentation WebsiteはRepository内のGuideをCloudflare Pagesへ公開する現行Surfaceとして扱う。Phase 17時点のAuthentication EndpointはOperation外のApplication-owned HTTP Boundaryとしたが、Phase 18でEphemeral OperationとFramework Session Coreへ移行した。BrowserからBlackOpsへの直接通信とCredentialのJournal保存は引き続き行わない。詳細は[Full-stack Reference Application](71-full-stack-reference-application.md)と[Application Ergonomics](74-application-ergonomics.md)を正本とする。
 
 ## Phase 18: Application Ergonomics
 
@@ -168,11 +168,13 @@ P22-001は公開済みStable `1.1.0`をImmutableな履歴として維持し、Re
 
 ## Deferred Ecosystem Scope
 
-- Documentation Website Publication、Custom Domain、Version Selector
+- Custom Domain、Version Selector、複数ReleaseのDocumentation切替
 - OpenAPI、Contract Diff、Frontend Framework Adapter
 - SQLite、MySQL、SQS、Kafka Adapter
-- Scheduled Operation、Batch、Saga
+- Batch、Saga
 - Admin UI、検索、再試行、Cancel
+
+Scheduled Operationとone-shot CLI、Documentation WebsiteのCloudflare Pages公開はPhase 22までに実装済みであり、Deferred Scopeではない。外部Supervisor、Custom Domain、Version Selector、Batch／Sagaなどの追加Ecosystem Surfaceは引き続き後続Taskで扱う。
 
 ## Phase Workflow
 

@@ -1,6 +1,97 @@
 # Orchestration State
 
-Updated At: 2026-08-10T18:57:41+09:00
+Updated At: 2026-08-11T02:16:08+09:00
+
+## P22-002 Stable 1.2 Release Documentation Accepted
+
+```text
+2026-08-11T02:16:08+09:00
+P22-002をAcceptedとする。annotated Stable 1.1.0→unpublished candidate 1.2.0のRelease Surface Audit、complete CHANGELOG／UPGRADE、actual-tag Framework Update Consumer、Stable-vs-candidate Website導線／semantic guardを同期した。Orchestratorはexact Consumerのexit 0、cleanup／source-state invariant／generator smoke、Website 77 tests／check／42-page build、Composer strict、Mago src/tests、artifact／management-ID／diff guardをPASS確認した。Documentation Reviewer最終結果はP1=0／P2=0／P3=0でAcceptance permitted。P22-003はP22-002 commit後のHEADを固定し、共通Database migration/setup＋DDL guard、Provider-present HTTP／Worker Positive、Provider-missing HTTP／Worker safe Negativeを含むFull Gateを実行する。Tag／Push／Release／Packagist／Skeleton publication／Deployなし。
+```
+
+## P22-002 P22-003 Lane and Runtime Probe Scope Correction Review Pending
+
+```text
+2026-08-11T00:13:07+09:00
+P22-003 input is now shared Database migration/setup with DDL guard evidence, Provider-present HTTP／Worker Positive, and Provider-missing HTTP／Worker safe Negative; no Provider-missing Database Negative is claimed. UPGRADE Step 7 now asserts running Worker, HTTP 200, application/json, and exact `{"message":"Welcome to BlackOps"}`. Step 3 `.env` setup and Steps 4-7 must run in one Disposable Application Root shell so the EXIT trap cleans up only at final success/failure. Guards and Report/Task/Internal status are synchronized. No Commit／Tag／Push／Release／Deploy.
+```
+
+## P22-002 Secret Cleanup Ordering Correction Review Pending
+
+```text
+2026-08-11T00:08:02+09:00
+Disposable `.env` cleanup now removes the secret file before best-effort Compose shutdown (`docker compose down >/dev/null 2>&1 || true`), preventing `set -e` shutdown failure from leaving the key behind. Version-baseline guard requires this ordering and rejects the prior unsafe function. No Commit／Tag／Push／Release／Deploy.
+```
+
+## P22-002 Runtime Command Ordering and Gate Allocation Correction Review Pending
+
+```text
+2026-08-11T00:12:04+09:00
+UPGRADE execution order is corrected: Step 3 only prepares Provider/config/key; Step 5 builds images, starts PostgreSQL, and runs all Framework/Application migrations inside the app Container; Step 6 runs build/frontend commands inside the app Container; Step 7 starts HTTP/Worker and probes runtime. Host `php blackops` is not used for the candidate lane. All source/report/state/task references now allocate P22-003 fixed-SHA shared Database migration/setup with DDL guard evidence, Provider-present HTTP／Worker Positive, and Provider-missing HTTP／Worker safe Negative lanes. No Commit／Tag／Push／Release／Deploy.
+```
+
+## P22-002 Provider Source and Secret Injection Correction Review Pending
+
+```text
+2026-08-11T00:03:43+09:00
+Stable `1.1.0` `.env.example` has no `BLACKOPS_STORAGE_KEY` line while current has an empty line; UPGRADE now filters any existing key line and appends exactly one generated value with printf, using fail-closed disposable `.env` setup and no sed delimiter risk. Opt-in Provider instructions now give complete `app/ApplicationServiceProvider.php` source (strict types, App namespace, imports, StorageKeyProvider binding), config services registration, and SampleStorageKeyProvider target. Semantic guard covers both env shapes and source markers. Report synchronized; no Commit／Tag／Push／Release／Deploy.
+```
+
+## P22-002 Secret Injection Safety Correction Review Pending
+
+```text
+2026-08-10T23:58:34+09:00
+Opt-in runtime `.env` instructions now fail closed with `set -euo pipefail`, `test ! -e .env`, restrictive `umask`, cleanup trap before key generation, and explicit HTTP／Worker Compose startup. Host shell export is not assumed to reach Compose. Focused bash/version guard, Website 77 tests, and diff check pass. Latest exact actual-tag Consumer remains PASS from Orchestrator. No Commit／Tag／Push／Release／Deploy.
+```
+
+## P22-002 Provider Runtime Lane Correction Review Pending
+
+```text
+2026-08-10T23:57:14+09:00
+Final documentation correction distinguishes Compatibility-first build/list evidence from Candidate HTTP／Worker runtime: StorageKeyProvider is unconditionally required. UPGRADE now provides the ApplicationServiceProvider Binding, config services registration, canonical SampleStorageKeyProvider source target, fail-closed disposable `.env` key preparation/cleanup, migration/reset boundary, and P22-003 shared Database migration/setup plus Provider-present／missing HTTP／Worker lanes. Consumer temporary checkout reuse is explicitly prohibited; Internal status records latest exact Consumer PASS and frontend_manifest migration. Focused bash/version guard, Website 77 tests, and diff check pass. No Commit／Tag／Push／Release／Deploy.
+```
+
+## P22-002 Runtime Provider Boundary and Final Consumer Evidence Review Pending
+
+```text
+2026-08-10T23:55:03+09:00
+Documentation correction records that Compatibility-first proves Composer/source invariants, candidate frontend_manifest migration, build:compile, and operation:list only; it does not claim HTTP／Worker compatibility because Candidate Runtime unconditionally requires StorageKeyProvider. UPGRADE now gives Opt-in HTTP／Worker Binding, safe local key preparation, migration/reset boundary, and P22-003 shared Database migration/setup plus Provider-present／missing HTTP／Worker lanes. Internal status records the latest exact actual-tag Consumer exit 0, cleanup/source-state invariant, and generator smoke message. Report distinguishes prior exit 255, minimal config correction, and latest PASS. No Commit／Tag／Push／Release／Deploy.
+```
+
+## P22-002 Compatibility Lane Config Correction Review Pending
+
+```text
+2026-08-10T23:46:35+09:00
+Orchestrator reproduced actual-tag Consumer failure after Composer update: Stable `config/app.php` lacked candidate-required `frontend_manifest`, causing `build:compile` to exit 255 with the non-empty absolute path error. Consumer now preserves Stable Application source hashes through Composer update, then applies only the documented absolute `dirname(__DIR__) . '/var/build/frontend.php'` config migration before candidate `build:compile`／`operation:list`; UPGRADE compatibility lane and semantic guard describe this boundary, with `command_manifest` optional fallback. Focused bash syntax, version guard, Website 77 tests, and diff check pass. Final Consumer rerun is pending worker stop. No Commit／Tag／Push／Release／Deploy.
+```
+
+## P22-002 Bounded Reviewer Correction Review Pending
+
+```text
+2026-08-10T23:02:56+09:00
+Bounded corrections completed: CHANGELOG Reader wording now says direct PublicApi designation／marker removal while retaining Reader type／Method in aggregate Store implementation boundaries; UPGRADE local source diff now specifies Framework Repository Root or explicit `git -C` path. Focused `bash -n`, version-baseline guard, Website 77 tests, and `git diff --check` passed. No Consumer rerun or long build in this correction turn; Orchestrator will rerun Consumer after worker stop. Documentation Reviewer re-review remains pending. No Commit／Tag／Push／Release／Deploy.
+```
+
+## P22-002 Documentation Reviewer Correction Pass Review Pending
+
+```text
+2026-08-10T22:56:41+09:00
+Applied Documentation Reviewer P1/P2 corrections: corrected Stable-versus-candidate CHANGELOG claims and duplicate Unreleased trailer; documented Stable Quickstart direct dependency ownership; reclassified CanonicalJournalReader／OutcomeReader as Infrastructure SPI while retaining aggregate Store PublicApi boundaries; added EphemeralOutcome credential non-persistence and proxy/Ray boundary; separated Database DDL guards from Application key／tenant preflight; added compatibility-first versus opt-in Candidate-Skeleton merge lanes and canonical source diff; extended actual-tag Consumer with candidate build:compile／operation:list checks; strengthened Unreleased／stable-claim and Reader semantic guards. Focused bash syntax, version-baseline guard, and Website 77 tests passed. Task／Report remain Review Pending for Documentation Reviewer re-review. No Commit／Tag／Push／Release／Deploy.
+```
+
+## P22-002 Stable 1.2 Release Documentation Review Pending
+
+```text
+2026-08-10T22:03:12+09:00
+P22-002 implementation and Orchestrator gates are Review Pending. Stable annotated tag `1.1.0` (`e3df5576c7216cfe8bd9e10e12ee6795f7674088`) was audited against committed candidate HEAD `a8243bd` (249 commits; 2→11 Framework PostgreSQL migrations). CHANGELOG/UPGRADE, actual-tag Framework Update Consumer (including the corrected stable Application inventory), Releases guide links, website guards/tests, internal smoke wording, Roadmap Deferred Ecosystem, TODO, Task and Report are synchronized. Composer strict root／quickstart, version guard, actual Consumer, Website 77 tests／42-page build／artifact／site checks, management-ID and diff guards passed. Exact broad Mago format traversed ignored third-party files and failed; clean committed-clone equivalent passed without PHP changes. Documentation Reviewer final review and P22-003 remain. No Commit／Tag／Push／Release／Deploy.
+```
+
+## P22-002 Stable 1.2 Release Documentation Start
+
+```text
+2026-08-10T21:39:21+09:00
+Userの「続けて」を受け、P22-002を開始した。P22-001 baseline／Git HEAD closeoutとclean Working Treeを確認し、公開済みStableは`1.1.0`、mainは`1.1.0-249-ga8243bd`の未公開`1.2.0` candidateである。既存CHANGELOG UnreleasedはPhase 18／19の一部だけ、UPGRADE Previewはruntime bootstrapだけで、完全Release Surfaceを未記録。さらにdocs/internalはFramework Update Smokeを`1.0.0`→`1.2.0`と説明する一方、current Consumerはsynthetic `1.0.0`→`1.1.0`のままというEvidence driftを確認した。P22-002はactual tag `1.1.0`→Local `1.2.0` Update Consumer、Phase 12〜21 Release Surface Audit、complete CHANGELOG／UPGRADE、Documentation Reviewを行い、P22-003 Full GateとP22-004 separately authorized Publicationへ分離する。Repository設定どおりGPT-5.6 Luna High workerへ委譲し、Commit／Tag／Push／Release／Deployなし。
+```
 
 ## P22-001 Git HEAD Closeout
 

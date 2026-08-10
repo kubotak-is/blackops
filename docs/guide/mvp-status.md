@@ -6,6 +6,10 @@ BlackOps固有のOperation、Claim、Journal、Outcome等は[Glossary](glossary.
 
 BlackOpsはExperimentalです。1.x Minor間のBackward CompatibilityとProduction Readinessを保証しません。ApplicationはDatabase Credential、Deployment、Process Supervision、Authentication／Authorization、Access Control、Encryption、Retention Policy、Operational Monitoringを所有します。
 
+## Release NotesとMigration
+
+Stable `1.1.0`からRepository `main`の未公開`1.2.0` candidateへ移行する場合は、[CHANGELOG.md](https://github.com/kubotak-is/blackops/blob/main/CHANGELOG%2Emd)の差分と[UPGRADE.md](https://github.com/kubotak-is/blackops/blob/main/UPGRADE%2Emd)のBackup、9つのMigration、Rollback境界を順に確認してください。CandidateのComposer／Generator更新は、実際のannotated Tag `1.1.0`を起点にした[Framework Update Consumer](https://github.com/kubotak-is/blackops/blob/main/tests/Consumer/framework-update-generators%2Esh)で検証します。`1.2.0`は公開Stable、Packagist、公開Skeletonではありません。
+
 ## Stableとmain
 
 | Capability | Stable 1.1.0 | main 1.2.0 candidate |

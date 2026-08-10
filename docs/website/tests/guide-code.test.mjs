@@ -253,6 +253,10 @@ test('guide presents the Stable 1.1 release surface and experimental policy cons
   assert.match(status, /Named DBAL Connection／Default Connection DI \| 未提供 \| 利用可/);
   assert.match(status, /`#\[Transactional\]` Operation／Service \| 未提供 \| 利用可/);
   assert.match(status, /Backward Compatibility/);
+  assert.match(status, /CHANGELOG%2Emd/);
+  assert.match(status, /UPGRADE%2Emd/);
+  assert.match(status, /9つのMigration/);
+  assert.match(status, /annotated Tag `1\.1\.0`/);
 });
 
 test('stable installation is an executable anonymous Docker lane', async () => {

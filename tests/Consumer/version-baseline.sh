@@ -53,11 +53,81 @@ contains docs/guide/mvp-sample.md '"blackops/framework":"1.2.0"'
 contains docs/guide/observability.md 'VersionはRepository `main` candidateの`1.2.0`です。'
 
 contains CHANGELOG.md '## [Unreleased]'
+test "$(grep -c '^## \[Unreleased\]$' "${repository_root}/CHANGELOG.md")" -eq 1 \
+    || fail 'CHANGELOG.md must contain exactly one Unreleased section'
 contains CHANGELOG.md '未公開の`1.2.0` Release Candidate'
 contains CHANGELOG.md '## [1.1.0] - 2026-07-16'
+contains CHANGELOG.md 'Skeletonは`blackops/framework: ^1.1`を要求する。'
+for section in '### Added' '### Changed' '### Removed' '### Fixed' '### Known Limitations'; do
+    contains CHANGELOG.md "${section}"
+done
+for contract in \
+    'Version20260808000000.php' \
+    'Version20260808010000.php' \
+    'CanonicalJournalReader' \
+    'OutcomeReader' \
+    '9つのCandidate PostgreSQL Migration'; do
+    contains CHANGELOG.md "${contract}"
+done
 contains UPGRADE.md '## 1.0.0から1.1.0'
 contains UPGRADE.md '## 1.1.0から1.2.0 Preview'
-contains UPGRADE.md '未公開のRepository `main` candidate'
+contains UPGRADE.md 'Repository `main`の未公開`1.2.0` candidate'
+for section in \
+    '### 1. BackupとRollback境界を固定する' \
+    '### 2. Candidate SourceとComposerを準備する' \
+    '### 5. Database MigrationをBackup後に順序実行する'; do
+    contains UPGRADE.md "${section}"
+done
+contains UPGRADE.md '**Compatibility-first Lane**'
+contains UPGRADE.md '**Opt-in Candidate-Skeleton Lane**'
+contains UPGRADE.md "'frontend_manifest' => dirname(__DIR__) . '/var/build/frontend.php'"
+contains UPGRADE.md 'Application configuration key "app.build.frontend_manifest" must be a non-empty absolute path.'
+contains UPGRADE.md 'Candidate HTTP／Worker Runtimeへ進むOpt-in Laneでは'
+contains UPGRADE.md 'Storage protection provider is required for application bootstrap.'
+contains UPGRADE.md "'services' => ["
+contains UPGRADE.md '`app/ApplicationServiceProvider.php`へ次の完全なApplication-owned Provider'
+contains UPGRADE.md 'namespace App;'
+contains UPGRADE.md 'final readonly class ApplicationServiceProvider implements ServiceProvider'
+contains UPGRADE.md 'app/Security/SampleStorageKeyProvider.php'
+contains UPGRADE.md 'cp .env.example .env'
+contains UPGRADE.md 'docker compose --profile worker up -d worker'
+contains UPGRADE.md 'docker compose build app http'
+contains UPGRADE.md 'docker compose run --rm app php blackops database:migrate'
+contains UPGRADE.md 'Provider-presentのHTTP／Worker Positive'
+absent UPGRADE.md 'Provider-presentのDatabase Migration／HTTP／Worker Positive lane'
+contains UPGRADE.md 'set -euo pipefail'
+contains UPGRADE.md 'cleanup() { rm -f .env; docker compose down >/dev/null 2>&1 || true; }'
+absent UPGRADE.md 'cleanup() { docker compose down; rm -f .env; }'
+contains UPGRADE.md '同じDisposable Application RootのShellで順に実行します'
+contains UPGRADE.md 'HTTP／Worker safe Negative'
+contains UPGRADE.md '両lane共通のDatabase migration/setup（DDL guard evidence）'
+contains UPGRADE.md 'exact body `{"message":"Welcome to BlackOps"}`'
+contains UPGRADE.md 'docker compose ps --status running --services | grep -Fxq worker'
+contains UPGRADE.md "grep -Eiq '^HTTP/[^[:space:]]+[[:space:]]+200([[:space:]]|$)'"
+contains UPGRADE.md "grep -Eiq '^content-type:[[:space:]]*application/json([;[:space:]]|$)'"
+contains UPGRADE.md 'for attempt in 1 2 3 4 5; do'
+contains UPGRADE.md "curl -fsS -D \"\${response_headers}\" -o \"\${response_body}\" http://127.0.0.1:8080/welcome"
+absent UPGRADE.md "grep -Fiq '^HTTP/.* 200'"
+absent UPGRADE.md "grep -Fiq '^content-type: application/json'"
+absent UPGRADE.md 'sed -i "s/^BLACKOPS_STORAGE_KEY='
+test "$(git -C "${repository_root}" show 1.1.0:examples/quickstart/.env.example | grep -c '^BLACKOPS_STORAGE_KEY=')" -eq 0 \
+    || fail 'Stable 1.1.0 unexpectedly contains a storage key environment line'
+test "$(grep -c '^BLACKOPS_STORAGE_KEY=' "${repository_root}/examples/quickstart/.env.example")" -eq 1 \
+    || fail 'Current quickstart must contain exactly one storage key environment line'
+absent UPGRADE.md 'Consumer後は同じApplication-owned SourceをComposeへ手動で配置'
+contains docs/internal/installed-application-status.md "'frontend_manifest' => dirname(__DIR__) . '/var/build/frontend.php'"
+contains docs/internal/installed-application-status.md 'P22-003 fixed-SHA Full Gate'
+for contract in \
+    'blackops/framework:^1.2' \
+    'Version20260808000000.php' \
+    'tests/Consumer/framework-update-generators.sh'; do
+    contains UPGRADE.md "${contract}"
+done
+contains tests/Consumer/framework-update-generators.sh "cat-file -t refs/tags/1.1.0"
+contains tests/Consumer/framework-update-generators.sh 'blackops/framework:1.2.0'
+contains tests/Consumer/framework-update-generators.sh 'tag 1.2.0'
+contains tests/Consumer/framework-update-generators.sh 'blackops build:compile'
+contains tests/Consumer/framework-update-generators.sh 'blackops operation:list'
 
 # Candidate metadata must not be presented as Latest Stable or published.
 for file in README.md docs/guide/mvp-status.md docs/guide/mvp-sample.md docs/guide/observability.md CHANGELOG.md UPGRADE.md docs/website/pages/index.astro; do
