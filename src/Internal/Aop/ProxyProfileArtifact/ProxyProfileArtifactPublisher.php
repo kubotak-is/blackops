@@ -14,36 +14,6 @@ final readonly class ProxyProfileArtifactPublisher
 {
     private const SCHEMA_VERSION = 1;
 
-    /** @param list<string> $proxyFiles */
-    public function publishRay(string $root, string $buildId, array $proxyFiles): ProxyProfileArtifactManifest
-    {
-        $this->assertBuildId($buildId);
-        $files = [];
-        $sources = [];
-        foreach ($proxyFiles as $source) {
-            if (!is_file($source) || is_link($source)) {
-                throw new InvalidArgumentException('Ray proxy artifact file is invalid.');
-            }
-            $name = basename($source);
-            if ($name === '' || $name === '.' || $name === '..' || !preg_match('/^[A-Za-z0-9_.-]+\.php$/', $name)) {
-                throw new InvalidArgumentException('Ray proxy artifact file is invalid.');
-            }
-            $relative = 'aop/' . $name;
-            if (isset($sources[$relative])) {
-                throw new InvalidArgumentException('Ray proxy artifact inventory contains a duplicate file.');
-            }
-            $sources[$relative] = $source;
-            $hash = hash_file('sha256', $source);
-            if (!is_string($hash)) {
-                throw new InvalidArgumentException('Ray proxy artifact file hash is invalid.');
-            }
-            $files[$relative] = $hash;
-        }
-        ksort($files);
-        $manifest = $this->manifest($buildId, FrameworkProxyProfile::ray(), $files);
-        return $this->publish($root, $manifest, $sources);
-    }
-
     public function publishFramework(
         string $root,
         string $buildId,

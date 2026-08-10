@@ -28,25 +28,6 @@ final class FrameworkProxyOwnershipGuardTest extends TestCase
         self::assertTrue(true);
     }
 
-    public function testDifferentProfileIsRejectedWithoutRuntimeFallback(): void
-    {
-        $metadata = new FrameworkProxyContract()->inspect(PrecedenceService::class, 'framework');
-        $marker = new FrameworkProxyOwnershipMarker(
-            $metadata->sourceClass,
-            FrameworkProxyOwnership::SERVICE,
-            FrameworkProxyProfile::ray(),
-            false,
-        );
-
-        try {
-            new FrameworkProxyOwnershipGuard()->assertCompatible($metadata, $marker);
-            self::fail('Expected profile conflict.');
-        } catch (FrameworkProxyContractException $exception) {
-            self::assertSame(FrameworkProxyDiagnosticCode::MODE_CONFLICT, $exception->diagnostic->code);
-            self::assertSame(PrecedenceService::class, $exception->diagnostic->sourceClass);
-        }
-    }
-
     public function testSourceClassMismatchIsRejected(): void
     {
         $metadata = new FrameworkProxyContract()->inspect(PrecedenceService::class);

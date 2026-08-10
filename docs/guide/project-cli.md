@@ -17,7 +17,7 @@ RuntimeはProject RootのHostまたはApplication Containerです。Containerで
 | --- | --- | --- | --- | --- | --- |
 | Discovery | `operation:list` | なし | `ApplicationConfigurationSnapshot`＋`ApplicationOperationDiscovery`（Source）＋Metadata Compiler | Type ID、Definition、StrategyのTable／`0` | [BuildとDiscovery](#buildとdiscovery) |
 | Build | `build:compile` | Artifact生成 | PHP、Config、Source Root、Application ConfigurationのBuild ID | `Build artifacts written.`／`0` | [Build Artifact不在／Build ID不一致](troubleshooting.md#build-artifact不在build-id不一致) |
-| Build（main） | `build:compile --proxy-profile=ray|framework` | Profile Artifact生成 | main onlyのProxy Profile、Build ID、Content Hash | `Build artifacts written.`／`0` | [Build Artifact不在／Build ID不一致](troubleshooting.md#build-artifact不在build-id不一致) |
+| Build Proxy Profile Unit（main） | `build:compile` | Framework Profile Artifact生成 | Build ID、Content Hash、Framework Manifest | `Build artifacts written.`／`0` | [Build Artifact不在／Build ID不一致](troubleshooting.md#build-artifact不在build-id不一致) |
 | Operation実行 | Applicationの`<command>` | Operation次第 | Scalar Long Option、`--json` | `completed`／`accepted`、Exit `0`; Validation `2`; Rejected／Internal `1` | [Operation Command](#operation-command) |
 | Database | `database:status` | なし | Database Connection | applied／pending件数／`0` | [Database](#database) |
 | Database | `database:migrate [--dry-run]` | `--dry-run`なしはMigration適用 | Database Connection | SQLまたは`Database migrations applied`／`0` | [リリース手順](deployment.md#リリース手順) |
@@ -49,18 +49,17 @@ RuntimeはProject RootのHostまたはApplication Containerです。Containerで
 ```bash
 php blackops operation:list
 php blackops build:compile
-php blackops build:compile --proxy-profile=framework
 ```
 
 `operation:list`は`ApplicationConfigurationSnapshot`を受け取り、`ApplicationOperationDiscovery`で設定済みのApplication Source RootをDiscoveryし、Operation Providerと合わせてMetadataをCompileしてTableへ表示します。このCommandはBuild Artifactを読み込まず、Source DiscoveryとMetadata Compileを実行時に行います。
 
 `build:compile`は`config/operations.php`のOperation、HTTP、Frontend、`config/app.php`のApplication Command Discoveryを同じBuild IDでCompileし、ManifestとSymfony DI Containerを書き出します。Build ArtifactがMissing／Invalid／ID不一致の場合、Operation実行RuntimeはSource ScanへFallbackしません。
 
-`--proxy-profile`はmainでのみ提供し、Build単位で一つだけ選択します。既定値は`ray`で、`framework`を選ぶとFramework-owned proxy manifestを共通のBuild ID／Content Hash Artifact Unitへ束ね、RuntimeはUnitを事前検証してから生成コードを読み込みます。RayとFrameworkのArtifactは同じContainerへ混在させません。移行修正後は同じBuild IDを上書きせず、新しいBuild IDで再Compileしてください。Rollbackは以前の完全なContainer・各Manifest・一致するArtifact Unitを同一Release組として戻します。
+mainでは`build:compile`がFramework-owned proxyを唯一のProfileとして、Build IDとContent Hashに結び付いた不変Framework Artifact Unitを発行します。RuntimeはUnitを事前検証してから生成コードを読み込み、同じBuild IDを上書きしません。Rollbackは以前の完全なContainer・各Manifest・一致するFramework Artifact Unitを同一Release組として戻します。
 
-Framework移行前は、対象の`#[Transactional]`／`#[AfterCommit]`クラスを監査し、`build:compile --proxy-profile=framework`を実行してUnsupported Signature／Definition Diagnosticを記録します。Diagnosticの対象はFramework対応シグネチャへリファクタするか、そのReleaseでは`--proxy-profile=ray`を明示してRay Artifactを出荷します。修正後は新しいBuild IDで再Compileし、生成ContainerをHTTP、CLI、Workerの各起動Smokeで検証してください。Rollbackは以前の完全なContainer、Operation／HTTP／Frontend／Command Manifest、`proxy-profiles/<build-id>-<content-hash>`（Frameworkなら参照Framework Unitを含む）を同一Release組として戻し、Build ID／Content Hash、HTTP route、CLI command、Worker claimの起動確認を行います。
+対象の`#[Transactional]`／`#[AfterCommit]`クラスはFramework Signature／Definition境界を満たすか監査し、Unsupported Diagnosticを修正して新しいBuild IDで再Compileします。生成ContainerをHTTP、CLI、Workerの各起動Smokeで検証し、Rollbackは以前の完全なContainer、Operation／HTTP／Frontend／Command Manifest、`proxy-profiles/<build-id>-<content-hash>`と参照Framework Unitを同一Release組として戻します。
 
-互換期間にはLegacy Ray 2.20.0限定の例外が二つあります。PHP 8.5では、Attribute対象の`never` return methodを持つProxyをCompileできず、`A never-returning method must not return`で終了します。また、extra named variadic valueをProxy越しに渡すと値を落とします。どちらかを使う対象では既定Rayへ戻さず、`--proxy-profile=framework`を選択してください。Framework Profileは両Signatureを対応対象とし、この案内はunproxied fallbackを許可するものではありません。例外はRay Profileを削除する移行Taskの完了時に終了します。
+Framework Profileは`never`とnamed variadicを含むSignature Matrixを対応対象とし、unproxied fallbackはありません。
 
 ## Operation Command
 
@@ -122,4 +121,4 @@ Outboxは`outbox:relay:run --until-empty`またはDaemonでRelayし、別Process
 
 ## Stable／main境界
 
-Stable `1.1.0`で案内できるのはProject Root `blackops`、`make:operation`／`make:migration`、Migration、Typed Operation、HTTP／Deferred、Worker、Journal、Outcome、RetentionのSurfaceです。Tenant／Protected Storage、Frontend Contract、Status／Diagnostics、Console Adapter、Outbox、`make:auth`／`make:seeder`、Observer Replay、BlackOps BoardはRepository `main`のExperimental Surfaceです。未Release機能をStable ApplicationのInstall手順へ混入させないでください。[Releases](mvp-status.md)の表を正本にします。
+Stable `1.1.0`で案内できるのはProject Root `blackops`、`make:operation`／`make:migration`、Migration、Typed Operation、HTTP／Deferred、Worker、Journal、Outcome、RetentionのSurfaceです。Tenant／Protected Storage、Frontend Contract、Status／Diagnostics、Console Adapter、Outbox、`make:auth`／`make:seeder`、Observer Replay、BlackOps Board、Framework Proxy Profile Artifact UnitはRepository `main`のExperimental Surfaceです。未Release機能をStable ApplicationのInstall手順へ混入させないでください。[Releases](mvp-status.md)の表を正本にします。

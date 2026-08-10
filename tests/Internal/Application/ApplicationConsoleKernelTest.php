@@ -111,7 +111,7 @@ final class ApplicationConsoleKernelTest extends TestCase
             'command' => 'help',
             'command_name' => 'build:compile',
         ]), $buildHelp));
-        self::assertStringContainsString('--proxy-profile=PROXY-PROFILE', $buildHelp->fetch());
+        self::assertStringNotContainsString('--proxy-profile', $buildHelp->fetch());
         $replayHelp = new BufferedOutput();
         self::assertSame(0, $kernel->run(new ArrayInput([
             'command' => 'help',

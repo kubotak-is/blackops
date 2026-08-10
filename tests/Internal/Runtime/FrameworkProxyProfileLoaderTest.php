@@ -6,7 +6,6 @@ namespace BlackOps\Tests\Internal\Runtime;
 
 require_once __DIR__ . '/../../Fixtures/Aop/FrameworkProxyContract/ContractFixtures.php';
 
-use BlackOps\Internal\Aop\FrameworkProxyContract\FrameworkProxyProfile;
 use BlackOps\Internal\Aop\FrameworkProxyGenerator\FrameworkProxyGenerator;
 use BlackOps\Internal\Runtime\FrameworkProxyProfileLoader;
 use BlackOps\Tests\Fixtures\Aop\FrameworkProxyContract\ComplexTypeService;
@@ -36,22 +35,6 @@ final class FrameworkProxyProfileLoaderTest extends TestCase
             $generated->manifest->manifestHash,
         );
         self::assertSame($generated->manifest->manifestHash, $manifest->manifestHash);
-    }
-
-    public function testRejectsAProfileMismatchBeforeLoading(): void
-    {
-        $generated = new FrameworkProxyGenerator()->generate(
-            ComplexTypeService::class,
-            'build-profile-mismatch',
-            $this->root,
-        );
-        $this->expectExceptionMessage('BO_PROXY_ARTIFACT_PROFILE_MISMATCH');
-        new FrameworkProxyProfileLoader()->load(
-            $generated->directory,
-            'build-profile-mismatch',
-            $generated->manifest->manifestHash,
-            FrameworkProxyProfile::RAY,
-        );
     }
 
     public function testPreviousCompleteBuildRemainsLoadableWithoutCrossingIdentity(): void

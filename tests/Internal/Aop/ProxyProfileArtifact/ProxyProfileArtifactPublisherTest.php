@@ -28,65 +28,35 @@ final class ProxyProfileArtifactPublisherTest extends TestCase
         $this->remove($this->root);
     }
 
-    public function testRayUnitCopiesOnlyReturnedFilesAndHasStableIdentity(): void
+    public function testZeroTargetFrameworkUnitIsPublished(): void
     {
-        $source = $this->root . '/generated.php';
-        file_put_contents($source, "<?php\nclass ProxyUnitFixture {}\n");
-        $publisher = new ProxyProfileArtifactPublisher();
-        $first = $publisher->publishRay($this->root . '/units', 'build-ray', [$source]);
-        $second = $publisher->publishRay($this->root . '/units', 'build-ray', [$source]);
-        self::assertSame($first->contentHash, $second->contentHash);
-        self::assertSame(FrameworkProxyProfile::RAY, $first->profile->value);
-        self::assertFileExists($this->root . '/units/build-ray-' . $first->contentHash . '/manifest.json');
-        self::assertFileExists($this->root . '/units/build-ray-' . $first->contentHash . '/aop/generated.php');
+        $manifest = new ProxyProfileArtifactPublisher()->publishFramework(
+            $this->root . '/units',
+            'zero-framework',
+            null,
+            null,
+        );
+        self::assertSame(FrameworkProxyProfile::FRAMEWORK, $manifest->profile->value);
+        self::assertFileExists($this->root . '/units/zero-framework-' . $manifest->contentHash . '/manifest.json');
     }
 
-    public function testZeroTargetUnitsArePublishedForBothProfiles(): void
+    public function testRejectsUnsafeBuildId(): void
     {
-        $publisher = new ProxyProfileArtifactPublisher();
-        $ray = $publisher->publishRay($this->root . '/units', 'zero-ray', []);
-        $framework = $publisher->publishFramework($this->root . '/units', 'zero-framework', null, null);
-        self::assertSame(FrameworkProxyProfile::RAY, $ray->profile->value);
-        self::assertSame(FrameworkProxyProfile::FRAMEWORK, $framework->profile->value);
-        self::assertFileExists($this->root . '/units/zero-ray-' . $ray->contentHash . '/manifest.json');
-        self::assertFileDoesNotExist($this->root . '/units/zero-ray-' . $ray->contentHash . '/aop');
-        self::assertFileDoesNotExist($this->root . '/units/zero-framework-' . $framework->contentHash . '/aop');
-    }
-
-    public function testUnsafeBuildIdAndSymlinkSourceAreRejected(): void
-    {
-        $source = $this->root . '/generated.php';
-        file_put_contents($source, "<?php class UnsafeFixture {}\n");
-        $publisher = new ProxyProfileArtifactPublisher();
         $this->expectException(\InvalidArgumentException::class);
-        $publisher->publishRay($this->root . '/units', '../unsafe', [$source]);
+        new ProxyProfileArtifactPublisher()->publishFramework($this->root . '/units', '../unsafe', null, null);
     }
 
-    public function testRejectsSymlinkSourceAndTargetUnit(): void
+    public function testRejectsSymlinkedExistingTargetUnit(): void
     {
-        $source = $this->root . '/generated.php';
-        file_put_contents($source, "<?php class ProxySymlinkFixture {}\n");
-        $sourceLink = $this->root . '/source-link.php';
-        symlink($source, $sourceLink);
         $publisher = new ProxyProfileArtifactPublisher();
-        try {
-            $publisher->publishRay($this->root . '/units', 'symlink-source', [$sourceLink]);
-            self::fail('Expected source symlink rejection.');
-        } catch (\InvalidArgumentException $exception) {
-            self::assertSame('Ray proxy artifact file is invalid.', $exception->getMessage());
-        }
-        $manifest = $publisher->publishRay($this->root . '/units', 'symlink-target', [$source]);
+        $manifest = $publisher->publishFramework($this->root . '/units', 'symlink-target', null, null);
         $unit = $this->root . '/units/symlink-target-' . $manifest->contentHash;
-        $alias = $this->root . '/units/symlink-target-alias';
-        symlink($unit, $alias);
-        self::assertTrue(is_link($alias));
-        self::assertFileExists($unit . '/manifest.json');
-        self::assertNotSame(realpath($alias), $alias);
         $saved = $this->root . '/units/symlink-target-saved';
         rename($unit, $saved);
         symlink($saved, $unit);
+
         $this->expectExceptionMessage('Proxy profile artifact unit is invalid.');
-        $publisher->publishRay($this->root . '/units', 'symlink-target', [$source]);
+        $publisher->publishFramework($this->root . '/units', 'symlink-target', null, null);
     }
 
     public function testFrameworkFirstPublishRequiresExactSiblingAndManifestHash(): void
@@ -140,8 +110,9 @@ final class ProxyProfileArtifactPublisherTest extends TestCase
     private function remove(string $directory): void
     {
         foreach (scandir($directory) ?: [] as $entry) {
-            if ($entry === '.' || $entry === '..')
+            if ($entry === '.' || $entry === '..') {
                 continue;
+            }
             $path = $directory . '/' . $entry;
             is_dir($path) && !is_link($path) ? $this->remove($path) : unlink($path);
         }

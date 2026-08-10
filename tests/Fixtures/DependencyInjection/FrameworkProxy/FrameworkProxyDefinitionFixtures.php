@@ -47,9 +47,3 @@ class PreservedFrameworkService
 class SyntheticFrameworkService {}
 
 class PlainFrameworkService {}
-
-#[Transactional]
-class RayOwnedFrameworkService implements \Ray\Aop\WeavedInterface
-{
-    public function _setBindings(array $bindings): void {}
-}

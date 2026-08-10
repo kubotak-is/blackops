@@ -163,11 +163,7 @@ final readonly class FrameworkProxyDefinitionCompiler
 
     private function assertSingleOwnership(string $id, string $class, string $buildId): void
     {
-        if (
-            str_contains($class, '\\__BlackOpsProxy_')
-            || str_starts_with($class, '__BlackOpsProxy_')
-            || is_a($class, class: 'Ray\\Aop\\WeavedInterface', allow_string: true)
-        ) {
+        if (str_contains($class, '\\__BlackOpsProxy_') || str_starts_with($class, '__BlackOpsProxy_')) {
             throw $this->error(FrameworkProxyDiagnosticCode::MODE_CONFLICT, $id, $class, $buildId);
         }
     }

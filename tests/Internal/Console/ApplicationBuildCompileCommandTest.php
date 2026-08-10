@@ -19,6 +19,7 @@ use BlackOps\Core\Outcome;
 use BlackOps\Core\Registry\OperationProvider;
 use BlackOps\Core\ScheduleContext;
 use BlackOps\Core\TenantRef;
+use BlackOps\Database\Attribute\Transactional;
 use BlackOps\Http\Routing\HttpOperationManifestFile;
 use BlackOps\Internal\Application\ApplicationConfigurationSnapshot;
 use BlackOps\Internal\Console\ApplicationBuildCompileCommand;
@@ -32,7 +33,6 @@ use BlackOps\StorageProtection\StorageKey;
 use BlackOps\StorageProtection\StorageKeyProvider;
 use BlackOps\StorageProtection\StoragePurpose;
 use BlackOps\Tests\Fixtures\Aop\TransactionalOperation;
-use BlackOps\Tests\Fixtures\Aop\TransactionalService;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -105,7 +105,7 @@ final class ApplicationBuildCompileCommandTest extends TestCase
         $runtime = $this->runCompiledContainer($containerPath, $namespace . '\\' . $class, 'application');
         self::assertSame('application-build-aop', $runtime['service']);
         self::assertSame(1, $runtime['calls']);
-        self::assertTrue($runtime['weaved']);
+        self::assertTrue($runtime['framework_proxy']);
         self::assertTrue($runtime['has_database']);
         self::assertTrue($runtime['has_connection']);
         self::assertTrue($runtime['policy']);
@@ -116,12 +116,6 @@ final class ApplicationBuildCompileCommandTest extends TestCase
         self::assertStringContainsString('ProxyProfileArtifactLoader', $source);
         self::assertStringNotContainsString('build-credential-that-must-not-appear', $source);
         self::assertStringNotContainsString("'password'", $source);
-
-        foreach (glob($this->directory . '/aop/*.php') ?: [] as $proxySource) {
-            $proxy = (string) file_get_contents($proxySource);
-            self::assertStringNotContainsString('build-credential-that-must-not-appear', $proxy);
-            self::assertStringNotContainsString("'password'", $proxy);
-        }
     }
 
     public function testFrameworkProfileDumpsAndInitializesGeneratedProxy(): void
@@ -149,7 +143,7 @@ final class ApplicationBuildCompileCommandTest extends TestCase
             [],
         );
         $tester = new CommandTester(new ApplicationBuildCompileCommand($configuration));
-        self::assertSame(0, $tester->execute(['--proxy-profile' => 'framework']));
+        self::assertSame(0, $tester->execute([]));
         $build = $configuration->configuration()['app']['build'];
         $runtime = $this->runCompiledContainer(
             (string) $build['container'],
@@ -158,7 +152,7 @@ final class ApplicationBuildCompileCommandTest extends TestCase
         );
         self::assertSame('application-build-aop', $runtime['service']);
         self::assertSame(1, $runtime['calls']);
-        self::assertFalse($runtime['weaved']);
+        self::assertTrue($runtime['framework_proxy']);
         self::assertTrue($runtime['has_database']);
         self::assertTrue($runtime['has_connection']);
         self::assertTrue($runtime['policy']);
@@ -340,7 +334,7 @@ final readonly class ApplicationBuildServiceProvider implements ServiceProvider
     public function register(ServiceRegistry $services): void
     {
         $services->autowire(ApplicationBuildPolicyDependency::class);
-        $services->autowire(TransactionalService::class);
+        $services->autowire(ApplicationBuildTransactionalService::class);
         $services->autowire(OperationStatusAuthorizer::class, ApplicationBuildStatusAuthorizer::class);
         $services->autowire(StorageKeyProvider::class, ApplicationBuildStorageKeyProvider::class);
     }
@@ -360,6 +354,19 @@ final readonly class ApplicationBuildStorageKeyProvider implements StorageKeyPro
 }
 
 final readonly class ApplicationBuildPolicyDependency {}
+
+#[Transactional]
+class ApplicationBuildTransactionalService
+{
+    public int $calls = 0;
+
+    public function execute(string $value): string
+    {
+        $this->calls++;
+
+        return $value;
+    }
+}
 
 final readonly class ApplicationBuildStatusAuthorizer implements OperationStatusAuthorizer
 {

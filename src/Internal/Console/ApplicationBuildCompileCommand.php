@@ -18,7 +18,6 @@ use BlackOps\Internal\Aop\FrameworkProxyDefinition\FrameworkProxyDefinitionBindi
 use BlackOps\Internal\Aop\FrameworkProxyRuntime\FrameworkProxyRuntimeInvocation;
 use BlackOps\Internal\Aop\FrameworkProxyRuntime\FrameworkProxyRuntimeInvocationFactory;
 use BlackOps\Internal\Aop\ProxyProfileArtifact\ProxyProfileArtifactPublisher;
-use BlackOps\Internal\Aop\RuntimeAopCompiler;
 use BlackOps\Internal\Application\ApplicationBuildConfiguration;
 use BlackOps\Internal\Application\ApplicationBuildId;
 use BlackOps\Internal\Application\ApplicationCommandDiscovery;
@@ -55,11 +54,6 @@ final class ApplicationBuildCompileCommand extends Command
         private readonly ApplicationConfigurationSnapshot $configuration,
     ) {
         parent::__construct(self::NAME);
-    }
-
-    protected function configure(): void
-    {
-        FrameworkProxyProfileOption::configure($this);
     }
 
     /** @mago-expect lint:halstead */
@@ -130,62 +124,38 @@ final class ApplicationBuildCompileCommand extends Command
         if ($seeders->seeders !== []) {
             new RuntimeContainerPreflightCompiler()->compile($container);
         }
-        $profile = FrameworkProxyProfileOption::fromInput($input);
+        $profile = FrameworkProxyProfile::framework();
         $container->setParameter('blackops.proxy_profile', $profile->value);
-        $aop = $profile->equals(FrameworkProxyProfile::RAY) ? new RuntimeAopCompiler() : null;
         $frameworkCompilation = null;
-        $aopCompilation = null;
 
-        try {
-            if ($aop !== null) {
-                $aopCompilation = $aop->compile(
-                    $container,
-                    $build->container,
-                    $database?->default,
-                    $database === null ? [] : array_keys($database->connections),
-                );
-            } else {
-                $frameworkCompilation = new FrameworkProxyDefinitionCompiler()->compile(
-                    $container,
-                    $buildId,
-                    dirname($build->container) . DIRECTORY_SEPARATOR . 'framework-proxies',
-                    FrameworkProxyProfile::FRAMEWORK,
-                    $database?->default,
-                    $database === null ? [] : array_keys($database->connections),
-                );
-                $this->wireFrameworkRuntime($container, $frameworkCompilation);
-            }
-            $compiler->compile($container);
-            $profileArtifactRoot = dirname($build->container) . DIRECTORY_SEPARATOR . 'proxy-profiles';
-            $profileArtifact = $profile->equals(FrameworkProxyProfile::RAY)
-                ? new ProxyProfileArtifactPublisher()->publishRay(
-                    $profileArtifactRoot,
-                    $buildId,
-                    $aopCompilation?->proxyFiles ?? [],
-                )
-                : new ProxyProfileArtifactPublisher()->publishFramework(
-                    $profileArtifactRoot,
-                    $buildId,
-                    $frameworkCompilation?->generation?->directory,
-                    $frameworkCompilation?->generation?->manifest,
-                );
-            new RuntimeContainerDumper()->dump(
-                $container,
-                $build->container,
-                $build->containerClass,
-                $build->containerNamespace,
-                [],
-                $profile,
-                null,
-                null,
-                $profileArtifact,
-                $profileArtifactRoot . DIRECTORY_SEPARATOR . $buildId . '-' . $profileArtifact->contentHash,
-            );
-        } catch (\Throwable $throwable) {
-            $aop?->discard($build->container);
-
-            throw $throwable;
-        }
+        $frameworkCompilation = new FrameworkProxyDefinitionCompiler()->compile(
+            $container,
+            $buildId,
+            dirname($build->container) . DIRECTORY_SEPARATOR . 'framework-proxies',
+            FrameworkProxyProfile::FRAMEWORK,
+            $database?->default,
+            $database === null ? [] : array_keys($database->connections),
+        );
+        $this->wireFrameworkRuntime($container, $frameworkCompilation);
+        $compiler->compile($container);
+        $profileArtifactRoot = dirname($build->container) . DIRECTORY_SEPARATOR . 'proxy-profiles';
+        $profileArtifact = new ProxyProfileArtifactPublisher()->publishFramework(
+            $profileArtifactRoot,
+            $buildId,
+            $frameworkCompilation->generation?->directory,
+            $frameworkCompilation->generation?->manifest,
+        );
+        new RuntimeContainerDumper()->dump(
+            $container,
+            $build->container,
+            $build->containerClass,
+            $build->containerNamespace,
+            $profile,
+            null,
+            null,
+            $profileArtifact,
+            $profileArtifactRoot . DIRECTORY_SEPARATOR . $buildId . '-' . $profileArtifact->contentHash,
+        );
 
         new OperationManifestFile()->write($registry, $build->operationManifest, $buildId);
         new HttpOperationManifestFile()->write($http, $build->httpManifest, $buildId);

@@ -294,7 +294,7 @@ final class FrameworkProxyGeneratorTest extends TestCase
         $result = new FrameworkProxyGenerator()->generate(ComplexTypeService::class, 'build-b', $this->root);
         file_put_contents(
             $result->directory . '/manifest.json',
-            str_replace('framework', 'ray', (string) file_get_contents($result->directory . '/manifest.json')),
+            str_replace('framework', 'unsupported', (string) file_get_contents($result->directory . '/manifest.json')),
         );
         $this->expectException(\InvalidArgumentException::class);
         new FrameworkProxyArtifactLoader()->load(
@@ -311,14 +311,15 @@ final class FrameworkProxyGeneratorTest extends TestCase
         new FrameworkProxyGenerator()->generate(FinalService::class, 'build-c', $this->root);
     }
 
-    public function testFrameworkGeneratorRejectsRayProfile(): void
+    public function testFrameworkGeneratorRejectsUnsupportedProfile(): void
     {
-        try {
-            new FrameworkProxyGenerator()->generate(ComplexTypeService::class, 'build-ray', $this->root, 'ray');
-            self::fail('Expected framework generator profile conflict.');
-        } catch (\BlackOps\Internal\Aop\FrameworkProxyContract\FrameworkProxyContractException $exception) {
-            self::assertSame('BO_PROXY_MODE_CONFLICT', $exception->diagnostic->code);
-        }
+        $this->expectException(\InvalidArgumentException::class);
+        new FrameworkProxyGenerator()->generate(
+            ComplexTypeService::class,
+            'build-unsupported',
+            $this->root,
+            'unsupported',
+        );
     }
 
     public function testGeneratorInputAndSourceFailuresUseStableCodes(): void

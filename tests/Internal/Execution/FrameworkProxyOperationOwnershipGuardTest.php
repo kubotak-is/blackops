@@ -61,37 +61,6 @@ final class FrameworkProxyOperationOwnershipGuardTest extends TestCase
         self::assertFalse(new FrameworkProxyOperationOwnershipGuard()->lifecycleOwned($binding));
     }
 
-    public function testRayMarkerFailsAsBuildModeConflictWithoutFallback(): void
-    {
-        $metadata = new FrameworkProxyContract()->inspect(
-            FrameworkRuntimeService::class,
-            FrameworkProxyProfile::FRAMEWORK,
-            'service',
-            'runtime-test',
-            'app',
-            ['app'],
-        );
-        $binding = new FrameworkProxyDefinitionBinding(
-            'service',
-            FrameworkRuntimeService::class,
-            FrameworkRuntimeService::class,
-            $metadata,
-            new FrameworkProxyOwnershipMarker(
-                FrameworkRuntimeService::class,
-                FrameworkProxyOwnership::SERVICE,
-                FrameworkProxyProfile::ray(),
-                false,
-            ),
-        );
-
-        try {
-            new FrameworkProxyOperationOwnershipGuard()->assertFrameworkBinding($binding);
-            self::fail('Expected Framework/Ray mode conflict.');
-        } catch (\InvalidArgumentException $exception) {
-            self::assertSame(FrameworkProxyDiagnosticCode::MODE_CONFLICT, $exception->getMessage());
-        }
-    }
-
     public function testMetadataForDifferentOperationCannotReuseBinding(): void
     {
         $binding = $this->binding(FrameworkRuntimeOperation::class, FrameworkProxyOwnership::OPERATION);

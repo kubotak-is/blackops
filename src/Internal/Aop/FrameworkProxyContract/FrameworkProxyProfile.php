@@ -8,17 +8,11 @@ use InvalidArgumentException;
 
 final readonly class FrameworkProxyProfile
 {
-    public const RAY = 'ray';
     public const FRAMEWORK = 'framework';
 
     private function __construct(
         public string $value,
     ) {}
-
-    public static function ray(): self
-    {
-        return new self(self::RAY);
-    }
 
     public static function framework(): self
     {
@@ -31,7 +25,7 @@ final readonly class FrameworkProxyProfile
             return $profile;
         }
 
-        if ($profile === self::RAY || $profile === self::FRAMEWORK) {
+        if ($profile === self::FRAMEWORK) {
             return new self($profile);
         }
 

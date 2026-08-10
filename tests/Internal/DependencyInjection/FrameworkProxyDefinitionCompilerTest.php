@@ -13,7 +13,6 @@ use BlackOps\Internal\DependencyInjection\FrameworkProxyDefinitionCompiler;
 use BlackOps\Tests\Fixtures\DependencyInjection\FrameworkProxy\FrameworkProxyDefinitionDependency;
 use BlackOps\Tests\Fixtures\DependencyInjection\FrameworkProxy\PlainFrameworkService;
 use BlackOps\Tests\Fixtures\DependencyInjection\FrameworkProxy\PreservedFrameworkService;
-use BlackOps\Tests\Fixtures\DependencyInjection\FrameworkProxy\RayOwnedFrameworkService;
 use BlackOps\Tests\Fixtures\DependencyInjection\FrameworkProxy\SyntheticFrameworkService;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -194,21 +193,6 @@ final class FrameworkProxyDefinitionCompilerTest extends TestCase
             self::assertSame(FrameworkProxyDiagnosticCode::DEFINITION_SYNTHETIC, $exception->diagnostic->code);
         }
         self::assertSame(SyntheticFrameworkService::class, $definition->getClass());
-    }
-
-    public function testRayOwnedDefinitionCannotEnterFrameworkMode(): void
-    {
-        $builder = new ContainerBuilder();
-        $definition = new Definition(RayOwnedFrameworkService::class);
-        $builder->setDefinition('ray-owned', $definition);
-
-        try {
-            new FrameworkProxyDefinitionCompiler()->compile($builder, 'build-dual-mode', $this->root);
-            self::fail('Expected a mode conflict diagnostic.');
-        } catch (FrameworkProxyDefinitionException $exception) {
-            self::assertSame(FrameworkProxyDiagnosticCode::MODE_CONFLICT, $exception->diagnostic->code);
-        }
-        self::assertSame(RayOwnedFrameworkService::class, $definition->getClass());
     }
 
     public function testGlobalGeneratedPrefixCannotEnterFrameworkMode(): void

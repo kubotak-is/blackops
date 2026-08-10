@@ -23,7 +23,6 @@ foreach ([
 use BlackOps\Core\DependencyInjection\ServiceProvider;
 use BlackOps\Core\DependencyInjection\ServiceRegistry;
 use BlackOps\Core\Registry\OperationProvider;
-use BlackOps\Internal\Aop\FrameworkProxyContract\FrameworkProxyProfile;
 use BlackOps\Internal\Application\ApplicationConfigurationSnapshot;
 use BlackOps\Internal\Console\ApplicationBuildCompileCommand;
 use BlackOps\Internal\Registry\OperationManifestFile;
@@ -35,14 +34,12 @@ use BlackOps\Tests\Fixtures\Aop\FrameworkProxyCompatibility\InheritedSignatureSe
 use BlackOps\Tests\Fixtures\Aop\FrameworkProxyCompatibility\NeverSignatureService;
 use BlackOps\Tests\Fixtures\Aop\FrameworkProxyCompatibility\ReadonlySignatureService;
 use BlackOps\Tests\Fixtures\Aop\FrameworkProxyCompatibility\SignatureMatrixService;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 
 final class FrameworkProxyCompatibilityTest extends TestCase
 {
-    #[DataProvider('profiles')]
-    public function testProfilesRunTheSameTransactionAndAfterCommitMatrix(string $profile): void
+    public function testFrameworkRunsTheTransactionAndAfterCommitMatrix(): void
     {
         $root = sys_get_temp_dir() . '/blackops-compatibility-' . bin2hex(random_bytes(5));
         mkdir($root, 0o755, true);
@@ -56,7 +53,7 @@ final class FrameworkProxyCompatibilityTest extends TestCase
                     'container' => $root . '/container.php',
                     'container_class' => 'CompatibilityContainer' . bin2hex(random_bytes(4)),
                     'container_namespace' => __NAMESPACE__ . '\\Generated',
-                    'application_build_id' => 'compatibility-' . $profile,
+                    'application_build_id' => 'compatibility-framework',
                 ]],
                 'database' => [
                     'default' => 'app',
@@ -68,9 +65,7 @@ final class FrameworkProxyCompatibilityTest extends TestCase
             [CompatibilityServiceProvider::class, SignatureMatrixServiceProvider::class],
             [],
         );
-        self::assertSame(0, new CommandTester(new ApplicationBuildCompileCommand($configuration))->execute([
-            '--proxy-profile' => $profile,
-        ]));
+        self::assertSame(0, new CommandTester(new ApplicationBuildCompileCommand($configuration))->execute([]));
         self::assertSame(
             CompatibilityOperation::class,
             new OperationManifestFile()
@@ -139,61 +134,12 @@ final class FrameworkProxyCompatibilityTest extends TestCase
             [NeverSignatureServiceProvider::class],
             [],
         );
-        self::assertSame(0, new CommandTester(new ApplicationBuildCompileCommand($configuration))->execute([
-            '--proxy-profile' => FrameworkProxyProfile::FRAMEWORK,
-        ]));
+        self::assertSame(0, new CommandTester(new ApplicationBuildCompileCommand($configuration))->execute([]));
         $build = $configuration->configuration()['app']['build'];
         $class = __NAMESPACE__ . '\\NeverGenerated\\' . $build['container_class'];
         $runtime = $this->runCompiledContainer((string) $build['container'], $class, 'never');
         self::assertTrue($runtime['never']);
         self::assertNotSame('', $runtime['message']);
-    }
-
-    public function testRayNeverFailureIsBoundedAndDoesNotExposeGeneratedSource(): void
-    {
-        $root = sys_get_temp_dir() . '/blackops-compatibility-ray-never-' . bin2hex(random_bytes(5));
-        mkdir($root, 0o755, true);
-        try {
-            $process = proc_open(
-                [PHP_BINARY, __DIR__ . '/ray-never-build-runner.php', $root],
-                [1 => ['pipe', 'w'], 2 => ['pipe', 'w']],
-                $pipes,
-            );
-            self::assertIsResource($process);
-            stream_set_blocking($pipes[1], false);
-            stream_set_blocking($pipes[2], false);
-            $started = microtime(true);
-            $stdout = '';
-            $stderr = '';
-            while (true) {
-                $status = proc_get_status($process);
-                $stdout .= (string) stream_get_contents($pipes[1]);
-                $stderr .= (string) stream_get_contents($pipes[2]);
-                if (!$status['running']) {
-                    break;
-                }
-                if ((microtime(true) - $started) > 15.0) {
-                    proc_terminate($process);
-                    self::fail('Ray never failure runner timed out');
-                }
-                usleep(10_000);
-            }
-            $stdout .= (string) stream_get_contents($pipes[1]);
-            $stderr .= (string) stream_get_contents($pipes[2]);
-            fclose($pipes[1]);
-            fclose($pipes[2]);
-            $exit = proc_close($process);
-            if ($exit === -1 && isset($status['exitcode'])) {
-                $exit = (int) $status['exitcode'];
-            }
-            self::assertNotSame(0, $exit, trim($stderr . "\n" . $stdout));
-            $diagnostic = $stderr . "\n" . $stdout;
-            self::assertStringContainsString('A never-returning method must not return', $diagnostic);
-            self::assertStringNotContainsString('function neverReturns', $diagnostic);
-            self::assertStringNotContainsString('signature matrix never', $diagnostic);
-        } finally {
-            $this->removeDirectory($root);
-        }
     }
 
     public function testFrameworkNamedVariadicValuesArePreservedInFreshRuntime(): void
@@ -223,9 +169,7 @@ final class FrameworkProxyCompatibilityTest extends TestCase
                 [SignatureMatrixServiceProvider::class],
                 [],
             );
-            self::assertSame(0, new CommandTester(new ApplicationBuildCompileCommand($configuration))->execute([
-                '--proxy-profile' => FrameworkProxyProfile::FRAMEWORK,
-            ]));
+            self::assertSame(0, new CommandTester(new ApplicationBuildCompileCommand($configuration))->execute([]));
             $class =
                 __NAMESPACE__
                 . '\\NamedGenerated\\'
@@ -235,62 +179,6 @@ final class FrameworkProxyCompatibilityTest extends TestCase
         } finally {
             $this->removeDirectory($root);
         }
-    }
-
-    public function testRayNamedVariadicCompatibilityExceptionIsBounded(): void
-    {
-        $root = sys_get_temp_dir() . '/blackops-compatibility-ray-named-' . bin2hex(random_bytes(5));
-        mkdir($root, 0o755, true);
-        try {
-            $process = proc_open(
-                [PHP_BINARY, __DIR__ . '/ray-named-build-runner.php', $root],
-                [1 => ['pipe', 'w'], 2 => ['pipe', 'w']],
-                $pipes,
-            );
-            self::assertIsResource($process);
-            stream_set_blocking($pipes[1], false);
-            stream_set_blocking($pipes[2], false);
-            $stdout = '';
-            $stderr = '';
-            $started = microtime(true);
-            while (true) {
-                $status = proc_get_status($process);
-                $stdout .= (string) stream_get_contents($pipes[1]);
-                $stderr .= (string) stream_get_contents($pipes[2]);
-                if (!$status['running']) {
-                    break;
-                }
-                if ((microtime(true) - $started) > 15.0) {
-                    proc_terminate($process);
-                    $stdout .= (string) stream_get_contents($pipes[1]);
-                    $stderr .= (string) stream_get_contents($pipes[2]);
-                    fclose($pipes[1]);
-                    fclose($pipes[2]);
-                    proc_close($process);
-                    self::fail('Ray named variadic runner timed out');
-                }
-                usleep(10_000);
-            }
-            $stdout .= (string) stream_get_contents($pipes[1]);
-            $stderr .= (string) stream_get_contents($pipes[2]);
-            fclose($pipes[1]);
-            fclose($pipes[2]);
-            $exit = proc_close($process);
-            self::assertSame(0, $exit, trim($stderr . "\n" . $stdout));
-            $result = json_decode(trim($stdout), true);
-            self::assertIsArray($result, $stderr . "\n" . $stdout);
-            self::assertSame('named', $result['named']);
-            self::assertStringNotContainsString('function variadic', $stdout . $stderr);
-            self::assertStringNotContainsString('signature matrix never', $stdout . $stderr);
-        } finally {
-            $this->removeDirectory($root);
-        }
-    }
-
-    /** @return array<string,array{string}> */
-    public static function profiles(): array
-    {
-        return ['ray' => [FrameworkProxyProfile::RAY], 'framework' => [FrameworkProxyProfile::FRAMEWORK]];
     }
 
     /** @return array<string,mixed> */

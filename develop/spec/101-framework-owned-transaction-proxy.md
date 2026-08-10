@@ -11,7 +11,7 @@ The contract preserves D096, D108, Specification 09, and Specification 11:
 - Operation Definition／self-handled `handle()` Transactional metadata is executed once by the Framework-owned Inline／Deferred Operation Lifecycle. A generated Operation proxy is pass-through for Transactional ownership.
 - A non-Operation DI service may use class-level or method-level Transactional. Method-level connection metadata overrides class-level metadata.
 - AfterCommit remains a `void` invocation queued in the current Transaction Scope, executed in registration order after the outermost successful commit, or immediately outside a transaction.
-- Unsupported targets fail at build time. There is no silent unproxied fallback, Runtime Source Scan, temporary Runtime proxy, or dual Ray／Framework chain.
+- Unsupported targets fail at build time. There is no silent unproxied fallback, Runtime Source Scan, temporary Runtime proxy, or dual proxy chain.
 
 ## Normative terms
 
@@ -45,7 +45,8 @@ The initial generator MUST implement this matrix. `support` requires exact compa
 
 The generator MUST reject a whole class if any attributed method is rejected. It MUST NOT partially proxy only the methods that happen to be representable.
 
-The existing Ray validator/generator path remains read-only evidence until migration. Framework validation is owned by a new contract seam; generator defenses consume its metadata and MUST NOT mutate or duplicate the legacy Ray validators.
+Framework validation is owned by the contract seam; generator defenses consume
+its metadata without introducing a second validator or runtime fallback.
 
 ## Attribute precedence and ownership
 
@@ -53,7 +54,9 @@ For a non-Operation service, a class-level Transactional applies to eligible pub
 
 Operation ownership is determined from the source class and Operation metadata before Definition class replacement. The Operation Lifecycle starts the Transaction after authorization, invokes the handler, persists shared-connection Terminal／Outcome, and commits before AfterCommit callbacks. The proxy MUST bind an Operation Transactional method as pass-through (or omit the Transactional binding) so this path executes exactly once. A service proxy MUST NOT be applied to an Operation through an alias or generated subclass marker.
 
-The active build profile is either `ray` or `framework`. A Definition, alias target, and generated service MUST NOT contain both proxy modes. A marker or manifest mismatch emits `BO_PROXY_MODE_CONFLICT`; Runtime never “tries both”.
+The active build profile is `framework`. A Definition, alias target, and
+generated service MUST NOT contain multiple proxy identities. A marker or
+manifest mismatch emits `BO_PROXY_MODE_CONFLICT`; Runtime never “tries both”.
 
 ## Symfony DI Definition preservation
 
@@ -97,7 +100,7 @@ The active artifact directory is adjacent to the compiled Container. A build MUS
 - content hash of every attributed source file;
 - normalized Attribute, connection, and signature metadata hash;
 - source class, proxy FQCN, relative path, and file content hash;
-- selected profile (`ray` or `framework`).
+- selected profile (`framework` only).
 
 Input identity MUST use content hashes, not only mtime/size. It MUST include attributed source files, relevant service-provider/config inputs, generator version, PHP target, and normalized connection names. Any source drift invalidates the artifact even when mtime and size are unchanged.
 
@@ -107,23 +110,29 @@ The compiled Container MUST require only files listed by its matching manifest. 
 
 ## Migration and rollback
 
-During compatibility, an Application selects one build profile for the complete Application-aware compile with `build:compile --proxy-profile=ray|framework`. The default is `ray` until the removal gate is accepted. The standalone legacy `blackops:build:compile` command is not part of this surface because it does not invoke AOP. The profile is recorded in the manifest. Both modes run the same supported Signature, Transactional, AfterCommit, Operation lifecycle, DI preservation, failure diagnostic, and consumer package-export fixtures. Unsupported framework signatures remain explicitly on Ray until refactored; they are never silently unproxied. Central command/profile wiring and manifest-aware RuntimeContainerDumper integration are owned by P21-006 after the P21-004/P21-005 seams are accepted.
+The Application-aware compile uses the Framework profile as its sole active profile. The standalone legacy `blackops:build:compile` command is not part of this surface because it does not invoke AOP. The selected Framework profile is recorded in the immutable manifest, and unsupported signatures fail with a diagnostic; they are never silently unproxied. Central command/profile wiring and manifest-aware RuntimeContainerDumper integration were delivered through P21-006 and closed by P21-007.
 
-The compatibility-period exceptions are limited to two legacy Ray 2.20.0 rows. On PHP 8.5, Ray generates a returning proxy body for `never` and compilation terminates with `A never-returning method must not return`. Ray also obtains invocation arguments with `func_get_args()`, so an extra named variadic value is dropped instead of being forwarded. The Ray compiler remains read-only because P21-007 removes it. These exceptions do not reclassify either signature: the Framework profile MUST compile and invoke `never`, MUST preserve named variadic keys and values, all other supported rows MUST run in both profiles, and neither profile may silently leave an attributed method unproxied. Compatibility evidence records the bounded Ray failures without persisting generated source or sensitive diagnostics.
+The Framework profile MUST compile and invoke `never`, MUST preserve named
+variadic keys and values, and MUST fail unsupported signatures rather than
+silently leaving an attributed method unproxied.
 
-Rollback selects a previous complete Container plus matching manifest and artifact directory. It never enables a second interceptor at Runtime. The compatibility period ends only when all first-party and consumer fixtures pass in framework mode and no resolved Definition is a Ray proxy.
+Rollback selects a previous complete Container plus matching manifest and artifact directory. It never enables a second interceptor at Runtime. P21-007 accepted the Framework-only release gate; future rollback retains the complete Framework artifact unit.
 
-## Ray.Aop removal gate
+## Framework profile closeout gate
 
-Ray.Aop and `ext-tokenizer` MAY be removed only after all of the following are independently accepted:
+The Framework profile closeout is accepted only after all of the following are independently verified:
 
 1. Every support and reject Matrix row has a compile/runtime fixture with safe diagnostics.
 2. Generator manifest, content drift, atomic publication, post-success cleanup, Runtime no-scan, and OPcache-safe identity tests pass.
 3. DI preservation tests pass for supported features and reject factory/lazy/synthetic/abstract/decoration boundaries.
 4. Inline, Deferred, self-handled, and general Service tests prove one Transaction owner and no double intercept.
-5. Ray/framework compatibility, migration, previous-build rollback, and consumer package-export tests pass, with only the recorded legacy-Ray `never` compilation and named-variadic forwarding exceptions; Framework support for both signatures and all other shared rows remain required.
-6. `rg` finds no Ray namespace, Composer dependency, `WeavedInterface`, AOP fixtures, or legacy proxy artifact outside historical Decision/Report references, and clean-install/export verification passes.
-7. A separately accepted removal Task deletes Ray source adapters, tests/fixtures, Composer entries, and compatibility profile. Until then Ray remains available.
+5. Framework signature/DI/lifecycle, migration, previous-build rollback, and consumer package-export tests pass.
+6. Namespace/artifact scans and clean-install/export verification pass.
+7. P21-007 separately accepted the Framework-only closeout and retained no fallback path.
+
+P21-007 closeout: Framework is the sole active build profile. The immutable
+Profile Unit, no-fallback rule, complete-release rollback, and global generated
+prefix guard remain normative.
 
 ## Traceability
 

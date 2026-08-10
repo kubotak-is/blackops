@@ -5,9 +5,8 @@ declare(strict_types=1);
 require dirname(__DIR__, 4) . '/vendor/autoload.php';
 
 /**
- * This process is deliberately tiny and bounded.  A generated container may
- * load Ray classes, Framework proxy classes, and OPcache identities; keeping
- * those side effects out of PHPUnit is part of the compatibility contract.
+ * This process is deliberately tiny and bounded so generated proxy side effects
+ * stay out of PHPUnit.
  */
 if ($argc < 4) {
     fwrite(STDERR, "runner arguments missing\n");
@@ -90,11 +89,11 @@ function runApplication(object $container): array
     $policy = $container->get(\BlackOps\Tests\Internal\Console\ApplicationBuildAuthorizationPolicy::class);
     $status = $container->get(\BlackOps\Status\OperationStatusAuthorizer::class);
     $codec = $container->get(\BlackOps\Internal\StorageProtection\BopdEnvelopeCodec::class);
-    $service = $container->get(\BlackOps\Tests\Fixtures\Aop\TransactionalService::class);
+    $service = $container->get(\BlackOps\Tests\Internal\Console\ApplicationBuildTransactionalService::class);
     return [
         'service' => $service->execute('application-build-aop'),
         'calls' => $service->calls,
-        'weaved' => $service instanceof \Ray\Aop\WeavedInterface,
+        'framework_proxy' => str_contains($service::class, '__BlackOpsProxy_'),
         'has_database' => $container->has(\BlackOps\Database\DatabaseManager::class),
         'has_connection' => $container->has(\Doctrine\DBAL\Connection::class),
         'policy' => $policy instanceof \BlackOps\Tests\Internal\Console\ApplicationBuildAuthorizationPolicy,

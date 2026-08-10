@@ -156,7 +156,7 @@ Phase 19のConsumer／Documentation／Full GateはP19-008で完了した。Exter
 - Operation固定Transaction Lifecycleと一般Service Interceptorの既存保証維持
 - Ray.Aop互換Regression、Migration、Dependency Removal Gate
 
-汎用AOP Engineは実装しない。Production RuntimeでのSource Scan／Proxy生成も導入しない。D137／Specification 101で契約を確定し、Specification 102とP21-002〜P21-007で、Contract Guard→Generator／Artifact→Symfony DI→Runtime Ownership→Compatibility／Migration→Ray Removalの順に実装する。Ray.AopはP21-007のRemoval Gateまで保持する。
+汎用AOP Engineは実装しない。Production RuntimeでのSource Scan／Proxy生成も導入しない。D137／Specification 101で契約を確定し、Specification 102とP21-002〜P21-007で、Contract Guard→Generator／Artifact→Symfony DI→Runtime Ownership→Compatibility／Migration→Ray Removalの順に実装した。Phase 21はP21-007のRemoval Gateを受入済みで、Framework-only artifact chainを維持する。
 
 ## Deferred Ecosystem Scope
 

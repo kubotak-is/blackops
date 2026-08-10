@@ -1,6 +1,6 @@
 # P21-007: Ray Removal, Package Export, and Phase 21 Closeout
 
-Status: In Progress
+Status: Review Pending
 
 ## Goal
 
@@ -127,11 +127,11 @@ No file may be deleted or edited unless the exact P21-006 removal manifest names
 
 ## Acceptance Criteria
 
-- [ ] Full signature/DI/artifact/lifecycle/compatibility/removal gates pass.
-- [ ] No Ray namespace, Composer dependency, `WeavedInterface`, Ray fixture, or legacy artifact remains outside historical Decision/Report references.
-- [ ] Composer strict audit, isolated Consumer clean install, package export, focused and full PHPUnit pass.
-- [ ] Framework profile is the sole selected profile; Runtime has no fallback or Source Scan.
-- [ ] TODO/STATE/Decision index/Report mark Phase 21 closeout Review Pending; Orchestrator performs final Acceptance.
+- [x] Full signature/DI/artifact/lifecycle/compatibility/removal gates pass.
+- [x] No Ray namespace, Composer dependency, `WeavedInterface`, Ray fixture, or legacy artifact remains outside historical Decision/Report references.
+- [x] Composer strict audit, isolated Consumer clean install, package export, focused and full PHPUnit pass.
+- [x] Framework profile is the sole selected profile; Runtime has no fallback or Source Scan.
+- [x] TODO/STATE/Decision index/Report mark Phase 21 closeout Review Pending; Orchestrator performs final Acceptance.
 
 ## Required Commands
 

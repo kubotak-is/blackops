@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace BlackOps\Internal\Runtime;
 
 use BlackOps\Internal\Aop\FrameworkProxyArtifact\FrameworkProxyArtifactManifest;
-use BlackOps\Internal\Aop\FrameworkProxyContract\FrameworkProxyProfile;
 
 /** Loads one immutable, build-id-bound Framework proxy artifact unit. */
 final readonly class FrameworkProxyProfileLoader
@@ -18,9 +17,8 @@ final readonly class FrameworkProxyProfileLoader
         string $directory,
         string $applicationBuildId,
         string $manifestHash,
-        string|FrameworkProxyProfile $profile = FrameworkProxyProfile::FRAMEWORK,
     ): FrameworkProxyArtifactManifest {
-        return $this->artifacts->load($directory, $applicationBuildId, $manifestHash, $profile);
+        return $this->artifacts->load($directory, $applicationBuildId, $manifestHash);
     }
 
     public function loadFramework(
@@ -28,6 +26,6 @@ final readonly class FrameworkProxyProfileLoader
         string $applicationBuildId,
         string $manifestHash,
     ): FrameworkProxyArtifactManifest {
-        return $this->load($directory, $applicationBuildId, $manifestHash, FrameworkProxyProfile::FRAMEWORK);
+        return $this->load($directory, $applicationBuildId, $manifestHash);
     }
 }
