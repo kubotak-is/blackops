@@ -233,7 +233,7 @@ MVP後に残す主要項目:
 - [x] P21-004 Symfony DI Definition preservationを実装する（Accepted）
 - [x] P21-005 Transaction／AfterCommit runtime ownershipを実装する（Accepted）
 - [x] P21-006 Ray／Framework compatibility／migration／consumer matrixを実装する（Accepted）
-- [ ] P21-007 Ray removal／Composer／package export／Phase 21 closeoutを実装する（Ready）
+- [ ] P21-007 Ray removal／Composer／package export／Phase 21 closeoutを実装する（In Progress）
 
 ### Deferred: Documentation Website Publication
 
