@@ -59,10 +59,10 @@ guard remain active.
 - `bash tests/Consumer/framework-proxy-removal-clean-install.sh`: PASS under
   approved Docker access. Git and Composer package export passed; isolated
   Composer installed 42 packages from the path repository with `symlink=false`,
-  `vendor/ray/aop` and `composer show ray/aop` were absent, Framework autoload
-  and profile checks passed, and the worktree remained unchanged by the
-  journey. The first isolated attempt exposed an over-escaped PHP FQCN probe;
-  the probe was corrected and this exact journey was rerun successfully.
+  the `vendor/ray` directory was absent, Framework autoload and profile checks
+  passed, and the worktree remained unchanged by the journey. The first
+  isolated attempt exposed an over-escaped PHP FQCN probe; the probe was
+  corrected and this exact journey was rerun successfully.
 - `docker compose run --rm app mago format --check src tests`: PASS.
 - `docker compose run --rm app composer validate --strict`: PASS.
 - `docker compose run --rm app composer why --locked ext-tokenizer`: PASS;
@@ -76,6 +76,10 @@ guard remain active.
 - Documentation Reviewer final re-review: P1 0, P2 0, P3 0; Acceptance
   permitted after Framework Unit main-only guidance, current Framework-only
   Specification, and Report inventory were synchronized.
+- Post-commit Task scan found the Consumer's literal package path and package
+  query in its own Ray-absence assertion. The assertion was tightened to
+  `test ! -d vendor/ray`, and `bash -n`, the exact Consumer journey, the exact
+  Task Ray scan, and `git diff --check` were rerun successfully.
 
 ## Acceptance Criteria
 
