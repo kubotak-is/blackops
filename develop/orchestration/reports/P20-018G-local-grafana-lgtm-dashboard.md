@@ -106,6 +106,7 @@ P1/P2/P3 findings.
 | Public Guide management-ID guard | PASS |
 | Management-ID guard / `git diff --check` | PASS |
 | Documentation Reviewer final re-review | PASS; P1=0, P2=0, P3=0 |
+| Commit `600105b` Git HEAD Consumer rerun | PASS; Grafana health, exact Tempo trace, allowlisted Prometheus metric, source comparison, and cleanup |
 
 ## Acceptance Criteria
 
@@ -133,5 +134,5 @@ P1/P2/P3 Documentation Finding remains. Push and deploy remain out of scope.
 
 ## Suggested Next Action
 
-Commit the accepted P20-018G change. Do not push or deploy without a separate
-instruction.
+Select the next prioritized Task from the orchestration state. Do not push or
+deploy without a separate instruction.
