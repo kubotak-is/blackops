@@ -85,6 +85,7 @@ Audited the immutable annotated Stable `1.1.0` tag against committed `main` (`1.
 - PASS (bounded follow-up): focused `bash -n`, version-baseline guard, Website 77 tests, and `git diff --check`.
 - PASS (latest correction): version-baseline guard covers cleanup ordering, common Database migration/setup plus HTTP／Worker lane wording, one-shell trap scope, bounded runtime retries, and HTTP status/content-type/body assertions.
 - PASS (latest Orchestrator rerun): exact `bash tests/Consumer/framework-update-generators.sh` completed with cleanup, source-state invariant, and `Framework update generator smoke passed.`
+- PASS (post-commit): accepted content commit `b83295eef517c18cf508d5685c99fefe20d834c3` was resolved as local `1.2.0`; the exact Consumer again completed with cleanup, source-state invariant, and `Framework update generator smoke passed.`
 - Mago exact `format --check src tests examples` traversed ignored third-party `examples/community-board/vendor` and `node_modules` (835 Hack/third-party files) and failed; an equivalent clean committed clone with only tool-owned vendor mounted passed. No PHP source was changed for this environment issue.
 - PASS: `git diff --check` at checkpoint.
 
@@ -98,4 +99,4 @@ Documentation, audit, actual-tag Consumer source, version guards, roadmap correc
 
 ## P22-003 Inputs and Suggested Next Action
 
-Use peeled Stable commit `e3df5576c7216cfe8bd9e10e12ee6795f7674088`, audit candidate `a8243bd`, the migration table, and the actual-tag Consumer as inputs. After committing the accepted P22-002 documentation, P22-003 must fix the resulting committed HEAD and execute the full local／CI gate plus the shared Database and Provider-present／missing HTTP／Worker lanes before any separately authorized publication work.
+Use peeled Stable commit `e3df5576c7216cfe8bd9e10e12ee6795f7674088`, audit candidate `a8243bd`, accepted content commit `b83295eef517c18cf508d5685c99fefe20d834c3`, the migration table, and the actual-tag Consumer as inputs. P22-003 must fix the post-closeout committed HEAD and execute the full local／CI gate plus the shared Database and Provider-present／missing HTTP／Worker lanes before any separately authorized publication work.

@@ -1,6 +1,13 @@
 # Orchestration State
 
-Updated At: 2026-08-11T02:16:08+09:00
+Updated At: 2026-08-11T02:17:10+09:00
+
+## P22-002 Post-commit Consumer Verification
+
+```text
+2026-08-11T02:17:10+09:00
+Accepted P22-002 contentをb83295eとしてCommit後、clean Git HEADでexact actual-tag Framework Update Consumerを再実行した。Local candidate 1.2.0はb83295eef517c18cf508d5685c99fefe20d834c3を解決し、Stable 1.1.0 install、Framework-only update、Application source hash不変、minimal frontend_manifest migration、build:compile／operation:list、cleanup／source-state invariantを通過して`Framework update generator smoke passed.`で終了した。P22-002 acceptanceをcloseoutし、次はpost-closeout HEADを固定するP22-003 Full Gate。Tag／Push／Release／Packagist／Skeleton publication／Deployなし。
+```
 
 ## P22-002 Stable 1.2 Release Documentation Accepted
 
