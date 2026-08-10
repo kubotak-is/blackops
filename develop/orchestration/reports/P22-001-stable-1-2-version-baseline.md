@@ -6,7 +6,7 @@ Status: Accepted
 
 Repository `main` now declares an unpublished `1.2.0` Release Candidate while published Latest Stable Framework／Skeleton `1.1.0` remains unchanged. Root Composer metadata, Framework OpenTelemetry scope, Skeleton Source of Truth, candidate Consumer fixtures, active Preview documentation, Decision／Specification／Roadmap／TODO, and the Website release notice are synchronized.
 
-No tag, push, GitHub Release, Packagist update, Skeleton split publication, deploy, or commit was performed.
+The accepted baseline was committed as `dadb64f`. No tag, push, GitHub Release, Packagist update, Skeleton split publication, or deploy was performed.
 
 ## Version Inventory
 
@@ -66,7 +66,7 @@ The dedicated `tests/Consumer/version-baseline.sh` rejects active `1.1.0` drift 
 | `bash tests/Consumer/skeleton-create-project.sh` | PASS after excluding ignored working-tree artifacts from the harness copy |
 | `bash tests/Consumer/skeleton-publication.sh --dry-run` | PASS, `version=1.2.0`, `split=working-tree`, after the same copy correction |
 | `bash tests/Consumer/quickstart-e2e.sh` | PASS; Framework `1.2.0` lock/install, 13 migrations, build, frontend, HTTP, Deferred, and cleanup |
-| `bash tests/Consumer/skeleton-publication.sh 1.2.0 HEAD` | Not a valid pre-commit acceptance run: HEAD still has the pre-baseline `^1.1` Skeleton constraint; rerun after the accepted baseline commit |
+| `bash tests/Consumer/skeleton-publication.sh 1.2.0 HEAD` | PASS after commit `dadb64f`; source `dadb64fe149663a47f3257f0f8dc9f8c19dc0ab8`, deterministic split `fa5e8247fc8cf789cf73685e5be59cc498ffb4ce` |
 | Documentation Reviewer final re-review | PASS; P1=0／P2=0／P3=0 (Browser visual review Not Verified because localhost was unreachable from the reviewer environment) |
 
 ## Acceptance Criteria
@@ -83,17 +83,17 @@ The dedicated `tests/Consumer/version-baseline.sh` rejects active `1.1.0` drift 
 
 ## Remaining Release Work
 
-Complete the post-commit exact `bash tests/Consumer/skeleton-publication.sh 1.2.0 HEAD` probe, then the complete `1.2.0` Release Note／Upgrade, full quality／Consumer gate, and separately authorized Tag／Push／Skeleton publication／Packagist／GitHub Release gate.
+Complete the `1.2.0` Release Note／Upgrade, full quality／Consumer gate, and separately authorized Tag／Push／Skeleton publication／Packagist／GitHub Release gate.
 
 ## Suggested Next Action
 
-Commit the accepted P22-001 baseline, run the exact `1.2.0 HEAD` publication probe against the committed Skeleton constraint, and record that closeout without creating a Tag, Push, Release, Packagist publication, or deploy.
+Start the subsequent `1.2.0` Release Note／Upgrade and full release gate as a separate Task Packet. Do not create a Tag, Push, Release, Packagist publication, or deploy without separate authorization.
 
 ## Follow-up Finding and Correction
 
 The first Docker-enabled Consumer run reproduced an ignored local `examples/quickstart/node_modules` directory being copied by `cp -a`, causing the create-project harness to fail its generated-artifact assertion before Composer and causing the publication dry-run root allowlist to fail. Both `tests/Consumer/skeleton-create-project.sh` and the `--dry-run` branch of `tests/Consumer/skeleton-publication.sh` now use an explicit tar copy that retains dotfiles and committed Source while excluding `.env`, `composer.lock`, `vendor`, nested `node_modules`, generated frontend output, and generated `var` files; the required `var/*/.gitignore` files are restored.
 
-Orchestrator independently reran and passed `bash tests/Consumer/skeleton-create-project.sh` and `bash tests/Consumer/skeleton-publication.sh --dry-run` (`version=1.2.0`, `split=working-tree`). The exact `bash tests/Consumer/skeleton-publication.sh 1.2.0 HEAD` check remains intentionally deferred until after acceptance because the current pre-commit HEAD still carries the old `^1.1` constraint.
+Orchestrator independently reran and passed `bash tests/Consumer/skeleton-create-project.sh` and `bash tests/Consumer/skeleton-publication.sh --dry-run` (`version=1.2.0`, `split=working-tree`). After acceptance commit `dadb64f`, the exact `bash tests/Consumer/skeleton-publication.sh 1.2.0 HEAD` check also passed against the committed `^1.2` Skeleton constraint and deterministic split `fa5e8247fc8cf789cf73685e5be59cc498ffb4ce`.
 
 ## Documentation Reviewer P1 Corrections
 

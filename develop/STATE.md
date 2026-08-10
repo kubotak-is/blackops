@@ -1,6 +1,13 @@
 # Orchestration State
 
-Updated At: 2026-08-10T18:54:38+09:00
+Updated At: 2026-08-10T18:57:41+09:00
+
+## P22-001 Git HEAD Closeout
+
+```text
+2026-08-10T18:57:41+09:00
+P22-001のAccepted baselineを`dadb64f`としてCommitした。Commit直後のclean Git HEADでexact `bash tests/Consumer/skeleton-publication.sh 1.2.0 HEAD`を再実行し、Composer `^1.2` metadata、distribution allowlist、deterministic subtree split `fa5e8247fc8cf789cf73685e5be59cc498ffb4ce`、annotated tag contract、source／Docker／temporary state不変をPASSした。次は完全な`1.2.0` Release Note／Upgradeとfull release gateを別Task Packetで扱う。Tag／Push／GitHub Release／Packagist／Skeleton publication／Deployなし。
+```
 
 ## P22-001 Stable 1.2 Version Baseline Accepted
 
