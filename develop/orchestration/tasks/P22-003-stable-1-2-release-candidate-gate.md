@@ -12,8 +12,10 @@ Status: In Progress
 - Baseline Subject: `chore: close P22-002 acceptance`
 - Release Version: `1.2.0`
 - Latest Published Stable: `1.1.0`
-- Superseded Candidate: `99f723dfc9bcf1e859689c81878839ee37d2ba91` (`test: add stable 1.2 runtime upgrade gate`)
-- Final Fixed Candidate: Quickstart-copying Consumer correction Commit後に再固定する
+- Superseded Candidates:
+  - `99f723dfc9bcf1e859689c81878839ee37d2ba91` (`test: add stable 1.2 runtime upgrade gate`)
+  - `413d0964cc132d685b228d5b8d697ac6cc4543e6` (`test: prepare storage keys in quickstart consumers`)
+- Final Fixed Candidate: Pending the reviewed Community Board Storage Protection correction commit.
 
 P22-002で要求されたStable-to-candidate Runtime ConsumerとCI wiringはBaselineにまだ存在しない。このTaskでは最初にGate Assetを実装、Review、Commitする。そのCommitをFinal Fixed Candidateとして明記し、以後のFull Gateを最初から実行する。Final Fixed Candidate確定後にTest／Workflow／Production／Skeleton／Release Metadata／利用者向けDocumentationを修正する必要が生じた場合、SHAを暗黙に読み替えずReportへBlockerを記録し、修正Commit後の新SHAでFull Gateを最初から再実行する。
 
@@ -26,6 +28,13 @@ Task／Report／STATEだけのCloseout CommitはFinal Fixed Candidateへ含め�
 - actual Stable `1.1.0`の必須`X-Sample-Token` Value HeaderをUpgrade手順と公開Install／Runtime／Quickstart Guideへ正確に記録する
 - Candidate Runtime ConsumerのGitHub Actions CI wiring
 - Quickstart `.env.example`をコピーする既存Auth Generator／FrankenPHP Worker／Scheduled Operation Consumerのfail-closed Storage Key準備
+- Community Board Reference ApplicationへApplication-owned `StorageKeyProvider`を登録し、fresh `bin/setup`が秘密値を出力せずmode 600の`.env`へ32-byte Local Storage Keyを準備するRelease Blocker修正
+- Community Boardのstale path-repository Lock MetadataをCurrent CandidateのRuntime要求へ更新し、`open-telemetry/api`と`ext-sodium`要求をInstall時に検証する
+- Community Board Clean InstallのMigration件数をCurrent Candidateの11 Framework＋5 Application Migrationへ同期する
+- Community BoardのCurrent Candidate LockからComposerが解決した orphan `ray/aop` を除去し、Clean InstallでRay.Aopが導入されないことを検証する
+- Framework-owned transaction proxyの現行Bootstrap説明からRay.Aopを現行実装として記述する誤りを除去する
+- Current Framework configuration／specificationから不要なRay.Aop依存・namespace・vendor includeを除去する（履歴Decision／Reportは変更しない）
+- Community Board README／公開Guide／Website契約Testを、Storage Keyを含むfresh setupと既存`.env`の手動移行境界へ同期する
 - Final Fixed Candidate SHAの固定とLocal／Remote History Evidence
 - Composer Strict、Mago Format／Lint／Analyze、Full PHPUnit、Deptrac
 - 全top-level non-interactive Consumer／Installation／Runtime／Observability／Framework Update Smoke
@@ -41,7 +50,7 @@ Task／Report／STATEだけのCloseout CommitはFinal Fixed Candidateへ含め�
 
 ## Out of Scope
 
-- 新Feature、Production Code、Public API、Compatibility Policyの変更
+- 新Feature、Framework Production Code、Public API、Compatibility Policyの変更
 - `1.2.0` Tag作成またはPush
 - Branch Push
 - Skeleton Distribution Repository更新
@@ -53,6 +62,7 @@ Task／Report／STATEだけのCloseout CommitはFinal Fixed Candidateへ含め�
 ## Relevant Specifications and Decisions
 
 - `develop/decisions/139-stable-1-2-version-baseline.md`
+- `develop/spec/09-runtime-and-di.md`
 - `develop/spec/46-composer-skeleton-publication.md`
 - `develop/spec/57-documentation-website-delivery-contract.md`
 - `develop/spec/61-experimental-release-contract.md`
@@ -80,7 +90,20 @@ Task／Report／STATEだけのCloseout CommitはFinal Fixed Candidateへ含め�
 - `docs/guide/installation.md`（Stable Welcomeの必須Value Header訂正のみ）
 - `docs/guide/runtime-bootstrap.md`（Stable Welcomeの必須Value Header訂正のみ）
 - `docs/guide/mvp-sample.md`（Stable／Preview Welcome Header境界訂正のみ）
-- `docs/website/tests/guide-code.test.mjs`（公開Guideの実行可能Header契約guardのみ）
+- `docs/website/tests/guide-code.test.mjs`（公開Guideの実行可能Header／Community Board setup契約guardのみ）
+- `examples/community-board/.env.example`（空のStorage Key placeholderのみ）
+- `examples/community-board/composer.lock`（Current Candidate Framework path-repository dependency metadata同期とorphan `ray/aop`除去のみ）
+- `examples/community-board/app/ApplicationServiceProvider.php`（Application-owned Storage Key Provider bindingのみ）
+- `examples/community-board/app/Security/SampleStorageKeyProvider.php`（Local／Test用fail-closed Providerのみ、新規）
+- `examples/community-board/bin/setup`（fresh `.env`の安全なLocal Storage Key生成と既存`.env`不変のみ）
+- `examples/community-board/README.md`（Storage Key setup／既存環境移行／Troubleshooting／current migration countのみ）
+- `tests/Consumer/community-board-clean-install.sh`（fresh Storage Key、mode、非露出／current migration count／Ray.Aop absenceのみ）
+- `tests/Internal/Application/ApplicationSeederBuildIntegrationTest.php`（failure-preserves-previous-artifacts sentinelを現行proxy artifact pathへ同期）
+- `docs/guide/community-board.md`（公開Websiteの同じStorage Key setup／移行境界のみ）
+- `docs/internal/bootstrap.md`（Framework-owned transaction proxyの現行実装説明に限定）
+- `develop/spec/09-runtime-and-di.md`（現行Framework-owned transaction proxyのBuild-time説明に限定）
+- `mago.toml`（不要なRay.Aop vendor includeの除去のみ）
+- `deptrac.yaml`（不要なRay namespace collector定義の除去のみ）
 - `docs/internal/installed-application-status.md`（Gate Evidence同期が必要な場合のみ）
 - `docs/internal/mvp-e2e.md`（Gate Evidence同期が必要な場合のみ）
 - `develop/TODO.md`
@@ -127,6 +150,12 @@ Task／Report／STATEだけのCloseout CommitはFinal Fixed Candidateへ含め�
 - [ ] UPGRADE／公開Install／Runtime／Quickstart GuideとWebsite契約Testが、Stableの匿名認可と必須`X-Sample-Token` Value Bindingを混同せず実行可能な手順を記録する
 - [ ] GitHub Actionsが新Runtime Consumerを実行し、Workflowの静的契約とLocal equivalentが成功する
 - [ ] Final Fixed Candidate SHAがCommitted SourceとしてTask／Reportへ固定される
+- [ ] Community BoardがApplication-owned `StorageKeyProvider`を登録し、fresh setupでstrict base64 32-byte Key／単一Assignment／mode 600／非露出を満たし、失敗時に不完全`.env`を残さず、既存`.env`を暗黙変更しない
+- [ ] Community Board lockがCurrent Candidate Frameworkの`open-telemetry/api`／`ext-sodium`要求を保持し、fresh Composer install後のSeed／HTTP／Worker Runtimeが依存欠落なく起動する
+- [ ] Community Board clean installが11 Framework＋5 Application Migrationを適用し、同じ16件をREADMEとConsumerが主張する
+- [ ] Community Board lockから`ray/aop`が除去され、Clean Installの依存／vendor／生成物にRay.Aopが存在しないことをConsumerが検証する
+- [ ] `docs/internal/bootstrap.md`が現行Framework-owned proxy実装をRay.Aopなしで説明する
+- [ ] Current spec／Mago／Deptrac configurationがRay.Aop依存・namespace・vendor includeなしで現行Framework-owned proxy契約を表現する
 - [ ] Final Fixed Candidate SHAがLocal／Remote `main` Historyに存在し、同SHAのGitHub Actions CIが成功する
 - [ ] Composer、Mago、Full PHPUnit、Deptracが成功する
 - [ ] 全top-level non-interactive Consumerが成功する

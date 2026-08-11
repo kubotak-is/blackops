@@ -3,9 +3,23 @@
 
 declare(strict_types=1);
 
+$freshEnvironmentPath = null;
+$freshEnvironmentCreated = false;
+
 function failSetup(string $message): never
 {
-    fwrite(STDERR, "Setup failed: {$message}.\n");
+    global $freshEnvironmentCreated, $freshEnvironmentPath;
+
+    $cleanupFailed = false;
+    if ($freshEnvironmentCreated && is_string($freshEnvironmentPath) && is_file($freshEnvironmentPath)) {
+        $cleanupFailed = !@unlink($freshEnvironmentPath) && is_file($freshEnvironmentPath);
+    }
+
+    if ($cleanupFailed) {
+        fwrite(STDERR, "Setup failed: {$message}; incomplete .env cleanup failed.\n");
+    } else {
+        fwrite(STDERR, "Setup failed: {$message}.\n");
+    }
     exit(1);
 }
 
@@ -29,6 +43,7 @@ function createDirectory(string $path, string $relativePath): void
 
 $projectRoot = dirname(__DIR__);
 $environment = $projectRoot . '/.env';
+$freshEnvironmentPath = $environment;
 
 if (file_exists($environment)) {
     if (!is_file($environment)) {
@@ -43,12 +58,67 @@ if (file_exists($environment)) {
     }
 
     $contents = file_get_contents($example);
-    if (!is_string($contents) || file_put_contents($environment, $contents, LOCK_EX) !== strlen($contents)) {
-        if (is_file($environment)) {
-            unlink($environment);
-        }
+    if (!is_string($contents)) {
+        failSetup('.env.example could not be read');
+    }
 
+    try {
+        $encoded = base64_encode(random_bytes(SODIUM_CRYPTO_AEAD_XCHACHA20POLY1305_IETF_KEYBYTES));
+    } catch (Throwable) {
+        failSetup('Local Storage Key could not be generated');
+    }
+
+    $material = base64_decode($encoded, strict: true);
+    if (!is_string($material) || strlen($material) !== SODIUM_CRYPTO_AEAD_XCHACHA20POLY1305_IETF_KEYBYTES) {
+        unset($encoded, $material);
         failSetup('.env could not be copied from .env.example');
+    }
+
+    $updatedContents = preg_replace(
+        '/^BLACKOPS_STORAGE_KEY=$/m',
+        "BLACKOPS_STORAGE_KEY={$encoded}",
+        $contents,
+        -1,
+        $placeholderCount,
+    );
+    unset($encoded, $material);
+    if (!is_string($updatedContents) || $placeholderCount !== 1) {
+        failSetup('.env.example must contain exactly one empty BLACKOPS_STORAGE_KEY placeholder');
+    }
+
+    $assignmentCount = preg_match_all('/^BLACKOPS_STORAGE_KEY=/m', $updatedContents);
+    $emptyAssignmentCount = preg_match_all('/^BLACKOPS_STORAGE_KEY=$/m', $updatedContents);
+    if ($assignmentCount !== 1 || $emptyAssignmentCount !== 0) {
+        failSetup('generated .env must contain exactly one non-empty BLACKOPS_STORAGE_KEY assignment');
+    }
+
+    umask(0077);
+    $handle = @fopen($environment, 'xb');
+    if (!is_resource($handle)) {
+        failSetup('.env could not be created');
+    }
+    $freshEnvironmentCreated = true;
+
+    $length = strlen($updatedContents);
+    $offset = 0;
+    while ($offset < $length) {
+        $written = @fwrite($handle, substr($updatedContents, $offset));
+        if (!is_int($written) || $written < 1) {
+            @fclose($handle);
+            failSetup('.env could not be written');
+        }
+        $offset += $written;
+    }
+    if (!@fflush($handle)) {
+        @fclose($handle);
+        failSetup('.env could not be flushed');
+    }
+    if (!@fclose($handle)) {
+        failSetup('.env could not be closed');
+    }
+    unset($updatedContents, $contents, $placeholderCount, $assignmentCount, $emptyAssignmentCount);
+    if (!chmod($environment, 0600)) {
+        failSetup('fresh .env mode could not be restricted');
     }
 
     fwrite(STDOUT, "Created .env from .env.example.\n");
@@ -56,20 +126,21 @@ if (file_exists($environment)) {
 
 createDirectory($projectRoot . '/var/build', 'var/build');
 createDirectory($projectRoot . '/var/log', 'var/log');
+$freshEnvironmentCreated = false;
 
 fwrite(STDOUT, <<<'STEPS'
 
-Next steps:
-  docker compose build app http frontend
-  docker compose run --rm app composer install --no-interaction --prefer-dist --no-progress
-  pnpm --dir frontend install --frozen-lockfile
-  docker compose run --rm app php blackops database:migrate
-  docker compose run --rm app php blackops build:compile
-  docker compose run --rm app php blackops frontend:generate
-  docker compose run --rm app php blackops frontend:check
-  pnpm --dir frontend run check
-  pnpm --dir frontend run test
-  pnpm --dir frontend run build
-  docker compose up -d postgres http frontend
+    Next steps:
+      docker compose build app http frontend
+      docker compose run --rm app composer install --no-interaction --prefer-dist --no-progress
+      pnpm --dir frontend install --frozen-lockfile
+      docker compose run --rm app php blackops database:migrate
+      docker compose run --rm app php blackops build:compile
+      docker compose run --rm app php blackops frontend:generate
+      docker compose run --rm app php blackops frontend:check
+      pnpm --dir frontend run check
+      pnpm --dir frontend run test
+      pnpm --dir frontend run build
+      docker compose up -d postgres http frontend
 
-STEPS);
+    STEPS);

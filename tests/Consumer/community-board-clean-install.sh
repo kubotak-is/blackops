@@ -48,6 +48,18 @@ cleanup() {
 trap cleanup EXIT
 trap 'printf "Clean install journey failed at line %s.\n" "${LINENO}" >&2' ERR
 
+run_setup() {
+    if command -v php >/dev/null 2>&1; then
+        (cd "${COMMUNITY_BOARD}" && php bin/setup)
+    else
+        docker run --rm \
+            --user "$(id -u):$(id -g)" \
+            --volume "${ROOT}:/workspace" \
+            --workdir /workspace/examples/community-board \
+            php:8.5-cli-bookworm php bin/setup
+    fi
+}
+
 assert_absent() {
     local label=$1
     local marker=$2
@@ -79,18 +91,39 @@ for absent in \
     test ! -e "${COMMUNITY_BOARD}/${absent}"
 done
 
-if command -v php >/dev/null 2>&1; then
-    (cd "${COMMUNITY_BOARD}" && php bin/setup)
-else
-    docker run --rm \
-        --user "$(id -u):$(id -g)" \
-        --volume "${ROOT}:/workspace" \
-        --workdir /workspace/examples/community-board \
-        php:8.5-cli-bookworm php bin/setup
+rm -rf "${COMMUNITY_BOARD}/var/build"
+mkdir -p "${COMMUNITY_BOARD}/var"
+: >"${COMMUNITY_BOARD}/var/build"
+if FAILURE_SETUP_OUTPUT=$(run_setup 2>&1); then
+    printf 'Fresh setup failure lane unexpectedly succeeded.\n' >&2
+    exit 1
 fi
+test ! -e "${COMMUNITY_BOARD}/.env"
+! grep -Fq 'BLACKOPS_STORAGE_KEY=' <<<"${FAILURE_SETUP_OUTPUT}"
+unset FAILURE_SETUP_OUTPUT
+rm -f "${COMMUNITY_BOARD}/var/build"
+
+SETUP_OUTPUT=$(run_setup)
 test -f "${COMMUNITY_BOARD}/.env"
 test -d "${COMMUNITY_BOARD}/var/build"
 test -d "${COMMUNITY_BOARD}/var/log"
+test "$(grep -c '^BLACKOPS_STORAGE_KEY=' "${COMMUNITY_BOARD}/.env")" -eq 1
+test "$(grep -c '^BLACKOPS_STORAGE_KEY=$' "${COMMUNITY_BOARD}/.env")" -eq 0
+STORAGE_KEY=$(sed -n 's/^BLACKOPS_STORAGE_KEY=//p' "${COMMUNITY_BOARD}/.env")
+test -n "${STORAGE_KEY}"
+test "$(printf '%s' "${STORAGE_KEY}" | base64 --decode | wc -c)" -eq 32
+test "$(stat -c '%a' "${COMMUNITY_BOARD}/.env")" = 600
+! grep -Fq "${STORAGE_KEY}" <<<"${SETUP_OUTPUT}"
+unset SETUP_OUTPUT
+
+! rg -n '"name": "ray/aop"|Ray\\Aop|Ray\.Aop' "${COMMUNITY_BOARD}/composer.lock"
+EXISTING_ENV_SHA=$(sha256sum "${COMMUNITY_BOARD}/.env")
+EXISTING_ENV_STAT=$(stat -c '%a:%u:%g:%s:%Y:%Z' "${COMMUNITY_BOARD}/.env")
+EXISTING_SETUP_OUTPUT=$(run_setup)
+test "$(sha256sum "${COMMUNITY_BOARD}/.env")" = "${EXISTING_ENV_SHA}"
+test "$(stat -c '%a:%u:%g:%s:%Y:%Z' "${COMMUNITY_BOARD}/.env")" = "${EXISTING_ENV_STAT}"
+! grep -Fq 'BLACKOPS_STORAGE_KEY=' <<<"${EXISTING_SETUP_OUTPUT}"
+unset EXISTING_ENV_SHA EXISTING_ENV_STAT EXISTING_SETUP_OUTPUT
 
 "${COMPOSE[@]}" build app http frontend
 "${COMPOSE[@]}" run --rm --no-deps app composer validate --strict
@@ -115,6 +148,8 @@ grep -Fq -- '->withEnvironmentFile()' "${COMMUNITY_BOARD}/bootstrap/app.php"
 "${COMPOSE[@]}" run --rm --no-deps app \
     composer install --no-interaction --prefer-dist --no-progress
 mise exec -- pnpm --dir "${COMMUNITY_BOARD}/frontend" install --frozen-lockfile
+test ! -e "${COMMUNITY_BOARD}/vendor/ray/aop"
+! rg -n 'Ray\\Aop|Ray\.Aop|ray/aop' "${COMMUNITY_BOARD}/vendor"
 
 "${COMPOSE[@]}" up -d postgres
 "${COMPOSE[@]}" run --rm app php blackops build:compile
@@ -131,7 +166,7 @@ for password in "${DEMO_PASSWORDS[@]}"; do
 done
 
 MIGRATION_OUTPUT=$("${COMPOSE[@]}" run --rm app php blackops database:migrate)
-grep -Fq 'migrations: 11' <<<"${MIGRATION_OUTPUT}"
+grep -Fq 'migrations: 16' <<<"${MIGRATION_OUTPUT}"
 "${COMPOSE[@]}" run --rm app php blackops build:compile
 "${COMPOSE[@]}" run --rm app php blackops frontend:generate
 "${COMPOSE[@]}" run --rm app php blackops frontend:check
@@ -146,6 +181,7 @@ grep -Fxq 'Database seeding completed.' <<<"${SECOND_SEED_OUTPUT}"
 for password in "${DEMO_PASSWORDS[@]}"; do
     ! grep -Fq "${password}" <<<"${FIRST_SEED_OUTPUT}${SECOND_SEED_OUTPUT}"
 done
+! grep -Fq "${STORAGE_KEY}" <<<"${FIRST_SEED_OUTPUT}${SECOND_SEED_OUTPUT}"
 
 SEED_COUNTS=$("${COMPOSE[@]}" exec -T postgres psql -U blackops -d community_board -Atc \
     "SELECT
@@ -162,6 +198,7 @@ test "${SEED_COUNTS}" = '3|3|4|3|0|0|0|0'
 for password in "${DEMO_PASSWORDS[@]}"; do
     assert_absent 'database dump' "${password}" "${TEMP}/database.sql"
 done
+assert_absent 'database dump Storage Key' "${STORAGE_KEY}" "${TEMP}/database.sql"
 
 "${COMPOSE[@]}" up -d http frontend
 for _ in $(seq 1 60); do
@@ -207,6 +244,7 @@ for surface in \
     for password in "${DEMO_PASSWORDS[@]}"; do
         assert_absent 'public demo password' "${password}" "${surface}"
     done
+    assert_absent 'Storage Key' "${STORAGE_KEY}" "${surface}"
     assert_absent 'raw session token' "${SESSION_TOKEN}" "${surface}"
 done
 
@@ -221,4 +259,5 @@ if git -C "${ROOT}" ls-files \
     exit 1
 fi
 
+unset STORAGE_KEY
 printf 'Community Board clean install journey passed.\n'

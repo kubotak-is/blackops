@@ -70,7 +70,7 @@ RuntimeでSeeder Sourceを再走査せず、Reflectionまたは動的な`new $cl
 
 ## Build-time Method Interception
 
-`#[Transactional]`と`#[AfterCommit]`はRay.AopによるBuild時Method Interceptionを使用する。Ray.Diへ移行せず、Symfony DIのService Definitionを正本とする。
+`#[Transactional]`と`#[AfterCommit]`はFramework-owned proxy generatorによるBuild時Method Interceptionを使用する。外部AOP／DI engineへ移行せず、Symfony DIのService Definitionを正本とする。
 
 - ProxyはApplicationの`build:compile`で生成する
 - Production RuntimeでSource ScanまたはTemporary Proxy生成を行わない

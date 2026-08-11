@@ -37,7 +37,11 @@ mise exec -- pnpm --dir frontend run build
 docker compose --profile worker up -d postgres http frontend worker
 ```
 
-`bin/setup`は`.env`とRuntime Directoryだけを準備します。Dependency Install、Migration、Build、Generate、Seed、Startを暗黙に実行しません。`database:seed`はRoot `DatabaseSeeder`からCommunity Board Seederを実行し、固定した3 User、3 Post、4 Commentを作ります。同じDatabaseで再実行しても重複しません。
+`bin/setup`はfresh checkoutでは`.env.example`の空の`BLACKOPS_STORAGE_KEY` placeholderをstrict base64の32 random bytesへ置き換え、`.env`をmode `600`で作成し、Runtime Directoryだけを準備します。Keyは出力しません。Dependency Install、Migration、Build、Generate、Seed、Startを暗黙に実行しません。`database:seed`はRoot `DatabaseSeeder`からCommunity Board Seederを実行し、固定した3 User、3 Post、4 Commentを作ります。同じDatabaseで再実行しても重複しません。
+
+既存`.env`がある場合、`bin/setup`はbyte／metadataを変更せず、Keyの追加・Rotation・暗黙の書換えも行いません。既存環境を移行するときは`.env`をBackupし、ApplicationのSecret-handling手順で32 byteを表すstrict base64の非空`BLACKOPS_STORAGE_KEY`を一つだけ追加または置換し、mode `600`とAssignment数を確認します。Key Valueや`.env`内容を出力しないでください。Fresh setupが途中で失敗した場合は不完全な`.env`を残しません。
+
+`App\Security\SampleStorageKeyProvider`はLocal／Test専用のApplication-owned Providerです。ProductionではKMS／Secret Managerなど承認済みのApplication-owned ProviderへBindingを置き換え、`.env`生成KeyをProductionへ持ち込まないでください。FrameworkはProduction Keyの生成、保存、Rotation、KMS接続を所有しません。
 
 `http://localhost:5173/login`を開き、次を入力します。
 

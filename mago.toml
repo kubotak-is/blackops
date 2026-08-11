@@ -16,7 +16,6 @@ includes = [
   "vendor/psr/http-server-handler",
   "vendor/psr/http-server-middleware",
   "vendor/psr/log",
-  "vendor/ray/aop/src",
   "vendor/symfony/console",
   "vendor/symfony/dependency-injection",
   "vendor/symfony/stopwatch",

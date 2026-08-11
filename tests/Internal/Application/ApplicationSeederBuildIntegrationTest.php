@@ -120,8 +120,12 @@ final class ApplicationSeederBuildIntegrationTest extends TestCase
             $sentinels[$artifact] = 'existing-' . $artifact;
             file_put_contents($buildDirectory . '/' . $artifact, $sentinels[$artifact]);
         }
-        mkdir($buildDirectory . '/aop');
-        file_put_contents($buildDirectory . '/aop/existing.php', 'existing-aop');
+        $frameworkProxyDirectory = $buildDirectory . '/framework-proxies/existing-build-existing-input';
+        $proxyProfileDirectory = $buildDirectory . '/proxy-profiles/existing-build-existing-content';
+        mkdir($frameworkProxyDirectory, recursive: true);
+        mkdir($proxyProfileDirectory, recursive: true);
+        file_put_contents($frameworkProxyDirectory . '/existing.php', 'existing-framework-proxy');
+        file_put_contents($proxyProfileDirectory . '/existing.php', 'existing-proxy-profile');
 
         $failed = false;
         try {
@@ -134,7 +138,8 @@ final class ApplicationSeederBuildIntegrationTest extends TestCase
         foreach ($sentinels as $artifact => $sentinel) {
             self::assertSame($sentinel, file_get_contents($buildDirectory . '/' . $artifact));
         }
-        self::assertSame('existing-aop', file_get_contents($buildDirectory . '/aop/existing.php'));
+        self::assertSame('existing-framework-proxy', file_get_contents($frameworkProxyDirectory . '/existing.php'));
+        self::assertSame('existing-proxy-profile', file_get_contents($proxyProfileDirectory . '/existing.php'));
     }
 
     /**

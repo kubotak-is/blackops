@@ -53,6 +53,32 @@ test('P22-003 upgrade order and runtime merge matrix stay executable', async () 
   assert.match(upgrade, /Provider-missing Classic HTTP safe 500／Worker CLI safe Negative/);
 });
 
+test('Community Board setup keeps Local Storage Key and production boundaries explicit', async () => {
+  const [readme, guideSource, setup, environment, consumer] = await Promise.all([
+    readFile(path.join(repositoryRoot, 'examples/community-board/README.md'), 'utf8'),
+    guide('community-board.md'),
+    readFile(path.join(repositoryRoot, 'examples/community-board/bin/setup'), 'utf8'),
+    readFile(path.join(repositoryRoot, 'examples/community-board/.env.example'), 'utf8'),
+    readFile(path.join(repositoryRoot, 'tests/Consumer/community-board-clean-install.sh'), 'utf8'),
+  ]);
+
+  assert.equal((environment.match(/^BLACKOPS_STORAGE_KEY=$/gm) ?? []).length, 1);
+  assert.match(setup, /random_bytes\(SODIUM_CRYPTO_AEAD_XCHACHA20POLY1305_IETF_KEYBYTES\)/);
+  assert.match(setup, /chmod\(\$environment, 0600\)/);
+  assert.match(setup, /BLACKOPS_STORAGE_KEY=\{\$encoded\}/);
+  assert.match(setup, /freshEnvironmentCreated/);
+  assert.match(readme, /strict base64.*32 random bytes/);
+  assert.match(readme, /byte-for-byte.*metadata/);
+  assert.match(readme, /KMS.*Secret Manager/);
+  assert.match(guideSource, /strict base64.*32 random bytes/);
+  assert.match(guideSource, /byte／metadata/);
+  assert.match(guideSource, /KMS／Secret Manager/);
+  assert.match(consumer, /BLACKOPS_STORAGE_KEY=/);
+  assert.match(consumer, /base64 --decode \| wc -c/);
+  assert.match(consumer, /stat -c '%a'/);
+  assert.match(consumer, /EXISTING_ENV_SHA/);
+});
+
 test('tutorial starts from the current generator and contains complete edited source', async () => {
   const tutorial = await guide('first-operation.md');
   const command = 'php blackops make:operation Billing/CreateInvoice --type=billing.invoice.create';
