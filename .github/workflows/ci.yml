@@ -244,6 +244,27 @@ jobs:
         if: always()
         run: docker compose down --volumes --remove-orphans
 
+  framework-update-runtime:
+    name: Stable 1.1 to candidate 1.2 runtime consumer
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Configure container user
+        run: |
+          set -euo pipefail
+          printf 'HOST_UID=%s\n' "$(id -u)" >> "${GITHUB_ENV}"
+          printf 'HOST_GID=%s\n' "$(id -g)" >> "${GITHUB_ENV}"
+
+      - name: Run runtime upgrade consumer
+        run: bash tests/Consumer/framework-update-runtime.sh
+
   website:
     name: Documentation website
     runs-on: ubuntu-latest

@@ -1,6 +1,6 @@
 # Specification 103: Stable 1.2 Release Plan
 
-Status: Decided (P22-002 accepted; P22-003 fixed-SHA gate pending)
+Status: Decided (P22-003 fixed-SHA gate in progress)
 
 ## Release lanes
 
@@ -29,6 +29,10 @@ README, Guides, Internal documentation, CHANGELOG Unreleased, and UPGRADE Previe
 P22-001 establishes the version baseline and P22-002 completes the Release Notes／Migration documentation and actual-tag Consumer evidence. Complete `1.2.0` quality/full gate, annotated Tag, Skeleton split publication, Packagist, GitHub Release, and deployment are subsequent work.
 
 Delivery is split into explicit checkpoints. P22-002 audits `1.1.0...main`, completes CHANGELOG／UPGRADE and the actual Stable-to-candidate Framework Update journey. P22-003 fixes a Release Candidate SHA and executes the full local／CI gate. P22-004 may perform Tag／Push／Skeleton／Packagist／GitHub Release／Remote Smoke only after separate authorization; preceding Tasks do not mutate external publication state.
+
+P22-003 first commits the Stable-to-candidate Runtime Consumer and its CI wiring, then fixes that committed SHA and restarts the complete gate. The Runtime Consumer executes one shared Database migration／setup and DDL guard before the Provider-present Worker-mode HTTP／Worker positive lane and Provider-missing Classic HTTP safe-500／Worker CLI non-zero safe-negative lane. A local CI-equivalent run does not replace GitHub Actions evidence for the fixed SHA; if publishing the commit is required to obtain that evidence, P22-003 remains unaccepted until separately authorized Branch Push and successful CI. Worker-mode boot failure exits before the FrankenPHP request loop, so the missing-provider HTTP lane intentionally uses `http-classic`／`classic-mode`, whose per-request runtime emits the generic 500 JSON.
+
+The Runtime Consumer's database evidence is sequential: actual Stable `1.1.0` install/migration runs once and read-only catalog checks must find exactly two Stable Framework rows in current-schema `blackops.schema_migrations` plus the six baseline tables and baseline constraints. Stable `database:status` may misreport `applied: 0`／`pending: 2` for this role/schema shape; the Consumer never reruns Stable migration. After a Framework-only update, Candidate `database:status` must recognize `applied: 2`／`pending: 9`, then finish at eleven applied migrations before either runtime lane. The Consumer applies only the Manual Merge Matrix's three candidate runtime bootstrap files (`bootstrap/app.php`, `public/index.php`, `public/worker.php`) and rechecks byte equality before build and after both runtime lanes; it does not copy Caddyfile, Compose, or other Application-owned Source. Metadata rows are never edited. Its disposable `.env` is removed before Compose shutdown, and the CI job requires full tag history plus mounted container UID/GID configuration.
 
 ## Traceability
 

@@ -1,6 +1,146 @@
 # Orchestration State
 
-Updated At: 2026-08-11T02:17:10+09:00
+Updated At: 2026-08-11T20:03:46+09:00
+
+## P22-003 Documentation Scope and Gate Asset Synchronization Checkpoint
+
+```text
+2026-08-11T20:03:46+09:00
+Task Packet UPGRADE allowance now explicitly covers the implemented Stable-first fresh／already-applied executable sequence, fail-closed catalog checks, exact three-file Manual Merge Matrix, Runtime Consumer lane reference, and Stable Welcome required Value Header guidance within fixed boundaries. Report marks current Gate Asset Report／Spec103／TODO／STATE synchronization checked, while fixed-SHA／full-gate／Remote CI remain pending. Lightweight version／diff guards PASS。No Commit／Tag／Push／Release／Packagist／Skeleton publication／Deploy。
+```
+
+## P22-003 UPGRADE Catalog/Path/Context Guard Final Checkpoint
+
+```text
+2026-08-11T20:01:37+09:00
+UPGRADE catalog checks now use psql `-v ON_ERROR_STOP=1`, run in both fresh-after-migrate and already-Stable-migrated lanes; Stable pre-status/migrate is skipped only for already-applied DB. All Framework comparison and runtime bootstrap cp/cmp paths use ../blackops. Host/Application-root versus Docker/container command context is explicit. Matrix wording is Japanese and avoids internal Task ID. Bash／version baseline／Website 78 tests／diff／comment guards PASS。No Docker／Commit／Tag／Push／Release／Packagist／Skeleton publication／Deploy。
+```
+
+## P22-003 UPGRADE Read-only Stable Catalog Evidence Correction Checkpoint
+
+```text
+2026-08-11T19:59:30+09:00
+UPGRADE Step 5 now mirrors Consumer read-only Stable catalog evidence: exact two blackops.schema_migrations versions, six baseline tables, two baseline constraints after one-time Stable migrate and before Candidate update. Published path is consistently ../blackops for runtime bootstrap cp/cmp; matrix wording avoids internal Task ID and says Runtime Consumer verified, with blackops／Caddyfile／Compose unchanged. Website 78-test order/matrix guard and version-baseline contracts updated. Focused checks PASS; no Docker／Commit／Tag／Push／Release／Packagist／Skeleton publication／Deploy。
+```
+
+## P22-003 UPGRADE Stable-first Order and Merge Matrix Correction Checkpoint
+
+```text
+2026-08-11T19:57:19+09:00
+Documentation review correction: UPGRADE now separates no-update Candidate preparation from post-Stable-migrate Composer update, explicitly handles fresh pre-status 0/2 versus already-applied DB without rerun or Metadata edit, omits Stable post-migrate status, and verifies Candidate 2/9→11/0. Manual Merge Matrix records exact bootstrap/app.php、public/index.php、public/worker.php copy／cmp while blackops／Caddyfile／Compose remain unchanged. UPGRADE references runtime Consumer lane boundaries; Website test and version guard enforce order/matrix. Report adds CHANGELOG and replaces stale pre-gate wording. Focused Bash／version／website／diff／comment checks pending; no Docker／Commit／Tag／Push／Release／Packagist／Skeleton publication／Deploy。
+```
+
+## P22-003 Runtime Consumer Pre-commit Baseline Pass Checkpoint
+
+```text
+2026-08-11T19:49:27+09:00
+Exact escalated Runtime Consumer baseline run passed exit 0: stable=e3df5576c7216cfe8bd9e10e12ee6795f7674088 candidate=61142d254861ffe13985679c338f592a46151af5 migrations=11 provider-present=http-worker provider-missing=classic-http-worker-safe-negative. Cleanup completed and repository source-state invariant held. Report now claims this pre-commit evidence; Gate Asset Commit／fixed SHA／Orchestrator acceptance／full gate remain pending. Focused static checks PASS。Dockerは再実行しない。No Commit／Tag／Push／Release／Packagist／Skeleton publication／Deploy。
+```
+
+## P22-003 Runtime Bootstrap Manual Merge Correction Checkpoint
+
+```text
+2026-08-11T19:44:29+09:00
+Orchestrator eleventh exact Docker run passed migrations、build、Worker、Provider-present evidence but Provider-missing HTTP exposed Stable 1.1.0 bootstrap/runtime entrypoints. Runtime Consumer now copies exactly candidate bootstrap/app.php、public/index.php、public/worker.php, verifies byte equality before build and after positive/negative lanes, and excludes only those three intentional files from generic source hash. Caddyfile／Compose／other Application Source remain untouched. Task／Spec103／Report／version guard synced. Focused Bash／version guard／diff check PASS予定、Dockerは再実行しない。No Commit／Tag／Push／Release／Packagist／Skeleton publication／Deploy。
+```
+
+## P22-003 Classic HTTP Readiness Retry Correction Checkpoint
+
+```text
+2026-08-11T19:39:25+09:00
+Orchestrator tenth exact Docker run showed Classic readiness accepted a transient non-000 response before the expected safe 500. Runtime Consumer now retries the bounded 30 attempts until exactly HTTP 500; exhaustion retains fixed provider-missing-classic-http-readiness label without printing status/body/log. Focused Bash／version guard／diff check PASS。Dockerは再実行しない。No Commit／Tag／Push／Release／Packagist／Skeleton publication／Deploy。
+```
+
+## P22-003 Provider-missing Assertion Diagnostic Checkpoint
+
+```text
+2026-08-11T19:34:19+09:00
+Orchestrator ninth exact Docker run reached Provider-missing Classic HTTP; first readiness request reset the connection and a silent assertion exited 1. Runtime Consumer now has `fail_stage` fixed non-sensitive labels for HTTP/Worker preflight, Classic readiness/status/content/body, Worker CLI/process, no-running-worker, redaction, and source invariants. No headers/body/log/env/key values are printed. Focused Bash／version guard／diff check PASS。Dockerは再実行しない。No Commit／Tag／Push／Release／Packagist／Skeleton publication／Deploy。
+```
+
+## P22-003 Provider-missing Classic HTTP Runtime Correction Checkpoint
+
+```text
+2026-08-11T19:28:21+09:00
+Orchestrator eighth exact Docker run passed Stable／Candidate migration、build、Worker、Provider-present Worker-mode HTTP 200, then Provider-missing Worker-mode HTTP exited during boot before request acceptance. Runtime Consumer now mounts Framework into `http-classic`, uses `CLASSIC_HTTP_PORT=http_port+1` for Provider-missing Classic HTTP safe 500, stops Classic profile correctly, retains Worker CLI／Process non-zero safe-negative, and redacts Classic HTTP logs. Task／Spec103／Report／version guard synced. Focused Bash／version guard／diff check PASS予定、Dockerは再実行しない。No Commit／Tag／Push／Release／Packagist／Skeleton publication／Deploy。
+```
+
+## P22-003 Stable Required Header Contract Correction Checkpoint
+
+```text
+2026-08-11T19:17:30+09:00
+Orchestrator seventh exact Docker run passed Stable metadata、Candidate update／migration／build、Worker checks but `/welcome` returned 422 without the actual Stable required X-Sample-Token Value Header. Runtime Consumer now sends `X-Sample-Token: local-example` on Provider-present and Provider-missing HTTP lanes. Installation／Runtime Bootstrap／MVP Sample／UPGRADE and website guide regression distinguish Stable authorization-anonymous／no #[Authorize] from required sensitive Value binding and Preview Sample Authentication／Authorization. Focused Bash／version guard／diff check／Website 77 tests PASS。Dockerは再実行しない。No Commit／Tag／Push／Release／Packagist／Skeleton publication／Deploy。
+```
+
+## P22-003 Config Merge Shell Quote Boundary Correction Checkpoint
+
+```text
+2026-08-11T18:10:06+09:00
+Orchestrator sixth exact Docker run exposed literal PHP single quotes stripped by the outer shell single-quoted php -r config programs. Runtime Consumer now builds http_manifest、frontend_manifest、services markers with chr(39) in both config merge and provider-service removal blocks. Version guard and Report are synchronized. Focused Bash／version guard／diff check PASS。Dockerは再実行しない。No Commit／Tag／Push／Release／Packagist／Skeleton publication／Deploy。
+```
+
+## P22-003 Config Merge Regex Parse Correction Checkpoint
+
+```text
+2026-08-11T18:04:49+09:00
+Orchestrator fifth exact Docker run reached the hardened config merge but exposed a PHP parse error because the preg_replace pattern was single-quoted inside the shell single-quoted php -r program. Runtime Consumer now uses a correctly escaped PHP double-quoted final-root regex with delimiters. Focused Bash／version guard／diff check PASS。Dockerは再実行しない。No Commit／Tag／Push／Release／Packagist／Skeleton publication／Deploy。
+```
+
+## P22-003 Candidate Config Merge Diagnostic Correction Checkpoint
+
+```text
+2026-08-11T14:25:26+09:00
+Orchestrator fourth exact Docker run passed Stable metadata/catalog checks and candidate Composer 1.2.0, then stopped at the candidate config merge's opaque exit. Runtime Consumer now verifies unique http_manifest/frontend markers, inserts services only before the uniquely matched final root closure, preserves existing markers, checks file read/write results, and emits bounded safe stderr labels. Focused Bash／version guard／diff check PASS。Dockerは再実行しない。No Commit／Tag／Push／Release／Packagist／Skeleton publication／Deploy。
+```
+
+## P22-003 Stable Metadata Read-only Gate Correction Checkpoint
+
+```text
+2026-08-11T10:55:34+09:00
+Stable post-migrate CLI statusはcurrent-schema metadata defectのため証拠に使わない。Runtime ConsumerはStable migrateを一度だけ実行し、blackops.schema_migrationsのVersion20260712000000／Version20260712010000、baseline 6 tables、baseline constraintsをread-only catalog queryで確認する。その後Candidate status applied 2／pending 9、最終11を確認し、metadata rowは編集しない。CHANGELOG／UPGRADE／Spec103／version guard／Reportを同期した。Focused Bash／version guard／diff checkを再実行予定、Dockerは再実行しない。No Commit／Tag／Push／Release／Packagist／Skeleton publication／Deploy。
+```
+
+## P22-003 Stable Migration Metadata Release Note Gap
+
+```text
+2026-08-11T10:52:18+09:00
+Orchestrator exact Runtime Consumer 3回目で、actual Stable 1.1.0のcurrent-schema Metadata既知不具合を再現した。Stable first database:migrateは2 migrationを実行するが、Role名とSchema名が同じ場合、次ProcessのStable database:statusは既存schema_migrationsを誤認してapplied 0／pending 2を返す。CandidateにはAccepted P18-006D／a802204の既存修正があり、既存Metadata Rowを認識できるが、P22-002 CHANGELOG／UPGRADEへ未記録だった。P22-003 Gate Asset scopeへこのRelease Note／Upgrade補正を追加し、ConsumerはStable first migrate後のMetadata Row／Baseline DDLをread-only直接確認してからCandidate update後にapplied 2／pending 9、最終11を証明する。Final Fixed Candidateは未確定。No Commit／Tag／Push／Release／Packagist／Skeleton publication／Deploy。
+```
+
+## P22-003 Migration Status Diagnostic Correction Checkpoint
+
+```text
+2026-08-11T10:48:02+09:00
+Orchestrator reproduced two Docker stops at the Stable post-migration count assertion. Runtime Consumer now treats Stable CLI status as a known current-schema metadata defect, verifies the exact two Stable metadata rows and baseline DDL read-only, then uses bounded stage-labelled status checks for candidate applied 2/pending 9 and final applied 11/pending 0; mismatch output is limited to non-sensitive migration counts/version names. Focused Bash/version guard/diff checks are rerun; Docker is not rerun. No Commit／Tag／Push／Release／Packagist／Skeleton publication／Deploy。
+```
+
+## P22-003 Composer Version Evidence Correction Checkpoint
+
+```text
+2026-08-11T10:38:34+09:00
+Orchestrator Docker run reproduced a post-Stable-install assertion failure: Composer `show --format=json` did not expose the expected version field. Runtime Consumer now reads Stable `1.1.0` and candidate `1.2.0` from `composer.lock` package entries, and negative redaction includes actual HTTP headers/body alongside Worker output and application logs. Focused Bash/version guard/diff checks rerun; Docker not rerun per instruction. No Commit／Tag／Push／Release／Packagist／Skeleton publication／Deploy。
+```
+
+## P22-003 Runtime Consumer Stable Sequence and Cleanup Correction Checkpoint
+
+```text
+2026-08-11T02:47:43+09:00
+Runtime ConsumerをStable install/migrate（Framework applied 2）→local annotated candidate 1.2.0／Framework-only Composer update→candidate applied 2/pending 9→build:compile→追加9 migration／最終applied 11へ修正した。HTTP portはrandom loopback、CIはfetch-depth 0とHOST_UID/GID wiring、cleanupはsecret `.env`削除をCompose停止より先に行う。Provider-missingは実HTTP generic 500、実Worker non-running、HTTP/Worker内のexact safe Provider preflight、bounded redactionを検証する。Bash/version guard/diff check PASS。Docker Consumerはpermission denied／user interruptで未完了。No Commit／Tag／Push／Release／Packagist／Skeleton publication／Deploy。
+```
+
+## P22-003 Stable 1.2 Release Candidate Gate Start
+
+```text
+2026-08-11T02:20:37+09:00
+P22-002 closeout commit 61142d254861ffe13985679c338f592a46151af5とclean Working Treeを確認し、P22-003を開始した。P22-002で確定したStable 1.1.0→candidate 1.2.0 Runtime evidenceは、共通Database migration/setup＋DDL guard、Provider-present HTTP／Worker Positive、Provider-missing HTTP／Worker safe Negativeである。まずLuna High workerが新Runtime ConsumerとCI wiringを実装し、Review／Commit後のSHAをFinal Fixed Candidateへ固定する。その後、未Commit Sourceを混入させず全PHP／Consumer／Website／Package／Publication Dry-run／CI Gateを最初から実行する。Fixed SHAのGitHub ActionsにBranch Pushが必要な場合は別途User AuthorizationまでAcceptedにしない。Tag／Push／Release／Packagist／Skeleton publication／Deployなし。
+```
+
+## P22-003 Runtime Consumer and CI Wiring Implementation Checkpoint
+
+```text
+2026-08-11T02:46:58+09:00
+Stable annotated `1.1.0` quickstart Runtime ConsumerとCI wiringを実装した。ConsumerはStable `pending: 2`→`applied: 2`を確認後、Committed candidateをlocal annotated `1.2.0`としてFramework-only Composer updateし、Provider/config/.env merge、candidate build、追加9 migrations（最終11）、DDL guard、Provider-present HTTP／Worker positive、Provider-missing HTTP／Worker safe-negativeを一つの新規Disposable checkoutで実行する。Cleanupはsecret `.env`削除をCompose停止より先に行い、random loopback port、fetch-depth 0、HOST_UID/GID wiringを含む。Bash/version guard/diff checkはPASS。Docker Consumerはsandbox permission denied、escalated runはuser interruptで未完了。No Commit／Tag／Push／Release／Packagist／Skeleton publication／Deploy。
+```
 
 ## P22-002 Post-commit Consumer Verification
 

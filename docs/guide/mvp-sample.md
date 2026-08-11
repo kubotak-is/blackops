@@ -86,14 +86,35 @@ final readonly class ShowWelcome implements Operation
 }
 ```
 
-これはRepository `main` Previewの`/welcome`です。Stable Skeletonの`/welcome`は匿名で、`#[Authorize]`とSample Token Headerを含みません。
+これはRepository `main` Previewの`/welcome`です。PreviewはSample Authentication／Authorizationと`#[Authorize]`を追加します。Stable Skeletonの`/welcome`は`#[Authorize]`を持たない認可匿名ですが、Stable Tagの`WelcomeValue`は必須の機密`X-Sample-Token` Header ValueをBindingするため、Headerが不要なVersionという意味ではありません。
 
 ```php
+// PreviewのWelcomeValueはSample AuthenticationがHeaderを消費するため空です。
 final readonly class WelcomeValue implements OperationValue {}
 
 final readonly class WelcomeShown implements Outcome
 {
     public function __construct(public string $message) {}
+}
+```
+
+Stable Tag `1.1.0`はAuthorization Middlewareを持たない一方、`WelcomeValue`の必須Value HeaderをBindingします。実際のStable Sourceは次の機密Input境界です。
+
+```php
+use BlackOps\Core\Attribute\Sensitive;
+use BlackOps\Core\Attribute\SensitiveMode;
+use BlackOps\Core\OperationValue;
+use BlackOps\Http\Attribute\FromHeader;
+use SensitiveParameter;
+
+final readonly class WelcomeValue implements OperationValue
+{
+    public function __construct(
+        #[FromHeader('X-Sample-Token')]
+        #[Sensitive(SensitiveMode::Mask)]
+        #[SensitiveParameter]
+        public string $sampleToken,
+    ) {}
 }
 ```
 

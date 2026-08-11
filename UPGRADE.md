@@ -128,7 +128,7 @@ composer config repositories.blackops-framework '{"type":"path","url":"../blacko
 composer require --no-update --no-interaction blackops/framework:^1.2
 ```
 
-既存Applicationの`composer.json`を直接編集する場合もFramework Constraintだけを`^1.2`へ更新し、次のStepでLockを再生成します。Candidate未公開の環境ではPackagistから`^1.2`を解決できないため、Local Path／VCS Repositoryを明示してください。
+既存Applicationの`composer.json`を直接編集する場合もFramework Constraintだけを`^1.2`へ更新します。ここではRepository／Constraintの準備と`--no-update`だけを行い、実際のCandidate Composer updateはStable Migration完了後のStep 5で実行します。Candidate未公開の環境ではPackagistから`^1.2`を解決できないため、Local Path／VCS Repositoryを明示してください。
 
 ### 3. Runtime BootstrapとApplication-owned Dependencyを確認する
 
@@ -141,9 +141,9 @@ return Application::configure(dirname(__DIR__))
     ->create();
 ```
 
-Opt-in Candidate-Skeleton Laneでは`public/index.php`が`SapiRuntime::run($application)`、Workerが`SapiRuntime::runWorker($application)`を呼ぶ構成へ手動で合わせます。Compatibility-first LaneはStable Entrypoint／Runtimeを保持します。どちらのLaneでもFramework UpdateはApplication-owned Entrypoint、Bootstrap、Config、既存Operation／Migration、Frontend Sourceを上書きしません。
+Opt-in Candidate-Skeleton Laneでは`public/index.php`が`SapiRuntime::run($application)`、Workerが`SapiRuntime::runWorker($application)`を呼ぶ構成へ手動で合わせます。Compatibility-first LaneはStable Entrypoint／Runtimeを保持します。Candidate runtime/provider filesはこのStepで内容を準備できますが、実際のComposer update、Build、Runtime起動はStable Migration完了後に行います。どちらのLaneでもFramework UpdateはApplication-owned Entrypoint、Bootstrap、Config、既存Operation／Migration、Frontend Sourceを上書きしません。
 
-Stable SourceとCandidate Sourceの差分を確認し、次のManual Merge MatrixからUpgrade Laneを一つ選びます。Canonical Source比較は[Stable 1.1.0とmainの差分](https://github.com/kubotak-is/blackops/compare/1.1.0...main)で行います。Local比較はFramework Repository Root（このGuideを実行するApplication Rootとは別のCheckout）で`git diff 1.1.0..main -- examples/quickstart`を実行するか、Application Rootから`git -C ../blackops-framework diff 1.1.0..main -- examples/quickstart`のようにFramework Repository Pathを明示します。
+Stable SourceとCandidate Sourceの差分を確認し、次のManual Merge MatrixからUpgrade Laneを一つ選びます。Canonical Source比較は[Stable 1.1.0とmainの差分](https://github.com/kubotak-is/blackops/compare/1.1.0...main)で行います。Local比較はFramework Repository Root（このGuideを実行するApplication Rootとは別のCheckout）で`git diff 1.1.0..main -- examples/quickstart`を実行するか、Application Rootから`git -C ../blackops diff 1.1.0..main -- examples/quickstart`のようにFramework Repository Pathを明示します。
 
 **Compatibility-first Lane**はStable `1.1.0`のBootstrap、Public Entrypoint、既存Config、Caddyfile、既存Direct Dependencyを保持したままComposerをCandidateへ更新します。ただしCandidateの`build:compile`が読む`frontend_manifest`だけは、次の最小Config追加をApplication-owned変更として適用します。Candidate-only Authentication、Tenant、Storage、Telemetry、Scheduled等は使わず、ConsumerのComposer更新前後Source不変を確認した後にこのConfigだけを変更し、`build:compile`、`operation:list`で既存ApplicationのGenerator／Artifact継続だけを確認します。このLaneはCandidate HTTP／Worker互換性を主張しません。CandidateのHTTP／Worker RuntimeはStorageKeyProviderを無条件に要求するため、ProviderなしのStable providers=[] ApplicationをHTTP／Workerへ進めないでください。
 
@@ -151,7 +151,7 @@ Stable SourceとCandidate Sourceの差分を確認し、次のManual Merge Matri
 
 | Application-owned boundary | Stable `1.1.0`を保持／Candidateから手動で追加する作業 |
 | --- | --- |
-| Entrypoint／HTTP | `blackops`、`public/index.php`、`public/worker.php`、`Caddyfile`、Classic fallbackをApplicationへ配置し、`SapiRuntime::run()`／`runWorker()`とProcess ManagerのEnvironmentを確認する。1.1.0→candidateでこれらに差分がない場合は保持し、Deploymentが必要な場合だけ更新する。 |
+| Entrypoint／HTTP | Runtime Consumerで検証済みのmergeはCandidateの`bootstrap/app.php`、`public/index.php`、`public/worker.php`だけをApplicationへコピーし、byte equalityを確認する。`blackops`、Caddyfile、ComposeはStable `1.1.0`のまま保持し、コピー／上書きしない。`SapiRuntime::run()`／`runWorker()`とProcess ManagerのEnvironmentを確認する。 |
 | Bootstrap／Config | Candidate Capabilityを使う場合だけ`bootstrap/app.php`へ`withEnvironmentFile()`／`withConfiguration()`を追加し、関連する`config/app.php`、`database.php`、`execution.php`、`journal.php`、`operations.php`、`retention.php`をApplicationの直接Importに合わせて更新する。 |
 | Providers／Security | 採用するFeatureに対応するHTTP Authenticator、Console／Scheduled Actor・Tenant Provider、`StorageKeyProvider`、Status／Data Authorizer、Telemetry ProviderだけをService Providerへ明示Bindingする。Credential／Key MaterialはArtifact、Manifest、Logへ書かない。 |
 | Generated／Application Source | 既存Operation、Migration、Frontend Sourceは保持し、`build:compile`、`frontend:generate`、`frontend:check`だけでGenerated Artifactを再生成する。 |
@@ -224,12 +224,7 @@ ProductionではSecret Manager／KMS Adapterへ置き換え、値をGuide、Git�
 
 `EphemeralOutcome`を使うCredential ResponseはHTTP Response一回だけ返し、Journal／Outcome／Status／Generated Artifactへ保存しません。Transactional Serviceを新たに利用する場合だけCandidate Framework Proxy Profileを有効化し、Stable `1.1.0`とCandidateのComposerにRay package removalは存在しないためRay削除Migrationは行いません。
 
-`vlucas/phpdotenv`、PSR-7／PSR-17、SAPI、UUIDv7をApplicationが直接Importしていない場合だけ、重複するDirect Dependencyを削除します。Stable Quickstartから移行する場合は`vlucas/phpdotenv`と`nyholm/psr7`がFramework Runtimeへ整理され、`nyholm/psr7-server`と`laminas/laminas-httphandlerrunner`はCandidate QuickstartがImportしないため削除されることを確認します。DBAL／Migrations、Frontend、外部PSR AdapterなどApplication Sourceが実ImportするPackageはApplication側へ残します。変更後に次を実行します。
-
-```bash
-composer update blackops/framework --with-all-dependencies
-composer validate --strict
-```
+`vlucas/phpdotenv`、PSR-7／PSR-17、SAPI、UUIDv7をApplicationが直接Importしていない場合だけ、重複するDirect Dependencyを削除します。Stable Quickstartから移行する場合は`vlucas/phpdotenv`と`nyholm/psr7`がFramework Runtimeへ整理され、`nyholm/psr7-server`と`laminas/laminas-httphandlerrunner`はCandidate QuickstartがImportしないため削除されることを確認します。DBAL／Migrations、Frontend、外部PSR AdapterなどApplication Sourceが実ImportするPackageはApplication側へ残します。Composer updateはStable Migration完了後のStep 5で実行します。
 
 ### 4. Configuration、Security、Actor／Tenant境界を手動で構成する
 
@@ -241,14 +236,42 @@ Protected Storageを利用するApplicationは、`StorageKeyProvider`、Tenant P
 
 Framework Migrationを先に実行し、続けてApplication Migrationを同じDeployment手順で実行します。Candidateには9つのFramework PostgreSQL MigrationがStable `1.1.0`後に追加されています。特に`Version20260808000000.php`と`Version20260808010000.php`は非空Table／既存Plaintext／旧Protected Schemaを拒否し、不可逆なProtected Storage Column／Constraintを導入します。
 
+Fresh Disposable laneでは、まずStable `1.1.0`の`database:status`が`applied: 0`／`pending: 2`であることを確認し、Stable `database:migrate`を一度だけ実行します。既にStable Migrationが成功したDatabaseではpre-status assertionとStable migrateを再実行せず、Backupと既存Metadata Rowを保持したままCandidate updateへ進みます。下のread-only catalog checks（Metadata 2 Row、6 baseline tables、2 baseline constraints）はfreshでStable migrate直後にも、already-Stable-migrated laneでCandidate update前にも同じく実行します。Stable migrate後のStable `database:status`は既知のcurrent-schema誤表示を再現するため実行せず、Metadata Rowを編集・削除しません。
+
 ```bash
+# Docker container commands: fresh Disposable Stable 1.1.0 lane
 docker compose build app http
 docker compose up -d postgres
-docker compose run --rm app php blackops database:status
+stable_status="$(docker compose run --rm app php blackops database:status)"
+grep -q '^applied: 0$' <<<"${stable_status}"
+grep -q '^pending: 2$' <<<"${stable_status}"
+docker compose run --rm app php blackops database:migrate
+# Do not run Stable database:status after this migrate.
+test "$(docker compose exec -T postgres psql -U blackops -d blackops -At -v ON_ERROR_STOP=1 -c "SELECT count(*) FROM blackops.schema_migrations WHERE version IN ('BlackOps\\Migrations\\PostgreSql\\Version20260712000000', 'BlackOps\\Migrations\\PostgreSql\\Version20260712010000')")" = 2
+test "$(docker compose exec -T postgres psql -U blackops -d blackops -At -v ON_ERROR_STOP=1 -c 'SELECT count(*) FROM blackops.schema_migrations')" = 2
+test "$(docker compose exec -T postgres psql -U blackops -d blackops -At -v ON_ERROR_STOP=1 -c "SELECT count(*) FROM pg_tables WHERE schemaname = 'blackops' AND tablename IN ('operations', 'journal', 'outcomes', 'dead_letters', 'retention_holds', 'retention_purge_audits')")" = 6
+test "$(docker compose exec -T postgres psql -U blackops -d blackops -At -v ON_ERROR_STOP=1 -c "SELECT count(*) FROM pg_constraint c JOIN pg_class t ON t.oid = c.conrelid JOIN pg_namespace n ON n.oid = t.relnamespace WHERE n.nspname = 'blackops' AND c.conname IN ('operations_payload_tombstone_check', 'outcomes_operation_id_fkey')")" = 2
+
+# Application-root host commands, after Stable migrate
+composer update blackops/framework --with-all-dependencies
+composer validate --strict
+cp ../blackops/examples/quickstart/bootstrap/app.php bootstrap/app.php
+cp ../blackops/examples/quickstart/public/index.php public/index.php
+cp ../blackops/examples/quickstart/public/worker.php public/worker.php
+cmp ../blackops/examples/quickstart/bootstrap/app.php bootstrap/app.php
+cmp ../blackops/examples/quickstart/public/index.php public/index.php
+cmp ../blackops/examples/quickstart/public/worker.php public/worker.php
+candidate_status="$(docker compose run --rm app php blackops database:status)"
+grep -q '^applied: 2$' <<<"${candidate_status}"
+grep -q '^pending: 9$' <<<"${candidate_status}"
 docker compose run --rm app php blackops database:migrate --dry-run
 docker compose run --rm app php blackops database:migrate
-docker compose run --rm app php blackops database:status
+final_status="$(docker compose run --rm app php blackops database:status)"
+grep -q '^applied: 11$' <<<"${final_status}"
+grep -q '^pending: 0$' <<<"${final_status}"
 ```
+
+Safe order is「Backup／Key準備 → Stable pre-status 0/2（fresh Disposable only） → Stable migrate（一度） → Framework-only Candidate update／strict validate → Candidate status 2/9 → Candidate dry-run／migrate → final 11/0」です。Stable `1.1.0`の実DBでMigration済みの場合はStable migrateとpre-status assertionを再実行せず、既存Metadataをそのまま保持してCandidate statusへ進みます。
 
 `database:migrate`のMigration guardが確認するのはTable／Schemaの状態と非空Legacy Dataです。Key Material、Tenant／Purpose Binding、Application PolicyのPreflightはDatabase Commandの責務ではなく、`StorageKeyProvider`／Data AuthorizerのApplication-owned検査としてMigration前に実行します。Migrationが非空Tableまたは旧Schemaで停止した場合は理由を解消して再実行し、Provider／PolicyのErrorはApplicationの安全なConfiguration／Authorization Errorとして扱います。手動で列やConstraintを追加してMigration履歴を偽装しないでください。
 
@@ -306,7 +329,7 @@ probe_cleanup() { rm -f "${response_headers}" "${response_body}"; }
 trap 'probe_cleanup; cleanup' EXIT
 http_ready=0
 for attempt in 1 2 3 4 5; do
-    if curl -fsS -D "${response_headers}" -o "${response_body}" http://127.0.0.1:8080/welcome; then
+    if curl -fsS -H 'X-Sample-Token: local-example' -D "${response_headers}" -o "${response_body}" http://127.0.0.1:8080/welcome; then
         http_ready=1
         break
     fi
@@ -319,9 +342,9 @@ test "$(<"${response_body}")" = '{"message":"Welcome to BlackOps"}'
 docker compose down >/dev/null 2>&1 || true
 ```
 
-このProbeはStable Applicationの`/welcome`がHTTP `200`、`application/json`、exact body `{"message":"Welcome to BlackOps"}`を返し、Worker Serviceが`running`であることだけを確認します。実OperationのProvider-present Positive／Provider-missing safe Negativeは、同じCandidate SHAのP22-003 Full Gateで実行します。
+このProbeはStable Applicationの`/welcome`へ必須の`X-Sample-Token: local-example` Headerを送り、HTTP `200`、`application/json`、exact body `{"message":"Welcome to BlackOps"}`を返し、Worker Serviceが`running`であることだけを確認します。Stableは`#[Authorize]`を持たない認可匿名ですが、`WelcomeValue`の機密Input Headerは必要です。実OperationのProvider-present Positive／Provider-missing safe Negativeは、同じCandidate SHAのP22-003 Full Gateで実行します。
 
-ConsumerでStable Tag `1.1.0`のApplicationへLocal Framework `1.2.0`を更新する場合は、`tests/Consumer/framework-update-generators.sh`を実行します。このConsumerは実際のannotated TagからStable Sourceを作成し、Application-owned FileのHash不変、Framework Lock `1.2.0`、Generator／Migration／Seederの旧／新出力境界、Update後の`build:compile`／`operation:list`を検証します。Consumerの一時Applicationはcleanup後に再利用せず、HTTP／Worker Runtime Probeは新しいApplication CheckoutへManual Merge MatrixとStorageKeyProvider準備を適用してから実行します。P22-003 fixed-SHA Full Gateは両lane共通のDatabase migration/setup（DDL guard evidence）を先に行い、Provider-presentのHTTP／Worker PositiveとProvider-missingのHTTP／Worker safe Negativeを同じCandidate SHAで実行します。
+ConsumerでStable Tag `1.1.0`のApplicationへLocal Framework `1.2.0`を更新する場合は、`tests/Consumer/framework-update-generators.sh`でGenerator確認を行い、続けて`tests/Consumer/framework-update-runtime.sh`を実行します。Generator Consumerは実際のannotated TagからStable Sourceを作成し、Application-owned FileのHash不変、Framework Lock `1.2.0`、Generator／Migration／Seederの旧／新出力境界、Update後の`build:compile`／`operation:list`を検証します。Runtime ConsumerはStable migrate一度、Candidate status 2/9→11/0、3つのruntime bootstrap file byte guard、Provider-present Worker-mode HTTP／Worker Positive、Provider-missing Classic HTTP safe 500／Worker CLI safe Negative、cleanup／redaction／source invariantを同じDisposable Applicationで検証します。Consumerの一時Applicationはcleanup後に再利用しません。
 
 ### 8. Rollbackと公開境界
 

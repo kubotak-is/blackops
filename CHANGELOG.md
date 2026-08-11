@@ -38,6 +38,7 @@ BlackOpsはExperimentalです。1.xのMinor Release間でも破壊的変更を�
 - Structured JSONLの`kind`／`schemaVersion`／`attempt`／`telemetry`境界、Trace／Metric scope、Provider Failure isolation、Local Collector／LGTM Consumer cleanupを固定した。
 - Framework ProxyのSignature／DI／Lifecycle／AfterCommit ownership、Artifact hash／Build ID drift、Rollback、no-fallbackを検証した。
 - Version inventory、Stable／Candidate表示、Actual annotated Stable `1.1.0`→Local `1.2.0` Framework Update Consumerを追加し、Application-owned Source不変を検証する。
+- PostgreSQL Migration metadataの`current_schema()`判定で既存current-schema `schema_migrations`を正しく再利用し、Stable→CandidateでDuplicate Tableを起こさない既存Metadata認識を固定した。Stableの誤ったStatus表示を根拠に再MigrationしないUpgrade手順も追加した。
 
 ### Known Limitations
 

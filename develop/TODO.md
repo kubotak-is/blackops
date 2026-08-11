@@ -242,7 +242,7 @@ MVP後に残す主要項目:
 - [x] Main root／Telemetry scope／Skeleton constraint／Candidate Consumerを`1.2.0`系列へ同期する（P22-001 Accepted）
 - [x] Stable install journey、Tag／Release／Packagist claim、歴史的記録を変更しないVersion inventory guardを整備する（P22-001 Accepted）
 - [x] `1.1.0...main` Surface Audit、完全な`1.2.0` Release Note／Upgrade、actual Framework Update Consumerを整備する（P22-002 Accepted、Documentation Reviewer P1=0／P2=0／P3=0）
-- [ ] Fixed `1.2.0` Release Candidate SHAで全Local／Consumer／Website／CI Gateを実施する（P22-003）
+- [ ] Fixed `1.2.0` Release Candidate SHAでRuntime Consumer（Stable 2 migration→candidate 9 migration、Provider-present／missing HTTP／Worker）、全Local／Consumer／Website／CI Gateを実施する（P22-003 In Progress）
 - [ ] 別途承認後にTag／Push、Skeleton publication、Packagist／GitHub Release／Remote Smokeを実施する（P22-004）
 
 ### Deferred: Documentation Website Publication

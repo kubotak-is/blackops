@@ -25,6 +25,34 @@ test('upgrade guide installs the exact Skeleton 1.1 project-root entrypoint', as
   assert.match(upgrade, /rm bin\/blackops/);
 });
 
+test('P22-003 upgrade order and runtime merge matrix stay executable', async () => {
+  const [upgrade, runtimeConsumer] = await Promise.all([
+    readFile(path.join(repositoryRoot, 'UPGRADE.md'), 'utf8'),
+    readFile(path.join(repositoryRoot, 'tests/Consumer/framework-update-runtime.sh'), 'utf8'),
+  ]);
+  const migration = upgrade.slice(upgrade.indexOf('### 5. Database MigrationをBackup後に順序実行する'), upgrade.indexOf('### 6. Build、Frontend、Generated Artifactを再生成する'));
+
+  assert.ok(migration.indexOf('Stable pre-status 0/2') < migration.indexOf('Stable migrate（一度）'));
+  assert.ok(migration.indexOf('Stable migrate（一度）') < migration.indexOf('Framework-only Candidate update／strict validate'));
+  assert.ok(migration.indexOf('Framework-only Candidate update／strict validate') < migration.indexOf('Candidate status 2/9'));
+  assert.ok(migration.indexOf('Candidate status 2/9') < migration.indexOf('Candidate dry-run／migrate'));
+  assert.match(migration, /Do not run Stable database:status after this migrate/);
+  assert.match(migration, /blackops\.schema_migrations/);
+  assert.match(migration, /Version20260712000000/);
+  assert.match(migration, /operations_payload_tombstone_check/);
+  assert.match(migration, /-v ON_ERROR_STOP=1/);
+  assert.match(migration, /Docker container commands/);
+  assert.match(migration, /Application-root host commands/);
+  for (const file of ['bootstrap/app.php', 'public/index.php', 'public/worker.php']) {
+    assert.match(migration, new RegExp(file.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+    assert.match(runtimeConsumer, new RegExp(file.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+  }
+  assert.match(upgrade, /blackops.*Caddyfile.*Compose/);
+  assert.match(migration, /cmp \.\.\/blackops\/examples\/quickstart\/bootstrap\/app\.php bootstrap\/app\.php/);
+  assert.match(upgrade, /tests\/Consumer\/framework-update-runtime\.sh/);
+  assert.match(upgrade, /Provider-missing Classic HTTP safe 500／Worker CLI safe Negative/);
+});
+
 test('tutorial starts from the current generator and contains complete edited source', async () => {
   const tutorial = await guide('first-operation.md');
   const command = 'php blackops make:operation Billing/CreateInvoice --type=billing.invoice.create';
@@ -64,25 +92,23 @@ test('public guide commands use the project-root entrypoint deterministically', 
   assert.ok(commands.every((match) => match[1] === 'blackops'));
 });
 
-test('Welcome requests authenticate unless they intentionally demonstrate anonymous access', async () => {
+test('Welcome requests include the required value header unless they intentionally demonstrate missing-header behavior', async () => {
   const files = (await readdir(guideRoot)).filter((file) => file.endsWith('.md')).sort();
-  const anonymousExamples = [];
+  const missingHeaderExamples = [];
 
   for (const file of files) {
     const source = await guide(file);
     for (const match of source.matchAll(/^curl .*\/welcome$/gm)) {
       if (!/-H ['"]X-Sample-Token:/.test(match[0])) {
-        anonymousExamples.push(`${file}: ${match[0]}`);
+        missingHeaderExamples.push(`${file}: ${match[0]}`);
         continue;
       }
       assert.match(match[0], /-H ['"]X-Sample-Token:/, `${file}: ${match[0]}`);
     }
   }
 
-  assert.deepEqual(anonymousExamples, [
-    'installation.md: curl -i http://127.0.0.1:8080/welcome',
+  assert.deepEqual(missingHeaderExamples, [
     'mvp-sample.md: curl -i http://127.0.0.1:8080/welcome',
-    'runtime-bootstrap.md: curl http://127.0.0.1:8080/welcome',
     'troubleshooting.md: curl -i http://127.0.0.1:8080/welcome',
   ]);
 });
@@ -259,11 +285,11 @@ test('guide presents the Stable 1.1 release surface and experimental policy cons
   assert.match(status, /annotated Tag `1\.1\.0`/);
 });
 
-test('stable installation is an executable anonymous Docker lane', async () => {
+test('stable installation is an executable required-value-header Docker lane', async () => {
   const installation = await guide('installation.md');
   const stable = installation.slice(installation.indexOf('## Stable 1.1.0を作成する'), installation.indexOf('## Composer Scriptを使わない場合'));
 
-  for (const command of ['docker compose build app http', 'docker compose up -d postgres', 'database:migrate', 'build:compile', 'docker compose up -d http', 'curl -i http://127.0.0.1:8080/welcome', 'docker compose down']) {
+  for (const command of ['docker compose build app http', 'docker compose up -d postgres', 'database:migrate', 'build:compile', 'docker compose up -d http', "curl -i -H 'X-Sample-Token: local-example' http://127.0.0.1:8080/welcome", 'docker compose down']) {
     assert.match(stable, new RegExp(command.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
   }
   for (const forbidden of ['database:seed', 'make:auth', 'frontend:generate', 'pnpm']) {

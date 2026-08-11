@@ -27,7 +27,7 @@ docker compose up -d postgres
 docker compose run --rm app php blackops database:migrate
 docker compose run --rm app php blackops build:compile
 docker compose up -d http
-curl -i http://127.0.0.1:8080/welcome
+curl -i -H 'X-Sample-Token: local-example' http://127.0.0.1:8080/welcome
 docker compose down
 ```
 
@@ -37,7 +37,7 @@ docker compose down
 {"message":"Welcome to BlackOps"}
 ```
 
-`/welcome`はStableの匿名Inline Operationなので、認証HeaderなしでHTTP 200を返します。Responseを確認したら`docker compose down`で停止します。MigrationとBuildはHTTP起動へ暗黙に含まれません。
+`/welcome`はStableの認可匿名（`#[Authorize]`なし）Inline Operationですが、Stable Tagの`WelcomeValue`は機密扱いの必須`X-Sample-Token` Header ValueをBindingします。このHeaderはAuthenticationではなくOperation Inputなので、Local Example値を付けてHTTP 200を確認します。Responseを確認したら`docker compose down`で停止します。MigrationとBuildはHTTP起動へ暗黙に含まれません。
 
 ## Composer Scriptを使わない場合
 
@@ -50,7 +50,7 @@ php bin/setup
 ```
 
 `bin/setup`は再実行可能です。既存`.env`を保持したまま不足するLocal Directoryだけを確認できます。
-Setup後は上記Stable Runtime手順（PostgreSQL起動、Container migration／build、匿名Welcome確認、停止）へそのまま合流します。
+Setup後は上記Stable Runtime手順（PostgreSQL起動、Container migration／build、必須Header付きWelcome確認、停止）へそのまま合流します。
 
 ## Release Policy
 
