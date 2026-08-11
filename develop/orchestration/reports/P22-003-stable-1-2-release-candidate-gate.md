@@ -1,6 +1,6 @@
 # P22-003 Stable 1.2 Release Candidate Gate Report
 
-Status: In Progress — Candidate `413d0964cc132d685b228d5b8d697ac6cc4543e6` is superseded after the fixed-SHA gate exposed a Community Board Storage Protection bootstrap gap. The bounded Provider, fresh setup, lock metadata, Ray cleanup, Consumer, specification, and documentation correction passes independent review; a corrected commit, new fixed SHA, complete gate restart, and Orchestrator acceptance remain pending.
+Status: In Progress — Candidate `6e009a433ce1c687f2f117d69afb14079668c206` is superseded after the restarted full gate exposed a stale Community Board Digest origin-actor assertion. The bounded Consumer correction is implemented, its exact digest journey passes, and independent review reports P1=0/P2=0/P3=0; replacement commit, complete gate restart, and Orchestrator acceptance remain pending.
 
 ## Summary
 
@@ -11,13 +11,18 @@ Implemented the bounded Stable-to-candidate Runtime Consumer and its GitHub Acti
 - Baseline commit: `61142d254861ffe13985679c338f592a46151af5`.
 - Superseded candidate: `99f723dfc9bcf1e859689c81878839ee37d2ba91` (`test: add stable 1.2 runtime upgrade gate`).
 - Superseded candidate: `413d0964cc132d685b228d5b8d697ac6cc4543e6` (`test: prepare storage keys in quickstart consumers`).
-- Final Fixed Candidate: pending the reviewed Community Board Storage Protection correction commit.
+- Superseded candidate: `6e009a433ce1c687f2f117d69afb14079668c206` (`fix: harden community board release setup`).
+- Final Fixed Candidate: replacement correction commit pending.
 - Candidate source is cloned from the repository's committed `HEAD`; uncommitted Task/STATE/Report files are not mounted as candidate source.
 - The Consumer verifies annotated Stable tag type and peeled commit, archives only `1.1.0:examples/quickstart`, then creates an annotated local `1.2.0` tag at the committed candidate SHA.
 - Documentation Reviewer returned P1=0/P2=0/P3=0 and permitted the bounded Gate Asset commit. No external Tag/Push was performed.
 - The fixed-SHA full gate found `auth-generator-fresh.sh` copies `.env.example` without populating the now-required `BLACKOPS_STORAGE_KEY`; the same stale setup is present in `frankenphp-worker-mode.sh` and `scheduled-operation.sh`. Per the Task reset rule, `99f723d` is not silently retained as the Final Fixed Candidate.
 - Documentation Reviewer returned P1=0/P2=0/P3=0 for the seven-file correction and permitted commit `413d0964cc132d685b228d5b8d697ac6cc4543e6` as the replacement Final Fixed Candidate.
 - The restarted gate at `413d096` passed the initial syntax, Composer, package-export, clean-source format/analyze, full PHPUnit rerun, and Auth Generator Fresh stages. Broad Mago lint and Deptrac reproduced the recorded baseline blockers. Community Board clean install stopped at its pre-migration seed-message assertion because the actual safe output was `Database seeding runtime could not be resolved.`, proving the Reference Application lacked the mandatory Provider composition rather than reaching the intended database-before-migration failure. The Task reset rule supersedes `413d096`.
+- Documentation Reviewer returned P1=0/P2=0/P3=0 for the 17-file Community Board/lock/current-proxy correction and permitted commit `6e009a433ce1c687f2f117d69afb14079668c206` as the new Final Fixed Candidate. The complete gate restarts from this exact committed source; earlier candidate evidence remains diagnostic only.
+- The restarted gate at `6e009a4` passed Community Board Clean Install, Browser, Foundation, Identity, Post/Comment, and Product journeys after reproducing that the browser lane requires the same Composer/frontend preparation used by CI. Digest then failed at line 304: the query reads only the protected journal's denormalized `origin_actor_id`, but the stale assertion still expects the execution worker ID. The preceding Alice origin assertion passes, the event sequence passes, and the worker ID belongs only to the protected encoded actor context. This is a Consumer contract mismatch introduced when direct protected-payload JSON inspection was removed, so `6e009a4` is superseded under the reset rule.
+- The bounded Digest correction now asserts exact denormalized `origin_actor_id` continuity for all eight journal sequences. It does not query the protected encoded execution actor, which is unavailable to the direct SQL contract. The exact corrected Digest journey passes; `6e009a4` remains superseded until the correction is independently reviewed and committed.
+- Documentation Reviewer returned P1=0/P2=0/P3=0 and permitted the four-file Digest correction commit. The review confirmed that the exact sequence/origin equality is stronger than the removed presence-only checks, matches Specification 99 restricted-clear metadata, does not query protected actor context, and keeps Task/Report/STATE truthful.
 
 ## Runtime Upgrade Consumer Evidence
 
@@ -58,6 +63,7 @@ The exact pre-commit baseline run passed with: `Framework update runtime consume
 - `examples/community-board/bin/setup`
 - `examples/community-board/README.md`
 - `tests/Consumer/community-board-clean-install.sh`
+- `tests/Consumer/community-board-digest.sh`
 - `docs/guide/community-board.md`
 - `docs/internal/bootstrap.md`
 - `develop/spec/09-runtime-and-di.md`
@@ -82,6 +88,8 @@ The exact pre-commit baseline run passed with: `Framework update runtime consume
 - The synchronized lock points `blackops/framework` at candidate source `413d0964cc132d685b228d5b8d697ac6cc4543e6`, retains `ext-sodium` and `open-telemetry/api ^1.10`, and includes the resolved OpenTelemetry API/Context and PHP 8.2 polyfill entries. The exact clean-install Consumer then passed Composer, generated artifacts, migration application (`11 Framework + 5 Community Board = 16`), seed, HTTP, Worker, redaction, and cleanup assertions.
 - Fresh Community Board setup now creates `.env` with exclusive `fopen(..., 'xb')`, verifies every write/flush/close step, and validates cleanup when a later setup step fails. The Consumer exercises that failure lane with an obstructing `var/build` file before generating one runtime key for all subsequent redaction checks; existing `.env` byte/metadata preservation remains covered separately.
 - Current Framework proxy artifacts are documented as the atomic `proxy-profiles/<build-id>-<content-hash>/` common unit and `framework-proxies/<build-id>-<input-hash>/` Framework unit, with manifest/hash/Build ID validation and runtime no-scan/no-fallback behavior. The current spec, Mago includes, and Deptrac Library collectors no longer reference the removed Ray.Aop package; historical Decisions/Reports remain unchanged.
+
+The Digest Consumer's direct SQL query exposes only the journal's denormalized `origin_actor_id`; the execution actor remains inside the protected journal record. The correction therefore checks exact origin continuity across sequences 1 through 8 without weakening the contract to a presence-only check.
 
 ## Commands and Results
 
@@ -122,12 +130,18 @@ The exact pre-commit baseline run passed with: `Framework update runtime consume
 - PASS: the same exact Consumer also verified no `ray/aop` lock entry, no `vendor/ray/aop` installation, and no Ray namespace in the installed vendor tree.
 - PASS: current-surface scans found no Ray.Aop references in `src`, root Composer metadata/lock, Community Board lock, Mago, Deptrac, `docs/internal/bootstrap.md`, or `develop/spec/09-runtime-and-di.md`; the old `build/aop` sentinel is gone from `src`/`tests`, while Framework-owned internal `aop` generation remains implementation detail under `framework-proxies`.
 - PASS: Documentation Reviewer final correction review returned P1=0, P2=0, P3=0 and permitted the bounded correction commit. Long-running Consumer, build, and Browser commands were not rerun by the read-only reviewer; Orchestrator and worker execution evidence above remains the runtime evidence.
+- DIAGNOSTIC at `6e009a4`: the first direct `community-board-browser.sh` run after Clean Install stopped at its dependency precondition because Clean Install intentionally removes Community Board `vendor` and frontend `node_modules`. `.github/workflows/ci.yml` has an explicit Composer/frontend preparation phase before the focused journeys. After the same configuration, image build, Composer strict/install, and pnpm install steps, Browser passed 2 Playwright tests; Foundation, Identity (`55 tests / 582 assertions` plus frontend `46`), Post/Comment, and Product journeys all passed.
+- BLOCKED at `6e009a4`: `CI=true bash tests/Consumer/community-board-digest.sh` passed migrations, PHPUnit (`55 tests / 582 assertions`), frontend check/test/build, HTTP/Worker retry/completion, digest, isolation, and event-sequence checks, then stopped at line 304. `FIRST_ACTORS` selects `origin_actor_id` only, so requiring `community-board-worker-1` contradicts the column contract; the execution actor is stored inside the protected journal record and is intentionally unavailable to this direct SQL assertion. The bounded Consumer assertion correction is delegated to the Luna High worker.
+
+- PASS after the bounded correction: `CI=true bash tests/Consumer/community-board-digest.sh` completed migrations (`16`), PHPUnit (`55 tests / 582 assertions`), frontend check/test/build (`46` Vitest tests), HTTP/Worker retry/completion, tenant isolation, exact journal event sequence, exact origin-actor continuity, and cleanup; it ended with `Community Board digest journey passed.`
+- PASS: `bash -n tests/Consumer/*.sh`, `git diff --check`, the PHP management-ID guard, and `docker compose run --rm app mago format --check src tests`.
+- PASS: Documentation Reviewer read-only final review returned P1=0, P2=0, P3=0 and permitted the bounded Digest correction commit. Long-running Consumer/build/browser commands were not rerun by the reviewer; worker runtime evidence and Orchestrator static review remain the execution evidence.
 
 ## Acceptance Criteria
 
 - [x] Runtime Consumer and CI wiring implement the P22-002 common migration/DDL and Provider-present/missing lane contract.
 - [x] Runtime Consumer executes successfully with cleanup/source/Docker invariants at the pre-commit baseline.
-- [ ] Final Fixed Candidate SHA is committed and recorded after the Community Board correction.
+- [ ] Replacement Final Fixed Candidate SHA is committed and recorded after the Digest Consumer correction.
 - [ ] Full local and Remote GitHub Actions gates pass at the same fixed SHA.
 - [x] Report, Specification 103, TODO, and STATE are synchronized for the current Gate Asset; fixed-SHA, full-gate, and Remote CI criteria remain pending below.
 - [x] Community Board registers an Application-owned `StorageKeyProvider`, fresh setup creates a strict 32-byte Local key with mode 600 and no exposure, and existing `.env` remains unchanged.
@@ -135,12 +149,13 @@ The exact pre-commit baseline run passed with: `Framework update runtime consume
 - [x] Community Board clean install applies 11 Framework + 5 Application migrations and the README/Consumer assert the same total of 16.
 - [x] Community Board lock and installed vendor tree contain no orphan `ray/aop` package, and the Consumer asserts that absence.
 - [x] Current spec, Mago, Deptrac, and internal Bootstrap documentation describe the Framework-owned proxy artifact contract without obsolete Ray.Aop dependency or path references.
+- [x] Digest Consumer asserts only denormalized `origin_actor_id` and exact origin continuity for all eight journal records; protected execution actor remains unqueried.
 
 ## Remaining Issues
 
-1. Commit the independently reviewed bounded correction, fix the new candidate SHA, and restart the complete local gate. Evidence collected at superseded candidates `99f723d` and `413d096` is diagnostic only.
+1. Commit the independently reviewed bounded Digest correction as a replacement Final Fixed Candidate, then restart and complete the local gate. Evidence collected at superseded candidates `99f723d`, `413d096`, and `6e009a4` is diagnostic only.
 2. Remote CI evidence remains pending a separately authorized branch push.
 
 ## Suggested Next Action
 
-Commit the independently reviewed bounded correction as a new candidate, restart the complete P22-003 local gate from that SHA, then request separate authorization for the branch push required to collect Remote GitHub Actions evidence.
+Commit the independently reviewed Digest origin-actor assertion correction, restart the complete P22-003 local gate, then request separate authorization for the branch push required to collect Remote GitHub Actions evidence.

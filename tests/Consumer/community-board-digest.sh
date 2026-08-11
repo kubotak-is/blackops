@@ -300,8 +300,8 @@ FIRST_ACTORS=$("${COMPOSE[@]}" exec -T postgres psql -U blackops -d community_bo
         origin_actor_id,
         ',' ORDER BY sequence
     ) FROM blackops.journal WHERE operation_id = '${FIRST_OPERATION}'::uuid")
-grep -q "${ALICE_USER_ID}" <<<"${FIRST_ACTORS}"
-grep -q 'community-board-worker-1' <<<"${FIRST_ACTORS}"
+test "${FIRST_ACTORS}" = \
+    "1:${ALICE_USER_ID},2:${ALICE_USER_ID},3:${ALICE_USER_ID},4:${ALICE_USER_ID},5:${ALICE_USER_ID},6:${ALICE_USER_ID},7:${ALICE_USER_ID},8:${ALICE_USER_ID}"
 
 CLIENT_BUILD="${ROOT}/examples/community-board/frontend/build/client"
 for marker in BLACKOPS_BASE_URL DIGEST_FAIL_FIRST_ATTEMPT community_board_session GenerateWeeklyDigest ShowDigest ListNotifications \

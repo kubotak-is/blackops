@@ -1,6 +1,34 @@
 # Orchestration State
 
-Updated At: 2026-08-12T02:21:43+09:00
+Updated At: 2026-08-12T02:43:09+09:00
+
+## P22-003 Digest Correction Review Complete Checkpoint
+
+```text
+2026-08-12T02:43:09+09:00
+Documentation Reviewer completed the read-only four-file Digest correction review with P1=0, P2=0, P3=0 and permitted Commit. The exact sequence 1..8 origin_actor_id equality is stronger than the removed presence-only checks, matches Specification 99 restricted-clear Origin Actor metadata, leaves protected execution actor context unqueried, and introduces no credential/output or documentation-surface regression. Replacement Commit and complete fixed-SHA gate restart remain pending. No secret values, Commit, Tag, Push, Release, Packagist, Skeleton publication, or Deploy.
+```
+
+## P22-003 Digest Origin Actor Correction Complete Checkpoint
+
+```text
+2026-08-12T02:40:08+09:00
+The bounded Consumer correction changed only the protected-journal origin-actor assertion: direct SQL now verifies exact denormalized origin_actor_id continuity for sequences 1 through 8, while the protected execution actor remains unqueried. Exact CI=true Community Board Digest passed migrations (16), PHPUnit (55 tests / 582 assertions), frontend check/test/build (46 Vitest tests), HTTP/Worker retry/completion, tenant isolation, event sequence, and cleanup, ending with `Community Board digest journey passed.` Bash syntax, git diff --check, PHP management-ID, and Mago format checks also pass. Replacement Commit, independent review, and complete gate restart remain pending; no production/public API/spec change, secret values, Tag, Push, Release, Packagist, Skeleton publication, or Deploy.
+```
+
+## P22-003 Digest Origin Actor Assertion Blocker Checkpoint
+
+```text
+2026-08-12T02:35:53+09:00
+The full gate at 6e009a4 passed Community Board Clean Install, Browser after CI-equivalent dependency preparation, Foundation, Identity, Post/Comment, and Product journeys. Digest passed migrations, backend/frontend tests and builds, HTTP/Worker retry/completion, tenant isolation, and the exact journal event sequence, then failed at line 304. Its SQL selects only denormalized origin_actor_id but a stale assertion expects execution actor community-board-worker-1; protected encoded actor context is intentionally unavailable to direct SQL inspection. Task scope now permits only this bounded Consumer assertion correction, delegated to the Luna High worker. Candidate 6e009a4 is superseded; replacement Commit, independent review, and complete gate restart pending. No secret values, Tag, Push, Release, Packagist, Skeleton publication, or Deploy.
+```
+
+## P22-003 Final Fixed Candidate 6e009a4 Checkpoint
+
+```text
+2026-08-12T02:22:48+09:00
+Orchestrator committed the independently reviewed 17-file Community Board Storage Protection, lock/Ray cleanup, current proxy contract, Consumer, and regression correction as 6e009a433ce1c687f2f117d69afb14079668c206 (`fix: harden community board release setup`). This exact committed source is the new P22-003 Final Fixed Candidate; 99f723d and 413d096 remain superseded. The complete local gate restarts from 6e009a4. Remote GitHub Actions remains pending separate Push authorization. No secret values, Tag, Push, Release, Packagist, Skeleton publication, or Deploy.
+```
 
 ## P22-003 Community Board Correction Review Complete Checkpoint
 

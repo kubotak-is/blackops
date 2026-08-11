@@ -15,7 +15,8 @@ Status: In Progress
 - Superseded Candidates:
   - `99f723dfc9bcf1e859689c81878839ee37d2ba91` (`test: add stable 1.2 runtime upgrade gate`)
   - `413d0964cc132d685b228d5b8d697ac6cc4543e6` (`test: prepare storage keys in quickstart consumers`)
-- Final Fixed Candidate: Pending the reviewed Community Board Storage Protection correction commit.
+  - `6e009a433ce1c687f2f117d69afb14079668c206` (`fix: harden community board release setup`)
+- Final Fixed Candidate: replacement correction commit pending
 
 P22-002で要求されたStable-to-candidate Runtime ConsumerとCI wiringはBaselineにまだ存在しない。このTaskでは最初にGate Assetを実装、Review、Commitする。そのCommitをFinal Fixed Candidateとして明記し、以後のFull Gateを最初から実行する。Final Fixed Candidate確定後にTest／Workflow／Production／Skeleton／Release Metadata／利用者向けDocumentationを修正する必要が生じた場合、SHAを暗黙に読み替えずReportへBlockerを記録し、修正Commit後の新SHAでFull Gateを最初から再実行する。
 
@@ -98,6 +99,7 @@ Task／Report／STATEだけのCloseout CommitはFinal Fixed Candidateへ含め�
 - `examples/community-board/bin/setup`（fresh `.env`の安全なLocal Storage Key生成と既存`.env`不変のみ）
 - `examples/community-board/README.md`（Storage Key setup／既存環境移行／Troubleshooting／current migration countのみ）
 - `tests/Consumer/community-board-clean-install.sh`（fresh Storage Key、mode、非露出／current migration count／Ray.Aop absenceのみ）
+- `tests/Consumer/community-board-digest.sh`（protected journalのcolumn契約へ同期したorigin actor assertionのみ）
 - `tests/Internal/Application/ApplicationSeederBuildIntegrationTest.php`（failure-preserves-previous-artifacts sentinelを現行proxy artifact pathへ同期）
 - `docs/guide/community-board.md`（公開Websiteの同じStorage Key setup／移行境界のみ）
 - `docs/internal/bootstrap.md`（Framework-owned transaction proxyの現行実装説明に限定）
@@ -182,6 +184,11 @@ docker compose run --rm app vendor/bin/phpunit
 docker compose run --rm app vendor/bin/deptrac
 bash tests/Consumer/auth-generator-fresh.sh
 bash tests/Consumer/community-board-clean-install.sh
+docker compose -f examples/community-board/compose.yaml config
+docker compose -f examples/community-board/compose.yaml build app http frontend
+docker compose -f examples/community-board/compose.yaml run --rm app composer validate --strict
+docker compose -f examples/community-board/compose.yaml run --rm app composer install --no-interaction --prefer-dist --no-progress
+mise exec -- pnpm --dir examples/community-board/frontend install --frozen-lockfile
 bash tests/Consumer/community-board-browser.sh
 bash tests/Consumer/community-board-foundation.sh
 bash tests/Consumer/community-board-identity.sh
