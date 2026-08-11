@@ -1,17 +1,20 @@
 # P22-003 Stable 1.2 Release Candidate Gate Report
 
-Status: In Progress — Runtime Consumer and CI wiring pass the exact pre-commit baseline; Gate Asset commit, fixed-SHA gate, and Orchestrator acceptance remain pending.
+Status: In Progress — Candidate `99f723dfc9bcf1e859689c81878839ee37d2ba91` exposed a stale Quickstart Storage Key setup in existing Consumers; the bounded correction passes all three focused runtime journeys and awaits review/commit as the new Final Fixed Candidate.
 
 ## Summary
 
-Implemented the bounded Stable-to-candidate Runtime Consumer and its GitHub Actions job. The Consumer starts from the actual annotated Stable `1.1.0` quickstart in a fresh disposable checkout, installs and migrates Stable's two Framework migrations, creates a local annotated `1.2.0` tag at the committed candidate source, updates only `blackops/framework`, applies the documented Provider/config/environment merge plus the exact three runtime bootstrap files (`bootstrap/app.php`, `public/index.php`, `public/worker.php`), proves the additional nine migrations and DDL guards, and defines Provider-present HTTP/Worker and Provider-missing HTTP/Worker safe-negative lanes. No production source, external tag, branch, release, Packagist, or deployment state was changed.
+Implemented the bounded Stable-to-candidate Runtime Consumer and its GitHub Actions job. The Consumer starts from the actual annotated Stable `1.1.0` quickstart in a fresh disposable checkout, installs and migrates Stable's two Framework migrations, creates a local annotated `1.2.0` tag at the committed candidate source, updates only `blackops/framework`, applies the documented Provider/config/environment merge plus the exact three runtime bootstrap files (`bootstrap/app.php`, `public/index.php`, `public/worker.php`), proves the additional nine migrations and DDL guards, and defines Provider-present HTTP/Worker and Provider-missing HTTP/Worker safe-negative lanes. The existing Auth Generator Fresh, FrankenPHP Worker, and Scheduled Operation Consumers now prepare a fail-closed 32-byte Storage Key before Docker/Composer execution without logging key material. No production source, external tag, branch, release, Packagist, or deployment state was changed.
 
 ## Candidate Establishment and Fixed SHA Evidence
 
 - Baseline commit: `61142d254861ffe13985679c338f592a46151af5`.
+- Superseded candidate: `99f723dfc9bcf1e859689c81878839ee37d2ba91` (`test: add stable 1.2 runtime upgrade gate`).
+- Final Fixed Candidate: pending the bounded Quickstart-copying Consumer correction commit.
 - Candidate source is cloned from the repository's committed `HEAD`; uncommitted Task/STATE/Report files are not mounted as candidate source.
 - The Consumer verifies annotated Stable tag type and peeled commit, archives only `1.1.0:examples/quickstart`, then creates an annotated local `1.2.0` tag at the committed candidate SHA.
-- Final Fixed Candidate remains pending the Gate Asset review Commit. No external Tag/Push was performed.
+- Documentation Reviewer returned P1=0/P2=0/P3=0 and permitted the bounded Gate Asset commit. No external Tag/Push was performed.
+- The fixed-SHA full gate found `auth-generator-fresh.sh` copies `.env.example` without populating the now-required `BLACKOPS_STORAGE_KEY`; the same stale setup is present in `frankenphp-worker-mode.sh` and `scheduled-operation.sh`. Per the Task reset rule, `99f723d` is not silently retained as the Final Fixed Candidate.
 
 ## Runtime Upgrade Consumer Evidence
 
@@ -34,6 +37,9 @@ The exact pre-commit baseline run passed with: `Framework update runtime consume
 ## Changed Files
 
 - `tests/Consumer/framework-update-runtime.sh`
+- `tests/Consumer/auth-generator-fresh.sh`
+- `tests/Consumer/frankenphp-worker-mode.sh`
+- `tests/Consumer/scheduled-operation.sh`
 - `tests/Consumer/version-baseline.sh`
 - `.github/workflows/ci.yml`
 - `CHANGELOG.md`
@@ -54,12 +60,16 @@ The exact pre-commit baseline run passed with: `Framework update runtime consume
 - Provider-missing HTTP may expose only the framework's generic safe `500` JSON. The exact Provider message is asserted through the application bootstrap chain and an in-container Worker-lane preflight without exposing it in output.
 - The amended Task Packet explicitly permits the three affected public guides and the guide-code regression test for this Stable Header contract correction; no Production PHP change was required.
 - The amended Task Packet also permits the three Manual Merge Matrix runtime bootstrap files; this Consumer copies and verifies only those files and does not broaden the merge to Caddyfile, Compose, or unrelated Application Source.
+- Candidate `99f723d` is superseded. The three existing Consumers use the same bounded Storage Key preparation contract: restrictive `.env`, strict 32-byte base64 generation/decoded-length check, exactly one non-empty assignment, mode 600, and key material unset before Docker/Composer commands. No Production Source or other Consumer was changed.
 
 ## Commands and Results
 
-- PASS: `bash -n tests/Consumer/framework-update-runtime.sh tests/Consumer/version-baseline.sh`.
-- PASS: `bash tests/Consumer/version-baseline.sh` (`stable=1.1.0 candidate=1.2.0`).
+- PASS: `bash -n tests/Consumer/framework-update-runtime.sh tests/Consumer/auth-generator-fresh.sh tests/Consumer/frankenphp-worker-mode.sh tests/Consumer/scheduled-operation.sh tests/Consumer/version-baseline.sh`.
+- PASS: `bash tests/Consumer/version-baseline.sh` (`stable=1.1.0 candidate=1.2.0`); the guard captures exact line order for `umask`, `.env` copy, 32-byte Storage Key generation/non-empty and decoded-length checks, `.env` write, assignment/empty-assignment counts, mode 600, key-variable unset, and the first Docker/Composer command for all three corrected Consumers, rejecting missing or duplicate contract steps.
 - PASS: `git diff --check`.
+- PASS: `bash tests/Consumer/auth-generator-fresh.sh` after the correction; the full Auth generator/register/login/logout/rotation/revocation journey passed and cleanup restored the repository/Docker baseline.
+- PASS: `bash tests/Consumer/frankenphp-worker-mode.sh` after the correction; Worker bootstrap, request isolation, database reconnect, restart/memory bounds, Classic fallback, correlated failure boundary, and cleanup passed.
+- PASS: `bash tests/Consumer/scheduled-operation.sh` after the correction; scheduled CLI, recovery, concurrency, and cleanup passed.
 - PASS: exact escalated pre-commit `bash tests/Consumer/framework-update-runtime.sh` (exit 0; Stable `e3df5576c7216cfe8bd9e10e12ee6795f7674088`, candidate `61142d254861ffe13985679c338f592a46151af5`, migrations 11, Provider-present Worker-mode HTTP/Worker, Provider-missing Classic HTTP/Worker safe-negative, cleanup/source invariant).
 - Correction: the Orchestrator reproduced an immediate post-install assertion failure because Composer's `show --format=json` shape did not provide the expected `"version"` field. Both checks now read the resolved `blackops/framework` version from `composer.lock`, matching the existing generator Consumer contract. Negative redaction also includes captured HTTP headers/body.
 - Correction: two Docker runs stopped at the Stable post-migration count assertion. The Consumer now uses a bounded `assert_migration_status` helper for Stable, candidate-before-migrate, and candidate-after-migrate stages; only applied/pending/version status is printed on mismatch, with no environment or secret output. Docker was not rerun for this focused correction.
@@ -74,21 +84,22 @@ The exact pre-commit baseline run passed with: `Framework update runtime consume
 - Correction: a tenth exact Docker run showed the bounded Classic readiness loop accepted a transient non-`000` response before the expected safe `500`. The loop now retries for all 30 attempts until exactly `500`, then retains the fixed `provider-missing-classic-http-readiness` label on exhaustion. Docker was not rerun for this focused correction.
 - Correction: an eleventh exact Docker run passed migrations, build, Worker, and Provider-present evidence but failed at Provider-missing HTTP because the Stable app still used its `1.1.0` bootstrap/runtime entrypoints. The Consumer now copies only candidate `bootstrap/app.php`, `public/index.php`, and `public/worker.php`, verifies byte equality at initial/positive/negative checkpoints, and excludes exactly those paths from generic source hashes. Docker was not rerun for this focused correction.
 - Correction: Documentation review synchronized UPGRADE's executable order with the passing Consumer: fresh Stable pre-status 0/2 and one-time migrate, read-only metadata/baseline DDL checks, no Stable post-migrate status, then Framework-only Candidate update/strict validation, status 2/9, dry-run/migrate, final 11/0. The matrix now names only the three runtime bootstrap files and explicitly leaves blackops/Caddyfile/Compose unchanged; the Runtime Consumer reference and lane boundaries are executable and guarded.
-- NOT RUN: full fixed-SHA PHP/Consumer/Website/Package gate and Remote GitHub Actions evidence; the Runtime Consumer pre-commit baseline passed, and the Gate Asset must now be committed before the full gate restarts.
+- NOT RUN: full fixed-SHA PHP/Consumer/Website/Package gate and Remote GitHub Actions evidence; the prior `99f723d` evidence is diagnostic only, and the corrected Gate Asset must be committed as a new candidate before the full gate restarts.
 
 ## Acceptance Criteria
 
 - [x] Runtime Consumer and CI wiring implement the P22-002 common migration/DDL and Provider-present/missing lane contract.
 - [x] Runtime Consumer executes successfully with cleanup/source/Docker invariants at the pre-commit baseline.
-- [ ] Final Fixed Candidate SHA is committed and recorded.
+- [ ] Final Fixed Candidate SHA is committed and recorded after the Consumer correction.
 - [ ] Full local and Remote GitHub Actions gates pass at the same fixed SHA.
 - [x] Report, Specification 103, TODO, and STATE are synchronized for the current Gate Asset; fixed-SHA, full-gate, and Remote CI criteria remain pending below.
 
 ## Remaining Issues
 
-1. Gate Asset Commit and Orchestrator review are pending; the passing baseline SHA is not yet a committed fixed candidate.
-2. Full fixed-SHA PHP, Consumer, Website, Package, Publication dry-run, and Remote CI evidence remain pending.
+1. The corrected Auth Generator／FrankenPHP Worker／Scheduled Operation Consumers pass focused runtime verification and require independent review/commit before the new Final Fixed Candidate is fixed.
+2. The complete local gate must restart from the new fixed SHA; evidence collected at superseded candidate `99f723d` is diagnostic only.
+3. Remote CI evidence remains pending a separately authorized branch push.
 
 ## Suggested Next Action
 
-Review the passing pre-commit evidence, Commit the accepted Gate Asset to establish the fixed SHA, then restart the complete P22-003 gate from that committed SHA.
+Independently review the bounded three-Consumer Storage Key correction, commit a new Final Fixed Candidate, restart the complete P22-003 local gate, then request separate authorization for the branch push required to collect Remote GitHub Actions evidence.

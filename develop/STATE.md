@@ -1,6 +1,41 @@
 # Orchestration State
 
-Updated At: 2026-08-11T20:03:46+09:00
+Updated At: 2026-08-12T01:04:14+09:00
+
+## P22-003 Version Baseline Storage Key Guard Checkpoint
+
+```text
+2026-08-12T01:04:14+09:00
+Version-baseline guard now captures exact line order in all three corrected Consumers: umask, .env.example copy, 32-byte Storage Key generation, non-empty and decoded-length checks, .env write, assignment/empty-assignment counts, mode 600, key-variable unset, then first Docker/Composer command. Missing or duplicate steps fail closed. bash -n, version-baseline, diff, and PHP management-ID guards PASS. No Consumer runtime rerun, Commit, Tag, Push, Release, Packagist, Skeleton publication, or Deploy.
+```
+
+## P22-003 Quickstart-copying Consumer Correction Runtime Checkpoint
+
+```text
+2026-08-12T00:57:21+09:00
+Luna High worker implemented only the 3 authorized Consumer Storage Key preparation blocks and version guard; no Production Source changed。Orchestrator independent exact runs PASS: Auth Generator Fresh full journey、FrankenPHP Worker bootstrap／isolation／reconnect／restart-memory／Classic fallback／correlated failure boundary、Scheduled CLI／recovery／concurrency。All three use umask 077、mode 600、strict base64 32 random bytes／decoded length 32、exactly one non-empty BLACKOPS_STORAGE_KEY assignment、key variables unset before Docker／Composer, without printing key material。Bash／version baseline／diff／PHP management-ID guards PASS。Docker cleanup完了、Repository差分は許可7 filesのみ。Documentation review／Commit／new Final Fixed Candidate／full gate restart remain pending。No Tag／Push／Release／Packagist／Skeleton publication／Deploy。
+```
+
+## P22-003 Three-Consumer Storage Key Preparation Correction Checkpoint
+
+```text
+2026-08-11T22:45:09+09:00
+Superseded candidate 99f723dfc9bcf1e859689c81878839ee37d2ba91 remains non-final. The bounded correction is implemented only in auth-generator-fresh.sh, frankenphp-worker-mode.sh, and scheduled-operation.sh: each creates .env under umask 077, verifies a strict base64 encoding of 32 random bytes and decoded length 32, enforces exactly one non-empty BLACKOPS_STORAGE_KEY assignment and mode 600, then unsets key material before Docker/Composer. Existing normal/failure cleanup remains in place and no key is logged. bash -n, version-baseline, diff check, and PHP comment guard PASS. Focused Docker Consumer runs, new Fixed Candidate commit, full fixed-SHA gate, Tag/Push/Release/Packagist/Skeleton publication/Deploy remain pending.
+```
+
+## P22-003 Quickstart-copying Consumer Blocker Checkpoint
+
+```text
+2026-08-11T22:41:10+09:00
+Fixed candidate 99f723dfc9bcf1e859689c81878839ee37d2ba91 Runtime Upgrade Consumer／Composer strict／Package Export／clean-source Mago format／Mago analyze／Full PHPUnit 2,315 tests・9,434 assertions PASS。Broad Mago lintは既存186 findings・14 errors、Deptracは既知PHP 8.5 vendor parser errorを再現。Auth Generator Fresh ConsumerはHTTP readiness後のanonymous exact JSON assertionで停止し、機密値を出さない再現で40回すべて2xxなし／empty responseを確認した。QuickstartはStorageKeyProviderを必須登録し.env.exampleのBLACKOPS_STORAGE_KEYは空だが、Auth Consumerは値を準備していない。同じstale setupをFrankenPHP Worker／Scheduled Operation Consumerにも確認した。Task reset ruleに従い99f723dをSuperseded Candidateとし、3 Consumerのfail-closed Storage Key準備をLuna High workerへ限定委譲後、新SHAでFull Gateを最初から再実行する。Consumer cleanup／Repository stateは保持。No Tag／Push／Release／Packagist／Skeleton publication／Deploy。
+```
+
+## P22-003 Initial Candidate Checkpoint (Superseded)
+
+```text
+2026-08-11T20:05:10+09:00
+Documentation Reviewer final Gate Asset review returned P1=0／P2=0／P3=0 and permitted Commit. Orchestrator committed the reviewed 14-file Gate Asset as 99f723dfc9bcf1e859689c81878839ee37d2ba91 (`test: add stable 1.2 runtime upgrade gate`) and initially fixed that exact committed source as the candidate. The later Quickstart-copying Consumer blocker checkpoint above supersedes this candidate. No Tag／Push／Release／Packagist／Skeleton publication／Deploy。
+```
 
 ## P22-003 Documentation Scope and Gate Asset Synchronization Checkpoint
 

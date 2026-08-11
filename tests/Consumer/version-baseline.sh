@@ -23,6 +23,86 @@ absent() {
         || fail "${file} contains a forbidden version claim: ${pattern}"
 }
 
+assert_storage_key_contract() {
+    local file="$1"
+
+    contains "${file}" 'test -n "${storage_key}"'
+    contains "${file}" 'test "${decoded_storage_key_length}" -eq 32'
+    contains "${file}" 'test "$(grep -c '\''^BLACKOPS_STORAGE_KEY='\'' "${CONSUMER}/.env")" -eq 1'
+    contains "${file}" 'test "$(grep -c '\''^BLACKOPS_STORAGE_KEY=$'\'' "${CONSUMER}/.env")" -eq 0'
+    contains "${file}" 'test "$(stat -c '\''%a'\'' "${CONSUMER}/.env")" = 600'
+    contains "${file}" 'unset storage_key decoded_storage_key_length'
+
+    awk '
+        /^[[:space:]]*umask[[:space:]]+077[[:space:]]*$/ {
+            umask_count++
+            umask_line = NR
+        }
+        index($0, "cp \"${CONSUMER}/.env.example\" \"${CONSUMER}/.env\"") {
+            env_copy_count++
+            env_copy_line = NR
+        }
+        index($0, "storage_key=\"$(head -c 32 /dev/urandom | base64 -w 0)\"") {
+            generation_count++
+            generation_line = NR
+        }
+        index($0, "test -n \"${storage_key}\"") {
+            nonempty_count++
+            nonempty_line = NR
+        }
+        index($0, "decoded_storage_key_length=\"$(printf '\''%s'\'' \"${storage_key}\" | base64 --decode | wc -c)\"") {
+            decoded_assignment_count++
+            decoded_assignment_line = NR
+        }
+        index($0, "test \"${decoded_storage_key_length}\" -eq 32") {
+            decoded_test_count++
+            decoded_test_line = NR
+        }
+        index($0, "sed -i \"s|^BLACKOPS_STORAGE_KEY=.*|BLACKOPS_STORAGE_KEY=${storage_key}|\" \"${CONSUMER}/.env\"") {
+            write_count++
+            write_line = NR
+        }
+        index($0, "test \"$(grep -c '\''^BLACKOPS_STORAGE_KEY='\'' \"${CONSUMER}/.env\")\" -eq 1") {
+            assignment_count_count++
+            assignment_count_line = NR
+        }
+        index($0, "test \"$(grep -c '\''^BLACKOPS_STORAGE_KEY=$'\'' \"${CONSUMER}/.env\")\" -eq 0") {
+            empty_count_count++
+            empty_count_line = NR
+        }
+        index($0, "test \"$(stat -c '\''%a'\'' \"${CONSUMER}/.env\")\" = 600") {
+            mode_count++
+            mode_line = NR
+        }
+        /^[[:space:]]*unset[[:space:]]+storage_key[[:space:]]+decoded_storage_key_length[[:space:]]*$/ {
+            unset_count++
+            unset_line = NR
+        }
+        umask_line && !first_runtime_line {
+            if (/docker[[:space:]]+(run|compose)/ ||
+                /composer[[:space:]]/ ||
+                /\$\{(COMPOSE|compose|INSTALL_COMPOSE|install_compose)\[@\]\}/) {
+                first_runtime_line = NR
+            }
+        }
+        END {
+            if (umask_count != 1 || env_copy_count != 1 || generation_count != 1 ||
+                nonempty_count != 1 || decoded_assignment_count != 1 || decoded_test_count != 1 ||
+                write_count != 1 || assignment_count_count != 1 || empty_count_count != 1 ||
+                mode_count != 1 || unset_count != 1 || !first_runtime_line ||
+                !(umask_line < env_copy_line && env_copy_line < generation_line &&
+                  generation_line < nonempty_line && nonempty_line < decoded_assignment_line &&
+                  decoded_assignment_line < decoded_test_line && decoded_test_line < write_line &&
+                  write_line < assignment_count_line && assignment_count_line < empty_count_line &&
+                  empty_count_line < mode_line && mode_line < unset_line &&
+                  unset_line < first_runtime_line)) {
+                exit 1
+            }
+        }
+    ' "${repository_root}/${file}" \
+        || fail "${file} must preserve fail-closed Storage Key preparation order through its first Docker/Composer command"
+}
+
 contains Dockerfile 'COMPOSER_ROOT_VERSION=1.2.0@dev'
 contains examples/quickstart/composer.json '"blackops/framework": "^1.2"'
 contains src/Internal/Telemetry/TelemetryTracer.php "public const VERSION = '1.2.0';"
@@ -35,6 +115,18 @@ for consumer in \
     tests/Consumer/storage-protection-rotation.sh \
     tests/Consumer/frankenphp-worker-mode.sh; do
     contains "${consumer}" 'blackops/framework":"1.2.0'
+done
+
+for consumer in \
+    tests/Consumer/auth-generator-fresh.sh \
+    tests/Consumer/frankenphp-worker-mode.sh \
+    tests/Consumer/scheduled-operation.sh; do
+    contains "${consumer}" 'umask 077'
+    contains "${consumer}" 'storage_key="$(head -c 32 /dev/urandom | base64 -w 0)"'
+    contains "${consumer}" 'decoded_storage_key_length="$(printf'
+    contains "${consumer}" 'base64 --decode | wc -c)"'
+    contains "${consumer}" 'chmod 600 "${CONSUMER}/.env"'
+    assert_storage_key_contract "${consumer}"
 done
 
 contains tests/Consumer/skeleton-create-project.sh '"blackops/framework": "1.2.0"'

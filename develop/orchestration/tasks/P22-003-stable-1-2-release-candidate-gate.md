@@ -12,7 +12,8 @@ Status: In Progress
 - Baseline Subject: `chore: close P22-002 acceptance`
 - Release Version: `1.2.0`
 - Latest Published Stable: `1.1.0`
-- Final Fixed Candidate: Gate Asset Commit後にOrchestratorが固定する
+- Superseded Candidate: `99f723dfc9bcf1e859689c81878839ee37d2ba91` (`test: add stable 1.2 runtime upgrade gate`)
+- Final Fixed Candidate: Quickstart-copying Consumer correction Commit後に再固定する
 
 P22-002で要求されたStable-to-candidate Runtime ConsumerとCI wiringはBaselineにまだ存在しない。このTaskでは最初にGate Assetを実装、Review、Commitする。そのCommitをFinal Fixed Candidateとして明記し、以後のFull Gateを最初から実行する。Final Fixed Candidate確定後にTest／Workflow／Production／Skeleton／Release Metadata／利用者向けDocumentationを修正する必要が生じた場合、SHAを暗黙に読み替えずReportへBlockerを記録し、修正Commit後の新SHAでFull Gateを最初から再実行する。
 
@@ -24,6 +25,7 @@ Task／Report／STATEだけのCloseout CommitはFinal Fixed Candidateへ含め�
 - Stable `1.1.0`のcurrent-schema Migration Metadata誤認とCandidate修正をRelease Note／Upgradeへ正確に記録する
 - actual Stable `1.1.0`の必須`X-Sample-Token` Value HeaderをUpgrade手順と公開Install／Runtime／Quickstart Guideへ正確に記録する
 - Candidate Runtime ConsumerのGitHub Actions CI wiring
+- Quickstart `.env.example`をコピーする既存Auth Generator／FrankenPHP Worker／Scheduled Operation Consumerのfail-closed Storage Key準備
 - Final Fixed Candidate SHAの固定とLocal／Remote History Evidence
 - Composer Strict、Mago Format／Lint／Analyze、Full PHPUnit、Deptrac
 - 全top-level non-interactive Consumer／Installation／Runtime／Observability／Framework Update Smoke
@@ -68,6 +70,9 @@ Task／Report／STATEだけのCloseout CommitはFinal Fixed Candidateへ含め�
 ## Files Allowed to Change
 
 - `tests/Consumer/framework-update-runtime.sh`（新規）
+- `tests/Consumer/auth-generator-fresh.sh`（Quickstart Storage Key準備のみ）
+- `tests/Consumer/frankenphp-worker-mode.sh`（Quickstart Storage Key準備のみ）
+- `tests/Consumer/scheduled-operation.sh`（Quickstart Storage Key準備のみ）
 - `tests/Consumer/version-baseline.sh`（新Consumer／CI契約guardのみ）
 - `.github/workflows/ci.yml`（新Runtime ConsumerのCI wiringのみ）
 - `CHANGELOG.md`（current-schema Migration Metadata修正のRelease Noteのみ）
@@ -93,6 +98,7 @@ Task／Report／STATEだけのCloseout CommitはFinal Fixed Candidateへ含め�
 - `framework-update-generators.sh`の一時Applicationを再利用しない
 - P22-002のManual Merge Matrixどおり、Application-owned Provider／Config／Environmentと後述の3 runtime bootstrap filesだけを明示変更し、Secret値を出力、保存、追跡しない
 - fail-closed `.env`作成、`umask 077`、Secretを先に削除するnormal／failure／interrupt cleanupを持つ
+- Quickstart `.env.example`を使う既存3 Consumerは、`.env`作成前`umask 077`、32 random bytesのstrict base64 Storage Key、decoded length 32、単一の非空`BLACKOPS_STORAGE_KEY` assignment、mode 600、Docker／Composer前のkey material unsetを満たし、Key／`.env`を出力しない
 - Database migration／setupをProvider-present／missing Runtime laneの共通前提として一度実行する。Stable CLIはfirst migrate前の2 pendingを示し、first migrate後はDatabaseのMetadata Row／Baseline Tableをread-onlyで直接検証する。Role名とSchema名が同じStable `1.1.0`は次Processのstatusで既存Metadataを誤認する既知不具合があるため、その誤表示を`applied: 2`の証拠に読み替えない
 - Candidate update後の修正済みstatusがStableの2 Metadata Rowを`applied: 2`、追加分を`pending: 9`として認識し、最終11 Framework Migration、最新Version、Protected StorageのColumn／Constraint／DDL guardを直接検証する
 - Candidate Framework update後、UPGRADEのManual Merge MatrixどおりCandidate `examples/quickstart/bootstrap/app.php`、`public/index.php`、`public/worker.php`だけをDisposable Applicationへコピーし、Candidate Sourceとのbyte equalityを初回、Provider-present後、Provider-missing後に再検証する。Caddyfile、Compose、その他Application-owned Sourceはコピーしない
@@ -116,6 +122,7 @@ Task／Report／STATEだけのCloseout CommitはFinal Fixed Candidateへ含め�
 ## Acceptance Criteria
 
 - [ ] Stable-to-candidate Runtime Consumerが共通Database／DDL、Manual Merge Matrixの3 runtime bootstrap files、Provider-present Worker-mode HTTP／Worker Positive、Provider-missing Classic HTTP safe 500／Worker CLI non-zero safe Negativeを実証する
+- [ ] Auth Generator Fresh／FrankenPHP Worker／Scheduled Operation Consumerがfail-closed Storage Key準備とcleanupを実証する
 - [ ] CHANGELOG／UPGRADEがStable current-schema Metadata誤認、Candidateの既存Row認識、再実行を避ける安全なUpgrade順序を記録する
 - [ ] UPGRADE／公開Install／Runtime／Quickstart GuideとWebsite契約Testが、Stableの匿名認可と必須`X-Sample-Token` Value Bindingを混同せず実行可能な手順を記録する
 - [ ] GitHub Actionsが新Runtime Consumerを実行し、Workflowの静的契約とLocal equivalentが成功する

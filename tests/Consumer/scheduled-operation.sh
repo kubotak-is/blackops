@@ -36,7 +36,21 @@ mv "${CONSUMER}/app/Feature/Scheduled/ScheduledDeferredProbeValue.php" \
     "${CONSUMER}/app/Feature/Scheduled/DeferredProbe/"
 mv "${CONSUMER}/app/Feature/Scheduled/ScheduledDeferredProbeOutcome.php" \
     "${CONSUMER}/app/Feature/Scheduled/DeferredProbe/"
+umask 077
 cp "${CONSUMER}/.env.example" "${CONSUMER}/.env"
+chmod 600 "${CONSUMER}/.env"
+case $- in
+    *x*) set +x ;;
+esac
+storage_key="$(head -c 32 /dev/urandom | base64 -w 0)"
+test -n "${storage_key}"
+decoded_storage_key_length="$(printf '%s' "${storage_key}" | base64 --decode | wc -c)"
+test "${decoded_storage_key_length}" -eq 32
+sed -i "s|^BLACKOPS_STORAGE_KEY=.*|BLACKOPS_STORAGE_KEY=${storage_key}|" "${CONSUMER}/.env"
+test "$(grep -c '^BLACKOPS_STORAGE_KEY=' "${CONSUMER}/.env")" -eq 1
+test "$(grep -c '^BLACKOPS_STORAGE_KEY=$' "${CONSUMER}/.env")" -eq 0
+test "$(stat -c '%a' "${CONSUMER}/.env")" = 600
+unset storage_key decoded_storage_key_length
 
 cat >"${OVERRIDE}" <<YAML
 services:

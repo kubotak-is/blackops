@@ -31,7 +31,21 @@ json_token() {
 mkdir -p "${CONSUMER}/app/Feature/AuthProbe"
 cp -a "${ROOT}/examples/quickstart/." "${CONSUMER}/"
 cp -a "${ROOT}/tests/Consumer/fixtures/auth-fresh/CurrentActor" "${CONSUMER}/app/Feature/AuthProbe/"
+umask 077
 cp "${CONSUMER}/.env.example" "${CONSUMER}/.env"
+chmod 600 "${CONSUMER}/.env"
+case $- in
+    *x*) set +x ;;
+esac
+storage_key="$(head -c 32 /dev/urandom | base64 -w 0)"
+test -n "${storage_key}"
+decoded_storage_key_length="$(printf '%s' "${storage_key}" | base64 --decode | wc -c)"
+test "${decoded_storage_key_length}" -eq 32
+sed -i "s|^BLACKOPS_STORAGE_KEY=.*|BLACKOPS_STORAGE_KEY=${storage_key}|" "${CONSUMER}/.env"
+test "$(grep -c '^BLACKOPS_STORAGE_KEY=' "${CONSUMER}/.env")" -eq 1
+test "$(grep -c '^BLACKOPS_STORAGE_KEY=$' "${CONSUMER}/.env")" -eq 0
+test "$(stat -c '%a' "${CONSUMER}/.env")" = 600
+unset storage_key decoded_storage_key_length
 
 cat >"${OVERRIDE}" <<YAML
 services:
