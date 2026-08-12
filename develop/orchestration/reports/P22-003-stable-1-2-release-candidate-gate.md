@@ -1,10 +1,12 @@
 # P22-003 Stable 1.2 Release Candidate Gate Report
 
-Status: In Progress — Candidate `e4be46f7e883f5247ed94f86c7854e3163a6c7dc` is superseded after the restarted full gate exposed a missing Scheduled Operation Consumer runtime directory. The bounded fixture correction passes its exact journey and Orchestrator review; replacement commit and complete gate restart remain pending.
+Status: In Progress — Final Fixed Candidate `08ad61f8236b3a240c9c9547fbde3b9d765fc6d5` completed every local Consumer, Frontend, Website, package, publication dry-run, and repository guard. Strict Mago lint, Deptrac, and same-SHA Remote CI remain unsatisfied, so Orchestrator acceptance is withheld.
 
 ## Summary
 
 Implemented the bounded Stable-to-candidate Runtime Consumer and its GitHub Actions job. The Consumer starts from the actual annotated Stable `1.1.0` quickstart in a fresh disposable checkout, installs and migrates Stable's two Framework migrations, creates a local annotated `1.2.0` tag at the committed candidate source, updates only `blackops/framework`, applies the documented Provider/config/environment merge plus the exact three runtime bootstrap files (`bootstrap/app.php`, `public/index.php`, `public/worker.php`), proves the additional nine migrations and DDL guards, and defines Provider-present HTTP/Worker and Provider-missing HTTP/Worker safe-negative lanes. The existing Auth Generator Fresh, FrankenPHP Worker, and Scheduled Operation Consumers now prepare a fail-closed 32-byte Storage Key before Docker/Composer execution without logging key material. The restarted gate then found that Community Board neither registers the mandatory Application-owned `StorageKeyProvider` nor prepares a Local key, so its runtime could not resolve before the intended pre-migration database failure. The bounded correction now registers the Local/Test provider, generates a fail-closed fresh key, preserves existing `.env` files, synchronizes the path-repository lock metadata, and proves the full 11 Framework + 5 Community Board (16 total) clean-install journey without exposing key material. No external tag, branch, release, Packagist, or deployment state was changed.
+
+The complete local gate was restarted from committed candidate `08ad61f`. All 23 top-level non-interactive Consumers, Frontend generation/runtime checks, Website tests/check/build, Framework export, Skeleton split/publication dry run, create-project lanes, Composer strict validation, Mago format/analyze, Full PHPUnit, and repository guards passed. Broad Mago lint reproduced the existing 186-issue baseline with 14 errors, and Deptrac remained blocked at 0/857 by its PHP 8.5 vendor parser. The candidate is 50 commits ahead of remote `origin/main` and is not in remote history, so same-SHA GitHub Actions evidence cannot exist before a separately authorized branch push.
 
 ## Candidate Establishment and Fixed SHA Evidence
 
@@ -13,7 +15,7 @@ Implemented the bounded Stable-to-candidate Runtime Consumer and its GitHub Acti
 - Superseded candidate: `413d0964cc132d685b228d5b8d697ac6cc4543e6` (`test: prepare storage keys in quickstart consumers`).
 - Superseded candidate: `6e009a433ce1c687f2f117d69afb14079668c206` (`fix: harden community board release setup`).
 - Superseded candidate: `e4be46f7e883f5247ed94f86c7854e3163a6c7dc` (`test: correct community board digest actor assertion`).
-- Final Fixed Candidate: replacement Scheduled Operation Consumer correction commit pending.
+- Final Fixed Candidate: `08ad61f8236b3a240c9c9547fbde3b9d765fc6d5` (`test: prepare scheduled operation runtime directory`).
 - Candidate source is cloned from the repository's committed `HEAD`; uncommitted Task/STATE/Report files are not mounted as candidate source.
 - The Consumer verifies annotated Stable tag type and peeled commit, archives only `1.1.0:examples/quickstart`, then creates an annotated local `1.2.0` tag at the committed candidate SHA.
 - Documentation Reviewer returned P1=0/P2=0/P3=0 and permitted the bounded Gate Asset commit. No external Tag/Push was performed.
@@ -38,11 +40,96 @@ The Consumer applies only the three authorized candidate runtime bootstrap files
 
 The negative lane removes only the Provider binding after the common migrated database and candidate build. It checks the exact internal safe Provider error without printing it, then exercises `http-classic`／`classic-mode` for generic HTTP `500` JSON and actual Worker CLI startup for non-running/nonzero safe failure. Provider-present remains Worker-mode HTTP／Worker. HTTP/Worker output and Classic HTTP logs are bounded and searched without printing for key, payload, SQL, stack, tenant, or actor leakage.
 
-The exact pre-commit baseline run passed with: `Framework update runtime consumer passed: stable=e3df5576c7216cfe8bd9e10e12ee6795f7674088 candidate=61142d254861ffe13985679c338f592a46151af5 migrations=11 provider-present=http-worker provider-missing=classic-http-worker-safe-negative.` Cleanup completed and the repository source-state invariant held with exit 0.
+The exact fixed-candidate run passed with: `Framework update runtime consumer passed: stable=e3df5576c7216cfe8bd9e10e12ee6795f7674088 candidate=08ad61f8236b3a240c9c9547fbde3b9d765fc6d5 migrations=11 provider-present=http-worker provider-missing=classic-http-worker-safe-negative.` Cleanup completed and the repository source-state invariant held with exit 0.
+
+## Local PHP, Consumer, Frontend, and Website Full Gate Evidence
+
+The complete local gate used committed source `08ad61f8236b3a240c9c9547fbde3b9d765fc6d5`; uncommitted Task／Report／STATE files were not included in the candidate clone or package export.
+
+- PASS: all Consumer shell syntax, root and Quickstart Composer strict validation, Framework package export, and Mago format for `src tests examples`.
+- PASS: Mago analyze completed with 71 advisory findings (`46 warnings`, `25 help`) and exit 0.
+- PASS: Full PHPUnit completed `2315 tests / 9435 assertions`; the existing dependency deprecation, two PHPUnit deprecations, and thirteen notices did not fail the suite.
+- UNSATISFIED: broad Mago lint exited 1 with the existing `186 issues`: `14 errors`, `105 warnings`, `45 notes`, `22 help`, including 10 auto-fix suggestions.
+- UNSATISFIED: Deptrac exited 255 at `0/857`; the vendor `NikicFileReferenceVisitor.php:106` parser cannot parse the PHP 8.5 construct. Removing the obsolete Ray namespace collector did not change this vendor blocker.
+- PASS: all 23 top-level non-interactive Consumer scripts completed, including all six prepared Community Board journeys, Stable-to-candidate update, Framework proxy removal, Quickstart, Scheduled Operation, both OpenTelemetry lanes including Grafana LGTM, protected-storage rotation, Skeleton, and version baseline.
+- PASS: Community Board installed 69 packages without Ray.Aop, applied 11 Framework plus 5 Application migrations, passed `55 tests / 582 assertions`, passed the 46-test frontend suite, and completed Browser, Foundation, Identity, Post/Comment, Product, Digest, HTTP, Worker, redaction, and cleanup evidence.
+- PASS: Frontend installed from lock, compiled artifacts, generated 7 files, passed freshness/type/runtime/module-shape checks, found no forbidden runtime values, and cleaned generated state.
+- PASS: Website completed 79 tests, checked 41 pages with 0 errors/warnings/hints, built 42 static pages, checked navigation/accessibility/version/search on 41 pages, and passed the public artifact boundary. The known minified chunk-size advisory did not fail the build.
+- PASS: CI-equivalent tracked-required-file, generated-state, public-content, credential, management-ID, Quickstart lock/vendor, version, and diff guards. After generated cleanup, only the allowed Task／Report／STATE management changes remained.
+
+## Package Export, Split, and Create-project Evidence
+
+- Framework package export passed from committed source.
+- Skeleton `1.2.0` publication dry run from `08ad61f` was deterministic and produced split commit `fa5e8247fc8cf789cf73685e5be59cc498ffb4ce` on repeated split.
+- Skeleton publication workflow regression passed new annotated publication, idempotent recovery, divergence rejection, and legacy-only recovery boundaries.
+- Normal and `--no-scripts` local create-project lanes both resolved Skeleton／Framework `1.2.0`, preserved the setup boundary, and passed package/source allowlists.
+
+## Release Surface and Known Limitations Review
+
+- CHANGELOG Unreleased describes the unpublished Experimental `1.2.0` candidate, nine post-Stable migrations, current-schema metadata fix, protected-storage irreversibility, Application-owned infrastructure responsibilities, and no Ray package removal migration.
+- UPGRADE keeps public Stable `1.1.0` separate from candidate source, requires Backup／Key preparation, proves Stable metadata with read-only catalog checks, orders `2 applied / 9 pending` before candidate migration and `11 / 0` afterward, and limits the verified runtime merge to `bootstrap/app.php`, `public/index.php`, and `public/worker.php`.
+- Public Installation／Runtime／Quickstart guidance preserves the Stable anonymous-authorization versus required `X-Sample-Token` Value binding distinction. Website regression tests enforce this executable contract.
+- The release surface matches candidate implementation, but publication remains prohibited until the two strict local quality criteria and same-SHA Remote CI are satisfied.
 
 ## GitHub Actions Evidence
 
 `.github/workflows/ci.yml` adds `framework-update-runtime` with `fetch-depth: 0`, container UID/GID setup, a 45-minute timeout, and the Runtime Consumer command. Remote GitHub Actions evidence is not available until a separately authorized branch push; local wiring/static checks are the only current evidence.
+
+`origin/main` was refreshed read-only and remains `267ffed9e5270618318649ec8769756c2d791f06`. Candidate `08ad61f` is 50 commits ahead, 0 behind, and is not an ancestor of remote `main`. No Remote CI run is claimed.
+
+## Publication Preflight State
+
+Checked At: `2026-08-13T01:08:50+09:00`
+
+| Surface | Read-only state |
+| --- | --- |
+| Framework remote `main` | `267ffed9e5270618318649ec8769756c2d791f06`; candidate absent |
+| Framework `1.2.0` tag | Direct／peeled ref absent |
+| Skeleton remote `main` | `293f880940636669f28ded756a888a8d6ba65f1b` |
+| Skeleton `1.2.0` tag | Direct／peeled ref absent |
+| GitHub Release `1.2.0` | `release not found` |
+| Packagist `blackops/framework` | Stable `1.1.0` and `1.0.0` only; `1.2.0` absent |
+| Packagist `blackops/skeleton` | Stable `1.1.0` and `1.0.0` only; `1.2.0` absent |
+
+All external checks were read-only. No branch, tag, release, package, Skeleton repository, or documentation deployment was changed.
+
+## P22-004 Publication Checklist and Recovery
+
+### Preconditions
+
+1. Resolve the existing Mago lint errors and Deptrac PHP 8.5 parser blocker. Any Production／Test／Workflow／Skeleton／Release Metadata change creates a new candidate and requires the complete P22-003 gate to restart.
+2. Obtain separate authorization to push the branch, then require candidate source `08ad61f` or its explicitly superseding fixed SHA to exist in remote `main` history and pass same-SHA GitHub Actions.
+3. Accept P22-003 only after strict local quality, Remote CI, final Documentation Reviewer, clean working tree, and fixed candidate evidence all agree.
+4. Reconfirm that Framework／Skeleton `1.2.0` direct and peeled refs and GitHub Release are absent, and confirm only the `SKELETON_DEPLOY_KEY` secret name without reading its value.
+5. Reconfirm the deterministic Skeleton split for the accepted candidate; for the current candidate it is `fa5e8247fc8cf789cf73685e5be59cc498ffb4ce`.
+
+### Publication Sequence
+
+1. Create an annotated Framework `1.2.0` tag at the accepted fixed candidate; verify object type, message, and peeled commit locally before pushing it.
+2. Push only the immutable Framework tag and monitor the tag-triggered Skeleton publication workflow through all quality and cleanup steps.
+3. Verify Skeleton `main` fast-forwarded to the fixed split and its annotated `1.2.0` tag peels to the same split.
+4. Wait for Packagist Framework／Skeleton `1.2.0`; verify exact source refs, Skeleton `^1.2` Framework constraint, and package type.
+5. Create the GitHub Release from the accepted CHANGELOG／UPGRADE content and verify tag, name, draft/prerelease state, and Experimental warnings.
+6. Run remote normal and `--no-scripts` create-project, Project Root CLI, documented Quickstart, HTTP／Worker, migration, and redaction smoke using published packages only.
+7. Close P22-004 Report／Specification／TODO／STATE. Do not deploy the documentation website unless that deployment is separately authorized and in scope.
+
+### Success Conditions
+
+- Framework `1.2.0` is an immutable annotated tag peeling to the accepted fixed candidate.
+- Skeleton `1.2.0` is an immutable annotated tag and its peeled commit and `main` equal the fixed deterministic split.
+- Both Packagist packages expose `1.2.0` with exact accepted source refs; Skeleton requires Framework `^1.2`.
+- GitHub Release contains the accepted release note and migration／rollback warnings.
+- Remote normal／`--no-scripts` install and documented Quickstart pass without local path repositories or unpublished source.
+- Existing `1.0.0`／`1.1.0` refs, credential values, and documentation deployment state remain unchanged.
+
+### Recovery Conditions
+
+- Before Framework tag publication, any CI or source mismatch stops publication and returns to a new fixed candidate/full P22-003 gate.
+- After Framework tag publication, never move, delete, or reassign it. Recover only downstream steps against the same immutable tag.
+- If the tag-triggered Skeleton workflow fails, use its manual recovery for `release_version=1.2.0`; accept only an annotated Skeleton tag peeling to the same deterministic split.
+- Treat a divergent Skeleton `main`, different peeled commit, new lightweight `1.2.0` tag, or non-fast-forward update as a blocker; do not auto-rewrite remote refs.
+- For Packagist propagation delay, keep tags unchanged and recheck. If GitHub Release creation fails, retry only Release creation after package/tag consistency is intact.
+- Every recovery rerun must preserve credential cleanup and must not print the deploy key or other secret material.
 
 ## Changed Files
 
@@ -141,14 +228,16 @@ The Digest Consumer's direct SQL query exposes only the journal's denormalized `
 - DIAGNOSTIC at `e4be46f`: the first two exact `bash tests/Consumer/scheduled-operation.sh` runs stopped at the initial `operation:schedule:run --json` with safe `configuration_error`. Secret-safe runtime composition inspection identified the cause as the copied Quickstart lacking `var/log`, while `config/journal.php` and `config/logging.php` require that writable parent. Creating only the fixture directory cleared the error and returned evaluated 2 / accepted 2 / failed 0.
 - PASS after the scoped correction: `bash tests/Consumer/scheduled-operation.sh` completed the Scheduled Operation CLI, recovery, and concurrency journey. `mkdir -p "${CONSUMER}/var/log"` is now performed immediately after copying the Quickstart; no Production PHP or public API changed.
 - PASS: `bash -n tests/Consumer/*.sh`, `git diff --check`, the PHP management-ID guard, and `docker compose run --rm app mago format --check src tests` after the Scheduled Consumer correction.
+- PASS: Documentation Reviewer read-only review returned P1=0, P2=0, P3=0 and permitted the four-file Scheduled Consumer correction commit. Orchestrator committed it as `08ad61f8236b3a240c9c9547fbde3b9d765fc6d5`; this exact committed source is the replacement Final Fixed Candidate.
+- PASS: Documentation Reviewer final local-gate checkpoint review returned P1=0, P2=0, P3=0 and permitted the five-file management checkpoint commit while explicitly withholding P22-003 Acceptance. The reviewer confirmed the 23-Consumer count, local gate versus strict blocker distinction, 0-behind／50-ahead remote-tracking relation, P22-004 execution/recovery boundaries, and absence of publication authorization. Long-running commands and remote fetch were not repeated by the read-only reviewer.
 
 ## Acceptance Criteria
 
 - [x] Runtime Consumer and CI wiring implement the P22-002 common migration/DDL and Provider-present/missing lane contract.
-- [x] Runtime Consumer executes successfully with cleanup/source/Docker invariants at the pre-commit baseline.
-- [ ] Replacement Final Fixed Candidate SHA is committed and recorded after the Scheduled Operation Consumer correction.
-- [ ] Full local and Remote GitHub Actions gates pass at the same fixed SHA.
-- [x] Report, Specification 103, TODO, and STATE are synchronized for the current Gate Asset; fixed-SHA, full-gate, and Remote CI criteria remain pending below.
+- [x] Runtime Consumer executes successfully with cleanup/source/Docker invariants at fixed candidate `08ad61f`.
+- [x] Replacement Final Fixed Candidate SHA is committed and recorded after the Scheduled Operation Consumer correction.
+- [ ] Full local strict quality and Remote GitHub Actions gates pass at the same fixed SHA; Mago lint, Deptrac, and Remote CI remain unsatisfied.
+- [x] Report, Specification 103, TODO, and STATE are synchronized with the completed local execution and remaining blockers.
 - [x] Community Board registers an Application-owned `StorageKeyProvider`, fresh setup creates a strict 32-byte Local key with mode 600 and no exposure, and existing `.env` remains unchanged.
 - [x] Community Board lock metadata retains current Candidate `open-telemetry/api` / `ext-sodium` requirements and the fresh install resolves Seed/HTTP/Worker dependencies.
 - [x] Community Board clean install applies 11 Framework + 5 Application migrations and the README/Consumer assert the same total of 16.
@@ -156,12 +245,18 @@ The Digest Consumer's direct SQL query exposes only the journal's denormalized `
 - [x] Current spec, Mago, Deptrac, and internal Bootstrap documentation describe the Framework-owned proxy artifact contract without obsolete Ray.Aop dependency or path references.
 - [x] Digest Consumer asserts only denormalized `origin_actor_id` and exact origin continuity for all eight journal records; protected execution actor remains unqueried.
 - [x] Scheduled Operation Consumer prepares the Quickstart runtime log directory required by the configured journal and logging paths, then passes CLI, recovery, and concurrency evidence.
+- [x] All 23 top-level Consumers, Frontend, Website, Framework export, Skeleton split/publication dry run, normal/no-scripts create-project, and repository guards pass at `08ad61f`.
+- [x] CHANGELOG Known Limitations and UPGRADE match the fixed candidate release and migration surface.
+- [x] Framework／Skeleton tags, GitHub Release, and Packagist `1.2.0` are confirmed absent read-only.
+- [x] P22-004 preconditions, publication sequence, success conditions, and recovery conditions are fixed without authorizing publication.
 
 ## Remaining Issues
 
-1. Commit the reviewed Scheduled Operation Consumer correction as the replacement Final Fixed Candidate, then restart and complete the local gate. Evidence collected at superseded candidates `99f723d`, `413d096`, `6e009a4`, and `e4be46f` is diagnostic only.
-2. Remote CI evidence remains pending a separately authorized branch push.
+1. Broad Mago lint must be brought from the existing 186 issues／14 errors to a successful strict result, or the acceptance contract must be changed by an explicit specification decision; no waiver is inferred.
+2. Deptrac must run successfully instead of stopping at the PHP 8.5 vendor parser error at 0/857.
+3. Candidate `08ad61f` is not in remote `main`; same-SHA GitHub Actions evidence remains pending a separately authorized branch push.
+4. Any source correction supersedes `08ad61f` and requires the complete gate to restart from the replacement committed SHA. Evidence collected at older candidates remains diagnostic only.
 
 ## Suggested Next Action
 
-Commit the Scheduled Operation runtime-directory correction, restart the complete P22-003 local gate from that replacement SHA, then request separate authorization for the branch push required to collect Remote GitHub Actions evidence.
+Create a bounded follow-up plan for the Mago lint and Deptrac PHP 8.5 compatibility blockers. After a replacement candidate passes the strict local gate, request separate authorization for the branch push required to collect same-SHA Remote GitHub Actions evidence. Do not begin P22-004 publication before P22-003 acceptance.

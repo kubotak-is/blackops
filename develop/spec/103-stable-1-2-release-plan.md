@@ -1,6 +1,6 @@
 # Specification 103: Stable 1.2 Release Plan
 
-Status: Decided (P22-003 fixed-SHA gate in progress)
+Status: Decided (P22-003 local gate executed; strict quality and Remote CI pending)
 
 ## Release lanes
 
@@ -33,6 +33,8 @@ Delivery is split into explicit checkpoints. P22-002 audits `1.1.0...main`, comp
 P22-003 first commits the Stable-to-candidate Runtime Consumer and its CI wiring, then fixes that committed SHA and restarts the complete gate. The Runtime Consumer executes one shared Database migration／setup and DDL guard before the Provider-present Worker-mode HTTP／Worker positive lane and Provider-missing Classic HTTP safe-500／Worker CLI non-zero safe-negative lane. A local CI-equivalent run does not replace GitHub Actions evidence for the fixed SHA; if publishing the commit is required to obtain that evidence, P22-003 remains unaccepted until separately authorized Branch Push and successful CI. Worker-mode boot failure exits before the FrankenPHP request loop, so the missing-provider HTTP lane intentionally uses `http-classic`／`classic-mode`, whose per-request runtime emits the generic 500 JSON.
 
 The Runtime Consumer's database evidence is sequential: actual Stable `1.1.0` install/migration runs once and read-only catalog checks must find exactly two Stable Framework rows in current-schema `blackops.schema_migrations` plus the six baseline tables and baseline constraints. Stable `database:status` may misreport `applied: 0`／`pending: 2` for this role/schema shape; the Consumer never reruns Stable migration. After a Framework-only update, Candidate `database:status` must recognize `applied: 2`／`pending: 9`, then finish at eleven applied migrations before either runtime lane. The Consumer applies only the Manual Merge Matrix's three candidate runtime bootstrap files (`bootstrap/app.php`, `public/index.php`, `public/worker.php`) and rechecks byte equality before build and after both runtime lanes; it does not copy Caddyfile, Compose, or other Application-owned Source. Metadata rows are never edited. Its disposable `.env` is removed before Compose shutdown, and the CI job requires full tag history plus mounted container UID/GID configuration.
+
+Fixed candidate `08ad61f8236b3a240c9c9547fbde3b9d765fc6d5` completed all 23 local Consumer scripts, Frontend, Website, package export, Skeleton publication dry run, create-project lanes, and repository guards. P22-003 remains unaccepted because broad Mago lint still reports the existing 186 issues／14 errors, Deptrac still stops at 0/857 on its PHP 8.5 vendor parser, and the candidate is not in remote `main`, so same-SHA GitHub Actions evidence is unavailable. A source correction supersedes this candidate and restarts the full gate; a local baseline observation or CI-equivalent run is not a waiver.
 
 ## Traceability
 

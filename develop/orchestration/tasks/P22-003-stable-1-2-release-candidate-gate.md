@@ -1,6 +1,6 @@
 # P22-003: Stable 1.2 Release Candidate Gate
 
-Status: In Progress
+Status: In Progress (Local Gate Executed; Strict Quality and Remote CI Pending)
 
 ## Goal
 
@@ -17,7 +17,7 @@ Status: In Progress
   - `413d0964cc132d685b228d5b8d697ac6cc4543e6` (`test: prepare storage keys in quickstart consumers`)
   - `6e009a433ce1c687f2f117d69afb14079668c206` (`fix: harden community board release setup`)
   - `e4be46f7e883f5247ed94f86c7854e3163a6c7dc` (`test: correct community board digest actor assertion`)
-- Final Fixed Candidate: replacement Scheduled Operation Consumer correction commit pending
+- Final Fixed Candidate: `08ad61f8236b3a240c9c9547fbde3b9d765fc6d5` (`test: prepare scheduled operation runtime directory`)
 
 P22-002で要求されたStable-to-candidate Runtime ConsumerとCI wiringはBaselineにまだ存在しない。このTaskでは最初にGate Assetを実装、Review、Commitする。そのCommitをFinal Fixed Candidateとして明記し、以後のFull Gateを最初から実行する。Final Fixed Candidate確定後にTest／Workflow／Production／Skeleton／Release Metadata／利用者向けDocumentationを修正する必要が生じた場合、SHAを暗黙に読み替えずReportへBlockerを記録し、修正Commit後の新SHAでFull Gateを最初から再実行する。
 
@@ -148,29 +148,29 @@ Task／Report／STATEだけのCloseout CommitはFinal Fixed Candidateへ含め�
 
 ## Acceptance Criteria
 
-- [ ] Stable-to-candidate Runtime Consumerが共通Database／DDL、Manual Merge Matrixの3 runtime bootstrap files、Provider-present Worker-mode HTTP／Worker Positive、Provider-missing Classic HTTP safe 500／Worker CLI non-zero safe Negativeを実証する
-- [ ] Auth Generator Fresh／FrankenPHP Worker／Scheduled Operation Consumerがfail-closed Storage Key準備とcleanupを実証し、Scheduled Operationが空Directoryのarchive／copy保持へ依存せず起動する
-- [ ] CHANGELOG／UPGRADEがStable current-schema Metadata誤認、Candidateの既存Row認識、再実行を避ける安全なUpgrade順序を記録する
-- [ ] UPGRADE／公開Install／Runtime／Quickstart GuideとWebsite契約Testが、Stableの匿名認可と必須`X-Sample-Token` Value Bindingを混同せず実行可能な手順を記録する
-- [ ] GitHub Actionsが新Runtime Consumerを実行し、Workflowの静的契約とLocal equivalentが成功する
-- [ ] Final Fixed Candidate SHAがCommitted SourceとしてTask／Reportへ固定される
-- [ ] Community BoardがApplication-owned `StorageKeyProvider`を登録し、fresh setupでstrict base64 32-byte Key／単一Assignment／mode 600／非露出を満たし、失敗時に不完全`.env`を残さず、既存`.env`を暗黙変更しない
-- [ ] Community Board lockがCurrent Candidate Frameworkの`open-telemetry/api`／`ext-sodium`要求を保持し、fresh Composer install後のSeed／HTTP／Worker Runtimeが依存欠落なく起動する
-- [ ] Community Board clean installが11 Framework＋5 Application Migrationを適用し、同じ16件をREADMEとConsumerが主張する
-- [ ] Community Board lockから`ray/aop`が除去され、Clean Installの依存／vendor／生成物にRay.Aopが存在しないことをConsumerが検証する
-- [ ] `docs/internal/bootstrap.md`が現行Framework-owned proxy実装をRay.Aopなしで説明する
-- [ ] Current spec／Mago／Deptrac configurationがRay.Aop依存・namespace・vendor includeなしで現行Framework-owned proxy契約を表現する
+- [x] Stable-to-candidate Runtime Consumerが共通Database／DDL、Manual Merge Matrixの3 runtime bootstrap files、Provider-present Worker-mode HTTP／Worker Positive、Provider-missing Classic HTTP safe 500／Worker CLI non-zero safe Negativeを実証する
+- [x] Auth Generator Fresh／FrankenPHP Worker／Scheduled Operation Consumerがfail-closed Storage Key準備とcleanupを実証し、Scheduled Operationが空Directoryのarchive／copy保持へ依存せず起動する
+- [x] CHANGELOG／UPGRADEがStable current-schema Metadata誤認、Candidateの既存Row認識、再実行を避ける安全なUpgrade順序を記録する
+- [x] UPGRADE／公開Install／Runtime／Quickstart GuideとWebsite契約Testが、Stableの匿名認可と必須`X-Sample-Token` Value Bindingを混同せず実行可能な手順を記録する
+- [ ] GitHub Actionsが新Runtime Consumerを実行し、Workflowの静的契約とLocal equivalentが成功する（wiring／静的契約／Local equivalentは成功、Remote実行待ち）
+- [x] Final Fixed Candidate SHAがCommitted SourceとしてTask／Reportへ固定される
+- [x] Community BoardがApplication-owned `StorageKeyProvider`を登録し、fresh setupでstrict base64 32-byte Key／単一Assignment／mode 600／非露出を満たし、失敗時に不完全`.env`を残さず、既存`.env`を暗黙変更しない
+- [x] Community Board lockがCurrent Candidate Frameworkの`open-telemetry/api`／`ext-sodium`要求を保持し、fresh Composer install後のSeed／HTTP／Worker Runtimeが依存欠落なく起動する
+- [x] Community Board clean installが11 Framework＋5 Application Migrationを適用し、同じ16件をREADMEとConsumerが主張する
+- [x] Community Board lockから`ray/aop`が除去され、Clean Installの依存／vendor／生成物にRay.Aopが存在しないことをConsumerが検証する
+- [x] `docs/internal/bootstrap.md`が現行Framework-owned proxy実装をRay.Aopなしで説明する
+- [x] Current spec／Mago／Deptrac configurationがRay.Aop依存・namespace・vendor includeなしで現行Framework-owned proxy契約を表現する
 - [ ] Final Fixed Candidate SHAがLocal／Remote `main` Historyに存在し、同SHAのGitHub Actions CIが成功する
 - [ ] Composer、Mago、Full PHPUnit、Deptracが成功する
-- [ ] 全top-level non-interactive Consumerが成功する
-- [ ] Skeleton `1.2.0` Publication Dry RunがFinal Fixed Candidateから決定的なSplit Commitを生成する
-- [ ] 通常／`--no-scripts` Create-projectとFramework Package Exportが成功する
-- [ ] Website Unit／Check／Build／Public Artifact Guardが成功する
-- [ ] Public API、Management ID、Credential、Generated State、Version、Working Tree Guardが成功する
-- [ ] CHANGELOG Known LimitationsとUPGRADE手順が実装Surfaceと一致する
-- [ ] Framework／Skeleton `1.2.0` Tag、GitHub Release、Packagist Stableが未公開であることをRead-onlyで確認する
-- [ ] P22-004 Publication Checklist、Success条件、Recovery条件がReportへ固定される
-- [ ] Report、Specification、TODO、STATEが更新される
+- [x] 全top-level non-interactive Consumerが成功する
+- [x] Skeleton `1.2.0` Publication Dry RunがFinal Fixed Candidateから決定的なSplit Commitを生成する
+- [x] 通常／`--no-scripts` Create-projectとFramework Package Exportが成功する
+- [x] Website Unit／Check／Build／Public Artifact Guardが成功する
+- [x] Public API、Management ID、Credential、Generated State、Version、Working Tree Guardが成功する
+- [x] CHANGELOG Known LimitationsとUPGRADE手順が実装Surfaceと一致する
+- [x] Framework／Skeleton `1.2.0` Tag、GitHub Release、Packagist Stableが未公開であることをRead-onlyで確認する
+- [x] P22-004 Publication Checklist、Success条件、Recovery条件がReportへ固定される
+- [x] Report、Specification、TODO、STATEが更新される
 
 ## Required Commands
 
