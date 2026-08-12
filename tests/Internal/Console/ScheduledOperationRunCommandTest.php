@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BlackOps\Tests\Internal\Console;
 
+use BlackOps\Application\ApplicationBootstrapException;
 use BlackOps\Internal\Console\ScheduledOperationRunCommand;
 use BlackOps\Internal\Scheduling\ScheduledOperationRunResult;
 use BlackOps\Internal\Scheduling\ScheduledOperationRunService;
@@ -97,6 +98,24 @@ final class ScheduledOperationRunCommandTest extends TestCase
             $tester->getDisplay(),
         );
         self::assertStringNotContainsString($secret, $tester->getDisplay());
+    }
+
+    public function testApplicationBootstrapFailureUsesCoreConfigurationCategory(): void
+    {
+        $tester = new CommandTester(
+            new ScheduledOperationRunCommand(
+                static fn(): ScheduledOperationRunService => throw new ApplicationBootstrapException(
+                    'bootstrap-detail',
+                ),
+            ),
+        );
+
+        self::assertSame(Command::INVALID, $tester->execute(['--json' => true]));
+        self::assertSame(
+            '{"schemaVersion":1,"status":"failed","code":"configuration_error"}' . "\n",
+            $tester->getDisplay(),
+        );
+        self::assertStringNotContainsString('bootstrap-detail', $tester->getDisplay());
     }
 
     public function testRuntimeErrorUsesExitOneAndDoesNotExposeMessage(): void

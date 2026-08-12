@@ -23,6 +23,7 @@
 /composer.lock export-ignore
 /deptrac.yaml export-ignore
 /mago.toml export-ignore
+/mago-lint-baseline.toml export-ignore
 /mise.toml export-ignore
 /phpunit.xml export-ignore
 

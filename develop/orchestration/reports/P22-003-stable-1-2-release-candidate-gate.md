@@ -253,11 +253,11 @@ The Digest Consumer's direct SQL query exposes only the journal's denormalized `
 ## Remaining Issues
 
 1. P22-003A now has a generated strict Mago baseline; normal lint and `--verify-baseline` pass while the diagnostic still reports the existing 14 errors.
-2. Deptrac 4.7.1 reaches 857/857 but exposes 152 violations／59 uncovered under the unchanged Architecture Ruleset. A follow-up P22-003B Task is required; P22-003A does not waive or modify those rules.
-3. Framework package export requires `mago-lint-baseline.toml` in both `.gitattributes` and Composer archive exclusions; those files／Consumer adjustments are outside P22-003A and require separate authorization.
+2. P22-003B D142 Option B now closes the Deptrac 4.7.1 graph: five non-overlapping Internal implementation collectors, explicit public/library rules, and no generic Application/Auth/Http -> Internal permission reach 857/857 with 0 violations／skipped／uncovered. The section-aware version guard passes.
+3. P22-003B synchronizes `.gitattributes`／Composer archive exclusion for `mago-lint-baseline.toml`; pre-commit root/exclusion checks pass. Exact Git/Composer regular-file inventory is expected to fail before Commit because HEAD omits untracked public `src/Core/Exception/ConfigurationFailure.php`; rerun immediately after the candidate Commit is mandatory.
 4. Candidate `08ad61f` is not in remote `main`; same-SHA GitHub Actions evidence remains pending a separately authorized branch push.
 5. Any reviewed tooling commit supersedes `08ad61f` and requires the complete gate to restart from the replacement committed SHA. Evidence collected at older candidates remains diagnostic only.
 
 ## Suggested Next Action
 
-Create and authorize P22-003B for the Deptrac Architecture debt and package-export exclusion contract. After those blockers pass, independently review/commit the bounded correction and restart the complete P22-003 gate from the replacement SHA. Request separate authorization for branch push only after strict local acceptance; do not begin P22-004 publication before P22-003 acceptance.
+P22-003B is Review Pending. Independently review/commit the bounded correction and restart the complete P22-003 gate from the replacement SHA. Request separate authorization for branch push only after strict local acceptance; do not begin P22-004 publication before P22-003 acceptance.

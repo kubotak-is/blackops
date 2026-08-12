@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace BlackOps\Internal\Console;
 
-use BlackOps\Application\ApplicationBootstrapException;
+use BlackOps\Core\Exception\ConfigurationFailure;
 use BlackOps\Internal\Scheduling\ScheduledOperationRunResult;
 use BlackOps\Internal\Scheduling\ScheduledOperationRunService;
 use Closure;
@@ -49,7 +49,7 @@ final class ScheduledOperationRunCommand extends Command
     {
         try {
             $result = ($this->runner)()->run();
-        } catch (InvalidArgumentException|ApplicationBootstrapException) {
+        } catch (InvalidArgumentException|ConfigurationFailure) {
             return $this->writeError($output, 'configuration_error', 2, $input->getOption('json') === true);
         } catch (Throwable) {
             return $this->writeError($output, 'runtime_error', 1, $input->getOption('json') === true);

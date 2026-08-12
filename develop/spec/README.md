@@ -144,7 +144,7 @@
 | [D019](../decisions/019-framework-name.md) | Framework Name | Decided |
 | [D020](../decisions/020-package-architecture.md) | Package Architecture | Decided |
 | [D021](../decisions/021-source-layout.md) | Source Layout | Decided |
-| [D022](../decisions/022-namespace-dependencies.md) | Namespace Dependencies | Decided |
+| [D022](../decisions/022-namespace-dependencies.md) | Namespace Dependencies | Partially Superseded by D142 |
 | [D023](../decisions/023-core-api-shape.md) | Core API Shape | Decided |
 | [D024](../decisions/024-operation-envelope-api.md) | Operation Envelope API | Decided |
 | [D025](../decisions/025-execution-context-api.md) | ExecutionContext API | Decided |
@@ -263,3 +263,5 @@
 | [D138](../decisions/138-local-grafana-lgtm-development-backend.md) | Local Grafana LGTM Development Backend | Decided |
 | [D139](../decisions/139-stable-1-2-version-baseline.md) | Stable 1.2 Version Baseline | Decided |
 | [D140](../decisions/140-release-quality-tooling-baseline.md) | Release Quality Tooling Baseline | Decided |
+| [D141](../decisions/141-release-architecture-and-export-boundary.md) | Release Architecture and Export Boundary | Decided |
+| [D142](../decisions/142-public-facade-and-internal-implementation-cycles.md) | Public Facade and Internal Implementation Cycles | Decided |

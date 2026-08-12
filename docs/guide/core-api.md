@@ -1,6 +1,6 @@
 # Core API
 
-このReferenceは現在の`main` Sourceで`#[PublicApi]`を持つ215型を一覧化しています。Application Authorはまず「Application構成」「Database」「Operation Authoring」「Validation」「Status／Outcome取得」の型を使い、Transport、Journal、Retention等のPortはAdapterを拡張するときだけ使ってください。
+このReferenceは現在の`main` Sourceで`#[PublicApi]`を持つ216型を一覧化しています。Application Authorはまず「Application構成」「Database」「Operation Authoring」「Validation」「Status／Outcome取得」の型を使い、Transport、Journal、Retention等のPortはAdapterを拡張するときだけ使ってください。
 
 `BlackOps\Core\Attribute\PublicApi` marker自身は利用者向けAPIではないため一覧へ含めません。内部実装Namespaceと`#[PublicApi]`を持たない実装型にも依存しないでください。`CanonicalJournalReader`／`OutcomeReader`はPublicApi markerを持たないInfrastructure SPIとして内部Adapterへ再分類され、Applicationの読み取りはOperationData Queryを使います。Readerの型／Methodを含むPublicApi aggregate StoreのAdapter境界はJournal／Outcome節に記載します。Attributeの付与対象と標準形は[Attributes](attributes.md)を確認してください。
 
@@ -13,6 +13,7 @@
 | `BlackOps\Application\Environment` | final readonly class | 起動時Environmentを安全に型付きで読む | Config Closureで`string()`、`positiveInt()`、`bool()`等を呼ぶ |
 | `BlackOps\Application\ConsoleKernel` | final readonly class | BlackOps CLIを実行する | Project Rootの`blackops`から`run()`を呼ぶ |
 | `BlackOps\Application\ApplicationBootstrapException` | exception class | Public Bootstrapの失敗を通知する | Entrypointで安全な起動Errorとして扱う |
+| `BlackOps\Core\Exception\ConfigurationFailure` | marker interface | Configuration／Bootstrap失敗を安全なCategoryへ分類する | Internal CLI AdapterのExit `2`分類へ使う |
 | `BlackOps\Console\ConsoleActorProvider` | interface | Console OperationのOrigin／Authorization Actorを供給する | Application Service Providerで任意Bindingする |
 
 ## Observability

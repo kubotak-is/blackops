@@ -537,7 +537,7 @@ test('core API reference covers every source type marked PublicApi without expos
   const reference = await guide('core-api.md');
   const sourceTypes = await publicApiTypes();
 
-  assert.equal(sourceTypes.length, 215);
+  assert.equal(sourceTypes.length, 216);
   assert.ok(sourceTypes.includes('BlackOps\\Core\\EphemeralOutcome'));
   assert.ok(sourceTypes.includes('BlackOps\\Http\\SapiRuntime'));
   assert.ok(sourceTypes.includes('BlackOps\\Identifier\\Uuidv7Generator'));

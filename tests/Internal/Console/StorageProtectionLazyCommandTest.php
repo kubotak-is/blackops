@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BlackOps\Tests\Internal\Console;
 
+use BlackOps\Application\ApplicationBootstrapException;
 use BlackOps\Internal\Console\StorageProtectionLazyCommand;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Command\Command;
@@ -29,6 +30,26 @@ final class StorageProtectionLazyCommandTest extends TestCase
             json_decode($tester->getDisplay(), true, 512, JSON_THROW_ON_ERROR),
         );
         self::assertStringNotContainsString('secret-provider-detail', $tester->getDisplay());
+    }
+
+    public function testApplicationBootstrapFailureUsesCoreConfigurationCategory(): void
+    {
+        $command = new StorageProtectionLazyCommand(
+            'storage:protection:test',
+            'test',
+            static fn(): Command => throw new ApplicationBootstrapException('bootstrap-detail'),
+            static function (Command $command): void {
+                $command->addOption('json', null, InputOption::VALUE_NONE);
+            },
+        );
+        $tester = new CommandTester($command);
+
+        self::assertSame(2, $tester->execute(['--json' => true]));
+        self::assertSame(
+            ['schemaVersion' => 1, 'status' => 'failed', 'code' => 'configuration_error'],
+            json_decode($tester->getDisplay(), true, 512, JSON_THROW_ON_ERROR),
+        );
+        self::assertStringNotContainsString('bootstrap-detail', $tester->getDisplay());
     }
 
     public function testUnknownOptionIsSafeInputErrorExitTwo(): void

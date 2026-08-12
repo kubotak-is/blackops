@@ -69,6 +69,7 @@
             "/composer.lock",
             "/deptrac.yaml",
             "/mago.toml",
+            "/mago-lint-baseline.toml",
             "/mise.toml",
             "/phpunit.xml",
             "/runtime",

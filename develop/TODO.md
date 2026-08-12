@@ -244,6 +244,7 @@ MVP後に残す主要項目:
 - [x] `1.1.0...main` Surface Audit、完全な`1.2.0` Release Note／Upgrade、actual Framework Update Consumerを整備する（P22-002 Accepted、Documentation Reviewer P1=0／P2=0／P3=0）
 - [ ] Fixed `1.2.0` Release Candidate SHAでRuntime Consumer（Stable 2 migration→candidate 9 migration、Provider-present／missing HTTP／Worker）、全Local／Consumer／Website／CI Gateを実施する（P22-003 In Progress。`08ad61f`のLocal Consumer／Frontend／Website／Package Gateは完了、Mago lint／Deptrac／Remote CI待ち）
 - [~] Mago既存Debtをtracked strict baselineへ固定し、DeptracをPHP 8.5対応4.7.1へ限定更新してLocal strict quality blockerを解消する（D140／P22-003A Review Pending。Deptrac Ruleset debt 152 violations／59 uncovered、package export archive exclusionがTask外Blocker）
+- [~] Deptracのpublic／bounded internal Layerを同期し、generic Internal permissionなしで152 violations／59 uncoveredとMago baseline archive exclusionを閉じる（D141／D142 Option B／P22-003B Review Pending。5つのPublic facade／Internal implementation collector実装と0 violations確認済み、独立レビュー待ち）
 - [ ] 別途承認後にTag／Push、Skeleton publication、Packagist／GitHub Release／Remote Smokeを実施する（P22-004）
 
 ### Deferred: Documentation Website Publication

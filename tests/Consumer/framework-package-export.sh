@@ -75,6 +75,7 @@ validate_package() {
         README.md \
         CHANGELOG.md \
         UPGRADE.md \
+        src/Core/Exception/ConfigurationFailure.php \
         migrations/postgresql/Version20260712000000.php \
         migrations/postgresql/Version20260712010000.php \
         migrations/postgresql/Version20260724010000.php \
@@ -127,6 +128,7 @@ validate_package() {
         composer.lock \
         deptrac.yaml \
         mago.toml \
+        mago-lint-baseline.toml \
         mise.toml \
         phpunit.xml \
         runtime \
@@ -153,6 +155,13 @@ validate_package() {
     test -f "${package_root}/vendor/autoload.php" \
         || fail "${package_name} archive did not generate a production autoloader"
 }
+
+git_inventory="$(cd "${git_package}" && find . -type f -printf '%P\n' | sort)"
+composer_inventory="$(cd "${composer_package}" && find . -type f -printf '%P\n' | sort)"
+if [[ "${git_inventory}" != "${composer_inventory}" ]]; then
+    printf 'Framework package archive file inventory mismatch (regular-file paths only).\n' >&2
+    fail 'Git and Composer archives must contain identical file inventories; rerun after the candidate is committed'
+fi
 
 validate_package git "${git_package}"
 validate_package composer "${composer_package}"

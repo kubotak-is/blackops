@@ -103,10 +103,150 @@ assert_storage_key_contract() {
         || fail "${file} must preserve fail-closed Storage Key preparation order through its first Docker/Composer command"
 }
 
+deptrac_layer_block() {
+    local layer="$1"
+
+    awk -v layer="${layer}" '
+        $0 == "    - name: " layer { inside = 1; print; next }
+        inside && /^    - name:/ { exit }
+        inside { print }
+    ' "${repository_root}/deptrac.yaml"
+}
+
+deptrac_ruleset_block() {
+    local layer="$1"
+
+    awk -v layer="${layer}" '
+        $0 == "    " layer ":" { inside = 1; next }
+        inside && /^    [A-Za-z]/ { exit }
+        inside { print }
+    ' "${repository_root}/deptrac.yaml"
+}
+
+assert_deptrac_collector() {
+    local layer="$1"
+    local pattern="$2"
+
+    deptrac_layer_block "${layer}" | grep -Fxq -- "          value: '/${pattern}/'" \
+        || fail "deptrac ${layer} collector is missing exact pattern: ${pattern}"
+}
+
+assert_deptrac_rule() {
+    local layer="$1"
+    local target="$2"
+
+    deptrac_ruleset_block "${layer}" | grep -Fxq -- "      - ${target}" \
+        || fail "deptrac ${layer} ruleset is missing bounded target: ${target}"
+}
+
+assert_deptrac_no_rule() {
+    local layer="$1"
+    local target="$2"
+
+    ! deptrac_ruleset_block "${layer}" | grep -Fxq -- "      - ${target}" \
+        || fail "deptrac ${layer} ruleset contains forbidden generic target: ${target}"
+}
+
+assert_deptrac_sccs() {
+    local actual
+    local expected
+
+    actual="$(awk '
+        function add_layer(name) {
+            if (!(name in layer_index)) {
+                layer_index[name] = ++layer_count
+                layer_name[layer_count] = name
+            }
+        }
+        /^  ruleset:/ {
+            in_ruleset = 1
+            next
+        }
+        !in_ruleset { next }
+        /^    [A-Za-z][A-Za-z0-9_]*:$/ {
+            layer = $0
+            sub(/^    /, "", layer)
+            sub(/:$/, "", layer)
+            add_layer(layer)
+            next
+        }
+        /^      - / && layer != "" {
+            target = $0
+            sub(/^      - /, "", target)
+            add_layer(target)
+            edge[layer_index[layer], layer_index[target]] = 1
+            next
+        }
+        END {
+            for (i = 1; i <= layer_count; i++) {
+                reachable[i, i] = 1
+            }
+            for (key in edge) {
+                split(key, pair, SUBSEP)
+                reachable[pair[1], pair[2]] = 1
+            }
+            for (via = 1; via <= layer_count; via++) {
+                for (from = 1; from <= layer_count; from++) {
+                    if (reachable[from, via]) {
+                        for (to = 1; to <= layer_count; to++) {
+                            if (reachable[via, to]) {
+                                reachable[from, to] = 1
+                            }
+                        }
+                    }
+                }
+            }
+            for (from = 1; from <= layer_count; from++) {
+                if (visited[from]) {
+                    continue
+                }
+                member_count = 0
+                members = ""
+                for (to = from; to <= layer_count; to++) {
+                    if (reachable[from, to] && reachable[to, from]) {
+                        visited[to] = 1
+                        members = members (member_count++ ? "," : "") layer_name[to]
+                    }
+                }
+                if (member_count > 1) {
+                    print members
+                }
+            }
+        }
+    ' "${repository_root}/deptrac.yaml")"
+    actual="$(printf '%s\n' "${actual}" | while IFS= read -r scc; do
+        test -n "${scc}" || continue
+        printf '%s\n' "${scc}" | tr ',' '\n' | sort | paste -sd, -
+    done | sort)"
+    expected=$'Application,Auth,Http,Internal,InternalApplication,InternalAuth,InternalHttp,InternalIdempotency\nCore,Idempotency,Telemetry'
+
+    [ "${actual}" = "${expected}" ] \
+        || fail "deptrac non-trivial SCCs changed (expected Core/Idempotency/Telemetry and Application/Auth/Http/Internal plus four implementation layers): ${actual}"
+}
+
+assert_deptrac_collector InternalApplication '^BlackOps\\Internal\\Application(\\|$)'
+assert_deptrac_collector InternalAuth '^BlackOps\\Internal\\Auth(\\|$)'
+assert_deptrac_collector InternalHttp '^BlackOps\\Internal\\Http(\\|$)'
+assert_deptrac_collector InternalIdempotency '^BlackOps\\Internal\\Idempotency(\\|$)'
+assert_deptrac_collector InternalSapiRuntime '^BlackOps\\Internal\\Runtime\\FrankenPhp(\\|$)'
+assert_deptrac_collector Internal '^BlackOps\\Internal(?!(?:\\Application|\\Auth|\\Http|\\Idempotency|\\Telemetry|\\StorageProtection)(?:\\|$)|\\Runtime\\FrankenPhp(?:\\|$)|\\Execution\\DeferredOperationContextValidator$).*'
+
+assert_deptrac_rule Application InternalApplication
+assert_deptrac_rule Auth InternalAuth
+assert_deptrac_rule Http InternalHttp
+assert_deptrac_rule Http InternalIdempotency
+assert_deptrac_rule Http InternalSapiRuntime
+assert_deptrac_no_rule Application Internal
+assert_deptrac_no_rule Auth Internal
+assert_deptrac_no_rule Http Internal
+assert_deptrac_sccs
+
 contains Dockerfile 'COMPOSER_ROOT_VERSION=1.2.0@dev'
 contains composer.json '"carthage-software/mago": "1.42.0"'
 contains composer.json '"deptrac/deptrac": "4.7.1"'
 contains mago.toml 'baseline = "mago-lint-baseline.toml"'
+contains .gitattributes '/mago-lint-baseline.toml export-ignore'
+contains composer.json '"/mago-lint-baseline.toml"'
 contains mago.toml 'baseline-variant = "strict"'
 contains .github/workflows/ci.yml 'mago lint --verify-baseline'
 test "$(grep -c '^variant = "strict"$' "${repository_root}/mago-lint-baseline.toml")" -eq 1 \

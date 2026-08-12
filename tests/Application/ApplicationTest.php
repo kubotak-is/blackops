@@ -10,6 +10,7 @@ use BlackOps\Application\ApplicationBuilder;
 use BlackOps\Application\ConsoleKernel;
 use BlackOps\Application\Environment;
 use BlackOps\Core\Attribute\PublicApi;
+use BlackOps\Core\Exception\ConfigurationFailure;
 use BlackOps\Http\SapiRuntime;
 use BlackOps\Identifier\Uuidv7Generator;
 use PHPUnit\Framework\TestCase;
@@ -26,6 +27,7 @@ final class ApplicationTest extends TestCase
             Application::class,
             ApplicationBuilder::class,
             ApplicationBootstrapException::class,
+            ConfigurationFailure::class,
             ConsoleKernel::class,
             Environment::class,
             SapiRuntime::class,
@@ -33,6 +35,9 @@ final class ApplicationTest extends TestCase
         ] as $type) {
             self::assertCount(1, new ReflectionClass($type)->getAttributes(PublicApi::class));
         }
+
+        self::assertTrue(new ReflectionClass(ApplicationBootstrapException::class)->implementsInterface(ConfigurationFailure::class));
+        self::assertTrue(new ReflectionClass(ApplicationBootstrapException::class)->isSubclassOf(\RuntimeException::class));
 
         $application = new ReflectionClass(Application::class);
         $builder = new ReflectionClass(ApplicationBuilder::class);

@@ -38,7 +38,9 @@ Fixed candidate `08ad61f8236b3a240c9c9547fbde3b9d765fc6d5` completed all 23 loca
 
 D140／P22-003A resolves the two local tooling blockers without Production PHP changes: Mago 1.42.0 generator output becomes a tracked strict baseline verified for synchronization in CI, while Deptrac moves by exact minimal update from 4.6.2 to the official PHP 8.5-compatible 4.7.1. The reviewed tooling commit supersedes `08ad61f`; its SHA becomes the replacement candidate only after commit, and the complete gate restarts from that SHA.
 
-P22-003A review evidence records that Mago normal／verify lint succeeds, while Deptrac 4.7.1 reaches all 857 files but reports 152 violations／59 uncovered under the unchanged Ruleset. Framework package export also needs a root baseline archive-exclusion contract outside P22-003A. These remain explicit release blockers for a follow-up P22-003B Task; they are not waived by the parser fix or by the strict baseline.
+P22-003B closes the resulting architecture and package boundaries: explicit public/library layers, bounded Internal Telemetry／Storage Protection／Deferred Integrity collectors, the Core `ConfigurationFailure` marker, and synchronized Git／Composer exclusion of `mago-lint-baseline.toml`. No generic `Transport -> Internal` permission or Deptrac waiver is allowed.
+
+P22-003Aのhistorical review evidence records that Mago normal／verify lint succeeds, while Deptrac 4.7.1 reaches all 857 files but reports 152 violations／59 uncovered under the unchanged Ruleset, and Framework package export lacks the root baseline archive-exclusion contract. P22-003BのD141／D142 correctionではDeptrac 0 violations／0 uncovered、bounded facade/internal SCC guard、root/exclusion contractを確認済みである。P22-003Bは現在Review Pendingであり、未Commit状態ではGit archive HEADが新規Public `src/Core/Exception/ConfigurationFailure.php`を含まないため、Git／Composer全file inventoryの完全一致はexpected failとなる。root/exclusion contractはpre-commit PASSだが、Public APIを含むexact archive inventoryはcandidate Commit直後に必須再実行し、PASSするまで受入れない。
 
 ## Traceability
 

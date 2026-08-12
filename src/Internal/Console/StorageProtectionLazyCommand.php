@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace BlackOps\Internal\Console;
 
-use BlackOps\Application\ApplicationBootstrapException;
+use BlackOps\Core\Exception\ConfigurationFailure;
 use Closure;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\ExceptionInterface;
@@ -30,7 +30,7 @@ final class StorageProtectionLazyCommand extends Command
     {
         try {
             $command = ($this->factory)();
-        } catch (\InvalidArgumentException|\LogicException|ApplicationBootstrapException) {
+        } catch (\InvalidArgumentException|\LogicException|ConfigurationFailure) {
             return self::error($input, $output, 'configuration_error', 2);
         } catch (\Throwable) {
             return self::error($input, $output, 'storage_error', 1);

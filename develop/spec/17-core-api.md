@@ -81,6 +81,8 @@ Runner実装、Compiled Locator、Root解決、Runtime Failure型はInternal API
 
 ## PHP Public API
 
+`BlackOps\Core\Exception\ConfigurationFailure` は、設定とbootstrapの失敗を分類する公開markerである。marker自身は詳細情報を持たない。具象の `ApplicationBootstrapException` は引き続き `RuntimeException` を継承してこのmarkerを実装し、Internal CLI AdapterはApplication namespaceへ依存せずにfailureを分類する。
+
 Framework利用者による直接利用を公式に想定し、SemVer上の後方互換性を管理する型には、BlackOps固有の `#[PublicApi]` Attributeを付ける。
 
 `#[PublicApi]` は実行時の振る舞いを追加するものではない。
