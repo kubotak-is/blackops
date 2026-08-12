@@ -344,11 +344,15 @@ jobs:
       - name: Validate framework package export
         run: bash tests/Consumer/framework-package-export.sh
 
+      - name: Validate release quality version contracts
+        run: bash tests/Consumer/version-baseline.sh
+
       - name: Run Mago
         run: |
           set -euo pipefail
           docker compose run --rm app mago format --check src tests examples
           docker compose run --rm app mago lint
+          docker compose run --rm app mago lint --verify-baseline
           docker compose run --rm app mago analyze
 
       - name: Run PHPUnit

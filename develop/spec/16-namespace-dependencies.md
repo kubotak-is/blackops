@@ -41,3 +41,7 @@ Deptracを開発依存として採用し、NamespaceをLayerとして定義す�
 Dependency競合が生じる場合は、PHARまたは分離したComposer Binaryとして導入する。
 
 対象RuntimeであるPHP 8.5の構文を正しく解析できることをCIで継続的に確認する。
+
+Release GateのQuality ToolingはD140に従う。DeptracはPHP 8.5でProject Graph全体へ到達するexact対応Versionを使用し、vendor parse failureをArchitecture成功へ読み替えない。Magoの既存DebtはMago生成のtracked strict baselineへissue単位で固定し、通常Lintに加えてbaseline同期検査をCIで実行する。Rule無効化、Severity downgrade、手書きIssue追加で新規問題を隠さない。
+
+P22-003Aの4.7.1実測では857/857 fileの解析まで到達した後、現行Ruleset上の152 violations／59 uncovered（warnings／errors 0）が報告された。Ruleset／Layerの修正はP22-003Aの範囲外であり、Architecture gateは未達のままP22-003B専用Taskで扱う。vendor parser停止の解消とArchitecture成功を混同しない。

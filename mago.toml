@@ -29,6 +29,8 @@ includes = [
 
 [analyzer]
 [linter]
+baseline = "mago-lint-baseline.toml"
+baseline-variant = "strict"
 [linter.rules.excessive-parameter-list]
 # 確定済みの不変Envelopeに合わせ、Constructorの閾値だけ緩める。
 constructor-threshold = 9

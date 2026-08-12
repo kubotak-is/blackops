@@ -33,7 +33,7 @@
         "open-telemetry/exporter-otlp": "^1.4",
         "php-http/guzzle7-adapter": "^1.1",
         "phpunit/phpunit": "13.2.2",
-        "deptrac/deptrac": "4.6.2"
+        "deptrac/deptrac": "4.7.1"
     },
     "autoload": {
         "psr-4": {

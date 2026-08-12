@@ -36,8 +36,13 @@ The Runtime Consumer's database evidence is sequential: actual Stable `1.1.0` in
 
 Fixed candidate `08ad61f8236b3a240c9c9547fbde3b9d765fc6d5` completed all 23 local Consumer scripts, Frontend, Website, package export, Skeleton publication dry run, create-project lanes, and repository guards. P22-003 remains unaccepted because broad Mago lint still reports the existing 186 issues／14 errors, Deptrac still stops at 0/857 on its PHP 8.5 vendor parser, and the candidate is not in remote `main`, so same-SHA GitHub Actions evidence is unavailable. A source correction supersedes this candidate and restarts the full gate; a local baseline observation or CI-equivalent run is not a waiver.
 
+D140／P22-003A resolves the two local tooling blockers without Production PHP changes: Mago 1.42.0 generator output becomes a tracked strict baseline verified for synchronization in CI, while Deptrac moves by exact minimal update from 4.6.2 to the official PHP 8.5-compatible 4.7.1. The reviewed tooling commit supersedes `08ad61f`; its SHA becomes the replacement candidate only after commit, and the complete gate restarts from that SHA.
+
+P22-003A review evidence records that Mago normal／verify lint succeeds, while Deptrac 4.7.1 reaches all 857 files but reports 152 violations／59 uncovered under the unchanged Ruleset. Framework package export also needs a root baseline archive-exclusion contract outside P22-003A. These remain explicit release blockers for a follow-up P22-003B Task; they are not waived by the parser fix or by the strict baseline.
+
 ## Traceability
 
 - [D139 Stable 1.2 Version Baseline](../decisions/139-stable-1-2-version-baseline.md)
+- [D140 Release Quality Tooling Baseline](../decisions/140-release-quality-tooling-baseline.md)
 - [Experimental Release Contract](61-experimental-release-contract.md)
 - [Composer Skeleton Publication](46-composer-skeleton-publication.md)

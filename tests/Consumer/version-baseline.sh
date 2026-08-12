@@ -104,6 +104,13 @@ assert_storage_key_contract() {
 }
 
 contains Dockerfile 'COMPOSER_ROOT_VERSION=1.2.0@dev'
+contains composer.json '"carthage-software/mago": "1.42.0"'
+contains composer.json '"deptrac/deptrac": "4.7.1"'
+contains mago.toml 'baseline = "mago-lint-baseline.toml"'
+contains mago.toml 'baseline-variant = "strict"'
+contains .github/workflows/ci.yml 'mago lint --verify-baseline'
+test "$(grep -c '^variant = "strict"$' "${repository_root}/mago-lint-baseline.toml")" -eq 1 \
+    || fail 'Mago baseline must use exactly one strict variant declaration'
 contains examples/quickstart/composer.json '"blackops/framework": "^1.2"'
 contains src/Internal/Telemetry/TelemetryTracer.php "public const VERSION = '1.2.0';"
 contains src/Internal/Telemetry/TelemetryMetrics.php "public const VERSION = '1.2.0';"

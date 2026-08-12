@@ -262,3 +262,4 @@
 | [D137](../decisions/137-framework-owned-transaction-proxy.md) | Framework-owned Transaction Proxy Contract | Decided |
 | [D138](../decisions/138-local-grafana-lgtm-development-backend.md) | Local Grafana LGTM Development Backend | Decided |
 | [D139](../decisions/139-stable-1-2-version-baseline.md) | Stable 1.2 Version Baseline | Decided |
+| [D140](../decisions/140-release-quality-tooling-baseline.md) | Release Quality Tooling Baseline | Decided |

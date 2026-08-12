@@ -19,6 +19,8 @@ Status: In Progress (Local Gate Executed; Strict Quality and Remote CI Pending)
   - `e4be46f7e883f5247ed94f86c7854e3163a6c7dc` (`test: correct community board digest actor assertion`)
 - Final Fixed Candidate: `08ad61f8236b3a240c9c9547fbde3b9d765fc6d5` (`test: prepare scheduled operation runtime directory`)
 
+D140／P22-003AでMago strict baselineとDeptrac 4.7.1 tooling correctionを実装する。`08ad61f`はそのcorrectionがReview／CommitされるまでFinal Fixed Candidateのまま維持し、未Commit差分へ読み替えない。P22-003Aの実測ではDeptracが857/857まで到達した後に152 violations／59 uncoveredを報告し、package exportもbaseline archive exclusion不足で停止したため、P22-003B専用Taskで解消を承認するまでCorrection Commit後のFull Gate再実行へ進まない。
+
 P22-002で要求されたStable-to-candidate Runtime ConsumerとCI wiringはBaselineにまだ存在しない。このTaskでは最初にGate Assetを実装、Review、Commitする。そのCommitをFinal Fixed Candidateとして明記し、以後のFull Gateを最初から実行する。Final Fixed Candidate確定後にTest／Workflow／Production／Skeleton／Release Metadata／利用者向けDocumentationを修正する必要が生じた場合、SHAを暗黙に読み替えずReportへBlockerを記録し、修正Commit後の新SHAでFull Gateを最初から再実行する。
 
 Task／Report／STATEだけのCloseout CommitはFinal Fixed Candidateへ含めなくてよい。
@@ -161,7 +163,7 @@ Task／Report／STATEだけのCloseout CommitはFinal Fixed Candidateへ含め�
 - [x] `docs/internal/bootstrap.md`が現行Framework-owned proxy実装をRay.Aopなしで説明する
 - [x] Current spec／Mago／Deptrac configurationがRay.Aop依存・namespace・vendor includeなしで現行Framework-owned proxy契約を表現する
 - [ ] Final Fixed Candidate SHAがLocal／Remote `main` Historyに存在し、同SHAのGitHub Actions CIが成功する
-- [ ] Composer、Mago、Full PHPUnit、Deptracが成功する
+- [ ] Composer、Mago、Full PHPUnit、Deptracが成功する（P22-003A: Mago／Composer／PHPUnitは完了、Deptrac Ruleset debtとpackage export exclusionはP22-003B待ち）
 - [x] 全top-level non-interactive Consumerが成功する
 - [x] Skeleton `1.2.0` Publication Dry RunがFinal Fixed Candidateから決定的なSplit Commitを生成する
 - [x] 通常／`--no-scripts` Create-projectとFramework Package Exportが成功する
