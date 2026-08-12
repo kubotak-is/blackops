@@ -21,6 +21,7 @@ trap cleanup EXIT
 
 mkdir -p "${CONSUMER}"
 cp -a "${ROOT}/examples/quickstart/." "${CONSUMER}/"
+mkdir -p "${CONSUMER}/var/log"
 mkdir -p "${CONSUMER}/app/Feature/Scheduled"
 cp -a "${ROOT}/tests/Fixtures/ScheduledOperation/." "${CONSUMER}/app/Feature/Scheduled/"
 mkdir -p "${CONSUMER}/app/Feature/Scheduled/InlineProbe" "${CONSUMER}/app/Feature/Scheduled/DeferredProbe"

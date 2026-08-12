@@ -16,7 +16,8 @@ Status: In Progress
   - `99f723dfc9bcf1e859689c81878839ee37d2ba91` (`test: add stable 1.2 runtime upgrade gate`)
   - `413d0964cc132d685b228d5b8d697ac6cc4543e6` (`test: prepare storage keys in quickstart consumers`)
   - `6e009a433ce1c687f2f117d69afb14079668c206` (`fix: harden community board release setup`)
-- Final Fixed Candidate: replacement correction commit pending
+  - `e4be46f7e883f5247ed94f86c7854e3163a6c7dc` (`test: correct community board digest actor assertion`)
+- Final Fixed Candidate: replacement Scheduled Operation Consumer correction commit pending
 
 P22-002で要求されたStable-to-candidate Runtime ConsumerとCI wiringはBaselineにまだ存在しない。このTaskでは最初にGate Assetを実装、Review、Commitする。そのCommitをFinal Fixed Candidateとして明記し、以後のFull Gateを最初から実行する。Final Fixed Candidate確定後にTest／Workflow／Production／Skeleton／Release Metadata／利用者向けDocumentationを修正する必要が生じた場合、SHAを暗黙に読み替えずReportへBlockerを記録し、修正Commit後の新SHAでFull Gateを最初から再実行する。
 
@@ -29,6 +30,7 @@ Task／Report／STATEだけのCloseout CommitはFinal Fixed Candidateへ含め�
 - actual Stable `1.1.0`の必須`X-Sample-Token` Value HeaderをUpgrade手順と公開Install／Runtime／Quickstart Guideへ正確に記録する
 - Candidate Runtime ConsumerのGitHub Actions CI wiring
 - Quickstart `.env.example`をコピーする既存Auth Generator／FrankenPHP Worker／Scheduled Operation Consumerのfail-closed Storage Key準備
+- Scheduled Operation ConsumerがGit archive／empty-directory非保持に依存せず、QuickstartのApplication-owned runtime log directoryを準備するRelease Gate fixture補正
 - Community Board Reference ApplicationへApplication-owned `StorageKeyProvider`を登録し、fresh `bin/setup`が秘密値を出力せずmode 600の`.env`へ32-byte Local Storage Keyを準備するRelease Blocker修正
 - Community Boardのstale path-repository Lock MetadataをCurrent CandidateのRuntime要求へ更新し、`open-telemetry/api`と`ext-sodium`要求をInstall時に検証する
 - Community Board Clean InstallのMigration件数をCurrent Candidateの11 Framework＋5 Application Migrationへ同期する
@@ -83,7 +85,7 @@ Task／Report／STATEだけのCloseout CommitはFinal Fixed Candidateへ含め�
 - `tests/Consumer/framework-update-runtime.sh`（新規）
 - `tests/Consumer/auth-generator-fresh.sh`（Quickstart Storage Key準備のみ）
 - `tests/Consumer/frankenphp-worker-mode.sh`（Quickstart Storage Key準備のみ）
-- `tests/Consumer/scheduled-operation.sh`（Quickstart Storage Key準備のみ）
+- `tests/Consumer/scheduled-operation.sh`（Quickstart Storage Key準備とruntime log directory準備のみ）
 - `tests/Consumer/version-baseline.sh`（新Consumer／CI契約guardのみ）
 - `.github/workflows/ci.yml`（新Runtime ConsumerのCI wiringのみ）
 - `CHANGELOG.md`（current-schema Migration Metadata修正のRelease Noteのみ）
@@ -147,7 +149,7 @@ Task／Report／STATEだけのCloseout CommitはFinal Fixed Candidateへ含め�
 ## Acceptance Criteria
 
 - [ ] Stable-to-candidate Runtime Consumerが共通Database／DDL、Manual Merge Matrixの3 runtime bootstrap files、Provider-present Worker-mode HTTP／Worker Positive、Provider-missing Classic HTTP safe 500／Worker CLI non-zero safe Negativeを実証する
-- [ ] Auth Generator Fresh／FrankenPHP Worker／Scheduled Operation Consumerがfail-closed Storage Key準備とcleanupを実証する
+- [ ] Auth Generator Fresh／FrankenPHP Worker／Scheduled Operation Consumerがfail-closed Storage Key準備とcleanupを実証し、Scheduled Operationが空Directoryのarchive／copy保持へ依存せず起動する
 - [ ] CHANGELOG／UPGRADEがStable current-schema Metadata誤認、Candidateの既存Row認識、再実行を避ける安全なUpgrade順序を記録する
 - [ ] UPGRADE／公開Install／Runtime／Quickstart GuideとWebsite契約Testが、Stableの匿名認可と必須`X-Sample-Token` Value Bindingを混同せず実行可能な手順を記録する
 - [ ] GitHub Actionsが新Runtime Consumerを実行し、Workflowの静的契約とLocal equivalentが成功する
@@ -210,6 +212,9 @@ bash tests/Consumer/skeleton-publication.sh 1.2.0 <final-fixed-candidate-sha>
 bash tests/Consumer/storage-protection-rotation.sh
 bash tests/Consumer/version-baseline.sh
 mise exec -- pnpm --dir tests/Frontend install --frozen-lockfile
+docker compose run --rm app php tests/Frontend/fixture/blackops build:compile
+docker compose run --rm app php tests/Frontend/fixture/blackops frontend:generate
+docker compose run --rm app php tests/Frontend/fixture/blackops frontend:check
 mise exec -- pnpm --dir tests/Frontend run test
 mise exec -- pnpm --dir docs/website install --frozen-lockfile
 mise exec -- pnpm --dir docs/website run test

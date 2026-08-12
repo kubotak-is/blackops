@@ -1,6 +1,6 @@
 # P22-003 Stable 1.2 Release Candidate Gate Report
 
-Status: In Progress — Candidate `6e009a433ce1c687f2f117d69afb14079668c206` is superseded after the restarted full gate exposed a stale Community Board Digest origin-actor assertion. The bounded Consumer correction is implemented, its exact digest journey passes, and independent review reports P1=0/P2=0/P3=0; replacement commit, complete gate restart, and Orchestrator acceptance remain pending.
+Status: In Progress — Candidate `e4be46f7e883f5247ed94f86c7854e3163a6c7dc` is superseded after the restarted full gate exposed a missing Scheduled Operation Consumer runtime directory. The bounded fixture correction passes its exact journey and Orchestrator review; replacement commit and complete gate restart remain pending.
 
 ## Summary
 
@@ -12,7 +12,8 @@ Implemented the bounded Stable-to-candidate Runtime Consumer and its GitHub Acti
 - Superseded candidate: `99f723dfc9bcf1e859689c81878839ee37d2ba91` (`test: add stable 1.2 runtime upgrade gate`).
 - Superseded candidate: `413d0964cc132d685b228d5b8d697ac6cc4543e6` (`test: prepare storage keys in quickstart consumers`).
 - Superseded candidate: `6e009a433ce1c687f2f117d69afb14079668c206` (`fix: harden community board release setup`).
-- Final Fixed Candidate: replacement correction commit pending.
+- Superseded candidate: `e4be46f7e883f5247ed94f86c7854e3163a6c7dc` (`test: correct community board digest actor assertion`).
+- Final Fixed Candidate: replacement Scheduled Operation Consumer correction commit pending.
 - Candidate source is cloned from the repository's committed `HEAD`; uncommitted Task/STATE/Report files are not mounted as candidate source.
 - The Consumer verifies annotated Stable tag type and peeled commit, archives only `1.1.0:examples/quickstart`, then creates an annotated local `1.2.0` tag at the committed candidate SHA.
 - Documentation Reviewer returned P1=0/P2=0/P3=0 and permitted the bounded Gate Asset commit. No external Tag/Push was performed.
@@ -23,6 +24,7 @@ Implemented the bounded Stable-to-candidate Runtime Consumer and its GitHub Acti
 - The restarted gate at `6e009a4` passed Community Board Clean Install, Browser, Foundation, Identity, Post/Comment, and Product journeys after reproducing that the browser lane requires the same Composer/frontend preparation used by CI. Digest then failed at line 304: the query reads only the protected journal's denormalized `origin_actor_id`, but the stale assertion still expects the execution worker ID. The preceding Alice origin assertion passes, the event sequence passes, and the worker ID belongs only to the protected encoded actor context. This is a Consumer contract mismatch introduced when direct protected-payload JSON inspection was removed, so `6e009a4` is superseded under the reset rule.
 - The bounded Digest correction now asserts exact denormalized `origin_actor_id` continuity for all eight journal sequences. It does not query the protected encoded execution actor, which is unavailable to the direct SQL contract. The exact corrected Digest journey passes; `6e009a4` remains superseded until the correction is independently reviewed and committed.
 - Documentation Reviewer returned P1=0/P2=0/P3=0 and permitted the four-file Digest correction commit. The review confirmed that the exact sequence/origin equality is stronger than the removed presence-only checks, matches Specification 99 restricted-clear metadata, does not query protected actor context, and keeps Task/Report/STATE truthful.
+- Orchestrator committed the reviewed four-file Digest correction as `e4be46f7e883f5247ed94f86c7854e3163a6c7dc`. The restarted full gate later superseded it when the Scheduled Operation Consumer exposed its missing runtime directory; prior candidate evidence remains diagnostic only.
 
 ## Runtime Upgrade Consumer Evidence
 
@@ -136,12 +138,15 @@ The Digest Consumer's direct SQL query exposes only the journal's denormalized `
 - PASS after the bounded correction: `CI=true bash tests/Consumer/community-board-digest.sh` completed migrations (`16`), PHPUnit (`55 tests / 582 assertions`), frontend check/test/build (`46` Vitest tests), HTTP/Worker retry/completion, tenant isolation, exact journal event sequence, exact origin-actor continuity, and cleanup; it ended with `Community Board digest journey passed.`
 - PASS: `bash -n tests/Consumer/*.sh`, `git diff --check`, the PHP management-ID guard, and `docker compose run --rm app mago format --check src tests`.
 - PASS: Documentation Reviewer read-only final review returned P1=0, P2=0, P3=0 and permitted the bounded Digest correction commit. Long-running Consumer/build/browser commands were not rerun by the reviewer; worker runtime evidence and Orchestrator static review remain the execution evidence.
+- DIAGNOSTIC at `e4be46f`: the first two exact `bash tests/Consumer/scheduled-operation.sh` runs stopped at the initial `operation:schedule:run --json` with safe `configuration_error`. Secret-safe runtime composition inspection identified the cause as the copied Quickstart lacking `var/log`, while `config/journal.php` and `config/logging.php` require that writable parent. Creating only the fixture directory cleared the error and returned evaluated 2 / accepted 2 / failed 0.
+- PASS after the scoped correction: `bash tests/Consumer/scheduled-operation.sh` completed the Scheduled Operation CLI, recovery, and concurrency journey. `mkdir -p "${CONSUMER}/var/log"` is now performed immediately after copying the Quickstart; no Production PHP or public API changed.
+- PASS: `bash -n tests/Consumer/*.sh`, `git diff --check`, the PHP management-ID guard, and `docker compose run --rm app mago format --check src tests` after the Scheduled Consumer correction.
 
 ## Acceptance Criteria
 
 - [x] Runtime Consumer and CI wiring implement the P22-002 common migration/DDL and Provider-present/missing lane contract.
 - [x] Runtime Consumer executes successfully with cleanup/source/Docker invariants at the pre-commit baseline.
-- [ ] Replacement Final Fixed Candidate SHA is committed and recorded after the Digest Consumer correction.
+- [ ] Replacement Final Fixed Candidate SHA is committed and recorded after the Scheduled Operation Consumer correction.
 - [ ] Full local and Remote GitHub Actions gates pass at the same fixed SHA.
 - [x] Report, Specification 103, TODO, and STATE are synchronized for the current Gate Asset; fixed-SHA, full-gate, and Remote CI criteria remain pending below.
 - [x] Community Board registers an Application-owned `StorageKeyProvider`, fresh setup creates a strict 32-byte Local key with mode 600 and no exposure, and existing `.env` remains unchanged.
@@ -150,12 +155,13 @@ The Digest Consumer's direct SQL query exposes only the journal's denormalized `
 - [x] Community Board lock and installed vendor tree contain no orphan `ray/aop` package, and the Consumer asserts that absence.
 - [x] Current spec, Mago, Deptrac, and internal Bootstrap documentation describe the Framework-owned proxy artifact contract without obsolete Ray.Aop dependency or path references.
 - [x] Digest Consumer asserts only denormalized `origin_actor_id` and exact origin continuity for all eight journal records; protected execution actor remains unqueried.
+- [x] Scheduled Operation Consumer prepares the Quickstart runtime log directory required by the configured journal and logging paths, then passes CLI, recovery, and concurrency evidence.
 
 ## Remaining Issues
 
-1. Commit the independently reviewed bounded Digest correction as a replacement Final Fixed Candidate, then restart and complete the local gate. Evidence collected at superseded candidates `99f723d`, `413d096`, and `6e009a4` is diagnostic only.
+1. Commit the reviewed Scheduled Operation Consumer correction as the replacement Final Fixed Candidate, then restart and complete the local gate. Evidence collected at superseded candidates `99f723d`, `413d096`, `6e009a4`, and `e4be46f` is diagnostic only.
 2. Remote CI evidence remains pending a separately authorized branch push.
 
 ## Suggested Next Action
 
-Commit the independently reviewed Digest origin-actor assertion correction, restart the complete P22-003 local gate, then request separate authorization for the branch push required to collect Remote GitHub Actions evidence.
+Commit the Scheduled Operation runtime-directory correction, restart the complete P22-003 local gate from that replacement SHA, then request separate authorization for the branch push required to collect Remote GitHub Actions evidence.

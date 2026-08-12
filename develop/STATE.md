@@ -1,6 +1,20 @@
 # Orchestration State
 
-Updated At: 2026-08-12T02:43:09+09:00
+Updated At: 2026-08-12T20:06:09+09:00
+
+## P22-003 Scheduled Operation Runtime Directory Correction Checkpoint
+
+```text
+2026-08-12T20:06:09+09:00
+At candidate e4be46f, two Scheduled Operation Consumer runs reproduced a safe configuration_error before evaluation. Secret-safe runtime composition identified the missing writable parent for config journal.jsonl.path and logging stream: the copied Quickstart has no var/log directory. Task scope was amended to permit runtime directory preparation. The minimal Consumer correction adds mkdir -p ${CONSUMER}/var/log immediately after the Quickstart copy. Exact Scheduled Operation CLI, recovery, and concurrency journey passed; result evidence included evaluated 2 / accepted 2 / failed 0. Bash syntax, git diff --check, PHP management-ID, and Mago format checks pass. Candidate e4be46f is superseded; replacement correction commit and complete gate restart are pending. No Production PHP/public API/spec change, secret values, Tag, Push, Release, Packagist, Skeleton publication, or Deploy.
+```
+
+## P22-003 Replacement Final Fixed Candidate e4be46f Checkpoint
+
+```text
+2026-08-12T02:43:50+09:00
+Orchestrator committed the independently reviewed four-file Digest origin-actor assertion correction as e4be46f7e883f5247ed94f86c7854e3163a6c7dc (`test: correct community board digest actor assertion`). This exact committed source is the replacement P22-003 Final Fixed Candidate; 99f723d, 413d096, and 6e009a4 remain superseded. The complete local gate restarts from e4be46f. Remote GitHub Actions remains pending separate Push authorization. No secret values, Tag, Push, Release, Packagist, Skeleton publication, or Deploy.
+```
 
 ## P22-003 Digest Correction Review Complete Checkpoint
 
