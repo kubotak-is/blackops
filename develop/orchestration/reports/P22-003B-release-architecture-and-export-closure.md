@@ -1,6 +1,6 @@
 # P22-003B Release Architecture and Export Closure Report
 
-Status: Commit Approved — Post-Commit Export Pending
+Status: Accepted
 
 ## Summary
 
@@ -42,7 +42,7 @@ D141／D142に従い、P22-003Aで露出したDeptrac graph debtとFramework arc
 ## Package Export Evidence
 
 - `.gitattributes` and Composer `archive.exclude` now contain the same `/mago-lint-baseline.toml` entry; Consumer and version guards assert it.
-- Pre-commit root/exclusion checks pass; exact regular-file inventory is intentionally pending because Git archive HEAD omits the untracked public `src/Core/Exception/ConfigurationFailure.php`.
+- Pre-commit root/exclusion checks passed while exact regular-file inventory intentionally failed because Git archive HEAD omitted the then-untracked public `src/Core/Exception/ConfigurationFailure.php`. After commit `577cc224`, the exact inventory and required-file checks pass.
 
 ## Commands and Results
 
@@ -51,11 +51,12 @@ D141／D142に従い、P22-003Aで露出したDeptrac graph debtとFramework arc
 - PASS: Composer strict root and Quickstart validation.
 - PASS: Mago format check, lint, strict baseline verification, analyze (71 advisory warnings/help).
 - PASS: `bash -n tests/Consumer/version-baseline.sh`; version baseline guard.
-- PASS: archive root/exclusion contract; exact inventory check is expected to fail pre-commit on missing `src/Core/Exception/ConfigurationFailure.php` and is mandatory immediately after the candidate Commit.
+- PASS: archive root/exclusion contract. Before commit, the exact inventory check intentionally exposed the then-untracked `src/Core/Exception/ConfigurationFailure.php`; immediately after candidate commit `577cc224`, the mandatory exact inventory check passed.
 - PASS: `git diff --check`, no Deptrac skip/uncovered waiver, and PHP management-ID scope guard.
 - PASS: D142 section-aware collector/ruleset guard in `tests/Consumer/version-baseline.sh` (stable=1.1.0, candidate=1.2.0).
 - PASS: SCC guard computes exactly the two documented non-trivial SCC sets from the ruleset using POSIX shell/awk only.
 - PASS: Independent Documentation Reviewer returned P1=0／P2=0／P3=0 and permitted the replacement candidate commit, conditional on immediate post-commit exact Framework package export PASS.
+- PASS: reviewed correction committed as `577cc224e0628ccbb9d91027ca214a4625a5228a`; immediate post-commit `bash tests/Consumer/framework-package-export.sh` completed with identical Git／Composer regular-file inventories and production autoload validation.
 - PASS after transient flake: full PHPUnit initially observed one Outbox heartbeat failure (2,317 tests／9,443 assertions); the filtered test then passed with 4 assertions, the complete file passed 4 tests／32 assertions, and the final full suite passed 2,317 tests／9,444 assertions with exit 0. No assertion or runtime source was changed for the flake.
 - PASS: Website `pnpm test` 79 tests, `pnpm run check` 0 errors/warnings/hints, `pnpm run build` 42 generated pages, and `pnpm run site:check` 41 reader pages. The first sandboxed build reached static generation and hit Blume/Astro font server `listen EPERM`; the permitted host rerun completed successfully.
 
@@ -63,14 +64,14 @@ D141／D142に従い、P22-003Aで露出したDeptrac graph debtとFramework arc
 
 - [x] Deptrac full graph passes with zero violations and uncovered dependencies.
 - [x] Pre-commit Framework Git／Composer root and exclusion contract passes with synchronized archive roots.
-- [ ] Post-commit Framework Git／Composer exact regular-file inventory matches, including public `src/Core/Exception/ConfigurationFailure.php`.
-- [x] Source／quality／focused and full PHPUnit／documentation website contracts pass; complete P22-003 candidate gate restart remains with Orchestrator after Commit.
+- [x] Post-commit Framework Git／Composer exact regular-file inventory matches, including public `src/Core/Exception/ConfigurationFailure.php`.
+- [x] Source／quality／focused and full PHPUnit／documentation website contracts passed for P22-003B; the Orchestrator subsequently completed the parent P22-003 local gate at the committed candidate.
 - [x] Independent documentation review permits replacement candidate commit.
 
 ## Remaining Issues
 
-The D142 Option B worker correction is implemented, measured, and independently reviewed with P1=0／P2=0／P3=0. Exact Git/Composer regular-file inventory is an expected pre-commit failure because the new public file is untracked; root/exclusion checks pass. Replacement candidate commit, post-commit exact export rerun, and complete P22-003 gate restart remain pending.
+No P22-003B issue remains. The reviewed correction is committed as `577cc224e0628ccbb9d91027ca214a4625a5228a`, the immediate post-commit exact Git／Composer package export passed, and the parent P22-003 local gate subsequently completed. Same-SHA Remote CI, final Documentation Review, and parent acceptance remain outside this Task.
 
 ## Suggested Next Action
 
-Commit the reviewed correction, immediately require the exact Framework package export to pass from that committed source, then restart the complete P22-003 gate from the replacement candidate SHA.
+Continue the parent P22-003 closeout from replacement Final Fixed Candidate `577cc224e0628ccbb9d91027ca214a4625a5228a`: obtain separate Push authorization, require same-SHA Remote CI, then run final Documentation Review before acceptance.

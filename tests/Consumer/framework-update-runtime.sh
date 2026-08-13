@@ -204,6 +204,8 @@ test "$(psql "SELECT count(*) FROM pg_constraint c JOIN pg_class t ON t.oid = c.
 git -C "${framework_repository}" checkout --quiet "${candidate_commit}"
 test "$(git -C "${framework_repository}" rev-parse HEAD)" = "${candidate_commit}"
 test -z "$(git -C "${framework_repository}" status --short)"
+git -C "${framework_repository}" config --local user.name 'BlackOps Runtime Consumer'
+git -C "${framework_repository}" config --local user.email 'blackops-runtime@invalid.example'
 git -C "${framework_repository}" tag -a -m 'local runtime candidate' 1.2.0 "${candidate_commit}"
 docker run --rm --user "$(id -u):$(id -g)" \
     --volume "${consumer_root}:/app" \

@@ -1,6 +1,69 @@
 # Orchestration State
 
-Updated At: 2026-08-13T03:36:23+09:00
+Updated At: 2026-08-13T23:14:41+09:00
+
+## P22-003C Accepted — Correction Commit Approved
+
+```text
+2026-08-13T23:14:41+09:00
+Independent Documentation Reviewer completed the corrected P22-003C review with P1=0／P2=0／P3=0 and permitted the Correction Commit. Review confirmed Quality-only fetch-depth 0, disposable-repository local Git tagger identity, exactly-one PHP opening-tag normalization, no skip／retry／allow-failure, new-candidate Local／Remote gate reset, and publication prohibition. P22-003C is Accepted; the next reviewed Commit becomes the new P22-003 candidate and supersedes 577cc224 for acceptance evidence. P22-003 remains In Progress and unaccepted. No Commit yet／Push／PR mutation／merge／Tag／Release／Packagist／Skeleton publication／Deploy.
+```
+
+## P22-003C Orchestrator Review Passed — Documentation Review Pending
+
+```text
+2026-08-13T22:44:54+09:00
+Orchestrator independently reviewed the exact three Source changes and reproduced the failed Remote contracts. PASS: Consumer shell syntax, version-baseline stable=1.1.0/candidate=1.2.0, Website 79/79, PHP management-ID guard, git diff check, and complete Runtime Consumer with system/global Git config disabled; Runtime completed Stable e3df5576 -> candidate 577cc224, 11 migrations, positive／negative HTTP／Worker lanes, source invariant, and cleanup. The worker's initial Mago format failure was caused only by five Git-ignored files under tests/Frontend/fixture/var/build; the CI-equivalent Frontend clean command removed them and exact Mago format check now passes without tracked Source change. Diff remains bounded to Quality fetch-depth 0, disposable-repository local Git identity, and one-opening-tag Website test normalization. Independent Documentation Review is next; no Commit／Push／PR mutation／Tag／Release／Packagist／Skeleton publication／Deploy. P22-003C and P22-003 remain unaccepted.
+```
+
+## P22-003C Worker Implementation Complete — Review Pending
+
+```text
+2026-08-13T22:34:27+09:00
+P22-003C Luna High worker changed exactly the three allowed Source files: Quality checkout now uses fetch-depth 0, the Runtime Consumer configures local-only Git tagger identity in its disposable Framework clone, and guide-code PHP lint preserves existing opening tags while prefixing fragments. Focused checks pass: all Consumer Bash syntax, version-baseline stable=1.1.0/candidate=1.2.0, Website 79/79, management-ID guard, and git diff --check. With GIT_CONFIG_NOSYSTEM=1 and GIT_CONFIG_GLOBAL=/dev/null, the escalated Runtime Consumer passed the full Stable-to-candidate journey and cleanup. Mago format check reports five existing unformatted PHP files outside the Packet's allowed Source list; no out-of-scope file was changed. No Commit／Push／PR mutation／Tag／Release／Packagist／Skeleton publication／Deploy. Orchestrator independent review, correction Commit, complete Local Gate restart, same-SHA Remote CI, final Documentation Review, and P22-003 acceptance remain pending.
+```
+
+## P22-003C Remote CI Environment Contract Correction Started
+
+```text
+2026-08-13T22:28:49+09:00
+User explicitly approved the bounded Remote CI correction plan. Orchestrator created P22-003C for exactly three Source files: CI Quality full-history checkout, Runtime Consumer disposable-repository Git identity, and Guide PHP opening-tag normalization. Production PHP／Public API／Guide正文 are out of scope. Implementation is delegated to configured Luna High worker with no Commit／Push／PR mutation before independent Orchestrator review. Any reviewed correction Commit supersedes candidate 577cc224 and requires the complete P22-003 Local Gate plus same-SHA Remote CI to restart from the new exact SHA. Draft PR #3 remains open and unmerged. P22-003 remains In Progress and unaccepted. No main Push retry／Tag／Release／Packagist／Skeleton publication／Deploy.
+```
+
+## P22-003 Same-SHA Remote CI Failed — Correction Approval Pending
+
+```text
+2026-08-13T22:09:47+09:00
+The separately authorized direct Push of main was rejected without remote mutation by active GitHub Repository Rule `Changes must be made through a pull request.` Orchestrator did not retry the prohibited path. Exact candidate 577cc224e0628ccbb9d91027ca214a4625a5228a was pushed to agent/p22-003-stable-1-2-release-candidate and Draft PR #3 was opened; the seven uncommitted management files were not included. Same-SHA PR runs completed FAILURE: CI 31693960894 and Documentation delivery 31693960994. Community Board clean install／full-stack and Frontend passed. Runtime Consumer failed because its disposable Git repository lacked tagger identity; Quality failed because the shallow checkout lacked Stable tag 1.1.0; Website and Documentation delivery failed because guide-code.test.mjs unconditionally prepended a PHP opening tag to outbox examples that already contain one. A bounded Workflow／Consumer／Website-test correction would change Candidate Source, so 577cc224 cannot be accepted and the complete Local Gate plus same-SHA Remote CI must restart from a reviewed correction Commit. Per CI-fix contract, implementation awaits explicit user approval and a scoped Task Packet. P22-003 remains In Progress and unaccepted. No main merge／Tag／Release／Packagist／Skeleton publication／Deploy.
+```
+
+## P22-003 Local-gate Documentation Checkpoint Passed
+
+```text
+2026-08-13T18:30:42+09:00
+Independent Documentation Reviewer rechecked the seven management files after local-gate closeout synchronization and returned P1=0／P2=0／P3=0. Task／Report／Specification 103／TODO／STATE consistently record complete Local Gate PASS at replacement candidate 577cc224e0628ccbb9d91027ca214a4625a5228a, separately authorized Branch Push -> same-SHA Remote CI -> final Documentation Review -> Orchestrator acceptance, and publication prohibition until that sequence completes. The reviewer confirmed HEAD 577cc224, origin/main 267ffed9, candidate 0 behind／53 ahead, no same-SHA Actions, and a seven-management-file-only working tree with git diff check PASS. Requesting separate Branch Push authorization is now permitted; no Push authorization has been granted or exercised. P22-003 remains In Progress and unaccepted. No Push／Tag／Release／Packagist／Skeleton publication／Deploy.
+```
+
+## P22-003 Replacement Candidate Complete Local Gate Passed
+
+```text
+2026-08-13T18:11:30+09:00
+Replacement Final Fixed Candidate 577cc224e0628ccbb9d91027ca214a4625a5228a completed the complete local P22-003 gate. Composer strict／exact Framework export／Mago format・strict lint・analyze／Full PHPUnit 2,317 tests・9,444 assertions／Deptrac 858/858 with 0 violations・skipped・uncovered all pass. All 23 top-level Consumers, Community Board CI-equivalent preparation and journeys, Frontend, Website 79 tests／41-page check／42-page build, deterministic Skeleton split fa5e8247fc8cf789cf73685e5be59cc498ffb4ce, normal／no-scripts create-project, and repository guards pass. The first Scheduled Operation concurrency run exited 255 after creating both evaluator containers; cleanup completed and an immediate unchanged-source exact rerun passed CLI／recovery／concurrency, so no correction was made. Read-only refresh confirms origin/main 267ffed9, candidate 0 behind／53 ahead and absent from remote branches／Actions; Framework／Skeleton 1.2.0 Tag, GitHub Release, and Packagist versions remain absent. P22-003 remains In Progress pending separately authorized Branch Push, same-SHA Remote CI, and final Documentation Review. No secret value, Push／Tag／Release／Packagist／Skeleton publication／Deploy.
+```
+
+## P22-003 Replacement Candidate Local Gate Restart
+
+```text
+2026-08-13T10:30:36+09:00
+Orchestrator resumed from committed replacement candidate 577cc224e0628ccbb9d91027ca214a4625a5228a and reconciled AGENTS.md, STATE, the P22-003／P22-003B Task Packets and Reports, Specification 103, TODO, Git history, and the working tree. P22-003B remains Accepted; P22-003 remains In Progress. The complete local gate is restarting from its first required command with Consumers serialized. No implementation correction, Push／Tag／Release／Packagist／Skeleton publication／Deploy.
+```
+
+## P22-003B Accepted — Replacement Candidate 577cc224
+
+```text
+2026-08-13T03:37:40+09:00
+Orchestrator committed the independently reviewed D141／D142／P22-003B correction as 577cc224e0628ccbb9d91027ca214a4625a5228a (`fix: close release architecture boundaries`). The immediate post-commit exact Framework package export passes: Git and Composer regular-file inventories match, required public ConfigurationFailure.php is present, both archives validate, and production autoload generation succeeds. P22-003B is Accepted; 08ad61f and earlier candidates are superseded. P22-003 remains In Progress and the complete local gate restarts from 577cc224; same-SHA Remote CI requires separate Push authorization. No Push／Tag／Release／Packagist／Skeleton publication／Deploy.
+```
 
 ## P22-003B Documentation Review Passed — Commit Approved
 

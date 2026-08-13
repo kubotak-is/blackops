@@ -406,7 +406,7 @@ test('task-oriented PHP examples remain syntactically parseable', async () => {
   const blocks = [
     ...consoleGuide.matchAll(/```php\n([\s\S]*?)\n```/g),
     ...outbox.matchAll(/```php\n([\s\S]*?)\n```/g),
-  ].map(([, source]) => `<?php\n${source}\n`);
+  ].map(([, source]) => `${source.startsWith('<?php') ? source : `<?php\n${source}`}\n`);
   const temporary = await mkdtemp(path.join(tmpdir(), 'blackops-guide-php-'));
   try {
     for (const [index, source] of blocks.entries()) {

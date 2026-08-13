@@ -1,6 +1,6 @@
 # P22-003B: Release Architecture and Export Closure
 
-Status: Commit Approved — Post-Commit Export Pending
+Status: Accepted
 
 ## Goal
 
@@ -87,7 +87,7 @@ P22-003AでPHP 8.5上に露出したDeptrac 152 violations／59 uncoveredと、`
 - [x] Telemetry／Storage Protection／Deferred integrity edgeはD141のbounded layerだけで許可される
 - [x] ApplicationBootstrapExceptionのconcrete type／RuntimeException ancestry／safe CLI exit classificationが維持される
 - [x] Pre-commit Framework Git／Composer root and exclusion contract passes with synchronized archive roots
-- [ ] Post-commit Framework Git／Composer exact regular-file inventory matches, including public `src/Core/Exception/ConfigurationFailure.php`
+- [x] Post-commit Framework Git／Composer exact regular-file inventory matches, including public `src/Core/Exception/ConfigurationFailure.php`
 - [x] Mago format／lint／baseline verify／analyze、focused PHPUnit、Full PHPUnit、Composer strict、Version Guardが成功する
 - [x] Guide Core API count／entry、Website test／check／build／site checksが成功する
 - [x] Public facade／Internal implementationの追加SCCをD142どおり5つのnon-overlapping collectorと列挙済みbounded edgeへ限定し、generic `Application/Auth/Http -> Internal`を残さない

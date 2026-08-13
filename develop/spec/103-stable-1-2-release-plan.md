@@ -1,6 +1,6 @@
 # Specification 103: Stable 1.2 Release Plan
 
-Status: Decided (P22-003 local gate executed; strict quality and Remote CI pending)
+Status: Decided (P22-003 candidate same-SHA Remote CI failed; approved P22-003C correction is Documentation Review Pending)
 
 ## Release lanes
 
@@ -40,7 +40,9 @@ D140／P22-003A resolves the two local tooling blockers without Production PHP c
 
 P22-003B closes the resulting architecture and package boundaries: explicit public/library layers, bounded Internal Telemetry／Storage Protection／Deferred Integrity collectors, the Core `ConfigurationFailure` marker, and synchronized Git／Composer exclusion of `mago-lint-baseline.toml`. No generic `Transport -> Internal` permission or Deptrac waiver is allowed.
 
-P22-003Aのhistorical review evidence records that Mago normal／verify lint succeeds, while Deptrac 4.7.1 reaches all 857 files but reports 152 violations／59 uncovered under the unchanged Ruleset, and Framework package export lacks the root baseline archive-exclusion contract. P22-003BのD141／D142 correctionではDeptrac 0 violations／0 uncovered、bounded facade/internal SCC guard、root/exclusion contractを確認済みである。P22-003Bは現在Review Pendingであり、未Commit状態ではGit archive HEADが新規Public `src/Core/Exception/ConfigurationFailure.php`を含まないため、Git／Composer全file inventoryの完全一致はexpected failとなる。root/exclusion contractはpre-commit PASSだが、Public APIを含むexact archive inventoryはcandidate Commit直後に必須再実行し、PASSするまで受入れない。
+P22-003Aのhistorical review evidence records that Mago normal／verify lint succeeds, while Deptrac 4.7.1 reaches all 857 files but reports 152 violations／59 uncovered under the unchanged Ruleset, and Framework package export lacks the root baseline archive-exclusion contract. P22-003BのD141／D142 correctionではDeptrac 0 violations／0 uncovered、bounded facade/internal SCC guard、root/exclusion contractを確認した。Documentation Review P1=0／P2=0／P3=0後に`577cc224e0628ccbb9d91027ca214a4625a5228a`へCommitし、直後のGit／Composer全regular-file inventory完全一致とPublic API必須fileを含むexact package exportもPASSした。P22-003BはAcceptedであり、このSHAをreplacement candidateとしてP22-003 Full Gateを再実行し、complete local gateがPASSした。
+
+Replacement candidate `577cc224e0628ccbb9d91027ca214a4625a5228a` completed the entire local P22-003 gate: strict-baseline Mago lint, Full PHPUnit `2317／9444`, Deptrac `858/858` with zero violation／uncovered, all 23 Consumers, Frontend, Website, package export, create-project, deterministic Skeleton split, and repository guards. The first Scheduled Operation concurrency run exited 255 after creating both evaluator containers; cleanup completed and an immediate unchanged-source rerun passed, so it is retained as diagnostic evidence rather than a Source correction. Direct `main` Push was rejected without mutation by the pull-request Repository Rule; exact candidate `577cc224` was pushed to a candidate branch and Draft PR #3. Same-SHA CI and Documentation delivery then failed because the Runtime disposable Git lacked tagger identity, Quality used a shallow checkout without Stable tag `1.1.0`, and the guide syntax test duplicated an existing PHP opening tag. A bounded correction changes Candidate Source and therefore requires a new reviewed Commit plus complete Local／Remote gate restart. After successful same-SHA Remote CI, final Documentation Review must pass before Orchestrator acceptance; publication remains prohibited until that sequence completes.
 
 ## Traceability
 
