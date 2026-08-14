@@ -1,6 +1,6 @@
 # P22-004: Stable 1.2 Publication and Closeout
 
-Status: In Progress (Tracking Checkpoint Reviewed; Integration Pending)
+Status: In Progress (P22-004A Skeleton Workflow Recovery Authorized)
 
 ## Goal
 
@@ -83,8 +83,8 @@ Production／Test／Workflowの修正が必要ならPublicationを広げず、�
 
 ## Acceptance Criteria
 
-- [ ] Tracking checkpointがreviewed Commitとしてremote `main`へ統合され、Working Treeがcleanである（Documentation Review P1=0／P2=0／P3=0、Commit／PR integration pending）
-- [ ] Framework `1.2.0`がannotated tagで、Peeled CommitがFixed Sourceと一致する
+- [x] Tracking checkpointがreviewed Commitとしてremote `main`へ統合され、Working Treeがcleanである（Documentation Review P1=0／P2=0／P3=0、PR #4 merge `55bfe12`）
+- [x] Framework `1.2.0`がannotated tagで、Peeled CommitがFixed Sourceと一致する（direct object `00e8c587`、peeled `3332fd1`）
 - [ ] Skeleton Publication WorkflowがFull Gate後に成功する
 - [ ] Skeleton `main`とannotated `1.2.0`のPeeled CommitがFixed Splitと一致する
 - [ ] Packagist `blackops/framework`／`blackops/skeleton` `1.2.0`が公開Tagを参照する
@@ -130,6 +130,12 @@ Packagist MetadataとRemote Smokeの実行Command、Temporary Path、Cleanup、C
 - Skeleton同名lightweight tag、異なるPeeled Commit、`main`のFast-forward不能は自動修正せずBlockerとする
 - GitHub Release作成失敗はPackage Tagを変更せずRelease作成だけを再処理する
 - Packagist反映遅延はImmutable Tagを保持してbounded pollingする
+
+## Active Blocker
+
+Tag-triggered run `31809007808` passed Framework quality but failed before credential configuration／Skeleton push because `tests/Consumer/quickstart-e2e.sh:63` invokes `mise` and `.github/workflows/publish-skeleton.yml` does not install the repository-pinned toolchain. Exit was `127`. Always-run cleanup passed.
+
+D079 permits recovery from the main-branch Workflow while checking out immutable Framework tag `1.2.0`. User authorized completing the release and Composer-installable publication. P22-004A owns the bounded correction: add `jdx/mise-action@v4` with `install: true`／`cache: true`, verify Node `v24.18.0`／pnpm `11.12.0`, review／CI／main integration, then Manual Dispatch `release_version=1.2.0`. The parent Task remains fixed to immutable Framework tag source `3332fd1`.
 
 ## Expected Report
 

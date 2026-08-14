@@ -281,6 +281,41 @@ contains tests/Consumer/skeleton-create-project.sh 'blackops/skeleton":"1.2.0"'
 contains tests/Consumer/skeleton-publication.sh 'version=1.2.0'
 contains tests/Consumer/skeleton-publication-workflow.sh 'run_publication "${new_remote}" 1.2.0 false'
 
+assert_skeleton_workflow_toolchain() {
+    awk '
+        index($0, "uses: jdx/mise-action@v4") {
+            mise_line = NR
+        }
+        index($0, "install: true") {
+            install_line = NR
+        }
+        index($0, "cache: true") {
+            cache_line = NR
+        }
+        index($0, "test \"$(node --version)\" = \"v24.18.0\"") {
+            node_line = NR
+        }
+        index($0, "test \"$(pnpm --version)\" = \"11.12.0\"") {
+            pnpm_line = NR
+        }
+        index($0, "bash tests/Consumer/quickstart-e2e.sh") {
+            consumer_line = NR
+        }
+        END {
+            if (!mise_line || !install_line || !cache_line || !node_line ||
+                !pnpm_line || !consumer_line ||
+                !(mise_line < install_line && install_line < cache_line &&
+                  cache_line < node_line && node_line < pnpm_line &&
+                  pnpm_line < consumer_line)) {
+                exit 1
+            }
+        }
+    ' "${repository_root}/.github/workflows/publish-skeleton.yml" \
+        || fail 'Skeleton publication Workflow must install and verify the pinned mise toolchain before Consumer gates'
+}
+
+assert_skeleton_workflow_toolchain
+
 # Stable onboarding and its published CTA remain pinned to the immutable 1.1.0 lane.
 contains README.md 'Latest StableはFramework／Skeleton `1.1.0`です。'
 contains README.md 'composer create-project blackops/skeleton my-app 1.1.0'
