@@ -1,6 +1,6 @@
 # Specification 103: Stable 1.2 Release Plan
 
-Status: Decided (P22-003D mode-only correction staged; Documentation Review pending)
+Status: Decided (P22-003 Accepted at fixed source `3332fd1`; P22-004 publication in progress)
 
 ## Release lanes
 
@@ -47,6 +47,12 @@ Replacement candidate `577cc224e0628ccbb9d91027ca214a4625a5228a` completed the e
 P22-003C closed those three CI environment contracts without Production PHP／Public API／Guide本文 changes. Documentation Reviewer returned P1=0／P2=0／P3=0, and the correction was committed as replacement candidate `96383e1bbe1a0914d1eddc9e1dea160042804f7c`. The complete Local Gate passed at this exact SHA without reusing `577cc224` evidence: strict quality, all 23 Consumers, Frontend, Website, package／create-project／deterministic Skeleton split, and repository guards are green. Draft PR #3 must next be updated to this exact SHA and pass same-SHA Remote CI before final Documentation Review and Orchestrator acceptance.
 
 Draft PR #3 was updated to exact `96383e1`. Documentation delivery and every CI job except Quality passed. Quality stopped in `version-baseline.sh` because `tests/Consumer/framework-update-runtime.sh` is committed with Git mode `100644` even though WSL2 exposed local mode `0755` under `core.filemode=false`. The executable guard remains required. P22-003D was explicitly approved and stages only Git mode `100644` to `100755`; the script blob/content is unchanged and focused Orchestrator review passes. Documentation Review must approve the correction before Commit. That Commit becomes a new candidate and restarts the complete Local／same-SHA Remote gate.
+
+P22-003D Documentation Review returned P1=0／P2=0／P3=0, and the mode-only correction was committed as replacement candidate `3332fd1dd0738fc7e79750facd93d49a59054ecf`. The Runtime Consumer is recorded as `100755`; its blob remains exact `8b82505b2da9b14014a20836a42137d33e6042fd` from `96383e1`. The complete Local Gate passed at exact `3332fd1` without reusing `96383e1` evidence: strict quality, all 23 Consumers, Frontend, Website, package／create-project／deterministic Skeleton split, and repository guards are green. Independent checkpoint Documentation Review also returned P1=0／P2=0／P3=0 and permits only a User-authorized exact `3332fd1` candidate branch update plus new same-SHA CI monitoring; merge, Acceptance, and publication remain prohibited.
+
+User authorized exact `3332fd1` CI qualification and Green-gated `1.2.0` publication. Draft PR #3 was updated by explicit SHA refspec; same-SHA CI run `31771509163` and Documentation delivery run `31771509167` succeeded. Corrected final Documentation Review must confirm the synchronized evidence before PR ready／merge. Merge commit must preserve `3332fd1` as an ancestor; after fetch confirms the candidate in remote `main` history, P22-003 may be accepted and P22-004 initialized. Publication remains prohibited before that sequence completes.
+
+Corrected final Documentation Review returned P1=0／P2=0／P3=0. PR #3 was marked ready and merged with merge commit `547149109419b62ab769af9d3aad1ed80dbba905`, whose second parent is exact candidate `3332fd1`; post-fetch ancestry and tree equality passed. P22-003 is Accepted. P22-004 must keep release source `3332fd1` and deterministic Skeleton split `fa5e8247fc8cf789cf73685e5be59cc498ffb4ce` fixed while executing the User-authorized publication sequence.
 
 ## Traceability
 
