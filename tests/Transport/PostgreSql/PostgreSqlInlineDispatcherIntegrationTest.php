@@ -49,7 +49,11 @@ final class PostgreSqlInlineDispatcherIntegrationTest extends TestCase
     {
         $this->connection = $this->connection();
         $this->connection->executeStatement('DROP SCHEMA IF EXISTS ' . self::SCHEMA . ' CASCADE');
-        $this->store = new PostgreSqlCanonicalJournalStore($this->connection, self::SCHEMA);
+        $this->store = new PostgreSqlCanonicalJournalStore(
+            $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        );
         $this->store->migrate();
     }
 

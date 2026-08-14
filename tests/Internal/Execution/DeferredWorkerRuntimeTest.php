@@ -27,12 +27,15 @@ use BlackOps\Core\OperationValue;
 use BlackOps\Core\Outcome;
 use BlackOps\Core\Registry\OperationMetadata;
 use BlackOps\Core\Registry\OperationRegistry;
+use BlackOps\Core\Registry\OperationScheduleMetadata;
 use BlackOps\Core\Rejection\RejectionCategory;
 use BlackOps\Core\Rejection\RejectionReason;
+use BlackOps\Core\ScheduleContext;
 use BlackOps\Core\Supervision\ExponentialBackoffSupervisionPolicy;
 use BlackOps\Core\Supervision\RetryableException;
 use BlackOps\Core\Supervision\SupervisionDecision;
 use BlackOps\Core\Supervision\SupervisionPolicy;
+use BlackOps\Core\TenantRef;
 use BlackOps\Database\AfterCommitFailure;
 use BlackOps\Database\AfterCommitFailureReporter;
 use BlackOps\Database\DatabaseManager;
@@ -57,6 +60,10 @@ use BlackOps\Internal\Identifier\Uuidv7Generator;
 use BlackOps\Internal\Journal\JournalRecordFactory;
 use BlackOps\Internal\Logging\ExecutionScopedLogger;
 use BlackOps\Internal\Logging\FrameworkOperationFailureReporter;
+use BlackOps\Internal\Scheduling\PostgreSqlScheduledOccurrenceLifecycle;
+use BlackOps\Internal\Scheduling\PostgreSqlScheduleStore;
+use BlackOps\Internal\Telemetry\TelemetryMetrics;
+use BlackOps\Internal\Telemetry\TelemetryTracer;
 use BlackOps\Internal\Transaction\OperationTransactionCoordinator;
 use BlackOps\Internal\Transaction\TransactionRuntime;
 use BlackOps\Journal\Data\AttemptFailedData;
@@ -68,6 +75,10 @@ use BlackOps\Journal\JournalRecord;
 use BlackOps\Outcome\Exception\OutcomeStoreException;
 use BlackOps\Outcome\OutcomeRecord;
 use BlackOps\Outcome\OutcomeWriter;
+use BlackOps\Telemetry\TelemetryContext;
+use BlackOps\Tests\Internal\Telemetry\RecordingMeterProvider;
+use BlackOps\Tests\Internal\Telemetry\RecordingTracerProvider;
+use BlackOps\Tests\Transport\PostgreSql\PostgreSqlTestStorageProtection;
 use BlackOps\Transport\PostgreSql\PostgreSqlCanonicalJournalStore;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationLifecycleStore;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationReceiver;
@@ -84,6 +95,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Log\AbstractLogger;
 use RuntimeException;
 use Stringable;
+use Throwable;
 
 final class DeferredWorkerRuntimeTest extends TestCase
 {
@@ -104,16 +116,32 @@ final class DeferredWorkerRuntimeTest extends TestCase
         $this->connection->executeStatement('DROP SCHEMA IF EXISTS ' . self::SCHEMA . ' CASCADE');
         $this->sender = new PostgreSqlDeferredOperationSender(
             $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
             self::SCHEMA,
             new DateTimeImmutable('2026-07-10T00:00:01.000000Z'),
         );
-        $this->receiver = new PostgreSqlDeferredOperationReceiver($this->connection, self::SCHEMA, 'worker-a', 30);
-        $this->journal = new PostgreSqlCanonicalJournalStore($this->connection, self::SCHEMA);
-        $this->outcomes = new PostgreSqlOutcomeStore($this->connection, self::SCHEMA);
+        $this->receiver = new PostgreSqlDeferredOperationReceiver(
+            $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+            'worker-a',
+            30,
+        );
+        $this->journal = new PostgreSqlCanonicalJournalStore(
+            $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        );
+        $this->outcomes = new PostgreSqlOutcomeStore(
+            $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        );
         $this->codec = new ReflectionJsonOperationCodec();
         $this->sender->migrate();
         $this->receiver->migrate();
         $this->journal->migrate();
+        new PostgreSqlScheduleStore($this->connection, self::SCHEMA)->migrate();
         $this->connection->executeStatement(
             'CREATE TABLE ' . self::SCHEMA . '.business_updates (id INTEGER PRIMARY KEY, value TEXT NOT NULL)',
         );
@@ -122,14 +150,24 @@ final class DeferredWorkerRuntimeTest extends TestCase
     public function testWorkerRunsClaimedOperationToCompletion(): void
     {
         $handler = new CompletingWorkerReportHandler();
-        $this->accept();
+        $tenant = new TenantRef('account', 'tenant-worker');
+        $this->accept(tenant: $tenant);
         $claim = $this->receiver->claim(new \BlackOps\Core\Execution\ClaimRequest(
             new DateTimeImmutable('2026-07-10T00:01:00.000000Z'),
         ));
 
         self::assertNotNull($claim);
 
-        $result = $this->runtime($handler)->run($claim);
+        $provider = new RecordingTracerProvider();
+        $result = $this->runtime($handler, telemetry: new TelemetryTracer($provider))->run($claim);
+
+        self::assertCount(1, $provider->spans);
+        $span = $provider->spans[0];
+        self::assertSame('blackops.operation.execute', $span->name);
+        self::assertSame(TelemetryTracer::KIND_CONSUMER, $span->kind);
+        self::assertSame('worker', $span->attributes['blackops.runtime.kind']);
+        self::assertSame('completed', $span->attributes['blackops.result']);
+        self::assertTrue($span->ended);
 
         $row = $this->operationRow();
         $records = $this->records();
@@ -161,10 +199,37 @@ final class DeferredWorkerRuntimeTest extends TestCase
             self::assertSame('worker-a', $record->operation->actorContext?->execution()->id());
             self::assertSame('system', $record->operation->actorContext?->execution()->type());
         }
+        foreach ($records as $record) {
+            self::assertSame($tenant->type(), $record->operation->tenant?->type());
+            self::assertSame($tenant->id(), $record->operation->tenant?->id());
+        }
         $storedOutcome = $this->outcomes->find(OperationId::fromString(self::OPERATION_ID));
         self::assertNotNull($storedOutcome);
         self::assertInstanceOf(WorkerReportDone::class, $storedOutcome->outcome());
         self::assertSame('done-weekly', $storedOutcome->outcome()->message);
+    }
+
+    public function testWorkerRejectsContextOriginMismatchBeforeReservation(): void
+    {
+        $this->accept();
+        $this->connection->executeStatement('UPDATE '
+        . self::SCHEMA
+        . '.operations SET origin_actor_type = :type, origin_actor_id = :id WHERE operation_id = :operation', [
+            'type' => 'user',
+            'id' => 'clear-origin',
+            'operation' => self::OPERATION_ID,
+        ]);
+        $claim = $this->receiver->claim(new \BlackOps\Core\Execution\ClaimRequest(
+            new DateTimeImmutable('2026-07-10T00:01:00.000000Z'),
+        ));
+        self::assertNotNull($claim);
+
+        try {
+            $this->runtime(new CompletingWorkerReportHandler())->run($claim);
+            self::fail('A context origin mismatch must fail closed.');
+        } catch (DeferredTransportException) {
+            self::assertSame('running', $this->operationRow()['state']);
+        }
     }
 
     public function testWorkerReconnectsGeneratedConnectionBeforeResolvingHandler(): void
@@ -220,6 +285,7 @@ final class DeferredWorkerRuntimeTest extends TestCase
 
     public function testWorkerClosesEveryGeneratedConnectionAfterSupervisedFailure(): void
     {
+        $meterProvider = new RecordingMeterProvider();
         $app = $this->createMock(Connection::class);
         $analytics = $this->createMock(Connection::class);
         foreach ([$app, $analytics] as $connection) {
@@ -234,15 +300,20 @@ final class DeferredWorkerRuntimeTest extends TestCase
         self::assertNotNull($claim);
 
         try {
-            $this->runtime(new ThrowingWorkerReportHandler(), connections: $this->lifecycle([
-                'app' => $app,
-                'analytics' => $analytics,
-            ]))->run($claim);
+            $this->runtime(
+                new ThrowingWorkerReportHandler(),
+                connections: $this->lifecycle([
+                    'app' => $app,
+                    'analytics' => $analytics,
+                ]),
+                metrics: new TelemetryMetrics($meterProvider, ['report.generate']),
+            )->run($claim);
             self::fail('Expected supervised handler failure.');
         } catch (SupervisedHandlerFailureException) {
         }
 
         self::assertSame('failed', $this->operationRow()['state']);
+        self::assertSame('failed', $meterProvider->instruments[0]->records[0]['attributes']['blackops.result']);
     }
 
     public function testWorkerReusesClosedConnectionObjectOnNextRetryAttempt(): void
@@ -430,6 +501,76 @@ final class DeferredWorkerRuntimeTest extends TestCase
         );
     }
 
+    public function testScheduledWorkerCompletionTerminalizesAcceptedOccurrence(): void
+    {
+        $this->connection->executeStatement(
+            'INSERT INTO '
+            . self::SCHEMA
+            . '.schedule_states (schedule_name, operation_type, cursor_at, created_at, updated_at) VALUES (\'reports.daily\', \'report.generate\', \'2026-07-10 00:00:00+00\', \'2026-07-10 00:00:00+00\', \'2026-07-10 00:00:00+00\')',
+        );
+        $this->connection->executeStatement(
+            'INSERT INTO '
+            . self::SCHEMA
+            . '.schedule_occurrences (schedule_name, scheduled_at, evaluated_at, state, operation_id, created_at, updated_at) VALUES (\'reports.daily\', \'2026-07-10 00:00:00+00\', \'2026-07-10 00:00:00.000000+00\', \'claimed\', :operation, \'2026-07-10 00:00:00+00\', \'2026-07-10 00:00:00+00\')',
+            ['operation' => self::OPERATION_ID],
+        );
+        $this->accept(scheduled: true);
+        $claim = $this->receiver->claim(new \BlackOps\Core\Execution\ClaimRequest(
+            new DateTimeImmutable('2026-07-10T00:01:00.000000Z'),
+        ));
+        self::assertNotNull($claim);
+
+        $this->runtime(new CompletingWorkerReportHandler(), scheduled: true)->run($claim);
+
+        self::assertSame('completed', $this->connection->fetchOne('SELECT state FROM '
+        . self::SCHEMA
+        . '.schedule_occurrences WHERE operation_id = :operation', ['operation' => self::OPERATION_ID]));
+    }
+
+    public function testScheduledWorkerCompletionRollbackDoesNotPartiallyPersistTerminalState(): void
+    {
+        $this->connection->executeStatement(
+            'INSERT INTO '
+            . self::SCHEMA
+            . '.schedule_states (schedule_name, operation_type, cursor_at, created_at, updated_at) VALUES (\'reports.daily\', \'report.generate\', \'2026-07-10 00:00:00+00\', \'2026-07-10 00:00:00+00\', \'2026-07-10 00:00:00+00\')',
+        );
+        $this->connection->executeStatement(
+            'INSERT INTO '
+            . self::SCHEMA
+            . '.schedule_occurrences (schedule_name, scheduled_at, evaluated_at, state, operation_id, created_at, updated_at) VALUES (\'reports.daily\', \'2026-07-10 00:00:00+00\', \'2026-07-10 00:00:00+00\', \'claimed\', :operation, \'2026-07-10 00:00:00+00\', \'2026-07-10 00:00:00+00\')',
+            ['operation' => self::OPERATION_ID],
+        );
+        $this->connection->executeStatement(
+            'CREATE FUNCTION '
+            . self::SCHEMA
+            . '.reject_schedule_completion() RETURNS trigger LANGUAGE plpgsql AS \'BEGIN IF NEW.state = \'\'completed\'\' THEN RAISE EXCEPTION \'\'scheduled occurrence completion unavailable\'\'; END IF; RETURN NEW; END;\'',
+        );
+        $this->connection->executeStatement(
+            'CREATE TRIGGER reject_schedule_completion BEFORE UPDATE ON '
+            . self::SCHEMA
+            . '.schedule_occurrences FOR EACH ROW EXECUTE FUNCTION '
+            . self::SCHEMA
+            . '.reject_schedule_completion()',
+        );
+        $this->accept(scheduled: true);
+        $claim = $this->receiver->claim(new \BlackOps\Core\Execution\ClaimRequest(
+            new DateTimeImmutable('2026-07-10T00:01:00.000000Z'),
+        ));
+        self::assertNotNull($claim);
+
+        try {
+            $this->runtime(new CompletingWorkerReportHandler(), scheduled: true)->run($claim);
+            self::fail('Expected scheduled completion rollback.');
+        } catch (Throwable) {
+            self::assertSame('accepted', $this->connection->fetchOne('SELECT state FROM '
+            . self::SCHEMA
+            . '.schedule_occurrences WHERE operation_id = :operation', ['operation' => self::OPERATION_ID]));
+            self::assertNull($this->outcomes->find(OperationId::fromString(self::OPERATION_ID)));
+            self::assertNotSame('completed', $this->operationRow()['state']);
+            self::assertNotContains(JournalEvent::OperationCompleted, array_column($this->records(), 'event'));
+        }
+    }
+
     public function testTransactionalWorkerRollsBackBusinessWhenOutcomeOrFencingFails(): void
     {
         $metadata = $this->transactionalMetadata();
@@ -502,7 +643,8 @@ final class DeferredWorkerRuntimeTest extends TestCase
             AuthorizationDecision::allow(),
             AuthorizationDecision::allow(),
         ]);
-        $this->accept($metadata, actors: $actors, authorizationPolicy: $policy);
+        $telemetry = new TelemetryContext('00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01');
+        $this->accept($metadata, actors: $actors, authorizationPolicy: $policy, telemetry: $telemetry);
         $claim = $this->receiver->claim(new \BlackOps\Core\Execution\ClaimRequest(
             new DateTimeImmutable('2026-07-10T00:01:00.000000Z'),
         ));
@@ -662,12 +804,19 @@ final class DeferredWorkerRuntimeTest extends TestCase
             AuthorizationDecision::allow(),
         ]);
         $actors = self::userActors();
-        $this->accept($metadata, actors: $actors, authorizationPolicy: $policy);
+        $telemetry = new TelemetryContext('00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01');
+        $meterProvider = new RecordingMeterProvider();
+        $this->accept($metadata, actors: $actors, authorizationPolicy: $policy, telemetry: $telemetry);
         $firstClaim = $this->receiver->claim(new \BlackOps\Core\Execution\ClaimRequest(
             new DateTimeImmutable('2026-07-10T00:01:00.000000Z'),
         ));
         self::assertNotNull($firstClaim);
-        $runtime = $this->runtime($handler, metadata: $metadata, authorizationPolicy: $policy);
+        $runtime = $this->runtime(
+            $handler,
+            metadata: $metadata,
+            authorizationPolicy: $policy,
+            metrics: new TelemetryMetrics($meterProvider, [$metadata->typeId]),
+        );
 
         try {
             $runtime->run($firstClaim);
@@ -684,9 +833,16 @@ final class DeferredWorkerRuntimeTest extends TestCase
         $result = $runtime->run($secondClaim);
 
         self::assertTrue($result->isCompleted());
+        self::assertSame(
+            'retry_scheduled',
+            $meterProvider->instruments[0]->records[0]['attributes']['blackops.result'],
+        );
+        self::assertSame('completed', $meterProvider->instruments[0]->records[1]['attributes']['blackops.result']);
         self::assertSame(1, $handler->calls);
         self::assertCount(3, $policy->requests);
         self::assertSame(2, $policy->requests[2]->context()->attempt()?->number());
+        self::assertSame($telemetry->traceparent(), $policy->requests[0]->context()->telemetry()?->traceparent());
+        self::assertSame($telemetry->traceparent(), $policy->requests[2]->context()->telemetry()?->traceparent());
         self::assertEquals($actors->authorization(), $policy->requests[2]->actor());
         self::assertSame('worker-a', $policy->requests[2]->context()->actorContext()?->execution()->id());
         self::assertSame(
@@ -889,7 +1045,7 @@ final class DeferredWorkerRuntimeTest extends TestCase
     public function testWorkerSchedulesRetryAndWrapsRetryableHandlerException(): void
     {
         $handler = new RetryableThrowingWorkerReportHandler();
-        $this->accept();
+        $this->accept(tenant: new TenantRef('account', 'tenant-retry'));
         $claim = $this->receiver->claim(new \BlackOps\Core\Execution\ClaimRequest(
             new DateTimeImmutable('2026-07-10T00:01:00.000000Z'),
         ));
@@ -906,6 +1062,10 @@ final class DeferredWorkerRuntimeTest extends TestCase
 
         $row = $this->operationRow();
         $records = $this->records();
+
+        foreach ($records as $record) {
+            self::assertSame('tenant-retry', $record->operation->tenant?->id());
+        }
 
         self::assertSame('retry_scheduled', $row['state']);
         self::assertSame(1, (int) $row['attempt_number']);
@@ -1011,7 +1171,7 @@ final class DeferredWorkerRuntimeTest extends TestCase
     public function testLeaseExpiredRecoveryRecordsAttemptFailureAndSchedulesRetry(): void
     {
         $actors = self::userActors();
-        $this->accept(actors: $actors);
+        $this->accept(actors: $actors, tenant: new TenantRef('account', 'tenant-lease'));
         $claim = $this->receiver->claim(new \BlackOps\Core\Execution\ClaimRequest(
             new DateTimeImmutable('2026-07-10T00:01:00.000000Z'),
         ));
@@ -1051,6 +1211,7 @@ final class DeferredWorkerRuntimeTest extends TestCase
         self::assertSame(2, $records[4]->data->nextAttemptNumber);
         self::assertSame('2026-07-10T00:02:01+00:00', $records[4]->data->scheduledAt->format(DATE_ATOM));
         foreach (array_slice($records, 2) as $record) {
+            self::assertSame('tenant-lease', $record->operation->tenant?->id());
             self::assertEquals($actors->origin(), $record->operation->actorContext?->origin());
             self::assertEquals($actors->authorization(), $record->operation->actorContext?->authorization());
             self::assertSame('worker-a', $record->operation->actorContext?->execution()->id());
@@ -1058,10 +1219,58 @@ final class DeferredWorkerRuntimeTest extends TestCase
         }
     }
 
+    public function testScheduledLeaseRecoveryKeepsOccurrenceAcceptedAndContextOnRetry(): void
+    {
+        $this->connection->executeStatement(
+            'INSERT INTO '
+            . self::SCHEMA
+            . '.schedule_states (schedule_name, operation_type, cursor_at, created_at, updated_at) VALUES (\'reports.daily\', \'report.generate\', \'2026-07-10 00:00:00+00\', \'2026-07-10 00:00:00+00\', \'2026-07-10 00:00:00+00\')',
+        );
+        $this->connection->executeStatement(
+            'INSERT INTO '
+            . self::SCHEMA
+            . '.schedule_occurrences (schedule_name, scheduled_at, evaluated_at, state, operation_id, created_at, updated_at) VALUES (\'reports.daily\', \'2026-07-10 00:00:00+00\', \'2026-07-10 00:00:00+00\', \'claimed\', :operation, \'2026-07-10 00:00:00+00\', \'2026-07-10 00:00:00+00\')',
+            ['operation' => self::OPERATION_ID],
+        );
+        $metadata = $this->metadata(scheduled: true);
+        $this->accept(metadata: $metadata, scheduled: true);
+        $claim = $this->receiver->claim(new \BlackOps\Core\Execution\ClaimRequest(
+            new DateTimeImmutable('2026-07-10T00:01:00.000000Z'),
+        ));
+        self::assertNotNull($claim);
+        $this->startAttemptWithoutCompleting($claim, metadata: $metadata);
+
+        self::assertTrue($this->recovery($metadata, scheduled: true)->recoverOne(
+            new DateTimeImmutable('2026-07-10T00:02:00.000000Z'),
+        ));
+        self::assertSame('accepted', $this->connection->fetchOne('SELECT state FROM '
+        . self::SCHEMA
+        . '.schedule_occurrences WHERE operation_id = :operation', ['operation' => self::OPERATION_ID]));
+        foreach ($this->records() as $record) {
+            self::assertSame('reports.daily', $record->operation->schedule?->name());
+            self::assertSame('UTC', $record->operation->schedule?->timezone());
+            self::assertSame(
+                '2026-07-10T00:00:00.000000Z',
+                $record->operation->schedule?->scheduledAt()->format('Y-m-d\\TH:i:s.u\\Z'),
+            );
+        }
+    }
+
     public function testWorkerDeadLettersOperationWithoutOperationFailedEvent(): void
     {
         $handler = new ThrowingWorkerReportHandler();
-        $this->accept();
+        $this->connection->executeStatement(
+            'INSERT INTO '
+            . self::SCHEMA
+            . '.schedule_states (schedule_name, operation_type, cursor_at, created_at, updated_at) VALUES (\'reports.daily\', \'report.generate\', \'2026-07-10 00:00:00+00\', \'2026-07-10 00:00:00+00\', \'2026-07-10 00:00:00+00\')',
+        );
+        $this->connection->executeStatement(
+            'INSERT INTO '
+            . self::SCHEMA
+            . '.schedule_occurrences (schedule_name, scheduled_at, evaluated_at, state, operation_id, created_at, updated_at) VALUES (\'reports.daily\', \'2026-07-10 00:00:00+00\', \'2026-07-10 00:00:00+00\', \'claimed\', :operation, \'2026-07-10 00:00:00+00\', \'2026-07-10 00:00:00+00\')',
+            ['operation' => self::OPERATION_ID],
+        );
+        $this->accept(scheduled: true);
         $claim = $this->receiver->claim(new \BlackOps\Core\Execution\ClaimRequest(
             new DateTimeImmutable('2026-07-10T00:01:00.000000Z'),
         ));
@@ -1069,7 +1278,7 @@ final class DeferredWorkerRuntimeTest extends TestCase
         self::assertNotNull($claim);
 
         try {
-            $this->runtime($handler, new AlwaysDeadLetterSupervisionPolicy())->run($claim);
+            $this->runtime($handler, new AlwaysDeadLetterSupervisionPolicy(), scheduled: true)->run($claim);
             self::fail('Expected handler exception to be rethrown.');
         } catch (SupervisedHandlerFailureException $exception) {
             self::assertInstanceOf(RuntimeException::class, $exception->getPrevious());
@@ -1086,8 +1295,7 @@ final class DeferredWorkerRuntimeTest extends TestCase
         self::assertSame(self::OPERATION_ID, $deadLetter['operation_id']);
         self::assertSame($records[3]->attempt?->id->toString(), $deadLetter['final_attempt_id']);
         self::assertSame(1, (int) $deadLetter['final_attempt_number']);
-        self::assertSame(RuntimeException::class, $deadLetter['reason_type']);
-        self::assertSame('boom', $deadLetter['reason_message']);
+        self::assertSame('BOPD', $deadLetter['reason_magic']);
         self::assertSame('2026-07-10T00:02:00.000000Z', $deadLetter['moved_at']);
         self::assertSame(
             [
@@ -1106,6 +1314,40 @@ final class DeferredWorkerRuntimeTest extends TestCase
         self::assertSame('boom', $records[4]->data->reasonMessage);
         self::assertSame('2026-07-10T00:02:00+00:00', $records[4]->data->movedAt->format(DATE_ATOM));
         self::assertNull($this->outcomes->find(OperationId::fromString(self::OPERATION_ID)));
+        self::assertSame('dead_lettered', $this->connection->fetchOne('SELECT state FROM '
+        . self::SCHEMA
+        . '.schedule_occurrences WHERE operation_id = :operation', ['operation' => self::OPERATION_ID]));
+    }
+
+    public function testScheduledWorkerFailureTerminalizesOccurrenceAsFailed(): void
+    {
+        $this->connection->executeStatement(
+            'INSERT INTO '
+            . self::SCHEMA
+            . '.schedule_states (schedule_name, operation_type, cursor_at, created_at, updated_at) VALUES (\'reports.daily\', \'report.generate\', \'2026-07-10 00:00:00+00\', \'2026-07-10 00:00:00+00\', \'2026-07-10 00:00:00+00\')',
+        );
+        $this->connection->executeStatement(
+            'INSERT INTO '
+            . self::SCHEMA
+            . '.schedule_occurrences (schedule_name, scheduled_at, evaluated_at, state, operation_id, created_at, updated_at) VALUES (\'reports.daily\', \'2026-07-10 00:00:00+00\', \'2026-07-10 00:00:00+00\', \'claimed\', :operation, \'2026-07-10 00:00:00+00\', \'2026-07-10 00:00:00+00\')',
+            ['operation' => self::OPERATION_ID],
+        );
+        $this->accept(scheduled: true);
+        $claim = $this->receiver->claim(new \BlackOps\Core\Execution\ClaimRequest(
+            new DateTimeImmutable('2026-07-10T00:01:00.000000Z'),
+        ));
+        self::assertNotNull($claim);
+
+        try {
+            $this->runtime(new ThrowingWorkerReportHandler(), new AlwaysFailSupervisionPolicy(), scheduled: true)->run(
+                $claim,
+            );
+            self::fail('Expected scheduled worker failure.');
+        } catch (SupervisedHandlerFailureException) {
+            self::assertSame('failed', $this->connection->fetchOne('SELECT state FROM '
+            . self::SCHEMA
+            . '.schedule_occurrences WHERE operation_id = :operation', ['operation' => self::OPERATION_ID]));
+        }
     }
 
     public function testFailureReservationRejectsStaleFencingToken(): void
@@ -1121,24 +1363,34 @@ final class DeferredWorkerRuntimeTest extends TestCase
 
         $this->expectException(DeferredTransportException::class);
 
-        new PostgreSqlDeferredOperationLifecycleStore($this->connection, self::SCHEMA)->reserveFailed(
-            $stale,
-            new DateTimeImmutable('2026-07-10T00:02:00.000000Z'),
-        );
+        new PostgreSqlDeferredOperationLifecycleStore(
+            $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        )->reserveFailed($stale, new DateTimeImmutable('2026-07-10T00:02:00.000000Z'));
     }
 
     private function accept(
         ?OperationMetadata $metadata = null,
         ?Operation $definition = null,
         ?ActorContext $actors = null,
+        ?ActorContext $contextActors = null,
         ?AuthorizationPolicy $authorizationPolicy = null,
+        bool $scheduled = false,
+        ?TenantRef $tenant = null,
+        ?TelemetryContext $telemetry = null,
     ): void {
-        $metadata ??= $this->metadata();
+        $metadata ??= $this->metadata(scheduled: $scheduled);
         $context = new ExecutionContext(
             OperationId::fromString(self::OPERATION_ID),
             new DateTimeImmutable('2026-07-10T00:00:00.000000Z'),
             CorrelationId::fromString(self::CORRELATION_ID),
-            actorContext: $actors,
+            actorContext: $contextActors ?? $actors,
+            schedule: $scheduled
+                ? new ScheduleContext('reports.daily', new DateTimeImmutable('2026-07-10T00:00:00Z'), 'UTC')
+                : null,
+            tenant: $tenant,
+            telemetry: $telemetry,
         );
         $value = new WorkerReportValue('weekly');
         $encoded = $this->codec->encode($metadata, $value, $context);
@@ -1153,6 +1405,9 @@ final class DeferredWorkerRuntimeTest extends TestCase
             authorization: $authorizationPolicy === null
                 ? null
                 : new AuthorizationEvaluator(new AuthorizationPolicyResolver($container)),
+            scheduledOccurrences: $scheduled
+                ? new PostgreSqlScheduledOccurrenceLifecycle($this->connection, self::SCHEMA)
+                : null,
         );
 
         $orchestrator->accept(
@@ -1163,6 +1418,8 @@ final class DeferredWorkerRuntimeTest extends TestCase
                 $encoded->encodedPayload(),
                 $encoded->encodedContext(),
                 $context->receivedAt(),
+                tenant: $tenant,
+                originActor: $actors?->origin(),
             ),
             $envelope,
             $metadata,
@@ -1179,11 +1436,14 @@ final class DeferredWorkerRuntimeTest extends TestCase
         ?ApplicationDatabaseConnectionLifecycle $connections = null,
         ?ExecutionScopeProvider $scope = null,
         ?FrameworkOperationFailureReporter $failureReporter = null,
+        bool $scheduled = false,
+        ?TelemetryTracer $telemetry = null,
+        ?TelemetryMetrics $metrics = null,
     ): DeferredWorkerRuntime {
         $clock = new DeferredWorkerClock();
         $identifiers = new IdentifierFactory(new DeferredWorkerRuntimeUuidv7Generator(), $clock);
         $container = new DeferredWorkerContainer($handler, $authorizationPolicy);
-        $resolvedMetadata = $metadata ?? $this->metadata();
+        $resolvedMetadata = $metadata ?? $this->metadata(scheduled: $scheduled);
         $scope ??= new ExecutionScopeProvider();
         $manager = new DeferredWorkerDatabaseManager($this->connection);
         $transactionRuntime = new TransactionRuntime($manager, new IgnoringDeferredAfterCommitReporter(), $scope);
@@ -1208,15 +1468,24 @@ final class DeferredWorkerRuntimeTest extends TestCase
                 $this->connection,
                 new JournalRecordFactory($identifiers, $clock),
                 $this->journal,
-                new PostgreSqlDeferredOperationLifecycleStore($this->connection, self::SCHEMA),
+                new PostgreSqlDeferredOperationLifecycleStore(
+                    $this->connection,
+                    PostgreSqlTestStorageProtection::codec(),
+                    self::SCHEMA,
+                ),
                 $clock,
                 $outcomes ?? $this->outcomes,
                 scope: $scope,
                 transactions: $operationTransactions,
                 failureReporter: $failureReporter,
+                scheduledOccurrences: $scheduled
+                    ? new PostgreSqlScheduledOccurrenceLifecycle($this->connection, self::SCHEMA)
+                    : null,
+                telemetry: $telemetry,
             ),
             $guard ?? new \BlackOps\Internal\Execution\DirectClaimExecutionGuard(),
             connections: $connections,
+            metrics: $metrics,
         );
     }
 
@@ -1242,6 +1511,7 @@ final class DeferredWorkerRuntimeTest extends TestCase
     private function recovery(
         ?OperationMetadata $metadata = null,
         ?object $handler = null,
+        bool $scheduled = false,
     ): DeferredLeaseExpiredRecovery {
         $clock = new DeferredWorkerClock();
         $identifiers = new IdentifierFactory(new DeferredWorkerRecoveryUuidv7Generator(), $clock);
@@ -1261,9 +1531,16 @@ final class DeferredWorkerRuntimeTest extends TestCase
                 $this->connection,
                 new JournalRecordFactory($identifiers, $clock),
                 $this->journal,
-                new PostgreSqlDeferredOperationLifecycleStore($this->connection, self::SCHEMA),
+                new PostgreSqlDeferredOperationLifecycleStore(
+                    $this->connection,
+                    PostgreSqlTestStorageProtection::codec(),
+                    self::SCHEMA,
+                ),
                 $clock,
                 $this->outcomes,
+                scheduledOccurrences: $scheduled
+                    ? new PostgreSqlScheduledOccurrenceLifecycle($this->connection, self::SCHEMA)
+                    : null,
             ),
         );
     }
@@ -1276,7 +1553,11 @@ final class DeferredWorkerRuntimeTest extends TestCase
         $clock = new DeferredWorkerClock();
         $identifiers = new IdentifierFactory(new DeferredWorkerRuntimeUuidv7Generator(), $clock);
         $metadata ??= $this->metadata();
-        $state = new PostgreSqlDeferredOperationLifecycleStore($this->connection, self::SCHEMA);
+        $state = new PostgreSqlDeferredOperationLifecycleStore(
+            $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        );
         $records = new JournalRecordFactory($identifiers, $clock);
         $context = $this->codec->decodeContext($claim->message()->schemaVersion(), $claim->message()->encodedContext());
         $reservation = $state->reserveAttemptStarted($claim, $clock->now());
@@ -1302,7 +1583,7 @@ final class DeferredWorkerRuntimeTest extends TestCase
         $this->journal->append($records->attemptStarted($envelope, $metadata, $reservation->sequence));
     }
 
-    private function metadata(): OperationMetadata
+    private function metadata(bool $scheduled = false): OperationMetadata
     {
         return new OperationMetadata(
             'report.generate',
@@ -1311,6 +1592,7 @@ final class DeferredWorkerRuntimeTest extends TestCase
             WorkerReportHandler::class,
             WorkerReportDone::class,
             Deferred::class,
+            schedule: $scheduled ? new OperationScheduleMetadata('reports.daily', '* * * * *', 'UTC') : null,
         );
     }
 
@@ -1412,8 +1694,7 @@ final class DeferredWorkerRuntimeTest extends TestCase
                 operation_id::text AS operation_id,
                 final_attempt_id::text AS final_attempt_id,
                 final_attempt_number,
-                reason_type,
-                reason_message,
+                convert_from(substring(encoded_reason FROM 1 FOR 4), \'UTF8\') AS reason_magic,
                 to_char(moved_at AT TIME ZONE \'UTC\', \'YYYY-MM-DD"T"HH24:MI:SS.US"Z"\') AS moved_at
             FROM ' . self::SCHEMA . '.dead_letters');
 
@@ -1791,6 +2072,14 @@ final readonly class AlwaysDeadLetterSupervisionPolicy implements SupervisionPol
     public function decide(\Throwable $error, AttemptContext $attempt): SupervisionDecision
     {
         return SupervisionDecision::deadLetter();
+    }
+}
+
+final readonly class AlwaysFailSupervisionPolicy implements SupervisionPolicy
+{
+    public function decide(\Throwable $error, AttemptContext $attempt): SupervisionDecision
+    {
+        return SupervisionDecision::fail();
     }
 }
 

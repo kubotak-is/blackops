@@ -11,6 +11,7 @@ use BlackOps\Core\Retention\RetentionPolicyRef;
 use BlackOps\Core\Retention\RetentionPurgeAuditPort;
 use BlackOps\Core\Retention\RetentionPurgeAuditRecord;
 use BlackOps\Core\Retention\RetentionPurgeTarget;
+use BlackOps\Core\TenantRef;
 use BlackOps\Internal\Logging\MonologJsonlLoggerFactory;
 use BlackOps\Internal\Retention\LoggingRetentionPurgeAuditPort;
 use DateTimeImmutable;
@@ -37,18 +38,27 @@ final class LoggingRetentionPurgeAuditPortTest extends TestCase
         self::assertCount(1, $logger->records);
         self::assertSame('info', $logger->records[0]['level']);
         self::assertSame('Retention purge audit recorded.', $logger->records[0]['message']);
+        $occurredAt = $logger->records[0]['context']['occurredAt'];
+        unset($logger->records[0]['context']['occurredAt']);
         self::assertSame(
             [
-                'audit_id' => '019f32ab-2be0-7b38-a0a7-1ab2f9689b01',
-                'operation_id' => '019f32ab-2be0-7b38-a0a7-1ab2f9689b02',
-                'target' => 'journal',
-                'affected_count' => 2,
-                'policy' => 'production-retention-v1',
-                'purged_at' => '2026-07-12T03:04:05.123456Z',
-                'purged_by' => 'system:retention',
+                'schemaVersion' => 1,
+                'kind' => 'audit',
+                'event' => 'retention.purge.completed',
+                'data' => [
+                    'audit_id' => '019f32ab-2be0-7b38-a0a7-1ab2f9689b01',
+                    'operation_id' => '019f32ab-2be0-7b38-a0a7-1ab2f9689b02',
+                    'target' => 'journal',
+                    'affected_count' => 2,
+                    'policy' => 'production-retention-v1',
+                    'purged_at' => '2026-07-12T03:04:05.123456Z',
+                    'purged_by' => ['id' => '[masked]', 'type' => 'retention'],
+                    'tenant' => null,
+                ],
             ],
             $logger->records[0]['context'],
         );
+        self::assertSame('2026-07-12T03:04:05.123456Z', $occurredAt->format('Y-m-d\TH:i:s.u\Z'));
     }
 
     public function testPrimaryFailureDoesNotCallLoggerAndPropagates(): void
@@ -85,6 +95,23 @@ final class LoggingRetentionPurgeAuditPortTest extends TestCase
         self::assertCount(1, $primary->records);
     }
 
+    public function testAuditTenantIsMasked(): void
+    {
+        $stream = fopen('php://temp', 'w+');
+        self::assertIsResource($stream);
+        $calls = [];
+        new LoggingRetentionPurgeAuditPort(
+            new RecordingRetentionAuditPort($calls),
+            new MonologJsonlLoggerFactory()->create($stream, 'retention-audit'),
+        )->record(self::record(new TenantRef('account', 'tenant-secret-id')));
+
+        rewind($stream);
+        $jsonl = stream_get_contents($stream);
+        self::assertIsString($jsonl);
+        self::assertStringNotContainsString('tenant-secret-id', $jsonl);
+        self::assertStringContainsString('"id":"[masked]"', $jsonl);
+    }
+
     /** @throws JsonException */
     public function testWritesPayloadFreeOneLineJsonThroughMonologBackend(): void
     {
@@ -103,8 +130,10 @@ final class LoggingRetentionPurgeAuditPortTest extends TestCase
         self::assertStringEndsWith("\n", $jsonl);
         /** @var array<string, mixed> $decoded */
         $decoded = json_decode($jsonl, true, flags: JSON_THROW_ON_ERROR);
-        self::assertSame('retention-audit', $decoded['channel']);
-        self::assertSame('Retention purge audit recorded.', $decoded['message']);
+        self::assertSame(1, $decoded['schemaVersion']);
+        self::assertSame('audit', $decoded['kind']);
+        self::assertSame('2026-07-12T03:04:05.123456Z', $decoded['occurredAt']);
+        self::assertSame('retention.purge.completed', $decoded['event']);
         self::assertSame(
             [
                 'audit_id' => '019f32ab-2be0-7b38-a0a7-1ab2f9689b01',
@@ -113,16 +142,24 @@ final class LoggingRetentionPurgeAuditPortTest extends TestCase
                 'affected_count' => 2,
                 'policy' => 'production-retention-v1',
                 'purged_at' => '2026-07-12T03:04:05.123456Z',
-                'purged_by' => 'system:retention',
+                'purged_by' => ['id' => '[masked]', 'type' => 'retention'],
+                'tenant' => null,
             ],
-            $decoded['context'],
+            $decoded['data'],
         );
+        self::assertArrayNotHasKey('message', $decoded);
+        self::assertArrayNotHasKey('channel', $decoded);
+        self::assertArrayNotHasKey('level', $decoded);
+        self::assertArrayNotHasKey('datetime', $decoded);
+        self::assertArrayNotHasKey('level_name', $decoded);
+        self::assertArrayNotHasKey('extra', $decoded);
+        self::assertStringNotContainsString('system:retention', $jsonl);
         foreach (['payload', 'journal_record', 'outcome', 'error', 'credential'] as $forbidden) {
             self::assertStringNotContainsString($forbidden, $jsonl);
         }
     }
 
-    private static function record(): RetentionPurgeAuditRecord
+    private static function record(?TenantRef $tenant = null): RetentionPurgeAuditRecord
     {
         return new RetentionPurgeAuditRecord(
             RetentionPurgeAuditId::fromString('019f32ab-2be0-7b38-a0a7-1ab2f9689b01'),
@@ -132,6 +169,7 @@ final class LoggingRetentionPurgeAuditPortTest extends TestCase
             RetentionPolicyRef::fromString('production-retention-v1'),
             new DateTimeImmutable('2026-07-12T12:04:05.123456+09:00'),
             RetentionActorRef::fromString('system:retention'),
+            $tenant,
         );
     }
 }

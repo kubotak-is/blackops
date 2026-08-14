@@ -10,10 +10,12 @@ use BlackOps\Core\Identifier\AttemptId;
 use BlackOps\Core\Identifier\CausationId;
 use BlackOps\Core\Identifier\CorrelationId;
 use BlackOps\Core\Identifier\OperationId;
+use BlackOps\Core\TenantRef;
 use BlackOps\Idempotency\IdempotencyKey;
 use BlackOps\Internal\ExecutionContext\ExecutionContextFactory;
 use BlackOps\Internal\Identifier\IdentifierFactory;
 use BlackOps\Internal\Identifier\SymfonyUuidv7Generator;
+use BlackOps\Telemetry\TelemetryContext;
 use DateTimeImmutable;
 use DateTimeZone;
 use InvalidArgumentException;
@@ -54,6 +56,38 @@ final class ExecutionContextFactoryTest extends TestCase
         $context = $this->factory()->receive(null, $actors);
 
         self::assertSame($actors, $context->actorContext());
+    }
+
+    public function testTenantSurvivesReceiveAttemptAndChildWithoutOverride(): void
+    {
+        $tenant = new TenantRef('account', 'tenant-1');
+        $factory = $this->factoryWithClock([
+            '2026-07-02T12:34:56.123456Z',
+            '2026-07-02T12:35:00.000000Z',
+            '2026-07-02T12:36:00.000000Z',
+        ]);
+        $root = $factory->receive(tenant: $tenant);
+        $attempt = $factory->startAttempt($root, 1);
+        $child = $factory->createChild($root);
+        self::assertSame($tenant, $root->tenant());
+        self::assertSame($tenant, $attempt->tenant());
+        self::assertSame($tenant, $child->tenant());
+    }
+
+    public function testTelemetrySurvivesReceiveAttemptAndChildWithoutOverride(): void
+    {
+        $telemetry = new TelemetryContext('00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01');
+        $factory = $this->factoryWithClock([
+            '2026-07-02T12:34:56.123456Z',
+            '2026-07-02T12:35:00.000000Z',
+            '2026-07-02T12:36:00.000000Z',
+        ]);
+        $root = $factory->receive(telemetry: $telemetry);
+        $attempt = $factory->startAttempt($root, 1);
+        $child = $factory->createChild($root);
+        self::assertSame($telemetry, $root->telemetry());
+        self::assertSame($telemetry, $attempt->telemetry());
+        self::assertSame($telemetry, $child->telemetry());
     }
 
     public function testReceiveHashesOptionalKeyAndAttemptPreservesItWhileChildDoesNotInheritIt(): void

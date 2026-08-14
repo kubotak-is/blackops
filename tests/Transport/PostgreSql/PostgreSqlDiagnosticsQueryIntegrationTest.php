@@ -58,7 +58,11 @@ final class PostgreSqlDiagnosticsQueryIntegrationTest extends TestCase
         $this->connection = $this->connection();
         $this->connection->executeStatement('DROP SCHEMA IF EXISTS ' . self::SCHEMA . ' CASCADE');
 
-        $sender = new PostgreSqlDeferredOperationSender($this->connection, self::SCHEMA);
+        $sender = new PostgreSqlDeferredOperationSender(
+            $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        );
         $sender->migrate();
         $sender->enqueue(
             new DeferredOperationMessage(
@@ -68,10 +72,15 @@ final class PostgreSqlDiagnosticsQueryIntegrationTest extends TestCase
                 '{"private":"payload"}',
                 '{"private":"context"}',
                 new DateTimeImmutable('2026-07-18T00:00:00Z'),
+                originActor: new ActorRef('private-origin', 'customer'),
             ),
         );
 
-        $this->journal = new PostgreSqlCanonicalJournalStore($this->connection, self::SCHEMA);
+        $this->journal = new PostgreSqlCanonicalJournalStore(
+            $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        );
         $this->journal->migrate();
         foreach ($this->completedRecords() as $record) {
             $this->journal->append($record);
@@ -86,7 +95,11 @@ final class PostgreSqlDiagnosticsQueryIntegrationTest extends TestCase
             ],
         );
 
-        $this->outcomes = new PostgreSqlOutcomeStore($this->connection, self::SCHEMA);
+        $this->outcomes = new PostgreSqlOutcomeStore(
+            $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        );
         $this->outcomes->save(
             new OutcomeRecord(
                 $this->operationId(),
@@ -137,14 +150,12 @@ final class PostgreSqlDiagnosticsQueryIntegrationTest extends TestCase
             ],
         );
         $this->connection->executeStatement('INSERT INTO ' . self::SCHEMA . '.dead_letters (
-            operation_id, final_attempt_id, final_attempt_number, reason_type, reason_message, moved_at
+            operation_id, final_attempt_id, final_attempt_number, encoded_reason, moved_at
         ) VALUES (
-            :operation_id, :attempt_id, 1, :reason_type, :reason_message, :moved_at
+            :operation_id, :attempt_id, 1, decode(\'424f5044\', \'hex\'), :moved_at
         )', [
             'operation_id' => self::OPERATION_ID,
             'attempt_id' => self::ATTEMPT_ID,
-            'reason_type' => 'PermanentFailure',
-            'reason_message' => 'private-dead-letter',
             'moved_at' => '2026-07-18T00:00:05.654321Z',
         ]);
 

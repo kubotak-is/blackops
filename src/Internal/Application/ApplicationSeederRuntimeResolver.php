@@ -56,6 +56,11 @@ final readonly class ApplicationSeederRuntimeResolver
                 $databases = $database->databaseManager();
                 new RuntimeDatabaseServiceInjector()->inject($container, $databases);
                 new RuntimeTransactionServiceInjector()->inject($container, $databases, $scope);
+                new OperationDataRuntimeInjector()->inject(
+                    $container,
+                    $databases->connection($database->frameworkConnection),
+                    $database->schema,
+                );
             }
 
             $runtime = $container->get(CompiledSeederRuntime::class);

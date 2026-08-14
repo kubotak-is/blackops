@@ -1,6 +1,6 @@
 # Monolog JSONL Backend
 
-`MonologJsonlLoggerFactory` is the internal factory for the MVP application-log sink. It configures Monolog 3 with one `StreamHandler` and one `JsonFormatter`, then returns the result as PSR-3 `LoggerInterface`.
+`MonologJsonlLoggerFactory` is the internal factory for the MVP application-log sink. It configures Monolog 3 with one `StreamHandler` and one canonical `StructuredJsonlFormatter`, then returns the result as PSR-3 `LoggerInterface`.
 
 Monolog classes remain implementation details of `BlackOps\Internal\Logging`. Core contracts, Operation APIs, handlers, and services depend on PSR-3 rather than Monolog types.
 
@@ -57,11 +57,11 @@ $stream = fopen('php://stderr', 'w');
 $backend = new MonologJsonlLoggerFactory()->create($stream);
 ```
 
-The Factory does not implement file opening, writes, level comparison, or JSON encoding itself. `StreamHandler` owns stream/path handling and minimum-level filtering. `JsonFormatter` owns normalization and emits one newline-terminated JSON object per record.
+The Factory does not implement file opening, writes, or level comparison itself. `StreamHandler` owns stream/path handling and minimum-level filtering. `StructuredJsonlFormatter` emits one newline-terminated canonical JSON object per record.
 
 Factory自体はStream初期化とWrite Exceptionを吸収しない。Installed Applicationは必ずFactoryの結果を`ExecutionScopedLogger`の内側へ置き、最初のOpen／Write Failureを含めBest-effortで吸収する。別StreamへFallbackしない。
 
-Retention audit logging composes this same backend directly with `LoggingRetentionPurgeAuditPort`. The decorator emits one `info` record whose context contains only the typed purge-audit metadata, so its backend must accept the `info` level; the Factory default does. Unlike ordinary application logging, this audit path is fail-closed: a backend exception propagates into the purge transaction so the database audit and deletion roll back together. Do not place `ExecutionScopedLogger` around this system-audit path because its operation scope is unrelated to maintenance execution and the audit record already carries the target Operation ID explicitly.
+Retention audit logging composes this same backend directly with `LoggingRetentionPurgeAuditPort`. The decorator emits one `audit` record with stable `event` and safe `data`; raw actor and tenant identifiers are masked. Unlike ordinary application logging, this audit path is fail-closed: a backend exception propagates into the purge transaction so the database audit and deletion roll back together. Do not place `ExecutionScopedLogger` around this system-audit path because its operation scope is unrelated to maintenance execution and the audit record already carries the target Operation ID explicitly.
 
 ## Execution Scope and Sensitive Filtering
 
@@ -84,37 +84,27 @@ $logger = new ExecutionScopedLogger(
 );
 ```
 
-The decorator reads the current Operation scope, places framework-owned metadata under `operation`, projects user context through `SensitiveProjectionFilter`, and delegates only the enriched and filtered context to Monolog. It does not copy the unfiltered user context into another field.
+The decorator reads the current Operation scope, places framework-owned metadata under `operation`, projects user context through `SensitiveProjectionFilter`, and delegates only the enriched and filtered context to Monolog. It does not copy the unfiltered user context into another field. The canonical formatter also applies the projection at the backend boundary for direct logger use; the decorator remains required for Operation, Attempt, Actor, Tenant, and Schedule ownership.
 
-The resulting Monolog JSON record retains its standard fields, including:
+The resulting JSONL record uses canonical top-level fields:
 
 ```text
-channel
+schemaVersion
+kind
+occurredAt
 level
-level_name
 message
+channel
 context
-datetime
-extra
+operation (when scoped)
+attempt (when an attempt exists)
 ```
 
-The `context` field contains the framework structure:
+`operation.attemptId` is not emitted; an existing attempt is a separate top-level
+`attempt` object. Monolog `datetime`, `level_name`, integer `level`, and `extra`
+are implementation details and never appear on the public wire.
 
-```json
-{
-  "operation": {
-    "id": "019...",
-    "type": "report.generate",
-    "attemptId": "019...",
-    "strategy": "BlackOps\\Core\\Execution\\Deferred"
-  },
-  "context": {
-    "reportId": "report-123"
-  }
-}
-```
-
-Reserved sensitive keys such as password, token, and secret are removed before this record reaches `JsonFormatter`. Direct use of the backend does not add Operation scope or run the framework sensitive filter; use the decorator for application context.
+Reserved sensitive keys such as password, token, and secret are removed by the canonical `StructuredJsonlFormatter` at the backend boundary. Direct use of the backend does not add Operation scope; use the decorator for framework-owned operation, attempt, actor, tenant, and schedule context.
 
 ## Extension Boundary
 

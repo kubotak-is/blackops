@@ -13,6 +13,7 @@ use BlackOps\Core\Outcome;
 use BlackOps\Core\Registry\OperationMetadata;
 use BlackOps\Core\Rejection\RejectionReason;
 use BlackOps\Internal\Identifier\IdentifierFactory;
+use BlackOps\Internal\Telemetry\TelemetryTracer;
 use BlackOps\Journal\Data\AttemptFailedData;
 use BlackOps\Journal\Data\AttemptRetryScheduledData;
 use BlackOps\Journal\Data\OperationCompletedData;
@@ -29,9 +30,12 @@ final readonly class JournalRecordFactory
     private JournalRecordBuilder $builder;
     private JournalTerminalRecordFactory $terminal;
 
-    public function __construct(IdentifierFactory $identifiers, ClockInterface $clock)
-    {
-        $this->builder = new JournalRecordBuilder($identifiers, $clock);
+    public function __construct(
+        IdentifierFactory $identifiers,
+        ClockInterface $clock,
+        ?TelemetryTracer $telemetry = null,
+    ) {
+        $this->builder = new JournalRecordBuilder($identifiers, $clock, $telemetry);
         $this->terminal = new JournalTerminalRecordFactory($this->builder);
     }
 

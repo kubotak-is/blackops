@@ -1,42 +1,63 @@
 # Testing
 
-BlackOps ApplicationのTestは、Operationの業務規則、HTTP BindingとValidation、Inline／Deferredの実行境界、Databaseを含むWorker経路を分けて確認します。BlackOps専用のTesting APIやTest Runnerは提供していないため、Applicationが選んだPHP Test Frameworkと実Runtimeを組み合わせてください。
+このGuideは、Operationをどのリスク層で検証するかを決めるためのTask Recipeです。Stable `1.1.0`ではOperation、HTTP、PostgreSQL Deferred、Journal、Outcomeが利用できます。Frontend Contract、Status／Outcome API、BlackOps Boardの手順はRepository `main`のExperimental Surfaceなので、[Stableとmain](mvp-status.md#stableとmain)を先に確認してください。
 
-## 確認する層
+## 実行場所と準備
 
-| 層 | 確認すること | 既存の入口 |
-| --- | --- | --- |
-| Operation | 型付きValueからOutcomeまたは業務Rejectedを返す | [Authoring](operations.md) |
-| HTTP Boundary | Route、Binding、宣言的Value Validation、Status／JSON | [Value and Validation](validation.md) |
-| Inline／Deferred | 同じOperation ModelでResponseと受付境界が分かれる | [Inline and Deferred](execution.md) |
-| Frontend Contract | Generate／Drift、DOMなしStrict Type、`.url()`／`.toRequest()`／`.fetch()`／`.status()`／`.wait()`のRequestとResult | [4. Generated Operation Objectから呼ぶ](mvp-sample.md#4-generated-operation-objectから呼ぶ) |
-| Consumer E2E | Build、Migration、HTTP、Worker、Journal、Outcomeを実Processでつなぐ | [Quickstart and Skeleton](mvp-sample.md) |
-| Full-stack Browser | Application-owned Identity、Framework Session、Ephemeral Auth、SvelteKit BFF、Inline／Deferred UI、Sensitive Boundary、Accessibility | [BlackOps Board Reference Application](community-board.md) |
+ApplicationのProject Rootで、対象Releaseと同じDependency、Build Artifact、Database Configurationを使います。Docker ConsumerではRepository Rootから`docker compose run --rm app ...`を実行します。`tests/Consumer/*.sh`はFramework保守用のEvidenceであり、Installed Applicationに存在するCommandではありません。Test Framework、Browser、Fixtureの選択とSecretの供給はApplicationが所有します。
 
-Unit TestだけでDeferred処理のDurabilityを保証したと判断しないでください。少なくともApplicationと同じPostgreSQL SchemaへMigrationを適用し、HTTP 202のOperation IDを使ってWorker後のJournalとOutcomeを確認します。
+## 5つの検証層
 
-## Validation Failureを固定する
+| Layer | 使う場面 | 実行入口 | 成功時に確認するもの |
+| --- | --- | --- | --- |
+| Operation | 業務規則、Typed Value、Outcome、業務Rejected | Applicationが選んだPHP Test Frameworkの通常のUnit／Integration Test | OutcomeまたはRejectedの分類、Sensitive値が公開されないこと |
+| HTTP | Route、Binding、Value Validation、Status、Safe JSON | 実HTTP Client（例: `curl`） | `200`／`202`／`401`／`404`／`422`、Response Header、Operation ID |
+| Deferred | PostgreSQL Migration、202受付、Worker Attempt、Journal、Outcome | `php blackops worker:run`または[Quickstart and Skeleton](mvp-sample.md) | `accepted`からTerminal Event、Retry／Dead Letter、Typed Outcome |
+| Frontend | Generate、Drift、Strict Type、実HTTP Result | `build:compile` → `frontend:generate` → `frontend:check` → `pnpm test`（`main`のみ） | Fresh Tree、Typed Result、`transport`／`poll_timeout`／`unexpected_response` |
+| Full-stack Browser | Application-owned Authentication、BFF、Inline／Deferred UI、Accessibility | ApplicationのPlaywright／Browser Test（`main`のみ） | UI状態、Keyboard／Mobile、BFFの安全な境界 |
 
-成功例だけでなく、壊れたJSONの400、Binding Failureの422、宣言的Value Validationの422、Handler内の業務Rejectedを別Caseとして固定します。Sensitive値を使うTestでは、Canonical StoreのAccess制御とObserved JournalのMask／Exclude／Hashを混同せず、公開するLogやFixtureへRaw Secretを残さないでください。
+Unit TestだけでTransaction、Durability、Journal、Outcomeの永続化を保証したと判断しないでください。Deferredを変更したら、同じPostgreSQL SchemaへMigrationを適用し、実HTTPの`202`からWorker実行後のStatus／Journal／Outcomeまで確認します。
 
-## Generated Frontendを実HTTPへ接続する
+## 最小の実行順
 
-QuickstartはFrozen Frontend Lockfileと次の順序を正本にします。
+Backendだけを検証する場合はProject Rootで次を実行します。
 
 ```bash
-pnpm install --frozen-lockfile
+php blackops database:status
+php blackops database:migrate --dry-run
+php blackops database:migrate
 php blackops build:compile
+php blackops worker:run --iterations=1 --idle-sleep-milliseconds=1
+```
+
+Frontend Contractを使う`main` Previewでは、生成済みTreeを編集せず次を続けます。
+
+```bash
 php blackops frontend:generate
 php blackops frontend:check
 pnpm test
 ```
 
-Consumer E2EではGenerated Welcome／Report／Order／Diagnostics ObjectをWorker Mode HTTPへ接続し、200 `completed`、202 `accepted`、422 `validation`、500 `internal`、Fetch Throwの`transport`を確認します。`.url()`、`.toRequest()`、Readonly Metadataも同じCompiled Contractと比較します。
+`frontend:check`はFreshならExit `0`、Missing／Driftなら`1`、Config／Artifact／Contract不正なら`2`です。Generated Treeを修正して通過させず、PHP ContractまたはApplication-owned Consumer Sourceを修正して再生成します。
 
-Deferred Journeyでは、`.fetch()`が一回のPOSTだけで202を返すこと、`.status()`が`accepted`を一回取得すること、Nodeの有限`.wait()`中にShell側でWorker Retryを進めてTyped Completed Outcomeへ到達することを確認します。別Operationの短いDeadlineは`poll_timeout`になり、その後のWorker処理を壊しません。不正Credentialは401、Anonymous／Unknown／Denyは404、Non-terminalだけに`Retry-After`、全Responseに`private, no-store`があることも実HTTPで固定します。
+## Negative Path Matrix
 
-Browser Testはnative `AbortController`、DOMなしNode Testは購読可能なStructural Signal Helperを使います。Sensitive Input、Credential、Actor ID、Worker ID、Raw Transport ErrorをGenerated Tree、Typed Result、Application／Observed Logで検索し、非露出を固定してください。
+| Failure | 実行例 | 期待結果 |
+| --- | --- | --- |
+| malformed JSON | HTTPへ壊れたBodyを送る | `400`、Safe Error JSON、Raw BodyをLogへ残さない |
+| Binding／Value Validation | 必須Field欠落、型不一致、宣言的Rule違反 | `422`、Violationの`field`／`rule`／`code` |
+| Authentication | Credential欠落／不正 | `401`。不正CredentialはOperation IDを作らない場合がある |
+| Unknown／Unauthorized | Unknown Route、Status PolicyのDeny | `404`。存在とDenyを区別しない |
+| Business rejection | Handlerが業務拒否を返す | Rejected Lifecycle、CLIはExit `1`（Validationは`2`） |
+| Worker retry／dead letter | Workerを有限Loopで実行しRetryを待つ | `attempt.retry_scheduled`、最終`failed`／Dead Letter。成功と混同しない |
+| Frontend transport／poll | `.fetch()`／`.wait()`の接続断、期限超過、Shape不一致 | Result `kind: transport`とerror code（`network_error`／`aborted`／`poll_timeout`／`unexpected_response`）を区別し、Raw Responseを返さない |
 
-QuickstartはFrameworkの最短Contractを実HTTPへ接続します。BlackOps BoardはそのContractをApplication-owned Identity、Framework Session Core、Ephemeral Auth Operation、Domain／Infrastructure、SvelteKit Same-origin BFF、Deferred Progress UIへ広げたReference Applicationです。[BlackOps Board Reference Application](community-board.md)では、Clean Installと個別Consumer、実Browser E2Eの使い分けを確認できます。
+Deferredの`poll_timeout`はCancelではありません。Clientの待機期限とWorkerのSLOを分け、同じOperation IDへ後から`.status()`または有限`.wait()`を行います。失敗時の調査順は[Troubleshooting](troubleshooting.md)、HTTP／Deferredの実装境界は[Inline and Deferred](execution.md)を参照してください。
 
-再現可能なInput／Outputは[First Operation](first-operation.md)、失敗時の調査順は[Troubleshooting](troubleshooting.md)を参照してください。
+## 利用者向け検証記録の扱い
+
+`bash tests/Consumer/quickstart-e2e.sh`はQuickstartのBuild、Migration、HTTP、Worker、Inspectを実Processで確認します。`CI=true bash tests/Consumer/community-board-product-journey.sh`はRepository `main`のApplication-owned Identity、Outbox Relay、Deferred Digest、Retryを確認します。`community-board-digest.sh`はDeferred DigestのWorker／Retry検証記録であり、Outbox Relayの検証記録には使いません。これらはFrameworkの保守確認記録であり、利用者が自分のProjectで同じShell ScriptをInstallする手順ではありません。
+
+Browser層はApplicationのBrowser Testを実行し、Credential、Actor ID、Worker ID、Raw Transport ErrorをGenerated Tree、Log、Browser Bundleへ残さないことも検査します。[BlackOps Board Reference Application](community-board.md)はFull-stackのローカル／CI検証です。
+
+BlackOps BoardではApplication-owned Identity、Framework Session Core、SvelteKit same-origin BFF、Deferred Digestを一つのFull-stack Browser Journeyとして確認できます。

@@ -1,0 +1,312 @@
+# P22-003 Stable 1.2 Release Candidate Gate Report
+
+Status: In Progress — P22-003D mode-only correction is staged with unchanged Runtime Consumer content and passed Orchestrator focused review; Documentation Review is pending before a new candidate Commit and complete Local／Remote gate restart.
+
+## Summary
+
+Implemented the bounded Stable-to-candidate Runtime Consumer and its GitHub Actions job. The Consumer starts from the actual annotated Stable `1.1.0` quickstart in a fresh disposable checkout, installs and migrates Stable's two Framework migrations, creates a local annotated `1.2.0` tag at the committed candidate source, updates only `blackops/framework`, applies the documented Provider/config/environment merge plus the exact three runtime bootstrap files (`bootstrap/app.php`, `public/index.php`, `public/worker.php`), proves the additional nine migrations and DDL guards, and defines Provider-present HTTP/Worker and Provider-missing HTTP/Worker safe-negative lanes. The existing Auth Generator Fresh, FrankenPHP Worker, and Scheduled Operation Consumers now prepare a fail-closed 32-byte Storage Key before Docker/Composer execution without logging key material. The restarted gate then found that Community Board neither registers the mandatory Application-owned `StorageKeyProvider` nor prepares a Local key, so its runtime could not resolve before the intended pre-migration database failure. The bounded correction now registers the Local/Test provider, generates a fail-closed fresh key, preserves existing `.env` files, synchronizes the path-repository lock metadata, and proves the full 11 Framework + 5 Community Board (16 total) clean-install journey without exposing key material. At that local implementation closeout, no external tag, branch, release, Packagist, or deployment state had changed.
+
+The complete local gate was restarted from committed candidate `08ad61f`. All 23 top-level non-interactive Consumers, Frontend generation/runtime checks, Website tests/check/build, Framework export, Skeleton split/publication dry run, create-project lanes, Composer strict validation, Mago format/analyze, Full PHPUnit, and repository guards passed. Broad Mago lint reproduced the existing 186-issue baseline with 14 errors, and Deptrac remained blocked at 0/857 by its PHP 8.5 vendor parser. The candidate is 50 commits ahead of remote `origin/main` and is not in remote history, so same-SHA GitHub Actions evidence cannot exist before a separately authorized branch push.
+
+D140／P22-003A and D141／D142／P22-003B replaced those strict local blockers with a generated strict Mago baseline, Deptrac 4.7.1, explicit zero-violation／zero-uncovered architecture rules, and exact package inventory enforcement. Documentation Review returned P1=0／P2=0／P3=0; the correction was committed as `577cc224e0628ccbb9d91027ca214a4625a5228a`, and its immediate exact Git／Composer package export passed. All earlier full-gate evidence is historical; the complete replacement-candidate local gate has since passed from `577cc224`.
+
+The complete replacement-candidate local gate passed at `577cc224`: Composer strict, exact Framework export, Mago format／strict-baseline lint／analyze, Full PHPUnit (`2317 tests / 9444 assertions`), Deptrac (`858/858`, 0 violations／skipped／uncovered), all 23 top-level Consumers, Community Board CI-equivalent setup and journeys, Frontend, Website (`79 tests`, 41-page check, 42-page build), deterministic Skeleton split `fa5e8247fc8cf789cf73685e5be59cc498ffb4ce`, create-project lanes, and repository guards. The first Scheduled Operation run exited 255 after both concurrent evaluator containers were created and before its success marker; cleanup completed, and an immediate clean rerun passed CLI／recovery／concurrency without a Source change. Remote `origin/main` remains `267ffed9e5270618318649ec8769756c2d791f06`; the candidate is 0 behind／53 ahead, exists on the remote candidate branch, and remains absent from remote `main`. Same-SHA GitHub Actions has now run and failed; final Documentation Review and Orchestrator acceptance remain withheld.
+
+The separately authorized direct Push to `main` was rejected without remote mutation by the active pull-request Repository Rule and was not retried. Exact candidate `577cc224` was instead pushed to `agent/p22-003-stable-1-2-release-candidate`, and Draft PR #3 started same-SHA CI. CI run `31693960894` and Documentation delivery run `31693960994` failed: the Runtime Consumer's disposable Git repository has no tagger identity, the Quality job's shallow checkout omits Stable tag `1.1.0`, and the Website test unconditionally prepends `<?php` to outbox examples that already contain it. These are deterministic CI-environment contract gaps. Any correction changes Workflow／Consumer／Website-test Source, so the corrected Commit becomes a new candidate and requires the complete P22-003 gate to restart.
+
+Replacement candidate `96383e1bbe1a0914d1eddc9e1dea160042804f7c` then passed the complete restarted Local Gate. Composer strict validation, exact package export, Mago format／strict lint／baseline verification／analyze, Full PHPUnit (`2317 tests / 9444 assertions`), and Deptrac (`858/858`, 0 violations／skipped／uncovered, 4,848 allowed) passed. All 23 top-level Consumers passed, including the corrected Stable-to-candidate Runtime Consumer and the six CI-equivalent Community Board journeys. Frontend contract/runtime, Website (`79` tests, 41-page site check, 42-page build), deterministic Skeleton publication split `fa5e8247fc8cf789cf73685e5be59cc498ffb4ce`, normal／no-scripts create-project, and final repository guards passed. Generated dependencies/build artifacts were removed and Compose resources were stopped. The remote candidate branch and Draft PR still point to historical `577cc224` until the independently reviewed local-gate checkpoint authorizes the same-SHA branch update.
+
+Independent checkpoint review returned P1=0／P2=0／P3=0 after correcting two stale Task status lines and permitted only the exact `96383e1` candidate-branch update plus same-SHA CI monitoring. The existing branch was updated with an explicit SHA refspec, and live Draft PR #3 head became exact `96383e1`. Documentation delivery run `31719526552` passed its artifact build and PR preview deployment; main production deployment was skipped. CI run `31719526793` passed Community Board clean install／full-stack, Frontend, Runtime Consumer, and Website, but Quality failed at `version-baseline.sh`: `Runtime consumer must be executable`. Git evidence shows `tests/Consumer/framework-update-runtime.sh` is committed as mode `100644`, while the WSL2 working tree presents mode `0755` and `core.filemode=false`; the local guard therefore passed against untracked filesystem metadata that GitHub checkout does not preserve.
+
+The user approved P22-003D, which permits only Git mode `100644` to `100755` with unchanged script blob/content. The Luna High worker verified the exact blob and focused guards but could not write `.git/index.lock` in its read-only sandbox; the Orchestrator applied the approved mechanical `git add --chmod=+x` update. Staged Source diff is 0 insertions／0 deletions and only `old mode 100644`／`new mode 100755`, while HEAD／index／worktree blob remains `8b82505b2da9b14014a20836a42137d33e6042fd`. Shell syntax, version-baseline, management-ID, scope, and staged／unstaged diff checks pass. Orchestrator focused review passed; Documentation Review is pending before a new candidate Commit. Complete Local／same-SHA Remote evidence must then restart without reuse.
+
+## Candidate Establishment and Fixed SHA Evidence
+
+- Baseline commit: `61142d254861ffe13985679c338f592a46151af5`.
+- Superseded candidate: `99f723dfc9bcf1e859689c81878839ee37d2ba91` (`test: add stable 1.2 runtime upgrade gate`).
+- Superseded candidate: `413d0964cc132d685b228d5b8d697ac6cc4543e6` (`test: prepare storage keys in quickstart consumers`).
+- Superseded candidate: `6e009a433ce1c687f2f117d69afb14079668c206` (`fix: harden community board release setup`).
+- Superseded candidate: `e4be46f7e883f5247ed94f86c7854e3163a6c7dc` (`test: correct community board digest actor assertion`).
+- Superseded candidate: `08ad61f8236b3a240c9c9547fbde3b9d765fc6d5` (`test: prepare scheduled operation runtime directory`).
+- Superseded candidate: `577cc224e0628ccbb9d91027ca214a4625a5228a` (`fix: close release architecture boundaries`; Local Gate PASS, Remote CI failed).
+- Final Fixed Candidate: `96383e1bbe1a0914d1eddc9e1dea160042804f7c` (`fix: close remote CI environment contracts`).
+- P22-003B post-commit exact Framework Git／Composer package export passed from this committed source.
+- Candidate source is cloned from the repository's committed `HEAD`; uncommitted Task/STATE/Report files are not mounted as candidate source.
+- The Consumer verifies annotated Stable tag type and peeled commit, archives only `1.1.0:examples/quickstart`, then creates an annotated local `1.2.0` tag at the committed candidate SHA.
+- Documentation Reviewer returned P1=0/P2=0/P3=0 and permitted the bounded Gate Asset commit. No external Tag/Push was performed.
+- P22-003C Documentation Reviewer returned P1=0/P2=0/P3=0 and permitted the three-Source Remote CI contract correction Commit; Orchestrator committed it as `96383e1bbe1a0914d1eddc9e1dea160042804f7c`.
+- The fixed-SHA full gate found `auth-generator-fresh.sh` copies `.env.example` without populating the now-required `BLACKOPS_STORAGE_KEY`; the same stale setup is present in `frankenphp-worker-mode.sh` and `scheduled-operation.sh`. Per the Task reset rule, `99f723d` is not silently retained as the Final Fixed Candidate.
+- Documentation Reviewer returned P1=0/P2=0/P3=0 for the seven-file correction and permitted commit `413d0964cc132d685b228d5b8d697ac6cc4543e6` as the replacement Final Fixed Candidate.
+- The restarted gate at `413d096` passed the initial syntax, Composer, package-export, clean-source format/analyze, full PHPUnit rerun, and Auth Generator Fresh stages. Broad Mago lint and Deptrac reproduced the recorded baseline blockers. Community Board clean install stopped at its pre-migration seed-message assertion because the actual safe output was `Database seeding runtime could not be resolved.`, proving the Reference Application lacked the mandatory Provider composition rather than reaching the intended database-before-migration failure. The Task reset rule supersedes `413d096`.
+- Documentation Reviewer returned P1=0/P2=0/P3=0 for the 17-file Community Board/lock/current-proxy correction and permitted commit `6e009a433ce1c687f2f117d69afb14079668c206` as the new Final Fixed Candidate. The complete gate restarts from this exact committed source; earlier candidate evidence remains diagnostic only.
+- The restarted gate at `6e009a4` passed Community Board Clean Install, Browser, Foundation, Identity, Post/Comment, and Product journeys after reproducing that the browser lane requires the same Composer/frontend preparation used by CI. Digest then failed at line 304: the query reads only the protected journal's denormalized `origin_actor_id`, but the stale assertion still expects the execution worker ID. The preceding Alice origin assertion passes, the event sequence passes, and the worker ID belongs only to the protected encoded actor context. This is a Consumer contract mismatch introduced when direct protected-payload JSON inspection was removed, so `6e009a4` is superseded under the reset rule.
+- The bounded Digest correction now asserts exact denormalized `origin_actor_id` continuity for all eight journal sequences. It does not query the protected encoded execution actor, which is unavailable to the direct SQL contract. The exact corrected Digest journey passes; `6e009a4` remains superseded until the correction is independently reviewed and committed.
+- Documentation Reviewer returned P1=0/P2=0/P3=0 and permitted the four-file Digest correction commit. The review confirmed that the exact sequence/origin equality is stronger than the removed presence-only checks, matches Specification 99 restricted-clear metadata, does not query protected actor context, and keeps Task/Report/STATE truthful.
+- Orchestrator committed the reviewed four-file Digest correction as `e4be46f7e883f5247ed94f86c7854e3163a6c7dc`. The restarted full gate later superseded it when the Scheduled Operation Consumer exposed its missing runtime directory; prior candidate evidence remains diagnostic only.
+
+## Runtime Upgrade Consumer Evidence
+
+`tests/Consumer/framework-update-runtime.sh` uses a unique Compose project and random loopback HTTP port. It removes `.env` before Compose shutdown during all EXIT/INT/TERM cleanup paths, uses `umask 077`, never prints generated key material, and checks root Git status and project containers/volumes/networks after cleanup.
+
+The positive lane runs Stable `database:migrate` once, then uses read-only catalog checks for exactly two Stable Framework rows in current-schema `blackops.schema_migrations`, six baseline tables, and baseline constraints. It updates only `blackops/framework` to candidate `1.2.0`, whose status must recognize `applied: 2`/`pending: 9` before migration and finish at `applied: 11`/`pending: 0`, with latest migration `Version20260808100000`, protected-storage columns/rotation tables, and seven BOPD DDL constraints. It then builds candidate artifacts, sends the required `X-Sample-Token: local-example` request header, proves HTTP `200`/`application/json`/exact `{"message":"Welcome to BlackOps"}`, a running Worker service, and a successful one-iteration Worker command.
+
+The candidate config merge is bounded to the unique Stable `http_manifest` marker and the final root `];` closure. It preserves an existing frontend marker, inserts only the candidate `frontend_manifest` and `services` section, checks each replacement count, verifies `file_get_contents`/`file_put_contents` results, and emits only labelled non-sensitive failure diagnostics.
+
+The Consumer applies only the three authorized candidate runtime bootstrap files (`bootstrap/app.php`, `public/index.php`, `public/worker.php`) from the candidate quickstart. Generic source snapshots exclude exactly those intentional paths, while byte equality is checked before build and after both positive and negative lanes; Caddyfile, Compose, and other Application-owned files remain untouched.
+
+The negative lane removes only the Provider binding after the common migrated database and candidate build. It checks the exact internal safe Provider error without printing it, then exercises `http-classic`／`classic-mode` for generic HTTP `500` JSON and actual Worker CLI startup for non-running/nonzero safe failure. Provider-present remains Worker-mode HTTP／Worker. HTTP/Worker output and Classic HTTP logs are bounded and searched without printing for key, payload, SQL, stack, tenant, or actor leakage.
+
+The exact replacement-candidate run passed with candidate `96383e1bbe1a0914d1eddc9e1dea160042804f7c`: Stable `e3df5576c7216cfe8bd9e10e12ee6795f7674088`, 11 migrations, Provider-present HTTP／Worker, Provider-missing Classic HTTP／Worker safe-negative, source invariant, and cleanup all completed with exit 0.
+
+## Local PHP, Consumer, Frontend, and Website Full Gate Evidence
+
+The current complete Local Gate used committed source `96383e1bbe1a0914d1eddc9e1dea160042804f7c`; uncommitted management files were excluded from candidate clones and package export.
+
+- PASS: Consumer shell syntax, root／Quickstart Composer strict validation, exact Framework package export, Mago format／strict-baseline lint／baseline verification／analyze, Full PHPUnit (`2317 tests / 9444 assertions`), and Deptrac (`858/858`, 0 violations／skipped／uncovered, 4,848 allowed).
+- PASS: all 23 top-level Consumer scripts. The lost clean-install continuation output was not treated as evidence; with no process or temporary container remaining, the exact clean-install journey was rerun and passed. Community Board Browser passed Playwright 2/2; Foundation, Identity, Post／Comment, Product, and `CI=true` Digest all passed. Digest's first sandboxed invocation was denied Docker-socket access before setup and the identical escalated invocation passed; no Source changed.
+- PASS: corrected Runtime Consumer resolved Stable `e3df5576` to candidate `96383e1`, applied 11 Framework migrations, passed Provider-present／missing HTTP／Worker lanes, and cleaned source／Docker state.
+- PASS: Framework proxy-removal clean install, update generators, Auth, FrankenPHP Worker, both OpenTelemetry lanes, Quickstart, Scheduled Operation, Skeleton create-project／workflow／publication, and Storage protection rotation. The publication script was first invoked without its required arguments by the Orchestrator runner and rejected the invocation; the required `1.2.0 96383e1...` invocation then passed with deterministic split `fa5e8247fc8cf789cf73685e5be59cc498ffb4ce`.
+- PASS: Frontend Actions-equivalent image/dependency preparation, backend contract compile, seven-file generation/freshness, type/runtime/module-shape tests, tracked/generated/secret guards, and cleanup.
+- PASS: Website dependency synchronization, `79/79` tests, content／diagram／link／type checks, 42-page build, 41-page site check, public boundary guard, and generated cleanup.
+- PASS: final SHA, shell syntax, PHP management-ID, credential-pattern, generated-state, Quickstart lock／vendor, `git diff --check`, and final Mago format guards. Only the allowed management-document changes remain tracked; Compose resources are stopped.
+
+The `577cc224` complete-gate evidence below is retained as historical traceability and does not satisfy current-candidate acceptance.
+
+The complete replacement local gate used committed source `577cc224e0628ccbb9d91027ca214a4625a5228a`; uncommitted Task／Report／STATE files were not included in candidate clones or package export.
+
+- PASS: all Consumer shell syntax, root and Quickstart Composer strict validation, exact Framework Git／Composer package inventory, and Mago format for `src tests examples`.
+- PASS: Mago strict-baseline lint filtered the tracked 186 existing issues and reported no issue; Mago analyze completed with 71 advisory findings (`46 warnings`, `25 help`) and exit 0.
+- PASS: Full PHPUnit completed `2317 tests / 9444 assertions`; one dependency deprecation, two PHPUnit deprecations, and thirteen notices did not fail the suite.
+- PASS: Deptrac analyzed `858/858` files with 0 violations, 0 skipped, 0 uncovered, 4,848 allowed, 0 warnings, and 0 errors.
+- PASS: all 23 top-level non-interactive Consumer scripts completed at the replacement candidate. Scheduled Operation's first concurrency run exited 255 after both evaluator containers were created; cleanup removed its project resources, and an immediate clean rerun passed the complete CLI／recovery／concurrency contract without a Source change.
+- PASS: Frontend dependency synchronization, artifact compile, seven-file generation, freshness, type, injected-fetch, wait, bound-client, and module-shape checks.
+- PASS: Website dependency synchronization, 79 tests, content／diagram／link／type checks for 41 pages, 42-page static build, public artifact guard, and 41-page navigation／accessibility／version／search check. The known chunk-size advisory did not fail the build.
+- PASS: final public-artifact, PHP management-ID, Quickstart lock／vendor, shell syntax, and `git diff --check` guards. CI-equivalent Community Board standard Compose resources were removed after the focused journeys.
+
+The historical `08ad61f` evidence below is retained for traceability only and is superseded by the replacement-candidate results above.
+
+- PASS: all Consumer shell syntax, root and Quickstart Composer strict validation, Framework package export, and Mago format for `src tests examples`.
+- PASS: Mago analyze completed with 71 advisory findings (`46 warnings`, `25 help`) and exit 0.
+- PASS: Full PHPUnit completed `2315 tests / 9435 assertions`; the existing dependency deprecation, two PHPUnit deprecations, and thirteen notices did not fail the suite.
+- UNSATISFIED: broad Mago lint exited 1 with the existing `186 issues`: `14 errors`, `105 warnings`, `45 notes`, `22 help`, including 10 auto-fix suggestions.
+- UNSATISFIED: Deptrac exited 255 at `0/857`; the vendor `NikicFileReferenceVisitor.php:106` parser cannot parse the PHP 8.5 construct. Removing the obsolete Ray namespace collector did not change this vendor blocker.
+- PASS: all 23 top-level non-interactive Consumer scripts completed, including all six prepared Community Board journeys, Stable-to-candidate update, Framework proxy removal, Quickstart, Scheduled Operation, both OpenTelemetry lanes including Grafana LGTM, protected-storage rotation, Skeleton, and version baseline.
+- PASS: Community Board installed 69 packages without Ray.Aop, applied 11 Framework plus 5 Application migrations, passed `55 tests / 582 assertions`, passed the 46-test frontend suite, and completed Browser, Foundation, Identity, Post/Comment, Product, Digest, HTTP, Worker, redaction, and cleanup evidence.
+- PASS: Frontend installed from lock, compiled artifacts, generated 7 files, passed freshness/type/runtime/module-shape checks, found no forbidden runtime values, and cleaned generated state.
+- PASS: Website completed 79 tests, checked 41 pages with 0 errors/warnings/hints, built 42 static pages, checked navigation/accessibility/version/search on 41 pages, and passed the public artifact boundary. The known minified chunk-size advisory did not fail the build.
+- PASS: CI-equivalent tracked-required-file, generated-state, public-content, credential, management-ID, Quickstart lock/vendor, version, and diff guards. After generated cleanup, only the allowed Task／Report／STATE management changes remained.
+
+## Package Export, Split, and Create-project Evidence
+
+- Framework package export passed from committed source.
+- Skeleton `1.2.0` publication dry run from `577cc224` was deterministic and produced split commit `fa5e8247fc8cf789cf73685e5be59cc498ffb4ce`, matching the publication workflow regression.
+- Skeleton publication workflow regression passed new annotated publication, idempotent recovery, divergence rejection, and legacy-only recovery boundaries.
+- Normal and `--no-scripts` local create-project lanes both resolved Skeleton／Framework `1.2.0`, preserved the setup boundary, and passed package/source allowlists.
+
+## Release Surface and Known Limitations Review
+
+- CHANGELOG Unreleased describes the unpublished Experimental `1.2.0` candidate, nine post-Stable migrations, current-schema metadata fix, protected-storage irreversibility, Application-owned infrastructure responsibilities, and no Ray package removal migration.
+- UPGRADE keeps public Stable `1.1.0` separate from candidate source, requires Backup／Key preparation, proves Stable metadata with read-only catalog checks, orders `2 applied / 9 pending` before candidate migration and `11 / 0` afterward, and limits the verified runtime merge to `bootstrap/app.php`, `public/index.php`, and `public/worker.php`.
+- Public Installation／Runtime／Quickstart guidance preserves the Stable anonymous-authorization versus required `X-Sample-Token` Value binding distinction. Website regression tests enforce this executable contract.
+- The release surface matches candidate implementation and local strict quality has passed, but publication remains prohibited until same-SHA Remote CI, final Documentation Review, and Orchestrator acceptance are satisfied.
+
+## GitHub Actions Evidence
+
+`.github/workflows/ci.yml` adds `framework-update-runtime` with `fetch-depth: 0`, container UID/GID setup, a 45-minute timeout, and the Runtime Consumer command. Draft PR #3 ran exact candidate `577cc224`: CI run `31693960894` and Documentation delivery run `31693960994` both completed with failure. The exact failed contracts and successful jobs are recorded below; no successful Remote CI claim is made.
+
+`origin/main` remains `267ffed9e5270618318649ec8769756c2d791f06`. Candidate `577cc224` is 53 commits ahead, 0 behind, and is present on `agent/p22-003-stable-1-2-release-candidate` as Draft PR #3 head while absent from remote `main`. Same-SHA Remote CI exists but is unsuccessful.
+
+## Publication Preflight State
+
+Release Surfaces Checked At: `2026-08-13T18:11:30+09:00`; Candidate Branch／PR／Actions Checked At: `2026-08-13T22:09:47+09:00`
+
+| Surface | Read-only state |
+| --- | --- |
+| Framework remote `main` | `267ffed9e5270618318649ec8769756c2d791f06`; candidate absent, 0 behind／53 ahead |
+| Framework candidate branch／PR | `agent/p22-003-stable-1-2-release-candidate` at exact `577cc224`; Draft PR #3 open |
+| Same-SHA GitHub Actions | CI `31693960894` failure; Documentation delivery `31693960994` failure |
+| Framework `1.2.0` tag | Direct／peeled ref absent |
+| Skeleton remote `main` | `293f880940636669f28ded756a888a8d6ba65f1b` |
+| Skeleton `1.2.0` tag | Direct／peeled ref absent |
+| GitHub Release `1.2.0` | `release not found` |
+| Packagist `blackops/framework` | Stable `1.1.0` and `1.0.0` only; `1.2.0` absent |
+| Packagist `blackops/skeleton` | Stable `1.1.0` and `1.0.0` only; `1.2.0` absent |
+
+The release-surface checks were read-only. The only external writes in this continuation were the candidate branch and Draft PR #3 after direct `main` Push was rejected without mutation. No `main` merge, tag, release, package, Skeleton repository, or documentation deployment was changed.
+
+## P22-004 Publication Checklist and Recovery
+
+### Preconditions
+
+1. Commit the independently reviewed P22-003C correction and record that exact SHA as the replacement candidate. Treat all `577cc224` Local／Remote evidence as historical diagnostic evidence only.
+2. Run the complete P22-003 Local Gate from the replacement candidate without reusing `577cc224` evidence, then require the exact same SHA to pass GitHub Actions through the PR-required remote path and exist in remote `main` history without rewriting it.
+3. Run final Documentation Review and accept P22-003 only after strict local quality, same-SHA Remote CI, clean working tree, fixed candidate, and management evidence all agree.
+4. Reconfirm that Framework／Skeleton `1.2.0` direct and peeled refs and GitHub Release are absent, and confirm only the `SKELETON_DEPLOY_KEY` secret name without reading its value.
+5. Recompute and reconfirm the deterministic Skeleton split from the replacement accepted candidate; the `577cc224` split `fa5e8247fc8cf789cf73685e5be59cc498ffb4ce` is historical and must not be assumed unchanged.
+
+### Publication Sequence
+
+1. Create an annotated Framework `1.2.0` tag at the accepted fixed candidate; verify object type, message, and peeled commit locally before pushing it.
+2. Push only the immutable Framework tag and monitor the tag-triggered Skeleton publication workflow through all quality and cleanup steps.
+3. Verify Skeleton `main` fast-forwarded to the fixed split and its annotated `1.2.0` tag peels to the same split.
+4. Wait for Packagist Framework／Skeleton `1.2.0`; verify exact source refs, Skeleton `^1.2` Framework constraint, and package type.
+5. Create the GitHub Release from the accepted CHANGELOG／UPGRADE content and verify tag, name, draft/prerelease state, and Experimental warnings.
+6. Run remote normal and `--no-scripts` create-project, Project Root CLI, documented Quickstart, HTTP／Worker, migration, and redaction smoke using published packages only.
+7. Close P22-004 Report／Specification／TODO／STATE. Do not deploy the documentation website unless that deployment is separately authorized and in scope.
+
+### Success Conditions
+
+- Framework `1.2.0` is an immutable annotated tag peeling to the accepted fixed candidate.
+- Skeleton `1.2.0` is an immutable annotated tag and its peeled commit and `main` equal the fixed deterministic split.
+- Both Packagist packages expose `1.2.0` with exact accepted source refs; Skeleton requires Framework `^1.2`.
+- GitHub Release contains the accepted release note and migration／rollback warnings.
+- Remote normal／`--no-scripts` install and documented Quickstart pass without local path repositories or unpublished source.
+- Existing `1.0.0`／`1.1.0` refs, credential values, and documentation deployment state remain unchanged.
+
+### Recovery Conditions
+
+- Before Framework tag publication, any CI or source mismatch stops publication and returns to a new fixed candidate/full P22-003 gate.
+- After Framework tag publication, never move, delete, or reassign it. Recover only downstream steps against the same immutable tag.
+- If the tag-triggered Skeleton workflow fails, use its manual recovery for `release_version=1.2.0`; accept only an annotated Skeleton tag peeling to the same deterministic split.
+- Treat a divergent Skeleton `main`, different peeled commit, new lightweight `1.2.0` tag, or non-fast-forward update as a blocker; do not auto-rewrite remote refs.
+- For Packagist propagation delay, keep tags unchanged and recheck. If GitHub Release creation fails, retry only Release creation after package/tag consistency is intact.
+- Every recovery rerun must preserve credential cleanup and must not print the deploy key or other secret material.
+
+## Changed Files
+
+- `tests/Consumer/framework-update-runtime.sh`
+- `tests/Consumer/auth-generator-fresh.sh`
+- `tests/Consumer/frankenphp-worker-mode.sh`
+- `tests/Consumer/scheduled-operation.sh`
+- `tests/Consumer/version-baseline.sh`
+- `.github/workflows/ci.yml`
+- `CHANGELOG.md`
+- `UPGRADE.md`
+- `docs/guide/installation.md`
+- `docs/guide/runtime-bootstrap.md`
+- `docs/guide/mvp-sample.md`
+- `docs/website/tests/guide-code.test.mjs`
+- `examples/community-board/.env.example`
+- `examples/community-board/composer.lock`
+- `examples/community-board/app/ApplicationServiceProvider.php`
+- `examples/community-board/app/Security/SampleStorageKeyProvider.php`
+- `examples/community-board/bin/setup`
+- `examples/community-board/README.md`
+- `tests/Consumer/community-board-clean-install.sh`
+- `tests/Consumer/community-board-digest.sh`
+- `docs/guide/community-board.md`
+- `docs/internal/bootstrap.md`
+- `develop/spec/09-runtime-and-di.md`
+- `mago.toml`
+- `deptrac.yaml`
+- `tests/Internal/Application/ApplicationSeederBuildIntegrationTest.php`
+- `develop/TODO.md`
+- `develop/spec/103-stable-1-2-release-plan.md`
+- `develop/STATE.md`
+- `develop/orchestration/tasks/P22-003-stable-1-2-release-candidate-gate.md`
+- `develop/orchestration/reports/P22-003-stable-1-2-release-candidate-gate.md`
+
+## Decisions and Assumptions
+
+- Stable install and the candidate update use the same fresh Application checkout but separate committed Framework source states; the temporary annotated candidate tag is local to the Consumer clone.
+- Provider-missing HTTP may expose only the framework's generic safe `500` JSON. The exact Provider message is asserted through the application bootstrap chain and an in-container Worker-lane preflight without exposing it in output.
+- The amended Task Packet explicitly permits the three affected public guides and the guide-code regression test for this Stable Header contract correction; no Production PHP change was required.
+- The amended Task Packet also permits the three Manual Merge Matrix runtime bootstrap files; this Consumer copies and verifies only those files and does not broaden the merge to Caddyfile, Compose, or unrelated Application Source.
+- Candidate `99f723d` is superseded. The three existing Consumers use the same bounded Storage Key preparation contract: restrictive `.env`, strict 32-byte base64 generation/decoded-length check, exactly one non-empty assignment, mode 600, and key material unset before Docker/Composer commands. No Production Source or other Consumer was changed.
+- Candidate `413d096` is also superseded. Specification 99 already requires every protected Application to register `StorageKeyProvider`; correcting the Community Board example and its setup/docs is implementation conformance, not a new Framework/Public API decision. A fresh setup may generate a Local/Test key without printing it, while an existing `.env` remains Application-owned and must not be silently rewritten.
+- The first Provider-corrected clean-install rerun still returned the safe resolution failure. Fixed-stage probes proved the key was present with decoded length 32 and that the compiled Provider/operation-data/seeder composition succeeds when root dependencies are available. The actual fresh Community Board install then failed while constructing `ExecutionScopeProvider`: its stale path-repository lock still recorded Framework `dev-main 462cfdb` requirements and omitted current `open-telemetry/api` (and the current `ext-sodium` requirement). The lock-only metadata synchronization resolved that dependency gap without changing `composer.json`.
+- The synchronized lock points `blackops/framework` at candidate source `413d0964cc132d685b228d5b8d697ac6cc4543e6`, retains `ext-sodium` and `open-telemetry/api ^1.10`, and includes the resolved OpenTelemetry API/Context and PHP 8.2 polyfill entries. The exact clean-install Consumer then passed Composer, generated artifacts, migration application (`11 Framework + 5 Community Board = 16`), seed, HTTP, Worker, redaction, and cleanup assertions.
+- Fresh Community Board setup now creates `.env` with exclusive `fopen(..., 'xb')`, verifies every write/flush/close step, and validates cleanup when a later setup step fails. The Consumer exercises that failure lane with an obstructing `var/build` file before generating one runtime key for all subsequent redaction checks; existing `.env` byte/metadata preservation remains covered separately.
+- Current Framework proxy artifacts are documented as the atomic `proxy-profiles/<build-id>-<content-hash>/` common unit and `framework-proxies/<build-id>-<input-hash>/` Framework unit, with manifest/hash/Build ID validation and runtime no-scan/no-fallback behavior. The current spec, Mago includes, and Deptrac Library collectors no longer reference the removed Ray.Aop package; historical Decisions/Reports remain unchanged.
+
+The Digest Consumer's direct SQL query exposes only the journal's denormalized `origin_actor_id`; the execution actor remains inside the protected journal record. The correction therefore checks exact origin continuity across sequences 1 through 8 without weakening the contract to a presence-only check.
+
+## Commands and Results
+
+- PASS: `bash -n tests/Consumer/framework-update-runtime.sh tests/Consumer/auth-generator-fresh.sh tests/Consumer/frankenphp-worker-mode.sh tests/Consumer/scheduled-operation.sh tests/Consumer/version-baseline.sh`.
+- PASS: final `bash -n tests/Consumer/*.sh` after the Community Board failure-lane and setup-hardening changes.
+- PASS: `bash tests/Consumer/version-baseline.sh` (`stable=1.1.0 candidate=1.2.0`); the guard captures exact line order for `umask`, `.env` copy, 32-byte Storage Key generation/non-empty and decoded-length checks, `.env` write, assignment/empty-assignment counts, mode 600, key-variable unset, and the first Docker/Composer command for all three corrected Consumers, rejecting missing or duplicate contract steps.
+- PASS: `git diff --check`.
+- PASS: `bash tests/Consumer/auth-generator-fresh.sh` after the correction; the full Auth generator/register/login/logout/rotation/revocation journey passed and cleanup restored the repository/Docker baseline.
+- PASS: `bash tests/Consumer/frankenphp-worker-mode.sh` after the correction; Worker bootstrap, request isolation, database reconnect, restart/memory bounds, Classic fallback, correlated failure boundary, and cleanup passed.
+- PASS: `bash tests/Consumer/scheduled-operation.sh` after the correction; scheduled CLI, recovery, concurrency, and cleanup passed.
+- PASS: exact escalated pre-commit `bash tests/Consumer/framework-update-runtime.sh` (exit 0; Stable `e3df5576c7216cfe8bd9e10e12ee6795f7674088`, candidate `61142d254861ffe13985679c338f592a46151af5`, migrations 11, Provider-present Worker-mode HTTP/Worker, Provider-missing Classic HTTP/Worker safe-negative, cleanup/source invariant).
+- Correction: the Orchestrator reproduced an immediate post-install assertion failure because Composer's `show --format=json` shape did not provide the expected `"version"` field. Both checks now read the resolved `blackops/framework` version from `composer.lock`, matching the existing generator Consumer contract. Negative redaction also includes captured HTTP headers/body.
+- Correction: two Docker runs stopped at the Stable post-migration count assertion. The Consumer now uses a bounded `assert_migration_status` helper for Stable, candidate-before-migrate, and candidate-after-migrate stages; only applied/pending/version status is printed on mismatch, with no environment or secret output. Docker was not rerun for this focused correction.
+- Correction: the Orchestrator reproduced the Stable status mismatch as the known current-schema metadata defect. The Consumer now never reruns Stable migration or requires Stable CLI counts; it directly verifies the two exact Stable metadata rows, six baseline tables, and baseline constraints, then lets Candidate recognize `applied: 2`/`pending: 9`. CHANGELOG, UPGRADE, Specification 103, version guard, and STATE now document the safe order and prohibit metadata edits. Docker was not rerun for this focused correction.
+- Correction: a fourth exact Docker run passed Stable catalog checks and candidate Composer `1.2.0`, then stopped at the config merge's opaque `exit(1/2)`. The merge now uses bounded stderr labels, verifies the unique HTTP/frontend markers, inserts services before the uniquely matched final root closure, and checks read/write results without overwriting unrelated config. Docker was not rerun for this focused correction.
+- Correction: a fifth exact Docker run reached the hardened merge but exposed a PHP parse error from a single-quoted `preg_replace` pattern inside the shell single-quoted `php -r` program. The final-root regex now uses a correctly escaped PHP double-quoted pattern with regex delimiters. Docker was not rerun for this focused correction.
+- Correction: a sixth exact Docker run exposed the same shell quoting boundary in the marker strings: literal PHP single quotes were stripped before execution. All config-marker and provider-service-removal `php -r` programs now construct those literals with `chr(39)`, and the version guard checks that boundary. Docker was not rerun for this focused correction.
+- Correction: a seventh exact Docker run passed Stable metadata, candidate update/migrations/build, and Worker checks but received `422` from Header-free `/welcome`. The actual annotated Stable `1.1.0` `WelcomeValue` requires `X-Sample-Token` as a sensitive Value input even though Stable is authorization-anonymous and has no `#[Authorize]`. The Consumer now sends the required header on both positive and provider-missing HTTP lanes; UPGRADE, Installation, Runtime Bootstrap, MVP Sample, and website regression expectations distinguish Stable Value binding from Preview Sample Authentication/Authorization. Docker was not rerun for this focused correction.
+- PASS: `pnpm --dir docs/website test` (79 tests).
+- PASS: `docker compose --project-directory examples/community-board --project-name community-board-lock-update -f examples/community-board/compose.yaml run --rm --no-deps app composer update --lock --no-interaction` (path-repository Framework metadata synchronized to `413d096`; no unrelated package update).
+- PASS: `docker compose --project-directory examples/community-board --project-name community-board-lock-validate -f examples/community-board/compose.yaml run --rm --no-deps app composer validate --strict` (`./composer.json is valid`).
+- PASS: `docker compose --project-directory examples/community-board --project-name community-board-ray-lock-update -f examples/community-board/compose.yaml run --rm --no-deps app composer update --no-install --no-scripts --minimal-changes` (exactly 0 installs, 0 updates, 1 removal: `ray/aop 2.20.0`).
+- PASS: `docker compose --project-directory examples/community-board --project-name community-board-ray-lock-validate -f examples/community-board/compose.yaml run --rm --no-deps app composer validate --strict` after Ray removal (`./composer.json is valid`).
+- PASS: `docker compose run --rm app mago format --check src tests examples` (all files formatted after the setup hardening).
+- PASS: `docker compose run --rm app mago analyze` (71 existing issues: 46 warnings, 25 help; no error exit).
+- PASS: focused `docker compose run --rm app vendor/bin/phpunit tests/Internal/Application/ApplicationSeederBuildIntegrationTest.php` (`3 tests`, `22 assertions`).
+- BASELINE: `docker compose run --rm app php vendor/bin/deptrac analyse --config-file=deptrac.yaml --no-progress` still exits 255 at `0/857` on the known PHP 8.5 parser error in `NikicFileReferenceVisitor.php:106`; the obsolete Ray namespace collector is removed.
+- Correction: an eighth exact Docker run passed Stable/candidate migrations, build, Worker, and Provider-present Worker-mode HTTP `200`, then showed Provider-missing Worker-mode HTTP exits during boot before accepting requests. The Consumer now mounts the Framework clone into `http-classic`, uses its `${http_port}+1` port for the Provider-missing safe `500` HTTP lane, stops the correct Classic profile, retains the Worker CLI/process non-zero assertion, and redacts Classic HTTP logs. Task and Specification 103 now record this Runtime contract. Docker was not rerun for this focused correction.
+- Correction: a ninth exact Docker run reached the Provider-missing Classic lane, where the first readiness request reset the connection and the script exited without identifying the silent assertion. The Consumer now reports only fixed non-sensitive stage labels for HTTP/Worker preflight, Classic readiness/status/content/body, Worker CLI/process, redaction, and source invariants via `fail_stage`; it never prints headers, bodies, logs, environment, or keys. Docker was not rerun for this focused correction.
+- Correction: a tenth exact Docker run showed the bounded Classic readiness loop accepted a transient non-`000` response before the expected safe `500`. The loop now retries for all 30 attempts until exactly `500`, then retains the fixed `provider-missing-classic-http-readiness` label on exhaustion. Docker was not rerun for this focused correction.
+- Correction: an eleventh exact Docker run passed migrations, build, Worker, and Provider-present evidence but failed at Provider-missing HTTP because the Stable app still used its `1.1.0` bootstrap/runtime entrypoints. The Consumer now copies only candidate `bootstrap/app.php`, `public/index.php`, and `public/worker.php`, verifies byte equality at initial/positive/negative checkpoints, and excludes exactly those paths from generic source hashes. Docker was not rerun for this focused correction.
+- Correction: Documentation review synchronized UPGRADE's executable order with the passing Consumer: fresh Stable pre-status 0/2 and one-time migrate, read-only metadata/baseline DDL checks, no Stable post-migrate status, then Framework-only Candidate update/strict validation, status 2/9, dry-run/migrate, final 11/0. The matrix now names only the three runtime bootstrap files and explicitly leaves blackops/Caddyfile/Compose unchanged; the Runtime Consumer reference and lane boundaries are executable and guarded.
+- PASS at `413d096`: `bash -n tests/Consumer/*.sh`; root and Quickstart Composer strict validation; Framework package export; clean-source `mago format --check src tests examples`; `mago analyze` with the existing 71 advisories; Full PHPUnit clean rerun (`2315 tests`, `9434 assertions`) after one isolated known-flaky heartbeat failure passed alone; Auth Generator Fresh Consumer.
+- BASELINE at `413d096`: broad `mago lint` reports the existing 186 findings including 14 errors; Deptrac exits 255 at 0/857 because its vendor parser does not parse the PHP 8.5 construct in `NikicFileReferenceVisitor.php:106`. Framework PHP source was unchanged by either candidate correction.
+- BLOCKED at `413d096`: `bash tests/Consumer/community-board-clean-install.sh` stopped at the pre-migration seed assertion. A secret-safe diagnostic rerun confirmed status 1 and exact normalized application message `Database seeding runtime could not be resolved.`; database/demo passwords and key material were not printed. Static inspection confirmed no `BLACKOPS_STORAGE_KEY` placeholder, no Community Board Provider class, and no `StorageKeyProvider` binding.
+- CORRECTION DIAGNOSTIC: after the Provider/setup implementation, exact clean install still stopped at the same normalized resolution message. An isolated compiled-container probe with current root dependencies passed configuration/build/artifact/logging/database/transaction/storage-provider/operation-data/seeder-runtime. The actual fresh application probe confirmed key present/length 32 and artifact load, then failed at `ExecutionScopeProvider`; lock inspection showed current root requires `open-telemetry/api ^1.10` and `ext-sodium`, while Community Board's locked Framework metadata includes neither and Composer installs no OpenTelemetry API package.
+- PASS: after the Provider/setup, lock, exclusive-create, and failure-lane corrections, `bash tests/Consumer/community-board-clean-install.sh` completed the exact fresh install journey with fail-closed incomplete-`.env` cleanup, one fresh runtime key, `11 Framework + 5 Community Board = 16` migrations, generated-contract/build checks, double seeding, login/feed/detail HTTP checks, Worker startup, secret-safe output/log/database/generated-surface redaction, existing `.env` byte/metadata preservation, and cleanup.
+- PASS: the same exact Consumer also verified no `ray/aop` lock entry, no `vendor/ray/aop` installation, and no Ray namespace in the installed vendor tree.
+- PASS: current-surface scans found no Ray.Aop references in `src`, root Composer metadata/lock, Community Board lock, Mago, Deptrac, `docs/internal/bootstrap.md`, or `develop/spec/09-runtime-and-di.md`; the old `build/aop` sentinel is gone from `src`/`tests`, while Framework-owned internal `aop` generation remains implementation detail under `framework-proxies`.
+- PASS: Documentation Reviewer final correction review returned P1=0, P2=0, P3=0 and permitted the bounded correction commit. Long-running Consumer, build, and Browser commands were not rerun by the read-only reviewer; Orchestrator and worker execution evidence above remains the runtime evidence.
+- DIAGNOSTIC at `6e009a4`: the first direct `community-board-browser.sh` run after Clean Install stopped at its dependency precondition because Clean Install intentionally removes Community Board `vendor` and frontend `node_modules`. `.github/workflows/ci.yml` has an explicit Composer/frontend preparation phase before the focused journeys. After the same configuration, image build, Composer strict/install, and pnpm install steps, Browser passed 2 Playwright tests; Foundation, Identity (`55 tests / 582 assertions` plus frontend `46`), Post/Comment, and Product journeys all passed.
+- BLOCKED at `6e009a4`: `CI=true bash tests/Consumer/community-board-digest.sh` passed migrations, PHPUnit (`55 tests / 582 assertions`), frontend check/test/build, HTTP/Worker retry/completion, digest, isolation, and event-sequence checks, then stopped at line 304. `FIRST_ACTORS` selects `origin_actor_id` only, so requiring `community-board-worker-1` contradicts the column contract; the execution actor is stored inside the protected journal record and is intentionally unavailable to this direct SQL assertion. The bounded Consumer assertion correction is delegated to the Luna High worker.
+
+- PASS after the bounded correction: `CI=true bash tests/Consumer/community-board-digest.sh` completed migrations (`16`), PHPUnit (`55 tests / 582 assertions`), frontend check/test/build (`46` Vitest tests), HTTP/Worker retry/completion, tenant isolation, exact journal event sequence, exact origin-actor continuity, and cleanup; it ended with `Community Board digest journey passed.`
+- PASS: `bash -n tests/Consumer/*.sh`, `git diff --check`, the PHP management-ID guard, and `docker compose run --rm app mago format --check src tests`.
+- PASS: Documentation Reviewer read-only final review returned P1=0, P2=0, P3=0 and permitted the bounded Digest correction commit. Long-running Consumer/build/browser commands were not rerun by the reviewer; worker runtime evidence and Orchestrator static review remain the execution evidence.
+- DIAGNOSTIC at `e4be46f`: the first two exact `bash tests/Consumer/scheduled-operation.sh` runs stopped at the initial `operation:schedule:run --json` with safe `configuration_error`. Secret-safe runtime composition inspection identified the cause as the copied Quickstart lacking `var/log`, while `config/journal.php` and `config/logging.php` require that writable parent. Creating only the fixture directory cleared the error and returned evaluated 2 / accepted 2 / failed 0.
+- PASS after the scoped correction: `bash tests/Consumer/scheduled-operation.sh` completed the Scheduled Operation CLI, recovery, and concurrency journey. `mkdir -p "${CONSUMER}/var/log"` is now performed immediately after copying the Quickstart; no Production PHP or public API changed.
+- PASS: `bash -n tests/Consumer/*.sh`, `git diff --check`, the PHP management-ID guard, and `docker compose run --rm app mago format --check src tests` after the Scheduled Consumer correction.
+- PASS: Documentation Reviewer read-only review returned P1=0, P2=0, P3=0 and permitted the four-file Scheduled Consumer correction commit. Orchestrator committed it as `08ad61f8236b3a240c9c9547fbde3b9d765fc6d5`; this exact committed source is the replacement Final Fixed Candidate.
+- PASS: Documentation Reviewer final local-gate checkpoint review returned P1=0, P2=0, P3=0 and permitted the five-file management checkpoint commit while explicitly withholding P22-003 Acceptance. The reviewer confirmed the 23-Consumer count, local gate versus strict blocker distinction, 0-behind／50-ahead remote-tracking relation, P22-004 execution/recovery boundaries, and absence of publication authorization. Long-running commands and remote fetch were not repeated by the read-only reviewer.
+- PASS at `577cc224`: complete local gate described above, including strict Mago lint, Deptrac 858/858 zero result, Full PHPUnit 2317/9444, all 23 Consumers, Frontend, Website, package/create-project/Skeleton dry-run, and final repository guards.
+- DIAGNOSTIC then PASS: the first Scheduled Operation concurrency run exited 255 without a fixed failure label after both concurrent evaluator containers were created. Cleanup completed. The exact immediate rerun passed CLI, recovery, one-operation concurrency, event sequence, and duplicate-slot checks; no Source correction was made.
+- READ-ONLY: refreshed Framework remote is `267ffed9`; candidate is 0 behind／53 ahead and absent from remote branches／Actions. Framework／Skeleton `1.2.0` tags, GitHub Release, and both Packagist `1.2.0` packages remain absent; Skeleton remote `main` remains `293f8809`; only the `SKELETON_DEPLOY_KEY` name was confirmed.
+- PASS: Independent Documentation Reviewer rechecked the synchronized seven-management-file local-gate checkpoint and returned P1=0／P2=0／P3=0. The review confirmed complete Local Gate PASS, the separately authorized Push -> same-SHA Remote CI -> final Documentation Review -> Orchestrator acceptance order, publication prohibition, and permission to request Branch Push authorization without granting or exercising it. Long-running commands were not repeated by the read-only reviewer.
+- REJECTED without remote mutation: `git push origin main` was denied by GitHub Repository Rule `Changes must be made through a pull request.` The prohibited direct path was not retried.
+- PASS: exact candidate `577cc224e0628ccbb9d91027ca214a4625a5228a` was pushed to `agent/p22-003-stable-1-2-release-candidate`; Draft PR #3 targets `main` with this exact head SHA and excludes the seven local management-file changes.
+- REMOTE FAILURE: CI run `31693960894` passed Community Board clean install／full-stack and Frontend, but Runtime Consumer failed at annotated tag creation because its disposable Git repository lacked tagger identity; Quality failed because default shallow checkout omitted `1.1.0`; Website failed because guide PHP lint received a duplicate opening tag.
+- REMOTE FAILURE: Documentation delivery run `31693960994` failed the same guide PHP lint contract; deployment jobs were skipped and no documentation deployment occurred.
+
+## Acceptance Criteria
+
+- [x] Runtime Consumer and CI wiring implement the P22-002 common migration/DDL and Provider-present/missing lane contract.
+- [x] Corrected Runtime Consumer executes successfully with cleanup/source/Docker invariants at the committed P22-003C replacement candidate (`577cc224` evidence is historical).
+- [x] P22-003C replacement Final Fixed Candidate SHA `96383e1bbe1a0914d1eddc9e1dea160042804f7c` is committed and recorded after independent review.
+- [x] Full local strict quality passes at the P22-003C replacement fixed SHA without evidence reuse.
+- [ ] Same-SHA Remote GitHub Actions passes after the reviewed P22-003C replacement candidate updates the PR-required remote branch.
+- [x] Report, Specification 103, TODO, and STATE are synchronized with the completed local execution and remaining blockers.
+- [x] Community Board registers an Application-owned `StorageKeyProvider`, fresh setup creates a strict 32-byte Local key with mode 600 and no exposure, and existing `.env` remains unchanged.
+- [x] Community Board lock metadata retains current Candidate `open-telemetry/api` / `ext-sodium` requirements and the fresh install resolves Seed/HTTP/Worker dependencies.
+- [x] Community Board clean install applies 11 Framework + 5 Application migrations and the README/Consumer assert the same total of 16.
+- [x] Community Board lock and installed vendor tree contain no orphan `ray/aop` package, and the Consumer asserts that absence.
+- [x] Current spec, Mago, Deptrac, and internal Bootstrap documentation describe the Framework-owned proxy artifact contract without obsolete Ray.Aop dependency or path references.
+- [x] Digest Consumer asserts only denormalized `origin_actor_id` and exact origin continuity for all eight journal records; protected execution actor remains unqueried.
+- [x] Scheduled Operation Consumer prepares the Quickstart runtime log directory required by the configured journal and logging paths, then passes CLI, recovery, and concurrency evidence.
+- [x] All 23 top-level Consumers, Frontend, Website, Framework export, Skeleton split/publication dry run, normal/no-scripts create-project, and repository guards pass at the P22-003C replacement candidate (`577cc224` result is historical).
+- [x] CHANGELOG Known Limitations and UPGRADE match the fixed candidate release and migration surface.
+- [x] Framework／Skeleton tags, GitHub Release, and Packagist `1.2.0` are confirmed absent read-only.
+- [x] P22-004 preconditions require the new correction SHA, complete Local／same-SHA Remote gates, final review／acceptance, and recomputed deterministic split without authorizing publication.
+
+## Remaining Issues
+
+1. Replacement candidate `96383e1` passed the complete Local Gate. The tracked Mago baseline retains the existing 186 findings as explicit debt, with strict baseline verification green.
+2. Remote candidate branch and Draft PR #3 point to `96383e1`, but CI run `31719526793` failed Quality because the Runtime Consumer Git index mode is `100644`; all other CI jobs and Documentation delivery passed.
+3. P22-003D mode-only correction (`100644` to `100755`) is approved and staged with unchanged blob after Luna High implementation plus Orchestrator focused review; independent Documentation Review is pending before a new candidate Commit.
+4. Final Documentation Review and P22-003 Acceptance remain withheld. PR merge and all P22-004 publication actions remain prohibited until their recorded preconditions are met.
+
+## Suggested Next Action
+
+Complete P22-003D Documentation Review. If P1=0／P2=0, commit the reviewed mode-only correction as a new candidate, then restart the complete Local Gate without evidence reuse. Do not rerun the failed workflow, update the PR branch, merge PR #3, or begin P22-004 publication before the new local gate passes.

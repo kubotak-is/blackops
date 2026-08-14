@@ -22,6 +22,9 @@ use BlackOps\Internal\Console\OperationViewerCommand;
 use BlackOps\Internal\Console\OutboxDeadLetterRetryCommand;
 use BlackOps\Internal\Console\OutboxRelayDaemonCommand;
 use BlackOps\Internal\Console\OutboxRelayRunCommand;
+use BlackOps\Internal\Console\ScheduledOperationRunCommand;
+use BlackOps\Internal\Console\StorageProtectionPlanCommand;
+use BlackOps\Internal\Console\StorageProtectionRotateCommand;
 use BlackOps\Internal\Console\WorkerRunCommand;
 use BlackOps\Internal\Diagnostics\OperationDiagnosticsResult;
 use BlackOps\Internal\Diagnostics\Viewer\OperationViewerRouter;
@@ -112,6 +115,11 @@ final class ApplicationConsoleCommandFactory
         return new WorkerRunCommand(new ApplicationWorkerComposer()->compose($this->configuration)->loop);
     }
 
+    public function scheduledOperationRun(): Command
+    {
+        return new ScheduledOperationRunCommand(fn() => new ApplicationScheduledOperationRuntimeComposer()->compose($this->configuration)->runner);
+    }
+
     public function outboxRelayRun(): Command
     {
         return new OutboxRelayRunCommand(new ApplicationOutboxRuntime($this->configuration)->relay);
@@ -134,18 +142,33 @@ final class ApplicationConsoleCommandFactory
         return new OutboxDeadLetterRetryCommand($runtime->store, $runtime->clock);
     }
 
+    public function storageProtectionPlan(): Command
+    {
+        return new StorageProtectionPlanCommand(new ApplicationStorageProtectionRuntime($this->configuration)->rotation);
+    }
+
+    public function storageProtectionRotate(): Command
+    {
+        return new StorageProtectionRotateCommand(new ApplicationStorageProtectionRuntime($this->configuration)->rotation);
+    }
+
     public function journalObserverReplay(): Command
     {
         $database = ApplicationDatabaseConfiguration::fromConfiguration($this->configuration->configuration());
         $connection = $database->databaseManager()->connection($database->frameworkConnection);
+        $runtime = new ApplicationOperationRuntimeComposer()->compose($this->configuration);
+        $protection = $runtime->protection;
         $targets = new ApplicationJournalObservationFactory()->replayTargets(
             $this->configuration->configuration(),
+            $runtime->metrics,
         ) ?? new \BlackOps\Internal\Replay\ObserverReplayTargetRegistry([]);
         return new JournalObserverReplayCommand(
             new ObserverReplayRuntime(
-                new PostgreSqlObserverReplayStore($connection, $database->schema),
+                new PostgreSqlObserverReplayStore($connection, $protection, $database->schema),
                 $targets,
                 new ObservedJournalRecordProjector(new SensitiveProjectionFilter()),
+                telemetry: $runtime->telemetry,
+                metrics: $runtime->metrics,
             ),
         );
     }

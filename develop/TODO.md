@@ -203,16 +203,51 @@ MVP後に残す主要項目:
 - [x] JournalのJSON構造、運用、安全境界、OpenTelemetry将来構想を独立Guideへ統合する（P20-009C）
 - [x] Journal JSONLのParameter説明をTableへ整理する（P20-009D、P20-009EでRuntime Projection修正後にAcceptance）
 - [x] Observed Journalの空Object、Identifier、日時Wire Shapeを修正する（P20-009E）
-- [ ] Testing／Deployment／Referenceを含むTask-oriented Guideを増強する（P20-010）
-- [ ] Site UXを増強し、全Pageの文章編集Passを行う（P20-011以降）
-- [ ] Scheduled Application Operationの入口、Timezone、Misfire、Overlap、Identity、Idempotencyを別Decisionで確定する
-- [ ] Journal／Outcome参照制御、Tenant分離、暗号化Capabilityを強化する
-- [ ] 構造化Log SchemaとOpenTelemetry Adapterを提供する
+- [x] Testing／Deployment／Referenceを含むTask-oriented Guideを増強する（P20-010）
+- [x] Blume native Callout、Copy、Previous／Next、Edit Link、日本語Fontを接続する（P20-011、Accepted）
+- [x] 表記Guidelineを確定し、全Pageの文章編集Passを行う（P20-012、Accepted）
+- [x] Scheduled Application Operationの入口、Timezone、Misfire、Overlap、Identity、Idempotencyを別Decisionで確定する（D134／P20-013、Accepted）
+- [x] Scheduled Application OperationをAuthoring／Persistence／Invocation／CLI／Guideに分割して実装する（Specification 98／P20-014A〜E、Accepted）
+- [x] Journal／Outcome参照制御、Tenant分離、暗号化CapabilityのContractを確定する（D135／Specification 99／P20-015、Accepted）
+- [x] TenantRefとRoot／Child／Worker／Retry Tenant伝播を実装する（P20-016A、Accepted）
+- [x] XChaCha20-Poly1305 EnvelopeとStorage Key Providerを実装する（P20-016B、Accepted）
+- [x] PostgreSQL Tenant MetadataとDecode前Isolationを実装する（P20-016C、Accepted）
+- [x] Tenant-aware StatusとDefault-deny Journal／Outcome Readを実装する（P20-016D、Accepted）
+- [x] Journal／Deferred Payload／Context／OutcomeをEncrypted Envelopeへ移行する（P20-016E、Accepted）
+- [x] Outbox／Dead Letter Reason／Idempotency Response／Resultを保護する（P20-016F、Accepted）
+- [x] Storage Key Rotation CLI、Audit、Checkpoint／Resumeを実装する（P20-016G、Accepted）
+- [x] Tenant／Storage ProtectionのGuideとDocumentation Reviewを完了する（P20-016H、Accepted）
+- [x] 構造化Log Schema、OpenTelemetry Trace／Metric Adapter、Health／Readiness境界を確定する（D136／Specification 100／P20-017、Accepted）
+- [x] Structured Record v1とCanonical JSONL Formatterを実装する（P20-018A、Accepted）
+- [x] W3C Telemetry ContextとProcess越しPropagationを実装する（P20-018B、Accepted）
+- [x] OpenTelemetry Trace AdapterとSpan Lifecycleを実装する（P20-018C、Accepted）
+- [x] 低Cardinality Metric AdapterとRuntime Instrumentationを実装する（P20-018D、Accepted）
+- [x] Liveness／ReadinessとLocal Docker Collector Consumerを実装する（P20-018E、Accepted）
+- [x] Observability GuideとDocumentation Reviewを完了する（P20-018F、Accepted）
+- [x] Local Grafana LGTMでTrace／Metricを閲覧するDevelopment-only Consumer Journeyを実装する（P20-018G、Accepted）
 
 ### Phase 21: Framework-owned Transaction Interception
 
-- [ ] PHP Signature Matrix、Generated Artifact、Symfony DI統合、Migration、Ray.Aop Removal GateをDecisionで確定する
-- [ ] `#[Transactional]`／`#[AfterCommit]`専用Build-time Proxyを実装し、Ray.Aopを削除する
+- [x] PHP Signature Matrix、Generated Artifact、Symfony DI統合、Migration、Ray.Aop Removal GateをDecisionで確定する（P21-001、D137／Specification 101／102、Accepted）
+- [x] P21-002 Contract／metadata／signature／ownership guardを実装する（Accepted）
+- [x] P21-003 Framework Proxy generator／artifact／manifest／driftを実装する（Accepted）
+- [x] P21-004 Symfony DI Definition preservationを実装する（Accepted）
+- [x] P21-005 Transaction／AfterCommit runtime ownershipを実装する（Accepted）
+- [x] P21-006 Ray／Framework compatibility／migration／consumer matrixを実装する（Accepted）
+- [x] P21-007 Ray removal／Composer／package export／Phase 21 closeoutを実装する（Accepted）
+
+### Phase 22: Stable 1.2 Version Baseline
+
+- [x] 公開済みStable `1.1.0`とRepository `main` candidate `1.2.0`のVersion境界をDecision／Specificationへ固定する（P22-001 Accepted）
+- [x] Main root／Telemetry scope／Skeleton constraint／Candidate Consumerを`1.2.0`系列へ同期する（P22-001 Accepted）
+- [x] Stable install journey、Tag／Release／Packagist claim、歴史的記録を変更しないVersion inventory guardを整備する（P22-001 Accepted）
+- [x] `1.1.0...main` Surface Audit、完全な`1.2.0` Release Note／Upgrade、actual Framework Update Consumerを整備する（P22-002 Accepted、Documentation Reviewer P1=0／P2=0／P3=0）
+- [ ] Fixed `1.2.0` Release Candidate SHAでRuntime Consumer（Stable 2 migration→candidate 9 migration、Provider-present／missing HTTP／Worker）、全Local／Consumer／Website／CI Gateを実施する（P22-003 In Progress。`96383e1` same-SHA CI `31719526793`はRuntime Consumer Git modeでQualityのみFAIL。P22-003D mode-only correction staged、Documentation Review pending）
+- [x] Runtime disposable Git identity／Quality full-history checkout／Guide PHP opening-tag normalizationを3 Source fileへ限定して修正する（P22-003C Accepted、Reviewer P1=0／P2=0／P3=0、Commit `96383e1`）
+- [x] Runtime ConsumerのGit index modeを本文不変の`100755`へ限定修正する（P22-003D Accepted、Reviewer P1=0／P2=0／P3=0、Correction Commit approved）
+- [~] Mago既存Debtをtracked strict baselineへ固定し、DeptracをPHP 8.5対応4.7.1へ限定更新する（D140／P22-003Aはpartial tooling checkpoint `0eca056`。残ったArchitecture／export blockerはP22-003Bで解消）
+- [x] Deptracのpublic／bounded internal Layerを同期し、generic Internal permissionなしで152 violations／59 uncoveredとMago baseline archive exclusionを閉じる（D141／D142 Option B／P22-003B Accepted、candidate `577cc224`、post-commit exact export PASS、Reviewer P1=0／P2=0／P3=0）
+- [ ] 別途承認後にTag／Push、Skeleton publication、Packagist／GitHub Release／Remote Smokeを実施する（P22-004）
 
 ### Deferred: Documentation Website Publication
 

@@ -16,17 +16,22 @@ use BlackOps\Core\Rejection\RejectionCategory;
 use BlackOps\Core\Rejection\RejectionReason;
 use BlackOps\Core\Validation\Violation;
 use BlackOps\Internal\Migration\DoctrineMigrationDependencyFactory;
+use BlackOps\Internal\StorageProtection\StorageProtectionContext;
 use BlackOps\Journal\Data\AttemptRetryScheduledData;
 use BlackOps\Journal\Data\OperationCompletedData;
 use BlackOps\Journal\Data\OperationDeadLetteredData;
 use BlackOps\Journal\Data\OperationFailedData;
 use BlackOps\Journal\Data\OperationReceivedData;
 use BlackOps\Journal\Data\OperationRejectedData;
+use BlackOps\Journal\Exception\JournalReadFailed;
 use BlackOps\Journal\JournalAttempt;
 use BlackOps\Journal\JournalEvent;
 use BlackOps\Journal\JournalOperation;
 use BlackOps\Journal\JournalRecord;
+use BlackOps\StorageProtection\StoragePurpose;
+use BlackOps\Transport\PostgreSql\PostgreSqlBytea;
 use BlackOps\Transport\PostgreSql\PostgreSqlCanonicalJournalStore;
+use BlackOps\Transport\PostgreSql\PostgreSqlJournalRecordCodec;
 use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
@@ -49,7 +54,11 @@ final class PostgreSqlCanonicalJournalStoreTest extends TestCase
     {
         $this->connection = $this->connection();
         $this->connection->executeStatement('DROP SCHEMA IF EXISTS ' . self::SCHEMA . ' CASCADE');
-        $this->store = new PostgreSqlCanonicalJournalStore($this->connection, self::SCHEMA);
+        $this->store = new PostgreSqlCanonicalJournalStore(
+            $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        );
         $this->store->migrate();
     }
 
@@ -211,6 +220,87 @@ final class PostgreSqlCanonicalJournalStoreTest extends TestCase
         self::assertEquals($violations, $records[0]->data->reason->violations());
         self::assertIsString($encoded);
         self::assertStringNotContainsString($secret, $encoded);
+        self::assertStringNotContainsString('postgres.test', $encoded);
+        self::assertStringNotContainsString('password', $encoded);
+    }
+
+    public function testUnknownEnvelopeKeyIsRejectedWithoutPlaintextFallback(): void
+    {
+        $this->store->append($this->record(
+            self::RECORD_ID_1,
+            JournalEvent::OperationReceived,
+            1,
+            new OperationReceivedData(new StoredJournalValue('private')),
+        ));
+        $this->connection->executeStatement(
+            'UPDATE ' . self::SCHEMA . '.journal
+             SET encoded_record = substring(encoded_record FROM 1 FOR 8)
+                 || convert_to(\'bad-key1\', \'UTF8\')
+                 || substring(encoded_record FROM 17)',
+        );
+
+        $this->expectException(JournalReadFailed::class);
+        iterator_to_array($this->store->records(OperationId::fromString(self::OPERATION_ID)));
+    }
+
+    public function testPurposeRowFieldAndTagTamperingFailClosed(): void
+    {
+        $record = $this->record(self::RECORD_ID_1, JournalEvent::OperationReceived, 1);
+        $this->store->append($record);
+        $original = PostgreSqlBytea::string($this->connection->fetchOne(
+            'SELECT encoded_record FROM ' . self::SCHEMA . '.journal',
+        ));
+        $plaintext = new PostgreSqlJournalRecordCodec()->encode($record);
+        $contexts = [
+            new StorageProtectionContext(
+                StoragePurpose::OutcomePayload,
+                self::RECORD_ID_1,
+                self::OPERATION_ID,
+                'postgres.test',
+                1,
+            ),
+            new StorageProtectionContext(
+                StoragePurpose::JournalRecord,
+                self::RECORD_ID_2,
+                self::OPERATION_ID,
+                'postgres.test',
+                1,
+            ),
+            new StorageProtectionContext(
+                StoragePurpose::JournalRecord,
+                self::RECORD_ID_1,
+                self::OPERATION_ID,
+                'wrong.field',
+                1,
+            ),
+        ];
+        foreach ($contexts as $context) {
+            $this->connection->executeStatement(
+                'UPDATE ' . self::SCHEMA . '.journal SET encoded_record = :encoded',
+                ['encoded' => PostgreSqlTestStorageProtection::codec()->encrypt($plaintext, $context)],
+                ['encoded' => \Doctrine\DBAL\ParameterType::BINARY],
+            );
+            try {
+                iterator_to_array($this->store->records(OperationId::fromString(self::OPERATION_ID)));
+                self::fail('Expected AAD mismatch failure.');
+            } catch (JournalReadFailed) {
+                // Expected fail-closed behavior.
+            }
+            $this->connection->executeStatement(
+                'UPDATE ' . self::SCHEMA . '.journal SET encoded_record = :encoded',
+                ['encoded' => $original],
+                ['encoded' => \Doctrine\DBAL\ParameterType::BINARY],
+            );
+        }
+        $tampered = $original;
+        $tampered[strlen($tampered) - 1] = $tampered[strlen($tampered) - 1] ^ "\x01";
+        $this->connection->executeStatement(
+            'UPDATE ' . self::SCHEMA . '.journal SET encoded_record = :encoded',
+            ['encoded' => $tampered],
+            ['encoded' => \Doctrine\DBAL\ParameterType::BINARY],
+        );
+        $this->expectException(JournalReadFailed::class);
+        iterator_to_array($this->store->records(OperationId::fromString(self::OPERATION_ID)));
     }
 
     public function testAppendsAndReadsRetryScheduledData(): void
@@ -229,7 +319,7 @@ final class PostgreSqlCanonicalJournalStoreTest extends TestCase
 
         $records = array_values(iterator_to_array($this->store->records(OperationId::fromString(self::OPERATION_ID))));
         $encoded = $this->connection->fetchOne(
-            "SELECT convert_from(encoded_record, 'UTF8') FROM " . self::SCHEMA . '.journal',
+            "SELECT encode(encoded_record, 'escape') FROM " . self::SCHEMA . '.journal',
         );
 
         self::assertCount(1, $records);
@@ -239,7 +329,7 @@ final class PostgreSqlCanonicalJournalStoreTest extends TestCase
         self::assertSame('2026-07-19T14:22:56.143069+00:00', $records[0]->data->scheduledAt->format('Y-m-d\TH:i:s.uP'));
         self::assertSame(1_000, $records[0]->data->delayMilliseconds);
         self::assertIsString($encoded);
-        self::assertStringContainsString('"scheduled_at":"2026-07-19T14:22:56.143069Z"', $encoded);
+        self::assertStringStartsWith('BOPD', $encoded);
     }
 
     public function testAppendsAndReadsOperationFailedData(): void
@@ -277,7 +367,7 @@ final class PostgreSqlCanonicalJournalStoreTest extends TestCase
 
         $records = array_values(iterator_to_array($this->store->records(OperationId::fromString(self::OPERATION_ID))));
         $encoded = $this->connection->fetchOne(
-            "SELECT convert_from(encoded_record, 'UTF8') FROM " . self::SCHEMA . '.journal',
+            "SELECT encode(encoded_record, 'escape') FROM " . self::SCHEMA . '.journal',
         );
 
         self::assertCount(1, $records);
@@ -288,7 +378,7 @@ final class PostgreSqlCanonicalJournalStoreTest extends TestCase
         self::assertSame('boom', $records[0]->data->reasonMessage);
         self::assertSame('2026-07-19T14:22:56.654321+00:00', $records[0]->data->movedAt->format('Y-m-d\TH:i:s.uP'));
         self::assertIsString($encoded);
-        self::assertStringContainsString('"moved_at":"2026-07-19T14:22:56.654321Z"', $encoded);
+        self::assertStringStartsWith('BOPD', $encoded);
     }
 
     public function testDuplicateRecordIdFails(): void

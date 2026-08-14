@@ -6,6 +6,7 @@ namespace BlackOps\Transport\PostgreSql;
 
 use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Core\Retention\RetentionPurgeTarget;
+use BlackOps\Core\TenantRef;
 use BlackOps\Journal\LifecycleState;
 use DateTimeImmutable;
 use DateTimeZone;
@@ -14,6 +15,7 @@ use Throwable;
 
 /**
  * @mago-expect lint:cyclomatic-complexity
+ * @mago-expect lint:kan-defect
  * @mago-expect lint:too-many-methods
  */
 final readonly class PostgreSqlStatusReader
@@ -43,14 +45,21 @@ final readonly class PostgreSqlStatusReader
             && (
                 $transport['operation_id'] !== $journal['operation_id']
                 || $transport['operation_type'] !== $journal['operation_type']
+                || $transport['origin_actor_id'] !== $journal['origin_actor_id']
+                || $transport['origin_actor_type'] !== $journal['origin_actor_type']
+                || $transport['tenant_type'] !== $journal['tenant_type']
+                || $transport['tenant_id'] !== $journal['tenant_id']
             )
         ) {
             throw PostgreSqlStatusReadFailed::integrity();
         }
 
         $identity = $transport ?? $journal;
-        $actorId = $journal['origin_actor_id'] ?? null;
-        $actorType = $journal['origin_actor_type'] ?? null;
+        $actorId = $identity['origin_actor_id'];
+        $actorType = $identity['origin_actor_type'];
+        $tenant = $identity['tenant_type'] === null
+            ? null
+            : new TenantRef($identity['tenant_type'], (string) $identity['tenant_id']);
         if (($actorId === null) !== ($actorType === null)) {
             throw PostgreSqlStatusReadFailed::integrity();
         }
@@ -60,6 +69,44 @@ final readonly class PostgreSqlStatusReader
             $identity['operation_type'],
             $actorId,
             $actorType,
+            $tenant,
+        );
+    }
+
+    public function findSubjectForTenant(OperationId $operationId, ?TenantRef $tenant): ?PostgreSqlStatusSubject
+    {
+        $scope = $this->tenantScope($tenant);
+        $transport = $this->transportSubject($operationId, $scope);
+        $journal = $this->journalSubject($operationId, $scope);
+        if ($transport === null && $journal === null) {
+            return null;
+        }
+        if (
+            $transport !== null
+            && $journal !== null
+            && (
+                $transport['operation_id'] !== $journal['operation_id']
+                || $transport['operation_type'] !== $journal['operation_type']
+                || $transport['origin_actor_id'] !== $journal['origin_actor_id']
+                || $transport['origin_actor_type'] !== $journal['origin_actor_type']
+                || $transport['tenant_type'] !== $journal['tenant_type']
+                || $transport['tenant_id'] !== $journal['tenant_id']
+            )
+        ) {
+            throw PostgreSqlStatusReadFailed::integrity();
+        }
+        $identity = $transport ?? $journal;
+        if (($identity['origin_actor_id'] === null) !== ($identity['origin_actor_type'] === null)) {
+            throw PostgreSqlStatusReadFailed::integrity();
+        }
+        return new PostgreSqlStatusSubject(
+            $identity['operation_id'],
+            $identity['operation_type'],
+            $identity['origin_actor_id'],
+            $identity['origin_actor_type'],
+            $identity['tenant_type'] === null
+                ? null
+                : new TenantRef($identity['tenant_type'], (string) $identity['tenant_id']),
         );
     }
 
@@ -150,54 +197,28 @@ final readonly class PostgreSqlStatusReader
         }
     }
 
-    /** @return array{operation_id: string, operation_type: string}|null */
-    private function transportSubject(OperationId $operationId): ?array
-    {
-        try {
-            $row = $this->connection->fetchAssociative(
-                "SELECT
-                    operation_id::text AS operation_id,
-                    operation_type
-                FROM {$this->deferred->operationsTable()}
-                WHERE operation_id = :operation_id",
-                ['operation_id' => $operationId->toString()],
-            );
-        } catch (Throwable) {
-            throw PostgreSqlStatusReadFailed::storage();
-        }
-        if ($row === false) {
-            return null;
-        }
-
-        return [
-            'operation_id' => $this->requiredString($row, 'operation_id'),
-            'operation_type' => $this->requiredString($row, 'operation_type'),
-        ];
-    }
-
     /**
-     * @return array{
-     *     operation_id: string,
-     *     operation_type: string,
-     *     origin_actor_id: string|null,
-     *     origin_actor_type: string|null
-     * }|null
+     * @param array{tenant_type?: string|null, tenant_id?: string|null} $scope
+     * @return array{operation_id: string, operation_type: string, origin_actor_id: string|null, origin_actor_type: string|null, tenant_type: string|null, tenant_id: string|null}|null
      */
-    private function journalSubject(OperationId $operationId): ?array
+    private function transportSubject(OperationId $operationId, array $scope = []): ?array
     {
+        $where = 'operation_id = :operation_id';
+        $params = ['operation_id' => $operationId->toString()];
+        if ($scope !== []) {
+            $where .= ' AND tenant_type IS NOT DISTINCT FROM :tenant_type AND tenant_id IS NOT DISTINCT FROM :tenant_id';
+            $params = [...$params, ...$scope];
+        }
         try {
-            $row = $this->connection->fetchAssociative(
-                "SELECT
+            $row = $this->connection->fetchAssociative("SELECT
                     operation_id::text AS operation_id,
-                    convert_from(encoded_record, 'UTF8')::jsonb #>> '{operation,type}' AS operation_type,
-                    convert_from(encoded_record, 'UTF8')::jsonb #>> '{operation,actors,origin,id}' AS origin_actor_id,
-                    convert_from(encoded_record, 'UTF8')::jsonb #>> '{operation,actors,origin,type}' AS origin_actor_type
-                FROM {$this->journal->journalTable()}
-                WHERE operation_id = :operation_id
-                ORDER BY sequence ASC
-                LIMIT 1",
-                ['operation_id' => $operationId->toString()],
-            );
+                    operation_type,
+                    origin_actor_id,
+                    origin_actor_type,
+                    tenant_type,
+                    tenant_id
+                FROM {$this->deferred->operationsTable()}
+                WHERE {$where}", $params);
         } catch (Throwable) {
             throw PostgreSqlStatusReadFailed::storage();
         }
@@ -210,6 +231,90 @@ final readonly class PostgreSqlStatusReader
             'operation_type' => $this->requiredString($row, 'operation_type'),
             'origin_actor_id' => $this->nullableString($row, 'origin_actor_id'),
             'origin_actor_type' => $this->nullableString($row, 'origin_actor_type'),
+            'tenant_type' => $this->nullableString($row, 'tenant_type'),
+            'tenant_id' => $this->nullableString($row, 'tenant_id'),
+        ];
+    }
+
+    /**
+     * @param array{tenant_type?: string|null, tenant_id?: string|null} $scope
+     * @return array{
+     *     operation_id: string,
+     *     operation_type: string,
+     *     origin_actor_id: string|null,
+     *     origin_actor_type: string|null,
+     *     tenant_type: string|null,
+     *     tenant_id: string|null
+     * }|null
+     */
+    private function journalSubject(OperationId $operationId, array $scope = []): ?array
+    {
+        $where = 'operation_id = :operation_id';
+        $params = ['operation_id' => $operationId->toString()];
+        if ($scope !== []) {
+            $where .= ' AND tenant_type IS NOT DISTINCT FROM :tenant_type AND tenant_id IS NOT DISTINCT FROM :tenant_id';
+            $params = [...$params, ...$scope];
+        }
+        try {
+            $row = $this->connection->fetchAssociative("SELECT
+                    operation_id::text AS operation_id,
+                    operation_type,
+                    origin_actor_id,
+                    origin_actor_type,
+                    tenant_type,
+                    tenant_id
+                FROM {$this->journal->journalTable()}
+                WHERE {$where}
+                ORDER BY sequence ASC
+                LIMIT 1", $params);
+        } catch (Throwable) {
+            throw PostgreSqlStatusReadFailed::storage();
+        }
+        if ($row === false) {
+            return null;
+        }
+
+        $subject = [
+            'operation_id' => $this->requiredString($row, 'operation_id'),
+            'operation_type' => $this->requiredString($row, 'operation_type'),
+            'origin_actor_id' => $this->nullableString($row, 'origin_actor_id'),
+            'origin_actor_type' => $this->nullableString($row, 'origin_actor_type'),
+            'tenant_type' => $this->nullableString($row, 'tenant_type'),
+            'tenant_id' => $this->nullableString($row, 'tenant_id'),
+        ];
+
+        try {
+            $mismatch = $this->connection->fetchOne("SELECT EXISTS (
+                    SELECT 1
+                    FROM {$this->journal->journalTable()} AS other
+                    WHERE {$where}
+                      AND (
+                        other.operation_type IS DISTINCT FROM :operation_type
+                        OR other.origin_actor_id IS DISTINCT FROM :origin_actor_id
+                        OR other.origin_actor_type IS DISTINCT FROM :origin_actor_type
+                        OR other.tenant_type IS DISTINCT FROM :tenant_type
+                        OR other.tenant_id IS DISTINCT FROM :tenant_id
+                      )
+                )", [
+                ...$subject,
+                ...$scope,
+            ]);
+        } catch (Throwable) {
+            throw PostgreSqlStatusReadFailed::storage();
+        }
+        if (in_array(strtolower((string) $mismatch), ['1', 't', 'true'], strict: true)) {
+            throw PostgreSqlStatusReadFailed::integrity();
+        }
+
+        return $subject;
+    }
+
+    /** @return array{tenant_type: string|null, tenant_id: string|null} */
+    private function tenantScope(?TenantRef $tenant): array
+    {
+        return [
+            'tenant_type' => $tenant?->type(),
+            'tenant_id' => $tenant?->id(),
         ];
     }
 

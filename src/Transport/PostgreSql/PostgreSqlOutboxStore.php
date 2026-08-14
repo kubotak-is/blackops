@@ -4,22 +4,32 @@ declare(strict_types=1);
 
 namespace BlackOps\Transport\PostgreSql;
 
+use BlackOps\Core\Codec\OperationCodec;
 use BlackOps\Core\Exception\DeferredTransportException;
 use BlackOps\Core\Execution\DeferredOperationMessage;
 use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Core\Identifier\OutboxRecordId;
+use BlackOps\Internal\Execution\DeferredOperationContextValidator;
+use BlackOps\Internal\StorageProtection\BopdEnvelopeCodec;
+use BlackOps\Internal\StorageProtection\StorageProtectionContext;
+use BlackOps\StorageProtection\StoragePurpose;
 use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 use Throwable;
 
-/** @mago-expect lint:cyclomatic-complexity */
-/** @mago-expect lint:too-many-methods */
+/**
+ * @mago-expect lint:cyclomatic-complexity
+ * @mago-expect lint:too-many-methods
+ * @mago-expect lint:kan-defect
+ */
 final readonly class PostgreSqlOutboxStore
 {
     private PostgreSqlOutboxSchema $schema;
 
     public function __construct(
         private Connection $connection,
+        private BopdEnvelopeCodec $protection,
+        private OperationCodec $codec,
         string $schema = 'blackops',
     ) {
         $this->schema = new PostgreSqlOutboxSchema($schema);
@@ -41,28 +51,58 @@ final readonly class PostgreSqlOutboxStore
         $sql = "INSERT INTO {$this->schema->table()} (
             record_id, operation_id, operation_type, schema_version,
             encoded_payload, encoded_context, content_type, encoding, key_id,
+            tenant_type, tenant_id, origin_actor_type, origin_actor_id,
             available_at, recorded_at, connection_name, state, state_version
         ) VALUES (
             :record_id, :operation_id, :operation_type, :schema_version,
-            convert_to(:encoded_payload, 'UTF8'), convert_to(:encoded_context, 'UTF8'),
-            :content_type, :encoding, :key_id, :available_at, :recorded_at,
+            :encoded_payload, :encoded_context,
+            :content_type, :encoding, :key_id, :tenant_type, :tenant_id, :origin_actor_type, :origin_actor_id,
+            :available_at, :recorded_at,
             :connection_name, 'pending', 1
         )";
 
         try {
-            $this->connection->executeStatement($sql, [
+            $params = [
                 'record_id' => $record->recordId->toString(),
                 'operation_id' => $record->operationId->toString(),
                 'operation_type' => $record->operationType,
                 'schema_version' => $record->schemaVersion,
-                'encoded_payload' => $record->encodedPayload,
-                'encoded_context' => $record->encodedContext,
+                'encoded_payload' => $this->protection->encrypt(
+                    $record->encodedPayload,
+                    new StorageProtectionContext(
+                        StoragePurpose::OutboxPayload,
+                        $record->recordId->toString(),
+                        $record->operationId->toString(),
+                        $record->operationType,
+                        $record->schemaVersion,
+                        $record->tenant,
+                    ),
+                ),
+                'encoded_context' => $this->protection->encrypt(
+                    $record->encodedContext,
+                    new StorageProtectionContext(
+                        StoragePurpose::OutboxContext,
+                        $record->recordId->toString(),
+                        $record->operationId->toString(),
+                        $record->operationType,
+                        $record->schemaVersion,
+                        $record->tenant,
+                    ),
+                ),
                 'content_type' => 'application/vnd.blackops.deferred-operation+json',
                 'encoding' => 'utf8',
                 'key_id' => null,
+                'tenant_type' => $record->tenant?->type(),
+                'tenant_id' => $record->tenant?->id(),
+                'origin_actor_type' => $record->originActor?->type(),
+                'origin_actor_id' => $record->originActor?->id(),
                 'available_at' => $this->timestamp($record->availableAt),
                 'recorded_at' => $this->timestamp($record->recordedAt),
                 'connection_name' => $record->connectionName,
+            ];
+            $this->connection->executeStatement($sql, $params, [
+                'encoded_payload' => \Doctrine\DBAL\ParameterType::BINARY,
+                'encoded_context' => \Doctrine\DBAL\ParameterType::BINARY,
             ]);
         } catch (Throwable $exception) {
             throw new DeferredTransportException('Failed to persist PostgreSQL outbox record.', previous: $exception);
@@ -82,8 +122,8 @@ final readonly class PostgreSqlOutboxStore
             return $this->connection->transactional(function () use ($relayId, $batchSize, $now, $leaseSeconds): array {
                 $rows = $this->connection->fetchAllAssociative(
                     "SELECT record_id::text AS record_id, operation_id::text AS operation_id, operation_type,
-                        schema_version, convert_from(encoded_payload, 'UTF8') AS encoded_payload,
-                        convert_from(encoded_context, 'UTF8') AS encoded_context, available_at,
+                        schema_version, encoded_payload, encoded_context, available_at,
+                        tenant_type, tenant_id, origin_actor_type, origin_actor_id,
                         COALESCE(next_attempt_at, available_at) AS due_at, attempt_count, fencing_token,
                         content_type, encoding, key_id
                      FROM {$this->schema->table()}
@@ -123,16 +163,50 @@ final readonly class PostgreSqlOutboxStore
                     if ((int) $updated !== 1) {
                         continue;
                     }
-                    $claims[] = new PostgreSqlOutboxClaim(
-                        OutboxRecordId::fromString((string) $row['record_id']),
-                        new DeferredOperationMessage(
-                            OperationId::fromString((string) $row['operation_id']),
-                            (string) $row['operation_type'],
-                            (int) $row['schema_version'],
-                            (string) $row['encoded_payload'],
-                            (string) $row['encoded_context'],
-                            new DateTimeImmutable((string) $row['available_at']),
+                    $tenant = $this->tenant($row);
+                    $operationId = (string) $row['operation_id'];
+                    $operationType = (string) $row['operation_type'];
+                    $schemaVersion = (int) $row['schema_version'];
+                    $recordId = (string) $row['record_id'];
+                    $payload = $this->protection->decrypt(
+                        PostgreSqlBytea::string($row['encoded_payload'] ?? null),
+                        new StorageProtectionContext(
+                            StoragePurpose::OutboxPayload,
+                            $recordId,
+                            $operationId,
+                            $operationType,
+                            $schemaVersion,
+                            $tenant,
                         ),
+                    );
+                    $context = $this->protection->decrypt(
+                        PostgreSqlBytea::string($row['encoded_context'] ?? null),
+                        new StorageProtectionContext(
+                            StoragePurpose::OutboxContext,
+                            $recordId,
+                            $operationId,
+                            $operationType,
+                            $schemaVersion,
+                            $tenant,
+                        ),
+                    );
+                    $message = new DeferredOperationMessage(
+                        OperationId::fromString($operationId),
+                        $operationType,
+                        $schemaVersion,
+                        $payload,
+                        $context,
+                        new DateTimeImmutable((string) $row['available_at']),
+                        $tenant,
+                        $this->originActor($row),
+                    );
+                    DeferredOperationContextValidator::assertMatches($message, $this->codec->decodeContext(
+                        $schemaVersion,
+                        $context,
+                    ));
+                    $claims[] = new PostgreSqlOutboxClaim(
+                        OutboxRecordId::fromString($recordId),
+                        $message,
                         $relayId,
                         $token,
                         $attempt,
@@ -147,6 +221,51 @@ final readonly class PostgreSqlOutboxStore
             }
             throw new DeferredTransportException('Failed to claim PostgreSQL outbox records.', previous: $exception);
         }
+    }
+
+    /** @param array<string, mixed> $row */
+    private function tenant(array $row): ?\BlackOps\Core\TenantRef
+    {
+        $type = $this->subjectString($row['tenant_type'] ?? null, 'Outbox row contains a partial tenant subject.');
+        $id = $this->subjectString($row['tenant_id'] ?? null, 'Outbox row contains a partial tenant subject.');
+        if ($type === null && $id === null) {
+            return null;
+        }
+        if ($type === null || $id === null) {
+            throw new DeferredTransportException('Outbox row contains a partial tenant subject.');
+        }
+        return new \BlackOps\Core\TenantRef($type, $id);
+    }
+
+    /** @param array<string, mixed> $row */
+    private function originActor(array $row): ?\BlackOps\Core\ActorRef
+    {
+        $type = $this->subjectString(
+            $row['origin_actor_type'] ?? null,
+            'Outbox row contains a partial origin actor subject.',
+        );
+        $id = $this->subjectString(
+            $row['origin_actor_id'] ?? null,
+            'Outbox row contains a partial origin actor subject.',
+        );
+        if ($type === null && $id === null) {
+            return null;
+        }
+        if ($type === null || $id === null) {
+            throw new DeferredTransportException('Outbox row contains a partial origin actor subject.');
+        }
+        return new \BlackOps\Core\ActorRef($id, $type);
+    }
+
+    private function subjectString(mixed $value, string $message): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+        if (!is_string($value) || $value === '') {
+            throw new DeferredTransportException($message);
+        }
+        return $value;
     }
 
     public function heartbeat(PostgreSqlOutboxClaim $claim, DateTimeImmutable $now, int $leaseSeconds): void

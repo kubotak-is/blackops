@@ -16,7 +16,6 @@ includes = [
   "vendor/psr/http-server-handler",
   "vendor/psr/http-server-middleware",
   "vendor/psr/log",
-  "vendor/ray/aop/src",
   "vendor/symfony/console",
   "vendor/symfony/dependency-injection",
   "vendor/symfony/stopwatch",
@@ -24,10 +23,14 @@ includes = [
   "vendor/vlucas/phpdotenv/src",
   "vendor/symfony/uid",
   "vendor/symfony/validator",
+  "vendor/open-telemetry/api",
+  "vendor/open-telemetry/context",
 ]
 
 [analyzer]
 [linter]
+baseline = "mago-lint-baseline.toml"
+baseline-variant = "strict"
 [linter.rules.excessive-parameter-list]
 # 確定済みの不変Envelopeに合わせ、Constructorの閾値だけ緩める。
 constructor-threshold = 9

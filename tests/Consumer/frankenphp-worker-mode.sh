@@ -37,7 +37,21 @@ trap cleanup EXIT
 
 mkdir -p "${CONSUMER}"
 cp -a "${ROOT}/examples/quickstart/." "${CONSUMER}/"
+umask 077
 cp "${CONSUMER}/.env.example" "${CONSUMER}/.env"
+chmod 600 "${CONSUMER}/.env"
+case $- in
+    *x*) set +x ;;
+esac
+storage_key="$(head -c 32 /dev/urandom | base64 -w 0)"
+test -n "${storage_key}"
+decoded_storage_key_length="$(printf '%s' "${storage_key}" | base64 --decode | wc -c)"
+test "${decoded_storage_key_length}" -eq 32
+sed -i "s|^BLACKOPS_STORAGE_KEY=.*|BLACKOPS_STORAGE_KEY=${storage_key}|" "${CONSUMER}/.env"
+test "$(grep -c '^BLACKOPS_STORAGE_KEY=' "${CONSUMER}/.env")" -eq 1
+test "$(grep -c '^BLACKOPS_STORAGE_KEY=$' "${CONSUMER}/.env")" -eq 0
+test "$(stat -c '%a' "${CONSUMER}/.env")" = 600
+unset storage_key decoded_storage_key_length
 
 cat >"${INSTALL_OVERRIDE}" <<YAML
 services:
@@ -56,7 +70,7 @@ compose=(docker compose --project-directory "${CONSUMER}" --project-name "${PROJ
 install_compose=("${compose[@]}" -f "${INSTALL_OVERRIDE}")
 
 docker run --rm -v "${CONSUMER}:/app" -v "${ROOT}:/framework:ro" -w /app composer:2 \
-    composer config repositories.framework '{"type":"path","url":"/framework","options":{"symlink":false,"versions":{"blackops/framework":"1.1.0"}}}'
+    composer config repositories.framework '{"type":"path","url":"/framework","options":{"symlink":false,"versions":{"blackops/framework":"1.2.0"}}}'
 
 test "$("${compose[@]}" config --services | sort)" = $'http\npostgres'
 test "$("${compose[@]}" --profile classic-mode config --services | sort)" = $'http\nhttp-classic\npostgres'

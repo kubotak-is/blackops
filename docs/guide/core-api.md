@@ -1,8 +1,8 @@
 # Core API
 
-このReferenceは現在の`main` Sourceで`#[PublicApi]`を持つ175型を一覧化しています。Application Authorはまず「Application構成」「Database」「Operation Authoring」「Validation」「Status／Outcome取得」の型を使い、Transport、Journal、Retention等のPortはAdapterを拡張するときだけ使ってください。
+このReferenceは現在の`main` Sourceで`#[PublicApi]`を持つ216型を一覧化しています。Application Authorはまず「Application構成」「Database」「Operation Authoring」「Validation」「Status／Outcome取得」の型を使い、Transport、Journal、Retention等のPortはAdapterを拡張するときだけ使ってください。
 
-`BlackOps\Core\Attribute\PublicApi` marker自身は利用者向けAPIではないため一覧へ含めません。内部実装Namespaceと`#[PublicApi]`を持たない実装型にも依存しないでください。Attributeの付与対象と標準形は[Attributes](attributes.md)を確認してください。
+`BlackOps\Core\Attribute\PublicApi` marker自身は利用者向けAPIではないため一覧へ含めません。内部実装Namespaceと`#[PublicApi]`を持たない実装型にも依存しないでください。`CanonicalJournalReader`／`OutcomeReader`はPublicApi markerを持たないInfrastructure SPIとして内部Adapterへ再分類され、Applicationの読み取りはOperationData Queryを使います。Readerの型／Methodを含むPublicApi aggregate StoreのAdapter境界はJournal／Outcome節に記載します。Attributeの付与対象と標準形は[Attributes](attributes.md)を確認してください。
 
 ## Application構成
 
@@ -13,7 +13,27 @@
 | `BlackOps\Application\Environment` | final readonly class | 起動時Environmentを安全に型付きで読む | Config Closureで`string()`、`positiveInt()`、`bool()`等を呼ぶ |
 | `BlackOps\Application\ConsoleKernel` | final readonly class | BlackOps CLIを実行する | Project Rootの`blackops`から`run()`を呼ぶ |
 | `BlackOps\Application\ApplicationBootstrapException` | exception class | Public Bootstrapの失敗を通知する | Entrypointで安全な起動Errorとして扱う |
+| `BlackOps\Core\Exception\ConfigurationFailure` | marker interface | Configuration／Bootstrap失敗を安全なCategoryへ分類する | Internal CLI AdapterのExit `2`分類へ使う |
 | `BlackOps\Console\ConsoleActorProvider` | interface | Console OperationのOrigin／Authorization Actorを供給する | Application Service Providerで任意Bindingする |
+
+## Observability
+
+| Namespace／Type | Kind | Purpose | Typical Use |
+| --- | --- | --- | --- |
+| `BlackOps\Telemetry\TelemetryContext` | final readonly class | W3C `traceparent`／`tracestate`のSerializable Context | HTTP、Deferred、Outbox、Worker Retryへ安全に伝播する |
+| `BlackOps\Telemetry\TelemetryCorrelation` | final readonly class | Trace／Span IDとSampled Flagを投影する | Structured JSONLの`telemetry`へSafe Fieldだけを渡す |
+| `BlackOps\Observability\OperationalHealthKind` | enum | `liveness`／`readiness`を選ぶ | Query、HTTP Handler、CLI Adapterへ渡す |
+| `BlackOps\Observability\OperationalHealthQuery` | interface | Health Reportを取得する | Application-owned Checkを構成する |
+| `BlackOps\Observability\OperationalHealthQueryFactory` | final class | CallbackからQueryを組み立てる | `requiredReadinessCheckCodes()`を使ってCheckを登録する |
+| `BlackOps\Observability\CallbackOperationalHealthQuery` | final class | Callback実装のHealth Query | ApplicationのBounded Checkを実行する |
+| `BlackOps\Observability\OperationalHealthCheckProvider` | interface | 個別のReadiness Checkを提供する | Compiled Artifact、Database等のSafe Checkを登録する |
+| `BlackOps\Observability\OperationalHealthCheck` | final readonly value object | Check CodeとPass／Failを保持する | `OperationalHealthReport`へSafe結果を入れる |
+| `BlackOps\Observability\OperationalHealthReport` | final readonly value object | Version 1のHealth結果を表す | JSON ResponseまたはCLI Outputへ変換する |
+| `BlackOps\Observability\OperationalHealthStatus` | enum | `pass`／`fail`を表す | HTTP StatusとCLI Exit Codeを決める |
+| `BlackOps\Http\Observability\OperationalHealthRequestHandler` | final readonly class | 明示したPSR-15 Health Routeを処理する | Application Routerへ`GET` Routeとして登録する |
+| `BlackOps\Http\Observability\OperationalHealthJsonResponder` | final readonly class | Health ReportをJSON Responseへ変換する | Pass `200`、Fail `503`、非`GET` `405`を返す |
+| `BlackOps\Console\Observability\OperationalHealthCliAdapter` | final readonly class | Health QueryをCLI向けへ適応する | JSON OutputとPass `0`／Fail `1`をSupervisorへ返す |
+| `BlackOps\Console\Observability\OperationalHealthCliFormatter` | final readonly class | Human／JSON Health Outputを整形する | `OperationalHealthCliAdapter`へ注入する |
 
 ## Database
 
@@ -235,14 +255,16 @@ HTTPの`GET /operations/{operationId}`とGenerated `.status()`／`.wait()`はこ
 | `BlackOps\Core\Supervision\SupervisionDecision` | final readonly value object | Action、Delay、Reasonを保持する | Worker RuntimeへPolicy判断を返す |
 | `BlackOps\Core\Exception\InvalidIdentifierException` | exception class | 不正UUIDv7を通知する | Identifier Inputを400等へ変換する |
 
-## Outcome Store
+## Outcome Query and Store
 
 | Namespace／Type | Kind | Purpose | Typical Use |
 | --- | --- | --- | --- |
-| `BlackOps\Outcome\OutcomeReader` | interface | Operation IDからOutcomeを読む | ApplicationのStatus／Result入口へ注入する |
+| `BlackOps\OperationData\OperationOutcomeQuery` | interface | Tenant／Actor／Purposeを認可したOutcome Query | ApplicationのDefault-deny Result入口へ注入する |
+| `BlackOps\OperationData\OperationOutcomeFound`／`OperationOutcomeUnavailable` | result types | Allow済みOutcomeまたはUnavailableを表す | `OperationOutcomeQuery::find()`の結果を分岐する |
+| `BlackOps\OperationData\OperationJournalQuery` | interface | Tenant／Actor／Purposeを認可したJournal Query | ApplicationのDefault-deny Journal入口へ注入する |
 | `BlackOps\Outcome\OutcomeWriter` | interface | 完了Outcomeを保存する | Runtime／Store Adapterで実装する |
 | `BlackOps\Outcome\OutcomeStore` | aggregate interface | ReaderとWriterを束ねる | 一体型Store Adapterで実装する |
-| `BlackOps\Outcome\OutcomeRecord` | final readonly value object | Operation ID、Outcome、完了時刻を保持する | `OutcomeReader::find()`の結果を読む |
+| `BlackOps\Outcome\OutcomeRecord` | final readonly value object | Operation ID、Outcome、完了時刻を保持する | `OperationOutcomeFound::record()`から読む |
 | `BlackOps\Outcome\Exception\OutcomeStoreException` | exception class | 保存、復元、Schema不整合を通知する | Store境界Errorとして扱う |
 
 ## Journal Core
@@ -260,7 +282,6 @@ HTTPの`GET /operations/{operationId}`とGenerated `.status()`／`.wait()`はこ
 | `BlackOps\Journal\JournalDeliveryPolicy` | enum | Best effort／Required配送を選ぶ | Observer Pipelineを構成する |
 | `BlackOps\Journal\JournalObserver` | interface | Projection済みRecord受信Port | Custom Log／Telemetry Sinkを実装する |
 | `BlackOps\Journal\FlushableJournalObserver` | interface | Flush可能なObserver Contract | Bufferを持つSinkで実装する |
-| `BlackOps\Journal\CanonicalJournalReader` | interface | Operation IDのCanonical Recordを読む | Status／監査Adapterで使う |
 | `BlackOps\Journal\CanonicalJournalWriter` | interface | Canonical Recordを追記する | Durable Journal Adapterで実装する |
 | `BlackOps\Journal\CanonicalJournalStore` | aggregate interface | ReaderとWriterを束ねる | 一体型Canonical Storeで実装する |
 | `BlackOps\Logging\JsonlJournalRecordEncoder` | final readonly class | Observed RecordをJSONLへEncodeする | File／Stream Observerで使う |
@@ -313,9 +334,46 @@ HTTPの`GET /operations/{operationId}`とGenerated `.status()`／`.wait()`はこ
 この一覧はPublic互換性の境界を示しますが、すべての型を通常のApplicationが直接使うという意味ではありません。次を目安に依存範囲を小さくしてください。
 
 - 通常のFeatureは`Operation`、`OperationValue`、`Outcome`、必要なAttributeだけを使います。
-- Deferred Result入口は`OutcomeReader`と`OperationId`へ依存します。
+- Deferred Result入口はStatus Resource、または`OperationOutcomeQuery`へTenant／Actor／Purposeを渡します。
 - Repository Bindingは`ServiceProvider`と`ServiceRegistry`を使います。
 - Transport、Journal、RetentionのPortはAdapterを実装するときだけ使います。
 - 内部実装Namespaceや`#[PublicApi]`のない具象実装をApplicationのContractにしません。
 
 現行機能と未提供Surfaceは[Releases](mvp-status.md)を確認してください。
+
+日常のBuild、Operation実行、Worker、Relay、DiagnosticsをTask順で確認する場合は[BlackOps CLI](project-cli.md)へ進みます。Console入口の実行とExit契約は[ConsoleCommand](console-command.md)を参照してください。
+
+## Tenant and Protected Storage
+
+| Namespace／Type | Kind | Purpose | Typical Use |
+| --- | --- | --- | --- |
+| `BlackOps\Core\TenantRef` | final readonly value object | Opaque Tenant Type／ID | HTTP／Console／Scheduled／Dispatch Contextへ明示する |
+| `BlackOps\Console\ConsoleTenantProvider` | interface | Console入口のTenantを返す | Application Service ProviderでBindingする |
+| `BlackOps\Scheduling\ScheduledTenantProvider` | interface | Schedule入口のTenantを返す | Schedule Contextから解決する |
+| `BlackOps\OperationData\OperationDataPurpose` | final readonly value object | Data ReadのApplication Purpose Code | `fromString()`で正規化する |
+| `BlackOps\OperationData\OperationDataResource` | enum | Canonical Journal／Outcome Resource | Authorizer Requestへ渡す |
+| `BlackOps\OperationData\OperationDataReadAuthorizationRequest` | final readonly value object | Resource、Purpose、Actor、Tenant、Operation Subject | `OperationDataReadAuthorizer::decide()`へ渡す |
+| `BlackOps\OperationData\OperationDataReadAuthorizationDecision` | final readonly value object | Allow／Denyを表す | `allow()`／`deny()`で作る |
+| `BlackOps\OperationData\OperationDataReadAuthorizer` | interface | Journal／Outcome Read Policy | Default-deny BindingをApplicationで置き換える |
+| `BlackOps\OperationData\DenyOperationDataReadAuthorizer` | final readonly class | 常にDenyする既定Policy | Binding未設定時のFail-closed |
+| `BlackOps\OperationData\OperationJournalReadResult` | interface | Journal Found／Unavailableの共通Result | Query結果を分岐する |
+| `BlackOps\OperationData\OperationJournalFound`／`BlackOps\OperationData\OperationJournalUnavailable` | result types | 認可済みRecordまたはUnavailable | `OperationJournalQuery::records()`の結果 |
+| `BlackOps\OperationData\OperationOutcomeReadResult` | interface | Outcome Found／Unavailableの共通Result | Query結果を分岐する |
+| `BlackOps\OperationData\OperationOutcomeFound`／`BlackOps\OperationData\OperationOutcomeUnavailable` | result types | 認可済みOutcomeまたはUnavailable | `OperationOutcomeQuery::find()`の結果 |
+| `BlackOps\OperationData\Exception\OperationJournalQueryException`／`BlackOps\OperationData\Exception\OperationOutcomeQueryException` | exception classes | Storage／Protection／Decode／Integrity Failure | Safe Stable Codeとして扱う |
+| `BlackOps\Status\TenantAwareOperationStatusQuery` | final readonly class | Tenant-aware Status Subject／Detail Query | `GET /operations/{operationId}`の内部Source |
+| `BlackOps\StorageProtection\StoragePurpose` | enum | 9 Protected Field Purpose | AADとKey選択へ渡す |
+| `BlackOps\StorageProtection\StorageKey` | final readonly value object | Key IDと32-byte Material | ProviderからRuntimeへ渡す（Materialは出力しない） |
+| `BlackOps\StorageProtection\StorageKeyProvider` | interface | Active／歴代Keyを解決する | `activeKey()`／`key()`を実装する |
+| `BlackOps\StorageProtection\StorageProtectionException` | exception class | Safe Protection Failure | Key／Ciphertext／AAD Detailを隠す |
+
+## Scheduled Operation API
+
+| Namespace／Type | Kind | Purpose | Typical Use |
+| --- | --- | --- | --- |
+| `BlackOps\Core\Attribute\ScheduledBy` | final readonly attribute | Schedule名、Cron、Timezoneを宣言する | Operation Classへ一つ付ける |
+| `BlackOps\Core\Registry\OperationScheduleMetadata` | final readonly value object | Compile済みScheduleの名前、Cron、Timezoneを保持する | `OperationMetadata::$schedule`（または`->schedule`）から読む |
+| `BlackOps\Core\ScheduleContext` | final readonly value object | Schedule名、UTC定刻、設定Timezoneを読む | `ExecutionContext::schedule()`から読む |
+| `BlackOps\Scheduling\ScheduledActorProvider` | interface | Authorized ScheduleのActorを解決する | Application Service ProviderでBindingする |
+
+`ScheduledBy`はRepository `main`のExperimental Surfaceです。Value、CLI、Provider、Occurrenceの手順は[Scheduled Operation](scheduled-operation.md)を参照してください。

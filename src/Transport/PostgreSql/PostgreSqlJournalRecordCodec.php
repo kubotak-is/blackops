@@ -11,16 +11,23 @@ use BlackOps\Core\Identifier\CausationId;
 use BlackOps\Core\Identifier\CorrelationId;
 use BlackOps\Core\Identifier\JournalRecordId;
 use BlackOps\Core\Identifier\OperationId;
+use BlackOps\Core\ScheduleContext;
+use BlackOps\Core\TenantRef;
 use BlackOps\Core\Time\TimeCodec;
 use BlackOps\Journal\JournalAttempt;
 use BlackOps\Journal\JournalEvent;
 use BlackOps\Journal\JournalOperation;
 use BlackOps\Journal\JournalRecord;
+use BlackOps\Telemetry\TelemetryCorrelation;
 use DateTimeImmutable;
 use RuntimeException;
 use Throwable;
 
-/** @mago-expect lint:cyclomatic-complexity */
+/**
+ * @mago-expect lint:cyclomatic-complexity
+ * @mago-expect lint:too-many-methods
+ * @mago-expect lint:kan-defect
+ */
 final readonly class PostgreSqlJournalRecordCodec
 {
     public function __construct(
@@ -64,7 +71,7 @@ final readonly class PostgreSqlJournalRecordCodec
      */
     private function encodeOperation(JournalOperation $operation): array
     {
-        return [
+        $encoded = [
             'id' => $operation->id->toString(),
             'type' => $operation->type,
             'schemaVersion' => $operation->schemaVersion,
@@ -72,7 +79,19 @@ final readonly class PostgreSqlJournalRecordCodec
             'correlationId' => $operation->correlationId->toString(),
             'causationId' => $operation->causationId?->toString(),
             'actors' => $this->encodeActors($operation->actorContext),
+            'schedule' => $this->encodeSchedule($operation->schedule),
         ];
+        if ($operation->tenant !== null) {
+            $encoded['tenant'] = ['type' => $operation->tenant->type(), 'id' => $operation->tenant->id()];
+        }
+        if ($operation->telemetry !== null) {
+            $encoded['telemetry'] = [
+                'traceId' => $operation->telemetry->traceId,
+                'spanId' => $operation->telemetry->spanId,
+                'sampled' => $operation->telemetry->sampled,
+            ];
+        }
+        return $encoded;
     }
 
     /**
@@ -117,7 +136,100 @@ final readonly class PostgreSqlJournalRecordCodec
             CorrelationId::fromString($this->json->string($operation, 'correlationId')),
             $this->decodeCausationId($operation),
             $this->decodeActors($operation),
+            $this->decodeSchedule($operation),
+            $this->decodeTenant($operation),
+            $this->decodeTelemetry($operation),
         );
+    }
+
+    /** @param array<array-key, mixed> $operation */
+    private function decodeTelemetry(array $operation): ?TelemetryCorrelation
+    {
+        /** @var mixed $telemetry */
+        $telemetry = $operation['telemetry'] ?? null;
+        if ($telemetry === null) {
+            return null;
+        }
+        if (!is_array($telemetry)) {
+            throw new RuntimeException('Stored journal telemetry correlation must be an object.');
+        }
+        $fields = array_keys($telemetry);
+        sort($fields);
+        if ($fields !== ['sampled', 'spanId', 'traceId'] || !is_bool($telemetry['sampled'])) {
+            throw new RuntimeException('Stored journal telemetry correlation contains unknown or invalid fields.');
+        }
+        try {
+            return new TelemetryCorrelation(
+                $this->json->string($telemetry, 'traceId'),
+                $this->json->string($telemetry, 'spanId'),
+                $telemetry['sampled'],
+            );
+        } catch (Throwable $exception) {
+            throw new RuntimeException('Stored journal telemetry correlation is invalid.', previous: $exception);
+        }
+    }
+
+    /** @param array<array-key, mixed> $operation */
+    private function decodeTenant(array $operation): ?TenantRef
+    {
+        /** @var mixed $tenant */
+        $tenant = $operation['tenant'] ?? null;
+        if ($tenant === null) {
+            return null;
+        }
+        if (!is_array($tenant)) {
+            throw new RuntimeException('Stored journal tenant context must be an object.');
+        }
+        $fields = array_keys($tenant);
+        sort($fields);
+        if ($fields !== ['id', 'type']) {
+            throw new RuntimeException('Stored journal tenant context contains unknown or missing fields.');
+        }
+        try {
+            return new TenantRef($this->json->string($tenant, 'type'), $this->json->string($tenant, 'id'));
+        } catch (Throwable $exception) {
+            throw new RuntimeException('Stored journal tenant context is invalid.', previous: $exception);
+        }
+    }
+
+    /** @return array{name: string, scheduled_at: string, timezone: string}|null */
+    private function encodeSchedule(?ScheduleContext $schedule): ?array
+    {
+        if ($schedule === null) {
+            return null;
+        }
+
+        return [
+            'name' => $schedule->name(),
+            'scheduled_at' => $this->time->format($schedule->scheduledAt()),
+            'timezone' => $schedule->timezone(),
+        ];
+    }
+
+    /** @param array<array-key, mixed> $operation */
+    private function decodeSchedule(array $operation): ?ScheduleContext
+    {
+        if (!array_key_exists('schedule', $operation) || $operation['schedule'] === null) {
+            return null;
+        }
+        if (!is_array($operation['schedule'])) {
+            throw new RuntimeException('Stored journal schedule context must be an object.');
+        }
+        $schedule = $operation['schedule'];
+        $fields = array_keys($schedule);
+        sort($fields);
+        if ($fields !== ['name', 'scheduled_at', 'timezone']) {
+            throw new RuntimeException('Stored journal schedule context contains unknown or missing fields.');
+        }
+        try {
+            return new ScheduleContext(
+                $this->json->string($schedule, 'name'),
+                new DateTimeImmutable($this->json->string($schedule, 'scheduled_at')),
+                $this->json->string($schedule, 'timezone'),
+            );
+        } catch (Throwable $exception) {
+            throw new RuntimeException('Stored journal schedule context is invalid.', previous: $exception);
+        }
     }
 
     private function decodeActors(array $operation): ?ActorContext

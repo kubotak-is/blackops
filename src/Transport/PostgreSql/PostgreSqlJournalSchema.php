@@ -26,7 +26,7 @@ final readonly class PostgreSqlJournalSchema
         $checkpoints = $this->identifier->qualify('observer_replay_checkpoints');
         $audits = $this->identifier->qualify('observer_replay_audits');
 
-        return [
+        $statements = [
             "CREATE SCHEMA IF NOT EXISTS {$schema}",
             "CREATE TABLE IF NOT EXISTS {$migrations} (
                 version varchar(191) PRIMARY KEY,
@@ -60,12 +60,17 @@ final readonly class PostgreSqlJournalSchema
             "CREATE TABLE IF NOT EXISTS {$journal} (
                 record_id uuid PRIMARY KEY,
                 operation_id uuid NOT NULL,
+                operation_type text NOT NULL CHECK (operation_type <> ''),
                 sequence bigint NOT NULL,
                 event text NOT NULL,
                 attempt_id uuid NULL,
                 schema_version integer NOT NULL CHECK (schema_version >= 1),
+                operation_schema_version integer NOT NULL CHECK (operation_schema_version >= 1),
                 occurred_at timestamptz NOT NULL,
                 encoded_record bytea NOT NULL,
+                CONSTRAINT journal_bopd_envelope_check CHECK (
+                    substring(encoded_record FROM 1 FOR 4) = decode('424f5044', 'hex')
+                ),
                 UNIQUE (operation_id, sequence)
             )",
             "CREATE INDEX IF NOT EXISTS journal_operation_sequence_idx
@@ -126,11 +131,18 @@ final readonly class PostgreSqlJournalSchema
             "CREATE INDEX IF NOT EXISTS observer_replay_audits_checkpoint_idx
                 ON {$audits} (checkpoint_id, started_at)",
         ];
+
+        return array_merge($statements, PostgreSqlTenantMetadata::alter($journal, 'journal', true));
     }
 
     public function journalTable(): string
     {
         return $this->identifier->qualify('journal');
+    }
+
+    public function operationsTable(): string
+    {
+        return $this->identifier->qualify('operations');
     }
 
     public function observerReplayCheckpointTable(): string

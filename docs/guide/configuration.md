@@ -16,6 +16,52 @@ Installed Applicationは責務別のPHP Configを`config/`に置きます。Fram
 | `middleware.php` | Global PSR-15 HTTP Middlewareの登録順 |
 | `retention.php` | Payload、Journal、Outcome、Dead Letter、Idempotency Recordの保持期間、Policy、Actor |
 
+## Tenant and Protected Storage
+
+Tenant／Data Read／Storage Key ProviderはApplication Service Providerで明示Bindingします。Provider未登録のProtected RuntimeはBootstrapで停止し、既定のData Read AuthorizerはDenyです。
+
+```php
+use App\Security\ApplicationConsoleTenantProvider;
+use App\Security\ApplicationOperationDataReadAuthorizer;
+use App\Security\ApplicationScheduledTenantProvider;
+use App\Security\ApplicationTenantResolver;
+use App\Security\ConfiguredApplicationTenantResolver;
+use App\Security\SampleOperationStatusAuthorizer;
+use App\Security\SampleStorageKeyProvider;
+use BlackOps\Console\ConsoleTenantProvider;
+use BlackOps\OperationData\OperationDataReadAuthorizer;
+use BlackOps\Scheduling\ScheduledTenantProvider;
+use BlackOps\Status\OperationStatusAuthorizer;
+use BlackOps\StorageProtection\StorageKeyProvider;
+
+$services->autowire(StorageKeyProvider::class, SampleStorageKeyProvider::class);
+$services->autowire(ApplicationTenantResolver::class, ConfiguredApplicationTenantResolver::class);
+$services->autowire(OperationDataReadAuthorizer::class, ApplicationOperationDataReadAuthorizer::class);
+$services->autowire(OperationStatusAuthorizer::class, SampleOperationStatusAuthorizer::class);
+$services->autowire(ConsoleTenantProvider::class, ApplicationConsoleTenantProvider::class);
+$services->autowire(ScheduledTenantProvider::class, ApplicationScheduledTenantProvider::class);
+```
+
+Quickstartで既に提供する`SampleStorageKeyProvider`と`SampleOperationStatusAuthorizer`を使い、Tenant付きProviderと`ApplicationOperationDataReadAuthorizer`は[2. Key ProviderをApplicationへ登録する](tenant-protection.md#2-key-providerをapplicationへ登録する)に掲載した完全例から同じNamespaceへ配置してください。ProductionではSample実装をSecret Manager／KMS接続とApplication-owned Status／Data Policyへ置き換えます。`StorageKeyProvider`は`activeKey(?TenantRef, StoragePurpose)`と`key(string, ?TenantRef, StoragePurpose)`だけを実装し、Key MaterialをConfig、Manifest、Artifact、Logへ書きません。HTTPはAuthenticatorが`AuthenticationResult::authenticated($actor, $tenant)`を返し、Console／Scheduled ProviderはActor Providerと共有しません。詳細なRotation ScopeとExit Contractは[Tenant and Storage Protection](tenant-protection.md)を参照してください。
+
+### QuickstartのHTTPをTenant付きにする
+
+Quickstartの`/invoices`例をTenant付きで実行する場合は、`examples/quickstart/app/UserInterface/Http/SampleTokenAuthenticator.php`の`authenticate()`で、検証済みTokenに対応するTenantを`AuthenticationResult`へ渡します。既存のActor-only returnを次へ置き換えてください。
+
+```php
+use BlackOps\Core\ActorRef;
+use BlackOps\Core\TenantRef;
+use BlackOps\Http\Authentication\AuthenticationResult;
+
+// Tokenの空／不一致分岐は既存Fileのまま維持します。
+return AuthenticationResult::authenticated(
+    new ActorRef('quickstart-user', 'user'),
+    new TenantRef('account', 'local-example'),
+);
+```
+
+`local-example`はQuickstart専用の固定Tenant例です。ProductionではTokenの検証結果からApplication-owned Tenant Resolverが返す`TenantRef`へ置き換え、Tenant IDをCredentialや未検証Headerとして扱わないでください。HTTP Authenticatorの全境界は[HTTP Authenticationの境界](security.md#http-authenticationの境界)を参照します。変更後に`build:compile`し、Tenant Provider／StorageKeyProviderと同じApplication Service ProviderへBindingしてください。
+
 ## Environment
 
 既定のSkeleton／Installed Applicationは`bootstrap/app.php`で`withEnvironmentFile()`を明示し、FrameworkがProcess Environmentを優先してOptional `.env`を一度だけSnapshotします。Applicationが独自LoaderやSecret Managerを使う場合は解決済み文字列を`withEnvironment($environment)`へ渡し、そのPackageをApplication Direct Dependencyとして管理します。
@@ -85,6 +131,8 @@ return static fn (Environment $env): array => [
 
 Operation Manifest、HTTP Manifest、Frontend Contract Manifest、Command Manifest、Containerは同じBuild IDで作成します。Command Manifest Schema 2はSymfony Application Commandの`commands`と、`#[ConsoleCommand]` Operationの`operation_commands`を分離して保持します。`command_manifest`を省略した既存Applicationでは、Containerと同じDirectoryの`commands.php`を使います。Production HTTP／Worker RuntimeはFrontend／Command Contractを読みません。ProductionはBackend Artifact不足、Format不正、Build ID不一致時に起動を拒否し、Source DiscoveryへFallbackしません。
 
+mainの`build:compile`はFrameworkを唯一のProfileとして選択し、Containerと同じBuild IDの`proxy-profiles/<build-id>-<content-hash>/`へ完全なProfile Artifact Unitを発行します。Unitの`manifest.json`、Profile、Build ID、Content Hash、File Inventoryは一体で配備してください。Unitは一致するFramework Proxy ManifestのDirectory／Hashを参照し、前回の完全Unitを保持して部分コピーや別Buildの混在を起動時に拒否します。
+
 ## Application Command
 
 ```php
@@ -153,7 +201,7 @@ return static fn (Environment $env): array => [
 
 `default`と`framework.connection`は`connections`内のNameを参照します。通常のRepositoryはDefault `Doctrine\DBAL\Connection`をConstructor Injectionできます。複数Databaseを選ぶServiceは`BlackOps\Database\DatabaseManager`をConstructor Injectionし、`$databases->connection('analytics')`で明示的に選びます。ConnectionはNameごとに生成され、同じNameは同じInstanceを再利用します。
 
-`#[Transactional]`のDefaultとNamed ConnectionもこのSnapshotに対してBuild時に検証します。この検証はConnection Nameだけを使い、Databaseへの接続やCredentialのBuild Artifactへの保存を行いません。AOP Proxyは`build.container`と同じDirectoryの`aop/`へ自動生成されるため、利用者向けの追加Config Keyはありません。
+`#[Transactional]`のDefaultとNamed ConnectionもこのSnapshotに対してBuild時に検証します。この検証はConnection Nameだけを使い、Databaseへの接続やCredentialのBuild Artifactへの保存を行いません。mainのFramework-only Proxy Profile Artifact Unitは追加Config Keyを使わず、`build.container`と同じDirectoryに`proxy-profiles/` Unitとして生成されます。Container、各Manifest、共通Profile Unit、参照Framework Unitを同じBuild IDの完全なRelease組として配備してください。
 
 After Commit Callbackの失敗通知をApplication監視基盤へ送る場合は、`BlackOps\Database\AfterCommitFailureReporter`をService Providerで登録します。未登録時はFramework Default ReporterがPSR-3／Monolog経由で標準ErrorへService、Method、存在するOperation／Attempt／Correlation／Causation IDだけを記録します。Callback引数、Throwable Message／Trace、Database CredentialはDefault Logへ展開しません。
 
@@ -217,9 +265,9 @@ return [
 ];
 ```
 
-Canonical Keyは`driver`、`stream`、`channel`、`minimum_level`です。Phase 14のDriverは`jsonl`だけで、Fileがない場合は`php://stderr`／`blackops`／`info`を使います。`stream`は`php://stderr`、`php://stdout`、絶対Local File Pathのみを受け付け、Relative Path、任意PHP Wrapper、Network URIを拒否します。
+Canonical Keyは`driver`、`stream`、`channel`、`minimum_level`です。この構成のDriverは`jsonl`だけで、ファイルがない場合は`php://stderr`／`blackops`／`info`を使います。`stream`は`php://stderr`、`php://stdout`、絶対ローカルパスのみを受け付け、相対パス、任意PHP Wrapper、Network URIを拒否します。
 
-FrameworkはConfigをHTTP／Worker Process構成時に一度だけ検証し、RequestやLog RecordごとにFileや`$_ENV`を再読込しません。無効なDriver／Stream／Levelは起動時にFail-fastします。起動後のOpen／Write FailureはBest-effortで吸収し、元のOperation、Journal、HTTP Response、Worker Loopを変えません。Directory作成、Permission、Rotation、Disk Capacity、RetentionはApplication／運用の責務です。
+FrameworkはConfigをHTTP／Worker Process構成時に一度だけ検証し、RequestやLog Recordごとにファイルや`$_ENV`を再読込しません。無効なDriver／Stream／Levelは起動時にFail-fastします。起動後のOpen／Write FailureはBest-effortで吸収し、元のOperation、Journal、HTTP Response、Worker Loopを変えません。Directory作成、Permission、Rotation、Disk Capacity、RetentionはApplication／運用の責務です。
 
 ## Local Diagnostics Viewer
 
@@ -271,6 +319,8 @@ return [
 Quickstartの`SampleTokenAuthenticator`は`SAMPLE_API_TOKEN`をConstructorで一度だけ読み、RequestごとにはEnvironmentを参照しません。未設定、空文字、空白だけの値はRuntime構成Errorとして拒否し、既知のDefault TokenへFallbackしません。Local値は`.env.example`だけで提供します。Production Applicationは認証方式とSecret Sourceを選び、Credentialではなく`ActorRef`だけをFrameworkへ渡します。
 
 BootstrapのLoading Boundaryは[Application Bootstrap](application-bootstrap.md)、実行Commandは[BlackOps CLI](project-cli.md)を参照してください。
+
+Release時のMigration、Build Artifact、Frontend生成、HTTP／Worker／Relay／MaintenanceのProcess境界は[Deployment](deployment.md)へ、CommandのOptionとExitは[BlackOps CLI](project-cli.md)へ戻ります。
 
 ## Outbox relay
 

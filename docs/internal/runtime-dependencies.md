@@ -108,6 +108,10 @@ Phase 0時点では依存を固定するのみで、DI ContainerのBuild処理�
 
 ## 品質検査
 
+Release Gateでは、Mago `1.42.0`の生成した既存Issueを`mago-lint-baseline.toml`へstrict variantで追跡する。通常の`mago lint`はbaseline外の新規Issueを失敗させ、`mago lint --verify-baseline`はIssueの追加・解消・位置移動によるbaseline driftを失敗させる。BaselineはRule無効化や手書きのAcceptance Waiverではなく、変更Sourceと再生成差分をReviewするためのDebt記録である。
+
+Deptracは`deptrac/deptrac` `4.7.1`をPHP 8.5対応のexact development dependencyとして固定する。公開Identifier／Idempotency／Outbox、採用Dotenv／Nyholm、Telemetry、Storage Protection、Deferred Integrityの依存方向は`deptrac.yaml`の明示Layerで検査し、Transportへcatch-all Internalを許可しない。D142 Option BではApplication／Auth／Httpから利用する5つの実装領域を`InternalApplication`／`InternalAuth`／`InternalHttp`／`InternalIdempotency`／`InternalSapiRuntime`へ分離し、列挙済みfacade edgeと実装側の必要な依存だけを許可する。4.6.2のvendor parser停止を無視せず、Project Graph全体を解析する。更新は`--with-all-dependencies --minimal-changes`で当該Packageだけへ限定する。
+
 P0-002のAcceptance Criteriaに基づき次の検査を実施し、すべて成功した。結果の詳細は `develop/orchestration/reports/P0-002-runtime-dependency-baseline.md` に記録する。
 
 - `composer validate --strict`

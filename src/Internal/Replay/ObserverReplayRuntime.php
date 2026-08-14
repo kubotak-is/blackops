@@ -6,6 +6,8 @@ namespace BlackOps\Internal\Replay;
 
 use BlackOps\Internal\Journal\JournalObserverBinding;
 use BlackOps\Internal\Projection\ObservedJournalRecordProjector;
+use BlackOps\Internal\Telemetry\TelemetryMetrics;
+use BlackOps\Internal\Telemetry\TelemetryTracer;
 use BlackOps\Journal\Exception\JournalObservationFailed;
 use BlackOps\Transport\PostgreSql\PostgreSqlObserverReplayBeginRequest;
 use BlackOps\Transport\PostgreSql\PostgreSqlObserverReplayBinding;
@@ -27,6 +29,8 @@ final readonly class ObserverReplayRuntime
         private ObserverReplayTargetRegistry $targets,
         private ObservedJournalRecordProjector $projector,
         private int $batchSize = 100,
+        private ?TelemetryTracer $telemetry = null,
+        private ?TelemetryMetrics $metrics = null,
     ) {
         if ($batchSize < 1 || $batchSize > 1000) {
             throw new InvalidArgumentException('Replay batch size must be between 1 and 1000.');
@@ -48,49 +52,60 @@ final readonly class ObserverReplayRuntime
         return new ObserverReplayResult(count($ids), 0, 0, $batch['hasMore'], !$batch['hasMore'], $ids);
     }
 
-    /** @mago-expect lint:halstead */
     public function replay(ObserverReplayRequest $request): ObserverReplayResult
     {
-        $this->validateRequest($request);
-        /** @var list<string> $targetNames */
-        $targetNames = $this->normaliseTargets($request->targetNames);
-        /** @var list<JournalObserverBinding> $targets */
-        $targets = $this->targets->resolve($targetNames);
-        $binding = $this->store->begin(
-            new PostgreSqlObserverReplayBeginRequest(
-                $request->checkpoint,
-                $request->selector,
-                $targetNames,
-                $request->actor,
-                $request->reason,
-                $request->now,
-            ),
-        );
-        $result = null;
-        $failure = null;
+        $span = $this->telemetry?->start('blackops.observer.replay', attributes: [
+            'blackops.runtime.kind' => 'observer_replay',
+        ]);
         try {
-            $result = $this->deliver($request, $targets, $binding);
-        } catch (Throwable $exception) {
-            $failure = $this->recordFailure($request->checkpoint, $exception, $request->now, $binding->auditId);
-        }
-        if ($failure === null && $result === null) {
-            $failure = new JournalObservationFailed('Observer replay did not produce a result.');
-        }
-        $finalizationFailure = $failure === null ? $this->finalize($request, $result, $binding->auditId) : null;
-        $unlockFailure = $this->release($request->checkpoint);
-        if ($failure !== null) {
+            $this->validateRequest($request);
+            /** @var list<string> $targetNames */
+            $targetNames = $this->normaliseTargets($request->targetNames);
+            /** @var list<JournalObserverBinding> $targets */
+            $targets = $this->targets->resolve($targetNames);
+            $binding = $this->store->begin(
+                new PostgreSqlObserverReplayBeginRequest(
+                    $request->checkpoint,
+                    $request->selector,
+                    $targetNames,
+                    $request->actor,
+                    $request->reason,
+                    $request->now,
+                ),
+            );
+            $result = null;
+            $failure = null;
+            try {
+                $result = $this->deliver($request, $targets, $binding);
+            } catch (Throwable $exception) {
+                $failure = $this->recordFailure($request->checkpoint, $exception, $request->now, $binding->auditId);
+            }
+            if ($failure === null && $result === null) {
+                $failure = new JournalObservationFailed('Observer replay did not produce a result.');
+            }
+            $finalizationFailure = $failure === null ? $this->finalize($request, $result, $binding->auditId) : null;
+            $unlockFailure = $this->release($request->checkpoint);
+            if ($failure !== null) {
+                throw $failure;
+            }
+            if ($finalizationFailure !== null) {
+                throw $finalizationFailure;
+            }
+            if ($unlockFailure !== null) {
+                throw $unlockFailure;
+            }
+            if ($result === null) {
+                throw new JournalObservationFailed('Observer replay did not produce a result.');
+            }
+            $span?->result($result->failed > 0 ? 'failed' : 'completed');
+            return $result;
+        } catch (Throwable $failure) {
+            $span?->fail($failure);
+            $this->metrics?->observerFailure('replay', 'replay_failed');
             throw $failure;
+        } finally {
+            $span?->end();
         }
-        if ($finalizationFailure !== null) {
-            throw $finalizationFailure;
-        }
-        if ($unlockFailure !== null) {
-            throw $unlockFailure;
-        }
-        if ($result === null) {
-            throw new JournalObservationFailed('Observer replay did not produce a result.');
-        }
-        return $result;
     }
 
     public function resume(

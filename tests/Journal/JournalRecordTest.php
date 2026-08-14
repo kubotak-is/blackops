@@ -11,6 +11,7 @@ use BlackOps\Core\Identifier\AttemptId;
 use BlackOps\Core\Identifier\CorrelationId;
 use BlackOps\Core\Identifier\JournalRecordId;
 use BlackOps\Core\Identifier\OperationId;
+use BlackOps\Core\TenantRef;
 use BlackOps\Journal\EmptyJournalData;
 use BlackOps\Journal\JournalAttempt;
 use BlackOps\Journal\JournalEvent;
@@ -92,6 +93,20 @@ final class JournalRecordTest extends TestCase
 
         self::assertNull($legacy->actorContext);
         self::assertSame($actors, $withActors->actorContext);
+    }
+
+    public function testJournalOperationCarriesOptionalTenantIdentity(): void
+    {
+        $tenant = new TenantRef('account', 'tenant-1');
+        $operation = new JournalOperation(
+            OperationId::fromString(self::ID),
+            'welcome.show',
+            1,
+            'inline',
+            CorrelationId::fromString(self::ID),
+            tenant: $tenant,
+        );
+        self::assertSame($tenant, $operation->tenant);
     }
 
     public function testInvalidSequenceIsRejected(): void

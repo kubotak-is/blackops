@@ -7,8 +7,10 @@ namespace BlackOps\Internal\Execution;
 use BlackOps\Core\Execution\ClaimRequest;
 use BlackOps\Core\Execution\ClaimSettlement;
 use BlackOps\Core\Execution\OperationReceiver;
+use BlackOps\Internal\Telemetry\TelemetryMetrics;
 use InvalidArgumentException;
 use Psr\Clock\ClockInterface;
+use Throwable;
 
 final readonly class DeferredWorkerLoop implements WorkerLoop
 {
@@ -21,6 +23,7 @@ final readonly class DeferredWorkerLoop implements WorkerLoop
         private ClockInterface $clock,
         private WorkerSleeper $sleeper = new NativeWorkerSleeper(),
         private bool $continueAfterHandlerFailure = true,
+        private ?TelemetryMetrics $metrics = null,
     ) {}
 
     public function run(?int $maximumIterations = null, int $idleSleepMilliseconds = 1_000): int
@@ -57,16 +60,27 @@ final readonly class DeferredWorkerLoop implements WorkerLoop
             }
 
             try {
-                $this->runtime->run($claim);
+                $result = $this->runtime->run($claim);
+                $this->settlement->acknowledge($claim);
+                $this->metrics?->workerClaim($result->isRejected() ? 'rejected' : 'completed');
             } catch (SupervisedHandlerFailureException $exception) {
+                $this->metrics?->workerClaim($exception->result());
                 if (!$this->continueAfterHandlerFailure) {
                     throw $exception;
                 }
 
                 continue;
+            } catch (Throwable $exception) {
+                $this->metrics?->workerClaim(
+                    $exception instanceof WorkerExecutionInterruptedException
+                    || $exception instanceof WorkerGracePeriodExceededException
+                    || $exception instanceof WorkerClaimLostException
+                        ? 'interrupted'
+                        : 'failed',
+                );
+                throw $exception;
             }
 
-            $this->settlement->acknowledge($claim);
             ++$processed;
         }
 

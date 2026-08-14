@@ -17,6 +17,7 @@ use BlackOps\Transport\PostgreSql\PostgreSqlRetentionPlanner;
 use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\ParameterType;
 use PHPUnit\Framework\TestCase;
 
 final class PostgreSqlRetentionPlannerTest extends TestCase
@@ -44,6 +45,7 @@ final class PostgreSqlRetentionPlannerTest extends TestCase
         $this->connection->executeStatement('DROP SCHEMA IF EXISTS ' . self::SCHEMA . ' CASCADE');
         $this->sender = new PostgreSqlDeferredOperationSender(
             $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
             self::SCHEMA,
             new DateTimeImmutable('2026-07-10T00:00:01.000000Z'),
         );
@@ -120,7 +122,7 @@ final class PostgreSqlRetentionPlannerTest extends TestCase
         $row = $this->connection->fetchAssociative(
             'SELECT
                 state,
-                convert_from(encoded_payload, \'UTF8\') AS encoded_payload,
+                encode(encoded_payload, \'escape\') AS encoded_payload,
                 payload_purged_at
             FROM ' . self::SCHEMA . '.operations
             WHERE operation_id = :operation_id',
@@ -129,7 +131,7 @@ final class PostgreSqlRetentionPlannerTest extends TestCase
 
         self::assertIsArray($row);
         self::assertSame('completed', $row['state']);
-        self::assertSame('{"operationId":"' . self::PAYLOAD_ELIGIBLE . '"}', $row['encoded_payload']);
+        self::assertStringStartsWith('BOPD', $row['encoded_payload']);
         self::assertNull($row['payload_purged_at']);
     }
 
@@ -173,18 +175,28 @@ final class PostgreSqlRetentionPlannerTest extends TestCase
     private function journal(string $operationId, int $sequence, string $occurredAt): void
     {
         $recordId = $this->recordId($operationId, $sequence);
-        $this->connection->executeStatement('INSERT INTO ' . self::SCHEMA . '.journal (
-            record_id, operation_id, sequence, event, schema_version, occurred_at, encoded_record
+        $this->connection->executeStatement(
+            'INSERT INTO ' . self::SCHEMA . '.journal (
+            record_id, operation_id, operation_type, sequence, event, schema_version, operation_schema_version, occurred_at, encoded_record
         ) VALUES (
-            :record_id, :operation_id, :sequence, :event, 1, :occurred_at, convert_to(:record, \'UTF8\')
-        )', [
-            'record_id' => $recordId,
-            'operation_id' => $operationId,
-            'sequence' => $sequence,
-            'event' => 'operation.tested',
-            'occurred_at' => $occurredAt,
-            'record' => '{}',
-        ]);
+            :record_id, :operation_id, :operation_type, :sequence, :event, 1, 1, :occurred_at, :encoded_record
+        )',
+            [
+                'record_id' => $recordId,
+                'operation_id' => $operationId,
+                'operation_type' => 'operation.tested',
+                'sequence' => $sequence,
+                'event' => 'operation.tested',
+                'occurred_at' => $occurredAt,
+                'encoded_record' => PostgreSqlTestStorageProtection::journalEnvelope(
+                    '{}',
+                    $recordId,
+                    $operationId,
+                    'operation.tested',
+                ),
+            ],
+            ['encoded_record' => ParameterType::BINARY],
+        );
     }
 
     private function recordId(string $operationId, int $sequence): string
@@ -252,36 +264,36 @@ final class PostgreSqlRetentionPlannerTest extends TestCase
                 operation_id,
                 final_attempt_id,
                 final_attempt_number,
-                reason_type,
-                reason_message,
+                encoded_reason,
                 moved_at
             ) VALUES (
                 :operation_id,
                 NULL,
                 NULL,
-                :reason_type,
-                :reason_message,
+                decode(\'424f5044\', \'hex\'),
                 :moved_at
             )', [
             'operation_id' => $operationId,
-            'reason_type' => \RuntimeException::class,
-            'reason_message' => 'boom',
             'moved_at' => $movedAt,
         ]);
     }
 
     private function outcome(string $operationId, string $completedAt): void
     {
-        $this->connection->executeStatement('INSERT INTO ' . self::SCHEMA . '.outcomes (
+        $this->connection->executeStatement(
+            'INSERT INTO ' . self::SCHEMA . '.outcomes (
             operation_id, outcome_type, schema_version, encoded_payload, completed_at
         ) VALUES (
-            :operation_id, :outcome_type, 1, convert_to(:payload, \'UTF8\'), :completed_at
-        )', [
-            'operation_id' => $operationId,
-            'outcome_type' => 'retention.test',
-            'payload' => '{}',
-            'completed_at' => $completedAt,
-        ]);
+            :operation_id, :outcome_type, 1, :payload, :completed_at
+        )',
+            [
+                'operation_id' => $operationId,
+                'outcome_type' => 'retention.test',
+                'payload' => PostgreSqlTestStorageProtection::outcomeEnvelope('{}', $operationId, 'retention.test'),
+                'completed_at' => $completedAt,
+            ],
+            ['payload' => ParameterType::BINARY],
+        );
     }
 
     private function policy(): RetentionPolicy

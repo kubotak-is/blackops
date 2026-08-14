@@ -11,7 +11,6 @@ use BlackOps\Journal\EmptyJournalData;
 use BlackOps\Journal\JournalEvent;
 use BlackOps\Journal\JournalOperation;
 use BlackOps\Journal\JournalRecord;
-use BlackOps\Transport\PostgreSql\PostgreSqlJournalRecordCodec;
 use BlackOps\Transport\PostgreSql\PostgreSqlJournalSchema;
 use BlackOps\Transport\PostgreSql\PostgreSqlObserverReplayBeginRequest;
 use BlackOps\Transport\PostgreSql\PostgreSqlObserverReplaySelector;
@@ -19,6 +18,7 @@ use BlackOps\Transport\PostgreSql\PostgreSqlObserverReplayStore;
 use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\ParameterType;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
@@ -44,7 +44,11 @@ final class PostgreSqlObserverReplayStoreTest extends TestCase
         $schema = new PostgreSqlJournalSchema(self::SCHEMA);
         foreach ($schema->statements() as $statement)
             $this->connection->executeStatement($statement);
-        $this->store = new PostgreSqlObserverReplayStore($this->connection, self::SCHEMA);
+        $this->store = new PostgreSqlObserverReplayStore(
+            $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        );
     }
 
     public function testSelectorsAreBoundedAndNormalised(): void
@@ -107,14 +111,19 @@ final class PostgreSqlObserverReplayStoreTest extends TestCase
         $this->connection->executeStatement(
             'INSERT INTO "'
             . self::SCHEMA
-            . '"."journal" (record_id, operation_id, sequence, event, schema_version, occurred_at, encoded_record) VALUES (:record,:operation,1,:event,1,:at,convert_to(:encoded,\'UTF8\'))',
+            . '"."journal" (record_id, operation_id, operation_type, sequence, event, schema_version, operation_schema_version, occurred_at, encoded_record) VALUES (:record,:operation,\'operation.replay\',1,:event,1,1,:at,:encoded)',
             [
                 'record' => '019f32ab-2be0-7b38-a0a7-1ab2f968769a',
                 'operation' => '019f32ab-2be0-7b38-a0a7-1ab2f9687697',
                 'event' => 'operation.received',
                 'at' => '2026-07-01T00:00:00Z',
-                'encoded' => '{}',
+                'encoded' => PostgreSqlTestStorageProtection::journalEnvelope(
+                    '{}',
+                    '019f32ab-2be0-7b38-a0a7-1ab2f968769a',
+                    '019f32ab-2be0-7b38-a0a7-1ab2f9687697',
+                ),
             ],
+            ['encoded' => ParameterType::BINARY],
         );
         $this->expectException(RuntimeException::class);
         try {
@@ -136,7 +145,6 @@ final class PostgreSqlObserverReplayStoreTest extends TestCase
     public function testCanonicalIdsAndEncodedBytesRemainUnchangedAcrossSelection(): void
     {
         $operation = OperationId::fromString('019f32ab-2be0-7b38-a0a7-1ab2f9687697');
-        $codec = new PostgreSqlJournalRecordCodec();
         $record = new JournalRecord(
             JournalRecordId::fromString('019f32ab-2be0-7b38-a0a7-1ab2f968769a'),
             1,
@@ -153,11 +161,11 @@ final class PostgreSqlObserverReplayStoreTest extends TestCase
             null,
             new EmptyJournalData(),
         );
-        $encoded = $codec->encode($record);
+        $encoded = PostgreSqlTestStorageProtection::journalRecordEnvelope($record);
         $this->connection->executeStatement(
             'INSERT INTO "'
             . self::SCHEMA
-            . '"."journal" (record_id, operation_id, sequence, event, schema_version, occurred_at, encoded_record) VALUES (:record,:operation,1,:event,1,:at,convert_to(:encoded,\'UTF8\'))',
+            . '"."journal" (record_id, operation_id, operation_type, sequence, event, schema_version, operation_schema_version, occurred_at, encoded_record) VALUES (:record,:operation,\'order.create\',1,:event,1,1,:at,:encoded)',
             [
                 'record' => $record->recordId->toString(),
                 'operation' => $operation->toString(),
@@ -165,6 +173,7 @@ final class PostgreSqlObserverReplayStoreTest extends TestCase
                 'at' => '2026-07-01T00:00:00Z',
                 'encoded' => $encoded,
             ],
+            ['encoded' => ParameterType::BINARY],
         );
         $before = $this->connection->fetchAllAssociative(
             'SELECT record_id, encode(encoded_record, \'hex\') AS encoded FROM "'
@@ -202,14 +211,18 @@ final class PostgreSqlObserverReplayStoreTest extends TestCase
                 'test',
             ),
         );
-        $second = new PostgreSqlObserverReplayStore(DriverManager::getConnection([
-            'driver' => 'pdo_pgsql',
-            'host' => getenv('POSTGRES_HOST') ?: 'postgres',
-            'port' => getenv('POSTGRES_PORT') ?: 5432,
-            'dbname' => getenv('POSTGRES_DB') ?: 'blackops',
-            'user' => getenv('POSTGRES_USER') ?: 'blackops',
-            'password' => getenv('POSTGRES_PASSWORD') ?: 'blackops',
-        ]), self::SCHEMA);
+        $second = new PostgreSqlObserverReplayStore(
+            DriverManager::getConnection([
+                'driver' => 'pdo_pgsql',
+                'host' => getenv('POSTGRES_HOST') ?: 'postgres',
+                'port' => getenv('POSTGRES_PORT') ?: 5432,
+                'dbname' => getenv('POSTGRES_DB') ?: 'blackops',
+                'user' => getenv('POSTGRES_USER') ?: 'blackops',
+                'password' => getenv('POSTGRES_PASSWORD') ?: 'blackops',
+            ]),
+            PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        );
         $this->expectException(InvalidArgumentException::class);
         try {
             $second->begin(
@@ -250,7 +263,6 @@ final class PostgreSqlObserverReplayStoreTest extends TestCase
     public function testOperationSelectionUsesSequenceKeysetAndHasMore(): void
     {
         $operation = OperationId::fromString('019f32ab-2be0-7b38-a0a7-1ab2f9687697');
-        $codec = new PostgreSqlJournalRecordCodec();
         $rows = [];
         foreach ([
             ['019f32ab-2be0-7b38-a0a7-1ab2f968769a', 1],
@@ -275,15 +287,16 @@ final class PostgreSqlObserverReplayStoreTest extends TestCase
             $this->connection->executeStatement(
                 'INSERT INTO "'
                 . self::SCHEMA
-                . '"."journal" (record_id, operation_id, sequence, event, schema_version, occurred_at, encoded_record) VALUES (:record,:operation,:sequence,:event,1,:at,convert_to(:encoded,\'UTF8\'))',
+                . '"."journal" (record_id, operation_id, operation_type, sequence, event, schema_version, operation_schema_version, occurred_at, encoded_record) VALUES (:record,:operation,\'order.create\',:sequence,:event,1,1,:at,:encoded)',
                 [
                     'record' => $id,
                     'operation' => $operation->toString(),
                     'sequence' => $sequence,
                     'event' => 'operation.received',
                     'at' => '2026-07-01T00:00:00Z',
-                    'encoded' => $codec->encode($record),
+                    'encoded' => PostgreSqlTestStorageProtection::journalRecordEnvelope($record),
                 ],
+                ['encoded' => ParameterType::BINARY],
             );
             $rows[] = $record;
         }
@@ -299,7 +312,6 @@ final class PostgreSqlObserverReplayStoreTest extends TestCase
     public function testTimeSelectionUsesHalfOpenBoundaryAndOccurredOrder(): void
     {
         $operation = OperationId::fromString('019f32ab-2be0-7b38-a0a7-1ab2f9687697');
-        $codec = new PostgreSqlJournalRecordCodec();
         foreach ([
             ['019f32ab-2be0-7b38-a0a7-1ab2f968769a', '2026-07-01T00:00:00Z'],
             ['019f32ab-2be0-7b38-a0a7-1ab2f968769b', '2026-07-02T00:00:00Z'],
@@ -323,15 +335,16 @@ final class PostgreSqlObserverReplayStoreTest extends TestCase
             $this->connection->executeStatement(
                 'INSERT INTO "'
                 . self::SCHEMA
-                . '"."journal" (record_id, operation_id, sequence, event, schema_version, occurred_at, encoded_record) VALUES (:record,:operation,:sequence,:event,1,:at,convert_to(:encoded,\'UTF8\'))',
+                . '"."journal" (record_id, operation_id, operation_type, sequence, event, schema_version, operation_schema_version, occurred_at, encoded_record) VALUES (:record,:operation,\'order.create\',:sequence,:event,1,1,:at,:encoded)',
                 [
                     'record' => $id,
                     'operation' => $operation->toString(),
                     'sequence' => $index + 1,
                     'event' => 'operation.received',
                     'at' => $at,
-                    'encoded' => $codec->encode($record),
+                    'encoded' => PostgreSqlTestStorageProtection::journalRecordEnvelope($record),
                 ],
+                ['encoded' => ParameterType::BINARY],
             );
         }
         $result = $this->store->select(
@@ -420,7 +433,11 @@ final class PostgreSqlObserverReplayStoreTest extends TestCase
             'user' => getenv('POSTGRES_USER') ?: 'blackops',
             'password' => getenv('POSTGRES_PASSWORD') ?: 'blackops',
         ]);
-        $replacement = new PostgreSqlObserverReplayStore($replacementConnection, self::SCHEMA);
+        $replacement = new PostgreSqlObserverReplayStore(
+            $replacementConnection,
+            PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        );
         $replacement->begin(
             new PostgreSqlObserverReplayBeginRequest(
                 'stale-checkpoint',

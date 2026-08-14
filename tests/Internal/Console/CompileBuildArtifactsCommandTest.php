@@ -21,11 +21,16 @@ use BlackOps\Core\OperationHandler;
 use BlackOps\Core\OperationResult;
 use BlackOps\Core\OperationValue;
 use BlackOps\Core\Registry\OperationProvider;
+use BlackOps\Core\TenantRef;
 use BlackOps\Http\Attribute\Route;
 use BlackOps\Http\Routing\HttpOperationManifestFile;
 use BlackOps\Internal\Console\CompileBuildArtifactsCommand;
 use BlackOps\Internal\Frontend\FrontendContractManifestFile;
 use BlackOps\Internal\Registry\OperationManifestFile;
+use BlackOps\Internal\StorageProtection\BopdEnvelopeCodec;
+use BlackOps\StorageProtection\StorageKey;
+use BlackOps\StorageProtection\StorageKeyProvider;
+use BlackOps\StorageProtection\StoragePurpose;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -122,6 +127,7 @@ final class CompileBuildArtifactsCommandTest extends TestCase
         self::assertNotNull($httpMatch);
         self::assertInstanceOf(ContainerInterface::class, $container);
         self::assertInstanceOf(BuildService::class, $container->get(BuildService::class));
+        self::assertInstanceOf(BopdEnvelopeCodec::class, $container->get(BopdEnvelopeCodec::class));
         self::assertInstanceOf(BuildAuthorizationPolicy::class, $container->get(BuildAuthorizationPolicy::class));
         self::assertInstanceOf(BuildService::class, $container->get(BuildAuthorizationPolicy::class)->service);
         self::assertFileExists($fingerprint);
@@ -478,6 +484,20 @@ final readonly class BuildServiceProvider implements ServiceProvider
     public function register(ServiceRegistry $services): void
     {
         $services->autowire(BuildService::class);
+        $services->autowire(StorageKeyProvider::class, BuildStorageKeyProvider::class);
+    }
+}
+
+final readonly class BuildStorageKeyProvider implements StorageKeyProvider
+{
+    public function activeKey(?TenantRef $tenant, StoragePurpose $purpose): StorageKey
+    {
+        return new StorageKey('build:v1', str_repeat('b', 32));
+    }
+
+    public function key(string $keyId, ?TenantRef $tenant, StoragePurpose $purpose): StorageKey
+    {
+        return new StorageKey($keyId, str_repeat('b', 32));
     }
 }
 

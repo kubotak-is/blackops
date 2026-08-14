@@ -18,7 +18,7 @@ Operation CommandはHTTPと共通のCompiled Container、Validation、Authorizat
 
 本実装はFramework／QuickstartのLocal Sourceだけを更新し、Community Board、Session Auth Package、Documentation Website、Packageを外部公開しない。Phase 18全体のCloseoutはP18-006／P18-007に残る。
 
-`examples/quickstart/` はFeature-firstのInstalled Application Exampleと`blackops/skeleton`のSource of Truthである。Framework／Skeleton `1.0.0`はGitHubとPackagistへ公開済みで、Remote `composer create-project`も検証済みである。Current SourceとRelease DocumentationはExperimental `1.1.0`を対象とし、Project Root `blackops`、Generator、Application Migration、Validation、FrankenPHP Worker Modeを含む。`1.1.0`のTag／Packagist公開はPhase 11後続Taskであり、この文書更新は公開完了を意味しない。MVP CompleteとStable Package公開もProduction Readyを意味しない。
+`examples/quickstart/` はFeature-firstのInstalled Application Exampleと`blackops/skeleton`のSource of Truthである。Framework／Skeleton `1.0.0`はGitHubとPackagistへ公開済みで、Remote `composer create-project`も検証済みである。Current SourceとRelease DocumentationはExperimental `1.2.0` candidateを対象とし、Project Root `blackops`、Generator、Application Migration、Validation、FrankenPHP Worker Modeを含む。公開済みStable `1.1.0`のTag／Packagist metadataは変更せず、`1.2.0`のPublicationは後続Release Gateで扱う。MVP CompleteとStable Package公開もProduction Readyを意味しない。
 
 ## Phase 7 Acceptance Evidence
 
@@ -156,6 +156,8 @@ Phase 7 Consumer E2EとLocal Create-projectはSource／Runtime境界、P8-004 Re
 
 Project Rootの`blackops`から、Framework所有の`make:operation`と`make:migration`を利用できる。Operation GeneratorはTyped Self-handled Operation／Value／Outcomeを安全に生成し、Migration GeneratorはApplication所有のUTC Version Fileを生成する。Application MigrationはFramework Migrationと同じ明示Database Commandで、Framework Namespaceを先に実行する。
 
-Framework Update SmokeはRepository外の一時ConsumerにLocal `1.0.0`旧版相当と`1.1.0` Current Framework Packageを構成し、ComposerがFramework Dependencyだけを更新するScenarioを再現する。Update前後でProject Root Entrypoint、既存生成Operation、既存生成Migrationのhashが一致する。Framework PackageがApplication所有Entrypointを更新しないことを検証し、旧`bin/blackops`は互換対象としない。Update後のVendor Command Source／StubがCurrent Frameworkとbyte一致し、新規生成出力とSourceだけがCurrent Command／Stubへ切り替わることも検証する。
+Framework Update SmokeはRepository外の一時Consumerに実際のannotated Stable Tag `1.1.0`とLocal `1.2.0` Candidate Framework Packageを構成し、ComposerがFramework Dependencyだけを更新するScenarioを再現する。Update前後でProject Root Entrypoint、既存生成Operation、既存生成Migrationのhashが一致する。Framework PackageがApplication所有Entrypointを更新しないことを検証し、旧`bin/blackops`は互換対象としない。Update後のVendor Command Source／StubがCurrent Frameworkとbyte一致し、新規生成出力とSourceだけがCurrent Command／Stubへ切り替わることも検証する。
+
+Stable `config/app.php`にはCandidate Buildが読む`frontend_manifest`がないため、Composer／Source hash不変を確認した後にだけApplication-owned最小Configを追加する。`'frontend_manifest' => dirname(__DIR__) . '/var/build/frontend.php'`を加えたCompatibility laneで、Orchestratorの最新actual-tag ConsumerはCandidate `build:compile`、`operation:list`（`welcome.show`）までPASSした。Candidate HTTP／WorkerはStorageKeyProviderを無条件に要求するため、このConsumerのCompatibility laneはHTTP／Worker互換性を主張せず、P22-003 fixed-SHA Full Gateは両lane共通のDatabase migration/setup（DDL guard evidence）、Provider-present HTTP／Worker Positive、Provider-missing HTTP／Worker safe Negativeを実行する。一時Consumerはcleanup後に再利用しない。
 
 Quickstart Consumer E2EとLocal Create-project SmokeもOperation／Migration生成を含み、生成OperationのBuildとApplication Migrationの適用を検証する。Framework StubはFramework Packageの`resources/stubs/`だけに置き、Skeleton Sourceへ複製しない。

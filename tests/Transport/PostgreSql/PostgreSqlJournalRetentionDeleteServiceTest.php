@@ -15,6 +15,7 @@ use BlackOps\Core\Retention\RetentionPurgeAuditPort;
 use BlackOps\Core\Retention\RetentionPurgeAuditRecord;
 use BlackOps\Core\Retention\RetentionTarget;
 use BlackOps\Internal\Retention\LoggingRetentionPurgeAuditPort;
+use BlackOps\Transport\PostgreSql\PostgreSqlBytea;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationSender;
 use BlackOps\Transport\PostgreSql\PostgreSqlJournalRetentionDeleteService;
 use BlackOps\Transport\PostgreSql\PostgreSqlJournalSchema;
@@ -23,6 +24,7 @@ use BlackOps\Transport\PostgreSql\PostgreSqlRetentionPurgeAuditStore;
 use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\ParameterType;
 use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
 use Psr\Log\AbstractLogger;
@@ -43,6 +45,7 @@ final class PostgreSqlJournalRetentionDeleteServiceTest extends TestCase
         $this->connection->executeStatement('DROP SCHEMA IF EXISTS ' . self::SCHEMA . ' CASCADE');
         $sender = new PostgreSqlDeferredOperationSender(
             $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
             self::SCHEMA,
             new DateTimeImmutable('2026-07-10T00:00:00Z'),
         );
@@ -79,6 +82,25 @@ final class PostgreSqlJournalRetentionDeleteServiceTest extends TestCase
             ],
             $audit,
         );
+    }
+
+    public function testDeleteDoesNotDecodeTamperedJournalEnvelope(): void
+    {
+        $this->journal(self::INLINE_OPERATION, 1, '2026-06-01 00:00:00+00:00');
+        $recordId = $this->recordId(self::INLINE_OPERATION, 1);
+        $encoded = PostgreSqlBytea::string($this->connection->fetchOne('SELECT encoded_record FROM '
+        . self::SCHEMA
+        . '.journal WHERE record_id = :record_id', ['record_id' => $recordId]));
+        $encoded[strlen($encoded) - 1] = $encoded[strlen($encoded) - 1] ^ "\x01";
+        $this->connection->executeStatement(
+            'UPDATE ' . self::SCHEMA . '.journal SET encoded_record = :encoded WHERE record_id = :record_id',
+            ['encoded' => $encoded, 'record_id' => $recordId],
+            ['encoded' => ParameterType::BINARY],
+        );
+
+        self::assertSame(1, $this->service(
+            new PostgreSqlRetentionPurgeAuditStore($this->connection, self::SCHEMA),
+        )->delete($this->plan(self::INLINE_OPERATION, '2026-06-01T00:00:00Z'), $this->policy(), $this->actor()));
     }
 
     public function testSkipsWhenNewJournalWasAppendedAfterPlanning(): void
@@ -196,18 +218,28 @@ final class PostgreSqlJournalRetentionDeleteServiceTest extends TestCase
     private function journal(string $operationId, int $sequence, string $occurredAt): void
     {
         $recordId = $this->recordId($operationId, $sequence);
-        $this->connection->executeStatement('INSERT INTO ' . self::SCHEMA . '.journal (
-            record_id, operation_id, sequence, event, schema_version, occurred_at, encoded_record
+        $this->connection->executeStatement(
+            'INSERT INTO ' . self::SCHEMA . '.journal (
+            record_id, operation_id, operation_type, sequence, event, schema_version, operation_schema_version, occurred_at, encoded_record
         ) VALUES (
-            :record_id, :operation_id, :sequence, :event, 1, :occurred_at, convert_to(:record, \'UTF8\')
-        )', [
-            'record_id' => $recordId,
-            'operation_id' => $operationId,
-            'sequence' => $sequence,
-            'event' => 'operation.tested',
-            'occurred_at' => $occurredAt,
-            'record' => '{"secret":"not audited"}',
-        ]);
+            :record_id, :operation_id, :operation_type, :sequence, :event, 1, 1, :occurred_at, :encoded_record
+        )',
+            [
+                'record_id' => $recordId,
+                'operation_id' => $operationId,
+                'operation_type' => 'operation.tested',
+                'sequence' => $sequence,
+                'event' => 'operation.tested',
+                'occurred_at' => $occurredAt,
+                'encoded_record' => PostgreSqlTestStorageProtection::journalEnvelope(
+                    '{"secret":"not audited"}',
+                    $recordId,
+                    $operationId,
+                    'operation.tested',
+                ),
+            ],
+            ['encoded_record' => ParameterType::BINARY],
+        );
     }
 
     private function recordId(string $operationId, int $sequence): string

@@ -9,6 +9,7 @@ use BlackOps\Core\Identifier\CausationId;
 use BlackOps\Core\Identifier\CorrelationId;
 use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Idempotency\IdempotencyKeyHash;
+use BlackOps\Telemetry\TelemetryContext;
 use DateTimeImmutable;
 use DateTimeZone;
 
@@ -19,6 +20,8 @@ use DateTimeZone;
  *
  * 生成と遷移はInternal Factoryが行い、利用者はGetterでの読み取りのみを許可する。
  * 公開 `with...()` Methodは提供しない。
+ *
+ * @mago-expect lint:excessive-parameter-list
  */
 #[PublicApi]
 final readonly class ExecutionContext
@@ -35,6 +38,9 @@ final readonly class ExecutionContext
         ?DateTimeImmutable $deadline = null,
         private ?ActorContext $actorContext = null,
         private ?IdempotencyKeyHash $idempotencyKeyHash = null,
+        private ?ScheduleContext $schedule = null,
+        private ?TenantRef $tenant = null,
+        private ?TelemetryContext $telemetry = null,
     ) {
         $this->receivedAt = $this->toUtc($receivedAt);
         $this->deadline = $deadline === null ? null : $this->toUtc($deadline);
@@ -78,6 +84,21 @@ final readonly class ExecutionContext
     public function idempotencyKeyHash(): ?IdempotencyKeyHash
     {
         return $this->idempotencyKeyHash;
+    }
+
+    public function schedule(): ?ScheduleContext
+    {
+        return $this->schedule;
+    }
+
+    public function tenant(): ?TenantRef
+    {
+        return $this->tenant;
+    }
+
+    public function telemetry(): ?TelemetryContext
+    {
+        return $this->telemetry;
     }
 
     private function toUtc(DateTimeImmutable $time): DateTimeImmutable

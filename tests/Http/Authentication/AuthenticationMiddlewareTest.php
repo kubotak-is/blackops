@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BlackOps\Tests\Http\Authentication;
 
 use BlackOps\Core\ActorRef;
+use BlackOps\Core\TenantRef;
 use BlackOps\Http\Authentication\AuthenticationMiddleware;
 use BlackOps\Http\Authentication\AuthenticationResult;
 use BlackOps\Http\Authentication\HttpAuthenticator;
@@ -31,6 +32,37 @@ final class AuthenticationMiddlewareTest extends TestCase
         self::assertNull(HttpActorRequestAttribute::actor($handler->request));
     }
 
+    public function testAnonymousRemovesPreseededTenantAttribute(): void
+    {
+        $tenant = new TenantRef('account', 'tenant-a');
+        $request = new Psr17Factory()
+            ->createServerRequest('GET', '/')
+            ->withAttribute(TenantRef::class, $tenant);
+        $handler = new CapturingAuthenticationHandler();
+
+        new AuthenticationMiddleware(new FixedHttpAuthenticator(AuthenticationResult::anonymous()))->process(
+            $request,
+            $handler,
+        );
+
+        self::assertNull($handler->request?->getAttribute(TenantRef::class));
+    }
+
+    public function testAuthenticatedWithoutTenantRemovesPreseededTenantAttribute(): void
+    {
+        $request = new Psr17Factory()
+            ->createServerRequest('GET', '/')
+            ->withAttribute(TenantRef::class, new TenantRef('account', 'tenant-a'));
+        $handler = new CapturingAuthenticationHandler();
+
+        new AuthenticationMiddleware(new FixedHttpAuthenticator(AuthenticationResult::authenticated(new ActorRef(
+            'user-123',
+            'user',
+        ))))->process($request, $handler);
+
+        self::assertNull($handler->request?->getAttribute(TenantRef::class));
+    }
+
     public function testAuthenticatedPassesOnlyActorInReservedAttribute(): void
     {
         $actor = new ActorRef('user-123', 'user');
@@ -50,6 +82,17 @@ final class AuthenticationMiddlewareTest extends TestCase
             ['Bearer credential-that-must-stay-in-request'],
             $handler->request?->getHeader('Authorization'),
         );
+    }
+
+    public function testAuthenticatedPassesVerifiedTenantInReservedAttribute(): void
+    {
+        $tenant = new \BlackOps\Core\TenantRef('account', 'tenant-verified');
+        $handler = new CapturingAuthenticationHandler();
+        new AuthenticationMiddleware(new FixedHttpAuthenticator(AuthenticationResult::authenticated(
+            new ActorRef('user-123', 'user'),
+            $tenant,
+        )))->process(new Psr17Factory()->createServerRequest('GET', '/'), $handler);
+        self::assertSame($tenant, $handler->request?->getAttribute(\BlackOps\Core\TenantRef::class));
     }
 
     public function testInvalidReturnsSafeJson401WithoutCallingDownstream(): void

@@ -45,10 +45,13 @@ use BlackOps\Internal\Identifier\Uuidv7Generator;
 use BlackOps\Internal\Journal\JournalRecordFactory;
 use BlackOps\Internal\Logging\ExecutionScopedLogger;
 use BlackOps\Internal\Logging\FrameworkOperationFailureReporter;
+use BlackOps\Internal\StorageProtection\StorageProtectionContext;
 use BlackOps\Journal\Data\OperationReceivedData;
 use BlackOps\Journal\EmptyJournalData;
 use BlackOps\Journal\JournalEvent;
 use BlackOps\Journal\JournalRecord;
+use BlackOps\StorageProtection\StoragePurpose;
+use BlackOps\Transport\PostgreSql\PostgreSqlBytea;
 use BlackOps\Transport\PostgreSql\PostgreSqlCanonicalJournalStore;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationSender;
 use DateTimeImmutable;
@@ -78,7 +81,11 @@ final class DeferredOperationRequestHandlerTest extends TestCase
         $this->psr17 = new Psr17Factory();
         $this->connection = $this->connection();
         $this->connection->executeStatement('DROP SCHEMA IF EXISTS ' . self::SCHEMA . ' CASCADE');
-        $this->journal = new PostgreSqlCanonicalJournalStore($this->connection, self::SCHEMA);
+        $this->journal = new PostgreSqlCanonicalJournalStore(
+            $this->connection,
+            \BlackOps\Tests\Transport\PostgreSql\PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        );
     }
 
     public function testDeferredRouteReturnsAcceptedResponseAndPersistsStateAndJournal(): void
@@ -109,8 +116,8 @@ final class DeferredOperationRequestHandlerTest extends TestCase
         self::assertSame('report.generate', $operationRow['operation_type']);
         self::assertSame('accepted', $operationRow['state']);
         self::assertSame(3, (int) $operationRow['next_sequence']);
-        self::assertSame('{"reportName":"weekly"}', $operationRow['payload']);
-        self::assertStringContainsString('"operation_id":"' . self::OPERATION_ID . '"', $operationRow['context']);
+        self::assertStringStartsWith('BOPD', $operationRow['payload']);
+        self::assertStringStartsWith('BOPD', $operationRow['context']);
         self::assertSame(
             [JournalEvent::OperationReceived, JournalEvent::OperationAccepted],
             array_map(static fn(JournalRecord $record): JournalEvent => $record->event, $records),
@@ -237,12 +244,19 @@ final class DeferredOperationRequestHandlerTest extends TestCase
         self::assertSame($actor, $policy->request?->context()->actorContext()?->origin());
         self::assertSame($actor, $policy->request?->context()->actorContext()?->authorization());
         self::assertSame($actor, $policy->request?->context()->actorContext()?->execution());
-        self::assertStringContainsString(
-            '"actors":{"origin":{"id":"user-123","type":"user"}',
+        $context = \BlackOps\Tests\Transport\PostgreSql\PostgreSqlTestStorageProtection::codec()->decrypt(
             $operationRow['context'],
+            new StorageProtectionContext(
+                StoragePurpose::DeferredContext,
+                self::OPERATION_ID . ':context',
+                self::OPERATION_ID,
+                'report.generate',
+                1,
+            ),
         );
-        self::assertStringNotContainsString('credential', $operationRow['context']);
-        self::assertStringNotContainsString('permission', $operationRow['context']);
+        self::assertStringContainsString('"actors":{"origin":{"id":"user-123","type":"user"}', $context);
+        self::assertStringNotContainsString('credential', $context);
+        self::assertStringNotContainsString('permission', $context);
     }
 
     public function testKeyedDeferredAcceptanceReplaysSafe202AndAvoidsDuplicateEnqueueAndJournal(): void
@@ -440,6 +454,7 @@ final class DeferredOperationRequestHandlerTest extends TestCase
         $identifiers = new IdentifierFactory(new DeferredHttpUuidv7Generator(), $clock);
         $sender = new PostgreSqlDeferredOperationSender(
             $this->connection,
+            \BlackOps\Tests\Transport\PostgreSql\PostgreSqlTestStorageProtection::codec(),
             self::SCHEMA,
             new DateTimeImmutable('2026-07-10T00:00:01.123456Z'),
         );
@@ -521,11 +536,13 @@ final class DeferredOperationRequestHandlerTest extends TestCase
                 operation_type,
                 state,
                 next_sequence,
-                convert_from(encoded_payload, \'UTF8\') AS payload,
-                convert_from(encoded_context, \'UTF8\') AS context
+                encoded_payload AS payload,
+                encoded_context AS context
             FROM ' . self::SCHEMA . '.operations');
 
         self::assertIsArray($row);
+        $row['payload'] = PostgreSqlBytea::string($row['payload']);
+        $row['context'] = PostgreSqlBytea::string($row['context']);
 
         return $row;
     }

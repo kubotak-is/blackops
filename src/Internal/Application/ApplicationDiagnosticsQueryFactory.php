@@ -20,10 +20,12 @@ final readonly class ApplicationDiagnosticsQueryFactory
     {
         $database = ApplicationDatabaseConfiguration::fromConfiguration($this->configuration->configuration());
         $connection = $database->databaseManager()->connection($database->frameworkConnection);
+        $runtime = new ApplicationOperationRuntimeComposer()->compose($this->configuration);
+        $protection = $runtime->protection;
 
         return new OperationDiagnosticsQuery(
-            new PostgreSqlCanonicalJournalStore($connection, $database->schema),
-            new PostgreSqlOutcomeStore($connection, $database->schema),
+            new PostgreSqlCanonicalJournalStore($connection, $protection, $database->schema),
+            new PostgreSqlOutcomeStore($connection, $protection, $database->schema),
             new PostgreSqlDiagnosticsSourceReader(new PostgreSqlDiagnosticsReader($connection, $database->schema)),
         );
     }

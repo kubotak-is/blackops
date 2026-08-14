@@ -10,14 +10,17 @@ use BlackOps\Core\Execution\DeferredOperationMessage;
 use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Core\Outcome;
 use BlackOps\Core\OutcomeData;
+use BlackOps\Internal\StorageProtection\StorageProtectionContext;
 use BlackOps\Outcome\Exception\OutcomeStoreException;
 use BlackOps\Outcome\OutcomeRecord;
 use BlackOps\Outcome\OutcomeStore;
+use BlackOps\StorageProtection\StoragePurpose;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationSender;
 use BlackOps\Transport\PostgreSql\PostgreSqlOutcomeStore;
 use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\ParameterType;
 use PHPUnit\Framework\TestCase;
 
 final class PostgreSqlOutcomeStoreTest extends TestCase
@@ -32,10 +35,18 @@ final class PostgreSqlOutcomeStoreTest extends TestCase
     {
         $this->connection = $this->connection();
         $this->connection->executeStatement('DROP SCHEMA IF EXISTS ' . self::SCHEMA . ' CASCADE');
-        $sender = new PostgreSqlDeferredOperationSender($this->connection, self::SCHEMA);
+        $sender = new PostgreSqlDeferredOperationSender(
+            $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        );
         $sender->migrate();
         $sender->enqueue($this->message());
-        $this->store = new PostgreSqlOutcomeStore($this->connection, self::SCHEMA);
+        $this->store = new PostgreSqlOutcomeStore(
+            $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        );
     }
 
     public function testStoreImplementsPortAndSchemaHasExpectedShape(): void
@@ -56,6 +67,8 @@ final class PostgreSqlOutcomeStoreTest extends TestCase
                 'schema_version' => 'integer',
                 'encoded_payload' => 'bytea',
                 'completed_at' => 'timestamp with time zone',
+                'tenant_type' => 'text',
+                'tenant_id' => 'text',
             ],
             $columns,
         );
@@ -119,6 +132,13 @@ final class PostgreSqlOutcomeStoreTest extends TestCase
         self::assertSame(2, $this->connection->fetchOne('SELECT schema_version FROM '
         . self::SCHEMA
         . '.outcomes WHERE operation_id = :operation_id', ['operation_id' => self::OPERATION_ID]));
+        $encoded = $this->connection->fetchOne("SELECT encode(encoded_payload, 'escape') FROM "
+        . self::SCHEMA
+        . '.outcomes WHERE operation_id = :operation_id', ['operation_id' => self::OPERATION_ID]);
+        self::assertIsString($encoded);
+        self::assertStringStartsWith('BOPD', $encoded);
+        self::assertStringNotContainsString('item-1', $encoded);
+        self::assertStringNotContainsString('author-1', $encoded);
     }
 
     public function testUnknownOperationReturnsNull(): void
@@ -273,17 +293,32 @@ final class PostgreSqlOutcomeStoreTest extends TestCase
 
     private function insertRaw(string $type, int $version, string $payload): void
     {
-        $this->connection->executeStatement('INSERT INTO ' . self::SCHEMA . '.outcomes (
+        $protected = PostgreSqlTestStorageProtection::codec()->encrypt(
+            $payload,
+            new StorageProtectionContext(
+                StoragePurpose::OutcomePayload,
+                self::OPERATION_ID,
+                self::OPERATION_ID,
+                'outcome.store.test',
+                1,
+                null,
+            ),
+        );
+        $this->connection->executeStatement(
+            'INSERT INTO ' . self::SCHEMA . '.outcomes (
             operation_id, outcome_type, schema_version, encoded_payload, completed_at
         ) VALUES (
-            :operation_id, :outcome_type, :schema_version, convert_to(:payload, \'UTF8\'), :completed_at
-        )', [
-            'operation_id' => self::OPERATION_ID,
-            'outcome_type' => $type,
-            'schema_version' => $version,
-            'payload' => $payload,
-            'completed_at' => '2026-07-12 00:30:00+00:00',
-        ]);
+            :operation_id, :outcome_type, :schema_version, :payload, :completed_at
+        )',
+            [
+                'operation_id' => self::OPERATION_ID,
+                'outcome_type' => $type,
+                'schema_version' => $version,
+                'payload' => $protected,
+                'completed_at' => '2026-07-12 00:30:00+00:00',
+            ],
+            ['payload' => ParameterType::BINARY],
+        );
     }
 
     private function markCompleted(): void

@@ -10,6 +10,7 @@ use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Core\Outcome;
 use BlackOps\Core\Registry\OperationRegistry;
 use BlackOps\Core\Retention\RetentionPurgeTarget;
+use BlackOps\Internal\StorageProtection\BopdEnvelopeCodec;
 use BlackOps\Journal\Data\OperationCompletedData;
 use BlackOps\Journal\Data\OperationDeadLetteredData;
 use BlackOps\Journal\Data\OperationFailedData;
@@ -47,12 +48,13 @@ final readonly class PostgreSqlOperationStatusSource implements OperationStatusS
     public function __construct(
         private Connection $connection,
         private OperationRegistry $registry,
+        BopdEnvelopeCodec $protection,
         string $schema = 'blackops',
         private OperationStatusJournalValidator $validator = new OperationStatusJournalValidator(),
     ) {
         $this->reader = new PostgreSqlStatusReader($connection, $schema);
-        $this->journal = new PostgreSqlCanonicalJournalStore($connection, $schema);
-        $this->outcomes = new PostgreSqlOutcomeStore($connection, $schema);
+        $this->journal = new PostgreSqlCanonicalJournalStore($connection, $protection, $schema);
+        $this->outcomes = new PostgreSqlOutcomeStore($connection, $protection, $schema);
     }
 
     public function findSubject(OperationId $operationId): ?OperationStatusSubject
@@ -69,6 +71,7 @@ final readonly class PostgreSqlOperationStatusSource implements OperationStatusS
                 $subject->originActorId === null
                     ? null
                     : new ActorRef($subject->originActorId, (string) $subject->originActorType),
+                $subject->tenant,
             );
         } catch (OperationStatusSourceException $exception) {
             throw $exception;

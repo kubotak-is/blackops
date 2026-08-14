@@ -1,6 +1,6 @@
 # Production Observability Responsibility Boundary
 
-BlackOpsのProduction ObservabilityはOperation IDを共通Join Keyにする。FrameworkはHTTP Error、Application Log、Framework Error Log、Canonical Journal、Diagnosticsを同じIDで相関可能にするが、Log Aggregatorや監視基盤そのものは運用しない。
+BlackOpsのProduction ObservabilityはOperation IDを共通Join Keyにする。FrameworkはHTTP Error、Application Log、Framework Error Log、Canonical Journal、Diagnosticsを同じIDで相関可能にするが、Log Aggregatorや監視基盤そのものは運用しない。Repository `main`では、これにOpenTelemetry API-only AdapterとOperational Health Queryを追加している。Stable `1.1.0`のProduction Contractには含めない。
 
 ## Correlation Matrix
 
@@ -43,4 +43,14 @@ Backend FailureはPrimary Throwable、HTTP Result、Journal、Worker Loopを変�
 
 ProductionでViewerは既定無効である。通常HTTP RuntimeやWorker RuntimeはViewer ServerをBindせず、Tokenも生成しない。ViewerはDevelopment Localで明示Commandを実行したときだけ起動する。
 
-Remote Collector、Telemetry Adapter、Metric、Dashboard、Health／ReadinessはこのPhaseのFramework責務ではない。
+## OpenTelemetry API-only Boundary
+
+FrameworkのProduction Dependencyは`open-telemetry/api`だけである。`ApplicationBuilder::withTracerProvider()`と`withMeterProvider()`はApplicationが構成したProviderを受け取り、Framework-owned SDK、OTLP Exporter、Resource、Endpoint、Credential、CollectorをCompiled ContainerやManifestへ保存しない。Provider未登録時はNo-opで、Provider／Exporter／Flush FailureはPrimary Operation、Journal、Outcome、HTTP Response、Readinessを変更しない。
+
+Framework-owned Spanは`blackops.framework`／candidate `1.2.0`で、HTTP／DB InstrumentationやDashboardはApplicationへ委ねる。HTTPのW3C `traceparent`／`tracestate`、Deferred／Outboxの暗号化Context、Worker RetryのAttempt Spanを境界ごとに扱う。Structured JSONLへ投影するのは`traceId`、`spanId`、`sampled`だけで、Actor／Tenantは`[masked]`とする。Metricは固定Name／Type／Unitと有限属性で、Identity／自由文をLabelへ入れない。
+
+## Health／Readiness Boundary
+
+`OperationalHealthQuery`はApplication-owned Checkを組み合わせるPublic Queryである。LivenessはQueryが応答できることだけ、ReadinessはCompiled Artifact、Runtime Configuration、Database、Migration Compatibility、Storage Key Provider、Runtime ServicesのBounded Checkだけを扱う。OTLP Exporter、Collector、Sampling、Dashboard、Remote BackendはReadinessへ含めない。`OperationalHealthRequestHandler`と`OperationalHealthCliAdapter`はApplicationが明示Route／Commandへ登録し、Frameworkは標準 `/health`／`/ready` を自動公開しない。
+
+Local CollectorはConsumer／Integration専用のDocker Networkで、固定DigestのOfficial ImageとOTLP HTTP `4318`を使う。FrameworkのProduction Compose Defaultへ追加せず、Remote Backend、Credential、Production Deployへ流用しない。

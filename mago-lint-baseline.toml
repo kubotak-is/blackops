@@ -1,0 +1,881 @@
+variant = "strict"
+
+[[entries."src/Core/Attribute/ScheduledBy.php".issues]]
+code = "block-statement"
+start_line = 36
+end_line = 36
+
+[[entries."src/Core/Attribute/ScheduledBy.php".issues]]
+code = "block-statement"
+start_line = 43
+end_line = 43
+
+[[entries."src/Core/Attribute/ScheduledBy.php".issues]]
+code = "block-statement"
+start_line = 45
+end_line = 45
+
+[[entries."src/Core/Attribute/ScheduledBy.php".issues]]
+code = "block-statement"
+start_line = 48
+end_line = 48
+
+[[entries."src/Core/Attribute/ScheduledBy.php".issues]]
+code = "block-statement"
+start_line = 51
+end_line = 51
+
+[[entries."src/Core/Attribute/ScheduledBy.php".issues]]
+code = "block-statement"
+start_line = 54
+end_line = 54
+
+[[entries."src/Core/Attribute/ScheduledBy.php".issues]]
+code = "cyclomatic-complexity"
+start_line = 11
+end_line = 11
+
+[[entries."src/Core/Attribute/ScheduledBy.php".issues]]
+code = "literal-named-argument"
+start_line = 41
+end_line = 41
+
+[[entries."src/Core/Attribute/ScheduledBy.php".issues]]
+code = "literal-named-argument"
+start_line = 62
+end_line = 62
+
+[[entries."src/Core/Attribute/ScheduledBy.php".issues]]
+code = "no-isset"
+start_line = 52
+end_line = 52
+
+[[entries."src/Core/Registry/OperationRegistry.php".issues]]
+code = "block-statement"
+start_line = 45
+end_line = 45
+
+[[entries."src/Core/Registry/OperationScheduleMetadata.php".issues]]
+code = "block-statement"
+start_line = 29
+end_line = 29
+
+[[entries."src/Core/Registry/OperationScheduleMetadata.php".issues]]
+code = "block-statement"
+start_line = 36
+end_line = 36
+
+[[entries."src/Core/Registry/OperationScheduleMetadata.php".issues]]
+code = "block-statement"
+start_line = 38
+end_line = 38
+
+[[entries."src/Core/Registry/OperationScheduleMetadata.php".issues]]
+code = "block-statement"
+start_line = 41
+end_line = 41
+
+[[entries."src/Core/Registry/OperationScheduleMetadata.php".issues]]
+code = "block-statement"
+start_line = 44
+end_line = 44
+
+[[entries."src/Core/Registry/OperationScheduleMetadata.php".issues]]
+code = "block-statement"
+start_line = 47
+end_line = 47
+
+[[entries."src/Core/Registry/OperationScheduleMetadata.php".issues]]
+code = "cyclomatic-complexity"
+start_line = 9
+end_line = 9
+
+[[entries."src/Core/Registry/OperationScheduleMetadata.php".issues]]
+code = "literal-named-argument"
+start_line = 19
+end_line = 19
+
+[[entries."src/Core/Registry/OperationScheduleMetadata.php".issues]]
+code = "literal-named-argument"
+start_line = 34
+end_line = 34
+
+[[entries."src/Core/Registry/OperationScheduleMetadata.php".issues]]
+code = "no-isset"
+start_line = 45
+end_line = 45
+
+[[entries."src/Core/ScheduleContext.php".issues]]
+code = "literal-named-argument"
+start_line = 23
+end_line = 23
+
+[[entries."src/Http/SapiRuntime.php".issues]]
+code = "no-empty-loop"
+start_line = 140
+end_line = 142
+
+[[entries."src/Internal/Aop/FrameworkProxyArtifact/FrameworkProxyArtifactBuilder.php".issues]]
+code = "block-statement"
+start_line = 234
+end_line = 234
+
+[[entries."src/Internal/Aop/FrameworkProxyArtifact/FrameworkProxyArtifactBuilder.php".issues]]
+code = "block-statement"
+start_line = 245
+end_line = 245
+
+[[entries."src/Internal/Aop/FrameworkProxyArtifact/FrameworkProxyArtifactBuilder.php".issues]]
+code = "block-statement"
+start_line = 261
+end_line = 261
+
+[[entries."src/Internal/Aop/FrameworkProxyArtifact/FrameworkProxyArtifactBuilder.php".issues]]
+code = "block-statement"
+start_line = 368
+end_line = 369
+
+[[entries."src/Internal/Aop/FrameworkProxyArtifact/FrameworkProxyArtifactBuilder.php".issues]]
+code = "block-statement"
+start_line = 369
+end_line = 369
+
+[[entries."src/Internal/Aop/FrameworkProxyArtifact/FrameworkProxyArtifactBuilder.php".issues]]
+code = "block-statement"
+start_line = 375
+end_line = 381
+
+[[entries."src/Internal/Aop/FrameworkProxyArtifact/FrameworkProxyArtifactBuilder.php".issues]]
+code = "block-statement"
+start_line = 381
+end_line = 381
+
+[[entries."src/Internal/Aop/FrameworkProxyArtifact/FrameworkProxyArtifactBuilder.php".issues]]
+code = "block-statement"
+start_line = 388
+end_line = 388
+
+[[entries."src/Internal/Aop/FrameworkProxyArtifact/FrameworkProxyArtifactBuilder.php".issues]]
+code = "block-statement"
+start_line = 394
+end_line = 394
+
+[[entries."src/Internal/Aop/FrameworkProxyArtifact/FrameworkProxyArtifactBuilder.php".issues]]
+code = "block-statement"
+start_line = 400
+end_line = 400
+
+[[entries."src/Internal/Aop/FrameworkProxyArtifact/FrameworkProxyArtifactBuilder.php".issues]]
+code = "block-statement"
+start_line = 406
+end_line = 406
+
+[[entries."src/Internal/Aop/FrameworkProxyArtifact/FrameworkProxyArtifactBuilder.php".issues]]
+code = "block-statement"
+start_line = 458
+end_line = 459
+
+[[entries."src/Internal/Aop/FrameworkProxyArtifact/FrameworkProxyArtifactBuilder.php".issues]]
+code = "block-statement"
+start_line = 459
+end_line = 459
+
+[[entries."src/Internal/Aop/FrameworkProxyArtifact/FrameworkProxyArtifactBuilder.php".issues]]
+code = "block-statement"
+start_line = 476
+end_line = 476
+
+[[entries."src/Internal/Aop/FrameworkProxyArtifact/FrameworkProxyArtifactBuilder.php".issues]]
+code = "halstead"
+start_line = 305
+end_line = 363
+
+[[entries."src/Internal/Aop/FrameworkProxyArtifact/FrameworkProxyArtifactBuilder.php".issues]]
+code = "literal-named-argument"
+start_line = 101
+end_line = 101
+
+[[entries."src/Internal/Aop/FrameworkProxyArtifact/FrameworkProxyArtifactBuilder.php".issues]]
+code = "literal-named-argument"
+start_line = 318
+end_line = 318
+
+[[entries."src/Internal/Aop/FrameworkProxyArtifact/FrameworkProxyArtifactBuilder.php".issues]]
+code = "literal-named-argument"
+start_line = 331
+end_line = 331
+
+[[entries."src/Internal/Aop/FrameworkProxyArtifact/FrameworkProxyArtifactBuilder.php".issues]]
+code = "literal-named-argument"
+start_line = 345
+end_line = 345
+
+[[entries."src/Internal/Aop/FrameworkProxyArtifact/FrameworkProxyArtifactBuilder.php".issues]]
+code = "literal-named-argument"
+start_line = 352
+end_line = 352
+
+[[entries."src/Internal/Aop/FrameworkProxyArtifact/FrameworkProxyArtifactBuilder.php".issues]]
+code = "literal-named-argument"
+start_line = 393
+end_line = 393
+
+[[entries."src/Internal/Aop/FrameworkProxyArtifact/FrameworkProxyArtifactBuilder.php".issues]]
+code = "literal-named-argument"
+start_line = 417
+end_line = 417
+
+[[entries."src/Internal/Aop/FrameworkProxyArtifact/FrameworkProxyArtifactBuilder.php".issues]]
+code = "literal-named-argument"
+start_line = 453
+end_line = 453
+
+[[entries."src/Internal/Aop/FrameworkProxyArtifact/FrameworkProxyArtifactBuilder.php".issues]]
+code = "literal-named-argument"
+start_line = 455
+end_line = 455
+
+[[entries."src/Internal/Aop/FrameworkProxyArtifact/FrameworkProxyArtifactBuilder.php".issues]]
+code = "literal-named-argument"
+start_line = 458
+end_line = 458
+
+[[entries."src/Internal/Aop/FrameworkProxyArtifact/FrameworkProxyArtifactBuilder.php".issues]]
+code = "literal-named-argument"
+start_line = 464
+end_line = 464
+
+[[entries."src/Internal/Aop/FrameworkProxyArtifact/FrameworkProxyArtifactBuilder.php".issues]]
+code = "no-isset"
+start_line = 311
+end_line = 311
+
+[[entries."src/Internal/Aop/FrameworkProxyArtifact/FrameworkProxyArtifactBuilder.php".issues]]
+code = "no-shorthand-ternary"
+start_line = 457
+end_line = 457
+
+[[entries."src/Internal/Aop/FrameworkProxyArtifact/FrameworkProxyArtifactBuilder.php".issues]]
+code = "no-shorthand-ternary"
+start_line = 474
+end_line = 474
+
+[[entries."src/Internal/Aop/FrameworkProxyArtifact/FrameworkProxyArtifactBuilder.php".issues]]
+code = "prefer-early-continue"
+start_line = 324
+end_line = 326
+
+[[entries."src/Internal/Aop/FrameworkProxyArtifact/FrameworkProxyArtifactBuilder.php".issues]]
+code = "prefer-early-continue"
+start_line = 338
+end_line = 341
+
+[[entries."src/Internal/Aop/FrameworkProxyArtifact/FrameworkProxyArtifactBuilder.php".issues]]
+code = "prefer-early-continue"
+start_line = 458
+end_line = 459
+
+[[entries."src/Internal/Aop/FrameworkProxyArtifact/FrameworkProxyArtifactBuilder.php".issues]]
+code = "unfulfilled-expect"
+start_line = 16
+end_line = 16
+
+[[entries."src/Internal/Aop/FrameworkProxyGenerator/FrameworkProxyGenerator.php".issues]]
+code = "block-statement"
+start_line = 104
+end_line = 104
+
+[[entries."src/Internal/Aop/FrameworkProxyGenerator/FrameworkProxyGenerator.php".issues]]
+code = "block-statement"
+start_line = 107
+end_line = 107
+
+[[entries."src/Internal/Aop/FrameworkProxyGenerator/FrameworkProxyGenerator.php".issues]]
+code = "halstead"
+start_line = 56
+end_line = 203
+
+[[entries."src/Internal/Aop/FrameworkProxyGenerator/FrameworkProxyGenerator.php".issues]]
+code = "literal-named-argument"
+start_line = 208
+end_line = 208
+
+[[entries."src/Internal/Aop/FrameworkProxyGenerator/FrameworkProxyGenerator.php".issues]]
+code = "no-isset"
+start_line = 84
+end_line = 84
+
+[[entries."src/Internal/Aop/FrameworkProxyGenerator/FrameworkProxyInvocationRegistry.php".issues]]
+code = "no-isset"
+start_line = 14
+end_line = 14
+
+[[entries."src/Internal/Aop/FrameworkProxyGenerator/FrameworkProxySourceEmitter.php".issues]]
+code = "literal-named-argument"
+start_line = 27
+end_line = 27
+
+[[entries."src/Internal/Aop/FrameworkProxyGenerator/FrameworkProxySourceEmitter.php".issues]]
+code = "literal-named-argument"
+start_line = 29
+end_line = 29
+
+[[entries."src/Internal/Aop/FrameworkProxyGenerator/FrameworkProxySourceEmitter.php".issues]]
+code = "literal-named-argument"
+start_line = 31
+end_line = 31
+
+[[entries."src/Internal/Aop/FrameworkProxyGenerator/FrameworkProxySourceEmitter.php".issues]]
+code = "literal-named-argument"
+start_line = 103
+end_line = 103
+
+[[entries."src/Internal/Aop/FrameworkProxyGenerator/FrameworkProxySourceEmitter.php".issues]]
+code = "literal-named-argument"
+start_line = 120
+end_line = 120
+
+[[entries."src/Internal/Aop/FrameworkProxyGenerator/FrameworkProxySourceEmitter.php".issues]]
+code = "literal-named-argument"
+start_line = 177
+end_line = 177
+
+[[entries."src/Internal/Aop/FrameworkProxyGenerator/FrameworkProxySourceEmitter.php".issues]]
+code = "literal-named-argument"
+start_line = 179
+end_line = 179
+
+[[entries."src/Internal/Aop/FrameworkProxyGenerator/FrameworkProxySourceEmitter.php".issues]]
+code = "literal-named-argument"
+start_line = 181
+end_line = 181
+
+[[entries."src/Internal/Aop/FrameworkProxyGenerator/FrameworkProxySourceEmitter.php".issues]]
+code = "literal-named-argument"
+start_line = 199
+end_line = 199
+
+[[entries."src/Internal/Aop/FrameworkProxyGenerator/FrameworkProxySourceEmitter.php".issues]]
+code = "literal-named-argument"
+start_line = 227
+end_line = 227
+
+[[entries."src/Internal/Aop/FrameworkProxyGenerator/FrameworkProxySourceEmitter.php".issues]]
+code = "literal-named-argument"
+start_line = 231
+end_line = 231
+
+[[entries."src/Internal/Aop/FrameworkProxyGenerator/FrameworkProxySourceEmitter.php".issues]]
+code = "literal-named-argument"
+start_line = 239
+end_line = 239
+
+[[entries."src/Internal/Aop/FrameworkProxyGenerator/FrameworkProxySourceEmitter.php".issues]]
+code = "literal-named-argument"
+start_line = 250
+end_line = 250
+
+[[entries."src/Internal/Aop/FrameworkProxyGenerator/FrameworkProxySourceEmitter.php".issues]]
+code = "literal-named-argument"
+start_line = 261
+end_line = 261
+
+[[entries."src/Internal/Aop/FrameworkProxyGenerator/FrameworkProxySourceEmitter.php".issues]]
+code = "literal-named-argument"
+start_line = 277
+end_line = 277
+
+[[entries."src/Internal/Aop/FrameworkProxyGenerator/FrameworkProxySourceEmitter.php".issues]]
+code = "literal-named-argument"
+start_line = 282
+end_line = 282
+
+[[entries."src/Internal/Aop/FrameworkProxyGenerator/FrameworkProxySourceEmitter.php".issues]]
+code = "no-else-clause"
+start_line = 137
+end_line = 139
+
+[[entries."src/Internal/Aop/FrameworkProxyGenerator/FrameworkProxySourceEmitter.php".issues]]
+code = "no-else-clause"
+start_line = 178
+end_line = 180
+
+[[entries."src/Internal/Aop/FrameworkProxyGenerator/FrameworkProxySourceEmitter.php".issues]]
+code = "no-else-clause"
+start_line = 180
+end_line = 182
+
+[[entries."src/Internal/Aop/FrameworkProxyGenerator/FrameworkProxySourceEmitter.php".issues]]
+code = "no-nested-ternary"
+start_line = 127
+end_line = 130
+
+[[entries."src/Internal/Aop/ProxyProfileArtifact/ProxyProfileArtifactPublisher.php".issues]]
+code = "cyclomatic-complexity"
+start_line = 12
+end_line = 12
+
+[[entries."src/Internal/Aop/ProxyProfileArtifact/ProxyProfileArtifactPublisher.php".issues]]
+code = "explicit-octal"
+start_line = 96
+end_line = 96
+
+[[entries."src/Internal/Aop/ProxyProfileArtifact/ProxyProfileArtifactPublisher.php".issues]]
+code = "explicit-octal"
+start_line = 107
+end_line = 107
+
+[[entries."src/Internal/Aop/ProxyProfileArtifact/ProxyProfileArtifactPublisher.php".issues]]
+code = "explicit-octal"
+start_line = 112
+end_line = 112
+
+[[entries."src/Internal/Aop/ProxyProfileArtifact/ProxyProfileArtifactPublisher.php".issues]]
+code = "halstead"
+start_line = 16
+end_line = 88
+
+[[entries."src/Internal/Aop/ProxyProfileArtifact/ProxyProfileArtifactPublisher.php".issues]]
+code = "halstead"
+start_line = 175
+end_line = 285
+
+[[entries."src/Internal/Aop/ProxyProfileArtifact/ProxyProfileArtifactPublisher.php".issues]]
+code = "kan-defect"
+start_line = 12
+end_line = 12
+
+[[entries."src/Internal/Aop/ProxyProfileArtifact/ProxyProfileArtifactPublisher.php".issues]]
+code = "literal-named-argument"
+start_line = 71
+end_line = 71
+
+[[entries."src/Internal/Aop/ProxyProfileArtifact/ProxyProfileArtifactPublisher.php".issues]]
+code = "literal-named-argument"
+start_line = 96
+end_line = 96
+
+[[entries."src/Internal/Aop/ProxyProfileArtifact/ProxyProfileArtifactPublisher.php".issues]]
+code = "literal-named-argument"
+start_line = 107
+end_line = 107
+
+[[entries."src/Internal/Aop/ProxyProfileArtifact/ProxyProfileArtifactPublisher.php".issues]]
+code = "literal-named-argument"
+start_line = 112
+end_line = 112
+
+[[entries."src/Internal/Aop/ProxyProfileArtifact/ProxyProfileArtifactPublisher.php".issues]]
+code = "literal-named-argument"
+start_line = 186
+end_line = 186
+
+[[entries."src/Internal/Aop/ProxyProfileArtifact/ProxyProfileArtifactPublisher.php".issues]]
+code = "literal-named-argument"
+start_line = 243
+end_line = 243
+
+[[entries."src/Internal/Aop/ProxyProfileArtifact/ProxyProfileArtifactPublisher.php".issues]]
+code = "no-isset"
+start_line = 332
+end_line = 332
+
+[[entries."src/Internal/Aop/ProxyProfileArtifact/ProxyProfileArtifactPublisher.php".issues]]
+code = "no-isset"
+start_line = 335
+end_line = 335
+
+[[entries."src/Internal/Aop/ProxyProfileArtifact/ProxyProfileArtifactPublisher.php".issues]]
+code = "no-shorthand-ternary"
+start_line = 191
+end_line = 191
+
+[[entries."src/Internal/Aop/ProxyProfileArtifact/ProxyProfileArtifactPublisher.php".issues]]
+code = "no-shorthand-ternary"
+start_line = 211
+end_line = 211
+
+[[entries."src/Internal/Aop/ProxyProfileArtifact/ProxyProfileArtifactPublisher.php".issues]]
+code = "no-shorthand-ternary"
+start_line = 289
+end_line = 289
+
+[[entries."src/Internal/Console/ScheduledOperationRunCommand.php".issues]]
+code = "no-boolean-flag-parameter"
+start_line = 60
+end_line = 60
+
+[[entries."src/Internal/Console/ScheduledOperationRunCommand.php".issues]]
+code = "no-boolean-flag-parameter"
+start_line = 83
+end_line = 83
+
+[[entries."src/Internal/Console/ScheduledOperationRunCommand.php".issues]]
+code = "no-else-clause"
+start_line = 73
+end_line = 78
+
+[[entries."src/Internal/Console/ScheduledOperationRunCommand.php".issues]]
+code = "no-else-clause"
+start_line = 91
+end_line = 93
+
+[[entries."src/Internal/DependencyInjection/RuntimeContainerCompiler.php".issues]]
+code = "no-else-clause"
+start_line = 83
+end_line = 90
+
+[[entries."src/Internal/DependencyInjection/RuntimeContainerDumper.php".issues]]
+code = "cyclomatic-complexity"
+start_line = 14
+end_line = 14
+
+[[entries."src/Internal/DependencyInjection/RuntimeContainerDumper.php".issues]]
+code = "excessive-parameter-list"
+start_line = 16
+end_line = 26
+
+[[entries."src/Internal/DependencyInjection/RuntimeContainerDumper.php".issues]]
+code = "kan-defect"
+start_line = 14
+end_line = 14
+
+[[entries."src/Internal/DependencyInjection/RuntimeContainerDumper.php".issues]]
+code = "literal-named-argument"
+start_line = 96
+end_line = 96
+
+[[entries."src/Internal/DependencyInjection/RuntimeContainerDumper.php".issues]]
+code = "literal-named-argument"
+start_line = 97
+end_line = 97
+
+[[entries."src/Internal/DependencyInjection/RuntimeContainerDumper.php".issues]]
+code = "literal-named-argument"
+start_line = 130
+end_line = 130
+
+[[entries."src/Internal/DependencyInjection/RuntimeContainerDumper.php".issues]]
+code = "literal-named-argument"
+start_line = 131
+end_line = 131
+
+[[entries."src/Internal/Execution/InlineDispatcher.php".issues]]
+code = "halstead"
+start_line = 235
+end_line = 358
+
+[[entries."src/Internal/Logging/StructuredJsonlFormatter.php".issues]]
+code = "halstead"
+start_line = 24
+end_line = 73
+
+[[entries."src/Internal/Outbox/OutboxRelayRuntime.php".issues]]
+code = "no-else-clause"
+start_line = 115
+end_line = 117
+
+[[entries."src/Internal/Outbox/OutboxRelayRuntime.php".issues]]
+code = "no-else-clause"
+start_line = 133
+end_line = 142
+
+[[entries."src/Internal/Registry/OperationManifestMetadataCodec.php".issues]]
+code = "too-many-methods"
+start_line = 20
+end_line = 20
+
+[[entries."src/Internal/Registry/OperationMetadataCompiler.php".issues]]
+code = "block-statement"
+start_line = 166
+end_line = 166
+
+[[entries."src/Internal/Registry/OperationMetadataCompiler.php".issues]]
+code = "halstead"
+start_line = 51
+end_line = 144
+
+[[entries."src/Internal/Registry/OperationMetadataCompiler.php".issues]]
+code = "prefer-early-continue"
+start_line = 165
+end_line = 166
+
+[[entries."src/Internal/Runtime/FrameworkProxyArtifactLoader.php".issues]]
+code = "literal-named-argument"
+start_line = 37
+end_line = 37
+
+[[entries."src/Internal/Runtime/FrameworkProxyArtifactLoader.php".issues]]
+code = "no-isset"
+start_line = 215
+end_line = 215
+
+[[entries."src/Internal/Runtime/FrameworkProxyArtifactLoader.php".issues]]
+code = "no-isset"
+start_line = 281
+end_line = 281
+
+[[entries."src/Internal/Runtime/FrameworkProxyArtifactLoader.php".issues]]
+code = "no-isset"
+start_line = 282
+end_line = 282
+
+[[entries."src/Internal/Runtime/FrameworkProxyArtifactLoader.php".issues]]
+code = "no-isset"
+start_line = 283
+end_line = 283
+
+[[entries."src/Internal/Runtime/FrameworkProxyArtifactLoader.php".issues]]
+code = "no-isset"
+start_line = 355
+end_line = 355
+
+[[entries."src/Internal/Runtime/FrameworkProxyArtifactLoader.php".issues]]
+code = "no-isset"
+start_line = 385
+end_line = 385
+
+[[entries."src/Internal/Runtime/FrameworkProxyArtifactLoader.php".issues]]
+code = "no-isset"
+start_line = 387
+end_line = 387
+
+[[entries."src/Internal/Runtime/FrameworkProxyArtifactLoader.php".issues]]
+code = "no-isset"
+start_line = 388
+end_line = 388
+
+[[entries."src/Internal/Runtime/FrameworkProxyArtifactLoader.php".issues]]
+code = "no-isset"
+start_line = 389
+end_line = 389
+
+[[entries."src/Internal/Runtime/FrameworkProxyArtifactLoader.php".issues]]
+code = "prefer-early-continue"
+start_line = 80
+end_line = 90
+
+[[entries."src/Internal/Runtime/ProxyProfileArtifactLoader.php".issues]]
+code = "cyclomatic-complexity"
+start_line = 11
+end_line = 11
+
+[[entries."src/Internal/Runtime/ProxyProfileArtifactLoader.php".issues]]
+code = "halstead"
+start_line = 17
+end_line = 97
+
+[[entries."src/Internal/Runtime/ProxyProfileArtifactLoader.php".issues]]
+code = "literal-named-argument"
+start_line = 29
+end_line = 29
+
+[[entries."src/Internal/Runtime/ProxyProfileArtifactLoader.php".issues]]
+code = "no-else-clause"
+start_line = 92
+end_line = 94
+
+[[entries."src/Internal/Runtime/ProxyProfileArtifactLoader.php".issues]]
+code = "no-error-control-operator"
+start_line = 29
+end_line = 29
+
+[[entries."src/Internal/Runtime/ProxyProfileArtifactLoader.php".issues]]
+code = "no-shorthand-ternary"
+start_line = 66
+end_line = 66
+
+[[entries."src/Internal/Scheduling/CronExpression.php".issues]]
+code = "cyclomatic-complexity"
+start_line = 8
+end_line = 8
+
+[[entries."src/Internal/Scheduling/CronExpression.php".issues]]
+code = "halstead"
+start_line = 52
+end_line = 97
+
+[[entries."src/Internal/Scheduling/CronExpression.php".issues]]
+code = "literal-named-argument"
+start_line = 63
+end_line = 63
+
+[[entries."src/Internal/Scheduling/CronExpression.php".issues]]
+code = "no-else-clause"
+start_line = 77
+end_line = 87
+
+[[entries."src/Internal/Scheduling/CronExpression.php".issues]]
+code = "no-isset"
+start_line = 83
+end_line = 83
+
+[[entries."src/Internal/Scheduling/CronField.php".issues]]
+code = "literal-named-argument"
+start_line = 22
+end_line = 22
+
+[[entries."src/Internal/Scheduling/PostgreSqlScheduleStore.php".issues]]
+code = "block-statement"
+start_line = 27
+end_line = 27
+
+[[entries."src/Internal/Scheduling/PostgreSqlScheduledOccurrenceLifecycle.php".issues]]
+code = "excessive-parameter-list"
+start_line = 24
+end_line = 31
+
+[[entries."src/Internal/Scheduling/PostgreSqlScheduledOccurrenceLifecycle.php".issues]]
+code = "literal-named-argument"
+start_line = 75
+end_line = 75
+
+[[entries."src/Internal/Scheduling/PostgreSqlScheduledOccurrenceLifecycle.php".issues]]
+code = "literal-named-argument"
+start_line = 78
+end_line = 78
+
+[[entries."src/Internal/Scheduling/PostgreSqlScheduledOccurrenceLifecycle.php".issues]]
+code = "literal-named-argument"
+start_line = 82
+end_line = 82
+
+[[entries."src/Internal/Scheduling/PostgreSqlScheduledOccurrenceLifecycle.php".issues]]
+code = "no-isset"
+start_line = 75
+end_line = 75
+
+[[entries."src/Internal/Scheduling/ScheduleEvaluator.php".issues]]
+code = "block-statement"
+start_line = 31
+end_line = 31
+
+[[entries."src/Internal/Scheduling/ScheduleEvaluator.php".issues]]
+code = "block-statement"
+start_line = 69
+end_line = 69
+
+[[entries."src/Internal/Scheduling/ScheduleEvaluator.php".issues]]
+code = "block-statement"
+start_line = 80
+end_line = 80
+
+[[entries."src/Internal/Scheduling/ScheduleEvaluator.php".issues]]
+code = "block-statement"
+start_line = 84
+end_line = 84
+
+[[entries."src/Internal/Scheduling/ScheduleEvaluator.php".issues]]
+code = "block-statement"
+start_line = 88
+end_line = 88
+
+[[entries."src/Internal/Scheduling/ScheduleEvaluator.php".issues]]
+code = "block-statement"
+start_line = 91
+end_line = 91
+
+[[entries."src/Internal/Scheduling/ScheduleEvaluator.php".issues]]
+code = "block-statement"
+start_line = 97
+end_line = 97
+
+[[entries."src/Internal/Scheduling/ScheduleEvaluator.php".issues]]
+code = "block-statement"
+start_line = 146
+end_line = 146
+
+[[entries."src/Internal/Scheduling/ScheduleEvaluator.php".issues]]
+code = "block-statement"
+start_line = 149
+end_line = 149
+
+[[entries."src/Internal/Scheduling/ScheduleEvaluator.php".issues]]
+code = "block-statement"
+start_line = 168
+end_line = 168
+
+[[entries."src/Internal/Scheduling/ScheduleEvaluator.php".issues]]
+code = "block-statement"
+start_line = 180
+end_line = 180
+
+[[entries."src/Internal/Scheduling/ScheduleEvaluator.php".issues]]
+code = "block-statement"
+start_line = 186
+end_line = 186
+
+[[entries."src/Internal/Scheduling/ScheduleEvaluator.php".issues]]
+code = "block-statement"
+start_line = 191
+end_line = 191
+
+[[entries."src/Internal/Scheduling/ScheduleEvaluator.php".issues]]
+code = "cyclomatic-complexity"
+start_line = 15
+end_line = 15
+
+[[entries."src/Internal/Scheduling/ScheduleEvaluator.php".issues]]
+code = "halstead"
+start_line = 28
+end_line = 133
+
+[[entries."src/Internal/Scheduling/ScheduleEvaluator.php".issues]]
+code = "halstead"
+start_line = 37
+end_line = 127
+
+[[entries."src/Internal/Scheduling/ScheduleEvaluator.php".issues]]
+code = "kan-defect"
+start_line = 15
+end_line = 15
+
+[[entries."src/Internal/Scheduling/ScheduleEvaluator.php".issues]]
+code = "literal-named-argument"
+start_line = 150
+end_line = 150
+
+[[entries."src/Internal/Scheduling/ScheduleEvaluator.php".issues]]
+code = "no-else-clause"
+start_line = 74
+end_line = 81
+
+[[entries."src/Internal/Scheduling/ScheduleEvaluator.php".issues]]
+code = "no-else-clause"
+start_line = 82
+end_line = 89
+
+[[entries."src/Internal/Scheduling/ScheduleEvaluator.php".issues]]
+code = "no-isset"
+start_line = 145
+end_line = 145
+
+[[entries."src/Internal/Scheduling/ScheduleEvaluator.php".issues]]
+code = "no-nested-ternary"
+start_line = 162
+end_line = 164
+
+[[entries."src/Internal/Scheduling/ScheduleEvaluator.php".issues]]
+code = "no-nested-ternary"
+start_line = 164
+end_line = 164
+
+[[entries."src/Internal/Scheduling/ScheduleEvaluator.php".issues]]
+code = "no-shorthand-ternary"
+start_line = 182
+end_line = 185
+
+[[entries."src/Transport/PostgreSql/PostgreSqlTenantMetadata.php".issues]]
+code = "no-boolean-flag-parameter"
+start_line = 13
+end_line = 13
+
+[[entries."src/Transport/PostgreSql/PostgreSqlTenantMetadata.php".issues]]
+code = "no-boolean-flag-parameter"
+start_line = 23
+end_line = 23
+
+[[entries."src/Transport/PostgreSql/PostgreSqlTenantMetadata.php".issues]]
+code = "no-boolean-flag-parameter"
+start_line = 37
+end_line = 37

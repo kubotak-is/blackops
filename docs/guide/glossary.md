@@ -151,3 +151,19 @@ Canonical Journalから安全なFieldだけをProjectionしてJSONL等へ配送�
 **区分**: Public
 
 Credentialなどを現在のHTTP Responseへ一度だけ返すOutcomeです。HTTP Routeを持ち、Execution Strategy Attributeを省略するとInlineへ解決され、Outcome Store／Status／Deferredへ保存しません。
+
+## Scheduled Application Operation
+
+Repository `main`のExperimental入口です。`#[ScheduledBy]`でCalendar Scheduleを宣言し、`operation:schedule:run`を一回実行してInline完了またはDeferred受理へ進めます。Framework Maintenance Schedulerとは別Capabilityです。
+
+## Schedule Context
+
+Scheduled Rootの`ExecutionContext::schedule()`から読むRead-only値です。Schedule名、UTCへ正規化されたCalendar定刻、設定Timezoneだけを持ちます。HTTP、通常のConsoleCommand、child dispatchでは`null`です。
+
+## Occurrence
+
+PostgreSQLへ保存するScheduleの一回分のCalendar Slotです。`(schedule_name, scheduled_at UTC)`が一意で、実行候補だけがOperation IDを持ちます。Misfire／Overlap SkipにはOperation IDがありません。
+
+## Misfire／Overlap
+
+Cursorより古い未処理Slotを`skipped_misfire`、直前のOccurrenceが非Terminalで新しいSlotを受理できない場合を`skipped_overlap`として記録します。初期ContractはFireOnce／Overlap禁止です。

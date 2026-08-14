@@ -11,10 +11,12 @@ use BlackOps\Core\Attribute\ExecuteWith;
 use BlackOps\Core\Attribute\HandledBy;
 use BlackOps\Core\Attribute\OperationType;
 use BlackOps\Core\Attribute\Returns;
+use BlackOps\Core\Attribute\ScheduledBy;
 use BlackOps\Core\Authorization\AuthorizationDecision;
 use BlackOps\Core\Authorization\AuthorizationPolicy;
 use BlackOps\Core\Authorization\AuthorizationRequest;
 use BlackOps\Core\EmptyOutcome;
+use BlackOps\Core\EphemeralOutcome;
 use BlackOps\Core\Execution\Deferred as DeferredStrategy;
 use BlackOps\Core\Execution\ExecutionStrategy;
 use BlackOps\Core\Execution\Inline;
@@ -28,6 +30,7 @@ use BlackOps\Core\Outcome;
 use BlackOps\Database\Attribute\Transactional;
 use BlackOps\Internal\Registry\OperationMetadataCompiler;
 use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class OperationMetadataCompilerTest extends TestCase
@@ -266,6 +269,40 @@ final class OperationMetadataCompilerTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
 
         new OperationMetadataCompiler()->compile(InvalidHandlerOperationFixture::class);
+    }
+
+    public function testCompilesScheduledMetadataAndKeepsDeferredIndependent(): void
+    {
+        $metadata = new OperationMetadataCompiler()->compile(ScheduledCompilerOperationFixture::class);
+
+        self::assertSame('reports.daily', $metadata->schedule?->name);
+        self::assertSame('Asia/Tokyo', $metadata->schedule?->timezone);
+        self::assertSame(DeferredStrategy::class, $metadata->strategy);
+    }
+
+    public function testScheduledByAloneKeepsInlineStrategy(): void
+    {
+        self::assertSame(
+            Inline::class,
+            new OperationMetadataCompiler()->compile(ScheduledInlineOperationFixture::class)->strategy,
+        );
+    }
+
+    #[DataProvider('invalidScheduledOperations')]
+    public function testRejectsInvalidScheduledValueShapes(string $operation): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        new OperationMetadataCompiler()->compile($operation);
+    }
+
+    /** @return iterable<string, array{class-string}> */
+    public static function invalidScheduledOperations(): iterable
+    {
+        yield 'required constructor' => [ScheduledRequiredValueOperationFixture::class];
+        yield 'abstract value' => [ScheduledAbstractValueOperationFixture::class];
+        yield 'private constructor' => [ScheduledPrivateValueOperationFixture::class];
+        yield 'ephemeral outcome' => [ScheduledEphemeralOperationFixture::class];
+        yield 'repeated schedule' => [RepeatedScheduledByOperationFixture::class];
     }
 }
 
@@ -573,3 +610,103 @@ final readonly class AmbiguousTypedHandlerOperationFixture implements Operation
 #[Accepts(MetadataValueFixture::class)]
 #[Returns(EmptyOutcome::class)]
 final readonly class MissingHandlerOperationFixture implements Operation {}
+
+#[OperationType('scheduled.compiler')]
+#[Accepts(MetadataValueFixture::class)]
+#[Returns(EmptyOutcome::class)]
+#[ScheduledBy('reports.daily', '0 0 * * *', 'Asia/Tokyo')]
+#[Deferred]
+final readonly class ScheduledCompilerOperationFixture implements Operation
+{
+    public function handle(MetadataValueFixture $value): OperationResult
+    {
+        return OperationResult::completed();
+    }
+}
+
+final readonly class ScheduledRequiredValueFixture implements OperationValue
+{
+    public function __construct(string $required) {}
+}
+
+#[OperationType('scheduled.required')]
+#[Accepts(ScheduledRequiredValueFixture::class)]
+#[Returns(EmptyOutcome::class)]
+#[ScheduledBy('reports.required', '0 0 * * *')]
+final readonly class ScheduledRequiredValueOperationFixture implements Operation
+{
+    public function handle(ScheduledRequiredValueFixture $value): OperationResult
+    {
+        return OperationResult::completed();
+    }
+}
+
+abstract class ScheduledAbstractValueFixture implements OperationValue {}
+
+#[OperationType('scheduled.abstract')]
+#[Accepts(ScheduledAbstractValueFixture::class)]
+#[Returns(EmptyOutcome::class)]
+#[ScheduledBy('reports.abstract', '0 0 * * *')]
+final readonly class ScheduledAbstractValueOperationFixture implements Operation
+{
+    public function handle(ScheduledAbstractValueFixture $value): OperationResult
+    {
+        return OperationResult::completed();
+    }
+}
+
+final readonly class ScheduledEphemeralOutcomeFixture implements EphemeralOutcome {}
+
+final class ScheduledPrivateValueFixture implements OperationValue
+{
+    private function __construct() {}
+}
+
+#[OperationType('scheduled.ephemeral')]
+#[Accepts(MetadataValueFixture::class)]
+#[Returns(ScheduledEphemeralOutcomeFixture::class)]
+#[ScheduledBy('reports.ephemeral', '0 0 * * *')]
+final readonly class ScheduledEphemeralOperationFixture implements Operation
+{
+    public function handle(MetadataValueFixture $value): ScheduledEphemeralOutcomeFixture
+    {
+        return new ScheduledEphemeralOutcomeFixture();
+    }
+}
+
+#[OperationType('scheduled.private')]
+#[Accepts(ScheduledPrivateValueFixture::class)]
+#[Returns(EmptyOutcome::class)]
+#[ScheduledBy('reports.private', '0 0 * * *')]
+final readonly class ScheduledPrivateValueOperationFixture implements Operation
+{
+    public function handle(ScheduledPrivateValueFixture $value): OperationResult
+    {
+        return OperationResult::completed();
+    }
+}
+
+#[OperationType('scheduled.inline')]
+#[Accepts(MetadataValueFixture::class)]
+#[Returns(EmptyOutcome::class)]
+#[ScheduledBy('reports.inline', '0 0 * * *')]
+final readonly class ScheduledInlineOperationFixture implements Operation
+{
+    public function handle(MetadataValueFixture $value): OperationResult
+    {
+        return OperationResult::completed();
+    }
+}
+
+#[OperationType('scheduled.repeated')]
+#[Accepts(MetadataValueFixture::class)]
+#[Returns(EmptyOutcome::class)]
+#[ScheduledBy('reports.repeated.one', '0 0 * * *')]
+#[ScheduledBy('reports.repeated.two', '0 0 * * *')]
+final readonly class RepeatedScheduledByOperationFixture implements Operation
+{
+    public function handle(MetadataValueFixture $value): OperationResult
+    {
+        return OperationResult::completed();
+    }
+}

@@ -1,6 +1,10 @@
 # Quickstart and Skeleton
 
-このPageはRepository `main`のPreview Applicationを準備し、Header Authentication、Inline HTTP、Database Transaction、After Commit、Deferred Workerを一続きで確認します。Stable `1.1.0`のInstallは[Install](installation.md)で先に完了してください。ここで説明するAuthentication／AuthorizationとDatabase／Transaction Exampleは未Release Surfaceです。Experimental Stable `1.1.0`との差は[Releases](mvp-status.md)で確認してください。
+このページはRepository `main`の`1.2.0` Preview Applicationを準備し、Header Authentication、Inline HTTP、Database Transaction、After Commit、Deferred Workerを一続きで確認します。Stable `1.1.0`のInstallは[Install](installation.md)で先に完了してください。ここで説明するAuthentication／AuthorizationとDatabase／Transaction Exampleは未Release Surfaceです。Experimental Stable `1.1.0`との差は[Releases](mvp-status.md)で確認してください。
+
+:::warning[Repository main Preview]
+このページのStep 2以降は未Release Surfaceです。公開済みStable SkeletonのInstall手順とは分けて実行し、提供範囲は[Releases](mvp-status.md)で確認してください。
+:::
 
 ## 1. 実行Channelを選ぶ
 
@@ -12,7 +16,7 @@
 composer create-project blackops/skeleton my-app 1.1.0
 ```
 
-StableにはGlobal Middleware、Authentication、`#[Authorize]`がないためFrontend Operation Bridgeもありません。このPageのmain Preview Step 2以降へ進まず、InstallのHTTP 200確認後に[First Operation](first-operation.md)のStep 1〜3（Generator、Value、Outcome）を実行してください。Stableの正確な提供範囲は[Stableとmain](mvp-status.md#stableとmain)で確認してください。
+StableにはGlobal Middleware、Authentication、`#[Authorize]`がないためFrontend Operation Bridgeもありません。このページのmain Preview Step 2以降へ進まず、InstallのHTTP 200確認後に[First Operation](first-operation.md)のStep 1〜3（Generator、Value、Outcome）を実行してください。Stableの正確な提供範囲は[Stableとmain](mvp-status.md#stableとmain)で確認してください。
 
 ### Repository main Preview
 
@@ -29,7 +33,7 @@ cp -a examples/quickstart/. "$PREVIEW_DIR/"
 docker run --rm --user "$(id -u):$(id -g)" \
   -v "$PWD:/framework:ro" -v "$PREVIEW_DIR:/app" -w /app composer:2 \
   composer config repositories.framework \
-  '{"type":"path","url":"/framework","options":{"symlink":false,"versions":{"blackops/framework":"1.1.0"}}}'
+  '{"type":"path","url":"/framework","options":{"symlink":false,"versions":{"blackops/framework":"1.2.0"}}}'
 
 docker run --rm --user "$(id -u):$(id -g)" \
   -v "$PWD:/framework:ro" -v "$PREVIEW_DIR:/app" -w /app composer:2 \
@@ -82,14 +86,35 @@ final readonly class ShowWelcome implements Operation
 }
 ```
 
-これはRepository `main` Previewの`/welcome`です。Stable Skeletonの`/welcome`は匿名で、`#[Authorize]`とSample Token Headerを含みません。
+これはRepository `main` Previewの`/welcome`です。PreviewはSample Authentication／Authorizationと`#[Authorize]`を追加します。Stable Skeletonの`/welcome`は`#[Authorize]`を持たない認可匿名ですが、Stable Tagの`WelcomeValue`は必須の機密`X-Sample-Token` Header ValueをBindingするため、Headerが不要なVersionという意味ではありません。
 
 ```php
+// PreviewのWelcomeValueはSample AuthenticationがHeaderを消費するため空です。
 final readonly class WelcomeValue implements OperationValue {}
 
 final readonly class WelcomeShown implements Outcome
 {
     public function __construct(public string $message) {}
+}
+```
+
+Stable Tag `1.1.0`はAuthorization Middlewareを持たない一方、`WelcomeValue`の必須Value HeaderをBindingします。実際のStable Sourceは次の機密Input境界です。
+
+```php
+use BlackOps\Core\Attribute\Sensitive;
+use BlackOps\Core\Attribute\SensitiveMode;
+use BlackOps\Core\OperationValue;
+use BlackOps\Http\Attribute\FromHeader;
+use SensitiveParameter;
+
+final readonly class WelcomeValue implements OperationValue
+{
+    public function __construct(
+        #[FromHeader('X-Sample-Token')]
+        #[Sensitive(SensitiveMode::Mask)]
+        #[SensitiveParameter]
+        public string $sampleToken,
+    ) {}
 }
 ```
 
@@ -441,7 +466,7 @@ http://127.0.0.1:8082/?token=<one-time-bootstrap-token>
 
 このURLを一度開くとSession Cookieへ交換し、`/operations/019f76f1-3fdc-7c18-9d62-b182d42df100`でHuman表示と同じFailed State、Timeline、Attempt、Mask済みValue／Actorを表示します。Tokenなしは404、POSTは405です。Bootstrap URLを貼り付けたり保存したりせず、調査後はProcessを終了します。
 
-`var/log/application.jsonl`にはApplication RecordとFramework Failure Recordが同じOperation／Attempt／Correlation IDで残ります。`reference`はApplication Contextにありますが、`sensitiveNote`、Exception Message、Credential、Raw Actor IDはありません。Canonical JournalはRestricted Dataのため、DatabaseのAccess Control、Encryption、RetentionをApplicationで管理してください。
+`var/log/application.jsonl`にはApplication RecordとFramework Failure Recordが同じOperation／Attempt／Correlation IDで残ります。`reference`はApplication Contextにありますが、`sensitiveNote`、Exception Message、Credential、Raw Actor IDはありません。Canonical Journalの復元可能なRecordはBOPD v1 Envelopeで保護され、Tenant／Operation／Sequenceなどの最小MetadataだけがQuery用にClearです。Database／Volume At-rest Encryption、Access Control、RetentionはEnvelopeに加える運用層です。
 
 ## 7. Transactional OperationでOrderを作る
 
@@ -598,7 +623,7 @@ ORDER BY sequence;
 8|operation.completed|quickstart-user|quickstart-worker-1
 ```
 
-Canonical JournalはRaw Business ValueとActor IDを保持する監査正本です。暗号化、Access Control、RetentionをApplication／運用で構成してください。
+Canonical Journalは監査正本ですが、復元可能なBusiness DataはBOPD v1 Envelopeへ保存されます。Clear列は認可前SubjectとLifecycle Queryに必要な最小Metadataだけです。Envelope、Access Control、Retention、Database At-rest Encryptionの責務を混同しないでください。
 
 Worker完了後は同じStatus ResourceがTyped Outcomeを返し、Terminal Responseに`Retry-After`は付きません。
 
@@ -608,7 +633,7 @@ Worker完了後は同じStatus ResourceがTyped Outcomeを返し、Terminal Resp
 
 Quickstartの`SampleOperationStatusAuthorizer`は、Current Actorと受付時のOrigin Actorがともに`user`で、ID／Typeが完全一致するときだけAllowします。これはLocal Exampleであり、ProductionのTenant／Role／Resource Policyではありません。Header欠落はAnonymousのためUnknown／Denyと同じ404、不正TokenはSubject読取前の401です。Operation IDはSecretではありませんが、知っているだけでは参照権限を得ません。
 
-PHP AdapterからOutcomeだけを直接読む場合はPublic `OutcomeReader`を利用します。Pending、Terminal、Expiredを区別する主経路はStatus Resourceです。詳しくは[Outcome](outcome-retrieval.md)を参照してください。
+PHP AdapterからOutcomeを読む場合はDefault-deny `OperationOutcomeQuery`へTenant／Actor／Purposeを渡します。Pending、Terminal、Expiredを区別する主経路はStatus Resourceです。詳しくは[Outcome](outcome-retrieval.md)と[Tenant and Storage Protection](tenant-protection.md)を参照してください。
 
 ## 10. 終了する
 

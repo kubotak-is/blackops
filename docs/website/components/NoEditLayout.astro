@@ -1,9 +1,83 @@
 ---
 import RootLayout from 'blume/components/layout/RootLayout.astro';
+import { editUrlForRoute } from '../content-map.mjs';
 
 const props = Astro.props as any;
+const editUrl = editUrlForRoute(props.page?.route ?? '/');
 ---
 
-<RootLayout {...props} editUrl={null}>
+<RootLayout {...props} editUrl={editUrl}>
   <slot />
+  <script is:inline>
+    (() => {
+      const statusText = { success: 'コピーしました', failure: 'コピーできませんでした' };
+      let activeButton = null;
+      const resetTimers = new WeakMap();
+      const pendingCopies = new WeakMap();
+      const checkIcon = 'svg path[d="M20 6 9 17l-5-5"]';
+
+      const dispatchResult = (button, ok) => {
+        window.dispatchEvent(new CustomEvent('blackops-copy-result', { detail: { button, ok } }));
+      };
+
+      const watchNativeCopy = (button) => {
+        pendingCopies.get(button)?.();
+        let settled = false;
+        const observer = new MutationObserver(() => {
+          if (settled || !button.querySelector(checkIcon)) return;
+          settled = true;
+          cleanup();
+          dispatchResult(button, true);
+        });
+        const timer = setTimeout(() => {
+          if (settled) return;
+          settled = true;
+          cleanup();
+          dispatchResult(button, false);
+        }, 2000);
+        const cleanup = () => {
+          observer.disconnect();
+          clearTimeout(timer);
+          pendingCopies.delete(button);
+        };
+        pendingCopies.set(button, cleanup);
+        observer.observe(button, { childList: true, subtree: true });
+      };
+
+      const enhance = () => {
+        for (const button of document.querySelectorAll('[data-blume-copy]')) {
+          if (button.dataset.blackopsCopyStatus === 'ready') continue;
+          button.dataset.blackopsCopyStatus = 'ready';
+          const status = document.createElement('span');
+          status.className = 'sr-only';
+          status.setAttribute('role', 'status');
+          status.setAttribute('aria-live', 'polite');
+          button.insertAdjacentElement('afterend', status);
+          button.addEventListener('click', () => {
+            activeButton = button;
+            watchNativeCopy(button);
+          }, { capture: true });
+          button.dataset.blackopsCopyLabel = button.getAttribute('aria-label') || 'コードをコピー';
+        }
+      };
+
+      const announce = (button, ok) => {
+        if (!button) return;
+        const status = button.nextElementSibling;
+        if (!status) return;
+        const message = ok ? statusText.success : statusText.failure;
+        status.textContent = message;
+        button.setAttribute('aria-label', message);
+        clearTimeout(resetTimers.get(button));
+        resetTimers.set(button, setTimeout(() => {
+          status.textContent = '';
+          button.setAttribute('aria-label', button.dataset.blackopsCopyLabel || 'コードをコピー');
+        }, 1500));
+      };
+
+      enhance();
+      new MutationObserver(enhance).observe(document.body, { childList: true, subtree: true });
+      window.addEventListener('blackops-copy-result', (event) => announce(event.detail?.button || activeButton, event.detail?.ok === true));
+    })();
+  </script>
 </RootLayout>

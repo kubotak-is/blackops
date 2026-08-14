@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace BlackOps\Application;
 
 use BlackOps\Core\Attribute\PublicApi;
+use BlackOps\Core\Exception\ConfigurationFailure;
 use RuntimeException;
 
 #[PublicApi]
-final class ApplicationBootstrapException extends RuntimeException {}
+final class ApplicationBootstrapException extends RuntimeException implements ConfigurationFailure {}

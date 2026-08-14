@@ -77,3 +77,5 @@ Identifierは同じUUID値を共有する場合でも別のPHP型です。Operat
 Inline ContextにもOperation IDがありますが、Deferred Claimではないため`attempt()`は`null`です。Deferred Workerでは現在のAttempt Numberや開始情報を`AttemptContext`から読めます。
 
 OperationがContextを使わない場合は第二引数を省略してください。第一引数は常に具象`OperationValue`であり、Contextだけを受け取るSignatureはBuildで拒否されます。
+
+Scheduled Rootでは`ExecutionContext::schedule()`が非`null`になり、Schedule名、UTCへ正規化された定刻、設定Timezoneを返します。HTTP、通常のConsoleCommand、child dispatchでは`null`です。定刻や任意PayloadをValueへ注入せず、[Schedule Context](scheduled-operation.md#schedule-context)を参照してください。

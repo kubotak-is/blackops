@@ -1,8 +1,11 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { readdir, readFile } from 'node:fs/promises';
+import { JSDOM } from 'jsdom';
 import path from 'node:path';
 import test from 'node:test';
+import { contentMap } from '../content-map.mjs';
+import { displayedMarkdown, findEditorialViolations, validateEditorial } from '../scripts/editorial-guard.mjs';
 import { repositoryRoot } from '../scripts/website-paths.mjs';
 
 const guide = (name) => readFile(path.join(repositoryRoot, 'docs/guide', name), 'utf8');
@@ -88,6 +91,62 @@ test('landing product contract keeps the why link and exact Deferred sample', as
   assert.match(rendered, /\n    public function handle\(\n        GenerateReportValue \$value,\n        ExecutionContext \$context,\n    \): ReportGenerated\n    \{\n        return new ReportGenerated\(\n            \$value->reportName,\n            '\/reports\/generated\/' \. \$value->reportName \. '\.json',\n        \);\n    \}/);
 });
 
+test('native code copy keeps focus and exposes Japanese success and failure status', async () => {
+  const layout = await readFile(path.join(repositoryRoot, 'docs/website/components/NoEditLayout.astro'), 'utf8');
+
+  assert.match(layout, /data-blume-copy/);
+  assert.match(layout, /コピーしました/);
+  assert.match(layout, /コピーできませんでした/);
+  assert.match(layout, /aria-live/, 'status must be announced without moving focus');
+  assert.match(layout, /MutationObserver/, 'native button mutation must be observed without replacing Clipboard');
+  assert.match(layout, /M20 6 9 17l-5-5/, 'native check icon mutation must announce success');
+  assert.match(layout, /dispatchResult\(button, false\)/, 'missing native check must announce Clipboard failures');
+  assert.doesNotMatch(layout, /navigator\.clipboard\.writeText/, 'status adapter must not issue a second Clipboard write');
+});
+
+test('native copy status adapter observes one native write and preserves focus for success and failure', async () => {
+  const layout = await readFile(path.join(repositoryRoot, 'docs/website/components/NoEditLayout.astro'), 'utf8');
+  const script = layout.match(/<script is:inline>\s*([\s\S]*?)\s*<\/script>/)?.[1];
+  assert.ok(script, 'NoEditLayout inline status adapter is present');
+
+  for (const shouldResolve of [true, false]) {
+    const dom = new JSDOM('<body><pre><code>const answer = 1;\n</code><button data-blume-copy aria-label="コードをコピー"><svg></svg></button></pre></body>', { runScripts: 'outside-only' });
+    const writes = [];
+    const timers = [];
+    Object.defineProperty(dom.window.navigator, 'clipboard', {
+      configurable: true,
+      value: { writeText: async (value) => { writes.push(value); if (!shouldResolve) throw new Error('denied'); } },
+    });
+    dom.window.setTimeout = (callback, delay) => { timers.push({ callback, delay }); return timers.length; };
+    dom.window.clearTimeout = () => {};
+    dom.window.eval(script);
+    const button = dom.window.document.querySelector('[data-blume-copy]');
+    const code = dom.window.document.querySelector('code');
+    button.addEventListener('click', async () => {
+      try {
+        await dom.window.navigator.clipboard.writeText(code.textContent);
+        button.innerHTML = '<svg><path d="M20 6 9 17l-5-5"></path></svg>';
+      } catch {}
+    });
+    button.focus();
+    button.click();
+    await new Promise((resolve) => globalThis.setTimeout(resolve, 0));
+    if (!shouldResolve) timers.find(({ delay }) => delay === 2000)?.callback();
+    assert.equal(writes.length, 1, shouldResolve ? 'success uses one native write' : 'failure uses one native write');
+    assert.equal(writes[0], 'const answer = 1;\n', 'native handler receives exact code text');
+    assert.equal(dom.window.document.activeElement, button, 'copy result keeps keyboard focus on the button');
+    assert.equal(button.getAttribute('aria-label'), shouldResolve ? 'コピーしました' : 'コピーできませんでした');
+    assert.equal(button.nextElementSibling.textContent, shouldResolve ? 'コピーしました' : 'コピーできませんでした');
+  }
+});
+
+test('Blume visible chrome uses Japanese labels for copy, export, theme, navigation, and repository actions', async () => {
+  const config = await readFile(path.join(repositoryRoot, 'docs/website/blume.config.ts'), 'utf8');
+  for (const label of ['コピーしました', 'コードをコピー', 'エクスポート', '生成中', 'カラーテーマを切り替え', 'ナビゲーションを開閉', 'GitHub リポジトリ']) {
+    assert.ok(config.includes(label), label);
+  }
+});
+
 test('Journal guide is reachable from the landing CTA and explains its reader boundary', async () => {
   const [landing, journal] = await Promise.all([
     readFile(path.join(repositoryRoot, 'docs/website/pages/index.astro'), 'utf8'),
@@ -110,9 +169,69 @@ test('Journal guide is reachable from the landing CTA and explains its reader bo
     'Observer FailureをOperationの失敗にせず',
     '保存時暗号化',
     '鍵の生成・保管・Rotation・失効',
-    'OpenTelemetryのAdapter、Exporter、Configurationは実装されていません',
-    'Public Contractではありません',
+    '試験的なOpenTelemetry API-only Surface',
+    'ApplicationBuilder::withTracerProvider()',
   ]) assert.ok(journal.includes(phrase), phrase);
+});
+
+test('Observability guide keeps the local Collector journey executable and isolated', async () => {
+  const observability = await guide('observability.md');
+  for (const phrase of [
+    'Structured Record Version 1',
+    'Application／Framework／Journal／Audit',
+    'Audit RecordにはOperation、Attempt、Telemetryを出しません',
+    'Monologの`datetime`、`level_name`',
+    'Dual-write／Legacy Formatterはありません',
+    '"kind":"application"',
+    'open-telemetry/sdk:^1.15',
+    'open-telemetry/exporter-otlp:^1.4',
+    'php-http/guzzle7-adapter:^1.1',
+    'ApplicationBuilder::withTracerProvider()',
+    'ApplicationBuilder::withMeterProvider()',
+    'MeterProvider::builder()',
+    'OperationalHealthRequestHandler',
+    'OperationalHealthCliAdapter',
+    "bash tests/Consumer/opentelemetry-observability.sh",
+    'Collectorを起動しただけではTrace／Metricは生成されません',
+    'otel/opentelemetry-collector:0.158.0@sha256:',
+    'Collector停止でReadinessがFailになる',
+  ]) assert.ok(observability.includes(phrase), phrase);
+  assert.doesNotMatch(observability, /otelcol:latest|api[_-]?key|password\s*:/i);
+  assert.match(observability, /otel-collector-config\.yaml/);
+  assert.doesNotMatch(observability, /-p 4318:4318/);
+  assert.match(observability, /-p 127\.0\.0\.1:4318:4318/);
+  assert.match(observability, /OTEL_EXPORTER_OTLP_ENDPOINT=http:\/\/127\.0\.0\.1:4318/);
+  assert.match(observability, /OTEL_EXPORTER_OTLP_ENDPOINT=http:\/\/collector:4318/);
+  assert.match(observability, /getenv\(\)/);
+  assert.match(observability, /new Environment\(\$environmentSnapshot\)/);
+  assert.match(observability, /withEnvironment\(\$environmentSnapshot\)/);
+  assert.match(observability, /docker compose build app[\s\S]*tests\/Consumer\/opentelemetry-observability\.sh/);
+  assert.match(observability, /trap cleanup EXIT INT TERM/);
+});
+
+test('observability specifications preserve the main API-only boundary and current wire split', async () => {
+  const [spec10, spec94, observability] = await Promise.all([
+    readFile(path.join(repositoryRoot, 'develop/spec/10-logging-and-traceability.md'), 'utf8'),
+    readFile(path.join(repositoryRoot, 'develop/spec/94-journal-documentation.md'), 'utf8'),
+    guide('observability.md'),
+  ]);
+
+  assert.doesNotMatch(spec94, /OpenTelemetry Adapter、Exporter、Configurationが未実装であると明記/);
+  assert.match(spec94, /Stable `1\.1\.0`にはOpenTelemetry Adapter、Exporter、Operational Health Queryは含まれない/);
+  assert.match(spec94, /ApplicationがSDK、Exporter、Resource、Endpoint、Credential、Provider Compositionを所有/);
+  assert.match(spec10, /SDK／Exporter／Remote Delivery、Dashboardを所有しない/);
+  assert.match(spec10, /`open-telemetry\/api`によるAPI-only Span／Metric境界/);
+  assert.match(observability, /Application／Framework／Journal／Audit/);
+  assert.match(observability, /Audit RecordにはOperation、Attempt、Telemetryを出しません/);
+  assert.match(observability, /Application／Frameworkの`attempt`はnon-nullのAttempt Scope時だけ/);
+  assert.match(observability, /Journalの`attempt`は常時存在して`null`/);
+  const jsonl = observability.match(/```jsonl\n([\s\S]*?)\n```/)?.[1] ?? '';
+  const records = jsonl.split('\n').map((line) => JSON.parse(line));
+  assert.deepEqual(records.map(({ kind }) => kind), ['framework', 'journal', 'audit']);
+  assert.equal('operation' in records[0], false);
+  assert.equal(records[1].operation.schemaVersion, 1);
+  assert.equal(records[1].attempt, null);
+  assert.equal('telemetry' in records[2], false);
 });
 
 test('ephemeral outcome guides use implicit Inline authoring', async () => {
@@ -179,12 +298,14 @@ test('Community Board guide presents the local full-stack journey and credential
   assert.match(guideSource, /Browser[\s\S]*SvelteKit same-origin UI \/ BFF[\s\S]*Server-only Generated Operation Object/);
   assert.match(guideSource, /app\/Domain\/Board\/[\s\S]*app\/Domain\/Identity\/[\s\S]*app\/Infrastructure\/[\s\S]*app\/Feature\//);
   assert.match(guideSource, /PasswordとRaw Session Tokenは`#\[Sensitive\]`なEphemeral Value／Outcomeにだけ存在します/);
+  assert.match(guideSource, /Community BoardはLocal／CIだけで検証し、公開Hostを提供していません。Documentation WebsiteはCloudflare Pagesへ公開しています/);
+  assert.doesNotMatch(guideSource, /Community BoardとDocumentation WebsiteはLocal／CIだけ/);
   assert.match(guideSource, /Outcome Store、Status API、Generated Artifact、Page Data、Browser Bundle、LogへCredentialを残しません/);
   for (const topic of ['Worker未起動', 'Seed Conflict', 'Port衝突', 'Generated Drift', 'Secure Cookie Local設定']) {
     assert.match(guideSource, new RegExp(`^### ${topic}$`, 'm'));
   }
   assert.match(testing, /BlackOps Board.*Application-owned Identity.*Framework Session Core.*SvelteKit .*BFF/s);
-  assert.match(status, /Stable `1\.1\.0` Skeletonには含まれず、公開Hostも提供していません/);
+  assert.match(status, /BlackOps Boardは.*公開Hostも提供していません/);
 });
 
 test('static redirects preserve all four moved public URLs', async () => {
@@ -270,7 +391,7 @@ test('guided tutorial pairs runnable inputs with parseable JSON and masked JSONL
   assert.ok(tutorial.indexOf('make:operation') < tutorial.indexOf('```php'));
   assert.match(tutorial, /HTTP 202/);
   assert.match(tutorial, /Public Status Resource/);
-  assert.match(tutorial, /OutcomeReader/);
+  assert.match(tutorial, /OperationOutcomeQuery/);
   assert.ok(jsonBlocks.length >= 3);
   for (const block of jsonBlocks) JSON.parse(block);
   assert.equal(jsonlBlocks.length, 1);
@@ -280,6 +401,14 @@ test('guided tutorial pairs runnable inputs with parseable JSON and masked JSONL
   assert.match(tutorial, /HTTP ProcessのObserved Projection/);
   assert.match(tutorial, /Canonical PostgreSQL Journalは.*正本/s);
   assert.match(tutorial, /\.status\(\).*一回.*\.wait\(\).*有限待機/s);
+});
+
+test('retention guide preserves the idempotency default and successful plan contract', async () => {
+  const retention = await guide('retention.md');
+  assert.match(retention, /`idempotency_record_days`を省略した場合は、4つの基本期間の最長値/);
+  assert.match(retention, /Planは候補を読むだけで、DatabaseやJournalを変更しません/);
+  assert.match(retention, /成功時の終了Codeは0です。次の形式を返します/);
+  assert.match(retention, /Retention plan[\s\S]*idempotency_record: N/);
 });
 
 test('troubleshooting covers every required symptom with four-part guidance', async () => {
@@ -298,7 +427,12 @@ test('troubleshooting covers every required symptom with four-part guidance', as
     '`.wait()`が`poll_timeout`を返す',
     '`.status()`／`.wait()`が`unexpected_response`を返す',
     'Migration未適用／PostgreSQL接続失敗',
+    '`StorageKeyProvider`が未登録',
+    'Unknown Key／Tag Tamper',
+    '非空の旧Protected SchemaでMigrationが停止',
+    'Rotationの`remaining`が0にならない',
     'journal.jsonlへ出力されない',
+    'Local OpenTelemetry Collector／Traceが届かない',
     'OutcomeがPending／Not Found／Expiredか判別できない',
     'Sensitive値がJournalで見えない',
   ]) {
@@ -306,10 +440,36 @@ test('troubleshooting covers every required symptom with four-part guidance', as
     assert.notEqual(start, -1, symptom);
     const next = troubleshooting.indexOf('\n## ', start + 4);
     const section = troubleshooting.slice(start, next === -1 ? undefined : next);
-    for (const label of ['**Symptom:**', '**Likely Cause:**', '**How to Verify:**', '**Fix:**']) {
+    for (const label of ['**症状:**', '**考えられる原因:**', '**確認方法:**', '**修正方法:**']) {
       assert.match(section, new RegExp(label.replaceAll('*', '\\*')));
     }
   }
+  assert.match(troubleshooting, /`build:compile`は`StorageKeyProvider`の必須Runtime検査を行わない/);
+  assert.match(troubleshooting, /Storage Protectionを解決するRuntime composition/);
+  assert.match(troubleshooting, /Prefix countと`operation:inspect`はClear lifecycle列のDiagnostics/);
+  assert.match(troubleshooting, /FingerprintはRotation Auditの失敗記録だけ/);
+  assert.doesNotMatch(troubleshooting, /build:compile`がConfiguration Errorで停止し/);
+});
+
+test('scheduled operation accuracy keeps metadata, misfire, runtime error, and runnable first-run guidance aligned', async () => {
+  const [scheduled, troubleshooting, coreApi] = await Promise.all([
+    guide('scheduled-operation.md'),
+    guide('troubleshooting.md'),
+    guide('core-api.md'),
+  ]);
+
+  assert.match(coreApi, /OperationMetadata::\$schedule/);
+  assert.doesNotMatch(coreApi, /OperationMetadata::schedule\(\)/);
+  assert.match(troubleshooting, /Cursorより後から現在のUTC Calendar Minuteまでに一致するSlotが複数/);
+  assert.doesNotMatch(troubleshooting, /Misfire許容Windowを超えた/);
+  assert.match(troubleshooting, /docker compose exec -T postgres psql -U blackops -d blackops/);
+  assert.match(troubleshooting, /blackops\.schedule_occurrences/);
+  assert.match(troubleshooting, /OccurrenceとJournalを安全に確認する/);
+  assert.match(scheduled, /任意時刻に初回実行すると`accepted: 0`/);
+  assert.match(scheduled, /`accepted: 2`はCountのShapeを示すサンプル/);
+  assert.match(scheduled, /検証用OperationだけCronを`\* \* \* \* \*`/);
+  assert.match(scheduled, /Top-level Runtime Error[\s\S]*runtime_error/);
+  assert.match(scheduled, /Human CountまたはJSON `status: "failed"`/);
 });
 
 test('security guide separates framework and application responsibilities', async () => {
@@ -335,17 +495,49 @@ test('security guide separates framework and application responsibilities', asyn
   assert.match(security, /Header不一致.*Operationを受け付けずJournalなし.*Operation IDなし401/s);
   assert.match(security, /Credential、Role、Permission、ClaimのSnapshotはTransportやJournalへ保存しません/);
   assert.match(security, /Generated Typeは認証、認可、暗号化、Access Control、Retentionを代替しません/);
+  assert.match(security, /Observability Signal Safety/);
+  assert.match(security, /Operation／Attempt／Correlation／Causation/);
+  assert.match(security, /高Cardinality自由文/);
+  assert.match(security, /Primary Operation、Journal、Outcome、HTTP Response、Readinessを変えない/);
+  assert.ok(security.indexOf('## Observability Signal Safety') < security.indexOf('## Production Check'));
   assert.match(security, /Global Mutable Clientへ保存しないでください/);
   assert.match(security, /OperationStatusAuthorizer/);
   assert.match(security, /Unknown／Deny.*404/s);
   assert.match(security, /Retention.*410/s);
 });
 
+test('tenant protection guide completes the protected-storage reader journey', async () => {
+  const source = await guide('tenant-protection.md');
+  const configuration = await guide('configuration.md');
+  for (const phrase of [
+    'Experimental', 'Stable `1.1.0`', 'TenantRef', 'AuthenticationResult::authenticated',
+    'ConsoleTenantProvider', 'ScheduledTenantProvider', 'StorageKeyProvider',
+    'OperationDataReadAuthorizer', 'OperationOutcomeQuery', 'BOPD v1',
+    'XChaCha20-Poly1305', 'OperationOutcomeUnavailable', 'database:migrate',
+    'storage:protection:plan', 'storage:protection:rotate', '--confirm',
+    '--checkpoint', '--actor', '--reason', 'remaining', 'Replica', 'Backup',
+    'dead_letter_reason', 'idempotency_response', 'idempotency_result',
+    'Exit Codeは成功（`0`）', '旧Keyを削除しない', 'Repository `main`専用',
+    'Stable `1.1.0`には`TenantRef`', 'count(encoded_record)',
+    'count(encoded_payload)', 'count(encoded_context)', 'count(encoded_reason)',
+    'count(encoded_response)', 'count(encoded_result)',
+    'all_non_null_rows_are_bopd', 'BOPD Envelope Header',
+    '6. HTTPで受け付ける', '3. Human／JSONで実行する',
+    'SampleStorageKeyProvider', 'BLACKOPS_STORAGE_KEY', 'base64_decode',
+    'OperationDataReadAuthorizationDecision::allow',
+    'SampleTokenAuthenticator.php', 'local-example', 'actor: new ActorRef',
+  ]) assert.ok(source.includes(phrase), phrase);
+  assert.match(configuration, /SampleTokenAuthenticator\.php/);
+  assert.match(configuration, /AuthenticationResult::authenticated[\s\S]*TenantRef/);
+  assert.doesNotMatch(source, /(?<![A-Za-z0-9_\/.-])[A-Za-z0-9+/]{40,}={0,2}(?![A-Za-z0-9_\/.-])/, 'guide must not contain key material');
+  assert.doesNotMatch(source, /\/home\/kubotak|C:\\\\/, 'guide must not contain absolute repository paths');
+});
+
 test('core API reference covers every source type marked PublicApi without exposing Internal types', async () => {
   const reference = await guide('core-api.md');
   const sourceTypes = await publicApiTypes();
 
-  assert.equal(sourceTypes.length, 175);
+  assert.equal(sourceTypes.length, 216);
   assert.ok(sourceTypes.includes('BlackOps\\Core\\EphemeralOutcome'));
   assert.ok(sourceTypes.includes('BlackOps\\Http\\SapiRuntime'));
   assert.ok(sourceTypes.includes('BlackOps\\Identifier\\Uuidv7Generator'));
@@ -355,9 +547,13 @@ test('core API reference covers every source type marked PublicApi without expos
   for (const type of sourceTypes) assert.match(reference, new RegExp(type.replaceAll('\\', '\\\\')));
   assert.doesNotMatch(reference, /`BlackOps\\Core\\Attribute\\PublicApi` \|/);
   assert.doesNotMatch(reference, /BlackOps\\Internal\\[A-Za-z]/);
+  assert.doesNotMatch(reference, /\| `BlackOps\\Journal\\CanonicalJournalReader` \|/);
+  assert.match(reference, /CanonicalJournalReader.*PublicApi markerを持たないInfrastructure SPI/);
+  assert.match(reference, /`BlackOps\\Journal\\CanonicalJournalStore`/);
+  assert.match(reference, /`BlackOps\\Outcome\\OutcomeStore`/);
 });
 
-test('attributes reference covers the twenty-four public authoring attributes and excludes the marker', async () => {
+test('attributes reference covers the twenty-five public authoring attributes and excludes the marker', async () => {
   const attributes = await guide('attributes.md');
   const expected = [
     'BlackOps\\Core\\Attribute\\Accepts',
@@ -369,6 +565,7 @@ test('attributes reference covers the twenty-four public authoring attributes an
     'BlackOps\\Core\\Attribute\\ListOf',
     'BlackOps\\Core\\Attribute\\OperationType',
     'BlackOps\\Core\\Attribute\\Returns',
+    'BlackOps\\Core\\Attribute\\ScheduledBy',
     'BlackOps\\Core\\Attribute\\Sensitive',
     'BlackOps\\Core\\Validation\\Attribute\\Choice',
     'BlackOps\\Core\\Validation\\Attribute\\Count',
@@ -389,7 +586,7 @@ test('attributes reference covers the twenty-four public authoring attributes an
   for (const attribute of expected) assert.match(attributes, new RegExp(attribute.replaceAll('\\', '\\\\')));
   const sourceTypes = (await publicApiTypes()).filter((type) => expected.includes(type));
   assert.deepEqual(sourceTypes, [...expected].sort());
-  assert.match(attributes, /Public Attribute 24件/);
+  assert.match(attributes, /Public Attribute 25件/);
   assert.match(attributes, /SensitiveMode.*Attributeではなく/s);
   assert.doesNotMatch(attributes, /`BlackOps\\Core\\Attribute\\PublicApi` \|/);
 });
@@ -414,7 +611,7 @@ test('validation guide matches declarative and rejection lifecycle boundaries', 
 test('runtime guide keeps Worker Mode default with request safety and Classic fallback', async () => {
   const runtime = await guide('runtime-bootstrap.md');
 
-  assert.match(runtime, /Default Worker Mode/);
+  assert.match(runtime, /既定のWorker Mode/);
   assert.match(runtime, /docker compose up -d/);
   assert.match(runtime, /Application、Environment、Configuration、Compile済みRuntime/);
   assert.match(runtime, /Database Connection/);
@@ -438,6 +635,69 @@ test('every public guide uses Japanese prose and avoids specification-style sent
     if (file === 'README.md') continue;
     assert.doesNotMatch(body, /(?:する|される|である|ものとする)。$/m, file);
   }
+});
+
+test('editorial guard rejects visible mixed-language labels while protecting contracts', () => {
+  assert.throws(
+    () => validateEditorial('## このPage\nJavascriptの説明です。\n**Symptom:** 失敗します。\nTask Report、Consumer Evidence、Phase 14を本文へ表示しません。', { file: 'fixture.md' }),
+    /Editorial guard rejected fixture\.md/,
+  );
+  assert.throws(
+    () => validateEditorial('```php\n// Latest Stable is visible in this comment\n```\n```mermaid\naccTitle: "Document Channel"\n```', { file: 'comment-fixture.md' }),
+    /Editorial guard rejected comment-fixture\.md/,
+  );
+
+  assert.doesNotThrow(() => validateEditorial('Before <!-- Task Report\nConsumer Evidence --> after.'));
+  assert.throws(() => validateEditorial('Before <!-- hidden --> Task Report after.', { file: 'comment-end.md' }), /Editorial guard rejected comment-end\.md/);
+  assert.doesNotThrow(() => validateEditorial('<!--\n```php\n// NuxtJS historical example\n```\n-->\n本文です。'));
+  assert.doesNotThrow(() => validateEditorial('<!--\n```bash\necho "NuxtJS"\n```\n```mermaid\naccTitle: "NuxtJS"\n```\n-->\n本文です。'));
+  assert.throws(() => validateEditorial('<!--\n```php\n// NuxtJS historical example\n```\n-->\nNuxtJS本文です。', { file: 'comment-fence-end.md' }), /Editorial guard rejected comment-fence-end\.md/);
+
+  const protectedFixture = [
+    'Inline token: `NuxtJS` and `Project CLI` and `Phase 14`.',
+    '[確認](Task%20Report.md)',
+    '~~~bash',
+    'echo "Latest Stable"',
+    '~~~',
+    '````json',
+    '{"label":"Javascript","value":"NuxtJS"}',
+    '````',
+    '~~~~~~mermaid',
+    'flowchart LR',
+    '  Latest_Stable --> B["表示ラベル"]',
+    '~~~~~~',
+  ].join('\n');
+
+  assert.deepEqual(findEditorialViolations(protectedFixture), []);
+  assert.doesNotMatch(displayedMarkdown(protectedFixture), /NuxtJS|Project CLI|Latest Stable|Javascript/);
+});
+
+test('content-map descriptions use the same editorial guard as guide prose', async () => {
+  const { validateEditorialDescriptions } = await import('../scripts/check-content.mjs');
+  assert.doesNotThrow(() => validateEditorialDescriptions(contentMap));
+  assert.throws(
+    () => validateEditorialDescriptions({ 'fixture.md': { description: 'Task Reportを表示する' } }),
+    /content-map description/,
+  );
+});
+
+test('all guide sources are mapped once and retain the editorial page-type matrix', async () => {
+  const files = (await readdir(path.join(repositoryRoot, 'docs/guide')))
+    .filter((file) => file.endsWith('.md'))
+    .sort();
+  assert.equal(files.length, 41);
+  assert.deepEqual(Object.keys(contentMap).sort(), files);
+
+  const pageTypes = {
+    Orientation: ['README.md'],
+    Concept: ['core-concepts.md', 'execution-context.md', 'journal.md', 'operation-lifecycle.md', 'security.md', 'why-blackops.md'],
+    Reference: ['attributes.md', 'configuration.md', 'core-api.md', 'directory-structure.md', 'glossary.md', 'mvp-status.md', 'observability.md', 'project-cli.md'],
+    'How-to/Tutorial': ['application-bootstrap.md', 'authentication.md', 'authorization.md', 'community-board.md', 'console-command.md', 'database-and-transactions.md', 'database-migrations.md', 'database-seeding.md', 'deployment.md', 'execution.md', 'first-operation.md', 'frontend.md', 'installation.md', 'mvp-sample.md', 'observer-replay.md', 'operations.md', 'outbox.md', 'outcome-retrieval.md', 'project-generators.md', 'retention.md', 'runtime-bootstrap.md', 'scheduled-operation.md', 'tenant-protection.md', 'testing.md', 'validation.md'],
+    Troubleshooting: ['troubleshooting.md'],
+  };
+  const assigned = Object.values(pageTypes).flat().sort();
+  assert.deepEqual(assigned, files);
+  assert.equal(new Set(assigned).size, files.length);
 });
 
 test('Blume runtime keeps diagrams local and the landing responsive', async () => {
@@ -476,6 +736,7 @@ test('Blume runtime keeps diagrams local and the landing responsive', async () =
     'BlackOps</span><span class="landing-tagline">The PHP Framework',
     'BlackOpsの特徴',
     'composer create-project blackops/skeleton my-app 1.1.0',
+    'Repository main candidate 1.2.0 (unpublished)',
     'HTTPリクエストもコンソールコマンドもJobも、すべてはOperationで統一されます。',
     '受理・試行・リトライ・拒否・完了をFrameworkが自動でJournalへ記録します。「なぜ失敗したか」をFrameworkが記録します。',
     'BlackOpsはフロントエンドを持ちません。代わりに、JavaScript向けに接続クライアントのコードを自動生成します。',

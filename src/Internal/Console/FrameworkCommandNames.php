@@ -20,6 +20,7 @@ final readonly class FrameworkCommandNames
             DatabaseMigrationMigrateCommand::NAME,
             DatabaseSeedCommand::NAME,
             WorkerRunCommand::NAME,
+            ScheduledOperationRunCommand::NAME,
             RetentionPlanCommand::NAME,
             RetentionPurgeCommand::NAME,
             SchedulerRunCommand::NAME,
@@ -32,6 +33,8 @@ final readonly class FrameworkCommandNames
             FrontendGenerateCommand::NAME,
             FrontendCheckCommand::NAME,
             JournalObserverReplayCommand::NAME,
+            StorageProtectionPlanCommand::NAME,
+            StorageProtectionRotateCommand::NAME,
         ];
     }
 }

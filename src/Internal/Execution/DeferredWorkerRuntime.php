@@ -8,12 +8,16 @@ use BlackOps\Core\Exception\DeferredTransportException;
 use BlackOps\Core\Exception\OperationRejectedException;
 use BlackOps\Core\Execution\Deferred;
 use BlackOps\Core\Execution\OperationClaim;
+use BlackOps\Core\ExecutionContext;
 use BlackOps\Core\Operation;
 use BlackOps\Core\OperationEnvelope;
 use BlackOps\Core\OperationResult;
 use BlackOps\Core\OperationValue;
 use BlackOps\Core\Registry\OperationMetadata;
 use BlackOps\Internal\Application\ApplicationDatabaseConnectionLifecycle;
+use BlackOps\Internal\Telemetry\TelemetryMetrics;
+use BlackOps\Internal\Telemetry\TelemetrySpanScope;
+use BlackOps\Internal\Telemetry\TelemetryTracer;
 use BlackOps\Journal\JournalEvent;
 use BlackOps\Journal\LifecycleState;
 use BlackOps\Outcome\OutcomeRecord;
@@ -35,6 +39,7 @@ final readonly class DeferredWorkerRuntime implements DeferredClaimRuntime
         private ClaimExecutionGuard $guard = new DirectClaimExecutionGuard(),
         private HandlerInvoker $invoker = new HandlerInvoker(),
         private ?ApplicationDatabaseConnectionLifecycle $connections = null,
+        private ?TelemetryMetrics $metrics = null,
     ) {}
 
     public function run(OperationClaim $claim): OperationResult
@@ -74,40 +79,94 @@ final readonly class DeferredWorkerRuntime implements DeferredClaimRuntime
         return $result;
     }
 
-    /** @mago-expect lint:halstead */
     private function runAttempt(OperationClaim $claim): OperationResult
     {
-        $metadata = $this->metadata($claim);
-        $handler = $this->services->handlers->resolve($metadata->handler);
-        $definition = $this->definition($metadata, $handler);
-        $value = $this->value($metadata, $claim);
-        $envelope = $this->startAttempt($claim, $metadata, $definition, $value);
+        [$context, $metadata, $handler, $definition, $value] = $this->prepareAttempt($claim);
+        $metric = $this->metrics?->operation([
+            'blackops.operation.type' => $metadata->typeId,
+            'blackops.operation.strategy' => 'deferred',
+            'blackops.runtime.kind' => 'worker',
+        ]);
+        try {
+            [$envelope, $span] = $this->startAttempt($claim, $metadata, $definition, $value, $context);
+        } catch (Throwable $failure) {
+            $metric?->fail();
+            $metric?->end();
+            throw $failure;
+        }
         try {
             $result = $this->execute($claim, $envelope, $handler, $metadata, $metadata->typeId);
+            if ($result->isCompleted()) {
+                if (
+                    $metadata->transactionConnection === null
+                    || $this->storage->transactions === null
+                    || !$this->storage->transactions->sharesFrameworkConnection($metadata)
+                ) {
+                    $this->complete($claim, $metadata, $envelope, $result);
+                }
+
+                $span?->result('completed');
+                $metric?->result('completed');
+                return $result;
+            }
+
+            $this->reject($claim, $metadata, $envelope, $result);
+            $span?->result('rejected');
+            $metric?->result('rejected');
+            return $result;
+        } catch (WorkerExecutionInterruptedException $exception) {
+            $span?->result('interrupted');
+            $metric?->result('interrupted');
+            throw $exception;
         } catch (HandlerInvocationFailedException $exception) {
-            $this->fail($claim, $metadata, $envelope, $exception->failure);
+            $metric?->fail();
+            $metricResult = $this->fail($claim, $metadata, $envelope, $exception->failure, $span);
+            $metric?->result($metricResult);
 
             throw new SupervisedHandlerFailureException(
                 'Deferred handler failure was recorded by supervision.',
                 previous: $exception->failure,
+                result: $metricResult,
+            );
+        } catch (Throwable $failure) {
+            $span?->fail($failure);
+            $metric?->fail();
+            throw $failure;
+        } finally {
+            $span?->end();
+            $metric?->end();
+        }
+    }
+
+    /** @return array{ExecutionContext, OperationMetadata, object, Operation, OperationValue} */
+    private function prepareAttempt(OperationClaim $claim): array
+    {
+        $context = $this->validateClaimContext($claim);
+        $metadata = $this->metadata($claim);
+        $handler = $this->services->handlers->resolve($metadata->handler);
+        $definition = $this->definition($metadata, $handler);
+        $value = $this->value($metadata, $claim);
+
+        return [$context, $metadata, $handler, $definition, $value];
+    }
+
+    private function validateClaimContext(OperationClaim $claim): ExecutionContext
+    {
+        try {
+            $context = $this->services->codec->decodeContext(
+                $claim->message()->schemaVersion(),
+                $claim->message()->encodedContext(),
+            );
+            DeferredOperationContextValidator::assertMatches($claim->message(), $context);
+            return $context;
+        } catch (DeferredTransportException $exception) {
+            throw $exception;
+        } catch (Throwable $exception) {
+            throw new DeferredTransportException(
+                'Deferred operation context could not be validated.',
+                previous: $exception,
             );
         }
-
-        if ($result->isCompleted()) {
-            if (
-                $metadata->transactionConnection === null
-                || $this->storage->transactions === null
-                || !$this->storage->transactions->sharesFrameworkConnection($metadata)
-            ) {
-                $this->complete($claim, $metadata, $envelope, $result);
-            }
-
-            return $result;
-        }
-
-        $this->reject($claim, $metadata, $envelope, $result);
-
-        return $result;
     }
 
     private function execute(
@@ -162,23 +221,22 @@ final readonly class DeferredWorkerRuntime implements DeferredClaimRuntime
         ));
     }
 
+    /** @return array{0: OperationEnvelope, 1: ?TelemetrySpanScope} */
     private function startAttempt(
         OperationClaim $claim,
         OperationMetadata $metadata,
         Operation $definition,
         OperationValue $value,
-    ): OperationEnvelope {
+        ExecutionContext $context,
+    ): array {
         try {
             return $this->storage->connection->transactional(function () use (
                 $claim,
                 $metadata,
                 $definition,
                 $value,
-            ): OperationEnvelope {
-                $context = $this->services->codec->decodeContext(
-                    $claim->message()->schemaVersion(),
-                    $claim->message()->encodedContext(),
-                );
+                $context,
+            ): array {
                 $reservation = $this->storage->state->reserveAttemptStarted($claim, $this->storage->clock->now());
                 $envelope = new OperationEnvelope(
                     $definition,
@@ -197,15 +255,27 @@ final readonly class DeferredWorkerRuntime implements DeferredClaimRuntime
                     throw new LogicException('Deferred worker attempt context was not created.');
                 }
 
-                $this->storage->state->recordCurrentAttempt($claim, $attempt, $this->storage->clock->now());
-                $this->storage->lifecycle->next(LifecycleState::Accepted, JournalEvent::AttemptStarted);
-                $this->storage->journal->append($this->storage->records->attemptStarted(
+                $span = $this->storage->telemetry?->operation(
                     $envelope,
-                    $metadata,
-                    $reservation->sequence,
-                ));
+                    $metadata->typeId,
+                    TelemetryTracer::KIND_CONSUMER,
+                );
 
-                return $envelope;
+                try {
+                    $this->storage->state->recordCurrentAttempt($claim, $attempt, $this->storage->clock->now());
+                    $this->storage->lifecycle->next(LifecycleState::Accepted, JournalEvent::AttemptStarted);
+                    $this->storage->journal->append($this->storage->records->attemptStarted(
+                        $envelope,
+                        $metadata,
+                        $reservation->sequence,
+                    ));
+                } catch (Throwable $failure) {
+                    $span?->fail($failure);
+                    $span?->end();
+                    throw $failure;
+                }
+
+                return [$envelope, $span];
             });
         } catch (Throwable $exception) {
             if ($exception instanceof DeferredTransportException) {
@@ -251,6 +321,15 @@ final readonly class DeferredWorkerRuntime implements DeferredClaimRuntime
         $this->storage->outcomes->save(
             new OutcomeRecord($claim->message()->operationId(), $result->outcome(), $completedAt),
         );
+        if ($envelope->context()->schedule() !== null && $this->storage->scheduledOccurrences !== null) {
+            $this->storage->scheduledOccurrences->transition(
+                $envelope->id(),
+                'accepted',
+                'completed',
+                null,
+                $completedAt,
+            );
+        }
     }
 
     private function reject(
@@ -268,6 +347,15 @@ final readonly class DeferredWorkerRuntime implements DeferredClaimRuntime
                 $reservation->sequence,
                 $result->rejectionReason(),
             ));
+            if ($envelope->context()->schedule() !== null && $this->storage->scheduledOccurrences !== null) {
+                $this->storage->scheduledOccurrences->transition(
+                    $envelope->id(),
+                    'accepted',
+                    'rejected',
+                    $result->rejectionReason()->code(),
+                    $this->storage->clock->now(),
+                );
+            }
         });
     }
 
@@ -276,15 +364,19 @@ final readonly class DeferredWorkerRuntime implements DeferredClaimRuntime
         OperationMetadata $metadata,
         OperationEnvelope $envelope,
         Throwable $exception,
-    ): void {
+        ?TelemetrySpanScope $span = null,
+    ): string {
         $recordingFailure = null;
+        $metricResult = null;
+        $span?->fail($exception);
 
         try {
-            new DeferredFailureSupervisor($this->services, $this->storage)->record(
+            $metricResult = new DeferredFailureSupervisor($this->services, $this->storage)->record(
                 $claim,
                 $metadata,
                 $envelope,
                 $exception,
+                $span,
             );
         } catch (Throwable $failure) {
             $recordingFailure = $failure;
@@ -299,8 +391,11 @@ final readonly class DeferredWorkerRuntime implements DeferredClaimRuntime
         );
 
         if ($recordingFailure !== null) {
+            $span?->fail($recordingFailure);
             throw $recordingFailure;
         }
+
+        return $metricResult ?? 'failed';
     }
 
     private function metadata(OperationClaim $claim): OperationMetadata

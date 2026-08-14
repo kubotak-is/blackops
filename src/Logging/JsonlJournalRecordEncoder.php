@@ -23,21 +23,10 @@ use DateTimeInterface;
 use DateTimeZone;
 use JsonException;
 
+/** @mago-expect lint:cyclomatic-complexity */
 #[PublicApi]
 final readonly class JsonlJournalRecordEncoder
 {
-    /** @var list<class-string> */
-    private const FRAMEWORK_IDENTIFIER_TYPES = [
-        AttemptId::class,
-        CausationId::class,
-        CorrelationId::class,
-        JournalRecordId::class,
-        OperationId::class,
-        OutboxRecordId::class,
-        RetentionHoldId::class,
-        RetentionPurgeAuditId::class,
-    ];
-
     /**
      * @throws JsonException
      */
@@ -51,7 +40,7 @@ final readonly class JsonlJournalRecordEncoder
      */
     private function record(ObservedJournalRecord $record): array
     {
-        return [
+        $encoded = [
             'schemaVersion' => $record->schemaVersion,
             'kind' => 'journal',
             'recordId' => $record->recordId->toString(),
@@ -62,6 +51,14 @@ final readonly class JsonlJournalRecordEncoder
             'attempt' => $record->attempt === null ? null : $this->attempt($record->attempt),
             'data' => $record->data === [] ? new \stdClass() : $this->array($record->data),
         ];
+        if ($record->operation->telemetry !== null) {
+            $encoded['telemetry'] = [
+                'traceId' => $record->operation->telemetry->traceId,
+                'spanId' => $record->operation->telemetry->spanId,
+                'sampled' => $record->operation->telemetry->sampled,
+            ];
+        }
+        return $encoded;
     }
 
     /**
@@ -77,6 +74,22 @@ final readonly class JsonlJournalRecordEncoder
             'correlationId' => (string) $operation->correlationId,
             'causationId' => $operation->causationId === null ? null : (string) $operation->causationId,
             'actors' => $this->actors($operation->actorContext),
+            'tenant' => $operation->tenant === null
+                ? null
+                : [
+                    'id' => '[masked]',
+                    'type' => $operation->tenant->type(),
+                ],
+            ...(
+                $operation->schedule === null
+                    ? []
+                    : [
+                        'schedule' => [
+                            'name' => $operation->schedule->name(),
+                            'scheduledAt' => $this->time($operation->schedule->scheduledAt()),
+                        ],
+                    ]
+            ),
         ];
     }
 
@@ -101,7 +114,7 @@ final readonly class JsonlJournalRecordEncoder
      */
     private function actor(?ActorRef $actor): ?array
     {
-        return $actor === null ? null : ['id' => $actor->id(), 'type' => $actor->type()];
+        return $actor === null ? null : ['id' => '[masked]', 'type' => $actor->type()];
     }
 
     /**
@@ -150,8 +163,24 @@ final readonly class JsonlJournalRecordEncoder
             return (object) $this->array(get_object_vars($value));
         }
 
-        if (in_array($value::class, self::FRAMEWORK_IDENTIFIER_TYPES, strict: true)) {
-            return $value->toString();
+        if (
+            $value instanceof \Stringable
+            && in_array(
+                $value::class,
+                [
+                    AttemptId::class,
+                    CausationId::class,
+                    CorrelationId::class,
+                    JournalRecordId::class,
+                    OperationId::class,
+                    OutboxRecordId::class,
+                    RetentionHoldId::class,
+                    RetentionPurgeAuditId::class,
+                ],
+                strict: true,
+            )
+        ) {
+            return (string) $value;
         }
 
         return null;

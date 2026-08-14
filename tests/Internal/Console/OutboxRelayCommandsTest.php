@@ -9,11 +9,13 @@ use BlackOps\Core\Execution\DeferredOperationMessage;
 use BlackOps\Core\Execution\OperationSender;
 use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Core\Identifier\OutboxRecordId;
+use BlackOps\Internal\Codec\ReflectionJsonOperationCodec;
 use BlackOps\Internal\Console\OutboxDeadLetterRetryCommand;
 use BlackOps\Internal\Console\OutboxRelayDaemonCommand;
 use BlackOps\Internal\Console\OutboxRelayRunCommand;
 use BlackOps\Internal\Outbox\OutboxRelayConfiguration;
 use BlackOps\Internal\Outbox\OutboxRelayRuntime;
+use BlackOps\Tests\Transport\PostgreSql\PostgreSqlTestStorageProtection;
 use BlackOps\Transport\PostgreSql\PostgreSqlOutboxRecord;
 use BlackOps\Transport\PostgreSql\PostgreSqlOutboxStore;
 use DateTimeImmutable;
@@ -40,7 +42,12 @@ final class OutboxRelayCommandsTest extends TestCase
             'password' => (string) (getenv('POSTGRES_PASSWORD') ?: 'blackops'),
         ]);
         $this->connection->executeStatement('DROP SCHEMA IF EXISTS command_outbox_test CASCADE');
-        $this->store = new PostgreSqlOutboxStore($this->connection, 'command_outbox_test');
+        $this->store = new PostgreSqlOutboxStore(
+            $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
+            new ReflectionJsonOperationCodec(),
+            'command_outbox_test',
+        );
         $this->store->migrate();
         $this->clock = new FrozenCommandClock(new DateTimeImmutable('2026-07-24T01:02:04+00:00'));
     }
@@ -180,8 +187,12 @@ final class OutboxRelayCommandsTest extends TestCase
             OperationId::fromString($operationId),
             'mail.send',
             1,
-            '{}',
-            '{}',
+            '{"operation_id":"'
+            . $operationId
+            . '","received_at":"2026-07-24T01:02:03.000000Z","correlation_id":"019f45b2-7c2d-7abc-8def-0123456789ad","causation_id":null,"attempt":null,"deadline":null,"actors":null,"idempotency_key_hash":null,"schedule":null}',
+            '{"operation_id":"'
+            . $operationId
+            . '","received_at":"2026-07-24T01:02:03.000000Z","correlation_id":"019f45b2-7c2d-7abc-8def-0123456789ad","causation_id":null,"attempt":null,"deadline":null,"actors":null,"idempotency_key_hash":null,"schedule":null}',
             $time,
             $time,
             'app',

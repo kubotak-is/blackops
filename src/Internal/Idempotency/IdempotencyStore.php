@@ -6,6 +6,7 @@ namespace BlackOps\Internal\Idempotency;
 
 use BlackOps\Core\Execution\ExecutionStrategy;
 use BlackOps\Core\Identifier\OperationId;
+use BlackOps\Core\TenantRef;
 use BlackOps\Idempotency\IdempotencyKeyHash;
 use DateTimeImmutable;
 
@@ -20,6 +21,9 @@ interface IdempotencyStore
         ExecutionStrategy $strategy,
         DateTimeImmutable $createdAt,
         DateTimeImmutable $expiresAt,
+        string $operationType,
+        int $applicationSchemaVersion,
+        ?TenantRef $tenant = null,
     ): IdempotencyClaimResult;
 
     public function terminalize(

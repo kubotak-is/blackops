@@ -27,10 +27,15 @@ use BlackOps\Internal\Application\ApplicationConfigurationSnapshot;
 use BlackOps\Internal\Application\ApplicationDatabaseConnectionLifecycle;
 use BlackOps\Internal\Application\ApplicationWorkerComposer;
 use BlackOps\Internal\Execution\DeferredWorkerRuntime;
+use BlackOps\StorageProtection\StorageKey;
+use BlackOps\StorageProtection\StorageKeyProvider;
+use BlackOps\StorageProtection\StoragePurpose;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use FilesystemIterator;
 use Nyholm\Psr7\Factory\Psr17Factory;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -65,6 +70,8 @@ final class ApplicationConsoleKernelTest extends TestCase
         }
     }
 
+    #[RunInSeparateProcess]
+    #[PreserveGlobalState(false)]
     public function testApplicationConsoleBuildsMigratesProcessesAndMaintainsExplicitly(): void
     {
         $directory = $this->directory();
@@ -88,7 +95,7 @@ final class ApplicationConsoleKernelTest extends TestCase
         self::assertFalse($this->schemaExists($connection));
 
         $status = $this->runCommand($kernel, 'database:status');
-        self::assertStringContainsString('pending: 6', $status);
+        self::assertStringContainsString('pending: 11', $status);
         self::assertFalse($this->schemaExists($connection));
         $this->runCommand($kernel, 'database:migrate');
         self::assertStringContainsString('No pending migrations.', $this->runCommand($kernel, 'database:migrate'));
@@ -111,7 +118,6 @@ final class ApplicationConsoleKernelTest extends TestCase
         /** @var array{operationId: string} $acknowledgement */
         $acknowledgement = json_decode((string) $response->getBody(), associative: true, flags: JSON_THROW_ON_ERROR);
         $operationId = OperationId::fromString($acknowledgement['operationId']);
-
         $inspect = $this->runCommand($kernel, 'operation:inspect', [
             'operation-id' => $operationId->toString(),
             '--json' => true,
@@ -132,7 +138,7 @@ final class ApplicationConsoleKernelTest extends TestCase
         $workerRecord = json_decode($workerLines[0], associative: true, flags: JSON_THROW_ON_ERROR);
         self::assertIsArray($workerRecord);
         self::assertSame('worker-custom', $workerRecord['channel']);
-        self::assertSame('ERROR', $workerRecord['level_name']);
+        self::assertSame('error', $workerRecord['level']);
         self::assertSame('Operation failed.', $workerRecord['message']);
         self::assertStringContainsString('Worker stopped.', $this->runCommand($kernel, 'worker:run', [
             '--iterations' => '1',
@@ -154,6 +160,8 @@ final class ApplicationConsoleKernelTest extends TestCase
         ));
     }
 
+    #[RunInSeparateProcess]
+    #[PreserveGlobalState(false)]
     public function testApplicationWorkerUsesConfiguredSystemActorAndCompiledPolicy(): void
     {
         $directory = $this->directory();
@@ -197,6 +205,21 @@ final class ApplicationConsoleKernelTest extends TestCase
             'console-worker',
             ConsoleWorkerAuthorizedOperation::$context->actorContext()?->execution()->id(),
         );
+    }
+
+    public function testStorageProtectionCommandsAreListedAndHelpBindsWithoutResolvingRuntime(): void
+    {
+        $application = $this->application($this->directory());
+        $kernel = $application->console();
+        $list = $this->runCommand($kernel, 'list');
+        self::assertStringContainsString('storage:protection:plan', $list);
+        self::assertStringContainsString('storage:protection:rotate', $list);
+        self::assertStringContainsString('--old-key-id', $this->runCommand($kernel, 'storage:protection:plan', [
+            '--help' => true,
+        ]));
+        self::assertStringContainsString('--confirm', $this->runCommand($kernel, 'storage:protection:rotate', [
+            '--help' => true,
+        ]));
     }
 
     private function application(string $directory): Application
@@ -278,10 +301,44 @@ final class ApplicationConsoleKernelTest extends TestCase
         string $command,
         array $options = [],
     ): string {
-        $output = new BufferedOutput();
-        self::assertSame(0, $kernel->run(new ArrayInput(['command' => $command, ...$options]), $output));
+        if ($command === 'build:compile') {
+            $this->runBuildInChild(static function () use ($kernel, $command, $options): int {
+                return $kernel->run(new ArrayInput(['command' => $command, ...$options]), new BufferedOutput());
+            });
 
-        return $output->fetch();
+            return '';
+        }
+
+        $output = new BufferedOutput();
+        $status = $kernel->run(new ArrayInput(['command' => $command, ...$options]), $output);
+        $display = $output->fetch();
+        self::assertSame(0, $status, $display);
+
+        return $display;
+    }
+
+    private function runBuildInChild(callable $build): void
+    {
+        self::assertTrue(function_exists('pcntl_fork'));
+        $pid = pcntl_fork();
+        self::assertNotSame(-1, $pid);
+        if ($pid === 0) {
+            ob_start();
+            try {
+                $status = $build();
+            } catch (\Throwable) {
+                $status = 1;
+            }
+            ob_end_clean();
+            $exitCode = is_int($status) && $status === 0 ? 0 : 1;
+            pcntl_exec(PHP_BINARY, ['-r', 'exit((int) $argv[1]);', (string) $exitCode]);
+            exit(1);
+        }
+
+        self::assertGreaterThan(0, $pid);
+        $status = 0;
+        pcntl_waitpid($pid, $status);
+        self::assertTrue(pcntl_wifexited($status) && pcntl_wexitstatus($status) === 0);
     }
 
     private function assertWorkerComposition(Application $application): void
@@ -376,6 +433,20 @@ final readonly class ConsoleWorkerServiceProvider implements ServiceProvider
     public function register(ServiceRegistry $services): void
     {
         $services->autowire(ConsoleWorkerPolicyDependency::class);
+        $services->autowire(StorageKeyProvider::class, ConsoleStorageKeyProvider::class);
+    }
+}
+
+final readonly class ConsoleStorageKeyProvider implements StorageKeyProvider
+{
+    public function activeKey(?\BlackOps\Core\TenantRef $tenant, StoragePurpose $purpose): StorageKey
+    {
+        return $this->key('console-test', $tenant, $purpose);
+    }
+
+    public function key(string $keyId, ?\BlackOps\Core\TenantRef $tenant, StoragePurpose $purpose): StorageKey
+    {
+        return new StorageKey($keyId, str_repeat('c', SODIUM_CRYPTO_AEAD_XCHACHA20POLY1305_IETF_KEYBYTES));
     }
 }
 

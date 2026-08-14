@@ -6,6 +6,7 @@ namespace BlackOps\Tests\Internal\Application;
 
 use BlackOps\Application\Application;
 use BlackOps\Console\ConsoleActorProvider;
+use BlackOps\Console\ConsoleTenantProvider;
 use BlackOps\Core\ActorRef;
 use BlackOps\Core\Attribute\Authorize;
 use BlackOps\Core\Attribute\ConsoleCommand;
@@ -25,6 +26,9 @@ use BlackOps\Core\Outcome;
 use BlackOps\Core\Registry\OperationProvider;
 use BlackOps\Core\Validation\Attribute\NotBlank;
 use BlackOps\Internal\Migration\DatabaseMigrationRunner;
+use BlackOps\StorageProtection\StorageKey;
+use BlackOps\StorageProtection\StorageKeyProvider;
+use BlackOps\StorageProtection\StoragePurpose;
 use Doctrine\DBAL\DriverManager;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -88,6 +92,19 @@ final class OperationConsoleIntegrationTest extends TestCase
             '--name' => 'Ada',
             '--json' => true,
         ]), $inline));
+        self::assertSame('tenant-console', ConsoleFixtureRuntime::$tenant?->id());
+        ConsoleFixtureTenantProvider::$throw = true;
+        $failedTenant = new BufferedOutput();
+        self::assertSame(1, $runtime->console()->run(new ArrayInput([
+            'command' => 'fixture:inline',
+            '--name' => 'Ada',
+            '--json' => true,
+        ]), $failedTenant));
+        $failedPayload = $failedTenant->fetch();
+        self::assertStringContainsString('internal_error', $failedPayload);
+        self::assertStringNotContainsString('tenant-provider-failure', $failedPayload);
+        self::assertSame('tenant-console', ConsoleFixtureRuntime::$tenant?->id());
+        ConsoleFixtureTenantProvider::$throw = false;
         self::assertSame(
             [
                 'schemaVersion' => 1,
@@ -270,7 +287,46 @@ final readonly class ConsoleFixtureServiceProvider implements ServiceProvider
     public function register(ServiceRegistry $services): void
     {
         $services->autowire(ConsoleActorProvider::class, ConsoleFixtureActorProvider::class);
+        $services->autowire(ConsoleTenantProvider::class, ConsoleFixtureTenantProvider::class);
+        $services->autowire(StorageKeyProvider::class, ConsoleFixtureStorageKeyProvider::class);
     }
+}
+
+final readonly class ConsoleFixtureStorageKeyProvider implements StorageKeyProvider
+{
+    public function activeKey(?\BlackOps\Core\TenantRef $tenant, StoragePurpose $purpose): StorageKey
+    {
+        return $this->key('console-test-key', $tenant, $purpose);
+    }
+
+    public function key(string $keyId, ?\BlackOps\Core\TenantRef $tenant, StoragePurpose $purpose): StorageKey
+    {
+        if ($keyId !== 'console-test-key') {
+            throw new \InvalidArgumentException('Unknown storage key identifier.');
+        }
+
+        return new StorageKey($keyId, str_repeat('c', SODIUM_CRYPTO_AEAD_XCHACHA20POLY1305_IETF_KEYBYTES));
+    }
+}
+
+final class ConsoleFixtureTenantProvider implements ConsoleTenantProvider
+{
+    public static bool $throw = false;
+    public static int $calls = 0;
+
+    public function tenant(): ?\BlackOps\Core\TenantRef
+    {
+        self::$calls++;
+        if (self::$throw) {
+            throw new \RuntimeException('tenant-provider-failure');
+        }
+        return new \BlackOps\Core\TenantRef('account', 'tenant-console');
+    }
+}
+
+final class ConsoleFixtureRuntime
+{
+    public static ?\BlackOps\Core\TenantRef $tenant = null;
 }
 
 final class ConsoleFixtureActorProvider implements ConsoleActorProvider
@@ -307,6 +363,7 @@ final readonly class ConsoleInlineOperation implements Operation
 {
     public function handle(ConsoleInlineValue $value, ExecutionContext $context): ConsoleInlineOutcome
     {
+        ConsoleFixtureRuntime::$tenant = $context->tenant();
         return new ConsoleInlineOutcome(
             'Hello ' . $value->name,
             $context->actorContext()?->origin()?->id() ?? 'none',

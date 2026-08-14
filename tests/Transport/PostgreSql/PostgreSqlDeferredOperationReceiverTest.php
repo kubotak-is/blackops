@@ -35,11 +35,13 @@ final class PostgreSqlDeferredOperationReceiverTest extends TestCase
         $this->connection->executeStatement('DROP SCHEMA IF EXISTS ' . self::SCHEMA . ' CASCADE');
         $this->sender = new PostgreSqlDeferredOperationSender(
             $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
             self::SCHEMA,
             new DateTimeImmutable('2026-07-10T00:00:01.000000Z'),
         );
         $this->receiver = new PostgreSqlDeferredOperationReceiver(
             $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
             self::SCHEMA,
             'worker-a',
             30,
@@ -70,6 +72,16 @@ final class PostgreSqlDeferredOperationReceiverTest extends TestCase
         self::assertSame('worker-a', $row['lease_owner']);
         self::assertSame('2026-07-10T00:01:30.000000Z', $row['lease_expires_at']);
         self::assertSame(1, (int) $row['fencing_token']);
+        $wire = $this->connection->fetchAssociative(
+            "SELECT encode(encoded_payload, 'escape') AS payload, encode(encoded_context, 'escape') AS context FROM "
+            . self::SCHEMA
+            . '.operations',
+        );
+        self::assertIsArray($wire);
+        self::assertStringStartsWith('BOPD', $wire['payload']);
+        self::assertStringStartsWith('BOPD', $wire['context']);
+        self::assertStringNotContainsString('reportName', $wire['payload']);
+        self::assertStringNotContainsString('operationId', $wire['context']);
     }
 
     public function testClaimReturnsNullWhenNoOperationIsEligible(): void
@@ -80,6 +92,19 @@ final class PostgreSqlDeferredOperationReceiverTest extends TestCase
 
         self::assertNull($claim);
         self::assertSame('accepted', $this->operationRow(self::OPERATION_ID)['state']);
+    }
+
+    public function testClaimRejectsPayloadContextCiphertextSwap(): void
+    {
+        $this->sender->enqueue($this->message(self::OPERATION_ID, '2026-07-10T00:00:00.000000Z'));
+        $this->connection->executeStatement('UPDATE '
+        . self::SCHEMA
+        . '.operations SET encoded_context = encoded_payload WHERE operation_id = :operation_id', [
+            'operation_id' => self::OPERATION_ID,
+        ]);
+
+        $this->expectException(DeferredTransportException::class);
+        $this->receiver->claim(new ClaimRequest(new DateTimeImmutable('2026-07-10T00:01:00.000000Z')));
     }
 
     public function testClaimSelectsOldestEligibleOperationFirst(): void

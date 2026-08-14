@@ -8,7 +8,7 @@ use InvalidArgumentException;
 
 final readonly class IdempotencyScopeHash
 {
-    public const int VERSION = 1;
+    public const int VERSION = 2;
 
     public function __construct(
         private int $version,

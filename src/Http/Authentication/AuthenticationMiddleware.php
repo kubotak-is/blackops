@@ -6,6 +6,7 @@ namespace BlackOps\Http\Authentication;
 
 use BlackOps\Core\ActorRef;
 use BlackOps\Core\Attribute\PublicApi;
+use BlackOps\Core\TenantRef;
 use LogicException;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -40,6 +41,8 @@ final readonly class AuthenticationMiddleware implements MiddlewareInterface
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
+        // Tenant attributes are trusted only when supplied by this authentication result.
+        $request = $request->withoutAttribute(TenantRef::class);
         $result = $this->authenticator->authenticate($request);
 
         if ($result->isAnonymous()) {
@@ -53,7 +56,12 @@ final readonly class AuthenticationMiddleware implements MiddlewareInterface
                 throw new LogicException('Authenticated result requires an actor.');
             }
 
-            return $handler->handle($request->withAttribute(ActorRef::class, $actor));
+            $request = $request->withAttribute(ActorRef::class, $actor);
+            $tenant = $result->tenant();
+            if ($tenant !== null) {
+                $request = $request->withAttribute(TenantRef::class, $tenant);
+            }
+            return $handler->handle($request);
         }
 
         $code = $result->code();

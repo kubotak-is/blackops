@@ -17,6 +17,7 @@ export const sidebar = [
     label: 'Operation',
     items: [
       { label: 'Authoring', link: 'operations/authoring' },
+      { label: 'Scheduled Operation', link: 'operations/scheduled-operation' },
       { label: 'Generators', link: 'operations/generators' },
       { label: 'Value and Validation', link: 'operations/validation' },
       { label: 'Outcome', link: 'database/outcomes' },
@@ -53,7 +54,7 @@ export const sidebar = [
   { label: 'Testing', items: ['testing'] },
   { label: 'Tutorial', items: [{ label: 'BlackOps Board Reference Application', link: 'testing/community-board' }] },
   { label: 'Deployment', items: ['deployment/worker-operations'] },
-  { label: 'Security', items: ['security'] },
+  { label: 'Security', items: ['security', { label: 'Tenant and Storage Protection', link: 'security/tenant-protection' }] },
   { label: 'Troubleshooting', items: ['troubleshooting'] },
   { label: 'Releases', items: ['releases/current-status'] },
   {
@@ -62,6 +63,7 @@ export const sidebar = [
       { label: 'Core API', link: 'reference/core-api' },
       { label: 'Attributes', link: 'reference/attributes' },
       { label: 'Configuration', link: 'reference/configuration' },
+      { label: 'Observability', link: 'reference/observability' },
       { label: 'BlackOps CLI', link: 'reference/project-cli' },
       { label: 'Observer Replay', link: 'reference/observer-replay' },
       { label: 'Application Bootstrap', link: 'reference/application-bootstrap' },
@@ -91,16 +93,16 @@ const itemSlug = (item) => typeof item === 'string' ? item : item.link;
 
 const blumeItem = (item, sectionLabel) => {
   if (typeof item === 'string') {
-    return { label: sectionLabel, href: `/${item}` };
+    return { label: sectionLabel, root: item };
   }
 
-  return { label: item.label, href: `/${item.link}` };
+  return { label: item.label, root: item.link };
 };
 
 export const blumeSidebar = sidebar.map(({ label, items }) => ({
   label,
   ...(items.length === 1 && typeof items[0] === 'string'
-    ? { href: `/${items[0]}` }
+    ? { root: items[0] }
     : { items: items.map((item) => blumeItem(item, label)) }),
 }));
 

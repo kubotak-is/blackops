@@ -6,6 +6,7 @@ namespace BlackOps\Tests\Http\Authentication;
 
 use BlackOps\Core\ActorRef;
 use BlackOps\Core\Attribute\PublicApi;
+use BlackOps\Core\TenantRef;
 use BlackOps\Http\Authentication\AuthenticationResult;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
@@ -32,6 +33,15 @@ final class AuthenticationResultTest extends TestCase
         self::assertFalse($result->isInvalid());
         self::assertNull($result->actor());
         self::assertNull($result->code());
+        self::assertNull($result->tenant());
+    }
+
+    public function testAuthenticatedCarriesVerifiedTenantOnly(): void
+    {
+        $tenant = new TenantRef('account', 'tenant-1');
+        self::assertSame($tenant, AuthenticationResult::authenticated(new ActorRef('u', 'user'), $tenant)->tenant());
+        self::assertNull(AuthenticationResult::anonymous()->tenant());
+        self::assertNull(AuthenticationResult::invalid('authentication.invalid')->tenant());
     }
 
     public function testAuthenticatedContainsOnlyActor(): void

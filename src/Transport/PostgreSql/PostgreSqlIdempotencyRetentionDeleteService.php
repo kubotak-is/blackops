@@ -42,6 +42,8 @@ final readonly class PostgreSqlIdempotencyRetentionDeleteService
                         "DELETE FROM {$this->schema->table()} r
                         WHERE r.operation_id = :operation_id
                             AND r.state = 'terminal'
+                            AND r.tenant_type IS NOT DISTINCT FROM :tenant_type
+                            AND r.tenant_id IS NOT DISTINCT FROM :tenant_id
                             AND r.expires_at <= :eligible_at
                             AND NOT EXISTS (
                                 SELECT 1 FROM {$this->retentionSchema->retentionHoldsTable()} h
@@ -49,6 +51,8 @@ final readonly class PostgreSqlIdempotencyRetentionDeleteService
                             )",
                         [
                             'operation_id' => $item->operationId()->toString(),
+                            'tenant_type' => $item->tenant()?->type(),
+                            'tenant_id' => $item->tenant()?->id(),
                             'eligible_at' => $item->eligibleAt()->format('Y-m-d H:i:s.uP'),
                         ],
                     );
@@ -65,6 +69,7 @@ final readonly class PostgreSqlIdempotencyRetentionDeleteService
                             $policy,
                             $purgedAt,
                             $actor,
+                            $item->tenant(),
                         ),
                     );
                     ++$deleted;

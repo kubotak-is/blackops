@@ -66,7 +66,7 @@ grep -Fq '"message":"Welcome to BlackOps Board"' "${TEMP}/welcome-command.json"
 grep -Fq '"summary":"A server-rendered reference application powered by BlackOps Operations."' \
     "${TEMP}/welcome-command.json"
 WELCOME_OPERATION_ID=$("${COMPOSE[@]}" exec -T postgres psql -U blackops -d community_board -Atc \
-    "SELECT operation_id FROM blackops.journal WHERE event = 'operation.completed' AND convert_from(encoded_record, 'UTF8') LIKE '%Welcome to BlackOps Board%' LIMIT 1")
+    "SELECT operation_id FROM blackops.journal WHERE event = 'operation.completed' ORDER BY sequence LIMIT 1")
 test -n "${WELCOME_OPERATION_ID}"
 test "$("${COMPOSE[@]}" exec -T postgres psql -U blackops -d community_board -Atc \
     "SELECT string_agg(event, ',' ORDER BY sequence) FROM blackops.journal WHERE operation_id = '${WELCOME_OPERATION_ID}'::uuid")" \

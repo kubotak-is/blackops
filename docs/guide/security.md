@@ -19,10 +19,10 @@ BlackOpsはOperation Lifecycleを追跡し、Observed Sinkへ出すSensitive値�
 | Console Operation | `#[ConsoleCommand]`を明示したScalar入力だけを公開し、CLI値とThrowable Detailを出力しない。Execution Actorを固定する | `ConsoleActorProvider`で安全なActor参照だけを返し、OS／運用側でCommand実行権限を制御する |
 | Authorization | `#[Authorize]`、Policy Contract、型付きRequest／Decision、Build時DI登録を提供する | Operation、Resource、TenantごとのPolicyと現在権限の検索を実装する |
 | Status Authorization | Subjectを最小情報へ投影し、Allow前にOutcome／Journal Detailを読まず、Unknown／Denyを同じ404へする | `OperationStatusAuthorizer`をBindingし、Current Actor、Origin Actor、Tenant／Resource Policyを評価する |
-| Tenant Isolation | 提供しない | Query、Credential、Schema／Database、Cache、LogでTenantを分離する |
+| Tenant Isolation | `TenantRef`、入口別Provider、Clear Tenant Predicate、Default-deny Status／Data Query、Child／Worker伝播を提供する | Membership、Role、Permission、Tenant Directory、Database／Cache／Logの運用Policyを実装する |
 | Transport Security | HTTP Adapter境界を提供する | TLS終端、Certificate、Network Policyを構成する |
-| 保存時暗号化 | 提供しない | Canonical Journal、Transport Payload、Outcome、Backupを暗号化する |
-| Key管理 | 提供しない | KMS／HSM、権限、Rotation、失効手順を運用する |
+| 保存時暗号化 | Framework-owned復元可能FieldをBOPD v1（XChaCha20-Poly1305）Envelopeへ保存する | `StorageKeyProvider`をSecret Manager／KMSへ接続し、Key MaterialをArtifact／Logへ出さない。Disk／Backup Encryptionを追加する |
+| Key管理 | `StorageKeyProvider`、Purpose／Tenant／AAD境界、Bounded Plan／Rotate、CAS／Checkpoint／Safe Outputを提供する | Key生成、KMS権限、旧KeyのRead期間、Replica／Backup／Retention確認、失効を運用する |
 | Sink Access Control | Journal Observer Contractを提供する | JSONL、Log Backend、Database、Object Storageの権限を制限する |
 | Backup／Restore | 提供しない | 暗号化Backup、Restore Test、破棄手順を運用する |
 | Retention | 対象別Period、Hold、Plan、Purge、AuditのPrimitiveを提供する | 保持期間、Legal Hold Policy、承認、監査保管を決める |
@@ -65,7 +65,7 @@ Hashは同一値の相関が必要な場合だけ使います。低Entropy値は
 - Retention Period／Legal Hold
 - Credential Rotation
 
-Observed JSONLでMaskできても、Canonical JournalやTransport Payloadには再現に必要な値が残る場合があります。保存先の暗号化、最小権限、保持期間、削除手順を必ず構成してください。
+Observed JSONLでMaskできても、`#[Sensitive]`はEnvelope、Tenant Isolation、Authorization、Retentionを代替しません。Canonical Journal、Transport Payload、Outcome、Outbox、Dead Letter、Idempotencyの復元可能FieldはBOPD Envelopeで保護され、保存先の最小権限、保持期間、削除手順を別途構成します。
 
 Actorも同じ責任分界に従います。Canonical Journalは監査正本としてorigin／authorization／execution ActorのIDとTypeを保持します。Observed JournalとJSONLではActor Typeとnull関係を維持しながら、すべてのActor IDを`[masked]`へ置き換えます。Role、Permission、Credential、Token、Session、ClaimはCanonical／Observedのどちらにも保存しません。
 
@@ -124,7 +124,7 @@ Generated Frontend Objectは3 Operationとも`.fetch()`、`.toRequest()`、`.url
 
 ### 再実行と更新
 
-同じGenerator Versionの全Fileがある場合、通常実行は内容を比較せず次を返します。
+同じGenerator Versionの全ファイルがある場合、通常実行は内容を比較せず次を返します。
 
 ```text
 Authentication starter is already current.
@@ -140,15 +140,27 @@ Migrationは生成時点のImmutable Snapshotです。Framework Update後も実�
 
 ## HTTP Authenticationの境界
 
-Applicationは`HttpAuthenticator`を実装し、Credentialなしを`AuthenticationResult::anonymous()`、有効なCredentialを`authenticated(new ActorRef($id, $type))`、不正Credentialを`invalid('authentication.invalid')`として返せます。Framework同梱のOpt-in Session Coreを使う場合は`BearerSessionAuthenticator`または`CookieSessionAuthenticator`を選びます。JWT／OAuth／API KeyとUser／Password／Account State PolicyはApplicationが所有します。
+Applicationは`HttpAuthenticator`を実装します。Credentialなしは`AuthenticationResult::anonymous()`、有効なCredentialは`authenticated(new ActorRef($id, $type))`、不正Credentialは`invalid('authentication.invalid')`として返します。
 
-Session Coreは32-byte CSPRNG TokenとSHA-256 Hash保存、Absolute TTL、Rotation／Revocation／Cleanupを所有します。通常のOperation ValueへRaw TokenやPasswordを渡しません。`make:auth`のRegister／Login／Logoutだけは`#[Sensitive]`なEphemeral Value／Outcomeとして現在のHTTP Response中に扱い、Canonical Journalへ空Projection、Outcome Storeへ非保存とします。ApplicationはRaw Tokenを発行直後に必要なCredential Surfaceへ変換し、通常のJournal、Outcome、Logへ残しません。Cookieの`Secure`／`HttpOnly`／`SameSite`、Domain／Path、CSRF、Encryption、Access Control、Retention期間はApplication責務です。登録方法とMigration境界は[Session AuthenticationをOpt-in登録する](application-bootstrap.md#session-authenticationをopt-in登録する)を参照してください。
+Framework同梱のOpt-in Session Coreを使う場合は`BearerSessionAuthenticator`または`CookieSessionAuthenticator`を選びます。JWT／OAuth／API KeyとUser／Password／Account State PolicyはApplicationが所有します。
 
-Frameworkの`AuthenticationMiddleware`はCredential自体をResult、Request Attribute、ExecutionContext、Journalへコピーしません。Authenticated時に渡すのはID／Typeだけの`ActorRef`です。Invalid時はOperation IDを発行せず、安定Codeだけを含む401 JSONを返します。AuthenticatorのBackend障害はInvalidへ丸めず、上位のHTTP Error境界へ伝播します。
+Session Coreは32-byte CSPRNG TokenとSHA-256 Hash保存、Absolute TTL、Rotation／Revocation／Cleanupを所有します。通常のOperation ValueへRaw TokenやPasswordを渡しません。
 
-Authenticated Resultの`ActorRef`は予約Request Attributeを経由し、Operationの`ActorContext`へ接続されます。HTTP入口では同じ参照がorigin／authorization／execution Actorになります。Anonymous RequestにはActorContextを追加しません。`config/middleware.php`へAuthentication Middlewareを登録しても認可Policyは自動では決まらないため、Operation単位で`#[Authorize]`を宣言してください。
+`make:auth`のRegister／Login／Logoutだけは`#[Sensitive]`なEphemeral Value／Outcomeとして現在のHTTP Response中に扱い、Canonical Journalへ空Projection、Outcome Storeへ非保存とします。ApplicationはRaw Tokenを発行直後に必要なCredential Surfaceへ変換し、通常のJournal、Outcome、Logへ残しません。
 
-Quickstartの`X-Sample-Token`はLocal Development用の最小Exampleです。AuthenticatorはExpected TokenをApplication Runtime構成時に一度だけSnapshotし、比較に`hash_equals()`を使います。`SAMPLE_API_TOKEN`の未設定、空文字、空白だけの値は構成ErrorとしてFail-closedにし、既知TokenへFallbackしません。Header値はOperation ValueへBindせず、Response、ExecutionContext、Transport、Journal、Outcomeへ保存しません。ProductionではApplicationがSession、Bearer Token、External IdP等とSecret管理へ置き換えてください。
+Cookieの`Secure`／`HttpOnly`／`SameSite`、Domain／Path、CSRF、Encryption、Access Control、Retention期間はApplication責務です。登録方法とMigration境界は[Session AuthenticationをOpt-in登録する](application-bootstrap.md#session-authenticationをopt-in登録する)を参照してください。
+
+Frameworkの`AuthenticationMiddleware`はCredential自体をResult、Request Attribute、ExecutionContext、Journalへコピーしません。Authenticated時に渡すのはID／Typeだけの`ActorRef`です。
+
+Invalid時はOperation IDを発行せず、安定Codeだけを含む401 JSONを返します。AuthenticatorのBackend障害はInvalidへ丸めず、上位のHTTP Error境界へ伝播します。
+
+Authenticated Resultの`ActorRef`は予約Request Attributeを経由し、Operationの`ActorContext`へ接続されます。HTTP入口では同じ参照がorigin／authorization／execution Actorになります。Anonymous RequestにはActorContextを追加しません。
+
+`config/middleware.php`へAuthentication Middlewareを登録しても認可Policyは自動では決まらないため、Operation単位で`#[Authorize]`を宣言してください。
+
+Quickstartの`X-Sample-Token`はLocal Development用の最小Exampleです。AuthenticatorはExpected TokenをApplication Runtime構成時に一度だけSnapshotし、比較に`hash_equals()`を使います。
+
+`SAMPLE_API_TOKEN`の未設定、空文字、空白だけの値は構成ErrorとしてFail-closedにし、既知TokenへFallbackしません。Header値はOperation ValueへBindせず、Response、ExecutionContext、Transport、Journal、Outcomeへ保存しません。ProductionではApplicationがSession、Bearer Token、External IdP等とSecret管理へ置き換えてください。
 
 Header欠落と不正Headerは同じ401でも境界が異なります。
 
@@ -195,11 +207,23 @@ Route不一致、壊れたJSON、必要Header欠落等はOperation受理前のPr
 
 ## Canonical DataとSafe Diagnostics
 
-Canonical Journal、Deferred Transport Payload、Outcome Storeは再現性のためRaw Value、Raw Actor ID、Exception Messageを含み得るRestricted Dataです。Databaseへの最小権限、保存時暗号化、Backup、Retention、Purge AuditはApplication／運用が設計します。
+Canonical Journal、Deferred Transport Payload、Outcome Store、Outbox、Dead Letter、Idempotencyの復元可能FieldはBOPD Envelopeです。Tenant、Operation、State、Sequenceなどの最小Restricted MetadataだけがClearで、Raw Value、Outcome、Reason、Response、Key MaterialをDefault Diagnosticsへ出しません。Database／Backupの最小権限、At-rest Encryption、Retention、Purge AuditはApplication／運用が設計します。
 
 HTTP Error、Application／Framework JSONL Log、Observed Journal、`operation:inspect`、Local ViewerはSafe Diagnostics Surfaceです。ここではCredentialを除外し、`#[Sensitive]`を適用し、Actor IDを`[masked]`へ置き換え、Exception MessageではなくFailure Type／Classificationだけを示します。Raw表示に切り替えるCLI Optionはありません。
 
 Local Viewerは既定無効、明示起動、Loopback限定、起動ごとのRandom Bootstrap Token、Session Cookie、Read-only GET／HEAD、`Cache-Control: no-store`を組み合わせます。TokenをShell History、Chat、Ticket、共有Logへ貼らず、調査後はViewer Processを終了してください。このLocal GateはProductionのAuthentication／AuthorizationやRemote Support UIの代替ではありません。
+
+## Observability Signal Safety
+
+OpenTelemetryを有効にする場合も、次のFramework allowlistから外れる属性をSpan／Metric／JSONLへ追加しないでください。
+
+| Signal | 許可するField／Label | 常に除外するもの |
+| --- | --- | --- |
+| Span | Operation／Attempt／Correlation／Causationの参照、Strategy、Runtime、Safe Result、`error.type`、Storage Purpose、Schedule Name | Raw Actor／Tenant ID、Credential、Payload、Outcome、SQL、DSN、Key、Throwable Message／Stack、自由文 |
+| Metric | 固定Instrument、Result、Strategy、Runtime、Scheduler／Observer／Failure／Purposeの有限Enum | Operation／Attempt／Trace／Span ID、Actor／Tenant ID、Payload、Outcome、Credential、高Cardinality自由文 |
+| Structured JSONL | Version 1 Envelope、`traceId`、`spanId`、`sampled`、Mask済みActor／Tenant | `traceparent`、`tracestate`、Baggage、Exporter／Vendor属性、Raw Identity、Secret |
+
+Actor／TenantのTypeは分類に必要な場合だけ保持し、IDは`[masked]`です。Application MessageへCredentialやDomain Secretを入れない責任はApplicationに残ります。Provider、Exporter、Collector、Local Grafana LGTMが停止してもPrimary Operation、Journal、Outcome、HTTP Response、Readinessを変えないBest-effort境界を維持してください。LGTM ProbeはTempo／Prometheus Response全体、local login値、Sensitive／High-cardinality Labelを出力せず、固定Digestとloopback Portだけを使います。Local Collector／LGTMの固定Image、Endpoint、停止確認は[Observability](observability.md)を正本にします。
 
 ## Production Check
 

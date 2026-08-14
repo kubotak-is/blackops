@@ -13,6 +13,7 @@ use BlackOps\Internal\Projection\SensitiveProjectionFilter;
 use BlackOps\Internal\Replay\ObserverReplayRequest;
 use BlackOps\Internal\Replay\ObserverReplayRuntime;
 use BlackOps\Internal\Replay\ObserverReplayTargetRegistry;
+use BlackOps\Internal\Telemetry\TelemetryTracer;
 use BlackOps\Journal\EmptyJournalData;
 use BlackOps\Journal\Exception\JournalObservationFailed;
 use BlackOps\Journal\FlushableJournalObserver;
@@ -21,12 +22,14 @@ use BlackOps\Journal\JournalObserver;
 use BlackOps\Journal\JournalOperation;
 use BlackOps\Journal\JournalRecord;
 use BlackOps\Journal\ObservedJournalRecord;
-use BlackOps\Transport\PostgreSql\PostgreSqlJournalRecordCodec;
+use BlackOps\Telemetry\TelemetryCorrelation;
+use BlackOps\Tests\Internal\Telemetry\RecordingTracerProvider;
 use BlackOps\Transport\PostgreSql\PostgreSqlJournalSchema;
 use BlackOps\Transport\PostgreSql\PostgreSqlObserverReplaySelector;
 use BlackOps\Transport\PostgreSql\PostgreSqlObserverReplayStore;
 use DateTimeImmutable;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\ParameterType;
 use PHPUnit\Framework\TestCase;
 
 final class ObserverReplayRuntimeFailureTest extends TestCase
@@ -53,7 +56,6 @@ final class ObserverReplayRuntimeFailureTest extends TestCase
     public function testObserveFailureLeavesFailedRecordUnadvanced(): void
     {
         $operation = OperationId::fromString('019f32ab-2be0-7b38-a0a7-1ab2f9687697');
-        $codec = new PostgreSqlJournalRecordCodec();
         foreach (['019f32ab-2be0-7b38-a0a7-1ab2f968769a', '019f32ab-2be0-7b38-a0a7-1ab2f968769b'] as $index => $id) {
             $record = new JournalRecord(
                 JournalRecordId::fromString($id),
@@ -74,27 +76,37 @@ final class ObserverReplayRuntimeFailureTest extends TestCase
             $this->connection->executeStatement(
                 'INSERT INTO "'
                 . self::SCHEMA
-                . '"."journal" (record_id, operation_id, sequence, event, schema_version, occurred_at, encoded_record) VALUES (:record,:operation,:sequence,:event,1,:at,convert_to(:encoded,\'UTF8\'))',
+                . '"."journal" (record_id, operation_id, operation_type, sequence, event, schema_version, operation_schema_version, occurred_at, encoded_record) VALUES (:record,:operation,\'order.create\',:sequence,:event,1,1,:at,:encoded)',
                 [
                     'record' => $id,
                     'operation' => $operation->toString(),
                     'sequence' => $index + 1,
                     'event' => 'operation.received',
                     'at' => $record->occurredAt->format('Y-m-d H:i:s.uP'),
-                    'encoded' => $codec->encode($record),
+                    'encoded' =>
+                        \BlackOps\Tests\Transport\PostgreSql\PostgreSqlTestStorageProtection::journalRecordEnvelope(
+                            $record,
+                        ),
                 ],
+                ['encoded' => ParameterType::BINARY],
             );
         }
         $seen = new RecordingObserver();
+        $provider = new RecordingTracerProvider();
         $targets = new ObserverReplayTargetRegistry([
             new JournalObserverBinding('recording', $seen),
             new JournalObserverBinding('failing', new FailingSequenceObserver(2)),
         ]);
         $runtime = new ObserverReplayRuntime(
-            new PostgreSqlObserverReplayStore($this->connection, self::SCHEMA),
+            new PostgreSqlObserverReplayStore(
+                $this->connection,
+                \BlackOps\Tests\Transport\PostgreSql\PostgreSqlTestStorageProtection::codec(),
+                self::SCHEMA,
+            ),
             $targets,
             new ObservedJournalRecordProjector(new SensitiveProjectionFilter()),
             2,
+            new TelemetryTracer($provider),
         );
         $this->expectExceptionMessage('Observer replay delivery failed.');
         $this->expectException(JournalObservationFailed::class);
@@ -109,6 +121,13 @@ final class ObserverReplayRuntimeFailureTest extends TestCase
                 ),
             );
         } finally {
+            self::assertCount(1, $provider->spans);
+            $span = $provider->spans[0];
+            self::assertSame('blackops.observer.replay', $span->name);
+            self::assertSame(TelemetryTracer::KIND_INTERNAL, $span->kind);
+            self::assertSame('observer_replay', $span->attributes['blackops.runtime.kind']);
+            self::assertSame('failed', $span->attributes['blackops.result']);
+            self::assertTrue($span->ended);
             self::assertSame([1], $seen->sequences);
             $checkpoint = $this->connection->fetchAssociative(
                 'SELECT state, cursor_record_id FROM "'
@@ -120,10 +139,82 @@ final class ObserverReplayRuntimeFailureTest extends TestCase
         }
     }
 
+    public function testSuccessfulReplayPreservesOriginalCorrelationDuringReplaySpan(): void
+    {
+        $operation = OperationId::fromString('019f32ab-2be0-7b38-a0a7-1ab2f9687697');
+        $record = new JournalRecord(
+            JournalRecordId::fromString('019f32ab-2be0-7b38-a0a7-1ab2f968769a'),
+            1,
+            JournalEvent::OperationReceived,
+            new DateTimeImmutable('2026-07-01T00:00:01Z'),
+            1,
+            new JournalOperation(
+                $operation,
+                'order.create',
+                1,
+                'inline',
+                CorrelationId::fromString('019f32ab-2be0-7b38-a0a7-1ab2f9687699'),
+                telemetry: new TelemetryCorrelation('4bf92f3577b34da6a3ce929d0e0e4736', '00f067aa0ba902b7', true),
+            ),
+            null,
+            new EmptyJournalData(),
+        );
+        $this->connection->executeStatement(
+            'INSERT INTO "'
+            . self::SCHEMA
+            . '"."journal" (record_id, operation_id, operation_type, sequence, event, schema_version, operation_schema_version, occurred_at, encoded_record) VALUES (:record,:operation,\'order.create\',1,\'operation.received\',1,1,:at,:encoded)',
+            [
+                'record' => $record->recordId->toString(),
+                'operation' => $operation->toString(),
+                'at' => $record->occurredAt->format('Y-m-d H:i:s.uP'),
+                'encoded' =>
+                    \BlackOps\Tests\Transport\PostgreSql\PostgreSqlTestStorageProtection::journalRecordEnvelope(
+                        $record,
+                    ),
+            ],
+            ['encoded' => ParameterType::BINARY],
+        );
+        $seen = new RecordingObserver();
+        $provider = new RecordingTracerProvider();
+        $runtime = new ObserverReplayRuntime(
+            new PostgreSqlObserverReplayStore(
+                $this->connection,
+                \BlackOps\Tests\Transport\PostgreSql\PostgreSqlTestStorageProtection::codec(),
+                self::SCHEMA,
+            ),
+            new ObserverReplayTargetRegistry([new JournalObserverBinding('recording', $seen)]),
+            new ObservedJournalRecordProjector(new SensitiveProjectionFilter()),
+            2,
+            new TelemetryTracer($provider),
+        );
+
+        $result = $runtime->replay(
+            new ObserverReplayRequest(
+                PostgreSqlObserverReplaySelector::operation($operation),
+                ['recording'],
+                'runtime-success',
+                'operator',
+                'test',
+            ),
+        );
+
+        self::assertSame(1, $result->delivered);
+        self::assertSame('4bf92f3577b34da6a3ce929d0e0e4736', $seen->correlations[0]?->traceId);
+        self::assertSame('00f067aa0ba902b7', $seen->correlations[0]?->spanId);
+        self::assertCount(1, $provider->spans);
+        $span = $provider->spans[0];
+        self::assertSame('blackops.observer.replay', $span->name);
+        self::assertSame(TelemetryTracer::KIND_INTERNAL, $span->kind);
+        self::assertSame('observer_replay', $span->attributes['blackops.runtime.kind']);
+        self::assertSame('completed', $span->attributes['blackops.result']);
+        self::assertTrue($span->ended);
+        self::assertNotSame($seen->correlations[0]?->traceId, $span->getContext()->getTraceId());
+        self::assertNotSame($seen->correlations[0]?->spanId, $span->getContext()->getSpanId());
+    }
+
     public function testFlushFailureRedeliversSameRecordIdAndIdempotentTargetConverges(): void
     {
         $operation = OperationId::fromString('019f32ab-2be0-7b38-a0a7-1ab2f9687697');
-        $codec = new PostgreSqlJournalRecordCodec();
         foreach (['019f32ab-2be0-7b38-a0a7-1ab2f968769a', '019f32ab-2be0-7b38-a0a7-1ab2f968769b'] as $index => $id) {
             $record = new JournalRecord(
                 JournalRecordId::fromString($id),
@@ -144,20 +235,28 @@ final class ObserverReplayRuntimeFailureTest extends TestCase
             $this->connection->executeStatement(
                 'INSERT INTO "'
                 . self::SCHEMA
-                . '"."journal" (record_id, operation_id, sequence, event, schema_version, occurred_at, encoded_record) VALUES (:record,:operation,:sequence,:event,1,:at,convert_to(:encoded,\'UTF8\'))',
+                . '"."journal" (record_id, operation_id, operation_type, sequence, event, schema_version, operation_schema_version, occurred_at, encoded_record) VALUES (:record,:operation,\'order.create\',:sequence,:event,1,1,:at,:encoded)',
                 [
                     'record' => $id,
                     'operation' => $operation->toString(),
                     'sequence' => $index + 1,
                     'event' => 'operation.received',
                     'at' => $record->occurredAt->format('Y-m-d H:i:s.uP'),
-                    'encoded' => $codec->encode($record),
+                    'encoded' =>
+                        \BlackOps\Tests\Transport\PostgreSql\PostgreSqlTestStorageProtection::journalRecordEnvelope(
+                            $record,
+                        ),
                 ],
+                ['encoded' => ParameterType::BINARY],
             );
         }
         $target = new AcceptThenFlushFailObserver();
         $runtime = new ObserverReplayRuntime(
-            new PostgreSqlObserverReplayStore($this->connection, self::SCHEMA),
+            new PostgreSqlObserverReplayStore(
+                $this->connection,
+                \BlackOps\Tests\Transport\PostgreSql\PostgreSqlTestStorageProtection::codec(),
+                self::SCHEMA,
+            ),
             new ObserverReplayTargetRegistry([new JournalObserverBinding('target', $target)]),
             new ObservedJournalRecordProjector(new SensitiveProjectionFilter()),
             2,
@@ -204,17 +303,25 @@ final class ObserverReplayRuntimeFailureTest extends TestCase
         $this->connection->executeStatement(
             'INSERT INTO "'
             . self::SCHEMA
-            . '"."journal" (record_id, operation_id, sequence, event, schema_version, occurred_at, encoded_record) VALUES (:record,:operation,1,:event,1,:at,convert_to(:encoded,\'UTF8\'))',
+            . '"."journal" (record_id, operation_id, operation_type, sequence, event, schema_version, operation_schema_version, occurred_at, encoded_record) VALUES (:record,:operation,\'order.create\',1,:event,1,1,:at,:encoded)',
             [
                 'record' => $record->recordId->toString(),
                 'operation' => $operation->toString(),
                 'event' => 'operation.received',
                 'at' => $record->occurredAt->format('Y-m-d H:i:s.uP'),
-                'encoded' => new PostgreSqlJournalRecordCodec()->encode($record),
+                'encoded' =>
+                    \BlackOps\Tests\Transport\PostgreSql\PostgreSqlTestStorageProtection::journalRecordEnvelope(
+                        $record,
+                    ),
             ],
+            ['encoded' => ParameterType::BINARY],
         );
         $runtime = new ObserverReplayRuntime(
-            new PostgreSqlObserverReplayStore($this->connection, self::SCHEMA),
+            new PostgreSqlObserverReplayStore(
+                $this->connection,
+                \BlackOps\Tests\Transport\PostgreSql\PostgreSqlTestStorageProtection::codec(),
+                self::SCHEMA,
+            ),
             new ObserverReplayTargetRegistry([
                 new JournalObserverBinding('failing', new DropAuditAndFailObserver($this->connection, self::SCHEMA)),
             ]),
@@ -241,10 +348,12 @@ final class ObserverReplayRuntimeFailureTest extends TestCase
 final class RecordingObserver implements JournalObserver
 {
     /** @var list<int> */ public array $sequences = [];
+    /** @var list<?TelemetryCorrelation> */ public array $correlations = [];
 
     public function observe(ObservedJournalRecord $record): void
     {
         $this->sequences[] = $record->sequence;
+        $this->correlations[] = $record->operation->telemetry;
     }
 }
 

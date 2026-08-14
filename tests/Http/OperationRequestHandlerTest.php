@@ -91,7 +91,11 @@ final class OperationRequestHandlerTest extends TestCase
     {
         $connection = $this->connection();
         $connection->executeStatement('DROP SCHEMA IF EXISTS ' . self::SCHEMA . ' CASCADE');
-        $journal = new PostgreSqlCanonicalJournalStore($connection, self::SCHEMA);
+        $journal = new PostgreSqlCanonicalJournalStore(
+            $connection,
+            \BlackOps\Tests\Transport\PostgreSql\PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        );
         $journal->migrate();
         $store = new InMemoryIdempotencyStore();
         $operationHandler = new CountingWelcomeHandler();
@@ -371,7 +375,11 @@ final class OperationRequestHandlerTest extends TestCase
     {
         $connection = $this->connection();
         $connection->executeStatement('DROP SCHEMA IF EXISTS ' . self::SCHEMA . ' CASCADE');
-        $journal = new PostgreSqlCanonicalJournalStore($connection, self::SCHEMA);
+        $journal = new PostgreSqlCanonicalJournalStore(
+            $connection,
+            \BlackOps\Tests\Transport\PostgreSql\PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        );
         $journal->migrate();
         $handler = $this->httpHandler($this->inlineDispatcher(new WelcomeHandler(), $journal));
 
@@ -442,7 +450,11 @@ final class OperationRequestHandlerTest extends TestCase
     {
         $connection = $this->connection();
         $connection->executeStatement('DROP SCHEMA IF EXISTS ' . self::SCHEMA . ' CASCADE');
-        $journal = new PostgreSqlCanonicalJournalStore($connection, self::SCHEMA);
+        $journal = new PostgreSqlCanonicalJournalStore(
+            $connection,
+            \BlackOps\Tests\Transport\PostgreSql\PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        );
         $journal->migrate();
         $handler = $this->httpHandler($this->inlineDispatcher(new ThrowingWelcomeHandler(), $journal));
 
@@ -577,6 +589,33 @@ final class OperationRequestHandlerTest extends TestCase
         self::assertSame($actor, $dispatcher->actorContext?->execution());
     }
 
+    public function testTenantAttributeIsPassedToDispatcherUnchanged(): void
+    {
+        $dispatcher = new RecordingDispatcher(OperationResult::completed(new WelcomeShown('ok')));
+        $tenant = new \BlackOps\Core\TenantRef('account', 'tenant-http');
+        $response = $this->httpHandler($dispatcher)->handle($this->request('GET', '/welcome')->withAttribute(
+            \BlackOps\Core\TenantRef::class,
+            $tenant,
+        ));
+        self::assertSame(200, $response->getStatusCode());
+        self::assertSame($tenant, $dispatcher->tenant);
+    }
+
+    public function testValidTraceParentIsPassedToDirectDispatcher(): void
+    {
+        $dispatcher = new RecordingDispatcher(OperationResult::completed(new WelcomeShown('ok')));
+        $request = $this->request('GET', '/welcome')->withHeader(
+            'traceparent',
+            '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01',
+        );
+        $response = $this->httpHandler($dispatcher)->handle($request);
+        self::assertSame(200, $response->getStatusCode());
+        self::assertSame(
+            '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01',
+            $dispatcher->telemetry?->traceparent(),
+        );
+    }
+
     public function testNonActorReservedAttributeIsIgnored(): void
     {
         $dispatcher = new RecordingDispatcher(OperationResult::completed(new WelcomeShown('ok')));
@@ -602,6 +641,36 @@ final class OperationRequestHandlerTest extends TestCase
         $this->expectException(LogicException::class);
 
         $handler->handle($this->request('GET', '/welcome'));
+    }
+
+    public function testDeferredAcceptorReceivesExactRequestTenant(): void
+    {
+        $tenant = new \BlackOps\Core\TenantRef('account', 'tenant-deferred');
+        $acceptor = new CompletedDeferredAcceptor();
+        $handler = new OperationRequestHandler(
+            new HttpRouteRegistry([new HttpOperationRoute('GET', '/welcome', new ShowWelcome(), WelcomeValue::class)]),
+            new OperationValueBinder(),
+            new FailingDispatcher(),
+            new JsonOperationResponder($this->psr17, $this->psr17),
+            $this->psr17,
+            new NoopValidationRejectionRecorder(),
+            $acceptor,
+        );
+        $this->expectException(LogicException::class);
+        try {
+            $handler->handle(
+                $this
+                    ->request('GET', '/welcome')
+                    ->withAttribute(\BlackOps\Core\TenantRef::class, $tenant)
+                    ->withHeader('traceparent', '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01'),
+            );
+        } finally {
+            self::assertSame($tenant, $acceptor->tenant);
+            self::assertSame(
+                '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01',
+                $acceptor->telemetry?->traceparent(),
+            );
+        }
     }
 
     public function testManualValidationRejectionKeepsLegacyResponseShape(): void
@@ -905,7 +974,11 @@ final class OperationRequestHandlerTest extends TestCase
     ): OperationRequestHandler {
         $connection = $this->connection();
         $connection->executeStatement('DROP SCHEMA IF EXISTS ' . self::SCHEMA . ' CASCADE');
-        $journal = new PostgreSqlCanonicalJournalStore($connection, self::SCHEMA);
+        $journal = new PostgreSqlCanonicalJournalStore(
+            $connection,
+            \BlackOps\Tests\Transport\PostgreSql\PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        );
         $journal->migrate();
         $dispatcher = $this->inlineDispatcher(
             $operationHandler,
@@ -934,7 +1007,11 @@ final class OperationRequestHandlerTest extends TestCase
     {
         $connection = $this->connection();
         $connection->executeStatement('DROP SCHEMA IF EXISTS ' . self::SCHEMA . ' CASCADE');
-        $journal = new PostgreSqlCanonicalJournalStore($connection, self::SCHEMA);
+        $journal = new PostgreSqlCanonicalJournalStore(
+            $connection,
+            \BlackOps\Tests\Transport\PostgreSql\PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        );
         $journal->migrate();
         $dispatcher = $this->inlineDispatcher(
             $operationHandler,
@@ -1270,6 +1347,8 @@ final readonly class FixedDispatcher implements Dispatcher
         OperationValue $value,
         ?ActorContext $actorContext = null,
         ?IdempotencyKey $idempotencyKey = null,
+        ?\BlackOps\Core\TenantRef $tenant = null,
+        ?\BlackOps\Telemetry\TelemetryContext $telemetry = null,
     ): OperationResult {
         return $this->result;
     }
@@ -1282,6 +1361,8 @@ final readonly class FailingDispatcher implements Dispatcher
         OperationValue $value,
         ?ActorContext $actorContext = null,
         ?IdempotencyKey $idempotencyKey = null,
+        ?\BlackOps\Core\TenantRef $tenant = null,
+        ?\BlackOps\Telemetry\TelemetryContext $telemetry = null,
     ): OperationResult {
         self::fail('Dispatcher should not be called.');
     }
@@ -1306,10 +1387,24 @@ final class CountingIdempotencyStore implements IdempotencyStore
         ExecutionStrategy $strategy,
         DateTimeImmutable $createdAt,
         DateTimeImmutable $expiresAt,
+        string $operationType = 'test.operation',
+        int $applicationSchemaVersion = 1,
+        ?\BlackOps\Core\TenantRef $tenant = null,
     ): IdempotencyClaimResult {
         ++$this->claims;
 
-        return $this->inner->claim($scope, $key, $fingerprint, $operationId, $strategy, $createdAt, $expiresAt);
+        return $this->inner->claim(
+            $scope,
+            $key,
+            $fingerprint,
+            $operationId,
+            $strategy,
+            $createdAt,
+            $expiresAt,
+            $operationType,
+            $applicationSchemaVersion,
+            $tenant,
+        );
     }
 
     public function seedClaim(
@@ -1320,8 +1415,22 @@ final class CountingIdempotencyStore implements IdempotencyStore
         ExecutionStrategy $strategy,
         DateTimeImmutable $createdAt,
         DateTimeImmutable $expiresAt,
+        string $operationType = 'test.operation',
+        int $applicationSchemaVersion = 1,
+        ?\BlackOps\Core\TenantRef $tenant = null,
     ): IdempotencyClaimResult {
-        return $this->inner->claim($scope, $key, $fingerprint, $operationId, $strategy, $createdAt, $expiresAt);
+        return $this->inner->claim(
+            $scope,
+            $key,
+            $fingerprint,
+            $operationId,
+            $strategy,
+            $createdAt,
+            $expiresAt,
+            $operationType,
+            $applicationSchemaVersion,
+            $tenant,
+        );
     }
 
     public function terminalize(
@@ -1365,8 +1474,22 @@ final class AttachFailureIdempotencyStore implements IdempotencyStore
         ExecutionStrategy $strategy,
         DateTimeImmutable $createdAt,
         DateTimeImmutable $expiresAt,
+        string $operationType,
+        int $applicationSchemaVersion,
+        ?\BlackOps\Core\TenantRef $tenant = null,
     ): IdempotencyClaimResult {
-        return $this->inner->claim($scope, $key, $fingerprint, $operationId, $strategy, $createdAt, $expiresAt);
+        return $this->inner->claim(
+            $scope,
+            $key,
+            $fingerprint,
+            $operationId,
+            $strategy,
+            $createdAt,
+            $expiresAt,
+            $operationType,
+            $applicationSchemaVersion,
+            $tenant,
+        );
     }
 
     public function terminalize(
@@ -1397,6 +1520,8 @@ final class RecordingDispatcher implements Dispatcher
 {
     public ?OperationValue $value = null;
     public ?ActorContext $actorContext = null;
+    public ?\BlackOps\Core\TenantRef $tenant = null;
+    public ?\BlackOps\Telemetry\TelemetryContext $telemetry = null;
 
     public function __construct(
         private readonly OperationResult $result,
@@ -1407,16 +1532,23 @@ final class RecordingDispatcher implements Dispatcher
         OperationValue $value,
         ?ActorContext $actorContext = null,
         ?IdempotencyKey $idempotencyKey = null,
+        ?\BlackOps\Core\TenantRef $tenant = null,
+        ?\BlackOps\Telemetry\TelemetryContext $telemetry = null,
     ): OperationResult {
         $this->value = $value;
         $this->actorContext = $actorContext;
+        $this->tenant = $tenant;
+        $this->telemetry = $telemetry;
 
         return $this->result;
     }
 }
 
-final readonly class CompletedDeferredAcceptor implements DeferredOperationAcceptor
+final class CompletedDeferredAcceptor implements DeferredOperationAcceptor
 {
+    public ?\BlackOps\Core\TenantRef $tenant = null;
+    public ?\BlackOps\Telemetry\TelemetryContext $telemetry = null;
+
     public function accepts(Operation $definition): bool
     {
         return true;
@@ -1427,7 +1559,11 @@ final readonly class CompletedDeferredAcceptor implements DeferredOperationAccep
         OperationValue $value,
         ?ActorContext $actorContext = null,
         ?IdempotencyKey $idempotencyKey = null,
+        ?\BlackOps\Core\TenantRef $tenant = null,
+        ?\BlackOps\Telemetry\TelemetryContext $telemetry = null,
     ): \BlackOps\Core\Execution\DeferredAcknowledgement|OperationResult {
+        $this->tenant = $tenant;
+        $this->telemetry = $telemetry;
         return OperationResult::completed();
     }
 }
@@ -1439,13 +1575,20 @@ final readonly class NoopValidationRejectionRecorder implements ValidationReject
         return [];
     }
 
-    public function rejectBinding(Operation $definition, array $violations): OperationId
-    {
+    public function rejectBinding(
+        Operation $definition,
+        array $violations,
+        ?\BlackOps\Telemetry\TelemetryContext $telemetry = null,
+    ): OperationId {
         self::fail('Binding rejection should not be recorded.');
     }
 
-    public function rejectValue(Operation $definition, OperationValue $value, array $violations): OperationId
-    {
+    public function rejectValue(
+        Operation $definition,
+        OperationValue $value,
+        array $violations,
+        ?\BlackOps\Telemetry\TelemetryContext $telemetry = null,
+    ): OperationId {
         self::fail('Value rejection should not be recorded.');
     }
 }

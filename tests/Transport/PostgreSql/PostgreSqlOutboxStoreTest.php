@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace BlackOps\Tests\Transport\PostgreSql;
 
+use BlackOps\Core\Exception\DeferredTransportException;
 use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Core\Identifier\OutboxRecordId;
+use BlackOps\Core\TenantRef;
+use BlackOps\Internal\Codec\ReflectionJsonOperationCodec;
 use BlackOps\Transport\PostgreSql\PostgreSqlOutboxRecord;
 use BlackOps\Transport\PostgreSql\PostgreSqlOutboxSchema;
 use BlackOps\Transport\PostgreSql\PostgreSqlOutboxStore;
@@ -31,7 +34,7 @@ final class PostgreSqlOutboxStoreTest extends TestCase
             'driver' => 'pdo_pgsql',
         ]);
         $this->connection->executeStatement('DROP SCHEMA IF EXISTS outbox_test CASCADE');
-        new PostgreSqlOutboxStore($this->connection, 'outbox_test')->migrate();
+        $this->store()->migrate();
     }
 
     protected function tearDown(): void
@@ -43,19 +46,22 @@ final class PostgreSqlOutboxStoreTest extends TestCase
     public function testInsertPersistsPendingRecordAndSensitiveColumnsAreNotAdded(): void
     {
         $recorded = new DateTimeImmutable('2026-07-24T01:02:03.123456+00:00');
+        $operationId = '019f45b2-7c2d-7abc-8def-0123456789ac';
         $record = new PostgreSqlOutboxRecord(
             OutboxRecordId::fromString('019f45b2-7c2d-7abc-8def-0123456789ab'),
-            OperationId::fromString('019f45b2-7c2d-7abc-8def-0123456789ac'),
+            OperationId::fromString($operationId),
             'mail.send',
             1,
             '{"address":"opaque"}',
-            '{"operationId":"opaque"}',
+            '{"operation_id":"'
+            . $operationId
+            . '","received_at":"2026-07-24T01:02:03.123456Z","correlation_id":"019f45b2-7c2d-7abc-8def-0123456789ad","causation_id":null,"attempt":null,"deadline":null,"actors":null,"idempotency_key_hash":null,"schedule":null}',
             $recorded,
             $recorded,
             'app',
         );
 
-        new PostgreSqlOutboxStore($this->connection, 'outbox_test')->insert($record);
+        $this->store()->insert($record);
 
         $row = $this->connection->fetchAssociative('SELECT * FROM "outbox_test"."outbox_records"');
         self::assertSame('pending', $row['state']);
@@ -85,7 +91,7 @@ final class PostgreSqlOutboxStoreTest extends TestCase
     public function testDuplicateOperationIsRejectedByDatabase(): void
     {
         $recorded = new DateTimeImmutable('2026-07-24T01:02:03.123456+00:00');
-        $store = new PostgreSqlOutboxStore($this->connection, 'outbox_test');
+        $store = $this->store();
         $store->insert($this->record(
             '019f45b2-7c2d-7abc-8def-0123456789ab',
             '019f45b2-7c2d-7abc-8def-0123456789ac',
@@ -102,7 +108,7 @@ final class PostgreSqlOutboxStoreTest extends TestCase
 
     public function testDatabaseAcceptsSentStateUpdate(): void
     {
-        $store = new PostgreSqlOutboxStore($this->connection, 'outbox_test');
+        $store = $this->store();
         $store->insert($this->record(
             '019f45b2-7c2d-7abc-8def-0123456789ab',
             '019f45b2-7c2d-7abc-8def-0123456789ac',
@@ -118,7 +124,7 @@ final class PostgreSqlOutboxStoreTest extends TestCase
 
     public function testDatabaseAcceptsStateVersionTwoUpdate(): void
     {
-        $store = new PostgreSqlOutboxStore($this->connection, 'outbox_test');
+        $store = $this->store();
         $store->insert($this->record(
             '019f45b2-7c2d-7abc-8def-0123456789ab',
             '019f45b2-7c2d-7abc-8def-0123456789ac',
@@ -207,7 +213,12 @@ final class PostgreSqlOutboxStoreTest extends TestCase
             'outbox_test',
         );
         $this->applyMigration($old);
-        $store = new PostgreSqlOutboxStore($this->connection, 'outbox_test');
+        $this->connection->executeStatement('ALTER TABLE outbox_test.outbox_records
+            ADD COLUMN tenant_type text NULL,
+            ADD COLUMN tenant_id text NULL,
+            ADD COLUMN origin_actor_type text NULL,
+            ADD COLUMN origin_actor_id text NULL');
+        $store = $this->store();
         $store->insert($this->record(
             '019f45b2-7c2d-7abc-8def-0123456789ab',
             '019f45b2-7c2d-7abc-8def-0123456789ac',
@@ -245,14 +256,14 @@ final class PostgreSqlOutboxStoreTest extends TestCase
 
     public function testTwoConnectionsClaimOnceAndExpiredLeaseReclaimsWithMonotonicFence(): void
     {
-        $store = new PostgreSqlOutboxStore($this->connection, 'outbox_test');
+        $store = $this->store();
         $store->insert($this->record(
             '019f45b2-7c2d-7abc-8def-0123456789ab',
             '019f45b2-7c2d-7abc-8def-0123456789ac',
             new DateTimeImmutable('2026-07-24T01:02:03.123456+00:00'),
         ));
         $otherConnection = $this->connection();
-        $other = new PostgreSqlOutboxStore($otherConnection, 'outbox_test');
+        $other = $this->store($otherConnection);
         $now = new DateTimeImmutable('2026-07-24T01:02:04+00:00');
         $first = $store->claimBatch('relay-a', 1, $now, 60);
         self::assertCount(1, $first);
@@ -268,7 +279,7 @@ final class PostgreSqlOutboxStoreTest extends TestCase
 
     public function testOverlappingClaimTransactionsSkipLockedRowsWithoutDuplicateOwnership(): void
     {
-        $store = new PostgreSqlOutboxStore($this->connection, 'outbox_test');
+        $store = $this->store();
         $store->insert($this->record(
             '019f45b2-7c2d-7abc-8def-0123456789ab',
             '019f45b2-7c2d-7abc-8def-0123456789ac',
@@ -284,7 +295,7 @@ final class PostgreSqlOutboxStoreTest extends TestCase
             'SELECT record_id FROM "outbox_test"."outbox_records" ORDER BY record_id LIMIT 1 FOR UPDATE',
         );
         $otherConnection = $this->connection();
-        $other = new PostgreSqlOutboxStore($otherConnection, 'outbox_test');
+        $other = $this->store($otherConnection);
         $now = new DateTimeImmutable('2026-07-24T01:02:04+00:00');
         $otherClaims = $other->claimBatch('relay-b', 2, $now, 60);
         self::assertCount(1, $otherClaims);
@@ -303,7 +314,7 @@ final class PostgreSqlOutboxStoreTest extends TestCase
 
     public function testExpiredHeartbeatIsRejectedWithoutMutatingLease(): void
     {
-        $store = new PostgreSqlOutboxStore($this->connection, 'outbox_test');
+        $store = $this->store();
         $store->insert($this->record(
             '019f45b2-7c2d-7abc-8def-0123456789ab',
             '019f45b2-7c2d-7abc-8def-0123456789ac',
@@ -328,8 +339,8 @@ final class PostgreSqlOutboxStoreTest extends TestCase
     {
         foreach (['sent', 'retry', 'dead'] as $settlement) {
             $this->connection->executeStatement('DROP SCHEMA IF EXISTS outbox_test CASCADE');
-            new PostgreSqlOutboxStore($this->connection, 'outbox_test')->migrate();
-            $store = new PostgreSqlOutboxStore($this->connection, 'outbox_test');
+            $this->store()->migrate();
+            $store = $this->store();
             $store->insert($this->record(
                 '019f45b2-7c2d-7abc-8def-0123456789ab',
                 '019f45b2-7c2d-7abc-8def-0123456789ac',
@@ -367,7 +378,7 @@ final class PostgreSqlOutboxStoreTest extends TestCase
 
     public function testRawFailureFingerprintIsRejectedWithoutStateMutation(): void
     {
-        $store = new PostgreSqlOutboxStore($this->connection, 'outbox_test');
+        $store = $this->store();
         $store->insert($this->record(
             '019f45b2-7c2d-7abc-8def-0123456789ab',
             '019f45b2-7c2d-7abc-8def-0123456789ac',
@@ -387,7 +398,7 @@ final class PostgreSqlOutboxStoreTest extends TestCase
 
     public function testClaimRejectsTransportEnvelopeIntegrityMismatchWithoutReturningPayload(): void
     {
-        $store = new PostgreSqlOutboxStore($this->connection, 'outbox_test');
+        $store = $this->store();
         $store->insert($this->record(
             '019f45b2-7c2d-7abc-8def-0123456789ab',
             '019f45b2-7c2d-7abc-8def-0123456789ac',
@@ -401,7 +412,7 @@ final class PostgreSqlOutboxStoreTest extends TestCase
 
     public function testDeadLetterRetryWritesAuditAndRejectsNonDeadLetter(): void
     {
-        $store = new PostgreSqlOutboxStore($this->connection, 'outbox_test');
+        $store = $this->store();
         $store->insert($this->record(
             '019f45b2-7c2d-7abc-8def-0123456789ab',
             '019f45b2-7c2d-7abc-8def-0123456789ac',
@@ -456,6 +467,189 @@ final class PostgreSqlOutboxStoreTest extends TestCase
         }
     }
 
+    public function testPayloadAndContextAreStoredAsSeparateBopdEnvelopes(): void
+    {
+        $this->store()->insert($this->record(
+            '019f45b2-7c2d-7abc-8def-0123456789ab',
+            '019f45b2-7c2d-7abc-8def-0123456789ac',
+            new DateTimeImmutable('2026-07-24T01:02:03.123456+00:00'),
+        ));
+        $row = $this->connection->fetchAssociative('SELECT encode(encoded_payload, \'hex\') AS payload, encode(encoded_context, \'hex\') AS context
+             FROM "outbox_test"."outbox_records"');
+        self::assertIsArray($row);
+        self::assertStringStartsWith('424f5044', (string) $row['payload']);
+        self::assertStringStartsWith('424f5044', (string) $row['context']);
+        self::assertStringNotContainsString('address', (string) $row['payload']);
+        self::assertStringNotContainsString('operation_id', (string) $row['context']);
+    }
+
+    public function testPayloadContextCiphertextSwapFailsClosedDuringClaim(): void
+    {
+        $store = $this->store();
+        $store->insert($this->record(
+            '019f45b2-7c2d-7abc-8def-0123456789ab',
+            '019f45b2-7c2d-7abc-8def-0123456789ac',
+            new DateTimeImmutable('2026-07-24T01:02:03.123456+00:00'),
+        ));
+        $this->connection->executeStatement('UPDATE "outbox_test"."outbox_records"
+             SET encoded_context = encoded_payload');
+        $this->expectException(DeferredTransportException::class);
+        $store->claimBatch('relay-a', 1, new DateTimeImmutable('2026-07-24T01:02:04+00:00'), 60);
+    }
+
+    public function testTagTamperAndUnknownKeyFailClosedWithoutSensitiveErrorDetails(): void
+    {
+        foreach (['tag', 'key'] as $tamper) {
+            $store = $this->store();
+            $store->insert($this->record(
+                '019f45b2-7c2d-7abc-8def-0123456789ab',
+                '019f45b2-7c2d-7abc-8def-0123456789ac',
+                new DateTimeImmutable('2026-07-24T01:02:03.123456+00:00'),
+            ));
+            if ($tamper === 'tag') {
+                $this->connection->executeStatement(
+                    'UPDATE "outbox_test"."outbox_records"
+                     SET encoded_payload = set_byte(encoded_payload, octet_length(encoded_payload) - 1,
+                         (get_byte(encoded_payload, octet_length(encoded_payload) - 1) + 1) % 256)',
+                );
+            } else {
+                $this->connection->executeStatement(
+                    'UPDATE "outbox_test"."outbox_records"
+                     SET encoded_payload = overlay(encoded_payload placing convert_to(\'unknown1\', \'UTF8\') from 9 for 8)',
+                );
+            }
+            try {
+                $store->claimBatch('relay-a', 1, new DateTimeImmutable('2026-07-24T01:02:04+00:00'), 60);
+                self::fail('Tampered outbox row was accepted.');
+            } catch (DeferredTransportException $exception) {
+                self::assertStringNotContainsString('outbox_test', $exception->getMessage());
+                self::assertStringNotContainsString('test-key', $exception->getMessage());
+                self::assertStringNotContainsString('tenant-', $exception->getMessage());
+            }
+            $this->connection->executeStatement('TRUNCATE "outbox_test"."outbox_records"');
+        }
+    }
+
+    public function testWrongRowAndTenantAndDecodedContextMismatchFailClosed(): void
+    {
+        $store = $this->store();
+        $store->insert(
+            new PostgreSqlOutboxRecord(
+                OutboxRecordId::fromString('019f45b2-7c2d-7abc-8def-0123456789ab'),
+                OperationId::fromString('019f45b2-7c2d-7abc-8def-0123456789ac'),
+                'mail.send',
+                1,
+                '{}',
+                '{"operation_id":"019f45b2-7c2d-7abc-8def-0123456789ad","received_at":"2026-07-24T01:02:03.123456Z","correlation_id":"019f45b2-7c2d-7abc-8def-0123456789ae","causation_id":null,"deadline":null,"actors":null,"idempotency_key_hash":null,"schedule":null}',
+                new DateTimeImmutable('2026-07-24T01:02:03.123456+00:00'),
+                new DateTimeImmutable('2026-07-24T01:02:03.123456+00:00'),
+                'app',
+            ),
+        );
+        try {
+            $store->claimBatch('relay-a', 1, new DateTimeImmutable('2026-07-24T01:02:04+00:00'), 60);
+            self::fail('Decoded context mismatch was accepted.');
+        } catch (DeferredTransportException $exception) {
+            self::assertStringNotContainsString('019f45b2-7c2d-7abc-8def-0123456789ad', $exception->getMessage());
+        }
+        $this->connection->executeStatement('TRUNCATE "outbox_test"."outbox_records"');
+        $store->insert(
+            new PostgreSqlOutboxRecord(
+                OutboxRecordId::fromString('019f45b2-7c2d-7abc-8def-0123456789ab'),
+                OperationId::fromString('019f45b2-7c2d-7abc-8def-0123456789ac'),
+                'mail.send',
+                1,
+                '{}',
+                '{"operation_id":"019f45b2-7c2d-7abc-8def-0123456789ac","received_at":"2026-07-24T01:02:03.123456Z","correlation_id":"019f45b2-7c2d-7abc-8def-0123456789ae","causation_id":null,"deadline":null,"actors":null,"idempotency_key_hash":null,"schedule":null,"tenant":{"type":"customer","id":"tenant-a"}}',
+                new DateTimeImmutable('2026-07-24T01:02:03.123456+00:00'),
+                new DateTimeImmutable('2026-07-24T01:02:03.123456+00:00'),
+                'app',
+                tenant: new TenantRef('customer', 'tenant-a'),
+            ),
+        );
+        $this->connection->executeStatement('UPDATE "outbox_test"."outbox_records" SET tenant_id = \'tenant-b\'');
+        try {
+            $store->claimBatch('relay-a', 1, new DateTimeImmutable('2026-07-24T01:02:04+00:00'), 60);
+            self::fail('Wrong tenant outbox row was accepted.');
+        } catch (DeferredTransportException $exception) {
+            self::assertStringNotContainsString('tenant-a', $exception->getMessage());
+            self::assertStringNotContainsString('tenant-b', $exception->getMessage());
+        }
+    }
+
+    public function testWrongRowAndValidContextTenantOrOriginMismatchesRollBackLease(): void
+    {
+        $store = $this->store();
+        $store->insert($this->record(
+            '019f45b2-7c2d-7abc-8def-0123456789ab',
+            '019f45b2-7c2d-7abc-8def-0123456789ac',
+            new DateTimeImmutable('2026-07-24T01:02:03.123456+00:00'),
+        ));
+        $store->insert($this->record(
+            '019f45b2-7c2d-7abc-8def-0123456789ad',
+            '019f45b2-7c2d-7abc-8def-0123456789ae',
+            new DateTimeImmutable('2026-07-24T01:02:03.123456+00:00'),
+        ));
+        $this->connection->executeStatement('UPDATE "outbox_test"."outbox_records" a
+             SET encoded_payload = b.encoded_payload
+             FROM "outbox_test"."outbox_records" b
+             WHERE a.record_id <> b.record_id');
+        try {
+            $store->claimBatch('relay-a', 2, new DateTimeImmutable('2026-07-24T01:02:04+00:00'), 60);
+            self::fail('Wrong-row outbox ciphertext was accepted.');
+        } catch (DeferredTransportException $exception) {
+            self::assertStringNotContainsString('address', $exception->getMessage());
+            self::assertSame(
+                'pending',
+                $this->connection->fetchOne(
+                    'SELECT state FROM "outbox_test"."outbox_records" ORDER BY record_id LIMIT 1',
+                ),
+            );
+            self::assertSame(
+                '0',
+                (string) $this->connection->fetchOne(
+                    'SELECT attempt_count FROM "outbox_test"."outbox_records" ORDER BY record_id LIMIT 1',
+                ),
+            );
+        }
+
+        $this->connection->executeStatement('TRUNCATE "outbox_test"."outbox_records"');
+        foreach ([
+            $this->contextJson('019f45b2-7c2d-7abc-8def-0123456789ac', new TenantRef('customer', 'tenant-b')),
+            $this->contextJson('019f45b2-7c2d-7abc-8def-0123456789ac', new TenantRef('customer', 'tenant-a'), [
+                'id' => 'origin-a',
+                'type' => 'user',
+            ]),
+        ] as $context) {
+            $store->insert(
+                new PostgreSqlOutboxRecord(
+                    OutboxRecordId::fromString('019f45b2-7c2d-7abc-8def-0123456789ab'),
+                    OperationId::fromString('019f45b2-7c2d-7abc-8def-0123456789ac'),
+                    'mail.send',
+                    1,
+                    '{}',
+                    $context,
+                    new DateTimeImmutable('2026-07-24T01:02:03.123456+00:00'),
+                    new DateTimeImmutable('2026-07-24T01:02:03.123456+00:00'),
+                    'app',
+                    tenant: new TenantRef('customer', 'tenant-a'),
+                ),
+            );
+            try {
+                $store->claimBatch('relay-a', 1, new DateTimeImmutable('2026-07-24T01:02:04+00:00'), 60);
+                self::fail('Decoded context subject mismatch was accepted.');
+            } catch (DeferredTransportException $exception) {
+                self::assertStringNotContainsString('tenant-a', $exception->getMessage());
+                self::assertStringNotContainsString('origin-a', $exception->getMessage());
+                self::assertSame(
+                    'pending',
+                    $this->connection->fetchOne('SELECT state FROM "outbox_test"."outbox_records"'),
+                );
+            }
+            $this->connection->executeStatement('TRUNCATE "outbox_test"."outbox_records"');
+        }
+    }
+
     /** @return PostgreSqlOutboxRecord */
     private function record(string $recordId, string $operationId, DateTimeImmutable $recorded): PostgreSqlOutboxRecord
     {
@@ -465,7 +659,9 @@ final class PostgreSqlOutboxStoreTest extends TestCase
             'mail.send',
             1,
             '{"address":"opaque"}',
-            '{"operationId":"opaque"}',
+            '{"operation_id":"'
+            . $operationId
+            . '","received_at":"2026-07-24T01:02:03.123456Z","correlation_id":"019f45b2-7c2d-7abc-8def-0123456789ad","causation_id":null,"attempt":null,"deadline":null,"actors":null,"idempotency_key_hash":null,"schedule":null}',
             $recorded,
             $recorded,
             'app',
@@ -475,6 +671,38 @@ final class PostgreSqlOutboxStoreTest extends TestCase
     private static function normalizeSql(string $sql): string
     {
         return (string) preg_replace('/\\s+/', ' ', trim($sql));
+    }
+
+    private function store(?Connection $connection = null): PostgreSqlOutboxStore
+    {
+        return new PostgreSqlOutboxStore(
+            $connection ?? $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
+            new ReflectionJsonOperationCodec(),
+            'outbox_test',
+        );
+    }
+
+    private function contextJson(string $operationId, ?TenantRef $tenant = null, ?array $origin = null): string
+    {
+        return json_encode([
+            'operation_id' => $operationId,
+            'received_at' => '2026-07-24T01:02:03.123456Z',
+            'correlation_id' => '019f45b2-7c2d-7abc-8def-0123456789af',
+            'causation_id' => null,
+            'attempt' => null,
+            'deadline' => null,
+            'actors' => $origin === null
+                ? null
+                : [
+                    'origin' => $origin,
+                    'authorization' => null,
+                    'execution' => ['id' => 'worker-a', 'type' => 'system'],
+                ],
+            'idempotency_key_hash' => null,
+            'schedule' => null,
+            ...($tenant === null ? [] : ['tenant' => ['type' => $tenant->type(), 'id' => $tenant->id()]]),
+        ], JSON_THROW_ON_ERROR);
     }
 
     private function applyMigration(object $migration): void

@@ -13,9 +13,12 @@ use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Core\Operation;
 use BlackOps\Core\OperationEnvelope;
 use BlackOps\Core\OperationValue;
+use BlackOps\Core\ScheduleContext;
+use BlackOps\Core\TenantRef;
 use BlackOps\Internal\Execution\ExecutionScopeProvider;
 use BlackOps\Internal\Logging\ExecutionScopedLogger;
 use BlackOps\Internal\Logging\MonologJsonlLoggerFactory;
+use BlackOps\Telemetry\TelemetryContext;
 use DateTimeImmutable;
 use InvalidArgumentException;
 use JsonException;
@@ -55,7 +58,7 @@ final class MonologJsonlLoggerFactoryTest extends TestCase
         self::assertSame(1, substr_count($contents, "\n"));
         self::assertStringEndsWith("\n", $contents);
         self::assertSame('application', $record['channel']);
-        self::assertSame('NOTICE', $record['level_name']);
+        self::assertSame('notice', $record['level']);
         self::assertSame('order persisted', $record['message']);
         self::assertSame(['orderId' => 'order-123'], $record['context']);
     }
@@ -70,7 +73,7 @@ final class MonologJsonlLoggerFactoryTest extends TestCase
 
         $record = $this->record($this->contents($stream));
         self::assertSame(MonologJsonlLoggerFactory::DEFAULT_CHANNEL, $record['channel']);
-        self::assertSame('INFO', $record['level_name']);
+        self::assertSame('info', $record['level']);
         self::assertSame('written', $record['message']);
         self::assertSame(LogLevel::INFO, MonologJsonlLoggerFactory::DEFAULT_LEVEL);
     }
@@ -89,6 +92,29 @@ final class MonologJsonlLoggerFactoryTest extends TestCase
         self::assertSame('first', $this->record($lines[0])['message']);
         self::assertSame('second', $this->record($lines[1])['message']);
         self::assertSame(2, substr_count($contents, "\n"));
+    }
+
+    public function testContextIsAlwaysAnObjectWhileNestedListsRemainLists(): void
+    {
+        $stream = $this->stream();
+        $logger = new MonologJsonlLoggerFactory()->create($stream, minimumLevel: LogLevel::DEBUG);
+
+        $logger->info('list context', ['one', 'two']);
+
+        $record = $this->record($this->contents($stream));
+        self::assertSame(['0' => 'one', '1' => 'two'], $record['context']);
+        self::assertIsArray($record['context']);
+    }
+
+    public function testEmptyContextUsesAnObjectWireShape(): void
+    {
+        $stream = $this->stream();
+        new MonologJsonlLoggerFactory()
+            ->create($stream)
+            ->info('empty context');
+
+        $decoded = json_decode($this->contents($stream), flags: JSON_THROW_ON_ERROR);
+        self::assertInstanceOf(stdClass::class, $decoded->context);
     }
 
     public function testWritesToFilePath(): void
@@ -148,16 +174,104 @@ final class MonologJsonlLoggerFactoryTest extends TestCase
         $contents = $this->contents($stream);
         $record = $this->record($contents);
         self::assertSame('operation log', $record['message']);
-        self::assertSame(self::ID, $record['context']['operation']['id']);
-        self::assertSame('logging.operation', $record['context']['operation']['type']);
-        self::assertSame(self::ID, $record['context']['operation']['attemptId']);
-        self::assertSame(Inline::class, $record['context']['operation']['strategy']);
-        self::assertSame('order-123', $record['context']['context']['orderId']);
-        self::assertSame('visible', $record['context']['context']['nested']['safe']);
-        self::assertArrayNotHasKey('password', $record['context']['context']);
-        self::assertArrayNotHasKey('accessToken', $record['context']['context']['nested']);
+        self::assertSame(self::ID, $record['operation']['id']);
+        self::assertSame('logging.operation', $record['operation']['type']);
+        self::assertArrayNotHasKey('attemptId', $record['operation']);
+        self::assertSame(self::ID, $record['attempt']['id']);
+        self::assertSame('inline', $record['operation']['strategy']);
+        self::assertSame('order-123', $record['context']['orderId']);
+        self::assertSame('visible', $record['context']['nested']['safe']);
+        self::assertArrayNotHasKey('password', $record['context']);
+        self::assertArrayNotHasKey('accessToken', $record['context']['nested']);
+        self::assertSame('application', $record['kind']);
+        self::assertSame('info', $record['level']);
+        self::assertArrayNotHasKey('datetime', $record);
+        self::assertArrayNotHasKey('level_name', $record);
+        self::assertArrayNotHasKey('extra', $record);
         self::assertStringNotContainsString('plaintext-password', $contents);
         self::assertStringNotContainsString('plaintext-token', $contents);
+        self::assertArrayNotHasKey('telemetry', $record);
+    }
+
+    public function testOperationTenantAndScheduleAreMaskedAndUtc(): void
+    {
+        $stream = $this->stream();
+        $scope = new ExecutionScopeProvider();
+        $logger = new ExecutionScopedLogger(
+            new MonologJsonlLoggerFactory()->create($stream, 'operations', LogLevel::DEBUG),
+            $scope,
+        );
+
+        $scope->run(
+            self::envelope(
+                new TenantRef('account', 'tenant-secret-id'),
+                new ScheduleContext(
+                    'reports.daily',
+                    new DateTimeImmutable('2026-07-11T09:10:11.123456', new \DateTimeZone('Asia/Tokyo')),
+                    'Asia/Tokyo',
+                ),
+            ),
+            static fn() => $logger->info('scheduled'),
+            'logging.operation',
+        );
+
+        $jsonl = $this->contents($stream);
+        $record = $this->record($jsonl);
+        self::assertSame('[masked]', $record['operation']['tenant']['id']);
+        self::assertSame('account', $record['operation']['tenant']['type']);
+        self::assertSame('reports.daily', $record['operation']['schedule']['name']);
+        self::assertSame('2026-07-11T00:10:11.123456Z', $record['operation']['schedule']['scheduledAt']);
+        self::assertStringNotContainsString('tenant-secret-id', $jsonl);
+    }
+
+    public function testFormatterKeepsTelemetryTopLevelAndSafe(): void
+    {
+        $stream = $this->stream();
+        $scope = new ExecutionScopeProvider();
+        $logger = new ExecutionScopedLogger(new MonologJsonlLoggerFactory()->create($stream), $scope);
+        $scope->run(
+            self::envelope(telemetry: new TelemetryContext('00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01')),
+            static fn() => $logger->info('telemetry'),
+            'logging.operation',
+        );
+        $record = $this->record($this->contents($stream));
+        self::assertSame(
+            [
+                'traceId' => '4bf92f3577b34da6a3ce929d0e0e4736',
+                'spanId' => '00f067aa0ba902b7',
+                'sampled' => true,
+            ],
+            $record['telemetry'],
+        );
+        self::assertArrayNotHasKey('telemetry', $record['operation']);
+    }
+
+    public function testFrameworkLineKeepsTelemetryTopLevelAndSafe(): void
+    {
+        $stream = $this->stream();
+        $scope = new ExecutionScopeProvider();
+        $logger = new ExecutionScopedLogger(new MonologJsonlLoggerFactory()->create($stream), $scope);
+        $scope->run(
+            self::envelope(telemetry: new TelemetryContext(
+                '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01',
+                'vendor=private-state',
+            )),
+            static fn() => $logger->frameworkError(\RuntimeException::class, false),
+            'logging.operation',
+        );
+        $jsonl = $this->contents($stream);
+        $record = $this->record($jsonl);
+        self::assertSame(
+            [
+                'traceId' => '4bf92f3577b34da6a3ce929d0e0e4736',
+                'spanId' => '00f067aa0ba902b7',
+                'sampled' => true,
+            ],
+            $record['telemetry'],
+        );
+        self::assertArrayNotHasKey('telemetry', $record['operation']);
+        self::assertStringNotContainsString('00-4bf92f3577b34da6a3ce929d0e0e4736', $jsonl);
+        self::assertStringNotContainsString('private-state', $jsonl);
     }
 
     public function testFactoryBoundaryExposesOnlyPsrLoggerAndScalarConfiguration(): void
@@ -206,8 +320,11 @@ final class MonologJsonlLoggerFactoryTest extends TestCase
         return $record;
     }
 
-    private static function envelope(): OperationEnvelope
-    {
+    private static function envelope(
+        ?TenantRef $tenant = null,
+        ?ScheduleContext $schedule = null,
+        ?TelemetryContext $telemetry = null,
+    ): OperationEnvelope {
         return new OperationEnvelope(
             new MonologLoggingOperation(),
             new MonologLoggingValue(),
@@ -220,6 +337,9 @@ final class MonologJsonlLoggerFactoryTest extends TestCase
                     1,
                     new DateTimeImmutable('2026-07-11T00:00:01Z'),
                 ),
+                schedule: $schedule,
+                tenant: $tenant,
+                telemetry: $telemetry,
             ),
             new Inline(),
         );

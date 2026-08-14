@@ -1,6 +1,2264 @@
 # Orchestration State
 
-Updated At: 2026-07-27T08:06:27+09:00
+Updated At: 2026-08-14T10:21:33+09:00
+
+## P22-003D Documentation Review Passed — Commit Approved
+
+```text
+2026-08-14T10:21:33+09:00
+Independent Documentation Reviewer returned P1=0／P2=0／P3=0 after one parent-management synchronization cycle and permitted the P22-003D mode-only Correction Commit. Review independently confirmed staged Source is only Runtime Consumer mode 100644 to 100755 with 0 insertions／deletions and identical HEAD／index／worktree blob 8b82505b2da9b14014a20836a42137d33e6042fd; no Workflow／guard／script content change. Worker read-only index error and Orchestrator approved mechanical update are accurately recorded. Permission extends only through the mode-only correction plus synchronized management Commit; no Push／PR mutation／CI rerun／merge／Acceptance／publication. The Commit becomes a new candidate and complete Local Gate restarts without evidence reuse.
+```
+
+## P22-003D Orchestrator Review Passed — Documentation Review Pending
+
+```text
+2026-08-14T10:18:00+09:00
+Orchestrator independently reviewed P22-003D. Staged Source diff has 0 insertions／0 deletions and only old mode 100644／new mode 100755 for the Runtime Consumer; blob remains exact 8b82505b2da9b14014a20836a42137d33e6042fd from 96383e1. Shell syntax, version-baseline, management-ID, staged/unstaged diff checks, and scope review pass. Worker made no Commit／Push／PR mutation; Orchestrator preserved the worker's read-only index error and applied only the approved mechanical Git index update. Independent Documentation Review is next. P22-003D／P22-003 remain unaccepted; no workflow rerun／branch update／merge／publication／Deploy.
+```
+
+## P22-003D Mode-Only Update Applied — Review Pending
+
+```text
+2026-08-14T10:16:52+09:00
+After the worker's exact `.git/index.lock` read-only failure, Orchestrator used the approved `git add --chmod=+x` path. Staged diff is mode-only 100644 to 100755 for tests/Consumer/framework-update-runtime.sh with unchanged blob 8b82505b2da9b14014a20836a42137d33e6042fd, identical to 96383e1. Independent focused checks pass: all Consumer shell syntax, version-baseline stable=1.1.0/candidate=1.2.0, management-ID guard, staged/unstaged git diff checks, index mode, and blob equality. P22-003D is Review Pending; no Commit／Push／PR mutation／workflow rerun. A reviewed Commit becomes the next candidate and restarts the complete Local／same-SHA Remote gate. P22-003 remains In Progress and unaccepted; no merge／publication／Deploy.
+```
+
+## P22-003D Worker Mode Update Blocked — Review Pending
+
+```text
+2026-08-14T10:15:47+09:00
+Worker attempted the required mode-only `git update-index --chmod=+x tests/Consumer/framework-update-runtime.sh`, but the managed sandbox rejected `.git/index.lock` creation with `Read-only file system`; index mode remains 100644. No Source blob/content changed: worktree hash and `96383e1` blob both equal `8b82505b2da9b14014a20836a42137d33e6042fd`. Focused checks pass: git ls-files/hash checks, all Consumer shell syntax, version-baseline, management-ID guard, and git diff --check. Report records the exact blocker and no Commit／Push／PR mutation occurred. Orchestrator should apply the already approved index update path, rerun mode checks, then independently review. P22-003 remains In Progress and unaccepted; no workflow rerun／PR mutation／Tag／Release／publication／Deploy.
+```
+
+## P22-003D Runtime Consumer Executable Mode Correction Started
+
+```text
+2026-08-14T10:00:09+09:00
+User explicitly approved the bounded mode-only correction for same-SHA CI Quality failure 31719526793. P22-003D permits only tests/Consumer/framework-update-runtime.sh Git index mode 100644 to 100755 with unchanged blob/content plus its Report/STATE. Implementation is delegated to configured Luna High worker with no Commit／Push／PR mutation before independent Orchestrator and Documentation Review. Any correction Commit becomes a new P22-003 candidate and restarts the complete Local／same-SHA Remote gate without evidence reuse. P22-003 remains In Progress and unaccepted. No workflow rerun／main Push／PR merge／Tag／Release／Packagist／Skeleton publication／Deploy.
+```
+
+## P22-003 Replacement Same-SHA Remote CI Failed — Mode Correction Approval Pending
+
+```text
+2026-08-14T02:55:56+09:00
+Independent local-gate checkpoint re-review returned P1=0／P2=0／P3=0 and permitted exact 96383e1 candidate branch update plus CI monitoring only. The explicit SHA refspec updated the existing branch from 577cc224 to 96383e1; Draft PR #3 live head is exact 96383e1. Documentation delivery 31719526552 passed artifact build and PR preview deployment; main production deploy skipped. CI 31719526793 passed Community Board clean install／full-stack, Frontend, Runtime Consumer, and Website, but Quality failed because version-baseline requires the Runtime Consumer executable while Git index mode is 100644. WSL2 exposed local 0755 with core.filemode=false, explaining the false local PASS. Bounded correction is Git mode-only 100644 to 100755 without weakening the guard; it requires explicit approval, Task Packet, Luna High implementation, independent review, new candidate Commit, and complete Local／Remote restart. P22-003 remains In Progress and unaccepted. No workflow rerun／main Push／PR merge／Tag／Release／Packagist／Skeleton publication／production Deploy.
+```
+
+## P22-003 Replacement Candidate Complete Local Gate Passed
+
+```text
+2026-08-14T00:51:01+09:00
+Replacement Final Fixed Candidate 96383e1bbe1a0914d1eddc9e1dea160042804f7c completed the complete restarted P22-003 Local Gate without reuse of 577cc224 evidence. Composer strict／exact Framework export／Mago format・strict lint・baseline verification・analyze／Full PHPUnit 2,317 tests・9,444 assertions／Deptrac 858/858 with 0 violations・skipped・uncovered all pass. All 23 top-level Consumers, six Community Board CI-equivalent journeys, corrected Runtime Consumer, Frontend, Website 79 tests／41-page check／42-page build, deterministic Skeleton split fa5e8247fc8cf789cf73685e5be59cc498ffb4ce, normal／no-scripts create-project, and repository guards pass. Generated dependencies/build outputs were removed and Compose resources stopped. Draft PR #3 remains on historical 577cc224 pending independent Documentation Review of this checkpoint; next is exact-SHA branch update and same-SHA Remote CI. P22-003 remains In Progress and unaccepted. No main Push retry／PR merge／Tag／Release／Packagist／Skeleton publication／Deploy.
+```
+
+## P22-003C Committed — Replacement Candidate 96383e1
+
+```text
+2026-08-13T23:23:50+09:00
+Orchestrator committed the independently reviewed P22-003C correction as 96383e1bbe1a0914d1eddc9e1dea160042804f7c (`fix: close remote CI environment contracts`). This exact Commit is the replacement P22-003 Final Fixed Candidate; 577cc224 Local／Remote evidence is historical and cannot satisfy acceptance. The complete Local Gate restarts from its first command at 96383e1, followed by same-SHA PR-required Remote CI, final Documentation Review, and Orchestrator acceptance. Draft PR #3 still points to historical 577cc224 until the replacement candidate passes the complete Local Gate. P22-003 remains In Progress and unaccepted. No Push after Commit／PR mutation／merge／Tag／Release／Packagist／Skeleton publication／Deploy.
+```
+
+## P22-003C Accepted — Correction Commit Approved
+
+```text
+2026-08-13T23:14:41+09:00
+Independent Documentation Reviewer completed the corrected P22-003C review with P1=0／P2=0／P3=0 and permitted the Correction Commit. Review confirmed Quality-only fetch-depth 0, disposable-repository local Git tagger identity, exactly-one PHP opening-tag normalization, no skip／retry／allow-failure, new-candidate Local／Remote gate reset, and publication prohibition. P22-003C is Accepted; the next reviewed Commit becomes the new P22-003 candidate and supersedes 577cc224 for acceptance evidence. P22-003 remains In Progress and unaccepted. No Commit yet／Push／PR mutation／merge／Tag／Release／Packagist／Skeleton publication／Deploy.
+```
+
+## P22-003C Orchestrator Review Passed — Documentation Review Pending
+
+```text
+2026-08-13T22:44:54+09:00
+Orchestrator independently reviewed the exact three Source changes and reproduced the failed Remote contracts. PASS: Consumer shell syntax, version-baseline stable=1.1.0/candidate=1.2.0, Website 79/79, PHP management-ID guard, git diff check, and complete Runtime Consumer with system/global Git config disabled; Runtime completed Stable e3df5576 -> candidate 577cc224, 11 migrations, positive／negative HTTP／Worker lanes, source invariant, and cleanup. The worker's initial Mago format failure was caused only by five Git-ignored files under tests/Frontend/fixture/var/build; the CI-equivalent Frontend clean command removed them and exact Mago format check now passes without tracked Source change. Diff remains bounded to Quality fetch-depth 0, disposable-repository local Git identity, and one-opening-tag Website test normalization. Independent Documentation Review is next; no Commit／Push／PR mutation／Tag／Release／Packagist／Skeleton publication／Deploy. P22-003C and P22-003 remain unaccepted.
+```
+
+## P22-003C Worker Implementation Complete — Review Pending
+
+```text
+2026-08-13T22:34:27+09:00
+P22-003C Luna High worker changed exactly the three allowed Source files: Quality checkout now uses fetch-depth 0, the Runtime Consumer configures local-only Git tagger identity in its disposable Framework clone, and guide-code PHP lint preserves existing opening tags while prefixing fragments. Focused checks pass: all Consumer Bash syntax, version-baseline stable=1.1.0/candidate=1.2.0, Website 79/79, management-ID guard, and git diff --check. With GIT_CONFIG_NOSYSTEM=1 and GIT_CONFIG_GLOBAL=/dev/null, the escalated Runtime Consumer passed the full Stable-to-candidate journey and cleanup. Mago format check reports five existing unformatted PHP files outside the Packet's allowed Source list; no out-of-scope file was changed. No Commit／Push／PR mutation／Tag／Release／Packagist／Skeleton publication／Deploy. Orchestrator independent review, correction Commit, complete Local Gate restart, same-SHA Remote CI, final Documentation Review, and P22-003 acceptance remain pending.
+```
+
+## P22-003C Remote CI Environment Contract Correction Started
+
+```text
+2026-08-13T22:28:49+09:00
+User explicitly approved the bounded Remote CI correction plan. Orchestrator created P22-003C for exactly three Source files: CI Quality full-history checkout, Runtime Consumer disposable-repository Git identity, and Guide PHP opening-tag normalization. Production PHP／Public API／Guide正文 are out of scope. Implementation is delegated to configured Luna High worker with no Commit／Push／PR mutation before independent Orchestrator review. Any reviewed correction Commit supersedes candidate 577cc224 and requires the complete P22-003 Local Gate plus same-SHA Remote CI to restart from the new exact SHA. Draft PR #3 remains open and unmerged. P22-003 remains In Progress and unaccepted. No main Push retry／Tag／Release／Packagist／Skeleton publication／Deploy.
+```
+
+## P22-003 Same-SHA Remote CI Failed — Correction Approval Pending
+
+```text
+2026-08-13T22:09:47+09:00
+The separately authorized direct Push of main was rejected without remote mutation by active GitHub Repository Rule `Changes must be made through a pull request.` Orchestrator did not retry the prohibited path. Exact candidate 577cc224e0628ccbb9d91027ca214a4625a5228a was pushed to agent/p22-003-stable-1-2-release-candidate and Draft PR #3 was opened; the seven uncommitted management files were not included. Same-SHA PR runs completed FAILURE: CI 31693960894 and Documentation delivery 31693960994. Community Board clean install／full-stack and Frontend passed. Runtime Consumer failed because its disposable Git repository lacked tagger identity; Quality failed because the shallow checkout lacked Stable tag 1.1.0; Website and Documentation delivery failed because guide-code.test.mjs unconditionally prepended a PHP opening tag to outbox examples that already contain one. A bounded Workflow／Consumer／Website-test correction would change Candidate Source, so 577cc224 cannot be accepted and the complete Local Gate plus same-SHA Remote CI must restart from a reviewed correction Commit. Per CI-fix contract, implementation awaits explicit user approval and a scoped Task Packet. P22-003 remains In Progress and unaccepted. No main merge／Tag／Release／Packagist／Skeleton publication／Deploy.
+```
+
+## P22-003 Local-gate Documentation Checkpoint Passed
+
+```text
+2026-08-13T18:30:42+09:00
+Independent Documentation Reviewer rechecked the seven management files after local-gate closeout synchronization and returned P1=0／P2=0／P3=0. Task／Report／Specification 103／TODO／STATE consistently record complete Local Gate PASS at replacement candidate 577cc224e0628ccbb9d91027ca214a4625a5228a, separately authorized Branch Push -> same-SHA Remote CI -> final Documentation Review -> Orchestrator acceptance, and publication prohibition until that sequence completes. The reviewer confirmed HEAD 577cc224, origin/main 267ffed9, candidate 0 behind／53 ahead, no same-SHA Actions, and a seven-management-file-only working tree with git diff check PASS. Requesting separate Branch Push authorization is now permitted; no Push authorization has been granted or exercised. P22-003 remains In Progress and unaccepted. No Push／Tag／Release／Packagist／Skeleton publication／Deploy.
+```
+
+## P22-003 Replacement Candidate Complete Local Gate Passed
+
+```text
+2026-08-13T18:11:30+09:00
+Replacement Final Fixed Candidate 577cc224e0628ccbb9d91027ca214a4625a5228a completed the complete local P22-003 gate. Composer strict／exact Framework export／Mago format・strict lint・analyze／Full PHPUnit 2,317 tests・9,444 assertions／Deptrac 858/858 with 0 violations・skipped・uncovered all pass. All 23 top-level Consumers, Community Board CI-equivalent preparation and journeys, Frontend, Website 79 tests／41-page check／42-page build, deterministic Skeleton split fa5e8247fc8cf789cf73685e5be59cc498ffb4ce, normal／no-scripts create-project, and repository guards pass. The first Scheduled Operation concurrency run exited 255 after creating both evaluator containers; cleanup completed and an immediate unchanged-source exact rerun passed CLI／recovery／concurrency, so no correction was made. Read-only refresh confirms origin/main 267ffed9, candidate 0 behind／53 ahead and absent from remote branches／Actions; Framework／Skeleton 1.2.0 Tag, GitHub Release, and Packagist versions remain absent. P22-003 remains In Progress pending separately authorized Branch Push, same-SHA Remote CI, and final Documentation Review. No secret value, Push／Tag／Release／Packagist／Skeleton publication／Deploy.
+```
+
+## P22-003 Replacement Candidate Local Gate Restart
+
+```text
+2026-08-13T10:30:36+09:00
+Orchestrator resumed from committed replacement candidate 577cc224e0628ccbb9d91027ca214a4625a5228a and reconciled AGENTS.md, STATE, the P22-003／P22-003B Task Packets and Reports, Specification 103, TODO, Git history, and the working tree. P22-003B remains Accepted; P22-003 remains In Progress. The complete local gate is restarting from its first required command with Consumers serialized. No implementation correction, Push／Tag／Release／Packagist／Skeleton publication／Deploy.
+```
+
+## P22-003B Accepted — Replacement Candidate 577cc224
+
+```text
+2026-08-13T03:37:40+09:00
+Orchestrator committed the independently reviewed D141／D142／P22-003B correction as 577cc224e0628ccbb9d91027ca214a4625a5228a (`fix: close release architecture boundaries`). The immediate post-commit exact Framework package export passes: Git and Composer regular-file inventories match, required public ConfigurationFailure.php is present, both archives validate, and production autoload generation succeeds. P22-003B is Accepted; 08ad61f and earlier candidates are superseded. P22-003 remains In Progress and the complete local gate restarts from 577cc224; same-SHA Remote CI requires separate Push authorization. No Push／Tag／Release／Packagist／Skeleton publication／Deploy.
+```
+
+## P22-003B Documentation Review Passed — Commit Approved
+
+```text
+2026-08-13T03:36:23+09:00
+Independent Documentation Reviewer returned P1=0／P2=0／P3=0 and permitted the replacement candidate Commit. The review confirmed D142 Option B／Specification 16／Deptrac alignment, exactly two order-independent guarded non-trivial SCC sets, five non-overlapping facade implementation collectors, forbidden generic dependency and waiver absence, and truthful pre-commit versus post-commit package export evidence. Browser-visible checks are Not Verified because no layout changed. Commit is permitted only with immediate post-commit exact Framework package export PASS; P22-003B／P22-003 remain unaccepted until their remaining gates complete. No Push／Tag／Release／Packagist／Skeleton publication／Deploy.
+```
+
+## P22-003B Package Export Exact Inventory Boundary
+
+```text
+2026-08-13T03:18:30+09:00
+Framework package export now validates required public `src/Core/Exception/ConfigurationFailure.php` and compares sorted regular-file inventories of Git and Composer archives before autoload generation. Root/exclusion contract remains pre-commit PASS; the uncommitted candidate is expected to fail exact inventory because Git archive HEAD omits that new public file. Task／Report／Spec103／parent Report now record post-commit exact export rerun as mandatory acceptance. No Commit／Push／Tag／Release／Deploy.
+```
+
+## P22-003B D142 Orchestrator Validation Complete
+
+```text
+2026-08-13T03:17:48+09:00
+Orchestrator independently validated the final uncommitted D142 Option B correction. Deptrac 4.7.1 --no-cache passes 0 violations／0 skipped／0 uncovered／4,848 allowed／0 warnings/errors. The section-aware Version Guard passes and its shell/awk transitive-closure check exact-matches the only two permitted non-trivial SCCs: Core／Idempotency／Telemetry and Application／Auth／Http／Internal／InternalApplication／InternalAuth／InternalHttp／InternalIdempotency; InternalSapiRuntime remains one-way and outside both. Generic Application/Auth/Http -> Internal, Transport -> Internal, Internal -> Application, skip_violations, and ignore_uncovered are absent. Bash syntax, management-ID guard, and git diff check pass. P22-003B remains uncommitted and Review Pending for independent Documentation Review. No Push／Tag／Release／Packagist／Skeleton publication／Deploy.
+```
+
+## P22-003B D142 SCC Contract Guard Synchronized
+
+```text
+2026-08-13T03:12:25+09:00
+Orchestrator SCC analysis found exactly two non-trivial ruleset SCCs: Core／Idempotency／Telemetry, and the D142 facade/internal set Application／Auth／Http／Internal／InternalApplication／InternalAuth／InternalHttp／InternalIdempotency. Decision 142 and Specification 16 now define these measured sets precisely; InternalSapiRuntime is explicitly one-way and outside the SCC. Bounded now means Public facade direct permission cannot expand to catch-all Internal; only the five narrow collectors are entry points. version-baseline.sh computes and exact-matches both SCC sets using existing shell/awk only. Task／Report acceptance and evidence are synchronized. Guard and diff checks pass; no Commit／Push／Tag／Release／Deploy.
+```
+
+## P22-003B D142 Option B Implementation Complete — Review Pending
+
+```text
+2026-08-13T03:06:06+09:00
+D142 Option B implementation is complete without a Commit. Deptrac 4.7.1 with --no-cache passes 857/857 files, 0 violations, 0 skipped, 0 uncovered, 4,848 allowed, 0 warnings/errors. Five non-overlapping InternalApplication／InternalAuth／InternalHttp／InternalIdempotency／InternalSapiRuntime collectors now have source-measured explicit rules; generic Application/Auth/Http -> Internal permissions are removed. The section-aware version-baseline guard, no-waiver guard, management-ID guard, and git diff check pass. Specification 16, runtime dependency docs, Task／Report／TODO／STATE are synchronized. Independent Documentation Review, Orchestrator commit, and post-commit complete P22-003 gate restart remain pending. No Push／Tag／Release／Packagist／Skeleton publication／Deploy.
+```
+
+## P22-003B D142 Option B Implementation Start
+
+```text
+2026-08-13T02:58:20+09:00
+D142 Question 1 was answered B. The Decision is now Decided: preserve later-decided Public Application／Auth／Http facades and Runtime behavior, split InternalApplication／InternalAuth／InternalHttp／InternalIdempotency／InternalSapiRuntime into non-overlapping narrow collectors, remove generic Application/Auth/Http -> Internal permissions, and permit only the enumerated bounded facade／implementation cycles. D022 is partially superseded only for these explicit exceptions; D141 Transport and Internal -> Application prohibitions remain. P22-003B returns to In Progress for Luna High worker config／guard／spec／report implementation. No Commit／Push／Tag／Release／Packagist／Skeleton publication／Deploy.
+```
+
+## P22-003B Public Facade Cycle Decision Blocker
+
+```text
+2026-08-13T02:54:42+09:00
+Documentation re-review resolved the prior Spec16／Report findings but returned P1=1 because the current zero-violation Ruleset and Source still contain an Application／Auth／Http／Internal strongly connected component through catch-all Public facade -> Internal permissions. Read-only inventory confirms the actual forward dependencies are limited to Internal Application, Auth Session, HTTP, Idempotency, and FrankenPHP SAPI implementations; complete Source cycle removal would redesign later-decided public SAPI／Session／HTTP contracts across more than 20 Production files. D142 therefore asks whether to perform that redesign or preserve the public facades with five narrow Internal implementation collectors and explicit bounded cycle exceptions; option B is recommended. P22-003B is Blocked pending the answer and remains uncommitted. Existing Deptrac／Mago／PHPUnit／Package Export／Website PASS evidence remains diagnostic, not Acceptance. No Push／Tag／Release／Packagist／Skeleton publication／Deploy.
+```
+
+## P22-003B Documentation Review Correction Checkpoint
+
+```text
+2026-08-13T02:43:28+09:00
+Documentation Reviewer P1/P2 findings are being corrected without Production Code or Guide changes. Specification 16 now mirrors every current deptrac.yaml Layer/Ruleset direction, explicitly documents Identifier／Idempotency／Outbox, Dotenv／Nyholm, Telemetry cross-cutting edges, bounded InternalTelemetry／InternalStorageProtection／DeferredIntegrity collectors, the generic Transport -> Internal prohibition, and historical P22-003A 152/59 versus current P22-003B 857/857 zero results. P22-003B Report Remaining Issues/Suggested Next Action now retain only independent documentation re-review, replacement candidate commit, and post-commit P22-003 full gate restart. Commit／Push／Tag／Release／Packagist／Skeleton publication／Deployなし。
+```
+
+## P22-003B Orchestrator Validation Complete Checkpoint
+
+```text
+2026-08-13T02:37:27+09:00
+Orchestrator final validation of the uncommitted P22-003B diff is complete. Full PHPUnit rerun passed 2,317 tests／9,444 assertions with exit 0, including the previously transient Outbox heartbeat lane. Documentation Website host build completed 42 generated pages and the 41-page reader site check; test 79 and static check remain PASS. Deptrac 857/857 with 0 violations／skipped／uncovered, Framework Git／Composer export, Mago strict quality, Composer strict, Version Guard, focused 21-test／81-assertion regression, scope guards, and diff checks remain PASS. Task／Report command contract was corrected to the repository's pnpm --dir docs/website interface. P22-003B is ready for independent Documentation Review; no Commit, Push, Tag, Release, Packagist, Skeleton publication, or Deploy.
+```
+
+## P22-003B Architecture and Export Closure Review Pending Checkpoint
+
+```text
+2026-08-13T02:29:00+09:00
+P22-003B worker implementation is Review Pending with no Commit. Deptrac 4.7.1 now parses 857/857 files and passes 0 violations／0 skipped／0 uncovered／4,488 allowed／0 warnings／errors using explicit Identifier／Idempotency／Outbox／Dotenv／Nyholm layers, bounded Internal Telemetry／Storage Protection／Deferred Integrity collectors, and no generic Transport -> Internal permission. Core ConfigurationFailure is a public marker implemented by ApplicationBootstrapException; Internal CLI catches the Core marker and focused 21-test／81-assertion regression passes while RuntimeException ancestry remains. Git／Composer Framework package export passes with synchronized mago-lint-baseline.toml exclusion. Mago format／lint／verify-baseline／analyze and Composer strict／Version Guard pass. Full PHPUnit 2,317／9,443 had one transient Outbox heartbeat failure; filtered and focused reruns pass (1/4, 4/32). Website test 79／check／site checks pass; static build reaches generation but is blocked by existing Blume font-server listen EPERM, and docker compose has no website service. Report／TODO／spec／Guide are synchronized. Documentation Reviewer, Commit, replacement candidate, and complete P22-003 gate restart remain pending. No Push／Tag／Release／Packagist／Skeleton publication／Deploy.
+```
+
+## P22-003B Release Architecture and Export Closure Start
+
+```text
+2026-08-13T02:07:31+09:00
+P22-003A Review Pending checkpointを0eca056としてCommitした。Documentation ReviewerはP1=0／P2=0／P3=0、checkpoint Commitのみ許可し、P22-003A Acceptance／replacement Final Fixed Candidate／Full Gate再開は不許可。D141はDeptrac 152 violationsを8方向、59 uncoveredをIdentifier／Idempotency／Outbox／Dotenv／Nyholmへ分類し、Public cross-cutting Telemetry edge、bounded Internal Telemetry／Storage Protection／Deferred integrity facility、Core ConfigurationFailureによるInternal -> Application cycle除去、Mago baselineのGit／Composer archive exclusionを決定した。P22-003B Task／initial Reportを作成し、Luna High worker implementationへ進む。現行Final Fixed Candidateは08ad61fのまま。Push、Tag、Release、Packagist、Skeleton publication、Deployなし。
+```
+
+## P22-003A Release Quality Tooling Review Pending Checkpoint
+
+```text
+2026-08-13T01:54:18+09:00
+P22-003A worker implementation is review pending with no Commit. composer.json／composer.lockのDeptracはexact 4.7.1へ1 packageだけ更新し、Composer strict root／Quickstart、locked show（Deptrac 4.7.1／Mago 1.42.0）、Mago format、通常lint（baselineで186 issueをfilter）、strict baseline verify、analyze（71 advisory warning/help、exit 0）、Full PHPUnit 2,315 tests／9,435 assertions、Version Guard、management-ID／src・tests PHP scope／diff guardsはPASS。Deptrac 4.7.1はPHP 8.5で857/857 fileまで到達したが、既存Rulesetの152 violations／59 uncovered／4,172 allowed／0 skipped・warnings・errorsでexit 1。Framework package exportは新規tracked root mago-lint-baseline.tomlがarchive除外契約に未登録のため失敗し、修正にはTask外の.gitattributesとarchive契約更新が必要。Mago ignore-baseline diagnosticはerror 14で既存Debtを再現。Production／Test PHP、Architecture Rules、Commit、Push、Release、Deployなし。P22-003AはBlockerをReportへ記録したReview PendingのままOrchestrator reviewを待つ。
+```
+
+## P22-003A Release Quality Tooling Blocker Resolution Start
+
+```text
+2026-08-13T01:32:21+09:00
+P22-003 local gate blockersをread-only診断した。Mago 1.42.0 broad lintは9 existing Classesのcomplexity等に限定された186 issues／14 errors。Deptrac exact 4.6.2はProject graph前にvendorのunparenthesized dynamic instanceofでPHP 8.5 parse停止するが、official latest 4.7.1はparenthesized expressionへ修正済み。Composer --minimal-changes dry runはDeptrac 1 packageだけの4.6.2→4.7.1 update。D140はMago generator strict baseline＋CI synchronization verificationとDeptrac exact minimal updateを決定した。P22-003A Task／initial Reportを作成し、Luna High worker implementationを開始する。08ad61fはcorrection Review／CommitまでFinal Fixed Candidateのまま。Production PHP／Architecture Rules変更、Commit、Push、Tag、Release、Packagist、Skeleton publication、Deployなし。
+```
+
+## P22-003 Local Gate Documentation Review Checkpoint
+
+```text
+2026-08-13T01:20:28+09:00
+Documentation Reviewer read-only final checkpoint review returned P1=0／P2=0／P3=0 and permits the five-file Task／Report／Spec103／TODO／STATE checkpoint commit. Review independently confirmed P22-003 remains In Progress, only Mago lint／Deptrac／same-SHA Remote CI are unsatisfied, top-level Consumer count is 23, candidate 08ad61f is 0 behind／50 ahead of current origin/main and absent from remote history, P22-004 preconditions／sequence／success／recovery are executable, and no publication authorization or stale current restart claim is present. P22-003 Acceptance remains withheld. Reviewer did not rerun long Consumer／Frontend／Website／Mago／Deptrac commands or refetch remote state; Orchestrator evidence remains authoritative. No external mutation.
+```
+
+## P22-003 Final Fixed Candidate Local Gate Executed Checkpoint
+
+```text
+2026-08-13T01:17:52+09:00
+Final Fixed Candidate 08ad61f8236b3a240c9c9547fbde3b9d765fc6d5 complete local gate executed. PASS: Composer strict root／Quickstart, Framework export, Mago format/analyze, Full PHPUnit 2315 tests／9435 assertions, all 23 top-level Consumers, Community Board CI-equivalent lanes, Frontend generation/runtime, Website 79 tests／41-page check／42-page build／public guard, deterministic Skeleton split fa5e8247fc8cf789cf73685e5be59cc498ffb4ce, normal/no-scripts create-project, and repository guards. UNSATISFIED: broad Mago lint reproduces existing 186 issues／14 errors; Deptrac stops at 0/857 on the PHP 8.5 vendor parser. Read-only preflight confirms candidate is 50 commits ahead of origin/main and absent from remote history; Framework／Skeleton 1.2.0 tags, GitHub Release, and Packagist 1.2.0 are absent. P22-004 checklist and recovery are fixed in the Report, but P22-003 remains In Progress pending strict local quality and separately authorized same-SHA Remote CI. No secret values, Tag, Push, Release, Packagist, Skeleton publication, or Deploy.
+```
+
+## P22-003 Replacement Final Fixed Candidate 08ad61f Checkpoint
+
+```text
+2026-08-12T22:09:35+09:00
+Orchestrator independently reviewed the Scheduled Operation runtime-directory correction; Documentation Reviewer returned P1=0/P2=0/P3=0 and permitted commit. The four-file correction was committed as 08ad61f8236b3a240c9c9547fbde3b9d765fc6d5 (`test: prepare scheduled operation runtime directory`). This exact committed source is the replacement P22-003 Final Fixed Candidate; 99f723d, 413d096, 6e009a4, and e4be46f remain superseded. The complete local gate restarts from 08ad61f. Remote GitHub Actions remains pending separate Push authorization. No secret values, Tag, Push, Release, Packagist, Skeleton publication, or Deploy.
+```
+
+## P22-003 Scheduled Operation Runtime Directory Correction Checkpoint
+
+```text
+2026-08-12T20:06:09+09:00
+At candidate e4be46f, two Scheduled Operation Consumer runs reproduced a safe configuration_error before evaluation. Secret-safe runtime composition identified the missing writable parent for config journal.jsonl.path and logging stream: the copied Quickstart has no var/log directory. Task scope was amended to permit runtime directory preparation. The minimal Consumer correction adds mkdir -p ${CONSUMER}/var/log immediately after the Quickstart copy. Exact Scheduled Operation CLI, recovery, and concurrency journey passed; result evidence included evaluated 2 / accepted 2 / failed 0. Bash syntax, git diff --check, PHP management-ID, and Mago format checks pass. Candidate e4be46f is superseded; replacement correction commit and complete gate restart are pending. No Production PHP/public API/spec change, secret values, Tag, Push, Release, Packagist, Skeleton publication, or Deploy.
+```
+
+## P22-003 Replacement Final Fixed Candidate e4be46f Checkpoint
+
+```text
+2026-08-12T02:43:50+09:00
+Orchestrator committed the independently reviewed four-file Digest origin-actor assertion correction as e4be46f7e883f5247ed94f86c7854e3163a6c7dc (`test: correct community board digest actor assertion`). This exact committed source is the replacement P22-003 Final Fixed Candidate; 99f723d, 413d096, and 6e009a4 remain superseded. The complete local gate restarts from e4be46f. Remote GitHub Actions remains pending separate Push authorization. No secret values, Tag, Push, Release, Packagist, Skeleton publication, or Deploy.
+```
+
+## P22-003 Digest Correction Review Complete Checkpoint
+
+```text
+2026-08-12T02:43:09+09:00
+Documentation Reviewer completed the read-only four-file Digest correction review with P1=0, P2=0, P3=0 and permitted Commit. The exact sequence 1..8 origin_actor_id equality is stronger than the removed presence-only checks, matches Specification 99 restricted-clear Origin Actor metadata, leaves protected execution actor context unqueried, and introduces no credential/output or documentation-surface regression. Replacement Commit and complete fixed-SHA gate restart remain pending. No secret values, Commit, Tag, Push, Release, Packagist, Skeleton publication, or Deploy.
+```
+
+## P22-003 Digest Origin Actor Correction Complete Checkpoint
+
+```text
+2026-08-12T02:40:08+09:00
+The bounded Consumer correction changed only the protected-journal origin-actor assertion: direct SQL now verifies exact denormalized origin_actor_id continuity for sequences 1 through 8, while the protected execution actor remains unqueried. Exact CI=true Community Board Digest passed migrations (16), PHPUnit (55 tests / 582 assertions), frontend check/test/build (46 Vitest tests), HTTP/Worker retry/completion, tenant isolation, event sequence, and cleanup, ending with `Community Board digest journey passed.` Bash syntax, git diff --check, PHP management-ID, and Mago format checks also pass. Replacement Commit, independent review, and complete gate restart remain pending; no production/public API/spec change, secret values, Tag, Push, Release, Packagist, Skeleton publication, or Deploy.
+```
+
+## P22-003 Digest Origin Actor Assertion Blocker Checkpoint
+
+```text
+2026-08-12T02:35:53+09:00
+The full gate at 6e009a4 passed Community Board Clean Install, Browser after CI-equivalent dependency preparation, Foundation, Identity, Post/Comment, and Product journeys. Digest passed migrations, backend/frontend tests and builds, HTTP/Worker retry/completion, tenant isolation, and the exact journal event sequence, then failed at line 304. Its SQL selects only denormalized origin_actor_id but a stale assertion expects execution actor community-board-worker-1; protected encoded actor context is intentionally unavailable to direct SQL inspection. Task scope now permits only this bounded Consumer assertion correction, delegated to the Luna High worker. Candidate 6e009a4 is superseded; replacement Commit, independent review, and complete gate restart pending. No secret values, Tag, Push, Release, Packagist, Skeleton publication, or Deploy.
+```
+
+## P22-003 Final Fixed Candidate 6e009a4 Checkpoint
+
+```text
+2026-08-12T02:22:48+09:00
+Orchestrator committed the independently reviewed 17-file Community Board Storage Protection, lock/Ray cleanup, current proxy contract, Consumer, and regression correction as 6e009a433ce1c687f2f117d69afb14079668c206 (`fix: harden community board release setup`). This exact committed source is the new P22-003 Final Fixed Candidate; 99f723d and 413d096 remain superseded. The complete local gate restarts from 6e009a4. Remote GitHub Actions remains pending separate Push authorization. No secret values, Tag, Push, Release, Packagist, Skeleton publication, or Deploy.
+```
+
+## P22-003 Community Board Correction Review Complete Checkpoint
+
+```text
+2026-08-12T02:21:43+09:00
+Documentation Reviewer final read-only review returned P1=0, P2=0, P3=0 and permitted the bounded Community Board Storage Protection, lock/Ray cleanup, current proxy spec/config/docs, Consumer, and regression-test correction Commit. Orchestrator independently reran exact Community Board Clean Install (69 packages, no Ray, 16 migrations, Seed/HTTP/Worker/redaction/cleanup), focused Seeder PHPUnit 3/22, Website 79, Mago format, Mago analyze 71 existing advisory findings, bash/management-ID/current-Ray/diff guards. Deptrac remains the known PHP 8.5 vendor parser blocker at 0/857. Correction Commit, new fixed SHA, full gate restart, and Remote CI remain pending. No secret values, Commit, Tag, Push, Release, Packagist, Skeleton publication, or Deploy.
+```
+
+## P22-003 Community Board Ray Removal and Proxy Contract Checkpoint
+
+```text
+2026-08-12T02:14:21+09:00
+Composer regenerated examples/community-board/composer.lock with --no-install --no-scripts --minimal-changes: exactly 0 installs, 0 updates, 1 removal (ray/aop 2.20.0). Community Board Clean Install passed and asserts no locked/installed Ray package. Current docs/internal/bootstrap.md and develop/spec/09-runtime-and-di.md now describe Framework-owned proxy profiles and framework-proxies/<build-id>-<hash> artifacts with manifest/hash/Build ID validation; old build/aop test sentinel moved to framework-proxies/proxy-profiles sentinels. Removed obsolete Ray include/collector from mago.toml/deptrac.yaml. Focused Seeder build test 3/22 PASS, Website 79 PASS, Mago format PASS, Mago analyze 71 existing warnings/help PASS; Deptrac known PHP 8.5 parser blocker remains at 0/857. Current-surface Ray scans and diff/management-ID/bash guards PASS. Review, correction Commit, new fixed SHA, full gate restart, and Remote CI remain pending. No secret values, Commit, Tag, Push, Release, Packagist, Skeleton publication, or Deploy.
+```
+
+## P22-003 Community Board Setup Hardening and Final Consumer Checkpoint
+
+```text
+2026-08-12T02:06:00+09:00
+Community Board bin/setup now exclusively creates fresh .env with fopen xb under umask 0077, verifies complete write/flush/close, marks fresh ownership immediately, and reports cleanup failure without warning leakage. The clean-install Consumer exercises an obstructed var/build failure lane, confirms nonzero/no .env/no BLACKOPS_STORAGE_KEY marker, then generates one runtime key for all later redaction checks and passes the full 11 Framework + 5 Community Board = 16 migration journey, Seed/HTTP/Worker, existing .env byte/metadata preservation, and cleanup. bash -n, Mago format, management-ID, diff, Composer strict, and Website 79 tests pass. Review, correction Commit, new fixed SHA, full gate restart, and Remote CI remain pending. No secret values, Commit, Tag, Push, Release, Packagist, Skeleton publication, or Deploy.
+```
+
+## P22-003 Community Board Correction Complete Checkpoint
+
+```text
+2026-08-12T01:58:22+09:00
+Luna High worker synchronized the current migration contract: tests/Consumer/community-board-clean-install.sh and examples/community-board/README.md now assert 11 Framework + 5 Community Board Application migrations = 16. Exact Community Board Clean Install passed fresh setup, Composer strict/install, generated artifacts, all 16 migrations, seed/HTTP/Worker journeys, key/non-exposure guards, existing .env byte/metadata preservation, and cleanup. Composer lock metadata retains candidate Framework 413d096 requirements for ext-sodium and open-telemetry/api ^1.10. Website 79 tests, bash syntax, diff, and PHP management-ID guards pass; Mago checks remain recorded baseline evidence. Review, correction Commit, new fixed SHA, full gate restart, and Remote CI remain pending. No secret values, Commit, Tag, Push, Release, Packagist, Skeleton publication, or Deploy.
+```
+
+## P22-003 Community Board Migration Count Correction Checkpoint
+
+```text
+2026-08-12T01:55:10+09:00
+Luna High worker synchronized examples/community-board/composer.lock via composer update --lock only: Framework path reference 413d096、current ext-sodium／open-telemetry/api requirements、OpenTelemetry API／Context／PHP82 polyfill entries; no unrelated package update。Composer strict PASS。Exact Clean Install then passed Provider/key composition and intended pre-migration safe failure, applied migrations successfully, and stopped only at stale literal `migrations: 11`。Current committed source has 11 Framework＋5 Community Board Application migrations = 16。Task scopeをConsumer exact countとREADME permanent-evidence countだけへ拡張し、Worker correction／exact rerun pending。No Framework Production／Public API change、Commit、Tag、Push、Release、Packagist、Skeleton publication、Deploy。
+```
+
+## P22-003 Community Board Stale Lock Metadata Blocker Checkpoint
+
+```text
+2026-08-12T01:51:41+09:00
+Provider／fresh key correction後のexact Community Board Clean Installもpre-migration seedでsafe resolution failureとなった。Secret-safe fixed-stage probeは実ContainerでBLACKOPS_STORAGE_KEY present／decoded 32、artifact load PASS後、ExecutionScopeProvider constructionで停止。Isolated current-root dependency probeはlogging／database／transaction／storage-provider／operation-data／seeder-runtimeまで全PASS。Community Board composer.lockのpath-repository Framework metadataがdev-main 462cfdbのstale requirementsで、Current rootのopen-telemetry/api ^1.10とext-sodium要求を含まず、fresh installにOpenTelemetry APIが存在しないことを確認した。Task scopeへcomposer.lock metadata同期だけを追加し、Luna High worker correction、exact clean install、Review／Commit／new fixed SHAを待つ。Probeは固定pass/failラベルだけを出し、Key／Credential／Throwable detailなし。No Tag／Push／Release／Packagist／Skeleton publication／Deploy。
+```
+
+## P22-003 Community Board Storage Protection Correction Implementation Checkpoint
+
+```text
+2026-08-12T01:26:52+09:00
+Task resumed after fixed candidate 413d0964cc132d685b228d5b8d697ac6cc4543e6 failed Community Board Clean Install before migration because the Application lacked StorageKeyProvider composition and fresh Storage Key setup. Source of truth and allowed files were inspected. Implementation is beginning for the Application-owned Local/Test Provider, fail-closed bin/setup, .env placeholder, Consumer guards, README, public Guide, and Website contract; no Framework Production/Public API change, Commit, Tag, Push, Release, Packagist, Skeleton publication, or Deploy.
+```
+
+## P22-003 Community Board Storage Protection Blocker Checkpoint
+
+```text
+2026-08-12T01:24:23+09:00
+Replacement candidate 413d0964cc132d685b228d5b8d697ac6cc4543e6 gate restarted from committed source. Bash syntax、Composer strict root／Quickstart、Framework package export、clean-source Mago format、Mago analyze、Full PHPUnit clean rerun 2,315 tests／9,434 assertions、Auth Generator Fresh PASS。Broad Mago lint 186 findings／14 errors and Deptrac PHP 8.5 vendor parse error reproduce recorded baselines。Community Board Clean Install stopped at pre-migration seed assertion; secret-safe reproduction returned exact normalized `Database seeding runtime could not be resolved.`. Static inspection confirms Community Board has no BLACKOPS_STORAGE_KEY placeholder、Application-owned StorageKeyProvider、or Provider binding despite Spec99 mandatory composition。413d096 is superseded per reset rule。Task scope now permits only the bounded Community Board Provider／fresh setup／Consumer／README／public Guide／Website guard correction. Luna High worker implementation、independent review、correction Commit、new fixed SHA、full gate restart pending。No Tag／Push／Release／Packagist／Skeleton publication／Deploy。
+```
+
+## P22-003 Replacement Final Fixed Candidate Checkpoint
+
+```text
+2026-08-12T01:06:36+09:00
+Documentation Reviewer final correction review returned P1=0／P2=0／P3=0 and permitted the current seven-file Commit。Orchestrator committed the reviewed three-Consumer fail-closed Storage Key correction、strict version guard、Task／Report／STATE as 413d0964cc132d685b228d5b8d697ac6cc4543e6 (`test: prepare storage keys in quickstart consumers`) and fixed that exact Committed Source as the replacement Final Fixed Candidate。Task／Report record the SHA; the complete local gate restarts from this SHA。Remote GitHub Actions remains pending separate Push authorization。No Tag／Push／Release／Packagist／Skeleton publication／Deploy。
+```
+
+## P22-003 Version Baseline Storage Key Guard Checkpoint
+
+```text
+2026-08-12T01:04:14+09:00
+Version-baseline guard now captures exact line order in all three corrected Consumers: umask, .env.example copy, 32-byte Storage Key generation, non-empty and decoded-length checks, .env write, assignment/empty-assignment counts, mode 600, key-variable unset, then first Docker/Composer command. Missing or duplicate steps fail closed. bash -n, version-baseline, diff, and PHP management-ID guards PASS. No Consumer runtime rerun, Commit, Tag, Push, Release, Packagist, Skeleton publication, or Deploy.
+```
+
+## P22-003 Quickstart-copying Consumer Correction Runtime Checkpoint
+
+```text
+2026-08-12T00:57:21+09:00
+Luna High worker implemented only the 3 authorized Consumer Storage Key preparation blocks and version guard; no Production Source changed。Orchestrator independent exact runs PASS: Auth Generator Fresh full journey、FrankenPHP Worker bootstrap／isolation／reconnect／restart-memory／Classic fallback／correlated failure boundary、Scheduled CLI／recovery／concurrency。All three use umask 077、mode 600、strict base64 32 random bytes／decoded length 32、exactly one non-empty BLACKOPS_STORAGE_KEY assignment、key variables unset before Docker／Composer, without printing key material。Bash／version baseline／diff／PHP management-ID guards PASS。Docker cleanup完了、Repository差分は許可7 filesのみ。Documentation review／Commit／new Final Fixed Candidate／full gate restart remain pending。No Tag／Push／Release／Packagist／Skeleton publication／Deploy。
+```
+
+## P22-003 Three-Consumer Storage Key Preparation Correction Checkpoint
+
+```text
+2026-08-11T22:45:09+09:00
+Superseded candidate 99f723dfc9bcf1e859689c81878839ee37d2ba91 remains non-final. The bounded correction is implemented only in auth-generator-fresh.sh, frankenphp-worker-mode.sh, and scheduled-operation.sh: each creates .env under umask 077, verifies a strict base64 encoding of 32 random bytes and decoded length 32, enforces exactly one non-empty BLACKOPS_STORAGE_KEY assignment and mode 600, then unsets key material before Docker/Composer. Existing normal/failure cleanup remains in place and no key is logged. bash -n, version-baseline, diff check, and PHP comment guard PASS. Focused Docker Consumer runs, new Fixed Candidate commit, full fixed-SHA gate, Tag/Push/Release/Packagist/Skeleton publication/Deploy remain pending.
+```
+
+## P22-003 Quickstart-copying Consumer Blocker Checkpoint
+
+```text
+2026-08-11T22:41:10+09:00
+Fixed candidate 99f723dfc9bcf1e859689c81878839ee37d2ba91 Runtime Upgrade Consumer／Composer strict／Package Export／clean-source Mago format／Mago analyze／Full PHPUnit 2,315 tests・9,434 assertions PASS。Broad Mago lintは既存186 findings・14 errors、Deptracは既知PHP 8.5 vendor parser errorを再現。Auth Generator Fresh ConsumerはHTTP readiness後のanonymous exact JSON assertionで停止し、機密値を出さない再現で40回すべて2xxなし／empty responseを確認した。QuickstartはStorageKeyProviderを必須登録し.env.exampleのBLACKOPS_STORAGE_KEYは空だが、Auth Consumerは値を準備していない。同じstale setupをFrankenPHP Worker／Scheduled Operation Consumerにも確認した。Task reset ruleに従い99f723dをSuperseded Candidateとし、3 Consumerのfail-closed Storage Key準備をLuna High workerへ限定委譲後、新SHAでFull Gateを最初から再実行する。Consumer cleanup／Repository stateは保持。No Tag／Push／Release／Packagist／Skeleton publication／Deploy。
+```
+
+## P22-003 Initial Candidate Checkpoint (Superseded)
+
+```text
+2026-08-11T20:05:10+09:00
+Documentation Reviewer final Gate Asset review returned P1=0／P2=0／P3=0 and permitted Commit. Orchestrator committed the reviewed 14-file Gate Asset as 99f723dfc9bcf1e859689c81878839ee37d2ba91 (`test: add stable 1.2 runtime upgrade gate`) and initially fixed that exact committed source as the candidate. The later Quickstart-copying Consumer blocker checkpoint above supersedes this candidate. No Tag／Push／Release／Packagist／Skeleton publication／Deploy。
+```
+
+## P22-003 Documentation Scope and Gate Asset Synchronization Checkpoint
+
+```text
+2026-08-11T20:03:46+09:00
+Task Packet UPGRADE allowance now explicitly covers the implemented Stable-first fresh／already-applied executable sequence, fail-closed catalog checks, exact three-file Manual Merge Matrix, Runtime Consumer lane reference, and Stable Welcome required Value Header guidance within fixed boundaries. Report marks current Gate Asset Report／Spec103／TODO／STATE synchronization checked, while fixed-SHA／full-gate／Remote CI remain pending. Lightweight version／diff guards PASS。No Commit／Tag／Push／Release／Packagist／Skeleton publication／Deploy。
+```
+
+## P22-003 UPGRADE Catalog/Path/Context Guard Final Checkpoint
+
+```text
+2026-08-11T20:01:37+09:00
+UPGRADE catalog checks now use psql `-v ON_ERROR_STOP=1`, run in both fresh-after-migrate and already-Stable-migrated lanes; Stable pre-status/migrate is skipped only for already-applied DB. All Framework comparison and runtime bootstrap cp/cmp paths use ../blackops. Host/Application-root versus Docker/container command context is explicit. Matrix wording is Japanese and avoids internal Task ID. Bash／version baseline／Website 78 tests／diff／comment guards PASS。No Docker／Commit／Tag／Push／Release／Packagist／Skeleton publication／Deploy。
+```
+
+## P22-003 UPGRADE Read-only Stable Catalog Evidence Correction Checkpoint
+
+```text
+2026-08-11T19:59:30+09:00
+UPGRADE Step 5 now mirrors Consumer read-only Stable catalog evidence: exact two blackops.schema_migrations versions, six baseline tables, two baseline constraints after one-time Stable migrate and before Candidate update. Published path is consistently ../blackops for runtime bootstrap cp/cmp; matrix wording avoids internal Task ID and says Runtime Consumer verified, with blackops／Caddyfile／Compose unchanged. Website 78-test order/matrix guard and version-baseline contracts updated. Focused checks PASS; no Docker／Commit／Tag／Push／Release／Packagist／Skeleton publication／Deploy。
+```
+
+## P22-003 UPGRADE Stable-first Order and Merge Matrix Correction Checkpoint
+
+```text
+2026-08-11T19:57:19+09:00
+Documentation review correction: UPGRADE now separates no-update Candidate preparation from post-Stable-migrate Composer update, explicitly handles fresh pre-status 0/2 versus already-applied DB without rerun or Metadata edit, omits Stable post-migrate status, and verifies Candidate 2/9→11/0. Manual Merge Matrix records exact bootstrap/app.php、public/index.php、public/worker.php copy／cmp while blackops／Caddyfile／Compose remain unchanged. UPGRADE references runtime Consumer lane boundaries; Website test and version guard enforce order/matrix. Report adds CHANGELOG and replaces stale pre-gate wording. Focused Bash／version／website／diff／comment checks pending; no Docker／Commit／Tag／Push／Release／Packagist／Skeleton publication／Deploy。
+```
+
+## P22-003 Runtime Consumer Pre-commit Baseline Pass Checkpoint
+
+```text
+2026-08-11T19:49:27+09:00
+Exact escalated Runtime Consumer baseline run passed exit 0: stable=e3df5576c7216cfe8bd9e10e12ee6795f7674088 candidate=61142d254861ffe13985679c338f592a46151af5 migrations=11 provider-present=http-worker provider-missing=classic-http-worker-safe-negative. Cleanup completed and repository source-state invariant held. Report now claims this pre-commit evidence; Gate Asset Commit／fixed SHA／Orchestrator acceptance／full gate remain pending. Focused static checks PASS。Dockerは再実行しない。No Commit／Tag／Push／Release／Packagist／Skeleton publication／Deploy。
+```
+
+## P22-003 Runtime Bootstrap Manual Merge Correction Checkpoint
+
+```text
+2026-08-11T19:44:29+09:00
+Orchestrator eleventh exact Docker run passed migrations、build、Worker、Provider-present evidence but Provider-missing HTTP exposed Stable 1.1.0 bootstrap/runtime entrypoints. Runtime Consumer now copies exactly candidate bootstrap/app.php、public/index.php、public/worker.php, verifies byte equality before build and after positive/negative lanes, and excludes only those three intentional files from generic source hash. Caddyfile／Compose／other Application Source remain untouched. Task／Spec103／Report／version guard synced. Focused Bash／version guard／diff check PASS予定、Dockerは再実行しない。No Commit／Tag／Push／Release／Packagist／Skeleton publication／Deploy。
+```
+
+## P22-003 Classic HTTP Readiness Retry Correction Checkpoint
+
+```text
+2026-08-11T19:39:25+09:00
+Orchestrator tenth exact Docker run showed Classic readiness accepted a transient non-000 response before the expected safe 500. Runtime Consumer now retries the bounded 30 attempts until exactly HTTP 500; exhaustion retains fixed provider-missing-classic-http-readiness label without printing status/body/log. Focused Bash／version guard／diff check PASS。Dockerは再実行しない。No Commit／Tag／Push／Release／Packagist／Skeleton publication／Deploy。
+```
+
+## P22-003 Provider-missing Assertion Diagnostic Checkpoint
+
+```text
+2026-08-11T19:34:19+09:00
+Orchestrator ninth exact Docker run reached Provider-missing Classic HTTP; first readiness request reset the connection and a silent assertion exited 1. Runtime Consumer now has `fail_stage` fixed non-sensitive labels for HTTP/Worker preflight, Classic readiness/status/content/body, Worker CLI/process, no-running-worker, redaction, and source invariants. No headers/body/log/env/key values are printed. Focused Bash／version guard／diff check PASS。Dockerは再実行しない。No Commit／Tag／Push／Release／Packagist／Skeleton publication／Deploy。
+```
+
+## P22-003 Provider-missing Classic HTTP Runtime Correction Checkpoint
+
+```text
+2026-08-11T19:28:21+09:00
+Orchestrator eighth exact Docker run passed Stable／Candidate migration、build、Worker、Provider-present Worker-mode HTTP 200, then Provider-missing Worker-mode HTTP exited during boot before request acceptance. Runtime Consumer now mounts Framework into `http-classic`, uses `CLASSIC_HTTP_PORT=http_port+1` for Provider-missing Classic HTTP safe 500, stops Classic profile correctly, retains Worker CLI／Process non-zero safe-negative, and redacts Classic HTTP logs. Task／Spec103／Report／version guard synced. Focused Bash／version guard／diff check PASS予定、Dockerは再実行しない。No Commit／Tag／Push／Release／Packagist／Skeleton publication／Deploy。
+```
+
+## P22-003 Stable Required Header Contract Correction Checkpoint
+
+```text
+2026-08-11T19:17:30+09:00
+Orchestrator seventh exact Docker run passed Stable metadata、Candidate update／migration／build、Worker checks but `/welcome` returned 422 without the actual Stable required X-Sample-Token Value Header. Runtime Consumer now sends `X-Sample-Token: local-example` on Provider-present and Provider-missing HTTP lanes. Installation／Runtime Bootstrap／MVP Sample／UPGRADE and website guide regression distinguish Stable authorization-anonymous／no #[Authorize] from required sensitive Value binding and Preview Sample Authentication／Authorization. Focused Bash／version guard／diff check／Website 77 tests PASS。Dockerは再実行しない。No Commit／Tag／Push／Release／Packagist／Skeleton publication／Deploy。
+```
+
+## P22-003 Config Merge Shell Quote Boundary Correction Checkpoint
+
+```text
+2026-08-11T18:10:06+09:00
+Orchestrator sixth exact Docker run exposed literal PHP single quotes stripped by the outer shell single-quoted php -r config programs. Runtime Consumer now builds http_manifest、frontend_manifest、services markers with chr(39) in both config merge and provider-service removal blocks. Version guard and Report are synchronized. Focused Bash／version guard／diff check PASS。Dockerは再実行しない。No Commit／Tag／Push／Release／Packagist／Skeleton publication／Deploy。
+```
+
+## P22-003 Config Merge Regex Parse Correction Checkpoint
+
+```text
+2026-08-11T18:04:49+09:00
+Orchestrator fifth exact Docker run reached the hardened config merge but exposed a PHP parse error because the preg_replace pattern was single-quoted inside the shell single-quoted php -r program. Runtime Consumer now uses a correctly escaped PHP double-quoted final-root regex with delimiters. Focused Bash／version guard／diff check PASS。Dockerは再実行しない。No Commit／Tag／Push／Release／Packagist／Skeleton publication／Deploy。
+```
+
+## P22-003 Candidate Config Merge Diagnostic Correction Checkpoint
+
+```text
+2026-08-11T14:25:26+09:00
+Orchestrator fourth exact Docker run passed Stable metadata/catalog checks and candidate Composer 1.2.0, then stopped at the candidate config merge's opaque exit. Runtime Consumer now verifies unique http_manifest/frontend markers, inserts services only before the uniquely matched final root closure, preserves existing markers, checks file read/write results, and emits bounded safe stderr labels. Focused Bash／version guard／diff check PASS。Dockerは再実行しない。No Commit／Tag／Push／Release／Packagist／Skeleton publication／Deploy。
+```
+
+## P22-003 Stable Metadata Read-only Gate Correction Checkpoint
+
+```text
+2026-08-11T10:55:34+09:00
+Stable post-migrate CLI statusはcurrent-schema metadata defectのため証拠に使わない。Runtime ConsumerはStable migrateを一度だけ実行し、blackops.schema_migrationsのVersion20260712000000／Version20260712010000、baseline 6 tables、baseline constraintsをread-only catalog queryで確認する。その後Candidate status applied 2／pending 9、最終11を確認し、metadata rowは編集しない。CHANGELOG／UPGRADE／Spec103／version guard／Reportを同期した。Focused Bash／version guard／diff checkを再実行予定、Dockerは再実行しない。No Commit／Tag／Push／Release／Packagist／Skeleton publication／Deploy。
+```
+
+## P22-003 Stable Migration Metadata Release Note Gap
+
+```text
+2026-08-11T10:52:18+09:00
+Orchestrator exact Runtime Consumer 3回目で、actual Stable 1.1.0のcurrent-schema Metadata既知不具合を再現した。Stable first database:migrateは2 migrationを実行するが、Role名とSchema名が同じ場合、次ProcessのStable database:statusは既存schema_migrationsを誤認してapplied 0／pending 2を返す。CandidateにはAccepted P18-006D／a802204の既存修正があり、既存Metadata Rowを認識できるが、P22-002 CHANGELOG／UPGRADEへ未記録だった。P22-003 Gate Asset scopeへこのRelease Note／Upgrade補正を追加し、ConsumerはStable first migrate後のMetadata Row／Baseline DDLをread-only直接確認してからCandidate update後にapplied 2／pending 9、最終11を証明する。Final Fixed Candidateは未確定。No Commit／Tag／Push／Release／Packagist／Skeleton publication／Deploy。
+```
+
+## P22-003 Migration Status Diagnostic Correction Checkpoint
+
+```text
+2026-08-11T10:48:02+09:00
+Orchestrator reproduced two Docker stops at the Stable post-migration count assertion. Runtime Consumer now treats Stable CLI status as a known current-schema metadata defect, verifies the exact two Stable metadata rows and baseline DDL read-only, then uses bounded stage-labelled status checks for candidate applied 2/pending 9 and final applied 11/pending 0; mismatch output is limited to non-sensitive migration counts/version names. Focused Bash/version guard/diff checks are rerun; Docker is not rerun. No Commit／Tag／Push／Release／Packagist／Skeleton publication／Deploy。
+```
+
+## P22-003 Composer Version Evidence Correction Checkpoint
+
+```text
+2026-08-11T10:38:34+09:00
+Orchestrator Docker run reproduced a post-Stable-install assertion failure: Composer `show --format=json` did not expose the expected version field. Runtime Consumer now reads Stable `1.1.0` and candidate `1.2.0` from `composer.lock` package entries, and negative redaction includes actual HTTP headers/body alongside Worker output and application logs. Focused Bash/version guard/diff checks rerun; Docker not rerun per instruction. No Commit／Tag／Push／Release／Packagist／Skeleton publication／Deploy。
+```
+
+## P22-003 Runtime Consumer Stable Sequence and Cleanup Correction Checkpoint
+
+```text
+2026-08-11T02:47:43+09:00
+Runtime ConsumerをStable install/migrate（Framework applied 2）→local annotated candidate 1.2.0／Framework-only Composer update→candidate applied 2/pending 9→build:compile→追加9 migration／最終applied 11へ修正した。HTTP portはrandom loopback、CIはfetch-depth 0とHOST_UID/GID wiring、cleanupはsecret `.env`削除をCompose停止より先に行う。Provider-missingは実HTTP generic 500、実Worker non-running、HTTP/Worker内のexact safe Provider preflight、bounded redactionを検証する。Bash/version guard/diff check PASS。Docker Consumerはpermission denied／user interruptで未完了。No Commit／Tag／Push／Release／Packagist／Skeleton publication／Deploy。
+```
+
+## P22-003 Stable 1.2 Release Candidate Gate Start
+
+```text
+2026-08-11T02:20:37+09:00
+P22-002 closeout commit 61142d254861ffe13985679c338f592a46151af5とclean Working Treeを確認し、P22-003を開始した。P22-002で確定したStable 1.1.0→candidate 1.2.0 Runtime evidenceは、共通Database migration/setup＋DDL guard、Provider-present HTTP／Worker Positive、Provider-missing HTTP／Worker safe Negativeである。まずLuna High workerが新Runtime ConsumerとCI wiringを実装し、Review／Commit後のSHAをFinal Fixed Candidateへ固定する。その後、未Commit Sourceを混入させず全PHP／Consumer／Website／Package／Publication Dry-run／CI Gateを最初から実行する。Fixed SHAのGitHub ActionsにBranch Pushが必要な場合は別途User AuthorizationまでAcceptedにしない。Tag／Push／Release／Packagist／Skeleton publication／Deployなし。
+```
+
+## P22-003 Runtime Consumer and CI Wiring Implementation Checkpoint
+
+```text
+2026-08-11T02:46:58+09:00
+Stable annotated `1.1.0` quickstart Runtime ConsumerとCI wiringを実装した。ConsumerはStable `pending: 2`→`applied: 2`を確認後、Committed candidateをlocal annotated `1.2.0`としてFramework-only Composer updateし、Provider/config/.env merge、candidate build、追加9 migrations（最終11）、DDL guard、Provider-present HTTP／Worker positive、Provider-missing HTTP／Worker safe-negativeを一つの新規Disposable checkoutで実行する。Cleanupはsecret `.env`削除をCompose停止より先に行い、random loopback port、fetch-depth 0、HOST_UID/GID wiringを含む。Bash/version guard/diff checkはPASS。Docker Consumerはsandbox permission denied、escalated runはuser interruptで未完了。No Commit／Tag／Push／Release／Packagist／Skeleton publication／Deploy。
+```
+
+## P22-002 Post-commit Consumer Verification
+
+```text
+2026-08-11T02:17:10+09:00
+Accepted P22-002 contentをb83295eとしてCommit後、clean Git HEADでexact actual-tag Framework Update Consumerを再実行した。Local candidate 1.2.0はb83295eef517c18cf508d5685c99fefe20d834c3を解決し、Stable 1.1.0 install、Framework-only update、Application source hash不変、minimal frontend_manifest migration、build:compile／operation:list、cleanup／source-state invariantを通過して`Framework update generator smoke passed.`で終了した。P22-002 acceptanceをcloseoutし、次はpost-closeout HEADを固定するP22-003 Full Gate。Tag／Push／Release／Packagist／Skeleton publication／Deployなし。
+```
+
+## P22-002 Stable 1.2 Release Documentation Accepted
+
+```text
+2026-08-11T02:16:08+09:00
+P22-002をAcceptedとする。annotated Stable 1.1.0→unpublished candidate 1.2.0のRelease Surface Audit、complete CHANGELOG／UPGRADE、actual-tag Framework Update Consumer、Stable-vs-candidate Website導線／semantic guardを同期した。Orchestratorはexact Consumerのexit 0、cleanup／source-state invariant／generator smoke、Website 77 tests／check／42-page build、Composer strict、Mago src/tests、artifact／management-ID／diff guardをPASS確認した。Documentation Reviewer最終結果はP1=0／P2=0／P3=0でAcceptance permitted。P22-003はP22-002 commit後のHEADを固定し、共通Database migration/setup＋DDL guard、Provider-present HTTP／Worker Positive、Provider-missing HTTP／Worker safe Negativeを含むFull Gateを実行する。Tag／Push／Release／Packagist／Skeleton publication／Deployなし。
+```
+
+## P22-002 P22-003 Lane and Runtime Probe Scope Correction Review Pending
+
+```text
+2026-08-11T00:13:07+09:00
+P22-003 input is now shared Database migration/setup with DDL guard evidence, Provider-present HTTP／Worker Positive, and Provider-missing HTTP／Worker safe Negative; no Provider-missing Database Negative is claimed. UPGRADE Step 7 now asserts running Worker, HTTP 200, application/json, and exact `{"message":"Welcome to BlackOps"}`. Step 3 `.env` setup and Steps 4-7 must run in one Disposable Application Root shell so the EXIT trap cleans up only at final success/failure. Guards and Report/Task/Internal status are synchronized. No Commit／Tag／Push／Release／Deploy.
+```
+
+## P22-002 Secret Cleanup Ordering Correction Review Pending
+
+```text
+2026-08-11T00:08:02+09:00
+Disposable `.env` cleanup now removes the secret file before best-effort Compose shutdown (`docker compose down >/dev/null 2>&1 || true`), preventing `set -e` shutdown failure from leaving the key behind. Version-baseline guard requires this ordering and rejects the prior unsafe function. No Commit／Tag／Push／Release／Deploy.
+```
+
+## P22-002 Runtime Command Ordering and Gate Allocation Correction Review Pending
+
+```text
+2026-08-11T00:12:04+09:00
+UPGRADE execution order is corrected: Step 3 only prepares Provider/config/key; Step 5 builds images, starts PostgreSQL, and runs all Framework/Application migrations inside the app Container; Step 6 runs build/frontend commands inside the app Container; Step 7 starts HTTP/Worker and probes runtime. Host `php blackops` is not used for the candidate lane. All source/report/state/task references now allocate P22-003 fixed-SHA shared Database migration/setup with DDL guard evidence, Provider-present HTTP／Worker Positive, and Provider-missing HTTP／Worker safe Negative lanes. No Commit／Tag／Push／Release／Deploy.
+```
+
+## P22-002 Provider Source and Secret Injection Correction Review Pending
+
+```text
+2026-08-11T00:03:43+09:00
+Stable `1.1.0` `.env.example` has no `BLACKOPS_STORAGE_KEY` line while current has an empty line; UPGRADE now filters any existing key line and appends exactly one generated value with printf, using fail-closed disposable `.env` setup and no sed delimiter risk. Opt-in Provider instructions now give complete `app/ApplicationServiceProvider.php` source (strict types, App namespace, imports, StorageKeyProvider binding), config services registration, and SampleStorageKeyProvider target. Semantic guard covers both env shapes and source markers. Report synchronized; no Commit／Tag／Push／Release／Deploy.
+```
+
+## P22-002 Secret Injection Safety Correction Review Pending
+
+```text
+2026-08-10T23:58:34+09:00
+Opt-in runtime `.env` instructions now fail closed with `set -euo pipefail`, `test ! -e .env`, restrictive `umask`, cleanup trap before key generation, and explicit HTTP／Worker Compose startup. Host shell export is not assumed to reach Compose. Focused bash/version guard, Website 77 tests, and diff check pass. Latest exact actual-tag Consumer remains PASS from Orchestrator. No Commit／Tag／Push／Release／Deploy.
+```
+
+## P22-002 Provider Runtime Lane Correction Review Pending
+
+```text
+2026-08-10T23:57:14+09:00
+Final documentation correction distinguishes Compatibility-first build/list evidence from Candidate HTTP／Worker runtime: StorageKeyProvider is unconditionally required. UPGRADE now provides the ApplicationServiceProvider Binding, config services registration, canonical SampleStorageKeyProvider source target, fail-closed disposable `.env` key preparation/cleanup, migration/reset boundary, and P22-003 shared Database migration/setup plus Provider-present／missing HTTP／Worker lanes. Consumer temporary checkout reuse is explicitly prohibited; Internal status records latest exact Consumer PASS and frontend_manifest migration. Focused bash/version guard, Website 77 tests, and diff check pass. No Commit／Tag／Push／Release／Deploy.
+```
+
+## P22-002 Runtime Provider Boundary and Final Consumer Evidence Review Pending
+
+```text
+2026-08-10T23:55:03+09:00
+Documentation correction records that Compatibility-first proves Composer/source invariants, candidate frontend_manifest migration, build:compile, and operation:list only; it does not claim HTTP／Worker compatibility because Candidate Runtime unconditionally requires StorageKeyProvider. UPGRADE now gives Opt-in HTTP／Worker Binding, safe local key preparation, migration/reset boundary, and P22-003 shared Database migration/setup plus Provider-present／missing HTTP／Worker lanes. Internal status records the latest exact actual-tag Consumer exit 0, cleanup/source-state invariant, and generator smoke message. Report distinguishes prior exit 255, minimal config correction, and latest PASS. No Commit／Tag／Push／Release／Deploy.
+```
+
+## P22-002 Compatibility Lane Config Correction Review Pending
+
+```text
+2026-08-10T23:46:35+09:00
+Orchestrator reproduced actual-tag Consumer failure after Composer update: Stable `config/app.php` lacked candidate-required `frontend_manifest`, causing `build:compile` to exit 255 with the non-empty absolute path error. Consumer now preserves Stable Application source hashes through Composer update, then applies only the documented absolute `dirname(__DIR__) . '/var/build/frontend.php'` config migration before candidate `build:compile`／`operation:list`; UPGRADE compatibility lane and semantic guard describe this boundary, with `command_manifest` optional fallback. Focused bash syntax, version guard, Website 77 tests, and diff check pass. Final Consumer rerun is pending worker stop. No Commit／Tag／Push／Release／Deploy.
+```
+
+## P22-002 Bounded Reviewer Correction Review Pending
+
+```text
+2026-08-10T23:02:56+09:00
+Bounded corrections completed: CHANGELOG Reader wording now says direct PublicApi designation／marker removal while retaining Reader type／Method in aggregate Store implementation boundaries; UPGRADE local source diff now specifies Framework Repository Root or explicit `git -C` path. Focused `bash -n`, version-baseline guard, Website 77 tests, and `git diff --check` passed. No Consumer rerun or long build in this correction turn; Orchestrator will rerun Consumer after worker stop. Documentation Reviewer re-review remains pending. No Commit／Tag／Push／Release／Deploy.
+```
+
+## P22-002 Documentation Reviewer Correction Pass Review Pending
+
+```text
+2026-08-10T22:56:41+09:00
+Applied Documentation Reviewer P1/P2 corrections: corrected Stable-versus-candidate CHANGELOG claims and duplicate Unreleased trailer; documented Stable Quickstart direct dependency ownership; reclassified CanonicalJournalReader／OutcomeReader as Infrastructure SPI while retaining aggregate Store PublicApi boundaries; added EphemeralOutcome credential non-persistence and proxy/Ray boundary; separated Database DDL guards from Application key／tenant preflight; added compatibility-first versus opt-in Candidate-Skeleton merge lanes and canonical source diff; extended actual-tag Consumer with candidate build:compile／operation:list checks; strengthened Unreleased／stable-claim and Reader semantic guards. Focused bash syntax, version-baseline guard, and Website 77 tests passed. Task／Report remain Review Pending for Documentation Reviewer re-review. No Commit／Tag／Push／Release／Deploy.
+```
+
+## P22-002 Stable 1.2 Release Documentation Review Pending
+
+```text
+2026-08-10T22:03:12+09:00
+P22-002 implementation and Orchestrator gates are Review Pending. Stable annotated tag `1.1.0` (`e3df5576c7216cfe8bd9e10e12ee6795f7674088`) was audited against committed candidate HEAD `a8243bd` (249 commits; 2→11 Framework PostgreSQL migrations). CHANGELOG/UPGRADE, actual-tag Framework Update Consumer (including the corrected stable Application inventory), Releases guide links, website guards/tests, internal smoke wording, Roadmap Deferred Ecosystem, TODO, Task and Report are synchronized. Composer strict root／quickstart, version guard, actual Consumer, Website 77 tests／42-page build／artifact／site checks, management-ID and diff guards passed. Exact broad Mago format traversed ignored third-party files and failed; clean committed-clone equivalent passed without PHP changes. Documentation Reviewer final review and P22-003 remain. No Commit／Tag／Push／Release／Deploy.
+```
+
+## P22-002 Stable 1.2 Release Documentation Start
+
+```text
+2026-08-10T21:39:21+09:00
+Userの「続けて」を受け、P22-002を開始した。P22-001 baseline／Git HEAD closeoutとclean Working Treeを確認し、公開済みStableは`1.1.0`、mainは`1.1.0-249-ga8243bd`の未公開`1.2.0` candidateである。既存CHANGELOG UnreleasedはPhase 18／19の一部だけ、UPGRADE Previewはruntime bootstrapだけで、完全Release Surfaceを未記録。さらにdocs/internalはFramework Update Smokeを`1.0.0`→`1.2.0`と説明する一方、current Consumerはsynthetic `1.0.0`→`1.1.0`のままというEvidence driftを確認した。P22-002はactual tag `1.1.0`→Local `1.2.0` Update Consumer、Phase 12〜21 Release Surface Audit、complete CHANGELOG／UPGRADE、Documentation Reviewを行い、P22-003 Full GateとP22-004 separately authorized Publicationへ分離する。Repository設定どおりGPT-5.6 Luna High workerへ委譲し、Commit／Tag／Push／Release／Deployなし。
+```
+
+## P22-001 Git HEAD Closeout
+
+```text
+2026-08-10T18:57:41+09:00
+P22-001のAccepted baselineを`dadb64f`としてCommitした。Commit直後のclean Git HEADでexact `bash tests/Consumer/skeleton-publication.sh 1.2.0 HEAD`を再実行し、Composer `^1.2` metadata、distribution allowlist、deterministic subtree split `fa5e8247fc8cf789cf73685e5be59cc498ffb4ce`、annotated tag contract、source／Docker／temporary state不変をPASSした。次は完全な`1.2.0` Release Note／Upgradeとfull release gateを別Task Packetで扱う。Tag／Push／GitHub Release／Packagist／Skeleton publication／Deployなし。
+```
+
+## P22-001 Stable 1.2 Version Baseline Accepted
+
+```text
+2026-08-10T18:54:38+09:00
+P22-001をAcceptedとする。公開済みLatest Stable／Install CTAは`1.1.0`を維持し、Repository `main`の未公開Release Candidateを`1.2.0`へ同期した。Docker rootは`1.2.0@dev`、Telemetry Trace／Metric scopeは`1.2.0`、Skeleton Sourceは`^1.2`となり、Version guard、Telemetry 13 tests／96 assertions、Composer strict、Mago format、create-project、working-tree publication dry run、publication workflow、fresh Quickstart E2E、Website 77 tests／check／42-page build、management-ID／diff guardを独立PASS。Cloudflare Pagesの現行公開状態とfiltered Working Tree Consumer説明をDocumentationへ同期し、Documentation Reviewer最終再読はP1=0／P2=0／P3=0。Browser visual reviewはReviewer環境からlocalhostへ到達できずNot Verifiedだが、Acceptanceを妨げるFindingなし。Commit後にexact `skeleton-publication.sh 1.2.0 HEAD`を実行する。Tag／Push／GitHub Release／Packagist／Skeleton publication／Deployなし。
+```
+
+## P22-001 Documentation Reviewer P1 Correction Checkpoint
+
+```text
+2026-08-10T18:53:00+09:00
+Documentation Reviewer P1 corrections applied within scope: README now states the published Cloudflare Pages URL and verified Local／CI build／public-artifact boundary; the duplicate Community Board paragraph was restored. Internal MVP E2E now describes the filtered Working Tree tar copy used by skeleton-create-project, including dotfile retention, generated-artifact exclusions, and var .gitignore restoration. Report records both corrections and narrows remaining release work to the post-commit exact `1.2.0 HEAD` publication probe plus complete Release Gate. Commit／Push／Deployなし、Review Pending。
+```
+
+## P22-001 Stable 1.2 Consumer Harness Correction Checkpoint
+
+```text
+2026-08-10T18:47:00+09:00
+OrchestratorのDocker Consumer runで、ignored `examples/quickstart/node_modules`を`cp -a`が持ち込み、create-projectのgenerated-artifact assertionとpublication dry-runのroot allowlistを失敗させる問題を再現した。P22-001許可範囲内で`tests/Consumer/skeleton-create-project.sh`と`tests/Consumer/skeleton-publication.sh`のworking-tree／dry-run copyをdotfile保持＋`.env`／composer.lock／vendor／nested node_modules／generated frontend／var files除外のtar copyへ補正し、`var/*/.gitignore`を復元した。Orchestrator独立再実行でcreate-projectとpublication dry-run（version=1.2.0、split=working-tree）はPASS。pre-commit HEADはまだ`^1.1`のため、`skeleton-publication.sh 1.2.0 HEAD` exact probeはaccepted commit後に実施する。Commit／Push／Deployなし、Orchestrator Review Pending。
+```
+
+## P22-001 Stable 1.2 Version Baseline Worker Checkpoint
+
+```text
+2026-08-10T18:31:36+09:00
+P22-001 worker実装でDecision D139、Specification 103、Roadmap／TODO、Version inventory guard、Main root／Telemetry／Skeleton／candidate Consumer、Stable／candidate Documentation境界を同期した。Stable `1.1.0` install／CTA／historical CHANGELOG／1.0→1.1 Upgradeは維持し、Repository `main`の未公開candidateを`1.2.0`へ固定した。Website test 77、check、build、Telemetry PHPUnit 13 tests／96 assertions、Composer validate、Mago format、management-ID guard、version guard、publication workflow、diff checkをPASS。Skeleton create-project／publication dry runはDocker API socket permission deniedで実行Blocked。Commit／Push／Deployなし、Orchestrator Review Pending。
+```
+
+## P22-001 Stable 1.2 Version Baseline Start
+
+```text
+2026-08-10T18:19:13+09:00
+UserはP20-018G closeout後にVersion更新を要求した。Local Git tagとGitHub ReleaseのLatest Stableは`1.1.0`で、mainは1.1.0から247 commits ahead。Experimental 1.xはMinor間breakingを許可し、Phase 12〜21の大幅なSurface追加をpatch `1.1.1`へ見せないため、次期Release Candidateを`1.2.0`とする。P22-001ではmain root／Telemetry scope／Skeleton constraint／candidate Consumer／active documentationを1.2系列へ同期するが、Latest Stable表示とStable 1.1 install journeyを維持し、Tag／Push／GitHub Release／Packagist／Skeleton publicationは後続Release Gateへ分離する。Repository設定どおりGPT-5.6 Luna High workerへ委譲し、Documentation Reviewerを含む独立Review後にAcceptanceする。Commit／Push／Deployなし。
+```
+
+## P20-018G Git HEAD Closeout
+
+```text
+2026-08-10T18:13:07+09:00
+P20-018GのAccepted実装・契約・文書を600105bとしてCommitした。Commit直後のclean Git HEADで`bash tests/Consumer/opentelemetry-grafana-lgtm.sh`を再実行し、Grafana health、Tempo exact Trace、allowlist済みPrometheus metric、source不変、normal cleanupをPASSした。Closeout metadataだけを次Commitへ残す。Push／Deployなし。
+```
+
+## P20-018G Accepted
+
+```text
+2026-08-10T18:09:58+09:00
+P20-018GをAcceptedとする。固定OCI index DigestのDevelopment-only Application-owned Grafana LGTM Consumerはrandomized resource、Grafana／OTLPだけのrandom loopback publish、Grafana health／Tempo exact Trace／Prometheus exact selected metric、Sensitive／high-cardinality guard、read-only source、normal／failure／interrupt cleanupを実証した。LGTM laneだけがCUMULATIVE temporalityを選び、既存Collector laneはDefaultを維持する。No-argument／interactive、existing Collector、Composer、Mago format、PHP syntax、Website 77 tests／check／42-page build、管理番号／diff guardをPASS。Documentation Reviewer最終再ReviewはP1=0／P2=0／P3=0。Browser visual reviewはReviewer環境からlocalhostへ到達できずNot Verifiedだが、Acceptanceを妨げるFindingなし。Task／Report／TODO／Spec／Decision／Guideを同期済み。Commit pending、Push／Deployなし。
+```
+
+## P20-018G Port and Interactive Output Contract Checkpoint
+
+```text
+2026-08-10T18:08:12+09:00
+Task Acceptance now identifies printed `http://127.0.0.1:<grafana-port>` as the Grafana viewing URL; the printed random OTLP host port and container `4318` are ingestion endpoints, not UI. D138, Specification 100, and Report synchronize the interactive output contract: loopback URLs, safe Trace ID, and strictly allowlisted `metric=<stored-name>` only, excluding credentials, backend responses, trace/metric payloads, and labels. Task remains Review Pending. Commit／Push／Deployなし。
+```
+
+## P20-018G Final Documentation Detail Checkpoint
+
+```text
+2026-08-10T17:46:07+09:00
+LGTM laneだけが`BLACKOPS_OTEL_METRIC_TEMPORALITY=cumulative`をEmitterへ渡し、既存Collector laneのDefault temporalityを維持する。Interactive Probe成功行はallowlist済み`metric=<stored-name>`を表示し、GuideはFresh checkout／`docker compose build app`／Tempo datasource exact Trace ID／Prometheus exact name query／Ctrl-C cleanupを実行可能な一続きへ補正した。Tempoのknown `blackops.operation.execute` spanとPrometheus non-empty sampleを明記し、公開Guide管理ID guard PASS。ReportはP1/P2修正中、Documentation Reviewer re-review pending。Commit／Push／Deployなし。
+```
+
+## P20-018G Documentation Review Correction Checkpoint
+
+```text
+2026-08-10T17:44:40+09:00
+Shared Emitterは`BLACKOPS_OTEL_METRIC_TEMPORALITY=cumulative`指定時だけCUMULATIVEを選択し、LGTM shellだけがenvを渡す。未指定Collector laneは従来Defaultのまま。Interactive GuideはFresh checkout→`docker compose build app`→interactive起動→ready URL／Trace／Metric query→Ctrl-C cleanupを一続きにし、公開GuideからD138管理番号を除去した。ReportはInteractive TTY ready、credential non-exposure、exit130、cleanup、Website 77／check／build、Composer／format／Consumer／static PASS、analyze制約を反映した。Documentation Reviewer P1/P2 correction re-review pending。Commit／Push／Deployなし。
+```
+
+## P20-018G Final Static Fixture Checkpoint
+
+```text
+2026-08-10T17:40:20+09:00
+lgtm-query.phpのmetric JSON `data`を一度arrayへ正規化し、Magoのpossibly-null-array-accessを解消した。対象2 FixtureのMago format/checkとphp -lはPASS。lgtm-query単体Mago analyzeはdynamic JSON mixed-assignment 9 warningsのみで終了0。emit.php単体analyzeはmain ComposerにConsumer-only OpenTelemetry SDK／Exporterがないためclass解決不能（26 errors等）で、Production依存追加は行わない。Task／ReportはReview Pending、Commit／Push／Deployなし。
+```
+
+## P20-018G Interactive Journey Checkpoint
+
+```text
+2026-08-10T17:29:59+09:00
+P20-018GのNo-argument ConsumerはGREEN証拠後にURLを表示せずcleanupして終了し、`--interactive`だけがDevelopment-onlyの文書化済みDisposable loginを使ってProbe後にloopback Grafana／OTLP URLとsafe Trace IDを表示し、Ctrl-C／TERMまで待機する。Unknown argumentはsafe exit 2。Interactive credentialsはstdoutへ出さずGuideだけへ記載し、trapはContainer／Network／Temporary Artifactを回収する。Task／ReportはReview Pending、Full quality／Documentation ReviewはOrchestrator pending。Commit／Push／Deployなし。
+```
+
+## P20-018G Worker Completion Checkpoint
+
+```text
+2026-08-10T17:26:08+09:00
+Orchestrator escalated both Consumer journeys to PASS: Grafana LGTM health／datasource provisioning、exact request-path Tempo lookup with non-empty known `blackops.operation.execute` span、Prometheus bounded metric-name discovery／exact selected stable family／non-empty sample、sensitive／high-cardinality guard、random loopback ports、read-only source、status comparison、cleanup; existing OpenTelemetry Collector Consumer and post-stop isolation also PASS. LGTM Emitter selects cumulative temporality for Prometheus OTLP ingestion only; Framework metric schema remains unchanged. Task／Report／TODO／Spec／Guide synchronized、Task is Review Pending. Composer／Mago／Website full gates and Documentation Reviewer remain pending independent review. Commit／Push／Deployなし。
+```
+
+## P20-018G Metric Temporality and Discovery Checkpoint
+
+```text
+2026-08-10T17:24:39+09:00
+Orchestrator escalated runs proved Tempo exact lookup and isolated the LGTM Prometheus failure to OTel PHP DELTA temporality, which LGTM's OTLP ingestion does not convert. Existing Consumer Emitter now selects `Temporality::CUMULATIVE` only for the Prometheus LGTM lane; Framework metric schema/names/units and Collector contract remain unchanged. Grafana probe retries bounded metric-name discovery, selects only dotted/normalized `blackops.operation.duration` family names, queries the exact selected name, and emits only safe filtered names on failure. The fourth LGTM Consumer rerun and existing Collector Consumer both PASS. Commit／Push／Deployなし。
+```
+
+## P20-018G Worker Implementation Checkpoint
+
+```text
+2026-08-10T15:55:29+09:00
+P20-018GのD138、固定Digest LGTM Consumer、Grafana datasource proxy probe、Spec／Roadmap／TODO、Public Guide、Reportを実装した。Consumerはrandomized network／container／temporary cleanup、loopback random Grafana 3000／OTLP HTTP 4318のみのHost publish、source read-only mount、前後git status不変、Tempo exact Trace ID、Prometheusへ正規化されたHistogram series、Sensitive／high-cardinality否定検証を持つ。Worker shellでのConsumer実行はDocker API socket permission deniedで開始前にBlocked（Resource生成なし）。Orchestrator escalated Docker run、Mago／Composer／Website gate、Documentation Review後にReview Pendingへ更新する。Commit／Push／Deployなし。
+```
+
+## P20-018G Local Grafana LGTM Dashboard Start
+
+```text
+2026-08-10T15:30:31+09:00
+UserはLocal OpenTelemetryの閲覧BackendにGrafanaを選択した。現行D136／Specification 100ではDashboard／Vendor Backendがscope外のため、Development／Demo／Test専用、Application-owned、Production dependency／Default Compose／Readiness／Remote Credentialなしの境界を新Decisionへ固定してP20-018Gを開始する。公式Grafana文書とRegistryを確認し、`grafana/otel-lgtm:0.29.2@sha256:af7242c1a9608faf6d26e6f235392fd0c32b67258228f9a3cfc96e724974930c`がlinux/amd64／arm64のOCI indexであること、現在のLocal Containerがhealthy、Grafana 3000とOTLP 4317／4318をloopback限定公開していることを確認した。TaskではHost公開を3000／4318だけに絞り、BlackOps Trace／MetricのTempo／Prometheus保存、Grafana datasource、Security、cleanup、GuideをConsumer evidenceへ固定する。Repository設定どおりGPT-5.6 Luna High workerへ委譲し、Documentation Reviewerを含む独立Review後にAcceptanceする。Commit／Push／Deployなし。
+```
+
+## P21-007 and Phase 21 Accepted
+
+```text
+2026-08-10T14:15:03+09:00
+P21-007 removalを75469b1、Consumer／Task scan整合補正をf772f14としてCommit後、final Git HEADでexact Framework Git／Composer package export、isolated 42-package clean install、vendor/ray不在、Framework autoload／profile probe、HEAD Ray／profile scan、削除path不在、clean worktreeをPASSした。Orchestrator full regression 2,315 tests／9,432 assertions、Focused 68／293、Composer validate strict、lock-based ext-tokenizer確認、format、changed-source analyze 0 errors、管理番号／diff guard、Documentation Reviewer P1=0／P2=0／P3=0を合わせ、P21-007をAcceptedとする。Frameworkがsole profileで、Legacy Rayと`never`／named variadicの互換例外は削除済み。no-fallback、immutable Profile Unit、complete-release rollback、Framework Signature／DI／Lifecycle契約を維持し、Phase 21をCompleteとする。Push／Deployなし。
+```
+
+## P21-007 Orchestrator Review Pending
+
+```text
+2026-08-10T14:08:59+09:00
+Orchestrator independent reviewでP21-007のworking-tree removal gateをPASSした。Accepted manifestどおりRay source／fixtures／profile option／artifact branch／Composer dependencyを削除し、Framework sole profile、`never`／named variadic support、no-fallback、immutable Profile Unit、complete-release rollback、global generated-prefix guardを保持した。Neutral Profile Unit security guardとpositive Framework proxy identity evidenceを補強し、Focused 68 tests／293 assertions、Full 2,315／9,432、Composer validate strict、Framework-only Consumer package export＋isolated 42-package install、lock-based ext-tokenizer dependency、format、changed-source analyze 0 errors、Ray／namespace／管理番号guard、diff checkを独立PASS。Documentation ReviewerはP1=0／P2=0／P3=0でAcceptance許可。P21-007はReview Pendingで、実装Commit後のGit HEAD archive／Ray不在証明を残して最終Acceptedとする。Push／Deployなし。
+```
+
+## P21-007 Ray Removal Worker Review Pending
+
+```text
+2026-08-10T14:02:13+09:00
+P21-007 worker実装をFiles Allowed／accepted removal manifestへ限定し、Frameworkをsole profileへ固定した。Ray AOP source／fixtures／compatibility runners／profile option／artifact branch／Composer ray/aopとlock entryを削除し、Framework Signature／DI／Lifecycle、no-fallback、immutable Profile Unit、complete-release rollback、global generated-prefix guardを保持した。Expanded focused PHPUnitは68 tests／293 assertions、Full PHPUnitは2,312 tests／9,423 assertions、Composer validate／format／namespace／管理番号／diff checks、Consumer Framework-only package export＋isolated 42-package clean install（vendor/ray/aop不在）をPASS。Scoped Mago analyzeは既存mixed／strict warningsのみ。ReportをReview Pendingで更新し、Commit／Push／Deployなし。
+```
+
+## P21-007 Ray Removal and Phase 21 Closeout Start
+
+```text
+2026-08-10T13:24:59+09:00
+P21-006は75fd248としてCommit済みで、post-commit exact `bash tests/Consumer/framework-proxy-compatibility.sh`を再実行した。Git HEAD `dev-main 75fd248`のFramework package export、isolated Composer 43 installs、`Mirroring from /repository`、Production autoload、profile option、non-symlink vendor copy、Working Tree不変をPASS確認した。Accepted P21-006 removal manifestをP21-007 Task／Specification 101／102／D137へ照合し、Files Allowedに不足がないことを確認してP21-007をIn Progressとした。Frameworkをsole profileへ固定し、Ray source／fixture／Composer dependency／compatibility selector／`never`とnamed variadicの二例外を同一Taskで削除する。Framework Signature／DI／Lifecycle、no-fallback、immutable Profile Unit、complete-release rollbackを保持する。Repository設定どおりGPT-5.6 Luna High workerへ委譲し、Orchestratorが独立Reviewする。Push／Deployなし。
+```
+
+## P21-006 Framework Proxy Compatibility and Migration Accepted
+
+```text
+2026-08-10T13:23:15+09:00
+Orchestrator independent reviewでP21-006をAcceptedとした。User選択どおりLegacy Ray 2.20.0の`never` compile failureとnamed variadic value-lossだけを互換期間の明示例外とし、Frameworkは両Signatureをsupport、no-fallbackとその他shared Signature／DI／Transaction／AfterCommit／Operation matrixを維持した。共通immutable Profile Unit、Build／profile／hash／inventory／realpath identity検証、二つの完全Build IDによるprevious Container rollback、strict collision guardをSourceとfresh-process fixtureへ照合した。Required 45 tests／274 assertions、Integration 10／262、Full 2,346／9,569、Consumer package export／isolated Composer 43 install、format、changed-source analyze 0 errors、管理番号guard、diff checkを独立PASS。Documentation ReviewerはP1=0／P2=0／P3=0でAcceptance許可。P21-007をReadyとし、accepted removal manifestでRayと二例外を同時削除する。Commit／Push／Deployなし。
+```
+
+## P21-006 Both Legacy Ray Exceptions Review Pending
+
+```text
+2026-08-10T12:11:53+09:00
+Framework named variadic正常動作（`named4`）とLegacy Ray value-loss（`named`）を、外側／内側とも15秒上限、generated source／sensitive fixture text非出力、temporary tree cleanup付きfresh-process evidenceへ固定した。Framework-only `never`／bounded Ray fatalと合わせ、User選択どおり二例外だけをDecision／Specification／Task／Guide／P21-007 removal manifestへ同期した。Orchestrator Required PHPUnit 45 tests／274 assertions、Compatibility 6／86を独立PASS。P21-006はReview Pending、Documentation final re-reviewとbroad regression待ち。Commit／Push／Deployなし。
+```
+
+## P21-006 Named Variadic Exception Decision
+
+```text
+2026-08-10T12:05:23+09:00
+UserはLegacy Ray named variadic value-lossを第二の互換期間例外としてDecision／Specificationへ記録し、P21-007でRayと一緒に削除する案を選択した。例外はRay 2.20.0の`never` compile failureとnamed variadic forwardingだけに限定し、Framework-owned generatorの両Signature support、no-fallback契約、その他shared matrixは変更しない。Framework正常動作とbounded Ray value-lossをfresh-process evidenceへ固定し、Documentation再Review／最終Acceptanceへ進む。Commit／Push／Deployなし。
+```
+
+## P21-006 Named Variadic Decision Blocker
+
+```text
+2026-08-10T11:51:30+09:00
+Documentation re-review P2補正でshared Signature matrixをnamed variadic、parent type、unrelated class／method／parameter Attributes、failure pathまで拡張した。Legacy Rayは`variadic(prefix: 'named', values: 4)`のnamed variadic valueを落として`named`を返し、Frameworkの`named4`とparity不一致になる。User決定はRay `never`だけの明示例外であり、第二例外へ勝手に拡張しないためP21-006はIn Progress。その他shared rows、Framework-only `never`、bounded Ray fatal、二つのreal complete buildによるprevious Container fresh load／cross-Build rejectionはPASSし、Orchestrator Required PHPUnitは43 tests／263 assertions。公開／内部Guideのcommon Profile Unit、loader chain、`never` migration、complete rollback記述も補正済み。Commit／Push／Deployなし。
+```
+
+## P21-006 Never Exception Matrix Review Pending
+
+```text
+2026-08-10T11:37:00+09:00
+User-selected exceptionをtest matrixへ反映し、Legacy Ray／Framework共通fresh runnerは`never`以外の全supported Signature row、DI、Transaction、AfterCommit、Operation、failure behaviorを実行する。Framework `never`は独立fresh runnerでcompile／runtime PASS、Ray PHP 8.5 fatalはbounded evidenceとして維持した。Orchestrator required PHPUnit 41 tests／238 assertions、artifact＋Framework補完matrix 60／131を独立PASS。Production／Legacy Ray sourceは追加変更なし。P21-006はReview PendingでDocumentation re-reviewと最終broad regression待ち。Commit／Push／Deployなし。
+```
+
+## P21-006 Legacy Ray Never Exception Decision
+
+```text
+2026-08-10T11:16:19+09:00
+UserはRay 2.20.0を一時修正せず、PHP 8.5でcompile不能となる`never` return rowだけを互換期間の明示例外としてDecision／Specificationへ記録する案を選択した。Framework-owned generatorの`never` support、no-fallback契約、その他すべてのshared Signature／DI／Lifecycle matrixは変更しない。P21-006は例外を反映したsame-profile matrixとFramework `never` evidenceの補正、独立Review／Acceptance待ち。P21-007でRay profileと例外対象を削除する。Commit／Push／Deployなし。
+```
+
+## P21-006 Consumer Accepted／Ray Never Decision Blocker
+
+```text
+2026-08-10T10:25:55+09:00
+Orchestrator-approved exact `bash tests/Consumer/framework-proxy-compatibility.sh` rerun PASS。Framework package export、isolated Composer 43 installs、`Mirroring from /repository`、Framework／Ray Production autoload、profile option、non-symlink vendor copy、Working Tree不変を確認した。先行runで発見したConsumer probeのnamespace過剰escapeはTask内で補正済み。P21-006の残件はSpecification 101が要求するsame supported Signature matrixとread-only Legacy Ray compilerの矛盾だけで、`never` Transactional methodはRay生成proxyが`A never-returning method must not return` PHP 8.5 Fatalとなる一方、Framework matrixはPASSする。TaskはIn Progress、Commit／Push／Deployなし。Rayを一時修正するか、明示的compatibility exceptionをDecision／Specへ記録するかOrchestrator判断待ち。
+```
+
+## P21-006 Consumer Escaping Correction Checkpoint
+
+```text
+2026-08-10T10:25:06+09:00
+Orchestrator Consumer run reached package mirroring then failed only the PHP autoload probe because framework compatibility class/interface literals in tests/Consumer/framework-proxy-compatibility.sh used doubled namespace separators. The script now emits PHP literals with the correct escaped separators for FrameworkProxyProfile, FrameworkProxyProfileLoader, and Ray WeavedInterface; bash -n and diff check pass. Exact Consumer rerun remains pending Orchestrator execution. Worker Commit／Push／Deployなし。
+```
+
+## P21-006 Compatibility Matrix Worker Checkpoint
+
+```text
+2026-08-10T10:18:15+09:00
+ApplicationBuildCompileCommandTest、FrameworkProxyCompatibilityTest、scheduled compiled-container assertions now compile in PHPUnit and execute all runtime checks in bounded proc_open runners using anonymous SQLite DBAL recording connections and DatabaseManager implementations. Focused required PHPUnit passes 40 tests／210 assertions; Framework generator/DI matrix passes 47／99. Proxy profile artifact publisher/loader now enforce manifest object/hash identity, exact Framework sibling directory, recursive inventory, file hashes, and symlink rejection; artifact focused tests pass 13／32. Ray legacy `never` support-row reproduction remains an explicit PHP 8.5 fatal blocker (`A never-returning method must not return`) with exact SignatureMatrix fixture/command recorded in Report; full dual-profile signature/DI parity is not claimed. Consumer Docker journey remains Orchestrator pending. Worker Commit／Push／Deployなし。
+```
+
+## P21-006 Profile Artifact Unit Checkpoint
+
+```text
+2026-08-10T09:59:02+09:00
+Documentation correction scope implemented: common immutable Build-ID/content-hash ProxyProfileArtifact manifest/publisher and prevalidation loader now bind Ray returned files or Framework manifest directory/hash as one atomic unit; central compile/dump uses the unit and emits zero-target Framework manifests. Ray identity preflight now requires exact target path and rejects anonymous/no-identity files before execution. Artifact publisher/loader tests pass 6 tests／13 assertions; full Ray/Framework runtime matrix remains blocked by same-process Ray compiler preloading and requires proc_open isolation. Consumer remains blocked by Docker API permission. Worker Commit／Push／Deployなし。
+```
+
+## P21-006 Documentation Review Correction Start
+
+```text
+2026-08-10T09:29:46+09:00
+Documentation ReviewerのRead-only reviewでP1=3／P2=3／P3=1となりAcceptance不可。Consumer exact scriptはOrchestrator escalated実行でpackage export後のisolated Composer installまで進んだが、Composer path repositoryがsymlink=false設定を反映せずSymlinkとなり非zero終了した。P1のうちStable/main表示、configuration artifact path、Ray profile manifest未記録を採用し、P2のunsupported signature migration、same full compatibility matrix、complete rollback runbookとP3 internal indexを補正する。P21-006 scopeへprofile別immutable compatibility artifact adapter／loaderとexact tests、configuration／release／internal index文書だけを追加する。Legacy Ray compiler、Operation／HTTP manifest schema、Public Website、Composer dependencyは変更しない。Worker Commit／Push／Deployなし。
+```
+
+## P21-006 Review-Correction Checkpoint
+
+```text
+2026-08-10T05:25:00+09:00
+Independent-review corrections applied without commit: Ray／Framework compatibility executes the same typed-variadic, constructor-DI/singleton, nested, rollback, and AfterCommit fixture matrix plus the same proxied Operation fixture; direct Operation handle has no transaction delta and the outer Required transaction adds exactly one begin/commit in both profiles. RuntimeContainerDumper has manifest-aware loader, mismatch, null-pair, and dual-input tests; two immutable complete Build IDs are loaded with cross-identity and cross-hash rejection; outer lazy build help exposes --proxy-profile; rollback docs select previous complete Container+manifest+artifact; consumer script invokes exact package export, isolated Composer install with symlink=false, vendor autoload checks, profile option surface checks, and worktree status check; Ray removal manifest names exact source/test/fixture/Composer/central/docs actions and retains global __BlackOpsProxy_ guard. Required focused PHPUnit passes with 40 tests／202 assertions, Mago format／scoped analyze, management-ID guard, and diff check pass. Consumer remains unchecked because shell Docker API access is permission denied. Report Status Review Pending. Worker Commit／Push／Deployなし。
+```
+
+## P21-006 Worker Implementation Checkpoint
+
+```text
+2026-08-10T04:25:00+09:00
+Implemented the single build:compile --proxy-profile=ray|framework option (default ray), Framework generator/Definition compiler integration, nested Definition runtime invocation wiring through the accepted P21-005 initializer seam, immutable FrameworkProxyProfileLoader container bootstrap, mixed-profile rejection, compatibility fixtures/tests/consumer journey, migration docs, and reviewed Ray removal manifest. Required focused PHPUnit 32 tests／150 assertions, compiled Framework journey, Mago format／scoped analyze, management-ID guard, and diff check pass. Consumer script is blocked by Docker API permission in its shell process and is handed to Orchestrator for rerun. Worker Commit／Push／Deployなし。
+```
+
+## P21-006 Task Scope Correction
+
+```text
+2026-08-10T03:55:48+09:00
+Orchestrator source reviewで、Application `build:compile`はApplicationConsoleKernelのLazyFrameworkCommandを外側に持つため、実Commandだけへ`--proxy-profile`を追加してもouter input validation／helpへ反映されないことを確認した。またRequired PHPUnitが`tests/Internal/Aop/FrameworkProxyCompatibility`を参照する一方でFiles Allowedから欠落していた。P21-006 Files AllowedへApplicationConsoleKernelのexact option definitionとcompatibility test directoryだけを追加し、P21-007へaccepted compatibility option removal targetを同期した。Factory／他Command／Ray sourceへScopeを広げない。Worker Commit／Push／Deployなし。
+```
+
+## P21-006 Ray／Framework Compatibility and Migration Start
+
+```text
+2026-08-10T03:53:19+09:00
+P21-005は86686b8、post-commit package export記録はe50d070としてCommit済みでWorking Tree cleanを確認した。P21-006をIn Progressとして開始する。Application-aware `build:compile --proxy-profile=ray|framework`（default ray）でprofileを一つだけ選び、accepted P21-002〜005 seamをcentral command／RuntimeContainerDumperへ接続する。Ray／Framework golden compatibility、manifest/profile mismatch／dual proxy、previous complete build rollback、OPcache-safe identity、Consumer clean install／package export、migration guide、reviewed Ray removal manifestを検証する。Standalone legacy command、Composer／Ray source deletion、P21-002〜005 implementation、Public Websiteは変更しない。Repository設定どおりGPT-5.6 Luna High workerへ委譲し、Orchestratorが独立Reviewする。Worker Commit／Push／Deployなし。
+```
+
+## P21-005 Post-commit Package Export Accepted
+
+```text
+2026-08-10T03:52:57+09:00
+Accepted P21-005を86686b8としてCommit後、exact `bash tests/Consumer/framework-package-export.sh`を再実行し、新規FrameworkProxyRuntime／Transaction binding／Operation ownership guard sourceを含むGit HEAD archiveとComposer worktree archiveのProduction autoload／exclude contractをPASS確認した。Working Tree不変とtemporary package cleanupもPASS。次はP21-006 Ray／Framework Compatibility and Migration。Push／Deployなし。
+```
+
+## P21-005 Framework Proxy Runtime Ownership Accepted
+
+```text
+2026-08-10T03:51:21+09:00
+Orchestrator independent reviewでP21-005をAcceptedとした。P21-002 canonical ownership／resolved connection metadata、P21-003 invocation ABI、P21-004 Definition bindingだけをread-onlyで消費し、Service Required transaction、Operation Inline／Deferred／self-handled lifecycle pass-through、Operationを含むAfterCommit queue、binding source／generated proxy identity guardを確認した。Named connection、nested rollback-only、manual collision／leak、original Throwable identity、callback ordering／rollback discard／failure isolation、shared-connection Operation Terminal／Outcome atomicityとService保証差、Ray／Framework conflictをsourceとrunnable fixtureへ照合した。Focused 26 tests／55 assertions、Full 2,314／9,379、format、changed-source lint／analyze No issues、management-ID guard、diff check、pre-commit Framework package exportを独立PASS。P21-006をReadyとする。Worker Commit／Push／Deployなし。
+```
+
+## P21-005 Framework Proxy Runtime Ownership Worker Checkpoint
+
+```text
+2026-08-10T03:49:55+09:00
+P21-005 final bounded correction: Operation metadata validation now compares the lifecycle transaction connection only with the resolved `handle` method metadata; no unrelated method connection is over-rejected. Focused PHPUnit 26 tests／55 assertions、full format、changed-source Mago lint／analyze、management-ID guard、diff checkをPASS。ReportをReview Pendingへ更新。P21-006がcompiled-container initializer wiringを所有する。Worker Commit／Push／Deployなし。
+```
+
+## P21-005 Framework Proxy Runtime Ownership Start
+
+```text
+2026-08-10T03:32:27+09:00
+P21-004は0e1b18c、post-commit package export記録はb4c67e9としてCommit済みでWorking Tree cleanを確認した。P21-005をIn Progressとして開始する。Accepted P21-002 connection／ownership metadata、P21-003 invocation seam、P21-004 Definition bindingをread-onlyで消費し、一般ServiceのRequired Transaction／AfterCommit callback queueとOperation Lifecycle pass-throughを接続する。Inline／Deferred／self-handled／general Serviceのone-owner、rollback-only／manual mixing／callback ordering／failure isolation、Ray／Framework mode conflictを検証する。Generator／artifact／DI preservation、central profile integration、Ray／Composer、Public docsは変更しない。Repository設定どおりGPT-5.6 Luna High workerへ委譲し、Orchestratorが独立Reviewする。Worker Commit／Push／Deployなし。
+```
+
+## P21-004 Post-commit Package Export Accepted
+
+```text
+2026-08-10T03:31:46+09:00
+Accepted P21-004を0e1b18cとしてCommit後、exact `bash tests/Consumer/framework-package-export.sh`を再実行し、新規FrameworkProxyDefinition binding／compiler sourceを含むGit HEAD archiveとComposer worktree archiveのProduction autoload／exclude contractをPASS確認した。Working Tree不変とtemporary package cleanupもPASS。次はP21-005 Transaction／AfterCommit Runtime Ownership。Push／Deployなし。
+```
+
+## P21-004 Framework Proxy Symfony DI Preservation Accepted
+
+```text
+2026-08-10T03:28:55+09:00
+Orchestrator independent reviewでP21-004をAcceptedとした。全attributed Definitionとunsupported／dual ownershipをmutation前に検査し、P21-003 single batch artifactを生成・exact manifest load・full class map validation後に同じDefinition objectのclass referenceだけを置換することをSourceとfixtureへ照合した。Arguments／bindings／properties／public／shared／autowired／tags／autoconfigured／instanceof conditionals／ordered method calls（returnsClone含む）／valid configurator／file／deprecation、Alias target／visibility／deprecation／shared identity、safe factory sentinel否定、factory／lazy／synthetic／abstract／decoration、Ray／global Framework prefix conflict、non-target synthetic skip、no partial mutationを確認した。実compiled Containerでconstructor／property／ordered calls／configurator／file／aliasを実行し、focused 13 tests／49 assertions、Full 2,288／9,324、format、changed-source lint／analyze No issues、management-ID guard、diff check、pre-commit Framework package exportを独立PASS。Ray compatibility guardとexact fixtureはP21-006 removal manifest／P21-007 Files Allowedへ同期し、P21-005をReadyとする。Worker Commit／Push／Deployなし。
+```
+
+## P21-004 Framework Proxy Symfony DI Preservation Worker Correction Checkpoint
+
+```text
+2026-08-10T03:26:07+09:00
+P21-004 runnable-journey correction applied: the target now uses a method-level Transactional execute() while DI lifecycle methods remain unannotated; the configurator accepts the service instance, and the compiled-container fixture proves constructor injection, properties, ordered calls, returnsClone, configurator, file, alias, and shared identity. Focused PHPUnit 13 tests／49 assertions、full format、changed-source Mago lint／analyze、management-ID guard、diff checkをPASS。Worker Commit／Push／Deployなし。
+```
+
+## P21-004 Framework Proxy Symfony DI Preservation Worker Checkpoint
+
+```text
+2026-08-10T03:20:43+09:00
+P21-004 Worker implementation completed without commit. Framework Definition compiler now plans and validates all attributed targets before mutating any Definition, loads the exact P21-003 manifest, preserves the same Definition and alias objects while replacing only class metadata, records safe per-service Framework binding metadata, rejects unsupported Definition features and Ray/Framework dual ownership, and skips non-target synthetic definitions. Focused PHPUnit 13 tests／37 assertions、full format、changed-source Mago lint、management-ID guard、diff checkをPASS。Reportを作成し、Orchestrator independent review待ち。Worker Commit／Push／Deployなし。
+```
+
+## P21-004 Framework Proxy Symfony DI Preservation Start
+
+```text
+2026-08-10T03:10:40+09:00
+P21-003は9b73355、post-commit package exportは30cac09としてCommit済みでWorking Tree cleanを確認した。P21-004をIn Progressとして開始する。Accepted P21-002 metadata／ownershipとP21-003 generator／artifact seamをread-onlyで消費し、Symfony Definitionのclass referenceだけをFramework proxyへ置換してsame service ID／alias graph／arguments／bindings／properties／visibility／shared／tags／autoconfiguration／instanceof conditionals／method calls／configurator／file／deprecationを保存する。Factory／lazy／abstract／decorationはstable safe Build Error、SyntheticはAttribute target時だけ明示Errorとして扱い、unsupported featureのunproxied fallback、Ray／Framework dual proxy、Runtime Source Scanを禁止する。Generator／Artifact、Transaction Runtime、central profile integration、Ray／Composer、Public docsは変更しない。Repository設定どおりGPT-5.6 Luna High workerへ委譲し、Orchestratorが独立Reviewする。Worker Commit／Push／Deployなし。
+```
+
+## P21-003 Post-commit Package Export Accepted
+
+```text
+2026-08-10T03:10:14+09:00
+Accepted P21-003を9b73355としてCommit後、exact `bash tests/Consumer/framework-package-export.sh`を再実行し、新規FrameworkProxyGenerator／FrameworkProxyArtifact／FrameworkProxyArtifactLoader sourceを含むGit HEAD archiveとComposer worktree archiveのProduction autoload／exclude contractをPASS確認した。Working Tree不変とtemporary package cleanupもPASS。次はP21-004 Framework Proxy Symfony DI Preservation。Push／Deployなし。
+```
+
+## P21-003 Framework Proxy Generator and Artifact Accepted
+
+```text
+2026-08-10T01:33:36+09:00
+Orchestrator independent reviewでP21-003をAcceptedとした。P21-002 metadata／ownership seamをread-onlyで消費するFramework subclass emitter、readonly-safe WeakMap initializer、full source／signature／context hash identity、data-only manifest、isolated syntax／actual class／parent／staging-path verification、same-filesystem atomic publish、active／previous retention、failed-build last-known-good、strict manifest/hash/map/inventory loader、idempotent exact load、different-path OPcache identity rejection、Runtime no Source ScanをSourceとfixtureへ照合した。別file継承methodのsame-size／mtime drift、valid PHP wrong-class、concurrent staging、tampered immutable unit、loader schema／symlink／pre-execution rejectionを含むfocused 59 tests／120 assertions、Full 2,275／9,275、format、changed-source lint／analyze 0 errors、management-ID guard、diff check、pre-commit Framework package exportを独立PASS。Ray／Symfony DI／Transaction Runtime／Composerは未変更。P21-004をReadyとする。Worker Commit／Push／Deployなし。
+```
+
+## P21-003 Generator and Artifact Correction Checkpoint
+
+```text
+2026-08-10T01:29:21+09:00
+Corrected P21-003 Builder／Generator／Loader strictness. Builder now validates the actual emitted proxy declaration, exact parent, and staging path in an isolated array-form PHP subprocess with active Composer autoload and drained pipes; failures use stable diagnostic codes and preserve last-known-good/index/staging. Manifest input identity includes target plus every proxied method's reflected declaring file hash under semantic class/method keys (without paths), and Loader binds target source hashes, preflights loaded identities, supports exact repeated loads, and rejects same FQCN from another path. Focused PHPUnit 59 tests／120 assertions PASS; full format, changed-source lint (advisory only), changed-source analyze (0 errors), management-ID guard, and diff check PASS. P21-003 Report Review Pending; Worker Commit／Push／Deployなし。Task status synchronization remains Orchestrator-owned.
+```
+
+## P21-003 Generator and Artifact Loader Strictness Checkpoint
+
+```text
+2026-08-10T00:45:21+09:00
+Loader signature now requires expected manifest hash before optional profile; exact manifest/entry schemas, FQCN/path/hash validation, duplicate identity checks, recursive inventory, map cardinality, and all-class preflight execute before generated files are required. Generator consumes P21-002 profile guard, rejects Ray mode, rejects duplicate source targets, and canonicalizes full-hash context identity separately from caller input hashes. Builder validates emitted extends identity, source hash results, strict index schema, and cleans index staging failures. Emitter forwards exact positional/named-variadic arguments, captures only the argument vector, handles Operation pass-through, and uses explicit reflection type branches. Focused PHPUnit is 54 tests／106 assertions PASS, including full P21-002 reject matrix, supported type/default/attribute rows, external input/list-assoc context identity, same-size/mtime drift, immutable reuse/retention/rollback, invalid-new-build preservation with concurrent staging, tampered immutable preservation, exact loader codes for profile/version/schema/input/source-path/directory/file/map/inventory/symlink mutations, wrong expected manifest hash, and empty/no-source-scan loading; changed-source Mago analyze is now 0 errors with advisory warnings/helpers only. Targeted format, management-ID, and diff checks are clean; latest lint output has advisory warnings only. P21-003 In Progress; Worker Commit／Push／Deployなし。
+```
+
+## P21-003 Generator and Artifact Follow-up Checkpoint
+
+```text
+2026-08-10T00:22:00+09:00
+Builder／Generatorをsingle batch pipelineへ置換し、legacy publish pathを削除した。PHP_BINARY -l array-form subprocess、full canonical batch inputHash、proxy FQCN／directory／manifest identity、explicit-context delegation、loader pre-require class-map validation／runtime version checks、stable artifact diagnostic code constantsを追加。Focused PHPUnitは5 tests／8 assertions PASS、format／diff clean。Changed-source Mago analyzeとbroad matrix／retention／tamper／concurrency fixturesは未完了で、Reportへ未達として記録。P21-003はIn Progress継続、Worker Commit／Push／Deployなし。
+```
+
+## P21-003 Framework Proxy Generator and Artifact Review Pending
+
+```text
+2026-08-09T23:57:31+09:00
+P21-003のFramework-owned subclass emitter、Transactional／AfterCommit narrow ABI、readonly-safe WeakMap initializer、multi-proxy staging／atomic publication、Build ID＋full input hash immutable path、JSON data-only manifest、active／previous retention、manifest-first Runtime loaderを実装した。P21-002 FrameworkProxyContract／Profile／Ownership／Signature／Diagnostic seamはread-onlyで消費し、Ray、Symfony DI、Transaction Runtime、Composerは変更していない。Docker direct smokeでComplexType＋Readonlyの2 proxy batch parse／loadをPASS、git diff --checkとmanagement-ID guardをPASS。Focused PHPUnit／format／lint／changed-source analyzeはDocker socket permission interruption後のrerun待ち。ReportをReview Pendingへ作成、Worker Commit／Push／Deployなし。
+```
+
+## P21-003 Framework Proxy Generator and Artifact Contract Start
+
+```text
+2026-08-09T23:40:30+09:00
+P21-002は18eafe3、post-commit package exportは8ef859fとしてCommit済みでWorking Tree cleanを確認した。P21-003をIn Progressとして開始する。Accepted FrameworkProxyContract seamをread-only入力として、Framework-owned PHP subclass generator、signature emission、Build ID／content-hash manifest、unique staging、parse／class／hash verification、same-filesystem atomic publish、failed-build last-known-good、post-success stale cleanup、drift loader、Runtime no-scan、OPcache-safe immutable pathを実装する。Symfony DI mutation、Transaction Runtime binding、central build profile integration、Ray／Composer removalは範囲外。後続PacketはP21-002のProfile／Connection identityを重複実装しないよう同期した。Repository設定どおりGPT-5.6 Luna High workerへ委譲し、Orchestratorが独立Reviewする。Worker Commit／Push／Deployなし。
+```
+
+## P21-002 Post-commit Package Export Accepted
+
+```text
+2026-08-09T23:39:35+09:00
+Accepted P21-002を18eafe3としてCommit後、exact `bash tests/Consumer/framework-package-export.sh`を再実行し、新規FrameworkProxyContract sourceを含むGit HEAD archiveとComposer worktree archiveのProduction autoload／exclude contractをPASS確認した。Working Tree不変とtemporary package cleanupもPASS。次はP21-003 Framework Proxy Generator and Artifact Contract。Push／Deployなし。
+```
+
+## P21-002 Framework Proxy Contract and Ownership Guard Accepted
+
+```text
+2026-08-09T23:38:06+09:00
+Orchestrator independent reviewでP21-002をAcceptedとした。Method-level bare TransactionalがClass-level connectionを継承せずBuild defaultへ解決するprecedence、default有無／constant owner／private inherited default、実repeated Attribute、safe diagnostic context、Operation／Service lifecycle marker、Profile conflict、全support／reject／N/A MatrixをSourceとfixtureへ照合した。Final focused PHPUnit 40 tests／130 assertions、changed-source Mago lint／analyze、full format、management-ID guard、pre-commit Framework package export、diff checkをPASS。Full初回は既存Outbox heartbeat timing assertionが1件失敗（2,215 tests／9,151 assertions）したがAssertionを変更せずexact 1 test／4 assertionsとclean full rerun 2,215／9,152をPASSし、非再現flakyとして分離した。Legacy Ray validator／generator／interceptor、Composer／Dependency変更なし。P21-003をReadyとする。Worker Commit／Push／Deployなし。
+```
+
+## P21-002 Framework Proxy Contract and Ownership Guard Review Pending
+
+```text
+2026-08-09T23:36:09+09:00
+P21-002の新規`FrameworkProxyContract` seamを実装した。immutable `ray`／`framework` profile identity、source-class metadata、class／method Attribute precedence、Operation Lifecycle／general Service ownership marker、profile conflict guard、Signature Matrix support／reject／N/A、generator／reference return／reference parameter／visibility／static／final／constructor／destructor／property／parameter／conflict／default diagnostics、safe service／source／method／Attribute／Build ID fieldsを追加した。readonly／inherited／variadic／union／intersection／DNF／nullable／never／mixed／static／self／parent／scalar／array／constant／enum default／inaccessible private／inherited private／explicit constant-owner collision／unrelated Attribute fixture、repeated `Transactional`／`AfterCommit` fixture、build-context connection precedence regression、reject matrixを追加し、focused PHPUnit 40 tests／130 assertions、Mago format／lint／changed-source analyze、management-ID guard、diff checkをPASS。Legacy Ray validator／generator／interceptor、proxy generation／artifact／DI／runtime／Composer／Ray removalは未変更。ReportをReview Pendingへ更新し、Orchestrator independent review待ち。Worker Commit／Push／Deployなし。
+```
+
+## P21-002 Framework Proxy Contract and Ownership Guard Start
+
+```text
+2026-08-09T22:51:04+09:00
+P21-001は9c6e7adとしてCommit済みでWorking Tree cleanを確認した。P21-002をIn Progressとして開始する。Specification 101のimmutable metadata、Attribute precedence、Signature Matrix validator、safe diagnostic code、source-class Operation ownership／profile conflict guardを新規`FrameworkProxyContract` seamへ実装する。Legacy Ray validator／generator／interceptorはread-onlyで変更せず、Proxy生成、Artifact、Symfony DI統合、Transaction Runtime wiring、Composer／Ray削除は範囲外。Repository設定どおりGPT-5.6 Luna High workerへTask Packet単位で委譲し、Orchestratorが独立Reviewする。Worker Commit／Push／Deployなし。
+```
+
+## P21-001 Framework-owned Transaction Proxy Decision and Delivery Plan Accepted
+
+```text
+2026-08-09T22:49:56+09:00
+Orchestrator independent reviewでP21-001をAcceptedとした。D137の全7回答がA、D137／Specification 101／102がDecided、P21-002のみReady、P21-003〜P21-007が依存順Plannedであることを照合した。Reviewではlegacy Ray validatorをP21-002 read-onlyに限定し、P21-003のvalidator重複を禁止し、Application-aware `build:compile --proxy-profile=ray|framework`（compatibility default ray）とmanifest-aware RuntimeContainerDumperをP21-006へ明示した。AOPを使わないlegacy standalone commandを対象外とし、P21-007はaccepted removal manifestと隔離Consumer clean-installを必須化した。Final required inventory 1,064 lines、Mago format、management-ID guard、diff checkを独立PASS。Production Source／Test／Composer／Public docs変更なし。Worker Commit／Push／Deployなし。次はOrchestrator Commit後にP21-002を開始する。
+```
+
+## P21-001 Framework-owned Transaction Proxy Decision and Delivery Plan Review Pending
+
+```text
+2026-08-09T22:48:17+09:00
+User回答（D137 Questions 1〜7すべてA）を反映し、D137をDecidedへ更新した。Specification 101をnormative contract、Specification 102をPhase 21 Delivery Planとして作成し、P21-002 Ready、P21-003〜P21-007 Plannedの依存Task Packetを作成した。Signature Matrixはgenerator／by-reference return／by-reference parameterを初期両Attribute rejectとして固定し、Operation Lifecycle ownership／DI preservation／safe diagnostics／content-hash artifact／atomic publish／stale cleanup／Runtime no-scan／OPcache path／mutually-exclusive Ray／Framework profile／rollback／Removal Gateを同期した。P21-001 Task／Report／TODO／STATE／Decision indexをReview Pendingへ更新。Production Code／Test／Fixture／composer.json／composer.lock／Public docsは変更せず、Worker Commit／Push／Deployなし。Orchestrator independent review待ち。
+```
+
+## P21-001 Framework-owned Transaction Proxy Contract User Answer Pending
+
+```text
+2026-08-09T22:24:11+09:00
+P21-001 read-only auditを完了した。Current Ray.Aop 2.20.0／Symfony DI Definition mutation／Operation Transaction Lifecycle／PHP Signature guards／artifact behaviorをSource、Tests、vendor contractへ照合し、D137へCurrent evidence、support／reject／not-applicable Matrix、DI preservation、Build ID／content drift／atomic publish／stale cleanup、Operation no-double-intercept、Migration／Compatibility／Ray.Aop Removal Gate、7 Questions／Options／Recommendations／明示[ANSWER]欄を記録した。D137、Task、Report、TODO、Spec Decision indexをUser Answer Pendingへ同期し、Specification 101／Delivery Plan 102／Production Task Packetsは回答後まで未作成・未確定。Production Code／Test／Fixture／composer.json／composer.lock／Public docsは変更せず、required rg、git diff --check、git statusをPASS。Worker Commit／Push／Deployなし。Orchestrator independent reviewとUser回答待ち。
+```
+
+## P21-001 Framework-owned Transaction Proxy Contract Start
+
+```text
+2026-08-09T22:14:28+09:00
+P20-018Fはdb866beとしてCommit済みでWorking Tree cleanを確認した。Phase 20を完了し、D108で決定済みのRay.Aop置換をPhase 21として開始する。最初にP21-001でCurrent AOP／Symfony DI／Transaction RuntimeをRead-only auditし、PHP Signature Matrix、Generated Artifact、DI Definition preservation、Operation二重Intercept防止、Migration、Compatibility、Ray.Aop Removal GateをD137へQuestion／Recommendationとして整理する。User回答前にProduction Code／Test／Dependencyを変更せず、汎用AOP Engine、Runtime Source Scan、External Issue／PR、Commit／Push／Deployは範囲外。Repository設定どおりGPT-5.6 Luna High workerへTask Packet単位で委譲し、Orchestratorが独立Reviewする。
+```
+
+## P20-018F Observability Documentation Accepted
+
+```text
+2026-08-09T22:10:24+09:00
+OrchestratorはP20-018FをAcceptedとした。初回Documentation ReviewのP1=4／P2=2はHost／Container lane、固定Config名、loopback-only publish／no-publish、Environment Snapshot、fresh Consumer prerequisite／cleanup、Structured Record actual wire、Specification 10／94同期で全件解消し、Correction Re-reviewはP1=0／P2=0／P3=0、Acceptance permitted。Website 77 tests、check、build、exact OpenTelemetry Consumer、Mago format、management-ID guard、diff checkを独立PASSし、更新ArtifactをChromiumで7 Routes × Desktop 1440 Light／Dark・Mobile 390 Light／Dark＝28 cases、0 failures、代表4 screenshots目視確認した。固定Digest CollectorのHost laneも実起動し、Everything is ready、docker port 127.0.0.1:4318限定、対象Container／Network cleanupを確認。Task／Report／TODO／STATEをAcceptedへ同期し、Worker Commit／Push／Deployなし。次はP20-018FのOrchestrator Commit後、Phase 21 Ready Taskを確認する。
+```
+
+## P20-018F Documentation Review Corrections Complete
+
+```text
+2026-08-09T20:14:55+09:00
+Documentation ReviewerのP1=4／P2=2指摘を反映した。Host／Container Collector laneを固定Config名、loopback-only publish／no-publish、unique resource、trap cleanup、fresh Consumer build prerequisiteへ分離し、Structured Recordの実wire（kind別operation／attempt／telemetry）とSpecification 10／94のStable／main境界を同期した。Provider例は解決済み全Environment SnapshotをEnvironmentとwithEnvironmentへ同じく渡す実装可能な形へ補正した。Website test 77、check、build、Consumer OpenTelemetry、Mago format、management-ID guard、diff checkをPASS。Browser Light／Dark／MobileとDocumentation Reviewer AcceptanceはOrchestratorへ委譲し、Worker Commit／Push／Deployなし。Task／Report／TODOをReview Pendingへ戻す。
+```
+
+## P20-018F Documentation Review Corrections Start
+
+```text
+2026-08-09T20:03:48+09:00
+Documentation ReviewerがP1=4／P2=2のChanges Requiredを返したため、P20-018FをIn Progressへ戻した。Review Report本文は変更せず、Collector Host／Container lane、固定Config名、loopback publish、fresh Consumer prerequisite／cleanup、Structured Record actual wire、Specification 10／94同期、Website regression guardsを許可範囲内で修正する。Production Code、Dependency、Migration、Commit／Push／Deployは変更しない。
+```
+
+## P20-018F Worker Documentation Handoff
+
+```text
+2026-08-09T18:27:34+09:00
+P20-018FのPublic Observability Guideを追加し、Structured Record Version 1のApplication／Framework／Journal／Audit wireとMigration Notice、Journal／Deployment／Release Status／Core API／Security／Troubleshooting／Internal Observability、Website content-map／sidebar／testsを同期した。Application-owned SDK／Exporter／MeterProvider／Flush／Shutdown、OperationalHealth explicit PSR-15／CLI adapter、pinned Collector runbook、Consumer full matrix command、Collector／Provider／Invalid Context failure isolation、Signal allowlist／Maskを文書化した。Website test 76、check、build 41 pages、exact tests/Consumer/opentelemetry-observability.sh、Mago format、management-ID guard、diff checkをPASS。Actual Playwright／ChromiumはWorker環境にないためDesktop 1440 Light／Dark・Mobile 390 Browser EvidenceはNot Verified。Documentation Reviewer Reportは未作成で、OrchestratorのRead-only Review／Browser Review／Acceptance待ち。TaskをReview Pending、TODO／Reportを同期し、Worker Commit／Push／Deployなし。
+```
+
+## P20-018F Observability Documentation Start
+
+```text
+2026-08-09T18:12:18+09:00
+P20-018Eはf8ebbf0、post-commit package verificationはf9d84e4としてCommit済みで、Working Tree cleanを確認した。P20-018FをIn Progressとして開始する。Structured Record v1、Application-owned SDK／Exporter、W3C propagation、Span／Metric reference、explicit Health／Readiness adapters、pinned Local Collector runbook、failure isolation／troubleshootingをPublic／Internal DocumentationとWebsiteへ同期する。既存Documentation IA／visual languageを維持し、trust-first technical editorialとしてDesktop 1440px Light／Dark、Mobile 390px、Table／Code／Diagram overflowを実Browserで検証する。Documentation本文はRepository設定どおりGPT-5.6 Luna High workerへ委譲し、完了後にGPT-5.6 Sol High Documentation ReviewerがRead-only reviewする。External Publication／Deploy、Worker Commit／Pushなし。
+```
+
+## P20-018E Post-commit Package Export Accepted
+
+```text
+2026-08-09T18:10:34+09:00
+Accepted P20-018Eをf8ebbf0としてCommit後、exact bash tests/Consumer/framework-package-export.shを再実行し、OperationalHealth public/internal source、explicit HTTP／CLI adapters、Composer production API-only boundaryを含むFramework Git／Composer Package Export ContractをPASS確認した。P20-018Eのpost-commit gateを完了し、次はP20-018F Observability Documentation and Read-only Documentation Review。Push／Deployなし。
+```
+
+## P20-018E Operational Health and Local Collector Accepted
+
+```text
+2026-08-09T18:09:14+09:00
+Orchestrator independent reviewでP20-018EをAcceptedとした。Public OperationalHealth Query／Report／Check、必須6 Readiness code、Dependency非参照Liveness、明示HTTP 200／503・no-store／CLI 0／1、throwing query／providerのsafe fallback、API-only Production Dependencyとrequire-dev SDK／Exporter境界をSource／Exact Testへ照合した。Final independent focused PHPUnit 390 tests／1,488 assertions、Full 2,176／9,025、pinned Collector OTLP HTTP Consumer、Quickstart、pre-commit Framework package export、Composer strict／locked audit／no-dev audit、Mago format、management-ID guard、diff checkをPASS。Collector E2EではSpan matrix、JSONL correlation、Metric 10件のName／Type／Unit／finite attribute、sentinel mask、停止後のPrimary Journey／Readiness isolation、deterministic cleanupを確認した。先行FullでHeartbeat timing failureが1回発生したが、Assertionを変更せずexact reproductionとclean full rerun 2回がPASS。Broad Magoは既知baseline、Deptracは既知PHP 8.5 vendor parser blocker。Task／Report／TODO／STATEをAcceptedへ同期し、Worker Commitなし。次はOrchestrator Commit後のexact package exportとP20-018F Documentation Review。Push／Deployなし。
+```
+
+## P20-018E Review Pending
+
+```text
+2026-08-09T18:03:06+09:00
+P20-018E worker implementation completed without commit. Version 1 OperationalHealth Query／Report／Check、public required readiness codes、explicit HTTP／CLI adapters、throwing-query/provider safe fallback、API-only production dependency boundary、pinned Collector Consumer fixtureを実装した。Escalated Docker E2E PASS: Collector 0.158.0 digest固定、OTLP HTTP 4318、server→inline child、deferred producer→worker retry、outbox producer→relay、schedule／maintenance、JSONL correlation、tenant／actor sentinel mask、metric 10件のName／Type／Unit／finite attribute、Collector停止後のbounded OTLP wrapper／Readiness isolation、named container／network／temp cleanup。Exact focused PHPUnit 390 tests／1,488 assertions、Composer strict、Mago format／lint／analyze、management-ID guard、diff／shell checks PASS。Full／Quickstart／exact package exportはOrchestrator gate。Task／Report／TODOをReview Pendingへ同期し、Worker Commit／Push／Deployなし。
+```
+
+## P20-018E Operational Health and Local Collector Start
+
+```text
+2026-08-09T10:04:54+09:00
+P20-018Dは4a11be7、post-commit package verificationはb494d70としてCommit済みで、Working Tree cleanを確認した。Official OpenTelemetry Collector Docker documentationとrelease repositoryを再確認し、2026-08-04 releaseのv0.158.0をcurrent fixed candidateとしてP20-018EをIn Progressへ更新した。otel/opentelemetry-collector:0.158.0はLocal未キャッシュ。OTLP HTTP 4318、receiver＋debug exporter、Consumer専用fixture、Production compose default不変更、SDK／Exporter／HTTP Clientはrequire-dev／Consumerのみ、Sensitive否定検証、Collector outage isolation、deterministic cleanupを維持する。Health／Readiness Production CodeとConsumer fixtureはRepository設定どおりGPT-5.6 Luna High workerへ委譲し、導入前Package／Image assessmentを先に行う。Worker Commit／Push／Deployなし。
+```
+
+## P20-018E Package and Image Assessment
+
+```text
+2026-08-09T10:07:24+09:00
+P20-018E導入前assessmentを完了した。Framework production dependencyは既存`open-telemetry/api` 1.10.0＋bounded context 1.5.0のみで、SDK／OTLP exporter／HTTP client／plugin／binary／credentialのComposer追加は不要。Consumer Collectorは`otel/opentelemetry-collector:0.158.0`、digest `sha256:5b97e6e3550ec6e48a71dba6f6304d349a293af8df4ee1f51da67be94fce2ecd`、user／entrypoint `10001:10001`／`/otelcol`を固定する。AssessmentをReportへ記録し、Health／Adapter／Consumer実装は未着手のためP20-018EをIn Progressで継続する。Worker Commit／Push／Deployなし。
+```
+
+## P20-018D Post-commit Package Export Accepted
+
+```text
+2026-08-09T04:46:24+09:00
+Accepted P20-018Dを4a11be7としてCommit後、exact bash tests/Consumer/framework-package-export.shを再実行し、ApplicationBuilder MeterProvider public composition、Internal Metric adapter、Operation／Worker／Outbox／Scheduler／Observer／Protection instrumentationを含むFramework Git／Composer Package Export ContractをPASS確認した。P20-018Dのpost-commit gateを完了し、次はP20-018E Operational Health and Local Docker Collector Evidence。Push／Deployなし。
+```
+
+## P20-018D OpenTelemetry Metric Adapter Accepted
+
+```text
+2026-08-09T04:44:50+09:00
+Orchestrator independent reviewでP20-018DをAcceptedとした。Typed per-Application MeterProvider、Official API-only No-op boundary、blackops.framework／1.1.0 scope、Stable 10 instrumentのName／Type／UCUM Unit、Compiled Operation Typeと有限Result／Runtime／Scheduler／Observer／Failure／Purpose属性、Active +1/-1 balance、Operation／Worker／Heartbeat／Outbox／Scheduler／Observer／Protection runtime wire、Provider／instrument failure isolationをSourceとRecording Provider evidenceへ照合した。Final independent required focused PHPUnit 223 tests／1,165 assertions、Full 2,164／8,990、Quickstart Consumer、pre-commit Framework package export、Composer strict／audit、Mago format、management-ID guard、diff checkをPASS。Broad Magoは既知baseline 75 findings（7 errors／25 warnings／29 notes／14 help）とanalyze 24 warningsへ戻りP20-018D driftなし、Deptracは既知PHP 8.5 vendor parser blockerとして分離した。Optional Queue Snapshotは未追加のためN/A。Task／Report／TODO／STATEをAcceptedへ同期し、Worker Commitなし。次はOrchestrator Commit後のexact package exportとP20-018E Local Docker Collector evidence。Push／Deployなし。
+```
+
+## P20-018D Second Orchestrator Review Corrections In Progress
+
+```text
+2026-08-09T04:20:17+09:00
+P20-018D worker correction evidence completed without commit: operation result matrix now covers all six finite terminal values with exact duration/active attributes and balance; worker claim matrix covers rejected, retry/dead-letter, invalid supervision, and interruption exception classes; maintenance and replay observe/flush failures preserve original throwables and emit exact safe labels; throwing MeterProvider preserves callback results and scope stack cleanup. Focused metric/worker/protection PHPUnit 73 tests／663 assertions and combined application/journal/replay/outbox/scheduling suite 469 tests／1,976 assertions passed. Changed-source analyze has no errors with three mixed-assignment warnings; targeted lint errors 0, format／diff／management-ID guard PASS. HTTP integration remains Orchestrator evidence (6 tests／73 assertions) without direct metric datapoint assertion; optional queue snapshot and broad/full/Consumer gates remain open. P20-018D remains In Progress; Worker Commit／Push／Deployなし。
+
+2026-08-09T04:31:33+09:00
+Orchestrator Full PHPUnit first run reached 2,164 tests／8,989 assertions with one failure because `tests/Application/ApplicationTest.php` omitted the new public `ApplicationBuilder::withMeterProvider` method from its exact fluent-shape list. Worker synchronized that test expectation only; the focused test passed 6 tests／39 assertions, and the rerun Full PHPUnit passed 2,164 tests／8,990 assertions with existing deprecation/notices only. Report records the correction; P20-018D remains In Progress with no commit／push／deploy.
+
+2026-08-09T04:41:55+09:00
+Final quality correction removed the three P20-018D changed-source lint warnings (ApplicationOperationRuntimeComposer／DeferredWorkerRuntime Halstead via small helpers; TelemetryMetrics no-isset and typed allowlist projection) and the corresponding TelemetryMetrics mixed-assignment analyze warning. Targeted changed-source `mago lint` and `mago analyze` both report No issues; ExecutionScopeProvider／ScheduledOperationRunner early branches were also simplified. Post-refactor focused suite passed 469 tests／1,976 assertions; full format, diff, and management-ID guards passed. Broad baseline drift remains Orchestrator-owned. P20-018D remains In Progress, no commit／push／deploy。
+```
+
+## P20-018D Runtime Instrumentation Evidence Update
+
+```text
+2026-08-09T03:57:19+09:00
+P20-018D correction turnでcompiled BopdEnvelopeCodecをimmutable cloneへ接続し、resolver／console／HTTP／outbox／schedule／worker／rotationの後続compositionで同じinstrumented cloneを使う。Metric instrumentごとのexact attribute allowlist、Compiled Operation Type allowlist、operation／worker attempt／relay／scheduler／observer境界分離、partial active increment failure balance、rejected／retry_scheduled／dead_lettered／interrupted result、maintenance／aggregator observer failureを補正した。Focused Deferred／Telemetry 59 tests／516 assertions、Internal application/journal/replay/outbox/scheduling 463 tests／1,918 assertions、changed-source analyze No issues (resolver mixed warnings only)、lint errors 0、format／diff／management-ID guard PASS。Optional queue snapshot、Full／Consumer／broad Mago／Deptrac／package exportは未実行。Reportは更新済みだがTaskはReview Pendingへ変更せずIn Progressを維持する。Worker Commit／Push／Deployなし。
+```
+
+## P20-018D OpenTelemetry Metric Adapter Start
+
+```text
+2026-08-09T03:25:18+09:00
+P20-018Cは87c444d、post-commit package verificationは3cda010としてCommit済みで、Working Tree cleanを確認した。D136 Question 6の回答AとSpecification 100のStable Instrument Matrixに従い、P20-018DをIn Progressとして開始する。Application-owned MeterProvider、blackops.framework scope、Operation／Worker／Outbox／Scheduler／Observer／Protectionの低Cardinality Metric、Active Counter balance、No-op／throwing Provider failure isolationをRepository設定どおりGPT-5.6 Luna High workerへ委譲する。SDK／Exporter／Collector／Healthは範囲外で、Local Docker Collector actual E2EはP20-018Eに維持する。Worker Commit／Push／Deployなし。
+```
+
+## P20-018C Post-commit Package Export Accepted
+
+```text
+2026-08-09T03:23:30+09:00
+Accepted P20-018Cを87c444dとしてCommit後、exact bash tests/Consumer/framework-package-export.shを再実行し、Official OpenTelemetry API-only dependency、ApplicationBuilder TracerProvider public composition、Internal Telemetry adapter、runtime span wiringを含むFramework Git／Composer Package Export ContractをPASS確認した。P20-018Cのpost-commit gateを完了し、次はP20-018D OpenTelemetry Metric Adapter。Push／Deployなし。
+```
+
+## P20-018C OpenTelemetry Trace Adapter Accepted
+
+```text
+2026-08-09T03:20:41+09:00
+Orchestrator independent reviewでP20-018CをAcceptedとした。Official typed OpenTelemetry API、per-Application immutable TracerProvider、blackops.framework／1.1.0 scope、active parent／persisted fallback、Deferred／Outbox Producer encrypted context、Worker retry Consumer、Relay／Schedule／Maintenance／Replay、finite result／runtime kind、masked actor／tenant、active JSONL／Journal correlation、Replay original correlation、failure isolation／finally cleanupをSourceとRecording Provider／PostgreSQL exact evidenceへ照合した。Independent exact 117 tests／837 assertions、Task-focused 480／2,000、Full 2,147／8,872、Quickstart、pre-commit package export、Composer strict／audit、Mago format、changed-source lint／analyze、management-ID guard、diff checkをPASS。Broad Magoは既存baseline、Deptracは既知vendor PHP 8.5 parser blockerとして分離した。Task／Report／TODO／STATEをAcceptedへ同期し、Worker Commitなし。次はOrchestrator Commit後のexact package exportとP20-018D。
+```
+
+## P20-018C Typed Outbox Operation Context Review Pending
+
+```text
+2026-08-09T01:49:12+09:00
+TransactionalOutboxRuntimeのtelemetry-only fake OperationEnvelopeを廃止し、Typed ExecutionContext／strategy／metadata typeをTelemetryTracer::operationContextへ渡す不変条件を修正した。Telemetry＋TransactionalOutbox focused 22 tests／85 assertions、HTTP Producer regression 1／25、changed-source analyze／format、guard／diff PASS。Outbox evidenceはchild operation type／strategy／IDとpersisted Producer contextを確認。Task／Report／TODO Review Pending、Broad gateはOrchestrator review。Worker Commit／Push／Deployなし。
+```
+
+## P20-018C Replay Correlation Distinction Review Pending
+
+```text
+2026-08-09T01:47:13+09:00
+Replay success evidence rerun PASS 1 test／11 assertions: stored original trace ID／span ID are both distinct from active blackops.observer.replay span while callback receives original correlation; result completed and span ended. Runtime suite report updated to 72 tests／607 assertions. Task／Report／TODO remain Review Pending; broad gates remain Orchestrator-owned. Worker Commit／Push／Deployなし。
+```
+
+## P20-018C HTTP Parent and Flags Evidence Review Pending
+
+```text
+2026-08-09T01:46:04+09:00
+HTTP Producer evidence rerun PASS 2 tests／33 assertions with remote parent trace/span, persisted Producer span ID, trace flags／tracestate, masked actor／tenant, success/rejection result, and encrypted context decode. Focused runtime／Telemetry／Scheduled／Outbox evidence remains green; Task／Report／TODO Review Pending. Broad gates remain Orchestrator review. Worker Commit／Push／Deployなし。
+```
+
+## P20-018C Final Focused Evidence Review Pending
+
+```text
+2026-08-09T01:45:07+09:00
+Final focused rerun PASS: runtime boundary 72 tests／606 assertions、HTTP Producer 2／28、Scheduled Runtime 5／33、Telemetry 8／29、Outbox BOPD 1／5。Changed-source Mago analyze／format、management-ID guard、git diff check PASS。HTTP success／reject、Scheduled Producer nesting、Replay original correlation、application／framework logger、Deferred／Outbox at-rest evidenceをReportのSpan／Parent tableへ同期し、Task／Report／TODOをReview Pendingへ保持する。Full／Consumer／Composer／Deptrac broad gateはOrchestrator reviewへ委譲。Worker Commit／Push／Deployなし。
+```
+
+## P20-018C Span Boundary and At-rest Evidence Review Pending
+
+```text
+2026-08-09T01:42:46+09:00
+HTTP Producer success／orchestrator rejection、Scheduled Deferred Producer nesting、Transactional Outbox insert、Worker Consumer、Relay／Schedule／Maintenance／Replay runtime、application／framework logger、Deferred／Outbox encrypted at-rest evidenceをRecording Provider／PostgreSQL exact testsで確認した。Focused runtime 71 tests／594 assertions、Telemetry 8／29、HTTP 2／28、Scheduled Producer 1／10、Outbox BOPD 1／5 PASS。Task／Report／TODOをReview Pendingへ同期し、Full／Consumer／Composer／Deptrac broad gateはOrchestratorへ委譲する。Worker Commit／Push／Deployなし。
+```
+
+## P20-018C Runtime Recording Evidence In Progress
+
+```text
+2026-08-09T01:36:44+09:00
+Recording fakeを公式ContextKeysで修正し、Telemetry 8 tests／29 assertions、runtime boundary 71 tests／594 assertionsをPASS確認した。Transactional Outbox Producer、Worker Consumer、Relay、Schedule evaluate、Maintenance、Observer Replay、active loggerのname／kind／result／ended evidenceを追加した。HTTP Producer exact recording、protected Deferred／Outbox decode、Replay original correlation／JSONL、Full／Consumer／Deptrac gateは未完了のためP20-018CをIn Progressのまま維持する。Worker Commit／Push／Deployなし。
+```
+
+## P20-018C Runtime Recording Evidence In Progress
+
+```text
+2026-08-09T01:24:59+09:00
+Second correctionのactual accept／insert Producer境界、worker attempt全体Consumer境界、finite result、masked actor／tenant、partial activation cleanup、Spec09 provider contractをSource上で確認した。ただしReport自身がRelay／Schedule／Maintenance／Replay runtime exact evidence、Replay original correlation、full JSONL、protected Outbox decodeを未確認と記録しており、Task AcceptanceのSpan Name／Kind／Parent／Close／Correlation Matrixを満たす変更Testが存在しない。さらにDeferred／Scheduled Producerはoperation()を使わず安全なOperation／Actor／Tenant属性を設定せず、retry／dead-letter supervisionでError Status／Safe error.typeを設定していない。P20-018CをIn Progressへ戻し、Production境界の限定補正とRecording Providerを使うruntime exact testをLuna High workerへ返す。Future時刻だった直前Checkpointを現在のJST時刻へ修正した。Worker Commit／Push／Deployなし。
+```
+
+## P20-018C Span Boundary and Worker Correlation Corrections Review Pending
+
+```text
+2026-08-09T02:20:00+09:00
+Deferred HTTP／Transactional Outbox Producerを実際のaccept／insert完了まで保持し、暗号化前のProducer Context、Worker Attempt開始JournalからTerminal／SupervisionまでのConsumer Span、有限result、actor／tenant masked属性、partial activation cleanup、Spec09 provider contractを補正した。Focused worker／producer／schedule／replay 81 tests／251 assertions、DeferredWorkerRuntime 34 tests／414 assertions、Telemetry／Journal／Execution 49 tests／463 assertions PASS、changed-source analyze No issues found。Task／Report／TODOをReview Pendingへ同期し、Worker Commit／Push／Deployなし。Relay／Schedule／Maintenance／Replayの追加runtime exact evidenceと最終広域ゲートはOrchestrator確認へ委譲する。
+```
+
+## P20-018C Exact Runtime Evidence Corrections In Progress
+
+```text
+2026-08-09T01:11:21+09:00
+Second independent reviewでtyped per-snapshot provider、official API、active parent優先、tracestate／flags、Journal active correlation、runtime compositionの主要構造は確認した。一方、Deferred HTTP Producer Spanがactual acceptance／Journal／enqueue前に終了し、Transactional Outbox Producer SpanもDB insert前に終了するため、failure／active correlation境界がSpecification 100と一致しない。blackops.resultとactor属性はallowlistだけでruntimeから設定されず、Provider／activate failureのpartial Span cleanup、Deferred／Outbox encrypted producer contextからWorker retry Consumerへ至るexact parent evidence、Relay／Schedule／Maintenance／Replay name-kind-close、Replay original correlation、active JSONL、failure isolationのruntime exact testも不足している。Reportの一部受入主張は現在のtest差分で裏付けられないためP20-018CをIn Progressへ戻し、Luna High workerへ限定修正を返す。Worker Commit／Push／Deployなし。
+```
+
+## P20-018C Orchestrator Review Corrections In Progress
+
+```text
+2026-08-09T00:29:46+09:00
+Independent reviewでP20-018CをIn Progressへ戻した。ApplicationBuilderのuntyped object＋process-global providerはApplication間のisolationを破り得る。Deferred／Transactional Outbox producerのactive Span Contextがencrypted ExecutionContextへ保存されず、Worker ConsumerがProducerではなく元incoming parentのsiblingになる。Canonical／Observed Journalはactive span correlationへ接続されておらず、Schedule evaluate spanはRunner／Runtimeで重複する。Application Outbox Relay／Observer Replay composition、instrumentation scope version、actor attributes、result/status、tracestate、public/internal namespace境界、active logger wireのevidenceも不足し、runtime exact testは未実装。Installed OpenTelemetry API／ContextをMago includeへ追加してReflection／object bridgeと新規analyze suppressionを除去し、typed per-Application provider、producer persistence、active Journal correlation、全runtime parent／ID／close／failure evidenceをTask scope内で修正する。Worker Commit／Push／Deployなし。
+```
+
+## P20-018C OpenTelemetry Trace Adapter Review Pending
+
+```text
+2026-08-09T00:24:30+09:00
+P20-018CのApplication-owned API-only Tracer bridge、blackops.framework scope、Inline／Deferred Acceptance／Worker Consumer、Transactional Outbox／Relay、Schedule／Maintenance／Observer Replay span境界、safe attribute allowlist、active JSONL correlation、finally detach／end、No-op／failure isolationを実装した。Focused PHPUnit 226 tests／1,090 assertions、format check、changed-source lint（errors 0）、changed-source analyze（OpenTelemetry vendor excludedのreflection-boundary advisoryのみ）を確認した。Full／Quickstart／Composer／broad Mago／Deptrac／management-IDはOrchestrator independent gate待ち。Task／Report／TODOをReview Pendingへ同期した。Worker Commit／Push／Deployなし。
+```
+
+## P20-018C OpenTelemetry Trace Adapter Start
+
+```text
+2026-08-09T00:07:14+09:00
+P20-018Bは3d87ae4、post-commit package verificationは106552aとしてCommit済みで、Working Tree cleanを確認した。P20-018CをIn Progressとして開始する。Application-owned TracerProvider、instrumentation scope blackops.framework、Deferred Acceptance／Outbox Producer、Inline Internal、Worker Consumer retry、Relay／Application Schedule／Maintenance／Observer Replay span、safe attribute allowlist、active correlation、finally detach／end、No-op／failure isolationをRepository設定どおりGPT-5.6 Luna High workerへ委譲する。Metric／SDK／Exporter／Collector／Healthは範囲外で、Local Docker Collector actual E2EはP20-018Eに維持する。Worker Commit／Push／Deployなし。
+```
+
+## P20-018B Post-commit Package Export Accepted
+
+```text
+2026-08-09T00:06:10+09:00
+Accepted P20-018Bを3d87ae4としてCommit後、exact bash tests/Consumer/framework-package-export.shを再実行し、TelemetryContext／TelemetryCorrelation、HTTP extractor、propagation／codec／safe journal correlation、open-telemetry/api Production Dependencyを含むFramework Git／Composer Package Export ContractをPASS確認した。P20-018Bのpost-commit gateを完了し、次はP20-018C OpenTelemetry Trace Adapter。Push／Deployなし。
+```
+
+## P20-018B Telemetry Context Propagation Accepted
+
+```text
+2026-08-09T00:04:56+09:00
+Orchestrator independent reviewでP20-018BをAcceptedとした。API-only open-telemetry/api Dependency、version-00 W3C TelemetryContext、HTTP／Direct Root／validation rejection、Child／Attempt／Deferred／Transactional Outbox／Worker Retryの伝播、BOPD暗号化Context、Canonical／Observed JournalとApplication／Framework／Journal JSONLのtop-level safe correlationをSource／Exact Testへ照合した。独立Focused PHPUnit 921 tests／3,802 assertions、差し戻し後のTargeted 61／196、Full PHPUnit 2,129／8,742（既存Deprecation 1）、Quickstart Consumer E2E、pre-commit Framework Package Export、Composer strict／audit、Mago format、changed-source analyze、管理番号Guard、git diff checkがPASS。Broad Magoは既知baseline、Deptracは既知vendor PHP 8.5 parser blocker。Task／Report／TODOをAcceptedへ同期した。Worker Commit／Push／Deployなし。次はOrchestrator Commit後のexact package exportとP20-018C。
+```
+
+## P20-018B Mago Analyze Corrections Complete
+
+```text
+2026-08-09T00:03:07+09:00
+Changed-source Mago analyze now reports No issues found after replacing analyzer-invisible OpenTelemetry static validators with exact local lowercase/non-zero ID validation, casting hex flags, caching optional telemetry, null-guarding correlation, and aligning PostgreSQL decoder array/mixed annotations. Changed-source Mago lint has no P20-018B errors (only two pre-existing halstead warnings), format check PASS, focused telemetry/codec/journal PASS 27 tests／61 assertions. Orchestrator reports Full PHPUnit 2,129 tests／8,742 assertions, focused 921／3,802, Quickstart PASS, and pre-commit package export PASS; post-commit package export remains pending commit. Deptrac remains known vendor PHP 8.5 parser blocker. Task／Report／TODO Review Pending. Worker Commit／Push／Deployなし。
+```
+
+## P20-018B Telemetry Context Propagation Review Pending (Corrections Complete)
+
+```text
+2026-08-08T23:50:31+09:00
+Review corrections complete. Deptrac now explicitly registers BlackOps\\Telemetry and OpenTelemetry\\ with documented narrow Core↔Telemetry marker dependency. Direct Dispatcher／Deferred acceptor identity, HTTP validation rejection propagation, Factory receive／attempt／child inheritance, protected Deferred／Transactional Outbox encrypted context, Worker retry persisted parent, and actual application／framework／Journal JSONL top-level safe telemetry wire evidence were added. Focused corrections PASS (146 tests／817 assertions plus Worker 34／414, formatter 14／83, validation 10／95); full PHPUnit had one existing heartbeat timing failure, isolated reproduction PASS, with 2,129 tests／8,737 assertions and 1 deprecation. Task／Report／TODO are Review Pending. Deptrac remains blocked only by known vendor PHP 8.5 parser. Worker Commit／Push／Deployなし。
+```
+
+## P20-018B Review Corrections In Progress
+
+```text
+2026-08-08T23:43:54+09:00
+Independent reviewで、Telemetry／OpenTelemetry namespaceのDeptrac登録、Direct Root／validation rejection／Factory identity、protected PostgreSQL Outbox／Deferred／Worker retry、top-level Structured／Journal telemetry wireの追加evidenceが必要と判定された。P20-018BをIn Progressへ戻し、Task scope内で最小修正と再検証を行う。Worker Commit／Push／Deployなし。
+```
+
+## P20-018B Telemetry Context Propagation Review Pending
+
+```text
+2026-08-08T23:38:46+09:00
+P20-018BのAPI-only OpenTelemetry Dependency、immutable version-00 W3C TelemetryContext、HTTP carrier抽出（binding/value rejectionを含む）、Direct Root／Child／Attempt／Deferred／Outbox context codec、Canonical／Observed Journal／Structured JSONLのsafe telemetry correlationを実装した。PostgreSQL canonical journal codecはtelemetry correlationをoptional backward-compatibleに保存し、Deferred Acceptance fixtureでencrypted contextにraw carrier／clear columnが出ないことを確認した。Focused suites、Full PHPUnit 2,123 tests／8,713 assertions（既存Deprecation 1）、Composer strict、Mago format、管理番号Guard、diff checkをPASS。Task／Report／TODOをReview Pendingへ同期した。Broad Mago／Deptrac baselineはReport記載。Worker Commit／Push／Deployなし。Orchestrator independent review待ち。
+```
+
+## P20-018B Telemetry Context Propagation Start
+
+```text
+2026-08-08T23:23:34+09:00
+P20-018Aは1c4dc3a、post-commit package verificationは2e512f3としてCommit済みで、Working Tree cleanを確認した。P20-018BをIn Progressとして開始する。導入前Composer Assessmentではopen-telemetry/api 1.10.0、open-telemetry/context 1.5.0、symfony/polyfill-php82 1.38.1の3 install、既存Package update／removeなし、advisory 0、Composer plugin／binaryなしを確認した。autoload.filesはTrace helper function、Fiber observer conditional initialization、PHP compatibility shimに限定され、公式OpenTelemetry subtree split／Symfony Package、Apache-2.0／MIT、既存psr/log ^3.0整合を確認したためAPI-only Production Dependencyとして採用する。Public immutable TelemetryContext、HTTP／Direct Root、Child／Deferred／Outbox／Worker Retry、Execution Context Codec、Journal safe correlationをRepository設定どおりGPT-5.6 Luna High workerへ委譲する。SDK／Exporter／Collector／Span／Metric／Healthは範囲外で、Local Docker Collector actual E2EはP20-018Eに維持する。Worker Commit／Push／Deployなし。
+```
+
+## P20-018A Post-commit Package Export Accepted
+
+```text
+2026-08-08T22:52:16+09:00
+Accepted P20-018Aを1c4dc3aとしてCommit後、Exact bash tests/Consumer/framework-package-export.shを再実行し、Framework Git／Composer Package Export ContractをPASS確認した。Canonical StructuredJsonlFormatterを含むCommit済みSourceのPackage Export verificationを完了し、次はP20-018B。Push／Deployなし。
+```
+
+## P20-018A Structured Record Schema Accepted
+
+```text
+2026-08-08T22:50:07+09:00
+Orchestrator independent reviewでP20-018AをAcceptedとした。Canonical FormatterのTop-level Application／Framework／Audit Wire、Operation／Attempt分離、stable inline／deferred strategy、UTC Microseconds、JSON Object Context、Observed Journal Actor／Tenant Encoder-boundary Mask、Schedule Projection、Retention Audit Domain Timestamp／Actor・Tenant MaskをSpecification 100とExact Testへ照合した。Review Correction後の独立Focused PHPUnit 50 tests／367 assertions、Full PHPUnit 2,110 tests／8,687 assertions（既存Deprecation 1）、Quickstart Consumer E2E、Composer strict validation、Mago format、changed-source lint／analyze、管理番号Guard、shell syntax、git diff checkがPASS。Broad Mago lint 83 findings／9 errors、broad analyze 24 warnings、Deptrac vendor NikicFileReferenceVisitor.php:106は既知baseline。New Dependency／OpenTelemetry実装なし。Task／Report／TODOをAcceptedへ同期し、Worker Commit／Push／Deployなし。次はCommit後にP20-018B。
+```
+
+## P20-018A Orchestrator Review Corrections Complete
+
+```text
+2026-08-08T22:44:21+09:00
+Review指摘を解消した。StructuredJsonlFormatterはApplication／Frameworkのtop-level contextを常にJSON Objectへ正規化し、nested listを保持する。Audit occurredAtはRetentionPurgeAuditRecordのtrusted purgedAtをUTC microsecondsへ変換し、Application／FrameworkはLogRecord時刻を維持する。Application Tenant／Schedule、Journal Schedule、non-null Audit Tenantのmask／UTC wire evidenceとempty object／top-level list context testを追加した。docs/internalの旧JsonFormatter／direct filter記述も同期した。Focused Logging／Projection／Retention 41 tests／224 assertions、Full PHPUnit 2,110 tests／8,687 assertions（既存Deprecation 1）、Quickstart Consumer E2E、Mago format／changed-source lint／analyze、guard、git diff checkがPASS。P20-018AをReview Pendingへ戻し、Worker Commit／Push／Deployなし。Orchestrator independent review待ち。
+```
+
+## P20-018A Orchestrator Review Corrections In Progress
+
+```text
+2026-08-08T22:40:11+09:00
+独立Reviewで、State Updated Atの同期、Monolog内部Fieldへの古いDocumentation参照、top-level contextのList Object保証、Application Tenant／Schedule、Journal Schedule、Audit TenantのExact Wire Evidence追加を指摘した。P20-018AをIn Progressへ戻し、範囲内の最小修正とFocused／Quality再検証を実施する。Worker Commit／Push／Deployなし。
+```
+
+## P20-018A Structured Record Schema Review Pending
+
+```text
+2026-08-08T22:36:58+09:00
+P20-018AのStructuredJsonlFormatter／ExecutionScopedLogger／Observed Journal Projection／Retention Audit Wireを実装し、Application／Framework／AuditのTop-level schemaVersion 1、kind、occurredAt、lowercase level、operation、Attempt正規化、Actor／Tenant固定Mask、Safe Failure、Monolog固有Field除外を固定した。Journal EncoderはActor／TenantをEncoder境界でもMaskし、Scheduleを安全なUTC Fieldとして出力する。Quickstart JSONL assertionとInternal／Integration Wire Test、Retention Audit文書、Monolog／Logger／Journal Specを同期した。Focused 45 tests／343 assertions、Full PHPUnit 2,105 tests／8,663 assertions（既存Deprecation 1）、Quickstart Consumer E2E、Composer validate、Mago format、変更Source lint／analyze、管理番号Guard、git diff checkがPASS。Broad Mago lintは既知baseline 83 findings／9 errors、broad analyzeは24 warnings、Deptracは既知vendor NikicFileReferenceVisitor.php:106 PHP 8.5 parser blocker。P20-018AはReview Pending、Worker Commit／Push／Deployなし。Orchestrator independent review待ち。
+```
+
+## P20-018A Structured Record Schema Start
+
+```text
+2026-08-08T22:20:49+09:00
+P20-017のContract Bundleはcdc8c60としてCommit済みで、Working Tree cleanを確認した。P20-018AをIn Progressとして開始し、Application／Framework／Journal／Audit JSONLの共通Top-level schemaVersion 1、UTC Microseconds、Operation／Attempt／Actor／Tenant／Failure Safe Projection、Monolog Nested Context廃止、Quickstart Wire EvidenceをRepository設定どおりGPT-5.6 Luna High workerへ委譲する。OpenTelemetry Dependency／Trace Context／Span／Metric／Health／Collectorは範囲外とし、Local Docker Collectorによる実通信確認はApplication-owned SDK／Exporterを扱うP20-018Eへ維持する。Worker Commit／Push／Deployなし。
+```
+
+## P20-017 Structured Logging and OpenTelemetry Contract Accepted
+
+```text
+2026-08-08T22:17:33+09:00
+UserはD136 Question 1〜8をすべてAで回答した。D136をDecidedとし、Canonical Structured Record v1、Actor／Tenant fixed mask、OpenTelemetry API-only Production Dependency、Application-owned SDK／Exporter／Collector、W3C Trace Context、Producer／Internal／Consumer Span、低Cardinality Metric、Explicit Liveness／Readiness Adapter、Best-effort Telemetry LifecycleをSpecification 100へ確定した。Official Collector DockerはOTLP HTTP 4318とdebug ExporterでLocal Trace／Metric確認が可能で、現時点の公式最新0.157.0 ImageはLocal未キャッシュ、既存ContainerはOTLP Port未使用。Local CollectorをFramework CapabilityではなくP20-018E Consumer Evidenceとし、P20-018A〜FへProduction／Documentation Deliveryを分割した。P20-017はAccepted。Production Code／Test／Dependency、Commit／Push／Deployなし。
+```
+
+## P20-017 Structured Logging and OpenTelemetry Decision Checkpoint
+
+```text
+2026-08-08T21:56:49+09:00
+P20-016Hはcd7ae5eとしてCommit済みで、Working Tree cleanを確認した。Phase 20残件をCurrent ExecutionScopedLogger、Monolog JSONL、Observed Journal Encoder、ExecutionContext、Worker／Outbox／Scheduler、composer.jsonへ照合した結果、BlackOps schemaVersion 1がMonolog context内へNestedされるWire不整合、Trace Context／OTel Provider／Metric／Health Surface未実装を確認した。D014／D015／D099／D135とOpenTelemetry PHP公式Contractを継承するD136／P20-017を作成し、RecommendationはCanonical Structured Record v1、Safe Mask、API-only Dependency、Application-owned SDK／Exporter、W3C Propagation、Process境界Span、低Cardinality Metric、Explicit Probe Port、Best-effort Telemetry Lifecycle。Question 1〜8はUser Decision Pending。Production Code／Test／Dependency、Commit／Push／Deployなし。
+```
+
+## P20-016H Tenant Protection Documentation Accepted
+
+```text
+2026-08-08T21:48:40+09:00
+Orchestrator accepted P20-016H after three read-only Documentation Review passes. Initial P1=2／P2=3 and follow-up P1=1／P2=1 are all Resolved; final P1=0／P2=0／P3=0. Independent Website test 75／75, Blume check 0 errors／0 warnings／0 hints, build 40 source／41 static, Mago format, Documentation／management-ID guards, and git diff check PASS. Quickstart Consumer E2E and storage-protection-rotation Consumer PASS. Latest Chromium evidence covered 8 routes × Desktop 1440 Light／Dark × Mobile 390 Light／Dark = 32 cases with HTTP／console／request／heading／accessible-name／active-navigation／page-overflow／keyboard-focus failures all 0; 18 wide content instances stayed inside local scroll hosts. Task／Reports／TODO are Accepted and synchronized. Worker did not commit. External publication／deploy and OpenTelemetry implementation remain out of scope. P20-016H Commit／Push／Deploy not yet performed at this checkpoint.
+```
+
+## P20-016H Tenant Protection Reviewer Round 3 Corrections Complete
+
+```text
+2026-08-08T21:44:27+09:00
+Resolved re-review P1=1／P2=1 within allowed documentation and website test files. Provider/Tamper troubleshooting now separates build:compile from Runtime composition, limits Integrity failures to authorized Journal／Outcome Read, Worker, and confirmed Rotation, and keeps Prefix／operation:inspect as clear diagnostics with Fingerprint limited to Rotation Audit. Tenant/configuration Journey now uses the complete existing SampleStorageKeyProvider, includes complete raw-value-free OperationDataReadAuthorizer and linked Status Policy, synchronizes all ServiceRegistry bindings, and provides a complete Quickstart SampleTokenAuthenticator Tenant return for /invoices. Website test 75/75 PASS; check PASS (0 errors／0 warnings／0 hints); build PASS (40 source／41 static pages, existing Vite chunk and route-conflict warnings); mago format PASS; forbidden guards and diff check PASS. Task／Report／TODO are Review Pending. Browser and third reviewer remain Orchestrator-owned. No Production Code／Migration／Commit／Push／Deploy／Publication.
+```
+
+## P20-016H Tenant Protection Reviewer Round 3 Corrections In Progress
+
+```text
+2026-08-08T21:36:36+09:00
+Documentation Reviewer re-review found P1=1／P2=1. Reopen P20-016H to align the Provider／Tamper troubleshooting runbook with actual Runtime composition, diagnostics, and Rotation failure surfaces, and to complete copyable Secret Provider／Data Authorizer／Tenant-aware Quickstart examples. Production Code／Migration／Commit／Push／Deploy remain out of scope. Worker will return Task／Report to Review Pending after required checks; Orchestrator owns browser review and third reviewer decision.
+```
+
+## P20-016H Tenant Protection Documentation Reviewer Corrections Complete
+
+```text
+2026-08-08T21:30:12+09:00
+Resolved independent Documentation Review P1=2／P2=3 within allowed documentation files: Repository main-only callouts and Stable return path, pre-change non-empty legacy migration stop with runtime-only malformed／unknown／tampered protection failures, TenantRef import and complete local Resolver／ServiceRegistry／config app journey, all-nine-purpose read-only count SQL with nullable count(column), BOPD Header Key ID clarification, and four linked troubleshooting runbooks. Website test 75/75 PASS; check PASS (0 errors／0 warnings／0 hints); build PASS (40 source／41 static pages, existing Vite chunk and route-conflict warnings); mago format PASS; forbidden guard PASS; git diff check PASS. Browser re-audit and reviewer re判定 remain Orchestrator-owned. Task／Report／TODO are Review Pending. No Production Code／Migration／Commit／Push／Deploy／Publication.
+```
+
+## P20-016H Tenant Protection Documentation Reviewer Corrections In Progress
+
+```text
+2026-08-08T21:19:10+09:00
+Independent Documentation Review found P1=2 and P2=3. Reopen P20-016H to correct the Repository main-only lane callout, migration failure boundary, runnable Tenant Provider／ServiceRegistry journey, complete read-only protected-column verification SQL, and four-part troubleshooting runbooks. Production Code／Migration／Commit／Push／Deploy remain out of scope. Worker will return the Task and Report to Review Pending after required website and repository checks; Orchestrator will perform browser re-audit and final reviewer decision.
+```
+
+## P20-016H Tenant Protection Documentation Review Pending
+
+```text
+2026-08-08T21:01:31+09:00
+P20-016H documentation implementation is complete and synchronized across Public Guide, Internal Adapter／Schema／Envelope Contract, Website map／navigation／tests, Security／Deployment／Troubleshooting／Reference／Release pages, Task, Report, and TODO. Website test 75 tests PASS; website check PASS (Blume 0 errors／0 warnings／0 hints); website build PASS (40 source pages／41 static pages, existing Vite chunk warning only); required mago format, Project CLI／Inline guard, and git diff check PASS. Responsive browser screenshot evidence was not executable in this worker environment due Docker API and cross-session localhost restrictions; Orchestrator must perform independent Desktop Light／Dark and Mobile review. P20-016H status is Review Pending. No commit／push／deploy／publication. Documentation Reviewer report remains Orchestrator-owned.
+```
+
+## P20-016H Tenant Protection Documentation Start
+
+```text
+2026-08-08T20:46:16+09:00
+P20-016Gはd869606、post-commit package verificationは45f019fとしてCommit済みで、Working Treeはclean、Exact framework-package-exportもPASSしている。P20-016HをIn Progressとして開始し、Tenant entry／propagation、default-deny status／journal／outcome、StorageKeyProvider、protected field／AAD、breaking upgrade、rotation、retention／replay／outbox／idempotency、security／deployment／troubleshooting／referenceのPublic／Internal Documentation同期をRepository設定どおりGPT-5.6 Luna High workerへ委譲する。Production Code／Migration、External Publication／Deployは範囲外。Documentation ReviewerはWorker完了後にRead-onlyで実施する。P20-016HのCommit／Push／Deployなし。
+```
+
+## P20-016G Post-commit Package Export Accepted
+
+```text
+2026-08-08T20:45:13+09:00
+Accepted P20-016Gをd869606としてCommit後、Exact bash tests/Consumer/framework-package-export.shを再実行し、Git／Composer両ArchiveへVersion20260808100000.phpが含まれること、Root Inventory／除外Contract、Composer strict validation、production autoloadをPASS確認した。P20-016Gのpost-commit verificationを完了し、次はP20-016H。Push／Deployなし。
+```
+
+## P20-016G Accepted
+
+```text
+2026-08-08T20:43:17+09:00
+Orchestrator independent reviewでP20-016GをAcceptedとした。Focused 51 tests／495 assertions、Full PHPUnit 2,104 tests／8,643 assertions（既存Deprecation 1）、storage-protection-rotation Consumer、Composer strict validation、format、P20-016G Production changed-source lint／analyze、管理番号Comment Guard、shell syntax、git diff checkがPASS。Full Suite初回のOutbox heartbeat timing failureは対象Test単独で再現せずPASSし、assertionを変更せずFull Suite再実行でPASSした。Broad mago lintは既知baseline 81 findings／9 errors、broad analyzeは25 warnings／0 errors、Deptracは既知のvendor NikicFileReferenceVisitor.php:106 PHP 8.5 parser incompatibility。Exact package exportは未追跡Version20260808100000.phpをgit archive HEADが含めないpre-commit制約で停止するが、Working Tree Composer Archiveはmigration inventory、除外Root、strict validation、production autoloadをPASSした。Task／Report／TODO同期済み。P20-016GのCommit／Push／Deployなし。次はCommit後のExact Package Export、続いてP20-016H。
+```
+
+## P20-016G Dedicated Evidence Corrections
+
+```text
+2026-08-08T17:39:20+09:00
+独立ReviewでDedicated Rotation Evidence不足を指摘されたためP20-016GをIn Progressへ戻す。Header malformed、Read-only plan、全9 Purposeのconfirmed rotate／AAD、CLI exit／redaction、safe failure fingerprint／resume、CAS、crash／bounded resume、two-process concurrency、advisory lock finallyの実行Testを追加する。Worker Commit／Push／Deployなし。
+```
+
+## P20-016G Dedicated Evidence Checkpoint
+
+```text
+2026-08-08T17:42:12+09:00
+Dedicated BOPD／scope suitesとPostgreSQL rotation suiteを追加し、14 tests／124 assertionsと3 rotation tests／28 assertionsがPASS。Journalのplan byte不変、confirmed rotate、AAD／new-key、checkpoint resume、CLI exit／JSON／redaction、tamper fingerprint／repair resumeを実行確認した。All-purpose、CAS race、two-process／advisory-lock finally evidenceは未完了のためIn Progress継続。Worker Commit／Push／Deployなし。
+```
+
+## P20-016G Concurrency and Durable Progress Checkpoint
+
+```text
+2026-08-08T18:32:00+09:00
+Rotation ownershipをschema＋checkpointのhashtextextendedによるpg_try_advisory_lock＋finally unlockへ変更し、各RowのCAS＋Checkpoint advance＋累積Audit counterを個別transactionでcommitする構造へ修正した。CAS predicateへtenant identityを追加し、planのold-key binary header filterをLIMIT前へ移動した。PostgreSQL rotation suite 8 tests／53 assertions、all-purpose non-empty matrix 1 test／135 assertions、lazy command 2 tests／5 assertions、kernel list/help 1 test／7 assertions、migration／console／kernel existing 31 tests／155 assertions PASS。実forked PostgreSQL CAS raceで競合差替えskip、crash後row1 bytes不変／row2のみrotate、interrupted audit failed fingerprintを確認し、Unavailable／Wrong New Key fingerprint、非ブロッキングownership再取得も実行確認。Consumer shell fixtureは作成済みだがDocker権限で実行待ち。Worker Commit／Push／Deployなし。
+```
+
+## P20-016G Worker Review Pending
+
+```text
+2026-08-08T17:33:39+09:00
+Bounded storage protection plan／rotate、header-only BOPD scan、all-purpose AAD projection、CAS更新、scope-bound checkpoint／audit、safe failure fingerprint、migration inventory、CLI compositionを実装した。Focused migration／console／kernel／storage suites 26 tests／174 assertions、format PASS、changed-source analyze 0 errorsを確認。P20-016Gは独立Orchestrator review待ち。Worker Commit／Push／Deployなし。
+```
+
+## P20-016G Orchestrator Scope Correction
+
+```text
+2026-08-08T17:20:48+09:00
+Rotation Audit／Checkpoint migration追加によりFramework Migration総数とPackage Inventoryが変わる。既存fixtureのうちtests/Internal/Migration/DatabaseMigrationRunnerTest.php、tests/Integration/ApplicationConsoleKernelTest.php、tests/Consumer/framework-package-export.shだけが直接その正本一覧／件数を固定しているため、Migration同期に必要な最小Test／Consumer scopeとしてFiles Allowedへ追加した。Production scopeは変更しない。Worker Commit／Push／Deployなし。
+```
+
+## P20-016G Storage Key Rotation Start
+
+```text
+2026-08-08T17:19:10+09:00
+P20-016Fは02a561c、post-commit package verificationは7614df8としてCommit済みで、Working Treeはclean、Exact framework-package-exportもPASSしている。P20-016GをIn Progressとして開始し、Bounded plan／rotate CLI、既定Dry-runとExplicit Confirm、Actor／Reason、Purpose／Tenant／Old・New Key Scope、CAS、Audit、Checkpoint／Resume、Crash／Two-process Concurrency、Key ID別Remaining CountをRepository設定どおりGPT-5.6 Luna High workerへ委譲する。Key生成／保存／削除、KMS Vendor、Guide／Websiteは範囲外に維持する。P20-016GのCommit／Push／Deployなし。
+```
+
+## P20-016F Post-commit Package Export Accepted
+
+```text
+2026-08-08T17:18:01+09:00
+Accepted P20-016Fを02a561cとしてCommit後、Exact bash tests/Consumer/framework-package-export.shを再実行し、Git／Composer両ArchiveへVersion20260808010000.phpが含まれること、Root Inventory／除外Contract、Composer strict validation、production autoloadをPASS確認した。P20-016Fのpost-commit verificationを完了し、次はP20-016G。Push／Deployなし。
+```
+
+## P20-016F Accepted
+
+```text
+2026-08-08T16:42:58+09:00
+Orchestrator independent reviewでP20-016FをAcceptedとした。Focused 234 tests／1,489 assertions、Full PHPUnit 2,086 tests／8,402 assertions（既存Deprecation 1）、Composer strict validation、format、broad analyze 25 warnings／0 errors、管理番号Comment Guard、shell syntax、git diff checkがPASS。Broad mago lintは既知baseline内の81 findings／9 errorsで、P20-016F changed-sourceはNo issues。Deptracは既知のvendor NikicFileReferenceVisitor.php:106 PHP 8.5 parser incompatibility。Fresh quickstartは12 migrations、build、seed、HTTP、deferred retry／completion、masked diagnostics、retention、frontendを完走してPASS。Exact package exportは未追跡Version20260808010000.phpをgit archive HEADが含めないpre-commit制約で停止するが、Working Tree Composer Archiveはmigration inventory、除外Root、strict validation、production autoloadをPASSした。Task／Report／TODO同期済み。P20-016FのCommit／Push／Deployなし。次はCommit許可後のExact Package Export、続いてP20-016G。
+```
+
+## P20-016F Targeted Corrections Worker Checkpoint
+
+Secondary migration inventory and console/kernel counts now include Version20260808010000. Independent non-empty outbox/dead-letter/idempotency guards assert row bytes, legacy columns, new columns, and constraints remain unchanged on failure; empty legacy upgrades assert protected constraint parity. Idempotency projection versions are strict version 1, with canonical scope/operation/tenant tamper evidence. Outbox tests cover row/purpose/tag/key, tenant, origin, and decoded-context mismatch rollback; retention proves undecodable idempotency projections are planned and purged without decode. Final focused PHPUnit batches pass 234 tests／1,489 assertions; changed-source Mago lint/analyze and format, management-ID guard, diff check, and Composer strict validation pass. Broad Mago analyze passes with 0 errors/25 warnings. Projection decoding now has a typed validated boundary; terminalize encoding helpers and typed outbox subjects clear introduced static-analysis findings without weakening fail-closed behavior. InlineDispatcher retains its pre-existing halstead lint warning and was not refactored. Worker Commit／Push／Deployなし。
+
+## P20-016F Orchestrator Scope Correction 3
+
+```text
+2026-08-08T11:08:36+09:00
+Version20260808010000追加によりFramework Migration総数は9から10へ変わる。DatabaseMigrationCommandTestとframework-package-exportは当初から許可済みだが、実Application Console Kernelのstatus表示fixtureも同じ総数を検証しているため、tests/Integration/ApplicationConsoleKernelTest.phpをMigration Inventory同期に必要な最小Test scopeとしてFiles Allowedへ追加した。Production scopeは変更しない。Worker Commit／Push／Deployなし。
+```
+
+## P20-016F Worker Checkpoint
+
+Secondary Outbox／Dead Letter／Idempotency protection implementation and fixture synchronization are complete. Focused suites, migration runner, formatter, comment guard, and diff check pass. DiagnosticsQuery reasonType comparison was removed after scope correction because diagnostics exposes only a protected marker. Full PHPUnit／Mago lint・analyze／Deptrac／Consumer E2E／package export remain for Orchestrator review. Worker Commit／Push／Deployなし。
+
+## P20-016F Orchestrator Scope Correction 2
+
+```text
+2026-08-08T11:02:45+09:00
+Dead Letter Reasonのclear column廃止後、PostgreSqlDiagnosticsReaderはReason Envelopeをdecodeせずprotected markerだけを返す。一方、OperationDiagnosticsQueryの既存Integrity CheckはJournal内Reason TypeとReaderのclear reason_type一致を前提にしており、この比較を残すと正しい保護済みRowをIntegrity Failureにする。Operation／Attempt／Moved Atの一致検証を維持し、Reason Type比較だけを削除する最小Production境界としてsrc/Internal/Diagnostics/OperationDiagnosticsQuery.phpをFiles Allowedへ追加した。Worker Commit／Push／Deployなし。
+```
+
+## P20-016F Orchestrator Scope Correction
+
+```text
+2026-08-08T10:31:14+09:00
+Idempotency Response／Result EnvelopeのAADへOperation Type／Application Schema Versionを実Rowから供給するには、Claim時にOperationMetadataを保持する必要がある。既存Call SiteはInlineDispatcherとDeferredAcceptanceOrchestratorであり、この2 Production Fileと対応TestだけをFiles Allowedへ追加した。HTTP SurfaceやPublic APIは変更せず、Production scopeはIdempotency AAD成立に必要な最小境界に限定する。Worker Commit／Push／Deployなし。
+```
+
+## P20-016F Secondary Operation Storage Protection Start
+
+```text
+2026-08-08T10:29:25+09:00
+P20-016Eは190d42a、post-commit package verificationはc77d303としてCommit済みで、Working Treeはclean、Exact framework-package-exportもPASSしている。P20-016FをIn Progressとして開始し、Transactional Outbox Payload／Context、Dead Letter Reason、Idempotency Response／Resultの必須Envelope、実Row AAD、Context Integrity、Retention／Status非Decode、non-empty plaintext schemaのdata／schema不変guardを同じGPT-5.6 Luna High workerへ委譲する。Rotation、Guide、Community Board移行は後続Taskへ維持する。P20-016FのCommit／Push／Deployなし。
+```
+
+## P20-016E Post-commit Package Export Accepted
+
+```text
+2026-08-08T10:26:18+09:00
+Accepted P20-016Eを190d42aとしてCommit後、Exact bash tests/Consumer/framework-package-export.shを再実行し、Git／Composer両ArchiveへVersion20260808000000.phpが含まれること、Root Inventory／除外Contract、Composer strict validation、production autoloadをPASS確認した。P20-016Eのpost-commit verificationを完了し、次はP20-016F。Push／Deployなし。
+```
+
+## P20-016E Accepted
+
+```text
+2026-08-08T03:55:23+09:00
+Orchestrator independent reviewでP20-016EをAcceptedとした。Task-scoped 303 tests／1898 assertions、Application fixture 10 tests／133 assertions、Full PHPUnit 2074 tests／8300 assertions（既存Deprecation 1）、Composer validate、format、broad analyze 29 warnings／0 errors、管理番号Comment Guard、shell syntax、git diff checkがPASS。Exact quickstartはfresh install、11 migrations、build、seed、HTTP、deferred retry／completion、masked diagnostics、retention、frontendを完走してPASS。Broad mago lintは既知baseline 82 findings／9 errors、Deptracはvendor NikicFileReferenceVisitor.php:106のPHP 8.5 parser incompatibility。Exact package exportは未追跡Version20260808000000.phpをgit archive HEADが含めないpre-commit制約で停止するが、Working TreeのComposer Archiveはmigration inventory、除外Root、strict validation、production autoloadをPASSした。Task／Report／TODO同期済み。P20-016EのCommit／Push／Deployなし。次はCommit許可後のExact Package Export、続いてP20-016F。
+```
+
+## P20-016E Orchestrator Scope Correction 6
+
+```text
+2026-08-08T02:16:44+09:00
+Full-suite review found ApplicationHttpRuntimeTest and the exact OperationConsoleIntegrationTest／ApplicationSeederConsoleIntegrationTest fixtures bootstrap protected runtimes without an explicit StorageKeyProvider. These three tests are the minimum fixture-only synchronization for P20-016E runtime coverage; test-owned deterministic providers are registered without env/default/static repository secrets. The same review found ObserverReplayStore::select return-shape metadata split across DocBlocks, causing broad analyze mixed `$batch` errors; the annotations were merged. Worker Commit／Push／Deployなし。
+```
+
+## P20-016E Final Worker Verification
+
+```text
+2026-08-08T02:11:44+09:00
+Final scoped PHPUnit rerun passes 293 tests／1765 assertions. Final mago format check passes; comment guard and git diff check pass. Report maps raw-wire, tamper, unknown-key, retention non-decode, replay, migration, and provider-missing evidence to named tests. Task／Report／TODO remain Review Pending for independent Orchestrator acceptance. Worker Commit／Push／Deployなし。
+```
+
+## P20-016E Worker Review Pending Checkpoint
+
+```text
+2026-08-08T02:09:57+09:00
+Task-scoped protected-storage fixture and acceptance matrix completed. Focused adapter/migration/resolver matrix passes 63 tests／430 assertions; expanded P20-016E PHPUnit scope passes 289 tests／1746 assertions. Added independent non-empty migration guard cases for journal／operations／outcomes, strict unknown-key and purpose／row／field／tag tamper coverage, payload/context ciphertext-swap rejection, raw BOPD assertions, retention non-decode, replay safe projection, and provider-missing bootstrap rejection. Changed-source Mago lint and format pass; analyze has warnings／0 errors. Task／Report／TODO await independent Orchestrator acceptance. Worker Commit／Push／Deployなし。
+```
+
+## P20-016E Orchestrator Scope Correction 5
+
+```text
+2026-08-08T01:49:16+09:00
+Task-scoped constructor auditで、JournalObserverReplayCommandTestがmandatory protected ObserverReplayStoreを、OutboxRelayRuntimeTestがOutboxから必須protected Deferred Senderへの配送を旧constructorで直接構成することを確認した。Replay CLI regressionとOutbox ciphertext自体を変更しないDeferred delivery regressionの最小fixture同期として、この2 Test FileだけをFiles Allowedへ追加した。Outbox Payload／Context保護はP20-016Fのまま変更しない。Worker Commit／Push／Deployなし。
+```
+
+## P20-016E Orchestrator Scope Correction 4
+
+```text
+2026-08-08T01:38:31+09:00
+Required quickstart-e2eが複製するexamples/quickstartはStorageKeyProviderを登録せず、mandatory protected runtimeがApplicationStorageProtectionResolverで必ずbootstrap拒否される静的経路を確認した。Runnable Consumerを維持する最小Application境界としてApplicationServiceProvider、env-backed SampleStorageKeyProvider新規File、key materialを含まない空の.env.example設定項目をFiles Allowedへ追加した。実KeyはConsumerが一時copyの.envへ毎回生成し、Repository、Artifact、Log、Reportへ保存しない。Public Guide更新はP20-016Hのまま。Worker Commit／Push／Deployなし。
+```
+
+## P20-016E Orchestrator Scope Correction 3
+
+```text
+2026-08-08T01:22:30+09:00
+独立配線Reviewで、P20-016DのDefault-deny認可後に呼ばれるPostgreSqlTenantScopedCanonicalJournalReader／PostgreSqlTenantScopedOutcomeReaderが、P20-016E ciphertextを旧Codecへ直接渡す経路を確認した。Status／Authorized Journal／Outcome QueryをAllow後だけ復号するTask Goalを成立させる不可避なProduction境界として、この2 FileをFiles Allowedへ追加した。OperationDataRuntimeInjectorから同じmandatory BopdEnvelopeCodecを渡し、Subject→Authorize→tenant predicate→Envelope decode順序を維持する。対応Integration Testは既存tests/Transport/PostgreSql許可範囲内。Worker Commit／Push／Deployなし。
+```
+
+## P20-016E Orchestrator Scope Correction 2
+
+```text
+2026-08-08T01:11:23+09:00
+PostgreSQL protected adapterのmandatory BopdEnvelopeCodec constructorとApplication bootstrap fail-closed化により、既存のApplicationHttpRuntimeTest、MvpSampleEndToEndTest、DeferredOperationRequestHandlerTest、OperationRequestHandlerTestが旧plaintext adapter fixtureを直接構成してTypeErrorとなる。P20-016EのHTTP／Inline／Deferred regressionを維持する最小同期として、この4 Test FileをFiles Allowedへ追加した。Production scopeは変更せず、固定Default Keyやoptional plaintext fallbackは導入しない。Worker Commit／Push／Deployなし。
+```
+
+## P20-016E Orchestrator Scope Correction
+
+```text
+2026-08-08T00:59:08+09:00
+P20-016Eの必須plaintext guard migration追加はframework migration総数を8から9へ変更し、Package Exportへ新Migrationを含める。この直接影響を同期するため、tests/Internal/Migration/DatabaseMigrationRunnerTest.php、tests/Internal/Console/DatabaseMigrationCommandTest.php、tests/Integration/ApplicationConsoleKernelTest.php、tests/Consumer/framework-package-export.shをFiles Allowedへ明示追加した。Production scopeは変更せず、既存migration count fixtureとpackage inventoryの最小同期だけを許可する。Worker Commit／Push／Deployなし。
+```
+
+## P20-016E Core Operation Storage Protection Start
+
+```text
+2026-08-08T00:49:16+09:00
+P20-016C／Dとpost-commit package correctionは3671ca0／0912965としてCommit済みで、Working Treeはclean、Exact framework-package-exportもPASSしている。P20-016EをIn Progressとして開始し、Canonical Journal、Deferred Payload／Context、Outcomeの必須Envelope、実Row AAD、認可後Decode、Retention非Decode、Replay bounded decode、Provider必須Bootstrap、non-empty plaintext schemaのdata不変guardをTask Packet境界で同じGPT-5.6 Luna High workerへ委譲する。Outbox／Dead Letter／Idempotency保護、Rotation、Guideは後続Taskへ維持する。P20-016EのCommit／Push／Deployなし。
+```
+
+## P20-016C Post-commit Package Correction Accepted
+
+```text
+2026-08-08T00:46:25+09:00
+Orchestratorは/.claudeのexport-ignore／Composer archive.exclude／Consumer excluded-path同期を独立Reviewし、Exact framework-package-exportでGit／Composer両Archive、Version20260803000000、許可Root Inventory、抽出Package Composer validation／autoloadをPASS確認した。Standalone composer validate、shell syntax、git diff checkもPASS。P20-016Cを再Acceptedとし、追補Commit後にP20-016Eを開始する。Push／Deployなし。
+```
+
+## P20-016C Post-commit Package Correction Review Pending
+
+```text
+2026-08-08T00:46:12+09:00
+Accepted commit 3671ca0のpost-commit framework-package-exportでComposer archiveへ混入した空の/.claude rootを、.gitattributes／composer.json／Consumer excluded-path contractへ同期除外した。Exact bash tests/Consumer/framework-package-export.shはGit／Composer双方PASSし、Migration Version20260803000000とallowed root inventoryを確認。Standalone Composer validateもretryでPASS。Task／Report／TODOをReview Pendingへ更新。P20-016E開始・Push／Deployなし。
+```
+
+## P20-016C Post-commit Package Correction Start
+
+```text
+2026-08-08T00:42:49+09:00
+Accepted P20-016C／Dを3671ca0としてCommit後、git archive HEADが新Migrationを含む状態でframework-package-exportを再実行した。Migration欠落は解消したが、Composer archiveだけがlocal empty .claude directoryをRootへ含め、許可inventory外としてFAILした。Git archiveは影響を受けない。Repository automation metadataをpackageから除外する既存Contractの最小Correctionとして.gitattributes、composer.json、Consumer testをFiles Allowedへ追加し、同Workerへ修正を委譲する。P20-016E開始はCorrection Acceptance後。Push／Deployなし。
+```
+
+## P20-016D Accepted
+
+```text
+2026-08-08T00:37:46+09:00
+Orchestrator independent reviewでP20-016DをAcceptedとした。Focused 123 tests／534 assertions、Full PHPUnit 2061 tests／8254 assertions（既存Deprecation 1）、Composer validate、format、changed-source analyze、管理番号Comment Guard、git diff checkがPASS。Broad mago analyzeは11 warnings／0 errors、broad mago lintはP20-016C時点と同じ既知baseline 83 findings／9 errors。Deptracはvendor NikicFileReferenceVisitor.php:106のPHP 8.5 parser incompatibilityで実行不能だが、OperationData Layer設定読込と依存方向を手動照合し、Full SuiteのPublicApi Architecture Guardを確認した。初回Full Suiteで範囲外Outbox heartbeat timing testが1回失敗したが単独再実行PASS、安定treeでの全体再実行PASS。Task／Report／TODOを同期し、Commit／Push／Deployなし。次はP20-016E。
+```
+
+## P20-016D Review Pending Checkpoint
+
+```text
+2026-08-08T00:30:26+09:00
+Worker実装をReview Pendingへ引き渡す。OperationData Public NamespaceのDeptrac Layer／Namespace Dependency仕様、Raw Reader SPI再分類、Application Seederを含む全DB runtime injection、PostgreSQL subject／decode／integrity分類、Status tenant matrix、HTTP TenantRef、Synthetic DI contractを同期した。Targeted lint／analyzeはNo issues、focused 114 tests／494 assertions PASS、Task／Report／TODOをReview Pendingへ更新。Full／broad gatesはOrchestrator確認待ち。Worker Commit／Push／Deployなし。
+```
+
+## P20-016D Worker Implementation Checkpoint
+
+```text
+2026-08-08T00:26:24+09:00
+OperationData query contracts, tenant-scoped PostgreSQL subjects/readers, post-authorize decode ordering, stable failure classification, Status tenant matrix, HTTP TenantRef propagation, and synthetic runtime DI bindings are implemented. Focused Status/HTTP/OperationData/DI/Journal/Outcome/PostgreSQL tests pass (114 tests／494 assertions). Raw Journal/Outcome readers are infrastructure SPI (no PublicApi) and runtime containers bind only authorized query contracts. Completion Report created; full verification and independent review remain. Worker Commit／Push／Deployなし。
+```
+
+## P20-016D Orchestrator Scope Correction 2
+
+```text
+2026-08-08T00:14:08+09:00
+Application Handler／CommandがOperationJournalQuery／OperationOutcomeQueryをconstructorで利用するには、Runtime後付けだけでなくBuild時Compiled ContainerへSynthetic Contractが必要である。既存RuntimeContainerCompilerがFramework Runtime Service定義の正規境界であり、これを変更しなければAutowire Compileが失敗するため、同Compilerと限定Contract TestをFiles Allowedへ追加した。Authorized QueryはApplicationOperation／Worker Runtimeで注入し、Raw CanonicalJournalReader／OutcomeReaderは同Bindingへ公開しない。Production scopeはDI成立に必要な最小範囲のみ。Worker Commit／Push／Deployなし。
+```
+
+## P20-016D Orchestrator Scope Correction
+
+```text
+2026-08-08T00:12:40+09:00
+Raw CanonicalJournalReader／OutcomeReaderをPublic Application APIからInfrastructure SPIへ再分類する既定Scopeには、#[PublicApi]を前提にする既存tests/Journal/JournalPortTest.phpとtests/Outcome/OutcomeRecordTest.phpの同期が不可避である。Production scopeを広げず、この2 Test FileだけをFiles Allowedへ追加した。Worker Commit／Push／Deployなし。
+```
+
+## P20-016D Operation Data Read Authorization Start
+
+```text
+2026-08-08T00:00:16+09:00
+P20-016DをIn Progressとして開始した。P20-016CはAccepted済みだが未Commitのため、そのworking-tree差分をbaselineとして保持し、DのTask Packet allow-listだけを同じGPT-5.6 Luna High workerへ委譲する。Status current／origin tenant認可、Default-deny Journal／Outcome typed query、Subject→Authorize→Blob Read／Decode順序、Raw ReaderのInfrastructure DI分離、HTTP／Diagnostics regressionを対象とする。Commit／Push／Deployなし。
+```
+
+## P20-016C Accepted
+
+```text
+2026-08-04T01:44:39+09:00
+Orchestrator reviewでP20-016CをAcceptedとした。Dedicated PostgreSqlTenantIsolationTest 10 tests／91 assertions、Full PHPUnit 2043 tests／8180 assertions（既存Deprecation 1）、Composer validate、format、mago analyze 0 errors、changed-source lint、encoded-field／Management-ID guard、shell syntax、git diff checkがPASS。Broad mago lintは既知baselineのみ83 findings／9 errors、DeptracはvendorのPHP 8.5 parser incompatibilityでFAIL。Package Export本Commandは未追跡Migrationをgit archive HEADが含めないpre-commit制約で停止したが、Composer archiveへVersion20260803000000が含まれることとinventory同期を確認した。Task／Report／TODOを同期し、Commit／Push／Deployなし。次はP20-016D。
+```
+
+## P20-016C Final Full Suite Evidence Checkpoint
+
+```text
+2026-08-03T03:04:17+09:00
+Orchestrator確認のFull PHPUnit 2043 tests／8180 assertions（既存Deprecation 1）PASSをReportへ反映。TenantMetadata return-shape analyze correction後もbroad mago analyze 0 errorsを維持。Commit／Push／Deployなし。
+```
+
+## P20-016C Analyze Return-Shape Checkpoint
+
+```text
+2026-08-03T03:03:18+09:00
+PostgreSqlTenantMetadata::alterへ@return list<string>とDeferredOperationSchema statementsのlist annotationを追加し、changed-source mago analyzeはNo issues、broad mago analyzeは17 warnings／0 errors（DBAL mixed row、既存StatusReader比較、Jsonl generic objectのみ）を確認。Commit／Push／Deployなし。
+```
+
+## P20-016C Lint Threshold and DocBlock Correction Checkpoint
+
+```text
+2026-08-03T03:01:38+09:00
+Changed production filesの既存閾値に対するmago-expect（RetentionHoldStore cyclomatic、RetentionPlanner methods、OutcomeStore cyclomatic、Deferred Message Codec cyclomatic、Outbox kan-defect統合、DeferredAcceptanceOrchestrator kan-defect）を追加し、StatusReader DocBlockのorigin_actor_type後のcommaを修正。限定mago lintはNo issues、Dedicated PostgreSqlTenantIsolationTestは10 tests／91 assertions PASS。Commit／Push／Deployなし。
+```
+
+## P20-016C Constraint Matrix and Deterministic Duplicate Evidence Checkpoint
+
+```text
+2026-08-03T02:58:17+09:00
+Dedicated PostgreSqlTenantIsolationTestは10 tests／91 assertions PASS。Operations representative DMLでtenant／origin both-null accepted、partial（両方向）とempty type/id rejectedを明示し、same-IDはTenant A enqueue成功後Tenant BをDeferredTransportExceptionで拒否、raw tenant IDなし、保存rowはAのみ・count 1を確認した。Open transaction SKIP LOCKED concurrency evidenceは維持。Commit／Push／Deployなし。
+```
+
+## P20-016C Dedicated Migration, Retention, and Replay Evidence Checkpoint
+
+```text
+2026-08-03T02:55:46+09:00
+Dedicated PostgreSqlTenantIsolationTestは10 tests／76 assertions PASS。旧7 migration chain適用後のVersion20260803000000 empty schemaでtenant pair 9件／origin actor pair 3件を確認し、non-empty operations guardをtransaction rollbackしてrow／encoded bytes不変を確認した。RetentionPlannerのTenant A/B plan item、wrong-tenant delete 0／正tenant delete、PurgeAudit tenant保存、Observer Replay time selectionのA/B carrierとclear tenant改竄RuntimeExceptionを追加で固定。Commit／Push／Deployなし。
+```
+
+## P20-016C Dedicated Receiver Evidence Checkpoint
+
+```text
+2026-08-03T02:44:48+09:00
+Dedicated PostgreSqlTenantIsolationTestは7 tests／57 assertions PASS。Same-ID異Tenant Sender safe failureと、2つのDB ConnectionでTenant A/B Deferred Receiver claim carrierを分離した証跡を独立test名へ分割した。Reportのtest名一覧を同期。Commit／Push／Deployなし。
+```
+
+## P20-016C Dedicated Evidence Completion Checkpoint
+
+```text
+2026-08-03T02:42:48+09:00
+Dedicated PostgreSqlTenantIsolationTestを追加し、6 tests／54 assertions PASS。Fresh／current／empty／nonempty migration guard、9-table tenant pair＋operations／journal／outbox origin exact constraint definition、partial／empty DML reject、wrong-tenant Journal／Outcome no-decode、Idempotency scope、Outbox carrier、Retention Hold tenant、Schedule global-null／tenant accepted row、same-operation duplicate convergenceを固定した。Full PHPUnit 2039 tests／8143 assertions（既存Deprecation 1）PASS。Mago format check、Composer validate、convert_from／Management-ID／git diff check PASS。Correction Review Pending、Commit／Push／Deployなし。
+```
+
+## P20-016C Orchestrator Scope Correction 5 and Evidence Gap
+
+```text
+2026-08-03T02:34:39+09:00
+OrchestratorはWorkerのCorrection Review Pending差分とFull Suite 2033 tests／8089 assertionsを照合した。IdempotencyStoreのTenant引数追加とFramework Migration 8件化により、既存Full Suiteを維持するためtests/Http/OperationRequestHandlerTest.php、tests/Internal/Console/DatabaseMigrationCommandTest.php、tests/Integration/ApplicationConsoleKernelTest.phpのTest Double／件数同期が不可避であるため、最小Scope CorrectionとしてFiles Allowedへ追加した。一方、Worker差分は既存Test名／Fixture更新だけで新規Test Caseがなく、Task Packetが要求するMulti-tenant PostgreSQL Integration／Concurrency、Constraint Matrix、Migration Guard、Tenant不一致Non-decode Evidenceを満たさない。TaskはCorrection Review Pendingのまま未受入とし、同WorkerへDedicated Evidence追加を返す。Commit／Push／Deployなし。
+```
+
+## P20-016C Full Verification Checkpoint
+
+```text
+2026-08-03T02:33:07+09:00
+Full PHPUnit 2033 tests／8089 assertions（既存Deprecation 1）PASS。HTTP／Console Idempotency test doubles、bytea fixture、Migration command countを同期した。Composer validate --strict、Mago format --check src tests、convert_from encoded-field guard（src／tests／Consumer shell）、Management-ID guard、git diff --check PASS。Task-scoped suite 404 tests／1907 assertionsもPASS。Correction Review Pending、Report同期済み、Commit／Push／Deployなし。
+```
+
+## P20-016C Correction Review Pending Checkpoint
+
+```text
+2026-08-03T02:27:18+09:00
+Consumer journeyを含むconvert_from(encoded_record|payload|context) guardを0件へ同期し、clear-column／encode(bytea, escape)検証へ更新した。Migration／Status／Retention／Replay／Outbox／Deferred Worker fixturesを同期し、focused clear-subject/migration suite 46 tests／207 assertions、追加 diagnostics/retention/replay/worker suite 58 tests／495 assertions、Task-scoped PostgreSQL／tenant suite 404 tests／1907 assertions（既存Deprecation 1）PASS。Mago format、management-ID guard、git diff --check PASS。TaskをCorrection Review Pendingへ戻し、Report同期済み。Commit／Push／Deployなし。
+```
+
+## P20-016C Correction Cycle Worker Checkpoint 2
+
+```text
+2026-08-03T02:09:40+09:00
+OutboxをTenant／Origin Actor clear metadata対象へ同期し、Schema helper／Version20260803000000 migrationへorigin pair columns、constraints、guardを追加した。Migration／Schema guardはtableが存在し非emptyかつrequired columnが欠ける場合だけrejectし、journalのoperation_typeもrequired setへ含めた。Mago format／format checkはPASS。Outbox runtime focused testsはPASS、Migration focused suiteは新Migration件数を旧fixtureが期待するため11 failures（実装エラーではなくfixture drift）。Review待ち、Commit／Push／Deployなし。
+```
+
+## P20-016C Correction Cycle Worker Checkpoint
+
+```text
+2026-08-03T02:03:35+09:00
+Correction cycle removed production PostgreSQL convert_from projections, made Journal-only schemas independent of Operations existence, added tenant carriers to Status subjects and Transactional Outbox, tightened Idempotency tenant predicates, and fixed Retention Hold/Purge Audit SQL. Mago formatting and git diff --check passed. Existing focused fixtures still require clear-subject/migration-guard updates; full required gates remain Orchestrator work. Report synchronized; Commit／Push／Deployなし.
+```
+
+## P20-016C Orchestrator Scope Correction 4 and Review Finding
+
+```text
+2026-08-03T01:59:44+09:00
+Orchestratorの初回Focused Reviewは82 tests中12 errors／14 failuresで未受入。Journal-only Inline Storeが存在しないOperations Tableを参照するProduction Regression、旧Status JSON Projection／Migration 7件前提／Schema ShapeのFixture未同期、Required convert_from Guard 29件を確認した。Task PacketのRequired Guardを成立させる最小Test／Consumer境界としてtests/Integration/MvpSampleEndToEndTest.php、tests/Http/DeferredOperationRequestHandlerTest.php、tests/Consumer/quickstart-e2e.sh、tests/Consumer/community-board-foundation.sh、tests/Consumer/community-board-digest.shをFiles Allowedへ追加する。ProductionはJournal-only経路を維持したまま、Operations Rowが存在する場合だけClear Subject整合性を追加検査する。既存Testは新Clear Metadata／Migration 8件へ更新し、Dedicated Cross-tenant／Constraint／Migration Guard／Decoder Non-call Evidenceを追加する。TaskはCorrection In Progressへ戻し、Worker Commit／Push／Deployなし。
+```
+
+## P20-016C PostgreSQL Tenant Isolation Worker Completion — Review Pending
+
+```text
+2026-08-03T01:59:44+09:00
+Worker implemented P20-016C allow-listed PostgreSQL tenant/origin clear metadata, pair constraints/indexes, forward migration guard and package inventory, Idempotency scope v2, Deferred/Outbox carriers, clear-column Status subject, tenant-scoped Journal/Outcome paths, retention/schedule tenant propagation, and no-payload-decode integrity predicates. Previous migrations were not rewritten. Mago formatting passed for changed files; focused smoke tests passed for updated basic paths, while legacy tests asserting removed JSON projection/old migration counts and strict subject mismatch remain for Orchestrator review. Full required gates were not completed after Docker permission interruption. Report synchronized; Review Pending; Commit／Push／Deployなし.
+```
+
+## P20-016C Orchestrator Scope Correction 3
+
+```text
+2026-08-03T01:46:46+09:00
+OrchestratorはRetention Planner／Delete／Audit経路を照合し、Operation IDとTimestampだけのRetentionPlanItemおよびPurge Audit Recordでは、Journal削除後のInline Operationを含めてRow Tenantを保持できず、別RowのTenant再利用防止とRetention Evidence Tenantを成立させられないことを確認した。既定In Scopeを実現する最小Carrierとしてsrc/Core/Retention/RetentionPlanItem.php、src/Core/Retention/RetentionPurgeAuditRecord.phpと対応Core TestをFiles Allowedへ追加した。末尾Optional Tenantで既存Global Journeyを維持し、PlannerはClear Row TenantをItemへ固定、Deleteは同じTenant Predicateを使い、AuditはItem Tenantを保存する。Public Retention Policy／CLI Shape変更は許可しない。Worker Commit／Push／Deployなし。
+```
+
+## P20-016C Orchestrator Scope Correction 2
+
+```text
+2026-08-03T01:37:12+09:00
+OrchestratorはDeferred／Outbox RuntimeのTenant／Origin Actor Carrierを照合し、Current DeferredOperationMessageがEncoded Payload／Contextしか持たないため、AdapterがBlobをDecodeせずOperations／Outbox Clear Metadataを書けないことを確認した。P20-016C In ScopeのDecode-before-isolationを成立させる最小File境界としてDeferredOperationMessage、HTTP Deferred生成元、In-memory Retry Carrierと対応TestをFiles Allowedへ追加した。Scheduled生成元は既存src/Internal/Scheduling/**、Outbox生成／RelayとPostgreSQL Codecは既存許可範囲に含まれる。Outcome TenantはOperations RowからINSERT SELECTで継承できるためPublic Outcome ContractやDeferred Workerは追加しない。Tenant-aware Status Authorization／Public Query ContractはP20-016Dへ維持し、P20-016CはClear SubjectとEncoded JSON Projection除去までとする。Worker Commit／Push／Deployなし。
+```
+
+## P20-016C Orchestrator Scope Correction
+
+```text
+2026-08-03T01:36:09+09:00
+OrchestratorはIdempotency Scopeの実Runtime経路を照合し、HasherへTenantを追加するだけではInline／Deferred ClaimへCurrent Tenantが渡らず、P20-016C In ScopeのTenant別Idempotency独立性を実現できないことを確認した。既定Acceptanceを成立させる最小File境界としてsrc/Internal/Execution/InlineDispatcher.php、src/Internal/Execution/DeferredAcceptanceOrchestrator.phpと対応するtests/Internal/Execution/**をFiles Allowedへ追加した。Idempotency以外のExecution Lifecycle変更、HTTP Contract変更、Protected Adapter配線は許可しない。Worker Commit／Push／Deployなし。
+```
+
+## P20-016C PostgreSQL Tenant Isolation Worker Start
+
+```text
+2026-08-03T01:34:27+09:00
+OrchestratorはP20-016B Accepted／Commit 1b949fc、Clean Working Tree、Specification 99、D135、P20-016C Task Packetと参照仕様を照合し、P20-016CをIn Progressとした。ScopeはOperation-owned PostgreSQL RowのRestricted Clear Tenant／Origin Actor Subject、Both-null／Both-present Constraint、Tenant＋Record Identity Predicate／Index、Status SubjectのEncoded JSON Projection除去、Idempotency Tenant Scope、Worker／Retention／Replay／ScheduleのRow単位Tenant保持、Schema Helper／Migration／Package Export／Multi-tenant Evidenceに限定する。Protected Blob Encryption配線、Application向けJournal／Outcome Read Authorization、Rotation CLI、RLS、Public Guideは範囲外。Production実装をGPT-5.6 Luna High Workerへ依頼し、WorkerはReport／STATE／TODOを同期してReview前にCommitしない。Push／Deployなし。
+```
+
+## P20-016B Storage Protection Core Orchestrator Acceptance
+
+```text
+2026-07-29T22:37:05+09:00
+OrchestratorはP20-016BをSpecification 99、BOPD v1 Binary Layout、Canonical AAD、Application-owned StorageKeyProvider、Safe Failure、三つのCompiled Container経路へ照合した。Framework Codecを使わない独立libsodium計算でもKnown-answer Envelope Hexが一致した。ReviewでAADへのKey ID Binding、固定Tenant Field Shape、Envelope Key ID Read、Compile時Provider非生成／非呼出、Strict Length／Trailing Parse、Exception Trace／Debug／Serialization Secret Guard、三経路Artifact Resolution、ext-sodium Platform Requirementを補強した。最終Focused PHPUnit 30 tests／175 assertions、Full PHPUnit 2033 tests／8090 assertions（既存Deprecation 1）、Composer Validate、Mago Format、Production-only Lint／Analyze、Broad Analyze、Management-ID Guard、git diff --checkはPASS。Broad Mago Lintは既存88件、Deptracは既存Vendor ParserのPHP 8.5 Parse ErrorでBLOCKED。framework-package-exportはHEAD非管理のLocal Empty .claude DirectoryをComposer Archiveが含めるためBLOCKEDし、P20-016B差分起因ではない。P20-016BをAcceptedとし、次TaskをP20-016Cとする。Commit／Push／DeployはこのCheckpoint時点で未実行。
+```
+
+## P20-016B Storage Protection Core Static Hardening — Review Pending
+
+```text
+2026-07-29T22:34:39+09:00
+Production-only Mago lint／analyze findings were corrected without changing the BOPD contract: typed nonce/tag/length constants, strict unpack helpers, safe SensitiveParameterValue material return, named substr arguments, and parser lint expectations. Changed-source lint and analyze now report No issues; focused 30 tests／175 assertions PASS. Broad Mago lint baseline is 88 findings; Deptrac is blocked before graph generation by existing vendor PHP 8.5 parser error at NikicFileReferenceVisitor.php:106. A final full PHPUnit rerun was attempted but Docker daemon permission denied; previous full 2033／8090 PASS remains valid before type-only hardening. Report updated; Commit／Push／Deployなし.
+```
+
+## P20-016B Storage Protection Core Worker Complete — Review Pending
+
+```text
+2026-07-29T22:31:00+09:00
+P20-016BのPublic StoragePurpose／StorageKey／StorageKeyProvider、SensitiveParameter付きKey Material、Canonical AAD、BOPD v1 XChaCha20-Poly1305 Codec、Strict Parse／Fail-closed Exception、三つのCompiled Container Command経路のProvider Bindingを実装した。ext-sodiumをcomposer.json／composer.lockへ追加し、deptrac Layer／Namespace仕様を更新した。Focused PHPUnit 30 tests／175 assertions、Full PHPUnit 2033 tests／8090 assertions（既存Deprecation 1）、Composer Validate、Mago Format、Management-ID Guard、git diff --checkはPASS。framework-package-export Consumerは既存`.claude` unexpected archive rootで失敗。Broad Mago／DeptracはDocker daemon permission deniedにより未完了で、Orchestratorが再実行する。Reportを同期し、TaskをWorker Complete — Review Pending、Commit／Push／Deployなし。
+```
+
+Updated At: 2026-07-29T22:11:25+09:00
+
+## P20-016B Sodium Platform Requirement Scope Correction
+
+```text
+2026-07-29T22:11:25+09:00
+OrchestratorはP20-016Bのlibsodium XChaCha20-Poly1305固定ContractとComposer Metadataを照合し、Current PHP 8.5 ContainerではSodiumが利用可能だがFramework Packageがext-sodiumを宣言していないことを確認した。Install成功後のUndefined Function／Constant Failureを防ぐため、New third-party Package禁止を維持したままext-sodium Platform Requirementをcomposer.json／composer.lockへ追加する最小Scope補正をTask Packetへ記録した。任意Crypto Package／Algorithm Pluginは引き続き禁止。Worker Commit／Push／Deployなし。
+```
+
+## P20-016B Orchestrator Scope Correction
+
+```text
+2026-07-29T22:06:00+09:00
+OrchestratorはApplication Compositionの実Compile経路を照合し、RuntimeContainerCompilerのStorage Protection登録をClassic／Worker／CLI共通Artifactへ接続する3つのInternal Compile Commandと対応TestがP20-016B Files Allowedから欠落していることを確認した。既定In ScopeのCompiled Runtime Bindingを成立させる最小File境界としてTask Packetへ追加した。Application固有Key Provider Class、Key Material、CredentialをArtifactへ保存する変更は許可せず、Adapter配線は引き続き範囲外。Worker Commit／Push／Deployなし。
+```
+
+## P20-016B Storage Protection Core Worker Start
+
+```text
+2026-07-29T22:00:12+09:00
+OrchestratorはP20-016A Accepted、Commit 28ebcba、Clean Working Tree、Specification 99、D135、P20-016B Task Packetを照合し、P20-016BをIn Progressとした。ScopeはPublic Storage Purpose／Key／Provider、Internal Protection Context／Canonical AAD／BOPD v1 Envelope、libsodium XChaCha20-Poly1305、Safe Failure、Application Composition、Known-answer／Randomized／Tamper／Secret Exposure Evidenceに限定する。PostgreSQL Migration、Protected Adapter配線、Read Authorization、Rotation CLI、KMS Adapter、Public Guideは範囲外。Production実装をGPT-5.6 Luna High Workerへ依頼し、WorkerはReport／STATE／TODOを同期してReview前にCommitしない。Push／Deployなし。
+```
+
+## P20-016A Orchestrator Acceptance
+
+```text
+2026-07-29T20:35:29+09:00
+OrchestratorはP20-016AをSpecification 99、Public API、Root／Child／Outbox／Deferred Context、Worker／Retry／Lease Recovery、Canonical／Observed Journalへ照合した。形式だけのTenantRef Assertionを実Runtime Regressionへ置換し、HTTP Deferred、Console Provider Success／Failure、Scheduled Provider Failure、Transactional Outbox、Worker Completion／Retry／Lease Recoveryを直接固定した。Composer Validate、Full PHPUnit 2019 tests／7981 assertions（既存deprecation 1）、Mago Format、Changed-source Lint、Full Analyze、Scheduled Consumer、Management-ID Guard、git diff --checkはPASS。Broad Mago Lintは既存78件、Deptracは既存Vendor ParserのPHP 8.5 Parse ErrorでBLOCKED。Current SourceにTerminal Operation Replay Runtimeは存在しないため推測APIを追加せず、Specification 99の将来不変条件を維持した。P20-016AをAcceptedとし、次TaskをP20-016B Storage Protection Coreとする。Commit／Push／DeployはこのCheckpoint時点で未実行。
+```
+
+## P20-016A Tenant Context and Propagation Worker Completion
+
+```text
+2026-07-29T20:08:00+09:00
+WorkerはP20-016Aを実装し、TenantRef、Optional ExecutionContext Tenant、HTTP Authentication／Middleware、Console／Scheduled Tenant Provider、Public Dispatcher末尾Tenant、Child／Deferred／Retry／Lease Recovery Context Codec、Canonical Journal Tenant境界を同期した。Observed Journal ProjectionへRaw Tenant IDは出さない。既存Terminal Operation Replay Public APIはCurrent Sourceに存在せず、新規Replay APIは推測実装していないためCurrent Source gapとしてReportへ記録した。Production CodeのCommit／Push／Deployは未実行。Review Pending。
+```
+
+## P20-016A Authentication Tenant Attribute Boundary Correction
+
+```text
+2026-07-29T20:14:00+09:00
+Review Findingを補正した。AuthenticationMiddlewareは認証処理開始時に既存TenantRef request attributeを除去し、authenticated Resultが検証済みTenantを返した場合だけ再設定する。Anonymous／authenticated(actor, null)で上流の未検証TenantをRootへ流さないRegression Testを追加した。Review Pending、Commit／Push／Deployなし。
+```
+
+## P20-016A Acceptance Matrix Test Completion
+
+```text
+2026-07-29T20:20:00+09:00
+TenantRef trim／empty、ExecutionContext tenant getter／Factory receive-attempt-child inheritance、Context JSON tenant round-trip／invalid shape、AuthenticationResult／Middleware pre-seeded tenant removal、Journal tenant identityを直接固定するTestを追加した。Focused 60 tests／154 assertions、Full 1996 tests／7917 assertions（既存deprecation 1）はPASS。Commit／Push／Deployなし、Review Pending。
+```
+
+## P20-016A Correction 2 Direct Branch Tests
+
+```text
+2026-07-29T20:28:00+09:00
+認証済みTenantのMiddleware設定、OperationRequestHandlerのDispatcher Tenant引渡し、Console／Scheduled Tenant Provider Port独立性、Dispatcher末尾Optional Tenantを直接固定するTestを追加した。Correction Focused 49 tests／186 assertions PASS。Full Suiteは直前の1996 tests／7917 assertions PASSからProduction分岐変更なし。Full SuiteをTest追加後に再実行し、2012 tests／7947 assertions PASS（既存deprecation 1）を確認した。Commit／Push／Deployなし。
+```
+
+Correction 2 named-file coverage was added. Focused named-file suites: 57 tests／195 assertions PASS; Console integration plus Deferred worker suites: 36 tests／435 assertions PASS. `rg` now finds tenant coverage in all named files. Commit／Push／Deployなし。
+
+## P20-016A Orchestrator Scope Correction
+
+```text
+2026-07-29T20:02:00+09:00
+OrchestratorはWorkerのFoundational差分をTask Packetへ照合し、P20-016A In ScopeのHTTP Root Tenant伝播とCanonical Journal Tenant round-tripに必要だがFiles Allowedから欠落していたsrc/Http/DeferredOperationAcceptor.php、src/Http/OperationRequestHandler.php、src/Transport/PostgreSql/PostgreSqlJournalRecordCodec.phpを確認した。新CapabilityへのScope拡張ではなく既定Acceptanceを実現する最小File境界の補正としてTask Packetへ追加した。PostgreSQL Tenant Column／Query／Migration、Read Authorization、Encryption、Rotation、Public Guideは引き続き範囲外。Worker Commit／Push／Deployなし。
+```
+
+## P20-016A Tenant Context and Propagation Worker Start
+
+```text
+2026-07-29T19:57:56+09:00
+OrchestratorはP20-015 Accepted、Specification 99、P20-016A Task Packet、Commit ad1d576、Clean Working Treeを照合し、P20-016AをIn Progressとした。ScopeはTenantRef、ExecutionContext Optional Tenant、HTTP／Console／Scheduled／Public Root Entry、Child／Outbox／Deferred Worker／Retry／Lease Recovery／Replayの不変伝播、Canonical／Observed JournalのSafe境界、Application Compositionに限定する。PostgreSQL Tenant Column、Read Authorization、Encryption、Rotation、Public Guideは範囲外。Production実装をGPT-5.6 Luna High workerへ依頼し、WorkerはReport／STATE／TODOを同期してReview前にCommitしない。Push／Deployなし。
+```
+
+## P20-015 Tenant Isolation and Protected Operation Data Contract Acceptance
+
+```text
+2026-07-29T19:17:59+09:00
+OrchestratorはD135のQuestion 1〜8がすべてRecommendation Aで確定したことを照合し、確定Specification 99へTenantRef、Entry Source／不変伝播、PostgreSQL Restricted Clear Tenant／Origin Actor Subject、Tenant-aware Status、Default-deny Journal／Outcome Read、XChaCha20-Poly1305 Envelope、Application-owned StorageKeyProvider、Required Protection、Breaking Upgrade Guard、Bounded Rotation CLIを統合した。Production DeliveryをP20-016A〜Hへ依存順に分割し、各Taskへ変更可能File、Implementation Constraints、Acceptance、Required Commands、Report境界を定義した。D135 Answer A count 8、Specification Reference、Task Structure／Dependency、Required Source Audit、new file trailing whitespace、git diff --checkをPASSした。Production Code／Test／Migrationは変更していないためExisting Suiteは未実行。P20-015をAcceptedとし、次TaskをP20-016A Tenant Context and Propagationとする。Commit／Push／DeployはこのCheckpoint時点で未実行。
+```
+
+## P20-015 D135 Question 8 Decision and Decision Close Checkpoint
+
+```text
+2026-07-29T19:03:14+09:00
+UserはD135 Question 8をRecommendation Aで承認した。StorageKeyProviderはTenant Ref／Storage PurposeからActive Write Keyを選択でき、ReadはEnvelope Key IDを使う。BlackOps CLIのBounded storage:protection:plan／storage:protection:rotateはDry-run、Explicit Confirm、Actor、Reason、Audit、Checkpoint／Resume、Compare-and-swapを必須とし、Payload／Key Materialを表示しない。旧KeyはDatabase、Backup、Replica、Dead Letter、Retention上で必要なEnvelopeが0になるまで削除しない。Question 1〜8がすべてAで確定したためD135をDecidedとし、次工程を確定Specification／Production Task Packet分割とした。Production Code／Test／Migration、Commit／Push／Deployなし。
+```
+
+## P20-015 D135 Question 7 Decision Checkpoint
+
+```text
+2026-07-29T19:00:04+09:00
+Userは改訂したD135 Question 7をRecommendation Aで承認した。Protected StorageはEncrypted Envelopeを常時必須とし、disabled／migration Mode、Legacy Plaintext Dual-read、自動変換を提供しない。Provider未設定、Envelope Header欠落、Unknown Version／Key、Tag不一致はFail-closedとする。旧Schema／Plaintext Rowを検出したUpgradeはData変更前に停止し、利用者がDatabase Reset／RecreateまたはFramework外のOffline変換を明示選択する。Question 8はUser Decision Pending。Production Code／Test／Migration、Commit／Push／Deployなし。
+```
+
+## P20-015 D135 Question 7 Compatibility Direction Checkpoint
+
+```text
+2026-07-29T18:57:59+09:00
+UserはBlackOps 1.xがExperimentalであるため、旧Plaintext Contractとの破壊的変更を許容すると表明した。これを受けてQuestion 7をRequired ProtectionとBreaking Upgradeへ改訂し、disabled／migration Mode、Legacy Plaintext Dual-read、自動変換をRecommendationから除外した。既存Dataの無断削除は行わず、旧Schema／Plaintext Rowを検出したUpgradeは変更前に停止し、Database Reset／RecreateまたはFramework外のOffline変換を利用者が明示選択する。Question 7の改訂OptionとQuestion 8はUser Decision Pending。Production Code／Test／Migration、Commit／Push／Deployなし。
+```
+
+## P20-015 D135 Question 6 Decision Checkpoint
+
+```text
+2026-07-29T18:39:46+09:00
+UserはD135 Question 6をRecommendation Aで承認した。Frameworkはlibsodium XChaCha20-Poly1305のVersion付きAuthenticated Encryption Envelope Codecを提供し、Nonce、Authentication Tag、Associated Dataを管理する。ApplicationはStorageKeyProviderからActive Key ID／32-byte Write KeyとKey ID指定Read Keyを供給し、KMS／Secret Manager接続を所有する。任意Algorithm Pluginは初期Scope外とし、Key MaterialをRepository、Build Artifact、Manifest、Exception、Log、Journalへ出さず、Frameworkは永続Cacheしない。Question 7以降はUser Decision Pending。Production Code／Test／Migration、Commit／Push／Deployなし。
+```
+
+## P20-015 D135 Question 5 Decision Checkpoint
+
+```text
+2026-07-29T15:49:39+09:00
+UserはD135 Question 5をRecommendation Aで承認した。Canonical Journal Record、Deferred Payload／Context、Outcome Payload、Outbox Payload／Context、Dead Letter Reason、Idempotency保存Response／Result等の復元可能なFramework-owned Sensitive Storage FieldをVersion付きAuthenticated Encryption Envelopeで保護する。Operation ID／Type、State、Sequence、Timestamp、Tenant Ref、Schema Version等のLifecycle Query MetadataはRestricted Clear Columnとして残す。Associated DataはStorage Purpose、Field Contract、Operation／Tenant Identity等をBindingし、Ciphertext差し替えを拒否する。Question 6以降はUser Decision Pending。Production Code／Test／Migration、Commit／Push／Deployなし。
+```
+
+## P20-015 D135 Question 4 Decision Checkpoint
+
+```text
+2026-07-29T15:44:57+09:00
+UserはD135 Question 4をRecommendation Aで承認した。Existing Status APIをEnd-user Typed Outcomeの標準Surfaceとして維持し、Status AuthorizationへCurrent／Origin Tenantを追加する。直接PHP Journal／Outcome参照はDefault-deny OperationDataReadAuthorizerとResource Kind／Purposeを持つQuery PortでAllow後だけ復号／Decodeする。Raw CanonicalJournalReader／OutcomeReaderはInfrastructure SPIへ再分類し、Application Reader Journeyと同じDI Bindingで公開しない。operation:inspectはSafe Projectionを維持しRaw Dumpへ拡張しない。Question 5以降はUser Decision Pending。Production Code／Test／Migration、Commit／Push／Deployなし。
+```
+
+## P20-015 D135 Question 3 Decision Checkpoint
+
+```text
+2026-07-29T15:04:23+09:00
+UserはD135 Question 3をRecommendation Aで承認した。Operation-owned PostgreSQL RowへNullable tenant_type／tenant_idのRestricted Clear Metadataを追加し、Tenant-scoped QueryはTenantとOperation IDを同じPredicate／Indexへ含める。Status Subject、Worker Claim、Retention、ReplayはEncrypted BlobをDecodeせず必要最小Columnを読む。同じOperation内のTenant不一致はIntegrity Failureとし、Legacy RowはTenantなしのまま維持して自動推測しない。Database／Schema per TenantはApplicationが追加採用できるがFramework標準へ強制しない。Question 4以降はUser Decision Pending。Production Code／Test／Migration、Commit／Push／Deployなし。
+```
+
+## P20-015 D135 Question 2 Decision Checkpoint
+
+```text
+2026-07-29T14:28:38+09:00
+UserはD135 Question 2をRecommendation Aで承認した。HTTPはAuthenticationResultへOptional Tenantを添付し、Console／Scheduled RuntimeはActor Providerと共用しない専用Tenant Providerを使い、Public Dispatcherは末尾Optional Tenantを受ける。Child、Deferred Worker、Retry、Lease Recoveryは親Tenantを不変継承し、明示Replayは認可後に元Tenantを新Rootへ引き継ぐ。ActorやHeaderだけからTenantを無条件推測せず、Cross-tenant処理は別Rootと専用認可を要求する。Question 3以降はUser Decision Pending。Production Code／Test／Migration、Commit／Push／Deployなし。
+```
+
+## P20-015 D135 Question 1 Decision Checkpoint
+
+```text
+2026-07-29T14:16:32+09:00
+UserはD135 Question 1をRecommendation Aで承認した。TenantはActor／OperationValueと分離したPublic immutable TenantRef(type, id)とし、ExecutionContext::tenant(): ?TenantRefで読む。TenantなしRootを許可し、Tenant Directory、Membership、Role、Plan、CredentialはTenantRefへ含めない。Root Operation中のTenantは不変とする。Question 2以降は引き続き一件ずつUser Decision Pending。Production Code／Test／Migration、Commit／Push／Deployなし。
+```
+
+## P20-015 Tenant Isolation and Protected Operation Data Decision Checkpoint
+
+```text
+2026-07-29T10:32:34+09:00
+P20-014E Acceptance後、Phase 20残件のJournal／Outcome参照制御、Tenant分離、暗号化CapabilityをCurrent ExecutionContext、Entry Adapter、Status Query、Raw Journal／Outcome Port、PostgreSQL Schema、Retention、Replay、Idempotency、Outboxへ照合した。Tenantが未実装で、Statusだけが既定Deny、encoded_record等はbytea内Plain JSONかつSQL Projectionへ依存するため、Tenant Clear SubjectとProtected Blobを一体で決めるD135／P20-015を作成した。RecommendationはOptional TenantRef、Entry-owned Tenant Source、不変伝播、Tenant Metadata、Default-deny Direct Read、XChaCha20-Poly1305 Envelope、明示3 Mode、Bounded Rotation CLIで、Question 1〜8はUser Decision Pending。Production Code／Test／Migration、Commit／Push／Deployなし。
+```
+
+## P20-014E Orchestrator Acceptance
+
+```text
+2026-07-29T10:32:34+09:00
+OrchestratorはScheduled Operation GuideをSpecification 98、Current Source／Test、Stable 1.1.0へ照合した。Documentation Reviewer先行FindingのOperationMetadata public property、固定FireOnce misfire、Exit 1出力境界、任意時刻の初回accepted=0、Read-only SQL実行ContextをCorrectionし、Website test 74、check 0 errors／warnings／hints、build 40 pages／artifact／site check、Focused PHPUnit 18 tests／40 assertions、scheduled-operation Consumer、Mago format、Management-ID Guard、git diff --checkはPASS。Read-only Documentation Reviewerは8 Routes×Desktop 1440px Light／Dark×Mobile 390pxの24条件、Mobile Navigation、局所Code Scroll、Guide内18 Linkを実Browserで確認し、最終P1 0／P2 0／P3 0でAcceptした。P20-014EとP20-014A〜EのScheduled Application Operation SliceをAcceptedとする。Phase 20にはJournal／Outcome参照制御等とOpenTelemetry Adapterが残る。Commit／Push／Deployなし。
+```
+
+## P20-014E Documentation Review Correction Completion Checkpoint
+
+```text
+2026-07-29T02:13:59+09:00
+Correction本文を完了した。Core API property、固定FireOnce misfire、Framework Schema／Docker SQL、Occurrence Failureとtop-level runtime_error、daily初回accepted=0と`* * * * *`検証手順を同期し、accuracy regressionを追加した。Website test 74、check 0 errors／warnings／hints、build 40 pages／artifact／site check、git diff --checkはPASS。Task／Report／TODOをCorrection Review Pendingへ同期し、Browser再ReviewとOrchestrator Acceptanceを待つ。Production Code、Commit／Push／Deployなし。
+```
+
+## P20-014E Documentation Review Correction Checkpoint
+
+```text
+2026-07-29T02:12:06+09:00
+Documentation ReviewerのAccuracy／Journey指摘を補正した。OperationScheduleMetadataのTypical Useをpublic readonly OperationMetadata::$scheduleへ修正し、skipped_misfireを固定FireOnce cursor／最新一致Slot契約へ変更、Framework Schema付きRead-only SQLとDocker／Project Root実行場所を明記した。Scheduled CLIのOccurrence Failure集計とTop-level runtime_errorを分離し、daily 0:00 JSTの初回accepted=0正常系、Count Shape例、検証用`* * * * *`手順を追加した。Website accuracy regressionを追加し、Task／Report／TODOをCorrection Review Pendingへ同期する。本文補正後はWebsite test／check／buildを直列実行し、Commit／Push／Deployなし。
+```
+
+## P20-014E Documentation Completion Worker Review Pending Checkpoint
+
+```text
+2026-07-29T02:07:00+09:00
+P20-014E Guide completionを終えた。ScheduledActorProviderの`config/app.php` `services`登録、旧Scheduled Operation未提供claimの削除、accepted時のOperation IDをOccurrence Queryから取得する手順、Core APIのOperationScheduleMetadata、heading-aligned cross-link、Website page matrixを補正した。Website test 73、check（0 errors／warnings／hints）、build 40 pages／artifact／site check、Focused PHPUnit 18 tests／40 assertions、scheduled-operation Consumer CLI／recovery／concurrency、Mago format、Management-ID Guard、git diff --checkはPASS。Browser実測とDocumentation Reviewer判定はOrchestratorへ委譲し、TaskをReview Pendingとする。Production Code、Commit／Push／Deployなし。
+```
+
+## P20-014E Documentation Completion Worker Start Checkpoint
+
+```text
+2026-07-29T02:02:08+09:00
+P20-014Eの既存Guide差分をTask／Specification 98／Documentation Review Contractへ照合した。Orchestrator指摘のApplication Schedule one-shotとMaintenance Scheduler分離、AttributesのCount／ScheduledBy説明、BlackOps CLIのSchedule rowと旧未実装claim、Scheduled Troubleshooting、Journal Schedule Parameter Tableを補正する。許可されたdocs／Website／Report／STATE／TODO／Taskだけを変更し、Production Code、Consumer、Migration、Commit／Push／Deployは行わない。TaskをIn Progressとする。
+```
+
+## P20-014E Orchestrator Ready Checkpoint
+
+```text
+2026-07-29T01:50:56+09:00
+P20-014D Acceptance後、Specification 98の最終SliceをP20-014E Scheduled Operation Guide／Documentation ReviewとしてTask Packet化した。Repository main限定Callout、ScheduledBy Authoring、Inline／Deferred、Schedule Context、ScheduledActorProvider、Build／Migration／one-shot CLI／Worker、Count／Exit、Misfire／Overlap／Recovery、Occurrence／Journal相関、External Supervisor、Maintenance Scheduler分離、Reference／Releases／Troubleshooting同期をScopeとする。Landing／Theme、Production Code、Daemon／Manifest Generatorは変更しない。TaskをReadyとし、Documentation実装後はRead-only Documentation Reviewerで受入する。Commit／Push／Deployなし。
+```
+
+## P20-014D Orchestrator Acceptance
+
+```text
+2026-07-29T01:48:56+09:00
+OrchestratorはP20-014Dのone-shot operation:schedule:run、Human／JSON Count、Exit 0／1／2、Schedule名順、claimed-first Recovery、固定Operation ID、Compiled Container Definition、ScheduledActorProvider Build／Bootstrap validation、同一Connection／Schema／Clock、Inline／Deferred通常Lifecycle、Application Worker terminal hook、session advisory lock、Crash／二Process収束、Canonical Journal exactly-onceを独立Reviewした。CorrectionでSymfony pre-execute unknown optionを実Application Kernelでもsafe configuration_error／Exit 2へ補正し、Definition Resolver境界を直接固定した。Focused PHPUnit 382 tests／1434 assertions、Correction 43 tests／240 assertions、Consumer Journey、最終Full PHPUnit 1994 tests／7912 assertions、Mago format、Changed-source Mago analyze、Architecture／Scheduling 20 tests／330 assertions、shell syntax、Management-ID Guard、git diff --checkはPASS。Fullには既存PHP 8.5 deprecation 1件のみ。Broad MagoとDeptracは既存Repository Blockerを記録した。P20-014DをAcceptedとし、次はP20-014E Guide／Documentation Reviewへ進む。Commit／Push／Deployなし。
+```
+
+## P20-014D Worker Verification Checkpoint
+
+```text
+2026-07-29T01:42:00+09:00
+P20-014D direct regression gaps were completed. ScheduledOperationRunner tests now cover deterministic Schedule-name order, claimed recovery with fixed Operation ID and terminal completion, misfire／overlap aggregation, and claimed invocation failure category. CLI no-schedule Human output is exact. ApplicationBuildCompileCommand tests cover authorized ScheduledActorProvider missing／registered; ApplicationScheduledOperationRuntimeComposer tests cover Build ID and Provider boundaries. Consumer assertions now verify Inline transactional, Deferred, crash recovery, and concurrent race Journal event sequences exactly once, one Operation ID, and one row per slot. Consumer diagnosis found the transactional Inline fixture was final and incompatible with required AOP proxy generation; ScheduledInlineProbe is now proxyable, and the kept fixture build:compile passed. Focused PHPUnit 18 tests／129 assertions, Mago format check, bash -n, and git diff --check passed. Consumer full journey remains for Orchestrator rerun after the build fix. Task is Review Pending; Commit／Push／Deployなし。
+```
+
+## P20-014D Correction Checkpoint
+
+```text
+2026-07-29T01:47:30+09:00
+Correction cycle completed. ScheduledOperationRunCommand now converts Symfony Console input-binding exceptions to safe configuration_error output and Exit 2, with pre-bind --json detection. ApplicationConsoleKernel registers operation:schedule:run directly so unknown options are handled by the command boundary rather than LazyFrameworkCommand. Direct human／JSON unknown-option tests and Application Kernel route tests pass. ScheduledOperationDefinitionResolver direct tests cover self-handled compiled instance reuse, constructorless definition construction, and required-constructor rejection. Correction focused suite 30 tests／123 assertions PASS; complete P20-014D focused PHP set 43 tests／240 assertions PASS; Mago format, management-ID guard, and git diff --check PASS. Task remains Review Pending, no commit／push／deploy.
+```
+
+## P20-014D Worker Start Checkpoint
+
+```text
+2026-07-29T00:33:45+09:00
+P20-014D Task Packet、Specification 98／02／03／06／09／16／18／19／21／31／32／33／35／36／40／68、D134、Accepted P20-014A〜C Report／Sourceを確認した。Compiled Manifest／Container、同一Connection／Schema／Clock、one-shot operation:schedule:run、Application Worker scheduled lifecycle hook、Crash／Concurrency Consumer Evidenceを実装する。Maintenance scheduler、HTTP／ConsoleCommand／child contract、Guide／Website、既存Phase 20差分は変更しない。TaskをIn Progressへ同期し、Commit／Push／Deployなし。
+```
+
+## P20-014D Orchestrator Ready Checkpoint
+
+```text
+2026-07-29T00:29:15+09:00
+P20-014C Acceptance後、Specification 98の次SliceをP20-014D Scheduled Operation CLI／Application Composition／Consumer EvidenceとしてTask Packet化した。一回実行`operation:schedule:run`、Human／JSON Count、Exit 0／1／2、Schedule名順、claimed-first Recovery、Compiled Container Definition／ScheduledActorProvider、同一Connection／Schema／Clock、Application Worker terminal hook、Crash／二Process収束をScopeとする。Application Schedule Daemon、Supervisor管理、Guide／WebsiteはP20-014E以降へ残す。TaskをReadyとし、Production実装をLuna High Workerへ委譲する。Existing Phase 20 Working Tree差分を保持し、Worker Commitなし。
+```
+
+## P20-014C Orchestrator Acceptance
+
+```text
+2026-07-29T00:29:15+09:00
+OrchestratorはP20-014CのPublic ScheduledActorProvider、固定Scheduled Root、Runtime invoke Inline／Deferred分岐、通常Validation／Authorization、Schedule Context Codec／Canonical／Observed Journal、Occurrence expected-state transition、Deferred acceptance／worker rollback、Retry／Dead Letter／Lease Recoveryを独立Reviewした。Focused PHPUnit 210 tests／1014 assertions、Full PHPUnit 1971 tests／7856 assertions、Runtime seam 4 tests／23 assertions、Architecture／Scheduling 20 tests／330 assertions、Mago format check、Changed-source Mago analyze、Management-ID Guard、git diff --checkはPASS。Fullには既存PHP 8.5 ReflectionProperty deprecation 1件のみ。Broad MagoとDeptracはRepository既存Blocker。P20-014CをAcceptedとし、次はP20-014D Application Composition／一回実行BlackOps CLI／Consumer crash・concurrency evidenceへ進む。Commit／Push／Deployなし。
+```
+
+## P20-014C Worker Completion Checkpoint
+
+```text
+2026-07-29T00:28:04+09:00
+P20-014C ScheduledActorProvider、固定Scheduled Root Context、引数なしValue構築、Inline／Deferred validation・authorization・Journal・transport接続、Schedule Context codec／Canonical／Observed projection、Occurrence expected-state lifecycle、Deferred worker／retry／dead-letter／lease recovery維持、PSR-20 terminal clockを実装した。Focused PHPUnit 210 tests／1014 assertions、最新Full PHPUnit 1971 tests／7856 assertions PASS（PHP8.5 ReflectionProperty deprecation 1件）。Earlier full runの既存Outbox heartbeat flaky 1件は対象単独4 tests／22 assertions PASSと最新Full rerun PASSで再現しなかった。Changed-source Mago analyze（No issues found）、Mago format check、ID Guard、git diff --checkはPASS、Runtime seam notices解消。Broad Magoは既存1057 issues、Deptracは既存Nikic parser errorでBLOCKED。TaskをReview Pending、Report作成、Commit／Push／Deployなし。
+```
+
+## P20-014C Worker Start Checkpoint
+
+```text
+2026-07-28T23:33:20+09:00
+P20-014C最新Task Packet（Spec 02／03／06／16／18／19／21／22／23／25／31／32／33／35／36／98、D134、Deptrac／Architecture追加）を再確認した。ScheduledActorProvider、固定execution Actor、Scheduled Root Context、Inline／Deferred共通seam、Context／Journal Codec、Occurrence guarded transition、Transaction／Recoveryを実装する。CLI／Composition／Supervisor／Consumer／Guideは変更しない。TaskをIn Progressへ同期し、Commit／Push／Deployなし。
+```
+
+## P20-014C Orchestrator Ready Checkpoint
+
+```text
+2026-07-28T23:30:46+09:00
+P20-014B Acceptance後、Specification 98の次SliceをP20-014C Scheduled Operation Invocation／LifecycleとしてTask Packet化した。Public ScheduledActorProvider、Framework-fixed execution Actor、固定Occurrence Operation IDのScheduled Root Context、引数なしValue構築、既存Inline／Deferred Lifecycle接続、Deferred Context Codec／Worker Retry、Canonical／Observed Journal Schedule Context、Occurrence accepted／terminal transitionと同一Transaction RollbackをScopeとする。CLI／Application Composition／Supervisor／Consumer／GuideはP20-014D以降へ残す。TaskをReadyとし、Production実装をLuna High Workerへ委譲する。Existing Phase 20 Working Tree差分を保持し、Worker Commitなし。
+```
+
+## P20-014B Orchestrator Acceptance
+
+```text
+2026-07-28T23:28:02+09:00
+OrchestratorはP20-014BのPostgreSQL Schedule State／Occurrence、Forward Migration、Calendar Evaluator、Misfire／Overlap、DST、Concurrency／Rollback、claimed Recovery、UTC Timestamp精度をTask／Specificationへ照合した。時刻精度Correction後の独立Focused PHPUnit 55 tests／171 assertions、Full PHPUnit 1938 tests／7730 assertions、Mago format check、Changed Source targeted Mago analyze、Management-ID Guard、git diff --checkはPASS。Fullには既存PHP 8.5 ReflectionProperty deprecation 1件のみ。Broad MagoとDeptracはRepository既存Blocker、package export実行はWorker no-commitによりgit archive HEADへ新Migrationが入らないCommit-bound Gateだが、Export Contractへの必須Path追加は確認した。P20-014BをAcceptedとし、次はP20-014C Invocation／Actor／Transport／JournalをTask Packet化する。Commit／Push／Deployなし。
+```
+
+## P20-014B Worker Completion Checkpoint — Time Precision Correction
+
+```text
+2026-07-28T23:25:31+09:00
+ScheduleEvaluatorのClock instantをUTCで保持し、`scheduled_at`／`cursor_at`だけMinute floor、`evaluated_at`／`created_at`／`updated_at`と返却Occurrenceの`evaluatedAt`は秒・microsecondsを保持するよう補正した。`00:00:42.123456Z` DB-backed fixtureで監査TimestampとMinute境界を固定した。Focused Schedule／Migration PHPUnit 55 tests／171 assertions、Targeted Mago analyze、Mago format／format check、Full PHPUnit 1938 tests／7730 assertions（PHP8.5 deprecation 1件）PASS。TaskをReview Pending、Commit／Push／Deployなし。
+```
+
+## P20-014B Worker Completion Checkpoint — Console Regression Correction
+
+```text
+2026-07-28T23:20:13+09:00
+P20-014B Console Regression Correctionを完了した。DatabaseMigrationCommandTest／ApplicationConsoleKernelTestのFramework 7件、Application併用8件、pending／migrate／applied期待値を同期した。Individual Console PHPUnit 6 tests／89 assertions、Focused Schedule／Migration 54 tests／164 assertions、Full PHPUnit 1937 tests／7723 assertions PASS（PHP8.5 ReflectionProperty deprecation 1件）。TaskをReview Pendingとし、Production Source変更なし、Commit／Push／Deployなし。Package ExportはWorker未Commitのためgit archive HEADが新Migrationを含められずBLOCKED。
+```
+
+## P20-014B Worker Completion Checkpoint
+
+```text
+2026-07-28T23:16:10+09:00
+P20-014B PostgreSQL Schedule State／Occurrence、Calendar Evaluator、DST／misfire／overlap／recovery／rollback／two-connection convergenceを実装した。Focused migration/schema/scheduling PHPUnit 54 tests／164 assertions PASS（実PostgreSQL、Spring Gap、Fall Back first UTC、Wildcard／List／Range／Step／DOW 7、accepted overlap、cursor／recovery deterministic order、SQL parityを含む）。Targeted Mago analyze／format check、Management-ID Guard、git diff --check PASS。Full PHPUnitは既存Console migration期待値3件（pending 6/7が新Migration追加で7/8）でFAIL、Broad MagoはRepository既存Test解析Finding、Deptracは既存Nikic parser error、package exportはWorker未Commitのためgit archive HEADへ新Migrationを含められずFAIL（Composer archiveには環境の未追跡空`.claude` rootも出現）。TaskをReview Pendingとし、Commit／Push／Deployなし。
+```
+
+## P20-014B Worker Start Checkpoint
+
+```text
+2026-07-28T22:40:53+09:00
+P20-014B Task Packet／Specification 98／D134／PostgreSQL schema・migration・DBAL conventionsを確認した。Schedule State／Occurrence persistence、UTC cursor／FireOnce／Misfire／Overlap、DST calendar evaluation、row lock／unique convergence、Recovery Queryを実装する。Invocation／Actor／Transport／Journal／CLI／Composition／Guideは変更しない。P20-014BをIn Progressとし、既存Phase 20差分を保持、Commit／Push／Deployなし。
+```
+
+## P20-014B Orchestrator Ready Checkpoint
+
+```text
+2026-07-28T22:38:19+09:00
+P20-014A Acceptance後、Specification 98の次SliceをP20-014B PostgreSQL Schedule State／Occurrence／Calendar EvaluatorとしてTask Packet化した。schedule_statesのOperation Type／UTC Cursor、schedule_occurrencesのUTC Slot／State／Safe Category／Nullable固定Operation ID、Schema Helper／Forward Migration、First Evaluation、Cursor exclusive、FireOnce Misfire、Overlap Skip、DST Gap／Overlap first UTC、二Connection収束、Transaction Rollback、claimed Recovery QueryをScopeとする。Invocation／Actor／Authorization／Transport／Journal／CLI／Application Composition／Guideは接続しない。TaskをReadyとし、Production実装をLuna High Workerへ委譲する。Existing Phase 20 Working Tree差分を保持し、Commit／Push／Deployなし。
+```
+
+## P20-014A Orchestrator Acceptance
+
+```text
+2026-07-28T22:35:41+09:00
+OrchestratorはP20-014AのPublic Attribute Shape、Schedule Context、Metadata／Registry、Compiler、Manifest Schema 3、Cron Parser ModelをTask／Specificationへ照合した。Correction CycleでManifest DecoderのScheduledBy Reflection fallback、意図へ到達しないSchema fixture、Malformed Schedule coverage、未使用Validator、DOM／DOW OR常時true、DOW 7 Sunday normalizationを補正した。Focused PHPUnit 420 tests／961 assertions、最終Full PHPUnit 1912 tests／7659 assertions、Mago format、Changed Source targeted Mago analyze、Management-ID Guard、git diff --checkはPASS。Full初回のOutbox heartbeat timing failureは単独retryと最終FullでPASSした。Broad MagoはRepository既存Test解析Finding、Deptracは既存NikicFileReferenceVisitor Parser errorでBLOCKED。P20-014AをAcceptedとし、次はP20-014B PostgreSQL Schedule State／Occurrence／EvaluatorをTask Packet化する。Commit／Push／Deployなし。
+```
+
+## P20-014A Worker Completion Checkpoint
+
+```text
+2026-07-28T22:26:05+09:00
+P20-014A Authoring／Manifestを実装した。Public ScheduledBy（UTC／IANA／5 Field Cron validation）、ScheduleContext（UTC normalization）、OperationScheduleMetadata、ExecutionContext::schedule()、Schedule name Registry index、shared Internal CronExpression parser（DOM／DOW OR model、numeric wildcard／list／range／step、single-value step拒否、DOW 7→0 normalization）、Scheduled Value shape／private/abstract/required constructor／Ephemeral rejection、Repeated ScheduledBy／Inline／Deferred strategy tests、Manifest Schedule round-trip／Schema 3／payload validationを追加した。Focused PHPUnitは420 tests／961 assertions PASS。Full PHPUnitは1909 tests／7645 assertions中、既存Outbox heartbeat test 1件のflaky failure（PHP8.5 deprecation 1件）。Targeted Mago analyze／format check、Management-ID Guard、git diff --checkはPASS。Deptracは既存Parser errorで未完了。P20-014AをReview Pendingとし、Commit／Push／Deployなし。
+```
+
+## P20-014A Orchestrator Ready Checkpoint
+
+```text
+2026-07-28T22:04:47+09:00
+D134の確定回答をSpecification 98へ同期し、Scheduled Application OperationをP20-014A Authoring／Manifest、P20-014B PostgreSQL／Evaluator、P20-014C Invocation／Actor／Journal、P20-014D CLI／Composition／Consumer、P20-014E Guide／Documentation Reviewへ分割した。最初のP20-014AはPublic `ScheduledBy`、ScheduleContext、OperationScheduleMetadata、5 Field POSIX Cron Build Validation、Schedule名Registry、Operation Manifest Schema 3だけを実装する。Runtime／Transport／Journal／Database／CLI／Guide／New Dependencyは変更しない。Task PacketをReadyとし、Production実装をLuna High Workerへ委譲する。Existing Phase 20 Working Tree差分を保持し、Worker Commitなし。
+```
+
+## P20-013 Scheduled Application Operation Decision Acceptance
+
+```text
+2026-07-28T21:59:21+09:00
+UserはD134 Question 1〜8のRecommendation A一式を承認した。一Operation一Schedule、明示Identity、5 Field POSIX Cron／IANA Timezone、必須引数なしOperationValue、ExecutionContext Schedule Context、FireOnce、Overlap Skip、PostgreSQL Occurrence一意制約、ScheduledActorProvider、一回実行`operation:schedule:run`を確定した。D134をDecided、P20-013をAccepted、TODO／Decision Index／Reportを同期する。次はSpecification 98とPublic Attribute／Schedule Context／Manifest Contractの最初のProduction Taskを作成する。Production Code／Guide／Website、Commit／Push／Deployは未変更。
+```
+
+## P20-013 Scheduled Application Operation Decision Checkpoint
+
+```text
+2026-07-28T20:53:20+09:00
+P20-012 Acceptance後のPhase 20残件を照合し、次TaskをScheduled Application Operation Contractと確定した。D115／Specification 82とCurrent Operation Metadata、Console Value Binding、Deferred Acceptance、Idempotency、ExecutionContext、Maintenance Scheduler、Actor Sourceを監査した。Cron Attributeだけでは未定義となるOperationValue生成、Schedule Context、Actor、Occurrence Persistence、Journal、CLIをP20-013／D134へ追加した。Recommendationは一Operation一Schedule、明示Identity、5 Field Cron／IANA Timezone、必須引数なしValue、ExecutionContext Schedule Context、FireOnce、Overlap Skip、PostgreSQL Occurrence一意制約、ScheduledActorProvider、`operation:schedule:run`である。D134 Question 1〜8はUser Decision Pending。Production Code／Guide／Website、Commit／Push／Deployは変更していない。
+```
+
+## P20-012 Orchestrator Acceptance
+
+```text
+2026-07-28T17:29:30+09:00
+OrchestratorはD133／Specification 97／P20-012、全38 Source Coverage、Publication／Retention／Observer Replay Accuracy、Editorial GuardをSource／Runtime Testへ照合した。Correction Cycleで内部運用語、一般語、Community Board確認ラベル、長段落、state-aware HTML Comment、content-map description、Comment内PHP／Shell／Mermaid fence境界を補正した。Orchestrator再実行のWebsite test 73、check 38 pages、build 39 pages／artifact／site guard、Mago format、Management-ID Guard、git diff --checkはPASS。最新localhost:4322で全38 Routeを1440px Light／Darkと390px Lightの計114条件、Clipboard成功／失敗、重点5 PageとSearch Artifactを確認し、Current Source、active navigation、overflowなし、指定Landingを確認した。Documentation Reviewerの最終判定はP1／P2／P3なし、Recommendation Accept。P20-012をAcceptedとし、Commit／Push／PR／External Deployは未実行。
+```
+
+## P20-012 Final P2 Guard Checkpoint
+
+```text
+2026-07-28T17:27:40+09:00
+Editorial GuardのHTML Comment処理をfence判定より前へ移し、複数行CommentがPHP／Shell／Mermaid fenced code全体を非表示として除外するstate-aware処理へ修正した。Comment終了後の可視禁止語拒否と、Comment内の3言語fence許可をFixtureで固定した。Website test 73、check 38 pages、Management-ID Guard、git diff --checkはPASS。Magoの以前の必須実行はPASS、最終retryはDocker API permission deniedでBLOCKED。Task／TODO／ReportをReview Pendingへ同期し、Commit／Push／Deployなし。
+```
+
+## P20-012 Final Correction Checkpoint
+
+```text
+2026-07-28T17:18:29+09:00
+P20-012 Correctionを完了した。READMEの既定Worker／メニュー／検索、installationの明示的なコマンド、database-migrationsのディレクトリ表現、runtime-bootstrapの既定Worker Modeを利用者向け日本語へ同期した。Community Boardの確認方法ラベル、deployment／project-cli／project-generators／console-command／executionの見出しとリンク、outboxのプロセス一覧リンク、security／execution／project-cliの長段落をContract維持のまま分割した。Editorial Guardはstate-aware HTML Comment、content-map description、Task Report／Consumer Evidence／Phase番号／内部Evidence語を検査し、single／multiline commentとpositive／negative fixtureを追加した。Website test 73、check 38 pages、Mago format、Management-ID Guard、git diff --checkはPASS。39-page外部Build／artifact／site guardはPASS、最終sandbox再BuildはBlume font serverのlisten EPERMで失敗した。Task／TODO／ReportをReview Pendingへ同期し、Commit／Push／Deployなし。
+```
+
+## P20-012 Correction Cycle Checkpoint
+
+```text
+2026-07-28T16:20:02+09:00
+Orchestrator再監査で判明したP3内部運用語を利用者向け日本語へ修正した。authenticationのTask Report、configurationのPhase 14／File／Local File Path、mvp-statusのConsumer Evidence／External Publication／Deploy、testingのConsumer Evidence／保守Evidence／Worker Retry Evidenceを除去し、Community BoardとDocumentation Websiteの公開状態をBoard Local／CI only・Website Cloudflare Pagesへ再分離した。Editorial GuardへTask Report、Consumer Evidence、Phase番号、保守Evidence、Worker Retry Evidence、stale shared publication claimの表示Prose検査と保護Fixtureを追加した。Retentionのidempotency_record_days省略時の最長値とPlan成功Exit Code 0を復元する。P20-012をIn Progressへ戻し、再検証後Review Pendingへ同期する。
+```
+
+## P20-012 Worker Completion Checkpoint
+
+```text
+2026-07-28T16:14:19+09:00
+全38 `docs/guide/*.md`をSpecification 97のPage Type MatrixでReviewし、変更不要PageもCoverageへ記録した。PublicationをCloudflare Pages公開済み、BlackOps BoardをLocal／CI onlyへ分離し、RetentionへHost／ContainerのPlan／Purge dry-run／confirmとRuntime出力、Observer Replayへdry-run／confirm／resumeの3 Modeを反映した。Fence／Inline Code aware Editorial Guardは表示Prose、Code Comment、Mermaid accTitle／accDescr／quoted Labelを検査し、Execution Token、Exact Output、JSON／JSONL、Inline Code、Link Target、HTML Comment、Mermaid Syntaxを保護するFixtureを追加した。Website test 71、check 38 pages、build 39 pages／artifact／site guard、Mago format、Management-ID Guard、git diff --checkはPASS。Task／TODO／ReportをReview Pendingへ同期し、Commit／Push／Deploy、Framework src、Example／Consumer、Generated Content／distは変更していない。
+```
+
+## P20-012 Worker Start Checkpoint
+
+```text
+2026-07-28T16:03:06+09:00
+Task Packet P20-012、D133、Specification 97、D117／Specification 84、Specification 92／59、D129／D130、既存P20-007〜P20-011 Reportを正本順に確認した。全38 `docs/guide/*.md`をPage Type Matrixへ割り当て、Glossary／Public API Conceptを保護し、Publication、Retention、Observer Replay、Editorial Guard、Content Map DescriptionをAccuracy Evidenceと照合する。P20-012をIn Progressへ同期し、Landing exact-copy、Public Contract、IA／Slug／H1、既存P20差分、Framework src／Example／Consumer／Stable tag、Generated Content／dist、Commit／Push／Deployを変更しない。
+```
+
+## P20-012 Orchestrator Ready Checkpoint
+
+```text
+2026-07-28T16:02:05+09:00
+Documentation Reviewerの全Site Baselineで、Documentation Website公開状態の古い説明、Retentionのコピー不能な省略Command、Observer Replayのdry-run／confirm／resume境界、Public Concept保護一覧、Editorial Guardの可視Mermaid／Code Comment境界、38 SourceのPage Type割当を確認した。D133／Specification 97／P20-012へGlossaryとPublic APIを正本とするConcept保護、38/38 Coverage Matrix、Host／Container Retention手順と期待出力、Replay 3 Mode、表示Prose／Comment／Mermaid Labelを対象にしたGuard Fixture、既存Landing exact-copy Fixtureを反映した。P20-012をReadyとし、全Page文章編集とRegression実装をLuna High Workerへ委譲する。Framework src、Public API、Landing、IA、Stable tag、Commit／Push／Deployは変更しない。
+```
+
+## P20-012 Orchestrator Draft Checkpoint
+
+```text
+2026-07-28T15:48:08+09:00
+D117／Specification 84の最終Editorial StageとしてP20-012をDraftした。全38 docs/guide Sourceを横断監査し、BlackOps ConceptとOfficial Product名を維持したまま、Page／File／Command／Example等の一般語、NuxtJS、Latest Stable、Document Channel、Troubleshooting English Label、仕様書調の混在を確認した。D133／Specification 97で日本語のです・ます調、Version Lane、Concept／How-to／Reference／TroubleshootingのReader Contract、Fence／Inline Code aware Guardを定義した。Releasesに残るDocumentation Website未公開の古い説明はD129／D130／P20-009G Acceptanceへ同期する。Landing指定Copy／Layout、Public Slug、Navigation、H1、Header、Banner、Search、Site UX、Framework Production Code、Stable tag、Commit／Push／Deployは変更しない。Documentation Reviewerの全Site Baseline Findingを反映してTask PacketをReadyにしてからLuna High Workerへ委譲する。
+```
+
+## P20-011 Orchestrator Acceptance
+
+```text
+2026-07-28T15:15:04+09:00
+OrchestratorはP20-011のCallout／Code Copy／Previous-Next／Edit Link／Japanese Font／Inline Code／Landing境界をD132／Specification 96へ照合した。Playwright Chromium 1.61.1で全38 Public Routeを1440px Light／Darkと390px Lightの3条件、計114 Page checksで測定し、HTTP 200、H1、Sidebar current、Canonical Pagination、Tracked docs/guide Edit URL、Header GitHub、Japanese Font、7 Callout、Page Overflowなしを確認した。Clipboard成功はExact Code Text、失敗はwrite 1回を実測し、双方でFocus保持と日本語Label／aria-live Statusを確認した。Landing／Install／First Operation／Outboxの12 Screenshotを目視し、指定Hero／CTA／三Feature、Light-Dark、Mobile一列、Callout、Paginationの崩れなし。Orchestrator再実行のWebsite test 69、check 38 pages、Management-ID Guard、git diff --checkもPASS。Documentation Reviewerの最終判定はP1／P2／P3なし、Recommendation Accept。P20-011をAcceptedとし、Commit／Push／PR／External Deployは未実行。次はP20-012の表記Guidelineと全Page文章編集Pass。
+```
+
+## P20-011 Worker Completion Checkpoint
+
+```text
+2026-07-28T14:47:13+09:00
+P20-011の許可FileへBlume native Callout、Canonical Sidebar root Pagination、content-mapのTracked docs/guide Edit URL、日本語UI／Font Stack、Inline Code Wrap、Landing decorative section number削除を反映した。Callout／MermaidのFence-aware MDX判定をRegressionで固定し、Install／Quickstart／First Operation／Authentication／Frontend／Outbox／Deploymentの7 PageへStable／main／Risk境界Calloutを接続した。NoEditLayoutはBlume native Clipboard／Check／Focusを維持し、native buttonのcopy→check Mutationを監視して成功／失敗aria-live statusを通知するため、read-only ClipboardでもwriteTextの二重実行をしない。Blume visible chromeのExport／Generatingも日本語UIへ補完した。Website test 69、check 38 pages、build 39 pages／artifact／site guard、Mago format、Management-ID Guard、git diff --checkはPASS。Generated Content／dist、Framework src、Dependency、Commit／Push／Deployは変更していない。Browser Desktop／Dark／Mobile 390pxの最終視覚確認はOrchestrator Reviewへ委譲し、P20-011をReview Pending、Worker Commitなしとする。
+```
+
+## P20-011 Worker Start Checkpoint
+
+```text
+2026-07-28T14:08:53+09:00
+Task Packet P20-011、D132、Specification 96、D117／Specification 84、Specification 87／90／92、Blume 1.1.4 native sourceを確認した。Preserve redesignとして既存Landing／IA／Public Slug／Sidebar／blue-teal／Light-Darkを維持し、Callout fence-aware MDX判定、native PaginationのCanonical Sidebar Adapter、content-map Source Edit Link、Japanese UI／Font Stack、native Code Copyの成功／失敗Accessible Status、Inline Code Wrap、Landing decorative 01／02削除を許可Fileへ実装する。Generated Content／dist、Framework src、Dependency、Commit／Push／Deployは変更しない。P20-011をIn Progressとし、Review Pendingで返す。
+```
+
+## P20-011 Orchestrator Start Checkpoint
+
+```text
+2026-07-28T14:03:03+09:00
+Userの継続指示を受け、D117の順序に従いSite UXと全Page文章編集を分離し、P20-011を開始した。Preserve redesignとしてDesign Variance 5／Motion 3／Density 5を採用し、既存Blume 1.1.4、BlackOps Theme、Public Slug、Sidebar、Landing指定Copy／CTA／三Feature、Header、Banner、Search、Redirectを維持する。Baseline BrowserではNative Code Copyが英語`Copy code`、Callout／Edit Link／Paginationが0件、First Operation 390pxがpage scrollWidth 439／clientWidth 390だった。Generated NavigationのManual EntryはpageIdが空でNative Paginationへ渡らず、Generated Source Edit URLはdocs/website/src/content/docsを指すためNoEditLayoutが無効化している。D132／Specification 96でNative Component優先、Callout MDX判定、Canonical Sidebar Pagination Adapter、content-mapからdocs/guide Edit Link、Japanese Font Stack、Inline Code Wrap、Decorative Landing Section Number削除を確定した。P20-011 Task PacketをReadyとし、全Page文章編集はP20-012へ残す。Framework src、Blume Version、New Dependency、Commit／Push／Deployは変更しない。
+```
+
+## P20-010 Orchestrator Acceptance
+
+```text
+2026-07-28T01:39:06+09:00
+OrchestratorはTesting／Deployment／ConsoleCommand／Outbox／BlackOps CLIをCurrent Console Source、Consumer／Example、Stable tag 1.1.0へ独立照合した。Documentation Reviewerが検出したObserver Replay／Retention必須Option、Testing Outbox Evidence、Outbox Recipe完走性と、Orchestratorが検出したoperation:list Source Discovery、Dead Letter必須値、Outbox 390px横OverflowをCorrectionした。最終Reviewer判定はP1／P2／P3すべてNone、Recommendation Accept。Orchestrator再実行のWebsite test 64、check 38 pages、build 39 pages／artifact／site guard、Mago format、Management-ID guard、git diff --checkはPASS。Playwrightで全5 RouteのHTTP 200、H1、Sidebar current各1件、Desktop 1440px Light／DarkとMobile 390pxのPage Overflowなし、Table／Codeの局所横Scrollを確認した。P20-010をAccepted、TODOを完了とする。Commit／Push／PR／External Deployは未実行。
+```
+
+## P20-010 Browser Correction Checkpoint
+
+```text
+2026-07-28T01:33:49+09:00
+Orchestratorの390px Browser実測で`/execution/outbox`の本文inline code pathがpage scrollWidth 502／clientWidth 390を生んだため、配置一覧後の長いinline pathをbasenameへ短縮した。完全Pathはfenced textの配置一覧に維持し、Theme／CSSとfenced code blockのlocal scrollは変更していない。Website test 64、check 38 pages、git diff --checkはPASS。Task／ReportはReview Pending、Commitなし。
+```
+
+## P20-010 Correction Verification Checkpoint
+
+```text
+2026-07-28T01:28:45+09:00
+CLI Source照合Correctionを反映した。`operation:list`はApplicationConfigurationSnapshot＋ApplicationOperationDiscoveryでSourceをDiscoverしMetadata Compilerで表示するRuntimeであり、Build Artifact依存ではないことをMatrix／本文へ明記した。Dead Letter Matrixの`--actor --reason`を値付き`--actor=<actor> --reason=<reason>`へ修正し、値なしInvalidArgumentException契約と一致させた。Website test 64、check 38 pages、Community Board product journey、git diff --checkはPASS。Task／ReportはReview Pending、Commitなし。
+```
+
+## P20-010 Correction Checkpoint
+
+```text
+2026-07-28T01:25:20+09:00
+Documentation Reviewer候補FindingをCorrectionした。CLI Observer Replayへ必須Selector／Observer／Checkpoint／Actor／Reason、Retentionへ必須daysとPurge dry-run／confirmの実行例、TestingへOutbox Evidenceとしてcommunity-board-product-journey.shを反映した。Outbox GuideはCommunity Board Source準拠のfile placement、Value／Outcome／Repository／Infrastructure境界、Root Operation、Deferred child、Dispatch Receiptをfile別PHP fenceへ補完した。Website test 64、check 38 pages、build 39 pages／artifact／site guard、git diff --checkはPASS。HostにPHP binaryがないためPHP fence regressionはStatic fallback（double Backslashなし・class宣言）を通過。Task／ReportはReview Pending、Commitなし。
+```
+
+## P20-010 Worker Completion Checkpoint
+
+```text
+2026-07-28T01:12:01+09:00
+P20-010でTesting／Deployment／ConsoleCommand／Outbox／BlackOps CLIをTask-oriented Guideへ整理し、Testing 5 Layer／Negative Matrix、Release Journey／Process Matrix／Smoke／Shutdown／Rollback、Console Attribute→Build→Help→Human／JSON→Exit→Authorization、Outbox Dispatch→Commit→Relay→Worker→Status／Journal→Retry／Dead Letter、CLI Task Matrixを実装した。Current Console Source、Consumer／Example Evidence、Stable tag 1.1.0へ照合し、Migration→Build順、Application-owned Health Route、SchedulerのSupervisor停止、Frontend transport code、DispatchReceipt child IDを補正した。Website test 64、check 38 pages、build 39 pages／artifact／site guard、Quickstart E2E、Community Board Digest、Mago format、Management-ID guard、git diff --checkはPASS。Task／TODO／ReportをReview Pendingへ同期し、Framework src、Consumer／Example、Site UX、Stable tag、Commit／Push／Deployは変更していない。
+```
+
+## P20-010 Worker Start Checkpoint
+
+```text
+2026-07-28T00:54:23+09:00
+Task Packet P20-010、D131、Specification 95、D117／Specification 84、Documentation Reviewer契約を確認した。Testing／Deployment／ConsoleCommand／Outbox／BlackOps CLIの既存Guideと、src/Internal/Console/**、tests/Consumer/**、examples/quickstart/**、examples/community-board/**、Stable tag 1.1.0をAccuracy Evidenceとして照合する。許可されたdocs/guide、Website regression、Decision／Specification／TODO／STATE／Reportだけを変更し、Framework src、Consumer Test、Example、Migration、Site UX、Stable tag、Commit／Push／Deployは変更しない。WorkerはReview Pendingで返し、Commitしない。
+```
+
+## P20-010 Orchestrator Start Checkpoint
+
+```text
+2026-07-28T00:49:50+09:00
+Userの進行指示を受け、Phase 20の次Task P20-010を開始した。現行GuideとD117／Specification 84を照合し、Testing／Deploymentは確認事項中心、ConsoleCommand／Outboxは実行手順がBlackOps CLI Reference等へ分散し、CLI ReferenceはProcess、変更有無、主要Option、期待結果を比較しにくいことを確認した。D131／Specification 95でTask Recipe共通要素、Testing 5 Layer、Deployment Process Matrix、ConsoleCommand、Outbox、Task-oriented CLI Reference、Stable／main境界を確定した。Auth／Frontend／Databaseの既存手順、Public Slug、Navigation、Landing、Theme、Search、Framework Production Codeは変更せず、P20-011以降のSite UX／全Page編集を分離する。P20-010 Task PacketをReadyとし、Luna High WorkerへDocumentation実装を委譲する。
+```
 
 ## P20-009G Orchestrator Acceptance
 

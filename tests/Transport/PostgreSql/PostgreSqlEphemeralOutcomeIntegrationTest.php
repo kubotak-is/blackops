@@ -55,8 +55,16 @@ final class PostgreSqlEphemeralOutcomeIntegrationTest extends TestCase
     {
         $connection = $this->connection();
         $connection->executeStatement('DROP SCHEMA IF EXISTS ' . self::SCHEMA . ' CASCADE');
-        new PostgreSqlDeferredOperationSender($connection, self::SCHEMA)->migrate();
-        $journal = new PostgreSqlCanonicalJournalStore($connection, self::SCHEMA);
+        new PostgreSqlDeferredOperationSender(
+            $connection,
+            PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        )->migrate();
+        $journal = new PostgreSqlCanonicalJournalStore(
+            $connection,
+            PostgreSqlTestStorageProtection::codec(),
+            self::SCHEMA,
+        );
         $journal->migrate();
         $clock = new EphemeralIntegrationClock();
         $identifiers = new IdentifierFactory(new EphemeralSequentialUuidGenerator(), $clock);
@@ -103,7 +111,7 @@ final class PostgreSqlEphemeralOutcomeIntegrationTest extends TestCase
         self::assertInstanceOf(\BlackOps\Core\EmptyOutcome::class, $records[3]->data->outcome);
 
         $databaseDump = $connection->fetchOne(
-            "SELECT string_agg(convert_from(encoded_record, 'UTF8'), '') FROM " . self::SCHEMA . '.journal',
+            "SELECT string_agg(encode(encoded_record, 'escape'), '') FROM " . self::SCHEMA . '.journal',
         );
         self::assertIsString($databaseDump);
         foreach ([self::INPUT_SECRET, self::OUTPUT_SECRET, '"password"', '"token"'] as $forbidden) {
@@ -116,7 +124,12 @@ final class PostgreSqlEphemeralOutcomeIntegrationTest extends TestCase
 
         $authorizer = new EphemeralStatusAuthorizer();
         $status = new DefaultOperationStatusQuery(
-            new PostgreSqlOperationStatusSource($connection, $registry, self::SCHEMA),
+            new PostgreSqlOperationStatusSource(
+                $connection,
+                $registry,
+                PostgreSqlTestStorageProtection::codec(),
+                self::SCHEMA,
+            ),
             $authorizer,
         )->find($operationId);
         self::assertInstanceOf(OperationStatusUnavailable::class, $status);

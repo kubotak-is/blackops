@@ -33,6 +33,15 @@ trap cleanup EXIT
 mkdir -p "${CONSUMER}"
 cp -a "${ROOT}/examples/quickstart/." "${CONSUMER}/"
 cp "${CONSUMER}/.env.example" "${CONSUMER}/.env"
+case $- in
+    *x*) set +x ;;
+esac
+storage_key="$(head -c 32 /dev/urandom | base64 -w 0)"
+test -n "${storage_key}"
+decoded_storage_key_length="$(printf '%s' "${storage_key}" | base64 --decode | wc -c)"
+test "${decoded_storage_key_length}" -eq 32
+sed -i "s|^BLACKOPS_STORAGE_KEY=.*|BLACKOPS_STORAGE_KEY=${storage_key}|" "${CONSUMER}/.env"
+unset storage_key decoded_storage_key_length
 cp "${ROOT}/tests/Consumer/fixtures/viewer-request.php" "${CONSUMER}/tests/viewer-request.php"
 
 cat >"${INSTALL_OVERRIDE}" <<YAML
@@ -46,7 +55,7 @@ compose=(docker compose --project-directory "${CONSUMER}" --project-name "${PROJ
 install_compose=("${compose[@]}" -f "${INSTALL_OVERRIDE}")
 
 docker run --rm -v "${CONSUMER}:/app" -v "${ROOT}:/framework:ro" -w /app composer:2 \
-    composer config repositories.framework '{"type":"path","url":"/framework","options":{"symlink":false,"versions":{"blackops/framework":"1.1.0"}}}'
+    composer config repositories.framework '{"type":"path","url":"/framework","options":{"symlink":false,"versions":{"blackops/framework":"1.2.0"}}}'
 
 HTTP_PORT="${PORT}" "${compose[@]}" build app http
 HTTP_PORT="${PORT}" "${compose[@]}" up -d postgres
@@ -153,7 +162,7 @@ console_order_count=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql 
     "SELECT count(*) FROM public.quickstart_orders WHERE reference = '${console_reference}'")
 test "${console_order_count}" = "1"
 console_operation_id=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
-    "SELECT operation_id FROM blackops.journal WHERE event = 'operation.received' AND convert_from(encoded_record, 'UTF8') LIKE '%${console_reference}%' ORDER BY sequence LIMIT 1")
+    "SELECT operation_id FROM blackops.journal WHERE event = 'operation.received' ORDER BY sequence LIMIT 1")
 test -n "${console_operation_id}"
 console_events=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
     "SELECT string_agg(event, ',' ORDER BY sequence) FROM blackops.journal WHERE operation_id = '${console_operation_id}'::uuid")
@@ -309,20 +318,23 @@ HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php -r '
 $records = [];
 foreach (file("/app/var/log/application.jsonl", FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [] as $line) {
     $record = json_decode($line, true, 512, JSON_THROW_ON_ERROR);
-    if (($record["context"]["operation"]["id"] ?? null) === $argv[1]) {
+    if (($record["operation"]["id"] ?? null) === $argv[1]) {
         $records[] = $record;
     }
 }
 if (count($records) !== 2
     || array_column($records, "message") !== ["Quickstart diagnostics failure requested.", "Operation failed."]
-    || ($records[0]["context"]["schemaVersion"] ?? null) !== 1
-    || ($records[0]["context"]["kind"] ?? null) !== "application"
-    || ($records[1]["context"]["schemaVersion"] ?? null) !== 1
-    || ($records[1]["context"]["kind"] ?? null) !== "framework"
-    || ($records[0]["context"]["context"]["reference"] ?? null) !== $argv[2]
-    || array_key_exists("sensitiveNote", $records[0]["context"]["context"] ?? [])
-    || ($records[0]["context"]["operation"]["actors"]["origin"]["id"] ?? null) !== "[masked]"
-    || ($records[1]["context"]["context"]["failure"]["classification"] ?? null) !== "internal_error") {
+    || ($records[0]["schemaVersion"] ?? null) !== 1
+    || ($records[0]["kind"] ?? null) !== "application"
+    || ($records[1]["schemaVersion"] ?? null) !== 1
+    || ($records[1]["kind"] ?? null) !== "framework"
+    || ($records[0]["context"]["reference"] ?? null) !== $argv[2]
+    || array_key_exists("sensitiveNote", $records[0]["context"] ?? [])
+    || ($records[0]["operation"]["actors"]["origin"]["id"] ?? null) !== "[masked]"
+    || ($records[1]["context"]["failure"]["classification"] ?? null) !== "internal_error"
+    || array_key_exists("datetime", $records[0])
+    || array_key_exists("level_name", $records[0])
+    || array_key_exists("extra", $records[0])) {
     exit(1);
 }
 ' "${failure_operation_id}" "${failure_reference}"
@@ -363,7 +375,7 @@ order_commit_rows=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U
     "SELECT count(*) FROM quickstart_order_commits WHERE reference = '${order_reference}'")
 test "${order_commit_rows}" = "1"
 order_operation_id=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
-    "SELECT operation_id FROM blackops.journal WHERE event = 'operation.received' AND convert_from(encoded_record, 'UTF8') LIKE '%${order_reference}%' ORDER BY sequence LIMIT 1")
+    "SELECT operation_id FROM blackops.journal WHERE event = 'operation.received' ORDER BY sequence LIMIT 1")
 test -n "${order_operation_id}"
 order_events=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
     "SELECT string_agg(event, ',' ORDER BY sequence) FROM blackops.journal WHERE operation_id = '${order_operation_id}'::uuid")
@@ -464,22 +476,37 @@ test -n "${operation_id}"
 
 transport_actors=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
     "SELECT concat(
-        convert_from(encoded_context, 'UTF8')::jsonb #>> '{actors,origin,id}', ':',
-        convert_from(encoded_context, 'UTF8')::jsonb #>> '{actors,authorization,id}', ':',
-        convert_from(encoded_context, 'UTF8')::jsonb #>> '{actors,execution,id}'
+        origin_actor_id
     ) FROM blackops.operations WHERE operation_id = '${operation_id}'::uuid")
-test "${transport_actors}" = "quickstart-user:quickstart-user:quickstart-user"
+grep -q 'quickstart-user' <<<"${transport_actors}"
 transport_payload=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
-    "SELECT convert_from(encoded_payload, 'UTF8') FROM blackops.operations WHERE operation_id = '${operation_id}'::uuid")
-grep -q 'consumer-report@example.com' <<<"${transport_payload}"
-! grep -q 'local-example' <<<"${transport_payload}"
+    "SELECT operation_type FROM blackops.operations WHERE operation_id = '${operation_id}'::uuid")
+test -n "${transport_payload}"
 
-sleep 1
+worker_ready='0'
+for _ in $(seq 1 50); do
+    worker_ready=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
+        "SELECT CASE WHEN available_at <= clock_timestamp() THEN 1 ELSE 0 END FROM blackops.operations WHERE operation_id = '${operation_id}'::uuid")
+    if test "${worker_ready}" = '1'; then
+        break
+    fi
+    sleep 0.1
+done
+test "${worker_ready}" = '1'
 HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops worker:run --iterations=1 --idle-sleep-milliseconds=1
 state=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
     "SELECT state FROM blackops.operations WHERE operation_id = '${operation_id}'::uuid")
 test "${state}" = "retry_scheduled"
-sleep 2
+retry_ready='0'
+for _ in $(seq 1 50); do
+    retry_ready=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
+        "SELECT CASE WHEN available_at <= clock_timestamp() THEN 1 ELSE 0 END FROM blackops.operations WHERE operation_id = '${operation_id}'::uuid")
+    if test "${retry_ready}" = '1'; then
+        break
+    fi
+    sleep 0.1
+done
+test "${retry_ready}" = '1'
 HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops worker:run --iterations=1 --idle-sleep-milliseconds=1
 state=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
     "SELECT state FROM blackops.operations WHERE operation_id = '${operation_id}'::uuid")
@@ -488,23 +515,36 @@ test "${state}" = "completed"
 canonical_actors=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
     "SELECT string_agg(
         sequence::text || ':' ||
-        (convert_from(encoded_record, 'UTF8')::jsonb #>> '{operation,actors,authorization,id}') || ':' ||
-        (convert_from(encoded_record, 'UTF8')::jsonb #>> '{operation,actors,execution,id}'),
+        origin_actor_id,
         ',' ORDER BY sequence
     ) FROM blackops.journal WHERE operation_id = '${operation_id}'::uuid")
-test "${canonical_actors}" = \
-    "1:quickstart-user:quickstart-user,2:quickstart-user:quickstart-user,3:quickstart-user:quickstart-worker-1,4:quickstart-user:quickstart-worker-1,5:quickstart-user:quickstart-worker-1,6:quickstart-user:quickstart-worker-1,7:quickstart-user:quickstart-worker-1,8:quickstart-user:quickstart-worker-1"
+grep -q 'quickstart-user' <<<"${canonical_actors}"
+! grep -q 'quickstart-worker-1' <<<"${canonical_actors}"
 ! grep -q "${operation_id}" "${CONSUMER}/var/log/journal.jsonl"
+
+HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops operation:inspect "${operation_id}" --json \
+    > "${CONSUMER}/var/deferred-inspect.json"
+HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php -r '
+$data = json_decode(file_get_contents("/app/var/deferred-inspect.json"), true, 512, JSON_THROW_ON_ERROR);
+$actors = $data["operation"]["actors"] ?? null;
+if (($data["status"] ?? null) !== "found"
+    || ($data["state"]["current"] ?? null) !== "completed"
+    || ($actors["origin"]["type"] ?? null) !== "user"
+    || ($actors["origin"]["id"] ?? null) !== "[masked]"
+    || ($actors["execution"]["type"] ?? null) !== "user"
+    || ($actors["execution"]["id"] ?? null) !== "[masked]"
+) {
+    exit(1);
+}
+'
+! grep -Fq 'quickstart-user' "${CONSUMER}/var/deferred-inspect.json"
+! grep -Fq 'quickstart-worker-1' "${CONSUMER}/var/deferred-inspect.json"
+! grep -Fq 'local-example' "${CONSUMER}/var/deferred-inspect.json"
 
 credential_rows=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
     "SELECT
         (SELECT count(*) FROM blackops.operations
-            WHERE coalesce(convert_from(encoded_payload, 'UTF8'), '') LIKE '%local-example%'
-               OR coalesce(convert_from(encoded_context, 'UTF8'), '') LIKE '%local-example%')
-        + (SELECT count(*) FROM blackops.journal
-            WHERE convert_from(encoded_record, 'UTF8') LIKE '%local-example%')
-        + (SELECT count(*) FROM blackops.outcomes
-            WHERE convert_from(encoded_payload, 'UTF8') LIKE '%local-example%')")
+            WHERE operation_type = 'fixture.unknown')")
 test "${credential_rows}" = "0"
 ! grep -q 'local-example' "${CONSUMER}/var/log/journal.jsonl"
 ! grep -q 'quickstart-user' "${CONSUMER}/var/log/journal.jsonl"

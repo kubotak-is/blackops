@@ -69,7 +69,7 @@ system log
 
 Primary失敗時はLoggerを呼ばない。Logger例外もcatchして成功扱いせず、元の例外のままPurge Transactionへ伝播する。Purge ServiceのTransaction内でDecoratorを使うことにより、System Log失敗時に対象削除とDatabase Auditの両方をRollbackする。
 
-Log Messageは `Retention purge audit recorded.`、Levelは `info`とし、次の構造化Contextだけを配送する。
+Log Messageは内部呼出しの補助情報であり、公開JSONLはStructured Record `kind: audit`として `event: retention.purge.completed`と次のSafe `data`だけを配送する。
 
 ```text
 audit_id
@@ -78,10 +78,11 @@ target
 affected_count
 policy
 purged_at
-purged_by
+purged_by: { id: "[masked]", type: "retention" }
+tenant: null または { id: "[masked]", type: string }
 ```
 
-`purged_at` はUTCのマイクロ秒付きRFC 3339である。Payload、Context、Journal本文、Outcome、Error本文、Credentialは配送しない。
+`purged_at` はUTCのマイクロ秒付きRFC 3339である。Payload、Context、Journal本文、Outcome、Error本文、Credential、Retention ActorのRaw IDは配送しない。
 
 DatabaseとSystem Logは分散Transactionではない。Log成功後にDatabase Commitが失敗すると過剰Logが残る可能性があるが、Audit IDで照合できる。ログなし削除は許容しない。
 

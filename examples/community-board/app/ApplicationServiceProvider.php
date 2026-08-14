@@ -21,9 +21,11 @@ use App\Infrastructure\Persistence\DoctrineBoardRepository;
 use App\Infrastructure\Persistence\DoctrineDigestRepository;
 use App\Infrastructure\Persistence\DoctrineNotificationRepository;
 use App\Security\BoardOperationStatusAuthorizer;
+use App\Security\SampleStorageKeyProvider;
 use BlackOps\Core\DependencyInjection\ServiceProvider;
 use BlackOps\Core\DependencyInjection\ServiceRegistry;
 use BlackOps\Status\OperationStatusAuthorizer;
+use BlackOps\StorageProtection\StorageKeyProvider;
 
 final readonly class ApplicationServiceProvider implements ServiceProvider
 {
@@ -42,6 +44,7 @@ final readonly class ApplicationServiceProvider implements ServiceProvider
         $services->autowire(BoardClock::class, SystemBoardClock::class);
         $services->autowire(BoardIdGenerator::class, Uuidv7BoardIdGenerator::class);
         $services->autowire(OperationStatusAuthorizer::class, BoardOperationStatusAuthorizer::class);
+        $services->autowire(StorageKeyProvider::class, SampleStorageKeyProvider::class);
         $services->autowire(
             DigestAttemptGate::class,
             $this->failFirstDigestAttempt ? FailFirstDigestAttemptGate::class : NoOpDigestAttemptGate::class,

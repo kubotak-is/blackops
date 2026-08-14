@@ -1,20 +1,87 @@
 # ConsoleCommand
 
-Console Commandは、TerminalからOperationを起動するApplication入口です。`#[ConsoleCommand]`を付けたOperationへScalar入力を渡し、HTTP Adapterとは別のProcess Boundaryで同じOperation Modelを実行します。
+Console CommandはTerminalからOperationを起動するApplication入口です。`#[ConsoleCommand]`はStable `1.1.0`にはないRepository `main`のExperimental Adapterです。[Stableとmain](mvp-status.md#stableとmain)を確認し、Applicationが選んだConsole Actor、Secret配布、Process Supervisorを準備してください。
 
-Operationへ`#[ConsoleCommand]`を付けてBuildすると、Project Rootの`php blackops <command>`として実行できます。入力、Validation、Authorization、Outcomeの例は[Operation Command](project-cli.md#operation-command)を参照してください。
+## 実行手順
 
-## 役割
+### 1. AttributeとValueを定義する
 
-- HTTP Requestの代わりにBlackOps CLIが入力を受け取る
-- Build-time DiscoveryされたCommandへConstructor DIを適用する
-- OperationのExecution Contextへ固定されたConsole Actorを渡す
-- Throwableの詳細やCredentialを標準出力へ書かず、終了Codeと安全なFailure分類を返す
+OperationへCanonicalなCommand名（空白や`|`を含まない`segment:command`）と説明を付けます。public constructor-promotedな`string`、`int`、`float`、`bool`のValue PropertyがLong Optionになります。DefaultがあるOptionだけ省略できます。
 
-Console入口はDomain処理を別実装に複製しません。OperationのValue、Handler、Outcome、JournalはHTTPと同じ契約を使います。Operationの基本形は[Authoring](operations.md)を参照してください。
+```php
+use BlackOps\Core\Attribute\ConsoleCommand;
+use BlackOps\Core\Attribute\OperationType;
+use BlackOps\Core\Operation;
+use BlackOps\Core\OperationValue;
+use BlackOps\Core\Outcome;
 
-## HTTP／Deferredとの違い
+#[ConsoleCommand('report:export', 'Export a report.')]
+#[OperationType('report.export')]
+final readonly class ExportReport implements Operation
+{
+    public function handle(ExportReportValue $value): ReportExported
+    {
+        return new ReportExported($value->reportName);
+    }
+}
 
-Console Commandは入力を受け取ったProcess内でOperationを実行する入口です。`#[Route]`はHTTP入力をInlineへ接続し、`#[Deferred]`はDurable受付とWorker実行へ接続します。ConsoleからDeferred Operationを起動する場合も、受付後のStatus／Outcomeは[Inline and Deferred](execution.md)と同じLifecycleで確認します。
+final readonly class ExportReportValue implements OperationValue
+{
+    public function __construct(public string $reportName) {}
+}
 
-ApplicationはCommand実行者の権限、Process Supervisor、環境変数、終了Codeの扱いを所有します。FrameworkはOSのユーザー権限やSchedulerを提供しません。
+final readonly class ReportExported implements Outcome
+{
+    public function __construct(public string $reportName) {}
+}
+```
+
+`#[Sensitive]`を含むValue、Outcome、配列／Object／Enum入力、位置引数はConsole Contractで受け付けません。Raw Credential、Canonical Payload、Throwableをstdoutへ追加しないでください。
+
+### 2. BuildとHelpを確認する
+
+Project RootでManifestとContainerを更新し、公開Optionを実装から確認します。
+
+```bash
+php blackops build:compile
+php blackops help report:export
+```
+
+`help`はCommand ManifestのMetadataを表示します。Handler、Database、Actor Providerを実行しないため、実行前の安全な探索に使えます。Build失敗時は[Build Artifact不在／Build ID不一致](troubleshooting.md#build-artifact不在build-id不一致)を参照します。
+
+### 3. Human／JSONで実行する
+
+```bash
+php blackops report:export --report-name=weekly
+php blackops report:export --report-name=weekly --json
+```
+
+Human成功は次のように表示されます。
+
+```text
+Completed.
+```
+
+`--json`は一行のVersioned JSONをstdoutへ出します。
+
+```json
+{"schemaVersion":1,"status":"completed","outcome":{"reportName":"weekly"}}
+```
+
+Deferred OperationならHumanは`Accepted operation <operation-id>.`、JSONは`status: "accepted"`と`operationId`を返します。受付後は[Inline and Deferred](execution.md)のStatus／Outcome手順でWorker完了を確認します。
+
+## Exit／Failure Contract
+
+| 結果 | Human／JSONの安全な分類 | Exit |
+| --- | --- | ---: |
+| Inline Completed／Deferred Accepted | `completed`／`accepted` | `0` |
+| Binding／Value Validation | `rejected`、`category: validation`、Violation | `2` |
+| 業務Rejected／Internal Error | `rejected`または`internal_error` | `1` |
+
+ValidationはOperation IDを伴う場合があります。Rejectedの`code`とViolationの`field`／`rule`／`code`だけを調査キーにし、Exception Message、SQL、Credentialを公開Outputへ出しません。Unknown Optionや型不一致もBinding／Validationとして扱い、Exit `2`を返します。
+
+## AuthorizationとActor
+
+Console Runtimeは、Applicationが`ConsoleActorProvider`をBindingしていればそのActorをCurrent／Origin Actorへ設定し、未Bindingなら`null` Actorと`console-runtime`の入口識別子を使います。Operationの`#[Authorize]` PolicyはこのContextを評価し、Denyは業務Rejected（Exit `1`）として返ります。OS User、Scheduler、Secret配布、Role／Permission検索はApplication／運用責務です。
+
+ConsoleからEphemeral Outcome Operationを実行するContractはありません。Commandを追加したら`build:compile`、`help`、Human／JSON、Validation、Authorization、DeferredならWorker／Statusまでを同じTaskで確認してください。詳細なCommand一覧は[Operation Command](project-cli.md#operation-command)、失敗時は[Troubleshooting](troubleshooting.md)を参照します。

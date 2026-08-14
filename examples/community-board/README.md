@@ -8,7 +8,7 @@ Use the Quickstart when you want the shortest Framework contract check. Use Blac
 
 ## Clean local setup
 
-Run these commands from `examples/community-board/`. The sequence starts from no `.env`, dependency directory, generated contract, runtime artifact, or database volume. `bin/setup` only creates `.env` from `.env.example` when needed and prepares runtime directories; each later side effect remains an explicit command.
+Run these commands from `examples/community-board/`. The sequence starts from no `.env`, dependency directory, generated contract, runtime artifact, or database volume. `bin/setup` creates a fresh `.env` from `.env.example`, replaces its empty `BLACKOPS_STORAGE_KEY` placeholder with a strict base64 key for exactly 32 random bytes, restricts the file to mode `600`, and prepares runtime directories; it never prints the key. Each later side effect remains an explicit command.
 
 ```bash
 php bin/setup
@@ -28,6 +28,12 @@ docker compose --profile worker up -d postgres http frontend worker
 ```
 
 The locked Composer path repository points to `../..`; do not copy Framework source into this application. The seed command is repeat-safe. It creates three fixed local users, three posts, and four comments without creating a session or dispatching a BlackOps Operation.
+
+### Storage Key boundary
+
+`bin/setup` is safe for a fresh Local／Test checkout only. If `.env` already exists, it keeps the file byte-for-byte and preserves its metadata; it does not add, rotate, or silently rewrite `BLACKOPS_STORAGE_KEY`. To migrate an existing checkout, back up `.env`, add exactly one non-empty strict-base64 assignment encoding 32 bytes through your local secret-handling procedure, set mode `600`, and verify the resulting file without printing the value. A failed fresh setup removes its incomplete `.env` and never leaves generated key material in the example tree.
+
+`App\Security\SampleStorageKeyProvider` is an Application-owned Local／Test provider. It is deliberately not a production KMS or Secret Manager integration. A production deployment must replace this provider binding with an Application-owned provider backed by the approved KMS／Secret Manager boundary; the Framework does not generate, persist, rotate, or retrieve production keys.
 
 The application bootstrap enables the framework-owned `withEnvironmentFile()` capability, and the Classic／Worker front controllers call `BlackOps\Http\SapiRuntime`. The application declares only the Doctrine DBAL and Migrations packages it imports directly; Environment File, PSR-7／SAPI runtime, and UUIDv7 dependencies remain owned by the Framework package.
 
@@ -103,7 +109,7 @@ Run the complete clean-install journey from the repository root when you want th
 bash tests/Consumer/community-board-clean-install.sh
 ```
 
-It removes local state, installs both locked dependency sets, applies all six migrations, compiles and checks generated contracts, seeds twice, logs in normally, checks seed HTML and sensitive boundaries, and cleans containers, volumes, dependencies, and generated artifacts on success or failure.
+It removes local state, installs both locked dependency sets, applies all 11 Framework and 5 Community Board migrations (16 total), compiles and checks generated contracts, seeds twice, logs in normally, checks seed HTML and sensitive boundaries, and cleans containers, volumes, dependencies, and generated artifacts on success or failure.
 
 The focused consumers isolate failures:
 

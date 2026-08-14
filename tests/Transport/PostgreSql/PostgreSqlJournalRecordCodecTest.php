@@ -13,6 +13,8 @@ use BlackOps\Core\Identifier\JournalRecordId;
 use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Core\Outcome;
 use BlackOps\Core\OutcomeData;
+use BlackOps\Core\ScheduleContext;
+use BlackOps\Core\TenantRef;
 use BlackOps\Journal\Data\AttemptRetryScheduledData;
 use BlackOps\Journal\Data\OperationCompletedData;
 use BlackOps\Journal\Data\OperationDeadLetteredData;
@@ -21,6 +23,7 @@ use BlackOps\Journal\JournalData;
 use BlackOps\Journal\JournalEvent;
 use BlackOps\Journal\JournalOperation;
 use BlackOps\Journal\JournalRecord;
+use BlackOps\Telemetry\TelemetryCorrelation;
 use BlackOps\Transport\PostgreSql\PostgreSqlJournalRecordCodec;
 use DateTimeImmutable;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -58,6 +61,18 @@ final class PostgreSqlJournalRecordCodecTest extends TestCase
         self::assertSame('system', $actors?->execution()->type());
     }
 
+    public function testRoundTripsTenantAndRejectsPartialTenant(): void
+    {
+        $codec = new PostgreSqlJournalRecordCodec();
+        $record = $this->record(tenant: new TenantRef('account', 'tenant-secret-id'));
+        $decoded = $codec->decode($codec->encode($record));
+        self::assertSame('tenant-secret-id', $decoded->operation->tenant?->id());
+        $payload = json_decode($codec->encode($record), true, flags: JSON_THROW_ON_ERROR);
+        unset($payload['operation']['tenant']['id']);
+        $this->expectException(RuntimeException::class);
+        $codec->decode(json_encode($payload, JSON_THROW_ON_ERROR));
+    }
+
     public function testEncodesNullActorsAndDecodesLegacyPayloadWithoutActors(): void
     {
         $codec = new PostgreSqlJournalRecordCodec();
@@ -75,6 +90,74 @@ final class PostgreSqlJournalRecordCodecTest extends TestCase
         $legacy = $codec->decode(json_encode($payload, JSON_THROW_ON_ERROR));
 
         self::assertNull($legacy->operation->actorContext);
+    }
+
+    public function testTelemetryCorrelationRoundTripsAndLegacyPayloadOmitsIt(): void
+    {
+        $record = $this->record(telemetry: new TelemetryCorrelation(
+            '4bf92f3577b34da6a3ce929d0e0e4736',
+            '00f067aa0ba902b7',
+            true,
+        ));
+        $codec = new PostgreSqlJournalRecordCodec();
+        $decoded = $codec->decode($codec->encode($record));
+        self::assertSame('4bf92f3577b34da6a3ce929d0e0e4736', $decoded->operation->telemetry?->traceId);
+        $payload = json_decode($codec->encode($record), true, flags: JSON_THROW_ON_ERROR);
+        unset($payload['operation']['telemetry']);
+        self::assertNull($codec->decode(json_encode($payload, JSON_THROW_ON_ERROR))->operation->telemetry);
+    }
+
+    public function testScheduleContextRoundTripsAndLegacyOperationWithoutScheduleDecodes(): void
+    {
+        $codec = new PostgreSqlJournalRecordCodec();
+        $encoded = $codec->encode($this->record(
+            schedule: new ScheduleContext(
+                'reports.daily',
+                new DateTimeImmutable('2026-07-22T18:00:00.654321+09:00'),
+                'Asia/Tokyo',
+            ),
+        ));
+
+        self::assertStringContainsString('"scheduled_at":"2026-07-22T09:00:00.654321Z"', $encoded);
+        $decoded = $codec->decode($encoded);
+        self::assertSame('reports.daily', $decoded->operation->schedule?->name());
+        self::assertSame('Asia/Tokyo', $decoded->operation->schedule?->timezone());
+
+        /** @var array<string, mixed> $payload */
+        $payload = json_decode($encoded, true, flags: JSON_THROW_ON_ERROR);
+        /** @var array<string, mixed> $operation */
+        $operation = $payload['operation'];
+        unset($operation['schedule']);
+        $payload['operation'] = $operation;
+        self::assertNull($codec->decode(json_encode($payload, JSON_THROW_ON_ERROR))->operation->schedule);
+    }
+
+    public function testMalformedScheduleObjectFailsWithSafeRuntimeException(): void
+    {
+        $codec = new PostgreSqlJournalRecordCodec();
+        /** @var array<string, mixed> $payload */
+        $payload = json_decode(
+            $codec->encode($this->record(
+                schedule: new ScheduleContext('reports.daily', new DateTimeImmutable('2026-07-22T09:00:00Z'), 'UTC'),
+            )),
+            true,
+            flags: JSON_THROW_ON_ERROR,
+        );
+        /** @var array<string, mixed> $operation */
+        $operation = $payload['operation'];
+        $operation['schedule'] = ['name' => 'reports.daily'];
+        $payload['operation'] = $operation;
+
+        try {
+            $codec->decode(json_encode($payload, JSON_THROW_ON_ERROR));
+            self::fail('Expected malformed schedule failure.');
+        } catch (RuntimeException $exception) {
+            self::assertSame(
+                'Stored journal schedule context contains unknown or missing fields.',
+                $exception->getMessage(),
+            );
+            self::assertStringNotContainsString('reports.daily', $exception->getMessage());
+        }
     }
 
     public function testRetryScheduledTimestampUsesCanonicalUtcMicrosecondsAndDecodesLegacyValue(): void
@@ -239,6 +322,9 @@ final class PostgreSqlJournalRecordCodecTest extends TestCase
 
     private function record(
         ?ActorContext $actors = null,
+        ?ScheduleContext $schedule = null,
+        ?TenantRef $tenant = null,
+        ?TelemetryCorrelation $telemetry = null,
         JournalEvent $event = JournalEvent::OperationReceived,
         ?JournalData $data = null,
     ): JournalRecord {
@@ -255,6 +341,9 @@ final class PostgreSqlJournalRecordCodecTest extends TestCase
                 'inline',
                 CorrelationId::fromString(self::ID),
                 actorContext: $actors,
+                schedule: $schedule,
+                tenant: $tenant,
+                telemetry: $telemetry,
             ),
             null,
             $data ?? new EmptyJournalData(),

@@ -5,6 +5,7 @@
     "license": "MIT",
     "require": {
         "php": ">=8.5",
+        "ext-sodium": "*",
         "psr/container": "^2.0",
         "psr/http-message": "^2.0",
         "psr/http-server-handler": "^1.0",
@@ -24,12 +25,15 @@
         "doctrine/dbal": "^4.4",
         "doctrine/migrations": "^3.9",
         "symfony/stopwatch": "^7.4",
-        "ray/aop": "^2.19"
+        "open-telemetry/api": "^1.10"
     },
     "require-dev": {
         "carthage-software/mago": "1.42.0",
+        "open-telemetry/sdk": "^1.15",
+        "open-telemetry/exporter-otlp": "^1.4",
+        "php-http/guzzle7-adapter": "^1.1",
         "phpunit/phpunit": "13.2.2",
-        "deptrac/deptrac": "4.6.2"
+        "deptrac/deptrac": "4.7.1"
     },
     "autoload": {
         "psr-4": {
@@ -46,6 +50,7 @@
             "/.gitattributes",
             "/.agents",
             "/.codex",
+            "/.claude",
             "/.github",
             "/develop",
             "/docs",
@@ -64,6 +69,7 @@
             "/composer.lock",
             "/deptrac.yaml",
             "/mago.toml",
+            "/mago-lint-baseline.toml",
             "/mise.toml",
             "/phpunit.xml",
             "/runtime",

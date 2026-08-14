@@ -106,6 +106,12 @@ final class ApplicationConsoleKernelTest extends TestCase
             'command_name' => 'make:auth',
         ]), $authHelp));
         self::assertStringContainsString('--force', $authHelp->fetch());
+        $buildHelp = new BufferedOutput();
+        self::assertSame(0, $kernel->run(new ArrayInput([
+            'command' => 'help',
+            'command_name' => 'build:compile',
+        ]), $buildHelp));
+        self::assertStringNotContainsString('--proxy-profile', $buildHelp->fetch());
         $replayHelp = new BufferedOutput();
         self::assertSame(0, $kernel->run(new ArrayInput([
             'command' => 'help',
@@ -129,6 +135,19 @@ final class ApplicationConsoleKernelTest extends TestCase
             self::assertStringContainsString($option, $help);
         }
         self::assertDirectoryDoesNotExist($directory . '/app');
+    }
+
+    public function testScheduledUnknownOptionReturnsSafeExitTwoThroughApplicationKernel(): void
+    {
+        $application = Application::configure($this->directory())->create();
+        $output = new BufferedOutput();
+
+        self::assertSame(2, $application->console()->run(new ArrayInput([
+            'command' => 'operation:schedule:run',
+            '--unknown' => true,
+            '--json' => true,
+        ]), $output));
+        self::assertSame('{"schemaVersion":1,"status":"failed","code":"configuration_error"}' . "\n", $output->fetch());
     }
 
     public function testReplayListAndHelpDoNotTouchConfiguredJsonlPath(): void

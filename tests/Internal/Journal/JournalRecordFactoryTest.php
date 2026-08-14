@@ -19,16 +19,22 @@ use BlackOps\Core\OperationHandler;
 use BlackOps\Core\OperationValue;
 use BlackOps\Core\Registry\OperationMetadata;
 use BlackOps\Core\Rejection\RejectionReason;
+use BlackOps\Core\TenantRef;
 use BlackOps\Core\Validation\Violation;
 use BlackOps\Internal\Identifier\IdentifierFactory;
 use BlackOps\Internal\Identifier\Uuidv7Generator;
 use BlackOps\Internal\Journal\JournalRecordFactory;
+use BlackOps\Internal\Telemetry\TelemetryTracer;
 use BlackOps\Journal\Data\AttemptRetryScheduledData;
 use BlackOps\Journal\Data\OperationReceivedData;
 use BlackOps\Journal\Data\OperationRejectedData;
 use BlackOps\Journal\EmptyJournalData;
 use BlackOps\Journal\JournalEvent;
+use BlackOps\Telemetry\TelemetryContext;
 use DateTimeImmutable;
+use OpenTelemetry\API\Trace\Span;
+use OpenTelemetry\API\Trace\SpanContext;
+use OpenTelemetry\Context\Context;
 use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
 
@@ -80,6 +86,58 @@ final class JournalRecordFactoryTest extends TestCase
         self::assertNull($record->operation->actorContext);
     }
 
+    public function testActiveSpanCorrelationSupersedesPersistedContextForJournalRecord(): void
+    {
+        $clock = new class implements ClockInterface {
+            public function now(): DateTimeImmutable
+            {
+                return new DateTimeImmutable('2026-07-06T12:00:00.123456Z');
+            }
+        };
+        $generator = new class implements Uuidv7Generator {
+            public function generate(DateTimeImmutable $time): string
+            {
+                return JournalRecordFactoryTest::ID;
+            }
+        };
+        $context = new ExecutionContext(
+            OperationId::fromString(self::ID),
+            $clock->now(),
+            CorrelationId::fromString(self::ID),
+            telemetry: new TelemetryContext('00-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-bbbbbbbbbbbbbbbb-01'),
+        );
+        $metadata = new OperationMetadata(
+            'journal.test',
+            JournalOperationFixture::class,
+            JournalValueFixture::class,
+            JournalHandlerFixture::class,
+            EmptyOutcome::class,
+            Inline::class,
+        );
+        $active = Span::wrap(SpanContext::create('4bf92f3577b34da6a3ce929d0e0e4736', '00f067aa0ba902b7'));
+        $scope = Context::getCurrent()->withContextValue($active)->activate();
+        try {
+            $record = new JournalRecordFactory(
+                new IdentifierFactory($generator, $clock),
+                $clock,
+                new TelemetryTracer(),
+            )->operationReceived(
+                new OperationEnvelope(
+                    new JournalOperationFixture(),
+                    new JournalValueFixture('hello'),
+                    $context,
+                    new Inline(),
+                ),
+                $metadata,
+                1,
+            );
+            self::assertSame('4bf92f3577b34da6a3ce929d0e0e4736', $record->operation->telemetry?->traceId);
+            self::assertSame('00f067aa0ba902b7', $record->operation->telemetry?->spanId);
+        } finally {
+            $scope->detach();
+        }
+    }
+
     public function testCopiesActorContextIntoCanonicalJournalOperation(): void
     {
         $clock = new class implements ClockInterface {
@@ -127,6 +185,50 @@ final class JournalRecordFactoryTest extends TestCase
         self::assertSame($actors, $record->operation->actorContext);
         self::assertSame('user-123', $record->operation->actorContext?->origin()?->id());
         self::assertSame('http-runtime', $record->operation->actorContext?->execution()->id());
+    }
+
+    public function testCopiesTenantIntoCanonicalJournalOperation(): void
+    {
+        $tenant = new TenantRef('account', 'tenant-secret-id');
+        $context = new ExecutionContext(
+            OperationId::fromString(self::ID),
+            new DateTimeImmutable('2026-07-06T12:00:00Z'),
+            CorrelationId::fromString(self::ID),
+            tenant: $tenant,
+        );
+        $factory = new JournalRecordFactory(
+            new IdentifierFactory(new class implements Uuidv7Generator {
+                public function generate(DateTimeImmutable $time): string
+                {
+                    return JournalRecordFactoryTest::ID;
+                }
+            }, new class implements ClockInterface {
+                public function now(): DateTimeImmutable
+                {
+                    return new DateTimeImmutable('2026-07-06T12:00:00Z');
+                }
+            }),
+            new class implements ClockInterface {
+                public function now(): DateTimeImmutable
+                {
+                    return new DateTimeImmutable('2026-07-06T12:00:00Z');
+                }
+            },
+        );
+        $metadata = new OperationMetadata(
+            'journal.test',
+            JournalOperationFixture::class,
+            JournalValueFixture::class,
+            JournalHandlerFixture::class,
+            EmptyOutcome::class,
+            Inline::class,
+        );
+        $record = $factory->operationReceived(
+            new OperationEnvelope(new JournalOperationFixture(), new JournalValueFixture('x'), $context, new Inline()),
+            $metadata,
+            1,
+        );
+        self::assertSame($tenant, $record->operation->tenant);
     }
 
     public function testCreatesAcceptedRecordForDeferredOperation(): void

@@ -1,6 +1,6 @@
 # Outcome
 
-正常完了したDeferred Operationは、Operation IDごとに型付き[Outcome](glossary.md#outcome)を保存します。Browserや外部ConsumerはPublic Status Resource、Generated Clientは`.status()`／`.wait()`を主経路にします。PHP AdapterからOutcomeだけを読む場合はPublic `OutcomeReader` Contractを使います。Persistence Payloadを独自にDecodeしたり、PostgreSQLのSchema Versionへ直接依存したりしないでください。
+正常完了したDeferred Operationは、Operation IDごとに型付き[Outcome](glossary.md#outcome)を保存します。Browserや外部ConsumerはPublic Status Resource、Generated Clientは`.status()`／`.wait()`を主経路にします。PHP Adapterから読む場合も、Default-deny `OperationOutcomeQuery`へCurrent Actor、Current Tenant、`OperationDataPurpose`を渡します。Raw Reader、Persistence Payload、PostgreSQLのSchema Versionへ直接依存しないでください。
 
 ```ts
 const current = await GenerateReport.status(operationId, options);
@@ -13,27 +13,41 @@ if (current.ok && current.kind === 'completed') {
 
 Status Resultは`accepted`／`running`／`retry_scheduled`をPending、`completed`／`rejected`／`failed`／`dead_lettered`をTerminalとして区別します。認可済みでRetention期限切れを証明できる場合は410 `expired`、UnknownとDenyは同じ404 `operation_unavailable`です。
 
-## PHP AdapterからOutcomeだけを読む
+## 認可済みPHP QueryからOutcomeを読む
 
 ```php
+use BlackOps\Core\ActorRef;
 use BlackOps\Core\Identifier\OperationId;
-use BlackOps\Outcome\OutcomeReader;
+use BlackOps\Core\TenantRef;
+use BlackOps\OperationData\OperationDataPurpose;
+use BlackOps\OperationData\OperationOutcomeFound;
+use BlackOps\OperationData\OperationOutcomeQuery;
 
-function reportResult(OutcomeReader $outcomes, string $operationId): ?ReportGenerated
+function reportResult(
+    OperationOutcomeQuery $outcomes,
+    string $operationId,
+    ?ActorRef $currentActor,
+    ?TenantRef $currentTenant,
+): ?ReportGenerated
 {
-    $record = $outcomes->find(OperationId::fromString($operationId));
+    $result = $outcomes->find(
+        OperationId::fromString($operationId),
+        $currentActor,
+        $currentTenant,
+        OperationDataPurpose::fromString('report.read'),
+    );
 
-    if ($record === null) {
+    if (!$result instanceof OperationOutcomeFound) {
         return null;
     }
 
-    $outcome = $record->outcome();
+    $outcome = $result->record()->outcome();
 
     return $outcome instanceof ReportGenerated ? $outcome : null;
 }
 ```
 
-`OutcomeRecord`はOperation ID、復元済み`Outcome`、UTCへ正規化した完了時刻を持ちます。対象Recordがなければ`find()`は`null`を返します。
+`OperationOutcomeFound`は`OutcomeRecord`を返し、`OperationOutcomeUnavailable`はUnknown、Tenant不一致、Deny、Retention削除を安全に表します。Allow前にProtected BlobをDecodeしません。
 
 ## `null`の意味を区別する
 
@@ -44,7 +58,7 @@ function reportResult(OutcomeReader $outcomes, string $operationId): ?ReportGene
 - OperationがRejected／Failed／Dead Letterになった
 - Outcomeの独立した保持期限を過ぎた
 
-Public Status Query／HTTP Resourceはこれらを区別します。`OutcomeReader::find()`はOutcomeだけが必要なPHP Adapter向けなので、`null`をStatus判定へ流用しません。Frameworkの非PublicなTableやPayload形式を利用者向けContractにしないでください。判定例は[Outcome Status](troubleshooting.md#outcome-status)を確認してください。
+Public Status Query／HTTP Resourceはこれらを区別します。`OperationOutcomeQuery::find()`のUnavailableをStatus判定へ流用しません。FrameworkのInfrastructure SPI、Table、Payload形式を利用者向けContractにしないでください。判定例は[Outcome Status](troubleshooting.md#outcome-status)を確認してください。
 
 ## 保存するOutcome
 

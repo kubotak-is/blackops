@@ -94,7 +94,7 @@ final readonly class ApplicationConsoleKernel
         return $this->application->run($input, $output);
     }
 
-    /** @return list<LazyFrameworkCommand> */
+    /** @return list<Command> */
     private function frameworkCommands(
         ApplicationConsoleCommandFactory $factory,
         ApplicationRetentionCommandFactory $retention,
@@ -221,6 +221,7 @@ final readonly class ApplicationConsoleKernel
                     InputOption::VALUE_REQUIRED,
                 )->addOption('idle-sleep-milliseconds', null, InputOption::VALUE_REQUIRED, default: '1000'),
             ),
+            $factory->scheduledOperationRun(),
             new LazyFrameworkCommand(
                 RetentionPlanCommand::NAME,
                 'Build and print a retention purge plan without applying it.',
@@ -304,6 +305,7 @@ final readonly class ApplicationConsoleKernel
                     ->addOption('actor', null, InputOption::VALUE_REQUIRED)
                     ->addOption('reason', null, InputOption::VALUE_REQUIRED),
             ),
+            ...ApplicationStorageProtectionCommands::create($factory),
         ];
     }
 }

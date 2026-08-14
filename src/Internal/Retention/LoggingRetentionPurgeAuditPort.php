@@ -18,14 +18,27 @@ final readonly class LoggingRetentionPurgeAuditPort implements RetentionPurgeAud
     public function record(RetentionPurgeAuditRecord $record): void
     {
         $this->primary->record($record);
+        $tenant = $record->tenant();
         $this->logger->info('Retention purge audit recorded.', [
-            'audit_id' => $record->id()->toString(),
-            'operation_id' => $record->operationId()->toString(),
-            'target' => $record->target()->value,
-            'affected_count' => $record->affectedCount(),
-            'policy' => $record->policy()->toString(),
-            'purged_at' => $record->purgedAt()->format('Y-m-d\TH:i:s.u\Z'),
-            'purged_by' => $record->purgedBy()->toString(),
+            'schemaVersion' => 1,
+            'kind' => 'audit',
+            'occurredAt' => $record->purgedAt(),
+            'event' => 'retention.purge.completed',
+            'data' => [
+                'audit_id' => $record->id()->toString(),
+                'operation_id' => $record->operationId()->toString(),
+                'target' => $record->target()->value,
+                'affected_count' => $record->affectedCount(),
+                'policy' => $record->policy()->toString(),
+                'purged_at' => $record->purgedAt()->format('Y-m-d\TH:i:s.u\Z'),
+                'purged_by' => ['id' => '[masked]', 'type' => 'retention'],
+                'tenant' => $tenant === null
+                    ? null
+                    : [
+                        'id' => '[masked]',
+                        'type' => $tenant->type(),
+                    ],
+            ],
         ]);
     }
 }

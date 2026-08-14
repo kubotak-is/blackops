@@ -18,6 +18,9 @@ use BlackOps\Core\OperationEnvelope;
 use BlackOps\Core\OperationValue;
 use BlackOps\Internal\Execution\ExecutionScopeProvider;
 use BlackOps\Internal\Logging\ExecutionScopedLogger;
+use BlackOps\Internal\Telemetry\TelemetryTracer;
+use BlackOps\Telemetry\TelemetryContext;
+use BlackOps\Tests\Internal\Telemetry\RecordingTracerProvider;
 use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\AbstractLogger;
@@ -49,8 +52,9 @@ final class ExecutionScopedLoggerTest extends TestCase
         $context = $inner->records[0]['context'];
         self::assertSame(self::ID, $context['operation']['id']);
         self::assertSame('dispatch.test', $context['operation']['type']);
-        self::assertSame(self::ID, $context['operation']['attemptId']);
-        self::assertSame(Inline::class, $context['operation']['strategy']);
+        self::assertArrayNotHasKey('attemptId', $context['operation']);
+        self::assertSame(self::ID, $context['attempt']['id']);
+        self::assertSame('inline', $context['operation']['strategy']);
         self::assertSame('order-123', $context['context']['orderId']);
         self::assertArrayNotHasKey('password', $context['context']);
         self::assertSame(['id' => 'user-supplied'], $context['context']['operation']);
@@ -68,20 +72,84 @@ final class ExecutionScopedLoggerTest extends TestCase
         self::assertSame(['safe' => 'ok'], $inner->records[0]['context']['context']);
     }
 
-    public function testFrameworkErrorUsesSafeClassificationAndMaskedActorCorrelation(): void
+    public function testOperationWithoutAttemptOmitsTopLevelAttempt(): void
     {
         $inner = new RecordingPsrLogger();
         $scope = new ExecutionScopeProvider();
         $logger = new ExecutionScopedLogger($inner, $scope);
-        $actor = new ActorRef('user-credential-id', 'user');
 
+        $scope->run(self::envelopeWithoutAttempt(), static fn() => $logger->info('accepted'), 'dispatch.test');
+
+        self::assertArrayNotHasKey('attempt', $inner->records[0]['context']);
+    }
+
+    public function testTelemetryIsTopLevelSafeCorrelationAndNotNestedInOperation(): void
+    {
+        $inner = new RecordingPsrLogger();
+        $scope = new ExecutionScopeProvider();
+        $logger = new ExecutionScopedLogger($inner, $scope);
         $scope->run(
-            self::envelope(new ActorContext($actor, $actor, $actor)),
-            static function () use ($logger): void {
-                $logger->frameworkError(\RuntimeException::class, false, \LogicException::class);
-            },
+            self::envelope(telemetry: new TelemetryContext('00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01')),
+            static fn() => $logger->info('accepted'),
             'dispatch.test',
         );
+        $context = $inner->records[0]['context'];
+        self::assertSame(
+            [
+                'traceId' => '4bf92f3577b34da6a3ce929d0e0e4736',
+                'spanId' => '00f067aa0ba902b7',
+                'sampled' => true,
+            ],
+            $context['telemetry'],
+        );
+        self::assertArrayNotHasKey('telemetry', $context['operation']);
+    }
+
+    public function testLoggerUsesActiveRecordingSpanCorrelation(): void
+    {
+        $inner = new RecordingPsrLogger();
+        $scope = new ExecutionScopeProvider();
+        $provider = new RecordingTracerProvider();
+        $logger = new ExecutionScopedLogger($inner, $scope, telemetry: new TelemetryTracer($provider));
+        $span = new TelemetryTracer($provider)->start('blackops.operation.execute');
+
+        try {
+            $scope->run(self::envelopeWithoutAttempt(), static fn() => $logger->info('active'), 'dispatch.test');
+        } finally {
+            $span->end();
+        }
+
+        self::assertCount(1, $provider->spans);
+        self::assertSame(
+            [
+                'traceId' => $provider->spans[0]->getContext()->getTraceId(),
+                'spanId' => $provider->spans[0]->getContext()->getSpanId(),
+                'sampled' => false,
+            ],
+            $inner->records[0]['context']['telemetry'],
+        );
+    }
+
+    public function testFrameworkErrorUsesSafeClassificationAndMaskedActorCorrelation(): void
+    {
+        $inner = new RecordingPsrLogger();
+        $scope = new ExecutionScopeProvider();
+        $provider = new RecordingTracerProvider();
+        $logger = new ExecutionScopedLogger($inner, $scope, telemetry: new TelemetryTracer($provider));
+        $actor = new ActorRef('user-credential-id', 'user');
+        $span = new TelemetryTracer($provider)->start('blackops.operation.execute');
+
+        try {
+            $scope->run(
+                self::envelope(new ActorContext($actor, $actor, $actor)),
+                static function () use ($logger): void {
+                    $logger->frameworkError(\RuntimeException::class, false, \LogicException::class);
+                },
+                'dispatch.test',
+            );
+        } finally {
+            $span->end();
+        }
 
         $context = $inner->records[0]['context'];
         self::assertSame('framework', $context['kind']);
@@ -91,6 +159,8 @@ final class ExecutionScopedLoggerTest extends TestCase
         self::assertSame('failure_recording_failed', $context['context']['failure']['secondary']['classification']);
         self::assertSame(\LogicException::class, $context['context']['failure']['secondary']['type']);
         self::assertSame(self::ID, $context['operation']['id']);
+        self::assertSame($provider->spans[0]->getContext()->getTraceId(), $context['telemetry']['traceId']);
+        self::assertSame($provider->spans[0]->getContext()->getSpanId(), $context['telemetry']['spanId']);
         self::assertSame('[masked]', $context['operation']['actors']['origin']['id']);
         self::assertSame('user', $context['operation']['actors']['origin']['type']);
         self::assertStringNotContainsString('user-credential-id', serialize($context));
@@ -134,8 +204,10 @@ final class ExecutionScopedLoggerTest extends TestCase
         );
     }
 
-    private static function envelope(?ActorContext $actorContext = null): OperationEnvelope
-    {
+    private static function envelope(
+        ?ActorContext $actorContext = null,
+        ?TelemetryContext $telemetry = null,
+    ): OperationEnvelope {
         return new OperationEnvelope(
             new LoggingOperation(),
             new LoggingValue('hello'),
@@ -149,6 +221,21 @@ final class ExecutionScopedLoggerTest extends TestCase
                     new DateTimeImmutable('2026-07-07T00:00:01Z'),
                 ),
                 actorContext: $actorContext,
+                telemetry: $telemetry,
+            ),
+            new Inline(),
+        );
+    }
+
+    private static function envelopeWithoutAttempt(): OperationEnvelope
+    {
+        return new OperationEnvelope(
+            new LoggingOperation(),
+            new LoggingValue('hello'),
+            new ExecutionContext(
+                OperationId::fromString(self::ID),
+                new DateTimeImmutable('2026-07-07T00:00:00Z'),
+                CorrelationId::fromString(self::ID),
             ),
             new Inline(),
         );

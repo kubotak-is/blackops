@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace BlackOps\Internal\Outbox;
 
 use BlackOps\Core\Execution\OperationSender;
+use BlackOps\Internal\Telemetry\TelemetryMetrics;
+use BlackOps\Internal\Telemetry\TelemetryTracer;
 use BlackOps\Transport\PostgreSql\PostgreSqlOutboxStore;
 use Closure;
 use DateTimeImmutable;
@@ -20,6 +22,8 @@ final readonly class OutboxRelayRuntime
         private ClockInterface $clock,
         private ?PostgreSqlOutboxStore $heartbeatStore = null,
         private ?PcntlOutboxSignalHeartbeat $signals = null,
+        private ?TelemetryTracer $telemetry = null,
+        private ?TelemetryMetrics $metrics = null,
     ) {}
 
     public function runBatch(?DateTimeImmutable $now = null): OutboxRelayResult
@@ -58,8 +62,37 @@ final readonly class OutboxRelayRuntime
         return $this->signals?->stopRequested() ?? false;
     }
 
-    /** @mago-expect lint:halstead */
     private function processBatch(DateTimeImmutable $now): OutboxRelayResult
+    {
+        $span = $this->telemetry?->start('blackops.outbox.relay', attributes: [
+            'blackops.runtime.kind' => 'outbox_relay',
+        ]);
+        $metric = $this->metrics?->relayScope();
+        try {
+            $result = $this->processBatchInSpan($now);
+            $span?->result($this->resultCode($result));
+            $metric?->result($this->resultCode($result));
+            return $result;
+        } catch (Throwable $failure) {
+            $span?->fail($failure);
+            $metric?->fail();
+            throw $failure;
+        } finally {
+            $span?->end();
+            $metric?->end();
+        }
+    }
+
+    private function resultCode(OutboxRelayResult $result): string
+    {
+        return match (true) {
+            $result->deadLettered > 0 => 'dead_lettered',
+            $result->retried > 0 => 'retry_scheduled',
+            default => 'completed',
+        };
+    }
+
+    private function processBatchInSpan(DateTimeImmutable $now): OutboxRelayResult
     {
         if ($this->stopRequested()) {
             return new OutboxRelayResult();
@@ -90,12 +123,14 @@ final readonly class OutboxRelayRuntime
                 );
                 $this->store->markSent($claim);
                 ++$result->sent;
+                $this->metrics?->relayRecord('completed');
             } catch (Throwable $exception) {
                 $fingerprint = $this->fingerprint($exception);
                 try {
                     if ($claim->attemptCount >= $this->configuration->maxAttempts) {
                         $this->store->moveToDeadLetter($claim, $fingerprint);
                         ++$result->deadLettered;
+                        $this->metrics?->relayRecord('dead_lettered');
                     } else {
                         $delay = $this->backoffSeconds($claim->attemptCount);
                         $this->store->scheduleRetry(
@@ -104,9 +139,11 @@ final readonly class OutboxRelayRuntime
                             $fingerprint,
                         );
                         ++$result->retried;
+                        $this->metrics?->relayRecord('retry_scheduled');
                     }
                 } catch (Throwable) {
                     ++$result->stale;
+                    $this->metrics?->relayRecord('failed');
                 }
             }
         }

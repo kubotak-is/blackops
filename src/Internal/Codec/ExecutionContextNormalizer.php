@@ -8,6 +8,7 @@ use BlackOps\Core\ActorContext;
 use BlackOps\Core\ActorRef;
 use BlackOps\Core\AttemptContext;
 use BlackOps\Core\ExecutionContext;
+use BlackOps\Core\ScheduleContext;
 use BlackOps\Core\Time\TimeCodec;
 
 final readonly class ExecutionContextNormalizer
@@ -22,8 +23,9 @@ final readonly class ExecutionContextNormalizer
     public function normalize(ExecutionContext $context): array
     {
         $deadline = $context->deadline();
+        $tenant = $context->tenant();
 
-        return [
+        $normalized = [
             'operation_id' => $context->operationId()->toString(),
             'received_at' => $this->time->format($context->receivedAt()),
             'correlation_id' => $context->correlationId()->toString(),
@@ -32,7 +34,19 @@ final readonly class ExecutionContextNormalizer
             'deadline' => $deadline === null ? null : $this->time->format($deadline),
             'actors' => $this->normalizeActors($context->actorContext()),
             'idempotency_key_hash' => $this->normalizeIdempotencyKeyHash($context),
+            'schedule' => $this->normalizeSchedule($context->schedule()),
         ];
+        if ($tenant !== null) {
+            $normalized['tenant'] = ['type' => $tenant->type(), 'id' => $tenant->id()];
+        }
+        $telemetry = $context->telemetry();
+        if ($telemetry !== null) {
+            $normalized['telemetry'] = [
+                'traceparent' => $telemetry->traceparent(),
+                'tracestate' => $telemetry->tracestate(),
+            ];
+        }
+        return $normalized;
     }
 
     /**
@@ -79,6 +93,20 @@ final readonly class ExecutionContextNormalizer
         }
 
         return ['version' => $hash->version(), 'digest' => $hash->digest()];
+    }
+
+    /** @return array{name: string, scheduled_at: string, timezone: string}|null */
+    private function normalizeSchedule(?ScheduleContext $schedule): ?array
+    {
+        if ($schedule === null) {
+            return null;
+        }
+
+        return [
+            'name' => $schedule->name(),
+            'scheduled_at' => $this->time->format($schedule->scheduledAt()),
+            'timezone' => $schedule->timezone(),
+        ];
     }
 
     /**

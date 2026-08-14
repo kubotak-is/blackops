@@ -40,7 +40,7 @@ final readonly class ApplicationOperationConsoleRuntimeComposer
         }
 
         $contexts = new ExecutionContextFactory($runtime->identifiers, $runtime->clock);
-        $records = new JournalRecordFactory($runtime->identifiers, $runtime->clock);
+        $records = new JournalRecordFactory($runtime->identifiers, $runtime->clock, $runtime->telemetry);
         $inline = new InlineDispatcher(
             $runtime->operations,
             $contexts,
@@ -52,7 +52,11 @@ final readonly class ApplicationOperationConsoleRuntimeComposer
             authorization: $runtime->authorization,
             transactions: $runtime->transactions,
         );
-        $sender = new PostgreSqlDeferredOperationSender($runtime->connection, $this->schema($configuration));
+        $sender = new PostgreSqlDeferredOperationSender(
+            $runtime->connection,
+            $runtime->protection,
+            $this->schema($configuration),
+        );
         $deferred = new DeferredHttpOperationAcceptor(
             $runtime->operations,
             $contexts,

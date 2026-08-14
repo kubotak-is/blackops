@@ -36,6 +36,7 @@ final class PostgreSqlRetentionPurgeAuditStoreTest extends TestCase
         $this->connection->executeStatement('DROP SCHEMA IF EXISTS ' . self::SCHEMA . ' CASCADE');
         $this->sender = new PostgreSqlDeferredOperationSender(
             $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
             self::SCHEMA,
             new DateTimeImmutable('2026-07-10T00:00:01.000000Z'),
         );
@@ -86,6 +87,8 @@ final class PostgreSqlRetentionPurgeAuditStoreTest extends TestCase
                 'purged_at',
                 'purged_by',
                 'created_at',
+                'tenant_type',
+                'tenant_id',
             ],
             $columns,
         );

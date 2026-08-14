@@ -82,6 +82,8 @@ final class InMemoryOperationRecord
             $this->message->encodedPayload(),
             $this->message->encodedContext(),
             $availableAt,
+            $this->message->tenant(),
+            $this->message->originActor(),
         );
         $this->state = InMemoryOperationState::Available;
         $this->leaseExpiresAt = null;

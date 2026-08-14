@@ -10,8 +10,12 @@ use BlackOps\Core\AttemptContext;
 use BlackOps\Core\ExecutionContext;
 use BlackOps\Core\Identifier\CausationId;
 use BlackOps\Core\Identifier\CorrelationId;
+use BlackOps\Core\Identifier\OperationId;
+use BlackOps\Core\ScheduleContext;
+use BlackOps\Core\TenantRef;
 use BlackOps\Idempotency\IdempotencyKey;
 use BlackOps\Internal\Identifier\IdentifierFactory;
+use BlackOps\Telemetry\TelemetryContext;
 use DateTimeImmutable;
 use InvalidArgumentException;
 use LogicException;
@@ -37,6 +41,8 @@ final readonly class ExecutionContextFactory
         ?DateTimeImmutable $deadline = null,
         ?ActorContext $actorContext = null,
         ?IdempotencyKey $idempotencyKey = null,
+        ?TenantRef $tenant = null,
+        ?TelemetryContext $telemetry = null,
     ): ExecutionContext {
         $operationId = $this->identifiers->newOperationId();
         $correlationId = CorrelationId::fromString($operationId->toString());
@@ -50,6 +56,33 @@ final readonly class ExecutionContextFactory
             $deadline,
             $actorContext,
             $idempotencyKey?->hash(),
+            null,
+            $tenant,
+            $telemetry,
+        );
+    }
+
+    /** @mago-expect lint:excessive-parameter-list */
+    public function receiveScheduled(
+        OperationId $operationId,
+        DateTimeImmutable $receivedAt,
+        ScheduleContext $schedule,
+        ?ActorContext $actorContext = null,
+        ?TenantRef $tenant = null,
+        ?TelemetryContext $telemetry = null,
+    ): ExecutionContext {
+        return new ExecutionContext(
+            $operationId,
+            $receivedAt,
+            CorrelationId::fromString($operationId->toString()),
+            null,
+            null,
+            null,
+            $actorContext,
+            null,
+            $schedule,
+            $tenant,
+            $telemetry,
         );
     }
 
@@ -76,6 +109,9 @@ final readonly class ExecutionContextFactory
             $context->deadline(),
             $this->resolveActorContext($context->actorContext(), $executionActor),
             $context->idempotencyKeyHash(),
+            $context->schedule(),
+            $context->tenant(),
+            $context->telemetry(),
         );
     }
 
@@ -97,6 +133,26 @@ final readonly class ExecutionContextFactory
             $resolvedDeadline,
             $this->resolveActorContext($parent->actorContext(), $executionActor),
             null,
+            null,
+            $parent->tenant(),
+            $parent->telemetry(),
+        );
+    }
+
+    public function withTelemetry(ExecutionContext $context, ?TelemetryContext $telemetry): ExecutionContext
+    {
+        return new ExecutionContext(
+            $context->operationId(),
+            $context->receivedAt(),
+            $context->correlationId(),
+            $context->causationId(),
+            $context->attempt(),
+            $context->deadline(),
+            $context->actorContext(),
+            $context->idempotencyKeyHash(),
+            $context->schedule(),
+            $context->tenant(),
+            $telemetry,
         );
     }
 

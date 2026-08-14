@@ -36,9 +36,17 @@ final readonly class ObservedJournalRecordProjector
     private function operation(JournalOperation $operation): JournalOperation
     {
         $actors = $operation->actorContext;
-        if ($actors === null) {
+        if ($actors === null && $operation->tenant === null) {
             return $operation;
         }
+
+        $projectedActors = $actors === null
+            ? null
+            : new ActorContext(
+                $this->maskActor($actors->origin()),
+                $this->maskActor($actors->authorization()),
+                new ActorRef('[masked]', $actors->execution()->type()),
+            );
 
         return new JournalOperation(
             $operation->id,
@@ -47,11 +55,10 @@ final readonly class ObservedJournalRecordProjector
             $operation->strategy,
             $operation->correlationId,
             $operation->causationId,
-            new ActorContext(
-                $this->maskActor($actors->origin()),
-                $this->maskActor($actors->authorization()),
-                new ActorRef('[masked]', $actors->execution()->type()),
-            ),
+            $projectedActors,
+            $operation->schedule,
+            $operation->tenant === null ? null : new \BlackOps\Core\TenantRef($operation->tenant->type(), '[masked]'),
+            $operation->telemetry,
         );
     }
 

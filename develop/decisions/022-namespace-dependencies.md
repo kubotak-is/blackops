@@ -1,6 +1,6 @@
 # D022: Namespace Dependencies
 
-Status: Decided
+Status: Partially Superseded by D142
 
 ## Context
 

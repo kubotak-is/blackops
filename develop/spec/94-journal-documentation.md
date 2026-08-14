@@ -2,7 +2,7 @@
 
 ## Purpose
 
-JournalをLandingの特徴紹介だけで終わらせず、利用者がLifecycleの読み方、Observed JSONLの構造、設定、Replay、安全な運用、将来のOpenTelemetry接続まで正確に理解できる独立Guideを提供する。
+JournalをLandingの特徴紹介だけで終わらせず、利用者がLifecycleの読み方、Observed JSONLの構造、設定、Replay、安全な運用、Repository `main`で利用可能なOpenTelemetry API-only接続まで正確に理解できる独立Guideを提供する。
 
 ## Public Information Architecture
 
@@ -25,7 +25,7 @@ Journal Pageは次を利用者の順序で説明する。
 5. Eventごとに`data`が異なること
 6. JSONL Observerの設定と配送失敗Policy
 7. Observer Replay、Retention、Access Control、保存時暗号化
-8. OpenTelemetryの将来構想と現在未実装の境界
+8. Stable `1.1.0`とRepository `main`のOpenTelemetry API-only境界
 
 Application Log、Outcome、Execution TransportをJournalと同一視しない。
 
@@ -36,9 +36,11 @@ JSON例は`JsonlJournalRecordEncoder`の現在の出力へ一致させる。
 - Top Level: `schemaVersion`, `kind`, `recordId`, `event`, `occurredAt`, `sequence`, `operation`, `attempt`, `data`
 - `kind`: `journal`
 - `occurredAt`: UTC、Microseconds付きRFC 3339形式
-- `operation`: `id`, `type`, `schemaVersion`, `strategy`, `correlationId`, `causationId`, `actors`
+- `operation`: `id`, `type`, `schemaVersion`, `strategy`, `correlationId`, `causationId`, `actors`, `tenant`, optional `schedule`
 - `actors`: `origin`, `authorization`, `execution`
-- Actor: `{ "id": string, "type": string }`または`null`
+- Actor: `{ "id": "[masked]", "type": string }`または`null`
+- Tenant: `{ "id": "[masked]", "type": string }`または`null`
+- Schedule: `{ "name": string, "scheduledAt": UTC microseconds RFC 3339 string }`
 - `attempt`: `null`または`id`, `number`, `startedAt`
 - `data`: Event固有のSensitive Projection済みObject
 
@@ -89,17 +91,20 @@ operation.dead_lettered
 
 ## OpenTelemetry Boundary
 
-PageはRepository `main`にOpenTelemetry Adapter、Exporter、Configurationが未実装であると明記する。
+Stable `1.1.0`にはOpenTelemetry Adapter、Exporter、Operational Health Queryは含まれない。Repository `main`ではFrameworkが`open-telemetry/api`だけをProduction Dependencyとして持ち、ApplicationがSDK、Exporter、Resource、Endpoint、Credential、Provider Compositionを所有するAPI-only Surfaceを提供する。FrameworkはSDK／Exporter／Remote Deliveryを所有せず、CollectorをDefault Composeへ追加しない。
 
-次は将来の候補方向としてのみ説明できる。
+Repository `main`でGuideが説明する利用可能な境界は次である。
 
 - Operation／AttemptからSpanを構成する
 - Lifecycle EventをSpan Eventへ変換する
 - Retry、Rejected、Failure、Dead LetterをMetricへ集約する
 - Correlation／CausationをTrace Contextへ接続する
 - AdapterへはCanonical PayloadではなくObserved Projectionを渡す
+- W3C `traceparent`／`tracestate`をHTTP、Deferred、Worker、Outboxへ伝播する
+- Provider／Exporter FailureをBest-effortで扱い、Primary Operation／Readinessを変更しない
+- Applicationが明示したHealth Route／CLIと、Consumer専用Local Docker Collectorを接続する
 
-Semantic Convention、Sampling、Exporter、Configuration、Trace Contextの確定APIは未決であり、利用可能なPublic Contractとして記載しない。
+Vendor Backend、Dashboard、Alert、Production Collector Deployは対象外である。Semantic Convention、Sampling、Remote Exporterの選択はApplication責務であり、Stable `1.1.0`のPublic Contractとして記載しない。
 
 ## Verification
 
@@ -109,7 +114,7 @@ Semantic Convention、Sampling、Exporter、Configuration、Trace Contextの確�
 - Example FieldとLifecycle Eventが実装へ一致する
 - JSONL ParameterがTop-level、Operation、Actors、Attempt、Event固有DataのTableで説明される
 - Canonical／Observed／Sensitive／Replay／Retentionの境界がRegressionで固定される
-- OpenTelemetryを現在利用可能と誤認させない
+- Stable `1.1.0`とRepository `main`のOpenTelemetry Surfaceを混同させない
 - Blume Check、Build、Link／Artifact Guardが成功する
 - Desktop Light／DarkとMobile 390pxで、Table、Code、Sidebar Current State、Page Overflowを実Browser確認する
 

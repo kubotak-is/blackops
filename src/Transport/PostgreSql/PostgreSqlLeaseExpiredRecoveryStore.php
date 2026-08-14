@@ -9,18 +9,24 @@ use BlackOps\Core\Exception\DeferredTransportException;
 use BlackOps\Core\Execution\OperationClaim;
 use BlackOps\Core\Identifier\AttemptId;
 use BlackOps\Core\Identifier\OperationId;
+use BlackOps\Internal\StorageProtection\BopdEnvelopeCodec;
 use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 use SensitiveParameter;
 
 final readonly class PostgreSqlLeaseExpiredRecoveryStore
 {
+    private PostgreSqlDeferredOperationMessageCodec $messages;
+
     public function __construct(
         private Connection $connection,
         private PostgreSqlDeferredOperationSchema $schema,
         private PostgreSqlDeferredOperationLifecycleSql $sql,
-        private PostgreSqlDeferredOperationMessageCodec $messages = new PostgreSqlDeferredOperationMessageCodec(),
-    ) {}
+        BopdEnvelopeCodec $protection,
+        ?PostgreSqlDeferredOperationMessageCodec $messages = null,
+    ) {
+        $this->messages = $messages ?? new PostgreSqlDeferredOperationMessageCodec($protection);
+    }
 
     public function reserve(DateTimeImmutable $expiredAt): ?PostgreSqlLeaseExpiredReservation
     {
@@ -59,9 +65,13 @@ final readonly class PostgreSqlLeaseExpiredRecoveryStore
             "SELECT
                 operation_id::text AS operation_id,
                 operation_type,
+                tenant_type,
+                tenant_id,
+                origin_actor_type,
+                origin_actor_id,
                 schema_version,
-                convert_from(encoded_payload, 'UTF8') AS encoded_payload,
-                convert_from(encoded_context, 'UTF8') AS encoded_context,
+                encoded_payload,
+                encoded_context,
                 available_at,
                 fencing_token,
                 next_sequence,

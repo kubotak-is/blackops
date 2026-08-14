@@ -2,6 +2,7 @@
 /.gitattributes export-ignore
 /.agents export-ignore
 /.codex export-ignore
+/.claude export-ignore
 /.github export-ignore
 /develop export-ignore
 /docs export-ignore
@@ -22,6 +23,7 @@
 /composer.lock export-ignore
 /deptrac.yaml export-ignore
 /mago.toml export-ignore
+/mago-lint-baseline.toml export-ignore
 /mise.toml export-ignore
 /phpunit.xml export-ignore
 

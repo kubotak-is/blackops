@@ -4,7 +4,7 @@
 
 Phase 7からPhase 10で完成したInstalled Application、Composer Skeleton、BlackOps CLI、Validation、Worker Runtime、Repository DocumentationをStable Releaseへ届け、その後にApplication開発と運用に必要なRuntime機能を依存順に実装する。
 
-Documentation WebsiteのCloudflare公開はRoadmapの完了条件に含めない。Repository内Source、Website Build、Search、Artifact Guard、CIは維持し、公開再開はUserが明示した将来Taskで扱う。
+Documentation WebsiteのCloudflare公開、Build、Search、Artifact Guard、CIは現行の完了済みSurfaceとして維持する。Custom DomainとVersion Selector、複数Releaseの切替UIはDeferred Ecosystem Scopeに残す。
 
 ## Delivery Order
 
@@ -20,6 +20,7 @@ Phase 11 Stable 1.1 Release
                 -> Phase 19 Reliability and Delivery
                   -> Phase 20 Security Hardening and Observability
                     -> Phase 21 Framework-owned Transaction Interception
+                      -> Phase 22 Stable 1.2 Version Baseline and Release Gate
 ```
 
 ## Phase 11: Stable 1.1 Release
@@ -108,7 +109,7 @@ Status: Complete
 - Taste SkillをDesign Directionに使うAccessible／Responsive Product UI
 - Local Compose、Seed、Real Browser E2E、Screenshot／Guide、CI
 
-Quickstart／Skeletonは変更せず、External HostingとDocumentation Website Publicationを含めない。Phase 17時点のAuthentication EndpointはOperation外のApplication-owned HTTP Boundaryとしたが、Phase 18でEphemeral OperationとFramework Session Coreへ移行した。BrowserからBlackOpsへの直接通信とCredentialのJournal保存は引き続き行わない。詳細は[Full-stack Reference Application](71-full-stack-reference-application.md)と[Application Ergonomics](74-application-ergonomics.md)を正本とする。
+Quickstart／Skeletonは変更せず、External Hostingを含めない。Documentation WebsiteはRepository内のGuideをCloudflare Pagesへ公開する現行Surfaceとして扱う。Phase 17時点のAuthentication EndpointはOperation外のApplication-owned HTTP Boundaryとしたが、Phase 18でEphemeral OperationとFramework Session Coreへ移行した。BrowserからBlackOpsへの直接通信とCredentialのJournal保存は引き続き行わない。詳細は[Full-stack Reference Application](71-full-stack-reference-application.md)と[Application Ergonomics](74-application-ergonomics.md)を正本とする。
 
 ## Phase 18: Application Ergonomics
 
@@ -146,6 +147,9 @@ Phase 19のConsumer／Documentation／Full GateはP19-008で完了した。Exter
 - 構造化Log Schema Version
 - OpenTelemetry Trace／Metric Adapter
 - Health／ReadinessとWorker／Scheduler運用指標
+- Development／Demo／Test専用のLocal Grafana LGTM Trace／Metric閲覧Consumer
+
+Phase 20のLocal Grafana LGTM backendはD138でApplication-owned／Development-onlyへ限定する。Grafana、Tempo、PrometheusのHost公開、Default Compose、Production Dependency、Readiness、Remote Credential、Persistent Volume、DeploymentはこのRoadmapの完了条件に含めない。
 
 ## Phase 21: Framework-owned Transaction Interception
 
@@ -156,15 +160,21 @@ Phase 19のConsumer／Documentation／Full GateはP19-008で完了した。Exter
 - Operation固定Transaction Lifecycleと一般Service Interceptorの既存保証維持
 - Ray.Aop互換Regression、Migration、Dependency Removal Gate
 
-汎用AOP Engineは実装しない。Production RuntimeでのSource Scan／Proxy生成も導入しない。詳細なAPI、Code Generation方式、Task順序はPhase 17 Closeout後のDecision／Delivery Planで確定する。
+汎用AOP Engineは実装しない。Production RuntimeでのSource Scan／Proxy生成も導入しない。D137／Specification 101で契約を確定し、Specification 102とP21-002〜P21-007で、Contract Guard→Generator／Artifact→Symfony DI→Runtime Ownership→Compatibility／Migration→Ray Removalの順に実装した。Phase 21はP21-007のRemoval Gateを受入済みで、Framework-only artifact chainを維持する。
+
+## Phase 22: Stable 1.2 Version Baseline
+
+P22-001は公開済みStable `1.1.0`をImmutableな履歴として維持し、Repository `main`の未公開Release Candidateを`1.2.0`へ同期する。Main root version、OpenTelemetry scope、Skeleton Source、Candidate Consumer、active Documentationを更新し、Stable install journey、Tag／Release／Packagist claim、歴史的記録は変更しない。完全なRelease Gate、Tag、Publication、Packagist反映は後続Taskで扱う。
 
 ## Deferred Ecosystem Scope
 
-- Documentation Website Publication、Custom Domain、Version Selector
+- Custom Domain、Version Selector、複数ReleaseのDocumentation切替
 - OpenAPI、Contract Diff、Frontend Framework Adapter
 - SQLite、MySQL、SQS、Kafka Adapter
-- Scheduled Operation、Batch、Saga
+- Batch、Saga
 - Admin UI、検索、再試行、Cancel
+
+Scheduled Operationとone-shot CLI、Documentation WebsiteのCloudflare Pages公開はPhase 22までに実装済みであり、Deferred Scopeではない。外部Supervisor、Custom Domain、Version Selector、Batch／Sagaなどの追加Ecosystem Surfaceは引き続き後続Taskで扱う。
 
 ## Phase Workflow
 

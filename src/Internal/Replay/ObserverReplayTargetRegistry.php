@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BlackOps\Internal\Replay;
 
 use BlackOps\Internal\Journal\JournalObserverBinding;
+use BlackOps\Internal\Telemetry\TelemetryMetrics;
 use BlackOps\Journal\FlushableJournalObserver;
 use BlackOps\Journal\ObservedJournalRecord;
 use InvalidArgumentException;
@@ -14,6 +15,7 @@ final readonly class ObserverReplayTargetRegistry
     /** @param list<JournalObserverBinding> $bindings */
     public function __construct(
         private array $bindings,
+        private ?TelemetryMetrics $metrics = null,
     ) {
         $names = [];
         foreach ($bindings as $binding) {
@@ -57,14 +59,24 @@ final readonly class ObserverReplayTargetRegistry
 
     public function observe(JournalObserverBinding $binding, ObservedJournalRecord $record): void
     {
-        $binding->observer()->observe($record);
+        try {
+            $binding->observer()->observe($record);
+        } catch (\Throwable $failure) {
+            $this->metrics?->observerFailure('replay', 'observe_failed');
+            throw $failure;
+        }
     }
 
     public function flush(JournalObserverBinding $binding): void
     {
         $observer = $binding->observer();
         if ($observer instanceof FlushableJournalObserver) {
-            $observer->flush();
+            try {
+                $observer->flush();
+            } catch (\Throwable $failure) {
+                $this->metrics?->observerFailure('replay', 'flush_failed');
+                throw $failure;
+            }
         }
     }
 }

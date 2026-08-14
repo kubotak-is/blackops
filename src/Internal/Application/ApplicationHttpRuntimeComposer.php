@@ -11,6 +11,7 @@ use BlackOps\Http\Routing\HttpOperationManifest;
 use BlackOps\Http\Routing\HttpOperationManifestFile;
 use BlackOps\Internal\Codec\ReflectionJsonOperationCodec;
 use BlackOps\Internal\Execution\DeferredAcceptanceOrchestrator;
+use BlackOps\Internal\Execution\ExecutionScopeProvider;
 use BlackOps\Internal\ExecutionContext\ExecutionContextFactory;
 use BlackOps\Internal\Http\DeferredHttpOperationAcceptor;
 use BlackOps\Internal\Http\OperationStatusAuthorizerResolver;
@@ -50,8 +51,9 @@ final readonly class ApplicationHttpRuntimeComposer
         $this->validateHttpOperations($operation->operations, $http->manifest);
         $artifacts = new ProductionRuntimeArtifacts($operation->operations, $http->manifest, $operation->container);
         $httpMiddleware = new ApplicationHttpMiddlewareResolver($artifacts->container)->resolve($middleware);
-        $sender = new PostgreSqlDeferredOperationSender($operation->connection, $database->schema);
-        $idempotency = new PostgreSqlIdempotencyStore($operation->connection, $database->schema);
+        $protection = $operation->protection;
+        $sender = new PostgreSqlDeferredOperationSender($operation->connection, $protection, $database->schema);
+        $idempotency = new PostgreSqlIdempotencyStore($operation->connection, $protection, $database->schema);
         if (!$operation->journal instanceof CanonicalJournalReader) {
             throw new LogicException('PostgreSQL journal reader is unavailable for idempotency recovery.');
         }
@@ -72,19 +74,24 @@ final readonly class ApplicationHttpRuntimeComposer
                 $operation->connection,
                 $sender,
                 $operation->journal,
-                new JournalRecordFactory($operation->identifiers, $operation->clock),
+                new JournalRecordFactory($operation->identifiers, $operation->clock, $operation->telemetry),
                 authorization: $operation->authorization,
-                scope: $operation->scope,
+                scope: new ExecutionScopeProvider(metrics: $operation->metrics),
                 idempotency: $idempotency,
                 idempotencyRetention: $retention?->policy->idempotencyRecordRetention(),
                 idempotencyRecovery: $recovery,
             ),
+            telemetryTracer: $operation->telemetry,
         );
         $statusQuery = new DefaultOperationStatusQuery(
-            new PostgreSqlOperationStatusSource($operation->connection, $artifacts->operations, $database->schema),
+            new PostgreSqlOperationStatusSource(
+                $operation->connection,
+                $artifacts->operations,
+                $protection,
+                $database->schema,
+            ),
             new OperationStatusAuthorizerResolver($artifacts->container)->resolve(),
         );
-
         $runtime = new ProductionRuntimeComposer()->composeWithDependencies(
             $artifacts,
             new ProductionRuntimeDependencies(

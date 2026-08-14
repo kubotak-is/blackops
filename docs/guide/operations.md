@@ -153,3 +153,7 @@ if (!$this->inventory->isAvailable($value->items)) {
 Decoratorや複数実装の切替等で責務を分ける場合は、`#[HandledBy]`と`OperationHandler`を使うCompatibility形を選べます。新しい単純なUse CaseではTyped Self-handledを優先してください。
 
 Sourceを追加したら`php blackops build:compile`でSignatureとMetadataを検証します。Generatorを利用する場合は[Generators](project-generators.md)を参照してください。
+
+## Scheduled Operation
+
+定期実行の入口はRepository `main`の[Scheduled Operation](scheduled-operation.md)です。`#[ScheduledBy]`はExecution Strategyを変えず、Inlineは既定、Deferredは`#[Deferred]`を明示します。手動の`#[ConsoleCommand]`とは別のRoot Operationとして扱います。

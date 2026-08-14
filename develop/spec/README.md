@@ -109,6 +109,15 @@
 | [92-documentation-review-agent.md](92-documentation-review-agent.md) | Read-only Documentation Reviewer、Evidence Hierarchy、Browser Review、Finding Format |
 | [93-implicit-inline-ephemeral-outcome.md](93-implicit-inline-ephemeral-outcome.md) | Ephemeral Outcomeの暗黙Inline、Security Guard、ExecuteWith互換境界 |
 | [94-journal-documentation.md](94-journal-documentation.md) | Journal独立Guide、Observed JSONL、Security、OpenTelemetry将来構想 |
+| [95-task-oriented-operations-documentation.md](95-task-oriented-operations-documentation.md) | Testing、Deployment、ConsoleCommand、Outbox、BlackOps CLIの実行可能な利用者Journey |
+| [96-documentation-site-ux.md](96-documentation-site-ux.md) | Blume Callout、Code Copy、Previous／Next、Edit Link、日本語Font、Responsive Article UX |
+| [97-documentation-editorial-style.md](97-documentation-editorial-style.md) | 全Public Pageの表記Guideline、一般語の日本語化、Page種別Reader Contract、文章編集Pass |
+| [98-scheduled-application-operation.md](98-scheduled-application-operation.md) | ScheduledBy、Schedule Context、Cron／Timezone、Misfire／Overlap、Occurrence、Actor、BlackOps CLI |
+| [99-tenant-isolation-and-protected-operation-data.md](99-tenant-isolation-and-protected-operation-data.md) | TenantRef、Tenant伝播、Default-deny Data Read、Encrypted Envelope、Rotation、Breaking Upgrade境界 |
+| [100-structured-logging-and-opentelemetry.md](100-structured-logging-and-opentelemetry.md) | Structured Record v1、W3C Trace、OpenTelemetry Trace／Metric、Health／Readiness、Local Collector／Local Grafana LGTM境界 |
+| [101-framework-owned-transaction-proxy.md](101-framework-owned-transaction-proxy.md) | Framework-owned Transactional／AfterCommit Proxy contract |
+| [102-phase-21-delivery-plan.md](102-phase-21-delivery-plan.md) | Phase 21 proxy replacement delivery order and removal gate |
+| [103-stable-1-2-release-plan.md](103-stable-1-2-release-plan.md) | Stable 1.1 preservation and main 1.2.0 Release Candidate baseline |
 
 ## 決定の参照
 
@@ -135,7 +144,7 @@
 | [D019](../decisions/019-framework-name.md) | Framework Name | Decided |
 | [D020](../decisions/020-package-architecture.md) | Package Architecture | Decided |
 | [D021](../decisions/021-source-layout.md) | Source Layout | Decided |
-| [D022](../decisions/022-namespace-dependencies.md) | Namespace Dependencies | Decided |
+| [D022](../decisions/022-namespace-dependencies.md) | Namespace Dependencies | Partially Superseded by D142 |
 | [D023](../decisions/023-core-api-shape.md) | Core API Shape | Decided |
 | [D024](../decisions/024-operation-envelope-api.md) | Operation Envelope API | Decided |
 | [D025](../decisions/025-execution-context-api.md) | ExecutionContext API | Decided |
@@ -244,3 +253,15 @@
 | [D128](../decisions/128-observed-journal-wire-shape.md) | Observed Journal Wire Shape | Decided |
 | [D129](../decisions/129-documentation-website-publication.md) | Documentation Website Publication | Decided |
 | [D130](../decisions/130-blume-production-search-verification.md) | Blume Production Search Verification | Decided |
+| [D131](../decisions/131-task-oriented-operations-documentation.md) | Task-oriented Operations Documentation | Decided |
+| [D132](../decisions/132-documentation-site-ux.md) | Documentation Site UX | Decided |
+| [D133](../decisions/133-documentation-editorial-style.md) | Documentation Editorial Style | Decided |
+| [D134](../decisions/134-scheduled-application-operation.md) | Scheduled Application Operation | Decided |
+| [D135](../decisions/135-tenant-isolation-and-protected-operation-data.md) | Tenant Isolation and Protected Operation Data | Decided |
+| [D136](../decisions/136-structured-logging-and-opentelemetry.md) | Structured Logging and OpenTelemetry | Decided |
+| [D137](../decisions/137-framework-owned-transaction-proxy.md) | Framework-owned Transaction Proxy Contract | Decided |
+| [D138](../decisions/138-local-grafana-lgtm-development-backend.md) | Local Grafana LGTM Development Backend | Decided |
+| [D139](../decisions/139-stable-1-2-version-baseline.md) | Stable 1.2 Version Baseline | Decided |
+| [D140](../decisions/140-release-quality-tooling-baseline.md) | Release Quality Tooling Baseline | Decided |
+| [D141](../decisions/141-release-architecture-and-export-boundary.md) | Release Architecture and Export Boundary | Decided |
+| [D142](../decisions/142-public-facade-and-internal-implementation-cycles.md) | Public Facade and Internal Implementation Cycles | Decided |

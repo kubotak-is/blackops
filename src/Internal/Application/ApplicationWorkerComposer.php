@@ -28,6 +28,8 @@ use BlackOps\Internal\Logging\MonologJsonlLoggerFactory;
 use BlackOps\Internal\Logging\RuntimeLoggingServiceInjector;
 use BlackOps\Internal\Outbox\TransactionalOutboxRuntime;
 use BlackOps\Internal\Runtime\ProductionRuntimeArtifactLoader;
+use BlackOps\Internal\Telemetry\TelemetryMetrics;
+use BlackOps\Internal\Telemetry\TelemetryTracer;
 use BlackOps\Internal\Transaction\OperationTransactionCoordinator;
 use BlackOps\Internal\Transaction\RuntimeTransactionServiceInjector;
 use BlackOps\Outbox\TransactionalOutbox;
@@ -56,12 +58,18 @@ final readonly class ApplicationWorkerComposer
         );
         $databases = $database->databaseManager();
         new RuntimeDatabaseServiceInjector()->inject($artifacts->container, $databases);
+        $telemetry = new TelemetryTracer($configuration->tracerProvider());
+        $metrics = new TelemetryMetrics($configuration->meterProvider(), array_map(
+            static fn(\BlackOps\Core\Registry\OperationMetadata $metadata): string => $metadata->typeId,
+            $artifacts->operations->all(),
+        ));
         $executionScope = new ExecutionScopeProvider();
         $logging = ApplicationLoggingConfiguration::fromConfiguration($configuration->configuration());
         $logger = new RuntimeLoggingServiceInjector()->inject(
             $artifacts->container,
             $executionScope,
             new MonologJsonlLoggerFactory()->create($logging->stream, $logging->channel, $logging->minimumLevel),
+            telemetry: $telemetry,
         );
         $transactionRuntime = new RuntimeTransactionServiceInjector()->inject(
             $artifacts->container,
@@ -76,6 +84,7 @@ final readonly class ApplicationWorkerComposer
         if (!$artifacts->container instanceof Container) {
             throw new \InvalidArgumentException('Runtime container does not support outbox service injection.');
         }
+        $protection = ApplicationStorageProtectionResolver::resolve($artifacts->container, $metrics);
         $outbox = new TransactionalOutboxRuntime(
             $artifacts->operations,
             new ReflectionJsonOperationCodec(),
@@ -83,13 +92,15 @@ final readonly class ApplicationWorkerComposer
             $transactionRuntime,
             $main,
             $database->frameworkConnection,
-            new PostgreSqlOutboxStore($main, $database->schema),
+            new PostgreSqlOutboxStore($main, $protection, new ReflectionJsonOperationCodec(), $database->schema),
             new ExecutionContextFactory($identifiers, $clock),
             $identifiers,
             $clock,
+            telemetry: $telemetry,
         );
         $artifacts->container->set(TransactionalOutbox::class, $outbox);
         $artifacts->container->set(Operations::class, $outbox);
+        new OperationDataRuntimeInjector()->inject($artifacts->container, $main, $database->schema, $protection);
         $services = new DeferredWorkerRuntimeServices(
             $artifacts->operations,
             new ReflectionJsonOperationCodec(),
@@ -101,17 +112,23 @@ final readonly class ApplicationWorkerComposer
         );
         $storage = new DeferredWorkerRuntimeStorage(
             $main,
-            new JournalRecordFactory($identifiers, $clock),
-            new PostgreSqlCanonicalJournalStore($main, $database->schema),
-            new PostgreSqlDeferredOperationLifecycleStore($main, $database->schema),
+            new JournalRecordFactory($identifiers, $clock, $telemetry),
+            new PostgreSqlCanonicalJournalStore($main, $protection, $database->schema),
+            new PostgreSqlDeferredOperationLifecycleStore($main, $protection, $database->schema),
             $clock,
-            new PostgreSqlOutcomeStore($main, $database->schema),
+            new PostgreSqlOutcomeStore($main, $protection, $database->schema),
             scope: $executionScope,
             transactions: $operationTransactions,
             failureReporter: new FrameworkOperationFailureReporter($logger, $executionScope),
+            scheduledOccurrences: new \BlackOps\Internal\Scheduling\PostgreSqlScheduledOccurrenceLifecycle(
+                $main,
+                $database->schema,
+            ),
+            telemetry: $telemetry,
         );
         $receiver = new PostgreSqlDeferredOperationReceiver(
             $main,
+            $protection,
             $database->schema,
             $worker->id,
             $worker->leaseSeconds,
@@ -119,6 +136,7 @@ final readonly class ApplicationWorkerComposer
         );
         $heartbeatReceiver = new PostgreSqlDeferredOperationReceiver(
             $heartbeat,
+            $protection,
             $database->schema,
             $worker->id,
             $worker->leaseSeconds,
@@ -129,12 +147,14 @@ final readonly class ApplicationWorkerComposer
             $worker->heartbeatSeconds,
             $worker->leaseSeconds,
             $worker->graceSeconds,
+            metrics: $metrics,
         );
         $runtime = new DeferredWorkerRuntime(
             $services,
             $storage,
             $signals,
             connections: new ApplicationDatabaseConnectionLifecycle($databases),
+            metrics: $metrics,
         );
         $loop = new DeferredWorkerLoop(
             new DeferredLeaseExpiredRecovery($services, $storage),
@@ -144,6 +164,7 @@ final readonly class ApplicationWorkerComposer
             $signals,
             $clock,
             continueAfterHandlerFailure: $worker->continueAfterHandlerFailure,
+            metrics: $metrics,
         );
 
         return new ApplicationWorkerComposition($loop, $main, $heartbeat, $signals);

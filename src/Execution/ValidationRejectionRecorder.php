@@ -8,6 +8,7 @@ use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Core\Operation;
 use BlackOps\Core\OperationValue;
 use BlackOps\Core\Validation\Violation;
+use BlackOps\Telemetry\TelemetryContext;
 
 interface ValidationRejectionRecorder
 {
@@ -19,10 +20,19 @@ interface ValidationRejectionRecorder
     /**
      * @param list<Violation> $violations
      */
-    public function rejectBinding(Operation $definition, array $violations): OperationId;
+    public function rejectBinding(
+        Operation $definition,
+        array $violations,
+        ?TelemetryContext $telemetry = null,
+    ): OperationId;
 
     /**
      * @param list<Violation> $violations
      */
-    public function rejectValue(Operation $definition, OperationValue $value, array $violations): OperationId;
+    public function rejectValue(
+        Operation $definition,
+        OperationValue $value,
+        array $violations,
+        ?TelemetryContext $telemetry = null,
+    ): OperationId;
 }

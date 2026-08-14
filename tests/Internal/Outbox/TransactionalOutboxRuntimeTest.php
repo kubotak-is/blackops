@@ -21,13 +21,18 @@ use BlackOps\Core\Registry\OperationMetadata;
 use BlackOps\Core\Registry\OperationRegistry;
 use BlackOps\Database\DatabaseManager;
 use BlackOps\Idempotency\IdempotencyKey;
+use BlackOps\Internal\Codec\ReflectionJsonOperationCodec;
 use BlackOps\Internal\Execution\ExecutionScopeProvider;
 use BlackOps\Internal\ExecutionContext\ExecutionContextFactory;
 use BlackOps\Internal\Identifier\IdentifierFactory;
 use BlackOps\Internal\Identifier\SymfonyUuidv7Generator;
 use BlackOps\Internal\Outbox\TransactionalOutboxRuntime;
+use BlackOps\Internal\Telemetry\TelemetryTracer;
 use BlackOps\Internal\Transaction\DefaultAfterCommitFailureReporter;
 use BlackOps\Internal\Transaction\TransactionRuntime;
+use BlackOps\Telemetry\TelemetryContext;
+use BlackOps\Tests\Internal\Telemetry\RecordingTracerProvider;
+use BlackOps\Tests\Transport\PostgreSql\PostgreSqlTestStorageProtection;
 use BlackOps\Transport\PostgreSql\PostgreSqlOutboxStore;
 use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
@@ -43,19 +48,26 @@ final class TransactionalOutboxRuntimeTest extends TestCase
     private TransactionRuntime $transactionRuntime;
     private ExecutionScopeProvider $scope;
     private ContextCapture $captured;
+    private RecordingTracerProvider $telemetryProvider;
 
     protected function setUp(): void
     {
         $this->app = DriverManager::getConnection($this->parameters());
         $this->other = DriverManager::getConnection($this->parameters());
         $this->app->executeStatement('DROP SCHEMA IF EXISTS outbox_runtime_test CASCADE');
-        new PostgreSqlOutboxStore($this->app, 'outbox_runtime_test')->migrate();
+        new PostgreSqlOutboxStore(
+            $this->app,
+            PostgreSqlTestStorageProtection::codec(),
+            new ReflectionJsonOperationCodec(),
+            'outbox_runtime_test',
+        )->migrate();
         $this->app->executeStatement('CREATE TABLE "outbox_runtime_test"."mutations" (id integer PRIMARY KEY)');
         $this->scope = new ExecutionScopeProvider();
         $databases = new FixtureDatabaseManager(['app' => $this->app, 'other' => $this->other]);
         $transactions = new TransactionRuntime($databases, new DefaultAfterCommitFailureReporter(), $this->scope);
         $this->transactionRuntime = $transactions;
         $this->captured = new ContextCapture();
+        $this->telemetryProvider = new RecordingTracerProvider();
         $clock = new FixtureClock();
         $identifiers = new IdentifierFactory(new SymfonyUuidv7Generator(), $clock);
         $metadata = new OperationMetadata(
@@ -81,10 +93,16 @@ final class TransactionalOutboxRuntimeTest extends TestCase
             $transactions,
             $this->app,
             'app',
-            new PostgreSqlOutboxStore($this->app, 'outbox_runtime_test'),
+            new PostgreSqlOutboxStore(
+                $this->app,
+                PostgreSqlTestStorageProtection::codec(),
+                new FixtureCodec($this->captured),
+                'outbox_runtime_test',
+            ),
             new ExecutionContextFactory($identifiers, $clock),
             $identifiers,
             $clock,
+            new TelemetryTracer($this->telemetryProvider),
         );
     }
 
@@ -138,6 +156,21 @@ final class TransactionalOutboxRuntimeTest extends TestCase
         self::assertSame('origin-user', $child->actorContext()?->origin()?->id());
         self::assertSame('auth-user', $child->actorContext()?->authorization()?->id());
         self::assertSame('override-worker', $child->actorContext()?->execution()->id());
+        self::assertSame('tenant-outbox', $child->tenant()?->id());
+        self::assertCount(1, $this->telemetryProvider->spans);
+        $span = $this->telemetryProvider->spans[0];
+        self::assertSame('blackops.operation.accept', $span->name);
+        self::assertSame(TelemetryTracer::KIND_PRODUCER, $span->kind);
+        self::assertSame('fixture.outbox.child', $span->attributes['blackops.operation.type']);
+        self::assertSame('deferred', $span->attributes['blackops.operation.strategy']);
+        self::assertSame($registration->operationId()->toString(), $span->attributes['blackops.operation.id']);
+        self::assertSame(
+            $span->getContext()->getTraceId(),
+            explode('-', $child->telemetry()?->traceparent() ?? '')[1] ?? null,
+        );
+        self::assertNotSame($parent->context()->telemetry()?->traceparent(), $child->telemetry()?->traceparent());
+        self::assertSame('completed', $span->attributes['blackops.result']);
+        self::assertTrue($span->ended);
         self::assertSame(
             $parent->context()->deadline()?->format(DateTimeImmutable::ATOM),
             $child->deadline()?->format(DateTimeImmutable::ATOM),
@@ -163,7 +196,12 @@ final class TransactionalOutboxRuntimeTest extends TestCase
             $this->transactionRuntime,
             $this->app,
             'app',
-            new PostgreSqlOutboxStore($this->app, 'outbox_runtime_test'),
+            new PostgreSqlOutboxStore(
+                $this->app,
+                PostgreSqlTestStorageProtection::codec(),
+                new ReflectionJsonOperationCodec(),
+                'outbox_runtime_test',
+            ),
             new ExecutionContextFactory(
                 $identifiers = new IdentifierFactory(new SymfonyUuidv7Generator(), $clock = new FixtureClock()),
                 $clock,
@@ -413,7 +451,12 @@ final class TransactionalOutboxRuntimeTest extends TestCase
             $transactions,
             $connection,
             'app',
-            new PostgreSqlOutboxStore($connection, 'outbox_runtime_test'),
+            new PostgreSqlOutboxStore(
+                $connection,
+                PostgreSqlTestStorageProtection::codec(),
+                new ReflectionJsonOperationCodec(),
+                'outbox_runtime_test',
+            ),
             new ExecutionContextFactory($identifiers, $clock),
             $identifiers,
             $clock,
@@ -434,6 +477,8 @@ final class TransactionalOutboxRuntimeTest extends TestCase
                 new ActorRef('exec-user', 'user'),
             ),
             new IdempotencyKey('parent-key'),
+            tenant: new \BlackOps\Core\TenantRef('account', 'tenant-outbox'),
+            telemetry: new TelemetryContext('00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01'),
         );
 
         return new OperationEnvelope(new OutboxParent(), new OutboxParentValue(), $context, $strategy);

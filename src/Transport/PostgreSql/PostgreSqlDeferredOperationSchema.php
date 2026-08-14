@@ -25,7 +25,8 @@ final readonly class PostgreSqlDeferredOperationSchema
         $retentionHolds = $this->identifier->qualify('retention_holds');
         $retentionPurgeAudits = $this->identifier->qualify('retention_purge_audits');
 
-        return [
+        /** @var list<string> $statements */
+        $statements = [
             "CREATE SCHEMA IF NOT EXISTS {$schema}",
             "CREATE TABLE IF NOT EXISTS {$operations} (
                 operation_id uuid PRIMARY KEY,
@@ -58,7 +59,11 @@ final readonly class PostgreSqlDeferredOperationSchema
                 current_attempt_id uuid NULL,
                 current_attempt_started_at timestamptz NULL,
                 created_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                updated_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP
+                updated_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                CONSTRAINT operations_bopd_payload_check CHECK (
+                    (encoded_payload IS NULL OR substring(encoded_payload FROM 1 FOR 4) = decode('424f5044', 'hex'))
+                    AND (encoded_context IS NULL OR substring(encoded_context FROM 1 FOR 4) = decode('424f5044', 'hex'))
+                )
             )",
             "ALTER TABLE {$operations}
                 ALTER COLUMN encoded_payload DROP NOT NULL",
@@ -122,7 +127,10 @@ final readonly class PostgreSqlDeferredOperationSchema
                 outcome_type text NOT NULL CHECK (outcome_type <> ''),
                 schema_version integer NOT NULL CHECK (schema_version >= 1),
                 encoded_payload bytea NOT NULL,
-                completed_at timestamptz NOT NULL
+                completed_at timestamptz NOT NULL,
+                CONSTRAINT outcomes_bopd_payload_check CHECK (
+                    substring(encoded_payload FROM 1 FOR 4) = decode('424f5044', 'hex')
+                )
             )",
             "ALTER TABLE {$outcomes}
                 DROP CONSTRAINT IF EXISTS outcomes_operation_id_fkey",
@@ -139,10 +147,12 @@ final readonly class PostgreSqlDeferredOperationSchema
                 final_attempt_number integer NULL CHECK (
                     final_attempt_number IS NULL OR final_attempt_number >= 1
                 ),
-                reason_type text NOT NULL CHECK (reason_type <> ''),
-                reason_message text NOT NULL,
+                encoded_reason bytea NOT NULL,
                 moved_at timestamptz NOT NULL,
-                created_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP
+                created_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                CONSTRAINT dead_letters_bopd_reason_check CHECK (
+                    substring(encoded_reason FROM 1 FOR 4) = decode('424f5044', 'hex')
+                )
             )",
             "CREATE INDEX IF NOT EXISTS dead_letters_moved_at_idx
                 ON {$deadLetters} (moved_at, operation_id)",
@@ -189,6 +199,22 @@ final readonly class PostgreSqlDeferredOperationSchema
             "CREATE INDEX IF NOT EXISTS retention_purge_audits_purged_at_idx
                 ON {$retentionPurgeAudits} (purged_at, audit_id)",
         ];
+
+        foreach ([
+            ['table' => $operations, 'name' => 'operations', 'origin' => true],
+            ['table' => $outcomes, 'name' => 'outcomes', 'origin' => false],
+            ['table' => $deadLetters, 'name' => 'dead_letters', 'origin' => false],
+            ['table' => $retentionHolds, 'name' => 'retention_holds', 'origin' => false],
+            ['table' => $retentionPurgeAudits, 'name' => 'retention_purge_audits', 'origin' => false],
+        ] as $metadata) {
+            $statements = array_merge($statements, PostgreSqlTenantMetadata::alter(
+                $metadata['table'],
+                $metadata['name'],
+                $metadata['origin'],
+            ));
+        }
+
+        return $statements;
     }
 
     public function operationsTable(): string

@@ -12,6 +12,7 @@ use BlackOps\Core\Attribute\ExecuteWith;
 use BlackOps\Core\Attribute\HandledBy;
 use BlackOps\Core\Attribute\OperationType;
 use BlackOps\Core\Attribute\Returns;
+use BlackOps\Core\Attribute\ScheduledBy;
 use BlackOps\Core\Authorization\AuthorizationPolicy;
 use BlackOps\Core\EphemeralOutcome;
 use BlackOps\Core\Execution\Deferred;
@@ -21,10 +22,13 @@ use BlackOps\Core\Operation;
 use BlackOps\Core\OperationValue;
 use BlackOps\Core\Outcome;
 use BlackOps\Core\Registry\OperationMetadata;
+use BlackOps\Core\Registry\OperationScheduleMetadata;
 use BlackOps\Database\Attribute\Transactional;
 use BlackOps\Http\Attribute\Route;
+use BlackOps\Internal\Scheduling\CronExpression;
 use InvalidArgumentException;
 use ReflectionClass;
+use ReflectionMethod;
 
 /**
  * @mago-expect lint:cyclomatic-complexity
@@ -56,6 +60,7 @@ final readonly class OperationMetadataCompiler
         $handlerAttributes = $reflection->getAttributes(HandledBy::class);
         $returnsAttributes = $reflection->getAttributes(Returns::class);
         $authorizationAttributes = $reflection->getAttributes(Authorize::class);
+        $scheduleAttributes = $reflection->getAttributes(ScheduledBy::class);
         if (count($typeAttributes) !== 1) {
             throw new InvalidArgumentException('Operation definition requires OperationType exactly once.');
         }
@@ -64,6 +69,9 @@ final readonly class OperationMetadataCompiler
         }
         if (count($authorizationAttributes) > 1) {
             throw new InvalidArgumentException('Operation definition must not repeat Authorize.');
+        }
+        if (count($scheduleAttributes) > 1) {
+            throw new InvalidArgumentException('Operation definition must not repeat ScheduledBy.');
         }
         $strategyAttributes = $reflection->getAttributes(ExecuteWith::class);
         if (count($strategyAttributes) > 1) {
@@ -106,6 +114,16 @@ final readonly class OperationMetadataCompiler
         }
         $transactionConnection = $this->transactionConnection($reflection, $handler);
         $ephemeral = is_a($outcome, EphemeralOutcome::class, allow_string: true);
+        $schedule = null;
+        if ($scheduleAttributes !== []) {
+            $scheduled = $scheduleAttributes[0]->newInstance();
+            CronExpression::parse($scheduled->cron);
+            $this->assertScheduledValue($value);
+            if ($ephemeral) {
+                throw new InvalidArgumentException('Scheduled operation outcome is invalid.');
+            }
+            $schedule = new OperationScheduleMetadata($scheduled->name, $scheduled->cron, $scheduled->timezone);
+        }
         if ($ephemeral) {
             $this->assertEphemeralOperation($reflection, $outcome, $strategy);
         }
@@ -122,7 +140,33 @@ final readonly class OperationMetadataCompiler
             $typedSelfHandledMode,
             $authorizationPolicy,
             $transactionConnection,
+            $schedule,
         );
+    }
+
+    /** @param class-string<OperationValue> $value */
+    private function assertScheduledValue(string $value): void
+    {
+        $reflection = new ReflectionClass($value);
+        if (!$reflection->isInstantiable()) {
+            throw new InvalidArgumentException('Scheduled operation value must be instantiable.');
+        }
+        $constructor = $reflection->getConstructor();
+        if ($constructor !== null && $this->requiredParameters($constructor) > 0) {
+            throw new InvalidArgumentException(
+                'Scheduled operation value must have no required constructor arguments.',
+            );
+        }
+    }
+
+    private function requiredParameters(ReflectionMethod $constructor): int
+    {
+        $required = 0;
+        foreach ($constructor->getParameters() as $parameter) {
+            if (!$parameter->isOptional() && !$parameter->isVariadic())
+                $required++;
+        }
+        return $required;
     }
 
     /**

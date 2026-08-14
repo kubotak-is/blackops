@@ -7,6 +7,7 @@ namespace BlackOps\Tests\Transport\PostgreSql;
 use BlackOps\Core\Exception\DeferredTransportException;
 use BlackOps\Core\Execution\DeferredOperationMessage;
 use BlackOps\Core\Identifier\OperationId;
+use BlackOps\Transport\PostgreSql\PostgreSqlBytea;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationSender;
 use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
@@ -28,6 +29,7 @@ final class PostgreSqlDeferredOperationSenderTest extends TestCase
         $this->connection->executeStatement('DROP SCHEMA IF EXISTS ' . self::SCHEMA . ' CASCADE');
         $this->sender = new PostgreSqlDeferredOperationSender(
             $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
             self::SCHEMA,
             new DateTimeImmutable('2026-07-10T00:00:01.123456Z'),
         );
@@ -101,8 +103,7 @@ final class PostgreSqlDeferredOperationSenderTest extends TestCase
         self::assertSame('uuid', $columns['operation_id']);
         self::assertSame('uuid', $columns['final_attempt_id']);
         self::assertSame('integer', $columns['final_attempt_number']);
-        self::assertSame('text', $columns['reason_type']);
-        self::assertSame('text', $columns['reason_message']);
+        self::assertSame('bytea', $columns['encoded_reason']);
         self::assertSame('timestamp with time zone', $columns['moved_at']);
         self::assertSame('timestamp with time zone', $columns['created_at']);
         self::assertSame(1, (int) $primaryKeyCount);
@@ -160,8 +161,8 @@ final class PostgreSqlDeferredOperationSenderTest extends TestCase
         );
 
         $row = $this->connection->fetchAssociative('SELECT
-                encoded_payload,
-                encoded_context,
+                encode(encoded_payload, \'escape\') AS encoded_payload,
+                encode(encoded_context, \'escape\') AS encoded_context,
                 to_char(payload_purged_at AT TIME ZONE \'UTC\', \'YYYY-MM-DD"T"HH24:MI:SS.US"Z"\') AS payload_purged_at
             FROM ' . self::SCHEMA . '.operations');
 
@@ -240,8 +241,8 @@ final class PostgreSqlDeferredOperationSenderTest extends TestCase
                 operation_id::text,
                 operation_type,
                 schema_version,
-                convert_from(encoded_payload, 'UTF8') AS encoded_payload,
-                convert_from(encoded_context, 'UTF8') AS encoded_context,
+                encode(encoded_payload, 'escape') AS encoded_payload,
+                encode(encoded_context, 'escape') AS encoded_context,
                 content_type,
                 encoding,
                 key_id,
@@ -258,8 +259,10 @@ final class PostgreSqlDeferredOperationSenderTest extends TestCase
         self::assertSame(self::OPERATION_ID, $row['operation_id']);
         self::assertSame('report.generate', $row['operation_type']);
         self::assertSame(1, $row['schema_version']);
-        self::assertSame('{"reportId":"r1"}', $row['encoded_payload']);
-        self::assertSame('{"correlationId":"c1"}', $row['encoded_context']);
+        self::assertStringStartsWith('BOPD', $row['encoded_payload']);
+        self::assertStringStartsWith('BOPD', $row['encoded_context']);
+        self::assertStringNotContainsString('reportId', $row['encoded_payload']);
+        self::assertStringNotContainsString('operationId', $row['encoded_context']);
         self::assertSame('application/vnd.blackops.deferred-operation+json', $row['content_type']);
         self::assertSame('utf8', $row['encoding']);
         self::assertNull($row['key_id']);
@@ -282,6 +285,7 @@ final class PostgreSqlDeferredOperationSenderTest extends TestCase
         $this->sender->enqueue($this->message());
         $second = new PostgreSqlDeferredOperationSender(
             $this->connection(),
+            PostgreSqlTestStorageProtection::codec(),
             self::SCHEMA,
             new DateTimeImmutable('2026-07-10T00:00:02.123456Z'),
         );
@@ -342,11 +346,11 @@ final class PostgreSqlDeferredOperationSenderTest extends TestCase
                     1,
                     (int) $this->connection->fetchOne('SELECT count(*) FROM ' . self::SCHEMA . '.operations'),
                 );
-                self::assertSame(
-                    '{"reportId":"r1"}',
-                    $this->connection->fetchOne(
-                        'SELECT convert_from(encoded_payload, \'UTF8\') FROM ' . self::SCHEMA . '.operations',
-                    ),
+                self::assertStringStartsWith(
+                    'BOPD',
+                    PostgreSqlBytea::string($this->connection->fetchOne(
+                        'SELECT encoded_payload FROM ' . self::SCHEMA . '.operations',
+                    )),
                 );
             }
         }

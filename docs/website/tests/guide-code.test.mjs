@@ -1,11 +1,15 @@
 import assert from 'node:assert/strict';
-import { readdir, readFile } from 'node:fs/promises';
+import { execFile as execFileCallback } from 'node:child_process';
+import { mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { promisify } from 'node:util';
+import { tmpdir } from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { repositoryRoot } from '../scripts/website-paths.mjs';
 
 const guideRoot = path.join(repositoryRoot, 'docs/guide');
 const guide = (name) => readFile(path.join(guideRoot, name), 'utf8');
+const execFile = promisify(execFileCallback);
 
 test('upgrade guide installs the exact Skeleton 1.1 project-root entrypoint', async () => {
   const [upgrade, entrypoint] = await Promise.all([
@@ -19,6 +23,60 @@ test('upgrade guide installs the exact Skeleton 1.1 project-root entrypoint', as
   assert.doesNotMatch(upgrade, /^mv bin\/blackops blackops$/m);
   assert.match(upgrade, /php blackops list/);
   assert.match(upgrade, /rm bin\/blackops/);
+});
+
+test('P22-003 upgrade order and runtime merge matrix stay executable', async () => {
+  const [upgrade, runtimeConsumer] = await Promise.all([
+    readFile(path.join(repositoryRoot, 'UPGRADE.md'), 'utf8'),
+    readFile(path.join(repositoryRoot, 'tests/Consumer/framework-update-runtime.sh'), 'utf8'),
+  ]);
+  const migration = upgrade.slice(upgrade.indexOf('### 5. Database MigrationをBackup後に順序実行する'), upgrade.indexOf('### 6. Build、Frontend、Generated Artifactを再生成する'));
+
+  assert.ok(migration.indexOf('Stable pre-status 0/2') < migration.indexOf('Stable migrate（一度）'));
+  assert.ok(migration.indexOf('Stable migrate（一度）') < migration.indexOf('Framework-only Candidate update／strict validate'));
+  assert.ok(migration.indexOf('Framework-only Candidate update／strict validate') < migration.indexOf('Candidate status 2/9'));
+  assert.ok(migration.indexOf('Candidate status 2/9') < migration.indexOf('Candidate dry-run／migrate'));
+  assert.match(migration, /Do not run Stable database:status after this migrate/);
+  assert.match(migration, /blackops\.schema_migrations/);
+  assert.match(migration, /Version20260712000000/);
+  assert.match(migration, /operations_payload_tombstone_check/);
+  assert.match(migration, /-v ON_ERROR_STOP=1/);
+  assert.match(migration, /Docker container commands/);
+  assert.match(migration, /Application-root host commands/);
+  for (const file of ['bootstrap/app.php', 'public/index.php', 'public/worker.php']) {
+    assert.match(migration, new RegExp(file.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+    assert.match(runtimeConsumer, new RegExp(file.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+  }
+  assert.match(upgrade, /blackops.*Caddyfile.*Compose/);
+  assert.match(migration, /cmp \.\.\/blackops\/examples\/quickstart\/bootstrap\/app\.php bootstrap\/app\.php/);
+  assert.match(upgrade, /tests\/Consumer\/framework-update-runtime\.sh/);
+  assert.match(upgrade, /Provider-missing Classic HTTP safe 500／Worker CLI safe Negative/);
+});
+
+test('Community Board setup keeps Local Storage Key and production boundaries explicit', async () => {
+  const [readme, guideSource, setup, environment, consumer] = await Promise.all([
+    readFile(path.join(repositoryRoot, 'examples/community-board/README.md'), 'utf8'),
+    guide('community-board.md'),
+    readFile(path.join(repositoryRoot, 'examples/community-board/bin/setup'), 'utf8'),
+    readFile(path.join(repositoryRoot, 'examples/community-board/.env.example'), 'utf8'),
+    readFile(path.join(repositoryRoot, 'tests/Consumer/community-board-clean-install.sh'), 'utf8'),
+  ]);
+
+  assert.equal((environment.match(/^BLACKOPS_STORAGE_KEY=$/gm) ?? []).length, 1);
+  assert.match(setup, /random_bytes\(SODIUM_CRYPTO_AEAD_XCHACHA20POLY1305_IETF_KEYBYTES\)/);
+  assert.match(setup, /chmod\(\$environment, 0600\)/);
+  assert.match(setup, /BLACKOPS_STORAGE_KEY=\{\$encoded\}/);
+  assert.match(setup, /freshEnvironmentCreated/);
+  assert.match(readme, /strict base64.*32 random bytes/);
+  assert.match(readme, /byte-for-byte.*metadata/);
+  assert.match(readme, /KMS.*Secret Manager/);
+  assert.match(guideSource, /strict base64.*32 random bytes/);
+  assert.match(guideSource, /byte／metadata/);
+  assert.match(guideSource, /KMS／Secret Manager/);
+  assert.match(consumer, /BLACKOPS_STORAGE_KEY=/);
+  assert.match(consumer, /base64 --decode \| wc -c/);
+  assert.match(consumer, /stat -c '%a'/);
+  assert.match(consumer, /EXISTING_ENV_SHA/);
 });
 
 test('tutorial starts from the current generator and contains complete edited source', async () => {
@@ -44,7 +102,7 @@ test('tutorial starts from the current generator and contains complete edited so
   assert.match(phpBlocks[0], /Validation\\Attribute\\NotBlank/);
   assert.match(phpBlocks[0], /SensitiveMode::Mask/);
   assert.match(phpBlocks[2], /handle\(CreateInvoiceValue \$value, ExecutionContext \$context\): CreateInvoiceOutcome/);
-  assert.match(tutorial, /OutcomeReader/);
+  assert.match(tutorial, /OperationOutcomeQuery/);
   assert.match(tutorial, /Build artifacts written\./);
 });
 
@@ -60,25 +118,23 @@ test('public guide commands use the project-root entrypoint deterministically', 
   assert.ok(commands.every((match) => match[1] === 'blackops'));
 });
 
-test('Welcome requests authenticate unless they intentionally demonstrate anonymous access', async () => {
+test('Welcome requests include the required value header unless they intentionally demonstrate missing-header behavior', async () => {
   const files = (await readdir(guideRoot)).filter((file) => file.endsWith('.md')).sort();
-  const anonymousExamples = [];
+  const missingHeaderExamples = [];
 
   for (const file of files) {
     const source = await guide(file);
     for (const match of source.matchAll(/^curl .*\/welcome$/gm)) {
       if (!/-H ['"]X-Sample-Token:/.test(match[0])) {
-        anonymousExamples.push(`${file}: ${match[0]}`);
+        missingHeaderExamples.push(`${file}: ${match[0]}`);
         continue;
       }
       assert.match(match[0], /-H ['"]X-Sample-Token:/, `${file}: ${match[0]}`);
     }
   }
 
-  assert.deepEqual(anonymousExamples, [
-    'installation.md: curl -i http://127.0.0.1:8080/welcome',
+  assert.deepEqual(missingHeaderExamples, [
     'mvp-sample.md: curl -i http://127.0.0.1:8080/welcome',
-    'runtime-bootstrap.md: curl http://127.0.0.1:8080/welcome',
     'troubleshooting.md: curl -i http://127.0.0.1:8080/welcome',
   ]);
 });
@@ -191,7 +247,7 @@ test('Journal parameter contract uses five complete implementation-aligned table
   const source = await guide('journal.md');
   const sections = [
     ['### Top-level Record', '### `operation`', 9],
-    ['### `operation`', '### `operation.actors`／Actor', 7],
+    ['### `operation`', '### `operation.actors`／Actor', 11],
     ['### `operation.actors`／Actor', '### `attempt`', 6],
     ['### `attempt`', '### Event固有`data`', 4],
     ['### Event固有`data`', '## JSONLの設定', 27],
@@ -234,27 +290,32 @@ test('guide presents the Stable 1.1 release surface and experimental policy cons
   const status = await guide('mvp-status.md');
 
   assert.match(installation, /composer create-project blackops\/skeleton my-app 1\.1\.0/);
-  assert.match(installation, /Websiteは`main` Document Channel/);
+  assert.match(installation, /WebsiteはRepository `main`のドキュメント/);
   assert.doesNotMatch(installation, /現行手順と同じRelease Surface/);
   assert.match(quickstart, /blackops\/skeleton my-app 1\.1\.0/);
   assert.doesNotMatch(quickstart, /dev-main/);
   assert.match(quickstart, /StableにはGlobal Middleware、Authentication、`#\[Authorize\]`がない/);
-  assert.match(quickstart, /"symlink":false,"versions":\{"blackops\/framework":"1\.1\.0"\}/);
+  assert.match(quickstart, /"symlink":false,"versions":\{"blackops\/framework":"1\.2\.0"\}/);
+  assert.match(quickstart, /Repository `main`の`1\.2\.0` Preview Application/);
   assert.match(quickstart, /Local Path Repository/);
   assert.match(tutorial, /Experimental Stable `1\.1\.0`/);
   assert.match(generators, /Experimental Stable `1\.1\.0`/);
-  assert.match(status, /7 Value Validation Attribute／422 Lifecycle \| Available \| Available/);
-  assert.match(status, /FrankenPHP Worker Mode \| Default Runtime \| Default Runtime/);
-  assert.match(status, /Named DBAL Connection／Default Connection DI \| Not available \| Available/);
-  assert.match(status, /`#\[Transactional\]` Operation／Service \| Not available \| Available/);
+  assert.match(status, /7 Value Validation Attribute／422 Lifecycle \| 利用可 \| 利用可/);
+  assert.match(status, /FrankenPHP Worker Mode \| 既定Runtime \| 既定Runtime/);
+  assert.match(status, /Named DBAL Connection／Default Connection DI \| 未提供 \| 利用可/);
+  assert.match(status, /`#\[Transactional\]` Operation／Service \| 未提供 \| 利用可/);
   assert.match(status, /Backward Compatibility/);
+  assert.match(status, /CHANGELOG%2Emd/);
+  assert.match(status, /UPGRADE%2Emd/);
+  assert.match(status, /9つのMigration/);
+  assert.match(status, /annotated Tag `1\.1\.0`/);
 });
 
-test('stable installation is an executable anonymous Docker lane', async () => {
+test('stable installation is an executable required-value-header Docker lane', async () => {
   const installation = await guide('installation.md');
   const stable = installation.slice(installation.indexOf('## Stable 1.1.0を作成する'), installation.indexOf('## Composer Scriptを使わない場合'));
 
-  for (const command of ['docker compose build app http', 'docker compose up -d postgres', 'database:migrate', 'build:compile', 'docker compose up -d http', 'curl -i http://127.0.0.1:8080/welcome', 'docker compose down']) {
+  for (const command of ['docker compose build app http', 'docker compose up -d postgres', 'database:migrate', 'build:compile', 'docker compose up -d http', "curl -i -H 'X-Sample-Token: local-example' http://127.0.0.1:8080/welcome", 'docker compose down']) {
     assert.match(stable, new RegExp(command.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
   }
   for (const forbidden of ['database:seed', 'make:auth', 'frontend:generate', 'pnpm']) {
@@ -293,6 +354,75 @@ test('main onboarding names the executable client, auth contract, and runtime li
   const outboxExample = execution.match(/## Transactional Outboxへの登録[\s\S]*?```php\n([\s\S]*?)\n```/)?.[1] ?? '';
   assert.match(outboxExample, /readonly class PlaceOrder implements Operation/);
   assert.doesNotMatch(outboxExample, /final readonly class PlaceOrder/);
+});
+
+test('task-oriented operation guides expose source-backed process boundaries', async () => {
+  const [testing, deployment, consoleGuide, outbox, cli] = await Promise.all([
+    guide('testing.md'),
+    guide('deployment.md'),
+    guide('console-command.md'),
+    guide('outbox.md'),
+    guide('project-cli.md'),
+  ]);
+
+  for (const layer of ['Operation', 'HTTP', 'Deferred', 'Frontend', 'Full-stack Browser']) {
+    assert.match(testing, new RegExp(`\\| ${layer} \\|`));
+  }
+  for (const failure of ['malformed JSON', 'Binding／Value Validation', 'Authentication', 'Worker retry／dead letter', 'poll_timeout']) {
+    assert.match(testing, new RegExp(failure.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+  }
+  for (const process of ['HTTP Worker', 'Deferred Worker', 'Outbox Relay', 'Maintenance Scheduler']) {
+    assert.match(deployment, new RegExp(`\\| ${process} \\|`));
+  }
+  for (const command of ['php blackops database:status', 'php blackops database:migrate --dry-run', 'php blackops build:compile', 'php blackops worker:run', 'php blackops outbox:relay:run']) {
+    assert.match(deployment, new RegExp(command.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+  }
+  for (const contract of ['#[ConsoleCommand]', 'php blackops help report:export', 'status":"completed', 'Exit `2`']) {
+    assert.match(consoleGuide, new RegExp(contract.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+  }
+  for (const step of ['Operations::dispatch()', '同じTransactionでCommit', 'outbox:relay:run --until-empty', 'worker:run', 'dead-letter retry scheduled']) {
+    assert.match(outbox, new RegExp(step.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+  }
+  for (const command of ['operation:list', 'database:migrate [--dry-run]', 'worker:run', 'outbox:relay:run', 'journal:observer:replay']) {
+    assert.match(cli, new RegExp(command.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+  }
+  for (const option of ['--observer=application-jsonl', '--checkpoint=journal-replay-20260701', '--actor=operator', '--reason="restore projection"', '--transport-payload-days=7', '--policy-ref=production-retention-v1']) {
+    assert.match(cli, new RegExp(option.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+  }
+  assert.ok(cli.includes('`ApplicationConfigurationSnapshot`＋`ApplicationOperationDiscovery`（Source）＋Metadata Compiler'));
+  assert.ok(cli.includes('outbox:dead-letter:retry <record-id> --actor=<actor> --reason=<reason>'));
+  assert.doesNotMatch(cli, /outbox:dead-letter:retry <record-id> --actor --reason/);
+  assert.match(cli, /Stable `1\.1\.0`[\s\S]*Repository `main`のExperimental Surface/);
+  assert.match(testing, /tests\/Consumer\/community-board-product-journey\.sh/);
+  assert.match(testing, /community-board-digest\.sh.*Outbox Relayの検証記録には使いません/);
+  for (const path of ['app\/Feature\/Comment\/AddComment\/AddComment.php', 'app\/Domain\/Board\/BoardRepository.php', 'app\/Feature\/Notification\/NotifyPostOwner\/NotifyPostOwner.php']) {
+    assert.match(outbox, new RegExp(path));
+  }
+  assert.match(outbox, /Dispatch Receipt/);
+});
+
+test('task-oriented PHP examples remain syntactically parseable', async () => {
+  const [consoleGuide, outbox] = await Promise.all([guide('console-command.md'), guide('outbox.md')]);
+  const blocks = [
+    ...consoleGuide.matchAll(/```php\n([\s\S]*?)\n```/g),
+    ...outbox.matchAll(/```php\n([\s\S]*?)\n```/g),
+  ].map(([, source]) => `${source.startsWith('<?php') ? source : `<?php\n${source}`}\n`);
+  const temporary = await mkdtemp(path.join(tmpdir(), 'blackops-guide-php-'));
+  try {
+    for (const [index, source] of blocks.entries()) {
+      const file = path.join(temporary, `example-${index}.php`);
+      await writeFile(file, source);
+      try {
+        await execFile('php', ['-l', file]);
+      } catch (error) {
+        if (error?.code !== 'ENOENT') throw error;
+        assert.doesNotMatch(source, /\\\\/);
+        assert.match(source, /(?:class|interface|trait)\s+\w+/);
+      }
+    }
+  } finally {
+    await rm(temporary, { recursive: true, force: true });
+  }
 });
 
 test('Docker-only quickstart keeps the local viewer inside its reachable network boundary', async () => {
@@ -338,9 +468,9 @@ test('quickstart frontend journey matches the installed application-owned source
   assert.match(projectCli, /Fresh 0、Missing／Drift 1、Invalid 2/);
   assert.match(configuration, /resources\/js\/blackops/);
   assert.match(directory, /resources\/js\/application/);
-  assert.match(status, /Frontend Contract Manifest／Operation Object生成 \| Not available \| Available（Experimental）/);
-  assert.match(status, /Deferred Status Query／`GET \/operations\/\{operationId\}` \| Not available \| Available（Experimental）/);
-  assert.match(status, /Generated `\.status\(\)`／finite `\.wait\(\)` \| Not available \| Available（Experimental）/);
+  assert.match(status, /Frontend Contract Manifest／Operation Object生成 \| 未提供 \| 利用可（試験的）/);
+  assert.match(status, /Deferred Status Query／`GET \/operations\/\{operationId\}` \| 未提供 \| 利用可（試験的）/);
+  assert.match(status, /Generated `\.status\(\)`／finite `\.wait\(\)` \| 未提供 \| 利用可（試験的）/);
   assert.match(quickstart, /GenerateReport\.status/);
   assert.match(quickstart, /GenerateReport\.wait/);
   assert.match(quickstart, /poll_timeout/);

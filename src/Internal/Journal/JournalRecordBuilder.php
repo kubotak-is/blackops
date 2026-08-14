@@ -11,12 +11,14 @@ use BlackOps\Core\OperationEnvelope;
 use BlackOps\Core\Registry\OperationMetadata;
 use BlackOps\Core\Rejection\RejectionReason;
 use BlackOps\Internal\Identifier\IdentifierFactory;
+use BlackOps\Internal\Telemetry\TelemetryTracer;
 use BlackOps\Journal\Data\OperationRejectedData;
 use BlackOps\Journal\JournalAttempt;
 use BlackOps\Journal\JournalData;
 use BlackOps\Journal\JournalEvent;
 use BlackOps\Journal\JournalOperation;
 use BlackOps\Journal\JournalRecord;
+use BlackOps\Telemetry\TelemetryCorrelation;
 use LogicException;
 use Psr\Clock\ClockInterface;
 
@@ -25,6 +27,7 @@ final readonly class JournalRecordBuilder
     public function __construct(
         private IdentifierFactory $identifiers,
         private ClockInterface $clock,
+        private ?TelemetryTracer $telemetry = null,
     ) {}
 
     public function build(
@@ -85,6 +88,9 @@ final readonly class JournalRecordBuilder
                 $context->correlationId(),
                 $context->causationId(),
                 $context->actorContext(),
+                $context->schedule(),
+                $context->tenant(),
+                TelemetryCorrelation::fromContext($this->telemetry?->currentContext() ?? $context->telemetry()),
             ),
             $attempt === null ? null : new JournalAttempt($attempt->id(), $attempt->number(), $attempt->startedAt()),
             $data,

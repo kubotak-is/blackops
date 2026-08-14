@@ -20,14 +20,17 @@ final readonly class PostgreSqlOutcomeSchema
         $operations = $this->identifier->qualify('operations');
         $outcomes = $this->table();
 
-        return [
+        $statements = [
             "CREATE SCHEMA IF NOT EXISTS {$schema}",
             "CREATE TABLE IF NOT EXISTS {$outcomes} (
                 operation_id uuid PRIMARY KEY,
                 outcome_type text NOT NULL CHECK (outcome_type <> ''),
                 schema_version integer NOT NULL CHECK (schema_version >= 1),
                 encoded_payload bytea NOT NULL,
-                completed_at timestamptz NOT NULL
+                completed_at timestamptz NOT NULL,
+                CONSTRAINT outcomes_bopd_payload_check CHECK (
+                    substring(encoded_payload FROM 1 FOR 4) = decode('424f5044', 'hex')
+                )
             )",
             "ALTER TABLE {$outcomes}
                 DROP CONSTRAINT IF EXISTS outcomes_operation_id_fkey",
@@ -39,6 +42,8 @@ final readonly class PostgreSqlOutcomeSchema
             "CREATE INDEX IF NOT EXISTS outcomes_completed_at_idx
                 ON {$outcomes} (completed_at, operation_id)",
         ];
+
+        return array_merge($statements, PostgreSqlTenantMetadata::alter($outcomes, 'outcomes'));
     }
 
     public function table(): string

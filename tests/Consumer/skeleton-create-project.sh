@@ -52,7 +52,24 @@ frontend_owned_files=(
 )
 
 mkdir -p "${package_root}" "${composer_home}"
-cp -a "${repository_root}/examples/quickstart/." "${package_root}/"
+# Copy the committed Source of Truth, including dotfiles, without allowing
+# ignored local dependencies or generated runtime state into the package.
+tar \
+    --exclude='./.env' \
+    --exclude='./composer.lock' \
+    --exclude='./vendor' \
+    --exclude='node_modules' \
+    --exclude='*/node_modules' \
+    --exclude='./resources/js/blackops' \
+    --exclude='./.build' \
+    --exclude='*/.build' \
+    --exclude='./var/build/*' \
+    --exclude='./var/log/*' \
+    -C "${repository_root}/examples/quickstart" -cf - . \
+    | tar -C "${package_root}" -xf -
+mkdir -p "${package_root}/var/build" "${package_root}/var/log"
+cp "${repository_root}/examples/quickstart/var/build/.gitignore" "${package_root}/var/build/.gitignore"
+cp "${repository_root}/examples/quickstart/var/log/.gitignore" "${package_root}/var/log/.gitignore"
 
 test -f "${package_root}/composer.json"
 test -x "${package_root}/bin/setup"
@@ -102,7 +119,7 @@ run_php -r '
 $composer = json_decode(file_get_contents("/smoke/package/composer.json"), true, 512, JSON_THROW_ON_ERROR);
 if (($composer["name"] ?? null) !== "blackops/skeleton"
     || ($composer["type"] ?? null) !== "project"
-    || ($composer["require"]["blackops/framework"] ?? null) !== "^1.1"
+    || ($composer["require"]["blackops/framework"] ?? null) !== "^1.2"
     || isset($composer["repositories"])
     || isset($composer["version"])) {
     exit(1);
@@ -118,7 +135,7 @@ cat > "${composer_home}/config.json" <<'JSON'
       "options": {
         "symlink": false,
         "versions": {
-          "blackops/framework": "1.1.0"
+          "blackops/framework": "1.2.0"
         }
       },
       "canonical": true,
@@ -128,10 +145,10 @@ cat > "${composer_home}/config.json" <<'JSON'
 }
 JSON
 
-skeleton_repository='{"type":"path","url":"/smoke/package","options":{"symlink":false,"versions":{"blackops/skeleton":"1.1.0"}},"canonical":true}'
+skeleton_repository='{"type":"path","url":"/smoke/package","options":{"symlink":false,"versions":{"blackops/skeleton":"1.2.0"}},"canonical":true}'
 
 run_composer --working-dir=/smoke/package validate --strict
-run_composer create-project blackops/skeleton /smoke/normal 1.1.0 --no-interaction --prefer-dist \
+run_composer create-project blackops/skeleton /smoke/normal 1.2.0 --no-interaction --prefer-dist \
     --repository="${skeleton_repository}" \
     > "${temporary_root}/normal-install.out"
 
@@ -188,7 +205,7 @@ if (isset($composer["repositories"]) || isset($composer["version"])) {
 }
 $lock = json_decode(file_get_contents("/smoke/normal/composer.lock"), true, 512, JSON_THROW_ON_ERROR);
 $versions = array_column($lock["packages"] ?? [], "version", "name");
-if (($versions["blackops/framework"] ?? null) !== "1.1.0") {
+if (($versions["blackops/framework"] ?? null) !== "1.2.0") {
     exit(1);
 }
 '
@@ -209,7 +226,7 @@ test -f "${normal_project}/var/build/commands.php"
 test ! -d "${package_root}/resources/stubs"
 test ! -d "${normal_project}/resources/stubs"
 
-run_composer create-project blackops/skeleton /smoke/no-scripts 1.1.0 --no-interaction --prefer-dist --no-scripts \
+run_composer create-project blackops/skeleton /smoke/no-scripts 1.2.0 --no-interaction --prefer-dist --no-scripts \
     --repository="${skeleton_repository}" \
     > "${temporary_root}/no-scripts-install.out"
 
@@ -256,7 +273,7 @@ if (isset($composer["repositories"]) || isset($composer["version"])) {
 }
 $lock = json_decode(file_get_contents("/smoke/no-scripts/composer.lock"), true, 512, JSON_THROW_ON_ERROR);
 $versions = array_column($lock["packages"] ?? [], "version", "name");
-if (($versions["blackops/framework"] ?? null) !== "1.1.0") {
+if (($versions["blackops/framework"] ?? null) !== "1.2.0") {
     exit(1);
 }
 '

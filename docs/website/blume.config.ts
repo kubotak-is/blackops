@@ -37,6 +37,39 @@ export default defineConfig({
     locales: [{ code: 'ja', label: '日本語' }],
     defaultLocale: 'ja',
     hideDefaultLocalePrefix: true,
+    ui: {
+      ja: {
+        actions: {
+          copied: 'コピーしました',
+          copyCode: 'コードをコピー',
+          edit: 'GitHub で編集',
+          export: 'エクスポート',
+          exportEpub: 'EPUBへエクスポート',
+          exportPdf: 'PDFへエクスポート',
+          generating: '生成中…',
+        },
+        nav: {
+          closeNavigation: 'ナビゲーションを閉じる',
+          githubRepository: 'GitHub リポジトリ',
+          navigation: 'ナビゲーション',
+          primary: 'メインナビゲーション',
+          sections: 'セクション',
+          toggleNavigation: 'ナビゲーションを開閉',
+          toggleTheme: 'カラーテーマを切り替え',
+        },
+        page: {
+          next: '次へ',
+          pagination: 'ページネーション',
+          previous: '前へ',
+          skipToContent: '本文へ移動',
+        },
+        search: {
+          button: '検索',
+          label: 'ドキュメントを検索',
+          placeholder: 'ドキュメントを検索…',
+        },
+      },
+    },
   },
   deployment: {
     output: 'static',

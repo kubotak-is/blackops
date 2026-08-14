@@ -26,10 +26,15 @@ use BlackOps\Internal\Migration\DatabaseMigrationRunner;
 use BlackOps\Status\OperationStatusAuthorizationDecision;
 use BlackOps\Status\OperationStatusAuthorizationRequest;
 use BlackOps\Status\OperationStatusAuthorizer;
+use BlackOps\StorageProtection\StorageKey;
+use BlackOps\StorageProtection\StorageKeyProvider;
+use BlackOps\StorageProtection\StoragePurpose;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use FilesystemIterator;
 use Nyholm\Psr7\Factory\Psr17Factory;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use RecursiveDirectoryIterator;
@@ -69,6 +74,8 @@ final class ApplicationHttpRuntimeTest extends TestCase
         }
     }
 
+    #[RunInSeparateProcess]
+    #[PreserveGlobalState(false)]
     public function testComposesAndReusesInlineAndDeferredHttpRuntimeWithoutImplicitMigration(): void
     {
         $paths = $this->compileArtifacts();
@@ -142,6 +149,8 @@ final class ApplicationHttpRuntimeTest extends TestCase
         );
     }
 
+    #[RunInSeparateProcess]
+    #[PreserveGlobalState(false)]
     public function testDeferredAcknowledgementAndStatusUseCompiledAuthorizerAndPostgreSqlProjection(): void
     {
         $paths = $this->compileArtifacts(withAuthorizationFixture: true);
@@ -197,6 +206,8 @@ final class ApplicationHttpRuntimeTest extends TestCase
         self::assertSame($actor->type(), $authorization->originActor()->type());
     }
 
+    #[RunInSeparateProcess]
+    #[PreserveGlobalState(false)]
     public function testCompiledPolicyReceivesAuthenticatedActorInApplicationHttpRuntime(): void
     {
         $paths = $this->compileArtifacts(withAuthorizationFixture: true);
@@ -231,6 +242,8 @@ final class ApplicationHttpRuntimeTest extends TestCase
         self::assertInstanceOf(ExecutionScopedLogger::class, $policy->logger);
     }
 
+    #[RunInSeparateProcess]
+    #[PreserveGlobalState(false)]
     public function testHttpRuntimeUsesConfiguredJsonlStreamChannelAndMinimumLevel(): void
     {
         $paths = $this->compileArtifacts(withAuthorizationFixture: true);
@@ -262,10 +275,12 @@ final class ApplicationHttpRuntimeTest extends TestCase
         $record = json_decode($lines[0], associative: true, flags: JSON_THROW_ON_ERROR);
         self::assertIsArray($record);
         self::assertSame('http-custom', $record['channel']);
-        self::assertSame('WARNING', $record['level_name']);
+        self::assertSame('warning', $record['level']);
         self::assertSame('authorization warning', $record['message']);
     }
 
+    #[RunInSeparateProcess]
+    #[PreserveGlobalState(false)]
     public function testEstablishedOperationFailureKeepsCorrelatedResponseThroughOuterBoundary(): void
     {
         $paths = $this->compileArtifacts(withAuthorizationFixture: true);
@@ -305,8 +320,8 @@ final class ApplicationHttpRuntimeTest extends TestCase
         $record = json_decode(trim($contents), associative: true, flags: JSON_THROW_ON_ERROR);
         self::assertIsArray($record);
         self::assertSame('http-failure', $record['channel']);
-        self::assertSame($payload['operationId'], $record['context']['operation']['id']);
-        self::assertSame('framework', $record['context']['kind']);
+        self::assertSame($payload['operationId'], $record['operation']['id']);
+        self::assertSame('framework', $record['kind']);
     }
 
     public function testMissingArtifactFailsWithoutFallbackOrCredentialExposure(): void
@@ -397,14 +412,40 @@ final class ApplicationHttpRuntimeTest extends TestCase
             ->withOperations($withAuthorizationFixture ? [ApplicationRuntimeOperationProvider::class] : [])
             ->withServices([
                 \App\ApplicationServiceProvider::class,
+                ApplicationHttpStorageServiceProvider::class,
                 ...($withAuthorizationFixture ? [ApplicationRuntimeServiceProvider::class] : []),
             ]);
-        $status = $builder->create()->console()->run(new ArrayInput([
-            'command' => 'build:compile',
-        ]), new BufferedOutput());
-        self::assertSame(0, $status);
+        $this->runBuildInChild(static function () use ($builder): int {
+            return $builder->create()->console()->run(new ArrayInput([
+                'command' => 'build:compile',
+            ]), new BufferedOutput());
+        });
 
         return $paths;
+    }
+
+    private function runBuildInChild(callable $build): void
+    {
+        self::assertTrue(function_exists('pcntl_fork'));
+        $pid = pcntl_fork();
+        self::assertNotSame(-1, $pid);
+        if ($pid === 0) {
+            ob_start();
+            try {
+                $status = $build();
+            } catch (\Throwable) {
+                $status = 1;
+            }
+            ob_end_clean();
+            $exitCode = is_int($status) && $status === 0 ? 0 : 1;
+            pcntl_exec(PHP_BINARY, ['-r', 'exit((int) $argv[1]);', (string) $exitCode]);
+            exit(1);
+        }
+
+        self::assertGreaterThan(0, $pid);
+        $status = 0;
+        pcntl_waitpid($pid, $status);
+        self::assertTrue(pcntl_wifexited($status) && pcntl_wexitstatus($status) === 0);
     }
 
     /**
@@ -450,9 +491,18 @@ final class ApplicationHttpRuntimeTest extends TestCase
             'path' => $this->journalPath,
             'delivery' => 'best_effort',
         ]]);
-        if ($logging !== null) {
-            $this->writeConfig($config, 'logging', $logging);
-        }
+        $this->writeConfig(
+            $config,
+            'logging',
+            $logging ?? [
+                'backend' => [
+                    'driver' => 'jsonl',
+                    'stream' => $directory . '/application.jsonl',
+                    'channel' => 'http-test',
+                    'minimum_level' => 'debug',
+                ],
+            ],
+        );
 
         return Application::configure($directory)->withConfiguration()->create();
     }
@@ -532,6 +582,31 @@ final readonly class ApplicationRuntimeServiceProvider implements ServiceProvide
     {
         $services->autowire(ApplicationRuntimePolicyDependency::class);
         $services->autowire(OperationStatusAuthorizer::class, ApplicationRuntimeStatusAuthorizer::class);
+    }
+}
+
+final readonly class ApplicationHttpStorageServiceProvider implements ServiceProvider
+{
+    public function register(ServiceRegistry $services): void
+    {
+        $services->autowire(StorageKeyProvider::class, ApplicationHttpStorageKeyProvider::class);
+    }
+}
+
+final readonly class ApplicationHttpStorageKeyProvider implements StorageKeyProvider
+{
+    public function activeKey(?\BlackOps\Core\TenantRef $tenant, StoragePurpose $purpose): StorageKey
+    {
+        return $this->key('http-test-key', $tenant, $purpose);
+    }
+
+    public function key(string $keyId, ?\BlackOps\Core\TenantRef $tenant, StoragePurpose $purpose): StorageKey
+    {
+        if ($keyId !== 'http-test-key') {
+            throw new \InvalidArgumentException('Unknown storage key identifier.');
+        }
+
+        return new StorageKey($keyId, str_repeat('h', SODIUM_CRYPTO_AEAD_XCHACHA20POLY1305_IETF_KEYBYTES));
     }
 }
 

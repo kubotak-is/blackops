@@ -80,6 +80,7 @@ final class ApplicationCommandContainerResolver
             $clock = new PostgreSqlSystemClock();
             $identifiers = new IdentifierFactory(new SymfonyUuidv7Generator(), $clock);
             $operations = new OperationManifestFile()->loadArtifact($this->build->operationManifest);
+            $protection = ApplicationStorageProtectionResolver::resolve($container);
             if (!$container instanceof Container) {
                 throw new InvalidArgumentException('Runtime container does not support outbox service injection.');
             }
@@ -90,13 +91,19 @@ final class ApplicationCommandContainerResolver
                 $transactions,
                 $connection,
                 $database->frameworkConnection,
-                new PostgreSqlOutboxStore($connection, $database->schema),
+                new PostgreSqlOutboxStore(
+                    $connection,
+                    $protection,
+                    new ReflectionJsonOperationCodec(),
+                    $database->schema,
+                ),
                 new ExecutionContextFactory($identifiers, $clock),
                 $identifiers,
                 $clock,
             );
             $container->set(TransactionalOutbox::class, $outbox);
             $container->set(Operations::class, $outbox);
+            new OperationDataRuntimeInjector()->inject($container, $connection, $database->schema);
         }
 
         return $this->container = $container;

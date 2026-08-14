@@ -1,12 +1,12 @@
 # Journal
 
-Journalは、OperationのLifecycleで起きた事実を順序付きで追跡するための記録です。このPageでは、保存用のCanonical JournalとObserverへ渡すObserved Journalを区別し、現在のLifecycle Event、JSONL出力、Replay、運用上の保護境界を確認します。
+Journalは、OperationのLifecycleで起きた事実を順序付きで追跡するための記録です。このページでは、保存用のCanonical JournalとObserverへ渡すObserved Journalを区別し、現在のLifecycle Event、JSONL出力、Replay、運用上の保護境界を確認します。
 
 JournalはApplication Log、Outcome、Execution Transport Payloadの代わりではありません。Application Logは診断メッセージ、Outcomeは正常完了時の型付き結果、Transport PayloadはWorkerへ配送する入力を扱い、JournalはLifecycleの事実を扱います。
 
 ## CanonicalとObservedを分ける
 
-Canonical JournalはFrameworkがTyped RecordとしてPostgreSQLへ保護して保存する正本です。Operationの復元や監査に必要なデータを保持しますが、公開Observerへそのまま渡す契約ではありません。Canonical PostgreSQLの内部RowやPayloadは、このPageのJSON例が表すPublic Serializationではありません。
+Canonical JournalはFrameworkがTyped RecordとしてPostgreSQLへ保護して保存する正本です。Operationの復元や監査に必要なデータを保持しますが、公開Observerへそのまま渡す契約ではありません。Canonical PostgreSQLの内部RowやPayloadは、このページのJSON例が表すPublic Serializationではありません。
 
 Observerへ渡すのは、FrameworkのSensitive Filterを通過したObserved Projectionです。`#[Sensitive]` の既定はOmitで、必要に応じてMask（例ではActor IDを `[masked]` として表示）または鍵付きHMAC Hashを選べます。Observer AdapterはCanonical Payloadへアクセスせず、Observed Projectionへ追加のFilterだけを適用します。
 
@@ -17,7 +17,7 @@ Canonical Journal (保護された正本)
   -> JSONLなどのObserver
 ```
 
-Sensitive値がObservedから消えることは、保存時暗号化の代わりにはなりません。Canonical Storeには保存時暗号化、Access Control、Retention、Key Rotationを別々の運用Policyとして設定してください。
+Sensitive値がObservedから消えることは、Tenant IsolationやAuthorizationの代わりにはなりません。Canonical Storeの復元可能FieldはFrameworkのBOPD v1 Envelopeによる保存時暗号化で保護されます。`StorageKeyProvider`、Access Control、Retention、Key Rotationを別々の運用Policyとして設定してください。
 
 ## Lifecycle Event
 
@@ -75,6 +75,10 @@ JSONL Observerは1行に1つのObserved Recordを、`JsonlJournalRecordEncoder` 
 | `operation.correlationId` | `string` | RootではOperation IDと同じUUID値。子Operationは親のCorrelationを引き継ぐ。 |
 | `operation.causationId` | `string \| null` | 子Operationを発生させた親Operation IDと同じUUID値。Rootでは`null`。 |
 | `operation.actors` | `object \| null` | ActorContextがない場合は全体が`null`。詳細は次のTable。 |
+| `operation.schedule` | `object \| null` | Scheduled Rootだけが持つSafe Projection。通常のHTTP／Console／Child Operationでは`null`。 |
+| `operation.schedule.name` | `string` | `ScheduledBy`の一意なSchedule名。Credential、Actor、Raw Valueは含めない。 |
+| `operation.schedule.scheduled_at` | `string` | Calendar上の定刻をUTC RFC 3339 Microsecondsで表す。Occurrenceの`scheduled_at`と同じ値。 |
+| `operation.schedule.timezone` | `string` | `ScheduledBy`へ設定したIANA Timezone。表示用であり、比較はUTC定刻を使う。 |
 
 ### `operation.actors`／Actor
 
@@ -148,7 +152,9 @@ return [
 - 出力失敗時の `best_effort` はObserver FailureをOperationの失敗にせず処理を継続する。監査要件のある `required` は書込み失敗をOperationのエラーとして扱う
 - File PermissionとDirectory Permissionを最小権限にし、Operator以外の読み取りを許可しない
 - Rotation、圧縮、Backup、Retention、Purgeを運用Schedulerで管理し、保持期間とLegal HoldをCanonical／Observedそれぞれに定める
-- Canonical Storeの保存時暗号化、鍵の生成・保管・Rotation・失効はFrameworkのJournal設定APIではなく、Application／Infrastructure／運用の責務としてApplication Secret Storeまたは組織のKMSで管理する。鍵とJSONLを同じDirectoryへ置かない
+
+Scheduled RootのCanonical／Observed Operation Projectionには、Schedule名、Calendar上の定刻（UTC）、Timezoneだけを追加します。Actor ID、Credential、Raw Value、Cron Parser Stateは含めません。OccurrenceのOperation IDと同じIDでJournal Eventを相関する診断手順は[OccurrenceとJournalを安全に確認する](scheduled-operation.md#occurrenceとjournalを安全に確認する)を参照してください。
+- Canonical StoreのEnvelope Keyは`StorageKeyProvider`から解決し、鍵の生成・保管・Rotation・失効はApplication／Infrastructure／運用の責務としてSecret Managerまたは組織のKMSで管理する。Key MaterialとJSONLを同じDirectoryやArtifactへ置かない
 
 JSONLはObserver Projectionです。Canonical StoreのRetention、Access Control、暗号化、鍵管理を省略する設定ではありません。
 
@@ -160,8 +166,8 @@ Observer Replayは、完了済みOperationをもう一度Handlerへ実行するO
 
 ## OpenTelemetryとの関係
 
-Repository mainにはOpenTelemetryのAdapter、Exporter、Configurationは実装されていません。したがって、SpanやMetricの出力を現行Public Contractとして構成しないでください。
+Repository `main`には、`open-telemetry/api`だけをProduction Dependencyとする試験的なOpenTelemetry API-only Surfaceがあります。ApplicationがSDK、Exporter、Resource、Endpoint、Credentialを構成し、`ApplicationBuilder::withTracerProvider()`／`withMeterProvider()`へProviderを渡します。Stable `1.1.0`には含まれません。[Observability](observability.md)でDocker上のLocal CollectorとHTTP→Deferred→Retry→Outboxの確認手順を完了できます。
 
-将来の候補方向として、Operation／AttemptをSpan、Lifecycle EventをSpan Event、Retry・Rejected・Failure・Dead LetterをMetric、Correlation／CausationをTrace Contextへ写像できます。これは設計候補であり、Field名・Sampling・Error処理を含むPublic Contractではありません。実装される場合も、Adapterが受け取るのはCanonicalではなくObserved Projectionです。
+Observed JSONLへ投影するTelemetryは`traceId`、`spanId`、`sampled`だけです。Raw `traceparent`／`tracestate`、Baggage、Exporter固有値、Payload、Outcome、Credential、Throwable Message／Stackは出力しません。ProviderまたはCollectorが停止してもPrimary Operation、Journal、Outcome、HTTP Response、Readinessは変わりません。
 
 次は[Lifecycle](operation-lifecycle.md)で状態遷移を確認し、保存期間は[Retention](retention.md)、再配送は[Observer Replay](observer-replay.md)へ進んでください。

@@ -11,6 +11,7 @@ use BlackOps\Core\Identifier\AttemptId;
 use BlackOps\Core\Identifier\CorrelationId;
 use BlackOps\Core\Identifier\JournalRecordId;
 use BlackOps\Core\Identifier\OperationId;
+use BlackOps\Core\TenantRef;
 use BlackOps\Journal\Exception\JournalObservationFailed;
 use BlackOps\Journal\JournalAttempt;
 use BlackOps\Journal\JournalEvent;
@@ -18,6 +19,7 @@ use BlackOps\Journal\JournalOperation;
 use BlackOps\Journal\ObservedJournalRecord;
 use BlackOps\Logging\JsonlJournalObserver;
 use BlackOps\Logging\JsonlJournalRecordEncoder;
+use BlackOps\Telemetry\TelemetryCorrelation;
 use DateTimeImmutable;
 use DateTimeZone;
 use InvalidArgumentException;
@@ -68,6 +70,72 @@ final class JsonlJournalObserverTest extends TestCase
             self::assertTrue($reflection->isFinal());
             self::assertCount(1, $reflection->getAttributes(PublicApi::class));
         }
+    }
+
+    public function testTelemetryIsTopLevelSafeCorrelationAndNeverNestedInOperation(): void
+    {
+        $record = self::record();
+        $operation = new JournalOperation(
+            $record->operation->id,
+            $record->operation->type,
+            $record->operation->schemaVersion,
+            $record->operation->strategy,
+            $record->operation->correlationId,
+            telemetry: new TelemetryCorrelation('4bf92f3577b34da6a3ce929d0e0e4736', '00f067aa0ba902b7', true),
+        );
+        $record = new ObservedJournalRecord(
+            $record->recordId,
+            $record->schemaVersion,
+            $record->event,
+            $record->occurredAt,
+            $record->sequence,
+            $operation,
+            $record->attempt,
+            $record->data,
+        );
+        $payload = json_decode(new JsonlJournalRecordEncoder()->encode($record), true, flags: JSON_THROW_ON_ERROR);
+        self::assertSame(
+            [
+                'traceId' => '4bf92f3577b34da6a3ce929d0e0e4736',
+                'spanId' => '00f067aa0ba902b7',
+                'sampled' => true,
+            ],
+            $payload['telemetry'],
+        );
+        self::assertArrayNotHasKey('telemetry', $payload['operation']);
+    }
+
+    public function testJsonlMasksTenantAndActorIdsAtEncoderBoundary(): void
+    {
+        $record = self::record();
+        $operation = new JournalOperation(
+            $record->operation->id,
+            $record->operation->type,
+            $record->operation->schemaVersion,
+            $record->operation->strategy,
+            $record->operation->correlationId,
+            actorContext: new \BlackOps\Core\ActorContext(
+                new \BlackOps\Core\ActorRef('actor-secret-id', 'user'),
+                null,
+                new \BlackOps\Core\ActorRef('runtime-secret-id', 'system'),
+            ),
+            tenant: new TenantRef('account', 'tenant-secret-id'),
+        );
+        $record = new ObservedJournalRecord(
+            $record->recordId,
+            $record->schemaVersion,
+            $record->event,
+            $record->occurredAt,
+            $record->sequence,
+            $operation,
+            $record->attempt,
+            $record->data,
+        );
+        $jsonl = new JsonlJournalRecordEncoder()->encode($record);
+        self::assertStringNotContainsString('tenant-secret-id', $jsonl);
+        self::assertStringNotContainsString('actor-secret-id', $jsonl);
+        self::assertStringNotContainsString('runtime-secret-id', $jsonl);
+        self::assertStringContainsString('"id":"[masked]"', $jsonl);
     }
 
     public function testInvalidStreamIsRejected(): void

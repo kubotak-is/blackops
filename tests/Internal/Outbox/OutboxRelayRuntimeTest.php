@@ -9,9 +9,15 @@ use BlackOps\Core\Execution\DeferredOperationMessage;
 use BlackOps\Core\Execution\OperationSender;
 use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Core\Identifier\OutboxRecordId;
+use BlackOps\Internal\Codec\ReflectionJsonOperationCodec;
 use BlackOps\Internal\Outbox\OutboxRelayConfiguration;
 use BlackOps\Internal\Outbox\OutboxRelayRuntime;
 use BlackOps\Internal\Outbox\PcntlOutboxSignalHeartbeat;
+use BlackOps\Internal\Telemetry\TelemetryMetrics;
+use BlackOps\Internal\Telemetry\TelemetryTracer;
+use BlackOps\Tests\Internal\Telemetry\RecordingMeterProvider;
+use BlackOps\Tests\Internal\Telemetry\RecordingTracerProvider;
+use BlackOps\Tests\Transport\PostgreSql\PostgreSqlTestStorageProtection;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationSender;
 use BlackOps\Transport\PostgreSql\PostgreSqlOutboxClaim;
 use BlackOps\Transport\PostgreSql\PostgreSqlOutboxRecord;
@@ -39,7 +45,7 @@ final class OutboxRelayRuntimeTest extends TestCase
             'password' => (string) (getenv('POSTGRES_PASSWORD') ?: 'blackops'),
         ]);
         $this->connection->executeStatement('DROP SCHEMA IF EXISTS outbox_runtime_test CASCADE');
-        new PostgreSqlOutboxStore($this->connection, 'outbox_runtime_test')->migrate();
+        $this->store()->migrate();
     }
 
     protected function tearDown(): void
@@ -55,15 +61,15 @@ final class OutboxRelayRuntimeTest extends TestCase
         }
 
         $recorded = new DateTimeImmutable('now');
-        $store = new PostgreSqlOutboxStore($this->connection, 'outbox_runtime_test');
+        $store = $this->store();
         $store->insert(
             new PostgreSqlOutboxRecord(
                 OutboxRecordId::fromString('019f45b2-7c2d-7abc-8def-0123456789ab'),
                 OperationId::fromString('019f45b2-7c2d-7abc-8def-0123456789ac'),
                 'mail.send',
                 1,
-                '{}',
-                '{}',
+                '{"operation_id":"019f45b2-7c2d-7abc-8def-0123456789ac","received_at":"2026-07-24T01:02:03.000000Z","correlation_id":"019f45b2-7c2d-7abc-8def-0123456789ad","causation_id":null,"attempt":null,"deadline":null,"actors":null,"idempotency_key_hash":null,"schedule":null}',
+                '{"operation_id":"019f45b2-7c2d-7abc-8def-0123456789ac","received_at":"2026-07-24T01:02:03.000000Z","correlation_id":"019f45b2-7c2d-7abc-8def-0123456789ad","causation_id":null,"attempt":null,"deadline":null,"actors":null,"idempotency_key_hash":null,"schedule":null}',
                 $recorded,
                 $recorded,
                 'app',
@@ -77,7 +83,7 @@ final class OutboxRelayRuntimeTest extends TestCase
             'user' => (string) (getenv('POSTGRES_USER') ?: 'blackops'),
             'password' => (string) (getenv('POSTGRES_PASSWORD') ?: 'blackops'),
         ]);
-        $heartbeatStore = new PostgreSqlOutboxStore($heartbeatConnection, 'outbox_runtime_test');
+        $heartbeatStore = $this->store($heartbeatConnection);
         $heartbeats = 0;
         $signals = new PcntlOutboxSignalHeartbeat(
             static function (PostgreSqlOutboxClaim $claim) use ($heartbeatStore, &$heartbeats): void {
@@ -111,15 +117,25 @@ final class OutboxRelayRuntimeTest extends TestCase
     public function testCrashAfterAcceptanceReplaysOneOperationAndConvergesToSent(): void
     {
         $now = new DateTimeImmutable('2026-07-24T01:02:04+00:00');
-        $store = new PostgreSqlOutboxStore($this->connection, 'outbox_runtime_test');
+        $store = $this->store();
         $store->insert($this->record('019f45b2-7c2d-7abc-8def-0123456789ab', '019f45b2-7c2d-7abc-8def-0123456789ac'));
-        $sender = new PostgreSqlDeferredOperationSender($this->connection, 'outbox_runtime_test', $now);
+        $sender = new PostgreSqlDeferredOperationSender(
+            $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
+            'outbox_runtime_test',
+            $now,
+        );
         $sender->migrate();
         $claim = $store->claimBatch('relay-a', 1, $now, 60)[0];
         $sender->enqueue($claim->message);
         $recoveryConnection = $this->connection();
-        $recoveryStore = new PostgreSqlOutboxStore($recoveryConnection, 'outbox_runtime_test');
-        $recoverySender = new PostgreSqlDeferredOperationSender($recoveryConnection, 'outbox_runtime_test', $now);
+        $recoveryStore = $this->store($recoveryConnection);
+        $recoverySender = new PostgreSqlDeferredOperationSender(
+            $recoveryConnection,
+            PostgreSqlTestStorageProtection::codec(),
+            'outbox_runtime_test',
+            $now,
+        );
         $clock = new FrozenOutboxClock($now->modify('+61 seconds'));
         $runtime = new OutboxRelayRuntime(
             $recoveryStore,
@@ -153,10 +169,12 @@ final class OutboxRelayRuntimeTest extends TestCase
     public function testRetryBackoffDeadLetterFingerprintAndBatchIsolationAreSafe(): void
     {
         $now = new DateTimeImmutable('2026-07-24T01:02:04+00:00');
-        $store = new PostgreSqlOutboxStore($this->connection, 'outbox_runtime_test');
+        $store = $this->store();
         $store->insert($this->record('019f45b2-7c2d-7abc-8def-0123456789ab', '019f45b2-7c2d-7abc-8def-0123456789ac'));
         $store->insert($this->record('019f45b2-7c2d-7abc-8def-0123456789ad', '019f45b2-7c2d-7abc-8def-0123456789ae'));
         $clock = new FrozenOutboxClock($now);
+        $provider = new RecordingTracerProvider();
+        $meterProvider = new RecordingMeterProvider();
         $runtime = new OutboxRelayRuntime(
             $store,
             new SelectiveFailureSender(),
@@ -168,12 +186,30 @@ final class OutboxRelayRuntimeTest extends TestCase
                 maxBackoffSeconds: 4,
             ),
             $clock,
+            telemetry: new TelemetryTracer($provider),
+            metrics: new TelemetryMetrics($meterProvider),
         );
 
         $first = $runtime->runBatch();
         self::assertSame(2, $first->claimed);
         self::assertSame(1, $first->sent);
         self::assertSame(1, $first->retried);
+        self::assertCount(1, $provider->spans);
+        $span = $provider->spans[0];
+        self::assertSame('blackops.outbox.relay', $span->name);
+        self::assertSame(TelemetryTracer::KIND_INTERNAL, $span->kind);
+        self::assertSame('outbox_relay', $span->attributes['blackops.runtime.kind']);
+        self::assertSame('retry_scheduled', $span->attributes['blackops.result']);
+        self::assertTrue($span->ended);
+        self::assertSame(
+            'retry_scheduled',
+            $meterProvider->instruments[5]->records[0]['attributes']['blackops.result'],
+        );
+        self::assertSame('completed', $meterProvider->instruments[5]->records[1]['attributes']['blackops.result']);
+        self::assertSame(
+            'retry_scheduled',
+            $meterProvider->instruments[4]->records[0]['attributes']['blackops.result'],
+        );
         $next = new DateTimeImmutable((string) $this->connection->fetchOne(
             'SELECT next_attempt_at FROM "outbox_runtime_test"."outbox_records" WHERE state=\'retry_scheduled\'',
         ));
@@ -188,6 +224,7 @@ final class OutboxRelayRuntimeTest extends TestCase
 
         $clock->set($now->modify('+3 seconds'));
         self::assertSame(1, $runtime->runBatch()->deadLettered);
+        self::assertSame('dead_lettered', $meterProvider->instruments[5]->records[2]['attributes']['blackops.result']);
         self::assertSame(
             $fingerprint,
             $this->connection->fetchOne(
@@ -203,7 +240,7 @@ final class OutboxRelayRuntimeTest extends TestCase
         }
 
         $now = new DateTimeImmutable('2026-07-24T01:02:04+00:00');
-        $store = new PostgreSqlOutboxStore($this->connection, 'outbox_runtime_test');
+        $store = $this->store();
         $store->insert($this->record('019f45b2-7c2d-7abc-8def-0123456789ab', '019f45b2-7c2d-7abc-8def-0123456789ac'));
         $store->insert($this->record('019f45b2-7c2d-7abc-8def-0123456789ad', '019f45b2-7c2d-7abc-8def-0123456789ae'));
         $store->insert($this->record('019f45b2-7c2d-7abc-8def-0123456789af', '019f45b2-7c2d-7abc-8def-0123456789b0'));
@@ -256,8 +293,12 @@ final class OutboxRelayRuntimeTest extends TestCase
             OperationId::fromString($operationId),
             'mail.send',
             1,
-            '{}',
-            '{}',
+            '{"operation_id":"'
+            . $operationId
+            . '","received_at":"2026-07-24T01:02:03.000000Z","correlation_id":"019f45b2-7c2d-7abc-8def-0123456789ad","causation_id":null,"attempt":null,"deadline":null,"actors":null,"idempotency_key_hash":null,"schedule":null}',
+            '{"operation_id":"'
+            . $operationId
+            . '","received_at":"2026-07-24T01:02:03.000000Z","correlation_id":"019f45b2-7c2d-7abc-8def-0123456789ad","causation_id":null,"attempt":null,"deadline":null,"actors":null,"idempotency_key_hash":null,"schedule":null}',
             $time,
             $time,
             'app',
@@ -274,6 +315,16 @@ final class OutboxRelayRuntimeTest extends TestCase
             'user' => (string) (getenv('POSTGRES_USER') ?: 'blackops'),
             'password' => (string) (getenv('POSTGRES_PASSWORD') ?: 'blackops'),
         ]);
+    }
+
+    private function store(?Connection $connection = null): PostgreSqlOutboxStore
+    {
+        return new PostgreSqlOutboxStore(
+            $connection ?? $this->connection,
+            PostgreSqlTestStorageProtection::codec(),
+            new ReflectionJsonOperationCodec(),
+            'outbox_runtime_test',
+        );
     }
 }
 

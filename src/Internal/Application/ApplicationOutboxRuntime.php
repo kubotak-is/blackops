@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BlackOps\Internal\Application;
 
+use BlackOps\Internal\Codec\ReflectionJsonOperationCodec;
 use BlackOps\Internal\Execution\PcntlSignalSupport;
 use BlackOps\Internal\Outbox\OutboxRelayConfiguration;
 use BlackOps\Internal\Outbox\OutboxRelayRuntime;
@@ -24,16 +25,25 @@ final readonly class ApplicationOutboxRuntime
     {
         $database = ApplicationDatabaseConfiguration::fromConfiguration($snapshot->configuration());
         $connection = $database->databaseManager()->connection($database->frameworkConnection);
+        $runtime = new ApplicationOperationRuntimeComposer()->compose($snapshot);
+        $protection = $runtime->protection;
         $this->clock = new PostgreSqlSystemClock();
-        $this->store = new PostgreSqlOutboxStore($connection, $database->schema);
+        $this->store = new PostgreSqlOutboxStore(
+            $connection,
+            $protection,
+            new ReflectionJsonOperationCodec(),
+            $database->schema,
+        );
         $configuration = $this->configuration($snapshot);
         $heartbeatStore = new PostgreSqlOutboxStore(
             $database->databaseManager()->connection($database->frameworkConnection),
+            $protection,
+            new ReflectionJsonOperationCodec(),
             $database->schema,
         );
         $this->relay = new OutboxRelayRuntime(
             $this->store,
-            new PostgreSqlDeferredOperationSender($connection, $database->schema),
+            new PostgreSqlDeferredOperationSender($connection, $runtime->protection, $database->schema),
             $configuration,
             $this->clock,
             $heartbeatStore,
@@ -47,6 +57,8 @@ final readonly class ApplicationOutboxRuntime
                     $configuration->graceSeconds,
                 )
                 : null,
+            telemetry: $runtime->telemetry,
+            metrics: $runtime->metrics,
         );
     }
 

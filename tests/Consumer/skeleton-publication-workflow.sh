@@ -123,40 +123,40 @@ push_lightweight_tag() {
 
 new_remote="${temporary_root}/new.git"
 create_remote "${new_remote}"
-run_publication "${new_remote}" 1.1.0 false > "${temporary_root}/new.log" 2>&1
+run_publication "${new_remote}" 1.2.0 false > "${temporary_root}/new.log" 2>&1
 
-test "$(git --git-dir="${new_remote}" cat-file -t refs/tags/1.1.0)" = 'tag' \
+test "$(git --git-dir="${new_remote}" cat-file -t refs/tags/1.2.0)" = 'tag' \
     || fail 'new release did not publish an annotated tag object'
 test "$(git --git-dir="${new_remote}" for-each-ref \
-    --format='%(contents:subject)' refs/tags/1.1.0)" = 'BlackOps Skeleton 1.1.0' \
+    --format='%(contents:subject)' refs/tags/1.2.0)" = 'BlackOps Skeleton 1.2.0' \
     || fail 'new release tag message does not match'
-test "$(git --git-dir="${new_remote}" rev-parse 'refs/tags/1.1.0^{commit}')" = "${split_commit}" \
+test "$(git --git-dir="${new_remote}" rev-parse 'refs/tags/1.2.0^{commit}')" = "${split_commit}" \
     || fail 'new release peeled commit does not match the split commit'
-git --git-dir="${new_remote}" cat-file -p refs/tags/1.1.0 \
+git --git-dir="${new_remote}" cat-file -p refs/tags/1.2.0 \
     | grep -Fq 'tagger BlackOps Release Automation <release@blackops.dev> ' \
     || fail 'new release tagger identity does not match'
 
-idempotent_tag_object="$(git --git-dir="${new_remote}" rev-parse refs/tags/1.1.0)"
-run_publication "${new_remote}" 1.1.0 false > "${temporary_root}/idempotent.log" 2>&1
-test "$(git --git-dir="${new_remote}" rev-parse refs/tags/1.1.0)" = "${idempotent_tag_object}" \
+idempotent_tag_object="$(git --git-dir="${new_remote}" rev-parse refs/tags/1.2.0)"
+run_publication "${new_remote}" 1.2.0 false > "${temporary_root}/idempotent.log" 2>&1
+test "$(git --git-dir="${new_remote}" rev-parse refs/tags/1.2.0)" = "${idempotent_tag_object}" \
     || fail 'idempotent publication replaced the existing annotated tag'
 
 divergent_remote="${temporary_root}/divergent.git"
 create_remote "${divergent_remote}"
 GIT_COMMITTER_NAME='BlackOps Release Automation' \
     GIT_COMMITTER_EMAIL='release@blackops.dev' \
-    git -C "${source_clone}" tag --annotate 1.2.0 "${source_commit}" \
-        --message 'BlackOps Skeleton 1.2.0'
+    git -C "${source_clone}" tag --annotate 1.3.0 "${source_commit}" \
+        --message 'BlackOps Skeleton 1.3.0'
 git -C "${source_clone}" push --quiet "${divergent_remote}" \
-    refs/tags/1.2.0:refs/tags/1.2.0
-divergent_tag_object="$(git --git-dir="${divergent_remote}" rev-parse refs/tags/1.2.0)"
-if run_publication "${divergent_remote}" 1.2.0 false > "${temporary_root}/divergent.log" 2>&1; then
+    refs/tags/1.3.0:refs/tags/1.3.0
+divergent_tag_object="$(git --git-dir="${divergent_remote}" rev-parse refs/tags/1.3.0)"
+if run_publication "${divergent_remote}" 1.3.0 false > "${temporary_root}/divergent.log" 2>&1; then
     fail 'publication accepted an annotated tag that peels to another commit'
 fi
 grep -Fq 'Existing annotated skeleton release tag peels to another commit.' \
     "${temporary_root}/divergent.log" \
     || fail 'divergent annotated tag did not reach the expected rejection boundary'
-test "$(git --git-dir="${divergent_remote}" rev-parse refs/tags/1.2.0)" = "${divergent_tag_object}" \
+test "$(git --git-dir="${divergent_remote}" rev-parse refs/tags/1.3.0)" = "${divergent_tag_object}" \
     || fail 'divergent annotated tag changed after rejection'
 
 lightweight_remote="${temporary_root}/lightweight.git"

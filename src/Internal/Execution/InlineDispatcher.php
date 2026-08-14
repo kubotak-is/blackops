@@ -18,6 +18,7 @@ use BlackOps\Core\Registry\OperationMetadata;
 use BlackOps\Core\Registry\OperationRegistry;
 use BlackOps\Core\Rejection\RejectionReason;
 use BlackOps\Core\Retention\RetentionPeriod;
+use BlackOps\Core\TenantRef;
 use BlackOps\Core\Validation\Violation;
 use BlackOps\Execution\Dispatcher;
 use BlackOps\Execution\ValidationRejectionRecorder;
@@ -41,6 +42,8 @@ use BlackOps\Internal\Journal\LifecycleStateMachine;
 use BlackOps\Internal\Projection\ObservedJournalRecordProjector;
 use BlackOps\Internal\Projection\SensitiveProjectionFilter;
 use BlackOps\Internal\Registry\OperationMetadataResolver;
+use BlackOps\Internal\Scheduling\PostgreSqlScheduledOccurrenceLifecycle;
+use BlackOps\Internal\Scheduling\ScheduledInlineDispatcher;
 use BlackOps\Internal\Transaction\OperationTransactionCoordinator;
 use BlackOps\Internal\Validation\OperationValueValidator;
 use BlackOps\Journal\CanonicalJournalWriter;
@@ -49,6 +52,8 @@ use BlackOps\Journal\Data\OperationFailedData;
 use BlackOps\Journal\JournalEvent;
 use BlackOps\Journal\JournalRecord;
 use BlackOps\Journal\LifecycleState;
+use BlackOps\Telemetry\TelemetryContext;
+use BlackOps\Transport\PostgreSql\PostgreSqlSystemClock;
 use Closure;
 use LogicException;
 use Throwable;
@@ -60,7 +65,7 @@ use Throwable;
  * @mago-expect lint:too-many-methods
  * @mago-expect lint:kan-defect
  */
-final readonly class InlineDispatcher implements Dispatcher, ValidationRejectionRecorder
+final readonly class InlineDispatcher implements Dispatcher, ScheduledInlineDispatcher, ValidationRejectionRecorder
 {
     private JournalObservationPipeline $observations;
 
@@ -88,6 +93,8 @@ final readonly class InlineDispatcher implements Dispatcher, ValidationRejection
         private OperationValueFingerprinter $idempotencyFingerprints = new OperationValueFingerprinter(),
         private ?RetentionPeriod $idempotencyRetention = null,
         private ?IdempotencyRecovery $idempotencyRecovery = null,
+        private ?PostgreSqlScheduledOccurrenceLifecycle $scheduledOccurrences = null,
+        private \Psr\Clock\ClockInterface $clock = new PostgreSqlSystemClock(),
     ) {
         $this->validator = new OperationValueValidator();
         $this->metadataResolver = $metadataResolver ?? new OperationMetadataResolver($registry);
@@ -105,12 +112,14 @@ final readonly class InlineDispatcher implements Dispatcher, ValidationRejection
         return $this->validator->validate($value);
     }
 
-    /** @mago-expect lint:halstead */
+    /** @mago-expect lint:excessive-parameter-list */
     public function dispatch(
         Operation $definition,
         OperationValue $value,
         ?ActorContext $actorContext = null,
         ?IdempotencyKey $idempotencyKey = null,
+        ?TenantRef $tenant = null,
+        ?TelemetryContext $telemetry = null,
     ): OperationResult {
         if ($idempotencyKey !== null && $actorContext?->authorization() === null) {
             return OperationResult::rejected(RejectionReason::businessRule('idempotency_requires_authenticated_actor'));
@@ -129,13 +138,109 @@ final readonly class InlineDispatcher implements Dispatcher, ValidationRejection
             throw new LogicException('Operation value does not match registered metadata.');
         }
 
-        $sequence = new InlineSequence();
         $receivedEnvelope = new OperationEnvelope(
             $definition,
             $value,
-            $this->contexts->receive(actorContext: $actorContext, idempotencyKey: $idempotencyKey),
+            $this->contexts->receive(
+                actorContext: $actorContext,
+                idempotencyKey: $idempotencyKey,
+                tenant: $tenant,
+                telemetry: $telemetry,
+            ),
             new Inline(),
         );
+        return $this->dispatchEnvelope($metadata, $receivedEnvelope, $idempotencyKey);
+    }
+
+    public function dispatchScheduled(OperationEnvelope $receivedEnvelope, OperationMetadata $metadata): OperationResult
+    {
+        if ($metadata->strategy !== Inline::class || !$receivedEnvelope->strategy() instanceof Inline) {
+            throw new LogicException('Scheduled inline dispatch requires the Inline execution strategy.');
+        }
+        if ($receivedEnvelope->context()->schedule() === null) {
+            throw new LogicException('Scheduled inline dispatch requires a schedule context.');
+        }
+        if (
+            !$receivedEnvelope->definition() instanceof $metadata->definition
+            || !$receivedEnvelope->value() instanceof $metadata->value
+        ) {
+            throw new LogicException('Scheduled inline envelope metadata does not match.');
+        }
+        $violations = $this->validator->validate($receivedEnvelope->value());
+        if ($violations !== []) {
+            $reason = RejectionReason::validation('validation.failed', $violations);
+            $state = $this->appendLifecycleRecord(
+                null,
+                JournalEvent::OperationReceived,
+                fn(): JournalRecord => $this->journalRecords->operationReceived($receivedEnvelope, $metadata, 1),
+            );
+            $rejectedRecord = $this->journalRecords->operationRejected($receivedEnvelope, $metadata, 2, $reason);
+            $this->appendLifecycleRecord(
+                $state,
+                JournalEvent::OperationRejected,
+                static fn(): JournalRecord => $rejectedRecord,
+            );
+            if ($this->scheduledOccurrences !== null) {
+                $this->scheduledOccurrences->transition(
+                    $receivedEnvelope->id(),
+                    'claimed',
+                    'rejected',
+                    'validation_failed',
+                    $rejectedRecord->occurredAt,
+                    $receivedEnvelope->context()->tenant(),
+                );
+            }
+
+            return OperationResult::rejected($reason, $receivedEnvelope->id());
+        }
+        try {
+            $result = $this->dispatchEnvelope($metadata, $receivedEnvelope, null);
+            if ($this->scheduledOccurrences !== null) {
+                $this->scheduledOccurrences->transition(
+                    $receivedEnvelope->id(),
+                    'claimed',
+                    $result->isCompleted() ? 'completed' : 'rejected',
+                    $result->isCompleted() ? null : $result->rejectionReason()->code(),
+                    $this->clock->now(),
+                    $receivedEnvelope->context()->tenant(),
+                );
+            }
+            return $result;
+        } catch (OperationExecutionFailed $failure) {
+            if ($this->scheduledOccurrences !== null) {
+                $this->scheduledOccurrences->transition(
+                    $receivedEnvelope->id(),
+                    'claimed',
+                    'failed',
+                    'inline_execution_failed',
+                    $this->clock->now(),
+                    $receivedEnvelope->context()->tenant(),
+                );
+            }
+            throw $failure;
+        } catch (Throwable $failure) {
+            if ($this->scheduledOccurrences !== null) {
+                $this->scheduledOccurrences->transition(
+                    $receivedEnvelope->id(),
+                    'claimed',
+                    'failed',
+                    'inline_execution_failed',
+                    $this->clock->now(),
+                    $receivedEnvelope->context()->tenant(),
+                );
+            }
+            throw $failure;
+        }
+    }
+
+    private function dispatchEnvelope(
+        OperationMetadata $metadata,
+        OperationEnvelope $receivedEnvelope,
+        ?IdempotencyKey $idempotencyKey,
+    ): OperationResult {
+        $definition = $receivedEnvelope->definition();
+        $value = $receivedEnvelope->value();
+        $sequence = new InlineSequence();
         $authorizationRejection = null;
         $authorizationPreEvaluated = false;
         $claim = null;
@@ -362,13 +467,16 @@ final readonly class InlineDispatcher implements Dispatcher, ValidationRejection
         $store = $this->idempotency ?? throw new LogicException('Idempotency store is unavailable.');
         $retention = $this->idempotencyRetention ?? throw new LogicException('Idempotency retention is unavailable.');
         return $store->claim(
-            $this->idempotencyScopes->hash($metadata->typeId, $actor, $key),
+            $this->idempotencyScopes->hash($metadata->typeId, $actor, $key, $envelope->context()->tenant()),
             $key->hash(),
             $this->idempotencyFingerprints->fingerprint($metadata->typeId, $envelope->value()),
             $envelope->id(),
             new Inline(),
             $envelope->context()->receivedAt(),
             $retention->expiresAt($envelope->context()->receivedAt()),
+            $metadata->typeId,
+            1,
+            $envelope->context()->tenant(),
         );
     }
 
@@ -555,10 +663,13 @@ final readonly class InlineDispatcher implements Dispatcher, ValidationRejection
     /**
      * @param list<Violation> $violations
      */
-    public function rejectBinding(Operation $definition, array $violations): OperationId
-    {
+    public function rejectBinding(
+        Operation $definition,
+        array $violations,
+        ?TelemetryContext $telemetry = null,
+    ): OperationId {
         $metadata = $this->metadata($definition);
-        $context = $this->contexts->receive();
+        $context = $this->contexts->receive(telemetry: $telemetry);
         $reason = RejectionReason::validation('validation.failed', $violations);
         $this->appendLifecycleRecord(
             null,
@@ -578,11 +689,15 @@ final readonly class InlineDispatcher implements Dispatcher, ValidationRejection
     /**
      * @param list<Violation> $violations
      */
-    public function rejectValue(Operation $definition, OperationValue $value, array $violations): OperationId
-    {
+    public function rejectValue(
+        Operation $definition,
+        OperationValue $value,
+        array $violations,
+        ?TelemetryContext $telemetry = null,
+    ): OperationId {
         $metadata = $this->metadata($definition);
         $this->assertValueMatches($metadata, $value);
-        $context = $this->contexts->receive();
+        $context = $this->contexts->receive(telemetry: $telemetry);
         $envelope = new OperationEnvelope($definition, $value, $context, $this->strategy($metadata));
         $state = $this->appendLifecycleRecord(
             null,

@@ -1,6 +1,6 @@
 # Typed Outcome Store
 
-The public outcome boundary consists of `OutcomeRecord`, `OutcomeReader`, `OutcomeWriter`, `OutcomeStore`, and `OutcomeStoreException`. It exposes only Core identifiers, the `Outcome` marker, immutable UTC time, and PHP exceptions. Database connections, encoded payloads, schema versions, Doctrine types, and PostgreSQL names remain adapter details.
+The public outcome boundary consists of `OperationOutcomeQuery`, `OperationOutcomeFound`, `OperationOutcomeUnavailable`, `OutcomeRecord`, `OutcomeWriter`, and `OutcomeStoreException`. `OperationOutcomeQuery::find()` receives the operation ID, current actor, current tenant, and an application-owned `OperationDataPurpose`. Database connections, encoded payloads, schema versions, Doctrine types, and PostgreSQL names remain adapter details.
 
 ## PostgreSQL representation
 
@@ -8,13 +8,13 @@ The public outcome boundary consists of `OutcomeRecord`, `OutcomeReader`, `Outco
 
 ```text
 operation_id primary key, foreign key to operations on delete restrict
-outcome_type
-schema_version
-encoded_payload
+operation_type, tenant_type, tenant_id
+outcome_type, schema_version
+encoded_payload (BOPD v1 bytea)
 completed_at
 ```
 
-The adapter currently writes schema version 1. Before hydration it decodes the JSON envelope, verifies that the payload class matches the row's `outcome_type`, and verifies that the class exists and implements `Outcome`. Only then does it construct the outcome. This prevents a corrupt row from invoking an unrelated constructor. Duplicate operation IDs, foreign-key failures, unsupported schemas, malformed payloads, type mismatches, and non-Outcome classes become `OutcomeStoreException`.
+The adapter writes schema version 1 inside the BOPD envelope. The envelope Key ID is in the BOPD Header, not a clear column. It verifies the clear row identity and tenant before asking the `StorageKeyProvider` for the envelope key, then validates purpose/operation/schema AAD and only then decodes the typed outcome. Duplicate operation IDs, foreign-key failures, unsupported schemas, malformed envelopes, tag failures, type mismatches, and non-Outcome classes become safe `OutcomeStoreException` or `OperationOutcomeQueryException` results; plaintext fallback is forbidden.
 
 ## Worker transaction
 

@@ -1,6 +1,6 @@
 # What's BlackOps
 
-BlackOpsはPHP 8.5向けのHeadless Operation Frameworkです。`#[Route]`で同期HTTP、`#[Deferred]`でDeferred Worker、`#[ConsoleCommand]`でCLIから同じOperationを起動し、Lifecycle Journalで実行事実を追跡します。HeadlessなのでUIを持たず、生成したJavaScript Client CodeをNext.js、NuxtJS、SvelteKitなどのFrontendへ接続できます。
+BlackOpsはPHP 8.5向けのHeadless Operation Frameworkです。`#[Route]`で同期HTTP、`#[Deferred]`でDeferred Worker、`#[ConsoleCommand]`でCLIから同じOperationを起動し、Lifecycle Journalで実行事実を追跡します。HeadlessなのでUIを持たず、生成したJavaScript Client CodeをNext.js、Nuxt、SvelteKitなどのFrontendへ接続できます。
 
 一つのOperation Modelに型付きInput、Outcome、Execution Contextを集約し、InlineとDeferredの実行経路を同じLifecycle境界で扱います。
 

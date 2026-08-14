@@ -12,7 +12,9 @@ Selector は次のいずれか一つだけを指定します。
 - `--record-id=<uuid>`: 一つの Canonical Record
 - `--from=<RFC3339> --to=<RFC3339>`: UTC へ正規化した `[from,to)` の範囲
 
-Observer は `--observer=<stable-name>` を一つ以上指定します。新規実行では `--checkpoint=<id>`、`--actor=<operator>`、`--reason=<reason>` も必須です。Checkpoint ID は小文字英数字のセグメントを `.`、`_`、`-` でつないだ 1〜128 バイトの値に限られます。Batch は `--batch-size` で指定でき、範囲は 1〜1000 です。
+Observer は `--observer=<stable-name>` を一つ以上指定します。Checkpoint ID は小文字英数字のセグメントを `.`、`_`、`-` でつないだ 1〜128 バイトの値に限られます。Batch は `--batch-size` で指定でき、範囲は 1〜1000 です。
+
+新規実行の `--dry-run` は Selector と Observer だけを指定します。Checkpoint、Actor、Reasonは不要です。新規実行を適用する `--confirm` では、これら三つをすべて指定します。
 
 ```bash
 php blackops journal:observer:replay \
@@ -25,7 +27,9 @@ php blackops journal:observer:replay \
   --actor=operator --reason="restore projection" --confirm
 ```
 
-`--dry-run` と `--confirm` は必ずどちらか一つだけを選びます。Dry-run は Selector と Target を検証し、安全な件数、先頭／末尾 Record ID、`has-more` だけを表示します。Observer、Audit、Checkpoint、Canonical Journal への Write は行いません。
+`--dry-run` と `--confirm` は必ずどちらか一つだけを選びます。Dry-runの出力は `selected`、`delivered`、`failed`、`has-more`、`complete` と、候補がある場合の `first-record-id`／`last-record-id` です。出力にCheckpoint、Actor、Payloadは含みません。また、Observerへの配送、Audit、Checkpoint、Canonical JournalへのWriteは行いません。Exit Codeは0です。
+
+Confirmの出力は同じ件数に加えて `checkpoint` を含み、配送後の `delivered`、`failed`、`has-more`、`complete` と先頭／末尾Record IDを返します。Checkpoint保存とObserver配送を行い、Canonical Journalは変更しません。
 
 実行途中で停止した場合は、Selector と Observer を再指定せず、保存済み Binding を使って新しい Actor／Reason で再開します。
 

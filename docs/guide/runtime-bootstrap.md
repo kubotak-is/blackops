@@ -42,23 +42,23 @@ HTTPやWorkerの起動時にMigrationは実行されません。Application Migr
 docker compose up -d
 ```
 
-既定Portは`8080`です。`.env`の`HTTP_PORT`で変更できます。Stable `1.1.0`の`/welcome`は匿名Inline Operationです。
+既定Portは`8080`です。`.env`の`HTTP_PORT`で変更できます。Stable `1.1.0`の`/welcome`は`#[Authorize]`を持たない認可匿名Inline Operationですが、Stable `WelcomeValue`の必須機密Inputとして`X-Sample-Token` Headerを要求します。
 
 ```bash
-curl http://127.0.0.1:8080/welcome
+curl -H 'X-Sample-Token: local-example' http://127.0.0.1:8080/welcome
 ```
 
 ```json
 {"message":"Welcome to BlackOps"}
 ```
 
-Repository `main` PreviewでSample Authenticationを有効にした場合だけ、同じPreview内の全Requestへ`X-Sample-Token: local-example`を付けます。
+Repository `main` PreviewはSample Authentication／Authorizationを追加し、TokenをAuthentication Credentialとして扱います。StableはAuthentication／Authorizationを追加しませんが、同じHeader名を必須Operation InputとしてBindingします。
 
 FrankenPHPはLocalではplain HTTPのWorker Modeで動作します。TLS、Domain、Process SupervisionはDeployment環境が所有します。
 
 ### Worker ModeのRequest境界
 
-Default Worker ModeはApplication、Environment、Configuration、Compile済みRuntimeをProcess起動時に一度だけ構成します。
+既定のWorker ModeはApplication、Environment、Configuration、Compile済みRuntimeをProcess起動時に一度だけ構成します。
 
 ```bash
 docker compose up -d http

@@ -1,50 +1,62 @@
 # Releases
 
-BlackOpsのLatest StableはFramework／Skeleton `1.1.0`です。このWebsite Sourceは`main` Document Channelであり、未ReleaseのPhase 12〜17 Surfaceも明示して説明します。WebsiteはLocal／CI Buildだけで、現在は公開していません。Stableとの差を次表で確認してください。
+BlackOpsのStableはFramework／Skeleton `1.1.0`です。Repository `main`は未公開の`1.2.0` Release Candidateです。未Release Surfaceもこのドキュメントで明示します。Documentation WebsiteはCloudflare Pages（`https://blackops-php.pages.dev`）へ公開しています。Stableとの差を次表で確認してください。
 
 BlackOps固有のOperation、Claim、Journal、Outcome等は[Glossary](glossary.md)で確認できます。
 
 BlackOpsはExperimentalです。1.x Minor間のBackward CompatibilityとProduction Readinessを保証しません。ApplicationはDatabase Credential、Deployment、Process Supervision、Authentication／Authorization、Access Control、Encryption、Retention Policy、Operational Monitoringを所有します。
 
+## Release NotesとMigration
+
+Stable `1.1.0`からRepository `main`の未公開`1.2.0` candidateへ移行する場合は、[CHANGELOG.md](https://github.com/kubotak-is/blackops/blob/main/CHANGELOG%2Emd)の差分と[UPGRADE.md](https://github.com/kubotak-is/blackops/blob/main/UPGRADE%2Emd)のBackup、9つのMigration、Rollback境界を順に確認してください。CandidateのComposer／Generator更新は、実際のannotated Tag `1.1.0`を起点にした[Framework Update Consumer](https://github.com/kubotak-is/blackops/blob/main/tests/Consumer/framework-update-generators%2Esh)で検証します。`1.2.0`は公開Stable、Packagist、公開Skeletonではありません。
+
 ## Stableとmain
 
-| Capability | Stable 1.1.0 | main Document |
+| Capability | Stable 1.1.0 | main 1.2.0 candidate |
 | --- | --- | --- |
-| Typed Self-handled Operation／Native Outcome | Available | Available |
-| Inline HTTP／Deferred HTTP／Worker Retry | Available | Available |
-| Lifecycle Journal／Sensitive Projection | Available | Available |
-| Typed Outcome Retrieval／Retention | Available | Available |
-| Composer Skeleton | Available | Available |
+| Typed Self-handled Operation／Native Outcome | 利用可 | 利用可 |
+| Inline HTTP／Deferred HTTP／Worker Retry | 利用可 | 利用可 |
+| Lifecycle Journal／Sensitive Projection | 利用可 | 利用可 |
+| Typed Outcome Retrieval／Retention | 利用可 | 利用可 |
+| Composer Skeleton | 利用可 | 利用可 |
 | BlackOps CLI Entrypoint | Project Root `blackops` | Project Root `blackops` |
-| `make:operation`／`make:migration` | Available | Available |
-| Application Migration Runtime | Available | Available |
-| 7 Value Validation Attribute／422 Lifecycle | Available | Available |
-| FrankenPHP Worker Mode | Default Runtime | Default Runtime |
-| Global PSR-15 Middleware Config | Not available | Available |
-| Authentication／Durable ActorContext | Not available | Available |
-| `#[Authorize]` Inline／Deferred再認可 | Not available | Available |
-| Named DBAL Connection／Default Connection DI | Not available | Available |
-| `#[Transactional]` Operation／Service | Not available | Available |
-| Nested Required／`#[AfterCommit]` | Not available | Available |
-| Long-running Connection Health Check／Reconnect | Not available | Available |
-| Operation ID Diagnostics Human／JSON CLI | Not available | Available |
-| Development Local Diagnostics Viewer | Not available | Available |
-| Configurable Application／Framework JSONL Correlation | Not available | Available |
-| Frontend Contract Manifest／Operation Object生成 | Not available | Available（Experimental） |
-| `.url()`／`.toRequest()`／Typed `.fetch()` | Not available | Available（Experimental） |
-| `frontend:generate`／`frontend:check` | Not available | Available（Experimental） |
-| Deferred Status Query／`GET /operations/{operationId}` | Not available | Available（Experimental） |
-| Generated `.status()`／finite `.wait()` | Not available | Available（Experimental） |
-| Typed `Environment`／Configuration Closure | Not available | Available（Experimental） |
-| Generated Bound `createBlackOpsClient()` | Not available | Available（Experimental） |
-| Application `#[AsCommand]` Discovery／DI | Not available | Available（Experimental） |
-| Operation `#[ConsoleCommand]` Adapter | Not available | Available（Experimental） |
-| Opt-in Session Core／`make:auth` | Not available | Available（Experimental） |
-| Database Seeder／`database:seed`／`make:seeder` | Not available | Available（Experimental） |
-| BlackOps Board Full-stack Reference Application | Not available | Available（Experimental、Local／CI only） |
-| Optional Idempotency Key／Duplicate Replay | Not available | Available（Experimental、Actor-scoped） |
-| Transactional Outbox Relay／Retry／Fencing／Dead Letter | Not available | Available（Experimental、at-least-once） |
-| Canonical Observer Replay／Checkpoint／Resume | Not available | Available（Experimental、Canonical read-only） |
+| `make:operation`／`make:migration` | 利用可 | 利用可 |
+| Application Migration Runtime | 利用可 | 利用可 |
+| 7 Value Validation Attribute／422 Lifecycle | 利用可 | 利用可 |
+| FrankenPHP Worker Mode | 既定Runtime | 既定Runtime |
+| Global PSR-15 Middleware Config | 未提供 | 利用可 |
+| Authentication／Durable ActorContext | 未提供 | 利用可 |
+| `#[Authorize]` Inline／Deferred再認可 | 未提供 | 利用可 |
+| Named DBAL Connection／Default Connection DI | 未提供 | 利用可 |
+| `#[Transactional]` Operation／Service | 未提供 | 利用可 |
+| Nested Required／`#[AfterCommit]` | 未提供 | 利用可 |
+| Long-running Connection Health Check／Reconnect | 未提供 | 利用可 |
+| OperationalHealthQuery／明示Health Route・CLI Adapter | 未提供 | 利用可（試験的、Application登録） |
+| Operation ID Diagnostics Human／JSON CLI | 未提供 | 利用可 |
+| Development Local Diagnostics Viewer | 未提供 | 利用可 |
+| Configurable Application／Framework JSONL Correlation | 未提供 | 利用可 |
+| OpenTelemetry API-only Trace／Metric Provider Composition | 未提供 | 利用可（試験的、Application SDK／Exporter） |
+| Frontend Contract Manifest／Operation Object生成 | 未提供 | 利用可（試験的） |
+| `.url()`／`.toRequest()`／Typed `.fetch()` | 未提供 | 利用可（試験的） |
+| `frontend:generate`／`frontend:check` | 未提供 | 利用可（試験的） |
+| Deferred Status Query／`GET /operations/{operationId}` | 未提供 | 利用可（試験的） |
+| Generated `.status()`／finite `.wait()` | 未提供 | 利用可（試験的） |
+| Typed `Environment`／Configuration Closure | 未提供 | 利用可（試験的） |
+| Generated Bound `createBlackOpsClient()` | 未提供 | 利用可（試験的） |
+| Application `#[AsCommand]` Discovery／DI | 未提供 | 利用可（試験的） |
+| Operation `#[ConsoleCommand]` Adapter | 未提供 | 利用可（試験的） |
+| Opt-in Session Core／`make:auth` | 未提供 | 利用可（試験的） |
+| Database Seeder／`database:seed`／`make:seeder` | 未提供 | 利用可（試験的） |
+| BlackOps Board Full-stack Reference Application | 未提供 | 利用可（試験的、Local／CI only） |
+| Optional Idempotency Key／Duplicate Replay | 未提供 | 利用可（試験的、Actor-scoped） |
+| Transactional Outbox Relay／Retry／Fencing／Dead Letter | 未提供 | 利用可（試験的、at-least-once） |
+| Canonical Observer Replay／Checkpoint／Resume | 未提供 | 利用可（試験的、Canonical read-only） |
+| TenantRef／Entry Tenant Propagation | 未提供 | 利用可（試験的、HTTP／Console／Scheduled／Dispatch） |
+| Default-deny Journal／Outcome Data Query | 未提供 | 利用可（試験的、Tenant／Actor／Purpose必須） |
+| BOPD v1 Protected Storage／StorageKeyProvider | 未提供 | 利用可（試験的、XChaCha20-Poly1305） |
+| `storage:protection:plan`／`rotate`／Resume | 未提供 | 利用可（試験的、Bounded／CAS／Audit） |
+| Scheduled Application Operation／`ScheduledBy`／one-shot CLI | 未提供 | 利用可（試験的、`operation:schedule:run`） |
+| Framework Proxy Profile Artifact Unit（Build ID／Content Hash binding） | 未提供 | 利用可（試験的、main `build:compile`） |
 
 Stable Applicationを作る場合はVersionを明示します。
 
@@ -72,6 +84,7 @@ composer create-project blackops/skeleton my-app 1.1.0
 - Operation IDからLifecycle／Attempt／Outcome Availabilityを読むSafe Human／JSON Diagnostics
 - 既定無効・Loopback限定・Token必須・Read-onlyのDevelopment Local Viewer
 - Process起動時に一度解決するApplication／Framework JSONL LoggingとOperation／Attempt／Correlation ID相関
+- OpenTelemetry API-only Provider Composition、W3C Context、固定Metric、OperationalHealth Query（Application-owned）
 - HTTP Operationから生成するFramework-neutral TypeScript ESM Operation Object
 - Readonly Metadata、`.url()`、`.toRequest()`、Typed `.fetch()`とFrontend Drift Check
 - 認可前Subject Projection、Unknown／Deny 404、認可済みExpired 410を持つPublic Status Query／HTTP Resource
@@ -83,7 +96,7 @@ composer create-project blackops/skeleton my-app 1.1.0
 - Build-time Discovery、Compiled Container DI、明示順の子Seederを持つDatabase Seederと`database:seed`／`make:seeder`
 - Application-owned Identity、Ephemeral Auth Operation、SvelteKit BFF、Post／Comment、Deferred Digest、Real Browser E2Eを統合した[BlackOps Board Reference Application](community-board.md)
 
-BlackOps BoardはRepository `main`だけのExperimental Local Reference Applicationです。Stable `1.1.0` Skeletonには含まれず、公開Hostも提供していません。Documentation Websiteと同様にSource、Local／CI Build、Consumer Evidenceだけを維持し、External Publication／Deployは将来の明示Taskへ分離しています。
+BlackOps BoardはRepository `main`だけの試験的Local Reference Applicationです。Stable `1.1.0` Skeletonには含まれず、公開Hostも提供していません。BoardはSource、Local／CI Build、利用者向け検証記録だけを維持し、外部公開／デプロイの対象外です。Documentation Websiteの公開先は上記Cloudflare Pagesです。
 
 ## Known Constraints
 
@@ -91,11 +104,12 @@ BlackOps BoardはRepository `main`だけのExperimental Local Reference Applicat
 - Production Status Authorization Policy、Tenant Model、Role／Permission Repositoryは提供しない
 - 無限Wait、任意Backoff／Jitter、Global Generated Client、Cache／Offline Queueは提供しない
 - Transactional Outboxは同一Named Connectionへの原子登録、有限Relay、Retry／Backoff、Lease／Fencing、Dead Letter再開を提供する（at-least-once。外部配送のExactly Onceは提供しない）
-- Canonical Journal／Transport PayloadのEncryption Adapterは提供しない
-- Remote OpenTelemetry、CloudWatch、SQS、Kafka、SQLite、MySQL Adapterは提供しない
-- Observer Replay CLIはCanonical Journalを変更せず、現在のSensitive Projectionを再適用する有限Batch／Checkpoint／Resume／Audit操作として提供する。Admin UIとScheduled Operation Strategyは提供しない
+- Canonical Journal、Deferred Payload／Context、Outcome、Outbox、Dead Letter、Idempotencyの復元可能FieldはBOPD v1 Envelopeで保護する。Key Material、KMS Vendor操作、Replica／Backup上の旧Key確認、旧Key削除は提供しない
+- Remote OpenTelemetry Backend、Grafana Cloud、CloudWatch、SQS、Kafka、SQLite、MySQL Adapterは提供しない。Local Docker Collectorと固定DigestのGrafana LGTMはApplication／Consumerが明示的に起動するDevelopment／Demo／Test検証手順だけを提供する
+- Observer Replay CLIはCanonical Journalを変更せず、現在のSensitive Projectionを再適用する有限Batch／Checkpoint／Resume／Audit操作として提供する。Admin UIは提供しない
 - Array／Nested ObjectのHTTP Binding、宣言的DB照合、Cross-field Attribute、Custom Callbackは提供しない。`Count` Validatorは実装済みだが現行HTTP BinderからArrayを渡せない
 - Production CertificationやExperimental Public API Contractを超える互換性保証は提供しない。1.x Minor間のBackward Compatibilityも保証しない
-- DiagnosticsのPublic PHP Query API、Remote Viewer、OpenTelemetry／Metric／Collectorは提供しない
+- DiagnosticsのPublic PHP Query APIとRemote Viewerは提供しない。OpenTelemetry／Metric／Healthの本番Backend、Remote Dashboard、Collector／LGTM自動起動も提供しない
+- Application Schedule Daemon、Supervisor／Kubernetes／systemd Manifest Generator、Schedule-specific Retentionは提供しない。one-shot CLIは[Scheduled Operation](scheduled-operation.md)の手順で外部Supervisorから起動する
 
 これらの不在はApplication側のSecurity／Operations設計が不要であることを意味しません。Stableと`main`の差を確認し、Deployment前に必要なAdapterと運用責務を明示してください。

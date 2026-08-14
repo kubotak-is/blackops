@@ -83,7 +83,7 @@ final readonly class PostgreSqlDiagnosticsReader
                     operation_id::text AS operation_id,
                     final_attempt_id::text AS final_attempt_id,
                     final_attempt_number,
-                    reason_type,
+                    'protected' AS reason_type,
                     moved_at::text AS moved_at
                 FROM {$this->schema->deadLettersTable()}
                 WHERE operation_id = :operation_id",

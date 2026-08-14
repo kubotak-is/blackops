@@ -6,6 +6,10 @@ deptrac:
       collectors:
         - type: classNameRegex
           value: '/^BlackOps\\Core(\\|$)/'
+    - name: Scheduling
+      collectors:
+        - type: classNameRegex
+          value: '/^BlackOps\\Scheduling(\\|$)/'
     - name: Application
       collectors:
         - type: classNameRegex
@@ -38,6 +42,10 @@ deptrac:
       collectors:
         - type: classNameRegex
           value: '/^BlackOps\\Status(\\|$)/'
+    - name: OperationData
+      collectors:
+        - type: classNameRegex
+          value: '/^BlackOps\\OperationData(\\|$)/'
     - name: Http
       collectors:
         - type: classNameRegex
@@ -50,10 +58,66 @@ deptrac:
       collectors:
         - type: classNameRegex
           value: '/^BlackOps\\Console(\\|$)/'
+    - name: StorageProtection
+      collectors:
+        - type: classNameRegex
+          value: '/^BlackOps\\StorageProtection(\\|$)/'
+    - name: Identifier
+      collectors:
+        - type: classNameRegex
+          value: '/^BlackOps\\Identifier(\\|$)/'
+    - name: Idempotency
+      collectors:
+        - type: classNameRegex
+          value: '/^BlackOps\\Idempotency(\\|$)/'
+    - name: Outbox
+      collectors:
+        - type: classNameRegex
+          value: '/^BlackOps\\Outbox(\\|$)/'
+    - name: Telemetry
+      collectors:
+        - type: classNameRegex
+          value: '/^BlackOps\\Telemetry(\\|$)/'
+    - name: Observability
+      collectors:
+        - type: classNameRegex
+          value: '/^BlackOps\\Observability(\\|$)/'
     - name: Internal
       collectors:
         - type: classNameRegex
-          value: '/^BlackOps\\Internal(\\|$)/'
+          value: '/^BlackOps\\Internal(?!(?:\\Application|\\Auth|\\Http|\\Idempotency|\\Telemetry|\\StorageProtection)(?:\\|$)|\\Runtime\\FrankenPhp(?:\\|$)|\\Execution\\DeferredOperationContextValidator$).*/'
+    - name: InternalApplication
+      collectors:
+        - type: classNameRegex
+          value: '/^BlackOps\\Internal\\Application(\\|$)/'
+    - name: InternalAuth
+      collectors:
+        - type: classNameRegex
+          value: '/^BlackOps\\Internal\\Auth(\\|$)/'
+    - name: InternalHttp
+      collectors:
+        - type: classNameRegex
+          value: '/^BlackOps\\Internal\\Http(\\|$)/'
+    - name: InternalIdempotency
+      collectors:
+        - type: classNameRegex
+          value: '/^BlackOps\\Internal\\Idempotency(\\|$)/'
+    - name: InternalSapiRuntime
+      collectors:
+        - type: classNameRegex
+          value: '/^BlackOps\\Internal\\Runtime\\FrankenPhp(\\|$)/'
+    - name: InternalTelemetry
+      collectors:
+        - type: classNameRegex
+          value: '/^BlackOps\\Internal\\Telemetry(\\|$)/'
+    - name: InternalStorageProtection
+      collectors:
+        - type: classNameRegex
+          value: '/^BlackOps\\Internal\\StorageProtection(\\|$)/'
+    - name: DeferredIntegrity
+      collectors:
+        - type: classNameRegex
+          value: '/^BlackOps\\Internal\\Execution\\DeferredOperationContextValidator$/'
     - name: Library
       collectors:
         - type: classNameRegex
@@ -75,8 +139,6 @@ deptrac:
         - type: classNameRegex
           value: '/^Psr\\Log(\\|$)/'
         - type: classNameRegex
-          value: '/^Ray\\Aop(\\|$)/'
-        - type: classNameRegex
           value: '/^Symfony\\Component\\Console(\\|$)/'
         - type: classNameRegex
           value: '/^Symfony\\Component\\DependencyInjection(\\|$)/'
@@ -86,55 +148,97 @@ deptrac:
           value: '/^Symfony\\Component\\Uid(\\|$)/'
         - type: classNameRegex
           value: '/^Symfony\\Component\\Validator(\\|$)/'
+        - type: classNameRegex
+          value: '/^OpenTelemetry(\\|$)/'
+        - type: classNameRegex
+          value: '/^Dotenv(\\|$)/'
+        - type: classNameRegex
+          value: '/^Nyholm(\\|$)/'
   ruleset:
-    Core: ~
+    Core:
+      - Telemetry
+      - Idempotency
+    Identifier:
+      - Core
+    Idempotency:
+      - Core
+    Outbox:
+      - Core
+    Scheduling:
+      - Core
     Application:
       - Core
-      - Internal
+      - InternalApplication
       - Library
     Auth:
       - Core
       - Http
-      - Internal
+      - InternalAuth
       - Library
     Database:
       - Core
       - Library
     Journal:
       - Core
+      - Telemetry
     Execution:
       - Core
       - Journal
+      - Telemetry
+      - Idempotency
     Transport:
       - Core
       - Journal
       - Execution
       - Outcome
       - Library
+      - Telemetry
+      - StorageProtection
+      - InternalStorageProtection
+      - DeferredIntegrity
     Outcome:
       - Core
     Status:
       - Core
+    OperationData:
+      - Core
+      - Journal
+      - Outcome
     Http:
       - Core
+      - Observability
       - Application
       - Execution
-      - Internal
+      - InternalHttp
+      - InternalIdempotency
+      - InternalSapiRuntime
       - Outcome
       - Status
       - Library
+      - Telemetry
+      - Idempotency
     Logging:
       - Core
       - Journal
       - Library
     Console:
       - Core
+      - Observability
       - Journal
       - Execution
       - Transport
       - Library
+    StorageProtection:
+      - Core
+    Telemetry:
+      - Core
+      - Library
+    Observability:
+      - Core
+      - Library
     Internal:
       - Core
+      - Scheduling
       - Journal
       - Execution
       - Transport
@@ -143,6 +247,74 @@ deptrac:
       - Console
       - Outcome
       - Status
+      - OperationData
       - Database
       - Auth
+      - StorageProtection
+      - Observability
       - Library
+      - Telemetry
+      - InternalTelemetry
+      - InternalStorageProtection
+      - DeferredIntegrity
+      - Identifier
+      - Idempotency
+      - Outbox
+      - InternalApplication
+      - InternalHttp
+      - InternalIdempotency
+    InternalApplication:
+      - Core
+      - Database
+      - Execution
+      - Http
+      - Internal
+      - InternalHttp
+      - InternalIdempotency
+      - InternalStorageProtection
+      - InternalTelemetry
+      - Journal
+      - Library
+      - Logging
+      - OperationData
+      - Outbox
+      - Scheduling
+      - StorageProtection
+      - Transport
+    InternalAuth:
+      - Auth
+      - Core
+      - Database
+      - Library
+    InternalHttp:
+      - Core
+      - Http
+      - Idempotency
+      - Internal
+      - InternalIdempotency
+      - InternalTelemetry
+      - Library
+      - Status
+      - Telemetry
+    InternalIdempotency:
+      - Core
+      - Http
+      - Idempotency
+      - Internal
+      - InternalStorageProtection
+      - Journal
+      - Library
+      - StorageProtection
+      - Transport
+    InternalSapiRuntime:
+      - Library
+    InternalTelemetry:
+      - Core
+      - Telemetry
+      - Library
+    InternalStorageProtection:
+      - Core
+      - StorageProtection
+      - InternalTelemetry
+    DeferredIntegrity:
+      - Core

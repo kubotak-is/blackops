@@ -11,6 +11,7 @@ use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Core\OperationResult;
 use BlackOps\Core\Outcome;
 use BlackOps\Core\OutcomeData;
+use BlackOps\Core\TenantRef;
 use BlackOps\Http\Responder\JsonOperationResponder;
 use BlackOps\Http\Status\OperationStatusJsonResponder;
 use BlackOps\Http\Status\OperationStatusRequestHandler;
@@ -21,6 +22,7 @@ use BlackOps\Status\OperationStatusFound;
 use BlackOps\Status\OperationStatusQuery;
 use BlackOps\Status\OperationStatusResult;
 use BlackOps\Status\OperationStatusUnavailable;
+use BlackOps\Status\TenantAwareOperationStatusQuery;
 use DateTimeImmutable;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -254,6 +256,20 @@ final class OperationStatusRequestHandlerTest extends TestCase
         self::assertSame(self::OPERATION_ID, $query->operationId?->toString());
     }
 
+    public function testPassesTrustedTenantAttributeToTenantAwareQuery(): void
+    {
+        $query = new TenantAwareRecordingStatusQuery(new OperationStatusUnavailable());
+        $tenant = new TenantRef('customer', 'tenant-a');
+
+        $handler = $this->handler($query);
+        $handler->handle($this->request('GET', '/operations/' . self::OPERATION_ID)->withAttribute(
+            TenantRef::class,
+            $tenant,
+        ));
+
+        self::assertSame($tenant, $query->tenant);
+    }
+
     public function testQueryAndJsonFailuresReturnSafeInternalError(): void
     {
         $failures = [
@@ -302,7 +318,7 @@ final class OperationStatusRequestHandlerTest extends TestCase
     }
 }
 
-final class RecordingStatusQuery implements OperationStatusQuery
+class RecordingStatusQuery implements OperationStatusQuery
 {
     public int $calls = 0;
     public ?OperationId $operationId = null;
@@ -324,6 +340,21 @@ final class RecordingStatusQuery implements OperationStatusQuery
         }
 
         return $this->result ?? throw new RuntimeException('Missing status query result.');
+    }
+}
+
+final class TenantAwareRecordingStatusQuery extends RecordingStatusQuery implements TenantAwareOperationStatusQuery
+{
+    public ?TenantRef $tenant = null;
+
+    public function findForTenant(
+        OperationId $operationId,
+        ?ActorRef $currentActor = null,
+        ?TenantRef $currentTenant = null,
+    ): OperationStatusResult {
+        $this->tenant = $currentTenant;
+
+        return $this->find($operationId, $currentActor);
     }
 }
 

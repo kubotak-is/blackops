@@ -29,8 +29,12 @@ final readonly class PostgreSqlDeferredOperationLeaseStore
                 operation_id::text AS operation_id,
                 operation_type,
                 schema_version,
-                convert_from(encoded_payload, 'UTF8') AS encoded_payload,
-                convert_from(encoded_context, 'UTF8') AS encoded_context,
+                tenant_type,
+                tenant_id,
+                origin_actor_type,
+                origin_actor_id,
+                encoded_payload,
+                encoded_context,
                 available_at,
                 fencing_token
             FROM {$table}

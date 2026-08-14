@@ -33,7 +33,7 @@ export async function generateContent({
     const markdown = normalizeNewlines(await readFile(absolute, 'utf8'));
     validatePublicContent(markdown, source, repositoryDirectory);
     const { title, body } = extractTitle(markdown, source);
-    const mdx = hasMermaidFence(markdown);
+    const mdx = requiresMdx(markdown);
     const metadata = contentMap?.[source] ?? null;
     if (contentMap !== null && metadata === null) {
       throw new Error(`Documentation source is missing public metadata: ${source}`);
@@ -191,22 +191,27 @@ function extractTitle(markdown, source) {
   return { title, body: lines.join('\n') };
 }
 
-function hasMermaidFence(markdown) {
+function requiresMdx(markdown) {
   let fenceMarker = null;
 
   for (const line of markdown.split('\n')) {
     const fence = line.match(/^\s*(```+|~~~+)(.*)$/);
-    if (fence === null) continue;
+    if (fence !== null) {
+      const marker = fence[1][0];
+      const info = fence[2].trim();
+      if (fenceMarker === null) {
+        if (info === 'mermaid') return true;
+        fenceMarker = marker;
+        continue;
+      }
 
-    const marker = fence[1][0];
-    const info = fence[2].trim();
-    if (fenceMarker === null) {
-      if (info === 'mermaid') return true;
-      fenceMarker = marker;
+      if (marker === fenceMarker) fenceMarker = null;
       continue;
     }
 
-    if (marker === fenceMarker) fenceMarker = null;
+    if (fenceMarker === null && /^\s*:::(?:note|info|warning|danger|success)(?:\[[^\]]+\])?\s*$/.test(line)) {
+      return true;
+    }
   }
 
   return false;

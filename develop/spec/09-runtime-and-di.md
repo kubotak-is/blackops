@@ -70,7 +70,7 @@ RuntimeでSeeder Sourceを再走査せず、Reflectionまたは動的な`new $cl
 
 ## Build-time Method Interception
 
-`#[Transactional]`と`#[AfterCommit]`はRay.AopによるBuild時Method Interceptionを使用する。Ray.Diへ移行せず、Symfony DIのService Definitionを正本とする。
+`#[Transactional]`と`#[AfterCommit]`はFramework-owned proxy generatorによるBuild時Method Interceptionを使用する。外部AOP／DI engineへ移行せず、Symfony DIのService Definitionを正本とする。
 
 - ProxyはApplicationの`build:compile`で生成する
 - Production RuntimeでSource ScanまたはTemporary Proxy生成を行わない
@@ -85,6 +85,19 @@ RuntimeでSeeder Sourceを再走査せず、Reflectionまたは動的な`new $cl
 Composer PackageはService Providerを公開し、Build時にContainer Definitionを登録できる。
 
 Operation ProviderはOperation DefinitionをManifestへ登録し、Service ProviderはHandlerやInfrastructure AdapterのService定義を登録する。一つのPackageが両方を提供できる。
+
+## Application Trace Provider
+
+Applicationは`ApplicationBuilder::withTracerProvider(?OpenTelemetry\\API\\Trace\\TracerProviderInterface)`で
+Application-owned OpenTelemetry ProviderをComposition Rootへ登録できる。ProviderはImmutableな
+Application Configuration Snapshotへ束縛し、HTTP、Worker、Console、Outbox、Schedule、Maintenance、
+Replayの各Runtimeへ同じSnapshot由来のTracerを渡す。未登録時はRuntime結果を変えないOfficial No-op
+Providerを使い、Global／StaticなProvider登録へFallbackしない。
+
+Applicationは`ApplicationBuilder::withMeterProvider(?OpenTelemetry\\API\\Metrics\\MeterProviderInterface)`でも
+Application-owned MeterProviderを登録できる。MeterProviderはImmutable Configuration Snapshotへ束縛し、
+未登録時はOfficial No-op MeterProviderを使う。Metric AdapterはTraceと同じ
+`blackops.framework`／`1.2.0` scopeを使い、Global／Static ProviderへFallbackしない。
 
 ## Long-running Worker
 

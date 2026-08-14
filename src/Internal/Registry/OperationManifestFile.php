@@ -10,7 +10,7 @@ use RuntimeException;
 
 final readonly class OperationManifestFile
 {
-    public const SCHEMA_VERSION = 2;
+    public const SCHEMA_VERSION = 3;
 
     public function __construct(
         private OperationManifestMetadataCodec $codec = new OperationManifestMetadataCodec(),

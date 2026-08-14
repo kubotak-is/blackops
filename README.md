@@ -13,7 +13,9 @@ Repository `main`ではNamed Doctrine DBAL Connection、Constructor Injection、
 
 Latest StableはFramework／Skeleton `1.1.0`です。BlackOpsはExperimentalであり、1.x Minor間のBackward CompatibilityとProduction Readinessを保証しません。破壊的変更と移行手順は[CHANGELOG](CHANGELOG.md)と[Upgrade Guide](UPGRADE.md)で確認してください。
 
-Documentation WebsiteはLocal／CI Buildと公開Artifact境界まで検証済みです。公開は現在延期しているため、Cloudflare Pages ProjectとCredentialは設定せず、公開Hostも提供していません。Credential-gated Workflowは将来の公開経路として維持しています。
+Repository `main`の次期Release Candidateは`1.2.0`です。CandidateのVersion／Telemetry／Skeleton Sourceは`1.2.0`系列へ同期していますが、`1.2.0`は未公開であり、Tag、Release、Packagist、公開Skeletonを作成していません。
+
+Documentation Websiteは[Cloudflare Pages](https://blackops-php.pages.dev)へ公開済みで、Local／CI Buildと公開Artifact境界を検証しています。
 
 利用者向けの機能差と制約は[Current Status](docs/guide/mvp-status.md)を参照してください。
 
@@ -77,7 +79,7 @@ Stableと`main` Previewの準備方法、利用可能なEndpointの差は[利用
 
 [BlackOps Board](examples/community-board/README.md)は、Repository `main`だけで提供するLocal Full-stack Reference Applicationです。QuickstartがFrameworkの最短ContractをHTTPとWorkerで確認するのに対し、BlackOps BoardはApplication-owned Identity、Framework Session Core、Generated Ephemeral Auth Operation、SvelteKit Same-origin BFF、DBAL Domain Repository、Inline Post／Comment、Deferred Digest、Accessible Product UIまでを一つのBrowser Journeyで示します。
 
-[Community Board Guide](docs/guide/community-board.md)は、空のLocal StateからSetup、Seed、通常Login、Inline／Deferred Journeyを再現し、BrowserからPostgreSQL／Workerまでの責任境界を説明します。公開Demo CredentialはLocal／Test Fixtureであり、Stable `1.1.0` Skeletonには含まれません。Community BoardとDocumentation Websiteは外部Hostingしていません。
+[Community Board Guide](docs/guide/community-board.md)は、空のLocal StateからSetup、Seed、通常Login、Inline／Deferred Journeyを再現し、BrowserからPostgreSQL／Workerまでの責任境界を説明します。公開Demo CredentialはLocal／Test Fixtureであり、Stable `1.1.0` Skeletonには含まれません。Community Boardは外部Hostingしていません。
 
 [![BlackOps BoardのCredential-free Landing画面](docs/guide/assets/community-board/blackops-board.png)](docs/guide/community-board.md)
 

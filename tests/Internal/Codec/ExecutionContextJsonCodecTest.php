@@ -8,13 +8,38 @@ use BlackOps\Core\Codec\OperationCodecException;
 use BlackOps\Core\ExecutionContext;
 use BlackOps\Core\Identifier\CorrelationId;
 use BlackOps\Core\Identifier\OperationId;
+use BlackOps\Core\ScheduleContext;
+use BlackOps\Core\TenantRef;
 use BlackOps\Idempotency\IdempotencyKey;
 use BlackOps\Internal\Codec\ExecutionContextJsonCodec;
+use BlackOps\Telemetry\TelemetryContext;
 use DateTimeImmutable;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class ExecutionContextJsonCodecTest extends TestCase
 {
+    public function testTelemetryContextRoundTripsAndOlderPayloadsRemainValid(): void
+    {
+        $context = new ExecutionContext(
+            OperationId::fromString('019f32ab-2be0-7b38-a0a7-1ab2f9687701'),
+            new DateTimeImmutable('2026-07-23T00:00:00Z'),
+            CorrelationId::fromString('019f32ab-2be0-7b38-a0a7-1ab2f9687702'),
+            telemetry: new TelemetryContext('00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01', 'vendor=value'),
+        );
+        $codec = new ExecutionContextJsonCodec();
+        $decoded = $codec->decode($codec->encode($context));
+        self::assertSame($context->telemetry()?->traceparent(), $decoded->telemetry()?->traceparent());
+        self::assertSame($context->telemetry()?->tracestate(), $decoded->telemetry()?->tracestate());
+        self::assertNull(
+            $codec
+                ->decode(
+                    '{"operation_id":"019f32ab-2be0-7b38-a0a7-1ab2f9687701","received_at":"2026-07-23T00:00:00.000000Z","correlation_id":"019f32ab-2be0-7b38-a0a7-1ab2f9687702","causation_id":null,"attempt":null,"deadline":null}',
+                )
+                ->telemetry(),
+        );
+    }
+
     public function testHashRoundTripsWithoutRawKey(): void
     {
         $context = new ExecutionContext(
@@ -30,6 +55,35 @@ final class ExecutionContextJsonCodecTest extends TestCase
         self::assertStringContainsString('idempotency_key_hash', $encoded);
         self::assertStringNotContainsString('raw-secret-key', $encoded);
         self::assertTrue($context->idempotencyKeyHash()?->equals($decoded->idempotencyKeyHash()));
+    }
+
+    public function testTenantRoundTripsWithoutCredentials(): void
+    {
+        $tenant = new TenantRef('account', 'tenant-1');
+        $context = new ExecutionContext(
+            OperationId::fromString('019f32ab-2be0-7b38-a0a7-1ab2f9687701'),
+            new DateTimeImmutable('2026-07-23T00:00:00Z'),
+            CorrelationId::fromString('019f32ab-2be0-7b38-a0a7-1ab2f9687702'),
+            tenant: $tenant,
+        );
+        $decoded = new ExecutionContextJsonCodec()->decode(new ExecutionContextJsonCodec()->encode($context));
+        self::assertSame($tenant->type(), $decoded->tenant()?->type());
+        self::assertSame($tenant->id(), $decoded->tenant()?->id());
+    }
+
+    public function testInvalidTenantShapeFailsSafely(): void
+    {
+        $payload = [
+            'operation_id' => '019f32ab-2be0-7b38-a0a7-1ab2f9687701',
+            'received_at' => '2026-07-23T00:00:00Z',
+            'correlation_id' => '019f32ab-2be0-7b38-a0a7-1ab2f9687702',
+            'causation_id' => null,
+            'attempt' => null,
+            'deadline' => null,
+            'tenant' => ['id' => 'tenant-1'],
+        ];
+        $this->expectException(OperationCodecException::class);
+        new ExecutionContextJsonCodec()->decode(json_encode($payload, JSON_THROW_ON_ERROR));
     }
 
     public function testMissingHashFieldRemainsBackwardCompatible(): void
@@ -69,5 +123,77 @@ final class ExecutionContextJsonCodecTest extends TestCase
                 self::assertTrue(true);
             }
         }
+    }
+
+    public function testScheduleContextRoundTripsAndKeepsCanonicalUtcPrecision(): void
+    {
+        $context = new ExecutionContext(
+            OperationId::fromString('019f32ab-2be0-7b38-a0a7-1ab2f9687701'),
+            new DateTimeImmutable('2026-07-23T00:00:00.123456Z'),
+            CorrelationId::fromString('019f32ab-2be0-7b38-a0a7-1ab2f9687702'),
+            schedule: new ScheduleContext(
+                'reports.daily',
+                new DateTimeImmutable('2026-07-22T18:00:00.654321+09:00'),
+                'Asia/Tokyo',
+            ),
+        );
+
+        $encoded = new ExecutionContextJsonCodec()->encode($context);
+        $decoded = new ExecutionContextJsonCodec()->decode($encoded);
+
+        self::assertStringContainsString('"scheduled_at":"2026-07-22T09:00:00.654321Z"', $encoded);
+        self::assertSame('reports.daily', $decoded->schedule()?->name());
+        self::assertSame('Asia/Tokyo', $decoded->schedule()?->timezone());
+        self::assertSame(
+            '2026-07-22T09:00:00.654321Z',
+            $decoded->schedule()?->scheduledAt()->format('Y-m-d\\TH:i:s.u\\Z'),
+        );
+    }
+
+    #[DataProvider('invalidSchedules')]
+    public function testScheduleObjectInvalidShapeFailsSafely(array $schedule): void
+    {
+        $payload = [
+            'operation_id' => '019f32ab-2be0-7b38-a0a7-1ab2f9687701',
+            'received_at' => '2026-07-23T00:00:00.000000Z',
+            'correlation_id' => '019f32ab-2be0-7b38-a0a7-1ab2f9687702',
+            'causation_id' => null,
+            'attempt' => null,
+            'deadline' => null,
+            'schedule' => $schedule,
+        ];
+
+        $this->expectException(OperationCodecException::class);
+        new ExecutionContextJsonCodec()->decode(json_encode($payload, JSON_THROW_ON_ERROR));
+    }
+
+    /** @return iterable<string, array{schedule: array<string, mixed>}> */
+    public static function invalidSchedules(): iterable
+    {
+        yield 'unknown field' => ['schedule' => [
+            'name' => 'reports.daily',
+            'scheduled_at' => '2026-07-22T09:00:00.000000Z',
+            'timezone' => 'UTC',
+            'extra' => true,
+        ]];
+        yield 'missing field' => ['schedule' => [
+            'name' => 'reports.daily',
+            'scheduled_at' => '2026-07-22T09:00:00.000000Z',
+        ]];
+        yield 'invalid name' => ['schedule' => [
+            'name' => 'Reports Daily',
+            'scheduled_at' => '2026-07-22T09:00:00.000000Z',
+            'timezone' => 'UTC',
+        ]];
+        yield 'invalid timestamp' => ['schedule' => [
+            'name' => 'reports.daily',
+            'scheduled_at' => 'not-a-time',
+            'timezone' => 'UTC',
+        ]];
+        yield 'invalid timezone' => ['schedule' => [
+            'name' => 'reports.daily',
+            'scheduled_at' => '2026-07-22T09:00:00.000000Z',
+            'timezone' => 'Mars/Olympus',
+        ]];
     }
 }
