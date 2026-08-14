@@ -1,6 +1,6 @@
 # P22-004A Skeleton Workflow Toolchain Recovery Report
 
-Status: Review Passed (Checkpoint Commit Approved)
+Status: P22-004B Review Passed — Correction Integration Pending
 
 ## Summary
 
@@ -32,6 +32,9 @@ Existing Orchestrator management-document changes were preserved and not edited.
 - PASS: source scope inspection: only the two permitted Source files changed; this Report and STATE are the only Task management files changed by the worker. Existing unrelated management diffs remain present and untouched.
 - PASS: Orchestrator independently reviewed exact Workflow／guard order and reran shell syntax, version-baseline, workflow regression with exact split, Mago format, management-ID guard, and `git diff --check`.
 - PASS: corrected independent Documentation Review returned P1=0／P2=0／P3=0 and approved checkpoint Commit／dedicated PR integration.
+- PASS: committed as `aa74ef57c97ec0199c9c456f963b31789f6da405`, pushed to the dedicated branch, and opened as PR #5.
+- PASS: PR #5 Documentation delivery `31823195126`; CI `31823195147` Community Board clean install／full-stack, Frontend, Website, and Quality.
+- FAIL outside the P22-004A toolchain correction: Runtime Consumer unconditionally creates local tag `1.2.0`, but the immutable published tag now exists; exact error `fatal: tag '1.2.0' already exists`, exit 128.
 - No workflow dispatch, external publication, tag mutation, release creation, or deployment was attempted.
 
 ## Acceptance Criteria
@@ -44,11 +47,16 @@ Existing Orchestrator management-document changes were preserved and not edited.
 - [x] Report and STATE describe the exact failure and immutable-tag boundary.
 - [x] Worker made no Commit, Push, Dispatch, publication, or deployment mutation.
 
+P22-004B now adds the bounded Runtime Consumer pre-release/post-release tag lifecycle. In current published-tag state, the Consumer validates annotated 1.2.0, root/clone peeled equality, release-runtime path equality, and uses peeled source 3332fd1; worker and Orchestrator full Runtime Consumer reruns pass and clean up. Documentation Review passed; a new correction Commit remains pending.
+
+Corrected Documentation Review returned P1=0／P2=0／P3=0 and permits the bounded Correction Commit／PR #5 push. New required CI must be all Green before merge.
+
 ## Remaining Issues
 
-- Checkpoint Commit／dedicated PR／required CI／main integration remain pending.
+- P22-004B is User-authorized, implemented, independently reviewed P1=0／P2=0／P3=0, and awaits Correction Commit／PR #5 new CI.
+- PR #5 cannot merge until reviewed correction push and all required CI are Green.
 - After approved integration, the immutable `release_version=1.2.0` Manual Dispatch recovery and complete publication evidence remain Orchestrator-controlled; the worker did not perform them.
 
 ## Suggested Next Action
 
-Commit the reviewed P22-004A and current publication tracking checkpoint, integrate through a dedicated PR with required checks, fetch／verify main and fixed inputs, then execute the authorized immutable `release_version=1.2.0` Manual Dispatch recovery.
+Commit and push the reviewed P22-004B correction to PR #5, then require all CI Green before main integration and Manual Dispatch.

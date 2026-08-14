@@ -1,6 +1,6 @@
 # P22-004 Stable 1.2 Publication and Closeout Report
 
-Status: In Progress (P22-004A Review Passed; Integration Pending)
+Status: In Progress (P22-004B Review Passed; Correction Integration Pending)
 
 ## Summary
 
@@ -66,7 +66,10 @@ Not executed.
 - `develop/orchestration/reports/P22-004-stable-1-2-publication-and-closeout.md`
 - `develop/orchestration/tasks/P22-004A-skeleton-workflow-toolchain-recovery.md`
 - `develop/orchestration/reports/P22-004A-skeleton-workflow-toolchain-recovery.md`
+- `develop/orchestration/tasks/P22-004B-runtime-consumer-post-release-tag-lifecycle.md`
+- `develop/orchestration/reports/P22-004B-runtime-consumer-post-release-tag-lifecycle.md`
 - `.github/workflows/publish-skeleton.yml`
+- `tests/Consumer/framework-update-runtime.sh`
 - `tests/Consumer/version-baseline.sh`
 - `develop/STATE.md`
 
@@ -89,6 +92,9 @@ Not executed.
 - PASS: Framework annotated tag object/message/peeled commit verification before push and live direct／peeled refs after push.
 - FAIL: Skeleton publication run `31809007808`, Consumer gates, missing `mise`, exit 127. Full failed-step log confirms failure occurred before credential configuration and distribution push; cleanup passed.
 - PASS: User authorized Composer-installable release recovery; P22-004A worker implemented the two-Source-file bounded correction and Orchestrator independently reviewed and reran all focused guards.
+- PASS: P22-004A commit `aa74ef5`, PR #5, Documentation delivery `31823195126`, and five of six CI jobs in run `31823195147`.
+- FAIL: unchanged Runtime Consumer assumes `1.2.0` is absent and exits 128 with `fatal: tag '1.2.0' already exists` after the real immutable release tag became visible in full-history checkout.
+- PASS diagnostic: release runtime paths are byte-identical between fixed source `3332fd1` and PR head `aa74ef5`.
 
 ## Acceptance Criteria
 
@@ -100,12 +106,14 @@ Not executed.
 - [ ] Existing tags, credential values, and documentation production state remain unchanged.
 - [ ] Phase 22 tracking is closed with evidence.
 
+P22-004B worker correction preserves the absent-tag disposable lane and adds annotated-tag, root/clone peeled equality, release-runtime drift, and published-source selection checks. Worker and Orchestrator current published-tag Runtime Consumer reruns pass all migrations, HTTP/Worker lanes, source invariants, and cleanup using peeled source 3332fd1. Documentation Review passed; the correction Commit remains pending.
+
 ## Remaining Issues
 
-- P22-004A Documentation Review returned P1=0／P2=0／P3=0; checkpoint Commit／dedicated PR／required CI／main integration are pending.
-- Manual Dispatch remains prohibited until required CI Green and main integration／fetch verification.
+- P22-004B Documentation Review returned P1=0／P2=0／P3=0; reviewed correction Commit and PR #5 new CI remain pending.
+- Green-only merge／fetch and Manual Dispatch remain pending.
 - Skeleton publication, GitHub Release, remote package smoke, and closeout remain pending.
 
 ## Suggested Next Action
 
-Checkpoint commit the reviewed P22-004／P22-004A tracking and two Source files, integrate through a dedicated PR with required CI, fetch／verify main, then Manual Dispatch immutable `release_version=1.2.0` through the same full gates. Do not rerun the failed workflow, move tags, or create the GitHub Release before recovery succeeds.
+Commit and push the reviewed Runtime Consumer／static guard correction to PR #5, require all CI Green, then integrate／fetch before Manual Dispatch. Do not move tags or create the GitHub Release before recovery succeeds.

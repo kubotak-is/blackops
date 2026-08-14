@@ -1,6 +1,6 @@
 # Specification 103: Stable 1.2 Release Plan
 
-Status: Decided (Framework `1.2.0` published at fixed source `3332fd1`; P22-004A correction review pending)
+Status: Decided (Framework `1.2.0` published at fixed source `3332fd1`; P22-004B correction integration pending)
 
 ## Release lanes
 
@@ -54,7 +54,7 @@ User authorized exact `3332fd1` CI qualification and Green-gated `1.2.0` publica
 
 Corrected final Documentation Review returned P1=0／P2=0／P3=0. PR #3 was marked ready and merged with merge commit `547149109419b62ab769af9d3aad1ed80dbba905`, whose second parent is exact candidate `3332fd1`; post-fetch ancestry and tree equality passed. P22-003 is Accepted. P22-004 must keep release source `3332fd1` and deterministic Skeleton split `fa5e8247fc8cf789cf73685e5be59cc498ffb4ce` fixed while executing the User-authorized publication sequence.
 
-P22-004 integrated its reviewed tracking checkpoint through PR #4 and published Framework annotated tag `1.2.0`, whose live peeled commit is exact `3332fd1`; Packagist Framework `1.2.0` is visible. Tag-triggered Skeleton run `31809007808` passed Framework quality and failed before credential configuration／distribution push because the Workflow did not install `mise`, required by the Quickstart Consumer. Skeleton tag／Packagist version remain absent. User authorized Composer-installable release recovery. P22-004A bounded correction installs／verifies the pinned mise toolchain and statically guards its order before Consumer gates; worker implementation and Orchestrator review pass. After Documentation Review, checkpoint Commit／dedicated PR／required CI／main integration must complete before D079 Manual Dispatch of bare `release_version=1.2.0` through all gates.
+P22-004 integrated its reviewed tracking checkpoint through PR #4 and published Framework annotated tag `1.2.0`, whose live peeled commit is exact `3332fd1`; Packagist Framework `1.2.0` is visible. Tag-triggered Skeleton run `31809007808` passed Framework quality and failed before credential configuration／distribution push because the Workflow did not install `mise`, required by the Quickstart Consumer. Skeleton tag／Packagist version remain absent. User authorized Composer-installable release recovery. P22-004A bounded correction installs／verifies the pinned mise toolchain and is committed as PR #5 head `aa74ef5`. PR CI then exposed that the pre-release Runtime Consumer unconditionally recreated now-published tag `1.2.0`. User authorized P22-004B; its bounded pre／post-release lifecycle requires annotated tag type, root／clone peeled equality, and no release-runtime Source drift before using exact published source `3332fd1`. Worker and Orchestrator full Runtime Consumer evidence passes, and Documentation Review returned P1=0／P2=0／P3=0. The correction Commit must update PR #5 and all required CI must become Green before main integration and D079 Manual Dispatch of bare `release_version=1.2.0` through all gates.
 
 ## Traceability
 

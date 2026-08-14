@@ -1,6 +1,6 @@
 # P22-004: Stable 1.2 Publication and Closeout
 
-Status: In Progress (P22-004A Skeleton Workflow Recovery Authorized)
+Status: In Progress (P22-004B Review Passed; Correction Integration Pending)
 
 ## Goal
 
@@ -133,9 +133,9 @@ Packagist MetadataとRemote Smokeの実行Command、Temporary Path、Cleanup、C
 
 ## Active Blocker
 
-Tag-triggered run `31809007808` passed Framework quality but failed before credential configuration／Skeleton push because `tests/Consumer/quickstart-e2e.sh:63` invokes `mise` and `.github/workflows/publish-skeleton.yml` does not install the repository-pinned toolchain. Exit was `127`. Always-run cleanup passed.
+P22-004A corrected the missing mise toolchain and is committed as PR #5 head `aa74ef5`. PR #5 CI run `31823195147` then failed only the Runtime Consumer with exact `fatal: tag '1.2.0' already exists`, exit 128, because its pre-release lane unconditionally recreated the now-published immutable tag.
 
-D079 permits recovery from the main-branch Workflow while checking out immutable Framework tag `1.2.0`. User authorized completing the release and Composer-installable publication. P22-004A owns the bounded correction: add `jdx/mise-action@v4` with `install: true`／`cache: true`, verify Node `v24.18.0`／pnpm `11.12.0`, review／CI／main integration, then Manual Dispatch `release_version=1.2.0`. The parent Task remains fixed to immutable Framework tag source `3332fd1`.
+User authorized P22-004B. Its bounded correction is implemented and passed worker／Orchestrator full Runtime Consumer evidence: tag absence retains the disposable candidate lane; tag presence requires annotated type, root／clone peeled equality, and zero drift across release-runtime paths before exact published source `3332fd1` is used. Documentation Review returned P1=0／P2=0／P3=0 and permits the Correction Commit／PR #5 push. New required CI must be all Green; Green merge／fetch must precede D079 Manual Dispatch `release_version=1.2.0`. Framework tag remains immutable.
 
 ## Expected Report
 
