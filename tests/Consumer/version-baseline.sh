@@ -281,6 +281,41 @@ contains tests/Consumer/skeleton-create-project.sh 'blackops/skeleton":"1.2.0"'
 contains tests/Consumer/skeleton-publication.sh 'version=1.2.0'
 contains tests/Consumer/skeleton-publication-workflow.sh 'run_publication "${new_remote}" 1.2.0 false'
 
+assert_skeleton_workflow_toolchain() {
+    awk '
+        index($0, "uses: jdx/mise-action@v4") {
+            mise_line = NR
+        }
+        index($0, "install: true") {
+            install_line = NR
+        }
+        index($0, "cache: true") {
+            cache_line = NR
+        }
+        index($0, "test \"$(node --version)\" = \"v24.18.0\"") {
+            node_line = NR
+        }
+        index($0, "test \"$(pnpm --version)\" = \"11.12.0\"") {
+            pnpm_line = NR
+        }
+        index($0, "bash tests/Consumer/quickstart-e2e.sh") {
+            consumer_line = NR
+        }
+        END {
+            if (!mise_line || !install_line || !cache_line || !node_line ||
+                !pnpm_line || !consumer_line ||
+                !(mise_line < install_line && install_line < cache_line &&
+                  cache_line < node_line && node_line < pnpm_line &&
+                  pnpm_line < consumer_line)) {
+                exit 1
+            }
+        }
+    ' "${repository_root}/.github/workflows/publish-skeleton.yml" \
+        || fail 'Skeleton publication Workflow must install and verify the pinned mise toolchain before Consumer gates'
+}
+
+assert_skeleton_workflow_toolchain
+
 # Stable onboarding and its published CTA remain pinned to the immutable 1.1.0 lane.
 contains README.md 'Latest StableはFramework／Skeleton `1.1.0`です。'
 contains README.md 'composer create-project blackops/skeleton my-app 1.1.0'
@@ -414,6 +449,17 @@ contains tests/Consumer/framework-update-runtime.sh 'fail_stage()'
 contains tests/Consumer/framework-update-runtime.sh 'provider-missing-classic-http-readiness'
 contains tests/Consumer/framework-update-runtime.sh 'provider-missing-redaction'
 contains tests/Consumer/framework-update-runtime.sh 'provider-missing-services-removal'
+contains tests/Consumer/framework-update-runtime.sh "candidate_tag_ref='refs/tags/1.2.0'"
+contains tests/Consumer/framework-update-runtime.sh 'candidate_tag_type="$(git -C "${framework_repository}" cat-file -t "${candidate_tag_ref}" 2>/dev/null || true)"'
+contains tests/Consumer/framework-update-runtime.sh "local runtime candidate' 1.2.0"
+contains tests/Consumer/framework-update-runtime.sh 'test "${candidate_tag_type}" = tag'
+contains tests/Consumer/framework-update-runtime.sh 'published_candidate_commit="$(git -C "${framework_repository}" rev-parse "${candidate_tag_ref}^{commit}")"'
+contains tests/Consumer/framework-update-runtime.sh 'root_published_candidate_commit="$(git -C "${repository_root}" rev-parse "${candidate_tag_ref}^{commit}")"'
+contains tests/Consumer/framework-update-runtime.sh 'test "${published_candidate_commit}" = "${root_published_candidate_commit}"'
+contains tests/Consumer/framework-update-runtime.sh 'diff --quiet "${published_candidate_commit}" "${candidate_commit}" -- src composer.json examples/quickstart resources migrations'
+contains tests/Consumer/framework-update-runtime.sh 'Published 1.2.0 release-runtime Source drifted from current HEAD.'
+contains tests/Consumer/framework-update-runtime.sh 'candidate_source_commit="${published_candidate_commit}"'
+contains tests/Consumer/framework-update-runtime.sh 'candidate_source_commit="${candidate_commit}"'
 contains tests/Consumer/framework-update-runtime.sh 'verify_runtime_bootstrap()'
 contains tests/Consumer/framework-update-runtime.sh 'bootstrap/app.php'
 contains tests/Consumer/framework-update-runtime.sh 'public/index.php'

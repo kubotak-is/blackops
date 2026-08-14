@@ -247,7 +247,7 @@ MVP後に残す主要項目:
 - [x] Runtime ConsumerのGit index modeを本文不変の`100755`へ限定修正する（P22-003D Accepted、Commit `3332fd1`、Reviewer P1=0／P2=0／P3=0）
 - [~] Mago既存Debtをtracked strict baselineへ固定し、DeptracをPHP 8.5対応4.7.1へ限定更新する（D140／P22-003Aはpartial tooling checkpoint `0eca056`。残ったArchitecture／export blockerはP22-003Bで解消）
 - [x] Deptracのpublic／bounded internal Layerを同期し、generic Internal permissionなしで152 violations／59 uncoveredとMago baseline archive exclusionを閉じる（D141／D142 Option B／P22-003B Accepted、candidate `577cc224`、post-commit exact export PASS、Reviewer P1=0／P2=0／P3=0）
-- [ ] User承認済みのGreen-gated Tag／Push、Skeleton publication、Packagist／GitHub Release／Remote Smokeを実施する（P22-004 In Progress）
+- [ ] User承認済みのGreen-gated Tag／Push、Skeleton publication、Packagist／GitHub Release／Remote Smokeを実施する（P22-004 In Progress。Framework `1.2.0`／Packagist公開済み。P22-004AはPR #5、P22-004B Reviewer P1=0／P2=0／P3=0、Correction Commit／new CI pending）
 
 ### Deferred: Documentation Website Publication
 

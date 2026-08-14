@@ -1,18 +1,18 @@
 # Specification 103: Stable 1.2 Release Plan
 
-Status: Decided (P22-003 Accepted at fixed source `3332fd1`; P22-004 publication in progress)
+Status: Decided (Framework `1.2.0` published at fixed source `3332fd1`; P22-004B correction integration pending)
 
 ## Release lanes
 
-The published Latest Stable Framework／Skeleton remains `1.1.0`. Repository `main` is an unpublished `1.2.0` Release Candidate. The two lanes must remain visibly and operationally separate.
+Framework `1.2.0` is published at the accepted fixed source while Skeleton `1.2.0` recovery is in progress; the complete Composer project lane is not accepted until both packages and remote smoke pass. Existing `1.1.0` remains immutable and installable throughout recovery.
 
-| Surface | Latest Stable | Repository main candidate |
+| Surface | Existing immutable lane | 1.2 publication／recovery lane |
 | --- | --- | --- |
-| Framework／Skeleton version | `1.1.0` | `1.2.0` |
+| Framework／Skeleton version | `1.1.0`／`1.1.0` | Framework `1.2.0` published／Skeleton `1.2.0` pending recovery |
 | Skeleton Framework constraint | `^1.1` | `^1.2` |
-| OpenTelemetry scope version | Stable contract | `1.2.0` |
-| Install / create-project | `composer create-project blackops/skeleton my-app 1.1.0` | Local Source / Consumer only |
-| Publication | Existing immutable Tag／Release／Packagist | No Tag／Push／Release／Packagist |
+| OpenTelemetry scope version | Stable contract | Framework `1.2.0` |
+| Install / create-project | `composer create-project blackops/skeleton my-app 1.1.0` | Framework Composer install available／Skeleton create-project pending recovery |
+| Publication | Existing immutable Tag／Release／Packagist | Framework Tag／Packagist present; Skeleton Tag／Packagist and GitHub Release pending |
 
 ## Active source contract
 
@@ -53,6 +53,8 @@ P22-003D Documentation Review returned P1=0／P2=0／P3=0, and the mode-only cor
 User authorized exact `3332fd1` CI qualification and Green-gated `1.2.0` publication. Draft PR #3 was updated by explicit SHA refspec; same-SHA CI run `31771509163` and Documentation delivery run `31771509167` succeeded. Corrected final Documentation Review must confirm the synchronized evidence before PR ready／merge. Merge commit must preserve `3332fd1` as an ancestor; after fetch confirms the candidate in remote `main` history, P22-003 may be accepted and P22-004 initialized. Publication remains prohibited before that sequence completes.
 
 Corrected final Documentation Review returned P1=0／P2=0／P3=0. PR #3 was marked ready and merged with merge commit `547149109419b62ab769af9d3aad1ed80dbba905`, whose second parent is exact candidate `3332fd1`; post-fetch ancestry and tree equality passed. P22-003 is Accepted. P22-004 must keep release source `3332fd1` and deterministic Skeleton split `fa5e8247fc8cf789cf73685e5be59cc498ffb4ce` fixed while executing the User-authorized publication sequence.
+
+P22-004 integrated its reviewed tracking checkpoint through PR #4 and published Framework annotated tag `1.2.0`, whose live peeled commit is exact `3332fd1`; Packagist Framework `1.2.0` is visible. Tag-triggered Skeleton run `31809007808` passed Framework quality and failed before credential configuration／distribution push because the Workflow did not install `mise`, required by the Quickstart Consumer. Skeleton tag／Packagist version remain absent. User authorized Composer-installable release recovery. P22-004A bounded correction installs／verifies the pinned mise toolchain and is committed as PR #5 head `aa74ef5`. PR CI then exposed that the pre-release Runtime Consumer unconditionally recreated now-published tag `1.2.0`. User authorized P22-004B; its bounded pre／post-release lifecycle requires annotated tag type, root／clone peeled equality, and no release-runtime Source drift before using exact published source `3332fd1`. Worker and Orchestrator full Runtime Consumer evidence passes, and Documentation Review returned P1=0／P2=0／P3=0. The correction Commit must update PR #5 and all required CI must become Green before main integration and D079 Manual Dispatch of bare `release_version=1.2.0` through all gates.
 
 ## Traceability
 

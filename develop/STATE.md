@@ -1,6 +1,90 @@
 # Orchestration State
 
-Updated At: 2026-08-14T19:23:27+09:00
+Updated At: 2026-08-15T02:57:10+09:00
+
+## P22-004B Documentation Review Passed — Correction Commit Approved
+
+```text
+2026-08-15T02:57:10+09:00
+Corrected independent Documentation Review returned P1=0／P2=0／P3=0. Reviewer confirmed parent/current tracking synchronization, exact PR #5 failure, both pre／post-release tag lifecycle branches, annotated/root-clone/drift fail-closed checks, published source 3332fd1, worker／Orchestrator full Runtime PASS, bounded Source scope, and no external mutation. The reviewed P22-004B Consumer／static guard correction plus synchronized management evidence may be committed and pushed to PR #5. New required CI must be all Green before merge; main integration／fetch must precede Manual Dispatch. Tag／Release／Packagist／Deploy mutations remain withheld.
+```
+
+## P22-004B Documentation Review P1 — Parent Task Synchronized
+
+```text
+2026-08-15T02:55:41+09:00
+Independent Documentation Review returned P1=1／P2=0／P3=0 only because the parent P22-004 Task still presented the historical P22-004A mise failure as its current blocker. Source implementation and evidence were positive: both lifecycle lanes, annotated/root-clone/drift checks, static guards, worker／Orchestrator Runtime PASS, and no external mutation all agree. Parent Task Status and Active Blocker are now synchronized to User-authorized P22-004B implementation, Orchestrator PASS, Documentation Review pending, PR #5 run 31823195147 exact failure, and the required review→Commit／Push→new CI sequence. No Source changed during this synchronization; Commit／Push／CI rerun／merge／Dispatch remain withheld pending corrected re-review.
+```
+
+## P22-004B Orchestrator Review Passed — Documentation Review Pending
+
+```text
+2026-08-15T02:51:27+09:00
+Orchestrator independently reviewed the P22-004B Runtime Consumer／static guard diff and reran the complete current published-tag journey. Composer upgraded Framework 1.1.0 to 1.2.0 by cloning exact 3332fd1; eleven migrations, Provider-present HTTP／Worker, Provider-missing Classic HTTP／Worker safe-negative, source invariants, and cleanup passed. Shell syntax, version-baseline lifecycle／drift guards, Mago format, management-ID, and git diff checks pass. Pre-release behavior remains the original absent-tag branch; post-release requires annotated type, root／clone peeled equality, and zero drift across release-runtime paths before using the immutable source. No Production Source or external state changed. Documentation Review is pending; Commit／Push／CI rerun／merge／Dispatch remain withheld.
+```
+
+## P22-004B Worker Implementation Complete — Review Pending
+
+```text
+2026-08-15T02:44:10+09:00
+P22-004B worker preserved the pre-release absent-tag lane and added a post-release lane in framework-update-runtime.sh. Existing 1.2.0 must be annotated; its peeled commit must match both the root checkout and disposable clone; release-runtime paths src／composer.json／examples/quickstart／resources／migrations must have no drift from current HEAD before the peeled commit is used. version-baseline.sh statically guards both lifecycle branches and every drift path. Current published-tag Runtime Consumer passes with candidate 3332fd1, 11 migrations, positive／negative HTTP／Worker lanes, source invariants, and cleanup. Shell syntax, version-baseline, Mago format, management-ID, and git diff checks pass. No Commit／Push／CI rerun／merge／Dispatch／Tag／Release／Packagist／Deploy. Orchestrator and Documentation Review remain pending.
+```
+
+## P22-004B Authorized — Runtime Consumer Post-release Tag Lifecycle
+
+```text
+2026-08-15T02:37:53+09:00
+User explicitly approved P22-004B. Luna High worker may change only framework-update-runtime.sh, version-baseline.sh, and scoped management evidence to preserve the pre-release disposable-tag lane while adding a post-release lane that requires the existing annotated 1.2.0 tag, validates its peeled commit, and rejects release-runtime Source drift before using it. Production Source, immutable Framework tag, Skeleton repository, CI gates, and external publication state remain unchanged. Worker must run the current published-tag Runtime Consumer and focused guards, report evidence, and stop before Commit／Push／CI rerun／merge／Dispatch.
+```
+
+## PR #5 CI Failed — Post-release Runtime Consumer Tag Lifecycle
+
+```text
+2026-08-15T02:23:14+09:00
+Reviewed P22-004A was committed as aa74ef57c97ec0199c9c456f963b31789f6da405, pushed to agent/p22-004a-skeleton-toolchain-recovery, and opened as PR #5. Documentation delivery run 31823195126 passed. CI run 31823195147 passed Community Board clean install／full-stack, Frontend, Website, and Quality, but Stable-to-candidate Runtime Consumer failed exit 128 after its Stable install/migration setup at exact `fatal: tag '1.2.0' already exists`. The Consumer still assumes pre-publication state and unconditionally creates a local 1.2.0 tag; the now-published immutable Framework tag is correctly fetched by full-history checkout. Diff verification confirms release runtime paths src／composer.json／examples/quickstart／resources／migrations are unchanged between fixed release source 3332fd1 and PR head aa74ef5. P22-004B proposes a bounded post-release lifecycle correction: when annotated 1.2.0 exists, validate it, require release-runtime path equality, and use its peeled commit; otherwise retain the pre-release local-tag path. No merge／rerun／Dispatch／tag mutation occurred. User approval is required before this new Test correction.
+```
+
+## P22-004A Documentation Review Passed — Checkpoint Commit Approved
+
+```text
+2026-08-15T01:51:10+09:00
+Corrected independent Documentation Review returned P1=0／P2=0／P3=0. Parent P22-004 and P22-004A now agree on User authorization, exact failure and immutable inputs, bounded two-Source-file correction, worker／Orchestrator focused PASS, and the mandatory sequence: checkpoint Commit, dedicated PR with required CI, main integration／fetch verification, then D079 Manual Dispatch release_version=1.2.0. Reviewer permits the current P22-004／P22-004A tracking plus two Source files to be committed and integrated. Manual Dispatch, tag mutation, Skeleton direct change, and GitHub Release remain prohibited until PR CI Green and main verification complete.
+```
+
+## P22-004A Documentation Review P1 — Parent Tracking Sync
+
+```text
+2026-08-15T01:49:36+09:00
+Independent Documentation Review returned P1=1／P2=0／P3=0 only because parent P22-004 Report／TODO／Specification 103 still described Workflow recovery as awaiting User approval. Source correction evidence is positive: exact failure／immutable tag boundaries agree, only two allowed Source files changed, toolchain setup／versions／order and static guard are correct, and focused tests pass. Parent tracking is now synchronized to User authorization, worker implementation, Orchestrator review PASS, Documentation Review pending, then checkpoint Commit／dedicated PR／required CI／main integration／Manual Dispatch. Commit／Push／Dispatch remain withheld until corrected re-review returns P1=0／P2=0.
+```
+
+## P22-004A Orchestrator Review Passed — Documentation Review Pending
+
+```text
+2026-08-15T01:47:38+09:00
+Orchestrator independently reviewed the P22-004A Workflow and static guard diff. The mise action uses the same pinned v4 install/cache contract as CI, exact Node v24.18.0／pnpm 11.12.0 checks precede every Consumer invocation, and the version-baseline guard rejects missing or reordered setup. Independent reruns pass: shell syntax, version-baseline, skeleton publication workflow regression with exact split fa5e8247, Mago format, management-ID guard, and git diff --check. Only the two allowed Source files changed; all other current differences are P22-004／P22-004A management tracking. No external mutation occurred. Independent Documentation Review is next; Commit／Push／Dispatch remain withheld.
+```
+
+## P22-004A Worker Implementation Complete — Review Pending
+
+```text
+2026-08-15T01:45:08+09:00
+P22-004A worker added jdx/mise-action@v4 with install/cache and exact Node v24.18.0／pnpm 11.12.0 verification to publish-skeleton.yml before Consumer gates. version-baseline.sh now statically requires those setup/version lines and their order before quickstart-e2e.sh. Required focused commands pass: shell syntax, version-baseline, skeleton-publication-workflow split fa5e8247fc8cf789cf73685e5be59cc498ffb4ce, Mago format, management-ID guard, and git diff --check. Immutable Framework tag/source and publication state were not changed. No Commit／Push／Dispatch／Tag／Release／Packagist／Deploy. Orchestrator and Documentation Review remain pending.
+```
+
+## P22-004A Authorized — Skeleton Workflow Toolchain Recovery
+
+```text
+2026-08-15T01:41:47+09:00
+User instructed `リリースもしてよ、composerでインストールできるように`, explicitly authorizing recovery needed to complete Composer-installable Framework／Skeleton 1.2.0 publication. P22-004A is initialized for the exact run 31809007808 failure only: install and verify the repository-pinned mise frontend toolchain in publish-skeleton.yml and add a static version-baseline guard. Luna High worker implementation, Orchestrator review, independent Documentation Review, focused/full CI, dedicated PR integration, then D079 Manual Dispatch release_version=1.2.0 are required. Framework tag 1.2.0 remains immutable at exact 3332fd1. No tag move／deletion／replacement, Skeleton direct edit, gate waiver, or GitHub Release creation before recovery success.
+```
+
+## P22-004 Publication Blocked — Skeleton Workflow Missing mise
+
+```text
+2026-08-15T01:33:21+09:00
+Framework annotated tag 1.2.0 was created with message `BlackOps Framework 1.2.0`, pushed once, and live remote refs show direct tag object 00e8c5875047a3c47acbebfe57f75b0e581d18b9 peeling to exact fixed source 3332fd1dd0738fc7e79750facd93d49a59054ecf. Packagist Framework 1.2.0 is visible. Tag-triggered Skeleton publication run 31809007808 passed checkout／tag validation／image build／dependency install／Framework quality, then failed in Consumer gates at quickstart-e2e.sh line 63 with `mise: command not found` (exit 127). Credential configuration and Skeleton push were not reached; always-run credential／temporary-state cleanup passed. Skeleton remote main remains 293f880, Skeleton 1.2.0 tag and Packagist version remain absent, and GitHub Release remains uncreated. D079 recovery requires a corrected main-branch Workflow plus Manual Dispatch of immutable release_version=1.2.0 with all gates. The bounded correction is to install and verify the repository-pinned mise frontend toolchain in publish-skeleton.yml before Consumer gates. Workflow correction is outside current P22-004 authorization and requires User approval; do not rerun, dispatch, move tags, or publish a Release meanwhile.
+```
 
 ## P22-004 Tracking Checkpoint Documentation Review Passed
 

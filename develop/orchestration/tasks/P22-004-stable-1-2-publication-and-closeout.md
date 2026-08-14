@@ -1,6 +1,6 @@
 # P22-004: Stable 1.2 Publication and Closeout
 
-Status: In Progress (Tracking Checkpoint Reviewed; Integration Pending)
+Status: In Progress (P22-004B Review Passed; Correction Integration Pending)
 
 ## Goal
 
@@ -83,8 +83,8 @@ Production／Test／Workflowの修正が必要ならPublicationを広げず、�
 
 ## Acceptance Criteria
 
-- [ ] Tracking checkpointがreviewed Commitとしてremote `main`へ統合され、Working Treeがcleanである（Documentation Review P1=0／P2=0／P3=0、Commit／PR integration pending）
-- [ ] Framework `1.2.0`がannotated tagで、Peeled CommitがFixed Sourceと一致する
+- [x] Tracking checkpointがreviewed Commitとしてremote `main`へ統合され、Working Treeがcleanである（Documentation Review P1=0／P2=0／P3=0、PR #4 merge `55bfe12`）
+- [x] Framework `1.2.0`がannotated tagで、Peeled CommitがFixed Sourceと一致する（direct object `00e8c587`、peeled `3332fd1`）
 - [ ] Skeleton Publication WorkflowがFull Gate後に成功する
 - [ ] Skeleton `main`とannotated `1.2.0`のPeeled CommitがFixed Splitと一致する
 - [ ] Packagist `blackops/framework`／`blackops/skeleton` `1.2.0`が公開Tagを参照する
@@ -130,6 +130,12 @@ Packagist MetadataとRemote Smokeの実行Command、Temporary Path、Cleanup、C
 - Skeleton同名lightweight tag、異なるPeeled Commit、`main`のFast-forward不能は自動修正せずBlockerとする
 - GitHub Release作成失敗はPackage Tagを変更せずRelease作成だけを再処理する
 - Packagist反映遅延はImmutable Tagを保持してbounded pollingする
+
+## Active Blocker
+
+P22-004A corrected the missing mise toolchain and is committed as PR #5 head `aa74ef5`. PR #5 CI run `31823195147` then failed only the Runtime Consumer with exact `fatal: tag '1.2.0' already exists`, exit 128, because its pre-release lane unconditionally recreated the now-published immutable tag.
+
+User authorized P22-004B. Its bounded correction is implemented and passed worker／Orchestrator full Runtime Consumer evidence: tag absence retains the disposable candidate lane; tag presence requires annotated type, root／clone peeled equality, and zero drift across release-runtime paths before exact published source `3332fd1` is used. Documentation Review returned P1=0／P2=0／P3=0 and permits the Correction Commit／PR #5 push. New required CI must be all Green; Green merge／fetch must precede D079 Manual Dispatch `release_version=1.2.0`. Framework tag remains immutable.
 
 ## Expected Report
 
