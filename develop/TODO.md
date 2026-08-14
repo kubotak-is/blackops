@@ -242,12 +242,12 @@ MVP後に残す主要項目:
 - [x] Main root／Telemetry scope／Skeleton constraint／Candidate Consumerを`1.2.0`系列へ同期する（P22-001 Accepted）
 - [x] Stable install journey、Tag／Release／Packagist claim、歴史的記録を変更しないVersion inventory guardを整備する（P22-001 Accepted）
 - [x] `1.1.0...main` Surface Audit、完全な`1.2.0` Release Note／Upgrade、actual Framework Update Consumerを整備する（P22-002 Accepted、Documentation Reviewer P1=0／P2=0／P3=0）
-- [ ] Fixed `1.2.0` Release Candidate SHAでRuntime Consumer（Stable 2 migration→candidate 9 migration、Provider-present／missing HTTP／Worker）、全Local／Consumer／Website／CI Gateを実施する（P22-003 In Progress。`96383e1` same-SHA CI `31719526793`はRuntime Consumer Git modeでQualityのみFAIL。P22-003D mode-only correction staged、Documentation Review pending）
+- [x] Fixed `1.2.0` Release Candidate SHAでRuntime Consumer（Stable 2 migration→candidate 9 migration、Provider-present／missing HTTP／Worker）、全Local／Consumer／Website／CI Gateを実施する（P22-003 Accepted。candidate `3332fd1`、CI `31771509163`、merge `5471491`、Reviewer P1=0／P2=0／P3=0）
 - [x] Runtime disposable Git identity／Quality full-history checkout／Guide PHP opening-tag normalizationを3 Source fileへ限定して修正する（P22-003C Accepted、Reviewer P1=0／P2=0／P3=0、Commit `96383e1`）
-- [x] Runtime ConsumerのGit index modeを本文不変の`100755`へ限定修正する（P22-003D Accepted、Reviewer P1=0／P2=0／P3=0、Correction Commit approved）
+- [x] Runtime ConsumerのGit index modeを本文不変の`100755`へ限定修正する（P22-003D Accepted、Commit `3332fd1`、Reviewer P1=0／P2=0／P3=0）
 - [~] Mago既存Debtをtracked strict baselineへ固定し、DeptracをPHP 8.5対応4.7.1へ限定更新する（D140／P22-003Aはpartial tooling checkpoint `0eca056`。残ったArchitecture／export blockerはP22-003Bで解消）
 - [x] Deptracのpublic／bounded internal Layerを同期し、generic Internal permissionなしで152 violations／59 uncoveredとMago baseline archive exclusionを閉じる（D141／D142 Option B／P22-003B Accepted、candidate `577cc224`、post-commit exact export PASS、Reviewer P1=0／P2=0／P3=0）
-- [ ] 別途承認後にTag／Push、Skeleton publication、Packagist／GitHub Release／Remote Smokeを実施する（P22-004）
+- [ ] User承認済みのGreen-gated Tag／Push、Skeleton publication、Packagist／GitHub Release／Remote Smokeを実施する（P22-004 In Progress）
 
 ### Deferred: Documentation Website Publication
 
