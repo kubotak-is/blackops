@@ -1,6 +1,6 @@
 # Specification 103: Stable 1.2 Release Plan
 
-Status: Decided (P22-003 candidate same-SHA Remote CI failed; approved P22-003C correction is Documentation Review Pending)
+Status: Decided (P22-003D mode-only correction staged; Documentation Review pending)
 
 ## Release lanes
 
@@ -43,6 +43,10 @@ P22-003B closes the resulting architecture and package boundaries: explicit publ
 P22-003Aのhistorical review evidence records that Mago normal／verify lint succeeds, while Deptrac 4.7.1 reaches all 857 files but reports 152 violations／59 uncovered under the unchanged Ruleset, and Framework package export lacks the root baseline archive-exclusion contract. P22-003BのD141／D142 correctionではDeptrac 0 violations／0 uncovered、bounded facade/internal SCC guard、root/exclusion contractを確認した。Documentation Review P1=0／P2=0／P3=0後に`577cc224e0628ccbb9d91027ca214a4625a5228a`へCommitし、直後のGit／Composer全regular-file inventory完全一致とPublic API必須fileを含むexact package exportもPASSした。P22-003BはAcceptedであり、このSHAをreplacement candidateとしてP22-003 Full Gateを再実行し、complete local gateがPASSした。
 
 Replacement candidate `577cc224e0628ccbb9d91027ca214a4625a5228a` completed the entire local P22-003 gate: strict-baseline Mago lint, Full PHPUnit `2317／9444`, Deptrac `858/858` with zero violation／uncovered, all 23 Consumers, Frontend, Website, package export, create-project, deterministic Skeleton split, and repository guards. The first Scheduled Operation concurrency run exited 255 after creating both evaluator containers; cleanup completed and an immediate unchanged-source rerun passed, so it is retained as diagnostic evidence rather than a Source correction. Direct `main` Push was rejected without mutation by the pull-request Repository Rule; exact candidate `577cc224` was pushed to a candidate branch and Draft PR #3. Same-SHA CI and Documentation delivery then failed because the Runtime disposable Git lacked tagger identity, Quality used a shallow checkout without Stable tag `1.1.0`, and the guide syntax test duplicated an existing PHP opening tag. A bounded correction changes Candidate Source and therefore requires a new reviewed Commit plus complete Local／Remote gate restart. After successful same-SHA Remote CI, final Documentation Review must pass before Orchestrator acceptance; publication remains prohibited until that sequence completes.
+
+P22-003C closed those three CI environment contracts without Production PHP／Public API／Guide本文 changes. Documentation Reviewer returned P1=0／P2=0／P3=0, and the correction was committed as replacement candidate `96383e1bbe1a0914d1eddc9e1dea160042804f7c`. The complete Local Gate passed at this exact SHA without reusing `577cc224` evidence: strict quality, all 23 Consumers, Frontend, Website, package／create-project／deterministic Skeleton split, and repository guards are green. Draft PR #3 must next be updated to this exact SHA and pass same-SHA Remote CI before final Documentation Review and Orchestrator acceptance.
+
+Draft PR #3 was updated to exact `96383e1`. Documentation delivery and every CI job except Quality passed. Quality stopped in `version-baseline.sh` because `tests/Consumer/framework-update-runtime.sh` is committed with Git mode `100644` even though WSL2 exposed local mode `0755` under `core.filemode=false`. The executable guard remains required. P22-003D was explicitly approved and stages only Git mode `100644` to `100755`; the script blob/content is unchanged and focused Orchestrator review passes. Documentation Review must approve the correction before Commit. That Commit becomes a new candidate and restarts the complete Local／same-SHA Remote gate.
 
 ## Traceability
 

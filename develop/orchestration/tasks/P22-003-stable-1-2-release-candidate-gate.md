@@ -1,6 +1,6 @@
 # P22-003: Stable 1.2 Release Candidate Gate
 
-Status: In Progress (Replacement Candidate Local Gate Complete; Same-SHA Remote CI Failed; P22-003C Correction In Progress)
+Status: In Progress (P22-003D Mode-Only Correction Staged; Documentation Review Pending)
 
 ## Goal
 
@@ -18,9 +18,12 @@ Status: In Progress (Replacement Candidate Local Gate Complete; Same-SHA Remote 
   - `6e009a433ce1c687f2f117d69afb14079668c206` (`fix: harden community board release setup`)
   - `e4be46f7e883f5247ed94f86c7854e3163a6c7dc` (`test: correct community board digest actor assertion`)
   - `08ad61f8236b3a240c9c9547fbde3b9d765fc6d5` (`test: prepare scheduled operation runtime directory`)
-- Final Fixed Candidate: `577cc224e0628ccbb9d91027ca214a4625a5228a` (`fix: close release architecture boundaries`)
+  - `577cc224e0628ccbb9d91027ca214a4625a5228a` (`fix: close release architecture boundaries`; Local Gate PASS, Remote CI failed)
+- Final Fixed Candidate: `96383e1bbe1a0914d1eddc9e1dea160042804f7c` (`fix: close remote CI environment contracts`)
 
 D140／P22-003AでMago strict baselineとDeptrac 4.7.1 tooling correctionを実装した。P22-003Aで露出した152 violations／59 uncoveredとpackage export exclusionは、D141／D142／P22-003Bで解消しAcceptedとなった。Reviewed correction Commit `577cc224e0628ccbb9d91027ca214a4625a5228a`をreplacement Final Fixed Candidateとし、post-commit exact Framework package exportもPASSした。Full GateはこのSHAから最初から再実行し、complete local gateがPASSした。
+
+`577cc224`のsame-SHA Remote CIで露出した3つのCI environment contract gapはP22-003Cで修正し、Documentation Reviewer P1=0／P2=0／P3=0後に`96383e1bbe1a0914d1eddc9e1dea160042804f7c`へCommitした。このSHAをreplacement Final Fixed Candidateとし、`577cc224` evidenceをAcceptanceへ再利用せずcomplete Local Gateを最初から再実行する。
 
 P22-002で要求されたStable-to-candidate Runtime ConsumerとCI wiringはBaselineにまだ存在しない。このTaskでは最初にGate Assetを実装、Review、Commitする。そのCommitをFinal Fixed Candidateとして明記し、以後のFull Gateを最初から実行する。Final Fixed Candidate確定後にTest／Workflow／Production／Skeleton／Release Metadata／利用者向けDocumentationを修正する必要が生じた場合、SHAを暗黙に読み替えずReportへBlockerを記録し、修正Commit後の新SHAでFull Gateを最初から再実行する。
 
@@ -155,8 +158,8 @@ Task／Report／STATEだけのCloseout CommitはFinal Fixed Candidateへ含め�
 - [x] Auth Generator Fresh／FrankenPHP Worker／Scheduled Operation Consumerがfail-closed Storage Key準備とcleanupを実証し、Scheduled Operationが空Directoryのarchive／copy保持へ依存せず起動する
 - [x] CHANGELOG／UPGRADEがStable current-schema Metadata誤認、Candidateの既存Row認識、再実行を避ける安全なUpgrade順序を記録する
 - [x] UPGRADE／公開Install／Runtime／Quickstart GuideとWebsite契約Testが、Stableの匿名認可と必須`X-Sample-Token` Value Bindingを混同せず実行可能な手順を記録する
-- [ ] GitHub Actionsが新Runtime Consumerを実行し、Workflowの静的契約とLocal equivalentが成功する（`577cc224` Remote failureを閉じるP22-003C correctionはDocumentation Review Pending。Commit後の新SHAで再実行する）
-- [ ] P22-003C replacement Final Fixed Candidate SHAがCommitted SourceとしてTask／Reportへ固定される（`577cc224`はhistorical failed candidate）
+- [ ] GitHub Actionsが新Runtime Consumerを実行し、Workflowの静的契約とLocal equivalentが成功する（`96383e1` Local equivalentはPASS。same-SHA CI `31719526793`はRuntime ConsumerのGit index mode `100644`をversion guardが拒否してQualityのみFAIL）
+- [x] P22-003C replacement Final Fixed Candidate SHA `96383e1bbe1a0914d1eddc9e1dea160042804f7c`がCommitted SourceとしてTask／Reportへ固定される（`577cc224`はhistorical failed candidate）
 - [x] Community BoardがApplication-owned `StorageKeyProvider`を登録し、fresh setupでstrict base64 32-byte Key／単一Assignment／mode 600／非露出を満たし、失敗時に不完全`.env`を残さず、既存`.env`を暗黙変更しない
 - [x] Community Board lockがCurrent Candidate Frameworkの`open-telemetry/api`／`ext-sodium`要求を保持し、fresh Composer install後のSeed／HTTP／Worker Runtimeが依存欠落なく起動する
 - [x] Community Board clean installが11 Framework＋5 Application Migrationを適用し、同じ16件をREADMEとConsumerが主張する
@@ -164,12 +167,12 @@ Task／Report／STATEだけのCloseout CommitはFinal Fixed Candidateへ含め�
 - [x] `docs/internal/bootstrap.md`が現行Framework-owned proxy実装をRay.Aopなしで説明する
 - [x] Current spec／Mago／Deptrac configurationがRay.Aop依存・namespace・vendor includeなしで現行Framework-owned proxy契約を表現する
 - [ ] Final Fixed Candidate SHAがLocal／Remote `main` Historyに存在し、同SHAのGitHub Actions CIが成功する（`577cc224`はremote candidate branchへPush済みだがmain未Merge、CI／Documentation deliveryは失敗）
-- [ ] Composer、Mago、Full PHPUnit、DeptracがP22-003C replacement candidateで成功する（`577cc224`のPHPUnit 2317／9444、Deptrac 858/858はhistorical）
-- [ ] 全23 top-level non-interactive ConsumerがP22-003C replacement Final Fixed Candidateで成功する
-- [ ] Skeleton `1.2.0` Publication Dry RunがP22-003C replacement Final Fixed Candidateから決定的なSplit Commitを再生成する（`fa5e8247...`はhistorical）
-- [ ] 通常／`--no-scripts` Create-projectとFramework Package ExportがP22-003C replacement Final Fixed Candidateで成功する
-- [ ] Website Unit／Check／Build／Public Artifact GuardがP22-003C replacement Final Fixed Candidateで成功する
-- [ ] Public API、Management ID、Credential、Generated State、Version、Working Tree GuardがP22-003C replacement Final Fixed Candidateで成功する
+- [x] Composer、Mago、Full PHPUnit、DeptracがP22-003C replacement candidate `96383e1`で成功する（PHPUnit 2317／9444、Deptrac 858/858、0 violation／skipped／uncovered）
+- [x] 全23 top-level non-interactive ConsumerがP22-003C replacement Final Fixed Candidate `96383e1`で成功する
+- [x] Skeleton `1.2.0` Publication Dry RunがP22-003C replacement Final Fixed Candidateから決定的なSplit Commit `fa5e8247fc8cf789cf73685e5be59cc498ffb4ce`を再生成する
+- [x] 通常／`--no-scripts` Create-projectとFramework Package ExportがP22-003C replacement Final Fixed Candidateで成功する
+- [x] Website Unit／Check／Build／Public Artifact GuardがP22-003C replacement Final Fixed Candidateで成功する
+- [x] Public API、Management ID、Credential、Generated State、Version、Working Tree GuardがP22-003C replacement Final Fixed Candidateで成功する
 - [x] CHANGELOG Known LimitationsとUPGRADE手順が実装Surfaceと一致する
 - [x] Framework／Skeleton `1.2.0` Tag、GitHub Release、Packagist Stableが未公開であることをRead-onlyで確認する
 - [x] P22-004 Publication Checklist、Success条件、Recovery条件がReportへ固定される

@@ -1,6 +1,6 @@
 # P22-003 Stable 1.2 Release Candidate Gate Report
 
-Status: In Progress — Candidate `577cc224e0628ccbb9d91027ca214a4625a5228a` completed its local gate but failed same-SHA Remote CI; the approved P22-003C correction is Documentation Review Pending and must produce a new reviewed candidate, so Orchestrator acceptance is withheld.
+Status: In Progress — P22-003D mode-only correction is staged with unchanged Runtime Consumer content and passed Orchestrator focused review; Documentation Review is pending before a new candidate Commit and complete Local／Remote gate restart.
 
 ## Summary
 
@@ -14,6 +14,12 @@ The complete replacement-candidate local gate passed at `577cc224`: Composer str
 
 The separately authorized direct Push to `main` was rejected without remote mutation by the active pull-request Repository Rule and was not retried. Exact candidate `577cc224` was instead pushed to `agent/p22-003-stable-1-2-release-candidate`, and Draft PR #3 started same-SHA CI. CI run `31693960894` and Documentation delivery run `31693960994` failed: the Runtime Consumer's disposable Git repository has no tagger identity, the Quality job's shallow checkout omits Stable tag `1.1.0`, and the Website test unconditionally prepends `<?php` to outbox examples that already contain it. These are deterministic CI-environment contract gaps. Any correction changes Workflow／Consumer／Website-test Source, so the corrected Commit becomes a new candidate and requires the complete P22-003 gate to restart.
 
+Replacement candidate `96383e1bbe1a0914d1eddc9e1dea160042804f7c` then passed the complete restarted Local Gate. Composer strict validation, exact package export, Mago format／strict lint／baseline verification／analyze, Full PHPUnit (`2317 tests / 9444 assertions`), and Deptrac (`858/858`, 0 violations／skipped／uncovered, 4,848 allowed) passed. All 23 top-level Consumers passed, including the corrected Stable-to-candidate Runtime Consumer and the six CI-equivalent Community Board journeys. Frontend contract/runtime, Website (`79` tests, 41-page site check, 42-page build), deterministic Skeleton publication split `fa5e8247fc8cf789cf73685e5be59cc498ffb4ce`, normal／no-scripts create-project, and final repository guards passed. Generated dependencies/build artifacts were removed and Compose resources were stopped. The remote candidate branch and Draft PR still point to historical `577cc224` until the independently reviewed local-gate checkpoint authorizes the same-SHA branch update.
+
+Independent checkpoint review returned P1=0／P2=0／P3=0 after correcting two stale Task status lines and permitted only the exact `96383e1` candidate-branch update plus same-SHA CI monitoring. The existing branch was updated with an explicit SHA refspec, and live Draft PR #3 head became exact `96383e1`. Documentation delivery run `31719526552` passed its artifact build and PR preview deployment; main production deployment was skipped. CI run `31719526793` passed Community Board clean install／full-stack, Frontend, Runtime Consumer, and Website, but Quality failed at `version-baseline.sh`: `Runtime consumer must be executable`. Git evidence shows `tests/Consumer/framework-update-runtime.sh` is committed as mode `100644`, while the WSL2 working tree presents mode `0755` and `core.filemode=false`; the local guard therefore passed against untracked filesystem metadata that GitHub checkout does not preserve.
+
+The user approved P22-003D, which permits only Git mode `100644` to `100755` with unchanged script blob/content. The Luna High worker verified the exact blob and focused guards but could not write `.git/index.lock` in its read-only sandbox; the Orchestrator applied the approved mechanical `git add --chmod=+x` update. Staged Source diff is 0 insertions／0 deletions and only `old mode 100644`／`new mode 100755`, while HEAD／index／worktree blob remains `8b82505b2da9b14014a20836a42137d33e6042fd`. Shell syntax, version-baseline, management-ID, scope, and staged／unstaged diff checks pass. Orchestrator focused review passed; Documentation Review is pending before a new candidate Commit. Complete Local／same-SHA Remote evidence must then restart without reuse.
+
 ## Candidate Establishment and Fixed SHA Evidence
 
 - Baseline commit: `61142d254861ffe13985679c338f592a46151af5`.
@@ -22,11 +28,13 @@ The separately authorized direct Push to `main` was rejected without remote muta
 - Superseded candidate: `6e009a433ce1c687f2f117d69afb14079668c206` (`fix: harden community board release setup`).
 - Superseded candidate: `e4be46f7e883f5247ed94f86c7854e3163a6c7dc` (`test: correct community board digest actor assertion`).
 - Superseded candidate: `08ad61f8236b3a240c9c9547fbde3b9d765fc6d5` (`test: prepare scheduled operation runtime directory`).
-- Final Fixed Candidate: `577cc224e0628ccbb9d91027ca214a4625a5228a` (`fix: close release architecture boundaries`).
+- Superseded candidate: `577cc224e0628ccbb9d91027ca214a4625a5228a` (`fix: close release architecture boundaries`; Local Gate PASS, Remote CI failed).
+- Final Fixed Candidate: `96383e1bbe1a0914d1eddc9e1dea160042804f7c` (`fix: close remote CI environment contracts`).
 - P22-003B post-commit exact Framework Git／Composer package export passed from this committed source.
 - Candidate source is cloned from the repository's committed `HEAD`; uncommitted Task/STATE/Report files are not mounted as candidate source.
 - The Consumer verifies annotated Stable tag type and peeled commit, archives only `1.1.0:examples/quickstart`, then creates an annotated local `1.2.0` tag at the committed candidate SHA.
 - Documentation Reviewer returned P1=0/P2=0/P3=0 and permitted the bounded Gate Asset commit. No external Tag/Push was performed.
+- P22-003C Documentation Reviewer returned P1=0/P2=0/P3=0 and permitted the three-Source Remote CI contract correction Commit; Orchestrator committed it as `96383e1bbe1a0914d1eddc9e1dea160042804f7c`.
 - The fixed-SHA full gate found `auth-generator-fresh.sh` copies `.env.example` without populating the now-required `BLACKOPS_STORAGE_KEY`; the same stale setup is present in `frankenphp-worker-mode.sh` and `scheduled-operation.sh`. Per the Task reset rule, `99f723d` is not silently retained as the Final Fixed Candidate.
 - Documentation Reviewer returned P1=0/P2=0/P3=0 for the seven-file correction and permitted commit `413d0964cc132d685b228d5b8d697ac6cc4543e6` as the replacement Final Fixed Candidate.
 - The restarted gate at `413d096` passed the initial syntax, Composer, package-export, clean-source format/analyze, full PHPUnit rerun, and Auth Generator Fresh stages. Broad Mago lint and Deptrac reproduced the recorded baseline blockers. Community Board clean install stopped at its pre-migration seed-message assertion because the actual safe output was `Database seeding runtime could not be resolved.`, proving the Reference Application lacked the mandatory Provider composition rather than reaching the intended database-before-migration failure. The Task reset rule supersedes `413d096`.
@@ -48,9 +56,21 @@ The Consumer applies only the three authorized candidate runtime bootstrap files
 
 The negative lane removes only the Provider binding after the common migrated database and candidate build. It checks the exact internal safe Provider error without printing it, then exercises `http-classic`／`classic-mode` for generic HTTP `500` JSON and actual Worker CLI startup for non-running/nonzero safe failure. Provider-present remains Worker-mode HTTP／Worker. HTTP/Worker output and Classic HTTP logs are bounded and searched without printing for key, payload, SQL, stack, tenant, or actor leakage.
 
-The exact replacement-candidate run passed with: `Framework update runtime consumer passed: stable=e3df5576c7216cfe8bd9e10e12ee6795f7674088 candidate=577cc224e0628ccbb9d91027ca214a4625a5228a migrations=11 provider-present=http-worker provider-missing=classic-http-worker-safe-negative.` Cleanup completed and the repository source-state invariant held with exit 0.
+The exact replacement-candidate run passed with candidate `96383e1bbe1a0914d1eddc9e1dea160042804f7c`: Stable `e3df5576c7216cfe8bd9e10e12ee6795f7674088`, 11 migrations, Provider-present HTTP／Worker, Provider-missing Classic HTTP／Worker safe-negative, source invariant, and cleanup all completed with exit 0.
 
 ## Local PHP, Consumer, Frontend, and Website Full Gate Evidence
+
+The current complete Local Gate used committed source `96383e1bbe1a0914d1eddc9e1dea160042804f7c`; uncommitted management files were excluded from candidate clones and package export.
+
+- PASS: Consumer shell syntax, root／Quickstart Composer strict validation, exact Framework package export, Mago format／strict-baseline lint／baseline verification／analyze, Full PHPUnit (`2317 tests / 9444 assertions`), and Deptrac (`858/858`, 0 violations／skipped／uncovered, 4,848 allowed).
+- PASS: all 23 top-level Consumer scripts. The lost clean-install continuation output was not treated as evidence; with no process or temporary container remaining, the exact clean-install journey was rerun and passed. Community Board Browser passed Playwright 2/2; Foundation, Identity, Post／Comment, Product, and `CI=true` Digest all passed. Digest's first sandboxed invocation was denied Docker-socket access before setup and the identical escalated invocation passed; no Source changed.
+- PASS: corrected Runtime Consumer resolved Stable `e3df5576` to candidate `96383e1`, applied 11 Framework migrations, passed Provider-present／missing HTTP／Worker lanes, and cleaned source／Docker state.
+- PASS: Framework proxy-removal clean install, update generators, Auth, FrankenPHP Worker, both OpenTelemetry lanes, Quickstart, Scheduled Operation, Skeleton create-project／workflow／publication, and Storage protection rotation. The publication script was first invoked without its required arguments by the Orchestrator runner and rejected the invocation; the required `1.2.0 96383e1...` invocation then passed with deterministic split `fa5e8247fc8cf789cf73685e5be59cc498ffb4ce`.
+- PASS: Frontend Actions-equivalent image/dependency preparation, backend contract compile, seven-file generation/freshness, type/runtime/module-shape tests, tracked/generated/secret guards, and cleanup.
+- PASS: Website dependency synchronization, `79/79` tests, content／diagram／link／type checks, 42-page build, 41-page site check, public boundary guard, and generated cleanup.
+- PASS: final SHA, shell syntax, PHP management-ID, credential-pattern, generated-state, Quickstart lock／vendor, `git diff --check`, and final Mago format guards. Only the allowed management-document changes remain tracked; Compose resources are stopped.
+
+The `577cc224` complete-gate evidence below is retained as historical traceability and does not satisfy current-candidate acceptance.
 
 The complete replacement local gate used committed source `577cc224e0628ccbb9d91027ca214a4625a5228a`; uncommitted Task／Report／STATE files were not included in candidate clones or package export.
 
@@ -263,9 +283,9 @@ The Digest Consumer's direct SQL query exposes only the journal's denormalized `
 ## Acceptance Criteria
 
 - [x] Runtime Consumer and CI wiring implement the P22-002 common migration/DDL and Provider-present/missing lane contract.
-- [ ] Corrected Runtime Consumer executes successfully with cleanup/source/Docker invariants at the committed P22-003C replacement candidate (`577cc224` evidence is historical).
-- [ ] P22-003C replacement Final Fixed Candidate SHA is committed and recorded after independent review.
-- [ ] Full local strict quality passes at the P22-003C replacement fixed SHA without evidence reuse.
+- [x] Corrected Runtime Consumer executes successfully with cleanup/source/Docker invariants at the committed P22-003C replacement candidate (`577cc224` evidence is historical).
+- [x] P22-003C replacement Final Fixed Candidate SHA `96383e1bbe1a0914d1eddc9e1dea160042804f7c` is committed and recorded after independent review.
+- [x] Full local strict quality passes at the P22-003C replacement fixed SHA without evidence reuse.
 - [ ] Same-SHA Remote GitHub Actions passes after the reviewed P22-003C replacement candidate updates the PR-required remote branch.
 - [x] Report, Specification 103, TODO, and STATE are synchronized with the completed local execution and remaining blockers.
 - [x] Community Board registers an Application-owned `StorageKeyProvider`, fresh setup creates a strict 32-byte Local key with mode 600 and no exposure, and existing `.env` remains unchanged.
@@ -275,18 +295,18 @@ The Digest Consumer's direct SQL query exposes only the journal's denormalized `
 - [x] Current spec, Mago, Deptrac, and internal Bootstrap documentation describe the Framework-owned proxy artifact contract without obsolete Ray.Aop dependency or path references.
 - [x] Digest Consumer asserts only denormalized `origin_actor_id` and exact origin continuity for all eight journal records; protected execution actor remains unqueried.
 - [x] Scheduled Operation Consumer prepares the Quickstart runtime log directory required by the configured journal and logging paths, then passes CLI, recovery, and concurrency evidence.
-- [ ] All 23 top-level Consumers, Frontend, Website, Framework export, Skeleton split/publication dry run, normal/no-scripts create-project, and repository guards pass at the P22-003C replacement candidate (`577cc224` result is historical).
+- [x] All 23 top-level Consumers, Frontend, Website, Framework export, Skeleton split/publication dry run, normal/no-scripts create-project, and repository guards pass at the P22-003C replacement candidate (`577cc224` result is historical).
 - [x] CHANGELOG Known Limitations and UPGRADE match the fixed candidate release and migration surface.
 - [x] Framework／Skeleton tags, GitHub Release, and Packagist `1.2.0` are confirmed absent read-only.
 - [x] P22-004 preconditions require the new correction SHA, complete Local／same-SHA Remote gates, final review／acceptance, and recomputed deterministic split without authorizing publication.
 
 ## Remaining Issues
 
-1. Local strict quality and the complete gate passed historically at `577cc224`; the tracked Mago baseline continues to retain the existing 186 issues as explicit debt, but none of that candidate evidence satisfies the future correction SHA.
-2. Candidate `577cc224` exists on remote candidate branch and Draft PR #3 but not in remote `main`; same-SHA CI and Documentation delivery failed on the three diagnosed CI-environment contracts.
-3. P22-003C was explicitly approved and its Task-scoped Luna High implementation plus Orchestrator review are complete; independent Documentation Review is pending before a new candidate Commit and complete Local／same-SHA Remote gate restart.
-4. Final Documentation Review and P22-003 Acceptance remain withheld until the replacement Remote CI succeeds and closeout management files are reconciled.
+1. Replacement candidate `96383e1` passed the complete Local Gate. The tracked Mago baseline retains the existing 186 findings as explicit debt, with strict baseline verification green.
+2. Remote candidate branch and Draft PR #3 point to `96383e1`, but CI run `31719526793` failed Quality because the Runtime Consumer Git index mode is `100644`; all other CI jobs and Documentation delivery passed.
+3. P22-003D mode-only correction (`100644` to `100755`) is approved and staged with unchanged blob after Luna High implementation plus Orchestrator focused review; independent Documentation Review is pending before a new candidate Commit.
+4. Final Documentation Review and P22-003 Acceptance remain withheld. PR merge and all P22-004 publication actions remain prohibited until their recorded preconditions are met.
 
 ## Suggested Next Action
 
-Complete P22-003C Documentation Review. If P1=0／P2=0, commit the reviewed correction as a new candidate and restart the complete P22-003 Local／Remote gate without reusing `577cc224` evidence. Do not merge PR #3 or begin P22-004 publication before successful replacement-candidate Remote CI, final Documentation Review, and P22-003 acceptance.
+Complete P22-003D Documentation Review. If P1=0／P2=0, commit the reviewed mode-only correction as a new candidate, then restart the complete Local Gate without evidence reuse. Do not rerun the failed workflow, update the PR branch, merge PR #3, or begin P22-004 publication before the new local gate passes.
