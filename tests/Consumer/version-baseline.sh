@@ -418,6 +418,55 @@ assert_manual_recovery_harness() {
 assert_quickstart_output_drain
 assert_manual_recovery_harness
 
+assert_generator_resource_inventory() {
+    local file='.github/workflows/publish-skeleton.yml'
+
+    contains "${file}" 'test -d resources/stubs'
+    contains "${file}" 'invalid_stub_entries='
+    contains "${file}" 'filesystem_stubs='
+    contains "${file}" "find resources/stubs -mindepth 1 -maxdepth 1 -type f -name '*.stub'"
+    contains "${file}" "-printf 'resources/stubs/%P\\n'"
+    contains "${file}" "git ls-files -- 'resources/stubs/*.stub' | sort"
+    contains "${file}" 'test -z "${invalid_stub_entries}"'
+    contains "${file}" 'test -n "${filesystem_stubs}"'
+    contains "${file}" 'test -n "${tracked_stubs}"'
+    contains "${file}" 'test "${filesystem_stubs}" = "${tracked_stubs}"'
+    contains "${file}" "! find examples/quickstart -type f -path '*/stubs/*' -print -quit | grep ."
+    absent "${file}" 'expected_stubs='
+    absent "${file}" 'migration.php.stub'
+    absent "${file}" 'operation-outcome.php.stub'
+    absent "${file}" 'operation-value.php.stub'
+    absent "${file}" 'operation.php.stub'
+
+    awk '
+        index($0, "- name: Verify generator resource ownership") { ownership_line = NR }
+        index($0, "test -d resources/stubs") { directory_line = NR }
+        index($0, "invalid_stub_entries=") { invalid_assignment_line = NR }
+        index($0, "test -z \"${invalid_stub_entries}\"") { invalid_test_line = NR }
+        index($0, "filesystem_stubs=") { filesystem_assignment_line = NR }
+        index($0, "tracked_stubs=") { tracked_assignment_line = NR }
+        index($0, "test -n \"${filesystem_stubs}\"") { filesystem_nonempty_line = NR }
+        index($0, "test -n \"${tracked_stubs}\"") { tracked_nonempty_line = NR }
+        index($0, "test \"${filesystem_stubs}\" = \"${tracked_stubs}\"") { equality_line = NR }
+        index($0, "! find examples/quickstart -type f -path '\''*/stubs/*'\''") { quickstart_line = NR }
+        END {
+            if (!ownership_line || !directory_line || !invalid_assignment_line || !invalid_test_line ||
+                !filesystem_assignment_line || !tracked_assignment_line || !filesystem_nonempty_line ||
+                !tracked_nonempty_line || !equality_line || !quickstart_line ||
+                !(ownership_line < directory_line && directory_line < invalid_assignment_line &&
+                invalid_assignment_line < invalid_test_line && invalid_test_line < filesystem_assignment_line &&
+                filesystem_assignment_line < tracked_assignment_line && tracked_assignment_line < filesystem_nonempty_line &&
+                filesystem_nonempty_line < tracked_nonempty_line && tracked_nonempty_line < equality_line &&
+                equality_line < quickstart_line)) {
+                exit 1
+            }
+        }
+    ' "${repository_root}/${file}" \
+        || fail 'Generator resource ownership must use a non-empty exact filesystem/Git root inventory'
+}
+
+assert_generator_resource_inventory
+
 assert_generator_tag_lifecycle() {
     local file='tests/Consumer/framework-update-generators.sh'
 
