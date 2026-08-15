@@ -345,8 +345,16 @@ assert_manual_recovery_harness() {
     contains "${file}" 'git fetch --quiet --no-tags origin "${DISPATCH_SHA}"'
     contains "${file}" 'git diff --quiet "${release_commit}" "${DISPATCH_SHA}" --'
     contains "${file}" 'src composer.json examples/quickstart resources migrations'
-    contains "${file}" 'git show "${DISPATCH_SHA}:tests/Consumer/quickstart-e2e.sh" > tests/Consumer/quickstart-e2e.sh'
+    contains "${file}" 'tests/Consumer/framework-update-generators.sh'
+    contains "${file}" 'harness_paths=('
+    contains "${file}" 'restore_harnesses()'
+    contains "${file}" 'for harness_path in "${harness_paths[@]}"; do'
+    contains "${file}" 'git checkout -- "${harness_path}"'
+    contains "${file}" 'git show "${DISPATCH_SHA}:${harness_path}" > "${harness_path}"'
+    contains "${file}" 'test "$(git hash-object "${harness_path}")" = "${dispatch_harness_blob}"'
     contains "${file}" 'BLACKOPS_REPOSITORY_ROOT="${GITHUB_WORKSPACE}" bash tests/Consumer/quickstart-e2e.sh'
+    contains "${file}" 'bash tests/Consumer/skeleton-create-project.sh'
+    contains "${file}" 'bash tests/Consumer/framework-update-generators.sh'
     contains "${file}" 'git diff --quiet "${release_commit}" --'
 
     awk '
@@ -354,20 +362,52 @@ assert_manual_recovery_harness() {
         index($0, "DISPATCH_SHA: ${{ github.sha }}") { dispatch_line = NR }
         index($0, "release_commit=\"$(git rev-parse HEAD)\"") { release_line = NR }
         index($0, "git diff --quiet \"${release_commit}\" \"${DISPATCH_SHA}\"") { drift_line = NR }
-        index($0, "git show \"${DISPATCH_SHA}:tests/Consumer/quickstart-e2e.sh\"") { overlay_line = NR }
+        index($0, "harness_paths=(") { harness_paths_line = NR; harness_paths_open = 1 }
+        harness_paths_open && /^[[:space:]]*\)/ { harness_paths_close_line = NR; harness_paths_open = 0 }
+        harness_paths_open && /^[[:space:]]+tests\/Consumer\/quickstart-e2e\.sh[[:space:]]*$/ { quickstart_member_line = NR }
+        harness_paths_open && /^[[:space:]]+tests\/Consumer\/framework-update-generators\.sh[[:space:]]*$/ { generator_member_line = NR }
+        index($0, "git show \"${DISPATCH_SHA}:${harness_path}\" > \"${harness_path}\"") { overlay_line = NR }
+        index($0, "test \"$(git hash-object \"${harness_path}\")\" = \"${dispatch_harness_blob}\"") { hash_check_line = NR }
         index($0, "BLACKOPS_REPOSITORY_ROOT=\"${GITHUB_WORKSPACE}\" bash tests/Consumer/quickstart-e2e.sh") { manual_run_line = NR }
-        /^[[:space:]]*restore_harness\(\)/ { restore_definition_line = NR }
-        /^[[:space:]]*restore_harness[[:space:]]*$/ { restore_line = NR }
+        index($0, "bash tests/Consumer/skeleton-create-project.sh") {
+            if (!manual_skeleton_line) {
+                manual_skeleton_line = NR
+            }
+        }
+        index($0, "bash tests/Consumer/framework-update-generators.sh") {
+            if (!manual_generator_line) {
+                manual_generator_line = NR
+            }
+        }
+        /^[[:space:]]*restore_harnesses\(\)/ { restore_definition_line = NR }
+        restore_definition_line && !restore_loop_line && index($0, "for harness_path in \"${harness_paths[@]}\"; do") { restore_loop_line = NR }
+        index($0, "git checkout -- \"${harness_path}\"") { restore_checkout_line = NR }
+        index($0, "trap restore_harnesses EXIT") { trap_install_line = NR }
+        /^[[:space:]]*restore_harnesses[[:space:]]*$/ { restore_line = NR }
+        index($0, "trap - EXIT") { trap_clear_line = NR }
         /^          else$/ { else_line = NR }
         else_line && index($0, "bash tests/Consumer/quickstart-e2e.sh") && !ordinary_run_line { ordinary_run_line = NR }
+        else_line && index($0, "bash tests/Consumer/skeleton-create-project.sh") && !ordinary_skeleton_line { ordinary_skeleton_line = NR }
+        else_line && index($0, "bash tests/Consumer/framework-update-generators.sh") && !ordinary_generator_line { ordinary_generator_line = NR }
         END {
             if (!tag_line || !dispatch_line || !release_line || !drift_line ||
-                !overlay_line || !manual_run_line || !restore_definition_line ||
-                !restore_line || !else_line ||
-                !ordinary_run_line || !(tag_line < dispatch_line && dispatch_line < release_line &&
-                release_line < drift_line && drift_line < overlay_line &&
-                overlay_line < manual_run_line && manual_run_line < restore_line &&
-                restore_line < else_line && else_line < ordinary_run_line)) {
+                !harness_paths_line || !harness_paths_close_line || !quickstart_member_line ||
+                !generator_member_line || !overlay_line || !hash_check_line || !manual_run_line ||
+                !manual_skeleton_line || !manual_generator_line || !restore_definition_line ||
+                !restore_loop_line || !restore_checkout_line || !trap_install_line ||
+                !restore_line || !trap_clear_line || !else_line || !ordinary_run_line ||
+                !ordinary_skeleton_line || !ordinary_generator_line ||
+                !(tag_line < dispatch_line && dispatch_line < release_line &&
+                release_line < drift_line && drift_line < harness_paths_line &&
+                harness_paths_line < quickstart_member_line && quickstart_member_line < generator_member_line &&
+                generator_member_line < harness_paths_close_line && harness_paths_close_line < restore_definition_line &&
+                restore_definition_line < restore_loop_line && restore_loop_line < restore_checkout_line &&
+                restore_checkout_line < trap_install_line && trap_install_line < overlay_line &&
+                overlay_line < hash_check_line && hash_check_line < manual_run_line &&
+                manual_run_line < manual_skeleton_line && manual_skeleton_line < manual_generator_line &&
+                manual_generator_line < restore_line &&
+                restore_line < trap_clear_line && trap_clear_line < else_line && else_line < ordinary_run_line &&
+                ordinary_run_line < ordinary_skeleton_line && ordinary_skeleton_line < ordinary_generator_line)) {
                 exit 1
             }
         }
@@ -377,6 +417,53 @@ assert_manual_recovery_harness() {
 
 assert_quickstart_output_drain
 assert_manual_recovery_harness
+
+assert_generator_tag_lifecycle() {
+    local file='tests/Consumer/framework-update-generators.sh'
+
+    contains "${file}" "candidate_tag_ref='refs/tags/1.2.0'"
+    contains "${file}" 'candidate_tag_type="$(git -C "${framework_repository}" cat-file -t "${candidate_tag_ref}" 2>/dev/null || true)"'
+    contains "${file}" 'if test -z "${candidate_tag_type}"; then'
+    contains "${file}" 'git -C "${framework_repository}" tag 1.2.0 "${current_commit}"'
+    contains "${file}" 'candidate_source_commit="${current_commit}"'
+    contains "${file}" 'test "${candidate_tag_type}" = '\''tag'\'''
+    contains "${file}" 'published_candidate_commit="$(git -C "${framework_repository}" rev-parse "${candidate_tag_ref}^{commit}")"'
+    contains "${file}" 'root_published_candidate_commit="$(git -C "${repository_root}" rev-parse "${candidate_tag_ref}^{commit}")"'
+    contains "${file}" 'test "${published_candidate_commit}" = "${root_published_candidate_commit}"'
+    contains "${file}" 'src composer.json examples/quickstart resources migrations;'
+    contains "${file}" 'candidate_source_commit="${published_candidate_commit}"'
+    contains "${file}" 'candidate_tag_ref}^{commit}")" = "${candidate_source_commit}"'
+
+    awk '
+        index($0, "candidate_tag_ref='\''refs/tags/1.2.0'\''") { ref_line = NR }
+        index($0, "candidate_tag_type=") { type_line = NR }
+        index($0, "if test -z \"${candidate_tag_type}\"; then") { absent_line = NR }
+        index($0, "tag 1.2.0 \"${current_commit}\"") { create_line = NR }
+        index($0, "candidate_source_commit=\"${current_commit}\"") { absent_source_line = NR }
+        index($0, "test \"${candidate_tag_type}\" = '\''tag'\''") { annotated_line = NR }
+        /^[[:space:]]+published_candidate_commit=/ { published_line = NR }
+        /^[[:space:]]+root_published_candidate_commit=/ { root_line = NR }
+        index($0, "test \"${published_candidate_commit}\" = \"${root_published_candidate_commit}\"") { equality_line = NR }
+        index($0, "diff --quiet \"${published_candidate_commit}\" \"${current_commit}\"") { drift_line = NR }
+        index($0, "candidate_source_commit=\"${published_candidate_commit}\"") { published_source_line = NR }
+        index($0, "candidate_tag_ref}^{commit}\")\" = \"${candidate_source_commit}\"") { final_line = NR }
+        END {
+            if (!ref_line || !type_line || !absent_line || !create_line || !absent_source_line ||
+                !annotated_line || !published_line || !root_line || !equality_line || !drift_line ||
+                !published_source_line || !final_line ||
+                !(ref_line < type_line && type_line < absent_line && absent_line < create_line &&
+                create_line < absent_source_line && absent_source_line < annotated_line &&
+                annotated_line < published_line && published_line < root_line &&
+                root_line < equality_line && equality_line < drift_line &&
+                drift_line < published_source_line && published_source_line < final_line)) {
+                exit 1
+            }
+        }
+    ' "${repository_root}/${file}" \
+        || fail 'Generator Consumer must fail closed across absent and published annotated tag lanes'
+}
+
+assert_generator_tag_lifecycle
 
 # Stable onboarding and its published CTA remain pinned to the immutable 1.1.0 lane.
 contains README.md 'Latest StableはFramework／Skeleton `1.1.0`です。'
