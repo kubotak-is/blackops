@@ -316,6 +316,68 @@ assert_skeleton_workflow_toolchain() {
 
 assert_skeleton_workflow_toolchain
 
+assert_quickstart_output_drain() {
+    local file='tests/Consumer/quickstart-e2e.sh'
+
+    contains "${file}" 'if test -n "${BLACKOPS_REPOSITORY_ROOT:-}"; then'
+    contains "${file}" 'ROOT=$(cd "${BLACKOPS_REPOSITORY_ROOT}" && pwd)'
+    contains "${file}" 'ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)'
+    contains "${file}" 'database_status="$(HTTP_PORT='
+    contains "${file}" 'retention_plan_output="$(HTTP_PORT='
+    contains "${file}" 'retention_purge_output="$(HTTP_PORT='
+    contains "${file}" 'grep -q '\''pending:'\'' <<<"${database_status}"'
+    contains "${file}" 'grep -q '\''Total:'\'' <<<"${retention_plan_output}"'
+    contains "${file}" 'grep -q '\''dry run'\'' <<<"${retention_purge_output}"'
+
+    if rg -n -F 'database:status | grep -q' "${repository_root}/${file}" \
+        || rg -n -F 'retention:plan | grep -q' "${repository_root}/${file}" \
+        || rg -n -F 'retention:purge --dry-run | grep -q' "${repository_root}/${file}"; then
+        fail "${file} must drain Docker Compose output before marker assertions"
+    fi
+}
+
+assert_manual_recovery_harness() {
+    local file='.github/workflows/publish-skeleton.yml'
+
+    contains "${file}" 'ref: refs/tags/${{ inputs.release_version || github.ref_name }}'
+    contains "${file}" 'DISPATCH_SHA: ${{ github.sha }}'
+    contains "${file}" 'if test "${MANUAL_RECOVERY}" ='
+    contains "${file}" 'git fetch --quiet --no-tags origin "${DISPATCH_SHA}"'
+    contains "${file}" 'git diff --quiet "${release_commit}" "${DISPATCH_SHA}" --'
+    contains "${file}" 'src composer.json examples/quickstart resources migrations'
+    contains "${file}" 'git show "${DISPATCH_SHA}:tests/Consumer/quickstart-e2e.sh" > tests/Consumer/quickstart-e2e.sh'
+    contains "${file}" 'BLACKOPS_REPOSITORY_ROOT="${GITHUB_WORKSPACE}" bash tests/Consumer/quickstart-e2e.sh'
+    contains "${file}" 'git diff --quiet "${release_commit}" --'
+
+    awk '
+        index($0, "ref: refs/tags/${{ inputs.release_version || github.ref_name }}") { tag_line = NR }
+        index($0, "DISPATCH_SHA: ${{ github.sha }}") { dispatch_line = NR }
+        index($0, "release_commit=\"$(git rev-parse HEAD)\"") { release_line = NR }
+        index($0, "git diff --quiet \"${release_commit}\" \"${DISPATCH_SHA}\"") { drift_line = NR }
+        index($0, "git show \"${DISPATCH_SHA}:tests/Consumer/quickstart-e2e.sh\"") { overlay_line = NR }
+        index($0, "BLACKOPS_REPOSITORY_ROOT=\"${GITHUB_WORKSPACE}\" bash tests/Consumer/quickstart-e2e.sh") { manual_run_line = NR }
+        /^[[:space:]]*restore_harness\(\)/ { restore_definition_line = NR }
+        /^[[:space:]]*restore_harness[[:space:]]*$/ { restore_line = NR }
+        /^          else$/ { else_line = NR }
+        else_line && index($0, "bash tests/Consumer/quickstart-e2e.sh") && !ordinary_run_line { ordinary_run_line = NR }
+        END {
+            if (!tag_line || !dispatch_line || !release_line || !drift_line ||
+                !overlay_line || !manual_run_line || !restore_definition_line ||
+                !restore_line || !else_line ||
+                !ordinary_run_line || !(tag_line < dispatch_line && dispatch_line < release_line &&
+                release_line < drift_line && drift_line < overlay_line &&
+                overlay_line < manual_run_line && manual_run_line < restore_line &&
+                restore_line < else_line && else_line < ordinary_run_line)) {
+                exit 1
+            }
+        }
+    ' "${repository_root}/${file}" \
+        || fail 'Manual Recovery must overlay only the dispatch-SHA harness after release-runtime equality and retain the ordinary tag path'
+}
+
+assert_quickstart_output_drain
+assert_manual_recovery_harness
+
 # Stable onboarding and its published CTA remain pinned to the immutable 1.1.0 lane.
 contains README.md 'Latest StableはFramework／Skeleton `1.1.0`です。'
 contains README.md 'composer create-project blackops/skeleton my-app 1.1.0'

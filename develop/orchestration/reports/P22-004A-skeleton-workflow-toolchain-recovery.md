@@ -1,6 +1,6 @@
 # P22-004A Skeleton Workflow Toolchain Recovery Report
 
-Status: P22-004B Review Passed — Correction Integration Pending
+Status: Completed (Correction Integrated through PR #5; P22-004C Recovery Active)
 
 ## Summary
 
@@ -47,16 +47,15 @@ Existing Orchestrator management-document changes were preserved and not edited.
 - [x] Report and STATE describe the exact failure and immutable-tag boundary.
 - [x] Worker made no Commit, Push, Dispatch, publication, or deployment mutation.
 
-P22-004B now adds the bounded Runtime Consumer pre-release/post-release tag lifecycle. In current published-tag state, the Consumer validates annotated 1.2.0, root/clone peeled equality, release-runtime path equality, and uses peeled source 3332fd1; worker and Orchestrator full Runtime Consumer reruns pass and clean up. Documentation Review passed; a new correction Commit remains pending.
+P22-004B added the bounded Runtime Consumer pre-release/post-release tag lifecycle. The reviewed P22-004A／B corrections passed new required CI and merged through PR #5 as `f61dc037533f3dea54ba33df9e203c7727d06443`.
 
-Corrected Documentation Review returned P1=0／P2=0／P3=0 and permits the bounded Correction Commit／PR #5 push. New required CI must be all Green before merge.
+Manual Recovery run `31827240918` then passed immutable tag checkout, pinned toolchain, dependencies, and Framework quality, confirming the P22-004A toolchain correction. It failed later in the Quickstart Consumer with `write /dev/stdout: broken pipe` before credentials／publication; P22-004C is the separate bounded recovery.
 
 ## Remaining Issues
 
-- P22-004B is User-authorized, implemented, independently reviewed P1=0／P2=0／P3=0, and awaits Correction Commit／PR #5 new CI.
-- PR #5 cannot merge until reviewed correction push and all required CI are Green.
-- After approved integration, the immutable `release_version=1.2.0` Manual Dispatch recovery and complete publication evidence remain Orchestrator-controlled; the worker did not perform them.
+- P22-004A／B integration is complete.
+- P22-004C Documentation Review, reviewed Commit, new required CI, Green-only integration, and a new one-shot Manual Dispatch remain pending.
 
 ## Suggested Next Action
 
-Commit and push the reviewed P22-004B correction to PR #5, then require all CI Green before main integration and Manual Dispatch.
+Complete P22-004C review and Green-only integration before a new one-shot Manual Dispatch. Do not change the immutable Framework tag.

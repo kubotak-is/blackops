@@ -1,6 +1,6 @@
 # P22-004: Stable 1.2 Publication and Closeout
 
-Status: In Progress (P22-004B Review Passed; Correction Integration Pending)
+Status: In Progress (P22-004C Documentation Review Passed; Commit Pending)
 
 ## Goal
 
@@ -133,9 +133,9 @@ Packagist MetadataとRemote Smokeの実行Command、Temporary Path、Cleanup、C
 
 ## Active Blocker
 
-P22-004A corrected the missing mise toolchain and is committed as PR #5 head `aa74ef5`. PR #5 CI run `31823195147` then failed only the Runtime Consumer with exact `fatal: tag '1.2.0' already exists`, exit 128, because its pre-release lane unconditionally recreated the now-published immutable tag.
+P22-004A／B corrections merged through all-Green PR #5 as `f61dc037533f3dea54ba33df9e203c7727d06443`. Manual Recovery run `31827240918` then passed immutable tag checkout, toolchain, dependencies, and Framework quality, but failed before credentials／Skeleton publication with exact `write /dev/stdout: broken pipe` in the Quickstart Consumer.
 
-User authorized P22-004B. Its bounded correction is implemented and passed worker／Orchestrator full Runtime Consumer evidence: tag absence retains the disposable candidate lane; tag presence requires annotated type, root／clone peeled equality, and zero drift across release-runtime paths before exact published source `3332fd1` is used. Documentation Review returned P1=0／P2=0／P3=0 and permits the Correction Commit／PR #5 push. New required CI must be all Green; Green merge／fetch must precede D079 Manual Dispatch `release_version=1.2.0`. Framework tag remains immutable.
+P22-004C fixes only the exposed test-harness lifecycle: Docker Compose database／retention output is fully drained before marker assertions. Manual Recovery retains immutable tag `3332fd1` as release Source, requires zero drift from the reviewed dispatch SHA over all release-runtime paths, overlays only the reviewed Quickstart harness, verifies invariants again, and restores the tagged harness. Worker and Orchestrator full Quickstart reruns pass without broken pipe; static／publication／format／cleanup guards pass. Corrected independent Documentation Review returned P1=0／P2=0／P3=0 and permits the exact reviewed Commit／dedicated PR. No rerun, tag change, Skeleton mutation, GitHub Release, or Packagist mutation may occur before new all-Green CI and main merge／fetch.
 
 ## Expected Report
 
