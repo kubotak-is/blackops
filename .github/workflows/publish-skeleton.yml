@@ -77,9 +77,38 @@ jobs:
           docker compose run --rm app vendor/bin/deptrac
 
       - name: Run consumer and installation gates
+        env:
+          DISPATCH_SHA: ${{ github.sha }}
         run: |
           set -euo pipefail
-          bash tests/Consumer/quickstart-e2e.sh
+          if test "${MANUAL_RECOVERY}" = 'true'; then
+            release_commit="$(git rev-parse HEAD)"
+            test "$(git rev-parse "refs/tags/${RELEASE_VERSION}^{commit}")" = "${release_commit}"
+            [[ "${DISPATCH_SHA}" =~ ^[0-9a-f]{40}$ ]]
+            if ! git cat-file -e "${DISPATCH_SHA}^{commit}" 2>/dev/null; then
+              git fetch --quiet --no-tags origin "${DISPATCH_SHA}"
+            fi
+            test "$(git rev-parse "${DISPATCH_SHA}^{commit}")" = "${DISPATCH_SHA}"
+            git diff --quiet "${release_commit}" "${DISPATCH_SHA}" -- \
+              src composer.json examples/quickstart resources migrations
+
+            restore_harness() {
+              git checkout -- tests/Consumer/quickstart-e2e.sh
+            }
+            trap restore_harness EXIT
+            dispatch_harness_blob="$(git rev-parse "${DISPATCH_SHA}:tests/Consumer/quickstart-e2e.sh")"
+            git show "${DISPATCH_SHA}:tests/Consumer/quickstart-e2e.sh" > tests/Consumer/quickstart-e2e.sh
+            test "$(git hash-object tests/Consumer/quickstart-e2e.sh)" = "${dispatch_harness_blob}"
+            test "$(git rev-parse HEAD)" = "${release_commit}"
+            BLACKOPS_REPOSITORY_ROOT="${GITHUB_WORKSPACE}" bash tests/Consumer/quickstart-e2e.sh
+            git diff --quiet "${release_commit}" -- \
+              src composer.json examples/quickstart resources migrations
+            test "$(git rev-parse HEAD)" = "${release_commit}"
+            restore_harness
+            trap - EXIT
+          else
+            bash tests/Consumer/quickstart-e2e.sh
+          fi
           bash tests/Consumer/skeleton-create-project.sh
           bash tests/Consumer/framework-update-generators.sh
 

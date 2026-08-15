@@ -1,6 +1,41 @@
 # Orchestration State
 
-Updated At: 2026-08-15T02:57:10+09:00
+Updated At: 2026-08-15T12:44:55+09:00
+
+## P22-004C／D Documentation Review Passed — Commit Approved
+
+```text
+2026-08-15T12:44:55+09:00
+Corrected independent Documentation Review returned P1=0／P2=0／P3=0 for both P22-004C and P22-004D. Reviewer confirmed P22-004C's exact fourteen-path scope, P22-004D's four process-document paths, shared STATE, and the exact seventeen-path Working Tree union. Source behavior, immutable tag／dispatch-SHA boundary, full Quickstart evidence, current parent／A／B／TODO／Spec synchronization, and the completion-handoff rule all agree. One exact reviewed Commit and dedicated PR are permitted. New required CI must be all Green before merge／fetch; one-shot Manual Dispatch, Tag change, Skeleton publication, Release, Packagist mutation, and Deploy remain prohibited until Green integration.
+```
+
+## P22-004D Completion Handoff Reporting Rule — Review Pending
+
+```text
+2026-08-15T12:40:01+09:00
+User explicitly required a Repository rule that every completion handoff mention remaining steps and the next action. AGENTS.md now requires the User-facing final report to distinguish completed Task scope from the higher-level Goal, state all remaining Goal steps or explicit none, and give one concrete Next Action with relevant owner／prerequisite／start condition. P22-004D changes only process documentation and management evidence. No Production Code／Test／Workflow or external state changed. Independent Documentation Review and reviewed Commit／PR integration are pending.
+```
+
+## P22-004C Orchestrator Review Passed — Documentation Review Pending
+
+```text
+2026-08-15T12:34:48+09:00
+Orchestrator independently reviewed P22-004C's three Source files and reran the full Quickstart Docker journey. The dispatch-SHA overlay is Manual-Recovery-only; immutable tag HEAD remains the release Source; exact dispatch commit resolution, pre-run release-runtime equality, tagged-root override, post-run runtime-path invariants, harness restoration, and ordinary tag-push path all fail closed. Full Quickstart passed database status, Worker retry/completion, retention plan／dry-run beyond the prior failure point, Frontend HTTP, redaction, and cleanup with exit 0 and no broken pipe. Shell syntax, version baseline, deterministic Skeleton publication regression split fa5e8247, Mago format, management-ID, diff, scope, and disposable-container cleanup pass. No Commit／Push／CI rerun／merge／Dispatch／Tag／Release／Packagist／Deploy. Independent Documentation Review is pending.
+```
+
+## P22-004C Worker Implementation Complete — Review Pending
+
+```text
+2026-08-15T11:29:40+09:00
+P22-004C drained complete database status, retention plan, and retention dry-run output before marker assertions, preserving pipefail and all existing checks. quickstart-e2e.sh retains its repository-relative root and accepts BLACKOPS_REPOSITORY_ROOT for the Manual Recovery overlay. publish-skeleton.yml keeps immutable refs/tags/<release_version> checkout; only Manual Recovery fetches github.sha, requires exact release-runtime equality across src／composer.json／examples/quickstart／resources／migrations, overlays the dispatch-SHA harness, verifies the root and runtime paths, and restores the tagged harness. Ordinary tag-push execution remains unchanged. version-baseline.sh static guards pass. Full Quickstart Consumer and skeleton publication workflow regression pass; Mago format, management-ID, shell syntax, and diff checks pass. No Commit／Push／CI rerun／merge／Dispatch／Tag／Release／Packagist／Deploy. Orchestrator and Documentation Review are pending.
+```
+
+## P22-004C Authorized — Quickstart Consumer Output Drain
+
+```text
+2026-08-15T11:21:23+09:00
+After PR #5 merged all-Green as f61dc037533f3dea54ba33df9e203c7727d06443, Manual Recovery run 31827240918 passed immutable tag checkout, exact tag validation, pinned mise／Node／pnpm setup, image build, dependencies, and Framework quality, then failed before credentials／publication in Quickstart Consumer with `write /dev/stdout: broken pipe`. Read-only log and Source diagnosis identifies quickstart-e2e.sh retention:plan piped to early-exit grep -q under pipefail; the following retention dry-run and earlier database status use the same unsafe producer contract. P22-004C is authorized under the User's end-to-end Composer publication instruction: drain complete outputs before assertions, retain an explicit tagged-checkout root, and make Manual Recovery use the reviewed dispatch-SHA harness only after fail-closed release-runtime equality with immutable 3332fd1. Ordinary tag push, Production Source, tags, Skeleton remote, gate strength, and external publication state remain unchanged. Luna High worker implementation, Orchestrator review, Documentation Review, new PR／CI, Green-only merge, then a new one-shot Dispatch are required. No rerun or external mutation occurred after the failure.
+```
 
 ## P22-004B Documentation Review Passed — Correction Commit Approved
 

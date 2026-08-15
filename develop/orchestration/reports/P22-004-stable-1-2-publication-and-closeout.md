@@ -1,6 +1,6 @@
 # P22-004 Stable 1.2 Publication and Closeout Report
 
-Status: In Progress (P22-004B Review Passed; Correction Integration Pending)
+Status: In Progress (P22-004C Documentation Review Passed; Commit Pending)
 
 ## Summary
 
@@ -68,7 +68,10 @@ Not executed.
 - `develop/orchestration/reports/P22-004A-skeleton-workflow-toolchain-recovery.md`
 - `develop/orchestration/tasks/P22-004B-runtime-consumer-post-release-tag-lifecycle.md`
 - `develop/orchestration/reports/P22-004B-runtime-consumer-post-release-tag-lifecycle.md`
+- `develop/orchestration/tasks/P22-004C-quickstart-consumer-output-drain.md`
+- `develop/orchestration/reports/P22-004C-quickstart-consumer-output-drain.md`
 - `.github/workflows/publish-skeleton.yml`
+- `tests/Consumer/quickstart-e2e.sh`
 - `tests/Consumer/framework-update-runtime.sh`
 - `tests/Consumer/version-baseline.sh`
 - `develop/STATE.md`
@@ -95,6 +98,10 @@ Not executed.
 - PASS: P22-004A commit `aa74ef5`, PR #5, Documentation delivery `31823195126`, and five of six CI jobs in run `31823195147`.
 - FAIL: unchanged Runtime Consumer assumes `1.2.0` is absent and exits 128 with `fatal: tag '1.2.0' already exists` after the real immutable release tag became visible in full-history checkout.
 - PASS diagnostic: release runtime paths are byte-identical between fixed source `3332fd1` and PR head `aa74ef5`.
+- PASS: P22-004B correction committed as `13bd326`, new CI `31826566683` and Documentation delivery `31826566626` passed all required checks, and PR #5 merged as `f61dc037533f3dea54ba33df9e203c7727d06443`.
+- FAIL: Manual Recovery run `31827240918` passed tag／toolchain／Framework quality gates but `quickstart-e2e.sh` exited 1 at `retention:plan | grep -q 'Total:'` with `write /dev/stdout: broken pipe`; credential and publication steps were skipped and cleanup passed.
+- PASS diagnostic: Skeleton remote remains `main=293f880940636669f28ded756a888a8d6ba65f1b` with no direct／peeled `1.2.0` tag refs.
+- PASS: P22-004C worker and Orchestrator independently passed full Quickstart Consumer without broken pipe plus version baseline, deterministic publication regression split `fa5e8247`, Mago format, management-ID, diff, scope, and cleanup checks.
 
 ## Acceptance Criteria
 
@@ -106,14 +113,14 @@ Not executed.
 - [ ] Existing tags, credential values, and documentation production state remain unchanged.
 - [ ] Phase 22 tracking is closed with evidence.
 
-P22-004B worker correction preserves the absent-tag disposable lane and adds annotated-tag, root/clone peeled equality, release-runtime drift, and published-source selection checks. Worker and Orchestrator current published-tag Runtime Consumer reruns pass all migrations, HTTP/Worker lanes, source invariants, and cleanup using peeled source 3332fd1. Documentation Review passed; the correction Commit remains pending.
+P22-004C preserves immutable release Source `3332fd1`, drains complete Docker Compose output before assertions, and permits only the reviewed dispatch-SHA Quickstart harness after fail-closed release-runtime equality. Worker and Orchestrator full Quickstart journeys pass; corrected Documentation Review returned P1=0／P2=0／P3=0 and permits the exact reviewed Commit／dedicated PR.
 
 ## Remaining Issues
 
-- P22-004B Documentation Review returned P1=0／P2=0／P3=0; reviewed correction Commit and PR #5 new CI remain pending.
-- Green-only merge／fetch and Manual Dispatch remain pending.
+- P22-004C reviewed Commit, dedicated PR, new required CI, and Green-only merge／fetch remain pending.
+- A new one-shot Manual Dispatch remains prohibited until that sequence completes.
 - Skeleton publication, GitHub Release, remote package smoke, and closeout remain pending.
 
 ## Suggested Next Action
 
-Commit and push the reviewed Runtime Consumer／static guard correction to PR #5, require all CI Green, then integrate／fetch before Manual Dispatch. Do not move tags or create the GitHub Release before recovery succeeds.
+Commit the exact reviewed bounded correction and P22-004D process rule, open a dedicated PR, require all CI Green, then integrate／fetch before a new one-shot Manual Dispatch. Do not move tags or create the GitHub Release before recovery succeeds.

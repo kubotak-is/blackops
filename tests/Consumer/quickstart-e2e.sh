@@ -2,7 +2,11 @@
 
 set -euo pipefail
 
-ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
+if test -n "${BLACKOPS_REPOSITORY_ROOT:-}"; then
+    ROOT=$(cd "${BLACKOPS_REPOSITORY_ROOT}" && pwd)
+else
+    ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
+fi
 TEMP=$(mktemp -d)
 PROJECT="blackops-consumer-${RANDOM}-$$"
 PORT=$((18080 + RANDOM % 1000))
@@ -133,7 +137,8 @@ test "${schema_before}" = "0"
 order_table_before=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
     "SELECT count(*) FROM information_schema.tables WHERE table_schema = 'public' AND table_name IN ('quickstart_orders', 'quickstart_order_commits')")
 test "${order_table_before}" = "0"
-HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops database:status | grep -q 'pending:'
+database_status="$(HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops database:status)"
+grep -q 'pending:' <<<"${database_status}"
 schema_after_status=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
     "SELECT count(*) FROM information_schema.schemata WHERE schema_name = 'blackops'")
 test "${schema_after_status}" = "0"
@@ -556,8 +561,10 @@ grep -q '"id":"\[masked\]","type":"user"' "${CONSUMER}/var/log/journal.jsonl"
 outcome=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
     "SELECT count(*) FROM blackops.outcomes WHERE operation_id = '${operation_id}'::uuid AND octet_length(encoded_payload) > 0")
 test "${outcome}" = "1"
-HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops retention:plan | grep -q 'Total:'
-HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops retention:purge --dry-run | grep -q 'dry run'
+retention_plan_output="$(HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops retention:plan)"
+grep -q 'Total:' <<<"${retention_plan_output}"
+retention_purge_output="$(HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops retention:purge --dry-run)"
+grep -q 'dry run' <<<"${retention_purge_output}"
 
 frontend_report_secret="frontend-sensitive-report-$RANDOM-$$@example.test"
 frontend_failure_secret="frontend-sensitive-failure-$RANDOM-$$"

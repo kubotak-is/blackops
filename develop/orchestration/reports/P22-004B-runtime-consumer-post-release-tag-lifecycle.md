@@ -1,6 +1,6 @@
 # P22-004B Runtime Consumer Post-release Tag Lifecycle Report
 
-Status: Review Passed (Correction Commit Approved)
+Status: Completed (Correction Integrated through PR #5)
 
 ## Summary
 
@@ -51,9 +51,9 @@ Existing Orchestrator management differences were preserved.
 
 ## Remaining Issues
 
-- Correction Commit／PR #5 push and new required CI remain pending after all reviews passed.
-- PR #5 still requires the reviewed correction Commit, new CI qualification, Green-only integration, and subsequent publication recovery sequence.
+- Correction commit `13bd326134f54b4e3b39795d65265eed1263b3e4` passed new required CI `31826566683`; Documentation delivery `31826566626` also passed.
+- PR #5 merged as `f61dc037533f3dea54ba33df9e203c7727d06443`. Subsequent publication recovery is tracked by P22-004C.
 
 ## Suggested Next Action
 
-Create the reviewed Correction Commit and update PR #5 for new required CI; do not mutate tags or dispatch before Green integration.
+Proceed through P22-004C review and Green-only integration before a new one-shot Manual Recovery Dispatch. Do not mutate the immutable Framework tag.
