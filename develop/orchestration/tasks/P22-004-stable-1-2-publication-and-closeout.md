@@ -1,6 +1,6 @@
 # P22-004: Stable 1.2 Publication and Closeout
 
-Status: In Progress (P22-004E Commit Approved)
+Status: In Progress (P22-004F Commit Approved)
 
 ## Goal
 
@@ -135,7 +135,9 @@ Packagist MetadataとRemote Smokeの実行Command、Temporary Path、Cleanup、C
 
 P22-004C／D passed review, merged through all-Green PR #6 as `8c8e975b62dcdb31b5cdf0474cdc5c313c458467`, and left the Working Tree clean. Manual Recovery run `31878757317` then passed immutable tag checkout, toolchain, Framework quality, full Quickstart, and Skeleton create-project, proving the prior two recovery corrections. It failed next in the Generator Consumer with exact `fatal: tag '1.2.0' already exists`; credential and publication steps were skipped and cleanup passed.
 
-P22-004E is limited to this newly exposed Generator harness lifecycle. Worker／Orchestrator dynamic pre-release／published-tag journeys pass, and corrected Documentation Review returned P1=0／P2=0／P3=0 for the exact ten-path Working Tree. A reviewed Commit／dedicated PR, new all-Green CI, and main merge／fetch remain pending; no rerun, tag change, Skeleton mutation, GitHub Release, or Packagist mutation may occur before those steps.
+P22-004E passed review and all-Green CI, then merged through PR #7 as `f454e34d317e37b51085b1b87432561c9dd1ad44`. Manual Recovery run `31887488249` passed all Framework quality and Consumer gates, including the prior Generator failure, then stopped in the next ownership step because its four-file expected stub list is obsolete while immutable Source contains 32 Git-tracked root stubs. Credential／publication steps were skipped and cleanup passed.
+
+P22-004F worker／Orchestrator evidence passes, and corrected Documentation Review returned P1=0／P2=0／P3=0 for the exact nine-path Working Tree. A reviewed Commit／dedicated PR, new all-Green CI, and main merge／fetch remain pending; no rerun, tag change, Skeleton mutation, GitHub Release, or Packagist mutation may occur before those steps.
 
 ## Expected Report
 

@@ -125,10 +125,14 @@ jobs:
       - name: Verify generator resource ownership
         run: |
           set -euo pipefail
-          expected_stubs=$'migration.php.stub\noperation-outcome.php.stub\noperation-value.php.stub\noperation.php.stub'
-          actual_stubs="$(find resources/stubs -mindepth 1 -maxdepth 1 -type f -printf '%f\n' | sort)"
-          test "${actual_stubs}" = "${expected_stubs}"
-          git ls-files --error-unmatch resources/stubs/*.stub >/dev/null
+          test -d resources/stubs
+          invalid_stub_entries="$(find resources/stubs -mindepth 1 -maxdepth 1 \( ! -type f -o \( -type f ! -name '*.stub' \) \) -print -quit)"
+          test -z "${invalid_stub_entries}"
+          filesystem_stubs="$(find resources/stubs -mindepth 1 -maxdepth 1 -type f -name '*.stub' -printf 'resources/stubs/%P\n' | sort)"
+          tracked_stubs="$(git ls-files -- 'resources/stubs/*.stub' | sort)"
+          test -n "${filesystem_stubs}"
+          test -n "${tracked_stubs}"
+          test "${filesystem_stubs}" = "${tracked_stubs}"
           ! find examples/quickstart -type f -path '*/stubs/*' -print -quit | grep .
 
       - name: Validate skeleton publication locally

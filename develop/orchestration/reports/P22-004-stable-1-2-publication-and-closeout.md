@@ -1,6 +1,6 @@
 # P22-004 Stable 1.2 Publication and Closeout Report
 
-Status: In Progress (P22-004E Commit Approved)
+Status: In Progress (P22-004F Commit Approved)
 
 ## Summary
 
@@ -72,6 +72,8 @@ Not executed.
 - `develop/orchestration/reports/P22-004C-quickstart-consumer-output-drain.md`
 - `develop/orchestration/tasks/P22-004E-generator-consumer-post-release-tag-lifecycle.md`
 - `develop/orchestration/reports/P22-004E-generator-consumer-post-release-tag-lifecycle.md`
+- `develop/orchestration/tasks/P22-004F-generator-resource-inventory.md`
+- `develop/orchestration/reports/P22-004F-generator-resource-inventory.md`
 - `.github/workflows/publish-skeleton.yml`
 - `tests/Consumer/quickstart-e2e.sh`
 - `tests/Consumer/framework-update-runtime.sh`
@@ -110,6 +112,13 @@ Not executed.
 - PASS: P22-004E worker implemented the bounded Generator post-release tag lifecycle and Manual-Recovery-only reviewed Quickstart／Generator harness overlay. The current published-tag Generator Consumer passed; static guards, Workflow regression, Mago format, management-ID, diff, and cleanup checks passed. No external mutation occurred.
 - PASS: Orchestrator independently reviewed and reran both dynamic Generator lifecycle lanes: existing published annotated `1.2.0` resolved exact `3332fd1`, while a disposable clone with only its local `1.2.0` removed created and resolved the pre-release candidate at current `8c8e975`. Deterministic split, static／format／scope／cleanup guards also pass.
 - PASS: Corrected independent P22-004E Documentation Review returned P1=0／P2=0／P3=0 and approved the exact ten-path Working Tree for one Commit／dedicated PR after the dual-array-member and trap／restore／hash／all-Consumer guard corrections.
+- PASS: P22-004E commit `920d2f3`, PR #7 CI `31880456812`, and Documentation delivery `31880456849` passed all required checks; PR #7 merged as `f454e34d317e37b51085b1b87432561c9dd1ad44` and local／remote main are clean.
+- FAIL: Manual Recovery run `31887488249` passed all Framework quality and Consumer gates, then `Verify generator resource ownership` compared 32 actual tracked root stubs with an obsolete four-file literal and exited 1. Credential／publication steps were skipped and cleanup passed.
+- PASS diagnostic: filesystem and Git tracked root inventories are exact-equal at 32 files in both immutable tag and current main; no Quickstart nested stubs exist.
+- PASS: `bash -n tests/Consumer/version-baseline.sh tests/Consumer/skeleton-publication-workflow.sh`; `bash tests/Consumer/version-baseline.sh`; deterministic Skeleton workflow regression split `fa5e8247fc8cf789cf73685e5be59cc498ffb4ce`; Mago format; management-ID; and `git diff --check`.
+- PASS: P22-004F worker replaced the obsolete four-file ownership list with non-empty sorted root-relative filesystem／Git inventory equality, invalid-entry rejection, and retained Quickstart nested-stub prohibition. Static guards and required focused checks pass; no external mutation occurred.
+- PASS: Orchestrator independently confirmed the exact 32-file inventory, all fail-closed ownership paths, deterministic split `fa5e8247`, format, management-ID, release-runtime Source equality, diff, nine-path scope, and cleanup.
+- PASS: Corrected independent P22-004F Documentation Review returned P1=0／P2=0／P3=0 and approved the exact nine-path Working Tree for one Commit／dedicated PR.
 
 ## Acceptance Criteria
 
@@ -121,14 +130,14 @@ Not executed.
 - [ ] Existing tags, credential values, and documentation production state remain unchanged.
 - [ ] Phase 22 tracking is closed with evidence.
 
-P22-004C preserves immutable release Source `3332fd1`, drains complete Docker Compose output before assertions, and permits the reviewed dispatch-SHA Quickstart harness after fail-closed release-runtime equality. It is integrated through all-Green PR #6. P22-004E now owns the newly exposed Generator post-release tag lifecycle and Manual-Recovery-only Generator harness overlay.
+P22-004C preserves immutable release Source `3332fd1`, drains complete Docker Compose output before assertions, and permits the reviewed dispatch-SHA Quickstart harness after fail-closed release-runtime equality; it is integrated through all-Green PR #6. P22-004E added the Generator post-release tag lifecycle and Manual-Recovery-only Generator harness overlay and is integrated through all-Green PR #7. P22-004F now owns the obsolete Generator resource inventory correction exposed after all Consumer gates passed.
 
 ## Remaining Issues
 
-- P22-004E dedicated Commit／PR, new required CI, and Green-only merge／fetch remain pending; Worker, Orchestrator, and Documentation Review pass.
+- P22-004F dedicated Commit／PR, new CI, and Green-only merge／fetch remain pending; Worker, Orchestrator, and Documentation Review pass.
 - Another one-shot Manual Dispatch remains prohibited until that sequence completes.
 - Skeleton publication, GitHub Release, remote package smoke, and closeout remain pending.
 
 ## Suggested Next Action
 
-Create the exact reviewed P22-004E Commit and dedicated PR, then require all CI Green before merge／fetch and one new one-shot Manual Dispatch. Do not move tags or create the GitHub Release before recovery succeeds.
+Create the exact reviewed P22-004F Commit and dedicated PR, then require all CI Green before merge／fetch and one new one-shot Manual Dispatch. Do not move tags or create the GitHub Release before recovery succeeds.
