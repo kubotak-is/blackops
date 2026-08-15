@@ -1,6 +1,6 @@
 # P22-004 Stable 1.2 Publication and Closeout Report
 
-Status: In Progress (P22-004C Documentation Review Passed; Commit Pending)
+Status: In Progress (P22-004E Commit Approved)
 
 ## Summary
 
@@ -70,6 +70,8 @@ Not executed.
 - `develop/orchestration/reports/P22-004B-runtime-consumer-post-release-tag-lifecycle.md`
 - `develop/orchestration/tasks/P22-004C-quickstart-consumer-output-drain.md`
 - `develop/orchestration/reports/P22-004C-quickstart-consumer-output-drain.md`
+- `develop/orchestration/tasks/P22-004E-generator-consumer-post-release-tag-lifecycle.md`
+- `develop/orchestration/reports/P22-004E-generator-consumer-post-release-tag-lifecycle.md`
 - `.github/workflows/publish-skeleton.yml`
 - `tests/Consumer/quickstart-e2e.sh`
 - `tests/Consumer/framework-update-runtime.sh`
@@ -102,6 +104,12 @@ Not executed.
 - FAIL: Manual Recovery run `31827240918` passed tag／toolchain／Framework quality gates but `quickstart-e2e.sh` exited 1 at `retention:plan | grep -q 'Total:'` with `write /dev/stdout: broken pipe`; credential and publication steps were skipped and cleanup passed.
 - PASS diagnostic: Skeleton remote remains `main=293f880940636669f28ded756a888a8d6ba65f1b` with no direct／peeled `1.2.0` tag refs.
 - PASS: P22-004C worker and Orchestrator independently passed full Quickstart Consumer without broken pipe plus version baseline, deterministic publication regression split `fa5e8247`, Mago format, management-ID, diff, scope, and cleanup checks.
+- PASS: P22-004C／D commit `e80b0ac` passed PR #6 CI run `31878390676` and Documentation delivery `31878390735`; PR #6 merged as `8c8e975b62dcdb31b5cdf0474cdc5c313c458467`, and local `main` is clean.
+- FAIL: Manual Recovery run `31878757317` passed Framework quality, full Quickstart, and Skeleton create-project, then Generator Consumer exited 128 with `fatal: tag '1.2.0' already exists`. Credential／publication steps were skipped and cleanup passed.
+- PASS diagnostic: live Skeleton remote remains `main=293f880940636669f28ded756a888a8d6ba65f1b`; direct／peeled `1.2.0` refs remain absent.
+- PASS: P22-004E worker implemented the bounded Generator post-release tag lifecycle and Manual-Recovery-only reviewed Quickstart／Generator harness overlay. The current published-tag Generator Consumer passed; static guards, Workflow regression, Mago format, management-ID, diff, and cleanup checks passed. No external mutation occurred.
+- PASS: Orchestrator independently reviewed and reran both dynamic Generator lifecycle lanes: existing published annotated `1.2.0` resolved exact `3332fd1`, while a disposable clone with only its local `1.2.0` removed created and resolved the pre-release candidate at current `8c8e975`. Deterministic split, static／format／scope／cleanup guards also pass.
+- PASS: Corrected independent P22-004E Documentation Review returned P1=0／P2=0／P3=0 and approved the exact ten-path Working Tree for one Commit／dedicated PR after the dual-array-member and trap／restore／hash／all-Consumer guard corrections.
 
 ## Acceptance Criteria
 
@@ -113,14 +121,14 @@ Not executed.
 - [ ] Existing tags, credential values, and documentation production state remain unchanged.
 - [ ] Phase 22 tracking is closed with evidence.
 
-P22-004C preserves immutable release Source `3332fd1`, drains complete Docker Compose output before assertions, and permits only the reviewed dispatch-SHA Quickstart harness after fail-closed release-runtime equality. Worker and Orchestrator full Quickstart journeys pass; corrected Documentation Review returned P1=0／P2=0／P3=0 and permits the exact reviewed Commit／dedicated PR.
+P22-004C preserves immutable release Source `3332fd1`, drains complete Docker Compose output before assertions, and permits the reviewed dispatch-SHA Quickstart harness after fail-closed release-runtime equality. It is integrated through all-Green PR #6. P22-004E now owns the newly exposed Generator post-release tag lifecycle and Manual-Recovery-only Generator harness overlay.
 
 ## Remaining Issues
 
-- P22-004C reviewed Commit, dedicated PR, new required CI, and Green-only merge／fetch remain pending.
-- A new one-shot Manual Dispatch remains prohibited until that sequence completes.
+- P22-004E dedicated Commit／PR, new required CI, and Green-only merge／fetch remain pending; Worker, Orchestrator, and Documentation Review pass.
+- Another one-shot Manual Dispatch remains prohibited until that sequence completes.
 - Skeleton publication, GitHub Release, remote package smoke, and closeout remain pending.
 
 ## Suggested Next Action
 
-Commit the exact reviewed bounded correction and P22-004D process rule, open a dedicated PR, require all CI Green, then integrate／fetch before a new one-shot Manual Dispatch. Do not move tags or create the GitHub Release before recovery succeeds.
+Create the exact reviewed P22-004E Commit and dedicated PR, then require all CI Green before merge／fetch and one new one-shot Manual Dispatch. Do not move tags or create the GitHub Release before recovery succeeds.

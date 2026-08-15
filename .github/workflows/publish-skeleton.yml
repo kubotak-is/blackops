@@ -92,25 +92,35 @@ jobs:
             git diff --quiet "${release_commit}" "${DISPATCH_SHA}" -- \
               src composer.json examples/quickstart resources migrations
 
-            restore_harness() {
-              git checkout -- tests/Consumer/quickstart-e2e.sh
+            harness_paths=(
+              tests/Consumer/quickstart-e2e.sh
+              tests/Consumer/framework-update-generators.sh
+            )
+            restore_harnesses() {
+              for harness_path in "${harness_paths[@]}"; do
+                git checkout -- "${harness_path}"
+              done
             }
-            trap restore_harness EXIT
-            dispatch_harness_blob="$(git rev-parse "${DISPATCH_SHA}:tests/Consumer/quickstart-e2e.sh")"
-            git show "${DISPATCH_SHA}:tests/Consumer/quickstart-e2e.sh" > tests/Consumer/quickstart-e2e.sh
-            test "$(git hash-object tests/Consumer/quickstart-e2e.sh)" = "${dispatch_harness_blob}"
+            trap restore_harnesses EXIT
+            for harness_path in "${harness_paths[@]}"; do
+              dispatch_harness_blob="$(git rev-parse "${DISPATCH_SHA}:${harness_path}")"
+              git show "${DISPATCH_SHA}:${harness_path}" > "${harness_path}"
+              test "$(git hash-object "${harness_path}")" = "${dispatch_harness_blob}"
+            done
             test "$(git rev-parse HEAD)" = "${release_commit}"
             BLACKOPS_REPOSITORY_ROOT="${GITHUB_WORKSPACE}" bash tests/Consumer/quickstart-e2e.sh
+            bash tests/Consumer/skeleton-create-project.sh
+            bash tests/Consumer/framework-update-generators.sh
             git diff --quiet "${release_commit}" -- \
               src composer.json examples/quickstart resources migrations
             test "$(git rev-parse HEAD)" = "${release_commit}"
-            restore_harness
+            restore_harnesses
             trap - EXIT
           else
             bash tests/Consumer/quickstart-e2e.sh
+            bash tests/Consumer/skeleton-create-project.sh
+            bash tests/Consumer/framework-update-generators.sh
           fi
-          bash tests/Consumer/skeleton-create-project.sh
-          bash tests/Consumer/framework-update-generators.sh
 
       - name: Verify generator resource ownership
         run: |

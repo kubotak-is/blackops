@@ -1,6 +1,6 @@
 # P22-004: Stable 1.2 Publication and Closeout
 
-Status: In Progress (P22-004C Documentation Review Passed; Commit Pending)
+Status: In Progress (P22-004E Commit Approved)
 
 ## Goal
 
@@ -133,9 +133,9 @@ Packagist MetadataとRemote Smokeの実行Command、Temporary Path、Cleanup、C
 
 ## Active Blocker
 
-P22-004A／B corrections merged through all-Green PR #5 as `f61dc037533f3dea54ba33df9e203c7727d06443`. Manual Recovery run `31827240918` then passed immutable tag checkout, toolchain, dependencies, and Framework quality, but failed before credentials／Skeleton publication with exact `write /dev/stdout: broken pipe` in the Quickstart Consumer.
+P22-004C／D passed review, merged through all-Green PR #6 as `8c8e975b62dcdb31b5cdf0474cdc5c313c458467`, and left the Working Tree clean. Manual Recovery run `31878757317` then passed immutable tag checkout, toolchain, Framework quality, full Quickstart, and Skeleton create-project, proving the prior two recovery corrections. It failed next in the Generator Consumer with exact `fatal: tag '1.2.0' already exists`; credential and publication steps were skipped and cleanup passed.
 
-P22-004C fixes only the exposed test-harness lifecycle: Docker Compose database／retention output is fully drained before marker assertions. Manual Recovery retains immutable tag `3332fd1` as release Source, requires zero drift from the reviewed dispatch SHA over all release-runtime paths, overlays only the reviewed Quickstart harness, verifies invariants again, and restores the tagged harness. Worker and Orchestrator full Quickstart reruns pass without broken pipe; static／publication／format／cleanup guards pass. Corrected independent Documentation Review returned P1=0／P2=0／P3=0 and permits the exact reviewed Commit／dedicated PR. No rerun, tag change, Skeleton mutation, GitHub Release, or Packagist mutation may occur before new all-Green CI and main merge／fetch.
+P22-004E is limited to this newly exposed Generator harness lifecycle. Worker／Orchestrator dynamic pre-release／published-tag journeys pass, and corrected Documentation Review returned P1=0／P2=0／P3=0 for the exact ten-path Working Tree. A reviewed Commit／dedicated PR, new all-Green CI, and main merge／fetch remain pending; no rerun, tag change, Skeleton mutation, GitHub Release, or Packagist mutation may occur before those steps.
 
 ## Expected Report
 
