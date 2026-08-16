@@ -90,7 +90,8 @@ jobs:
             fi
             test "$(git rev-parse "${DISPATCH_SHA}^{commit}")" = "${DISPATCH_SHA}"
             git diff --quiet "${release_commit}" "${DISPATCH_SHA}" -- \
-              src composer.json examples/quickstart resources migrations
+              src composer.json examples/quickstart resources migrations \
+              ':(exclude)examples/quickstart/README.md'
 
             harness_paths=(
               tests/Consumer/quickstart-e2e.sh
@@ -99,6 +100,7 @@ jobs:
             restore_harnesses() {
               for harness_path in "${harness_paths[@]}"; do
                 git checkout -- "${harness_path}"
+                test "$(git hash-object "${harness_path}")" = "$(git rev-parse "${release_commit}:${harness_path}")"
               done
             }
             trap restore_harnesses EXIT

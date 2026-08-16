@@ -2,6 +2,8 @@
 
 Status: Accepted
 
+P22-004H follow-up: PR #9 exposed a separate Workflow/runtime equality and Website build-environment correction after this Task's acceptance. P22-004G remains historically accepted; the follow-up is tracked in P22-004H and does not reopen the published `1.2.0` documentation closeout.
+
 ## Goal
 
 公開済みExperimental Stable `1.2.0`のFramework／Skeleton／Packagist／GitHub Release／Remote Consumer evidenceへ、利用者向けInstall、Release、Upgrade、Quickstart、Website Source、Internal Status、version baseline、Phase 22管理文書を同期する。Documentation Website production deploymentは行わない。

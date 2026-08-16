@@ -414,6 +414,8 @@ assert_manual_recovery_harness() {
     contains "${file}" 'if test "${MANUAL_RECOVERY}" ='
     contains "${file}" 'git fetch --quiet --no-tags origin "${DISPATCH_SHA}"'
     contains "${file}" 'git diff --quiet "${release_commit}" "${DISPATCH_SHA}" --'
+    contains "${file}" "':(exclude)examples/quickstart/README.md'"
+    contains "${file}" 'release_commit}:${harness_path}'
     contains "${file}" 'src composer.json examples/quickstart resources migrations'
     contains "${file}" 'tests/Consumer/framework-update-generators.sh'
     contains "${file}" 'harness_paths=('
@@ -421,6 +423,7 @@ assert_manual_recovery_harness() {
     contains "${file}" 'for harness_path in "${harness_paths[@]}"; do'
     contains "${file}" 'git checkout -- "${harness_path}"'
     contains "${file}" 'git show "${DISPATCH_SHA}:${harness_path}" > "${harness_path}"'
+    contains "${file}" 'test "$(git hash-object "${harness_path}")" = "$(git rev-parse "${release_commit}:${harness_path}")"'
     contains "${file}" 'test "$(git hash-object "${harness_path}")" = "${dispatch_harness_blob}"'
     contains "${file}" 'BLACKOPS_REPOSITORY_ROOT="${GITHUB_WORKSPACE}" bash tests/Consumer/quickstart-e2e.sh'
     contains "${file}" 'bash tests/Consumer/skeleton-create-project.sh'
@@ -452,6 +455,8 @@ assert_manual_recovery_harness() {
         /^[[:space:]]*restore_harnesses\(\)/ { restore_definition_line = NR }
         restore_definition_line && !restore_loop_line && index($0, "for harness_path in \"${harness_paths[@]}\"; do") { restore_loop_line = NR }
         index($0, "git checkout -- \"${harness_path}\"") { restore_checkout_line = NR }
+        restore_definition_line && !restore_close_line && /^[[:space:]]*}[[:space:]]*$/ { restore_close_line = NR }
+        restore_definition_line && index($0, "git rev-parse \"${release_commit}:") { restore_hash_check_line = NR }
         index($0, "trap restore_harnesses EXIT") { trap_install_line = NR }
         /^[[:space:]]*restore_harnesses[[:space:]]*$/ { restore_line = NR }
         index($0, "trap - EXIT") { trap_clear_line = NR }
@@ -464,7 +469,7 @@ assert_manual_recovery_harness() {
                 !harness_paths_line || !harness_paths_close_line || !quickstart_member_line ||
                 !generator_member_line || !overlay_line || !hash_check_line || !manual_run_line ||
                 !manual_skeleton_line || !manual_generator_line || !restore_definition_line ||
-                !restore_loop_line || !restore_checkout_line || !trap_install_line ||
+                !restore_loop_line || !restore_checkout_line || !restore_close_line || !restore_hash_check_line || !trap_install_line ||
                 !restore_line || !trap_clear_line || !else_line || !ordinary_run_line ||
                 !ordinary_skeleton_line || !ordinary_generator_line ||
                 !(tag_line < dispatch_line && dispatch_line < release_line &&
@@ -472,7 +477,8 @@ assert_manual_recovery_harness() {
                 harness_paths_line < quickstart_member_line && quickstart_member_line < generator_member_line &&
                 generator_member_line < harness_paths_close_line && harness_paths_close_line < restore_definition_line &&
                 restore_definition_line < restore_loop_line && restore_loop_line < restore_checkout_line &&
-                restore_checkout_line < trap_install_line && trap_install_line < overlay_line &&
+                restore_checkout_line < restore_hash_check_line && restore_hash_check_line < restore_close_line &&
+                restore_close_line < trap_install_line && trap_install_line < overlay_line &&
                 overlay_line < hash_check_line && hash_check_line < manual_run_line &&
                 manual_run_line < manual_skeleton_line && manual_skeleton_line < manual_generator_line &&
                 manual_generator_line < restore_line &&
@@ -485,8 +491,252 @@ assert_manual_recovery_harness() {
         || fail 'Manual Recovery must overlay only the dispatch-SHA harness after release-runtime equality and retain the ordinary tag path'
 }
 
+contains .github/workflows/publish-skeleton.yml "':(exclude)examples/quickstart/README.md'"
+contains tests/Consumer/framework-update-runtime.sh "':(exclude)examples/quickstart/README.md'"
+
 assert_quickstart_output_drain
 assert_manual_recovery_harness
+
+assert_website_font_contract() {
+    contains docs/website/package.json '"blume": "1.3.0"'
+    contains docs/website/blume.config.ts "localFont('UbuntuSans.ttf')"
+    contains docs/website/blume.config.ts "localFont('UbuntuMono.ttf')"
+    absent docs/website/blume.config.ts 'fonts.googleapis.com'
+    absent docs/website/blume.config.ts 'fonts.gstatic.com'
+    contains docs/website/theme.css 'var(--blume-font-body, ui-sans-serif)'
+    contains docs/website/theme.css 'var(--blume-font-mono, ui-monospace, monospace)'
+    contains docs/website/scripts/check-artifact.mjs 'fontProviders\.google|fonts\.googleapis\.com|fonts\.gstatic\.com'
+    contains docs/website/scripts/check-artifact.mjs 'generatedProviders.length !== 2'
+    contains docs/website/scripts/check-artifact.mjs 'fontProviders\.([A-Za-z0-9_]+)\s*\('
+    contains docs/website/scripts/check-artifact.mjs '@font-face'
+    contains docs/website/scripts/check-artifact.mjs 'expectedAssets'
+    contains docs/website/scripts/check-artifact.mjs '28c4c189a44803b1986fd16074187034dc6d94ad35f5e87de13dd0e786b70b73'
+    contains docs/website/scripts/check-artifact.mjs 'fbf1e748836994f730e602f7dcf2525564d6d78aa336080cbb73af909d0e08ee'
+    contains docs/website/scripts/check-artifact.mjs 'bca346a561b9668925ff55af1fcf0e10e65e07b1b40dd057bb4f3ded848ef8cf'
+    contains docs/website/scripts/check-artifact.mjs 'Ubuntu-Font-Licence-1.0'
+    contains docs/website/scripts/check-artifact.mjs 'docs/website/.blume/astro.config.mjs'
+    contains docs/website/scripts/check-artifact.mjs 'fontProviders.local()'
+    contains docs/website/scripts/check-artifact.mjs 'localFontReferences'
+    contains docs/website/scripts/check-artifact.mjs 'Ubuntu-Font-License-1.0.txt'
+    contains docs/website/tests/reader-experience.test.mjs "localFont\\('UbuntuSans\\.ttf'\\)"
+    contains docs/website/tests/reader-experience.test.mjs '"blume": "1\.3\.0"'
+    contains docs/website/tests/reader-experience.test.mjs 'assertLocalProviderOnly'
+    contains docs/website/tests/reader-experience.test.mjs "fontProviders.fontsource({ family: 'Inter' })"
+    test -s "${repository_root}/docs/website/public/fonts/UbuntuSans.ttf" \
+        || fail 'Website Ubuntu Sans asset must be present and non-empty'
+    test -s "${repository_root}/docs/website/public/fonts/UbuntuMono.ttf" \
+        || fail 'Website Ubuntu Mono asset must be present and non-empty'
+    test -s "${repository_root}/docs/website/public/licenses/Ubuntu-Font-License-1.0.txt" \
+        || fail 'Website Ubuntu font license must be present and non-empty'
+    test "$(sha256sum "${repository_root}/docs/website/public/fonts/UbuntuSans.ttf" | cut -d' ' -f1)" = \
+        '28c4c189a44803b1986fd16074187034dc6d94ad35f5e87de13dd0e786b70b73' \
+        || fail 'Website Ubuntu Sans asset checksum changed'
+    test "$(sha256sum "${repository_root}/docs/website/public/fonts/UbuntuMono.ttf" | cut -d' ' -f1)" = \
+        'fbf1e748836994f730e602f7dcf2525564d6d78aa336080cbb73af909d0e08ee' \
+        || fail 'Website Ubuntu Mono asset checksum changed'
+    test "$(sha256sum "${repository_root}/docs/website/public/licenses/Ubuntu-Font-License-1.0.txt" | cut -d' ' -f1)" = \
+        'bca346a561b9668925ff55af1fcf0e10e65e07b1b40dd057bb4f3ded848ef8cf' \
+        || fail 'Website Ubuntu font license checksum changed'
+    contains docs/website/public/licenses/Ubuntu-Font-License-1.0.txt 'Ubuntu-Font-Licence-1.0'
+}
+
+assert_website_font_contract
+
+manual_recovery_fixture_contract() {
+    awk '
+        /^[[:space:]]*restore_harnesses\(\)/ {
+            restore_definition_line = NR
+            restore_body = 1
+        }
+        restore_body && /^[[:space:]]*}[[:space:]]*$/ {
+            restore_close_line = NR
+            restore_body = 0
+        }
+        restore_body && index($0, "git checkout -- \"${harness_path}\"") {
+            restore_checkout_line = NR
+        }
+        restore_body && index($0, "git rev-parse \"${release_commit}:") {
+            restore_hash_line = NR
+        }
+        index($0, "trap restore_harnesses EXIT") { trap_install_line = NR }
+        /^[[:space:]]*restore_harnesses[[:space:]]*$/ { restore_line = NR }
+        index($0, "trap - EXIT") && !trap_clear_line { trap_clear_line = NR }
+        index($0, "git show \"${DISPATCH_SHA}:${harness_path}\" > \"${harness_path}\"") {
+            overlay_line = NR
+        }
+        END {
+            if (!restore_definition_line || !restore_close_line ||
+                !restore_checkout_line || !restore_hash_line ||
+                !trap_install_line || !overlay_line || !restore_line ||
+                !trap_clear_line ||
+                !(restore_definition_line < restore_checkout_line &&
+                  restore_checkout_line < restore_hash_line &&
+                  restore_hash_line < restore_close_line &&
+                  restore_close_line < trap_install_line &&
+                  trap_install_line < overlay_line &&
+                  overlay_line < restore_line &&
+                  restore_line < trap_clear_line)) {
+                exit 1
+            }
+        }
+    ' "$1"
+}
+
+assert_manual_recovery_negative_fixtures() (
+    local source_file="${repository_root}/.github/workflows/publish-skeleton.yml"
+    local fixture
+
+    fixture="$(mktemp)"
+    trap 'rm -f "${fixture}"' EXIT
+
+    awk '
+        /^[[:space:]]*restore_harnesses\(\)/ {
+            print
+            print "                :"
+            in_restore = 1
+            next
+        }
+        in_restore && /^[[:space:]]*}[[:space:]]*$/ {
+            print
+            in_restore = 0
+            next
+        }
+        in_restore { next }
+        { print }
+    ' "${source_file}" >"${fixture}"
+    if manual_recovery_fixture_contract "${fixture}"; then
+        fail 'Manual Recovery empty restore fixture must be rejected'
+    fi
+
+    awk '
+        index($0, "git checkout --") {
+            checkout_line = $0
+            next
+        }
+        /^[[:space:]]*restore_harnesses\(\)/ { in_restore = 1 }
+        in_restore && /^[[:space:]]*}[[:space:]]*$/ {
+            print
+            print checkout_line
+            checkout_line = ""
+            in_restore = 0
+            next
+        }
+        { print }
+    ' "${source_file}" >"${fixture}"
+    test "$(grep -Fc 'git checkout -- "${harness_path}"' "${fixture}")" -eq 1 \
+        || fail 'Manual Recovery function-external checkout fixture must retain exactly one checkout line'
+    test "$(awk '
+        /^[[:space:]]*restore_harnesses\(\)/ { in_restore=1; next }
+        in_restore && /^[[:space:]]*}[[:space:]]*$/ { in_restore=0; next }
+        in_restore && index($0, "git checkout --") { count++ }
+        END { print count + 0 }
+    ' "${fixture}")" -eq 0 \
+        || fail 'Manual Recovery function-external checkout fixture must place checkout outside restore_harnesses'
+    if manual_recovery_fixture_contract "${fixture}"; then
+        fail 'Manual Recovery function-external checkout fixture must be rejected'
+    fi
+
+    grep -v 'git rev-parse "${release_commit}:' "${source_file}" >"${fixture}"
+    if manual_recovery_fixture_contract "${fixture}"; then
+        fail 'Manual Recovery restore-hash fixture must be rejected'
+    fi
+
+    awk '
+        /^[[:space:]]*restore_harnesses[[:space:]]*$/ && !inserted {
+            print "            trap - EXIT"
+            inserted = 1
+        }
+        { print }
+    ' "${source_file}" >"${fixture}"
+    if manual_recovery_fixture_contract "${fixture}"; then
+        fail 'Manual Recovery early-trap-clear fixture must be rejected'
+    fi
+)
+
+assert_manual_recovery_negative_fixtures
+
+runtime_exclusion_contract() {
+    awk '
+        index($0, ":(exclude)") {
+            exclusion_count++
+            if (index($0, ":(exclude)examples/quickstart/README.md")) exact_count++
+        }
+        END { exit !(exclusion_count == 1 && exact_count == 1) }
+    ' "$1"
+}
+
+assert_runtime_exclusion_negative_fixtures() (
+    local source_file
+    local fixture
+
+    fixture="$(mktemp)"
+    trap 'rm -f "${fixture}"' EXIT
+    for source_file in \
+        "${repository_root}/.github/workflows/publish-skeleton.yml" \
+        "${repository_root}/tests/Consumer/framework-update-runtime.sh"; do
+        if ! runtime_exclusion_contract "${source_file}"; then
+            fail "${source_file} must contain exactly one README-only runtime exclusion"
+        fi
+        sed 's#:(exclude)examples/quickstart/README\.md#:(exclude)examples/quickstart/**#' "${source_file}" >"${fixture}"
+        if runtime_exclusion_contract "${fixture}"; then
+            fail "${source_file} broad runtime exclusion fixture must be rejected"
+        fi
+        cp "${source_file}" "${fixture}"
+        printf '%s\n' "':(exclude)examples/quickstart/README.md'" >>"${fixture}"
+        if runtime_exclusion_contract "${fixture}"; then
+            fail "${source_file} extra runtime exclusion fixture must be rejected"
+        fi
+    done
+)
+
+assert_runtime_exclusion_negative_fixtures
+
+contains tests/Consumer/version-baseline.sh 'manual_recovery_fixture_contract()'
+contains tests/Consumer/version-baseline.sh 'assert_manual_recovery_negative_fixtures()'
+contains tests/Consumer/version-baseline.sh 'assert_release_runtime_diff_contract()'
+
+assert_release_runtime_diff_contract() (
+    local fixture_root
+    local base_commit
+    local readme_commit
+    local runtime_commit
+
+    fixture_root="$(mktemp -d)"
+    trap 'rm -rf "${fixture_root}"' EXIT
+    git init --quiet "${fixture_root}"
+    git -C "${fixture_root}" config user.name 'Release Runtime Contract'
+    git -C "${fixture_root}" config user.email 'release-runtime-contract@invalid.example'
+    mkdir -p "${fixture_root}/src" "${fixture_root}/examples/quickstart" \
+        "${fixture_root}/resources" "${fixture_root}/migrations"
+    touch "${fixture_root}/composer.json" "${fixture_root}/src/runtime.php" \
+        "${fixture_root}/examples/quickstart/bootstrap.php" \
+        "${fixture_root}/examples/quickstart/README.md"
+    git -C "${fixture_root}" add .
+    git -C "${fixture_root}" commit --quiet --message baseline
+    base_commit="$(git -C "${fixture_root}" rev-parse HEAD)"
+
+    printf 'README-only update\n' >"${fixture_root}/examples/quickstart/README.md"
+    git -C "${fixture_root}" add examples/quickstart/README.md
+    git -C "${fixture_root}" commit --quiet --message readme
+    readme_commit="$(git -C "${fixture_root}" rev-parse HEAD)"
+    if ! git -C "${fixture_root}" diff --quiet "${base_commit}" "${readme_commit}" -- \
+        src composer.json examples/quickstart resources migrations \
+        ':(exclude)examples/quickstart/README.md'; then
+        fail 'README-only release-runtime fixture must be accepted'
+    fi
+
+    printf 'runtime drift\n' >"${fixture_root}/src/runtime.php"
+    git -C "${fixture_root}" add src/runtime.php
+    git -C "${fixture_root}" commit --quiet --message runtime
+    runtime_commit="$(git -C "${fixture_root}" rev-parse HEAD)"
+    if git -C "${fixture_root}" diff --quiet "${readme_commit}" "${runtime_commit}" -- \
+        src composer.json examples/quickstart resources migrations \
+        ':(exclude)examples/quickstart/README.md'; then
+        fail 'runtime Source drift fixture must be rejected'
+    fi
+)
+
+assert_release_runtime_diff_contract
 
 assert_generator_resource_inventory() {
     local file='.github/workflows/publish-skeleton.yml'
@@ -776,7 +1026,8 @@ contains tests/Consumer/framework-update-runtime.sh 'test "${candidate_tag_type}
 contains tests/Consumer/framework-update-runtime.sh 'published_candidate_commit="$(git -C "${framework_repository}" rev-parse "${candidate_tag_ref}^{commit}")"'
 contains tests/Consumer/framework-update-runtime.sh 'root_published_candidate_commit="$(git -C "${repository_root}" rev-parse "${candidate_tag_ref}^{commit}")"'
 contains tests/Consumer/framework-update-runtime.sh 'test "${published_candidate_commit}" = "${root_published_candidate_commit}"'
-contains tests/Consumer/framework-update-runtime.sh 'diff --quiet "${published_candidate_commit}" "${candidate_commit}" -- src composer.json examples/quickstart resources migrations'
+contains tests/Consumer/framework-update-runtime.sh 'diff --quiet "${published_candidate_commit}" "${candidate_commit}" --'
+contains tests/Consumer/framework-update-runtime.sh "':(exclude)examples/quickstart/README.md'"
 contains tests/Consumer/framework-update-runtime.sh 'Published 1.2.0 release-runtime Source drifted from current HEAD.'
 contains tests/Consumer/framework-update-runtime.sh 'candidate_source_commit="${published_candidate_commit}"'
 contains tests/Consumer/framework-update-runtime.sh 'candidate_source_commit="${candidate_commit}"'

@@ -3,6 +3,8 @@
 Status: Accepted
 Updated At: 2026-08-16T03:07:23+09:00
 
+P22-004H follow-up: subsequent PR #9 review identified a bounded Manual Recovery/runtime equality and Website font supply correction. This report remains the accepted P22-004G closeout evidence; current correction evidence is recorded in the P22-004H Report without changing the published `1.2.0` refs or the separate journal ownership limitation.
+
 ## Summary
 
 Public and internal documentation was synchronized to the live Experimental Stable `1.2.0` Framework／Skeleton release. Normal and `--no-scripts` install guidance now uses published `1.2.0`; CHANGELOG／UPGRADE, Guide, Website Source, Internal Status, version baseline, TODO, Specification 103, and P22-004 management state describe the immutable publication and Remote smoke evidence. The confirmed bind-mount ownership limitation is recorded separately from the otherwise successful smoke.
@@ -89,9 +91,9 @@ No Production PHP, Consumer runtime behavior, Workflow, Tag, Release, Packagist,
 
 ## Remaining Issues
 
-- P22-004G and Phase 22 acceptance work is complete. No publication or Website deployment work remains in this Task.
+- P22-004G and Phase 22 acceptance work is historical closeout evidence. Current delivery belongs to P22-004H: Orchestrator／Documentation Review is complete; exact reviewed Commit, PR #9 push, same-SHA CI／Documentation delivery Green, and merge／fetch remain. No publication or Website deployment is authorized.
 - The root-owned journal bind-mount behavior remains a known post-1.2.0 runtime/environment limitation; fixing it requires a separately authorized Source task.
 
 ## Suggested Next Action
 
-Commit the exact reviewed 22-path diff on a dedicated branch, open a PR, require Green CI／Documentation delivery, merge, and fetch a clean `main`. Then verify immutable public refs and package metadata remain unchanged. Do not redeploy Website documentation.
+Commit the exact P22-004H reviewed diff, push PR #9, require same-SHA CI／Documentation delivery Green, and only then decide merge／fetch of a clean `main`; verify immutable public refs and package metadata remain unchanged. Do not redeploy Website documentation.

@@ -135,16 +135,18 @@ Remote normal／`--no-scripts` create-project resolved Skeleton／Framework `1.2
 - [x] Existing tags, credential values, and documentation production state remain unchanged.
 - [x] Phase 22 tracking is closed with evidence (P22-004G final Documentation Review P1=0／P2=0／P3=0).
 
-P22-004C preserves immutable release Source `3332fd1`, drains complete Docker Compose output before assertions, and permits the reviewed dispatch-SHA Quickstart harness after fail-closed release-runtime equality; it is integrated through all-Green PR #6. P22-004E added the Generator post-release tag lifecycle and Manual-Recovery-only Generator harness overlay and is integrated through all-Green PR #7. P22-004F corrected the obsolete Generator resource inventory and was integrated before the successful publication recovery. P22-004G owns the public documentation closeout and records the separate `operation:inspect` ownership follow-up without implementing it.
+P22-004C preserves immutable release Source `3332fd1`, drains complete Docker Compose output before assertions, and permits the reviewed dispatch-SHA Quickstart harness after fail-closed release-runtime equality; it is integrated through all-Green PR #6. P22-004E added the Generator post-release tag lifecycle and Manual-Recovery-only Generator harness overlay and is integrated through all-Green PR #7. P22-004F corrected the obsolete Generator resource inventory and was integrated before the successful publication recovery. P22-004G historically owned the public documentation closeout and recorded the separate `operation:inspect` ownership follow-up without implementing it; P22-004H now owns the current bounded PR #9 correction.
 
 P22-004G changed only the allowed public／internal／website-source／baseline／management documentation and Website assertion files. The closeout records Framework／Skeleton direct and peeled tag objects, Manual Recovery `31889808876`／job `95024306339`, GitHub Release publication time, public normal／`--no-scripts` smoke successes, and the confirmed non-root `operation:inspect` `diagnostics.storage_failed` limitation caused by root-owned `var/log/journal.jsonl` on a bind mount. No Production Code、Consumer runtime behavior、Workflow、Tag、Release、Packagist, or Website production state changed.
+
+P22-004H is the current post-PR #9 correction and remains uncommitted after Orchestrator Review and Documentation Review P1=0／P2=0. Its local evidence covers fail-closed Manual Recovery restoration, README-only release-runtime separation with all other paths checked, the full Runtime Consumer, and exact Blume `1.3.0` local Ubuntu font variants with artifact rejection of remote providers and license/reference checks. It does not alter the immutable public release, rerun CI, or change the separately recorded root-owned journal limitation.
 
 ## Remaining Issues
 
 - P22-004F Commit／PR／CI／merge and the successful Manual Recovery are complete; the historical one-shot Dispatch restriction is closed.
-- P22-004G documentation implementation, independent Orchestrator review, final Documentation Review, and Phase 22 acceptance are complete.
+- P22-004G documentation implementation, independent Orchestrator review, final Documentation Review, and Phase 22 acceptance are historical closeout evidence. P22-004H Orchestrator／Documentation Review is complete; the exact reviewed change requires one Commit, PR #9 push, same-SHA CI／Documentation delivery Green, and merge／fetch. No production Website deploy is authorized.
 - The root-owned journal bind-mount behavior remains a separate follow-up; no Source correction or `1.2.1` publication is included here.
 
 ## Suggested Next Action
 
-Integrate the exact reviewed closeout through one dedicated Commit／PR with Green CI and Documentation delivery, then fetch a clean `main` and re-verify immutable public refs／metadata. Do not mutate tags, Release, Packagist, or Website production state.
+Create the exact P22-004H reviewed Commit, push PR #9, require same-SHA CI／Documentation delivery Green, and only then decide merge／fetch of a clean `main`; re-verify immutable public refs／metadata. Do not mutate tags, Release, Packagist, or deploy the Website.

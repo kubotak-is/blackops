@@ -249,6 +249,7 @@ MVP後に残す主要項目:
 - [x] Deptracのpublic／bounded internal Layerを同期し、generic Internal permissionなしで152 violations／59 uncoveredとMago baseline archive exclusionを閉じる（D141／D142 Option B／P22-003B Accepted、candidate `577cc224`、post-commit exact export PASS、Reviewer P1=0／P2=0／P3=0）
 - [x] User承認済みのGreen-gated Tag／Push、Skeleton publication、Packagist／GitHub Release／Remote Smokeを実施する（P22-004 Accepted。Framework／Skeleton `1.2.0`、Packagist、GitHub Release、Remote smokeがlive。P22-004G final Reviewer P1=0／P2=0／P3=0）
 - [x] Stable `1.2.0`の公開README／CHANGELOG／UPGRADE／Guide／Website Source、operation:inspect ownership limitation、version baseline、P22-004／Phase 22管理文書を同期する（P22-004G Accepted、final Reviewer P1=0／P2=0／P3=0）
+- [~] PR #9のP22-004H CI contract correctionをCommit Approvedで保持する（Manual Recovery restore／README-only runtime equality／Blume 1.3.0 local-font provider-only・remote-provider・asset SHA/license rejection、full Runtime Consumerを含むOrchestrator gates PASS、Documentation Review P1=0／P2=0、exact Commit／Pushとsame-SHA Remote Green待ち）
 
 ### Deferred: Documentation Website Publication
 

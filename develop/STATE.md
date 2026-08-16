@@ -1,6 +1,20 @@
 # Orchestration State
 
-Updated At: 2026-08-16T03:07:23+09:00
+Updated At: 2026-08-16T23:32:33+09:00
+
+## P22-004H Documentation Review Passed — Commit Approved
+
+```text
+2026-08-16T23:32:33+09:00
+P22-004H final Documentation Review returned P1=0／P2=0／P3=1 and permits the exact 21-file Working Tree Commit／PR #9 Push. The non-blocking P3 wording now correctly says the remote-provider negative fixture retains both provider calls while replacing one local call. Reviewer confirmed the external-checkout fixture has one checkout outside and zero inside restore_harnesses, generated font config permits exactly two local providers including argument-bearing detection, remote @font-face is rejected, raw／artifact font and license hashes／title are fixed, and parent／G current sequence is synchronized. Orchestrator gates pass: bash syntax, version baseline, Website 83／83, check, 42-page build／artifact／site check, Mago, management-ID, exact scope, diff, and full Runtime Consumer. Published 1.2.0 refs, Release, Packagist, operation:inspect limitation, and Website production remain unchanged. One exact Commit／PR #9 Push and same-SHA CI／Documentation delivery Green are next; merge remains prohibited until Green.
+```
+
+## P22-004H PR #9 CI Contract Correction — Orchestrator Passed, Documentation Review Pending
+
+```text
+2026-08-16T23:29:06+09:00
+P22-004H passed Orchestrator Review and remains uncommitted for corrected independent Documentation Review. Manual Recovery proves function-bound restore checkout／release blob equality／EXIT trap ordering and four negative fixtures reject an empty restore function, function-external checkout, removed restore hash, and early trap clear; the function-external fixture explicitly has one checkout outside and zero inside the restore function. Runtime equality excludes only examples/quickstart/README.md while src, composer.json, Quickstart runtime files, resources, and migrations remain checked; disposable README-only PASS／src drift FAIL and broad/extra-exclusion FAIL fixtures pass. The full framework-update-runtime.sh also passes against public 1.1.0→1.2.0, candidate 3332fd1, 11 migrations, and both provider lanes. Website uses exact Blume 1.3.0 local Ubuntu Sans／Mono variants; generated config requires exactly two local providers, artifact guards reject all non-local providers and remote @font-face URLs, and raw/emitted font/license SHA-256 plus Ubuntu-Font-Licence-1.0 title checks pass. Final focused bash syntax, version baseline, Website 83/83 test, check/build/site check, and diff checks pass; Mago and full runtime were not rerun for this guard-only correction, with prior PASS retained and attributed. Published Framework／Skeleton 1.2.0, Tags, Release, Packagist, operation:inspect limitation, Website production, Commit／Push, PR mutation, CI rerun, and public refs remain unchanged. Documentation Review re-review is pending.
+```
 
 ## P22-004G／P22-004／Phase 22 Accepted — Closeout Commit Approved
 

@@ -141,6 +141,8 @@ P22-004E passed review and all-Green CI, then merged through PR #7 as `f454e34d3
 
 P22-004G passed independent Orchestrator review and final Documentation Review P1=0／P2=0／P3=0. P22-004 and Phase 22 are accepted; only the reviewed documentation closeout Commit／PR／Green CI integration remains as delivery work.
 
+P22-004H is the current bounded PR #9 correction checkpoint. It preserves immutable `1.2.0` release refs, narrows runtime equality by excluding only the Quickstart README, strengthens Manual Recovery restore proof with negative fixtures, and uses exact Blume `1.3.0` local Ubuntu font variants with the Repository license. Its Working Tree passed Orchestrator Review, including the full Runtime Consumer, and Documentation Review P1=0／P2=0; exact Commit／PR #9 Push and same-SHA Remote Green remain. No publication or public-ref mutation is included.
+
 ## Expected Report
 
 `develop/orchestration/reports/P22-004-stable-1-2-publication-and-closeout.md`へ次を記録する。

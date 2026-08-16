@@ -12,7 +12,7 @@
 }
 
 body {
-  font-family: var(--blume-font-body, Inter), "Hiragino Sans", "Yu Gothic UI", "Yu Gothic", "Noto Sans JP", ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--blume-font-body, ui-sans-serif), "Hiragino Sans", "Yu Gothic UI", "Yu Gothic", "Noto Sans JP", system-ui, sans-serif;
 }
 
 [data-theme='dark'] {
@@ -30,7 +30,7 @@ body {
 .landing-shell {
   color: var(--bo-ink);
   background: var(--bo-paper);
-  font-family: var(--blume-font-body, Inter), "Hiragino Sans", "Yu Gothic UI", "Yu Gothic", "Noto Sans JP", ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--blume-font-body, ui-sans-serif), "Hiragino Sans", "Yu Gothic UI", "Yu Gothic", "Noto Sans JP", system-ui, sans-serif;
   min-height: calc(100vh - 8rem);
   overflow: hidden;
 }
@@ -78,8 +78,8 @@ body {
 
 .landing-hero-content { align-self: center; max-width: 44rem; position: relative; z-index: 1; }
 .landing-hero h1 { letter-spacing: -.07em; margin: 0; }
-.landing-brand { display: block; font: 700 clamp(4.5rem, 9vw, 8.5rem)/.82 var(--blume-font-display, Inter), "Hiragino Sans", "Yu Gothic UI", "Yu Gothic", "Noto Sans JP", ui-sans-serif, system-ui, sans-serif; }
-.landing-tagline { color: var(--bo-muted); display: block; font: 500 clamp(1.25rem, 2.6vw, 2rem)/1.2 var(--blume-font-display, Inter), "Hiragino Sans", "Yu Gothic UI", "Yu Gothic", "Noto Sans JP", ui-sans-serif, system-ui, sans-serif; letter-spacing: -.035em; margin-top: 1.5rem; white-space: nowrap; }
+.landing-brand { display: block; font: 700 clamp(4.5rem, 9vw, 8.5rem)/.82 var(--blume-font-display, ui-sans-serif), "Hiragino Sans", "Yu Gothic UI", "Yu Gothic", "Noto Sans JP", system-ui, sans-serif; }
+.landing-tagline { color: var(--bo-muted); display: block; font: 500 clamp(1.25rem, 2.6vw, 2rem)/1.2 var(--blume-font-display, ui-sans-serif), "Hiragino Sans", "Yu Gothic UI", "Yu Gothic", "Noto Sans JP", system-ui, sans-serif; letter-spacing: -.035em; margin-top: 1.5rem; white-space: nowrap; }
 .landing-actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: clamp(2rem, 4vw, 3.25rem); }
 .landing-button { align-items: center; border: 1px solid var(--bo-line); display: inline-flex; gap: 1.5rem; justify-content: space-between; min-width: 8.5rem; padding: .8rem 1rem; text-decoration: none; transition: background-color .2s ease, color .2s ease, border-color .2s ease, transform .2s ease; }
 .landing-button-primary { background: var(--bo-action); border-color: var(--bo-action); color: #20100a; font-weight: 700; }
@@ -112,7 +112,7 @@ body {
 
 .landing-features { border-top: 1px solid var(--bo-line); padding-block: clamp(3.5rem, 8vw, 7rem); }
 .landing-section-heading { align-items: baseline; display: flex; gap: 1rem; margin-bottom: 2.5rem; }
-.landing-features > .landing-section-heading h2 { font: 600 clamp(1.65rem, 3vw, 2.8rem)/1.05 var(--blume-font-display, Inter), "Hiragino Sans", "Yu Gothic UI", "Yu Gothic", "Noto Sans JP", ui-sans-serif, system-ui, sans-serif; letter-spacing: -.045em; margin: 0; }
+.landing-features > .landing-section-heading h2 { font: 600 clamp(1.65rem, 3vw, 2.8rem)/1.05 var(--blume-font-display, ui-sans-serif), "Hiragino Sans", "Yu Gothic UI", "Yu Gothic", "Noto Sans JP", system-ui, sans-serif; letter-spacing: -.045em; margin: 0; }
 .landing-features-grid { align-items: stretch; display: grid; gap: 1.25rem; grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .landing-feature { border-top: 1px solid var(--bo-line); display: flex; flex-direction: column; gap: .9rem; min-width: 0; padding: 1.5rem 0; }
 .landing-feature-operation { padding-right: 0; }
@@ -134,13 +134,13 @@ body {
 .landing-client-visual code span::before { color: var(--bo-action); content: '$ '; }
 .landing-feature-copy { display: flex; flex: 1; flex-direction: column; padding-top: 1.75rem; }
 .landing-feature-operation .landing-feature-copy a { margin-top: auto; }
-.landing-feature h3 { font: 600 1.45rem/1.1 var(--blume-font-display, Inter), "Hiragino Sans", "Yu Gothic UI", "Yu Gothic", "Noto Sans JP", ui-sans-serif, system-ui, sans-serif; margin: 0 0 1rem; }
+.landing-feature h3 { font: 600 1.45rem/1.1 var(--blume-font-display, ui-sans-serif), "Hiragino Sans", "Yu Gothic UI", "Yu Gothic", "Noto Sans JP", system-ui, sans-serif; margin: 0 0 1rem; }
 .landing-feature p { color: var(--bo-muted); line-height: 1.7; margin: 0; }
 .landing-feature a, .landing-next a { color: var(--bo-ink); display: inline-flex; font-weight: 600; gap: 1rem; margin-top: auto; padding-top: 1.5rem; text-decoration-thickness: .08em; text-underline-offset: .2em; }
 .landing-feature a { margin-top: auto; padding-top: 1.5rem; }
 
 .landing-next { align-items: end; border-top: 1px solid var(--bo-line); display: grid; gap: 3rem; grid-template-columns: 1fr 1fr; padding-block: clamp(3.5rem, 8vw, 7rem); }
-.landing-next h2 { font: 600 clamp(1.5rem, 3vw, 2.4rem)/1.1 var(--blume-font-display, Inter), "Hiragino Sans", "Yu Gothic UI", "Yu Gothic", "Noto Sans JP", ui-sans-serif, system-ui, sans-serif; letter-spacing: -.04em; margin: .8rem 0 0; }
+.landing-next h2 { font: 600 clamp(1.5rem, 3vw, 2.4rem)/1.1 var(--blume-font-display, ui-sans-serif), "Hiragino Sans", "Yu Gothic UI", "Yu Gothic", "Noto Sans JP", system-ui, sans-serif; letter-spacing: -.04em; margin: .8rem 0 0; }
 .landing-next-links { display: grid; }
 .landing-next a { border-top: 1px solid var(--bo-line); justify-content: space-between; margin: 0; padding: 1rem 0; }
 
