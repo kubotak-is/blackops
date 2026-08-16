@@ -1,32 +1,32 @@
 # Specification 103: Stable 1.2 Release Plan
 
-Status: Decided (Framework `1.2.0` published at fixed source `3332fd1`; P22-004F Commit approved)
+Status: Decided (Framework／Skeleton `1.2.0` published at fixed sources; P22-004G／Phase 22 Accepted)
 
 ## Release lanes
 
-Framework `1.2.0` is published at the accepted fixed source while Skeleton `1.2.0` recovery is in progress; the complete Composer project lane is not accepted until both packages and remote smoke pass. Existing `1.1.0` remains immutable and installable throughout recovery.
+Framework／Skeleton `1.2.0` are published at the accepted immutable fixed sources. Packagist, GitHub Release, and the public-package normal／`--no-scripts` Remote Consumer lane are live and documented; existing `1.1.0` remains immutable and installable.
 
 | Surface | Existing immutable lane | 1.2 publication／recovery lane |
 | --- | --- | --- |
-| Framework／Skeleton version | `1.1.0`／`1.1.0` | Framework `1.2.0` published／Skeleton `1.2.0` pending recovery |
+| Framework／Skeleton version | `1.1.0`／`1.1.0` | Framework／Skeleton `1.2.0` published |
 | Skeleton Framework constraint | `^1.1` | `^1.2` |
 | OpenTelemetry scope version | Stable contract | Framework `1.2.0` |
-| Install / create-project | `composer create-project blackops/skeleton my-app 1.1.0` | Framework Composer install available／Skeleton create-project pending recovery |
-| Publication | Existing immutable Tag／Release／Packagist | Framework Tag／Packagist present; Skeleton Tag／Packagist and GitHub Release pending |
+| Install / create-project | `composer create-project blackops/skeleton my-app 1.1.0` | `composer create-project blackops/skeleton my-app 1.2.0` and `--no-scripts` verified |
+| Publication | Existing immutable Tag／Release／Packagist | Framework／Skeleton annotated Tag、Packagist、GitHub Release live |
 
 ## Active source contract
 
-Docker Composer root version, Framework-owned Trace／Metric scope, `examples/quickstart` Composer metadata, candidate Consumer path repository mappings, and active main Preview documentation use `1.2.0` or `^1.2`. Skeleton publication validation derives `^1.2` from a candidate `1.2.0` input.
+Docker Composer root version, Framework-owned Trace／Metric scope, `examples/quickstart` Composer metadata, Consumer path repository mappings, and public documentation use `1.2.0` or `^1.2`. Skeleton publication validation and the published package both require `^1.2`.
 
-Stable install commands and historical release evidence continue to use `1.1.0`. Unrelated third-party versions and protocol literals are not release metadata and are not changed.
+Historical `1.1.0` install commands and release evidence remain immutable. Public current install commands use published `1.2.0`; unrelated third-party versions and protocol literals are not release metadata and are not changed.
 
 ## Documentation contract
 
-README, Guides, Internal documentation, CHANGELOG Unreleased, and UPGRADE Preview explicitly identify the `1.2.0` candidate without calling it Latest Stable or published. The Releases guide links the canonical root CHANGELOG/UPGRADE and actual-tag Consumer. The Stable onboarding remains executable from the existing `1.1.0` Tag.
+README, Guides, Internal documentation, CHANGELOG, UPGRADE, and Website Source identify published Experimental Stable `1.2.0`, the GitHub Release／Packagist boundary, and the public normal／`--no-scripts` install path. The historical `1.1.0` onboarding remains immutable. The documented Remote smoke successes are separated from the confirmed root-owned journal bind-mount limitation where non-root `operation:inspect` returns `diagnostics.storage_failed` and root comparison returns masked data.
 
 ## Release gate boundary
 
-P22-001 establishes the version baseline and P22-002 completes the Release Notes／Migration documentation and actual-tag Consumer evidence. Complete `1.2.0` quality/full gate, annotated Tag, Skeleton split publication, Packagist, GitHub Release, and deployment are subsequent work.
+P22-001 established the version baseline, P22-002 completed the Release Notes／Migration documentation and actual-tag Consumer evidence, and P22-003 completed the fixed-source quality/full gate. P22-004 published the immutable Framework／Skeleton tags, Packagist metadata, GitHub Release, and public-package Remote smoke. Documentation Website production deployment remains a separate out-of-scope operation.
 
 Delivery is split into explicit checkpoints. P22-002 audits `1.1.0...main`, completes CHANGELOG／UPGRADE and the actual Stable-to-candidate Framework Update journey. P22-003 fixes a Release Candidate SHA and executes the full local／CI gate. P22-004 may perform Tag／Push／Skeleton／Packagist／GitHub Release／Remote Smoke only after separate authorization; preceding Tasks do not mutate external publication state.
 
@@ -54,7 +54,11 @@ User authorized exact `3332fd1` CI qualification and Green-gated `1.2.0` publica
 
 Corrected final Documentation Review returned P1=0／P2=0／P3=0. PR #3 was marked ready and merged with merge commit `547149109419b62ab769af9d3aad1ed80dbba905`, whose second parent is exact candidate `3332fd1`; post-fetch ancestry and tree equality passed. P22-003 is Accepted. P22-004 must keep release source `3332fd1` and deterministic Skeleton split `fa5e8247fc8cf789cf73685e5be59cc498ffb4ce` fixed while executing the User-authorized publication sequence.
 
-P22-004 integrated its reviewed tracking checkpoint through PR #4 and published Framework annotated tag `1.2.0`, whose live peeled commit is exact `3332fd1`; Packagist Framework `1.2.0` is visible. Tag-triggered Skeleton run `31809007808` passed Framework quality and failed before credential configuration／distribution push because the Workflow did not install `mise`, required by the Quickstart Consumer. P22-004A／B corrections subsequently passed all required CI and merged through PR #5 as `f61dc037533f3dea54ba33df9e203c7727d06443`. Manual Recovery run `31827240918` exposed and P22-004C corrected the Quickstart broken-pipe lifecycle; P22-004C／D then passed all-Green PR #6 and merged as `8c8e975b62dcdb31b5cdf0474cdc5c313c458467`. Manual Recovery run `31878757317` exposed the Generator existing-tag lifecycle; P22-004E passed all-Green PR #7 and merged as `f454e34d317e37b51085b1b87432561c9dd1ad44`. Run `31887488249` then passed all Framework quality and Consumer gates but failed before credentials／publication because the next ownership step retained an obsolete four-stub list against the immutable Source's 32 tracked root stubs. P22-004F replaces only that duplicate list with fail-closed non-empty sorted filesystem／Git root inventory equality and invalid-entry rejection; Worker／Orchestrator focused evidence and corrected Documentation Review P1=0／P2=0／P3=0 pass. The exact nine-path Commit, new all-Green CI, merge／fetch, and a new one-shot Manual Dispatch remain required. Skeleton tag／Packagist version and GitHub Release remain absent.
+P22-004 integrated its reviewed tracking checkpoint through PR #4 and published Framework annotated tag `1.2.0`, whose live peeled commit is exact `3332fd1`; Packagist Framework `1.2.0` is visible. Tag-triggered Skeleton run `31809007808` passed Framework quality and failed before credential configuration／distribution push because the Workflow did not install `mise`, required by the Quickstart Consumer. P22-004A／B corrections subsequently passed all required CI and merged through PR #5 as `f61dc037533f3dea54ba33df9e203c7727d06443`. Manual Recovery run `31827240918` exposed and P22-004C corrected the Quickstart broken-pipe lifecycle; P22-004C／D then passed all-Green PR #6 and merged as `8c8e975b62dcdb31b5cdf0474cdc5c313c458467`. Manual Recovery run `31878757317` exposed the Generator existing-tag lifecycle; P22-004E passed all-Green PR #7 and merged as `f454e34d317e37b51085b1b87432561c9dd1ad44`. Run `31887488249` then passed all Framework quality and Consumer gates but failed before credentials／publication because the next ownership step retained an obsolete four-stub list against the immutable Source's 32 tracked root stubs. P22-004F replaced that duplicate list with fail-closed non-empty sorted filesystem／Git root inventory equality and invalid-entry rejection; Worker／Orchestrator focused evidence and corrected Documentation Review P1=0／P2=0／P3=0 passed. The remainder of this paragraph records that historical pre-publication checkpoint; the exact Commit, CI, merge／fetch, one-shot Manual Recovery, Skeleton tag／Packagist, and GitHub Release are now complete. P22-004G owns the remaining documentation review and separate journal ownership follow-up.
+
+P22-004G closeout evidence records Framework direct tag object `00e8c5875047a3c47acbebfe57f75b0e581d18b9` peeled to fixed source `3332fd1dd0738fc7e79750facd93d49a59054ecf`, Skeleton direct tag object `fedcfda5f39caf320ad67196e8ced459176cedb1` peeled to `fa5e8247fc8cf789cf73685e5be59cc498ffb4ce`, successful Manual Recovery `31889808876`／job `95024306339`, GitHub Release publication at `2026-08-15T16:21:09Z`, and Remote smoke checked `2026-08-16T01:47:00+09:00`. The public docs now use normal／`--no-scripts` `1.2.0`; documented smoke successes are Project Root CLI, compile, 12 migrations, HTTP, Worker retry→Completed, and sensitive redaction. A separate confirmed environment limitation remains: HTTP creates root-owned `var/log/journal.jsonl`, so non-root `operation:inspect` returns `diagnostics.storage_failed`; root comparison returns masked data. This is not reported as an overall smoke failure. P22-004G passed independent Orchestrator review and final Documentation Review P1=0／P2=0／P3=0; P22-004G and Phase 22 are Accepted.
+
+P22-004H is a post-PR #9 correction checkpoint, not a new publication lane. The failed runtime equality is narrowed to exclude only `examples/quickstart/README.md`; all other release-runtime paths remain fail-closed, and broad／extra exclusions fail the baseline fixture. Manual Recovery restore proves function-bound checkout／release blob equality／EXIT trap ordering with four negative fixtures, including a function-external checkout fixture that is explicitly rejected. Website uses exact Blume `1.3.0` local Ubuntu Sans／Mono variants with Repository license; generated config and artifact/config/test guards require local provider-only output, reject remote providers and remote `@font-face` sources, and verify emitted local references plus expected asset/license SHA-256. Orchestrator Review, including the full Runtime Consumer, is green and Documentation Review returned P1=0／P2=0; reviewed Commit／PR #9 Push and same-SHA Remote CI remain pending and no public refs changed.
 
 ## Traceability
 

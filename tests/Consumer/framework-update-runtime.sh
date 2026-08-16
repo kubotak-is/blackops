@@ -216,7 +216,9 @@ else
     published_candidate_commit="$(git -C "${framework_repository}" rev-parse "${candidate_tag_ref}^{commit}")"
     root_published_candidate_commit="$(git -C "${repository_root}" rev-parse "${candidate_tag_ref}^{commit}")"
     test "${published_candidate_commit}" = "${root_published_candidate_commit}"
-    if ! git -C "${framework_repository}" diff --quiet "${published_candidate_commit}" "${candidate_commit}" -- src composer.json examples/quickstart resources migrations; then
+    if ! git -C "${framework_repository}" diff --quiet "${published_candidate_commit}" "${candidate_commit}" -- \
+        src composer.json examples/quickstart resources migrations \
+        ':(exclude)examples/quickstart/README.md'; then
         fail 'Published 1.2.0 release-runtime Source drifted from current HEAD.'
     fi
     candidate_source_commit="${published_candidate_commit}"

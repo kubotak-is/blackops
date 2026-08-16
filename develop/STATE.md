@@ -1,6 +1,90 @@
 # Orchestration State
 
-Updated At: 2026-08-15T23:03:32+09:00
+Updated At: 2026-08-16T23:32:33+09:00
+
+## P22-004H Documentation Review Passed — Commit Approved
+
+```text
+2026-08-16T23:32:33+09:00
+P22-004H final Documentation Review returned P1=0／P2=0／P3=1 and permits the exact 21-file Working Tree Commit／PR #9 Push. The non-blocking P3 wording now correctly says the remote-provider negative fixture retains both provider calls while replacing one local call. Reviewer confirmed the external-checkout fixture has one checkout outside and zero inside restore_harnesses, generated font config permits exactly two local providers including argument-bearing detection, remote @font-face is rejected, raw／artifact font and license hashes／title are fixed, and parent／G current sequence is synchronized. Orchestrator gates pass: bash syntax, version baseline, Website 83／83, check, 42-page build／artifact／site check, Mago, management-ID, exact scope, diff, and full Runtime Consumer. Published 1.2.0 refs, Release, Packagist, operation:inspect limitation, and Website production remain unchanged. One exact Commit／PR #9 Push and same-SHA CI／Documentation delivery Green are next; merge remains prohibited until Green.
+```
+
+## P22-004H PR #9 CI Contract Correction — Orchestrator Passed, Documentation Review Pending
+
+```text
+2026-08-16T23:29:06+09:00
+P22-004H passed Orchestrator Review and remains uncommitted for corrected independent Documentation Review. Manual Recovery proves function-bound restore checkout／release blob equality／EXIT trap ordering and four negative fixtures reject an empty restore function, function-external checkout, removed restore hash, and early trap clear; the function-external fixture explicitly has one checkout outside and zero inside the restore function. Runtime equality excludes only examples/quickstart/README.md while src, composer.json, Quickstart runtime files, resources, and migrations remain checked; disposable README-only PASS／src drift FAIL and broad/extra-exclusion FAIL fixtures pass. The full framework-update-runtime.sh also passes against public 1.1.0→1.2.0, candidate 3332fd1, 11 migrations, and both provider lanes. Website uses exact Blume 1.3.0 local Ubuntu Sans／Mono variants; generated config requires exactly two local providers, artifact guards reject all non-local providers and remote @font-face URLs, and raw/emitted font/license SHA-256 plus Ubuntu-Font-Licence-1.0 title checks pass. Final focused bash syntax, version baseline, Website 83/83 test, check/build/site check, and diff checks pass; Mago and full runtime were not rerun for this guard-only correction, with prior PASS retained and attributed. Published Framework／Skeleton 1.2.0, Tags, Release, Packagist, operation:inspect limitation, Website production, Commit／Push, PR mutation, CI rerun, and public refs remain unchanged. Documentation Review re-review is pending.
+```
+
+## P22-004G／P22-004／Phase 22 Accepted — Closeout Commit Approved
+
+```text
+2026-08-16T03:07:23+09:00
+Final independent Documentation Review returned P1=0／P2=0／P3=0 and permits P22-004G／P22-004／Phase 22 acceptance. Reviewer confirmed published Stable 1.2 First Operation, exact .env 600 key preparation, normal／--no-scripts convergence, generated fragment, heading／movement negative fixtures, exact 22-path scope, immutable Framework 3332fd1／Skeleton fa5e8247／run 31889808876 evidence, separate operation:inspect limitation, and Website production prohibition. Orchestrator required gates pass: Website 82／82, check, 42-page build, 41-page site check, version baseline, Mago, management-ID, scope, and diff. One exact reviewed documentation closeout Commit and dedicated PR are approved; CI and Documentation delivery must be Green before merge／fetch. No publication rerun or Website deploy.
+```
+
+## P22-004G Guard Correction — Orchestrator Passed, Final Re-review Pending
+
+```text
+2026-08-16T03:06:01+09:00
+Orchestrator independently reviewed the final exact 22-path guard correction. check-site requires exactly one generated Quickstart current id and rejects the retired id; Website tests positively require the exact current heading and both setup lanes before the shared chmod／mode／key block, while heading drift and moved no-scripts fixtures throw. version-baseline statically requires every guard. Website 82／82, check, 42-page build, 41-page site check, bash syntax／version baseline, Mago format, PHP management-ID, exact scope, and diff checks pass. Final Documentation re-review is pending. No Commit／Push／external mutation.
+```
+
+## P22-004G Documentation Re-review Guard Correction — Worker Complete, Review Pending
+
+```text
+2026-08-16T03:00:05+09:00
+P22-004G implemented the authorized guard-only P2 correction within existing Files Allowed. check-site.mjs now requires exactly one generated /getting-started/quickstart id="stable-120-authentication-and-deferred-journey" and rejects the retired id. Website unit tests positively verify mvp-sample normal and --no-scripts create/setup order before the convergence sentence and shared chmod/mode/key block, and assert.throws negative fixtures for README target drift, an exact current-heading drift, and a no-scripts block moved after the key step. version-baseline statically requires the site guard, exact-heading helper, and fixture contracts. Website test 82/82, check/build/site check, bash syntax/version baseline, Mago, PHP management-ID, exact 22-path scope, and diff checks pass. Long Consumer journeys remain unrun by authorization. No Commit／Push／external mutation; Orchestrator and Documentation Review remain pending.
+```
+
+## P22-004G Documentation Re-review P1=0／P2=1 — Guard Correction Authorized
+
+```text
+2026-08-16T02:55:45+09:00
+Documentation re-review confirmed all prior content findings resolved and returned P1=0／P2=1. Current First Operation, exact .env 600 key preparation, normal／--no-scripts content convergence, and Quickstart fragment are correct. The remaining guard-only gap is that the README test requires only a fragment literal without checking the generated artifact id, and mvp-sample lacks an ordering／negative fixture proving no-scripts setup converges before the common key block. P22-004G authorizes only check-site／Website test／version-baseline／management guard correction within existing scope. Orchestrator and Documentation re-review remain required. No external state changed.
+```
+
+## P22-004G Documentation Correction — Orchestrator Passed, Re-review Pending
+
+```text
+2026-08-16T02:53:11+09:00
+Orchestrator independently reviewed the exact 22-path P22-004G Working Tree after the P1=3／P2=1 correction. First Operation now uses the published Experimental Stable 1.2.0 Authorize／Authentication／Frontend／Status／Deferred surface; normal and --no-scripts lanes converge before one mandatory key step; both Guide blocks chmod and verify exact .env mode 600 before key insertion; and the Quickstart fragment exists in the generated artifact. version-baseline, Website 80／80, check, 42-page build, 41-page site check, Mago format, PHP management-ID, stale-current-claim, scope, and diff checks pass. A disposable 0644 .env probe also reached exact 0600 before and after insertion with a 32-byte decoded key and no printed secret, then was removed. Documentation re-review is pending. No external state changed.
+```
+
+## P22-004G Documentation Findings Correction — Worker Complete, Review Pending
+
+```text
+2026-08-16T02:50:44+09:00
+P22-004G corrected the authorized Documentation Review P1=3／P2=1 findings only within the allowed files. First Operation now presents the published Experimental Stable 1.2.0 surface, including #[Authorize]／Sample Authentication, Frontend, Status Resource, and #[Deferred], with old Stable 1.1／main Preview current claims rejected by Website／version guards. Installation and Quickstart key blocks chmod and stat -c '%a' .env == 600 before writing the 32-byte decoded Base64 key; normal／--no-scripts lanes explicitly converge to the same required key step. Quickstart README now links the generated stable-120-authentication-and-deferred-journey anchor. Website test 80/80, check/build/site check, bash syntax, version baseline, Mago format, PHP management-ID, exact allowed scope, and diff checks pass. Long Consumer journeys were not run and are statically guarded as authorized. No Commit／Push／external mutation; Orchestrator and Documentation Review remain pending.
+```
+
+## P22-004G Documentation Findings — Correction Authorized
+
+```text
+2026-08-16T02:44:14+09:00
+Independent Documentation Review returned P1=3／P2=1: First Operation still presented Stable 1.1／main Preview boundaries as current; umask 077 did not protect the already-created .env before key insertion; the --no-scripts lane did not unambiguously execute the mandatory key step; and the Quickstart README fragment did not exist. P22-004G is expanded only to docs/guide/first-operation.md plus the already permitted Guide／Website guard／version-baseline／management files. Luna High worker correction, Orchestrator re-review, and Documentation re-review are required. Immutable Tags／Release／Packagist and Website production state remain unchanged.
+```
+
+## P22-004G Orchestrator Review Passed — Documentation Review Pending
+
+```text
+2026-08-16T02:26:57+09:00
+Orchestrator independently reviewed the exact 21-path P22-004G Working Tree and reran version baseline, Website 79/79 tests, Website check, 42-page build, 41-page site check, Mago format, PHP management-ID guard, stale-current-claim search, scope, and diff checks; all pass. Public 1.2.0 Authentication／Authorization, fail-closed Local Storage Key preparation, Production provider boundary, Upgrade Step 2 no-update／Step 5 public Skeleton source, single EXIT cleanup, immutable release metadata, and separate operation:inspect bind-mount limitation agree. No Production runtime behavior or external state changed. Independent read-only Documentation Review is pending before acceptance, Commit, and PR integration.
+```
+
+## P22-004G Website Stable-Claim Guard Correction — Worker Complete, Review Pending
+
+```text
+2026-08-16T02:12:00+09:00
+Worker synchronized the public documentation and version baseline, and Orchestrator independently reproduced four Website unit failures plus the post-build artifact-guard failure. Every failure was an exact stale Stable 1.1／main-candidate expectation in docs/website/tests/guide-code.test.mjs, reader-experience.test.mjs, or scripts/check-site.mjs; content generation and Website type/content check passed. P22-004G scope was expanded only to those three guard files so the live 1.2.0 claim remains protected without weakening assertions. The later correction now also statically requires the single UPGRADE EXIT cleanup, fail-closed key subshells, and authenticated-header test naming; focused Website test/check/build and version-baseline gates pass. Orchestrator review and Documentation Review remain pending. No external mutation occurred.
+```
+
+## P22-004G Stable 1.2 Public Documentation Closeout — Worker Complete, Review Pending
+
+```text
+2026-08-16T02:24:56+09:00
+P22-004G synchronized README／CHANGELOG／UPGRADE、Quickstart／Guide／Internal Status、Website Source、version-baseline、Website assertions、TODO／Spec／P22-004 management docs to live Experimental Stable 1.2.0. Public normal／no-scripts commands use 1.2.0; immutable Framework direct／peeled 00e8c587／3332fd1 and Skeleton fedcfda5／fa5e8247, Manual Recovery 31889808876／job 95024306339, GitHub Release publication 2026-08-15T16:21:09Z, and Remote smoke checked 2026-08-16T01:47:00+09:00 remain evidence inputs. Smoke successes are CLI、compile、12 migrations、HTTP、Worker retry→completed、redaction、cleanup. A separate confirmed bind-mount limitation remains: HTTP creates root-owned var/log/journal.jsonl, so non-root operation:inspect returns diagnostics.storage_failed while root comparison returns masked data; this is not an overall smoke failure. Public Install/Quickstart now prepare a local 32-byte Base64 BLACKOPS_STORAGE_KEY in a fail-closed set -euo pipefail subshell without printing the key, state the required Local provider, and document the Production Secret Manager／KMS boundary. Upgrade Step 2 is no-update only; Step 5 updates Framework and copies bootstrap files from a disposable public Skeleton create-project under the original single EXIT cleanup, which conditionally removes only the non-empty mktemp parent while retaining .env／Compose cleanup on failure and success. Mago format, Website test 79/79, Website check/build, version-baseline, PHP management-ID, and diff checks pass. Production Code、Consumer runtime behavior、Workflow、Tag／Release／Packagist mutation、Website production deployment are out of scope; only permitted documentation/static assertions changed. Orchestrator／Documentation Review and final Phase 22 closeout remain.
+```
 
 ## P22-004F Documentation Review Passed — Commit Approved
 

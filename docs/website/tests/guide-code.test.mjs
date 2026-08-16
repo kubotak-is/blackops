@@ -11,6 +11,38 @@ const guideRoot = path.join(repositoryRoot, 'docs/guide');
 const guide = (name) => readFile(path.join(guideRoot, name), 'utf8');
 const execFile = promisify(execFileCallback);
 
+function assertQuickstartConvergence(source) {
+  const heading = '### Stable 1.2.0 Authentication and Deferred Journey';
+  assert.equal(source.split('\n').filter((line) => line === heading).length, 1, 'mvp-sample must retain the exact current Quickstart heading');
+  const normalCreate = source.indexOf('composer create-project blackops/skeleton my-app 1.2.0');
+  const normalSetup = source.indexOf('php bin/setup');
+  const noScriptsCreate = source.indexOf('composer create-project --no-scripts blackops/skeleton my-app 1.2.0');
+  const noScriptsSetup = source.indexOf('php bin/setup', normalSetup + 1);
+  const convergence = source.indexOf('normal／`--no-scripts`のどちらも、Setup直後に次の同じ必須Key Stepを実行します。');
+  const chmod = source.indexOf('chmod 600 .env');
+  const modeCheck = source.indexOf("test \"$(stat -c '%a' .env)\" = 600");
+  const keyWrite = source.indexOf('sed -i "s|^BLACKOPS_STORAGE_KEY=');
+
+  assert.ok(normalCreate >= 0 && normalSetup > normalCreate, 'normal create/setup lane is present');
+  assert.ok(noScriptsCreate > normalSetup && noScriptsSetup > noScriptsCreate, '--no-scripts create/setup lane is present');
+  assert.ok(convergence > noScriptsSetup, 'both lanes must converge at the explicit shared key step');
+  assert.ok(chmod > convergence && modeCheck > chmod && keyWrite > modeCheck, 'shared key step must verify mode before writing');
+}
+
+function assertQuickstartReadmeFragment(source) {
+  const target = 'docs/guide/mvp-sample.md#stable-120-authentication-and-deferred-journey';
+  const escapedTarget = target.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  assert.equal((source.match(new RegExp(escapedTarget, 'g')) ?? []).length, 1, 'Quickstart README must target the generated guide fragment exactly once');
+  assert.doesNotMatch(source, /docs\/guide\/mvp-sample\.md#stable-120-quickstart/);
+}
+
+function moveNoScriptsBlockAfterKey(source) {
+  const start = source.indexOf('### Stable 1.2.0 --no-scripts Authentication and Deferred Journey');
+  const end = source.indexOf('normal／`--no-scripts`のどちらも、Setup直後に次の同じ必須Key Stepを実行します。', start);
+  assert.ok(start >= 0 && end > start, 'fixture source must contain the no-scripts block');
+  return `${source.slice(0, start)}${source.slice(end)}\n${source.slice(start, end)}`;
+}
+
 test('upgrade guide installs the exact Skeleton 1.1 project-root entrypoint', async () => {
   const [upgrade, entrypoint] = await Promise.all([
     readFile(path.join(repositoryRoot, 'UPGRADE.md'), 'utf8'),
@@ -33,9 +65,9 @@ test('P22-003 upgrade order and runtime merge matrix stay executable', async () 
   const migration = upgrade.slice(upgrade.indexOf('### 5. Database MigrationをBackup後に順序実行する'), upgrade.indexOf('### 6. Build、Frontend、Generated Artifactを再生成する'));
 
   assert.ok(migration.indexOf('Stable pre-status 0/2') < migration.indexOf('Stable migrate（一度）'));
-  assert.ok(migration.indexOf('Stable migrate（一度）') < migration.indexOf('Framework-only Candidate update／strict validate'));
-  assert.ok(migration.indexOf('Framework-only Candidate update／strict validate') < migration.indexOf('Candidate status 2/9'));
-  assert.ok(migration.indexOf('Candidate status 2/9') < migration.indexOf('Candidate dry-run／migrate'));
+  assert.ok(migration.indexOf('Stable migrate（一度）') < migration.indexOf('Framework-only `1.2.0` update／strict validate'));
+  assert.ok(migration.indexOf('Framework-only `1.2.0` update／strict validate') < migration.indexOf('`1.2.0` status 2/9'));
+  assert.ok(migration.indexOf('`1.2.0` status 2/9') < migration.indexOf('`1.2.0` dry-run／migrate'));
   assert.match(migration, /Do not run Stable database:status after this migrate/);
   assert.match(migration, /blackops\.schema_migrations/);
   assert.match(migration, /Version20260712000000/);
@@ -48,7 +80,14 @@ test('P22-003 upgrade order and runtime merge matrix stay executable', async () 
     assert.match(runtimeConsumer, new RegExp(file.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
   }
   assert.match(upgrade, /blackops.*Caddyfile.*Compose/);
-  assert.match(migration, /cmp \.\.\/blackops\/examples\/quickstart\/bootstrap\/app\.php bootstrap\/app\.php/);
+  assert.match(migration, /composer create-project --no-install --no-scripts blackops\/skeleton ".*skeleton_source.*" 1\.2\.0/);
+  assert.match(migration, /skeleton_temporary_root=''/);
+  assert.match(migration, /skeleton_temporary_root="\$\(mktemp -d\)"/);
+  assert.match(upgrade, /cleanup\(\) \{/);
+  assert.match(upgrade, /if test -n "\$\{skeleton_temporary_root\}"; then/);
+  assert.doesNotMatch(migration, /trap 'rm -rf "\$\{skeleton_temporary_root\}"' EXIT/);
+  assert.doesNotMatch(migration, /trap - EXIT/);
+  assert.match(migration, /cmp "\$\{skeleton_source\}\/bootstrap\/app\.php" bootstrap\/app\.php/);
   assert.match(upgrade, /tests\/Consumer\/framework-update-runtime\.sh/);
   assert.match(upgrade, /Provider-missing Classic HTTP safe 500／Worker CLI safe Negative/);
 });
@@ -104,6 +143,12 @@ test('tutorial starts from the current generator and contains complete edited so
   assert.match(phpBlocks[2], /handle\(CreateInvoiceValue \$value, ExecutionContext \$context\): CreateInvoiceOutcome/);
   assert.match(tutorial, /OperationOutcomeQuery/);
   assert.match(tutorial, /Build artifacts written\./);
+  assert.match(tutorial, /公開済みExperimental Stable `1\.2\.0`/);
+  for (const surface of ['\\#\\[Authorize\\]', 'Sample Token Authentication', 'Frontend', 'Status Resource', '\\#\\[Deferred\\]']) {
+    assert.match(tutorial, new RegExp(surface));
+  }
+  assert.doesNotMatch(tutorial, /Stable `1\.1\.0`/);
+  assert.doesNotMatch(tutorial, /main Preview/);
 });
 
 test('public guide commands use the project-root entrypoint deterministically', async () => {
@@ -282,23 +327,47 @@ test('Journal parameter contract uses five complete implementation-aligned table
   assert.match(source, /Exception Message。SecretをMessageへ含めない/);
 });
 
-test('guide presents the Stable 1.1 release surface and experimental policy consistently', async () => {
+test('guide presents the Stable 1.2 release surface and experimental policy consistently', async () => {
   const installation = await guide('installation.md');
   const quickstart = await guide('mvp-sample.md');
   const tutorial = await guide('first-operation.md');
   const generators = await guide('project-generators.md');
   const status = await guide('mvp-status.md');
 
-  assert.match(installation, /composer create-project blackops\/skeleton my-app 1\.1\.0/);
-  assert.match(installation, /WebsiteはRepository `main`のドキュメント/);
+  assert.match(installation, /composer create-project blackops\/skeleton my-app 1\.2\.0/);
+  assert.match(installation, /このWebsiteは公開Releaseのドキュメント/);
+  assert.match(installation, /PackageにはAuthentication、Seeder、Frontend Operation BridgeのSourceが含まれます/);
+  assert.match(installation, /`#\[Authorize\]`付きInline Operation/);
+  assert.match(installation, /Sample UserとしてAuthenticationされ/);
+  assert.match(installation, /Headerを省略したAnonymous Requestと不正なHeaderは`401`/);
+  assert.match(installation, /\(\n    set -euo pipefail\n    umask 077/);
+  assert.match(installation, /chmod 600 \.env/);
+  assert.match(installation, /stat -c '%a' \.env/);
+  assert.match(installation, /storage_key="\$\(head -c 32 \/dev\/urandom \| base64 -w 0\)"/);
+  assert.match(installation, /sed -i .*BLACKOPS_STORAGE_KEY.*\.env/);
+  assert.ok(installation.indexOf('chmod 600 .env') < installation.indexOf("test \"$(stat -c '%a' .env)\" = 600"));
+  assert.ok(installation.indexOf("test \"$(stat -c '%a' .env)\" = 600") < installation.indexOf('sed -i "s|^BLACKOPS_STORAGE_KEY='));
+  assert.ok(installation.indexOf('composer create-project blackops/skeleton my-app 1.2.0') < installation.indexOf('composer create-project --no-scripts blackops/skeleton my-app 1.2.0'));
+  assert.ok(installation.indexOf('composer create-project --no-scripts blackops/skeleton my-app 1.2.0') < installation.indexOf('normal／`--no-scripts`共通Key Stepへ合流'));
+  assert.doesNotMatch(installation, /認可匿名（`#\[Authorize\]`なし）/);
   assert.doesNotMatch(installation, /現行手順と同じRelease Surface/);
-  assert.match(quickstart, /blackops\/skeleton my-app 1\.1\.0/);
+  assert.match(quickstart, /blackops\/skeleton my-app 1\.2\.0/);
   assert.doesNotMatch(quickstart, /dev-main/);
-  assert.match(quickstart, /StableにはGlobal Middleware、Authentication、`#\[Authorize\]`がない/);
-  assert.match(quickstart, /"symlink":false,"versions":\{"blackops\/framework":"1\.2\.0"\}/);
-  assert.match(quickstart, /Repository `main`の`1\.2\.0` Preview Application/);
+  assert.match(quickstart, /Stable `1\.2\.0`にはGlobal Middleware、Authentication、`#\[Authorize\]`、Frontend Operation Bridgeが含まれます/);
+  assert.match(quickstart, /公開済み`1\.2\.0` Packageから作成したApplication/);
+  assert.match(quickstart, /Repository main Preview/);
   assert.match(quickstart, /Local Path Repository/);
-  assert.match(tutorial, /Experimental Stable `1\.1\.0`/);
+  assert.match(quickstart, /32-byte Base64のLocal Development Key/);
+  assert.match(quickstart, /\(\n    set -euo pipefail\n    umask 077/);
+  assert.match(quickstart, /composer create-project --no-scripts blackops\/skeleton my-app 1\.2\.0/);
+  assert.match(quickstart, /chmod 600 \.env/);
+  assert.match(quickstart, /stat -c '%a' \.env/);
+  assert.ok(quickstart.indexOf('chmod 600 .env') < quickstart.indexOf("test \"$(stat -c '%a' .env)\" = 600"));
+  assert.ok(quickstart.indexOf("test \"$(stat -c '%a' .env)\" = 600") < quickstart.indexOf('sed -i "s|^BLACKOPS_STORAGE_KEY='));
+  assert.match(quickstart, /`ShowWelcome`は`#\[Authorize\(SampleUserAuthorizationPolicy::class\)\]`で保護され/);
+  assert.doesNotMatch(quickstart, /認可匿名/);
+  assertQuickstartConvergence(quickstart);
+  assert.match(tutorial, /Experimental Stable `1\.2\.0`/);
   assert.match(generators, /Experimental Stable `1\.1\.0`/);
   assert.match(status, /7 Value Validation Attribute／422 Lifecycle \| 利用可 \| 利用可/);
   assert.match(status, /FrankenPHP Worker Mode \| 既定Runtime \| 既定Runtime/);
@@ -311,9 +380,9 @@ test('guide presents the Stable 1.1 release surface and experimental policy cons
   assert.match(status, /annotated Tag `1\.1\.0`/);
 });
 
-test('stable installation is an executable required-value-header Docker lane', async () => {
+test('stable installation is an executable authenticated-header Docker lane', async () => {
   const installation = await guide('installation.md');
-  const stable = installation.slice(installation.indexOf('## Stable 1.1.0を作成する'), installation.indexOf('## Composer Scriptを使わない場合'));
+  const stable = installation.slice(installation.indexOf('## Stable 1.2.0を作成する'), installation.indexOf('## Release Policy'));
 
   for (const command of ['docker compose build app http', 'docker compose up -d postgres', 'database:migrate', 'build:compile', 'docker compose up -d http', "curl -i -H 'X-Sample-Token: local-example' http://127.0.0.1:8080/welcome", 'docker compose down']) {
     assert.match(stable, new RegExp(command.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
@@ -321,7 +390,36 @@ test('stable installation is an executable required-value-header Docker lane', a
   for (const forbidden of ['database:seed', 'make:auth', 'frontend:generate', 'pnpm']) {
     assert.doesNotMatch(stable, new RegExp(forbidden));
   }
-  assert.match(installation, /composer create-project --no-scripts blackops\/skeleton my-app 1\.1\.0[\s\S]*php bin\/setup/);
+  assert.match(installation, /composer create-project --no-scripts blackops\/skeleton my-app 1\.2\.0[\s\S]*php bin\/setup/);
+});
+
+test('published Quickstart README points to an existing public guide fragment', async () => {
+  const quickstartReadme = await readFile(path.join(repositoryRoot, 'examples/quickstart/README.md'), 'utf8');
+
+  assertQuickstartReadmeFragment(quickstartReadme);
+  const driftedTarget = quickstartReadme.replace(
+    'docs/guide/mvp-sample.md#stable-120-authentication-and-deferred-journey',
+    'docs/guide/mvp-sample.md#stable-120-quickstart',
+  );
+  assert.throws(() => assertQuickstartReadmeFragment(driftedTarget), /guide fragment/);
+});
+
+test('Quickstart no-scripts convergence guard rejects a block moved after the key step', async () => {
+  const quickstart = await guide('mvp-sample.md');
+
+  assertQuickstartConvergence(quickstart);
+  assert.throws(() => assertQuickstartConvergence(moveNoScriptsBlockAfterKey(quickstart)), /--scripts create\/setup lane|converge/);
+});
+
+test('Quickstart convergence guard rejects a drifted current heading', async () => {
+  const quickstart = await guide('mvp-sample.md');
+  const driftedHeading = quickstart.replace(
+    '### Stable 1.2.0 Authentication and Deferred Journey',
+    '### Stable 1.2.0 Authentication and Deferred Journey (legacy)',
+  );
+
+  assertQuickstartConvergence(quickstart);
+  assert.throws(() => assertQuickstartConvergence(driftedHeading), /exact current Quickstart heading/);
 });
 
 test('main onboarding names the executable client, auth contract, and runtime links', async () => {

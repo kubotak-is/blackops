@@ -1,5 +1,10 @@
 import { defineConfig } from 'blume';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { blumeSidebar } from './site-navigation.mjs';
+
+const websiteRoot = path.dirname(fileURLToPath(import.meta.url));
+const localFont = (file: string) => path.join(websiteRoot, 'public/fonts', file);
 
 const experimentalNotice =
   'BlackOps1.xは試験的なバージョンです。Production Readyは2.xを予定しています。';
@@ -31,7 +36,20 @@ export default defineConfig({
     action: '#f97316',
     mode: 'system',
     radius: 'sm',
-    fonts: { body: 'inter', display: 'ibm-plex-sans', mono: 'ibm-plex-mono' },
+    fonts: {
+      body: {
+        name: 'Ubuntu Sans',
+        variants: [{ src: localFont('UbuntuSans.ttf'), weight: '400..700' }],
+      },
+      display: {
+        name: 'Ubuntu Sans',
+        variants: [{ src: localFont('UbuntuSans.ttf'), weight: '400..700' }],
+      },
+      mono: {
+        name: 'Ubuntu Mono',
+        variants: [{ src: localFont('UbuntuMono.ttf'), weight: '400..700' }],
+      },
+    },
   },
   i18n: {
     locales: [{ code: 'ja', label: '日本語' }],

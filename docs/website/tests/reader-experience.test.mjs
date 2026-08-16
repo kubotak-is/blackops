@@ -357,6 +357,48 @@ test('Mermaid artifact guards require native elements and reject syntax-highligh
   assert.match(site, /must not contain a Mermaid syntax-highlighted code block/);
 });
 
+test('Website fonts use local licensed variants and reject remote providers in artifacts', async () => {
+  const [config, theme, packageJson, artifact] = await Promise.all([
+    readFile(path.join(repositoryRoot, 'docs/website/blume.config.ts'), 'utf8'),
+    readFile(path.join(repositoryRoot, 'docs/website/theme.css'), 'utf8'),
+    readFile(path.join(repositoryRoot, 'docs/website/package.json'), 'utf8'),
+    readFile(path.join(repositoryRoot, 'docs/website/scripts/check-artifact.mjs'), 'utf8'),
+  ]);
+
+  assert.match(config, /localFont\('UbuntuSans\.ttf'\)/);
+  assert.match(config, /localFont\('UbuntuMono\.ttf'\)/);
+  assert.match(packageJson, /"blume": "1\.3\.0"/);
+  assert.match(theme, /var\(--blume-font-body, ui-sans-serif\)/);
+  assert.match(theme, /var\(--blume-font-mono, ui-monospace, monospace\)/);
+  assert.match(artifact, /fontProviders\\\.google|fonts\\\.googleapis\\\.com\|fonts\\\.gstatic\\\.com/);
+  assert.match(artifact, /generatedProviders\.length !== 2/);
+  assert.match(artifact, /fontProviders.*A-Za-z0-9_.*\\s\*.*\(/);
+  assert.match(artifact, /@font-face/);
+  assert.match(artifact, /expectedAssets/);
+  assert.match(artifact, /28c4c189a44803b1986fd16074187034dc6d94ad35f5e87de13dd0e786b70b73/);
+  assert.match(artifact, /fbf1e748836994f730e602f7dcf2525564d6d78aa336080cbb73af909d0e08ee/);
+  assert.match(artifact, /bca346a561b9668925ff55af1fcf0e10e65e07b1b40dd057bb4f3ded848ef8cf/);
+  assert.match(artifact, /Ubuntu-Font-Licence-1\.0/);
+  assert.match(artifact, /localFontReferences/);
+  assert.match(artifact, /astro\.config\.mjs/);
+  assert.match(artifact, /Ubuntu-Font-License-1\.0\.txt/);
+
+  const generatedLocalConfig = [
+    'body: { provider: fontProviders.local(), src: UbuntuSans.ttf }',
+    'mono: { provider: fontProviders.local(), src: UbuntuMono.ttf }',
+  ].join('\n');
+  const assertLocalProviderOnly = (source) => {
+    const providers = [...source.matchAll(/fontProviders\.([A-Za-z0-9_]+)\s*\(/g)].map(([, provider]) => provider);
+    assert.deepEqual(providers, ['local', 'local']);
+  };
+  assertLocalProviderOnly(generatedLocalConfig);
+  assert.throws(
+    () => assertLocalProviderOnly(generatedLocalConfig.replace('fontProviders.local()', "fontProviders.fontsource({ family: 'Inter' })")),
+    assert.AssertionError,
+  );
+  assert.match(artifact, /fontProviders\.local\(\)/);
+});
+
 test('glossary defines every required BlackOps term', async () => {
   const glossary = await guide('glossary.md');
   const terms = [
@@ -706,7 +748,7 @@ test('Blume runtime keeps diagrams local and the landing responsive', async () =
   const theme = await readFile(path.join(repositoryRoot, 'docs/website/theme.css'), 'utf8');
   const landing = await readFile(path.join(repositoryRoot, 'docs/website/pages/index.astro'), 'utf8');
 
-  assert.equal(packageJson.dependencies.blume, '1.1.4');
+  assert.equal(packageJson.dependencies.blume, '1.3.0');
   assert.equal(packageJson.devDependencies.astro, '7.0.7');
   assert.equal(packageJson.devDependencies.jsdom, '29.1.1');
   assert.equal(packageJson.devDependencies.mermaid, '11.16.0');
@@ -735,8 +777,8 @@ test('Blume runtime keeps diagrams local and the landing responsive', async () =
   for (const copy of [
     'BlackOps</span><span class="landing-tagline">The PHP Framework',
     'BlackOpsの特徴',
-    'composer create-project blackops/skeleton my-app 1.1.0',
-    'Repository main candidate 1.2.0 (unpublished)',
+    'composer create-project blackops/skeleton my-app 1.2.0',
+    'Latest Experimental Stable 1.2.0',
     'HTTPリクエストもコンソールコマンドもJobも、すべてはOperationで統一されます。',
     '受理・試行・リトライ・拒否・完了をFrameworkが自動でJournalへ記録します。「なぜ失敗したか」をFrameworkが記録します。',
     'BlackOpsはフロントエンドを持ちません。代わりに、JavaScript向けに接続クライアントのコードを自動生成します。',

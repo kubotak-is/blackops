@@ -2,10 +2,10 @@
 
 BlackOps CLIから`Billing/CreateInvoice`の骨格を生成し、HTTPで受け付けるDeferred Operationへ仕上げます。
 
-このページは[Install](installation.md)のStable HTTP 200確認、または[Quickstart and Skeleton](mvp-sample.md)のRepository `main` Preview準備が完了したProject Rootを前提にします。Step 1〜3（Generator、Value、Outcome）に加えて、`#[Route]`、Deferred実行、WorkerはStable `1.1.0`でも利用できます。main Preview限定なのは、Step 4の`#[Authorize]`とSample Token Header、Step 5のFrontend検証、Step 6・7のStatus Resourceです。Stableではこれらを除いて実行してください。Container CLIを使う場合は`docker compose run --rm app`を各コマンドの前へ付け、Hostの`php blackops`と混在させません。
+このページは[Install](installation.md)の公開済みExperimental Stable `1.2.0` HTTP 200確認、または[Quickstart and Skeleton](mvp-sample.md)の公開済み`1.2.0` Package準備が完了したProject Rootを前提にします。Step 1〜3（Generator、Value、Outcome）に加えて、`#[Route]`、`#[Deferred]`によるDeferred実行、Worker、`#[Authorize]`とSample Token Authentication、Frontend検証、Status Resourceをすべて公開済みExperimental Stable `1.2.0`のSurfaceとして案内します。Container CLIを使う場合は`docker compose run --rm app`を各コマンドの前へ付け、Hostの`php blackops`と混在させません。
 
-:::info[Channel boundary]
-Step 1〜3はExperimental Stable `1.1.0`、`#[Authorize]`、Sample Token Authentication、Frontend、Status ResourceはRepository `main` Preview向けです。StableではPreview限定のStepを実行しないでください。
+:::info[Experimental Stable 1.2.0]
+このチュートリアルのStep 1〜7、`#[Authorize]`、Sample Token Authentication、Frontend、Status Resource、`#[Deferred]`は公開済みExperimental Stable `1.2.0` Packageで実行します。1.xはExperimentalで、Production Readyと1.x Minor間のBackward Compatibilityを保証しないため、Release境界は[Releases](mvp-status.md)で確認してください。
 :::
 
 起動、Migration、Buildで詰まった場合は[Troubleshooting](troubleshooting.md)を参照してください。
@@ -127,7 +127,7 @@ final readonly class CreateInvoice implements Operation
 }
 ```
 
-main PreviewではCanonical Attributeの`#[Deferred]`を使います。Stable `1.1.0`で同じDeferred実行を指定する場合は、`use BlackOps\Core\Attribute\ExecuteWith;`と`use BlackOps\Core\Execution\Deferred;`を追加し、`#[ExecuteWith(Deferred::class)]`へ置き換えてください。Stableへ`#[Deferred]`を案内しないことが重要です。
+公開済みExperimental Stable `1.2.0`ではCanonical Attributeの`#[Deferred]`を使います。`#[Deferred]`、`#[Authorize]`、Sample Token Authentication、Frontend検証、Status Resourceはこの公開PackageのSurfaceとして同じProject Rootで確認できます。
 
 Value型とOutcome型は`handle()` Signatureから推論されます。`Accepts`、`Returns`、Handler用Interfaceは不要です。`ExecutionContext`が不要なら第二引数ごと省略できます。
 

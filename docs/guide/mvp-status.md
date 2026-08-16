@@ -1,6 +1,6 @@
 # Releases
 
-BlackOpsのStableはFramework／Skeleton `1.1.0`です。Repository `main`は未公開の`1.2.0` Release Candidateです。未Release Surfaceもこのドキュメントで明示します。Documentation WebsiteはCloudflare Pages（`https://blackops-php.pages.dev`）へ公開しています。Stableとの差を次表で確認してください。
+BlackOpsのLatest Experimental StableはFramework／Skeleton `1.2.0`です。Framework／Skeleton annotated Tag、Packagist、GitHub Release、Remote create-project smokeを確認済みです。未Release Surfaceはこのドキュメントで明示します。Documentation WebsiteはCloudflare Pages（`https://blackops-php.pages.dev`）へ公開しています。
 
 BlackOps固有のOperation、Claim、Journal、Outcome等は[Glossary](glossary.md)で確認できます。
 
@@ -8,11 +8,11 @@ BlackOpsはExperimentalです。1.x Minor間のBackward CompatibilityとProducti
 
 ## Release NotesとMigration
 
-Stable `1.1.0`からRepository `main`の未公開`1.2.0` candidateへ移行する場合は、[CHANGELOG.md](https://github.com/kubotak-is/blackops/blob/main/CHANGELOG%2Emd)の差分と[UPGRADE.md](https://github.com/kubotak-is/blackops/blob/main/UPGRADE%2Emd)のBackup、9つのMigration、Rollback境界を順に確認してください。CandidateのComposer／Generator更新は、実際のannotated Tag `1.1.0`を起点にした[Framework Update Consumer](https://github.com/kubotak-is/blackops/blob/main/tests/Consumer/framework-update-generators%2Esh)で検証します。`1.2.0`は公開Stable、Packagist、公開Skeletonではありません。
+Stable `1.1.0`から公開済み`1.2.0`へ移行する場合は、[CHANGELOG.md](https://github.com/kubotak-is/blackops/blob/main/CHANGELOG%2Emd)の差分と[UPGRADE.md](https://github.com/kubotak-is/blackops/blob/main/UPGRADE%2Emd)のBackup、9つのMigration、Rollback境界を順に確認してください。公開PackageのComposer／Generator更新は、実際のannotated Tag `1.1.0`を起点にした[Framework Update Consumer](https://github.com/kubotak-is/blackops/blob/main/tests/Consumer/framework-update-generators%2Esh)で検証済みです。
 
 ## Stableとmain
 
-| Capability | Stable 1.1.0 | main 1.2.0 candidate |
+| Capability | Stable 1.1.0 historical | Stable 1.2.0 |
 | --- | --- | --- |
 | Typed Self-handled Operation／Native Outcome | 利用可 | 利用可 |
 | Inline HTTP／Deferred HTTP／Worker Retry | 利用可 | 利用可 |
@@ -61,7 +61,7 @@ Stable `1.1.0`からRepository `main`の未公開`1.2.0` candidateへ移行す�
 Stable Applicationを作る場合はVersionを明示します。
 
 ```bash
-composer create-project blackops/skeleton my-app 1.1.0
+composer create-project blackops/skeleton my-app 1.2.0
 ```
 
 ## Available Runtime Surface
@@ -99,6 +99,8 @@ composer create-project blackops/skeleton my-app 1.1.0
 BlackOps BoardはRepository `main`だけの試験的Local Reference Applicationです。Stable `1.1.0` Skeletonには含まれず、公開Hostも提供していません。BoardはSource、Local／CI Build、利用者向け検証記録だけを維持し、外部公開／デプロイの対象外です。Documentation Websiteの公開先は上記Cloudflare Pagesです。
 
 ## Known Constraints
+
+Remote smokeでは通常／`--no-scripts` Install、Project Root CLI、Compile、12 Migration、HTTP、Worker retryからCompleted、Sensitive redactionを確認済みです。HTTP後のnon-root `operation:inspect`は、bind-mountされた`var/log/journal.jsonl`がHTTP Processでroot-ownedになる環境では`diagnostics.storage_failed`を返します。root比較ではJournalのmasked dataを確認済みです。これは確認済みのownership limitationであり、Remote smoke全体の失敗とは扱いません。
 
 - Session Coreは提供するが、User／Password／Registration Policy、Cookie／CSRF、JWT／OAuth／API Key、Actor Repository、Permission StoreはApplication責務
 - Production Status Authorization Policy、Tenant Model、Role／Permission Repositoryは提供しない
