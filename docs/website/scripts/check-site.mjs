@@ -11,6 +11,7 @@ const requiredRoutes = [
   '/auth/authentication',
   '/auth/authorization',
   '/frontend',
+  '/getting-started/quickstart',
   '/releases/current-status',
 ];
 
@@ -48,10 +49,19 @@ const cssAssets = await Promise.all(
 const styles = cssAssets.join('\n');
 const landing = pages.get('/');
 const releases = pages.get('/releases/current-status');
+const quickstart = pages.get('/getting-started/quickstart');
 requireText(releases, 'CHANGELOG%2Emd', 'Release notes CHANGELOG link');
 requireText(releases, 'UPGRADE%2Emd', 'Release notes UPGRADE link');
 requireText(releases, '9つのMigration', 'Release notes migration boundary');
-requireText(releases, 'annotated Tag <code>1.1.0</code>', 'Release notes stable-to-candidate evidence');
+requireText(releases, 'Framework／Skeleton annotated Tag', 'Release notes live publication evidence');
+const quickstartAnchor = 'id="stable-120-authentication-and-deferred-journey"';
+const quickstartAnchorCount = (quickstart.match(new RegExp(quickstartAnchor, 'g')) ?? []).length;
+if (quickstartAnchorCount !== 1) {
+  throw new Error(`Quickstart must contain exactly one generated ${quickstartAnchor} anchor; found ${quickstartAnchorCount}.`);
+}
+if (quickstart.includes('id="stable-120-quickstart"')) {
+  throw new Error('Quickstart contains the retired stable-120-quickstart anchor.');
+}
 requireText(landing, '<h1 id="landing-title"><span class="landing-brand">BlackOps</span><span class="landing-tagline">The PHP Framework</span></h1>', 'Landing product heading');
 requireText(landing, 'href="/getting-started/installation"', 'Landing Installation action');
 requireText(landing, 'href="/concepts/why-blackops"', "Landing What's BlackOps action");
@@ -64,7 +74,7 @@ requireText(landing, "'/reports/generated/' . $value->reportName . '.json',", 'L
 if (landing.includes("return new ReportGenerated($value->reportName")) {
   throw new Error('Landing PHP sample constructor must remain multiline.');
 }
-requireText(landing, 'composer create-project blackops/skeleton my-app 1.1.0', 'Landing Stable install command');
+requireText(landing, 'composer create-project blackops/skeleton my-app 1.2.0', 'Landing Stable install command');
 requireText(
   landing,
   '<article class="landing-feature landing-feature-headless"><div class="landing-feature-visual landing-client-visual" aria-hidden="true"><code>',

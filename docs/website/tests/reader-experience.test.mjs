@@ -735,8 +735,8 @@ test('Blume runtime keeps diagrams local and the landing responsive', async () =
   for (const copy of [
     'BlackOps</span><span class="landing-tagline">The PHP Framework',
     'BlackOpsの特徴',
-    'composer create-project blackops/skeleton my-app 1.1.0',
-    'Repository main candidate 1.2.0 (unpublished)',
+    'composer create-project blackops/skeleton my-app 1.2.0',
+    'Latest Experimental Stable 1.2.0',
     'HTTPリクエストもコンソールコマンドもJobも、すべてはOperationで統一されます。',
     '受理・試行・リトライ・拒否・完了をFrameworkが自動でJournalへ記録します。「なぜ失敗したか」をFrameworkが記録します。',
     'BlackOpsはフロントエンドを持ちません。代わりに、JavaScript向けに接続クライアントのコードを自動生成します。',

@@ -1,12 +1,12 @@
 # P22-004 Stable 1.2 Publication and Closeout Report
 
-Status: In Progress (P22-004F Commit Approved)
+Status: Accepted
 
 ## Summary
 
 User authorized exact candidate `3332fd1dd0738fc7e79750facd93d49a59054ecf` CI qualification and Green-gated `1.2.0` publication. Same-SHA CI and Documentation delivery passed, corrected final Documentation Review returned P1=0／P2=0／P3=0, and PR #3 merged as `547149109419b62ab769af9d3aad1ed80dbba905`. Post-fetch ancestry and tree equality proved the fixed source is unchanged in remote `main` history.
 
-P22-004 integrated its reviewed tracking checkpoint through PR #4 and began the authorized immutable publication. Framework annotated tag `1.2.0` now exists and peels to exact fixed source `3332fd1`; Packagist exposes Framework `1.2.0`. The tag-triggered Skeleton publication failed before credentials or distribution push because the Workflow did not install `mise`, which the Quickstart Consumer invokes. Skeleton `1.2.0`, Packagist Skeleton `1.2.0`, GitHub Release, remote smoke, and production documentation deployment remain unexecuted.
+P22-004 integrated its reviewed tracking checkpoint and completed immutable Framework／Skeleton publication. Framework direct tag object `00e8c587` peels to fixed source `3332fd1`; Skeleton direct tag object `fedcfda5` peels to fixed split `fa5e8247`; Packagist and GitHub Release `1.2.0` are live. Successful Manual Recovery `31889808876`／job `95024306339` completed the public-package normal／`--no-scripts` Remote smoke. P22-004G now synchronizes public／internal／website-source／baseline documentation; Website production deployment remains out of scope.
 
 ## Fixed Inputs
 
@@ -36,22 +36,22 @@ P22-004 integrated its reviewed tracking checkpoint through PR #4 and began the 
 - Passed before failure: checkout／tag validation, container-user configuration, image build, dependency install, Framework quality gates.
 - Exact failure: `tests/Consumer/quickstart-e2e.sh: line 63: mise: command not found`; Consumer step exit `127`.
 - Credential configuration and Skeleton publication steps were not reached. Always-run credential／temporary-state cleanup passed.
-- Live Skeleton remote remains `main=293f880940636669f28ded756a888a8d6ba65f1b`; direct／peeled `1.2.0` refs are absent.
+- Historical pre-recovery checkpoint: live Skeleton remote was `main=293f880940636669f28ded756a888a8d6ba65f1b`; direct／peeled `1.2.0` refs were absent at that checkpoint.
 
 ## Packagist and GitHub Release Evidence
 
 - Packagist Framework `1.2.0`: PRESENT.
-- Packagist Skeleton `1.2.0`: ABSENT.
-- GitHub Release `1.2.0`: not created.
+- Packagist Skeleton `1.2.0`: PRESENT and resolves the published annotated Skeleton tag.
+- GitHub Release `1.2.0`: PRESENT; published `2026-08-15T16:21:09Z`.
 
 ## Remote Normal, No-scripts, and Quickstart Evidence
 
-Not executed.
+Remote normal／`--no-scripts` create-project resolved Skeleton／Framework `1.2.0` without Local Path repository or existing Composer cache. Project Root CLI、compile、12 migrations、HTTP welcome、Worker retry→Completed、and sensitive-value redaction passed; temporary resources were removed. After HTTP wrote root-owned `var/log/journal.jsonl`, non-root `operation:inspect` returned `diagnostics.storage_failed`; root comparison returned masked data. This confirmed bind-mount ownership limitation is recorded separately and is not an overall smoke failure.
 
 ## Immutable Tag, Credential, and Documentation Boundary
 
 - Framework `1.2.0` is immutable and will not be moved, deleted, or recreated.
-- No Skeleton `1.2.0` tag or GitHub Release has been created.
+- Skeleton `1.2.0` tag and GitHub Release are immutable live publication inputs.
 - No credential value has been read or recorded.
 - Documentation Website production deployment is out of scope.
 
@@ -74,6 +74,11 @@ Not executed.
 - `develop/orchestration/reports/P22-004E-generator-consumer-post-release-tag-lifecycle.md`
 - `develop/orchestration/tasks/P22-004F-generator-resource-inventory.md`
 - `develop/orchestration/reports/P22-004F-generator-resource-inventory.md`
+- `develop/orchestration/tasks/P22-004G-stable-1-2-public-documentation-closeout.md`
+- `develop/orchestration/reports/P22-004G-stable-1-2-public-documentation-closeout.md`
+- `docs/website/tests/guide-code.test.mjs`
+- `docs/website/tests/reader-experience.test.mjs`
+- `docs/website/scripts/check-site.mjs`
 - `.github/workflows/publish-skeleton.yml`
 - `tests/Consumer/quickstart-e2e.sh`
 - `tests/Consumer/framework-update-runtime.sh`
@@ -104,11 +109,11 @@ Not executed.
 - PASS diagnostic: release runtime paths are byte-identical between fixed source `3332fd1` and PR head `aa74ef5`.
 - PASS: P22-004B correction committed as `13bd326`, new CI `31826566683` and Documentation delivery `31826566626` passed all required checks, and PR #5 merged as `f61dc037533f3dea54ba33df9e203c7727d06443`.
 - FAIL: Manual Recovery run `31827240918` passed tag／toolchain／Framework quality gates but `quickstart-e2e.sh` exited 1 at `retention:plan | grep -q 'Total:'` with `write /dev/stdout: broken pipe`; credential and publication steps were skipped and cleanup passed.
-- PASS diagnostic: Skeleton remote remains `main=293f880940636669f28ded756a888a8d6ba65f1b` with no direct／peeled `1.2.0` tag refs.
+- PASS historical diagnostic from the pre-publication recovery checkpoint: Skeleton remote was `main=293f880940636669f28ded756a888a8d6ba65f1b` with no direct／peeled `1.2.0` tag refs.
 - PASS: P22-004C worker and Orchestrator independently passed full Quickstart Consumer without broken pipe plus version baseline, deterministic publication regression split `fa5e8247`, Mago format, management-ID, diff, scope, and cleanup checks.
 - PASS: P22-004C／D commit `e80b0ac` passed PR #6 CI run `31878390676` and Documentation delivery `31878390735`; PR #6 merged as `8c8e975b62dcdb31b5cdf0474cdc5c313c458467`, and local `main` is clean.
 - FAIL: Manual Recovery run `31878757317` passed Framework quality, full Quickstart, and Skeleton create-project, then Generator Consumer exited 128 with `fatal: tag '1.2.0' already exists`. Credential／publication steps were skipped and cleanup passed.
-- PASS diagnostic: live Skeleton remote remains `main=293f880940636669f28ded756a888a8d6ba65f1b`; direct／peeled `1.2.0` refs remain absent.
+- PASS historical diagnostic from the pre-publication recovery checkpoint: live Skeleton remote was `main=293f880940636669f28ded756a888a8d6ba65f1b`; direct／peeled `1.2.0` refs were absent then.
 - PASS: P22-004E worker implemented the bounded Generator post-release tag lifecycle and Manual-Recovery-only reviewed Quickstart／Generator harness overlay. The current published-tag Generator Consumer passed; static guards, Workflow regression, Mago format, management-ID, diff, and cleanup checks passed. No external mutation occurred.
 - PASS: Orchestrator independently reviewed and reran both dynamic Generator lifecycle lanes: existing published annotated `1.2.0` resolved exact `3332fd1`, while a disposable clone with only its local `1.2.0` removed created and resolved the pre-release candidate at current `8c8e975`. Deterministic split, static／format／scope／cleanup guards also pass.
 - PASS: Corrected independent P22-004E Documentation Review returned P1=0／P2=0／P3=0 and approved the exact ten-path Working Tree for one Commit／dedicated PR after the dual-array-member and trap／restore／hash／all-Consumer guard corrections.
@@ -123,21 +128,23 @@ Not executed.
 ## Acceptance Criteria
 
 - [x] Tracking checkpoint is reviewed and integrated through the PR-required remote path.
-- [ ] Framework and Skeleton annotated tags match fixed inputs.
-- [ ] Skeleton publication workflow succeeds and cleans credentials.
-- [ ] Packagist and GitHub Release expose exact `1.2.0` metadata.
-- [ ] Published-package normal／no-scripts／runtime smoke succeeds and cleans temporary state.
-- [ ] Existing tags, credential values, and documentation production state remain unchanged.
-- [ ] Phase 22 tracking is closed with evidence.
+- [x] Framework and Skeleton annotated tags match fixed inputs.
+- [x] Skeleton publication workflow succeeds and cleans credentials.
+- [x] Packagist and GitHub Release expose exact `1.2.0` metadata.
+- [x] Published-package normal／no-scripts／runtime smoke succeeds and cleans temporary state; root-owned journal bind-mount limitation is separately recorded.
+- [x] Existing tags, credential values, and documentation production state remain unchanged.
+- [x] Phase 22 tracking is closed with evidence (P22-004G final Documentation Review P1=0／P2=0／P3=0).
 
-P22-004C preserves immutable release Source `3332fd1`, drains complete Docker Compose output before assertions, and permits the reviewed dispatch-SHA Quickstart harness after fail-closed release-runtime equality; it is integrated through all-Green PR #6. P22-004E added the Generator post-release tag lifecycle and Manual-Recovery-only Generator harness overlay and is integrated through all-Green PR #7. P22-004F now owns the obsolete Generator resource inventory correction exposed after all Consumer gates passed.
+P22-004C preserves immutable release Source `3332fd1`, drains complete Docker Compose output before assertions, and permits the reviewed dispatch-SHA Quickstart harness after fail-closed release-runtime equality; it is integrated through all-Green PR #6. P22-004E added the Generator post-release tag lifecycle and Manual-Recovery-only Generator harness overlay and is integrated through all-Green PR #7. P22-004F corrected the obsolete Generator resource inventory and was integrated before the successful publication recovery. P22-004G owns the public documentation closeout and records the separate `operation:inspect` ownership follow-up without implementing it.
+
+P22-004G changed only the allowed public／internal／website-source／baseline／management documentation and Website assertion files. The closeout records Framework／Skeleton direct and peeled tag objects, Manual Recovery `31889808876`／job `95024306339`, GitHub Release publication time, public normal／`--no-scripts` smoke successes, and the confirmed non-root `operation:inspect` `diagnostics.storage_failed` limitation caused by root-owned `var/log/journal.jsonl` on a bind mount. No Production Code、Consumer runtime behavior、Workflow、Tag、Release、Packagist, or Website production state changed.
 
 ## Remaining Issues
 
-- P22-004F dedicated Commit／PR, new CI, and Green-only merge／fetch remain pending; Worker, Orchestrator, and Documentation Review pass.
-- Another one-shot Manual Dispatch remains prohibited until that sequence completes.
-- Skeleton publication, GitHub Release, remote package smoke, and closeout remain pending.
+- P22-004F Commit／PR／CI／merge and the successful Manual Recovery are complete; the historical one-shot Dispatch restriction is closed.
+- P22-004G documentation implementation, independent Orchestrator review, final Documentation Review, and Phase 22 acceptance are complete.
+- The root-owned journal bind-mount behavior remains a separate follow-up; no Source correction or `1.2.1` publication is included here.
 
 ## Suggested Next Action
 
-Create the exact reviewed P22-004F Commit and dedicated PR, then require all CI Green before merge／fetch and one new one-shot Manual Dispatch. Do not move tags or create the GitHub Release before recovery succeeds.
+Integrate the exact reviewed closeout through one dedicated Commit／PR with Green CI and Documentation delivery, then fetch a clean `main` and re-verify immutable public refs／metadata. Do not mutate tags, Release, Packagist, or Website production state.

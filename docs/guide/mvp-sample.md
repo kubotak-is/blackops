@@ -1,52 +1,70 @@
 # Quickstart and Skeleton
 
-このページはRepository `main`の`1.2.0` Preview Applicationを準備し、Header Authentication、Inline HTTP、Database Transaction、After Commit、Deferred Workerを一続きで確認します。Stable `1.1.0`のInstallは[Install](installation.md)で先に完了してください。ここで説明するAuthentication／AuthorizationとDatabase／Transaction Exampleは未Release Surfaceです。Experimental Stable `1.1.0`との差は[Releases](mvp-status.md)で確認してください。
+このページは公開済みExperimental Stable `1.2.0` Applicationを準備し、Header Authentication、Inline HTTP、Database Transaction、After Commit、Deferred Workerを一続きで確認します。公開PackageのInstallは[Install](installation.md)で先に完了してください。ExperimentalなAuthentication／AuthorizationとDatabase／Transactionの制約は[Releases](mvp-status.md)で確認してください。
 
-:::warning[Repository main Preview]
-このページのStep 2以降は未Release Surfaceです。公開済みStable SkeletonのInstall手順とは分けて実行し、提供範囲は[Releases](mvp-status.md)で確認してください。
+:::warning[Experimental Stable 1.2.0]
+このページのStep 2以降はExperimental Stable `1.2.0`のSurfaceです。公開済みSkeletonのInstall後に実行し、提供範囲は[Releases](mvp-status.md)で確認してください。
 :::
 
 ## 1. 実行Channelを選ぶ
 
-### Stable 1.1.0
+### Stable 1.2.0
 
 公開済みSkeletonだけを試す場合はVersionを固定し、[First Operation](first-operation.md)のStep 1〜3へ進みます。
 
 ```bash
-composer create-project blackops/skeleton my-app 1.1.0
+composer create-project blackops/skeleton my-app 1.2.0
 ```
 
-StableにはGlobal Middleware、Authentication、`#[Authorize]`がないためFrontend Operation Bridgeもありません。このページのmain Preview Step 2以降へ進まず、InstallのHTTP 200確認後に[First Operation](first-operation.md)のStep 1〜3（Generator、Value、Outcome）を実行してください。Stableの正確な提供範囲は[Stableとmain](mvp-status.md#stableとmain)で確認してください。
+Stable `1.2.0`にはGlobal Middleware、Authentication、`#[Authorize]`、Frontend Operation Bridgeが含まれます。[First Operation](first-operation.md)のStep 1〜3（Generator、Value、Outcome）を実行し、Releaseの正確な提供範囲は[Releases](mvp-status.md)で確認してください。
+
+### Stable 1.2.0 Authentication and Deferred Journey
+
+公開済み`1.2.0` Packageから作成したApplicationで認証付きJourneyを実行します。Local Path Repository、Framework Source mount、既存Composer Cacheは使用しません。
+
+```bash
+composer create-project blackops/skeleton my-app 1.2.0
+cd my-app
+php bin/setup
+```
+
+`SAMPLE_API_TOKEN=local-example`は`.env.example`からLocal Applicationへ入ります。未設定または空文字の場合、Sample Authenticatorは既知値へFallbackせずRuntime構成を失敗させます。以降は`my-app`をProject Rootとして実行します。
+
+### Stable 1.2.0 --no-scripts Authentication and Deferred Journey
+
+Composer Scriptを実行しない場合も、公開済み`1.2.0` Packageを同じProject Rootへ作成し、Setupを明示実行してから共通Key Stepへ合流します。
+
+```bash
+composer create-project --no-scripts blackops/skeleton my-app 1.2.0
+cd my-app
+php bin/setup
+```
+
+normal／`--no-scripts`のどちらも、Setup直後に次の同じ必須Key Stepを実行します。
+
+公開済み`1.2.0` Quickstart Runtimeには32-byte Base64のLocal Development Key／Local `StorageKeyProvider`が必要です。Key値は表示せず、Gitへ保存せず、ProductionではApplication-owned Secret Manager／KMS Providerへ置き換えます。
+
+```bash
+(
+    set -euo pipefail
+    umask 077
+    chmod 600 .env
+    test "$(stat -c '%a' .env)" = 600
+    storage_key="$(head -c 32 /dev/urandom | base64 -w 0)"
+    test -n "${storage_key}"
+    decoded_storage_key_length="$(printf '%s' "${storage_key}" | base64 --decode | wc -c)"
+    test "${decoded_storage_key_length}" -eq 32
+    sed -i "s|^BLACKOPS_STORAGE_KEY=.*|BLACKOPS_STORAGE_KEY=${storage_key}|" .env
+    test "$(grep -c '^BLACKOPS_STORAGE_KEY=' .env)" -eq 1
+    test "$(grep -c '^BLACKOPS_STORAGE_KEY=$' .env)" -eq 0
+)
+```
+
+接続できない、またはContainerの状態が分からない場合は[Troubleshooting](troubleshooting.md)を参照してください。
 
 ### Repository main Preview
 
-以降の認証付きJourneyには、RepositoryのFramework SourceとQuickstartをLocal Path Repositoryで組み合わせたPreviewを使います。これはConsumer E2Eと同じ`symlink: false`／Version Mappingです。公開VersionのInstall手順ではありません。
-
-```bash
-git clone https://github.com/kubotak-is/blackops.git blackops-framework
-cd blackops-framework
-
-PREVIEW_DIR="$(pwd)/../blackops-preview"
-mkdir -p "$PREVIEW_DIR"
-cp -a examples/quickstart/. "$PREVIEW_DIR/"
-
-docker run --rm --user "$(id -u):$(id -g)" \
-  -v "$PWD:/framework:ro" -v "$PREVIEW_DIR:/app" -w /app composer:2 \
-  composer config repositories.framework \
-  '{"type":"path","url":"/framework","options":{"symlink":false,"versions":{"blackops/framework":"1.2.0"}}}'
-
-docker run --rm --user "$(id -u):$(id -g)" \
-  -v "$PWD:/framework:ro" -v "$PREVIEW_DIR:/app" -w /app composer:2 \
-  composer install --no-interaction --prefer-dist
-
-cd "$PREVIEW_DIR"
-cp .env.example .env
-mkdir -p var/build var/log
-```
-
-`SAMPLE_API_TOKEN=local-example`は`.env.example`からLocal Previewへ入ります。未設定または空文字の場合、Sample Authenticatorは既知値へFallbackせずRuntime構成を失敗させます。以降は`blackops-preview`をProject Rootとして実行します。
-
-接続できない、またはContainerの状態が分からない場合は[Troubleshooting](troubleshooting.md)を参照してください。
+このAnchorは旧`main` PreviewからのMigration Linkを壊さないために残しています。現在のInstallと認証付きJourneyは、上記の公開済みExperimental Stable `1.2.0` Packageを使用してください。Repository `main`の未公開PreviewやLocal Path Repositoryを現行手順として案内しません。
 
 ## 2. Image、Artifact、Databaseを準備する
 
@@ -68,7 +86,7 @@ Migration、Build、Seed、Frontend生成はHTTP起動時に暗黙実行され�
 
 ## 3. PHP Operationを先に確認する
 
-Generated ClientはPHP OperationのContractを複製しません。Previewへ含まれる`examples/quickstart`の実装を先に確認します。`app/Feature/Welcome/ShowWelcome/ShowWelcome.php`は`GET /welcome`、Operation Type `welcome.show`を持つInline Operationです。`app/Feature/Welcome/ShowWelcome/WelcomeValue.php`は空のInput、`WelcomeShown.php`は`message` Outcomeを返します。
+Generated ClientはPHP OperationのContractを複製しません。公開済み`1.2.0` Quickstartに含まれる`examples/quickstart`の実装を先に確認します。`app/Feature/Welcome/ShowWelcome/ShowWelcome.php`は`GET /welcome`、Operation Type `welcome.show`を持つInline Operationです。`app/Feature/Welcome/ShowWelcome/WelcomeValue.php`は空のInput、`WelcomeShown.php`は`message` Outcomeを返します。
 
 ```php
 use App\Security\SampleUserAuthorizationPolicy;
@@ -86,10 +104,10 @@ final readonly class ShowWelcome implements Operation
 }
 ```
 
-これはRepository `main` Previewの`/welcome`です。PreviewはSample Authentication／Authorizationと`#[Authorize]`を追加します。Stable Skeletonの`/welcome`は`#[Authorize]`を持たない認可匿名ですが、Stable Tagの`WelcomeValue`は必須の機密`X-Sample-Token` Header ValueをBindingするため、Headerが不要なVersionという意味ではありません。
+これは公開済み`1.2.0`の`/welcome`です。`1.2.0`はSample Authentication／Authorizationと`#[Authorize]`を追加します。`ShowWelcome`は`#[Authorize(SampleUserAuthorizationPolicy::class)]`で保護され、`X-Sample-Token: local-example`が`quickstart-user` Actorとして認証されるとHTTP `200`を返します。Header省略はAnonymousとして`401`、不正値はOperation受付前の`401`です。
 
 ```php
-// PreviewのWelcomeValueはSample AuthenticationがHeaderを消費するため空です。
+// 1.2.0のWelcomeValueはSample AuthenticationがHeaderを消費するため空です。
 final readonly class WelcomeValue implements OperationValue {}
 
 final readonly class WelcomeShown implements Outcome
@@ -98,25 +116,7 @@ final readonly class WelcomeShown implements Outcome
 }
 ```
 
-Stable Tag `1.1.0`はAuthorization Middlewareを持たない一方、`WelcomeValue`の必須Value HeaderをBindingします。実際のStable Sourceは次の機密Input境界です。
-
-```php
-use BlackOps\Core\Attribute\Sensitive;
-use BlackOps\Core\Attribute\SensitiveMode;
-use BlackOps\Core\OperationValue;
-use BlackOps\Http\Attribute\FromHeader;
-use SensitiveParameter;
-
-final readonly class WelcomeValue implements OperationValue
-{
-    public function __construct(
-        #[FromHeader('X-Sample-Token')]
-        #[Sensitive(SensitiveMode::Mask)]
-        #[SensitiveParameter]
-        public string $sampleToken,
-    ) {}
-}
-```
+公開済みStable Tag `1.2.0`ではAuthentication MiddlewareがHeaderを消費し、`WelcomeValue`は空のOperation Valueです。SensitiveなTokenはApplication Operation Value、Transport、Journalへ保存されません。
 
 `app/Feature/Report/GenerateReport/GenerateReport.php`は`POST /reports`、Operation Type `report.generate`を持つDeferred Operationです。`GenerateReportValue`の`reportName`とwrite-only `recipientEmail`から、`ReportGenerated`の`reportName`と`location`を返します。
 
@@ -407,6 +407,8 @@ Outcome
   Availability: not_applicable
   Value: none
 ```
+
+HTTP後のnon-root `operation:inspect`が`diagnostics.storage_failed`になる場合は、bind-mountされた`var/log/journal.jsonl`がHTTP Processでroot-ownedになっている制約を確認してください。root比較ではJournalのmasked dataを確認できます。このownership limitationはRemote smoke全体の失敗ではありません。
 
 ScriptやSupport Toolから読む場合は同じIDをJSONで取得します。
 
