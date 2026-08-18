@@ -1,6 +1,6 @@
 # P22-005: Documentation Governance and Information Architecture
 
-Status: In Progress
+Status: Accepted
 
 ## Goal
 
@@ -29,9 +29,20 @@ Status: In Progress
 1. `P22-005A`: Release claim authority and current-source correction (Accepted; final Documentation Review P1=0／P2=0／P3=0)
 2. `P22-005B`: Information architecture and navigation (Accepted; final Sol xHigh re-review P1=0／P2=0／P3=0)
 3. `P22-005C`: Full public-page content migration (Accepted; final Sol xHigh review P1=0／P2=0／P3=0)
-4. `P22-005D`: Browser, accessibility, Search, and production verification (Local Accepted; final Sol xHigh P1=0／P2=0／P3=0)
+4. `P22-005D`: Browser, accessibility, Search, and production verification (Accepted — Production Verified; current Production Browser 127/127 Green; final Sol xHigh P1=0／P2=0／P3=0)
 5. `P22-005E`: Product framing, BlackOps CLI chapter, Journal／Audit boundary, and Landing visual follow-up (Accepted; final Sol xHigh P1=0／P2=0／P3=0; Local Acceptance supported)
 6. `P22-005F`: Documentation clean-checkout artifact fixture (Accepted; final Sol xHigh P1=0／P2=0／P3=0; no public Artifact or workflow change)
+7. `P22-005G`: Documentation production closeout (Accepted; management-only PR #10 merge／Production HTTP／Artifact／Browser evidence Green; final Sol xHigh P1=0／P2=0／P3=0)
+
+## P22-005G Documentation Production Closeout — Accepted; Sol xHigh P1=0／P2=0／P3=0
+
+2026-08-18T20:14:56+09:00
+
+P22-005G records the user-approved PR #10 head `76aa6218ee80f6eaf7ae44cd6d4a0db215a6f1de`, PR CI `32117940838` (6 jobs) and Documentation `32117940853`, merge `36d3206c37e33165b89b78b4eb333562e9d37b61` at `2026-08-18T08:51:06Z`, main CI `32118499805` (6 jobs), main Documentation `32118499737`, and production job `95653679057`. The deployment preview is `https://e6391b48.blackops-php.pages.dev`, canonical is `https://blackops-php.pages.dev`, and Artifact id `9317633470` is `blackops-documentation-site`.
+
+Orchestrator-provided Production HTTP evidence measured 200 for `/`, `/reference/project-cli/`, `/blume-search.json`, `/llms.txt`, `/llms-full.txt`, and `/index.md`, with the required content types, root `Link` relations, and four 301 redirects. Production matched Artifact for index/CLI after only Cloudflare Analytics injection normalization; Search／llms／llms-full／index.md were byte exact. Artifact hashes are index `0b5c18d16553e7bdf3892e492db95af3a546a845e4e24097d8c89f7eba257b34`, CLI `49ca6f5054a28a6c7903f445a2cf07b159665b32630d519628eb077a7a7cbb26`, Search `dd1968391b3178932b4a1ee4fccb468d2d715222b23d614b0b43d1afabb36fe5`, `llms.txt` `9df281c58d889c6719d36a78a6e48f131b4302ce6787f94b366e6fc312669eec`, `llms-full.txt` `60c8dca85c861f40c262d45eb0c996234eb89aeef1e58b67a1b904d7ef54fd11`, and `index.md` `d9654654a3d2be50001c775d6af91c3d9c0f18328f84b871c6a6ba0a666b0853`.
+
+The parent Production HTTP／Artifact criterion and P22-005D current Production Browser confirmation are satisfied. Orchestrator evidence at `/tmp/p22-005d-orchestrator/evidence-production-canonical/` covers 41 canonical routes and 127 executions: desktop-light 41, desktop-dark 41, mobile-light 41, mobile-dark representative 4; failures empty; Axe violations 0; console/page/request 0; horizontal-overflow failures 0; accessibility-name entries 127; Search empty/non-empty close and trigger focus return, tabCount 4, theme persistence, and reduced-motion checks Green. Browser is Chromium 149.0.7827.55, Playwright 1.61.1, Node v24.17.0, image `mcr.microsoft.com/playwright:v1.61.1-noble`. Exact main Artifact index hash is `0b5c18d16553e7bdf3892e492db95af3a546a845e4e24097d8c89f7eba257b34` (size 21093) and Search hash is `dd1968391b3178932b4a1ee4fccb468d2d715222b23d614b0b43d1afabb36fe5` (size 502738). Retained P22-005F／D 127/127 same-source candidate evidence remains separately identified. Sol xHigh final verdict is `P1=0/P2=0/P3=0` with no findings and supports parent acceptance. Remaining Issues: none. Next Action: Orchestrator publication workflow records the exact commit／PR CI／merge snapshot and authorized publication gates; after parent closeout, proceed to the P23-001 feasibility proposal. BlackOps `1.3.0` remains unreleased.
 
 ## P22-005F Clean-Checkout Artifact Fixture — Accepted; Sol xHigh P1=0／P2=0／P3=0
 
@@ -206,8 +217,9 @@ P22-005 and its child checkpoints explicitly allow `develop/decisions/143-docume
 - [x] 新IAから主要Journeyへ一Actionまたは明示的な連続導線で到達できる
 - [x] Release／Capability変更が共有CI guardなしにmergeできない
 - [x] 全公開Pageの独立Documentation ReviewがP1=0／P2=0となる（Child A〜Eの独立Review完了、最終verdictはいずれもP1=0／P2=0）
-- [ ] Production WebsiteとSearch／LLM artifactのcanonical verificationが成功する
-- [x] 各Child Task完了時に上位Goalの残り工程とNext Actionが報告される（Child A〜E ReportにRemaining Issues／Suggested Next Actionを確認済み）
+- [x] Production WebsiteとSearch／LLM artifactのcanonical HTTP／Artifact verificationが成功する（P22-005G exact HTTP／Artifact evidence; current Production Browser confirmation is also Green at the recorded 41-route／127-execution evidence root）
+- [x] 各Child Task完了時に上位Goalの残り工程とNext Actionが報告される（P22-005A〜Gの各Task／ReportにRemaining Issues／Suggested Next Actionを確認済み。公開Page reviewのChild A〜E注記は別criteriaで保持）
+- [x] Independent Sol xHigh final verdictはP1=0／P2=0／P3=0、findingなしで、P22-005D／P22-005G／parent acceptanceを支持する
 
 ## Expected Report
 

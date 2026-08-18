@@ -1,6 +1,54 @@
 # Orchestration State
 
-Updated At: 2026-08-18T17:30:46+09:00
+Updated At: 2026-08-18T20:21:10+09:00
+
+## P22-005G Post-sync Current Truth Correction — Accepted
+
+2026-08-18T20:21:10+09:00 — Parent/D/G are Accepted after independent Sol xHigh `P1=0/P2=0/P3=0` with no finding; the stale review-pending parent Report bullet was corrected.
+
+## P22-005G Final Sol xHigh Acceptance — P1=0／P2=0／P3=0; Accepted
+
+```text
+2026-08-18T20:14:56+09:00
+Sol xHigh final verdictは`P1=0/P2=0/P3=0`、findingなしで、P22-005D／P22-005G／parent P22-005のAcceptance移行を支持した。Positive evidenceは、PR #10／main CI・Documentation、merge／Production job、canonical HTTP／redirect／Link header、Artifact id `9317633470` parity／hashes、Orchestrator management gate（`release:check:source` PASS、Website test 118/118、check 0/0/0、site:check 41 pages、`release:check:artifact` PASS、git diff --check PASS）、およびcurrent Production Browser evidence root `/tmp/p22-005d-orchestrator/evidence-production-canonical/`の41 routes／127 executions／failures []、Axe violations 0、console/page/request 0、horizontal overflow failure 0、accessibility-name 127、Search／theme／reduced-motion Greenである。
+P22-005D Task／ReportはAccepted — Production Verified、P22-005G Task／ReportはAccepted、parent Task／ReportはAcceptedへ同期した。各TaskのRemaining Issuesはnone。Not Verifiedは、このmanagement-only acceptance syncでWorkerがQuickstart／Mago／PHP management-ID／CI／Browserをfresh rerunしていないこと、およびcommit／stage／push／PR／CI rerun／deploy／external publicationを実施していないことであり、上記positive evidenceを否定しない。
+Next Action: Orchestrator publication workflowでreviewed exact commit／PR CI／mergeとauthorized publication gatesを記録する。Parent closeout後の次はP23-001 feasibility proposalであり、BlackOps `1.3.0`はproposalで未Release。Workerはcommit／stage／pushしない。
+```
+
+## P22-005G Pre-review Bounded Management Correction — Review Pending
+
+```text
+2026-08-18T19:55:18+09:00
+Orchestrator pre-reviewで確認された管理整合を、既存8-file boundary内で補正した。Parent P22-005 Acceptance CriteriaのChild completion／Remaining Issues／Suggested Next Action注記を、P22-005A〜Gの各Task／Reportに実在する記録へ更新した。P22-005G ReportのOrchestrator management gateへ`release:check:source` PASS、Website test 118/118、check 0/0/0、site:check 41 pages、`release:check:artifact` PASS、git diff --check PASSを追加した。
+P22-005D／P22-005G／parentのStatusはReview Pendingのままで、Acceptedへ変更していない。公開docs、Website code／test、Artifact、workflow、Spec、P22-005Fは不変。Commit／Stage／Push／CI rerun／Deploy／external mutationなし。Next Action: exact 8-file management diffをOrchestrator／Solがreviewし、独立acceptanceへ進む。
+```
+
+## P22-005G Production Browser Verification — Green; Closeout Review Pending
+
+```text
+2026-08-18T19:48:11+09:00
+Orchestratorがcurrent Production Browser evidenceをGreenとして追加した。Evidence rootは`/tmp/p22-005d-orchestrator/evidence-production-canonical/`、summaryは`canonicalRoutes=41`、`executions=127`、`failures=[]`。profilesはdesktop-light 41、desktop-dark 41、mobile-light 41、mobile-dark representative 4。Axeはentries 127／violations 0、console evidenceはentries 127／console 0／page 0／request 0、measurementsはentries 127／horizontal overflow failure 0、accessibility-nameはentries 127。Interactionはempty／non-empty Search closeの`dialogOpen=false`とSearch trigger focus return、tabCount 4、theme `light→dark→reload dark→route dark`、reduced motion matches=true／animationName=none／transitionDuration=0sを確認した。BrowserはChromium 149.0.7827.55、Playwright 1.61.1、Node v24.17.0、image `mcr.microsoft.com/playwright:v1.61.1-noble`。
+Exact main-run Artifactはindex.html SHA-256 `0b5c18d16553e7bdf3892e492db95af3a546a845e4e24097d8c89f7eba257b34`／size 21093、blume-search.json SHA-256 `dd1968391b3178932b4a1ee4fccb468d2d715222b23d614b0b43d1afabb36fe5`／size 502738。P22-005D Production Browser ACを[x]へ更新し、P22-005D／P22-005G／parentのStatusはそれぞれProduction Verified — Closeout Review Pending／Closeout Review Pending／Closeout Review Pendingのまま保持した。Acceptedには変更していない。
+残りはindependent Sol xHigh review／acceptanceとmanagement exact-commit／PR CI／merge closeout review。Workerは管理8 filesのみを変更し、Commit／Stage／Push／CI rerun／Deploy／external mutationはない。Next Action: Orchestratorがexact management diffとHTTP／Artifact／Browser evidenceをreviewし、Sol acceptanceへ進む。
+```
+
+## P22-005G Documentation Production Closeout — Started; Closeout Review Pending
+
+```text
+2026-08-18T18:20:34+09:00
+P22-005Gを開始した。Baseはmain merge `36d3206c37e33165b89b78b4eb333562e9d37b61`、branchは`agent/p22-005g-documentation-production-closeout`である。許可FileはP22-005G Task／Report、parent P22-005 Task／Report、P22-005D Task／Report、STATE、TODOの8つだけで、公開docs、Website code／test、generated Artifact、workflow、Spec、P22-005Fは変更しない。
+User-approved PR #10 delivery evidence（head `76aa6218ee80f6eaf7ae44cd6d4a0db215a6f1de`、PR CI `32117940838`、PR docs `32117940853`、merge SHA／time、main CI `32118499805`、main docs `32118499737`、production job `95653679057`、deployment／canonical URL、HTTP／redirect／Link header、Artifact id `9317633470`、parity、hashes）はTask／Reportへ同期する。Existing P22-005F clean-checkout evidenceと127/127 same-source candidate Browser evidenceは保持するが、current Production Browser measurementはOrchestrator pendingであり、Production HTTP／Artifact parityとは別の証拠として扱う。
+Commit／Stage／Push／PR／CI rerun／Deploy／external mutationは未実施。Next Action: current Production Browser evidenceをOrchestratorが測定し、8-file management diffとexact delivery evidenceを独立Sol xHigh reviewへ渡す。
+```
+
+## P22-005G Documentation Production Closeout — Worker Complete; Closeout Review Pending
+
+```text
+2026-08-18T18:25:59+09:00
+P22-005G management-only同期を完了した。変更はTask／Reportの新規作成、parent P22-005／P22-005D Task／Report、STATE、TODOの8 allowed filesだけで、public docs、Website code／test、generated Artifact、workflow、Spec、P22-005Fは不変である。StatusはP22-005G `Closeout Review Pending`、P22-005D `Production Verified — Closeout Review Pending`、parent `Closeout Review Pending`であり、Acceptedへは変更していない。
+Exact evidenceはPR #10 head `76aa6218ee80f6eaf7ae44cd6d4a0db215a6f1de`、PR CI `32117940838` SUCCESS／6 jobs、PR docs `32117940853` SUCCESS、Artifact build `95651602850`、Access preview `95651988232` SUCCESS、merge `36d3206c37e33165b89b78b4eb333562e9d37b61`／`2026-08-18T08:51:06Z`、main CI `32118499805` SUCCESS／6 jobs、main docs `32118499737` SUCCESS、production `95653679057` SUCCESS、deployment `https://e6391b48.blackops-php.pages.dev`、canonical `https://blackops-php.pages.dev`、Artifact `9317633470`／`blackops-documentation-site`である。Production HTTPは6 surfaceすべて200、content type／root Link header／4 redirectsを確認し、index／CLIはCloudflare Analytics injection normalization後にArtifact一致、Search／llms／llms-full／index.mdはbyte exact。Artifact hashesはindex `0b5c18d16553e7bdf3892e492db95af3a546a845e4e24097d8c89f7eba257b34`、CLI `49ca6f5054a28a6c7903f445a2cf07b159665b32630d519628eb077a7a7cbb26`、Search `dd1968391b3178932b4a1ee4fccb468d2d715222b23d614b0b43d1afabb36fe5`、llms `9df281c58d889c6719d36a78a6e48f131b4302ce6787f94b366e6fc312669eec`、llms-full `60c8dca85c861f40c262d45eb0c996234eb89aeef1e58b67a1b904d7ef54fd11`、index.md `d9654654a3d2be50001c775d6af91c3d9c0f18328f84b871c6a6ba0a666b0853`である。
+Existing P22-005F evidenceはdist unavailable focused 1/1／full 118/118、restore、source/check/build/site/artifact/public-boundary/diff PASS。既存127/127 same-source candidate Browser evidenceは保持するが、current-production Browser確認はOrchestrator pendingであり、DのBrowser-dependent ACとparent closeoutは未完了。Browserはpublic Artifact不変のためWorkerは再実行していない。Worker read-only scopeでCommit／Stage／Push／PR／CI rerun／Deploy／external mutationはなし。Next Action: Orchestratorがcurrent Production Browserを測定してexact 8-file diffをreviewし、independent Sol xHigh acceptanceへ進む。
+```
 
 ## P22-005F Final Sol xHigh Review — Accepted; Parent Delivery Pending
 
