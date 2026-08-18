@@ -408,7 +408,7 @@ Production環境へ持ち込まない。
 6. P20-018F: Public／Internal Guide、Security／Deployment／Troubleshooting、Documentation Review
 7. P20-018G: Development-only Local Grafana LGTM Trace／Metric dashboard Consumer
 
-各Production TaskはGPT-5.6 Luna High workerへ依頼し、WorkerはReview前にCommitしない。Documentation ReviewはRead-only Documentation ReviewerがEvidence付きFindingを返し、OrchestratorがAcceptanceする。
+各Production Taskは`.codex/agents/worker.toml`に定義された現在のModel／Reasoning Effortを読み込むProduction Implementation Workerへ依頼し、WorkerはReview前にCommitしない。Documentation ReviewはRead-only Documentation ReviewerがEvidence付きFindingを返し、OrchestratorがAcceptanceする。
 
 ## Acceptance Criteria
 

@@ -1,8 +1,8 @@
 # What's BlackOps
 
-BlackOpsはPHP 8.5向けのHeadless Operation Frameworkです。`#[Route]`で同期HTTP、`#[Deferred]`でDeferred Worker、`#[ConsoleCommand]`でCLIから同じOperationを起動し、Lifecycle Journalで実行事実を追跡します。HeadlessなのでUIを持たず、生成したJavaScript Client CodeをNext.js、Nuxt、SvelteKitなどのFrontendへ接続できます。
+BlackOpsは、HTTPやWorkerから受けた処理を一つの処理単位として、同じIDで受付・再試行・完了を確認できるPHP 8.5向けFrameworkです。この処理単位をOperationと呼びます。HeadlessなのでUIを持たず、生成したJavaScript Client CodeをNext.js、Nuxt、SvelteKitなどのFrontendへ接続できます。
 
-一つのOperation Modelに型付きInput、Outcome、Execution Contextを集約し、InlineとDeferredの実行経路を同じLifecycle境界で扱います。
+InlineはRequest内で完了する実行、Deferred Workerは受付後にWorkerが続ける実行です。Lifecycle Journalは受理された処理の実行事実を順序付きで記録します。Operationは型付きInput、Outcome、Execution Contextをこの実行境界へ集約します。
 
 同期HTTPと非同期Jobを別々のModelで実装すると、同じ業務上の意図でもLifecycle、Retry、Trace、Outcomeの扱いが実行経路ごとに分かれます。障害調査ではController、Queue、Worker、Application Logを横断し、「処理を受理したのか」「何回試したのか」「最終結果は何か」を組み立て直さなければなりません。
 
@@ -42,7 +42,7 @@ FrameworkがOperationとして受理した処理は、Inline／Deferredを問わ
 | FormRequest / Request DTO | OperationValue | Operation Inputの型とValidation／Sensitive Metadataの境界です。 |
 | API Resource / Response DTO | Outcome | 正常完了した業務Outputであり、Presentation Serializerそのものではありません。 |
 | Job / Messenger Message / Queue | Deferred Execution Strategy | Operation本体ではなく、同じOperationをDurable受付後に実行するStrategyです。 |
-| Audit Log / Process History | Journal | Lifecycleの事実を記録し、任意のApplication Logを置き換えません。 |
+| Request／Jobの実行履歴 | Lifecycle Journal | Operationとして受理されたLifecycleの事実を記録します。汎用Business／Security Audit Trailや任意のApplication LogはApplicationが所有します。Retention／Replay／Rotationなどの個別運用Eventは、Lifecycle Journalとは別のFramework運用契約で扱います。 |
 
 この対応は一対一のAPI移植表ではありません。Controllerを機械的にOperationへRenameしたり、既存Queue MessageをそのままOperationへ置換したりするものではありません。入口から独立させたい業務上の意図、型付きInput／Output、追跡境界を見つけるために使ってください。
 

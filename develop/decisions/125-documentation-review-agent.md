@@ -1,6 +1,6 @@
 # D125: Documentation Review Agent
 
-Status: Decided
+Status: Superseded for Reviewer Model／Reasoning Profile selection by D144; the Read-only Review Contract remains applicable.
 
 ## Context
 

@@ -183,7 +183,7 @@ Scheduled Operationとone-shot CLI、Documentation WebsiteのCloudflare Pages公
 1. User Goalと既存Specificationを照合する
 2. 未決のPublic API、Security、CompatibilityをDecisionで確定する
 3. Delivery PlanとTask Packetを作成する
-4. GPT-5.6 Luna High workerがTask単位で実装・検証する
+4. `.codex/agents/worker.toml`に定義された現在のModel／Reasoning Effortを読み込むImplementation WorkerがTask単位で実装・検証する
 5. OrchestratorがReview、独立再検証、Commitを行う
 6. Phase Closeout ReportとSTATEを同期する
 

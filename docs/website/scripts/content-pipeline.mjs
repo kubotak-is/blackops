@@ -63,7 +63,13 @@ export async function generateContent({
   const referencedAssets = new Set();
   const outputs = records.map((record) => {
     const body = rewriteAndValidateLinks(record, bySource, routes, referencedAssets);
-    const content = `---\n${frontmatter(record)}---\n${body}`;
+    const readerOutcome = record.metadata?.reader?.outcome;
+    const readerMarker = readerOutcome === undefined
+      ? ''
+      : record.mdx
+        ? `\n\n{/* blackops-reader-outcome: ${readerOutcome} */}\n`
+        : `\n\n<!-- blackops-reader-outcome: ${readerOutcome} -->\n`;
+    const content = `---\n${frontmatter(record)}---\n${body}${readerMarker}`;
 
     return {
       ...record,
@@ -98,7 +104,7 @@ function publicSlug(value, source) {
 function frontmatter(record) {
   const values = {
     title: record.title,
-    description: record.metadata?.description,
+    description: record.metadata?.reader?.outcome ?? record.metadata?.description,
   };
 
   return Object.entries(values)

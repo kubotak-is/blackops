@@ -403,7 +403,7 @@ Classic SAPI、FrankenPHP Worker Mode、BlackOps CLI、Deferred Worker、Schedul
 7. P20-016G: Rotation Plan／Execute CLI、Audit、Checkpoint／Resume、Crash／Concurrency Evidence
 8. P20-016H: Guide、Security、Deployment、Troubleshooting、Reference、Documentation Review
 
-各Production TaskはGPT-5.6 Luna High workerへ依頼し、WorkerはReview前にCommitしない。Documentation ReviewはRead-only Documentation ReviewerがEvidence付きFindingを返し、OrchestratorがAcceptanceする。
+各Production Taskは`.codex/agents/worker.toml`に定義された現在のModel／Reasoning Effortを読み込むProduction Implementation Workerへ依頼し、WorkerはReview前にCommitしない。Documentation ReviewはRead-only Documentation ReviewerがEvidence付きFindingを返し、OrchestratorがAcceptanceする。
 
 ## Acceptance Criteria
 

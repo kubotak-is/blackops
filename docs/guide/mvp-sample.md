@@ -64,7 +64,7 @@ normal／`--no-scripts`のどちらも、Setup直後に次の同じ必須Key Ste
 
 ### Repository main Preview
 
-このAnchorは旧`main` PreviewからのMigration Linkを壊さないために残しています。現在のInstallと認証付きJourneyは、上記の公開済みExperimental Stable `1.2.0` Packageを使用してください。Repository `main`の未公開PreviewやLocal Path Repositoryを現行手順として案内しません。
+このAnchorは旧PreviewからのMigration Linkを壊さないために残しています。現在のInstallと認証付きJourneyは、上記の公開済みExperimental Stable `1.2.0` Packageを使用してください。未公開RoadmapやLocal Path Repositoryを現行手順として案内しません。
 
 ## 2. Image、Artifact、Databaseを準備する
 
@@ -408,7 +408,7 @@ Outcome
   Value: none
 ```
 
-HTTP後のnon-root `operation:inspect`が`diagnostics.storage_failed`になる場合は、bind-mountされた`var/log/journal.jsonl`がHTTP Processでroot-ownedになっている制約を確認してください。root比較ではJournalのmasked dataを確認できます。このownership limitationはRemote smoke全体の失敗ではありません。
+HTTP後のnon-root `operation:inspect`が`diagnostics.storage_failed`になる場合は、bind-mountされた`var/log/journal.jsonl`がHTTP Processでroot-ownedになっている制約を確認してください。Journalのmasked dataだけを確認し、このownership limitationとして扱います。
 
 ScriptやSupport Toolから読む場合は同じIDをJSONで取得します。
 
@@ -454,7 +454,7 @@ docker compose run --rm app php blackops operation:inspect \
 
 Docker-only Quickstartでは、Host BrowserからLocal Viewerを利用できません。PostgreSQLをHostへPublishしておらず、Applicationの`POSTGRES_HOST=postgres`はCompose Network内だけで解決します。また、Viewerは起動したCLI Processの`127.0.0.1`だけにBindするため、Containerの外から到達できません。この構成では、前述の`docker compose run --rm app php blackops operation:inspect ...` Human／JSONを利用してください。Non-loopback Bindへ緩めて回避してはいけません。
 
-Consumer E2EはViewerとHTTP Clientを同じnamed CLI Container、同じLocal Network Namespaceで動かして、Loopback限定のままToken／Session／Read-only動作を検証します。これはHost BrowserへViewerを公開する手順ではありません。
+ApplicationのViewer確認はViewerとHTTP Clientを同じnamed CLI Container、同じLocal Network Namespaceで動かし、Loopback限定のままToken／Session／Read-only動作を確認します。これはHost BrowserへViewerを公開する手順ではありません。
 
 BrowserでViewerを使う場合は、Application／PHP CLI／PostgreSQL／Browserが同じLocal Network Namespaceから相互に到達できるNative Runtimeを準備します。Database HostもそのNative Runtimeから解決可能であることを確認したうえで、Project Rootから明示起動します。
 
@@ -487,6 +487,22 @@ HTTP 200と次のTyped Outcomeが返ります。
 {"reference":"order-001","status":"created"}
 ```
 
+同じOrderのLifecycleを確認するため、Protected `encoded_record`を読む代わりに、`operation_type`が明示されたClear MetadataだけからOperation IDを取得します。POST直後にProject Rootで次を実行し、返った一行を後続のStatus／Inspectへそのまま渡します。
+
+```bash
+ORDER_OPERATION_ID="$(docker compose exec -T postgres psql -U blackops -d blackops -Atc "
+SELECT operation_id
+FROM blackops.journal
+WHERE event = 'operation.received'
+  AND operation_type = 'order.create'
+ORDER BY occurred_at DESC, sequence DESC
+LIMIT 1;")"
+test -n "${ORDER_OPERATION_ID}"
+docker compose run --rm app php blackops operation:inspect "${ORDER_OPERATION_ID}" --json
+```
+
+このQueryは先行するWelcome／Failure／Console Operationを選ばず、直前に送った`order.create`の最新受付だけを選びます。`encoded_record`、Payload、Outcome BlobのDecode／JSON Castは行いません。
+
 `CreateOrder::handle()`の`#[Transactional]`が最外Transactionを開きます。`CreateOrderCommand::execute()`も`#[Transactional]`ですが、同じDefault Connectionなので新しいDBAL Transactionを作らずNested Requiredで参加します。`DoctrineOrderRepository`はConstructor InjectionされたDefault DBAL `Connection`でParameterized SQLを実行します。
 
 Business RowとAfter Commit Rowを入力と対にして確認します。
@@ -505,28 +521,14 @@ order-001
 
 `RecordOrderCommit::record()`はTransaction内で呼び出しますが、`#[AfterCommit]`により最外Commit後までQueueされます。そのため、二つ目のRowはOrder Rowと成功Terminal JournalのCommit後に追加されます。
 
-Canonical JournalのTerminalも確認できます。
+Canonical JournalのTerminalは、Protected BlobをDatabaseから読むのではなく、認可済みのStatus／Inspect経路で確認します。ここでも同じOrderの受付を表す`${ORDER_OPERATION_ID}`を再利用し、別OperationのIDへ置き換えません。
 
 ```bash
-docker compose exec -T postgres psql -U blackops -d blackops -Atc "
-SELECT event
-FROM blackops.journal
-WHERE operation_id = (
-  SELECT operation_id
-  FROM blackops.journal
-  WHERE event = 'operation.received'
-    AND convert_from(encoded_record, 'UTF8') LIKE '%order-001%'
-  LIMIT 1
-)
-ORDER BY sequence;
-"
+docker compose run --rm app php blackops operation:inspect "${ORDER_OPERATION_ID}" --json
 ```
 
-```text
-operation.received
-attempt.started
-attempt.succeeded
-operation.completed
+```json
+{"schemaVersion":1,"status":"completed","operationId":"<operation-id>","events":["operation.received","attempt.started","attempt.succeeded","operation.completed"]}
 ```
 
 After Commitは同期Best-effortで、Callback失敗やProcess Crashを越えた自動Retryを行いません。Email、Webhook、Message Publishなどのat-least-once DeliveryにはTransactional Outboxを使い、Relayの停止／再開、Retry、Dead Letter再開を明示的に運用します。詳しい保証差は[Transaction](database-and-transactions.md)を参照してください。
@@ -605,9 +607,7 @@ Deferred Reportの受理から完了まではCanonical PostgreSQL Journalで確�
 ```bash
 OPERATION_ID='<operation-id-from-accepted-response>'
 docker compose exec -T postgres psql -U blackops -d blackops -Atc "
-SELECT sequence || '|' || event || '|' ||
-       (convert_from(encoded_record, 'UTF8')::jsonb #>> '{operation,actors,authorization,id}') || '|' ||
-       (convert_from(encoded_record, 'UTF8')::jsonb #>> '{operation,actors,execution,id}')
+SELECT sequence || '|' || event || '|' || operation_id || '|' || occurred_at
 FROM blackops.journal
 WHERE operation_id = '${OPERATION_ID}'::uuid
 ORDER BY sequence;
@@ -615,17 +615,17 @@ ORDER BY sequence;
 ```
 
 ```text
-1|operation.received|quickstart-user|quickstart-user
-2|operation.accepted|quickstart-user|quickstart-user
-3|attempt.started|quickstart-user|quickstart-worker-1
-4|attempt.failed|quickstart-user|quickstart-worker-1
-5|retry.scheduled|quickstart-user|quickstart-worker-1
-6|attempt.started|quickstart-user|quickstart-worker-1
-7|attempt.succeeded|quickstart-user|quickstart-worker-1
-8|operation.completed|quickstart-user|quickstart-worker-1
+1|operation.received|<operation-id>|2026-07-14T01:23:45.678901Z
+2|operation.accepted|<operation-id>|2026-07-14T01:23:45.678902Z
+3|attempt.started|<operation-id>|2026-07-14T01:23:45.678903Z
+4|attempt.failed|<operation-id>|2026-07-14T01:23:45.678904Z
+5|attempt.retry_scheduled|<operation-id>|2026-07-14T01:23:45.678905Z
+6|attempt.started|<operation-id>|2026-07-14T01:23:46.678903Z
+7|attempt.succeeded|<operation-id>|2026-07-14T01:23:46.678904Z
+8|operation.completed|<operation-id>|2026-07-14T01:23:46.678905Z
 ```
 
-Canonical Journalは監査正本ですが、復元可能なBusiness DataはBOPD v1 Envelopeへ保存されます。Clear列は認可前SubjectとLifecycle Queryに必要な最小Metadataだけです。Envelope、Access Control、Retention、Database At-rest Encryptionの責務を混同しないでください。
+Canonical JournalはOperation Lifecycleの正本ですが、復元可能なBusiness DataはBOPD v1 Envelopeへ保存されます。汎用Business／Security Audit TrailのAction、Resource、ReasonはApplicationの責務です。Public SQLはProtected Blobをdecode／JSON castせず、Clear lifecycle metadataまたは認可済みStatus／Inspect Queryだけを使います。Envelope、Access Control、Retention、Database At-rest Encryptionの責務を混同しないでください。
 
 Worker完了後は同じStatus ResourceがTyped Outcomeを返し、Terminal Responseに`Retry-After`は付きません。
 

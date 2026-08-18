@@ -49,6 +49,9 @@ jobs:
       - name: Install website dependencies
         run: pnpm --dir docs/website install --frozen-lockfile
 
+      - name: Guard current release claims in source
+        run: pnpm --dir docs/website run release:check:source
+
       - name: Verify pinned Wrangler
         run: test "$(pnpm --dir docs/website exec wrangler --version)" = "${WRANGLER_VERSION}"
 
@@ -60,6 +63,9 @@ jobs:
 
       - name: Build website
         run: pnpm --dir docs/website run build
+
+      - name: Guard current release claims in artifact
+        run: pnpm --dir docs/website run release:check:artifact
 
       - name: Guard public artifact boundary
         run: |

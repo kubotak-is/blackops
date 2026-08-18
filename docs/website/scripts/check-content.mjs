@@ -3,10 +3,13 @@ import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import { generateContent } from './content-pipeline.mjs';
-import { contentRoot, manifestPath, repositoryRoot, sourceRoot } from './website-paths.mjs';
+import { contentRoot, manifestPath, repositoryRoot, sourceRoot, websiteRoot } from './website-paths.mjs';
 import { contentMap } from '../content-map.mjs';
 import { validateNavigation } from '../site-navigation.mjs';
 import { validateEditorial } from './editorial-guard.mjs';
+import { assertSourceClaims } from './release-claim-checker.mjs';
+import { validateSourceReaderContract } from './reader-contract.mjs';
+import { assertProductFramingSourceContract, P22_005E_TASK_PATH } from './product-framing-contract.mjs';
 
 // A link label may intentionally describe a subsection rather than the target page.
 // Keep these exceptions explicit and reject entries that no longer occur.
@@ -14,6 +17,18 @@ const linkLabelAllowList = new Set([]);
 
 async function main() {
   validateNavigation(contentMap);
+  const [guideSources, landingSource, themeSource, retentionRuntimeSource, spec83Source, taskSource, repositoryPaths] = await Promise.all([
+    readGuideSources(sourceRoot),
+    readFile(path.join(websiteRoot, 'pages/index.astro'), 'utf8'),
+    readFile(path.join(websiteRoot, 'theme.css'), 'utf8'),
+    readFile(path.join(repositoryRoot, 'src/Internal/Application/ApplicationConsoleKernel.php'), 'utf8'),
+    readFile(path.join(repositoryRoot, 'develop/spec/83-blume-documentation-experience.md'), 'utf8'),
+    readFile(path.join(repositoryRoot, P22_005E_TASK_PATH), 'utf8'),
+    readRepositoryPathInventory(repositoryRoot),
+  ]);
+  assertProductFramingSourceContract({ documents: guideSources, landingSource, themeSource, contentMap, retentionRuntimeSource, spec83Source, taskSource, repositoryPaths });
+  await validateSourceReaderContract({ contentMap });
+  await assertSourceClaims();
   await validateLinkLabels(sourceRoot);
   await validateEditorialSources(sourceRoot);
   validateEditorialDescriptions(contentMap);
@@ -56,6 +71,31 @@ async function main() {
     await rm(temporary, { recursive: true, force: true });
   }
   console.log('Content validation and determinism checks passed.');
+}
+
+async function readGuideSources(root) {
+  const entries = (await readdir(root, { withFileTypes: true })).filter((entry) => entry.isFile() && entry.name.endsWith('.md'));
+  return new Map(await Promise.all(entries.map(async (entry) => [entry.name, await readFile(path.join(root, entry.name), 'utf8')])));
+}
+
+async function readRepositoryPathInventory(root) {
+  const paths = [];
+  const ignoredDirectories = new Set(['.git', 'node_modules', 'vendor']);
+
+  async function visit(directory, prefix = '') {
+    for (const entry of await readdir(directory, { withFileTypes: true })) {
+      const relative = prefix === '' ? entry.name : `${prefix}/${entry.name}`;
+      if (entry.isDirectory()) {
+        if (ignoredDirectories.has(entry.name)) continue;
+        await visit(path.join(directory, entry.name), relative);
+      } else if (entry.isFile()) {
+        paths.push(relative);
+      }
+    }
+  }
+
+  await visit(root);
+  return paths.sort((left, right) => left.localeCompare(right, 'en'));
 }
 
 if (path.resolve(process.argv[1] ?? '') === fileURLToPath(import.meta.url)) await main();
@@ -126,7 +166,8 @@ export async function validateEditorialSources(root) {
 
 export function validateEditorialDescriptions(map) {
   for (const [source, metadata] of Object.entries(map)) {
-    validateEditorial(metadata.description, { file: `${source} (content-map description)` });
+    const description = metadata.reader?.outcome ?? metadata.description;
+    validateEditorial(description, { file: `${source} (content-map description)` });
   }
 }
 

@@ -1,18 +1,17 @@
 # Retention
 
-BlackOpsはTransport Payload、Canonical [Journal](glossary.md#journal)、[Outcome](glossary.md#outcome)、[Dead Letter](glossary.md#dead-letter)、Idempotency Recordの5つを独立した保持対象として管理します。`config/retention.php`の期間、`policy_ref`、`actor`はPlan／PurgeとSchedulerで共有するAccepted Policyです。`idempotency_record_days`を省略した場合は、4つの基本期間の最長値をIdempotency Recordの期間に使います。
+BlackOpsはTransport Payload、Canonical [Journal](glossary.md#journal)、[Outcome](glossary.md#outcome)、[Dead Letter](glossary.md#dead-letter)、Idempotency Recordの5つを独立した保持対象として管理します。Project Rootの公開Retention Commandは4つの期間Optionだけを受け付けます。Idempotency Recordの第5期間は`config/retention.php`の`idempotency_record_days`で管理し、省略した場合は4つの基本期間の最長値を使います。`config/retention.php`の期間、`policy_ref`、`actor`はPlan／PurgeとSchedulerで共有するAccepted Policyです。
 
 ## 1. Planを確認する
 
-Planは候補を読むだけで、DatabaseやJournalを変更しません。Project RootのHostでは次を実行します。
+Planは候補を読むだけで、DatabaseやJournalを変更しません。Application-owned `config/retention.php`で期間とPolicyを管理し、Project RootのHostでは次を実行します。
 
 ```bash
 php blackops retention:plan \
   --transport-payload-days=7 \
   --journal-days=30 \
   --outcome-days=14 \
-  --dead-letter-days=90 \
-  --idempotency-record-days=90
+  --dead-letter-days=90
 ```
 
 Containerから実行する場合は、同じ引数を`app`へ渡します。
@@ -22,8 +21,7 @@ docker compose run --rm app php blackops retention:plan \
   --transport-payload-days=7 \
   --journal-days=30 \
   --outcome-days=14 \
-  --dead-letter-days=90 \
-  --idempotency-record-days=90
+  --dead-letter-days=90
 ```
 
 成功時の終了Codeは0です。次の形式を返します。`N`は候補件数で、候補がある場合は対象ごとのIDと期限も続きます。
@@ -48,8 +46,7 @@ php blackops retention:purge \
   --transport-payload-days=7 \
   --journal-days=30 \
   --outcome-days=14 \
-  --dead-letter-days=90 \
-  --idempotency-record-days=90
+  --dead-letter-days=90
 ```
 
 ```bash
@@ -58,8 +55,7 @@ docker compose run --rm app php blackops retention:purge \
   --transport-payload-days=7 \
   --journal-days=30 \
   --outcome-days=14 \
-  --dead-letter-days=90 \
-  --idempotency-record-days=90
+  --dead-letter-days=90
 ```
 
 成功時の終了Codeは0です。出力は次のとおりで、`--dry-run`ではPurge Auditも保存しません。
@@ -85,7 +81,6 @@ php blackops retention:purge \
   --journal-days=30 \
   --outcome-days=14 \
   --dead-letter-days=90 \
-  --idempotency-record-days=90 \
   --policy-ref=production-retention-v1 \
   --actor=system:retention
 ```
@@ -99,7 +94,6 @@ docker compose run --rm app php blackops retention:purge \
   --journal-days=30 \
   --outcome-days=14 \
   --dead-letter-days=90 \
-  --idempotency-record-days=90 \
   --policy-ref=production-retention-v1 \
   --actor=system:retention
 ```
@@ -134,3 +128,7 @@ Purgeは実際に変更または削除した件数を、対象とは独立した
 ApplicationはDatabase Audit StoreをPrimaryとし、System Logを付加するfail-closed Audit PortをPurge Serviceへ渡します。Database AuditまたはSystem Logのどちらかが失敗すると、PurgeはDatabase変更をRollbackします。SchedulerやCLIは障害を成功扱いせず、Log Backendの復旧後にPlanから再実行してください。
 
 System Log書き込み後にDatabase Commitが失敗すると、Logだけが残る可能性があります。Audit IDで過剰Logを識別し、データ削除が成功したと推測しないでください。
+
+## 次にProcessを運用する
+
+RetentionをScheduler、Worker、Shutdownと組み合わせる場合は、[Deployment](deployment.md)のProcess一覧へ進みます。

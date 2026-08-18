@@ -8,13 +8,13 @@ BlackOpsの公開Documentationを、Framework利用者の視点からRead-only�
 
 - Profile: `.codex/agents/documentation-reviewer.toml`
 - Model: `gpt-5.6-sol`
-- Reasoning Effort: `high`
+- Reasoning Effort: `xhigh`
 - Default Mode: Read-only Review
 - Default Language: Japanese
 - Implementation、Commit、Push、Deploy、Finding解決を行わない
 - Review結果のTask化とAcceptanceはOrchestratorが担当する
 
-Model Metadataが非公開であることだけをBlockerにしない。指定Modelが拒否された場合、利用不能と明示された場合、またはFallbackが明示された場合はReviewを止めてOrchestratorへ返す。
+Model Metadataが非公開であることだけをBlockerにしない。ModelまたはReasoning Effortの設定値が拒否された場合、指定ModelまたはReasoning Effortを利用できないと明示された場合、または別Model／Reasoning EffortへのFallbackが明示された場合はReviewを止めてOrchestratorへ返す。Profile変更は設定読込後に新規起動したAgentから適用し、起動済みThreadへ遡及適用されたと主張しない。
 
 ## Required Inputs
 

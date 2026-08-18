@@ -189,3 +189,11 @@ Operation ConnectionとFramework Store Connectionが同じ`DatabaseManager`か�
 InlineのObserved Journal配送とAfter Commit CallbackはCommit成功後だけ実行します。DeferredのFencing、Journal、Outcomeのどれかが失敗した場合は業務更新もRollbackし、成功StateやOutcomeを残さず既存Supervisionへ渡します。Retry／Dead LetterはRollback後のFramework Transactionで記録されます。
 
 Operation ConnectionとFramework Store Connectionが異なる場合、Application TransactionはHandler完了時にCommitし、その後でFramework Terminalを保存します。後段のTerminal保存に失敗してもCommit済み業務更新は戻せません。BlackOpsはこの境界で二相Commit、Exactly-once、複数Connection間の原子性を保証しません。確実な連携にはTransactional Outboxを使ってください。
+
+## 次にSchemaを変更する
+
+Transaction契約をDatabaseへ反映する場合は、[Migration](database-migrations.md)でinspect、dry-run、applyの順を確認します。
+
+## After Commitの責務境界
+
+TransactionとAfter CommitはApplicationのDatabase変更と通知順を定めます。外部TransportのExactly Once、Remote APIのRollback、任意の副作用はFrameworkの提供範囲外であり、Applicationが冪等性を設計します。

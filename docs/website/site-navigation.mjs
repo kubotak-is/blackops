@@ -1,92 +1,87 @@
+export const requiredSections = [
+  'Start Here',
+  'Build',
+  'Async and Lifecycle',
+  'Data and Security',
+  'Operate',
+  'Reference',
+  'Releases',
+];
+
 export const sidebar = [
-  { label: 'Introduction', items: [
-    { label: "What's BlackOps", link: 'concepts/why-blackops' },
-    { label: 'Core Concepts', link: 'concepts/core-concepts' },
-  ] },
   {
-    label: 'Getting Started',
+    label: 'Start Here',
     items: [
+      { label: "What's BlackOps", link: 'concepts/why-blackops' },
       { label: 'Install', link: 'getting-started/installation' },
       { label: 'Quickstart and Skeleton', link: 'getting-started/quickstart' },
       { label: 'First Operation', link: 'getting-started/first-operation' },
       { label: 'Directory', link: 'getting-started/directory-structure' },
+      { label: 'Core Concepts', link: 'concepts/core-concepts' },
       { label: 'Local Runtime', link: 'getting-started/local-runtime' },
     ],
   },
   {
-    label: 'Operation',
+    label: 'Build',
     items: [
       { label: 'Authoring', link: 'operations/authoring' },
-      { label: 'Scheduled Operation', link: 'operations/scheduled-operation' },
       { label: 'Generators', link: 'operations/generators' },
       { label: 'Value and Validation', link: 'operations/validation' },
-      { label: 'Outcome', link: 'database/outcomes' },
+      { label: 'Inline and Deferred', link: 'execution/http-and-deferred' },
+      { label: 'ConsoleCommand', link: 'execution/console-command' },
+      { label: 'Scheduled Operation', link: 'operations/scheduled-operation' },
+      { label: 'Authentication', link: 'auth/authentication' },
+      { label: 'Authorization', link: 'auth/authorization' },
+      { label: 'Frontend', link: 'frontend' },
+      { label: 'BlackOps Board Reference Application', link: 'testing/community-board' },
+    ],
+  },
+  {
+    label: 'Async and Lifecycle',
+    items: [
       { label: 'Lifecycle', link: 'concepts/lifecycle' },
+      { label: 'Execution Context', link: 'execution/context' },
+      { label: 'Outcome', link: 'database/outcomes' },
+      { label: 'Outbox', link: 'execution/outbox' },
       { label: 'Journal', link: 'concepts/journal' },
     ],
   },
   {
-    label: 'Execution and Workers',
-    items: [
-      { label: 'Inline and Deferred', link: 'execution/http-and-deferred' },
-      { label: 'Execution Context', link: 'execution/context' },
-      { label: 'ConsoleCommand', link: 'execution/console-command' },
-      { label: 'Outbox', link: 'execution/outbox' },
-    ],
-  },
-  {
-    label: 'Database',
+    label: 'Data and Security',
     items: [
       { label: 'Transaction', link: 'database/transactions' },
       { label: 'Migration', link: 'database/migrations' },
       { label: 'Seeder', link: 'database/seeding' },
       { label: 'Retention', link: 'database/retention' },
+      { label: 'Security', link: 'security' },
+      { label: 'Tenant and Storage Protection', link: 'security/tenant-protection' },
     ],
   },
   {
-    label: 'Auth',
+    label: 'Operate',
     items: [
-      { label: 'Authentication', link: 'auth/authentication' },
-      { label: 'Authorization', link: 'auth/authorization' },
+      { label: 'Configuration', link: 'reference/configuration' },
+      { label: 'Deployment', link: 'deployment/worker-operations' },
+      { label: 'Observability', link: 'reference/observability' },
+      { label: 'Testing', link: 'testing' },
+      { label: 'Troubleshooting', link: 'troubleshooting' },
     ],
   },
-  { label: 'Frontend', items: ['frontend'] },
-  { label: 'Testing', items: ['testing'] },
-  { label: 'Tutorial', items: [{ label: 'BlackOps Board Reference Application', link: 'testing/community-board' }] },
-  { label: 'Deployment', items: ['deployment/worker-operations'] },
-  { label: 'Security', items: ['security', { label: 'Tenant and Storage Protection', link: 'security/tenant-protection' }] },
-  { label: 'Troubleshooting', items: ['troubleshooting'] },
-  { label: 'Releases', items: ['releases/current-status'] },
   {
     label: 'Reference',
     items: [
+      { label: 'BlackOps CLI', link: 'reference/project-cli' },
+      { label: 'Application Bootstrap', link: 'reference/application-bootstrap' },
       { label: 'Core API', link: 'reference/core-api' },
       { label: 'Attributes', link: 'reference/attributes' },
-      { label: 'Configuration', link: 'reference/configuration' },
-      { label: 'Observability', link: 'reference/observability' },
-      { label: 'BlackOps CLI', link: 'reference/project-cli' },
       { label: 'Observer Replay', link: 'reference/observer-replay' },
-      { label: 'Application Bootstrap', link: 'reference/application-bootstrap' },
       { label: 'Glossary', link: 'reference/glossary' },
     ],
   },
-];
-
-const requiredSections = [
-  'Introduction',
-  'Getting Started',
-  'Operation',
-  'Execution and Workers',
-  'Database',
-  'Auth',
-  'Frontend',
-  'Testing',
-  'Tutorial',
-  'Deployment',
-  'Security',
-  'Troubleshooting',
-  'Releases',
-  'Reference',
+  {
+    label: 'Releases',
+    items: ['releases/current-status'],
+  },
 ];
 
 const itemSlug = (item) => typeof item === 'string' ? item : item.link;
@@ -99,17 +94,37 @@ const blumeItem = (item, sectionLabel) => {
   return { label: item.label, root: item.link };
 };
 
-export const blumeSidebar = sidebar.map(({ label, items }) => ({
-  label,
-  ...(items.length === 1 && typeof items[0] === 'string'
-    ? { root: items[0] }
-    : { items: items.map((item) => blumeItem(item, label)) }),
-}));
+export const blumeSidebar = sidebar.map(({ label, items }) => {
+  if (items.length === 1 && typeof items[0] === 'string') {
+    return label === 'Releases'
+      ? { label, root: items[0], items: [], display: /** @type {'flat'} */ ('flat') }
+      : { label, root: items[0] };
+  }
+
+  return { label, items: items.map((item) => blumeItem(item, label)) };
+});
 
 export function validateNavigation(contentMap, navigation = sidebar) {
   const labels = navigation.map(({ label }) => label);
   if (JSON.stringify(labels) !== JSON.stringify(requiredSections)) {
     throw new Error(`Sidebar must contain the required public sections in order: ${requiredSections.join(', ')}`);
+  }
+
+  const mapEntries = Object.entries(contentMap);
+  const mappedEntries = mapEntries.filter(([, metadata]) => metadata.slug !== 'index');
+  const mapped = mappedEntries.map(([, metadata]) => metadata.slug);
+  const mapBySlug = new Map(mappedEntries.map(([source, metadata]) => [metadata.slug, { source, metadata }]));
+  const invalidSections = mapEntries.filter(([, metadata]) => !requiredSections.includes(metadata.section));
+  if (invalidSections.length > 0) {
+    throw new Error(`Content Map entries must declare one canonical section: ${invalidSections.map(([source]) => source).join(', ')}`);
+  }
+  const landing = mapEntries.find(([, metadata]) => metadata.slug === 'index');
+  if (landing?.[1].section !== 'Start Here') {
+    throw new Error('Landing Content Map entry must belong to Start Here.');
+  }
+  const releases = navigation.find(({ label }) => label === 'Releases');
+  if (releases?.items.length !== 1 || typeof releases.items[0] !== 'string' || itemSlug(releases.items[0]) !== 'releases/current-status') {
+    throw new Error('Releases must be a direct singleton root for releases/current-status.');
   }
 
   const placed = navigation.flatMap(({ items }) => items.map(itemSlug));
@@ -118,7 +133,6 @@ export function validateNavigation(contentMap, navigation = sidebar) {
     throw new Error(`Sidebar contains duplicate public slugs: ${[...new Set(duplicates)].join(', ')}`);
   }
 
-  const mapped = Object.values(contentMap).map(({ slug }) => slug).filter((slug) => slug !== 'index');
   const missing = mapped.filter((slug) => !placed.includes(slug));
   if (missing.length > 0) {
     throw new Error(`Sidebar is missing public documentation: ${missing.join(', ')}`);
@@ -126,6 +140,16 @@ export function validateNavigation(contentMap, navigation = sidebar) {
   const unknown = placed.filter((slug) => !mapped.includes(slug));
   if (unknown.length > 0) {
     throw new Error(`Sidebar references unknown public documentation: ${unknown.join(', ')}`);
+  }
+
+  for (const section of navigation) {
+    for (const item of section.items) {
+      const slug = itemSlug(item);
+      const entry = mapBySlug.get(slug);
+      if (entry?.metadata.section !== section.label) {
+        throw new Error(`Sidebar entry is in the wrong section: ${slug} (expected ${entry?.metadata.section ?? 'unknown'}, found ${section.label})`);
+      }
+    }
   }
 
   const expectedItems = sidebar.map(({ items }) => items.map(itemSlug));

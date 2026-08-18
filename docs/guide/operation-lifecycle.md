@@ -62,3 +62,7 @@ JournalとOutcomeは別々の保持期間を設定できます。Operation単位
 Lifecycle EventのObserved JSONL、Canonical／Observedの境界、Observer Replayは[Journal](journal.md)で確認できます。
 
 仕組みを理解したら[Install](installation.md)からApplicationを作成します。
+
+## 次にContextの伝播を読む
+
+状態遷移に付随するID、Actor、Tenant、Attemptは、[Execution Context](execution-context.md)で確認します。

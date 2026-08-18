@@ -8,7 +8,7 @@
   --bo-accent: #0f766e;
   --bo-accent-soft: #b9ebe0;
   --bo-action: #f97316;
-  --bo-grid: color-mix(in srgb, var(--bo-accent) 12%, transparent);
+  --bo-focus: var(--bo-accent);
 }
 
 body {
@@ -24,128 +24,516 @@ body {
   --bo-accent: #5eead4;
   --bo-accent-soft: #164b43;
   --bo-action: #fb923c;
-  --bo-grid: color-mix(in srgb, var(--bo-accent) 13%, transparent);
+  --bo-focus: var(--bo-accent);
 }
 
 .landing-shell {
-  color: var(--bo-ink);
   background: var(--bo-paper);
+  color: var(--bo-ink);
+  contain: inline-size;
   font-family: var(--blume-font-body, ui-sans-serif), "Hiragino Sans", "Yu Gothic UI", "Yu Gothic", "Noto Sans JP", system-ui, sans-serif;
   min-height: calc(100vh - 8rem);
-  overflow: hidden;
 }
 
 .landing-hero,
-.landing-features,
-.landing-next {
+.landing-start,
+.landing-model,
+.landing-purpose {
   margin-inline: auto;
   max-width: 86rem;
+  min-width: 0;
   padding-inline: clamp(1.25rem, 5vw, 5.5rem);
 }
 
 .landing-hero {
+  align-items: center;
   display: grid;
-  isolation: isolate;
-  min-height: min(52rem, calc(100vh - 8rem));
-  padding-block: clamp(3.5rem, 8vw, 7rem) clamp(4rem, 8vw, 7rem);
-  position: relative;
+  gap: clamp(2.5rem, 7vw, 7rem);
+  padding-block: clamp(3.5rem, 8vw, 7rem);
 }
 
-.landing-hero::before {
-  background-image: linear-gradient(var(--bo-grid) 1px, transparent 1px), linear-gradient(90deg, var(--bo-grid) 1px, transparent 1px);
-  background-size: 4rem 4rem;
-  content: '';
-  inset: 0;
-  mask-image: linear-gradient(to bottom, black, transparent 82%);
-  opacity: .8;
-  pointer-events: none;
-  position: absolute;
-  z-index: -2;
+.landing-hero-content {
+  max-width: 42rem;
+  min-width: 0;
 }
 
-.landing-hero-glow {
-  background: radial-gradient(circle, color-mix(in srgb, var(--bo-accent) 24%, transparent), transparent 66%);
-  filter: blur(2px);
-  height: min(44rem, 80vw);
-  opacity: .65;
-  pointer-events: none;
-  position: absolute;
-  right: -15rem;
-  top: -15rem;
-  width: min(44rem, 80vw);
-  z-index: -1;
+.landing-eyebrow {
+  color: var(--bo-accent);
+  font: 600 .72rem/1.2 var(--blume-font-mono, ui-monospace, monospace);
+  letter-spacing: .08em;
+  margin: 0 0 1rem;
+  text-transform: uppercase;
 }
 
-.landing-hero-content { align-self: center; max-width: 44rem; position: relative; z-index: 1; }
-.landing-hero h1 { letter-spacing: -.07em; margin: 0; }
-.landing-brand { display: block; font: 700 clamp(4.5rem, 9vw, 8.5rem)/.82 var(--blume-font-display, ui-sans-serif), "Hiragino Sans", "Yu Gothic UI", "Yu Gothic", "Noto Sans JP", system-ui, sans-serif; }
-.landing-tagline { color: var(--bo-muted); display: block; font: 500 clamp(1.25rem, 2.6vw, 2rem)/1.2 var(--blume-font-display, ui-sans-serif), "Hiragino Sans", "Yu Gothic UI", "Yu Gothic", "Noto Sans JP", system-ui, sans-serif; letter-spacing: -.035em; margin-top: 1.5rem; white-space: nowrap; }
-.landing-actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: clamp(2rem, 4vw, 3.25rem); }
-.landing-button { align-items: center; border: 1px solid var(--bo-line); display: inline-flex; gap: 1.5rem; justify-content: space-between; min-width: 8.5rem; padding: .8rem 1rem; text-decoration: none; transition: background-color .2s ease, color .2s ease, border-color .2s ease, transform .2s ease; }
-.landing-button-primary { background: var(--bo-action); border-color: var(--bo-action); color: #20100a; font-weight: 700; }
-.landing-button-secondary { color: var(--bo-ink); }
-.landing-button:focus-visible, .landing-feature a:focus-visible, .landing-next a:focus-visible { outline: 3px solid var(--bo-action); outline-offset: 4px; }
-.landing-button:hover { border-color: var(--bo-accent); transform: translateY(-2px); }
-.landing-button-primary:hover { background: var(--bo-accent); border-color: var(--bo-accent); color: var(--bo-paper); }
-.landing-command-wrap { margin-top: 2rem; }
-.landing-command-label { color: var(--bo-muted); display: block; font: 600 .7rem/1 var(--blume-font-mono, ui-monospace, monospace); letter-spacing: .12em; text-transform: uppercase; }
-.landing-command-candidate { margin-top: .7rem; }
-.landing-command { border-left: 3px solid var(--bo-action); color: var(--bo-ink); font: 500 clamp(.75rem, 1.4vw, .95rem)/1.4 var(--blume-font-mono, ui-monospace, monospace); margin: .6rem 0 0; max-width: 100%; overflow-x: auto; padding: .75rem 1rem; white-space: nowrap; }
+.landing-hero h1 {
+  letter-spacing: -.07em;
+  margin: 0;
+}
 
-.landing-product-visual { align-self: center; display: grid; gap: 1rem; justify-self: end; margin-top: clamp(3rem, 7vw, 6rem); max-width: 40rem; position: relative; transform: rotate(1.5deg); width: 100%; }
-.landing-product-visual::before { border: 1px solid var(--bo-line); content: ''; inset: 1.5rem -1.5rem -1.5rem 1.5rem; position: absolute; z-index: -1; }
-.landing-code-panel, .landing-lifecycle-panel { background: color-mix(in srgb, var(--bo-surface) 92%, transparent); border: 1px solid var(--bo-line); box-shadow: 0 1.5rem 4rem color-mix(in srgb, var(--bo-ink) 10%, transparent); }
-.landing-panel-bar { align-items: center; border-bottom: 1px solid var(--bo-line); color: var(--bo-muted); display: flex; font: 600 .68rem/1 var(--blume-font-mono, ui-monospace, monospace); gap: .55rem; letter-spacing: .04em; padding: .75rem 1rem; text-transform: uppercase; }
-.landing-panel-dot { background: var(--bo-action); border-radius: 50%; height: .45rem; width: .45rem; }
-.landing-panel-status { color: var(--bo-accent); margin-left: auto; }
-.landing-code-panel pre { color: var(--bo-ink); font: 500 clamp(.68rem, 1.25vw, .83rem)/1.75 var(--blume-font-mono, ui-monospace, monospace); margin: 0; overflow-x: auto; padding: 1.15rem 1rem 1.4rem; }
-.syntax-keyword, .syntax-string { color: var(--bo-accent); }
-.landing-lifecycle-panel { margin-left: clamp(2rem, 10vw, 7rem); max-width: 29rem; }
-.landing-lifecycle { display: grid; gap: 0; list-style: none; margin: 0; padding: 1rem 1.25rem 1.25rem; }
-.landing-lifecycle li { align-items: center; display: grid; grid-template-columns: 1.1rem 7rem 1fr; min-height: 2.2rem; position: relative; }
-.landing-lifecycle li:not(:last-child)::after { background: var(--bo-line); content: ''; height: 1.5rem; left: .48rem; position: absolute; top: 1.8rem; width: 1px; }
-.lifecycle-node { border: 1px solid var(--bo-muted); border-radius: 50%; height: .55rem; width: .55rem; }
-.lifecycle-node-done { background: var(--bo-accent); border-color: var(--bo-accent); }
-.lifecycle-node-active { background: var(--bo-action); border-color: var(--bo-action); box-shadow: 0 0 0 .25rem color-mix(in srgb, var(--bo-action) 18%, transparent); }
-.landing-lifecycle span:not(.lifecycle-node) { font: 600 .78rem/1 var(--blume-font-mono, ui-monospace, monospace); }
-.landing-lifecycle small { color: var(--bo-muted); font-size: .72rem; }
+.landing-brand {
+  display: block;
+  font: 700 clamp(4rem, 9vw, 8rem)/.84 var(--blume-font-display, ui-sans-serif), "Hiragino Sans", "Yu Gothic UI", "Yu Gothic", "Noto Sans JP", system-ui, sans-serif;
+}
 
-.landing-features { border-top: 1px solid var(--bo-line); padding-block: clamp(3.5rem, 8vw, 7rem); }
-.landing-section-heading { align-items: baseline; display: flex; gap: 1rem; margin-bottom: 2.5rem; }
-.landing-features > .landing-section-heading h2 { font: 600 clamp(1.65rem, 3vw, 2.8rem)/1.05 var(--blume-font-display, ui-sans-serif), "Hiragino Sans", "Yu Gothic UI", "Yu Gothic", "Noto Sans JP", system-ui, sans-serif; letter-spacing: -.045em; margin: 0; }
-.landing-features-grid { align-items: stretch; display: grid; gap: 1.25rem; grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.landing-feature { border-top: 1px solid var(--bo-line); display: flex; flex-direction: column; gap: .9rem; min-width: 0; padding: 1.5rem 0; }
-.landing-feature-operation { padding-right: 0; }
-.landing-feature-visual { min-height: 8.5rem; min-width: 0; }
-.landing-operation-visual { background: var(--bo-surface-deep); display: grid; gap: .7rem; padding: 1.35rem; }
-.operation-line { display: block; font: 600 clamp(.7rem, 1.4vw, .9rem)/1.25 var(--blume-font-mono, ui-monospace, monospace); }
-.operation-line i { color: var(--bo-accent); font-style: normal; }
-.operation-line b { font-weight: 500; }
-.operation-line-muted { color: var(--bo-muted); font-size: .72rem; font-weight: 500; }
-.operation-line-muted em { color: var(--bo-action); font-style: normal; padding-inline: .25rem; }
-.landing-journal-visual { display: grid; gap: .75rem; padding-top: .35rem; }
-.landing-journal-visual span { align-items: center; display: flex; gap: .5rem; }
-.landing-journal-visual b { font: 600 .68rem/1 var(--blume-font-mono, ui-monospace, monospace); overflow-wrap: anywhere; }
-.landing-journal-visual i { background: var(--bo-accent); height: 2px; opacity: .7; width: 2.5rem; }
-.landing-journal-visual span:nth-child(2) i { background: var(--bo-action); width: 4rem; }
-.landing-journal-visual span:nth-child(3) i { width: 5.5rem; }
-.landing-client-visual { background: var(--bo-surface-deep); padding: .8rem; }
-.landing-client-visual code { display: grid; gap: .4rem; font: 500 .67rem/1.2 var(--blume-font-mono, ui-monospace, monospace); }
-.landing-client-visual code span::before { color: var(--bo-action); content: '$ '; }
-.landing-feature-copy { display: flex; flex: 1; flex-direction: column; padding-top: 1.75rem; }
-.landing-feature-operation .landing-feature-copy a { margin-top: auto; }
-.landing-feature h3 { font: 600 1.45rem/1.1 var(--blume-font-display, ui-sans-serif), "Hiragino Sans", "Yu Gothic UI", "Yu Gothic", "Noto Sans JP", system-ui, sans-serif; margin: 0 0 1rem; }
-.landing-feature p { color: var(--bo-muted); line-height: 1.7; margin: 0; }
-.landing-feature a, .landing-next a { color: var(--bo-ink); display: inline-flex; font-weight: 600; gap: 1rem; margin-top: auto; padding-top: 1.5rem; text-decoration-thickness: .08em; text-underline-offset: .2em; }
-.landing-feature a { margin-top: auto; padding-top: 1.5rem; }
+.landing-tagline {
+  color: var(--bo-muted);
+  display: block;
+  font: 500 clamp(1.2rem, 2.4vw, 2rem)/1.2 var(--blume-font-display, ui-sans-serif), "Hiragino Sans", "Yu Gothic UI", "Yu Gothic", "Noto Sans JP", system-ui, sans-serif;
+  letter-spacing: -.035em;
+  margin-top: 1.35rem;
+}
 
-.landing-next { align-items: end; border-top: 1px solid var(--bo-line); display: grid; gap: 3rem; grid-template-columns: 1fr 1fr; padding-block: clamp(3.5rem, 8vw, 7rem); }
-.landing-next h2 { font: 600 clamp(1.5rem, 3vw, 2.4rem)/1.1 var(--blume-font-display, ui-sans-serif), "Hiragino Sans", "Yu Gothic UI", "Yu Gothic", "Noto Sans JP", system-ui, sans-serif; letter-spacing: -.04em; margin: .8rem 0 0; }
-.landing-next-links { display: grid; }
-.landing-next a { border-top: 1px solid var(--bo-line); justify-content: space-between; margin: 0; padding: 1rem 0; }
+.landing-value {
+  font-size: clamp(1.05rem, 1.7vw, 1.35rem);
+  line-height: 1.7;
+  margin: 2rem 0 0;
+  max-width: 35rem;
+}
 
-[data-blume-nav-tree] a[aria-current='page'] { background: color-mix(in srgb, var(--blume-accent, var(--bo-accent)) 18%, transparent) !important; box-shadow: inset 3px 0 0 var(--blume-accent, var(--bo-accent)); color: var(--bo-ink) !important; font-weight: 700 !important; }
-[data-blume-nav-tree] a[aria-current='page']:focus-visible { outline: 3px solid var(--bo-action); outline-offset: -2px; }
+.landing-value-note {
+  color: var(--bo-muted);
+  font-size: .92rem;
+  line-height: 1.6;
+  margin: .7rem 0 0;
+  max-width: 35rem;
+}
+
+.landing-actions {
+  align-items: stretch;
+  display: flex;
+  flex-wrap: nowrap;
+  gap: .75rem;
+  margin-top: clamp(2rem, 4vw, 3.25rem);
+}
+
+.landing-button {
+  align-items: center;
+  border: 1px solid var(--bo-line);
+  display: inline-flex;
+  justify-content: center;
+  min-height: 3rem;
+  padding: .8rem 1.1rem;
+  text-decoration: none;
+  transition: background-color .2s ease, border-color .2s ease, color .2s ease;
+  white-space: nowrap;
+}
+
+.landing-button-primary {
+  background: var(--bo-action);
+  border-color: var(--bo-action);
+  color: #20100a;
+  font-weight: 700;
+}
+
+.landing-button-secondary {
+  color: var(--bo-ink);
+}
+
+.landing-button:focus-visible,
+.landing-journey a:focus-visible,
+.landing-purpose-nav a:focus-visible,
+.landing-text-link:focus-visible {
+  outline: 3px solid var(--bo-focus);
+  outline-offset: 4px;
+}
+
+.landing-button:hover {
+  border-color: var(--bo-accent);
+}
+
+.landing-button-primary:hover {
+  background: var(--bo-accent);
+  border-color: var(--bo-accent);
+  color: var(--bo-paper);
+}
+
+.landing-install {
+  margin-top: 2.25rem;
+}
+
+.landing-install-label {
+  color: var(--bo-muted);
+  font: 600 .72rem/1.2 var(--blume-font-mono, ui-monospace, monospace);
+  letter-spacing: .08em;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.landing-command {
+  border-left: 3px solid var(--bo-action);
+  color: var(--bo-ink);
+  font: 500 clamp(.75rem, 1.4vw, .95rem)/1.4 var(--blume-font-mono, ui-monospace, monospace);
+  margin: .6rem 0 0;
+  max-width: 100%;
+  overflow-x: auto;
+  padding: .75rem 1rem;
+  white-space: nowrap;
+}
+
+.landing-cli-entry {
+  align-items: baseline;
+  color: var(--bo-ink);
+  display: flex;
+  flex-wrap: wrap;
+  gap: .7rem;
+  margin-top: 1.5rem;
+  text-decoration-thickness: .08em;
+  text-underline-offset: .2em;
+}
+
+.landing-cli-entry span {
+  color: var(--bo-muted);
+  font-size: .88rem;
+}
+
+.landing-product-visual {
+  min-width: 0;
+  width: 100%;
+}
+
+.landing-code-panel {
+  background: var(--bo-surface);
+  border: 1px solid var(--bo-line);
+  box-shadow: 0 1.25rem 3rem color-mix(in srgb, var(--bo-ink) 9%, transparent);
+  min-width: 0;
+}
+
+.landing-editor-chrome {
+  align-items: center;
+  background: var(--bo-surface-deep);
+  border-bottom: 1px solid var(--bo-line);
+  color: var(--bo-muted);
+  display: flex;
+  font: 600 .68rem/1 var(--blume-font-mono, ui-monospace, monospace);
+  gap: .75rem;
+  letter-spacing: .04em;
+  padding: .6rem 1rem;
+  text-transform: uppercase;
+}
+
+.landing-editor-tab {
+  background: var(--bo-surface);
+  border: 1px solid var(--bo-line);
+  color: var(--bo-ink);
+  padding: .5rem .65rem;
+}
+
+.landing-editor-language {
+  margin-left: auto;
+}
+
+.landing-panel-bar {
+  align-items: center;
+  border-bottom: 1px solid var(--bo-line);
+  color: var(--bo-muted);
+  display: flex;
+  font: 600 .68rem/1 var(--blume-font-mono, ui-monospace, monospace);
+  gap: .8rem;
+  letter-spacing: .04em;
+  padding: .8rem 1rem;
+  text-transform: uppercase;
+}
+
+.landing-panel-kicker {
+  color: var(--bo-accent);
+}
+
+.landing-panel-file {
+  margin-left: auto;
+}
+
+.landing-code-panel pre {
+  color: var(--bo-ink);
+  font: 500 clamp(.68rem, 1.25vw, .83rem)/1.75 var(--blume-font-mono, ui-monospace, monospace);
+  margin: 0;
+  max-width: 100%;
+  overflow-x: auto;
+  padding: 1.15rem 1rem 1.4rem;
+}
+
+.landing-lifecycle-panel {
+  background: var(--bo-surface-deep);
+  border: 1px solid var(--bo-line);
+  border-top: 0;
+  padding: 1rem;
+}
+
+.landing-lifecycle-heading {
+  align-items: baseline;
+  display: flex;
+  gap: .75rem;
+  justify-content: space-between;
+}
+
+.landing-lifecycle-heading h2 {
+  font: 600 .8rem/1.2 var(--blume-font-mono, ui-monospace, monospace);
+  letter-spacing: .04em;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.landing-lifecycle-heading > span {
+  color: var(--bo-muted);
+  font: 600 .68rem/1.2 var(--blume-font-mono, ui-monospace, monospace);
+  text-transform: uppercase;
+}
+
+.landing-lifecycle-caption {
+  color: var(--bo-muted);
+  font-size: .85rem;
+  line-height: 1.55;
+  margin: .65rem 0 0;
+}
+
+.landing-lifecycle-note {
+  color: var(--bo-muted);
+  font-size: .78rem;
+  line-height: 1.5;
+  margin: .35rem 0 0;
+}
+
+.landing-lifecycle-rail {
+  display: grid;
+  gap: .55rem;
+  list-style: none;
+  margin: 1rem 0 0;
+  padding: 0;
+}
+
+.landing-lifecycle-rail li {
+  align-items: center;
+  display: flex;
+  gap: .65rem;
+  min-width: 0;
+}
+
+.landing-lifecycle-marker {
+  background: var(--bo-accent);
+  border: 2px solid var(--bo-surface);
+  border-radius: 50%;
+  flex: 0 0 .65rem;
+  height: .65rem;
+  width: .65rem;
+}
+
+.landing-lifecycle-rail li > span:last-child {
+  align-items: baseline;
+  display: flex;
+  flex-wrap: wrap;
+  gap: .55rem;
+  min-width: 0;
+}
+
+.landing-lifecycle-rail strong {
+  font: 600 .78rem/1.2 var(--blume-font-mono, ui-monospace, monospace);
+}
+
+.landing-lifecycle-rail small {
+  color: var(--bo-muted);
+  font-size: .78rem;
+}
+
+.syntax-keyword,
+.syntax-string {
+  color: var(--bo-accent);
+}
+
+.landing-cli-entry:focus-visible,
+.landing-visual-link:focus-visible {
+  outline: 3px solid var(--bo-focus);
+  outline-offset: 4px;
+}
+
+.landing-visual-link {
+  color: var(--bo-ink);
+  display: inline-flex;
+  font-size: .88rem;
+  font-weight: 700;
+  margin-top: .75rem;
+  text-underline-offset: .2em;
+}
+
+.landing-visual-caption {
+  color: var(--bo-muted);
+  font-size: .9rem;
+  line-height: 1.6;
+  margin: 1rem 0 0;
+}
+
+/* Keep muted text on the deep Landing surfaces above the measured contrast threshold. */
+[data-theme='light'] .landing-editor-language,
+[data-theme='light'] .landing-lifecycle-heading > span,
+[data-theme='light'] .landing-lifecycle-caption,
+[data-theme='light'] .landing-lifecycle-note,
+[data-theme='light'] .landing-lifecycle-rail small {
+  color: #526966;
+}
+
+.landing-start,
+.landing-model,
+.landing-purpose {
+  border-top: 1px solid var(--bo-line);
+  padding-block: clamp(3.5rem, 8vw, 7rem);
+}
+
+.landing-section-heading {
+  max-width: 42rem;
+}
+
+.landing-section-heading .landing-eyebrow {
+  margin-bottom: .8rem;
+}
+
+.landing-section-heading h2 {
+  font: 600 clamp(1.7rem, 3vw, 2.8rem)/1.05 var(--blume-font-display, ui-sans-serif), "Hiragino Sans", "Yu Gothic UI", "Yu Gothic", "Noto Sans JP", system-ui, sans-serif;
+  letter-spacing: -.045em;
+  margin: 0;
+}
+
+.landing-section-heading > p:last-child {
+  color: var(--bo-muted);
+  line-height: 1.7;
+  margin: 1rem 0 0;
+}
+
+.landing-journey {
+  border-top: 1px solid var(--bo-line);
+  list-style: none;
+  margin: 3rem 0 0;
+  padding: 0;
+}
+
+.landing-journey li {
+  border-bottom: 1px solid var(--bo-line);
+}
+
+.landing-journey a {
+  align-items: center;
+  color: var(--bo-ink);
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: minmax(0, 1fr) auto;
+  padding: 1.25rem 0;
+  text-decoration: none;
+}
+
+.landing-journey a:hover,
+.landing-purpose-nav a:hover {
+  color: var(--bo-accent);
+}
+
+.landing-journey-copy {
+  display: grid;
+  gap: .35rem;
+  min-width: 0;
+}
+
+.landing-journey-copy strong,
+.landing-purpose-nav strong {
+  font-size: 1.05rem;
+}
+
+.landing-journey-copy small,
+.landing-purpose-nav small {
+  color: var(--bo-muted);
+  font-size: .9rem;
+  line-height: 1.5;
+}
+
+.landing-journey-action {
+  color: var(--bo-accent);
+  font-size: .85rem;
+  font-weight: 700;
+}
+
+.landing-model-list {
+  border-top: 1px solid var(--bo-line);
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: minmax(0, .9fr) minmax(0, 1fr) minmax(0, 1.1fr);
+  margin: 3rem 0 0;
+}
+
+.landing-model-list > div {
+  border-bottom: 1px solid var(--bo-line);
+  padding: 1.5rem 0 1.75rem;
+}
+
+.landing-model-list dt {
+  color: var(--bo-accent);
+  font: 600 .78rem/1.2 var(--blume-font-mono, ui-monospace, monospace);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.landing-model-list dd {
+  line-height: 1.7;
+  margin: .8rem 0 0;
+}
+
+.landing-text-link {
+  color: var(--bo-ink);
+  display: inline-flex;
+  font-weight: 700;
+  margin-top: 2rem;
+  text-decoration-thickness: .08em;
+  text-underline-offset: .2em;
+}
+
+.landing-model-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.landing-purpose-nav {
+  border-top: 1px solid var(--bo-line);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 3rem;
+}
+
+.landing-purpose-nav a {
+  align-items: center;
+  border-bottom: 1px solid var(--bo-line);
+  color: var(--bo-ink);
+  display: flex;
+  gap: 1.5rem;
+  justify-content: space-between;
+  min-width: 0;
+  padding: 1.25rem 1.25rem 1.25rem 0;
+  text-decoration: none;
+}
+
+.landing-purpose-nav a:nth-child(even) {
+  border-left: 1px solid var(--bo-line);
+  padding-left: 1.25rem;
+}
+
+.landing-purpose-nav a > span:first-child {
+  display: grid;
+  gap: .35rem;
+  min-width: 0;
+}
+
+.landing-purpose-nav a > span:last-child {
+  color: var(--bo-accent);
+  flex: 0 0 auto;
+  font-size: .85rem;
+  font-weight: 700;
+}
+
+[data-blume-nav-tree] a[aria-current='page'] {
+  background: color-mix(in srgb, var(--blume-accent, var(--bo-accent)) 18%, transparent) !important;
+  box-shadow: inset 3px 0 0 var(--blume-accent, var(--bo-accent));
+  color: var(--bo-ink) !important;
+  font-weight: 700 !important;
+}
+
+[data-blume-nav-tree] a[aria-current='page']:focus-visible {
+  outline: 3px solid var(--bo-focus);
+  outline-offset: -2px;
+}
 
 .prose :not(pre) > code,
 .prose td code,
@@ -173,28 +561,78 @@ blume-mermaid svg {
   width: 100%;
 }
 
-@media (min-width: 900px) {
-  .landing-hero { grid-template-columns: minmax(0, .9fr) minmax(28rem, 1.1fr); gap: clamp(2rem, 5vw, 6rem); }
+/* Keep the four reader surfaces above their measured contrast thresholds. */
+[data-theme='light'] .not-prose[class~='bg-blue-500/10'] > div > p:not(.text-foreground) {
+  color: #6d6d6d;
+}
+
+[data-theme='dark'] .astro-code span[style*='--shiki-dark:#6A737D'] {
+  color: #707b87 !important;
+}
+
+[data-theme='dark'] blume-mermaid .edgeLabel p {
+  color: #d0d0d0 !important;
+}
+
+[data-theme='dark'] body > a[href='#blume-content'] {
+  color: #12201f;
+}
+
+.blackops-overflow-focus:focus-visible {
+  outline: 3px solid var(--bo-focus);
+  outline-offset: 3px;
+}
+
+@media (min-width: 960px) {
+  .landing-hero {
+    grid-template-columns: minmax(0, .9fr) minmax(28rem, 1.1fr);
+  }
 }
 
 @media (max-width: 959px) {
-  .landing-features-grid { grid-template-columns: 1fr; }
+  .landing-hero {
+    padding-top: 3rem;
+  }
+
+  .landing-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .landing-button {
+    width: 100%;
+  }
+
+  .landing-product-visual {
+    margin-top: 1rem;
+  }
+
+  .landing-journey a {
+    gap: .8rem;
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .landing-model-list,
+  .landing-purpose-nav {
+    grid-template-columns: 1fr;
+  }
 }
 
-@media (max-width: 700px) {
-  .landing-hero { min-height: auto; padding-top: 3rem; }
-  .landing-brand { font-size: clamp(3.7rem, 18vw, 5.5rem); }
-  .landing-tagline { font-size: 1.25rem; margin-top: 1rem; }
-  .landing-product-visual { margin-top: 3.5rem; transform: none; }
-  .landing-product-visual::before { inset: 1rem -1rem -1rem 1rem; }
-  .landing-lifecycle-panel { margin-left: 1.5rem; }
-  .landing-code-panel pre { font-size: .66rem; }
-  .landing-features-grid { display: flex; flex-direction: column; }
-  .landing-feature-operation { padding-right: 0; }
-  .landing-next { grid-template-columns: 1fr; gap: 2rem; }
+@media (max-width: 767px) {
+  .landing-model-list,
+  .landing-purpose-nav {
+    grid-template-columns: 1fr;
+  }
+
+  .landing-purpose-nav a,
+  .landing-purpose-nav a:nth-child(even) {
+    border-left: 0;
+    padding-left: 0;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .landing-button { transition: none; }
-  .landing-button:hover { transform: none; }
+  .landing-button {
+    transition: none;
+  }
 }

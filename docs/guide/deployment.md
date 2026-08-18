@@ -1,6 +1,6 @@
 # Deployment
 
-DeploymentはApplication／運用環境の責務です。FrameworkはKubernetes、systemd、Supervisor、TLS、Secret配布、Health Check、Resource Limit、Restart Policyを提供しません。Stable `1.1.0`のReleaseとRepository `main`のExperimental Surfaceを混ぜず、同じBuild IDのArtifactを全Processへ渡します。Tenant／Protected StorageとRotation CLIはRepository `main`のExperimental Surfaceです。[Observability](observability.md)のProvider、Health Route／CLI、Local CollectorもApplicationが明示構成します。
+DeploymentはApplication／運用環境の責務です。FrameworkはKubernetes、systemd、Supervisor、TLS、Secret配布、Health Check、Resource Limit、Restart Policyを提供しません。公開済みExperimental Stable `1.2.0`のFramework／Skeleton Surfaceを同じBuild IDのArtifactとして全Processへ渡します。Tenant／Protected StorageとRotation CLIも公開Surfaceですが、Data、Key、Provider、運用責務はApplicationが所有します。[Observability](observability.md)のProvider、Health Route／CLI、Local CollectorもApplicationが明示構成します。
 
 :::warning[Operator responsibility]
 Process監督、TLS、Secret配布、Health Check、Resource Limit、Restart Policyは運用環境で構成します。Frameworkはこれらを自動提供しません。

@@ -82,7 +82,7 @@ Application／Distribution／Dependency／Documentation差分は変更しない�
 
 ## Dependency and Ownership Rules
 
-- Production CodeはTask Packet単位でGPT-5.6 Luna High workerが実装する
+- Production CodeはTask Packet単位で`.codex/agents/worker.toml`に定義された現在のModel／Reasoning Effortを読み込むImplementation Workerが実装する
 - WorkerはCommitしない
 - OrchestratorはTaskごとにReview、独立Verification、Commitする
 - Task間で後続Production Fileを先取り変更しない

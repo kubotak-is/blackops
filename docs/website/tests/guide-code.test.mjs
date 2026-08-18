@@ -43,6 +43,13 @@ function moveNoScriptsBlockAfterKey(source) {
   return `${source.slice(0, start)}${source.slice(end)}\n${source.slice(start, end)}`;
 }
 
+function assertQuickstartOrderInspect(source) {
+  assert.match(source, /operation_type = 'order\.create'/);
+  assert.match(source, /ORDER BY occurred_at DESC, sequence DESC/);
+  assert.match(source, /operation:inspect "\$\{ORDER_OPERATION_ID\}" --json/);
+  assert.doesNotMatch(source, /operation-id-from-authorized-status|Operation IDはHTTP Response/);
+}
+
 test('upgrade guide installs the exact Skeleton 1.1 project-root entrypoint', async () => {
   const [upgrade, entrypoint] = await Promise.all([
     readFile(path.join(repositoryRoot, 'UPGRADE.md'), 'utf8'),
@@ -241,12 +248,15 @@ test('guide JSON and JSONL examples stay parseable and free of raw tutorial secr
 });
 
 test('Journal JSONL example matches the observed encoder envelope and lifecycle set', async () => {
-  const source = await guide('journal.md');
+  const [source, encoder] = await Promise.all([
+    guide('journal.md'),
+    readFile(path.join(repositoryRoot, 'src/Logging/JsonlJournalRecordEncoder.php'), 'utf8'),
+  ]);
   const block = source.match(/```jsonl\n([\s\S]*?)\n```/)?.[1] ?? '';
   assert.ok(block);
   const records = block.split('\n').map((line) => JSON.parse(line));
   const topLevel = ['schemaVersion', 'kind', 'recordId', 'event', 'occurredAt', 'sequence', 'operation', 'attempt', 'data'];
-  const operation = ['id', 'type', 'schemaVersion', 'strategy', 'correlationId', 'causationId', 'actors'];
+  const operation = ['id', 'type', 'schemaVersion', 'strategy', 'correlationId', 'causationId', 'actors', 'tenant'];
   const actor = ['origin', 'authorization', 'execution'];
   const attempt = ['id', 'number', 'startedAt'];
   const events = [
@@ -255,6 +265,14 @@ test('Journal JSONL example matches the observed encoder envelope and lifecycle 
     'operation.failed', 'operation.dead_lettered',
   ];
 
+  const encoderOperation = encoder.slice(encoder.indexOf('private function operation'), encoder.indexOf('private function actors'));
+  assert.match(encoderOperation, /'tenant'\s*=>\s*\$operation->tenant === null\s*\n\s*\? null\s*\n\s*:/);
+  assert.match(encoderOperation, /'schedule'\s*=>\s*\[/);
+  assert.match(encoderOperation, /'name'\s*=>\s*\$operation->schedule->name\(\)/);
+  assert.match(encoderOperation, /'scheduledAt'\s*=>\s*\$this->time\(\$operation->schedule->scheduledAt\(\)\)/);
+  assert.match(encoder, /if \(\$record->operation->telemetry !== null\)/);
+  assert.match(encoder, /\$encoded\['telemetry'\]\s*=\s*\[[\s\S]*?'traceId'\s*=>\s*\$record->operation->telemetry->traceId[\s\S]*?'spanId'\s*=>\s*\$record->operation->telemetry->spanId[\s\S]*?'sampled'\s*=>\s*\$record->operation->telemetry->sampled/);
+
   for (const event of events) assert.match(source, new RegExp('`' + event.replace('.', '\\.') + '`'));
 
   for (const record of records) {
@@ -262,6 +280,9 @@ test('Journal JSONL example matches the observed encoder envelope and lifecycle 
     assert.equal(record.kind, 'journal');
     assert.match(record.occurredAt, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}Z$/);
     assert.deepEqual(Object.keys(record.operation), operation);
+    assert.equal(record.operation.tenant, null, 'the three examples must show the encoder null-tenant shape');
+    assert.equal('schedule' in record.operation, false, 'schedule is omitted when the encoder has no schedule');
+    assert.equal('telemetry' in record, false, 'telemetry is omitted when the encoder has no context');
     assert.deepEqual(Object.keys(record.operation.actors), actor);
     for (const actorRef of Object.values(record.operation.actors)) {
       if (actorRef !== null) assert.equal(actorRef.id, '[masked]');
@@ -286,13 +307,18 @@ test('Journal JSONL example matches the observed encoder envelope and lifecycle 
   assert.match(source, /DeferredではTyped OutcomeをOutcome Storeへ保存/);
   assert.match(source, /InlineではHTTP Responseだけへ返し、Outcome Store Rowを作成しません/);
   assert.match(source, /ActorContextがない場合は全体が`null`/);
+  assert.match(source, /\| `telemetry` \| `object`（optional） \|/);
+  for (const field of ['telemetry.traceId', 'telemetry.spanId', 'telemetry.sampled', 'operation.tenant', 'operation.tenant.id', 'operation.tenant.type', 'operation.schedule.scheduledAt']) {
+    assert.ok(source.includes('`' + field + '`'), field);
+  }
+  assert.doesNotMatch(source, /operation\.schedule\.(?:scheduled_at|timezone)/);
 });
 
 test('Journal parameter contract uses five complete implementation-aligned tables', async () => {
   const source = await guide('journal.md');
   const sections = [
-    ['### Top-level Record', '### `operation`', 9],
-    ['### `operation`', '### `operation.actors`／Actor', 11],
+    ['### Top-level Record', '### `operation`', 13],
+    ['### `operation`', '### `operation.actors`／Actor', 13],
     ['### `operation.actors`／Actor', '### `attempt`', 6],
     ['### `attempt`', '### Event固有`data`', 4],
     ['### Event固有`data`', '## JSONLの設定', 27],
@@ -368,7 +394,7 @@ test('guide presents the Stable 1.2 release surface and experimental policy cons
   assert.doesNotMatch(quickstart, /認可匿名/);
   assertQuickstartConvergence(quickstart);
   assert.match(tutorial, /Experimental Stable `1\.2\.0`/);
-  assert.match(generators, /Experimental Stable `1\.1\.0`/);
+  assert.match(generators, /Experimental Stable `1\.2\.0`/);
   assert.match(status, /7 Value Validation Attribute／422 Lifecycle \| 利用可 \| 利用可/);
   assert.match(status, /FrankenPHP Worker Mode \| 既定Runtime \| 既定Runtime/);
   assert.match(status, /Named DBAL Connection／Default Connection DI \| 未提供 \| 利用可/);
@@ -440,7 +466,7 @@ test('main onboarding names the executable client, auth contract, and runtime li
   assert.match(quickstart, /terminal\.data\.outcome\.reportName/);
   assert.match(quickstart, /operation-id-from-accepted-response/);
   assert.doesNotMatch(quickstart, /OPERATION_ID='019[a-f0-9-]+'/);
-  assert.match(auth, /Repository `main` Preview/);
+  assert.match(auth, /公開済みExperimental Stable `1\.2\.0`/);
   for (const expected of ['auth.email_unavailable', 'auth.invalid_credentials', 'wrong horse battery staple', 'validation.length', 'binding.required', '200、43文字', '409、code', '401、code', '422', 'AuthenticationMiddleware::class']) {
     assert.match(auth, new RegExp(expected.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
   }
@@ -448,10 +474,10 @@ test('main onboarding names the executable client, auth contract, and runtime li
   assert.match(runtime, /docker compose --profile maintenance up -d scheduler/);
   assert.match(outbox, /Operations::dispatch\(\)/);
   assert.match(outbox, /outbox:relay:run --until-empty/);
+  assert.match(outbox, /readonly class AddComment implements Operation/);
   assert.match(consoleGuide, /project-cli\.md#operation-command/);
-  const outboxExample = execution.match(/## Transactional Outboxへの登録[\s\S]*?```php\n([\s\S]*?)\n```/)?.[1] ?? '';
-  assert.match(outboxExample, /readonly class PlaceOrder implements Operation/);
-  assert.doesNotMatch(outboxExample, /final readonly class PlaceOrder/);
+  assert.doesNotMatch(execution, /readonly class PlaceOrder implements Operation/);
+  assert.match(execution, /Transactional Outbox[\s\S]*outbox\.md/u);
 });
 
 test('task-oriented operation guides expose source-backed process boundaries', async () => {
@@ -487,12 +513,13 @@ test('task-oriented operation guides expose source-backed process boundaries', a
   for (const option of ['--observer=application-jsonl', '--checkpoint=journal-replay-20260701', '--actor=operator', '--reason="restore projection"', '--transport-payload-days=7', '--policy-ref=production-retention-v1']) {
     assert.match(cli, new RegExp(option.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
   }
-  assert.ok(cli.includes('`ApplicationConfigurationSnapshot`＋`ApplicationOperationDiscovery`（Source）＋Metadata Compiler'));
+  assert.ok(cli.includes('Project設定から公開されているOperation定義を発見し'));
   assert.ok(cli.includes('outbox:dead-letter:retry <record-id> --actor=<actor> --reason=<reason>'));
   assert.doesNotMatch(cli, /outbox:dead-letter:retry <record-id> --actor --reason/);
-  assert.match(cli, /Stable `1\.1\.0`[\s\S]*Repository `main`のExperimental Surface/);
-  assert.match(testing, /tests\/Consumer\/community-board-product-journey\.sh/);
-  assert.match(testing, /community-board-digest\.sh.*Outbox Relayの検証記録には使いません/);
+  assert.match(cli, /公開済みExperimental Stable `1\.2\.0`[\s\S]*Framework Proxy Profile Artifact Unit/);
+  assert.match(testing, /Applicationの`docker compose`と`php blackops`を使い/);
+  assert.match(testing, /Framework内部の管理用EvidenceやRepository固有のScriptを利用者手順へ持ち込みません/);
+  assert.doesNotMatch(testing, /tests\/Consumer/);
   for (const path of ['app\/Feature\/Comment\/AddComment\/AddComment.php', 'app\/Domain\/Board\/BoardRepository.php', 'app\/Feature\/Notification\/NotifyPostOwner\/NotifyPostOwner.php']) {
     assert.match(outbox, new RegExp(path));
   }
@@ -572,6 +599,15 @@ test('quickstart frontend journey matches the installed application-owned source
   assert.match(quickstart, /GenerateReport\.status/);
   assert.match(quickstart, /GenerateReport\.wait/);
   assert.match(quickstart, /poll_timeout/);
+  assertQuickstartOrderInspect(quickstart);
+  assert.doesNotMatch(quickstart, /event = 'operation\.received' ORDER BY sequence LIMIT 1/);
+});
+
+test('quickstart terminal inspection rejects stale or unrelated operation-id paths', async () => {
+  const quickstart = await guide('mvp-sample.md');
+  assert.doesNotThrow(() => assertQuickstartOrderInspect(quickstart));
+  const stale = quickstart.replace(/operation:inspect "\$\{ORDER_OPERATION_ID\}" --json/u, 'operation:inspect "<operation-id-from-authorized-status>" --json');
+  assert.throws(() => assertQuickstartOrderInspect(stale), /ORDER_OPERATION_ID|Operation ID/);
 });
 
 test('quickstart order journey matches the installed transactional source', async () => {
@@ -599,4 +635,15 @@ test('quickstart order journey matches the installed transactional source', asyn
   assert.match(quickstart, /"reference":"order-001","status":"created"/);
   assert.match(quickstart, /Nested Required/);
   assert.match(quickstart, /Transactional Outbox/);
+  assert.match(quickstart, /operation_type = 'order\.create'/);
+});
+
+test('quickstart Consumer selects the documented order operation after a same-type predecessor', async () => {
+  const consumer = await readFile(path.join(repositoryRoot, 'tests/Consumer/quickstart-e2e.sh'), 'utf8');
+  const predecessor = consumer.indexOf('console_operation_id=$(HTTP_PORT=');
+  const orderQuery = consumer.indexOf("order_operation_id=$(HTTP_PORT=");
+  assert.ok(predecessor >= 0 && orderQuery > predecessor, 'Consumer must create a same-type predecessor before the documented order query');
+  assert.match(consumer, /event = 'operation\.received' AND operation_type = 'order\.create' ORDER BY occurred_at DESC, sequence DESC LIMIT 1/);
+  assert.match(consumer, /test "\$\{order_operation_id\}" != "\$\{console_operation_id\}"/);
+  assert.match(consumer, /test "\$\{order_events\}" = "operation\.received,attempt\.started,attempt\.succeeded,operation\.completed"/);
 });

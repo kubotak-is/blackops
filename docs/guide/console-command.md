@@ -1,12 +1,12 @@
 # ConsoleCommand
 
-Console CommandはTerminalからOperationを起動するApplication入口です。`#[ConsoleCommand]`はStable `1.1.0`にはないRepository `main`のExperimental Adapterです。[Stableとmain](mvp-status.md#stableとmain)を確認し、Applicationが選んだConsole Actor、Secret配布、Process Supervisorを準備してください。
+Console CommandはTerminalからOperationを起動するApplication入口です。`#[ConsoleCommand]`は公開済みExperimental Stable `1.2.0`のFramework／Skeleton Adapterです。[Releases](mvp-status.md)を確認し、Applicationが選んだConsole Actor、Secret配布、Process Supervisorを準備してください。
 
 ## 実行手順
 
 ### 1. AttributeとValueを定義する
 
-OperationへCanonicalなCommand名（空白や`|`を含まない`segment:command`）と説明を付けます。public constructor-promotedな`string`、`int`、`float`、`bool`のValue PropertyがLong Optionになります。DefaultがあるOptionだけ省略できます。
+OperationへCanonicalなCommand名（空白や`|`を含まない`segment:command`）と説明を付けます。Application-owned PHP File（たとえば`app/Feature/Report/ExportReport/ExportReport.php`）へOperation、Value、Outcomeを配置します。public constructor-promotedな`string`、`int`、`float`、`bool`のValue PropertyがLong Optionになります。DefaultがあるOptionだけ省略できます。
 
 ```php
 use BlackOps\Core\Attribute\ConsoleCommand;
@@ -80,8 +80,14 @@ Deferred OperationならHumanは`Accepted operation <operation-id>.`、JSONは`s
 
 ValidationはOperation IDを伴う場合があります。Rejectedの`code`とViolationの`field`／`rule`／`code`だけを調査キーにし、Exception Message、SQL、Credentialを公開Outputへ出しません。Unknown Optionや型不一致もBinding／Validationとして扱い、Exit `2`を返します。
 
+Failure時はExit CodeとSafe Errorだけを確認し、Attribute、Value、Bindingを修正して`build:compile`から再実行します。既存の失敗Operationを成功扱いに変えたり、ThrowableをOutputへ追加したりしません。
+
 ## AuthorizationとActor
 
 Console Runtimeは、Applicationが`ConsoleActorProvider`をBindingしていればそのActorをCurrent／Origin Actorへ設定し、未Bindingなら`null` Actorと`console-runtime`の入口識別子を使います。Operationの`#[Authorize]` PolicyはこのContextを評価し、Denyは業務Rejected（Exit `1`）として返ります。OS User、Scheduler、Secret配布、Role／Permission検索はApplication／運用責務です。
 
 ConsoleからEphemeral Outcome Operationを実行するContractはありません。Commandを追加したら`build:compile`、`help`、Human／JSON、Validation、Authorization、DeferredならWorker／Statusまでを同じTaskで確認してください。詳細なCommand一覧は[Operation Command](project-cli.md#operation-command)、失敗時は[Troubleshooting](troubleshooting.md)を参照します。
+
+## 次に全Commandを引く
+
+Commandの一覧、Option、Exit Code、変更有無を調べる場合は、[BlackOps CLI](project-cli.md)をReferenceとして使います。

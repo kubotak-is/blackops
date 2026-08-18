@@ -1,0 +1,17 @@
+<script data-blackops-search-focus-boundary is:inline>
+  (() => {
+    document.addEventListener('keydown', (event) => {
+      if (event.key !== 'Escape' || event.isComposing) return;
+      if (!(event.target instanceof Element)) return;
+
+      const dialog = event.target.closest('[data-blume-search-dialog]');
+      if (!(dialog instanceof HTMLDialogElement) || !dialog.open) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      dialog.close();
+      const trigger = dialog.closest('blume-search')?.querySelector('[data-blume-search-open]');
+      if (trigger instanceof HTMLElement) trigger.focus();
+    }, true);
+  })();
+</script>

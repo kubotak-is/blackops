@@ -10,6 +10,8 @@ Taskの実行順を先に確認する場合は、[Testing](testing.md)、[Deploy
 
 **考えられる原因:** Root Seederを追加・変更した後に`build:compile`していない、Application Build IDが変わった、またはCompiled Containerが欠落しています。
 
+**確認方法:** `php blackops database:status`でMigration状態を確認し、`php blackops build:compile`のExit Codeと生成されたArtifactの存在を確認します。
+
 **修正方法:** Migrationを適用し、現在のSourceと設定でBuildしてからSeedを再実行します。
 
 ```bash
@@ -211,6 +213,8 @@ php blackops worker:run --iterations=1 --idle-sleep-milliseconds=1
 
 **症状:** Responseが`{"status":"error","code":"internal_error","operationId":"019..."}`を返します。
 
+**考えられる原因:** Operationは受理後にHandlerまたはInfrastructureで予期しないFailureとなりました。Operation ID付きのSafe Errorは、受理前のProtocol Errorとは異なります。
+
 **確認方法:** IDを変更せず、Human表示、次にJSON表示で確認します。
 
 ```bash
@@ -219,6 +223,8 @@ php blackops operation:inspect 019... --json
 ```
 
 `received -> attempt.started -> attempt.failed -> operation.failed`の順と、Application／Framework JSONL Logの同じOperation IDを確認します。HTTPやCLIにException Messageがないのは意図したSafe Surfaceです。Canonical DatabaseのRaw RecordをSupport Ticketへ貼り付けないでください。
+
+**修正方法:** 同じOperation IDのJournalとSafe LogからFailure Categoryを確認し、Application Handler、Database、Dependencyの原因を修正してから、冪等性を確認した新しいOperationとして再実行します。ThrowableやProtected PayloadをResponseへ追加しません。
 
 ## Scheduled Operationが`configuration_error`で停止する
 
@@ -236,6 +242,8 @@ php blackops operation:schedule:run --json
 
 Credential、Value Payload、Actor情報はErrorへ追加しません。Providerが`null`を返す場合は匿名へFallbackせず認可拒否になります。[Scheduled Operation](scheduled-operation.md)のAuthoringとProvider手順を確認してください。
 
+**修正方法:** Schedule Metadata、Timezone、Value Constructor、Actor Providerを修正してから`database:migrate`、`build:compile`、one-shot実行を順に行います。Exit `0`の評価結果だけを成功とし、Credentialや未検証ActorをFallbackしません。
+
 ## Scheduled Occurrenceが`accepted`／`claimed`のまま
 
 **症状:** `operation:schedule:run --json`は`accepted`を返したのに、OccurrenceまたはOperationが完了しません。
@@ -250,6 +258,8 @@ php blackops operation:inspect <operation-id> --json
 ```
 
 `operation:schedule:run --json`は件数だけを返し、Operation IDを出力しません。上のRead-only Occurrence Queryで`operation_id`を得て、`<operation-id>`へ置き換えます。`accepted`はDurable受理であり完了ではありません。Lease Recovery後も同じOperation IDを使い、外部副作用はExactly Onceと解釈しません。
+
+**修正方法:** Deferred Workerを同じDatabase／Schemaへ接続し、LeaseとHeartbeatの設定を確認してから`worker:run`を再実行します。Recovery後は同じOperation IDのTerminal Eventを確認し、外部副作用を重複実行しないApplication冪等性を保ちます。
 
 ## Scheduled Occurrenceが`skipped_misfire`／`skipped_overlap`になる
 
@@ -277,6 +287,8 @@ LIMIT 20;
 
 Cron／Timezoneと外部Supervisorの重複起動を見直します。SkipへOperation IDを補って再実行したり、Occurrenceを直接更新したりしません。
 
+**修正方法:** UTC Cursor、Misfire Window、ScheduleのOverlap設定、外部Supervisorの多重起動を修正し、次の評価Slotをone-shotで確認します。Skip済みOccurrenceを直接Completedへ変更しません。
+
 IDのない500はOperation成立前のBootstrap／Middleware／Protocol境界の失敗です。`operation:inspect`では追跡できないため、Credentialを除いたFramework Error Log、Config Validation、Build Artifact、Database Connectionを確認します。
 
 InspectのExit CodeはInvalid ID=`2`、Unavailable=`3`、Storage／Decode／Integrity=`4`です。`--json`のErrorは`{"schemaVersion":1,"status":"error","code":"..."}`をstderrへ出します。
@@ -284,6 +296,8 @@ InspectのExit CodeはInvalid ID=`2`、Unavailable=`3`、Storage／Decode／Inte
 ## Local Viewerが起動／表示できない
 
 **症状:** `viewer.disabled`、`viewer.invalid_configuration`、`viewer.runtime_unavailable`、`viewer.bind_failed`、またはBrowserで404が返ります。
+
+**考えられる原因:** Diagnostics Enable Gateが無効、Loopback以外のBind、Port競合、PCNTL未提供、Bootstrap URLの期限切れ、またはHost／Cookie境界が異なります。
 
 **確認方法:** `config/diagnostics.php`の`enabled`、`127.0.0.1`、Port競合、CLI RuntimeのPCNTLを確認します。QuickstartはLocalだけEnabledです。
 
@@ -372,13 +386,14 @@ test -d var/log && test -w var/log && printf 'journal directory is writable\n'
 
 **考えられる原因:** Collectorの起動だけではEmitterがSpan／Metricを作成しません。ApplicationのSDK／OTLP Exporterが未登録、`collector:4318/v1/traces`／`/v1/metrics`が別Network、Flush／Shutdownが未実行、`otel-collector-config.yaml`のConfig Mountが不正、またはReadinessへCollector接続を誤って含めています。
 
-**確認方法:** [Observability](observability.md)のProvider／MeterProvider／Health Adapter例を照合し、固定DigestのLocal手順をProject Rootで再実行します。
+**確認方法:** [DockerでLocal Collectorを確認する](observability.md#dockerでlocal-collectorを確認する)のProvider／MeterProvider／Health Adapter例を照合し、固定DigestのCollector laneをProject Rootで同じTerminalから再実行します。Host laneの`$COLLECTOR`確認は`read`前の同じShellで行い、別Shellの未定義変数を使いません。
 
 ```bash
-bash tests/Consumer/opentelemetry-observability.sh
+docker ps --filter 'name=blackops-otel-' --format '{{.Names}}\t{{.Status}}'
+docker logs "$(docker ps --filter 'name=blackops-otel-' --format '{{.Names}}' | head -n 1)" | tail -n 20
 ```
 
-この検証はHTTP→Inline、Deferred→Worker→Retry、Outbox Producer→Relay、Metric 10種、JSONL Correlation、Mask、Collector停止後のReadiness／一次処理を一度に確認します。`docker logs`だけを成功根拠にせず、JSONLとHealthの結果も確認してください。Raw Header、Credential、Payload、Outcome、Provider／Exception Detailを貼り付けません。
+この固定Digest laneの自動範囲はCollector Ready、Container／Network Isolation、HealthとCleanupです。ApplicationがEmitterを実行した場合だけ、HTTP→Inline、Deferred→Worker→Retry、Outbox Producer→Relay、Metric、JSONL Correlation、MaskをApplicationの実結果として確認します。`docker logs`だけを成功根拠にせず、Healthの結果も確認してください。Raw Header、Credential、Payload、Outcome、Provider／Exception Detailを貼り付けません。
 
 **修正方法:** ApplicationとCollectorを同じLocal Networkへ置き、OTLP HTTP Endpointを`http://collector:4318`へ合わせ、Metric用Endpointを分けてFlush／Shutdownします。Invalid `traceparent`はRaw Headerを保存せずParentなしで処理します。Provider／Exporter FailureはNo-op／Best-effortへ縮退し、Primary OperationとReadinessを変更しません。CollectorをReadiness Checkから外し、Remote BackendやProduction ComposeへLocal設定をコピーしないでください。
 
@@ -388,21 +403,11 @@ bash tests/Consumer/opentelemetry-observability.sh
 `blackops.operation.duration`または`blackops_operation_duration_seconds`（Histogramの
 `_bucket`／`_sum`／`_count`）が表示されません。
 
-**確認方法:** `bash tests/Consumer/opentelemetry-grafana-lgtm.sh`をRepository root
-から再実行します。Scriptは固定Digest、Grafana health、Tempo／Prometheus
-Datasource、既存Emitterのexact Trace ID、固定Instrument名由来のMetric、
-Sensitive／High-cardinality禁止Label、loopback Port、Source checkout不変、cleanupを
-機械検証します。Backend Portを直接公開したり、Grafana APIのResponse全体をLogへ
-貼ったりしません。
+**考えられる原因:** Emitter、Collector、Grafana Datasourceが同じNetwork／Endpointを使っていない、またはProviderのFlush／Shutdown前にApplicationが終了しています。
 
-**修正方法:** LGTMのNetwork aliasが`collector`であること、Emitterが同じNetworkで
-OTLP HTTP `4318`へ送っていること、ProviderのFlush／Shutdownが完了していることを
-確認します。LGTM laneのEmitter起動へ`BLACKOPS_OTEL_METRIC_TEMPORALITY=cumulative`が
-渡っていることも確認します。既存Collector laneのEmitterは未指定のDefault temporality
-を維持します。Host laneでは`127.0.0.1:<random-otlp-port>`、Container laneでは
-`http://collector:4318`を使い分けます。Dashboard／Tempo／Prometheusの停止を
-Readinessへ追加せず、Remote CredentialやPersistent VolumeをLocal手順へ持ち込み
-ません。Grafana `3000`は閲覧Page、`4318`はIngestion endpointです。
+**確認方法:** [Local Grafana LGTMのReadinessを確認する](observability.md#local-grafana-lgtmのreadinessを確認する)の自動Readiness laneをProject Rootから起動し、Grafana HTTP Health、固定Digest、loopback Port、失敗時Log、Cleanupを確認します。Trace／Metricの保存確認は、同じページのInteractive laneでApplication-owned Emitterを実行した場合だけ行います。Backend Portを直接公開したり、Grafana APIのResponse全体をLogへ貼ったりしません。
+
+**修正方法:** Interactive laneでだけ、LGTMのNetwork aliasが`collector`であること、Emitterが同じNetworkでOTLP HTTP `4318`へ送っていること、ProviderのFlush／Shutdownが完了していることを確認します。CredentialはShellの`GRAFANA_PASSWORD`（未指定時`local-admin`）とContainerの`GF_SECURITY_ADMIN_PASSWORD`を一致させます。Host laneでは`127.0.0.1:<random-otlp-port>`、Container laneでは`http://collector:4318`を使い分けます。Grafanaの停止をReadinessへ追加せず、Remote CredentialやPersistent VolumeをLocal手順へ持ち込みません。Grafana `3000`は閲覧Page、`4318`はIngestion endpointです。
 
 ## Outcome Status
 

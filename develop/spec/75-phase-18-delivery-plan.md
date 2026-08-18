@@ -143,7 +143,7 @@ P18-007 Closeout後に見つかったSeeder用Application Commandの過剰な利
 
 ## Dependency and Ownership Rules
 
-- Production CodeはTask Packet単位でGPT-5.6 Luna High workerが実装する
+- Production CodeはTask Packet単位で`.codex/agents/worker.toml`に定義された現在のModel／Reasoning Effortを読み込むImplementation Workerが実装する
 - WorkerはCommitしない
 - OrchestratorはTaskごとにReview、独立再検証、Commitする
 - Public API、Security、Package Publication、Compatibilityの仕様矛盾はTaskを広げずBlockerとして返す

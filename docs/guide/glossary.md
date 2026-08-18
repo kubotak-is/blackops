@@ -126,7 +126,7 @@ Operationへ渡すTyped Inputです。HTTP／ConsoleのWire値を宣言的Valida
 
 **区分**: Public
 
-OperationをInlineまたはDeferredで実行する方式です。Stable `1.1.0`のDeferred指定は`#[ExecuteWith(Deferred::class)]`、mainのCanonical Authoringは`#[Deferred]`です。
+OperationをInlineまたはDeferredで実行する方式です。Stable `1.1.0`のDeferred指定は`#[ExecuteWith(Deferred::class)]`、Stable `1.2.0`のCanonical Authoringは`#[Deferred]`です。
 
 ## Terminal State
 
@@ -138,7 +138,7 @@ OperationをInlineまたはDeferredで実行する方式です。Stable `1.1.0`�
 
 **区分**: Runtime
 
-Operation Lifecycleの事実を順序付きで保存する監査正本です。Observed JournalやApplication Logとは別に、RetentionとAccess Controlを適用します。
+Operation Lifecycleの事実を順序付きで保存する正本です。汎用Business／Security Audit Trailではなく、Observed JournalやApplication Logとは別にRetentionとAccess Controlを適用します。
 
 ## Observed Journal
 
@@ -154,7 +154,7 @@ Credentialなどを現在のHTTP Responseへ一度だけ返すOutcomeです。HT
 
 ## Scheduled Application Operation
 
-Repository `main`のExperimental入口です。`#[ScheduledBy]`でCalendar Scheduleを宣言し、`operation:schedule:run`を一回実行してInline完了またはDeferred受理へ進めます。Framework Maintenance Schedulerとは別Capabilityです。
+公開済みExperimental Stable `1.2.0`の入口です。`#[ScheduledBy]`でCalendar Scheduleを宣言し、`operation:schedule:run`を一回実行してInline完了またはDeferred受理へ進めます。Framework Maintenance Schedulerとは別Capabilityです。
 
 ## Schedule Context
 
@@ -167,3 +167,7 @@ PostgreSQLへ保存するScheduleの一回分のCalendar Slotです。`(schedule
 ## Misfire／Overlap
 
 Cursorより古い未処理Slotを`skipped_misfire`、直前のOccurrenceが非Terminalで新しいSlotを受理できない場合を`skipped_overlap`として記録します。初期ContractはFireOnce／Overlap禁止です。
+
+## 次に関係するモデルを読む
+
+用語をOperationの構造へ戻す場合は、[Core Concepts](core-concepts.md)の関係図と定義を参照します。

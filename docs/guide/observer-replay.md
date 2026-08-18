@@ -4,6 +4,10 @@
 
 これは完了済みOperationをHandlerへ再実行するOperation Replayではありません。Journalの構造とCanonical／Observedの境界は[Journal](journal.md)を参照してください。
 
+## 実行場所と準備
+
+ApplicationのProject Rootで、Application-owned `config/journal.php`とObserver設定を確認します。Hostでは`php blackops`を使い、Containerでは同じCommandを`docker compose run --rm app`へ渡します。対象Database、Actor、ReasonをApplicationの運用Policyで決め、CredentialやProtected PayloadをShellへ書きません。
+
 ## Selector と実行モード
 
 Selector は次のいずれか一つだけを指定します。
@@ -46,3 +50,5 @@ Replay は Canonical `recordId`、Operation ID、Sequence、Occurred At を維�
 Audit には安全な Selector 境界（Operation／Record ID または時刻範囲）、Target 名、Operator Actor／Reason、Invocation ごとの件数、時刻、Version 付き Failure Fingerprint だけを保存します。Canonical Payload、Projection Data、Canonical Actor ID、Credential、SQL、Throwable の Message／Trace は保存せず、CLI 出力や例外にも漏らしません。
 
 Replay Source は Canonical Journal を SELECT するだけです。Canonical Row の Append／Update／Delete や Lifecycle Record の追加は行いません。
+
+配送が失敗した場合はFailure FingerprintとCheckpointだけを確認し、SelectorやRecordを直接変更せず、原因を修正して`--resume`で再実行します。

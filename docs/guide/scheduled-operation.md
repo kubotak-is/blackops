@@ -1,6 +1,6 @@
 # Scheduled Operation
 
-Scheduled Application Operationは、Repository `main`で提供するExperimental Capabilityです。Stable `1.1.0`には含まれません。[Releases](mvp-status.md)でStableと`main`の差を確認してから、専用のProject Rootで試してください。
+Scheduled Application Operationは、公開済みExperimental Stable `1.2.0`で提供するCapabilityです。[Releases](mvp-status.md)でApplication-owned責務とFrameworkの境界を確認してから、専用のProject Rootで試してください。
 
 :::warning[Experimental capability]
 この機能は一回実行の`operation:schedule:run`を外部Supervisorから呼び出す前提です。Frameworkは常駐Daemon、Cron／systemd／KubernetesのManifest生成、外部副作用のExactly Onceを提供しません。
@@ -17,7 +17,7 @@ Scheduled Application Operationは、Repository `main`で提供するExperimenta
 
 ## Canonical Authoring
 
-次の例はRepository `main`のCanonical Authoringです。`#[Deferred]`を外すとInlineになります。
+次の例は公開済みExperimental Stable `1.2.0`のCanonical Authoringです。`#[Deferred]`を外すとInlineになります。
 
 ```php
 <?php

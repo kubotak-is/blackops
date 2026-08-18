@@ -1,9 +1,9 @@
 # Tenant and Storage Protection
 
-このページは、Tenant付きOperationとFramework-owned Protected Storageを安全に導入するための実装済みJourneyです。BlackOps 1.xはExperimentalで、旧Plaintext StorageとのRuntime互換はありません。Stable `1.1.0`とRepository `main`のPreviewを混ぜず、利用するReleaseを先に固定してください。
+このページは、Tenant付きOperationとFramework-owned Protected Storageを安全に導入するための実装済みJourneyです。BlackOps 1.xはExperimentalで、旧Plaintext StorageとのRuntime互換はありません。公開済みExperimental Stable `1.2.0`を固定してから手順を実行してください。
 
-:::warning[Repository `main`専用]
-以下の手順はRepository `main`のExperimental Preview専用です。Stable `1.1.0`には`TenantRef`、`StorageKeyProvider`／BOPD Storage Protection、`storage:protection:plan`／`storage:protection:rotate`はありません。Stableを利用する場合は[Stableとmain](mvp-status.md#stableとmain)へ戻り、Stable向けの手順を選んでください。
+:::info[Experimental Stable 1.2.0]
+以下の手順は公開済みExperimental Stable `1.2.0`のFramework／Skeleton Surfaceです。`TenantRef`、`StorageKeyProvider`／BOPD Storage Protection、`storage:protection:plan`／`storage:protection:rotate`をApplication-owned Provider境界とともに確認してください。
 :::
 
 :::warning[Breaking boundary]
@@ -408,4 +408,10 @@ RetentionはClear Tenant、Operation ID、State、Timestamp、HoldだけでPlan�
 | Upgradeが旧Plaintextで停止 | MigrationのSafe Errorと空／非空判定だけを確認 | Reset／Recreateまたは承認済みOffline変換 |
 | Rotation後`remaining`が0にならない | Purpose、Tenant Scope、Old Key ID、Checkpointを照合 | Replica／Backup等の別境界も確認し、旧Keyを削除しない |
 
+どのFailureでもPayloadやKeyを公開せず、表のSafe確認で原因を切り分けてProvider／Policy／Migrationを修正し、同じScopeのPlanまたは確認済みRuntimeから再実行します。
+
 Provider未登録、Unknown Key／Tag Tamper、非空旧Schema、`remaining`未解消の具体的な手順は、[`StorageKeyProvider`が未登録](troubleshooting.md#storagekeyproviderが未登録)、[Unknown Key／Tag Tamper](troubleshooting.md#unknown-keytag-tamper)、[非空の旧Protected SchemaでMigrationが停止](troubleshooting.md#非空の旧protected-schemaでmigrationが停止)、[Rotationの`remaining`が0にならない](troubleshooting.md#rotationのremainingが0にならない)を参照してください。その他の運用は[Security](security.md)、[Deployment](deployment.md)、[Troubleshooting](troubleshooting.md)、[Releases](mvp-status.md)を参照してください。
+
+## 次に観測結果を安全に送る
+
+Protected Dataを含む実行を観測する場合は、[Observability](observability.md)でProvider、Health、Collectorの境界を確認します。
