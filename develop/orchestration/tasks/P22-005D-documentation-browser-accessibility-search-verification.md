@@ -1,8 +1,20 @@
 # P22-005D: Documentation Browser, Accessibility, Search, and Production Verification
 
-Status: Local Accepted
+Status: Accepted — Production Verified
 
 Started At: 2026-08-17T20:25:34+09:00
+
+## P22-005G Production Verification — Accepted; Sol xHigh P1=0／P2=0／P3=0
+
+2026-08-18T20:14:56+09:00
+
+The user-approved PR #10 delivery is recorded against head `76aa6218ee80f6eaf7ae44cd6d4a0db215a6f1de`: PR CI `32117940838` SUCCESS (6 jobs), Documentation `32117940853` SUCCESS with Artifact build `95651602850` and Access-protected preview `95651988232` SUCCESS, merge `36d3206c37e33165b89b78b4eb333562e9d37b61` at `2026-08-18T08:51:06Z`, main CI `32118499805` SUCCESS (6 jobs), main Documentation `32118499737` SUCCESS, and production job `95653679057` SUCCESS. Deployment is `https://e6391b48.blackops-php.pages.dev`; canonical is `https://blackops-php.pages.dev`.
+
+Orchestrator-provided Production HTTP verification returned 200 for `/`, `/reference/project-cli/`, `/blume-search.json`, `/llms.txt`, `/llms-full.txt`, and `/index.md`, with HTML／JSON／plain-text／Markdown UTF-8 content types, the exact root `Link` describedby agent-readability/llms plus alternate `index.md` relations, and 301 redirects from `operations/lifecycle` -> `concepts/lifecycle`, `reference/security` -> `security`, `reference/troubleshooting` -> `troubleshooting`, and `reference/current-status` -> `releases/current-status`. Main Artifact id `9317633470` (`blackops-documentation-site`) matched production for index and project CLI after only Cloudflare Analytics injection normalization; Search／llms／llms-full／index.md were byte exact. Hashes: index `0b5c18d16553e7bdf3892e492db95af3a546a845e4e24097d8c89f7eba257b34`, CLI `49ca6f5054a28a6c7903f445a2cf07b159665b32630d519628eb077a7a7cbb26`, Search `dd1968391b3178932b4a1ee4fccb468d2d715222b23d614b0b43d1afabb36fe5`, `llms.txt` `9df281c58d889c6719d36a78a6e48f131b4302ce6787f94b366e6fc312669eec`, `llms-full.txt` `60c8dca85c861f40c262d45eb0c996234eb89aeef1e58b67a1b904d7ef54fd11`, `index.md` `d9654654a3d2be50001c775d6af91c3d9c0f18328f84b871c6a6ba0a666b0853`.
+
+Current-production Browser evidence is Green at `/tmp/p22-005d-orchestrator/evidence-production-canonical/`: `canonicalRoutes=41`, `executions=127`, `failures=[]`; profiles are desktop-light 41, desktop-dark 41, mobile-light 41, and mobile-dark representative 4. Axe has `entries=127` and `violations=0`; console evidence has `entries=127` with `console=0`, `page=0`, `request=0`; measurements has `entries=127` with horizontal-overflow failures 0; accessibility-name evidence has `entries=127`. Interaction evidence confirms both empty and non-empty Search close with `dialogOpen=false` and focus returned to the Search trigger, `tabCount=4`, theme `light→dark→reload dark→route dark`, and reduced motion `matches=true`, `animationName=none`, `transitionDuration=0s`. Browser is Chromium `149.0.7827.55`, Playwright `1.61.1`, Node `v24.17.0`, image `mcr.microsoft.com/playwright:v1.61.1-noble`.
+
+The exact main-run Artifact evidence is `index.html` SHA-256 `0b5c18d16553e7bdf3892e492db95af3a546a845e4e24097d8c89f7eba257b34` (size `21093`) and `blume-search.json` SHA-256 `dd1968391b3178932b4a1ee4fccb468d2d715222b23d614b0b43d1afabb36fe5` (size `502738`). Together with the HTTP／Artifact evidence above, both delivery criteria are factual. Sol xHigh final verdict is `P1=0/P2=0/P3=0` with no findings, supporting P22-005D acceptance. Not Verified by this management-only acceptance sync: no fresh Worker rerun of Quickstart, Mago, PHP management-ID, CI, Browser, or external publication was performed; no commit, stage, push, PR, CI rerun, deploy, or external mutation occurred here.
 
 ## Goal
 
@@ -97,8 +109,8 @@ P22-005A／B／Cで整備した公開Documentation候補をfresh production buil
 - Public Source／route inventory: Source 41、Sidebar page 40、public slug／H1文言／redirectは不変。Browser baseline由来のcontrast／focusability correctionだけを追加する
 - Version occurrence before／after分類、historical allowlist: 不変。既存release claim guardを再実行する
 - Source／Search／LLM artifact、positive／negative fixture: Releases Search section／breadcrumb、non-empty query Escape close／focus return、route-linked CSS、Landing H1 boundary、4 contrast boundary、local-scroller focusabilityをSource／Artifactでfail closedにする。Search／LLM route inventoryは41を維持する
-- same-SHA CI／Documentation delivery、Production deploy有無: Worker段階ではなし。Accepted exact commitのsame-SHA CI Green後にだけauthorized delivery／Production canonical verificationを行う
-- 残り工程、Next Action: Luna Max限定修正とLocal Browser Gate、Sol xHigh Review、Orchestrator Acceptance、reviewed Commit／same-SHA CI、authorized Production canonical verification
+- same-SHA CI／Documentation delivery、Production deploy有無: PR/main CI／Documentation, Production HTTP／Artifact, and current Production Browser evidence are recorded for the reviewed merge; no rerun or mutation occurred in this Task
+- 残り工程、Next Action: none for P22-005D. The Orchestrator publication workflow owns the exact commit／PR CI／merge snapshot; after parent closeout, proceed to the P23-001 feasibility proposal. BlackOps `1.3.0` remains unreleased.
 
 ## Acceptance Criteria
 
@@ -120,9 +132,17 @@ P22-005A／B／Cで整備した公開Documentation候補をfresh production buil
 - [x] 代表12 routeと4 Mermaid routeでDesktop／Mobile screenshot、DOM measurement、accessibility name、console evidenceを`/tmp`へ残し、Mermaid／table／codeのoverflowはpage全体でなくlocal scrollerへ閉じる
 - [x] Source／Artifact release guard、Website test／check／fresh build／site check、version baseline、Mago、PHP management-ID、diff checkがすべてPASSする
 - [x] 独立Sol xHigh Documentation ReviewがP1=0／P2=0である
-- [ ] reviewed exact commitのsame-SHA CI／Documentation deliveryがGreenである
-- [ ] Production Websiteの41 canonical route、Search／raw Markdown／LLM artifact、Light／Dark／Mobile代表journeyをsame SHAとしてHTTP／Browser確認する
+- [x] reviewed exact commitのsame-SHA CI／Documentation deliveryがGreenである（PR/main CI／Documentation evidence recorded）
+- [x] Production Websiteの41 canonical route、Search／raw Markdown／LLM artifact、Light／Dark／Mobile代表journeyをsame SHAとしてHTTP／Browser確認する（Production HTTP／Artifact parity and current-production Browser evidence recorded at `/tmp/p22-005d-orchestrator/evidence-production-canonical/`）
 - [x] 完了報告に残り工程とNext Actionを明記する
+
+## Remaining Issues
+
+none.
+
+## Suggested Next Action
+
+Orchestrator publication workflow records the reviewed exact commit, PR CI, merge, and authorized publication gates. After parent closeout, the next work is the P23-001 feasibility proposal; BlackOps `1.3.0` remains a proposal and is not released.
 
 ## Required Commands
 
