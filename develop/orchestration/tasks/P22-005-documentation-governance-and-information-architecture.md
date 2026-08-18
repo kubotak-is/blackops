@@ -31,6 +31,14 @@ Status: In Progress
 3. `P22-005C`: Full public-page content migration (Accepted; final Sol xHigh review P1=0／P2=0／P3=0)
 4. `P22-005D`: Browser, accessibility, Search, and production verification (Local Accepted; final Sol xHigh P1=0／P2=0／P3=0)
 5. `P22-005E`: Product framing, BlackOps CLI chapter, Journal／Audit boundary, and Landing visual follow-up (Accepted; final Sol xHigh P1=0／P2=0／P3=0; Local Acceptance supported)
+6. `P22-005F`: Documentation clean-checkout artifact fixture (Accepted; final Sol xHigh P1=0／P2=0／P3=0; no public Artifact or workflow change)
+
+## P22-005F Clean-Checkout Artifact Fixture — Accepted; Sol xHigh P1=0／P2=0／P3=0
+
+2026-08-18T17:26:05+09:00
+
+PR #10 CI runs `32088975752` / Job `95567261225` and `32088975758` / Job `95567261797` failed at `reader-contract.test.mjs:851` (117/118) because the HTML injection test copied ignored local `docs/website/dist` before validation. P22-005F removed that dependency in `docs/website/tests/reader-contract.test.mjs`, generated a synthetic complete 40-page artifact from `contentMap` excluding `README.md`, passed the baseline full artifact validator, and preserved all 37 HTML active/inert/malformed cases. Independent evidence is focused 1/1 and full 118/118 with real `dist` unavailable and restored by trap; source/check/build/site/artifact/public-boundary/diff all PASS. Sol xHigh final read-only verdict is P1=0／P2=0／P3=0 and supports Local Acceptance. Accepted current Artifact hashes are index `1f0128c49c4908f798dfa4fcd8c302dbe2a893c2eeffee922e9347ec3b1d47ef` and Search `dd1968391b3178932b4a1ee4fccb468d2d715222b23d614b0b43d1afabb36fe5`.
+Browser, Quickstart, Mago, and PHP management-ID verification were Not Run because this correction changed only website tests and management documents; public Source/Artifact and visual routes are unchanged. P22-005F Remaining Issues: none. Parent remaining is reviewed exact Commit, same-SHA CI/Documentation delivery, Production canonical verification, and parent closeout. Next Action: fix the exact accepted snapshot to the reviewed exact Commit and proceed to remote gates. No Commit/Stage/Push/CI rerun/Merge/Deploy/Production mutation was performed here.
 
 ## P22-005E Final Sol xHigh Acceptance — Accepted
 

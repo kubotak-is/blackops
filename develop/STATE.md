@@ -1,6 +1,33 @@
 # Orchestration State
 
-Updated At: 2026-08-18T03:02:48+09:00
+Updated At: 2026-08-18T17:30:46+09:00
+
+## P22-005F Final Sol xHigh Review — Accepted; Parent Delivery Pending
+
+```text
+2026-08-18T17:26:05+09:00
+Sol xHigh final read-only verdictはP1=0／P2=0／P3=0で、P22-005F Local Acceptanceを支持した。P22-005F Task／Report statusをAcceptedへ更新し、parent／STATE／TODOをcurrent truthへ同期した。
+Orchestrator independent evidenceは、実distをrecoverable move＋EXIT trapで不可用にしたfocused synthetic-artifact test 1/1 PASS、full website suite 118/118 PASS、各run後のdist restore確認、release source、Website check、fresh build、site check、release artifact、generated／public boundary、git diff check全PASSである。Accepted current public Artifact hashはindex `1f0128c49c4908f798dfa4fcd8c302dbe2a893c2eeffee922e9347ec3b1d47ef`、Search `dd1968391b3178932b4a1ee4fccb468d2d715222b23d614b0b43d1afabb36fe5`。P22-005Fはtest／management-onlyで公開Source／Artifact／route／Search／visualを変更していないため、BrowserはNot Run。Quickstart／Mago／PHP management-IDもこのbounded scopeではNot Runとした。Remote CI rerun／Commit／Stage／Push／Merge／Deploy／Production canonical verificationはP22-005F child taskでは未実施。UserはParent deliveryを承認済みであり、Orchestratorがreviewed exact Commit後に実施する。
+P22-005F自身のRemaining Issuesはnone。Parent delivery actionsはこのchild taskでは未実施。UserはParent deliveryを承認済みであり、Orchestratorがまずreviewed exact Commitへ固定し、その後same-SHA CI／Documentation delivery、Production canonical verification、parent closeoutを実施する。Next Action: exact accepted snapshotをreviewed exact Commitへ固定し、User-approved remote gatesへ進む。
+```
+
+## P22-005F Documentation Clean-Checkout Artifact Fixture — Started
+
+```text
+2026-08-18T17:07:54+09:00
+P22-005Fを開始した。PR #10 CI Run `32088975752`／Job `95567261225` と Run `32088975758`／Job `95567261797` は、`docs/website/tests/reader-contract.test.mjs:851` のHTML full-artifact testが117/118で無視されたローカル`docs/website/dist`を`cp()`するため、clean checkoutで失敗した。既存のdistはローカル stale生成物として根因を隠す。Sol xHighのbounded verdictはP1=1／P2=0／P3=0である。
+変更可能Fileは新Task／Report、parent P22-005、STATE、TODOと`docs/website/tests/reader-contract.test.mjs`だけ。Functional correctionは`cp` import／useを除き、`README.md`を除くContent Mapの40 page全てについてraw Markdown／HTML／Search／llms／llms-fullを一時Artifactへsynthetic生成し、baseline `validateArtifactReaderContract`を通してから既存37 HTML active／inert／malformed injectionをinstallation routeへ適用する。`reader-contract.mjs`、workflow、package、README、Guide、public Artifact、Production Codeは変更しない。
+開始時点でCommit／Stage／Push／CI rerun／Merge／Deploy／Production mutationは未実施・未許可。完了時にdistをrecoverable move＋trapで退避・復元し、focused／full 118-test、check、fresh build、site／artifact guard、diff／statusを実行してReportへ記録する。Browser／Quickstart／Mago／PHP management-IDはこのbounded website-test correctionではNot Runとする。Next Action: Orchestrator review前にTask Packetを実装し、指定gateを再実行する。
+```
+
+## Historical P22-005F Documentation Clean-Checkout Artifact Fixture — Worker Complete; Orchestrator Review Pending
+
+```text
+2026-08-18T17:17:35+09:00
+P22-005Fの実装とLocal evidenceを完了した。`reader-contract.test.mjs`から`cp` import／useと実際の`docs/website/dist`依存を除去し、`README.md`を除くContent Mapの40 pageについてraw MarkdownのJSON-quoted description、HTMLのmapped outcome、40 route Search、40 route `llms.txt`、Source URL＋reader-outcome marker付き`llms-full.txt`をtest temporary directoryへsynthetic生成するhelperを追加した。Baseline `validateArtifactReaderContract`はHTML mutation前にPASSし、既存37 HTML active／inert／malformed caseはそのままPASSした。
+実distをrecoverable move＋EXIT trapで不可用にしたfinal focused testは1/1 PASS、final full website suiteは118/118 PASSで、各run後に16Mのdist復元を確認した。release source、Website check（41 pages／0 errors／0 warnings／0 hints）、fresh build（42 pages）、site check（41 pages）、release artifact、generated／public boundary、node syntax、git diff checkがPASSした。変更はfunctional testとTask／Report／parent／STATE／TODOの6 allowed filesのみで、public Guide／reader-contract.mjs／workflow／package／tracked Artifactは変更していない。
+Browser／Quickstart／Mago／PHP management-ID、remote CI rerun、Commit／Stage／Push／Merge／Deploy／Production mutationはNot Run・未許可。P22-005Fの実装Blockerはないが、Orchestratorの独立Review／Acceptanceが残る。Parent P22-005のreviewed exact Commit、same-SHA CI／Documentation delivery、authorized Production canonical verification、parent closeoutも未完了。Next Action: Orchestratorがこのuncommitted exact candidateのscope／Report／evidenceをreviewし、受入後にparent deliveryへ進む。
+```
 
 ## P22-005E Final Sol xHigh Review P1=0／P2=0／P3=0 — Accepted; Parent Delivery Pending
 

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
-import { cp, mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import test from 'node:test';
@@ -29,6 +29,52 @@ const blumeRequire = createRequire(import.meta.resolve('blume/package.json'));
 const { codeToHtml } = await import(pathToFileURL(blumeRequire.resolve('shiki')).href);
 const { createSatteriMarkdownProcessor } = await import(pathToFileURL(blumeRequire.resolve('@astrojs/markdown-satteri')).href);
 const satteriMarkdownProcessor = await createSatteriMarkdownProcessor({ syntaxHighlight: false });
+
+function escapeHtml(value) {
+  return value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#39;');
+}
+
+async function writeSyntheticCompleteReaderArtifact({ artifactDirectory, contentMap: map }) {
+  const pages = Object.entries(map).filter(([source]) => source !== 'README.md');
+  assert.equal(pages.length, 40, 'Synthetic reader artifact must contain exactly 40 non-Landing pages.');
+  const routes = pages.map(([, metadata]) => ({
+    metadata,
+    route: metadata.slug === 'index' ? '/' : `/${metadata.slug}`,
+  }));
+
+  await mkdir(artifactDirectory, { recursive: true });
+  for (const { metadata } of routes) {
+    const generated = path.join(artifactDirectory, ...metadata.slug.split('/'));
+    const outcome = metadata.reader.outcome;
+    await mkdir(generated, { recursive: true });
+    await writeFile(
+      `${generated}.md`,
+      `---\ndescription: ${JSON.stringify(outcome)}\n---\n\n# ${metadata.slug}\n`,
+      'utf8',
+    );
+    await writeFile(
+      path.join(generated, 'index.html'),
+      `<!doctype html><html><head><meta charset="utf-8"><title>Reader page</title></head><body><main><p>${escapeHtml(outcome)}</p></main></body></html>\n`,
+      'utf8',
+    );
+  }
+
+  await writeFile(
+    path.join(artifactDirectory, 'blume-search.json'),
+    `${JSON.stringify(routes.map(({ route, metadata }) => ({ route, title: metadata.slug, description: metadata.reader.outcome })), null, 2)}\n`,
+    'utf8',
+  );
+  await writeFile(
+    path.join(artifactDirectory, 'llms.txt'),
+    `${routes.map(({ route, metadata }) => `- [${metadata.slug}](${route}): ${metadata.reader.outcome}`).join('\n')}\n`,
+    'utf8',
+  );
+  await writeFile(
+    path.join(artifactDirectory, 'llms-full.txt'),
+    `${routes.map(({ route, metadata }) => `# ${metadata.slug}\nSource: https://docs.example.test${route}\n\n<!-- blackops-reader-outcome: ${metadata.reader.outcome} -->`).join('\n---\n\n')}\n`,
+    'utf8',
+  );
+}
 
 test('canonical Content Map is the one 40-page reader inventory', () => {
   const result = validateReaderContract(contentMap);
@@ -848,11 +894,11 @@ test('artifact reader validation routes only reader surfaces through the LGTM pa
   assert.doesNotThrow(() => assertArtifactReaderFile('<noscript><p>Reader fallback</p></noscript>', { location: 'guide/index.html' }));
 });
 
-test('full artifact validation applies the HTML reader routing to generated pages', async () => {
+test('synthetic complete artifact validation applies HTML reader routing to generated pages', async () => {
   const temporary = await mkdtemp(path.join(repositoryRoot, 'docs/website/.reader-contract-html-'));
-  const artifactDirectory = path.join(temporary, 'dist');
+  const artifactDirectory = path.join(temporary, 'synthetic-artifact');
   try {
-    await cp(path.join(repositoryRoot, 'docs/website/dist'), artifactDirectory, { recursive: true });
+    await writeSyntheticCompleteReaderArtifact({ artifactDirectory, contentMap });
     const htmlPath = path.join(artifactDirectory, ...contentMap['installation.md'].slug.split('/'), 'index.html');
     const original = await readFile(htmlPath, 'utf8');
     const injectBeforeBodyClose = (suffix) => {
