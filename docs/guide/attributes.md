@@ -178,3 +178,7 @@ readonly class PlaceOrder implements Operation
 | `BlackOps\Core\Attribute\ScheduledBy` | Application Scheduleの名前、5 Field Cron、IANA Timezoneを宣言する | Operation Class | `#[ScheduledBy(name: 'reports.daily', cron: '0 0 * * *', timezone: 'Asia/Tokyo')]` |
 
 `ScheduledBy`は非Repeatableで、同じApplication内のSchedule名は一意です。Execution Strategyは変更せず、InlineはExecution Strategy Attributeを省略し、Deferredは`#[Deferred]`を使います。詳細は[Scheduled Operation](scheduled-operation.md)を参照してください。
+
+## 次に型の利用箇所を読む
+
+AttributeがどのPublic API型へ適用されるかは、[Core API](core-api.md)のsource-derived表で確認します。

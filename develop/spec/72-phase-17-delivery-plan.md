@@ -136,7 +136,7 @@ Documentation WebsiteとCommunity BoardのExternal Publication／Deployは行わ
 
 ## Dependency and Ownership Rules
 
-- Production CodeはTask Packet単位でGPT-5.6 Luna High Workerが実装する
+- Production CodeはTask Packet単位で`.codex/agents/worker.toml`に定義された現在のModel／Reasoning Effortを読み込むImplementation Workerが実装する
 - WorkerはCommitしない
 - OrchestratorはTaskごとにReview、独立再検証、Commitを行う
 - `examples/community-board/`はReference ApplicationでありSkeleton Publication Sourceではない

@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 1,
+  "currentStable": {
+    "version": "1.2.0",
+    "releaseState": "experimental-stable",
+    "framework": {
+      "tag": "1.2.0",
+      "directRef": "00e8c5875047a3c47acbebfe57f75b0e581d18b9",
+      "peeledSource": "3332fd1dd0738fc7e79750facd93d49a59054ecf"
+    },
+    "skeleton": {
+      "tag": "1.2.0",
+      "directRef": "fedcfda5f39caf320ad67196e8ced459176cedb1",
+      "peeledSource": "fa5e8247fc8cf789cf73685e5be59cc498ffb4ce"
+    }
+  },
+  "capabilities": [
+    { "id": "framework-core", "label": "Framework Core", "since": "1.0.0", "surfaces": ["framework-package", "skeleton"] },
+    { "id": "skeleton-install", "label": "Composer Skeleton Install", "since": "1.0.0", "surfaces": ["skeleton"] },
+    { "id": "authentication-authorization", "label": "Authentication and Authorization", "since": "1.2.0", "surfaces": ["framework-package", "skeleton"] },
+    { "id": "frontend-bridge", "label": "Frontend Operation Bridge", "since": "1.2.0", "surfaces": ["framework-package", "skeleton"] },
+    { "id": "database-seeder", "label": "Database Seeder", "since": "1.2.0", "surfaces": ["framework-package", "skeleton"] },
+    { "id": "scheduled-operation", "label": "Scheduled Application Operation", "since": "1.2.0", "surfaces": ["framework-package", "skeleton"] },
+    { "id": "protected-storage", "label": "Tenant and Protected Storage", "since": "1.2.0", "surfaces": ["framework-package", "skeleton"] },
+    { "id": "community-board", "label": "BlackOps Board Reference Application", "since": "1.2.0", "surfaces": ["repository-example"] },
+    { "id": "documentation-site", "label": "Documentation Website", "since": "1.1.0", "surfaces": ["documentation-only"] }
+  ],
+  "pageCapabilities": {
+    "docs/guide/README.md": { "lane": "skeleton", "capabilities": ["framework-core", "skeleton-install"] },
+    "docs/guide/installation.md": { "lane": "skeleton", "capabilities": ["skeleton-install"] },
+    "docs/guide/mvp-sample.md": { "lane": "skeleton", "capabilities": ["skeleton-install", "authentication-authorization", "frontend-bridge"] },
+    "docs/guide/authentication.md": { "lane": "skeleton", "capabilities": ["authentication-authorization"] },
+    "docs/guide/authorization.md": { "lane": "skeleton", "capabilities": ["authentication-authorization"] },
+    "docs/guide/frontend.md": { "lane": "skeleton", "capabilities": ["frontend-bridge"] },
+    "docs/guide/database-seeding.md": { "lane": "skeleton", "capabilities": ["database-seeder"] },
+    "docs/guide/scheduled-operation.md": { "lane": "skeleton", "capabilities": ["scheduled-operation"] },
+    "docs/guide/tenant-protection.md": { "lane": "skeleton", "capabilities": ["protected-storage"] },
+    "docs/guide/community-board.md": { "lane": "repository-example", "capabilities": ["community-board"] },
+    "docs/guide/mvp-status.md": { "lane": "documentation-only", "capabilities": ["documentation-site"] },
+    "docs/guide/observability.md": { "lane": "framework-package", "capabilities": ["framework-core"] },
+    "docs/guide/deployment.md": { "lane": "framework-package", "capabilities": ["framework-core"] },
+    "docs/guide/testing.md": { "lane": "framework-package", "capabilities": ["framework-core"] },
+    "docs/guide/project-cli.md": { "lane": "framework-package", "capabilities": ["framework-core"] },
+    "docs/guide/project-generators.md": { "lane": "framework-package", "capabilities": ["framework-core"] },
+    "docs/guide/runtime-bootstrap.md": { "lane": "framework-package", "capabilities": ["framework-core"] },
+    "docs/guide/journal.md": { "lane": "framework-package", "capabilities": ["framework-core"] },
+    "docs/guide/outbox.md": { "lane": "framework-package", "capabilities": ["framework-core"] },
+    "docs/guide/glossary.md": { "lane": "documentation-only", "capabilities": ["documentation-site"] }
+  },
+  "historicalReferences": [
+    {
+      "path": "docs/guide/mvp-status.md",
+      "heading": "## Release NotesとMigration",
+      "normalizedSentence": "Stable `1.1.0`から公開済み`1.2.0`へ移行する場合は、[CHANGELOG.md](https://github.com/kubotak-is/blackops/blob/main/CHANGELOG%2Emd)の差分と[UPGRADE.md](https://github.com/kubotak-is/blackops/blob/main/UPGRADE%2Emd)のBackup、9つのMigration、Rollback境界を順に確認してください。",
+      "category": "release-migration",
+      "reason": "公開済みStable間のUpgrade手順を保持する歴史的比較"
+    },
+    {
+      "path": "docs/guide/mvp-status.md",
+      "heading": "## Release NotesとMigration",
+      "normalizedSentence": "公開PackageのComposer／Generator更新は、実際のannotated Tag `1.1.0`を起点にした[Framework Update Consumer](https://github.com/kubotak-is/blackops/blob/main/tests/Consumer/framework-update-generators%2Esh)で検証済みです。",
+      "category": "release-migration",
+      "reason": "Stable Tagを起点にした公開Package更新の検証記録"
+    },
+    {
+      "path": "docs/guide/mvp-status.md",
+      "heading": "## Stableとmain",
+      "normalizedSentence": "| Capability | Stable 1.1.0 historical | Stable 1.2.0 |",
+      "category": "release-matrix",
+      "reason": "Capability matrixの比較列を保持する歴史的基準"
+    },
+    {
+      "path": "docs/guide/observability.md",
+      "heading": "## Structured Record Version 1",
+      "normalizedSentence": "Stable `1.1.0`の既存Journal JSONLは`journal` Recordの範囲です。",
+      "category": "wire-history",
+      "reason": "既存StableのWire互換境界を説明する歴史的記録"
+    },
+    {
+      "path": "docs/guide/observability.md",
+      "heading": "## SpanとMetricの参照",
+      "normalizedSentence": "公開済みStable `1.1.0`のScope契約は変更しません。",
+      "category": "wire-history",
+      "reason": "Stable間のScope不変条件を説明する歴史的記録"
+    },
+    {
+      "path": "docs/guide/glossary.md",
+      "heading": "## Execution Strategy",
+      "normalizedSentence": "Stable `1.1.0`のDeferred指定は`#[ExecuteWith(Deferred::class)]`、Stable `1.2.0`のCanonical Authoringは`#[Deferred]`です。",
+      "category": "authoring-history",
+      "reason": "旧Authoring Syntaxと現行Syntaxを比較する用語集の歴史記録"
+    }
+  ],
+  "roadmap": {
+    "version": "1.3.0",
+    "state": "unreleased",
+    "label": "Phase 23 proposal"
+  }
+}

@@ -111,3 +111,7 @@ Install直後に配布するApplication-owned Sourceは`config/frontend.php`、`
 `.env`、`vendor/`、`node_modules/`、`var/build/`、`var/log/`、Generated Frontend Tree、Frontend EmitはVersion管理しません。Production RuntimeはBackend Artifact不足やBuild ID不一致時にSource DiscoveryへFallbackせず失敗します。Production HTTP／WorkerはFrontend ContractやGenerated TypeScriptを読みません。
 
 次は[Local Runtime](runtime-bootstrap.md)でBuild Artifact、Migration、HTTP Worker、Deferred Workerの起動境界を確認します。
+
+## 次に責務の関係を読む
+
+配置の境界をOperationの関係へつなぐ場合は、[Core Concepts](core-concepts.md)を参照します。

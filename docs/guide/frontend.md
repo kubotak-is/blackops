@@ -2,6 +2,8 @@
 
 BlackOpsはUI、Template Engine、Next.js／Nuxt／SvelteKit Adapterを提供しません。`#[Route]`を持つHTTP OperationからJavaScript／TypeScriptのGenerated ClientとOperation Objectを作り、FrontendとHTTP Contractを接続します。
 
+この公開Frontend CapabilityはExperimental Stable `1.2.0`のSkeleton／Framework Packageで利用できます。
+
 :::info[Application boundary]
 Generated ClientはHTTP Contractの出力です。UI、BFF、Credential、Base URL、CSRF、Token管理はApplicationと選択したFrontend Frameworkが所有します。
 :::
@@ -15,6 +17,8 @@ Generated ClientはOperationの入力名、型、Request Binding、Typed Outcome
 同一のGenerated Clientを、Applicationが選んだNext.js、Nuxt、SvelteKitなどから呼び出せます。Same-origin BFF、CSRF、CORS、Browser Storage、Token Rotation、Base URL、Source Mapの公開範囲はApplicationの責任です。BlackOpsがFramework固有のUI ComponentやData Fetching Adapterを提供するという意味ではありません。
 
 Deferred OperationのStatusと有限`.wait()`は[Inline and Deferred](execution.md)の契約を使います。Frontend ContractのSensitive境界は[Frontend Operation Contractの境界](security.md#frontend-operation-contractの境界)で確認してください。
+
+Framework選択やBFF境界で失敗した場合はGenerated Treeを直接変更せず、Application-owned WrapperとCredential／Base URLのBindingを修正してCompile、Generate、Checkを再実行します。
 
 ## Clientを生成する
 
@@ -77,3 +81,7 @@ const current = await blackops.GenerateReport.status(accepted.data.operationId, 
 ```
 
 FactoryへBase URL、Fetch、CredentialをBindingしたClientでは、`.wait()`のOptionsへsignalとmaxWaitMillisecondsだけを渡します。直接Operation Objectを使う場合は、Call単位の`operationOptions()`でBase URLやCredentialを注入できます。`build:compile`はContract ArtifactとCompiled Containerを作成します。`frontend:generate`と`frontend:check`はCompileを暗黙実行しないため、SourceまたはOperationを変更したときは3 Commandを明示順序で実行します。`frontend:check`の終了値は一致時`0`、Generated TreeのDrift時`1`、入力／実行エラー時`2`です。SvelteKitなどのFramework Contextを使う場合は、そのContextのFetchを明示的にFactoryへ渡します。
+
+## 次に実Applicationで確認する
+
+Authentication、BFF、Inline、Deferredを一つのApplicationで確認する場合は、[BlackOps Board Reference Application](community-board.md)へ進みます。

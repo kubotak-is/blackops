@@ -4,12 +4,12 @@
 
 ## Structured Record Version 1
 
-Application／Framework／Journal／AuditのRecordは、末尾にLFを一つ持つ一行のUTF-8 JSON Objectです。共通Envelopeは次のFieldを使います。
+Application／Framework／Journal／Observed operational eventのRecordは、末尾にLFを一つ持つ一行のUTF-8 JSON Objectです。共通Envelopeは次のFieldを使います。Observed `kind=audit` は、Applicationが`LoggingRetentionPurgeAuditPort`を明示構成したRetention Purgeの`retention.purge.completed`だけを分類します。既定Application CLIはPostgreSQL Audit Storeだけを使い、ReplayとRotationは専用Audit Storeに留まるため、これらはDefault JSONLへは出ません。RotationのSafe Fingerprint／Scope HashもDefault Metricへ複製しません。Canonical Journalや汎用Business／Security Audit Trailを表しません。
 
-| Field | Type | `application`／`framework` | `journal` | `audit` |
+| Field | Type | `application`／`framework` | `journal` | Observed operational event |
 | --- | --- | --- | --- | --- |
 | `schemaVersion` | integer | 必須、`1` | 必須、`1` | 必須、`1` |
-| `kind` | string | 必須、`application`または`framework` | 必須、`journal` | 必須、`audit` |
+| `kind` | string | 必須、`application`または`framework` | 必須、`journal` | 必須、`audit`（Observed分類） |
 | `occurredAt` | UTC RFC 3339 microseconds | 必須、末尾`Z` | 必須、末尾`Z` | 必須、末尾`Z` |
 | `operation` | object | Scopeがある場合 | 必須 | — |
 | `attempt` | object／null | Attempt Scope時だけ | 必須（`null`可） | — |
@@ -23,21 +23,21 @@ Application／Framework／Journal／AuditのRecordは、末尾にLFを一つ持�
 | `sequence` | integer | — | 必須 | — |
 | `data` | object | — | 必須（空は`{}`） | 必須（Safe data） |
 
-Application／Frameworkの`operation`は`id`、`type`、`strategy`、`correlationId`、`causationId`、`actors`、`tenant`を持ち、Schedule Scopeだけ`{name, scheduledAt}`を追加します。Journalの`operation`はこれらに`schemaVersion`を加えます。Application／Frameworkの`attempt`はnon-nullのAttempt Scope時だけ、Journalの`attempt`は常時存在して`null`または`id`、`number`、`startedAt`になります。Audit RecordにはOperation、Attempt、Telemetryを出しません。Actor／Tenantの`id`は必ず`[masked]`です。Application／Framework／Journalの`telemetry`はValid Contextがあるときだけ次の3 Fieldを持ちます。
+Application／Frameworkの`operation`は`id`、`type`、`strategy`、`correlationId`、`causationId`、`actors`、`tenant`を持ち、Schedule Scopeだけ`{name, scheduledAt}`を追加します。Journalの`operation`はこれらに`schemaVersion`を加えます。Application／Frameworkの`attempt`はnon-nullのAttempt Scope時だけ、Journalの`attempt`は常時存在して`null`または`id`、`number`、`startedAt`になります。Observed operational eventにはOperation、Attempt、Telemetryを出しません。Actor／Tenantの`id`は必ず`[masked]`です。Application／Framework／Journalの`telemetry`はValid Contextがあるときだけ次の3 Fieldを持ちます。
 
 ```json
 {"schemaVersion":1,"kind":"application","occurredAt":"2026-08-09T09:00:00.000000Z","operation":{"id":"018f0000-0000-7000-8000-000000000001","type":"invoice.create","strategy":"inline","correlationId":"018f0000-0000-7000-8000-000000000002","causationId":null,"actors":{"origin":{"id":"[masked]","type":"user"},"authorization":null,"execution":{"id":"[masked]","type":"runtime"}},"tenant":{"id":"[masked]","type":"account"}},"telemetry":{"traceId":"0123456789abcdef0123456789abcdef","spanId":"0123456789abcdef","sampled":true},"level":"info","message":"operation completed","channel":"application","context":{"result":"completed"}}
 ```
 
-KindごとのOptional Field境界は次のJSONLでも確認できます。`framework`はOperation Scopeなし、`journal`は`operation.schemaVersion`と`attempt: null`を持ち、`audit`はOperation／Attempt／Telemetryを持ちません。
+KindごとのOptional Field境界は次のJSONLでも確認できます。`framework`はOperation Scopeなし、`journal`は`operation.schemaVersion`と`attempt: null`を持ちます。Observed `audit`は、明示構成したRetention Purgeの`retention.purge.completed`だけが出すSafe Recordで、Operation／Attempt／Telemetryを持ちません。Replay／Rotationの専用Audit Storeや既定Application CLIのPostgreSQL Audit StoreをDefault JSONLへ複製するものではありません。RotationのSafe Fingerprint／Scope HashもDefault Metricへ複製しません。これはCanonical Audit TrailのRecordではありません。
 
 ```jsonl
 {"schemaVersion":1,"kind":"framework","occurredAt":"2026-08-09T09:00:00.000000Z","level":"info","message":"worker started","channel":"framework","context":{}}
 {"schemaVersion":1,"kind":"journal","recordId":"018f0000-0000-7000-8000-000000000003","event":"operation.completed","occurredAt":"2026-08-09T09:00:00.000000Z","sequence":3,"operation":{"id":"018f0000-0000-7000-8000-000000000001","type":"invoice.create","schemaVersion":1,"strategy":"inline","correlationId":"018f0000-0000-7000-8000-000000000002","causationId":null,"actors":null,"tenant":null},"attempt":null,"data":{}}
-{"schemaVersion":1,"kind":"audit","occurredAt":"2026-08-09T09:00:00.000000Z","event":"storage.rotation.completed","data":{"status":"completed"}}
+{"schemaVersion":1,"kind":"audit","occurredAt":"2026-07-12T03:04:05.123456Z","event":"retention.purge.completed","data":{"audit_id":"019f32ab-2be0-7b38-a0a7-1ab2f9689b01","operation_id":"019f32ab-2be0-7b38-a0a7-1ab2f9689b02","target":"journal","affected_count":2,"policy":"production-retention-v1","purged_at":"2026-07-12T03:04:05.123456Z","purged_by":{"id":"[masked]","type":"retention"},"tenant":null}}
 ```
 
-Stable `1.1.0`の既存Journal JSONLは`journal` Recordの範囲です。Repository `main`ではApplication／Framework／Journal／Auditを同じVersion 1 Envelopeへ正規化し、Monologの`datetime`、`level_name`、integer `level`、`extra`、Nested `context.schemaVersion`を公開Wireへ出しません。旧`operation.attemptId`やNested Monolog ShapeとのDual-write／Legacy Formatterはありません。既存Consumerは新しいTop-level FieldをParseし、`kind`ごとの追加Fieldだけを読み取ってください。
+Stable `1.1.0`の既存Journal JSONLは`journal` Recordの範囲です。Stable `1.2.0`ではApplication／Framework／Journal／Observed operational eventを同じVersion 1 Envelopeへ正規化し、Monologの`datetime`、`level_name`、integer `level`、`extra`、Nested `context.schemaVersion`を公開Wireへ出しません。旧`operation.attemptId`やNested Monolog ShapeとのDual-write／Legacy Formatterはありません。既存Applicationは新しいTop-level FieldをParseし、`kind`ごとの追加Fieldだけを読み取ってください。
 
 ## 何をFrameworkが提供するか
 
@@ -51,7 +51,7 @@ Observed JSONLはVersion 1の共通Recordとして、Telemetryから`traceId`、
 
 ## ProviderをApplicationで構成する
 
-SDKとExporterはApplicationの直接Dependencyとして追加します。Framework PackageのDependencyへ移したり、CredentialをConfig、Manifest、Logへ保存したりしないでください。次の例ではOTLP HTTPのEndpointをApplicationのEnvironmentから解決します。下記の`--dev`指定はこのRepositoryのLocal Consumer検証用です。Deployed RuntimeでExportするApplicationは、同じPackageを自身のRuntime Dependency（`require`）として宣言し、FrameworkのProduction Dependencyへ移しません。
+SDKとExporterはApplicationの直接Dependencyとして追加します。Framework PackageのDependencyへ移したり、CredentialをConfig、Manifest、Logへ保存したりしないでください。次の例ではOTLP HTTPのEndpointをApplicationのEnvironmentから解決します。下記の`--dev`指定はApplicationのLocal検証用です。Deployed RuntimeでExportするApplicationは、同じPackageを自身のRuntime Dependency（`require`）として宣言し、FrameworkのProduction Dependencyへ移しません。
 
 公開済み`1.2.0`でこのLocal検証を再現するApplicationは、Project Rootで次のDevelopment Dependencyを固定します。FrameworkのProduction Dependencyへ追加する手順ではありません。
 
@@ -259,6 +259,8 @@ for _ in $(seq 1 30); do
   sleep 1
 done
 docker logs "$COLLECTOR" 2>&1 | grep -m1 'Everything is ready'
+docker inspect --format '{{.State.Status}}' "$COLLECTOR"
+docker logs "$COLLECTOR" 2>&1 | tail -n 20
 read -r -p 'Run the Host Application in another terminal, then press Enter to clean up: ' _
 ```
 
@@ -296,18 +298,11 @@ docker run --rm --network "$NETWORK" \
 
 `<application-image>`と`<application-entrypoint>`はApplicationが所有する実値です。Emitterは同じNetworkでOperationを発火し、Flush／Shutdown後に終了します。期待結果と停止後のIsolationはHost laneと同じですが、CollectorのHost listenerはありません。再実行時は作成した`$COLLECTOR`を停止／削除してから`$NETWORK`を削除します。
 
-### Repository contributor: Consumer verification lane
+### Application laneの結果を確認する
 
-これはFramework利用者向け手順とは別の、Repository contributor専用のConsumer検証です。Fresh checkoutのProject Rootで、Docker image cacheがなくても成立するよう先にFramework imageをBuildします。
+Host laneのReady確認、Container／NetworkのIsolation、Applicationの認可済みInspectは、それぞれのlaneを実行している同じTerminalで確認します。Host laneでは`read`の前にContainer Statusと最後のLogを表示するため、別Shellの`$COLLECTOR`へ依存しません。ApplicationがEmitterを構成した場合だけ、Application固有のTrace／Metric／JSONL結果をそのApplicationの手順で確認します。Collector停止後もPrimary Operation、Health、Readinessが変わらないことを確認し、固定Digest laneの`cleanup`に自分が作成したResourceだけを回収させます。
 
-```bash
-docker compose build app
-bash tests/Consumer/opentelemetry-observability.sh
-```
-
-ScriptはSource checkout rootをvolumeとして`/framework`へRead-only mountし、`blackops/framework:dev`を使ってConsumer fixtureを実行します。Collector Configは`tests/Consumer/fixtures/opentelemetry/collector-config.yaml`を明示Mountし、Emitter／Validatorは同じRandomized Docker Networkへ`--network`で参加します。期待結果は固定DigestのReady、HTTP／Deferred／Retry／Outbox Span相関、JSONL Correlation、10 Metric、Mask、Collector停止後のHealth／Readiness Isolation、Container／Network／一時Artifact cleanupです。Script自身の`trap cleanup EXIT`が失敗・中断も回収するため、Contributorは固定名Resourceを手動削除しません。
-
-Collectorを起動しただけではTrace／Metricは生成されません。ApplicationのProviderを起動し、Span／Metricを作成してFlushするEmitterが必要です。Contributor laneの実行Directoryは必ずSource checkout rootです。
+Collectorを起動しただけではTrace／Metricは生成されません。ApplicationのProviderを起動し、Span／Metricを作成してFlushするEmitterが必要です。実行DirectoryはApplicationのProject Rootです。
 
 ## 失敗時の切り分け
 
@@ -321,63 +316,82 @@ Collectorを起動しただけではTrace／Metricは生成されません。App
 
 Collectorの停止、Invalid Context、Provider／Exporter Failureは、Raw値やCredentialをLogへ出さないまま安全な有限Codeへ縮約します。Remote Collector、Dashboard、Alert、Production DeployはこのLocal手順の対象外です。[Deployment](deployment.md)、[Troubleshooting](troubleshooting.md)、[Security](security.md)も合わせて確認してください。
 
-## Local Grafana LGTMでTrace／Metricを見る
+## Local Grafana LGTMのReadinessを確認する
 
-開発・Demo・Testで画面から確認したい場合は、Application-owned Local
-Grafana LGTM Consumerを使います。FrameworkのProduction DependencyやDefault
-ComposeへGrafana／Tempo／Prometheusを追加する手順ではありません。`4318`はGrafana
-の画面ではなくOTLP HTTPの送信先です。
-
-CI／自動検証は次のNo-argument laneを使います。Probe完了後にContainerをcleanupし、
-URLを表示しません。
+開発・Demo・TestでGrafanaの入口を確認する場合は、Application-owned Local Grafana LGTMを固定Digestの自己完結laneで起動します。FrameworkのDefault ComposeへServiceを追加する手順ではありません。次の自動laneの検証範囲は、LGTM ContainerのReadiness、Grafana HTTP Health、loopback Port、ResourceのIsolation／Cleanupです。Application Emitterを実行しないため、Trace／Metricが保存されたことやExploreの結果はこのlaneの成功条件にしません。
 
 ```bash
-bash tests/Consumer/opentelemetry-grafana-lgtm.sh
+set -Eeuo pipefail
+LGTM_IMAGE='grafana/otel-lgtm:0.29.2@sha256:af7242c1a9608faf6d26e6f235392fd0c32b67258228f9a3cfc96e724974930c'
+RUN_ID="${USER:-local}-$(date +%s)-$$"
+NETWORK="blackops-grafana-lgtm-${RUN_ID}-network"
+LGTM="blackops-grafana-lgtm-${RUN_ID}-backend"
+GRAFANA_PASSWORD="${GRAFANA_PASSWORD-local-admin}"
+cleanup() {
+  docker rm -f "$LGTM" >/dev/null 2>&1 || true
+  docker network rm "$NETWORK" >/dev/null 2>&1 || true
+}
+trap cleanup EXIT INT TERM
+docker network create "$NETWORK" >/dev/null
+docker run -d --name "$LGTM" --network "$NETWORK" --network-alias collector \
+  --env GF_SECURITY_ADMIN_USER=admin \
+  --env GF_SECURITY_ADMIN_PASSWORD="$GRAFANA_PASSWORD" \
+  -p 127.0.0.1::3000 -p 127.0.0.1::4318 "$LGTM_IMAGE" >/dev/null
+GRAFANA_PORT=''
+for _ in $(seq 1 90); do
+  status=$(docker inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' "$LGTM" 2>/dev/null || true)
+  GRAFANA_PORT="$(docker port "$LGTM" 3000/tcp 2>/dev/null | sed -n 's/.*:\([0-9][0-9]*\)$/\1/p' | head -n 1)"
+  if { test "$status" = healthy || test "$status" = running; } && test -n "$GRAFANA_PORT" && curl --fail --silent --show-error "http://127.0.0.1:${GRAFANA_PORT}/api/health" | grep -q '"database":"ok"'; then break; fi
+  sleep 1
+done
+if ! curl --fail --silent --show-error "http://127.0.0.1:${GRAFANA_PORT}/api/health" | grep -q '"database":"ok"'; then
+  FINAL_STATUS="$(docker inspect --format '{{.State.Status}}' "$LGTM" 2>/dev/null || printf 'unavailable')"
+  FINAL_HEALTH="$(docker inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}not-configured{{end}}' "$LGTM" 2>/dev/null || printf 'unavailable')"
+  printf 'LGTM failure diagnostics: state=%s health=%s\n' "$FINAL_STATUS" "$FINAL_HEALTH" >&2
+  printf 'LGTM startup diagnostic: Grafana health endpoint did not report database ok.\n' >&2
+  exit 1
+fi
+printf 'LGTM readiness passed: Grafana http://127.0.0.1:%s\n' "$GRAFANA_PORT"
 ```
 
-ContributorがFresh checkoutから実際に画面を閲覧する一続きのJourneyは、Project Rootで
-Dockerを起動できることを確認し、Application imageをBuildしてからInteractive laneを
-実行します。
+失敗時はHealthの非2xx、ContainerのState／Health、固定Digestの安全なstartup diagnosticだけを観測し、trapがこのlaneのContainer／Networkだけを削除します。Grafana 3000とOTLP HTTP 4318はランダムなloopback Portにだけ公開し、Backend PortやCredentialを外部へ公開しません。自動laneはTelemetryの存在を捏造せず、Readiness／failure／isolation／cleanupだけを境界にします。
+
+画面と実際のTelemetryを確認する場合は、次の明示的なInteractive laneを同じProject Rootで実行します。これはReadiness確認後に停止せず待機するだけで、Emitter／Trace／Metricを自動生成しません。Applicationが所有するEmitterを表示されたDocker Networkへ参加させ、表示されたOTLP endpoint `http://collector:4318`とPort `4318`を使い、ProviderのFlush／ShutdownをApplicationの手順で実行してから、表示されたGrafana URLを開きます。CredentialはShellのGRAFANA_PASSWORD（未指定時local-admin）と一致し、Loginはadminと設定済みGRAFANA_PASSWORDです。Password自体はTerminal handoffやLogへ出力しません。
 
 ```bash
-cd /path/to/blackops
-docker compose build app
-bash tests/Consumer/opentelemetry-grafana-lgtm.sh --interactive
+set -Eeuo pipefail
+LGTM_IMAGE='grafana/otel-lgtm:0.29.2@sha256:af7242c1a9608faf6d26e6f235392fd0c32b67258228f9a3cfc96e724974930c'
+RUN_ID="${USER:-local}-interactive-$(date +%s)-$$"
+NETWORK="blackops-grafana-lgtm-${RUN_ID}-network"
+LGTM="blackops-grafana-lgtm-${RUN_ID}-backend"
+GRAFANA_PASSWORD="${GRAFANA_PASSWORD-local-admin}"
+cleanup() { docker rm -f "$LGTM" >/dev/null 2>&1 || true; docker network rm "$NETWORK" >/dev/null 2>&1 || true; }
+trap cleanup EXIT INT TERM
+docker network create "$NETWORK" >/dev/null
+docker run -d --name "$LGTM" --network "$NETWORK" --network-alias collector \
+  --env GF_SECURITY_ADMIN_USER=admin --env GF_SECURITY_ADMIN_PASSWORD="$GRAFANA_PASSWORD" \
+  -p 127.0.0.1::3000 -p 127.0.0.1::4318 "$LGTM_IMAGE" >/dev/null
+for _ in $(seq 1 90); do
+  GRAFANA_PORT="$(docker port "$LGTM" 3000/tcp 2>/dev/null | sed -n 's/.*:\([0-9][0-9]*\)$/\1/p' | head -n 1)"
+  status=$(docker inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' "$LGTM" 2>/dev/null || true)
+  { test "$status" = healthy || test "$status" = running; } && test -n "$GRAFANA_PORT" && curl --fail --silent "http://127.0.0.1:${GRAFANA_PORT}/api/health" | grep -q '"database":"ok"' && break
+  sleep 1
+done
+FINAL_STATUS="$(docker inspect --format '{{.State.Status}}' "$LGTM" 2>/dev/null || printf 'unavailable')"
+FINAL_HEALTH="$(docker inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}not-configured{{end}}' "$LGTM" 2>/dev/null || printf 'unavailable')"
+if ! { test "$FINAL_STATUS" = healthy || test "$FINAL_STATUS" = running; } || ! test -n "$GRAFANA_PORT" || ! curl --fail --silent --show-error "http://127.0.0.1:${GRAFANA_PORT}/api/health" | grep -q '"database":"ok"'; then
+  printf 'LGTM failure diagnostics: state=%s health=%s\n' "$FINAL_STATUS" "$FINAL_HEALTH" >&2
+  printf 'LGTM startup diagnostic: Grafana health endpoint did not report database ok.\n' >&2
+  exit 1
+fi
+printf 'LGTM final health passed: status=%s Grafana=http://127.0.0.1:%s\n' "$FINAL_STATUS" "$GRAFANA_PORT"
+printf 'Second Terminal Docker handoff: network=%s OTLP endpoint=http://collector:4318 OTLP port=4318\n' "$NETWORK"
+printf 'Copy-paste Docker emitter: docker run --rm --network %s --env OTEL_EXPORTER_OTLP_ENDPOINT=http://collector:4318 <application-image> <application-entrypoint>\n' "$NETWORK"
+printf 'Open http://127.0.0.1:%s and login as admin with configured GRAFANA_PASSWORD. Press Enter after the Application-owned emitter check: ' "$GRAFANA_PORT"
+read -r _
 ```
 
-Probeが完了すると、ScriptはGrafana／OTLP loopback URL、Trace ID、保存Metric名を表示し、
-Containerを停止せず待機します。表示されたGrafana URLを開き、GrafanaのExploreでTempo
-datasourceを選択して、`Trace=<trace-id>`の値をTrace ID queryへ入力します。次にPrometheus
-datasourceを選び、`metric=<stored-name>`の保存名を使って
-`{__name__="<stored-name>"}`を実行します。確認後、同じTerminalで`Ctrl-C`を押すと
-Container／Network／Temporary Artifactがcleanupされます。
-
-Interactive laneはGrafanaのlocal development login `admin/admin`を使います。これは
-この一時的なDevelopment／Demo／Test Consumerだけの既知値であり、Productionや共有
-Grafanaへ持ち込まないでください。Trace IDは安全な相関値ですが、Credential、Trace
-Payload、Backend ResponseはLog／Reportへ貼り付けません。
-
-Scriptは固定DigestのLGTMをランダムなNetwork／Containerへ起動し、Grafana `3000`
-とOTLP HTTP `4318`だけをランダムな`127.0.0.1` Portへ公開します。Tempo／Prometheus
-のBackend Portは公開せず、Grafana datasource proxy経由でProvisioning、Emitterの
-exact Trace ID、Tempoのnon-empty responseに含まれる
-`blackops.operation.execute` span、Prometheusのnon-empty sample、保存されたInstrument名
-`blackops.operation.duration`または
-正規化名`blackops_operation_duration_seconds`（Histogramでは`_bucket`／`_sum`／`_count`）を
-検証します。Prometheus OTLP ingestionへ送るこのLocal LGTM laneでは、Consumer scriptが
-Emitterへ`BLACKOPS_OTEL_METRIC_TEMPORALITY=cumulative`を渡します。これはLGTMへの配送
-条件だけで、既存Collector laneのDefault temporalityやFrameworkのMetric名／Schemaを変更
-しません。Interactive laneの成功出力に
-GrafanaのランダムPort（`http://127.0.0.1:<grafana-port>`）が表示されます。No-argument
-laneはURLを表示せず終了します。OTLP Host laneを手動で
-使う場合は`http://127.0.0.1:<otlp-port>`をApplicationの
-`OTEL_EXPORTER_OTLP_ENDPOINT`へ設定します。これはIngestion endpointであり閲覧Page
-ではありません。
-
-Scriptは終端・失敗・割込みの全経路で、自分が作成したContainer／Network／一時
-Artifactをcleanupします。Grafanaのlocal login値、Backend Response、Trace／Metric
-PayloadはLog／Reportへ貼り付けません。LGTM停止をReadinessまたはPrimary Operation
-Failureへ変換しないでください。
+Interactive laneの成功条件は、利用者がApplicationの実Emitterで送った相関値をExploreから確認できること、失敗条件はEmitterのEndpoint／Network／FlushまたはProvider設定を特定できることです。Response全体、Payload、Credential、Sensitive／High-cardinality LabelをLogへ貼り付けず、停止後のPrimary Operation／Health／Readinessが変わらないことを確認してください。
 
 ## Releaseと責務
 

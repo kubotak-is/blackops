@@ -131,7 +131,7 @@ return static fn (Environment $env): array => [
 
 Operation Manifest、HTTP Manifest、Frontend Contract Manifest、Command Manifest、Containerは同じBuild IDで作成します。Command Manifest Schema 2はSymfony Application Commandの`commands`と、`#[ConsoleCommand]` Operationの`operation_commands`を分離して保持します。`command_manifest`を省略した既存Applicationでは、Containerと同じDirectoryの`commands.php`を使います。Production HTTP／Worker RuntimeはFrontend／Command Contractを読みません。ProductionはBackend Artifact不足、Format不正、Build ID不一致時に起動を拒否し、Source DiscoveryへFallbackしません。
 
-mainの`build:compile`はFrameworkを唯一のProfileとして選択し、Containerと同じBuild IDの`proxy-profiles/<build-id>-<content-hash>/`へ完全なProfile Artifact Unitを発行します。Unitの`manifest.json`、Profile、Build ID、Content Hash、File Inventoryは一体で配備してください。Unitは一致するFramework Proxy ManifestのDirectory／Hashを参照し、前回の完全Unitを保持して部分コピーや別Buildの混在を起動時に拒否します。
+Stable `1.2.0`の`build:compile`はFrameworkを唯一のProfileとして選択し、Containerと同じBuild IDの`proxy-profiles/<build-id>-<content-hash>/`へ完全なProfile Artifact Unitを発行します。Unitの`manifest.json`、Profile、Build ID、Content Hash、File Inventoryは一体で配備してください。Unitは一致するFramework Proxy ManifestのDirectory／Hashを参照し、前回の完全Unitを保持して部分コピーや別Buildの混在を起動時に拒否します。
 
 ## Application Command
 
@@ -201,7 +201,7 @@ return static fn (Environment $env): array => [
 
 `default`と`framework.connection`は`connections`内のNameを参照します。通常のRepositoryはDefault `Doctrine\DBAL\Connection`をConstructor Injectionできます。複数Databaseを選ぶServiceは`BlackOps\Database\DatabaseManager`をConstructor Injectionし、`$databases->connection('analytics')`で明示的に選びます。ConnectionはNameごとに生成され、同じNameは同じInstanceを再利用します。
 
-`#[Transactional]`のDefaultとNamed ConnectionもこのSnapshotに対してBuild時に検証します。この検証はConnection Nameだけを使い、Databaseへの接続やCredentialのBuild Artifactへの保存を行いません。mainのFramework-only Proxy Profile Artifact Unitは追加Config Keyを使わず、`build.container`と同じDirectoryに`proxy-profiles/` Unitとして生成されます。Container、各Manifest、共通Profile Unit、参照Framework Unitを同じBuild IDの完全なRelease組として配備してください。
+`#[Transactional]`のDefaultとNamed ConnectionもこのSnapshotに対してBuild時に検証します。この検証はConnection Nameだけを使い、Databaseへの接続やCredentialのBuild Artifactへの保存を行いません。Stable `1.2.0`のFramework-only Proxy Profile Artifact Unitは追加Config Keyを使わず、`build.container`と同じDirectoryに`proxy-profiles/` Unitとして生成されます。Container、各Manifest、共通Profile Unit、参照Framework Unitを同じBuild IDの完全なRelease組として配備してください。
 
 After Commit Callbackの失敗通知をApplication監視基盤へ送る場合は、`BlackOps\Database\AfterCommitFailureReporter`をService Providerで登録します。未登録時はFramework Default ReporterがPSR-3／Monolog経由で標準ErrorへService、Method、存在するOperation／Attempt／Correlation／Causation IDだけを記録します。Callback引数、Throwable Message／Trace、Database CredentialはDefault Logへ展開しません。
 

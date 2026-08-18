@@ -1,6 +1,6 @@
 # Releases
 
-BlackOpsのLatest Experimental StableはFramework／Skeleton `1.2.0`です。Framework／Skeleton annotated Tag、Packagist、GitHub Release、Remote create-project smokeを確認済みです。未Release Surfaceはこのドキュメントで明示します。Documentation WebsiteはCloudflare Pages（`https://blackops-php.pages.dev`）へ公開しています。
+BlackOpsのLatest Experimental StableはFramework／Skeleton `1.2.0`です。Versionを固定したSkeletonをInstallし、ApplicationのHTTP入口とCLIの公開結果を確認できます。未Release Surfaceはこのドキュメントで明示します。Documentation WebsiteはCloudflare Pages（`https://blackops-php.pages.dev`）へ公開しています。
 
 BlackOps固有のOperation、Claim、Journal、Outcome等は[Glossary](glossary.md)で確認できます。
 
@@ -10,7 +10,9 @@ BlackOpsはExperimentalです。1.x Minor間のBackward CompatibilityとProducti
 
 Stable `1.1.0`から公開済み`1.2.0`へ移行する場合は、[CHANGELOG.md](https://github.com/kubotak-is/blackops/blob/main/CHANGELOG%2Emd)の差分と[UPGRADE.md](https://github.com/kubotak-is/blackops/blob/main/UPGRADE%2Emd)のBackup、9つのMigration、Rollback境界を順に確認してください。公開PackageのComposer／Generator更新は、実際のannotated Tag `1.1.0`を起点にした[Framework Update Consumer](https://github.com/kubotak-is/blackops/blob/main/tests/Consumer/framework-update-generators%2Esh)で検証済みです。
 
-## Stableとmain
+<a id="stableとmain"></a>
+
+## Stable 1.2.0と過去StableのCapability
 
 | Capability | Stable 1.1.0 historical | Stable 1.2.0 |
 | --- | --- | --- |
@@ -47,7 +49,7 @@ Stable `1.1.0`から公開済み`1.2.0`へ移行する場合は、[CHANGELOG.md]
 | Operation `#[ConsoleCommand]` Adapter | 未提供 | 利用可（試験的） |
 | Opt-in Session Core／`make:auth` | 未提供 | 利用可（試験的） |
 | Database Seeder／`database:seed`／`make:seeder` | 未提供 | 利用可（試験的） |
-| BlackOps Board Full-stack Reference Application | 未提供 | 利用可（試験的、Local／CI only） |
+| BlackOps Board Full-stack Reference Application | 未提供 | 利用可（試験的、公開Hostなし） |
 | Optional Idempotency Key／Duplicate Replay | 未提供 | 利用可（試験的、Actor-scoped） |
 | Transactional Outbox Relay／Retry／Fencing／Dead Letter | 未提供 | 利用可（試験的、at-least-once） |
 | Canonical Observer Replay／Checkpoint／Resume | 未提供 | 利用可（試験的、Canonical read-only） |
@@ -56,7 +58,7 @@ Stable `1.1.0`から公開済み`1.2.0`へ移行する場合は、[CHANGELOG.md]
 | BOPD v1 Protected Storage／StorageKeyProvider | 未提供 | 利用可（試験的、XChaCha20-Poly1305） |
 | `storage:protection:plan`／`rotate`／Resume | 未提供 | 利用可（試験的、Bounded／CAS／Audit） |
 | Scheduled Application Operation／`ScheduledBy`／one-shot CLI | 未提供 | 利用可（試験的、`operation:schedule:run`） |
-| Framework Proxy Profile Artifact Unit（Build ID／Content Hash binding） | 未提供 | 利用可（試験的、main `build:compile`） |
+| Framework Proxy Profile Artifact Unit（Build ID／Content Hash binding） | 未提供 | 利用可（試験的、`build:compile`） |
 
 Stable Applicationを作る場合はVersionを明示します。
 
@@ -94,24 +96,28 @@ composer create-project blackops/skeleton my-app 1.2.0
 - Symfony `#[AsCommand]`のBuild-time Discovery／Constructor DIと`#[ConsoleCommand]` Operation Adapter
 - Opaque Token、Hash保存、TTL、Touch、Rotation、Revocation、Cleanupを持つOpt-in Session Coreと`make:auth`
 - Build-time Discovery、Compiled Container DI、明示順の子Seederを持つDatabase Seederと`database:seed`／`make:seeder`
-- Application-owned Identity、Ephemeral Auth Operation、SvelteKit BFF、Post／Comment、Deferred Digest、Real Browser E2Eを統合した[BlackOps Board Reference Application](community-board.md)
+- Application-owned Identity、Ephemeral Auth Operation、SvelteKit BFF、Post／Comment、Deferred Digest、Browser User Journeyを統合した[BlackOps Board Reference Application](community-board.md)
 
-BlackOps BoardはRepository `main`だけの試験的Local Reference Applicationです。Stable `1.1.0` Skeletonには含まれず、公開Hostも提供していません。BoardはSource、Local／CI Build、利用者向け検証記録だけを維持し、外部公開／デプロイの対象外です。Documentation Websiteの公開先は上記Cloudflare Pagesです。
+BlackOps BoardはFramework／Skeleton Packageとは別のExample Applicationで、試験的なLocal Reference Applicationです。公開Hostも提供していません。BoardはApplication SourceとLocal Runtime手順を維持し、外部公開／デプロイの対象外です。Documentation Websiteの公開先は上記Cloudflare Pagesです。
 
 ## Known Constraints
 
-Remote smokeでは通常／`--no-scripts` Install、Project Root CLI、Compile、12 Migration、HTTP、Worker retryからCompleted、Sensitive redactionを確認済みです。HTTP後のnon-root `operation:inspect`は、bind-mountされた`var/log/journal.jsonl`がHTTP Processでroot-ownedになる環境では`diagnostics.storage_failed`を返します。root比較ではJournalのmasked dataを確認済みです。これは確認済みのownership limitationであり、Remote smoke全体の失敗とは扱いません。
+Stable `1.2.0`の公開Surfaceでは通常／`--no-scripts` Install、Project Root CLI、Compile、12 Migration、HTTP、Worker retryからCompleted、Sensitive redactionを確認できます。HTTP後のnon-root `operation:inspect`は、bind-mountされた`var/log/journal.jsonl`がHTTP Processでroot-ownedになる環境では`diagnostics.storage_failed`を返します。Journalのmasked dataだけを確認し、これは確認済みのownership limitationとして扱います。
 
 - Session Coreは提供するが、User／Password／Registration Policy、Cookie／CSRF、JWT／OAuth／API Key、Actor Repository、Permission StoreはApplication責務
 - Production Status Authorization Policy、Tenant Model、Role／Permission Repositoryは提供しない
 - 無限Wait、任意Backoff／Jitter、Global Generated Client、Cache／Offline Queueは提供しない
 - Transactional Outboxは同一Named Connectionへの原子登録、有限Relay、Retry／Backoff、Lease／Fencing、Dead Letter再開を提供する（at-least-once。外部配送のExactly Onceは提供しない）
 - Canonical Journal、Deferred Payload／Context、Outcome、Outbox、Dead Letter、Idempotencyの復元可能FieldはBOPD v1 Envelopeで保護する。Key Material、KMS Vendor操作、Replica／Backup上の旧Key確認、旧Key削除は提供しない
-- Remote OpenTelemetry Backend、Grafana Cloud、CloudWatch、SQS、Kafka、SQLite、MySQL Adapterは提供しない。Local Docker Collectorと固定DigestのGrafana LGTMはApplication／Consumerが明示的に起動するDevelopment／Demo／Test検証手順だけを提供する
+- Remote OpenTelemetry Backend、Grafana Cloud、CloudWatch、SQS、Kafka、SQLite、MySQL Adapterは提供しない。Local Docker Collectorと固定DigestのGrafana LGTMはApplicationが明示的に起動するDevelopment／Demo／Test検証手順だけを提供する
 - Observer Replay CLIはCanonical Journalを変更せず、現在のSensitive Projectionを再適用する有限Batch／Checkpoint／Resume／Audit操作として提供する。Admin UIは提供しない
 - Array／Nested ObjectのHTTP Binding、宣言的DB照合、Cross-field Attribute、Custom Callbackは提供しない。`Count` Validatorは実装済みだが現行HTTP BinderからArrayを渡せない
 - Production CertificationやExperimental Public API Contractを超える互換性保証は提供しない。1.x Minor間のBackward Compatibilityも保証しない
 - DiagnosticsのPublic PHP Query APIとRemote Viewerは提供しない。OpenTelemetry／Metric／Healthの本番Backend、Remote Dashboard、Collector／LGTM自動起動も提供しない
 - Application Schedule Daemon、Supervisor／Kubernetes／systemd Manifest Generator、Schedule-specific Retentionは提供しない。one-shot CLIは[Scheduled Operation](scheduled-operation.md)の手順で外部Supervisorから起動する
 
-これらの不在はApplication側のSecurity／Operations設計が不要であることを意味しません。Stableと`main`の差を確認し、Deployment前に必要なAdapterと運用責務を明示してください。
+これらの不在はApplication側のSecurity／Operations設計が不要であることを意味しません。Capability表とApplication／Frameworkの責務境界を確認し、Deployment前に必要なAdapterと運用責務を明示してください。
+
+## 次にStableをInstallする
+
+現行Releaseの提供範囲を確認したら、[Install](installation.md)でVersionを固定したSkeleton作成へ進みます。

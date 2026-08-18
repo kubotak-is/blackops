@@ -1,14 +1,14 @@
 # Agent Instructions
 
-このRepositoryでは、CodexがOrchestrator兼Reviewerとなり、Production Codeの実装はTask Packet単位でCodex GPT-5.6 Luna High workerへ依頼する。
+このRepositoryでは、CodexがOrchestrator兼Reviewerとなり、Production Codeの実装はTask Packet単位でCodex GPT-5.6 Luna Max workerへ依頼する。
 
 Model／Profileの正本はRepository内設定とする。
 
-- Orchestrator: `.codex/config.toml`の`gpt-5.6-sol`／`high`
-- Worker: `.codex/agents/worker.toml`の`gpt-5.6-luna`／`high`
-- Documentation Reviewer: `.codex/agents/documentation-reviewer.toml`の`gpt-5.6-sol`／`high`
+- Orchestrator／調査／Orchestrator Review: `.codex/config.toml`の`gpt-5.6-sol`／`xhigh`
+- Production Implementation Worker: `.codex/agents/worker.toml`の`gpt-5.6-luna`／`max`
+- Documentation Reviewer: `.codex/agents/documentation-reviewer.toml`の`gpt-5.6-sol`／`xhigh`
 
-Worker ProcessへModel Metadataが環境変数として公開されないことだけをBlockerにしない。Codexが設定値を拒否した場合、指定Modelへアクセスできない場合、または別ModelへFallbackしたことを実行環境が明示した場合だけ、OrchestratorへBlockerとして返す。
+Worker ProcessへModel Metadataが環境変数として公開されないことだけをBlockerにしない。CodexがModelまたはReasoning Effortの設定値を拒否した場合、指定ModelまたはReasoning Effortへアクセスできない場合、または別Model／Reasoning EffortへFallbackしたことを実行環境が明示した場合だけ、OrchestratorへBlockerとして返す。
 
 Documentation ReviewerはRead-onlyで、Documentation本文やProduction Codeを修正しない。FindingをEvidence付きでOrchestratorへ返し、Task Packet化とAcceptanceはOrchestratorが行う。Review Contractの正本は`develop/spec/92-documentation-review-agent.md`とする。
 
@@ -45,7 +45,7 @@ Windows側や `/mnt/c` に別のWorking Treeを作らない。Credential、Token
 5. `develop/STATE.md` を更新する
 6. Orchestrator CodexのReviewを待つ
 
-GPT-5.6 Luna High workerはReview前にCommitしない。範囲外の修正が必要な場合は実装を広げず、ReportのBlockerとして返す。別Modelへの暗黙Fallbackは禁止するが、Metadata非公開を理由に自己判定で停止しない。
+GPT-5.6 Luna Max workerはReview前にCommitしない。範囲外の修正が必要な場合は実装を広げず、ReportのBlockerとして返す。別Model／Reasoning Effortへの暗黙Fallbackは禁止するが、Metadata非公開を理由に自己判定で停止しない。
 
 ## Checkpoint
 
@@ -91,6 +91,18 @@ Task単体の完了と上位Goal全体の完了を混同しない。Taskを完�
 - `docs/guide/`: Framework利用者向け
 
 公開APIや利用方法が変わるTaskでは `docs/guide/`、ArchitectureやAdapter実装が変わるTaskでは `docs/internal/` の更新要否を確認する。
+
+## Release Documentation Impact
+
+公開API、Capability、Release、Example、Command、Configurationを変更するTaskは、Task開始時に次を記録する。
+
+- Release Authority tupleと変更Capability ID
+- 影響する公開Source／route inventory
+- 旧Version occurrenceのbefore／after分類とhistorical allowlist
+- Source／Search／LLM artifactの検証結果とpositive／negative fixture
+- same-SHA CI／Documentation delivery、Production deploy有無、残り工程、Next Action
+
+Documentation-only Taskでも、影響なしと判断した理由をTask Reportへ記録する。Release closeoutはchanged-pagesだけで完了扱いにせず、全公開Sourceと生成Artifactを確認する。
 
 ## Code Comments
 

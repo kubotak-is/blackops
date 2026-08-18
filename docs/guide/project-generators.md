@@ -2,7 +2,7 @@
 
 Install済みApplicationでは、Project Rootの`blackops`からFrameworkが提供するGeneratorを実行できます。生成対象となる[Operation](glossary.md#operation)は、Applicationが実行したい一つの意図と処理単位です。
 
-> **Release:** `make:operation`と`make:migration`はExperimental Stable `1.1.0`で利用できます。`make:seeder`はRepository `main`のExperimental Surfaceです。生成済みSourceはApplication所有であり、Framework Updateでは変更されません。
+> **Release:** `make:operation`、`make:migration`、`make:seeder`は公開済みExperimental Stable `1.2.0`で利用できます。生成済みSourceはApplication所有であり、Framework Updateでは変更されません。
 
 ## Operationを生成する
 
@@ -55,6 +55,8 @@ composer update blackops/framework
 
 Framework Updateは既に生成したOperation／MigrationをUpgradeしません。生成済みSourceはApplication所有のままbyte-for-byte維持し、新しいStubはUpdate後に新規生成するFileだけへ反映します。Stub Contractに互換性対応が必要なReleaseでは、そのReleaseのUpgrade Guideを確認してください。
 
+Update後の新規生成が失敗した場合は、既存Fileを上書きせず、VersionとStub Contractを確認してから原因を修正し、Application BuildとGeneratorを再実行します。
+
 ## Migrationを生成する
 
 Application固有のDatabase変更はPascalCaseのDescriptionから生成します。
@@ -94,3 +96,7 @@ app/Infrastructure/Seed/Catalog/ProductSeeder.php
 ```
 
 生成Classは`BlackOps\Database\Seeder`を実装し、空の`run(): void`を持ちます。Database接続、Migration、Build、Seed実行、Rootへの自動登録は行いません。子Seederの実行順はRoot `DatabaseSeeder`へ明示してください。詳しくは[Seeder](database-seeding.md)を参照してください。
+
+## 次に生成物をOperationへ仕上げる
+
+生成したOperationのValue、Outcome、Strategyを実装する場合は、[First Operation](first-operation.md)の完全例へ戻ります。

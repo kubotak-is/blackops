@@ -39,60 +39,9 @@ InlineはHTTP Request内で`operation.received`から直接Attemptを開始し�
 
 ## Transactional Outboxへの登録
 
-Application MutationとDeferred child Operationを同じFramework管理Transactionへ結び付ける場合は、`Operations`をConstructor Injectionします。
+Application MutationとDeferred child Operationを同じTransactionへ結び付けると、最外Commitまで業務変更とDispatchが確定しません。同じConnectionのNested Required、at-least-once Relay、Retry／Backoff、Lease／Fencing、Dead Letter再開が耐久性の境界になります。Transaction外のDirect TransportへのFallback、Exactly Once、External Brokerは提供しません。
 
-```php
-use BlackOps\Core\Attribute\OperationType;
-use BlackOps\Core\Operation;
-use BlackOps\Core\Attribute\Deferred;
-use BlackOps\Database\Attribute\Transactional;
-use BlackOps\Execution\Operations;
-
-#[OperationType('order.place')]
-readonly class PlaceOrder implements Operation
-{
-    public function __construct(
-        private OrderRepository $orders,
-        private Operations $operations,
-    ) {}
-
-    #[Transactional(connection: 'app')]
-    public function handle(PlaceOrderValue $value): OrderPlaced
-    {
-        $order = $this->orders->place($value->customerId, $value->productCode, $value->quantity);
-        $this->operations->dispatch(
-            NotifyOrderOwner::class,
-            new NotifyOrderOwnerValue($order->id()),
-        );
-
-        return new OrderPlaced($order->id());
-    }
-}
-
-#[OperationType('order.notify-owner')]
-#[Deferred]
-final readonly class NotifyOrderOwner implements Operation
-{
-    public function handle(NotifyOrderOwnerValue $value): NotificationSent
-    {
-        return new NotificationSent($value->orderId);
-    }
-}
-```
-
-`NotifyOrderOwner`は`final`なDeferred child Operationとして`#[OperationType]`と引数なしの`#[Deferred]`を付けます。`Operations::dispatch()`へ渡せるのはDeferred child Operationだけです。親OperationのExecution ContextからCorrelation／Causation／Actor／Deadlineを継承し、親Idempotency Key Hashは子へ渡しません。
-
-OutboxはApplication Database ConfigurationのFramework Named Connectionと同じConnection Instanceを所有するFramework管理Transaction内でのみ動作します。Transaction外、別Connectionが最上位にある場合、Manual Transactionによるnesting変更／commit、または所有者不明のTransactionではFail-fastし、Direct TransportへFallbackしません。
-
-同じConnectionのNested Requiredは外側のScopeへ参加できます。
-
-MutationとOutbox Rowは最外Commitで同時に残ります。ThrowableまたはInsert Failureでは両方Rollbackされ、Nested Requiredの途中でRollback-onlyになった場合も最外ScopeがRollbackするためRowは残りません。登録結果はchild Operation IDとUTC dispatch時刻だけを公開し、Outbox Record IDは露出しません。
-
-Transactional OutboxはOutbox Persistence、有限BatchのRelay、Retry／Backoff、Lease／Fencing、Dead Letter再開までを提供します。配送はat-least-onceであり、Relay停止中の`pending` Rowは再開後に同じchild Operation Identityで再配送されます。Outboxを使わないDeferred呼出は既存Direct Transportの受付契約を維持します。
-
-MutationのPOST／PUT／PATCH／DELETEでは、認証・認可後にOptional `Idempotency-Key`をAtomic Claimします。同じFingerprintのTerminal ResultはTyped Resultまたは安全なHTTP Responseとして再利用し、Replay Responseだけに`Idempotency-Replayed: true`と`Cache-Control: private, no-store`を投影します。GET／HEAD、Anonymous Actor、Ephemeral OutcomeではKeyを受理しません。
-
-Malformed Key、複数Key、未対応Method、Anonymous Actor、Ephemeral OutcomeはClaim前に安全な4xxとして拒否します。異なるFingerprintや既存のIn-Progress ClaimはConflictとして扱い、既存結果がなく期限切れなら再実行せずHTTP 409の安定Code `idempotency_expired`を返します。Key付きHandlerがThrowableを投げた場合はFailure Boundaryが内部詳細を保存せず安全な失敗結果をJournalへ確定し、同じKeyの再送はHandlerを再実行せずその失敗結果をReplayします。
+OutboxのApplication-owned完全Recipe、`Operations::dispatch()`の署名、Commit／Rollbackの確認、Relay／Worker／Retry／Dead Letterの実行手順は、重複した断片を作らず[Outbox](outbox.md)へ集約しています。ここではInline／Deferredの実行モデルとOutboxを選ぶ判断だけを扱います。
 
 ## Inline HTTP
 
@@ -187,3 +136,7 @@ HTTPとWorkerはCompile済みOperation Manifest、HTTP Manifest、DI Container�
 BuildとRuntimeの入口は[BlackOps CLI](project-cli.md)、Contextの読み取りは[Execution Context](execution-context.md)を参照してください。
 
 定期実行も同じLifecycleを使います。[Scheduled Operation](scheduled-operation.md)のInlineは通常Dispatcher、Deferredは通常Acceptance／Transport／Workerへ接続されます。`ScheduledBy`だけでDeferredへ変わることはありません。
+
+## 次に状態遷移を読む
+
+受付後の状態とRetryの意味は、[Lifecycle](operation-lifecycle.md)で遷移として整理します。

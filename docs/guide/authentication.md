@@ -1,9 +1,9 @@
 # Authentication
 
-この章はRepository `main` PreviewでSession Starterの生成とHTTP境界を確認する手順です。AuthenticationはStable `1.1.0`には含まれません。[Repository main Preview](mvp-sample.md#repository-main-preview)を完了したProject Rootから実行し、問題は[Troubleshooting](troubleshooting.md)で確認します。
+この章は公開済みExperimental Stable `1.2.0`でSession Starterの生成とHTTP境界を確認する手順です。AuthenticationはFramework／Skeletonの公開Surfaceです。Application-owned IdentityとHTTP境界を確認し、問題は[Troubleshooting](troubleshooting.md)で確認します。
 
-:::warning[Repository main Preview]
-Session StarterとAuthentication MiddlewareはStable `1.1.0`には含まれません。Application-owned Identity、Password、Session Transportを確認できるPreview環境でのみ実行してください。
+:::info[Experimental Stable 1.2.0]
+Session StarterとAuthentication Middlewareは公開済みExperimental Stable `1.2.0`のSurfaceです。Application-owned Identity、Password、Session Transportをこの手順で構成してください。
 :::
 
 ## Application-owned Starterを生成する
@@ -177,6 +177,8 @@ final readonly class ShowMe implements Operation
 }
 ```
 
+Protected Requestが`401`になる場合はTokenをLogへ出さず、Authentication Middleware、Session Store、Policy Bindingを修正して新しいSessionで再確認します。
+
 ## Autoload、Migration、Build、HTTP
 
 ApplicationのBindingとPolicyを実装したら、Artifactを再生成してHTTPを再起動します。
@@ -189,6 +191,8 @@ docker compose run --rm app php blackops frontend:generate
 docker compose run --rm app php blackops frontend:check
 docker compose up -d http
 ```
+
+認証失敗や`401`／`422`を確認したら、Credentialを出力せずPolicy、Session Store、Bindingを修正し、同じApplication-owned FileからArtifactを再生成してHTTP確認を繰り返します。
 
 Frontendを持たないBackend-only Applicationは最後の二つを省略できます。Worker Modeへ新しいArtifactを読ませるためHTTPはBuild後に再起動します。
 
@@ -256,3 +260,11 @@ curl -i http://127.0.0.1:8080/me \
 ```
 
 有効Tokenの`GET /me`は200、TokenなしまたはLogout済みは401になります。`/welcome`はAuthenticationを明示的に付けない限り匿名のままです。Raw Password、Session Token、Cookie、CSRF Token、Authorization HeaderはOperation Value、Outcome、Journal、Log、運用報告へ出力しません。Cookie方式を選ぶ場合は`CookieSessionAuthenticator`と[Security](security.md)の責務表を確認してください。
+
+## 次に認可を追加する
+
+認証済みActorの所有権をOperationへ適用する場合は、[Authorization](authorization.md)でInline、Deferred、StatusのPolicyを確認します。
+
+## Register、Login、Logoutを確認する
+
+RegisterはHTTP `201`、LoginはHTTP `200`と43文字のOpaque Token、Logout後の再利用はHTTP `401`を観測します。Application User IDとCredentialはResponseやLogへ不要に出しません。

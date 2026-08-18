@@ -1,9 +1,9 @@
 # Outbox
 
-Transactional Outboxは、業務MutationとDeferred child Operationの発行を同じNamed ConnectionのTransactionへ記録する境界です。Repository `main`のExperimental Surfaceで、External BrokerやExactly Onceは提供しません。[Stableとmain](mvp-status.md#stableとmain)を確認してから利用します。
+Transactional Outboxは、業務MutationとDeferred child Operationの発行を同じNamed ConnectionのTransactionへ記録する公開済みExperimental Stable `1.2.0`のSurfaceです。External BrokerやExactly Onceは提供しません。[Releases](mvp-status.md)を確認してから利用します。
 
 :::warning[Experimental capability]
-OutboxはRepository `main`のExperimental Surfaceです。External Broker、Exactly Once、child Handler完了の自動保証は提供しないため、Applicationで重複耐性を設計してください。
+Outboxは公開済みExperimental Stable `1.2.0`のExperimental Surfaceです。External Broker、Exactly Once、child Handler完了の自動保証は提供しないため、Applicationで重複耐性を設計してください。
 :::
 
 ## DispatchからCommitまで
@@ -265,3 +265,7 @@ php blackops outbox:dead-letter:retry <record-id> \
 成功時は`dead-letter retry scheduled`だけを表示します。Payload、Context、SQL、Credential、Throwableは表示されません。再開後もRelayとWorkerを順に実行し、Status／Journal／Outcomeを再確認します。
 
 External Message Broker、Exactly Once、Canonical Journalの置換は現行Capabilityではありません。Scheduled Application Operationは別のone-shot入口であり、Outbox Relayの完了とは別に扱います。[Scheduled Operation](scheduled-operation.md)、[Deployment](deployment.md)のプロセス一覧、[Deferred HTTPが202だがOutcomeがない](troubleshooting.md#deferred-httpが202だがoutcomeがない)も併読してください。
+
+## 次にJournalの正本を読む
+
+DispatchからWorkerまでの事実をどのRecordで追うかは、[Journal](journal.md)でCanonicalとObservedを分けて確認します。

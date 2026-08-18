@@ -41,3 +41,7 @@ Operation ID、Correlation、Causation、Attempt等、追跡と伝播に必要�
 同じOperationをRequest内で実行するInlineか、Durable受付後にWorkerが実行するDeferredかを選ぶ境界です。Strategyが変わってもOperationValue、Operation、Outcomeの型は変わりません。
 
 次は[Lifecycle](operation-lifecycle.md)で受付、Attempt、Retry、Terminal Stateの違いを確認し、[Journal](journal.md)でCanonicalとObservedの記録境界を確認します。用語をまとめて確認する場合は[Glossary](glossary.md)を参照してください。
+
+## 次に受付と完了を動かす
+
+InlineとDeferredの受付・完了境界は、[Inline and Deferred](execution.md)でHTTPとWorkerの順に確認します。

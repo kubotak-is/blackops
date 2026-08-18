@@ -15,11 +15,13 @@ mise exec -- pnpm --dir docs/website run dev
 
 `content:generate`は`docs/guide/`からBlume ContentとManifestを生成します。生成先の`src/content/docs/`と`.generated/`、Static出力の`dist/`はGit管理しません。生成物を直接編集しても次回実行で全置換されるため、本文変更は必ず`docs/guide/`へ行います。
 
-`blume.config.ts`はBlume標準のHeader、Sidebar、Search、Table of Contents、Theme、Skip Link、Mobile Navigationを有効にし、Sidebarを利用者の学習順へ固定します。Landingだけは`pages/index.astro`のCustom Pageで指定されたHeroと、Desktop三列／Mobile一列の三要素Gridを構成します。
+`blume.config.ts`はBlume標準のHeader、Sidebar、Search、Table of Contents、Theme、Skip Link、Mobile Navigationを有効にし、SidebarをStart Here、Build、Async and Lifecycle、Data and Security、Operate、Reference、Releasesの順へ固定します。Landingだけは`pages/index.astro`のCustom Pageで、Install、Quickstart and Skeleton、First Operationの開始順、実際のOperation code、Inline／Deferred／Journalのmental model、目的別のSection navigationを構成します。
 
 ## Content and URL boundary
 
-`content-map.mjs`はSource Relative Pathから公開Slug／Page Metadataへ決定的にMappingし、未登録Source、欠落Source、重複Slug、壊れたLinkはBuild前に拒否します。`docs/internal/`、`develop/`、Task／Reportは公開Page、Navigation、Search、Artifactへ含めません。
+`content-map.mjs`はSource Relative Pathから公開Slug／Page Metadata／canonical Sectionへ決定的にMappingし、未登録Source、欠落Source、重複Slug、wrong-section、壊れたLinkはBuild前に拒否します。`docs/internal/`、`develop/`、Task／Reportは公開Page、Navigation、Search、Artifactへ含めません。
+
+Reader Contractも`content-map.mjs`を単一正本とし、Landingを除く40 PageをTutorial 3、How-to 18、Concept 10、Reference 8、Troubleshooting 1へ分類します。各Pageのreader outcome、type別role、next導線は`reader-contract.mjs`がSourceと生成Artifact（HTML、Search、raw Markdown、`llms.txt`、`llms-full.txt`）で同じ形になるよう検証します。`content-pipeline.mjs`が生成するreader outcome markerはLLM full-text segmentの境界確認に使い、本文を手動Copyする用途ではありません。Protected BOPD Blobのdecode／JSON cast、誤ったRetry Event、現行Stableのmain-only claim、Source-derived Reference coverageも同じfail-closed guardへ集約しています。
 
 既存のPublic Slugと`public/_redirects`は維持します。Slugを変更するときはSource Link、Content Map、Sidebar、Redirect、Search／Artifact Testを同じ変更単位で更新してください。
 
@@ -31,7 +33,7 @@ BlumeのDismiss不可Bannerを全Pageへ表示します。本文は`BlackOps1.x�
 
 Mermaid Fenceを含むPageだけを`.mdx`へ生成し、通常Pageは`.md`を維持します。Blume native `<blume-mermaid>`がExact PinしたLocal `mermaid` DependencyでParseし、外部CDNへ接続しません。各FenceはAccessible Metadataと隣接する自然な説明を持ち、DesktopではDiagramをArticle幅で表示し、Mobileでは42rem以上の可読幅をHost内だけ横Scrollさせます。Artifact GuardはBuild後の`<blume-mermaid>` Render Target、`data-language="mermaid"` Code Block不在、Local Renderer Bundle、および可読幅の寸法CSSを確認します。SVGの実寸、Page Overflow、Light／Dark Theme切替、Responsive OverflowはBrowser Verificationで確認します。
 
-`docs/guide/assets/`のTracked PNGはContent Pipelineが検証してStatic Artifactへコピーします。Artifact Guardは公開禁止Path、Credential、Repository Absolute Path、Source Mapの混入を拒否します。
+`docs/guide/assets/`のTracked PNGはContent Pipelineが検証してStatic Artifactへコピーします。Landingはbitmap asset、外部Font、fake screenshot、decorative gradient／grid／glowを使わず、Operation codeを製品Visualとして表示します。Artifact Guardは公開禁止Path、Credential、Repository Absolute Path、Source Mapの混入を拒否します。
 
 ## Delivery
 

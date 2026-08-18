@@ -73,3 +73,7 @@ PostgreSQL Storeは最初の完了結果を上書きせず、重複Saveを拒否
 Outcomeの[Retention](glossary.md#retention)はTransport Payload、Journal、Dead Letterから独立しています。`RetentionPolicy::outcomeRetention()`は`OutcomeRecord::completedAt()`を基準に期限を判定します。ActiveなOperation Holdがある場合、PlannerとPurgeはOutcomeを対象外にします。
 
 Purgeが成功すると、同じDatabase TransactionでPayloadを含まない監査Recordを保存し、`RetentionPurgeResult::outcomesDeleted()`へ削除件数を加算します。保持期間とHoldの運用は[Retention](retention.md)を確認してください。
+
+## 次にLifecycleの結果を整理する
+
+Status、Outcome、Expiredの差をLifecycle全体で理解する場合は、[Lifecycle](operation-lifecycle.md)へ戻ります。

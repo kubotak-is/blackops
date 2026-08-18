@@ -1,6 +1,6 @@
 # Implementation Orchestration
 
-このDirectoryは、D048とD077で決定したCodex OrchestratorとCodex GPT-5.6 Luna High workerの実装進行を管理する。
+このDirectoryは、D048、D077、D091、D144で決定したTask PacketとRepository Profile設定に基づくCodex Orchestrator／Implementation Workerの実装進行を管理する。現在のImplementation WorkerのModel／Reasoning Effortは`.codex/agents/worker.toml`を正本とする。
 
 ```text
 develop/
@@ -12,7 +12,7 @@ develop/
       TEMPLATE.md
 ```
 
-`develop/STATE.md` は再開地点の正本、`tasks/` はOrchestrator Codexが発行するTask Packet、`reports/` はGPT-5.6 Luna High workerの実装報告を保存する。
+`develop/STATE.md` は再開地点の正本、`tasks/` はOrchestrator Codexが発行するTask Packet、`reports/` は`.codex/agents/worker.toml`の現在のModel／Reasoning Effortを読み込んだImplementation Workerの実装報告を保存する。
 
 `develop/STATE.md` の `Updated At` は秒とUTC Offsetを含むISO 8601形式で更新する。
 

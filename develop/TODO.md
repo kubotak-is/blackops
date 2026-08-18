@@ -199,6 +199,7 @@ MVP後に残す主要項目:
 - [x] 第3回Documentation ReviewのLanding／Banner、P1正確性、Internal Link H1 Guardを補正する（P20-009）
 - [x] Mermaid DiagramをDesktop本文幅とMobile局所横Scrollで判読可能にする（P20-008A）
 - [x] Accuracy／User Journey／Browser実表示をEvidence付きで確認するDocumentation Reviewerを整備する（P20-009A）
+- [x] Agent Model／Reasoning Profileの正本をProduction Luna Max、調査／Orchestrator Review／Documentation Review Sol xHighへ同期する（D144／P20-009H、Accepted）
 - [x] Ephemeral Outcomeから明示Inline `#[ExecuteWith]`を不要にし、Generator／Example／Guideを暗黙Inlineへ統一する（P20-009B）
 - [x] JournalのJSON構造、運用、安全境界、OpenTelemetry将来構想を独立Guideへ統合する（P20-009C）
 - [x] Journal JSONLのParameter説明をTableへ整理する（P20-009D、P20-009EでRuntime Projection修正後にAcceptance）
@@ -249,7 +250,27 @@ MVP後に残す主要項目:
 - [x] Deptracのpublic／bounded internal Layerを同期し、generic Internal permissionなしで152 violations／59 uncoveredとMago baseline archive exclusionを閉じる（D141／D142 Option B／P22-003B Accepted、candidate `577cc224`、post-commit exact export PASS、Reviewer P1=0／P2=0／P3=0）
 - [x] User承認済みのGreen-gated Tag／Push、Skeleton publication、Packagist／GitHub Release／Remote Smokeを実施する（P22-004 Accepted。Framework／Skeleton `1.2.0`、Packagist、GitHub Release、Remote smokeがlive。P22-004G final Reviewer P1=0／P2=0／P3=0）
 - [x] Stable `1.2.0`の公開README／CHANGELOG／UPGRADE／Guide／Website Source、operation:inspect ownership limitation、version baseline、P22-004／Phase 22管理文書を同期する（P22-004G Accepted、final Reviewer P1=0／P2=0／P3=0）
-- [~] PR #9のP22-004H CI contract correctionをCommit Approvedで保持する（Manual Recovery restore／README-only runtime equality／Blume 1.3.0 local-font provider-only・remote-provider・asset SHA/license rejection、full Runtime Consumerを含むOrchestrator gates PASS、Documentation Review P1=0／P2=0、exact Commit／Pushとsame-SHA Remote Green待ち）
+- [x] PR #9のP22-004H CI contract correctionを統合する（merge `2cf9ddb`。Manual Recovery restore／README-only runtime equality／Blume 1.3.0 local-font provider-only・remote-provider・asset SHA/license rejectionを同期）
+- [~] D143／Specification 104／P22-005でRelease Authority、全公開Source／Artifact guard、目的別Information Architectureを整備する（P22-005A／B／C Accepted。C final Sol xHigh review P1=0／P2=0／P3=0、D remains）
+- [x] P22-005AでStable `1.2.0` current claim、historical allowlist、Search／LLM artifact、CI wiringをfail closedへ修正する（Accepted。mapped page lane、Roadmap／metadata、exact history、future-authority counterexamplesを含む92／92 Green、Documentation Review P1=0／P2=0／P3=0）
+- [x] P22-005BでLanding／Sidebar／Content MapをStart Here、Build、Async and Lifecycle、Data and Security、Operate、Reference、Releasesへ再編する（Accepted。Website 95/95、全Local Gate、final Sol xHigh re-review P1=0／P2=0／P3=0）
+- [x] P22-005Cで全公開PageをTutorial／How-to／Concept／Reference／Troubleshooting契約へ再分類する（40 Page inventory確定。Tutorial 3／How-to 18／Concept 10／Reference 8／Troubleshooting 1。最新Unified HTML State-Scanner補正は既存direct jsdom dependencyとquote-aware raw-text preflightでreader surfaceを構造処理し、Full Local GateはWebsite test 109/109、check 41 pages、build 42 pages、site:check 41 pages、artifact guard、Quickstart E2E、version baseline、Mago、PHP management-ID、diff check全PASS。final Sol xHigh review P1=0／P2=0／P3=0、Accepted）
+- [~] P22-005DでBrowser／Accessibility／Search／Production canonical verificationを完了する（Local Accepted。Luna Maxの4 contrast／local-scroller補正、共有SearchFocusBoundary、typed Releases flat baselineを実装。Orchestrator complete Local GateはWebsite 112／112、check 0/0/0、fresh 42-page build／41-page site check、release source／artifact、version baseline、Mago、PHP management-ID scan、diff checkをPASS。最終Artifactと同じhashで127／127 execution、failure 0、Axe critical／serious 0、empty／non-empty Search focus returnを確認。Final Sol xHigh review P1=0／P2=0／P3=0。P22-005EもAccepted。Parentのreviewed exact Commit／same-SHA CI／Documentation delivery、authorized Production verification、P22-005 closeoutが残る）
+- [x] P22-005EはFinal Sol xHigh P1=0／P2=0／P3=0、P22-005E Local Acceptance支持によりAccepted。Post-sync SolはP1=0／P2=1／P3=0で、唯一のP2（Parent P22-005 Acceptance Criteria未同期）は解消済み。Task／Report／STATE／TODO／parentをcurrent statusとevidenceへ同期した。Local evidenceはWebsite 118／118、check 0／0／0、fresh 42-page build／41-page site、Release Source／Artifact、version baseline、Quickstart E2E、Mago、PHP ID、diff PASS。Browserは公開Artifact不変のため`/tmp/p22-005d-orchestrator/evidence-p22-005e-final-truth-correction`の41 route／127 execution、failure 0、Axe 0、Search／theme／reduced-motion PASSとhash（index `1f0128c49c4908f798dfa4fcd8c302dbe2a893c2eeffee922e9347ec3b1d47ef`、Search `dd1968391b3178932b4a1ee4fccb468d2d715222b23d614b0b43d1afabb36fe5`）を保持し、Browserは再実行していない。P22-005Eの残りはなし。上位parentの残件はreviewed exact Commit、same-SHA CI／Documentation delivery、authorized Production verification、parent P22-005 closeout。Next Action: OrchestratorがAccepted exact snapshotをreviewed exact Commitへ固定する
+
+### Phase 23 Proposal: BlackOps 1.3
+
+以下はUser提示の候補Roadmapであり、実現可能性ReviewとDecision前は公開済みCapabilityとして扱わない。
+
+- [ ] BlackOps CLIのCommand discoveryを設計する。Symfony Console既定`list`を正式Contract化し、`ls` aliasの要否を決定する
+- [ ] `route:list`／`route:ls`でCompiled HTTP Routeを安全に一覧する
+- [ ] `schedule:list`／`schedule:ls`でCompiled Scheduleを安全に一覧する
+- [ ] `worker:list`／`worker:ls`の「Job」をqueued Operation、Worker definition、Transport statsのどれとして表すか決定する
+- [ ] `about`、`diagnostics:check`、queue／dead-letter status等の追加CLI候補を既存Commandと重複しない形で評価する
+- [ ] FrankenPHP HTTP Worker ModeとDeferred Queue Workerの責務を分けたFeasibility Taskを実施する
+- [ ] FrankenPHP Extension Workers／custom Caddy moduleを使う単一OS Process案と、別Process維持案のFailure isolation、Signal、Heartbeat、DB connection、memory、restart、deployを比較する
+- [ ] Classic Mode廃止のMigration、Safe 500 negative lane、rollback、1.x breaking release boundaryを決定する
+- [ ] 上記Decision後に`1.3.0` Delivery PlanとTask順序を確定する
 
 ### Deferred: Documentation Website Publication
 

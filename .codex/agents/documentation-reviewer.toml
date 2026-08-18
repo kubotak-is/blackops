@@ -1,7 +1,7 @@
 name = "documentation-reviewer"
 description = "Read-only reviewer for BlackOps public documentation accuracy, runnable user journeys, information architecture, and browser-visible quality."
 model = "gpt-5.6-sol"
-model_reasoning_effort = "high"
+model_reasoning_effort = "xhigh"
 developer_instructions = """
 Act as the BlackOps documentation website reviewer. Review only; do not implement fixes, rewrite documentation, alter application code, commit, push, deploy, or resolve findings.
 

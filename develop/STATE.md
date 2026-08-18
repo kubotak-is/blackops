@@ -1,6 +1,370 @@
 # Orchestration State
 
-Updated At: 2026-08-16T23:32:33+09:00
+Updated At: 2026-08-18T03:02:48+09:00
+
+## P22-005E Final Sol xHigh Review P1=0／P2=0／P3=0 — Accepted; Parent Delivery Pending
+
+```text
+2026-08-18T03:02:48+09:00
+Final Sol xHigh read-only verdictはP1=0／P2=0／P3=0で、P22-005E Local Acceptanceを支持した。P22-005EをAcceptedへ更新し、Task／Report／STATE／TODO／parentのcurrent statusとevidenceを同期した。このfinal closeoutで変更したのは管理文書だけで、公開Guide／PHP／API／Quickstart／visual、website scripts／tests、dist、Production Codeは変更していない。
+Post-sync Sol xHigh reviewはP1=0／P2=1／P3=0で、唯一のP2はParent P22-005 Acceptance Criteriaの未同期だった。Child A〜Eの独立Review完了と各Child ReportのRemaining Issues／Suggested Next Actionを確認し、Parentの該当criteriaを[x]へ補正した。Production canonical HTTP／redirect／header verificationは未実施のため未完了を維持し、P22-005E Acceptanceは変更しない。
+Current Local evidenceはWebsite 118／118、check 0／0／0、fresh 42-page build／41-page site、Release Source／Artifact、version baseline、Quickstart Consumer E2E、Mago、PHP management-ID、diff check全PASS。Browserは`/tmp/p22-005d-orchestrator/evidence-p22-005e-final-truth-correction`を保持し、41 canonical route／127 execution、failure 0、Axe 0、console／page／request 0、overflow 0、Search focus／theme／reduced motion PASS。index hashは`1f0128c49c4908f798dfa4fcd8c302dbe2a893c2eeffee922e9347ec3b1d47ef`、Search hashは`dd1968391b3178932b4a1ee4fccb468d2d715222b23d614b0b43d1afabb36fe5`。公開Artifact不変のためBrowserは再実行していない。reviewed exact Commit、same-SHA CI／Documentation delivery、authorized Production canonical verification、parent P22-005 closeoutが残る。Commit／Stage／Push／CI／Deploy／Production mutationは未実施・未許可。Next Action: OrchestratorがAccepted exact snapshotをreviewed exact Commitへ固定する。
+```
+
+## Historical P22-005E Product Framing／CLI／Lifecycle Audit Boundary — Local Green after bounded Light contrast correction; fresh Browser／Orchestrator Review pending
+
+```text
+2026-08-18T00:33:29+09:00
+P22-005Eの2nd Sol xHigh forward findings（P1=2／P2=1／P3=2）は未受入のままbounded correctionへ反映した。LandingはHTTP／Worker、受付／再試行／完了、同じIDの一般語から入り、Guide indexとLandingから既存`/reference/project-cli`へ導線を追加した。CLI章はStable 1.2.0を目的／Command／実行条件／出力・終了Codeのscan-first表で示し、`build:compile`重複を除き、`make:auth`／`make:seeder`を分離し、Helpの公開範囲を限定した。editor chrome、Operation Lifecycle rail（Received／Accepted／Running／Finalizing／Completed）と`attempt.succeeded — Handlerが成功した`イベント、抑制した奥行きだけを維持し、Dのcontrast／focus／overflow／Search／theme／reduced-motion契約を維持した。
+JournalはHTTP受付→Worker再試行の一般的な追跡困難さからOperation ID／sequence、JSONL例、非提供境界へ進む導入へ改め、3例を実Encoderの`tenant: null`、schedule省略、optional telemetry形状へ整合した。Canonical JournalはOperation Lifecycleの正本であり、汎用Business／Security Audit Trailではないと明記した。受理前Authentication／Protocol Error、Policy Version／Evidence、Business Action／Resource／Reason、tamper-evident history／signed Exportを非提供境界として説明し、Observed `kind=audit`をRetention／Replay／Rotationの運用分類へ限定した。pure `product-framing-contract.mjs`をSource／Artifact checkへ共有配線し、CLI／Journalの新規positive／negative fixtureを含むfail-closed guardを追加した。
+P22-005Eのfresh Browser 127／127 executionはDesktop Light `/`／Mobile Light `/`で9 nodeのserious `color-contrast`（`#5d7471` on `#e7eeea`、4.23:1）を検出したため、既存Allowed内でLight Landingの5対象を`#526966`（4.989:1）へ補正し、Source／Landing Artifactのroute-scoped measured stylesheet guardと低contrast／unscoped negative fixtureを追加した。最終Local GateはWebsite 116／116、check 0／0／0、fresh 42-page build（00:31:46 JST）／41-page site check、release source／artifact、version baseline、Mago、PHP management-ID scan、diff checkがGreen。Correction後のBrowser／Axe／Search／theme／keyboard、独立Sol xHigh review、parent acceptance、reviewed exact Commit／same-SHA delivery、authorized Production verificationが残る。Commit／Stage／Push／CI／Deploy／Production mutationは未実施・未許可。Next Action: Orchestratorがcorrected Artifactでfresh 41-route Browser Gateを実行し、Sol xHighへ再レビューを依頼する。
+```
+
+## P22-005D Browser／Accessibility／Search Local Verification — Accepted
+
+```text
+2026-08-17T22:51:20+09:00
+P22-005DのSearch／Accessibility／Releases／H1／linked-CSS correctionとtyped Releases flat baseline補正は完了した。Orchestratorのcomplete Local Gateはrelease source guard、Website 112/112、check 0/0/0、fresh 42-page build／41-page site check、release artifact guard、version syntax/baseline (`published=1.2.0 historical=1.1.0`)、Mago、PHP management-ID scan、diff checkがGreenである。
+補正済み外部harnessは最終fresh Artifactと同じ`index.html` SHA-256 `c4b7ad809f61ef5a5e06ad709e89deb63d1def11874550a7f89cbc896a1b2d87`、Search SHA-256 `e989799350584a8156ac81ea5506ce60405994c25464621f0e65b77bf0d7faeb`を検査した。41 canonical routeをDesktop Light／DarkとMobile Light、代表4 routeをMobile Darkで計127/127 execution、failure 0、Axe critical/serious violation 0/node 0。empty／non-empty Searchはいずれも最初のEscapeでdialogを閉じ、同じrouteのtriggerへfocusを返す。Evidenceは`/tmp/p22-005d-orchestrator/evidence-search-correction/`にJSONとrepresentative screenshotを保存した。
+Final Sol xHigh read-only reviewはP1=0/P2=0/P3=0、D blocking findingなしでLocal Acceptanceを支持した。P22-005D Local工程はAccepted。Parent公開前にはP22-005EでLanding価値表現、曖昧なOperation説明、BlackOps CLI章、Landing code visual、Journalと汎用Audit Trailの境界を補正する。Commit/Stage/Push/PR/CI/Deploy/Production mutationは未実施・未許可。Next Action: OrchestratorがP22-005E Task Packetを開始する。
+```
+
+## P22-005C Unified HTML State-Scanner Correction — Accepted
+
+```text
+2026-08-17T18:38:10+09:00
+The 17:41 nested-template candidate is historical and superseded for Acceptance after Sol xHigh found that global comment stripping treated <!-- inside script/style raw text as an HTML comment and that SVG/Math CDATA text could contribute a literal <template> to template depth. The reproduced dist contains 362 non-map files.
+The bounded correction routes HTML through the existing direct jsdom dependency with a quote-aware raw-text preflight. It handles comments only in HTML data state, keeps script/style raw text opaque, removes nested inert templates, and preserves SVG/Math CDATA literals without interpreting embedded tags. Active JSON-LD, visible HTML, metadata, noscript, malformed-start behavior, raw Markdown/MDX, Search, LLM, and hashed-asset routing remain fail-closed. Full Local Gate evidence is Green: source guard; Website test 109/109; Website check 41 pages with 0 errors/warnings/hints; fresh 42-page build; static artifact boundary; site check 41 pages with only known non-fatal chunk-size and root route-priority warnings; separate artifact guard; Quickstart syntax/full Consumer E2E ending `Quickstart consumer E2E passed.`; version syntax/baseline `published=1.2.0 historical=1.1.0`; Mago; PHP management-ID; and diff check. Final Sol xHigh review accepted this exact snapshot with P1=0/P2=0/P3=0. The rerun used the exact current Test SHA/mtime below with no subsequent Source/Test changes. Counts remain actualShikiFixtures=216 (864 four-path), tenthFixtures=76, and CommonMark/Satteri=66. Source/test mtimes are 17:58:54/18:04:40, hashes daef847b0c8aa9b8a0ca128135cd6958fd4cd51b9e2c895718c45ffa147133d3 and d2b9f1f5439cecfa8d49fffef70b62f310d29ecee5f19e1832d721f025eb3a46. No Commit/Stage/Push/PR/CI/Deploy/Release occurred.
+P22-005C is Accepted. Parent steps remain P22-005D Browser/Accessibility/Search/Production verification, exact reviewed Commit, and same-SHA delivery. Next Action: execute P22-005D against the accepted candidate, then prepare the reviewed same-SHA delivery.
+```
+
+## Historical P22-005C HTML Visible-Boundary and Quote-Aware Script Extraction Correction — Superseded for Acceptance
+
+```text
+2026-08-17T16:28:23+09:00
+The prior thirteenth CommonMark candidate and its Full Local Gate result are historical and superseded for Acceptance. Source guard, Website 107/107, Website check, complete build, and static artifact boundary passed, then site:check failed on fresh _astro/base-path.Ds54SYed.js containing export{n,t}: all non-map text assets had been sent to the Shell-only LGTM parser, producing three hashed-JS false positives while the 46 HTML, 82 raw Markdown/MDX, Search, llms.txt, and llms-full.txt reader surfaces were clean. The bounded correction routes only those reader surfaces through the parser; HTML script/style source is excluded, with metadata and JSON-LD retained, while generic Artifact guards remain all-file. Unsafe raw Markdown, visible HTML code, Search, LLM, metadata, and JSON-LD injections reject; hashed JS export{n,t}/set and inline script/style controls pass.
+Focused evidence: Source/test node checks PASS; formal reader test 11/11 PASS; inline-backtick counterexample matrix PASS; release:check:source PASS; Website check PASS with 41 pages, 0 errors, 0 warnings, 0 hints; focused site:check PASS with 41 pages; git diff --check PASS. Counts remain actualShikiFixtures=216 (864 four-path), tenthFixtures=76, and CommonMark/Satteri=66. Source/test mtimes are 16:27:52/16:26:25 JST, with hashes 8810551cea6944aaa3eea7176a96a91620d5f7f8af6bd060e81a602b372fc59b and 8c5d660be632cebfe2101b1f68e23f0502371018dd7acf65c66b3aee990cec06. Full Gate restart, Consumer gates, and build are intentionally deferred; no blocker or external mutation occurred.
+Remaining P22-005C steps are complete Required Commands, Orchestrator Local Gate, and independent Sol review/Acceptance. Parent steps remain P22-005D Browser/Accessibility/Search/Production verification, exact reviewed Commit, and same-SHA delivery. Next Action: Orchestrator reviews this exact uncommitted artifact-routing candidate and authorizes the complete Local Gate; no Commit/Stage/Push/CI/Deploy/Release.
+```
+
+## Historical P22-005C Thirteenth Nested CommonMark Marker-Chain Follow-up — Superseded for Acceptance
+
+```text
+2026-08-17T16:11:29+09:00
+The 16:03 list-marker candidate is historical and superseded. Continuation prose now defaults bare env/readonly to fail-closed and admits only exact full-context English/Japanese technical descriptions from the normalized physical/rendered line start through its end; the reported Japanese execution/command and English dump/Try contexts reject, while exact English and Japanese command-name/PHP-keyword descriptions remain safe. Imperative English/Japanese prefixes and appended English imperative/dump suffixes reject rather than being hidden around an accepted prefix. The complete repeated CommonMark container-marker chain (blockquote plus nested unordered/ordered markers in mixed order) is structurally normalized before the same continuation classifier, so nested Run env/printenv/declaration dumps reject while nested technical-positive list prose remains safe through Source/plain Artifact/actual Satteri HTML/actual-Satteri Artifact. Markdown blockquote and list markers are removed structurally before exact line classification; Markdown and actual Satteri HTML share suffix-aware full-context classification. Same-line spaces-before-tab are prose for unordered 0–2 and ordered 0–1, code for unordered 3+ and ordered 2+; blank-line tab continuations remain prose through seven spaces and code at eight. Executable Shell fences, raw input, pre/code, and protected LGTM/Docker/Grafana diagnostics remain guarded.
+Focused Green after the final Source/test change: Source/test node checks PASS; node --test --test-isolation=none docs/website/tests/reader-contract.test.mjs PASS 10/10; existing inline-backtick counterexample matrix PASS; focused i18n continuation matrix PASS 56/56 across Source/plain Artifact/actual Satteri HTML/actual-Satteri Artifact; CommonMark/Satteri marker-chain matrix PASS with 66 fixtures; release:check:source PASS; Website check PASS with 41 pages, 0 errors, 0 warnings, and 0 hints; git diff --check PASS. Mechanical counts are actualShikiFixtures=216 across 864 four-path executions and tenthFixtures=76. Source/test mtimes are 16:10:58 and 16:10:58. Full Required Commands remain deferred pending Orchestrator authorization; no blocker or external mutation.
+Remaining P22-005C steps are complete Required Commands, Orchestrator Local Gate, and independent Sol re-review/Acceptance. Parent steps remain P22-005D Browser/Accessibility/Search/Production verification, exact reviewed Commit, and same-SHA delivery. Next Action: Orchestrator reviews this exact uncommitted i18n candidate and authorizes the Full Local Gate; no Commit/Push/CI/Deploy/Release.
+```
+
+## Historical P22-005C Thirteenth Structural Markdown/Artifact Backtick Follow-up — 13:36 Candidate, Superseded for Acceptance
+
+```text
+2026-08-17T13:36:18+09:00
+The 13:36 candidate is historical and superseded. Markdown inline backtick masking is delimiter-run aware and preserves protected LGTM/Docker-inspect/Grafana-secret spans; unprotected prose is masked only in Markdown inline context or HTML code outside pre. Executable pre/code, actual Shiki, raw direct input, and executable Markdown fences remain fully parsed. Double-backtick prose and literal-single-backtick content are covered, while protected double-backtick inspect rejects.
+Focused Green after the 13:36 Source/test change: Source/test node checks PASS; node --test --test-isolation=none docs/website/tests/reader-contract.test.mjs PASS 10/10; updated /tmp inline-backtick matrix PASS; direct/plain Artifact/actual-Shiki matrix PASS; release:check:source PASS; Website check PASS with 41 pages and 0 errors/warnings/hints; git diff --check PASS. actualShikiFixtures contains 216 entries across 864 four-path executions. Full Required Commands remain deferred pending Orchestrator authorization; no blocker or external mutation.
+Remaining P22-005C steps are complete Required Commands, Orchestrator Local Gate, and independent Sol re-review/Acceptance; parent steps remain P22-005D, exact reviewed Commit, and same-SHA delivery. Next Action: Orchestrator reviews this focused-Green uncommitted candidate and authorizes the Full Local Gate; no Commit/Push/CI/Deploy/Release.
+```
+
+## Historical P22-005C Thirteenth Prefix-Option Sol P2 Follow-up — Focused Green, Superseded for Acceptance
+
+```text
+2026-08-17T12:51:40+09:00
+The 12:44:53 candidate is superseded by the Full Local Gate false positive in `project-generators.md:25`, where Markdown prose `ValueとOutcomeは空の\`readonly\` Classです。` was treated as legacy Shell backtick substitution. The thirteenth correction remains Changes Requested. The guard now recognizes prose inline-code boundaries only when word-like text surrounds the span without shell assignment／operator or known executable context, while executable backticks at command start, assignment, or known Shell command positions remain recursively parsed. Focused `node --check` commands, a 3-negative／2-positive inline-backtick matrix, a 30-negative／33-positive prefix matrix, and `node --test --test-isolation=none docs/website/tests/reader-contract.test.mjs` PASS 9/9. The previously failing `mise exec -- pnpm --dir docs/website run check` now passes Content validation, diagrams, Blume validation, and Blume check (41 pages, 0 errors／warnings／hints). The actualShikiFixtures array contains 209 entries, including 135 thirteenth cases across 836 Source／plain Artifact／actual Shiki／actual-Shiki Artifact executions. The twelfth 11:46 JST Green is historical／superseded; Full Required Commands remain deferred. Remaining P22-005C steps are complete Local Gate and independent Sol re-review／Acceptance; parent steps remain P22-005D, exact reviewed Commit, and same-SHA delivery. Next Action: Orchestrator reviews this focused-Green, Changes-Requested candidate before authorizing the Full Required Commands; no Commit／Push／CI／Deploy／Release.
+```
+
+## P22-005C Sol xHigh Ninth-candidate Review P1=0／P2=1／P3=1 — Tenth Correction Confirmed
+
+```text
+2026-08-17T10:01:10+09:00
+Independent Sol xHigh read-only review denied Acceptance with P1=0／P2=1／P3=1. P2 consolidates the confirmed bypasses under one missing Shell command-segment parser: Bash LGTM parameter operators, Docker global options, unquoted comment termination, and Grafana secret expansion outside pure assignment／Docker run env input all pass direct／Artifact paths. P3 is one stale 105-test Report sentence; current is 106. Shiki／raw continuation／pretty-printed `<br>`／entity behavior and prior content findings remain closed. Luna Max must implement one structural parser correction, add direct／plain Artifact／real-Shiki negatives and safe controls, correct the P3 sentence, and rerun every Required Command without Commit. Remaining P22-005C steps are the tenth correction, complete post-change Local Gate, final Sol review, and Acceptance sync; remaining parent steps are P22-005D, exact reviewed Commit, and same-SHA delivery. Next Action: Luna Max applies the consolidated tenth correction without Commit.
+```
+
+## P22-005C Orchestrator Ninth-candidate Parser Counterexamples — Tenth Correction Requested
+
+## P22-005C Sol xHigh Tenth-candidate Review P1=0／P2=4／P3=1 — Eleventh Correction Requested
+
+```text
+2026-08-17T10:48:22+09:00
+Independent Sol xHigh read-only review denied Acceptance for the tenth candidate with P1=0／P2=4／P3=1. Atomic braced Bash words split at spaces and bypass unformatted LGTM inspect; recursive literal sh／bash -c payloads, docker exec shell payloads, and xargs printenv are not parsed; Go-template bare/root-derived data is accepted; and the test calls a synthetic token wrapper real Shiki evidence. The current Report P3 sentence must say 106 tests. Tenth Worker／Local Gate Green is historical false-positive evidence. Remaining P22-005C steps are the eleventh bounded correction, focused matrix, complete Local Gate, Sol re-review, and Acceptance; parent steps remain P22-005D, exact reviewed Commit, and same-SHA delivery. Next Action: Luna Max applies only the eleventh structural correction without Commit and does not start the full gate until focused evidence is Green.
+```
+
+## P22-005C Historical Eleventh Consolidated Correction — Focused Green Superseded for Acceptance
+
+```text
+2026-08-17T10:48:22+09:00
+The eleventh focused evidence was Green but is historical／superseded for Acceptance after Sol focused review P1=0／P2=4／P3=0. Its 9/9 reader test and 24-case／96-fixture matrix remain regression evidence only; the full gate was not run for that candidate.
+```
+
+## P22-005C Historical Tenth Structural Parser Correction — Superseded for Acceptance
+
+```text
+2026-08-17T10:41:03+09:00
+The tenth structural parser correction and its 52-case／120-fixture focused matrix plus full Worker／Local Gate evidence are historical false-positive evidence after the Sol P1=0／P2=4／P3=1 review. Do not reuse that Green result for Acceptance. The eleventh correction must close atomic braced words, recursive payloads／wrappers, Go-template roots, and actual Shiki evidence before any full gate.
+```
+
+```text
+2026-08-17T09:53:46+09:00
+The ninth candidate is not accepted despite its complete Orchestrator Local Gate Green. Post-gate direct／Artifact counterexamples prove unformatted `${LGTM:?LGTM required}`, `${LGTM:-fallback}`, and `docker --context default inspect "$LGTM"` pass because the parser recognizes only exact `${LGTM}` and Docker inspect without global options. This contradicts the every-LGTM-inspect AC. Sol xHigh is completing a read-only parser-boundary sweep before one consolidated structural Luna Max correction; all ninth Green evidence becomes historical after the next Source change. No Commit／Stage／Push／PR／CI／Deploy／Release／external mutation occurred. Remaining P22-005C steps are the tenth correction, complete post-change Local Gate, independent Sol xHigh final review, and Acceptance sync; remaining parent steps are P22-005D, exact reviewed Commit, and same-SHA delivery. Next Action: Sol returns the complete bounded target／Docker-command finding set, then Luna Max implements it without Commit.
+```
+
+## P22-005C Ninth Candidate Orchestrator Local Gate — Green, Sol Review Pending
+
+```text
+2026-08-17T09:50:01+09:00
+Orchestrator independently reran the complete Local Gate against the exact final ninth-correction Working Tree after the last Source／test change. Release source guard, Website 106/106, content／diagram／link／type check, complete 42-page build／41-page site check, release artifact guard, direct Source 3／18／10／8／1 and Artifact 40／40 validation, Quickstart syntax／full E2E, version syntax／baseline, Mago, PHP management-ID, and diff check all passed. The independent matrix rejected six Shiki／raw multiline／pretty-printed `<br>` unsafe cases through both Source and Artifact paths and passed four State／Health controls plus entity decoding. No Source changed afterward. No blocker and no Commit／Stage／Push／PR／CI／Deploy／Release／external mutation. Remaining P22-005C step is independent Sol xHigh review／Acceptance sync; remaining parent steps are P22-005D, exact reviewed Commit, and same-SHA delivery. Next Action: Sol xHigh reviews this exact frozen Working Tree read-only.
+```
+
+## P22-005C Orchestrator Eighth-candidate `<br>` Counterexample — Ninth Correction Requested
+
+```text
+2026-08-17T09:32:20+09:00
+The eighth Worker Green is not accepted. Independent direct and Artifact fixtures prove that `<br>` followed by HTML pretty-print newline／indent becomes two physical newlines after normalization; a Bash backslash joins only the synthetic blank line, so pretty-printed `<br>` unformatted and Config.Env LGTM commands pass undetected while the State-only control passes. The same Luna Max worker must collapse only formatting whitespace after `<br>` into its single visible boundary, add negative／positive fixtures through both paths, preserve Shiki／raw continuation behavior, and rerun every Required Command. All eighth-candidate Green evidence is superseded after the next Source change. No Commit／Stage／Push／PR／CI／Deploy／Release／external mutation occurred. Remaining P22-005C steps are the ninth bounded correction, complete post-change Local Gate, independent Sol xHigh review, and Acceptance sync; remaining parent steps are P22-005D, exact reviewed Commit, and same-SHA delivery. Next Action: Luna Max applies only this one-point `<br>` normalization correction without Commit.
+```
+
+## P22-005C Historical Ninth Bounded Correction — Superseded for Acceptance
+
+```text
+2026-08-17T09:40:59+09:00
+The ninth one-point correction is complete within the existing P22-005C Files Allowed. The shared Artifact normalizer collapses formatting whitespace immediately after supported `<br>` tags, including attribute and self-closing forms, into one visible boundary before logical Bash continuation joining. Existing Shiki `.line`, entity, raw continuation, and unrelated physical-line behavior remains covered. Pretty-printed `<br>` unformatted／Config.Env negatives reject through direct Source／Artifact paths and the pretty-printed State／Health-only control passes. After the final Source／test change, release:check:source, Website 106/106, check, complete 42-page build／41-page site check with existing non-fatal warnings, release:check:artifact, direct Source 3／18／10／8／1 and Artifact 40／40 validation, Quickstart syntax／full E2E, version syntax／baseline, Mago, PHP management-ID, and git diff --check all pass. No blocker and no Commit／Push／CI／Deploy／Release／external mutation occurred. Remaining P22-005C steps are the complete Orchestrator Local Gate and independent Sol xHigh re-review／Acceptance. Remaining parent steps are P22-005D Browser／Accessibility／Search／Production verification, exact reviewed Commit, and same-SHA delivery. Next Action: Orchestrator reruns the complete Local Gate against this exact uncommitted ninth-correction candidate.
+```
+
+## P22-005C Sol xHigh Seventh-candidate Review P1=0／P2=1／P3=0 — Eighth Correction Requested
+
+```text
+2026-08-17T09:10:04+09:00
+The exact seventh-correction candidate is not accepted despite its complete Worker／Orchestrator Local Gate Green. Independent Sol xHigh review and Orchestrator reproduction confirmed one Artifact fail-closed defect: real generated Shiki HTML splits docker inspect tokens across nested spans, and Bash backslash continuation splits one invocation across physical lines, so the raw line-oriented guard misses unformatted and Config.Env diagnostics in both forms. The same Luna Max worker must add dependency-free visible-text normalization that preserves Shiki line boundaries, join Bash continuations into logical commands before inspect parsing, add real-Shiki and multiline negative／State／Health-only positive fixtures through direct and Artifact paths, and rerun every Required Command. All seventh-candidate Green evidence is superseded after the next Source change. No Commit／Stage／Push／PR／CI／Deploy／Release／external mutation occurred. Remaining P22-005C steps are the eighth bounded correction, complete post-change Local Gate, independent Sol xHigh re-review, and Acceptance sync; remaining parent steps are P22-005D, exact reviewed Commit, and same-SHA delivery. Next Action: Luna Max applies only this bounded Artifact normalization／logical-command correction without Commit.
+```
+
+## P22-005C Historical Eighth Bounded Correction — Superseded for Acceptance
+
+```text
+2026-08-17T09:23:45+09:00
+The Artifact fail-closed bypass is corrected within the existing P22-005C Files Allowed. Dependency-free visible-text normalization decodes named／numeric entities, preserves generated Shiki `.line` and `<br>` boundaries, removes remaining tags, and feeds the normalized representation to the shared LGTM guard. Bash physical lines ending in an unescaped backslash are joined into logical commands before every inspect invocation is parsed. Real Shiki and plain continuation fixtures reject unformatted／Config.Env diagnostics through direct Source／Artifact paths; Shiki State／Health, multiline State／Health, and raw continuation State positives pass. After the final Source／test change, release:check:source, Website 106/106, check, complete 42-page build／41-page site check, release:check:artifact, direct Source 3／18／10／8／1 and Artifact 40／40 validation, Quickstart syntax／full E2E, version syntax／baseline, Mago, PHP management-ID, and git diff --check all pass. No blocker and no Commit／Stage／Push／CI／Deploy／Release／external mutation occurred. Remaining P22-005C steps are the complete Orchestrator Local Gate and independent Sol xHigh re-review／Acceptance. Remaining parent steps are P22-005D Browser／Accessibility／Search／Production verification, exact reviewed Commit, and same-SHA delivery. Next Action: Orchestrator reruns the complete Local Gate against this exact uncommitted eighth-correction candidate.
+```
+
+## P22-005C Historical Seventh Candidate Orchestrator Local Gate — Superseded for Acceptance
+
+```text
+2026-08-17T09:00:32+09:00
+Orchestrator independently reran the complete Local Gate against the exact final seventh-correction Working Tree after the last Source／test change. The focused security matrix rejected 5／5 exploit cases and passed 4／4 safe cases; source guard, Website 106/106, check, complete 42-page build／41-page site check, artifact guard, direct Source 3／18／10／8／1 and Artifact 40／40 validation, Quickstart syntax／full E2E, version syntax／baseline, Mago, PHP management-ID, and diff check all passed. No source changed afterward. No blocker and no Commit／Stage／Push／PR／CI／Deploy／Release／external mutation. Remaining P22-005C step is independent Sol xHigh review／Acceptance sync; remaining parent steps are P22-005D, exact reviewed Commit, and same-SHA delivery. Next Action: Sol xHigh reviews this exact frozen Working Tree read-only.
+```
+
+## P22-005C Orchestrator Sixth-candidate Security Counterexamples — Historical Seventh Correction Request
+
+```text
+2026-08-17T08:37:07+09:00
+The sixth Worker Green is not accepted. Pure invocations prove the guard validates only the first inspect／format on a line and misses direct Grafana password expansion: duplicate safe-plus-Config formats, a safe inspect followed by an unformatted second inspect, a State format containing $GRAFANA_PASSWORD, and printf／echo password output all pass. Luna Max must validate every inspect invocation, require exactly one State／Health-only format per LGTM inspect, reject direct secret output, add Source／Artifact fixtures, and rerun every Required Command. Sixth-candidate Green becomes historical after the next Source change. No Commit／Stage／Push／PR／CI／Deploy／Release／external mutation occurred. Remaining P22-005C steps are seventh correction, Local Gate, Sol re-review, and Acceptance; parent steps are P22-005D, exact reviewed Commit, and same-SHA delivery. Next Action: Luna Max applies only this bounded security hardening without Commit.
+```
+
+## P22-005C Orchestrator Fifth-candidate Counterexample — Historical Sixth Correction Request
+
+```text
+2026-08-17T08:23:13+09:00
+The fifth Worker Green is not accepted. Direct pure invocation proves unformatted docker inspect "${LGTM}" passes assertNoUnsafeLgtmDiagnostics because only the unbraced target is parsed. This leaves the secret-safe failure contract open to ordinary Bash braced-variable syntax. The same Luna Max worker must close only this parser bypass, add full Source／Artifact negatives and State／Health-only positives, and rerun every Required Command. All fifth-candidate Green evidence is superseded for Acceptance after the next Source change. No Commit／Stage／Push／PR／CI／Deploy／Release／external mutation occurred. Remaining P22-005C steps are sixth correction, complete post-change Local Gate, Sol xHigh re-review, and Acceptance. Remaining parent steps are P22-005D, exact reviewed Commit, and same-SHA delivery. Next Action: Luna Max applies the one-point guard hardening without Commit.
+```
+
+## P22-005C Historical Seventh Bounded Correction — Superseded for Acceptance
+
+```text
+2026-08-17T08:54:55+09:00
+The sixth-candidate multi-invocation and secret-output bypasses are corrected within the existing P22-005C Files Allowed. The guard enumerates every docker inspect／docker container inspect occurrence, bounds each command, requires exactly one --format for every `$LGTM`／`${LGTM}` target, and accepts only State／Health fields without Grafana credential identifiers or expansions. printf／echo credential expansions are rejected while literal configured-password prompts, assignments, and docker run --env input remain allowed. Direct Source／Artifact matrix evidence rejects all five reported negatives and passes safe multi-inspect HTML, State／Health, literal prompt, assignment, and env-input positives. After the final Source／test change, source guard, Website 106/106, check, complete 42-page build／41-page site check, artifact guard, direct Source／Artifact counts, Quickstart syntax／full E2E ending `Quickstart consumer E2E passed.`, version syntax／baseline, Mago, PHP management-ID, and diff check all pass. Source counts are {"tutorial":3,"how-to":18,"concept":10,"reference":8,"troubleshooting":1}; Artifact inventory is {"routes":40,"searchRoutes":40}. All sixth-candidate Green evidence is historical／superseded for Acceptance. No blocker and no Commit／Stage／Push／CI／Deploy／Release／external mutation. Remaining P22-005C steps are a new Orchestrator Local Gate, independent Sol xHigh review／Acceptance; remaining parent steps are P22-005D Browser／Accessibility／Search／Production verification, exact reviewed Commit, and same-SHA delivery. Next Action: Orchestrator reruns the complete Local Gate against this exact uncommitted seventh-correction candidate.
+```
+
+## P22-005C Sixth Bounded Correction — Historical Superseded Evidence
+
+```text
+2026-08-17T08:30:49+09:00
+The one-point `${LGTM}` guard bypass is corrected within the existing P22-005C Files Allowed. assertNoUnsafeLgtmDiagnostics now treats ordinary `$LGTM` and braced `${LGTM}` targets equivalently, covers docker container inspect, and parses --format before allowing only `.State.Status`, `.State.Health`, and `.State.Health.Status` fields; unformatted, whole-object, Config／Env, and environment-dump forms fail closed. Direct Source／Artifact fixtures reject braced unformatted／whole-object／Config forms and preserve unbraced／braced State／Health positives. Focused direct evidence is Green for all six cases. After the final Source／test change, source guard, Website 106/106, check, complete 42-page build／41-page site check, artifact guard, direct Source／Artifact counts, Quickstart syntax／full E2E ending `Quickstart consumer E2E passed.`, version syntax／baseline, Mago, PHP management-ID, and diff check all pass. Source counts are {"tutorial":3,"how-to":18,"concept":10,"reference":8,"troubleshooting":1}; Artifact inventory is {"routes":40,"searchRoutes":40}. All fifth-candidate Green evidence is historical／superseded for Acceptance. No blocker and no Commit／Stage／Push／CI／Deploy／Release／external mutation. Remaining P22-005C steps are a new Orchestrator Local Gate, independent Sol xHigh review／Acceptance; remaining parent steps are P22-005D Browser／Accessibility／Search／Production verification, exact reviewed Commit, and same-SHA delivery. Next Action: Orchestrator reruns the complete Local Gate against this exact uncommitted sixth-correction candidate.
+```
+
+## P22-005C Fifth Bounded Correction — Historical Superseded Evidence
+
+```text
+2026-08-17T08:10:32+09:00
+The three Sol P1／P2 findings are corrected within the existing P22-005C Files Allowed. LGTM automatic／Interactive failure paths emit only formatted Container State／Health and a fixed safe startup diagnostic; the shared Source／Artifact guard rejects unformatted `$LGTM` inspect, Config.Env, and environment-dump output. A dependency-free sentinel-password shim forces unhealthy health and proves captured output contains no sentinel while State／Health and startup diagnostics remain observable. Core API Return and Error／Safe Code cells are parsed as exact `<br>` Method maps and compared completely with source-derived contracts; missing／duplicate／extra／mismatched／swapped associations fail closed, including two-method swapped Return／Error fixtures, while the 216-type catalog and constructor no-return marker remain valid. Community Board／Testing now expose Application／Reference Application／Hosted Instance boundaries; Japanese Local／CI and Repository-evidence variants fail through Source／Artifact paths and the exact historical Framework Update Consumer sentence remains allowlisted. Focused fifth counterexamples pass. Website 106/106, source／artifact guards, check, complete 42-page build／41-page site check, direct Source／Artifact validation, Quickstart syntax／full E2E, version syntax／baseline, Mago, PHP management-ID, and diff check all pass after the final Source／test change. Source counts are {"tutorial":3,"how-to":18,"concept":10,"reference":8,"troubleshooting":1}; Artifact inventory is {"routes":40,"searchRoutes":40}. All fourth-correction Green evidence is historical／superseded for Acceptance. No blocker and no Commit／Stage／Push／CI／Deploy／Release／external mutation. Remaining P22-005C steps are a new Orchestrator Local Gate, independent Sol xHigh review／Acceptance; remaining parent steps are P22-005D Browser／Accessibility／Search／Production verification, exact reviewed Commit, and same-SHA delivery. Next Action: Orchestrator reruns the complete Local Gate against this exact uncommitted fifth-correction candidate.
+```
+
+## P22-005C Sol xHigh Final Review P1=1／P2=2／P3=0 — Historical Fifth Correction Request
+
+```text
+2026-08-17T07:57:14+09:00
+The exact fourth-correction candidate is not accepted despite its complete Worker／Orchestrator Local Gate Green. Independent Sol xHigh read-only review confirmed three residuals inside the existing Files Allowed: Interactive LGTM failure diagnostics use unformatted docker inspect and can expose GF_SECURITY_ADMIN_PASSWORD through Config.Env; Core API Method Return／Error associations can be swapped while the validator still passes; Japanese Local／CI Repository-evidence voice remains in Community Board／Testing and passes the English-focused guard. All fourth-correction Green evidence is superseded for Acceptance after the next Source change. No Commit／Stage／Push／PR／CI／Deploy／Release／external mutation occurred. Remaining P22-005C steps are the fifth Luna Max bounded correction, complete post-change Local Gate, independent Sol xHigh re-review, and Acceptance sync. Remaining parent steps are P22-005D Browser／Accessibility／Search／Production verification, exact reviewed Commit, and same-SHA delivery. Next Action: the same Luna Max worker corrects only these three findings and reruns every Required Command without Commit.
+```
+
+## P22-005C Historical Fourth Candidate Orchestrator Local Gate — Green but Review Failed
+
+```text
+2026-08-17T07:47:49+09:00
+The fourth bounded correction completed within the existing P22-005C Files Allowed. Orchestrator independently reran the complete Local Gate against that exact uncommitted candidate after the last Source／test change. The targeted suite rejected all 15 non-exact historical-anchor variants, preserved two exact positives, and rejected a wrong semantic owner; source guard, Website 105/105, check, complete 42-page build／41-page site check, artifact guard, direct Source `3／18／10／8／1` and Artifact `40／40` validation, Quickstart syntax／full E2E, version syntax／baseline, Mago, PHP management-ID, and diff check all passed. No source changed before review and no Commit／Stage／Push／PR／CI／Deploy／Release／external mutation occurred. The later P1=1／P2=2 Sol review proves this Green was insufficient for Acceptance and supersedes it; the top checkpoint is current.
+```
+
+## P22-005C Historical Heading Level Counterexample — Changes Requested
+
+```text
+2026-08-17T07:19:58+09:00
+The third correction is not accepted despite Worker and Orchestrator complete Local Gate PASS. Read-only counterexamples show that the historical exemption still accepts Markdown H2／H4 and generated HTML H2 for Repository main Preview, while the preserved Source and generated representation are exact H3. This one residual remains inside the existing P22-005C Files Allowed and is returned to the same Luna Max worker as a fourth bounded correction with wrong-level Source／Artifact fixtures. All third-correction Green evidence is superseded for Acceptance and must be rerun after the final Source change. No Commit／Stage／Push／PR／CI dispatch／Deploy／Release／external mutation occurred. Remaining P22-005C steps: fourth bounded correction, Orchestrator complete Local Gate, independent Sol xHigh re-review／Acceptance. Remaining parent steps: P22-005D Browser／Accessibility／Search／Production verification, exact reviewed Commit, and same-SHA delivery. Next Action: Luna Max applies the exact-level guard correction and reruns all Required Commands without Commit.
+```
+
+## P22-005C Orchestrator Complete Local Gate — Historical Superseded Evidence
+
+```text
+2026-08-17T07:14:25+09:00
+Orchestrator independently reran the complete Local Gate on the exact uncommitted third-correction candidate. All listed commands passed, but fourth-correction counterexamples then exposed a remaining exact-unit guard defect. This gate is historical／superseded and no longer makes Sol the sole pending step. Remaining P22-005C steps are a new Orchestrator Local Gate and independent Sol xHigh Documentation Review／Acceptance. Remaining parent steps: P22-005D Browser／Accessibility／Search／Production verification, exact reviewed Commit, and same-SHA delivery. Next Action: Orchestrator reruns the complete Local Gate against the fourth-correction candidate.
+```
+
+## P22-005C Third Bounded Correction — Correction Complete, Review Pending
+
+```text
+2026-08-17T07:05:51+09:00
+The three residual counterexamples are corrected within the existing P22-005C Files Allowed. Semantic topic／recipe declarations are collected globally and require exactly one self-referencing owner plus every reference role to resolve to that owner; wrong-owner, non-self-owner, missing-owner, duplicate-owner, and full-duplicate-recipe fixtures fail closed. The optional Interactive LGTM lane asserts final Grafana status／health after readiness, prints a non-secret exact Docker Network／OTLP endpoint／port handoff and copy-paste emitter command for the second Terminal, and never prints the configured password. The main-preview guard accepts only the exact `### Repository main Preview` heading and generated exact HTML representation, with Source／Artifact prefix／suffix negatives. All Required Commands pass after final Source changes: source guard, Website 105/105, check, 42-page build／41-page site check, artifact guard, Quickstart syntax／full E2E, version syntax／baseline, Mago, PHP management-ID, and diff check. Direct Source counts are {"tutorial":3,"how-to":18,"concept":10,"reference":8,"troubleshooting":1}; direct Artifact inventory is {"routes":40,"searchRoutes":40}. No blocker remains in this correction scope. No Commit／Stage／Push／PR／CI dispatch／Deploy／Release／external mutation occurred. Orchestrator Local Gate and Sol xHigh review／Acceptance remain pending. Remaining parent steps: P22-005D Browser／Accessibility／Search／Production verification, exact reviewed Commit, and same-SHA delivery. Next Action: Orchestrator reviews this exact uncommitted candidate and requests independent Sol xHigh re-review.
+```
+
+## P22-005C Second Correction Counterexample Review — Changes Requested
+
+```text
+2026-08-17T06:56:43+09:00
+Orchestrator did not accept the second Luna Max correction despite its Worker 105/105 and complete Local Gate report. Residual counterexamples are: semantic topic／recipe references can resolve to an existing non-owner Page; the optional Interactive LGTM lane can continue without final Grafana health, does not give the second Terminal a usable Network／OTLP handoff, and echoes the configured password; the historical Repository main Preview heading exemption accepts prefix／suffix injection. These three corrections remain inside the existing P22-005C Files Allowed and are returned to the same Luna Max worker. All second-correction Green evidence is superseded for Acceptance and must be rerun after the final Source change. P22-005D、Commit、Push、CI dispatch、Deploy、Release remain pending and unauthorized. Remaining steps: third bounded correction, Orchestrator complete Local Gate, independent Sol xHigh re-review／Acceptance. Next Action: Luna Max applies only the three bounded corrections and reruns all Required Commands without Commit.
+```
+
+## P22-005C Second Bounded Correction — Correction Complete, Review Pending
+
+```text
+2026-08-17T06:49:42+09:00
+The seven Orchestrator counterexamples are corrected within the existing P22-005C Files Allowed. Quickstart／Consumer now reuse one clear operation_type='order.create' Journal path and make no HTTP-response Operation ID claim; core-api.md is one namespace-split nine-column source-derived catalog for all 216 PublicApi types, with bounded helper-propagated Error and unrelated-static-call drift fixtures; Observability／Troubleshooting use internally executable fixed-digest automatic／optional interactive lanes; Content Map uses explicit semantic topic／recipe identities and one owner per shared identity with a full duplicate-recipe negative fixture; non-allowlisted Remote／Consumer／Local-CI／Browser evidence variants and unknown raw Markdown／HTML／Search／LLM routes fail closed; reader-experience has no test-local type matrix and execution.md links canonical outbox.md. Required Commands were rerun after final Source changes: Website 105/105, source／artifact guards, check, complete build／site check, Quickstart Consumer, version baseline, Mago, PHP management-ID, and diff check PASS. Direct artifact validation passes with {"routes":40,"searchRoutes":40}. No blocker remains in this correction scope. No Commit／Stage／Push／PR／CI dispatch／Deploy／Release／external mutation occurred. Independent Orchestrator Local Gate and Sol xHigh review／Acceptance remain pending. Remaining parent steps: P22-005D Browser／Accessibility／Search／Production verification, exact reviewed Commit, and same-SHA delivery. Next Action: Orchestrator reviews this exact uncommitted candidate and requests independent Sol xHigh re-review.
+```
+
+## P22-005C First Correction Counterexample Review — Changes Requested
+
+```text
+2026-08-17T06:03:14+09:00
+Orchestrator did not accept the first Luna Max correction despite its Worker Local Gate PASS. Residual counterexamples are: Quickstart resolves ORDER_OPERATION_ID and then returns to an unresolved placeholder／false HTTP-response claim; Core API keeps duplicate per-type catalogs and its Error extractor misses Environment helper-propagated InvalidArgumentException while labeling unrelated static factories as safe codes; Observability LGTM cleanup runs before the documented Explore／signal path and no Emitter／Probe exists; topic／recipe owners are route-derived and tautologically unique; current Releases prose still exposes Remote create-project smoke／Local-CI／Real Browser E2E internal evidence variants; raw Markdown／HTML extra routes are not fail-closed. These seven corrections remain inside the existing P22-005C Files Allowed and are returned to the same Luna Max worker. The first-correction 102/102／build／Quickstart／baseline Green is historical false-positive evidence and will not be reused after Source changes. P22-005D、Commit、Push、CI dispatch、Deploy、Release remain pending and unauthorized. Remaining steps: second bounded correction, Orchestrator complete Local Gate, independent Sol xHigh re-review／Acceptance. Next Action: Luna Max applies the seven bounded corrections and reruns all Required Commands without Commit.
+```
+
+## P22-005C Bounded Correction — Correction Complete — Review Pending
+
+```text
+2026-08-17T05:53:16+09:00
+Luna Max completed the bounded Sol xHigh post-implementation correction within the existing P22-005C Files Allowed. Visible Stable／main stale headings and body claims now use exact Stable 1.2.0 wording with explicit historical anchors only; Quickstart and `tests/Consumer/quickstart-e2e.sh` select the same `operation_type='order.create'` Journal path; Observability／Troubleshooting no longer start undefined Compose services and use self-contained fixed-digest lanes; the Reference validator and 216-row Core API index compare full source parameters／returns／defaults／direct Error／Safe Code／enum backing and cases／public constants／Typical Use with drift fixtures; Content Map requires unique topic／recipe owners; all Troubleshooting H2／H3 headings are explicitly diagnostic／FAQ／group／auxiliary and four-part diagnostics fail closed; non-allowlisted internal evidence voice, unknown Search／llms routes, and test-local reader matrices are rejected; `execution.md` summarizes and links to canonical `outbox.md`. Final Required Commands pass: Website 102/102, source／artifact release guards, check, complete 42-page build／site check, Quickstart Consumer E2E, version baseline, Mago, PHP management-ID, and diff check. No Commit／Stage／Push／PR／CI dispatch／Deploy／Release／external mutation occurred. No bounded correction blocker remains. Independent Sol xHigh re-review／Acceptance is pending. Remaining parent steps are P22-005D Browser／Accessibility／Search／Production verification, then exact reviewed Commit and same-SHA delivery under the parent workflow. Next Action: Orchestrator independently re-review this exact uncommitted candidate with Sol xHigh.
+```
+
+## P22-005C Sol xHigh Review P1=3／P2=5／P3=0 — Changes Requested
+
+```text
+2026-08-17T05:13:19+09:00
+Independent Sol xHigh post-implementation Review denied P22-005C Acceptance with P1=3／P2=5／P3=0 despite the exact candidate passing the complete Worker and Orchestrator Local Gates. P1: visible Stable／main headings and body remain stale; Inline Order Operation ID acquisition is a placeholder and Consumer selects an unrelated first Journal Operation; Observability／Troubleshooting invoke undefined collector／grafana／tempo／prometheus Compose services. P2: the 216-row Reference guard does not compare full parameters, runtime Errors, enum cases, or public constants; topic／recipe owner metadata and fixtures are absent while Execution duplicates the Outbox recipe; new unclassified Troubleshooting diagnostics pass; non-allowlisted Remote smoke／Consumer E2E voice remains; llms.txt ignores unknown extra routes. The old reader-experience How-to/Tutorial matrix also remains and contradicts Content Map. P22-005C is Changes Requested for a bounded Luna Max correction in existing allowed files. All pre-correction Green evidence must be rerun after Source changes, followed by independent Sol xHigh re-review. P22-005D、Commit、Push、CI dispatch、Deploy、Release remain pending and unauthorized. Next Action is the bounded P22-005C correction.
+```
+
+## P22-005C Full Public-page Reader Contract Migration — Historical pre-correction Worker Complete
+
+```text
+2026-08-17T05:03:38+09:00
+Historical pre-correction evidence: Luna Max completed P22-005C C0-C5 within the allowed files as an uncommitted Working Tree. Its Green result was superseded by the Sol xHigh P1=3／P2=5 review and is not reused for Acceptance; the bounded correction and final evidence are recorded in the checkpoint above.
+```
+
+## P22-005C Full Public-page Reader Contract Migration — Started
+
+```text
+2026-08-17T03:47:18+09:00
+Sol xHigh read-only audit completed all 41 public sources and 40 non-Landing pages, returning P1=2／P2=5／P3=0. Canonical assignment is Tutorial 3、How-to 18、Concept 10、Reference 8、Troubleshooting 1. P1 findings are Stable 1.2.0 Surface still presented as main-only across CLI／Configuration／Testing／Observability／Glossary／Core API／Releases and Quickstart SQL that decodes BOPD-protected encoded_record as UTF-8／JSON while also using the wrong retry.scheduled event. P2 findings cover test-local type classification, Contributor／Consumer Evidence voice, incomplete four-part diagnostics, uneven runnable page prerequisites／success／recovery, and incomplete exact Reference lookup. A separate Sol xHigh guard review recommends Content Map as the single reader authority with one pure Source／Artifact validator and exact Search／raw／LLM inventory fixtures; its guard design is adopted while the full-content audit classification remains authoritative. P22-005C is In Progress for Luna Max implementation in C0-C5 batches. No public Source correction、test/build、Commit、Push、PR、CI、Deploy、Release、or external mutation occurred in this checkpoint. After C implementation, complete Local Gate、independent Sol xHigh full-site Review／Acceptance remain; P22-005D Browser／Accessibility／Search／Production verification、exact reviewed Commit and same-SHA delivery remain after C.
+```
+
+## P22-005B Accepted — Seven-section IA and Landing Guard Complete
+
+```text
+2026-08-17T03:32:57+09:00
+P22-005B is Accepted. The post-correction exact uncommitted Working Tree passed Orchestrator release source、Website 95/95、content／link／type check、complete 42-page build／Artifact／site check、release artifact、version baseline、Mago、PHP management-ID、and diff gates. Direct Artifact evidence is main=1、PageLayout content main=1、skip target=1、OperationType=1、Releases direct target=1、six remaining collapsible Sections, exact canonical seven raw／LLM headings, and focus contrast Light 5.027／5.473、Dark 12.545／11.256 with old orange 2.574 negative. Independent Sol xHigh re-review returned P1=0／P2=0／P3=0 and permits Acceptance; all prior P1=1／P2=3／P3=1 findings are resolved without new regression. Public slugs、41 sources、40 Sidebar pages、four Redirects、Stable 1.2.0 Release Authority／historical allowlist remain unchanged. No Commit、Push、PR、CI dispatch、Deploy、Release、or external mutation occurred. P22-005C full-page reader-contract migration and P22-005D Browser／Accessibility／Search／Production verification remain, followed by exact reviewed Commit and same-SHA CI／Documentation delivery. Next Action is P22-005C Task Packet initialization.
+```
+
+## P22-005B Sol xHigh Review P1=1／P2=3／P3=1 — Correction Complete, Review Pending
+
+```text
+2026-08-17T03:24:36+09:00
+Luna Max completed the five authorized P22-005B corrections within the allowed files. The Landing Operation sample now has exactly one #[OperationType('report.generate')] in Route → OperationType → Deferred order with Source and built HTML guards plus a missing-attribute negative fixture. The raw Landing, generated dist/index.md, and llms-full Landing segment now require exactly the canonical Start Here、Build、Async and Lifecycle、Data and Security、Operate、Reference、Releases level-two order and reject Reference and Releases recombination. Focus uses the accent token in Light and Dark; pure fixtures bind the current CSS colors, prove every paper/surface pair at least 3:1, reject the existing orange action pair, and cover active Sidebar focus. Landing is a non-landmark root inside PageLayout's sole main with one skip target. Releases maps to one direct root: 'releases/current-status' and the built page has one unique aria-current target; same-name parent/child fixtures fail closed. The complete Required Commands were rerun after Source changes: Website 95/95、check、final 42-page build／Artifact／site check、Source／Artifact release guard、version baseline、Mago、PHP management-ID、and diff checks PASS. One initial guard-only build attempt exposed a missing repositoryRoot import, which was corrected and followed by a successful complete build. No Commit、Push、PR、CI dispatch、Deploy、Release、or external mutation occurred. Independent Sol xHigh re-review and Orchestrator Acceptance remain; P22-005C／D, exact reviewed Commit, same-SHA CI／Documentation delivery, and Production canonical verification remain after B.
+```
+
+## P22-005B Sol xHigh Review P1=1／P2=3／P3=1 — Correction In Progress
+
+```text
+2026-08-17T03:11:43+09:00
+Independent Sol xHigh Documentation Review did not permit P22-005B Acceptance. P1: the Landing actual Operation sample omits mandatory #[OperationType('report.generate')] and would fail Stable 1.2.0 metadata compilation. P2: raw Markdown／llms-full recombine Reference and Releases, Light focus contrast is 2.574:1, and PageLayout main contains a second Landing main. P3: singleton Releases renders same-name parent and child. The Task now authorizes only these five corrections plus fail-closed Source／Artifact guards. Prior Green evidence is pre-correction and cannot be reused after Source changes. Luna Max correction, complete Local Gate rerun, Sol xHigh re-review, and Orchestrator Acceptance remain. P22-005C／D, exact reviewed Commit, same-SHA CI／Documentation delivery, and Production canonical verification remain after B. No Commit、Push、PR、CI dispatch、Deploy、Release、or external mutation occurred.
+```
+
+## P22-005B Documentation Information Architecture／Landing — Worker Complete, Review Pending
+
+```text
+2026-08-17T02:55:45+09:00
+Luna Max worker completed P22-005B within the allowed files. The 41-entry Content Map now declares one canonical Section, the 40 non-index public slugs are placed exactly once in the canonical Start Here、Build、Async and Lifecycle、Data and Security、Operate、Reference、Releases order, and fail-closed navigation fixtures reject missing、unknown、duplicate、wrong-section、and reordered entries. Landing now provides direct Install／Quickstart and Skeleton／First Operation paths, Stable 1.2.0 install, actual Operation PHP code, Operation／Inline／Deferred／Lifecycle／Journal mental model, and six purpose lanes. The design preflight keeps one eyebrow, ordered-list semantics without visible step numbers, local code scrolling with inline-size containment, solid surfaces, no Landing gradient／grid／glow／three equal feature cards／fake screenshot／new dependency. Website 93/93、check、42-page build／Artifact／site check、Source／Artifact release guard、version baseline、Mago、PHP management-ID、and diff checks pass; the first build check-site failure was only an over-broad shared-CSS gradient scan and was corrected in-scope. Public slugs、four redirects、Release Authority／historical allowlist、current claims remain unchanged. No Commit、Push、PR、CI dispatch、Deploy、Release、or external mutation occurred. Task and parent child status are Worker Complete、Review Pending. Independent Sol xHigh Documentation Review remains; after B Acceptance, P22-005C full-page migration and P22-005D browser／production verification remain.
+```
+
+## P22-005B Documentation Information Architecture／Landing — Started
+
+```text
+2026-08-17T02:38:27+09:00
+P22-005B is Ready and starts under the accepted Agent policy: Luna Max implementation followed by independent Sol xHigh Documentation Review. The bounded Task reorganizes the existing 41-entry Content Map and 40-page Sidebar into exactly seven sections, preserves every public slug／redirect／P22-005A release claim contract, and redesigns the custom Landing as a calm developer-tool entry with direct Install／Quickstart／First Operation paths, actual Operation code, current Stable 1.2.0 install, and purpose-based Build／Async／Data／Operate／Reference／Releases navigation. Design dials are variance 4、motion 2、density 6; decorative gradient／grid／glow, three equal feature cards, fake screenshots, new dependencies, and public route changes are excluded. Commit、Push、PR、CI、Deploy、Release、external mutation are not authorized. After B Acceptance, P22-005C full-page reader-contract migration and P22-005D browser／production verification remain.
+```
+
+## P20-009H Accepted — Luna Max Implementation／Sol xHigh Review Policy Active for New Threads
+
+```text
+2026-08-17T02:20:58+09:00
+Independent Sol xHigh re-review returned P1=0／P2=0／P3=0 and permits P20-009H Acceptance. Repository Profiles are now Orchestrator／investigation／Orchestrator Review gpt-5.6-sol／xhigh, Production Implementation Worker gpt-5.6-luna／max, and Documentation Reviewer gpt-5.6-sol／xhigh. Active Orchestration／Specification documents delegate current Worker Model／Reasoning Effort to .codex/agents/worker.toml; AGENTS、Specification 92、D144 consistently treat Model／Reasoning Effort rejection、unavailability、or explicit fallback as Blockers while metadata non-disclosure alone is not. Historical Task／Report evidence, D091／D125 bodies, P22-005A, P23-001, and all non-Profile Contracts remain preserved. TOML、active-profile、fallback、Mago、management-ID、diff checks pass. P20-009H has no remaining in-scope work; the policy applies from newly started Agents after configuration reload. No Commit、Push、PR、CI、Deploy、Release、or external mutation occurred. Next planned work is P22-005B Information Architecture／Landing implementation under the new profiles.
+```
+
+## P20-009H Profile Governance Correction — Correction Complete, Review Pending
+
+```text
+2026-08-17T02:15:36+09:00
+P20-009H bounded correction replaced hard-coded Luna High references in develop/orchestration/README.md and Specifications 40／60／70／72／75／77／79／81／99／100 with delegation to the current Model／Reasoning Effort in .codex/agents/worker.toml, while preserving Task Packet、Worker Review前Commit禁止、Orchestrator Review／Commit、Documentation Reviewer Read-only boundaries. AGENTS and Specification 92 now treat Model and Reasoning Effort rejection／unavailability／explicit fallback as Blockers while metadata non-disclosure alone is not; D144 supersedes only the Profile clauses of these active governance documents plus D091／D125 and preserves their non-Profile Contracts. Updated static guards／Mago／management-ID／diff evidence are recorded. Task／Report／TODO／STATE are Correction Complete、Review Pending. No Commit、Push、PR、CI、Deploy、Release、or external mutation occurred; independent Sol xHigh re-review remains.
+```
+
+## P20-009H Sol xHigh Review P1=0／P2=2 — Bounded Correction Authorized
+
+```text
+2026-08-17T02:12:13+09:00
+Independent Sol xHigh read-only Review confirmed the three TOML Profile values, new-Thread boundary, historical Task／Report preservation, and role separation, but returned P1=0／P2=2. Current develop/orchestration/README.md and Specifications 40／60／70／72／75／77／79／81／99／100 still hard-code Luna High, while D144 only supersedes D091／D125 Profile clauses; AGENTS and Specification 92 also describe only Model fallback rather than Model／Reasoning Effort fallback. P20-009H now authorizes only those active-governance references, D144, AGENTS／Specification 92, static guards, and management evidence for correction. Historical Task／Report evidence remains immutable. Luna Max correction, local verification, Sol xHigh re-review, then Acceptance remain. No Commit, Push, PR, CI, Deploy, Release, or external mutation occurred.
+```
+
+## P20-009H Agent Reasoning Profile Upgrade — Worker Complete, Review Pending
+
+```text
+2026-08-17T02:03:11+09:00
+GPT-5.6 Luna Max worker synchronized the Repository Agent Profile governance within the P20-009H allowed files: Orchestrator／調査／Orchestrator Reviewはgpt-5.6-sol／xhigh、Production Implementation Workerはgpt-5.6-luna／max、Documentation Reviewerはgpt-5.6-sol／xhighとした。AGENTS、Specification 92、D144、D091／D125 status、Specification index、TODO、Task Packetを同期し、起動済みThreadへProfileが遡及適用されないことと過去Task／Reportのhistorical evidenceを維持する境界を記録した。TOML／Profile参照／管理ID／Mago／diff checksを実行し、Commit、Push、PR、CI、Deploy、Release、外部操作は行っていない。TaskはWorker Complete、Review Pendingであり、独立Sol xHigh Read-only ReviewとAcceptanceが残る。
+```
+
+## P20-009H Agent Reasoning Profile Upgrade — Started
+
+```text
+2026-08-17T01:49:34+09:00
+User decided that Production implementation uses GPT-5.6 Luna Max and investigation／Orchestrator Review／Documentation Review use GPT-5.6 Sol xHigh. P20-009H is Ready as an isolated governance change: explicit Luna Max implementation, repository Profile／AGENTS／Decision／Specification synchronization, static validation, then independent Sol xHigh read-only review. Existing Agent Threads retain the Profile loaded at startup and must not be represented as upgraded; the new policy applies to newly started Agents after configuration reload. Production PHP, public Documentation, Release Authority, Commit, Push, PR, CI, Deploy, Release, and external state remain unchanged.
+```
+
+## P22-005A Accepted — Release Claim Recurrence Guard Complete
+
+```text
+2026-08-17T01:05:18+09:00
+P22-005A final exact Working Tree passed Orchestrator source guard, Website 92/92, check, 42-page build, Search/HTML/raw Markdown/LLM artifact and site guards, version baseline, Mago, management-ID, and diff checks. The final bounded correction preserves the historical #repository-main-preview fragment while rejecting mapped-page current main-only prose, and full Artifact fixtures reject same-unit prefix/suffix and stale-context bypasses without loosening exact historical matches. Independent Documentation Review returned P1=0/P2=0/P3=0 and permits P22-005A Acceptance and an exact candidate-only Commit; separate untracked P23-001 remains excluded. No Commit, Push, CI dispatch, Deploy, or external mutation occurred. Parent P22-005 remains In Progress; P22-005B Information Architecture and navigation is next, followed by P22-005C full-page migration and P22-005D browser/production delivery verification.
+```
+
+## P22-005A Re-review Counterexample Correction — Worker Complete, Review Pending
+
+```text
+2026-08-17T01:03:29+09:00
+P22-005A exact-history correction preserves the public Repository main Preview heading/fragment while removing artifact prefix rewind and terminal truncation. Search JSON headings/table rows are structurally split, and full artifact fixtures prove exact allowlisted sentence PASS, same-unit prefix/suffix FAIL, and allowlisted-plus-stale-current-context FAIL across Search and LLM-like HTML/text. The prior page lane, Roadmap, metadata, Japanese candidate, since-history, and future-authority corrections remain in force. Website 92/92, source/artifact guards, check/build, baseline, syntax, Mago, management-ID, and diff evidence are recorded/Orchestrator-confirmed. D143 and Spec104 are explicit allowed P22-005A candidate management files; separate untracked P23-001 is excluded from the P22-005A candidate. No Commit/Push/Deploy/external mutation. Independent Orchestrator and Documentation Review remain pending.
+```
+
+## P22-005A Release Claim Authority — Worker Complete, Review Pending
+
+```text
+2026-08-17T00:34:52+09:00
+P22-005A implemented the machine-readable Stable 1.2.0 Release Authority, exact six-entry 1.1.0 historical allowlist, dependency-free shared Source/Artifact claim classifier, current-source corrections, Search/raw Markdown/HTML/metadata/LLM artifact guards, CI/docs workflow wiring, and release-documentation impact requirements. The artifact guard now parses JSON string records independently, so minified blume-search.json records cannot concatenate into a false stale-current phrase; a positive two-record fixture passes and a separate-record Stable 1.1.0 fixture fails. Source/artifact guards, Website 87/87 tests, check, 42-page build with artifact/site checks, version baseline, bash syntax, Mago, PHP management-ID, and diff checks pass. No Production PHP, Tag, Release, Packagist, Commit, Push, Deploy, or public mutation changed. Orchestrator and independent Documentation Review remain pending.
+```
+
+## P22-005 Documentation Governance Start
+
+```text
+2026-08-17T00:09:39+09:00
+User authorized a structural Documentation Website overhaul and requested durable recurrence prevention after public Stable 1.2 pages, Search metadata, and LLM artifacts retained stale Stable 1.1／unpublished-candidate claims. Read-only full-source audit returned P1=2／P2=2: release authority is distributed, generated artifacts propagate stale claims, existing guards are partial and sometimes require the stale wording, and release Task／Report scope does not require a full public-surface inventory. D143 and Specification 104 now define a machine-readable Release Authority, exact historical-reference allowlist, shared Source／Artifact classifier, fail-closed CI and Task／Review contract, and a seven-section user-oriented IA. Parent P22-005 is In Progress; P22-005A is Ready for Luna High worker implementation. No Production PHP, Tag, Release, Packagist, Commit, Push, or Deploy changed. User's BlackOps 1.3 command／FrankenPHP proposal is recorded as an unreleased Phase 23 proposal and in explicit memory, pending feasibility decisions.
+```
 
 ## P22-004H Documentation Review Passed — Commit Approved
 
@@ -9008,3 +9372,9 @@ Result: Violations 0 / Skipped 0 / Uncovered 0 / Allowed 0 / Warnings 0 / Errors
 - `tests/Database/DatabaseConnectionTest.php`
 - `docs/internal/execution-context.md`
 - `docker/db-smoke-test.php`
+## P22-005C Sol Eleventh Focused Review — Twelfth Correction Requested
+
+```text
+2026-08-17T11:26:19+09:00
+Independent focused review denied Acceptance. Remaining bounded defects are unresolved outer inspect attribution independent of nested substitutions, missing process-substitution／literal-eval／shell here-string recursion and bare shell environment-dump rejection, and `${...}` depth incorrectly treating literal `{` as nested. The twelfth correction is limited to the existing reader-contract source／test Files Allowed; full Required Commands remain forbidden until focused Green. No external mutation or Commit occurred.
+```

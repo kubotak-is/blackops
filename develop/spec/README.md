@@ -10,6 +10,8 @@
 - 仕様変更前に新しい設計対話を行う
 - 置き換えられたDecisionは削除せず `Superseded` として残す
 
+公開Releaseのcurrent claim、immutable source refs、Capability、historical referenceは、[machine-readable Release Authority](release-authority.json)を正本としてDocumentation Sourceと生成Artifactで共有検証する。
+
 ## 仕様書
 
 | 文書 | 内容 |
@@ -118,6 +120,7 @@
 | [101-framework-owned-transaction-proxy.md](101-framework-owned-transaction-proxy.md) | Framework-owned Transactional／AfterCommit Proxy contract |
 | [102-phase-21-delivery-plan.md](102-phase-21-delivery-plan.md) | Phase 21 proxy replacement delivery order and removal gate |
 | [103-stable-1-2-release-plan.md](103-stable-1-2-release-plan.md) | Stable 1.1 preservation and main 1.2.0 Release Candidate baseline |
+| [104-documentation-release-lifecycle-and-information-architecture.md](104-documentation-release-lifecycle-and-information-architecture.md) | Release Authority、全公開Source／Artifact guard、目的別Information Architecture、Task／Review契約 |
 
 ## 決定の参照
 
@@ -213,7 +216,7 @@
 | [D088](../decisions/088-validation-backend.md) | Validation Backend | Decided |
 | [D089](../decisions/089-validation-rejection-sensitive-journal.md) | Validation Rejection Sensitive Journal | Decided |
 | [D090](../decisions/090-documentation-information-architecture.md) | Documentation Information Architecture | Decided |
-| [D091](../decisions/091-orchestrator-worker-model-configuration.md) | Orchestrator and Worker Model Configuration | Decided |
+| [D091](../decisions/091-orchestrator-worker-model-configuration.md) | Orchestrator and Worker Model Configuration | Superseded for Profile selection by D144 |
 | [D092](../decisions/092-project-cli-command-names.md) | BlackOps CLI Command Names | Partially Superseded by D094 |
 | [D093](../decisions/093-post-phase-10-roadmap.md) | Post Phase 10 Roadmap | Decided |
 | [D094](../decisions/094-stable-1-1-release-contract.md) | Stable 1.1 Release Contract | Decided |
@@ -247,7 +250,7 @@
 | [D122](../decisions/122-blume-mermaid-rendering.md) | Blume Mermaid Rendering | Decided |
 | [D123](../decisions/123-documentation-third-review-accuracy.md) | Documentation Third Review Accuracy | Decided |
 | [D124](../decisions/124-mermaid-diagram-legibility.md) | Mermaid Diagram Legibility | Decided |
-| [D125](../decisions/125-documentation-review-agent.md) | Documentation Review Agent | Decided |
+| [D125](../decisions/125-documentation-review-agent.md) | Documentation Review Agent | Superseded for Profile selection by D144 |
 | [D126](../decisions/126-implicit-inline-ephemeral-outcome.md) | Implicit Inline Ephemeral Outcome | Decided |
 | [D127](../decisions/127-journal-documentation.md) | Journal Documentation | Decided |
 | [D128](../decisions/128-observed-journal-wire-shape.md) | Observed Journal Wire Shape | Decided |
@@ -265,3 +268,5 @@
 | [D140](../decisions/140-release-quality-tooling-baseline.md) | Release Quality Tooling Baseline | Decided |
 | [D141](../decisions/141-release-architecture-and-export-boundary.md) | Release Architecture and Export Boundary | Decided |
 | [D142](../decisions/142-public-facade-and-internal-implementation-cycles.md) | Public Facade and Internal Implementation Cycles | Decided |
+| [D143](../decisions/143-documentation-release-truth-and-information-architecture.md) | Documentation Release Truth and Information Architecture | Decided |
+| [D144](../decisions/144-agent-reasoning-profile-upgrade.md) | Agent Reasoning Profile Upgrade | Decided |

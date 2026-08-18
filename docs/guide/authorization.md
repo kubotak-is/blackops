@@ -2,6 +2,8 @@
 
 Authorizationは、認証済みActorがOperationまたはResourceを実行できるかを判定するApplication Policyです。BlackOpsは`#[Authorize]`、Actor Context、Typed Request／Decision、Build-time DI登録の境界を提供します。Role、Permission、Tenant、Resource所有権の検索結果はApplicationが返します。
 
+この公開Authorization CapabilityはExperimental Stable `1.2.0`のSkeleton／Framework Packageで利用できます。
+
 ## InlineとDeferred
 
 InlineではHandler実行前にPolicyを評価します。Deferredでは受付時のActor Contextを保存し、Workerが実行を開始する前に再認可します。受付後に権限が失われた場合、Workerは副作用を実行せずRejectedへ遷移します。
@@ -105,3 +107,11 @@ $services->autowire(OperationStatusAuthorizer::class, InvoiceStatusAuthorizer::c
 RequestのCurrent／Origin ActorとDecisionを使うStatus専用Policyであり、Operationの`#[Authorize]`とは別の責務です。
 
 Scheduled Operationの`#[Authorize]`はConsole用Actorと共用しません。Application-owned `ScheduledActorProvider`をService ProviderへBindingし、Schedule ContextからOrigin／Authorization Actorを解決します。登録手順とProvider欠落時のBuild Errorは[Authorized ScheduleのProvider](scheduled-operation.md#authorized-scheduleのprovider)を参照してください。
+
+## 次にClientから呼ぶ
+
+認可済みOperationをFrontendから呼び出す場合は、[Frontend](frontend.md)でClient生成とCredential注入の境界を確認します。
+
+## PolicyのDenyを確認する
+
+所有権の異なるRequestはHTTP `403`またはStatus Queryの認可拒否となり、Deferred Workerも再認可で実行しません。Policy、Actor、Resource IDを確認してから再試行します。

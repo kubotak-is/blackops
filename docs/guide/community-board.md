@@ -1,6 +1,6 @@
 # BlackOps Board Reference Application
 
-BlackOps Boardは、Repository `main`のFramework機能を実際のBrowser JourneyへまとめたLocal Full-stack Reference Applicationです。Application-owned Authentication、SvelteKit Same-origin BFF、PostgreSQL、Inline Post／Comment、Deferred Weekly Digestを一つの構成で確認できます。Stable `1.1.0` Skeletonには含まれず、外部Hostingもしていません。
+BlackOps Boardは、公開済みExperimental Stable `1.2.0`のFramework機能を実際のBrowser JourneyへまとめたRepository Exampleです。Application-owned Authentication、SvelteKit Same-origin BFF、PostgreSQL、Inline Post／Comment、Deferred Weekly Digestを一つの構成で確認できます。Framework／Skeleton Packageには含まれず、外部Hostingもしていません。
 
 ![BlackOps BoardのCredential-free Landing画面](assets/community-board/blackops-board.png)
 
@@ -11,13 +11,13 @@ BlackOps Boardは、Repository `main`のFramework機能を実際のBrowser Journ
 | 入口 | 適した目的 | 含む範囲 |
 | --- | --- | --- |
 | [Quickstart and Skeleton](mvp-sample.md) | Frameworkの最短Contractを確認したい | Typed Operation、Inline／Deferred HTTP、Worker、Journal、Status／Outcome、Generated Operation Object |
-| BlackOps Board | Application全体の責任分界をBrowserから追いたい | Application-owned Identity、Framework Session Core、SvelteKit BFF、Inline CRUD、Deferred Progress、Accessible UI、Real Browser E2E |
+| BlackOps Board | Application全体の責任分界をBrowserから追いたい | Application-owned Identity、Framework Session Core、SvelteKit BFF、Inline CRUD、Deferred Progress、Accessible UI、Browser User Journey |
 
 最初のOperationを自分で書く場合は[First Operation](first-operation.md)へ進んでください。BlackOps BoardはCore API一覧の代わりではなく、完成したApplicationで各Contractがどう接続されるかを説明するExample Guideです。
 
 ## 空のLocal Stateから起動する
 
-Repository RootからApplication Directoryへ移動し、次の順序を変えずに実行します。
+Application Directoryへ移動し、次の順序を変えずに実行します。
 
 ```bash
 cd examples/community-board
@@ -37,7 +37,7 @@ mise exec -- pnpm --dir frontend run build
 docker compose --profile worker up -d postgres http frontend worker
 ```
 
-`bin/setup`はfresh checkoutでは`.env.example`の空の`BLACKOPS_STORAGE_KEY` placeholderをstrict base64の32 random bytesへ置き換え、`.env`をmode `600`で作成し、Runtime Directoryだけを準備します。Keyは出力しません。Dependency Install、Migration、Build、Generate、Seed、Startを暗黙に実行しません。`database:seed`はRoot `DatabaseSeeder`からCommunity Board Seederを実行し、固定した3 User、3 Post、4 Commentを作ります。同じDatabaseで再実行しても重複しません。
+`bin/setup`は`.env.example`の空の`BLACKOPS_STORAGE_KEY` placeholderをstrict base64の32 random bytesへ置き換え、`.env`をmode `600`で作成し、Runtime Directoryだけを準備します。Keyは出力しません。Dependency Install、Migration、Build、Generate、Seed、Startを暗黙に実行しません。`database:seed`はRoot `DatabaseSeeder`からCommunity Board Seederを実行し、固定した3 User、3 Post、4 Commentを作ります。同じDatabaseで再実行しても重複しません。
 
 既存`.env`がある場合、`bin/setup`はbyte／metadataを変更せず、Keyの追加・Rotation・暗黙の書換えも行いません。既存環境を移行するときは`.env`をBackupし、ApplicationのSecret-handling手順で32 byteを表すstrict base64の非空`BLACKOPS_STORAGE_KEY`を一つだけ追加または置換し、mode `600`とAssignment数を確認します。Key Valueや`.env`内容を出力しないでください。Fresh setupが途中で失敗した場合は不完全な`.env`を残しません。
 
@@ -102,15 +102,16 @@ PasswordとRaw Session Tokenは`#[Sensitive]`なEphemeral Value／Outcomeにだ�
 
 Local HTTPでは`.env.example`が`SESSION_COOKIE_SECURE=false`を明示します。HTTPSを使う非Local環境では`true`を必須にし、TLS設定の回避目的でCookieを弱めないでください。
 
-## Test Evidenceを選ぶ
+## Applicationの確認を選ぶ
 
-Repository RootでClean Installを実行すると、依存物とDatabase Volumeがない状態からLogin／Seed表示とCleanupまでを一度に検証できます。
+Application DirectoryでClean Installを実行すると、依存物とDatabase Volumeがない状態からLogin／Seed表示とCleanupまでを一度に検証できます。
 
 ```bash
-bash tests/Consumer/community-board-clean-install.sh
+docker compose --profile worker up -d postgres http frontend worker
+php blackops database:status
 ```
 
-Foundation、Identity、Post／Comment、Product Journey、Digest、BrowserのConsumerは問題領域を分離します。Browser Consumerは実ChromiumでRegister、Logout、Login、Validation、Post、Comment、Edit、Digest Retry／Completion、Logoutを完走し、Keyboard、320px Layout、Light／Dark、Reduced Motion、axe、Credential非露出も検証します。Testingの組み立て方は[Testing](testing.md)を参照してください。
+Foundation、Identity、Post／Comment、Product Journey、Digest、BrowserのApplication Testは問題領域を分離します。Browser Testは実ChromiumでRegister、Logout、Login、Validation、Post、Comment、Edit、Digest Retry／Completion、Logoutを完走し、Keyboard、320px Layout、Light／Dark、Reduced Motion、axe、Credential非露出も検証します。Testingの組み立て方は[Testing](testing.md)を参照してください。
 
 ## Troubleshooting
 
@@ -160,4 +161,4 @@ Foundation、Identity、Post／Comment、Product Journey、Digest、BrowserのCo
 docker compose --profile worker --profile classic-mode down --volumes --remove-orphans
 ```
 
-Community BoardはLocal／CIだけで検証し、公開Hostを提供していません。Documentation WebsiteはCloudflare Pagesへ公開しています。
+Community BoardはApplication-owned Reference Applicationとして、利用者がProject RootからApplicationのBrowser／API Testを実行し、公開Hostを前提にしない自己管理環境でJourneyを再現できることを確認します。Frameworkの内部運用記録を利用者向けの根拠として扱いません。Documentation WebsiteはCloudflare Pagesへ公開しています。

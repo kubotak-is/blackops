@@ -225,3 +225,7 @@ Deferredでは一般Validationを通過した時点でHTTP 202を返します。
 Array／Nested ObjectのHTTP Binding、宣言的DB照合、Cross-field Attribute、Custom Callback、明示的なString Parser、Enum／DateTime等の高水準変換は未実装です。`Count` Attribute自体とCollection Validationは存在しますが、現行HTTP BinderはNon-scalar Inputを`binding.type`として拒否します。HTTP RequestからArrayやObjectをPHP Valueへ自動構築できると想定しないでください。必要な判断はTyped Valueを作った後のHandler／Domainへ置き、安定したRejection Codeを返します。
 
 全Public Attributeの付与対象は[Attributes](attributes.md)、ExceptionのCategoryは[予期された業務拒否](operations.md#予期された業務拒否)を参照してください。
+
+## 次にOperationへ制約を組み込む
+
+制約を持つValueをHandlerへ接続する標準形は、[Authoring](operations.md)で確認できます。

@@ -16,6 +16,189 @@ contains() {
         || fail "${file} does not contain expected version contract: ${pattern}"
 }
 
+assert_release_claim_guard() {
+    contains develop/spec/release-authority.json '"currentStable"'
+    contains develop/spec/release-authority.json '"historicalReferences"'
+    contains develop/spec/release-authority.json '"pageCapabilities"'
+    contains develop/spec/release-authority.json '"lane"'
+    contains develop/spec/release-authority.json '"since": "1.0.0"'
+    contains develop/spec/release-authority.json '"since": "1.1.0"'
+    contains docs/website/scripts/release-claim-checker.mjs 'assertSourceClaims'
+    contains docs/website/scripts/release-claim-checker.mjs 'assertArtifactClaims'
+    contains docs/website/scripts/release-claim-checker.mjs 'Historical release claim allowlist contains unused entries'
+    contains docs/website/scripts/release-claim-checker.mjs 'Stale current release claim'
+    contains docs/website/scripts/release-claim-checker.mjs 'pageCapabilities must be a non-empty object'
+    contains docs/website/scripts/release-claim-checker.mjs 'page lane mismatch'
+    contains docs/website/scripts/release-claim-checker.mjs 'Roadmap release was presented as Stable'
+    contains docs/website/scripts/release-claim-checker.mjs 'Historical release claim allowlist contains unused entries'
+    contains docs/website/scripts/release-claim-checker.mjs 'content|property|name|itemprop|value|alt|title'
+    contains docs/website/scripts/release-claim-checker.mjs 'return expected === normalized || (!source && compactExpected === compactNormalized)'
+    contains docs/website/scripts/check-content.mjs "import { assertSourceClaims } from './release-claim-checker.mjs';"
+    contains docs/website/scripts/check-artifact.mjs "import { assertArtifactClaims } from './release-claim-checker.mjs';"
+    contains docs/website/package.json 'release:check:source'
+    contains docs/website/package.json 'release:check:artifact'
+    contains docs/website/tests/release-claim-checker.test.mjs 'current downgrade'
+    contains docs/website/tests/release-claim-checker.test.mjs 'artifact-only stale injection'
+    contains docs/website/tests/release-claim-checker.test.mjs 'authority page mappings are shaped'
+    contains docs/website/tests/release-claim-checker.test.mjs 'roadmap-as-stable source/artifact'
+    contains docs/website/tests/release-claim-checker.test.mjs 'metadata-only stale claims'
+    contains docs/website/tests/release-claim-checker.test.mjs 'artifact historical matching is exact'
+    contains docs/website/tests/release-claim-checker.test.mjs 'full artifact checker preserves prefix/suffix boundaries'
+    contains docs/website/tests/release-claim-checker.test.mjs 'authority bump rejects candidate claims'
+    contains AGENTS.md '## Release Documentation Impact'
+    contains develop/orchestration/tasks/P22-005A-release-claim-authority-and-current-source.md 'develop/decisions/143-documentation-release-truth-and-information-architecture.md'
+    contains develop/orchestration/tasks/P22-005-documentation-governance-and-information-architecture.md 'develop/spec/104-documentation-release-lifecycle-and-information-architecture.md'
+    contains develop/orchestration/reports/P22-005A-release-claim-authority-and-current-source.md 'P23-001'
+    contains .github/workflows/ci.yml 'Guard current release claims in source'
+    contains .github/workflows/ci.yml 'Guard current release claims in artifact'
+    contains .github/workflows/docs.yml 'Guard current release claims in source'
+    contains .github/workflows/docs.yml 'Guard current release claims in artifact'
+}
+
+assert_information_architecture_contract() {
+    for section in 'Start Here' 'Build' 'Async and Lifecycle' 'Data and Security' 'Operate' 'Reference' 'Releases'; do
+        contains docs/website/site-navigation.mjs "label: '${section}'"
+        contains docs/website/scripts/check-site.mjs "${section}"
+    done
+    contains docs/website/site-navigation.mjs 'const itemSlug'
+    contains docs/website/site-navigation.mjs 'Sidebar entry is in the wrong section'
+    contains docs/website/tests/site-navigation.test.mjs 'canonical seven-section order and public assignment'
+    contains docs/website/tests/site-navigation.test.mjs 'wrong-section'
+    contains docs/website/pages/index.astro 'landing-journey'
+    contains docs/website/pages/index.astro 'landing-purpose-nav'
+    contains docs/website/pages/index.astro 'Lifecycle and Journal'
+    contains docs/website/pages/index.astro "#[OperationType('report.generate')]"
+    contains docs/website/pages/index.astro '<div class="landing-shell">'
+    contains docs/website/scripts/check-site.mjs 'Landing start journey must contain exactly one'
+    contains docs/website/scripts/check-site.mjs 'Landing Artifact must contain exactly one report.generate OperationType'
+    contains docs/website/scripts/check-site.mjs 'Landing Artifact must have one PageLayout main'
+    contains docs/website/scripts/check-site.mjs 'Landing llms-full segment'
+    contains docs/website/scripts/check-site.mjs 'Releases Artifact must be one direct operation target'
+    contains docs/website/scripts/check-site.mjs 'Landing must not hide overflow or use decorative gradients'
+    contains docs/website/site-navigation.mjs "items: ['releases/current-status']"
+    contains docs/website/site-navigation.mjs 'Releases must be a direct singleton root'
+    contains docs/website/site-navigation.mjs "display: /** @type {'flat'} */ ('flat')"
+    contains docs/website/site-navigation.mjs 'items: []'
+    contains docs/website/components/NoEditLayout.astro "import '../theme.css'"
+    contains docs/website/pages/index.astro "import '../theme.css'"
+    contains docs/website/pages/index.astro 'BlackOps</span> <span class="landing-tagline">The PHP Framework'
+    contains docs/website/scripts/check-artifact.mjs 'assertLinkedStylesheetContract'
+    contains docs/website/scripts/check-artifact.mjs 'extractStylesheetHrefs'
+    contains docs/website/scripts/check-artifact.mjs "artifact-stylesheet-contract.mjs"
+    contains docs/website/scripts/artifact-stylesheet-contract.mjs 'export function extractStylesheetHrefs'
+    contains docs/website/scripts/artifact-stylesheet-contract.mjs 'export async function assertLinkedStylesheetContract'
+    contains docs/website/scripts/artifact-stylesheet-contract.mjs 'min-width:42rem'
+    contains docs/website/tests/site-navigation.test.mjs 'same-name Releases parent and child fixture'
+    contains docs/website/tests/reader-experience.test.mjs 'fail-closed fixtures'
+    contains docs/website/tests/reader-experience.test.mjs 'expected at least 3:1'
+}
+
+assert_product_framing_contract() {
+    contains docs/website/scripts/product-framing-contract.mjs 'export const LANDING_VALUE_SENTENCE'
+    contains docs/website/scripts/product-framing-contract.mjs 'export const ACTIONABLE_WHY_OUTCOME'
+    contains docs/website/scripts/product-framing-contract.mjs 'assertProductFramingSourceContract'
+    contains docs/website/scripts/product-framing-contract.mjs 'assertProductFramingArtifactContract'
+    contains docs/website/scripts/product-framing-contract.mjs 'JOURNAL_CONCEPT_MARKERS'
+    contains docs/website/scripts/product-framing-contract.mjs 'CLI_HELP_BOUNDARY'
+    contains docs/website/scripts/check-content.mjs 'assertProductFramingSourceContract'
+    contains docs/website/scripts/check-site.mjs 'assertProductFramingArtifactContract'
+    contains docs/website/pages/index.astro 'HTTPとWorkerの処理を一つのOperationとして扱い、受付・再試行・完了までを同じIDで追跡できるPHP Frameworkです。'
+    contains docs/website/pages/index.astro 'PHP 8.5向けFramework'
+    contains docs/website/pages/index.astro 'locale="ja"'
+    contains docs/website/pages/index.astro 'href="/reference/project-cli"'
+    contains docs/website/pages/index.astro 'landing-editor-chrome'
+    contains docs/website/pages/index.astro 'landing-lifecycle-panel'
+    contains docs/website/pages/index.astro 'landing-value-note'
+    contains docs/website/pages/index.astro 'Received'
+    contains docs/website/pages/index.astro 'Finalizing'
+    contains docs/website/pages/index.astro 'attempt.succeeded — Handlerが成功した'
+    contains docs/website/pages/index.astro 'Completed'
+    contains docs/website/pages/index.astro 'Retryは同じIDの次のAttemptとして続きます。'
+    contains docs/website/pages/index.astro 'aria-label="ドキュメントの操作"'
+    contains docs/website/pages/index.astro 'aria-label="Operationのソース"'
+    contains docs/website/pages/index.astro 'aria-label="ドキュメントのセクション"'
+    contains docs/guide/project-cli.md '# BlackOps CLI'
+    contains docs/guide/project-cli.md 'php blackops list'
+    contains docs/guide/project-cli.md 'Projectを作る・Buildする'
+    contains docs/guide/project-cli.md 'Operationを実行する'
+    contains docs/guide/project-cli.md 'Dataを管理する'
+    contains docs/guide/project-cli.md '診断・復旧する'
+    contains docs/guide/project-cli.md '| 目的 | Command | 実行条件 | 出力／終了Code |'
+    contains docs/guide/project-cli.md 'Helpが本文表の全Optionを必ず列挙するとは限りません。'
+    contains docs/guide/project-cli.md 'Project Rootの公開Retention Commandは4つの期間Optionだけを受け付けます。'
+    contains docs/guide/project-cli.md '`config/retention.php`の`idempotency_record_days`で管理し、省略時は4つの基本期間の最長値を使います。'
+    contains docs/guide/project-cli.md '[--tenant-type=<type> --tenant-id=<id>]'
+    contains docs/guide/project-cli.md 'project-generators.md#seederを生成する'
+    contains docs/guide/why-blackops.md 'Request／Jobの実行履歴 | Lifecycle Journal'
+    contains docs/guide/why-blackops.md '汎用Business／Security Audit Trailや任意のApplication LogはApplicationが所有します。'
+    contains docs/guide/why-blackops.md 'Retention／Replay／Rotationなどの個別運用Eventは、Lifecycle Journalとは別のFramework運用契約で扱います。'
+    contains docs/website/content-map.mjs '同期／非同期のOperationを同じOperation IDで追跡し、受付・再試行・完了を確認する。'
+    contains docs/guide/journal.md '汎用Business／Security Audit Trailではありません'
+    contains docs/guide/journal.md 'HTTPの受付からWorkerの再試行まで'
+    contains docs/guide/journal.md '同じOperation IDと`sequence`'
+    contains docs/guide/journal.md 'operation.tenant.id'
+    contains docs/guide/journal.md 'operation.schedule.scheduledAt'
+    contains docs/guide/journal.md 'telemetry.traceId'
+    contains docs/guide/journal.md 'tamper-evident history'
+    contains docs/guide/observability.md 'Observed `kind=audit`'
+    contains docs/guide/observability.md 'LoggingRetentionPurgeAuditPort'
+    contains docs/guide/observability.md 'retention.purge.completed'
+    contains docs/guide/observability.md '既定Application CLIはPostgreSQL Audit Storeだけを使い'
+    contains docs/guide/observability.md 'ReplayとRotationは専用Audit Storeに留まる'
+    contains docs/guide/observability.md 'RotationのSafe Fingerprint／Scope HashもDefault Metricへ複製しません'
+    contains docs/guide/observability.md 'Canonical Audit TrailのRecordではありません'
+    contains docs/website/scripts/product-framing-contract.mjs 'PUBLIC_RETENTION_OPTIONS'
+    contains docs/website/scripts/product-framing-contract.mjs 'storage.rotation.completed'
+    contains docs/website/scripts/product-framing-contract.mjs 'SPEC_83_PATH'
+    contains docs/website/tests/product-framing-contract.test.mjs 'stale injection, missing CLI, visual, and accessibility boundaries'
+    contains docs/website/tests/product-framing-contract.test.mjs 'Audit Log / Process History'
+    contains docs/website/tests/product-framing-contract.test.mjs 'route:list'
+    contains docs/website/tests/product-framing-contract.test.mjs 'Journal newcomer concept order'
+    contains docs/website/tests/guide-code.test.mjs 'the three examples must show the encoder null-tenant shape'
+    absent docs/guide/project-cli.md 'ApplicationConfigurationSnapshot'
+    absent docs/guide/project-cli.md 'ApplicationOperationDiscovery'
+    absent docs/guide/project-cli.md '--idempotency-record-days'
+    absent docs/guide/retention.md '--idempotency-record-days'
+    absent docs/guide/observability.md 'storage.rotation.completed'
+    absent docs/guide/journal.md 'operation.schedule.scheduled_at'
+    absent docs/guide/journal.md 'operation.schedule.timezone'
+    absent docs/guide/why-blackops.md 'Audit Log / Process History'
+    absent docs/guide/why-blackops.md 'Business／Securityの監査証跡や任意のApplication LogはApplicationが所有します。'
+    absent docs/guide/why-blackops.md 'Retention／Replay／Rotationなどの個別運用EventはApplicationが所有します。'
+    absent docs/guide/security.md '監査正本'
+    absent docs/guide/glossary.md '監査正本'
+    absent docs/guide/mvp-sample.md '監査正本'
+    absent docs/website/pages/index.astro 'aria-label="Documentation actions"'
+    absent docs/website/pages/index.astro 'aria-label="Operation source context"'
+    absent docs/website/pages/index.astro '>same ID<'
+    absent docs/website/pages/index.astro 'aria-label="Documentation sections"'
+    absent docs/website/pages/index.astro '<strong>Succeeded</strong>'
+}
+
+assert_reader_contract() {
+    contains docs/website/content-map.mjs 'reader: { type, outcome, roles, next, ...extra }'
+    contains docs/website/scripts/reader-contract.mjs 'validateSourceReaderContract'
+    contains docs/website/scripts/reader-contract.mjs 'validateArtifactReaderContract'
+    contains docs/website/scripts/reader-contract.mjs 'assertNoProtectedDecode'
+    contains docs/website/scripts/reader-contract.mjs 'assertNoCurrentMainOnly'
+    contains docs/website/scripts/reader-contract.mjs 'assertSourceDerivedReferenceCoverage'
+    contains docs/website/scripts/check-content.mjs 'validateSourceReaderContract'
+    contains docs/website/scripts/check-site.mjs 'validateArtifactReaderContract'
+    contains docs/website/scripts/content-pipeline.mjs 'record.metadata?.reader?.outcome'
+    contains docs/website/tests/reader-contract.test.mjs 'canonical Content Map is the one 40-page reader inventory'
+    contains docs/website/tests/reader-contract.test.mjs 'source fixtures fail closed for protected payload decode'
+    contains docs/website/tests/reader-contract.test.mjs 'artifact fixtures reject foreign outcome'
+    contains tests/Consumer/quickstart-e2e.sh 'canonical_events'
+    contains tests/Consumer/quickstart-e2e.sh 'attempt.retry_scheduled'
+
+    if rg -n -i -e 'convert_from[[:space:]]*\([[:space:]]*encoded_' \
+        -e 'encoded_(record|payload|context|reason|response|result)[^[:cntrl:]]*::[[:space:]]*jsonb' \
+        -e 'retry\.scheduled' \
+        "${repository_root}/docs/guide/mvp-sample.md" "${repository_root}/tests/Consumer/quickstart-e2e.sh"; then
+        fail 'Quickstart must use clear lifecycle metadata or authorized Inspect and must not decode protected BOPD data'
+    fi
+}
+
 absent() {
     local file="$1"
     local pattern="$2"
@@ -833,14 +1016,15 @@ assert_generator_tag_lifecycle() {
 }
 
 assert_generator_tag_lifecycle
+assert_information_architecture_contract
+assert_reader_contract
 
 # Stable onboarding and its published CTA remain pinned to the immutable 1.2.0 lane.
 contains README.md 'Latest Experimental StableはFramework／Skeleton `1.2.0`です。'
 contains README.md 'composer create-project blackops/skeleton my-app 1.2.0'
 contains README.md 'Framework／Skeleton `1.2.0`はannotated Tag、GitHub Release、Packagistへ公開済みです。'
-contains docs/website/pages/index.astro 'Latest Experimental Stable 1.2.0'
+contains docs/website/pages/index.astro 'Stable 1.2.0 install'
 contains docs/website/pages/index.astro 'composer create-project blackops/skeleton my-app 1.2.0'
-contains docs/website/pages/index.astro 'Published Framework／Skeleton／Packagist／GitHub Release'
 contains docs/guide/installation.md 'Latest Experimental Stable 1.2.0'
 contains docs/guide/installation.md 'composer create-project --no-scripts blackops/skeleton my-app 1.2.0'
 contains docs/guide/mvp-status.md 'Latest Experimental StableはFramework／Skeleton `1.2.0`です。'
@@ -848,7 +1032,7 @@ contains docs/guide/mvp-status.md 'composer create-project blackops/skeleton my-
 contains docs/guide/mvp-status.md 'diagnostics.storage_failed'
 contains docs/guide/mvp-sample.md 'Experimental Stable 1.2.0'
 contains docs/guide/mvp-sample.md 'composer create-project blackops/skeleton my-app 1.2.0'
-contains docs/guide/mvp-sample.md 'ownership limitationはRemote smoke全体の失敗ではありません。'
+contains docs/guide/mvp-sample.md 'Journalのmasked dataだけを確認し、このownership limitationとして扱います。'
 contains docs/guide/observability.md 'Versionは公開済み`1.2.0`です。'
 contains examples/quickstart/README.md '公開済みExperimental Stable `1.2.0`'
 contains examples/quickstart/README.md 'composer create-project --no-scripts blackops/skeleton my-app 1.2.0'
@@ -945,6 +1129,8 @@ assert_guide_storage_key_contract docs/guide/installation.md
 assert_guide_storage_key_contract docs/guide/mvp-sample.md
 assert_installation_key_convergence
 assert_mvp_key_convergence
+assert_release_claim_guard
+assert_product_framing_contract
 contains docs/guide/first-operation.md '公開済みExperimental Stable `1.2.0`'
 contains docs/guide/first-operation.md '#[Authorize]'
 contains docs/guide/first-operation.md 'Sample Token Authentication'
@@ -964,7 +1150,7 @@ contains docs/website/tests/guide-code.test.mjs 'assert.throws(() => assertQuick
 contains docs/website/tests/guide-code.test.mjs 'Quickstart convergence guard rejects a drifted current heading'
 contains docs/website/tests/guide-code.test.mjs 'assert.throws(() => assertQuickstartConvergence(driftedHeading)'
 contains docs/website/tests/guide-code.test.mjs 'assert.throws(() => assertQuickstartReadmeFragment(driftedTarget)'
-contains docs/guide/runtime-bootstrap.md 'Stable `1.1.0`の`/welcome`は`#[Authorize]`を持たない認可匿名'
+contains docs/guide/runtime-bootstrap.md '公開済みExperimental Stable `1.2.0`の`/welcome`は`#[Authorize]`付きInline Operation'
 contains docs/guide/mvp-sample.md '`ShowWelcome`は`#[Authorize(SampleUserAuthorizationPolicy::class)]`で保護され'
 contains docs/guide/mvp-sample.md 'Header省略はAnonymousとして`401`、不正値はOperation受付前の`401`'
 contains docs/guide/mvp-sample.md '32-byte Base64のLocal Development Key'

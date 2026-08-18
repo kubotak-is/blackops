@@ -1,6 +1,6 @@
 # D091: Orchestrator and Worker Model Configuration
 
-Status: Decided
+Status: Superseded for Model／Reasoning Profile selection by D144; orchestration, fallback, and Commit-boundary rules remain applicable.
 
 ## Context
 

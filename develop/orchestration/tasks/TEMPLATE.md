@@ -29,6 +29,15 @@ Status: Ready
 - PHP Comment／DocBlockへSpec、Decision、Task、TODOの管理番号を書かない
 - CommentはCodeだけで理解できる責務、Invariant、理由を説明する
 
+## Release Documentation Impact
+
+- Authority tuple／Capability ID: 影響なしの場合も理由を記録する
+- Public Source／route inventory:
+- Version occurrence before／after分類、historical allowlist:
+- Source／Search／LLM artifact、positive／negative fixture:
+- same-SHA CI／Documentation delivery、Production deploy有無:
+- 残り工程、Next Action:
+
 ## Acceptance Criteria
 
 - [ ] 

@@ -167,7 +167,7 @@ console_order_count=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql 
     "SELECT count(*) FROM public.quickstart_orders WHERE reference = '${console_reference}'")
 test "${console_order_count}" = "1"
 console_operation_id=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
-    "SELECT operation_id FROM blackops.journal WHERE event = 'operation.received' ORDER BY sequence LIMIT 1")
+    "SELECT operation_id FROM blackops.journal WHERE event = 'operation.received' AND operation_type = 'order.create' ORDER BY occurred_at DESC, sequence DESC LIMIT 1")
 test -n "${console_operation_id}"
 console_events=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
     "SELECT string_agg(event, ',' ORDER BY sequence) FROM blackops.journal WHERE operation_id = '${console_operation_id}'::uuid")
@@ -380,8 +380,9 @@ order_commit_rows=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U
     "SELECT count(*) FROM quickstart_order_commits WHERE reference = '${order_reference}'")
 test "${order_commit_rows}" = "1"
 order_operation_id=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
-    "SELECT operation_id FROM blackops.journal WHERE event = 'operation.received' ORDER BY sequence LIMIT 1")
+    "SELECT operation_id FROM blackops.journal WHERE event = 'operation.received' AND operation_type = 'order.create' ORDER BY occurred_at DESC, sequence DESC LIMIT 1")
 test -n "${order_operation_id}"
+test "${order_operation_id}" != "${console_operation_id}"
 order_events=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
     "SELECT string_agg(event, ',' ORDER BY sequence) FROM blackops.journal WHERE operation_id = '${order_operation_id}'::uuid")
 test "${order_events}" = "operation.received,attempt.started,attempt.succeeded,operation.completed"
@@ -527,6 +528,10 @@ grep -q 'quickstart-user' <<<"${canonical_actors}"
 ! grep -q 'quickstart-worker-1' <<<"${canonical_actors}"
 ! grep -q "${operation_id}" "${CONSUMER}/var/log/journal.jsonl"
 
+canonical_events=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
+    "SELECT string_agg(event, ',' ORDER BY sequence) FROM blackops.journal WHERE operation_id = '${operation_id}'::uuid")
+test "${canonical_events}" = "operation.received,operation.accepted,attempt.started,attempt.failed,attempt.retry_scheduled,attempt.started,attempt.succeeded,operation.completed"
+
 HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops operation:inspect "${operation_id}" --json \
     > "${CONSUMER}/var/deferred-inspect.json"
 HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php -r '
@@ -561,9 +566,17 @@ grep -q '"id":"\[masked\]","type":"user"' "${CONSUMER}/var/log/journal.jsonl"
 outcome=$(HTTP_PORT="${PORT}" "${compose[@]}" exec -T postgres psql -U blackops -d blackops -Atc \
     "SELECT count(*) FROM blackops.outcomes WHERE operation_id = '${operation_id}'::uuid AND octet_length(encoded_payload) > 0")
 test "${outcome}" = "1"
-retention_plan_output="$(HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops retention:plan)"
+retention_plan_output="$(HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops retention:plan \
+    --transport-payload-days=7 \
+    --journal-days=30 \
+    --outcome-days=14 \
+    --dead-letter-days=90)"
 grep -q 'Total:' <<<"${retention_plan_output}"
-retention_purge_output="$(HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops retention:purge --dry-run)"
+retention_purge_output="$(HTTP_PORT="${PORT}" "${compose[@]}" run --rm app php blackops retention:purge --dry-run \
+    --transport-payload-days=7 \
+    --journal-days=30 \
+    --outcome-days=14 \
+    --dead-letter-days=90)"
 grep -q 'dry run' <<<"${retention_purge_output}"
 
 frontend_report_secret="frontend-sensitive-report-$RANDOM-$$@example.test"

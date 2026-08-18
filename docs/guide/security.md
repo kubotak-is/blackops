@@ -12,7 +12,7 @@ BlackOpsはOperation Lifecycleを追跡し、Observed Sinkへ出すSensitive値�
 | Frontend Contract | HTTP Operationの入力名／型、Request Binding、Typed Resultを生成し、Sensitive実値をArtifact／Resultへ含めない | Credential注入、Authentication／Authorization、CORS／CSRF、Browser Storage、生成物の配布範囲を管理する |
 | Ephemeral Outcome | HTTP Route付きでInlineへ解決されたOperationだけが実値をHTTPへ一度返し、Canonical Journal／Outcome Store／Status／Console／Deferredへ保存しない | Response受領後のCookie化、CSRF、暗号化、Browser Storage、Token Rotation／失効を管理する |
 | Sensitive Projection | `#[Sensitive]`に従いObserved JournalでOmit／Mask／Hashする | 対象PropertyとModeを選び、Raw値を独自Logへ出さない |
-| Lifecycle Journal | Event、Sequence、Operation／Attempt MetadataのShapeを提供する | Sinkの保存先、閲覧権限、監査、可用性を構成する |
+| Lifecycle Journal | Operation Lifecycleの正本としてEvent、Sequence、Operation／Attempt MetadataのShapeを提供する | Sinkの保存先、閲覧権限、Business／Security Audit Trail、可用性を構成する |
 | Public／Internal API | `#[PublicApi]`付き型とInternal Namespaceを区別する | Public APIだけへ依存し、Upgrade時に互換性を確認する |
 | Deferred Claim | Lease、Heartbeat、FencingでStale Claimの確定を拒否する | 外部副作用の冪等性、Downstreamの重複防止を設計する |
 | Authentication | PSR-15統合、三状態Result、Actorだけを渡す境界、Opt-in Session Token Lifecycle、Invalid Credentialの安全な401を提供する | User／Password／Account State、JWT／OAuth／API Key／External IdP、Cookie Attribute／CSRFを実装する |
@@ -67,15 +67,15 @@ Hashは同一値の相関が必要な場合だけ使います。低Entropy値は
 
 Observed JSONLでMaskできても、`#[Sensitive]`はEnvelope、Tenant Isolation、Authorization、Retentionを代替しません。Canonical Journal、Transport Payload、Outcome、Outbox、Dead Letter、Idempotencyの復元可能FieldはBOPD Envelopeで保護され、保存先の最小権限、保持期間、削除手順を別途構成します。
 
-Actorも同じ責任分界に従います。Canonical Journalは監査正本としてorigin／authorization／execution ActorのIDとTypeを保持します。Observed JournalとJSONLではActor Typeとnull関係を維持しながら、すべてのActor IDを`[masked]`へ置き換えます。Role、Permission、Credential、Token、Session、ClaimはCanonical／Observedのどちらにも保存しません。
+Actorも同じ責任分界に従います。Canonical JournalはOperation Lifecycleの正本としてorigin／authorization／execution ActorのIDとTypeを保持します。Observed JournalとJSONLではActor Typeとnull関係を維持しながら、すべてのActor IDを`[masked]`へ置き換えます。Role、Permission、Credential、Token、Session、ClaimはCanonical／Observedのどちらにも保存しません。Business／Security Audit TrailのAction、Resource、Reason、Policy EvidenceはApplicationが所有します。
 
 ## Frontend Operation Contractの境界
 
-`#[Route]`を持つOperationはRepository `main`のFrontend Contractへ含まれます。SensitiveなOperationValue PropertyもRequest送信に必要なWrite-only Inputとして名前と型を生成しますが、Constructor Default、実値、Example、Fixture、Log HelperはFrontend Contract ManifestとGenerated Treeへ入れません。OperationValueを成功Outcomeへ混ぜず、通常OutcomeのSensitive PropertyはBuild Errorにします。
+`#[Route]`を持つOperationは公開済みExperimental Stable `1.2.0`のFrontend Contractへ含まれます。SensitiveなOperationValue PropertyもRequest送信に必要なWrite-only Inputとして名前と型を生成しますが、Constructor Default、実値、Example、Fixture、Log HelperはFrontend Contract ManifestとGenerated Treeへ入れません。OperationValueを成功Outcomeへ混ぜず、通常OutcomeのSensitive PropertyはBuild Errorにします。
 
 `EphemeralOutcome`だけはCredential Propertyへ`#[Sensitive]`を必須にし、直接`.fetch()`のResponse型へ名前と型を生成します。実値、Default、ExampleはArtifactへ含めません。Ephemeral Operationには`.status()`／`.wait()`を生成せず、HTTP Response後にFrameworkから再取得できる経路を作りません。Canonical JournalはReceivedとCompletedを空Dataで記録するため、Operation IDとLifecycleを保ちながら入力と出力を再現不能にします。
 
-Generated `.fetch()`はHTTP Responseを検証し、Validation／Internal／Transport ResultへRaw Body、Credential、Thrown Error Message、Stack Traceを残しません。Operation IDはServer Responseに存在するときだけ保持します。Generated Tree、Typed Result、Observed LogのどこにもSensitive実値を置かないことをApplicationのConsumer E2Eでも確認してください。
+Generated `.fetch()`はHTTP Responseを検証し、Validation／Internal／Transport ResultへRaw Body、Credential、Thrown Error Message、Stack Traceを残しません。Operation IDはServer Responseに存在するときだけ保持します。Generated Tree、Typed Result、Observed LogのどこにもSensitive実値を置かないことをApplicationの統合確認でも検証してください。
 
 Generated Typeは認証、認可、暗号化、Access Control、Retentionを代替しません。Server-only `createBlackOpsClient()`へRequestごとのSession／TokenからDefault HeaderをBindingし、Browser向けGlobal Mutable Clientへ保存しないでください。FactoryとCall HeaderはCopy／Freezeされ、Case-insensitiveにMergeされます。Operation由来Header、Generated `Content-Type`、専用Optionから作る`Idempotency-Key`は任意Headerで上書きできません。
 
@@ -237,3 +237,7 @@ Actor／TenantのTypeは分類に必要な場合だけ保持し、IDは`[masked]
 - Credential RotationとIncident Responseを検証する
 
 既知の提供範囲は[Releases](mvp-status.md)、設定は[Configuration](configuration.md)を確認してください。
+
+## 次にTenantとProtected Storageを導入する
+
+Tenant伝播、BOPD Envelope、認可済みRead、Key Rotationは、[Tenant and Storage Protection](tenant-protection.md)のStep順で導入します。

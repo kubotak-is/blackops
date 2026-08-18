@@ -42,7 +42,7 @@ HTTPやWorkerの起動時にMigrationは実行されません。Application Migr
 docker compose up -d
 ```
 
-既定Portは`8080`です。`.env`の`HTTP_PORT`で変更できます。Stable `1.1.0`の`/welcome`は`#[Authorize]`を持たない認可匿名Inline Operationですが、Stable `WelcomeValue`の必須機密Inputとして`X-Sample-Token` Headerを要求します。
+既定Portは`8080`です。`.env`の`HTTP_PORT`で変更できます。公開済みExperimental Stable `1.2.0`の`/welcome`は`#[Authorize]`付きInline Operationで、Sample Authenticationが`X-Sample-Token` Headerを消費します。
 
 ```bash
 curl -H 'X-Sample-Token: local-example' http://127.0.0.1:8080/welcome
@@ -52,7 +52,7 @@ curl -H 'X-Sample-Token: local-example' http://127.0.0.1:8080/welcome
 {"message":"Welcome to BlackOps"}
 ```
 
-Repository `main` PreviewはSample Authentication／Authorizationを追加し、TokenをAuthentication Credentialとして扱います。StableはAuthentication／Authorizationを追加しませんが、同じHeader名を必須Operation InputとしてBindingします。
+公開済みExperimental Stable `1.2.0`はSample Authentication／Authorizationを追加し、TokenをAuthentication Credentialとして扱います。HeaderはSample Authenticationが消費し、Operation Inputへ保存しません。
 
 FrankenPHPはLocalではplain HTTPのWorker Modeで動作します。TLS、Domain、Process SupervisionはDeployment環境が所有します。
 
@@ -102,3 +102,7 @@ docker compose down
 ```
 
 InlineとDeferredを続けて試す場合は[Quickstart and Skeleton](mvp-sample.md)へ進んでください。Runtime構成の詳細は[Application Bootstrap](application-bootstrap.md)と[Inline and Deferred](execution.md)を参照してください。起動、Token、Migrationの問題は[Troubleshooting](troubleshooting.md)へ戻ってください。
+
+## WorkerとMaintenanceの失敗から戻す
+
+Workerが終了Code `1`で停止した場合は、`docker compose logs worker`で安全なErrorを確認し、PostgreSQLの接続とBuild Artifactを修正してから`worker:run --iterations=1`を再実行します。成功時は`Worker stopped. Processed claims: 0`または処理件数を観測します。

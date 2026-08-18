@@ -13,6 +13,8 @@
     "content:check": "node scripts/check-content.mjs",
     "diagrams:check": "node scripts/check-diagrams.mjs",
     "site:check": "node scripts/check-site.mjs",
+    "release:check:source": "node scripts/release-claim-checker.mjs source",
+    "release:check:artifact": "node scripts/release-claim-checker.mjs artifact",
     "blume:validate": "node scripts/validate-content.mjs",
     "test": "node --test --test-isolation=none tests/*.test.mjs",
     "blume:check": "blume check",

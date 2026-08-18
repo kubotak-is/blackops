@@ -188,6 +188,8 @@ curl -sS -X POST -H 'Content-Type: application/json' \
 {"status":"rejected","operationId":"019f32ab-2be0-7b38-a0a7-1ab2f9687698","category":"validation","code":"validation.failed","violations":[{"field":"email","rule":"email","code":"validation.email"}]}
 ```
 
+422または受付前の失敗ではOperationを再実行せず、Violationの`field`／`code`を確認してValueまたはRouteを修正し、Build後に新しいRequestで再確認します。
+
 ## 7. Workerで実行する
 
 ```bash
@@ -268,3 +270,7 @@ docker compose down
 ```
 
 Getting Startedを続ける場合は[Directory](directory-structure.md)でApplicationが所有する配置を確認してください。宣言的Rule、Cross-field Validation、Business Rejectionの詳細は[Value and Validation](validation.md)を参照します。
+
+## 次にApplicationの標準形へ進む
+
+生成した例から独自の業務Operationへ進むには、[Authoring](operations.md)のValue、Outcome、Handler境界を確認します。

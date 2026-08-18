@@ -2,7 +2,7 @@
 
 BlackOpsはApplication Databaseへ初期値、Development Fixture、Demo Dataを投入するため、Framework所有の`database:seed` CommandとApplication所有のSeederを提供します。Seederは[Operation](glossary.md#operation)ではなく、HTTP LifecycleやJournalを通らない明示的な保守処理です。
 
-> **Release:** Database SeederはRepository `main`のExperimental Surfaceです。Stable `1.1.0`には含まれません。
+> **Release:** Database Seederは公開済みExperimental Stable `1.2.0`のSurfaceです。Frameworkの検出とDIを使い、ApplicationがDataと再実行方針を所有します。
 
 ## Root Seeder
 
@@ -74,3 +74,9 @@ php blackops database:seed
 FrameworkはSeederの検出、DI、子Seeder実行、循環検出、安全なCommand境界を担当します。ApplicationはTransaction、再実行方針、固定Fixture、既存DataとのConflict判定を担当します。Frameworkは自動Transaction、truncate、upsert、Seed履歴、Production Environment推測を行いません。
 
 同じSeederを繰り返し実行する運用では、Application側でIdempotentにするか、安全に拒否してください。Productionでの実行権限や対象EnvironmentもDeployment側で制御します。
+
+Root未構成や古いArtifactで失敗した場合は、Application-owned Seeder／Migrationを修正し、`database:migrate`、`build:compile`、`database:seed`の順で再実行します。既存DataやCredentialをCommandへ貼り付けません。
+
+## 次に保持期間を確認する
+
+初期DataとRuntime Dataの保持を分ける場合は、[Retention](retention.md)でPlan、Hold、Purge Auditを確認します。

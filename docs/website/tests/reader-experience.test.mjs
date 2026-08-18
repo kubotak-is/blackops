@@ -9,6 +9,61 @@ import { displayedMarkdown, findEditorialViolations, validateEditorial } from '.
 import { repositoryRoot } from '../scripts/website-paths.mjs';
 
 const guide = (name) => readFile(path.join(repositoryRoot, 'docs/guide', name), 'utf8');
+const canonicalLandingSections = ['Start Here', 'Build', 'Async and Lifecycle', 'Data and Security', 'Operate', 'Reference', 'Releases'];
+
+function levelTwoHeadings(markdown) {
+  return [...markdown.matchAll(/^##\s+(.+)$/gm)].map(([, heading]) => heading.trim());
+}
+
+function assertLandingSections(markdown) {
+  assert.deepEqual(levelTwoHeadings(markdown), canonicalLandingSections, 'Landing must expose only the canonical seven level-two sections in order.');
+  assert.doesNotMatch(markdown, /^## Reference and Releases$/m, 'Reference and Releases must not be recombined.');
+}
+
+function renderedOperationSample(source) {
+  return source
+    .match(/<div\b(?=[^>]*\bclass=["'][^"']*\blanding-code-panel\b[^"']*["'])[^>]*>(?:\s*<div\b[^>]*>[\s\S]*?<\/div>\s*)*<pre\b[^>]*>\s*<code\b[^>]*>([\s\S]*?)<\/code>\s*<\/pre>/)?.[1]
+    ?.replace(/<[^>]+>/g, '')
+    .replace(/&#123;/g, '{')
+    .replace(/&#125;/g, '}') ?? '';
+}
+
+function assertOperationSample(source) {
+  const sample = renderedOperationSample(source);
+  const operationType = "#[OperationType('report.generate')]";
+  assert.equal((sample.match(/#\[OperationType\('report\.generate'\)\]/g) ?? []).length, 1, 'Operation sample must contain exactly one report.generate OperationType.');
+  assert.ok(sample.indexOf("#[Route(method: 'POST', path: '/reports')]") < sample.indexOf(operationType));
+  assert.ok(sample.indexOf(operationType) < sample.indexOf('#[Deferred]'));
+}
+
+function assertLandingRoot(source) {
+  assert.equal((source.match(/<main\b/g) ?? []).length, 0, 'Landing source must not introduce a second main landmark.');
+  assert.match(source, /<div class="landing-shell">/);
+}
+
+function relativeLuminance(hex) {
+  const channels = [0, 2, 4].map((offset) => Number.parseInt(hex.slice(offset + 1, offset + 3), 16) / 255);
+  return channels
+    .map((channel) => channel <= 0.03928 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4)
+    .reduce((sum, channel, index) => sum + channel * [0.2126, 0.7152, 0.0722][index], 0);
+}
+
+function contrastRatio(first, second) {
+  const light = Math.max(relativeLuminance(first), relativeLuminance(second));
+  const dark = Math.min(relativeLuminance(first), relativeLuminance(second));
+  return (light + 0.05) / (dark + 0.05);
+}
+
+function assertContrastAtLeast(first, second, minimum) {
+  const ratio = contrastRatio(first, second);
+  assert.ok(ratio >= minimum, `${first} against ${second} is ${ratio.toFixed(3)}:1; expected at least ${minimum}:1.`);
+}
+
+function cssVariable(css, selector, name) {
+  const escapedSelector = selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const block = css.match(new RegExp(`${escapedSelector}\\s*\\{([^}]*)\\}`))?.[1] ?? '';
+  return block.match(new RegExp(`${name}\\s*:\\s*(#[0-9a-f]{6})`, 'i'))?.[1] ?? '';
+}
 
 async function phpFiles(directory) {
   const entries = await readdir(directory, { withFileTypes: true });
@@ -51,8 +106,13 @@ test('reader orientation explains the headless unified model and its journal bou
   const why = await guide('why-blackops.md');
 
   assert.match(why, /Headless Operation Framework/);
+  assert.match(why, /HTTPやWorkerから受けた処理を一つの処理単位として、同じIDで受付・再試行・完了を確認/);
+  assert.match(why, /この処理単位をOperationと呼びます/);
   assert.match(why, /HTTP Controller、BlackOps CLI、Deferred Workerなどの入口から分離/);
-  assert.match(why, /Lifecycle Journalで実行事実を追跡する/);
+  assert.match(why, /Lifecycle Journalは受理された処理の実行事実/);
+  assert.match(why, /汎用Business／Security Audit Trailや任意のApplication LogはApplicationが所有します/);
+  assert.match(why, /Retention／Replay／Rotationなどの個別運用Eventは、Lifecycle Journalとは別のFramework運用契約で扱います/);
+  assert.doesNotMatch(why, /Business／Securityの監査証跡や任意のApplication LogはApplicationが所有します/);
   assert.match(why, /Operationとして受理する前のProtocol Error/);
   assert.match(why, /一対一のAPI移植表ではありません/);
   for (const mapping of [
@@ -60,7 +120,7 @@ test('reader orientation explains the headless unified model and its journal bou
     'FormRequest / Request DTO',
     'API Resource / Response DTO',
     'Job / Messenger Message / Queue',
-    'Audit Log / Process History',
+    'Request／Jobの実行履歴',
   ]) {
     assert.match(why, new RegExp(mapping.replaceAll('/', '\\/')));
   }
@@ -70,25 +130,89 @@ test('guide landing source keeps the exact product title and three claims', asyn
   const landing = await guide('README.md');
 
   assert.match(landing, /^# BlackOps - The PHP Framework$/m);
+  assertLandingSections(landing);
   for (const value of ['Operation', 'Journal', 'BlackOpsはフロントエンドを持ちません', 'JavaScript向けに接続クライアントのコードを自動生成します']) {
     assert.match(landing, new RegExp(value));
   }
   assert.match(landing, /\]\(frontend\.md\)/);
 });
 
-test('landing product contract keeps the why link and exact Deferred sample', async () => {
+test('landing product contract keeps the start links, current install, and exact Deferred sample', async () => {
   const landing = await readFile(path.join(repositoryRoot, 'docs/website/pages/index.astro'), 'utf8');
 
+  assertLandingRoot(landing);
   assert.match(landing, /href="\/concepts\/why-blackops"/);
+  assert.match(landing, /href="\/getting-started\/installation"/);
+  assert.match(landing, /href="\/getting-started\/quickstart"/);
+  assert.match(landing, /href="\/getting-started\/first-operation"/);
   assert.doesNotMatch(landing, /href="https:\/\/github\.com\/kubotak-is\/blackops"/);
-  const sample = landing.match(/<pre><code>([\s\S]*?)<\/code><\/pre>/)?.[1] ?? '';
-  const rendered = sample
-    .replace(/<[^>]+>/g, '')
-    .replace(/&#123;/g, '{')
-    .replace(/&#125;/g, '}');
+  const rendered = renderedOperationSample(landing);
   assert.match(rendered, /#\[Route\(method: 'POST', path: '\/reports'\)\]/);
+  assertOperationSample(landing);
   assert.match(rendered, /#\[Deferred\]/);
   assert.match(rendered, /\n    public function handle\(\n        GenerateReportValue \$value,\n        ExecutionContext \$context,\n    \): ReportGenerated\n    \{\n        return new ReportGenerated\(\n            \$value->reportName,\n            '\/reports\/generated\/' \. \$value->reportName \. '\.json',\n        \);\n    \}/);
+});
+
+test('landing H1 keeps one literal word boundary and fails closed on drift', async () => {
+  const landing = await readFile(path.join(repositoryRoot, 'docs/website/pages/index.astro'), 'utf8');
+  const exact = '<h1 id="landing-title"><span class="landing-brand">BlackOps</span> <span class="landing-tagline">The PHP Framework</span></h1>';
+  const assertH1 = (source) => {
+    assert.ok(source.includes(exact), 'Landing H1 must keep the two existing words with one literal boundary.');
+    assert.doesNotMatch(source, /BlackOpsThe PHP Framework/);
+    assert.doesNotMatch(source, /BlackOps\s{2,}The PHP Framework/);
+    assert.doesNotMatch(source, /BlackOps\s+PHP Framework/);
+  };
+  assertH1(landing);
+  assert.throws(() => assertH1(landing.replace('BlackOps</span> <span', 'BlackOps</span><span')), /literal boundary/);
+  assert.throws(() => assertH1(landing.replace('The PHP Framework</span>', 'The Framework</span>')), /literal boundary/);
+  assert.throws(() => assertH1(landing.replace('>BlackOps</span>', '>Black Ops</span>')), /literal boundary/);
+});
+
+test('landing guards the canonical IA, operation metadata, and focus contrast with fail-closed fixtures', async () => {
+  const [landingSource, landingPage, theme] = await Promise.all([
+    guide('README.md'),
+    readFile(path.join(repositoryRoot, 'docs/website/pages/index.astro'), 'utf8'),
+    readFile(path.join(repositoryRoot, 'docs/website/theme.css'), 'utf8'),
+  ]);
+
+  assertLandingSections(landingSource);
+  assert.throws(
+    () => assertLandingSections(landingSource.replace('## Releases', '## Reference and Releases')),
+    /canonical seven level-two sections|Reference and Releases/,
+  );
+
+  assertOperationSample(landingPage);
+  assert.throws(
+    () => assertOperationSample(landingPage.replace("#[OperationType('report.generate')]", '')),
+    /exactly one report.generate OperationType/,
+  );
+
+  assertLandingRoot(landingPage);
+  assert.throws(
+    () => assertLandingRoot(landingPage.replace('<div class="landing-shell">', '<main class="landing-shell">')),
+    /second main landmark/,
+  );
+
+  const lightAccent = cssVariable(theme, ':root', '--bo-accent');
+  const lightPaper = cssVariable(theme, ':root', '--bo-paper');
+  const lightSurface = cssVariable(theme, ':root', '--bo-surface');
+  const darkAccent = cssVariable(theme, "[data-theme='dark']", '--bo-accent');
+  const darkPaper = cssVariable(theme, "[data-theme='dark']", '--bo-paper');
+  const darkSurface = cssVariable(theme, "[data-theme='dark']", '--bo-surface');
+  const lightAction = cssVariable(theme, ':root', '--bo-action');
+  assert.deepEqual({ lightAccent, lightPaper, darkAccent, darkPaper, lightAction }, {
+    lightAccent: '#0f766e', lightPaper: '#f3f6f3', darkAccent: '#5eead4', darkPaper: '#0b1514', lightAction: '#f97316',
+  });
+  const { assertAccessibilityStylesheetContract } = await import('../scripts/artifact-stylesheet-contract.mjs');
+  assert.doesNotThrow(() => assertAccessibilityStylesheetContract(theme, 'source theme', { requireLandingSurfaces: true }));
+  assertContrastAtLeast(lightAccent, lightPaper, 3);
+  assertContrastAtLeast(lightAccent, lightSurface, 3);
+  assertContrastAtLeast(darkAccent, darkPaper, 3);
+  assertContrastAtLeast(darkAccent, darkSurface, 3);
+  assert.throws(() => assertContrastAtLeast(lightAction, lightPaper, 3), /expected at least 3:1/);
+  assert.match(theme, /--bo-focus:\s*var\(--bo-accent\)/);
+  assert.match(theme, /\.landing-text-link:focus-visible[\s\S]*outline:\s*3px solid var\(--bo-focus\)/);
+  assert.match(theme, /\[data-blume-nav-tree\] a\[aria-current='page'\]:focus-visible[\s\S]*outline:\s*3px solid var\(--bo-focus\)/);
 });
 
 test('native code copy keeps focus and exposes Japanese success and failure status', async () => {
@@ -147,15 +271,16 @@ test('Blume visible chrome uses Japanese labels for copy, export, theme, navigat
   }
 });
 
-test('Journal guide is reachable from the landing CTA and explains its reader boundary', async () => {
+test('Journal guide is reachable from the landing model and explains its reader boundary', async () => {
   const [landing, journal] = await Promise.all([
     readFile(path.join(repositoryRoot, 'docs/website/pages/index.astro'), 'utf8'),
     guide('journal.md'),
   ]);
 
-  const journalCard = landing.match(/<article class="landing-feature landing-feature-journal">([\s\S]*?)<\/article>/)?.[1] ?? '';
-  assert.match(journalCard, /<h3>Journal<\/h3>[\s\S]*href="\/concepts\/journal"/);
-  assert.equal((journalCard.match(/<a href=/g) ?? []).length, 1, 'Journal feature has one CTA');
+  const model = landing.match(/<section class="landing-model"[\s\S]*?<\/section>/)?.[0] ?? '';
+  assert.match(model, /Lifecycle and Journal/);
+  assert.match(model, /href="\/concepts\/journal"/);
+  assert.equal((model.match(/<a class="landing-text-link"/g) ?? []).length, 2, 'model links have distinct purposes');
   assert.match(journal, /^# Journal$/m);
   for (const phrase of [
     'Canonical Journal',
@@ -178,8 +303,8 @@ test('Observability guide keeps the local Collector journey executable and isola
   const observability = await guide('observability.md');
   for (const phrase of [
     'Structured Record Version 1',
-    'Application／Framework／Journal／Audit',
-    'Audit RecordにはOperation、Attempt、Telemetryを出しません',
+    'Application／Framework／Journal／Observed operational event',
+    'Observed operational eventにはOperation、Attempt、Telemetryを出しません',
     'Monologの`datetime`、`level_name`',
     'Dual-write／Legacy Formatterはありません',
     '"kind":"application"',
@@ -191,7 +316,6 @@ test('Observability guide keeps the local Collector journey executable and isola
     'MeterProvider::builder()',
     'OperationalHealthRequestHandler',
     'OperationalHealthCliAdapter',
-    "bash tests/Consumer/opentelemetry-observability.sh",
     'Collectorを起動しただけではTrace／Metricは生成されません',
     'otel/opentelemetry-collector:0.158.0@sha256:',
     'Collector停止でReadinessがFailになる',
@@ -202,10 +326,17 @@ test('Observability guide keeps the local Collector journey executable and isola
   assert.match(observability, /-p 127\.0\.0\.1:4318:4318/);
   assert.match(observability, /OTEL_EXPORTER_OTLP_ENDPOINT=http:\/\/127\.0\.0\.1:4318/);
   assert.match(observability, /OTEL_EXPORTER_OTLP_ENDPOINT=http:\/\/collector:4318/);
+  assert.match(observability, /FINAL_STATUS=/);
+  assert.match(observability, /LGTM final health passed: status=%s/);
+  assert.match(observability, /Second Terminal Docker handoff: network=%s OTLP endpoint=http:\/\/collector:4318 OTLP port=4318/);
+  assert.match(observability, /Copy-paste Docker emitter: docker run --rm --network %s --env OTEL_EXPORTER_OTLP_ENDPOINT=http:\/\/collector:4318/);
   assert.match(observability, /getenv\(\)/);
   assert.match(observability, /new Environment\(\$environmentSnapshot\)/);
   assert.match(observability, /withEnvironment\(\$environmentSnapshot\)/);
-  assert.match(observability, /docker compose build app[\s\S]*tests\/Consumer\/opentelemetry-observability\.sh/);
+  assert.match(observability, /docker inspect --format '[^']*' \"\$COLLECTOR\"/);
+  assert.match(observability, /grafana\/otel-lgtm:0\.29\.2@sha256:/);
+  assert.doesNotMatch(observability, /docker compose up -d (?:collector|grafana|tempo|prometheus)/);
+  assert.doesNotMatch(observability, /login as admin\/%s|printf[^\n]*GRAFANA_PASSWORD\"/);
   assert.match(observability, /trap cleanup EXIT INT TERM/);
 });
 
@@ -221,8 +352,8 @@ test('observability specifications preserve the main API-only boundary and curre
   assert.match(spec94, /ApplicationがSDK、Exporter、Resource、Endpoint、Credential、Provider Compositionを所有/);
   assert.match(spec10, /SDK／Exporter／Remote Delivery、Dashboardを所有しない/);
   assert.match(spec10, /`open-telemetry\/api`によるAPI-only Span／Metric境界/);
-  assert.match(observability, /Application／Framework／Journal／Audit/);
-  assert.match(observability, /Audit RecordにはOperation、Attempt、Telemetryを出しません/);
+  assert.match(observability, /Application／Framework／Journal／Observed operational event/);
+  assert.match(observability, /Observed operational eventにはOperation、Attempt、Telemetryを出しません/);
   assert.match(observability, /Application／Frameworkの`attempt`はnon-nullのAttempt Scope時だけ/);
   assert.match(observability, /Journalの`attempt`は常時存在して`null`/);
   const jsonl = observability.match(/```jsonl\n([\s\S]*?)\n```/)?.[1] ?? '';
@@ -298,8 +429,8 @@ test('Community Board guide presents the local full-stack journey and credential
   assert.match(guideSource, /Browser[\s\S]*SvelteKit same-origin UI \/ BFF[\s\S]*Server-only Generated Operation Object/);
   assert.match(guideSource, /app\/Domain\/Board\/[\s\S]*app\/Domain\/Identity\/[\s\S]*app\/Infrastructure\/[\s\S]*app\/Feature\//);
   assert.match(guideSource, /PasswordとRaw Session Tokenは`#\[Sensitive\]`なEphemeral Value／Outcomeにだけ存在します/);
-  assert.match(guideSource, /Community BoardはLocal／CIだけで検証し、公開Hostを提供していません。Documentation WebsiteはCloudflare Pagesへ公開しています/);
-  assert.doesNotMatch(guideSource, /Community BoardとDocumentation WebsiteはLocal／CIだけ/);
+  assert.match(guideSource, /Community BoardはApplication-owned Reference Applicationとして、利用者がProject RootからApplicationのBrowser／API Testを実行し、公開Hostを前提にしない自己管理環境でJourneyを再現できることを確認します/);
+  assert.doesNotMatch(guideSource, /Local／CIだけで検証|ローカル／CI検証|Repository CI/);
   assert.match(guideSource, /Outcome Store、Status API、Generated Artifact、Page Data、Browser Bundle、LogへCredentialを残しません/);
   for (const topic of ['Worker未起動', 'Seed Conflict', 'Port衝突', 'Generated Drift', 'Secure Cookie Local設定']) {
     assert.match(guideSource, new RegExp(`^### ${topic}$`, 'm'));
@@ -447,7 +578,9 @@ test('guided tutorial pairs runnable inputs with parseable JSON and masked JSONL
 
 test('retention guide preserves the idempotency default and successful plan contract', async () => {
   const retention = await guide('retention.md');
-  assert.match(retention, /`idempotency_record_days`を省略した場合は、4つの基本期間の最長値/);
+  assert.match(retention, /`config\/retention\.php`の`idempotency_record_days`で管理し、省略した場合は4つの基本期間の最長値/);
+  assert.doesNotMatch(retention, /--idempotency-record-days/);
+  assert.match(retention, /--transport-payload-days=7[\s\S]*--journal-days=30[\s\S]*--outcome-days=14[\s\S]*--dead-letter-days=90/);
   assert.match(retention, /Planは候補を読むだけで、DatabaseやJournalを変更しません/);
   assert.match(retention, /成功時の終了Codeは0です。次の形式を返します/);
   assert.match(retention, /Retention plan[\s\S]*idempotency_record: N/);
@@ -552,15 +685,15 @@ test('tenant protection guide completes the protected-storage reader journey', a
   const source = await guide('tenant-protection.md');
   const configuration = await guide('configuration.md');
   for (const phrase of [
-    'Experimental', 'Stable `1.1.0`', 'TenantRef', 'AuthenticationResult::authenticated',
+    'Experimental Stable `1.2.0`', 'TenantRef', 'AuthenticationResult::authenticated',
     'ConsoleTenantProvider', 'ScheduledTenantProvider', 'StorageKeyProvider',
     'OperationDataReadAuthorizer', 'OperationOutcomeQuery', 'BOPD v1',
     'XChaCha20-Poly1305', 'OperationOutcomeUnavailable', 'database:migrate',
     'storage:protection:plan', 'storage:protection:rotate', '--confirm',
     '--checkpoint', '--actor', '--reason', 'remaining', 'Replica', 'Backup',
     'dead_letter_reason', 'idempotency_response', 'idempotency_result',
-    'Exit Codeは成功（`0`）', '旧Keyを削除しない', 'Repository `main`専用',
-    'Stable `1.1.0`には`TenantRef`', 'count(encoded_record)',
+    'Exit Codeは成功（`0`）', '旧Keyを削除しない', 'Experimental Stable 1.2.0',
+    '公開済みExperimental Stable `1.2.0`のFramework／Skeleton Surface', 'count(encoded_record)',
     'count(encoded_payload)', 'count(encoded_context)', 'count(encoded_reason)',
     'count(encoded_response)', 'count(encoded_result)',
     'all_non_null_rows_are_bopd', 'BOPD Envelope Header',
@@ -723,23 +856,16 @@ test('content-map descriptions use the same editorial guard as guide prose', asy
   );
 });
 
-test('all guide sources are mapped once and retain the editorial page-type matrix', async () => {
+test('all guide sources are mapped once and Content Map owns reader classification', async () => {
   const files = (await readdir(path.join(repositoryRoot, 'docs/guide')))
     .filter((file) => file.endsWith('.md'))
     .sort();
   assert.equal(files.length, 41);
   assert.deepEqual(Object.keys(contentMap).sort(), files);
 
-  const pageTypes = {
-    Orientation: ['README.md'],
-    Concept: ['core-concepts.md', 'execution-context.md', 'journal.md', 'operation-lifecycle.md', 'security.md', 'why-blackops.md'],
-    Reference: ['attributes.md', 'configuration.md', 'core-api.md', 'directory-structure.md', 'glossary.md', 'mvp-status.md', 'observability.md', 'project-cli.md'],
-    'How-to/Tutorial': ['application-bootstrap.md', 'authentication.md', 'authorization.md', 'community-board.md', 'console-command.md', 'database-and-transactions.md', 'database-migrations.md', 'database-seeding.md', 'deployment.md', 'execution.md', 'first-operation.md', 'frontend.md', 'installation.md', 'mvp-sample.md', 'observer-replay.md', 'operations.md', 'outbox.md', 'outcome-retrieval.md', 'project-generators.md', 'retention.md', 'runtime-bootstrap.md', 'scheduled-operation.md', 'tenant-protection.md', 'testing.md', 'validation.md'],
-    Troubleshooting: ['troubleshooting.md'],
-  };
-  const assigned = Object.values(pageTypes).flat().sort();
-  assert.deepEqual(assigned, files);
-  assert.equal(new Set(assigned).size, files.length);
+  const assigned = Object.entries(contentMap).filter(([source]) => source !== 'README.md').map(([source, metadata]) => [source, metadata.reader.type]);
+  assert.deepEqual(assigned.map(([source]) => source).sort(), files.filter((file) => file !== 'README.md'));
+  assert.deepEqual(Object.fromEntries(assigned), Object.fromEntries(Object.entries(contentMap).filter(([source]) => source !== 'README.md').map(([source, metadata]) => [source, metadata.reader.type])));
 });
 
 test('Blume runtime keeps diagrams local and the landing responsive', async () => {
@@ -747,6 +873,7 @@ test('Blume runtime keeps diagrams local and the landing responsive', async () =
   const config = await readFile(path.join(repositoryRoot, 'docs/website/blume.config.ts'), 'utf8');
   const theme = await readFile(path.join(repositoryRoot, 'docs/website/theme.css'), 'utf8');
   const landing = await readFile(path.join(repositoryRoot, 'docs/website/pages/index.astro'), 'utf8');
+  const layout = await readFile(path.join(repositoryRoot, 'docs/website/components/NoEditLayout.astro'), 'utf8');
 
   assert.equal(packageJson.dependencies.blume, '1.3.0');
   assert.equal(packageJson.devDependencies.astro, '7.0.7');
@@ -761,31 +888,250 @@ test('Blume runtime keeps diagrams local and the landing responsive', async () =
   assert.match(config, /github: \{ owner: 'kubotak-is', repo: 'blackops' \}/);
   assert.doesNotMatch(config, /BlackOps — The PHP Framework/);
   assert.match(theme, /\.landing-shell/);
+  assert.match(theme, /contain: inline-size/);
   assert.match(theme, /prefers-reduced-motion/);
   assert.match(theme, /blume-mermaid \{[\s\S]*display: block !important/);
   assert.match(theme, /blume-mermaid > div \{[\s\S]*min-width: 42rem/);
   assert.match(theme, /blume-mermaid svg \{[\s\S]*height: auto[\s\S]*width: 100%/);
-  assert.match(theme, /\.landing-feature a:focus-visible/);
-  assert.match(theme, /\.landing-feature a \{ margin-top: auto; padding-top: 1\.5rem; \}/);
-  assert.match(theme, /\.landing-features-grid[\s\S]*grid-template-columns: repeat\(3, minmax\(0, 1fr\)\)/);
-  assert.doesNotMatch(theme, /\.landing-feature-operation[\s\S]*grid-row: 1 \/ span 2/);
-  assert.match(theme, /\.landing-brand[\s\S]*clamp\(4\.5rem, 9vw, 8\.5rem\)/);
-  assert.match(theme, /@media \(max-width: 959px\)[\s\S]*\.landing-features-grid \{ grid-template-columns: 1fr; \}/);
-  assert.match(theme, /\.landing-feature-operation \.landing-feature-copy a \{ margin-top: auto; \}/);
-  assert.match(theme, /\.landing-tagline[\s\S]*white-space: nowrap/);
-  assert.match(theme, /@media \(max-width: 700px\)[\s\S]*\.landing-features-grid \{ display: flex; flex-direction: column; \}/);
+  for (const marker of ['#6d6d6d', '#707b87', '#d0d0d0', '#12201f', 'blackops-overflow-focus:focus-visible']) {
+    assert.ok(theme.includes(marker), marker);
+  }
+  assert.match(landing, /class="landing-command blackops-overflow-focus" tabindex="0"/);
+  assert.match(landing, /class="blackops-overflow-focus" tabindex="0"><code>/);
+  assert.match(layout, /blume-mermaid[\s\S]*blackops-overflow-focus[\s\S]*tabIndex = 0/);
+  assert.match(theme, /\.landing-journey a:focus-visible/);
+  assert.match(theme, /\.landing-purpose-nav a:focus-visible/);
+  assert.match(theme, /\.landing-brand[\s\S]*clamp\(4rem, 9vw, 8rem\)/);
+  assert.match(theme, /@media \(max-width: 959px\)[\s\S]*\.landing-hero/);
+  assert.match(theme, /@media \(max-width: 767px\)[\s\S]*\.landing-model-list[\s\S]*grid-template-columns: 1fr/);
+  assert.match(theme, /overflow-x: auto/);
+  assert.doesNotMatch(theme, /linear-gradient|radial-gradient/);
+  assert.doesNotMatch(theme, /overflow-x: hidden/);
+  assert.equal((landing.match(/class="landing-eyebrow"/g) ?? []).length, 1);
+  for (const label of ['aria-label="ドキュメントの操作"', 'aria-label="Operationのソース"', '>同じID<', 'aria-label="ドキュメントのセクション"']) {
+    assert.ok(landing.includes(label), label);
+  }
+  assert.doesNotMatch(landing, /aria-label="Documentation actions"|aria-label="Operation source context"|>same ID<|aria-label="Documentation sections"/);
+  assert.match(landing, /<strong>Finalizing<\/strong><small>attempt\.succeeded — Handlerが成功した<\/small>/);
+  assert.doesNotMatch(landing, /<strong>Succeeded<\/strong>/);
+  assert.doesNotMatch(landing, /landing-journey-number|>01<|>02<|>03</);
   for (const copy of [
-    'BlackOps</span><span class="landing-tagline">The PHP Framework',
-    'BlackOpsの特徴',
+    'BlackOps</span> <span class="landing-tagline">The PHP Framework',
+    'HTTPとWorkerの処理を一つのOperationとして扱い、受付・再試行・完了までを同じIDで追跡できるPHP Frameworkです。',
+    'landing-editor-chrome',
+    'landing-lifecycle-panel',
+    'Operation Lifecycle',
+    '同じOperation IDで、受付、Attempt、完了までの実行事実を追跡します。',
+    'Retryは同じIDの次のAttemptとして続きます。',
     'composer create-project blackops/skeleton my-app 1.2.0',
-    'Latest Experimental Stable 1.2.0',
-    'HTTPリクエストもコンソールコマンドもJobも、すべてはOperationで統一されます。',
-    '受理・試行・リトライ・拒否・完了をFrameworkが自動でJournalへ記録します。「なぜ失敗したか」をFrameworkが記録します。',
-    'BlackOpsはフロントエンドを持ちません。代わりに、JavaScript向けに接続クライアントのコードを自動生成します。',
-    'フロントエンドはNext.jsでもNuxtでもSvelteKitでもお好きなFrameworkと組み合わせられます。',
+    'Stable 1.2.0 install',
+    'Install',
+    'Quickstart and Skeleton',
+    'First Operation',
+    'Inline and Deferred',
+    'Lifecycle and Journal',
+    'Async and Lifecycle',
+    'Data and Security',
+    'Operate',
+    'Reference',
+    'Releases',
   ]) assert.ok(landing.includes(copy), copy);
-  for (const forbidden of ['BlackOpsの3つの特徴', 'BlackOpsは、PHP 8.5向けのHeadless Operation Frameworkです。同期HTTP実行とPostgreSQLを使ったDeferred実行を同じOperation Modelで扱い、Lifecycle Journal、Retry、Outcome、Retention、BlackOps CLIを提供します。', 'ONE MODEL / TWO PATHS', 'Operation ↔ Execution', 'Inline HTTP or durable Deferred', 'THE BLACKOPS SHAPE', 'Make the work explicit.', 'Nothing stays in the dark.', 'Bring your frontend.']) {
+  for (const forbidden of ['BlackOpsの3つの特徴', 'BlackOpsは、PHP 8.5向けのHeadless Operation Frameworkです。同期HTTP実行とPostgreSQLを使ったDeferred実行を同じOperation Modelで扱い、Lifecycle Journal、Retry、Outcome、Retention、BlackOps CLIを提供します。', 'ONE MODEL / TWO PATHS', 'Operation ↔ Execution', 'Inline HTTP or durable Deferred', 'THE BLACKOPS SHAPE', 'Make the work explicit.', 'Nothing stays in the dark.', 'Bring your frontend.', 'landing-feature', 'landing-hero-glow', 'landing-panel-dot']) {
     assert.ok(!landing.includes(forbidden), forbidden);
+  }
+});
+
+test('the detail layout owns the existing theme and linked CSS guards fail closed', async () => {
+  const [layout, landing, artifactGuard, stylesheetContract, searchFocusBoundary] = await Promise.all([
+    readFile(path.join(repositoryRoot, 'docs/website/components/NoEditLayout.astro'), 'utf8'),
+    readFile(path.join(repositoryRoot, 'docs/website/pages/index.astro'), 'utf8'),
+    readFile(path.join(repositoryRoot, 'docs/website/scripts/check-artifact.mjs'), 'utf8'),
+    readFile(path.join(repositoryRoot, 'docs/website/scripts/artifact-stylesheet-contract.mjs'), 'utf8'),
+    readFile(path.join(repositoryRoot, 'docs/website/components/SearchFocusBoundary.astro'), 'utf8'),
+  ]);
+  assert.match(layout, /import ['"]\.\.\/theme\.css['"];?/);
+  assert.match(landing, /import ['"]\.\.\/theme\.css['"];?/);
+  for (const marker of ['extractStylesheetHrefs', 'assertLinkedStylesheetContract']) {
+    assert.ok(artifactGuard.includes(marker), marker);
+  }
+  for (const marker of ['overflow-wrap:anywhere', 'min-width:42rem', 'box-shadow:inset3px00']) {
+    assert.ok(stylesheetContract.includes(marker), marker);
+  }
+
+  const {
+    assertAccessibilityStylesheetContract,
+    assertLinkedStylesheetContract,
+    assertOverflowFocusContract,
+    assertSearchFocusBoundaryArtifact,
+    assertSearchFocusBoundarySourceContract,
+    extractStylesheetHrefs,
+  } = await import('../scripts/artifact-stylesheet-contract.mjs');
+  const activeCss = '[data-blume-nav-tree] a[aria-current=page]{box-shadow:inset 3px 0 0 var(--blume-accent)}';
+  const inlineCss = '.prose :not(pre)>code{overflow-wrap:anywhere;word-break:break-word}';
+  const mermaidCss = 'blume-mermaid{width:100%} blume-mermaid>div{min-width:42rem;width:100%} blume-mermaid svg{height:auto}';
+  const accessibilityCss = ":root{--bo-surface-deep:#e7eeea} [data-theme='light'] .not-prose[class~='bg-blue-500/10']>div>p:not(.text-foreground){color:#6d6d6d} [data-theme='light'] .landing-editor-language,[data-theme='light'] .landing-lifecycle-heading>span,[data-theme='light'] .landing-lifecycle-caption,[data-theme='light'] .landing-lifecycle-note,[data-theme='light'] .landing-lifecycle-rail small{color:#526966} [data-theme='dark'] .astro-code span[style*='--shiki-dark:#6A737D']{color:#707b87!important} [data-theme='dark'] blume-mermaid .edgeLabel p{color:#d0d0d0!important} [data-theme='dark'] body>a[href='#blume-content']{color:#12201f} .blackops-overflow-focus:focus-visible{outline:3px solid var(--bo-focus);outline-offset:3px}";
+  const linkedCss = {
+    'active.css': activeCss,
+    'inline.css': inlineCss,
+    'mermaid.css': mermaidCss,
+    'accessibility.css': accessibilityCss,
+    'other.css': 'body{color:black}',
+  };
+  const runFixture = async (html, label, styles = linkedCss) => assertLinkedStylesheetContract(
+    html,
+    extractStylesheetHrefs(html),
+    label,
+    {
+      readStylesheet: async (href) => styles[href] ?? Promise.reject(new Error('missing fixture asset')),
+      requireLandingSurfaces: true,
+    },
+  );
+  await assert.doesNotReject(() => runFixture('<LINK href="/active.css" REL="stylesheet"><link rel="STYLESHEET" href="/inline.css"><link href="/mermaid.css" rel="stylesheet"><link href="/accessibility.css" rel="stylesheet">', 'linked fixture'));
+  await assert.rejects(() => runFixture('<link rel="stylesheet" href="/other.css">', 'unlinked CSS fixture'), /active navigation/);
+  await assert.rejects(() => runFixture('<link rel="stylesheet" href="/missing.css">', 'missing linked CSS fixture'), /missing linked stylesheet/);
+  await assert.rejects(() => runFixture('<link rel="stylesheet" href="https://example.test/theme.css">', 'non-local linked CSS fixture'), /non-local stylesheet/);
+  await assert.rejects(() => runFixture('<link rel="stylesheet" href="/../active.css">', 'traversal linked CSS fixture'), /unsafe stylesheet/);
+  const wrongRuleCss = {
+    'bad-active.css': `[data-blume-nav-tree]a[aria-current=page]{color:red}body{box-shadow:inset 3px 0 0 black}${inlineCss}${mermaidCss}${accessibilityCss}`,
+    'bad-inline.css': `${activeCss}.prose:not(pre)>code{overflow-wrap:anywhere;word-break:break-word}${mermaidCss}${accessibilityCss}`,
+    'bad-mermaid.css': `${activeCss}${inlineCss}blume-mermaidsvg{height:auto}body{min-width:42rem;height:auto;width:100%}${accessibilityCss}`,
+  };
+  await assert.rejects(() => runFixture('<link rel="stylesheet" href="/bad-active.css">', 'wrong active declaration fixture', wrongRuleCss), /active navigation/);
+  await assert.rejects(() => runFixture('<link rel="stylesheet" href="/bad-inline.css">', 'wrong inline declaration fixture', wrongRuleCss), /inline code/);
+  await assert.rejects(() => runFixture('<link rel="stylesheet" href="/bad-mermaid.css">', 'wrong Mermaid declaration fixture', wrongRuleCss), /Mermaid/);
+
+  for (const [oldColor, label] of [
+    ['#6f6f6f', 'old Light callout color'],
+    ['#6a737d', 'old Dark Shiki comment color'],
+    ['#cccccc', 'old Dark Mermaid edge-label color'],
+    ['#fff', 'old Dark skip-link color'],
+  ]) {
+    const oldCss = accessibilityCss.replace(
+      oldColor === '#6f6f6f' ? '#6d6d6d' : oldColor === '#6a737d' ? '#707b87' : oldColor === '#cccccc' ? '#d0d0d0' : '#12201f',
+      oldColor,
+    );
+    assert.throws(
+      () => assertAccessibilityStylesheetContract(`${activeCss}${inlineCss}${mermaidCss}${oldCss}`, label, { requireLandingSurfaces: true }),
+      /linked stylesheets must (own|not contain)/,
+    );
+  }
+  const unscopedCalloutCss = `${accessibilityCss} .not-prose[class~='bg-blue-500/10']>div>p:not(.text-foreground){color:#6d6d6d}`;
+  assert.throws(
+    () => assertAccessibilityStylesheetContract(`${activeCss}${inlineCss}${mermaidCss}${unscopedCalloutCss}`, 'unscoped Light callout', { requireLandingSurfaces: true }),
+    /linked stylesheets must (own|not contain)/,
+  );
+  const lowContrastLandingCss = accessibilityCss.replaceAll('#526966', '#5d7471');
+  assert.throws(
+    () => assertAccessibilityStylesheetContract(`${activeCss}${inlineCss}${mermaidCss}${lowContrastLandingCss}`, 'low-contrast Light Landing surface', { requireLandingSurfaces: true }),
+    /Light Landing deep-surface muted/,
+  );
+  const unscopedLandingCss = `${accessibilityCss} .landing-editor-language{color:#526966}`;
+  assert.throws(
+    () => assertAccessibilityStylesheetContract(`${activeCss}${inlineCss}${mermaidCss}${unscopedLandingCss}`, 'unscoped Light Landing surface', { requireLandingSurfaces: true }),
+    /unscoped Light Landing deep-surface muted/,
+  );
+
+  const validRuntime = "for (const element of document.querySelectorAll('.landing-command, .landing-code-panel > pre, blume-mermaid')) { element.classList.add('blackops-overflow-focus'); element.tabIndex = 0; }";
+  assert.doesNotThrow(() => assertOverflowFocusContract(
+    '<pre class="landing-command blackops-overflow-focus" tabindex="0"></pre><div class="landing-code-panel"><pre class="blackops-overflow-focus" tabindex="0"></pre></div><blume-mermaid></blume-mermaid>',
+    'focusable overflow fixture',
+    { runtimeSource: validRuntime, requireLandingSurfaces: true },
+  ));
+  assert.throws(
+    () => assertOverflowFocusContract('<pre class="landing-command"></pre><div class="landing-code-panel"><pre></pre></div><blume-mermaid></blume-mermaid>', 'non-focusable overflow fixture', { requireLandingSurfaces: true }),
+    /must be keyboard focusable/,
+  );
+  assert.throws(
+    () => assertOverflowFocusContract('<div class="landing-shell"></div>', 'missing Landing surfaces', { requireLandingSurfaces: true }),
+    /Landing must contain a keyboard-focusable command overflow surface/,
+  );
+  assert.throws(
+    () => assertOverflowFocusContract('<blume-mermaid></blume-mermaid>', 'unrelated runtime fixture', { runtimeSource: 'otherElement.tabIndex = 0;' }),
+    /exact shared overflow selector/,
+  );
+  assert.throws(
+    () => assertOverflowFocusContract('<blume-mermaid></blume-mermaid>', 'separated runtime fixture', {
+      runtimeSource: "document.querySelectorAll('.landing-command, .landing-code-panel > pre, blume-mermaid'); element.classList.add('blackops-overflow-focus'); element.tabIndex = 0;",
+    }),
+    /exact shared overflow selector/,
+  );
+  assert.throws(
+    () => assertOverflowFocusContract('<div class="landing-code-panel"><div><pre tabindex="0"></pre></div></div>', 'nested code overflow fixture'),
+    /landing code overflow must be keyboard focusable/,
+  );
+
+  assert.match(artifactGuard, /assertSearchFocusBoundaryArtifact/);
+  assert.match(artifactGuard, /assertSearchFocusBoundarySourceContract/);
+  assert.doesNotThrow(() => assertSearchFocusBoundarySourceContract({
+    component: searchFocusBoundary,
+    landing,
+    detail: layout,
+  }));
+  for (const [missing, label] of [
+    ['event.preventDefault()', 'preventDefault'],
+    ['dialog.close()', 'dialog close'],
+    ['trigger.focus()', 'trigger focus'],
+  ]) {
+    assert.throws(
+      () => assertSearchFocusBoundarySourceContract({
+        component: searchFocusBoundary.replace(missing, ''),
+        landing,
+        detail: layout,
+      }, `missing ${label}`),
+      /missing its bounded/,
+    );
+  }
+  assert.throws(
+    () => assertSearchFocusBoundarySourceContract({
+      component: searchFocusBoundary,
+      landing: landing.replace("import SearchFocusBoundary from '../components/SearchFocusBoundary.astro';\n", '').replace('  <SearchFocusBoundary />\n', ''),
+      detail: layout,
+    }, 'Landing-only fixture'),
+    /Landing.*exactly once/,
+  );
+  assert.throws(
+    () => assertSearchFocusBoundarySourceContract({
+      component: `${searchFocusBoundary}\n${searchFocusBoundary}`,
+      landing,
+      detail: layout,
+    }, 'duplicate component fixture'),
+    /exactly one shared boundary marker/,
+  );
+  assert.throws(
+    () => assertSearchFocusBoundarySourceContract({
+      component: searchFocusBoundary.replace("dialog.closest('blume-search')?.querySelector", "document.querySelector"),
+      landing,
+      detail: layout,
+    }, 'global trigger fixture'),
+    /same-route search trigger lookup/,
+  );
+  assert.throws(
+    () => assertSearchFocusBoundarySourceContract({
+      component: searchFocusBoundary.replace('event.preventDefault();\n      event.stopPropagation();\n      dialog.close();', 'dialog.close();\n      event.preventDefault();\n      event.stopPropagation();'),
+      landing,
+      detail: layout,
+    }, 'reordered handler fixture'),
+    /required operation order/,
+  );
+  const boundaryScript = searchFocusBoundary.match(/<script\b[^>]*data-blackops-search-focus-boundary[^>]*>([\s\S]*?)<\/script>/i)?.[1] ?? '';
+  const validArtifact = `<script data-blackops-search-focus-boundary>${boundaryScript}</script>`;
+  assert.doesNotThrow(() => assertSearchFocusBoundaryArtifact(validArtifact, 'generated boundary fixture'));
+  assert.throws(() => assertSearchFocusBoundaryArtifact(validArtifact.replace('data-blackops-search-focus-boundary', ''), 'missing marker fixture'), /exactly one generated/);
+  assert.throws(() => assertSearchFocusBoundaryArtifact(`${validArtifact}${validArtifact}`, 'duplicate marker fixture'), /exactly one generated/);
+  assert.throws(
+    () => assertSearchFocusBoundaryArtifact(validArtifact.replace("dialog.closest('blume-search')?.querySelector", 'document.querySelector'), 'global artifact trigger fixture'),
+    /same-route search trigger lookup/,
+  );
+  assert.throws(
+    () => assertSearchFocusBoundaryArtifact(validArtifact.replace('event.preventDefault();\n      event.stopPropagation();\n      dialog.close();', 'dialog.close();\n      event.preventDefault();\n      event.stopPropagation();'), 'reordered artifact fixture'),
+    /required operation order/,
+  );
+  assert.throws(
+    () => assertSearchFocusBoundaryArtifact(validArtifact.replace("if (event.key !== 'Escape' || event.isComposing) return;", ''), 'missing artifact keydown filter fixture'),
+    /generated boundary is missing.*Escape filtering/,
+  );
+  for (const missing of ['event.preventDefault()', 'dialog.close()', 'trigger.focus()']) {
+    assert.throws(() => assertSearchFocusBoundaryArtifact(validArtifact.replace(missing, ''), `missing artifact ${missing}`), /generated boundary is missing/);
   }
 });
 
@@ -803,7 +1149,8 @@ test('custom landing links have a permanent static-artifact guard', async () => 
   assert.match(checkSite, /Landing link does not resolve to a static artifact/);
   assert.match(checkSite, new RegExp('getting-started/first-operation'));
   assert.match(checkSite, new RegExp('concepts/lifecycle'));
-  assert.match(checkSite, new RegExp('href="/frontend'));
+  assert.match(checkSite, new RegExp('database/transactions'));
+  assert.match(checkSite, new RegExp('reference/project-cli'));
   assert.ok(checkSite.includes('const githubAnchor'));
   assert.ok(checkSite.includes('github\\.com'));
   assert.match(checkSite, /aria-label=/);

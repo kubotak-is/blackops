@@ -2,6 +2,16 @@ import { access, readFile, readdir } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { distRoot, repositoryRoot } from './website-paths.mjs';
+import { assertArtifactClaims } from './release-claim-checker.mjs';
+import {
+  assertLinkedStylesheetContract,
+  assertOverflowFocusContract,
+  assertSearchFocusBoundaryArtifact,
+  assertSearchFocusBoundarySourceContract,
+  extractStylesheetHrefs,
+} from './artifact-stylesheet-contract.mjs';
+
+await assertArtifactClaims({ artifactDirectory: distRoot });
 
 const forbidden = [
   [/docs\/internal/i, 'docs/internal'],
@@ -21,6 +31,11 @@ let accessibleDescriptionCount = 0;
 let landingStylesheetCount = 0;
 let mermaidLegibilityStylesheetCount = 0;
 let mermaidRuntimeCount = 0;
+const stylesheetCache = new Map();
+const layoutSource = await readFile(path.join(repositoryRoot, 'docs/website/components/NoEditLayout.astro'), 'utf8');
+const landingSource = await readFile(path.join(repositoryRoot, 'docs/website/pages/index.astro'), 'utf8');
+const searchFocusBoundarySource = await readFile(path.join(repositoryRoot, 'docs/website/components/SearchFocusBoundary.astro'), 'utf8');
+assertSearchFocusBoundarySourceContract({ component: searchFocusBoundarySource, landing: landingSource, detail: layoutSource });
 const generatedConfig = await readFile(path.join(repositoryRoot, 'docs/website/.blume/astro.config.mjs'), 'utf8');
 if (/fontProviders\.google|fonts\.googleapis\.com|fonts\.gstatic\.com/i.test(generatedConfig)) {
   throw new Error('Generated Blume config must not contain a Google or remote font provider.');
@@ -54,6 +69,17 @@ for (const file of await files(distRoot)) {
     throw new Error(`Static artifact must not contain source maps: ${path.relative(distRoot, file)}`);
   }
   if (file.endsWith('.html')) {
+    const artifactPath = path.relative(distRoot, file);
+    if (artifactPath !== '404.html') {
+      const stylesheetHrefs = extractStylesheetHrefs(content);
+      if (stylesheetHrefs.length > 0) {
+        await assertLinkedStylesheetContract(content, stylesheetHrefs, artifactPath, { readStylesheet: readCachedStylesheet });
+      }
+      assertOverflowFocusContract(content, artifactPath, {
+        runtimeSource: layoutSource,
+        requireLandingSurfaces: artifactPath === 'index.html',
+      });
+    }
     diagramCount += (content.match(/<blume-mermaid(?:\s|>)/g) ?? []).length;
     mermaidCodeBlockCount += (content.match(/data-language="mermaid"/g) ?? []).length;
     accessibleTitleCount += (content.match(/accTitle:/g) ?? []).length;
@@ -75,6 +101,22 @@ for (const file of await files(distRoot)) {
   ) {
     mermaidLegibilityStylesheetCount += 1;
   }
+}
+
+const searchRecords = JSON.parse(await readFile(path.join(distRoot, 'blume-search.json'), 'utf8'));
+if (searchRecords.length !== 41) {
+  throw new Error(`Search focus boundary artifact contract requires exactly 41 generated routes; found ${searchRecords.length}.`);
+}
+for (const { route } of searchRecords) {
+  const htmlFile = route === '/' ? path.join(distRoot, 'index.html') : path.join(distRoot, route, 'index.html');
+  const html = await readFile(htmlFile, 'utf8');
+  assertSearchFocusBoundaryArtifact(html, route);
+  const stylesheetHrefs = extractStylesheetHrefs(html);
+  await assertLinkedStylesheetContract(html, stylesheetHrefs, route, { readStylesheet: readCachedStylesheet });
+  assertOverflowFocusContract(html, route, {
+    runtimeSource: layoutSource,
+    requireLandingSurfaces: route === '/',
+  });
 }
 
 if (diagramCount !== 4 || mermaidCodeBlockCount !== 0 || accessibleTitleCount !== 4 || accessibleDescriptionCount !== 4) {
@@ -139,6 +181,15 @@ function escapePattern(value) {
 }
 
 console.log('Static artifact boundary check passed.');
+
+async function readCachedStylesheet(relative) {
+  let content = stylesheetCache.get(relative);
+  if (content === undefined) {
+    content = await readFile(path.join(distRoot, relative), 'utf8');
+    stylesheetCache.set(relative, content);
+  }
+  return content;
+}
 
 async function files(root) {
   const result = [];
