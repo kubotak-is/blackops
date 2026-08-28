@@ -10,11 +10,61 @@
 - 重要な設計判断は、結論だけでなく理由もREADMEまたは設計文書へ残す
 - 用語の変更時は、コードと文書をまとめて更新する
 
-## P23-003A1 accepted handoff — Audit Catalog Foundation
+## P23-003A2 current handoff — Audit Record and Observed Projection
+
+Updated At: 2026-08-29T01:25:47+09:00
+
+Status: `Accepted — P23-003A2 Audit Record and Observed Projection / Parent P23-003A Accepted`。
+
+- [x] P23-003A1 Accepted prerequisite
+- [x] candidate commit `1799be017811886d1e9f1ff8ba9a8eb18db51c79`
+- [x] committed-candidate Git／Composer package export Green
+- [x] Draft／Logical／observed projection contract review
+- [x] single projection failure、null/omit、evidence loss、trusted seam fixed
+- [x] P23-003A2 Task Packet／initial Report drafted
+- [x] D147／D145／Specifications 105/106 current handoff synchronized
+- [x] exact management／normative freeze
+- [x] initial fresh Sol Max preflight Changes Requested `P1=1/P2=0/P3=0`
+- [x] exactly-once detached snapshot／bound definition／bytes-only entrypoint correction
+- [x] corrected exact management／normative freeze
+- [x] fresh Sol Max preflight Green `P1=0/P2=0/P3=0`
+- [x] Luna Max A2 implementation
+- [x] focused gate and exact Product freeze
+- [x] complete Final Gate
+- [x] fresh Sol Max implementation review Changes Requested `P1=1/P2=2/P3=0`
+- [x] precedence／fixture／golden bounded correction
+- [x] corrected exact29 Product freeze and complete Final Gate
+- [x] fresh Sol Max implementation re-review Changes Requested `P1=3/P2=1/P3=0`
+- [x] Correlation／bounded capture／fixture／D147 Round 2 correction
+- [x] Round 2 exact29 Product freeze `c2ef33a3d3b47ca9a5de189d324308a79da0a356839d36aa944675a7dba2d8eb`
+- [x] Round 2 complete Final Gate
+- [x] fresh Sol Max implementation re-review Changes Requested `P1=0/P2=2/P3=0`
+- [x] explicit-null correlation projection direct fixture
+- [x] TODO／Spec README current inventory synchronization
+- [x] Round 3 exact29 Product freeze `65443eb6ec6c738c61100001d8f3f5d2e38a88e63f585052bf6f4c4b9bd29056`
+- [x] Round 3 complete Final Gate
+- [x] fresh Sol Max implementation re-review Changes Requested `P1=1/P2=0/P3=0`
+- [x] wide-input pre-allocation rejection exact3 correction
+- [x] Round 4 focused gate and exact29 Product freeze `c019ab09c31a99301bfe9fd22004890cf52a21b20cc7b410df74f08b0ef97ae9`
+- [x] Round 4 complete Final Gate
+- [x] fresh Sol Max implementation review Green `P1=0/P2=0/P3=0`
+- [x] Orchestrator P23-003A2／parent P23-003A Acceptance
+
+Stable `1.2.0` remains current and BlackOps `1.3` remains unreleased. A2 adds
+no public Guide／Website／route／runtime／database capability.
+
+Remaining: none within P23-003A2 or parent P23-003A.
+Higher-goal work remains P23-003B..G、P23-004、P23-005、P23-006.
+
+Next Action: OrchestratorがAccepted A1/A2 freezeを入力としてP23-003Bのbounded
+researchとTask Packet draftingを開始する。別preflight Greenまで実装しない。
+Commit、stage、push、runtime activationは行わない。
+
+## P23-003A1 accepted handoff — Historical prerequisite
 
 Updated At: 2026-08-28T18:13:03+09:00
 
-Status: `Accepted — Audit Catalog Foundation; P23-003A2 unblocked`。
+Historical Status at A1 Acceptance: `Accepted — Audit Catalog Foundation; P23-003A2 unblocked`。
 
 - [x] P23-002E Accepted prerequisite
 - [x] Audit contract／Source／delivery research
@@ -49,7 +99,7 @@ checkpoint.
 Remaining: P23-003A1内はなし。Higher-goal work remains
 P23-003A2、parent P23-003A Acceptance、P23-003B..G、P23-004、P23-005、P23-006.
 
-Next Action: P23-003A2 Task Packetを作成してfresh Sol Max preflightへ渡す。
+Historical Next Action: P23-003A2 Task Packetを作成してfresh Sol Max preflightへ渡す。
 Commit、stage、runtime activation、B-Gへの拡張は行わない。
 
 ## P23-002E accepted handoff — Historical prerequisite
@@ -951,7 +1001,7 @@ Next Action: freeze the new exact5 and exact7 hashes and request fresh separate 
 - [x] P23-002CでP23-002A/B/C atomic slice内のdedicated schedule projectionとfinal full-root activationを実装する
 - [x] P23-002Dで`diagnostics:check`とaggregate-only `queue:status`のsafe contractを実装する（Accepted。Fresh Sol Max closure review Green `P1=0/P2=0/P3=0`）
 - [x] P23-002Eで`about`と`outbox:status`を定義・実装する（Accepted。Fresh Sol Max implementation review Green `P1=0/P2=0/P3=0`）。`dead-letter:list`はoperation/outbox名、tenant、pagination、redaction確定まで延期する
-- [~] P23-003Aをserial A1/A2へ分割する。A1でclosed domain-hashed AuditEventCatalog v1／Catalog-only RFC 8785 JCS/hash、exact 30-definition Framework security/access Catalog、bounded evidence/semantic validation、keyed opaque ID、AuditReadRequestBasis／AuditReadContextを実装する。A2はAccepted A1をconsumeし、AuditRecord draft/logical/complete stage schema、resolved semantic/evidence validation、exact observed safe projectionを実装する。AuditRecord JCS logical body/hash／chain appendはP23-003B、dedicated opaque-key providerはP23-003C、runtime adapterはP23-003D、application registration/projectorはP23-003E。Current handoffはP23-003A1 Accepted／P23-003A2 Task Packet作成待ち
+- [x] P23-003Aをserial A1/A2へ分割する。A1でclosed domain-hashed AuditEventCatalog v1／Catalog-only RFC 8785 JCS/hash、exact 30-definition Framework security/access Catalog、bounded evidence/semantic validation、keyed opaque ID、AuditReadRequestBasis／AuditReadContextを実装する。A2はAccepted A1をconsumeし、AuditRecord draft/logical/complete stage schema、resolved semantic/evidence validation、exact observed safe projectionを実装する。AuditRecord JCS logical body/hash／chain appendはP23-003B、dedicated opaque-key providerはP23-003C、runtime adapterはP23-003D、application registration/projectorはP23-003E。P23-003A1／A2とparent P23-003A are Accepted; P23-003B is next
 - [ ] P23-003BでBOPD `AuditRecord` purpose、encrypted append store、RFC 8785 JCS logical body／contentHash／recordHash、per-partition segment chain append／sequence／same-ID/contentHash idempotency、normalized tenant domain-hash to `tenant:` partition／`system:global` null mapping、required canonical-store／durable outbox-ingress recordedAt assignment（per-authority/partition `max(now,lastAssignedRecordedAt)`、canonical-only sequence cursor）、complete JCS/LF 1 MiB writer cap、occurredAt +300-second rule、tenant auth-before-decryptを実装する
 - [ ] P23-003Cでrequired same-transaction append、auth/read decisionのresponse前 dedicated local append/outbox commit（allow failureはdata非開示fail-closed、deny/invalid failureはbounded denial）、durable Audit Outboxのimmutable identity/bindings/protected envelopeとfenced state-field mutation、at-least-once same-ID/contentHash relayを実装する。Catalogのfixed deliveryをeffect/response前に選択し、versioned policy evaluatorがexplicit `policy.auditDelivery`を割り当てる。only explicit requiredはrequired selector、only explicit durableはdurable selector、missing／omitted／unknownはfail closedとし、record値はdefinition.deliveryと一致しなければならない。4 policy pathsをfixture化し、runtime override／downgrade／best-effort canonical pathを拒否する
 - [ ] P23-003Dでretention／hold、rotation、replay、outbox retryをimmutable AuditRecord phase eventへ明示adaptし、AuthenticationMiddleware／AuthorizationEvaluator／protected Operation Status／Journal／Outcome／diagnostic read boundaryのadapterとindependent reviewを行う

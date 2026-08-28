@@ -2,7 +2,7 @@
 
 Status: Proposal — unreleased BlackOps 1.3; workflow/gate status authority is the exact5 management slice (`develop/STATE.md`, `develop/TODO.md`, the parent Task/Report, and `develop/spec/README.md`)
 
-Updated At: 2026-08-28T18:13:03+09:00
+Updated At: 2026-08-29T01:25:47+09:00
 
 Decision date: 2026-08-19
 
@@ -69,7 +69,7 @@ evidence remains historical.
 
 ## P23-003A current contract correction
 
-Current status: `P23-003A1 Accepted — P23-003A2 unblocked`.
+Current status: `Accepted — P23-003A1／A2 and parent P23-003A; P23-003B next`.
 
 P23-002E is Accepted. P23-003A is split into serial P23-003A1 Catalog and
 P23-003A2 Record／Projection packets. Neither child is a runtime activation.
@@ -104,7 +104,37 @@ The fresh general closure review matched the third corrected exact-nine and
 returned Green `P1=0/P2=0/P3=0`. Luna Max completed the exact A1 implementation
 and focused／complete Final Gates. Fresh Sol Max implementation review is Green
 `P1=0/P2=0/P3=0`; the Orchestrator accepts P23-003A1 and unblocks P23-003A2.
-Runtime activation and P23-003B..G remain blocked.
+The A2 Task fixes a single `projection_invalid` failure, exact
+correlation/evidence loss rules, an Internal logical-record interface without
+a Production concrete constructor, injected Accepted-A1 opaque derivation,
+and an exact-zero A2 PublicApi inventory. Luna Max implementation, the focused
+Iteration Gate, exact29 Product freeze, and complete Final Gate are Green.
+The first bounded A2 correction and corrected complete Final Gate were Green.
+Fresh Sol Max implementation re-review returned Changes Requested
+`P1=3/P2=1/P3=0`; Round 2 correction is limited to Correlation construction,
+bounded Logical capture, direct mutation fixtures, and D147 current handoff.
+Round 2 correction and its exact29 complete Final Gate are Green; the Product
+aggregate is `c2ef33a3d3b47ca9a5de189d324308a79da0a356839d36aa944675a7dba2d8eb`.
+Fresh Sol Max implementation re-review returned Changes Requested
+`P1=0/P2=2/P3=0`; only an explicit-null correlation projection direct fixture
+and current inventory sync remained. Round 3 closes both roots. Its exact29
+Product aggregate is
+`65443eb6ec6c738c61100001d8f3f5d2e38a88e63f585052bf6f4c4b9bd29056`;
+focused PHPUnit `46/23599` and the complete Final Gate are Green. Fresh Sol Max
+implementation re-review returned Changes Requested `P1=1/P2=0/P3=0` for
+input-count-proportional key/evidence allocation before bounded shape rejection.
+Round 4 is limited to the Validator and its two direct tests; Round 3 Product
+Gate evidence is not reused after that change.
+Round 4 correction and focused gate are Green on exact29 aggregate
+`c019ab09c31a99301bfe9fd22004890cf52a21b20cc7b410df74f08b0ef97ae9`.
+Accepted A1 exact48 is unchanged. The complete Final Gate is Green with full
+PHPUnit `2700/37333`, Mago error0, Deptrac `970/970`, release／Website／Node／
+management guards, staged0, and ending hashes PASS. Fresh review／Acceptance
+are Green／Accepted: fresh Sol Max implementation re-review returned
+`P1=0/P2=0/P3=0`, and the Orchestrator accepts A2 and parent P23-003A.
+Runtime activation remains blocked. P23-003B is now the next ordered Task;
+P23-003C..G remain behind their own prerequisites. Accepted A1 exact48 is not
+changed.
 
 ## P23-002E current About and Outbox decision
 

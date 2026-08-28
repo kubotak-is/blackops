@@ -1,10 +1,86 @@
 # Framework Specification
 
-## P23-003A1 accepted handoff — Audit Catalog Foundation
+## P23-003A2 current handoff — Audit Record and Observed Projection
+
+Updated At: 2026-08-29T01:25:47+09:00
+
+Current status: `Accepted — P23-003A2 Audit Record and Observed Projection / Parent P23-003A Accepted`.
+
+P23-003A1 is Accepted at committed candidate
+`1799be017811886d1e9f1ff8ba9a8eb18db51c79`; the Git／Composer package export
+is Green. D147 remains the most specific current authority. The A2 packet
+consumes A1 without changing its exact48 Product freeze.
+
+A2 owns the typed Draft, Catalog-resolved validation, Logical schema validation,
+and exact `observed_v1` projection. It fixes `projection_invalid` as the only
+projection failure, emits all projection correlation members with null
+convergence, projects only present non-null classified evidence strings, uses
+an injected A1 opaque-ID deriver, and adds no PublicApi marker.
+
+A2 defines only an Internal logical-record interface. It creates no trusted
+record ID/time implementation, integrity, hash, append, runtime adapter, key
+provider, public Documentation, route, or database behavior. P23-003B/C retain
+trusted finalization and delivery ownership.
+
+Initial fresh Sol Max preflight returned Changes Requested `P1=1/P2=0/P3=0`.
+The corrected packet fixes a single `toArray()` capture, detached reference-free
+snapshot plus same-resolution definition binding, a non-caller-input Internal
+validated result, and a bytes-only Projector entrypoint.
+Fresh Sol Max re-preflight is Green `P1=0/P2=0/P3=0`. Luna Max implementation,
+the focused Iteration Gate, exact29 Product freeze, and complete Final Gate are
+Green. The A1 exact48 freeze remains unchanged.
+Fresh implementation review returned Changes Requested `P1=1/P2=2/P3=0`:
+evidence validation precedence, required mutation fixtures, and the disconnected
+PHP/Node exact-byte golden must be corrected. Review-before Gate evidence is not
+reused after Product changes. Luna High corrected all three roots within A2
+exact29. Corrected focused PHPUnit is `41/1341`; corrected full PHPUnit is
+`2693/14991`; both Node oracles、Mago、Composer、Deptrac `970/970`、version
+baseline、Website release source、management guards、ending hashes are Green.
+Corrected exact29 aggregate is
+`943a4002dbdb97daa159d7e1602fe9b3f740a6c178b10cf45b58945f62c2f85f`;
+Accepted A1 exact48 remains byte-identical.
+Fresh implementation re-review returned Changes Requested `P1=3/P2=1/P3=0`:
+Correlation omission sentinels、pre-shape recursive Logical detachment、D147
+Current Remaining／Next Action、and remaining Required Fixture mutation guards.
+Round 2 closes those roots without changing A1. Its exact29 aggregate is
+`c2ef33a3d3b47ca9a5de189d324308a79da0a356839d36aa944675a7dba2d8eb`;
+focused `46/23595`、Node oracles、full `2698/37246`、Mago、Composer、Deptrac
+`970/970`、release guards、management guards、and ending hashes are Green.
+Fresh Sol Max implementation re-review returned Changes Requested
+`P1=0/P2=2/P3=0`; only the explicit-null correlation projection direct fixture
+and stale current inventory remained. The inventory is synchronized here;
+Round 3 closes the direct fixture and completes the post-change Gate. Its
+exact29 Product aggregate is
+`65443eb6ec6c738c61100001d8f3f5d2e38a88e63f585052bf6f4c4b9bd29056`;
+focused PHPUnit is `46/23599` and full PHPUnit is `2698/37249`. Fresh Sol Max
+implementation re-review is requested.
+That review returned Changes Requested `P1=1/P2=0/P3=0`: wide keysets can
+reach input-count-proportional `array_keys()` or evidence snapshot allocation
+before bounded shape rejection. Round 4 is limited to the Validator and its two
+direct test files; prior Product Gate evidence is not reused after that change.
+
+Round 4 correction and focused gate are Green. Bounded member counts run before
+wide key extraction／snapshot copy, only Catalog-declared evidence fields are
+copied, focused PHPUnit is `48/23683`, and exact29 Product aggregate is
+`c019ab09c31a99301bfe9fd22004890cf52a21b20cc7b410df74f08b0ef97ae9`.
+Accepted A1 exact48 remains unchanged. The Round 4 complete Final Gate is Green:
+full PHPUnit `2700/37333`, Mago error0, Deptrac `970/970`, release／Website／
+Node／management guards, staged0, and ending hashes all PASS. Fresh-review Green
+is `P1=0/P2=0/P3=0`, with exact38／staged0／all frozen aggregates unchanged.
+The Orchestrator accepts P23-003A2 and parent P23-003A. No runtime or release
+behavior is activated.
+
+Remaining: none within P23-003A2 or parent P23-003A. The higher Goal still
+requires P23-003B..G, P23-004, P23-005, and P23-006.
+
+Next Action: begin bounded P23-003B research and Task Packet drafting from the
+Accepted A1/A2 freeze; Production waits for a separate preflight Green.
+
+## P23-003A1 accepted handoff — Historical prerequisite
 
 Updated At: 2026-08-28T18:13:03+09:00
 
-Current status: `P23-003A1 Accepted — P23-003A2 unblocked`.
+Historical status at A1 Acceptance: `P23-003A1 Accepted — P23-003A2 unblocked`.
 
 P23-002E is Accepted. D147 is the most specific current authority for the
 unreleased Audit Catalog／safe-projection boundary. It splits P23-003A into
@@ -35,7 +111,7 @@ Guide／Website／Search／LLM／route／runtime／database are unchanged.
 
 Remaining: P23-003A1内はなし。A2 and the remaining Phase 23 DAG remain.
 
-Next Action: create the P23-003A2 Task Packet and send it to fresh Sol Max
+Historical Next Action: create the P23-003A2 Task Packet and send it to fresh Sol Max
 preflight. Do not commit、stage、activate runtime behavior、or broaden into B-G.
 
 ## P23-002E accepted handoff — Historical prerequisite
@@ -1457,7 +1533,7 @@ closedする。Semantic tuple、trusted external verification context、exact
 | --- | --- | --- |
 | [D145](../decisions/145-blackops-1-3-command-runtime-and-audit-boundary.md) | BlackOps `1.3` command、FrankenPHP runtime、Audit Trail boundary | Proposed — P23-001 Accepted; Stable `1.2` current / BlackOps `1.3` unreleased proposal |
 | [D146](../decisions/146-projection-build-set-php-filesystem-boundary.md) | ProjectionBuildSet PHP filesystem／locator boundary | Proposed — P23-002A1/A2/B/C Accepted; complete projection activation implemented for unreleased 1.3 |
-| [D147](../decisions/147-audit-catalog-and-safe-projection-boundary.md) | Audit Catalog、keyed opaque ID、record stages、observed safe-projection boundary | Proposed — P23-003A1 Accepted; P23-003A2 unblocked; Stable `1.2` current / BlackOps `1.3` unreleased |
+| [D147](../decisions/147-audit-catalog-and-safe-projection-boundary.md) | Audit Catalog、keyed opaque ID、record stages、observed safe-projection boundary | Accepted P23-003A1／A2 and parent P23-003A; Stable `1.2` current / BlackOps `1.3` unreleased; P23-003B next |
 
 ## Historical P23-001 Round 13 checkpoint
 

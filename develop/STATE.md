@@ -1,6 +1,26 @@
 # Orchestration State
 
-Updated At: 2026-08-28T18:13:03+09:00
+Updated At: 2026-08-29T01:25:47+09:00
+P23-003A2 and Parent P23-003A Accepted / Fresh Sol Max Implementation Re-review Green P1=0/P2=0/P3=0 At: 2026-08-29T01:25:47+09:00
+P23-003A2 Luna Max Correction Round 4 / Complete Final Gate Green / Fresh Sol Max Implementation Re-review Requested At: 2026-08-29T01:11:10+09:00
+P23-003A2 Luna Max Correction Round 4 / Iteration Gate Green / Product Frozen / Complete Final Gate In Progress At: 2026-08-29T01:02:42+09:00
+P23-003A2 Fresh Sol Max Implementation Re-review Changes Requested P1=1/P2=0/P3=0 / Luna High Correction Round 4 Authorized At: 2026-08-28T23:07:18+09:00
+P23-003A2 Luna High Correction Round 3 / Complete Final Gate Green / Fresh Sol Max Implementation Re-review Requested At: 2026-08-28T22:45:01+09:00
+P23-003A2 Fresh Sol Max Implementation Re-review Changes Requested P1=0/P2=2/P3=0 / Luna High Correction Round 3 Authorized At: 2026-08-28T22:33:24+09:00
+P23-003A2 Luna High Correction Round 2 / Complete Final Gate Green / Fresh Sol Max Implementation Re-review Requested At: 2026-08-28T22:14:38+09:00
+P23-003A2 Fresh Sol Max Implementation Re-review Changes Requested P1=3/P2=1/P3=0 / Luna High Correction Round 2 Authorized At: 2026-08-28T21:42:22+09:00
+P23-003A2 Corrected Complete Final Gate Green / Fresh Sol Max Implementation Re-review Requested At: 2026-08-28T21:20:52+09:00
+P23-003A2 Luna High Correction / Iteration Gate Green / Corrected Product Frozen At: 2026-08-28T21:16:25+09:00
+P23-003A2 Luna High Correction Started At: 2026-08-28T20:51:54+09:00
+P23-003A2 Fresh Sol Max Implementation Review Changes Requested P1=1/P2=2/P3=0 / Luna High Correction Authorized At: 2026-08-28T20:47:38+09:00
+P23-003A2 Complete Final Gate Green / Fresh Sol Max Implementation Review Requested At: 2026-08-28T20:30:27+09:00
+P23-003A2 Implementation / Iteration Gate Green / Product Frozen At: 2026-08-28T20:24:51+09:00
+P23-003A2 Fresh Sol Max Re-preflight Green / Luna Max Implementation Started At: 2026-08-28T19:44:42+09:00
+P23-003A2 Corrected Exact Packet Frozen / Fresh Sol Max Re-preflight Started At: 2026-08-28T19:39:48+09:00
+P23-003A2 Preflight Correction Implemented At: 2026-08-28T19:37:21+09:00
+P23-003A2 Exact Packet Frozen / Fresh Sol Max Preflight Started At: 2026-08-28T19:23:57+09:00
+P23-003A2 Task Packet Drafted At: 2026-08-28T19:13:43+09:00
+P23-003A1 Candidate Committed / Package Export Green At: 2026-08-28T19:05:06+09:00
 P23-003A1 Accepted At: 2026-08-28T18:13:03+09:00
 P23-003A1 Round 8 Complete Final Gate Green At: 2026-08-28T18:05:06+09:00
 P23-003A1 Round 8 Correction Started At: 2026-08-28T17:51:35+09:00
@@ -17,7 +37,120 @@ P23-003A1 Fresh Sol High Review Changes Requested / Luna High Correction Started
 P23-003A1 Complete Final Gate Green At: 2026-08-28T12:39:07+09:00
 P23-003A1 Iteration Gate Green / Product Freeze Fixed At: 2026-08-28T12:35:00+09:00
 
-## P23-003A1 Accepted — Audit Catalog Foundation
+## P23-003A2 and Parent P23-003A Accepted — Fresh Sol Max Implementation Re-review Green
+
+Updated At: 2026-08-29T01:25:47+09:00
+
+The user authorized committing the accepted accumulated candidate first.
+Commit `1799be017811886d1e9f1ff8ba9a8eb18db51c79` was created without push;
+the clean committed-candidate Git／Composer package export is Green.
+
+P23-003A2 now has a frozen exact Task Packet. It consumes Accepted A1 without
+changing the A1 exact48 Product freeze. The packet fixes Draft and Logical
+record shapes, Catalog-resolved validation, an Internal logical-record
+interface with no Production concrete constructor, a single
+`projection_invalid` failure, correlation null convergence, classified-string
+evidence projection, injected A1 opaque derivation, and exact-zero PublicApi.
+
+Initial fresh Sol Max preflight returned Changes Requested `P1=1/P2=0/P3=0`.
+The sole root was an undefined Validator-to-Projector validated snapshot seam.
+The corrected packet now fixes exactly-once capture, a detached reference-free
+snapshot bound to the same resolved definition, a non-injectable Internal result,
+and a bytes-only Projector entrypoint. Fresh Sol Max re-preflight is Green
+`P1=0/P2=0/P3=0`. Luna Max implementation and Iteration Gate are Green;
+focused PHPUnit is `29 tests/1205 assertions`, Deptrac is `970/970` with zero
+violations/uncovered, both Node oracles pass, and exact29 Product aggregate is
+`31f6204c782ea02988504cb41896f7ad20343416a43a827faf6ef843a0ac256f`.
+Review-before Complete Final Gate is Green: full PHPUnit `2681 tests/14855 assertions`,
+Deptrac `970/970` with zero violations/uncovered, full Mago/Composer, version
+baseline, Website source claim, management-ID, diff-check, and staged0 all PASS.
+Fresh Sol Max implementation review returned Changes Requested
+`P1=1/P2=2/P3=0`. The P1 is definition-dependent evidence stages 1..6 running
+after record semantic stage 8. The P2 roots are the incomplete required
+validation/architecture mutation matrix and the disconnected PHP/Node exact-byte
+golden plus empty leak canaries. Product correction invalidates the review-before
+freeze and Gate evidence for Acceptance; Accepted A1 exact48 remains frozen.
+Luna High corrected those roots within A2 exact29. Corrected focused PHPUnit is
+`41 tests/1341 assertions`; both Node oracles, format, lint/baseline, analyze,
+Deptrac `970/970`, management-ID, diff-check, and staged0 are Green. Corrected
+exact29 aggregate is
+`943a4002dbdb97daa159d7e1602fe9b3f740a6c178b10cf45b58945f62c2f85f`;
+Accepted A1 exact48 remains
+`9e9ba592e5203c17d814c3f0cc8772b2fc95e7ddc75b67df6a5c16c9a7030fed`.
+The corrected complete Final Gate is Green: full format, Composer strict,
+lint/baseline/analyze, PHPUnit `2693 tests/14991 assertions`, Deptrac `970/970`,
+version baseline, Website release source guard, management-ID, diff-check,
+staged0, and ending Product hashes all PASS.
+Fresh Sol Max implementation re-review returned Changes Requested
+`P1=3/P2=1/P3=0`. The roots are invalid Correlation omission sentinels,
+unbounded pre-shape recursive Logical detachment, stale D147 Current
+Remaining／Next Action, and incomplete direct mutation fixtures. The current
+Product freeze and Gate become historical for Acceptance after Round 2 Product
+changes; Accepted A1 exact48 remains immutable.
+Round 2 closes all four roots within A2 exact29. Correlation now has a private
+constructor and sole closed `fromArray()` factory; Logical capture checks exact
+shape before fixed-depth field snapshot; the direct matrix covers real aggregate
+cap crossing, all nullability quadrants, recursive/deep unknown inputs, real
+per-field leak canaries, and existing registration surfaces. Focused PHPUnit is
+`46 tests/23595 assertions`; both Node oracles、Mago、Deptrac `970/970`、and
+the focused guards are Green. The exact29 aggregate is
+`c2ef33a3d3b47ca9a5de189d324308a79da0a356839d36aa944675a7dba2d8eb`.
+The complete Final Gate is Green: full format、Composer strict、lint/baseline/
+analyze error0、PHPUnit `2698 tests/37246 assertions`、Deptrac `970/970`、
+version baseline、Website release source guard、management-ID、diff-check、
+staged0、and ending Product hashes all PASS. Accepted A1 exact48 remains
+`9e9ba592e5203c17d814c3f0cc8772b2fc95e7ddc75b67df6a5c16c9a7030fed`.
+Fresh Sol Max implementation re-review returned Changes Requested
+`P1=0/P2=2/P3=0`. Product source is correct; the remaining Product root is one
+direct explicit-null correlation projection fixture. The stale TODO／Spec README
+current inventories are synchronized. Product test changes invalidate the Round 2
+freeze／Gate for Acceptance.
+Round 3 adds direct omitted／all-seven-explicit-null／mixed correlation projection
+coverage without changing Production or Accepted A1. Focused PHPUnit is
+`46 tests/23599 assertions`; exact29 Product aggregate is
+`65443eb6ec6c738c61100001d8f3f5d2e38a88e63f585052bf6f4c4b9bd29056`.
+The complete Final Gate is Green: full PHPUnit `2698 tests/37249 assertions`,
+Mago error0, Deptrac `970/970` with zero violations/uncovered, both Node
+oracles, Composer strict, version baseline, Website source guard,
+management-ID, diff-check, staged0, and ending Product hashes all PASS.
+Fresh Sol Max implementation re-review returned Changes Requested
+`P1=1/P2=0/P3=0`. `sameKeys()` can allocate an unbounded `array_keys()` result,
+and evidence can exceed the Catalog absolute member maximum before snapshot.
+Round 4 is limited to `AuditRecordValidator.php` and its Validator／Projector
+direct tests. Product changes invalidate the Round 3 freeze／Gate for Acceptance;
+Accepted A1 exact48 remains immutable.
+Round 4 exact3 correction is complete. Bounded member counts run before
+`array_keys()`／snapshot allocation, and only Catalog-declared evidence fields
+are copied. Focused format, Mago analyze error0, focused PHPUnit
+`48 tests/23683 assertions`, both Node oracles, lint／baseline, Deptrac
+`970/970`, management-ID, diff-check, and staged0 are Green. The exact29
+Product aggregate is
+`c019ab09c31a99301bfe9fd22004890cf52a21b20cc7b410df74f08b0ef97ae9`;
+Accepted A1 exact48 remains
+`9e9ba592e5203c17d814c3f0cc8772b2fc95e7ddc75b67df6a5c16c9a7030fed`.
+The complete Final Gate is Green on the same freeze: format, Composer strict,
+lint／baseline／analyze error0, full PHPUnit `2700 tests/37333 assertions`,
+Deptrac `970/970` with zero violations／uncovered, version baseline, Website
+release source guard, both Node goldens, management-ID, diff-check, staged0,
+and ending Product hashes all PASS. Fresh Sol Max implementation re-review is
+Green `P1=0/P2=0/P3=0`; prior wide-input P1 is closed and no new finding
+remains. The ending review freeze matched exact38, staged0, A2 exact29, Accepted
+A1 exact48, and management exact9. The Orchestrator accepts P23-003A2 and parent
+P23-003A. This activates no runtime or release behavior.
+Stable `1.2.0`
+remains current; BlackOps `1.3` remains
+unreleased. No runtime, route, database,
+public Documentation, push, deploy, publication, tag, or release change was
+made.
+
+Remaining: none within P23-003A2 or parent P23-003A. Higher-goal work remains
+P23-003B..G, P23-004, P23-005, P23-006.
+
+Next Action: Orchestrator begins bounded P23-003B research and Task Packet
+drafting from the Accepted A1/A2 freeze; Production waits for separate preflight.
+Do not commit, stage, push, or activate runtime behavior.
+
+## P23-003A1 Accepted — Historical prerequisite
 
 Updated At: 2026-08-28T18:13:03+09:00
 
@@ -42,7 +175,7 @@ Product48 aggregate remains exact, and the Orchestrator accepts P23-003A1.
 No A1 work remains. Higher-goal work remains P23-003A2, parent P23-003A
 Acceptance, P23-003B..G, P23-004, P23-005, and P23-006.
 
-Next Action: create and preflight P23-003A2 against Accepted A1. Do not commit,
+Historical Next Action: create and preflight P23-003A2 against Accepted A1. Do not commit,
 stage, push, or activate runtime behavior.
 
 ## P23-003A1 Historical Initial Implementation Checkpoint

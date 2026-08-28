@@ -2,7 +2,7 @@
 
 Status: Proposal — unreleased BlackOps 1.3; workflow/gate status authority is the exact5 management slice (`develop/STATE.md`, `develop/TODO.md`, the parent Task/Report, and `develop/spec/README.md`)
 
-Updated At: 2026-08-28T18:13:03+09:00
+Updated At: 2026-08-29T01:25:47+09:00
 
 This specification is a normative proposal for BlackOps `1.3`. It is not a
 Stable `1.2` capability contract and must not be copied into current public
@@ -58,11 +58,11 @@ below is superseded. Historical checkpoints remain evidence only.
 
 ## P23-003A current Catalog and projection contract
 
-Current status: `P23-003A1 Accepted — P23-003A2 unblocked`.
+Current status: `Accepted — P23-003A1／A2 and parent P23-003A; P23-003B next`.
 
-P23-002E is Accepted. P23-003A is delivered as P23-003A1 followed by
-P23-003A2. P23-003B remains blocked until both children and parent P23-003A
-are Accepted. Neither child registers an Application catalog, activates an
+P23-002E and P23-003A1／A2 are Accepted; parent P23-003A is Accepted.
+P23-003B is now the next ordered Task and still requires its own packet and
+preflight. Neither A child registers an Application catalog, activates an
 adapter, writes canonical storage, or emits public JSONL.
 
 D147 defines the complete A1 catalog bytes/hash and A2 projection wire. A1
@@ -71,6 +71,40 @@ hashing. P23-003B owns trusted
 logical-record finalization, content/record hashes, integrity, encryption,
 append, and chain state. Stable `1.2.0` and its public Documentation remain
 unchanged; these contracts remain unreleased `1.3` proposal text.
+
+Initial A2 preflight returned Changes Requested `P1=1/P2=0/P3=0`. The
+corrected contract fixes one Logical `toArray()` capture, a detached exact
+snapshot bound to the same resolved definition, and a bytes-only Projector
+entrypoint that internally validates once and never accepts a caller-supplied
+validated wrapper.
+Fresh Sol Max re-preflight was Green `P1=0/P2=0/P3=0`. Luna Max implementation,
+the focused Iteration Gate, exact29 Product freeze, and review-before complete
+Final Gate were Green.
+That review returned Changes Requested `P1=1/P2=2/P3=0`; A2 corrected
+definition-dependent evidence precedence and the two regression-evidence roots.
+The corrected exact29 complete Final Gate is Green and fresh Sol Max
+implementation re-review returned Changes Requested `P1=3/P2=1/P3=0`.
+Round 2 is limited to Correlation omission construction, bounded Logical capture,
+remaining direct mutation fixtures, and synchronized D147 current handoff.
+Round 2 correction and its complete Final Gate are Green on exact29 aggregate
+`c2ef33a3d3b47ca9a5de189d324308a79da0a356839d36aa944675a7dba2d8eb`.
+Fresh Sol Max implementation re-review returned Changes Requested
+`P1=0/P2=2/P3=0`; Round 3 is limited to the explicit-null correlation projection
+direct fixture and current inventory sync.
+Round 3 closes both roots. The exact29 Product aggregate is
+`65443eb6ec6c738c61100001d8f3f5d2e38a88e63f585052bf6f4c4b9bd29056`;
+focused PHPUnit `46/23599` and the complete Final Gate are Green. Fresh Sol Max
+implementation re-review returned Changes Requested `P1=1/P2=0/P3=0` for
+wide key/evidence allocation before bounded shape rejection. Round 4 is limited
+to the Validator and its two direct tests; Product Gate evidence restarts after
+that change.
+Round 4 correction and focused gate are Green on exact29 aggregate
+`c019ab09c31a99301bfe9fd22004890cf52a21b20cc7b410df74f08b0ef97ae9`.
+Accepted A1 exact48 remains unchanged. The complete Final Gate is Green with
+full PHPUnit `2700/37333`, Mago error0, Deptrac `970/970`, release／Website／
+Node／management guards, staged0, and ending hashes PASS. Fresh review／
+Acceptance are Green／Accepted: fresh Sol Max implementation re-review returned
+`P1=0/P2=0/P3=0`, and the Orchestrator accepts A2 and parent P23-003A.
 
 The first corrected exact-nine re-preflight is Historical Changes Requested:
 general `P1=1/P2=1/P3=0` and focused `P1=1/P2=0/P3=0` remain separate. D147
@@ -92,7 +126,12 @@ The fresh general closure review matched that packet and returned Green
 `P1=0/P2=0/P3=0`. Luna Max completed the exact A1 implementation and
 focused／complete Final Gates. Fresh Sol Max implementation review is Green
 `P1=0/P2=0/P3=0`; the Orchestrator accepts P23-003A1 and unblocks P23-003A2.
-P23-003B..G and runtime activation remain blocked.
+The A2 Task fixes a single `projection_invalid` failure, exact
+correlation/evidence loss rules, an Internal logical-record interface without
+a Production concrete constructor, injected Accepted-A1 opaque derivation,
+and an exact-zero A2 PublicApi inventory. P23-003B..G and runtime activation
+remain blocked through Round 2 correction, complete Final Gate, and fresh
+implementation re-review.
 
 ## P23-002E current About and Outbox contract
 

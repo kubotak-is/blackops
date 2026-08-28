@@ -1,8 +1,8 @@
 # D147: Audit Catalog and Safe Projection Boundary
 
-Status: Proposed — P23-003A1 Accepted; P23-003A2 unblocked; BlackOps 1.3 unreleased
+Status: Accepted P23-003A1／A2 and parent P23-003A — P23-003B next; BlackOps 1.3 unreleased
 
-Updated At: 2026-08-28T18:13:03+09:00
+Updated At: 2026-08-29T01:25:47+09:00
 
 ## Context
 
@@ -479,7 +479,69 @@ internal value/validation types for all stages, but it does not expose an
 untrusted public constructor for the trusted stages and does not calculate
 record/chain hashes.
 
+A2 represents the trusted stage with an Internal read-only
+`AuditLogicalRecord` interface. It defines no Production concrete
+implementation, factory, assembler, clock, or record-ID generator. P23-003B/C
+later own the trusted concrete implementation and finalization path. A2 tests
+use a test-local implementation only; implementing or validating the interface
+does not grant append, integrity, or construction authority.
+
+The interface has exactly one `toArray(): array` method. The A2 validator has
+exact `validateDraft(AuditRecordDraft): void` and
+`validateLogical(AuditLogicalRecord): ValidatedAuditLogicalRecord` entrypoints.
+Logical validation invokes `toArray()` exactly once, rebuilds a detached closed
+scalar/array snapshot without retaining the source object, source array, or
+nested references, and binds that snapshot to the exact readonly event
+definition resolved in the same lookup operation. Before any generic recursion
+or input-proportional copy, it checks the exact14 top-level key set and the
+fixed-depth known nested shape. Unknown／recursive subtrees fail closed; the
+validator then rebuilds only known fields and does not use a generic recursive
+detach over untrusted input. It does not re-read the interface or lookup after
+validation.
+
+Evidence member validity depends on the selected event definition. A2 therefore
+uses one lookup resolution for a staged precedence adapter and the final result.
+After basic record shape is known, it resolves a candidate without reporting a
+missing selector before the semantic stage. For a resolved definition, unknown
+evidence members and declared types participate in stage 1; evidence strings
+participate with record strings in UTF-8, control, and NFC stages 2..4;
+descriptor byte caps participate in stage 5; and `safe_code|opaque_id` grammar
+participates in stage 6. Record selector／tuple／owner／delivery semantics remain
+stage 8. The Accepted-A1 `AuditEventCatalogCodec::validateEvidence()` is then
+called exactly once on the same definition as the authoritative evidence
+semantic and complete-JCS-cap check, so stage 9 never precedes a record stage-8
+failure. The adapter does not create Catalog/JCS/hash bytes and does not modify
+the Accepted A1 Product.
+
+`ValidatedAuditLogicalRecord` is a final readonly Internal result. It does not
+implement `AuditLogicalRecord`, is not a Production concrete logical record or
+authority token, and contains only the detached exact 14-field snapshot and its
+bound event definition. Its only constructor/public members are
+`__construct(public readonly array $snapshot, public readonly AuditEventDefinition $definition)`;
+it has no other public method. PHP namespace visibility is not treated as a
+security boundary: even if a caller constructs this result, the Projector has
+no API that accepts it. The Projector never accepts this result from a caller.
+
+Draft correlation preserves omitted versus explicit-null members. Logical
+validation accepts both forms allowed by the canonical schema. It validates
+both timestamps and the inclusive
+`occurredAt <= recordedAt + 300 seconds` rule but never creates, normalizes,
+or clamps either timestamp. `AuditRecordCorrelation` has a private constructor
+and sole public `fromArray(array): self` factory: `[]` means all members omitted,
+while a present key with `null` means explicit null. No public `false` or
+empty-string omission sentinel exists, and contract-external values fail closed.
+A2 creates no complete-record or integrity type.
+
 ### 11. Exact observed safe projection
+
+The Projector has exactly one output entrypoint,
+`project(AuditLogicalRecord): string`. It calls the injected validator's
+`validateLogical()` exactly once and uses only that returned detached snapshot
+and bound definition for opaque derivation, the local projection object, JCS,
+and the byte guard. It does not re-read the input or lookup, does not accept a
+caller-supplied `ValidatedAuditLogicalRecord`, and exposes no separate
+projection-object return method. The returned string is the final JCS plus LF
+wire only.
 
 The A2 projection is a closed, lossy, non-authoritative view. Its exact
 top-level members are:
@@ -512,6 +574,13 @@ are required. `attempt` is null or exact `{number,kind}`. `sampled` is Boolean
 or null. Evidence copies only the already catalog-validated `version` plus
 registered `safe_code|opaque_id` values.
 
+The projection always emits all seven correlation members. A canonical
+omission and an explicit null both project to null. Evidence always emits
+`version`; it copies only present, non-null string members whose registered
+classification is `safe_code|opaque_id`. Missing members, present nulls, and
+integer/boolean evidence are omitted from the projection. This is an
+intentional lossy mapping, not a change to the canonical evidence object.
+
 The projection omits canonical raw IDs and types not fixed by the catalog,
 policy ID/version, source component/build ID, and every integrity/chain field.
 It never contains credentials, tokens, request/payload bodies, policy payload,
@@ -524,6 +593,18 @@ category without embedding source data. A later observed JSONL sink may treat
 delivery as best effort, but projection failure cannot roll back, replace, or
 prove a canonical append. The projection is not an Audit Trail completeness,
 integrity, compliance, or non-repudiation certificate.
+
+The one failure category is exactly `projection_invalid`. Every input,
+Catalog, semantic, evidence, opaque-derivation, JCS, and byte-cap failure maps
+to that value with no previous exception or rejected source value. The
+projector consumes an injected Accepted-A1 `HmacAuditOpaqueIdDeriver`; it does
+not accept a raw key and adds no default key, environment/configuration read,
+provider, key reference, persistence, or rotation. Tests may construct the
+deriver directly with fixed key bytes. P23-003C retains Production key-provider
+and injection ownership.
+
+A2 adds no `#[PublicApi]` marker. P23-003E remains the only owner of a later
+Application authoring API and matching public Documentation.
 
 P23-003A2 must add one complete exact-byte golden and per-source-field canaries.
 The earlier masked JSON remains explanatory only and does not override this
@@ -582,12 +663,66 @@ Fresh Sol Max implementation review is Green `P1=0/P2=0/P3=0`, and the
 Orchestrator accepts P23-003A1. This does not activate runtime behavior or
 release BlackOps `1.3`.
 
-1. create and preflight A2, then implement and review it;
-2. run the combined Final Gate and accept parent P23-003A; and
-3. continue P23-003B and the remaining Phase 23 DAG.
+The initial P23-003A2 preflight returned Changes Requested
+`P1=1/P2=0/P3=0` for an undefined Validator-to-Projector snapshot boundary.
+The Task and this decision now fix the exactly-once detached snapshot, bound
+definition, non-injectable Internal result, and bytes-only Projector entrypoint.
+The corrected P23-003A2 Task Packet fixes the remaining implementation
+choices for the single projection failure, correlation/evidence loss,
+logical-record input seam, opaque deriver injection, and empty A2 PublicApi
+inventory. Fresh Sol Max re-preflight is Green `P1=0/P2=0/P3=0`. Luna Max
+implementation, the focused Iteration Gate, exact29 Product freeze, and
+complete Final Gate are Green. Fresh Sol Max implementation review is
+requested.
+Fresh Sol Max implementation review returned Changes Requested
+`P1=1/P2=2/P3=0`. A2 must integrate definition-dependent evidence stages 1..6
+before record semantic stage 8, leave stage 9 after every semantic check, connect
+the PHP and Node exact-byte golden to one fixture, and complete the required
+mutation matrix. Accepted A1 exact48 remains unchanged.
+Luna High corrected those roots and the corrected complete Final Gate was Green.
+Fresh implementation re-review then returned Changes Requested
+`P1=3/P2=1/P3=0`: Correlation construction must not expose false／empty-string
+omission sentinels; Logical capture must reject unknown／recursive input before
+bounded field copy; remaining direct mutation fixtures must close the exact Task
+matrix; and this Current handoff must supersede the stale prior Next Action.
+Accepted A1 exact48 remains unchanged.
+
+Round 2 closes those roots. Correlation construction is private and accepts
+only the closed `fromArray()` input; Logical capture rejects unknown shape before
+fixed-depth field snapshot; the direct mutation matrix covers cap crossing,
+all nullability quadrants, recursive/deep unknown input, real leak canaries,
+and existing registration surfaces. The exact29 Product aggregate is
+`c2ef33a3d3b47ca9a5de189d324308a79da0a356839d36aa944675a7dba2d8eb`,
+and its complete Final Gate is Green.
+
+Fresh Sol Max re-review returned Changes Requested `P1=0/P2=2/P3=0`. Product
+source is correct. Round 3 adds the explicit-null correlation projection direct
+fixture and synchronizes the current inventory. Round 3 closes both roots. Its
+exact29 Product aggregate is
+`65443eb6ec6c738c61100001d8f3f5d2e38a88e63f585052bf6f4c4b9bd29056`;
+focused PHPUnit `46/23599` and the complete Final Gate are Green.
+Fresh Sol Max implementation re-review returned Changes Requested
+`P1=1/P2=0/P3=0`: wide keysets can reach input-count-proportional
+`array_keys()` or evidence snapshot allocation before bounded shape rejection.
+Round 4 is limited to the Validator and its two direct test files.
+
+Round 4 closes that root. The exact3 correction applies O(1) member caps before
+key extraction／snapshot allocation and copies only Catalog-declared evidence
+fields. Focused PHPUnit is `48/23683`, the exact29 Product aggregate is
+`c019ab09c31a99301bfe9fd22004890cf52a21b20cc7b410df74f08b0ef97ae9`, and
+Accepted A1 exact48 is unchanged. The complete Final Gate is Green: full
+PHPUnit `2700/37333`, Mago error0, Deptrac `970/970`, release／Website／Node／
+management guards, staged0, and ending hashes all PASS. Fresh review is Green
+`P1=0/P2=0/P3=0`; the ending exact38／staged0／all aggregates match. The
+Orchestrator accepts P23-003A2 and parent P23-003A without runtime activation.
+
+1. preserve Accepted A1/A2 freezes and review evidence;
+2. draft and preflight P23-003B as a separate bounded Task;
+3. keep runtime activation with downstream owners; and
+4. continue the remaining Phase 23 DAG only through its ordered gates.
 
 ## Next Action
 
-Create the P23-003A2 Task Packet against Accepted A1 and send its fixed contract
-to fresh Sol Max preflight. Do not commit, stage, activate runtime behavior, or
-broaden into B-G.
+Orchestrator begins bounded P23-003B research and Task Packet drafting from the
+Accepted A1/A2 freeze. Do not commit, stage, or activate runtime behavior in this
+Acceptance sync; P23-003B Production waits for separate preflight Green.
