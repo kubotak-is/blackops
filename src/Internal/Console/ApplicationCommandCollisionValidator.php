@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BlackOps\Internal\Console;
 
+use BlackOps\Internal\Projection\Command\CommandProjectionReservationRegistry;
 use InvalidArgumentException;
 
 /** @mago-expect lint:kan-defect */
@@ -29,19 +30,27 @@ final readonly class ApplicationCommandCollisionValidator
             ),
         ));
 
-        $names = array_fill_keys(keys: $frameworkNames, value: 'framework');
+        $names = array_fill_keys(
+            keys: array_values(array_unique([...$frameworkNames, ...CommandProjectionReservationRegistry::names()])),
+            value: 'framework',
+        );
         foreach ([...$explicit, ...$discovered] as $command) {
             foreach ([$command->name, ...$command->aliases] as $name) {
                 if (array_key_exists($name, $names)) {
                     if ($names[$name] === 'framework') {
                         throw new InvalidArgumentException(sprintf(
-                            'Application command name "%s" conflicts with a framework command.',
+                            'Application command class "%s" name or alias "%s" conflicts with a framework command; rename the application command or alias "%s".',
+                            $command->class,
+                            $name,
                             $name,
                         ));
                     }
 
                     throw new InvalidArgumentException(sprintf(
-                        'Application command name or alias "%s" conflicts with another command.',
+                        'Application command class "%s" name or alias "%s" conflicts with another command (application command class "%s"); rename the application command or alias "%s".',
+                        $command->class,
+                        $name,
+                        $names[$name],
                         $name,
                     ));
                 }
@@ -59,22 +68,32 @@ final readonly class ApplicationCommandCollisionValidator
      */
     public function validateOperationCommands(array $application, array $operations, array $frameworkNames): void
     {
-        $names = array_fill_keys(keys: $frameworkNames, value: 'framework');
+        $names = array_fill_keys(
+            keys: array_values(array_unique([...$frameworkNames, ...CommandProjectionReservationRegistry::names()])),
+            value: 'framework',
+        );
         foreach ($application as $command) {
             foreach ([$command->name, ...$command->aliases] as $name) {
-                $names[$name] = 'application';
+                $names[$name] = $command->class;
             }
         }
         foreach ($operations as $command) {
             if (!array_key_exists($command->name, $names)) {
-                $names[$command->name] = 'operation';
+                $names[$command->name] = 'operation:' . $command->typeId;
                 continue;
             }
 
+            $owner = $names[$command->name];
+            $ownerDescription = match (true) {
+                $owner === 'framework' => 'a framework command',
+                str_starts_with($owner, 'operation:') => 'operation ' . substr($owner, strlen('operation:')),
+                default => 'application command class "' . $owner . '"',
+            };
             throw new InvalidArgumentException(sprintf(
-                'Operation console command name "%s" conflicts with a %s command.',
+                'Operation console command "%s" conflicts with %s; rename the operation command to avoid "%s".',
                 $command->name,
-                $names[$command->name],
+                $ownerDescription,
+                $command->name,
             ));
         }
     }

@@ -1,6 +1,1760 @@
 # Orchestration State
 
-Updated At: 2026-08-18T20:21:10+09:00
+Updated At: 2026-08-28T18:13:03+09:00
+P23-003A1 Accepted At: 2026-08-28T18:13:03+09:00
+P23-003A1 Round 8 Complete Final Gate Green At: 2026-08-28T18:05:06+09:00
+P23-003A1 Round 8 Correction Started At: 2026-08-28T17:51:35+09:00
+P23-003A1 Round 7 Complete Final Gate Green At: 2026-08-28T17:36:31+09:00
+P23-003A1 Luna High Correction Round 7 Product Frozen At: 2026-08-28T17:29:21+09:00
+P23-003A1 Luna High Correction Round 6 Product Frozen At: 2026-08-28T17:16:36+09:00
+P23-003A1 Luna High Correction Round 5 Completed At: 2026-08-28T16:04:10+09:00
+P23-003A1 Luna High Correction Round 4 Completed At: 2026-08-28T15:12:58+09:00
+P23-003A1 Fresh Sol Findings Correction Round 4 At: 2026-08-28T15:12:58+09:00
+P23-003A1 Corrected Exact48 Moving Manifest At: 2026-08-28T15:12:58+09:00
+P23-003A1 Luna High Correction Gate Green At: 2026-08-28T14:50:15+09:00
+P23-003A1 Luna High Correction Checkpoint At: 2026-08-28T14:50:15+09:00
+P23-003A1 Fresh Sol High Review Changes Requested / Luna High Correction Started At: 2026-08-28T12:52:35+09:00
+P23-003A1 Complete Final Gate Green At: 2026-08-28T12:39:07+09:00
+P23-003A1 Iteration Gate Green / Product Freeze Fixed At: 2026-08-28T12:35:00+09:00
+
+## P23-003A1 Accepted — Audit Catalog Foundation
+
+Updated At: 2026-08-28T18:13:03+09:00
+
+Round 8 closes the last Lookup identity and AuditReadContext construction
+findings within the exact A1 Files Allowed. Duplicate Catalog identities now
+compare complete canonical bytes during semantic stage 8; identical unsigned
+body with a changed valid hash is rejected as `semantic_invalid` before caps
+and hash verification. The ReadContext direct fixture fixes private
+construction, no external requestRef input, and same-ref Allow/Deny
+non-collapse without adding out-of-scope replay state.
+
+Focused evidence is Green at `98 tests/1124 assertions`. The exact ordered
+48-file Product aggregate is
+`9e9ba592e5203c17d814c3f0cc8772b2fc95e7ddc75b67df6a5c16c9a7030fed`.
+The complete Final Gate is Green on that unchanged snapshot: full PHPUnit
+`2658 tests/14318 assertions`, full Mago analyze error0, Deptrac `949/949`
+with violations0/uncovered0, version and Website source guards, management-ID,
+diff-check, and staged0 all PASS.
+
+Fresh Sol Max implementation review is Green `P1=0/P2=0/P3=0`. The ending
+Product48 aggregate remains exact, and the Orchestrator accepts P23-003A1.
+No A1 work remains. Higher-goal work remains P23-003A2, parent P23-003A
+Acceptance, P23-003B..G, P23-004, P23-005, and P23-006.
+
+Next Action: create and preflight P23-003A2 against Accepted A1. Do not commit,
+stage, push, or activate runtime behavior.
+
+## P23-003A1 Historical Initial Implementation Checkpoint
+
+P23-003A1 Audit Catalog Foundation is implemented within its exact Files Allowed:
+32 Audit Source files, 12 PHP tests, and 2 fixtures. The independent Node
+Framework catalog/requestRef oracle passes the exact byte/hash values. Direct
+polyfill metadata and synchronized lock are Green. Iteration evidence is Green:
+focused format, PHPUnit 21/141, Composer strict, Mago lint/baseline/analyze,
+Deptrac 949/949 with violations0/uncovered0, Node golden, management-ID guard,
+diff-check, and staged0. Product exact ordered 48-file individual/aggregate
+SHA-256 was fixed in the Report. Complete Final Gate was Green on that freeze.
+Full PHPUnit first observed one existing Outbox heartbeat timing failure; the
+isolated test and the complete 2581-test rerun passed without Product changes.
+Fresh Sol High implementation review then returned Changes Requested
+`P1=4/P2=2/P3=0`: duplicated non-JCS requestRef generation, incomplete
+Catalog/Evidence model, missing Catalog/provenance/lookup invariants, opaque-ID
+context bypass, incomplete strict-JCS/ten-stage precedence, and insufficient
+mutation-resistant fixtures. The old Product freeze and Final Gate are now
+Historical when correction begins. No commit, stage, runtime activation,
+package export, or downstream A2/B-G work was performed.
+
+Remaining: corrected complete Final Gate from the beginning, fresh Sol High
+re-review, and Orchestrator Acceptance.
+
+Next Action: Orchestrator reviews this correction, then re-freezes and restarts
+the complete Final Gate. Do not commit, stage, or activate runtime behavior.
+
+## P23-003A1 Historical Round 7 Checkpoint
+
+Updated At: 2026-08-28T17:36:31+09:00
+
+Round 7 closes the final three global validation-order roots found against the
+finite 25-row/38-callable audit: EventDefinition stage 7 before stage 8,
+whole-tree JCS UTF-8/control/NFC ordering, and collection-wide Lookup stages
+1/8/9/10. Focused evidence is Green at `92 tests/1098 assertions`; format,
+Composer strict, lint/baseline, Audit analyze error0, Node golden, Deptrac
+949/949, management-ID, diff-check, and staged0 all pass. The exact ordered
+48-file Product manifest aggregate is
+`a792b250b7ecdd4033d1f5e7d1804ea4ac2f423fd501eedcabd99f3e3ffd89f2`.
+
+The Orchestrator complete Final Gate is Green on that exact freeze: full
+PHPUnit `2656 tests/14304 assertions`, full Mago analyze error0, and all
+remaining required commands PASS.
+
+Remaining: fresh Sol High implementation review and Orchestrator Acceptance.
+Higher-goal work remains P23-003A2, parent P23-003A Acceptance, and later Audit
+delivery tasks.
+
+Next Action: run fresh Sol High review against the exact Round 7 freeze. On
+`P1=0/P2=0/P3=0`, accept A1. Do not commit, stage, push, or activate runtime.
+
+## P23-003A1 Historical Round 6 Checkpoint
+
+Updated At: 2026-08-28T17:16:36+09:00
+
+Correction Round 6 Product Source/Test/Fixture is frozen within the exact
+ordered 48-file manifest recorded in the Task Report. The finite audit covered
+25 contract rows and 38 public/direct callables across the 32 A1 Source files.
+Global ten-stage validation, direct-constructor precedence, strict JCS object
+kind and numeric-key preservation, sealed Framework provenance, structured
+tenant/evidence HMAC separation, and requestRef Unicode slots are covered.
+
+Focused evidence is Green: A1 PHPUnit `87 tests/1090 assertions` (or `91/1102`
+including PublicApiArchitectureTest), format, Composer strict, source-only
+Mago lint, baseline verification, source-only Audit analyze (`error:0`,
+`warning:89`, `help:56`), Node golden, Deptrac `949/949` with violations `0`
+and uncovered `0`, management-ID, diff-check, and staged0.
+
+Remaining: corrected complete Final Gate, fresh Sol High implementation review,
+and Orchestrator Acceptance. Higher-goal work remains P23-003A2, parent
+P23-003A Acceptance, P23-003B..G, P23-004, P23-005, and P23-006.
+
+Next Action: Orchestrator re-freezes the exact manifest and runs the complete
+Final Gate from the beginning, then requests fresh Sol High review. No commit,
+stage, push, runtime activation, or A2/B-G work was performed.
+
+## P23-003A1 Historical Round 5 Checkpoint
+
+Updated At: 2026-08-28T16:04:10+09:00
+
+Round 5 is complete within the exact A1 Files Allowed. TypedReference and
+structured Evidence HMAC validation now apply the global stage order across
+all members, and direct Catalog construction defers Application reserved
+prefix semantics until the preceding stages complete. Required boundary and
+compound-invalid fixtures were added for raw over-cap, opaque-id evidence,
+reserved `version`, unsupported evidence values, every read purpose and
+decision, changed nonce, and wrong-domain requestRef.
+
+Focused PHPUnit is Green at `79 tests/1051 assertions`; focused format,
+Composer strict, Mago lint/baseline, Audit-only Mago analyze (`error:0`), Node
+golden, Deptrac (`949/949`, violations `0`, uncovered `0`), management-ID,
+diff-check, and staged-name guard are Green. The new exact48 Product manifest
+aggregate is `4f6e5e880531fe8c0904a515026f8f7622b25eb3ce9268fd53aa6aad18b2aa9b`.
+The Round 4 `732a99...` freeze and Final Gate are Historical. Corrected
+complete Final Gate, fresh Sol High re-review, and Orchestrator Acceptance
+remain. No commit, stage, push, runtime activation, or downstream work was
+performed.
+
+Correction checkpoint: the six roots are implemented within the allowed A1
+Source/Test/Fixture files. Focused PHPUnit is Green at 51 tests/920 assertions;
+focused format, Composer strict, Mago lint and baseline, Deptrac 949/949 with
+violations0/uncovered0, Node catalog/requestRef/opaque oracle, management-ID
+guard, diff-check, and staged0 are Green. Mago analyze on the shared snapshot
+reports error132/warning188/help89, including unrelated untracked-code and
+vendor TestCase resolution findings; this remains recorded for Orchestrator
+review and no baseline/config file was changed. Current exact 48-path Product
+SHA aggregate is recorded in the Task Report. No commit, stage, push, runtime
+activation, or downstream work was performed.
+
+Current P23-003A1 Round 4 status: fresh Sol findings are corrected within the
+exact Files Allowed. Focused PHPUnit is Green at 63 tests/1006 assertions;
+format, Composer strict, Mago lint/baseline, Audit-only source analyze, Node
+golden, Deptrac 949/949 with violations0/uncovered0, management-ID guard,
+diff-check, and staged0 are Green. The corrected exact48 Product manifest
+aggregate is `732a99bd703dd37602e023a86c1a0bd77bb4b1bbeea3a2e3a644f37f1ef14647`.
+Complete Final Gate and fresh Sol High re-review remain pending; no commit,
+stage, push, runtime activation, or downstream work was performed.
+P23-003A1 Fresh General Re-review Green At: 2026-08-28T11:42:12+09:00
+P23-003A1 Third Corrected Exact Management/Normative Freeze At: 2026-08-28T11:37:03+09:00
+P23-003A1 Fixture Correction Completed At: 2026-08-28T11:37:03+09:00
+P23-003A1 Second Corrected General Changes Requested At: 2026-08-28T11:24:07+09:00
+P23-003A1 Second Corrected Focused Green At: 2026-08-28T11:24:07+09:00
+P23-003A1 Second Corrected Exact Management/Normative Freeze At: 2026-08-28T11:24:07+09:00
+P23-003A1 Re-preflight Correction Completed At: 2026-08-28T11:24:07+09:00
+P23-003A1 Re-preflight Changes Requested At: 2026-08-28T11:24:07+09:00
+P23-003A1 First Corrected Exact Management/Normative Freeze At: 2026-08-28T11:06:16+09:00
+P23-003A1 Preflight Correction Completed At: 2026-08-28T11:03:47+09:00
+P23-003A1 Initial Preflight Changes Requested At: 2026-08-28T10:54:14+09:00
+P23-003A1 Initial Exact Management/Normative Freeze At: 2026-08-28T10:29:04+09:00
+P23-003A1 Task Packet Drafted At: 2026-08-28T10:27:05+09:00
+P23-002E Accepted At: 2026-08-28T04:22:03+09:00
+P23-002E Fresh Sol Max Review Green At: 2026-08-28T04:22:03+09:00
+P23-002E Complete Final Gate Green At: 2026-08-28T04:10:19+09:00
+P23-002E Exact37 Source/Test Freeze At: 2026-08-28T04:04:13+09:00
+P23-002E Luna Max Integration Green At: 2026-08-28T04:04:13+09:00
+P23-002E Sol Re-preflight Green At: 2026-08-28T02:46:31+09:00
+P23-002E Preflight Correction Completed At: 2026-08-28T02:37:41+09:00
+P23-002E Exact Management Freeze At: 2026-08-28T02:28:11+09:00
+P23-002E Started At: 2026-08-28T02:20:34+09:00
+P23-002D Accepted At: 2026-08-28T02:09:28+09:00
+P23-002D Final Candidate Gate Completed At: 2026-08-28T02:05:37+09:00
+P23-002D Multi-tenant Fixture Correction Completed At: 2026-08-28T02:02:06+09:00
+P23-002D Sol Closure Review Changes Requested At: 2026-08-28T01:59:17+09:00
+P23-002D Corrected Final Gate Completed At: 2026-08-28T01:47:25+09:00
+P23-002D Age Cap+1 Fixture Correction Completed At: 2026-08-28T01:42:28+09:00
+P23-002D Sol Review Changes Requested At: 2026-08-28T01:39:38+09:00
+P23-002D Final Gate Completed At: 2026-08-28T01:26:39+09:00
+P23-002D Final Gate Correction Completed At: 2026-08-28T01:21:34+09:00
+P23-002D Final Gate Correction Started At: 2026-08-28T01:19:44+09:00
+P23-002D Sol Re-preflight Green At: 2026-08-28T00:17:33+09:00
+P23-002D Started At: 2026-08-27T23:47:45+09:00
+P23-002C Accepted At: 2026-08-27T23:20:37+09:00
+P23-002C Final Gate Completed At: 2026-08-27T23:03:39+09:00
+P23-002C Started At: 2026-08-27T18:13:04+09:00
+P23-002C Initial Sol Preflight Completed At: 2026-08-27T18:29:26+09:00
+P23-002C Preflight Correction Completed At: 2026-08-27T18:35:55+09:00
+P23-002C Sol Re-preflight Green At: 2026-08-27T18:44:47+09:00
+P23-002B Started At: 2026-08-26T21:25:10+09:00
+P23-002B Sol Finding Correction Completed At: 2026-08-27T09:58:07+09:00
+P23-002B Final Gate Completed At: 2026-08-27T17:49:00+09:00
+P23-002B Accepted At: 2026-08-27T17:56:07+09:00
+P23-002A2 Started At: 2026-08-26T17:40:29+09:00
+P23-002A2 Accepted At: 2026-08-26T21:03:51+09:00
+P23-002A1 Started At: 2026-08-26T14:25:34+09:00
+P23-002A1 Accepted At: 2026-08-26T17:30:18+09:00
+P23-001R Started At: 2026-08-26T13:00:33+09:00
+P23-001R Accepted At: 2026-08-26T14:14:17+09:00
+Round30 Search Corrections Started At: 2026-08-26T02:38:02+09:00
+Round30 Search Corrections Completed At: 2026-08-26T03:10:26+09:00
+Round30 Legacy Fixture Search Correction Started At: 2026-08-26T03:18:00+09:00
+Round30 Legacy Fixture Search Correction Completed At: 2026-08-26T03:32:38+09:00
+Round30 Risk-based Combined Local Gate Sync Completed At: 2026-08-26T09:59:03+09:00
+Round30 Search and Audit Slices Accepted Sync Completed At: 2026-08-26T10:20:10+09:00
+Round30 P23-001 Acceptance Sync Completed At: 2026-08-26T10:34:43+09:00
+Round29 Management Post-gate Correction Started At: 2026-08-24T19:14:40+09:00
+Round29 Management Post-gate Correction Completed At: 2026-08-24T19:22:59+09:00
+Round29 Post-gate Management Sync Started At: 2026-08-25T01:22:48+09:00
+Round29 Post-gate Management Sync Completed At: 2026-08-25T01:31:39+09:00
+Round29 Sol Final Correction Sync Started At: 2026-08-25T01:51:39+09:00
+Round29 Sol Final Correction Sync Completed At: 2026-08-25T01:51:39+09:00
+Round29 Post-gate Management Sync 2 Started At: 2026-08-25T10:03:33+09:00
+Round29 Post-gate Management Sync 2 Completed At: 2026-08-25T10:19:26+09:00
+Round29 Post-gate Management Sync 3 Started At: 2026-08-25T11:56:04+09:00
+Round29 Post-gate Management Sync 3 Completed At: 2026-08-25T12:01:54+09:00
+Round29 Management Checkpoint Sync 4 Started At: 2026-08-25T13:25:51+09:00
+Round29 Management Checkpoint Sync 4 Completed At: 2026-08-25T13:25:51+09:00
+Round29 Combined Gate Green Management Sync Started At: 2026-08-25T13:56:20+09:00
+Round29 Combined Gate Green Management Sync Completed At: 2026-08-25T13:56:20+09:00
+Round29 Exact5 Management Sync Started At: 2026-08-25T14:55:51+09:00
+Round29 Exact5 Management Sync Completed At: 2026-08-25T14:55:51+09:00
+Round29 Post-correction Combined Local Gate Green Management Sync Started At: 2026-08-25T16:31:07+09:00
+Round29 Post-correction Combined Local Gate Green Management Sync Completed At: 2026-08-25T16:31:07+09:00
+Round29 Management Correction-complete / Gate-pending Sync Started At: 2026-08-25T17:32:04+09:00
+Round29 Management Correction-complete / Gate-pending Sync Completed At: 2026-08-25T17:32:04+09:00
+Round29 Audit Exact3 Block Resync Started At: 2026-08-25T17:50:37+09:00
+Round29 Audit Exact3 Block Resync Completed At: 2026-08-25T17:50:37+09:00
+Round29 Fresh Search/Audit Bounded Corrections Started At: 2026-08-26T00:20:39+09:00
+Round29 Fresh Search/Audit Bounded Corrections Completed At: 2026-08-26T00:20:39+09:00
+Round29 Search Raw-start Boundary Parity Correction Started At: 2026-08-26T00:41:04+09:00
+Round29 Search Raw-start Boundary Parity Correction Completed At: 2026-08-26T00:41:04+09:00
+Round29 Combined Local Gate Green Management Sync Started At: 2026-08-26T01:46:59+09:00
+Round29 Combined Local Gate Green Management Sync Completed At: 2026-08-26T01:51:40+09:00
+
+## Historical P23-003A1 Audit Catalog Foundation — Preflight Green / Luna High Authorized
+
+Updated At: 2026-08-28T11:42:12+09:00
+
+Status at this checkpoint: `Preflight Green — Luna High Implementation Authorized`.
+
+P23-002E is Accepted. Stable `1.2.0` remains current and BlackOps `1.3`
+remains unreleased.
+
+Read-only contract、Source、delivery research found that one P23-003A worker
+packet was too broad and that Catalog JCS/hash ownership、exact Framework
+Catalog、keyed opaque ID、evidence nullability、read cardinality、safe projection、
+and AuditRecord construction stages were not implementation-unique. D147 now
+closes those boundaries and splits P23-003A into serial A1 Catalog and A2
+Record／Projection packets.
+
+P23-003A1 owns Catalog-only RFC 8785 JCS／catalogHash、closed Catalog types、
+exact 30-definition Framework security/access Catalog、bounded evidence and
+semantic validation、purpose-bound HMAC opaque IDs、pre-decision
+AuditReadRequestBasis、and post-decision AuditReadContext v1.
+It does not own AuditRecord logical/hash/chain、safe projection、runtime adapter、
+Application authoring、storage、query、export、or activation.
+
+The initial exact-nine review is Historical Changes Requested: broad Sol
+`P1=1/P2=3/P3=1` and focused packaging/architecture
+`P1=2/P2=2/P3=0` remain separate. The Task now closes executable pre-commit
+gates、request-basis ordering、JCS/error/raw-cap oracles、opaque purpose/key
+ownership、and the exact empty A1 PublicApi marker inventory. The first corrected
+exact-nine re-preflight is also Historical Changes Requested: general
+`P1=1/P2=1/P3=0` and focused `P1=1/P2=0/P3=0` remain separate. The shared
+raw-cap precedence root and the general typed-reference boundary root are now
+corrected: over-cap raw Catalog bytes return `jcs_bound_invalid` before decoder
+work, while each typed-reference member is valid UTF-8／NFC／no-control and
+1..256 bytes. Production implementation and Iteration Gate are complete;
+complete Final Gate、CI、deploy、publication、tag、release have not started. The second corrected exact-nine
+focused lane is Green
+`P1=0/P2=0/P3=0`; the separate general lane returned `P1=0/P2=1/P3=0` only
+for missing direct byte-preservation and tenant opaque-context fixtures. The
+Task now fixes the shared mixed-case／space／slash／colon vector, each read
+consumer canary, and exact tenant JCS／HMAC oracle. Fresh general re-review
+matched the third corrected exact-nine and returned Green
+`P1=0/P2=0/P3=0`. Production implementation is complete within the exact Task
+Packet; Product freeze is fixed in the Report.
+
+Remaining: within P23-003A1, complete Final Gate、fresh Sol High implementation
+review、and Orchestrator Acceptance.
+Higher-goal work remains P23-003A2、parent
+P23-003A Acceptance、P23-003B..G、P23-004、P23-005、P23-006.
+
+Next Action: Orchestrator runs complete Final Gate from the fixed Product freeze;
+do not commit、stage、activate runtime behavior、or broaden into A2/B-G.
+
+## P23-002E About and Aggregate Outbox Status — Accepted prerequisite
+
+Updated At: 2026-08-28T04:22:03+09:00
+
+Current status: `Accepted — About and Aggregate Outbox Status`.
+
+P23-002D is Accepted. Stable `1.2.0` remains current and BlackOps `1.3`
+remains unreleased.
+
+The current Task Packet fixes one atomic P23-002E slice:
+
+- `about [--json]` reports only Composer-installed Framework version, current
+  PHP/SAPI, and exact ProjectionBuildSet status;
+- no Worker/runtime capability registry, build ID/hash, path, dependency,
+  environment, OS/host, or HTTP profile is inferred or emitted;
+- `outbox:status [--json]` reports seven installation counts and three ages
+  from one PostgreSQL aggregate row;
+- Outbox aggregation excludes sent success, Operation Queue/dead letters,
+  retry audit, tenant, row identity, payload, context, and fingerprint data;
+- minimum timestamp wire is exact UTC `YYYY-MM-DDTHH:MM:SS.ffffffZ` text;
+- About discovery describes package, runtime, and Projection status rather than
+  nonexistent build identity metadata;
+- target exact35、Framework names exact29、reservation exact13、visible list
+  exact34、producer exact38 are accepted only after both commands activate;
+- About and Outbox component workers may run in parallel only after fresh Sol
+  Max preflight Green; one later integration worker owns shared files.
+
+Initial Sol Max preflight returned `P1=0/P2=2/P3=0`; both contract findings are
+corrected without Production changes. Fresh Sol Max re-preflight matched exact8
+aggregate `7f01fb7feebfc2f9f3ad429de3d01d1cec157a9d12f18dcfff41cc13f962fb65`
+and returned Green `P1=0/P2=0/P3=0`. About／Outbox component reviewとshared
+integrationはGreenである。Focused PHPUnit `137/3004`、format、lint／baseline、
+analyze errors `0`、Deptrac violations `0`、Composer strict、version baseline、
+management-ID guard、diff-check、staged0を確認した。Current exact37 Product
+aggregateは`8a2a57df0cef023e6e84c55a212da3edec14f53ef0b7d168e0fbac9bdc5395a0`である。
+Public Guide／Website、generated Artifact、commit、stage、push、CI、deploy、
+publication、tag、releaseは変更または実行していない。
+
+The complete Final Gate is Green on the same exact37: format、Composer strict、
+canonical lint／baseline、analyze errors `0`、PHPUnit `2564/13206`、Deptrac
+`917/0 violations/0 uncovered`、version baseline、release-source、management-ID、
+diff-check、staged0、ending aggregate一致を確認した。
+
+Fresh Sol Max combined implementation review independently matched exact37 and
+management exact8 and returned Green `P1=0/P2=0/P3=0`. The Orchestrator accepts
+P23-002E. Stable `1.2.0` remains current; these `1.3` commands remain unreleased.
+
+Remaining: none within P23-002E. Higher-goal work remains P23-003、P23-004、
+P23-005、P23-006.
+
+Next Action: begin bounded P23-003 Audit research and Sol Max preflight.
+
+## P23-002D Diagnostics Check and Aggregate Queue Status — Accepted prerequisite
+
+Updated At: 2026-08-28T02:09:28+09:00
+
+Current status: `Accepted — Diagnostics Check and Aggregate Queue Status`.
+
+P23-002C is Accepted and remains the prerequisite exact31 activation.
+Read-only Diagnostics／Queue research is complete. The current Task Packet fixes:
+
+- explicit `ApplicationBuilder::withOperationalHealthQuery()` readiness authority;
+- exact-six bounded readiness normalization after Projection shared-lock release;
+- exact Human／JCS／stderr／exit contracts for `diagnostics:check`;
+- host-operator／installation-wide Queue scope with no tenant, row, payload, or
+  identity selection/emission;
+- exact Queue buckets／ages／bounds and one-row PostgreSQL aggregate;
+- exact Human／JCS／failure contracts for `queue:status`;
+- target exact33、Framework names exact27、reservation exact13; and
+- disjoint Luna Max Diagnostics／Queue component ownership followed by one
+  integration owner.
+
+Luna Max component／integration implementation and Orchestrator focused gate are
+Green (`129 tests / 1,419 assertions`). The first exact33 freeze was
+`b55fa437777074244908480a4c211d2ba0f48d8412b18d6f321abffafc0e3641`.
+Complete Final Gate stopped at full PHPUnit with one failure among 2,512 tests:
+the existing public Builder method inventory did not include the intentional
+`withOperationalHealthQuery` API. The Task now explicitly adds
+`tests/Application/ApplicationTest.php` as the only bounded correction file.
+The exact33 freeze and partial Gate are Historical; no later Gate command was
+run for that candidate. The bounded Luna correction and Orchestrator direct
+test passed `6 tests / 43 assertions`; corrected focused verification passed
+`135 tests / 1,462 assertions`. Review-before exact34 aggregate was
+`72721ec6a380981fd210960a65acbb02591725f6d538a61571188b0ed354114d`.
+The restarted complete Final Gate is Green: format、Composer strict、canonical
+lint／baseline、analyze errors `0`、PHPUnit `2512/11351`、Deptrac `904` with
+violations `0`、version baseline、canonical Website release-source、management-ID、
+diff、staged0、ending aggregate all pass.
+Fresh Sol Max review returned `P1=0/P2=1/P3=0` only because age MAX+1 lacks a
+direct Core snapshot fixture; Production already rejects it. The current
+exact34 and Gate are review-before Historical evidence. Correction ownership is
+limited to `tests/Core/Queue/QueueStatusSnapshotTest.php`.
+
+Stable `1.2.0` remains current. BlackOps `1.3` remains unreleased. Public
+Guide／Website、generated Artifact、commit、stage、push、CI、deploy、publication、
+tag、release are unchanged or unexecuted.
+
+Fresh Sol Max re-preflight matched exact8 aggregate
+`f29f3deb2896cdb067b58927139f7d3c512bdd8ce20674035b5393ce8f674a34`
+and returned Green `P1=0/P2=0/P3=0` before implementation.
+
+Initial Sol Max preflight was stopped after confirming two P1 architecture
+roots. The corrected packet moves Queue contracts to Core and adds only the
+two required Application／InternalApplication-to-Observability Deptrac edges.
+
+Luna Max added only the direct age MAX+1 rejection fixture. Direct PHPUnit is
+`5 tests / 7 assertions`; Orchestrator focused verification is
+`136 tests / 1,463 assertions`. Production Source is unchanged. Review-before
+exact34 aggregate is
+`db18b1c18b116a8afd4e2062c9328edf7b05004c8cb7576916c2e07882c4ae64`.
+
+The complete Final Gate on this same freeze is Green: format、Composer strict、
+lint／baseline、analyze errors `0`、PHPUnit `2,513/11,352`、Deptrac `904` with
+violations `0`、version baseline、Website release-source、management-ID、diff、
+staged0、and ending aggregate all pass.
+
+Fresh Sol Max closure review matched this freeze and returned
+`P1=0/P2=1/P3=0`. Production SQL is finding-free. The only remaining gap is a
+required direct fixture proving that at least two tenant canaries contribute to
+the installation aggregate. Correction is limited to
+`tests/Transport/PostgreSql/PostgreSqlQueueStatusSourceTest.php`; the current
+freeze and Gate are review-before Historical.
+
+Luna Max changed only that test. Two tenant canaries contribute to the combined
+totals and age. Direct PHPUnit is `8 tests / 148 assertions`; Orchestrator
+focused gate is `136 tests / 1,465 assertions`. Production is unchanged.
+Current exact34 aggregate is
+`6a4932de04e4c4e848024560f078e8bac1b858e1ae07abdc5140667b1cd4d6c2`.
+
+The complete Final Gate on this same freeze is Green: format、Composer strict、
+lint／baseline、analyze errors `0`、PHPUnit `2,513/11,354`、Deptrac `904` with
+violations `0`、version baseline、Website release-source、management-ID、diff、
+staged0、and ending aggregate all pass.
+
+Fresh Sol Max closure review matched branch／HEAD／main、staged `0`、and current
+exact34 aggregate. The two-tenant fixture closes the prior counterexample, no
+delta regression was found, and the verdict is Green `P1=0/P2=0/P3=0`.
+
+Remaining: none within P23-002D. Higher-goal work remains P23-002E、P23-003
+Audit、P23-004 Worker/Classic、P23-005 Documentation、and P23-006 release gate.
+Commit、stage、push、CI、deploy、publication、tag、release remain unexecuted.
+
+Next Action: begin P23-002E `about`／aggregate-only `outbox:status` research and
+Task Packet preflight; implementation waits for a new Packet and Sol Max Green.
+
+## P23-002C Schedule Projection and Atomic Activation — Accepted
+
+Updated At: 2026-08-27T23:20:37+09:00
+
+Accepted status: `Accepted — Schedule Projection and Atomic Activation`.
+Reviewer: Fresh Sol Max closure review Green `P1=0/P2=0/P3=0`; Orchestrator Accepted.
+P23-002A1/A2/B are Accepted and remain non-activated.
+P23-002C owns the schedule projection and the only Production activation of
+the complete command/route/schedule ProjectionBuildSet.
+
+Initial Sol xHigh preflight returned Changes Requested
+`P1=2/P2=2/P3=0`.
+The bounded management/normative correction now fixes four roots before any
+Production work:
+
+- Production root is the single
+  `ApplicationBuildConfiguration::projectionBuildSetRoot` value derived from
+  `dirname(app.build.container)` with no public configuration key;
+- missing configuration/directory is `absent`, while present invalid
+  configuration/root is an input-validation failure and artifact bytes alone
+  produce `malformed`;
+- `ProjectionBuildSetStatusSource::withStatus()` and Reader
+  `withPublishedStatus()` separate Production published identity validation
+  from the unchanged component exact-three hash seam; and
+- `build:compile` atomicity is limited to the three Projection files, with
+  deterministic producer/pre-commit/post-commit cleanup failure contracts.
+
+The Packet also fixes schedule Human/JSON/error bytes, exact31 target versus
+exact25 Framework names versus exact13 reservations, one shared strategy
+mapper, one Publisher call, root-last publication, and one Final Gate after
+Source freeze.
+Fresh bounded Sol xHigh re-preflight matched exact9 aggregate
+`c933fd9f23f85b00f447f72f69a7769bb7ec747b737cf711fb2cdf934beeb347`
+and returned Green `P1=0/P2=0/P3=0`.
+The Production implementation Start Condition was met. Luna Max completed the
+implementation within the corrected exact 41-file Task scope. The first
+Orchestrator Final Gate stopped at canonical `mago lint` with exactly two new
+cyclomatic-complexity errors: `ApplicationBuildCompileCommand` complexity 16
+over limit 15 at line 56, and
+`ApplicationProjectionBuildSetStatusSource` complexity 28 over limit 15 at line
+20. The pre-correction exact32 aggregate
+`0cce05bb35c46fbe15217e6cf6bcc206834ae429dca5c0c3d7ee937ecbda0ec5` is
+Historical. A behavior-neutral class-DocBlock correction was applied to those
+two allowed files. Correction-focused format, canonical lint, and impacted
+PHPUnit (`15 tests / 118 assertions`) pass. The Orchestrator refroze the
+corrected exact32 Source/Test aggregate as
+`be0b7c8421e1f6906ce5576b59230ed33dcf505a00618afc09622c52a652d766`,
+restarted the complete Final Gate from the beginning, and reproduced the same
+ending aggregate. Format, Composer strict, canonical lint/baseline, analyze
+errors `0`, full PHPUnit `2468 tests / 10930 assertions`, Deptrac violations
+`0`, version baseline, Website release-source, management-ID, diff, and
+staged-path `0` are Green. No Stable `1.2.0` public Documentation,
+generated artifact, release authority, commit, stage, push, CI, deploy,
+publication, tag, or release changed in this checkpoint.
+
+Fresh Sol xHigh implementation review of the corrected `be0b7c...` freeze
+returned Changes Requested `P1=0/P2=2/P3=1`. That exact32 freeze and its
+Final Gate are Historical/superseded after the bounded correction, which changes
+only the two allowed integration test files. Impacted PHPUnit passes
+`37 tests / 447 assertions`. The replacement worker-proposed exact32
+aggregate is
+`15e0f074c5302af68753c06d8b9effc0747aff0e0a55902f081bc91834117a33`; the
+Orchestrator refroze it and completed the current Final Gate:
+format, Composer validate strict, canonical lint (baseline filtered 186; no
+issues), lint baseline, analyze (exit 0, errors 0, warnings 80, help 39),
+PHPUnit (2472 tests / 10972 assertions; deprecations 1, PHPUnit deprecations 2,
+notices 13), Deptrac (violations, skipped, uncovered, warnings, errors all 0;
+allowed 5003), version baseline, release-source, PHP management-ID, diff-check,
+staged0, and ending exact32 unchanged.
+Fresh Sol Max closure review independently matched the exact32 and exact9
+freezes, closed the prior findings, and returned Green `P1=0/P2=0/P3=0`.
+The Orchestrator accepts P23-002C. Stable `1.2.0` remains current and BlackOps
+`1.3` remains an unreleased proposal.
+
+Implementation scope correction: Accepted A2's
+`ApplicationOperationListCommandTest` fixed `ls` as unregistered and would
+necessarily fail after C activation. The worker restored its pre-C hash
+`afde95ca...`, then the Orchestrator added only that existing regression test
+to Files Allowed. The exact scope is now 41 files; Production contract and
+public release boundary are unchanged.
+
+Remaining: none within P23-002C. P23-002D/E and the ordered Phase 23 work remain.
+
+Next Action: begin the P23-002D `diagnostics:check`／aggregate-only
+`queue:status` preflight.
+
+## P23-002B Route Projection and List — Accepted / Non-activated
+
+Updated At: 2026-08-27T17:56:07+09:00
+
+Current status: `Accepted — non-activated Route Projection and List`.
+P23-002A1/A2 are Accepted and remain non-activated. Initial P23-002B Sol xHigh
+preflight returned Changes Requested `P1=3/P2=1/P3=0`. The corrected Packet
+closes only four roots: route success JSON has no command recovery status;
+target metadata advances from exact29 to exact30 while current runtime names
+remain25; a callback-shaped typed-status reader holds shared lock through
+render/write; Human/JSON/stderr wires are exact. The first re-preflight returned
+Changes Requested `P1=1/P2=1/P3=0`. The second correction limits byte invariance
+to the lock-seam migration on identical exact30 input, updates all
+BlackOps-owned list goldens for the intentional route row, and expands Fast Gate
+coverage to every allowed test plus Kernel nonactivation. B does not publish,
+select a Production locator, connect
+`build:compile`, register route commands, or change public Documentation.
+
+Closure Sol xHigh re-preflight matched exact9 aggregate
+`991150cdbb60a004657c5c940639ab76f7d0d4826bd27738f6419af40fb5e1ab`
+and returned Green `P1=0/P2=0/P3=0`.
+
+Luna Max completed the exact Files Allowed implementation. Fresh Sol review of
+the superseded `3ebe655...` freeze returned Changes Requested
+`P1=1/P2=2/P3=0`: Stable GET `/operations/` dispatch had regressed, required
+bounded negative fixtures were missing, and D146 retained a stale current
+handoff. The bounded correction separates the runtime matcher from the
+nonempty collision predicate, restores the exact composite 404 JSON/cache
+response, and adds duplicate/cap/closed-row, invalid Boolean, non-selected
+projection, and executable purity-sentinel fixtures. Current runtime names
+remain exact25 and Kernel route commands remain absent.
+
+The prior `a1c17de` Source/Test freeze and its associated Fast Gate claim are
+Historical/superseded: canonical CI lint exposed seven issues, so that candidate
+is not current Green evidence. No baseline was generated or updated.
+
+The subsequent `58a3f2e549fa60ecec4366a14e8720d17effdaa82021efb1e4e364f56a784c01`
+Source/Test freeze and its associated correction evidence are also
+Historical/superseded: canonical `mago analyze` exposed three Route type
+errors. No unrelated analyze warnings or baseline entries were changed.
+
+Fast Gate at `2026-08-27T09:58:07+09:00`: correction-focused HTTP/Route PHPUnit
+`80 tests / 396 assertions` PASS; Task PHPUnit `128 tests / 1221 assertions` PASS; canonical
+`mago lint` PASS (`No issues found` after baseline filtering 186); canonical
+`mago lint --verify-baseline` PASS (`Baseline is up to date`); canonical
+`mago analyze` PASS with `0 errors`, `78 warnings`, and `34 help` messages;
+allowed-path Mago format check PASS; management-ID guard PASS; `git diff
+--check` PASS; staged paths `0` PASS. The accepted ordered 41-file Source/Test aggregate is
+`174bc94c42b733a7611885f2edc4ab78aad1628c02a3bdd4ed5a48eb2d3df6fa`.
+
+The prior Final Gate on `3ebe655...` is Historical/superseded and is not reused.
+The current Final Gate on `174bc94c...` is Green: format, Composer strict,
+lint/baseline, analyze errors `0`, PHPUnit `2435/10739`, Deptrac zero violations,
+version baseline, Website release-source, management-ID, diff, staged0, and
+ending freeze all PASS.
+
+Fresh Sol xHigh implementation review matched the exact Source/Test and
+management hashes and returned Green `P1=0/P2=0/P3=0`. Orchestrator Acceptance
+is complete without activation or partial publication.
+
+Remaining: none within P23-002B. P23-002C schedule/final activation remains.
+
+Historical Next Action at P23-002B Acceptance was to begin P23-002C while
+preserving B as non-activated; the current P23-002C block above supersedes that
+handoff. Commit, stage, push, CI, deploy, publication, tag, and release remain
+unapproved and unexecuted.
+
+## P23-002A2 Command Projection and List — Accepted
+
+Updated At: 2026-08-26T21:03:51+09:00
+
+Current status: `Accepted — non-activated Command Projection and List`.
+Accepted P23-002A1 provides the non-activated ProjectionBuildSet wire,
+verified-handle reader, publisher, lock, and GC. A2 adds the pure command
+producer, embedded Framework rows, BlackOps-owned `list`/`ls`, one global
+reservation registry, Stable input compatibility, and the bounded future
+`operation:list --strategy=inline|deferred` filter.
+
+A2 does not choose the Production locator, connect `build:compile`, publish a
+partial root, or activate the replacement list in `ApplicationConsoleKernel`.
+P23-002C remains the sole all-three activation owner. Stable `1.2.0` remains
+current and BlackOps `1.3` remains unreleased. The Packet requires an additive
+typed six-state read boundary and forbids classifying A1 errors by parsing
+exception messages. Iteration uses focused tests; the full Final Gate runs once
+after Source freeze.
+
+Initial Sol xHigh preflight returned Changes Requested `P1=3/P2=1/P3=0`.
+The Packet now fixes one exact 29-row target projection／activation metadata authority,
+separate explicit/discovered/Operation producer inputs, mandatory reservation
+inside both validator entrypoints, and Fast Gate coverage for every allowed
+Source/Test path. Stable namespace compatibility now distinguishes
+resolution/diagnostic/exit from the new safe projection output. Production
+implementation began only after that bounded review; the completed A2
+implementation and evidence are recorded below. The typed reader, renderer,
+namespace resolver, non-activated list component, and operation filter are all
+complete within the allowed scope.
+
+The bounded re-preflight closed the initial four roots and returned one focused
+`P1=1/P2=0/P3=0`: target `list` aliases `['ls']` cannot be all-field identical
+to current Symfony aliases `[]`. The Packet records this as the only explicit
+future metadata delta, requires A2 runtime `ls` to remain unregistered, and
+requests a focused confirmation only.
+
+Focused Sol confirmation matched the corrected six-file freeze and returned
+Green `P1=0/P2=0/P3=0`. Phase 1 implemented the exact 29-row target registry,
+separate reservation registry, current 25-name derivation, Kernel metadata
+consumption, mandatory reservation in both validator entrypoints, and direct
+fixtures. Phase 2 now adds the pure three-source command producer, exact
+embedded 29-row projection, explicit-overrides-discovered fixture, closed-field
+normalization, collision diagnostics, and bound checks. A2 remains
+non-activated and unreleased.
+
+Phase 2 evidence: focused PHPUnit `52 tests / 563 assertions` PASS; focused
+Mago format `--check` PASS; PHP management-ID guard PASS; `git diff --check`
+PASS; staged `0`. Ordered 11-file Phase 2 Source/Test aggregate is
+`f46934937acb0a075717fac1ea79d016c011ddfb86723945a76ee467cc0f9e24`. A1 Source/Test remains byte-identical to aggregate
+`fc4b98e429a01489e33db7f7f4fbb60ea5362591da24361a48e987d4d96a0d2b`.
+
+Phase 3A evidence: BuildSet focused PHPUnit `45 tests / 265 assertions` PASS;
+focused format and format check PASS; six-state, expected-identity,
+order-independent precedence, operational, and A1 regression fixtures pass.
+`read()` remains unchanged; `readStatus()` compares caller-injected build/input
+identities, validates root plus all three same-handle projections under one
+shared lock, returns only the closed six-state result, and propagates typed
+operational filesystem failures. Corrected ordered Phase 3A Source/Test
+aggregate is `45308ab3970aa86147e2371904c5c14544158b3396b067d748e7e4e10b8d4cc4`.
+
+Current completion checkpoint: `Accepted — non-activated Command Projection and List`.
+The bounded formatter correction is frozen. P1 correction hashes are List
+`1293ba223a43c7edfa925606cf3ef34166101155f7ca93c2846131d4d41bf816`, Renderer
+`b5921d015a672feef961b906ff5eafd199eab9dd73c0c304c7989cff142b2fb6`, and
+ListTest `2c3f8528fe11c41b4134663db00f7530d248e548cb35face9845ce5ae5ab73d8`.
+Correction-focused Projection Command is `35 tests / 320 assertions` PASS;
+focused lint, format, analyze error0, management-ID, diff, and staged checks PASS.
+
+The exact ordered 30-file Source/Test aggregate is
+`69a3bd57cef3dcea92f2edf4bc4d57c50e7655ac8c2ef3bd0cfe22802cf30740`, identical
+before and after the gates. Fast Gate is `130 tests / 1166 assertions` PASS.
+Final Gate is PASS: format, Composer strict, lint with baseline186 filtered,
+current lint baseline, analyze error0, PHPUnit `2408 tests / 10398 assertions`
+with nonblocking Deprecations1, PHPUnit deprecations2, and Notices13, Deptrac
+`883/883` with violations0 and Allowed4932, Stable1.2/historical1.1 version
+baseline, `release:check:source`, management-ID, `git diff --check`, and staged0.
+
+The bounded Sol xHigh closure review matched the frozen Source/Test aggregate
+`69a3bd57…` and management aggregate `ef232f92…`, and returned Green
+`P1=0/P2=0/P3=0`. Orchestrator Acceptance completed at
+`2026-08-26T21:03:51+09:00`.
+
+The prior Sol `P1=1/P2=3` review and its `0999e0ab…`/`1c1614e8…` freezes and
+failed gates are Historical only. Stable `1.2.0` remains current and BlackOps
+`1.3` remains unreleased. A2 list/ls remains unregistered and non-activated,
+with no partial publish, Production locator, build connection, public
+documentation, or generated-artifact change. Website full test/build, Browser,
+Network, CI, deploy, publication, tag, release, commit, and stage are Not
+Verified or unapproved.
+
+Remaining: none within P23-002A2. The higher atomic slice still requires
+P23-002B route and P23-002C schedule/final activation.
+
+Historical Next Action at P23-002A2 Acceptance was to begin P23-002B without
+partial activation; P23-002B is now Accepted and the current P23-002C block
+above supersedes that handoff. No commit, stage, push, CI, deploy, publication,
+tag, or release is authorized.
+
+## P23-002A1 ProjectionBuildSet Foundation — Accepted
+
+Updated At: 2026-08-26T17:30:18+09:00
+
+Current status: `P23-002A1 Accepted — non-activated ProjectionBuildSet foundation`.
+The fresh Sol implementation review at `2026-08-26T16:44:55+09:00` is
+Historical Changes Requested `P1=3/P2=1/P3=0`. Its four bounded findings are
+corrected: literal U+2028/U+2029 canonical encoding and command-description
+rejection, bounded directory sentinel scanning, cleanup fsync with deleted
+prefix reporting, and per-publication deletion-state reset. Direct fixtures
+cover all four roots, including independent exact-three hash goldens and
+Publisher reuse.
+
+The bounded post-Gate Sol re-review found no Source/Test defect and returned
+`P1=0/P2=1/P3=0` only because the completed Final Gate was still unchecked in
+the Task and Report. Both management entries were corrected without changing
+Source/Test. The focused confirmation matched the five management hashes,
+unchanged Source/Test aggregate, staged-empty state, and `git diff --check`, and
+returned Green `P1=0/P2=0/P3=0`. The Orchestrator accepts P23-002A1.
+
+Current Final Local Gate is Green: PHPUnit `39 tests / 202 assertions` PASS;
+full PHPUnit `2360 tests / 9757 assertions` exit 0 with Deprecations 1,
+PHPUnit Deprecations 2, Notices 13; full format, Composer strict, full Mago
+lint (baseline `186` excluded), verify-baseline, full analyze (exit 0/errors 0,
+108 warnings/help), Deptrac (Allowed `4849`, all violation categories 0),
+version baseline (`1.2.0` / `1.1.0`), Website release source, management-ID,
+`git diff --check`, and staged `0` all PASS. The unchanged 15-file Source/Test aggregate is
+`fc4b98e429a01489e33db7f7f4fbb60ea5362591da24361a48e987d4d96a0d2b`; the
+per-file manifest is recorded in the current Task Report. Corrected-file hashes
+are Codec `5569e509a64b24ab67644b7a98d63858b77e67d783ba8bb4db6d02d753c157dc`,
+Filesystem `07b5f3d3dcd67ea5b9baa5b9d334dc24b3df6f779a02491218f7db29dbc0f408`,
+Publisher `2bb09eae0f0bfee2abd4a73360afcb52d9fa461f60c72a8bd6840c6ca34bbe13`,
+CodecTest `bd80073cf007492cf76e9c0076637080710f7767589e162156e461a2dfbd3842`,
+and PublisherTest `7fe9cfddb9583c7d0826078709d67468633d0101b92678f5ae366f7be30b82a1`.
+The prior failed lint-only gate and prior aggregates are Historical and are not
+reusable. Stable `1.2.0` remains current and BlackOps `1.3` remains unreleased.
+A1 is still non-activated; no public surface, docs, dependency, generated
+artifact, commit, stage, push, CI, deploy, publication, tag, or release changed.
+P23-002A is split into A1 shared wire/filesystem foundation and A2 command/list
+layer while preserving the P23-002A/B/C atomic acceptance boundary. Preflight
+found that PHP exposes `fopen`／`lstat`／`fstat`／`flock`／`fsync` but no portable
+kernel `openat(O_NOFOLLOW)` primitive, and that the production root locator was
+not specified. D146 therefore defines an injected absolute dedicated root,
+fixed `projection-build-set.json` and `.blackops-projection-build-set.lock`
+names, and a trusted-root verified-handle policy. A1 does not connect
+`build:compile`, Console Kernel, public configuration, or real producers.
+Readers do not create a missing lock; the publisher alone may initialize it
+with exclusive-create semantics. GC is fixed at scan `256`／delete `32`
+inclusive bounds before mutation.
+
+Initial Sol preflight returned Changes Requested `P1=2/P2=2/P3=0`. D146 and
+current Specifications now restrict descriptors to exact single basenames,
+define generation/temp/GC recognized grammar and existing-target handling,
+reserve the first-lock entry before bootstrap, and state the complete
+key-kind/field-cap table outside Historical prose. Fresh Sol preflight confirmed
+the corrected authority and Packet as Green `P1=0/P2=0/P3=0`. A1 production
+implementation and focused tests are complete within the exact allowed paths.
+The pre-correction Focused Gate was PASS: PHPUnit `32 tests / 167 assertions`, focused
+format, source lint, management-ID guard, and `git diff --check` all pass. The
+frozen Source/Test aggregate is
+`604ccf53af4a005c74e454c34bf9ff58f4db30cc629ad9b8cd5712ebda1f72ed`.
+
+The prior Final Local Gate was Green on the exact frozen Source/Test aggregate
+`604ccf53af4a005c74e454c34bf9ff58f4db30cc629ad9b8cd5712ebda1f72ed`:
+Focused PHPUnit `32 tests / 167 assertions` PASS; full PHPUnit `2353 tests /
+9722 assertions` exit 0 with Deprecations 1, PHPUnit Deprecations 2, and Notices
+13; Composer strict validation and full format PASS; full Mago lint PASS with
+baseline `186` excluded and baseline verification PASS; full Mago analyze exit 0
+with errors `0` and `108 warnings/help`; Deptrac Allowed `4849` with violations,
+skipped, uncovered, warnings, and errors all `0`; version baseline published
+`1.2.0`, historical `1.1.0`, PASS; Website release source check, PHP
+management-ID guard, and `git diff --check` PASS; staged `0`. No Source/Test
+files changed after the final freeze. Website full test/build/Browser, network,
+commit, stage, push, CI, deploy, publication, tag, and release remain Not
+Verified or unexecuted by scope or instruction. Stable `1.2.0` remains current
+and BlackOps `1.3` remains unreleased. This gate result is now Historical after
+the fresh Sol review and is not reusable for the corrected candidate.
+
+Fresh Sol implementation review at `2026-08-26T16:44:55+09:00` returned Changes
+Requested `P1=3/P2=1/P3=0`. Correction is limited to RFC 8785 line-terminator
+encoding/description rejection, bounded directory scan sentinel observation,
+cleanup fsync and deleted-prefix reporting, and per-publication deletion-state
+reset, with direct fixtures only. D145, D146, Specifications 105/106, and
+activation/public surfaces remain unchanged.
+
+Remaining: none within P23-002A1. P23-002A2 is now in bounded Sol preflight;
+the higher Goal still requires its implementation, P23-002B, P23-002C atomic
+activation, remaining Phase 23 tasks, and P23-006.
+
+Next Action: complete the P23-002A2 bounded Sol preflight without reconnecting
+or reimplementing A1. Commit,
+stage, push, CI, deploy, and release remain unapproved and unexecuted.
+
+## P23-001R Stable Retention Lazy Option Correction — Accepted
+
+Updated At: 2026-08-26T14:14:17+09:00
+
+Current status: `P23-001R Accepted — Stable 1.2 five-option Retention contract
+restored`. The initial and management-sync reviews are Historical Changes
+Requested `P1=0/P2=1/P3=0`; their aggregate-surface and current-authority roots
+are closed. Final read-only Sol Documentation re-review returned
+`P1=0/P2=0/P3=0`, and Orchestrator independent review confirmed the exact
+scope, hashes, post-correction evidence, and frozen paths. Stable `1.2.0`
+remains current and BlackOps `1.3` remains unreleased. Retention semantics,
+AuditRecord, Release Authority, version, tag, Package, Skeleton, and 1.3
+capability are unchanged.
+
+Changed hashes: guard script `453e347673f36fd1f12795c448bf1183a4ed4b4d159774adf5942bfecc1dd3a0`; guard test `aede7f9f2f1ea1f3271a0735bd20fe69928f28d16b777dc678e74c086b59ebad`. Frozen Search reader/lock/test and Audit D145/Spec105/Spec106 hashes remain unchanged. Post-correction evidence retained by hash: focused Retention `5/5` PASS; Source guard PASS; Website check `41` pages with `0` errors/warnings/hints; build `42` pages with static artifact PASS and site `41` PASS; Artifact guard PASS; version baseline `published=1.2.0`, `historical=1.1.0`; actual generated HTML/raw/Search/LLM exact-route/segment markers; and `git diff --check` PASS. PHPUnit `30/192` and Mago are guard-only evidence from before the correction, not post-correction reruns. Existing non-fatal chunk-size and empty-route priority warnings remain.
+
+Full Website test, Browser, same-SHA CI, deploy, publication, tag, release,
+commit, and stage actions are Not Verified／未実行. Generated artifacts were
+checked by the build and Artifact guard but not edited directly.
+
+Remaining: none within P23-001R. Full Website test, Browser, same-SHA CI,
+deploy, publication, tag, release, commit, and stage remain Not Verified／
+unexecuted because they are outside this Task. The higher BlackOps `1.3` Goal
+still requires Specification 106's ordered Phase 23 tasks and P23-006 release
+gate.
+
+Next Action: start the P23-002A Task Packet within the P23-002A/B/C atomic
+projection slice. Commit, stage, push, CI, deploy, and release remain
+unapproved and unexecuted.
+
+## Accepted parent P23-001 — Stable 1.2 current / BlackOps 1.3 unreleased proposal
+
+Current status: `P23-001 Accepted — Stable 1.2 current / BlackOps 1.3 unreleased proposal`. Search Sol, Audit, and Parent General Sol decisions are all Accepted with `P1=0/P2=0/P3=0`; Search and Audit remain separate lanes with no severity aggregation. Stable `1.2` remains current, BlackOps `1.3` remains an unreleased proposal, and no release claim is made.
+
+Risk-based gate facts retained exactly: the preceding Full Website run was `147` with `145` pass and `2` fail (`145/147`); the final affected HTML/Search Satteri/JSDOM set was `7/7` PASS; `pnpm check` covered `41` pages; build `42`, static artifact PASS, and site `41` PASS. The `145` unaffected tests were reused through hash-bound delta evidence; final `147/147` was deliberately not rerun after the bounded fix. The separate Fast/Full gate split and generated-fixture reuse remain a performance follow-up and are not P23-001R.
+
+Ending freeze remains PASS for exact22, staged `0`, and `git diff --check`; Search exact4 and Audit exact3 hashes are unchanged. This management acceptance sync did not run tests, build, network, CI, deploy, release, commit, or stage actions; CI/deploy/release/commit remain unapproved and unexecuted.
+
+Remaining: none.
+
+Next Action: Specification 106's P23-002A/B/C atomic projection slice, beginning with the P23-002A Task Packet.
+
+## Historical P23-001 BlackOps 1.3 Feasibility — Round30 Search and Audit Slices Accepted / Parent General Sol Review Requested — parent not Accepted
+
+Historical status: `Round30 Search and Audit Slices Accepted / Parent General Sol Review Requested — parent not Accepted`. This prior slice-acceptance checkpoint is Historical evidence superseded by the current P23-001 Accepted snapshot. Stable `1.2` remains current; Phase 23/`1.3` remains an unreleased proposal. Search and Audit remain separate lanes with no severity aggregation; the parent was not Accepted, Decided, or Released at that checkpoint.
+
+Search Sol slice decision: Accepted with `P1=0/P2=0/P3=0`. Positives are the bounded final Search exact4 correction, the independent Satteri/JSDOM oracle coverage, and the final affected `7/7` evidence covering the 23-fixture x3=`69`-case matrix. Not Verified: the final `147/147` Website rerun after the bounded fix, Browser, CI, deploy, and release. Audit slice decision: Accepted with `P1=0/P2=0/P3=0`; frozen Audit exact3/public/PHP/child evidence is unchanged and was not rerun.
+
+Ending freeze remains PASS for exact22, staged `0`, and `git diff --check`; Search exact4 and Audit exact3 hashes are unchanged. Search hashes remain patch `d6d3c2f61b7e6e7177cf3d4a422258f28ad7c5f758ea45078572a7d16ec5233c`, lock `77403af7259c1948d56db4f53a05bf6e172aea1090083e28506f2bb84ca2db01`, reader `6dcc3601d3ff70c8ec8ab3a4515d2d28eb684ac0ee2a4866ce51c305396f8fe7`, test `5728c9bc45c7dc150fd378207f3bebeecf6dc4805de95b32dec8d1ad813030fb`, and installed helper `a8c5c0306045f742745adb6919fe5f8c6729673d9ed1b39d55e27f3e8100d397`. Audit exact3 remains D145 `7ae4247423199ed8f428a50b372ded6b148ed2e19b5e24c860765d441ec33709` / Spec105 `587996196efa2510863de0b4e1aac57bd9a9d9ad5a4113617a7d088bd897e907` / Spec106 `6f58ec12fe8df8893cf6c1499134ccc5fa2d58fe49f46b84e880fbfddbbb6a5b`.
+
+No tests/build/network/commit/stage/push action was taken by this management sync. Remaining: parent General Sol review; parent Orchestrator acceptance. Next Action: parent General Sol review.
+
+## Historical P23-001 BlackOps 1.3 Feasibility — Round30 Risk-based Combined Local Gate Green / Fresh Search Sol Re-review Requested — parent not Accepted
+
+Historical status: `Round30 Risk-based Combined Local Gate Green / Fresh Search Sol Re-review Requested — parent not Accepted`. This prior risk-based gate block is Historical current-snapshot evidence after the Search Sol review and is retained without rewriting its evidence. Stable `1.2` remains current; Phase 23/`1.3` remains an unreleased proposal. Search and Audit remain separate lanes; the parent is not Accepted, Decided, or Released.
+
+Round30 Search review record is `P1=0/P2=3/P3=0`. Production Search and the independent reader now share bounded state-machine corrections for (1) quote-aware, container-stripped multiline script/style openers, including initial recognized-tag prefix quote state across physical lines, (2) CommonMark HTML-flow activity separated from DOM visibility so only script/style bodies are inert while div/pre/textarea bodies remain visible, including completion-line visible tails, and (3) lazy blockquote continuation plus shallower interruption across nested/list/tab/blank-line and LF/CRLF/lone-CR cases. The single focused matrix uses Satteri rendering and JSDOM/pre-location oracles; no per-mutation full 41-page validator was added.
+
+Audit Sol review is Accepted with `P1=0/P2=0/P3=0`. The current target-bearing Access golden is `374/418`; `103/147` is a historical target-less negative set, not a current Query wire. The prior Round29 Green handoff is Historical evidence after this Search source change and is not reusable as current Green evidence.
+
+The source-before-final-fix Full Website test ran `147` with `145` pass and `2` fail in `299201.308ms`; the only failing tests were `Search excludes script and style raw bodies opened at physical line endings` and `Search masks incomplete CommonMark HTML blocks with an independent reader oracle`, both sharing the same top-level raw opener continuation root and triggering the bounded Luna correction. The current candidate delta gate is PASS: Node syntax `2/2`; 7 affected HTML/Search Satteri/JSDOM tests `7/7` in `2459.996ms` (including those two tests and the 23-fixture x3=`69`-case matrix); `pnpm check` 41 pages with `0` errors/warnings/hints; the sandbox build failed only at `listen EPERM`, then the approved exact rerun PASSed with 42 pages, static artifact PASS, and site `41` PASS; explicit site/source/artifact release checks PASS; `bash -n` and version baseline PASS (`published=1.2.0`, `historical=1.1.0`); exact22, staged `0`, and `git diff --check` PASS. The full `147/147` Website test was deliberately not rerun after the bounded final fix; risk-based delta reuse is 145 unaffected tests from the immediate predecessor plus the final 7 affected tests plus the current check/build/site/release evidence. Frozen Audit exact3/public/PHP/child hashes are unchanged and the immediately preceding Green evidence is reused without rerun: D145 `7ae4247423199ed8f428a50b372ded6b148ed2e19b5e24c860765d441ec33709` / Spec105 `587996196efa2510863de0b4e1aac57bd9a9d9ad5a4113617a7d088bd897e907` / Spec106 `6f58ec12fe8df8893cf6c1499134ccc5fa2d58fe49f46b84e880fbfddbbb6a5b`. Current Search hashes are patch `d6d3c2f61b7e6e7177cf3d4a422258f28ad7c5f758ea45078572a7d16ec5233c`, lock `77403af7259c1948d56db4f53a05bf6e172aea1090083e28506f2bb84ca2db01`, reader `6dcc3601d3ff70c8ec8ab3a4515d2d28eb684ac0ee2a4866ce51c305396f8fe7`, test `5728c9bc45c7dc150fd378207f3bebeecf6dc4805de95b32dec8d1ad813030fb`, and installed helper `a8c5c0306045f742745adb6919fe5f8c6729673d9ed1b39d55e27f3e8100d397`. No tests/build/network/commit/stage/push action was taken by this management sync. The post-P23-001 test-performance follow-up remains management-only.
+
+Remaining: fresh Search Sol re-review; Search slice decision; parent General Sol review; Orchestrator acceptance.
+
+Next Action: send the current Search correction packet for fresh Sol review. Do not claim parent Accepted, Decided, or Released.
+
+## Historical P23-001 BlackOps 1.3 Feasibility — Round29 Combined Local Gate Green / Fresh Separate Sol Search/Audit Re-reviews Requested — parent not Accepted
+
+Historical status: `Round29 Combined Local Gate Green / Fresh Separate Sol Search/Audit Re-reviews Requested — parent not Accepted`. Stable `1.2` remains current; Phase 23/`1.3` remains an unreleased proposal. Search and Audit are separate lanes and severity is not aggregated. The parent is not Accepted, Decided, or Released.
+
+Round29 Combined Local Gate evidence is fresh and PASS: offline frozen install; Node syntax `4/4`; independent Orchestrator exact probe HTML `22` plus fence `9` PASS; product framing `8/8`; Search focused `6/6`; full Website `146/146` in `277824ms`; `pnpm check` `41` pages with `0` errors/warnings/hints; the initial sandbox build stopped only at the Astro font listener (`listen EPERM 0.0.0.0`), the approved same-command rerun PASSed with a `42`-page build, static artifact boundary PASS, embedded site check `41` PASS, and existing nonfatal chunk-size/route-priority warnings only; explicit site check `41` PASS; release source/artifact PASS; `bash -n` and version baseline PASS (`published=1.2.0`, `historical=1.1.0`); PHPUnit `30/30` and `250` assertions; Mago format PASS; canonical lint PASS (`186` baseline-filtered, no new issue); verify-baseline PASS; analyze exit `0` with existing `71` issues (`46` warning / `25` help); PHP management-ID guard no matches; exact22/trailing-whitespace/diff/staged `0` PASS. Node/PHP Read/Access goldens match.
+
+Search and Audit remain separate review lanes. Search exact4 remains frozen at patch `81ca291976660fbcdfe84aeaf91fbb3226fa1ac9aee185eb73dd4c37806f2ee2`, lock `ede585914285f744982ddba7b2464a3b1d6dbb41978aa8df40fdc6e4da3b6e05`, reader `eb97a88bebbc3886e333d0336053f914414c251b705c9aec7a381e9002aa247d`, tests `ae02dd1743f2b7621db47796536f56ee23d995ed3dac0680ee150558e3a21779`, and installed helper `f3eb2215cb349776f2d2f09636346d7591d8e43f18af6a836490656bd3538bb5`. Audit exact3 remains frozen: D145 `7ae4247423199ed8f428a50b372ded6b148ed2e19b5e24c860765d441ec33709`, Spec105 `587996196efa2510863de0b4e1aac57bd9a9d9ad5a4113617a7d088bd897e907`, Spec106 `6f58ec12fe8df8893cf6c1499134ccc5fa2d58fe49f46b84e880fbfddbbb6a5b`; Round29 block `71,378` bytes, SHA `7eb769350824b5e52341bcd3432d689b50287dc2134e14b6fac51df65debd9e5`, byte-identical exact3, JSON `7/7`, Audit links `35/11/0`. Management links are `271/259/0` (total/local/missing).
+
+The immediately preceding Pending handoff is Historical source-change-before evidence and is not reusable as current Green evidence. A non-blocking post-P23-001 test-performance follow-up is proposed: split Fast Gate from final Full Gate, isolate the two slow integration cases (`~192s` / `~76s`), and reuse one generated 41-page fixture. No test changes are made in this Green candidate.
+
+Remaining: fresh separate Sol Search/Audit re-reviews; separate slice decisions; parent General Sol review; Orchestrator acceptance.
+
+Next Action: freeze the final exact22 and new exact5 hashes, send separate Search/Audit packets, and begin the fresh separate Sol re-reviews. Do not claim parent Accepted, Decided, or Released.
+
+## Historical P23-001 BlackOps 1.3 Feasibility — Round29 Search/Audit Bounded Corrections Implemented / Combined Local Gate Pending — source-change-before Combined Local Gate snapshot
+
+Historical status: `Round29 Search/Audit Bounded Corrections Implemented / Combined Local Gate Pending — parent not Accepted`. This Pending snapshot predates the fresh Combined Local Gate and is retained as Historical source-change-before evidence only; it is not reusable as current evidence.
+
+Round29 Fresh Search/Audit Bounded Corrections Started At: 2026-08-26T00:20:39+09:00
+Round29 Fresh Search/Audit Bounded Corrections Completed At: 2026-08-26T00:20:39+09:00
+Round29 Search Raw-start Boundary Parity Correction Started At: 2026-08-26T00:41:04+09:00
+Round29 Search Raw-start Boundary Parity Correction Completed At: 2026-08-26T00:41:04+09:00
+
+Search review record: `P1=0/P2=3/P3=0`. The three corrected roots are (1) visual-column/list-continuation normalization before same-container Setext detection, including dedent, relative 0..3, tabs, nested lists, blockquotes, and LF/CRLF/lone-CR; (2) a block-start empty list marker that does not inherit an active paragraph; and (3) incomplete CommonMark type-3 through type-6 HTML block masking, including rawStarter lines whose first physical line ending has no standalone `>`: the first later `>` completes the malformed opening and cannot close the raw element. Same-line `<template>` stays inert and multiline `<template` remains visible. Production Search and the independent reader scanner are fixed separately; Satteri/JSDOM fixtures cover the positive and negative surfaces.
+
+Search exact4 current hashes: patch `81ca291976660fbcdfe84aeaf91fbb3226fa1ac9aee185eb73dd4c37806f2ee2`, lock `ede585914285f744982ddba7b2464a3b1d6dbb41978aa8df40fdc6e4da3b6e05`, reader `eb97a88bebbc3886e333d0336053f914414c251b705c9aec7a381e9002aa247d`, tests `ae02dd1743f2b7621db47796536f56ee23d995ed3dac0680ee150558e3a21779`, active installed helper `f3eb2215cb349776f2d2f09636346d7591d8e43f18af6a836490656bd3538bb5`. Focused relevant fixtures are `7/7` PASS; the explicit no-standalone script/style parity is `6/6` PASS; Node syntax is `2/2` PASS; offline frozen install and patch-lock-installed binding are PASS.
+
+Audit review record: `P1=0/P2=1/P3=0`; the technical A5 contract is Green and the one bounded management root was the stale active D145 index status, corrected to this exact current status. Audit exact3 remains frozen: D145 `7ae4247423199ed8f428a50b372ded6b148ed2e19b5e24c860765d441ec33709`, Spec105 `587996196efa2510863de0b4e1aac57bd9a9d9ad5a4113617a7d088bd897e907`, Spec106 `6f58ec12fe8df8893cf6c1499134ccc5fa2d58fe49f46b84e880fbfddbbb6a5b`; its current Round29 block is `71,378` bytes, SHA `7eb769350824b5e52341bcd3432d689b50287dc2134e14b6fac51df65debd9e5`, byte-identical exact3, JSON `7/7`, and Audit links `35 total / 11 local / 0 missing`.
+
+The immediately following Combined Local Gate Green block is Historical source-change-before evidence and is not reusable after these Search source changes. A fresh Combined Local Gate for the new exact22 has not run and is Pending. Current bounded checks are syntax, focused fixtures, offline frozen install, binding, links, hash/scope, staged `0`, and `git diff --check`; Full Website/build/Docker/Mago/CI are not claimed.
+
+Remaining: fresh Combined Local Gate on the new exact22; fresh separate Sol Search/Audit reviews; separate slice decisions; parent General Sol review; Orchestrator acceptance.
+
+Next Action: freeze final exact22 and new exact9 hashes, then send separate Search/Audit packets and start the fresh Combined Local Gate. Do not claim parent Accepted, Decided, or Released.
+
+## Historical P23-001 BlackOps 1.3 Feasibility — Round29 Combined Local Gate Green / Fresh Separate Sol Re-reviews Requested — source-change-before Search correction snapshot
+
+Historical status: `Round29 Combined Local Gate Green / Fresh Separate Sol Re-reviews Requested — parent not Accepted`. This source-change-before snapshot is retained for auditability only and is not reusable as current evidence.
+
+Round29 Combined Local Gate Green Management Sync Started At: 2026-08-25T23:15:57+09:00
+Round29 Combined Local Gate Green Management Sync Completed At: 2026-08-25T23:15:57+09:00
+
+Search exact4 is frozen: patch `4e2c182b35aacae1fa10ce8cff971f01babeaa75d78ad612161ac31163f3557f`, lock `c37b758001203c23706b7d2f7b70ae1d8a5f1515045b2930da1d6e02dbc99377`, reader `1eb569184a1b2cb1391d8721e4712a93658bac130e9b88b6e59c6b565e1241a1`, tests `127680f26bfd6d9d2ca814849af3183857f1657deee3b6b9bd240032410aaef8`, active installed helper `8999af023b9c353b1719ea5c6e0ce0da182e833ae8d09a941a24302822e4897e`; focused `2/2` and syntax/offline install/binding/diff-check PASS.
+
+Audit exact3 is frozen: D145 `7ae4247423199ed8f428a50b372ded6b148ed2e19b5e24c860765d441ec33709`, Spec105 `587996196efa2510863de0b4e1aac57bd9a9d9ad5a4113617a7d088bd897e907`, Spec106 `6f58ec12fe8df8893cf6c1499134ccc5fa2d58fe49f46b84e880fbfddbbb6a5b`; the current Round29 block is `71,378` bytes, SHA `7eb769350824b5e52341bcd3432d689b50287dc2134e14b6fac51df65debd9e5`, byte-identical exact3, JSON `7/7`, Audit links `35 total / 11 local / 0 missing`.
+
+Combined Local Gate evidence is PASS: offline frozen install; Node syntax `4/4`; product framing `8/8`; Search focused `2/2`; full Website `144/144` in `279725ms`; Website check `41` pages with `0` errors/warnings/hints; the first sandbox build stopped only at the Astro font listener (`listen EPERM 0.0.0.0`), the approved same-command rerun PASSed with a `42`-page build, static artifact boundary PASS, embedded site check `41` PASS, and only existing nonfatal chunk-size/route-priority warnings; explicit site check `41` PASS; release source/artifact PASS; `bash -n` and version baseline PASS (`published=1.2.0`, `historical=1.1.0`); PHPUnit `30/30` and `250` assertions; Mago format PASS; canonical lint PASS (`186` baseline-filtered, no new issue); verify-baseline PASS; analyze exit `0` with existing `71` issues (`46` warning / `25` help); PHP management-ID guard no matches.
+
+Read Node+Docker scope is `150/192` with digest `bfad862f2771114911e44b417ca9205e98e23e6716ffc47e18c2182d35bdf0cf`; Access is `103/147` with digest `1c505234fd297ef6f9e3cf595106228578833e41a27dda011b17449cb128e241`; domain/algorithm/nonce negatives PASS. Management links are `271 total / 259 local / 0 missing` before this sync and remain bounded; exact22 hashes PASS, staged `0`, `git diff --check` PASS, and `HEAD=main` is `5ad87557c08e20c3bcc6d77be83804001ba3eb80`.
+
+Remaining: fresh separate Sol Search/Audit read-only reviews, separate slice decisions, parent General Sol review, and Orchestrator acceptance. Next Action: freeze final exact22 and new exact5 hashes and send separate Search/Audit packets. Do not claim parent Accepted, Decided, or Released.
+
+## Historical P23-001 BlackOps 1.3 Feasibility — Round29 Pending snapshot before Combined Local Gate Green
+
+Historical status: `Round29 Post-review Search/Audit Corrections Implemented / Combined Local Gate Pending — parent not Accepted`. This is the immediately preceding Pending snapshot and its evidence before the current Combined Local Gate Green result; it is management-before evidence, not current and not reusable as Green evidence.
+
+Historical status: `Round29 Post-review Search/Audit Corrections Implemented / Combined Local Gate Pending — parent not Accepted`. Stable `1.2` remains current; Phase 23/`1.3` remains an unreleased proposal. Search and Audit are separate lanes and severity is not aggregated. Luna corrections and Orchestrator review are complete; the parent is not Accepted, Decided, or Released.
+
+Search final Sol verdict: Changes Requested `P1=0/P2=2/P3=0`, with the Setext H2 boundary and script/style tag-name physical-line boundary as the two P2 roots. Search exact4 is frozen and its focused `2/2`, syntax, offline install, patch-lock-installed binding, and diff-check evidence is PASS.
+
+Search exact4 hashes: patch `4e2c182b35aacae1fa10ce8cff971f01babeaa75d78ad612161ac31163f3557f`; lock `c37b758001203c23706b7d2f7b70ae1d8a5f1515045b2930da1d6e02dbc99377`; reader `1eb569184a1b2cb1391d8721e4712a93658bac130e9b88b6e59c6b565e1241a1`; test `127680f26bfd6d9d2ca814849af3183857f1657deee3b6b9bd240032410aaef8`; active installed helper `8999af023b9c353b1719ea5c6e0ce0da182e833ae8d09a941a24302822e4897e`.
+
+Audit final Sol verdict: Changes Requested `P1=1/P2=0/P3=0`, with the active attempt32 pre_call/post_call phase conflict as the P1 root. Audit exact3 is frozen: D145 `7ae4247423199ed8f428a50b372ded6b148ed2e19b5e24c860765d441ec33709`; Spec105 `587996196efa2510863de0b4e1aac57bd9a9d9ad5a4113617a7d088bd897e907`; Spec106 `6f58ec12fe8df8893cf6c1499134ccc5fa2d58fe49f46b84e880fbfddbbb6a5b`. Its independently checked heading-inclusive Round29 block, ending before the next H2 boundary LF, is `71,378` bytes, SHA-256 `7eb769350824b5e52341bcd3432d689b50287dc2134e14b6fac51df65debd9e5`, and byte-identical across exact3; JSON `7/7`, links `35 total / 11 local / 0 missing`, phrase guards, and diff-check PASS.
+
+The previous `Round29 Post-correction Combined Local Gate Green / Fresh Separate Sol Search/Audit Re-review Requested` record is Historical source-change-before evidence and is not reusable. The Combined Local Gate for this new exact22 has not run and is Pending; no new Green result is claimed.
+
+Changed scope is exact5 management files only; Search exact4, Audit exact3, and the other17 exact22 paths remain frozen. No CI, Browser, deploy, publication, release, commit, stage, or push is claimed.
+
+Acceptance: Search/Audit corrections and Orchestrator review are complete; the fresh Combined Local Gate, fresh separate Sol Search/Audit reviews, separate slice decisions, parent General Sol review, and Orchestrator acceptance remain pending.
+
+Remaining: fresh Combined Local Gate from scratch on new exact22; fresh separate Sol Search/Audit reviews; separate slice decisions; parent General Sol review; Orchestrator acceptance.
+
+Next Action: freeze exact22 and new exact5 hashes, then run the Combined Local Gate from scratch. Do not claim Accepted, Decided, or Released.
+
+## Historical P23-001 BlackOps 1.3 Feasibility — Round29 Post-correction Combined Local Gate Green / Fresh Separate Sol Search/Audit Re-review Requested — source-change-before snapshot
+
+Historical status: `Round29 Post-correction Combined Local Gate Green / Fresh Separate Sol Search/Audit Re-review Requested — parent not Accepted`. This source-change-before snapshot is retained for auditability only and is not reusable for the new exact22.
+
+Fresh Search Sol verdict: Changes Requested `P1=0/P2=2/P3=0`. The roots were CommonMark thematic-break/list and type-6 slash-boundary divergence, plus complete HTML comments and script/style/template content leaking into Search. These roots were corrected in Search exact4.
+
+Search exact4 hashes: patch `ba3218266569613f93a0e0275b3f679d34c43efb96f564e5a4674faf3c56c8c7`; lock `634d955259e7250f269af53785d4768155c95895521f14282677ee6bee4578f8`; reader `4d6f9c5b5f7eec7cfee13285a0dec44687be789c62064c2220d2e47b6e45f666`; test `1ba40a38557fa165664b2d4a5d2e81dd885ab2226fcb257ddaf40529b1ab2a9b`. Offline frozen install PASS; syntax PASS; new focused Satteri/reader/DOM `3/3 PASS`; existing Satteri HTML/search `2/2 PASS`; patch-lock-installed helper binding PASS; installed helper SHA `357879303ecb3f2dbeb675174450dc358450674089f3bc2a9a45fe157b1742ce`; exact4 diff-check/staged0 PASS.
+
+Fresh Audit Sol verdict: Changes Requested `P1=1/P2=0/P3=0`. The root was `AuditIngressEnvelope` binding `recordedAt` to nonexistent `logicalRecord.recordedAt` instead of closed-schema `logicalRecord.time.recordedAt`. This root was corrected in Audit exact3.
+
+Audit exact3 hashes: D145 `b7903d679f60b5af9d7eb6974e1ff0346042af6dbd8de5077b5f570c3ae2991f`; Specification 105 `b4c09319563cb590161b3fa8c93ff8d99e9cbe42277b2bb0c9d3cc5d54892a4e`; Specification 106 `2934acf7c135664342dc0233e45366ef875c34caa0e58002f9e490892ff86e14`. The current Round29 block is `71,066` bytes in each file, byte-identical, SHA-256 `4128251cd29dfb2e9f103e3a533027cd9314169f98e32dcb0fad8921c6d5c269`; JSON `7/7`; links `35 total / 11 local / 0 missing`; nested-path positive and four negative object-path guards PASS; exact3 staged0/diff-check PASS.
+
+Historical post-correction Combined Local Gate evidence: offline frozen install PASS; Node syntax `4/4` PASS; product framing focused `8/8` PASS; Search correction focused new Satteri/reader/DOM `3/3` and existing HTML/Search `2/2` PASS; patch-lock-installed helper binding PASS; full Website test `142/142` with `0` failures in `266698.091552ms`; Website check `41` pages with `0` errors/warnings/hints; approved-retry build PASS. This evidence belongs only to the source-change-before snapshot and is not current.
+
+Historical Audit Round29 blocks are `71,066` bytes each, byte-identical, SHA-256 `4128251cd29dfb2e9f103e3a533027cd9314169f98e32dcb0fad8921c6d5c269`; JSON fences `7/7`; Markdown links `35 total / 11 local / 0 missing`; nested recordedAt path object guard `5/5`; Node + Docker PHP golden parity scope `311/348`, Access `374/418`.
+
+Freeze evidence: exact22, staged `0`, `HEAD=main` `5ad87557c08e20c3bcc6d77be83804001ba3eb80`, and `git diff --check` PASS; exact5 links `271 total / 259 local / 0 missing`. No CI, Browser, deploy, publication, release, commit, or push is claimed.
+
+Historical acceptance at that snapshot was the post-correction Combined Local Gate Green; it does not satisfy the new gate requirement.
+
+Remaining: fresh separate Sol Search and Audit reviews; separate slice decisions; parent General Sol review; Orchestrator acceptance.
+
+Historical next action was fresh separate Sol Search/Audit reviews against the old exact22.
+
+### Historical pre-exact5 Round29 Combined Local Gate Green / Fresh Separate Sol Re-review Requested
+
+Historical status: `Round29 Combined Local Gate Green / Fresh Separate Sol Search/Audit Re-review Requested — parent not Accepted`. This block records the superseded pre-exact5 source snapshot only.
+
+Fresh separate Sol re-reviews are requested after the combined source-changing Local Gate; prior Sol verdicts are separate correction inputs and are not aggregated.
+
+Separate correction inputs from the immediately prior source snapshot:
+Search Sol Changes Requested `P1=0/P2=1/P3=0`, rooted in the CommonMark
+type-6 incomplete block-tag prefix and type-7 no-whitespace tag-name boundary.
+Audit Sol Changes Requested `P1=1/P2=0/P3=0`, rooted in non-unique
+`nextAvailableAt` generation for positive-attempt prepared rest rows. Counts are
+not aggregated.
+
+Combined Local Gate evidence on the frozen pre-management exact22 is PASS:
+offline frozen install; Node syntax `4/4`; product framing `8/8`; Search/
+CommonMark focused `2/2`; full Website `140/140` with `0` failures in
+`270020.279299ms`; Website check `41` pages with `0` errors/warnings/hints;
+fresh build `42` pages with static artifact boundary PASS and embedded site
+check `41` PASS; explicit site check `41` PASS; release source/artifact PASS;
+`bash -n` and version baseline `published=1.2.0 historical=1.1.0` PASS;
+PHPUnit `30/30` and `250` assertions; Mago format PASS; canonical lint PASS
+with `186` baseline-filtered and `0` new issues; verify-baseline PASS; analyze
+exit `0` with existing `71` issues (`46` warning / `25` help); and PHP
+management-ID guard with no matches. Only existing nonfatal chunk-size and
+route-priority warnings remain.
+
+Search evidence remains separate: patch-lock-installed binding PASS with patch
+`11d1ac9...`, lock patch hash equal, and installed helper SHA
+`197f23de...`. Audit evidence remains separate: current exact3 Round29 block
+`70,561` bytes, SHA-256
+`c60bfad4977987c25c76340475a25192ebe89cdce31b26dd958719132d4d97bb`, and
+byte-identical; JSON `7/7`; Markdown links `35 total / 11 local / 0 missing`;
+Node+Docker PHP scope `311/348` with digest
+`d7ec64b8c02b0ff123257682988db5794ed0e166cc7ddc21477a6754953aecc7`; Access
+`374/418` with requestRef
+`oid:v1:2318e23f23c08231b595e2b53d7c3727df900acc626ff61091021a79cc8e38b8`;
+and six scheduling branches/external-wire guards PASS. One overly literal Audit
+substring assertion failed in a diagnostic harness and the equivalent
+12-needle guard then PASSed; this was not a product or gate failure. Earlier
+`ERR_PNPM_INVALID_PATCH` and `31/32` reader results remain Historical
+diagnostic evidence only.
+
+### Historical prior Local Gate Green evidence (superseded source snapshot)
+
+The following prior evidence is retained for auditability only and cannot be
+used as current evidence: offline frozen
+`pnpm install` PASS; Node syntax `4/4 PASS`; product-framing focused tests
+`8/8 PASS`; changed CommonMark focused tests `5/5 PASS`; full Website test
+`140/140 PASS` with `0` failures; Website check PASS with `41` pages and `0`
+errors, warnings, or hints; fresh build PASS without a sandbox retry with `42`
+pages, static artifact boundary PASS, and embedded site check PASS for `41`
+pages. Existing nonfatal chunk-size/route-priority warnings only. Explicit
+`site:check` (`41` pages), `release:check:source`, and
+`release:check:artifact` PASS; `bash -n` and version baseline PASS
+(`published=1.2.0 historical=1.1.0`); PHPUnit `30/30` tests and `250`
+assertions PASS; Mago format PASS; PHP management-ID guard no matches;
+canonical lint PASS with `186` baseline-filtered/no issues; verify-baseline
+PASS; analyze exit `0` with existing `71` issues (`46` warning / `25` help).
+
+Audit exact3 inclusive-heading extraction through the LF before the next `##`
+is `65,269` bytes, byte-identical, and SHA-256
+`6129ff07ffdf1ae6f50030836a5c5e9e30240cb2a8b0c372786645110b0b951c`; JSON
+vectors `7/7`; Markdown links `35 total / 11 local / 0 missing`. Node/Docker
+PHP parity PASS: scope JCS/LP `311/348`, digest
+`d7ec64b8c02b0ff123257682988db5794ed0e166cc7ddc21477a6754953aecc7`; Access
+JCS/LP `374/418`, requestRef
+`oid:v1:2318e23f23c08231b595e2b53d7c3727df900acc626ff61091021a79cc8e38b8`;
+negative matrices PASS. Worker evidence `14d07ea5...` is not reused because
+its extraction was shifted by one byte even though its byte count matched.
+
+Freeze evidence: branch `agent/p23-001-blackops-1-3-feasibility`;
+`HEAD=main=5ad87557c08e20c3bcc6d77be83804001ba3eb80`; exact22 paths; staged
+`0`; no repository-scoped temporary path; active Blume new patch; and
+`git diff --check` PASS. An inline Node link-regex diagnostic raised a
+SyntaxError and was immediately replaced by an equivalent passing guard. A
+Node `spawnSync git` aggregate diagnostic hit sandbox `EPERM` after all 22
+hash assertions passed; direct status, staged-count, and HEAD/main checks
+passed. These are diagnostic issues, not product or gate failures. Browser,
+remote CI, runtime implementation, deploy, publication, and release were not
+run or claimed.
+
+Historical prior exact7 hashes for the superseded Local Gate candidate were:
+Search patch `896b653128be21f0698848ee7a58b9b53b7c34a0ba0bd24a36f827f776e46f14`,
+lock `088c9b2f46112e101460218d701968796b38fc251b62203445f60f853107d415`,
+reader `4f74827dc8b6a66346ed7a2f74633fa600a56cea2f5fbd49116f8ffb1a4cce3d`,
+test `e63ee1dc6f4c3a6b16488ec7a3ef17bbc026ba5375f0f8649dbab3fd7e3c1cc9`;
+Audit D145 `f376f71dc476972abcf57c25491f49ccfd288cbb36c30961266c9a3fabab37a9`,
+Spec105 `e005b49bc2c1d4f24465ac53ed8f084f786b00cca5dddea754ef7a49d9bc86d0`,
+Spec106 `8b406ab4aef1c24a11ec1a91370a4b0ede5b53d82ac6f0b513274dbdfdf4e7e2`.
+
+### Historical post-correction exact7 freeze (source-change-before snapshot)
+
+This current packet keeps Search and Audit disjoint. Management owns exactly
+these five files; Search exact4 and Audit exact3 remain frozen source slices,
+and the other17 paths are byte-for-byte frozen. Current Search hashes are patch
+`ba3218266569613f93a0e0275b3f679d34c43efb96f564e5a4674faf3c56c8c7`, lock
+`634d955259e7250f269af53785d4768155c95895521f14282677ee6bee4578f8`, reader
+`4d6f9c5b5f7eec7cfee13285a0dec44687be789c62064c2220d2e47b6e45f666`, test
+`1ba40a38557fa165664b2d4a5d2e81dd885ab2226fcb257ddaf40529b1ab2a9b`; current
+Audit hashes are D145
+`b7903d679f60b5af9d7eb6974e1ff0346042af6dbd8de5077b5f570c3ae2991f`, Spec105
+`b4c09319563cb590161b3fa8c93ff8d99e9cbe42277b2bb0c9d3cc5d54892a4e`, Spec106
+`2934acf7c135664342dc0233e45366ef875c34caa0e58002f9e490892ff86e14`.
+
+Historical gate evidence was Green: Website `142/142`, check `41`, approved-retry
+build `42` with artifact/site `41`, PHP `30/30` and `250` assertions, Mago and
+release/source/artifact guards PASS; Audit `71,066` bytes each with SHA
+`4128251cd29dfb2e9f103e3a533027cd9314169f98e32dcb0fad8921c6d5c269`, JSON
+`7/7`, links `35/11/0`, and golden parity `311/348` plus `374/418`; exact22,
+staged0, HEAD/main, diff-check, and exact5 links `271/259/0` PASS. The
+pre-correction Green snapshot remains Historical/non-reusable.
+
+Acceptance checklist:
+- [x] Fresh separate Sol findings, counts, and correction ownership/status are recorded without aggregation.
+- [x] Search exact4 source correction and focused Search evidence.
+- [x] Audit exact3 source correction and static Audit evidence.
+- [x] Combined source-changing Local Gate for the frozen exact22.
+- [ ] Fresh separate Sol Search and Audit re-reviews (requested).
+- [ ] Separate slice decisions.
+- [ ] Parent General review.
+- [ ] Orchestrator Acceptance.
+
+Remaining: fresh separate Sol Search and Audit reviews; separate slice decisions;
+parent General Sol review; Orchestrator acceptance.
+
+Next Action: request fresh separate Sol Search/Audit reviews against this exact22.
+Do not claim Accepted, Decided, or Released. Browser, remote CI, runtime
+implementation, deploy, publication, release, commit, stage, and push were not
+run or claimed.
+
+## Historical P23-001 BlackOps 1.3 Feasibility — prior Round29 post-gate checkpoint (superseded)
+
+Historical status at this superseded checkpoint was `Round29 Audit Local Gate Green / Sol Re-review Requested; Round29 Search Local Gate Green / Sol Re-review Requested — parent not Accepted`. Its Orchestrator gate evidence and hashes remain Historical evidence for the prior source snapshot and are not reused for the new candidate.
+
+Historical current status: `Round29 Audit Local Gate Green / Sol Re-review Requested; Round29 Search Local Gate Green / Sol Re-review Requested — parent not Accepted`. Stable `1.2` remains current and Phase 23/`1.3` remains an unreleased proposal. Search and Audit remain separate and are not aggregated. Local Gate Green was an Orchestrator gate result only; the parent was not Accepted, Decided, or Released.
+
+Fresh separate Sol verdicts remain recorded as correction inputs and are not aggregated: Search Changes Requested `P1=0/P2=2/P3=0`; Audit Changes Requested `P1=6/P2=0/P3=1`. Search P2-1 and Audit P1-1 through P1-6/P3-1 source corrections plus their fresh Local Gates are complete on the frozen candidate. Search P2-2 management status drift is closed. Fresh separate Sol Search/Audit re-reviews remain pending.
+
+This current packet keeps the Search and Audit correction slices disjoint. Search owns exactly `docs/website/patches/blume@1.3.0.patch`, `docs/website/pnpm-lock.yaml`, `docs/website/scripts/reader-contract.mjs`, and `docs/website/tests/reader-contract.test.mjs`; Audit owns exactly D145, Specification 105, and Specification 106. Management owns exactly this `STATE.md`, `TODO.md`, the parent Task, the parent Report, and `develop/spec/README.md`. The other17 paths are byte-for-byte frozen.
+
+Orchestrator evidence for this post-gate checkpoint: offline frozen `pnpm install` PASS after the initial patch hunk failure was corrected; focused Search `4/4 PASS`; full Website `135/135 PASS`; Website check `41 pages, 0 errors / 0 warnings / 0 hints`; the first sandbox build failed only with Astro local font server listen `EPERM`, and an approved out-of-sandbox fresh build PASSed `42` pages with artifact/site embedded checks PASS for `41` pages; explicit site/source/artifact guards PASS; `bash -n` and version baseline PASS (`published=1.2.0 historical=1.1.0`); PHPUnit `30 tests / 250 assertions` PASS; Mago format PASS, lint `186` baseline-filtered/no issues, verify-baseline PASS, and analyze exit `0` with existing `71` issues (`46 warning / 25 help`); PHP management-ID guard had no matches. Audit Round29 exact3 identical-block extraction is `47,067` bytes with SHA-256 `f4546c064bacf9fcb387e9d535221a545d5a9b0056d8b6a6c113589222b80556`; JSON `7/7`, local links `11/11`, and marker/status guards are clean. Exact22, staged `0`, `HEAD=main=5ad87557c08e20c3bcc6d77be83804001ba3eb80`, and `git diff --check` PASS. Installed Blume resolves to the current patch hash.
+
+Current source hashes before this exact5 management edit are frozen: Search patch `3c1038e493dd4eed5f400c88865d55b109d22e8ab059cdfc2cdf62c19b7cc305`, lock `81b21213af7388ae90c8e8dd577181bddc518ab10499cb377dc140d8beeaf18d`, reader `67eee43f8f5365507a4f6835dc9e1284ad148fd3bdaf872486cac2e48ba1fa14`, test `5a8754fd10b21fbdc66dc35983012591737e7830f432965c26b61d3731c321e4`; Audit D145 `869c39e535b6014f70c42a5ea4a33d7a2c73aeace421fa6be15a0b69ec29c670`, Spec105 `74c6ecff785deeb536e6ced9155154d7cfc9fc8fc943ed173692a45052784eda`, Spec106 `b1eb05c5a762a71861dff67345581c0a095d58ba74a210217d7c7e99f30c22bf`.
+
+The prior Round29 Local Gate Green and Sol correction/review blocks below are Historical evidence for their source snapshots and are not reused. This management phase does not claim a fresh Sol re-review, slice decisions, parent General review, or parent acceptance. It claims no Browser, remote CI, commit, stage, push, deploy, publish, tag, or release action.
+
+Acceptance checklist:
+- [x] Search P2-1 source correction and fresh Search Local Gate.
+- [x] Audit P1-1 through P1-6/P3-1 source correction and fresh Audit Local Gate.
+- [x] Orchestrator post-gate evidence, exact22 freeze, and management status synchronization.
+- [ ] Fresh separate Sol Search and Audit re-reviews.
+- [ ] Separate slice decisions.
+- [ ] Parent General review.
+- [ ] Orchestrator Acceptance.
+
+Remaining: fresh separate Sol Search/Audit re-reviews; separate slice decisions; parent General review; Orchestrator Acceptance; and, after acceptance, P23-001R and ordered Phase 23 work.
+
+Next Action: freeze the exact22/current hashes and route separate fresh Sol Search and Audit reviews. After those reviews, record slice decisions, request parent General review, and wait for Orchestrator acceptance. No Browser, remote CI, commit, stage, push, deploy, publish, tag, or release is authorized in this management phase.
+
+## Historical P23-001 BlackOps 1.3 Feasibility — Round29 Sol re-review Changes Requested / Correction In Progress — parent not Accepted
+
+Historical status at this superseded checkpoint was `Round29 Audit Sol Re-review Changes Requested / Correction In Progress; Round29 Search Sol Re-review Changes Requested / Correction In Progress — parent not Accepted`. The source-correction findings and management ownership below are retained as historical evidence; the current post-gate status above supersedes this block.
+
+Pre-edit source snapshot hashes matched the supplied Search exact4 and Audit
+exact3 values: patch `344035e25063014a138c2b549b63c4c1f12c5bb0ad2f3c1077ab910b149958da`,
+lock `1eaff6dd4fa7b1af78820175328cab33a41d4c9264d790f81b08b4bb94d5bced`, reader
+`5aa75a842d8969cef1842f2f42d720d25027a2467ed4f1ca0f02868a561b9295`, test
+`484ee970cec13740920ec4702a7b50be069484de1c6bb060a81b00ef1429feba`; D145
+`f6d9c2987398f3834485856af1ecb6bc16dc4440a05e3967f0a07102c654db70`, Spec105
+`a1c86b19757e178a02b7f10733181a3775c1f4e926f5d451d8bf0ccaaacc48ca`, and
+Spec106 `03df98b3e17ef2931404bb2e3c3970576ab3e77f2ead1c770b14014e4e36d624`.
+
+## Historical P23-001 BlackOps 1.3 Feasibility — Round29 Local Gate Green / Sol Re-review Requested — parent not Accepted
+
+Prior separate Sol findings remain recorded as separate evidence: Search Changes Requested `P1=0/P2=1/P3=0` for one scanner root covering partial-TAB visual columns and lone-CR physical-line handling; Audit Changes Requested `P1=4/P2=1/P3=0` for Query precedence, Ingress partition binding, Outbox max-attempt state, Retention v1 truth table, and Anchor/Retention time bounds. Fresh separate Sol Search/Audit re-reviews are now requested after the new gate.
+
+Orchestrator fresh new-candidate Local Gate evidence: the sandbox install first stopped on an SQLite permission failure; after approval, the offline frozen install PASSed. Node syntax was `4/4 PASS`; Website tests were `133/133 PASS`; Website check was `0 errors/0 warnings/0 hints`; the fresh build produced `42` pages with Artifact boundary PASS and site check PASS for `41` pages. Separate site/source/artifact release checks PASS; `bash -n` and version baseline PASS (`published=1.2.0 historical=1.1.0`); PHPUnit PASS (`30 tests / 250 assertions`); Mago format PASS, canonical lint PASS (`186` baseline-filtered/no issues), verify-baseline PASS, and analyze exit `0` with existing `71` issues (`46 warning / 25 help`); PHP management-ID guard had no matches. Only existing nonfatal Vite chunk/route warnings remain.
+
+Focused Audit evidence: current-only JSON vectors `7/7`; Markdown links `35 total / 11 local / 0 missing`; Node+Docker PHP goldens PASS (JCS/LP `311/348`, digest `d7ec64b8c02b0ff123257682988db5794ed0e166cc7ddc21477a6754953aecc7`, and access JCS/LP `374/418`, requestRef `oid:v1:2318e23f23c08231b595e2b53d7c3727df900acc626ff61091021a79cc8e38b8`); identical-block extraction is `43,425` bytes, SHA-256 `e2648fe19625da051e711a88bc30965bd994224569ac47190b2c76dcc10d9f88`.
+
+Final Search hashes: patch `344035e25063014a138c2b549b63c4c1f12c5bb0ad2f3c1077ab910b149958da`, lock `1eaff6dd4fa7b1af78820175328cab33a41d4c9264d790f81b08b4bb94d5bced`, reader `5aa75a842d8969cef1842f2f42d720d25027a2467ed4f1ca0f02868a561b9295`, test `484ee970cec13740920ec4702a7b50be069484de1c6bb060a81b00ef1429feba`. Final Audit hashes: D145 `f6d9c2987398f3834485856af1ecb6bc16dc4440a05e3967f0a07102c654db70`, Spec105 `a1c86b19757e178a02b7f10733181a3775c1f4e926f5d451d8bf0ccaaacc48ca`, Spec106 `03df98b3e17ef2931404bb2e3c3970576ab3e77f2ead1c770b14014e4e36d624`.
+
+The full new-candidate Local Gate is Green on this candidate. Complete gates recorded in prior blocks remain Historical evidence for older source snapshots and are not reused. Closed Audit roots are Query precedence, Ingress partition binding, Outbox max-attempt state, Retention v1 truth table, and Anchor/Retention time bounds.
+
+Final freeze: branch `agent/p23-001-blackops-1-3-feasibility`,
+`HEAD=main=5ad87557c08e20c3bcc6d77be83804001ba3eb80`, staged `0`, exact22 paths,
+temporary files absent, and `git diff --check` PASS. Browser, remote CI,
+runtime implementation, deploy, publication, and release were not run or
+claimed in this phase. The exact22 union remains management5, Search exact4,
+Audit exact3, and other10 paths are frozen. This management worker did not
+rerun the Orchestrator gate and made no commit, stage, push, network, test, or
+build action.
+
+Acceptance checklist:
+- [x] Search correction and focused Satteri parity evidence checked.
+- [x] Audit correction and focused query/link/diff evidence checked.
+- [x] Separate Sol verdicts and correction ownership/status checked.
+- [x] Full new-candidate Local Gate (Orchestrator evidence recorded above).
+- [ ] Fresh separate Sol Search and Audit re-reviews.
+- [ ] Slice decisions, parent General review, and Orchestrator Acceptance.
+
+Remaining: fresh separate Sol Search/Audit re-reviews; slice decisions; fresh
+parent General review; Orchestrator Acceptance; and, after acceptance,
+P23-001R and ordered Phase 23 work.
+
+Next Action: request fresh separate Sol Search/Audit re-reviews against this
+gated exact22 snapshot; record separate slice decisions, then request parent
+General review and Orchestrator Acceptance. Do not claim parent Accepted,
+Decided, or Released.
+
+## Historical P23-001 BlackOps 1.3 Feasibility — Round29 Sol re-review Changes Requested / Correction In Progress — parent not Accepted
+
+Then-current status: `Round29 Audit Re-review Changes Requested / Correction In Progress; Round29 Search Re-review Changes Requested / Correction In Progress — parent not Accepted`. Stable `1.2` remains current and Phase 23/`1.3` remains an unreleased proposal. Search and Audit are separate and are not aggregated. This is not Green, Accepted, Decided, or Released.
+
+Fresh separate Sol verdicts are recorded without aggregation. Search returned
+Changes Requested `P1=0/P2=2/P3=0`. S1 requires tab-aware CommonMark visual
+column/contentColumn handling: a TAB advances from the current column to the
+next four-column tab stop across ordered/unordered nesting, space+TAB, dedent,
+and real renderer/helper parity. S2 requires one shared Source physical-line
+and container-fence state across list/blockquote/nested same-line fences, LF,
+CRLF, and lone-CR input, including title, fence range, raw image, placeholder,
+and production Raw rewrite.
+
+Audit returned Changes Requested `P1=6/P2=3/P3=0`. A1 requires a reconstructible
+three-page cursor chain with a non-circular query-scope digest and separate
+head/last/prior-cursor bindings. A2 requires one sole-current Round29 and
+active non-Historical base for exact Access/Outbox/Retention wire, enum, and
+formula. A3 requires matching active lease token, expected version, and exact
+version +1 CAS for `leased -> relayed|poisoned`. A4 requires an attempt-32
+unavailable resolution and a total Anchor state/claim/lease/expiry/crash table.
+A5 requires deterministic Retention truth-table semantics, clock rollback
+rejection, explicit policy-unavailable representation, and bounded reversal.
+A6 synchronizes this exact-three current status block and header. A7 closes
+finite query validation/cursor error wire and precedence. A8 closes binary
+protectedBody versus logical/DB/JSON representations and cap/timestamp/key/
+lease bounds. A9 closes policy/hold snapshot schema, order, no-hold handling,
+and domain hash.
+
+Reviewer freeze evidence: branch
+`agent/p23-001-blackops-1-3-feasibility`,
+`HEAD=main=5ad87557c08e20c3bcc6d77be83804001ba3eb80`, staged `0`, exact22 paths,
+the specified source hashes, and `git diff --check` PASS, with no edit before
+the review handoff. Positive Search evidence is current frozen 40 non-Landing
+Source→Raw→Search→HTML→llms-full parity, Stable boundary, and management
+separation. Positive Audit evidence is A2, normal query caps/key window,
+§9.6.1 receipt/hash, hold/deletion separation, Stable boundary, and three-file
+current-block parity.
+
+Source snapshot hashes are Search exact4: patch `e1da3b29c6a033058e018bb7c4b57da8ec6078acd0a1036779c9efc40f506a3c`, lock `108d627a45fee16934167fef909515eda845c3c3c9bf9e0dcf6949da99fef075`, reader script `2927257dba0b1efc40df5e1bfa63fc5473074f99f4821a2a39579951b0960292`, reader test `46c8652cf1adcff9fdff6a14eb7dd4a844632984f433767325d0c3a61890c4a9`; Audit exact3 are D145 `6c952d4b29337092061cf99b0458ec6523a3c7f6f14afd6c4826a67fa04adca5`, Spec105 `432f83a9c354e970663e0c09a0004c60d4455568c897572ae5cda611c32abc86`, and Spec106 `867c268bc6e1d5fc89b87f259a44f2363f8812d8e78dd78a661b3128296d796b`.
+
+The prior complete Search/Website Gate is Historical evidence for its old source
+snapshot. Any source correction creates a new candidate and requires a complete
+Search/Website Gate again; no old gate is reused. Runtime, Browser, remote CI,
+deploy, publication, and release are unverified and unexecuted. The current
+union is exact12: management5, Search exact4, Audit exact3; the other10 paths
+remain frozen. No commit, stage, push, network, test, build, or deployment action
+is authorized in this management phase.
+
+Acceptance checklist: Search S1/S2 correction plus fresh complete Search gates
+pending; Audit A1–A9 current-only correction and static guards pending; fresh
+separate Sol verdict and correction ownership/status recorded; final management
+sync and fresh separate Sol re-reviews pending; parent General review and
+Orchestrator acceptance pending. The parent is not Accepted or Green.
+
+Remaining: exact4/exact3 Luna corrections; Orchestrator new-candidate
+gates/static checks; final exact5 sync; fresh separate Sol Search/Audit reviews;
+slice decisions; parent General review and Acceptance; only after acceptance
+P23-001R and ordered downstream work.
+
+Next Action: keep exact22 frozen, complete the disjoint Search/Audit source
+corrections, run new-candidate gates/static checks, then request fresh separate
+Sol reviews. Do not claim parent Green, Accepted, Decided, or Released.
+
+## Historical P23-001 BlackOps 1.3 Feasibility — Round 26 Correction Implemented / Review Requested
+
+2026-08-20T18:39:33+09:00 — Round 26's bounded management/current-authority
+correction was implemented as the then-current parent checkpoint and is now
+Historical evidence. Round 25
+and earlier parent checkpoints are explicitly Historical evidence with
+separate General and Audit lanes. The final status is exactly `Round 26
+Correction Implemented / Review Requested`, never Green, Accepted, Decided, or
+Released. Stable `1.2` remains current and Phase 23/`1.3` remains an
+unreleased proposal. That historical checkpoint recorded the exact
+AuditQuery/cursor fixed-head contract, Local Audit Outbox state/nullability and
+protected-body/AAD boundary, AnchorIntent state/accepted-triplet/CAS contract,
+and `AuditRetentionState`/`AuditHold` wire and transition invariants. The
+independent Round25 Audit P1 finding and management-sync P2 are closed in this
+ bounded documentation/specification correction. The
+parallel Blume `1.3.0` artifact correction remains preserved in the existing
+Round 26 packet and is not changed by this management-only slice.
+
+The required `blackops-japanese-docs` skill and its style checklist were read
+in full before editing. This worker changed only the ten permitted
+management/specification files; no Production Code, `docs/guide/**`,
+`docs/website/**`, `tests/**`, build, format, dependency, Git, CI, release, or
+external action was performed.
+
+No production PHP, public Guide, product-framing script/test, or unrelated
+worktree path is in scope. Commit, stage, push, PR, CI, deploy, publication,
+tag, release, and external mutation remain prohibited.
+
+Remaining: Orchestrator rerun of the complete Local Gate after this
+source-changing management correction, fresh separate General/Audit review,
+and parent acceptance. After acceptance, P23-001R and ordered Phase 23 work
+remain. No new Round 26 build PASS or release evidence is claimed here.
+
+Next Action: Orchestrator reruns the complete Local Gate against the final
+shared worktree, routes fresh independent General and Audit reviews, and
+records parent acceptance only after those reviews. No commit, stage, push,
+CI dispatch, deploy, publication, tag, or release is authorized.
+
+## Historical P23-001 BlackOps 1.3 Feasibility — Round 25 Local Gate Green / Independent Review Requested
+
+2026-08-20T07:46:09+09:00 — Round 25 management/status synchronization records
+the Orchestrator's independently run complete Local Gate as Green. Round 24
+and earlier parent checkpoints are historical Changes Requested with separate
+General `P1=1/P2=1/P3=0` and Audit `P1=5/P2=1/P3=0` lanes. Round 25 closes the
+projection kind/origin map and negative fixtures, self-contained Read/Access
+requestRef vectors and ownership, the one total Stage 6/7 verifier precedence,
+conditional AnchorIntent state matrix, tenant-null/present Outbox AAD bytes,
+and trusted Framework-clock cursor key-window validation. Stable `1.2` remains
+current and Phase 23/`1.3` remains unreleased. Status is `Round 25 Local Gate
+Green / Independent Review Requested`; parent acceptance is not yet complete.
+Frozen public/code/child paths and all external/Git publication actions remain
+out of scope.
+
+Orchestrator-run complete Local Gate evidence (the worker did not rerun these
+full gates): focused Website contract PASS `8/8`; full Website PASS `120/120`;
+Website check PASS `0 errors/0 warnings/0 hints`; build PASS `42` pages with
+embedded artifact/site check and explicit site check PASS `41` pages, with only
+existing nonfatal chunk-size and route-priority warnings; release source and
+artifact guards PASS; version baseline PASS `published=1.2.0`
+`historical=1.1.0`; focused PHPUnit PASS `30 tests / 250 assertions`; Mago
+format check PASS, canonical Mago lint PASS with `186` baseline-filtered/no
+issues, lint baseline verification PASS, and Mago analyze exit `0` with the
+existing `71` issues (`46 warning / 25 help`); PHP management-ID guard PASS;
+current-only Node guard PASS (`exact16`, staged `0`, trailing `0`, hashes `16`,
+JSON `7/7`, Read `150/192/bfad...df0cf`, Access `103/147/1c505...e241`, negative
+matrices, links `315 total/279 local/0 missing`, seven current roots); Docker
+PHP both requestRef goldens and negative matrices PASS; and `HEAD=main=
+5ad87557c08e20c3bcc6d77be83804001ba3eb80`, exact-16 scope, staged `0`, and
+`git diff --check` PASS.
+
+Remaining: fresh separate Sol xHigh General/Audit reviews and parent
+acceptance; after acceptance P23-001R and ordered Phase 23 work remain.
+
+Next Action: freeze the final hashes and route both fresh Sol xHigh reviews.
+No external action is authorized.
+
+## Historical P23-001 BlackOps 1.3 Feasibility — Round 24 Correction Implemented / Review Requested
+
+2026-08-20T04:18:00+09:00 — The fresh Round 22 parent General review returned
+`P1=3/P2=1/P3=0`; the fresh Round 22 parent Audit review returned
+`P1=4/P2=0/P3=0`. The lanes remain separate and Round 22 is historical Changes
+Requested. Round 23 owns eight bounded current roots: Application-owned worker
+names, complete-set Projection validation wording, reproducible Mago/hash
+evidence, sole-current management status, required operation-read delivery,
+checkpoint sequence continuity, metadata-only retention plus separate
+`AuditHold`, and the exact SHA-256-wrapped `AuditReadContext` requestRef. Only
+the existing eight parent management/specification files are writable inside
+the exact-15 union. P23-001S and the public/code five remain frozen. Status is
+Round 23 Correction Implemented / Review Requested; the parent is not Green,
+Accepted, Decided, or Released. The fresh complete Local Gate is PASS and its
+exact command evidence is recorded in the parent Report; the Orchestrator will
+refresh the final non-Report hashes after this management sync. Remaining is
+fresh parent General/Audit review and parent Orchestrator acceptance, followed
+by P23-001R and ordered Phase 23 work. No commit, stage, push, CI, deploy,
+publication, tag, or release is authorized.
+
+## Historical P23-001 BlackOps 1.3 Feasibility — Round 22 Correction Implemented / Review Requested
+
+2026-08-20T03:25:45+09:00 — Round 20 child General review remains historical
+Changes Requested (`P1=0/P2=1/P3=0`), and Round 21 is the accepted child
+checkpoint after fresh child General `P1=0/P2=0/P3=0` and Orchestrator
+acceptance of P23-001S. Round 22 was the then-current bounded parent
+correction and is now historical:
+Application-owned/unreserved worker names with normal Symfony unknown behavior,
+shared-lock root plus all-three ProjectionBuildSet validation, accepted-child
+status, canonical `{operationId}` route and structural collision, exact
+operation/service audit families, checkpoint sequence examples, finite control
+signing exemption, closed AuditHold v1, and exact AuditReadContext v1 are
+synchronized. Parent General `P1=2/P2=2/P3=0` and Audit `P1=4/P2=2/P3=0`
+remain separate. The fresh complete Round 22 Local Gate is PASS after the
+final edit. Only the exact eight management/specification files are writable
+within the exact-15 union; the P23-001S Task/Report and public/code five remain
+frozen. Status is Round 22 Correction Implemented / Review Requested; the
+parent is not Green, Accepted, Decided, or Released. No external or Git
+publication action is authorized.
+
+## Historical P23-001 BlackOps 1.3 Feasibility — Round 20 Correction Implemented / Review Requested
+
+2026-08-19T23:50:06+09:00 — Round 20 corrected the two active Specification
+106 DAG phrases that named Round 18 as current. Fresh Round 19 child General
+review returned `P1=0/P2=1/P3=0`; Round 19 is historical Changes Requested and
+neither child nor parent is Accepted. Public Guide, Website implementation/
+tests, PHP tests, Stable `1.2`, and unreleased `1.3` boundaries are frozen.
+Writable scope remains the ten management/specification files inside the
+existing exact-15 union. The fresh complete Round 20 Local Gate is recorded
+after execution; child General re-review, parent General/Audit review, and
+Orchestrator acceptance remain. No commit, stage, push, CI, deploy,
+publication, or release is authorized.
+
+## Historical P23-001 BlackOps 1.3 Feasibility — Round 19 Correction Implemented / Review Requested
+
+2026-08-19T23:24:26+09:00 — Round 19 correction is implemented after the
+fresh Round 18 child General review returned `P1=0/P2=1/P3=0`; Round 18 is
+historical Changes Requested and neither child nor parent is Accepted. The
+active Specification 106 DAG now names the child Task and Report as the
+round-neutral authority for the sole-current review checkpoint. Public Guide,
+Website implementation/tests, PHP tests, Stable `1.2`, and unreleased `1.3`
+boundaries are frozen. The exact existing 15-path union remains the maximum
+scope; only the ten management/specification files changed. The fresh complete
+Round 19 Local Gate is recorded below after execution. No commit, stage, push,
+CI, deploy, publication, or release is authorized.
+
+## Historical P23-001 BlackOps 1.3 Feasibility — Round 18 Correction Implemented / Review Requested
+
+2026-08-19T22:20:07+09:00 — Round 18 correction is implemented after the
+fresh Round 17 child General review returned `P1=0/P2=2/P3=0`; Round 17 is
+historical Changes Requested and neither child nor parent is Accepted. The
+existing inline HTML reader now applies native closed `details`/`dialog`
+visibility, including paired primary/alias fixtures, while preserving the
+previous cascade and raw/Search/LLM boundaries. Parent/child status, DAG,
+gate state, Remaining, and Next Action are synchronized to Round 18. The
+exact existing 15-path union remains the maximum scope. The fresh complete
+Round 18 Local Gate is PASS; fresh child General re-review, parent
+General/Audit review, and Orchestrator acceptance remain. No commit, stage,
+push, CI, deploy, publication, or release is authorized.
+
+## Historical P23-001 BlackOps 1.3 Feasibility — Round 17 Correction Implemented / Review Requested
+
+2026-08-19T21:43:12+09:00 — Round 17 bounded correction is implemented within
+the exact existing 15-path union. Round 16 child General review returned
+`P1=1/P2=2/P3=0`; Round 16 is historical Changes Requested and neither child
+nor parent is Accepted. Round 17 is limited to the inaccurate prebuilt Command
+instance timing claim, the HTML `hidden` plus inline display override, and the
+child-to-parent current checkpoint pointer. The exact existing 15-path union
+remains the maximum scope. Luna worker implementation, fresh complete Local
+Gate, child General re-review, parent General/Audit review, and Orchestrator
+acceptance remain. No commit, stage, push, CI, deploy, publication, or release
+is authorized.
+
+Historical Round 17 completion checkpoint: the class-string/prebuilt-instance
+Guide and PHP behavior distinction and the paired HTML inline visibility guard
+are implemented. Its then-current status was `Correction Implemented / Review Requested`,
+not Green, Accepted, or Decided. The fresh Round 17 Local Gate is PASS; child
+General re-review, parent General/Audit review, and Orchestrator acceptance remain.
+
+Round 17 bounded follow-up at `2026-08-19T21:59:03+09:00` removes the ambiguous
+Guide sentence and requires the exact statement that the generation/reuse
+boundary is unchanged across list formats. Website Source/Artifact markers are
+synchronized; the same exact-15 scope and unreleased Stable/1.3 boundary remain.
+
+## Historical P23-001 BlackOps 1.3 Feasibility — Round 16 Local Gate Green / Independent Review Requested
+
+2026-08-19T21:18:38+09:00 — Round 16 restores the requestRef vector after
+Orchestrator independent recomputation rejected the Round 15 golden. The
+149-byte diagnostic was malformed because shell quoting removed JSON quotes.
+Correctly quoted Node and Docker PHP implementations both produce the literal
+121-byte JCS, 165-byte LP preimage, and SHA-256
+`692080e51f459d1d45ed9ce3f14c1edc273ee059e1e93d6198dce1c25511b58c`.
+Round 16 is limited to restoring that vector and synchronizing current parent
+management/specification truth; the Website/Guide/PHP child paths are frozen.
+Round 15 Local Gate is historical. The fresh Round 16 Local Gate is Green:
+Website `119/119`, focused PHP `29/225`, build `42` pages with a `41`-page
+site check, Source/Artifact release guards, Stable version baseline, Mago,
+wire/hash/link checks, exact-15 scope, staged 0, and static guards all passed.
+The 149-byte value
+`b063819f7388aa541daab07c2e537df29b98648a81917929338bb63e4a990267` remains
+historical invalid diagnostic evidence, not a contract. The fresh complete
+child General review, parent General/Audit review, and Orchestrator acceptance
+remain. No external or Git publication action is authorized.
+
+## Historical P23-001 BlackOps 1.3 Feasibility — Round 15 Correction Implemented / Review Requested
+
+2026-08-19T20:45:20+09:00 — Round 15 bounded correction is implemented within
+the same union-15 scope. The Website guard excludes `head/title`, preserves
+`visibility:initial`, and keeps block boundaries; current management text now
+describes the former Stable Guide claim as historical. The then-current
+Specification 105 text recorded an invalid 149-byte requestRef diagnostic and
+exact AuditQuery/cursor and
+AnchorIntent contracts; D145 and Specifications 105/106 are synchronized.
+Round 14 PASS evidence is historical. Stable `1.2` remains current, Phase
+23/1.3 remains unreleased, and no commit/stage/push/CI/deploy/release action is
+authorized. The fresh complete Local Gate is PASS: exact union 15, staged 0,
+diff/whitespace/static guards, Website/PHP/Mago, JSON, XML/Markdown, and link
+checks all passed. Remaining is child General review, parent General/Audit
+review, and Orchestrator acceptance. Next Action: freeze these final hashes,
+then route the three reviews.
+
+## Historical P23-001 BlackOps 1.3 Feasibility — Round 14 Correction Implemented / Review Requested
+
+2026-08-19T19:56:30+09:00 — Round 13の固定exact-15 snapshotに対する
+fresh Sol reviewはGeneral `P1=1/P2=1/P3=0`、Audit
+`P1=4/P2=2/P3=0`でChanges Requestedとなった。Generalは現行管理文書の
+旧route/schedule直読契約と、視覚表示される`aria-hidden`／`inert`本文および
+`visibility:visible`子孫をWebsite guardが除外する反例を確認した。Auditは
+sign access event名、AuditQuery wire、AnchorIntent key/hash/state、Verifier
+Stage 6 code/precedence、requestRef hash grammar、複数Holdと単一retention
+holdの矛盾を確認した。Round 14は同じexact-15 worktree境界内でこの8件だけを
+Luna High workerが補正し、Round 14はCorrection Implemented / Review
+Requestedとなった。P23-001Sとparentはいずれも未Accepted、Stable
+`1.2`はcurrent、Phase 23/1.3は未Releaseである。Commit／Stage／Push／CI／
+Deploy／Releaseは行わない。Round 14 Local GateはPASSで凍結した。次は
+fresh child General、parent General/Audit review、Orchestrator acceptanceである。
+
+## Historical P23-001 Round 14 completion checkpoint
+
+2026-08-19T19:56:30+09:00 — Round 14 was the then-current `Correction
+Implemented / Review Requested` status at that historical checkpoint. Round 13 is historical Changes
+Requested (General `P1=1/P2=1/P3=0`, Audit `P1=4/P2=2/P3=0`) in separate lanes;
+P23-001S was created and historically accepted, then reopened and remains
+Review Requested. Stable `1.2` is current and Phase 23/`1.3` remains
+unreleased. The current contract is the dedicated ProjectionBuildSet wire and
+atomic A/B/C slice with exact flock publication/GC, partition-global segment
+and canonical AAD/outbox rules, three-family access/read mappings, exact
+query/retention/AnchorIntent contracts, and verifier Stage 0-7 with external
+`expectedManifest` pin. No current block claims Green, Accepted, or Decided.
+
+Fresh Round 14 gates pass: PHP `29/225`; focused Website `7/7`; full Website
+`119/119`; check `0/0/0`; build `42` pages/site `41`; release source/artifact;
+version baseline; Mago format/lint and analyze exit `0` with unchanged
+baseline `71 issues`; management-ID; JSON `7/7`; XML/Markdown pinned hashes;
+Markdown links `313 total / 277 local / 0 missing`; exact union `15`, staged
+`0`, diff, whitespace, and current-truth/static guards. Browser, Remote CI,
+deployment, publication, and release execution were not run. Remaining is
+fresh child General review, parent General/Audit review, and Orchestrator
+acceptance; next action is freeze this Local Gate and route those reviews.
+
+## Historical P23-001 Round 13 Local Gate — Changes Requested
+
+2026-08-19T19:13:27+09:00 — Round 13 bounded correction and its exact-15
+Local Gate completed from the
+frozen exact-15 union on branch `agent/p23-001-blackops-1-3-feasibility` at
+`5ad87557c08e20c3bcc6d77be83804001ba3eb80`; HEAD and `main` match and staged
+files are absent. Round 12 is now historical Changes Requested (General
+`P1=5/P2=1/P3=0`, Audit `P1=6/P2=3/P3=2`) in separate lanes with no
+aggregation. P23-001S is reopened from its historical acceptance for the
+bounded visibility/DOM correction and remains Review Requested, not Accepted.
+Stable `1.2` remains current and Phase 23/BlackOps `1.3` remains unreleased.
+Round 13 closes the projection publisher/GC lock, atomic A/B/C ownership,
+custom strategy wire, audit optional evidence/requestRef/outbox/segment/anchor/
+trust/query/legal-hold/order/event corrections, and the child HTML visibility
+contract. Fresh evidence is PHP `29/225`, Website focused `7/7` and full
+`119/119`, check `0/0/0`, build `42` pages/site `41`, Source/Artifact release
+guards, version baseline, Mago format/lint/analyze exit `0`, management-ID,
+JSON `7/7`, canonical XML/Markdown hashes, generated Artifact parity,
+exact-15 scope, staged `0`, whitespace/diff, and `313` Markdown links with
+`277` local/`0` missing. Fresh child General and parent General/Audit review
+remain; no Green or Acceptance is claimed.
+
+```text
+2026-08-19T09:10:43+09:00
+Historical Round 9 checkpoint (superseded by the sole current Round 13
+checkpoint) was synchronized from the P23-001 Discovery package. Base was
+`main` @ `5ad87557c08e20c3bcc6d77be83804001ba3eb80`; this remains an unreleased
+BlackOps `1.3` proposal, not Stable `1.2`. Round 7 and Round 8 counts below
+remain separate and uncombined; Round 9 status was Correction Implemented /
+Review Requested, not Green/Accepted/Decided.
+D145、Spec 105／106、Task、Report、TODO、READMEを同期し、Stable `1.2`のSymfony-backed `list`をcurrent positiveとして保ち、P23-002AのBlackOps-owned replacementでは`ls`だけを新規名とする。P23-002AはStableのoptional namespace／`--raw`／`--short`／`--format=txt|json|xml|md`の全受理組合せを保持し、repeated formatはlast-wins、new `--json`/`--all`はStable input外、`--json`単独はjson、rawはtxt-only、shortはexact no-opとし、新規json/explicit-format conflictだけexit `2`とする。reserved／application command-alias collisionはowner/name付きactionable migrationでfail closedとする。
+D145、Spec 105／106、Task、Report、TODO、READMEを同期し、Round 6の独立Evidenceを分離して保持した（full review P1=3／P2=4／P3=1、Audit review P1=2／P2=6／P3=1）。これらは重複集計しない。Canonical AuditEventCatalog deliveryは`required|durable`だけで、best-effortはAudit Trail claimのないobserved JSONL projectionに分離する。Manifest／catalog semantic hashのstrict-preflight後constant-time比較、global-before-partition result precedence、`tenant:null`の`system:global` mapping、normalized tenant domain-hash、bounded export preflight、closed AuditVerificationContext、evidence field uniqueness、trusted recordedAt＋occurredAt boundを同期した。Physical deletion／signed deletion manifest／sealed bytes・keys deletionはAudit v1から外し、将来P23-003Hへdeferし、compliance claimをしない。P23-004A hardening／Classic migration、P23-004B Extension Worker、same-process Deferred、P23-002A deferred filterは未Release proposalのままである。
+At that historical checkpoint, Task status was the then-current `Round 11
+Correction Implemented / Review Requested` status (`Accepted`ではない); Round 12
+now supersedes it as the sole current checkpoint. Round 9 and Round 10 records
+below are historical checkpoints. Allowed scope is the exact eight Task, Report, STATE,
+TODO, D145, Specifications 105/106, and Spec README files; Stable `1.2`, public
+docs, authority, Source, Search, and LLM Artifact remain unchanged. No
+Commit/Stage/Push/PR/CI dispatch/Deploy/Tag/Publish occurred.
+Round 6 residuals preserve `AuditVerificationContext.freshnessSnapshot` as the
+sole current authority and define closed trust-store entries, hash exclusion,
+key-time consistency, positive manifest file/path bounds, and redacted result
+examples. The final pre-review correction makes `policy.auditDelivery` a
+required canonical field bound to the catalog delivery and caps each record
+line/checkpoint/anchor/catalog raw artifact at 1 MiB before JSON allocation.
+No superseded range-policy claim remains.
+Historical Round 8 Next Action was fresh Sol xHigh and Orchestrator
+independent review/Acceptance of that exact-8 snapshot; afterward P23-001R and
+Specification 106 DAG downstream Task/release work remained. This historical
+block is superseded; the current Round 13 Remaining/Next Action is recorded
+below, and the 1.3 capability is未提供である。
+Historical Round 7 draft fixes Stable list replacement/compatibility and collision fixtures,
+explicit-only `policy.auditDelivery`, one Stage 0-7 verification order, writer-side
+complete-record 1 MiB cap, semantic tuples/reserved evidence.version, external
+expectedContextHash code 19, key-fingerprint uniqueness, exact
+`AuditVerificationResult v1` shape `{schemaVersion,kind,mode,status,code,scope,exportId,manifestHash,verifiedAt,contextHash,partitions}`,
+recordedAt ingress, checkpoint crash idempotency, and event-catalog raw+LF 2 MiB
+cap. Independent Round 6 evidence is not aggregated: full review P1=3／P2=4／P3=1 and Audit review P1=2／P2=6／P3=1. Historical Round 7 remained pending fresh independent review; its status was Review Requested／Proposed, not Green／Accepted／Decided.
+Final Round 7 local management guards at `2026-08-19T06:43:29+09:00` are PASS: exact-8 inventory, staged-none, diff/whitespace, release source, version baseline, PHP management-ID, Mago format, seven JSON examples, 270 Markdown links, 44 cited paths／46 EOF ranges, and Stable/Roadmap plus single-order contract assertions. This is historical Round 7 evidence. Round 8 correction was the historical snapshot: Stable `list` compatibility/recovery and XML/Markdown wire, shared reservation registry, `AuditIngressEnvelope v1`, ingress recordedAt/high-water and canonical sequence, `AuditOutboxRecord` BOPD/AAD, synthetic 1 MiB cap, non-null semantic tuples/<=256-byte evidence, sealed namespace/owner, independent phase validation, one verifier stage/null matrix, chronology, requester mapping, AnchorIntent, 15/16 MiB manifest cap, and exact connection/root checks were synchronized. Historical counts were 44 unique existing local evidence targets, 46 cited ranges, and 270 Markdown link occurrences. Round 7 is Changes Requested (General `P1=4/P2=1/P3=1`, Audit `P1=6/P2=6/P3=0`); Round 8 was Correction Implemented / Review Requested. Historical Next Action was Orchestrator／Sol independent re-review; Green／Accepted／Decided were not claimed.
+Final Round 9 bounded correction checkpoint at `2026-08-19T09:10:43+09:00`: exact-8 scope,
+staged-none, `git diff --check`, release source, version baseline, Mago,
+PHP management-ID, trailing-whitespace, Specification 105 JSON parsing, and
+local Markdown content/link validation all PASS. No commit or stage occurred.
+Multi-segment namespace diagnostics/exit remained the Symfony Stable `1.2.0`
+goldens with no blanket namespace exit `2`; the single Stage 0-7 verifier
+order, exact ingress envelope fields, list recovery exception, and three
+non-overlapping AnchorIntent crash fixtures were required.
+Round 9 correction was the historical worker snapshot: schedule complete-artifact
+exits are distinct from list recovery; application projection identity has six
+statuses and ordered precedence; XML/Markdown fixture bytes are exact; evidence
+classification is typed without a secret-absence claim; ingress is
+durable-only with exact outbox row/AAD/ordinal/lease/poison semantics; verifier
+mode/context/result nullability and full manifest endpoint refs are explicit;
+AnchorIntent uses fenced deterministic recovery; actor/read and nofollow-root
+fixtures, checkpoint control events, and metadata-only retention are synced.
+Fresh Round 8 review is historical Changes Requested (General `P1=2/P2=1/P3=0`,
+Audit `P1=5/P2=4/P3=1`); historical Round 9 was Correction Implemented /
+Review Requested. Historical evidence count was 44 unique existing local
+targets, 46 cited ranges, and 270 Markdown link occurrences. Historical
+Remaining was fresh Sol xHigh review, Orchestrator acceptance, then
+P23-001R/downstream;
+1.3 remains proposal-only.
+Freshness chronology is exact: `checkpoint.sealedAt <= checkpoint.signedAt <= receipt.anchoredAt <= receipt.signedAt <= freshness.observedAt <= verifiedAt < validUntil`; equality and one-microsecond-after fixtures are required.
+```
+
+## P23-001 Round 10 historical checkpoint
+
+2026-08-19T09:42:10+09:00 — Round 10 was `Correction Implemented / Review
+Requested`; Round 8 historical review remains General `P1=2/P2=1/P3=0` and
+Audit `P1=5/P2=4/P3=1`, while Round 9 is superseded Orchestrator pre-review
+wording with no invented Sol verdict. At that historical checkpoint, evidence
+was exactly 44 unique
+existing local targets, 46 cited ranges, and 270 Markdown link occurrences.
+The exact eight proposal documents now synchronize ProjectionBuildSet v1
+atomic root publication, all six recovery states, finite/injective projection
+bounds, side-effect-free explicit/discovered list startup, exact JSON/raw/XML/
+Markdown wires, singular segment checkpoint/receipt endpoints, BOPD v1 and
+tenant-union AAD bindings, durable-only ingress and fenced outbox state,
+classification reachability (safe_code 256/257 and opaque_id 71/70/72
+boundaries, nullable null), Stage 0-7 verification/ref/null precedence,
+same-fd nofollow semantics, exact AnchorIntent state fields/crash fixtures,
+non-recursive control artifacts, and P23-003B/D/F/G ownership/dependencies.
+Stable `1.2` and public/current claims remain unchanged; no Production Code,
+tests, docs/guide, Website, commit, stage, push, CI, deploy, or release was
+made. Round 10 exact-8 local gates are PASS: scope/staged-none, diff and
+whitespace, release source, version baseline, content/link determinism, Mago,
+PHP management-ID, seven JSON fences, and independently verified XML/Markdown
+fixture hashes. Remaining is fresh Sol xHigh
+general+Audit review, Orchestrator acceptance, then P23-001R/downstream.
+Suggested Next Action at that historical checkpoint: run the exact-8 gate and
+return its evidence/hashes to the Orchestrator without publishing 1.3.
+
+## P23-001 Round 11 historical checkpoint
+
+2026-08-19T13:38:47+09:00 — Round 11 was `Correction Implemented / Review
+Requested`; it is historical and superseded by Round 12. Round 8, Round 9,
+and Round 10 are historical and remain separate from the current status. The
+exact eight proposal documents then defined the
+closed ProjectionBuildSet v1 root/self-hash and immutable content-addressed
+projection publication, exact command/route/schedule projection kinds and
+finite field caps, configured-root-only recovery with no uncompiled-source
+comparison claim, and one raw-cap/ENOENT/I-O/malformed/unsupported/build-mismatch/stale/
+available precedence table. The route projection (not the command projection)
+combines Operation HTTP rows with its framework-fixed descriptor.
+
+Round 11 also synchronizes `AuditIngressEnvelope v1` with `tenantBinding`, the
+closed `AuditStoredRecord v1` canonical transport row (recordId/segmentId
+1..256-byte NFC/no-control, exact `system:global|tenant:<64 lowercase hex>`
+partitionId, AuditRecord-bounded tenantBinding, category/time equality after
+decrypt) and BOPD/AAD bindings,
+Spec 99 key/cap boundaries, nested `AuditReadContext`, manifest artifact-ID
+identity and canonical array order, one verifier total function with Stage 1/
+Stage 6/Stage 7 precedence, signature-ref nullability, raw-file versus semantic
+hash distinction, and the closed AnchorIntent `anchorReceiptId` plus fenced
+lease/state matrix. The current status is not Green, Accepted, or Decided; no
+1.3 capability is public/current and no Production Code, tests, public docs,
+commit, stage, push, CI, deploy, or release action occurred.
+
+Worker post-edit management gates pass: exact-8 scope/staged-none, diff,
+whitespace, release source, content, version baseline, Mago, PHP management-ID,
+JSON fence, XML/Markdown byte/hash, and exact-8 Markdown-link checks. No
+commit, stage, push, PR, CI dispatch, deploy, release, or external mutation was
+performed.
+
+Historical evidence was 44 unique existing local targets, 46 cited ranges, and
+270 Markdown link occurrences. Historical Remaining was fresh Sol xHigh general
+and Audit review, Orchestrator acceptance, then P23-001R and the ordered
+downstream DAG. Historical Suggested Next Action was independent review of the
+uncommitted exact-8 Round 11 snapshot.
+
+## P23-001 Historical Round 12 checkpoint
+
+2026-08-19T14:51:24+09:00 — Round 12 was the then-current `Correction
+Implemented / Review Requested — Discovery Complete` checkpoint; it is not
+Green, Accepted, or Decided. Round 11 is historical Changes Requested with
+General `P1=2/P2=2/P3=0` and Audit `P1=7/P2=3/P3=1`, kept in separate lanes
+without aggregation. Stable `1.2` remains current; every Phase 23/1.3
+capability remains an unreleased proposal.
+
+The current contract uses one installation-owned `ProjectionBuildSet v1` wire,
+dedicated command/route/schedule projections, the exact
+`.blackops-projection-build-set.lock` shared/exclusive flock lifecycle and
+bounded GC, and the optional single `operation:list --strategy=inline|deferred`
+filter. Audit uses partition-global `AuditSegmentState` rotation, canonical
+BOPD/AAD whose canonical preimage is the ordered LP(U32BE length + exact bytes)
+concatenation of domain, purpose, version, algorithm, key, and clear identity,
+with the two pinned goldens (232-byte
+`5930076af5418572a4e575943172884775428ad10d024de7eb9fc419bce04b1c`; 344-byte
+`f3ef3d96598964f7087ffe654ecde4d2e828caebfa981ecb1daa82859ff7c57f`), and no
+v1 outbox re-encryption. Verification is one Stage 0-7 total function with
+the external `expectedManifest` pin; F owns signing/reusable verification and
+G owns query/export/hosted verification orchestration. All four read surfaces
+use the same durable `.unavailable`/`resource_unavailable` tuple. Closed
+`AuditAccessContext`, metadata-only `AuditRetentionState`, and signed
+`{role,artifactId}` plus raw-digest identity/path rules remain proposal-only.
+
+P23-001S was the accepted separate non-1.3 repository prerequisite. Its Phase 2
+Guide correction, behavior/Source/Artifact fixtures, Orchestrator Local Gate,
+and fresh Sol xHigh review are complete with `P1=0 / P2=0 / P3=0`; the parent
+pre-task Local Gate remains PASS. The old Guide sentence is not positive
+evidence, and P23-001S remains outside the parent exact-8 proposal snapshot.
+
+Historical evidence was defined as 44 unique existing local targets, 46 cited
+ranges, and 270 Markdown link occurrences. Remaining: obtain fresh parent
+P23-001 General/Audit review plus Orchestrator acceptance; only afterward
+proceed to P23-001R and ordered downstream. Suggested Next Action: freeze the
+management-only acceptance hashes, rerun the parent management guards, and
+route the exact current parent proposal to fresh General and Audit review.
+Fresh Round12 management gates now pass: exact scope/staged-none,
+`git diff --check`, exact-8 whitespace, release source, content, version
+baseline, Mago, PHP management-ID, 7/7 JSON fences, XML/Markdown byte/hash
+reconstruction, and 306/270/0 exact-8 Markdown links. No commit, stage, push,
+PR, CI, deploy, release, or external mutation occurred.
+
+## Historical P23-001 Round 13 completion checkpoint
+
+2026-08-19T18:20:04+09:00 — Round 13 was the then-current `Correction
+Implemented / Review Requested` status. Round 12 remains historical Changes
+Requested (General `P1=5/P2=1/P3=0`, Audit `P1=6/P2=3/P3=2`) in separate lanes;
+P23-001S is reopened from historical acceptance and is Review Requested. The
+exact-15 union remains the only worktree scope and staged files remain absent.
+
+The current contract synchronizes pre-generation exclusive ProjectionBuildSet
+flock, atomic P23-002A/B/C ownership, injective custom strategy wire, exact
+AuditSegmentState/outbox/AnchorIntent/query/hold/read-event contracts,
+optional-evidence and requestRef matrices, trust-window Stage 0 and
+expectedManifest pin, unsigned-UTF8 array ordering, and jsdom-backed child
+HTML visibility. Stable `1.2` remains current and Phase 23 `1.3` remains
+unreleased. Remaining is fresh child General review, parent General/Audit
+review, and Orchestrator acceptance, then P23-001R/downstream. Next Action is
+freeze the exact-15 Local Gate and route the reopened child review.
+Historical P23-001S closed-alias-classifier and Guide causal-order evidence was
+implemented at `2026-08-19T17:44:31+09:00`; its historical implementation/site
+gates, Orchestrator Local Gate, and Sol xHigh review are recorded below. The
+child was historically Accepted at `2026-08-19T18:01:23+09:00` and is reopened
+for the current Round 13 review.
+
+## Historical P23-001S — Stable list documentation truth correction — Accepted — P1=0 / P2=0 / P3=0
+
+2026-08-19T18:01:23+09:00 — P23-001S was Accepted after its bounded correction,
+Orchestrator Local Gate, and fresh Sol xHigh read-only review returned
+`P1=0 / P2=0 / P3=0`. The parent remains `Correction Implemented / Review
+Requested`, not Green, Accepted, or Decided;
+its exact-8 pre-task Local Gate is PASS. The Stable `1.2` current / unreleased
+`1.3` boundary is unchanged.
+
+The Guide then described observed Symfony-backed Stable behavior in five short
+Japanese paragraphs: Global `list` purpose; explicit Application command
+registration constructing the command during Console Kernel composition;
+default/raw Lazy behavior; non-short structured JSON/XML/Markdown resolution
+of argument/Option definitions (`Definition`) and usage/help text (`Help`); and
+the diagnostic-use limit. It introduces
+`factory` as the Command-instance creation process, `Definition` as the
+argument/Option definition, and `Container` as the boundary that resolves a
+Command from built dependencies. The two PHP tests assert exit `0`, fresh
+kernel/fixture setup, constructor/factory counts, valid manifest setup, and
+format-specific normal/raw/JSON/XML/Markdown wire shape; the discovered default
+row includes its observed `fixture:hello` alias. The Website guard uses an
+explicit closed classifier for primary `cli-html|cli-raw|cli-search|cli-llm`
+and observed `page:/reference/project-cli`/`raw:reference/project-cli.md`
+aliases; unknown CLI keys fail closed while primary presence remains required.
+It checks normalized visible text for CLI HTML/raw/Search/LLM-like surfaces,
+decodes valid
+decimal/hex numeric references, rejects invalid numeric references and encoded
+old claims, and covers missing boundary/surface, Source-side, marker-order, and
+paragraph/block-split negatives. No Production Code, generated artifact,
+dependency, release authority, or 1.3 capability changed.
+
+Fresh evidence: focused PHP `29 tests / 225 assertions` PASS; focused Website
+`7 tests` PASS; Website `119 tests` PASS; Website check `0 errors / 0 warnings /
+0 hints` PASS; Website build `42 pages`, artifact/site checks PASS; release
+source/artifact guards PASS; version baseline PASS; Mago format and lint PASS;
+Mago analyze exit `0` with the existing `71 issues` (`46 warning`, `25 help`)
+and no error; PHP management-ID PASS; 7/7 Specification 105 JSON fences,
+XML/Markdown fixture hashes, and P23-001S Markdown links `10 total / 10 local /
+0 missing` PASS. Actual generated Artifact parity PASS: whole-file UTF-8 HTML
+`101987` bytes and raw Markdown `16052` bytes; Node String lengths are `96525`
+and `11754` UTF-16 code units. The Search record `content` field
+(`record.content.length`) is `10204` UTF-16 code units, its serialized
+`JSON.stringify(record).length` is `10430` UTF-16 code units, and the extracted
+LLM CLI section is `11719` UTF-16 code
+units. The old Guide,
+numeric-entity, marker-order, block/hidden-container, and roadmap-leak guards
+PASS; non-visible required markers reject while hidden-only old claims do not
+affect visible text.
+
+The Orchestrator independently reproduced PHP `29/225`, focused Website `7/7`,
+full Website `119/119`, check `0/0/0`, build `42` pages/site `41` pages,
+release source/artifact, version baseline, Mago, management-ID, exact scope,
+wire hash, link, and generated Artifact evidence. Browser Light/Dark/Mobile is
+Not Verified because local Chromium lacked `libnspr4.so`; this copy-only change
+has no visual-layout finding. Remaining: fresh parent P23-001 General and Audit
+review and acceptance. Suggested Next Action: freeze the management-only
+acceptance hashes and route the exact parent proposal to both reviews.
 
 ## P22-005G Post-sync Current Truth Correction — Accepted
 
@@ -9453,3 +11207,56 @@ Result: Violations 0 / Skipped 0 / Uncovered 0 / Allowed 0 / Warnings 0 / Errors
 2026-08-17T11:26:19+09:00
 Independent focused review denied Acceptance. Remaining bounded defects are unresolved outer inspect attribution independent of nested substitutions, missing process-substitution／literal-eval／shell here-string recursion and bare shell environment-dump rejection, and `${...}` depth incorrectly treating literal `{` as nested. The twelfth correction is limited to the existing reader-contract source／test Files Allowed; full Required Commands remain forbidden until focused Green. No external mutation or Commit occurred.
 ```
+
+## Historical P23-001 Round 19 completion checkpoint
+
+Updated At: 2026-08-19T23:24:26+09:00
+
+Round 19 was then the sole-current `Correction Implemented / Review Requested`
+checkpoint. The active Specification 106 DAG then used the current child Task
+and Report as round-neutral status authority; Round 18 and earlier are
+historical, including child General `P1=0/P2=1/P3=0`. The fresh complete
+Round 19 Local Gate is PASS. Stable `1.2` remains current and Phase 23/`1.3`
+remains an unreleased proposal. No external action occurred.
+
+Remaining: fresh P23-001S General review, then parent P23-001 General/Audit
+review and Orchestrator acceptance; after acceptance, P23-001R and ordered
+downstream work remain.
+
+Suggested Next Action: route the fresh child General review, then request the
+independent parent reviews. Do not claim Green, Accepted, or Decided.
+
+## Historical P23-001 Round 20 completion checkpoint
+
+Updated At: 2026-08-20T00:02:28+09:00
+
+Round 20 was then the sole-current `Correction Implemented / Review Requested`
+checkpoint. The two active Specification 106 DAG phrases then used the
+round-neutral child Task/Report authority; Round 19 and earlier are historical,
+including child General `P1=0/P2=1/P3=0`. The fresh complete Round 20 Local Gate
+is PASS. Stable `1.2` remains current and Phase 23/`1.3` remains unreleased.
+
+Remaining: fresh child General review, then parent P23-001 General/Audit review
+and Orchestrator acceptance; after acceptance, P23-001R and ordered downstream
+work remain.
+
+Suggested Next Action: route the fresh child review, then request independent
+parent reviews. No external action or acceptance is claimed.
+
+## P23-003A1 Luna High Correction Checkpoint (2026-08-28T14:50:15+09:00)
+
+AuditJcsCodec now preserves numeric-string object keys through nested
+roundtrip and reports invalid UTF-8 keys before decoded duplicate collapse.
+AuditTypedReference constructor members are SensitiveParameter-marked, with
+invalid tenant trace no-leak coverage. Focused PHPUnit is Green at 64 tests /
+979 assertions; format, Composer strict, Mago lint/baseline, source-only Mago
+analyze exit0/error0 (warnings75/help37), Node golden, and Deptrac 949/949
+violations0 uncovered0 are Green. Exact48 aggregate is
+`8c85e32e01efeea24ff86e31f55383dd60caca9240f96cbd93ba2de5476dffc1`.
+Mutation-sensitive Required Fixture coverage includes event/action/tuple/evidence
+counts, evidence JCS bytes, declared string bytes, tenant reference bytes, semantic
+tuple members, owner/category/delivery/evidenceVersion, and Node negative vectors.
+
+Remaining: corrected complete Final Gate, fresh Sol High re-review, and
+Orchestrator Acceptance. No commit, stage, push, runtime activation, CI,
+deployment, or publication was performed.

@@ -13,6 +13,7 @@ use BlackOps\Core\Outcome;
 use BlackOps\Core\OutcomeData;
 use BlackOps\Core\TenantRef;
 use BlackOps\Http\Responder\JsonOperationResponder;
+use BlackOps\Http\Status\OperationStatusHttpContract;
 use BlackOps\Http\Status\OperationStatusJsonResponder;
 use BlackOps\Http\Status\OperationStatusRequestHandler;
 use BlackOps\Status\Exception\OperationStatusQueryException;
@@ -296,10 +297,17 @@ final class OperationStatusRequestHandlerTest extends TestCase
         }
     }
 
-    public function testMatchesOnlyGetWithOneDirectOperationSegment(): void
+    public function testRuntimeMatcherIncludesEmptySuffixButRejectsNestedPaths(): void
     {
         $handler = $this->handler(new RecordingStatusQuery(new OperationStatusUnavailable()));
 
+        self::assertTrue(OperationStatusHttpContract::matches('GET', '/operations/'));
+        self::assertTrue(OperationStatusHttpContract::matches('GET', '/operations/not-valid'));
+        self::assertFalse(OperationStatusHttpContract::matches('GET', '/operations/not-valid/outcome'));
+        self::assertFalse(OperationStatusHttpContract::matches('GET', '/operations'));
+        self::assertFalse(OperationStatusHttpContract::collides('GET', '/operations/'));
+        self::assertTrue(OperationStatusHttpContract::collides('GET', '/operations/not-valid'));
+        self::assertTrue($handler->matches($this->request('GET', '/operations/')));
         self::assertTrue($handler->matches($this->request('GET', '/operations/' . self::OPERATION_ID)));
         self::assertTrue($handler->matches($this->request('GET', '/operations/not-valid')));
         self::assertFalse($handler->matches($this->request('HEAD', '/operations/' . self::OPERATION_ID)));

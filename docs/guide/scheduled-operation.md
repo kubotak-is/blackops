@@ -173,7 +173,7 @@ php blackops operation:schedule:run --json
 
 初回評価は過去をBackfillせず、現在のCalendar Minuteだけを候補にします。次回以降はCursorより後を評価し、複数Slotが溜まっている場合は最新一件だけを実行候補にします。
 
-Daily例の`0 0 * * *`はAsia/Tokyoの毎日0:00だけを対象にするため、任意時刻に初回実行すると`accepted: 0`（No Schedule）になるのが正常です。上のJSON／Human例の`accepted: 2`はCountのShapeを示すサンプルで、固定された期待値ではありません。初回の受理を確実に検証する場合は、検証用OperationだけCronを`* * * * *`へ変更し、`build:compile`後に同じCalendar Minute内でone-shot Commandを実行します。確認後は実運用Cronへ戻し、再度`build:compile`してArtifactを更新してください。
+Daily例の`0 0 * * *`はAsia/Tokyoの毎日0時00分だけを対象にするため、任意時刻に初回実行すると`accepted: 0`（No Schedule）になるのが正常です。上のJSON／Human例の`accepted: 2`はCountのShapeを示すサンプルで、固定された期待値ではありません。初回の受理を確実に検証する場合は、検証用OperationだけCronを`* * * * *`へ変更し、`build:compile`後に同じCalendar Minute内でone-shot Commandを実行します。確認後は実運用Cronへ戻し、再度`build:compile`してArtifactを更新してください。
 
 ## CLIの結果とExit Code
 

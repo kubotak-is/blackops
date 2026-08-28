@@ -8,6 +8,7 @@ use BlackOps\Core\EphemeralOutcome;
 use BlackOps\Core\Operation;
 use BlackOps\Core\Registry\OperationRegistry;
 use BlackOps\Http\Attribute\Route;
+use BlackOps\Http\Status\OperationStatusHttpContract;
 use InvalidArgumentException;
 use ReflectionClass;
 
@@ -49,7 +50,7 @@ final readonly class HttpRouteCompiler
             $route = $this->route($definitionClass);
 
             if ($route !== null) {
-                if ($this->collidesWithOperationStatus($route)) {
+                if (OperationStatusHttpContract::collides($route->method, $route->path)) {
                     throw new InvalidArgumentException('HTTP route conflicts with a framework reserved resource.');
                 }
 
@@ -89,10 +90,5 @@ final readonly class HttpRouteCompiler
         }
 
         return $attributes[0]->newInstance();
-    }
-
-    private function collidesWithOperationStatus(Route $route): bool
-    {
-        return $route->method === 'GET' && preg_match('#^/operations/[^/]+$#', $route->path) === 1;
     }
 }

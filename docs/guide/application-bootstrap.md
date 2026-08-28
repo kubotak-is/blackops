@@ -100,7 +100,13 @@ $application = require __DIR__ . '/bootstrap/app.php';
 exit($application->console()->run());
 ```
 
-`list`はCommand Manifestの名前／説明／Alias／Hiddenだけを読み、Command Constructor、Compiled Container、Database、PCNTL、Retention Serviceを構成しません。Command固有の`help`または実行時だけCompiled ContainerからCommandを解決します。Command ManifestがMissing／Invalid／StaleでもFramework Commandは残るため、`php blackops build:compile`で復旧できます。
+Global `list`の実行境界は一覧形式で異なります。Applicationが明示登録したCommandをクラス名（class-string）で登録すると、Console Kernelを構成するときにCommand実体が生成され、コンストラクタが実行されます。呼び出し側があらかじめ生成したCommand instanceを登録した場合は、その同じinstanceを再利用し、Kernel構成で追加の生成は行いません。どの一覧形式を選んでも、この生成・再利用の境界は変わりません。
+
+Command Manifestから発見したLazy Commandは、通常表示と`--raw`では、Command実体を作る処理（factory）を呼び出さずに一覧します。`--raw`は装飾を省いたテキスト一覧です。
+
+`--short`を付けない`--format=json|xml|md`では、引数とOptionの定義（Definition）やHelp取得でCommand実体を作る処理（factory）が呼び出されます。そのfactoryがBuild済みの依存関係を持つ仕組み（Container）からCommand実体を解決する場合があります。個別の`help`も同じようにLazy Commandを解決する場合があります。
+
+そのためGlobal `list`は、Applicationの初期化やContainerの解決から完全に切り離された診断Commandではありません。旧`bin/blackops`や`blackops:*` Prefixは現行の互換入口ではありません。
 
 `#[ConsoleCommand]`で公開したOperationも同じManifestから登録します。認可主体が必要なApplicationは`ConsoleActorProvider`をService ProviderでBindingしてください。未Bindingまたは`actor() === null`ではOrigin／Authorization Actorを持たず、`#[Authorize]`付きOperationは既存Policyで拒否されます。FrameworkはExecution Actorを`console-runtime`に固定し、CLI OptionからActor IDやCredentialを受け取りません。
 

@@ -11,12 +11,14 @@ use BlackOps\Internal\Application\ApplicationConfigurationRegistrations;
 use BlackOps\Internal\Application\ApplicationConfigurationSnapshot;
 use BlackOps\Internal\Application\ApplicationEnvironmentFile;
 use BlackOps\Internal\Application\ApplicationRegistrationValidator;
+use BlackOps\Observability\OperationalHealthQuery;
 use InvalidArgumentException;
 use LogicException;
 use OpenTelemetry\API\Metrics\MeterProviderInterface;
 use OpenTelemetry\API\Trace\TracerProviderInterface;
 use ReflectionClass;
 
+/** @mago-expect lint:too-many-properties */
 #[PublicApi]
 final class ApplicationBuilder
 {
@@ -43,6 +45,8 @@ final class ApplicationBuilder
     private ?TracerProviderInterface $tracerProvider = null;
     private ?MeterProviderInterface $meterProvider = null;
 
+    private ?OperationalHealthQuery $operationalHealthQuery = null;
+
     public function withTracerProvider(?TracerProviderInterface $provider): self
     {
         $this->tracerProvider = $provider;
@@ -53,6 +57,13 @@ final class ApplicationBuilder
     public function withMeterProvider(?MeterProviderInterface $provider): self
     {
         $this->meterProvider = $provider;
+
+        return $this;
+    }
+
+    public function withOperationalHealthQuery(?OperationalHealthQuery $query): self
+    {
+        $this->operationalHealthQuery = $query;
 
         return $this;
     }
@@ -172,6 +183,7 @@ final class ApplicationBuilder
                 $commands,
                 $this->tracerProvider,
                 $this->meterProvider,
+                $this->operationalHealthQuery,
             ),
         );
     }

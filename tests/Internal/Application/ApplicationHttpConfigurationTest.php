@@ -59,6 +59,7 @@ final class ApplicationHttpConfigurationTest extends TestCase
         self::assertSame('/frontend.php', $configuration->frontendManifest);
         self::assertSame('/commands.php', $configuration->commandManifest);
         self::assertSame('/container.php', $configuration->container);
+        self::assertSame('/', $configuration->projectionBuildSetRoot);
         self::assertSame('CompiledContainer', $configuration->containerClass);
         self::assertSame('', $configuration->containerNamespace);
 

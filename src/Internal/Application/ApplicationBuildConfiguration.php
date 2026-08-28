@@ -14,6 +14,7 @@ final readonly class ApplicationBuildConfiguration
         public string $frontendManifest,
         public string $commandManifest,
         public string $container,
+        public string $projectionBuildSetRoot,
         public string $containerClass,
         public string $containerNamespace,
     ) {}
@@ -44,6 +45,7 @@ final readonly class ApplicationBuildConfiguration
             $frontendManifest,
             $commandManifest,
             $container,
+            dirname($container),
             $containerClass,
             $containerNamespace,
         );

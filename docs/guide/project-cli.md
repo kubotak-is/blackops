@@ -7,7 +7,15 @@ php blackops list
 php blackops help <command>
 ```
 
-Global `list`とOperation Commandの`help`はManifest Metadataだけを使い、Handler、Database、Container、Actor Providerを解決しません。Framework／Application Commandの固有`help`はDefinition取得のためLazy Commandを解決する場合があります。旧`bin/blackops`や`blackops:*` Prefixは現行の互換入口ではありません。
+Global `list`は、現在のApplicationで利用できるCommandを目的別に確認する入口です。一覧で名前と概要を確認してから、必要なCommandの個別Helpへ進みます。
+
+Applicationが明示登録したCommandをクラス名（class-string）で登録すると、Console Kernelを構成するときにCommand実体が生成され、コンストラクタが実行されます。呼び出し側があらかじめ生成したCommand instanceを登録した場合は、その同じinstanceを再利用し、Kernel構成で追加の生成は行いません。どの一覧形式を選んでも、この生成・再利用の境界は変わりません。
+
+Command Manifestから発見したLazy Commandは、通常表示と`--raw`では、Command実体を作る処理（factory）を呼び出さずに一覧します。`--raw`は装飾を省いたテキスト一覧です。
+
+`--short`を付けない`--format=json|xml|md`では、引数とOptionの定義（Definition）やHelp取得でCommand実体を作る処理（factory）が呼び出されます。そのfactoryがBuild済みの依存関係を持つ仕組み（Container）からCommand実体を解決する場合があります。個別の`help`も同じようにLazy Commandを解決する場合があります。
+
+そのためGlobal `list`は、Applicationの初期化やContainerの解決から完全に切り離された診断Commandではありません。旧`bin/blackops`や`blackops:*` Prefixは現行の互換入口ではありません。
 
 ## コマンド実行一覧
 
@@ -27,9 +35,9 @@ RuntimeはProject RootのHostまたはApplication Containerです。Containerで
 | Scheduled Operationを評価する | `operation:schedule:run [--json]` | PostgreSQL、Build Artifact、Schedule Metadataが必要。 | `evaluated`／`accepted`／`skipped_misfire`／`skipped_overlap`／`failed`、Exit `0`／`1`／`2` |
 | Operationを診断する | `operation:inspect <operation-id> [--json]` | PostgreSQL Diagnosticsを読む。 | Human／Versioned JSON、Exit `0`／`2` Invalid／`3` Unavailable／`4` Storage |
 | Local Viewerを起動する | `operation:viewer` | Local PCNTL、Loopback、Enable Gateが必要。 | Bootstrap URLを一度出力／`0`、安全なFailure／`1` |
-| Retention Planを作る | `retention:plan --transport-payload-days=7 --journal-days=30 --outcome-days=14 --dead-letter-days=90` | 4つの公開Retention期間を指定する。Idempotency Recordの第5期間は設定から解決する。 | 対象件数とEligible時刻／`0` |
-| Retention PurgeをDry-runする | `retention:purge --dry-run --transport-payload-days=7 --journal-days=30 --outcome-days=14 --dead-letter-days=90` | `--dry-run`と4つの公開Retention期間を指定する。 | Plan件数／`0` |
-| Retention Purgeを実行する | `retention:purge --confirm --transport-payload-days=7 --journal-days=30 --outcome-days=14 --dead-letter-days=90 --policy-ref=production-retention-v1 --actor=system:retention` | `--confirm`、Policy、Actorと4つの公開Retention期間を指定する。 | Purge件数／`0` |
+| Retention Planを作る | `retention:plan --transport-payload-days=7 --journal-days=30 --outcome-days=14 --dead-letter-days=90 --idempotency-record-days=30` | 5つの公開Retention期間を指定する。 | 対象件数とEligible時刻／`0` |
+| Retention PurgeをDry-runする | `retention:purge --dry-run --transport-payload-days=7 --journal-days=30 --outcome-days=14 --dead-letter-days=90 --idempotency-record-days=30` | `--dry-run`と5つの公開Retention期間を指定する。 | Plan件数／`0` |
+| Retention Purgeを実行する | `retention:purge --confirm --transport-payload-days=7 --journal-days=30 --outcome-days=14 --dead-letter-days=90 --idempotency-record-days=30 --policy-ref=production-retention-v1 --actor=system:retention` | `--confirm`、Policy、Actorと5つの公開Retention期間を指定する。 | Purge件数／`0` |
 | Maintenanceを実行する | `scheduler:run`／`scheduler:daemon [--interval] [--iterations]` | SchedulerとClockが必要。 | tasks／total_affected／`0` |
 | OutboxをRelayする | `outbox:relay:run [--batches]`／`--until-empty` | DatabaseとTransportが必要。 | claimed／sent／retried／dead-lettered／stale／`0` |
 | Outbox Relay Daemonを実行する | `outbox:relay:daemon [--interval-milliseconds] [--iterations]` | PCNTLとTransportが必要。 | Batch件数／`0` |
@@ -42,7 +50,7 @@ RuntimeはProject RootのHostまたはApplication Containerです。Containerで
 | Authentication Starterを生成する | `make:auth [--force]` | Application filesystemへSourceを追加／更新する。 | Created／Updated／`0` |
 | Seederを生成する | `make:seeder <Name>`（[Seederを生成する](project-generators.md#seederを生成する)） | Application filesystemへSeeder Sourceを追加する。 | Created／`0` |
 
-「変更なし」はCommand自体がDatabase／Artifact／Generated Treeを変更しない意味です。Commandのmutation（変更範囲）は実行条件と各詳細Guideで確認し、Operation実行、Migration、Seeder、Purge、Relay、Worker、GeneratorはApplication DataまたはSourceを変更します。Optionの全量と既定値は本文の表と各詳細Guideを参照します。実行前に、Helpへ公開されたOptionとその既定値は`php blackops help <command>`で再確認してください。Helpが本文表の全Optionを必ず列挙するとは限りません。Project Rootの公開Retention Commandは4つの期間Optionだけを受け付けます。Idempotency Recordの第5期間は`config/retention.php`の`idempotency_record_days`で管理し、省略時は4つの基本期間の最長値を使います。
+「変更なし」はCommand自体がDatabase／Artifact／Generated Treeを変更しない意味です。Commandのmutation（変更範囲）は実行条件と各詳細Guideで確認し、Operation実行、Migration、Seeder、Purge、Relay、Worker、GeneratorはApplication DataまたはSourceを変更します。Optionの全量と既定値は本文の表と各詳細Guideを参照します。実行前に、Helpへ公開されたOptionとその既定値は`php blackops help <command>`で再確認してください。Helpが本文表の全Optionを必ず列挙するとは限りません。Project Rootの公開Retention Commandは5つの期間Optionを受け付けます。`--idempotency-record-days`を省略した場合は、Application設定の`config/retention.php`にある`idempotency_record_days`を使い、設定で第5期間を持たない場合は4つの基本期間の最長値へフォールバックします。
 
 ### Projectを作る・Buildする
 

@@ -30,6 +30,10 @@ use BlackOps\Internal\Console\RetentionPurgeCommand;
 use BlackOps\Internal\Console\SchedulerDaemonCommand;
 use BlackOps\Internal\Console\SchedulerRunCommand;
 use BlackOps\Internal\Console\WorkerRunCommand;
+use BlackOps\Internal\Projection\Command\CommandProjectionListCommand;
+use BlackOps\Internal\Projection\Command\CommandProjectionTargetRegistry;
+use BlackOps\Internal\Projection\Route\RouteProjectionListCommand;
+use BlackOps\Internal\Projection\Schedule\ScheduleProjectionListCommand;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Command\LazyCommand;
@@ -49,6 +53,11 @@ final readonly class ApplicationConsoleKernel
         $this->application->setCatchExceptions(false);
         $factory = new ApplicationConsoleCommandFactory($configuration);
         $retention = new ApplicationRetentionCommandFactory($configuration);
+        $statusSource = new ApplicationProjectionBuildSetStatusSource($configuration);
+
+        $this->application->addCommand(new CommandProjectionListCommand(statusSource: $statusSource));
+        $this->application->addCommand(new RouteProjectionListCommand(statusSource: $statusSource));
+        $this->application->addCommand(new ScheduleProjectionListCommand(statusSource: $statusSource));
 
         foreach ($this->frameworkCommands($factory, $retention) as $command) {
             $this->application->addCommand($command);
@@ -105,19 +114,26 @@ final readonly class ApplicationConsoleKernel
                 ->addOption('transport-payload-days', null, InputOption::VALUE_REQUIRED)
                 ->addOption('journal-days', null, InputOption::VALUE_REQUIRED)
                 ->addOption('outcome-days', null, InputOption::VALUE_REQUIRED)
-                ->addOption('dead-letter-days', null, InputOption::VALUE_REQUIRED);
+                ->addOption('dead-letter-days', null, InputOption::VALUE_REQUIRED)
+                ->addOption('idempotency-record-days', null, InputOption::VALUE_REQUIRED);
         };
+        $scheduledOperationRun = $factory->scheduledOperationRun();
+        $storageCommands = ApplicationStorageProtectionCommands::create($factory);
 
-        return [
+        $commands = [
+            $factory->diagnostics(),
+            $factory->queueStatus(),
+            $factory->about(),
+            $factory->outboxStatus(),
             new LazyFrameworkCommand(
                 OperationViewerCommand::NAME,
-                'Start the read-only local operation diagnostics viewer.',
+                CommandProjectionTargetRegistry::description(OperationViewerCommand::NAME),
                 $factory->operationViewer(...),
                 $none,
             ),
             new LazyFrameworkCommand(
                 OperationInspectCommand::NAME,
-                'Inspect one operation lifecycle and outcome.',
+                CommandProjectionTargetRegistry::description(OperationInspectCommand::NAME),
                 $factory->operationInspect(...),
                 static fn(Command $command): Command => $command
                     ->addArgument(
@@ -130,31 +146,36 @@ final readonly class ApplicationConsoleKernel
             )->withCanonicalSynopsis('operation:inspect <operation-id> [--json]'),
             new LazyFrameworkCommand(
                 ApplicationBuildCompileCommand::NAME,
-                'Compile application operation, HTTP, command, and container artifacts.',
+                CommandProjectionTargetRegistry::description(ApplicationBuildCompileCommand::NAME),
                 $factory->build(...),
                 $none,
             ),
             new LazyFrameworkCommand(
                 FrontendGenerateCommand::NAME,
-                'Generate TypeScript operation objects from the frontend contract.',
+                CommandProjectionTargetRegistry::description(FrontendGenerateCommand::NAME),
                 $factory->frontendGenerate(...),
                 $none,
             ),
             new LazyFrameworkCommand(
                 FrontendCheckCommand::NAME,
-                'Check generated TypeScript operation objects for drift.',
+                CommandProjectionTargetRegistry::description(FrontendCheckCommand::NAME),
                 $factory->frontendCheck(...),
                 $none,
             ),
             new LazyFrameworkCommand(
                 ApplicationOperationListCommand::NAME,
-                'List operation metadata from application providers.',
+                CommandProjectionTargetRegistry::description(ApplicationOperationListCommand::NAME),
                 $factory->operations(...),
-                $none,
+                static fn(Command $command): Command => $command->addOption(
+                    'strategy',
+                    null,
+                    InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY,
+                    'Filter by exact built-in execution strategy.',
+                ),
             ),
             new LazyFrameworkCommand(
                 MakeOperationCommand::NAME,
-                'Generate a typed self-handled operation.',
+                CommandProjectionTargetRegistry::description(MakeOperationCommand::NAME),
                 $factory->makeOperation(...),
                 static fn(Command $command): Command => $command->addArgument(
                     'operation',
@@ -164,7 +185,7 @@ final readonly class ApplicationConsoleKernel
             ),
             new LazyFrameworkCommand(
                 MakeMigrationCommand::NAME,
-                'Generate an application database migration.',
+                CommandProjectionTargetRegistry::description(MakeMigrationCommand::NAME),
                 $factory->makeMigration(...),
                 static fn(Command $command): Command => $command->addArgument(
                     'description',
@@ -174,7 +195,7 @@ final readonly class ApplicationConsoleKernel
             ),
             new LazyFrameworkCommand(
                 MakeSeederCommand::NAME,
-                'Generate an application database seeder.',
+                CommandProjectionTargetRegistry::description(MakeSeederCommand::NAME),
                 $factory->makeSeeder(...),
                 static fn(Command $command): Command => $command->addArgument(
                     'name',
@@ -184,7 +205,7 @@ final readonly class ApplicationConsoleKernel
             ),
             new LazyFrameworkCommand(
                 MakeAuthCommand::NAME,
-                'Generate a bearer session authentication starter.',
+                CommandProjectionTargetRegistry::description(MakeAuthCommand::NAME),
                 $factory->makeAuth(...),
                 static fn(Command $command): Command => $command->addOption(
                     'force',
@@ -195,25 +216,25 @@ final readonly class ApplicationConsoleKernel
             ),
             new LazyFrameworkCommand(
                 DatabaseMigrationStatusCommand::NAME,
-                'Show applied and pending BlackOps database migrations.',
+                CommandProjectionTargetRegistry::description(DatabaseMigrationStatusCommand::NAME),
                 $factory->databaseStatus(...),
                 $none,
             ),
             new LazyFrameworkCommand(
                 DatabaseMigrationMigrateCommand::NAME,
-                'Apply or preview BlackOps database migrations.',
+                CommandProjectionTargetRegistry::description(DatabaseMigrationMigrateCommand::NAME),
                 $factory->databaseMigrate(...),
                 static fn(Command $command): Command => $command->addOption('dry-run', null, InputOption::VALUE_NONE),
             ),
             new LazyFrameworkCommand(
                 DatabaseSeedCommand::NAME,
-                'Run the compiled application database root seeder.',
+                CommandProjectionTargetRegistry::description(DatabaseSeedCommand::NAME),
                 $factory->databaseSeed(...),
                 $none,
             ),
             new LazyFrameworkCommand(
                 WorkerRunCommand::NAME,
-                'Run the deferred operation worker loop.',
+                CommandProjectionTargetRegistry::description(WorkerRunCommand::NAME),
                 $factory->worker(...),
                 static fn(Command $command): Command => $command->addOption(
                     'iterations',
@@ -221,16 +242,16 @@ final readonly class ApplicationConsoleKernel
                     InputOption::VALUE_REQUIRED,
                 )->addOption('idle-sleep-milliseconds', null, InputOption::VALUE_REQUIRED, default: '1000'),
             ),
-            $factory->scheduledOperationRun(),
+            $scheduledOperationRun,
             new LazyFrameworkCommand(
                 RetentionPlanCommand::NAME,
-                'Build and print a retention purge plan without applying it.',
+                CommandProjectionTargetRegistry::description(RetentionPlanCommand::NAME),
                 $retention->plan(...),
                 $retentionOptions,
             ),
             new LazyFrameworkCommand(
                 RetentionPurgeCommand::NAME,
-                'Dry-run or apply retention purge.',
+                CommandProjectionTargetRegistry::description(RetentionPurgeCommand::NAME),
                 $retention->purge(...),
                 static function (Command $command) use ($retentionOptions): void {
                     $retentionOptions($command);
@@ -243,13 +264,13 @@ final readonly class ApplicationConsoleKernel
             ),
             new LazyFrameworkCommand(
                 SchedulerRunCommand::NAME,
-                'Run due BlackOps maintenance tasks once.',
+                CommandProjectionTargetRegistry::description(SchedulerRunCommand::NAME),
                 $retention->schedulerRun(...),
                 $none,
             ),
             new LazyFrameworkCommand(
                 SchedulerDaemonCommand::NAME,
-                'Run BlackOps maintenance tasks on an interval.',
+                CommandProjectionTargetRegistry::description(SchedulerDaemonCommand::NAME),
                 $retention->schedulerDaemon(...),
                 static fn(Command $command): Command => $command->addOption(
                     'interval',
@@ -260,7 +281,7 @@ final readonly class ApplicationConsoleKernel
             ),
             new LazyFrameworkCommand(
                 OutboxRelayRunCommand::NAME,
-                'Deliver pending transactional outbox records.',
+                CommandProjectionTargetRegistry::description(OutboxRelayRunCommand::NAME),
                 $factory->outboxRelayRun(...),
                 static fn(Command $command): Command => $command->addOption(
                     'batches',
@@ -270,7 +291,7 @@ final readonly class ApplicationConsoleKernel
             ),
             new LazyFrameworkCommand(
                 OutboxRelayDaemonCommand::NAME,
-                'Run transactional outbox delivery on an interval.',
+                CommandProjectionTargetRegistry::description(OutboxRelayDaemonCommand::NAME),
                 $factory->outboxRelayDaemon(...),
                 static fn(Command $command): Command => $command->addOption(
                     'interval-milliseconds',
@@ -280,7 +301,7 @@ final readonly class ApplicationConsoleKernel
             ),
             new LazyFrameworkCommand(
                 OutboxDeadLetterRetryCommand::NAME,
-                'Retry one dead-lettered transactional outbox record.',
+                CommandProjectionTargetRegistry::description(OutboxDeadLetterRetryCommand::NAME),
                 $factory->outboxDeadLetterRetry(...),
                 static fn(Command $command): Command => $command
                     ->addArgument('record-id', InputArgument::REQUIRED)
@@ -289,7 +310,7 @@ final readonly class ApplicationConsoleKernel
             ),
             new LazyFrameworkCommand(
                 JournalObserverReplayCommand::NAME,
-                'Replay canonical journal records to selected observers.',
+                CommandProjectionTargetRegistry::description(JournalObserverReplayCommand::NAME),
                 $factory->journalObserverReplay(...),
                 static fn(Command $command): Command => $command
                     ->addOption('operation-id', null, InputOption::VALUE_REQUIRED)
@@ -305,7 +326,20 @@ final readonly class ApplicationConsoleKernel
                     ->addOption('actor', null, InputOption::VALUE_REQUIRED)
                     ->addOption('reason', null, InputOption::VALUE_REQUIRED),
             ),
-            ...ApplicationStorageProtectionCommands::create($factory),
+            ...$storageCommands,
         ];
+
+        return array_map(self::applyFrameworkMetadata(...), $commands);
+    }
+
+    private static function applyFrameworkMetadata(Command $command): Command
+    {
+        $name = $command->getName();
+        if ($name === null) {
+            throw new \LogicException('Framework command must have a name.');
+        }
+        $target = CommandProjectionTargetRegistry::target($name);
+
+        return $command->setAliases($target->aliases)->setDescription($target->description)->setHidden($target->hidden);
     }
 }

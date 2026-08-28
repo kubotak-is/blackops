@@ -5,11 +5,16 @@ declare(strict_types=1);
 namespace BlackOps\Internal\Application;
 
 use BlackOps\Core\Identifier\OperationId;
+use BlackOps\Core\Outbox\OutboxStatusSource;
+use BlackOps\Core\Queue\QueueStatusSource;
+use BlackOps\Internal\About\ComposerAboutMetadataSource;
+use BlackOps\Internal\Console\AboutCommand;
 use BlackOps\Internal\Console\ApplicationBuildCompileCommand;
 use BlackOps\Internal\Console\ApplicationOperationListCommand;
 use BlackOps\Internal\Console\DatabaseMigrationMigrateCommand;
 use BlackOps\Internal\Console\DatabaseMigrationStatusCommand;
 use BlackOps\Internal\Console\DatabaseSeedCommand;
+use BlackOps\Internal\Console\DiagnosticsCheckCommand;
 use BlackOps\Internal\Console\FrontendCheckCommand;
 use BlackOps\Internal\Console\FrontendGenerateCommand;
 use BlackOps\Internal\Console\JournalObserverReplayCommand;
@@ -22,11 +27,14 @@ use BlackOps\Internal\Console\OperationViewerCommand;
 use BlackOps\Internal\Console\OutboxDeadLetterRetryCommand;
 use BlackOps\Internal\Console\OutboxRelayDaemonCommand;
 use BlackOps\Internal\Console\OutboxRelayRunCommand;
+use BlackOps\Internal\Console\OutboxStatusCommand;
+use BlackOps\Internal\Console\QueueStatusCommand;
 use BlackOps\Internal\Console\ScheduledOperationRunCommand;
 use BlackOps\Internal\Console\StorageProtectionPlanCommand;
 use BlackOps\Internal\Console\StorageProtectionRotateCommand;
 use BlackOps\Internal\Console\WorkerRunCommand;
 use BlackOps\Internal\Diagnostics\OperationDiagnosticsResult;
+use BlackOps\Internal\Diagnostics\SystemDiagnosticsCheck;
 use BlackOps\Internal\Diagnostics\Viewer\OperationViewerRouter;
 use BlackOps\Internal\Diagnostics\Viewer\OperationViewerTokens;
 use BlackOps\Internal\Generator\AuthGenerator;
@@ -34,10 +42,13 @@ use BlackOps\Internal\Generator\MigrationGenerator;
 use BlackOps\Internal\Generator\OperationGenerator;
 use BlackOps\Internal\Generator\SeederGenerator;
 use BlackOps\Internal\Migration\DatabaseMigrationRunner;
+use BlackOps\Internal\Observability\SystemClock;
 use BlackOps\Internal\Projection\ObservedJournalRecordProjector;
 use BlackOps\Internal\Projection\SensitiveProjectionFilter;
 use BlackOps\Internal\Replay\ObserverReplayRuntime;
 use BlackOps\Transport\PostgreSql\PostgreSqlObserverReplayStore;
+use BlackOps\Transport\PostgreSql\PostgreSqlOutboxStatusSource;
+use BlackOps\Transport\PostgreSql\PostgreSqlQueueStatusSource;
 use Symfony\Component\Console\Command\Command;
 
 /** @mago-expect lint:too-many-methods */
@@ -93,6 +104,49 @@ final class ApplicationConsoleCommandFactory
     public function frontendCheck(): Command
     {
         return new FrontendCheckCommand($this->configuration);
+    }
+
+    public function diagnostics(): Command
+    {
+        return new DiagnosticsCheckCommand(
+            new SystemDiagnosticsCheck(
+                new ApplicationProjectionBuildSetStatusSource($this->configuration),
+                $this->configuration->operationalHealthQuery(),
+                new SystemClock(),
+            ),
+        );
+    }
+
+    public function about(): Command
+    {
+        return new AboutCommand(
+            new ComposerAboutMetadataSource(),
+            new ApplicationProjectionBuildSetStatusSource($this->configuration),
+        );
+    }
+
+    public function queueStatus(): Command
+    {
+        $configuration = $this->configuration;
+
+        return new QueueStatusCommand(static function () use ($configuration): QueueStatusSource {
+            $database = ApplicationDatabaseConfiguration::fromConfiguration($configuration->configuration());
+            $connection = $database->databaseManager()->connection($database->frameworkConnection);
+
+            return new PostgreSqlQueueStatusSource($connection, $database->schema);
+        }, new SystemClock());
+    }
+
+    public function outboxStatus(): Command
+    {
+        $configuration = $this->configuration;
+
+        return new OutboxStatusCommand(static function () use ($configuration): OutboxStatusSource {
+            $database = ApplicationDatabaseConfiguration::fromConfiguration($configuration->configuration());
+            $connection = $database->databaseManager()->connection($database->frameworkConnection);
+
+            return new PostgreSqlOutboxStatusSource($connection, $database->schema);
+        }, new SystemClock());
     }
 
     public function databaseStatus(): Command

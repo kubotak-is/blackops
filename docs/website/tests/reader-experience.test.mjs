@@ -578,9 +578,9 @@ test('guided tutorial pairs runnable inputs with parseable JSON and masked JSONL
 
 test('retention guide preserves the idempotency default and successful plan contract', async () => {
   const retention = await guide('retention.md');
-  assert.match(retention, /`config\/retention\.php`の`idempotency_record_days`で管理し、省略した場合は4つの基本期間の最長値/);
-  assert.doesNotMatch(retention, /--idempotency-record-days/);
-  assert.match(retention, /--transport-payload-days=7[\s\S]*--journal-days=30[\s\S]*--outcome-days=14[\s\S]*--dead-letter-days=90/);
+  assert.match(retention, /`--idempotency-record-days`を省略した場合は、Application設定の`config\/retention\.php`にある`idempotency_record_days`を使い、設定で第5期間を持たない場合は4つの基本期間の最長値へフォールバックします/);
+  assert.match(retention, /--transport-payload-days=7[\s\S]*--journal-days=30[\s\S]*--outcome-days=14[\s\S]*--dead-letter-days=90[\s\S]*--idempotency-record-days=30/);
+  assert.doesNotMatch(retention, /Project Rootの公開Retention Commandは4つの期間Optionだけを受け付けます/);
   assert.match(retention, /Planは候補を読むだけで、DatabaseやJournalを変更しません/);
   assert.match(retention, /成功時の終了Codeは0です。次の形式を返します/);
   assert.match(retention, /Retention plan[\s\S]*idempotency_record: N/);

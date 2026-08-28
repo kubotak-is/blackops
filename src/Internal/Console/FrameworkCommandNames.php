@@ -4,37 +4,13 @@ declare(strict_types=1);
 
 namespace BlackOps\Internal\Console;
 
+use BlackOps\Internal\Projection\Command\CommandProjectionTargetRegistry;
+
 final readonly class FrameworkCommandNames
 {
     /** @return list<string> */
     public static function all(): array
     {
-        return [
-            ApplicationBuildCompileCommand::NAME,
-            ApplicationOperationListCommand::NAME,
-            MakeOperationCommand::NAME,
-            MakeMigrationCommand::NAME,
-            MakeSeederCommand::NAME,
-            MakeAuthCommand::NAME,
-            DatabaseMigrationStatusCommand::NAME,
-            DatabaseMigrationMigrateCommand::NAME,
-            DatabaseSeedCommand::NAME,
-            WorkerRunCommand::NAME,
-            ScheduledOperationRunCommand::NAME,
-            RetentionPlanCommand::NAME,
-            RetentionPurgeCommand::NAME,
-            SchedulerRunCommand::NAME,
-            SchedulerDaemonCommand::NAME,
-            OutboxRelayRunCommand::NAME,
-            OutboxRelayDaemonCommand::NAME,
-            OutboxDeadLetterRetryCommand::NAME,
-            OperationInspectCommand::NAME,
-            OperationViewerCommand::NAME,
-            FrontendGenerateCommand::NAME,
-            FrontendCheckCommand::NAME,
-            JournalObserverReplayCommand::NAME,
-            StorageProtectionPlanCommand::NAME,
-            StorageProtectionRotateCommand::NAME,
-        ];
+        return CommandProjectionTargetRegistry::frameworkNames();
     }
 }

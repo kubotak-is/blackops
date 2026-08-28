@@ -121,6 +121,8 @@ deptrac:
     - name: Library
       collectors:
         - type: classNameRegex
+          value: '/^Composer(\\|$)/'
+        - type: classNameRegex
           value: '/^Monolog(\\|$)/'
         - type: classNameRegex
           value: '/^FastRoute(\\|$)/'
@@ -169,6 +171,7 @@ deptrac:
     Application:
       - Core
       - InternalApplication
+      - Observability
       - Library
     Auth:
       - Core
@@ -281,6 +284,7 @@ deptrac:
       - Scheduling
       - StorageProtection
       - Transport
+      - Observability
     InternalAuth:
       - Auth
       - Core

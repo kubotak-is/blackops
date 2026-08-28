@@ -55,6 +55,7 @@ final class ApplicationTest extends TestCase
             'withCommands',
             'withTracerProvider',
             'withMeterProvider',
+            'withOperationalHealthQuery',
         ] as $method) {
             self::assertSame(ApplicationBuilder::class, (string) $builder->getMethod($method)->getReturnType());
         }
@@ -84,6 +85,7 @@ final class ApplicationTest extends TestCase
                 'withEnvironment',
                 'withEnvironmentFile',
                 'withMeterProvider',
+                'withOperationalHealthQuery',
                 'withOperations',
                 'withServices',
                 'withTracerProvider',

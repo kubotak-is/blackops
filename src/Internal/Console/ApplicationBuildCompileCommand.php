@@ -34,6 +34,12 @@ use BlackOps\Internal\DependencyInjection\RuntimeContainerPreflightCompiler;
 use BlackOps\Internal\DependencyInjection\ServiceProviderConfigLoader;
 use BlackOps\Internal\Frontend\FrontendContractCompiler;
 use BlackOps\Internal\Frontend\FrontendContractManifestFile;
+use BlackOps\Internal\Projection\BuildSet\ProjectionBuildSetLocator;
+use BlackOps\Internal\Projection\BuildSet\ProjectionBuildSetPublisher;
+use BlackOps\Internal\Projection\BuildSet\ProjectionExecutionStrategyWire;
+use BlackOps\Internal\Projection\Command\CommandProjectionProducer;
+use BlackOps\Internal\Projection\Route\RouteProjectionProducer;
+use BlackOps\Internal\Projection\Schedule\ScheduleProjectionProducer;
 use BlackOps\Internal\Registry\OperationDefinitionFactory;
 use BlackOps\Internal\Registry\OperationManifestArtifact;
 use BlackOps\Internal\Registry\OperationManifestFile;
@@ -42,16 +48,24 @@ use BlackOps\Internal\Registry\OperationProviderConfigLoader;
 use BlackOps\Scheduling\ScheduledActorProvider;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 
+/**
+ * Coordinates configuration, compilation, artifact writes, and the final
+ * complete projection publication boundary.
+ *
+ * @mago-expect lint:cyclomatic-complexity
+ */
 final class ApplicationBuildCompileCommand extends Command
 {
     public const NAME = 'build:compile';
 
     public function __construct(
         private readonly ApplicationConfigurationSnapshot $configuration,
+        private readonly ?ProjectionBuildSetPublisher $projectionPublisher = null,
     ) {
         parent::__construct(self::NAME);
     }
@@ -167,9 +181,37 @@ final class ApplicationBuildCompileCommand extends Command
             $buildId,
         );
 
+        $strategyWire = new ProjectionExecutionStrategyWire();
+        $projections = [
+            'command' => new CommandProjectionProducer()->produce(
+                $buildId,
+                $explicitCommands,
+                $discoveredCommands,
+                $operationCommands,
+            ),
+            'route' => new RouteProjectionProducer(strategyWire: $strategyWire)->produce($buildId, $http),
+            'schedule' => new ScheduleProjectionProducer(strategyWire: $strategyWire)->produce($buildId, $registry),
+        ];
+        $publisher =
+            $this->projectionPublisher ?? new ProjectionBuildSetPublisher(new ProjectionBuildSetLocator($build->projectionBuildSetRoot));
+        $publication = $publisher->publish($buildId, $projections);
+
         $output->writeln('Build artifacts written.');
 
+        if (!$publication->cleanupComplete) {
+            $this->writeError($output, 'Projection build-set cleanup is incomplete.');
+
+            return Command::FAILURE;
+        }
+
         return Command::SUCCESS;
+    }
+
+    private function writeError(OutputInterface $output, string $message): void
+    {
+        if ($output instanceof ConsoleOutputInterface) {
+            $output->getErrorOutput()->writeln($message);
+        }
     }
 
     private function wireFrameworkRuntime(

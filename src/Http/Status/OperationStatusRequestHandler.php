@@ -16,9 +16,6 @@ use Throwable;
 
 final readonly class OperationStatusRequestHandler implements RequestHandlerInterface
 {
-    private const string PATH_PREFIX = '/operations/';
-    private const string PATH_SEPARATOR = '/';
-
     public function __construct(
         private OperationStatusQuery $query,
         private OperationStatusJsonResponder $responder,
@@ -26,16 +23,7 @@ final readonly class OperationStatusRequestHandler implements RequestHandlerInte
 
     public function matches(ServerRequestInterface $request): bool
     {
-        if ($request->getMethod() !== 'GET') {
-            return false;
-        }
-
-        $path = $request->getUri()->getPath();
-
-        return (
-            str_starts_with($path, self::PATH_PREFIX)
-            && !str_contains(substr($path, strlen(self::PATH_PREFIX)), self::PATH_SEPARATOR)
-        );
+        return OperationStatusHttpContract::matches($request->getMethod(), $request->getUri()->getPath());
     }
 
     public function handle(ServerRequestInterface $request): ResponseInterface
@@ -73,7 +61,8 @@ final readonly class OperationStatusRequestHandler implements RequestHandlerInte
             return null;
         }
 
-        $value = substr($request->getUri()->getPath(), strlen(self::PATH_PREFIX));
+        $prefix = OperationStatusHttpContract::pathPrefix();
+        $value = substr($request->getUri()->getPath(), strlen($prefix));
         if ($value === '') {
             return null;
         }

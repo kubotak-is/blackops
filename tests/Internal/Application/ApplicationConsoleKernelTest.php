@@ -18,7 +18,16 @@ use BlackOps\Core\OperationResult;
 use BlackOps\Core\OperationValue;
 use BlackOps\Core\Registry\OperationProvider;
 use BlackOps\Database\Attribute\Transactional;
+use BlackOps\Internal\Console\AboutCommand;
+use BlackOps\Internal\Console\DiagnosticsCheckCommand;
+use BlackOps\Internal\Console\FrameworkCommandNames;
+use BlackOps\Internal\Console\LazyFrameworkCommand;
+use BlackOps\Internal\Console\OutboxStatusCommand;
+use BlackOps\Internal\Console\QueueStatusCommand;
+use BlackOps\Internal\Projection\Command\CommandProjectionTarget;
+use BlackOps\Internal\Projection\Command\CommandProjectionTargetRegistry;
 use BlackOps\Internal\Registry\OperationManifestFile;
+use Doctrine\DBAL\DriverManager;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -29,6 +38,148 @@ use Symfony\Component\Console\Output\OutputInterface;
 final class ApplicationConsoleKernelTest extends TestCase
 {
     use ApplicationTestDirectories;
+
+    public function testActivatedProjectionMetadataUsesTargetRegistryAndAliases(): void
+    {
+        $application = Application::configure($this->directory())->create();
+        $kernel = $application->console();
+
+        $listing = new BufferedOutput();
+        self::assertSame(0, $kernel->run(new ArrayInput(['command' => 'list']), $listing));
+        $listingText = $listing->fetch();
+        foreach (FrameworkCommandNames::all() as $name) {
+            $target = CommandProjectionTargetRegistry::target($name);
+            self::assertStringContainsString($target->name, $listingText);
+            self::assertStringContainsString($target->description, $listingText);
+        }
+
+        self::assertSame([], CommandProjectionTargetRegistry::target('operation:list')->aliases);
+        self::assertNotSame(CommandProjectionTargetRegistry::target('list')->aliases, []);
+        self::assertCount(35, CommandProjectionTargetRegistry::all());
+        self::assertSame(['route:ls'], CommandProjectionTargetRegistry::target('route:list')->aliases);
+        self::assertSame(['schedule:ls'], CommandProjectionTargetRegistry::target('schedule:list')->aliases);
+        $internalKernel = new \ReflectionProperty($kernel, 'kernel')->getValue($kernel);
+        $console = new \ReflectionProperty($internalKernel, 'application')->getValue($internalKernel);
+        $actualCanonicalNames = array_values(array_unique(array_map(
+            static fn(Command $command): string => $command->getName(),
+            array_values($console->all()),
+        )));
+        sort($actualCanonicalNames, SORT_STRING);
+        $expectedCanonicalNames = array_map(
+            static fn(CommandProjectionTarget $target): string => $target->name,
+            CommandProjectionTargetRegistry::all(),
+        );
+        sort($expectedCanonicalNames, SORT_STRING);
+        self::assertSame($expectedCanonicalNames, $actualCanonicalNames);
+        foreach ([
+            'ls' => 'list',
+            'route:ls' => 'route:list',
+            'schedule:ls' => 'schedule:list',
+        ] as $alias => $canonical) {
+            self::assertSame($canonical, $console->find($alias)->getName(), $alias);
+            self::assertNotContains($alias, $actualCanonicalNames, $alias . ' canonical row');
+        }
+        self::assertTrue($console->has('route:list'));
+        self::assertTrue($console->has('route:ls'));
+        self::assertTrue($console->has('schedule:list'));
+        self::assertTrue($console->has('schedule:ls'));
+        $alias = new BufferedOutput();
+        self::assertSame(0, $kernel->run(new ArrayInput(['command' => 'ls']), $alias));
+        self::assertStringContainsString('List commands', $alias->fetch());
+    }
+
+    public function testKernelFrameworkCommandsMatchTargetMetadataForEveryField(): void
+    {
+        $publicKernel = Application::configure($this->directory())->create()->console();
+        $internalKernel = new \ReflectionProperty($publicKernel, 'kernel')->getValue($publicKernel);
+        $console = new \ReflectionProperty($internalKernel, 'application')->getValue($internalKernel);
+
+        foreach (FrameworkCommandNames::all() as $name) {
+            $command = $console->find($name);
+            $target = CommandProjectionTargetRegistry::target($name);
+            self::assertSame($target->name, $command->getName(), $name . ' name');
+            self::assertSame($target->aliases, $command->getAliases(), $name . ' aliases');
+            self::assertSame($target->description, $command->getDescription(), $name . ' description');
+            self::assertSame($target->hidden, $command->isHidden(), $name . ' hidden');
+        }
+    }
+
+    public function testOperationalStatusCommandsAreConcreteAndDoNotResolveRuntimeOnReadOnlyPaths(): void
+    {
+        $directory = $this->directory();
+        $config = $directory . '/config';
+        mkdir($config);
+        $this->writeConfig(
+            $config,
+            'database',
+            "return ['connection' => ['driver' => 'pdo_pgsql'], 'schema' => 'invalid-schema'];",
+        );
+        $query = $this->createMock(\BlackOps\Observability\OperationalHealthQuery::class);
+        $query->expects(self::never())->method('check');
+        $application = Application::configure($directory)
+            ->withConfiguration()
+            ->withOperationalHealthQuery($query)
+            ->create();
+        $kernel = $application->console();
+        $internalKernel = new \ReflectionProperty($kernel, 'kernel')->getValue($kernel);
+        $console = new \ReflectionProperty($internalKernel, 'application')->getValue($internalKernel);
+
+        $diagnostics = $console->find('diagnostics:check');
+        $queue = $console->find('queue:status');
+        $about = $console->find('about');
+        $outbox = $console->find('outbox:status');
+        self::assertInstanceOf(AboutCommand::class, $about);
+        self::assertInstanceOf(OutboxStatusCommand::class, $outbox);
+        self::assertNotInstanceOf(LazyFrameworkCommand::class, $about);
+        self::assertNotInstanceOf(LazyFrameworkCommand::class, $outbox);
+        self::assertInstanceOf(DiagnosticsCheckCommand::class, $diagnostics);
+        self::assertInstanceOf(QueueStatusCommand::class, $queue);
+        self::assertNotInstanceOf(LazyFrameworkCommand::class, $diagnostics);
+        self::assertNotInstanceOf(LazyFrameworkCommand::class, $queue);
+
+        $list = new BufferedOutput();
+        self::assertSame(0, $kernel->run(new ArrayInput(['command' => 'list']), $list));
+        $listing = $list->fetch();
+        self::assertStringContainsString('diagnostics:check', $listing);
+        self::assertStringContainsString('queue:status', $listing);
+        self::assertStringContainsString('about', $listing);
+        self::assertStringContainsString('outbox:status', $listing);
+
+        $help = new BufferedOutput();
+        self::assertSame(0, $kernel->run(new ArrayInput([
+            'command' => 'help',
+            'command_name' => 'queue:status',
+        ]), $help));
+        self::assertStringContainsString('Show aggregate deferred-operation queue status.', $help->fetch());
+
+        $aboutHelp = new BufferedOutput();
+        self::assertSame(0, $kernel->run(new ArrayInput([
+            'command' => 'help',
+            'command_name' => 'about',
+        ]), $aboutHelp));
+        self::assertStringContainsString(
+            'Show installed BlackOps package, runtime, and projection status.',
+            $aboutHelp->fetch(),
+        );
+
+        $outboxHelp = new BufferedOutput();
+        self::assertSame(0, $kernel->run(new ArrayInput([
+            'command' => 'help',
+            'command_name' => 'outbox:status',
+        ]), $outboxHelp));
+        self::assertStringContainsString('Show aggregate transactional outbox status.', $outboxHelp->fetch());
+
+        $invalid = new BufferedOutput();
+        self::assertSame(2, $kernel->run(new ArrayInput([
+            'command' => 'queue:status',
+            '--unknown' => true,
+        ]), $invalid));
+        self::assertSame("queue.input_invalid\n", $invalid->fetch());
+
+        $valid = new BufferedOutput();
+        self::assertSame(2, $kernel->run(new ArrayInput(['command' => 'queue:status']), $valid));
+        self::assertSame("queue.configuration_invalid\n", $valid->fetch());
+    }
 
     public function testListsAndHelpsAllFrameworkCommandsWithoutRuntimeConfiguration(): void
     {
@@ -137,6 +288,108 @@ final class ApplicationConsoleKernelTest extends TestCase
         self::assertDirectoryDoesNotExist($directory . '/app');
     }
 
+    public function testExplicitApplicationCommandIsConstructedForEveryStableListFormat(): void
+    {
+        $inputs = [
+            'default' => ['command' => 'list'],
+            'raw' => ['command' => 'list', '--raw' => true],
+            'json' => ['command' => 'list', '--format' => 'json'],
+            'xml' => ['command' => 'list', '--format' => 'xml'],
+            'markdown' => ['command' => 'list', '--format' => 'md'],
+        ];
+        $assertions = [
+            'default' => static function (string $listing): void {
+                self::assertStringContainsString('| Name ', $listing);
+                self::assertStringContainsString('build:compile', $listing);
+                self::assertStringNotContainsString('fixture:explicit-list', $listing);
+            },
+            'raw' => static function (string $listing): void {
+                self::assertStringContainsString("build:compile\t\n", $listing);
+                self::assertStringNotContainsString('fixture:explicit-list', $listing);
+            },
+            'json' => static function (string $listing): void {
+                $document = json_decode($listing, true, flags: JSON_THROW_ON_ERROR);
+                self::assertIsArray($document);
+                self::assertArrayHasKey('commands', $document);
+                self::assertIsArray($document['commands']);
+                self::assertCount(34, $document['commands']);
+                self::assertNotContains('fixture:explicit-list', array_column($document['commands'], 'name'));
+                self::assertArrayNotHasKey('definition', $document['commands'][0]);
+            },
+            'xml' => static function (string $listing): void {
+                self::assertStringStartsWith('<blackopsCommandProjection version="1" status="absent">', $listing);
+                self::assertStringContainsString('<name>build:compile</name>', $listing);
+                self::assertStringNotContainsString('fixture:explicit-list', $listing);
+            },
+            'markdown' => static function (string $listing): void {
+                self::assertStringContainsString('blackops-command-projection-v1 status=absent', $listing);
+                self::assertStringContainsString('| build:compile |', $listing);
+                self::assertStringNotContainsString('fixture:explicit-list', $listing);
+            },
+        ];
+
+        foreach ($inputs as $label => $input) {
+            ConsoleKernelExplicitListCommand::$constructions = 0;
+            $application = Application::configure($this->directory())
+                ->withCommands([ConsoleKernelExplicitListCommand::class])
+                ->create();
+            ConsoleKernelExplicitListCommand::$constructions = 0;
+            $output = new BufferedOutput();
+
+            self::assertSame(0, $application->console()->run(new ArrayInput($input), $output), $label);
+            self::assertSame(1, ConsoleKernelExplicitListCommand::$constructions, $label);
+            $listing = $output->fetch();
+            $assertions[$label]($listing);
+        }
+    }
+
+    public function testPrebuiltApplicationCommandInstanceIsReusedForEveryStableListFormat(): void
+    {
+        ConsoleKernelExplicitListCommand::$constructions = 0;
+        $prebuilt = new ConsoleKernelExplicitListCommand();
+        self::assertSame(1, ConsoleKernelExplicitListCommand::$constructions);
+        $application = Application::configure($this->directory())->withCommands([$prebuilt])->create();
+        self::assertSame(1, ConsoleKernelExplicitListCommand::$constructions);
+
+        $inputs = [
+            'default' => ['command' => 'list'],
+            'raw' => ['command' => 'list', '--raw' => true],
+            'json' => ['command' => 'list', '--format' => 'json'],
+            'xml' => ['command' => 'list', '--format' => 'xml'],
+            'markdown' => ['command' => 'list', '--format' => 'md'],
+        ];
+
+        foreach ($inputs as $label => $input) {
+            $output = new BufferedOutput();
+            self::assertSame(0, $application->console()->run(new ArrayInput($input), $output), $label . ' exit');
+            self::assertSame(1, ConsoleKernelExplicitListCommand::$constructions, $label . ' construction count');
+            $listing = $output->fetch();
+
+            if ($label === 'default') {
+                self::assertStringContainsString('| Name ', $listing);
+                self::assertStringContainsString('build:compile', $listing);
+                self::assertStringNotContainsString('fixture:explicit-list', $listing);
+            } elseif ($label === 'raw') {
+                self::assertStringContainsString("build:compile\t\n", $listing);
+                self::assertStringNotContainsString('fixture:explicit-list', $listing);
+            } elseif ($label === 'json') {
+                $document = json_decode($listing, true, flags: JSON_THROW_ON_ERROR);
+                self::assertIsArray($document);
+                self::assertCount(34, $document['commands'] ?? []);
+                self::assertNotContains('fixture:explicit-list', array_column($document['commands'], 'name'));
+                self::assertArrayNotHasKey('definition', $document['commands'][0]);
+            } elseif ($label === 'xml') {
+                self::assertStringStartsWith('<blackopsCommandProjection version="1" status="absent">', $listing);
+                self::assertStringContainsString('<name>build:compile</name>', $listing);
+                self::assertStringNotContainsString('fixture:explicit-list', $listing);
+            } else {
+                self::assertStringContainsString('blackops-command-projection-v1 status=absent', $listing);
+                self::assertStringContainsString('| build:compile |', $listing);
+                self::assertStringNotContainsString('fixture:explicit-list', $listing);
+            }
+        }
+    }
+
     public function testScheduledUnknownOptionReturnsSafeExitTwoThroughApplicationKernel(): void
     {
         $application = Application::configure($this->directory())->create();
@@ -148,6 +401,87 @@ final class ApplicationConsoleKernelTest extends TestCase
             '--json' => true,
         ]), $output));
         self::assertSame('{"schemaVersion":1,"status":"failed","code":"configuration_error"}' . "\n", $output->fetch());
+    }
+
+    public function testFreshKernelRetentionDefinitionsExposeAndBindTheIdempotencyOption(): void
+    {
+        $directory = $this->directory();
+        $config = $directory . '/config';
+        $schema = 'blackops_retention_kernel_' . bin2hex(random_bytes(4));
+        mkdir($config);
+        $connection = DriverManager::getConnection($this->retentionConnectionParameters());
+
+        try {
+            $connection->executeStatement('DROP SCHEMA IF EXISTS ' . $schema . ' CASCADE');
+            new \BlackOps\Internal\Migration\DatabaseMigrationRunner($connection, $schema)->migrate();
+            $this->writeConfig(
+                $config,
+                'database',
+                'return '
+                . var_export([
+                    'connection' => $this->retentionConnectionParameters(),
+                    'schema' => $schema,
+                ], return: true)
+                . ';',
+            );
+            $this->writeConfig(
+                $config,
+                'retention',
+                'return '
+                . var_export([
+                    'transport_payload_days' => 7,
+                    'journal_days' => 30,
+                    'outcome_days' => 14,
+                    'dead_letter_days' => 90,
+                    'idempotency_record_days' => 11,
+                    'policy_ref' => 'kernel-retention-test',
+                    'actor' => 'system:kernel-test',
+                ], return: true)
+                . ';',
+            );
+
+            $kernel = Application::configure($directory)->withConfiguration()->create()->console();
+            foreach (['retention:plan', 'retention:purge'] as $command) {
+                $help = new BufferedOutput();
+                self::assertSame(0, $kernel->run(new ArrayInput([
+                    'command' => 'help',
+                    'command_name' => $command,
+                ]), $help));
+                self::assertSame(1, substr_count($help->fetch(), '--idempotency-record-days'), $command);
+            }
+
+            $plan = new BufferedOutput();
+            self::assertSame(0, $kernel->run(new ArrayInput([
+                'command' => 'retention:plan',
+                '--transport-payload-days' => '7',
+                '--journal-days' => '30',
+                '--outcome-days' => '14',
+                '--dead-letter-days' => '90',
+                '--idempotency-record-days' => '45',
+            ]), $plan));
+            self::assertStringContainsString('Retention plan', $plan->fetch());
+            self::assertStringNotContainsString('Unknown option', $plan->fetch());
+
+            $migrationCount = $connection->fetchOne('SELECT count(*) FROM ' . $schema . '.schema_migrations');
+            $purge = new BufferedOutput();
+            self::assertSame(0, $kernel->run(new ArrayInput([
+                'command' => 'retention:purge',
+                '--dry-run' => true,
+                '--transport-payload-days' => '7',
+                '--journal-days' => '30',
+                '--outcome-days' => '14',
+                '--dead-letter-days' => '90',
+                '--idempotency-record-days' => '45',
+            ]), $purge));
+            self::assertStringContainsString('Retention purge dry run', $purge->fetch());
+            self::assertSame(
+                $migrationCount,
+                $connection->fetchOne('SELECT count(*) FROM ' . $schema . '.schema_migrations'),
+            );
+        } finally {
+            $connection->executeStatement('DROP SCHEMA IF EXISTS ' . $schema . ' CASCADE');
+            $connection->close();
+        }
     }
 
     public function testReplayListAndHelpDoNotTouchConfiguredJsonlPath(): void
@@ -482,6 +816,19 @@ final class ApplicationConsoleKernelTest extends TestCase
             self::assertNull($exception->getPrevious());
         }
     }
+
+    /** @return array<string, mixed> */
+    private function retentionConnectionParameters(): array
+    {
+        return [
+            'driver' => 'pdo_pgsql',
+            'host' => (string) (getenv('POSTGRES_HOST') ?: 'postgres'),
+            'port' => (int) (getenv('POSTGRES_PORT') ?: 5432),
+            'dbname' => (string) (getenv('POSTGRES_DB') ?: 'blackops'),
+            'user' => (string) (getenv('POSTGRES_USER') ?: 'blackops'),
+            'password' => (string) (getenv('POSTGRES_PASSWORD') ?: 'blackops'),
+        ];
+    }
 }
 
 final class ConsoleKernelCustomCommand extends Command
@@ -496,6 +843,26 @@ final class ConsoleKernelCustomCommand extends Command
         $output->writeln('hello');
 
         return Command::SUCCESS;
+    }
+}
+
+final class ConsoleKernelExplicitListCommand extends Command
+{
+    public static int $constructions = 0;
+
+    public function __construct()
+    {
+        self::$constructions++;
+        parent::__construct('fixture:explicit-list');
+        $this->setDescription('Run the explicit list fixture.');
+        $this->setHelp('The fixture records explicit command construction.');
+    }
+
+    protected function execute(InputInterface $input, OutputInterface $output): int
+    {
+        $output->writeln('explicit list fixture');
+
+        return self::SUCCESS;
     }
 }
 

@@ -6,6 +6,7 @@ namespace BlackOps\Internal\Application;
 
 use BlackOps\Core\DependencyInjection\ServiceProvider;
 use BlackOps\Core\Registry\OperationProvider;
+use BlackOps\Observability\OperationalHealthQuery;
 use OpenTelemetry\API\Metrics\MeterProviderInterface;
 use OpenTelemetry\API\Trace\TracerProviderInterface;
 use Symfony\Component\Console\Command\Command;
@@ -26,6 +27,7 @@ final readonly class ApplicationConfigurationSnapshot
         private array $commands,
         private ?TracerProviderInterface $tracerProvider = null,
         private ?MeterProviderInterface $meterProvider = null,
+        private ?OperationalHealthQuery $operationalHealthQuery = null,
     ) {}
 
     public function basePath(): string
@@ -65,5 +67,10 @@ final readonly class ApplicationConfigurationSnapshot
     public function meterProvider(): ?MeterProviderInterface
     {
         return $this->meterProvider;
+    }
+
+    public function operationalHealthQuery(): ?OperationalHealthQuery
+    {
+        return $this->operationalHealthQuery;
     }
 }

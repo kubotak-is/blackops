@@ -56,6 +56,106 @@ final class ApplicationCommandDiscoveryIntegrationTest extends TestCase
         self::assertSame(1, DiscoveredGreetingCommand::$constructions);
     }
 
+    public function testDiscoveredLazyCommandListFormatsResolveOnlyStructuredDefinitions(): void
+    {
+        $cases = [
+            'default' => [
+                'input' => ['command' => 'list'],
+                'constructions' => 0,
+            ],
+            'raw' => [
+                'input' => ['command' => 'list', '--raw' => true],
+                'constructions' => 0,
+            ],
+            'json' => [
+                'input' => ['command' => 'list', '--format' => 'json'],
+                'constructions' => 0,
+            ],
+            'xml' => [
+                'input' => ['command' => 'list', '--format' => 'xml'],
+                'constructions' => 0,
+            ],
+            'markdown' => [
+                'input' => ['command' => 'list', '--format' => 'md'],
+                'constructions' => 0,
+            ],
+        ];
+        $assertions = [
+            'default' => static function (string $listing): void {
+                self::assertStringContainsString('fixture:greet', $listing);
+                self::assertStringContainsString('fixture:hello', $listing);
+                self::assertStringContainsString('Run the discovered command fixture.', $listing);
+            },
+            'raw' => static function (string $listing): void {
+                self::assertStringContainsString("fixture:greet\tfixture:hello\n", $listing);
+            },
+            'json' => static function (string $listing): void {
+                $document = json_decode($listing, true, flags: JSON_THROW_ON_ERROR);
+                self::assertIsArray($document);
+                self::assertArrayHasKey('commands', $document);
+                self::assertIsArray($document['commands']);
+                $commands = array_values(array_filter(
+                    $document['commands'],
+                    static fn(mixed $command): bool => (
+                        is_array($command)
+                        && ($command['name'] ?? null) === 'fixture:greet'
+                    ),
+                ));
+                self::assertCount(1, $commands);
+                self::assertSame('Run the discovered command fixture.', $commands[0]['description']);
+                self::assertSame(['fixture:hello'], $commands[0]['aliases']);
+                self::assertArrayNotHasKey('definition', $commands[0]);
+            },
+            'xml' => static function (string $listing): void {
+                self::assertStringStartsWith('<blackopsCommandProjection version="1" status="available">', $listing);
+                self::assertStringContainsString('<name>fixture:greet</name>', $listing);
+                self::assertStringContainsString('<alias>fixture:hello</alias>', $listing);
+            },
+            'markdown' => static function (string $listing): void {
+                self::assertStringContainsString('| fixture:greet', $listing);
+                self::assertStringContainsString('| fixture:hello', $listing);
+                self::assertStringContainsString('Run the discovered command fixture.', $listing);
+            },
+        ];
+
+        foreach ($cases as $label => $case) {
+            $directory = $this->applicationDirectory('ListFormat' . bin2hex(random_bytes(4)));
+            $buildOutput = new BufferedOutput();
+            $builder = Application::configure($directory)->withConfiguration()->create();
+
+            self::assertSame(
+                0,
+                $builder->console()->run(new ArrayInput(['command' => 'build:compile']), $buildOutput),
+                $label . ' build exit',
+            );
+            self::assertFileExists($directory . '/var/build/commands.php', $label . ' manifest file');
+            $artifact = new ApplicationCommandManifestFile()->loadArtifact($directory . '/var/build/commands.php');
+            self::assertCount(1, $artifact->commands, $label . ' manifest command count');
+            self::assertSame(
+                DiscoveredGreetingCommand::class,
+                $artifact->commands[0]->class,
+                $label . ' manifest class',
+            );
+
+            DiscoveredGreetingCommand::$constructions = 0;
+            $runtime = Application::configure($directory)->withConfiguration()->create();
+            $output = new BufferedOutput();
+            self::assertSame(
+                0,
+                $runtime->console()->run(new ArrayInput($case['input']), $output),
+                $label . ' list exit',
+            );
+            self::assertSame(
+                $case['constructions'],
+                DiscoveredGreetingCommand::$constructions,
+                $label . ' factory count',
+            );
+            $listing = $output->fetch();
+            $assertions[$label]($listing);
+            self::assertStringContainsString('fixture:greet', $listing, $label . ' command name');
+        }
+    }
+
     public function testMissingInvalidAndStaleArtifactsKeepRecoveryBuildAvailable(): void
     {
         $directory = $this->applicationDirectory('RecoveryContainer' . bin2hex(random_bytes(4)));

@@ -21,9 +21,14 @@ use BlackOps\Core\ScheduleContext;
 use BlackOps\Core\TenantRef;
 use BlackOps\Database\Attribute\Transactional;
 use BlackOps\Http\Routing\HttpOperationManifestFile;
+use BlackOps\Internal\Application\ApplicationBuildConfiguration;
 use BlackOps\Internal\Application\ApplicationConfigurationSnapshot;
+use BlackOps\Internal\Application\ApplicationConsoleKernel;
 use BlackOps\Internal\Console\ApplicationBuildCompileCommand;
 use BlackOps\Internal\Frontend\FrontendContractManifestFile;
+use BlackOps\Internal\Projection\BuildSet\ProjectionBuildSetLocator;
+use BlackOps\Internal\Projection\BuildSet\ProjectionBuildSetPublisher;
+use BlackOps\Internal\Projection\BuildSet\ProjectionBuildSetReader;
 use BlackOps\Internal\Registry\OperationManifestFile;
 use BlackOps\Scheduling\ScheduledActorProvider;
 use BlackOps\Status\OperationStatusAuthorizationDecision;
@@ -34,6 +39,8 @@ use BlackOps\StorageProtection\StorageKeyProvider;
 use BlackOps\StorageProtection\StoragePurpose;
 use BlackOps\Tests\Fixtures\Aop\TransactionalOperation;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Tester\CommandTester;
 
 final class ApplicationBuildCompileCommandTest extends TestCase
@@ -195,6 +202,281 @@ final class ApplicationBuildCompileCommandTest extends TestCase
         self::assertTrue($runtime['scheduled_actor']);
     }
 
+    public function testSuccessfulBuildPublishesOneCompleteRootReadByEveryProjectionCommand(): void
+    {
+        $configuration = $this->scheduledConfiguration(
+            [ApplicationBuildScheduledOperationProvider::class],
+            [ApplicationBuildScheduledActorServiceProvider::class],
+            'application-build-projection',
+        );
+        $build = ApplicationBuildConfiguration::fromConfiguration($configuration->configuration());
+        self::assertFileDoesNotExist($build->projectionBuildSetRoot . '/projection-build-set.json');
+        $checkpoints = [];
+        $publisher = new ProjectionBuildSetPublisher(
+            new ProjectionBuildSetLocator($build->projectionBuildSetRoot),
+            checkpoint: static function (string $event) use (&$checkpoints): void {
+                $checkpoints[] = $event;
+            },
+        );
+
+        $tester = new CommandTester(new ApplicationBuildCompileCommand($configuration, $publisher));
+        self::assertSame(0, $tester->execute([], ['capture_stderr_separately' => true]));
+        self::assertSame("Build artifacts written.\n", $tester->getDisplay());
+        self::assertSame('', $tester->getErrorOutput());
+        self::assertSame(
+            [
+                'after-exclusive-lock',
+                'before-first-temporary',
+                'projection-temporary-written:command',
+                'projection-generation-renamed:command',
+                'projection-temporary-written:route',
+                'projection-generation-renamed:route',
+                'projection-temporary-written:schedule',
+                'projection-generation-renamed:schedule',
+                'projection-directory-synced',
+                'root-temporary-written',
+                'root-committed',
+                'before-gc',
+            ],
+            $checkpoints,
+        );
+        self::assertSame(
+            [
+                'projection-generation-renamed:command',
+                'projection-generation-renamed:route',
+                'projection-generation-renamed:schedule',
+            ],
+            array_values(array_filter($checkpoints, static fn(string $event): bool => str_starts_with(
+                $event,
+                'projection-generation-renamed:',
+            ))),
+        );
+
+        $locator = new ProjectionBuildSetLocator($build->projectionBuildSetRoot);
+        $read = new ProjectionBuildSetReader($locator)->read('schedule');
+        self::assertSame('application-build-projection', $read->applicationBuildId);
+        self::assertCount(3, $read->projections);
+        self::assertCount(1, $read->records('schedule'));
+
+        $kernel = new ApplicationConsoleKernel($configuration);
+        $list = new BufferedOutput();
+        self::assertSame(0, $kernel->run(new ArrayInput([
+            'command' => 'list',
+            '--format' => 'json',
+        ]), $list));
+        $listDocument = json_decode($list->fetch(), true, flags: JSON_THROW_ON_ERROR);
+        self::assertContains('schedule:list', array_column($listDocument['commands'], 'name'));
+
+        $route = new BufferedOutput();
+        self::assertSame(0, $kernel->run(new ArrayInput([
+            'command' => 'route:ls',
+            '--json' => true,
+        ]), $route));
+        $routeDocument = json_decode($route->fetch(), true, flags: JSON_THROW_ON_ERROR);
+        self::assertNotEmpty($routeDocument['routes']);
+
+        $schedule = new BufferedOutput();
+        self::assertSame(0, $kernel->run(new ArrayInput([
+            'command' => 'schedule:list',
+            '--json' => true,
+        ]), $schedule));
+        $scheduleDocument = json_decode($schedule->fetch(), true, flags: JSON_THROW_ON_ERROR);
+        self::assertSame('application.build.scheduled', $scheduleDocument['schedules'][0]['operationType']);
+    }
+
+    public function testNonProjectionArtifactWriteFailureInvokesPublisherZeroTimes(): void
+    {
+        $configuration = $this->scheduledConfiguration(
+            [],
+            [],
+            'application-build-artifact-failure',
+            '/dev/null/blackops-operation-manifest.php',
+        );
+        $build = ApplicationBuildConfiguration::fromConfiguration($configuration->configuration());
+        $events = [];
+        $publisher = new ProjectionBuildSetPublisher(
+            new ProjectionBuildSetLocator($build->projectionBuildSetRoot),
+            checkpoint: static function (string $event) use (&$events): void {
+                $events[] = $event;
+            },
+        );
+        $tester = new CommandTester(new ApplicationBuildCompileCommand($configuration, $publisher));
+
+        try {
+            $tester->execute([], ['capture_stderr_separately' => true]);
+            self::fail('Expected non-projection artifact write failure.');
+        } catch (\InvalidArgumentException $exception) {
+            self::assertStringContainsString('Operation manifest directory does not exist.', $exception->getMessage());
+        }
+
+        self::assertSame([], $events);
+        self::assertSame('', $tester->getDisplay());
+        self::assertSame('', $tester->getErrorOutput());
+        self::assertFileDoesNotExist(new ProjectionBuildSetLocator($build->projectionBuildSetRoot)->rootPath());
+    }
+
+    public function testPreCommitPublisherFailureRetainsExistingRootBytesAndBuildIdWithoutSuccess(): void
+    {
+        $previous = $this->scheduledConfiguration([], [], 'application-build-retained-old');
+        $previousBuild = ApplicationBuildConfiguration::fromConfiguration($previous->configuration());
+        self::assertSame(0, new CommandTester(new ApplicationBuildCompileCommand($previous))->execute([]));
+        $locator = new ProjectionBuildSetLocator($previousBuild->projectionBuildSetRoot);
+        $oldRootBytes = (string) file_get_contents($locator->rootPath());
+
+        $current = $this->scheduledConfiguration([], [], 'application-build-retained-new');
+        $publisher = new ProjectionBuildSetPublisher($locator, checkpoint: static function (string $event): void {
+            if ($event === 'before-first-temporary') {
+                throw new \RuntimeException('retained-root precommit failure');
+            }
+        });
+        $tester = new CommandTester(new ApplicationBuildCompileCommand($current, $publisher));
+
+        try {
+            $tester->execute([], ['capture_stderr_separately' => true]);
+            self::fail('Expected publisher failure.');
+        } catch (\RuntimeException $exception) {
+            self::assertSame('retained-root precommit failure', $exception->getMessage());
+        }
+
+        self::assertSame('', $tester->getDisplay());
+        self::assertSame('', $tester->getErrorOutput());
+        self::assertSame($oldRootBytes, file_get_contents($locator->rootPath()));
+        self::assertSame(
+            'application-build-retained-old',
+            new ProjectionBuildSetReader($locator)->read()->applicationBuildId,
+        );
+    }
+
+    public function testSameBuildIdPreCommitFailureExplicitlyRetainsCompleteRoot(): void
+    {
+        $buildId = 'application-build-retained-same';
+        $previous = $this->scheduledConfiguration([], [], $buildId);
+        $previousBuild = ApplicationBuildConfiguration::fromConfiguration($previous->configuration());
+        self::assertSame(0, new CommandTester(new ApplicationBuildCompileCommand($previous))->execute([]));
+        $locator = new ProjectionBuildSetLocator($previousBuild->projectionBuildSetRoot);
+        $oldRootBytes = (string) file_get_contents($locator->rootPath());
+
+        $current = $this->scheduledConfiguration([], [], $buildId);
+        $publisher = new ProjectionBuildSetPublisher($locator, checkpoint: static function (string $event): void {
+            if ($event === 'before-first-temporary') {
+                throw new \RuntimeException('same-build-id precommit failure');
+            }
+        });
+        $tester = new CommandTester(new ApplicationBuildCompileCommand($current, $publisher));
+
+        try {
+            $tester->execute([], ['capture_stderr_separately' => true]);
+            self::fail('Expected same-build-id publisher failure.');
+        } catch (\RuntimeException $exception) {
+            self::assertSame('same-build-id precommit failure', $exception->getMessage());
+        }
+
+        self::assertSame('', $tester->getDisplay());
+        self::assertSame('', $tester->getErrorOutput());
+        self::assertSame($oldRootBytes, file_get_contents($locator->rootPath()));
+        $read = new ProjectionBuildSetReader($locator)->read();
+        self::assertSame($buildId, $read->applicationBuildId);
+        self::assertCount(3, $read->projections);
+    }
+
+    public function testSecondSuccessfulBuildReplacesRootWithOneCompleteNewGeneration(): void
+    {
+        $previous = $this->scheduledConfiguration([], [], 'application-build-generation-old');
+        $previousBuild = ApplicationBuildConfiguration::fromConfiguration($previous->configuration());
+        self::assertSame(0, new CommandTester(new ApplicationBuildCompileCommand($previous))->execute([]));
+        $locator = new ProjectionBuildSetLocator($previousBuild->projectionBuildSetRoot);
+        $oldRootBytes = (string) file_get_contents($locator->rootPath());
+
+        $current = $this->scheduledConfiguration([], [], 'application-build-generation-new');
+        $checkpoints = [];
+        $publisher = new ProjectionBuildSetPublisher($locator, checkpoint: static function (string $event) use (
+            &$checkpoints,
+        ): void {
+            $checkpoints[] = $event;
+        });
+        $tester = new CommandTester(new ApplicationBuildCompileCommand($current, $publisher));
+
+        self::assertSame(0, $tester->execute([], ['capture_stderr_separately' => true]));
+        self::assertSame("Build artifacts written.\n", $tester->getDisplay());
+        self::assertSame('', $tester->getErrorOutput());
+        self::assertNotSame($oldRootBytes, file_get_contents($locator->rootPath()));
+        self::assertSame(
+            [
+                'projection-generation-renamed:command',
+                'projection-generation-renamed:route',
+                'projection-generation-renamed:schedule',
+            ],
+            array_values(array_filter($checkpoints, static fn(string $event): bool => str_starts_with(
+                $event,
+                'projection-generation-renamed:',
+            ))),
+        );
+
+        $read = new ProjectionBuildSetReader($locator)->read();
+        self::assertSame('application-build-generation-new', $read->applicationBuildId);
+        self::assertCount(3, $read->projections);
+        foreach ($read->projections as $projection) {
+            self::assertSame('application-build-generation-new', $projection->applicationBuildId);
+        }
+        $root = json_decode((string) file_get_contents($locator->rootPath()), true, flags: JSON_THROW_ON_ERROR);
+        self::assertIsArray($root);
+        foreach (['command', 'route', 'schedule'] as $key) {
+            self::assertSame(
+                $root['projections'][$key]['path'],
+                $read->projections[$key]->path,
+                $key . ' generation is bound to the current root',
+            );
+        }
+    }
+
+    public function testPreCommitPublisherFailureLeavesAbsentRootAndDoesNotPrintSuccess(): void
+    {
+        $configuration = $this->scheduledConfiguration([], [], 'application-build-precommit-failure');
+        $build = ApplicationBuildConfiguration::fromConfiguration($configuration->configuration());
+        $locator = new ProjectionBuildSetLocator($build->projectionBuildSetRoot);
+        $publisher = new ProjectionBuildSetPublisher($locator, checkpoint: static function (string $event): void {
+            if ($event === 'before-first-temporary') {
+                throw new \RuntimeException('precommit failure detail');
+            }
+        });
+        $tester = new CommandTester(new ApplicationBuildCompileCommand($configuration, $publisher));
+
+        try {
+            $tester->execute([], ['capture_stderr_separately' => true]);
+            self::fail('Expected publisher failure.');
+        } catch (\RuntimeException $exception) {
+            self::assertSame('precommit failure detail', $exception->getMessage());
+        }
+        self::assertSame('', $tester->getDisplay());
+        self::assertSame('', $tester->getErrorOutput());
+        self::assertFileDoesNotExist($locator->rootPath());
+        self::assertFileExists((string) $build->container);
+        self::assertFileExists((string) $build->operationManifest);
+    }
+
+    public function testPostCommitCleanupFailureReportsCommittedBuildAndFailureExit(): void
+    {
+        $configuration = $this->scheduledConfiguration([], [], 'application-build-cleanup-failure');
+        $build = ApplicationBuildConfiguration::fromConfiguration($configuration->configuration());
+        $publisher = new ProjectionBuildSetPublisher(
+            new ProjectionBuildSetLocator($build->projectionBuildSetRoot),
+            checkpoint: static function (string $event): void {
+                if ($event === 'before-gc') {
+                    throw new \RuntimeException('cleanup detail');
+                }
+            },
+        );
+        $tester = new CommandTester(new ApplicationBuildCompileCommand($configuration, $publisher));
+
+        self::assertSame(1, $tester->execute([], ['capture_stderr_separately' => true]));
+        self::assertSame("Build artifacts written.\n", $tester->getDisplay());
+        self::assertSame("Projection build-set cleanup is incomplete.\n", $tester->getErrorOutput());
+        self::assertSame(
+            'application-build-cleanup-failure',
+            new ProjectionBuildSetReader(new ProjectionBuildSetLocator($build->projectionBuildSetRoot))->read()->applicationBuildId,
+        );
+    }
+
     public function testPreviousCompleteBuildRollsBackAndCrossBuildUnitIsRejected(): void
     {
         $previous = $this->scheduledConfiguration(
@@ -233,13 +515,16 @@ final class ApplicationBuildCompileCommandTest extends TestCase
         array $operations,
         array $services,
         string $buildId,
+        ?string $operationManifest = null,
     ): ApplicationConfigurationSnapshot {
         return new ApplicationConfigurationSnapshot(
             dirname(__DIR__, 3),
             [
                 'app' => [
                     'build' => [
-                        'operation_manifest' => $this->path('scheduled-operation-manifest-' . bin2hex(random_bytes(4))),
+                        'operation_manifest' => $operationManifest ?? $this->path(
+                            'scheduled-operation-manifest-' . bin2hex(random_bytes(4)),
+                        ),
                         'http_manifest' => $this->path('scheduled-http-manifest-' . bin2hex(random_bytes(4))),
                         'frontend_manifest' => $this->path('scheduled-frontend-manifest-' . bin2hex(random_bytes(4))),
                         'container' => $this->path('scheduled-container-' . bin2hex(random_bytes(4))),

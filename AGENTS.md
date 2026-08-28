@@ -4,7 +4,7 @@
 
 Model／Profileの正本はRepository内設定とする。
 
-- Orchestrator／調査／Orchestrator Review: `.codex/config.toml`の`gpt-5.6-sol`／`xhigh`
+- Orchestrator／調査／Orchestrator Review: `.codex/config.toml`の`gpt-5.6-sol`／`max`
 - Production Implementation Worker: `.codex/agents/worker.toml`の`gpt-5.6-luna`／`max`
 - Documentation Reviewer: `.codex/agents/documentation-reviewer.toml`の`gpt-5.6-sol`／`xhigh`
 

@@ -35,6 +35,8 @@ use BlackOps\Http\Responder\JsonOperationResponder;
 use BlackOps\Http\Routing\HttpOperationRoute;
 use BlackOps\Http\Routing\HttpRouteCompiler;
 use BlackOps\Http\Routing\HttpRouteRegistry;
+use BlackOps\Http\Status\OperationStatusJsonResponder;
+use BlackOps\Http\Status\OperationStatusRequestHandler;
 use BlackOps\Idempotency\IdempotencyKey;
 use BlackOps\Idempotency\IdempotencyKeyHash;
 use BlackOps\Internal\Execution\ExecutionScopeProvider;
@@ -60,6 +62,9 @@ use BlackOps\Internal\Logging\ExecutionScopedLogger;
 use BlackOps\Internal\Logging\FrameworkOperationFailureReporter;
 use BlackOps\Journal\JournalEvent;
 use BlackOps\Journal\JournalRecord;
+use BlackOps\Status\OperationStatusQuery;
+use BlackOps\Status\OperationStatusResult;
+use BlackOps\Status\OperationStatusUnavailable;
 use BlackOps\Transport\PostgreSql\PostgreSqlCanonicalJournalStore;
 use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
@@ -706,6 +711,31 @@ final class OperationRequestHandlerTest extends TestCase
         self::assertSame(404, $response->getStatusCode());
     }
 
+    public function testCompositeHandlerPreservesStableStatusUnavailableResponseForEmptyOperationsPath(): void
+    {
+        $responder = new JsonOperationResponder($this->psr17, $this->psr17);
+        $status = new OperationStatusRequestHandler(
+            new StableUnavailableStatusQuery(),
+            new OperationStatusJsonResponder($this->psr17, $this->psr17),
+        );
+        $handler = new OperationRequestHandler(
+            new HttpRouteRegistry([]),
+            new OperationValueBinder(),
+            new FailingDispatcher(),
+            $responder,
+            $this->psr17,
+            new NoopValidationRejectionRecorder(),
+            status: $status,
+        );
+
+        $response = $handler->handle($this->request('GET', '/operations/'));
+
+        self::assertSame(404, $response->getStatusCode());
+        self::assertSame('private, no-store', $response->getHeaderLine('Cache-Control'));
+        self::assertSame('application/json', $response->getHeaderLine('Content-Type'));
+        self::assertSame('{"status":"error","code":"operation_unavailable"}', (string) $response->getBody());
+    }
+
     public function testUnknownGetRouteWithBodyKeepsNotFoundPrecedence(): void
     {
         $handler = $this->httpHandler(new FailingDispatcher());
@@ -1280,6 +1310,14 @@ final readonly class WelcomeHandler implements OperationHandler
     public function handle(OperationEnvelope $operation): OperationResult
     {
         return OperationResult::completed(new WelcomeShown('Welcome to BlackOps'));
+    }
+}
+
+final readonly class StableUnavailableStatusQuery implements OperationStatusQuery
+{
+    public function find(OperationId $operationId, ?ActorRef $currentActor = null): OperationStatusResult
+    {
+        return new OperationStatusUnavailable();
     }
 }
 

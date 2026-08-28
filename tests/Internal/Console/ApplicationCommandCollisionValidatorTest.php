@@ -8,6 +8,7 @@ use BlackOps\Core\Execution\Inline;
 use BlackOps\Internal\Console\ApplicationCommandCollisionValidator;
 use BlackOps\Internal\Console\ApplicationCommandMetadata;
 use BlackOps\Internal\Console\OperationConsoleCommandMetadata;
+use BlackOps\Internal\Projection\Command\CommandProjectionReservationRegistry;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -83,6 +84,96 @@ final class ApplicationCommandCollisionValidatorTest extends TestCase
                 self::fail('Expected operation command collision.');
             } catch (InvalidArgumentException $exception) {
                 self::assertStringContainsString('conflicts with', $exception->getMessage());
+                self::assertStringContainsString('fixture:shared', $exception->getMessage());
+                self::assertStringContainsString('rename', $exception->getMessage());
+                if ($commands !== []) {
+                    self::assertStringContainsString(CollisionOneCommand::class, $exception->getMessage());
+                } else {
+                    self::assertStringContainsString('framework command', $exception->getMessage());
+                }
+            }
+        }
+    }
+
+    public function testApplicationCollisionDiagnosticIdentifiesBothOwnersAndRenameAction(): void
+    {
+        $first = self::command(CollisionOneCommand::class, 'fixture:one', ['fixture:shared']);
+        $second = self::command(CollisionTwoCommand::class, 'fixture:shared');
+
+        try {
+            new ApplicationCommandCollisionValidator()->merge([$first, $second], [], []);
+            self::fail('Expected application command collision.');
+        } catch (InvalidArgumentException $exception) {
+            self::assertStringContainsString(CollisionTwoCommand::class, $exception->getMessage());
+            self::assertStringContainsString(CollisionOneCommand::class, $exception->getMessage());
+            self::assertStringContainsString('fixture:shared', $exception->getMessage());
+            self::assertStringContainsString('rename', $exception->getMessage());
+        }
+    }
+
+    public function testReservationsApplyWhenFrameworkCallSiteIsEmpty(): void
+    {
+        $command = self::command(CollisionOneCommand::class, 'fixture:command', ['ls']);
+
+        $this->expectExceptionMessage('conflicts with a framework command');
+        new ApplicationCommandCollisionValidator()->merge([$command], [], []);
+    }
+
+    public function testReservationsApplyToOperationEntryPointWhenFrameworkCallSiteIsEmpty(): void
+    {
+        $operation = new OperationConsoleCommandMetadata(
+            'fixture.operation',
+            CollisionOperation::class,
+            CollisionValue::class,
+            CollisionOutcome::class,
+            Inline::class,
+            'route:list',
+            '',
+            [],
+        );
+
+        $this->expectExceptionMessage('conflicts with a framework command');
+        new ApplicationCommandCollisionValidator()->validateOperationCommands([], [$operation], []);
+    }
+
+    public function testWorkerListAndAliasRemainApplicationOwned(): void
+    {
+        $command = self::command(CollisionOneCommand::class, 'worker:list', ['worker:ls']);
+
+        self::assertSame([$command], new ApplicationCommandCollisionValidator()->merge([$command], [], []));
+    }
+
+    public function testEveryReservedCanonicalAndAliasIsAppliedByBothEntryPoints(): void
+    {
+        foreach (CommandProjectionReservationRegistry::names() as $index => $reserved) {
+            $command = self::command(CollisionOneCommand::class, 'fixture:reserved' . $index, [$reserved]);
+            try {
+                new ApplicationCommandCollisionValidator()->merge([$command], [], []);
+                self::fail('Expected application reservation collision for ' . $reserved);
+            } catch (InvalidArgumentException $exception) {
+                self::assertStringContainsString('conflicts with a framework command', $exception->getMessage());
+                self::assertStringContainsString(CollisionOneCommand::class, $exception->getMessage());
+                self::assertStringContainsString($reserved, $exception->getMessage());
+                self::assertStringContainsString('rename', $exception->getMessage());
+            }
+
+            $operation = new OperationConsoleCommandMetadata(
+                'fixture.reserved.' . $index,
+                CollisionOperation::class,
+                CollisionValue::class,
+                CollisionOutcome::class,
+                Inline::class,
+                $reserved,
+                '',
+                [],
+            );
+            try {
+                new ApplicationCommandCollisionValidator()->validateOperationCommands([], [$operation], []);
+                self::fail('Expected operation reservation collision for ' . $reserved);
+            } catch (InvalidArgumentException $exception) {
+                self::assertStringContainsString('conflicts with a framework command', $exception->getMessage());
+                self::assertStringContainsString($reserved, $exception->getMessage());
+                self::assertStringContainsString('rename', $exception->getMessage());
             }
         }
     }

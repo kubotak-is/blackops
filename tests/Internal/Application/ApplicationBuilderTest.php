@@ -7,6 +7,7 @@ namespace BlackOps\Tests\Internal\Application;
 use BlackOps\Application\Application;
 use BlackOps\Application\ApplicationBootstrapException;
 use BlackOps\Internal\Application\ApplicationConfigurationSnapshot;
+use BlackOps\Observability\OperationalHealthQuery;
 use OpenTelemetry\API\Metrics\MeterProviderInterface;
 use OpenTelemetry\API\Trace\TracerProviderInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -30,7 +31,22 @@ final class ApplicationBuilderTest extends TestCase
         self::assertSame([], $snapshot->operationProviders());
         self::assertSame([], $snapshot->serviceProviders());
         self::assertSame([], $snapshot->commands());
+        self::assertNull($snapshot->operationalHealthQuery());
         self::assertFalse(method_exists(ApplicationConfigurationSnapshot::class, 'environment'));
+    }
+
+    public function testOperationalHealthQueryUsesLastCallWinsAndSupportsClearing(): void
+    {
+        $first = $this->createStub(OperationalHealthQuery::class);
+        $second = $this->createStub(OperationalHealthQuery::class);
+        $builder = Application::configure($this->directory())
+            ->withOperationalHealthQuery($first)
+            ->withOperationalHealthQuery($second);
+
+        self::assertSame($second, $this->snapshot($builder->create())->operationalHealthQuery());
+        self::assertNull(
+            $this->snapshot($builder->withOperationalHealthQuery(null)->create())->operationalHealthQuery(),
+        );
     }
 
     public function testBuilderBindsTracerProviderIntoCreatedApplicationSnapshot(): void
