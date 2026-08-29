@@ -2,7 +2,7 @@
 
 Status: Proposal — unreleased BlackOps 1.3; workflow/gate status authority is the exact5 management slice (`develop/STATE.md`, `develop/TODO.md`, the parent Task/Report, and `develop/spec/README.md`)
 
-Updated At: 2026-08-29T16:15:29+09:00
+Updated At: 2026-08-29T16:19:50+09:00
 
 This plan is a delivery DAG for the capability proposal in Specification 105.
 It does not make any Phase 23 item a current Stable `1.2` capability. A slice
@@ -58,9 +58,9 @@ closed. Final bounded Sol Max closure is Green `P1=0/P2=0/P3=0`; exact33
 aggregate `bb6ab89a222a72eafa601f588f46177ee443e554c036bcc00575b211961c8847`
 and the Complete Final Gate are Green. P23-003B1 is Accepted without runtime、
 database、route、CLI、public Documentation、or release activation. The reviewed
-candidate commit／same-SHA package export is next. Only after that handoff may
-the bounded P23-003B2 packet proceed; parent P23-003B still requires B2
-Acceptance.
+Product candidate `c3b75ca0afe6d8c756caa8404b7e95922987c1da` and its
+clean-candidate package export are Green. The bounded P23-003B2 packet may now
+proceed; parent P23-003B still requires B2 Acceptance.
 
 ## P23-003A current delivery gate
 

@@ -2,7 +2,7 @@
 
 Status: Proposal — unreleased BlackOps 1.3; workflow/gate status authority is the exact5 management slice (`develop/STATE.md`, `develop/TODO.md`, the parent Task/Report, and `develop/spec/README.md`)
 
-Updated At: 2026-08-29T16:15:29+09:00
+Updated At: 2026-08-29T16:19:50+09:00
 
 Decision date: 2026-08-19
 
@@ -86,8 +86,9 @@ Green `P1=0/P2=0/P3=0`; exact33 aggregate
 `bb6ab89a222a72eafa601f588f46177ee443e554c036bcc00575b211961c8847`
 and the Complete Final Gate are Green. P23-003B1 is Accepted without runtime、
 database、route、CLI、public Documentation、or Stable `1.2` activation. The
-reviewed candidate commit／same-SHA package export is next; parent P23-003B
-still requires P23-003B2 Acceptance.
+reviewed Product candidate `c3b75ca0afe6d8c756caa8404b7e95922987c1da`
+and its clean-candidate package export are Green. P23-003B2 is next; parent
+P23-003B still requires B2 Acceptance.
 
 ## P23-003A current contract correction
 

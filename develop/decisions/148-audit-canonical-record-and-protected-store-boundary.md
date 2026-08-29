@@ -1,8 +1,8 @@
 # D148: Audit Canonical Record and Protected Store Boundary
 
-Status: P23-003B1 Accepted — Complete Final Gate Green; P23-003B2 next; BlackOps 1.3 unreleased
+Status: P23-003B1 Accepted — Candidate committed / package export Green; P23-003B2 next; BlackOps 1.3 unreleased
 
-Updated At: 2026-08-29T16:15:29+09:00
+Updated At: 2026-08-29T16:19:50+09:00
 
 ## Current Acceptance Handoff
 
@@ -18,9 +18,10 @@ Stable `1.2.0` remains current, BlackOps `1.3` remains unreleased, and B1 adds
 no runtime、database、route、CLI、public Documentation、or release activation.
 Parent P23-003B remains unaccepted until P23-003B2 is Accepted.
 
-Remaining: the reviewed B1 candidate commit and same-SHA package export, then
-the bounded P23-003B2 packet. Next Action: commit and package-verify B1 before
-starting B2.
+Reviewed Product candidate `c3b75ca0afe6d8c756caa8404b7e95922987c1da`
+is committed and its clean-candidate package export is Green. Remaining: the
+bounded P23-003B2 packet and downstream work. Next Action: draft B2 against the
+Accepted B1 bytes and send it to fresh Sol Max preflight.
 
 ## Context
 

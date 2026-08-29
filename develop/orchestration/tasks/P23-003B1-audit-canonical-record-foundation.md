@@ -1,8 +1,8 @@
 # P23-003B1: Audit Canonical Record Foundation
 
-Status: Accepted — Audit Canonical Record Foundation; parent P23-003B awaits B2
+Status: Accepted — Candidate committed / package export Green; parent P23-003B awaits B2
 
-Updated At: 2026-08-29T16:15:29+09:00
+Updated At: 2026-08-29T16:19:50+09:00
 
 ## Current Checkpoint — Orchestrator Acceptance
 
@@ -24,13 +24,15 @@ no-diff, management-ID guard, diff-check, and staged-empty check pass. P23-003B1
 is Accepted. Stable `1.2.0` remains current, BlackOps `1.3` remains unreleased,
 and no runtime、database、route、CLI、or public Documentation activation occurred.
 
-Remaining: the user-authorized candidate commit and same-SHA package export,
-then P23-003B2 and the ordered downstream work. Parent P23-003B is not Accepted
-until B2 is Accepted.
+Reviewed Product candidate `c3b75ca0afe6d8c756caa8404b7e95922987c1da`
+is committed, and `tests/Consumer/framework-package-export.sh` passes from that
+clean candidate SHA. No push was performed.
 
-Next Action: create the reviewed B1 candidate commit, run
-`tests/Consumer/framework-package-export.sh` against that clean candidate SHA,
-record the result, then draft the bounded P23-003B2 packet.
+Remaining: P23-003B2 and the ordered downstream work. Parent P23-003B is not
+Accepted until B2 is Accepted.
+
+Next Action: draft and fresh-preflight the bounded P23-003B2 packet against the
+Accepted B1 bytes. Keep BlackOps `1.3` unreleased.
 
 ## Historical: Final bounded correction Iteration Gate Green
 

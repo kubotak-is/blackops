@@ -1,12 +1,12 @@
 # D147: Audit Catalog and Safe Projection Boundary
 
-Status: Accepted P23-003A1／A2／parent A and P23-003B1 — P23-003B2 next; BlackOps 1.3 unreleased
+Status: Accepted P23-003A1／A2／parent A and P23-003B1 — candidate/package Green; P23-003B2 next; BlackOps 1.3 unreleased
 
-Updated At: 2026-08-29T16:15:29+09:00
+Updated At: 2026-08-29T16:19:50+09:00
 
 ## P23-003B1 current handoff
 
-Current status: `Accepted — Complete Final Gate Green; candidate commit/package export next`.
+Current status: `Accepted — Candidate committed / package export Green`.
 
 D148 is the more specific current authority for canonical logical／complete
 record bytes、trusted stamp、content／record hash、tenant partition、Audit-specific
@@ -22,9 +22,10 @@ capacity, no-leak, and BOPD contracts. The final bounded closure is Green
 and the Complete Final Gate is Green. B1 changes no Stable `1.2` or public
 behavior and activates no runtime、database、route、or CLI surface.
 
-Remaining: reviewed candidate commit／same-SHA package export, then B2 and
-ordered downstream. Next Action: commit and package-verify B1, then draft the
-bounded P23-003B2 packet.
+Reviewed Product candidate `c3b75ca0afe6d8c756caa8404b7e95922987c1da`
+is committed and its clean-candidate package export is Green. Remaining: B2 and
+ordered downstream. Next Action: draft and fresh-preflight the bounded
+P23-003B2 packet.
 
 ## Context
 

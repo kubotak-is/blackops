@@ -1,8 +1,8 @@
 # P23-003B1: Audit Canonical Record Foundation Report
 
-Status: Accepted — Complete Final Gate Green; candidate commit/package export next
+Status: Accepted — Candidate committed / package export Green
 
-Updated At: 2026-08-29T16:15:29+09:00
+Updated At: 2026-08-29T16:19:50+09:00
 
 ## Current Acceptance Checkpoint
 
@@ -28,9 +28,13 @@ runtime、database、route、CLI、public Documentation、or release activation.
 Stable `1.2.0` remains current and BlackOps `1.3` remains unreleased. Parent
 P23-003B still requires P23-003B2 Acceptance.
 
-Remaining: create the user-authorized reviewed candidate commit and run the
-same-SHA Composer/package export. After that, draft and preflight P23-003B2.
-No push is authorized or performed.
+The reviewed Product candidate is committed as
+`c3b75ca0afe6d8c756caa8404b7e95922987c1da`. From that clean candidate SHA,
+`bash tests/Consumer/framework-package-export.sh` passes the Git／Composer
+package inventory contract. No push was performed.
+
+Remaining: P23-003B2 and the ordered downstream work. Next Action: draft and
+fresh-preflight the bounded P23-003B2 packet against Accepted B1 bytes.
 
 ## Historical: Final bounded correction Iteration Gate Green
 
