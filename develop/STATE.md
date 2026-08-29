@@ -1,6 +1,29 @@
 # Orchestration State
 
-Updated At: 2026-08-29T01:25:47+09:00
+Updated At: 2026-08-29T16:15:29+09:00
+P23-003B1 Accepted / Complete Final Gate Green At: 2026-08-29T16:15:29+09:00 — fresh bounded Sol Max closure review P1=0/P2=0/P3=0; final exact33 aggregate bb6ab89a222a72eafa601f588f46177ee443e554c036bcc00575b211961c8847; A1 exact48/A2 exact28 preserved; format, Composer strict, Mago lint/baseline/analyze, full PHPUnit 2,762 tests/57,406 assertions, Deptrac 991 analyzed/0 violations/0 uncovered/0 errors/5,986 allowed, three Audit Node goldens, Stable version baseline, public-doc no-diff, management-ID, diff-check, and staged0 all pass. No runtime/database/route/CLI/public Documentation/Stable 1.2/release activation. Remaining: user-authorized reviewed candidate commit and same-SHA package export, then P23-003B2; parent P23-003B remains unaccepted until B2 Acceptance. Next Action: commit B1, verify package export on the clean candidate SHA, record it, then draft B2. No push performed.
+P23-003B1 final bounded correction Iteration Gate Green / exact33 refrozen At: 2026-08-29T16:06:31+09:00 — P1 Outbox pre-key inclusive/cap+1 ceiling, P2 hydrated second-codec and malformed-header read-count/no-leak evidence, and P2 scalar second-tenant/U+2028/U+2029/negative seven-digit fraction evidence complete; focused PHPUnit 89 tests/43,631 assertions, Node, exact-target format, Deptrac 991 analyzed/0 violations/0 uncovered/0 errors/5,986 allowed, management-ID, diff-check, staged0, A1 exact48 and A2 exact28 preservation all pass; Architecture ending SHA-256 839cd58b0bcec1840b04e02f16145e622bb06894445c758d0871bb272e9254d; new exact33 aggregate bb6ab89a222a72eafa601f588f46177ee443e554c036bcc00575b211961c8847; Complete Final Gate intentionally deferred until Orchestrator review; no commit/stage/push/network/runtime activation. Remaining: fresh read-only Sol Max review, Complete Final Gate, B1 Acceptance, then candidate commit/package export and parent B2/higher P23-003C..G/P23-004/P23-005/P23-006. Next Action: Orchestrator reviews exact33 bb6ab89a; keep Product frozen.
+P23-003B1 bounded final correction started At 2026-08-29T15:48:30+09:00 — preserving the existing exact33 Product/Test/Fixture worktree; scope is limited to the user-authorized P1 Outbox pre-key ceiling, P2 hydration/no-leak evidence, and P2 scalar matrix fixtures. Start snapshot to verify: branch `agent/p23-001-blackops-1-3-feasibility`, HEAD `b7e6837f0d684b3cea35967fadb4c52adb670407`, staged0, supplied prior aggregate `3ee1c7d96ae6e0e377d7ba5b2ef0cf5125adbdb87fec0309df2b5c340d05d4e2`. No commit, stage, push, or network. Complete Final Gate remains deferred until Orchestrator review.
+Historical: P23-003B1 Iteration Gate Green — Bounded correction freeze awaiting Orchestrator review At: 2026-08-29T15:31:40+09:00 — four evidence gaps and three executable Product precedence blockers were closed within the then-current exact33; focused PHPUnit 84 tests/43,286 assertions, Node golden, exact-target format, Deptrac 991 analyzed/0 violations/0 uncovered/0 errors/5,986 allowed, management-ID, diff-check, staged0, lint baseline, and analyze error0 pass; superseded exact33 ordered aggregate 3ee1c7d96ae6e0e377d7ba5b2ef0cf5125adbdb87fec0309df2b5c340d05d4e2; Complete Final Gate was intentionally not run; no runtime/database/route/public Documentation/Stable 1.2 release activation and no commit/stage/push/network. Superseded by the final bounded correction checkpoint above.
+P23-003B1 Complete Final Gate Green — Fresh Sol Max implementation review requested At: 2026-08-29T14:45:44+09:00 — historical after the bounded source/fixture correction; prior exact33 aggregate b0db565bfd8f387199d8a7248e8e1aa8778b1ebaffa1a30e6401afcf71a6a4fa is not reusable for Acceptance.
+P23-003B1 lint-warning micro-correction complete At: 2026-08-29T11:42:56+09:00 — exact five Product files only; method-scoped inline-variable-return expectations preserve recursive mixed-copy narrowing; targeted format, full mago lint --verify-baseline, full mago lint, and mago analyze --reporting-format=count all exit0; baseline unchanged; tests/stage/commit/push untouched. Prior Final Gate evidence is historical after this source change; Orchestrator must rerun the complete gate and review.
+P23-003B1 Historical Complete Final Gate Blocked at mago lint At: 2026-08-29T05:47:26+09:00 — superseded by the current Green gate; unchanged exact33 aggregate 58a4a7934ebbd3132535c512ccf732af2b66c00fcf85a227f7579b1f22510680, branch/HEAD unchanged, staged0; format and Composer strict pass; mago lint exit1 on AuditIngressEnvelope cyclomatic complexity 26>15; later commands were not run; no Product change, commit/stage/push.
+P23-003B1 Historical Luna Max Worker Batch 4 / Iteration Gate Green / exact33 Product Freeze At: 2026-08-29T05:41:26+09:00 — superseded by the current post-source-change freeze; branch/HEAD unchanged, staged0, aggregate 58a4a7934ebbd3132535c512ccf732af2b66c00fcf85a227f7579b1f22510680; focused 67 tests/42979 assertions, Node, Deptrac, guards, and diff checks pass; Complete Final Gate pending; no commit/stage/push.
+P23-003B1 Luna Max Worker Batch 3 Checkpoint At: 2026-08-29T05:29:59+09:00 — Protection/AAD/ingress focused implementation and tests complete; format, 13-test/73-assertion PHPUnit, and Node golden pass; no blocker; no commit/stage/push.
+P23-003B1 Replacement Luna Max Worker Start Checkpoint At: 2026-08-29T04:41:41+09:00 — frozen branch/HEAD/staged0 verified; in-scope partial BOPD/Audit source present; pre-existing orchestrator management diffs are outside worker scope and preserved.
+P23-003B1 Luna Max Worker Start Checkpoint At: 2026-08-29T04:27:53+09:00
+P23-003B1 Luna Max Implementation Started At: 2026-08-29T04:11:08+09:00
+P23-003B1 Fixture/Historical-Handoff Corrected Exact Packet Accepted for Production At: 2026-08-29T04:11:08+09:00
+P23-003B1 Fixture/Historical-Handoff Corrected Exact Packet Frozen / Fresh Sol Max Re-preflight Restarted At: 2026-08-29T04:01:33+09:00
+P23-003B1 Three-root Corrected Fresh Re-preflight Changes Requested P1=1/P2=1/P3=0 / Fixture-Handoff Correction Implemented At: 2026-08-29T04:01:33+09:00
+P23-003B1 Four-root Corrected Fresh Review Changes Requested P1=2/P2=1/P3=0 / Three-root Correction Implemented At: 2026-08-29T03:45:23+09:00
+P23-003B1 Corrected-vector Fresh Sol Max Re-preflight Changes Requested P1=4/P2=0/P3=0 / Four-root Correction Implemented At: 2026-08-29T03:21:49+09:00
+P23-003B1 Hardened Corrected Exact Packet Frozen / Binary Value No-leak / A1-A2 Manifest Authority / Fresh Sol Max Re-preflight Restarted At: 2026-08-29T02:38:20+09:00
+P23-003B1 Second Corrected Exact Packet Frozen / Reproducible Outbox AAD Vectors / Fresh Sol Max Re-preflight Restarted At: 2026-08-29T02:33:46+09:00
+P23-003B1 Corrected Exact Packet Frozen / Fresh Sol Max Re-preflight Started At: 2026-08-29T02:30:57+09:00
+P23-003B1 Fresh Sol Max Preflight Changes Requested P1=4/P2=1/P3=1 / Bounded Correction Implemented At: 2026-08-29T02:22:55+09:00
+P23-003B1 Exact Packet Frozen / Fresh Sol Max Preflight Started At: 2026-08-29T02:02:32+09:00
+P23-003B1 Task Packet Drafted At: 2026-08-29T01:59:30+09:00
 P23-003A2 and Parent P23-003A Accepted / Fresh Sol Max Implementation Re-review Green P1=0/P2=0/P3=0 At: 2026-08-29T01:25:47+09:00
 P23-003A2 Luna Max Correction Round 4 / Complete Final Gate Green / Fresh Sol Max Implementation Re-review Requested At: 2026-08-29T01:11:10+09:00
 P23-003A2 Luna Max Correction Round 4 / Iteration Gate Green / Product Frozen / Complete Final Gate In Progress At: 2026-08-29T01:02:42+09:00
@@ -37,7 +60,145 @@ P23-003A1 Fresh Sol High Review Changes Requested / Luna High Correction Started
 P23-003A1 Complete Final Gate Green At: 2026-08-28T12:39:07+09:00
 P23-003A1 Iteration Gate Green / Product Freeze Fixed At: 2026-08-28T12:35:00+09:00
 
-## P23-003A2 and Parent P23-003A Accepted — Fresh Sol Max Implementation Re-review Green
+## P23-003B1 Bounded correction Iteration Gate Green — Complete Final Gate intentionally not run
+
+Updated At: 2026-08-29T15:31:40+09:00
+
+The four requested evidence gaps and three executable Product precedence
+corrections are complete within the exact33 Product/Test/Fixture scope. Exact
+logical and complete JCS+LF literals are present in the fixture; PHP and the
+independent Node oracle compare/reconstruct them. Inclusive/cap+1, multibyte,
+BOPD overhead, pre-key, AAD binding, wrong-purpose/key/nonce/tag/ciphertext,
+hydration, post-decrypt, no-leak, UUID/timestamp, partition, U+2028/U+2029,
+256-byte tenant, ingress ordinal, and delivery/hash precedence evidence is
+present. `AuditRecordCodec` retains its exact two-argument constructor and
+derives validated tenant partitions before hash/protection; future sizing uses
+a synthetic size-only path. `AuditRecordIntegrity` and `AuditChainPosition`
+run all grammar before suite/chain/partition semantics. Required delivery is
+checked before ingress content-hash equality, and oversized record/ingress
+bodies fail before active-key lookup.
+
+Task Iteration Gate is Green on branch `agent/p23-001-blackops-1-3-feasibility`,
+HEAD `b7e6837f0d684b3cea35967fadb4c52adb670407`, staged0, exact33 aggregate
+`3ee1c7d96ae6e0e377d7ba5b2ef0cf5125adbdb87fec0309df2b5c340d05d4e2`:
+focused PHPUnit `84 tests/43,286 assertions`, Node golden PASS, exact-target
+format PASS, Deptrac `991/0/0/0` with `5,986 allowed`, management-ID PASS,
+diff-check PASS, staged0 PASS, lint baseline current, and analyze exit0 with
+0 errors/261 warnings/121 help. Complete Final Gate is intentionally deferred
+until Orchestrator review. Accepted A1 exact48 and A2 exact28 remain
+`9e9ba592e5203c17d814c3f0cc8772b2fc95e7ddc75b67df6a5c16c9a7030fed` and
+`ba06dd0f1886f45b373c02880abb06d662e11e2f53d177c5b67cca3fd0b376ea`;
+Architecture delta remains before
+`782b3d829681a2d45847341307508f39cb2f21f228f9f5b996850c82fd40f3f1` and ending
+`839cd58b0bcec1840b04e02f16145e622bb06894445c758d0871bb272e9254d2`.
+
+No runtime/database/route/public Documentation/Stable 1.2/release activation,
+commit, stage, push, or network action occurred. Remaining: fresh read-only Sol
+Max implementation review, then Complete Final Gate, Orchestrator B1
+Acceptance, candidate commit/package export, parent B2 Acceptance, and the
+higher P23-003C..G/P23-004/P23-005/P23-006 work. Next Action: Orchestrator
+reviews exact33 `3ee1c7d9`; Product stays frozen.
+
+## Historical: P23-003B1 Complete Final Gate Green — Fresh Sol Max implementation review requested
+
+Updated At: 2026-08-29T14:45:44+09:00
+
+The fresh post-source-change Iteration Gate is Green: required-file checks,
+exact-target format, focused PHPUnit (`67 tests, 42,979 assertions`), Node
+canonical golden, Deptrac (`991 analyzed, 0 violations, 0 uncovered, 0
+errors`), management-ID guard, `git diff --check`, and staged0 all pass.
+
+The Complete Final Gate is Green on the same exact33 Product freeze: branch
+`agent/p23-001-blackops-1-3-feasibility`, HEAD
+`b7e6837f0d684b3cea35967fadb4c52adb670407`, staged path count `0`, and ordered
+aggregate
+`b0db565bfd8f387199d8a7248e8e1aa8778b1ebaffa1a30e6401afcf71a6a4fa`.
+Full format, Composer strict, lint, current lint baseline, and analyze pass;
+analyze exits `0` with `0` errors, `260` warnings, and `121` help messages.
+Full PHPUnit passes with `2,740 tests, 56,754 assertions, exit 0`; one
+deprecation, two PHPUnit deprecations, and thirteen notices are recorded as
+non-blocking. Deptrac passes with `991/0/0/0` and `5,972 allowed`; all three
+Node goldens pass; version baseline passes with published `1.2.0` and
+historical `1.1.0`; public docs diff is empty; management-ID, diff-check, and
+staged0 pass; ending exact33 is unchanged.
+
+Accepted A1 exact48 remains
+`9e9ba592e5203c17d814c3f0cc8772b2fc95e7ddc75b67df6a5c16c9a7030fed`; accepted
+A2 exact28 remains
+`ba06dd0f1886f45b373c02880abb06d662e11e2f53d177c5b67cca3fd0b376ea`. The
+authorized Architecture-test delta remains before
+`782b3d829681a2d45847341307508f39cb2f21f228f9f5b996850c82fd40f3f1` and ending
+`839cd58b0bcec1840b04e02f16145e622bb06894445c758d0871bb272e9254d2`.
+
+No runtime, database, route, public Documentation, or release behavior was
+activated. No commit, stage, or push was performed.
+
+Remaining: fresh read-only Sol Max implementation review, then Orchestrator
+B1 Acceptance; after Acceptance, the user-authorized candidate commit and
+Composer/package export remain. Parent P23-003B still requires B2 Acceptance,
+and the higher Goal still requires P23-003C..G, P23-004, P23-005, and P23-006.
+
+Next Action: fresh read-only Sol Max review of exact33 aggregate
+`b0db565bfd8f387199d8a7248e8e1aa8778b1ebaffa1a30e6401afcf71a6a4fa`.
+Do not change Product exact33 before review.
+
+## Historical: P23-003B1 Fixture／Historical-Handoff Corrected Exact Packet Frozen — Fresh Sol Max Re-preflight Restarted
+
+Updated At: 2026-08-29T04:01:33+09:00
+
+Accepted A1/A2 candidate commit is
+`b7e6837f0d684b3cea35967fadb4c52adb670407`; the committed-candidate
+Git／Composer package export is Green and the worktree was clean before B1
+management drafting.
+
+D148 splits P23-003B into serial B1 pure canonical-record／protection foundation
+and B2 PostgreSQL append／segment／migration. Initial fresh Sol Max preflight
+returned Changes Requested `P1=4/P2=1/P3=1`. The bounded exact10 correction
+authorizes only the A2 Architecture-test delta while preserving A2 exact28,
+adds the legacy BOPD partial-header callable, closes every B1 public callable／
+construction seam, fixes the Spec 99 path, pins two outbox AAD vectors, and
+synchronizes current handoff text.
+The first corrected freeze is superseded: Orchestrator self-review found that its
+arbitrary outbox idempotency hashes were not derivable from the write seam. The
+second correction pins raw keys, their normative derived hashes, and the final
+222／303-byte AAD hashes for independent PHP／Node reproduction.
+The hardened freeze also makes binary-envelope raw parts private and value-free
+under debug／serialization, names the Accepted A1/A2 Task／Report manifests as
+freeze authority, and runs existing exact9 purpose／rotation regressions in the
+focused gate.
+That hardened freeze is superseded by Orchestrator self-review. Its Stored-AAD
+positive fixture used short IDs and an arbitrary tenant partition that the B1
+write seam rejects. The next corrected-vector exact10 pinned canonical UUIDv7 record／segment
+IDs, the derived tenant partition, and 309／421-byte full-hex goldens. Independent
+Node calculation reproduced both lengths／hashes and exact document bytes.
+The corrected-vector fresh Sol Max re-preflight returned Changes Requested
+`P1=4/P2=0/P3=0`. The four roots were write-path-unreachable Stored／Outbox
+goldens, Candidate／Canonical `AuditLogicalRecord` exact1 contradiction,
+persisted-value hydration absence, and unspecified legacy generic BOPD caps.
+That four-root corrected review returned `P1=2/P2=1/P3=0`. The current exact10
+fixes Candidate construction authority, retains exact three canonical-chain
+logical records and a real same-partition predecessor for derived 308／421-byte
+Stored AAD, adds exact two Catalog-durable ingress records for delivery-correct
+222／303-byte Outbox AAD, keeps Production logical implementations exact2, B1 `fromArray()` plus
+named future B2/C hydrators, `SensitiveParameterValue` storage, and generic
+`0xFFFF_FFFF`／`0x1000000B3` caps. Independent Node recomputation matches the
+logical JCS, hashes, lengths, and full Stored AAD hex.
+The three-root corrected fresh re-preflight returned Changes Requested
+`P1=1/P2=1/P3=0`. The current bounded correction replaces the two superseded
+required-event hashes in Required Fixtures with the delivery-correct durable full hashes and
+marks the two Accepted A handoffs as Historical prerequisites.
+Stable `1.2.0` remains current, BlackOps `1.3` remains unreleased, and no Product、
+runtime、database、route、or public Documentation change has started.
+
+Remaining: fresh Sol Max re-preflight, Luna Max
+implementation, Iteration／Final Gates, fresh implementation review, and B1
+Acceptance. Parent P23-003B additionally requires B2 Acceptance; the higher Goal
+still requires P23-003C..G、P23-004、P23-005、P23-006.
+
+Next Action: complete the separate fresh Sol Max re-preflight against the fixture／historical-handoff corrected
+exact10. Do not edit Product exact33 before Green.
+
+## P23-003A2 and Parent P23-003A Accepted — Historical prerequisite
 
 Updated At: 2026-08-29T01:25:47+09:00
 

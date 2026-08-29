@@ -2,7 +2,7 @@
 
 Status: Proposal — unreleased BlackOps 1.3; workflow/gate status authority is the exact5 management slice (`develop/STATE.md`, `develop/TODO.md`, the parent Task/Report, and `develop/spec/README.md`)
 
-Updated At: 2026-08-29T01:25:47+09:00
+Updated At: 2026-08-29T16:15:29+09:00
 
 This specification is a normative proposal for BlackOps `1.3`. It is not a
 Stable `1.2` capability contract and must not be copied into current public
@@ -56,13 +56,31 @@ empty A1 PublicApi marker inventory, three record-construction stages,
 and the closed observed projection. Any incompatible non-historical shorthand
 below is superseded. Historical checkpoints remain evidence only.
 
-## P23-003A current Catalog and projection contract
+For current P23-003B clauses, D148 is the more specific normative authority.
+It splits B into serial B1 canonical-record／Audit-protection pure foundation and
+B2 PostgreSQL append／segment／migration, fixes exact trusted stamp、partition、
+hash、AAD、failure、transport wires, and keeps Stable Public `StoragePurpose`
+exact9. Initial B1 preflight returned Changes Requested `P1=4/P2=1/P3=1`.
+The corrected-vector re-preflight returned `P1=4/P2=0/P3=0`. D148 now fixes
+exact three canonical-chain logical fixtures plus exact two durable-ingress fixtures,
+write-path-derived 308／421 and delivery-correct 222／303-byte AAD vectors,
+Candidate／Canonical implementation exact2,
+persisted-value hydration, and the generic `0xFFFF_FFFF`／`0x1000000B3` caps.
+The historical preflight and review findings are closed. Final bounded Sol Max
+closure is Green `P1=0/P2=0/P3=0`; the Accepted exact33 aggregate is
+`bb6ab89a222a72eafa601f588f46177ee443e554c036bcc00575b211961c8847`,
+and the Complete Final Gate is Green. P23-003B1 is Accepted. No runtime、
+database、route、CLI、public Documentation、or release behavior is active;
+Stable `1.2.0` remains current and BlackOps `1.3` remains unreleased. Parent
+P23-003B still requires P23-003B2 Acceptance.
 
-Current status: `Accepted — P23-003A1／A2 and parent P23-003A; P23-003B next`.
+## Historical P23-003A Acceptance Catalog and projection contract
+
+Historical status: `Accepted — P23-003A1／A2 and parent P23-003A; P23-003B next`.
 
 P23-002E and P23-003A1／A2 are Accepted; parent P23-003A is Accepted.
-P23-003B is now the next ordered Task and still requires its own packet and
-preflight. Neither A child registers an Application catalog, activates an
+P23-003B was the next ordered Task at this Acceptance checkpoint and still required its own
+packet and preflight. Neither A child registers an Application catalog, activates an
 adapter, writes canonical storage, or emits public JSONL.
 
 D147 defines the complete A1 catalog bytes/hash and A2 projection wire. A1
@@ -3754,23 +3772,26 @@ null tenant and previous hash, and tenant/non-genesis with both unions
 present; implementation tests must record their complete AAD bytes/hash and
 each individual-field substitution negative.
 
-The proposal pins these two golden outputs. The generator inputs are the
-field meanings above (the repeated hex digits below denote decoded 32-byte
-hashes, not text bytes):
+The proposal pins these two golden outputs from the exact three-record logical
+fixture in D148. PHP reaches them through Draft, Finalizer, and RecordCodec;
+the tenant non-genesis previous hash is the actual record hash of the same-
+partition tenant genesis fixture. Direct constructor injection of arbitrary
+hashes is not a positive path. The former 232／344-byte shorthand and the
+intermediate repeated-hash 309／421-byte vectors are invalid B1 positives.
 
 | Golden | AAD byte length | SHA-256 |
 | --- | ---: | --- |
-| system/genesis (`k1`,`r1`,`system:global`, null tenant, `s1`, sequence `1`, null previous hash, content `0`×32, record `1`×32, `2026-08-19T00:00:00.000000Z`, `control`) | 232 | `5930076af5418572a4e575943172884775428ad10d024de7eb9fc419bce04b1c` |
-| tenant/non-genesis (`k2`,`r2`,`tenant:` + `a`×64, tenant `{type:account,id:tenant-a}`, `s2`, sequence `2`, previous `2`×32, content `3`×32, record `4`×32, `2026-08-19T00:00:01.000000Z`, `access`) | 344 | `f3ef3d96598964f7087ffe654ecde4d2e828caebfa981ecb1daa82859ff7c57f` |
+| system/genesis (`audit-key-1`,`01941f29-7c00-7000-8000-000000000001`,`system:global`, null tenant, `01941f29-7c00-7000-8000-000000000101`, sequence `1`, null previous hash, content `41b8f7df71f09eb50e78a6f4259b5ee0147efb192ae40c9fe13f1a4526b32441`, record `a4f7fd2ac8a282deb00bd0221edd2f7c14aa559de97db4b83e5a9609227459b0`, `2026-08-19T00:00:00.000000Z`, `access`) | 308 | `c917e26a1a4d124db7701ceb76fc141581a54ce248e8df3783fc5e8500a4cade` |
+| tenant/non-genesis (`audit-key-2`,`01941f29-7c00-7000-8000-000000000003`,`tenant:59f58bfcb476fcc98fe5e95c6bf81a5f8125a721f27e53ed70ba7345ae64eae1`, tenant `{type:account,id:tenant-a}`, `01941f29-7c00-7000-8000-000000000102`, sequence `2`, previous `53f065f0fcd332fb2dc80e6bb2c23ed9d1ee127531550bb4e0a459d09544935e`, content `034a0ef2dc757517a1045660072835fbacfbfc9d77781be9e1db3b168ecf4186`, record `90b6a61cdd0bc6eae188fe7f79f21656cea5a97e49d8b5e6f2656a7a1c99a5cd`, `2026-08-19T00:00:01.000000Z`, `access`) | 421 | `0ab1465ae6e1e908228cafd36cf13fa55a805d4189bbd096d8df885a47452c48` |
 
 The complete continuous AAD bytes, including every U32BE length prefix, are:
 
 ```text
-system/genesis hex (232 bytes):
-0000001c626c61636b6f70732e61756469742e7265636f72642e6161642e763100000011417564697453746f7265645265636f7264000000013100000001310000000131000000026b310000000272310000000d73797374656d3a676c6f62616c0000000100000000027331000000013100000001000000002000000000000000000000000000000000000000000000000000000000000000000000002011111111111111111111111111111111111111111111111111111111111111110000001b323032362d30382d31395430303a30303a30302e3030303030305a00000007636f6e74726f6c
+system/genesis hex (308 bytes):
+0000001c626c61636b6f70732e61756469742e7265636f72642e6161642e763100000011417564697453746f7265645265636f72640000000131000000013100000001310000000b61756469742d6b65792d310000002430313934316632392d376330302d373030302d383030302d3030303030303030303030310000000d73797374656d3a676c6f62616c00000001000000002430313934316632392d376330302d373030302d383030302d303030303030303030313031000000013100000001000000002041b8f7df71f09eb50e78a6f4259b5ee0147efb192ae40c9fe13f1a4526b3244100000020a4f7fd2ac8a282deb00bd0221edd2f7c14aa559de97db4b83e5a9609227459b00000001b323032362d30382d31395430303a30303a30302e3030303030305a00000006616363657373
 
-tenant/non-genesis hex (344 bytes):
-0000001c626c61636b6f70732e61756469742e7265636f72642e6161642e763100000011417564697453746f7265645265636f7264000000013100000001310000000131000000026b320000000272320000004774656e616e743a616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161610000001801000000076163636f756e740000000874656e616e742d610000000273320000000132000000210122222222222222222222222222222222222222222222222222222222222222220000002033333333333333333333333333333333333333333333333333333333333333330000002044444444444444444444444444444444444444444444444444444444444444440000001b323032362d30382d31395430303a30303a30312e3030303030305a00000006616363657373
+tenant/non-genesis hex (421 bytes):
+0000001c626c61636b6f70732e61756469742e7265636f72642e6161642e763100000011417564697453746f7265645265636f72640000000131000000013100000001310000000b61756469742d6b65792d320000002430313934316632392d376330302d373030302d383030302d3030303030303030303030330000004774656e616e743a353966353862666362343736666363393866653565393563366266383161356638313235613732316632376535336564373062613733343561653634656165310000001801000000076163636f756e740000000874656e616e742d610000002430313934316632392d376330302d373030302d383030302d3030303030303030303130320000000132000000210153f065f0fcd332fb2dc80e6bb2c23ed9d1ee127531550bb4e0a459d09544935e00000020034a0ef2dc757517a1045660072835fbacfbfc9d77781be9e1db3b168ecf41860000002090b6a61cdd0bc6eae188fe7f79f21656cea5a97e49d8b5e6f2656a7a1c99a5cd0000001b323032362d30382d31395430303a30303a30312e3030303030305a00000006616363657373
 ```
 
 The displayed `\n` after each line is documentation line separation, not an
@@ -4884,7 +4905,7 @@ The exact closed `AuditIngressEnvelope v1` is durable-only:
 idempotencyKey,recordId,partitionId,tenantBinding}`. `kind` is exactly
 `audit_ingress_envelope`, `schemaVersion=1`, and `logicalRecord` is the closed
 14-field AuditRecord v1 body with `integrity` removed. `recordId` equals
-`logicalRecord.recordId`; `recordedAt` equals `logicalRecord.recordedAt`;
+`logicalRecord.recordId`; `recordedAt` equals `logicalRecord.time.recordedAt`;
 `tenantBinding` equals `logicalRecord.tenant`; `partitionId` equals
 `derivePartition(tenantBinding)` under the active mapping; and `contentHash`
 equals the recomputed
@@ -4900,7 +4921,9 @@ derivation (`system:global` for null, otherwise the domain-hashed `tenant:`
 value). It is a bounded authorization/key-routing index, never raw tenant
 evidence. Retry preserves every field and logical byte. The required path
 passes the same logical AuditRecord directly to the canonical writer and never
-stores this envelope.
+stores this envelope. Envelope creation requires the bound Catalog definition
+and `policy.auditDelivery` to both be `durable`; `required` fails with
+`semantic_invalid` before envelope bytes, key selection, or persistence.
 
 The exact closed stored row is `AuditOutboxRecord v1` with
 `{schemaVersion:1,kind:"audit_outbox_record",recordId,partitionId,
@@ -4945,6 +4968,23 @@ fail before key selection/decrypt. `idempotencyKeyHash` is exactly
 `H(ENC("blackops.audit.outbox.idempotency.v1") || ENC(partitionId) ||
 ENC(NFC(idempotencyKey)))` as 64 lowercase hex; the raw key exists only in the
 protected envelope and is never a clear index.
+
+The B1 positive AAD vectors originate from D148's exact two durable-ingress
+logical fixtures. Both resolve Catalog and policy delivery `durable`; a
+`required` record is never a durable-only Envelope positive.
+`durableSystemIngress` with record ID `01941f29-7c00-7000-8000-000000000004`
+and raw key `idem-null-1` derives idempotency hash
+`6e22dd41bce06ff2825a8081b3bd34bbe8fe47acba2f76cf0af2ea62771ebdbc`
+and content hash `490621aa8d29022a5e21c4a50d15be1d0e477b5a78d5305d9b610a52e871d3c9`;
+its AAD is 222 bytes with SHA-256
+`1444d7e8430fdb22bed2b29cb10988684aa8b75c061d943ef43cf1d5ec976f7d`.
+`durableTenantIngress` with record ID `01941f29-7c00-7000-8000-000000000005`
+and raw key `idem-tenant-2` derives idempotency hash
+`1caac6c03c7c676ad2506059eb7b26fdbe959bc68a0aa6790db76aa019a6ff54`
+and content hash `bbf044ce19de64a9dae2bf449ac8c8819fa95babf33b9ee4eef53d799c7d34d3`;
+its AAD is 303 bytes with SHA-256
+`6ad3000f8b1b7fa7d76a266c813f9bf83be8c30340c751e761abc396e9acd9e6`.
+Direct arbitrary-hash construction is not a positive path.
 
 Idempotency is unique on `(partitionId,idempotencyKeyHash)`. The same key with
 the same record ID, content hash, and logical bytes returns the same row and
@@ -5398,6 +5438,13 @@ source failure claim is valid.
 
 ### 14.2 Canonical storage, ingress, and reads
 
+B1 uses exactly two Production implementations of the accepted internal
+`AuditLogicalRecord` seam: an unvalidated Candidate accepted only by the
+Validator, and a detached Canonical value produced only from its validated
+result. Candidate construction is limited to Finalizer／RecordCodec and
+Canonical construction to Finalizer; the validated result itself does not
+implement the seam.
+
 The exact durable-only `AuditIngressEnvelope v1` fields are
 `{schemaVersion,kind,logicalRecord,contentHash,recordedAt,ingressOrdinal,
 idempotencyKey,recordId,partitionId,tenantBinding}`. `tenantBinding` is the
@@ -5423,6 +5470,16 @@ non-empty binary BOPD v1 `protectedBody`, with complete allocation bounded by
 any identity/body/hash mutation fails closed. Plaintext is the complete
 AuditRecord JCS followed by exactly one LF.
 
+`AuditStoredRecord` and `AuditProtectedIngress` each expose one closed
+`fromArray()` hydration seam in B1. A B2 stored-row hydrator and a C outbox-row
+hydrator call those seams only after their authorization／selection boundary;
+missing, extra, list, wrong-type／enum, and over-cap rows fail as
+`protection_failed`. A detached persisted row must hydrate and decrypt with a
+separate codec instance without re-encryption. Secret-bearing snapshots and
+binary parts use `SensitiveParameterValue`-equivalent private storage, not raw
+instance string/array properties, so debug, serialization, JSON, var-export,
+and exception surfaces expose no canary.
+
 The canonical `AuditRecord` BOPD envelope uses key IDs of 1..128 bytes,
 algorithm/envelope version `1`, purpose `AuditRecord`, and the exact overhead
 `52 + keyIdUtf8Bytes`; complete plaintext is at most 1 MiB inclusive and the
@@ -5436,6 +5493,11 @@ decrypt; after decrypt, the complete record, tenant, partition, row fields,
 content hash, and record hash must equal every clear/AAD binding. Header,
 key-ID, cross-row, cross-tenant, tenant-union, and semantic/raw hash
 substitution fixtures fail before plaintext is exposed.
+
+The shared generic BOPD wrapper remains a different cap domain: its
+plaintext/ciphertext cap is exactly `0xFFFF_FFFF`, and its maximum full
+envelope cap is exactly `0x1000000B3` (`0xFFFF_FFFF + 52 + 128`). Audit
+record/outbox 1 MiB caps never narrow this Stable generic boundary.
 
 `AuditReadContext v1` is the exact closed object
 `{schemaVersion:1,kind:audit_read_context,purpose,actor,execution,tenant,requestedAt,nonce,requestRef,authorizationDecision}`.

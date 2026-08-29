@@ -10,7 +10,60 @@
 - 重要な設計判断は、結論だけでなく理由もREADMEまたは設計文書へ残す
 - 用語の変更時は、コードと文書をまとめて更新する
 
-## P23-003A2 current handoff — Audit Record and Observed Projection
+## P23-003B1 accepted handoff — Audit Canonical Record Foundation
+
+Updated At: 2026-08-29T16:15:29+09:00
+
+Status: `Accepted — Complete Final Gate Green; candidate commit/package export next`。
+
+- [x] P23-003A1／A2 and parent P23-003A Accepted
+- [x] candidate commit `b7e6837f0d684b3cea35967fadb4c52adb670407`
+- [x] committed-candidate Git／Composer package export Green
+- [x] P23-003B serial B1／B2 split
+- [x] D148 canonical record／Audit protection boundary drafted
+- [x] P23-003B1 exact Files Allowed／fixtures／gates drafted
+- [x] exact management／normative freeze
+- [x] initial fresh Sol Max preflight Changes Requested `P1=4/P2=1/P3=1`
+- [x] exact10 bounded management／normative correction
+- [x] corrected exact10 re-freeze
+- [x] write-seam-invalid Stored-AAD vectorを309／421-byte canonical full hexへ補正
+- [x] corrected exact10 re-freeze and independent Node length／hash／hex verification
+- [x] corrected-vector fresh Sol Max re-preflight Changes Requested `P1=4/P2=0/P3=0`
+- [x] exact three logical records／real predecessorから308／421 Stored AADをderive
+- [x] required logical recordsから得たprovisional 222／303 Outbox AADをsupersede
+- [x] logical implementation exact2／persisted hydration／legacy generic capを補正
+- [x] `SensitiveParameterValue` no-leak storageとfour-root corrected exact10をfreeze
+- [x] four-root corrected review Changes Requested `P1=2/P2=1/P3=0`
+- [x] Candidate authority／durable-only vector／nested recordedAt pathを補正
+- [x] exact two Catalog-durable ingress recordsから222／303 Outbox AADをderive
+- [x] three-root corrected exact10をre-freeze
+- [x] three-root corrected re-preflight Changes Requested `P1=1/P2=1/P3=0`
+- [x] Required Fixtures full hash／Historical handoffを補正
+- [x] fixture／historical-handoff corrected exact10をre-freeze
+- [x] fresh Sol Max re-preflight Green
+- [x] Luna Max B1 implementation
+- [x] Iteration Gate／exact33 Product freeze
+- [x] bounded correction roots and fresh Sol Max closure `P1=0/P2=0/P3=0`
+- [x] Complete Final Gate Green
+- [x] Orchestrator B1 Acceptance
+- [ ] reviewed candidate commit／same-SHA package export
+- [ ] P23-003B2 packet／preflight／implementation／Acceptance
+
+Accepted exact33 ordered aggregateは
+`bb6ab89a222a72eafa601f588f46177ee443e554c036bcc00575b211961c8847`。
+Full PHPUnit `2,762 tests / 57,406 assertions`、Deptrac `991/0/0/0`、
+format／Composer／Mago／three Node goldens／Stable baseline／guardsはGreen。
+Stable `1.2.0` remains current and BlackOps `1.3` remains unreleased. runtime、
+database、route、CLI、public Documentationは未Activatedである。
+
+Remaining: candidate commit／same-SHA package export、P23-003B2 Acceptance。
+Parent BはB2 Acceptanceまで未Acceptedで、higher GoalにはP23-003C..G、
+P23-004、P23-005、P23-006が残る。
+
+Next Action: reviewed B1 candidateをcommitし、clean candidate SHAで
+`tests/Consumer/framework-package-export.sh`を実行する。その後、bounded B2 packetを作成する。
+
+## P23-003A2 accepted handoff — Historical prerequisite
 
 Updated At: 2026-08-29T01:25:47+09:00
 
@@ -1002,7 +1055,7 @@ Next Action: freeze the new exact5 and exact7 hashes and request fresh separate 
 - [x] P23-002Dで`diagnostics:check`とaggregate-only `queue:status`のsafe contractを実装する（Accepted。Fresh Sol Max closure review Green `P1=0/P2=0/P3=0`）
 - [x] P23-002Eで`about`と`outbox:status`を定義・実装する（Accepted。Fresh Sol Max implementation review Green `P1=0/P2=0/P3=0`）。`dead-letter:list`はoperation/outbox名、tenant、pagination、redaction確定まで延期する
 - [x] P23-003Aをserial A1/A2へ分割する。A1でclosed domain-hashed AuditEventCatalog v1／Catalog-only RFC 8785 JCS/hash、exact 30-definition Framework security/access Catalog、bounded evidence/semantic validation、keyed opaque ID、AuditReadRequestBasis／AuditReadContextを実装する。A2はAccepted A1をconsumeし、AuditRecord draft/logical/complete stage schema、resolved semantic/evidence validation、exact observed safe projectionを実装する。AuditRecord JCS logical body/hash／chain appendはP23-003B、dedicated opaque-key providerはP23-003C、runtime adapterはP23-003D、application registration/projectorはP23-003E。P23-003A1／A2とparent P23-003A are Accepted; P23-003B is next
-- [ ] P23-003BでBOPD `AuditRecord` purpose、encrypted append store、RFC 8785 JCS logical body／contentHash／recordHash、per-partition segment chain append／sequence／same-ID/contentHash idempotency、normalized tenant domain-hash to `tenant:` partition／`system:global` null mapping、required canonical-store／durable outbox-ingress recordedAt assignment（per-authority/partition `max(now,lastAssignedRecordedAt)`、canonical-only sequence cursor）、complete JCS/LF 1 MiB writer cap、occurredAt +300-second rule、tenant auth-before-decryptを実装する
+- [~] P23-003Bをserial B1／B2で実装する。B1はtrusted finalization、RFC 8785 JCS logical body／contentHash／recordHash、tenant partition、complete JCS/LF cap、Audit専用BOPD AAD／protected body、durable ingress pure wireを所有する。B2はAccepted B1をconsumeし、PostgreSQL append store、partition-global sequence、segment rotate/fence、same-ID/contentHash idempotency、tenant predicate-before-decrypt、migrationを所有する。B1 initial preflight `P1=4/P2=1/P3=1`、corrected-vector re-preflight `P1=4/P2=0/P3=0`、four-root corrected review `P1=2/P2=1/P3=0`、three-root corrected re-preflight `P1=1/P2=1/P3=0`を反映し、fixture／historical-handoff corrected exact10のfresh re-preflight中
 - [ ] P23-003Cでrequired same-transaction append、auth/read decisionのresponse前 dedicated local append/outbox commit（allow failureはdata非開示fail-closed、deny/invalid failureはbounded denial）、durable Audit Outboxのimmutable identity/bindings/protected envelopeとfenced state-field mutation、at-least-once same-ID/contentHash relayを実装する。Catalogのfixed deliveryをeffect/response前に選択し、versioned policy evaluatorがexplicit `policy.auditDelivery`を割り当てる。only explicit requiredはrequired selector、only explicit durableはdurable selector、missing／omitted／unknownはfail closedとし、record値はdefinition.deliveryと一致しなければならない。4 policy pathsをfixture化し、runtime override／downgrade／best-effort canonical pathを拒否する
 - [ ] P23-003Dでretention／hold、rotation、replay、outbox retryをimmutable AuditRecord phase eventへ明示adaptし、AuthenticationMiddleware／AuthorizationEvaluator／protected Operation Status／Journal／Outcome／diagnostic read boundaryのadapterとindependent reviewを行う
 - [ ] P23-003EでApplication versioned event registration/projector API、reference journey、business-action non-inferenceを検証する

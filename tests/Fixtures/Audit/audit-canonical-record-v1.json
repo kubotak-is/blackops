@@ -1,0 +1,146 @@
+{
+  "schemaVersion": 1,
+  "kind": "audit_canonical_record_fixture",
+  "catalogHash": "cfbcb3335b27ac4506046216d7ff43a9802586b1e60fbb9cfc47dc12230b1d83",
+  "records": {
+    "systemGenesis": {
+      "logical": {
+        "schemaVersion": 1,
+        "kind": "audit",
+        "recordId": "01941f29-7c00-7000-8000-000000000001",
+        "event": {"type": "access.operation_status.requested", "version": 1, "category": "access", "catalogHash": "cfbcb3335b27ac4506046216d7ff43a9802586b1e60fbb9cfc47dc12230b1d83"},
+        "action": {"id": "action-requested", "type": "access.operation_status.requested", "phase": "requested"},
+        "actor": {"principal": {"type": "user", "id": "actor-1"}, "execution": {"type": "process", "id": "blackops-cli"}},
+        "resource": {"type": "operation", "id": "operation-1"},
+        "outcome": {"status": "unknown", "code": "read_requested"},
+        "policy": {"id": "operation-read", "version": 1, "decision": "not_applicable", "reasonCode": "read_requested", "auditDelivery": "required"},
+        "tenant": null,
+        "time": {"occurredAt": "2026-08-19T00:00:00.000000Z", "recordedAt": "2026-08-19T00:00:00.000000Z"},
+        "source": {"owner": "framework", "component": "operation-status", "runtime": "cli", "buildId": "build-1"},
+        "correlation": {"operationId": null, "correlationId": null, "causationId": null, "attempt": null, "traceId": null, "spanId": null, "sampled": null},
+        "evidence": {"version": 1}
+      },
+      "chain": {"partitionId": "system:global", "segmentId": "01941f29-7c00-7000-8000-000000000101", "sequence": 1, "previousRecordHash": null},
+      "contentHash": "41b8f7df71f09eb50e78a6f4259b5ee0147efb192ae40c9fe13f1a4526b32441",
+      "recordHash": "a4f7fd2ac8a282deb00bd0221edd2f7c14aa559de97db4b83e5a9609227459b0",
+      "logicalBytes": "{\"action\":{\"id\":\"action-requested\",\"phase\":\"requested\",\"type\":\"access.operation_status.requested\"},\"actor\":{\"execution\":{\"id\":\"blackops-cli\",\"type\":\"process\"},\"principal\":{\"id\":\"actor-1\",\"type\":\"user\"}},\"correlation\":{\"attempt\":null,\"causationId\":null,\"correlationId\":null,\"operationId\":null,\"sampled\":null,\"spanId\":null,\"traceId\":null},\"event\":{\"catalogHash\":\"cfbcb3335b27ac4506046216d7ff43a9802586b1e60fbb9cfc47dc12230b1d83\",\"category\":\"access\",\"type\":\"access.operation_status.requested\",\"version\":1},\"evidence\":{\"version\":1},\"kind\":\"audit\",\"outcome\":{\"code\":\"read_requested\",\"status\":\"unknown\"},\"policy\":{\"auditDelivery\":\"required\",\"decision\":\"not_applicable\",\"id\":\"operation-read\",\"reasonCode\":\"read_requested\",\"version\":1},\"recordId\":\"01941f29-7c00-7000-8000-000000000001\",\"resource\":{\"id\":\"operation-1\",\"type\":\"operation\"},\"schemaVersion\":1,\"source\":{\"buildId\":\"build-1\",\"component\":\"operation-status\",\"owner\":\"framework\",\"runtime\":\"cli\"},\"tenant\":null,\"time\":{\"occurredAt\":\"2026-08-19T00:00:00.000000Z\",\"recordedAt\":\"2026-08-19T00:00:00.000000Z\"}}",
+      "completeBytes": "{\"action\":{\"id\":\"action-requested\",\"phase\":\"requested\",\"type\":\"access.operation_status.requested\"},\"actor\":{\"execution\":{\"id\":\"blackops-cli\",\"type\":\"process\"},\"principal\":{\"id\":\"actor-1\",\"type\":\"user\"}},\"correlation\":{\"attempt\":null,\"causationId\":null,\"correlationId\":null,\"operationId\":null,\"sampled\":null,\"spanId\":null,\"traceId\":null},\"event\":{\"catalogHash\":\"cfbcb3335b27ac4506046216d7ff43a9802586b1e60fbb9cfc47dc12230b1d83\",\"category\":\"access\",\"type\":\"access.operation_status.requested\",\"version\":1},\"evidence\":{\"version\":1},\"integrity\":{\"contentHash\":\"41b8f7df71f09eb50e78a6f4259b5ee0147efb192ae40c9fe13f1a4526b32441\",\"hashSuite\":\"audit-sha256-jcs-v1\",\"partitionId\":\"system:global\",\"previousRecordHash\":null,\"recordHash\":\"a4f7fd2ac8a282deb00bd0221edd2f7c14aa559de97db4b83e5a9609227459b0\",\"segmentId\":\"01941f29-7c00-7000-8000-000000000101\",\"sequence\":1},\"kind\":\"audit\",\"outcome\":{\"code\":\"read_requested\",\"status\":\"unknown\"},\"policy\":{\"auditDelivery\":\"required\",\"decision\":\"not_applicable\",\"id\":\"operation-read\",\"reasonCode\":\"read_requested\",\"version\":1},\"recordId\":\"01941f29-7c00-7000-8000-000000000001\",\"resource\":{\"id\":\"operation-1\",\"type\":\"operation\"},\"schemaVersion\":1,\"source\":{\"buildId\":\"build-1\",\"component\":\"operation-status\",\"owner\":\"framework\",\"runtime\":\"cli\"},\"tenant\":null,\"time\":{\"occurredAt\":\"2026-08-19T00:00:00.000000Z\",\"recordedAt\":\"2026-08-19T00:00:00.000000Z\"}}\n"
+    },
+    "tenantGenesis": {
+      "logical": {
+        "schemaVersion": 1,
+        "kind": "audit",
+        "recordId": "01941f29-7c00-7000-8000-000000000002",
+        "event": {"type": "access.operation_status.requested", "version": 1, "category": "access", "catalogHash": "cfbcb3335b27ac4506046216d7ff43a9802586b1e60fbb9cfc47dc12230b1d83"},
+        "action": {"id": "action-requested", "type": "access.operation_status.requested", "phase": "requested"},
+        "actor": {"principal": {"type": "user", "id": "actor-1"}, "execution": {"type": "process", "id": "blackops-cli"}},
+        "resource": {"type": "operation", "id": "operation-1"},
+        "outcome": {"status": "unknown", "code": "read_requested"},
+        "policy": {"id": "operation-read", "version": 1, "decision": "not_applicable", "reasonCode": "read_requested", "auditDelivery": "required"},
+        "tenant": {"type": "account", "id": "tenant-a"},
+        "time": {"occurredAt": "2026-08-19T00:00:00.000000Z", "recordedAt": "2026-08-19T00:00:00.000000Z"},
+        "source": {"owner": "framework", "component": "operation-status", "runtime": "cli", "buildId": "build-1"},
+        "correlation": {"operationId": null, "correlationId": null, "causationId": null, "attempt": null, "traceId": null, "spanId": null, "sampled": null},
+        "evidence": {"version": 1}
+      },
+      "chain": {"partitionId": "tenant:59f58bfcb476fcc98fe5e95c6bf81a5f8125a721f27e53ed70ba7345ae64eae1", "segmentId": "01941f29-7c00-7000-8000-000000000102", "sequence": 1, "previousRecordHash": null},
+      "contentHash": "247ab242a69af7eddf5274bb037674ed0ce87f5b9a444fb2c6c00203130e8c82",
+      "recordHash": "53f065f0fcd332fb2dc80e6bb2c23ed9d1ee127531550bb4e0a459d09544935e",
+      "logicalBytes": "{\"action\":{\"id\":\"action-requested\",\"phase\":\"requested\",\"type\":\"access.operation_status.requested\"},\"actor\":{\"execution\":{\"id\":\"blackops-cli\",\"type\":\"process\"},\"principal\":{\"id\":\"actor-1\",\"type\":\"user\"}},\"correlation\":{\"attempt\":null,\"causationId\":null,\"correlationId\":null,\"operationId\":null,\"sampled\":null,\"spanId\":null,\"traceId\":null},\"event\":{\"catalogHash\":\"cfbcb3335b27ac4506046216d7ff43a9802586b1e60fbb9cfc47dc12230b1d83\",\"category\":\"access\",\"type\":\"access.operation_status.requested\",\"version\":1},\"evidence\":{\"version\":1},\"kind\":\"audit\",\"outcome\":{\"code\":\"read_requested\",\"status\":\"unknown\"},\"policy\":{\"auditDelivery\":\"required\",\"decision\":\"not_applicable\",\"id\":\"operation-read\",\"reasonCode\":\"read_requested\",\"version\":1},\"recordId\":\"01941f29-7c00-7000-8000-000000000002\",\"resource\":{\"id\":\"operation-1\",\"type\":\"operation\"},\"schemaVersion\":1,\"source\":{\"buildId\":\"build-1\",\"component\":\"operation-status\",\"owner\":\"framework\",\"runtime\":\"cli\"},\"tenant\":{\"id\":\"tenant-a\",\"type\":\"account\"},\"time\":{\"occurredAt\":\"2026-08-19T00:00:00.000000Z\",\"recordedAt\":\"2026-08-19T00:00:00.000000Z\"}}",
+      "completeBytes": "{\"action\":{\"id\":\"action-requested\",\"phase\":\"requested\",\"type\":\"access.operation_status.requested\"},\"actor\":{\"execution\":{\"id\":\"blackops-cli\",\"type\":\"process\"},\"principal\":{\"id\":\"actor-1\",\"type\":\"user\"}},\"correlation\":{\"attempt\":null,\"causationId\":null,\"correlationId\":null,\"operationId\":null,\"sampled\":null,\"spanId\":null,\"traceId\":null},\"event\":{\"catalogHash\":\"cfbcb3335b27ac4506046216d7ff43a9802586b1e60fbb9cfc47dc12230b1d83\",\"category\":\"access\",\"type\":\"access.operation_status.requested\",\"version\":1},\"evidence\":{\"version\":1},\"integrity\":{\"contentHash\":\"247ab242a69af7eddf5274bb037674ed0ce87f5b9a444fb2c6c00203130e8c82\",\"hashSuite\":\"audit-sha256-jcs-v1\",\"partitionId\":\"tenant:59f58bfcb476fcc98fe5e95c6bf81a5f8125a721f27e53ed70ba7345ae64eae1\",\"previousRecordHash\":null,\"recordHash\":\"53f065f0fcd332fb2dc80e6bb2c23ed9d1ee127531550bb4e0a459d09544935e\",\"segmentId\":\"01941f29-7c00-7000-8000-000000000102\",\"sequence\":1},\"kind\":\"audit\",\"outcome\":{\"code\":\"read_requested\",\"status\":\"unknown\"},\"policy\":{\"auditDelivery\":\"required\",\"decision\":\"not_applicable\",\"id\":\"operation-read\",\"reasonCode\":\"read_requested\",\"version\":1},\"recordId\":\"01941f29-7c00-7000-8000-000000000002\",\"resource\":{\"id\":\"operation-1\",\"type\":\"operation\"},\"schemaVersion\":1,\"source\":{\"buildId\":\"build-1\",\"component\":\"operation-status\",\"owner\":\"framework\",\"runtime\":\"cli\"},\"tenant\":{\"id\":\"tenant-a\",\"type\":\"account\"},\"time\":{\"occurredAt\":\"2026-08-19T00:00:00.000000Z\",\"recordedAt\":\"2026-08-19T00:00:00.000000Z\"}}\n"
+    },
+    "tenantNonGenesis": {
+      "logical": {
+        "schemaVersion": 1,
+        "kind": "audit",
+        "recordId": "01941f29-7c00-7000-8000-000000000003",
+        "event": {"type": "access.operation_status.accessed", "version": 1, "category": "access", "catalogHash": "cfbcb3335b27ac4506046216d7ff43a9802586b1e60fbb9cfc47dc12230b1d83"},
+        "action": {"id": "action-accessed", "type": "access.operation_status.accessed", "phase": "succeeded"},
+        "actor": {"principal": {"type": "user", "id": "actor-1"}, "execution": {"type": "process", "id": "blackops-cli"}},
+        "resource": {"type": "operation", "id": "operation-1"},
+        "outcome": {"status": "succeeded", "code": "read_accessed"},
+        "policy": {"id": "operation-read", "version": 1, "decision": "allow", "reasonCode": "authorization_allowed", "auditDelivery": "required"},
+        "tenant": {"type": "account", "id": "tenant-a"},
+        "time": {"occurredAt": "2026-08-19T00:00:01.000000Z", "recordedAt": "2026-08-19T00:00:01.000000Z"},
+        "source": {"owner": "framework", "component": "operation-status", "runtime": "cli", "buildId": "build-1"},
+        "correlation": {"operationId": null, "correlationId": null, "causationId": null, "attempt": null, "traceId": null, "spanId": null, "sampled": null},
+        "evidence": {"version": 1}
+      },
+      "chain": {"partitionId": "tenant:59f58bfcb476fcc98fe5e95c6bf81a5f8125a721f27e53ed70ba7345ae64eae1", "segmentId": "01941f29-7c00-7000-8000-000000000102", "sequence": 2, "previousRecordHash": "53f065f0fcd332fb2dc80e6bb2c23ed9d1ee127531550bb4e0a459d09544935e"},
+      "contentHash": "034a0ef2dc757517a1045660072835fbacfbfc9d77781be9e1db3b168ecf4186",
+      "recordHash": "90b6a61cdd0bc6eae188fe7f79f21656cea5a97e49d8b5e6f2656a7a1c99a5cd",
+      "logicalBytes": "{\"action\":{\"id\":\"action-accessed\",\"phase\":\"succeeded\",\"type\":\"access.operation_status.accessed\"},\"actor\":{\"execution\":{\"id\":\"blackops-cli\",\"type\":\"process\"},\"principal\":{\"id\":\"actor-1\",\"type\":\"user\"}},\"correlation\":{\"attempt\":null,\"causationId\":null,\"correlationId\":null,\"operationId\":null,\"sampled\":null,\"spanId\":null,\"traceId\":null},\"event\":{\"catalogHash\":\"cfbcb3335b27ac4506046216d7ff43a9802586b1e60fbb9cfc47dc12230b1d83\",\"category\":\"access\",\"type\":\"access.operation_status.accessed\",\"version\":1},\"evidence\":{\"version\":1},\"kind\":\"audit\",\"outcome\":{\"code\":\"read_accessed\",\"status\":\"succeeded\"},\"policy\":{\"auditDelivery\":\"required\",\"decision\":\"allow\",\"id\":\"operation-read\",\"reasonCode\":\"authorization_allowed\",\"version\":1},\"recordId\":\"01941f29-7c00-7000-8000-000000000003\",\"resource\":{\"id\":\"operation-1\",\"type\":\"operation\"},\"schemaVersion\":1,\"source\":{\"buildId\":\"build-1\",\"component\":\"operation-status\",\"owner\":\"framework\",\"runtime\":\"cli\"},\"tenant\":{\"id\":\"tenant-a\",\"type\":\"account\"},\"time\":{\"occurredAt\":\"2026-08-19T00:00:01.000000Z\",\"recordedAt\":\"2026-08-19T00:00:01.000000Z\"}}",
+      "completeBytes": "{\"action\":{\"id\":\"action-accessed\",\"phase\":\"succeeded\",\"type\":\"access.operation_status.accessed\"},\"actor\":{\"execution\":{\"id\":\"blackops-cli\",\"type\":\"process\"},\"principal\":{\"id\":\"actor-1\",\"type\":\"user\"}},\"correlation\":{\"attempt\":null,\"causationId\":null,\"correlationId\":null,\"operationId\":null,\"sampled\":null,\"spanId\":null,\"traceId\":null},\"event\":{\"catalogHash\":\"cfbcb3335b27ac4506046216d7ff43a9802586b1e60fbb9cfc47dc12230b1d83\",\"category\":\"access\",\"type\":\"access.operation_status.accessed\",\"version\":1},\"evidence\":{\"version\":1},\"integrity\":{\"contentHash\":\"034a0ef2dc757517a1045660072835fbacfbfc9d77781be9e1db3b168ecf4186\",\"hashSuite\":\"audit-sha256-jcs-v1\",\"partitionId\":\"tenant:59f58bfcb476fcc98fe5e95c6bf81a5f8125a721f27e53ed70ba7345ae64eae1\",\"previousRecordHash\":\"53f065f0fcd332fb2dc80e6bb2c23ed9d1ee127531550bb4e0a459d09544935e\",\"recordHash\":\"90b6a61cdd0bc6eae188fe7f79f21656cea5a97e49d8b5e6f2656a7a1c99a5cd\",\"segmentId\":\"01941f29-7c00-7000-8000-000000000102\",\"sequence\":2},\"kind\":\"audit\",\"outcome\":{\"code\":\"read_accessed\",\"status\":\"succeeded\"},\"policy\":{\"auditDelivery\":\"required\",\"decision\":\"allow\",\"id\":\"operation-read\",\"reasonCode\":\"authorization_allowed\",\"version\":1},\"recordId\":\"01941f29-7c00-7000-8000-000000000003\",\"resource\":{\"id\":\"operation-1\",\"type\":\"operation\"},\"schemaVersion\":1,\"source\":{\"buildId\":\"build-1\",\"component\":\"operation-status\",\"owner\":\"framework\",\"runtime\":\"cli\"},\"tenant\":{\"id\":\"tenant-a\",\"type\":\"account\"},\"time\":{\"occurredAt\":\"2026-08-19T00:00:01.000000Z\",\"recordedAt\":\"2026-08-19T00:00:01.000000Z\"}}\n"
+    }
+  },
+  "ingress": {
+    "durableSystemIngress": {
+      "logical": {
+        "schemaVersion": 1,
+        "kind": "audit",
+        "recordId": "01941f29-7c00-7000-8000-000000000004",
+        "event": {"type": "security.authorization.allow", "version": 1, "category": "security", "catalogHash": "cfbcb3335b27ac4506046216d7ff43a9802586b1e60fbb9cfc47dc12230b1d83"},
+        "action": {"id": "action-durable-system", "type": "security.authorization.allow", "phase": "succeeded"},
+        "actor": {"principal": {"type": "user", "id": "actor-1"}, "execution": {"type": "process", "id": "blackops-cli"}},
+        "resource": {"type": "operation", "id": "operation-1"},
+        "outcome": {"status": "succeeded", "code": "authorization_allowed"},
+        "policy": {"id": "operation-authorization", "version": 1, "decision": "allow", "reasonCode": "authorization_allowed", "auditDelivery": "durable"},
+        "tenant": null,
+        "time": {"occurredAt": "2026-08-19T00:00:02.000000Z", "recordedAt": "2026-08-19T00:00:02.000000Z"},
+        "source": {"owner": "framework", "component": "authorization", "runtime": "cli", "buildId": "build-1"},
+        "correlation": {"operationId": null, "correlationId": null, "causationId": null, "attempt": null, "traceId": null, "spanId": null, "sampled": null},
+        "evidence": {"version": 1}
+      },
+      "contentHash": "490621aa8d29022a5e21c4a50d15be1d0e477b5a78d5305d9b610a52e871d3c9",
+      "idempotencyKey": "idem-null-1",
+      "ingressOrdinal": 1,
+      "idempotencyKeyHash": "6e22dd41bce06ff2825a8081b3bd34bbe8fe47acba2f76cf0af2ea62771ebdbc",
+      "logicalBytes": "{\"action\":{\"id\":\"action-durable-system\",\"phase\":\"succeeded\",\"type\":\"security.authorization.allow\"},\"actor\":{\"execution\":{\"id\":\"blackops-cli\",\"type\":\"process\"},\"principal\":{\"id\":\"actor-1\",\"type\":\"user\"}},\"correlation\":{\"attempt\":null,\"causationId\":null,\"correlationId\":null,\"operationId\":null,\"sampled\":null,\"spanId\":null,\"traceId\":null},\"event\":{\"catalogHash\":\"cfbcb3335b27ac4506046216d7ff43a9802586b1e60fbb9cfc47dc12230b1d83\",\"category\":\"security\",\"type\":\"security.authorization.allow\",\"version\":1},\"evidence\":{\"version\":1},\"kind\":\"audit\",\"outcome\":{\"code\":\"authorization_allowed\",\"status\":\"succeeded\"},\"policy\":{\"auditDelivery\":\"durable\",\"decision\":\"allow\",\"id\":\"operation-authorization\",\"reasonCode\":\"authorization_allowed\",\"version\":1},\"recordId\":\"01941f29-7c00-7000-8000-000000000004\",\"resource\":{\"id\":\"operation-1\",\"type\":\"operation\"},\"schemaVersion\":1,\"source\":{\"buildId\":\"build-1\",\"component\":\"authorization\",\"owner\":\"framework\",\"runtime\":\"cli\"},\"tenant\":null,\"time\":{\"occurredAt\":\"2026-08-19T00:00:02.000000Z\",\"recordedAt\":\"2026-08-19T00:00:02.000000Z\"}}"
+    },
+    "durableTenantIngress": {
+      "logical": {
+        "schemaVersion": 1,
+        "kind": "audit",
+        "recordId": "01941f29-7c00-7000-8000-000000000005",
+        "event": {"type": "security.authorization.allow", "version": 1, "category": "security", "catalogHash": "cfbcb3335b27ac4506046216d7ff43a9802586b1e60fbb9cfc47dc12230b1d83"},
+        "action": {"id": "action-durable-tenant", "type": "security.authorization.allow", "phase": "succeeded"},
+        "actor": {"principal": {"type": "user", "id": "actor-1"}, "execution": {"type": "process", "id": "blackops-cli"}},
+        "resource": {"type": "operation", "id": "operation-1"},
+        "outcome": {"status": "succeeded", "code": "authorization_allowed"},
+        "policy": {"id": "operation-authorization", "version": 1, "decision": "allow", "reasonCode": "authorization_allowed", "auditDelivery": "durable"},
+        "tenant": {"type": "account", "id": "tenant-a"},
+        "time": {"occurredAt": "2026-08-19T00:00:03.000000Z", "recordedAt": "2026-08-19T00:00:03.000000Z"},
+        "source": {"owner": "framework", "component": "authorization", "runtime": "cli", "buildId": "build-1"},
+        "correlation": {"operationId": null, "correlationId": null, "causationId": null, "attempt": null, "traceId": null, "spanId": null, "sampled": null},
+        "evidence": {"version": 1}
+      },
+      "contentHash": "bbf044ce19de64a9dae2bf449ac8c8819fa95babf33b9ee4eef53d799c7d34d3",
+      "idempotencyKey": "idem-tenant-2",
+      "ingressOrdinal": 2,
+      "idempotencyKeyHash": "1caac6c03c7c676ad2506059eb7b26fdbe959bc68a0aa6790db76aa019a6ff54",
+      "logicalBytes": "{\"action\":{\"id\":\"action-durable-tenant\",\"phase\":\"succeeded\",\"type\":\"security.authorization.allow\"},\"actor\":{\"execution\":{\"id\":\"blackops-cli\",\"type\":\"process\"},\"principal\":{\"id\":\"actor-1\",\"type\":\"user\"}},\"correlation\":{\"attempt\":null,\"causationId\":null,\"correlationId\":null,\"operationId\":null,\"sampled\":null,\"spanId\":null,\"traceId\":null},\"event\":{\"catalogHash\":\"cfbcb3335b27ac4506046216d7ff43a9802586b1e60fbb9cfc47dc12230b1d83\",\"category\":\"security\",\"type\":\"security.authorization.allow\",\"version\":1},\"evidence\":{\"version\":1},\"kind\":\"audit\",\"outcome\":{\"code\":\"authorization_allowed\",\"status\":\"succeeded\"},\"policy\":{\"auditDelivery\":\"durable\",\"decision\":\"allow\",\"id\":\"operation-authorization\",\"reasonCode\":\"authorization_allowed\",\"version\":1},\"recordId\":\"01941f29-7c00-7000-8000-000000000005\",\"resource\":{\"id\":\"operation-1\",\"type\":\"operation\"},\"schemaVersion\":1,\"source\":{\"buildId\":\"build-1\",\"component\":\"authorization\",\"owner\":\"framework\",\"runtime\":\"cli\"},\"tenant\":{\"id\":\"tenant-a\",\"type\":\"account\"},\"time\":{\"occurredAt\":\"2026-08-19T00:00:03.000000Z\",\"recordedAt\":\"2026-08-19T00:00:03.000000Z\"}}"
+    }
+  },
+  "scalarPartitions": {
+    "tenantA": {
+      "tenant": {"type": "account", "id": "tenant-a"},
+      "tenantJcs": "{\"id\":\"tenant-a\",\"type\":\"account\"}",
+      "partitionId": "tenant:59f58bfcb476fcc98fe5e95c6bf81a5f8125a721f27e53ed70ba7345ae64eae1"
+    },
+    "tenantB": {
+      "tenant": {"type": "account", "id": "tenant-b"},
+      "tenantJcs": "{\"id\":\"tenant-b\",\"type\":\"account\"}",
+      "partitionId": "tenant:3fb6e98600ca752a93966ff30149565d1b468b11aaa6ea8cfc35c1962785ad88"
+    },
+    "lineSeparator": {
+      "tenant": {"type": "account", "id": "line separator"},
+      "tenantJcs": "{\"id\":\"line separator\",\"type\":\"account\"}",
+      "partitionId": "tenant:cf0064cb8dc85fa00dbe6d4e262f6d4874762156a75dee518d45da0c1f0c3b22"
+    },
+    "paragraphSeparator": {
+      "tenant": {"type": "account", "id": "paragraph separator"},
+      "tenantJcs": "{\"id\":\"paragraph separator\",\"type\":\"account\"}",
+      "partitionId": "tenant:6e910dff82c2a3eaa1357be4cef6e123065167fd20b73cbe33de60b95faf12c7"
+    }
+  }
+}

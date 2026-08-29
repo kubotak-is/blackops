@@ -1,6 +1,38 @@
 # Framework Specification
 
-## P23-003A2 current handoff — Audit Record and Observed Projection
+## P23-003B1 accepted handoff — Audit Canonical Record Foundation
+
+Updated At: 2026-08-29T16:15:29+09:00
+
+Current status: `Accepted — Complete Final Gate Green; candidate commit/package export next`.
+
+P23-003A1／A2 and parent P23-003A are Accepted at candidate commit
+`b7e6837f0d684b3cea35967fadb4c52adb670407`; committed-candidate package export
+is Green. D148 is the most specific current authority and splits P23-003B into
+serial B1 pure canonical-record／Audit-protection foundation and B2 PostgreSQL
+append／segment／migration.
+
+B1 implements the pure canonical-record／Audit-protection foundation with exact
+PHP／Node bytes, protected hydration, bounded pre-key validation, value-free
+failure surfaces, and no runtime activation. Historical preflight and review
+findings are retained in D148 and the Task/Report; the final bounded closure is
+Green `P1=0/P2=0/P3=0`. The Accepted exact33 ordered aggregate is
+`bb6ab89a222a72eafa601f588f46177ee443e554c036bcc00575b211961c8847`.
+The Complete Final Gate is Green, including full PHPUnit `2,762 tests / 57,406
+assertions`, Deptrac `991 analyzed / 0 violations / 0 uncovered / 0 errors /
+5,986 allowed`, and all three Audit Node goldens.
+
+Stable `1.2.0` remains current and BlackOps `1.3` remains unreleased. No
+runtime、database、route、CLI、or public Documentation activation occurred.
+
+Remaining: the reviewed candidate commit and same-SHA package export, then
+P23-003B2. Parent P23-003B requires B2 Acceptance; the higher Goal still
+requires P23-003C..G、P23-004、P23-005、and P23-006.
+
+Next Action: commit the reviewed B1 candidate, run the clean-candidate package
+export, record the result, and draft the bounded P23-003B2 packet.
+
+## P23-003A2 accepted handoff — Historical prerequisite
 
 Updated At: 2026-08-29T01:25:47+09:00
 
@@ -1533,7 +1565,8 @@ closedする。Semantic tuple、trusted external verification context、exact
 | --- | --- | --- |
 | [D145](../decisions/145-blackops-1-3-command-runtime-and-audit-boundary.md) | BlackOps `1.3` command、FrankenPHP runtime、Audit Trail boundary | Proposed — P23-001 Accepted; Stable `1.2` current / BlackOps `1.3` unreleased proposal |
 | [D146](../decisions/146-projection-build-set-php-filesystem-boundary.md) | ProjectionBuildSet PHP filesystem／locator boundary | Proposed — P23-002A1/A2/B/C Accepted; complete projection activation implemented for unreleased 1.3 |
-| [D147](../decisions/147-audit-catalog-and-safe-projection-boundary.md) | Audit Catalog、keyed opaque ID、record stages、observed safe-projection boundary | Accepted P23-003A1／A2 and parent P23-003A; Stable `1.2` current / BlackOps `1.3` unreleased; P23-003B next |
+| [D147](../decisions/147-audit-catalog-and-safe-projection-boundary.md) | Audit Catalog、keyed opaque ID、record stages、observed safe-projection boundary | Accepted P23-003A1／A2 and parent P23-003A; Stable `1.2` current / BlackOps `1.3` unreleased; P23-003B1 fixture／handoff corrected re-preflight pending |
+| [D148](../decisions/148-audit-canonical-record-and-protected-store-boundary.md) | Audit canonical record、hash／chain、Audit専用BOPD protection、B1／B2 boundary | P23-003B1 fixture／historical-handoff corrected exact packet frozen／fresh Sol Max re-preflight restarted; Stable `1.2` unchanged / BlackOps `1.3` unreleased |
 
 ## Historical P23-001 Round 13 checkpoint
 

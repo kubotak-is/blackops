@@ -2,7 +2,7 @@
 
 Status: Proposal — unreleased BlackOps 1.3; workflow/gate status authority is the exact5 management slice (`develop/STATE.md`, `develop/TODO.md`, the parent Task/Report, and `develop/spec/README.md`)
 
-Updated At: 2026-08-29T01:25:47+09:00
+Updated At: 2026-08-29T16:15:29+09:00
 
 This plan is a delivery DAG for the capability proposal in Specification 105.
 It does not make any Phase 23 item a current Stable `1.2` capability. A slice
@@ -40,6 +40,27 @@ trusted logical schema validation, semantic resolution, and closed observed
 projection. P23-003C later owns the dedicated opaque-ID key provider/injection.
 Both A children must be Accepted before parent P23-003A and before P23-003B;
 neither activates runtime behavior or marks an A1 type Public API.
+
+For P23-003B delivery, D148 is the more specific authority. P23-003B1 first
+delivers the pure canonical record／hash／Audit-specific protection／ingress wire
+foundation. Only after B1 Acceptance may P23-003B2 deliver PostgreSQL append、
+partition-global chain、segment rotation／fence、tenant-aware read、and migration.
+Parent B requires both children. Initial B1 fresh Sol Max preflight returned
+Changes Requested `P1=4/P2=1/P3=1`. The prior hardened freeze is superseded
+because its stored-record AAD positive inputs were invalid at the B1 write seam.
+The corrected-vector re-preflight returned `P1=4/P2=0/P3=0`. D148 now fixes
+exact three canonical-chain logical fixtures plus exact two durable-ingress fixtures,
+write-path-derived 308／421 and delivery-correct 222／303-byte AAD vectors,
+Candidate／Canonical implementation exact2,
+persisted-value hydration, and generic BOPD caps. The four-root corrected review
+returned `P1=2/P2=1/P3=0`; those and later bounded findings are Historical and
+closed. Final bounded Sol Max closure is Green `P1=0/P2=0/P3=0`; exact33
+aggregate `bb6ab89a222a72eafa601f588f46177ee443e554c036bcc00575b211961c8847`
+and the Complete Final Gate are Green. P23-003B1 is Accepted without runtime、
+database、route、CLI、public Documentation、or release activation. The reviewed
+candidate commit／same-SHA package export is next. Only after that handoff may
+the bounded P23-003B2 packet proceed; parent P23-003B still requires B2
+Acceptance.
 
 ## P23-003A current delivery gate
 
@@ -2621,16 +2642,25 @@ LP(tenantUnionBytes)||LP(segmentId)||LP(ASCII canonical sequence)||
 LP(previousHashUnionBytes)||LP(decoded32(contentHash))||
 LP(decoded32(recordHash))||LP(recordedAt)||LP(eventCategory)`. The tenant
 union is `0x00` for null or `0x01||LP(type)||LP(id)`; the previous-hash union
-is `0x00` or `0x01||decoded32(hash)`. The system/genesis fixture (`k1`,`r1`,
-`system:global`, null, `s1`, sequence 1, previous null, 64 zero content hash,
-64 one record hash, `2026-08-19T00:00:00.000000Z`, `control`) is exactly 232
-AAD bytes with SHA-256
-`5930076af5418572a4e575943172884775428ad10d024de7eb9fc419bce04b1c`.
-The tenant/non-genesis fixture (`k2`,`r2`,`tenant:` plus 64 `a`, tenant
-`{type:account,id:tenant-a}`, `s2`, sequence 2, previous 64 `2`, content 64
-`3`, record 64 `4`, `2026-08-19T00:00:01.000000Z`, `access`) is exactly 344
-AAD bytes with SHA-256
-`f3ef3d96598964f7087ffe654ecde4d2e828caebfa981ecb1daa82859ff7c57f`.
+is `0x00` or `0x01||decoded32(hash)`. Golden inputs must pass the complete B1
+write seam from D148's canonical logical fixtures. The system/genesis fixture
+(`audit-key-1`,`01941f29-7c00-7000-8000-000000000001`,`system:global`, null,
+`01941f29-7c00-7000-8000-000000000101`, sequence 1, previous null,
+content `41b8f7df71f09eb50e78a6f4259b5ee0147efb192ae40c9fe13f1a4526b32441`,
+record `a4f7fd2ac8a282deb00bd0221edd2f7c14aa559de97db4b83e5a9609227459b0`,
+`2026-08-19T00:00:00.000000Z`, `access`) is exactly 308 AAD bytes with SHA-256
+`c917e26a1a4d124db7701ceb76fc141581a54ce248e8df3783fc5e8500a4cade`.
+The tenant/non-genesis fixture (`audit-key-2`,
+`01941f29-7c00-7000-8000-000000000003`,
+`tenant:59f58bfcb476fcc98fe5e95c6bf81a5f8125a721f27e53ed70ba7345ae64eae1`,
+tenant `{type:account,id:tenant-a}`,
+`01941f29-7c00-7000-8000-000000000102`, sequence 2,
+previous `53f065f0fcd332fb2dc80e6bb2c23ed9d1ee127531550bb4e0a459d09544935e`,
+content `034a0ef2dc757517a1045660072835fbacfbfc9d77781be9e1db3b168ecf4186`,
+record `90b6a61cdd0bc6eae188fe7f79f21656cea5a97e49d8b5e6f2656a7a1c99a5cd`,
+`2026-08-19T00:00:01.000000Z`, `access`) is exactly 421 AAD bytes with SHA-256
+`0ab1465ae6e1e908228cafd36cf13fa55a805d4189bbd096d8df885a47452c48`.
+The old shorthand and intermediate repeated-hash vectors are not valid B1 positives.
 Each field substitution, tenant-union swap, row/tenant swap, key-ID/header
 swap, and pre-decrypt authorization failure is a required fixture.
 
@@ -2646,8 +2676,18 @@ clear row field. Its exact digest is
 `H(ENC("blackops.audit.outbox.idempotency.v1")||ENC(partitionId)||
 ENC(NFC(idempotencyKey)))`; `contentHash` is exactly
 `H(ENC("blackops.audit.content.v1")||ENC(canonicalLogicalBytes))`.
-Null/0xff, normalization, metadata/body cap, header/AAD, tenant, and
-binary-versus-JSON projection substitutions are B/C fixtures.
+The D148 `durableSystemIngress` and `durableTenantIngress` authorized durable
+write paths resolve Catalog delivery `durable` and yield
+222-byte AAD／SHA-256
+`1444d7e8430fdb22bed2b29cb10988684aa8b75c061d943ef43cf1d5ec976f7d`
+and 303-byte AAD／SHA-256
+`6ad3000f8b1b7fa7d76a266c813f9bf83be8c30340c751e761abc396e9acd9e6`.
+The `required` canonical-chain fixtures are not durable Envelope positives.
+IngressCodec rejects a bound Catalog／policy delivery other than `durable` as
+`semantic_invalid` before envelope bytes or key access.
+Null/present and one-byte encoded-marker mutation, normalization,
+metadata/body cap, header/AAD, tenant, and binary-versus-JSON projection
+substitutions are B/C fixtures; no raw-marker decoder API is introduced.
 
 ### P23-003C — Required/durable transaction and outbox delivery
 

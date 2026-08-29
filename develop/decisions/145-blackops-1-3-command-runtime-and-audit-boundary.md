@@ -2,7 +2,7 @@
 
 Status: Proposal — unreleased BlackOps 1.3; workflow/gate status authority is the exact5 management slice (`develop/STATE.md`, `develop/TODO.md`, the parent Task/Report, and `develop/spec/README.md`)
 
-Updated At: 2026-08-29T01:25:47+09:00
+Updated At: 2026-08-29T16:15:29+09:00
 
 Decision date: 2026-08-19
 
@@ -66,6 +66,28 @@ members, empty A1 PublicApi marker inventory, producer draft／trusted logical�
 complete record construction stages, and closed observed projection.
 Incompatible non-historical shorthand below is superseded; historical review
 evidence remains historical.
+
+For every current P23-003B canonical record／protection／append clause, D148 is
+the more specific authority. It splits B into serial B1 pure foundation and B2
+PostgreSQL persistence, keeps Public `StoragePurpose` exact9, fixes the Internal
+Audit exact2 protection purpose, trusted stamp、partition、hash、AAD、failure、
+transport wires, and leaves runtime activation unreleased. P23-003B1 initial
+fresh Sol Max preflight returned Changes Requested `P1=4/P2=1/P3=1`. The prior
+hardened freeze is superseded because its stored-record AAD positive inputs did
+not satisfy the UUIDv7／derived-partition write seam. Its corrected-vector
+re-preflight returned `P1=4/P2=0/P3=0`: authorized write-path goldens,
+Candidate／Canonical implementation exact2, persisted-value hydration, and
+legacy generic BOPD caps were not closed. D148 now fixes exact three canonical-chain
+logical fixtures plus exact two durable-ingress fixtures, derived 308／421 and
+delivery-correct 222／303-byte AAD vectors, B1 `fromArray()`
+hydration seams, and generic `0xFFFF_FFFF`／`0x1000000B3` caps. The historical
+preflight and review findings are closed. Final bounded Sol Max closure is
+Green `P1=0/P2=0/P3=0`; exact33 aggregate
+`bb6ab89a222a72eafa601f588f46177ee443e554c036bcc00575b211961c8847`
+and the Complete Final Gate are Green. P23-003B1 is Accepted without runtime、
+database、route、CLI、public Documentation、or Stable `1.2` activation. The
+reviewed candidate commit／same-SHA package export is next; parent P23-003B
+still requires P23-003B2 Acceptance.
 
 ## P23-003A current contract correction
 
@@ -2744,13 +2766,28 @@ LP(tenantUnionBytes)||LP(segmentId)||LP(canonicalDecimal(sequence))||
 LP(previousHashUnionBytes)||LP(DECODE32(contentHash))||LP(DECODE32(recordHash))||
 LP(recordedAt)||LP(eventCategory)`. Tenant null is `0x00`, otherwise
 `0x01||LP(type)||LP(id)`; previous null is `0x00`, otherwise
-`0x01||DECODE32(hash)`. The system/genesis golden (`k1`,`r1`,system:global,
-null tenant,`s1`,1,null,0×32,1×32,2026-08-19T00:00:00.000000Z,control) is
-232 bytes with SHA-256
-`5930076af5418572a4e575943172884775428ad10d024de7eb9fc419bce04b1c`; the
-tenant/non-genesis golden (`k2`,`r2`,tenant:+a×64,{account,tenant-a},`s2`,2,
-2×32,3×32,4×32,2026-08-19T00:00:01.000000Z,access) is 344 bytes with SHA-256
-`f3ef3d96598964f7087ffe654ecde4d2e828caebfa981ecb1daa82859ff7c57f`.
+`0x01||DECODE32(hash)`. B1 golden inputs use canonical UUIDv7 record／segment
+IDs and a partition derived by the normative tenant formula. The positive
+inputs originate from D148's exact canonical logical fixtures, never arbitrary
+constructor-injected hashes. The system/genesis vector (`audit-key-1`,
+`01941f29-7c00-7000-8000-000000000001`,`system:global`, null tenant,
+`01941f29-7c00-7000-8000-000000000101`,1,null,
+content `41b8f7df71f09eb50e78a6f4259b5ee0147efb192ae40c9fe13f1a4526b32441`,
+record `a4f7fd2ac8a282deb00bd0221edd2f7c14aa559de97db4b83e5a9609227459b0`,
+2026-08-19T00:00:00.000000Z,access) is 308 bytes with SHA-256
+`c917e26a1a4d124db7701ceb76fc141581a54ce248e8df3783fc5e8500a4cade`.
+The tenant/non-genesis vector (`audit-key-2`,
+`01941f29-7c00-7000-8000-000000000003`,
+`tenant:59f58bfcb476fcc98fe5e95c6bf81a5f8125a721f27e53ed70ba7345ae64eae1`,
+`{type:account,id:tenant-a}`,
+`01941f29-7c00-7000-8000-000000000102`,2,
+previous `53f065f0fcd332fb2dc80e6bb2c23ed9d1ee127531550bb4e0a459d09544935e`,
+content `034a0ef2dc757517a1045660072835fbacfbfc9d77781be9e1db3b168ecf4186`,
+record `90b6a61cdd0bc6eae188fe7f79f21656cea5a97e49d8b5e6f2656a7a1c99a5cd`,
+2026-08-19T00:00:01.000000Z,access) is 421 bytes with SHA-256
+`0ab1465ae6e1e908228cafd36cf13fa55a805d4189bbd096d8df885a47452c48`.
+The former 232／344-byte shorthand and intermediate repeated-hash vectors are
+invalid for the B1 write seam and superseded by D148／Specification 105.
 Every field substitution is a negative fixture.
 
 The durable-only `AuditIngressEnvelope v1` is not stored on the required path:
@@ -2798,6 +2835,15 @@ tenant, and derives the canonical partition. The exact idempotency digest is
 ENC(NFC(idempotencyKey)))`; the exact content digest is
 `H(ENC("blackops.audit.content.v1")||ENC(canonicalLogicalBytes))`. The raw
 key remains protected only.
+The only B1 positive durable AAD inputs are D148 `durableSystemIngress`／
+`durableTenantIngress` after Finalizer／IngressCodec. Both resolve Catalog
+delivery `durable`; their exact outputs are respectively
+222 bytes／`1444d7e8430fdb22bed2b29cb10988684aa8b75c061d943ef43cf1d5ec976f7d`
+and 303 bytes／`6ad3000f8b1b7fa7d76a266c813f9bf83be8c30340c751e761abc396e9acd9e6`.
+The `required` canonical-chain records are not durable Envelope positives.
+IngressCodec rejects a bound Catalog／policy delivery other than `durable` as
+`semantic_invalid` before envelope bytes or key access.
+Arbitrary content-hash injection is not a positive construction path.
 
 The current Outbox state matrix fixes pending attempts to `0..maxAttempts-1`
 and leased/terminal attempts to `1..maxAttempts`; a pending row at max and any

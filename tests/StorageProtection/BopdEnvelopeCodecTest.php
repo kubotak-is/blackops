@@ -82,6 +82,36 @@ final class BopdEnvelopeCodecTest extends TestCase
         }
     }
 
+    public function testPartialHeaderKeyIdDelegatesWithoutRequiringAFullEnvelope(): void
+    {
+        $codec = new BopdEnvelopeCodec(new FixtureKeyProvider());
+        foreach ([str_repeat('a', 1), str_repeat('b', 128)] as $keyId) {
+            $prefix = 'BOPD' . "\x01\x01" . pack('n', strlen($keyId)) . $keyId;
+            self::assertSame($keyId, $codec->keyIdFromHeader($prefix));
+        }
+
+        foreach ([
+            '',
+            'BOPD' . "\x01\x01\x00\x01",
+            'BOPD' . "\x01\x01\x00\x01!",
+        ] as $prefix) {
+            try {
+                $codec->keyIdFromHeader($prefix);
+                self::fail('Expected malformed partial header failure.');
+            } catch (StorageProtectionException $exception) {
+                self::assertSame('Protected storage data is unavailable.', $exception->getMessage());
+                self::assertNull($exception->getPrevious());
+            }
+        }
+    }
+
+    public function testGenericCapsAreFrozenWithoutAllocatingGigabytePayloads(): void
+    {
+        $codec = new \ReflectionClass(BopdEnvelopeCodec::class);
+        self::assertSame(0xFFFF_FFFF, $codec->getReflectionConstant('MAX_LENGTH')->getValue());
+        self::assertSame(0x1_0000_00B3, $codec->getReflectionConstant('MAX_ENVELOPE_LENGTH')->getValue());
+    }
+
     public function testCanonicalCodecDistinguishesNullAndPresentTenantValues(): void
     {
         $codec = new CanonicalAssociatedData();
