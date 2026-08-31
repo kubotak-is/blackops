@@ -1,7 +1,24 @@
 # P23-003B2 Report: Audit PostgreSQL Canonical Store
 
-Status: Accepted — P23-003B2 Audit PostgreSQL Canonical Store / Parent P23-003B Accepted; Post-Acceptance Commit and Package Export Pending
-Updated At: 2026-08-31T20:54:49+09:00
+Status: Accepted — P23-003B2 Audit PostgreSQL Canonical Store / Parent P23-003B Accepted; Candidate Commit and Same-SHA Package Export Green
+Updated At: 2026-08-31T23:10:13+09:00
+
+## P23-003B2 Post-Acceptance Commit and Package Gate Green
+
+Completed At: 2026-08-31T23:10:13+09:00. The Orchestrator committed the
+reviewed exact37 candidate as
+`968afe2b0c4bbff86e0013592d69dc7115cf8b4f` with subject
+`feat: add audit PostgreSQL canonical store`. The worktree was clean at that
+exact SHA. `bash tests/Consumer/framework-package-export.sh` then passed: the
+Git archive and Composer archive inventories／bytes matched, including the B2
+exact37 required package inventory.
+
+This closeout changes only `develop/` management／normative text, which is not
+package-visible and does not change the required inventory; therefore the
+same-SHA package evidence from `968afe2b...` remains current. P23-003B2 and
+parent P23-003B have no remaining work. P23-003C is the next serial slice.
+No push, release, tag, deploy, runtime activation, generated Documentation
+regeneration, or browser verification was performed.
 
 ## P23-003B2 and Parent P23-003B Accepted
 
@@ -20,11 +37,9 @@ foundation only. Stable `1.2.0` remains current; BlackOps `1.3` remains
 unreleased; no Application、Container、CLI、HTTP、public Documentation、Audit
 Outbox／relay、checkpoint、query、or release activation occurred.
 
-Post-Acceptance closeout remains: commit the reviewed candidate, verify a
-clean exact SHA, run `framework-package-export.sh` on that SHA, and record the
-result. Push and release are not authorized. Generated Documentation artifacts
-and browser verification remain Not Verified. The separate known public Guide
-finding remains out of B2 scope.
+Post-Acceptance closeout is recorded above. Push and release are not
+authorized. Generated Documentation artifacts and browser verification remain
+Not Verified. The separate known public Guide finding remains out of B2 scope.
 
 ## P23-003B2 Quote-Aware Catalog Complete Final Gate Green
 

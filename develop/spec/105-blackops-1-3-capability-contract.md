@@ -2,7 +2,7 @@
 
 Status: Proposal — unreleased BlackOps 1.3; workflow/gate status authority is the exact5 management slice (`develop/STATE.md`, `develop/TODO.md`, the parent Task/Report, and `develop/spec/README.md`)
 
-Updated At: 2026-08-31T20:54:49+09:00
+Updated At: 2026-08-31T23:10:13+09:00
 
 This specification is a normative proposal for BlackOps `1.3`. It is not a
 Stable `1.2` capability contract and must not be copied into current public
@@ -85,8 +85,9 @@ Its Complete Final Gate is Green, and fresh DB／General Sol closure separately 
 `P1=0/P2=0/P3=0`. P23-003B2 and parent P23-003B are Accepted.
 The PostgreSQL component and migration exist as an unreleased internal foundation;
 no Application composition、Container registration、Audit Outbox／relay、HTTP／CLI surface、
-public Documentation capability、or release activation occurred. B2 closeout still requires the
-Orchestrator candidate commit and clean exact-SHA package export.
+public Documentation capability、or release activation occurred. Reviewed B2 candidate
+`968afe2b0c4bbff86e0013592d69dc7115cf8b4f` is committed and its clean
+exact-SHA package export is Green; no push was performed. P23-003C is the next serial slice.
 
 ## Historical P23-003A Acceptance Catalog and projection contract
 

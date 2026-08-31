@@ -2,7 +2,7 @@
 
 Status: Proposal — unreleased BlackOps 1.3; workflow/gate status authority is the exact5 management slice (`develop/STATE.md`, `develop/TODO.md`, the parent Task/Report, and `develop/spec/README.md`)
 
-Updated At: 2026-08-31T20:54:49+09:00
+Updated At: 2026-08-31T23:10:13+09:00
 
 Decision date: 2026-08-19
 
@@ -96,8 +96,9 @@ segment close、and tenant-aware read. Earlier B2 preflights and review findings
 The accepted B2 exact26 is
 `ecacafc99cbdf4fd2287b7554b88a34f6524a23d92c9adb3a8bf201a2a1d50bb`;
 the Complete Final Gate and separate fresh DB／General Sol closure reviews are Green
-`P1=0/P2=0/P3=0`. P23-003B2 and parent P23-003B are Accepted. The
-post-Acceptance candidate commit and clean-SHA package export remain closeout work.
+`P1=0/P2=0/P3=0`. P23-003B2 and parent P23-003B are Accepted. Reviewed B2
+candidate `968afe2b0c4bbff86e0013592d69dc7115cf8b4f` is committed and its
+clean exact-SHA package export is Green. No push was performed.
 No Application、Container、CLI、HTTP、public Documentation、Audit Outbox、relay、checkpoint、
 query、release、or Stable `1.2` activation occurred.
 

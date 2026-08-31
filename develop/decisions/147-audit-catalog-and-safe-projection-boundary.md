@@ -2,11 +2,11 @@
 
 Status: Accepted P23-003A1／A2／parent A and P23-003B1／B2／parent B — BlackOps 1.3 unreleased
 
-Updated At: 2026-08-31T20:54:49+09:00
+Updated At: 2026-08-31T23:10:13+09:00
 
 ## P23-003B accepted handoff
 
-Current status: `Accepted — P23-003B1／B2 and parent P23-003B; B2 post-Acceptance commit／package export pending`.
+Current status: `Accepted — P23-003B1／B2 and parent P23-003B; B2 candidate commit／same-SHA package export Green`.
 
 D148 is the more specific current authority for canonical logical／complete
 record bytes、trusted stamp、content／record hash、tenant partition、Audit-specific
@@ -29,8 +29,9 @@ bounded B2 PostgreSQL store contract. Accepted B2 exact26 is
 its Complete Final Gate and separate fresh DB／General Sol closure reviews are
 Green `P1=0/P2=0/P3=0`. P23-003B2 and parent P23-003B are Accepted.
 No Stable `1.2` or runtime／route／CLI／public Documentation activation occurred.
-Remaining B2 closeout is the Orchestrator candidate commit and clean exact-SHA
-package export. P23-003C is unblocked after that closeout.
+Reviewed B2 candidate `968afe2b0c4bbff86e0013592d69dc7115cf8b4f` is committed,
+and its clean exact-SHA package export is Green. No push was performed.
+P23-003C is unblocked.
 
 ## Context
 

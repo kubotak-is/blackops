@@ -1,8 +1,8 @@
 # P23-003B2: Audit PostgreSQL Canonical Store
 
-Status: Accepted — P23-003B2 Audit PostgreSQL Canonical Store / Parent P23-003B Accepted; Post-Acceptance Commit and Package Export Pending
+Status: Accepted — P23-003B2 Audit PostgreSQL Canonical Store / Parent P23-003B Accepted; Candidate Commit and Same-SHA Package Export Green
 
-Updated At: 2026-08-31T20:54:49+09:00
+Updated At: 2026-08-31T23:10:13+09:00
 
 ## Current Checkpoint
 
@@ -23,10 +23,12 @@ parent P23-003B.
 Stable `1.2.0` remains current. BlackOps `1.3` and every Audit capability remain unreleased.
 No Application／Container／CLI／HTTP／public Documentation／Audit Outbox activation is authorized.
 
-Remaining: post-Acceptance candidate commit and same-SHA package export.
+Reviewed candidate `968afe2b0c4bbff86e0013592d69dc7115cf8b4f` is committed,
+and `framework-package-export.sh` is Green on that clean exact SHA. The
+management-only closeout changes no package-visible source or required inventory.
+No push was performed. Remaining within B2／parent B: none.
 
-Next Action: Orchestrator commits the reviewed candidate, verifies a clean exact SHA, and runs
-`framework-package-export.sh`. Do not push. After closeout, P23-003C is unblocked.
+Next Action: proceed to P23-003C from the Accepted parent P23-003B boundary.
 
 ## Goal
 
@@ -889,10 +891,9 @@ Report must contain:
 
 ## Remaining Issues
 
-Implementation、Iteration／Complete Final Gates、fresh DB／General review、and Acceptance are Green.
-Candidate commit and same-SHA package export remain. P23-003C以降はこのTaskのscope外である。
+Implementation、Iteration／Complete Final Gates、fresh DB／General review、Acceptance、candidate commit、
+and same-SHA package export are Green. P23-003C以降はこのTaskのscope外である。
 
 ## Suggested Next Action
 
-OrchestratorがAccepted candidateをcommitし、そのclean exact SHAでpackage exportを実行する。
-Pushは行わない。Closeout後、Accepted parent Bを入力としてP23-003Cへ進める。
+Accepted parent Bを入力としてP23-003Cへ進む。Pushは行わない。

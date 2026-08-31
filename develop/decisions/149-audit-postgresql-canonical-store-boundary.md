@@ -1,8 +1,8 @@
 # D149: Audit PostgreSQL Canonical Store Boundary
 
-Status: P23-003B2 Accepted / Parent P23-003B Accepted — Post-Acceptance Commit and Package Export Pending; BlackOps 1.3 unreleased
+Status: P23-003B2 Accepted / Parent P23-003B Accepted — Candidate Commit and Same-SHA Package Export Green; BlackOps 1.3 unreleased
 
-Updated At: 2026-08-31T20:54:49+09:00
+Updated At: 2026-08-31T23:10:13+09:00
 
 ## Current Handoff
 
@@ -29,10 +29,11 @@ package exact37／mutation guards, and ending freeze. Fresh DB and General Sol
 closure reviews separately returned `P1=0/P2=0/P3=0`; the quote-aware catalog
 oracle closes the last review root without a Production change.
 
-Remaining: post-Acceptance candidate commit and same-SHA package export.
+Reviewed candidate `968afe2b0c4bbff86e0013592d69dc7115cf8b4f` is committed,
+and `framework-package-export.sh` is Green on that clean exact SHA. No push was performed.
+Remaining within P23-003B2／parent P23-003B: none.
 
-Next Action: Orchestratorがreviewed candidateをcommitし、そのclean exact SHAで
-`framework-package-export.sh`を実行する。Pushは行わない。
+Next Action: Accepted parent P23-003Bを入力としてP23-003Cへ進む。
 
 ## Context
 
@@ -655,11 +656,10 @@ Ignored generated artifactはsource no-diffへ混ぜず、再生成結果をAcce
 
 ## Remaining Issues
 
-P23-003B2 implementation、gates、fresh review、and Acceptance are Green.
-Candidate commit and same-SHA package export remain. P23-003C以降のcomposition／Outbox／
+P23-003B2 implementation、gates、fresh review、Acceptance、candidate commit、and
+same-SHA package export are Green. P23-003C以降のcomposition／Outbox／
 authorizationはこのTaskに含めない。
 
 ## Suggested Next Action
 
-OrchestratorはAccepted candidateをcommitし、そのclean exact SHAでpackage exportを実行する。
-Pushは行わない。Closeout後、P23-003Cへ進める。
+Accepted parent P23-003Bを入力としてP23-003Cへ進む。Pushは行わない。

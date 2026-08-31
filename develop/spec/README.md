@@ -2,9 +2,9 @@
 
 ## P23-003B2 current handoff — Audit PostgreSQL Canonical Store
 
-Updated At: 2026-08-31T20:54:49+09:00
+Updated At: 2026-08-31T23:10:13+09:00
 
-Current status: `Accepted — P23-003B2 Audit PostgreSQL Canonical Store / Parent P23-003B Accepted; Post-Acceptance Commit and Package Export Pending`.
+Current status: `Accepted — P23-003B2 Audit PostgreSQL Canonical Store / Parent P23-003B Accepted; Candidate Commit and Same-SHA Package Export Green`.
 
 P23-003A1／A2 and parent P23-003A are Accepted at candidate commit
 `b7e6837f0d684b3cea35967fadb4c52adb670407`; committed-candidate package export
@@ -47,9 +47,13 @@ P23-003B2 and parent P23-003B are Accepted. Stable `1.2.0` remains current;
 BlackOps `1.3` remains unreleased; no Application、Container、CLI、HTTP、public Documentation、
 Audit Outbox、relay、checkpoint、or query activation occurred.
 
-Remaining within B2 closeout: Orchestrator candidate commit and clean exact-SHA package export.
-Next Action: commit the reviewed candidate, run `framework-package-export.sh` on the clean SHA,
-record closeout without push, then proceed to P23-003C.
+Reviewed B2 candidate `968afe2b0c4bbff86e0013592d69dc7115cf8b4f` is committed,
+and `framework-package-export.sh` is Green on that clean exact SHA. The management-only
+closeout changes no package-visible source or required inventory, so the candidate-SHA package
+evidence remains current. No push was performed.
+
+Remaining within B2 or parent B: none. Next Action: proceed to P23-003C from the
+Accepted parent P23-003B boundary.
 
 ## P23-003A2 accepted handoff — Historical prerequisite
 
@@ -1585,8 +1589,8 @@ closedする。Semantic tuple、trusted external verification context、exact
 | [D145](../decisions/145-blackops-1-3-command-runtime-and-audit-boundary.md) | BlackOps `1.3` command、FrankenPHP runtime、Audit Trail boundary | Proposed — P23-001 Accepted; Stable `1.2` current / BlackOps `1.3` unreleased proposal |
 | [D146](../decisions/146-projection-build-set-php-filesystem-boundary.md) | ProjectionBuildSet PHP filesystem／locator boundary | Proposed — P23-002A1/A2/B/C Accepted; complete projection activation implemented for unreleased 1.3 |
 | [D147](../decisions/147-audit-catalog-and-safe-projection-boundary.md) | Audit Catalog、keyed opaque ID、record stages、observed safe-projection boundary | Accepted P23-003A1／A2 and parent P23-003A; P23-003B1／B2 and parent P23-003B Accepted; Stable `1.2` current / BlackOps `1.3` unreleased |
-| [D148](../decisions/148-audit-canonical-record-and-protected-store-boundary.md) | Audit canonical record、hash／chain、Audit専用BOPD protection、B1／B2 boundary | P23-003B1／B2 and parent P23-003B Accepted; B2 post-Acceptance commit／package export pending; Stable `1.2` unchanged / BlackOps `1.3` unreleased |
-| [D149](../decisions/149-audit-postgresql-canonical-store-boundary.md) | Audit PostgreSQL canonical append、segment、tenant-aware read、migration boundary | P23-003B2 Accepted; Complete Final Gate and fresh DB／General Sol closure Green; post-Acceptance commit／package export pending; Stable `1.2` unchanged / BlackOps `1.3` unreleased |
+| [D148](../decisions/148-audit-canonical-record-and-protected-store-boundary.md) | Audit canonical record、hash／chain、Audit専用BOPD protection、B1／B2 boundary | P23-003B1／B2 and parent P23-003B Accepted; B2 candidate commit／same-SHA package export Green; Stable `1.2` unchanged / BlackOps `1.3` unreleased |
+| [D149](../decisions/149-audit-postgresql-canonical-store-boundary.md) | Audit PostgreSQL canonical append、segment、tenant-aware read、migration boundary | P23-003B2 Accepted; Complete Final Gate and fresh DB／General Sol closure Green; candidate `968afe2b...` package export Green; Stable `1.2` unchanged / BlackOps `1.3` unreleased |
 
 ## Historical P23-001 Round 13 checkpoint
 
