@@ -1,38 +1,43 @@
 # Framework Specification
 
-## P23-003C1 current handoff — Audit Outbox State Foundation
+## P23-003C2 current handoff — Audit PostgreSQL Outbox Persistence
 
-Updated At: 2026-09-01T04:47:46+09:00
+Updated At: 2026-09-01T06:17:02+09:00
 
-Current status: `Accepted — Candidate Commit and Same-SHA Package Export Green; P23-003C2 next`.
+Current status: `Corrected Packet Commit Checkpoint — fresh Sol／Documentation preflight required; Product work has not begun`.
 
 P23-003B1／B2 and parent P23-003B are Accepted.
 Reviewed B2 candidate `968afe2b0c4bbff86e0013592d69dc7115cf8b4f` and its clean-candidate package export are Green.
 The management closeout is committed at clean HEAD `e772242ed2156ee259ae177f69a6b0a9189fef68`.
 
-D150 is the most-specific P23-003C split and C1 authority.
-It orders C1 pure state, C2 PostgreSQL Outbox, C3 delivery transaction／key composition, and C4 relay／recovery.
-C1 owns only the exact six-field state snapshot, bounded configuration, deterministic backoff, and five side-effect-free transitions.
-The first Sol Max preflight is Historical. Focused execution exposed the
-Accepted A2 Architecture guard conflict with C1's required direct
-`AuditRecordTime` reuse. The corrected exact11 permits only that reference and
-received fresh Sol Max preflight Green `P1=0/P2=0/P3=0`.
-The bounded implementation, Iteration Gate, and Complete Final Gate are Green.
-Product／Test exact11 is accepted at
+D150 is the parent P23-003C split and C1 authority. C1 owns only the exact
+six-field state snapshot, bounded configuration, deterministic backoff, and
+five side-effect-free transitions. Its Product／Test exact11 is accepted at
 `d0bfa64e35ce8d113909a2aba710c57ed7bb33fd6711c51df207e71d33919fad`.
-Fresh Orchestrator Sol Max implementation review returned
-`P1=0/P2=0/P3=0`; P23-003C1 is Accepted. Reviewed candidate
-`bc12a67210d9cb132cf3246f96b00d79fb519656` and its clean exact-SHA
-Git／Composer package export are Green; no push was performed. The shared
-Architecture guard is the sole intentional Accepted B2 exact26 delta; B2
-Production and the other Accepted B2 exact25 remain byte-identical.
+Reviewed candidate `bc12a67210d9cb132cf3246f96b00d79fb519656` and its clean
+exact-SHA Git／Composer package export are Green. The C1 management closeout is
+committed at `4bebcb09d8e67e58c424d0c9543e594708d02872`; no push was
+performed.
+
+D151 is the most-specific C2 authority. It fixes the exact Internal API,
+two-table PostgreSQL schema and migration, idempotent append, contiguous
+partition ordinal, FIFO head selection, C1-backed fenced transitions,
+same-Connection transaction participation, package inventory, and the
+Stable／unreleased boundary. The initial General／DB／Documentation preflight
+lanes are Historical Changes Requested. The exact C2 Task Packet now corrects
+their overlapping configuration, DDL, ordering, scope, package, and callable
+authority roots. This commit establishes the exact nine-file packet; its SHA is
+captured afterward and supplied to fresh reviewers. Preflight from that clean
+HEAD must be Green before the configured Luna worker edits Product.
 
 Stable `1.2.0` remains current and BlackOps `1.3` remains unreleased.
-No DB／transaction／Clock／UUID generator／key／protection／relay／Application／Container／CLI／HTTP／public Documentation behavior is activated by C1.
+No C2 Product exists yet. No Application／Container／CLI／HTTP／relay runtime or
+public Documentation behavior is activated.
 
-Remaining: C2→C3→C4 and parent P23-003C Acceptance.
-Next Action: draft P23-003C2 against Accepted C1 and the clean
-candidate／package evidence without partial runtime activation.
+Remaining: fresh C2 preflight, bounded implementation／gates／review／Acceptance,
+then C3→C4 and parent P23-003C Acceptance.
+Next Action: capture the corrected-packet commit SHA, then run independent Sol／
+Documentation preflight from that clean HEAD without changing Product.
 
 ## P23-003B2 accepted handoff — Historical prerequisite
 
@@ -1626,6 +1631,7 @@ closedする。Semantic tuple、trusted external verification context、exact
 | [D148](../decisions/148-audit-canonical-record-and-protected-store-boundary.md) | Audit canonical record、hash／chain、Audit専用BOPD protection、B1／B2 boundary | P23-003B1／B2 and parent P23-003B Accepted; B2 candidate commit／same-SHA package export Green; Stable `1.2` unchanged / BlackOps `1.3` unreleased |
 | [D149](../decisions/149-audit-postgresql-canonical-store-boundary.md) | Audit PostgreSQL canonical append、segment、tenant-aware read、migration boundary | P23-003B2 Accepted; Complete Final Gate and fresh DB／General Sol closure Green; candidate `968afe2b...` package export Green; Stable `1.2` unchanged / BlackOps `1.3` unreleased |
 | [D150](../decisions/150-audit-outbox-state-and-delivery-split.md) | P23-003C serial C1／C2／C3／C4 split and pure Audit Outbox state boundary | Proposed — P23-003C1 Accepted with candidate package Green; P23-003C2 next; Stable `1.2` current / BlackOps `1.3` unreleased |
+| [D151](../decisions/151-audit-postgresql-outbox-persistence-boundary.md) | Audit PostgreSQL Outbox row、idempotent append、FIFO／CAS、transaction boundary | Proposed — P23-003C2 corrected-packet commit checkpoint; fresh preflight required before Product; Stable `1.2` current / BlackOps `1.3` unreleased |
 
 ## Historical P23-001 Round 13 checkpoint
 

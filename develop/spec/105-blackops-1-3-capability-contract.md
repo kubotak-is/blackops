@@ -2,7 +2,7 @@
 
 Status: Proposal — unreleased BlackOps 1.3; workflow/gate status authority is the exact5 management slice (`develop/STATE.md`, `develop/TODO.md`, the parent Task/Report, and `develop/spec/README.md`)
 
-Updated At: 2026-09-01T04:47:46+09:00
+Updated At: 2026-09-01T05:32:58+09:00
 
 This specification is a normative proposal for BlackOps `1.3`. It is not a
 Stable `1.2` capability contract and must not be copied into current public
@@ -90,7 +90,8 @@ public Documentation capability、or release activation occurred. Reviewed B2 ca
 exact-SHA package export is Green; no push was performed. P23-003C is the next serial slice.
 
 For current P23-003C delivery clauses, D150 is the more specific split and C1
-authority. It divides parent C into serial C1 pure state, C2 PostgreSQL Outbox,
+authority, while D151 is the more specific C2 PostgreSQL persistence authority.
+D150 divides parent C into serial C1 pure state, C2 PostgreSQL Outbox,
 C3 delivery transaction／key composition, and C4 relay／recovery packets. C1
 owns only the exact six-field state snapshot, bounded configuration,
 deterministic backoff, and side-effect-free claim／retry／recover／relay／poison
@@ -109,7 +110,15 @@ sole intentional Accepted B2 exact26 delta; B2 Production and the other exact25
 remain byte-identical. Reviewed candidate
 `bc12a67210d9cb132cf3246f96b00d79fb519656` and its clean exact-SHA
 Git／Composer package export are Green; no push was performed. P23-003C2 is the
-next serial child.
+next serial child. D151 and the exact C2 Task Packet are drafted from clean
+HEAD `4bebcb09d8e67e58c424d0c9543e594708d02872`; they close the exact
+two-table schema, API, transaction, authenticated idempotency, ordinal, FIFO,
+and fenced-CAS boundary. The first General／DB／Documentation preflight lanes
+are Historical Changes Requested. D151 and the Task correct their overlapping
+configuration, DDL, ordering, scope, package, and callable-authority roots.
+This commit establishes that exact nine-file management packet; its SHA is
+captured afterward for fresh Sol／Documentation preflight. No C2 Product work
+has begun; every fresh lane must be Green before implementation.
 
 ## Historical P23-003A Acceptance Catalog and projection contract
 

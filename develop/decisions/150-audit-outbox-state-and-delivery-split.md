@@ -1,8 +1,8 @@
 # D150: Audit Outbox State and Delivery Split
 
-Status: Proposed — P23-003C1 Accepted with candidate package Green; P23-003C2 next; BlackOps 1.3 unreleased
+Status: Proposed — P23-003C1 Accepted; D151／P23-003C2 corrected-packet commit checkpoint; fresh preflight required; BlackOps 1.3 unreleased
 
-Updated At: 2026-09-01T04:47:46+09:00
+Updated At: 2026-09-01T06:17:02+09:00
 
 ## Current Handoff
 
@@ -38,8 +38,20 @@ byte-identical at Task-order aggregate
 `4b605e2a23dd77b1c41f8aed95244a46776aef599d2607c88a7d63ee8a2f0354`;
 no B2 Production byte changes.
 
-Next Action: draft P23-003C2 against Accepted C1 and the clean
-candidate／package evidence without partial runtime activation.
+D151 and the exact P23-003C2 Task Packet were drafted against clean C1 closeout
+HEAD `4bebcb09d8e67e58c424d0c9543e594708d02872`. D151 is the
+most-specific C2 authority for the two-table schema, callable graph,
+transaction participation, authenticated idempotent reconstruction, ordinal,
+FIFO selection, and fenced persistence. No C2 Product work or partial runtime
+activation has occurred.
+
+The first General／DB／Documentation preflight lanes are Historical Changes
+Requested. Their overlapping configuration, DDL, ordering, scope, package,
+and callable-authority roots are corrected in D151 and the Task.
+
+This commit establishes the corrected nine-file management packet; its exact
+SHA is captured after commit. Next Action: run fresh Sol／Documentation
+preflight from that clean HEAD. Product work waits for Green.
 
 ## Context
 
@@ -275,5 +287,6 @@ Required same-transaction append, durable ingress persistence, Application key c
 
 ## Suggested Next Action
 
-Draft P23-003C2 against the Accepted C1 boundary and clean candidate／package
-evidence.
+Capture the corrected-packet commit SHA, then run fresh Sol／Documentation
+preflight against D151 and the exact P23-003C2 Task Packet.
+Product work remains blocked until Green.

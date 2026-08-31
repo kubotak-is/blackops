@@ -10,40 +10,36 @@
 - 重要な設計判断は、結論だけでなく理由もREADMEまたは設計文書へ残す
 - 用語の変更時は、コードと文書をまとめて更新する
 
-## P23-003C1 current handoff — Audit Outbox State Foundation
+## P23-003C2 current handoff — PostgreSQL Audit Outbox Persistence
 
-Updated At: 2026-09-01T04:47:46+09:00
+Updated At: 2026-09-01T06:17:02+09:00
 
-Status: `Accepted — Candidate Commit and Same-SHA Package Export Green; P23-003C2 next`。
+Status: `D151／exact Task Packet corrected-packet commit checkpoint — fresh preflight required; Product work not started`。
 
 - [x] P23-003B1／B2 and parent P23-003B Accepted
-- [x] reviewed B2 candidate commit／same-SHA package export Green
-- [x] clean management closeout HEAD `e772242ed2156ee259ae177f69a6b0a9189fef68`
-- [x] D150 C1→C2→C3→C4 serial split drafted
-- [x] P23-003C1 exact pure-state contract drafted
-- [x] P23-003C1 Task Packet／initial Report drafted
-- [x] first Sol Max C1 preflight Green `P1=0/P2=0/P3=0`（Historical）
-- [x] focused executionでAccepted A2 guardとの直接reuse conflictを検出
-- [x] Product／Test exact11へ限定scope correction
-- [x] fresh corrected Sol Max preflight Green `P1=0/P2=0/P3=0`
-- [x] shared B2 Architecture deltaとAccepted B2 exact25 preservationを分離
-- [x] configured Luna Max Product／Test exact11 implementation correction
-- [x] Iteration Gate／Product freeze `d0bfa64e35ce8d113909a2aba710c57ed7bb33fd6711c51df207e71d33919fad`
-- [x] Complete Final Gate
-- [x] fresh Sol Max implementation review `P1=0/P2=0/P3=0`
-- [x] Orchestrator C1 Acceptance
-- [x] reviewed candidate commit `bc12a67210d9cb132cf3246f96b00d79fb519656`
-- [x] clean-candidate Git／Composer package export Green
+- [x] P23-003C1 Accepted／candidate commit／same-SHA package export Green
+- [x] clean C1 management closeout HEAD `4bebcb09d8e67e58c424d0c9543e594708d02872`
+- [x] C2 physical／API／transaction／idempotency／FIFO／CAS gap research
+- [x] D151 C2 PostgreSQL persistence boundary drafted
+- [x] P23-003C2 exact26 Task Packet／initial Report drafted
+- [x] initial General／DB／Documentation preflight Historical Changes Requested
+- [x] single configuration／exact DDL／ordering／scope／package／callable authority correction
+- [x] Orchestrator corrected nine-file management packet commit checkpoint
+- [ ] fresh P23-003C2 Sol preflight
+- [ ] bounded Luna implementation／Iteration Gate
+- [ ] Complete Final Gate／fresh DB and General review
+- [ ] Acceptance／candidate commit／same-SHA package export
 
 Stable `1.2.0` remains current and BlackOps `1.3` remains unreleased。
-C1はDB、transaction、Clock、UUID generator、key、protection、relay、Application／Container、
-CLI／HTTP、public Documentationを変更またはactivateしない。
+C2は新しいInternal PostgreSQL row／migrationを実装対象にするが、Application／Container、
+business transaction adapter、relay runtime、CLI／HTTP、public Audit Documentationをactivateしない。
 
 Remaining: C2→C3→C4、parent P23-003C Acceptance、
 P23-003D..G、P23-004、P23-005、P23-006。
 
-Next Action: Accepted C1とclean candidate／package evidenceを入力として、partial runtimeを
-activateせずP23-003C2 packetをdraftする。
+Next Action: corrected-packet commit SHAを取得し、clean HEADからfresh
+Sol／Documentation preflightを行う。
+Product workはGreenまで開始しない。
 
 ## P23-003B2 accepted handoff — Historical prerequisite
 

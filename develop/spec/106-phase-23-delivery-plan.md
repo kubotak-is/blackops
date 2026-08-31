@@ -2,7 +2,7 @@
 
 Status: Proposal — unreleased BlackOps 1.3; workflow/gate status authority is the exact5 management slice (`develop/STATE.md`, `develop/TODO.md`, the parent Task/Report, and `develop/spec/README.md`)
 
-Updated At: 2026-09-01T04:47:46+09:00
+Updated At: 2026-09-01T05:32:58+09:00
 
 This plan is a delivery DAG for the capability proposal in Specification 105.
 It does not make any Phase 23 item a current Stable `1.2` capability. A slice
@@ -72,7 +72,8 @@ and its clean exact-SHA package export is Green; no push was performed.
 No Application composition、Container registration、Audit Outbox／relay、CLI／HTTP／public
 Documentation／release activation occurred. P23-003C is the next serial Audit delivery slice.
 
-For P23-003C delivery, D150 is the more specific split and C1 authority.
+For P23-003C delivery, D150 is the more specific split and C1 authority, and
+D151 is the more specific C2 PostgreSQL persistence authority.
 Parent C is delivered serially as C1 pure state foundation, C2 PostgreSQL
 Outbox persistence, C3 required／durable transaction and key composition, then
 C4 relay／recovery runtime. Each child requires the previous child, no partial
@@ -92,7 +93,16 @@ only the shared Architecture guard is superseded, while the other Accepted B2
 exact25 remain byte-identical. Reviewed candidate
 `bc12a67210d9cb132cf3246f96b00d79fb519656` and its clean exact-SHA
 Git／Composer package export are Green; no push was performed. P23-003C2 is
-next.
+next. D151 and the exact C2 Task Packet are drafted from clean closeout HEAD
+`4bebcb09d8e67e58c424d0c9543e594708d02872`. They fix the two-table
+schema, callable／transaction graph, authenticated same-key reconstruction,
+no-gap ordinal, minimum-head FIFO, and C1-backed CAS. Product work has not
+started. The first General／DB／Documentation preflight lanes are Historical
+Changes Requested; D151 and the Task correct their configuration, DDL,
+ordering, scope, package, and callable-authority roots. This commit establishes
+that exact nine-file management packet; its SHA is captured afterward. Fresh
+Sol／Documentation preflight from the clean committed HEAD must be Green before
+implementation.
 
 ## Historical P23-003A accepted delivery checkpoint
 
