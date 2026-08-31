@@ -2,7 +2,7 @@
 
 Status: Proposal — unreleased BlackOps 1.3; workflow/gate status authority is the exact5 management slice (`develop/STATE.md`, `develop/TODO.md`, the parent Task/Report, and `develop/spec/README.md`)
 
-Updated At: 2026-08-29T16:19:50+09:00
+Updated At: 2026-08-31T20:54:49+09:00
 
 Decision date: 2026-08-19
 
@@ -41,6 +41,9 @@ authority is the exact5 management slice: `develop/STATE.md`,
 `develop/TODO.md`, the parent Task, the parent Report, and
 `develop/spec/README.md`; Search and Audit workflow lanes are not normative
 within this decision.
+For an active implementation packet, the exact5 is reconciled at preflight freeze and Acceptance.
+Between those boundaries, the packet may freeze Task／Decision／TODO／Spec README as normative input;
+only its Report／STATE pair is moving checkpoint authority when the packet states that rule explicitly.
 Independent Round 6 evidence remains separate: full review `P1=3/P2=4/P3=1`
 and Audit review `P1=2/P2=6/P3=1`; no aggregate is claimed. This decision is
 technical proposal text only; it asserts no runtime implementation, release,
@@ -87,12 +90,20 @@ Green `P1=0/P2=0/P3=0`; exact33 aggregate
 and the Complete Final Gate are Green. P23-003B1 is Accepted without runtime、
 database、route、CLI、public Documentation、or Stable `1.2` activation. The
 reviewed Product candidate `c3b75ca0afe6d8c756caa8404b7e95922987c1da`
-and its clean-candidate package export are Green. P23-003B2 is next; parent
-P23-003B still requires B2 Acceptance.
+and its clean-candidate package export are Green. D149 is the more specific
+authority for B2's same-Connection transaction、exact DDL／migration、append、
+segment close、and tenant-aware read. Earlier B2 preflights and review findings are Historical.
+The accepted B2 exact26 is
+`ecacafc99cbdf4fd2287b7554b88a34f6524a23d92c9adb3a8bf201a2a1d50bb`;
+the Complete Final Gate and separate fresh DB／General Sol closure reviews are Green
+`P1=0/P2=0/P3=0`. P23-003B2 and parent P23-003B are Accepted. The
+post-Acceptance candidate commit and clean-SHA package export remain closeout work.
+No Application、Container、CLI、HTTP、public Documentation、Audit Outbox、relay、checkpoint、
+query、release、or Stable `1.2` activation occurred.
 
-## P23-003A current contract correction
+## Historical P23-003A accepted contract checkpoint
 
-Current status: `Accepted — P23-003A1／A2 and parent P23-003A; P23-003B next`.
+Historical status at that checkpoint: `Accepted — P23-003A1／A2 and parent P23-003A; P23-003B next`.
 
 P23-002E is Accepted. P23-003A is split into serial P23-003A1 Catalog and
 P23-003A2 Record／Projection packets. Neither child is a runtime activation.

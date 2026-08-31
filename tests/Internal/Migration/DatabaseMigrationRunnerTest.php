@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace BlackOps\Tests\Internal\Migration;
 
 use BlackOps\Internal\Migration\DatabaseMigrationRunner;
+use BlackOps\Internal\Migration\DoctrineMigrationDependencyFactory;
+use BlackOps\Migrations\PostgreSql\Version20260829000000;
 use BlackOps\Transport\PostgreSql\PostgreSqlDeferredOperationSchema;
 use BlackOps\Transport\PostgreSql\PostgreSqlJournalSchema;
 use Doctrine\DBAL\Connection;
@@ -13,7 +15,9 @@ use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\Exception\IrreversibleMigration;
 use InvalidArgumentException;
 use ParseError;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 
 final class DatabaseMigrationRunnerTest extends TestCase
 {
@@ -51,15 +55,61 @@ final class DatabaseMigrationRunnerTest extends TestCase
         }
     }
 
+    #[DataProvider('invalidMigrationSchemaNames')]
+    public function testDependencyFactoryRejectsInvalidSchemaBeforeAnyDatabaseInteraction(string $schema): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection->expects(self::never())->method('fetchOne');
+        $connection->expects(self::never())->method('executeQuery');
+        $connection->expects(self::never())->method('executeStatement');
+        $connection->expects(self::never())->method('beginTransaction');
+
+        $this->expectException(InvalidArgumentException::class);
+
+        DoctrineMigrationDependencyFactory::create($connection, $schema);
+    }
+
+    #[DataProvider('invalidMigrationSchemaNames')]
+    public function testRunnerRejectsInvalidSchemaBeforeAnyDatabaseInteraction(string $schema): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection->expects(self::never())->method('fetchOne');
+        $connection->expects(self::never())->method('executeQuery');
+        $connection->expects(self::never())->method('executeStatement');
+        $connection->expects(self::never())->method('beginTransaction');
+
+        $this->expectException(InvalidArgumentException::class);
+
+        new DatabaseMigrationRunner($connection, $schema);
+    }
+
+    /** @return \Generator<string, array{string}> */
+    public static function invalidMigrationSchemaNames(): \Generator
+    {
+        yield 'empty' => [''];
+        yield '64 bytes' => ['a' . str_repeat('b', 63)];
+        yield 'same 63 byte prefix alias' => ['a' . str_repeat('b', 62) . 'x'];
+        yield 'uppercase' => ['BlackOps'];
+        yield 'non ascii' => ['schéma'];
+        yield 'quoted alias' => ['"blackops"'];
+        yield 'trailing line feed' => ["blackops\n"];
+        yield 'leading digit' => ['1blackops'];
+        yield 'punctuation' => ['blackops-audit'];
+    }
+
     public function testDependencyFactoryRecognizesSchemaConfiguredMigrations(): void
     {
         $runner = new DatabaseMigrationRunner($this->connection, self::SCHEMA);
         $migrations = $runner->dependencyFactory()->getMigrationPlanCalculator()->getMigrations();
 
-        self::assertCount(11, $migrations);
+        self::assertCount(12, $migrations);
         self::assertSame(
             'BlackOps\\Migrations\\PostgreSql\\Version20260712000000',
             (string) $migrations->getFirst()->getVersion(),
+        );
+        self::assertSame(
+            'BlackOps\\Migrations\\PostgreSql\\Version20260829000000',
+            (string) $migrations->getLast()->getVersion(),
         );
     }
 
@@ -83,10 +133,23 @@ final class DatabaseMigrationRunnerTest extends TestCase
                 'BlackOps\\Migrations\\PostgreSql\\Version20260808000000',
                 'BlackOps\\Migrations\\PostgreSql\\Version20260808010000',
                 'BlackOps\\Migrations\\PostgreSql\\Version20260808100000',
+                'BlackOps\\Migrations\\PostgreSql\\Version20260829000000',
             ],
             $status->pendingVersions,
         );
         self::assertFalse($this->schemaExists(self::SCHEMA));
+    }
+
+    public function testCatalogNormalizationPreservesQuotedLiteralCaseAndEscapes(): void
+    {
+        $sql = <<<'SQL'
+            CHECK ("CaseSensitive" = 'ROTATION' AND category = 'rotation' AND label = 'it''s' AND label_upper = 'IT''S' AND marker = E'Cc\x01ROTATION')
+            SQL;
+        $expected = <<<'SQL'
+            check ("CaseSensitive" = 'ROTATION' and category = 'rotation' and label = 'it''s' and label_upper = 'IT''S' and marker = e'Cc\x01ROTATION')
+            SQL;
+
+        self::assertSame(trim($expected), $this->normalizeCatalogSql($sql, self::SCHEMA));
     }
 
     public function testDryRunReturnsCompletePlanWithoutCreatingSchemaOrTables(): void
@@ -96,7 +159,7 @@ final class DatabaseMigrationRunnerTest extends TestCase
         $result = $runner->dryRun();
 
         self::assertTrue($result->dryRun);
-        self::assertSame(11, $result->migrations);
+        self::assertSame(12, $result->migrations);
         self::assertNotEmpty($result->sql);
         self::assertStringContainsString('CREATE TABLE IF NOT EXISTS "' . self::SCHEMA . '"."operations"', implode(
             "\n",
@@ -124,9 +187,12 @@ final class DatabaseMigrationRunnerTest extends TestCase
         $result = $runner->migrate();
 
         self::assertFalse($result->dryRun);
-        self::assertSame(11, $result->migrations);
+        self::assertSame(12, $result->migrations);
         self::assertSame(
             [
+                'audit_partition_state',
+                'audit_records',
+                'audit_segments',
                 'dead_letters',
                 'idempotency_records',
                 'journal',
@@ -164,7 +230,7 @@ final class DatabaseMigrationRunnerTest extends TestCase
             'column' => 'version',
         ]));
         self::assertSame(
-            11,
+            12,
             (int) $this->connection->fetchOne('SELECT count(*) FROM ' . self::SCHEMA . '.schema_migrations'),
         );
         self::assertSame(2, (int) $this->connection->fetchOne('SELECT count(*)
@@ -181,7 +247,7 @@ final class DatabaseMigrationRunnerTest extends TestCase
                 \'retention_holds_operation_id_fkey\',
                 \'retention_purge_audits_operation_id_fkey\'
               )', ['schema' => self::SCHEMA]));
-        self::assertSame(12, (int) $this->connection->fetchOne('SELECT count(*)
+        self::assertSame(25, (int) $this->connection->fetchOne('SELECT count(*)
             FROM pg_indexes
             WHERE schemaname = :schema
               AND indexname IN (
@@ -196,12 +262,33 @@ final class DatabaseMigrationRunnerTest extends TestCase
                 \'retention_purge_audits_purged_at_idx\',
                 \'schedule_occurrences_recovery_idx\',
                 \'schedule_occurrences_state_idx\',
-                \'schema_migrations_pkey\'
+                \'schema_migrations_pkey\',
+                \'audit_segments_pk\',
+                \'audit_segments_segment_id_uq\',
+                \'audit_partition_state_pk\',
+                \'audit_records_pk\',
+                \'audit_records_record_id_uq\',
+                \'audit_records_partition_sequence_uq\',
+                \'audit_records_partition_hash_uq\',
+                \'audit_segments_one_open_idx\',
+                \'audit_segments_successor_uq\',
+                \'audit_records_segment_sequence_idx\',
+                \'audit_records_recorded_at_idx\',
+                \'audit_records_action_idx\',
+                \'audit_records_resource_idx\'
               )', ['schema' => self::SCHEMA]));
+        self::assertSame($this->expectedAuditColumns(), $this->auditColumns(self::SCHEMA));
+        $auditConstraints = $this->auditConstraints(self::SCHEMA);
+        self::assertSame($this->expectedAuditConstraints(), $auditConstraints);
+        self::assertStringNotContainsString('[[:cntrl:]]', implode("\n", array_column(
+            $auditConstraints,
+            'definition',
+        )));
+        self::assertSame($this->expectedAuditIndexes(), $this->auditIndexes(self::SCHEMA));
 
         $metadata = $runner->dependencyFactory()->getMetadataStorage();
         $metadata->ensureInitialized();
-        self::assertCount(11, $metadata->getExecutedMigrations());
+        self::assertCount(12, $metadata->getExecutedMigrations());
     }
 
     public function testApplyWithNoPendingMigrationSucceedsWithoutChangingVersionRows(): void
@@ -214,10 +301,10 @@ final class DatabaseMigrationRunnerTest extends TestCase
 
         self::assertSame(0, $result->migrations);
         self::assertSame([], $result->sql);
-        self::assertCount(11, $status->appliedVersions);
+        self::assertCount(12, $status->appliedVersions);
         self::assertSame([], $status->pendingVersions);
         self::assertSame(
-            11,
+            12,
             (int) $this->connection->fetchOne('SELECT count(*) FROM ' . self::SCHEMA . '.schema_migrations'),
         );
     }
@@ -229,7 +316,7 @@ final class DatabaseMigrationRunnerTest extends TestCase
 
         try {
             $first = new DatabaseMigrationRunner($this->connection, self::CURRENT_SCHEMA);
-            self::assertSame(11, $first->migrate()->migrations);
+            self::assertSame(12, $first->migrate()->migrations);
             self::assertSame(self::CURRENT_SCHEMA, $this->connection->fetchOne('SELECT current_schema()'));
             $metadataBefore = $this->metadataRows(self::CURRENT_SCHEMA);
             $configuredSearchPath = $this->connection->fetchOne('SHOW search_path');
@@ -238,7 +325,7 @@ final class DatabaseMigrationRunnerTest extends TestCase
             $status = $second->status();
             $result = $second->migrate();
 
-            self::assertCount(11, $status->appliedVersions);
+            self::assertCount(12, $status->appliedVersions);
             self::assertSame([], $status->pendingVersions);
             self::assertSame(0, $result->migrations);
             self::assertSame([], $result->sql);
@@ -259,8 +346,8 @@ final class DatabaseMigrationRunnerTest extends TestCase
         try {
             $runner = new DatabaseMigrationRunner($this->connection, self::CURRENT_SCHEMA);
 
-            self::assertCount(11, $runner->status()->pendingVersions);
-            self::assertSame(11, $runner->dryRun()->migrations);
+            self::assertCount(12, $runner->status()->pendingVersions);
+            self::assertSame(12, $runner->dryRun()->migrations);
             self::assertFalse($this->schemaExists(self::CURRENT_SCHEMA));
             self::assertSame(self::CURRENT_SCHEMA . ', public', $this->connection->fetchOne('SHOW search_path'));
         } finally {
@@ -304,6 +391,7 @@ final class DatabaseMigrationRunnerTest extends TestCase
                 'BlackOps\\Migrations\\PostgreSql\\Version20260808000000',
                 'BlackOps\\Migrations\\PostgreSql\\Version20260808010000',
                 'BlackOps\\Migrations\\PostgreSql\\Version20260808100000',
+                'BlackOps\\Migrations\\PostgreSql\\Version20260829000000',
                 'App\\Migrations\\' . $version,
                 'App\\Migrations\\' . $secondVersion,
             ],
@@ -312,7 +400,7 @@ final class DatabaseMigrationRunnerTest extends TestCase
 
         $dryRun = $runner->dryRun();
         $sql = implode("\n", $dryRun->sql);
-        self::assertSame(13, $dryRun->migrations);
+        self::assertSame(14, $dryRun->migrations);
         $frameworkPosition = strpos($sql, 'CREATE TABLE IF NOT EXISTS "' . self::SCHEMA . '"."operations"');
         $applicationPosition = strpos($sql, 'CREATE TABLE "' . self::SCHEMA . '"."application_records"');
         $secondApplicationPosition = strpos($sql, 'ALTER TABLE "' . self::SCHEMA . '"."application_records"');
@@ -330,7 +418,7 @@ final class DatabaseMigrationRunnerTest extends TestCase
         );
         $result = $runner->migrate();
 
-        self::assertSame(13, $result->migrations);
+        self::assertSame(14, $result->migrations);
         self::assertSame(1, (int) $this->connection->fetchOne('SELECT count(*)
                 FROM information_schema.tables
                 WHERE table_schema = :schema
@@ -339,7 +427,7 @@ final class DatabaseMigrationRunnerTest extends TestCase
             'table' => 'application_records',
         ]));
         self::assertSame(
-            13,
+            14,
             (int) $this->connection->fetchOne('SELECT count(*) FROM ' . self::SCHEMA . '.schema_migrations'),
         );
         self::assertSame([], $runner->status()->pendingVersions);
@@ -460,14 +548,17 @@ final class DatabaseMigrationRunnerTest extends TestCase
 
         $result = $runner->migrate();
 
-        self::assertSame(11, $result->migrations);
+        self::assertSame(12, $result->migrations);
         self::assertSame(
-            11,
+            12,
             (int) $this->connection->fetchOne('SELECT count(*) FROM ' . self::SCHEMA . '.schema_migrations'),
         );
         self::assertSame([], $runner->status()->pendingVersions);
         self::assertSame(
             [
+                'audit_partition_state',
+                'audit_records',
+                'audit_segments',
                 'dead_letters',
                 'idempotency_records',
                 'journal',
@@ -573,7 +664,7 @@ final class DatabaseMigrationRunnerTest extends TestCase
                 WHERE version = :version',
             ['version' => 'LegacyVersion'],
         ));
-        self::assertCount(12, $runner->dependencyFactory()->getMetadataStorage()->getExecutedMigrations());
+        self::assertCount(13, $runner->dependencyFactory()->getMetadataStorage()->getExecutedMigrations());
     }
 
     public function testApplyUpgradesLegacyMetadataWhenTargetSchemaIsCurrent(): void
@@ -600,7 +691,7 @@ final class DatabaseMigrationRunnerTest extends TestCase
                     WHERE version = :version',
                 ['version' => 'LegacyCurrentVersion'],
             ));
-            self::assertCount(12, $runner->dependencyFactory()->getMetadataStorage()->getExecutedMigrations());
+            self::assertCount(13, $runner->dependencyFactory()->getMetadataStorage()->getExecutedMigrations());
             self::assertSame(self::CURRENT_SCHEMA . ', public', $this->connection->fetchOne('SHOW search_path'));
         } finally {
             $this->connection->executeStatement('RESET search_path');
@@ -620,6 +711,20 @@ final class DatabaseMigrationRunnerTest extends TestCase
         $this->expectException(IrreversibleMigration::class);
 
         $migration->down(new Schema());
+    }
+
+    public function testCanonicalAuditMigrationDownIsIrreversibleWithoutPlannedSql(): void
+    {
+        $migration = new Version20260829000000($this->connection, new NullLogger(), self::SCHEMA);
+
+        try {
+            $migration->down(new Schema());
+            self::fail('Expected the canonical audit migration to be irreversible.');
+        } catch (IrreversibleMigration $exception) {
+            self::assertSame('Canonical audit records are retained for integrity evidence.', $exception->getMessage());
+        }
+
+        self::assertSame([], $migration->getSql());
     }
 
     public function testOutboxRelayMigrationDownPreservesOriginalTableContract(): void
@@ -674,6 +779,423 @@ final class DatabaseMigrationRunnerTest extends TestCase
             ],
             $sql,
         );
+    }
+
+    /**
+     * @return list<array{table_name:string,column_name:string,ordinal_position:int,data_type:string,udt_name:string,character_maximum_length:int|null,is_nullable:string,column_default:string|null}>
+     */
+    private function auditColumns(string $schema): array
+    {
+        $rows = $this->connection->fetchAllAssociative(
+            'SELECT table_name, column_name, ordinal_position, data_type, udt_name,
+                    character_maximum_length, is_nullable, column_default
+             FROM information_schema.columns
+             WHERE table_schema = :schema
+               AND table_name IN (:tables)
+             ORDER BY table_name, ordinal_position',
+            ['schema' => $schema, 'tables' => $this->auditTableNames()],
+            ['tables' => \Doctrine\DBAL\ArrayParameterType::STRING],
+        );
+
+        return array_map(static fn(array $row): array => [
+            'table_name' => (string) $row['table_name'],
+            'column_name' => (string) $row['column_name'],
+            'ordinal_position' => (int) $row['ordinal_position'],
+            'data_type' => (string) $row['data_type'],
+            'udt_name' => (string) $row['udt_name'],
+            'character_maximum_length' => $row['character_maximum_length'] === null
+                ? null
+                : (int) $row['character_maximum_length'],
+            'is_nullable' => (string) $row['is_nullable'],
+            'column_default' => $row['column_default'] === null ? null : (string) $row['column_default'],
+        ], $rows);
+    }
+
+    /** @return list<array{table_name:string,constraint_name:string,definition:string}> */
+    private function auditConstraints(string $schema): array
+    {
+        $rows = $this->connection->fetchAllAssociative(
+            'SELECT cls.relname AS table_name,
+                    con.conname AS constraint_name,
+                    pg_get_constraintdef(con.oid, true) AS definition
+             FROM pg_constraint con
+             JOIN pg_class cls ON cls.oid = con.conrelid
+             JOIN pg_namespace ns ON ns.oid = cls.relnamespace
+             WHERE ns.nspname = :schema
+               AND cls.relname IN (:tables)
+               AND con.contype <> \'n\'
+             ORDER BY cls.relname, con.conname',
+            ['schema' => $schema, 'tables' => $this->auditTableNames()],
+            ['tables' => \Doctrine\DBAL\ArrayParameterType::STRING],
+        );
+
+        return array_map(fn(array $row): array => [
+            'table_name' => (string) $row['table_name'],
+            'constraint_name' => (string) $row['constraint_name'],
+            'definition' => $this->normalizeCatalogSql((string) $row['definition'], $schema),
+        ], $rows);
+    }
+
+    /** @return list<array{table_name:string,index_name:string,definition:string}> */
+    private function auditIndexes(string $schema): array
+    {
+        $rows = $this->connection->fetchAllAssociative(
+            'SELECT tablename AS table_name, indexname AS index_name, indexdef AS definition
+             FROM pg_indexes
+             WHERE schemaname = :schema
+               AND tablename IN (:tables)
+             ORDER BY tablename, indexname',
+            ['schema' => $schema, 'tables' => $this->auditTableNames()],
+            ['tables' => \Doctrine\DBAL\ArrayParameterType::STRING],
+        );
+
+        return array_map(fn(array $row): array => [
+            'table_name' => (string) $row['table_name'],
+            'index_name' => (string) $row['index_name'],
+            'definition' => $this->normalizeCatalogIndex((string) $row['definition'], $schema),
+        ], $rows);
+    }
+
+    /** @return list<string> */
+    private function auditTableNames(): array
+    {
+        return ['audit_partition_state', 'audit_records', 'audit_segments'];
+    }
+
+    /**
+     * PostgreSQL emits canonical constraint text with only whitespace and the
+     * configured schema varying between runs; keep every operator and literal exact.
+     */
+    private function normalizeCatalogSql(string $sql, string $schema): string
+    {
+        $normalized = $this->normalizeSqlTokens($sql);
+
+        return str_replace(['"' . $schema . '".', $schema . '.'], ['{schema}.', '{schema}.'], $normalized);
+    }
+
+    private function normalizeSqlTokens(string $sql): string
+    {
+        $normalized = '';
+        $quote = null;
+        $length = strlen($sql);
+
+        for ($index = 0; $index < $length; $index++) {
+            $character = $sql[$index];
+            if ($quote !== null) {
+                $normalized .= $character;
+                if ($character === '\\' && $quote === "'" && ($index + 1) < $length) {
+                    $normalized .= $sql[++$index];
+                    continue;
+                }
+                if ($character === $quote) {
+                    if (($index + 1) < $length && $sql[$index + 1] === $quote) {
+                        $normalized .= $sql[++$index];
+                    } else {
+                        $quote = null;
+                    }
+                }
+                continue;
+            }
+
+            if ($character === "'" || $character === '"') {
+                $quote = $character;
+                $normalized .= $character;
+                continue;
+            }
+            if (str_contains(" \t\r\n\f\v", $character)) {
+                if ($normalized !== '' && !str_ends_with($normalized, ' ')) {
+                    $normalized .= ' ';
+                }
+                continue;
+            }
+            $normalized .= strtolower($character);
+        }
+
+        return trim($normalized);
+    }
+
+    private function expectedCatalogCcCfPredicate(string $column): string
+    {
+        $characters = '';
+        foreach ($this->unicodeCcCfCodePoints() as $codePoint) {
+            if ($codePoint === 0) {
+                continue;
+            }
+
+            $character = 'chr(' . $codePoint . ')';
+            $characters = $characters === '' ? $character : '(' . $characters . ' || ' . $character . ')';
+        }
+
+        if ($characters === '') {
+            throw new \LogicException('The Unicode control character fixture must not be empty.');
+        }
+
+        $characters = substr($characters, 1, -1);
+
+        return "translate({$column}::text, {$characters}, ''::text) = {$column}::text";
+    }
+
+    /** @return list<int> */
+    private function unicodeCcCfCodePoints(): array
+    {
+        return array_merge(range(0x0000, 0x001F), range(0x007F, 0x009F), [
+            0x00AD,
+            ...range(0x0600, 0x0605),
+            0x061C,
+            0x06DD,
+            0x070F,
+            ...range(0x0890, 0x0891),
+            0x08E2,
+            0x180E,
+            ...range(0x200B, 0x200F),
+            ...range(0x202A, 0x202E),
+            ...range(0x2060, 0x2064),
+            ...range(0x2066, 0x206F),
+            0xFEFF,
+            ...range(0xFFF9, 0xFFFB),
+            0x110BD,
+            0x110CD,
+            ...range(0x13430, 0x1343F),
+            ...range(0x1BCA0, 0x1BCA3),
+            ...range(119155, 119162),
+            0xE0001,
+            ...range(0xE0020, 0xE007F),
+        ]);
+    }
+
+    /**
+     * The catalog adds the default btree marker and deterministic wrappers/casts
+     * around these two partial predicates. Their predicate values stay exact.
+     */
+    private function normalizeCatalogIndex(string $sql, string $schema): string
+    {
+        $normalized = $this->normalizeCatalogSql($sql, $schema);
+        $normalized = str_replace(' using btree', '', $normalized);
+
+        return str_replace(
+            [" where (state = 'open'::text)", ' where (successor_segment_id is not null)'],
+            [" where state = 'open'", ' where successor_segment_id is not null'],
+            $normalized,
+        );
+    }
+
+    /**
+     * @return list<array{table_name:string,column_name:string,ordinal_position:int,data_type:string,udt_name:string,character_maximum_length:int|null,is_nullable:string,column_default:string|null}>
+     */
+    private function expectedAuditColumns(): array
+    {
+        $definitions = [
+            'audit_partition_state' => [
+                ['partition_id',              'character varying',        'varchar',     71,   'NO',  null],
+                ['tenant_type',               'character varying',        'varchar',     256,  'YES', null],
+                ['tenant_id',                 'character varying',        'varchar',     256,  'YES', null],
+                ['active_segment_id',         'uuid',                     'uuid',        null, 'NO',  null],
+                ['last_sequence',             'bigint',                   'int8',        null, 'NO',  '0'],
+                ['head_record_hash',          'character',                'bpchar',      64,   'YES', null],
+                ['last_assigned_recorded_at', 'timestamp with time zone', 'timestamptz', null, 'NO',  null],
+                ['state_version',             'bigint',                   'int8',        null, 'NO',  '1'],
+            ],
+            'audit_records' => [
+                ['schema_version',       'smallint',                 'int2',        null, 'NO',  null],
+                ['kind',                 'text',                     'text',        null, 'NO',  null],
+                ['record_id',            'uuid',                     'uuid',        null, 'NO',  null],
+                ['partition_id',         'character varying',        'varchar',     71,   'NO',  null],
+                ['tenant_type',          'character varying',        'varchar',     256,  'YES', null],
+                ['tenant_id',            'character varying',        'varchar',     256,  'YES', null],
+                ['segment_id',           'uuid',                     'uuid',        null, 'NO',  null],
+                ['sequence',             'bigint',                   'int8',        null, 'NO',  null],
+                ['previous_record_hash', 'character',                'bpchar',      64,   'YES', null],
+                ['content_hash',         'character',                'bpchar',      64,   'NO',  null],
+                ['record_hash',          'character',                'bpchar',      64,   'NO',  null],
+                ['recorded_at',          'timestamp with time zone', 'timestamptz', null, 'NO',  null],
+                ['event_category',       'text',                     'text',        null, 'NO',  null],
+                ['protected_body',       'bytea',                    'bytea',       null, 'NO',  null],
+                ['action_type',          'character varying',        'varchar',     256,  'NO',  null],
+                ['resource_type',        'character varying',        'varchar',     256,  'NO',  null],
+                ['resource_id',          'character varying',        'varchar',     256,  'NO',  null],
+            ],
+            'audit_segments' => [
+                ['partition_id',            'character varying',        'varchar',     71,   'NO',  null],
+                ['segment_id',              'uuid',                     'uuid',        null, 'NO',  null],
+                ['state',                   'text',                     'text',        null, 'NO',  null],
+                ['first_sequence',          'bigint',                   'int8',        null, 'NO',  null],
+                ['final_sequence',          'bigint',                   'int8',        null, 'YES', null],
+                ['head_record_hash',        'character',                'bpchar',      64,   'YES', null],
+                ['predecessor_record_hash', 'character',                'bpchar',      64,   'YES', null],
+                ['opened_at',               'timestamp with time zone', 'timestamptz', null, 'NO',  null],
+                ['closed_at',               'timestamp with time zone', 'timestamptz', null, 'YES', null],
+                ['successor_segment_id',    'uuid',                     'uuid',        null, 'YES', null],
+                ['close_fencing_token',     'character varying',        'varchar',     71,   'YES', null],
+                ['state_version',           'bigint',                   'int8',        null, 'NO',  '1'],
+            ],
+        ];
+        $columns = [];
+        foreach ($definitions as $table => $tableColumns) {
+            foreach ($tableColumns as $position => $definition) {
+                [$name, $dataType, $udtName, $length, $nullable, $default] = $definition;
+                $columns[] = [
+                    'table_name' => $table,
+                    'column_name' => $name,
+                    'ordinal_position' => $position + 1,
+                    'data_type' => $dataType,
+                    'udt_name' => $udtName,
+                    'character_maximum_length' => $length,
+                    'is_nullable' => $nullable,
+                    'column_default' => $default,
+                ];
+            }
+        }
+
+        return $columns;
+    }
+
+    /** @return list<array{table_name:string,constraint_name:string,definition:string}> */
+    private function expectedAuditConstraints(): array
+    {
+        $definitions = [
+            'audit_partition_state' => [
+                'audit_partition_state_active_segment_fk' => 'foreign key (partition_id, active_segment_id) references {schema}.audit_segments(partition_id, segment_id) deferrable initially deferred',
+                'audit_partition_state_head_check' => "check (last_sequence = 0 and head_record_hash is null or last_sequence > 0 and head_record_hash is not null and head_record_hash ~ '^[0-9a-f]{64}$'::text)",
+                'audit_partition_state_partition_check' => "check (partition_id::text ~ '^(system:global|tenant:[0-9a-f]{64})$'::text)",
+                'audit_partition_state_pk' => 'primary key (partition_id)',
+                'audit_partition_state_sequence_check' => "check (last_sequence >= 0 and last_sequence <= '9007199254740991'::bigint)",
+                'audit_partition_state_tenant_bounds_check' =>
+                    'check (tenant_type is null and tenant_id is null or octet_length(tenant_type::text) >= 1 and octet_length(tenant_type::text) <= 256 and octet_length(tenant_id::text) >= 1 and octet_length(tenant_id::text) <= 256 and '
+                        . $this->expectedCatalogCcCfPredicate('tenant_type')
+                        . ' and '
+                        . $this->expectedCatalogCcCfPredicate('tenant_id')
+                        . ')',
+                'audit_partition_state_tenant_pair_check' => "check (partition_id::text = 'system:global'::text and tenant_type is null and tenant_id is null or partition_id::text ~~ 'tenant:%'::text and tenant_type is not null and tenant_id is not null)",
+                'audit_partition_state_version_check' => "check (state_version >= 1 and state_version <= '9007199254740991'::bigint)",
+            ],
+            'audit_records' => [
+                'audit_records_action_check' =>
+                    'check (octet_length(action_type::text) >= 1 and octet_length(action_type::text) <= 256 and '
+                        . $this->expectedCatalogCcCfPredicate('action_type')
+                        . ')',
+                'audit_records_body_check' => "check (octet_length(protected_body) >= 53 and octet_length(protected_body) <= 1048756 and substring(protected_body from 1 for 4) = decode('424f5044'::text, 'hex'::text))",
+                'audit_records_category_check' => "check (event_category = any (array['business'::text, 'security'::text, 'access'::text, 'configuration'::text, 'control'::text, 'retention'::text, 'replay'::text, 'rotation'::text, 'outbox'::text]))",
+                'audit_records_hash_check' => "check (content_hash ~ '^[0-9a-f]{64}$'::text and record_hash ~ '^[0-9a-f]{64}$'::text and (previous_record_hash is null or previous_record_hash ~ '^[0-9a-f]{64}$'::text))",
+                'audit_records_partition_hash_uq' => 'unique (partition_id, record_hash)',
+                'audit_records_partition_sequence_uq' => 'unique (partition_id, sequence)',
+                'audit_records_partition_tenant_check' =>
+                    "check (partition_id::text ~ '^(system:global|tenant:[0-9a-f]{64})$'::text and (partition_id::text = 'system:global'::text and tenant_type is null and tenant_id is null or partition_id::text ~~ 'tenant:%'::text and tenant_type is not null and tenant_id is not null and octet_length(tenant_type::text) >= 1 and octet_length(tenant_type::text) <= 256 and octet_length(tenant_id::text) >= 1 and octet_length(tenant_id::text) <= 256 and "
+                        . $this->expectedCatalogCcCfPredicate('tenant_type')
+                        . ' and '
+                        . $this->expectedCatalogCcCfPredicate('tenant_id')
+                        . '))',
+                'audit_records_pk' => 'primary key (partition_id, record_id)',
+                'audit_records_previous_check' => 'check (sequence = 1 and previous_record_hash is null or sequence > 1 and previous_record_hash is not null)',
+                'audit_records_record_id_check' => "check (record_id::text ~ '^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'::text)",
+                'audit_records_record_id_uq' => 'unique (record_id)',
+                'audit_records_resource_check' =>
+                    'check (octet_length(resource_type::text) >= 1 and octet_length(resource_type::text) <= 256 and '
+                        . $this->expectedCatalogCcCfPredicate('resource_type')
+                        . ' and octet_length(resource_id::text) >= 1 and octet_length(resource_id::text) <= 256 and '
+                        . $this->expectedCatalogCcCfPredicate('resource_id')
+                        . ')',
+                'audit_records_schema_kind_check' => "check (schema_version = 1 and kind = 'audit_stored_record'::text)",
+                'audit_records_segment_fk' => 'foreign key (partition_id, segment_id) references {schema}.audit_segments(partition_id, segment_id)',
+                'audit_records_sequence_check' => "check (sequence >= 1 and sequence <= '9007199254740991'::bigint)",
+            ],
+            'audit_segments' => [
+                'audit_segments_boundary_check' => "check ((first_sequence = 1 and predecessor_record_hash is null or first_sequence > 1 and predecessor_record_hash is not null) and (final_sequence is null and head_record_hash is null or final_sequence is not null and head_record_hash is not null) and (head_record_hash is null or head_record_hash ~ '^[0-9a-f]{64}$'::text) and (predecessor_record_hash is null or predecessor_record_hash ~ '^[0-9a-f]{64}$'::text))",
+                'audit_segments_lifecycle_check' => "check (state = 'open'::text and closed_at is null and successor_segment_id is null and close_fencing_token is null or (state = any (array['closed'::text, 'sealed'::text])) and final_sequence is not null and head_record_hash is not null and closed_at is not null and successor_segment_id is not null and close_fencing_token is not null)",
+                'audit_segments_pk' => 'primary key (partition_id, segment_id)',
+                'audit_segments_segment_id_check' => "check (partition_id::text ~ '^(system:global|tenant:[0-9a-f]{64})$'::text and segment_id::text ~ '^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'::text)",
+                'audit_segments_segment_id_uq' => 'unique (segment_id)',
+                'audit_segments_sequence_check' => "check (first_sequence >= 1 and first_sequence <= '9007199254740991'::bigint and (final_sequence is null or final_sequence >= first_sequence and final_sequence <= '9007199254740991'::bigint))",
+                'audit_segments_state_check' => "check (state = any (array['open'::text, 'closed'::text, 'sealed'::text]))",
+                'audit_segments_state_version_check' => "check (state_version >= 1 and state_version <= '9007199254740991'::bigint)",
+                'audit_segments_successor_check' => "check ((successor_segment_id is null or successor_segment_id <> segment_id) and (close_fencing_token is null or close_fencing_token::text ~ '^aft:v1:[0-9a-f]{64}$'::text))",
+                'audit_segments_successor_fk' => 'foreign key (partition_id, successor_segment_id) references {schema}.audit_segments(partition_id, segment_id) deferrable initially deferred',
+                'audit_segments_time_check' => 'check (closed_at is null or closed_at >= opened_at)',
+            ],
+        ];
+        $constraints = [];
+        foreach ($definitions as $table => $tableConstraints) {
+            foreach ($tableConstraints as $name => $definition) {
+                $constraints[] = [
+                    'table_name' => $table,
+                    'constraint_name' => $name,
+                    'definition' => $definition,
+                ];
+            }
+        }
+
+        return $constraints;
+    }
+
+    /** @return list<array{table_name:string,index_name:string,definition:string}> */
+    private function expectedAuditIndexes(): array
+    {
+        return [
+            [
+                'table_name' => 'audit_partition_state',
+                'index_name' => 'audit_partition_state_pk',
+                'definition' => 'create unique index audit_partition_state_pk on {schema}.audit_partition_state (partition_id)',
+            ],
+            [
+                'table_name' => 'audit_records',
+                'index_name' => 'audit_records_action_idx',
+                'definition' => 'create index audit_records_action_idx on {schema}.audit_records (partition_id, action_type, recorded_at, sequence)',
+            ],
+            [
+                'table_name' => 'audit_records',
+                'index_name' => 'audit_records_partition_hash_uq',
+                'definition' => 'create unique index audit_records_partition_hash_uq on {schema}.audit_records (partition_id, record_hash)',
+            ],
+            [
+                'table_name' => 'audit_records',
+                'index_name' => 'audit_records_partition_sequence_uq',
+                'definition' => 'create unique index audit_records_partition_sequence_uq on {schema}.audit_records (partition_id, sequence)',
+            ],
+            [
+                'table_name' => 'audit_records',
+                'index_name' => 'audit_records_pk',
+                'definition' => 'create unique index audit_records_pk on {schema}.audit_records (partition_id, record_id)',
+            ],
+            [
+                'table_name' => 'audit_records',
+                'index_name' => 'audit_records_record_id_uq',
+                'definition' => 'create unique index audit_records_record_id_uq on {schema}.audit_records (record_id)',
+            ],
+            [
+                'table_name' => 'audit_records',
+                'index_name' => 'audit_records_recorded_at_idx',
+                'definition' => 'create index audit_records_recorded_at_idx on {schema}.audit_records (partition_id, recorded_at, sequence)',
+            ],
+            [
+                'table_name' => 'audit_records',
+                'index_name' => 'audit_records_resource_idx',
+                'definition' => 'create index audit_records_resource_idx on {schema}.audit_records (partition_id, resource_type, resource_id, recorded_at, sequence)',
+            ],
+            [
+                'table_name' => 'audit_records',
+                'index_name' => 'audit_records_segment_sequence_idx',
+                'definition' => 'create index audit_records_segment_sequence_idx on {schema}.audit_records (partition_id, segment_id, sequence)',
+            ],
+            [
+                'table_name' => 'audit_segments',
+                'index_name' => 'audit_segments_one_open_idx',
+                'definition' => "create unique index audit_segments_one_open_idx on {schema}.audit_segments (partition_id) where state = 'open'",
+            ],
+            [
+                'table_name' => 'audit_segments',
+                'index_name' => 'audit_segments_pk',
+                'definition' => 'create unique index audit_segments_pk on {schema}.audit_segments (partition_id, segment_id)',
+            ],
+            [
+                'table_name' => 'audit_segments',
+                'index_name' => 'audit_segments_segment_id_uq',
+                'definition' => 'create unique index audit_segments_segment_id_uq on {schema}.audit_segments (segment_id)',
+            ],
+            [
+                'table_name' => 'audit_segments',
+                'index_name' => 'audit_segments_successor_uq',
+                'definition' => 'create unique index audit_segments_successor_uq on {schema}.audit_segments (partition_id, successor_segment_id) where successor_segment_id is not null',
+            ],
+        ];
     }
 
     /** @return list<string> */

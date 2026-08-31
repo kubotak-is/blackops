@@ -10,11 +10,11 @@
 - 重要な設計判断は、結論だけでなく理由もREADMEまたは設計文書へ残す
 - 用語の変更時は、コードと文書をまとめて更新する
 
-## P23-003B1 accepted handoff — Audit Canonical Record Foundation
+## P23-003B2 current handoff — Audit PostgreSQL Canonical Store
 
-Updated At: 2026-08-29T16:19:50+09:00
+Updated At: 2026-08-31T20:54:49+09:00
 
-Status: `Accepted — Candidate committed / package export Green`。
+Status: `Accepted — P23-003B2 Audit PostgreSQL Canonical Store / Parent P23-003B Accepted; Post-Acceptance Commit and Package Export Pending`。
 
 - [x] P23-003A1／A2 and parent P23-003A Accepted
 - [x] candidate commit `b7e6837f0d684b3cea35967fadb4c52adb670407`
@@ -48,21 +48,64 @@ Status: `Accepted — Candidate committed / package export Green`。
 - [x] Orchestrator B1 Acceptance
 - [x] reviewed Product candidate `c3b75ca0afe6d8c756caa8404b7e95922987c1da`
 - [x] clean-candidate Git／Composer package export Green
-- [ ] P23-003B2 packet／preflight／implementation／Acceptance
+- [x] P23-003B2 D149／exact Task Packet／initial Report drafted
+- [x] transaction／DDL／Clock／UUID／append／close／tenant-read authority fixed
+- [x] exact Files Allowed／fixtures／Iteration／Complete／post-commit package gates drafted
+- [x] exact management／normative freeze
+- [x] initial P23-003B2 fresh Sol Max preflight Changes Requested `P1=3/P2=5/P3=0`
+- [x] Result API／bootstrap lock／Clock／DDL／DBAL／read／Gate／Release bounded correction
+- [x] corrected management／normative packet prepared for exact re-freeze
+- [x] fresh general／focused DB／Documentation re-preflight lanes completed separately
+- [x] schema／atomic-write／segment-ID／timestamp／idempotency／capacity／binary／journey correction
+- [x] current／historical authority and Report release evidence synchronized
+- [x] second corrected management／normative packet prepared for exact re-freeze
+- [x] second corrected management／normative exact11 frozen for fresh re-preflight
+- [x] second general／focused DB／Documentation re-preflight lanes completed separately
+- [x] shared schema／level-1 transaction／authenticated idempotency／durable capacity correction
+- [x] Store-owned Connection quarantine／exact public-source and Website Gate correction
+- [x] third corrected management／normative packet prepared for exact re-freeze
+- [x] third corrected management／normative exact11 frozen for fresh re-preflight
+- [x] third general／focused DB／Documentation re-preflight lanes completed separately
+- [x] auto-commit／physical 17→14→13／missing-state orphan／ordered package inventory correction
+- [x] fourth corrected management／normative packet prepared for exact re-freeze
+- [x] fourth corrected management／normative exact11 frozen for fresh re-preflight
+- [x] fourth general／focused DB／Documentation re-preflight lanes completed separately
+- [x] Architecture call graph／reusable package test／Hydrator labels／cross-row equations correction
+- [x] fifth corrected management／normative packet prepared for exact re-freeze
+- [x] fifth corrected management／normative exact11 frozen for fresh re-preflight
+- [x] fifth General／focused DB／Documentation re-preflight lanes completed separately
+- [x] active-segment first row／preceding record／last endpoint boundary correction
+- [x] sixth corrected management／normative packet prepared for exact re-freeze
+- [x] sixth corrected management／normative exact11 frozen for fresh re-preflight
+- [x] sixth General／focused DB／Documentation re-preflight lanes completed separately
+- [x] empty-successor versus non-empty endpoint ownership correction
+- [x] seventh corrected management／normative packet prepared for exact re-freeze
+- [x] seventh corrected management／normative exact11 frozen for fresh re-preflight
+- [x] seventh fresh General／focused DB／Documentation re-preflight Green `P1=0/P2=0/P3=0` separately
+- [x] Luna Max implementation／Iteration Gate／Product freeze
+- [x] Complete Final Gate／fresh implementation review／Acceptance
+- [ ] reviewed candidate commit／same-SHA package export
 
 Accepted exact33 ordered aggregateは
 `bb6ab89a222a72eafa601f588f46177ee443e554c036bcc00575b211961c8847`。
 Full PHPUnit `2,762 tests / 57,406 assertions`、Deptrac `991/0/0/0`、
 format／Composer／Mago／three Node goldens／Stable baseline／guardsはGreen。
+Accepted B2 exact26 ordered aggregateは
+`ecacafc99cbdf4fd2287b7554b88a34f6524a23d92c9adb3a8bf201a2a1d50bb`。
+Complete Final GateはPHPUnit `2,939 tests / 85,080 assertions`、Deptrac
+`999/0/0/6,079`、four Node goldens、Community Board clean installを含めGreen。
+Fresh DB／General Sol closureは別々に`P1=0/P2=0/P3=0`であり、
+OrchestratorはP23-003B2とparent P23-003BをAcceptedとした。
 Stable `1.2.0` remains current and BlackOps `1.3` remains unreleased. runtime、
 database、route、CLI、public Documentationは未Activatedである。
 
-Remaining: P23-003B2 Acceptance。Parent BはB2 Acceptanceまで未Acceptedで、
-higher GoalにはP23-003C..G、
+Remaining: P23-003B2のreviewed candidate commit／same-SHA package export。
+Higher GoalにはP23-003C..G、
 P23-004、P23-005、P23-006が残る。
 
-Next Action: Accepted B1 bytesを入力にbounded P23-003B2 packetを作成し、
-fresh Sol Max preflightへ渡す。
+Next Action: OrchestratorがAccepted candidateをcommitし、そのclean exact SHAで
+`framework-package-export.sh`を実行する。Pushは行わない。Closeout後、Accepted parent Bを入力として
+P23-003Cを開始できる。
 
 ## P23-003A2 accepted handoff — Historical prerequisite
 
@@ -1056,7 +1099,7 @@ Next Action: freeze the new exact5 and exact7 hashes and request fresh separate 
 - [x] P23-002Dで`diagnostics:check`とaggregate-only `queue:status`のsafe contractを実装する（Accepted。Fresh Sol Max closure review Green `P1=0/P2=0/P3=0`）
 - [x] P23-002Eで`about`と`outbox:status`を定義・実装する（Accepted。Fresh Sol Max implementation review Green `P1=0/P2=0/P3=0`）。`dead-letter:list`はoperation/outbox名、tenant、pagination、redaction確定まで延期する
 - [x] P23-003Aをserial A1/A2へ分割する。A1でclosed domain-hashed AuditEventCatalog v1／Catalog-only RFC 8785 JCS/hash、exact 30-definition Framework security/access Catalog、bounded evidence/semantic validation、keyed opaque ID、AuditReadRequestBasis／AuditReadContextを実装する。A2はAccepted A1をconsumeし、AuditRecord draft/logical/complete stage schema、resolved semantic/evidence validation、exact observed safe projectionを実装する。AuditRecord JCS logical body/hash／chain appendはP23-003B、dedicated opaque-key providerはP23-003C、runtime adapterはP23-003D、application registration/projectorはP23-003E。P23-003A1／A2とparent P23-003A are Accepted; P23-003B is next
-- [~] P23-003Bをserial B1／B2で実装する。B1はtrusted finalization、RFC 8785 JCS logical body／contentHash／recordHash、tenant partition、complete JCS/LF cap、Audit専用BOPD AAD／protected body、durable ingress pure wireを所有する。B2はAccepted B1をconsumeし、PostgreSQL append store、partition-global sequence、segment rotate/fence、same-ID/contentHash idempotency、tenant predicate-before-decrypt、migrationを所有する。B1 initial preflight `P1=4/P2=1/P3=1`、corrected-vector re-preflight `P1=4/P2=0/P3=0`、four-root corrected review `P1=2/P2=1/P3=0`、three-root corrected re-preflight `P1=1/P2=1/P3=0`を反映し、fixture／historical-handoff corrected exact10のfresh re-preflight中
+- [~] P23-003Bをserial B1／B2で実装する。B1はAcceptedで、reviewed candidate commitとsame-SHA package exportはGreen。B2はPostgreSQL append store、partition-global sequence、segment rotate/fence、same-ID/contentHash idempotency、tenant predicate-before-decrypt、migrationを所有する。B2 seventh re-preflightはGeneral／focused DB／Documentationが別々にGreen `P1=0/P2=0/P3=0`。Immutable exact9を固定し、configured Luna workerのexact26 implementationを開始する
 - [ ] P23-003Cでrequired same-transaction append、auth/read decisionのresponse前 dedicated local append/outbox commit（allow failureはdata非開示fail-closed、deny/invalid failureはbounded denial）、durable Audit Outboxのimmutable identity/bindings/protected envelopeとfenced state-field mutation、at-least-once same-ID/contentHash relayを実装する。Catalogのfixed deliveryをeffect/response前に選択し、versioned policy evaluatorがexplicit `policy.auditDelivery`を割り当てる。only explicit requiredはrequired selector、only explicit durableはdurable selector、missing／omitted／unknownはfail closedとし、record値はdefinition.deliveryと一致しなければならない。4 policy pathsをfixture化し、runtime override／downgrade／best-effort canonical pathを拒否する
 - [ ] P23-003Dでretention／hold、rotation、replay、outbox retryをimmutable AuditRecord phase eventへ明示adaptし、AuthenticationMiddleware／AuthorizationEvaluator／protected Operation Status／Journal／Outcome／diagnostic read boundaryのadapterとindependent reviewを行う
 - [ ] P23-003EでApplication versioned event registration/projector API、reference journey、business-action non-inferenceを検証する

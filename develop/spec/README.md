@@ -1,16 +1,22 @@
 # Framework Specification
 
-## P23-003B1 accepted handoff — Audit Canonical Record Foundation
+## P23-003B2 current handoff — Audit PostgreSQL Canonical Store
 
-Updated At: 2026-08-29T16:19:50+09:00
+Updated At: 2026-08-31T20:54:49+09:00
 
-Current status: `Accepted — Candidate committed / package export Green`.
+Current status: `Accepted — P23-003B2 Audit PostgreSQL Canonical Store / Parent P23-003B Accepted; Post-Acceptance Commit and Package Export Pending`.
 
 P23-003A1／A2 and parent P23-003A are Accepted at candidate commit
 `b7e6837f0d684b3cea35967fadb4c52adb670407`; committed-candidate package export
-is Green. D148 is the most specific current authority and splits P23-003B into
+is Green. D148 splits P23-003B into
 serial B1 pure canonical-record／Audit-protection foundation and B2 PostgreSQL
 append／segment／migration.
+
+D149 is the most specific B2 authority. It fixes same-Connection transaction
+participation, exact three-table DDL and migration, trusted Clock／UUID allocation,
+required／durable append, same-ID idempotency, explicit crash-safe segment close,
+tenant predicate-before-decrypt, finite failure precedence, and the post-Acceptance
+clean-candidate package gate.
 
 B1 implements the pure canonical-record／Audit-protection foundation with exact
 PHP／Node bytes, protected hydration, bounded pre-key validation, value-free
@@ -29,11 +35,21 @@ Reviewed Product candidate `c3b75ca0afe6d8c756caa8404b7e95922987c1da`
 is committed, and the clean-candidate Git／Composer package export is Green.
 No push was performed.
 
-Remaining: P23-003B2. Parent P23-003B requires B2 Acceptance; the higher Goal still
-requires P23-003C..G、P23-004、P23-005、and P23-006.
+Earlier preflight and review lanes are Historical. The bounded B2 implementation now provides the
+PostgreSQL migration, exact three-table schema, same-Connection append／close transaction boundary,
+tenant predicate-before-decrypt lookup, package inventory, and mutation-resistant DB／Architecture
+evidence without runtime activation. Accepted Product exact26 is
+`ecacafc99cbdf4fd2287b7554b88a34f6524a23d92c9adb3a8bf201a2a1d50bb`.
+The Complete Final Gate is Green, including PHPUnit `2,939/85,080`, Deptrac
+`999/0/0/6,079`, four Audit Node goldens, and the Community Board clean-install journey.
+Fresh DB and General Sol closure reviews separately returned `P1=0/P2=0/P3=0`.
+P23-003B2 and parent P23-003B are Accepted. Stable `1.2.0` remains current;
+BlackOps `1.3` remains unreleased; no Application、Container、CLI、HTTP、public Documentation、
+Audit Outbox、relay、checkpoint、or query activation occurred.
 
-Next Action: draft the bounded P23-003B2 packet against Accepted B1 bytes and
-send it to fresh Sol Max preflight.
+Remaining within B2 closeout: Orchestrator candidate commit and clean exact-SHA package export.
+Next Action: commit the reviewed candidate, run `framework-package-export.sh` on the clean SHA,
+record closeout without push, then proceed to P23-003C.
 
 ## P23-003A2 accepted handoff — Historical prerequisite
 
@@ -1568,8 +1584,9 @@ closedする。Semantic tuple、trusted external verification context、exact
 | --- | --- | --- |
 | [D145](../decisions/145-blackops-1-3-command-runtime-and-audit-boundary.md) | BlackOps `1.3` command、FrankenPHP runtime、Audit Trail boundary | Proposed — P23-001 Accepted; Stable `1.2` current / BlackOps `1.3` unreleased proposal |
 | [D146](../decisions/146-projection-build-set-php-filesystem-boundary.md) | ProjectionBuildSet PHP filesystem／locator boundary | Proposed — P23-002A1/A2/B/C Accepted; complete projection activation implemented for unreleased 1.3 |
-| [D147](../decisions/147-audit-catalog-and-safe-projection-boundary.md) | Audit Catalog、keyed opaque ID、record stages、observed safe-projection boundary | Accepted P23-003A1／A2 and parent P23-003A; Stable `1.2` current / BlackOps `1.3` unreleased; P23-003B1 fixture／handoff corrected re-preflight pending |
-| [D148](../decisions/148-audit-canonical-record-and-protected-store-boundary.md) | Audit canonical record、hash／chain、Audit専用BOPD protection、B1／B2 boundary | P23-003B1 fixture／historical-handoff corrected exact packet frozen／fresh Sol Max re-preflight restarted; Stable `1.2` unchanged / BlackOps `1.3` unreleased |
+| [D147](../decisions/147-audit-catalog-and-safe-projection-boundary.md) | Audit Catalog、keyed opaque ID、record stages、observed safe-projection boundary | Accepted P23-003A1／A2 and parent P23-003A; P23-003B1／B2 and parent P23-003B Accepted; Stable `1.2` current / BlackOps `1.3` unreleased |
+| [D148](../decisions/148-audit-canonical-record-and-protected-store-boundary.md) | Audit canonical record、hash／chain、Audit専用BOPD protection、B1／B2 boundary | P23-003B1／B2 and parent P23-003B Accepted; B2 post-Acceptance commit／package export pending; Stable `1.2` unchanged / BlackOps `1.3` unreleased |
+| [D149](../decisions/149-audit-postgresql-canonical-store-boundary.md) | Audit PostgreSQL canonical append、segment、tenant-aware read、migration boundary | P23-003B2 Accepted; Complete Final Gate and fresh DB／General Sol closure Green; post-Acceptance commit／package export pending; Stable `1.2` unchanged / BlackOps `1.3` unreleased |
 
 ## Historical P23-001 Round 13 checkpoint
 

@@ -4,11 +4,16 @@ declare(strict_types=1);
 
 namespace BlackOps\Tests\Internal\Console;
 
+use BlackOps\Internal\Application\ApplicationConfigurationSnapshot;
+use BlackOps\Internal\Application\ApplicationConsoleCommandFactory;
 use BlackOps\Internal\Console\DatabaseMigrationMigrateCommand;
 use BlackOps\Internal\Console\DatabaseMigrationStatusCommand;
 use BlackOps\Internal\Migration\DatabaseMigrationRunner;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\DBAL\DriverManager;
+use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -46,21 +51,90 @@ final class DatabaseMigrationCommandTest extends TestCase
         rmdir($this->migrationDirectory);
     }
 
+    #[DataProvider('invalidCommandSchemaNames')]
+    public function testDatabaseStatusRejectsInvalidSchemaBeforeOpeningOrQueryingDatabase(string $schema): void
+    {
+        DatabaseMigrationCommandConnectionProbe::$connectCalls = 0;
+        $factory = new ApplicationConsoleCommandFactory($this->invalidSchemaSnapshot($schema));
+
+        try {
+            $factory->databaseStatus();
+            self::fail('databaseStatus accepted an invalid PostgreSQL schema name.');
+        } catch (InvalidArgumentException) {
+            self::assertSame(0, DatabaseMigrationCommandConnectionProbe::$connectCalls);
+        }
+    }
+
+    #[DataProvider('invalidCommandSchemaNames')]
+    public function testDatabaseMigrateRejectsInvalidSchemaBeforeOpeningOrQueryingDatabase(string $schema): void
+    {
+        DatabaseMigrationCommandConnectionProbe::$connectCalls = 0;
+        $factory = new ApplicationConsoleCommandFactory($this->invalidSchemaSnapshot($schema));
+
+        try {
+            $factory->databaseMigrate();
+            self::fail('databaseMigrate accepted an invalid PostgreSQL schema name.');
+        } catch (InvalidArgumentException) {
+            self::assertSame(0, DatabaseMigrationCommandConnectionProbe::$connectCalls);
+        }
+    }
+
+    /** @return \Generator<string, array{string}> */
+    public static function invalidCommandSchemaNames(): \Generator
+    {
+        yield 'uppercase' => ['BlackOps'];
+        yield '64 bytes' => ['a' . str_repeat('b', 63)];
+        yield 'same 63 byte prefix alias' => ['a' . str_repeat('b', 62) . 'x'];
+        yield 'non-ASCII' => ['é'];
+        yield 'quoted' => ['"blackops"'];
+        yield 'trailing LF' => ["blackops\n"];
+    }
+
+    private function invalidSchemaSnapshot(string $schema): ApplicationConfigurationSnapshot
+    {
+        return new ApplicationConfigurationSnapshot(
+            sys_get_temp_dir(),
+            [
+                'database' => [
+                    'default' => 'framework',
+                    'connections' => [
+                        'framework' => [
+                            'driver' => 'pdo_pgsql',
+                            'host' => '127.0.0.1',
+                            'port' => 1,
+                            'dbname' => 'blackops',
+                            'user' => 'blackops',
+                            'password' => 'blackops',
+                            'wrapperClass' => DatabaseMigrationCommandConnectionProbe::class,
+                        ],
+                    ],
+                    'framework' => [
+                        'connection' => 'framework',
+                        'schema' => $schema,
+                    ],
+                ],
+            ],
+            [],
+            [],
+            [],
+        );
+    }
+
     public function testStatusShowsPendingThenAppliedBaseline(): void
     {
         $pending = new CommandTester(new DatabaseMigrationStatusCommand($this->runner));
         self::assertSame(0, $pending->execute([]));
         self::assertStringContainsString('applied: 0', $pending->getDisplay());
-        self::assertStringContainsString('pending: 11', $pending->getDisplay());
+        self::assertStringContainsString('pending: 12', $pending->getDisplay());
 
         $migrate = new CommandTester(new DatabaseMigrationMigrateCommand($this->runner));
         self::assertSame(0, $migrate->execute([], ['interactive' => false]));
         self::assertStringContainsString('Database migrations applied', $migrate->getDisplay());
-        self::assertStringContainsString('migrations: 11', $migrate->getDisplay());
+        self::assertStringContainsString('migrations: 12', $migrate->getDisplay());
 
         $applied = new CommandTester(new DatabaseMigrationStatusCommand($this->runner));
         self::assertSame(0, $applied->execute([]));
-        self::assertStringContainsString('applied: 11', $applied->getDisplay());
+        self::assertStringContainsString('applied: 12', $applied->getDisplay());
         self::assertStringContainsString('pending: 0', $applied->getDisplay());
     }
 
@@ -125,7 +199,7 @@ final class DatabaseMigrationCommandTest extends TestCase
 
         $status = new CommandTester(new DatabaseMigrationStatusCommand($runner));
         self::assertSame(0, $status->execute([]));
-        self::assertStringContainsString('pending: 12', $status->getDisplay());
+        self::assertStringContainsString('pending: 13', $status->getDisplay());
         self::assertStringContainsString('App\\Migrations\\' . $version, $status->getDisplay());
 
         $dryRunRunner = new DatabaseMigrationRunner(
@@ -144,11 +218,22 @@ final class DatabaseMigrationCommandTest extends TestCase
         );
         $migrate = new CommandTester(new DatabaseMigrationMigrateCommand($migrateRunner));
         self::assertSame(0, $migrate->execute([], ['interactive' => false]));
-        self::assertStringContainsString('migrations: 12', $migrate->getDisplay());
+        self::assertStringContainsString('migrations: 13', $migrate->getDisplay());
 
         $applied = new CommandTester(new DatabaseMigrationStatusCommand($migrateRunner));
         self::assertSame(0, $applied->execute([]));
-        self::assertStringContainsString('applied: 12', $applied->getDisplay());
+        self::assertStringContainsString('applied: 13', $applied->getDisplay());
         self::assertStringContainsString('App\\Migrations\\' . $version, $applied->getDisplay());
+    }
+}
+
+final class DatabaseMigrationCommandConnectionProbe extends Connection
+{
+    public static int $connectCalls = 0;
+
+    protected function connect(): DriverConnection
+    {
+        self::$connectCalls++;
+        throw new \RuntimeException('Unexpected database connection attempt.');
     }
 }

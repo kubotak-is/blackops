@@ -1,6 +1,1130 @@
 # Orchestration State
 
-Updated At: 2026-08-29T16:19:50+09:00
+Updated At: 2026-08-31T20:54:49+09:00
+
+P23-003B2／Parent P23-003B Accepted At:
+2026-08-31T20:54:49+09:00. Fresh bounded DB and General Sol closure reviews
+separately returned `P1=0/P2=0/P3=0` on Product exact26
+`ecacafc9...d50bb`. Complete Final Gate and all Acceptance Criteria through
+fresh implementation review are Green. The Orchestrator accepts P23-003B2;
+with Accepted B1, parent P23-003B is Accepted. Stable `1.2.0` remains current,
+BlackOps `1.3` remains unreleased, and no runtime／route／CLI／public
+Documentation／Outbox／relay／checkpoint／query activation occurred.
+Post-Acceptance closeout is the reviewed candidate commit and clean exact-SHA
+package export. Push and release remain Not Run; generated docs and browser
+remain Not Verified.
+
+P23-003B2 Quote-Aware Catalog Complete Final Gate Green At:
+2026-08-31T20:49:23+09:00. The unchanged exact26
+`ecacafc9...d50bb` passed full format, Composer strict, lint／baseline,
+analysis `0/313/164`, PHPUnit `2,939/85,080`, Deptrac `999/0/0/6,079`, four
+Node goldens, Stable baseline, Community Board clean install, package exact37
+plus `26` mutations, tracked public-doc／management-ID guards, immutable
+exact9/A1/A2/B1 preservation, diff-check, exact37, and staged0. Fresh DB／General
+Sol reviews subsequently returned Green and Acceptance is recorded above.
+Generated docs and browser remain Not Verified; export, commit, push, and
+release remain Not Run.
+
+P23-003B2 Quote-Aware Catalog Iteration Gate Green At:
+2026-08-31T20:42:20+09:00. Fresh DB review found a test-oracle root where
+quoted catalog literals were case-folded. The bounded two-test correction now
+preserves quoted literals／identifiers and escapes while normalizing SQL syntax,
+with direct lowercase／uppercase canaries. Focused correction checks are Green
+at Migration `40/129`, Schema `9/444`, and combined
+migration／schema／Architecture `61/10,300`. The full Iteration Gate is Green:
+format, PHPUnit `221/70,408`, two Node goldens, Deptrac `999/0/0/6,079`, Stable
+baseline, package exact37 plus `26` mutations, public-doc／management-ID guards,
+A1／A2／B1, diff-check, exact37, and staged0. Product exact26 is
+`ecacafc9...d50bb`; immutable exact9 remains `7ddb9ccd...edae`. The prior
+Complete Final Gate is Historical. Complete Final Gate restarts from command
+1; fresh Sol closure, export, Acceptance, commit, push, and release remain Not
+Run.
+
+P23-003B2 Replacement Complete Final Gate Green (Historical) At:
+2026-08-31T20:13:42+09:00. The unchanged exact26
+`8ce371af...a229d` passed full format, Composer strict, lint／baseline,
+analyze `0/313/164`, full PHPUnit `2,937/85,078`, Deptrac
+`999/0/0/6,079`, four Node goldens, Stable baseline, Community Board clean
+install, package exact37 plus `26` mutations, tracked public-doc and
+management-ID guards, immutable exact9/A1/A2/B1 preservation, diff-check,
+exact37, and staged0. Fresh independent Sol review is next. Generated docs
+and browser verification remain Not Verified; export, Acceptance, commit,
+push, and release remain Not Run.
+
+P23-003B2 Replacement Iteration Gate Green At:
+2026-08-31T20:06:24+09:00. The exact migration catalog oracle correction is
+Green (`39/128`; combined migration／schema／Architecture `59/10,298`). The
+replacement Iteration Gate then passed format, focused PHPUnit `219/70,406`,
+two Node goldens, Deptrac `999/0/0/6,079`, Stable baseline, package exact37
+plus `26` mutations, release／public-doc／management-ID guards, A1／A2／B1,
+diff-check, exact37, and staged0. Frozen Product exact26 is
+`8ce371af...a229d`; immutable exact9 remains `7ddb9ccd...edae`. The initial
+wrong-order aggregate precheck and sandbox Docker denial changed no bytes and
+were corrected before the Green run. Complete Final Gate is next; export,
+Acceptance, commit, push, and release remain Not Run.
+
+P23-003B2 Final Review Corrections Green At:
+2026-08-31T09:17:25+09:00. Fresh final review found DB `P1=1` for the
+locale-dependent POSIX control predicate and Architecture `P2=1` for an
+outside-Storage class-string invocation bypass. Bounded Luna corrections and
+separate read-only closure reviews are Green at `P1=0/P2=0/P3=0` in both
+lanes. Locale-independent Cc／Cf DDL plus real U+2028／U+2029 positives,
+U+200E `23514` negatives, and append／find round trip are fixed; the all-source
+class-string guard covers ordinary, heredoc, and nowdoc indirect dispatch.
+Focused Architecture is `12/9,727`; combined Schema／Store／Architecture is
+`121/13,033`. Current Product exact26 is `8b76917e...5282a5`, Schema
+`1ab271ae...bcb7`, Architecture `c3ed8527...750b`, immutable exact9 remains
+`7ddb9ccd...edae`, exact37 and staged0 are preserved. The earlier Complete
+Final Gate is Historical. Replacement Iteration and Complete Final Gates are
+next; export, Acceptance, commit, push, and release remain Not Run.
+
+P23-003B2 Complete Final Gate Green At:
+2026-08-31T08:16:01+09:00. The unchanged Product exact26
+`65f54ea0...95ce2` passed format, Composer strict validation, lint/baseline,
+analysis `0/313/164`, full PHPUnit `2,934/79,776`, Deptrac
+`999/0/0/6,079`, four Node goldens, Stable version baseline, Community Board
+clean install, package exact37 plus 26 mutations, tracked public-doc and
+management-ID guards, diff-check, and staged0. End freeze reproduced exact26,
+immutable exact9 `7ddb9ccd...edae`, A1 exact48, A2 exact28, B1 exact32,
+Architecture `e7e18104...1272e`, exact37, and staged0. Fresh independent Sol
+Max implementation review is next. Package export, Acceptance, commit, push,
+and release remain Not Run; generated Documentation artifacts and browser
+verification remain Not Verified. The separate public Guide P1 remains an
+out-of-scope follow-up.
+
+P23-003B2 Analyzer Closure Review / Replacement Iteration Gate Green At:
+2026-08-31T00:02:58+09:00. Bounded Sol review returned
+`P1=0/P2=0/P3=0`; DBAL rows stay generic through runtime list/key validation,
+the rejected helper is absent, and runtime behavior is unchanged. Replacement
+Iteration Gate passed format, analyze `0/313/164`, lint/baseline, PHPUnit
+`216/65,104`, two Node goldens, Deptrac `999/0/0/6,079`, Stable baseline,
+package exact37 plus 26 mutations, release/public-doc/management-ID guards,
+A1/A2/B1/immutable preservation, exact37, diff-check, and staged0. Product
+exact26 is `65f54ea0...95ce2`. Complete Final Gate restarts from command 1;
+no export, Acceptance, stage, commit, push, or network.
+
+P23-003B2 Bounded Analyzer Correction Review Pivot Completed At:
+2026-08-30T23:56:43+09:00. Closure review rejected the private `isList()`
+wrapper because exact row typing preceded the runtime list/key guard. The
+wrapper and Architecture inventory/count expectations were removed. Raw DBAL
+rows remain generic through direct `is_array`, `array_is_list`, and exact
+key/order checks, with exact row shape assertions placed afterward; the
+closed-result oracle now checks the validated `$segmentSuccessorId` alias.
+Final Store SHA-256 is
+`dda65a1d90b599fc1143f8d1eda515489923474906db0a7bf9135020afeb8fdc`,
+Architecture SHA-256 is
+`e7e1810425b4bb44cda093bba1aafb11819b706f5e87620ae84a6e7c1181272e`, and
+Product exact26 aggregate is
+`65f54ea0a446b5b401782c18d6297da8a51849bc3a1759777be5c94de7895ce2`.
+Full analysis is Green at `0 errors / 313 warnings / 164 help`; Store/
+Architecture format, full lint, baseline verification, and the focused
+Iteration PHPUnit command are Green (`216 tests / 65,104 assertions`).
+Exact37 remains `37`, staged remains `0`, `git diff --check` is Green, and
+immutable exact9 remains
+`7ddb9ccd592bbd9f4677fe7a7ff7c95bba22612f637050eaf8030b6f9e64edae`.
+No SQL, transaction, API, failure-precedence, result-byte, or runtime
+behavior change was made. Complete Final Gate, export, Acceptance, stage,
+commit, push, and network remain for the Orchestrator after review.
+
+P23-003B2 Bounded Analyzer Correction Initial Closure (Historical) At:
+2026-08-30T23:44:18+09:00. The Luna correction is complete and remains
+bounded to `src/Internal/Audit/Storage/PostgreSqlAuditRecordStore.php` plus
+this Report/STATE checkpoint. Current Store SHA-256 is
+`fc0d98b75737ce1875446e2e333be51470ca8c8fed9e1a5de94f3765c53e4562`, and
+Product exact26 aggregate is
+`ac22cf5884a5435c6f26c0b7fd83b818bac4dab7d5996daa628c4229a1101ec5`.
+Full Mago analysis is Green at `0 errors / 313 warnings / 164 help`; focused
+format, full lint, baseline verification, and Store PHPUnit are Green
+(`100 tests / 2,852 assertions`). Exact37 remains `37`, staged remains `0`,
+`git diff --check` is Green, and immutable exact9 remains
+`7ddb9ccd592bbd9f4677fe7a7ff7c95bba22612f637050eaf8030b6f9e64edae`.
+No SQL, transaction, API, failure-precedence, result-byte, or runtime
+behavior change was made. Complete Final Gate, export, Acceptance, stage,
+commit, push, and network remain for the Orchestrator after review.
+
+P23-003B2 Bounded Analyzer Correction Started At:
+2026-08-30T23:22:30+09:00. Configured Luna worker confirmed branch
+`agent/p23-001-blackops-1-3-feasibility`, HEAD
+`50a4863b87fdb063bdc78b982eb06e03daf88c09`, staged0, and exact37 status.
+Prior Product exact26 aggregate is `8656f7b0...fcde`; immutable exact9
+aggregate is `7ddb9ccd...edae`. Worker is limited to exact26 Store/Test
+type-refinement or direct analyzer evidence correction plus Report/STATE.
+SQL, transaction order, public/private APIs, failure precedence, result
+bytes, and runtime behavior must remain unchanged. No stage, commit, push,
+package export, network, or Complete Final Gate.
+
+P23-003B2 Complete Final Gate Analyze Failure / Bounded Correction Authorized
+At: 2026-08-30T23:20:55+09:00. Start prechecks, format, Composer strict,
+Mago lint, and baseline verification passed. `mago analyze` then stopped the
+Gate at `97 errors / 312 warnings / 165 help`; no later Gate command ran.
+Unchanged HEAD comparison returned zero analyzer errors, and focused evidence
+locates the regression in the allowed B2 Store/Test boundary. A configured
+Luna worker may perform the smallest exact26-only type-refinement/test
+correction. The prior exact26 freeze and Final Gate evidence are Historical.
+No package export, Acceptance, stage, commit, push, or network.
+
+P23-003B2 Complete Final Gate Scope Correction Review Green At:
+2026-08-30T12:08:45+09:00. The bounded Sol review returned
+`P1=0/P2=0/P3=0`: the corrected migration format scope is runnable and
+proportional, while exact37 plus its synthetic negative still reject every
+other migration change. Product exact26 remains `8656f7b0...fcde`; corrected
+Task is `0b648b1e...20bb`; authority-order immutable exact9 is
+`7ddb9ccd...edae`; expanded status is exact37 and staged0. Complete Final Gate
+restarts from command 1. No package export, Acceptance, stage, commit, push,
+or network.
+
+P23-003B2 Complete Final Gate Scope Correction At:
+2026-08-30T12:02:18+09:00. Gate command 1 stopped because its broad
+`migrations` target included two pre-existing out-of-scope unformatted files
+(`Version20260728133000.php` `db26d373...c229b` and
+`Version20260808100000.php` `029b5868...3199`). Neither changed. The Task now
+formats `src`, `tests`, and sole allowed Audit migration
+`Version20260829000000.php`; exact37 still rejects any other migration change.
+Product exact26 remains `8656f7b0...fcde`; Task／immutable exact9 must be
+re-frozen and the bounded Gate correction reviewed before Final Gate restart.
+No Product edit/export/stage/commit/push.
+
+P23-003B2 Final Replacement Iteration Gate Green Completed At:
+2026-08-30T11:49:33+09:00. After the bounded pre-gate and lint closure, the
+Gate restarted from command 1 and passed format, focused PHPUnit
+`216/65,094`, two Node goldens, Deptrac `999/0 violations/0 uncovered/6,079
+allowed`, Stable version baseline, exact37 package inventory plus 26 rejected
+mutations, release/public-doc/management-ID guards, immutable exact9,
+A1/A2/B1 preservation, exact37, diff-check, and staged0. Final exact26
+aggregate is `8656f7b086c0a8565066149e5272a6bf1a0b27f2bfe4b116964b60b28b11fcde`.
+Remaining: Complete Final Gate, fresh implementation review, separate public
+Guide P1 disposition, Acceptance, reviewed commit, and same-SHA export. No
+Final Gate/export/stage/commit/push.
+
+P23-003B2 Final Evidence and Lint Closure Green Completed At:
+2026-08-30T11:45:55+09:00. Three Luna lanes closed the five test-oracle
+findings; independent bounded Sol reviews returned `P1=0/P2=0/P3=0`.
+Package call-contract negatives are 26; B2 properties, all-src protected
+indirect callers, pre-hydration ordering, truthful real-DB resource probes,
+and the direct Audit migration irreversible-down fixture are fixed. The first
+full lint diagnostic found 19 B2 baseline deltas; no baseline was edited.
+Narrow method expectations and two behavior-identical named arguments make
+full lint and baseline verification Green, with focused PHPUnit `120/8,036`.
+Current Product exact26 aggregate is
+`b22cd94c04433c33613b6f0f32075d21c5af5db57658f24ec893881ae2490fe7`.
+Remaining: replacement Iteration／Complete Final Gates, implementation review,
+separate public Guide P1 disposition, Acceptance, reviewed commit, same-SHA
+export. No Final Gate/export/stage/commit/push.
+
+P23-003B2 Final Fresh Pre-gate Review Changes Requested At:
+2026-08-30T11:20:48+09:00. General／Architecture／Package returned
+`P1=0/P2=3/P3=0`; focused PostgreSQL returned `P1=0/P2=2/P3=0`. All five
+roots are test-oracle gaps, not current Production defects: package logical
+continuations, exact Result property visibility, all-src protected-method
+indirect calls, real DBAL pre-hydration order evidence, and the new Audit
+migration's direct irreversible-down fixture. Correction is bounded to the
+existing allowed checker, Architecture／Store, and migration-test files;
+Production and immutable authority stay frozen. Remaining: three-lane Luna
+correction, closure review, replacement Iteration／Complete Final Gates,
+implementation review, separate public Guide P1 disposition, Acceptance,
+reviewed commit, and same-SHA export. No Final Gate/export/stage/commit/push.
+
+P23-003B2 Final Replacement Iteration Gate Green Completed At:
+2026-08-30T11:11:54+09:00. The package call oracle and corrected Store
+deadlock oracle independently returned `P1=0/P2=0/P3=0`. The complete Gate
+then passed format, focused PHPUnit `212/62,020`, two Node goldens, Deptrac
+`999/0 violations/0 uncovered/6,079 allowed`, Stable version baseline,
+exact37 package inventory plus 22 mutation negatives, release/public-doc and
+management-ID guards, A1/A2/B1 preservation, exact37 and immutable exact9
+positive/negative guards, diff-check, and staged0. Final Product exact26
+aggregate: `fb7532404f548e137404be3516482424797fd459c4498ea4ed6a4a29ddfd5ae1`;
+immutable exact9 remains `10a85d6c40253dc50fe09b9fa66b4848763b7314e7327f0f4fcbc8e00bdd2ca4`.
+Remaining: fresh pre-gate verdicts, separate public Guide P1 disposition,
+Complete Final Gate, implementation review, Acceptance, reviewed commit, and
+same-SHA package export. No Final Gate/export/stage/commit/push.
+
+P23-003B2 Store Oracle Correction Green Completed At:
+2026-08-30T11:02:00+09:00. The allowed Store test now uses observed
+connections for both natural deadlock participants, asserts an explicit
+parent/child victim XOR, combines both observed payloads for exactly one
+40P01 and one lock-stage failure, and verifies victim zero rows, fresh retry
+UUIDs, original successful UUIDs, and final sequence-1/null-predecessor rows.
+Its second-reader binary fixture derives exact public minimum/maximum drafts
+with 256-byte tenant refs, 32 evidence descriptors, exact 8,192-byte evidence
+JCS, maximum-safe versions, and a 128-byte key ID; exact complete/body
+lengths are 1,055/1,108 and 13,788/13,968 with full reconstructed record
+equality. The 1,048,756 schema body cap remains unreachable through public
+Store draft bounds and is recorded as a precise contract blocker; schema
+acceptance remains separately covered. Real autoCommit=false level-0/1 and
+level-2 mutation rejection now asserts exact zero Clock/UUID/KeySource/
+Hydrator/decrypt use per operation. Focused deadlock PHPUnit passes 1/41;
+full Store passes 100/2,852; target format, error-level Mago lint, syntax,
+management-ID, diff, and staged0 checks pass. Target SHA-256 is
+fe7a816433a697aa4556dd44fdef563c87c7419b2b32a7b9b49921d3e8751dfd.
+Production is unchanged. Remaining: Orchestrator review, replacement
+freeze/reviews, Complete Final Gate, implementation review, Acceptance,
+candidate commit, and same-SHA package export. No Final Gate/export/stage/
+commit/push/network has run. Next Action: Orchestrator reviews this target
+SHA and the precise public-cap blocker.
+
+P23-003B2 Evidence Closure Review Changes Requested At:
+2026-08-30T10:16:42+09:00. Schema/Hydrator/Command and Architecture closures
+are Green. Four test-oracle roots remain in two allowed files: the package
+checker needs isolated top-level call-placement/pretermination negatives that
+fail before its SHA pin; the real Store test must observe either deadlock
+victim, use exact public Store min/max binary records with full reconstructed
+record equality, and directly prove zero Clock/UUID/KeySource/Hydrator/decrypt
+use in the real DBAL early-rejection matrix. Production is unchanged.
+Remaining: two-file Luna correction, replacement gate/review, separate public
+Guide P1 resolution, Final Gate, implementation review, Acceptance, commit,
+same-SHA export. No Final Gate/export/stage/commit/push.
+
+P23-003B2 real Store evidence correction Completed At:
+2026-08-30T10:06:02+09:00. Only the allowed PostgreSQL Store test plus this
+Report/STATE pair changed; Production is unchanged. The test now proves a
+real two-connection cross-partition generated segment UUID unique-index wait
+with SQLSTATE `23505`, a real opposite-record-advisory-lock deadlock with
+SQLSTATE `40P01`, safe `storage_unavailable`, no failed-attempt rows/gaps, and
+fresh-UUID sequence-1 retries. Existing real deferred transaction failure
+fixtures retain the Store-owned quarantine/reconnect evidence; statement
+unique/deadlock failures correctly rollback and reuse a healthy connection.
+The real DBAL matrix covers all four public operations at disconnected and
+connected `autoCommit=false` states, with zero Store SQL/resource/transaction
+control/close and caller state preserved, plus level-2 mutation rejection and
+outer marker/savepoint rollback-before-commit. A second connection verifies
+public Store NUL protected-body lower/upper roundtrips, exact physical bytes
+and lengths, `ParameterType::BINARY`, and decrypt counts. Focused tests pass
+`5/193`; the full Store file passes `100/2,815`. Target SHA-256 is
+`f77226d8014fa194f136a6bb07016bbbd555e316b787be12f193f64709d3a772`.
+Target/full format, target error-level Mago lint, syntax, and management-ID
+checks pass; staged0 is `0`. No blocker, Production/authority change, full
+gate, network, stage, commit, or push was run. Remaining: Orchestrator review,
+replacement freeze/reviews, Complete Final Gate, Acceptance, candidate commit,
+and same-SHA package export. Next Action: review this target SHA and include
+it in the next replacement exact26 decision if accepted.
+
+P23-003B2 Replacement Fresh Pre-gate Review Changes Requested At:
+2026-08-30T09:38:10+09:00. General returned `P1=0/P2=2/P3=0`, focused
+PostgreSQL returned `P1=0/P2=4/P3=0`, and Documentation returned one
+out-of-scope existing public-Guide `P1`. The six in-scope evidence roots are a
+complete private SensitiveParameter signature matrix, top-level executable
+package-call proof, real unique-race/deadlock and DBAL transaction-state
+matrices, second-connection binary max plus physical exact14 mutations, and
+the full command-entrypoint zero-SQL schema-name matrix. Current Production
+behavior has no new confirmed defect. The public Guide finding is not folded
+into B2 exact26; it requires a separate bounded Documentation task or explicit
+scope decision before B2 Acceptance. Remaining: Luna evidence correction,
+replacement Iteration Gate/freeze and fresh reviews, Documentation P1
+resolution, Complete Final Gate, implementation review, Acceptance, candidate
+commit, same-SHA package export. No Final Gate/package export/stage/commit/push.
+
+P23-003B2 Replacement Iteration Gate Green Completed At:
+2026-08-30T09:26:29+09:00. Mago format passed; PHPUnit passed
+`195/61,460`; both Node goldens passed; Deptrac passed
+`999/0/0/0/0/6,079`; version baseline passed. The executable package checker
+passed exact37 plus 12 mutation negatives. Release target hashes, public-doc
+status, management-ID guards, A1/A2/B1 preservation, exact37 scope and its
+synthetic negative, immutable exact9 and wrong-hash negative, diff-check, and
+staged0 all pass. Frozen Product exact26 aggregate is
+`9722ae4e2ae69205f908317d9bf8874f53c1bd1d76ae54bdc8ce86e077901581`;
+replacement immutable exact9 authority-order aggregate is
+`10a85d6c40253dc50fe09b9fa66b4848763b7314e7327f0f4fcbc8e00bdd2ca4`.
+Remaining: fresh pre-gate review, one Complete Final Gate, fresh implementation
+review, Acceptance, candidate commit, and same-SHA package export. No Final
+Gate, clean-install runtime, package export, stage, commit, push, or network
+has run. Next Action: start fresh read-only pre-gate reviews on this freeze.
+
+P23-003B2 Replacement Iteration Gate Started At:
+2026-08-30T09:23:42+09:00. The bounded seven-root correction and its
+follow-up evidence closures are independently Green: package checker
+`P1=0/P2=0/P3=0`, PostgreSQL boundary `P1=0/P2=0/P3=0` after the Report
+wording correction, and Architecture `P1=0/P2=0/P3=0`. Focused evidence is
+checker exact37 plus 12 rejected mutations, schema `5/128`, and Architecture
+`9/1,718`. Product exact26 is frozen at ordered aggregate
+`9722ae4e2ae69205f908317d9bf8874f53c1bd1d76ae54bdc8ce86e077901581`.
+Branch/HEAD/main, exact37 status, immutable exact9, staged0, and diff-check
+match. Remaining: run the complete replacement Iteration Gate from command 1,
+then fresh pre-gate review, Complete Final Gate, implementation review,
+Acceptance, candidate commit, and same-SHA package export. No Final Gate,
+package export, stage, commit, push, or network has run.
+
+P23-003B2 PostgreSQL DDL boundary correction Completed At:
+2026-08-30T08:54:53+09:00. The allowed schema test now directly proves the
+accepted 1,048,756-byte BOPD cap and 256-byte action/resource query-index
+caps. Its mutation matrix independently rejects action_type, resource_type,
+and resource_id control characters with SQLSTATE 23514 and unchanged
+before/after persisted-row probes. Existing BOPD min/cap+1 fixtures remain.
+Focused Mago format and PostgreSQL schema PHPUnit pass (`5/128`); management
+ID scan, diff-check, and staged0 (`0`) pass. Repository-wide format check
+reports exactly one pre-existing/out-of-scope `tests/Architecture/
+AuditStoreArchitectureTest.php` formatting issue; it was not changed. Test
+SHA is `26b66262ad5d3ebf03b8081f1d56d3bf0b26ab6adb1fc5415e703fbe0be94413`.
+No full Iteration/Final Gate, stage, commit, push, or network was run.
+Remaining: Orchestrator review, replacement freeze/gates, Acceptance,
+candidate commit, and same-SHA package export. Next Action: Orchestrator
+reviews this bounded test correction.
+
+P23-003B2 PostgreSQL DDL boundary correction Started At:
+2026-08-30T08:50:54+09:00. Scope is the allowed
+`tests/Internal/Audit/Storage/PostgreSqlAuditSchemaTest.php` plus this moving
+Report/STATE pair. The correction will add direct real PostgreSQL acceptance
+for the exact 1,048,756-byte BOPD cap and 256-byte query-index cap, and
+isolated action/resource control-character rejection with SQLSTATE 23514 and
+unchanged persisted rows. Existing minimum and cap+1 fixtures remain. No
+Production, migration, fixture, oracle, Architecture, package, full gate,
+stage, commit, push, or network action is in scope.
+
+P23-003B2 Fresh Pre-gate Review Changes Requested At:
+2026-08-30T07:49:47+09:00. General returned `P1=1/P2=2/P3=0`, focused DB
+returned `P1=1/P2=2/P3=0`, and Documentation returned `P1=1/P2=0/P3=0`
+on the unchanged exact26 `09e58090...579b` freeze. The distinct roots are
+package-loop executable authority, semantic dependency and exact sensitive-
+signature Architecture guards, the partition positive-head CHECK, required
+real PostgreSQL DDL/pre-SQL and concurrency evidence, and the stale Community
+Board/Documentation Website shared publication sentence. D149/Task now
+authorize only this bounded correction. Remaining: Luna correction -> fresh
+Iteration Gate/freeze -> fresh pre-gate review -> Complete Final Gate -> fresh
+implementation review -> Acceptance -> candidate commit -> same-SHA package
+export, rerun after source-changing closeout. Next Action: re-freeze replacement
+exact9 and dispatch the configured Luna worker; staged0, no commit/push.
+
+P23-003B2 Iteration Gate Green Completed At: 2026-08-30T07:26:37+09:00.
+PHPUnit passed `166/60,997`; Node goldens passed; Deptrac passed
+`999/0/0/0/0/6,079`; version baseline passed. Approved Docker escalation
+resolved the initial API permission denial. Exact37 path status, staged0,
+shell syntax/inventory (37 paths, eight mutation negatives), release target
+hashes, public-doc status, management-ID, diff-check, A1/A2/B1 preservation,
+and immutable exact9 start/end all pass. The exact26 Task-order SHA manifest
+and ordered aggregate `09e58090994c24731b969680120c7c9688409f797fd8f76f9f17b7daf3d2579b`
+are recorded in the Report; frozen immutable aggregate is
+`21a57053544969befe91a6bc4c2cc9272238274c9b3d5d6ddd5c2f7cd7ab6d55`.
+Remaining sequence: fresh pre-gate General/DB/Documentation review -> Complete
+Final Gate -> fresh implementation review -> Acceptance -> candidate commit ->
+same-SHA package export, rerun after source-changing closeout. No Final Gate,
+package export, clean-install runtime, stage, commit, push, or network.
+Next Action: Orchestrator starts the fresh pre-gate reviews.
+
+P23-003B2 Iteration Gate Restarted At: 2026-08-30T07:09:46+09:00. The prior
+manifest failure was an orchestration transcription typo. The corrected Spec
+README SHA is `9d7d905cc5bed2c69415bea3fbba8ce0cdf97b56d3e805580624125eb3e00e9a`;
+all other eight entries are unchanged. Rerunning the complete Iteration Gate
+from command 1 on unchanged exact37/staged0; Product/Test/docs/scripts remain
+frozen.
+
+P23-003B2 Iteration Gate Blocked At: 2026-08-30T07:08:47+09:00. The first
+immutable-manifest verification failed because the supplied Spec README SHA
+`9d7d905cc5bed2c69415bea3fbba8ce0cdf97b56d3e805580624125eb3e00e9` is 63
+hex characters, while the live file is
+`9d7d905cc5bed2c69415bea3fbba8ce0cdf97b56d3e805580624125eb3e00e9a`.
+The other eight entries match. Per stop-at-first-failure, later Iteration
+Gate commands were not run; no Product/Store/Architecture/fixture/oracle
+file changed. Next Action: correct the dispatch manifest entry, then rerun
+the Iteration Gate from the unchanged exact37/staged0 state.
+
+P23-003B2 Iteration Gate Started At: 2026-08-30T07:07:19+09:00. Confirmed
+branch `agent/p23-001-blackops-1-3-feasibility`, HEAD
+`50a4863b87fdb063bdc78b982eb06e03daf88c09`, exact37 status, and staged0.
+Only Report/STATE may change; Product/Test/docs/scripts remain frozen.
+
+P23-003B2 package/release accuracy review correction Completed At:
+2026-08-30T07:01:32+09:00. The exact37/staged0 package slice was re-frozen;
+only the required-inventory checker and Report/STATE were in scope. The checker
+now requires valid Bash, the exact direct `validate_package() {` body and
+top-level required-path loop, and the exact runtime body context. It rejects
+heredoc, quoted, and non-executed decoys, with exact ordered byte comparison
+and eight mutation negatives, including a removed path present only in a
+harmless outside comment. Remaining sequence: this correction -> Iteration
+Gate/freeze -> fresh pre-gate General/DB/Documentation review -> Complete
+Final Gate -> fresh implementation review -> Acceptance -> candidate commit ->
+same-SHA package export, rerun after source-changing closeout. README,
+clean-install, package-export, Store, Architecture, fixture, and oracle remain
+frozen. Next Action: Orchestrator reviews this correction.
+
+P23-003B2 package/release accuracy review correction Started At:
+2026-08-30T06:57:33+09:00. Existing exact37/staged0 was confirmed before the
+bounded checker and management-only correction.
+
+Historical: P23-003B2 package/release accuracy Completed At:
+2026-08-30T06:41:33+09:00.
+README and clean-install now accurately claim 17 migrations, and package export
+required inventory is exact37 with the eight Storage paths and two migration
+paths in order. The reusable executable inventory check uses syntax-bounded
+single-loop extraction and byte comparison; positive and five mutation
+negatives pass. Required README/clean-install hashes, shell syntax, Node
+goldens, management-ID, public-doc status, diff-check, exact37 status, and
+staged0 pass. Package export and clean-install runtime remain intentionally
+unrun; Store, Architecture, fixture, and oracle files remain frozen. Remaining:
+Orchestrator review, Acceptance, candidate commit, then same-SHA package export.
+Next Action: Orchestrator reviews this bounded package/release accuracy slice.
+
+P23-003B2 package/release accuracy Started At: 2026-08-30T06:37:28+09:00.
+Phase3C and all Store/Architecture/fixture/oracle files are frozen. The
+bounded slice permits only the Community Board README, clean-install and
+package-export consumers, a reusable required-inventory check, and this
+Report/STATE pair. Package export and clean-install runtime remain excluded.
+
+P23-003B2 Close Phase3C tenant-aware real PostgreSQL find Completed At:
+2026-08-30T06:33:31+09:00. Added real system/tenant append and separate
+probe Store/codec/key-source find evidence under different non-UTC sessions.
+Found complete bytes/records match independently decoded values; absent
+system/tenant-A and tenant-A-as-tenant-B derived-partition queries are
+value-equivalent notFound. Found key path count is exactly one each; absent
+and cross-tenant key/decrypt activity is zero; find leaves transaction state
+unchanged. Focused ran three times (`1 / 31` each); all RealPostgreSql PASS
+(`14 / 670`); non-real Store PASS (`78 / 1,850`); format/lint error-level,
+Node/hash/ID/diff/staged0 PASS. Production Store, Architecture, fixtures, and
+oracle remain frozen. Remaining: later Phase3B, full gate, package, stage,
+commit, and push. Next Action: Orchestrator review.
+
+P23-003B2 Close Phase3C tenant-aware real PostgreSQL find Started At:
+2026-08-30T06:30:31+09:00. Phase3B2 ordering evidence is complete. Scope is
+StoreTest plus Report/STATE only; Production Store, Architecture, fixtures,
+and oracle remain frozen. Adding system/tenant found equality, absent and
+cross-tenant notFound, reader key/decrypt counts, and no-transaction find
+evidence under non-UTC sessions.
+
+P23-003B2 Close Phase3B2 two-connection ordering Completed At:
+2026-08-30T06:23:51+09:00. Added append-before-close and close-before-append
+forked fresh-connection tests. Parent A holds the transaction advisory lock;
+child B is proven waiting with pg_stat_activity `Lock/advisory` before A
+commits. Final records, state, closed segment, successor linkage, sequence,
+head, and previous hash are checked with no gap. Bounded WNOHANG child wait,
+kill/reap, and cleanup are in place. Focused concurrency ran three times
+(each `2 / 74`); all RealPostgreSql PASS (`13 / 639`); non-real Store PASS
+(`78 / 1,850`); format/lint error-level, Node/hash/ID/diff/staged0 PASS.
+Production Store, Architecture, fixtures, and oracle remain frozen. Remaining:
+later Phase3B, full gate, package, stage, commit, and push. Next Action:
+Orchestrator review.
+
+P23-003B2 Close Phase3B2 two-connection ordering Started At:
+2026-08-30T06:17:32+09:00. Phase3B1 failure-atomicity evidence is accepted.
+Scope is StoreTest plus Report/STATE only; Production Store, Architecture,
+fixtures, and oracle remain frozen. Adding append-before-close and
+close-before-append real PostgreSQL ordering evidence with forked fresh
+connections and pg_stat_activity advisory-lock wait proof.
+
+P23-003B2 Close Phase3B1 review correction Completed At:
+2026-08-30T06:09:52+09:00. Replaced the broad Throwable/fail pattern with an
+explicit aborted boolean. Both close failure paths now assert one persisted
+segment and zero rows for failed successor UUIDs `.303` and `.313`, then two
+segments with the retry successor after trigger removal. Focused PASS (`2 /
+63`); all RealPostgreSql PASS (`11 / 565`); non-real Store PASS (`78 /
+1,850`); format/lint error-level, Node/hash/ID/diff/staged0 PASS. Production
+Store, Architecture, fixtures, and oracle remain frozen. Remaining:
+Orchestrator review. Next Action: review corrected failure-atomicity evidence.
+
+P23-003B2 Close Phase3B1 review correction Started At:
+2026-08-30T06:08:01+09:00. Review found a fetch assertion could be swallowed
+by a broad Throwable catch and requested direct audit_segments count plus
+failed successor UUID absence evidence for both close failure paths. Scope is
+StoreTest plus Report/STATE only; Production Store, Architecture, fixtures,
+and oracle remain frozen.
+
+P23-003B2 Close Phase3B1 real PostgreSQL failure atomicity Completed At:
+2026-08-30T06:05:30+09:00. Added close-specific caller-owned late-fence
+evidence proving the aborted root, direct caller commit attempt cannot persist,
+exact probe restoration of records/state/open segment, and successful retry
+after trigger removal. Added
+store-owned deferred successor-segment insert failure evidence proving fixed
+safe failure/no canary, connection quarantine, exact original persistence, and
+same-wrapper reconnect/retry success. Focused PASS (`2 / 54`); all
+RealPostgreSql Store PASS (`11 / 556`); non-real Store PASS (`78 / 1,850`);
+format/lint error-level, Node/hash/ID/diff/staged0 PASS. Production Store,
+Architecture, fixtures, and oracle remain frozen. Two-connection ordering,
+later Phase3B, full gate, package, stage, commit, and push remain outside this
+slice. Remaining: Orchestrator review. Next Action: review Phase3B1 close
+failure-atomicity evidence.
+
+P23-003B2 Close Phase3B1 real PostgreSQL failure atomicity Started At:
+2026-08-30T06:00:00+09:00. Phase3A review is complete. Scope is StoreTest
+plus Report/STATE only; Production Store, Architecture, fixtures, and oracle
+remain frozen. Adding close-specific caller-owned late-fence abort and
+store-owned deferred successor-insert failure/reconnect evidence. Two-
+connection ordering and later Phase3B work remain deferred.
+
+P23-003B2 Close Phase3A real PostgreSQL Completed At:
+2026-08-30T05:58:09+09:00. Review correction now compares the complete
+persisted partition state and original segment after caller rollback, then
+re-reads the clamped close's closed former successor, new empty successor,
+and partition state with captured values for lifecycle, endpoint, linkage,
+token, version, high-water, and UTC six-fraction timestamps. New real tests
+PASS (`2 / 162`); all RealPostgreSql Store tests PASS (`9 / 502`); non-real Store PASS (`78 /
+1,850`); format/lint error-level, Node/hash/ID/diff/staged0 PASS. Production
+Store, Architecture, fixtures, and oracle remain frozen. Real PostgreSQL
+concurrency/late-fence Phase3B, full gate, package, stage, commit, and push
+remain outside this slice. StoreTest SHA is
+`c11154d16bb78e1faaf4eb3d16d6416c9884f131453bf3ede48429bbdfb5e579`.
+Remaining: Orchestrator review. Next Action: review corrected real close
+persistence evidence.
+
+P23-003B2 Close Phase3A real PostgreSQL Started At:
+2026-08-30T05:40:18+09:00. Phase2B is Orchestrator Green (P1/P2/P3=0).
+Scope is StoreTest plus Report/STATE only; Production Store, Architecture,
+fixtures, and oracle are frozen. Adding minimal real close/bootstrap,
+caller-owned transaction, retry, and empty-successor clamp evidence.
+Concurrency/late-fence coverage is deferred to Phase3B.
+
+P23-003B2 Close Phase2B transaction cleanup closure Completed At:
+2026-08-30T05:35:57+09:00. Owned resource and DB failures now explicitly
+assert rollback exactly once and connection close zero. The owned matrix is
+begin (rollback 0/close 1), primary failure with rollback success (1/0),
+commit failure with rollback success (1/1), primary rollback failure (1/1),
+and commit plus rollback plus cleanup-close failure (1/1). Caller-owned
+success/failure remains rollback 0/close 0 and no transaction control. Exact
+focused PASS (`9 / 446`), non-real Store PASS (`78 / 1,850`), format/lint,
+Node/hash/ID/diff/staged0 PASS. Production Store and Architecture remain
+frozen; real PostgreSQL/full/network/package/stage/commit/push remain unrun.
+Remaining: Orchestrator review. Next Action: review cleanup matrix.
+
+P23-003B2 Close Phase2B transaction cleanup closure Started At:
+2026-08-30T05:35:57+09:00. StoreTest plus Report/STATE only; adding explicit
+owned resource/DB close-zero assertions.
+
+P23-003B2 Close Phase2B evidence correction Completed At:
+2026-08-30T05:29:33+09:00. Independent review found the previous
+`unexposed-sentinel` surface checks were vacuous. StoreTest now uses
+invocation-time static callbacks with actual canaries for representative raw
+resource, DB, caller-owned close/durable, and owned cleanup failures, and
+passes those canaries through the full existing surface helper. Non-Throwable
+outcomes retain fixed message/null-previous checks. Focused PASS (`9 / 446`),
+non-real Store excluding RealPostgreSql PASS (`78 / 1,850`), format PASS,
+targeted lint error diagnostics 0, Node/hash/management-ID/diff/staged0 PASS.
+Store and Architecture remain frozen; fixture/oracle remain byte-identical.
+Real PostgreSQL, full gate, network, package, stage, commit, and push remain
+unrun. Remaining: Orchestrator review. Next Action: review actual-canary
+surface evidence.
+
+P23-003B2 Close Phase2B evidence correction Started At:
+2026-08-30T05:24:32+09:00. Scope remained StoreTest plus Report/STATE only;
+Store, Architecture, fixtures, and oracle were frozen. Replacing vacuous
+sentinel assertions with actual invocation-time canary checks.
+
+P23-003B2 Close Phase2B Implementation Completed At:
+2026-08-30T05:22:20+09:00. Phase2A was Orchestrator Green (P1/P2/P3=0).
+This bounded slice changed only StoreTest plus Report/STATE; Production Store,
+Architecture, fixtures, and oracle remain frozen. StoreTest now covers close
+Clock/UUID/invalid-UUID/collision resource failures, DB/fence failures,
+invalid durable/close transaction pairs, caller-owned level-1 success and
+failure (including conflict/integrity/resource), and distinct owned
+begin/rollback/commit/cleanup-close failure behavior with safe no-leak
+assertions. Focused PASS (`9 / 266`), non-real Store excluding RealPostgreSql
+PASS (`78 / 1,670`), frozen AuditStore/AuditRecord Architecture PASS (`20 /
+57,121`), format PASS, targeted lint error diagnostics 0, Node golden/syntax
+PASS, frozen fixture/oracle hashes unchanged, management-ID/diff/staged0 PASS.
+Real PostgreSQL, full gate, network, package, stage, commit, and push remain
+unrun. Remaining: Orchestrator review. Next Action: review Phase2B evidence.
+
+P23-003B2 Close Phase2B Implementation Started At:
+2026-08-30T05:07:50+09:00. Phase2A Orchestrator review is Green
+(P1/P2/P3=0). Store and Architecture are frozen; only StoreTest plus
+Report/STATE may change. Adding bounded non-real close failure and transaction
+participation evidence. Real PostgreSQL, full gate, network, stage, commit,
+and push remain frozen.
+
+P23-003B2 Close Phase2A final evidence correction Completed At:
+2026-08-30T05:06:06+09:00. MAX retry fixtures now have distinct
+minimum/endpoint hashes and non-null predecessor hashes for every
+sequence-greater-than-one endpoint, with head/predecessor/token propagation
+kept coherent. MAX wrong-active directly asserts a non-null endpoint
+predecessor and retains the helper minimum row. Close-focused PASS (`21 / 329`),
+bounded non-real Store/AuditRecord/AuditStore PASS (`89 / 58,525`), format PASS,
+targeted lint error diagnostics 0, Node/hash/ID/diff/staged0 PASS. Final
+StoreTest hash `f8815054efab6b58759079f63c074ef9e1a4a161085542e947dee48de20da430`.
+Real PostgreSQL, full gate, network, stage, commit, and push remain unrun.
+Remaining: Orchestrator review. Next Action: review final MAX row coherence.
+
+P23-003B2 Close Phase2A final evidence correction Started At:
+2026-08-30T05:03:52+09:00. Store and Architecture are frozen; StoreTest plus
+Report/STATE scope only. Correcting MAX endpoint predecessor and
+minimum/endpoint row distinctness. Real PostgreSQL, full gate, network, stage,
+commit, and push remain frozen.
+
+P23-003B2 Close Phase2A evidence correction Completed At:
+2026-08-30T05:01:38+09:00. MAX closed/sealed retry fixtures now use distinct
+minimum and endpoint rows with non-null predecessor hashes for every
+sequence-greater-than-one endpoint; hashes propagate coherently into segment,
+state, successor-predecessor, and token fields. MAX wrong-active now retains
+the helper's distinct minimum row. Focused close PASS (`21 / 328`), bounded
+non-real Store/AuditRecord/AuditStore PASS (`89 / 58,524`), format PASS, and
+targeted lint has zero error diagnostics with existing warnings. Node/hash,
+management-ID, diff-check, and staged0 PASS. Final StoreTest hash
+`9786dfb93480e6a9d6e859447574af76f1a4960dfabec5204ffd7d31fa4b698a`.
+Real PostgreSQL, full gate, network, stage, commit, and push remain unrun.
+Remaining: Orchestrator review. Next Action: review physically coherent MAX
+retry/conflict fixtures.
+
+P23-003B2 Close Phase2A final tiny evidence closure Completed At:
+2026-08-30T04:56:45+09:00. StoreTest now covers coherent
+`last_sequence=9007199254740991` closed/sealed retries with matching active
+successor endpoint/minimum/predecessor and MAX state/segment versions,
+returning changed=false before capacity with zero Clock/UUID/write. A
+coherent MAX current active plus distinct lifecycle-valid wrong-active open
+returns segment_conflict before capacity, also with zero resources. Close
+focused PASS (`21 / 315`), bounded non-real Store/AuditRecord/AuditStore PASS
+(`89 / 58,511`), format PASS, and targeted lint has zero error diagnostics
+with existing warnings. Node/hash/ID/diff/staged0 PASS. Final StoreTest hash
+`eab1858e75ba71fea74d75cb919bd395e35f9a52491afbdd771bf1a79c026239`.
+Real PostgreSQL, full gate, network, stage, commit, and push remain unrun.
+Remaining: Orchestrator review. Next Action: review MAX retry and wrong-active
+precedence evidence.
+
+P23-003B2 Close Phase2A final tiny evidence closure Started At:
+2026-08-30T04:55:49+09:00. Production Store and AuditStoreArchitecture are
+frozen; StoreTest baseline hash is
+`4b6e77fcea721479d236b53f3bc80e55a15ae2b7f7e6e2fbb4488eb423d251e7`. Added
+coherent last-sequence MAX retry and wrong-active conflict evidence. Scope is
+StoreTest plus Report/STATE only; real PostgreSQL, full gate, network, stage,
+commit, and push remain frozen.
+
+P23-003B2 Close Phase2A review correction Completed At:
+2026-08-30T04:48:59+09:00. Current-active validation now precedes expected
+segment conflict and reuses the validated current row when IDs match; closed
+retry reuses that row for an immediate successor and keeps distinct successor
+reads bounded. The unreachable `assertCloseRows` path was removed, and
+Architecture inventories were synchronized. Direct StoreTest evidence adds
+valid MAX-version empty/wrong-active conflict precedence while preserving
+detached-open and current-first mutation reachability. Close-focused PASS
+(`19 / 291`), AuditStoreArchitecture PASS (`7 / 1,489`), and bounded non-real
+Store/AuditRecord/AuditStore regression PASS (`87 / 58,487`). Format PASS;
+targeted lint has zero error diagnostics with existing warnings/notes/help.
+Node golden, frozen fixture/oracle hashes, management-ID, diff-check, and
+staged0 PASS. Final Store hash `e9451c40f86ed21d460b40c0835ebaa6e40f0cc25dd4a483d2dcc71e6da2ce2a`,
+StoreTest hash `4b6e77fcea721479d236b53f3bc80e55a15ae2b7f7e6e2fbb4488eb423d251e7`,
+Architecture hash `5f89646ed5d2a8c0298c870cca743b9ba119976f8b28d53a8ad4d577cf2fd285`.
+Real PostgreSQL, full gate, network, stage, commit, and push remain unrun.
+Remaining: Orchestrator review. Next Action: review current-first reuse,
+dead-path removal, and MAX conflict precedence evidence.
+
+P23-003B2 Close Phase2A review correction Started At:
+2026-08-30T04:38:18+09:00. Five-file freeze hashes were recorded before
+editing. Correcting validated-row reuse for current/successor, detached-open
+retry reachability, and MAX/cap+1 failure precedence evidence. Real
+PostgreSQL, full gate, network, stage, commit, and push remain frozen.
+
+P23-003B2 Close Phase2A Started At: 2026-08-30T04:29:10+09:00. Baseline
+hashes were re-frozen. Scope is Store production, StoreTest,
+AuditStoreArchitecture, and Report/STATE only. Implementing current-active
+validation-before-conflict, current-row reuse, closed/sealed successor
+hardening, malformed/capacity precedence, and bounded mutation evidence.
+Real PostgreSQL, full gate, network, stage, commit, and push remain frozen.
+
+Completed At: 2026-08-30T04:30:40+09:00. Close-focused PASS (`17 / 245`),
+AuditStoreArchitecture PASS (`7 / 1,485`), bounded non-real PASS (`91 /
+58,522`), format/lint error0, Node/hash/ID/diff/staged0 PASS. Store changed
+only for the proven Phase2A ordering/successor defect. Remaining: Orchestrator
+review. Next Action: review Phase2A direct order and retry evidence.
+
+P23-003B2 Close Phase1 tiny SQL closure Started At:
+2026-08-30T04:07:27+09:00. Store and StoreTest remain frozen. Architecture
+is adding method-local `closed_segment` exact-one predicate assertions and
+partition/head removal mutations; Report/STATE are the only other files in
+scope. Real PostgreSQL, full gate, network, stage, commit, and push remain
+frozen.
+
+Completed At: 2026-08-30T04:08:35+09:00. Method-local closed-segment
+predicate/count and partition/head removal mutation evidence is complete.
+Architecture PASS (`7 tests / 1,463 assertions`), close-focused PASS (`11 /
+158`), bounded non-real PASS (`85 / 58,413`), format/lint error0,
+Node/hash/ID/diff/staged0 PASS. Store production and StoreTest remain
+unchanged. Remaining: Orchestrator review. Next Action: review this tiny
+SQL closure.
+
+P23-003B2 Close Phase1 evidence closure round3 Started At:
+2026-08-30T04:02:48+09:00. Store production remains frozen; final evidence
+correction is limited to StoreTest, AuditStoreArchitecture, and Report/STATE.
+The correction adds grammar-valid wrong-token and table-driven current-active
+state/segment/endpoint negatives, plus method-local close CTE count, CAS, and
+successor-existence mutation guards. Real PostgreSQL, full gate, network,
+stage, commit, and push remain frozen.
+
+Completed At: 2026-08-30T04:03:56+09:00. Close-focused PASS (`11 tests /
+158 assertions`), AuditStoreArchitecture PASS (`7 tests / 1,451 assertions`),
+and bounded non-real regression PASS (`85 tests / 58,401 assertions`). Mago
+format and targeted lint are PASS with zero errors; Node/hash/management-ID/
+diff/staged checks are PASS. Store production remains unchanged. Remaining:
+Orchestrator review. Next Action: review round3 retry and close-SQL mutation
+evidence.
+
+P23-003B2 Close Phase1 evidence closure round2 Started At: 2026-08-30T03:50:11+09:00.
+Current branch/HEAD and staged0 were re-frozen. Scope is Store test,
+Architecture, Report/STATE; Store production is frozen absent a newly proven
+counterexample. Adding direct tenant persisted-state and retry matrices plus
+exact close SQL parameter/CTE/CAS evidence. Real PostgreSQL, full gate,
+network, stage, commit, and push remain frozen.
+
+Completed At: 2026-08-30T03:55:00+09:00. Round2 directly fixes tenant
+persisted-state safety for system null, tenant exact, partial, null, nonnull
+system, and wrong-derivation cases. Closed/sealed retry evidence covers missing
+successor, detached open successor, malformed old lifecycle/token, exact old
+and successor linkage, and a later active chain; successor closed token uses
+the exact derivation. Changed close asserts ordered exact9 params/types and
+Architecture asserts CTE/CAS/version contracts with mutation guards. Close
+focused PASS (`10 tests / 116 assertions`), Architecture PASS (`7 tests /
+1,412 assertions`), bounded non-real PASS (`84 tests / 58,320 assertions`).
+Format/lint error0, Node/hash/ID/diff/staged0 PASS. Real PostgreSQL/full
+gate/network/stage/commit/push remain unrun. Remaining: Orchestrator review.
+Next Action: review round2 tenant/retry/SQL evidence.
+
+P23-003B2 Close Phase1 fresh review correction Started At: 2026-08-30T03:42:00+09:00.
+Scope is only Store production, Store test, Store Architecture, and
+Report/STATE; existing branch/HEAD and staged0 were re-frozen. Tenant null
+pairs are now valid only for system:global, tenant pairs require derivation
+match, and retry/lifecycle/token/current-state evidence is being hardened.
+Real PostgreSQL, full gate, network, stage, commit, and push remain frozen.
+
+Completed At: 2026-08-30T03:47:04+09:00. Close retry now rejects detached open
+successors and malformed/missing successor state, while accepting a closed or
+sealed immediate successor followed by a later validated active segment. Old
+boundary and fencing token are revalidated; unused writeClose parameters were
+removed. Close focused is PASS (`7 tests / 73 assertions`), Architecture is
+PASS (`7 tests / 1,393 assertions`), and bounded non-real regression is PASS
+(`81 tests / 58,258 assertions`). Format/lint error0, Node golden,
+frozen fixture/oracle hashes, management-ID scan, diff-check, and staged0 are
+PASS. Remaining: Orchestrator review. Next Action: review close retry and
+tenant-pair hardening.
+
+P23-003B2 Close Phase1 Started At: 2026-08-30T03:33:01+09:00 — shared
+worktree re-frozen at branch `agent/p23-001-blackops-1-3-feasibility`, HEAD
+`50a4863b87fdb063bdc78b982eb06e03daf88c09`, staged0. Scope is only Store
+Production, Store test, Store Architecture, and Report/STATE. Other
+Product/Test/fixture/oracle/normative/package/release files, real PostgreSQL,
+full gate, network, stage, commit, and push are frozen. Implementing the
+foundational closeSegment core and non-real evidence.
+
+Completed At: 2026-08-30T03:37:04+09:00. closeSegment now performs the
+foundational D149 close flow: input and transaction boundaries, partition/state
+and tenant/orphan validation, expected segment locking, active boundary checks,
+closed/sealed persisted retry validation, canonical clamped close time,
+successor UUID collision check, exact fencing token, and one dependency-ordered
+three-count CTE fence. Non-real evidence covers changed close, persisted retry,
+and unknown/empty conflict branches. Focused close is PASS (`4 tests / 52
+assertions`), AuditStoreArchitecture is PASS (`7 tests / 1,393 assertions`),
+and bounded non-real regression is PASS (`78 tests / 58,237 assertions`).
+Format/lint error0, Node golden, frozen fixture/oracle hashes, management-ID
+scan, diff-check, and staged0 are PASS. No real PostgreSQL/full gate/network/
+stage/commit/push action. Remaining: Orchestrator review. Next Action: review
+close CTE/fence and retry cross-row evidence.
+
+P23-003B2 Durable real high-water review correction Started At:
+2026-08-30T03:18:37+09:00 — shared worktree re-frozen at branch
+`agent/p23-001-blackops-1-3-feasibility`, HEAD
+`50a4863b87fdb063bdc78b982eb06e03daf88c09`, staged0. Scope is only Store test
+plus Report/STATE; Production, Architecture, fixture/oracle, closeSegment,
+package/release files, full gate, commit, stage, push, and network are frozen.
+Tenant first recordedAt/occurredAt will be explicit UTC `02.000000Z`, with
+tenant second at `03.000000Z`; system clamp remains `02.000000Z`.
+
+Completed At: 2026-08-30T03:20:27+09:00. Durable real tenant first
+occurredAt/recordedAt is explicitly `2026-08-19T00:00:02.000000Z`, and tenant
+second remains `2026-08-19T00:00:03.000000Z`, proving persisted high-water
+advance `02` to `03`; system first `02` followed by past `01` continues to
+clamp at `02`. Direct assertions cover first/second stored times, bootstrap
+opened_at, and expected high-water. Durable real is PASS (`4 tests / 174
+assertions`), all RealPostgreSql is PASS (`7 tests / 340 assertions`), and
+non-real regression is PASS (`75 tests / 58,155 assertions`). Format/lint,
+Node golden, frozen fixture/oracle hashes, management-ID scan, diff-check, and
+staged0 are PASS. Remaining: Orchestrator review. Next Action: review the
+explicit tenant advance and preserved system clamp.
+
+P23-003B2 Durable real PostgreSQL evidence Started At: 2026-08-30T03:06:15+09:00
+— shared worktree re-frozen at branch `agent/p23-001-blackops-1-3-feasibility`,
+HEAD `50a4863b87fdb063bdc78b982eb06e03daf88c09`, staged0. Scope is only
+`tests/Internal/Audit/Storage/PostgreSqlAuditRecordStoreTest.php` plus
+Report/STATE. Production, Architecture, fixture/oracle, closeSegment,
+package/release files, full gate, commit, stage, push, and network are frozen.
+Existing Required real scenarios remain frozen; minimal Durable real scenarios
+and cleanup are being added.
+
+Completed At: 2026-08-30T03:12:00+09:00. Four Durable real PostgreSQL
+scenarios now cover system/tenant bootstrap and existing append with divergent
+session time zones, exact17 projection and high-water behavior; persisted retry,
+authenticated tamper/cross-partition conflict, and MAX precedence; caller-owned
+late-fence rollback; and deferred commit failure quarantine/reconnect. Durable
+real-only PHPUnit is PASS (`4 tests / 174 assertions`); all RealPostgreSql is
+PASS (`7 tests / 340 assertions`); non-real regression is PASS (`75 tests /
+58,155 assertions`). Store format/lint are PASS with zero errors. Node golden,
+frozen fixture/oracle hashes, management-ID scan, diff-check, and staged0 are
+PASS. No Production, Architecture, fixture/oracle, closeSegment, full gate,
+package/release, commit, stage, push, or network action. Remaining: Orchestrator
+review. Next Action: review Durable real evidence and probe invariants.
+
+P23-003B2 Durable phase2B review correction Started At: 2026-08-30T02:55:44+09:00
+— shared worktree re-frozen at branch `agent/p23-001-blackops-1-3-feasibility`,
+HEAD `50a4863b87fdb063bdc78b982eb06e03daf88c09`, staged0. Scope is only
+`tests/Internal/Audit/Storage/PostgreSqlAuditRecordStoreTest.php` plus
+Report/STATE. Production, Architecture, fixture/oracle, real PostgreSQL,
+`closeSegment`, package/release files, full gate, commit, stage, push, and
+network are frozen. The correction covers physically consistent authenticated
+rows, all three MAX capacity scalars, and cap+1 integrity precedence for system
+and tenant partitions.
+
+Completed At: 2026-08-30T03:03:51+09:00. Authenticated different-content,
+exact3 index-mismatch, and MAX cases derive physical state/segment/boundary
+from protected stored rows. MAX rows use sequence `9007199254740991` with valid
+predecessors; direct assertions bind row/boundary/state/segment scalar identity,
+and cross/absent endpoints use distinct minimum hashes. System/tenant state and
+boundary cap+1 `9007199254740992` cases fail integrity_invalid after partition
+lock with no record/identity/resource/Clock/UUID activity. Focused correction
+PHPUnit is PASS (`6 tests / 239 assertions`); non-real regression is PASS (`75
+tests / 58,143 assertions`). Store format and targeted lint are PASS with zero
+errors. Node golden, frozen fixture/oracle hashes, management-ID scan,
+diff-check, and staged0 are PASS. No Production, Architecture, fixture/oracle,
+real PostgreSQL, closeSegment, full gate, package/release, commit, stage, push,
+or network action. Remaining: Orchestrator review. Next Action: review physical
+fixture consistency, MAX precedence, and cap+1 evidence.
+
+P23-003B2 AuditStoreArchitecture quality correction Started At:
+2026-08-30T02:48:58+09:00 — shared worktree re-frozen at branch
+`agent/p23-001-blackops-1-3-feasibility`, HEAD
+`50a4863b87fdb063bdc78b982eb06e03daf88c09`, staged0. Scope is only
+`tests/Architecture/AuditStoreArchitectureTest.php` plus Report/STATE;
+Store/AuditRecord Architecture, Production, fixture/oracle, and `closeSegment`
+are frozen. Two syntax-token punctuation `no-insecure-comparison` errors will
+be fixed with safe nonsecret semantic comparison after Mago formatting, with
+architecture behavior preserved.
+
+Completed At: 2026-08-30T02:51:07+09:00. Mago formatted the scoped
+AuditStoreArchitecture test; two syntax-token punctuation comparisons now use
+`strcmp` with nonsecret syntax tokens, and six clearly unused imports were
+removed. AuditStoreArchitecture is PASS (`7 tests / 1,358 assertions`); the
+current non-real Store/Hydrator/Record/Store-architecture regression is PASS
+(`74 tests / 58,089 assertions`). Scoped format and targeted lint are PASS
+with zero errors. Node golden, frozen fixture/oracle hashes, management-ID
+scan, diff-check, and staged0 are PASS. No Product/Store/AuditRecord
+Architecture, Production, fixture/oracle, real PostgreSQL, full gate, package
+export, commit, stage, push, or network action. Remaining: Orchestrator review.
+Next Action: Orchestrator reviews this scoped quality correction.
+
+P23-003B2 Phase2B appendDurable evidence Started At: 2026-08-30T02:39:26+09:00
+— shared worktree re-frozen at branch `agent/p23-001-blackops-1-3-feasibility`,
+HEAD `50a4863b87fdb063bdc78b982eb06e03daf88c09`, staged0. Scope is only
+`tests/Internal/Audit/Storage/PostgreSqlAuditRecordStoreTest.php` plus
+Report/STATE; Architecture, Production, fixture/oracle, and `closeSegment`
+are frozen. Non-real mutation evidence covers authenticated idempotency and
+query-index conflicts, maximum-capacity identity resolution, and high-water
+timestamp behavior. Real PostgreSQL, full gate, package export, commit, stage,
+push, and network actions are not run.
+
+Completed At: 2026-08-30T02:45:22+09:00. Focused appendDurable evidence is
+PASS (`5 tests / 183 assertions`): authenticated different-content conflict
+uses exactly one hydrate/unprotect/key path and no nonce/protect/write/Clock/
+UUID; exact17 action/resource index mismatches return integrity_invalid without
+mutation; MAX state/segment identity cases resolve equal/different/cross/
+absent IDs before capacity; existing high-water is preserved when newer and
+advanced when older. Bootstrap additionally asserts logical recorded_at for
+assigned_at, bootstrap=1, and canonical UTC six-fraction types. Non-real
+Store/Hydrator/Record/Store-architecture regression is PASS (`74 tests /
+58,089 assertions`), Architecture is PASS (`20 tests / 56,990 assertions`).
+Store and AuditRecord format plus Store/AuditRecord lint are PASS; combined
+format/lint report the pre-existing/shared out-of-scope AuditStoreArchitecture
+format issue and two lint errors. Node golden, frozen fixture/oracle hashes,
+management-ID scan, diff-check, and staged0 are PASS. No Production,
+Architecture, fixture/oracle, real PostgreSQL, full gate, package export,
+commit, stage, push, or network action. Remaining: Orchestrator review and
+separate handling of the shared AuditStoreArchitecture format/lint issue.
+Next Action: Orchestrator reviews phase2B appendDurable evidence and routes the
+out-of-scope Architecture cleanup separately.
+
+P23-003B2 Phase 2A-bootstrap P2×2 architecture correction Started At:
+2026-08-30T02:26:26+09:00 — shared worktree re-frozen at branch
+`agent/p23-001-blackops-1-3-feasibility`, HEAD
+`50a4863b87fdb063bdc78b982eb06e03daf88c09`, staged0. Only
+`tests/Architecture/AuditRecordArchitectureTest.php` and Report/STATE are in
+scope; Store/Product/Production and fixture/oracle remain unchanged. The
+construction/static-factory inventory now resolves namespace, use imports and
+aliases, qualified, relative, and fully-qualified names to exact FQCNs, with
+no terminal-basename matching. Negatives for `\\Other\\AuditLogicalRecordCandidate`
+and `use Other\\AuditStoredRecord as Stored` are covered. Plain/FQCN/aliased
+static properties are accepted as non-calls; dynamic method forms reject only
+when invocation parentheses follow, and unsupported dynamic construction is
+fail-closed. Focused semantic Architecture PHPUnit is PASS at `3 tests /
+13,033 assertions`; full Architecture is PASS at `13 tests / 55,632
+assertions`; bounded non-real Store/Architecture regression is PASS at `64
+tests / 57,838 assertions`. Format is PASS; targeted lint has zero errors with
+`105 warnings`, `76 notes`, `32 help`; Node golden, frozen fixture/oracle
+hashes, management-ID scan, diff-check, and staged0 are PASS. No real
+PostgreSQL, full gate, package export, commit, stage, push, or network action.
+Completed At: 2026-08-30T02:27:12+09:00. Remaining: Orchestrator review;
+Next Action: independently review exact-FQCN and dynamic-call canaries.
+
+P23-003B2 Phase 2A-bootstrap P2 correction Started At:
+2026-08-30T02:16:32+09:00 — shared worktree re-frozen at branch
+`agent/p23-001-blackops-1-3-feasibility`, HEAD
+`50a4863b87fdb063bdc78b982eb06e03daf88c09`, staged0. Only the Store test and
+Report/STATE were changed; Architecture and Production source remain
+unchanged. The Durable bootstrap test now records one shared DB/resource event
+sequence: partition-lock → state → orphan → record-lock → identity →
+segment-uuid → segment-collision → key → nonce → write. Orphan probe SQL,
+parameters, DBAL types, and exact-two-column identity SQL/parameters/types are
+asserted. Focused bootstrap PHPUnit is PASS at `1 test / 17 assertions`; the
+bounded non-real Store/Record/Store-architecture regression is PASS at
+`64 tests / 57,831 assertions`. Format is PASS; targeted lint has zero errors
+with `98 warnings`, `68 notes`, `32 help`; Node golden, frozen fixture/oracle
+hashes, management-ID scan, diff-check, and staged0 are PASS. No real
+PostgreSQL, closeSegment, full gate, package export, commit, stage, push, or
+network action. Completed At: 2026-08-30T02:17:05+09:00. Remaining: Orchestrator review of this bootstrap correction;
+Next Action: independently review the single event-log and SQL assertions.
+
+P23-003B2 Phase 2A-SQL P2-1 evidence complete At:
+2026-08-30T02:11:37+09:00 — Store direct evidence now records one shared
+database event log for Durable same-partition retry: partition lock, state,
+segment, boundary/minimum, record lock, identity, then same-row. Exact
+normalized identity (two-column) and same-row (seventeen-column) SQL,
+predicates, parameters, and DBAL ParameterType maps are asserted; identity
+projection excludes protected/body/content-hash/action/resource index columns.
+AuditRecord architecture callsite inventory now resolves qualified,
+fully-qualified, relative, and aliased names to terminal classes, ignores
+comments and strings, rejects dynamic constructors and unsupported dynamic
+static calls, and uses normalized source-root-relative paths so same-basename
+outside sources cannot overwrite authorized entries. Store cast inventory uses
+extracted CAST expressions rather than blind source substring counts. Focused
+no-dependency PHPUnit (real PostgreSQL excluded) is PASS at `57 tests / 56,465
+assertions`; the SQL-log and semantic callsite tests are PASS at `4 tests /
+13,052 assertions`; the bounded Store/Record/Store-architecture suite is PASS
+at `64 tests / 57,823 assertions`. Mago format is PASS; targeted lint has no
+errors with scoped output `97 warnings`, `68 notes`, and `29 help` messages;
+Node golden, management-ID scan, and diff-check are PASS. Fixture and oracle remain
+`a141ce6e191078106ccd33a6390d37d2558a878fbc96ec2e535eb11ab87cd91d` /
+`5431f6c617c9286d1a8f79a3d0ef63b5b73b00f24802f5ad925cfc5b62ecd66a`. No
+Production source, fixture/oracle, real PostgreSQL, Docker consumer/full
+gate, closeSegment, package export, stage, commit, push, or network action.
+Remaining: Orchestrator review and authorization of the next Durable slice;
+Next Action: independently review the P2-1 SQL/event-log and semantic
+architecture evidence.
+
+P23-003B2 Batch 2C Durable phase-1 review correction complete At:
+2026-08-30T01:34:13+09:00 — Durable structural validation now follows
+partition lock → state/boundary validation → record lock and global ID
+resolution. Capacity remains deferred until an ID-absent path, while the
+empty-successor structural comparison still rejects invalid maximum-state
+arithmetic as integrity invalid. Same-partition authenticated-row failures
+now map to fixed `integrity_invalid`, including content-hash and ciphertext
+tampering; database lookup failures remain storage failures. Direct Store
+coverage includes malformed state before ID resolution for same/cross inputs
+and both authenticated-row tampering forms. Store PHPUnit is PASS at
+`46 tests / 1,020 assertions`; targeted Mago lint remains `error: 0`; format
+was rerun. Fixture/oracle SHAs remain
+`a141ce6e191078106ccd33a6390d37d2558a878fbc96ec2e535eb11ab87cd91d` /
+`5431f6c617c9286d1a8f79a3d0ef63b5b73b00f24802f5ad925cfc5b62ecd66a`. No
+Architecture/real Durable/MAX/high-water slice, fixture/package/README/
+consumer/schema/migration, stage, commit, push, network, or full-gate action.
+Remaining: Architecture and later Durable evidence slices; Next Action:
+Orchestrator reviews this correction before authorizing phase 2.
+
+P23-003B2 Batch 2C Durable phase 1 checkpoint At: 2026-08-30T01:29:09+09:00
+— Required/find and explicit PostgreSQL casts remain green and the reviewed
+fixture/oracle SHAs remain
+`a141ce6e191078106ccd33a6390d37d2558a878fbc96ec2e535eb11ab87cd91d` /
+`5431f6c617c9286d1a8f79a3d0ef63b5b73b00f24802f5ad925cfc5b62ecd66a`. The
+Store now implements the first bounded Durable paths: durable delivery/policy
+and canonical record-time validation before DB use; partition then global
+record advisory locking; store-wide identity-only record lookup followed by
+same-partition exact17 lookup; authenticated same-partition retry returning
+`inserted=false`; cross-partition idempotency conflict without protected-body
+use; and new existing-partition/bootstrap writes through the shared CTE. The
+direct Store suite is PASS at `44 tests / 986 assertions`, including the five
+Durable phase-1 cases and the existing real Required regression. Focused Mago
+format is PASS and targeted lint has `error: 0` (existing scoped warnings only).
+Architecture updates, real Durable integration, MAX/high-water/corruption
+matrices, and later Durable corrections remain unimplemented in this phase.
+No fixture/oracle/package/README/consumer/schema/migration, stage, commit,
+push, network, or full-gate action occurred. Next Action: Orchestrator review
+of this phase-1 callable graph, then authorize the next Durable evidence slice.
+
+P23-003B2 Batch 2B PostgreSQL SQL type correction completed At:
+2026-08-30T01:08:51+09:00 — authorized minimal Store SQL correction applied
+from the recorded PostgreSQL `schema_version smallint` versus inferred `text`
+failure. The write CTE now explicitly casts target-typed numeric, UUID,
+timestamptz, protected-body bytea, and bootstrap parameters while preserving
+the DBAL ParameterType map. Direct Store and architecture oracles assert the
+exact cast inventory and bootstrap head/count fence. Real exact3 is PASS at
+`3 tests / 166 assertions`: system/tenant bootstrap and second append,
+caller-owned late-fence abort with unchanged probe state, and owned deferred
+commit failure/quarantine with same-wrapper reconnect. Store full is PASS at
+`39 tests / 947 assertions`; Store/Record architecture is PASS at `18 tests /
+50,891 assertions`; four-file format and targeted lint are PASS (`error: 0`,
+`133 warnings`, `41 notes`, `31 help`); Node golden, fixture/oracle SHA,
+management-ID scan, diff-check, and staged0 are PASS. Fixture/oracle remain
+`a141ce6e191078106ccd33a6390d37d2558a878fbc96ec2e535eb11ab87cd91d` /
+`5431f6c617c9286d1a8f79a3d0ef63b5b73b00f24802f5ad925cfc5b62ecd66a`.
+Allowed changes remain Store, Store tests, Store architecture, Report, and
+STATE only; appendDurable/closeSegment remain safe-failure intermediates. No
+full gate, package, commit, stage, push, or network action. Remaining:
+Orchestrator review/acceptance, complete B2 gates, candidate commit, and
+same-SHA package export. Next Action: Orchestrator reviews this correction and
+the Green real-DB evidence.
+
+Historical P23-003B2 Batch 2B real PostgreSQL integration start/blocker At:
+2026-08-30T00:45:05+09:00 — StoreTest added exact3 real integration cases using
+the Docker PostgreSQL service, dedicated `blackops_audit_store_real` schema,
+`PostgreSqlAuditSchema::statements()`, and separate admin/primary/probe
+connections. Schema setup succeeds, but the first append reaches the frozen
+Store CTE and PostgreSQL rejects `audit_records.schema_version` (`smallint`)
+because the `new_record` union parameter expression is inferred as `text`
+(`SQLSTATE[42804]`). This is a Production Store SQL typing contract defect;
+Store.php was not edited. Real focused PHPUnit is BLOCKED at `3 tests / 0
+assertions`; late-fence and deferred-commit/reconnect scenarios are therefore
+unverified. Targeted format, diff-check, and staged0 pass; fixture/oracle remain
+`a141ce6e191078106ccd33a6390d37d2558a878fbc96ec2e535eb11ab87cd91d` /
+`5431f6c617c9286d1a8f79a3d0ef63b5b73b00f24802f5ad925cfc5b62ecd66a`.
+At that historical checkpoint, the remaining action was Orchestrator decision
+on the Store correction; the correction and all focused reruns are recorded in
+the current checkpoint above. No commit, stage, push, network, or full-gate
+action occurred.
+
+Post-blocker bounded regression at 2026-08-30T00:46:40+09:00: existing
+non-DB Store tests remain `36 tests / 737 assertions` PASS, targeted format,
+fixture/oracle SHA, ID scan, diff-check, and staged0 remain PASS. Architecture,
+lint, and Node were not rerun after the integration-only edit because the exact
+real-DB command stopped at the frozen Production Store SQL typing defect.
+
+P23-003B2 Batch 2B bounded non-DB invariant evidence correction complete At:
+2026-08-30T00:31:28+09:00 — prior checkpoint retained below as historical
+evidence; current real-DB blocker is recorded above.
+
+P23-003B2 Batch 2B Changes Requested -> prior non-DB correction complete At:
+2026-08-30T00:18:50+09:00 — previous checkpoint retained below as historical
+evidence; the current counts and scope are recorded above.
+
+P23-003B2 Batch 2B appendRequired and transaction-boundary implementation
+Started At: 2026-08-29T23:16:01+09:00 — branch
+`agent/p23-001-blackops-1-3-feasibility`, HEAD
+`50a4863b87fdb063bdc78b982eb06e03daf88c09`, staged0. Preserving reviewed
+Batch 1/2A work and fixture/oracle SHAs
+`a141ce6e191078106ccd33a6390d37d2558a878fbc96ec2e535eb11ab87cd91d` /
+`5431f6c617c9286d1a8f79a3d0ef63b5b73b00f24802f5ad925cfc5b62ecd66a`.
+Allowed scope remains Store, Store tests, Store/Record architecture tests,
+Report, and STATE; no fixture/package/README/consumer/schema/migration edits
+or stage/commit/push/network/full-gate action.
+P23-003B2 Batch 2B appendRequired and transaction-boundary implementation
+Completed At: 2026-08-29T23:32:37+09:00 — focused Store PHPUnit `29 tests / 457
+assertions`, Store/Record architecture PHPUnit `18 tests / 50,864 assertions`,
+four-file format, Node golden, frozen fixture/oracle SHA, management-ID,
+diff-check, and staged0 all pass. Bootstrap CTE initializes segment/state at
+sequence 1 with the inserted record hash; owned/caller transaction matrix,
+boundary validation, Clock/UUID/collision ordering, protection, and final
+count fence are covered. `appendDurable` and `closeSegment` remain the bounded
+safe-failure intermediates. Fixture/oracle SHAs remain
+`a141ce6e191078106ccd33a6390d37d2558a878fbc96ec2e535eb11ab87cd91d` /
+`5431f6c617c9286d1a8f79a3d0ef63b5b73b00f24802f5ad925cfc5b62ecd66a`. Remaining:
+Orchestrator review/acceptance, any live PostgreSQL integration review, full
+B2 gates, candidate commit, and same-SHA package export. Next Action:
+Orchestrator reviews the bounded Batch 2B diff; no commit, stage, push, network,
+full gate, or package-export action occurred.
+
+P23-003B2 Batch 2A Review Correction Started At: 2026-08-29T22:22:17+09:00 — branch `agent/p23-001-blackops-1-3-feasibility`, HEAD `50a4863b87fdb063bdc78b982eb06e03daf88c09`, staged0. Preserving the independent fixture SHA `d38085e48e6646c09fd5aea82dd25bec85e0c9a0928f0b26ade30f43e4c66033`, oracle SHA `f14674ee5ce59df22838fcb3a3132877a4a55c4a0718d19ca9eb0a3a8404a4c7`, and all Batch 1 work. Correction scope is limited to Store/Test/Architecture/Report/STATE: no fixture/oracle edits, no mutation implementation beyond safe-failure intermediates, and no stage/commit/push/network/full-gate/package action.
+P23-003B2 Batch 2A Architecture Guard Correction Complete At: 2026-08-29T22:55:09+09:00 — branch `agent/p23-001-blackops-1-3-feasibility`, HEAD `50a4863b87fdb063bdc78b982eb06e03daf88c09`, staged0. Product, Store implementation/tests, and current fixture/oracle bytes are preserved. Architecture scanners now reject variable, nullsafe, and braced dynamic method forms, direct-call parsing remains exact, protected callsite inventories use normalized source-root-relative keys, and same-basename outside-source collision is covered. Focused format, architecture PHPUnit `18 tests/50,827 assertions`, management-ID scan, diff-check, and staged0 PASS. Current fixture SHA `a141ce6e191078106ccd33a6390d37d2558a878fbc96ec2e535eb11ab87cd91d`, oracle SHA `5431f6c617c9286d1a8f79a3d0ef63b5b73b00f24802f5ad925cfc5b62ecd66a`. No full gate, network, stage, commit, or push action. Remaining later Store mutation slice/full gates/review/Acceptance/candidate commit/package export; Next Action is Orchestrator review and next scoped authorization.
+P23-003B2 Final Fixture Oracle Correction Complete At: 2026-08-29T22:43:10+09:00 — branch `agent/p23-001-blackops-1-3-feasibility`, HEAD `50a4863b87fdb063bdc78b982eb06e03daf88c09`, staged0. Membership mutation now cascades row/state/segment/close preimage/token dependencies and rejects solely on closed-segment membership; isolated tenant closed/successor ID collision updates dependent endpoint/successor/close values and rejects solely on distinctness. Alternate kill-mode validation passes for both target assertions. Exact15 inventory SHA `629c262d1d8fe6ccea4260be981568b579b04ae0d5e48d0dc9967d0526e22343`; close-token lengths/hashes remain 208/`c1a26e93d922efdef05bdd7906a190a9890499968e9517e39d0656aa1dab8789` and 266/`848345fdaa98a7fbf2d0ba7428f45ed1eb118a7611d79a0f1cf274e1c92640f9`; Node oracle/syntax, JSON, exact inventory, token, mutation-kill, ID, diff-check, and staged0 PASS. Fixture SHA `a141ce6e191078106ccd33a6390d37d2558a878fbc96ec2e535eb11ab87cd91d`, oracle SHA `5431f6c617c9286d1a8f79a3d0ef63b5b73b00f24802f5ad925cfc5b62ecd66a`. No Store/PHP/schema/architecture/package/consumer/full-gate/Docker/network/stage/commit/push action occurred.
+P23-003B2 Fixture Oracle P2 Correction Complete At: 2026-08-29T22:32:46+09:00 — branch `agent/p23-001-blackops-1-3-feasibility`, HEAD `50a4863b87fdb063bdc78b982eb06e03daf88c09`, staged0. Removed unused duplicated top-level `cases`/`negativeCases`, retained exact record/hydrator projections, added closed-segment row membership and distinct active-successor assertions, and froze exact15 mutation descriptors including six one-field close-preimage substitutions plus one coherent successor-membership rehash mutation. Node oracle, syntax, JSON parse/format, exact inventory, both token recomputations, ID scan, diff-check, and staged0 PASS. Fixture SHA `f4c2cb87bc2682bb4bab8176baad1be0bdbef269b6a198487f4bc49aee34268c`, oracle SHA `73b6fe9841d4dbda888ba6f467cce41038a264224f5845b10278a3a799010722`, mutation inventory SHA `2ac6a645a0c259e399fe996579748fad4bd02f02c962841a9d901581103e6844`. Moving Store correction facts remain preserved; no Store/PHP/schema/architecture/package/consumer/full-gate/network/stage/commit/push action occurred.
+P23-003B2 Fixture Worker Complete At: 2026-08-29T22:18:36+09:00 — branch `agent/p23-001-blackops-1-3-feasibility`, HEAD `50a4863b87fdb063bdc78b982eb06e03daf88c09`, staged0. Existing Batch 2A Store checkpoint is preserved. The fixture-only slice completed the system/tenant genesis＋second-record, closed-segment＋empty-successor, physical17/query-index, canonical UTC six-fraction, exact typed-encoding and D149 close-token preimage/hash vectors; the independent Node oracle validates closed shape/bounds and rejects all listed scalar, malformed, cap, and ordering mutations. No Store/PHP/schema/architecture/package/consumer/full-gate/network/stage/commit/push action occurred.
+P23-003B2 Batch 2A Store Worker Complete At: 2026-08-29T22:15:17+09:00 — branch `agent/p23-001-blackops-1-3-feasibility`, HEAD `50a4863b87fdb063bdc78b982eb06e03daf88c09`, staged0, immutable exact9 preserved including Task SHA `30cb43f1667e5cd76c305c9c6fad72507730c33458f93f9e554d70c149109727` and aggregate `21a57053544969befe91a6bc4c2cc9272238274c9b3d5d6ddd5c2f7cd7ab6d55`. Store find/read boundary, universal auto-commit-first precondition, direct Store/Storage and architecture evidence, fixtures, and authorized AuditRecord call-graph assertions are complete. Append/durable/close remain intentional fixed safe-failure intermediates for the later mutation slice. Focused format, PHPUnit `31 tests/41,836 assertions`, management-ID scan, diff-check, and staged0 PASS. No stage, commit, push, network, package, consumer, Node, or full-gate action.
+P23-003B2 Store Worker Resumed At: 2026-08-29T21:57:09+09:00 — branch `agent/p23-001-blackops-1-3-feasibility`, HEAD `50a4863b87fdb063bdc78b982eb06e03daf88c09`, staged0, immutable exact9 preserved including Task SHA `30cb43f1667e5cd76c305c9c6fad72507730c33458f93f9e554d70c149109727` and aggregate `21a57053544969befe91a6bc4c2cc9272238274c9b3d5d6ddd5c2f7cd7ab6d55`. Batch 1 remains frozen; this worker is limited to Store, direct Store/Storage and architecture tests, Store fixtures, authorized AuditRecord final call-graph assertions, and Report/STATE. No stage, commit, push, network, package, consumer, or full-gate action.
+Updated At: 2026-08-29T22:55:09+09:00
+P23-003B2 Batch 2 Worker Start At: 2026-08-29T21:46:38+09:00 — branch `agent/p23-001-blackops-1-3-feasibility`, HEAD `50a4863b87fdb063bdc78b982eb06e03daf88c09`, pre-edit expanded exact28 status paths, staged0, immutable exact9 preserved including Task SHA `30cb43f1667e5cd76c305c9c6fad72507730c33458f93f9e554d70c149109727` and aggregate `21a57053544969befe91a6bc4c2cc9272238274c9b3d5d6ddd5c2f7cd7ab6d55`. Batch 1 is frozen. Batch 2 is limited to the Store, direct Store/Storage and architecture tests, Store fixtures, authorized AuditRecord final call-graph assertions, and Report/STATE; no packaging/README/consumer, full gates, staging, commit, push, or network.
+P23-003B2 Batch 1 Review Correction Complete At: 2026-08-29T21:38:31+09:00 — branch `agent/p23-001-blackops-1-3-feasibility`, HEAD `50a4863b87fdb063bdc78b982eb06e03daf88c09`, expanded exact28 status paths (management/normative exact11 plus 17 authorized Batch 1 Product/Test/Migration paths), staged0, immutable exact9 preserved including Task SHA `30cb43f1667e5cd76c305c9c6fad72507730c33458f93f9e554d70c149109727` and aggregate `21a57053544969befe91a6bc4c2cc9272238274c9b3d5d6ddd5c2f7cd7ab6d55`. Architecture caller/reference, static schema, real PostgreSQL catalog, and hydrator canary corrections are complete. Focused format PASS; focused PHPUnit `39 tests/41,792 assertions` PASS; required ID scan and diff-check PASS. Batch 1 production files remain unchanged; no out-of-scope drift. No full Iteration/Complete Final Gate, stage, commit, push, or network; stop for Orchestrator review before Batch 2.
+P23-003B2 Batch 1 Review Correction Start At: 2026-08-29T21:23:27+09:00 — branch `agent/p23-001-blackops-1-3-feasibility`, HEAD `50a4863b87fdb063bdc78b982eb06e03daf88c09`, expanded exact28 status paths (management/normative exact11 plus 17 authorized Batch 1 Product/Test/Migration paths), staged0, immutable exact9 preserved including Task SHA `30cb43f1667e5cd76c305c9c6fad72507730c33458f93f9e554d70c149109727` and aggregate `21a57053544969befe91a6bc4c2cc9272238274c9b3d5d6ddd5c2f7cd7ab6d55`. Correction scope is limited to the authorized architecture, schema/catalog, migration/catalog, and hydrator evidence tests; Batch 1 production files remain unchanged. No full Iteration/Complete Final Gate, stage, commit, push, or network action.
+P23-003B2 Batch 1 Implementation Checkpoint At: 2026-08-29T21:05:41+09:00 — branch `agent/p23-001-blackops-1-3-feasibility`, HEAD `50a4863b87fdb063bdc78b982eb06e03daf88c09`, exact27 status paths (management/normative exact11 plus authorized Batch 1 Product/Test/Migration exact16), staged0, immutable exact9 preserved including Task SHA `30cb43f1667e5cd76c305c9c6fad72507730c33458f93f9e554d70c149109727` and aggregate `21a57053544969befe91a6bc4c2cc9272238274c9b3d5d6ddd5c2f7cd7ab6d55`. Focused format and PHPUnit `47 tests/367 assertions` pass; required ID scan and diff-check pass. No out-of-scope drift; no full Iteration/Complete Final Gate, stage, commit, push, network, runtime, or public Documentation activation. Stop for Orchestrator review/direction; later B2 Store batches remain.
+P23-003B2 Replacement Worker Batch 1 Start At: 2026-08-29T20:45:39+09:00 — branch `agent/p23-001-blackops-1-3-feasibility`, HEAD `50a4863b87fdb063bdc78b982eb06e03daf88c09`, staged0, exact11-only worktree, immutable exact9 preserved including Task SHA `30cb43f1667e5cd76c305c9c6fad72507730c33458f93f9e554d70c149109727` and aggregate `21a57053544969befe91a6bc4c2cc9272238274c9b3d5d6ddd5c2f7cd7ab6d55`. Product/Test/Migration remain zero. Batch 1 scope is value/result contracts, shared schema validator, Audit schema/migration, stored-record hydrator, and direct tests; no Product edit/test/Docker/stage/commit/push/network/runtime/public Documentation action yet.
+P23-003B2 Configured Luna Worker Started At: 2026-08-29T20:36:25+09:00 — branch `agent/p23-001-blackops-1-3-feasibility`, HEAD `50a4863b87fdb063bdc78b982eb06e03daf88c09`, local main `5ad87557c08e20c3bcc6d77be83804001ba3eb80`, staged0, and worktree exact11 verified. Immutable exact9 individual hashes and ordered aggregate `21a57053544969befe91a6bc4c2cc9272238274c9b3d5d6ddd5c2f7cd7ab6d55` match the dispatch. No out-of-scope Product/Test/Migration drift exists. Starting bounded exact26 implementation with result values, schema/migration, and shared schema validation first; no commit/stage/push/network/runtime activation.
+P23-003B2 Seventh Fresh Re-preflight Green / Configured Luna Worker Implementation Authorized At: 2026-08-29T20:26:48+09:00 — General, focused DB, and Documentation lanes separately returned Green P1=0/P2=0/P3=0 against the seventh-corrected exact11. The D149/Task contract is frozen as immutable implementation input. Product/Test/Migration remain untouched; staged0, Task gate syntax/counts, and Stable 1.2/current versus 1.3/unreleased boundaries remain. Worker scope is Product/Test exact26＋management exact2, full status exact37. Remaining: configured Luna worker implementation, Iteration/Complete Final Gates, fresh implementation review, Acceptance, reviewed candidate commit, and same-SHA package export. Next Action: start the configured Luna worker within exact26, preserve immutable exact9, and do not commit before Orchestrator review and Acceptance.
+P23-003B2 Initial Fresh Sol Max Preflight Changes Requested P1=3/P2=5/P3=0 / Bounded Correction Completed / Fresh Re-preflight Requested At: 2026-08-29T17:56:20+09:00 — initial exact11 freeze and staged0 matched. Product/Test/Migration remain untouched. D149/Task now close PHP Result API, absent-partition transaction advisory locking, store-wide record identity, segment predecessor/open-closed-sealed state, branch-specific Clock/high-water and failure order, exact constraints/DBAL/query-index verification, exact scope guards, and release-impact evidence. Stable 1.2.0 remains current and BlackOps 1.3 unreleased. Remaining: corrected exact11 freeze and fresh Sol Max re-preflight, then ordered implementation/gates/review/Acceptance/commit/package export. Next Action: verify and freeze the corrected management/normative exact11, then request fresh re-preflight; do not start Product work before Green.
+P23-003B2 Exact Packet Frozen / Fresh Sol Max Preflight Started At: 2026-08-29T17:25:12+09:00 — exact11 management/normative snapshot frozen after D149/Task drafting and static path/diff checks; Product/Test/Migration remain untouched. Fresh Sol Max independently reviews current bytes before any Luna Product work. Stable 1.2.0 remains current, BlackOps 1.3 unreleased, staged0. Remaining: preflight verdict and ordered downstream. Next Action: keep exact11 frozen and correct only bounded preflight findings.
+P23-003B2 Task Packet Drafted / Fresh Sol Max Preflight Pending At: 2026-08-29T17:13:56+09:00 — D149 fixes exact PostgreSQL transaction participation, three-table DDL/migration, trusted clock/UUID allocation, required/durable append, idempotency, explicit segment close, tenant predicate-before-decrypt, failure precedence, exact21 Product/Test scope, and post-Acceptance same-SHA package export. No Product/Test/Migration edit, runtime/database/route/CLI/public Documentation activation, test/build/Docker/network, stage, commit, or push occurred. Stable 1.2.0 remains current; BlackOps 1.3 remains unreleased. Remaining: fresh Sol Max preflight, Luna Max implementation, gates, review, Acceptance, candidate commit/package export; parent P23-003B remains unaccepted until B2 Acceptance. Next Action: freeze the exact management/normative packet and send it to fresh Sol Max preflight.
 P23-003B1 Candidate Committed / Package Export Green At: 2026-08-29T16:19:50+09:00 — reviewed Product candidate c3b75ca0afe6d8c756caa8404b7e95922987c1da committed; clean-candidate tests/Consumer/framework-package-export.sh PASS. B1 remains Accepted, Stable 1.2 current, BlackOps 1.3 unreleased, and no runtime/database/route/CLI/public Documentation activation or push occurred. Remaining: P23-003B2 and ordered downstream. Next Action: make this management closeout commit, verify package export again on its clean SHA, then draft/fresh-preflight B2.
 P23-003B1 Accepted / Complete Final Gate Green At: 2026-08-29T16:15:29+09:00 — fresh bounded Sol Max closure review P1=0/P2=0/P3=0; final exact33 aggregate bb6ab89a222a72eafa601f588f46177ee443e554c036bcc00575b211961c8847; A1 exact48/A2 exact28 preserved; format, Composer strict, Mago lint/baseline/analyze, full PHPUnit 2,762 tests/57,406 assertions, Deptrac 991 analyzed/0 violations/0 uncovered/0 errors/5,986 allowed, three Audit Node goldens, Stable version baseline, public-doc no-diff, management-ID, diff-check, and staged0 all pass. No runtime/database/route/CLI/public Documentation/Stable 1.2/release activation. Remaining: user-authorized reviewed candidate commit and same-SHA package export, then P23-003B2; parent P23-003B remains unaccepted until B2 Acceptance. Next Action: commit B1, verify package export on the clean candidate SHA, record it, then draft B2. No push performed.
 P23-003B1 final bounded correction Iteration Gate Green / exact33 refrozen At: 2026-08-29T16:06:31+09:00 — P1 Outbox pre-key inclusive/cap+1 ceiling, P2 hydrated second-codec and malformed-header read-count/no-leak evidence, and P2 scalar second-tenant/U+2028/U+2029/negative seven-digit fraction evidence complete; focused PHPUnit 89 tests/43,631 assertions, Node, exact-target format, Deptrac 991 analyzed/0 violations/0 uncovered/0 errors/5,986 allowed, management-ID, diff-check, staged0, A1 exact48 and A2 exact28 preservation all pass; Architecture ending SHA-256 839cd58b0bcec1840b04e02f16145e622bb06894445c758d0871bb272e9254d; new exact33 aggregate bb6ab89a222a72eafa601f588f46177ee443e554c036bcc00575b211961c8847; Complete Final Gate intentionally deferred until Orchestrator review; no commit/stage/push/network/runtime activation. Remaining: fresh read-only Sol Max review, Complete Final Gate, B1 Acceptance, then candidate commit/package export and parent B2/higher P23-003C..G/P23-004/P23-005/P23-006. Next Action: Orchestrator reviews exact33 bb6ab89a; keep Product frozen.
@@ -61,7 +1185,7 @@ P23-003A1 Fresh Sol High Review Changes Requested / Luna High Correction Started
 P23-003A1 Complete Final Gate Green At: 2026-08-28T12:39:07+09:00
 P23-003A1 Iteration Gate Green / Product Freeze Fixed At: 2026-08-28T12:35:00+09:00
 
-## P23-003B1 Bounded correction Iteration Gate Green — Complete Final Gate intentionally not run
+## Historical P23-003B1 Bounded correction Iteration Gate Green — Complete Final Gate intentionally not run
 
 Updated At: 2026-08-29T15:31:40+09:00
 

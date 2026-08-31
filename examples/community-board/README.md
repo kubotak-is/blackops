@@ -109,7 +109,7 @@ Run the complete clean-install journey from the repository root when you want th
 bash tests/Consumer/community-board-clean-install.sh
 ```
 
-It removes local state, installs both locked dependency sets, applies all 11 Framework and 5 Community Board migrations (16 total), compiles and checks generated contracts, seeds twice, logs in normally, checks seed HTML and sensitive boundaries, and cleans containers, volumes, dependencies, and generated artifacts on success or failure.
+It removes local state, installs both locked dependency sets, applies all 17 migrations (12 Framework + 5 Community Board Application migrations = 17), compiles and checks generated contracts, seeds twice, logs in normally, checks seed HTML and sensitive boundaries, and cleans containers, volumes, dependencies, and generated artifacts on success or failure.
 
 The focused consumers isolate failures:
 
@@ -181,4 +181,4 @@ rm -rf vendor var/build var/log var/phpunit frontend/node_modules \
 rm -f .env
 ```
 
-The permanent consumers perform equivalent cleanup automatically. The application and Documentation Website are Local／CI examples; this repository does not publish or host them externally.
+The permanent consumers perform equivalent cleanup automatically. BlackOps Board is a Local／CI reference application and is not published or hosted externally. The Documentation Website is published on Cloudflare Pages.

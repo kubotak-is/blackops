@@ -1,8 +1,8 @@
 # D148: Audit Canonical Record and Protected Store Boundary
 
-Status: P23-003B1 Accepted — Candidate committed / package export Green; P23-003B2 next; BlackOps 1.3 unreleased
+Status: P23-003B1／B2 and parent P23-003B Accepted — B2 post-Acceptance commit／package export pending; BlackOps 1.3 unreleased
 
-Updated At: 2026-08-29T16:19:50+09:00
+Updated At: 2026-08-31T20:54:49+09:00
 
 ## Current Acceptance Handoff
 
@@ -16,12 +16,18 @@ ingress, pre-key capacity checks, and value-free protection failures.
 
 Stable `1.2.0` remains current, BlackOps `1.3` remains unreleased, and B1 adds
 no runtime、database、route、CLI、public Documentation、or release activation.
-Parent P23-003B remains unaccepted until P23-003B2 is Accepted.
+P23-003B2 and parent P23-003B are Accepted after the bounded PostgreSQL
+implementation, Complete Final Gate, and fresh DB／General Sol closure Green.
 
-Reviewed Product candidate `c3b75ca0afe6d8c756caa8404b7e95922987c1da`
-is committed and its clean-candidate package export is Green. Remaining: the
-bounded P23-003B2 packet and downstream work. Next Action: draft B2 against the
-Accepted B1 bytes and send it to fresh Sol Max preflight.
+Reviewed B1 Product candidate `c3b75ca0afe6d8c756caa8404b7e95922987c1da`
+is committed and its clean-candidate package export is Green. Earlier B2 preflights and review
+findings are Historical. Accepted B2 exact26 is
+`ecacafc99cbdf4fd2287b7554b88a34f6524a23d92c9adb3a8bf201a2a1d50bb`.
+The B2 Complete Final Gate is Green at PHPUnit `2,939/85,080`, Deptrac
+`999/0/0/6,079`, four Node goldens, and Community Board clean install; fresh
+DB／General Sol closure separately returned `P1=0/P2=0/P3=0`.
+Remaining B2 closeout is the Orchestrator candidate commit and clean exact-SHA
+package export. Next Action: complete that closeout without push, then proceed to P23-003C.
 
 ## Context
 
@@ -561,20 +567,15 @@ B2、C、D、E、F、GとRelease gateが完了するまで、BlackOps 1.3 Audit 
 
 ## Remaining Issues
 
-Initial fresh Sol Max preflightは`P1=4/P2=1/P3=1`、corrected-vector re-preflightは
-`P1=4/P2=0/P3=0`でChanges Requestedだった。後者のfour rootsはauthorized write-path
-golden、logical implementation exact2、persisted value hydration、legacy generic BOPD capである。
-そのfour-root correctionへのfresh reviewは`P1=2/P2=1/P3=0`だった。Candidate construction
-authorityの一文、durable-only ingress positiveへrequired eventを流用したvector、Spec105の
-旧`logicalRecord.recordedAt` pathが残っていた。そのthree-root correctionへのfresh
-re-preflightは`P1=1/P2=1/P3=0`だった。Required Fixturesに残ったsuperseded Outbox
-AAD hashと、Accepted A handoff二箇所のHistorical表示をbounded correctionしたexact packetを
-再freezeし、fresh re-preflightが残る。
-P23-003B2のexact SQL DDL、index name、migration version、store APIはB1 Acceptance後の別preflightで
-固定する。
+Historical B1/B2 preflight／review findings are closed. P23-003B1 and P23-003B2 are Accepted.
+The B1 reviewed candidate is committed, and its clean-candidate package export is Green.
+D149 fixes the previously deferred P23-003B2 exact SQL DDL、index names、migration
+version、store API、transaction ownership、Clock／UUID authority、append／close／read
+precedence. Initial B2 preflight and bounded correction history is closed. Seventh fresh General、focused
+DB、and Documentation re-preflight are separately Green. B2 implementation、gates、review、and
+Acceptance are complete; only its post-Acceptance commit and same-SHA package export remain.
 
 ## Suggested Next Action
 
-Orchestratorはcandidate commit `b7e6837f0d684b3cea35967fadb4c52adb670407`に固定した
-fixture／historical-handoff corrected exact10へ、別のfresh Sol Max re-preflightを行う。
-Re-preflight Green前にProduction Codeを変更しない。
+OrchestratorはAccepted B2 candidateをcommitし、そのclean exact SHAでpackage exportを実行する。
+Pushは行わない。Closeout後、Accepted parent Bを入力としてP23-003Cへ進む。

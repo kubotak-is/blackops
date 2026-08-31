@@ -1,0 +1,444 @@
+{
+  "schemaVersion": 1,
+  "kind": "audit_postgresql_store_fixture",
+  "recordProjection": [
+    "schema_version",
+    "kind",
+    "record_id",
+    "partition_id",
+    "tenant_type",
+    "tenant_id",
+    "segment_id",
+    "sequence",
+    "previous_record_hash",
+    "content_hash",
+    "record_hash",
+    "recorded_at",
+    "event_category",
+    "protected_body",
+    "action_type",
+    "resource_type",
+    "resource_id"
+  ],
+  "hydratorProjection": [
+    "schema_version",
+    "kind",
+    "record_id",
+    "partition_id",
+    "tenant_type",
+    "tenant_id",
+    "segment_id",
+    "sequence",
+    "previous_record_hash",
+    "content_hash",
+    "record_hash",
+    "recorded_at",
+    "event_category",
+    "protected_body"
+  ],
+  "encodingVectors": {
+    "string": {
+      "value": "μ-close",
+      "encodedHex": "733a383acebc2d636c6f7365"
+    },
+    "integer": {
+      "value": 9007199254740991,
+      "encodedHex": "693a39303037313939323534373430393931"
+    },
+    "bytes": {
+      "hex": "0001ff0a",
+      "encodedHex": "623a343a0001ff0a"
+    }
+  },
+  "bounds": {
+    "maxSafeInteger": 9007199254740991,
+    "minSequence": 1,
+    "minProtectedBodyBytes": 53,
+    "maxProtectedBodyBytes": 1048756,
+    "canonicalTimestampPattern": "YYYY-MM-DDTHH:mm:ss.ffffffZ"
+  },
+  "partitions": [
+    {
+      "name": "system",
+      "partitionId": "system:global",
+      "tenant": null,
+      "canonical": [
+        {
+          "recordId": "0194a000-0000-7000-8000-000000000001",
+          "bytes": "{\"action\":{\"type\":\"access.operation_status.requested\"},\"recordId\":\"0194a000-0000-7000-8000-000000000001\",\"resource\":{\"id\":\"operation-system\",\"type\":\"operation\"},\"tenant\":null}",
+          "contentHash": "1212564d97e5b1c7afb05779dc4981cde52b2e57ce0f7b78377593caf0722262"
+        },
+        {
+          "recordId": "0194a000-0000-7000-8000-000000000002",
+          "bytes": "{\"action\":{\"type\":\"access.operation_status.accessed\"},\"recordId\":\"0194a000-0000-7000-8000-000000000002\",\"resource\":{\"id\":\"operation-system\",\"type\":\"operation\"},\"tenant\":null}",
+          "contentHash": "4898ad3696f19a657cbbafd4234da59c4fc5f09cdb96405b0f9ffb49e66dc620"
+        }
+      ],
+      "records": [
+        {
+          "schema_version": 1,
+          "kind": "audit_stored_record",
+          "record_id": "0194a000-0000-7000-8000-000000000001",
+          "partition_id": "system:global",
+          "tenant_type": null,
+          "tenant_id": null,
+          "segment_id": "0194a000-0000-7000-8000-000000000101",
+          "sequence": 1,
+          "previous_record_hash": null,
+          "content_hash": "1212564d97e5b1c7afb05779dc4981cde52b2e57ce0f7b78377593caf0722262",
+          "record_hash": "17ed984420b952253f1af8f1fe9ed383f36e0965fafc2f6d06e45547e61f4dc2",
+          "recorded_at": "2026-08-29T00:00:00.000001Z",
+          "event_category": "access",
+          "protected_body": "424f504400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "action_type": "access.operation_status.requested",
+          "resource_type": "operation",
+          "resource_id": "operation-system"
+        },
+        {
+          "schema_version": 1,
+          "kind": "audit_stored_record",
+          "record_id": "0194a000-0000-7000-8000-000000000002",
+          "partition_id": "system:global",
+          "tenant_type": null,
+          "tenant_id": null,
+          "segment_id": "0194a000-0000-7000-8000-000000000101",
+          "sequence": 2,
+          "previous_record_hash": "17ed984420b952253f1af8f1fe9ed383f36e0965fafc2f6d06e45547e61f4dc2",
+          "content_hash": "4898ad3696f19a657cbbafd4234da59c4fc5f09cdb96405b0f9ffb49e66dc620",
+          "record_hash": "8685b580a9274b7551c16e23e3fc77d43c6ebe63ae007d3c5b2ce33386a25a4f",
+          "recorded_at": "2026-08-29T00:00:01.000002Z",
+          "event_category": "access",
+          "protected_body": "424f504411111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111",
+          "action_type": "access.operation_status.accessed",
+          "resource_type": "operation",
+          "resource_id": "operation-system"
+        }
+      ],
+      "state": {
+        "partition_id": "system:global",
+        "tenant_type": null,
+        "tenant_id": null,
+        "active_segment_id": "0194a000-0000-7000-8000-000000000102",
+        "last_sequence": 2,
+        "head_record_hash": "8685b580a9274b7551c16e23e3fc77d43c6ebe63ae007d3c5b2ce33386a25a4f",
+        "last_assigned_recorded_at": "2026-08-29T00:00:01.000002Z",
+        "state_version": 2
+      },
+      "segments": [
+        {
+          "partition_id": "system:global",
+          "segment_id": "0194a000-0000-7000-8000-000000000101",
+          "state": "closed",
+          "first_sequence": 1,
+          "final_sequence": 2,
+          "head_record_hash": "8685b580a9274b7551c16e23e3fc77d43c6ebe63ae007d3c5b2ce33386a25a4f",
+          "predecessor_record_hash": null,
+          "opened_at": "2026-08-29T00:00:00.000001Z",
+          "closed_at": "2026-08-29T00:00:02.000003Z",
+          "successor_segment_id": "0194a000-0000-7000-8000-000000000102",
+          "close_fencing_token": "aft:v1:c1a26e93d922efdef05bdd7906a190a9890499968e9517e39d0656aa1dab8789",
+          "state_version": 2
+        },
+        {
+          "partition_id": "system:global",
+          "segment_id": "0194a000-0000-7000-8000-000000000102",
+          "state": "open",
+          "first_sequence": 3,
+          "final_sequence": null,
+          "head_record_hash": null,
+          "predecessor_record_hash": "8685b580a9274b7551c16e23e3fc77d43c6ebe63ae007d3c5b2ce33386a25a4f",
+          "opened_at": "2026-08-29T00:00:02.000003Z",
+          "closed_at": null,
+          "successor_segment_id": null,
+          "close_fencing_token": null,
+          "state_version": 1
+        }
+      ]
+    },
+    {
+      "name": "tenant",
+      "partitionId": "tenant:3fb6e98600ca752a93966ff30149565d1b468b11aaa6ea8cfc35c1962785ad88",
+      "tenant": {
+        "type": "account",
+        "id": "tenant-b"
+      },
+      "canonical": [
+        {
+          "recordId": "0194a000-0000-7000-8000-000000000003",
+          "bytes": "{\"action\":{\"type\":\"security.authorization.allow\"},\"recordId\":\"0194a000-0000-7000-8000-000000000003\",\"resource\":{\"id\":\"operation-tenant\",\"type\":\"operation\"},\"tenant\":{\"id\":\"tenant-b\",\"type\":\"account\"}}",
+          "contentHash": "e0e78f2cb12e64cd9bfdded0bf49c5ddc160d382d0496b647cd9d6ae42b375d3"
+        },
+        {
+          "recordId": "0194a000-0000-7000-8000-000000000004",
+          "bytes": "{\"action\":{\"type\":\"security.authorization.deny\"},\"recordId\":\"0194a000-0000-7000-8000-000000000004\",\"resource\":{\"id\":\"operation-tenant\",\"type\":\"operation\"},\"tenant\":{\"id\":\"tenant-b\",\"type\":\"account\"}}",
+          "contentHash": "c993de2ba1bcc965ad2c8e531ad4a22a15ea9d033d9aeda75960c050d80d9090"
+        }
+      ],
+      "records": [
+        {
+          "schema_version": 1,
+          "kind": "audit_stored_record",
+          "record_id": "0194a000-0000-7000-8000-000000000003",
+          "partition_id": "tenant:3fb6e98600ca752a93966ff30149565d1b468b11aaa6ea8cfc35c1962785ad88",
+          "tenant_type": "account",
+          "tenant_id": "tenant-b",
+          "segment_id": "0194a000-0000-7000-8000-000000000201",
+          "sequence": 1,
+          "previous_record_hash": null,
+          "content_hash": "e0e78f2cb12e64cd9bfdded0bf49c5ddc160d382d0496b647cd9d6ae42b375d3",
+          "record_hash": "1ee37e04ef5ad12ccef26498c8baee120ab1d0c55aff5cef5f5948ae7ae166d8",
+          "recorded_at": "2026-08-29T00:00:00.100001Z",
+          "event_category": "security",
+          "protected_body": "424f504422222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222",
+          "action_type": "security.authorization.allow",
+          "resource_type": "operation",
+          "resource_id": "operation-tenant"
+        },
+        {
+          "schema_version": 1,
+          "kind": "audit_stored_record",
+          "record_id": "0194a000-0000-7000-8000-000000000004",
+          "partition_id": "tenant:3fb6e98600ca752a93966ff30149565d1b468b11aaa6ea8cfc35c1962785ad88",
+          "tenant_type": "account",
+          "tenant_id": "tenant-b",
+          "segment_id": "0194a000-0000-7000-8000-000000000201",
+          "sequence": 2,
+          "previous_record_hash": "1ee37e04ef5ad12ccef26498c8baee120ab1d0c55aff5cef5f5948ae7ae166d8",
+          "content_hash": "c993de2ba1bcc965ad2c8e531ad4a22a15ea9d033d9aeda75960c050d80d9090",
+          "record_hash": "e0a0b6bbb6742235bbf508304f06460730386383545e0b1bb6d35b584d3250cd",
+          "recorded_at": "2026-08-29T00:00:01.100002Z",
+          "event_category": "security",
+          "protected_body": "424f504433333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333",
+          "action_type": "security.authorization.deny",
+          "resource_type": "operation",
+          "resource_id": "operation-tenant"
+        }
+      ],
+      "state": {
+        "partition_id": "tenant:3fb6e98600ca752a93966ff30149565d1b468b11aaa6ea8cfc35c1962785ad88",
+        "tenant_type": "account",
+        "tenant_id": "tenant-b",
+        "active_segment_id": "0194a000-0000-7000-8000-000000000202",
+        "last_sequence": 2,
+        "head_record_hash": "e0a0b6bbb6742235bbf508304f06460730386383545e0b1bb6d35b584d3250cd",
+        "last_assigned_recorded_at": "2026-08-29T00:00:01.100002Z",
+        "state_version": 2
+      },
+      "segments": [
+        {
+          "partition_id": "tenant:3fb6e98600ca752a93966ff30149565d1b468b11aaa6ea8cfc35c1962785ad88",
+          "segment_id": "0194a000-0000-7000-8000-000000000201",
+          "state": "closed",
+          "first_sequence": 1,
+          "final_sequence": 2,
+          "head_record_hash": "e0a0b6bbb6742235bbf508304f06460730386383545e0b1bb6d35b584d3250cd",
+          "predecessor_record_hash": null,
+          "opened_at": "2026-08-29T00:00:00.100001Z",
+          "closed_at": "2026-08-29T00:00:02.100003Z",
+          "successor_segment_id": "0194a000-0000-7000-8000-000000000202",
+          "close_fencing_token": "aft:v1:848345fdaa98a7fbf2d0ba7428f45ed1eb118a7611d79a0f1cf274e1c92640f9",
+          "state_version": 2
+        },
+        {
+          "partition_id": "tenant:3fb6e98600ca752a93966ff30149565d1b468b11aaa6ea8cfc35c1962785ad88",
+          "segment_id": "0194a000-0000-7000-8000-000000000202",
+          "state": "open",
+          "first_sequence": 3,
+          "final_sequence": null,
+          "head_record_hash": null,
+          "predecessor_record_hash": "e0a0b6bbb6742235bbf508304f06460730386383545e0b1bb6d35b584d3250cd",
+          "opened_at": "2026-08-29T00:00:02.100003Z",
+          "closed_at": null,
+          "successor_segment_id": null,
+          "close_fencing_token": null,
+          "state_version": 1
+        }
+      ]
+    }
+  ],
+  "closeCases": [
+    {
+      "partitionId": "system:global",
+      "closedSegmentId": "0194a000-0000-7000-8000-000000000101",
+      "finalSequence": 2,
+      "headHash": "8685b580a9274b7551c16e23e3fc77d43c6ebe63ae007d3c5b2ce33386a25a4f",
+      "successorSegmentId": "0194a000-0000-7000-8000-000000000102",
+      "closedAt": "2026-08-29T00:00:02.000003Z",
+      "preimageHex": "733a33313a626c61636b6f70732e61756469742e7365676d656e742e636c6f73652e7631733a31333a73797374656d3a676c6f62616c733a33363a30313934613030302d303030302d373030302d383030302d303030303030303030313031693a32623a33323a8685b580a9274b7551c16e23e3fc77d43c6ebe63ae007d3c5b2ce33386a25a4f733a33363a30313934613030302d303030302d373030302d383030302d303030303030303030313032733a32373a323032362d30382d32395430303a30303a30322e3030303030335a",
+      "token": "aft:v1:c1a26e93d922efdef05bdd7906a190a9890499968e9517e39d0656aa1dab8789"
+    },
+    {
+      "partitionId": "tenant:3fb6e98600ca752a93966ff30149565d1b468b11aaa6ea8cfc35c1962785ad88",
+      "closedSegmentId": "0194a000-0000-7000-8000-000000000201",
+      "finalSequence": 2,
+      "headHash": "e0a0b6bbb6742235bbf508304f06460730386383545e0b1bb6d35b584d3250cd",
+      "successorSegmentId": "0194a000-0000-7000-8000-000000000202",
+      "closedAt": "2026-08-29T00:00:02.100003Z",
+      "preimageHex": "733a33313a626c61636b6f70732e61756469742e7365676d656e742e636c6f73652e7631733a37313a74656e616e743a33666236653938363030636137353261393339363666663330313439353635643162343638623131616161366561386366633335633139363237383561643838733a33363a30313934613030302d303030302d373030302d383030302d303030303030303030323031693a32623a33323ae0a0b6bbb6742235bbf508304f06460730386383545e0b1bb6d35b584d3250cd733a33363a30313934613030302d303030302d373030302d383030302d303030303030303030323032733a32373a323032362d30382d32395430303a30303a30322e3130303030335a",
+      "token": "aft:v1:848345fdaa98a7fbf2d0ba7428f45ed1eb118a7611d79a0f1cf274e1c92640f9"
+    }
+  ],
+  "mutations": [
+    {
+      "name": "system close head hash substitution",
+      "kind": "field",
+      "path": [
+        "closeCases",
+        0,
+        "headHash"
+      ],
+      "replacement": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "name": "tenant close final sequence substitution",
+      "kind": "field",
+      "path": [
+        "closeCases",
+        1,
+        "finalSequence"
+      ],
+      "replacement": 1
+    },
+    {
+      "name": "closed row moved to successor segment",
+      "kind": "coherent",
+      "path": [
+        "partitions",
+        0,
+        "records",
+        1
+      ],
+      "operation": "move_record_to_successor_rehash",
+      "replacement": "successor_segment_id"
+    },
+    {
+      "name": "tenant row sequence cap plus one",
+      "kind": "field",
+      "path": [
+        "partitions",
+        1,
+        "records",
+        1,
+        "sequence"
+      ],
+      "replacement": "9007199254740992"
+    },
+    {
+      "name": "closed/successor segment identity collision",
+      "kind": "coherent",
+      "path": [
+        "partitions",
+        1,
+        "segments",
+        1
+      ],
+      "operation": "collapse_successor_segment_identity",
+      "replacement": "closed_segment_id"
+    },
+    {
+      "name": "protected body wrong magic",
+      "kind": "field",
+      "path": [
+        "partitions",
+        0,
+        "records",
+        0,
+        "protected_body"
+      ],
+      "replacement": "5a4f504400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "name": "noncanonical timestamp",
+      "kind": "field",
+      "path": [
+        "partitions",
+        1,
+        "records",
+        1,
+        "recorded_at"
+      ],
+      "replacement": "2026-08-29T00:00:01.100002+00:00"
+    },
+    {
+      "name": "record ordering reversal",
+      "kind": "ordering",
+      "path": [
+        "partitions",
+        0,
+        "records"
+      ],
+      "operation": "reverse"
+    },
+    {
+      "name": "segment ordering reversal",
+      "kind": "ordering",
+      "path": [
+        "partitions",
+        1,
+        "segments"
+      ],
+      "operation": "reverse"
+    },
+    {
+      "name": "physical column ordering substitution",
+      "kind": "ordering",
+      "path": [
+        "partitions",
+        0,
+        "records",
+        0
+      ],
+      "operation": "swap_first_two_keys"
+    },
+    {
+      "name": "unexpected state member",
+      "kind": "shape",
+      "path": [
+        "partitions",
+        0,
+        "state"
+      ],
+      "operation": "add_extra_key"
+    },
+    {
+      "name": "system close partition identifier substitution",
+      "kind": "field",
+      "path": [
+        "closeCases",
+        0,
+        "partitionId"
+      ],
+      "replacement": "tenant:3fb6e98600ca752a93966ff30149565d1b468b11aaa6ea8cfc35c1962785ad88"
+    },
+    {
+      "name": "tenant close closed segment identifier substitution",
+      "kind": "field",
+      "path": [
+        "closeCases",
+        1,
+        "closedSegmentId"
+      ],
+      "replacement": "0194a000-0000-7000-8000-000000000202"
+    },
+    {
+      "name": "system close successor identifier substitution",
+      "kind": "field",
+      "path": [
+        "closeCases",
+        0,
+        "successorSegmentId"
+      ],
+      "replacement": "0194a000-0000-7000-8000-000000000101"
+    },
+    {
+      "name": "tenant close timestamp substitution",
+      "kind": "field",
+      "path": [
+        "closeCases",
+        1,
+        "closedAt"
+      ],
+      "replacement": "2026-08-29T00:00:02.100004Z"
+    }
+  ]
+}

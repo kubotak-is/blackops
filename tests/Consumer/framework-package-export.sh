@@ -76,8 +76,17 @@ validate_package() {
         CHANGELOG.md \
         UPGRADE.md \
         src/Core/Exception/ConfigurationFailure.php \
+        src/Internal/Audit/Storage/AuditStoreFailure.php \
+        src/Internal/Audit/Storage/AuditStoreException.php \
+        src/Internal/Audit/Storage/AuditAppendResult.php \
+        src/Internal/Audit/Storage/AuditLookupResult.php \
+        src/Internal/Audit/Storage/AuditSegmentCloseResult.php \
+        src/Internal/Audit/Storage/PostgreSqlAuditSchema.php \
+        src/Internal/Audit/Storage/PostgreSqlAuditStoredRecordHydrator.php \
+        src/Internal/Audit/Storage/PostgreSqlAuditRecordStore.php \
         migrations/postgresql/Version20260712000000.php \
         migrations/postgresql/Version20260712010000.php \
+        migrations/postgresql/Version20260724000000.php \
         migrations/postgresql/Version20260724010000.php \
         migrations/postgresql/Version20260724100000.php \
         migrations/postgresql/Version20260724110000.php \
@@ -86,6 +95,7 @@ validate_package() {
         migrations/postgresql/Version20260808000000.php \
         migrations/postgresql/Version20260808010000.php \
         migrations/postgresql/Version20260808100000.php \
+        migrations/postgresql/Version20260829000000.php \
         resources/stubs/operation.php.stub \
         resources/stubs/operation-value.php.stub \
         resources/stubs/operation-outcome.php.stub \

@@ -2,7 +2,7 @@
 
 Status: Proposal — unreleased BlackOps 1.3; workflow/gate status authority is the exact5 management slice (`develop/STATE.md`, `develop/TODO.md`, the parent Task/Report, and `develop/spec/README.md`)
 
-Updated At: 2026-08-29T16:19:50+09:00
+Updated At: 2026-08-31T20:54:49+09:00
 
 This plan is a delivery DAG for the capability proposal in Specification 105.
 It does not make any Phase 23 item a current Stable `1.2` capability. A slice
@@ -21,7 +21,10 @@ gate status authority is the exact5 management slice: `develop/STATE.md`,
 `develop/spec/README.md`; Search and Audit workflow lanes are not normative
 within this delivery plan. Stable `1.2` remains current and every Phase 23
 item remains an unreleased proposal.
-After acceptance, P23-001R and ordered Phase 23 work remain.
+For an active implementation packet, the exact5 is reconciled at preflight freeze and Acceptance.
+Between those boundaries, a packet may freeze Task／Decision／TODO／Spec README as normative input;
+only its Report／STATE pair is moving checkpoint authority when the packet says so explicitly.
+P23-001R is already Accepted; the ordered Phase 23 work remains.
 
 For every current `ProjectionBuildSet v1` delivery clause in this plan, D146
 is the more specific authority. Its A1/A2 split, component injected locator,
@@ -59,12 +62,18 @@ aggregate `bb6ab89a222a72eafa601f588f46177ee443e554c036bcc00575b211961c8847`
 and the Complete Final Gate are Green. P23-003B1 is Accepted without runtime、
 database、route、CLI、public Documentation、or release activation. The reviewed
 Product candidate `c3b75ca0afe6d8c756caa8404b7e95922987c1da` and its
-clean-candidate package export are Green. The bounded P23-003B2 packet may now
-proceed; parent P23-003B still requires B2 Acceptance.
+clean-candidate package export are Green. Earlier B2 preflights and review lanes are Historical.
+Accepted B2 exact26 is
+`ecacafc99cbdf4fd2287b7554b88a34f6524a23d92c9adb3a8bf201a2a1d50bb`.
+Its Complete Final Gate and fresh DB／General Sol closure are Green
+`P1=0/P2=0/P3=0`. P23-003B2 and parent P23-003B are Accepted.
+Post-Acceptance candidate commit and clean exact-SHA package export remain closeout work.
+No Application composition、Container registration、Audit Outbox／relay、CLI／HTTP／public
+Documentation／release activation occurred. P23-003C is the next serial Audit delivery slice.
 
-## P23-003A current delivery gate
+## Historical P23-003A accepted delivery checkpoint
 
-Current status: `Accepted — P23-003A1／A2 and parent P23-003A; P23-003B next`.
+Historical status at that checkpoint: `Accepted — P23-003A1／A2 and parent P23-003A; P23-003B next`.
 
 P23-002E is Accepted. The prior one-packet P23-003A wording is superseded by
 the serial A1/A2 boundary in D147. Stable `1.2.0` remains current and all

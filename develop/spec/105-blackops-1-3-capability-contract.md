@@ -2,7 +2,7 @@
 
 Status: Proposal — unreleased BlackOps 1.3; workflow/gate status authority is the exact5 management slice (`develop/STATE.md`, `develop/TODO.md`, the parent Task/Report, and `develop/spec/README.md`)
 
-Updated At: 2026-08-29T16:19:50+09:00
+Updated At: 2026-08-31T20:54:49+09:00
 
 This specification is a normative proposal for BlackOps `1.3`. It is not a
 Stable `1.2` capability contract and must not be copied into current public
@@ -34,6 +34,9 @@ slice: `develop/STATE.md`, `develop/TODO.md`, the parent Task, the parent
 Report, and `develop/spec/README.md`; Search and Audit workflow lanes are not
 normative within this specification. Parent acceptance is governed outside
 this technical contract.
+For an active implementation packet, the exact5 is reconciled at preflight freeze and Acceptance.
+Between those boundaries, a packet may freeze Task／Decision／TODO／Spec README as normative input;
+only its Report／STATE pair is moving checkpoint authority when the packet says so explicitly.
 
 For every current `ProjectionBuildSet v1` clause in this specification, D146
 is the more specific authority. Its component injected locator, C-owned
@@ -70,11 +73,20 @@ The historical preflight and review findings are closed. Final bounded Sol Max
 closure is Green `P1=0/P2=0/P3=0`; the Accepted exact33 aggregate is
 `bb6ab89a222a72eafa601f588f46177ee443e554c036bcc00575b211961c8847`,
 and the Complete Final Gate is Green. P23-003B1 is Accepted. No runtime、
-database、route、CLI、public Documentation、or release behavior is active;
-Stable `1.2.0` remains current and BlackOps `1.3` remains unreleased. Parent
-P23-003B still requires P23-003B2 Acceptance. Reviewed Product candidate
+route、CLI、public Documentation、or release behavior is active;
+Stable `1.2.0` remains current and BlackOps `1.3` remains unreleased. Reviewed B1 Product candidate
 `c3b75ca0afe6d8c756caa8404b7e95922987c1da` and its clean-candidate package
-export are Green; B2 is the next ordered child.
+export are Green. D149 fixes B2's same-Connection transaction、exact DDL／migration、
+trusted Clock／UUID、required／durable append、idempotency、explicit close、tenant
+predicate-before-decrypt、failure precedence、and post-Acceptance package boundary.
+Earlier B2 preflights and review lanes are Historical. Accepted B2 exact26 is
+`ecacafc99cbdf4fd2287b7554b88a34f6524a23d92c9adb3a8bf201a2a1d50bb`.
+Its Complete Final Gate is Green, and fresh DB／General Sol closure separately returned
+`P1=0/P2=0/P3=0`. P23-003B2 and parent P23-003B are Accepted.
+The PostgreSQL component and migration exist as an unreleased internal foundation;
+no Application composition、Container registration、Audit Outbox／relay、HTTP／CLI surface、
+public Documentation capability、or release activation occurred. B2 closeout still requires the
+Orchestrator candidate commit and clean exact-SHA package export.
 
 ## Historical P23-003A Acceptance Catalog and projection contract
 
