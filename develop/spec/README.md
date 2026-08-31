@@ -1,6 +1,39 @@
 # Framework Specification
 
-## P23-003B2 current handoff — Audit PostgreSQL Canonical Store
+## P23-003C1 current handoff — Audit Outbox State Foundation
+
+Updated At: 2026-09-01T04:40:14+09:00
+
+Current status: `Accepted — Complete Final Gate and fresh Sol Max implementation review Green; candidate commit pending`.
+
+P23-003B1／B2 and parent P23-003B are Accepted.
+Reviewed B2 candidate `968afe2b0c4bbff86e0013592d69dc7115cf8b4f` and its clean-candidate package export are Green.
+The management closeout is committed at clean HEAD `e772242ed2156ee259ae177f69a6b0a9189fef68`.
+
+D150 is the most-specific P23-003C split and C1 authority.
+It orders C1 pure state, C2 PostgreSQL Outbox, C3 delivery transaction／key composition, and C4 relay／recovery.
+C1 owns only the exact six-field state snapshot, bounded configuration, deterministic backoff, and five side-effect-free transitions.
+The first Sol Max preflight is Historical. Focused execution exposed the
+Accepted A2 Architecture guard conflict with C1's required direct
+`AuditRecordTime` reuse. The corrected exact11 permits only that reference and
+received fresh Sol Max preflight Green `P1=0/P2=0/P3=0`.
+The bounded implementation, Iteration Gate, and Complete Final Gate are Green.
+Product／Test exact11 is accepted at
+`d0bfa64e35ce8d113909a2aba710c57ed7bb33fd6711c51df207e71d33919fad`.
+Fresh Orchestrator Sol Max implementation review returned
+`P1=0/P2=0/P3=0`; P23-003C1 is Accepted. The shared Architecture guard is the
+sole intentional Accepted B2 exact26 delta; B2 Production and the other
+Accepted B2 exact25 remain byte-identical.
+
+Stable `1.2.0` remains current and BlackOps `1.3` remains unreleased.
+No DB／transaction／Clock／UUID generator／key／protection／relay／Application／Container／CLI／HTTP／public Documentation behavior is activated by C1.
+
+Remaining: C1 candidate commit／same-SHA package verification, then C2→C3→C4
+and parent P23-003C Acceptance.
+Next Action: commit the reviewed exact19 C1 candidate, run the same-SHA package
+export, and draft P23-003C2 without partial runtime activation.
+
+## P23-003B2 accepted handoff — Historical prerequisite
 
 Updated At: 2026-08-31T23:10:13+09:00
 
@@ -1591,6 +1624,7 @@ closedする。Semantic tuple、trusted external verification context、exact
 | [D147](../decisions/147-audit-catalog-and-safe-projection-boundary.md) | Audit Catalog、keyed opaque ID、record stages、observed safe-projection boundary | Accepted P23-003A1／A2 and parent P23-003A; P23-003B1／B2 and parent P23-003B Accepted; Stable `1.2` current / BlackOps `1.3` unreleased |
 | [D148](../decisions/148-audit-canonical-record-and-protected-store-boundary.md) | Audit canonical record、hash／chain、Audit専用BOPD protection、B1／B2 boundary | P23-003B1／B2 and parent P23-003B Accepted; B2 candidate commit／same-SHA package export Green; Stable `1.2` unchanged / BlackOps `1.3` unreleased |
 | [D149](../decisions/149-audit-postgresql-canonical-store-boundary.md) | Audit PostgreSQL canonical append、segment、tenant-aware read、migration boundary | P23-003B2 Accepted; Complete Final Gate and fresh DB／General Sol closure Green; candidate `968afe2b...` package export Green; Stable `1.2` unchanged / BlackOps `1.3` unreleased |
+| [D150](../decisions/150-audit-outbox-state-and-delivery-split.md) | P23-003C serial C1／C2／C3／C4 split and pure Audit Outbox state boundary | Proposed — P23-003C1 Accepted; P23-003C2 next; Stable `1.2` current / BlackOps `1.3` unreleased |
 
 ## Historical P23-001 Round 13 checkpoint
 

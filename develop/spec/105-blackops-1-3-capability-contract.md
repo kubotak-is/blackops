@@ -2,7 +2,7 @@
 
 Status: Proposal — unreleased BlackOps 1.3; workflow/gate status authority is the exact5 management slice (`develop/STATE.md`, `develop/TODO.md`, the parent Task/Report, and `develop/spec/README.md`)
 
-Updated At: 2026-08-31T23:10:13+09:00
+Updated At: 2026-09-01T04:40:14+09:00
 
 This specification is a normative proposal for BlackOps `1.3`. It is not a
 Stable `1.2` capability contract and must not be copied into current public
@@ -88,6 +88,26 @@ no Application composition、Container registration、Audit Outbox／relay、HTT
 public Documentation capability、or release activation occurred. Reviewed B2 candidate
 `968afe2b0c4bbff86e0013592d69dc7115cf8b4f` is committed and its clean
 exact-SHA package export is Green; no push was performed. P23-003C is the next serial slice.
+
+For current P23-003C delivery clauses, D150 is the more specific split and C1
+authority. It divides parent C into serial C1 pure state, C2 PostgreSQL Outbox,
+C3 delivery transaction／key composition, and C4 relay／recovery packets. C1
+owns only the exact six-field state snapshot, bounded configuration,
+deterministic backoff, and side-effect-free claim／retry／recover／relay／poison
+transitions. C1 adds no persisted row, migration, DB access, clock read, UUID
+generation, protection call, Application wiring, runtime activation, or public
+surface. Parent P23-003C remains incomplete until all four children are
+Accepted. The first C1 preflight is Historical: focused execution exposed the
+Accepted A2 guard conflict with the required direct `AuditRecordTime` reuse.
+D150 and the corrected C1 packet own one narrow Architecture-test exception for
+that type only. Corrected preflight, bounded implementation, Iteration Gate,
+and Complete Final Gate are Green. Product／Test exact11 is accepted at
+`d0bfa64e35ce8d113909a2aba710c57ed7bb33fd6711c51df207e71d33919fad`;
+fresh Orchestrator Sol Max implementation review returned
+`P1=0/P2=0/P3=0`. P23-003C1 is Accepted. The shared Architecture guard is the
+sole intentional Accepted B2 exact26 delta; B2 Production and the other exact25
+remain byte-identical. Candidate commit and same-SHA package verification are
+closeout only; P23-003C2 is the next serial child.
 
 ## Historical P23-003A Acceptance Catalog and projection contract
 

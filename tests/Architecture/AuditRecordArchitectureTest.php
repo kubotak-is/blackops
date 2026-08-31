@@ -678,7 +678,74 @@ final class AuditRecordArchitectureTest extends TestCase
             realpath($sourceRoot . '/Internal/Audit/Storage'),
             realpath($sourceRoot . '/Internal/StorageProtection'),
         ]);
-        $productTypes = [
+        $deliveryDirectory = realpath($sourceRoot . '/Internal/Audit/Delivery');
+        self::assertNotFalse($deliveryDirectory);
+        $productTypes = $this->a2ProductTypes();
+        $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($sourceRoot));
+        foreach ($iterator as $file) {
+            if (!$file->isFile() || $file->getExtension() !== 'php')
+                continue;
+            $path = $file->getPathname();
+            $normalized = realpath($path);
+            self::assertNotFalse($normalized);
+            foreach ($allowedDirectories as $directory) {
+                if ($normalized === $directory || str_starts_with($normalized, $directory . DIRECTORY_SEPARATOR))
+                    continue 2;
+            }
+            $source = file_get_contents($path);
+            self::assertIsString($source);
+            self::assertSame(
+                [],
+                $this->a2DeliveryViolations($normalized, $source, $deliveryDirectory, $productTypes),
+                $path,
+            );
+            self::assertStringNotContainsString('observed_v1', $source, $path);
+        }
+    }
+
+    public function testA2DeliveryTimestampExceptionIsNarrowAndMutationResistant(): void
+    {
+        $sourceRoot = realpath(__DIR__ . '/../../src');
+        self::assertNotFalse($sourceRoot);
+        $deliveryDirectory = realpath($sourceRoot . '/Internal/Audit/Delivery');
+        self::assertNotFalse($deliveryDirectory);
+        $productTypes = $this->a2ProductTypes();
+
+        $positive = '<?php use BlackOps\\Core\\Audit\\AuditRecordTime; AuditRecordTime::assertTimestamp($value);';
+        $negative = str_replace('AuditRecordTime', 'AuditRecordDraft', $positive);
+        self::assertSame(
+            [],
+            $this->a2DeliveryViolations(
+                $deliveryDirectory . '/SyntheticAllowed.php',
+                $positive,
+                $deliveryDirectory,
+                $productTypes,
+            ),
+        );
+        self::assertSame(
+            ['AuditRecordDraft'],
+            $this->a2DeliveryViolations(
+                $deliveryDirectory . '/SyntheticOtherA2.php',
+                $negative,
+                $deliveryDirectory,
+                $productTypes,
+            ),
+        );
+        self::assertSame(
+            ['AuditRecordTime'],
+            $this->a2DeliveryViolations(
+                $sourceRoot . '/Internal/Audit/Other/SyntheticTimestamp.php',
+                $positive,
+                $deliveryDirectory,
+                $productTypes,
+            ),
+        );
+    }
+
+    /** @return list<string> */
+    private function a2ProductTypes(): array
+    {
+        return [
             'AuditAttemptKind',
             'AuditSourceRuntime',
             'AuditRecordAttempt',
@@ -720,23 +787,26 @@ final class AuditRecordArchitectureTest extends TestCase
             'AuditProtectedIngress',
             'AuditProtectedBodyCodec',
         ];
-        $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($sourceRoot));
-        foreach ($iterator as $file) {
-            if (!$file->isFile() || $file->getExtension() !== 'php')
+    }
+
+    /** @return list<string> */
+    private function a2DeliveryViolations(
+        string $path,
+        string $source,
+        string $deliveryDirectory,
+        array $productTypes,
+    ): array {
+        $isDelivery = $path === $deliveryDirectory || str_starts_with($path, $deliveryDirectory . DIRECTORY_SEPARATOR);
+        $violations = [];
+        foreach ($productTypes as $productType) {
+            if ($isDelivery && $productType === 'AuditRecordTime') {
                 continue;
-            $path = $file->getPathname();
-            $normalized = realpath($path);
-            self::assertNotFalse($normalized);
-            foreach ($allowedDirectories as $directory) {
-                if ($normalized === $directory || str_starts_with($normalized, $directory . DIRECTORY_SEPARATOR))
-                    continue 2;
             }
-            $source = file_get_contents($path);
-            self::assertIsString($source);
-            foreach ($productTypes as $productType)
-                self::assertStringNotContainsString($productType, $source, $path);
-            self::assertStringNotContainsString('observed_v1', $source, $path);
+            if (str_contains($source, $productType)) {
+                $violations[] = $productType;
+            }
         }
+        return $violations;
     }
 
     /** @return array<string,array<string,int>> */

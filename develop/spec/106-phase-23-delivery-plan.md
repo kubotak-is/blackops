@@ -2,7 +2,7 @@
 
 Status: Proposal — unreleased BlackOps 1.3; workflow/gate status authority is the exact5 management slice (`develop/STATE.md`, `develop/TODO.md`, the parent Task/Report, and `develop/spec/README.md`)
 
-Updated At: 2026-08-31T23:10:13+09:00
+Updated At: 2026-09-01T04:40:14+09:00
 
 This plan is a delivery DAG for the capability proposal in Specification 105.
 It does not make any Phase 23 item a current Stable `1.2` capability. A slice
@@ -71,6 +71,26 @@ Reviewed B2 candidate `968afe2b0c4bbff86e0013592d69dc7115cf8b4f` is committed,
 and its clean exact-SHA package export is Green; no push was performed.
 No Application composition、Container registration、Audit Outbox／relay、CLI／HTTP／public
 Documentation／release activation occurred. P23-003C is the next serial Audit delivery slice.
+
+For P23-003C delivery, D150 is the more specific split and C1 authority.
+Parent C is delivered serially as C1 pure state foundation, C2 PostgreSQL
+Outbox persistence, C3 required／durable transaction and key composition, then
+C4 relay／recovery runtime. Each child requires the previous child, no partial
+runtime is activated, and parent C requires all four Acceptances. C1 contains
+no DB, transaction, clock read, UUID generation, key access, encryption,
+canonical append, relay, Application composition, or public surface.
+The first C1 preflight is Historical. Focused execution exposed a conflict
+between required direct `AuditRecordTime` reuse and the Accepted A2
+source-registration guard. D150 and the corrected packet permit only that
+bounded Architecture-test exception. Corrected preflight, bounded
+implementation, Iteration Gate, and Complete Final Gate are Green.
+Product／Test exact11 is accepted at
+`d0bfa64e35ce8d113909a2aba710c57ed7bb33fd6711c51df207e71d33919fad`;
+fresh Orchestrator Sol Max implementation review returned
+`P1=0/P2=0/P3=0`. P23-003C1 is Accepted. It changes no B2 Production byte;
+only the shared Architecture guard is superseded, while the other Accepted B2
+exact25 remain byte-identical. Candidate commit and same-SHA package
+verification are closeout only; P23-003C2 is next.
 
 ## Historical P23-003A accepted delivery checkpoint
 
@@ -2700,6 +2720,13 @@ metadata/body cap, header/AAD, tenant, and binary-versus-JSON projection
 substitutions are B/C fixtures; no raw-marker decoder API is introduced.
 
 ### P23-003C — Required/durable transaction and outbox delivery
+
+P23-003C is delivered as the serial C1→C2→C3→C4 split fixed by D150.
+C1 first closes only the six-field lifecycle snapshot and pure transitions;
+C2 composes it with immutable protected ingress in the exact persisted row;
+C3 owns policy selection／transaction／key composition; C4 owns relay and
+recovery. The parent capability remains unreleased and incomplete until all
+four children are Accepted.
 
 Implement required append in the mutation transaction and durable Audit Outbox
 identity/bindings/protected-envelope append with fenced state-field mutation

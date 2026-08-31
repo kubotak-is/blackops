@@ -10,7 +10,41 @@
 - 重要な設計判断は、結論だけでなく理由もREADMEまたは設計文書へ残す
 - 用語の変更時は、コードと文書をまとめて更新する
 
-## P23-003B2 current handoff — Audit PostgreSQL Canonical Store
+## P23-003C1 current handoff — Audit Outbox State Foundation
+
+Updated At: 2026-09-01T04:40:14+09:00
+
+Status: `Accepted — Complete Final Gate and fresh Sol Max implementation review Green; candidate commit pending`。
+
+- [x] P23-003B1／B2 and parent P23-003B Accepted
+- [x] reviewed B2 candidate commit／same-SHA package export Green
+- [x] clean management closeout HEAD `e772242ed2156ee259ae177f69a6b0a9189fef68`
+- [x] D150 C1→C2→C3→C4 serial split drafted
+- [x] P23-003C1 exact pure-state contract drafted
+- [x] P23-003C1 Task Packet／initial Report drafted
+- [x] first Sol Max C1 preflight Green `P1=0/P2=0/P3=0`（Historical）
+- [x] focused executionでAccepted A2 guardとの直接reuse conflictを検出
+- [x] Product／Test exact11へ限定scope correction
+- [x] fresh corrected Sol Max preflight Green `P1=0/P2=0/P3=0`
+- [x] shared B2 Architecture deltaとAccepted B2 exact25 preservationを分離
+- [x] configured Luna Max Product／Test exact11 implementation correction
+- [x] Iteration Gate／Product freeze `d0bfa64e35ce8d113909a2aba710c57ed7bb33fd6711c51df207e71d33919fad`
+- [x] Complete Final Gate
+- [x] fresh Sol Max implementation review `P1=0/P2=0/P3=0`
+- [x] Orchestrator C1 Acceptance
+- [ ] reviewed candidate commit／same-SHA package export
+
+Stable `1.2.0` remains current and BlackOps `1.3` remains unreleased。
+C1はDB、transaction、Clock、UUID generator、key、protection、relay、Application／Container、
+CLI／HTTP、public Documentationを変更またはactivateしない。
+
+Remaining: C1 candidate commit／same-SHA package export、C2→C3→C4、parent P23-003C Acceptance、
+P23-003D..G、P23-004、P23-005、P23-006。
+
+Next Action: Orchestratorがreviewed exact19 candidateをcommitし、clean exact SHAで
+`framework-package-export.sh`を実行する。その後、partial runtimeをactivateせずC2 packetをdraftする。
+
+## P23-003B2 accepted handoff — Historical prerequisite
 
 Updated At: 2026-08-31T23:10:13+09:00
 
@@ -1097,8 +1131,12 @@ Next Action: freeze the new exact5 and exact7 hashes and request fresh separate 
 - [x] P23-002Dで`diagnostics:check`とaggregate-only `queue:status`のsafe contractを実装する（Accepted。Fresh Sol Max closure review Green `P1=0/P2=0/P3=0`）
 - [x] P23-002Eで`about`と`outbox:status`を定義・実装する（Accepted。Fresh Sol Max implementation review Green `P1=0/P2=0/P3=0`）。`dead-letter:list`はoperation/outbox名、tenant、pagination、redaction確定まで延期する
 - [x] P23-003Aをserial A1/A2へ分割する。A1でclosed domain-hashed AuditEventCatalog v1／Catalog-only RFC 8785 JCS/hash、exact 30-definition Framework security/access Catalog、bounded evidence/semantic validation、keyed opaque ID、AuditReadRequestBasis／AuditReadContextを実装する。A2はAccepted A1をconsumeし、AuditRecord draft/logical/complete stage schema、resolved semantic/evidence validation、exact observed safe projectionを実装する。AuditRecord JCS logical body/hash／chain appendはP23-003B、dedicated opaque-key providerはP23-003C、runtime adapterはP23-003D、application registration/projectorはP23-003E。P23-003A1／A2とparent P23-003A are Accepted; P23-003B is next
-- [~] P23-003Bをserial B1／B2で実装する。B1はAcceptedで、reviewed candidate commitとsame-SHA package exportはGreen。B2はPostgreSQL append store、partition-global sequence、segment rotate/fence、same-ID/contentHash idempotency、tenant predicate-before-decrypt、migrationを所有する。B2 seventh re-preflightはGeneral／focused DB／Documentationが別々にGreen `P1=0/P2=0/P3=0`。Immutable exact9を固定し、configured Luna workerのexact26 implementationを開始する
-- [ ] P23-003Cでrequired same-transaction append、auth/read decisionのresponse前 dedicated local append/outbox commit（allow failureはdata非開示fail-closed、deny/invalid failureはbounded denial）、durable Audit Outboxのimmutable identity/bindings/protected envelopeとfenced state-field mutation、at-least-once same-ID/contentHash relayを実装する。Catalogのfixed deliveryをeffect/response前に選択し、versioned policy evaluatorがexplicit `policy.auditDelivery`を割り当てる。only explicit requiredはrequired selector、only explicit durableはdurable selector、missing／omitted／unknownはfail closedとし、record値はdefinition.deliveryと一致しなければならない。4 policy pathsをfixture化し、runtime override／downgrade／best-effort canonical pathを拒否する
+- [x] P23-003Bをserial B1／B2で実装する。B1／B2 and parent P23-003B are Accepted。Reviewed B2 candidate commitとsame-SHA package exportはGreenである
+- [~] P23-003Cをserial C1→C2→C3→C4で実装する。required same-transaction append、auth/read decisionのresponse前 dedicated local append/outbox commit（allow failureはdata非開示fail-closed、deny/invalid failureはbounded denial）、durable Audit Outboxのimmutable identity/bindings/protected envelopeとfenced state-field mutation、at-least-once same-ID/contentHash relayを全child Acceptance後に成立させる
+- [x] P23-003C1でpure Audit Outbox state snapshot、configuration、deterministic backoff、claim／retry／recover／relay／poison transitionを実装する。Complete Final Gate／fresh Sol Max review `P1=0/P2=0/P3=0`でAccepted。DB／runtime activationは行わない
+- [ ] P23-003C2でPostgreSQL Audit Outbox row／migration／hydrator／idempotency／ordinal／FIFO／fenced CASを実装する
+- [ ] P23-003C3でCatalogのfixed delivery、explicit `policy.auditDelivery`、required same-root transaction、protected-read response gate、Application key compositionを実装する
+- [ ] P23-003C4でsame recordId／contentHashのat-least-once relay、append-before-ack recovery、retry／poison runtimeを実装する
 - [ ] P23-003Dでretention／hold、rotation、replay、outbox retryをimmutable AuditRecord phase eventへ明示adaptし、AuthenticationMiddleware／AuthorizationEvaluator／protected Operation Status／Journal／Outcome／diagnostic read boundaryのadapterとindependent reviewを行う
 - [ ] P23-003EでApplication versioned event registration/projector API、reference journey、business-action non-inferenceを検証する
 - [ ] P23-003FでP23-003Bの完成AuditRecordをconsumeし、reusable catalog/hash／record／checkpoint／anchor／freshness verifier、immutable AuditCheckpoint／AuditAnchorReceipt、sealed concrete-segment graph、pure RFC 8032 Ed25519、pinned role-separated trust／revocation、external anchor、hash recomputation without appendを実装する（Fがcatalog／record／checkpoint／anchor／freshness coreと再計算を所有し、append／record mutation／physical deletionは行わない。同一`checkpointId`＋同一complete bytes/hashはpersist-before-ack後のidempotent success、異なるbytes/hashまたは同一segmentの別checkpointはintegrity failure）
