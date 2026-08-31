@@ -1,8 +1,8 @@
 # D151: Audit PostgreSQL Outbox Persistence Boundary
 
-Status: Proposed — P23-003C2 corrected packet commit checkpoint; fresh Sol／Documentation preflight required; BlackOps 1.3 unreleased
+Status: Proposed — P23-003C2 second corrected packet commit checkpoint; fresh Sol／Documentation re-preflight required; BlackOps 1.3 unreleased
 
-Updated At: 2026-09-01T06:17:02+09:00
+Updated At: 2026-09-01T06:39:35+09:00
 
 ## Current Handoff
 
@@ -22,13 +22,19 @@ Stable `1.2.0` remains current. BlackOps `1.3` and the Audit Trail remain
 unreleased.
 
 The first General／DB／Documentation preflight lanes are Historical Changes
-Requested. This corrected Decision and Task close their overlapping roots.
+Requested. The clean-commit re-preflight at
+`26527296da112e315c6a332d26282f52625bb7a7` is also Historical after General
+and DB separately returned `P1=1/P2=0/P3=0`; Documentation returned Green
+`P1=0/P2=0/P3=0`, but its evidence is invalidated by this normative change.
+The two remaining roots were a retained-row tenant-binding blind spot and the
+omission of the current migration-command count test from Files Allowed. This
+second corrected Decision and Task close both roots without changing Product.
 
 This commit establishes the exact nine-file corrected management packet; its
 SHA is supplied after commit rather than self-recorded here.
 
-Next Action: the Orchestrator obtains fresh Sol／Documentation preflight from
-that clean committed HEAD, then
+Next Action: the Orchestrator captures this second corrected-packet commit SHA,
+obtains fresh Sol／Documentation re-preflight from that clean HEAD, then
 delegates only the frozen Product／Test scope to the configured Luna worker.
 
 ## Context
@@ -174,6 +180,16 @@ and `AuditOutboxStateSnapshot::fromArray()` exactly once each, then calls
 configuration. Missing, extra,
 reordered, list, wide, wrong-type, unsafe integer, partial tenant, noncanonical
 timestamp／UUID, malformed bytea, or invalid state is `integrity_invalid`.
+
+Both hydrators own physical shape and scalar validation only. They do not
+derive a partition from the tenant pair. The Store owns the one injected
+`AuditPartitionIdDeriver`; after hydration and before every
+`unprotectOutbox()` call, it derives the partition from the hydrated tenant
+binding and requires byte equality with the hydrated clear `partitionId` and
+the operation's requested／locked partition. A mismatch is
+`integrity_invalid` with zero key-source and decrypt calls. This rule applies
+to append retry, find, claim, recovery, retry, relay, and poison and does not
+add a hydrator dependency or constructor.
 
 DB integers accept only native `int` or canonical unsigned decimal
 `0|[1-9][0-9]*`, with digit-length and lexical bounds checked before cast.
@@ -369,13 +385,31 @@ pg_advisory_xact_lock(hashtextextended(
 ```
 
 After the partition lock it locks the partition-state row `FOR UPDATE`, then
-runs one exact aggregate over retained same-partition rows. Missing state is a
-valid bootstrap only when `count=0` and both `min(ingress_ordinal)` and
-`max(ingress_ordinal)` are null. Present state with ordinal `N` is valid only
-when its tenant pair matches the requested partition, `state_version=N`, and
-the aggregate is exactly `count=N,min=1,max=N`. State-ahead, state-behind,
-interior gap, zero-row state, orphan row, or tenant mismatch is
-`integrity_invalid` before Clock, UUID, key, protection, or write.
+runs one exact aggregate over retained rows selected by the requested
+`partition_id`. Its closed four-column projection order is:
+
+```text
+row_count = count(*)
+min_ordinal = min(ingress_ordinal)
+max_ordinal = max(ingress_ordinal)
+tenant_mismatch_count = count(*) FILTER (
+  WHERE tenant_type IS DISTINCT FROM :expected_tenant_type
+     OR tenant_id IS DISTINCT FROM :expected_tenant_id
+)
+```
+
+The two expected tenant parameters are the validated caller pair: both null
+for `system:global`, otherwise the exact requested tenant type and ID. Count
+members use the same bounded nonnegative DB integer parser as other aggregate
+scalars; minima／maxima are nullable canonical DB integers. Missing state is a
+valid bootstrap only when the result is exactly `0／null／null／0`. Present
+state with ordinal `N` is valid only when its tenant pair matches the requested
+pair and derived partition, `state_version=N`, and the aggregate is exactly
+`N／1／N／0`. Thus every retained row, including an interior non-head row, is
+bound to the locked state tenant. State-ahead, state-behind, interior gap,
+zero-row state, orphan row, state／retained tenant mismatch, or malformed
+aggregate is `integrity_invalid` before Clock, UUID, key, protection, or
+write.
 
 `last_assigned_recorded_at` is the trusted monotonic allocator scalar written
 only by the same append CTE and validated as a finite canonical timestamp when
@@ -682,6 +716,11 @@ migration in chronological order. Both package scripts must match this one
 manifest byte-for-byte. Historical Stable `1.2` migration and package fixtures
 remain unchanged.
 
+The current `DatabaseMigrationCommandTest` is not a historical baseline: its
+framework-only `pending／migrations／applied` assertions move from 12 to 13 and
+its Framework-plus-one-Application assertions move from 13 to 14. It is part
+of C2 Files Allowed and both focused and complete test gates.
+
 The Release Authority tuple is:
 
 ```text
@@ -722,6 +761,6 @@ only through the Accepted B2 Store during C4 relay.
 
 ## Suggested Next Action
 
-Capture the corrected-packet commit SHA, then run fresh Sol／Documentation
-preflight against that clean HEAD, D151, and the exact P23-003C2 Task Packet.
-Product work remains blocked until every lane is Green.
+Capture the second corrected-packet commit SHA, then run fresh Sol／
+Documentation re-preflight against that clean HEAD, D151, and the exact
+P23-003C2 Task Packet. Product work remains blocked until every lane is Green.

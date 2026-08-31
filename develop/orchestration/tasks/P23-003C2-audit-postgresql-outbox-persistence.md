@@ -1,8 +1,8 @@
 # P23-003C2: Audit PostgreSQL Outbox Persistence
 
-Status: Corrected Packet Commit Checkpoint — Fresh preflight required before Product work
+Status: Second Corrected Packet Commit Checkpoint — Fresh re-preflight required before Product work
 
-Updated At: 2026-09-01T06:17:02+09:00
+Updated At: 2026-09-01T06:39:35+09:00
 
 ## Current Checkpoint
 
@@ -21,8 +21,15 @@ roots are corrected in this packet. No Product work has begun.
 
 This commit establishes the exact nine-file corrected management packet. Its
 exact SHA is supplied in the preflight dispatch because a commit cannot record
-its own identifier. Fresh preflight starts from that clean committed HEAD and
+its own identifier. Fresh re-preflight starts from that clean committed HEAD and
 must return Green before the configured Luna worker edits Product.
+
+The first clean-commit re-preflight at
+`26527296da112e315c6a332d26282f52625bb7a7` is Historical: General and DB
+separately returned `P1=1/P2=0/P3=0`; Documentation returned Green
+`P1=0/P2=0/P3=0`. This second bounded correction adds exact retained-row
+tenant binding and the current migration-command count test to scope. All
+three lanes must re-run from the new clean commit before Product work.
 
 Stable `1.2.0` remains current. BlackOps `1.3` and all Audit capabilities
 remain unreleased.
@@ -51,7 +58,7 @@ business transaction adapter, or relay runtime.
 - Orchestrator／Reviewer: repository-configured `gpt-5.6-sol`／`max`.
 - Production Worker: repository-configured `gpt-5.6-luna`／`max`.
 - Documentation Reviewer: repository-configured `gpt-5.6-sol`／`xhigh`, read-only when used.
-- Worker starts only after fresh preflight Green.
+- Worker starts only after fresh re-preflight Green.
 - Worker changes only exact Files Allowed.
 - Worker updates Report／STATE and does not stage, commit, push, publish, or deploy.
 - Any Product／Test change invalidates earlier Iteration／Final evidence.
@@ -204,6 +211,13 @@ Before decrypt, every path validates tenant-pair／partition consistency and the
 full immutable clear binding. A read-side protection failure becomes
 `integrity_invalid` without exposing raw cause.
 
+The physical hydrators validate shape and scalars only. The Store uses its
+injected `AuditPartitionIdDeriver` after hydration and before decrypt to derive
+the hydrated tenant binding's partition, then requires it to equal both the
+row's clear partition and the requested／locked partition. Mismatch is
+`integrity_invalid` with zero key-source／decrypt calls; no hydrator constructor
+or dependency is added.
+
 ### 5. Transaction, locks, and atomic append
 
 Use the D151 exact auto-commit／nesting contract and Accepted B2 quarantine
@@ -215,12 +229,16 @@ record advisory lock when required. Do not take a record lock before its
 partition. Missing state requires an orphan-row probe before bootstrap.
 
 After the partition lock, append validates the exact retained-row aggregate.
-Missing state requires `count=0,min=NULL,max=NULL`. Present state at ordinal
-`N` requires the requested tenant pair, `state_version=N`, and
-`count=N,min=1,max=N`. State ahead／behind, interior gap, zero-row state,
-orphan row, and tenant mismatch fail before Clock, UUID, key, protection, or
-write. The monotonic recorded-at scalar is trusted allocator state written only
-by the same CTE; external superuser mutation is outside this boundary.
+Its exact projection is
+`row_count,min_ordinal,max_ordinal,tenant_mismatch_count`; the last member
+counts retained rows whose tenant type or ID is `IS DISTINCT FROM` the
+validated requested pair. Missing state requires `0,NULL,NULL,0`. Present
+state at ordinal `N` requires the state tenant pair and derived partition to
+match the request, `state_version=N`, and `N,1,N,0`. State ahead／behind,
+interior gap, zero-row state, orphan row, any interior／head retained tenant
+mismatch, or malformed aggregate fails before Clock, UUID, key, protection,
+or write. The monotonic recorded-at scalar is trusted allocator state written
+only by the same CTE; external superuser mutation is outside this boundary.
 
 Bootstrap and existing-state append each use one dependency-ordered
 data-modifying CTE with a transaction-aborting final count fence. There is no
@@ -309,7 +327,7 @@ fixtures.
 
 ## Files Allowed
 
-Production／Test exact26:
+Production／Test exact27:
 
 1. `src/Internal/Audit/Outbox/AuditOutboxStoreFailure.php`
 2. `src/Internal/Audit/Outbox/AuditOutboxStoreException.php`
@@ -332,16 +350,17 @@ Production／Test exact26:
 19. `tests/Architecture/AuditOutboxStateArchitectureTest.php`
 20. `tests/Architecture/AuditRecordArchitectureTest.php`
 21. `tests/Internal/Migration/DatabaseMigrationRunnerTest.php`
-22. `tests/Integration/ApplicationConsoleKernelTest.php`
-23. `tests/Consumer/framework-package-required-inventory.sh`
-24. `tests/Consumer/framework-package-export.sh`
-25. `tests/Consumer/community-board-clean-install.sh`
-26. `examples/community-board/README.md`
+22. `tests/Internal/Console/DatabaseMigrationCommandTest.php`
+23. `tests/Integration/ApplicationConsoleKernelTest.php`
+24. `tests/Consumer/framework-package-required-inventory.sh`
+25. `tests/Consumer/framework-package-export.sh`
+26. `tests/Consumer/community-board-clean-install.sh`
+27. `examples/community-board/README.md`
 
 Worker management exact2:
 
-27. `develop/orchestration/reports/P23-003C2-audit-postgresql-outbox-persistence.md`
-28. `develop/STATE.md`
+28. `develop/orchestration/reports/P23-003C2-audit-postgresql-outbox-persistence.md`
+29. `develop/STATE.md`
 
 Orchestrator-only immutable exact7:
 
@@ -355,7 +374,7 @@ Orchestrator-only immutable exact7:
 
 Before worker start, the Orchestrator supplies all immutable exact7 individual
 SHA-256 values, their ordered aggregate, and Report／STATE starting hashes.
-Only exact26 plus Report／STATE may move. Any other path is a Blocker.
+Only exact27 plus Report／STATE may move. Any other path is a Blocker.
 
 ## Required Fixtures
 
@@ -388,6 +407,9 @@ Only exact26 plus Report／STATE may move. Any other path is a Blocker.
   uniqueness SQLSTATE negatives with before／after row equality
 - current migration exact13, first／last order, status read-only, apply exact
 - second Connection and non-UTC session persistence roundtrip
+- current migration-command framework-only exact 13 and
+  Framework-plus-one-Application exact 14 for pending／migrations／applied;
+  no current 12／13 assertion remains in that test
 
 ### Append and idempotency
 
@@ -402,9 +424,13 @@ Only exact26 plus Report／STATE may move. Any other path is a Blocker.
 - idempotency hash B1 parity, 1／256 key bounds, cap+1, NFD/control, U+2028／2029
 - global generated record-ID collision, ordinal MAX, state-version MAX,
   malformed persisted state, orphan row
-- present-state retained-row aggregate exact `N／1／N`; state ahead, state
-  behind, interior gap, zero-row state, and tenant mismatch, each with zero
-  Clock／UUID／key／protect／write
+- retained-row aggregate exact `row_count／min／max／tenant_mismatch_count`;
+  present state requires `N／1／N／0`, while missing state requires
+  `0／null／null／0`
+- state ahead, state behind, interior gap, zero-row state, orphan row, and
+  state-tenant／interior-row／head-row tenant mismatch for system-null and
+  tenant-present pairs, each with zero Clock／UUID／Finalizer／key／nonce／
+  protect／write and before／after row equality
 - generated record-ID collision after partition lock with zero
   Finalizer／envelope／active-key／nonce／encrypt／write
 - owned root and caller-owned level1; every invalid transaction state
@@ -460,7 +486,7 @@ Only exact26 plus Report／STATE may move. Any other path is a Blocker.
 - [ ] New append is atomic and cannot commit an ordinal gap or partial state.
 - [ ] Same-partition FIFO cannot be bypassed; poison is acknowledged.
 - [ ] Only six state columns mutate after insert; protected bytes never rotate.
-- [ ] Exact26 scope, immutable exact7, B2 Production preservation, and staged0 hold.
+- [ ] Exact27 scope, immutable exact7, B2 Production preservation, and staged0 hold.
 - [ ] Iteration Gate is Green from the final Product freeze.
 - [ ] Complete Final Gate is Green from that unchanged freeze.
 - [ ] Fresh independent DB and General Sol reviews return no blocking finding.
@@ -471,16 +497,16 @@ Only exact26 plus Report／STATE may move. Any other path is a Blocker.
 
 The corrected nine-file management packet is committed by the Orchestrator
 before final preflight and worker dispatch. The worker therefore starts from a
-clean worktree; after the exact26 Product／Test plus Report／STATE work exists,
-the status set is exactly the listed 28 paths.
+clean worktree; after the exact27 Product／Test plus Report／STATE work exists,
+the status set is exactly the listed 29 paths.
 
-Run after each coherent exact26 batch and stop at first failure. The dispatch
+Run after each coherent exact27 batch and stop at first failure. The dispatch
 provides newline-delimited `<sha256> <path>` as
 `P23_C2_IMMUTABLE_SHA256_MANIFEST`. Verify exact7 path set, every live hash,
 and a synthetic wrong-hash negative before Product work and at ending freeze.
 
 The scope guard must compare `git status --short --untracked-files=all` to the
-exact28 Files Allowed list. It must also prove that removing or adding one
+exact29 Files Allowed list. It must also prove that removing or adding one
 synthetic path fails the comparison. No ancient aggregate is a substitute for
 the committed clean packet HEAD and exact current scope.
 
@@ -510,6 +536,7 @@ expected_scope="$({
     tests/Architecture/AuditOutboxStateArchitectureTest.php \
     tests/Architecture/AuditRecordArchitectureTest.php \
     tests/Internal/Migration/DatabaseMigrationRunnerTest.php \
+    tests/Internal/Console/DatabaseMigrationCommandTest.php \
     tests/Integration/ApplicationConsoleKernelTest.php \
     tests/Consumer/framework-package-required-inventory.sh \
     tests/Consumer/framework-package-export.sh \
@@ -519,7 +546,7 @@ expected_scope="$({
     develop/STATE.md
 } | LC_ALL=C sort)"
 actual_scope="$(git status --short --untracked-files=all | cut -c4- | LC_ALL=C sort)"
-test "$(printf '%s\n' "$expected_scope" | sed '/^$/d' | wc -l)" -eq 28
+test "$(printf '%s\n' "$expected_scope" | sed '/^$/d' | wc -l)" -eq 29
 test "$actual_scope" = "$expected_scope"
 test "$actual_scope" != "$(printf '%s\n%s\n' "$expected_scope" __p23_c2_extra__ | LC_ALL=C sort)"
 test "$actual_scope" != "$(printf '%s\n' "$expected_scope" | sed '1d')"
@@ -557,6 +584,7 @@ docker compose run --rm app mago format --check \
   tests/Architecture/AuditRecordArchitectureTest.php \
   migrations/postgresql/Version20260901000000.php \
   tests/Internal/Migration/DatabaseMigrationRunnerTest.php \
+  tests/Internal/Console/DatabaseMigrationCommandTest.php \
   tests/Integration/ApplicationConsoleKernelTest.php
 
 docker compose run --rm app php vendor/bin/phpunit \
@@ -569,6 +597,7 @@ docker compose run --rm app php vendor/bin/phpunit \
   tests/Architecture/AuditPublicApiTest.php \
   tests/Architecture/PublicApiArchitectureTest.php \
   tests/Internal/Migration/DatabaseMigrationRunnerTest.php \
+  tests/Internal/Console/DatabaseMigrationCommandTest.php \
   tests/Integration/ApplicationConsoleKernelTest.php
 
 docker compose run --rm app php vendor/bin/deptrac analyse \
@@ -594,13 +623,13 @@ git diff --check
 test -z "$(git diff --cached --name-only)"
 ```
 
-After Green, record every exact26 individual SHA and the ordered
-`sha256sum <exact26 paths> | sha256sum` aggregate. Any exact26 change
+After Green, record every exact27 individual SHA and the ordered
+`sha256sum <exact27 paths> | sha256sum` aggregate. Any exact27 change
 invalidates the freeze.
 
 ## Complete Final Gate
 
-Run once from the unchanged exact26 freeze after Orchestrator pre-gate review.
+Run once from the unchanged exact27 freeze after Orchestrator pre-gate review.
 Stop at first failure. Re-run the Iteration scope／immutable／package-inventory
 guards before command 1 and after the final command.
 
@@ -659,9 +688,9 @@ Report must contain:
 - Changed Files exact list
 - Decisions and Assumptions
 - Commands and Results with exit codes and counts
-- exact26 individual hashes and ordered aggregate
+- exact27 individual hashes and ordered aggregate
 - committed corrected-packet start HEAD and clean preflight freeze
-- exact28 scope and immutable exact7 start／end hashes
+- exact29 scope and immutable exact7 start／end hashes
 - Accepted C1 and B2 preservation evidence
 - schema／migration／transaction／idempotency／ordinal／FIFO／CAS evidence
 - no-leak／tenant-before-decrypt／binary／UTC evidence
@@ -676,7 +705,7 @@ Browser, runtime, release, or deployment Green from Source tests.
 
 ## Remaining Issues
 
-- Fresh Sol／Documentation preflight from the corrected-packet commit.
+- Fresh Sol／Documentation re-preflight from the second corrected-packet commit.
 - Luna implementation and Iteration Gate.
 - Orchestrator pre-gate review and Complete Final Gate.
 - Fresh independent DB／General implementation review.
@@ -685,6 +714,6 @@ Browser, runtime, release, or deployment Green from Source tests.
 
 ## Suggested Next Action
 
-Capture this corrected-packet commit SHA, then run fresh Sol／Documentation
-preflight against that clean HEAD, this Task, and D151. Product work waits for
-Green; no push, runtime activation, or release action.
+Capture this second corrected-packet commit SHA, then run fresh Sol／
+Documentation re-preflight against that clean HEAD, this Task, and D151.
+Product work waits for Green; no push, runtime activation, or release action.

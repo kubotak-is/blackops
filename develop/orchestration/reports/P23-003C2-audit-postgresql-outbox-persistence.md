@@ -1,8 +1,8 @@
 # P23-003C2 Report: Audit PostgreSQL Outbox Persistence
 
-Status: Corrected Task Packet Commit Checkpoint — Fresh preflight required; Product work not started
+Status: Second Corrected Task Packet Commit Checkpoint — Fresh re-preflight required; Product work not started
 
-Updated At: 2026-09-01T06:17:02+09:00
+Updated At: 2026-09-01T06:39:35+09:00
 
 ## Summary
 
@@ -29,7 +29,18 @@ No Product, Test, migration, consumer, README, runtime, Application, Container,
 CLI, HTTP, Guide, Website, generated artifact, or deployment byte has been
 changed for C2. This commit establishes the exact nine-file corrected
 management packet; its exact SHA is captured after commit and supplied in the
-fresh preflight dispatch. Product work waits for Green from that clean HEAD.
+fresh re-preflight dispatch. Product work waits for Green from that clean HEAD.
+
+The fresh review of committed packet
+`26527296da112e315c6a332d26282f52625bb7a7` is now Historical and remains
+separate by lane: General `P1=1/P2=0/P3=0`, PostgreSQL／DB
+`P1=1/P2=0/P3=0`, Documentation／Release `P1=0/P2=0/P3=0`. General proved
+that the migration 12→13 change also requires the current
+`DatabaseMigrationCommandTest`, which was outside exact26. DB proved that
+`count／min／max` alone accepts an interior retained row whose tenant pair does
+not match the locked state. This second bounded management correction adds
+that test to exact27 and fixes the retained aggregate at
+`row_count／min／max／tenant_mismatch_count`; no Product byte is changed.
 
 ## Changed Files
 
@@ -69,6 +80,10 @@ No Product／Test file is changed at this checkpoint.
 - C4 later owns the active relay loop; C2 only provides persistent operations.
 - Framework migration count will become 13, Community total 18, and required
   package inventory exact54 only after implementation.
+- Physical hydrators validate shape only; the Store-owned partition deriver
+  binds hydrated tenant to clear／requested partition before decrypt.
+- Current migration-command counts move framework-only 12→13 and
+  Framework-plus-one-Application 13→14 inside exact27 scope.
 
 ## Commands and Results
 
@@ -81,6 +96,9 @@ Read-only research completed:
 - three bounded Luna read-only research lanes: completed; no edits
 - initial independent preflight lanes: Historical Changes Requested with the
   separate counts recorded above; no Product edits or command execution
+- clean-commit fresh lanes: Historical General `P1=1/P2=0/P3=0`, DB
+  `P1=1/P2=0/P3=0`, Documentation `P1=0/P2=0/P3=0`; read-only, no Product
+  edits or command execution
 - repository profile check: PASS (`sol/max`, `luna/max`, `sol/xhigh`)
 - corrected Task all fenced Bash blocks extracted and parsed by `bash -n`: PASS
 - D151 exact ordered package manifest count: PASS (`54`)
@@ -103,8 +121,12 @@ Not Run because Product work has not started:
 - [x] Exact P23-003C2 Files Allowed and required fixtures drafted.
 - [x] Stable `1.2`／unreleased `1.3` and no-partial-activation boundary retained.
 - [x] Initial preflight findings corrected in Decision／Task／management scope.
+- [x] First clean-commit re-preflight findings corrected in Decision／Task／
+  management scope.
 - [x] Corrected nine-file management packet committed by the Orchestrator;
   exact self-commit SHA is supplied after commit in the preflight dispatch.
+- [x] Second bounded nine-file management correction is this commit checkpoint;
+  its self-commit SHA is likewise supplied only after commit.
 - [ ] Fresh Sol preflight Green.
 - [ ] Luna implementation and Iteration Gate Green.
 - [ ] Complete Final Gate Green.
@@ -113,7 +135,7 @@ Not Run because Product work has not started:
 
 ## Remaining Issues
 
-- Fresh preflight remains pending from the corrected-packet commit.
+- Fresh re-preflight remains pending from the second corrected-packet commit.
 - Product implementation and all implementation evidence remain pending.
 - C3, C4, and parent P23-003C remain pending after C2.
 - Generated Documentation artifacts and Browser remain Not Verified and are not
@@ -121,6 +143,6 @@ Not Run because Product work has not started:
 
 ## Suggested Next Action
 
-Capture the corrected-packet commit SHA, verify a clean worktree, and run fresh
-independent Sol／Documentation preflight from that exact commit. Do not dispatch
-Product work until every lane is Green.
+Capture the second corrected-packet commit SHA, verify a clean worktree, and
+run fresh independent Sol／Documentation re-preflight from that exact commit.
+Do not dispatch Product work until every lane is Green.

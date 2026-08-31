@@ -2,9 +2,9 @@
 
 ## P23-003C2 current handoff — Audit PostgreSQL Outbox Persistence
 
-Updated At: 2026-09-01T06:17:02+09:00
+Updated At: 2026-09-01T06:39:35+09:00
 
-Current status: `Corrected Packet Commit Checkpoint — fresh Sol／Documentation preflight required; Product work has not begun`.
+Current status: `Second Corrected Packet Commit Checkpoint — fresh Sol／Documentation re-preflight required; Product work has not begun`.
 
 P23-003B1／B2 and parent P23-003B are Accepted.
 Reviewed B2 candidate `968afe2b0c4bbff86e0013592d69dc7115cf8b4f` and its clean-candidate package export are Green.
@@ -30,14 +30,23 @@ authority roots. This commit establishes the exact nine-file packet; its SHA is
 captured afterward and supplied to fresh reviewers. Preflight from that clean
 HEAD must be Green before the configured Luna worker edits Product.
 
+That clean-commit re-preflight is now Historical: General and DB separately
+returned `P1=1/P2=0/P3=0`; Documentation returned Green. The second bounded
+correction adds an exact retained-row tenant-mismatch aggregate member, keeps
+tenant-to-partition derivation in the Store before decrypt, and expands C2 to
+exact27 Product／Test and exact29 worker scope with the current migration-command
+count test. A new clean committed freeze requires all three lanes again.
+
 Stable `1.2.0` remains current and BlackOps `1.3` remains unreleased.
 No C2 Product exists yet. No Application／Container／CLI／HTTP／relay runtime or
 public Documentation behavior is activated.
 
-Remaining: fresh C2 preflight, bounded implementation／gates／review／Acceptance,
+Remaining: fresh C2 re-preflight, bounded implementation／gates／review／
+Acceptance,
 then C3→C4 and parent P23-003C Acceptance.
-Next Action: capture the corrected-packet commit SHA, then run independent Sol／
-Documentation preflight from that clean HEAD without changing Product.
+Next Action: capture the second corrected-packet commit SHA, then run
+independent Sol／Documentation re-preflight from that clean HEAD without
+changing Product.
 
 ## P23-003B2 accepted handoff — Historical prerequisite
 
@@ -1631,7 +1640,7 @@ closedする。Semantic tuple、trusted external verification context、exact
 | [D148](../decisions/148-audit-canonical-record-and-protected-store-boundary.md) | Audit canonical record、hash／chain、Audit専用BOPD protection、B1／B2 boundary | P23-003B1／B2 and parent P23-003B Accepted; B2 candidate commit／same-SHA package export Green; Stable `1.2` unchanged / BlackOps `1.3` unreleased |
 | [D149](../decisions/149-audit-postgresql-canonical-store-boundary.md) | Audit PostgreSQL canonical append、segment、tenant-aware read、migration boundary | P23-003B2 Accepted; Complete Final Gate and fresh DB／General Sol closure Green; candidate `968afe2b...` package export Green; Stable `1.2` unchanged / BlackOps `1.3` unreleased |
 | [D150](../decisions/150-audit-outbox-state-and-delivery-split.md) | P23-003C serial C1／C2／C3／C4 split and pure Audit Outbox state boundary | Proposed — P23-003C1 Accepted with candidate package Green; P23-003C2 next; Stable `1.2` current / BlackOps `1.3` unreleased |
-| [D151](../decisions/151-audit-postgresql-outbox-persistence-boundary.md) | Audit PostgreSQL Outbox row、idempotent append、FIFO／CAS、transaction boundary | Proposed — P23-003C2 corrected-packet commit checkpoint; fresh preflight required before Product; Stable `1.2` current / BlackOps `1.3` unreleased |
+| [D151](../decisions/151-audit-postgresql-outbox-persistence-boundary.md) | Audit PostgreSQL Outbox row、idempotent append、FIFO／CAS、transaction boundary | Proposed — P23-003C2 second corrected-packet commit checkpoint; fresh re-preflight required before Product; Stable `1.2` current / BlackOps `1.3` unreleased |
 
 ## Historical P23-001 Round 13 checkpoint
 

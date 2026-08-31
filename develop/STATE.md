@@ -1,9 +1,9 @@
 # Orchestration State
 
-Updated At: 2026-09-01T06:17:02+09:00
+Updated At: 2026-09-01T06:39:35+09:00
 
-P23-003C2 PostgreSQL Outbox Persistence Corrected Packet Commit Checkpoint At:
-2026-09-01T06:17:02+09:00. Accepted C1 and clean closeout HEAD
+P23-003C2 PostgreSQL Outbox Persistence Second Corrected Packet Commit Checkpoint At:
+2026-09-01T06:39:35+09:00. Accepted C1 and clean closeout HEAD
 `4bebcb09d8e67e58c424d0c9543e594708d02872` are the input. Read-only
 Orchestrator and three bounded Luna research lanes confirmed that the parent
 contract did not yet fix C2 physical DDL, callable graph, transaction
@@ -15,7 +15,7 @@ new `Internal/Audit/Outbox` exact10, migration `Version20260901000000`, exact
 two-table schema, authenticated same-key retry before resource work, no-gap
 ordinal／high-water append, global deterministic minimum-head selection without
 same-partition `SKIP LOCKED`, C1-backed claim／recover／retry／relay／poison CAS,
-owned-root／caller-level1 transaction participation, exact26 Files Allowed,
+owned-root／caller-level1 transaction participation, exact27 Files Allowed,
 focused Iteration Gate, one Complete Final Gate, and post-Acceptance same-SHA
 package export. C2 activates no Application／Container／relay runtime／CLI／HTTP
 or public Audit documentation.
@@ -29,22 +29,37 @@ generated-ID lock／probe order, one Clock order, exact public callable
 authority, exact54 ordered package manifest, repository profile truth, and a
 runnable committed-packet scope gate.
 
-This commit establishes the exact corrected nine-file management packet. Its
-SHA is captured after commit and supplied to fresh reviewers rather than
+The first clean-commit re-preflight at
+`26527296da112e315c6a332d26282f52625bb7a7` is also Historical and remains
+separate: General `P1=1/P2=0/P3=0`, PostgreSQL／DB `P1=1/P2=0/P3=0`, and
+Documentation／Release `P1=0/P2=0/P3=0`. The two blocking roots were an
+aggregate that did not bind every retained row tenant pair to the locked state
+and omission of the current `DatabaseMigrationCommandTest` from C2 scope.
+D151／Task now fix the aggregate at exact
+`row_count／min／max／tenant_mismatch_count`, keep partition derivation in the
+Store before decrypt, and expand Product／Test to exact27 and worker status to
+exact29. The current migration-command assertions move 12→13 and 13→14.
+
+This second correction establishes a new exact nine-file management packet.
+Its SHA is captured after commit and supplied to fresh reviewers rather than
 self-recorded in the commit body.
 
 No C2 Product, Test, migration, consumer, README, runtime, package, public
-Documentation, or generated Artifact byte has changed. No test, Docker,
-package export, commit, push, release, deploy, or browser action was run for
-C2. Stable `1.2.0` remains current and BlackOps `1.3` remains unreleased.
+Documentation, or generated Artifact byte has changed. The prior management
+packet commit is Historical; this commit establishes the second management
+correction without self-recording its SHA. No Product test, Docker, package
+export, push, release, deploy, or browser action was run for C2. Stable
+`1.2.0` remains current and BlackOps `1.3` remains unreleased.
 
-Remaining: fresh C2 Sol／Documentation preflight, bounded Luna implementation,
+Remaining: fresh C2 Sol／Documentation re-preflight, bounded Luna
+implementation,
 Iteration／
 Complete Final Gates, fresh DB／General implementation review, Acceptance,
 candidate commit／same-SHA package export, then C3→C4 and parent P23-003C.
 
-Next Action: capture the corrected-packet commit SHA, verify a clean worktree,
-and run fresh Sol／Documentation preflight. Product work waits for Green.
+Next Action: capture the second corrected-packet commit SHA, verify a clean
+worktree, and run fresh Sol／Documentation re-preflight. Product work waits for
+Green.
 
 P23-003C1 Post-Acceptance Commit／Package Gate Green At:
 2026-09-01T04:47:46+09:00. The Orchestrator committed the reviewed exact19

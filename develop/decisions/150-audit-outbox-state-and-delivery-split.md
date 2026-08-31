@@ -1,8 +1,8 @@
 # D150: Audit Outbox State and Delivery Split
 
-Status: Proposed — P23-003C1 Accepted; D151／P23-003C2 corrected-packet commit checkpoint; fresh preflight required; BlackOps 1.3 unreleased
+Status: Proposed — P23-003C1 Accepted; D151／P23-003C2 second corrected-packet commit checkpoint; fresh re-preflight required; BlackOps 1.3 unreleased
 
-Updated At: 2026-09-01T06:17:02+09:00
+Updated At: 2026-09-01T06:39:35+09:00
 
 ## Current Handoff
 
@@ -49,9 +49,17 @@ The first General／DB／Documentation preflight lanes are Historical Changes
 Requested. Their overlapping configuration, DDL, ordering, scope, package,
 and callable-authority roots are corrected in D151 and the Task.
 
-This commit establishes the corrected nine-file management packet; its exact
-SHA is captured after commit. Next Action: run fresh Sol／Documentation
-preflight from that clean HEAD. Product work waits for Green.
+The clean-commit re-preflight at
+`26527296da112e315c6a332d26282f52625bb7a7` is also Historical: General and DB
+each returned `P1=1/P2=0/P3=0`, while Documentation returned Green. D151 and
+the Task now bind every retained row tenant pair through the exact aggregate,
+make the Store derive the hydrated partition before decrypt, and add the
+current migration-command count test to exact27／worker exact29 scope.
+
+This second correction establishes a new nine-file management packet; its
+exact SHA is captured after commit. Next Action: capture that SHA and run fresh
+Sol／Documentation re-preflight from the clean HEAD. Product work waits for
+Green.
 
 ## Context
 
@@ -287,6 +295,6 @@ Required same-transaction append, durable ingress persistence, Application key c
 
 ## Suggested Next Action
 
-Capture the corrected-packet commit SHA, then run fresh Sol／Documentation
-preflight against D151 and the exact P23-003C2 Task Packet.
+Capture the second corrected-packet commit SHA, then run fresh Sol／
+Documentation re-preflight against D151 and the exact P23-003C2 Task Packet.
 Product work remains blocked until Green.

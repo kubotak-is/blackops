@@ -2,7 +2,7 @@
 
 Status: Proposal — unreleased BlackOps 1.3; workflow/gate status authority is the exact5 management slice (`develop/STATE.md`, `develop/TODO.md`, the parent Task/Report, and `develop/spec/README.md`)
 
-Updated At: 2026-09-01T05:32:58+09:00
+Updated At: 2026-09-01T06:39:35+09:00
 
 This plan is a delivery DAG for the capability proposal in Specification 105.
 It does not make any Phase 23 item a current Stable `1.2` capability. A slice
@@ -103,6 +103,15 @@ ordering, scope, package, and callable-authority roots. This commit establishes
 that exact nine-file management packet; its SHA is captured afterward. Fresh
 Sol／Documentation preflight from the clean committed HEAD must be Green before
 implementation.
+
+The re-preflight from committed packet
+`26527296da112e315c6a332d26282f52625bb7a7` is Historical: General and DB each
+returned `P1=1/P2=0/P3=0`, while Documentation returned Green. D151／Task now
+require retained-row tenant mismatch count zero, Store-owned tenant-partition
+derivation before decrypt, and the current migration-command count test inside
+exact27 Product／Test and exact29 worker scope. This checkpoint is the second
+correction's commit boundary; all three lanes must re-run from its clean SHA
+before Product work.
 
 ## Historical P23-003A accepted delivery checkpoint
 

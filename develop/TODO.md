@@ -12,20 +12,23 @@
 
 ## P23-003C2 current handoff — PostgreSQL Audit Outbox Persistence
 
-Updated At: 2026-09-01T06:17:02+09:00
+Updated At: 2026-09-01T06:39:35+09:00
 
-Status: `D151／exact Task Packet corrected-packet commit checkpoint — fresh preflight required; Product work not started`。
+Status: `D151／exact Task Packet second corrected-packet commit checkpoint — fresh re-preflight required; Product work not started`。
 
 - [x] P23-003B1／B2 and parent P23-003B Accepted
 - [x] P23-003C1 Accepted／candidate commit／same-SHA package export Green
 - [x] clean C1 management closeout HEAD `4bebcb09d8e67e58c424d0c9543e594708d02872`
 - [x] C2 physical／API／transaction／idempotency／FIFO／CAS gap research
 - [x] D151 C2 PostgreSQL persistence boundary drafted
-- [x] P23-003C2 exact26 Task Packet／initial Report drafted
+- [x] P23-003C2 exact27 Task Packet／initial Report drafted
 - [x] initial General／DB／Documentation preflight Historical Changes Requested
 - [x] single configuration／exact DDL／ordering／scope／package／callable authority correction
 - [x] Orchestrator corrected nine-file management packet commit checkpoint
-- [ ] fresh P23-003C2 Sol preflight
+- [x] first clean-commit re-preflight Historical: General P1=1／DB P1=1／Documentation Green
+- [x] retained-row tenant binding／migration-command current count-test scope correction
+- [x] Orchestrator second corrected nine-file management packet commit checkpoint
+- [ ] fresh P23-003C2 Sol／Documentation re-preflight
 - [ ] bounded Luna implementation／Iteration Gate
 - [ ] Complete Final Gate／fresh DB and General review
 - [ ] Acceptance／candidate commit／same-SHA package export
@@ -37,8 +40,8 @@ business transaction adapter、relay runtime、CLI／HTTP、public Audit Documen
 Remaining: C2→C3→C4、parent P23-003C Acceptance、
 P23-003D..G、P23-004、P23-005、P23-006。
 
-Next Action: corrected-packet commit SHAを取得し、clean HEADからfresh
-Sol／Documentation preflightを行う。
+Next Action: second corrected-packet commit SHAを取得し、clean HEADからfresh
+Sol／Documentation re-preflightを行う。
 Product workはGreenまで開始しない。
 
 ## P23-003B2 accepted handoff — Historical prerequisite
