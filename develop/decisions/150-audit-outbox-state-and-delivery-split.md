@@ -1,8 +1,8 @@
 # D150: Audit Outbox State and Delivery Split
 
-Status: Proposed — P23-003C1 Accepted; D151／P23-003C2 second corrected-packet commit checkpoint; fresh re-preflight required; BlackOps 1.3 unreleased
+Status: Proposed — P23-003C1 Accepted; P23-003C2 bounded DB Product corrections in progress; BlackOps 1.3 unreleased
 
-Updated At: 2026-09-01T06:39:35+09:00
+Updated At: 2026-09-01T10:32:46+09:00
 
 ## Current Handoff
 
@@ -56,10 +56,23 @@ the Task now bind every retained row tenant pair through the exact aggregate,
 make the Store derive the hydrated partition before decrypt, and add the
 current migration-command count test to exact27／worker exact29 scope.
 
-This second correction establishes a new nine-file management packet; its
-exact SHA is captured after commit. Next Action: capture that SHA and run fresh
-Sol／Documentation re-preflight from the clean HEAD. Product work waits for
-Green.
+The second corrected packet is committed at
+`fd7671b87a2e498a8b45d7f863b0e341a5a73f70`; fresh General／DB／Documentation
+preflight was Green in every lane, and bounded Luna implementation began.
+Focused C2 Architecture tests are Green, but the broader compatibility suite
+exposed one exact conflict: D151 requires one direct C2 Store callsite each for
+`protectOutbox()` and `unprotectOutbox()`, while the unchanged Accepted B2
+Architecture guard requires both maps to be empty. Product work is paused.
+D151／Task now authorize only that guard delta, expand Product／Test to exact28
+and worker scope to exact30, preserve every B2 Production byte, and require
+fresh General／DB／Documentation re-preflight before work resumes.
+
+Fresh corrected-scope General review is Green. DB confirms the authority
+correction but returns Product `P1=3/P2=0/P3=0`; Documentation returns
+`P1=0/P2=2/P3=0`. The two management-truth roots are corrected here. Product
+correction remains bounded to recovery CAS polarity, exact Cc／Cf parity,
+separate bootstrap／existing append SQL, their fixtures, and the exact B2
+Architecture map exception.
 
 ## Context
 
@@ -295,6 +308,6 @@ Required same-transaction append, durable ingress persistence, Application key c
 
 ## Suggested Next Action
 
-Capture the second corrected-packet commit SHA, then run fresh Sol／
-Documentation re-preflight against D151 and the exact P23-003C2 Task Packet.
-Product work remains blocked until Green.
+Apply the bounded Product／fixture and Architecture-map corrections, refreeze,
+then run focused gates and fresh DB／General implementation review against D151
+and the exact P23-003C2 Task Packet.

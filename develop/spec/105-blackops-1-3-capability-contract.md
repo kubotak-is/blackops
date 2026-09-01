@@ -2,7 +2,7 @@
 
 Status: Proposal — unreleased BlackOps 1.3; workflow/gate status authority is the exact5 management slice (`develop/STATE.md`, `develop/TODO.md`, the parent Task/Report, and `develop/spec/README.md`)
 
-Updated At: 2026-09-01T06:39:35+09:00
+Updated At: 2026-09-01T10:32:46+09:00
 
 This specification is a normative proposal for BlackOps `1.3`. It is not a
 Stable `1.2` capability contract and must not be copied into current public
@@ -116,9 +116,9 @@ two-table schema, API, transaction, authenticated idempotency, ordinal, FIFO,
 and fenced-CAS boundary. The first General／DB／Documentation preflight lanes
 are Historical Changes Requested. D151 and the Task correct their overlapping
 configuration, DDL, ordering, scope, package, and callable-authority roots.
-This commit establishes that exact nine-file management packet; its SHA is
-captured afterward for fresh Sol／Documentation preflight. No C2 Product work
-has begun; every fresh lane must be Green before implementation.
+At that Historical checkpoint, the commit established the exact nine-file
+management packet and no C2 Product work had begun. Later paragraphs record
+the current correction boundary.
 
 The re-preflight from committed packet
 `26527296da112e315c6a332d26282f52625bb7a7` is Historical: General and DB each
@@ -128,6 +128,25 @@ derivation before decrypt, and the current migration-command count test inside
 exact27 Product／Test and exact29 worker scope. This checkpoint is the second
 correction's commit boundary; all three lanes must re-run from its clean SHA
 before Product work.
+
+The second corrected packet is committed at
+`fd7671b87a2e498a8b45d7f863b0e341a5a73f70`. Fresh General／DB／Documentation
+preflight was Green separately, and bounded C2 implementation began. Focused
+C2 Architecture tests are Green, but compatibility execution exposed one
+contract conflict: D151 requires direct C2 Store `protectOutbox()` and
+`unprotectOutbox()` callsites while the unchanged Accepted B2 Architecture
+guard requires both maps empty. D151／Task now supersede only that guard
+expectation, preserve every B2 Production byte and other guard, and expand C2
+to exact28 Product／Test and exact30 worker scope. Product work is paused until
+fresh General／DB／Documentation re-preflight is Green on the corrected freeze.
+
+Fresh corrected-scope General review is Green. DB confirms the authority
+correction and returns preserved Product Changes Requested
+`P1=3/P2=0/P3=0`; Documentation returns `P1=0/P2=2/P3=0`. The two
+management-truth roots are corrected. Product correction is limited to the
+expired-recovery CAS predicate, exact Accepted B2 Cc／Cf parity, separate
+bootstrap／existing append statements, their fixtures, and the exact B2
+Architecture map exception.
 
 ## Historical P23-003A Acceptance Catalog and projection contract
 

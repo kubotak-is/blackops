@@ -12,9 +12,9 @@
 
 ## P23-003C2 current handoff — PostgreSQL Audit Outbox Persistence
 
-Updated At: 2026-09-01T06:39:35+09:00
+Updated At: 2026-09-01T10:32:46+09:00
 
-Status: `D151／exact Task Packet second corrected-packet commit checkpoint — fresh re-preflight required; Product work not started`。
+Status: `P23-003C2 Changes Requested — bounded DB Product corrections in progress`。
 
 - [x] P23-003B1／B2 and parent P23-003B Accepted
 - [x] P23-003C1 Accepted／candidate commit／same-SHA package export Green
@@ -28,8 +28,17 @@ Status: `D151／exact Task Packet second corrected-packet commit checkpoint — 
 - [x] first clean-commit re-preflight Historical: General P1=1／DB P1=1／Documentation Green
 - [x] retained-row tenant binding／migration-command current count-test scope correction
 - [x] Orchestrator second corrected nine-file management packet commit checkpoint
-- [ ] fresh P23-003C2 Sol／Documentation re-preflight
-- [ ] bounded Luna implementation／Iteration Gate
+- [x] second-corrected General／DB／Documentation re-preflight Green separately
+- [x] bounded Luna Product／direct-test implementation through C2 Architecture slice
+- [x] required Outbox protection callsites versus unchanged B2 guard conflict reproduced
+- [x] exact28 Product／Test and exact30 worker scope correction drafted
+- [x] stale Required Fixtures「B2 Architecture unchanged」literal corrected
+- [x] corrected fresh General contract review Green
+- [x] fresh DB Product review Changes Requested `P1=3/P2=0/P3=0`
+- [x] fresh Documentation review Changes Requested `P1=0/P2=2/P3=0`
+- [x] Decision catalog／Report inventory／Next Action management truth corrected
+- [ ] recovery CAS／Cc-Cf parity／split append SQL／Architecture map correction
+- [ ] bounded Luna Iteration Gate
 - [ ] Complete Final Gate／fresh DB and General review
 - [ ] Acceptance／candidate commit／same-SHA package export
 
@@ -40,9 +49,8 @@ business transaction adapter、relay runtime、CLI／HTTP、public Audit Documen
 Remaining: C2→C3→C4、parent P23-003C Acceptance、
 P23-003D..G、P23-004、P23-005、P23-006。
 
-Next Action: second corrected-packet commit SHAを取得し、clean HEADからfresh
-Sol／Documentation re-preflightを行う。
-Product workはGreenまで開始しない。
+Next Action: Lunaがthree DB Product roots、direct／real fixtures、exact
+Architecture mapだけを補正し、focused gateとrefreezeを行う。
 
 ## P23-003B2 accepted handoff — Historical prerequisite
 

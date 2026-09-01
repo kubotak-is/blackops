@@ -1,8 +1,8 @@
 # P23-003C2: Audit PostgreSQL Outbox Persistence
 
-Status: Second Corrected Packet Commit Checkpoint — Fresh re-preflight required before Product work
+Status: Changes Requested — General contract Green; bounded DB Product and management-truth corrections required
 
-Updated At: 2026-09-01T06:39:35+09:00
+Updated At: 2026-09-01T10:32:46+09:00
 
 ## Current Checkpoint
 
@@ -14,22 +14,38 @@ committed at clean HEAD `4bebcb09d8e67e58c424d0c9543e594708d02872`.
 
 D151 closes C2's exact API, two-table PostgreSQL schema, append idempotency,
 ordinal allocation, FIFO selection, C1-backed state CAS, transaction
-participation, and release boundary. The initial General／DB／Documentation
-preflight lanes are Historical Changes Requested; their configuration,
-physical-schema, ordering, scope, package-manifest, and callable-authority
-roots are corrected in this packet. No Product work has begun.
+participation, and release boundary. The second corrected packet is committed
+at `fd7671b87a2e498a8b45d7f863b0e341a5a73f70`; fresh General／DB／
+Documentation preflight was Green `P1=0/P2=0/P3=0` in every lane, and bounded
+Product／Test implementation began from that freeze.
 
-This commit establishes the exact nine-file corrected management packet. Its
-exact SHA is supplied in the preflight dispatch because a commit cannot record
-its own identifier. Fresh re-preflight starts from that clean committed HEAD and
-must return Green before the configured Luna worker edits Product.
+Focused C2 Architecture tests are Green. The broader compatibility suite
+exposed one frozen-contract conflict: D151 requires one C2 Store callsite each
+for `protectOutbox()` and `unprotectOutbox()`, but the unchanged Accepted B2
+`AuditStoreArchitectureTest` requires both callsite maps to be empty. Product
+work is paused. This bounded correction adds only that Architecture guard to
+scope, preserves every B2 Production byte and every other B2 guard, and
+invalidates the prior preflight／Architecture evidence.
 
 The first clean-commit re-preflight at
 `26527296da112e315c6a332d26282f52625bb7a7` is Historical: General and DB
 separately returned `P1=1/P2=0/P3=0`; Documentation returned Green
 `P1=0/P2=0/P3=0`. This second bounded correction adds exact retained-row
 tenant binding and the current migration-command count test to scope. All
-three lanes must re-run from the new clean commit before Product work.
+three lanes reran from the new clean commit and were Green. They are now
+Historical because this Architecture-scope correction changes the immutable
+authority. All three lanes must freshly review the corrected freeze before the
+worker resumes the preserved partial implementation.
+
+Fresh corrected-scope General review is Green `P1=0/P2=0/P3=0`. Fresh DB
+review also finds the authority／scope correction Green, but returns Product
+Changes Requested `P1=3/P2=0/P3=0` for the expired-recovery CAS predicate, one
+extra Cc／Cf code point, and a combined bootstrap／existing append SQL shape.
+Documentation review returns `P1=0/P2=2/P3=0` for the stale Decision catalog
+and incomplete current Report inventory／Next Action. The management-truth
+roots are corrected in the same bounded freeze; Luna may change only the three
+named Product roots, their direct／real fixtures, the exact Architecture map,
+and Report／STATE before the next review.
 
 Stable `1.2.0` remains current. BlackOps `1.3` and all Audit capabilities
 remain unreleased.
@@ -58,7 +74,7 @@ business transaction adapter, or relay runtime.
 - Orchestrator／Reviewer: repository-configured `gpt-5.6-sol`／`max`.
 - Production Worker: repository-configured `gpt-5.6-luna`／`max`.
 - Documentation Reviewer: repository-configured `gpt-5.6-sol`／`xhigh`, read-only when used.
-- Worker starts only after fresh re-preflight Green.
+- Worker resumes only after corrected fresh re-preflight Green.
 - Worker changes only exact Files Allowed.
 - Worker updates Report／STATE and does not stage, commit, push, publish, or deploy.
 - Any Product／Test change invalidates earlier Iteration／Final evidence.
@@ -73,8 +89,9 @@ rejection, unavailability, or fallback is a blocker.
 2. C1 closeout HEAD `4bebcb09d8e67e58c424d0c9543e594708d02872` is an ancestor of
    the Orchestrator-only corrected-packet commit supplied in the final
    preflight and worker dispatch.
-3. Worktree and staged index are clean at the post-packet-commit preflight
-   freeze. The dispatch records that exact HEAD and all immutable hashes.
+3. The index is staged0. The correction freeze records the exact committed HEAD,
+   every immutable hash, and every preserved in-scope partial Product／Test hash;
+   no outside path may move.
 4. P23-003C1 remains Accepted at exact11 aggregate
    `d0bfa64e35ce8d113909a2aba710c57ed7bb33fd6711c51df207e71d33919fad`.
 5. Accepted B2 Production exact25 remains
@@ -295,8 +312,12 @@ Add `AuditOutboxStorageArchitectureTest` with mutation-resistant checks for:
 Update `AuditOutboxStateArchitectureTest` only to authorize exact C1 calls from
 the C2 Outbox directory while keeping every other outside caller forbidden.
 Update `AuditRecordArchitectureTest` only for the exact new Outbox directory
-and protected／finalizer call graph in D151. Accepted B2
-`AuditStoreArchitectureTest` and all B2 Production bytes remain unchanged.
+and protected／finalizer call graph in D151. Update
+`AuditStoreArchitectureTest` only to change the direct callsite map from empty
+Outbox protection maps to exactly one `protectOutbox()` and one
+`unprotectOutbox()` callsite in `PostgreSqlAuditOutboxStore`; retain its exact
+B2 record callsites, indirect／dynamic-call rejection, and all other guards.
+All Accepted B2 Production bytes remain unchanged.
 
 ### 8. Package and current migration inventory
 
@@ -321,13 +342,15 @@ fixtures.
   poison operational command, or process lifecycle
 - checkpoint／anchor／query／retention／hold work
 - changes to generic operation Outbox types or tables
-- changes to Accepted B2 Production or `AuditStoreArchitectureTest`
+- changes to Accepted B2 Production or to any
+  `AuditStoreArchitectureTest` invariant outside the exact C2 Outbox
+  protection-callsite exception
 - public API, CLI, HTTP route, Guide, Website, release, deploy, browser, or push
 - Worker stage／commit／push
 
 ## Files Allowed
 
-Production／Test exact27:
+Production／Test exact28:
 
 1. `src/Internal/Audit/Outbox/AuditOutboxStoreFailure.php`
 2. `src/Internal/Audit/Outbox/AuditOutboxStoreException.php`
@@ -349,18 +372,19 @@ Production／Test exact27:
 18. `tests/Architecture/AuditOutboxStorageArchitectureTest.php`
 19. `tests/Architecture/AuditOutboxStateArchitectureTest.php`
 20. `tests/Architecture/AuditRecordArchitectureTest.php`
-21. `tests/Internal/Migration/DatabaseMigrationRunnerTest.php`
-22. `tests/Internal/Console/DatabaseMigrationCommandTest.php`
-23. `tests/Integration/ApplicationConsoleKernelTest.php`
-24. `tests/Consumer/framework-package-required-inventory.sh`
-25. `tests/Consumer/framework-package-export.sh`
-26. `tests/Consumer/community-board-clean-install.sh`
-27. `examples/community-board/README.md`
+21. `tests/Architecture/AuditStoreArchitectureTest.php`
+22. `tests/Internal/Migration/DatabaseMigrationRunnerTest.php`
+23. `tests/Internal/Console/DatabaseMigrationCommandTest.php`
+24. `tests/Integration/ApplicationConsoleKernelTest.php`
+25. `tests/Consumer/framework-package-required-inventory.sh`
+26. `tests/Consumer/framework-package-export.sh`
+27. `tests/Consumer/community-board-clean-install.sh`
+28. `examples/community-board/README.md`
 
 Worker management exact2:
 
-28. `develop/orchestration/reports/P23-003C2-audit-postgresql-outbox-persistence.md`
-29. `develop/STATE.md`
+29. `develop/orchestration/reports/P23-003C2-audit-postgresql-outbox-persistence.md`
+30. `develop/STATE.md`
 
 Orchestrator-only immutable exact7:
 
@@ -374,7 +398,7 @@ Orchestrator-only immutable exact7:
 
 Before worker start, the Orchestrator supplies all immutable exact7 individual
 SHA-256 values, their ordered aggregate, and Report／STATE starting hashes.
-Only exact27 plus Report／STATE may move. Any other path is a Blocker.
+Only exact28 plus Report／STATE may move. Any other path is a Blocker.
 
 ## Required Fixtures
 
@@ -468,8 +492,9 @@ Only exact27 plus Report／STATE may move. Any other path is a Blocker.
 - actual unique canaries absent from message, previous, trace args／string,
   debug, serialize, JSON, var_export, SQL-facing safe errors
 - exact ten-type Outbox architecture and all named mutation oracles
-- C1／A2／B1 call graph updated only for C2; B2 Production and Architecture
-  unchanged
+- C1／A2／B1 call graph updated only for C2; B2 Production remains unchanged;
+  B2 Architecture changes only the exact C2 Outbox protection-callsite map
+  exception while every other guard and its mutation negatives remain fixed
 - no Application／Container／CLI／HTTP／generic Outbox／runtime registration
 - Framework migration13, Community total18, package exact54 positive and all
   semantic mutation negatives
@@ -486,7 +511,7 @@ Only exact27 plus Report／STATE may move. Any other path is a Blocker.
 - [ ] New append is atomic and cannot commit an ordinal gap or partial state.
 - [ ] Same-partition FIFO cannot be bypassed; poison is acknowledged.
 - [ ] Only six state columns mutate after insert; protected bytes never rotate.
-- [ ] Exact27 scope, immutable exact7, B2 Production preservation, and staged0 hold.
+- [ ] Exact28 scope, immutable exact7, B2 Production preservation, and staged0 hold.
 - [ ] Iteration Gate is Green from the final Product freeze.
 - [ ] Complete Final Gate is Green from that unchanged freeze.
 - [ ] Fresh independent DB and General Sol reviews return no blocking finding.
@@ -495,18 +520,20 @@ Only exact27 plus Report／STATE may move. Any other path is a Blocker.
 
 ## Iteration Gate
 
-The corrected nine-file management packet is committed by the Orchestrator
-before final preflight and worker dispatch. The worker therefore starts from a
-clean worktree; after the exact27 Product／Test plus Report／STATE work exists,
-the status set is exactly the listed 29 paths.
+The second corrected nine-file management packet is committed by the
+Orchestrator at `fd7671b87a2e498a8b45d7f863b0e341a5a73f70`. The worker began
+from a clean worktree. The bounded Architecture-scope correction is made while
+the authorized partial Product／Test worktree is preserved; after exact28
+Product／Test plus Report／STATE work exists, the final status set is exactly the
+listed 30 paths.
 
-Run after each coherent exact27 batch and stop at first failure. The dispatch
+Run after each coherent exact28 batch and stop at first failure. The dispatch
 provides newline-delimited `<sha256> <path>` as
 `P23_C2_IMMUTABLE_SHA256_MANIFEST`. Verify exact7 path set, every live hash,
 and a synthetic wrong-hash negative before Product work and at ending freeze.
 
 The scope guard must compare `git status --short --untracked-files=all` to the
-exact29 Files Allowed list. It must also prove that removing or adding one
+exact30 Files Allowed list. It must also prove that removing or adding one
 synthetic path fails the comparison. No ancient aggregate is a substitute for
 the committed clean packet HEAD and exact current scope.
 
@@ -535,6 +562,7 @@ expected_scope="$({
     tests/Architecture/AuditOutboxStorageArchitectureTest.php \
     tests/Architecture/AuditOutboxStateArchitectureTest.php \
     tests/Architecture/AuditRecordArchitectureTest.php \
+    tests/Architecture/AuditStoreArchitectureTest.php \
     tests/Internal/Migration/DatabaseMigrationRunnerTest.php \
     tests/Internal/Console/DatabaseMigrationCommandTest.php \
     tests/Integration/ApplicationConsoleKernelTest.php \
@@ -546,7 +574,7 @@ expected_scope="$({
     develop/STATE.md
 } | LC_ALL=C sort)"
 actual_scope="$(git status --short --untracked-files=all | cut -c4- | LC_ALL=C sort)"
-test "$(printf '%s\n' "$expected_scope" | sed '/^$/d' | wc -l)" -eq 29
+test "$(printf '%s\n' "$expected_scope" | sed '/^$/d' | wc -l)" -eq 30
 test "$actual_scope" = "$expected_scope"
 test "$actual_scope" != "$(printf '%s\n%s\n' "$expected_scope" __p23_c2_extra__ | LC_ALL=C sort)"
 test "$actual_scope" != "$(printf '%s\n' "$expected_scope" | sed '1d')"
@@ -582,6 +610,7 @@ docker compose run --rm app mago format --check \
   tests/Architecture/AuditOutboxStorageArchitectureTest.php \
   tests/Architecture/AuditOutboxStateArchitectureTest.php \
   tests/Architecture/AuditRecordArchitectureTest.php \
+  tests/Architecture/AuditStoreArchitectureTest.php \
   migrations/postgresql/Version20260901000000.php \
   tests/Internal/Migration/DatabaseMigrationRunnerTest.php \
   tests/Internal/Console/DatabaseMigrationCommandTest.php \
@@ -623,13 +652,13 @@ git diff --check
 test -z "$(git diff --cached --name-only)"
 ```
 
-After Green, record every exact27 individual SHA and the ordered
-`sha256sum <exact27 paths> | sha256sum` aggregate. Any exact27 change
+After Green, record every exact28 individual SHA and the ordered
+`sha256sum <exact28 paths> | sha256sum` aggregate. Any exact28 change
 invalidates the freeze.
 
 ## Complete Final Gate
 
-Run once from the unchanged exact27 freeze after Orchestrator pre-gate review.
+Run once from the unchanged exact28 freeze after Orchestrator pre-gate review.
 Stop at first failure. Re-run the Iteration scope／immutable／package-inventory
 guards before command 1 and after the final command.
 
@@ -688,9 +717,9 @@ Report must contain:
 - Changed Files exact list
 - Decisions and Assumptions
 - Commands and Results with exit codes and counts
-- exact27 individual hashes and ordered aggregate
+- exact28 individual hashes and ordered aggregate
 - committed corrected-packet start HEAD and clean preflight freeze
-- exact29 scope and immutable exact7 start／end hashes
+- exact30 scope and immutable exact7 start／end hashes
 - Accepted C1 and B2 preservation evidence
 - schema／migration／transaction／idempotency／ordinal／FIFO／CAS evidence
 - no-leak／tenant-before-decrypt／binary／UTC evidence
@@ -705,8 +734,9 @@ Browser, runtime, release, or deployment Green from Source tests.
 
 ## Remaining Issues
 
-- Fresh Sol／Documentation re-preflight from the second corrected-packet commit.
-- Luna implementation and Iteration Gate.
+- Fresh General／DB／Documentation re-preflight from the bounded
+  Architecture-scope correction freeze.
+- Resume Luna implementation and Iteration Gate.
 - Orchestrator pre-gate review and Complete Final Gate.
 - Fresh independent DB／General implementation review.
 - Acceptance, candidate commit, and clean same-SHA package export.
@@ -714,6 +744,7 @@ Browser, runtime, release, or deployment Green from Source tests.
 
 ## Suggested Next Action
 
-Capture this second corrected-packet commit SHA, then run fresh Sol／
-Documentation re-preflight against that clean HEAD, this Task, and D151.
-Product work waits for Green; no push, runtime activation, or release action.
+Freeze this bounded Architecture-scope correction and the preserved partial
+implementation, then run fresh General／DB／Documentation re-preflight against
+this Task and D151. Product work resumes only after all lanes are Green; no
+push, runtime activation, or release action.

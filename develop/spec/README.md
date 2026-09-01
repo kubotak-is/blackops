@@ -2,9 +2,9 @@
 
 ## P23-003C2 current handoff — Audit PostgreSQL Outbox Persistence
 
-Updated At: 2026-09-01T06:39:35+09:00
+Updated At: 2026-09-01T10:32:46+09:00
 
-Current status: `Second Corrected Packet Commit Checkpoint — fresh Sol／Documentation re-preflight required; Product work has not begun`.
+Current status: `Changes Requested — General contract Green; bounded DB Product corrections in progress`.
 
 P23-003B1／B2 and parent P23-003B are Accepted.
 Reviewed B2 candidate `968afe2b0c4bbff86e0013592d69dc7115cf8b4f` and its clean-candidate package export are Green.
@@ -35,18 +35,37 @@ returned `P1=1/P2=0/P3=0`; Documentation returned Green. The second bounded
 correction adds an exact retained-row tenant-mismatch aggregate member, keeps
 tenant-to-partition derivation in the Store before decrypt, and expands C2 to
 exact27 Product／Test and exact29 worker scope with the current migration-command
-count test. A new clean committed freeze requires all three lanes again.
+count test. The second corrected packet was committed at
+`fd7671b87a2e498a8b45d7f863b0e341a5a73f70`; fresh General／DB／Documentation
+preflight was Green in every lane, and bounded Luna implementation began.
+
+Focused C2 Architecture tests are Green. The broader compatibility suite found
+that D151's required direct `protectOutbox()`／`unprotectOutbox()` callsites
+conflict with the unchanged Accepted B2 Architecture guard's empty maps. The
+bounded correction changes only that guard expectation, keeps every B2
+Production byte and every other guard invariant, and expands C2 to exact28
+Product／Test and exact30 worker scope. Prior preflight and Architecture
+evidence are Historical; all three lanes must freshly review the corrected
+freeze before Product work resumes.
+
+Fresh corrected-scope General review is Green. Fresh DB review confirms the
+authority correction but finds three Product P1 roots: expired recovery uses
+the active-lease CAS predicate, the Outbox Cc／Cf inventory has one extra code
+point, and append combines the exact bootstrap／existing SQL shapes.
+Documentation review finds two management-truth P2 roots; the Decision catalog
+and current Report inventory／Next Action are corrected in this freeze. Product
+correction remains bounded to those three DB roots, their direct／real
+fixtures, and the exact Architecture map.
 
 Stable `1.2.0` remains current and BlackOps `1.3` remains unreleased.
-No C2 Product exists yet. No Application／Container／CLI／HTTP／relay runtime or
-public Documentation behavior is activated.
+The preserved C2 Product／Test partial remains uncommitted and unactivated. No
+Application／Container／CLI／HTTP／relay runtime or public Documentation behavior
+is activated.
 
-Remaining: fresh C2 re-preflight, bounded implementation／gates／review／
-Acceptance,
+Remaining: bounded Product／fixture correction, gates／review／Acceptance,
 then C3→C4 and parent P23-003C Acceptance.
-Next Action: capture the second corrected-packet commit SHA, then run
-independent Sol／Documentation re-preflight from that clean HEAD without
-changing Product.
+Next Action: apply only the three DB Product corrections and exact Architecture
+map, then refreeze and run focused gates plus fresh DB／General review.
 
 ## P23-003B2 accepted handoff — Historical prerequisite
 
@@ -1639,8 +1658,8 @@ closedする。Semantic tuple、trusted external verification context、exact
 | [D147](../decisions/147-audit-catalog-and-safe-projection-boundary.md) | Audit Catalog、keyed opaque ID、record stages、observed safe-projection boundary | Accepted P23-003A1／A2 and parent P23-003A; P23-003B1／B2 and parent P23-003B Accepted; Stable `1.2` current / BlackOps `1.3` unreleased |
 | [D148](../decisions/148-audit-canonical-record-and-protected-store-boundary.md) | Audit canonical record、hash／chain、Audit専用BOPD protection、B1／B2 boundary | P23-003B1／B2 and parent P23-003B Accepted; B2 candidate commit／same-SHA package export Green; Stable `1.2` unchanged / BlackOps `1.3` unreleased |
 | [D149](../decisions/149-audit-postgresql-canonical-store-boundary.md) | Audit PostgreSQL canonical append、segment、tenant-aware read、migration boundary | P23-003B2 Accepted; Complete Final Gate and fresh DB／General Sol closure Green; candidate `968afe2b...` package export Green; Stable `1.2` unchanged / BlackOps `1.3` unreleased |
-| [D150](../decisions/150-audit-outbox-state-and-delivery-split.md) | P23-003C serial C1／C2／C3／C4 split and pure Audit Outbox state boundary | Proposed — P23-003C1 Accepted with candidate package Green; P23-003C2 next; Stable `1.2` current / BlackOps `1.3` unreleased |
-| [D151](../decisions/151-audit-postgresql-outbox-persistence-boundary.md) | Audit PostgreSQL Outbox row、idempotent append、FIFO／CAS、transaction boundary | Proposed — P23-003C2 second corrected-packet commit checkpoint; fresh re-preflight required before Product; Stable `1.2` current / BlackOps `1.3` unreleased |
+| [D150](../decisions/150-audit-outbox-state-and-delivery-split.md) | P23-003C serial C1／C2／C3／C4 split and pure Audit Outbox state boundary | Proposed — P23-003C1 Accepted with candidate package Green; P23-003C2 bounded DB Product corrections in progress; Stable `1.2` current / BlackOps `1.3` unreleased |
+| [D151](../decisions/151-audit-postgresql-outbox-persistence-boundary.md) | Audit PostgreSQL Outbox row、idempotent append、FIFO／CAS、transaction boundary | Proposed — P23-003C2 Changes Requested; exact28／30 scope fixed and bounded DB Product corrections in progress; Stable `1.2` current / BlackOps `1.3` unreleased |
 
 ## Historical P23-001 Round 13 checkpoint
 

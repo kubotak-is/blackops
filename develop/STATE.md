@@ -1,6 +1,178 @@
 # Orchestration State
 
-Updated At: 2026-09-01T06:39:35+09:00
+Updated At: 2026-09-01T10:32:46+09:00
+
+P23-003C2 Corrected-scope Review Changes Requested At:
+2026-09-01T10:32:46+09:00. Fresh General contract review is Green
+`P1=0/P2=0/P3=0`. Fresh DB review confirms the authority correction Green but
+returns preserved Product `P1=3/P2=0/P3=0`: recovery CAS uses the active-lease
+predicate, the Outbox Cc／Cf inventory has U+1D17B beyond Accepted B2, and one
+append SQL combines bootstrap／existing CTEs. Documentation returns
+`P1=0/P2=2/P3=0` for stale Decision-catalog and incomplete current Report
+truth; both management roots are corrected in this freeze. Luna is authorized
+only the three DB Product roots, direct／real fixtures, exact B2 Architecture
+map, Report, and STATE. Prior focused evidence is Historical for changed bytes.
+The preserved dirty exact20 aggregate remains
+`29c6a9873ed3c0e1f9b6abdd551fde8e3e0d3f751f99a81522d408c81d971a88` and
+the index is staged0. The amended management commit and exact immutable hashes
+are supplied after commit rather than self-recorded.
+No stage, Product commit, push, activation, release, or deploy is authorized.
+
+P23-003C2 Architecture-scope Residual Correction Checkpoint At:
+2026-09-01T10:25:56+09:00. The first corrected-scope General pass found one
+stale Required Fixtures literal saying B2 Architecture was unchanged. That
+conflicted with D151, the Task Architecture section, Files Allowed, and gates,
+which authorize the exact C2 Outbox protection-callsite map exception. The
+preliminary freeze is superseded. The Task now fixes B2 Production unchanged,
+B2 Architecture changed only for that exact map, and every other guard plus
+mutation negative unchanged. Fresh General／DB／Documentation lanes restart
+from the amended management freeze; Product remains paused, uncommitted, and
+staged0.
+
+P23-003C2 Bounded Architecture-scope Correction Checkpoint At:
+2026-09-01T10:16:21+09:00. The Orchestrator reproduced the frozen contract
+conflict: D151 requires exactly one direct C2 Store callsite each for
+`protectOutbox()` and `unprotectOutbox()`, while the unchanged Accepted B2
+`AuditStoreArchitectureTest` requires both maps empty. Product work is paused.
+D151／Task now add only that Architecture guard to C2 scope, change
+Product／Test exact27→exact28 and worker exact29→exact30, authorize only those
+two direct C2 callsite entries, and preserve every B2 Production byte and every
+other B2 guard. The existing partial implementation remains uncommitted and
+staged0. Prior preflight and Architecture evidence is Historical after the
+authority change. Next Action: freeze the corrected management／normative bytes
+and preserved partial, then obtain fresh General／DB／Documentation re-preflight
+before Luna resumes. No push, activation, release, or deploy is authorized.
+
+P23-003C2 Architecture Focused Checkpoint At:
+2026-09-01T10:12:35+09:00. The bounded architecture action changed only the
+three authorized architecture tests: new
+`tests/Architecture/AuditOutboxStorageArchitectureTest.php`, and updates to
+`tests/Architecture/AuditOutboxStateArchitectureTest.php` and
+`tests/Architecture/AuditRecordArchitectureTest.php`. Focused Mago format is
+Green. Focused C2 PHPUnit is Green (`24 tests`, `26,412 assertions`, one
+warning). The requested six-file PHPUnit run is `42 tests`, `37,261 assertions`
+with one failure in unchanged `AuditStoreArchitectureTest`:
+`testB1ProtectedCallGraphRejectsIndirectCallsAcrossAllSource` requires empty
+`protectOutbox`／`unprotectOutbox` maps, but authorized C2 Store callsites
+provide one of each. The B2 guard was not modified; this compatibility issue
+is a blocker for the six-file suite. Architecture test SHA-256 values are
+`4855941d5bc230925064dd8fa826d4d8fbc4bb988f4c08ce52331acac04b9d25`,
+`98b2ac6ec8c6b6fba474fa6b39e37a377bbb436f02699a8dd24c7f8df8bea9a7`, and
+`bc4caf343fc1c8aac0dab14913612583470a01ece5d15604d409b049e6014a5b` in
+Storage／State／Record order. Immutable exact7 aggregate remains
+`96155a87e12e61783cb15f30e7dc7bacbb9e5a7cbcad6b3380a2e03e72974845`, staged0
+remains, and no stage, commit, push, network, deployment, or Complete Final
+Gate occurred.
+
+P23-003C2 PostgreSQL Outbox Store Real Concurrency and Failure Checkpoint At:
+2026-09-01T09:51:20+09:00. The bounded batch changed only
+`tests/Internal/Audit/Outbox/PostgreSqlAuditOutboxStoreTest.php` and the
+concrete rollback-uncertainty branch in
+`src/Internal/Audit/Outbox/PostgreSqlAuditOutboxStore.php`. Focused Mago format
+is Green and the complete focused Store test is Green (`25 tests`, `783
+assertions`). Test SHA-256 is
+`d4b131ce0e70ee0e53ccc8997142e2c51445cc8369223ac75a1449fe3d5cc33c`; Store
+SHA-256 is
+`d9cd8d4cde6d943904c37390980739575cccd884e75648aa21ffe219f87af1c3`.
+Evidence includes two-Connection same/different-key append races with
+contiguous ordinals and safe retry, one-winner same-head claim, partition then
+record advisory lock order with unrelated-partition progress, caller-owned
+late-fence abort, owned rollback and reconnect quarantine, retained-boundary
+tampering before resource work, and persisted protected-body/tenant tamper
+before-after equality. Child readiness, bounded timeout, SIGKILL, reap, and
+cleanup paths are covered. The only Store change constructs the sanitized
+storage failure before a failed owned rollback, preserving quarantine and
+`StorageUnavailable` without exposing the active rollback throwable. The
+lock-key correction and rollback canary callback are test-only. An initial
+sandbox Docker-socket denial was resolved via the approved escalation route.
+Immutable exact7 remains matched, staged0 remains, and no stage, commit, push,
+network, deployment, or Complete Final Gate occurred.
+
+P23-003C2 PostgreSQL Outbox Store Read and Transition Test Checkpoint At:
+2026-09-01T09:15:50+09:00. Only
+`tests/Internal/Audit/Outbox/PostgreSqlAuditOutboxStoreTest.php` and the
+Store's safe-failure mapping changed in this bounded batch. Focused Mago
+format is Green and focused PHPUnit is Green (`18 tests`, `612 assertions`).
+The test SHA-256 is
+`0b74ec9dc6aea683a83e79f99cc2cdc4173f26af037a815639d4ac77927b7e98`; the
+Store SHA-256 is
+`9fa14a3bb647aa24be0f5f9743a3dca2858f5e12a4b2909266586cb2b11badd5`.
+Coverage includes exact find predicates and no transaction control, tenant
+binding before key resolution, one-Clock FIFO and head recheck, lower-ordinal
+blocking without `SKIP LOCKED`, recovery microsecond boundaries, retry versus
+poison at maximum attempt, relay／poison lease clearing and next-head
+selection, wrong bindings／fences, CAS affected `0`／`2`, six-column mutation,
+second-connection non-UTC binary roundtrip, and no-leak canaries. The only
+Store delta is safe-failure classification that clears caught throwables
+before constructing the fixed public failure. Immutable exact7 hashes remain
+matched, staged0 remains, and no stage, commit, push, network, deployment, or
+Complete Final Gate occurred.
+
+P23-003C2 PostgreSQL Outbox Store Test Batch Checkpoint At:
+2026-09-01T09:02:28+09:00. Only
+`tests/Internal/Audit/Outbox/PostgreSqlAuditOutboxStoreTest.php` was added in
+this bounded batch. Focused format and PHPUnit are Green (`11 tests`,
+`359 assertions`); test SHA-256 is
+`89208dfc0c3b4ebbfc8f05b8d21858fb23d3b173c32807c3baa10b7cd13c8ecb`.
+The test exposed and the Store corrected only two concrete defects: missing
+state now performs the required orphan probe, and authenticated same-key
+comparison uses canonical envelope bytes so decoded nested key order does not
+reject an equal request. Store SHA-256 is
+`0fde0fe9a7bd212ac0a6116789e5afa2d990d4623456dd0e08ef820c8b25e4e0`.
+No other Product/Test path changed; staged0 remains, and no stage, commit,
+push, network, deployment, or Complete Final Gate occurred.
+
+P23-003C2 PostgreSQL Outbox Store Batch Checkpoint At:
+2026-09-01T08:47:02+09:00. Only
+`src/Internal/Audit/Outbox/PostgreSqlAuditOutboxStore.php` changed in this
+bounded batch. Focused Mago format check is Green. Its SHA-256 is
+`04a5a5a665fd236b5fa2d8811a5a5903dea6b03dac00d74bef63e19980f12669`.
+The frozen constructor/API, single configuration/transition, transaction and
+lock order, aggregate boundary, authenticated idempotent append, count-fenced
+append, FIFO claim/recovery, C1 transitions, and six-column CAS are present.
+No other Product/Test path changed; staged0 remains, and no stage, commit,
+push, network, deployment, or Complete Final Gate occurred.
+
+P23-003C2 PostgreSQL Outbox Schema Test Batch Checkpoint At:
+2026-09-01T08:30:23+09:00. The bounded addition is only
+`tests/Internal/Audit/Outbox/PostgreSqlAuditOutboxSchemaTest.php`. It covers
+pre-SQL schema validation, exact two-table DDL/catalog shape and named
+constraints/indexes, the Accepted Cc/Cf inventory, U+2028/U+2029 positives,
+isolated U+200E negatives, mutation SQLSTATE plus before/after equality for
+state/nullability/UUID/hash/ordinal/attempt/body/version/FK/uniqueness, and
+second-connection non-UTC NUL-body/timestamp roundtrip. Focused format and
+PHPUnit are Green (`7 tests`, `443 assertions`); focused test SHA-256 is
+`e0a0a03013d18962e3ccfd0a98f33bcb9356539eff80a4a4d0d6bd40119ef067`.
+No other Product/Test path changed in this batch, and no stage, commit, push,
+network, deployment, or Complete Final Gate occurred.
+
+P23-003C2 Luna Max Worker Takeover Checkpoint At:
+2026-09-01T07:34:52+09:00. The mandated branch and HEAD remain
+`agent/p23-001-blackops-1-3-feasibility`／
+`fd7671b87a2e498a8b45d7f863b0e341a5a73f70`; the exact7 immutable hashes and
+ordered aggregate remain Green at
+`96155a87e12e61783cb15f30e7dc7bacbb9e5a7cbcad6b3380a2e03e72974845`, and the
+index remains staged0. The preserved worktree contains only the eight in-scope
+new `src/Internal/Audit/Outbox` files plus this STATE and the C2 Report; no
+outside path or immutable byte drift was found. This worker takes ownership of
+that partial Product state and will continue through the prescribed batches;
+no commit, stage, push, network, runtime activation, or Complete Final Gate is
+authorized.
+
+P23-003C2 Luna Max Worker Start Checkpoint At:
+2026-09-01T07:12:59+09:00. Fail-closed dispatch freeze is Green: branch
+`agent/p23-001-blackops-1-3-feasibility`, HEAD
+`fd7671b87a2e498a8b45d7f863b0e341a5a73f70`, clean worktree, staged0, exact7
+immutable hashes and ordered aggregate
+`96155a87e12e61783cb15f30e7dc7bacbb9e5a7cbcad6b3380a2e03e72974845` match
+the dispatch, and starting moving hashes match Report
+`4d2b0820e5f429e124a88dacbaf91b585417afb72f8196f4293227c7359a7b27`／STATE
+`88e086ab2c06c7af6cd935045aca19f34ec55a489617c9c708c4213992878884`.
+Second-corrected General／DB／Documentation preflight lanes are separately
+Green at `0/0/0` each. Product／Test remains unchanged at this checkpoint;
+Luna is authorized only exact27 plus Report／STATE, with no stage, commit,
+push, network, runtime activation, public Documentation, or Complete Final
+Gate.
 
 P23-003C2 PostgreSQL Outbox Persistence Second Corrected Packet Commit Checkpoint At:
 2026-09-01T06:39:35+09:00. Accepted C1 and clean closeout HEAD
