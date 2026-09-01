@@ -7,7 +7,7 @@ EXPORT_SCRIPT="${SCRIPT_DIR}/framework-package-export.sh"
 TEMP_ROOT="$(mktemp -d)"
 trap 'rm -rf -- "${TEMP_ROOT}"' EXIT
 
-reviewed_export_sha='4b71b0582817969ccfc27b895cbce3fc7020be1926574d5501f5809c93a6cb9a'
+reviewed_export_sha='875c31a51dac63ad22c81a4403e465daa63d57831e4e4895fd905853ec2f0ea6'
 
 expected_inventory="${TEMP_ROOT}/expected-inventory"
 printf '%s\n' \
@@ -25,6 +25,22 @@ printf '%s\n' \
     src/Internal/Audit/Storage/PostgreSqlAuditSchema.php \
     src/Internal/Audit/Storage/PostgreSqlAuditStoredRecordHydrator.php \
     src/Internal/Audit/Storage/PostgreSqlAuditRecordStore.php \
+    src/Internal/Audit/Delivery/AuditOutboxState.php \
+    src/Internal/Audit/Delivery/AuditOutboxFailure.php \
+    src/Internal/Audit/Delivery/AuditOutboxException.php \
+    src/Internal/Audit/Delivery/AuditOutboxConfiguration.php \
+    src/Internal/Audit/Delivery/AuditOutboxStateSnapshot.php \
+    src/Internal/Audit/Delivery/AuditOutboxTransition.php \
+    src/Internal/Audit/Outbox/AuditOutboxStoreFailure.php \
+    src/Internal/Audit/Outbox/AuditOutboxStoreException.php \
+    src/Internal/Audit/Outbox/AuditOutboxRecord.php \
+    src/Internal/Audit/Outbox/AuditOutboxAppendResult.php \
+    src/Internal/Audit/Outbox/AuditOutboxLookupResult.php \
+    src/Internal/Audit/Outbox/AuditOutboxIdempotencyKeyHasher.php \
+    src/Internal/Audit/Outbox/PostgreSqlAuditProtectedIngressHydrator.php \
+    src/Internal/Audit/Outbox/PostgreSqlAuditOutboxRecordHydrator.php \
+    src/Internal/Audit/Outbox/PostgreSqlAuditOutboxSchema.php \
+    src/Internal/Audit/Outbox/PostgreSqlAuditOutboxStore.php \
     migrations/postgresql/Version20260712000000.php \
     migrations/postgresql/Version20260712010000.php \
     migrations/postgresql/Version20260724000000.php \
@@ -37,6 +53,7 @@ printf '%s\n' \
     migrations/postgresql/Version20260808010000.php \
     migrations/postgresql/Version20260808100000.php \
     migrations/postgresql/Version20260829000000.php \
+    migrations/postgresql/Version20260901000000.php \
     resources/stubs/operation.php.stub \
     resources/stubs/operation-value.php.stub \
     resources/stubs/operation-outcome.php.stub \
@@ -360,6 +377,17 @@ assert_call_contract() {
             return code ~ /(^|[;]|&&|\|\|)[[:space:]]*(then[[:space:]]+)?(return|exit|exec|false)([[:space:];&]|$)/
         }
 
+        function resolution_override(code, raw) {
+            if (code ~ /(^|[;&|])[[:space:]]*shopt[[:space:]]+-s[[:space:]]+expand_aliases([[:space:];&|]|$)/) {
+                return 1
+            }
+            if (code ~ /(^|[;&|])[[:space:]]*alias[[:space:]]+/ &&
+                raw ~ /(^|[;&|])[[:space:]]*alias[[:space:]]+([\047\042])?validate_package[[:space:]]*=/) {
+                return 1
+            }
+            return 0
+        }
+
         function update_control_depth(code,    trimmed) {
             trimmed = trim(code)
             if (trimmed ~ /^\}[[:space:]]*$/) {
@@ -449,19 +477,6 @@ assert_call_contract() {
             logical_continued = 0
         }
         {
-            if (!function_closed) {
-                if ($0 == "validate_package() {") {
-                    if (in_validate_function) {
-                        invalid = 1
-                    }
-                    in_validate_function = 1
-                } else if (in_validate_function && $0 == "}") {
-                    in_validate_function = 0
-                    function_closed = 1
-                }
-                next
-            }
-
             if (heredoc_delimiter != "") {
                 heredoc_line = $0
                 if (heredoc_strip_tabs) {
@@ -481,6 +496,21 @@ assert_call_contract() {
             scan_shell_line($0)
             code = trim(masked)
             raw = trim($0)
+            if (resolution_override(code, raw)) {
+                invalid = 1
+            }
+            if (!function_closed) {
+                if ($0 == "validate_package() {") {
+                    if (in_validate_function) {
+                        invalid = 1
+                    }
+                    in_validate_function = 1
+                } else if (in_validate_function && $0 == "}") {
+                    in_validate_function = 0
+                    function_closed = 1
+                }
+                next
+            }
             if (validate_active) {
                 if (!top_level() || prior_continued || prior_logical_continued ||
                     prior_command_substitution || prior_backtick_substitution ||
@@ -642,7 +672,7 @@ test_mutation_rejected() {
             run_bounded sed -i '\|src/Internal/Audit/Storage/AuditStoreFailure.php|d' "${candidate}"
             ;;
         new-omission)
-            run_bounded sed -i '\|migrations/postgresql/Version20260829000000.php|d' "${candidate}"
+            run_bounded sed -i '\|migrations/postgresql/Version20260901000000.php|d' "${candidate}"
             ;;
         order-swap)
             run_bounded awk '
@@ -847,6 +877,7 @@ test_call_contract_mutation_rejected() {
     local actual_inventory="${TEMP_ROOT}/${name}-inventory"
     local phase_file="${TEMP_ROOT}/${name}-phases"
     local runtime_cases_before="${runtime_case_count}"
+    local original_reviewed_export_sha="${reviewed_export_sha}"
 
     cp "${EXPORT_SCRIPT}" "${candidate}"
     run_bounded awk -v mutation="${mutation}" '
@@ -859,6 +890,11 @@ test_call_contract_mutation_rejected() {
             inserted = 0
         }
         {
+            if (mutation == "resolution-override" && !inserted && $0 == "validate_package() {") {
+                print "shopt -s expand_aliases; alias 'validate_package=:'"
+                print ""
+                inserted = 1
+            }
             if (!inserted && $0 == call_line) {
                 inserted = 1
                 if (mutation == "if-wrapped-call") {
@@ -945,6 +981,10 @@ test_call_contract_mutation_rejected() {
     ' "${candidate}" >"${candidate}.tmp"
     mv "${candidate}.tmp" "${candidate}"
 
+    if [[ "${mutation}" == 'resolution-override' ]]; then
+        reviewed_export_sha="$(sha256sum "${candidate}" | cut -d' ' -f1)"
+    fi
+
     if cmp -s "${EXPORT_SCRIPT}" "${candidate}"; then
         printf 'call-contract mutation did not change candidate bytes: %s\n' "${name}" >&2
         return 1
@@ -981,13 +1021,14 @@ test_call_contract_mutation_rejected() {
         printf 'call-contract mutation reached runtime validation: %s\n' "${name}" >&2
         return 1
     fi
+    reviewed_export_sha="${original_reviewed_export_sha}"
 }
 
 test -f "${EXPORT_SCRIPT}"
 test "$(sha256sum "${EXPORT_SCRIPT}" | cut -d' ' -f1)" = "${reviewed_export_sha}"
 runtime_case_count=0
 assert_inventory "${EXPORT_SCRIPT}"
-printf 'required inventory: PASS (37 ordered paths)\n'
+printf 'required inventory: PASS (54 ordered paths)\n'
 
 test_mutation_rejected comment-only comment
 test_mutation_rejected existing-entry-removal existing-removal
@@ -1015,5 +1056,6 @@ test_call_contract_mutation_rejected logical-or-composer-continuation logical-or
 test_call_contract_mutation_rejected logical-and-git-continuation logical-and-git-continuation
 test_call_contract_mutation_rejected pipeline-composer-continuation pipeline-composer-continuation
 test_call_contract_mutation_rejected command-substitution-git-continuation command-substitution-git-continuation
-printf 'required inventory call-contract mutations: PASS (13 rejected before runtime/SHA)\n'
-printf 'required inventory mutations: PASS (26 rejected: 13 existing, 13 call-contract)\n'
+test_call_contract_mutation_rejected resolution-override resolution-override
+printf 'required inventory call-contract mutations: PASS (14 rejected before runtime/SHA)\n'
+printf 'required inventory mutations: PASS (27 rejected: 13 existing, 14 call-contract)\n'

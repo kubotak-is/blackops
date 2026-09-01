@@ -594,8 +594,8 @@ final class AuditStoreArchitectureTest extends TestCase
             [
                 'protectRecord' => ['Internal/Audit/Storage/PostgreSqlAuditRecordStore.php' => 1],
                 'unprotectRecord' => ['Internal/Audit/Storage/PostgreSqlAuditRecordStore.php' => 1],
-                'protectOutbox' => [],
-                'unprotectOutbox' => [],
+                'protectOutbox' => ['Internal/Audit/Outbox/PostgreSqlAuditOutboxStore.php' => 1],
+                'unprotectOutbox' => ['Internal/Audit/Outbox/PostgreSqlAuditOutboxStore.php' => 1],
             ],
             $direct,
         );
@@ -643,6 +643,62 @@ final class AuditStoreArchitectureTest extends TestCase
             $this->protectedIndirectInvocationViolations($dynamicStore),
             $storePath,
         );
+
+        $outboxPath = 'Internal/Audit/Outbox/PostgreSqlAuditOutboxStore.php';
+        $outboxSource = $sources[$outboxPath];
+
+        foreach (['protectOutbox', 'unprotectOutbox'] as $method) {
+            $missing = $sources;
+            $missing[$outboxPath] = str_replace(
+                '->' . $method . '(',
+                '->removedCall(',
+                $outboxSource,
+                $replacementCount,
+            );
+            self::assertSame(1, $replacementCount, 'missing ' . $method);
+            self::assertNotSame(
+                $direct,
+                $this->protectedDirectCallsitesFromSources($missing),
+                'removing the C2 caller must fail the exact direct graph: ' . $method,
+            );
+
+            $extra = $sources;
+            $extra[$outboxPath] = $outboxSource . "\n\$codec->{$method}(\$value);\n";
+            $extraDirect = $this->protectedDirectCallsitesFromSources($extra);
+            self::assertNotSame($direct, $extraDirect, 'extra C2 caller: ' . $method);
+            self::assertSame(2, $extraDirect[$method][$outboxPath] ?? null, 'extra C2 caller: ' . $method);
+
+            $renamed = $sources;
+            $renamed[$outboxPath] = str_replace(
+                '->' . $method . '(',
+                '->renamedProtectedCall(',
+                $outboxSource,
+                $replacementCount,
+            );
+            self::assertSame(1, $replacementCount, 'renamed ' . $method);
+            self::assertNotSame($direct, $this->protectedDirectCallsitesFromSources($renamed), 'renamed ' . $method);
+
+            $indirectOutbox = $sources;
+            $indirectOutbox[$outboxPath] = str_replace(
+                '->' . $method . '(',
+                '->{$method}(',
+                $outboxSource,
+                $replacementCount,
+            );
+            self::assertSame(1, $replacementCount, 'indirect ' . $method);
+            self::assertNotSame($direct, $this->protectedDirectCallsitesFromSources($indirectOutbox));
+            self::assertContains(
+                $method,
+                $this->protectedIndirectInvocationViolations($indirectOutbox[$outboxPath]),
+                'indirect ' . $method,
+            );
+
+            $outsideC2 = $sources;
+            $outsideC2['External/ProtectedOutboxCaller.php'] = '<?php $codec->' . $method . '($value);';
+            $outsideDirect = $this->protectedDirectCallsitesFromSources($outsideC2);
+            self::assertNotSame($direct, $outsideDirect, 'outside-C2 caller: ' . $method);
+            self::assertSame(1, $outsideDirect[$method]['External/ProtectedOutboxCaller.php'] ?? null);
+        }
     }
 
     public function testB2PublicApiReflectionMatrixIsExactAndMutationResistant(): void

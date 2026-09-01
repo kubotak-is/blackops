@@ -597,7 +597,9 @@ final class AuditOutboxStateArchitectureTest extends TestCase
         ];
         $paths = [];
         foreach ($sources as $relative => $source) {
-            if (str_contains($relative, 'Internal/Audit/Delivery/')) {
+            if (
+                str_contains($relative, 'Internal/Audit/Delivery/') || str_contains($relative, 'Internal/Audit/Outbox/')
+            ) {
                 continue;
             }
             foreach ($names as $name) {

@@ -84,6 +84,22 @@ validate_package() {
         src/Internal/Audit/Storage/PostgreSqlAuditSchema.php \
         src/Internal/Audit/Storage/PostgreSqlAuditStoredRecordHydrator.php \
         src/Internal/Audit/Storage/PostgreSqlAuditRecordStore.php \
+        src/Internal/Audit/Delivery/AuditOutboxState.php \
+        src/Internal/Audit/Delivery/AuditOutboxFailure.php \
+        src/Internal/Audit/Delivery/AuditOutboxException.php \
+        src/Internal/Audit/Delivery/AuditOutboxConfiguration.php \
+        src/Internal/Audit/Delivery/AuditOutboxStateSnapshot.php \
+        src/Internal/Audit/Delivery/AuditOutboxTransition.php \
+        src/Internal/Audit/Outbox/AuditOutboxStoreFailure.php \
+        src/Internal/Audit/Outbox/AuditOutboxStoreException.php \
+        src/Internal/Audit/Outbox/AuditOutboxRecord.php \
+        src/Internal/Audit/Outbox/AuditOutboxAppendResult.php \
+        src/Internal/Audit/Outbox/AuditOutboxLookupResult.php \
+        src/Internal/Audit/Outbox/AuditOutboxIdempotencyKeyHasher.php \
+        src/Internal/Audit/Outbox/PostgreSqlAuditProtectedIngressHydrator.php \
+        src/Internal/Audit/Outbox/PostgreSqlAuditOutboxRecordHydrator.php \
+        src/Internal/Audit/Outbox/PostgreSqlAuditOutboxSchema.php \
+        src/Internal/Audit/Outbox/PostgreSqlAuditOutboxStore.php \
         migrations/postgresql/Version20260712000000.php \
         migrations/postgresql/Version20260712010000.php \
         migrations/postgresql/Version20260724000000.php \
@@ -96,6 +112,7 @@ validate_package() {
         migrations/postgresql/Version20260808010000.php \
         migrations/postgresql/Version20260808100000.php \
         migrations/postgresql/Version20260829000000.php \
+        migrations/postgresql/Version20260901000000.php \
         resources/stubs/operation.php.stub \
         resources/stubs/operation-value.php.stub \
         resources/stubs/operation-outcome.php.stub \

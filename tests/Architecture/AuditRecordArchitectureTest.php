@@ -53,6 +53,7 @@ final class AuditRecordArchitectureTest extends TestCase
             ...(glob(__DIR__ . '/../../src/Internal/Audit/Record/*.php') ?: []),
             ...(glob(__DIR__ . '/../../src/Internal/Audit/Protection/*.php') ?: []),
             ...(glob(__DIR__ . '/../../src/Internal/Audit/Projection/*.php') ?: []),
+            ...(glob(__DIR__ . '/../../src/Internal/Audit/Outbox/*.php') ?: []),
             ...(glob(__DIR__ . '/../../src/Internal/StorageProtection/BopdBinaryEnvelope*.php') ?: []),
         ];
         foreach ($paths as $path) {
@@ -64,6 +65,8 @@ final class AuditRecordArchitectureTest extends TestCase
                 $class = 'BlackOps\\Internal\\Audit\\Protection\\' . basename($path, '.php');
             if (str_contains($path, '/src/Internal/Audit/Projection/'))
                 $class = 'BlackOps\\Internal\\Audit\\Projection\\' . basename($path, '.php');
+            if (str_contains($path, '/src/Internal/Audit/Outbox/'))
+                $class = 'BlackOps\\Internal\\Audit\\Outbox\\' . basename($path, '.php');
             if (str_contains($path, '/src/Internal/StorageProtection/'))
                 $class = 'BlackOps\\Internal\\StorageProtection\\' . basename($path, '.php');
             self::assertSame([], new \ReflectionClass($class)->getAttributes(PublicApi::class), $class);
@@ -116,7 +119,13 @@ final class AuditRecordArchitectureTest extends TestCase
             ],
             $callsites['stored'],
         );
-        self::assertSame(['Internal/Audit/Protection/AuditProtectedBodyCodec.php' => 1], $callsites['ingress']);
+        self::assertSame(
+            [
+                'Internal/Audit/Outbox/PostgreSqlAuditProtectedIngressHydrator.php' => 1,
+                'Internal/Audit/Protection/AuditProtectedBodyCodec.php' => 1,
+            ],
+            $callsites['ingress'],
+        );
 
         $sources = $this->sourceFiles($sourceRoot);
         $sources['External/AuditRecordCodec.php'] = '<?php namespace BlackOps\\Internal\\Audit\\Record; new AuditLogicalRecordCandidate([]);';
@@ -503,7 +512,10 @@ final class AuditRecordArchitectureTest extends TestCase
             $counts['AuditStoredRecord::fromArray('],
         );
         self::assertSame(
-            ['Internal/Audit/Protection/AuditProtectedBodyCodec.php' => 1],
+            [
+                'Internal/Audit/Outbox/PostgreSqlAuditProtectedIngressHydrator.php' => 1,
+                'Internal/Audit/Protection/AuditProtectedBodyCodec.php' => 1,
+            ],
             $counts['AuditProtectedIngress::fromArray('],
         );
         self::assertSame(['Internal/Audit/Protection/AuditProtectedBodyCodec.php' => 1], $counts['->recordForWrite(']);
@@ -513,8 +525,8 @@ final class AuditRecordArchitectureTest extends TestCase
         $protected = $this->protectedCallsites($sourceRoot);
         self::assertSame(['Internal/Audit/Storage/PostgreSqlAuditRecordStore.php' => 1], $protected['protectRecord']);
         self::assertSame(['Internal/Audit/Storage/PostgreSqlAuditRecordStore.php' => 1], $protected['unprotectRecord']);
-        self::assertSame([], $protected['protectOutbox']);
-        self::assertSame([], $protected['unprotectOutbox']);
+        self::assertSame(['Internal/Audit/Outbox/PostgreSqlAuditOutboxStore.php' => 1], $protected['protectOutbox']);
+        self::assertSame(['Internal/Audit/Outbox/PostgreSqlAuditOutboxStore.php' => 1], $protected['unprotectOutbox']);
         self::assertSame(0, $this->dynamicInvocationCountInTree($sourceRoot));
     }
 
@@ -676,6 +688,7 @@ final class AuditRecordArchitectureTest extends TestCase
             realpath($sourceRoot . '/Internal/Audit/Projection'),
             realpath($sourceRoot . '/Internal/Audit/Protection'),
             realpath($sourceRoot . '/Internal/Audit/Storage'),
+            realpath($sourceRoot . '/Internal/Audit/Outbox'),
             realpath($sourceRoot . '/Internal/StorageProtection'),
         ]);
         $deliveryDirectory = realpath($sourceRoot . '/Internal/Audit/Delivery');

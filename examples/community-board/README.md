@@ -109,7 +109,7 @@ Run the complete clean-install journey from the repository root when you want th
 bash tests/Consumer/community-board-clean-install.sh
 ```
 
-It removes local state, installs both locked dependency sets, applies all 17 migrations (12 Framework + 5 Community Board Application migrations = 17), compiles and checks generated contracts, seeds twice, logs in normally, checks seed HTML and sensitive boundaries, and cleans containers, volumes, dependencies, and generated artifacts on success or failure.
+It removes local state, installs both locked dependency sets, applies all 18 migrations (13 Framework + 5 Community Board Application migrations = 18), compiles and checks generated contracts, seeds twice, logs in normally, checks seed HTML and sensitive boundaries, and cleans containers, volumes, dependencies, and generated artifacts on success or failure.
 
 The focused consumers isolate failures:
 
