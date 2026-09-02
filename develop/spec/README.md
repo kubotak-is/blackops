@@ -2,9 +2,9 @@
 
 ## P23-003C3 current handoff — Audit Delivery Orchestration and Key Composition
 
-Updated At: 2026-09-02T14:19:47+09:00
+Updated At: 2026-09-02T17:10:59+09:00
 
-Current status: `Ready for independent preflight — Product work not started`.
+Current status: `Bounded preflight correction applied — fresh re-preflight required; Product work not started`.
 
 P23-003C1 and P23-003C2 are Accepted.
 The reviewed C2 candidate is committed at
@@ -23,8 +23,12 @@ runtime activation.
 
 The C3 Task freezes exact33 Product／Test／configuration paths and exact35
 worker scope. It preserves every Accepted C1／C2／B1／B2 Production byte.
-The committed management packet must be freshly reviewed by separate General／
-Transaction／Documentation lanes before configured Luna Product work.
+The first clean preflight is Historical Changes Requested after this bounded
+management correction. Accepted Store `ResourceUnavailable` mapping, canonical
+cached-identity transaction composition, the expected-list + single-loop
+package oracle, and C1 Report current truth are now closed. Immutable authority
+is exact10. The corrected committed packet must be freshly reviewed by separate
+General／Transaction／Documentation lanes before configured Luna Product work.
 
 Stable `1.2.0` remains current and BlackOps `1.3` remains unreleased.
 The two key-provider interfaces are unreleased proposal API. No current
@@ -1627,9 +1631,9 @@ closedする。Semantic tuple、trusted external verification context、exact
 | [D147](../decisions/147-audit-catalog-and-safe-projection-boundary.md) | Audit Catalog、keyed opaque ID、record stages、observed safe-projection boundary | Accepted P23-003A1／A2 and parent P23-003A; P23-003B1／B2 and parent P23-003B Accepted; Stable `1.2` current / BlackOps `1.3` unreleased |
 | [D148](../decisions/148-audit-canonical-record-and-protected-store-boundary.md) | Audit canonical record、hash／chain、Audit専用BOPD protection、B1／B2 boundary | P23-003B1／B2 and parent P23-003B Accepted; B2 candidate commit／same-SHA package export Green; Stable `1.2` unchanged / BlackOps `1.3` unreleased |
 | [D149](../decisions/149-audit-postgresql-canonical-store-boundary.md) | Audit PostgreSQL canonical append、segment、tenant-aware read、migration boundary | P23-003B2 Accepted; Complete Final Gate and fresh DB／General Sol closure Green; candidate `968afe2b...` package export Green; Stable `1.2` unchanged / BlackOps `1.3` unreleased |
-| [D150](../decisions/150-audit-outbox-state-and-delivery-split.md) | P23-003C serial C1／C2／C3／C4 split and pure Audit Outbox state boundary | Proposed — P23-003C1／C2 Accepted with candidate package Green; P23-003C3 packet frozen for preflight; Stable `1.2` current / BlackOps `1.3` unreleased |
+| [D150](../decisions/150-audit-outbox-state-and-delivery-split.md) | P23-003C serial C1／C2／C3／C4 split and pure Audit Outbox state boundary | Proposed — P23-003C1／C2 Accepted with candidate package Green; P23-003C3 bounded correction／fresh re-preflight; Stable `1.2` current / BlackOps `1.3` unreleased |
 | [D151](../decisions/151-audit-postgresql-outbox-persistence-boundary.md) | Audit PostgreSQL Outbox row、idempotent append、FIFO／CAS、transaction boundary | Accepted P23-003C2; candidate `a92bef70...` and same-SHA package export Green; Stable `1.2` current / BlackOps `1.3` unreleased |
-| [D152](../decisions/152-audit-delivery-orchestration-and-key-composition-boundary.md) | Catalog-fixed delivery、same-root transaction、protected-read gate、Application Audit key composition | Proposed — P23-003C3 exact packet frozen／fresh preflight pending; Stable `1.2` current / BlackOps `1.3` unreleased |
+| [D152](../decisions/152-audit-delivery-orchestration-and-key-composition-boundary.md) | Catalog-fixed delivery、same-root transaction、protected-read gate、Application Audit key composition | Proposed — P23-003C3 bounded correction applied／fresh re-preflight pending; Stable `1.2` current / BlackOps `1.3` unreleased |
 
 ## Historical P23-001 Round 13 checkpoint
 

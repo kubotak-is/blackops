@@ -1,8 +1,8 @@
 # P23-003C3: Audit Delivery Orchestration and Key Composition
 
-Status: Ready for independent General／Transaction／Documentation preflight; Product work not started
+Status: Bounded preflight correction applied — fresh General／Transaction／Documentation re-preflight required; Product work not started
 
-Updated At: 2026-09-02T14:19:47+09:00
+Updated At: 2026-09-02T17:10:59+09:00
 
 ## Current Checkpoint
 
@@ -22,6 +22,10 @@ Application runtime.
 This management packet must be committed by the Orchestrator and independently
 reviewed from one clean immutable freeze before a configured Luna worker may
 edit Product or Test.
+The first preflight returned one implementation-blocking Store-failure
+taxonomy conflict plus bounded transaction／package／management findings.
+D152 and this Task now close those findings; all three lanes must restart from
+the corrected clean freeze.
 Stable `1.2.0` remains current; BlackOps `1.3` and every Audit capability remain
 unreleased.
 
@@ -67,7 +71,7 @@ or effort rejection, unavailability, or fallback is a blocker.
    Orchestrator-supplied C3 packet HEAD.
 3. The packet HEAD is clean and staged0 before worker dispatch.
 4. P23-003C1／C2, parent P23-003B, and their package evidence remain Accepted.
-5. The nine immutable authority files and their ordered aggregate match the
+5. The ten immutable authority files and their ordered aggregate match the
    Orchestrator dispatch exactly.
 6. Stable `1.2.0` remains current, Framework migration count remains `13`,
    Community Board total remains `18`, and BlackOps `1.3` remains unreleased.
@@ -223,6 +227,12 @@ Connection, Clock, Container, and transaction coordinator; reparses one schema
 name; constructs D152's exact one graph; and returns one
 `ApplicationAuditRuntime` carrying the same stores and Outbox configuration.
 The composer has zero Production callsites and no registration.
+The operation composition is only the canonical value constructed by the
+existing `ApplicationOperationRuntimeComposer`; its cached
+`DoctrineDatabaseManager`, Framework Connection, and transaction coordinator
+remain one identity graph. A manually assembled Production composition,
+alternate DatabaseManager, or additional Production constructor caller is
+forbidden. Direct test assembly may prove identities but is not activation.
 
 ### 6. Architecture, package, and release guard
 
@@ -234,10 +244,13 @@ Add the `Audit` Deptrac layer. It may depend only on `Core` and
 `StorageProtection`. Add only the exact necessary `Audit` edge to Internal and
 InternalApplication; do not create a reverse or peer cycle.
 
-Insert the exact fourteen Production paths into both package loops after
+Insert the exact fourteen Production paths after
 `src/Core/Exception/ConfigurationFailure.php` and before existing Internal
-Audit paths, in the D152 order. Required inventory becomes exact68.
-Preserve the execution-contract and locally repinned mutation oracles.
+Audit paths, in the D152 order, in both the required-inventory oracle's
+expected list and the export script's single `validate_package()` required-path
+loop. Required inventory becomes exact68. Preserve exactly two top-level
+`validate_package()` calls for Git and Composer, the execution contract, the
+C3-new-entry omission negative, and the locally repinned mutation oracles.
 
 ## Out of Scope
 
@@ -303,7 +316,7 @@ develop/STATE.md
 
 Worker scope is exact35. No other path may move.
 
-Orchestrator-only immutable exact9:
+Orchestrator-only immutable exact10:
 
 ```text
 develop/TODO.md
@@ -314,6 +327,7 @@ develop/orchestration/tasks/P23-003C3-audit-delivery-orchestration-and-key-compo
 develop/spec/105-blackops-1-3-capability-contract.md
 develop/spec/106-phase-23-delivery-plan.md
 develop/spec/README.md
+develop/orchestration/reports/P23-003C1-audit-outbox-state-foundation.md
 develop/orchestration/reports/P23-003C2-audit-postgresql-outbox-persistence.md
 ```
 
@@ -327,13 +341,14 @@ Follow D152's entry-point-specific first-applicable order:
 2. Catalog／definition／plan／Draft／idempotency-key nullability policy;
 3. transaction auto-commit／nesting／Connection ownership;
 4. opaque provider availability during composition;
-5. selected Store capacity exhaustion;
-6. contracted storage／protection／integrity／idempotency／transition／DB
-   failure.
+5. an Accepted canonical／Outbox Store `ResourceUnavailable`, including
+   capacity, Clock／UUID exhaustion, and write-side protection;
+6. every other contracted Store integrity／idempotency／transition／DB failure.
 
 Business-handler throwables are not contracted or wrapped by C3.
-Protection-provider failures inside a Store path remain contracted storage
-failure; the C3 key adapter exposes only Accepted `AuditProtectionException`.
+Protection-provider failures inside a Store path have already been collapsed
+to the Accepted Store `ResourceUnavailable`; the C3 key adapter exposes only
+Accepted `AuditProtectionException`.
 
 ## Required Fixtures
 
@@ -357,10 +372,17 @@ failure; the C3 key adapter exposes only Accepted `AuditProtectionException`.
 - current level1 participation and zero begin／commit／rollback／savepoint;
 - auto-commit false, inactive nonzero, level0 current, level2, and Store
   post-state drift;
+- canonical `ApplicationOperationRuntimeComposition` exact-one Production
+  construction, cached `DoctrineDatabaseManager` identity across precheck and
+  completion, and Architecture rejection of alternate-manager／manual
+  Production-composition callers;
 - same-Connection real PostgreSQL business row + required Audit row commit;
 - same-Connection business row + durable Outbox row commit;
 - request-factory, required append, and durable append failure roll back the
   business row;
+- capacity and throwing write-protection providers both map the Accepted Store
+  `ResourceUnavailable` to C3 `resource_unavailable`; integrity／idempotency／
+  transition／DB failures remain `storage_unavailable`;
 - request-factory throw／wrong type and begin／commit failure contract without
   previous/canary, while the business handler's same throwable identity is
   rethrown after rollback;
@@ -409,8 +431,10 @@ failure; the C3 key adapter exposes only Accepted `AuditProtectionException`.
 - generic provider/purpose, environment/default key, transaction owner,
   savepoint, downgrade, projection, relay, response callback, outside caller,
   and runtime activation negatives;
-- exact68 package order in both executable loops, missing/add/reorder/call
-  removal/early-return/alias/shopt/repinned mutation rejection;
+- exact68 order in the required-inventory expected list and the one export
+  validation loop, exact-two Git／Composer top-level calls, and missing／add／
+  reorder／C3-new-entry omission／call-removal／early-return／alias／shopt／
+  repinned mutation rejection;
 - PublicApi Architecture, Deptrac `0/0/0`, Stable `1.2.0`, migration13,
   Community18, `StoragePurpose::cases()` exact9, docs no-diff, no new route,
   and no forbidden management IDs in PHP comments.
@@ -421,7 +445,7 @@ Run once after all exact33 Product／Test changes and Report／STATE updates are
 complete. Stop on first failure.
 
 1. Freeze branch, HEAD, staged0, status exact35, exact33 ordered SHA aggregate,
-   immutable exact9 individual hashes/aggregate, Accepted prerequisite hashes,
+   immutable exact10 individual hashes/aggregate, Accepted prerequisite hashes,
    and package-script hashes.
 2. Prove exact33 and exact35 counts, unique paths, file existence, and both
    add/remove/wrong-hash negatives.
@@ -460,7 +484,7 @@ exact35 refreeze, restart from command 1 and stop on first failure:
 9. Community Board clean-install only if the unchanged current journey is
    already available without changing scope;
 10. shell syntax, docs directory/no-diff, forbidden-ID, `git diff --check`,
-    staged0, exact35, exact33, immutable exact9, prerequisite and package
+    staged0, exact35, exact33, immutable exact10, prerequisite and package
     post-guards.
 
 No evidence may be reused after a source/test change.

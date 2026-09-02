@@ -1,8 +1,8 @@
 # P23-003C3 Report: Audit Delivery Orchestration and Key Composition
 
-Status: Ready for Independent Preflight — management packet synchronized; Product work not started
+Status: Bounded Preflight Correction Applied — fresh re-preflight required; Product work not started
 
-Updated At: 2026-09-02T14:19:47+09:00
+Updated At: 2026-09-02T17:10:59+09:00
 
 ## Summary
 
@@ -21,6 +21,13 @@ push, release, or deploy has begun.
 Stable `1.2.0` remains current. BlackOps `1.3`, the two proposed key-provider
 interfaces, and all Audit behavior remain unreleased.
 
+The first clean preflight at management commit
+`5b97626495cde780544bc0b0849004b9bdebc75a` returned separate General
+`P1=1／P2=0／P3=0`, Transaction `P1=1／P2=1／P3=0`, and Documentation
+`P1=0／P2=2／P3=0` verdicts. The shared P1 is deduplicated below. Product work
+remains stopped while this bounded management-only correction is committed and
+all three lanes restart from its new freeze.
+
 ## Changed Files
 
 Orchestrator management-packet scope:
@@ -36,11 +43,12 @@ develop/decisions/151-audit-postgresql-outbox-persistence-boundary.md
 develop/spec/105-blackops-1-3-capability-contract.md
 develop/spec/106-phase-23-delivery-plan.md
 develop/spec/README.md
+develop/orchestration/reports/P23-003C1-audit-outbox-state-foundation.md
 develop/orchestration/reports/P23-003C2-audit-postgresql-outbox-persistence.md
 ```
 
 No Product, Test, dependency, package, public Documentation, example, or
-migration path has moved in this drafting checkpoint.
+migration path has moved in this correction checkpoint.
 
 ## Decisions and Assumptions
 
@@ -59,6 +67,16 @@ migration path has moved in this drafting checkpoint.
   inventory alone grows from exact54 to exact68.
 - The Task exact33 and worker exact35 are frozen for independent preflight to
   verify implementation reachability and fixture completeness.
+- Accepted Store `ResourceUnavailable` is now mapped uniformly because C3
+  cannot recover lower capacity／Clock／UUID／protection causes erased by C2.
+- Same-root C3 orchestration is limited to the existing canonical
+  `ApplicationOperationRuntimeComposition` and cached
+  `DoctrineDatabaseManager` identity graph; arbitrary manager／composition
+  assembly is not supported or authorized.
+- Package exact68 now names the actual expected-list + single-validation-loop
+  structure and preserves exact-two Git／Composer calls.
+- The C1 Report's stale pre-commit sentence is explicitly Historical and that
+  Report joins the Orchestrator immutable set, now exact10.
 
 ## Commands and Results
 
@@ -73,15 +91,18 @@ migration path has moved in this drafting checkpoint.
 - Product／Test commands: Not Run; Product work has not started.
 - Management packet cross-document synchronization and local static checks:
   Green.
-- Independent General／Transaction／Documentation preflight: Not Run.
+- First independent preflight on `5b976264...`: Changes Requested with the
+  separate counts recorded in Summary; no Product command was run.
+- Bounded management correction: applied; fresh three-lane re-preflight Not
+  Run.
 - Iteration Gate／Complete Final Gate: Not Run.
 - Candidate commit／same-SHA package export: Not Run for C3.
 
 ## Acceptance Criteria
 
-- [ ] D152 and Task are independently implementation-ready.
-- [x] Management packet is synchronized as the committed clean preflight
-  candidate.
+- [ ] Corrected D152 and Task are independently implementation-ready.
+- [x] Corrected management packet is committed as one clean immutable exact10
+  re-preflight candidate.
 - [ ] Fresh General preflight Green.
 - [ ] Fresh Transaction／PostgreSQL preflight Green.
 - [ ] Fresh Documentation／Release preflight Green.
@@ -94,13 +115,14 @@ migration path has moved in this drafting checkpoint.
 
 ## Remaining Issues
 
-- No preflight reviewer has yet evaluated D152's callable graph, transaction
-  ordering, key provider separation, exact33 scope, or fixtures.
+- The corrected packet still requires fresh General／Transaction／Documentation
+  review; the first Changes Requested evidence is Historical for
+  `5b976264...` after this correction.
 - Product implementation and every Product gate remain pending.
 - C4 and parent P23-003C Acceptance remain downstream after C3.
 
 ## Suggested Next Action
 
-Dispatch fresh General／Transaction／Documentation read-only preflight lanes
-from the committed clean packet freeze.
+Commit this bounded management-only correction, then dispatch fresh General／
+Transaction／Documentation read-only re-preflight lanes from its clean freeze.
 Only after all three are Green may the configured Luna worker implement exact35.

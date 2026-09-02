@@ -1,8 +1,8 @@
 # D150: Audit Outbox State and Delivery Split
 
-Status: Proposed — P23-003C1／C2 Accepted; P23-003C3 packet frozen for independent preflight; BlackOps 1.3 unreleased
+Status: Proposed — P23-003C1／C2 Accepted; P23-003C3 bounded preflight correction applied／fresh re-preflight required; BlackOps 1.3 unreleased
 
-Updated At: 2026-09-02T14:19:47+09:00
+Updated At: 2026-09-02T17:10:59+09:00
 
 ## Current Handoff
 
@@ -22,6 +22,10 @@ It owns Catalog-fixed delivery selection, same-Framework-Connection mutation
 orchestration, protected Operation-read release gating, and Application-facing
 opaque／Audit-protection key composition. It adds an uncalled directly testable
 composer and no current runtime registration.
+Its first three-lane preflight is Historical Changes Requested after the
+bounded management correction: Accepted Store failure taxonomy, canonical
+cached-identity transaction composition, actual package-oracle structure, and
+C1 current truth are now closed for fresh re-preflight.
 
 P23-003C4 remains responsible for relay and recovery runtime. Parent P23-003C
 is not Accepted until C1 through C4 are all Accepted.

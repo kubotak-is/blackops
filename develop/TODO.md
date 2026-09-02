@@ -12,9 +12,9 @@
 
 ## P23-003C3 current handoff — Audit Delivery Orchestration and Key Composition
 
-Updated At: 2026-09-02T14:19:47+09:00
+Updated At: 2026-09-02T17:10:59+09:00
 
-Status: `Ready for independent preflight — Product work not started`。
+Status: `Bounded preflight correction applied — fresh re-preflight pending; Product work not started`。
 
 - [x] P23-003B1／B2 and parent P23-003B Accepted
 - [x] P23-003C1 Accepted／candidate commit／same-SHA package export Green
@@ -25,6 +25,9 @@ Status: `Ready for independent preflight — Product work not started`。
 - [x] P23-003C3 exact33 Task Packet and initial Report drafted
 - [x] STATE／TODO／Spec／Decision catalog／C2 closeout synchronization
 - [x] clean management-packet commit candidate and exact immutable freeze
+- [x] first clean three-lane preflight Changes Requestedをbounded correction
+  （Store taxonomy／canonical transaction graph／package oracle／C1 current truth）
+- [x] immutable authorityをC1 Report込みexact10へ拡張
 - [ ] fresh General preflight Green
 - [ ] fresh Transaction／PostgreSQL preflight Green
 - [ ] fresh Documentation／Release preflight Green
@@ -42,8 +45,8 @@ migration、releaseをactivateしない。
 Remaining: C3 preflight→implementation→gates→Acceptance→commit／package、
 C4、parent P23-003C Acceptance、P23-003D..G、P23-004、P23-005、P23-006。
 
-Next Action: committed clean freezeからfresh General／Transaction／
-Documentation preflightを別々に実行する。全lane GreenまではProductionを開始しない。
+Next Action: corrected committed clean freezeからfresh General／Transaction／
+Documentation re-preflightを別々に実行する。全lane GreenまではProductionを開始しない。
 
 ## P23-003B2 accepted handoff — Historical prerequisite
 
@@ -1136,7 +1139,7 @@ Next Action: freeze the new exact5 and exact7 hashes and request fresh separate 
 - [~] P23-003Cをserial C1→C2→C3→C4で実装する。required same-transaction append、auth/read decisionのresponse前 dedicated local append/outbox commit（allow failureはdata非開示fail-closed、deny/invalid failureはbounded denial）、durable Audit Outboxのimmutable identity/bindings/protected envelopeとfenced state-field mutation、at-least-once same-ID/contentHash relayを全child Acceptance後に成立させる
 - [x] P23-003C1でpure Audit Outbox state snapshot、configuration、deterministic backoff、claim／retry／recover／relay／poison transitionを実装する。Complete Final Gate／fresh Sol Max review `P1=0/P2=0/P3=0`でAccepted。DB／runtime activationは行わない
 - [x] P23-003C2でPostgreSQL Audit Outbox row／migration／hydrator／idempotency／ordinal／FIFO／fenced CASを実装する。Complete Final Gate／fresh review／candidate commit／same-SHA package export GreenでAccepted
-- [~] P23-003C3でCatalogのfixed delivery、explicit `policy.auditDelivery`、required same-root transaction、protected-read response gate、Application key compositionを実装する。D152／exact33 Task Packet synchronized、fresh preflight待ち
+- [~] P23-003C3でCatalogのfixed delivery、explicit `policy.auditDelivery`、required same-root transaction、protected-read response gate、Application key compositionを実装する。D152／exact33 Task Packet bounded correction済み、fresh re-preflight待ち
 - [ ] P23-003C4でsame recordId／contentHashのat-least-once relay、append-before-ack recovery、retry／poison runtimeを実装する
 - [ ] P23-003Dでretention／hold、rotation、replay、outbox retryをimmutable AuditRecord phase eventへ明示adaptし、AuthenticationMiddleware／AuthorizationEvaluator／protected Operation Status／Journal／Outcome／diagnostic read boundaryのadapterとindependent reviewを行う
 - [ ] P23-003EでApplication versioned event registration/projector API、reference journey、business-action non-inferenceを検証する

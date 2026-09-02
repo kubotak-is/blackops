@@ -2,7 +2,7 @@
 
 Status: Proposal — unreleased BlackOps 1.3; workflow/gate status authority is the exact5 management slice (`develop/STATE.md`, `develop/TODO.md`, the parent Task/Report, and `develop/spec/README.md`)
 
-Updated At: 2026-09-02T14:19:47+09:00
+Updated At: 2026-09-02T17:10:59+09:00
 
 This specification is a normative proposal for BlackOps `1.3`. It is not a
 Stable `1.2` capability contract and must not be copied into current public
@@ -130,6 +130,14 @@ before the existing coordinator commits; request or append failure rolls the
 business mutation back. Nontransactional, cross-Connection, rejected, and
 non-completed paths perform the fixed zero-work behavior. There is no
 cross-database or external exactly-once claim.
+
+C3 supports only the canonical `ApplicationOperationRuntimeComposition`
+created by the existing composer, including its cached
+`DoctrineDatabaseManager` Connection identity. Manually assembled operation
+compositions and alternate managers are outside the C3 production graph.
+Because Accepted canonical／Outbox Stores already erase lower causes, every
+Store `ResourceUnavailable` maps to C3 `resource_unavailable`; every other
+Store failure maps to `storage_unavailable`.
 
 For protected Operation Status／Journal／Outcome／Diagnostics reads, C3 commits
 the exact `.requested` required event before authorization or target lookup and

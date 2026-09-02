@@ -2,7 +2,7 @@
 
 Status: Proposal — unreleased BlackOps 1.3; workflow/gate status authority is the exact5 management slice (`develop/STATE.md`, `develop/TODO.md`, the parent Task/Report, and `develop/spec/README.md`)
 
-Updated At: 2026-09-02T14:19:47+09:00
+Updated At: 2026-09-02T17:10:59+09:00
 
 This plan is a delivery DAG for the capability proposal in Specification 105.
 It does not make any Phase 23 item a current Stable `1.2` capability. A slice
@@ -94,6 +94,13 @@ before authorization／lookup and response release. Missing／null／unknown／
 `best_effort`／mismatch／override／downgrade fail closed. Allow failure releases
 no data; deny and resource-unavailable remain bounded non-allow.
 
+The same-root path is limited to the canonical existing
+`ApplicationOperationRuntimeComposition` and its cached
+`DoctrineDatabaseManager` Connection identity. Accepted Store
+`ResourceUnavailable` is mapped uniformly, including capacity／Clock／UUID／
+write-protection causes already collapsed below C3; all other Store failures
+become `storage_unavailable`.
+
 C3 also adds two unreleased Application-facing key-provider interfaces and one
 uncalled Application composer. The opaque key role is separate from record／
 Outbox active／historical protection roles, generic `StorageKeyProvider` is not
@@ -104,10 +111,11 @@ configuration and one graph and has zero current runtime registration or
 Production callsite.
 
 The exact C3 packet owns exact33 Product／Test／configuration paths, exact68
-package inventory, zero new migration／route／command／public Documentation
-claim, and fresh General／Transaction／Documentation preflight before Product
-work. C4 remains the active relay／recovery runtime child and consumes the same
-C3 Outbox configuration／Store identities.
+package inventory, immutable exact10 including both Accepted C reports, zero
+new migration／route／command／public Documentation claim, and fresh General／
+Transaction／Documentation re-preflight before Product work. C4 remains the
+active relay／recovery runtime child and consumes the same C3 Outbox
+configuration／Store identities.
 
 ## Historical P23-003A accepted delivery checkpoint
 

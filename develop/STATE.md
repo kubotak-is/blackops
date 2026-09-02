@@ -1,14 +1,17 @@
 # Orchestration State
 
-Updated At: 2026-09-02T14:19:47+09:00
+Updated At: 2026-09-02T17:10:59+09:00
 
-P23-003C3 preflight-ready management checkpoint at
-2026-09-02T14:19:47+09:00. P23-003C2 is Accepted and committed at
+P23-003C3 bounded preflight-correction checkpoint at
+2026-09-02T17:10:59+09:00. P23-003C2 is Accepted and committed at
 `a92bef70fdb843a4dd2b8b34243fc892b43939cc`; its clean exact-SHA
 Git／Composer package export is Green. No push was performed.
 
 D152 and the exact C3 Task／initial Report are synchronized as one clean
-management packet. C3 owns Catalog-fixed required／durable selection, exact shared-
+management packet. The first clean preflight at commit `5b976264...` returned
+General `P1=1／P2=0／P3=0`, Transaction `P1=1／P2=1／P3=0`, and Documentation
+`P1=0／P2=2／P3=0`; the shared Store-taxonomy P1 is one deduplicated root.
+C3 owns Catalog-fixed required／durable selection, exact shared-
 Framework-Connection mutation orchestration, protected Operation-read release
 gating, and Application-facing opaque／Audit-protection key composition. The
 proposed Product／Test／configuration scope is exact33 and worker scope is
@@ -16,11 +19,17 @@ exact35. No Product or Test path has moved, and no test, build, Docker,
 package-export, runtime registration, relay, producer adapter, public
 Documentation activation, browser, push, release, or deploy has begun for C3.
 
+The bounded management correction maps every already-collapsed Accepted Store
+`ResourceUnavailable` uniformly, restricts same-root use to the canonical
+cached-identity Application operation composition, fixes the expected-list +
+single-validation-loop package oracle, and marks the C1 stale pre-commit note
+Historical. The immutable authority is now exact10 including the C1 Report.
+
 Stable `1.2.0` remains current. BlackOps `1.3`, the new key-provider
-interfaces, and every Audit capability remain unreleased. The exact packet is
-committed as the clean preflight candidate; its HEAD and immutable hashes are
-the reviewer dispatch tuple. Remaining sequence: obtain fresh General／
-Transaction／Documentation preflight Green, then dispatch the configured Luna
+interfaces, and every Audit capability remain unreleased. The corrected packet
+is committed as the clean re-preflight candidate; its HEAD and immutable
+hashes are the reviewer dispatch tuple. Remaining sequence: obtain fresh
+General／Transaction／Documentation Green, then dispatch the configured Luna
 worker. C4 and parent P23-003C Acceptance remain downstream.
 
 Historical: P23-003C2 Complete Final Gate checkpoint before Acceptance

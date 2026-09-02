@@ -1,8 +1,8 @@
 # D152: Audit Delivery Orchestration and Key Composition Boundary
 
-Status: Proposed — P23-003C1／C2 Accepted; P23-003C3 packet frozen for independent preflight; BlackOps 1.3 unreleased
+Status: Proposed — P23-003C1／C2 Accepted; P23-003C3 bounded preflight correction applied／fresh re-preflight required; BlackOps 1.3 unreleased
 
-Updated At: 2026-09-02T14:19:47+09:00
+Updated At: 2026-09-02T17:10:59+09:00
 
 ## Current Handoff
 
@@ -12,6 +12,14 @@ The reviewed C2 candidate is committed at
 Git／Composer package export is Green.
 The worktree was clean before this Decision and the C3 Task Packet were
 drafted.
+
+The first independent preflight is Changes Requested.
+This corrected packet maps the already-collapsed Accepted Store
+`ResourceUnavailable` cases uniformly, fixes the actual package-oracle shape,
+and limits same-root orchestration to the canonical cached-identity Application
+operation composition. It also makes the Accepted C1 Report part of the
+immutable authority freeze. Product work remains stopped until all three
+fresh re-preflight lanes are Green.
 
 P23-003C3 is the next serial child.
 It owns fixed Catalog delivery selection, same-Framework-Connection mutation
@@ -328,14 +336,18 @@ level `0` or greater than `1`.
 
 Validation／policy failures map to `policy_invalid`.
 Invalid transaction state maps to `transaction_invalid`.
-Store capacity exhaustion maps to `resource_unavailable`.
-All other Store, protection, integrity, idempotency, transition, and DB
-failures collapse to `storage_unavailable` without a previous exception.
+An Accepted canonical or Outbox Store exception whose existing failure enum is
+`ResourceUnavailable` maps to `resource_unavailable`. This includes capacity,
+trusted Clock／UUID exhaustion, and write-side protection failures because the
+Accepted Stores intentionally erase those lower causes before C3 sees them.
+Every other Store failure, including integrity, idempotency, transition, and
+DB failures, collapses to `storage_unavailable` without a previous exception.
 
 The first-applicable order is fixed per entry point: configuration shape and
 bounds; Catalog／plan／Draft／key-nullability policy; transaction state; opaque
-key availability during composition; Store capacity; then contracted storage
-failure. A later failure never masks an earlier applicable category.
+key availability during composition; Accepted Store `ResourceUnavailable`;
+then every other contracted Store failure. A later failure never masks an
+earlier applicable category.
 
 ### 6. Same-root mutation orchestration
 
@@ -365,6 +377,21 @@ requires that the selected transaction Connection is the exact Framework
 Connection owned by the existing `OperationTransactionCoordinator`.
 Non-transactional or cross-Connection metadata is `transaction_invalid` with
 zero `invoke` and zero request-factory calls.
+
+This is not a generic adapter for an arbitrarily assembled
+`OperationTransactionCoordinator` or `DatabaseManager`.
+Its sole Production construction is in
+`ApplicationAuditRuntimeComposer::compose()` from the exact
+`ApplicationOperationRuntimeComposition` returned by the existing
+`ApplicationOperationRuntimeComposer`.
+That current composition owns one `DoctrineDatabaseManager`, whose per-name
+Connection cache makes the precheck and the existing callback-time
+`sharesFrameworkConnection()` check resolve the same object.
+An alternate manager, manually assembled operation composition in Production,
+or additional Production constructor caller is forbidden by the Architecture
+boundary and requires a later Decision before activation. Direct tests may
+assemble a fixture only to prove the canonical identities; that fixture is not
+a supported runtime path.
 
 The existing coordinator remains the sole root owner.
 On one completed result, the request factory runs exactly once in its existing
@@ -539,6 +566,13 @@ Store, selector, delivery coordinator, mutation wrapper, and read gate.
 It passes the exact same configuration instance to the Outbox Store and the
 returned runtime.
 
+The supplied operation composition must be the canonical Production value
+from `ApplicationOperationRuntimeComposer`; its `DoctrineDatabaseManager`,
+Framework Connection, and `OperationTransactionCoordinator` identities are
+reused without replacement. The composer validates that the configured
+Framework connection resolves to the exact composition Connection before
+constructing any C3 coordinator.
+
 The caller supplies the immutable Catalog lookup.
 C3 does not construct a Framework-only hidden default because P23-003E later
 supplies the trusted combined Framework／Application registry.
@@ -578,6 +612,9 @@ C3 adds one mutation-resistant `AuditDeliveryArchitectureTest` that fixes:
 - exact one Production `HmacAuditOpaqueIdDeriver` construction in the C3
   Application composer;
 - exact one `AuditProtectionKeySource` Production implementation;
+- exact one current Production `ApplicationOperationRuntimeComposition`
+  construction and exact cached `DoctrineDatabaseManager` identity path into
+  the C3 mutation coordinator;
 - token-aware alias／group-use／FQCN／same-namespace／class-string／dynamic／
   reflection reference and call detection;
 - no generic provider／purpose, environment, default key, second transaction
@@ -600,8 +637,11 @@ Application path may call it.
 ### 11. Package and release boundary
 
 The existing package required inventory grows from exact54 to exact68 by
-inserting the fourteen C3 Production paths in the same order in both consumer
-scripts.
+inserting the fourteen C3 Production paths in the same order in the
+required-inventory oracle's expected list and the export script's single
+`validate_package()` required-path loop.
+The export script retains exactly two top-level calls of that one function,
+once for the Git archive and once for the Composer archive.
 Their execution-contract and repinned mutation oracles remain non-vacuous.
 
 C3 adds no migration, table, CLI command, route, public Guide, Documentation
@@ -631,6 +671,10 @@ Direct and real-PostgreSQL fixtures must prove:
 - exact basis／context／requestRef／event／actor／execution／tenant bindings;
 - provider missing／wrong／throw, opaque key wrong length, record／Outbox
   selection, historical lookup, and opaque-key reference／material reuse;
+- paired Accepted Store `ResourceUnavailable` cases for capacity and
+  write-side protection, plus non-resource Store failure contraction;
+- canonical `DoctrineDatabaseManager` connection caching, exact operation
+  composition identity, and zero alternate Production construction;
 - one opaque provider call, one deriver, one Outbox configuration, and one
   composed graph;
 - C4 receives the same Store／configuration instances;
