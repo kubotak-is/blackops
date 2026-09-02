@@ -1,57 +1,30 @@
 # D151: Audit PostgreSQL Outbox Persistence Boundary
 
-Status: Proposed — P23-003C2 Changes Requested; bounded DB Product corrections in progress; BlackOps 1.3 unreleased
+Status: Accepted for P23-003C2 — candidate committed and same-SHA package export Green; BlackOps 1.3 unreleased
 
-Updated At: 2026-09-01T10:32:46+09:00
+Updated At: 2026-09-02T14:19:47+09:00
 
 ## Current Handoff
 
-P23-003B1／B2 and parent P23-003B are Accepted.
-P23-003C1 is Accepted at Product／Test exact11 aggregate
-`d0bfa64e35ce8d113909a2aba710c57ed7bb33fd6711c51df207e71d33919fad`.
-Its reviewed candidate `bc12a67210d9cb132cf3246f96b00d79fb519656` and clean
-exact-SHA Git／Composer package export are Green. The management closeout is
-committed at clean HEAD `4bebcb09d8e67e58c424d0c9543e594708d02872`.
+P23-003C1 and P23-003C2 are Accepted.
+The reviewed C2 candidate is committed at
+`a92bef70fdb843a4dd2b8b34243fc892b43939cc`. Complete Final Gate and fresh
+General／DB／Documentation review are Green, and the clean exact-SHA
+Git／Composer package export is Green. No push was performed.
 
-P23-003C2 is the next serial child. It composes Accepted C1 state with Accepted
-B1 protected ingress and persists the exact PostgreSQL Outbox row. It does not
-activate Application composition, a business transaction adapter, relay
-runtime, scheduler, CLI, HTTP, or public Documentation.
+C2 now provides the accepted two-table PostgreSQL Outbox persistence seam,
+including authenticated idempotent append, contiguous ordinal, FIFO selection,
+C1-backed fenced transitions, tenant binding, and owned-level0／joined-level1
+transaction behavior. Its Application policy selection, key composition, and
+relay exclusions remain normative.
+
+P23-003C3 is next. D152 consumes this Store without changing any C2 Production
+byte and owns Catalog-fixed required／durable selection, same-root mutation
+orchestration, protected-read gating, and Application key composition.
+P23-003C4 later owns active relay and recovery.
 
 Stable `1.2.0` remains current. BlackOps `1.3` and the Audit Trail remain
 unreleased.
-
-The first General／DB／Documentation preflight lanes are Historical Changes
-Requested. The clean-commit re-preflight at
-`26527296da112e315c6a332d26282f52625bb7a7` is also Historical after General
-and DB separately returned `P1=1/P2=0/P3=0`; Documentation returned Green
-`P1=0/P2=0/P3=0`, but its evidence is invalidated by this normative change.
-The two remaining roots were a retained-row tenant-binding blind spot and the
-omission of the current migration-command count test from Files Allowed. This
-second corrected Decision and Task close both roots without changing Product.
-
-The second corrected packet was committed at
-`fd7671b87a2e498a8b45d7f863b0e341a5a73f70`, and fresh General／DB／
-Documentation preflight was Green `P1=0/P2=0/P3=0` in every lane. The
-configured Luna worker then implemented the bounded C2 Product and direct
-tests. Focused C2 Architecture tests are Green, but the broader compatibility
-suite exposed one normative conflict: this Decision requires one direct C2
-Store callsite for each `protectOutbox()` and `unprotectOutbox()`, while the
-Accepted B2 `AuditStoreArchitectureTest` still requires both maps to be empty.
-
-This Decision therefore supersedes only that B2 Architecture-test expectation.
-Accepted B2 Production remains byte-identical. Product work is paused while
-the exact Architecture exception, Files Allowed, counts, and gates are
-corrected and freshly reviewed from a new immutable freeze.
-
-Fresh corrected-scope General review is Green. Fresh DB review confirms this
-authority correction is Green but finds three defects in the preserved Product
-partial: recovery uses the active-lease CAS predicate, the Outbox Cc／Cf
-inventory contains U+1D17B beyond Accepted B2, and append combines the exact
-bootstrap／existing statements. Documentation finds two management-truth gaps.
-Those management gaps are corrected without changing the DB authority. The
-configured Luna worker owns only the three bounded Product／fixture corrections
-and exact Architecture map before fresh implementation review.
 
 ## Context
 
@@ -778,15 +751,12 @@ only through the Accepted B2 Store during C4 relay.
 
 ## Remaining Issues
 
-- P23-003C2 implementation, gates, review, Acceptance, candidate commit, and
-  clean same-SHA package export.
+- None within P23-003C2.
 - P23-003C3 required／durable transaction and Application key composition.
 - P23-003C4 relay／recovery runtime.
 - Parent P23-003C Acceptance after all four children.
 
 ## Suggested Next Action
 
-Apply only the three bounded DB Product／fixture corrections and exact
-Architecture map within the corrected exact scope. Then refreeze, run focused
-real-PostgreSQL evidence, and obtain fresh DB／General implementation review.
-No prior Architecture or full-gate evidence is reused.
+Proceed to the separately committed and freshly reviewed D152／P23-003C3
+management packet. Preserve every Accepted C2 Production byte.

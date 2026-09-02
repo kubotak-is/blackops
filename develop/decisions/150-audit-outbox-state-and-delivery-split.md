@@ -1,78 +1,32 @@
 # D150: Audit Outbox State and Delivery Split
 
-Status: Proposed — P23-003C1 Accepted; P23-003C2 bounded DB Product corrections in progress; BlackOps 1.3 unreleased
+Status: Proposed — P23-003C1／C2 Accepted; P23-003C3 packet frozen for independent preflight; BlackOps 1.3 unreleased
 
-Updated At: 2026-09-01T10:32:46+09:00
+Updated At: 2026-09-02T14:19:47+09:00
 
 ## Current Handoff
 
 P23-003B1／B2 and parent P23-003B are Accepted.
-Reviewed B2 candidate `968afe2b0c4bbff86e0013592d69dc7115cf8b4f` and its clean-candidate package export are Green.
-The management-only closeout is committed at `e772242ed2156ee259ae177f69a6b0a9189fef68`, and the worktree was clean before this packet was drafted.
+P23-003C remains split into serial C1→C2→C3→C4 packets.
 
-P23-003C is split into serial C1→C2→C3→C4 packets.
-C1 owns only the pure Audit Outbox state snapshot, configuration, deterministic backoff, and transition rules.
-C1 performs no SQL, transaction control, clock read, identifier generation, key lookup, encryption, canonical append, relay, Application composition, or runtime registration.
+P23-003C1 is Accepted at committed candidate
+`bc12a67210d9cb132cf3246f96b00d79fb519656`, with clean same-SHA package
+export Green.
+P23-003C2 is Accepted at committed candidate
+`a92bef70fdb843a4dd2b8b34243fc892b43939cc`, with Complete Final Gate,
+fresh General／DB／Documentation review, and clean same-SHA package export
+Green. No push was performed.
 
-Stable `1.2.0` remains current and BlackOps `1.3` remains unreleased.
-No public API, public Documentation, CLI, HTTP route, Application Container, Audit Outbox table, or relay runtime becomes active in C1.
+P23-003C3 is the next serial child. D152 is its most-specific authority.
+It owns Catalog-fixed delivery selection, same-Framework-Connection mutation
+orchestration, protected Operation-read release gating, and Application-facing
+opaque／Audit-protection key composition. It adds an uncalled directly testable
+composer and no current runtime registration.
 
-The first Sol Max preflight is Historical. Focused execution exposed one
-Architecture-scope conflict: this Decision requires direct reuse of
-`AuditRecordTime`, while the Accepted A2 source-registration guard rejected
-that reference from Delivery. C1 therefore owns one bounded guard correction
-that permits only `AuditRecordTime` in `src/Internal/Audit/Delivery`; all other
-A2 type references and every runtime registration remain forbidden.
-
-Fresh corrected Sol Max preflight, bounded Luna implementation, Iteration Gate,
-and Complete Final Gate are Green. Product／Test exact11 is accepted at
-`d0bfa64e35ce8d113909a2aba710c57ed7bb33fd6711c51df207e71d33919fad`.
-Fresh Orchestrator Sol Max implementation review returned
-`P1=0/P2=0/P3=0`; P23-003C1 is Accepted. Reviewed candidate
-`bc12a67210d9cb132cf3246f96b00d79fb519656` is committed, and its clean
-exact-SHA Git／Composer package export is Green. No push was performed.
-
-The shared `AuditRecordArchitectureTest.php` belonged to Accepted B2 exact26.
-C1 supersedes only that test byte. The other Accepted B2 exact25 remain
-byte-identical at Task-order aggregate
-`4b605e2a23dd77b1c41f8aed95244a46776aef599d2607c88a7d63ee8a2f0354`;
-no B2 Production byte changes.
-
-D151 and the exact P23-003C2 Task Packet were drafted against clean C1 closeout
-HEAD `4bebcb09d8e67e58c424d0c9543e594708d02872`. D151 is the
-most-specific C2 authority for the two-table schema, callable graph,
-transaction participation, authenticated idempotent reconstruction, ordinal,
-FIFO selection, and fenced persistence. No C2 Product work or partial runtime
-activation has occurred.
-
-The first General／DB／Documentation preflight lanes are Historical Changes
-Requested. Their overlapping configuration, DDL, ordering, scope, package,
-and callable-authority roots are corrected in D151 and the Task.
-
-The clean-commit re-preflight at
-`26527296da112e315c6a332d26282f52625bb7a7` is also Historical: General and DB
-each returned `P1=1/P2=0/P3=0`, while Documentation returned Green. D151 and
-the Task now bind every retained row tenant pair through the exact aggregate,
-make the Store derive the hydrated partition before decrypt, and add the
-current migration-command count test to exact27／worker exact29 scope.
-
-The second corrected packet is committed at
-`fd7671b87a2e498a8b45d7f863b0e341a5a73f70`; fresh General／DB／Documentation
-preflight was Green in every lane, and bounded Luna implementation began.
-Focused C2 Architecture tests are Green, but the broader compatibility suite
-exposed one exact conflict: D151 requires one direct C2 Store callsite each for
-`protectOutbox()` and `unprotectOutbox()`, while the unchanged Accepted B2
-Architecture guard requires both maps to be empty. Product work is paused.
-D151／Task now authorize only that guard delta, expand Product／Test to exact28
-and worker scope to exact30, preserve every B2 Production byte, and require
-fresh General／DB／Documentation re-preflight before work resumes.
-
-Fresh corrected-scope General review is Green. DB confirms the authority
-correction but returns Product `P1=3/P2=0/P3=0`; Documentation returns
-`P1=0/P2=2/P3=0`. The two management-truth roots are corrected here. Product
-correction remains bounded to recovery CAS polarity, exact Cc／Cf parity,
-separate bootstrap／existing append SQL, their fixtures, and the exact B2
-Architecture map exception.
+P23-003C4 remains responsible for relay and recovery runtime. Parent P23-003C
+is not Accepted until C1 through C4 are all Accepted.
+Stable `1.2.0` remains current; BlackOps `1.3` and all Audit capabilities
+remain unreleased.
 
 ## Context
 
@@ -301,13 +255,12 @@ Required same-transaction append, durable ingress persistence, Application key c
 
 ## Remaining Issues
 
-- P23-003C2 PostgreSQL row／FIFO／CAS persistence.
-- P23-003C3 delivery transaction／policy／key composition.
+- P23-003C3 delivery transaction／policy／key composition packet preflight,
+  implementation, gates, Acceptance, and package closeout.
 - P23-003C4 relay and recovery runtime.
 - Parent P23-003C Acceptance after all four children.
 
 ## Suggested Next Action
 
-Apply the bounded Product／fixture and Architecture-map corrections, refreeze,
-then run focused gates and fresh DB／General implementation review against D151
-and the exact P23-003C2 Task Packet.
+Commit and freeze the D152／C3 management packet, then obtain fresh General／
+Transaction／Documentation preflight Green before configured Luna Product work.

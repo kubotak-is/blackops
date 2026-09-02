@@ -10,47 +10,40 @@
 - 重要な設計判断は、結論だけでなく理由もREADMEまたは設計文書へ残す
 - 用語の変更時は、コードと文書をまとめて更新する
 
-## P23-003C2 current handoff — PostgreSQL Audit Outbox Persistence
+## P23-003C3 current handoff — Audit Delivery Orchestration and Key Composition
 
-Updated At: 2026-09-01T10:32:46+09:00
+Updated At: 2026-09-02T14:19:47+09:00
 
-Status: `P23-003C2 Changes Requested — bounded DB Product corrections in progress`。
+Status: `Ready for independent preflight — Product work not started`。
 
 - [x] P23-003B1／B2 and parent P23-003B Accepted
 - [x] P23-003C1 Accepted／candidate commit／same-SHA package export Green
-- [x] clean C1 management closeout HEAD `4bebcb09d8e67e58c424d0c9543e594708d02872`
-- [x] C2 physical／API／transaction／idempotency／FIFO／CAS gap research
-- [x] D151 C2 PostgreSQL persistence boundary drafted
-- [x] P23-003C2 exact27 Task Packet／initial Report drafted
-- [x] initial General／DB／Documentation preflight Historical Changes Requested
-- [x] single configuration／exact DDL／ordering／scope／package／callable authority correction
-- [x] Orchestrator corrected nine-file management packet commit checkpoint
-- [x] first clean-commit re-preflight Historical: General P1=1／DB P1=1／Documentation Green
-- [x] retained-row tenant binding／migration-command current count-test scope correction
-- [x] Orchestrator second corrected nine-file management packet commit checkpoint
-- [x] second-corrected General／DB／Documentation re-preflight Green separately
-- [x] bounded Luna Product／direct-test implementation through C2 Architecture slice
-- [x] required Outbox protection callsites versus unchanged B2 guard conflict reproduced
-- [x] exact28 Product／Test and exact30 worker scope correction drafted
-- [x] stale Required Fixtures「B2 Architecture unchanged」literal corrected
-- [x] corrected fresh General contract review Green
-- [x] fresh DB Product review Changes Requested `P1=3/P2=0/P3=0`
-- [x] fresh Documentation review Changes Requested `P1=0/P2=2/P3=0`
-- [x] Decision catalog／Report inventory／Next Action management truth corrected
-- [ ] recovery CAS／Cc-Cf parity／split append SQL／Architecture map correction
-- [ ] bounded Luna Iteration Gate
-- [ ] Complete Final Gate／fresh DB and General review
-- [ ] Acceptance／candidate commit／same-SHA package export
+- [x] P23-003C2 Accepted／candidate commit
+  `a92bef70fdb843a4dd2b8b34243fc892b43939cc`／same-SHA package export Green
+- [x] C3 Catalog／transaction／protected-read／key-composition source research
+- [x] D152 C3 boundary drafted
+- [x] P23-003C3 exact33 Task Packet and initial Report drafted
+- [x] STATE／TODO／Spec／Decision catalog／C2 closeout synchronization
+- [x] clean management-packet commit candidate and exact immutable freeze
+- [ ] fresh General preflight Green
+- [ ] fresh Transaction／PostgreSQL preflight Green
+- [ ] fresh Documentation／Release preflight Green
+- [ ] configured Luna exact35 implementation
+- [ ] Iteration Gate／fresh implementation review／Complete Final Gate
+- [ ] C3 Acceptance／candidate commit／same-SHA package export
+- [ ] P23-003C4 relay／recovery runtime
+- [ ] parent P23-003C Acceptance
 
 Stable `1.2.0` remains current and BlackOps `1.3` remains unreleased。
-C2は新しいInternal PostgreSQL row／migrationを実装対象にするが、Application／Container、
-business transaction adapter、relay runtime、CLI／HTTP、public Audit Documentationをactivateしない。
+C3はpublic key-provider exact2をunreleased proposalとして追加するが、Application／
+Container／CLI／HTTP／worker／scheduler／relayへの登録、public Documentation claim、
+migration、releaseをactivateしない。
 
-Remaining: C2→C3→C4、parent P23-003C Acceptance、
-P23-003D..G、P23-004、P23-005、P23-006。
+Remaining: C3 preflight→implementation→gates→Acceptance→commit／package、
+C4、parent P23-003C Acceptance、P23-003D..G、P23-004、P23-005、P23-006。
 
-Next Action: Lunaがthree DB Product roots、direct／real fixtures、exact
-Architecture mapだけを補正し、focused gateとrefreezeを行う。
+Next Action: committed clean freezeからfresh General／Transaction／
+Documentation preflightを別々に実行する。全lane GreenまではProductionを開始しない。
 
 ## P23-003B2 accepted handoff — Historical prerequisite
 
@@ -1142,8 +1135,8 @@ Next Action: freeze the new exact5 and exact7 hashes and request fresh separate 
 - [x] P23-003Bをserial B1／B2で実装する。B1／B2 and parent P23-003B are Accepted。Reviewed B2 candidate commitとsame-SHA package exportはGreenである
 - [~] P23-003Cをserial C1→C2→C3→C4で実装する。required same-transaction append、auth/read decisionのresponse前 dedicated local append/outbox commit（allow failureはdata非開示fail-closed、deny/invalid failureはbounded denial）、durable Audit Outboxのimmutable identity/bindings/protected envelopeとfenced state-field mutation、at-least-once same-ID/contentHash relayを全child Acceptance後に成立させる
 - [x] P23-003C1でpure Audit Outbox state snapshot、configuration、deterministic backoff、claim／retry／recover／relay／poison transitionを実装する。Complete Final Gate／fresh Sol Max review `P1=0/P2=0/P3=0`でAccepted。DB／runtime activationは行わない
-- [ ] P23-003C2でPostgreSQL Audit Outbox row／migration／hydrator／idempotency／ordinal／FIFO／fenced CASを実装する
-- [ ] P23-003C3でCatalogのfixed delivery、explicit `policy.auditDelivery`、required same-root transaction、protected-read response gate、Application key compositionを実装する
+- [x] P23-003C2でPostgreSQL Audit Outbox row／migration／hydrator／idempotency／ordinal／FIFO／fenced CASを実装する。Complete Final Gate／fresh review／candidate commit／same-SHA package export GreenでAccepted
+- [~] P23-003C3でCatalogのfixed delivery、explicit `policy.auditDelivery`、required same-root transaction、protected-read response gate、Application key compositionを実装する。D152／exact33 Task Packet synchronized、fresh preflight待ち
 - [ ] P23-003C4でsame recordId／contentHashのat-least-once relay、append-before-ack recovery、retry／poison runtimeを実装する
 - [ ] P23-003Dでretention／hold、rotation、replay、outbox retryをimmutable AuditRecord phase eventへ明示adaptし、AuthenticationMiddleware／AuthorizationEvaluator／protected Operation Status／Journal／Outcome／diagnostic read boundaryのadapterとindependent reviewを行う
 - [ ] P23-003EでApplication versioned event registration/projector API、reference journey、business-action non-inferenceを検証する

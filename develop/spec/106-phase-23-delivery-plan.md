@@ -2,7 +2,7 @@
 
 Status: Proposal — unreleased BlackOps 1.3; workflow/gate status authority is the exact5 management slice (`develop/STATE.md`, `develop/TODO.md`, the parent Task/Report, and `develop/spec/README.md`)
 
-Updated At: 2026-09-01T10:32:46+09:00
+Updated At: 2026-09-02T14:19:47+09:00
 
 This plan is a delivery DAG for the capability proposal in Specification 105.
 It does not make any Phase 23 item a current Stable `1.2` capability. A slice
@@ -72,64 +72,42 @@ and its clean exact-SHA package export is Green; no push was performed.
 No Application composition、Container registration、Audit Outbox／relay、CLI／HTTP／public
 Documentation／release activation occurred. P23-003C is the next serial Audit delivery slice.
 
-For P23-003C delivery, D150 is the more specific split and C1 authority, and
-D151 is the more specific C2 PostgreSQL persistence authority.
-Parent C is delivered serially as C1 pure state foundation, C2 PostgreSQL
-Outbox persistence, C3 required／durable transaction and key composition, then
-C4 relay／recovery runtime. Each child requires the previous child, no partial
-runtime is activated, and parent C requires all four Acceptances. C1 contains
-no DB, transaction, clock read, UUID generation, key access, encryption,
-canonical append, relay, Application composition, or public surface.
-The first C1 preflight is Historical. Focused execution exposed a conflict
-between required direct `AuditRecordTime` reuse and the Accepted A2
-source-registration guard. D150 and the corrected packet permit only that
-bounded Architecture-test exception. Corrected preflight, bounded
-implementation, Iteration Gate, and Complete Final Gate are Green.
-Product／Test exact11 is accepted at
-`d0bfa64e35ce8d113909a2aba710c57ed7bb33fd6711c51df207e71d33919fad`;
-fresh Orchestrator Sol Max implementation review returned
-`P1=0/P2=0/P3=0`. P23-003C1 is Accepted. It changes no B2 Production byte;
-only the shared Architecture guard is superseded, while the other Accepted B2
-exact25 remain byte-identical. Reviewed candidate
-`bc12a67210d9cb132cf3246f96b00d79fb519656` and its clean exact-SHA
-Git／Composer package export are Green; no push was performed. P23-003C2 is
-next. D151 and the exact C2 Task Packet are drafted from clean closeout HEAD
-`4bebcb09d8e67e58c424d0c9543e594708d02872`. They fix the two-table
-schema, callable／transaction graph, authenticated same-key reconstruction,
-no-gap ordinal, minimum-head FIFO, and C1-backed CAS. Product work has not
-started. The first General／DB／Documentation preflight lanes are Historical
-Changes Requested; D151 and the Task correct their configuration, DDL,
-ordering, scope, package, and callable-authority roots. At that Historical
-checkpoint, the commit established the exact nine-file management packet and
-fresh Sol／Documentation preflight from its clean HEAD was required before
-implementation.
+For P23-003C delivery, D150 is the serial split and C1 authority, D151 is the
+Accepted C2 PostgreSQL persistence authority, and D152 is the most-specific C3
+delivery／transaction／protected-read／key-composition authority.
+Parent C remains serial C1→C2→C3→C4; every child requires the previous child,
+no partial runtime may bypass a later child, and parent Acceptance requires all
+four.
 
-The re-preflight from committed packet
-`26527296da112e315c6a332d26282f52625bb7a7` is Historical: General and DB each
-returned `P1=1/P2=0/P3=0`, while Documentation returned Green. D151／Task now
-require retained-row tenant mismatch count zero, Store-owned tenant-partition
-derivation before decrypt, and the current migration-command count test inside
-exact27 Product／Test and exact29 worker scope. This checkpoint is the second
-correction's commit boundary; all three lanes must re-run from its clean SHA
-before Product work.
+P23-003C1 is Accepted at candidate
+`bc12a67210d9cb132cf3246f96b00d79fb519656` with clean same-SHA package
+export Green. P23-003C2 is Accepted at candidate
+`a92bef70fdb843a4dd2b8b34243fc892b43939cc`, with Complete Final Gate,
+fresh General／DB／Documentation review, and clean same-SHA package export
+Green. No push was performed.
 
-The second corrected packet is committed at
-`fd7671b87a2e498a8b45d7f863b0e341a5a73f70`; fresh General／DB／Documentation
-preflight was Green in every separate lane, and bounded Luna implementation
-began. Focused C2 Architecture tests are Green. The broader suite then exposed
-one frozen-scope conflict: the required C2 Store `protectOutbox()`／
-`unprotectOutbox()` callsites are forbidden by the unchanged Accepted B2
-Architecture guard. The bounded correction supersedes only those empty-map
-expectations, preserves every B2 Production byte and other guard, and expands
-C2 to exact28 Product／Test and exact30 worker scope. Product work is paused;
-fresh General／DB／Documentation re-preflight must be Green before it resumes.
+P23-003C3 is next. It selects one Catalog-fixed immutable required／durable plan
+before effects, routes exactly once to the Accepted canonical or Outbox Store,
+reuses the existing operation transaction completion callback for same-root
+business atomicity, and commits the two-event protected Operation-read sequence
+before authorization／lookup and response release. Missing／null／unknown／
+`best_effort`／mismatch／override／downgrade fail closed. Allow failure releases
+no data; deny and resource-unavailable remain bounded non-allow.
 
-Fresh corrected-scope General review is Green. DB confirms the authority
-correction and returns preserved Product Changes Requested
-`P1=3/P2=0/P3=0`; Documentation returns `P1=0/P2=2/P3=0`. The management
-truth is synchronized. The next bounded Product correction owns only recovery
-CAS polarity, exact Accepted B2 Cc／Cf parity, separate bootstrap／existing
-append SQL, their fixtures, and the exact Architecture map.
+C3 also adds two unreleased Application-facing key-provider interfaces and one
+uncalled Application composer. The opaque key role is separate from record／
+Outbox active／historical protection roles, generic `StorageKeyProvider` is not
+adapted, `StoragePurpose` exact9 is unchanged, and cross-role reference or
+material reuse fails before crypto. The composer reuses the existing Framework
+Connection, Clock, schema, and transaction coordinator; it constructs one
+configuration and one graph and has zero current runtime registration or
+Production callsite.
+
+The exact C3 packet owns exact33 Product／Test／configuration paths, exact68
+package inventory, zero new migration／route／command／public Documentation
+claim, and fresh General／Transaction／Documentation preflight before Product
+work. C4 remains the active relay／recovery runtime child and consumes the same
+C3 Outbox configuration／Store identities.
 
 ## Historical P23-003A accepted delivery checkpoint
 
@@ -2766,6 +2744,44 @@ C2 composes it with immutable protected ingress in the exact persisted row;
 C3 owns policy selection／transaction／key composition; C4 owns relay and
 recovery. The parent capability remains unreleased and incomplete until all
 four children are Accepted.
+
+C1 and C2 are Accepted. C3 is one unregistered composition packet with exact
+fourteen Production types: two `BlackOps\Audit` provider interfaces, eight
+Internal orchestration types, one Internal protection-key adapter, and three
+Internal Application composition types. Only the two provider interfaces have
+`#[PublicApi]`; they are unreleased `1.3` proposal API. The C3 composer has
+zero Production callers and does not register itself in Application,
+Container, Console, HTTP, worker, scheduler, or relay paths.
+
+The opaque provider returns one dedicated 32-byte `StorageKey`. The Audit
+protection provider has separate record／Outbox active／historical methods and
+receives only `system:global|tenant:<64 lowercase hex>`. It is forbidden to
+adapt generic `StorageKeyProvider`, add `StoragePurpose` cases, use defaults or
+environment keys, or reuse opaque/protection key IDs or materials across
+roles. Provider, key, tenant, Draft, idempotency, and response values are absent
+from exception, trace, debug, serialization, JSON, and `var_export()` surfaces.
+
+The C3 delivery plan is exactly
+`{catalogHash,eventType,eventVersion,evidenceVersion,delivery}` and is created
+only from a trusted Catalog definition. The coordinator's only operations are
+standalone level0 delivery and current active level1 delivery. Required accepts
+only a null idempotency key and calls canonical append once; durable accepts
+only a string key and calls Outbox append once. Neither path retries,
+downgrades, projects, or calls a second Store.
+
+The mutation wrapper receives a preselected plan and delegates root ownership
+to the existing `OperationTransactionCoordinator`. Nontransactional or
+cross-Connection metadata fails before business invocation. For one completed
+same-Connection result, the request factory and selected Store run once in the
+existing completion callback before commit. Rejected results perform zero
+Audit work; request／append failure rolls the business row back.
+
+The protected-read gate accepts only basis/context plus a producer Draft and
+no response callback. `.requested` commits before authorization or target
+lookup; one `.accessed|.unavailable` terminal event commits before return.
+Allow-path failure returns no allow decision or data. Deny and
+resource-unavailable never become allow and remain the same bounded denial on
+gate failure.
 
 Implement required append in the mutation transaction and durable Audit Outbox
 identity/bindings/protected-envelope append with fenced state-field mutation
