@@ -1,8 +1,8 @@
 # P23-003C3 Report: Audit Delivery Orchestration and Key Composition
 
-Status: Bounded Preflight Correction Applied — fresh re-preflight required; Product work not started
+Status: Fresh Three-lane Re-preflight Green — ready for configured Luna worker; Product work not started
 
-Updated At: 2026-09-02T17:10:59+09:00
+Updated At: 2026-09-02T17:44:04+09:00
 
 ## Summary
 
@@ -21,12 +21,20 @@ push, release, or deploy has begun.
 Stable `1.2.0` remains current. BlackOps `1.3`, the two proposed key-provider
 interfaces, and all Audit behavior remain unreleased.
 
-The first clean preflight at management commit
+Historical: the first clean preflight at management commit
 `5b97626495cde780544bc0b0849004b9bdebc75a` returned separate General
 `P1=1／P2=0／P3=0`, Transaction `P1=1／P2=1／P3=0`, and Documentation
-`P1=0／P2=2／P3=0` verdicts. The shared P1 is deduplicated below. Product work
-remains stopped while this bounded management-only correction is committed and
-all three lanes restart from its new freeze.
+`P1=0／P2=2／P3=0` verdicts. The shared P1 is deduplicated below.
+
+The corrected management commit is
+`b00d8c90f623d3e40dd5d73d42d8ed78b9831955`. Fresh General and
+Transaction／PostgreSQL re-preflight are Green at `P1=0／P2=0／P3=0`.
+Documentation／Release found only that this Report's Suggested Next Action
+still requested the already-completed management commit. That handoff text is
+corrected below, and its limited closure is Green at `P1=0／P2=0／P3=0`.
+All three fresh lanes are now Green. Product work remains stopped until this
+moving checkpoint is committed cleanly and the configured worker is dispatched
+from that exact freeze.
 
 ## Changed Files
 
@@ -93,19 +101,25 @@ migration path has moved in this correction checkpoint.
   Green.
 - First independent preflight on `5b976264...`: Changes Requested with the
   separate counts recorded in Summary; no Product command was run.
-- Bounded management correction: applied; fresh three-lane re-preflight Not
-  Run.
+- Bounded management correction: committed at `b00d8c90...`.
+- Fresh General re-preflight: Green, `P1=0／P2=0／P3=0`.
+- Fresh Transaction／PostgreSQL re-preflight: Green,
+  `P1=0／P2=0／P3=0`.
+- Fresh Documentation／Release re-preflight initially returned
+  `P1=0／P2=1／P3=0`; its sole Report handoff finding was corrected, and limited
+  closure is Green at `P1=0／P2=0／P3=0`.
 - Iteration Gate／Complete Final Gate: Not Run.
 - Candidate commit／same-SHA package export: Not Run for C3.
 
 ## Acceptance Criteria
 
-- [ ] Corrected D152 and Task are independently implementation-ready.
+- [x] Corrected D152 and Task are independently implementation-ready across
+  all three preflight lanes.
 - [x] Corrected management packet is committed as one clean immutable exact10
   re-preflight candidate.
-- [ ] Fresh General preflight Green.
-- [ ] Fresh Transaction／PostgreSQL preflight Green.
-- [ ] Fresh Documentation／Release preflight Green.
+- [x] Fresh General preflight Green.
+- [x] Fresh Transaction／PostgreSQL preflight Green.
+- [x] Fresh Documentation／Release preflight Green after limited closure.
 - [ ] Configured Luna implementation changes only exact35.
 - [ ] Iteration Gate Green on one exact freeze.
 - [ ] Fresh implementation reviews Green.
@@ -115,14 +129,13 @@ migration path has moved in this correction checkpoint.
 
 ## Remaining Issues
 
-- The corrected packet still requires fresh General／Transaction／Documentation
-  review; the first Changes Requested evidence is Historical for
-  `5b976264...` after this correction.
+- The first Changes Requested evidence at `5b976264...` is Historical; all
+  fresh preflight lanes are Green.
 - Product implementation and every Product gate remain pending.
 - C4 and parent P23-003C Acceptance remain downstream after C3.
 
 ## Suggested Next Action
 
-Commit this bounded management-only correction, then dispatch fresh General／
-Transaction／Documentation read-only re-preflight lanes from its clean freeze.
-Only after all three are Green may the configured Luna worker implement exact35.
+Dispatch the configured Luna worker from the clean commit containing this
+Report／STATE checkpoint. The worker must preserve immutable exact10 and change
+only exact35.

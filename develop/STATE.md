@@ -1,9 +1,9 @@
 # Orchestration State
 
-Updated At: 2026-09-02T17:10:59+09:00
+Updated At: 2026-09-02T17:44:04+09:00
 
-P23-003C3 bounded preflight-correction checkpoint at
-2026-09-02T17:10:59+09:00. P23-003C2 is Accepted and committed at
+P23-003C3 fresh three-lane re-preflight Green checkpoint at
+2026-09-02T17:44:04+09:00. P23-003C2 is Accepted and committed at
 `a92bef70fdb843a4dd2b8b34243fc892b43939cc`; its clean exact-SHA
 Git／Composer package export is Green. No push was performed.
 
@@ -25,12 +25,21 @@ cached-identity Application operation composition, fixes the expected-list +
 single-validation-loop package oracle, and marks the C1 stale pre-commit note
 Historical. The immutable authority is now exact10 including the C1 Report.
 
+The corrected management packet is committed at
+`b00d8c90f623d3e40dd5d73d42d8ed78b9831955`. Fresh General and
+Transaction／PostgreSQL re-preflight are separately Green at
+`P1=0／P2=0／P3=0`. Documentation／Release returned
+`P1=0／P2=1／P3=0` only because the C3 Report still asked to repeat that
+completed commit. The Report handoff is corrected, and limited Documentation
+closure is Green at `P1=0／P2=0／P3=0`. All three fresh lanes are Green.
+
 Stable `1.2.0` remains current. BlackOps `1.3`, the new key-provider
 interfaces, and every Audit capability remain unreleased. The corrected packet
-is committed as the clean re-preflight candidate; its HEAD and immutable
-hashes are the reviewer dispatch tuple. Remaining sequence: obtain fresh
-General／Transaction／Documentation Green, then dispatch the configured Luna
-worker. C4 and parent P23-003C Acceptance remain downstream.
+is committed as the clean re-preflight candidate; its immutable exact10 remains
+the authority tuple. This Report／STATE content is the final moving checkpoint
+for the next clean worker-dispatch commit. Remaining sequence: dispatch the
+configured Luna worker from that exact freeze. C4 and parent P23-003C
+Acceptance remain downstream.
 
 Historical: P23-003C2 Complete Final Gate checkpoint before Acceptance
 
