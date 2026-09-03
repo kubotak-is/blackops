@@ -2,7 +2,7 @@
 
 Status: Accepted — candidate committed; clean same-SHA package export Green
 
-Updated At: 2026-09-02T14:19:47+09:00
+Updated At: 2026-09-04T02:02:26+09:00
 
 ## Summary
 
@@ -43,6 +43,10 @@ Documentation Website source/status/diff remain unchanged with no-diff.
 Generated artifacts and browser behavior remain Not Verified. No Application,
 Container, CLI, HTTP, runtime, release, or deployment activation was
 performed.
+
+P23-003C3 is now Accepted at commit
+`b7b352a8e4c86a45822351c108772367515654bd` with clean same-SHA package
+export Green. P23-003C4 is the current final serial child of parent P23-003C.
 
 ## Changed Files (Task exact30)
 
@@ -247,13 +251,14 @@ The current exact28 ordered aggregate is
 - C2 has no remaining Product, gate, commit, or package-export work.
 - Browser, generated artifact, release, deployment, and public Documentation
   delivery remain Not Verified／Not Run. Community Board clean-install is
-  Green as recorded above. C3／C4 remain downstream.
+  Green as recorded above.
+- P23-003C3 is Accepted. P23-003C4 and parent P23-003C Acceptance remain.
 
 ## Suggested Next Action
 
-Proceed to the separately reviewed P23-003C3 management packet. Do not push,
-release, deploy, or activate public Documentation without separate
-authorization.
+Continue P23-003C4 against Accepted C1／C2／C3 and the clean C3
+candidate／package evidence. Do not push, release, deploy, or activate public
+Documentation without separate authorization.
 
 ## Historical Checkpoints
 

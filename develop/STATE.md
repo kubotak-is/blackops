@@ -1,8 +1,43 @@
 # Orchestration State
 
-Status: P23-003C3 Complete — accepted commit and clean same-SHA export Green
+Status: P23-003C4 Authority Handoff Correction Committed — corrected clean-freeze re-preflight pending
 
-Updated At: 2026-09-04T00:55:32+09:00
+Updated At: 2026-09-04T02:02:26+09:00
+
+P23-003C1, P23-003C2, and P23-003C3 are Accepted. The reviewed C3 candidate
+is committed at `b7b352a8e4c86a45822351c108772367515654bd`; Complete Final,
+fresh General／Transaction／Documentation reviews, and clean same-SHA
+Git／Composer package export are Green. No push was performed.
+
+P23-003C4 is the final parent-C child. Its first read-only DB and Documentation
+preflight stopped Product work on an undefined protected-ingress-to-canonical
+bridge, missing transaction and sender／settlement precedence, undefined
+final-attempt append-before-ack semantics, contradictory poison FIFO wording,
+stale C3 current handoffs, and an incomplete release ledger.
+
+D153 and the C4 Task now close those authority roots. They define exact seven
+new Internal types, exact23 Product／Test scope, exact25 worker scope, immutable
+exact12 authority, exact75 package inventory, bounded `recoverOne()`／
+`relayOne()` entries, three separate Store-owned transactions, conservative
+final-attempt poison meaning, poison FIFO release, and zero current activation.
+
+The first corrected Transaction／PostgreSQL preflight is Green. The parallel
+Documentation／Release preflight stopped before Product work on one
+current-truth P1: immutable C1／C2 Reports still presented pre-C3 Remaining／
+Next Action handoffs as current. Their current-facing closeouts now state
+C1／C2／C3 Accepted and C4 current, while earlier checkpoints remain Historical.
+No Product／Test file has changed. The resulting exact13 management packet is
+committed at the current Orchestrator HEAD with staged0. The next action is a
+new immutable exact12 freeze, fresh General and Documentation closure, and a
+bounded Transaction freeze confirmation before configured Luna Product work.
+
+Stable `1.2.0` remains current. BlackOps `1.3` and all Audit behavior remain
+unreleased. No test, build, Docker, package export, browser, network, push,
+release, deploy, or public activation has been performed for C4. The only C4
+commit is this management／authority packet; Product work remains unstarted.
+Generated artifacts and browser behavior are Not Verified.
+
+## Accepted P23-003C3 prerequisite
 
 P23-003C3 bounded analyzer-correction checkpoint at
 2026-09-03T21:01:22+09:00: the pre-correction Complete Final attempt stopped at

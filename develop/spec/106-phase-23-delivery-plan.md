@@ -2,7 +2,7 @@
 
 Status: Proposal — unreleased BlackOps 1.3; workflow/gate status authority is the exact5 management slice (`develop/STATE.md`, `develop/TODO.md`, the parent Task/Report, and `develop/spec/README.md`)
 
-Updated At: 2026-09-02T17:10:59+09:00
+Updated At: 2026-09-04T01:48:28+09:00
 
 This plan is a delivery DAG for the capability proposal in Specification 105.
 It does not make any Phase 23 item a current Stable `1.2` capability. A slice
@@ -73,8 +73,9 @@ No Application composition、Container registration、Audit Outbox／relay、CLI
 Documentation／release activation occurred. P23-003C is the next serial Audit delivery slice.
 
 For P23-003C delivery, D150 is the serial split and C1 authority, D151 is the
-Accepted C2 PostgreSQL persistence authority, and D152 is the most-specific C3
-delivery／transaction／protected-read／key-composition authority.
+Accepted C2 PostgreSQL persistence authority, D152 is the Accepted C3
+delivery／transaction／protected-read／key-composition authority, and D153 is the
+most-specific C4 relay／recovery authority.
 Parent C remains serial C1→C2→C3→C4; every child requires the previous child,
 no partial runtime may bypass a later child, and parent Acceptance requires all
 four.
@@ -82,40 +83,43 @@ four.
 P23-003C1 is Accepted at candidate
 `bc12a67210d9cb132cf3246f96b00d79fb519656` with clean same-SHA package
 export Green. P23-003C2 is Accepted at candidate
-`a92bef70fdb843a4dd2b8b34243fc892b43939cc`, with Complete Final Gate,
-fresh General／DB／Documentation review, and clean same-SHA package export
-Green. No push was performed.
+`a92bef70fdb843a4dd2b8b34243fc892b43939cc` with the same gate and package
+boundary. P23-003C3 is Accepted at candidate
+`b7b352a8e4c86a45822351c108772367515654bd`, with Complete Final Gate,
+fresh General／Transaction／Documentation review, and clean same-SHA package
+export Green. No push was performed.
 
-P23-003C3 is next. It selects one Catalog-fixed immutable required／durable plan
-before effects, routes exactly once to the Accepted canonical or Outbox Store,
-reuses the existing operation transaction completion callback for same-root
-business atomicity, and commits the two-event protected Operation-read sequence
-before authorization／lookup and response release. Missing／null／unknown／
-`best_effort`／mismatch／override／downgrade fail closed. Allow failure releases
-no data; deny and resource-unavailable remain bounded non-allow.
+Accepted C3 selects one Catalog-fixed immutable required／durable plan before
+effects, routes once to the Accepted canonical or Outbox Store, reuses the
+existing operation transaction completion callback for same-root business
+atomicity, gates protected Operation reads, and composes one uncalled
+Application Audit graph with dedicated opaque／protection keys.
 
-The same-root path is limited to the canonical existing
-`ApplicationOperationRuntimeComposition` and its cached
-`DoctrineDatabaseManager` Connection identity. Accepted Store
-`ResourceUnavailable` is mapped uniformly, including capacity／Clock／UUID／
-write-protection causes already collapsed below C3; all other Store failures
-become `storage_unavailable`.
+C4 adds an exact seven-type Internal relay component over the same Connection,
+configuration, protection codec, validator, canonical Store, and Outbox Store
+instances. `recoverOne()` handles at most one expired lease. `relayOne()`
+handles at most one pending row through three separately committed Store-owned
+roots: claim, idempotent canonical append, then fenced acknowledgement.
+Ambient level1, auto-commit disabled, wrong Connection identity, and post-Store
+state drift fail before any later phase.
 
-C3 also adds two unreleased Application-facing key-provider interfaces and one
-uncalled Application composer. The opaque key role is separate from record／
-Outbox active／historical protection roles, generic `StorageKeyProvider` is not
-adapted, `StoragePurpose` exact9 is unchanged, and cross-role reference or
-material reuse fails before crypto. The composer reuses the existing Framework
-Connection, Clock, schema, and transaction coordinator; it constructs one
-configuration and one graph and has zero current runtime registration or
-Production callsite.
+Canonical resource／storage and protection failures retry below max and poison
+at max. Idempotency, segment, integrity, validation, and committed-result
+binding failures poison immediately. Settlement conflict is stale; settlement
+resource／storage failure supersedes the original sender failure. Unexpected
+throwables leave the lease for recovery.
 
-The exact C3 packet owns exact33 Product／Test／configuration paths, exact68
-package inventory, immutable exact10 including both Accepted C reports, zero
-new migration／route／command／public Documentation claim, and fresh General／
-Transaction／Documentation re-preflight before Product work. C4 remains the
-active relay／recovery runtime child and consumes the same C3 Outbox
-configuration／Store identities.
+Append-before-ack crash reuses the same `recordId` and `contentHash`. A
+final-attempt recovery may poison a row whose canonical append already
+committed, so poison is not proof of canonical absence. Both `relayed` and
+`poisoned` acknowledge their ordinal and release the next FIFO position.
+
+The C4 packet owns exact23 Product／Test paths, exact25 worker scope, immutable
+exact12, and exact75 package inventory. It adds no public source, migration,
+route, command, public Documentation, or current runtime caller. The Stable
+generic Outbox runtime and `outbox:relay:*` commands remain unchanged and are
+not Audit activation. Fresh General／Transaction／Documentation preflight is
+required from the clean management packet before Product work.
 
 ## Historical P23-003A accepted delivery checkpoint
 
@@ -4113,8 +4117,9 @@ ingress, +1 per claim), `availableAt`, `leaseFencingToken`, and
 lease fields and are terminal. Transitions are pending->leased,
 leased->pending on fenced transient retry/expired recovery, and leased->relayed
 or poisoned. Only the minimum unacknowledged ordinal may be claimed; no
-ordinal-2 bypasses ordinal 1, poison stops that partition, and stale fencing
-cannot ack. Protected allocation is bounded by the logical cap plus exact BOPD
+ordinal-2 bypasses ordinal 1, poison acknowledges that ordinal and releases the
+next FIFO position, and stale fencing cannot ack. Protected allocation is
+bounded by the logical cap plus exact BOPD
 overhead (`52 + keyIdUtf8Bytes`). Fixtures cover initial/retry/expiry/stale
 token, two-before-one, parallel relay, append-before-ack crash, poison, AAD
 row/tenant swap, and cap+1.

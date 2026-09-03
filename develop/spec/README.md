@@ -1,44 +1,49 @@
 # Framework Specification
 
-## P23-003C3 current handoff — Audit Delivery Orchestration and Key Composition
+## P23-003C4 current handoff — Audit Outbox Relay and Recovery Runtime
 
-Updated At: 2026-09-02T17:10:59+09:00
+Updated At: 2026-09-04T01:53:16+09:00
 
-Current status: `Bounded preflight correction applied — fresh re-preflight required; Product work not started`.
+Current status: `Authority committed — fresh clean-freeze re-preflight required; Product work not started`.
 
-P23-003C1 and P23-003C2 are Accepted.
-The reviewed C2 candidate is committed at
-`a92bef70fdb843a4dd2b8b34243fc892b43939cc`; Complete Final Gate, fresh
-General／DB／Documentation review, and clean exact-SHA Git／Composer package
-export are Green. No push was performed.
+P23-003C1, P23-003C2, and P23-003C3 are Accepted.
+The reviewed C3 candidate is committed at
+`b7b352a8e4c86a45822351c108772367515654bd`; Complete Final Gate, fresh
+General／Transaction／Documentation review, and clean exact-SHA Git／Composer
+package export are Green.
+No push was performed.
 
 D150 remains the parent serial C1→C2→C3→C4 split.
 D151 remains the Accepted C2 PostgreSQL Outbox persistence authority.
-D152 is the most-specific C3 authority. It fixes exact public key-provider
-interfaces, Catalog-bound required／durable plan selection, level0／level1
-delivery participation, reuse of the existing Framework transaction root,
-protected Operation-read release gating, one Application Audit composition,
-failure precedence, no-leak surfaces, exact68 package inventory, and zero
-runtime activation.
+D152 remains the Accepted C3 delivery／transaction／protected-read／key
+composition authority.
+D153 is the most-specific C4 authority.
 
-The C3 Task freezes exact33 Product／Test／configuration paths and exact35
-worker scope. It preserves every Accepted C1／C2／B1／B2 Production byte.
-The first clean preflight is Historical Changes Requested after this bounded
-management correction. Accepted Store `ResourceUnavailable` mapping, canonical
-cached-identity transaction composition, the expected-list + single-loop
-package oracle, and C1 Report current truth are now closed. Immutable authority
-is exact10. The corrected committed packet must be freshly reviewed by separate
-General／Transaction／Documentation lanes before configured Luna Product work.
+C4 defines an exact seven-type Internal relay graph over the same C3
+Connection, configuration, protection codec, validator, canonical Store, and
+Outbox Store instances.
+Its bounded `recoverOne()` and `relayOne()` entries preserve three separate
+Store-owned claim／canonical-append／ack transactions, exact idempotent
+`recordId`／`contentHash`, complete sender and settlement failure precedence,
+conservative final-attempt poison meaning, and FIFO progress after poison.
+
+The C4 Task freezes exact23 Product／Test paths, exact25 worker scope,
+immutable exact12 authority, and exact75 package inventory.
+The first DB and Documentation preflight is Historical Changes Requested; its
+authority roots are corrected before the clean packet commit and fresh
+three-lane re-preflight.
 
 Stable `1.2.0` remains current and BlackOps `1.3` remains unreleased.
-The two key-provider interfaces are unreleased proposal API. No current
-Application／Container／CLI／HTTP／worker／scheduler／relay registration, public
-Documentation claim, migration, route, release, or deploy is activated.
+C4 adds no public source, route, command, migration, public Documentation, or
+current runtime registration.
+The Stable generic Outbox relay runtime and `outbox:relay:*` commands remain
+present and byte-identical, and are not Audit relay activation.
 
-Remaining: C3 preflight／implementation／gates／Acceptance／commit／package
-export, then C4 and parent P23-003C Acceptance.
-Next Action: obtain fresh independent preflight Green from the committed clean
-packet before Product implementation.
+Remaining: C4 clean preflight／implementation／gates／Acceptance／commit／package
+export, parent P23-003C Acceptance, then P23-003D..G.
+Next Action: obtain fresh independent General／Transaction／Documentation
+preflight Green from the committed clean C4 packet before Product
+implementation.
 
 ## P23-003B2 accepted handoff — Historical prerequisite
 
@@ -1631,9 +1636,10 @@ closedする。Semantic tuple、trusted external verification context、exact
 | [D147](../decisions/147-audit-catalog-and-safe-projection-boundary.md) | Audit Catalog、keyed opaque ID、record stages、observed safe-projection boundary | Accepted P23-003A1／A2 and parent P23-003A; P23-003B1／B2 and parent P23-003B Accepted; Stable `1.2` current / BlackOps `1.3` unreleased |
 | [D148](../decisions/148-audit-canonical-record-and-protected-store-boundary.md) | Audit canonical record、hash／chain、Audit専用BOPD protection、B1／B2 boundary | P23-003B1／B2 and parent P23-003B Accepted; B2 candidate commit／same-SHA package export Green; Stable `1.2` unchanged / BlackOps `1.3` unreleased |
 | [D149](../decisions/149-audit-postgresql-canonical-store-boundary.md) | Audit PostgreSQL canonical append、segment、tenant-aware read、migration boundary | P23-003B2 Accepted; Complete Final Gate and fresh DB／General Sol closure Green; candidate `968afe2b...` package export Green; Stable `1.2` unchanged / BlackOps `1.3` unreleased |
-| [D150](../decisions/150-audit-outbox-state-and-delivery-split.md) | P23-003C serial C1／C2／C3／C4 split and pure Audit Outbox state boundary | Proposed — P23-003C1／C2 Accepted with candidate package Green; P23-003C3 bounded correction／fresh re-preflight; Stable `1.2` current / BlackOps `1.3` unreleased |
+| [D150](../decisions/150-audit-outbox-state-and-delivery-split.md) | P23-003C serial C1／C2／C3／C4 split and pure Audit Outbox state boundary | Proposed — P23-003C1／C2／C3 Accepted with candidate package Green; P23-003C4 authority corrected／fresh preflight pending; Stable `1.2` current / BlackOps `1.3` unreleased |
 | [D151](../decisions/151-audit-postgresql-outbox-persistence-boundary.md) | Audit PostgreSQL Outbox row、idempotent append、FIFO／CAS、transaction boundary | Accepted P23-003C2; candidate `a92bef70...` and same-SHA package export Green; Stable `1.2` current / BlackOps `1.3` unreleased |
-| [D152](../decisions/152-audit-delivery-orchestration-and-key-composition-boundary.md) | Catalog-fixed delivery、same-root transaction、protected-read gate、Application Audit key composition | Proposed — P23-003C3 bounded correction applied／fresh re-preflight pending; Stable `1.2` current / BlackOps `1.3` unreleased |
+| [D152](../decisions/152-audit-delivery-orchestration-and-key-composition-boundary.md) | Catalog-fixed delivery、same-root transaction、protected-read gate、Application Audit key composition | Accepted P23-003C3; candidate `b7b352a8...` and same-SHA package export Green; Stable `1.2` current / BlackOps `1.3` unreleased |
+| [D153](../decisions/153-audit-outbox-relay-and-recovery-runtime-boundary.md) | Bounded Audit Outbox relay／recovery、three-root crash semantics、failure／FIFO／nonactivation boundary | Proposed — P23-003C4 authority corrected／fresh preflight pending; Stable `1.2` current / BlackOps `1.3` unreleased |
 
 ## Historical P23-001 Round 13 checkpoint
 

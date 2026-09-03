@@ -1,43 +1,31 @@
 # D152: Audit Delivery Orchestration and Key Composition Boundary
 
-Status: Proposed — P23-003C1／C2 Accepted; P23-003C3 review correction authorized; BlackOps 1.3 unreleased
+Status: Accepted for P23-003C3 — candidate committed and same-SHA package export Green; BlackOps 1.3 unreleased
 
-Updated At: 2026-09-03T17:38:59+09:00
+Updated At: 2026-09-04T01:53:16+09:00
 
 ## Current Handoff
 
-P23-003C1 and P23-003C2 are Accepted.
-The reviewed C2 candidate is committed at
-`a92bef70fdb843a4dd2b8b34243fc892b43939cc`, and its clean exact-SHA
+P23-003C1, P23-003C2, and P23-003C3 are Accepted.
+The reviewed C3 candidate is committed at
+`b7b352a8e4c86a45822351c108772367515654bd`, and its clean same-SHA
 Git／Composer package export is Green.
-The worktree was clean before this Decision and the C3 Task Packet were
-drafted.
+No push was performed.
 
-The first independent preflight findings were closed before Product work.
-Post-Iteration review then proved that the composed runtime exposes the raw
-opaque-ID key through the Accepted deriver's `var_export()` representation.
-The same review found bounded class-string／same-namespace Architecture gaps
-and incomplete runnable evidence in the Report. This Decision authorizes only
-the deriver's representation-safe key retention, its direct regression test,
-the existing Architecture oracles, and Report／STATE correction. Product work
-remains stopped outside that bounded correction.
+C3 now provides fixed Catalog delivery selection, same-Framework-Connection
+mutation orchestration, protected Operation-read release gating, and
+Application-facing opaque／protection key composition. The bounded
+`HmacAuditOpaqueIdDeriver` representation correction retains its key behind
+`SensitiveParameterValue` without changing derivation bytes or public API.
 
-P23-003C3 is the next serial child.
-It owns fixed Catalog delivery selection, same-Framework-Connection mutation
-orchestration, protected Operation-read release gating, and Application-facing
-opaque／protection key composition.
-It consumes the Accepted C1／C2 and B1／B2 boundaries. One existing
-`HmacAuditOpaqueIdDeriver` Production byte set may change solely to hide its
-already-validated key behind `SensitiveParameterValue`; its public API,
-validation, derivation bytes, and every other Accepted Production byte remain
-unchanged.
+The C3 Application Audit composer remains uncalled by current Production.
+It is not registered in the current Application, Container, Console, HTTP,
+worker, scheduler, or relay runtime.
 
-C3 adds an uncalled Application Audit composer and its directly testable
-components.
-It does not register that composer in the current Application, Container,
-Console, HTTP, worker, scheduler, or relay runtime.
-P23-003D／E later build event Drafts and invoke the C3 seams, while C4 later
-uses the same composed PostgreSQL stores and Outbox configuration for relay.
+P23-003C4 is next. D153 consumes the same composed Connection, protection
+codec, validator, PostgreSQL Stores, and Outbox configuration through a bounded
+Internal relay seam. It does not change the C3 provider or transaction
+contracts and does not activate a current caller.
 
 Stable `1.2.0` remains current.
 BlackOps `1.3`, Audit Trail delivery, the new key-provider interfaces, and all

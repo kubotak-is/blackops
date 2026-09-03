@@ -2,7 +2,7 @@
 
 Status: Accepted — Candidate Commit and Same-SHA Package Export Green; prerequisite complete
 
-Updated At: 2026-09-02T17:10:59+09:00
+Updated At: 2026-09-04T02:02:26+09:00
 
 ## P23-003C1 Post-Acceptance Commit and Package Gate Green
 
@@ -16,10 +16,10 @@ archive and Composer archive inventories／bytes matched.
 
 This closeout changes only `develop/` management／normative text, which is not
 package-visible. The same-SHA package evidence from `bc12a672...` therefore
-remains current. P23-003C1 has no remaining work. P23-003C2 was its next serial
-child and is now Accepted; P23-003C3 is in corrected-packet re-preflight. No
-push, release, tag, deploy, generated Documentation regeneration, or browser
-verification was performed.
+remains current. P23-003C1 has no remaining work. P23-003C2 and P23-003C3 are
+now Accepted; P23-003C4 is the current final serial child of parent P23-003C.
+No push, release, tag, deploy, generated Documentation regeneration, or
+browser verification was performed.
 
 ## P23-003C1 Accepted
 
@@ -462,10 +462,11 @@ No current Stable capability claim is added.
 ## Remaining Issues
 
 - None within P23-003C1.
-- P23-003C2／C3／C4 and parent P23-003C Acceptance remain.
+- P23-003C2 and P23-003C3 are Accepted. P23-003C4 and parent P23-003C
+  Acceptance remain.
 - P23-003D..G, P23-004, P23-005, and P23-006 remain in the higher Goal.
 
 ## Suggested Next Action
 
-Draft P23-003C2 against Accepted C1 and the clean candidate/package evidence,
-without activating a partial runtime.
+Continue P23-003C4 against Accepted C1／C2／C3 and the clean C3
+candidate／package evidence, without activating a partial Audit runtime.

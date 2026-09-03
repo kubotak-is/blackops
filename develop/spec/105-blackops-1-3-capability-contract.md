@@ -2,7 +2,7 @@
 
 Status: Proposal — unreleased BlackOps 1.3; workflow/gate status authority is the exact5 management slice (`develop/STATE.md`, `develop/TODO.md`, the parent Task/Report, and `develop/spec/README.md`)
 
-Updated At: 2026-09-02T17:10:59+09:00
+Updated At: 2026-09-04T01:48:28+09:00
 
 This specification is a normative proposal for BlackOps `1.3`. It is not a
 Stable `1.2` capability contract and must not be copied into current public
@@ -90,28 +90,28 @@ public Documentation capability、or release activation occurred. Reviewed B2 ca
 exact-SHA package export is Green; no push was performed. P23-003C is the next serial slice.
 
 For current P23-003C delivery clauses, D150 is the serial split and C1
-authority, D151 is the Accepted C2 PostgreSQL persistence authority, and D152
-is the most-specific C3 delivery／transaction／read-gate／key-composition
-authority. Parent C remains serial C1→C2→C3→C4 and incomplete until all four
-children are Accepted; no child may activate a partial runtime that bypasses a
-later child.
+authority, D151 is the Accepted C2 PostgreSQL persistence authority, D152 is
+the Accepted C3 delivery／transaction／read-gate／key-composition authority, and
+D153 is the most-specific C4 relay／recovery authority. Parent C remains serial
+C1→C2→C3→C4 and incomplete until all four children are Accepted; no child may
+activate a partial runtime that bypasses a later child.
 
 P23-003C1 is Accepted at candidate
 `bc12a67210d9cb132cf3246f96b00d79fb519656` with clean same-SHA package
 export Green. P23-003C2 is Accepted at candidate
-`a92bef70fdb843a4dd2b8b34243fc892b43939cc`; its Complete Final Gate,
-fresh General／DB／Documentation review, and clean same-SHA package export are
-Green. No push was performed. C1／C2 expose the pure state and PostgreSQL
-Outbox participation seams but choose no delivery policy, own no business
-transaction, compose no Application key, and activate no relay.
+`a92bef70fdb843a4dd2b8b34243fc892b43939cc` with the same gate and package
+boundary. P23-003C3 is Accepted at candidate
+`b7b352a8e4c86a45822351c108772367515654bd`; its Complete Final Gate, fresh
+General／Transaction／Documentation review, and clean same-SHA package export
+are Green. No push was performed.
 
-P23-003C3 is next. It adds exactly two unreleased Application-facing provider
-interfaces and twelve Internal types. The opaque-ID provider supplies one
-dedicated 32-byte `StorageKey`; the Audit protection provider keeps record／
-Outbox and active／historical lookup separate and receives only canonical
-partition IDs. C3 never references or adapts generic `StorageKeyProvider` or
-changes `StoragePurpose` exact9. The opaque key reference and material may not
-be reused by either protection purpose.
+Accepted C3 adds exactly two unreleased Application-facing provider interfaces
+and twelve Internal types. The opaque-ID provider supplies one dedicated
+32-byte `StorageKey`; the Audit protection provider keeps record／Outbox and
+active／historical lookup separate and receives only canonical partition IDs.
+C3 never references or adapts generic `StorageKeyProvider` or changes
+`StoragePurpose` exact9. The opaque key reference and material may not be
+reused by either protection purpose.
 
 C3 binds `(catalogHash,event.type,event.version,evidence.version,delivery)` in
 an immutable plan. Raw policy selection accepts only literal
@@ -151,12 +151,37 @@ resolves the two provider services, reuses the existing Framework Connection／
 Clock／transaction coordinator, and constructs one canonical Store, one Outbox
 Store, one opaque deriver, one delivery graph, and one protected-read gate.
 It has zero current Production callsites and no Container／Application／CLI／
-HTTP／worker／scheduler／relay registration. C4 later consumes the same Outbox
-configuration and Store identities for relay and recovery.
+HTTP／worker／scheduler／relay registration.
 
-C3 adds no migration or public Documentation claim. Framework migrations stay
-13, Community Board stays 18, package required inventory grows exact54→68,
-Stable `1.2.0` remains current, and BlackOps `1.3` remains unreleased.
+C4 consumes that exact Connection, configuration, protection codec, validator,
+canonical Store, and Outbox Store graph through one Internal persistence
+adapter and one protected-ingress canonicalizer. Its bounded `recoverOne()` and
+`relayOne()` entries preserve separately committed claim, canonical append,
+and acknowledgement Store roots. Ambient level1 is rejected at the C4
+boundary. The runtime owns no Clock, transaction control, loop, daemon,
+scheduler, worker, command, route, or registration.
+
+Canonical resource／storage and protection failures retry below max and poison
+at max. Idempotency, segment, integrity, logical validation, and committed
+binding failures poison immediately. Settlement transition conflict is stale;
+settlement resource／storage failure supersedes the initiating sender failure.
+Unexpected throwables leave the lease for recovery and contract to one fixed
+value-free storage failure.
+
+Crash after canonical append and before acknowledgement converges through the
+same canonical `recordId` and `contentHash`. At final-attempt expiry, Accepted
+C2 may poison without querying the canonical Store, so poison does not prove
+canonical absence. Both `relayed` and `poisoned` acknowledge their ordinal and
+release the next FIFO position. Earlier current wording that poison
+persistently stops a partition is superseded by D153.
+
+C3 adds no migration or public Documentation claim. C4 adds exactly seven
+Internal package types and no public source, migration, route, command, public
+Documentation, or current runtime caller. Framework migrations stay 13,
+Community Board stays 18, package required inventory grows exact68→75, Stable
+`1.2.0` remains current, and BlackOps `1.3` remains unreleased. The Stable
+generic Outbox runtime and `outbox:relay:*` commands remain byte-identical and
+are not C4 activation.
 
 ## Historical P23-003A Acceptance Catalog and projection contract
 
@@ -3765,7 +3790,9 @@ tuple. `action.id` is a correlation value only; v1 does not assert phase
 continuity, lifecycle transitions, or cross-record order. A future versioned
 transition contract may add those rules. The same `recordId` and the same
 `contentHash` is an idempotent duplicate. The same ID with a different content
-hash is an integrity failure and stops the writer/relay for that partition.
+hash is an integrity failure that stops settlement of that row and produces a
+poison operational outcome. It does not install a persistent partition halt;
+D153 terminal FIFO semantics release the next ordinal.
 
 The following is a historical illustrative projection, not the normative D147
 `observed_v1` closed wire, not the canonical encrypted body, and not a
@@ -5076,8 +5103,9 @@ ordinal; the same key with any different value fails
 `idempotency_conflict` before mutation. The raw key is never clear. Ingress
 allocates ordinal under a per-partition lock/CAS starting at `1`, increments
 by one with no committed gap, and relay claims only the minimum unacked head.
-No ordinal 2 may bypass ordinal 1; a poison record stops that partition and
-emits a safe operational state. Lease/fencing CAS permits one owner and
+No ordinal 2 may bypass ordinal 1; a poison record acknowledges that ordinal,
+releases the next ordinal, and emits a safe operational state. Lease/fencing
+CAS permits one owner and
 rejects stale acknowledgement. Canonical append is idempotent by
 `recordId+contentHash`; a crash after append and before ack recovers the same
 canonical sequence/hash. Ordinary retry reuses the same ciphertext. v1
@@ -5377,8 +5405,8 @@ The envelope is durable-only and binds recordId, recordedAt, contentHash,
 logical tenant, and canonical derived partition; raw idempotency keys remain
 protected while their normalized partition-bound hash is clear. Outbox
 identity/protected bytes are immutable; only fenced state/attempt/availability/
-lease fields mutate, with attempt 0 at ingress, minimum-head FIFO, poison stop,
-and retry/expiry fencing.
+lease fields mutate, with attempt 0 at ingress, minimum-head FIFO, poison
+acknowledgement and next-head release, and retry/expiry fencing.
 
 Evidence descriptors are exactly
 `{name,type,required,nullable,maxUtf8Bytes,classification}`. `safe_code` is

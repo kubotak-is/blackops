@@ -2,7 +2,7 @@
 
 Status: Accepted for P23-003C2 — candidate committed and same-SHA package export Green; BlackOps 1.3 unreleased
 
-Updated At: 2026-09-02T14:19:47+09:00
+Updated At: 2026-09-04T01:53:16+09:00
 
 ## Current Handoff
 
@@ -18,10 +18,18 @@ C1-backed fenced transitions, tenant binding, and owned-level0／joined-level1
 transaction behavior. Its Application policy selection, key composition, and
 relay exclusions remain normative.
 
-P23-003C3 is next. D152 consumes this Store without changing any C2 Production
-byte and owns Catalog-fixed required／durable selection, same-root mutation
+P23-003C3 is Accepted at committed candidate
+`b7b352a8e4c86a45822351c108772367515654bd` with clean same-SHA package
+export Green. D152 consumes this Store without changing any C2 Production byte
+and owns Catalog-fixed required／durable selection, same-root mutation
 orchestration, protected-read gating, and Application key composition.
-P23-003C4 later owns active relay and recovery.
+
+P23-003C4 is next. D153 keeps this exact C2 Store API unchanged and places one
+Internal persistence adapter above it. The bounded C4 runtime uses separate
+Store-owned claim, canonical append, and acknowledgement roots, rejects ambient
+level1, and performs a deliberate second protected open after claim commit.
+Both terminal states continue to acknowledge their ordinal and release the next
+FIFO position. C4 adds no current runtime registration.
 
 Stable `1.2.0` remains current. BlackOps `1.3` and the Audit Trail remain
 unreleased.
@@ -752,11 +760,10 @@ only through the Accepted B2 Store during C4 relay.
 ## Remaining Issues
 
 - None within P23-003C2.
-- P23-003C3 required／durable transaction and Application key composition.
 - P23-003C4 relay／recovery runtime.
 - Parent P23-003C Acceptance after all four children.
 
 ## Suggested Next Action
 
-Proceed to the separately committed and freshly reviewed D152／P23-003C3
-management packet. Preserve every Accepted C2 Production byte.
+Proceed from the committed D153／P23-003C4 clean freeze to fresh independent
+preflight. Preserve every Accepted C2 Production byte.

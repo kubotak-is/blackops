@@ -1,8 +1,8 @@
 # D150: Audit Outbox State and Delivery Split
 
-Status: Proposed — P23-003C1／C2 Accepted; P23-003C3 bounded preflight correction applied／fresh re-preflight required; BlackOps 1.3 unreleased
+Status: Proposed — P23-003C1／C2／C3 Accepted; P23-003C4 authority committed／fresh preflight pending; BlackOps 1.3 unreleased
 
-Updated At: 2026-09-02T17:10:59+09:00
+Updated At: 2026-09-04T01:53:16+09:00
 
 ## Current Handoff
 
@@ -17,18 +17,21 @@ P23-003C2 is Accepted at committed candidate
 fresh General／DB／Documentation review, and clean same-SHA package export
 Green. No push was performed.
 
-P23-003C3 is the next serial child. D152 is its most-specific authority.
+P23-003C3 is Accepted at committed candidate
+`b7b352a8e4c86a45822351c108772367515654bd`, with Complete Final Gate,
+fresh General／Transaction／Documentation review, and clean same-SHA package
+export Green.
 It owns Catalog-fixed delivery selection, same-Framework-Connection mutation
 orchestration, protected Operation-read release gating, and Application-facing
-opaque／Audit-protection key composition. It adds an uncalled directly testable
-composer and no current runtime registration.
-Its first three-lane preflight is Historical Changes Requested after the
-bounded management correction: Accepted Store failure taxonomy, canonical
-cached-identity transaction composition, actual package-oracle structure, and
-C1 current truth are now closed for fresh re-preflight.
+opaque／Audit-protection key composition. Its composer remains uncalled.
 
-P23-003C4 remains responsible for relay and recovery runtime. Parent P23-003C
-is not Accepted until C1 through C4 are all Accepted.
+P23-003C4 is the final serial child. D153 is its most-specific authority.
+It owns bounded `recoverOne()`／`relayOne()` seams, three Store-owned relay
+transactions, protected-ingress canonicalization, sender／settlement failure
+precedence, crash recovery, and poison FIFO progress over the same C3 graph.
+It activates no current runtime.
+
+Parent P23-003C is not Accepted until C4 is Accepted.
 Stable `1.2.0` remains current; BlackOps `1.3` and all Audit capabilities
 remain unreleased.
 
@@ -255,16 +258,17 @@ Its tests can exhaust every state, attempt, due, lease, version, and backoff bou
 C2 can later apply the same pure transition result through one expected-version PostgreSQL CAS without reimplementing lifecycle rules.
 
 The split does not weaken the parent contract.
-Required same-transaction append, durable ingress persistence, Application key composition, and relay remain blocked until their owning children are Accepted.
+Required same-transaction append, durable ingress persistence, and Application
+key composition are Accepted through C3. Relay remains blocked until C4 is
+Accepted, and current runtime activation remains separately blocked.
 
 ## Remaining Issues
 
-- P23-003C3 delivery transaction／policy／key composition packet preflight,
-  implementation, gates, Acceptance, and package closeout.
-- P23-003C4 relay and recovery runtime.
+- P23-003C4 relay／recovery packet preflight, implementation, gates,
+  Acceptance, and package closeout.
 - Parent P23-003C Acceptance after all four children.
 
 ## Suggested Next Action
 
-Commit and freeze the D152／C3 management packet, then obtain fresh General／
+From the committed clean D153／C4 management packet, obtain fresh General／
 Transaction／Documentation preflight Green before configured Luna Product work.
