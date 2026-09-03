@@ -1,6 +1,151 @@
 # Orchestration State
 
-Updated At: 2026-09-02T17:44:04+09:00
+Status: P23-003C3 review correction authorized — worker correction pending
+
+Updated At: 2026-09-03T17:38:59+09:00
+
+P23-003C3 post-Iteration review correction at 2026-09-03T17:38:59+09:00:
+fresh Transaction review returned P1=1 because the composed
+`HmacAuditOpaqueIdDeriver` retains the raw opaque key as a normal private
+string and exposes it through `var_export()`. A direct PHP diagnostic reproduced
+the synthetic 32-byte key and exited91. General review returned P2=1 because
+consumed class strings and same-namespace dependencies can escape the current
+Architecture oracle. Documentation review returned P2=1 because the Report
+omits exact command lines／exit codes and does not separate Not Run from Not
+Verified.
+
+D152 and the C3 Task now authorize only the deriver sensitive-storage source
+and direct regression test, the existing Architecture oracles, and
+Report／STATE evidence corrections. Product／Test scope expands from exact33 to
+exact35; worker scope expands from exact35 to exact37. The existing C3 candidate
+is unchanged in this management checkpoint. The prior Iteration Gate becomes
+Historical once source/test correction starts and must not be reused.
+
+Next sequence: commit this management-only scope correction; refreeze the new
+HEAD／staged0／existing Product status／immutable exact10; obtain fresh bounded
+General／Transaction／Documentation authority review; run the bounded Luna
+correction and focused checks; run replacement Iteration Gate; obtain fresh
+implementation reviews; refreeze exact37; run Complete Final Gate; accept;
+commit the Product candidate; run clean same-SHA package export. C4 and parent
+P23-003C Acceptance remain downstream. Complete Final, Product commit, package
+export, push, release, deploy, browser, artifact, and public activation are not
+complete. Browser behavior and generated package artifacts are Not Verified.
+
+## Historical Evidence (superseded)
+
+The last complete Iteration Gate passed on exact35
+`2ef23a4d74ddad98803c868b5346da22e0ecd8f38ec870a7ae8dbc1960de6907` with
+exact30 format, focused PHPUnit `175 tests／1,163,518 assertions` and zero
+issues, Node4, Deptrac `1,029／0／0／0／6,315`, version `1.2.0／1.1.0`, exact68
+inventory with call-contract14／total27, migration `13 + 5 = 18`,
+StoragePurpose exact9, and all static/post-freeze guards. Fresh reviews found
+the P1/P2 roots above, so this evidence is not reusable after correction.
+
+The latest attempted Iteration Gate started from exact35
+`d1d4f71559be275a2b7fbf50629b425706db64809f4f2d25e9cdbcba219ceb61`. Command 1,
+exact30 format exit0, focused PHPUnit 175 tests / 1,163,518 assertions with
+zero issues, Node4, Deptrac analyzed 1,029 with violations, skipped,
+uncovered, warnings, and errors all 0 and 6,315 allowed, version baseline
+1.2.0 / 1.1.0, Bash syntax, and exact68 inventory with call-contract 14 and
+total mutations 27 all passed. The subsequent static-guard wrapper exited
+before final PASS because the Orchestrator supplied the wrong expected file for
+the `AuditOpaqueIdKeyProvider` references; the actual paths are
+`src/Audit/AuditOpaqueIdKeyProvider.php` and
+`src/Internal/Application/ApplicationAuditRuntimeComposer.php`. The entire
+attempt is Historical/not reusable under stop-on-first-failure. No file
+changed; this was an Orchestrator guard-expectation error, not a Product
+failure.
+
+An earlier attempted Iteration Gate started from exact35
+`3a00561b711b66e714c330936c0b2e04e994ef6725a5c9c30bc17acb5bace5c5`. Its
+final post-freeze wrapper used malformed/truncated immutable individual full
+hashes and exited1 before checks. A corrected read-only post-freeze check
+passed, but that result is not accepted or reusable because the Task requires
+one complete run with stop-on-first-failure. No file changed; this was an
+Orchestrator verification-data error, not a Product failure.
+
+Prior successful evidence from that superseded freeze is Historical only:
+exact30 format exit0; focused PHPUnit 175 tests / 1,163,518 assertions with
+zero issues; Node goldens 4 pass; Deptrac analyzed 1,029 with violations,
+skipped, uncovered, warnings, and errors all 0 and 6,315 allowed; version
+1.2.0 / 1.1.0; Bash syntax; exact68 inventory with call-contract 14 and total
+mutations 27; migration 13 Framework + 5 application = 18; StoragePurpose
+exact9; nonactivation, documentation, ID, diff, staged, and corrected
+post-freeze guards. None is current evidence for the new Gate freeze.
+
+The first affected-test cleanup run stopped on one `mkdir(): File exists`
+warning. The first Iteration Gate attempt from the preceding freeze then
+stopped at focused PHPUnit despite exit0 with 175 tests, 1,163,518 assertions,
+Warning 1, Deprecation 1, and PHPUnit Notice 1. Its freeze/format evidence and
+all later evidence are invalidated by this correction and are not reused.
+
+The immediately preceding closure freeze exact33
+1eb6b1b70e9919df280283de184a93b011a2ddddec51bc41a1f3dc50303e69b4 and exact35
+dec31e7332301c33177d1c63d95bc5602625f2fc837ecdc082eb1c4a4b86b6ee, including
+the 26-test/1,124,869-assertion focused result, is Historical after this
+closure and is not reused.
+
+The superseded exact33 aggregates c2085e18c18b43d8b35a6829dbcd501f530848078b919e7cc806ae11f268fd1c
+and 64eb011a3577901a42aa848b5c211eaa60a6ad66daba7db5fe4df4d4ceb40d8c,
+exact35 b11ddd2390887bc361e37faa377a5ff53ba25b05d360d56fcffa55ef00836365,
+package hash 588e2a9c3cd39e4ba108edc2be4edc905fe614a7e600ccb69ecb5397711111df,
+the 82-test/40,260-assertion result, old dispatch wording, and old guard Green
+claims are invalidated Historical evidence. They are not reused.
+
+Historical: the preceding P23-003C3 correction/start checkpoints below remain
+for audit context only; they do not describe the current freeze.
+
+P23-003C3 worker-start checkpoint at 2026-09-02T17:49:23+09:00. Configured
+Production Worker authority is `.codex/agents/worker.toml` with
+`gpt-5.6-luna/max`; model metadata absence alone is not a blocker. Freeze is
+branch `agent/p23-001-blackops-1-3-feasibility`, HEAD
+`7463d3c134cbc047a3be1f8ee1094d5d4f393733`, clean／staged0, with Accepted C2
+`a92bef70fdb843a4dd2b8b34243fc892b43939cc` as ancestor and immutable exact10
+aggregate `96da34597c65f5b19d1db80d8af843ae09327afe4b4f6f4788ca201df6a671e7`.
+Worker scope is exact33 Production／Test plus this Report／STATE (exact35).
+No immutable file, out-of-scope path, stage, commit, push, publish, release,
+deploy, network, uncommitted-tree package export, runtime activation, or
+public Documentation change is permitted.
+
+P23-003C3 implementation-complete checkpoint at
+2026-09-02T18:52:05+09:00. Exact33 Product／Test implementation and the
+worker-managed Report／STATE updates are complete within exact35. The graph
+implements Catalog-fixed required／durable selection, exact D152 failure
+precedence, same-Connection transaction coordination through the accepted
+operation runtime, protected-read release gating, dedicated opaque／Audit
+protection key roles, configuration/runtime/composer identity, and direct plus
+real PostgreSQL fixtures. Pre-Gate checks are Green: scoped PHP format,
+focused PHPUnit (82 tests／40,260 assertions, Warning1／Notices2), Node goldens
+4, Deptrac 0/0/0, version baseline 1.2.0／1.1.0, package exact68 mutations,
+migration13／Community18, StoragePurpose exact9, nonactivation/docs/ID/diff,
+and Bash syntax. The exact33 ordered SHA aggregate is
+`64eb011a3577901a42aa848b5c211eaa60a6ad66daba7db5fe4df4d4ceb40d8c`.
+Immutable exact10 aggregate remains
+`96da34597c65f5b19d1db80d8af843ae09327afe4b4f6f4788ca201df6a671e7`.
+The single Iteration Gate is the next action from unchanged exact35; Complete
+Final Gate, commit, package export, push, network, release, deploy, and public
+Documentation activation remain prohibited/not run.
+
+P23-003C3 Iteration Gate blocker checkpoint at 2026-09-02T18:56:27+09:00:
+the first Gate freeze verified branch／HEAD／staged0, exact35=35, exact33=33,
+and immutable exact10 aggregate, then stopped at the first scoped PHP format
+command because Docker could not access `/var/run/docker.sock` while resolving
+`postgres:18` (`permission denied`, exit1). This is environment friction, not
+a Product failure; all later Gate items are Not Run. This Report／STATE update
+invalidates the moving freeze, so the single Iteration Gate must restart after
+this checkpoint. No scope expansion, stage, commit, push, network, package
+export, or runtime/public activation occurred.
+
+P23-003C3 hash-record checkpoint at 2026-09-02T18:58:09+09:00: the Report
+now records the immutable exact10 individual hashes in Task order in addition
+to the verified aggregate. No Product／Test source changed; the single
+Iteration Gate must freeze this current exact35 tree from command 1.
+
+P23-003C3 Docker retry checkpoint at 2026-09-02T18:57:35+09:00: the scoped
+`mago format --check` command was retried through the authorized Docker
+permission path and passed exit0 for all 31 changed PHP files. No source or
+test file changed. Because this Report／STATE checkpoint moves exact35, the
+single Iteration Gate must restart from command 1 against the current tree.
 
 P23-003C3 fresh three-lane re-preflight Green checkpoint at
 2026-09-02T17:44:04+09:00. P23-003C2 is Accepted and committed at

@@ -1,8 +1,8 @@
 # P23-003C3: Audit Delivery Orchestration and Key Composition
 
-Status: Bounded preflight correction applied — fresh General／Transaction／Documentation re-preflight required; Product work not started
+Status: Review correction authorized — opaque-key no-leak and Architecture evidence correction pending
 
-Updated At: 2026-09-02T17:10:59+09:00
+Updated At: 2026-09-03T17:38:59+09:00
 
 ## Current Checkpoint
 
@@ -16,16 +16,24 @@ D152 and this Task define the next serial child, P23-003C3.
 C3 adds the unregistered delivery-policy, same-root transaction,
 protected-read gate, and Application key-composition seams consumed later by
 P23-003D／E and C4.
-It changes no Accepted C1／C2／B1／B2 Production byte and activates no current
-Application runtime.
+It activates no current Application runtime. The post-Iteration review proved
+that the Accepted `HmacAuditOpaqueIdDeriver` exposes its retained raw key via
+`var_export()`. C3 therefore owns one representation-only correction to that
+existing type and its direct test; every other Accepted C1／C2／B1／B2
+Production byte remains unchanged.
 
-This management packet must be committed by the Orchestrator and independently
-reviewed from one clean immutable freeze before a configured Luna worker may
-edit Product or Test.
-The first preflight returned one implementation-blocking Store-failure
-taxonomy conflict plus bounded transaction／package／management findings.
-D152 and this Task now close those findings; all three lanes must restart from
-the corrected clean freeze.
+The initial management packet was committed by the Orchestrator and reviewed
+from one clean immutable freeze before Product work. For this post-Iteration
+scope correction, the Orchestrator commits only D152, this Task, Report, and
+STATE while preserving the existing unstaged Product candidate. The resulting
+HEAD, staged0, exact existing status set, and new immutable exact10 hashes must
+then receive fresh bounded General／Transaction／Documentation authority review
+before the configured Luna worker edits either newly authorized path.
+The first preflight findings were closed before Product work. The first
+post-Iteration review then returned one no-leak P1 plus bounded Architecture
+and Report P2 findings. D152 and this Task now authorize only those corrections.
+The worker must restart the affected focused checks and full Iteration Gate;
+fresh General／Transaction／Documentation review follows from the new freeze.
 Stable `1.2.0` remains current; BlackOps `1.3` and every Audit capability remain
 unreleased.
 
@@ -238,6 +246,12 @@ forbidden. Direct test assembly may prove identities but is not activation.
 
 Add one mutation-resistant C3 Architecture oracle and change the four Accepted
 Audit Architecture tests only for D152's exact new reference／caller maps.
+The oracle must reject consumed class-string references through
+`class_exists()`／`interface_exists()`／`enum_exists()`／`is_a()`／
+`is_subclass_of()`, including literal and one-hop／two-hop variables. It must
+also inventory executable same-namespace type references. Shared Architecture
+tests may not exempt a whole C3 path: each exception is an exact
+path／target／reference-or-call map with positive and mutation-negative proof.
 Every other C1／C2／B1／B2 invariant and Production byte remains unchanged.
 
 Add the `Audit` Deptrac layer. It may depend only on `Core` and
@@ -269,11 +283,12 @@ C3-new-entry omission negative, and the locally repinned mutation oracles.
 
 ## Files Allowed
 
-Production／Test／configuration is exact33 in this order:
+Production／Test／configuration is exact35 in this order:
 
 ```text
 src/Audit/AuditOpaqueIdKeyProvider.php
 src/Audit/AuditProtectionKeyProvider.php
+src/Internal/Audit/HmacAuditOpaqueIdDeriver.php
 src/Internal/Audit/Orchestration/AuditDeliveryFailure.php
 src/Internal/Audit/Orchestration/AuditDeliveryException.php
 src/Internal/Audit/Orchestration/AuditDeliveryPlan.php
@@ -287,6 +302,7 @@ src/Internal/Application/ApplicationAuditConfiguration.php
 src/Internal/Application/ApplicationAuditRuntime.php
 src/Internal/Application/ApplicationAuditRuntimeComposer.php
 tests/Audit/AuditKeyProviderContractTest.php
+tests/Internal/Audit/AuditOpaqueIdDeriverTest.php
 tests/Internal/Audit/Orchestration/AuditDeliveryValueTypesTest.php
 tests/Internal/Audit/Orchestration/AuditDeliverySelectorTest.php
 tests/Internal/Audit/Orchestration/AuditDeliveryCoordinatorTest.php
@@ -314,7 +330,7 @@ develop/orchestration/reports/P23-003C3-audit-delivery-orchestration-and-key-com
 develop/STATE.md
 ```
 
-Worker scope is exact35. No other path may move.
+Worker scope is exact37. No other path may move.
 
 Orchestrator-only immutable exact10:
 
@@ -410,8 +426,13 @@ Accepted `AuditProtectionException`.
   canonical partition argument, key-ID mismatch, missing history, throw;
 - opaque reference or material reused by either protection purpose, and no
   crypto call on rejection;
+- the existing opaque-ID deriver retains its validated 32-byte key only behind
+  `SensitiveParameterValue`; existing known-answer derivation bytes and public
+  callables remain unchanged;
 - raw key/key ID/tenant/provider canaries absent from exception message,
   previous, trace arguments/string, debug, serialize, JSON, and `var_export()`;
+  the raw opaque key is checked both on the deriver directly and through the
+  composed runtime's `opaqueIds()` result;
 - default and every 1/32 C1 bound, unknown members, non-array parents,
   numeric strings, float, bool, and null;
 - one config instance, one opaque deriver, one protection adapter, one UUID
@@ -441,13 +462,13 @@ Accepted `AuditProtectionException`.
 
 ## Iteration Gate
 
-Run once after all exact33 Product／Test changes and Report／STATE updates are
+Run once after all exact35 Product／Test changes and Report／STATE updates are
 complete. Stop on first failure.
 
-1. Freeze branch, HEAD, staged0, status exact35, exact33 ordered SHA aggregate,
+1. Freeze branch, HEAD, staged0, status exact37, exact35 ordered SHA aggregate,
    immutable exact10 individual hashes/aggregate, Accepted prerequisite hashes,
    and package-script hashes.
-2. Prove exact33 and exact35 counts, unique paths, file existence, and both
+2. Prove exact35 and exact37 counts, unique paths, file existence, and both
    add/remove/wrong-hash negatives.
 3. Run scoped `mago format --check` for every changed PHP source/test.
 4. Run focused PHPUnit for every new direct/real test, all five Audit
@@ -471,7 +492,7 @@ Its Git side archives HEAD and cannot prove newly uncommitted C3 files.
 ## Complete Final Gate
 
 After Iteration Green, independent implementation review, and an unchanged
-exact35 refreeze, restart from command 1 and stop on first failure:
+exact37 refreeze, restart from command 1 and stop on first failure:
 
 1. full `mago format --check src tests`;
 2. `composer validate --strict`;
@@ -484,14 +505,14 @@ exact35 refreeze, restart from command 1 and stop on first failure:
 9. Community Board clean-install only if the unchanged current journey is
    already available without changing scope;
 10. shell syntax, docs directory/no-diff, forbidden-ID, `git diff --check`,
-    staged0, exact35, exact33, immutable exact10, prerequisite and package
+    staged0, exact37, exact35, immutable exact10, prerequisite and package
     post-guards.
 
 No evidence may be reused after a source/test change.
 
 ## Acceptance Criteria
 
-- D152 exact14 Product graph and exact33 Product／Test scope are complete.
+- D152 exact14 Product graph and exact35 Product／Test scope are complete.
 - Delivery policy is Catalog-fixed with no override or downgrade.
 - Required and durable routes are exact-one and correctly transactional.
 - Same-Connection business + Audit commit and rollback failure paths are
@@ -499,7 +520,8 @@ No evidence may be reused after a source/test change.
 - Protected-read ordering and allow-data withholding are proven.
 - Dedicated opaque/protection key composition is role-separated and no-leak.
 - One configuration and one composed graph are identity-proven.
-- C1／C2／B1／B2 Production and immutable authority remain byte-identical.
+- The bounded `HmacAuditOpaqueIdDeriver` sensitive-storage correction is
+  complete; every other C1／C2／B1／B2 Production byte remains byte-identical.
 - Exact68 package, PublicApi, Deptrac, Stable/release, migration, docs, and
   nonactivation guards are Green.
 - Iteration and Complete Final Gate are Green on one unchanged freeze.

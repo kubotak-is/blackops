@@ -1,8 +1,8 @@
 # D152: Audit Delivery Orchestration and Key Composition Boundary
 
-Status: Proposed — P23-003C1／C2 Accepted; P23-003C3 bounded preflight correction applied／fresh re-preflight required; BlackOps 1.3 unreleased
+Status: Proposed — P23-003C1／C2 Accepted; P23-003C3 review correction authorized; BlackOps 1.3 unreleased
 
-Updated At: 2026-09-02T17:10:59+09:00
+Updated At: 2026-09-03T17:38:59+09:00
 
 ## Current Handoff
 
@@ -13,20 +13,24 @@ Git／Composer package export is Green.
 The worktree was clean before this Decision and the C3 Task Packet were
 drafted.
 
-The first independent preflight is Changes Requested.
-This corrected packet maps the already-collapsed Accepted Store
-`ResourceUnavailable` cases uniformly, fixes the actual package-oracle shape,
-and limits same-root orchestration to the canonical cached-identity Application
-operation composition. It also makes the Accepted C1 Report part of the
-immutable authority freeze. Product work remains stopped until all three
-fresh re-preflight lanes are Green.
+The first independent preflight findings were closed before Product work.
+Post-Iteration review then proved that the composed runtime exposes the raw
+opaque-ID key through the Accepted deriver's `var_export()` representation.
+The same review found bounded class-string／same-namespace Architecture gaps
+and incomplete runnable evidence in the Report. This Decision authorizes only
+the deriver's representation-safe key retention, its direct regression test,
+the existing Architecture oracles, and Report／STATE correction. Product work
+remains stopped outside that bounded correction.
 
 P23-003C3 is the next serial child.
 It owns fixed Catalog delivery selection, same-Framework-Connection mutation
 orchestration, protected Operation-read release gating, and Application-facing
 opaque／protection key composition.
-It consumes the Accepted C1／C2 and B1／B2 boundaries without changing their
-Production bytes.
+It consumes the Accepted C1／C2 and B1／B2 boundaries. One existing
+`HmacAuditOpaqueIdDeriver` Production byte set may change solely to hide its
+already-validated key behind `SensitiveParameterValue`; its public API,
+validation, derivation bytes, and every other Accepted Production byte remain
+unchanged.
 
 C3 adds an uncalled Application Audit composer and its directly testable
 components.
@@ -599,6 +603,15 @@ The adapter and composer expose no raw key, key material, tenant, provider
 throwable, or environment value through message, previous, trace arguments／
 string, debug, serialization, JSON, or `var_export()`.
 
+The composed runtime returns the existing concrete `HmacAuditOpaqueIdDeriver`,
+so the same no-leak boundary applies to that object's representations. The
+deriver stores the validated 32-byte key only in `SensitiveParameterValue` and
+retrieves a string solely at the HMAC call. Its constructor, public callables,
+validation failures, domains, length-prefixes, and derived bytes remain
+unchanged. Direct and composed-runtime fixtures use a unique raw-key canary and
+must prove it absent from debug, serialization, JSON, exception traces, and
+`var_export()` while preserving the existing known answers.
+
 ### 10. Architecture and activation boundary
 
 C3 adds one mutation-resistant `AuditDeliveryArchitectureTest` that fixes:
@@ -616,7 +629,9 @@ C3 adds one mutation-resistant `AuditDeliveryArchitectureTest` that fixes:
   construction and exact cached `DoctrineDatabaseManager` identity path into
   the C3 mutation coordinator;
 - token-aware alias／group-use／FQCN／same-namespace／class-string／dynamic／
-  reflection reference and call detection;
+  reflection reference and call detection. Consumed class strings include
+  `class_exists()`／`interface_exists()`／`enum_exists()`／`is_a()`／
+  `is_subclass_of()` and literal／one-hop／two-hop variables;
 - no generic provider／purpose, environment, default key, second transaction
   owner, savepoint, downgrade, observed projection, relay, or response callback;
 - no Application operation／HTTP／Console／worker／scheduler／Container runtime
@@ -625,7 +640,10 @@ C3 adds one mutation-resistant `AuditDeliveryArchitectureTest` that fixes:
   call-count／outside-caller mutation negatives.
 
 Accepted shared Architecture tests change only to authorize the exact C3
-reference and callsite maps.
+reference and callsite maps. They may not skip a complete C3 path: every
+exception is an exact path／target／reference-or-call count, with consumed
+class-string and same-namespace mutation negatives.
+Except for the bounded `HmacAuditOpaqueIdDeriver` sensitive-storage change,
 C1／C2／B1／B2 Production remains byte-identical.
 Every other prior guard and mutation negative remains active.
 
@@ -678,7 +696,12 @@ Direct and real-PostgreSQL fixtures must prove:
 - one opaque provider call, one deriver, one Outbox configuration, and one
   composed graph;
 - C4 receives the same Store／configuration instances;
-- unique canaries absent from every exception and representation surface;
+- existing opaque derivation known answers remain byte-identical while a raw
+  key canary is absent from direct-deriver and composed-runtime exception and
+  representation surfaces, including `var_export()`;
+- consumed literal／one-hop／two-hop class strings, same-namespace executable
+  references, and shared C1／C2／A2／B2 reference maps have non-vacuous mutation
+  rejection without rejecting unconsumed string decoys;
 - exact68 package inventory, Stable `1.2`, migration13／Community18, no public
   Documentation diff, and zero runtime activation.
 
