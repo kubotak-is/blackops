@@ -19,12 +19,13 @@ use BlackOps\Core\Audit\AuditValidationFailure;
  */
 final class HmacAuditOpaqueIdDeriver
 {
-    public function __construct(
-        #[\SensitiveParameter]
-        private readonly string $key,
-    ) {
+    private readonly \SensitiveParameterValue $key;
+
+    public function __construct(#[\SensitiveParameter] string $key)
+    {
         if (strlen($key) !== 32)
             throw new AuditValidationException(AuditValidationFailure::ByteBoundInvalid);
+        $this->key = new \SensitiveParameterValue($key);
     }
 
     public function derive(AuditOpaqueIdPurpose $purpose, #[\SensitiveParameter] string $context): AuditOpaqueId
@@ -144,7 +145,10 @@ final class HmacAuditOpaqueIdDeriver
             AuditLengthPrefix::encode($domain)
             . AuditLengthPrefix::encode($purpose->value)
             . AuditLengthPrefix::encode($contextBytes);
-        return new AuditOpaqueId('oid:v1:' . hash_hmac('sha256', $preimage, $this->key));
+        $key = $this->key->getValue();
+        if (!is_string($key) || strlen($key) !== 32)
+            throw new \LogicException('Opaque ID deriver key state is invalid.');
+        return new AuditOpaqueId('oid:v1:' . hash_hmac('sha256', $preimage, $key));
     }
 
     private function tenantReference(#[\SensitiveParameter] mixed $context): AuditTypedReference

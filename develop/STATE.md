@@ -1,37 +1,132 @@
 # Orchestration State
 
-Status: P23-003C3 review correction authorized — worker correction pending
+Status: P23-003C3 Complete — accepted commit and clean same-SHA export Green
 
-Updated At: 2026-09-03T17:38:59+09:00
+Updated At: 2026-09-04T00:55:32+09:00
 
-P23-003C3 post-Iteration review correction at 2026-09-03T17:38:59+09:00:
-fresh Transaction review returned P1=1 because the composed
-`HmacAuditOpaqueIdDeriver` retains the raw opaque key as a normal private
-string and exposes it through `var_export()`. A direct PHP diagnostic reproduced
-the synthetic 32-byte key and exited91. General review returned P2=1 because
-consumed class strings and same-namespace dependencies can escape the current
-Architecture oracle. Documentation review returned P2=1 because the Report
-omits exact command lines／exit codes and does not separate Not Run from Not
-Verified.
-
-D152 and the C3 Task now authorize only the deriver sensitive-storage source
-and direct regression test, the existing Architecture oracles, and
-Report／STATE evidence corrections. Product／Test scope expands from exact33 to
-exact35; worker scope expands from exact35 to exact37. The existing C3 candidate
-is unchanged in this management checkpoint. The prior Iteration Gate becomes
-Historical once source/test correction starts and must not be reused.
-
-Next sequence: commit this management-only scope correction; refreeze the new
-HEAD／staged0／existing Product status／immutable exact10; obtain fresh bounded
-General／Transaction／Documentation authority review; run the bounded Luna
-correction and focused checks; run replacement Iteration Gate; obtain fresh
-implementation reviews; refreeze exact37; run Complete Final Gate; accept;
-commit the Product candidate; run clean same-SHA package export. C4 and parent
-P23-003C Acceptance remain downstream. Complete Final, Product commit, package
-export, push, release, deploy, browser, artifact, and public activation are not
-complete. Browser behavior and generated package artifacts are Not Verified.
+P23-003C3 bounded analyzer-correction checkpoint at
+2026-09-03T21:01:22+09:00: the pre-correction Complete Final attempt stopped at
+`docker compose run --rm app mago analyze --minimum-report-level=error` with
+exactly four mixed-argument errors in
+`src/Internal/Application/ApplicationAuditConfiguration.php` constructor
+arguments. The Luna correction extracts the four defaulted values and applies
+post-validation native-`int` refinements before constructing
+`AuditOutboxConfiguration`; defaults, bounds, runtime rejection, public API,
+and class callable inventory remain unchanged. Focused format, configuration
+PHPUnit `6 tests／119 assertions`, full error-level analyzer, and full lint all
+exit 0. Product exact35 is now
+`ef4af593ee66f1ab5bef5e07e312e0679d86cd890309e330b5fc2863b5b5013a`;
+immutable exact10 remains
+`f7f043dfc2f27469666cee19441f405027516b07b6a6ead404f5c5c5ad25b746`.
+The accepted replacement Iteration restarted at command 1 and completed Green
+on Product exact35
+`ef4af593ee66f1ab5bef5e07e312e0679d86cd890309e330b5fc2863b5b5013a`,
+pre-management exact37
+`b6f6c39f64762ee1d789cef8c2848a6d39fdb485b9cb066ada6291ba0be1a702`,
+and the unchanged immutable exact10 above. Exact32 format; exact21 PHPUnit
+`159 tests／1,756,117 assertions`; Node4; Deptrac; version/package/release,
+nonactivation, documentation, static, and ending-freeze guards were Green.
+One earlier attempt with an Orchestrator-supplied invalid expected hash string
+was discarded in full and is not accepted evidence. Fresh General/
+Architecture/package, Transaction/No-leak, and Documentation/Release reviews
+all returned P1/P2/P3 `0/0/0` on the current Product and reviewed exact37
+`a866619c38ed8545a840080e0c1721c09ef60b3398de0a819b194e31ae337dec`.
+Only Report/STATE moved in that review-result checkpoint. The unchanged
+post-review refreeze was exact37
+`c4aaff402c051cdfcf56f6ecc0d95092f1d48fd06785ec087ba9d4a255c02ca9`.
+Complete Final then restarted at command 1 and completed Green. Full format,
+Composer strict, lint/baseline, analyzer/error-count, full PHPUnit, Deptrac,
+Node4, version/package, Community Board clean-install, and all final scope/hash
+guards exited 0. Full PHPUnit was `3,116 tests／1,778,029 assertions` with
+existing non-failing deprecation/notice counters `1/2/13`; Deptrac was
+`0/0/0/6,315/0/0`; Community Board Svelte check was `0 errors／0 warnings`,
+Vitest was `8 files／46 tests`, and the container journey passed. Ending Product
+exact35, exact37, and immutable exact10 remained unchanged. The Orchestrator
+accepts C3. The exact37 candidate was committed with 37 paths and no unrelated
+path; the resulting tree was clean/staged0. From that commit,
+`bash tests/Consumer/framework-package-export.sh` exited 0 with
+`Created: Framework Git and Composer package export contract passed.` This
+management-only completion checkpoint is folded into the same local commit and
+the export is rerun from the final amended SHA before handoff. Package export
+is Verified. C4 and parent P23-003C acceptance remain downstream. No push,
+release, deploy, public activation, or browser check was performed; browser
+behavior remains Not Verified.
 
 ## Historical Evidence (superseded)
+
+P23-003C3 replacement Iteration Gate checkpoint at 2026-09-03T20:28:38+09:00:
+the accepted Gate ran from unchanged Product exact35
+b04296f306762291e882f13505d362fb560c026f54ba8554001aef1542964f68, with
+pre-management exact37
+e33ef4e7f66ffef9adb04deebb4df1eb79cf013e51daf8526f6984c7a791cb67,
+immutable exact10
+f7f043dfc2f27469666cee19441f405027516b07b6a6ead404f5c5c5ad25b746, branch
+agent/p23-001-blackops-1-3-feasibility, HEAD
+761aab66c1cc4448b027b9864c8978e6304996e4, staged0, and accepted C2
+a92bef70fdb843a4dd2b8b34243fc892b43939cc as ancestor. Positive manifest and
+add/remove/duplicate/wrong-hash negatives passed.
+
+The exact21 focused PHPUnit command exited0 on PHP 8.5.7 with 159 tests,
+1,756,117 assertions, and zero issues. All four Audit Node goldens exited0;
+PostgreSQL mutations were 15, mutationKills 2, and inventory SHA was
+629c262d1d8fe6ccea4260be981568b579b04ae0d5e48d0dc9967d0526e22343.
+Deptrac, version baseline, exact68 package inventory and mutation oracle, Bash
+syntax, migration, StoragePurpose, reference, documentation, nonactivation,
+forbidden-ID, diff, and post-freeze guards all passed.
+
+Current status is exact37/staged0. Fresh independent implementation reviews
+are pending. The required remaining sequence is fresh General,
+Transaction/No-leak, and Documentation reviews -> unchanged exact37 refreeze
+-> Complete Final -> Acceptance -> candidate commit -> clean same-SHA package
+export. Complete Final, Acceptance, commit, package export, push, release,
+deploy, and browser checks are Not Run; generated artifacts and browser
+behavior are Not Verified. No Product/Test/configuration/immutable/package-
+script/deptrac/runtime byte changed during the Gate or this sync.
+
+Fresh independent reviews are Green. General/Architecture/package,
+Transaction/No-leak, and Documentation/Release each returned P1/P2/P3
+`0/0/0` on Product exact35
+`b04296f306762291e882f13505d362fb560c026f54ba8554001aef1542964f68`
+and the reviewed pre-management exact37
+`912a9ea5e51a8e11121a214c27bc606cb0e5b19e42e4a4e37875b86747ed4d56`.
+Only this Report/STATE review checkpoint moved afterward. Next Action: freeze
+the new exact37 management state without any Product/Test drift, then run the
+Complete Final Gate from command 1.
+
+P23-003C3 replacement Iteration Gate checkpoint at 2026-09-03T19:23:27+09:00:
+the accepted command-1 restart ran from unchanged Product exact35
+`ad6bc231a82bceb619b23da64d61b239987dcad702a623eb8989b16dac909e0b`, with
+pre-management exact37
+`3828938ad38705cbe56eff2d3c3957ab0cc9bf109ec7e210e020c28b60d5c48c`,
+immutable exact10
+`f7f043dfc2f27469666cee19441f405027516b07b6a6ead404f5c5c5ad25b746`, branch
+`agent/p23-001-blackops-1-3-feasibility`, HEAD
+`761aab66c1cc4448b027b9864c8978e6304996e4`, staged0, and accepted C2
+`a92bef70fdb843a4dd2b8b34243fc892b43939cc` as ancestor. Positive exact35
+manifest and add/remove/duplicate/wrong-hash negatives passed. The ending
+Product freeze was unchanged before this management-only Report/STATE sync.
+
+Current Gate evidence is Green: exact32 format exit0; the exact 26-file
+focused PHPUnit command exit0 with 185 tests, 1,756,192 assertions, and zero
+issues; four Node goldens exit0 with PostgreSQL mutations15/kills2 and
+inventory SHA `629c262d1d8fe6ccea4260be981568b579b04ae0d5e48d0dc9967d0526e22343`;
+Deptrac exit0 with `1,029/0/0/0/6,315/0/0`; version `1.2.0/1.1.0`; Bash
+syntax; exact68 package inventory with call-contract14/total27; migration
+13+5=18; references `1/2/2/3`; docs/status/nonactivation/diff guards; and
+`StoragePurpose` exact9. The initial sandbox Docker permission attempt is
+Historical environment evidence, not part of the accepted restart.
+
+Current status is exact37 and staged0; worker exact37 consists of exact35 plus
+this Report and STATE, with its post-sync aggregate returned in the completion
+checkpoint. Complete Final Gate, fresh independent implementation reviews,
+exact37 refreeze, Acceptance, commit, clean same-SHA package export, push,
+release, deploy, and browser checks are Not Run. Generated artifacts and
+browser behavior are Not Verified. The normative sequence is Iteration Green
+-> fresh independent implementation reviews -> unchanged exact37 refreeze ->
+Complete Final Green -> Acceptance -> commit -> clean same-SHA export. C4 and
+parent P23-003C Acceptance remain downstream.
+
+### Earlier Historical Evidence (superseded)
 
 The last complete Iteration Gate passed on exact35
 `2ef23a4d74ddad98803c868b5346da22e0ecd8f38ec870a7ae8dbc1960de6907` with

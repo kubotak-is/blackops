@@ -76,6 +76,20 @@ validate_package() {
         CHANGELOG.md \
         UPGRADE.md \
         src/Core/Exception/ConfigurationFailure.php \
+        src/Audit/AuditOpaqueIdKeyProvider.php \
+        src/Audit/AuditProtectionKeyProvider.php \
+        src/Internal/Audit/Orchestration/AuditDeliveryFailure.php \
+        src/Internal/Audit/Orchestration/AuditDeliveryException.php \
+        src/Internal/Audit/Orchestration/AuditDeliveryPlan.php \
+        src/Internal/Audit/Orchestration/AuditDeliveryRequest.php \
+        src/Internal/Audit/Orchestration/AuditDeliverySelector.php \
+        src/Internal/Audit/Orchestration/AuditDeliveryCoordinator.php \
+        src/Internal/Audit/Orchestration/AuditMutationTransactionCoordinator.php \
+        src/Internal/Audit/Orchestration/AuditProtectedReadGate.php \
+        src/Internal/Audit/Key/ApplicationAuditProtectionKeySource.php \
+        src/Internal/Application/ApplicationAuditConfiguration.php \
+        src/Internal/Application/ApplicationAuditRuntime.php \
+        src/Internal/Application/ApplicationAuditRuntimeComposer.php \
         src/Internal/Audit/Storage/AuditStoreFailure.php \
         src/Internal/Audit/Storage/AuditStoreException.php \
         src/Internal/Audit/Storage/AuditAppendResult.php \

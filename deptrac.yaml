@@ -6,6 +6,10 @@ deptrac:
       collectors:
         - type: classNameRegex
           value: '/^BlackOps\\Core(\\|$)/'
+    - name: Audit
+      collectors:
+        - type: classNameRegex
+          value: '/^BlackOps\\Audit(\\|$)/'
     - name: Scheduling
       collectors:
         - type: classNameRegex
@@ -160,6 +164,9 @@ deptrac:
     Core:
       - Telemetry
       - Idempotency
+    Audit:
+      - Core
+      - StorageProtection
     Identifier:
       - Core
     Idempotency:
@@ -241,6 +248,7 @@ deptrac:
       - Library
     Internal:
       - Core
+      - Audit
       - Scheduling
       - Journal
       - Execution
@@ -267,6 +275,7 @@ deptrac:
       - InternalHttp
       - InternalIdempotency
     InternalApplication:
+      - Audit
       - Core
       - Database
       - Execution

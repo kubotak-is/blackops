@@ -7,7 +7,7 @@ EXPORT_SCRIPT="${SCRIPT_DIR}/framework-package-export.sh"
 TEMP_ROOT="$(mktemp -d)"
 trap 'rm -rf -- "${TEMP_ROOT}"' EXIT
 
-reviewed_export_sha='875c31a51dac63ad22c81a4403e465daa63d57831e4e4895fd905853ec2f0ea6'
+reviewed_export_sha='2ed38aab4a5b22431b976d3c38dc1c47daba8c5af24460d45f207c11dc26c732'
 
 expected_inventory="${TEMP_ROOT}/expected-inventory"
 printf '%s\n' \
@@ -17,6 +17,20 @@ printf '%s\n' \
     CHANGELOG.md \
     UPGRADE.md \
     src/Core/Exception/ConfigurationFailure.php \
+    src/Audit/AuditOpaqueIdKeyProvider.php \
+    src/Audit/AuditProtectionKeyProvider.php \
+    src/Internal/Audit/Orchestration/AuditDeliveryFailure.php \
+    src/Internal/Audit/Orchestration/AuditDeliveryException.php \
+    src/Internal/Audit/Orchestration/AuditDeliveryPlan.php \
+    src/Internal/Audit/Orchestration/AuditDeliveryRequest.php \
+    src/Internal/Audit/Orchestration/AuditDeliverySelector.php \
+    src/Internal/Audit/Orchestration/AuditDeliveryCoordinator.php \
+    src/Internal/Audit/Orchestration/AuditMutationTransactionCoordinator.php \
+    src/Internal/Audit/Orchestration/AuditProtectedReadGate.php \
+    src/Internal/Audit/Key/ApplicationAuditProtectionKeySource.php \
+    src/Internal/Application/ApplicationAuditConfiguration.php \
+    src/Internal/Application/ApplicationAuditRuntime.php \
+    src/Internal/Application/ApplicationAuditRuntimeComposer.php \
     src/Internal/Audit/Storage/AuditStoreFailure.php \
     src/Internal/Audit/Storage/AuditStoreException.php \
     src/Internal/Audit/Storage/AuditAppendResult.php \
@@ -672,7 +686,7 @@ test_mutation_rejected() {
             run_bounded sed -i '\|src/Internal/Audit/Storage/AuditStoreFailure.php|d' "${candidate}"
             ;;
         new-omission)
-            run_bounded sed -i '\|migrations/postgresql/Version20260901000000.php|d' "${candidate}"
+            run_bounded sed -i '\|src/Internal/Application/ApplicationAuditRuntime.php|d' "${candidate}"
             ;;
         order-swap)
             run_bounded awk '
@@ -1028,7 +1042,7 @@ test -f "${EXPORT_SCRIPT}"
 test "$(sha256sum "${EXPORT_SCRIPT}" | cut -d' ' -f1)" = "${reviewed_export_sha}"
 runtime_case_count=0
 assert_inventory "${EXPORT_SCRIPT}"
-printf 'required inventory: PASS (54 ordered paths)\n'
+printf 'required inventory: PASS (68 ordered paths)\n'
 
 test_mutation_rejected comment-only comment
 test_mutation_rejected existing-entry-removal existing-removal

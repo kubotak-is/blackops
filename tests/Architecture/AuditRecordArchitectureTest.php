@@ -714,6 +714,68 @@ final class AuditRecordArchitectureTest extends TestCase
             );
             self::assertStringNotContainsString('observed_v1', $source, $path);
         }
+
+        $requestPath = $sourceRoot . '/Internal/Audit/Orchestration/AuditDeliveryRequest.php';
+        $requestSource = file_get_contents($requestPath);
+        self::assertIsString($requestSource);
+        $mutated = $requestSource . "\nnew AuditRecordFinalizer();\n";
+        self::assertNotEmpty(
+            $this->a2DeliveryViolations($requestPath, $mutated, $deliveryDirectory, $productTypes),
+            'an unlisted A2 product reference in an allowlisted C3 path must be rejected',
+        );
+
+        $finalizer = 'BlackOps\\Internal\\Audit\\Record\\AuditRecordFinalizer';
+        $sinkSources = [
+            "class_exists('{$finalizer}');",
+            "\\class_exists('{$finalizer}');",
+            '$one = \'' . $finalizer . '\'; interface_exists($one);',
+            '$one = \'' . $finalizer . '\'; $two = $one; enum_exists($two);',
+            "is_a('{$finalizer}', \\stdClass::class, true);",
+            '$one = \'' . $finalizer . '\'; $two = $one; is_subclass_of($two, \\stdClass::class, true);',
+        ];
+        foreach ($sinkSources as $sinkSource) {
+            self::assertSame(
+                ['AuditRecordFinalizer'],
+                $this->a2ProductReferences('<?php ' . $sinkSource, $productTypes),
+                'consumed class-string sinks must resolve A2 product targets',
+            );
+        }
+        self::assertSame(
+            ['AuditRecordFinalizer'],
+            $this->a2ProductReferences(
+                "<?php\nnamespace BlackOps\\Internal\\Audit\\Record;\nnew AuditRecordFinalizer();",
+                $productTypes,
+            ),
+            'same-namespace executable references must remain consumed',
+        );
+        self::assertSame(
+            [],
+            $this->a2ProductReferences(
+                "<?php\n\$decoy = '{$finalizer}';\nclass_exists('BlackOps\\\\Other\\\\NotAnAuditRecord');",
+                $productTypes,
+            ),
+            'unconsumed and unrelated strings must remain decoys',
+        );
+        self::assertSame([], $this->a2ProductReferences(<<<'PHP'
+            <?php
+            class_exists('AuditRecordFinalizer');
+            PHP, $productTypes), 'a bare short class string is not an exact namespaced target');
+        self::assertSame([], $this->a2ProductReferences(<<<'PHP'
+            <?php
+            class_exists('Vendor\\AuditRecordFinalizer');
+            PHP, $productTypes), 'a same-basename class string from another namespace is a decoy');
+        $consumedMutation = $requestSource . <<<'PHP'
+
+            $class = 'BlackOps\\Internal\\Audit\\Record\\AuditRecordFinalizer';
+            $one = $class;
+            $two = $one;
+            class_exists($two);
+            PHP;
+        self::assertSame(
+            ['AuditRecordFinalizer'],
+            $this->a2DeliveryViolations($requestPath, $consumedMutation, $deliveryDirectory, $productTypes),
+            'an allowlisted C3 path using a consumed two-hop class string must be rejected',
+        );
     }
 
     public function testA2DeliveryTimestampExceptionIsNarrowAndMutationResistant(): void
@@ -810,16 +872,301 @@ final class AuditRecordArchitectureTest extends TestCase
         array $productTypes,
     ): array {
         $isDelivery = $path === $deliveryDirectory || str_starts_with($path, $deliveryDirectory . DIRECTORY_SEPARATOR);
+        $relative = '';
+        $marker = DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR;
+        $markerPosition = strpos($path, $marker);
+        if ($markerPosition !== false) {
+            $relative = str_replace(DIRECTORY_SEPARATOR, '/', substr($path, $markerPosition + strlen($marker)));
+        }
+        $allowed = $this->a2C3AllowedProductReferences()[$relative] ?? [];
+        $references = $this->a2ProductReferences($source, $productTypes);
         $violations = [];
-        foreach ($productTypes as $productType) {
+        foreach ($references as $productType) {
             if ($isDelivery && $productType === 'AuditRecordTime') {
                 continue;
             }
-            if (str_contains($source, $productType)) {
+            if (!in_array($productType, $allowed, true)) {
                 $violations[] = $productType;
             }
         }
         return $violations;
+    }
+
+    /** @return array<string,list<string>> */
+    private function a2C3AllowedProductReferences(): array
+    {
+        return [
+            'Audit/AuditOpaqueIdKeyProvider.php' => [],
+            'Audit/AuditProtectionKeyProvider.php' => [],
+            'Internal/Audit/Key/ApplicationAuditProtectionKeySource.php' => [
+                'AuditPartitionIdDeriver',
+                'AuditProtectionException',
+                'AuditProtectionKeySource',
+                'AuditProtectionPurpose',
+            ],
+            'Internal/Audit/Orchestration/AuditDeliveryCoordinator.php' => [],
+            'Internal/Audit/Orchestration/AuditDeliveryException.php' => [],
+            'Internal/Audit/Orchestration/AuditDeliveryFailure.php' => [],
+            'Internal/Audit/Orchestration/AuditDeliveryPlan.php' => [],
+            'Internal/Audit/Orchestration/AuditDeliveryRequest.php' => ['AuditRecordDraft'],
+            'Internal/Audit/Orchestration/AuditDeliverySelector.php' => [
+                'AuditRecordDraft',
+                'AuditRecordValidator',
+            ],
+            'Internal/Audit/Orchestration/AuditMutationTransactionCoordinator.php' => [],
+            'Internal/Audit/Orchestration/AuditProtectedReadGate.php' => ['AuditRecordDraft'],
+            'Internal/Application/ApplicationAuditConfiguration.php' => [],
+            'Internal/Application/ApplicationAuditRuntime.php' => [],
+            'Internal/Application/ApplicationAuditRuntimeComposer.php' => [
+                'AuditAssociatedData',
+                'AuditIngressEnvelopeCodec',
+                'AuditPartitionIdDeriver',
+                'AuditProtectedBodyCodec',
+                'AuditRecordCodec',
+                'AuditRecordFinalizer',
+                'AuditRecordValidator',
+            ],
+        ];
+    }
+
+    /** @param list<string> $productTypes @return list<string> */
+    private function a2ProductReferences(string $source, array $productTypes): array
+    {
+        $code = '';
+        foreach (token_get_all($source) as $token) {
+            if (
+                is_array($token)
+                && in_array(
+                    $token[0],
+                    [T_COMMENT, T_DOC_COMMENT, T_CONSTANT_ENCAPSED_STRING, T_ENCAPSED_AND_WHITESPACE],
+                    true,
+                )
+            ) {
+                continue;
+            }
+            $code .= is_array($token) ? $token[1] : $token;
+        }
+        $references = [];
+        foreach ($productTypes as $productType) {
+            if (preg_match('/(?<![A-Za-z0-9_])' . preg_quote($productType, '/') . '(?![A-Za-z0-9_])/', $code) === 1) {
+                $references[] = $productType;
+            }
+        }
+        $references = array_merge($references, $this->consumedClassStringReferences($source, $productTypes));
+        $references = array_values(array_unique($references));
+        sort($references);
+
+        return $references;
+    }
+
+    /** @param list<string> $productTypes @return list<string> */
+    private function consumedClassStringReferences(string $source, array $productTypes): array
+    {
+        $tokens = token_get_all($source);
+        $assignments = $this->classStringAssignments($tokens);
+        $sinks = ['class_exists', 'interface_exists', 'enum_exists', 'is_a', 'is_subclass_of'];
+        $references = [];
+        foreach ($tokens as $index => $token) {
+            if (
+                !is_array($token)
+                || !in_array($token[0], [T_STRING, T_NAME_FULLY_QUALIFIED, T_NAME_QUALIFIED], true)
+                || !in_array(ltrim($token[1], '\\'), $sinks, true)
+            ) {
+                continue;
+            }
+            $opening = $this->nextSignificantToken($tokens, $index + 1);
+            if ($opening === null || $tokens[$opening] !== '(') {
+                continue;
+            }
+            $closing = $this->matchingParenthesis($tokens, $opening);
+            if ($closing === null) {
+                continue;
+            }
+            for ($argument = $opening + 1; $argument < $closing; $argument++) {
+                $value = $this->classStringValue($tokens, $argument);
+                if (is_array($value)) {
+                    $value = $this->resolveClassStringVariable($value[0], $assignments);
+                }
+                if (!is_string($value)) {
+                    continue;
+                }
+                $normalized = $this->normalizeClassString($value);
+                foreach ($this->a2ClassStringTargets() as $productType => $target) {
+                    if (in_array($productType, $productTypes, true) && $normalized === $target) {
+                        $references[] = $productType;
+                    }
+                }
+            }
+        }
+        $references = array_values(array_unique($references));
+        sort($references);
+
+        return $references;
+    }
+
+    /** @return array<string,class-string> */
+    private function a2ClassStringTargets(): array
+    {
+        $targets = [];
+        foreach ([
+            'AuditAttemptKind',
+            'AuditSourceRuntime',
+            'AuditRecordAttempt',
+            'AuditRecordEvent',
+            'AuditRecordAction',
+            'AuditRecordActor',
+            'AuditRecordResource',
+            'AuditRecordOutcome',
+            'AuditRecordPolicy',
+            'AuditRecordSource',
+            'AuditRecordCorrelation',
+            'AuditRecordEvidence',
+            'AuditRecordTime',
+            'AuditRecordDraft',
+            'AuditProjectionFailure',
+            'AuditProjectionException',
+        ] as $type) {
+            $targets[$type] = 'BlackOps\\Core\\Audit\\' . $type;
+        }
+        foreach ([
+            'AuditLogicalRecord',
+            'ValidatedAuditLogicalRecord',
+            'AuditRecordValidator',
+            'AuditRecordFinalizer',
+            'AuditRecordCodec',
+            'AuditLogicalRecordCandidate',
+            'CanonicalAuditLogicalRecord',
+            'AuditRecordStamp',
+            'AuditPartitionIdDeriver',
+            'AuditChainPosition',
+            'AuditRecordIntegrity',
+            'CompleteAuditRecord',
+        ] as $type) {
+            $targets[$type] = 'BlackOps\\Internal\\Audit\\Record\\' . $type;
+        }
+        foreach (['AuditProjectionByteGuard', 'ObservedAuditRecordProjector'] as $type) {
+            $targets[$type] = 'BlackOps\\Internal\\Audit\\Projection\\' . $type;
+        }
+        foreach ([
+            'AuditProtectionPurpose',
+            'AuditProtectionKeySource',
+            'AuditProtectionFailure',
+            'AuditProtectionException',
+            'AuditAssociatedData',
+            'AuditStoredRecord',
+            'AuditIngressEnvelope',
+            'AuditIngressEnvelopeCodec',
+            'AuditProtectedIngress',
+            'AuditProtectedBodyCodec',
+        ] as $type) {
+            $targets[$type] = 'BlackOps\\Internal\\Audit\\Protection\\' . $type;
+        }
+
+        return $targets;
+    }
+
+    /** @param list<array{0:int,1:string,2:int}|string> $tokens @return array<string,string|array{0:string}|null> */
+    private function classStringAssignments(array $tokens): array
+    {
+        $assignments = [];
+        foreach ($tokens as $index => $token) {
+            if (!is_array($token) || $token[0] !== T_VARIABLE) {
+                continue;
+            }
+            $equals = $this->nextSignificantToken($tokens, $index + 1);
+            if ($equals === null || $tokens[$equals] !== '=') {
+                continue;
+            }
+            $valueIndex = $this->nextSignificantToken($tokens, $equals + 1);
+            if ($valueIndex === null) {
+                continue;
+            }
+            $assignments[$token[1]] = $this->classStringValue($tokens, $valueIndex);
+        }
+
+        return $assignments;
+    }
+
+    /** @param list<array{0:int,1:string,2:int}|string> $tokens @return string|array{0:string}|null */
+    private function classStringValue(array $tokens, int $index): string|array|null
+    {
+        $token = $tokens[$index] ?? null;
+        if (!is_array($token)) {
+            return null;
+        }
+        if ($token[0] === T_VARIABLE) {
+            return [$token[1]];
+        }
+        if ($token[0] === T_CONSTANT_ENCAPSED_STRING) {
+            return $this->decodeClassStringLiteral($token[1]);
+        }
+        if ($token[0] === T_START_HEREDOC || defined('T_START_NOWDOC') && $token[0] === T_START_NOWDOC) {
+            $value = '';
+            for ($index++; $index < count($tokens); $index++) {
+                $part = $tokens[$index];
+                if (
+                    is_array($part)
+                    && ($part[0] === T_END_HEREDOC || defined('T_END_NOWDOC') && $part[0] === T_END_NOWDOC)
+                ) {
+                    break;
+                }
+                if (is_array($part) && $part[0] === T_ENCAPSED_AND_WHITESPACE) {
+                    $value .= $part[1];
+                }
+            }
+
+            return trim($value);
+        }
+
+        return null;
+    }
+
+    private function decodeClassStringLiteral(string $literal): string
+    {
+        $quote = $literal[0] ?? '';
+        $value = substr($literal, 1, -1);
+        if ($quote === "'") {
+            return str_replace(['\\\\', "\\'"], ['\\', "'"], $value);
+        }
+
+        return str_replace(['\\\\', '\\"'], ['\\', '"'], $value);
+    }
+
+    /** @param array<string,string|array{0:string}|null> $assignments */
+    private function resolveClassStringVariable(string $variable, array $assignments, int $depth = 0): ?string
+    {
+        if ($depth > 2 || !array_key_exists($variable, $assignments)) {
+            return null;
+        }
+        $value = $assignments[$variable];
+        if (is_array($value)) {
+            return $this->resolveClassStringVariable($value[0], $assignments, $depth + 1);
+        }
+
+        return is_string($value) ? $value : null;
+    }
+
+    private function normalizeClassString(string $value): string
+    {
+        return trim($value, " \t\r\n\0\x0B\\");
+    }
+
+    /** @param list<array{0:int,1:string,2:int}|string> $tokens */
+    private function matchingParenthesis(array $tokens, int $opening): ?int
+    {
+        $depth = 0;
+        for ($index = $opening, $count = count($tokens); $index < $count; $index++) {
+            if ($tokens[$index] === '(') {
+                $depth++;
+            } elseif ($tokens[$index] === ')') {
+                $depth--;
+                if ($depth === 0) {
+                    return $index;
+                }
+            }
+        }
+
+        return null;
     }
 
     /** @return array<string,array<string,int>> */

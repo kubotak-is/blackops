@@ -351,6 +351,72 @@ final class AuditOutboxStateArchitectureTest extends TestCase
             'Outside/Caller.php' => '<?php use BlackOps\\Internal\\Audit\\Delivery\\AuditOutboxState; new AuditOutboxState();',
         ]);
         self::assertSame(['Outside/Caller.php'], $mutated);
+        $allowedMutation = [
+            'Internal/Application/ApplicationAuditConfiguration.php' => <<<'PHP'
+                <?php
+                namespace BlackOps\Internal\Application;
+                use BlackOps\Internal\Audit\Delivery\AuditOutboxConfiguration;
+                new AuditOutboxConfiguration();
+                new \BlackOps\Internal\Audit\Delivery\AuditOutboxState();
+                PHP,
+        ];
+        self::assertSame(
+            ['Internal/Application/ApplicationAuditConfiguration.php'],
+            $this->outsideCallerPathsFromSources($allowedMutation),
+            'an allowlisted application caller may reference only its exact state target map',
+        );
+
+        $stateTarget = 'BlackOps\\Internal\\Audit\\Delivery\\AuditOutboxState';
+        $sinkSources = [
+            "class_exists('{$stateTarget}');",
+            "\\class_exists('{$stateTarget}');",
+            '$one = \'' . $stateTarget . '\'; interface_exists($one);',
+            '$one = \'' . $stateTarget . '\'; $two = $one; enum_exists($two);',
+            "is_a('{$stateTarget}', \\stdClass::class, true);",
+            '$one = \'' . $stateTarget . '\'; $two = $one; is_subclass_of($two, \\stdClass::class, true);',
+        ];
+        foreach ($sinkSources as $sinkSource) {
+            self::assertSame(
+                [$stateTarget],
+                $this->stateReferences('<?php ' . $sinkSource),
+                'consumed class-string sinks must resolve the target',
+            );
+        }
+        self::assertSame(
+            [$stateTarget],
+            $this->stateReferences("<?php\nnamespace BlackOps\\Internal\\Audit\\Delivery;\nnew AuditOutboxState();"),
+            'same-namespace executable references must remain consumed',
+        );
+        self::assertSame(
+            [],
+            $this->stateReferences(
+                "<?php\n\$decoy = '{$stateTarget}';\nclass_exists('BlackOps\\\\Other\\\\NotAnOutboxState');",
+            ),
+            'unconsumed and unrelated strings must remain decoys',
+        );
+        self::assertSame([], $this->stateReferences(<<<'PHP'
+            <?php
+            class_exists('AuditOutboxState');
+            PHP), 'a bare short class string is not an exact namespaced target');
+        self::assertSame([], $this->stateReferences(<<<'PHP'
+            <?php
+            class_exists('BlackOps\\Other\\AuditOutboxState');
+            PHP), 'a same-basename class string from another namespace is a decoy');
+        self::assertSame(
+            ['Internal/Application/ApplicationAuditConfiguration.php'],
+            $this->outsideCallerPathsFromSources([
+                'Internal/Application/ApplicationAuditConfiguration.php' => <<<'PHP'
+                    <?php
+                    namespace BlackOps\Internal\Application;
+                    use BlackOps\Internal\Audit\Delivery\AuditOutboxConfiguration;
+                    $class = 'BlackOps\\Internal\\Audit\\Delivery\\AuditOutboxState';
+                    $one = $class;
+                    $two = $one;
+                    class_exists($two);
+                    PHP,
+            ]),
+            'an allowlisted caller using a consumed two-hop class string must be rejected',
+        );
 
         $stateSource = file_get_contents($sourceRoot . '/src/Internal/Audit/Delivery/AuditOutboxState.php');
         self::assertIsString($stateSource);
@@ -587,13 +653,13 @@ final class AuditOutboxStateArchitectureTest extends TestCase
     /** @param array<string,string> $sources */
     private function outsideCallerPathsFromSources(array $sources): array
     {
-        $names = [
-            'BlackOps\\Internal\\Audit\\Delivery\\AuditOutboxConfiguration',
-            'BlackOps\\Internal\\Audit\\Delivery\\AuditOutboxException',
-            'BlackOps\\Internal\\Audit\\Delivery\\AuditOutboxFailure',
-            'BlackOps\\Internal\\Audit\\Delivery\\AuditOutboxState',
-            'BlackOps\\Internal\\Audit\\Delivery\\AuditOutboxStateSnapshot',
-            'BlackOps\\Internal\\Audit\\Delivery\\AuditOutboxTransition',
+        $allowed = [
+            'Internal/Application/ApplicationAuditConfiguration.php' => [
+                'BlackOps\\Internal\\Audit\\Delivery\\AuditOutboxConfiguration',
+            ],
+            'Internal/Application/ApplicationAuditRuntime.php' => [
+                'BlackOps\\Internal\\Audit\\Delivery\\AuditOutboxConfiguration',
+            ],
         ];
         $paths = [];
         foreach ($sources as $relative => $source) {
@@ -602,15 +668,225 @@ final class AuditOutboxStateArchitectureTest extends TestCase
             ) {
                 continue;
             }
-            foreach ($names as $name) {
-                if (str_contains($source, $name)) {
+            $actual = $this->stateReferences($source);
+            if (array_key_exists($relative, $allowed)) {
+                if ($actual !== $allowed[$relative]) {
                     $paths[] = $relative;
-                    break;
                 }
+                continue;
+            }
+            if ($actual !== []) {
+                $paths[] = $relative;
             }
         }
         sort($paths);
         return $paths;
+    }
+
+    /** @return list<string> */
+    private function stateReferences(string $source): array
+    {
+        $targets = [
+            'BlackOps\\Internal\\Audit\\Delivery\\AuditOutboxConfiguration',
+            'BlackOps\\Internal\\Audit\\Delivery\\AuditOutboxException',
+            'BlackOps\\Internal\\Audit\\Delivery\\AuditOutboxFailure',
+            'BlackOps\\Internal\\Audit\\Delivery\\AuditOutboxState',
+            'BlackOps\\Internal\\Audit\\Delivery\\AuditOutboxStateSnapshot',
+            'BlackOps\\Internal\\Audit\\Delivery\\AuditOutboxTransition',
+        ];
+        $code = '';
+        foreach (token_get_all($source) as $token) {
+            if (
+                is_array($token)
+                && in_array(
+                    $token[0],
+                    [T_COMMENT, T_DOC_COMMENT, T_CONSTANT_ENCAPSED_STRING, T_ENCAPSED_AND_WHITESPACE],
+                    true,
+                )
+            ) {
+                continue;
+            }
+            $code .= is_array($token) ? $token[1] : $token;
+        }
+        $references = [];
+        foreach ($targets as $target) {
+            $short = substr($target, strrpos($target, '\\') + 1);
+            if (
+                preg_match('/(?<![A-Za-z0-9_])' . preg_quote($target, '/') . '(?![A-Za-z0-9_])/', $code) === 1
+                || preg_match('/(?<![A-Za-z0-9_])' . preg_quote($short, '/') . '(?![A-Za-z0-9_])/', $code) === 1
+            ) {
+                $references[] = $target;
+            }
+        }
+        $references = array_merge($references, $this->consumedClassStringReferences($source, $targets));
+        $references = array_values(array_unique($references));
+        sort($references);
+
+        return $references;
+    }
+
+    /** @param list<string> $targets @return list<string> */
+    private function consumedClassStringReferences(string $source, array $targets): array
+    {
+        $tokens = token_get_all($source);
+        $assignments = $this->classStringAssignments($tokens);
+        $sinks = ['class_exists', 'interface_exists', 'enum_exists', 'is_a', 'is_subclass_of'];
+        $references = [];
+        foreach ($tokens as $index => $token) {
+            if (
+                !is_array($token)
+                || !in_array($token[0], [T_STRING, T_NAME_FULLY_QUALIFIED, T_NAME_QUALIFIED], true)
+                || !in_array(ltrim($token[1], '\\'), $sinks, true)
+            ) {
+                continue;
+            }
+            $opening = $this->nextCodeToken($tokens, $index + 1);
+            if ($opening === null || $tokens[$opening] !== '(') {
+                continue;
+            }
+            $closing = $this->matchingParenthesis($tokens, $opening);
+            if ($closing === null) {
+                continue;
+            }
+            for ($argument = $opening + 1; $argument < $closing; $argument++) {
+                $value = $this->classStringValue($tokens, $argument);
+                if (is_array($value)) {
+                    $value = $this->resolveClassStringVariable($value[0], $assignments);
+                }
+                if (!is_string($value)) {
+                    continue;
+                }
+                $normalized = $this->normalizeClassString($value);
+                foreach ($targets as $target) {
+                    if ($normalized === $target) {
+                        $references[] = $target;
+                    }
+                }
+            }
+        }
+        $references = array_values(array_unique($references));
+        sort($references);
+
+        return $references;
+    }
+
+    /** @param list<array{0:int,1:string,2:int}|string> $tokens @return array<string,string|array{0:string}|null> */
+    private function classStringAssignments(array $tokens): array
+    {
+        $assignments = [];
+        foreach ($tokens as $index => $token) {
+            if (!is_array($token) || $token[0] !== T_VARIABLE) {
+                continue;
+            }
+            $equals = $this->nextCodeToken($tokens, $index + 1);
+            if ($equals === null || $tokens[$equals] !== '=') {
+                continue;
+            }
+            $valueIndex = $this->nextCodeToken($tokens, $equals + 1);
+            if ($valueIndex === null) {
+                continue;
+            }
+            $value = $this->classStringValue($tokens, $valueIndex);
+            $assignments[$token[1]] = $value;
+        }
+
+        return $assignments;
+    }
+
+    /** @param list<array{0:int,1:string,2:int}|string> $tokens @return string|array{0:string}|null */
+    private function classStringValue(array $tokens, int $index): string|array|null
+    {
+        $token = $tokens[$index] ?? null;
+        if (!is_array($token)) {
+            return null;
+        }
+        if ($token[0] === T_VARIABLE) {
+            return [$token[1]];
+        }
+        if ($token[0] === T_CONSTANT_ENCAPSED_STRING) {
+            return $this->decodeClassStringLiteral($token[1]);
+        }
+        if ($token[0] === T_START_HEREDOC || defined('T_START_NOWDOC') && $token[0] === T_START_NOWDOC) {
+            $value = '';
+            for ($index++; $index < count($tokens); $index++) {
+                $part = $tokens[$index];
+                if (
+                    is_array($part)
+                    && ($part[0] === T_END_HEREDOC || defined('T_END_NOWDOC') && $part[0] === T_END_NOWDOC)
+                ) {
+                    break;
+                }
+                if (is_array($part) && $part[0] === T_ENCAPSED_AND_WHITESPACE) {
+                    $value .= $part[1];
+                }
+            }
+
+            return trim($value);
+        }
+
+        return null;
+    }
+
+    private function decodeClassStringLiteral(string $literal): string
+    {
+        $quote = $literal[0] ?? '';
+        $value = substr($literal, 1, -1);
+        if ($quote === "'") {
+            return str_replace(['\\\\', "\\'"], ['\\', "'"], $value);
+        }
+
+        return str_replace(['\\\\', '\\"'], ['\\', '"'], $value);
+    }
+
+    /** @param array<string,string|array{0:string}|null> $assignments */
+    private function resolveClassStringVariable(string $variable, array $assignments, int $depth = 0): ?string
+    {
+        if ($depth > 2 || !array_key_exists($variable, $assignments)) {
+            return null;
+        }
+        $value = $assignments[$variable];
+        if (is_array($value)) {
+            return $this->resolveClassStringVariable($value[0], $assignments, $depth + 1);
+        }
+
+        return is_string($value) ? $value : null;
+    }
+
+    private function normalizeClassString(string $value): string
+    {
+        return trim($value, " \t\r\n\0\x0B\\");
+    }
+
+    /** @param list<array{0:int,1:string,2:int}|string> $tokens */
+    private function matchingParenthesis(array $tokens, int $opening): ?int
+    {
+        $depth = 0;
+        for ($index = $opening, $count = count($tokens); $index < $count; $index++) {
+            if ($tokens[$index] === '(') {
+                $depth++;
+            } elseif ($tokens[$index] === ')') {
+                $depth--;
+                if ($depth === 0) {
+                    return $index;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /** @param list<array{0:int,1:string,2:int}|string> $tokens */
+    private function nextCodeToken(array $tokens, int $start): ?int
+    {
+        for ($index = $start, $count = count($tokens); $index < $count; $index++) {
+            $token = $tokens[$index];
+            if (is_array($token) && in_array($token[0], [T_WHITESPACE, T_COMMENT, T_DOC_COMMENT], true)) {
+                continue;
+            }
+            return $index;
+        }
+
+        return null;
     }
 
     /** @return array<string,string> */

@@ -211,6 +211,47 @@ final class AuditOpaqueIdDeriverTest extends TestCase
         }
     }
 
+    public function testValidatedRawKeyStaysOpaqueAcrossDeriverRepresentationsAndFailureTrace(): void
+    {
+        $rawKey = str_pad('opaque-raw-key-canary-9f3b7a1c', 32, 'x');
+        self::assertSame(32, strlen($rawKey));
+        $deriver = new HmacAuditOpaqueIdDeriver($rawKey);
+
+        $property = new \ReflectionClass($deriver)->getProperty('key');
+        self::assertTrue($property->isPrivate());
+        self::assertTrue($property->isReadOnly());
+        self::assertSame('SensitiveParameterValue', $property->getType()?->getName());
+
+        $surfaces = [
+            var_export($deriver, true),
+            print_r($deriver, true),
+            (string) json_encode($deriver, JSON_THROW_ON_ERROR),
+            var_export($deriver->__debugInfo(), true),
+            var_export($deriver->__serialize(), true),
+        ];
+        try {
+            $surfaces[] = serialize($deriver);
+        } catch (\Throwable $serializationFailure) {
+            $surfaces[] = $serializationFailure->getMessage();
+            $surfaces[] = $serializationFailure->getTraceAsString();
+            self::assertNull($serializationFailure->getPrevious());
+        }
+
+        try {
+            new HmacAuditOpaqueIdDeriver($rawKey . 'x');
+            self::fail('invalid key length was accepted');
+        } catch (AuditValidationException $failure) {
+            $surfaces[] = $failure->getMessage();
+            $surfaces[] = $failure->getTraceAsString();
+            $surfaces[] = (string) $failure;
+            self::assertNull($failure->getPrevious());
+        }
+
+        foreach ($surfaces as $surface) {
+            self::assertStringNotContainsString($rawKey, $surface);
+        }
+    }
+
     public function testOpaquePurposeInventoryIsClosed(): void
     {
         self::assertSame(

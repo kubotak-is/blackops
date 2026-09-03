@@ -498,6 +498,20 @@ final class AuditStoreArchitectureTest extends TestCase
         $storagePrefix = $this->relativeSourcePath($sourceRoot, $storageRoot) . '/';
         self::assertSame([], $this->b2AwareIndirectInvocationViolationsFromSources($sources, $storagePrefix));
 
+        $allowedMutation = $sources;
+        $allowedMutation['Internal/Application/ApplicationAuditRuntimeComposer.php'] .= <<<'PHP'
+
+            new \BlackOps\Internal\Audit\Storage\AuditStoreException();
+            PHP;
+        self::assertNotEmpty(
+            $this->b2AwareIndirectInvocationViolationsFromSources($allowedMutation, $storagePrefix),
+            'an allowlisted application caller must use only its exact storage target map',
+        );
+        self::assertNotEmpty(
+            $this->outsideStorageReferencesFromSources($allowedMutation, $storagePrefix),
+            'an allowlisted application caller must not gain an unlisted storage target',
+        );
+
         $outsideCanary = <<<'PHP'
             <?php
 
@@ -2577,23 +2591,29 @@ final class AuditStoreArchitectureTest extends TestCase
      */
     private function b2AwareIndirectInvocationViolationsFromSources(array $sources, string $storagePrefix): array
     {
+        $allowed = $this->allowedB2StorageReferences();
         $violations = [];
         foreach ($sources as $path => $source) {
             $codeReferences = $this->b2StorageCodeReferences($source);
             $classStringReferences = $this->b2StorageClassStringReferences($source);
             $outsideStorage = !str_starts_with($path, $storagePrefix);
+            $actual = array_values(array_unique(array_merge($codeReferences, $classStringReferences)));
+            sort($actual);
             if ($outsideStorage && $codeReferences === [] && $classStringReferences === []) {
                 continue;
             }
 
             $fileViolations = $this->indirectInvocationViolations($source);
-            if ($outsideStorage) {
+            if ($outsideStorage && !array_key_exists($path, $allowed)) {
                 foreach ($codeReferences as $type) {
                     $fileViolations[] = 'outside-reference:' . $type;
                 }
                 foreach ($classStringReferences as $type) {
                     $fileViolations[] = 'class-string:' . $type;
                 }
+            }
+            if (array_key_exists($path, $allowed) && $actual !== $allowed[$path]) {
+                $fileViolations[] = 'allowlist-mismatch';
             }
             sort($fileViolations);
             $fileViolations = array_values(array_unique($fileViolations));
@@ -2604,6 +2624,26 @@ final class AuditStoreArchitectureTest extends TestCase
         ksort($violations);
 
         return $violations;
+    }
+
+    /** @return array<string,list<string>> */
+    private function allowedB2StorageReferences(): array
+    {
+        return [
+            'Internal/Application/ApplicationAuditRuntime.php' => [
+                'PostgreSqlAuditRecordStore',
+            ],
+            'Internal/Application/ApplicationAuditRuntimeComposer.php' => [
+                'PostgreSqlAuditRecordStore',
+                'PostgreSqlAuditSchema',
+                'PostgreSqlAuditStoredRecordHydrator',
+            ],
+            'Internal/Audit/Orchestration/AuditDeliveryCoordinator.php' => [
+                'AuditStoreException',
+                'AuditStoreFailure',
+                'PostgreSqlAuditRecordStore',
+            ],
+        ];
     }
 
     /** @return list<string> */
@@ -3322,16 +3362,24 @@ final class AuditStoreArchitectureTest extends TestCase
      */
     private function outsideStorageReferencesFromSources(array $sources, string $storagePrefix): array
     {
+        $allowed = $this->allowedB2StorageReferences();
         $references = [];
         foreach ($sources as $path => $source) {
             if (str_starts_with($path, $storagePrefix)) {
                 continue;
             }
-            $types = array_merge(
+            $actual = array_values(array_unique(array_merge(
                 $this->b2StorageCodeReferences($source),
                 $this->b2StorageClassStringReferences($source),
-            );
-            foreach (array_values(array_unique($types)) as $type) {
+            )));
+            sort($actual);
+            if (array_key_exists($path, $allowed)) {
+                if ($actual !== $allowed[$path]) {
+                    $references[] = $path . ':allowlist';
+                }
+                continue;
+            }
+            foreach ($actual as $type) {
                 $references[] = $path . ':' . $type;
             }
         }

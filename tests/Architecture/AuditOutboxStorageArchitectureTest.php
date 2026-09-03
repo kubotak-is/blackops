@@ -53,11 +53,13 @@ final class AuditOutboxStorageArchitectureTest extends TestCase
         self::assertSame($expected, $this->inventory($root));
 
         $fixtureRoot = sys_get_temp_dir() . '/blackops-audit-outbox-' . bin2hex(random_bytes(6));
-        self::assertTrue(mkdir($fixtureRoot . '/src/Internal/Audit/Outbox', 0700, true));
+        $outboxDirectory = $fixtureRoot . '/src/Internal/Audit/Outbox';
+        self::assertTrue(is_dir($outboxDirectory) || mkdir($outboxDirectory, 0700, true));
         try {
             foreach (array_keys($expected) as $relative) {
                 $target = $fixtureRoot . '/' . $relative;
-                self::assertTrue(mkdir(dirname($target), 0700, true) || is_dir(dirname($target)));
+                $targetDirectory = dirname($target);
+                self::assertTrue(is_dir($targetDirectory) || mkdir($targetDirectory, 0700, true));
                 self::assertTrue(copy($root . '/' . $relative, $target));
             }
             $extra = $fixtureRoot . '/src/Internal/Audit/Outbox/Nested/Extra.php';
@@ -651,6 +653,15 @@ final class AuditOutboxStorageArchitectureTest extends TestCase
             $class = $raw;
             new \ReflectionClass($class);
             PHP;
+        $sources['Internal/Other/NowdocClassStringCaller.php'] = <<<'PHP'
+            <?php
+            $raw = <<<'OUTBOX_CLASS'
+            BlackOps\Internal\Audit\Outbox\AuditOutboxRecord
+            OUTBOX_CLASS;
+            $first = $raw;
+            $second = $first;
+            \class_exists($second);
+            PHP;
         self::assertSame(
             [
                 'Internal/Other/AliasCaller.php',
@@ -659,10 +670,20 @@ final class AuditOutboxStorageArchitectureTest extends TestCase
                 'Internal/Other/FullyQualifiedCaller.php',
                 'Internal/Other/GroupedCaller.php',
                 'Internal/Other/LiteralClassStringCaller.php',
+                'Internal/Other/NowdocClassStringCaller.php',
                 'Internal/Other/ReflectionClassStringCaller.php',
                 'Internal/Other/VariableClassStringCaller.php',
             ],
             $this->outsideReferences($sources),
+        );
+
+        $allowedComposer = $sources['Internal/Application/ApplicationAuditRuntimeComposer.php'];
+        $sources['Internal/Application/ApplicationAuditRuntimeComposer.php'] =
+            $allowedComposer . "\nnew \\BlackOps\\Internal\\Audit\\Outbox\\AuditOutboxRecord();\n";
+        self::assertContains(
+            'Internal/Application/ApplicationAuditRuntimeComposer.php',
+            $this->outsideReferences($sources),
+            'an unlisted outbox target in an allowlisted caller must be rejected',
         );
 
         $store = $sources['Internal/Audit/Outbox/PostgreSqlAuditOutboxStore.php'];
@@ -1218,18 +1239,63 @@ final class AuditOutboxStorageArchitectureTest extends TestCase
     /** @param array<string,string> $sources @return list<string> */
     private function outsideReferences(array $sources): array
     {
+        $allowed = $this->allowedOutboxReferences();
         $paths = [];
         foreach ($sources as $path => $source) {
             if (str_contains($path, 'Internal/Audit/Outbox/')) {
                 continue;
             }
-            if ($this->referencesOutbox($source)) {
+            $actual = $this->outboxReferences($source);
+            if (array_key_exists($path, $allowed)) {
+                if ($actual !== $allowed[$path]) {
+                    $paths[] = $path;
+                }
+                continue;
+            }
+            if ($actual !== []) {
                 $paths[] = $path;
             }
         }
         sort($paths);
 
         return $paths;
+    }
+
+    /** @return array<string,list<string>> */
+    private function allowedOutboxReferences(): array
+    {
+        return [
+            'Internal/Application/ApplicationAuditRuntime.php' => [
+                'BlackOps\\Internal\\Audit\\Outbox\\PostgreSqlAuditOutboxStore',
+            ],
+            'Internal/Application/ApplicationAuditRuntimeComposer.php' => [
+                'BlackOps\\Internal\\Audit\\Outbox\\AuditOutboxIdempotencyKeyHasher',
+                'BlackOps\\Internal\\Audit\\Outbox\\PostgreSqlAuditOutboxRecordHydrator',
+                'BlackOps\\Internal\\Audit\\Outbox\\PostgreSqlAuditOutboxSchema',
+                'BlackOps\\Internal\\Audit\\Outbox\\PostgreSqlAuditOutboxStore',
+                'BlackOps\\Internal\\Audit\\Outbox\\PostgreSqlAuditProtectedIngressHydrator',
+            ],
+            'Internal/Audit/Orchestration/AuditDeliveryCoordinator.php' => [
+                'BlackOps\\Internal\\Audit\\Outbox\\AuditOutboxStoreException',
+                'BlackOps\\Internal\\Audit\\Outbox\\AuditOutboxStoreFailure',
+                'BlackOps\\Internal\\Audit\\Outbox\\PostgreSqlAuditOutboxStore',
+            ],
+        ];
+    }
+
+    /** @return list<string> */
+    private function outboxReferences(string $source): array
+    {
+        $references = [];
+        foreach ($this->classReferences($this->parsePhp($source)) as $reference) {
+            if ($this->isOutboxName($reference)) {
+                $references[] = trim($reference, '\\');
+            }
+        }
+        $references = array_values(array_unique($references));
+        sort($references);
+
+        return $references;
     }
 
     private function withoutComments(string $source): string
@@ -1591,9 +1657,9 @@ final class AuditOutboxStorageArchitectureTest extends TestCase
                 if ($value === null || !is_array($tokens[$value])) {
                     continue;
                 }
-                if ($tokens[$value][0] === T_CONSTANT_ENCAPSED_STRING) {
-                    $literal = substr($tokens[$value][1], 1, -1);
-                    $classStringVariables[$token[1]] = str_replace('\\\\', '\\', $literal);
+                $literal = $this->classStringLiteral($tokens, $value);
+                if ($literal !== null) {
+                    $classStringVariables[$token[1]] = $literal;
                 } elseif ($tokens[$value][0] === T_VARIABLE) {
                     $classStringAliases[$token[1]] = $tokens[$value][1];
                 }
@@ -1611,9 +1677,11 @@ final class AuditOutboxStorageArchitectureTest extends TestCase
         } while ($changed);
 
         foreach ($tokens as $index => $token) {
-            if (is_array($token) && $token[0] === T_CONSTANT_ENCAPSED_STRING) {
-                $literal = substr($token[1], 1, -1);
-                $literal = str_replace('\\\\', '\\', $literal);
+            if (is_array($token) && in_array($token[0], [T_CONSTANT_ENCAPSED_STRING, T_START_HEREDOC], true)) {
+                $literal = $this->classStringLiteral($tokens, $index);
+                if ($literal === null) {
+                    continue;
+                }
                 $previous = $this->previousSignificantToken($tokens, $index - 1);
                 if ($previous !== null && $tokens[$previous] === '(') {
                     $call = $this->previousSignificantToken($tokens, $previous - 1);
@@ -1671,6 +1739,30 @@ final class AuditOutboxStorageArchitectureTest extends TestCase
         ), $references)));
 
         return $references;
+    }
+
+    /** @param list<array{0:int,1:string,2:int}|string> $tokens */
+    private function classStringLiteral(array $tokens, int $index): ?string
+    {
+        if (!is_array($tokens[$index] ?? null)) {
+            return null;
+        }
+        if ($tokens[$index][0] === T_CONSTANT_ENCAPSED_STRING) {
+            return str_replace('\\\\', '\\', substr($tokens[$index][1], 1, -1));
+        }
+        if ($tokens[$index][0] !== T_START_HEREDOC) {
+            return null;
+        }
+        $value = '';
+        for ($cursor = $index + 1; $cursor < count($tokens); $cursor++) {
+            if (is_array($tokens[$cursor]) && $tokens[$cursor][0] === T_END_HEREDOC) {
+                break;
+            }
+            $value .= is_array($tokens[$cursor]) ? $tokens[$cursor][1] : $tokens[$cursor];
+        }
+        $value = trim($value);
+
+        return $value === '' ? null : $value;
     }
 
     /** @param list<array{0:int,1:string,2:int}|string> $tokens */
