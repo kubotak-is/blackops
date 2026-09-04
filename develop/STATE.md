@@ -1,8 +1,86 @@
 # Orchestration State
 
-Status: P23-003D1 Authority Packet Committed — fresh clean-freeze preflight pending
+Status: P23-003D1A Accepted — bounded candidate commit pending
 
-Updated At: 2026-09-04T14:10:16+09:00
+Updated At: 2026-09-05T00:23:29+09:00
+
+P23-003D1A verification checkpoint: implementation started from the supplied
+branch `agent/p23-001-blackops-1-3-feasibility` at HEAD
+`63bcaf7ac50f5db240a3b3136179f27b2ec2090b`, with staged0 and the existing
+exact14-path D1 worktree preserved. The immutable D1A Task SHA is
+`73f1e66d5b771756a4b93e9282d10226c0b5c57c7834e67afd254ba1d1e8a16d`; the
+immutable D1 Report SHA is
+`8e3772e58a586897544d165c03373d51d8ba958a7454c6d4a599ce3deeeb99f7`; and
+the target Stable Outbox Test starts at SHA
+`c6903db7345a20f848a435b0203dc111a9744aadc86e7a634331e72630643dd8`.
+Only the D1A Test, D1A Report, and this STATE checkpoint are in worker scope.
+The replacement worker changed the exact1 Test to deliver SIGALRM twice during
+the synchronous sender and record the armed timer before each delivery. The
+Orchestrator completed verification after the worker stopped responding.
+Focused repetition is Green 20/20 at `1 test / 10 assertions`; the Stable
+generic Outbox suite is Green 5/5 at `10/75`; full PHPUnit is Green at
+`3,179/1,815,415` with the existing deprecation／notice inventory. Focused
+format, forbidden-ID, diff, staged0, exact15 total status, Production
+preservation, and D1 exact10
+`cd120083d712ee6d7a5c57abbb36cf568c130ae26a9299f3316f621c6739bf43`
+are Green. The changed Test SHA is
+`64797c8b2bff2b9e7506c3b49ef6559ec83f7a0eaa41d15ff5473b2043f85f67`.
+Independent technical and Documentation／management closure reviews are Green
+`P1=0/P2=0/P3=0`. The Orchestrator accepted D1A at
+`2026-09-05T00:23:29+09:00`. Only the bounded candidate commit remains before
+D1 restarts from command 1 on a clean new prerequisite HEAD. No Production or
+D1 Product／Test byte changed.
+
+Historical P23-003D1A prerequisite-ready checkpoint: the D1 Iteration had
+stopped on
+the unchanged Stable generic Outbox heartbeat timing assertion (`10/68`, one
+failure), while the same test then passed an isolated diagnostic
+(`1/4`) without byte changes. Independent review classifies the fixed 2.2
+second／one-second-alarm／two-callback window as a non-deterministic Gate oracle,
+not a D1 Catalog regression. The bounded exact1 Test-only Task required two
+explicit SIGALRM deliveries, proof of initial arm and automatic re-arm, the
+real separate PostgreSQL heartbeat callback, 20 focused repetitions, 5 Stable
+suite repetitions, and one full PHPUnit run. Production and D1 exact10 are
+immutable. That ready checkpoint is superseded by the Green verification
+checkpoint above. Current sequence is independent closure review, Acceptance,
+bounded commit, then D1 restart from command 1. No push or package export is
+authorized.
+
+P23-003D1 current correction checkpoint: the orchestrator-accepted start
+freeze remains branch `agent/p23-001-blackops-1-3-feasibility` at HEAD
+`63bcaf7ac50f5db240a3b3136179f27b2ec2090b`; status is exact12 and staged0.
+Accepted C `d5ab3476181058c5fb87b7c2c9476b6db76fef2e` remains an ancestor, and
+immutable exact12 ordered aggregate remains
+`6615f88b7a8fd41bb102dfe2af0693ca2393d61cd1c77e381e40e4b46d2043d4`.
+The exact10 Product／Test ordered aggregate is
+`cd120083d712ee6d7a5c57abbb36cf568c130ae26a9299f3316f621c6739bf43`.
+The final Report／STATE self-hashes and ordered worker exact12 aggregate are
+returned separately at handoff because embedding a self-hash changes the
+corresponding Report or STATE bytes.
+No out-of-scope path moved. D1 scanner corrections reject target-derived
+dynamic class-string receivers and constructions, dynamic concatenation
+lookups, provider executable resource/function calls, top-level declarations,
+and non-exact `declare` headers; lookup tests reject serialized/reflected
+same-byte clones and unknown Framework identities. The latest bounded
+Architecture correction additionally resolves provider-local `self::catalog()`
+and `static::catalog()` as extra provider references while leaving current
+`self::event()`／`self::$instance` reference-free. The follow-up compound
+correction also records parenthesized self/static calls and excludes Core enum
+`::class` tokens from declaration ranges, closing the combined bypass.
+Focused format, one exact rule test `1/328`, and the full Architecture file
+`16/25,293` are current Green. A fresh replacement Iteration on exact10
+`cd120083...f43` passed scoped format, focused PHPUnit `58/26,754`, both Node
+goldens, Deptrac `1,037/0/0/0/6,411/0/0`, version baseline, package exact76/30,
+and both shell syntax checks. It then stopped at the unchanged Stable generic
+Outbox heartbeat test with `10/68`: expected at least two heartbeats and
+observed one. The remaining postguards were not run. The unchanged test then
+passed one isolated diagnostic at `1/4`, matching its recorded timing
+instability. The stopped run and diagnostic remain separate evidence; neither
+is reused. The Orchestrator changes no Stable bytes and restarts the complete
+Iteration at command 1. The prior full replacement Iteration (`58/26,730`,
+Stable Outbox `10/69`, and all postguards) is Historical/invalidated after the
+compound Test edit. Final, Acceptance, commit, export, and push remain Not
+Run/Not Verified.
 
 P23-003C1 through P23-003C4 and parent P23-003C are Accepted. The final C
 candidate is committed at
