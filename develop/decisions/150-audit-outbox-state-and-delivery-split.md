@@ -1,13 +1,16 @@
 # D150: Audit Outbox State and Delivery Split
 
-Status: Proposed — P23-003C1／C2／C3 Accepted; P23-003C4 authority committed／fresh preflight pending; BlackOps 1.3 unreleased
+Status: Accepted — P23-003C1 through C4 and parent P23-003C Accepted; BlackOps 1.3 unreleased
 
-Updated At: 2026-09-04T01:53:16+09:00
+Updated At: 2026-09-04T13:57:41+09:00
 
 ## Current Handoff
 
 P23-003B1／B2 and parent P23-003B are Accepted.
-P23-003C remains split into serial C1→C2→C3→C4 packets.
+P23-003C1 through P23-003C4 and parent P23-003C are Accepted.
+The final C candidate is committed at
+`d5ab3476181058c5fb87b7c2c9476b6db76fef2e`; its clean same-SHA
+Git／Composer package export is Green. No push was performed.
 
 P23-003C1 is Accepted at committed candidate
 `bc12a67210d9cb132cf3246f96b00d79fb519656`, with clean same-SHA package
@@ -25,13 +28,13 @@ It owns Catalog-fixed delivery selection, same-Framework-Connection mutation
 orchestration, protected Operation-read release gating, and Application-facing
 opaque／Audit-protection key composition. Its composer remains uncalled.
 
-P23-003C4 is the final serial child. D153 is its most-specific authority.
-It owns bounded `recoverOne()`／`relayOne()` seams, three Store-owned relay
-transactions, protected-ingress canonicalization, sender／settlement failure
-precedence, crash recovery, and poison FIFO progress over the same C3 graph.
-It activates no current runtime.
+P23-003C4 is the Accepted final serial child. D153 is its most-specific
+authority. It owns bounded `recoverOne()`／`relayOne()` seams, three
+Store-owned relay transactions, protected-ingress canonicalization,
+sender／settlement failure precedence, crash recovery, and poison FIFO
+progress over the same C3 graph. It activates no current runtime.
 
-Parent P23-003C is not Accepted until C4 is Accepted.
+D154 and P23-003D1 are the next authority／Task boundary.
 Stable `1.2.0` remains current; BlackOps `1.3` and all Audit capabilities
 remain unreleased.
 
@@ -264,11 +267,11 @@ Accepted, and current runtime activation remains separately blocked.
 
 ## Remaining Issues
 
-- P23-003C4 relay／recovery packet preflight, implementation, gates,
-  Acceptance, and package closeout.
-- Parent P23-003C Acceptance after all four children.
+None within P23-003C1 through C4 or parent P23-003C.
+P23-003D through G, P23-004 through 006, release, and runtime activation remain
+downstream.
 
 ## Suggested Next Action
 
-From the committed clean D153／C4 management packet, obtain fresh General／
-Transaction／Documentation preflight Green before configured Luna Product work.
+Proceed to the bounded D154／P23-003D1 Framework operational Catalog packet
+without reopening Accepted C behavior.

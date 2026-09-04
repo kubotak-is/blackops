@@ -1,27 +1,25 @@
 # D153: Audit Outbox Relay and Recovery Runtime Boundary
 
-Status: Proposed — P23-003C1／C2／C3 Accepted; P23-003C4 authority committed／fresh preflight pending; BlackOps 1.3 unreleased
+Status: Accepted — P23-003C4 and parent P23-003C Accepted; BlackOps 1.3 unreleased
 
-Updated At: 2026-09-04T01:53:16+09:00
+Updated At: 2026-09-04T13:57:41+09:00
 
 ## Current Handoff
 
-P23-003C1, P23-003C2, and P23-003C3 are Accepted.
-The reviewed C3 candidate is committed at
-`b7b352a8e4c86a45822351c108772367515654bd`, and its clean same-SHA
-Git／Composer package export is Green.
-No push was performed.
+P23-003C1 through P23-003C4 and parent P23-003C are Accepted.
+The final C candidate is committed at
+`d5ab3476181058c5fb87b7c2c9476b6db76fef2e`; its clean same-SHA
+Git／Composer package export is Green. No push was performed.
 
-P23-003C4 is the final serial child of parent P23-003C.
+P23-003C4 is the Accepted final serial child of parent P23-003C.
 It owns the bounded internal relay and recovery runtime that consumes the same
 C3 PostgreSQL Connection, Audit Outbox Store, canonical Record Store, Audit
 protection codec, validator, and Outbox configuration graph.
 It does not register a command, daemon, scheduler, worker, Container service,
 HTTP route, or Application caller.
 
-Stable `1.2.0` remains current.
-BlackOps `1.3`, Audit Trail delivery, and the C4 runtime remain unreleased.
-Parent P23-003C remains incomplete until C4 is Accepted.
+Stable `1.2.0` remains current. BlackOps `1.3`, Audit Trail delivery, and the
+C4 runtime remain unreleased. D154／P23-003D1 is the next bounded authority.
 
 ## Context
 
@@ -528,7 +526,7 @@ positions that release FIFO progress.
   state, reason field, or partition halt.
 - C1／C2／C3 Production remains byte-identical except for the exact C3
   Application runtime／composer extension named here.
-- Parent P23-003C may be Accepted after C4 gates and reviews, but Audit runtime
+- Parent P23-003C is Accepted after C4 gates and reviews, but Audit runtime
   activation remains owned by later producer／registration work.
 - Push, release, deploy, publication, and browser behavior remain outside this
   Decision.

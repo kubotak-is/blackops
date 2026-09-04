@@ -1,12 +1,12 @@
 # D147: Audit Catalog and Safe Projection Boundary
 
-Status: Accepted P23-003A1／A2／parent A and P23-003B1／B2／parent B — BlackOps 1.3 unreleased
+Status: Accepted P23-003A1／A2／parent A and P23-003B1／B2／parent B — D154／P23-003D1 current; BlackOps 1.3 unreleased
 
-Updated At: 2026-08-31T23:10:13+09:00
+Updated At: 2026-09-04T14:10:16+09:00
 
-## P23-003B accepted handoff
+## P23-003D current handoff
 
-Current status: `Accepted — P23-003B1／B2 and parent P23-003B; B2 candidate commit／same-SHA package export Green`.
+Current status: `Accepted — P23-003A／B／C; D154／P23-003D1 authority packet committed／fresh preflight pending; Product work not started`.
 
 D148 is the more specific current authority for canonical logical／complete
 record bytes、trusted stamp、content／record hash、tenant partition、Audit-specific
@@ -31,7 +31,13 @@ Green `P1=0/P2=0/P3=0`. P23-003B2 and parent P23-003B are Accepted.
 No Stable `1.2` or runtime／route／CLI／public Documentation activation occurred.
 Reviewed B2 candidate `968afe2b0c4bbff86e0013592d69dc7115cf8b4f` is committed,
 and its clean exact-SHA package export is Green. No push was performed.
-P23-003C is unblocked.
+P23-003C1 through C4 and parent C are Accepted at final commit
+`d5ab3476181058c5fb87b7c2c9476b6db76fef2e`; its clean same-SHA
+Git／Composer package export is Green. D154 is the more-specific authority for
+the P23-003D DAG and the new exact14 Framework operational Catalog. It
+preserves this Decision's Accepted security／access exact30 Catalog bytes,
+hash, provider identity, and canonical validation contract. P23-003D1 Product
+work remains stopped pending clean freeze and fresh preflight.
 
 ## Context
 

@@ -1,36 +1,38 @@
 # Orchestration State
 
-Status: P23-003C4 and parent P23-003C Complete — commit/export Green
+Status: P23-003D1 Authority Packet Committed — fresh clean-freeze preflight pending
 
-Updated At: 2026-09-04T12:00:22+09:00
+Updated At: 2026-09-04T14:10:16+09:00
 
-P23-003C4 and parent P23-003C accepted at
-2026-09-04T11:04:10+09:00: fresh General, Transaction, and Documentation
-reviews are independently Green with P1/P2/P3 `0/0/0`. The reviewed
-Product/Test exact23 remains
-`0780592d2d4eaefe1c503266e3532356e0d94ff9ceff6613116d97c65997e66d`,
-the reviewed pre-Acceptance exact25 is
-`aceb709ca0a0637061471826bbddac454510caf8a90d3170517ce1147ebd6582`,
-and immutable exact12 remains
-`e4666918bd9c7324df59179b5427cf851723ccd9d986180e58b1d7cf2d3c87b4`.
-The accepted Complete Final Gate restarted at command 1 and completed without
-interruption: full format/Composer/lint/baseline/analyzer are Green; full
-PHPUnit is `3,170 tests / 1,806,825 assertions`; Deptrac is `1,036 / 0
-violations / 0 skipped / 0 uncovered / 6,341 allowed / 0 warnings / 0 errors`;
-all four Audit Node goldens, version `1.2.0/1.1.0`, exact75 package with `29`
-mutations, Community Board clean-install, Stable generic Outbox `10/69`,
-migration `13 + 5 = 18`, StoragePurpose exact9, docs/nonactivation/ID/diff,
-status exact25, staged0, and all ending hashes pass. Two earlier invocations
-were discarded after an Orchestrator-only `php -r` escaping error and a
-sandbox-only Docker socket denial; neither changed Product/Test, and the
-accepted run restarted again from command 1. The accepted exact25 candidate
-was committed as `e7176759bdd7f851b51f4a5f84e0027312e5c9c0`; its tree was
-clean/staged0 and `framework-package-export.sh` passed the Git and Composer
-package contract. This Report/STATE completion checkpoint is folded into that
-local commit once, and export is rerun from the final amended SHA before
-handoff. Next Action: begin P23-003D preflight from the clean final C commit.
-Push remains unauthorized; release/deploy/public activation/generated
-artifacts/browser remain Not Verified.
+P23-003C1 through P23-003C4 and parent P23-003C are Accepted. The final C
+candidate is committed at
+`d5ab3476181058c5fb87b7c2c9476b6db76fef2e`; the tree is clean/staged0 and
+`framework-package-export.sh` is Green for both Git and Composer archives from
+that same SHA. No push was performed.
+
+P23-003D preflight found that one cross-cutting packet was not
+implementation-unique: the Framework operational Catalog lineage,
+authentication, authorization, four protected Operation readers, existing
+retention／hold／rotation／replay／generic-Outbox transaction boundaries, and
+post-F checkpoint／anchor control events have distinct authority and failure
+surfaces. D154 now fixes the parent DAG. P23-003D1 is the first bounded child:
+it adds only the exact14 `blackops.framework.operations` Catalog, exact trusted
+two-provider Framework lookup lineage, PHP／Node／Architecture evidence, and
+package exact75→76. It adds no producer, Application composition, runtime
+registration, public source, migration, route, or CLI.
+
+Fresh General／Catalog and Documentation／Release authority reviews are
+separately Green with P1/P2/P3 `0/0/0` on management exact13
+`58a3c75d2cc221f011efd3b02a73afa8123992f7a7af2837c73fb32601fd685e`.
+The one initial typed-hash-preimage wording finding was corrected before that
+freeze. Exact14 bytes and hash, lookup precedence, exact scopes, package
+exact75→76, current／Historical text, and Stable／unreleased boundaries are
+closed. This authority-only management checkpoint is committed. Product work
+remains stopped until the committed tree is independently re-frozen and fresh
+implementation preflight lanes are separately Green.
+Stable `1.2.0` remains current and BlackOps `1.3` remains unreleased.
+D-control remains blocked on Accepted P23-003F. Push, release, deploy, public
+activation, generated artifacts, and browser behavior remain Not Verified.
 
 P23-003C4 replacement Iteration Gate Green at
 2026-09-04T10:38:02+09:00: Product/Test exact23 is

@@ -2,7 +2,7 @@
 
 Status: Proposal — unreleased BlackOps 1.3; workflow/gate status authority is the exact5 management slice (`develop/STATE.md`, `develop/TODO.md`, the parent Task/Report, and `develop/spec/README.md`)
 
-Updated At: 2026-09-04T01:48:28+09:00
+Updated At: 2026-09-04T13:57:41+09:00
 
 This plan is a delivery DAG for the capability proposal in Specification 105.
 It does not make any Phase 23 item a current Stable `1.2` capability. A slice
@@ -70,15 +70,14 @@ Its Complete Final Gate and fresh DB／General Sol closure are Green
 Reviewed B2 candidate `968afe2b0c4bbff86e0013592d69dc7115cf8b4f` is committed,
 and its clean exact-SHA package export is Green; no push was performed.
 No Application composition、Container registration、Audit Outbox／relay、CLI／HTTP／public
-Documentation／release activation occurred. P23-003C is the next serial Audit delivery slice.
+Documentation／release activation occurred.
 
 For P23-003C delivery, D150 is the serial split and C1 authority, D151 is the
 Accepted C2 PostgreSQL persistence authority, D152 is the Accepted C3
 delivery／transaction／protected-read／key-composition authority, and D153 is the
 most-specific C4 relay／recovery authority.
-Parent C remains serial C1→C2→C3→C4; every child requires the previous child,
-no partial runtime may bypass a later child, and parent Acceptance requires all
-four.
+Parent C remains serial C1→C2→C3→C4; every child required the previous child
+and no partial runtime could bypass a later child.
 
 P23-003C1 is Accepted at candidate
 `bc12a67210d9cb132cf3246f96b00d79fb519656` with clean same-SHA package
@@ -87,7 +86,9 @@ export Green. P23-003C2 is Accepted at candidate
 boundary. P23-003C3 is Accepted at candidate
 `b7b352a8e4c86a45822351c108772367515654bd`, with Complete Final Gate,
 fresh General／Transaction／Documentation review, and clean same-SHA package
-export Green. No push was performed.
+export Green. P23-003C4 and parent P23-003C are Accepted at final commit
+`d5ab3476181058c5fb87b7c2c9476b6db76fef2e`; its clean same-SHA Git／Composer
+package export is Green. No push was performed.
 
 Accepted C3 selects one Catalog-fixed immutable required／durable plan before
 effects, routes once to the Accepted canonical or Outbox Store, reuses the
@@ -114,12 +115,21 @@ final-attempt recovery may poison a row whose canonical append already
 committed, so poison is not proof of canonical absence. Both `relayed` and
 `poisoned` acknowledge their ordinal and release the next FIFO position.
 
-The C4 packet owns exact23 Product／Test paths, exact25 worker scope, immutable
-exact12, and exact75 package inventory. It adds no public source, migration,
-route, command, public Documentation, or current runtime caller. The Stable
-generic Outbox runtime and `outbox:relay:*` commands remain unchanged and are
-not Audit activation. Fresh General／Transaction／Documentation preflight is
-required from the clean management packet before Product work.
+The Accepted C4 packet owns exact23 Product／Test paths, exact25 worker scope,
+immutable exact12, and exact75 package inventory. It adds no public source,
+migration, route, command, public Documentation, or current runtime caller.
+The Stable generic Outbox runtime and `outbox:relay:*` commands remain
+unchanged and are not Audit activation.
+
+For P23-003D delivery, D154 is the most-specific authority. Ordinary D is a
+bounded DAG: D1 operational Catalog and trusted lookup lineage; D2 Operation-
+read foundation and reader children; D3 authentication; D4 authorization; D5
+retention／hold, rotation, replay, and Stable generic-Outbox source children;
+then ordinary integration. D-control consumes only Accepted P23-003F typed
+outcomes and remains a distinct prerequisite for P23-003G where applicable.
+P23-003D1 changes only an exact14 Internal Catalog, lookup provenance,
+evidence, and package exact75→76. It activates no producer or runtime. Stable
+`1.2.0` remains current and BlackOps `1.3` remains unreleased.
 
 ## Historical P23-003A accepted delivery checkpoint
 

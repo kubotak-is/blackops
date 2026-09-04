@@ -10,50 +10,47 @@
 - 重要な設計判断は、結論だけでなく理由もREADMEまたは設計文書へ残す
 - 用語の変更時は、コードと文書をまとめて更新する
 
-## P23-003C4 current handoff — Audit Outbox Relay and Recovery Runtime
+## P23-003D1 current handoff — Framework Operational Audit Catalog
 
-Updated At: 2026-09-04T02:02:26+09:00
+Updated At: 2026-09-04T14:10:16+09:00
 
-Status: `Authority handoff correction ready — clean immutable refreeze and fresh re-preflight pending; Product work not started`。
+Status: `Authority packet committed — fresh clean-freeze preflight pending; Product work not started`。
 
 - [x] P23-003B1／B2 and parent P23-003B Accepted
-- [x] P23-003C1 Accepted／candidate commit／same-SHA package export Green
-- [x] P23-003C2 Accepted／candidate commit
-  `a92bef70fdb843a4dd2b8b34243fc892b43939cc`／same-SHA package export Green
-- [x] P23-003C3 Accepted／candidate commit
-  `b7b352a8e4c86a45822351c108772367515654bd`／same-SHA package export Green
-- [x] C4 relay／recovery／crash／failure／nonactivation source research
-- [x] first C4 Transaction／PostgreSQL preflight Changes Requested
-- [x] first C4 Documentation／Release preflight Changes Requested
-- [x] D153 bounded relay and recovery authority corrected after initial preflight
-- [x] P23-003C4 exact23 Product／Test and exact25 worker Task drafted
-- [x] three Store-owned transactions and exact Connection identity fixed
-- [x] sender／settlement matrix and final-attempt poison meaning fixed
-- [x] poison releases FIFO head and Stable generic Outbox remains separate
-- [x] exact75 package and zero public／runtime activation ledger drafted
-- [x] management packet static review／commit／clean immutable exact12 freeze
-- [x] first corrected Transaction／PostgreSQL preflight Green
-- [x] first corrected Documentation／Release preflight identified stale C1／C2
-  current handoffs before Product work
-- [x] C1／C2 current-facing closeout synchronized to C3 Accepted／C4 current
-- [ ] fresh General preflight Green
-- [ ] corrected immutable exact12 refreeze and three-lane closure Green
-- [ ] configured Luna exact25 implementation
-- [ ] Iteration Gate／fresh implementation review／Complete Final Gate
-- [ ] C4 and parent P23-003C Acceptance
+- [x] P23-003C1 through C4 and parent P23-003C Accepted
+- [x] final C candidate commit
+  `d5ab3476181058c5fb87b7c2c9476b6db76fef2e`／clean same-SHA package export
+  Green／no push
+- [x] P23-003D initial source／transaction／release research
+- [x] first D preflight identified undefined Catalog lineage and cross-boundary
+  auth／authz／read／phase-source／activation contracts
+- [x] D154 bounded D1→D5／integration and post-F D-control DAG drafted
+- [x] D1 exact14 operational Catalog identity／tuple／canonical bytes／hash fixed
+- [x] Accepted security／access exact30 preservation fixed
+- [x] exact two-provider Framework provenance fixed
+- [x] D1 exact10 Product／Test and exact12 worker scope drafted
+- [x] package exact75→76 and zero public／runtime activation boundary drafted
+- [x] current C→D handoffs synchronized
+- [x] D154／D1 management packet independent review Green `P1=0/P2=0/P3=0`
+- [x] management-only authority commit
+- [ ] clean immutable exact12 freeze
+- [ ] fresh General／Catalog／Documentation preflight Green
+- [ ] configured Luna exact12 implementation
+- [ ] Iteration Gate／fresh implementation reviews／Complete Final Gate
+- [ ] P23-003D1 Acceptance
 - [ ] candidate commit／clean same-SHA package export
 
 Stable `1.2.0` remains current and BlackOps `1.3` remains unreleased。
-C4は内部のbounded `recoverOne()`／`relayOne()` seamだけを追加し、Application／
-Container／CLI／HTTP／worker／scheduler／maintenance／routeへ登録しない。
-Stable generic Outbox runtimeと`outbox:relay:*` commandは変更しない。
+D1はInternal operational Catalogとlookup provenanceだけを追加し、eventを
+emitしない。Application／Container／CLI／HTTP／reader／maintenance／worker／
+scheduler／routeへ登録せず、public Guide／Websiteも変更しない。
 
-Remaining: C4 clean preflight→implementation→gates→Acceptance→commit／package、
-parent P23-003C Acceptance、P23-003D..G、P23-004、P23-005、P23-006。
+Remaining: D1 authority closeout→clean preflight→implementation→gates→
+Acceptance→commit／package。その後もD2／D3／D4／D5／D-integration、Accepted
+P23-003F後のD-control、P23-003E..G、P23-004..006が残る。
 
-Next Action: C1／C2 handoff correctionをmanagement authority commitへfoldし、
-clean immutable exact12を再freezeしてGeneral／Transaction／Documentationの
-closureを別々に実行する。全lane GreenまではProductionを開始しない。
+Next Action: committed D154／D1 authorityのclean immutable exact12をfreezeする。
+三lane preflightがGreenになるまでProductionを開始しない。
 
 ## P23-003B2 accepted handoff — Historical prerequisite
 
@@ -1143,12 +1140,13 @@ Next Action: freeze the new exact5 and exact7 hashes and request fresh separate 
 - [x] P23-002Eで`about`と`outbox:status`を定義・実装する（Accepted。Fresh Sol Max implementation review Green `P1=0/P2=0/P3=0`）。`dead-letter:list`はoperation/outbox名、tenant、pagination、redaction確定まで延期する
 - [x] P23-003Aをserial A1/A2へ分割する。A1でclosed domain-hashed AuditEventCatalog v1／Catalog-only RFC 8785 JCS/hash、exact 30-definition Framework security/access Catalog、bounded evidence/semantic validation、keyed opaque ID、AuditReadRequestBasis／AuditReadContextを実装する。A2はAccepted A1をconsumeし、AuditRecord draft/logical/complete stage schema、resolved semantic/evidence validation、exact observed safe projectionを実装する。AuditRecord JCS logical body/hash／chain appendはP23-003B、dedicated opaque-key providerはP23-003C、runtime adapterはP23-003D、application registration/projectorはP23-003E。P23-003A1／A2とparent P23-003A are Accepted; P23-003B is next
 - [x] P23-003Bをserial B1／B2で実装する。B1／B2 and parent P23-003B are Accepted。Reviewed B2 candidate commitとsame-SHA package exportはGreenである
-- [~] P23-003Cをserial C1→C2→C3→C4で実装する。required same-transaction append、auth/read decisionのresponse前 dedicated local append/outbox commit（allow failureはdata非開示fail-closed、deny/invalid failureはbounded denial）、durable Audit Outboxのimmutable identity/bindings/protected envelopeとfenced state-field mutation、at-least-once same-ID/contentHash relayを全child Acceptance後に成立させる
+- [x] P23-003Cをserial C1→C2→C3→C4で実装する。required same-transaction append、auth/read decisionのresponse前 dedicated local append/outbox commit（allow failureはdata非開示fail-closed、deny/invalid failureはbounded denial）、durable Audit Outboxのimmutable identity/bindings/protected envelopeとfenced state-field mutation、at-least-once same-ID/contentHash relayを全child Acceptance後に成立させる。Parent Cはfinal commit `d5ab347...`／same-SHA package export GreenでAccepted
 - [x] P23-003C1でpure Audit Outbox state snapshot、configuration、deterministic backoff、claim／retry／recover／relay／poison transitionを実装する。Complete Final Gate／fresh Sol Max review `P1=0/P2=0/P3=0`でAccepted。DB／runtime activationは行わない
 - [x] P23-003C2でPostgreSQL Audit Outbox row／migration／hydrator／idempotency／ordinal／FIFO／fenced CASを実装する。Complete Final Gate／fresh review／candidate commit／same-SHA package export GreenでAccepted
 - [x] P23-003C3でCatalogのfixed delivery、explicit `policy.auditDelivery`、required same-root transaction、protected-read response gate、Application key compositionを実装する。Complete Final Gate／fresh review／candidate commit `b7b352a8...`／same-SHA package export GreenでAccepted
-- [~] P23-003C4でsame recordId／contentHashのat-least-once relay、append-before-ack recovery、retry／poison runtimeを実装する。D153／exact23 Task Packet drafted、clean packet commitとfresh re-preflight待ち
-- [ ] P23-003Dでretention／hold、rotation、replay、outbox retryをimmutable AuditRecord phase eventへ明示adaptし、AuthenticationMiddleware／AuthorizationEvaluator／protected Operation Status／Journal／Outcome／diagnostic read boundaryのadapterとindependent reviewを行う
+- [x] P23-003C4でsame recordId／contentHashのat-least-once relay、append-before-ack recovery、retry／poison runtimeを実装する。Complete Final Gate／fresh three-lane review／candidate commit `d5ab347...`／same-SHA package export GreenでAccepted
+- [~] P23-003DをD154のbounded DAGで実装する。D1はexact14 Framework operational Catalogとtrusted lookup lineage。D2 read、D3 authentication、D4 authorization、D5 retention／hold・rotation・replay・generic Outbox source children、ordinary integrationは別Task。D-controlはAccepted P23-003F後にのみ開始する
+- [~] P23-003D1でAccepted security/access exact30を維持しつつ、exact14 `blackops.framework.operations` Catalog、two-provider Framework provenance、PHP／Node／Architecture evidence、package exact75→76を追加する。clean immutable freeze／fresh preflight待ち
 - [ ] P23-003EでApplication versioned event registration/projector API、reference journey、business-action non-inferenceを検証する
 - [ ] P23-003FでP23-003Bの完成AuditRecordをconsumeし、reusable catalog/hash／record／checkpoint／anchor／freshness verifier、immutable AuditCheckpoint／AuditAnchorReceipt、sealed concrete-segment graph、pure RFC 8032 Ed25519、pinned role-separated trust／revocation、external anchor、hash recomputation without appendを実装する（Fがcatalog／record／checkpoint／anchor／freshness coreと再計算を所有し、append／record mutation／physical deletionは行わない。同一`checkpointId`＋同一complete bytes/hashはpersist-before-ack後のidempotent success、異なるbytes/hashまたは同一segmentの別checkpointはintegrity failure）
 - [ ] P23-003GでP23-003Fを呼び出すmanifest／bundle／startBoundary／file／wire／scope verifier orchestration（再実装なし）、bounded default-deny query、`coverageMode: complete_sealed_segments`／`filter:null`のAuditExportManifest v1（partition-chain-ordered ranges、distinct-partition genesis／selected_range startBoundaries、両mode同一8-key `anchorStoreRef`／`anchorObjectRef`／predecessor／`prefixComplete`、exact anchor triple `{partitionId,anchorStoreRef,anchorObjectRef}`／cross-store negatives、selectedはpredecessor existence／continuity／prefix legitimacy非主張、recordCount／chainHeadHash、checkpoint／anchor／distinct catalogHashごとの`event_catalog` hashes、exact-once role/path/artifact files／raw digests、actor/time/source、multi-partition `current|as_of_checkpoint` result／deterministic first failure／freshness code 18）／AuditExportRecord JCS/LF wire／finite verifier codes、bounded audit-of-audit stream family、category retention、legal holdを実装する（GはFを呼び出し、catalog／record／checkpoint／anchor／hash verificationを再実装しない。Physical deletion／signed deletion manifest／sealed bytes・keys deletionはAudit v1から外し、将来P23-003Hへ延期。任意filtered subsetは別safe projection）

@@ -1,22 +1,23 @@
 # P23-003C4: Audit Outbox Relay and Recovery Runtime
 
-Status: Authority committed — fresh clean-freeze re-preflight pending; Product work not started
+Status: Accepted — final candidate commit and clean same-SHA package export Green
 
-Updated At: 2026-09-04T01:53:16+09:00
+Updated At: 2026-09-04T13:57:41+09:00
 
 ## Current Checkpoint
 
-P23-003C1, P23-003C2, and P23-003C3 are Accepted.
-The reviewed C3 candidate is committed at
-`b7b352a8e4c86a45822351c108772367515654bd`, and its clean same-SHA
-Git／Composer package export is Green.
-No push was performed.
+P23-003C1 through P23-003C4 and parent P23-003C are Accepted.
+The final C candidate is committed at
+`d5ab3476181058c5fb87b7c2c9476b6db76fef2e`; its clean same-SHA
+Git／Composer package export is Green. No push was performed.
 
-D153 and this Task define the final serial P23-003C4 child.
-The initial DB and Documentation preflight found an undefined relay bridge,
-failure and final-attempt ambiguity, contradictory poison FIFO wording, stale
-C3 handoff text, and an undefined activation／release ledger.
-The management correction closes those roots before Product work.
+D153 and this Task remain the Accepted C4 authority and evidence contract.
+Fresh General／Transaction／Documentation reviews and the Complete Final Gate
+are Green. Full PHPUnit is `3,170 tests / 1,806,825 assertions`; Deptrac is
+`1,036 analyzed / 0 violations / 0 skipped / 0 uncovered / 6,341 allowed /
+0 warnings / 0 errors`; package inventory is exact75 with `29` rejected
+mutations; migration `13 + 5 = 18`, Stable generic Outbox, public-source,
+nonactivation, and exact-freeze guards are Green.
 
 C4 adds a bounded Internal `recoverOne()`／`relayOne()` runtime over the exact
 C3 Connection, configuration, protection, validator, canonical Store, and
@@ -24,9 +25,8 @@ Outbox Store graph.
 It does not add or register a loop, daemon, scheduler, worker, command, route,
 Container service, or current Application caller.
 
-Stable `1.2.0` remains current.
-BlackOps `1.3` and all Audit Trail behavior remain unreleased.
-Parent P23-003C remains incomplete until this child is Accepted.
+Stable `1.2.0` remains current. BlackOps `1.3` and all Audit Trail behavior
+remain unreleased. P23-003D1 is the next bounded Task.
 
 ## Goal
 
@@ -565,9 +565,10 @@ After Orchestrator Acceptance only:
 5. record Git／Composer same-inventory and autoload proof;
 6. do not push unless the user separately authorizes it.
 
-P23-003D remains the next serial Audit producer adapter after parent C.
-Runtime activation remains deferred to its explicit future owner and release
-boundary.
+D154 splits P23-003D into bounded children. P23-003D1 is the next Task and
+adds only the Framework operational Catalog／trusted lookup lineage; it is not
+a producer adapter. Runtime activation remains deferred to its explicit
+future integration owner and release boundary.
 
 ## Blocker Rule
 

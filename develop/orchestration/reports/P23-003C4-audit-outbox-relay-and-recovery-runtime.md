@@ -2,7 +2,7 @@
 
 Status: Complete — accepted commit and clean same-SHA export Green
 
-Updated At: 2026-09-04T12:00:22+09:00
+Updated At: 2026-09-04T14:16:09+09:00
 
 ## Summary
 
@@ -20,14 +20,13 @@ Deptrac is `1,036 analyzed / 0 violations / 0 skipped / 0 uncovered / 6,341
 allowed / 0 warnings / 0 errors`; all Audit Node goldens, exact75 package and
 `29` mutations, Community Board clean-install, Stable generic Outbox `10/69`,
 migration `13 + 5 = 18`, StoragePurpose exact9, nonactivation/docs/ID/diff,
-and ending staged0/exact freezes pass. The Orchestrator accepts P23-003C4 and
-then parent P23-003C. The accepted exact25 candidate was committed as
-`e7176759bdd7f851b51f4a5f84e0027312e5c9c0`; its tree was clean/staged0 and
-the same-SHA framework package export passed. This completion checkpoint is
-folded into that local commit once and the export is rerun from the final
-amended SHA before handoff. Push remains unauthorized; release, deploy, public
-activation, generated Documentation artifacts, and browser behavior remain
-Not Verified.
+and ending staged0/exact freezes pass. The Orchestrator accepted P23-003C4 and
+then parent P23-003C. The final accepted candidate, including this completion
+checkpoint, is committed at
+`d5ab3476181058c5fb87b7c2c9476b6db76fef2e`; its tree is clean/staged0 and
+the same-SHA framework package export passed for both Git and Composer
+archives. No push was performed. Release, deploy, public activation, generated
+Documentation artifacts, and browser behavior remain Not Verified.
 
 ### Complete Final Gate after Fresh Reviews (current)
 
@@ -257,13 +256,12 @@ bash tests/Consumer/framework-package-export.sh
 
 The accepted exact25 candidate committed exactly the Task paths and no
 unrelated path. Its initial full SHA was
-`e7176759bdd7f851b51f4a5f84e0027312e5c9c0`; the tree was clean and staged0.
-The package command exited `0` with
-`Created: Framework Git and Composer package export contract passed.` This
-Report/STATE completion checkpoint is management-only, is folded into the same
-local commit by one amend, and the package command is rerun from the final
-amended SHA before handoff. The final full SHA is recorded in the Orchestrator
-handoff. No push was performed.
+`e7176759bdd7f851b51f4a5f84e0027312e5c9c0`; the Report／STATE completion
+checkpoint was folded into the same candidate by one amend. The final full SHA
+is `d5ab3476181058c5fb87b7c2c9476b6db76fef2e`; its tree was clean/staged0.
+The package command was restarted from that final SHA and exited `0` with
+`Created: Framework Git and Composer package export contract passed.` No push
+was performed.
 
 ## Acceptance Criteria
 
@@ -286,8 +284,10 @@ them. Stable `1.2.0` remains current and C remains unreleased.
 
 ## Suggested Next Action
 
-Begin P23-003D preflight from the clean final C commit. Do not push without
-separate user authorization.
+Use the clean final C commit as the Accepted prerequisite for the committed
+D154／P23-003D1 authority packet. Freeze that packet cleanly, then run fresh D1
+General／Catalog／Documentation preflight before Product work. Do not push
+without separate user authorization.
 
 ## Historical: Batch D Checkpoint — Real PostgreSQL Relay and Recovery Evidence
 

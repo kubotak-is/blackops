@@ -2,7 +2,7 @@
 
 Status: Proposal — unreleased BlackOps 1.3; workflow/gate status authority is the exact5 management slice (`develop/STATE.md`, `develop/TODO.md`, the parent Task/Report, and `develop/spec/README.md`)
 
-Updated At: 2026-09-04T01:48:28+09:00
+Updated At: 2026-09-04T13:57:41+09:00
 
 This specification is a normative proposal for BlackOps `1.3`. It is not a
 Stable `1.2` capability contract and must not be copied into current public
@@ -87,14 +87,14 @@ The PostgreSQL component and migration exist as an unreleased internal foundatio
 no Application composition、Container registration、Audit Outbox／relay、HTTP／CLI surface、
 public Documentation capability、or release activation occurred. Reviewed B2 candidate
 `968afe2b0c4bbff86e0013592d69dc7115cf8b4f` is committed and its clean
-exact-SHA package export is Green; no push was performed. P23-003C is the next serial slice.
+exact-SHA package export is Green; no push was performed.
 
 For current P23-003C delivery clauses, D150 is the serial split and C1
 authority, D151 is the Accepted C2 PostgreSQL persistence authority, D152 is
 the Accepted C3 delivery／transaction／read-gate／key-composition authority, and
-D153 is the most-specific C4 relay／recovery authority. Parent C remains serial
-C1→C2→C3→C4 and incomplete until all four children are Accepted; no child may
-activate a partial runtime that bypasses a later child.
+D153 is the most-specific C4 relay／recovery authority. Parent C is the serial
+C1→C2→C3→C4 boundary; no child may activate a partial runtime that bypasses a
+later child.
 
 P23-003C1 is Accepted at candidate
 `bc12a67210d9cb132cf3246f96b00d79fb519656` with clean same-SHA package
@@ -103,7 +103,9 @@ export Green. P23-003C2 is Accepted at candidate
 boundary. P23-003C3 is Accepted at candidate
 `b7b352a8e4c86a45822351c108772367515654bd`; its Complete Final Gate, fresh
 General／Transaction／Documentation review, and clean same-SHA package export
-are Green. No push was performed.
+are Green. P23-003C4 and parent P23-003C are Accepted at final commit
+`d5ab3476181058c5fb87b7c2c9476b6db76fef2e`; its clean same-SHA Git／Composer
+package export is Green. No push was performed.
 
 Accepted C3 adds exactly two unreleased Application-facing provider interfaces
 and twelve Internal types. The opaque-ID provider supplies one dedicated
@@ -182,6 +184,16 @@ Community Board stays 18, package required inventory grows exact68→75, Stable
 `1.2.0` remains current, and BlackOps `1.3` remains unreleased. The Stable
 generic Outbox runtime and `outbox:relay:*` commands remain byte-identical and
 are not C4 activation.
+
+For current P23-003D clauses, D154 is the most-specific authority. It splits
+ordinary D into bounded Catalog, Operation-read, authentication,
+authorization, phase-source, and integration children. The checkpoint／anchor
+D-control child is a distinct post-P23-003F edge. P23-003D1 adds only the
+exact14 `blackops.framework.operations` Catalog and exact two-provider
+Framework lookup provenance; it preserves the Accepted security／access
+exact30 Catalog byte-for-byte, increases package required inventory exact75→76,
+and activates no producer or runtime. Stable `1.2.0` remains current and
+BlackOps `1.3` remains unreleased.
 
 ## Historical P23-003A Acceptance Catalog and projection contract
 
