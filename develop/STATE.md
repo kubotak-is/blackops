@@ -1,8 +1,8 @@
 # Orchestration State
 
-Status: P23-003D1A Accepted — bounded candidate commit pending
+Status: P23-003D1 Complete — accepted commit and clean same-SHA export Green
 
-Updated At: 2026-09-05T00:23:29+09:00
+Updated At: 2026-09-05T01:55:17+09:00
 
 P23-003D1A verification checkpoint: implementation started from the supplied
 branch `agent/p23-001-blackops-1-3-feasibility` at HEAD
@@ -27,9 +27,11 @@ are Green. The changed Test SHA is
 `64797c8b2bff2b9e7506c3b49ef6559ec83f7a0eaa41d15ff5473b2043f85f67`.
 Independent technical and Documentation／management closure reviews are Green
 `P1=0/P2=0/P3=0`. The Orchestrator accepted D1A at
-`2026-09-05T00:23:29+09:00`. Only the bounded candidate commit remains before
-D1 restarts from command 1 on a clean new prerequisite HEAD. No Production or
-D1 Product／Test byte changed.
+`2026-09-05T00:23:29+09:00` and committed its exact Task／Report／Test／STATE
+paths as `5aa82af674b5d192d41a837a1eb72542341acf21`. No D1 Product／Test or D1
+Report path was staged or committed; no push occurred. At that checkpoint, D1
+was ready to restart from command 1 on the new prerequisite HEAD. The later
+Gate run is Historical after the current Architecture Test correction.
 
 Historical P23-003D1A prerequisite-ready checkpoint: the D1 Iteration had
 stopped on
@@ -46,14 +48,14 @@ checkpoint above. Current sequence is independent closure review, Acceptance,
 bounded commit, then D1 restart from command 1. No push or package export is
 authorized.
 
-P23-003D1 current correction checkpoint: the orchestrator-accepted start
-freeze remains branch `agent/p23-001-blackops-1-3-feasibility` at HEAD
-`63bcaf7ac50f5db240a3b3136179f27b2ec2090b`; status is exact12 and staged0.
-Accepted C `d5ab3476181058c5fb87b7c2c9476b6db76fef2e` remains an ancestor, and
-immutable exact12 ordered aggregate remains
+Historical pre-Acceptance P23-003D1 correction checkpoint: branch was
+`agent/p23-001-blackops-1-3-feasibility` at prerequisite HEAD
+`5aa82af674b5d192d41a837a1eb72542341acf21`; status was exact12 and staged0.
+Accepted C `d5ab3476181058c5fb87b7c2c9476b6db76fef2e` was an ancestor, and the
+immutable exact12 ordered aggregate was
 `6615f88b7a8fd41bb102dfe2af0693ca2393d61cd1c77e381e40e4b46d2043d4`.
-The exact10 Product／Test ordered aggregate is
-`cd120083d712ee6d7a5c57abbb36cf568c130ae26a9299f3316f621c6739bf43`.
+The exact10 Product／Test ordered aggregate was
+`1edb2d5820afdd3bbe8711d4c5ef494245e59b25c1bdf30de58d3f4f15337f01`.
 The final Report／STATE self-hashes and ordered worker exact12 aggregate are
 returned separately at handoff because embedding a self-hash changes the
 corresponding Report or STATE bytes.
@@ -67,20 +69,66 @@ and `static::catalog()` as extra provider references while leaving current
 `self::event()`／`self::$instance` reference-free. The follow-up compound
 correction also records parenthesized self/static calls and excludes Core enum
 `::class` tokens from declaration ranges, closing the combined bypass.
-Focused format, one exact rule test `1/328`, and the full Architecture file
-`16/25,293` are current Green. A fresh replacement Iteration on exact10
-`cd120083...f43` passed scoped format, focused PHPUnit `58/26,754`, both Node
-goldens, Deptrac `1,037/0/0/0/6,411/0/0`, version baseline, package exact76/30,
-and both shell syntax checks. It then stopped at the unchanged Stable generic
-Outbox heartbeat test with `10/68`: expected at least two heartbeats and
-observed one. The remaining postguards were not run. The unchanged test then
-passed one isolated diagnostic at `1/4`, matching its recorded timing
-instability. The stopped run and diagnostic remain separate evidence; neither
-is reused. The Orchestrator changes no Stable bytes and restarts the complete
-Iteration at command 1. The prior full replacement Iteration (`58/26,730`,
-Stable Outbox `10/69`, and all postguards) is Historical/invalidated after the
-compound Test edit. Final, Acceptance, commit, export, and push remain Not
-Run/Not Verified.
+Focused format, the D1 Architecture rules `2/4,530`, and the full Architecture
+file `16/25,314` are current Green. The current scanner additionally records
+long-form `array(...)` callables for literal, `::class`, and assigned provider
+identities, and rejects all nine PHP superglobals inside provider methods. The
+first focused attempt exposed and corrected one expected-kind mismatch at
+`2/4,524`; it is not reused. The pre-D1A replacement attempt passed scoped
+format, focused PHPUnit `58/26,754`, both Node goldens, Deptrac
+`1,037/0/0/0/6,411/0/0`, version baseline, package exact76/30, and both shell
+syntax checks before stopping at the old Stable heartbeat oracle with `10/68`.
+Its isolated `1/4` diagnostic and all earlier Gate runs remain Historical and
+are not reused. Accepted D1A changed only that wall-time Test oracle and
+committed it at `5aa82af...acf21`; Production is unchanged. A later complete
+D1 replacement Iteration reached every postguard, but its fresh technical
+review found the long-array／superglobal oracle gap. The current Test correction
+invalidates that Iteration, which is retained as Historical only. The next
+replacement Iteration restarted from command 1 on the then-current exact10 and
+reached all postguards. Fresh technical review was Green; fresh Documentation
+review returned Changes Requested `P1=0/P2=1/P3=0` because the required lookup
+topology matrix did not directly prove both `find()` and `resolve()` for
+old-only and new-only singleton configurations. The bounded Test-only
+correction now adds old-only `resolve()` and a true new-only `[$operations]`
+lookup while preserving both-provider and repeated-singleton fixtures. Scoped
+format and the complete Lookup Test are Green at `19/69`. The changed Test SHA
+is `b89014d2a4e336c7650d49b057eabf9af9a49b26f27217e10068f3b4db5b6413`.
+The assigned worker changed only that authorized Test without first sending
+the required checkpoint; the Orchestrator stopped it and reviewed／verified
+the bounded diff. The preceding Iteration and reviews are now Historical. The
+new replacement Iteration restarted from command 1 on exact10
+`1edb2d5820afdd3bbe8711d4c5ef494245e59b25c1bdf30de58d3f4f15337f01`
+and is Green. Its manifest/freeze guard rejected all four mutations; scoped
+format passed; focused PHPUnit passed `59/26,778`; both Node goldens passed;
+Deptrac passed `1,037/0/0/0/6,411/0/0`; version baseline and package exact76／
+30 passed; shell syntax, Stable Outbox `10/75`, StoragePurpose exact9,
+migration `13 + 5 = 18`, release exact1, public／Stable no-diff, provider
+paths2／lookup call1／activation0, forbidden-ID0, diff-check, staged0, and
+ending freezes all passed. Fresh General／Catalog／Documentation implementation
+reviews are separately Green `P1=0/P2=0/P3=0`, and the unchanged exact12
+refreeze passed at worker aggregate
+`94421f7d64a3dde5a00c52e13de75502152ecf9f0aa9f54deccb911957806d6d`.
+Complete Final restarted at command 1 and completed Green without a
+Product／Test change. Full format, Composer strict validation, lint／baseline,
+and analyzer are Green; full PHPUnit passed `3,180/1,815,439`; Deptrac passed
+`1,037/0/0/0/6,411/0/0`; all five Audit Node goldens passed; version and
+package exact76／30 passed; Community Board clean-install passed with Svelte
+`0/0`, Vitest `8 files / 46 tests`, build, migrations, and HTTP／frontend
+journey Green; Stable Outbox remained `10/75`; StoragePurpose remained exact9;
+and final release／scope／nonactivation／freeze postguards passed. Bounded
+technical and Documentation Acceptance reviews are Green
+`P1=0/P2=0/P3=0`. The Orchestrator accepted P23-003D1 at
+`2026-09-05T01:53:01+09:00`; parent P23-003D remains incomplete. The authorized
+exact12 candidate committed as
+`443b5e7812f78e1af1dbb799c834352cb0c215d5`; its tree was clean／staged0, and
+the same-SHA Git／Composer package export exited `0` with
+`Created: Framework Git and Composer package export contract passed.` This
+Report／STATE completion checkpoint is folded into the same candidate by one
+amend and package export is restarted from the final amended SHA before
+handoff. No push is performed. Parent P23-003D remains incomplete; D2／D3／D4／
+D5 require separate authority and D-control remains blocked on Accepted
+P23-003F. Push, release, deploy, public activation, generated artifacts,
+browser behavior, and CI remain Not Run／Not Verified.
 
 P23-003C1 through P23-003C4 and parent P23-003C are Accepted. The final C
 candidate is committed at
@@ -99,15 +147,16 @@ two-provider Framework lookup lineage, PHP／Node／Architecture evidence, and
 package exact75→76. It adds no producer, Application composition, runtime
 registration, public source, migration, route, or CLI.
 
-Fresh General／Catalog and Documentation／Release authority reviews are
-separately Green with P1/P2/P3 `0/0/0` on management exact13
+Historical P23-003D1 authority checkpoint: General／Catalog and Documentation／
+Release authority reviews were separately Green with P1/P2/P3 `0/0/0` on management exact13
 `58a3c75d2cc221f011efd3b02a73afa8123992f7a7af2837c73fb32601fd685e`.
 The one initial typed-hash-preimage wording finding was corrected before that
-freeze. Exact14 bytes and hash, lookup precedence, exact scopes, package
+freeze. At that checkpoint, exact14 bytes and hash, lookup precedence, exact scopes, package
 exact75→76, current／Historical text, and Stable／unreleased boundaries are
-closed. This authority-only management checkpoint is committed. Product work
-remains stopped until the committed tree is independently re-frozen and fresh
-implementation preflight lanes are separately Green.
+closed. That authority-only management checkpoint was committed. Product work
+was stopped until the committed tree was independently re-frozen and fresh
+implementation preflight lanes were separately Green; those prerequisites
+were subsequently completed before the current implementation.
 Stable `1.2.0` remains current and BlackOps `1.3` remains unreleased.
 D-control remains blocked on Accepted P23-003F. Push, release, deploy, public
 activation, generated artifacts, and browser behavior remain Not Verified.

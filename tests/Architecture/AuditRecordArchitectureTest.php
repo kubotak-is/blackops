@@ -5,10 +5,18 @@ declare(strict_types=1);
 namespace BlackOps\Tests\Architecture;
 
 use BlackOps\Core\Attribute\PublicApi;
+use BlackOps\Core\Audit\AuditActionPhase;
+use BlackOps\Core\Audit\AuditDelivery;
+use BlackOps\Core\Audit\AuditEventCatalog;
 use BlackOps\Core\Audit\AuditEventDefinition;
+use BlackOps\Core\Audit\AuditOutcomeStatus;
+use BlackOps\Core\Audit\AuditPolicyDecision;
 use BlackOps\Core\Audit\AuditRecordCorrelation;
 use BlackOps\Core\Audit\AuditRecordDraft;
+use BlackOps\Core\Audit\AuditSourceOwner;
 use BlackOps\Core\Audit\AuditTypedReference;
+use BlackOps\Internal\Audit\Catalog\FrameworkAuditEventCatalog;
+use BlackOps\Internal\Audit\Catalog\FrameworkOperationalAuditEventCatalog;
 use BlackOps\Internal\Audit\Projection\ObservedAuditRecordProjector;
 use BlackOps\Internal\Audit\Protection\AuditAssociatedData;
 use BlackOps\Internal\Audit\Protection\AuditIngressEnvelope;
@@ -40,6 +48,7 @@ use PHPUnit\Framework\TestCase;
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:kan-defect
  * @mago-expect lint:too-many-methods
+ * @mago-expect lint:no-insecure-comparison
  */
 final class AuditRecordArchitectureTest extends TestCase
 {
@@ -831,6 +840,2401 @@ final class AuditRecordArchitectureTest extends TestCase
         );
     }
 
+    public function testD1OperationalCatalogSurfaceAndDependenciesAreClosed(): void
+    {
+        $class = new \ReflectionClass(FrameworkOperationalAuditEventCatalog::class);
+        self::assertTrue($class->isFinal());
+        self::assertFalse($class->isReadOnly());
+        self::assertFalse($class->getParentClass());
+        self::assertSame([], $class->getInterfaceNames());
+        self::assertSame([], $class->getTraits());
+        self::assertSame(
+            ['__construct', 'catalog', 'event'],
+            array_values(array_map(
+                static fn(\ReflectionMethod $method): string => $method->getName(),
+                array_filter(
+                    $class->getMethods(),
+                    static fn(\ReflectionMethod $method): bool => $method
+                        ->getDeclaringClass()
+                        ->getName() === $class->getName(),
+                ),
+            )),
+        );
+        self::assertSame(
+            ['instance'],
+            array_map(
+                static fn(\ReflectionProperty $property): string => $property->getName(),
+                $class->getProperties(),
+            ),
+        );
+        $property = $class->getProperty('instance');
+        self::assertTrue($property->isPrivate());
+        self::assertTrue($property->isStatic());
+        self::assertSame(AuditEventCatalog::class, $property->getType()?->getName());
+        self::assertTrue($property->getType()?->allowsNull());
+        self::assertNull($property->getDefaultValue());
+
+        $constructor = $class->getConstructor();
+        self::assertNotNull($constructor);
+        self::assertTrue($constructor->isPrivate());
+        self::assertFalse($constructor->isStatic());
+        self::assertFalse($constructor->isFinal());
+        self::assertSame([], $constructor->getAttributes());
+        self::assertSame([], $constructor->getParameters());
+
+        $public = $class->getMethods(\ReflectionMethod::IS_PUBLIC);
+        self::assertSame(
+            ['catalog'],
+            array_map(static fn(\ReflectionMethod $method): string => $method->getName(), $public),
+        );
+        $catalog = $class->getMethod('catalog');
+        self::assertTrue($catalog->isStatic());
+        self::assertFalse($catalog->isFinal());
+        self::assertFalse($catalog->isAbstract());
+        self::assertSame([], $catalog->getAttributes());
+        self::assertSame([], $catalog->getParameters());
+        self::assertSame(AuditEventCatalog::class, $catalog->getReturnType()?->getName());
+
+        $event = $class->getMethod('event');
+        self::assertTrue($event->isPrivate());
+        self::assertTrue($event->isStatic());
+        self::assertFalse($event->isFinal());
+        self::assertFalse($event->isAbstract());
+        self::assertSame([], $event->getAttributes());
+        $expectedEventParameters = [
+            ['type',     'string'],
+            ['phase',    AuditActionPhase::class],
+            ['resource', 'string'],
+            ['status',   AuditOutcomeStatus::class],
+            ['outcome',  'string'],
+            ['policy',   AuditPolicyDecision::class],
+            ['reason',   'string'],
+            ['delivery', AuditDelivery::class],
+        ];
+        self::assertCount(count($expectedEventParameters), $event->getParameters());
+        foreach ($expectedEventParameters as $index => [$name, $type]) {
+            $parameter = $event->getParameters()[$index];
+            self::assertSame($name, $parameter->getName());
+            self::assertSame($type, $parameter->getType()?->getName());
+            self::assertFalse($parameter->allowsNull());
+            self::assertFalse($parameter->isOptional());
+            self::assertFalse($parameter->isDefaultValueAvailable());
+            self::assertSame([], $parameter->getAttributes());
+        }
+        self::assertSame(AuditEventDefinition::class, $event->getReturnType()?->getName());
+
+        $providerPath = realpath(__DIR__
+        . '/../../src/Internal/Audit/Catalog/FrameworkOperationalAuditEventCatalog.php');
+        self::assertNotFalse($providerPath);
+        $providerSource = file_get_contents($providerPath);
+        self::assertIsString($providerSource);
+        self::assertTrue($this->operationalProviderSurfaceShape($providerSource));
+        self::assertTrue($this->operationalProviderDependencyShape($providerSource));
+        self::assertFalse($this->operationalProviderDependencyShape(str_replace(
+            'return new AuditEventDefinition(',
+            "new ImmutableAuditEventCatalogLookup([]);\n        return new AuditEventDefinition(",
+            $providerSource,
+            $replacementCount,
+        )));
+        self::assertSame(1, $replacementCount);
+
+        $surfaceMutations = [
+            'class parent' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                "final class FrameworkOperationalAuditEventCatalog\n{",
+                "final class FrameworkOperationalAuditEventCatalog extends \\stdClass\n{",
+            ),
+            'class interface' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                "final class FrameworkOperationalAuditEventCatalog\n{",
+                "final class FrameworkOperationalAuditEventCatalog implements \\Countable\n{",
+            ),
+            'class attribute' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                "final class FrameworkOperationalAuditEventCatalog\n{",
+                "#[\\AllowDynamicProperties]\nfinal class FrameworkOperationalAuditEventCatalog\n{",
+            ),
+            'class readonly modifier' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                "final class FrameworkOperationalAuditEventCatalog\n{",
+                "final readonly class FrameworkOperationalAuditEventCatalog\n{",
+            ),
+            'extra interface declaration' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                "final class FrameworkOperationalAuditEventCatalog\n{",
+                "interface ExtraOperationalCatalogInterface {}\n\nfinal class FrameworkOperationalAuditEventCatalog\n{",
+            ),
+            'extra trait declaration and use' => $this->replaceProviderSourceOnce(
+                $this->replaceProviderSourceOnce(
+                    $providerSource,
+                    "final class FrameworkOperationalAuditEventCatalog\n{",
+                    "trait ExtraOperationalCatalogTrait {}\n\nfinal class FrameworkOperationalAuditEventCatalog\n{",
+                ),
+                "    private static ?AuditEventCatalog \$instance = null;\n",
+                "    use ExtraOperationalCatalogTrait;\n\n    private static ?AuditEventCatalog \$instance = null;\n",
+            ),
+            'extra enum declaration' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                "final class FrameworkOperationalAuditEventCatalog\n{",
+                "enum ExtraOperationalCatalogEnum { case CaseValue; }\n\nfinal class FrameworkOperationalAuditEventCatalog\n{",
+            ),
+            'extra class constant' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                "    private static ?AuditEventCatalog \$instance = null;\n",
+                "    private const EXTRA = true;\n\n    private static ?AuditEventCatalog \$instance = null;\n",
+            ),
+            'extra property' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                "    private static ?AuditEventCatalog \$instance = null;\n",
+                "    private string \$extra = 'extra';\n\n    private static ?AuditEventCatalog \$instance = null;\n",
+            ),
+            'property attribute' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                "    private static ?AuditEventCatalog \$instance = null;\n",
+                "    #[\\UnlistedOperationalCatalogAttribute]\n    private static ?AuditEventCatalog \$instance = null;\n",
+            ),
+            'property readonly modifier' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                "    private static ?AuditEventCatalog \$instance = null;\n",
+                "    private readonly AuditEventCatalog \$instance;\n",
+            ),
+            'property type' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                'private static ?AuditEventCatalog $instance',
+                'private static AuditEventCatalog $instance',
+            ),
+            'property visibility' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                'private static ?AuditEventCatalog $instance',
+                'protected static ?AuditEventCatalog $instance',
+            ),
+            'property staticness' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                'private static ?AuditEventCatalog $instance',
+                'private ?AuditEventCatalog $instance',
+            ),
+            'property default' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                'private static ?AuditEventCatalog $instance = null',
+                'private static ?AuditEventCatalog $instance = false',
+            ),
+            'catalog staticness' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                'public static function catalog(',
+                'public function catalog(',
+            ),
+            'event staticness' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                'private static function event(',
+                'private function event(',
+            ),
+            'event method attribute' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                "    private static function event(\n",
+                "    #[\\Deprecated]\n    private static function event(\n",
+            ),
+            'missing event callable' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                'private static function event(',
+                'private static function removedEvent(',
+            ),
+            'extra callable' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                '    private static function event(',
+                "    private function extraCallable(): void {}\n\n    private static function event(",
+            ),
+            'top-level extra callable' => $providerSource . "\nfunction extraCallable(): void {}\n",
+            'top-level extra constant' => $providerSource . "\nconst EXTRA_OPERATIONAL_CATALOG = true;\n",
+            'top-level extra declaration' => $providerSource . "\ninterface ExtraOperationalCatalog {}\n",
+            'event parameter name' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                "        string \$type,\n",
+                "        string \$renamed,\n",
+            ),
+            'event parameter type' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                "        AuditActionPhase \$phase,\n",
+                "        ?AuditActionPhase \$phase,\n",
+            ),
+            'event parameter default' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                "        AuditDelivery \$delivery,\n",
+                "        AuditDelivery \$delivery = AuditDelivery::Durable,\n",
+            ),
+            'event parameter attribute' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                "        string \$type,\n",
+                "        #[\\SensitiveParameter] string \$type,\n",
+            ),
+            'event return type' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                "    ): AuditEventDefinition {\n",
+                "    ): ?AuditEventDefinition {\n",
+            ),
+            'constructor visibility' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                "    private function __construct() {}\n",
+                "    public function __construct() {}\n",
+            ),
+            'second declaration' => $providerSource . "\nfinal class AnotherOperationalCatalog {}\n",
+        ];
+        foreach ($surfaceMutations as $label => $mutation)
+            $this->assertValidProviderMutation($label, $mutation, false);
+
+        $interfaceMutation = $this->replaceProviderSourceOnce(
+            $surfaceMutations['class interface'],
+            "    private function __construct() {}\n",
+            "    public function count(): int { return 0; }\n\n    private function __construct() {}\n",
+        );
+        $this->assertValidProviderMutation('interface with implementation', $interfaceMutation, false);
+
+        $dependencyMutations = [
+            'extra import' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                "namespace BlackOps\\Internal\\Audit\\Catalog;\n",
+                "namespace BlackOps\\Internal\\Audit\\Catalog;\n\nuse BlackOps\\Core\\Audit\\AuditRecordDraft;\n",
+            ),
+            'aliased import' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                "use BlackOps\\Core\\Audit\\AuditDelivery;\n",
+                "use BlackOps\\Core\\Audit\\AuditDelivery as Delivery;\n",
+            ),
+            'group import' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                "use BlackOps\\Core\\Audit\\AuditActionPhase;\nuse BlackOps\\Core\\Audit\\AuditDelivery;\n",
+                "use BlackOps\\Core\\Audit\\{AuditActionPhase, AuditDelivery};\n",
+            ),
+            'fully qualified dependency' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                'AuditEventCategory::from(',
+                '\\BlackOps\\Core\\Audit\\AuditEventCategory::from(',
+            ),
+            'same namespace dependency' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                'return new AuditEventDefinition(',
+                "new ImmutableAuditEventCatalogLookup([]);\n        return new AuditEventDefinition(",
+            ),
+            'unlisted dependency' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                'return new AuditEventDefinition(',
+                "new \\stdClass();\n        return new AuditEventDefinition(",
+            ),
+            'unlisted trait dependency' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                "final class FrameworkOperationalAuditEventCatalog\n{\n",
+                "final class FrameworkOperationalAuditEventCatalog\n{\n    use UnlistedOperationalCatalogTrait;\n",
+            ),
+            'unlisted environment function dependency' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                'return new AuditEventDefinition(',
+                "getenv('BLACKOPS_UNLISTED');\n        return new AuditEventDefinition(",
+            ),
+            'unlisted filesystem function dependency' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                'return new AuditEventDefinition(',
+                "file_get_contents('/tmp/blackops-unlisted');\n        return new AuditEventDefinition(",
+            ),
+            'unlisted random function dependency' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                'return new AuditEventDefinition(',
+                "random_bytes(1);\n        return new AuditEventDefinition(",
+            ),
+            'unlisted class lookup function dependency' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                'return new AuditEventDefinition(',
+                "class_exists('BlackOps\\\\Other\\\\Unrelated');\n        return new AuditEventDefinition(",
+            ),
+            'dynamic function dependency' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                'return new AuditEventDefinition(',
+                "\$function = 'explode';\n        \$function('x', 'y');\n        return new AuditEventDefinition(",
+            ),
+            'require dependency' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                'return new AuditEventDefinition(',
+                "require '/tmp/blackops-unlisted';\n        return new AuditEventDefinition(",
+            ),
+            'include dependency' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                'return new AuditEventDefinition(',
+                "include '/tmp/blackops-unlisted';\n        return new AuditEventDefinition(",
+            ),
+            'eval dependency' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                'return new AuditEventDefinition(',
+                "eval('return null;');\n        return new AuditEventDefinition(",
+            ),
+            'exit dependency' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                'return new AuditEventDefinition(',
+                "exit('unlisted');\n        return new AuditEventDefinition(",
+            ),
+            'GLOBALS superglobal dependency' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                'return new AuditEventDefinition(',
+                "\$GLOBALS['BLACKOPS_UNLISTED'];\n        return new AuditEventDefinition(",
+            ),
+            'server superglobal dependency' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                'return new AuditEventDefinition(',
+                "\$_SERVER['BLACKOPS_UNLISTED'];\n        return new AuditEventDefinition(",
+            ),
+            'GET superglobal dependency' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                'return new AuditEventDefinition(',
+                "\$_GET['BLACKOPS_UNLISTED'];\n        return new AuditEventDefinition(",
+            ),
+            'POST superglobal dependency' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                'return new AuditEventDefinition(',
+                "\$_POST['BLACKOPS_UNLISTED'];\n        return new AuditEventDefinition(",
+            ),
+            'FILES superglobal dependency' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                'return new AuditEventDefinition(',
+                "\$_FILES['BLACKOPS_UNLISTED'];\n        return new AuditEventDefinition(",
+            ),
+            'COOKIE superglobal dependency' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                'return new AuditEventDefinition(',
+                "\$_COOKIE['BLACKOPS_UNLISTED'];\n        return new AuditEventDefinition(",
+            ),
+            'SESSION superglobal dependency' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                'return new AuditEventDefinition(',
+                "\$_SESSION['BLACKOPS_UNLISTED'];\n        return new AuditEventDefinition(",
+            ),
+            'REQUEST superglobal dependency' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                'return new AuditEventDefinition(',
+                "\$_REQUEST['BLACKOPS_UNLISTED'];\n        return new AuditEventDefinition(",
+            ),
+            'ENV superglobal dependency' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                'return new AuditEventDefinition(',
+                "\$_ENV['BLACKOPS_UNLISTED'];\n        return new AuditEventDefinition(",
+            ),
+        ];
+        foreach ($dependencyMutations as $label => $mutation)
+            $this->assertValidProviderMutation($label, $mutation, true);
+
+        $topLevelExecutableMutations = [
+            'filesystem function' => $providerSource . "\nfile_put_contents('/tmp/blackops-d1-never', 'x');\n",
+            'environment function' => $providerSource . "\ngetenv('BLACKOPS_UNLISTED');\n",
+            'random function' => $providerSource . "\nrandom_bytes(1);\n",
+            'class lookup' => $providerSource . "\nclass_exists('BlackOps\\\\Other\\\\Unrelated');\n",
+            'dynamic function' => $providerSource . "\n\$unlistedFunction = 'strlen';\n\$unlistedFunction('x');\n",
+            'include' => $providerSource . "\ninclude '/tmp/blackops-unlisted';\n",
+            'require' => $providerSource . "\nrequire '/tmp/blackops-unlisted';\n",
+            'eval' => $providerSource . "\neval('return null;');\n",
+            'exit' => $providerSource . "\nexit('unlisted');\n",
+            'environment superglobal' => $providerSource . "\n\$_ENV['BLACKOPS_UNLISTED'];\n",
+            'server superglobal' => $providerSource . "\n\$_SERVER['BLACKOPS_UNLISTED'];\n",
+            'throw' => $providerSource . "\nthrow new \\RuntimeException('unlisted');\n",
+            'construction' => $providerSource . "\nnew \\stdClass();\n",
+            'assignment' => $providerSource . "\n\$unlistedValue = 1;\n",
+        ];
+        foreach ($topLevelExecutableMutations as $label => $mutation) {
+            $this->assertValidProviderMutation('top-level ' . $label . ' surface', $mutation, false);
+            $this->assertValidProviderMutation('top-level ' . $label . ' dependency', $mutation, true);
+        }
+
+        $allowedClassConstant = $this->replaceProviderSourceOnce(
+            $providerSource,
+            '        if (self::$instance instanceof AuditEventCatalog) {',
+            "        AuditActionPhase::class;\n        if (self::\$instance instanceof AuditEventCatalog) {",
+        );
+        $this->assertValidProviderMutation('allowed Core enum class constant', $allowedClassConstant, true, true);
+        $decoySource = $this->replaceProviderSourceOnce(
+            $providerSource,
+            '        if (self::$instance instanceof AuditEventCatalog) {',
+            "        // ImmutableAuditEventCatalogLookup is only a comment.\n        'BlackOps\\\\Other\\\\Unrelated';\n        if (self::\$instance instanceof AuditEventCatalog) {",
+        );
+        $this->assertValidProviderMutation('comments strings and unrelated class decoys', $decoySource, true, true);
+        $this->assertValidProviderMutation('comments strings and unrelated surface decoys', $decoySource, false, true);
+
+        $headerMutations = [
+            'extra ticks declaration' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                "declare(strict_types=1);\n",
+                "declare(strict_types=1);\ndeclare(ticks=1);\n",
+            ),
+            'strict declaration replacement' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                'declare(strict_types=1);',
+                'declare(ticks=1);',
+            ),
+            'strict declaration omission' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                "declare(strict_types=1);\n\n",
+                '',
+            ),
+            'strict declaration value' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                'declare(strict_types=1);',
+                'declare(strict_types=0);',
+            ),
+            'strict declaration block' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                'declare(strict_types=1);',
+                'declare(strict_types=1, ticks=1);',
+            ),
+        ];
+        foreach ($headerMutations as $label => $mutation) {
+            $this->assertValidProviderMutation($label . ' surface', $mutation, false);
+            $this->assertValidProviderMutation($label . ' dependency', $mutation, true);
+        }
+        $headerComment = $this->replaceProviderSourceOnce(
+            $providerSource,
+            "<?php\n",
+            "<?php\n// a header comment is inert\n",
+        );
+        $this->assertValidProviderMutation('header comment surface', $headerComment, false, true);
+        $this->assertValidProviderMutation('header comment dependency', $headerComment, true, true);
+
+        $providerPath = 'Internal/Audit/Catalog/FrameworkOperationalAuditEventCatalog.php';
+        self::assertSame(
+            [],
+            $this->operationalProviderReferenceInventory([$providerPath => $providerSource]),
+            'self::event() and self::$instance are legitimate provider-local references',
+        );
+        $providerWithUnrelatedClass = $providerSource . <<<'PHP'
+
+            final class UnrelatedOperationalCatalog
+            {
+                private static function probe(): void
+                {
+                    self::catalog();
+                    static::catalog();
+                }
+            }
+            PHP;
+        self::assertSame(
+            [],
+            $this->operationalProviderReferenceInventory([
+                'provider-with-unrelated-class' => $providerWithUnrelatedClass,
+            ]),
+            'self/static calls in another class are not provider references',
+        );
+        $referenceMutations = [
+            'dead-branch self catalog call' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                "    private function __construct() {}\n",
+                "    private function __construct() { if (false) { self::catalog(); } }\n",
+            ),
+            'dead-branch static catalog call' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                "    private function __construct() {}\n",
+                "    private function __construct() { if (false) { static::catalog(); } }\n",
+            ),
+            'parenthesized self catalog call' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                "    private function __construct() {}\n",
+                "    private function __construct() { if (false) { (self::catalog)(); } }\n",
+            ),
+            'parenthesized static catalog call' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                "    private function __construct() {}\n",
+                "    private function __construct() { if (false) { (static::catalog)(); } }\n",
+            ),
+            'class constant plus self catalog call' => $this->replaceProviderSourceOnce(
+                $providerSource,
+                "    private function __construct() {}\n",
+                "    private function __construct() { if (AuditActionPhase::class === '') { self::catalog(); } }\n",
+            ),
+        ];
+        foreach ($referenceMutations as $label => $mutation) {
+            try {
+                token_get_all($mutation, TOKEN_PARSE);
+            } catch (\ParseError $exception) {
+                self::fail($label . ' reference mutation is not valid PHP: ' . $exception->getMessage());
+            }
+            $references = $this->operationalProviderReferenceInventory([$providerPath => $mutation]);
+            self::assertCount(1, $references, $label . ' must be consumed by the reference scanner');
+            self::assertSame(FrameworkOperationalAuditEventCatalog::class, $references[0]['target'], $label);
+            self::assertSame('catalog', $references[0]['method'], $label);
+            self::assertSame(str_contains($label, 'self') ? 'self' : 'static', $references[0]['receiver'], $label);
+            self::assertSame(
+                str_contains($label, 'parenthesized') ? 'dynamic' : (str_contains($label, 'self') ? 'self' : 'static'),
+                $references[0]['kind'],
+                $label,
+            );
+            self::assertSame([$providerPath => 1], $this->operationalProviderCallsites([$providerPath => $mutation]));
+        }
+    }
+
+    public function testD1OperationalProviderReferenceAndNonactivationAreExact(): void
+    {
+        $sourceRoot = realpath(__DIR__ . '/../../src');
+        self::assertNotFalse($sourceRoot);
+        $sources = $this->sourceFiles($sourceRoot);
+        self::assertSame(
+            ['Internal/Audit/Catalog/ImmutableAuditEventCatalogLookup.php' => 1],
+            $this->operationalProviderCallsites($sources),
+        );
+        $lookupPath = 'Internal/Audit/Catalog/ImmutableAuditEventCatalogLookup.php';
+        self::assertSame(
+            [[
+                'path' => $lookupPath,
+                'target' => FrameworkOperationalAuditEventCatalog::class,
+                'receiver' => 'FrameworkOperationalAuditEventCatalog',
+                'method' => 'catalog',
+                'kind' => 'same_namespace',
+            ]],
+            $this->operationalProviderReferenceInventory($sources),
+        );
+        self::assertTrue($this->exactOperationalProviderReferenceShape($sources[$lookupPath]));
+        $movedProviderCall = str_replace(
+            '&& $catalog !== FrameworkOperationalAuditEventCatalog::catalog()',
+            '&& $catalog !== FrameworkAuditEventCatalog::catalog()',
+            str_replace(
+                '        $identities = [];',
+                "        \$identities = [];\n        FrameworkOperationalAuditEventCatalog::catalog();",
+                $sources[$lookupPath],
+            ),
+        );
+        self::assertFalse(
+            $this->exactOperationalProviderReferenceShape($movedProviderCall),
+            'a provider call outside the Framework-owner guard is not trusted',
+        );
+        self::assertTrue($this->exactOperationalProviderReferenceShape(
+            $sources[$lookupPath] . "\n// FrameworkOperationalAuditEventCatalog::catalog();\n",
+        ));
+        self::assertTrue($this->exactOperationalProviderReferenceShape(
+            $sources[$lookupPath] . "\n'FrameworkOperationalAuditEventCatalog::catalog()';\n",
+        ));
+
+        $providerPath = 'Internal/Audit/Catalog/FrameworkOperationalAuditEventCatalog.php';
+        foreach ($sources as $path => $source) {
+            if ($path === $providerPath || $path === $lookupPath)
+                continue;
+            self::assertStringNotContainsString(
+                'FrameworkOperationalAuditEventCatalog',
+                $this->phpCodeWithoutCommentsAndStrings($source),
+                $path,
+            );
+        }
+        self::assertSame([], glob(__DIR__ . '/../../src/Application/Audit/*') ?: []);
+        self::assertSame([], glob(__DIR__ . '/../../src/Http/Audit/*') ?: []);
+        self::assertSame([], glob(__DIR__ . '/../../src/Console/Audit/*') ?: []);
+
+        $lookupSource = $sources[$lookupPath];
+        $mutations = [
+            'alias' => str_replace(
+                'FrameworkOperationalAuditEventCatalog::catalog()',
+                'OperationalCatalog::catalog()',
+                str_replace(
+                    'namespace BlackOps\\Internal\\Audit\\Catalog;',
+                    "namespace BlackOps\\Internal\\Audit\\Catalog;\nuse BlackOps\\Internal\\Audit\\Catalog\\FrameworkOperationalAuditEventCatalog as OperationalCatalog;",
+                    $lookupSource,
+                ),
+            ),
+            'group use' => str_replace(
+                'FrameworkOperationalAuditEventCatalog::catalog()',
+                'OperationalCatalog::catalog()',
+                str_replace(
+                    'namespace BlackOps\\Internal\\Audit\\Catalog;',
+                    "namespace BlackOps\\Internal\\Audit\\Catalog;\nuse BlackOps\\Internal\\Audit\\Catalog\\{FrameworkOperationalAuditEventCatalog as OperationalCatalog};",
+                    $lookupSource,
+                ),
+            ),
+            'FQCN' => str_replace(
+                'FrameworkOperationalAuditEventCatalog::catalog()',
+                '\\BlackOps\\Internal\\Audit\\Catalog\\FrameworkOperationalAuditEventCatalog::catalog()',
+                $lookupSource,
+            ),
+            'ordinary import' => str_replace(
+                'namespace BlackOps\\Internal\\Audit\\Catalog;',
+                "namespace BlackOps\\Internal\\Audit\\Catalog;\nuse BlackOps\\Internal\\Audit\\Catalog\\FrameworkOperationalAuditEventCatalog;",
+                $lookupSource,
+            ),
+            'class string' => str_replace(
+                'FrameworkOperationalAuditEventCatalog::catalog()',
+                'class_exists(FrameworkOperationalAuditEventCatalog::class)',
+                $lookupSource,
+            ),
+            'reflection' => str_replace(
+                'FrameworkOperationalAuditEventCatalog::catalog()',
+                "new \\ReflectionMethod(FrameworkOperationalAuditEventCatalog::class, 'catalog')->invoke(null)",
+                $lookupSource,
+            ),
+            'callable array' => str_replace(
+                'FrameworkOperationalAuditEventCatalog::catalog()',
+                "call_user_func([FrameworkOperationalAuditEventCatalog::class, 'catalog'])",
+                $lookupSource,
+            ),
+            'dynamic receiver' => str_replace(
+                'FrameworkOperationalAuditEventCatalog::catalog()',
+                '$provider::catalog()',
+                $lookupSource,
+            ),
+            'parenthesized call' => str_replace(
+                'FrameworkOperationalAuditEventCatalog::catalog()',
+                '(FrameworkOperationalAuditEventCatalog::catalog)()',
+                $lookupSource,
+            ),
+            'one-hop consumed class string' => str_replace(
+                'FrameworkOperationalAuditEventCatalog::catalog()',
+                '(static function (): bool { $class = FrameworkOperationalAuditEventCatalog::class; return class_exists($class); })()',
+                $lookupSource,
+            ),
+            'two-hop consumed class string' => str_replace(
+                'FrameworkOperationalAuditEventCatalog::catalog()',
+                "(static function (): bool { \$class = 'BlackOps\\\\Internal\\\\Audit\\\\Catalog\\\\FrameworkOperationalAuditEventCatalog'; \$one = \$class; \$two = \$one; return class_exists(\$two); })()",
+                $lookupSource,
+            ),
+            'second declaration call' => $lookupSource . "\nFrameworkOperationalAuditEventCatalog::catalog();\n",
+            'foreign namespace' => str_replace(
+                'namespace BlackOps\\Internal\\Audit\\Catalog;',
+                'namespace BlackOps\\Internal\\Audit\\Other;',
+                $lookupSource,
+            ),
+            'missing reference' => str_replace(
+                'FrameworkOperationalAuditEventCatalog::catalog()',
+                'FrameworkAuditEventCatalog::catalog()',
+                $lookupSource,
+            ),
+            'wrong construction' => str_replace(
+                'FrameworkOperationalAuditEventCatalog::catalog()',
+                'new ImmutableAuditEventCatalogLookup([])',
+                $lookupSource,
+            ),
+        ];
+        foreach ($mutations as $label => $mutation) {
+            try {
+                token_get_all($mutation, TOKEN_PARSE);
+            } catch (\ParseError $exception) {
+                self::fail($label . ' reference mutation is not valid PHP: ' . $exception->getMessage());
+            }
+            self::assertFalse($this->exactOperationalProviderReferenceShape($mutation), $label);
+        }
+
+        $extraCaller = $sources;
+        $extraCaller['External/OperationalCatalogCaller.php'] = '<?php \\BlackOps\\Internal\\Audit\\Catalog\\FrameworkOperationalAuditEventCatalog::catalog();';
+        self::assertSame(
+            [
+                'External/OperationalCatalogCaller.php' => 1,
+                'Internal/Audit/Catalog/ImmutableAuditEventCatalogLookup.php' => 1,
+            ],
+            $this->operationalProviderCallsites($extraCaller),
+        );
+        self::assertSame(
+            [
+                [
+                    'path' => 'External/OperationalCatalogCaller.php',
+                    'target' => FrameworkOperationalAuditEventCatalog::class,
+                    'receiver' => '\\BlackOps\\Internal\\Audit\\Catalog\\FrameworkOperationalAuditEventCatalog',
+                    'method' => 'catalog',
+                    'kind' => 'fqcn',
+                ],
+                [
+                    'path' => $lookupPath,
+                    'target' => FrameworkOperationalAuditEventCatalog::class,
+                    'receiver' => 'FrameworkOperationalAuditEventCatalog',
+                    'method' => 'catalog',
+                    'kind' => 'same_namespace',
+                ],
+            ],
+            $this->operationalProviderReferenceInventory($extraCaller),
+        );
+
+        $indirectCallers = [
+            'External/OperationalCatalogClassStringLiteral.php' => <<<'PHP'
+                <?php
+                class_exists('BlackOps\Internal\Audit\Catalog\FrameworkOperationalAuditEventCatalog');
+                PHP,
+            'External/OperationalCatalogClassStringOneHop.php' => <<<'PHP'
+                <?php
+                namespace External;
+                $class = \BlackOps\Internal\Audit\Catalog\FrameworkOperationalAuditEventCatalog::class;
+                $one = $class;
+                class_exists($one);
+                PHP,
+            'External/OperationalCatalogClassStringTwoHop.php' => <<<'PHP'
+                <?php
+                $class = 'BlackOps\Internal\Audit\Catalog\FrameworkOperationalAuditEventCatalog';
+                $one = $class;
+                $two = $one;
+                class_exists($two);
+                PHP,
+            'External/OperationalCatalogReflection.php' => <<<'PHP'
+                <?php
+                namespace External;
+                new \ReflectionClass(\BlackOps\Internal\Audit\Catalog\FrameworkOperationalAuditEventCatalog::class);
+                PHP,
+            'External/OperationalCatalogReflectionMethodOneHop.php' => <<<'PHP'
+                <?php
+                namespace External;
+                $class = \BlackOps\Internal\Audit\Catalog\FrameworkOperationalAuditEventCatalog::class;
+                new \ReflectionMethod($class, 'catalog');
+                PHP,
+            'External/OperationalCatalogCallable.php' => <<<'PHP'
+                <?php
+                namespace External;
+                call_user_func([\BlackOps\Internal\Audit\Catalog\FrameworkOperationalAuditEventCatalog::class, 'catalog']);
+                PHP,
+            'External/OperationalCatalogCallableLongLiteral.php' => <<<'PHP'
+                <?php
+                namespace External;
+                call_user_func(array(
+                    'BlackOps\Internal\Audit\Catalog\FrameworkOperationalAuditEventCatalog',
+                    'catalog',
+                ));
+                PHP,
+            'External/OperationalCatalogCallableLongClassString.php' => <<<'PHP'
+                <?php
+                namespace External;
+                call_user_func(array(
+                    \BlackOps\Internal\Audit\Catalog\FrameworkOperationalAuditEventCatalog::class,
+                    'catalog',
+                ));
+                PHP,
+            'External/OperationalCatalogCallableLongVariable.php' => <<<'PHP'
+                <?php
+                namespace External;
+                $class = \BlackOps\Internal\Audit\Catalog\FrameworkOperationalAuditEventCatalog::class;
+                call_user_func(array($class, 'catalog'));
+                PHP,
+            'External/OperationalCatalogCallableTwoHop.php' => <<<'PHP'
+                <?php
+                namespace External;
+                $class = 'BlackOps\Internal\Audit\Catalog\FrameworkOperationalAuditEventCatalog';
+                $one = $class;
+                $callable = [$one, 'catalog'];
+                call_user_func($callable);
+                PHP,
+            'External/OperationalCatalogDynamicReceiver.php' => <<<'PHP'
+                <?php
+                namespace External;
+                $class = \BlackOps\Internal\Audit\Catalog\FrameworkOperationalAuditEventCatalog::class;
+                $class::catalog();
+                PHP,
+            'External/OperationalCatalogDynamicReceiverTwoHop.php' => <<<'PHP'
+                <?php
+                namespace External;
+                $class = 'BlackOps\Internal\Audit\Catalog\FrameworkOperationalAuditEventCatalog';
+                $one = $class;
+                $two = $one;
+                $two::catalog();
+                PHP,
+            'External/OperationalCatalogDynamicNew.php' => <<<'PHP'
+                <?php
+                namespace External;
+                $class = \BlackOps\Internal\Audit\Catalog\FrameworkOperationalAuditEventCatalog::class;
+                new $class();
+                PHP,
+        ];
+        foreach ($indirectCallers as $path => $source) {
+            try {
+                token_get_all($source, TOKEN_PARSE);
+            } catch (\ParseError $exception) {
+                self::fail($path . ' indirect caller fixture is not valid PHP: ' . $exception->getMessage());
+            }
+        }
+        $indirectInventory = $this->operationalProviderReferenceInventory($indirectCallers);
+        self::assertCount(count($indirectCallers), $indirectInventory);
+        $indirectPaths = array_keys($indirectCallers);
+        sort($indirectPaths);
+        self::assertSame(array_values(array_map(static fn(string $path): array => [
+            'path' => $path,
+            'target' => FrameworkOperationalAuditEventCatalog::class,
+            'receiver' => match (true) {
+                str_contains($path, 'Reflection') => str_contains($path, 'Method')
+                    ? 'ReflectionMethod'
+                    : 'ReflectionClass',
+                str_contains($path, 'Callable') => 'callable-array',
+                str_contains($path, 'DynamicNew') => '$class',
+                str_contains($path, 'DynamicReceiver') => str_contains($path, 'TwoHop') ? '$two' : '$class',
+                default => 'class_exists',
+            },
+            'method' => match (true) {
+                str_contains($path, 'Reflection') => '__construct',
+                str_contains($path, 'Callable') => 'catalog',
+                str_contains($path, 'DynamicNew') => '__construct',
+                str_contains($path, 'DynamicReceiver') => 'catalog',
+                default => 'class_exists',
+            },
+            'kind' => match (true) {
+                str_contains($path, 'Reflection') => 'reflection',
+                str_contains($path, 'Callable') => 'callable',
+                str_contains($path, 'DynamicReceiver') || str_contains($path, 'DynamicNew') => 'dynamic',
+                default => 'class_string',
+            },
+        ], $indirectPaths)), $indirectInventory);
+        self::assertSame(array_fill_keys($indirectPaths, 1), $this->operationalProviderCallsites($indirectCallers));
+        self::assertSame(
+            [],
+            $this->operationalProviderReferenceInventory([
+                'External/OperationalCatalogDecoys.php' => <<<'PHP'
+                    <?php
+                    // class_exists('BlackOps\Internal\Audit\Catalog\FrameworkOperationalAuditEventCatalog');
+                    $unused = 'BlackOps\Internal\Audit\Catalog\FrameworkOperationalAuditEventCatalog';
+                    $unrelated = new \stdClass();
+                    PHP,
+            ]),
+            'unconsumed strings and comments are not provider references',
+        );
+        $directDynamic = <<<'PHP'
+            <?php
+            $suffix = 'dynamic';
+            $class = 'BlackOps\Internal\Audit\Catalog\FrameworkOperationalAuditEventCatalog' . $suffix;
+            class_exists($class);
+            PHP;
+        try {
+            token_get_all($directDynamic, TOKEN_PARSE);
+        } catch (\ParseError $exception) {
+            self::fail('direct dynamic class-string fixture is not valid PHP: ' . $exception->getMessage());
+        }
+        self::assertSame(
+            [],
+            $this->operationalProviderReferenceInventory([
+                'External/OperationalCatalogDirectDynamic.php' => $directDynamic,
+            ]),
+            'a literal class-string prefix concatenated with a runtime suffix is not a consumed provider identity',
+        );
+        $knownConcat = <<<'PHP'
+            <?php
+            $prefix = 'BlackOps\Internal\Audit\Catalog\FrameworkOperationalAuditEvent';
+            $suffix = 'Catalog';
+            $class = $prefix . $suffix;
+            class_exists($class);
+            PHP;
+        try {
+            token_get_all($knownConcat, TOKEN_PARSE);
+        } catch (\ParseError $exception) {
+            self::fail('known concatenated class-string fixture is not valid PHP: ' . $exception->getMessage());
+        }
+        self::assertSame(
+            [[
+                'path' => 'External/OperationalCatalogKnownConcat.php',
+                'target' => FrameworkOperationalAuditEventCatalog::class,
+                'receiver' => 'class_exists',
+                'method' => 'class_exists',
+                'kind' => 'dynamic',
+            ]],
+            $this->operationalProviderReferenceInventory([
+                'External/OperationalCatalogKnownConcat.php' => $knownConcat,
+            ]),
+            'a known literal concatenation resolving to the provider is a dynamic reference',
+        );
+        $wholePathCaller = $sources;
+        $wholePathCaller['Internal/Audit/Catalog/FrameworkOperationalAuditEventCatalog.php'] = '<?php \\BlackOps\\Internal\\Audit\\Catalog\\FrameworkOperationalAuditEventCatalog::catalog();';
+        self::assertSame(
+            [
+                'Internal/Audit/Catalog/FrameworkOperationalAuditEventCatalog.php' => 1,
+                'Internal/Audit/Catalog/ImmutableAuditEventCatalogLookup.php' => 1,
+            ],
+            $this->operationalProviderCallsites($wholePathCaller),
+            'the provider path is scanned as a normal source and cannot be exempted wholesale',
+        );
+        self::assertSame(
+            [
+                [
+                    'path' => 'Internal/Audit/Catalog/FrameworkOperationalAuditEventCatalog.php',
+                    'target' => FrameworkOperationalAuditEventCatalog::class,
+                    'receiver' => '\\BlackOps\\Internal\\Audit\\Catalog\\FrameworkOperationalAuditEventCatalog',
+                    'method' => 'catalog',
+                    'kind' => 'fqcn',
+                ],
+                [
+                    'path' => 'Internal/Audit/Catalog/ImmutableAuditEventCatalogLookup.php',
+                    'target' => FrameworkOperationalAuditEventCatalog::class,
+                    'receiver' => 'FrameworkOperationalAuditEventCatalog',
+                    'method' => 'catalog',
+                    'kind' => 'same_namespace',
+                ],
+            ],
+            $this->operationalProviderReferenceInventory($wholePathCaller),
+        );
+    }
+
+    private function replaceProviderSourceOnce(string $source, string $search, string $replacement): string
+    {
+        $result = str_replace($search, $replacement, $source, $count);
+        self::assertSame(1, $count, 'provider mutation did not have one target');
+        self::assertIsString($result);
+
+        return $result;
+    }
+
+    /** @mago-expect lint:no-boolean-flag-parameter */
+    private function assertValidProviderMutation(
+        string $label,
+        string $source,
+        bool $dependency,
+        bool $expected = false,
+    ): void {
+        try {
+            token_get_all($source, TOKEN_PARSE);
+        } catch (\ParseError $exception) {
+            self::fail($label . ' is not a valid PHP fixture: ' . $exception->getMessage());
+        }
+        self::assertSame(
+            $expected,
+            $dependency
+                ? $this->operationalProviderDependencyShape($source)
+                : $this->operationalProviderSurfaceShape($source),
+            $label . ' scanner result was unexpected',
+        );
+    }
+
+    private function operationalProviderSurfaceShape(string $source): bool
+    {
+        try {
+            $tokens = token_get_all($source, TOKEN_PARSE);
+        } catch (\ParseError) {
+            return false;
+        }
+        if ($this->namespaceName($tokens) !== 'BlackOps\\Internal\\Audit\\Catalog')
+            return false;
+
+        $classIndexes = [];
+        foreach ($tokens as $index => $token) {
+            if (
+                is_array($token)
+                && $token[0] === T_CLASS
+                && ($nameIndex = $this->nextSignificantToken($tokens, $index + 1)) !== null
+                && is_array($tokens[$nameIndex])
+                && $tokens[$nameIndex][0] === T_STRING
+            )
+                $classIndexes[] = $index;
+        }
+        if (count($classIndexes) !== 1)
+            return false;
+        foreach ($tokens as $token) {
+            if (is_array($token) && in_array($token[0], [T_INTERFACE, T_TRAIT, T_ENUM], true))
+                return false;
+            if (defined('T_ATTRIBUTE') && is_array($token) && $token[0] === T_ATTRIBUTE)
+                return false;
+        }
+        $classIndex = $classIndexes[0];
+        $modifier = $this->previousSignificantToken($tokens, $classIndex - 1);
+        if ($modifier === null || !is_array($tokens[$modifier]) || $tokens[$modifier][0] !== T_FINAL)
+            return false;
+        $beforeFinal = $this->previousSignificantToken($tokens, $modifier - 1);
+        if (
+            $beforeFinal !== null
+            && is_array($tokens[$beforeFinal])
+            && in_array($tokens[$beforeFinal][0], [T_PUBLIC, T_PROTECTED, T_PRIVATE, T_ABSTRACT, T_READONLY], true)
+        )
+            return false;
+        $className = $this->nextSignificantToken($tokens, $classIndex + 1);
+        if (
+            $className === null
+            || !is_array($tokens[$className])
+            || $tokens[$className][0] !== T_STRING
+            || $tokens[$className][1] !== 'FrameworkOperationalAuditEventCatalog'
+        )
+            return false;
+        $opening = $this->nextSignificantToken($tokens, $className + 1);
+        while ($opening !== null && $tokens[$opening] !== '{') {
+            if (is_array($tokens[$opening]) && in_array($tokens[$opening][0], [T_EXTENDS, T_IMPLEMENTS], true))
+                return false;
+            $opening = $this->nextSignificantToken($tokens, $opening + 1);
+        }
+        if ($opening === null)
+            return false;
+        $closing = $this->matchingBrace($tokens, $opening);
+        if ($closing === null)
+            return false;
+        if (!$this->operationalProviderTopLevelShape($tokens, $classIndex, $opening, $closing))
+            return false;
+        $namespaceDeclarations = 0;
+        foreach ($tokens as $index => $token) {
+            if (is_array($token) && $token[0] === T_NAMESPACE)
+                $namespaceDeclarations++;
+            if ($index < $opening || $index > $closing) {
+                if (
+                    is_array($token)
+                    && in_array($token[0], [T_FUNCTION, T_CONST, T_CLASS, T_INTERFACE, T_TRAIT, T_ENUM], true)
+                    && !($token[0] === T_CLASS && $index === $classIndex)
+                )
+                    return false;
+            }
+        }
+        if ($namespaceDeclarations !== 1)
+            return false;
+
+        $methods = [];
+        $properties = [];
+        $depth = 1;
+        for ($index = $opening + 1; $index < $closing; $index++) {
+            $token = $tokens[$index];
+            if ($token === '{') {
+                $depth++;
+                continue;
+            }
+            if ($token === '}') {
+                $depth--;
+                continue;
+            }
+            if ($depth !== 1 || !is_array($token))
+                continue;
+            if ($token[0] === T_USE || $token[0] === T_CONST || defined('T_ATTRIBUTE') && $token[0] === T_ATTRIBUTE)
+                return false;
+            if ($token[0] === T_FUNCTION) {
+                $nameIndex = $this->nextSignificantToken($tokens, $index + 1);
+                if ($nameIndex !== null && $tokens[$nameIndex] === '&')
+                    $nameIndex = $this->nextSignificantToken($tokens, $nameIndex + 1);
+                if ($nameIndex === null || !is_array($tokens[$nameIndex]) || $tokens[$nameIndex][0] !== T_STRING)
+                    return false;
+                $parameterOpening = $this->nextSignificantToken($tokens, $nameIndex + 1);
+                if ($parameterOpening === null || $tokens[$parameterOpening] !== '(')
+                    return false;
+                $parameterClosing = $this->matchingParenthesis($tokens, $parameterOpening);
+                if ($parameterClosing === null)
+                    return false;
+                $bodyOpening = $this->nextSignificantToken($tokens, $parameterClosing + 1);
+                if ($bodyOpening === null)
+                    return false;
+                $returnType = null;
+                if ($tokens[$bodyOpening] === ':') {
+                    $returnTokens = [];
+                    for ($returnIndex = $bodyOpening + 1; $returnIndex < $closing; $returnIndex++) {
+                        if ($tokens[$returnIndex] === '{' || $tokens[$returnIndex] === ';') {
+                            $bodyOpening = $returnIndex;
+                            break;
+                        }
+                        $returnTokens[] = $tokens[$returnIndex];
+                    }
+                    $returnType = [
+                        'type' => $this->providerTypeFromTokens($returnTokens, $tokens),
+                        'nullable' => $this->providerTypeIsNullable($returnTokens),
+                    ];
+                }
+                if ($tokens[$bodyOpening] !== '{')
+                    return false;
+                $methods[] = [
+                    'name' => $tokens[$nameIndex][1],
+                    'modifiers' => $this->providerMethodModifiers($tokens, $index, $opening),
+                    'parameters' => $this->providerParameterDescriptors($tokens, $parameterOpening, $parameterClosing),
+                    'return' => $returnType,
+                ];
+                $bodyClosing = $this->matchingBrace($tokens, $bodyOpening);
+                if ($bodyClosing === null)
+                    return false;
+                $index = $bodyClosing;
+                continue;
+            }
+            if ($token[0] === T_VARIABLE) {
+                $semicolon = $this->nextSignificantToken($tokens, $index + 1);
+                while ($semicolon !== null && $tokens[$semicolon] !== ';')
+                    $semicolon = $this->nextSignificantToken($tokens, $semicolon + 1);
+                if ($semicolon === null)
+                    return false;
+                $properties[] = $this->providerPropertyDescriptor($tokens, $index, $semicolon, $opening);
+                $index = $semicolon;
+            }
+        }
+
+        usort($methods, static fn(array $left, array $right): int => $left['name'] <=> $right['name']);
+        usort($properties, static fn(array $left, array $right): int => $left['name'] <=> $right['name']);
+
+        if ($this->operationalProviderReferenceInventory(['provider' => $source]) !== [])
+            return false;
+
+        return (
+            $methods === [
+                [
+                    'name' => '__construct',
+                    'modifiers' => ['private'],
+                    'parameters' => [],
+                    'return' => null,
+                ],
+                [
+                    'name' => 'catalog',
+                    'modifiers' => ['public', 'static'],
+                    'parameters' => [],
+                    'return' => ['type' => AuditEventCatalog::class, 'nullable' => false],
+                ],
+                [
+                    'name' => 'event',
+                    'modifiers' => ['private', 'static'],
+                    'parameters' => [
+                        [
+                            'name' => 'type',
+                            'type' => 'string',
+                            'nullable' => false,
+                            'default' => null,
+                            'attributes' => [],
+                        ],
+                        [
+                            'name' => 'phase',
+                            'type' => AuditActionPhase::class,
+                            'nullable' => false,
+                            'default' => null,
+                            'attributes' => [],
+                        ],
+                        [
+                            'name' => 'resource',
+                            'type' => 'string',
+                            'nullable' => false,
+                            'default' => null,
+                            'attributes' => [],
+                        ],
+                        [
+                            'name' => 'status',
+                            'type' => AuditOutcomeStatus::class,
+                            'nullable' => false,
+                            'default' => null,
+                            'attributes' => [],
+                        ],
+                        [
+                            'name' => 'outcome',
+                            'type' => 'string',
+                            'nullable' => false,
+                            'default' => null,
+                            'attributes' => [],
+                        ],
+                        [
+                            'name' => 'policy',
+                            'type' => AuditPolicyDecision::class,
+                            'nullable' => false,
+                            'default' => null,
+                            'attributes' => [],
+                        ],
+                        [
+                            'name' => 'reason',
+                            'type' => 'string',
+                            'nullable' => false,
+                            'default' => null,
+                            'attributes' => [],
+                        ],
+                        [
+                            'name' => 'delivery',
+                            'type' => AuditDelivery::class,
+                            'nullable' => false,
+                            'default' => null,
+                            'attributes' => [],
+                        ],
+                    ],
+                    'return' => ['type' => AuditEventDefinition::class, 'nullable' => false],
+                ],
+            ]
+            && $properties === [[
+                'name' => 'instance',
+                'visibility' => 'private',
+                'static' => true,
+                'type' => AuditEventCatalog::class,
+                'nullable' => true,
+                'default' => 'null',
+                'attributes' => [],
+            ]]
+        );
+    }
+
+    /** @param list<array{0:int,1:string,2:int}|string> $tokens @return list<string> */
+    private function providerMethodModifiers(array $tokens, int $functionIndex, int $classOpening): array
+    {
+        $modifiers = [];
+        $skippedPreviousBody = false;
+        for ($index = $functionIndex - 1; $index > $classOpening; $index--) {
+            $token = $tokens[$index];
+            if (!is_array($token) || in_array($token[0], [T_WHITESPACE, T_COMMENT, T_DOC_COMMENT], true))
+                continue;
+            if ($token === '}' && !$skippedPreviousBody) {
+                $skippedPreviousBody = true;
+                continue;
+            }
+            $modifier =
+                [
+                    T_PUBLIC => 'public',
+                    T_PROTECTED => 'protected',
+                    T_PRIVATE => 'private',
+                    T_STATIC => 'static',
+                    T_FINAL => 'final',
+                    T_ABSTRACT => 'abstract',
+                ][$token[0]] ?? null;
+            if ($modifier === null)
+                break;
+            $modifiers[] = $modifier;
+        }
+        sort($modifiers);
+
+        return $modifiers;
+    }
+
+    /** @param list<array{0:int,1:string,2:int}|string> $tokens */
+    private function providerPropertyDescriptor(
+        array $tokens,
+        int $variableIndex,
+        int $semicolon,
+        int $classOpening,
+    ): array {
+        $start = $variableIndex;
+        while ($start > ($classOpening + 1)) {
+            $previous = $this->previousSignificantToken($tokens, $start - 1);
+            if ($previous === null || in_array($tokens[$previous], [';', '{', '}'], true))
+                break;
+            $start = $previous;
+        }
+        $visibility = null;
+        $static = false;
+        $typeTokens = [];
+        $default = null;
+        $seenVariable = false;
+        for ($index = $start; $index < $semicolon; $index++) {
+            $token = $tokens[$index];
+            if ($token === '=') {
+                $defaultTokens = [];
+                for ($defaultIndex = $index + 1; $defaultIndex < $semicolon; $defaultIndex++)
+                    $defaultTokens[] = $tokens[$defaultIndex];
+                $default = $this->providerTokenText($defaultTokens);
+                break;
+            }
+            if (!is_array($token)) {
+                if (!$seenVariable)
+                    $typeTokens[] = $token;
+                continue;
+            }
+            if (in_array($token[0], [T_WHITESPACE, T_COMMENT, T_DOC_COMMENT], true))
+                continue;
+            if (
+                defined('T_ATTRIBUTE') && $token[0] === T_ATTRIBUTE
+                || defined('T_READONLY') && $token[0] === T_READONLY
+            )
+                return ['invalid' => true];
+            if (in_array($token[0], [T_PRIVATE, T_PROTECTED, T_PUBLIC], true)) {
+                $visibility = strtolower($token[1]);
+                continue;
+            }
+            if ($token[0] === T_STATIC) {
+                $static = true;
+                continue;
+            }
+            if ($token[0] === T_VARIABLE) {
+                if ($seenVariable)
+                    return ['invalid' => true];
+                $seenVariable = true;
+                $name = substr($token[1], 1);
+                continue;
+            }
+            if (!$seenVariable)
+                $typeTokens[] = $token;
+        }
+
+        return [
+            'name' => $name ?? '',
+            'visibility' => $visibility,
+            'static' => $static,
+            'type' => $this->providerTypeFromTokens($typeTokens, $tokens),
+            'nullable' => $this->providerTypeIsNullable($typeTokens),
+            'default' => $default,
+            'attributes' => [],
+        ];
+    }
+
+    /** @param list<array{0:int,1:string,2:int}|string> $tokens @return list<array{name:string,type:?string,nullable:bool,default:?string,attributes:list<string>}> */
+    private function providerParameterDescriptors(array $tokens, int $opening, int $closing): array
+    {
+        $parameters = [];
+        $part = [];
+        $depth = 0;
+        $parts = [];
+        for ($index = $opening + 1; $index < $closing; $index++) {
+            $token = $tokens[$index];
+            if (in_array($token, ['(', '[', '{'], true))
+                $depth++;
+            if (in_array($token, [')', ']', '}'], true))
+                $depth--;
+            if ($token === ',' && $depth === 0) {
+                $parts[] = $part;
+                $part = [];
+                continue;
+            }
+            $part[] = $token;
+        }
+        if ($part !== [] && $this->providerTokenText($part) !== '')
+            $parts[] = $part;
+        foreach ($parts as $part) {
+            $name = '';
+            $variableIndex = null;
+            foreach ($part as $index => $token)
+                if (is_array($token) && $token[0] === T_VARIABLE) {
+                    $name = substr($token[1], 1);
+                    $variableIndex = $index;
+                }
+            if ($variableIndex === null)
+                return [[
+                    'name' => '',
+                    'type' => null,
+                    'nullable' => false,
+                    'default' => null,
+                    'attributes' => ['invalid'],
+                ]];
+            $typeTokens = array_slice($part, 0, $variableIndex);
+            $default = null;
+            foreach ($part as $index => $token) {
+                if ($index <= $variableIndex || $token !== '=')
+                    continue;
+                $default = $this->providerTokenText(array_slice($part, $index + 1));
+                break;
+            }
+            $attributes = [];
+            foreach ($typeTokens as $token)
+                if ($token === '#[' || is_array($token) && defined('T_ATTRIBUTE') && $token[0] === T_ATTRIBUTE)
+                    $attributes[] = 'attribute';
+            $parameters[] = [
+                'name' => $name,
+                'type' => $this->providerTypeFromTokens($typeTokens, $tokens),
+                'nullable' => $this->providerTypeIsNullable($typeTokens),
+                'default' => $default,
+                'attributes' => $attributes,
+            ];
+        }
+
+        return $parameters;
+    }
+
+    /** @param list<array{0:int,1:string,2:int}|string> $typeTokens @param list<array{0:int,1:string,2:int}|string> $allTokens */
+    private function providerTypeFromTokens(array $typeTokens, array $allTokens): ?string
+    {
+        $names = [];
+        foreach ($typeTokens as $token) {
+            if (!is_array($token) || !$this->isNameToken($token))
+                continue;
+            if (in_array(
+                $token[1],
+                ['string', 'int', 'bool', 'float', 'array', 'mixed', 'object', 'iterable', 'callable', 'void', 'never'],
+                true,
+            ))
+                $names[] = $token[1];
+            else
+                $names[] = $this->resolveClassName(
+                    $token,
+                    $this->namespaceName($allTokens),
+                    $this->importAliases($allTokens),
+                );
+        }
+        if ($names === [])
+            return null;
+        if (count($names) !== 1)
+            return implode('|', $names);
+        $name = $names[0];
+        return $name;
+    }
+
+    /** @param list<array{0:int,1:string,2:int}|string> $tokens */
+    private function providerTypeIsNullable(array $tokens): bool
+    {
+        foreach ($tokens as $token)
+            if ($token === '?')
+                return true;
+
+        return false;
+    }
+
+    /** @param list<array{0:int,1:string,2:int}|string> $tokens */
+    private function providerTokenText(array $tokens): string
+    {
+        $text = '';
+        foreach ($tokens as $token) {
+            if (is_array($token) && in_array($token[0], [T_WHITESPACE, T_COMMENT, T_DOC_COMMENT], true))
+                continue;
+            $text .= is_array($token) ? $token[1] : $token;
+        }
+
+        return $text;
+    }
+
+    /** @param list<array{0:int,1:string,2:int}|string> $tokens */
+    private function matchingBrace(array $tokens, int $opening): ?int
+    {
+        $depth = 0;
+        for ($index = $opening, $count = count($tokens); $index < $count; $index++) {
+            if ($tokens[$index] === '{')
+                $depth++;
+            elseif ($tokens[$index] === '}') {
+                $depth--;
+                if ($depth === 0)
+                    return $index;
+            }
+        }
+
+        return null;
+    }
+
+    /** @param list<array{0:int,1:string,2:int}|string> $tokens */
+    private function operationalProviderTopLevelShape(
+        array $tokens,
+        int $classIndex,
+        int $classOpening,
+        int $classClosing,
+    ): bool {
+        $statement = null;
+        $statementStart = null;
+        $declares = [];
+        $namespaces = [];
+        $imports = [];
+        for ($index = 0; $index < $classIndex; $index++) {
+            $token = $tokens[$index];
+            if (is_array($token) && in_array($token[0], [T_WHITESPACE, T_COMMENT, T_DOC_COMMENT, T_OPEN_TAG], true))
+                continue;
+            if ($statement === null) {
+                if (is_array($token) && $token[0] === T_FINAL)
+                    continue;
+                if (!is_array($token) || !in_array($token[0], [T_DECLARE, T_NAMESPACE, T_USE], true))
+                    return false;
+                $statement = $token[0];
+                $statementStart = $index;
+                continue;
+            }
+            if ($token === ';') {
+                if ($statementStart === null)
+                    return false;
+                $text = $this->providerTokenText(array_slice($tokens, $statementStart, $index - $statementStart + 1));
+                if ($statement === T_DECLARE)
+                    $declares[] = $text;
+                elseif ($statement === T_NAMESPACE)
+                    $namespaces[] = $text;
+                else
+                    $imports[] = $text;
+                $statement = null;
+                $statementStart = null;
+                continue;
+            }
+            if (
+                is_array($token)
+                && in_array($token[0], [T_CLASS, T_INTERFACE, T_TRAIT, T_ENUM, T_FUNCTION, T_CONST], true)
+            )
+                return false;
+        }
+        if ($statement !== null)
+            return false;
+        sort($imports);
+        if ($declares !== ['declare(strict_types=1);'])
+            return false;
+        if ($namespaces !== ['namespaceBlackOps\\Internal\\Audit\\Catalog;'])
+            return false;
+        if (
+            $imports !== [
+                'useBlackOps\\Core\\Audit\\AuditActionPhase;',
+                'useBlackOps\\Core\\Audit\\AuditDelivery;',
+                'useBlackOps\\Core\\Audit\\AuditEventCatalog;',
+                'useBlackOps\\Core\\Audit\\AuditEventCategory;',
+                'useBlackOps\\Core\\Audit\\AuditEventDefinition;',
+                'useBlackOps\\Core\\Audit\\AuditOutcomeStatus;',
+                'useBlackOps\\Core\\Audit\\AuditPolicyDecision;',
+                'useBlackOps\\Core\\Audit\\AuditSemanticTuple;',
+                'useBlackOps\\Core\\Audit\\AuditSourceOwner;',
+            ]
+        )
+            return false;
+
+        for ($index = $classClosing + 1, $count = count($tokens); $index < $count; $index++) {
+            $token = $tokens[$index];
+            if (is_array($token) && in_array($token[0], [T_WHITESPACE, T_COMMENT, T_DOC_COMMENT], true))
+                continue;
+            return false;
+        }
+
+        return $classOpening < $classClosing;
+    }
+
+    private function operationalProviderDependencyShape(string $source): bool
+    {
+        $expectedImports = [
+            'use BlackOps\\Core\\Audit\\AuditActionPhase;',
+            'use BlackOps\\Core\\Audit\\AuditDelivery;',
+            'use BlackOps\\Core\\Audit\\AuditEventCatalog;',
+            'use BlackOps\\Core\\Audit\\AuditEventCategory;',
+            'use BlackOps\\Core\\Audit\\AuditEventDefinition;',
+            'use BlackOps\\Core\\Audit\\AuditOutcomeStatus;',
+            'use BlackOps\\Core\\Audit\\AuditPolicyDecision;',
+            'use BlackOps\\Core\\Audit\\AuditSemanticTuple;',
+            'use BlackOps\\Core\\Audit\\AuditSourceOwner;',
+        ];
+        preg_match_all('/^use[ \\t]+[^;]+;[ \\t]*$/m', $source, $matches);
+        $actualImports = $matches[0] ?? [];
+        sort($expectedImports);
+        sort($actualImports);
+        if ($expectedImports !== $actualImports)
+            return false;
+
+        try {
+            $tokens = token_get_all($source, TOKEN_PARSE);
+        } catch (\ParseError) {
+            return false;
+        }
+        if ($this->namespaceName($tokens) !== 'BlackOps\\Internal\\Audit\\Catalog')
+            return false;
+        $classIndex = null;
+        foreach ($tokens as $index => $token) {
+            if (
+                is_array($token)
+                && $token[0] === T_CLASS
+                && ($nameIndex = $this->nextSignificantToken($tokens, $index + 1)) !== null
+                && is_array($tokens[$nameIndex])
+                && $tokens[$nameIndex][0] === T_STRING
+            ) {
+                $classIndex = $index;
+                break;
+            }
+        }
+        if ($classIndex === null)
+            return false;
+        $className = $this->nextSignificantToken($tokens, $classIndex + 1);
+        $opening = $className === null ? null : $this->nextSignificantToken($tokens, $className + 1);
+        while ($opening !== null && $tokens[$opening] !== '{')
+            $opening = $this->nextSignificantToken($tokens, $opening + 1);
+        if ($opening === null)
+            return false;
+        $closing = $this->matchingBrace($tokens, $opening);
+        if ($closing === null)
+            return false;
+        if (!$this->operationalProviderTopLevelShape($tokens, $classIndex, $opening, $closing))
+            return false;
+
+        $aliases = $this->importAliases($tokens);
+        $allowedClasses = [
+            'BlackOps\\Core\\Audit\\AuditActionPhase',
+            'BlackOps\\Core\\Audit\\AuditDelivery',
+            'BlackOps\\Core\\Audit\\AuditEventCatalog',
+            'BlackOps\\Core\\Audit\\AuditEventCategory',
+            'BlackOps\\Core\\Audit\\AuditEventDefinition',
+            'BlackOps\\Core\\Audit\\AuditOutcomeStatus',
+            'BlackOps\\Core\\Audit\\AuditPolicyDecision',
+            'BlackOps\\Core\\Audit\\AuditSemanticTuple',
+            'BlackOps\\Core\\Audit\\AuditSourceOwner',
+            'BlackOps\\Internal\\Audit\\Catalog\\AuditEventCatalogCodec',
+        ];
+        $allowedShortClasses = array_map(static fn(string $class): string => substr(
+            $class,
+            strrpos($class, '\\') + 1,
+        ), $allowedClasses);
+        $newTargets = [];
+        $classReferences = [];
+        for ($index = $opening + 1; $index < $closing; $index++) {
+            $token = $tokens[$index];
+            if (!is_array($token))
+                continue;
+            if (in_array(
+                $token[0],
+                [T_COMMENT, T_DOC_COMMENT, T_CONSTANT_ENCAPSED_STRING, T_ENCAPSED_AND_WHITESPACE],
+                true,
+            ))
+                continue;
+            if (
+                defined('T_NAME_QUALIFIED')
+                && in_array($token[0], [T_NAME_QUALIFIED, T_NAME_FULLY_QUALIFIED, T_NAME_RELATIVE], true)
+            )
+                return false;
+            if ($token[0] === T_USE)
+                return false;
+            if ($token[0] === T_NEW) {
+                $nameIndex = $this->nextSignificantToken($tokens, $index + 1);
+                if ($nameIndex === null || !is_array($tokens[$nameIndex]) || !$this->isNameToken($tokens[$nameIndex]))
+                    return false;
+                $newTarget = $this->resolveClassName($tokens[$nameIndex], $this->namespaceName($tokens), $aliases);
+                if (!in_array(
+                    $newTarget,
+                    [
+                        'BlackOps\\Internal\\Audit\\Catalog\\AuditEventCatalogCodec',
+                        'BlackOps\\Core\\Audit\\AuditEventDefinition',
+                        'BlackOps\\Core\\Audit\\AuditSemanticTuple',
+                    ],
+                    true,
+                ))
+                    return false;
+                $newTargets[] = $newTarget;
+                continue;
+            }
+            if (!$this->isNameToken($token))
+                continue;
+            $next = $this->nextSignificantToken($tokens, $index + 1);
+            if ($next === null || !is_array($tokens[$next]) || $tokens[$next][0] !== T_DOUBLE_COLON)
+                continue;
+            $resolved = $token[1] === 'self'
+                ? 'BlackOps\\Internal\\Audit\\Catalog\\FrameworkOperationalAuditEventCatalog'
+                : $this->resolveClassName($token, $this->namespaceName($tokens), $aliases);
+            if (
+                !in_array($resolved, $allowedClasses, true)
+                && $resolved !== 'BlackOps\\Internal\\Audit\\Catalog\\FrameworkOperationalAuditEventCatalog'
+            )
+                return false;
+            $classReferences[] = $resolved;
+            $member = $this->nextSignificantToken($tokens, $next + 1);
+            if ($member !== null && $tokens[$member] === '{')
+                return false;
+        }
+        for ($index = $opening + 1; $index < $closing; $index++) {
+            $token = $tokens[$index];
+            if (
+                !is_array($token)
+                || in_array(
+                    $token[0],
+                    [T_COMMENT, T_DOC_COMMENT, T_CONSTANT_ENCAPSED_STRING, T_ENCAPSED_AND_WHITESPACE],
+                    true,
+                )
+            )
+                continue;
+            if ($token[0] !== T_STRING)
+                continue;
+            $next = $this->nextSignificantToken($tokens, $index + 1);
+            if ($next === null || !is_array($tokens[$next]) || $tokens[$next][0] !== T_VARIABLE)
+                continue;
+            $resolved = in_array(
+                $token[1],
+                ['string', 'int', 'bool', 'float', 'array', 'mixed', 'object', 'iterable', 'callable', 'void', 'never'],
+                true,
+            )
+                ? $token[1]
+                : $this->resolveClassName($token, $this->namespaceName($tokens), $aliases);
+            if (
+                !in_array($resolved, $allowedClasses, true)
+                && !in_array(
+                    $resolved,
+                    [
+                        'string',
+                        'int',
+                        'bool',
+                        'float',
+                        'array',
+                        'mixed',
+                        'object',
+                        'iterable',
+                        'callable',
+                        'void',
+                        'never',
+                    ],
+                    true,
+                )
+            )
+                return false;
+        }
+        foreach ($allowedShortClasses as $shortClass) {
+            $found = false;
+            for ($index = $opening + 1; $index < $closing; $index++) {
+                $token = $tokens[$index];
+                if (is_array($token) && $token[0] === T_STRING && $token[1] === $shortClass) {
+                    $found = true;
+                    break;
+                }
+            }
+            if (!$found)
+                return false;
+        }
+        if (
+            $this->operationalProviderFunctionCalls($tokens, $opening, $closing) !== [
+                'explode' => 1,
+                'usort' => 1,
+            ]
+        )
+            return false;
+        if ($this->operationalProviderReferenceInventory(['provider' => $source]) !== [])
+            return false;
+        $valid =
+            $newTargets === [
+                'BlackOps\\Internal\\Audit\\Catalog\\AuditEventCatalogCodec',
+                'BlackOps\\Core\\Audit\\AuditEventDefinition',
+                'BlackOps\\Core\\Audit\\AuditSemanticTuple',
+            ]
+            && count(array_filter(
+                $classReferences,
+                static fn(string $class): bool => (
+                    $class === 'BlackOps\\Core\\Audit\\AuditActionPhase'
+                    || $class === 'BlackOps\\Core\\Audit\\AuditDelivery'
+                    || $class === 'BlackOps\\Core\\Audit\\AuditEventCatalog'
+                    || $class === 'BlackOps\\Core\\Audit\\AuditEventCategory'
+                    || $class === 'BlackOps\\Core\\Audit\\AuditOutcomeStatus'
+                    || $class === 'BlackOps\\Core\\Audit\\AuditPolicyDecision'
+                    || $class === 'BlackOps\\Core\\Audit\\AuditSourceOwner'
+                    || $class === 'BlackOps\\Internal\\Audit\\Catalog\\FrameworkOperationalAuditEventCatalog'
+                ),
+            )) > 0;
+        return $valid;
+    }
+
+    /** @param list<array{0:int,1:string,2:int}|string> $tokens @return array<string,int>|null */
+    private function operationalProviderFunctionCalls(array $tokens, int $opening, int $closing): ?array
+    {
+        $calls = [];
+        $forbiddenTokens = array_values(array_filter(
+            [
+                defined('T_REQUIRE') ? T_REQUIRE : null,
+                defined('T_REQUIRE_ONCE') ? T_REQUIRE_ONCE : null,
+                defined('T_INCLUDE') ? T_INCLUDE : null,
+                defined('T_INCLUDE_ONCE') ? T_INCLUDE_ONCE : null,
+                defined('T_EVAL') ? T_EVAL : null,
+                defined('T_EXIT') ? T_EXIT : null,
+            ],
+            static fn(?int $token): bool => $token !== null,
+        ));
+        $forbiddenSuperglobals = [
+            '$GLOBALS',
+            '$_SERVER',
+            '$_GET',
+            '$_POST',
+            '$_FILES',
+            '$_COOKIE',
+            '$_SESSION',
+            '$_REQUEST',
+            '$_ENV',
+        ];
+        for ($index = $opening + 1; $index < $closing; $index++) {
+            $token = $tokens[$index];
+            if (is_array($token) && $token[0] === T_VARIABLE) {
+                if (in_array($token[1], $forbiddenSuperglobals, true))
+                    return null;
+                $next = $this->nextSignificantToken($tokens, $index + 1);
+                if ($next !== null && $tokens[$next] === '(')
+                    return null;
+            }
+            if (is_array($token) && in_array($token[0], $forbiddenTokens, true))
+                return null;
+            if (!is_array($token) || !$this->isNameToken($token))
+                continue;
+            $next = $this->nextSignificantToken($tokens, $index + 1);
+            if ($next === null || $tokens[$next] !== '(')
+                continue;
+            $previous = $this->previousSignificantToken($tokens, $index - 1);
+            if (
+                $previous !== null
+                && is_array($tokens[$previous])
+                && (
+                    $tokens[$previous][0] === T_FUNCTION
+                    || $tokens[$previous][0] === T_NEW
+                    || $tokens[$previous][0] === T_DOUBLE_COLON
+                    || $tokens[$previous][0] === T_OBJECT_OPERATOR
+                    || defined('T_NULLSAFE_OBJECT_OPERATOR')
+                    && $tokens[$previous][0] === T_NULLSAFE_OBJECT_OPERATOR
+                )
+            )
+                continue;
+            $name = ltrim($token[1], '\\');
+            $calls[$name] = ($calls[$name] ?? 0) + 1;
+        }
+        ksort($calls);
+
+        return $calls;
+    }
+
+    /** @param array<string,string> $sources @return array<string,int> */
+    private function operationalProviderCallsites(array $sources): array
+    {
+        $callsites = [];
+        foreach ($this->operationalProviderReferenceInventory($sources) as $reference)
+            $callsites[$reference['path']] = ($callsites[$reference['path']] ?? 0) + 1;
+        ksort($callsites);
+
+        return $callsites;
+    }
+
+    /** @param array<string,string> $sources @return list<array{path:string,target:string,receiver:string,method:string,kind:string}> */
+    private function operationalProviderReferenceInventory(array $sources): array
+    {
+        $references = [];
+        foreach ($sources as $path => $source) {
+            try {
+                $tokens = token_get_all($source, TOKEN_PARSE);
+            } catch (\ParseError) {
+                continue;
+            }
+            $namespace = $this->namespaceName($tokens);
+            $aliases = $this->importAliases($tokens);
+            $classRanges = $this->operationalProviderClassRanges($tokens, $namespace, $aliases);
+            $assignments = $this->classStringAssignments($tokens);
+            $dynamicAssignments = $this->classStringConcatenationVariables($tokens, $assignments);
+            foreach ($tokens as $index => $token) {
+                $isScopeReceiver =
+                    is_array($token)
+                    && (
+                        $token[0] === T_STATIC
+                        || $token[0] === T_STRING
+                        && in_array(strtolower($token[1]), ['self', 'static'], true)
+                    );
+                if (!is_array($token) || !$this->isNameToken($token) && !$isScopeReceiver)
+                    continue;
+                $doubleColon = $this->nextSignificantToken($tokens, $index + 1);
+                if (
+                    $doubleColon === null
+                    || !is_array($tokens[$doubleColon])
+                    || $tokens[$doubleColon][0] !== T_DOUBLE_COLON
+                )
+                    continue;
+                $method = $this->nextSignificantToken($tokens, $doubleColon + 1);
+                $opening = $method === null ? null : $this->nextSignificantToken($tokens, $method + 1);
+                if (
+                    $method === null
+                    || !is_array($tokens[$method])
+                    || $tokens[$method][0] !== T_STRING
+                    || $tokens[$method][1] !== 'catalog'
+                    || $opening === null
+                    || $tokens[$opening] !== '('
+                )
+                    continue;
+                $scopeReceiver = strtolower($token[1]);
+                $target = in_array($scopeReceiver, ['self', 'static'], true)
+                    ? $this->operationalProviderScopeTarget($index, $classRanges)
+                    : $this->resolveClassName($token, $namespace, $aliases);
+                if ($target !== FrameworkOperationalAuditEventCatalog::class)
+                    continue;
+                $kind = 'short';
+                if ($scopeReceiver === 'self')
+                    $kind = 'self';
+                elseif ($scopeReceiver === 'static')
+                    $kind = 'static';
+                elseif ($token[0] === T_NAME_FULLY_QUALIFIED)
+                    $kind = 'fqcn';
+                elseif (defined('T_NAME_QUALIFIED') && $token[0] === T_NAME_QUALIFIED)
+                    $kind = 'qualified';
+                elseif (defined('T_NAME_RELATIVE') && $token[0] === T_NAME_RELATIVE)
+                    $kind = 'relative';
+                elseif (array_key_exists($token[1], $aliases))
+                    $kind = 'alias';
+                elseif ($namespace === 'BlackOps\\Internal\\Audit\\Catalog')
+                    $kind = 'same_namespace';
+                $references[] = [
+                    'path' => $path,
+                    'target' => FrameworkOperationalAuditEventCatalog::class,
+                    'receiver' => $token[1],
+                    'method' => 'catalog',
+                    'kind' => $kind,
+                ];
+            }
+            foreach ($tokens as $index => $token) {
+                if ($token !== '(')
+                    continue;
+                $receiver = $this->nextSignificantToken($tokens, $index + 1);
+                if ($receiver === null || !is_array($tokens[$receiver]))
+                    continue;
+                $receiverToken = $tokens[$receiver];
+                $isScopeReceiver =
+                    $receiverToken[0] === T_STATIC
+                    || $receiverToken[0] === T_STRING
+                    && in_array(strtolower($receiverToken[1]), ['self', 'static'], true);
+                if (!$this->isNameToken($receiverToken) && !$isScopeReceiver)
+                    continue;
+                $doubleColon = $this->nextSignificantToken($tokens, $receiver + 1);
+                $method = $doubleColon === null ? null : $this->nextSignificantToken($tokens, $doubleColon + 1);
+                $closing = $method === null ? null : $this->nextSignificantToken($tokens, $method + 1);
+                if (
+                    $doubleColon === null
+                    || !is_array($tokens[$doubleColon])
+                    || $tokens[$doubleColon][0] !== T_DOUBLE_COLON
+                    || $method === null
+                    || !is_array($tokens[$method])
+                    || $tokens[$method][0] !== T_STRING
+                    || $tokens[$method][1] !== 'catalog'
+                    || $closing === null
+                    || $tokens[$closing] !== ')'
+                )
+                    continue;
+                $invocation = $this->nextSignificantToken($tokens, $closing + 1);
+                while ($invocation !== null && $tokens[$invocation] === ')')
+                    $invocation = $this->nextSignificantToken($tokens, $invocation + 1);
+                if ($invocation === null || $tokens[$invocation] !== '(')
+                    continue;
+                $scopeReceiver = strtolower($receiverToken[1]);
+                $target = in_array($scopeReceiver, ['self', 'static'], true)
+                    ? $this->operationalProviderScopeTarget($receiver, $classRanges)
+                    : $this->resolveClassName($receiverToken, $namespace, $aliases);
+                if ($target !== FrameworkOperationalAuditEventCatalog::class)
+                    continue;
+                $references[] = [
+                    'path' => $path,
+                    'target' => FrameworkOperationalAuditEventCatalog::class,
+                    'receiver' => $receiverToken[1],
+                    'method' => 'catalog',
+                    'kind' => 'dynamic',
+                ];
+            }
+            foreach ($this->operationalProviderIndirectReferences(
+                $tokens,
+                $namespace,
+                $aliases,
+                $assignments,
+                $dynamicAssignments,
+            ) as $reference) {
+                $references[] = [
+                    'path' => $path,
+                    'target' => FrameworkOperationalAuditEventCatalog::class,
+                    'receiver' => $reference['receiver'],
+                    'method' => $reference['method'],
+                    'kind' => $reference['kind'],
+                ];
+            }
+        }
+        usort(
+            $references,
+            static fn(array $left, array $right): int => (
+                [$left['path'], $left['kind'], $left['receiver'], $left['method']] <=> [
+                    $right['path'],
+                    $right['kind'],
+                    $right['receiver'],
+                    $right['method'],
+                ]
+            ),
+        );
+
+        return $references;
+    }
+
+    /**
+     * @param list<array{0:int,1:string,2:int}|string> $tokens
+     * @param array<string,string> $aliases
+     * @return list<array{opening:int,closing:int,target:?string}>
+     */
+    private function operationalProviderClassRanges(array $tokens, string $namespace, array $aliases): array
+    {
+        $ranges = [];
+        foreach ($tokens as $index => $token) {
+            if (!is_array($token) || $token[0] !== T_CLASS)
+                continue;
+            $previous = $this->previousSignificantToken($tokens, $index - 1);
+            if ($previous !== null && is_array($tokens[$previous]) && $tokens[$previous][0] === T_DOUBLE_COLON)
+                continue;
+            $nameIndex = $this->nextSignificantToken($tokens, $index + 1);
+            $target = null;
+            if ($nameIndex !== null && is_array($tokens[$nameIndex]) && $tokens[$nameIndex][0] === T_STRING)
+                $target = $this->resolveClassName($tokens[$nameIndex], $namespace, $aliases);
+            $opening = $nameIndex;
+            while ($opening !== null && $tokens[$opening] !== '{')
+                $opening = $this->nextSignificantToken($tokens, $opening + 1);
+            if ($opening === null)
+                continue;
+            $closing = $this->matchingBrace($tokens, $opening);
+            if ($closing === null)
+                continue;
+            $ranges[] = ['opening' => $opening, 'closing' => $closing, 'target' => $target];
+        }
+
+        return $ranges;
+    }
+
+    /**
+     * @param list<array{opening:int,closing:int,target:?string}> $classRanges
+     */
+    private function operationalProviderScopeTarget(int $index, array $classRanges): ?string
+    {
+        $current = null;
+        foreach ($classRanges as $range) {
+            if ($index <= $range['opening'] || $index >= $range['closing'])
+                continue;
+            if ($current === null || $range['opening'] > $current['opening'])
+                $current = $range;
+        }
+
+        return $current['target'] ?? null;
+    }
+
+    /**
+     * @param list<array{0:int,1:string,2:int}|string> $tokens
+     * @param array<string,string> $aliases
+     * @param array<string,string|array{0:string}|null> $assignments
+     * @param array<string,bool> $dynamicAssignments
+     * @return list<array{receiver:string,method:string,kind:string}>
+     */
+    private function operationalProviderIndirectReferences(
+        array $tokens,
+        string $namespace,
+        array $aliases,
+        array $assignments,
+        array $dynamicAssignments,
+    ): array {
+        $references = [];
+        $sinks = [
+            'class_exists',
+            'interface_exists',
+            'enum_exists',
+            'is_a',
+            'is_subclass_of',
+        ];
+        foreach ($tokens as $index => $token) {
+            if (!is_array($token) || !$this->isNameToken($token))
+                continue;
+            $name = ltrim($token[1], '\\');
+            $opening = $this->nextSignificantToken($tokens, $index + 1);
+            if ($opening === null || $tokens[$opening] !== '(')
+                continue;
+            $closing = $this->matchingParenthesis($tokens, $opening);
+            if ($closing === null)
+                continue;
+            if (in_array($name, $sinks, true)) {
+                $argument = $this->nextSignificantToken($tokens, $opening + 1);
+                if (
+                    $argument !== null
+                    && $argument < $closing
+                    && $this->operationalProviderClassStringArgument(
+                        $tokens,
+                        $argument,
+                        $namespace,
+                        $aliases,
+                        $assignments,
+                    )
+                ) {
+                    $references[] = [
+                        'receiver' => $name,
+                        'method' => $name,
+                        'kind' => is_array($tokens[$argument])
+                        && $tokens[$argument][0] === T_VARIABLE
+                        && isset($dynamicAssignments[$tokens[$argument][1]])
+                            ? 'dynamic'
+                            : 'class_string',
+                    ];
+                }
+            }
+        }
+        foreach ($tokens as $index => $token) {
+            $opening = null;
+            $closing = null;
+            if ($token === '[') {
+                $opening = $index;
+                $closing = $this->matchingSquareBracket($tokens, $opening);
+            } elseif (is_array($token) && $token[0] === T_ARRAY) {
+                $opening = $this->nextSignificantToken($tokens, $index + 1);
+                if ($opening === null || $tokens[$opening] !== '(')
+                    continue;
+                $closing = $this->matchingParenthesis($tokens, $opening);
+            } else {
+                continue;
+            }
+            if ($closing === null)
+                continue;
+            $first = $this->nextSignificantToken($tokens, $opening + 1);
+            if ($first === null || $first >= $closing)
+                continue;
+            $comma = $this->nextSignificantToken($tokens, $first + 1);
+            while ($comma !== null && $comma < $closing && $tokens[$comma] !== ',')
+                $comma = $this->nextSignificantToken($tokens, $comma + 1);
+            if ($comma === null || $comma >= $closing)
+                continue;
+            $second = $this->nextSignificantToken($tokens, $comma + 1);
+            if (
+                $second === null
+                || $second >= $closing
+                || !$this->operationalProviderClassStringArgument($tokens, $first, $namespace, $aliases, $assignments)
+                || !$this->operationalCatalogMethodLiteral($tokens, $second, $assignments)
+            )
+                continue;
+            $references[] = [
+                'receiver' => 'callable-array',
+                'method' => 'catalog',
+                'kind' => is_array($tokens[$first])
+                && $tokens[$first][0] === T_VARIABLE
+                && isset($dynamicAssignments[$tokens[$first][1]])
+                    ? 'dynamic'
+                    : 'callable',
+            ];
+        }
+        foreach ($tokens as $index => $token) {
+            if (!is_array($token) || $token[0] !== T_NEW)
+                continue;
+            $classIndex = $this->nextSignificantToken($tokens, $index + 1);
+            if ($classIndex === null || !is_array($tokens[$classIndex]))
+                continue;
+            if ($tokens[$classIndex][0] === T_VARIABLE) {
+                $opening = $this->nextSignificantToken($tokens, $classIndex + 1);
+                if (
+                    $opening !== null
+                    && $tokens[$opening] === '('
+                    && $this->resolveClassStringVariable($tokens[$classIndex][1], $assignments)
+                        === FrameworkOperationalAuditEventCatalog::class
+                ) {
+                    $references[] = [
+                        'receiver' => $tokens[$classIndex][1],
+                        'method' => '__construct',
+                        'kind' => 'dynamic',
+                    ];
+                }
+                continue;
+            }
+            if (!$this->isNameToken($tokens[$classIndex]))
+                continue;
+            $reflectionName = $this->resolveClassName($tokens[$classIndex], $namespace, $aliases);
+            if (!in_array($reflectionName, ['ReflectionClass', 'ReflectionMethod'], true))
+                continue;
+            $opening = $this->nextSignificantToken($tokens, $classIndex + 1);
+            if ($opening === null || $tokens[$opening] !== '(')
+                continue;
+            $argument = $this->nextSignificantToken($tokens, $opening + 1);
+            if (
+                $argument === null
+                || !$this->operationalProviderClassStringArgument(
+                    $tokens,
+                    $argument,
+                    $namespace,
+                    $aliases,
+                    $assignments,
+                )
+            )
+                continue;
+            $references[] = [
+                'receiver' => $reflectionName,
+                'method' => '__construct',
+                'kind' => is_array($tokens[$argument])
+                && $tokens[$argument][0] === T_VARIABLE
+                && isset($dynamicAssignments[$tokens[$argument][1]])
+                    ? 'dynamic'
+                    : 'reflection',
+            ];
+        }
+        foreach ($tokens as $index => $token) {
+            if (!is_array($token) || $token[0] !== T_VARIABLE)
+                continue;
+            $doubleColon = $this->nextSignificantToken($tokens, $index + 1);
+            $method = $doubleColon === null ? null : $this->nextSignificantToken($tokens, $doubleColon + 1);
+            $opening = $method === null ? null : $this->nextSignificantToken($tokens, $method + 1);
+            if (
+                $doubleColon === null
+                || !is_array($tokens[$doubleColon])
+                || $tokens[$doubleColon][0] !== T_DOUBLE_COLON
+                || $method === null
+                || !is_array($tokens[$method])
+                || $tokens[$method][0] !== T_STRING
+                || $tokens[$method][1] !== 'catalog'
+                || $opening === null
+                || $tokens[$opening] !== '('
+                || $this->resolveClassStringVariable($token[1], $assignments)
+                    !== FrameworkOperationalAuditEventCatalog::class
+            )
+                continue;
+            $references[] = [
+                'receiver' => $token[1],
+                'method' => 'catalog',
+                'kind' => 'dynamic',
+            ];
+        }
+        foreach ($tokens as $index => $token) {
+            if ($token !== '(')
+                continue;
+            $receiver = $this->nextSignificantToken($tokens, $index + 1);
+            $closing = $receiver === null ? null : $this->nextSignificantToken($tokens, $receiver + 1);
+            $doubleColon = $closing === null ? null : $this->nextSignificantToken($tokens, $closing + 1);
+            $method = $doubleColon === null ? null : $this->nextSignificantToken($tokens, $doubleColon + 1);
+            $opening = $method === null ? null : $this->nextSignificantToken($tokens, $method + 1);
+            if (
+                $receiver === null
+                || !is_array($tokens[$receiver])
+                || $tokens[$receiver][0] !== T_VARIABLE
+                || $closing === null
+                || $tokens[$closing] !== ')'
+                || $doubleColon === null
+                || $tokens[$doubleColon] !== T_DOUBLE_COLON
+                || $method === null
+                || !is_array($tokens[$method])
+                || $tokens[$method][0] !== T_STRING
+                || $tokens[$method][1] !== 'catalog'
+                || $opening === null
+                || $tokens[$opening] !== '('
+                || $this->resolveClassStringVariable($tokens[$receiver][1], $assignments)
+                    !== FrameworkOperationalAuditEventCatalog::class
+            )
+                continue;
+            $references[] = [
+                'receiver' => $tokens[$receiver][1],
+                'method' => 'catalog',
+                'kind' => 'dynamic',
+            ];
+        }
+
+        return $references;
+    }
+
+    /** @param list<array{0:int,1:string,2:int}|string> $tokens @param array<string,string> $aliases @param array<string,string|array{0:string}|null> $assignments */
+    private function operationalProviderClassStringArgument(
+        array $tokens,
+        int $index,
+        string $namespace,
+        array $aliases,
+        array $assignments,
+    ): bool {
+        $value = $this->classStringValue($tokens, $index, $namespace, $aliases);
+        if (is_array($value))
+            $value = $this->resolveClassStringVariable($value[0], $assignments);
+        if (!is_string($value))
+            return false;
+
+        return $this->normalizeClassString($value) === FrameworkOperationalAuditEventCatalog::class;
+    }
+
+    /** @param list<array{0:int,1:string,2:int}|string> $tokens @param array<string,string|array{0:string}|null> $assignments */
+    private function operationalCatalogMethodLiteral(array $tokens, int $index, array $assignments): bool
+    {
+        $token = $tokens[$index] ?? null;
+        if (is_array($token) && $token[0] === T_VARIABLE) {
+            $value = $this->resolveClassStringVariable($token[1], $assignments);
+            return $value === 'catalog';
+        }
+        if (!is_array($token) || $token[0] !== T_CONSTANT_ENCAPSED_STRING)
+            return false;
+
+        return $this->decodeClassStringLiteral($token[1]) === 'catalog';
+    }
+
+    /** @param list<array{0:int,1:string,2:int}|string> $tokens */
+    private function matchingSquareBracket(array $tokens, int $opening): ?int
+    {
+        $depth = 0;
+        for ($index = $opening, $count = count($tokens); $index < $count; $index++) {
+            if ($tokens[$index] === '[')
+                $depth++;
+            elseif ($tokens[$index] === ']') {
+                $depth--;
+                if ($depth === 0)
+                    return $index;
+            }
+        }
+
+        return null;
+    }
+
+    private function exactOperationalProviderReferenceShape(string $source): bool
+    {
+        try {
+            $tokens = token_get_all($source, TOKEN_PARSE);
+        } catch (\ParseError) {
+            return false;
+        }
+        if ($this->namespaceName($tokens) !== 'BlackOps\\Internal\\Audit\\Catalog')
+            return false;
+        $expectedImport = 'use BlackOps\\Internal\\Audit\\Catalog\\FrameworkOperationalAuditEventCatalog;';
+        if (substr_count($source, $expectedImport) !== 0)
+            return false;
+        if (preg_match('/^use[ \\t]+[^;]*FrameworkOperationalAuditEventCatalog[^;]*;[ \\t]*$/m', $source) === 1)
+            return false;
+        $references = $this->operationalProviderReferenceInventory(['lookup' => $source]);
+        if (count($references) !== 1 || $references[0]['kind'] !== 'same_namespace')
+            return false;
+        if ($this->dynamicInvocationCount($source) !== 0)
+            return false;
+        if (!$this->operationalProviderTrustedContextShape($source))
+            return false;
+
+        return $this->staticMethodCalls($source, FrameworkOperationalAuditEventCatalog::class, 'catalog') === 1;
+    }
+
+    private function operationalProviderTrustedContextShape(string $source): bool
+    {
+        try {
+            $tokens = token_get_all($source, TOKEN_PARSE);
+        } catch (\ParseError) {
+            return false;
+        }
+        $namespace = $this->namespaceName($tokens);
+        $aliases = $this->importAliases($tokens);
+        $target = null;
+        $oldProvider = null;
+        foreach ($tokens as $index => $token) {
+            if (!is_array($token) || !$this->isNameToken($token))
+                continue;
+            $doubleColon = $this->nextSignificantToken($tokens, $index + 1);
+            $method = $doubleColon === null ? null : $this->nextSignificantToken($tokens, $doubleColon + 1);
+            $opening = $method === null ? null : $this->nextSignificantToken($tokens, $method + 1);
+            if (
+                $doubleColon === null
+                || !is_array($tokens[$doubleColon])
+                || $tokens[$doubleColon][0] !== T_DOUBLE_COLON
+                || $method === null
+                || !is_array($tokens[$method])
+                || $tokens[$method][0] !== T_STRING
+                || $tokens[$method][1] !== 'catalog'
+                || $opening === null
+                || $tokens[$opening] !== '('
+            )
+                continue;
+            $resolved = $this->resolveClassName($token, $namespace, $aliases);
+            if ($resolved === FrameworkOperationalAuditEventCatalog::class)
+                $target = $index;
+            if ($resolved === FrameworkAuditEventCatalog::class)
+                $oldProvider = $index;
+        }
+        if ($target === null || $oldProvider === null)
+            return false;
+        foreach ($tokens as $index => $token) {
+            if (!is_array($token) || $token[0] !== T_IF)
+                continue;
+            $opening = $this->nextSignificantToken($tokens, $index + 1);
+            if ($opening === null || $tokens[$opening] !== '(')
+                continue;
+            $closing = $this->matchingParenthesis($tokens, $opening);
+            if (
+                $closing === null
+                || $target <= $opening
+                || $target >= $closing
+                || $oldProvider <= $opening
+                || $oldProvider >= $closing
+            )
+                continue;
+            $hasOwnerGuard = false;
+            for ($cursor = $opening + 1; $cursor < $closing; $cursor++) {
+                if (!is_array($tokens[$cursor]) || $tokens[$cursor][0] !== T_IS_IDENTICAL)
+                    continue;
+                $owner = $this->previousSignificantToken($tokens, $cursor - 1);
+                if (
+                    $owner === null
+                    || !is_array($tokens[$owner])
+                    || $tokens[$owner][0] !== T_STRING
+                    || $tokens[$owner][1] !== 'owner'
+                )
+                    continue;
+                $ownerOperator = $this->previousSignificantToken($tokens, $owner - 1);
+                $ownerObject = $ownerOperator === null
+                    ? null
+                    : $this->previousSignificantToken($tokens, $ownerOperator - 1);
+                if (
+                    $ownerOperator === null
+                    || !is_array($tokens[$ownerOperator])
+                    || $tokens[$ownerOperator][0] !== T_OBJECT_OPERATOR
+                    || $ownerObject === null
+                    || !is_array($tokens[$ownerObject])
+                    || $tokens[$ownerObject][0] !== T_VARIABLE
+                    || $tokens[$ownerObject][1] !== '$catalog'
+                )
+                    continue;
+                $ownerClass = $this->nextSignificantToken($tokens, $cursor + 1);
+                $ownerSeparator = $ownerClass === null ? null : $this->nextSignificantToken($tokens, $ownerClass + 1);
+                $ownerValue = $ownerSeparator === null
+                    ? null
+                    : $this->nextSignificantToken($tokens, $ownerSeparator + 1);
+                if (
+                    $ownerClass === null
+                    || !is_array($tokens[$ownerClass])
+                    || !$this->isNameToken($tokens[$ownerClass])
+                )
+                    continue;
+                $ownerClassName = $this->resolveClassName($tokens[$ownerClass], $namespace, $aliases);
+                if (
+                    $ownerClassName === AuditSourceOwner::class
+                    && $ownerSeparator !== null
+                    && is_array($tokens[$ownerSeparator])
+                    && $tokens[$ownerSeparator][0] === T_DOUBLE_COLON
+                    && $ownerValue !== null
+                    && is_array($tokens[$ownerValue])
+                    && $tokens[$ownerValue][0] === T_STRING
+                    && $tokens[$ownerValue][1] === 'Framework'
+                )
+                    $hasOwnerGuard = true;
+            }
+            if (!$hasOwnerGuard)
+                return false;
+            if ($hasOwnerGuard)
+                return true;
+        }
+
+        return false;
+    }
+
+    /** Remove comments and string literals while retaining executable tokens. */
+    private function phpCodeWithoutCommentsAndStrings(string $source): string
+    {
+        $code = '';
+        foreach (token_get_all($source) as $token) {
+            if (
+                is_array($token)
+                && in_array(
+                    $token[0],
+                    [T_COMMENT, T_DOC_COMMENT, T_CONSTANT_ENCAPSED_STRING, T_ENCAPSED_AND_WHITESPACE],
+                    true,
+                )
+            )
+                continue;
+            $code .= is_array($token) ? $token[1] : $token;
+        }
+
+        return $code;
+    }
+
     /** @return list<string> */
     private function a2ProductTypes(): array
     {
@@ -1013,7 +3417,12 @@ final class AuditRecordArchitectureTest extends TestCase
                 continue;
             }
             for ($argument = $opening + 1; $argument < $closing; $argument++) {
-                $value = $this->classStringValue($tokens, $argument);
+                $value = $this->classStringValue(
+                    $tokens,
+                    $argument,
+                    $this->namespaceName($tokens),
+                    $this->importAliases($tokens),
+                );
                 if (is_array($value)) {
                     $value = $this->resolveClassStringVariable($value[0], $assignments);
                 }
@@ -1111,24 +3520,187 @@ final class AuditRecordArchitectureTest extends TestCase
             if ($valueIndex === null) {
                 continue;
             }
-            $assignments[$token[1]] = $this->classStringValue($tokens, $valueIndex);
+            $assignments[$token[1]] = $this->classStringAssignmentValue(
+                $tokens,
+                $valueIndex,
+                $this->namespaceName($tokens),
+                $this->importAliases($tokens),
+                $assignments,
+            );
         }
 
         return $assignments;
     }
 
-    /** @param list<array{0:int,1:string,2:int}|string> $tokens @return string|array{0:string}|null */
-    private function classStringValue(array $tokens, int $index): string|array|null
+    /** @param list<array{0:int,1:string,2:int}|string> $tokens @param array<string,string> $aliases @param array<string,string|array{0:string}|null> $assignments */
+    private function classStringAssignmentValue(
+        array $tokens,
+        int $index,
+        string $namespace,
+        array $aliases,
+        array $assignments,
+    ): string|array|null {
+        $end = $this->classStringStatementEnd($tokens, $index);
+        if ($end === null)
+            return $this->classStringValue($tokens, $index, $namespace, $aliases);
+        $hasConcatenation = false;
+        for ($cursor = $index; $cursor < $end; $cursor++) {
+            if ($tokens[$cursor] === '.') {
+                $hasConcatenation = true;
+                break;
+            }
+        }
+        if (!$hasConcatenation)
+            return $this->classStringValue($tokens, $index, $namespace, $aliases);
+
+        $pieces = [];
+        $cursor = $index;
+        while ($cursor !== null && $cursor < $end) {
+            $piece = $this->classStringValue($tokens, $cursor, $namespace, $aliases, true);
+            if (is_array($piece))
+                $piece = $this->resolveClassStringVariable($piece[0], $assignments);
+            if (!is_string($piece))
+                return null;
+            $pieces[] = $piece;
+            $next = $this->classStringExpressionEnd($tokens, $cursor);
+            if ($next === null || $next >= $end)
+                break;
+            if ($tokens[$next] !== '.')
+                return null;
+            $cursor = $this->nextSignificantToken($tokens, $next + 1);
+        }
+        if ($cursor === null || $cursor >= $end)
+            return null;
+
+        return implode('', $pieces);
+    }
+
+    /** @param list<array{0:int,1:string,2:int}|string> $tokens @param array<string,string|array{0:string}|null> $assignments @return array<string,bool> */
+    private function classStringConcatenationVariables(array $tokens, array $assignments): array
     {
+        $dynamic = [];
+        $descriptors = [];
+        foreach ($tokens as $index => $token) {
+            if (!is_array($token) || $token[0] !== T_VARIABLE)
+                continue;
+            $equals = $this->nextSignificantToken($tokens, $index + 1);
+            if ($equals === null || $tokens[$equals] !== '=')
+                continue;
+            $value = $this->nextSignificantToken($tokens, $equals + 1);
+            $end = $value === null ? null : $this->classStringStatementEnd($tokens, $value);
+            if ($value === null || $end === null)
+                continue;
+            $hasConcat = false;
+            for ($cursor = $value; $cursor < $end; $cursor++)
+                if ($tokens[$cursor] === '.') {
+                    $hasConcat = true;
+                    break;
+                }
+            $descriptors[$token[1]] = [
+                'value' => $value,
+                'end' => $end,
+                'concat' => $hasConcat,
+            ];
+        }
+        do {
+            $changed = false;
+            foreach ($descriptors as $variable => $descriptor) {
+                if (isset($dynamic[$variable]))
+                    continue;
+                if ($descriptor['concat']) {
+                    $resolved = $this->resolveClassStringVariable($variable, $assignments);
+                    if ($resolved === FrameworkOperationalAuditEventCatalog::class) {
+                        $dynamic[$variable] = true;
+                        $changed = true;
+                    }
+                    continue;
+                }
+                $value = $tokens[$descriptor['value']] ?? null;
+                if (is_array($value) && $value[0] === T_VARIABLE && isset($dynamic[$value[1]])) {
+                    $dynamic[$variable] = true;
+                    $changed = true;
+                }
+            }
+        } while ($changed);
+
+        return $dynamic;
+    }
+
+    /** @param list<array{0:int,1:string,2:int}|string> $tokens */
+    private function classStringStatementEnd(array $tokens, int $index): ?int
+    {
+        for ($cursor = $index, $count = count($tokens); $cursor < $count; $cursor++)
+            if ($tokens[$cursor] === ';')
+                return $cursor;
+
+        return null;
+    }
+
+    /** @param list<array{0:int,1:string,2:int}|string> $tokens */
+    private function classStringExpressionEnd(array $tokens, int $index): ?int
+    {
+        $token = $tokens[$index] ?? null;
+        if (
+            is_array($token)
+            && ($token[0] === T_START_HEREDOC || defined('T_START_NOWDOC') && $token[0] === T_START_NOWDOC)
+        ) {
+            for ($cursor = $index + 1, $count = count($tokens); $cursor < $count; $cursor++) {
+                $part = $tokens[$cursor];
+                if (
+                    is_array($part)
+                    && ($part[0] === T_END_HEREDOC || defined('T_END_NOWDOC') && $part[0] === T_END_NOWDOC)
+                )
+                    return $this->nextSignificantToken($tokens, $cursor + 1);
+            }
+            return null;
+        }
+        if (is_array($token) && $this->isNameToken($token)) {
+            $separator = $this->nextSignificantToken($tokens, $index + 1);
+            if ($separator !== null && is_array($tokens[$separator]) && $tokens[$separator][0] === T_DOUBLE_COLON) {
+                $keyword = $this->nextSignificantToken($tokens, $separator + 1);
+                return $keyword === null ? null : $this->nextSignificantToken($tokens, $keyword + 1);
+            }
+        }
+
+        return $this->nextSignificantToken($tokens, $index + 1);
+    }
+
+    /** @param list<array{0:int,1:string,2:int}|string> $tokens @return string|array{0:string}|null */
+    /** @param array<string,string> $aliases */
+    private function classStringValue(
+        array $tokens,
+        int $index,
+        string $namespace = '',
+        array $aliases = [],
+        bool $allowConcatenation = false,
+    ): string|array|null {
         $token = $tokens[$index] ?? null;
         if (!is_array($token)) {
             return null;
         }
+        $next = $this->nextSignificantToken($tokens, $index + 1);
+        if (!$allowConcatenation && $next !== null && $tokens[$next] === '.')
+            return null;
         if ($token[0] === T_VARIABLE) {
             return [$token[1]];
         }
         if ($token[0] === T_CONSTANT_ENCAPSED_STRING) {
             return $this->decodeClassStringLiteral($token[1]);
+        }
+        if ($this->isNameToken($token)) {
+            $doubleColon = $this->nextSignificantToken($tokens, $index + 1);
+            $classKeyword = $doubleColon === null ? null : $this->nextSignificantToken($tokens, $doubleColon + 1);
+            if (
+                $doubleColon !== null
+                && is_array($tokens[$doubleColon])
+                && $tokens[$doubleColon][0] === T_DOUBLE_COLON
+                && $classKeyword !== null
+                && is_array($tokens[$classKeyword])
+                && $tokens[$classKeyword][0] === T_STRING
+                && $tokens[$classKeyword][1] === 'class'
+            ) {
+                return $this->resolveClassName($token, $namespace, $aliases);
+            }
         }
         if ($token[0] === T_START_HEREDOC || defined('T_START_NOWDOC') && $token[0] === T_START_NOWDOC) {
             $value = '';

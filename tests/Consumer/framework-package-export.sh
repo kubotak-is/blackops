@@ -78,6 +78,7 @@ validate_package() {
         src/Core/Exception/ConfigurationFailure.php \
         src/Audit/AuditOpaqueIdKeyProvider.php \
         src/Audit/AuditProtectionKeyProvider.php \
+        src/Internal/Audit/Catalog/FrameworkOperationalAuditEventCatalog.php \
         src/Internal/Audit/Orchestration/AuditDeliveryFailure.php \
         src/Internal/Audit/Orchestration/AuditDeliveryException.php \
         src/Internal/Audit/Orchestration/AuditDeliveryPlan.php \

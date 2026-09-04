@@ -41,6 +41,7 @@ final class AuditPublicApiTest extends TestCase
             'BlackOps\\Internal\\Audit\\AuditStringValidator',
             'BlackOps\\Internal\\Audit\\Catalog\\AuditEventCatalogCodec',
             'BlackOps\\Internal\\Audit\\Catalog\\FrameworkAuditEventCatalog',
+            'BlackOps\\Internal\\Audit\\Catalog\\FrameworkOperationalAuditEventCatalog',
             'BlackOps\\Internal\\Audit\\Catalog\\ImmutableAuditEventCatalogLookup',
             'BlackOps\\Internal\\Audit\\HmacAuditOpaqueIdDeriver',
         ] as $class) {

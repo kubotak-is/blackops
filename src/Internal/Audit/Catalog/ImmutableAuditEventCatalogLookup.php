@@ -105,7 +105,11 @@ final class ImmutableAuditEventCatalogLookup implements AuditEventCatalogLookup
         $identities = [];
         $codec = new AuditEventCatalogCodec($this->jcs);
         foreach ($catalogs as $catalog) {
-            if ($catalog->owner === AuditSourceOwner::Framework && $catalog !== FrameworkAuditEventCatalog::catalog())
+            if (
+                $catalog->owner === AuditSourceOwner::Framework
+                && $catalog !== FrameworkAuditEventCatalog::catalog()
+                && $catalog !== FrameworkOperationalAuditEventCatalog::catalog()
+            )
                 throw new AuditValidationException(AuditValidationFailure::SemanticInvalid);
             if ($catalog->owner === AuditSourceOwner::Application)
                 $codec->assertTrustedOwner($catalog, AuditSourceOwner::Application);

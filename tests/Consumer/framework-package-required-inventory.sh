@@ -7,7 +7,7 @@ EXPORT_SCRIPT="${SCRIPT_DIR}/framework-package-export.sh"
 TEMP_ROOT="$(mktemp -d)"
 trap 'rm -rf -- "${TEMP_ROOT}"' EXIT
 
-reviewed_export_sha='9ff12e3e2f921fba27165c112ddd839fd6bdc1c50926d30dd689a69410c1bd63'
+reviewed_export_sha='6f637c36758278934d9347eca4fad88c5d24e8e4823b6f494fed42abbff108b2'
 
 expected_inventory="${TEMP_ROOT}/expected-inventory"
 printf '%s\n' \
@@ -19,6 +19,7 @@ printf '%s\n' \
     src/Core/Exception/ConfigurationFailure.php \
     src/Audit/AuditOpaqueIdKeyProvider.php \
     src/Audit/AuditProtectionKeyProvider.php \
+    src/Internal/Audit/Catalog/FrameworkOperationalAuditEventCatalog.php \
     src/Internal/Audit/Orchestration/AuditDeliveryFailure.php \
     src/Internal/Audit/Orchestration/AuditDeliveryException.php \
     src/Internal/Audit/Orchestration/AuditDeliveryPlan.php \
@@ -723,6 +724,9 @@ test_mutation_rejected() {
         new-omission)
             run_bounded sed -i '\|src/Internal/Audit/Relay/AuditRelayOutcome.php|d' "${candidate}"
             ;;
+        d1-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Catalog/FrameworkOperationalAuditEventCatalog.php|d' "${candidate}"
+            ;;
         order-swap)
             run_bounded awk '
                 !swapped && $0 ~ /src\/Internal\/Audit\/Storage\/AuditStoreFailure\.php/ {
@@ -1077,13 +1081,14 @@ test -f "${EXPORT_SCRIPT}"
 test "$(sha256sum "${EXPORT_SCRIPT}" | cut -d' ' -f1)" = "${reviewed_export_sha}"
 runtime_case_count=0
 assert_inventory "${EXPORT_SCRIPT}"
-printf 'required inventory: PASS (75 ordered paths)\n'
+printf 'required inventory: PASS (76 ordered paths)\n'
 
 test_mutation_rejected comment-only comment
 test_mutation_rejected existing-entry-removal existing-removal
 test_mutation_rejected added-entry added-entry
 test_mutation_rejected duplicate-entry duplicate-entry
 test_mutation_rejected new-entry-omission new-omission
+test_mutation_rejected d1-entry-omission d1-omission
 test_mutation_rejected order-swap order-swap
 test_mutation_rejected duplicate-loop duplicate-loop
 test_mutation_rejected heredoc-decoy heredoc-decoy
@@ -1109,4 +1114,4 @@ test_call_contract_mutation_rejected pipeline-composer-continuation pipeline-com
 test_call_contract_mutation_rejected command-substitution-git-continuation command-substitution-git-continuation
 test_call_contract_mutation_rejected resolution-override resolution-override
 printf 'required inventory call-contract mutations: PASS (14 rejected before runtime/SHA)\n'
-printf 'required inventory mutations: PASS (29 rejected: 15 inventory, 14 call-contract)\n'
+printf 'required inventory mutations: PASS (30 rejected: 16 inventory, 14 call-contract)\n'

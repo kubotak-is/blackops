@@ -10,9 +10,14 @@ use BlackOps\Core\Audit\AuditValidationException;
 use BlackOps\Internal\Audit\AuditJcsCodec;
 use BlackOps\Internal\Audit\Catalog\AuditEventCatalogCodec;
 use BlackOps\Internal\Audit\Catalog\FrameworkAuditEventCatalog;
+use BlackOps\Internal\Audit\Catalog\FrameworkOperationalAuditEventCatalog;
 use BlackOps\Internal\Audit\Catalog\ImmutableAuditEventCatalogLookup;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @mago-expect lint:cyclomatic-complexity
+ * @mago-expect lint:too-many-methods
+ */
 final class ImmutableAuditEventCatalogLookupTest extends TestCase
 {
     public function testResolvesByIdentityAndHashOnly(): void
@@ -20,7 +25,32 @@ final class ImmutableAuditEventCatalogLookupTest extends TestCase
         $catalog = FrameworkAuditEventCatalog::catalog();
         $lookup = new ImmutableAuditEventCatalogLookup([$catalog]);
         self::assertSame($catalog, $lookup->find('framework', $catalog->catalogId, 1, $catalog->catalogHash));
+        self::assertSame($catalog, $lookup->resolve($catalog->catalogHash));
         self::assertNull($lookup->find('framework', $catalog->catalogId, 1, str_repeat('0', 64)));
+    }
+
+    public function testOperationalProviderResolvesInAnExclusiveLookup(): void
+    {
+        $operations = FrameworkOperationalAuditEventCatalog::catalog();
+        $lookup = new ImmutableAuditEventCatalogLookup([$operations]);
+
+        self::assertSame($operations, $lookup->find('framework', $operations->catalogId, 1, $operations->catalogHash));
+        self::assertSame($operations, $lookup->resolve($operations->catalogHash));
+    }
+
+    public function testResolvesBothFrameworkProvidersByFullIdentityAndHash(): void
+    {
+        $security = FrameworkAuditEventCatalog::catalog();
+        $operations = FrameworkOperationalAuditEventCatalog::catalog();
+        $lookup = new ImmutableAuditEventCatalogLookup([$security, $operations]);
+
+        self::assertSame($security, $lookup->find('framework', $security->catalogId, 1, $security->catalogHash));
+        self::assertSame($operations, $lookup->find('framework', $operations->catalogId, 1, $operations->catalogHash));
+        self::assertSame($security, $lookup->resolve($security->catalogHash));
+        self::assertSame($operations, $lookup->resolve($operations->catalogHash));
+        self::assertNull($lookup->find('framework', $operations->catalogId, 1, $security->catalogHash));
+        self::assertNull($lookup->resolve(str_repeat('0', 64)));
+        self::assertSame($operations, $lookup->resolve($operations->catalogHash));
     }
 
     public function testTwoApplicationHashesResolveIndependentlyAndUnknownHashIsAbsent(): void
@@ -199,6 +229,157 @@ final class ImmutableAuditEventCatalogLookupTest extends TestCase
             $framework->events,
             $framework->catalogHash,
         )]);
+    }
+
+    public function testBothFrameworkProviderIdentitiesRejectDecodedClonesAndThirdProviders(): void
+    {
+        $codec = new AuditEventCatalogCodec();
+        foreach ([
+            FrameworkAuditEventCatalog::catalog(),
+            FrameworkOperationalAuditEventCatalog::catalog(),
+        ] as $provider) {
+            $decoded = $codec->decode($codec->encode($provider));
+            self::assertNotSame($provider, $decoded);
+            try {
+                new ImmutableAuditEventCatalogLookup([$decoded]);
+                self::fail('decoded Framework bytes substituted for sealed provider');
+            } catch (AuditValidationException $exception) {
+                self::assertSame('semantic_invalid', $exception->code());
+            }
+        }
+
+        $operations = FrameworkOperationalAuditEventCatalog::catalog();
+        $third = new AuditEventCatalog(
+            'blackops.framework.third',
+            $operations->catalogVersion,
+            AuditSourceOwner::Framework,
+            $operations->events,
+            $operations->catalogHash,
+        );
+        try {
+            new ImmutableAuditEventCatalogLookup([$third]);
+            self::fail('third Framework provider accepted');
+        } catch (AuditValidationException $exception) {
+            self::assertSame('semantic_invalid', $exception->code());
+        }
+    }
+
+    public function testBothFrameworkProviderIdentitiesRejectSerializedAndReflectedReconstructions(): void
+    {
+        foreach ([
+            FrameworkAuditEventCatalog::catalog(),
+            FrameworkOperationalAuditEventCatalog::catalog(),
+        ] as $provider) {
+            $serialized = serialize($provider);
+            $serializedClone = unserialize($serialized, ['allowed_classes' => true]);
+            self::assertInstanceOf(AuditEventCatalog::class, $serializedClone);
+            self::assertNotSame($provider, $serializedClone);
+            self::assertSame($provider->toArray(), $serializedClone->toArray());
+            try {
+                new ImmutableAuditEventCatalogLookup([$serializedClone]);
+                self::fail('serialized Framework bytes substituted for sealed provider');
+            } catch (AuditValidationException $exception) {
+                self::assertSame('semantic_invalid', $exception->code());
+            }
+
+            $reflection = new \ReflectionClass(AuditEventCatalog::class);
+            $reflectedClone = $reflection->newInstanceArgs([
+                $provider->catalogId,
+                $provider->catalogVersion,
+                $provider->owner,
+                $provider->events,
+                $provider->catalogHash,
+            ]);
+            self::assertNotSame($provider, $reflectedClone);
+            self::assertSame($provider->toArray(), $reflectedClone->toArray());
+            try {
+                new ImmutableAuditEventCatalogLookup([$reflectedClone]);
+                self::fail('reflected Framework bytes substituted for sealed provider');
+            } catch (AuditValidationException $exception) {
+                self::assertSame('semantic_invalid', $exception->code());
+            }
+        }
+
+        $operations = FrameworkOperationalAuditEventCatalog::catalog();
+        $unknown = new AuditEventCatalogCodec()->catalog(
+            'blackops.framework.unknown',
+            1,
+            AuditSourceOwner::Framework,
+            $operations->events,
+        );
+        $lookup = new ImmutableAuditEventCatalogLookup([
+            FrameworkAuditEventCatalog::catalog(),
+            $operations,
+        ]);
+        self::assertNull($lookup->find(
+            'framework',
+            $unknown->catalogId,
+            $unknown->catalogVersion,
+            $unknown->catalogHash,
+        ));
+        self::assertNull($lookup->resolve($unknown->catalogHash));
+    }
+
+    public function testChangedOperationalIdentityAndValidMutatedHashFailAtSemanticStage(): void
+    {
+        $codec = new AuditEventCatalogCodec();
+        $operations = FrameworkOperationalAuditEventCatalog::catalog();
+        $swapped = $codec->catalog(
+            'blackops.framework.security_access',
+            1,
+            AuditSourceOwner::Framework,
+            $operations->events,
+        );
+        try {
+            new ImmutableAuditEventCatalogLookup([$swapped]);
+            self::fail('operational definitions accepted under the security identity');
+        } catch (AuditValidationException $exception) {
+            self::assertSame('semantic_invalid', $exception->code());
+        }
+
+        $mutatedEvent = $operations->events[0];
+        $mutatedTuple = new \BlackOps\Core\Audit\AuditSemanticTuple(
+            $mutatedEvent->type,
+            $mutatedEvent->semanticTuples[0]->phase,
+            $mutatedEvent->semanticTuples[0]->resourceType,
+            $mutatedEvent->semanticTuples[0]->outcomeStatus,
+            'changed_outcome',
+            $mutatedEvent->semanticTuples[0]->policyDecision,
+            $mutatedEvent->semanticTuples[0]->policyReasonCode,
+        );
+        $mutatedEvents = $operations->events;
+        $mutatedEvents[0] = new \BlackOps\Core\Audit\AuditEventDefinition(
+            $mutatedEvent->type,
+            $mutatedEvent->version,
+            $mutatedEvent->evidenceVersion,
+            $mutatedEvent->category,
+            $mutatedEvent->actionTypes,
+            [$mutatedTuple],
+            $mutatedEvent->evidenceFields,
+            $mutatedEvent->maxEvidenceBytes,
+            $mutatedEvent->delivery,
+        );
+        $mutated = $codec->catalog(
+            $operations->catalogId,
+            $operations->catalogVersion,
+            AuditSourceOwner::Framework,
+            $mutatedEvents,
+        );
+        self::assertNotSame($operations->catalogHash, $mutated->catalogHash);
+        try {
+            new ImmutableAuditEventCatalogLookup([$mutated]);
+            self::fail('mutated operational provider accepted');
+        } catch (AuditValidationException $exception) {
+            self::assertSame('semantic_invalid', $exception->code());
+        }
+    }
+
+    public function testSameFrameworkSingletonCanBeRepeatedWithoutMutation(): void
+    {
+        $operations = FrameworkOperationalAuditEventCatalog::catalog();
+        $lookup = new ImmutableAuditEventCatalogLookup([$operations, $operations]);
+        self::assertSame($operations, $lookup->find('framework', $operations->catalogId, 1, $operations->catalogHash));
+        self::assertSame($operations, $lookup->resolve($operations->catalogHash));
     }
 
     public function testDecodedFrameworkBytesDoNotImplySealedProviderProvenance(): void
