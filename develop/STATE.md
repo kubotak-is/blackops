@@ -1,8 +1,627 @@
 # Orchestration State
 
-Status: P23-003C4 Authority Handoff Correction Committed — corrected clean-freeze re-preflight pending
+Status: P23-003C4 and parent P23-003C Complete — commit/export Green
 
-Updated At: 2026-09-04T02:02:26+09:00
+Updated At: 2026-09-04T12:00:22+09:00
+
+P23-003C4 and parent P23-003C accepted at
+2026-09-04T11:04:10+09:00: fresh General, Transaction, and Documentation
+reviews are independently Green with P1/P2/P3 `0/0/0`. The reviewed
+Product/Test exact23 remains
+`0780592d2d4eaefe1c503266e3532356e0d94ff9ceff6613116d97c65997e66d`,
+the reviewed pre-Acceptance exact25 is
+`aceb709ca0a0637061471826bbddac454510caf8a90d3170517ce1147ebd6582`,
+and immutable exact12 remains
+`e4666918bd9c7324df59179b5427cf851723ccd9d986180e58b1d7cf2d3c87b4`.
+The accepted Complete Final Gate restarted at command 1 and completed without
+interruption: full format/Composer/lint/baseline/analyzer are Green; full
+PHPUnit is `3,170 tests / 1,806,825 assertions`; Deptrac is `1,036 / 0
+violations / 0 skipped / 0 uncovered / 6,341 allowed / 0 warnings / 0 errors`;
+all four Audit Node goldens, version `1.2.0/1.1.0`, exact75 package with `29`
+mutations, Community Board clean-install, Stable generic Outbox `10/69`,
+migration `13 + 5 = 18`, StoragePurpose exact9, docs/nonactivation/ID/diff,
+status exact25, staged0, and all ending hashes pass. Two earlier invocations
+were discarded after an Orchestrator-only `php -r` escaping error and a
+sandbox-only Docker socket denial; neither changed Product/Test, and the
+accepted run restarted again from command 1. The accepted exact25 candidate
+was committed as `e7176759bdd7f851b51f4a5f84e0027312e5c9c0`; its tree was
+clean/staged0 and `framework-package-export.sh` passed the Git and Composer
+package contract. This Report/STATE completion checkpoint is folded into that
+local commit once, and export is rerun from the final amended SHA before
+handoff. Next Action: begin P23-003D preflight from the clean final C commit.
+Push remains unauthorized; release/deploy/public activation/generated
+artifacts/browser remain Not Verified.
+
+P23-003C4 replacement Iteration Gate Green at
+2026-09-04T10:38:02+09:00: Product/Test exact23 is
+`0780592d2d4eaefe1c503266e3532356e0d94ff9ceff6613116d97c65997e66d`,
+the management-input exact25 is
+`b8642d5a7fc16c944f9771ff8665ee44192b559f1dc35e47056cd9a51e4ebf16`,
+and immutable exact12 remains
+`e4666918bd9c7324df59179b5427cf851723ccd9d986180e58b1d7cf2d3c87b4`.
+Manifest counts/negatives and format pass; focused PHPUnit is `256 tests /
+1,788,282 assertions`; all Audit Node goldens pass; Deptrac is `1,036 /
+0 violations / 0 skipped / 0 uncovered / 6,341 allowed / 0 warnings / 0
+errors`; package is exact75 with `29` mutations; Stable Outbox is `10/69`;
+migration `13 + 5 = 18`, StoragePurpose exact9, docs/nonactivation/ID/diff,
+staged0, and ending hashes all pass. The pre-correction Iteration/reviews and
+stopped Complete Final attempt remain Historical. Next Action: fresh three-lane
+reviews -> unchanged refreeze -> Complete Final from command 1 -> Acceptance ->
+commit -> clean same-SHA export. Push remains unauthorized.
+
+P23-003C4 bounded Mago correction Green at
+2026-09-04T10:33:38+09:00: the runtime adds only narrow class/method Mago
+expectations, and the canonicalizer adds one static string-key type refinement
+after its existing array guard, relying on the Accepted ingress-envelope shape
+invariant. Source hashes are runtime
+`f501e3b84ee3ded6935d743c4d722b5404f98e6ca8cc02dd6570a288f88c47ed`
+and canonicalizer
+`a9ab51732a598e82bb96710c466dc9d85fe5f958e5e5c9fb289ec18f1f83858a`.
+Focused format, full lint zero-issue, lint baseline, focused analyzer error0,
+and PHPUnit `38 tests / 11,541 assertions` pass; forbidden-ID, diff-check,
+staged0, and exact25 status pass. No callable, control flow, failure mapping,
+runtime behavior, or public API changed. The prior Iteration/reviews and stopped
+Complete Final attempt are Historical after this Product edit. Next Action:
+replacement Iteration from command 1 -> fresh reviews/refreeze -> Complete
+Final Gate from command 1. Acceptance, commit, export, and push remain Not Run.
+
+Historical: P23-003C4 Complete Final Gate command-3 blocker at
+2026-09-04T10:21:58+09:00: the Gate began from freshly reviewed exact25
+`b8384a4608808a4ec30cd4ad24c800fc839cac2f3d37d6fcec399867b66c355d`.
+Full format and Composer strict validation passed. Full Mago lint exited `1`
+with four errors and two help messages: class complexity/kan-defect/
+too-many-methods for `AuditOutboxRelayRuntime`, two fixed private boolean-flag
+parameters there, and class complexity for `AuditIngressCanonicalizer`.
+Commands 4-10 were not run. The bounded correction is limited to existing
+exact23 Relay source Mago expectations and Report/STATE; it must not change the
+D153 callable/control-flow/API graph. Any Product edit invalidates the prior
+Iteration/reviews and requires focused verification, replacement Iteration,
+fresh reviews/refreeze, and a Complete Final restart at command 1. No stage,
+commit, push, export, release, deploy, or public activation occurred.
+
+P23-003C4 Iteration Gate Green at 2026-09-04T10:10:19+09:00: the formal
+Gate restarted from command 1 after a Historical sandbox-only Docker socket
+denial and passed on one unchanged Product/Test freeze. Branch is
+`agent/p23-001-blackops-1-3-feasibility`, HEAD is
+`41abbfe891f226fd1756fc6e7905e23f762604a5`, status is exact25, staged0,
+Product/Test exact23 is
+`20f43c10ef41ce75861f8c93bfb22e1e4882ad31e614dcae2284ba00b90d92ee`,
+pre-management exact25 is
+`e604bb53e1501318cdbfa05235d4eaec17895c58afae3d5e9a90ebaf53563d34`,
+and immutable exact12 is
+`e4666918bd9c7324df59179b5427cf851723ccd9d986180e58b1d7cf2d3c87b4`.
+Counts, uniqueness, existence, Accepted ancestry, package hashes, and four
+manifest negatives are Green.
+
+Scoped format is Green. Focused PHPUnit is `256 tests / 1,788,282
+assertions`; all four Audit Node goldens pass; Deptrac is `1,036 analyzed / 0
+violations / 0 skipped / 0 uncovered / 6,341 allowed / 0 warnings / 0
+errors`; version baseline is `1.2.0` published and `1.1.0` historical; package
+inventory is exact75 with `29` rejected mutations (`15 + 14`) and Bash syntax
+Green. Framework `13` plus Community Board `5` equals `18`; Stable generic
+Outbox positives are `10 tests / 69 assertions`; StoragePurpose is exact9;
+Audit-specific activation/public/route/CLI/docs deltas and forbidden IDs are
+zero; Guide/Website diff/status, diff-check, staged0, and ending freezes are
+Green.
+
+Fresh independent General/Transaction/Documentation reviews, unchanged
+refreeze, Complete Final Gate, Acceptance, candidate commit, and clean same-SHA
+package export remain Not Run. Push, release, deploy, browser/generated
+artifact verification, and public activation remain Not Verified. Next Action:
+fresh reviews -> unchanged exact25 refreeze -> Complete Final Gate -> Acceptance
+-> commit -> clean same-SHA export. Do not push without separate authorization.
+
+Historical: P23-003C4 Batch D checkpoint at 2026-09-04T09:03:58+09:00:
+real PostgreSQL relay/recovery evidence is complete for Orchestrator review.
+The Batch D test SHA is
+`7a3fc4a9e996c616a628a9b48baed4c4381db9fe863286979749a14782ff83b2`.
+Accepted exact22 and exact23 bytes remain preserved at
+`52f4543ef567b83684c8d43d569352c810f77b3e3263515dcedf8850626613a7` and
+`20f43c10ef41ce75861f8c93bfb22e1e4882ad31e614dcae2284ba00b90d92ee`.
+The fixtures prove independently committed system/tenant claim, append, and
+ack; before/after-append crashes; final recovery poison/FIFO release;
+response loss; stale CAS; paused relay versus recovery with stale old ack and
+fresh existing convergence; same/cross-partition progress; and historical
+role-separated keys/ciphertext, no-leak, and bounded cleanup. Capacity is
+pinned at logical JCS `16983`, evidence `8192`/`8193`, with `8193` rejected as
+`IntegrityInvalid` and PostgreSQL snapshots unchanged.
+
+Final bounded verification: format exit0; full relay file PHPUnit exit0 with
+12 tests, 1104 assertions, and 0 warnings; diff-check exit0; staged0; and
+working-tree status exact25 paths. Iteration, Complete Final, Acceptance,
+candidate commit, and package export remain Not Run/Not Verified. Prior Batch
+evidence is historical/unchanged; no Production, Application, package,
+export, stage, commit, push, or network action occurred.
+
+P23-003C4 Batch C3 checkpoint at 2026-09-04T07:30:37+09:00:
+the bounded package slice is complete for Orchestrator review. Only
+`tests/Consumer/framework-package-required-inventory.sh`,
+`tests/Consumer/framework-package-export.sh`, this Report, and STATE moved.
+Both package lists now contain the exact D153-ordered C4 paths
+`AuditRelayOutcome`, `AuditRelayFailure`, `AuditRelayException`,
+`AuditRelayPersistence`, `PostgreSqlAuditRelayPersistence`,
+`AuditIngressCanonicalizer`, and `AuditOutboxRelayRuntime` immediately after
+the C3 orchestration entries and before the C3 key adapter. Required inventory
+is exact75. The oracle preserves one validation function, one ordered loop,
+exactly two top-level Git/Composer calls, bounded cleanup, and
+candidate-independent locally-repinned rejection. It rejects `29` valid
+mutations (`15` inventory plus `14` call-contract), including actual added,
+duplicated, and C4-entry-omission fixtures.
+
+The C3 script hashes are
+`9f983932f02761456133a534bd3ff95334e8311a51646fbcbcf3e37132960f1f`
+(`framework-package-required-inventory.sh`) and
+`9ff12e3e2f921fba27165c112ddd839fd6bdc1c50926d30dd689a69410c1bd63`
+(`framework-package-export.sh`). Required-inventory, version baseline
+(`1.2.0` published / `1.1.0` historical), Bash syntax, diff-check,
+forbidden-ID, and staged0 all exited `0`. The package export script was not
+run on the uncommitted worker tree; no package archive, network, stage,
+commit, or push occurred.
+
+The accepted C2 Production correction remains byte-identical at
+`eca4223b11a957726de907cbd207709b977dd22b9165a64822446088710eade2`, and the
+C2 Architecture aggregate remains
+`cfac4a5a874e18e0729b651e6b383c87dffc35686895f651886c431e17cdfcac`; the C2
+individual hashes and all prior Product/Test bytes are preserved below. Batch
+D, real PostgreSQL, Iteration, Complete Final, Acceptance, candidate commit,
+and clean same-SHA package export remain Not Verified.
+
+P23-003C4 Batch C2 checkpoint at 2026-09-04T07:20:03+09:00:
+the bounded Architecture slice is complete for Orchestrator review. The
+accepted `AuditOutboxRelayRuntime.php` correction remains byte-identical at
+`eca4223b11a957726de907cbd207709b977dd22b9165a64822446088710eade2`. New
+`tests/Architecture/AuditRelayArchitectureTest.php` owns hard-coded exact
+seven-file Relay declarations, enum cases/properties, callable signatures,
+dependencies, constructors, direct calls/receivers, Application composition,
+activation, class-string, and forbidden-capability maps. Valid TOKEN_PARSE
+fixtures cover extra callable/property, candidate-self-baseline, shared
+whole-path bypass, `self` constructor resolution, literal-concat class strings,
+target-aware callable-array/ReflectionMethod/parenthesized indirection,
+validator caller removal/extra/receiver mutations, and DBAL/clock/UUID/nonce/key
+capability additions. The actual all-source scan gates Relay dynamic and
+target-aware indirect calls while preserving unrelated generic dynamic code.
+Shared five Architecture maps contain only exact C4 path/target/kind/count
+deltas, including `validateLogical` and the exception `self` constructor.
+
+Focused Relay Architecture exited `0` with `6 tests / 2,767 assertions / 0
+PHPUnit warnings`; combined new plus shared five Architecture exited `0` with
+`50 tests / 1,772,610 assertions / 0 warnings`. Affected Application plus
+three Relay regression exited `0` with `44 tests / 10,188 assertions / 0
+warnings`; the three-file Relay regression alone exited `0` with `36 tests /
+9,026 assertions / 0 warnings`. Full format exited `0`. New C2 Architecture
+scoped Mago lint exited `0` with `0 errors / 132 warnings / 19 help`. A
+diagnostic lint over all six Architecture files exited `1` with 70 errors in
+existing shared Architecture constructs; it did not regenerate the baseline.
+Diff-check, forbidden-ID, and staged0 all exited `0`.
+
+Current C2 hashes are:
+`3a0a25cec645d5669705dc627d1970e5595dd816641e96bffdcb8962390696fb`
+(`AuditRelayArchitectureTest.php`),
+`06db1df7141ea10109ddec65c5c33878a3b8a7e0c5640cf287272f9773316f31`,
+`385fc104f44d49d478fba63b6cc0f544e16966afca90e5cb954638942abdf75d`,
+`70fe9abb763d1275767684f6ab1c9a20a7986b34ac4040af95c502987a8b7f03`,
+`aeb6b99e1bf5991da3d4b4e2165bea1063654c697c61d06de04292406fd4a669`, and
+`78c86a9e4f2946581fc60eb1536837466642927b7b7b201be3cc03048bb884f1` for the
+five shared Architecture files; the accepted Relay source hashes remain
+`94a6a209b037a9ac380567ac925212af1257b63a27f57a23fcffe5be4062db77`,
+`eca4223b11a957726de907cbd207709b977dd22b9165a64822446088710eade2`,
+`ac9fd0a00510b7454199f681554b3d2a62f7c07e3aa3f47e91f2484df7c88385`,
+`e496d5747920caf6c170a1aa14650a1376740fb13ef82b4c8fc030f20904a815`,
+`9e6c0a3257a16612af04c8eb1d75b190c418a6a8eeac3e990b63ca6f7919c187`,
+`f70df7580658021f26f5a1fa616df912eae7bceca2a4b129db79dd4827048d2f`, and
+`09d33d6fe33c4656bcb536bee90c445c32d16224ea5acfe44c65c82d6788c4f`. Ordered
+C2 Architecture/Relay aggregate is
+`cfac4a5a874e18e0729b651e6b383c87dffc35686895f651886c431e17cdfcac`.
+Batch D, Architecture/package follow-up for the shared lint debt, real
+PostgreSQL fixtures, and the Iteration Gate remain Not Verified. No stage,
+commit, push, network, package export, activation, or public Documentation
+change occurred.
+
+P23-003C4 Batch C1 checkpoint at 2026-09-04T05:59:18+09:00:
+changed only the two Application composition sources and their two Application
+tests; the accepted `eca4223b11a957726de907cbd207709b977dd22b9165a64822446088710eade2`
+relay runtime correction and Relay tests remain unchanged. Application runtime
+now carries exactly one relay member, finalizes it as the last factory
+argument, and exposes `relay()`. The composer constructs exactly one
+canonicalizer, PostgreSQL relay persistence adapter, and relay runtime after
+the existing Stores, reusing the existing body/validator, Store, Connection,
+and Outbox configuration identities.
+
+Reflection and composition evidence fixes all prior/new member, getter,
+parameter-type, and SensitiveParameter identities; adapter internals,
+provider/database resolution counts, exact constructor counts, and zero
+external composer/Audit relay activation references. Focused Application tests
+exited `0` with `8 tests / 1,162 assertions / 0 PHPUnit warnings`; combined
+Application + three Relay regression exited `0` with `44 tests / 10,188
+assertions / 0 warnings`. Full format exited `0`; scoped Mago lint exited `0`
+with `0 errors / 52 warnings / 5 help`; diff-check, forbidden-ID, and staged0
+all exited `0`.
+
+Application source/test hashes are:
+`54ded77b05566926bde9610dbc559ff1f8e47da306d88c375cc4da9cc251ec7a`,
+`0b13ed33af979e342e63857d67f123cd9f6bc0072f8ae44f8abf97e687e8ea3f`,
+`4f95a88f4a133fe6b47735eb99b7877bbf6060084be854027a98306d366d6c76`, and
+`8fe9866f6914b5670611456eb2d6e2218299f2eb89bb8116040c0ec01cf98c05`;
+the ordered fourteen-file Product/Test aggregate is
+`03c3c3ee887f11858b54afae31da0ed359fca14c623d62d6dbdb307ecc84ab02`.
+Batch C2/D, Architecture/package checks, real PostgreSQL fixtures, remaining
+relay/recovery work, and the Iteration Gate remain Not Verified. No stage,
+commit, push, network, package export, activation, or public Documentation
+change occurred.
+
+P23-003C4 Batch B2b2b2 checkpoint at 2026-09-04T05:50:15+09:00:
+preserved the accepted `eca4223b11a957726de907cbd207709b977dd22b9165a64822446088710eade2`
+runtime correction and changed only the existing relay runtime test/fake/helper.
+The executable cases cover relayOne entry Connection invalid states and API
+throws, post-claim drift before malformed claim interpretation, pre-append
+drift after actual canonicalization, post-append drift before malformed result
+inspection, and pre-settlement drift after valid committed-result inspection.
+Retry, poison, and relay each cover post-settlement drift before returned-state
+inspection plus wrong-valid and constructorless-corrupt successful settlement
+responses contracting to C4 `storage_unavailable`.
+
+Retry uses actual protection failure at attempt 1, poison uses actual validation
+failure, and relay uses a matching committed append. Exact Connection and
+persistence order, fences, key/decode/append reachability, zero later/fallback
+calls, settlement cardinality, and no-leak surfaces for actual secrets and
+canaries are asserted. Focused B2b2b2 exited `0` with `7 tests / 1,523
+assertions / 0 PHPUnit warnings`; full runtime exited `0` with `24 tests /
+8,485 assertions / 0 warnings`; three-file Relay regression exited `0` with
+`36 tests / 9,026 assertions / 0 warnings`. Format exited `0`; scoped Mago
+lint exited `0` with `0 errors / 77 warnings / 48 help`; diff-check,
+forbidden-ID, and staged0 all exited `0`.
+
+Current test SHA is
+`48a54a86a61a973fe3f427d6eb4b88ff99c614ecca0c42f5eb92c567d8ab6a2d`; the
+ordered ten-file aggregate is
+`6e3dae4504cf8926f058a22ef36b02edb19606e7c8808db1c1e567bb2c3f6aa3`.
+Batch C/D, real PostgreSQL fixtures, remaining successful-return work, and the
+Iteration Gate remain Not Verified. No stage, commit, push, network, package
+export, activation, or public Documentation change occurred.
+
+P23-003C4 Batch B2b2b1 checkpoint at 2026-09-04T05:37:15+09:00:
+preserved the accepted `eca4223b11a957726de907cbd207709b977dd22b9165a64822446088710eade2`
+runtime correction and changed only the existing relay runtime test/fake.
+The executable settlement matrix runs retry, poison, and relay against all
+five actual Outbox Store failures plus one unique unexpected throwable (18
+cases). Retry starts with an actual authenticated-ciphertext protection
+failure at attempt 1; poison starts with an actual decrypted logical
+validation failure; relay uses an actual matching committed append.
+Transition conflict returns `stale`; resource failure throws C4
+`resource_unavailable`; integrity, idempotency, storage, and unexpected
+failures throw C4 `storage_unavailable`, superseding the initiating sender
+result. Exact call/order, pre-settlement Connection checks, no post-throw
+checks, fences, one settlement/no fallback/later call, key/decode/append
+reachability, and no-leak exception/result surfaces are asserted.
+
+The focused new test exited `0` with `1 test / 2,643 assertions / 0 PHPUnit
+warnings`; full runtime exited `0` with `17 tests / 6,962 assertions / 0
+warnings`; three-file Relay regression exited `0` with `29 tests / 7,503
+assertions / 0 warnings`. Format exited `0`; scoped Mago lint exited `0` with
+`0 errors / 59 warnings / 28 help`; diff-check, forbidden-ID, and staged0
+all exited `0`. Current test SHA is
+`509bba7063a29de599c1b0d89655044c258f45759ab839dfbd5141a788f6f731`; the
+ordered ten-file aggregate is
+`358cc6a3788296bc7844af78b58395eed7e5d9554a08ea2c38a7d1bc7876078c`.
+Successful-return mismatch/connection-drift work, Batch C/D, and the
+Iteration Gate remain Not Verified. No stage, commit, push, network, package
+export, activation, or public Documentation change occurred.
+
+P23-003C4 Batch B2b2a2 checkpoint at 2026-09-04T05:26:44+09:00:
+preserved the accepted `eca4223b11a957726de907cbd207709b977dd22b9165a64822446088710eade2`
+runtime correction and added only bounded sender-failure settlement evidence to
+tests/Internal/Audit/Relay/AuditOutboxRelayRuntimeTest.php. The actual
+canonicalizer protection matrix directly throws `AuditProtectionException`
+after authenticated ciphertext mutation and one Outbox key lookup:
+attempt 1 of maxAttempts 2 retries successfully while retaining claimed attempt
+1, and attempt 2 poisons successfully. The actual canonicalizer validation
+matrix decrypts valid ingress and reaches an authority-owned empty Catalog,
+throwing `AuditValidationException::SemanticInvalid` and poisoning at attempts
+1 and 2. Both matrices prove key ID/purpose/material, exact Connection and
+persistence order, zero append where required, one settlement, exact fence
+args, returned state/attempt, and no sensitive value in failure surfaces.
+
+Every actual `AuditStoreFailure` thrown by append is captured as the exact
+typed exception: Resource/Storage retry at attempt 1 and poison at attempt 2;
+Idempotency/Segment/Integrity poison at both attempts. Four independent valid
+committed-record binding mutations and actual `AuditAppendResult::record()`,
+`AuditStoredRecord::toArray()`, and `AuditAppendResult::inserted()` inspection
+failures each poison once. Successful settlement cases assert no later calls,
+exact fence values, and no raw key, ciphertext, key ID/material, token,
+content hash, or caught throwable across debug/export/JSON/serialize/trace
+surfaces. No Production correction was needed.
+The five exception-surface exports use a local error-handler-backed
+`safeVarExport()` helper so circular-reference warnings remain suppressed
+without changing the no-leak assertions.
+
+The focused B2b2a2 runtime PHPUnit exited `0` with `4 tests / 2,289
+assertions` and zero warnings; the scoped formatter exited `0`; complete
+runtime PHPUnit exited `0` with `16 tests / 4,319 assertions` and zero
+warnings; the three-file Relay regression exited `0` with `28 tests / 4,860
+assertions` and zero warnings. `git diff --check`, the forbidden PHP
+management-ID scan, and `git diff --cached --quiet` all exited `0`; staged0
+remains Green. Scoped `mago lint --reporting-format count` exited `0` with
+`0 errors / 54 warnings / 20 help`; the former 12 targeted errors are
+resolved. The ordered ten-file Product/Test individual values are:
+
+```text
+9e6c0a3257a16612af04c8eb1d75b190c418a6a8eeac3e990b63ca6f7919c187  src/Internal/Audit/Relay/AuditRelayOutcome.php
+e496d5747920caf6c170a1aa14650a1376740fb13ef82b4c8fc030f20904a815  src/Internal/Audit/Relay/AuditRelayFailure.php
+ac9fd0a00510b7454199f681554b3d2a62f7c07e3aa3f47e91f2484df7c88385  src/Internal/Audit/Relay/AuditRelayException.php
+f70df7580658021f26f5a1fa616df912eae7bceca2a4b129db79dd4827048d2f  src/Internal/Audit/Relay/AuditRelayPersistence.php
+09d33d6fe33c4656bcb536bee90c445c32d16224ea5acfe44c65c82d6788c4f  src/Internal/Audit/Relay/PostgreSqlAuditRelayPersistence.php
+94a6a209b037a9ac380567ac925212af1257b63a27f57a23fcffe5be4062db77  src/Internal/Audit/Relay/AuditIngressCanonicalizer.php
+eca4223b11a957726de907cbd207709b977dd22b9165a64822446088710eade2  src/Internal/Audit/Relay/AuditOutboxRelayRuntime.php
+e25b45593b352d10ca7f4531ae310b509cfd300473127563d9a9cf7c42702ee4  tests/Internal/Audit/Relay/AuditIngressCanonicalizerTest.php
+c9c5b7c332dd4b39ff1dc6a88c225d54fa4666f3f5fa6f815b74495a62722c81  tests/Internal/Audit/Relay/PostgreSqlAuditRelayPersistenceTest.php
+455eaf09aae4d0f76d24ba14b89abcdf89bbf4d0e12fd951c13bc0726364c6ff  tests/Internal/Audit/Relay/AuditOutboxRelayRuntimeTest.php
+```
+
+The ordered `sha256sum`-output aggregate is
+`50f4e82ea02d502487eaa9e318c25d033762d5dd1acce66769708094ecb8291c`.
+Immutable exact12 aggregate remains
+`e4666918bd9c7324df59179b5427cf851723ccd9d986180e58b1d7cf2d3c87b4`;
+package required-inventory/export hashes remain
+`cf0f45c60c2452bb469f7a6e24603b3cfd1c34ed0c265fd925d1e2a3512daeec` /
+`2ed38aab4a5b22431b976d3c38dc1c47daba8c5af24460d45f207c11dc26c732`.
+Remaining B2b2 settlement-failure work, Batch C/D, and the Iteration Gate
+remain Not Verified. No stage, commit, push, network, package export,
+activation, or public Documentation change occurred.
+
+P23-003C4 Batch B2b2a1 checkpoint at 2026-09-04T04:42:32+09:00:
+preserved the accepted `eca4223b11a957726de907cbd207709b977dd22b9165a64822446088710eade2`
+runtime correction and added only bounded relay rejection evidence to
+tests/Internal/Audit/Relay/AuditOutboxRelayRuntimeTest.php. Claim not-found
+returns `idle` after the successful post-claim Connection check. Every
+AuditOutboxStoreFailure maps exactly once (`stale`, C4 `resource_unavailable`,
+or C4 `storage_unavailable`), and an unexpected claim throwable maps to fixed
+`storage_unavailable`; thrown lookup paths perform no later Connection or
+persistence call. The authority-owned fake records exactly one claim and zero
+append, retry, poison, and relay calls; the actual key source records zero
+runtime key opens.
+
+Fifteen separate claimed-row mutations cover wrong state, missing record,
+corrupt record, attempt `0`/`max+1`, version `0`/`MAX_SAFE_INTEGER+1`, null or
+malformed token, missing expiry, non-null `availableAt`, and malformed
+record ID, partition, content hash, or tenant. Each uses an actual
+`AuditOutboxRecord` or `AuditOutboxLookupResult` value, contracts to fixed C4
+`storage_unavailable`, and proves six post-claim Connection checks followed
+by zero canonicalizer key opens and zero append or settlement calls.
+
+After the actual canonicalizer succeeds, append failures of
+`AuditProtectionException`, `AuditValidationException`, and an unexpected
+`append-canary` throwable all contract to C4 `storage_unavailable`. Each
+performs one claim, one canonical append, no retry/poison/relay settlement,
+and no post-append state recheck; the captured canonical logical object and
+one Outbox-purpose key open prove the canonicalizer was not bypassed. C4
+exception message/code/previous and debug, serialization, JSON, `var_export`,
+and trace surfaces remain value-free.
+
+The final scoped format check exited `0`; focused runtime PHPUnit exited `0`
+with `12 tests / 1,970 assertions`; the three-file Batch A+B regression exited
+`0` with `24 tests / 2,511 assertions`. `git diff --check`, the forbidden PHP
+management-ID scan, and `git diff --cached --quiet` all exited `0`; staged0
+remains Green. The ordered ten-file Product/Test individual values are:
+
+```text
+9e6c0a3257a16612af04c8eb1d75b190c418a6a8eeac3e990b63ca6f7919c187  src/Internal/Audit/Relay/AuditRelayOutcome.php
+e496d5747920caf6c170a1aa14650a1376740fb13ef82b4c8fc030f20904a815  src/Internal/Audit/Relay/AuditRelayFailure.php
+ac9fd0a00510b7454199f681554b3d2a62f7c07e3aa3f47e91f2484df7c88385  src/Internal/Audit/Relay/AuditRelayException.php
+f70df7580658021f26f5a1fa616df912eae7bceca2a4b129db79dd4827048d2f  src/Internal/Audit/Relay/AuditRelayPersistence.php
+09d33de6fe33c4656bcb536bee90c445c32d16224ea5acfe44c65c82d6788c4f  src/Internal/Audit/Relay/PostgreSqlAuditRelayPersistence.php
+94a6a209b037a9ac380567ac925212af1257b63a27f57a23fcffe5be4062db77  src/Internal/Audit/Relay/AuditIngressCanonicalizer.php
+eca4223b11a957726de907cbd207709b977dd22b9165a64822446088710eade2  src/Internal/Audit/Relay/AuditOutboxRelayRuntime.php
+e25b45593b352d10ca7f4531ae310b509cfd300473127563d9a9cf7c42702ee4  tests/Internal/Audit/Relay/AuditIngressCanonicalizerTest.php
+c9c5b7c332dd4b39ff1dc6a88c225d54fa4666f3f5fa6f815b74495a62722c81  tests/Internal/Audit/Relay/PostgreSqlAuditRelayPersistenceTest.php
+183ac3cc914ec4c6ea633d5f159e419de3295cd95270c15f66aa1ec2733b6bf2  tests/Internal/Audit/Relay/AuditOutboxRelayRuntimeTest.php
+```
+
+The ordered `sha256sum`-output aggregate is
+`37f7de71476debda1768ee5e6b220e8665683679fd19279496d8dce22c2a4c5e`.
+Immutable exact12 aggregate remains
+`e4666918bd9c7324df59179b5427cf851723ccd9d986180e58b1d7cf2d3c87b4`;
+package required-inventory/export hashes remain
+`cf0f45c60c2452bb469f7a6e24603b3cfd1c34ed0c265fd925d1e2a3512daeec` /
+`2ed38aab4a5b22431b976d3c38dc1c47daba8c5af24460d45f207c11dc26c732`.
+Remaining B2b2 failure/settlement branches, Batch C/D, and the Iteration Gate
+remain Not Verified. No stage, commit, push, network, package export,
+activation, or public Documentation change occurred.
+
+P23-003C4 Batch B2b1 checkpoint at 2026-09-04T04:12:53+09:00:
+preserved accepted B2a recovery and result-canary evidence, then added only
+positive relay coverage to tests/Internal/Audit/Relay/AuditOutboxRelayRuntimeTest.php.
+The four cases use the actual canonicalizer for system and tenant ingress with
+inserted true and false. A shared ArrayObject sink records six complete
+Connection checkpoints and the exact claim -> Outbox key decode/open -> append
+-> relay order. The authority-owned persistence fake captures one claim,
+append, and relay, zero recover/retry/poison calls, direct canonical logical
+data, and exact fence record ID, tenant, partition, version 2, and token
+bytes. A valid AuditStoredRecord::fromArray append result preserves and checks
+committed record ID, partition, tenant, and content hash equality. The key
+source records one fixture active-key call and one runtime Outbox-purpose
+decode/open; runtime active-key calls are absent. Logical, outcome, event, and
+fence surfaces contain neither raw idempotency key nor protected ciphertext.
+The four outcomes are relayed_inserted and relayed_existing as expected.
+No Production correction was required.
+
+Scoped format check exited 0 after formatting the runtime test; the focused
+runtime PHPUnit exited 0 with 8 tests / 733 assertions, and the three-file
+Batch A+B direct PHPUnit exited 0 with 20 tests / 1274 assertions.
+git diff --check and git diff --cached --quiet exited 0; staged0 remains Green.
+The ordered ten-file Product/Test aggregate is
+d2f6ed749220447595104b71f467684400996bca67dcb5a6782f7d262e613a54.
+Immutable exact12 aggregate remains
+e4666918bd9c7324df59179b5427cf851723ccd9d986180e58b1d7cf2d3c87b4;
+package required-inventory/export hashes remain
+cf0f45c60c2452bb469f7a6e24603b3cfd1c34ed0c265fd925d1e2a3512daeec /
+2ed38aab4a5b22431b976d3c38dc1c47daba8c5af24460d45f207c11dc26c732.
+B2b2 failure/settlement evidence, Batch C/D, and the Iteration Gate remain
+Not Verified. No stage, commit, push, network, package export, activation, or
+public Documentation change occurred.
+
+P23-003C4 Batch B2a recovery checkpoint at 2026-09-04T03:53:33+09:00:
+added only tests/Internal/Audit/Relay/AuditOutboxRelayRuntimeTest.php
+within the recovery-only bounded step; no Production correction was needed.
+The direct matrix covers idle, recovered pending, recovery poisoned,
+transition stale, resource, integrity, idempotency, storage, and unexpected
+recovery results; exactly one recoverNextExpired() call; zero claim, decode,
+append, retry, relay, or poison calls; invalid auto-commit/active/nesting
+entry states; all three Connection state API throws; successful post-state
+drift before returned-result interpretation; and malformed
+isFound/record/state returns. C4 exceptions assert exact value-free
+failure/code/message, null previous, and no canary across debug,
+var_export, JSON, serialization, and trace surfaces. The source oracle
+asserts final readonly shape, exact public methods, one recovery delegation,
+and zero runtime transaction/SQL/Clock/UUID/nonce/key/sleep/random access.
+The prior Catalog duplicate cleanup remained absent (one assignment exists).
+Scoped format exited 0; B2a direct PHPUnit exited 0 (7 tests / 527
+assertions); the three-file Batch A+B regression exited 0 (19 tests / 1068
+assertions). The ordered ten-file Product/Test aggregate is
+bd11d6adb0442098b35fe5a28a87824a59b3ea50bb9a3ead7b599e3eae71d6d8.
+Immutable exact12 aggregate remains
+e4666918bd9c7324df59179b5427cf851723ccd9d986180e58b1d7cf2d3c87b4;
+package required-inventory/export hashes remain
+cf0f45c60c2452bb469f7a6e24603b3cfd1c34ed0c265fd925d1e2a3512daeec /
+2ed38aab4a5b22431b976d3c38dc1c47daba8c5af24460d45f207c11dc26c732.
+git diff --check and git diff --cached --quiet exited 0; staged0 remains
+Green. Relay B2b, real PostgreSQL, Batch C/D, and the Iteration Gate remain
+Not Verified; no stage, commit, push, network, package export, activation, or
+public Documentation change occurred.
+
+P23-003C4 Batch B1 correction at `2026-09-04T03:29:19+09:00`: all applicable
+private row/logical/tenant/identifier/hash/token/exception/Store-result
+parameters in `AuditOutboxRelayRuntime.php` now carry
+`#[\SensitiveParameter]`. Successful claim interpretation, including
+`isFound()`, is contracted after post-claim Connection validation; not-found
+returns `idle`, while malformed/throwing lookup interpretation becomes fixed
+C4 `storage_unavailable` without settlement. Captured claim version is now
+bounded to positive SAFE integer through `9_007_199_254_740_991` before decode
+or settlement. The accepted Batch A Catalog mutation had no duplicate line.
+Scoped format check and Batch A direct tests exited `0` (`12 tests / 541
+assertions`); B2 direct runtime evidence remains Not Verified. The corrected
+runtime SHA is
+`05fa13bac84fee45539b2d600e826e10e8c2ea603948cf0a213d98cc963101f7`; ordered
+nine-file aggregate is
+`bc5c8abe8b4db54106d68649ee569e46cbebee9979bd541c011470be29199078`.
+`git diff --check` and `git diff --cached --quiet` both exited `0`; staged0
+remains Green.
+
+P23-003C4 Batch B1 at `2026-09-04T03:25:33+09:00`: added only
+`AuditOutboxRelayRuntime.php` with exact constructor/public API and bounded
+recovery/relay phases. The helper set performs immediate pre/post persistence
+Connection checks, exact lookup/sender/settlement mapping, claimed fence and
+committed-result binding checks, one retry/poison/relay settlement, and no
+runtime transaction/SQL/Clock/UUID/nonce/key/configuration calls. The accepted
+canonicalizer test had no duplicate Catalog assignment, so cleanup changed no
+Batch A byte. Scoped format check exited `0`; accepted Batch A direct tests
+exited `0` with `12 tests / 541 assertions`. Runtime direct evidence is Not
+Verified until B2; Batch C/D and the Iteration Gate remain not started. The
+ordered nine-file Product/Test aggregate is
+`4ca5d0d775ce33476800b9e4b8dc30536edb6de7cdb29055b833d343bbd152d1`.
+
+P23-003C4 Batch A closure correction 2 at `2026-09-04T03:13:31+09:00`:
+the historical Outbox fixture now uses a writer historical key
+`audit-outbox-key-history`/32 `h` bytes and a reader active key
+`audit-outbox-key-current`/32 `n` bytes. The reader made zero `activeKey()`
+calls and exactly one historical `key()` call with the old ID, old material,
+and `AuditOutboxRecord` purpose; canonical output stayed durable and the
+protected ciphertext stayed byte-identical. The authority-owned source oracle
+requires one ordered capture/unprotect/binding/Candidate/validator/Canonical
+path, the exact `hasBindings()` and logical-array fail-closed guards, and no
+content-hash recomputation or raw idempotency-key access. A binding-guard
+deletion mutant is independently applied and killed by that oracle. Policy,
+logical-shape, Catalog, and evidence negatives are recorded truthfully as
+protected-body codec-layer rejection (not direct canonicalizer validator
+reach); direct Candidate -> `validateLogical()` -> Canonical ordering is
+covered by the positive path and source oracle. Final scoped formatter and
+both Batch A PHPUnit commands are recorded in the C4 Report; the ordered
+eight-file Product/Test aggregate is
+`14a24e08b30eb7f9748b97c62f49db9a7c418b046519c94c23dbe0bd7a3470c7`; Batch B
+and the Iteration Gate remain paused. `git diff --check` and
+`git diff --cached --quiet` both exited `0`; staged0 remains Green.
+
+P23-003C4 final P2-2 canonicalizer checkpoint at `2026-09-04T03:01:54+09:00`:
+the authorized direct test closes system and tenant positives, one Outbox
+unprotect/open and ordered Candidate/validator/Canonical path, historical
+Outbox-key success with exactly one key open, Record/Outbox key-role
+separation, five individual outer binding substitutions, non-durable policy,
+logical-shape/Catalog/evidence failures, malformed BOPD, unavailable key,
+key-ID mismatch, ciphertext/AAD swaps, and raw-key absence across returned and
+exception surfaces. Observable key-purpose/call counts are asserted. Scoped
+format exited `0`; the two Batch A PHPUnit files exited `0` with `12 tests /
+541 assertions`; `git diff --check` and staged0 remain Green. The corrected
+ordered eight-file aggregate is
+`df8150464b466ca339d0707fa2e2d98ad44ea6820fe3e03f1a5375e4510d9489`.
+Immutable exact12 aggregate and package hashes remain unchanged. Real
+PostgreSQL crash/concurrency fixtures remain explicitly deferred to Batch D;
+Batch B and the Iteration Gate remain paused for Orchestrator review.
+
+P23-003C4 final P2-1 adapter checkpoint at `2026-09-04T02:55:59+09:00`:
+the authorized mutation array visibly contains eight syntactically plausible
+cases, including a poison argument reorder, and the independent oracle killed
+`8/8`. The canary-bearing `AuditRelayException::__unserialize()` failure is
+inspected directly through the caught exception's debug, serialization, JSON,
+`var_export()`, and trace surfaces; its unique `lease-token` is absent and
+previous is null. Literal scoped formatter and adapter PHPUnit commands both
+exited `0`; PHPUnit was `4 tests / 252 assertions`. The current ordered
+eight-file Product/Test aggregate is
+`28a84bf1e1c420effd3a7dc5e107ce605d1568eb2c9617bb5c235d2efd36df88`, with
+adapter test SHA
+`c9c5b7c332dd4b39ff1dc6a88c225d54fa4666f3f5fa6f815b74495a62722c81`.
+The earlier 02:43 checkpoint's 8/8 label is superseded because its visible
+mutation list had seven entries. Canonicalizer P2-2 and Batch B remain paused.
+
+P23-003C4 Batch A correction checkpoint at `2026-09-04T02:43:54+09:00`:
+P2-1 adapter evidence is closed and P2-2 canonicalizer correction remains
+pending. The authorized adapter test now checks an authority-owned exact
+six-method return/body and argument map, public signatures, nullability, and
+`SensitiveParameter` attributes for both the interface and PostgreSQL adapter.
+Its independent mutation oracle killed `8/8` mutations covering wrong target,
+one-call result wrapping, inserted-flag/result replacement, argument reorder or
+substitution, exception translation, and transaction control. Constructorless
+accepted Store invocations observed Store failure types, fixed code, null
+previous, and no C4 translation. Exact successful-result/throwable object
+capture is not feasible with the final accepted Store classes and their
+production-only constructors; exact direct-return bodies plus mutations are
+the recorded identity evidence. Scoped formatter check exited `0`; adapter
+PHPUnit exited `0` with `4 tests / 244 assertions`; `git diff --check` and
+staged0 remain Green. The current ordered eight-file Product/Test aggregate is
+`0b1bf5c5d1daf9910ecc724ada875e4b95612473cb7f445a675565b2d7578730`.
+Immutable exact12 aggregate and package hashes remain unchanged at the values
+recorded below. Batch B and the Iteration Gate remain paused pending P2-2.
+
+P23-003C4 worker-start checkpoint at 2026-09-04T02:12:24+09:00: fresh
+General／Architecture／package, Transaction／PostgreSQL, and Documentation／Release
+preflight lanes are Green with `P1/P2/P3=0/0/0`. The configured worker starts
+from branch `agent/p23-001-blackops-1-3-feasibility`, HEAD
+`41abbfe891f226fd1756fc6e7905e23f762604a5`, clean worktree, staged0, and C3
+`b7b352a8e4c86a45822351c108772367515654bd` as an ancestor. C3-to-HEAD
+Product／Test／docs／migration delta is zero. Immutable exact12 individual
+hashes and ordered aggregate
+`e4666918bd9c7324df59179b5427cf851723ccd9d986180e58b1d7cf2d3c87b4` match the
+dispatch; package hashes are required-inventory
+`cf0f45c60c2452bb469f7a6e24603b3cfd1c34ed0c265fd925d1e2a3512daeec` and export
+`2ed38aab4a5b22431b976d3c38dc1c47daba8c5af24460d45f207c11dc26c732`.
+Product work was unstarted at this checkpoint. Batch A is now in progress;
+no other Product/Test batch, stage, commit, push, network, package export,
+runtime activation, or public Documentation change is permitted.
+
+Batch A checkpoint at `2026-09-04T02:24:56+09:00`: six Relay source types and
+two direct Relay tests are complete; Batch B runtime work has not started. The
+ordered Batch A Product/Test aggregate is
+`f59c4a3027659868d81802432acec98117d7d11bbf93ac8df7f35e7d66f6f754`, with
+individual values recorded in the C4 Report. Scoped format exited `0`, focused
+PHPUnit exited `0` with `4 tests / 35 assertions`, `git diff --check` exited
+`0`, and staged0 remains Green. Immutable exact12 aggregate remains
+`e4666918bd9c7324df59179b5427cf851723ccd9d986180e58b1d7cf2d3c87b4`; package
+script hashes remain required-inventory
+`cf0f45c60c2452bb469f7a6e24603b3cfd1c34ed0c265fd925d1e2a3512daeec` and export
+`2ed38aab4a5b22431b976d3c38dc1c47daba8c5af24460d45f207c11dc26c732`. Current
+paths are exactly the Batch A eight Product/Test files plus this Report and
+STATE. Recover/relay, full failure/transaction matrix, PostgreSQL fixtures,
+Application composition, Architecture/package gates, and Iteration Gate remain
+pending; no stage, commit, push, network, package export, runtime activation,
+or public Documentation change occurred.
 
 P23-003C1, P23-003C2, and P23-003C3 are Accepted. The reviewed C3 candidate
 is committed at `b7b352a8e4c86a45822351c108772367515654bd`; Complete Final,

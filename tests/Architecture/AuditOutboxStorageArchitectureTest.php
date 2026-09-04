@@ -785,6 +785,7 @@ final class AuditOutboxStorageArchitectureTest extends TestCase
             ],
             'unprotectOutbox' => [
                 'Internal/Audit/Outbox/PostgreSqlAuditOutboxStore.php' => 1,
+                'Internal/Audit/Relay/AuditIngressCanonicalizer.php' => 1,
             ],
             'finalizer->finalize' => [
                 'Internal/Audit/Storage/PostgreSqlAuditRecordStore.php' => 1,
@@ -1278,6 +1279,24 @@ final class AuditOutboxStorageArchitectureTest extends TestCase
             'Internal/Audit/Orchestration/AuditDeliveryCoordinator.php' => [
                 'BlackOps\\Internal\\Audit\\Outbox\\AuditOutboxStoreException',
                 'BlackOps\\Internal\\Audit\\Outbox\\AuditOutboxStoreFailure',
+                'BlackOps\\Internal\\Audit\\Outbox\\PostgreSqlAuditOutboxStore',
+            ],
+            'Internal/Audit/Relay/AuditIngressCanonicalizer.php' => [
+                'BlackOps\\Internal\\Audit\\Outbox\\AuditOutboxRecord',
+            ],
+            'Internal/Audit/Relay/AuditOutboxRelayRuntime.php' => [
+                'BlackOps\\Internal\\Audit\\Outbox\\AuditOutboxLookupResult',
+                'BlackOps\\Internal\\Audit\\Outbox\\AuditOutboxRecord',
+                'BlackOps\\Internal\\Audit\\Outbox\\AuditOutboxStoreException',
+                'BlackOps\\Internal\\Audit\\Outbox\\AuditOutboxStoreFailure',
+            ],
+            'Internal/Audit/Relay/AuditRelayPersistence.php' => [
+                'BlackOps\\Internal\\Audit\\Outbox\\AuditOutboxLookupResult',
+                'BlackOps\\Internal\\Audit\\Outbox\\AuditOutboxRecord',
+            ],
+            'Internal/Audit/Relay/PostgreSqlAuditRelayPersistence.php' => [
+                'BlackOps\\Internal\\Audit\\Outbox\\AuditOutboxLookupResult',
+                'BlackOps\\Internal\\Audit\\Outbox\\AuditOutboxRecord',
                 'BlackOps\\Internal\\Audit\\Outbox\\PostgreSqlAuditOutboxStore',
             ],
         ];

@@ -660,6 +660,10 @@ final class AuditOutboxStateArchitectureTest extends TestCase
             'Internal/Application/ApplicationAuditRuntime.php' => [
                 'BlackOps\\Internal\\Audit\\Delivery\\AuditOutboxConfiguration',
             ],
+            'Internal/Audit/Relay/AuditOutboxRelayRuntime.php' => [
+                'BlackOps\\Internal\\Audit\\Delivery\\AuditOutboxConfiguration',
+                'BlackOps\\Internal\\Audit\\Delivery\\AuditOutboxState',
+            ],
         ];
         $paths = [];
         foreach ($sources as $relative => $source) {

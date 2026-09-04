@@ -27,6 +27,9 @@ use BlackOps\Internal\Audit\Protection\AuditProtectedBodyCodec;
 use BlackOps\Internal\Audit\Record\AuditPartitionIdDeriver;
 use BlackOps\Internal\Audit\Record\AuditRecordCodec;
 use BlackOps\Internal\Audit\Record\AuditRecordFinalizer;
+use BlackOps\Internal\Audit\Relay\AuditIngressCanonicalizer;
+use BlackOps\Internal\Audit\Relay\AuditOutboxRelayRuntime;
+use BlackOps\Internal\Audit\Relay\PostgreSqlAuditRelayPersistence;
 use BlackOps\Internal\Audit\Storage\PostgreSqlAuditRecordStore;
 use BlackOps\Internal\Audit\Storage\PostgreSqlAuditSchema;
 use BlackOps\Internal\Audit\Storage\PostgreSqlAuditStoredRecordHydrator;
@@ -102,6 +105,14 @@ final readonly class ApplicationAuditRuntimeComposer
         $delivery = new AuditDeliveryCoordinator($operations->connection, $selector, $recordStore, $outboxStore);
         $mutations = new AuditMutationTransactionCoordinator($operations->transactions, $delivery);
         $protectedReads = new AuditProtectedReadGate($delivery);
+        $canonicalizer = new AuditIngressCanonicalizer($body, $validator);
+        $relayPersistence = new PostgreSqlAuditRelayPersistence($outboxStore, $recordStore);
+        $relay = new AuditOutboxRelayRuntime(
+            $operations->connection,
+            $relayPersistence,
+            $canonicalizer,
+            $audit->outbox(),
+        );
 
         return ApplicationAuditRuntime::fromComposition(
             $audit->outbox(),
@@ -112,6 +123,7 @@ final readonly class ApplicationAuditRuntimeComposer
             $protectedReads,
             $recordStore,
             $outboxStore,
+            $relay,
         );
     }
 

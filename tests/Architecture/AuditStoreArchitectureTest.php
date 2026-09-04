@@ -609,7 +609,10 @@ final class AuditStoreArchitectureTest extends TestCase
                 'protectRecord' => ['Internal/Audit/Storage/PostgreSqlAuditRecordStore.php' => 1],
                 'unprotectRecord' => ['Internal/Audit/Storage/PostgreSqlAuditRecordStore.php' => 1],
                 'protectOutbox' => ['Internal/Audit/Outbox/PostgreSqlAuditOutboxStore.php' => 1],
-                'unprotectOutbox' => ['Internal/Audit/Outbox/PostgreSqlAuditOutboxStore.php' => 1],
+                'unprotectOutbox' => [
+                    'Internal/Audit/Outbox/PostgreSqlAuditOutboxStore.php' => 1,
+                    'Internal/Audit/Relay/AuditIngressCanonicalizer.php' => 1,
+                ],
             ],
             $direct,
         );
@@ -2641,6 +2644,18 @@ final class AuditStoreArchitectureTest extends TestCase
             'Internal/Audit/Orchestration/AuditDeliveryCoordinator.php' => [
                 'AuditStoreException',
                 'AuditStoreFailure',
+                'PostgreSqlAuditRecordStore',
+            ],
+            'Internal/Audit/Relay/AuditOutboxRelayRuntime.php' => [
+                'AuditAppendResult',
+                'AuditStoreException',
+                'AuditStoreFailure',
+            ],
+            'Internal/Audit/Relay/AuditRelayPersistence.php' => [
+                'AuditAppendResult',
+            ],
+            'Internal/Audit/Relay/PostgreSqlAuditRelayPersistence.php' => [
+                'AuditAppendResult',
                 'PostgreSqlAuditRecordStore',
             ],
         ];

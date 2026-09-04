@@ -11,6 +11,7 @@ use BlackOps\Internal\Audit\Orchestration\AuditDeliverySelector;
 use BlackOps\Internal\Audit\Orchestration\AuditMutationTransactionCoordinator;
 use BlackOps\Internal\Audit\Orchestration\AuditProtectedReadGate;
 use BlackOps\Internal\Audit\Outbox\PostgreSqlAuditOutboxStore;
+use BlackOps\Internal\Audit\Relay\AuditOutboxRelayRuntime;
 use BlackOps\Internal\Audit\Storage\PostgreSqlAuditRecordStore;
 
 final readonly class ApplicationAuditRuntime
@@ -32,6 +33,8 @@ final readonly class ApplicationAuditRuntime
         private PostgreSqlAuditRecordStore $records,
         #[\SensitiveParameter]
         private PostgreSqlAuditOutboxStore $outbox,
+        #[\SensitiveParameter]
+        private AuditOutboxRelayRuntime $relay,
     ) {}
 
     /** @mago-expect lint:excessive-parameter-list */
@@ -52,6 +55,8 @@ final readonly class ApplicationAuditRuntime
         PostgreSqlAuditRecordStore $records,
         #[\SensitiveParameter]
         PostgreSqlAuditOutboxStore $outbox,
+        #[\SensitiveParameter]
+        AuditOutboxRelayRuntime $relay,
     ): self {
         return new self(
             $outboxConfiguration,
@@ -62,6 +67,7 @@ final readonly class ApplicationAuditRuntime
             $protectedReads,
             $records,
             $outbox,
+            $relay,
         );
     }
 
@@ -103,5 +109,10 @@ final readonly class ApplicationAuditRuntime
     public function outbox(): PostgreSqlAuditOutboxStore
     {
         return $this->outbox;
+    }
+
+    public function relay(): AuditOutboxRelayRuntime
+    {
+        return $this->relay;
     }
 }

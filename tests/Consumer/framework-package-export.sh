@@ -86,6 +86,13 @@ validate_package() {
         src/Internal/Audit/Orchestration/AuditDeliveryCoordinator.php \
         src/Internal/Audit/Orchestration/AuditMutationTransactionCoordinator.php \
         src/Internal/Audit/Orchestration/AuditProtectedReadGate.php \
+        src/Internal/Audit/Relay/AuditRelayOutcome.php \
+        src/Internal/Audit/Relay/AuditRelayFailure.php \
+        src/Internal/Audit/Relay/AuditRelayException.php \
+        src/Internal/Audit/Relay/AuditRelayPersistence.php \
+        src/Internal/Audit/Relay/PostgreSqlAuditRelayPersistence.php \
+        src/Internal/Audit/Relay/AuditIngressCanonicalizer.php \
+        src/Internal/Audit/Relay/AuditOutboxRelayRuntime.php \
         src/Internal/Audit/Key/ApplicationAuditProtectionKeySource.php \
         src/Internal/Application/ApplicationAuditConfiguration.php \
         src/Internal/Application/ApplicationAuditRuntime.php \

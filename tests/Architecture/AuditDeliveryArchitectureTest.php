@@ -137,6 +137,7 @@ final class AuditDeliveryArchitectureTest extends TestCase
                 'protectedReads',
                 'records',
                 'outbox',
+                'relay',
             ],
             ApplicationAuditRuntimeComposer::class => ['compose'],
         ];
@@ -314,6 +315,7 @@ final class AuditDeliveryArchitectureTest extends TestCase
                 ['protectedReads',      'AuditProtectedReadGate',              1],
                 ['records',             'PostgreSqlAuditRecordStore',          1],
                 ['outbox',              'PostgreSqlAuditOutboxStore',          1],
+                ['relay',               'AuditOutboxRelayRuntime',             1],
             ],
             'ApplicationAuditRuntime',
         );
@@ -484,6 +486,7 @@ final class AuditDeliveryArchitectureTest extends TestCase
                 ],
                 'appendDurable' => [
                     'src/Internal/Audit/Orchestration/AuditDeliveryCoordinator.php' => 1,
+                    'src/Internal/Audit/Relay/PostgreSqlAuditRelayPersistence.php' => 1,
                 ],
                 'deliverInCurrentTransaction' => [
                     'src/Internal/Audit/Orchestration/AuditMutationTransactionCoordinator.php' => 1,
@@ -1115,6 +1118,7 @@ final class AuditDeliveryArchitectureTest extends TestCase
                 'method:protectedReads',
                 'method:records',
                 'method:outbox',
+                'method:relay',
             ],
             'src/Internal/Application/ApplicationAuditRuntimeComposer.php' => [
                 'method:compose',
@@ -1403,6 +1407,14 @@ final class AuditDeliveryArchitectureTest extends TestCase
                     'nullable' => false,
                     'sensitive' => 0,
                 ],
+                'relay' => [
+                    'visibility' => 'private',
+                    'readonly' => true,
+                    'promoted' => true,
+                    'type' => 'BlackOps\\Internal\\Audit\\Relay\\AuditOutboxRelayRuntime',
+                    'nullable' => false,
+                    'sensitive' => 0,
+                ],
             ],
             ApplicationAuditRuntimeComposer::class => $empty,
         ];
@@ -1582,6 +1594,7 @@ final class AuditDeliveryArchitectureTest extends TestCase
                 'use BlackOps\\Internal\\Audit\\Orchestration\\AuditMutationTransactionCoordinator;',
                 'use BlackOps\\Internal\\Audit\\Orchestration\\AuditProtectedReadGate;',
                 'use BlackOps\\Internal\\Audit\\Outbox\\PostgreSqlAuditOutboxStore;',
+                'use BlackOps\\Internal\\Audit\\Relay\\AuditOutboxRelayRuntime;',
                 'use BlackOps\\Internal\\Audit\\Storage\\PostgreSqlAuditRecordStore;',
             ],
             'src/Internal/Application/ApplicationAuditRuntimeComposer.php' => [
@@ -1608,6 +1621,9 @@ final class AuditDeliveryArchitectureTest extends TestCase
                 'use BlackOps\\Internal\\Audit\\Record\\AuditPartitionIdDeriver;',
                 'use BlackOps\\Internal\\Audit\\Record\\AuditRecordCodec;',
                 'use BlackOps\\Internal\\Audit\\Record\\AuditRecordFinalizer;',
+                'use BlackOps\\Internal\\Audit\\Relay\\AuditIngressCanonicalizer;',
+                'use BlackOps\\Internal\\Audit\\Relay\\AuditOutboxRelayRuntime;',
+                'use BlackOps\\Internal\\Audit\\Relay\\PostgreSqlAuditRelayPersistence;',
                 'use BlackOps\\Internal\\Audit\\Storage\\PostgreSqlAuditRecordStore;',
                 'use BlackOps\\Internal\\Audit\\Storage\\PostgreSqlAuditSchema;',
                 'use BlackOps\\Internal\\Audit\\Storage\\PostgreSqlAuditStoredRecordHydrator;',
@@ -1883,6 +1899,19 @@ final class AuditDeliveryArchitectureTest extends TestCase
             }
             $source = $this->c3ExecutableCode($rawSource);
             foreach ($forbidden as $needle) {
+                if (
+                    $needle === 'OutboxRelay'
+                    && in_array(
+                        $path,
+                        [
+                            'src/Internal/Application/ApplicationAuditRuntime.php',
+                            'src/Internal/Application/ApplicationAuditRuntimeComposer.php',
+                        ],
+                        true,
+                    )
+                ) {
+                    continue;
+                }
                 if (str_contains($source, $needle)) {
                     $violations[] = $path . ':' . $needle;
                 }
@@ -2128,7 +2157,7 @@ final class AuditDeliveryArchitectureTest extends TestCase
                 'publicfunctionoutbox():AuditOutboxConfiguration',
             ],
             'src/Internal/Application/ApplicationAuditRuntime.php' => [
-                'privatefunction__construct(#[\SensitiveParameter]privateAuditOutboxConfiguration$outboxConfiguration,#[\SensitiveParameter]privateHmacAuditOpaqueIdDeriver$opaqueIds,#[\SensitiveParameter]privateAuditDeliverySelector$deliverySelector,#[\SensitiveParameter]privateAuditDeliveryCoordinator$delivery,#[\SensitiveParameter]privateAuditMutationTransactionCoordinator$mutations,#[\SensitiveParameter]privateAuditProtectedReadGate$protectedReads,#[\SensitiveParameter]privatePostgreSqlAuditRecordStore$records,#[\SensitiveParameter]privatePostgreSqlAuditOutboxStore$outbox)',
+                'privatefunction__construct(#[\SensitiveParameter]privateAuditOutboxConfiguration$outboxConfiguration,#[\SensitiveParameter]privateHmacAuditOpaqueIdDeriver$opaqueIds,#[\SensitiveParameter]privateAuditDeliverySelector$deliverySelector,#[\SensitiveParameter]privateAuditDeliveryCoordinator$delivery,#[\SensitiveParameter]privateAuditMutationTransactionCoordinator$mutations,#[\SensitiveParameter]privateAuditProtectedReadGate$protectedReads,#[\SensitiveParameter]privatePostgreSqlAuditRecordStore$records,#[\SensitiveParameter]privatePostgreSqlAuditOutboxStore$outbox,#[\SensitiveParameter]privateAuditOutboxRelayRuntime$relay)',
                 'publicstaticfunctionfromComposition(',
                 'publicfunctionoutboxConfiguration():AuditOutboxConfiguration',
                 'publicfunctionopaqueIds():HmacAuditOpaqueIdDeriver',
@@ -2138,6 +2167,7 @@ final class AuditDeliveryArchitectureTest extends TestCase
                 'publicfunctionprotectedReads():AuditProtectedReadGate',
                 'publicfunctionrecords():PostgreSqlAuditRecordStore',
                 'publicfunctionoutbox():PostgreSqlAuditOutboxStore',
+                'publicfunctionrelay():AuditOutboxRelayRuntime',
             ],
             'src/Internal/Application/ApplicationAuditRuntimeComposer.php' => [
                 'publicfunctioncompose(#[\SensitiveParameter]ApplicationConfigurationSnapshot$configuration,#[\SensitiveParameter]ApplicationOperationRuntimeComposition$operations,#[\SensitiveParameter]ImmutableAuditEventCatalogLookup$catalogs):ApplicationAuditRuntime',
@@ -2358,7 +2388,10 @@ final class AuditDeliveryArchitectureTest extends TestCase
         }
         $expected = [
             'appendRequired' => ['src/Internal/Audit/Orchestration/AuditDeliveryCoordinator.php' => 1],
-            'appendDurable' => ['src/Internal/Audit/Orchestration/AuditDeliveryCoordinator.php' => 1],
+            'appendDurable' => [
+                'src/Internal/Audit/Orchestration/AuditDeliveryCoordinator.php' => 1,
+                'src/Internal/Audit/Relay/PostgreSqlAuditRelayPersistence.php' => 1,
+            ],
             'deliverInCurrentTransaction' => [
                 'src/Internal/Audit/Orchestration/AuditMutationTransactionCoordinator.php' => 1,
             ],
@@ -2369,6 +2402,7 @@ final class AuditDeliveryArchitectureTest extends TestCase
         }
         $receivers = [
             'appendDurable|src/Internal/Audit/Orchestration/AuditDeliveryCoordinator.php' => ['$this->outbox'],
+            'appendDurable|src/Internal/Audit/Relay/PostgreSqlAuditRelayPersistence.php' => ['$this->records'],
             'appendRequired|src/Internal/Audit/Orchestration/AuditDeliveryCoordinator.php' => ['$this->records'],
             'deliverInCurrentTransaction|src/Internal/Audit/Orchestration/AuditMutationTransactionCoordinator.php' => [
                 '$this->delivery',
@@ -2700,7 +2734,11 @@ final class AuditDeliveryArchitectureTest extends TestCase
             }
             return null;
         }
-        if ($cursor !== null && is_array($tokens[$cursor])) {
+        if (
+            $cursor !== null
+            && is_array($tokens[$cursor])
+            && !in_array($tokens[$cursor][0], [T_RETURN, T_THROW], true)
+        ) {
             return null;
         }
 

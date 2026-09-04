@@ -15,6 +15,7 @@ use BlackOps\Internal\Audit\Orchestration\AuditMutationTransactionCoordinator;
 use BlackOps\Internal\Audit\Orchestration\AuditProtectedReadGate;
 use BlackOps\Internal\Audit\Outbox\PostgreSqlAuditOutboxStore;
 use BlackOps\Internal\Audit\Record\AuditRecordValidator;
+use BlackOps\Internal\Audit\Relay\AuditOutboxRelayRuntime;
 use BlackOps\Internal\Audit\Storage\PostgreSqlAuditRecordStore;
 use BlackOps\Internal\Transaction\OperationTransactionCoordinator;
 use Doctrine\DBAL\Connection;
@@ -38,6 +39,7 @@ final class ApplicationAuditRuntimeTest extends TestCase
         $transactions = new ReflectionClass(OperationTransactionCoordinator::class)->newInstanceWithoutConstructor();
         $mutations = new AuditMutationTransactionCoordinator($transactions, $delivery);
         $protectedReads = new AuditProtectedReadGate($delivery);
+        $relay = new ReflectionClass(AuditOutboxRelayRuntime::class)->newInstanceWithoutConstructor();
 
         $runtime = ApplicationAuditRuntime::fromComposition(
             $configuration,
@@ -48,6 +50,7 @@ final class ApplicationAuditRuntimeTest extends TestCase
             $protectedReads,
             $records,
             $outbox,
+            $relay,
         );
 
         self::assertSame($configuration, $runtime->outboxConfiguration());
@@ -58,9 +61,10 @@ final class ApplicationAuditRuntimeTest extends TestCase
         self::assertSame($protectedReads, $runtime->protectedReads());
         self::assertSame($records, $runtime->records());
         self::assertSame($outbox, $runtime->outbox());
+        self::assertSame($relay, $runtime->relay());
     }
 
-    public function testRuntimeIsFinalReadonlyAndExposesOnlyTheEightGettersAndFactory(): void
+    public function testRuntimeIsFinalReadonlyAndExposesOnlyTheNineGettersAndFactory(): void
     {
         $reflection = new ReflectionClass(ApplicationAuditRuntime::class);
         self::assertTrue($reflection->isFinal());
@@ -84,14 +88,56 @@ final class ApplicationAuditRuntimeTest extends TestCase
                 'outboxConfiguration',
                 'protectedReads',
                 'records',
+                'relay',
             ],
             $methods,
         );
-        self::assertSame(8, count($reflection->getProperties()));
-        $parameters = $reflection->getMethod('fromComposition')->getParameters();
-        self::assertCount(8, $parameters);
+        $properties = array_map(
+            static fn(\ReflectionProperty $property): string => $property->getName(),
+            $reflection->getProperties(),
+        );
+        sort($properties);
         self::assertSame(
-            array_fill(0, 8, 1),
+            [
+                'delivery',
+                'deliverySelector',
+                'mutations',
+                'opaqueIds',
+                'outbox',
+                'outboxConfiguration',
+                'protectedReads',
+                'records',
+                'relay',
+            ],
+            $properties,
+        );
+        $expectedTypes = [
+            AuditOutboxConfiguration::class,
+            HmacAuditOpaqueIdDeriver::class,
+            AuditDeliverySelector::class,
+            AuditDeliveryCoordinator::class,
+            AuditMutationTransactionCoordinator::class,
+            AuditProtectedReadGate::class,
+            PostgreSqlAuditRecordStore::class,
+            PostgreSqlAuditOutboxStore::class,
+            AuditOutboxRelayRuntime::class,
+        ];
+        self::assertSame($expectedTypes, array_map(
+            static fn(\ReflectionParameter $parameter): ?string => $parameter->getType() instanceof \ReflectionNamedType
+                ? $parameter->getType()->getName()
+                : null,
+            $reflection->getConstructor()?->getParameters() ?? [],
+        ));
+        $parameters = $reflection->getMethod('fromComposition')->getParameters();
+        self::assertCount(9, $parameters);
+        self::assertSame($expectedTypes, array_map(
+            static fn(\ReflectionParameter $parameter): ?string => $parameter->getType() instanceof \ReflectionNamedType
+                ? $parameter->getType()->getName()
+                : null,
+            $parameters,
+        ));
+        self::assertSame(
+            array_fill(0, 9, 1),
             array_map(
                 static fn(\ReflectionParameter $parameter): int => count($parameter->getAttributes(\SensitiveParameter::class)),
                 $parameters,

@@ -19,6 +19,9 @@ use BlackOps\Internal\Audit\Orchestration\AuditDeliveryException;
 use BlackOps\Internal\Audit\Orchestration\AuditDeliveryFailure;
 use BlackOps\Internal\Audit\Protection\AuditProtectionException;
 use BlackOps\Internal\Audit\Protection\AuditProtectionPurpose;
+use BlackOps\Internal\Audit\Relay\AuditIngressCanonicalizer;
+use BlackOps\Internal\Audit\Relay\AuditOutboxRelayRuntime;
+use BlackOps\Internal\Audit\Relay\PostgreSqlAuditRelayPersistence;
 use BlackOps\Internal\Authorization\AuthorizationEvaluator;
 use BlackOps\Internal\Database\DoctrineDatabaseManager;
 use BlackOps\Internal\Execution\ExecutionScopeProvider;
@@ -38,6 +41,11 @@ use Psr\Container\ContainerInterface;
 use ReflectionMethod;
 use ReflectionNamedType;
 
+/**
+ * @mago-expect lint:cyclomatic-complexity
+ * @mago-expect lint:kan-defect
+ * @mago-expect lint:too-many-methods
+ */
 final class ApplicationAuditRuntimeComposerTest extends TestCase
 {
     public function testComposeHasTheExactThreeInputSignatureAndOnePublicCallable(): void
@@ -195,6 +203,24 @@ final class ApplicationAuditRuntimeComposerTest extends TestCase
             self::assertSame($runtime->outbox(), $this->privateValue($runtime->delivery(), 'outbox'));
             self::assertSame($runtime->delivery(), $this->privateValue($runtime->mutations(), 'delivery'));
             self::assertSame($runtime->delivery(), $this->privateValue($runtime->protectedReads(), 'delivery'));
+            $relay = $runtime->relay();
+            self::assertInstanceOf(AuditOutboxRelayRuntime::class, $relay);
+            self::assertSame($connection, $this->privateValue($relay, 'connection'));
+            self::assertSame($runtime->outboxConfiguration(), $this->privateValue($relay, 'configuration'));
+            $relayPersistence = $this->privateValue($relay, 'persistence');
+            self::assertInstanceOf(PostgreSqlAuditRelayPersistence::class, $relayPersistence);
+            self::assertSame($runtime->outbox(), $this->privateValue($relayPersistence, 'outbox'));
+            self::assertSame($runtime->records(), $this->privateValue($relayPersistence, 'records'));
+            $canonicalizer = $this->privateValue($relay, 'canonicalizer');
+            self::assertInstanceOf(AuditIngressCanonicalizer::class, $canonicalizer);
+            self::assertSame(
+                $this->privateValue($runtime->records(), 'protection'),
+                $this->privateValue($canonicalizer, 'protection'),
+            );
+            self::assertSame(
+                $this->privateValue($runtime->records(), 'validator'),
+                $this->privateValue($canonicalizer, 'validator'),
+            );
             self::assertSame(
                 $this->privateValue($runtime->records(), 'protection'),
                 $this->privateValue($runtime->outbox(), 'protection'),
@@ -441,21 +467,39 @@ final class ApplicationAuditRuntimeComposerTest extends TestCase
         self::assertIsString($source);
         self::assertSame(1, substr_count($source, 'new HmacAuditOpaqueIdDeriver('));
         self::assertSame(1, substr_count($source, 'new ApplicationAuditProtectionKeySource('));
+        self::assertSame(1, substr_count($source, 'new AuditIngressCanonicalizer('));
+        self::assertSame(1, substr_count($source, 'new PostgreSqlAuditRelayPersistence('));
+        self::assertSame(1, substr_count($source, 'new AuditOutboxRelayRuntime('));
         self::assertSame(1, substr_count($source, 'new AuditMutationTransactionCoordinator('));
         self::assertSame(1, substr_count($source, '->key()'));
 
         $callers = [];
+        $activationCallers = [];
         foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($sourceRoot)) as $file) {
             if (!$file->isFile() || $file->getExtension() !== 'php') {
                 continue;
             }
             $candidate = file_get_contents($file->getPathname());
             self::assertIsString($candidate);
+            $relative = str_replace($sourceRoot . '/', '', $file->getPathname());
             if (str_contains($candidate, 'new ApplicationAuditRuntimeComposer(')) {
-                $callers[] = str_replace($sourceRoot . '/', '', $file->getPathname());
+                $callers[] = $relative;
+            }
+            if (
+                $relative !== 'Internal/Application/ApplicationAuditRuntimeComposer.php'
+                && $relative !== 'Internal/Application/ApplicationAuditRuntime.php'
+                && $relative !== 'Internal/Audit/Relay/AuditOutboxRelayRuntime.php'
+                && (
+                    str_contains($candidate, 'ApplicationAuditRuntimeComposer')
+                    || str_contains($candidate, 'AuditOutboxRelayRuntime')
+                    || str_contains($candidate, '->relayOne(')
+                )
+            ) {
+                $activationCallers[] = $relative;
             }
         }
         self::assertSame([], $callers);
+        self::assertSame([], $activationCallers);
     }
 
     private function configuration(): ApplicationConfigurationSnapshot

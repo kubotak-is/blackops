@@ -7,7 +7,7 @@ EXPORT_SCRIPT="${SCRIPT_DIR}/framework-package-export.sh"
 TEMP_ROOT="$(mktemp -d)"
 trap 'rm -rf -- "${TEMP_ROOT}"' EXIT
 
-reviewed_export_sha='2ed38aab4a5b22431b976d3c38dc1c47daba8c5af24460d45f207c11dc26c732'
+reviewed_export_sha='9ff12e3e2f921fba27165c112ddd839fd6bdc1c50926d30dd689a69410c1bd63'
 
 expected_inventory="${TEMP_ROOT}/expected-inventory"
 printf '%s\n' \
@@ -27,6 +27,13 @@ printf '%s\n' \
     src/Internal/Audit/Orchestration/AuditDeliveryCoordinator.php \
     src/Internal/Audit/Orchestration/AuditMutationTransactionCoordinator.php \
     src/Internal/Audit/Orchestration/AuditProtectedReadGate.php \
+    src/Internal/Audit/Relay/AuditRelayOutcome.php \
+    src/Internal/Audit/Relay/AuditRelayFailure.php \
+    src/Internal/Audit/Relay/AuditRelayException.php \
+    src/Internal/Audit/Relay/AuditRelayPersistence.php \
+    src/Internal/Audit/Relay/PostgreSqlAuditRelayPersistence.php \
+    src/Internal/Audit/Relay/AuditIngressCanonicalizer.php \
+    src/Internal/Audit/Relay/AuditOutboxRelayRuntime.php \
     src/Internal/Audit/Key/ApplicationAuditProtectionKeySource.php \
     src/Internal/Application/ApplicationAuditConfiguration.php \
     src/Internal/Application/ApplicationAuditRuntime.php \
@@ -685,8 +692,36 @@ test_mutation_rejected() {
         existing-removal)
             run_bounded sed -i '\|src/Internal/Audit/Storage/AuditStoreFailure.php|d' "${candidate}"
             ;;
+        added-entry)
+            run_bounded awk '
+                !inserted && $0 ~ /src\/Internal\/Audit\/Relay\/AuditRelayOutcome\.php/ {
+                    print "        src/Internal/Audit/Relay/Unexpected.php \\"
+                    inserted = 1
+                }
+                { print }
+                END {
+                    if (!inserted) exit 2
+                }
+            ' "${candidate}" >"${candidate}.tmp"
+            mv "${candidate}.tmp" "${candidate}"
+            ;;
+        duplicate-entry)
+            run_bounded awk '
+                !inserted && $0 ~ /src\/Internal\/Audit\/Relay\/AuditRelayOutcome\.php/ {
+                    print
+                    print
+                    inserted = 1
+                    next
+                }
+                { print }
+                END {
+                    if (!inserted) exit 2
+                }
+            ' "${candidate}" >"${candidate}.tmp"
+            mv "${candidate}.tmp" "${candidate}"
+            ;;
         new-omission)
-            run_bounded sed -i '\|src/Internal/Application/ApplicationAuditRuntime.php|d' "${candidate}"
+            run_bounded sed -i '\|src/Internal/Audit/Relay/AuditRelayOutcome.php|d' "${candidate}"
             ;;
         order-swap)
             run_bounded awk '
@@ -1042,10 +1077,12 @@ test -f "${EXPORT_SCRIPT}"
 test "$(sha256sum "${EXPORT_SCRIPT}" | cut -d' ' -f1)" = "${reviewed_export_sha}"
 runtime_case_count=0
 assert_inventory "${EXPORT_SCRIPT}"
-printf 'required inventory: PASS (68 ordered paths)\n'
+printf 'required inventory: PASS (75 ordered paths)\n'
 
 test_mutation_rejected comment-only comment
 test_mutation_rejected existing-entry-removal existing-removal
+test_mutation_rejected added-entry added-entry
+test_mutation_rejected duplicate-entry duplicate-entry
 test_mutation_rejected new-entry-omission new-omission
 test_mutation_rejected order-swap order-swap
 test_mutation_rejected duplicate-loop duplicate-loop
@@ -1072,4 +1109,4 @@ test_call_contract_mutation_rejected pipeline-composer-continuation pipeline-com
 test_call_contract_mutation_rejected command-substitution-git-continuation command-substitution-git-continuation
 test_call_contract_mutation_rejected resolution-override resolution-override
 printf 'required inventory call-contract mutations: PASS (14 rejected before runtime/SHA)\n'
-printf 'required inventory mutations: PASS (27 rejected: 13 existing, 14 call-contract)\n'
+printf 'required inventory mutations: PASS (29 rejected: 15 inventory, 14 call-contract)\n'

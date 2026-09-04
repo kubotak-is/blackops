@@ -107,10 +107,17 @@ final class AuditRecordArchitectureTest extends TestCase
             [
                 'Internal/Audit/Record/AuditRecordCodec.php' => 1,
                 'Internal/Audit/Record/AuditRecordFinalizer.php' => 1,
+                'Internal/Audit/Relay/AuditIngressCanonicalizer.php' => 1,
             ],
             $callsites['candidate'],
         );
-        self::assertSame(['Internal/Audit/Record/AuditRecordFinalizer.php' => 1], $callsites['canonical']);
+        self::assertSame(
+            [
+                'Internal/Audit/Record/AuditRecordFinalizer.php' => 1,
+                'Internal/Audit/Relay/AuditIngressCanonicalizer.php' => 1,
+            ],
+            $callsites['canonical'],
+        );
         self::assertSame(['Internal/Audit/Record/AuditRecordCodec.php' => 2], $callsites['complete']);
         self::assertSame(
             [
@@ -135,6 +142,7 @@ final class AuditRecordArchitectureTest extends TestCase
                 'External/AuditRecordCodec.php' => 1,
                 'Internal/Audit/Record/AuditRecordCodec.php' => 1,
                 'Internal/Audit/Record/AuditRecordFinalizer.php' => 1,
+                'Internal/Audit/Relay/AuditIngressCanonicalizer.php' => 1,
             ],
             $mutated['candidate'],
             'same-basename outside sources must not overwrite an authorized owner',
@@ -526,7 +534,13 @@ final class AuditRecordArchitectureTest extends TestCase
         self::assertSame(['Internal/Audit/Storage/PostgreSqlAuditRecordStore.php' => 1], $protected['protectRecord']);
         self::assertSame(['Internal/Audit/Storage/PostgreSqlAuditRecordStore.php' => 1], $protected['unprotectRecord']);
         self::assertSame(['Internal/Audit/Outbox/PostgreSqlAuditOutboxStore.php' => 1], $protected['protectOutbox']);
-        self::assertSame(['Internal/Audit/Outbox/PostgreSqlAuditOutboxStore.php' => 1], $protected['unprotectOutbox']);
+        self::assertSame(
+            [
+                'Internal/Audit/Outbox/PostgreSqlAuditOutboxStore.php' => 1,
+                'Internal/Audit/Relay/AuditIngressCanonicalizer.php' => 1,
+            ],
+            $protected['unprotectOutbox'],
+        );
         self::assertSame(0, $this->dynamicInvocationCountInTree($sourceRoot));
     }
 
@@ -917,6 +931,15 @@ final class AuditRecordArchitectureTest extends TestCase
             'Internal/Audit/Orchestration/AuditProtectedReadGate.php' => ['AuditRecordDraft'],
             'Internal/Application/ApplicationAuditConfiguration.php' => [],
             'Internal/Application/ApplicationAuditRuntime.php' => [],
+            'Internal/Audit/Relay/AuditOutboxRelayRuntime.php' => [
+                'AuditProtectionException',
+            ],
+            'Internal/Audit/Relay/PostgreSqlAuditRelayPersistence.php' => [
+                'CanonicalAuditLogicalRecord',
+            ],
+            'Internal/Audit/Relay/AuditRelayPersistence.php' => [
+                'CanonicalAuditLogicalRecord',
+            ],
             'Internal/Application/ApplicationAuditRuntimeComposer.php' => [
                 'AuditAssociatedData',
                 'AuditIngressEnvelopeCodec',
@@ -925,6 +948,13 @@ final class AuditRecordArchitectureTest extends TestCase
                 'AuditRecordCodec',
                 'AuditRecordFinalizer',
                 'AuditRecordValidator',
+            ],
+            'Internal/Audit/Relay/AuditIngressCanonicalizer.php' => [
+                'AuditLogicalRecordCandidate',
+                'AuditProtectedBodyCodec',
+                'AuditProtectionException',
+                'AuditRecordValidator',
+                'CanonicalAuditLogicalRecord',
             ],
         ];
     }
