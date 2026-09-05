@@ -1,23 +1,24 @@
 # D154: Framework Operational Audit Catalog and Adapter Split
 
-Status: Proposed — parent P23-003C Accepted; P23-003D1 authority packet committed／fresh clean-freeze preflight pending; BlackOps 1.3 unreleased
+Status: Proposed — P23-003D1 Accepted; P23-003D2 authority review Green／clean post-commit implementation preflight required; BlackOps 1.3 unreleased
 
-Updated At: 2026-09-04T14:10:16+09:00
+Updated At: 2026-09-05T12:20:14+09:00
 
 ## Current Handoff
 
-P23-003C1 through P23-003C4 and parent P23-003C are Accepted.
-The final C candidate is committed at
-`d5ab3476181058c5fb87b7c2c9476b6db76fef2e`; its tree is clean and staged0,
-and the Git／Composer package export is Green from that same SHA.
-No push was performed.
+P23-003C1 through P23-003C4 and parent P23-003C are Accepted. P23-003D1 is
+Accepted at commit `35afacd9741272d4e1207d3a76829d85653e4f6f`; its final
+tree is clean and staged0, and the Git／Composer package export is Green from
+that same SHA. No push was performed.
 
 P23-003D is not one implementation packet. Ordinary D work may start after
 Accepted C, while the checkpoint／anchor control adapter remains blocked on
-Accepted P23-003F. D1 is the first bounded ordinary child. It adds one sealed
-Framework operational Catalog and permits that exact trusted Catalog beside
-the Accepted security／access Catalog. It adds no producer adapter or runtime
-activation.
+Accepted P23-003F. D1 completed the first bounded ordinary child by adding one
+sealed Framework operational Catalog and its trusted lookup lineage without a
+producer or runtime activation. D155 now defines the D2 Operation-read
+request／session foundation. Its Product work remains stopped until the
+authority packet is reviewed, committed, cleanly re-frozen, and freshly
+preflighted.
 
 Stable `1.2.0` remains current. BlackOps `1.3`, the operational Catalog, and
 all Audit Trail runtime behavior remain unreleased.
@@ -207,16 +208,27 @@ new most-specific Decision and exact Task before Product work. That Decision
 must fix, for every emitted event:
 
 - the trusted actor, execution, tenant, source runtime/component/build, raw
-  source identifier, and keyed opaque resource/action projection;
-- one Clock capture, UUID allocation, delivery plan, and source-specific
-  stable idempotency-key preimage;
-- whether the source mutation and durable Outbox append share the exact same
-  Framework level-1 root;
+  source identifier, and the source-specific resource/action projection,
+  including whether it is keyed or uses an Accepted derived reference;
+- the exact Clock-capture and delivery-plan selection owners, plus the exact
+  owner or explicit absence of UUID allocation and idempotency-key generation;
+- whether a source mutation exists and, when applicable, whether that mutation
+  and a durable Outbox append share the exact same Framework level-1 root;
 - crash-before/after-append, duplicate retry, rollback, and append-failure
   precedence;
 - value-free failure and no-secret behavior; and
 - exact Production caller, Connection identity, activation default, and
   public response／exit compatibility.
+
+D2 specializes those conditional rules for Operation reads: it uses the
+Accepted unkeyed `AuditReadRequestBasis::requestRef()` for action identity, one
+keyed Resource opaque ID, Store-owned record／segment UUID allocation, a null
+required-append idempotency key, one factory-owned Clock capture, the Accepted
+writer／selector-owned delivery plan, two separate Store-owned standalone
+roots, and no durable Outbox append. Those are not exceptions inferred by an
+implementation; they are fixed by D155. Later children must make their own
+choices explicit instead of copying D2 or assuming that every source owns a
+mutation, UUID, idempotency key, or Outbox write.
 
 When an existing state change already owns an atomic database root, its phase
 event must join that exact root. A child may not append after commit and call
@@ -236,6 +248,22 @@ commit `.requested` before authorization or lookup. It must define a trusted
 execution source, opaque resource projection, query failure mapping, terminal
 append precedence, and a Diagnostics authorization facade before modifying a
 reader.
+
+D155 is the most-specific D2 foundation authority. It fixes a dedicated nonce
+port, strict execution-source port, one factory, one private-construction
+one-terminal session, a typed default-unavailable Diagnostics authorization
+facade, and `AuditProtectedReadGate` as the sole writer implementation. The
+factory creates requested／accessed／unavailable drafts before the requested
+append, materializes the raw Operation ID only for one keyed Resource
+derivation, and retains no raw target. Requested and terminal are separate
+Store-owned standalone transactions.
+
+D155 supersedes only D152's bounded non-Allow terminal-failure suppression.
+For every decision, terminal binding／transaction／Store failure now throws and
+withholds the result; the decision is returned only after the terminal record
+commits. The D2 foundation has no current reader or Application-composer
+caller. D2S, D2J, and D2X later own Status, Journal／Outcome, and Diagnostics
+integration and their exact trusted execution sources.
 
 D3 must distinguish explicit authenticated success and explicit invalid
 authentication from credential absence. Anonymous credential absence emits no

@@ -2,7 +2,7 @@
 
 Status: Proposal — unreleased BlackOps 1.3; workflow/gate status authority is the exact5 management slice (`develop/STATE.md`, `develop/TODO.md`, the parent Task/Report, and `develop/spec/README.md`)
 
-Updated At: 2026-09-04T13:57:41+09:00
+Updated At: 2026-09-05T12:07:19+09:00
 
 This specification is a normative proposal for BlackOps `1.3`. It is not a
 Stable `1.2` capability contract and must not be copied into current public
@@ -180,20 +180,31 @@ persistently stops a partition is superseded by D153.
 C3 adds no migration or public Documentation claim. C4 adds exactly seven
 Internal package types and no public source, migration, route, command, public
 Documentation, or current runtime caller. Framework migrations stay 13,
-Community Board stays 18, package required inventory grows exact68→75, Stable
+Community Board Application migrations stay 5, for an installed total of 18;
+package required inventory grows exact68→75, Stable
 `1.2.0` remains current, and BlackOps `1.3` remains unreleased. The Stable
 generic Outbox runtime and `outbox:relay:*` commands remain byte-identical and
 are not C4 activation.
 
-For current P23-003D clauses, D154 is the most-specific authority. It splits
+For current P23-003D clauses, D154 is the parent split authority and D155 is
+the most-specific P23-003D2 foundation authority. D154 splits
 ordinary D into bounded Catalog, Operation-read, authentication,
 authorization, phase-source, and integration children. The checkpoint／anchor
 D-control child is a distinct post-P23-003F edge. P23-003D1 adds only the
 exact14 `blackops.framework.operations` Catalog and exact two-provider
 Framework lookup provenance; it preserves the Accepted security／access
 exact30 Catalog byte-for-byte, increases package required inventory exact75→76,
-and activates no producer or runtime. Stable `1.2.0` remains current and
-BlackOps `1.3` remains unreleased.
+and activates no producer or runtime. P23-003D1 is Accepted at
+`35afacd9741272d4e1207d3a76829d85653e4f6f`. D155 fixes D2's dedicated
+16-byte nonce, trusted execution port, opaque target, fixed drafts, one-shot
+session, fail-closed terminal writer, and default-unavailable Diagnostics
+authorization facade without activating a reader. It specializes D154 with an
+Accepted unkeyed requestRef action, keyed Resource opaque ID, Store-owned UUID,
+null idempotency key, separate required Store roots, and no Outbox. Its exact
+magic/private/dependency graph, existing six-case `AuditDeliveryFailure`
+mapping, package insertion anchors, and post-D2 exact31 mutation oracle are
+closed in D155. Package inventory becomes exact85 only after D2 implementation.
+Stable `1.2.0` remains current and BlackOps `1.3` remains unreleased.
 
 ## Historical P23-003A Acceptance Catalog and projection contract
 
@@ -3468,6 +3479,39 @@ are durably persisted before the response or failure is
 released. The obsolete not-found reason is not a v1 reason or event. P23-003A
 owns the catalog tuple and selector; P23-003D owns the adapter and the complete
 same/cross/absent fixture matrix.
+
+D155 makes this release-before-persistence rule fail closed for every terminal
+decision. It supersedes D152 only where the Accepted C3 protected-read Gate
+previously returned Deny or ResourceUnavailable after binding, transaction, or
+Store failure. A terminal decision is now returned only after its required
+record commits. An Audit delivery failure always withholds the read result or
+failure and has no previous throwable.
+
+The D2 foundation constructs the exact three drafts before requested delivery.
+The raw Operation ID is used only as the sensitive context of one
+`AuditOpaqueIdPurpose::Resource` HMAC derivation; the record resource is
+`{type:operation,id:<opaque>}` and no raw target is retained. Policy is exact
+`operation-read` version 1, source owner is Framework, component is
+`operation-{status|journal|outcome|diagnostics}`, correlation is empty, and
+evidence is exact `{version:1}`. One injected Clock timestamp and one injected
+16-byte CSPRNG nonce, lower-hex encoded to 32 characters, bind requested and
+the one terminal event. Record／segment UUIDs remain Store-owned and every
+required delivery has null idempotency key.
+
+The foundation returns a private-construction session only after requested
+commit. It allows one `accessed()` or `unavailable()` attempt, marks itself
+closed before terminal delivery, performs no retry or destructor I/O, and
+cannot emit Deny. Requested and terminal use separate Store-owned standalone
+transactions; authorization and lookup occur at level0 between them. A crash
+after requested and before terminal leaves requested-only with no released
+result and no synthetic recovery. A client retry creates a new nonce and
+requestRef.
+
+The foundation also defines a typed Internal Diagnostics authorization request
+and authorizer port. Its default implementation always returns
+ResourceUnavailable and performs no read. The existing Diagnostics query,
+Status／Journal／Outcome readers, HTTP／CLI／viewer surfaces, and Application
+composition remain unchanged until their separate D2 child Tasks.
 
 The service-managed action family is exactly
 `audit.access.{query,export,sign,verify}.requested|unavailable|accessed`.

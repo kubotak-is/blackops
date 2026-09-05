@@ -1,43 +1,64 @@
 # Framework Specification
 
-## P23-003D1 current handoff — Framework Operational Audit Catalog
+## P23-003D2 current handoff — Operation Read Audit Session Foundation
 
-Updated At: 2026-09-04T14:16:09+09:00
+Updated At: 2026-09-05T12:20:14+09:00
 
-Current status: `Authority packet committed — fresh clean-freeze preflight required; Product work not started`.
+Current status: `Authority Review Green — clean post-commit implementation preflight required; Product work not started`.
 
-P23-003C1 through P23-003C4 and parent P23-003C are Accepted.
-The final C candidate is committed at
-`d5ab3476181058c5fb87b7c2c9476b6db76fef2e`; Complete Final Gate, fresh
-General／Transaction／Documentation review, and clean exact-SHA Git／Composer
-package export are Green. No push was performed.
+P23-003C1 through P23-003C4 and parent P23-003C are Accepted. P23-003D1 is
+Accepted at commit `35afacd9741272d4e1207d3a76829d85653e4f6f`; its final
+tree is clean／staged0 and its exact-SHA Git／Composer package export is Green.
+No push was performed.
 
-D150 through D153 remain the Accepted C authority.
-D154 is the most-specific current D authority and splits the parent into
+D150 through D153 remain the Accepted C authority. D154 splits P23-003D into
 bounded ordinary children plus a D-control child after Accepted P23-003F.
+D155 is the most-specific D2 foundation authority.
 
-D1 adds one sealed Internal
-`FrameworkOperationalAuditEventCatalog` with exact14 Framework-owned
-retention／rotation／replay／generic-Outbox definitions. It keeps the Accepted
-`blackops.framework.security_access` exact30 Catalog byte-identical and lets
-`ImmutableAuditEventCatalogLookup` trust only the exact singleton identity of
-either named Framework provider.
+D2 adds a dedicated 16-byte nonce port, strict trusted execution-source port,
+fixed Operation-read draft factory, private one-terminal session, fail-closed
+read writer, and typed `UnavailableOperationDiagnosticsAuthorizer` facade.
+It records no raw Operation ID: the resource is one HMAC-derived opaque ID.
+Requested and terminal appends are separate Store-owned standalone roots.
 
-The D1 Task freezes exact10 Product／Test paths, exact12 worker scope,
-immutable exact12 authority, and package exact75→76. It adds no producer,
-draft factory, source adapter, Application composition, runtime registration,
-public API, migration, route, command, or public Documentation.
+The D2 Task proposes exact22 Product／Test paths, exact24 worker scope,
+immutable exact14 authority, and package exact76→85. The foundation does not
+modify or activate Status, Journal, Outcome, or Diagnostics readers. Those are
+separate D2S／D2J／D2X children; Application composition remains D-integration.
+The exact85 insertion anchors and exact31 package mutations, exact magic／
+private／dependency graph, build grammar, and existing `AuditDeliveryFailure`
+mapping are authority-fixed before Product work.
+
+The second review was General／Architecture Green `P1=0/P2=0/P3=0`,
+Transaction／Security Changes Requested `P1=0/P2=1/P3=0`, and
+Documentation／Release Changes Requested `P1=1/P2=1/P3=0`. The current bytes
+fix the session local-construction／requested／pure-return order, the D148 source
+path, and the exact Framework13／Community Application5／installed-total18
+boundary. Those corrected bytes produced the first bounded closure below.
+
+The first bounded closure used exact9 aggregate
+`4622476cfa8e47e5bbee38fbc100f445a0b136cae987c8ac1dbf5125fc6e4edf`.
+General／Architecture and Transaction／Security were Green
+`P1=0/P2=0/P3=0`; Documentation／Release returned Changes Requested
+`P1=0/P2=1/P3=0` only for a stale current Next Action. That wording is
+corrected. Final closure must use one newly supplied unchanged exact9.
+
+The final unchanged closure used exact9 aggregate
+`b53910358f186672748888ac04f1c7f085dcd91733004656e36eb63f20725b80`.
+General／Architecture, Transaction／Security, and Documentation／Release were
+separately Green `P1=0/P2=0/P3=0`, with the same ending freeze. Authority
+review is complete.
 
 Stable `1.2.0` remains current and BlackOps `1.3` remains unreleased.
 The Stable generic Outbox and the C4 Audit Outbox remain distinct. D-control
 may begin only after P23-003F is Accepted.
 
-Remaining: D1 clean freeze／fresh three-lane
-preflight／implementation／gates／Acceptance／commit／package export, followed by
-the separately authorized D children and downstream roadmap.
-Next Action: freeze the committed D154／D1 authority, then obtain fresh
-General／Catalog／Documentation preflight Green from its clean exact freeze
-before Product implementation.
+Remaining: reviewed management commit／clean preflight, then
+implementation／gates／Acceptance／commit／package export. D2 reader children,
+D3／D4／D5／D-integration, post-F D-control, and downstream roadmap remain.
+Next Action: use the reviewed exact9 as the management-only commit input, then
+run fresh General／Transaction／Documentation preflight from its clean exact14
+freeze before Product work.
 
 ## P23-003B2 accepted handoff — Historical prerequisite
 
@@ -1634,7 +1655,8 @@ closedする。Semantic tuple、trusted external verification context、exact
 | [D151](../decisions/151-audit-postgresql-outbox-persistence-boundary.md) | Audit PostgreSQL Outbox row、idempotent append、FIFO／CAS、transaction boundary | Accepted P23-003C2; candidate `a92bef70...` and same-SHA package export Green; Stable `1.2` current / BlackOps `1.3` unreleased |
 | [D152](../decisions/152-audit-delivery-orchestration-and-key-composition-boundary.md) | Catalog-fixed delivery、same-root transaction、protected-read gate、Application Audit key composition | Accepted P23-003C3; candidate `b7b352a8...` and same-SHA package export Green; Stable `1.2` current / BlackOps `1.3` unreleased |
 | [D153](../decisions/153-audit-outbox-relay-and-recovery-runtime-boundary.md) | Bounded Audit Outbox relay／recovery、three-root crash semantics、failure／FIFO／nonactivation boundary | Accepted P23-003C4／parent C; final `d5ab347...` same-SHA package export Green; Stable `1.2` current / BlackOps `1.3` unreleased |
-| [D154](../decisions/154-framework-operational-audit-catalog-and-adapter-split.md) | Exact14 Framework operational Catalog／trusted lookup lineage and bounded P23-003D adapter DAG | Proposed — P23-003D1 authority packet committed／fresh preflight pending; D-control blocked on Accepted P23-003F; Stable `1.2` current / BlackOps `1.3` unreleased |
+| [D154](../decisions/154-framework-operational-audit-catalog-and-adapter-split.md) | Exact14 Framework operational Catalog／trusted lookup lineage and bounded P23-003D adapter DAG | Proposed — P23-003D1 Accepted at `35afacd...`; D2 authority review pending; D-control blocked on Accepted P23-003F; Stable `1.2` current / BlackOps `1.3` unreleased |
+| [D155](../decisions/155-operation-read-audit-session-foundation.md) | Operation-read 16-byte nonce／opaque target／fixed draft／one-shot session／fail-closed terminal and Diagnostics authorization foundation | Proposed — P23-003D2 authority draft under independent review; Product not started; Stable `1.2` current / BlackOps `1.3` unreleased |
 
 ## Historical P23-001 Round 13 checkpoint
 

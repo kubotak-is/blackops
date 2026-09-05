@@ -10,47 +10,57 @@
 - 重要な設計判断は、結論だけでなく理由もREADMEまたは設計文書へ残す
 - 用語の変更時は、コードと文書をまとめて更新する
 
-## P23-003D1 current handoff — Framework Operational Audit Catalog
+## P23-003D2 current handoff — Operation Read Audit Session Foundation
 
-Updated At: 2026-09-04T14:10:16+09:00
+Updated At: 2026-09-05T12:20:14+09:00
 
-Status: `Authority packet committed — fresh clean-freeze preflight pending; Product work not started`。
+Status: `Authority Review Green — clean post-commit implementation preflight required; Product work not started`。
 
-- [x] P23-003B1／B2 and parent P23-003B Accepted
 - [x] P23-003C1 through C4 and parent P23-003C Accepted
-- [x] final C candidate commit
-  `d5ab3476181058c5fb87b7c2c9476b6db76fef2e`／clean same-SHA package export
-  Green／no push
-- [x] P23-003D initial source／transaction／release research
-- [x] first D preflight identified undefined Catalog lineage and cross-boundary
-  auth／authz／read／phase-source／activation contracts
-- [x] D154 bounded D1→D5／integration and post-F D-control DAG drafted
-- [x] D1 exact14 operational Catalog identity／tuple／canonical bytes／hash fixed
-- [x] Accepted security／access exact30 preservation fixed
-- [x] exact two-provider Framework provenance fixed
-- [x] D1 exact10 Product／Test and exact12 worker scope drafted
-- [x] package exact75→76 and zero public／runtime activation boundary drafted
-- [x] current C→D handoffs synchronized
-- [x] D154／D1 management packet independent review Green `P1=0/P2=0/P3=0`
-- [x] management-only authority commit
-- [ ] clean immutable exact12 freeze
-- [ ] fresh General／Catalog／Documentation preflight Green
-- [ ] configured Luna exact12 implementation
+- [x] P23-003D1 Accepted at
+  `35afacd9741272d4e1207d3a76829d85653e4f6f`
+- [x] D1 clean same-SHA Git／Composer package export Green／no push
+- [x] D154 bounded D1→D5／integration and post-F D-control DAG
+- [x] current Status／Journal／Outcome／Diagnostics source and transaction seams
+  researched
+- [x] C3 non-Allow terminal suppression conflict identified
+- [x] D155 dedicated 16-byte nonce／trusted execution／opaque resource boundary
+  drafted
+- [x] fixed three-draft factory／one-terminal session API drafted
+- [x] fail-closed writer correction and exact failure precedence drafted
+- [x] typed `UnavailableOperationDiagnosticsAuthorizer` facade drafted
+- [x] D2 exact22 Product／Test and exact24 worker scope drafted
+- [x] package exact76→85 and zero reader／runtime activation boundary drafted
+- [x] Stable `1.2.0`／unreleased `1.3`／migration13+5=18 boundary synchronized
+- [x] first General／Architecture review returned Historical Changes Requested `P1=2/P2=7/P3=0`
+- [x] first Transaction／Security authority review Green `P1=0/P2=0/P3=0`
+- [x] first Documentation／Release review returned Historical Changes Requested `P1=0/P2=3/P3=0`
+- [x] second General／Architecture review Green `P1=0/P2=0/P3=0`
+- [x] second Transaction／Security review returned Historical Changes Requested `P1=0/P2=1/P3=0`
+- [x] second Documentation／Release review returned Historical Changes Requested `P1=1/P2=1/P3=0`
+- [x] session local-first／requested-last／pure-return、D148 path、migration tuple correction
+- [x] first bounded-closure General／Architecture and Transaction／Security Green `P1=0/P2=0/P3=0`
+- [x] first bounded-closure Documentation／Release Historical Changes Requested `P1=0/P2=1/P3=0`
+- [x] stale current Next Action correction
+- [x] final unchanged exact9 three-lane authority closure Green `P1=0/P2=0/P3=0`
+- [ ] clean immutable exact14 freeze from reviewed management-only commit
+- [ ] fresh General／Transaction／Documentation implementation preflight Green
+- [ ] configured Luna exact24 implementation
 - [ ] Iteration Gate／fresh implementation reviews／Complete Final Gate
-- [ ] P23-003D1 Acceptance
+- [ ] P23-003D2 foundation Acceptance
 - [ ] candidate commit／clean same-SHA package export
 
-Stable `1.2.0` remains current and BlackOps `1.3` remains unreleased。
-D1はInternal operational Catalogとlookup provenanceだけを追加し、eventを
-emitしない。Application／Container／CLI／HTTP／reader／maintenance／worker／
-scheduler／routeへ登録せず、public Guide／Websiteも変更しない。
+Stable `1.2.0` remains current and BlackOps `1.3` remains unreleased。D2は
+Internal foundationだけを追加し、既存reader、Application composer、Container、
+CLI、HTTP、route、migration、public Guide／Websiteを変更・activateしない。
 
-Remaining: D1 authority closeout→clean preflight→implementation→gates→
-Acceptance→commit／package。その後もD2／D3／D4／D5／D-integration、Accepted
-P23-003F後のD-control、P23-003E..G、P23-004..006が残る。
+Remaining: reviewed management commit→clean preflight→implementation
+→gates→Acceptance→commit／package。その後もD2S／D2J／D2X、D3／D4／D5／
+D-integration、Accepted P23-003F後のD-control、P23-003E..G、P23-004..006が残る。
 
-Next Action: committed D154／D1 authorityのclean immutable exact12をfreezeする。
-三lane preflightがGreenになるまでProductionを開始しない。
+Next Action: reviewed exact9をmanagement-only commitへ固定し、そのclean exact14
+freezeから三lane implementation preflightを行う。preflightがGreenになるまで
+Productionを開始しない。
 
 ## P23-003B2 accepted handoff — Historical prerequisite
 
@@ -1146,7 +1156,7 @@ Next Action: freeze the new exact5 and exact7 hashes and request fresh separate 
 - [x] P23-003C3でCatalogのfixed delivery、explicit `policy.auditDelivery`、required same-root transaction、protected-read response gate、Application key compositionを実装する。Complete Final Gate／fresh review／candidate commit `b7b352a8...`／same-SHA package export GreenでAccepted
 - [x] P23-003C4でsame recordId／contentHashのat-least-once relay、append-before-ack recovery、retry／poison runtimeを実装する。Complete Final Gate／fresh three-lane review／candidate commit `d5ab347...`／same-SHA package export GreenでAccepted
 - [~] P23-003DをD154のbounded DAGで実装する。D1はexact14 Framework operational Catalogとtrusted lookup lineage。D2 read、D3 authentication、D4 authorization、D5 retention／hold・rotation・replay・generic Outbox source children、ordinary integrationは別Task。D-controlはAccepted P23-003F後にのみ開始する
-- [~] P23-003D1でAccepted security/access exact30を維持しつつ、exact14 `blackops.framework.operations` Catalog、two-provider Framework provenance、PHP／Node／Architecture evidence、package exact75→76を追加する。clean immutable freeze／fresh preflight待ち
+- [x] P23-003D1でAccepted security/access exact30を維持しつつ、exact14 `blackops.framework.operations` Catalog、two-provider Framework provenance、PHP／Node／Architecture evidence、package exact75→76を追加した。Final commit `35afacd...`／same-SHA package export GreenでAccepted
 - [ ] P23-003EでApplication versioned event registration/projector API、reference journey、business-action non-inferenceを検証する
 - [ ] P23-003FでP23-003Bの完成AuditRecordをconsumeし、reusable catalog/hash／record／checkpoint／anchor／freshness verifier、immutable AuditCheckpoint／AuditAnchorReceipt、sealed concrete-segment graph、pure RFC 8032 Ed25519、pinned role-separated trust／revocation、external anchor、hash recomputation without appendを実装する（Fがcatalog／record／checkpoint／anchor／freshness coreと再計算を所有し、append／record mutation／physical deletionは行わない。同一`checkpointId`＋同一complete bytes/hashはpersist-before-ack後のidempotent success、異なるbytes/hashまたは同一segmentの別checkpointはintegrity failure）
 - [ ] P23-003GでP23-003Fを呼び出すmanifest／bundle／startBoundary／file／wire／scope verifier orchestration（再実装なし）、bounded default-deny query、`coverageMode: complete_sealed_segments`／`filter:null`のAuditExportManifest v1（partition-chain-ordered ranges、distinct-partition genesis／selected_range startBoundaries、両mode同一8-key `anchorStoreRef`／`anchorObjectRef`／predecessor／`prefixComplete`、exact anchor triple `{partitionId,anchorStoreRef,anchorObjectRef}`／cross-store negatives、selectedはpredecessor existence／continuity／prefix legitimacy非主張、recordCount／chainHeadHash、checkpoint／anchor／distinct catalogHashごとの`event_catalog` hashes、exact-once role/path/artifact files／raw digests、actor/time/source、multi-partition `current|as_of_checkpoint` result／deterministic first failure／freshness code 18）／AuditExportRecord JCS/LF wire／finite verifier codes、bounded audit-of-audit stream family、category retention、legal holdを実装する（GはFを呼び出し、catalog／record／checkpoint／anchor／hash verificationを再実装しない。Physical deletion／signed deletion manifest／sealed bytes・keys deletionはAudit v1から外し、将来P23-003Hへ延期。任意filtered subsetは別safe projection）

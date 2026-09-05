@@ -2,7 +2,7 @@
 
 Status: Proposal — unreleased BlackOps 1.3; workflow/gate status authority is the exact5 management slice (`develop/STATE.md`, `develop/TODO.md`, the parent Task/Report, and `develop/spec/README.md`)
 
-Updated At: 2026-09-04T13:57:41+09:00
+Updated At: 2026-09-05T12:07:19+09:00
 
 This plan is a delivery DAG for the capability proposal in Specification 105.
 It does not make any Phase 23 item a current Stable `1.2` capability. A slice
@@ -121,15 +121,24 @@ migration, route, command, public Documentation, or current runtime caller.
 The Stable generic Outbox runtime and `outbox:relay:*` commands remain
 unchanged and are not Audit activation.
 
-For P23-003D delivery, D154 is the most-specific authority. Ordinary D is a
+For P23-003D delivery, D154 is the parent split authority and D155 is the
+most-specific P23-003D2 foundation authority. Ordinary D is a
 bounded DAG: D1 operational Catalog and trusted lookup lineage; D2 Operation-
 read foundation and reader children; D3 authentication; D4 authorization; D5
 retention／hold, rotation, replay, and Stable generic-Outbox source children;
 then ordinary integration. D-control consumes only Accepted P23-003F typed
 outcomes and remains a distinct prerequisite for P23-003G where applicable.
 P23-003D1 changes only an exact14 Internal Catalog, lookup provenance,
-evidence, and package exact75→76. It activates no producer or runtime. Stable
-`1.2.0` remains current and BlackOps `1.3` remains unreleased.
+evidence, and package exact75→76 and is Accepted at
+`35afacd9741272d4e1207d3a76829d85653e4f6f`. D155 fixes D2's dedicated
+16-byte nonce, trusted execution port, opaque Operation target, fixed three
+drafts, one-shot session, fail-closed Gate correction, and Diagnostics
+authorization facade. It leaves every current reader and runtime composition
+inactive. D2 has separate required Store roots, Store-owned UUID, null
+idempotency, and no Outbox; its exact API／failure／dependency graph and package
+exact31 mutation target are fixed before Product work. Package exact76→85
+occurs only with D2 implementation. Stable `1.2.0` remains current and BlackOps
+`1.3` remains unreleased.
 
 ## Historical P23-003A accepted delivery checkpoint
 
@@ -2902,6 +2911,23 @@ sub-slice is `P23-003D-control`, consumes only accepted typed outcomes from
 P23-003F, and cannot start before F is accepted; ordinary D adapters may depend
 on C. This explicit split is acyclic and prevents an unaccepted sibling from
 being consumed downstream.
+
+P23-003D2 first implements only the D155 foundation. One factory converts the
+requester references, obtains one trusted execution, derives one keyed opaque
+Operation resource, captures one Clock value and one 16-byte CSPRNG nonce,
+constructs requested／accessed／unavailable drafts, and returns a session only
+after requested commit. The session has exactly one terminal attempt. Both
+appends are separate Store-owned standalone roots; authorization and lookup
+run at level0 between them. Every terminal delivery failure, including
+non-Allow, withholds the result. This most-specific rule supersedes the C3
+Gate's earlier non-Allow suppression without reopening any other C3 behavior.
+
+The D2 foundation also adds a typed default-unavailable Diagnostics
+authorization port but no reader caller. D2S, D2J, and D2X separately integrate
+Status, Journal／Outcome, and Diagnostics and fix their source-specific trusted
+execution and public failure mapping. `ApplicationAuditRuntimeComposer`,
+Container registration, routes, commands, and current readers remain unchanged
+until ordinary D-integration.
 
 ### P23-003E — Application versioned authoring/projector journey
 
