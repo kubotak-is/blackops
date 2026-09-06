@@ -1,0 +1,97 @@
+{
+  "schemaVersion": 1,
+  "kind": "audit_operation_read_foundation_fixture",
+  "operationId": "0194a000-0000-7000-8000-0000000000d2",
+  "key": "0123456789abcdef0123456789abcdef",
+  "basis": {
+    "actor": {
+      "type": "user",
+      "id": "actor-1"
+    },
+    "execution": {
+      "type": "process",
+      "id": "blackops-cli"
+    },
+    "tenant": {
+      "type": "account",
+      "id": "tenant-1"
+    },
+    "requestedAt": "2026-09-05T02:00:00.123456Z",
+    "nonce": "00112233445566778899aabbccddeeff"
+  },
+  "requestRefs": {
+    "status": {
+      "jcsBytes": 241,
+      "preimageBytes": 283,
+      "value": "oid:v1:5a83343aa8fcf1e3baba2147571a92fa35c5424507c0b27407a0ca19766a3b3a"
+    },
+    "journal": {
+      "jcsBytes": 242,
+      "preimageBytes": 284,
+      "value": "oid:v1:2726a66731f81f741ccb83a471637381cd80b944687aa9889b6975f100eb5096"
+    },
+    "outcome": {
+      "jcsBytes": 242,
+      "preimageBytes": 284,
+      "value": "oid:v1:3ac6231d80a97591552b92f933f4a1e50efd69e93c149961da65855f1c4b2e67"
+    },
+    "diagnostics": {
+      "jcsBytes": 246,
+      "preimageBytes": 288,
+      "value": "oid:v1:aa763c94292e005ea5dc420909a1b90372602265d3fe9318ae053b1b214fca4c"
+    }
+  },
+  "opaqueResource": {
+    "purpose": "resource",
+    "context": "0194a000-0000-7000-8000-0000000000d2",
+    "preimageBytes": 83,
+    "value": "oid:v1:e697b9f4332f3532bd84ba2bbe553152c5d223663d3bdec36e8b38e420f1d115"
+  },
+  "catalog": {
+    "hash": "cfbcb3335b27ac4506046216d7ff43a9802586b1e60fbb9cfc47dc12230b1d83",
+    "version": 1,
+    "category": "access",
+    "delivery": "required",
+    "evidenceVersion": 1
+  },
+  "source": {
+    "owner": "framework",
+    "runtime": "cli",
+    "componentPrefix": "operation-",
+    "buildId": "build-1"
+  },
+  "requestRefVariants": {
+    "actorNull": {
+      "status": "oid:v1:cd89b14808a199faa3cf13e514d7ad5ec95eb32a8516b7c2321a8f1d3cc95ddc",
+      "journal": "oid:v1:c2957ec7306b126e7643d534126033606f168a81dc9a41442d3ef1ea9b9d6b8a",
+      "outcome": "oid:v1:95ad1f9ccb0f32b3f2085827a9f501de19c97fe78c4220d78dd9d20e50f403da",
+      "diagnostics": "oid:v1:bc163d83033e9c7ca45b3f5a1c16ae397209bcefd3e36767baab0c2aad480524"
+    },
+    "tenantNull": {
+      "status": "oid:v1:5c31e549662bda11f2460c0f7731fca583b10d88bd7bc58f821c1af0eb44cc22",
+      "journal": "oid:v1:28c20b340ecedd146a60b1455d5a9a8e65d9a531b1c22380c8df82c346479071",
+      "outcome": "oid:v1:11aa1377029d9cd2b3f3bc9dfd30c6f10579c835c5329c8084ce920c9a6d3e4e",
+      "diagnostics": "oid:v1:b6a8cd01e830497c0fda670c626936235a72ffafa170f7a934563f207c26e40a"
+    },
+    "bothNull": {
+      "status": "oid:v1:54ec3cca56a9889bd2db4121bda3fbd43a5cf4dab7cc499ae8fac99d269f2d14",
+      "journal": "oid:v1:4cfa5543b93026dceb5b64e614cfad302449258690a77b1fcda8e898226f57fa",
+      "outcome": "oid:v1:94bd6287233881dff051aca0a2882616221326a89794638f336089ea88b24d42",
+      "diagnostics": "oid:v1:7c8b5fd6c25a78be84297746523e5bb8146672a46793c60b9c730e0fd00317b3"
+    }
+  },
+  "draftMatrix": [
+    {"purpose":"status","phase":"requested","draft":{"actionId":"oid:v1:5a83343aa8fcf1e3baba2147571a92fa35c5424507c0b27407a0ca19766a3b3a","actionType":"access.operation_status.requested","actionPhase":"requested","eventType":"access.operation_status.requested","eventVersion":1,"eventCategory":"access","catalogHash":"cfbcb3335b27ac4506046216d7ff43a9802586b1e60fbb9cfc47dc12230b1d83","resourceType":"operation","resourceId":"oid:v1:e697b9f4332f3532bd84ba2bbe553152c5d223663d3bdec36e8b38e420f1d115","outcomeStatus":"unknown","outcomeCode":"read_requested","policyId":"operation-read","policyVersion":1,"policyDecision":"not_applicable","policyReasonCode":"read_requested","policyDelivery":"required","actor":{"type":"user","id":"actor-1"},"execution":{"type":"process","id":"blackops-cli"},"tenant":{"type":"account","id":"tenant-1"},"occurredAt":"2026-09-05T02:00:00.123456Z","sourceOwner":"framework","sourceComponent":"operation-status","sourceRuntime":"cli","sourceBuildId":"build-1","correlation":{},"evidence":{"version":1}}},
+    {"purpose":"status","phase":"accessed","draft":{"actionId":"oid:v1:5a83343aa8fcf1e3baba2147571a92fa35c5424507c0b27407a0ca19766a3b3a","actionType":"access.operation_status.accessed","actionPhase":"succeeded","eventType":"access.operation_status.accessed","eventVersion":1,"eventCategory":"access","catalogHash":"cfbcb3335b27ac4506046216d7ff43a9802586b1e60fbb9cfc47dc12230b1d83","resourceType":"operation","resourceId":"oid:v1:e697b9f4332f3532bd84ba2bbe553152c5d223663d3bdec36e8b38e420f1d115","outcomeStatus":"succeeded","outcomeCode":"read_accessed","policyId":"operation-read","policyVersion":1,"policyDecision":"allow","policyReasonCode":"authorization_allowed","policyDelivery":"required","actor":{"type":"user","id":"actor-1"},"execution":{"type":"process","id":"blackops-cli"},"tenant":{"type":"account","id":"tenant-1"},"occurredAt":"2026-09-05T02:00:00.123456Z","sourceOwner":"framework","sourceComponent":"operation-status","sourceRuntime":"cli","sourceBuildId":"build-1","correlation":{},"evidence":{"version":1}}},
+    {"purpose":"status","phase":"unavailable","draft":{"actionId":"oid:v1:5a83343aa8fcf1e3baba2147571a92fa35c5424507c0b27407a0ca19766a3b3a","actionType":"access.operation_status.unavailable","actionPhase":"unknown","eventType":"access.operation_status.unavailable","eventVersion":1,"eventCategory":"access","catalogHash":"cfbcb3335b27ac4506046216d7ff43a9802586b1e60fbb9cfc47dc12230b1d83","resourceType":"operation","resourceId":"oid:v1:e697b9f4332f3532bd84ba2bbe553152c5d223663d3bdec36e8b38e420f1d115","outcomeStatus":"unknown","outcomeCode":"resource_unavailable","policyId":"operation-read","policyVersion":1,"policyDecision":"not_applicable","policyReasonCode":"resource_unavailable","policyDelivery":"required","actor":{"type":"user","id":"actor-1"},"execution":{"type":"process","id":"blackops-cli"},"tenant":{"type":"account","id":"tenant-1"},"occurredAt":"2026-09-05T02:00:00.123456Z","sourceOwner":"framework","sourceComponent":"operation-status","sourceRuntime":"cli","sourceBuildId":"build-1","correlation":{},"evidence":{"version":1}}},
+    {"purpose":"journal","phase":"requested","draft":{"actionId":"oid:v1:2726a66731f81f741ccb83a471637381cd80b944687aa9889b6975f100eb5096","actionType":"access.operation_journal.requested","actionPhase":"requested","eventType":"access.operation_journal.requested","eventVersion":1,"eventCategory":"access","catalogHash":"cfbcb3335b27ac4506046216d7ff43a9802586b1e60fbb9cfc47dc12230b1d83","resourceType":"operation","resourceId":"oid:v1:e697b9f4332f3532bd84ba2bbe553152c5d223663d3bdec36e8b38e420f1d115","outcomeStatus":"unknown","outcomeCode":"read_requested","policyId":"operation-read","policyVersion":1,"policyDecision":"not_applicable","policyReasonCode":"read_requested","policyDelivery":"required","actor":{"type":"user","id":"actor-1"},"execution":{"type":"process","id":"blackops-cli"},"tenant":{"type":"account","id":"tenant-1"},"occurredAt":"2026-09-05T02:00:00.123456Z","sourceOwner":"framework","sourceComponent":"operation-journal","sourceRuntime":"cli","sourceBuildId":"build-1","correlation":{},"evidence":{"version":1}}},
+    {"purpose":"journal","phase":"accessed","draft":{"actionId":"oid:v1:2726a66731f81f741ccb83a471637381cd80b944687aa9889b6975f100eb5096","actionType":"access.operation_journal.accessed","actionPhase":"succeeded","eventType":"access.operation_journal.accessed","eventVersion":1,"eventCategory":"access","catalogHash":"cfbcb3335b27ac4506046216d7ff43a9802586b1e60fbb9cfc47dc12230b1d83","resourceType":"operation","resourceId":"oid:v1:e697b9f4332f3532bd84ba2bbe553152c5d223663d3bdec36e8b38e420f1d115","outcomeStatus":"succeeded","outcomeCode":"read_accessed","policyId":"operation-read","policyVersion":1,"policyDecision":"allow","policyReasonCode":"authorization_allowed","policyDelivery":"required","actor":{"type":"user","id":"actor-1"},"execution":{"type":"process","id":"blackops-cli"},"tenant":{"type":"account","id":"tenant-1"},"occurredAt":"2026-09-05T02:00:00.123456Z","sourceOwner":"framework","sourceComponent":"operation-journal","sourceRuntime":"cli","sourceBuildId":"build-1","correlation":{},"evidence":{"version":1}}},
+    {"purpose":"journal","phase":"unavailable","draft":{"actionId":"oid:v1:2726a66731f81f741ccb83a471637381cd80b944687aa9889b6975f100eb5096","actionType":"access.operation_journal.unavailable","actionPhase":"unknown","eventType":"access.operation_journal.unavailable","eventVersion":1,"eventCategory":"access","catalogHash":"cfbcb3335b27ac4506046216d7ff43a9802586b1e60fbb9cfc47dc12230b1d83","resourceType":"operation","resourceId":"oid:v1:e697b9f4332f3532bd84ba2bbe553152c5d223663d3bdec36e8b38e420f1d115","outcomeStatus":"unknown","outcomeCode":"resource_unavailable","policyId":"operation-read","policyVersion":1,"policyDecision":"not_applicable","policyReasonCode":"resource_unavailable","policyDelivery":"required","actor":{"type":"user","id":"actor-1"},"execution":{"type":"process","id":"blackops-cli"},"tenant":{"type":"account","id":"tenant-1"},"occurredAt":"2026-09-05T02:00:00.123456Z","sourceOwner":"framework","sourceComponent":"operation-journal","sourceRuntime":"cli","sourceBuildId":"build-1","correlation":{},"evidence":{"version":1}}},
+    {"purpose":"outcome","phase":"requested","draft":{"actionId":"oid:v1:3ac6231d80a97591552b92f933f4a1e50efd69e93c149961da65855f1c4b2e67","actionType":"access.operation_outcome.requested","actionPhase":"requested","eventType":"access.operation_outcome.requested","eventVersion":1,"eventCategory":"access","catalogHash":"cfbcb3335b27ac4506046216d7ff43a9802586b1e60fbb9cfc47dc12230b1d83","resourceType":"operation","resourceId":"oid:v1:e697b9f4332f3532bd84ba2bbe553152c5d223663d3bdec36e8b38e420f1d115","outcomeStatus":"unknown","outcomeCode":"read_requested","policyId":"operation-read","policyVersion":1,"policyDecision":"not_applicable","policyReasonCode":"read_requested","policyDelivery":"required","actor":{"type":"user","id":"actor-1"},"execution":{"type":"process","id":"blackops-cli"},"tenant":{"type":"account","id":"tenant-1"},"occurredAt":"2026-09-05T02:00:00.123456Z","sourceOwner":"framework","sourceComponent":"operation-outcome","sourceRuntime":"cli","sourceBuildId":"build-1","correlation":{},"evidence":{"version":1}}},
+    {"purpose":"outcome","phase":"accessed","draft":{"actionId":"oid:v1:3ac6231d80a97591552b92f933f4a1e50efd69e93c149961da65855f1c4b2e67","actionType":"access.operation_outcome.accessed","actionPhase":"succeeded","eventType":"access.operation_outcome.accessed","eventVersion":1,"eventCategory":"access","catalogHash":"cfbcb3335b27ac4506046216d7ff43a9802586b1e60fbb9cfc47dc12230b1d83","resourceType":"operation","resourceId":"oid:v1:e697b9f4332f3532bd84ba2bbe553152c5d223663d3bdec36e8b38e420f1d115","outcomeStatus":"succeeded","outcomeCode":"read_accessed","policyId":"operation-read","policyVersion":1,"policyDecision":"allow","policyReasonCode":"authorization_allowed","policyDelivery":"required","actor":{"type":"user","id":"actor-1"},"execution":{"type":"process","id":"blackops-cli"},"tenant":{"type":"account","id":"tenant-1"},"occurredAt":"2026-09-05T02:00:00.123456Z","sourceOwner":"framework","sourceComponent":"operation-outcome","sourceRuntime":"cli","sourceBuildId":"build-1","correlation":{},"evidence":{"version":1}}},
+    {"purpose":"outcome","phase":"unavailable","draft":{"actionId":"oid:v1:3ac6231d80a97591552b92f933f4a1e50efd69e93c149961da65855f1c4b2e67","actionType":"access.operation_outcome.unavailable","actionPhase":"unknown","eventType":"access.operation_outcome.unavailable","eventVersion":1,"eventCategory":"access","catalogHash":"cfbcb3335b27ac4506046216d7ff43a9802586b1e60fbb9cfc47dc12230b1d83","resourceType":"operation","resourceId":"oid:v1:e697b9f4332f3532bd84ba2bbe553152c5d223663d3bdec36e8b38e420f1d115","outcomeStatus":"unknown","outcomeCode":"resource_unavailable","policyId":"operation-read","policyVersion":1,"policyDecision":"not_applicable","policyReasonCode":"resource_unavailable","policyDelivery":"required","actor":{"type":"user","id":"actor-1"},"execution":{"type":"process","id":"blackops-cli"},"tenant":{"type":"account","id":"tenant-1"},"occurredAt":"2026-09-05T02:00:00.123456Z","sourceOwner":"framework","sourceComponent":"operation-outcome","sourceRuntime":"cli","sourceBuildId":"build-1","correlation":{},"evidence":{"version":1}}},
+    {"purpose":"diagnostics","phase":"requested","draft":{"actionId":"oid:v1:aa763c94292e005ea5dc420909a1b90372602265d3fe9318ae053b1b214fca4c","actionType":"access.operation_diagnostics.requested","actionPhase":"requested","eventType":"access.operation_diagnostics.requested","eventVersion":1,"eventCategory":"access","catalogHash":"cfbcb3335b27ac4506046216d7ff43a9802586b1e60fbb9cfc47dc12230b1d83","resourceType":"operation","resourceId":"oid:v1:e697b9f4332f3532bd84ba2bbe553152c5d223663d3bdec36e8b38e420f1d115","outcomeStatus":"unknown","outcomeCode":"read_requested","policyId":"operation-read","policyVersion":1,"policyDecision":"not_applicable","policyReasonCode":"read_requested","policyDelivery":"required","actor":{"type":"user","id":"actor-1"},"execution":{"type":"process","id":"blackops-cli"},"tenant":{"type":"account","id":"tenant-1"},"occurredAt":"2026-09-05T02:00:00.123456Z","sourceOwner":"framework","sourceComponent":"operation-diagnostics","sourceRuntime":"cli","sourceBuildId":"build-1","correlation":{},"evidence":{"version":1}}},
+    {"purpose":"diagnostics","phase":"accessed","draft":{"actionId":"oid:v1:aa763c94292e005ea5dc420909a1b90372602265d3fe9318ae053b1b214fca4c","actionType":"access.operation_diagnostics.accessed","actionPhase":"succeeded","eventType":"access.operation_diagnostics.accessed","eventVersion":1,"eventCategory":"access","catalogHash":"cfbcb3335b27ac4506046216d7ff43a9802586b1e60fbb9cfc47dc12230b1d83","resourceType":"operation","resourceId":"oid:v1:e697b9f4332f3532bd84ba2bbe553152c5d223663d3bdec36e8b38e420f1d115","outcomeStatus":"succeeded","outcomeCode":"read_accessed","policyId":"operation-read","policyVersion":1,"policyDecision":"allow","policyReasonCode":"authorization_allowed","policyDelivery":"required","actor":{"type":"user","id":"actor-1"},"execution":{"type":"process","id":"blackops-cli"},"tenant":{"type":"account","id":"tenant-1"},"occurredAt":"2026-09-05T02:00:00.123456Z","sourceOwner":"framework","sourceComponent":"operation-diagnostics","sourceRuntime":"cli","sourceBuildId":"build-1","correlation":{},"evidence":{"version":1}}},
+    {"purpose":"diagnostics","phase":"unavailable","draft":{"actionId":"oid:v1:aa763c94292e005ea5dc420909a1b90372602265d3fe9318ae053b1b214fca4c","actionType":"access.operation_diagnostics.unavailable","actionPhase":"unknown","eventType":"access.operation_diagnostics.unavailable","eventVersion":1,"eventCategory":"access","catalogHash":"cfbcb3335b27ac4506046216d7ff43a9802586b1e60fbb9cfc47dc12230b1d83","resourceType":"operation","resourceId":"oid:v1:e697b9f4332f3532bd84ba2bbe553152c5d223663d3bdec36e8b38e420f1d115","outcomeStatus":"unknown","outcomeCode":"resource_unavailable","policyId":"operation-read","policyVersion":1,"policyDecision":"not_applicable","policyReasonCode":"resource_unavailable","policyDelivery":"required","actor":{"type":"user","id":"actor-1"},"execution":{"type":"process","id":"blackops-cli"},"tenant":{"type":"account","id":"tenant-1"},"occurredAt":"2026-09-05T02:00:00.123456Z","sourceOwner":"framework","sourceComponent":"operation-diagnostics","sourceRuntime":"cli","sourceBuildId":"build-1","correlation":{},"evidence":{"version":1}}}
+  ]
+}

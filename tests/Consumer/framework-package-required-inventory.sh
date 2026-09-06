@@ -7,7 +7,7 @@ EXPORT_SCRIPT="${SCRIPT_DIR}/framework-package-export.sh"
 TEMP_ROOT="$(mktemp -d)"
 trap 'rm -rf -- "${TEMP_ROOT}"' EXIT
 
-reviewed_export_sha='6f637c36758278934d9347eca4fad88c5d24e8e4823b6f494fed42abbff108b2'
+reviewed_export_sha='ba46d54d0378f9a6242ef5054a210d1b42ac56d55e3d7a061644fdf166aa2cf0'
 
 expected_inventory="${TEMP_ROOT}/expected-inventory"
 printf '%s\n' \
@@ -28,6 +28,12 @@ printf '%s\n' \
     src/Internal/Audit/Orchestration/AuditDeliveryCoordinator.php \
     src/Internal/Audit/Orchestration/AuditMutationTransactionCoordinator.php \
     src/Internal/Audit/Orchestration/AuditProtectedReadGate.php \
+    src/Internal/Audit/Read/AuditReadEventWriter.php \
+    src/Internal/Audit/Read/OperationReadNonceSource.php \
+    src/Internal/Audit/Read/RandomOperationReadNonceSource.php \
+    src/Internal/Audit/Read/OperationReadExecutionSource.php \
+    src/Internal/Audit/Read/OperationReadAuditSessionFactory.php \
+    src/Internal/Audit/Read/OperationReadAuditSession.php \
     src/Internal/Audit/Relay/AuditRelayOutcome.php \
     src/Internal/Audit/Relay/AuditRelayFailure.php \
     src/Internal/Audit/Relay/AuditRelayException.php \
@@ -39,6 +45,9 @@ printf '%s\n' \
     src/Internal/Application/ApplicationAuditConfiguration.php \
     src/Internal/Application/ApplicationAuditRuntime.php \
     src/Internal/Application/ApplicationAuditRuntimeComposer.php \
+    src/Internal/Diagnostics/OperationDiagnosticsAuthorizationRequest.php \
+    src/Internal/Diagnostics/OperationDiagnosticsAuthorizer.php \
+    src/Internal/Diagnostics/UnavailableOperationDiagnosticsAuthorizer.php \
     src/Internal/Audit/Storage/AuditStoreFailure.php \
     src/Internal/Audit/Storage/AuditStoreException.php \
     src/Internal/Audit/Storage/AuditAppendResult.php \
@@ -727,6 +736,9 @@ test_mutation_rejected() {
         d1-omission)
             run_bounded sed -i '\|src/Internal/Audit/Catalog/FrameworkOperationalAuditEventCatalog.php|d' "${candidate}"
             ;;
+        d2-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Read/AuditReadEventWriter.php|d' "${candidate}"
+            ;;
         order-swap)
             run_bounded awk '
                 !swapped && $0 ~ /src\/Internal\/Audit\/Storage\/AuditStoreFailure\.php/ {
@@ -1081,7 +1093,9 @@ test -f "${EXPORT_SCRIPT}"
 test "$(sha256sum "${EXPORT_SCRIPT}" | cut -d' ' -f1)" = "${reviewed_export_sha}"
 runtime_case_count=0
 assert_inventory "${EXPORT_SCRIPT}"
-printf 'required inventory: PASS (76 ordered paths)\n'
+test "$(wc -l < "${expected_inventory}")" -eq 85
+test "$(sort -u "${expected_inventory}" | wc -l)" -eq 85
+printf 'required inventory: PASS (85 ordered paths, 85 unique)\n'
 
 test_mutation_rejected comment-only comment
 test_mutation_rejected existing-entry-removal existing-removal
@@ -1089,6 +1103,7 @@ test_mutation_rejected added-entry added-entry
 test_mutation_rejected duplicate-entry duplicate-entry
 test_mutation_rejected new-entry-omission new-omission
 test_mutation_rejected d1-entry-omission d1-omission
+test_mutation_rejected d2-entry-omission d2-omission
 test_mutation_rejected order-swap order-swap
 test_mutation_rejected duplicate-loop duplicate-loop
 test_mutation_rejected heredoc-decoy heredoc-decoy
@@ -1114,4 +1129,4 @@ test_call_contract_mutation_rejected pipeline-composer-continuation pipeline-com
 test_call_contract_mutation_rejected command-substitution-git-continuation command-substitution-git-continuation
 test_call_contract_mutation_rejected resolution-override resolution-override
 printf 'required inventory call-contract mutations: PASS (14 rejected before runtime/SHA)\n'
-printf 'required inventory mutations: PASS (30 rejected: 16 inventory, 14 call-contract)\n'
+printf 'required inventory mutations: PASS (31 rejected: 17 inventory, 14 call-contract)\n'

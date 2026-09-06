@@ -44,6 +44,15 @@ final class AuditPublicApiTest extends TestCase
             'BlackOps\\Internal\\Audit\\Catalog\\FrameworkOperationalAuditEventCatalog',
             'BlackOps\\Internal\\Audit\\Catalog\\ImmutableAuditEventCatalogLookup',
             'BlackOps\\Internal\\Audit\\HmacAuditOpaqueIdDeriver',
+            'BlackOps\\Internal\\Audit\\Read\\AuditReadEventWriter',
+            'BlackOps\\Internal\\Audit\\Read\\OperationReadNonceSource',
+            'BlackOps\\Internal\\Audit\\Read\\RandomOperationReadNonceSource',
+            'BlackOps\\Internal\\Audit\\Read\\OperationReadExecutionSource',
+            'BlackOps\\Internal\\Audit\\Read\\OperationReadAuditSessionFactory',
+            'BlackOps\\Internal\\Audit\\Read\\OperationReadAuditSession',
+            'BlackOps\\Internal\\Diagnostics\\OperationDiagnosticsAuthorizationRequest',
+            'BlackOps\\Internal\\Diagnostics\\OperationDiagnosticsAuthorizer',
+            'BlackOps\\Internal\\Diagnostics\\UnavailableOperationDiagnosticsAuthorizer',
         ] as $class) {
             self::assertCount(0, new \ReflectionClass($class)->getAttributes('BlackOps\\Core\\Attribute\\PublicApi'));
         }

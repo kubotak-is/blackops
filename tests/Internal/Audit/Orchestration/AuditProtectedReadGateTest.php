@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 namespace BlackOps\Tests\Internal\Audit\Orchestration;
 
+use BlackOps\Core\Audit\AuditActionPhase;
 use BlackOps\Core\Audit\AuditDelivery;
+use BlackOps\Core\Audit\AuditEventCategory;
+use BlackOps\Core\Audit\AuditOutcomeStatus;
+use BlackOps\Core\Audit\AuditPolicyDecision;
 use BlackOps\Core\Audit\AuditReadAuthorizationDecision;
 use BlackOps\Core\Audit\AuditReadContext;
 use BlackOps\Core\Audit\AuditReadPurpose;
@@ -90,21 +94,25 @@ final class AuditProtectedReadGateTest extends TestCase
         }
     }
 
-    public function testBoundedNonAllowDecisionSurvivesTerminalDeliveryFailure(): void
+    public function testEveryTerminalDecisionWithholdsReleaseOnDeliveryFailure(): void
     {
         $delivery = new ReflectionClass(AuditDeliveryCoordinator::class)->newInstanceWithoutConstructor();
         $gate = new AuditProtectedReadGate($delivery);
         $basis = $this->basis();
-        $context = AuditReadContext::fromBasis($basis, AuditReadAuthorizationDecision::Deny);
-        self::assertSame(AuditReadAuthorizationDecision::Deny, $gate->terminal($context, $this->draft(
-            $basis,
-            'unavailable',
-            $basis->requestRef(),
-        )));
-        self::assertSame(AuditReadAuthorizationDecision::ResourceUnavailable, $gate->terminal(
-            AuditReadContext::fromBasis($basis, AuditReadAuthorizationDecision::ResourceUnavailable),
-            $this->draft($basis, 'unavailable', $basis->requestRef(), 'wrong.action.type'),
-        ));
+        foreach ([
+            AuditReadAuthorizationDecision::Allow,
+            AuditReadAuthorizationDecision::Deny,
+            AuditReadAuthorizationDecision::ResourceUnavailable,
+        ] as $decision) {
+            $phase = $decision === AuditReadAuthorizationDecision::Allow ? 'accessed' : 'unavailable';
+            try {
+                $gate->terminal(AuditReadContext::fromBasis($basis, $decision), $this->draftFor($basis, $phase));
+                self::fail($decision->value . ' was released without a successful append');
+            } catch (AuditDeliveryException $exception) {
+                self::assertSame(AuditDeliveryFailure::StorageUnavailable, $exception->failure());
+                self::assertNull($exception->getPrevious());
+            }
+        }
     }
 
     public function testEveryPurposeCommitsRequestedBeforeAuthorizationAndTerminalBeforeAllowRelease(): void
@@ -231,15 +239,10 @@ final class AuditProtectedReadGateTest extends TestCase
                         $terminalDraft = $this->draftFor($basis, $phase, ...$this->mutationArguments($name));
                     }
                     try {
-                        $returned = $gate->terminal(AuditReadContext::fromBasis($basis, $decision), $terminalDraft);
-                        if ($decision === AuditReadAuthorizationDecision::Allow) {
-                            self::fail($name . ' allow substitution was accepted');
-                        }
-                        self::assertSame($decision, $returned);
-                        $reached++;
+                        $gate->terminal(AuditReadContext::fromBasis($basis, $decision), $terminalDraft);
+                        self::fail($name . ' ' . $decision->value . ' substitution was accepted');
                     } catch (AuditDeliveryException $exception) {
                         self::assertSame(AuditDeliveryFailure::PolicyInvalid, $exception->failure());
-                        self::assertSame(AuditReadAuthorizationDecision::Allow, $decision);
                         $reached++;
                     }
                 }
@@ -250,6 +253,136 @@ final class AuditProtectedReadGateTest extends TestCase
             }
         }
         self::assertSame(count($cases) * 4, $reached);
+    }
+
+    public function testProtectedReadBindingChecksEveryDraftFieldIndependentlyWithoutDelivery(): void
+    {
+        $cases = [
+            'event-version' => ['eventVersion' => 2],
+            'event-category' => ['eventCategory' => AuditEventCategory::Business],
+            'event-catalog-hash' => ['catalogHash' => str_repeat('a', 64)],
+            'action-phase' => ['actionPhase' => AuditActionPhase::Started],
+            'resource-type' => ['resourceType' => 'other'],
+            'resource-id' => ['resourceId' => 'oid:v1:' . str_repeat('b', 63)],
+            'outcome-status' => ['outcomeStatus' => AuditOutcomeStatus::Failed],
+            'outcome-code' => ['outcomeCode' => 'read_mutated'],
+            'policy-id' => ['policyId' => 'other-policy'],
+            'policy-version' => ['policyVersion' => 2],
+            'policy-decision' => ['policyDecision' => AuditPolicyDecision::Allow],
+            'policy-reason' => ['policyReason' => 'mutated_reason'],
+            'policy-delivery' => ['policyDelivery' => AuditDelivery::Durable],
+            'source-owner' => ['sourceOwner' => AuditSourceOwner::Application],
+            'source-component' => ['sourceComponent' => 'operation-mutated'],
+            'correlation' => ['correlation' => AuditRecordCorrelation::fromArray(['correlationId' => 'mutated'])],
+            'evidence-version' => ['evidenceVersion' => 2],
+            'evidence-fields' => ['evidenceFields' => ['unexpected' => true]],
+        ];
+        foreach ($cases as $name => $arguments) {
+            [$admin, $primary, $probe, $schema, $gate] = $this->realFixture();
+            try {
+                $basis = $this->basis(AuditReadPurpose::Status);
+                try {
+                    $gate->requested($basis, $this->draftFor($basis, 'requested', ...$arguments));
+                    self::fail($name . ' requested mutation was accepted');
+                } catch (AuditDeliveryException $exception) {
+                    self::assertSame(AuditDeliveryFailure::PolicyInvalid, $exception->failure(), $name);
+                    self::assertNull($exception->getPrevious(), $name);
+                }
+                foreach (AuditReadAuthorizationDecision::cases() as $decision) {
+                    $phase = $decision === AuditReadAuthorizationDecision::Allow ? 'accessed' : 'unavailable';
+                    $terminalArguments = $arguments;
+                    if ($name === 'policy-decision') {
+                        $terminalArguments['policyDecision'] = match ($decision) {
+                            AuditReadAuthorizationDecision::Allow => AuditPolicyDecision::Deny,
+                            AuditReadAuthorizationDecision::Deny,
+                            AuditReadAuthorizationDecision::ResourceUnavailable,
+                                => AuditPolicyDecision::Allow,
+                        };
+                    }
+                    try {
+                        $gate->terminal(
+                            AuditReadContext::fromBasis($basis, $decision),
+                            $this->draftFor($basis, $phase, ...$terminalArguments),
+                        );
+                        self::fail($name . ' ' . $decision->value . ' mutation was accepted');
+                    } catch (AuditDeliveryException $exception) {
+                        self::assertSame(AuditDeliveryFailure::PolicyInvalid, $exception->failure(), $name);
+                        self::assertNull($exception->getPrevious(), $name);
+                    }
+                }
+                self::assertSame(0, $this->countRecords($probe, $schema), $name);
+                self::assertFalse($primary->isTransactionActive(), $name);
+            } finally {
+                $this->cleanupRealFixture($admin, $primary, $probe, $schema);
+            }
+        }
+    }
+
+    public function testProtectedReadBindingAcceptsTypedRuntimeAndSafeBuildValues(): void
+    {
+        foreach (AuditSourceRuntime::cases() as $runtime) {
+            [$admin, $primary, $probe, $schema, $gate] = $this->realFixture();
+            try {
+                $basis = $this->basis(AuditReadPurpose::Status);
+                $gate->requested($basis, $this->draftFor(
+                    $basis,
+                    'requested',
+                    sourceRuntime: $runtime,
+                    sourceBuildId: 'build-' . $runtime->value,
+                ));
+                self::assertSame(1, $this->countRecords($probe, $schema), $runtime->value);
+                self::assertFalse($primary->isTransactionActive(), $runtime->value);
+            } finally {
+                $this->cleanupRealFixture($admin, $primary, $probe, $schema);
+            }
+        }
+    }
+
+    public function testProtectedReadBindingRejectsUnsafeBuildWithoutDelivery(): void
+    {
+        [$admin, $primary, $probe, $schema, $gate] = $this->realFixture();
+        try {
+            $basis = $this->basis();
+            $draft = $this->draftFor($basis, 'requested');
+            $sourceReflection = new ReflectionClass(AuditRecordSource::class);
+            $source = $sourceReflection->newInstanceWithoutConstructor();
+            foreach ([
+                'owner' => AuditSourceOwner::Framework,
+                'component' => 'operation-status',
+                'runtime' => AuditSourceRuntime::Cli,
+                'buildId' => "build-\0unsafe",
+            ] as $property => $value) {
+                $sourceReflection->getProperty($property)->setValue($source, $value);
+            }
+            $draftReflection = new ReflectionClass(AuditRecordDraft::class);
+            $corruptDraft = $draftReflection->newInstanceWithoutConstructor();
+            foreach ([
+                'event',
+                'action',
+                'actor',
+                'resource',
+                'outcome',
+                'policy',
+                'tenant',
+                'occurredAt',
+                'correlation',
+                'evidence',
+            ] as $property) {
+                $draftReflection->getProperty($property)->setValue($corruptDraft, $draft->{$property});
+            }
+            $draftReflection->getProperty('source')->setValue($corruptDraft, $source);
+            try {
+                $gate->requested($basis, $corruptDraft);
+                self::fail('unsafe build was accepted');
+            } catch (AuditDeliveryException $exception) {
+                self::assertSame(AuditDeliveryFailure::PolicyInvalid, $exception->failure());
+                self::assertNull($exception->getPrevious());
+            }
+            self::assertSame(0, $this->countRecords($probe, $schema));
+            self::assertFalse($primary->isTransactionActive());
+        } finally {
+            $this->cleanupRealFixture($admin, $primary, $probe, $schema);
+        }
     }
 
     public function testMalformedContextRequestReferenceIsRejectedFromReadonlySafeFixture(): void
@@ -497,10 +630,10 @@ final class AuditProtectedReadGateTest extends TestCase
                 ),
                 new AuditRecordAction($actionId, $actionType, $tuple->phase),
                 new AuditRecordActor($basis->actor, $basis->execution),
-                new AuditRecordResource($tuple->resourceType, 'resource-1'),
+                new AuditRecordResource($tuple->resourceType, 'oid:v1:' . str_repeat('a', 64)),
                 new AuditRecordOutcome($tuple->outcomeStatus, $tuple->outcomeCode),
                 new AuditRecordPolicy(
-                    'policy-1',
+                    'operation-read',
                     1,
                     $tuple->policyDecision,
                     $tuple->policyReasonCode,
@@ -508,7 +641,12 @@ final class AuditProtectedReadGateTest extends TestCase
                 ),
                 $basis->tenant,
                 $basis->requestedAt,
-                new AuditRecordSource(AuditSourceOwner::Framework, 'test', AuditSourceRuntime::Cli, 'build-1'),
+                new AuditRecordSource(
+                    AuditSourceOwner::Framework,
+                    'operation-' . $basis->purpose->value,
+                    AuditSourceRuntime::Cli,
+                    'build-1',
+                ),
                 AuditRecordCorrelation::fromArray([]),
                 new AuditRecordEvidence($definition->evidenceVersion),
             );
@@ -546,7 +684,26 @@ final class AuditProtectedReadGateTest extends TestCase
         ?string $occurredAt = null,
         ?string $actionType = null,
         ?string $eventType = null,
+        ?int $eventVersion = null,
+        ?AuditEventCategory $eventCategory = null,
+        ?string $catalogHash = null,
+        ?AuditActionPhase $actionPhase = null,
+        ?string $resourceType = null,
+        ?string $resourceId = null,
+        ?AuditOutcomeStatus $outcomeStatus = null,
+        ?string $outcomeCode = null,
+        ?string $policyId = null,
+        ?int $policyVersion = null,
+        ?AuditPolicyDecision $policyDecision = null,
+        ?string $policyReason = null,
         ?AuditDelivery $policyDelivery = null,
+        ?AuditSourceOwner $sourceOwner = null,
+        ?string $sourceComponent = null,
+        ?AuditSourceRuntime $sourceRuntime = null,
+        ?string $sourceBuildId = null,
+        ?AuditRecordCorrelation $correlation = null,
+        ?int $evidenceVersion = null,
+        ?array $evidenceFields = null,
         bool $overrideActor = false,
         bool $overrideTenant = false,
     ): AuditRecordDraft {
@@ -570,30 +727,38 @@ final class AuditProtectedReadGateTest extends TestCase
             return new AuditRecordDraft(
                 new AuditRecordEvent(
                     $eventType ?? $definition->type,
-                    $definition->version,
-                    $definition->category,
-                    $catalog->catalogHash,
+                    $eventVersion ?? $definition->version,
+                    $eventCategory ?? $definition->category,
+                    $catalogHash ?? $catalog->catalogHash,
                 ),
                 new AuditRecordAction(
                     $actionId ?? $basis->requestRef(),
                     $actionType ?? $definition->type,
-                    $tuple->phase,
+                    $actionPhase ?? $tuple->phase,
                 ),
                 new AuditRecordActor($draftActor, $execution ?? $basis->execution),
-                new AuditRecordResource($tuple->resourceType, 'resource-1'),
-                new AuditRecordOutcome($tuple->outcomeStatus, $tuple->outcomeCode),
+                new AuditRecordResource(
+                    $resourceType ?? $tuple->resourceType,
+                    $resourceId ?? 'oid:v1:' . str_repeat('a', 64),
+                ),
+                new AuditRecordOutcome($outcomeStatus ?? $tuple->outcomeStatus, $outcomeCode ?? $tuple->outcomeCode),
                 new AuditRecordPolicy(
-                    'policy-1',
-                    1,
-                    $tuple->policyDecision,
-                    $tuple->policyReasonCode,
+                    $policyId ?? 'operation-read',
+                    $policyVersion ?? 1,
+                    $policyDecision ?? $tuple->policyDecision,
+                    $policyReason ?? $tuple->policyReasonCode,
                     $policyDelivery ?? AuditDelivery::Required,
                 ),
                 $draftTenant,
                 $occurredAt ?? $basis->requestedAt,
-                new AuditRecordSource(AuditSourceOwner::Framework, 'test', AuditSourceRuntime::Cli, 'build-1'),
-                AuditRecordCorrelation::fromArray([]),
-                new AuditRecordEvidence($definition->evidenceVersion),
+                new AuditRecordSource(
+                    $sourceOwner ?? AuditSourceOwner::Framework,
+                    $sourceComponent ?? 'operation-' . $basis->purpose->value,
+                    $sourceRuntime ?? AuditSourceRuntime::Cli,
+                    $sourceBuildId ?? 'build-1',
+                ),
+                $correlation ?? AuditRecordCorrelation::fromArray([]),
+                new AuditRecordEvidence($evidenceVersion ?? $definition->evidenceVersion, $evidenceFields ?? []),
             );
         }
 

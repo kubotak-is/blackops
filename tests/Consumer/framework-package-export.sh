@@ -87,6 +87,12 @@ validate_package() {
         src/Internal/Audit/Orchestration/AuditDeliveryCoordinator.php \
         src/Internal/Audit/Orchestration/AuditMutationTransactionCoordinator.php \
         src/Internal/Audit/Orchestration/AuditProtectedReadGate.php \
+        src/Internal/Audit/Read/AuditReadEventWriter.php \
+        src/Internal/Audit/Read/OperationReadNonceSource.php \
+        src/Internal/Audit/Read/RandomOperationReadNonceSource.php \
+        src/Internal/Audit/Read/OperationReadExecutionSource.php \
+        src/Internal/Audit/Read/OperationReadAuditSessionFactory.php \
+        src/Internal/Audit/Read/OperationReadAuditSession.php \
         src/Internal/Audit/Relay/AuditRelayOutcome.php \
         src/Internal/Audit/Relay/AuditRelayFailure.php \
         src/Internal/Audit/Relay/AuditRelayException.php \
@@ -98,6 +104,9 @@ validate_package() {
         src/Internal/Application/ApplicationAuditConfiguration.php \
         src/Internal/Application/ApplicationAuditRuntime.php \
         src/Internal/Application/ApplicationAuditRuntimeComposer.php \
+        src/Internal/Diagnostics/OperationDiagnosticsAuthorizationRequest.php \
+        src/Internal/Diagnostics/OperationDiagnosticsAuthorizer.php \
+        src/Internal/Diagnostics/UnavailableOperationDiagnosticsAuthorizer.php \
         src/Internal/Audit/Storage/AuditStoreFailure.php \
         src/Internal/Audit/Storage/AuditStoreException.php \
         src/Internal/Audit/Storage/AuditAppendResult.php \
@@ -149,6 +158,29 @@ validate_package() {
         test -f "${package_root}/${required_path}" \
             || fail "${package_name} archive is missing required path: ${required_path}"
     done
+
+    required_inventory_count="$({
+        awk '
+            $0 == "    for required_path in \\" { active = 1; next }
+            active && $0 ~ /^        test -f / { exit }
+            active { count++ }
+            END { print count + 0 }
+        ' "${BASH_SOURCE[0]}"
+    })"
+    required_inventory_unique="$({
+        awk '
+            $0 == "    for required_path in \\" { active = 1; next }
+            active && $0 ~ /^        test -f / { exit }
+            active {
+                line = $0
+                sub(/^        /, "", line)
+                sub(/ \\\\$/, "", line)
+                print line
+            }
+        ' "${BASH_SOURCE[0]}" | sort -u | wc -l
+    })"
+    test "${required_inventory_count}" -eq 85
+    test "${required_inventory_unique}" -eq 85
 
     test -d "${package_root}/src" || fail "${package_name} archive is missing src/"
     test -n "$(find "${package_root}/src" -type f -name '*.php' -print -quit)" \

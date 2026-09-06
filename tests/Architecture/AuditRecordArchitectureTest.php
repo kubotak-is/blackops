@@ -799,6 +799,27 @@ final class AuditRecordArchitectureTest extends TestCase
             $this->a2DeliveryViolations($requestPath, $consumedMutation, $deliveryDirectory, $productTypes),
             'an allowlisted C3 path using a consumed two-hop class string must be rejected',
         );
+
+        $d2WriterPath = $sourceRoot . '/Internal/Audit/Read/AuditReadEventWriter.php';
+        $d2WriterSource = file_get_contents($d2WriterPath);
+        self::assertIsString($d2WriterSource);
+        $d2DependencyMutation = $d2WriterSource . "\nnew AuditRecordFinalizer();\n";
+        self::assertSame(
+            ['AuditRecordFinalizer'],
+            $this->a2DeliveryViolations($d2WriterPath, $d2DependencyMutation, $deliveryDirectory, $productTypes),
+            'D2 per-file allowance must not permit an unrelated A2 dependency',
+        );
+        $d2ExtraPath = $sourceRoot . '/Internal/Audit/Read/D2Extra.php';
+        self::assertSame(
+            ['AuditRecordFinalizer'],
+            $this->a2DeliveryViolations(
+                $d2ExtraPath,
+                "<?php\nnamespace BlackOps\\Internal\\Audit\\Read;\nnew AuditRecordFinalizer();\n",
+                $deliveryDirectory,
+                $productTypes,
+            ),
+            'an extra D2 directory file must not inherit a directory-wide A2 exemption',
+        );
     }
 
     public function testA2DeliveryTimestampExceptionIsNarrowAndMutationResistant(): void
@@ -3333,6 +3354,27 @@ final class AuditRecordArchitectureTest extends TestCase
             ],
             'Internal/Audit/Orchestration/AuditMutationTransactionCoordinator.php' => [],
             'Internal/Audit/Orchestration/AuditProtectedReadGate.php' => ['AuditRecordDraft'],
+            'Internal/Audit/Read/AuditReadEventWriter.php' => ['AuditRecordDraft'],
+            'Internal/Audit/Read/OperationReadAuditSession.php' => ['AuditRecordDraft'],
+            'Internal/Audit/Read/OperationReadAuditSessionFactory.php' => [
+                'AuditRecordAction',
+                'AuditRecordActor',
+                'AuditRecordCorrelation',
+                'AuditRecordDraft',
+                'AuditRecordEvent',
+                'AuditRecordEvidence',
+                'AuditRecordOutcome',
+                'AuditRecordPolicy',
+                'AuditRecordResource',
+                'AuditRecordSource',
+                'AuditSourceRuntime',
+            ],
+            'Internal/Audit/Read/OperationReadExecutionSource.php' => [],
+            'Internal/Audit/Read/OperationReadNonceSource.php' => [],
+            'Internal/Audit/Read/RandomOperationReadNonceSource.php' => [],
+            'Internal/Diagnostics/OperationDiagnosticsAuthorizationRequest.php' => [],
+            'Internal/Diagnostics/OperationDiagnosticsAuthorizer.php' => [],
+            'Internal/Diagnostics/UnavailableOperationDiagnosticsAuthorizer.php' => [],
             'Internal/Application/ApplicationAuditConfiguration.php' => [],
             'Internal/Application/ApplicationAuditRuntime.php' => [],
             'Internal/Audit/Relay/AuditOutboxRelayRuntime.php' => [

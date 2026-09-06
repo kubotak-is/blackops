@@ -1567,10 +1567,18 @@ final class AuditDeliveryArchitectureTest extends TestCase
                 'use Closure;',
             ],
             'src/Internal/Audit/Orchestration/AuditProtectedReadGate.php' => [
+                'use BlackOps\\Core\\Audit\\AuditActionPhase;',
+                'use BlackOps\\Core\\Audit\\AuditDelivery;',
+                'use BlackOps\\Core\\Audit\\AuditEventCategory;',
+                'use BlackOps\\Core\\Audit\\AuditOutcomeStatus;',
+                'use BlackOps\\Core\\Audit\\AuditPolicyDecision;',
                 'use BlackOps\\Core\\Audit\\AuditReadAuthorizationDecision;',
                 'use BlackOps\\Core\\Audit\\AuditReadContext;',
                 'use BlackOps\\Core\\Audit\\AuditReadRequestBasis;',
                 'use BlackOps\\Core\\Audit\\AuditRecordDraft;',
+                'use BlackOps\\Core\\Audit\\AuditSourceOwner;',
+                'use BlackOps\\Core\\Audit\\AuditValidationException;',
+                'use BlackOps\\Internal\\Audit\\Read\\AuditReadEventWriter;',
             ],
             'src/Internal/Audit/Key/ApplicationAuditProtectionKeySource.php' => [
                 'use BlackOps\\Audit\\AuditProtectionKeyProvider;',
