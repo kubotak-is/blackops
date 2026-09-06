@@ -10,7 +10,26 @@
 - 重要な設計判断は、結論だけでなく理由もREADMEまたは設計文書へ残す
 - 用語の変更時は、コードと文書をまとめて更新する
 
-## P23-003D2 current handoff — Operation Read Audit Session Foundation
+## P23-003D2S1 current handoff — Tenant-scoped Status Source
+
+- [x] D2 Accepted at `0cd699e5e1d031228bc4a05767164a8eb268a004`; final same-SHA export Green
+- [x] D2S adapter-only source gap confirmed by General/Transaction research
+- [x] user approved separate tenant-scoped Status-source prerequisite
+- [x] spec108/D157 and exact10 Product/Test draft prepared
+- [x] first General/Transaction/Documentation authority reviews; bounded corrections applied
+- [x] independent corrected-authority closure Green on exact11; no Product Acceptance implied
+- [ ] reviewed authority checkpoint and clean implementation preflight
+- [ ] configured Luna implementation and required gates
+- [ ] independent implementation reviews and complete Final
+- [ ] D2S1 Acceptance and clean same-SHA package export
+
+D2S adapter is deferred until Accepted D2S1. Public/legacy runtime is unchanged;
+Stable1.2.0 remains current and1.3 unreleased. Parent D remains incomplete.
+Next: reviewed authority checkpoint/clean preflight before Product dispatch.
+Product progress is recorded in D2S1 Report/STATE. Later reader
+children, D3/D4/D5/integration and post-F D-control remain separately scoped.
+
+## P23-003D2 authority handoff — Historical before implementation/Acceptance
 
 Updated At: 2026-09-05T12:20:14+09:00
 

@@ -2,6 +2,45 @@
 
 ## Current Summary
 
+P23-003D2S authority research started after the user's continuation. D2 is
+Accepted at final SHA `0cd699e5e1d031228bc4a05767164a8eb268a004`; the prior
+handoff's final clean same-SHA export passed. HEAD and clean tree were
+reconfirmed before this Task's management-only edits. D2S had no Task Packet;
+its exact source/tenant/transaction/failure authority is being prepared.
+
+Updated At: 2026-09-06T23:06:49+09:00
+
+Status: P23-003D2S1 Authority Green — reviewed checkpoint/clean preflight next; Product not started
+
+Current Task:
+`develop/orchestration/tasks/P23-003D2S1-tenant-scoped-status-source.md`.
+Current Report:
+`develop/orchestration/reports/P23-003D2S1-tenant-scoped-status-source.md`.
+
+User continuation approved the separate source prerequisite. Scope now is
+Orchestrator authority drafting for D2S1, preserving the existing D2S proposal.
+No Production/Test change, worker dispatch, commit/push/deploy/activation.
+The initial adapter-only proposal is incomplete: existing subject and detail
+paths use unscoped SQL, and a PHP tenant guard alone cannot satisfy spec99:125.
+Both proposed authority files visibly prohibit implementation from that draft.
+Spec108/D157 and the exact10 Product/Test plus2 management worker scope are
+drafted. Authority preparation spans11 management paths; no Product change.
+First authority review requested corrections. All bounded corrections and
+README index synchronization now have General/Transaction/Documentation Green
+P1=0/P2=0/P3=0, including unchanged-contract index-only carry-forward.
+Existing Status baseline85/423 and format/comment/diff checks passed with no
+Product changes; this is not new scoped-source implementation evidence.
+Next: reviewed authority checkpoint and clean
+implementation preflight before Luna dispatch. No further scope approval is
+needed for this prerequisite; new expansions still require separate review.
+Remaining: D2S authority/implementation/gates/Acceptance; other reader children,
+D3/D4/D5/integration and post-F D-control. Parent D is not complete.
+
+## Previous D2 Completion Checkpoint — Historical Pre-Amend Record
+
+The following pre-amend handoff was completed at final SHA `0cd699e5...` above;
+its completion-review/amend/export Next items are no longer pending.
+
 P23-003D2 Iteration R3 and the complete restarted Final Gate are Green on
 unchanged Product/Test bytes. Three fresh General/Transaction/Documentation
 reviews were Green P1=0/P2=0/P3=0 before Final. Full PHPUnit passed

@@ -1,5 +1,26 @@
 # Framework Specification
 
+## P23-003D2S1 current handoff — Tenant-scoped Status Source
+
+D2 is Accepted at `0cd699e5e1d031228bc4a05767164a8eb268a004`; the completed
+handoff verified its final clean same-SHA package export. D2S research found
+that subject and detail reads need an explicit tenant-scoped SQL path before
+the Audit adapter can safely reuse Default Query. The user approved this
+separate prerequisite. [Specification108](108-tenant-scoped-status-source.md)
+and [D157](../decisions/157-tenant-scoped-status-source.md) define the proposed
+latent source; the [D2S1 Task](../orchestration/tasks/P23-003D2S1-tenant-scoped-status-source.md)
+has Green General/Transaction/Documentation authority closure. Product progress
+is recorded in its Report/STATE; authority review is not Product Acceptance.
+
+The initial [spec107](107-operation-status-audit-adapter.md)/D156 adapter-only
+candidate is incomplete and not worker authority. It must be revised after
+D2S1 Acceptance. Public/legacy runtime behavior is unchanged; Stable1.2.0 is
+current and1.3 unreleased. Remaining: D2S1 reviews/implementation/gates, D2S
+adapter, other reader children and parentD work. Next: reviewed D2S1 authority
+checkpoint/clean preflight before worker dispatch.
+
+The following D2 authority handoff is historical and predates its Acceptance.
+
 ## P23-003D2 current handoff — Operation Read Audit Session Foundation
 
 Updated At: 2026-09-05T12:20:14+09:00
@@ -1492,6 +1513,8 @@ closedする。Semantic tuple、trusted external verification context、exact
 | --- | --- | --- |
 | [105-blackops-1-3-capability-contract.md](105-blackops-1-3-capability-contract.md) | BlackOps `1.3` CLI、runtime、Audit TrailのCapability Contract | Proposal — P23-001 Accepted; Stable `1.2` current / BlackOps `1.3` unreleased proposal |
 | [106-phase-23-delivery-plan.md](106-phase-23-delivery-plan.md) | Phase 23のDAG、Migration、独立Gate、Release境界 | Proposal — P23-001 Accepted; Stable `1.2` current / BlackOps `1.3` unreleased proposal |
+| [107-operation-status-audit-adapter.md](107-operation-status-audit-adapter.md) | Initial Status Audit adapter candidate | Incomplete/deferred until Accepted D2S1; not implementation authority; Stable `1.2` current / `1.3` unreleased |
+| [108-tenant-scoped-status-source.md](108-tenant-scoped-status-source.md) | Explicit tenant scope, SQL predicates, Status snapshot and before-decode boundary | D2S1 Authority Green; Product progress in Report/STATE; Stable `1.2` current / `1.3` unreleased |
 
 ## 決定の参照
 
@@ -1655,8 +1678,10 @@ closedする。Semantic tuple、trusted external verification context、exact
 | [D151](../decisions/151-audit-postgresql-outbox-persistence-boundary.md) | Audit PostgreSQL Outbox row、idempotent append、FIFO／CAS、transaction boundary | Accepted P23-003C2; candidate `a92bef70...` and same-SHA package export Green; Stable `1.2` current / BlackOps `1.3` unreleased |
 | [D152](../decisions/152-audit-delivery-orchestration-and-key-composition-boundary.md) | Catalog-fixed delivery、same-root transaction、protected-read gate、Application Audit key composition | Accepted P23-003C3; candidate `b7b352a8...` and same-SHA package export Green; Stable `1.2` current / BlackOps `1.3` unreleased |
 | [D153](../decisions/153-audit-outbox-relay-and-recovery-runtime-boundary.md) | Bounded Audit Outbox relay／recovery、three-root crash semantics、failure／FIFO／nonactivation boundary | Accepted P23-003C4／parent C; final `d5ab347...` same-SHA package export Green; Stable `1.2` current / BlackOps `1.3` unreleased |
-| [D154](../decisions/154-framework-operational-audit-catalog-and-adapter-split.md) | Exact14 Framework operational Catalog／trusted lookup lineage and bounded P23-003D adapter DAG | Proposed — P23-003D1 Accepted at `35afacd...`; D2 authority review pending; D-control blocked on Accepted P23-003F; Stable `1.2` current / BlackOps `1.3` unreleased |
-| [D155](../decisions/155-operation-read-audit-session-foundation.md) | Operation-read 16-byte nonce／opaque target／fixed draft／one-shot session／fail-closed terminal and Diagnostics authorization foundation | Proposed — P23-003D2 authority draft under independent review; Product not started; Stable `1.2` current / BlackOps `1.3` unreleased |
+| [D154](../decisions/154-framework-operational-audit-catalog-and-adapter-split.md) | Exact14 Framework operational Catalog／trusted lookup lineage and bounded P23-003D adapter DAG | D1 and D2 Accepted; parent D incomplete; D2S1 Authority Green; D-control waits for Accepted F; Stable `1.2` current / `1.3` unreleased |
+| [D155](../decisions/155-operation-read-audit-session-foundation.md) | Operation-read 16-byte nonce／opaque target／fixed draft／one-shot session／fail-closed terminal and Diagnostics authorization foundation | D2 Accepted at `0cd699e...`; parent D incomplete; Stable `1.2` current / `1.3` unreleased |
+| [D156](../decisions/156-operation-status-audit-adapter.md) | Initial Status Audit adapter-only proposal | Incomplete/deferred until Accepted D2S1; not implementation authority; Stable `1.2` current / `1.3` unreleased |
+| [D157](../decisions/157-tenant-scoped-status-source.md) | Tenant-scoped Status-source prerequisite and legacy-preserving split | D2S1 Authority Green; Product progress in Report/STATE; Stable `1.2` current / `1.3` unreleased |
 
 ## Historical P23-001 Round 13 checkpoint
 
