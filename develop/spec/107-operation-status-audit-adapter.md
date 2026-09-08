@@ -1,8 +1,17 @@
 # Operation Status Audit Adapter
 
-Status: Incomplete proposal — blocked by tenant-scoped Status-source prerequisite; NOT implementation authority.
+Status: Incomplete adapter proposal — D2S1 Accepted; revision/review required; NOT implementation authority.
 
-## Blocking Correction Required
+## Current Disposition
+
+The source prerequisite in [Specification108](108-tenant-scoped-status-source.md)
+is Accepted; current evidence is in the [D2S1 Report](../orchestration/reports/P23-003D2S1-tenant-scoped-status-source.md).
+Revise and independently review this adapter proposal before implementation.
+The historical source gap below motivated D2S1; it is not a current claim that
+the new scoped source is missing. Legacy wiring remains unchanged; the new
+scoped source and adapter remain unactivated.
+
+## Historical Blocking Correction Required
 
 The user approved the separate source prerequisite. Its exact proposed
 contract is [Specification108](108-tenant-scoped-status-source.md), with

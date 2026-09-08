@@ -1,8 +1,15 @@
 # D156: Operation Status Audit Adapter
 
-Status: Incomplete proposal — tenant-scoped Status-source prerequisite required; no Product work.
+Status: Incomplete adapter proposal — D2S1 Accepted; revision/review required; no adapter Product work.
 
 ## Current Disposition
+
+The [D2S1 source prerequisite](../orchestration/reports/P23-003D2S1-tenant-scoped-status-source.md)
+is Accepted. This adapter candidate still requires a revised, independently
+reviewed packet around spec108. The historical rationale below explains why
+the original adapter-only scope was insufficient; no adapter is activated.
+
+## Historical Current Disposition
 
 The user approved the separate prerequisite; its active packet is
 P23-003D2S1 under spec108/D157. This adapter candidate waits for its Acceptance.

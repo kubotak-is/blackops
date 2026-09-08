@@ -1,21 +1,28 @@
 # P23-003D2S: Operation Status Audit Adapter Report
 
-Status: Deferred until Accepted P23-003D2S1; user approved source prerequisite, no adapter Product work.
+Status: Authority revision next — D2S1 Accepted; no adapter Product work.
 
-Updated At: 2026-09-06T22:41:33+09:00
+Updated At: 2026-09-08T11:20:30+09:00
 
-## Summary
+## Current Handoff
+
+[D2S1](P23-003D2S1-tenant-scoped-status-source.md) is Accepted. Its scoped source
+resolves the prerequisite identified below; the initial adapter proposal still
+needs revision and independent review. No adapter was implemented or activated.
+The following research is the historical pre-D2S1 source analysis.
+
+## Historical Summary
 
 The user's continuation starts D2S authority preparation after Accepted D2.
 No D2S packet existed. Status is the first independent reader child; no D2J
 or D2X dependency is introduced.
 
-## Changed Files
+## Historical Changed Files
 
 Only this Report, the new D2S Task, STATE, proposed Specification107 and
 proposed D156: exact5 management paths. No Production/Test changes.
 
-## Decisions and Assumptions
+## Historical Decisions and Assumptions
 
 - D2 final SHA is `0cd699e5e1d031228bc4a05767164a8eb268a004`; previous-turn
   final same-SHA export passed. This turn confirmed HEAD and clean tree before
@@ -33,13 +40,13 @@ proposed D156: exact5 management paths. No Production/Test changes.
   read-only transaction. Level0 at reader entry/exit is not a claim that the
   whole detail read runs without a transaction.
 
-## Commands and Results
+## Historical Commands and Results
 
 Read-only AGENTS/STATE/Task/spec/Decision/source/test inspection; Git HEAD
 and clean status verified. Production tests, new gates, package export, CI,
 browser and deployment have not run in this task.
 
-## Release Documentation Impact
+## Historical Release Documentation Impact
 
 Stable `1.2.0`; candidate `1.3.0-unreleased`; proposed capability
 `audit.operation_status_adapter.v1`. Public Source/route inventory: empty at
@@ -49,13 +56,13 @@ LLM/CI/Documentation delivery are Not Verified. No Production deployment.
 Guide/internal runtime documentation impact will be decided with the exact
 adapter graph; no reader activation or Stable capability is claimed.
 
-## Acceptance Criteria
+## Historical Acceptance Criteria
 
 Source research identified a concrete prerequisite; the initial adapter-only
 proposal is explicitly incomplete and not accepted. Exact Production scope,
 tests and independent authority reviews remain pending. No worker dispatched.
 
-## Confirmed Source Blocker
+## Historical Confirmed Source Blocker
 
 Specification99:125 requires tenant_type/tenant_id and Operation identity in
 the same SQL predicate, not fetch-by-ID followed by PHP tenant comparison.
@@ -88,7 +95,7 @@ review of a corrected implementation; no Product tests were rerun.
 The prerequisite must recheck the tenant-scoped subject inside the detail
 snapshot before protected decode, not trust an earlier subject indefinitely.
 
-## Proposed Safe Split
+## Historical Proposed Safe Split
 
 1. Separately authorize and review a tenant-scoped Status-source prerequisite:
    exact subject/detail SQL, before-decode isolation, source-owned snapshot,
@@ -100,14 +107,14 @@ snapshot before protected decode, not trust an earlier subject indefinitely.
    file/package/Architecture inventory, then review and implement it.
 4. Keep current Application/HTTP activation in D-integration, not either child.
 
-## Remaining Issues
+## Historical Remaining Issues
 
 The source prerequisite exceeded the initial adapter-only proposal; the user
 subsequently approved it by continuation. P23-003D2S1 now owns its authority
 and implementation. The remaining adapter authority questions must also close.
 Parent D remains incomplete; D-control still requires Accepted F.
 
-## Suggested Next Action
+## Historical Suggested Next Action
 
 Complete the authorized P23-003D2S1 prerequisite packet and its review; do not
 dispatch the adapter worker before that prerequisite is Accepted.

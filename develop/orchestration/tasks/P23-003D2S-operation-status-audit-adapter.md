@@ -1,14 +1,13 @@
 # P23-003D2S: Operation Status Audit Adapter
 
-Status: Deferred until Accepted P23-003D2S1 tenant-scoped Status-source prerequisite; no Product work.
+Status: Authority revision next — D2S1 Accepted; no adapter Product work.
 
-## Current Blocker
+## Current Boundary
 
-The initial adapter-only boundary cannot satisfy Specification99:125.
-Tenant guarding in PHP, or fixing only subject lookup, leaves unscoped detail
-reads. The next step is a separately reviewed Status-source prerequisite, not
-Luna adapter implementation. The user approved that separate source work by
-continuation; its packet is P23-003D2S1-tenant-scoped-status-source.md.
+The tenant-scoped source prerequisite is Accepted in [D2S1 Report](../reports/P23-003D2S1-tenant-scoped-status-source.md).
+Revise the initial adapter candidate around spec108's scoped source and obtain
+independent authority review before dispatching adapter implementation. The
+old three-type scope and package counts below remain incomplete proposal data.
 
 ## Goal
 
@@ -78,5 +77,5 @@ model profiles remain authoritative.
 
 ## Next Action
 
-Seal P23-003D2S1's exact source/SQL/snapshot/test authority. Only after that prerequisite
-is Accepted may the adapter candidate be revised and independently reviewed.
+Revise this adapter candidate around the Accepted D2S1 source, seal its exact
+scope and test contract, and obtain independent review before implementation.

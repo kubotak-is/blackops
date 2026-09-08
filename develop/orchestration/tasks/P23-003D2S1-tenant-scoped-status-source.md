@@ -1,6 +1,6 @@
 # P23-003D2S1: Tenant-scoped Status Source
 
-Status: Authority Green — clean checkpoint/preflight required before Product dispatch; consult Report/STATE for progress.
+Status: Accepted — tenant-scoped source prerequisite only; D2S adapter remains separate.
 
 ## Goal
 
@@ -25,19 +25,131 @@ dispatch. No push, runtime activation, public release or deployment.
 
 ## Next Action
 
-The corrected exact11 authority packet is Green in all three independent lanes.
-Create the reviewed authority checkpoint, run clean implementation preflight,
-then explicitly dispatch the configured Luna worker. Product Acceptance remains
-separate and requires every implementation/review/Final gate below.
+Implementation and the amended Final coverage are Accepted. Complete the
+reviewed local checkpoint and clean final-SHA export, then prepare the separate
+D2S adapter authority. Current user-prioritized documentation work is in STATE.
+
+## Reviewed Recovery Amendment — 2026-09-08
+
+This amendment implements the user's development-efficiency direction and
+spec109 after P23-007 Acceptance. It supersedes the old exact19/worker-STATE
+ownership, blanket invalidation, repeated Iteration at Final, and all-lane
+restart rules below for this bounded recovery only. No Product contract,
+fixture outcome, required Final command coverage, or same-SHA export is waived.
+The old gate text remains the historical command inventory.
+
+The full PHPUnit run failed at the 128MiB limit. A read-only probe measured
+13 retained reads of all1048 Production PHP files: 48,103,128 additional bytes,
+versus 4,748,360 bytes when sharing one baseline with separate copy-on-write
+candidate maps. This establishes avoidable retention; the full suite still
+must demonstrate that the correction resolves the actual failure.
+
+Luna owns only `tests/Architecture/TenantScopedStatusArchitectureTest.php`.
+Reuse one method-local Production source baseline, preserve independent
+mutation candidates and every existing negative/positive assertion. Reduce
+redundant parsing only by reusing equivalent local parse results; do not
+filter the source inventory, memoize across test runs, skip tests, change the
+oracle's accepted language, or raise the memory limit. Preserve private helper
+behavior used by existing independent probes. No dependency/config change.
+Other Product/Test9 and all authority except this explicit Task amendment
+remain unchanged. Root owns this Report, Task, STATE/archive and verification.
+Worker returns a chat handoff and never writes STATE, stages or commits.
+
+The current workspace is the union of the original D2S1 reviewed scope and
+the independently Accepted P23-007 scope in its Task/Report. Before dispatch,
+Root records every dirty path and hash (including existing archives), HEAD,
+branch, staged0, Product10, authority10 and tool/config/lock inputs in an
+external receipt. During worker work only the single Test may change.
+At Root checkpoints only the D2S1 Task/Report, STATE and the exact old-STATE
+archive created by state.mjs may additionally change. All other P23-007 bytes
+are preserved, including its tooling, history and profiles. Guards compare
+these actual inventories instead of silently accepting an arbitrary count.
+
+Root is the sole Docker/PostgreSQL verification owner; no concurrent suite.
+Luna may run syntax checks and must report them. General independently reviews
+this amendment, the Test delta, fixture preservation and results. Existing R5
+Transaction and Documentation Greens carry forward only after Root verifies
+unchanged Product9, public sources, release boundary and relevant authority;
+any semantic change there reopens the affected lane. General's original
+actual-oracle probes are re-executed against the corrected Test hash.
+
+| Evidence | Recovery action and invalidation rule |
+| --- | --- |
+| Architecture Test | Run the five-test file once at 128MiB for bounded correction feedback; run the existing 7/8/13 independent controls with the new hash. Changed oracle/fixtures invalidate these results. |
+| PHP format / forbidden IDs | Run original global format and ID commands on the corrected PHP inputs. |
+| Mago lint / baseline / analyze; Deptrac | Reuse Final steps5..8 only after source, included dependency, config, lock and runtime/image inputs match; otherwise rerun the affected command. This Test is outside their configured source scope. |
+| Inventory / version / shell syntax / Composer strict | Reuse Final steps9..12 and15 with matching scripts, release inputs, Composer manifests/lock and tools; rerun if those inputs or proof are missing. |
+| Full PHPUnit | Run the original Final command once on the corrected candidate at the unchanged 128MiB limit. This covers the same-condition Status105 subset; do not repeat that subset at Final. The prior full run remains Failed. |
+| Six Audit goldens / community clean install | Run every previously unrun literal Final command below. Recheck consumer cleanup targets before executing. |
+| Preservation / completion | Run diff, source/authority/scope guards and STATE check at relevant boundaries. Keep clean final-SHA export after the authorized reviewed local commit. |
+
+Record literal commands, exits/counters, duration, input hashes, environment,
+logs, reuse sources and any diagnostics in the Report. Failure resumes from
+the affected command and dependent checks after correction, with successful
+unchanged evidence retained. Acceptance requires the union of current and
+explicitly reused evidence for every original required check. No push/deploy.
+
+### Completion-only management handoff
+
+After all checks and review closure, Root may synchronize only current Status,
+handoff, links and next actions in this Task/Report, STATE/archive, spec README,
+TODO, D154/D155, the D2S Task/Report, spec107/D156 and P23-007 Task/Report.
+Keep the historical bodies and Product contracts unchanged; label the old
+adapter proposal as still incomplete and require a new reviewed adapter packet.
+This is a completion exception to the recovery freeze above, reviewed on its
+actual diff before committing; it does not reopen source verification.
+
+Root may include the independently Accepted P23-007 changes in a separate
+reviewed local workflow checkpoint before the accepted D2S1 candidate commit,
+so the final package export has a clean source tree. P23-007's earlier
+commit exclusion described that implementation Task's boundary; this explicit
+closeout covers the local checkpoint only. Preserve the reviewed combined
+scope, run final-SHA Git/Composer export, and do not push/deploy/release.
 
 ## Source of Truth and Model
 
 Read AGENTS -> STATE -> this Task -> spec/README -> spec108 -> spec99/105/106
 relevant Status/tenant/release boundaries -> D157/D154/D155 and the prerequisite
 D2 Report. Spec108 is the most-specific source contract. Profile files remain
-authoritative: worker gpt-5.6-luna/max, General/Transaction gpt-5.6-sol/max,
-Documentation gpt-5.6-sol/xhigh. Explicit rejected/unavailable/fallback profile
+authoritative: worker gpt-5.6-luna/max, General/Transaction gpt-6-astra/max,
+Documentation gpt-6-astra/max. Explicit rejected/unavailable/fallback profile
 is a blocker; metadata absence alone is not.
+
+## User-approved Resume Reconciliation — 2026-09-07
+
+The user approved adopting the concurrent AGENTS Astra/max change, aligning
+the actual profiles, and synchronizing the three stale handoff documents.
+Orchestrator-only metadata scope is exactly these seven paths in addition to
+the original worker12; it does not expand Product/Test10:
+
+```text
+AGENTS.md
+.codex/config.toml
+.codex/agents/documentation-reviewer.toml
+develop/orchestration/tasks/P23-003D2S1-tenant-scoped-status-source.md
+develop/spec/README.md
+develop/decisions/154-framework-operational-audit-catalog-and-adapter-split.md
+develop/decisions/155-operation-read-audit-session-foundation.md
+```
+
+Only model/profile bookkeeping and current/historical handoff labels may
+change; source contracts, acceptance requirements and literal gate commands
+remain fixed. The original clean authority preflight already occurred at
+8f8674011f22a99f230431e47606a489f1c06abc; this is an in-place correction
+resume, not initial implementation dispatch. Before further worker changes,
+independently review this reconciliation and supply fresh authority10 plus
+metadata7 hashes. Those bytes then become immutable during worker work.
+Until a reviewed metadata checkpoint is committed, gate scope is exact19
+(added6/modified13), staged0, with original worker12 plus the exact seven
+paths above. This explicit exception supersedes only the old exact12 scope
+guard; all other before/after invariants remain required. Rebuild guards
+after any checkpoint commit and label older whole-tree evidence Historical.
+
+New reviewers must start with Astra/max; earlier Sol reviews are historical
+and cannot be relabeled. Specification92's read-only review contract remains
+unchanged; its older model/effort labels are superseded by the repository
+profiles and this approved handoff, not evidence of a running-thread upgrade.
+Worker remains Luna/max. No push, deployment or runtime activation.
 
 ## Product Prerequisites
 

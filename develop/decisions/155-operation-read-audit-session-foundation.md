@@ -1,10 +1,20 @@
 # D155: Operation Read Audit Session Foundation
 
-Status: Proposed — P23-003D1 Accepted; P23-003D2 authority review Green／clean post-commit implementation preflight required before Product work; BlackOps 1.3 unreleased
+Status: D2 Accepted — reader integrations remain separate; BlackOps 1.3 unreleased
 
-Updated At: 2026-09-05T12:20:14+09:00
+Updated At: 2026-09-08T11:20:30+09:00
 
 ## Current Handoff
+
+D2 remains Accepted at `0cd699e5e1d031228bc4a05767164a8eb268a004`.
+Its D2S1 source prerequisite is now Accepted; Status audit adapter and other
+reader integrations remain separate work. Current delivery evidence belongs to
+[STATE](../STATE.md) and [D2S1 Report](../orchestration/reports/P23-003D2S1-tenant-scoped-status-source.md).
+This handoff does not revise the foundation contract or activate readers.
+
+## Historical Handoff — before D2 implementation
+
+The following checkpoint predates D2 Acceptance; it is not the current next action.
 
 P23-003C1 through P23-003C4 and parent P23-003C are Accepted. P23-003D1 is
 Accepted at commit `35afacd9741272d4e1207d3a76829d85653e4f6f`; its final

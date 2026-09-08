@@ -1,10 +1,20 @@
 # D154: Framework Operational Audit Catalog and Adapter Split
 
-Status: Proposed — P23-003D1 Accepted; P23-003D2 authority review Green／clean post-commit implementation preflight required; BlackOps 1.3 unreleased
+Status: Parent D incomplete — D1/D2/D2S1 Accepted; adapters remain incomplete; BlackOps 1.3 unreleased
 
-Updated At: 2026-09-05T12:20:14+09:00
+Updated At: 2026-09-08T11:20:30+09:00
 
 ## Current Handoff
+
+D1/D2 and the D2S1 source prerequisite are Accepted. The D2S adapter still
+requires a revised, independently reviewed packet before implementation.
+Current delivery evidence and next actions belong to [STATE](../STATE.md) and
+[D2S1 Report](../orchestration/reports/P23-003D2S1-tenant-scoped-status-source.md).
+Parent D, runtime activation and release remain incomplete.
+
+## Historical Handoff — before D2 implementation
+
+The following checkpoint predates D2 Acceptance; it is not the current next action.
 
 P23-003C1 through P23-003C4 and parent P23-003C are Accepted. P23-003D1 is
 Accepted at commit `35afacd9741272d4e1207d3a76829d85653e4f6f`; its final

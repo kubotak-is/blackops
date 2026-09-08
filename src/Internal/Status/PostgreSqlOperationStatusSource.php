@@ -10,6 +10,7 @@ use BlackOps\Core\Identifier\OperationId;
 use BlackOps\Core\Outcome;
 use BlackOps\Core\Registry\OperationRegistry;
 use BlackOps\Core\Retention\RetentionPurgeTarget;
+use BlackOps\Core\TenantRef;
 use BlackOps\Internal\StorageProtection\BopdEnvelopeCodec;
 use BlackOps\Journal\Data\OperationCompletedData;
 use BlackOps\Journal\Data\OperationDeadLetteredData;
@@ -39,7 +40,7 @@ use Throwable;
  * @mago-expect lint:kan-defect
  * @mago-expect lint:too-many-methods
  */
-final readonly class PostgreSqlOperationStatusSource implements OperationStatusSource
+final readonly class PostgreSqlOperationStatusSource implements OperationStatusSource, TenantScopedOperationStatusSource
 {
     private PostgreSqlStatusReader $reader;
     private PostgreSqlCanonicalJournalStore $journal;
@@ -60,19 +61,7 @@ final readonly class PostgreSqlOperationStatusSource implements OperationStatusS
     public function findSubject(OperationId $operationId): ?OperationStatusSubject
     {
         try {
-            $subject = $this->reader->findSubject($operationId);
-            if ($subject === null) {
-                return null;
-            }
-
-            return new OperationStatusSubject(
-                OperationId::fromString($subject->operationId),
-                $subject->operationType,
-                $subject->originActorId === null
-                    ? null
-                    : new ActorRef($subject->originActorId, (string) $subject->originActorType),
-                $subject->tenant,
-            );
+            return $this->readSubject($operationId, null);
         } catch (OperationStatusSourceException $exception) {
             throw $exception;
         } catch (PostgreSqlStatusReadFailed $exception) {
@@ -80,6 +69,32 @@ final readonly class PostgreSqlOperationStatusSource implements OperationStatusS
         } catch (Throwable) {
             throw OperationStatusSourceException::integrityFailed();
         }
+    }
+
+    public function findSubjectForTenant(
+        #[\SensitiveParameter]
+        OperationId $operationId,
+        #[\SensitiveParameter]
+        ?TenantRef $tenant,
+    ): ?OperationStatusSubject {
+        $this->assertScopedLevel0();
+        /** @var array{tenant: TenantRef|null} $scope */
+        $scope = ['tenant' => $tenant];
+        try {
+            $subject = $this->readSubject($operationId, $scope);
+        } catch (OperationStatusSourceException $exception) {
+            $this->assertScopedLevel0();
+            throw $exception;
+        } catch (PostgreSqlStatusReadFailed $exception) {
+            $this->assertScopedLevel0();
+            throw $this->statusReaderFailure($exception);
+        } catch (Throwable) {
+            $this->assertScopedLevel0();
+            throw OperationStatusSourceException::integrityFailed();
+        }
+        $this->assertScopedLevel0();
+
+        return $subject;
     }
 
     public function readDetail(OperationStatusSubject $subject): OperationStatusDetailResult
@@ -102,7 +117,7 @@ final readonly class PostgreSqlOperationStatusSource implements OperationStatusS
             if ($this->connection->fetchOne('SHOW transaction_read_only') !== 'on') {
                 throw OperationStatusSourceException::integrityFailed();
             }
-            $result = $this->readDetailSnapshot($subject);
+            $result = $this->readDetailSnapshot($subject, null);
             $this->connection->commit();
 
             return $result;
@@ -125,21 +140,117 @@ final readonly class PostgreSqlOperationStatusSource implements OperationStatusS
         }
     }
 
-    private function readDetailSnapshot(OperationStatusSubject $subject): OperationStatusDetailResult
-    {
-        $state = $this->deferredState($subject->operationId);
+    public function readDetailForTenant(
+        #[\SensitiveParameter]
+        OperationStatusSubject $subject,
+        #[\SensitiveParameter]
+        ?TenantRef $tenant,
+    ): OperationStatusDetailResult {
+        $this->assertScopedLevel0();
+        /** @var array{tenant: TenantRef|null} $scope */
+        $scope = ['tenant' => $tenant];
+        if (!$this->sameTenant($subject->tenant, $tenant)) {
+            return new OperationStatusDetailUnavailable();
+        }
+
+        $metadata = $this->registry->findByTypeId($subject->operationType);
+        if ($metadata !== null && is_a($metadata->outcome, EphemeralOutcome::class, allow_string: true)) {
+            return new OperationStatusDetailUnavailable();
+        }
+
+        $ownedRoot = false;
+        try {
+            try {
+                $this->connection->beginTransaction();
+            } catch (Throwable) {
+                throw OperationStatusSourceException::storageFailed();
+            }
+            $this->assertScopedRootStarted();
+            $ownedRoot = true;
+            try {
+                $this->connection->executeStatement('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY');
+                $isolation = $this->connection->fetchOne('SHOW transaction_isolation');
+                $readOnly = $this->connection->fetchOne('SHOW transaction_read_only');
+            } catch (Throwable $exception) {
+                if ($exception instanceof OperationStatusSourceException) {
+                    throw $exception;
+                }
+
+                throw OperationStatusSourceException::storageFailed();
+            }
+            if ($isolation !== 'repeatable read') {
+                throw OperationStatusSourceException::integrityFailed();
+            }
+            if ($readOnly !== 'on') {
+                throw OperationStatusSourceException::integrityFailed();
+            }
+
+            $snapshotSubject = $this->readSubject($subject->operationId, $scope);
+            $result = new OperationStatusDetailUnavailable();
+            if ($snapshotSubject !== null) {
+                if (!$this->sameSubject($subject, $snapshotSubject)) {
+                    throw OperationStatusSourceException::integrityFailed();
+                }
+                $result = $this->readDetailSnapshot($snapshotSubject, $scope);
+            }
+
+            $this->assertScopedRootStarted();
+            try {
+                $this->connection->commit();
+            } catch (Throwable) {
+                throw OperationStatusSourceException::storageFailed();
+            }
+            $ownedRoot = false;
+            $this->assertScopedLevel0();
+
+            return $result;
+        } catch (Throwable $exception) {
+            if ($ownedRoot) {
+                if (!$this->canRollbackScopedRoot()) {
+                    throw OperationStatusSourceException::storageFailed();
+                }
+                try {
+                    $this->connection->rollBack();
+                    $ownedRoot = false;
+                } catch (Throwable) {
+                    throw OperationStatusSourceException::storageFailed();
+                }
+                $this->assertScopedLevel0();
+            }
+            if ($exception instanceof OperationStatusSourceException) {
+                throw $exception;
+            }
+            if ($exception instanceof PostgreSqlStatusReadFailed) {
+                throw $this->statusReaderFailure($exception);
+            }
+            if ($this->containsDatabaseFailure($exception)) {
+                throw OperationStatusSourceException::storageFailed();
+            }
+
+            throw OperationStatusSourceException::integrityFailed();
+        }
+    }
+
+    /** @param array{tenant: TenantRef|null}|null $scope */
+    private function readDetailSnapshot(
+        #[\SensitiveParameter]
+        OperationStatusSubject $subject,
+        #[\SensitiveParameter]
+        ?array $scope,
+    ): OperationStatusDetailResult {
+        $state = $this->deferredState($subject->operationId, $scope);
         $snapshot = new OperationStatusSnapshot(
-            $this->records($subject->operationId),
-            $this->purgeTargets($subject->operationId),
-            $this->outcomeExists($subject->operationId),
-            $this->deadLetterExists($subject->operationId),
+            $this->records($subject->operationId, $scope),
+            $this->purgeTargets($subject->operationId, $scope),
+            $this->outcomeExists($subject->operationId, $scope),
+            $this->deadLetterExists($subject->operationId, $scope),
         );
 
         if ($state === null) {
             return $this->journalOnly($subject, $snapshot);
         }
 
-        return $this->deferred($subject, $state, $snapshot);
+        return $this->deferred($subject, $state, $snapshot, $scope);
     }
 
     private function journalOnly(
@@ -177,11 +288,19 @@ final readonly class PostgreSqlOperationStatusSource implements OperationStatusS
         return new OperationStatusDetail($this->statusFromJournal($journal));
     }
 
-    /** @mago-expect lint:halstead */
+    /**
+     * @mago-expect lint:halstead
+     * @param array{tenant: TenantRef|null}|null $scope
+     */
     private function deferred(
+        #[\SensitiveParameter]
         OperationStatusSubject $subject,
+        #[\SensitiveParameter]
         PostgreSqlStatusDeferredState $state,
+        #[\SensitiveParameter]
         OperationStatusSnapshot $snapshot,
+        #[\SensitiveParameter]
+        ?array $scope,
     ): OperationStatusDetailResult {
         if (
             $state->operationId !== $subject->operationId->toString()
@@ -210,7 +329,7 @@ final readonly class PostgreSqlOperationStatusSource implements OperationStatusS
         }
 
         $this->validateDeferredAttempt($state, $journal);
-        $outcome = $this->deferredOutcome($state, $journal, $snapshot);
+        $outcome = $this->deferredOutcome($state, $journal, $snapshot, $scope);
         $this->validateDeadLetter($state->state, $snapshot);
 
         if ($state->state === LifecycleState::Rejected && $journalPurged) {
@@ -319,10 +438,16 @@ final readonly class PostgreSqlOperationStatusSource implements OperationStatusS
         }
     }
 
+    /** @param array{tenant: TenantRef|null}|null $scope */
     private function deferredOutcome(
+        #[\SensitiveParameter]
         PostgreSqlStatusDeferredState $state,
+        #[\SensitiveParameter]
         ?ValidatedOperationStatusJournal $journal,
+        #[\SensitiveParameter]
         OperationStatusSnapshot $snapshot,
+        #[\SensitiveParameter]
+        ?array $scope,
     ): ?Outcome {
         $purged = $snapshot->wasPurged(RetentionPurgeTarget::Outcome->value);
         if ($state->state !== LifecycleState::Completed) {
@@ -341,7 +466,7 @@ final readonly class PostgreSqlOperationStatusSource implements OperationStatusS
             return null;
         }
 
-        $record = $this->outcome($state->operationId);
+        $record = $this->outcome($state->operationId, $scope);
         if ($record === null || $record->operationId()->toString() !== $state->operationId) {
             throw OperationStatusSourceException::integrityFailed();
         }
@@ -528,21 +653,42 @@ final readonly class PostgreSqlOperationStatusSource implements OperationStatusS
         );
     }
 
-    private function deferredState(OperationId $operationId): ?PostgreSqlStatusDeferredState
-    {
+    /** @param array{tenant: TenantRef|null}|null $scope */
+    private function deferredState(
+        #[\SensitiveParameter]
+        OperationId $operationId,
+        #[\SensitiveParameter]
+        ?array $scope,
+    ): ?PostgreSqlStatusDeferredState {
         try {
-            return $this->reader->deferredState($operationId);
+            if ($scope === null) {
+                return $this->reader->deferredState($operationId);
+            }
+
+            return $this->reader->deferredStateForTenant($operationId, $scope['tenant']);
         } catch (PostgreSqlStatusReadFailed $exception) {
             throw $this->statusReaderFailure($exception);
         }
     }
 
-    /** @return array<string, true> */
-    private function purgeTargets(OperationId $operationId): array
-    {
+    /**
+     * @param array{tenant: TenantRef|null}|null $scope
+     * @return array<string, true>
+     */
+    private function purgeTargets(
+        #[\SensitiveParameter]
+        OperationId $operationId,
+        #[\SensitiveParameter]
+        ?array $scope,
+    ): array {
         try {
+            /** @var array<string, true> $targets */
             $targets = [];
-            foreach ($this->reader->purgeTargets($operationId) as $target) {
+            /** @var list<RetentionPurgeTarget> $source */
+            $source = $scope === null
+                ? $this->reader->purgeTargets($operationId)
+                : $this->reader->purgeTargetsForTenant($operationId, $scope['tenant']);
+            foreach ($source as $target) {
                 if (array_key_exists($target->value, $targets)) {
                     throw OperationStatusSourceException::integrityFailed();
                 }
@@ -557,12 +703,23 @@ final readonly class PostgreSqlOperationStatusSource implements OperationStatusS
         }
     }
 
-    /** @return list<JournalRecord> */
-    private function records(OperationId $operationId): array
-    {
+    /**
+     * @param array{tenant: TenantRef|null}|null $scope
+     * @return list<JournalRecord>
+     */
+    private function records(
+        #[\SensitiveParameter]
+        OperationId $operationId,
+        #[\SensitiveParameter]
+        ?array $scope,
+    ): array {
         try {
+            /** @var list<JournalRecord> $records */
             $records = [];
-            foreach ($this->journal->records($operationId) as $record) {
+            $source = $scope === null
+                ? $this->journal->records($operationId)
+                : $this->journal->recordsForTenant($operationId, $scope['tenant']);
+            foreach ($source as $record) {
                 $records[] = $record;
             }
 
@@ -574,33 +731,171 @@ final readonly class PostgreSqlOperationStatusSource implements OperationStatusS
         }
     }
 
-    private function outcomeExists(OperationId $operationId): bool
-    {
+    /** @param array{tenant: TenantRef|null}|null $scope */
+    private function outcomeExists(
+        #[\SensitiveParameter]
+        OperationId $operationId,
+        #[\SensitiveParameter]
+        ?array $scope,
+    ): bool {
         try {
-            return $this->reader->outcomeExists($operationId);
+            return $scope === null
+                ? $this->reader->outcomeExists($operationId)
+                : $this->reader->outcomeExistsForTenant($operationId, $scope['tenant']);
         } catch (PostgreSqlStatusReadFailed $exception) {
             throw $this->statusReaderFailure($exception);
         }
     }
 
-    private function deadLetterExists(OperationId $operationId): bool
-    {
+    /** @param array{tenant: TenantRef|null}|null $scope */
+    private function deadLetterExists(
+        #[\SensitiveParameter]
+        OperationId $operationId,
+        #[\SensitiveParameter]
+        ?array $scope,
+    ): bool {
         try {
-            return $this->reader->deadLetterExists($operationId);
+            return $scope === null
+                ? $this->reader->deadLetterExists($operationId)
+                : $this->reader->deadLetterExistsForTenant($operationId, $scope['tenant']);
         } catch (PostgreSqlStatusReadFailed $exception) {
             throw $this->statusReaderFailure($exception);
         }
     }
 
-    private function outcome(string $operationId): ?OutcomeRecord
-    {
+    /** @param array{tenant: TenantRef|null}|null $scope */
+    private function outcome(
+        #[\SensitiveParameter]
+        string $operationId,
+        #[\SensitiveParameter]
+        ?array $scope,
+    ): ?OutcomeRecord {
         try {
-            return $this->outcomes->find(OperationId::fromString($operationId));
+            $id = OperationId::fromString($operationId);
+
+            return $scope === null ? $this->outcomes->find($id) : $this->outcomes->findForTenant($id, $scope['tenant']);
         } catch (OutcomeStoreException $exception) {
             throw $this->readerFailure($exception);
         } catch (Throwable) {
             throw OperationStatusSourceException::storageFailed();
         }
+    }
+
+    /** @param array{tenant: TenantRef|null}|null $scope */
+    private function readSubject(
+        #[\SensitiveParameter]
+        OperationId $operationId,
+        #[\SensitiveParameter]
+        ?array $scope,
+    ): ?OperationStatusSubject {
+        $subject = $scope === null
+            ? $this->reader->findSubject($operationId)
+            : $this->reader->findSubjectForTenant($operationId, $scope['tenant']);
+        if ($subject === null) {
+            return null;
+        }
+
+        return new OperationStatusSubject(
+            OperationId::fromString($subject->operationId),
+            $subject->operationType,
+            $subject->originActorId === null
+                ? null
+                : new ActorRef($subject->originActorId, (string) $subject->originActorType),
+            $subject->tenant,
+        );
+    }
+
+    private function assertScopedLevel0(): void
+    {
+        try {
+            if (
+                !$this->connection->isAutoCommit()
+                || $this->connection->isTransactionActive()
+                || $this->connection->getTransactionNestingLevel() !== 0
+            ) {
+                throw OperationStatusSourceException::storageFailed();
+            }
+        } catch (OperationStatusSourceException $exception) {
+            throw $exception;
+        } catch (Throwable) {
+            throw OperationStatusSourceException::storageFailed();
+        }
+    }
+
+    private function assertScopedRootStarted(): void
+    {
+        try {
+            if (
+                !$this->connection->isAutoCommit()
+                || !$this->connection->isTransactionActive()
+                || $this->connection->getTransactionNestingLevel() !== 1
+            ) {
+                throw OperationStatusSourceException::storageFailed();
+            }
+        } catch (OperationStatusSourceException $exception) {
+            throw $exception;
+        } catch (Throwable) {
+            throw OperationStatusSourceException::storageFailed();
+        }
+    }
+
+    private function canRollbackScopedRoot(): bool
+    {
+        try {
+            return (
+                $this->connection->isAutoCommit()
+                && $this->connection->isTransactionActive()
+                && $this->connection->getTransactionNestingLevel() === 1
+            );
+        } catch (Throwable) {
+            return false;
+        }
+    }
+
+    private function sameSubject(
+        #[\SensitiveParameter]
+        OperationStatusSubject $expected,
+        #[\SensitiveParameter]
+        OperationStatusSubject $actual,
+    ): bool {
+        return (
+            $actual->operationId->equals($expected->operationId)
+            && $actual->operationType === $expected->operationType
+            && $this->sameActor($expected->originActor, $actual->originActor)
+            && $this->sameTenant($expected->tenant, $actual->tenant)
+        );
+    }
+
+    private function sameActor(
+        #[\SensitiveParameter]
+        ?ActorRef $expected,
+        #[\SensitiveParameter]
+        ?ActorRef $actual,
+    ): bool {
+        if (($expected === null) !== ($actual === null)) {
+            return false;
+        }
+        if ($expected === null || $actual === null) {
+            return true;
+        }
+
+        return $expected->type() === $actual->type() && $expected->id() === $actual->id();
+    }
+
+    private function sameTenant(
+        #[\SensitiveParameter]
+        ?TenantRef $expected,
+        #[\SensitiveParameter]
+        ?TenantRef $actual,
+    ): bool {
+        if (($expected === null) !== ($actual === null)) {
+            return false;
+        }
+        if ($expected === null || $actual === null) {
+            return true;
+        }
+
+        return $expected->type() === $actual->type() && $expected->id() === $actual->id();
     }
 
     private function statusReaderFailure(PostgreSqlStatusReadFailed $exception): OperationStatusSourceException

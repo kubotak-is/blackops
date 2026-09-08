@@ -112,9 +112,33 @@ final readonly class PostgreSqlStatusReader
 
     public function deferredState(OperationId $operationId): ?PostgreSqlStatusDeferredState
     {
+        return $this->deferredStateForScope($operationId);
+    }
+
+    public function deferredStateForTenant(
+        #[\SensitiveParameter]
+        OperationId $operationId,
+        #[\SensitiveParameter]
+        ?TenantRef $tenant,
+    ): ?PostgreSqlStatusDeferredState {
+        return $this->deferredStateForScope($operationId, $this->tenantScope($tenant));
+    }
+
+    /** @param array{tenant_type?: string|null, tenant_id?: string|null} $scope */
+    private function deferredStateForScope(
+        #[\SensitiveParameter]
+        OperationId $operationId,
+        #[\SensitiveParameter]
+        array $scope = [],
+    ): ?PostgreSqlStatusDeferredState {
+        $where = 'operation_id = :operation_id';
+        $params = ['operation_id' => $operationId->toString()];
+        if ($scope !== []) {
+            $where .= ' AND tenant_type IS NOT DISTINCT FROM :tenant_type AND tenant_id IS NOT DISTINCT FROM :tenant_id';
+            $params = [...$params, ...$scope];
+        }
         try {
-            $row = $this->connection->fetchAssociative(
-                "SELECT
+            $row = $this->connection->fetchAssociative("SELECT
                     operation_id::text AS operation_id,
                     operation_type,
                     schema_version,
@@ -126,9 +150,7 @@ final readonly class PostgreSqlStatusReader
                     current_attempt_started_at::text AS current_attempt_started_at,
                     available_at::text AS available_at
                 FROM {$this->deferred->operationsTable()}
-                WHERE operation_id = :operation_id",
-                ['operation_id' => $operationId->toString()],
-            );
+                WHERE {$where}", $params);
         } catch (Throwable) {
             throw PostgreSqlStatusReadFailed::storage();
         }
@@ -163,22 +185,56 @@ final readonly class PostgreSqlStatusReader
         return $this->rowExists($this->deferred->outcomesTable(), $operationId);
     }
 
+    public function outcomeExistsForTenant(
+        #[\SensitiveParameter]
+        OperationId $operationId,
+        #[\SensitiveParameter]
+        ?TenantRef $tenant,
+    ): bool {
+        return $this->rowExists($this->deferred->outcomesTable(), $operationId, $this->tenantScope($tenant));
+    }
+
     public function deadLetterExists(OperationId $operationId): bool
     {
         return $this->rowExists($this->deferred->deadLettersTable(), $operationId);
     }
 
+    public function deadLetterExistsForTenant(
+        #[\SensitiveParameter]
+        OperationId $operationId,
+        #[\SensitiveParameter]
+        ?TenantRef $tenant,
+    ): bool {
+        return $this->rowExists($this->deferred->deadLettersTable(), $operationId, $this->tenantScope($tenant));
+    }
+
     /** @return list<RetentionPurgeTarget> */
     public function purgeTargets(OperationId $operationId): array
     {
+        return $this->purgeTargetsForScope($operationId);
+    }
+
+    /**
+     * @param array{tenant_type?: string|null, tenant_id?: string|null} $scope
+     * @return list<RetentionPurgeTarget>
+     */
+    private function purgeTargetsForScope(
+        #[\SensitiveParameter]
+        OperationId $operationId,
+        #[\SensitiveParameter]
+        array $scope = [],
+    ): array {
+        $where = 'operation_id = :operation_id';
+        $params = ['operation_id' => $operationId->toString()];
+        if ($scope !== []) {
+            $where .= ' AND tenant_type IS NOT DISTINCT FROM :tenant_type AND tenant_id IS NOT DISTINCT FROM :tenant_id';
+            $params = [...$params, ...$scope];
+        }
         try {
-            $rows = $this->connection->fetchAllAssociative(
-                "SELECT target
+            $rows = $this->connection->fetchAllAssociative("SELECT target
                 FROM {$this->deferred->retentionPurgeAuditsTable()}
-                WHERE operation_id = :operation_id
-                ORDER BY purged_at ASC, audit_id ASC",
-                ['operation_id' => $operationId->toString()],
-            );
+                WHERE {$where}
+                ORDER BY purged_at ASC, audit_id ASC", $params);
         } catch (Throwable) {
             throw PostgreSqlStatusReadFailed::storage();
         }
@@ -197,12 +253,26 @@ final readonly class PostgreSqlStatusReader
         }
     }
 
+    /** @return list<RetentionPurgeTarget> */
+    public function purgeTargetsForTenant(
+        #[\SensitiveParameter]
+        OperationId $operationId,
+        #[\SensitiveParameter]
+        ?TenantRef $tenant,
+    ): array {
+        return $this->purgeTargetsForScope($operationId, $this->tenantScope($tenant));
+    }
+
     /**
      * @param array{tenant_type?: string|null, tenant_id?: string|null} $scope
      * @return array{operation_id: string, operation_type: string, origin_actor_id: string|null, origin_actor_type: string|null, tenant_type: string|null, tenant_id: string|null}|null
      */
-    private function transportSubject(OperationId $operationId, array $scope = []): ?array
-    {
+    private function transportSubject(
+        #[\SensitiveParameter]
+        OperationId $operationId,
+        #[\SensitiveParameter]
+        array $scope = [],
+    ): ?array {
         $where = 'operation_id = :operation_id';
         $params = ['operation_id' => $operationId->toString()];
         if ($scope !== []) {
@@ -247,8 +317,12 @@ final readonly class PostgreSqlStatusReader
      *     tenant_id: string|null
      * }|null
      */
-    private function journalSubject(OperationId $operationId, array $scope = []): ?array
-    {
+    private function journalSubject(
+        #[\SensitiveParameter]
+        OperationId $operationId,
+        #[\SensitiveParameter]
+        array $scope = [],
+    ): ?array {
         $where = 'operation_id = :operation_id';
         $params = ['operation_id' => $operationId->toString()];
         if ($scope !== []) {
@@ -318,17 +392,26 @@ final readonly class PostgreSqlStatusReader
         ];
     }
 
-    private function rowExists(string $table, OperationId $operationId): bool
-    {
+    /** @param array{tenant_type?: string|null, tenant_id?: string|null} $scope */
+    private function rowExists(
+        string $table,
+        #[\SensitiveParameter]
+        OperationId $operationId,
+        #[\SensitiveParameter]
+        array $scope = [],
+    ): bool {
+        $where = 'operation_id = :operation_id';
+        $params = ['operation_id' => $operationId->toString()];
+        if ($scope !== []) {
+            $where .= ' AND tenant_type IS NOT DISTINCT FROM :tenant_type AND tenant_id IS NOT DISTINCT FROM :tenant_id';
+            $params = [...$params, ...$scope];
+        }
         try {
-            return $this->connection->fetchOne(
-                "SELECT EXISTS (
+            return $this->connection->fetchOne("SELECT EXISTS (
                     SELECT 1
                     FROM {$table}
-                    WHERE operation_id = :operation_id
-                )",
-                ['operation_id' => $operationId->toString()],
-            ) === true;
+                    WHERE {$where}
+                )", $params) === true;
         } catch (Throwable) {
             throw PostgreSqlStatusReadFailed::storage();
         }
