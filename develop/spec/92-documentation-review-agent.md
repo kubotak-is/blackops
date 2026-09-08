@@ -7,8 +7,7 @@ BlackOpsの公開Documentationを、Framework利用者の視点からRead-only�
 ## Profile
 
 - Profile: `.codex/agents/documentation-reviewer.toml`
-- Model: `gpt-5.6-sol`
-- Reasoning Effort: `xhigh`
+- Model / Reasoning Effort: 上記Repository Profileの値を正本とする
 - Default Mode: Read-only Review
 - Default Language: Japanese
 - Implementation、Commit、Push、Deploy、Finding解決を行わない
@@ -22,7 +21,7 @@ Orchestratorは依頼時に次を渡す。
 
 - Scope: `full-site`または対象Page／変更File
 - Base URL: 例`http://localhost:4322`
-- Channel: `main`、Stable `1.1.0`、または両方
+- Channel: `main`、`release-authority.json`のpublished Stable、または明示された歴史的Version
 - Comparison: Working Tree、Commit、PRなど
 - Output: Chatまたは明示したReport Path
 - UserのExact Request／Copyがある場合はその原文
@@ -48,7 +47,7 @@ Orchestratorは依頼時に次を渡す。
 ## Evidence Hierarchy
 
 1. Repository `main`のImplementation／Test／Generator Stub／Example
-2. Stable Claimに対するGit Tag `1.1.0`
+2. Stable Claimに対する`develop/spec/release-authority.json`のpublished source refs。歴史的VersionのReviewは指定されたimmutable refs
 3. `develop/spec/`の確定Contract
 4. `develop/decisions/`の判断経緯
 5. `docs/guide/`のReview対象本文
@@ -63,7 +62,7 @@ ImplementationとSpecificationが矛盾するときは、Documentationだけの�
 - Public Class、Interface、Attribute、Command、Option、Config Keyが実在する
 - Route、Status、Header、JSON Property、Stable Error Codeが実装へ一致する
 - Retry、Retention、Transaction、Outcome、Journalの境界が実装へ一致する
-- Stable `1.1.0`のCapabilityとAuthoring SyntaxをRepository `main`と混同しない
+- Release Authorityのpublished StableのCapabilityとAuthoring SyntaxをRepository `main`と混同しない
 - 同じSample OperationのValue／Outcome／Type IDがPage間で分岐しない
 - 将来予定をRelease済みCapabilityとして書かない
 
@@ -198,7 +197,7 @@ DefaultはChatへ返す。Fileへ書くのは明示Output Pathがある場合だ
 documentation-reviewerとしてBlackOps DocumentationをReviewしてください。
 Scope: full-site | changed-pages | <routes/files>
 Base URL: http://localhost:4322
-Channel: main | stable-1.1.0 | both
+Channel: main | published Stable (Release Authority) | explicit historical version | both
 Comparison: working-tree | <commit/pr>
 Output: chat | <new report path>
 Exact user requirements: <optional>

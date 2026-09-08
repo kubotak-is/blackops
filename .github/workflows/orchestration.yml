@@ -1,0 +1,43 @@
+name: Orchestration state tooling
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: orchestration-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  state-tooling:
+    name: STATE tooling checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24.18.0
+          package-manager-cache: false
+
+      - name: Check STATE tooling syntax
+        run: node --check develop/orchestration/state.mjs
+
+      - name: Check current STATE
+        run: node develop/orchestration/state.mjs --check
+
+      - name: Run STATE tooling unit tests
+        run: node --test --test-isolation=none develop/orchestration/state.test.mjs

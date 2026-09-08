@@ -2,6 +2,8 @@
 
 Status: Decided
 
+現在のModel／Reasoning EffortはRepository Profileが正本。以下のSol/xhigh等の具体値は決定時点の履歴であり、現在値を固定しない。Profileの再読込・明示Fallback禁止の契約は継続する。開発効率と証拠の再利用はD158／仕様109を参照する。
+
 ## Context
 
 D091はOrchestratorとProduction Implementation WorkerのRepository Model設定を定義し、D125はDocumentation Reviewerを分離した。両Decisionは運用境界を成立させた一方、Reasoning Effortは`high`のままである。UserはProduction実装をGPT-5.6 Luna Max、調査・Orchestrator Review・Documentation ReviewをGPT-5.6 Sol xHighへ更新することを決定した。
