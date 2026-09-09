@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Deferred 受付の確定境界",
+    "animation": "none",
+    "quality_profile": "showcase",
+    "legend": { "mode": "hidden" },
+    "viewBox": [420, 650]
+  },
+  "components": [
+    { "id": "http-request", "type": "frontend", "label": "HTTP Request", "sublabel": "入力受付", "pos": [110, 20], "size": [200, 72] },
+    { "id": "operation-value", "type": "backend", "label": "OperationValue", "sublabel": "bind / validate", "pos": [110, 140], "size": [200, 78] },
+    { "id": "execution-strategy", "type": "backend", "label": "Execution Strategy", "sublabel": "Deferred", "pos": [110, 265], "size": [200, 78] },
+    { "id": "acceptance-transaction", "type": "backend", "label": "Acceptance Transaction", "sublabel": "operation.received", "tag": "operation.accepted", "pos": [60, 400], "size": [300, 88] },
+    { "id": "deferred-acknowledgement", "type": "frontend", "label": "HTTP 202 + Operation ID", "sublabel": "Durable 受付完了", "pos": [110, 535], "size": [200, 78] }
+  ],
+  "connections": [
+    { "id": "request-to-value", "from": "http-request", "to": "operation-value", "label": "bind / validate", "fromSide": "bottom", "toSide": "top", "labelDy": 30 },
+    { "id": "value-to-strategy", "from": "operation-value", "to": "execution-strategy", "label": "Strategy選択", "fromSide": "bottom", "toSide": "top", "labelDy": 30 },
+    { "id": "strategy-to-acceptance", "from": "execution-strategy", "to": "acceptance-transaction", "label": "Deferred受付", "fromSide": "bottom", "toSide": "top", "labelDy": 30 },
+    { "id": "acceptance-to-acknowledgement", "from": "acceptance-transaction", "to": "deferred-acknowledgement", "label": "commit後に返す", "fromSide": "bottom", "toSide": "top", "labelDy": 30 }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "入力と選択", "items": ["HTTP Request は Value を bind / validate して Deferred Strategy を選ぶ"] },
+    { "dot": "emerald", "title": "1つの受付 Transaction", "items": ["Value / Context と operation.received、operation.accepted を同じ Transaction で保存する", "この図の終点は Durable acceptance の commit"] },
+    { "dot": "violet", "title": "次の処理", "items": ["Commit 後に HTTP 202 と Operation ID を返す", "Handler の実行と完了は別の Worker 図で扱う"] }
+  ]
+}

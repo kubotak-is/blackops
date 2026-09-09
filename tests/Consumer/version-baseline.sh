@@ -65,8 +65,8 @@ assert_information_architecture_contract() {
     contains docs/website/tests/site-navigation.test.mjs 'canonical seven-section order and public assignment'
     contains docs/website/tests/site-navigation.test.mjs 'wrong-section'
     contains docs/website/pages/index.astro 'landing-journey'
-    contains docs/website/pages/index.astro 'landing-purpose-nav'
-    contains docs/website/pages/index.astro 'Lifecycle and Journal'
+    contains docs/website/pages/index.astro 'landing-resources'
+    contains docs/website/pages/index.astro 'BlackOpsを動かす'
     contains docs/website/pages/index.astro "#[OperationType('report.generate')]"
     contains docs/website/pages/index.astro '<div class="landing-shell">'
     contains docs/website/scripts/check-site.mjs 'Landing start journey must contain exactly one'
@@ -103,20 +103,15 @@ assert_product_framing_contract() {
     contains docs/website/scripts/check-content.mjs 'assertProductFramingSourceContract'
     contains docs/website/scripts/check-site.mjs 'assertProductFramingArtifactContract'
     contains docs/website/pages/index.astro 'HTTPとWorkerの処理を一つのOperationとして扱い、受付・再試行・完了までを同じIDで追跡できるPHP Frameworkです。'
-    contains docs/website/pages/index.astro 'PHP 8.5向けFramework'
+    contains docs/website/pages/index.astro 'ExecutionWalkthrough'
     contains docs/website/pages/index.astro 'locale="ja"'
     contains docs/website/pages/index.astro 'href="/reference/project-cli"'
-    contains docs/website/pages/index.astro 'landing-editor-chrome'
-    contains docs/website/pages/index.astro 'landing-lifecycle-panel'
+    contains docs/website/pages/index.astro 'landing-code-panel'
+    contains docs/website/pages/index.astro 'landing-resources'
+    contains docs/website/pages/index.astro 'BlackOpsを動かす'
     contains docs/website/pages/index.astro 'landing-value-note'
-    contains docs/website/pages/index.astro 'Received'
-    contains docs/website/pages/index.astro 'Finalizing'
-    contains docs/website/pages/index.astro 'attempt.succeeded — Handlerが成功した'
-    contains docs/website/pages/index.astro 'Completed'
-    contains docs/website/pages/index.astro 'Retryは同じIDの次のAttemptとして続きます。'
     contains docs/website/pages/index.astro 'aria-label="ドキュメントの操作"'
     contains docs/website/pages/index.astro 'aria-label="Operationのソース"'
-    contains docs/website/pages/index.astro 'aria-label="ドキュメントのセクション"'
     contains docs/guide/project-cli.md '# BlackOps CLI'
     contains docs/guide/project-cli.md 'php blackops list'
     contains docs/guide/project-cli.md 'Projectを作る・Buildする'
@@ -494,7 +489,7 @@ assert_deptrac_no_rule Auth Internal
 assert_deptrac_no_rule Http Internal
 assert_deptrac_sccs
 
-contains Dockerfile 'COMPOSER_ROOT_VERSION=1.2.0@dev'
+contains Dockerfile 'COMPOSER_ROOT_VERSION=1.2.1@dev'
 contains composer.json '"carthage-software/mago": "1.42.0"'
 contains composer.json '"deptrac/deptrac": "4.7.1"'
 contains mago.toml 'baseline = "mago-lint-baseline.toml"'
@@ -505,8 +500,8 @@ contains .github/workflows/ci.yml 'mago lint --verify-baseline'
 test "$(grep -c '^variant = "strict"$' "${repository_root}/mago-lint-baseline.toml")" -eq 1 \
     || fail 'Mago baseline must use exactly one strict variant declaration'
 contains examples/quickstart/composer.json '"blackops/framework": "^1.2"'
-contains src/Internal/Telemetry/TelemetryTracer.php "public const VERSION = '1.2.0';"
-contains src/Internal/Telemetry/TelemetryMetrics.php "public const VERSION = '1.2.0';"
+contains src/Internal/Telemetry/TelemetryTracer.php "public const VERSION = '1.2.1';"
+contains src/Internal/Telemetry/TelemetryMetrics.php "public const VERSION = '1.2.1';"
 
 for consumer in \
     tests/Consumer/quickstart-e2e.sh \
@@ -514,7 +509,7 @@ for consumer in \
     tests/Consumer/scheduled-operation.sh \
     tests/Consumer/storage-protection-rotation.sh \
     tests/Consumer/frankenphp-worker-mode.sh; do
-    contains "${consumer}" 'blackops/framework":"1.2.0'
+    contains "${consumer}" 'blackops/framework":"1.2.1'
 done
 
 for consumer in \
@@ -529,8 +524,8 @@ for consumer in \
     assert_storage_key_contract "${consumer}"
 done
 
-contains tests/Consumer/skeleton-create-project.sh '"blackops/framework": "1.2.0"'
-contains tests/Consumer/skeleton-create-project.sh 'blackops/skeleton":"1.2.0"'
+contains tests/Consumer/skeleton-create-project.sh '"blackops/framework": "1.2.1"'
+contains tests/Consumer/skeleton-create-project.sh 'blackops/skeleton":"1.2.1"'
 contains tests/Consumer/skeleton-publication.sh 'version=1.2.0'
 contains tests/Consumer/skeleton-publication-workflow.sh 'run_publication "${new_remote}" 1.2.0 false'
 
@@ -973,10 +968,10 @@ assert_generator_resource_inventory
 assert_generator_tag_lifecycle() {
     local file='tests/Consumer/framework-update-generators.sh'
 
-    contains "${file}" "candidate_tag_ref='refs/tags/1.2.0'"
+    contains "${file}" "candidate_tag_ref='refs/tags/1.2.1'"
     contains "${file}" 'candidate_tag_type="$(git -C "${framework_repository}" cat-file -t "${candidate_tag_ref}" 2>/dev/null || true)"'
     contains "${file}" 'if test -z "${candidate_tag_type}"; then'
-    contains "${file}" 'git -C "${framework_repository}" tag 1.2.0 "${current_commit}"'
+    contains "${file}" 'git -C "${framework_repository}" tag 1.2.1 "${current_commit}"'
     contains "${file}" 'candidate_source_commit="${current_commit}"'
     contains "${file}" 'test "${candidate_tag_type}" = '\''tag'\'''
     contains "${file}" 'published_candidate_commit="$(git -C "${framework_repository}" rev-parse "${candidate_tag_ref}^{commit}")"'
@@ -987,10 +982,10 @@ assert_generator_tag_lifecycle() {
     contains "${file}" 'candidate_tag_ref}^{commit}")" = "${candidate_source_commit}"'
 
     awk '
-        index($0, "candidate_tag_ref='\''refs/tags/1.2.0'\''") { ref_line = NR }
+        index($0, "candidate_tag_ref='\''refs/tags/1.2.1'\''") { ref_line = NR }
         index($0, "candidate_tag_type=") { type_line = NR }
         index($0, "if test -z \"${candidate_tag_type}\"; then") { absent_line = NR }
-        index($0, "tag 1.2.0 \"${current_commit}\"") { create_line = NR }
+        index($0, "tag 1.2.1 \"${current_commit}\"") { create_line = NR }
         index($0, "candidate_source_commit=\"${current_commit}\"") { absent_source_line = NR }
         index($0, "test \"${candidate_tag_type}\" = '\''tag'\''") { annotated_line = NR }
         /^[[:space:]]+published_candidate_commit=/ { published_line = NR }
@@ -1042,6 +1037,11 @@ contains docs/internal/installed-application-status.md 'diagnostics.storage_fail
 contains CHANGELOG.md '## [Unreleased]'
 test "$(grep -c '^## \[Unreleased\]$' "${repository_root}/CHANGELOG.md")" -eq 1 \
     || fail 'CHANGELOG.md must contain exactly one Unreleased section'
+contains CHANGELOG.md '## [1.2.1] - 2026-09-10'
+contains CHANGELOG.md 'Telemetry Trace／Metric version constantを`1.2.1`へ更新した。'
+contains CHANGELOG.md '公開API、Dependency、Database Schema／Migrationは変更しない。'
+contains CHANGELOG.md '未公開の`1.3.0`に計画しているAudit Trail、CLI、Runtime機能はこのReleaseに含まれない。'
+contains CHANGELOG.md '`1.2.0`からのDatabase Migrationは不要である。'
 contains CHANGELOG.md '## [1.2.0] - 2026-08-15'
 contains CHANGELOG.md '公開済みExperimental Release'
 contains CHANGELOG.md 'root-owned `var/log/journal.jsonl`のbind-mount制約'
@@ -1060,6 +1060,8 @@ for contract in \
 done
 contains UPGRADE.md '## 1.0.0から1.1.0'
 contains UPGRADE.md '## 1.1.0から1.2.0'
+contains UPGRADE.md '## 1.2.0から1.2.1'
+contains UPGRADE.md 'Database Migrationは不要です。'
 contains UPGRADE.md '公開済みPackageの`1.2.0`をApplication Rootで明示的に要求します。'
 for section in \
     '### 1. BackupとRollback境界を固定する' \
@@ -1174,8 +1176,8 @@ for contract in \
     contains UPGRADE.md "${contract}"
 done
 contains tests/Consumer/framework-update-generators.sh "cat-file -t refs/tags/1.1.0"
-contains tests/Consumer/framework-update-generators.sh 'blackops/framework:1.2.0'
-contains tests/Consumer/framework-update-generators.sh 'tag 1.2.0'
+contains tests/Consumer/framework-update-generators.sh 'blackops/framework:1.2.1'
+contains tests/Consumer/framework-update-generators.sh 'tag 1.2.1'
 contains tests/Consumer/framework-update-generators.sh 'blackops build:compile'
 contains tests/Consumer/framework-update-generators.sh 'blackops operation:list'
 test -x "${repository_root}/tests/Consumer/framework-update-runtime.sh" \
@@ -1205,16 +1207,16 @@ contains tests/Consumer/framework-update-runtime.sh 'fail_stage()'
 contains tests/Consumer/framework-update-runtime.sh 'provider-missing-classic-http-readiness'
 contains tests/Consumer/framework-update-runtime.sh 'provider-missing-redaction'
 contains tests/Consumer/framework-update-runtime.sh 'provider-missing-services-removal'
-contains tests/Consumer/framework-update-runtime.sh "candidate_tag_ref='refs/tags/1.2.0'"
+contains tests/Consumer/framework-update-runtime.sh "candidate_tag_ref='refs/tags/1.2.1'"
 contains tests/Consumer/framework-update-runtime.sh 'candidate_tag_type="$(git -C "${framework_repository}" cat-file -t "${candidate_tag_ref}" 2>/dev/null || true)"'
-contains tests/Consumer/framework-update-runtime.sh "local runtime candidate' 1.2.0"
+contains tests/Consumer/framework-update-runtime.sh "local runtime candidate' 1.2.1"
 contains tests/Consumer/framework-update-runtime.sh 'test "${candidate_tag_type}" = tag'
 contains tests/Consumer/framework-update-runtime.sh 'published_candidate_commit="$(git -C "${framework_repository}" rev-parse "${candidate_tag_ref}^{commit}")"'
 contains tests/Consumer/framework-update-runtime.sh 'root_published_candidate_commit="$(git -C "${repository_root}" rev-parse "${candidate_tag_ref}^{commit}")"'
 contains tests/Consumer/framework-update-runtime.sh 'test "${published_candidate_commit}" = "${root_published_candidate_commit}"'
 contains tests/Consumer/framework-update-runtime.sh 'diff --quiet "${published_candidate_commit}" "${candidate_commit}" --'
 contains tests/Consumer/framework-update-runtime.sh "':(exclude)examples/quickstart/README.md'"
-contains tests/Consumer/framework-update-runtime.sh 'Published 1.2.0 release-runtime Source drifted from current HEAD.'
+contains tests/Consumer/framework-update-runtime.sh 'Published 1.2.1 release-runtime Source drifted from current HEAD.'
 contains tests/Consumer/framework-update-runtime.sh 'candidate_source_commit="${published_candidate_commit}"'
 contains tests/Consumer/framework-update-runtime.sh 'candidate_source_commit="${candidate_commit}"'
 contains tests/Consumer/framework-update-runtime.sh 'verify_runtime_bootstrap()'
@@ -1249,4 +1251,4 @@ absent UPGRADE.md 'Candidate SourceとComposerを準備する'
 absent UPGRADE.md 'Repository `main`の未公開`1.2.0` candidate'
 absent CHANGELOG.md '9つのCandidate PostgreSQL Migration'
 
-printf 'Version baseline guard passed: published=1.2.0 historical=1.1.0\n'
+printf 'Version baseline guard passed: published=1.2.0 candidate=1.2.1 historical=1.1.0\n'

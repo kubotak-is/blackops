@@ -51,6 +51,39 @@ public function __construct(
 
 Hashは同一値の相関が必要な場合だけ使います。低Entropy値は推測攻撃の対象になり得るため、Hashを暗号化やTokenizationとして扱いません。
 
+## BlackOpsの`#[Sensitive]`とPHPの`#[SensitiveParameter]`
+
+`#[Sensitive]`と`#[SensitiveParameter]`は、保護する出力が異なるため併用します。BlackOpsの`BlackOps\Core\Attribute\Sensitive`はPropertyへ付けるAttributeで、Observed Journal ProjectionのFieldを`Omit`、`Mask`、`Hash`します。PHPの組み込み`#[SensitiveParameter]`はFunction／MethodのParameterへ付け、Stack Traceで引数の値を隠すために使います。
+
+| 観点 | BlackOps | PHP |
+| --- | --- | --- |
+| 付与対象 | `#[Sensitive]`：`Property`（Constructor-promoted Propertyを含む） | `#[SensitiveParameter]`：Function／Methodの`Parameter` |
+| 適用される記録 | Observed Journal Projection | Exception Stack Trace |
+| 隠し方 | `Omit`、`Mask`、`Hash`からModeを選ぶ | Stack Trace中の引数表示を`SensitiveParameterValue`で置き換える |
+| 呼び出し時の値 | Property／Handlerへ渡る元の値は変えない | Functionが受け取る元の値は変えない |
+
+請求先の識別情報など、ログにそのまま残したくない業務上の値では、次のように併用します。
+
+```php
+use BlackOps\Core\Attribute\Sensitive;
+use BlackOps\Core\Attribute\SensitiveMode;
+use BlackOps\Core\OperationValue;
+use SensitiveParameter;
+
+final readonly class CreateInvoiceValue implements OperationValue
+{
+    public function __construct(
+        #[Sensitive(SensitiveMode::Mask)]
+        #[SensitiveParameter]
+        public string $billingReference,
+    ) {}
+}
+```
+
+この例では、BlackOpsがObserved Journalを作ると`billingReference`を`[masked]`へ置き換え、PHPがこのParameterをStack Traceへ表示すると`SensitiveParameterValue`でラップします。PHPの`SensitiveParameter`はBlackOpsのOmit／Mask／Hashを自動適用せず、BlackOpsの`Sensitive`もPHPのStack Trace処理を変更しません。
+
+名前について、BlackOpsに公開型の`SensitiveValue`はありません。`SensitiveParameterValue`はPHPがStack Traceの表示に使うwrapperであり、BlackOpsの型でも、Constructorが受け取る値の型でもありません。どちらのAttributeも元の値を暗号化せず、明示的なLog／Outputを停止しません。Applicationは元の値を独自のLog、Exception Message、Responseへ書き出さない設計を別途行ってください。詳細はPHP公式の[`SensitiveParameter`マニュアル](https://www.php.net/manual/ja/class.sensitiveparameter.php)と[`SensitiveParameterValue`マニュアル](https://www.php.net/manual/ja/class.sensitiveparametervalue.php)を参照してください。
+
 ## `#[Sensitive]`が行わないこと
 
 `#[Sensitive]`は認証、認可、暗号化、Access Control、Retentionを代替しません。具体的には次を置き換えません。

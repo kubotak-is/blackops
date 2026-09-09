@@ -2,6 +2,11 @@ import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { repositoryRoot, sourceRoot } from './website-paths.mjs';
+import {
+  diagramManifestPath as defaultDiagramManifestPath,
+  loadDiagramManifest,
+  publicDiagramLinks,
+} from './archify-diagrams.mjs';
 
 const staleVersion = /1\.1\.0/;
 const releaseLanes = new Set(['framework-package', 'skeleton', 'repository-example', 'documentation-only']);
@@ -72,7 +77,13 @@ export function validateAuthority(authority) {
   }
 }
 
-export async function assertSourceClaims({ authorityPath, sourceDirectory = sourceRoot, contentMapPath = path.join(repositoryRoot, 'docs/website/content-map.mjs') } = {}) {
+export async function assertSourceClaims({
+  authorityPath,
+  sourceDirectory = sourceRoot,
+  contentMapPath = path.join(repositoryRoot, 'docs/website/content-map.mjs'),
+  diagramManifestPath = null,
+  diagramRepositoryRoot = repositoryRoot,
+} = {}) {
   const authority = await loadReleaseAuthority(authorityPath);
   const occurrences = [];
   const sourceTexts = [];
@@ -90,10 +101,29 @@ export async function assertSourceClaims({ authorityPath, sourceDirectory = sour
   sourceTexts.push(contentMap);
   assertNoStaleCurrentPhrase(contentMap, path.relative(repositoryRoot, contentMapPath), authority);
   occurrences.push(...findOccurrences(contentMap, path.relative(repositoryRoot, contentMapPath), { currentVersion: authority.currentStable.version }));
+  const canonicalSourceDirectory = path.resolve(sourceDirectory) === path.resolve(sourceRoot);
+  if (canonicalSourceDirectory || diagramManifestPath !== null) {
+    const selectedManifestPath = diagramManifestPath ?? defaultDiagramManifestPath;
+    const manifest = await loadDiagramManifest(selectedManifestPath);
+    for (const relativePath of registeredDiagramClaimPaths(manifest)) {
+      const file = path.join(diagramRepositoryRoot, ...relativePath.split('/'));
+      const content = await readFile(file, 'utf8');
+      const repositoryRelativePath = path.relative(repositoryRoot, file);
+      assertNoStaleCurrentPhrase(content, repositoryRelativePath, authority);
+      sourceTexts.push(content);
+      occurrences.push(...findOccurrences(content, repositoryRelativePath, { currentVersion: authority.currentStable.version }));
+    }
+  }
   assertOccurrences(occurrences, authority, { source: true });
   const allText = sourceTexts.join('\n');
   assertCurrentAuthorityClaims(allText, authority);
   return occurrences;
+}
+
+function registeredDiagramClaimPaths(manifest) {
+  return [...publicDiagramLinks(manifest)]
+    .filter((link) => /\.(?:json|html)$/u.test(link))
+    .map((link) => path.posix.join('docs/website/public', link.slice(1)));
 }
 
 export async function assertArtifactClaims({ authorityPath, artifactDirectory } = {}) {

@@ -18,11 +18,15 @@ Operation CommandはHTTPと共通のCompiled Container、Validation、Authorizat
 
 本実装はFramework／QuickstartのLocal Sourceだけを更新し、Community Board、Session Auth Package、Documentation Website、Packageを外部公開しない。Phase 18全体のCloseoutはP18-006／P18-007に残る。
 
-`examples/quickstart/` はFeature-firstのInstalled Application Exampleと`blackops/skeleton`のSource of Truthである。Framework／Skeleton `1.2.0`はGitHub、Packagist、GitHub Releaseへ公開済みで、Remote `composer create-project`も検証済みである。Current SourceとRelease Documentationは公開済みExperimental `1.2.0`を対象とし、Project Root `blackops`、Generator、Application Migration、Validation、FrankenPHP Worker Modeを含む。MVP CompleteとStable Package公開もProduction Readyを意味しない。
+`examples/quickstart/` はFeature-firstのInstalled Application Exampleと`blackops/skeleton`のSource of Truthである。公開済みFramework／Skeleton `1.2.0`はGitHub、Packagist、GitHub Releaseへ公開済みで、Remote `composer create-project`も検証済みである。公開sourceとRelease DocumentationはExperimental Stable `1.2.0`を対象とし、Project Root `blackops`、Generator、Application Migration、Validation、FrankenPHP Worker Modeを含む。保守用checkoutの未公開Framework candidate `1.2.1`は別節で扱う。MVP CompleteとStable Package公開もProduction Readyを意味しない。
 
 ## Stable 1.2.0 Remote Closeout Evidence
 
 Remote package smokeは空のComposer Homeからnormal／`--no-scripts` create-projectを実行し、Skeleton／Framework `1.2.0` Lock、Project Root CLI、compile、12 migrations、HTTP、Worker retryからCompleted、Sensitive redactionを確認し、temporary resourcesをcleanupした。HTTP後のnon-root `operation:inspect`は、bind-mountされた`var/log/journal.jsonl`がHTTP Processでroot-ownedになる環境では`diagnostics.storage_failed`となる。root比較ではmasked Journal dataを確認済みであり、この確認済みownership limitationをRemote smoke全体の失敗として扱わない。Source修正や`1.2.1` publicationはこのEvidenceの範囲外である。
+
+## Framework 1.2.1 Maintenance Candidate
+
+保守用checkoutでは未公開Framework candidate `1.2.1`のComposer開発root、OpenTelemetry Trace／Metric scope、current-source Consumer mappingを準備する。これは公開済みStable `1.2.0`のauthority、public install、Skeleton package、またはpublication evidenceを変更せず、1.2.1のTag、Packagist、Remote smoke、release gateを実行したことも示さない。公開準備へ進む場合はFramework／Skeletonの同一Version Tag契約と新しいRelease Authority判断を満たす必要がある。
 
 ## Phase 7 Acceptance Evidence
 

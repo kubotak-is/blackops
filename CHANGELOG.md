@@ -8,6 +8,19 @@ BlackOpsはExperimentalです。1.xのMinor Release間でも破壊的変更を�
 
 次回Releaseの変更はこのSectionへ追記します。公開済み`1.2.0`と歴史的な`1.1.0`の記録は変更しません。
 
+## [1.2.1] - 2026-09-10
+
+### Changed
+
+- Documentation Websiteを全体デザインへ更新し、実行経路の進捗表示と曇りガラスのSurfaceを追加した。既存のRoute、Navigation、Keyboard操作、Mobile表示を維持する。
+- GuideのRelease境界、Quickstartの導線、Retention／Scheduled操作の説明を明確にし、未公開`1.3.0`のAudit Trail計画をCurrent Statusに整理した。
+- FrameworkのTelemetry Trace／Metric version constantを`1.2.1`へ更新した。
+
+### Known Limitations
+
+- 公開API、Dependency、Database Schema／Migrationは変更しない。既存Applicationの`^1.2` Constraintを維持でき、`1.2.0`からのDatabase Migrationは不要である。
+- 未公開の`1.3.0`に計画しているAudit Trail、CLI、Runtime機能はこのReleaseに含まれない。
+
 ## [1.2.0] - 2026-08-15
 
 ### Added
@@ -85,3 +98,4 @@ BlackOpsはExperimentalです。1.xのMinor Release間でも破壊的変更を�
 
 [1.1.0]: https://github.com/kubotak-is/blackops/compare/1.0.0...1.1.0
 [1.2.0]: https://github.com/kubotak-is/blackops/compare/1.1.0...1.2.0
+[1.2.1]: https://github.com/kubotak-is/blackops/compare/1.2.0...1.2.1

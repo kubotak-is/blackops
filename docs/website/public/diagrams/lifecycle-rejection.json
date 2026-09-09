@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "業務拒否の Lifecycle 経路",
+    "animation": "none",
+    "quality_profile": "showcase",
+    "legend": { "mode": "hidden" },
+    "viewBox": [420, 290]
+  },
+  "components": [
+    { "id": "received-reception", "type": "backend", "label": "Received", "sublabel": "受付時", "pos": [20, 30], "size": [170, 72] },
+    { "id": "rejected-reception", "type": "backend", "label": "Rejected", "sublabel": "Terminal", "tag": "受付時の拒否", "pos": [20, 180], "size": [170, 72] },
+    { "id": "running-execution", "type": "backend", "label": "Running", "sublabel": "実行中", "pos": [230, 30], "size": [170, 72] },
+    { "id": "rejected-execution", "type": "backend", "label": "Rejected", "sublabel": "Terminal", "tag": "実行中の拒否", "pos": [230, 180], "size": [170, 72] }
+  ],
+  "connections": [
+    { "id": "reception-rejection", "from": "received-reception", "to": "rejected-reception", "label": "operation.rejected", "fromSide": "bottom", "toSide": "top", "labelDy": 30 },
+    { "id": "execution-rejection", "from": "running-execution", "to": "rejected-execution", "label": "operation.rejected", "fromSide": "bottom", "toSide": "top", "labelDy": 30 }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "受付時", "items": ["Received で Validation、Authorization などの業務拒否を返す", "operation.rejected で Terminal になる"] },
+    { "dot": "emerald", "title": "実行中", "items": ["Running からも予期された業務拒否を返せる", "この経路は受信時の拒否とは独立している"] },
+    { "dot": "violet", "title": "別の経路", "items": ["通常の Exception は業務拒否として扱わず Failure の経路へ進む", "Rejected は新しい Attempt や Handler 実行を開始しない"] }
+  ]
+}

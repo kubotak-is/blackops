@@ -1,0 +1,46 @@
+{
+  "schema": 1,
+  "family": "Noto Sans JP",
+  "asset": {
+    "path": "docs/website/public/fonts/NotoSansJP.woff2",
+    "bytes": 298584,
+    "sha256": "f7ed72f468ec54f8fb3025f460018685c9f00102179fc91e4cbec5f3f5eda5eb"
+  },
+  "source": {
+    "repository": "https://github.com/google/fonts",
+    "revision": "baa2e5561af8a4873b058859dcfe158bdd033942",
+    "path": "ofl/notosansjp/NotoSansJP[wght].ttf",
+    "url": "https://raw.githubusercontent.com/google/fonts/baa2e5561af8a4873b058859dcfe158bdd033942/ofl/notosansjp/NotoSansJP%5Bwght%5D.ttf",
+    "bytes": 9589900,
+    "sha256": "c2f3b4d463500a2ddcd3849cded1fceeb9fd6d1c32e6cbecd568453ba50fc68f"
+  },
+  "license": {
+    "spdx": "OFL-1.1",
+    "path": "docs/website/public/fonts/NotoSansJP-OFL.txt",
+    "url": "https://raw.githubusercontent.com/google/fonts/baa2e5561af8a4873b058859dcfe158bdd033942/ofl/notosansjp/OFL.txt",
+    "bytes": 4388,
+    "sha256": "1c05c68c34f9708415aada51f17e1b0092d2cea709bf4a94cd38114f9e73d7d9"
+  },
+  "coverage": {
+    "script": "docs/website/fonts/generate-notosansjp.py",
+    "sourceFileCount": 100,
+    "codepointCount": 801,
+    "codepointsSha256": "48d0c77380aabd764104c5fb2575144738182c51c0f3185cd11d4db6ed6c4d50",
+    "missingCodepoints": []
+  },
+  "subset": {
+    "fontTools": "4.64.0",
+    "brotli": "1.2.0",
+    "command": "python3 -m fontTools.subset SOURCE_TTF --unicodes-file=UNICODES_FILE --flavor=woff2 --layout-features='*' --name-IDs='*' --name-legacy --name-languages='*' --recommended-glyphs --output-file=docs/website/public/fonts/NotoSansJP.woff2"
+  },
+  "integration": {
+    "css": "docs/website/design-tokens.css",
+    "fontFaceSource": "/fonts/NotoSansJP.woff2",
+    "archifyTemplatePatch": {
+      "path": "docs/website/diagrams/offline-fonts.patch",
+      "sha256": "69dde0626b865a2db2ffddfb296da6fb2c6c058b473d7d689b0e69705bbebee3",
+      "baseTemplateSha256": "3bfeaa21ec88e25a30813d30b185df7306369d6a9846304b097311bb66bc529d",
+      "fontEmbedding": "NotoSansJP.woff2 bytes are embedded in the tracked patch"
+    }
+  }
+}

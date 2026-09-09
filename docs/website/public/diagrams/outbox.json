@@ -1,0 +1,152 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Outboxの登録からchild実行まで",
+    "output": "outbox.architecture.html",
+    "quality_profile": "showcase",
+    "legend": { "mode": "hidden" },
+    "viewBox": [420, 980]
+  },
+  "components": [
+    {
+      "id": "business-mutation",
+      "type": "backend",
+      "label": "業務Mutation",
+      "sublabel": "Named Connection",
+      "tag": "Transaction",
+      "pos": [18, 40],
+      "size": [174, 86]
+    },
+    {
+      "id": "outbox-row",
+      "type": "database",
+      "label": "Outbox Row",
+      "sublabel": "Named Connection",
+      "tag": "Transaction",
+      "pos": [228, 40],
+      "size": [174, 86]
+    },
+    {
+      "id": "commit",
+      "type": "backend",
+      "label": "Commit",
+      "sublabel": "Mutation + Row",
+      "tag": "child未実行",
+      "pos": [60, 210],
+      "size": [300, 86]
+    },
+    {
+      "id": "relay",
+      "type": "backend",
+      "label": "Relay",
+      "sublabel": "outbox:relay:run",
+      "tag": "Commit後",
+      "pos": [60, 364],
+      "size": [300, 86]
+    },
+    {
+      "id": "durable-transport",
+      "type": "database",
+      "label": "PostgreSQL",
+      "sublabel": "Durable Transport",
+      "tag": "送信先",
+      "pos": [60, 518],
+      "size": [300, 86]
+    },
+    {
+      "id": "worker",
+      "type": "backend",
+      "label": "Worker",
+      "sublabel": "worker:run",
+      "tag": "Claim",
+      "pos": [60, 672],
+      "size": [300, 86]
+    },
+    {
+      "id": "child-operation",
+      "type": "backend",
+      "label": "child Operation",
+      "sublabel": "Handler / Outcome",
+      "tag": "重複耐性はApplicationで設計",
+      "pos": [60, 826],
+      "size": [300, 96]
+    }
+  ],
+  "connections": [
+    {
+      "id": "mutation-to-commit",
+      "from": "business-mutation",
+      "to": "commit",
+      "label": "同じNamed Connection",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "via": [[105, 158], [210, 158]],
+      "labelAt": [105, 140]
+    },
+    {
+      "id": "row-to-commit",
+      "from": "outbox-row",
+      "to": "commit",
+      "label": "同じTransaction",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "via": [[315, 174], [210, 174]],
+      "labelAt": [315, 140]
+    },
+    {
+      "id": "commit-to-relay",
+      "from": "commit",
+      "to": "relay",
+      "label": "Commit後",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelAt": [210, 330]
+    },
+    {
+      "id": "relay-to-transport",
+      "from": "relay",
+      "to": "durable-transport",
+      "label": "Transportへ送信",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelAt": [210, 484]
+    },
+    {
+      "id": "transport-to-worker",
+      "from": "durable-transport",
+      "to": "worker",
+      "label": "Claim",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelAt": [210, 638]
+    },
+    {
+      "id": "worker-to-child",
+      "from": "worker",
+      "to": "child-operation",
+      "label": "child実行",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelAt": [210, 792]
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "配送の保証",
+      "items": [
+        "RelayとWorkerはat-least-onceで再試行する",
+        "同じchildの重複にApplicationが耐える"
+      ]
+    },
+    {
+      "dot": "orange",
+      "title": "境界",
+      "items": [
+        "Relayのsentはchild Handler成功を意味しない",
+        "External BrokerとExactly Onceは提供しない"
+      ]
+    }
+  ]
+}

@@ -1,10 +1,50 @@
 ---
 import PageLayout from 'blume/components/layout/PageLayout.astro';
 import data from 'blume:data';
+import ExecutionWalkthrough from '../components/ExecutionWalkthrough.astro';
+import LandingBackdrop from '../components/LandingBackdrop.astro';
+import LandingMotion from '../components/LandingMotion.astro';
+import type { ExecutionWalkthroughRegion, ExecutionWalkthroughLink } from '../components/ExecutionWalkthrough.astro';
 import SearchFocusBoundary from '../components/SearchFocusBoundary.astro';
+import executionDiagram from '../public/diagrams/execution-overview.json';
+import executionDesktopDiagram from '../public/diagrams/execution-overview-desktop.json';
+import '../design-tokens.css';
+import '../documentation.css';
 import '../theme.css';
 
 const { config } = data;
+
+const executionLinks: ExecutionWalkthroughLink[] = [
+  { id: 'http-entry', label: 'HTTP', href: '/execution/http-and-deferred#inline-http', description: 'RequestをOperationへ渡す入口', detail: 'RequestをOperationへ渡します。Inlineは完了後に応答し、Deferredは受付後にHTTP 202とOperation IDを返します。' },
+  { id: 'value-binding', label: 'Value', href: '/operations/validation', description: '入力を型付けし検証する境界', detail: '入力をOperationValueへ変換し、Validationを実行します。Operationには型付きの値を渡します。' },
+  { id: 'strategy', label: 'Strategy', href: '/execution/http-and-deferred', description: 'InlineまたはDeferredを選ぶ経路', detail: 'OperationのMetadataに従い、HTTP内で実行するInlineか、Workerへ引き継ぐDeferredかを選びます。' },
+  { id: 'durable-transport', label: 'Durable Transport', href: '/execution/http-and-deferred#deferred-http', description: 'Deferredの受付を永続化する境界', detail: 'DeferredのValueとContextを保持し、Workerが取得できる状態にします。受付Journalも同じTransactionで確定します。' },
+  { id: 'worker', label: 'Worker', href: '/execution/http-and-deferred#worker', description: '受理済みのOperationを引き継ぐ実行者', detail: '受理済みのValueとContextを取得し、別プロセスでAttemptを開始してOperationを実行します。' },
+  { id: 'operation', label: 'Operation', href: '/operations/authoring', description: 'Applicationの意図を実行する単位', detail: 'handle()にアプリケーションの処理を実装します。InlineでもDeferredでも、Valueと必要なContextを受け取りOutcomeを返します。' },
+  { id: 'outcome', label: 'Outcome', href: '/database/outcomes', description: '正常完了で返す型付きOutput', detail: '正常完了した処理の型付きの結果です。InlineではResponseに変換し、Deferredでは完了Journalと同じTransactionで保存します。' },
+];
+
+const executionGeometry = {
+  width: executionDiagram.meta.viewBox[0],
+  height: executionDiagram.meta.viewBox[1],
+};
+
+const executionDesktopGeometry = {
+  width: executionDesktopDiagram.meta.viewBox[0],
+  height: executionDesktopDiagram.meta.viewBox[1],
+};
+
+const executionRegions: ExecutionWalkthroughRegion[] = executionLinks.map((link) => {
+  const component = executionDiagram.components.find(({ id }) => id === link.id);
+  if (!component) throw new Error(`Execution overview diagram is missing component ${link.id}.`);
+  return {
+    id: link.id,
+    x: component.pos[0],
+    y: component.pos[1],
+    width: component.size[0],
+    height: component.size[1],
+  };
+});
 ---
 
 <PageLayout
@@ -22,31 +62,31 @@ const { config } = data;
   page={{ title: 'BlackOps - The PHP Framework', description: config.description, route: '/' }}
 >
   <SearchFocusBoundary />
+  <LandingMotion />
   <div class="landing-shell">
-    <section class="landing-hero" aria-labelledby="landing-title">
-      <div class="landing-hero-content">
-        <p class="landing-eyebrow">PHP 8.5向けFramework</p>
-        <h1 id="landing-title"><span class="landing-brand">BlackOps</span> <span class="landing-tagline">The PHP Framework</span></h1>
+    <LandingBackdrop />
+    <header class="landing-hero" aria-labelledby="landing-title" data-landing-reveal="hero">
+      <div class="landing-hero__identity" data-landing-reveal="identity">
+        <h1 id="landing-title"><span class="landing-brand" data-landing-neon-title>BlackOps</span> <span class="landing-tagline">The PHP Framework</span></h1>
         <p class="landing-value">HTTPとWorkerの処理を一つのOperationとして扱い、受付・再試行・完了までを同じIDで追跡できるPHP Frameworkです。</p>
-        <p class="landing-value-note">この処理単位をOperationと呼び、Inline／Deferred Workerで同じLifecycleを追跡します。</p>
-        <div class="landing-actions" aria-label="ドキュメントの操作">
-          <a class="landing-button landing-button-primary" href="/getting-started/installation">Install</a>
-          <a class="landing-button landing-button-secondary" href="/getting-started/quickstart">Quickstart and Skeleton</a>
-        </div>
-        <div class="landing-install">
-          <p class="landing-install-label">Stable 1.2.0 install</p>
-          <pre class="landing-command blackops-overflow-focus" tabindex="0"><code>composer create-project blackops/skeleton my-app 1.2.0</code></pre>
-        </div>
-        <a class="landing-cli-entry" href="/reference/project-cli"><strong>BlackOps CLI</strong><span>Command、Runtime、Output、Exitを調べる</span></a>
+        <p class="landing-value-note">入口がHTTPでもConsoleでもScheduleでも、ValueとContextをOperationへ渡し、InlineまたはDeferredの実行経路を選べます。</p>
       </div>
 
-      <div class="landing-product-visual" aria-labelledby="landing-operation-visual-title">
-        <div class="landing-code-panel">
-          <div class="landing-editor-chrome" aria-label="Operationのソース">
-            <span class="landing-editor-tab" aria-current="true">GenerateReport.php</span>
-            <span class="landing-editor-language">PHP</span>
-          </div>
-          <div class="landing-panel-bar"><span class="landing-panel-kicker" id="landing-operation-visual-title">Operation</span><span class="landing-panel-file">Deferred Operation</span></div>
+      <div class="landing-hero__actions" data-landing-reveal="actions">
+        <div class="landing-actions" aria-label="ドキュメントの操作">
+          <a class="landing-button landing-button-primary" data-landing-action="why" href="/concepts/why-blackops">What's BlackOps</a>
+          <a class="landing-button landing-button-secondary" data-landing-action="install" href="/getting-started/installation">Install</a>
+        </div>
+        <div class="landing-install">
+          <p class="landing-install-label">Stable 1.2.0</p>
+          <pre class="landing-command blackops-overflow-focus" tabindex="0"><code>composer create-project blackops/skeleton my-app 1.2.0</code></pre>
+        </div>
+        <a class="landing-cli-entry" href="/reference/project-cli"><strong>BlackOps CLI</strong><span>Command、Runtime、Output、Exitを調べる</span><span aria-hidden="true">→</span></a>
+      </div>
+
+      <div class="landing-hero__code" data-landing-reveal="code">
+        <div class="landing-code-panel" aria-label="Operationのソース">
+          <div class="landing-code-header"><span>GenerateReport.php</span><span>PHP</span></div>
           <pre class="blackops-overflow-focus" tabindex="0"><code><span class="syntax-keyword">#[Route(method: </span><span class="syntax-string">'POST'</span><span class="syntax-keyword">, path: </span><span class="syntax-string">'/reports'</span><span class="syntax-keyword">)]</span>
 <span class="syntax-keyword">#[OperationType('report.generate')]</span>
 <span class="syntax-keyword">#[Deferred]</span>
@@ -64,90 +104,61 @@ const { config } = data;
     &#125;
 &#125;</code></pre>
         </div>
-        <section class="landing-lifecycle-panel" aria-labelledby="landing-lifecycle-title">
-          <div class="landing-lifecycle-heading">
-            <h2 id="landing-lifecycle-title">Operation Lifecycle</h2>
-            <span>同じID</span>
-          </div>
-          <p class="landing-lifecycle-caption">同じOperation IDで、受付、Attempt、完了までの実行事実を追跡します。</p>
-          <p class="landing-lifecycle-note">Retryは同じIDの次のAttemptとして続きます。</p>
-          <ol class="landing-lifecycle-rail">
-            <li><span class="landing-lifecycle-marker" aria-hidden="true"></span><span><strong>Received</strong><small>受付された</small></span></li>
-            <li><span class="landing-lifecycle-marker" aria-hidden="true"></span><span><strong>Accepted</strong><small>Deferredを引き受けた</small></span></li>
-            <li><span class="landing-lifecycle-marker" aria-hidden="true"></span><span><strong>Running</strong><small>Attemptを開始した</small></span></li>
-            <li><span class="landing-lifecycle-marker" aria-hidden="true"></span><span><strong>Finalizing</strong><small>attempt.succeeded — Handlerが成功した</small></span></li>
-            <li><span class="landing-lifecycle-marker" aria-hidden="true"></span><span><strong>Completed</strong><small>処理を完了した</small></span></li>
-          </ol>
-        </section>
-        <p class="landing-visual-caption">実際のOperation codeで、RouteとDeferredの境界を確認できます。</p>
-        <a class="landing-visual-link" href="/concepts/lifecycle">LifecycleのEventを読む</a>
       </div>
-    </section>
 
-    <section class="landing-start" aria-labelledby="landing-start-title">
-      <div class="landing-section-heading">
-        <h2 id="landing-start-title">最初のOperationまで</h2>
-        <p>Installから実行結果の確認まで、順番に進めます。</p>
-      </div>
-      <ol class="landing-journey">
-        <li>
-          <a href="/getting-started/installation">
-            <span class="landing-journey-copy"><strong>Install</strong><small>ProjectとLocal環境を準備する</small></span>
-            <span class="landing-journey-action">開く</span>
-          </a>
-        </li>
-        <li>
-          <a href="/getting-started/quickstart">
-            <span class="landing-journey-copy"><strong>Quickstart and Skeleton</strong><small>InlineとDeferredを動かす</small></span>
-            <span class="landing-journey-action">開く</span>
-          </a>
-        </li>
-        <li>
-          <a href="/getting-started/first-operation">
-            <span class="landing-journey-copy"><strong>First Operation</strong><small>自分のOperationを生成して完走する</small></span>
-            <span class="landing-journey-action">開く</span>
-          </a>
-        </li>
-      </ol>
-    </section>
-
-    <section class="landing-model" aria-labelledby="landing-model-title">
-      <div class="landing-section-heading">
-        <h2 id="landing-model-title">一つのOperationを追いかける</h2>
-        <p>入口が変わっても、受理されたOperationの実行事実を同じ形で確認します。</p>
-      </div>
-      <dl class="landing-model-list">
-        <div>
-          <dt>Operation</dt>
-          <dd>Valueを受け取り、Outcomeを返すApplicationの仕事を一つの契約にします。</dd>
-        </div>
-        <div>
-          <dt>Inline and Deferred</dt>
-          <dd>HTTPではその場で実行し、Deferredでは受理後にWorkerが続きから実行します。</dd>
-        </div>
-        <div>
-          <dt>Lifecycle and Journal</dt>
-          <dd>Received、Accepted、Running、Completedなどの実行事実をJournalで追跡します。</dd>
-        </div>
-      </dl>
-      <div class="landing-model-links">
-        <a class="landing-text-link" href="/concepts/why-blackops">What's BlackOpsを読む</a>
-        <a class="landing-text-link" href="/concepts/journal">Journalを読む</a>
-      </div>
-    </section>
-
-    <section class="landing-purpose" aria-labelledby="landing-purpose-title">
-      <div class="landing-section-heading">
-        <h2 id="landing-purpose-title">目的から探す</h2>
-      </div>
-      <nav class="landing-purpose-nav" aria-label="ドキュメントのセクション">
-        <a href="/operations/authoring"><span><strong>Build</strong><small>Operation、Validation、Frontendを組み立てる</small></span><span aria-hidden="true">開く</span></a>
-        <a href="/concepts/lifecycle"><span><strong>Async and Lifecycle</strong><small>Deferred、Outcome、Journalを追跡する</small></span><span aria-hidden="true">開く</span></a>
-        <a href="/database/transactions"><span><strong>Data and Security</strong><small>Transaction、Migration、Tenantを守る</small></span><span aria-hidden="true">開く</span></a>
-        <a href="/reference/configuration"><span><strong>Operate</strong><small>Configuration、Deployment、Observabilityを確認する</small></span><span aria-hidden="true">開く</span></a>
-        <a href="/reference/project-cli"><span><strong>Reference</strong><small>CLI、Bootstrap、APIの契約を調べる</small></span><span aria-hidden="true">開く</span></a>
-        <a href="/releases/current-status"><span><strong>Releases</strong><small>Stable 1.2.0の提供範囲と移行情報を確認する</small></span><span aria-hidden="true">開く</span></a>
+      <nav class="landing-entry-points" aria-label="Operationの入口" data-landing-reveal="entry-points">
+        <a href="/execution/http-and-deferred#inline-http"><span>HTTP</span><small>Request</small></a>
+        <a href="/execution/console-command"><span>Console</span><small>Operation CLI</small></a>
+        <a href="/operations/scheduled-operation"><span>Schedule</span><small>定期実行</small></a>
       </nav>
+    </header>
+
+    <div class="landing-demo" data-landing-reveal="demo">
+      <ExecutionWalkthrough
+        svgSrc="/diagrams/execution-overview.svg"
+        dataSrc="/diagrams/execution-overview.json"
+        desktopSvgSrc="/diagrams/execution-overview-desktop.svg"
+        desktopDataSrc="/diagrams/execution-overview-desktop.json"
+        svgAlt="HTTPの入力をValueへ変換し、InlineまたはDeferredでOperationを実行してOutcomeへ進む処理経路の図。"
+        geometry={executionGeometry}
+        desktopGeometry={executionDesktopGeometry}
+        links={executionLinks}
+        regions={executionRegions}
+      />
+    </div>
+
+    <section class="landing-resources" aria-labelledby="landing-resources-title" data-landing-reveal="resources">
+      <div class="landing-resource-layout">
+        <div class="landing-section-heading">
+          <h2 id="landing-resources-title">BlackOpsを動かす</h2>
+          <p>環境を用意し、サンプルで動きを確かめてから、自分のOperationを作ります。</p>
+        </div>
+        <div class="landing-resource-group">
+          <ol class="landing-journey">
+            <li>
+              <a href="/getting-started/installation">
+                <span class="landing-journey-index">01</span>
+                <span class="landing-journey-copy"><strong>環境を用意する</strong><small>PHPとComposerでProjectを作り、Local環境を準備する</small></span>
+                <span class="landing-journey-action" aria-hidden="true">→</span>
+              </a>
+            </li>
+            <li>
+              <a href="/getting-started/quickstart">
+                <span class="landing-journey-index">02</span>
+                <span class="landing-journey-copy"><strong>サンプルを動かす</strong><small>認証付きHTTPとDeferred Workerを順に確認する</small></span>
+                <span class="landing-journey-action" aria-hidden="true">→</span>
+              </a>
+            </li>
+            <li>
+              <a href="/getting-started/first-operation">
+                <span class="landing-journey-index">03</span>
+                <span class="landing-journey-copy"><strong>Operationを作る</strong><small>CLIで生成し、HTTPとWorkerで完走する</small></span>
+                <span class="landing-journey-action" aria-hidden="true">→</span>
+              </a>
+            </li>
+          </ol>
+        </div>
+      </div>
     </section>
   </div>
 </PageLayout>

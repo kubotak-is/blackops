@@ -201,7 +201,7 @@ test "$(psql 'SELECT count(*) FROM blackops.schema_migrations')" = 2
 test "$(psql "SELECT count(*) FROM pg_tables WHERE schemaname = 'blackops' AND tablename IN ('operations', 'journal', 'outcomes', 'dead_letters', 'retention_holds', 'retention_purge_audits')")" = 6
 test "$(psql "SELECT count(*) FROM pg_constraint c JOIN pg_class t ON t.oid = c.conrelid JOIN pg_namespace n ON n.oid = t.relnamespace WHERE n.nspname = 'blackops' AND c.conname IN ('operations_payload_tombstone_check', 'outcomes_operation_id_fkey')")" = 2
 
-candidate_tag_ref='refs/tags/1.2.0'
+candidate_tag_ref='refs/tags/1.2.1'
 candidate_tag_type="$(git -C "${framework_repository}" cat-file -t "${candidate_tag_ref}" 2>/dev/null || true)"
 if test -z "${candidate_tag_type}"; then
     git -C "${framework_repository}" checkout --quiet "${candidate_commit}"
@@ -209,7 +209,7 @@ if test -z "${candidate_tag_type}"; then
     test -z "$(git -C "${framework_repository}" status --short)"
     git -C "${framework_repository}" config --local user.name 'BlackOps Runtime Consumer'
     git -C "${framework_repository}" config --local user.email 'blackops-runtime@invalid.example'
-    git -C "${framework_repository}" tag -a -m 'local runtime candidate' 1.2.0 "${candidate_commit}"
+    git -C "${framework_repository}" tag -a -m 'local runtime candidate' 1.2.1 "${candidate_commit}"
     candidate_source_commit="${candidate_commit}"
 else
     test "${candidate_tag_type}" = tag
@@ -219,7 +219,7 @@ else
     if ! git -C "${framework_repository}" diff --quiet "${published_candidate_commit}" "${candidate_commit}" -- \
         src composer.json examples/quickstart resources migrations \
         ':(exclude)examples/quickstart/README.md'; then
-        fail 'Published 1.2.0 release-runtime Source drifted from current HEAD.'
+        fail 'Published 1.2.1 release-runtime Source drifted from current HEAD.'
     fi
     candidate_source_commit="${published_candidate_commit}"
 fi
@@ -249,7 +249,7 @@ foreach ($lock["packages"] ?? [] as $package) {
 }
 exit(1);
 ')"
-test "${candidate_framework_version}" = 1.2.0
+test "${candidate_framework_version}" = 1.2.1
 
 for runtime_path in bootstrap/app.php public/index.php public/worker.php; do
     cp "${framework_repository}/examples/quickstart/${runtime_path}" "${consumer_root}/${runtime_path}"

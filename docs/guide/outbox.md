@@ -6,6 +6,20 @@ Transactional Outboxは、業務MutationとDeferred child Operationの発行を�
 Outboxは公開済みExperimental Stable `1.2.0`のExperimental Surfaceです。External Broker、Exactly Once、child Handler完了の自動保証は提供しないため、Applicationで重複耐性を設計してください。
 :::
 
+## 登録から配送までの流れ
+
+業務変更とOutbox Rowは、同じNamed ConnectionのTransactionで確定します。
+Commit後にRelayがOutbox Rowを取得してPostgreSQLのDurable Transportへ送り、Workerがchild Operationを実行します。
+Relayの送信成功はchild Handlerの完了を意味しません。
+RelayとWorkerはat-least-onceで動くため、Applicationで副作用の重複に備えます。
+
+<div class="archify-figure">
+
+![Root Operationの業務変更とOutbox登録を同じTransactionでCommitし、Relay、PostgreSQLのDurable Transport、Worker、child Operationの順に配送する。Commit前にchild Handlerは実行されず、重複への対応はApplicationが担う。](assets/diagrams/outbox.png)
+
+</div>
+
+
 ## DispatchからCommitまで
 
 Root OperationのHandler内で`Operations::dispatch()`を呼び、childを登録します。業務変更とOutbox Rowは同じTransactionでCommitされ、Commit前にchild Handlerは実行されません。既存のCommunity Boardで動作する最小Recipeを、ApplicationのProject Rootへ次の配置で作ります。`BoardService`、Repository実装、認証PolicyはApplication所有であり、Frameworkが生成するものではありません。

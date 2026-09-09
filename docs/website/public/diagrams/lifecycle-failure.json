@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Failure と Retry の Lifecycle 経路",
+    "animation": "none",
+    "quality_profile": "showcase",
+    "legend": { "mode": "hidden" },
+    "viewBox": [420, 816]
+  },
+  "components": [
+    { "id": "running-initial", "type": "backend", "label": "Running", "sublabel": "同じ Operation", "pos": [110, 20], "size": [200, 68] },
+    { "id": "supervising-retry", "type": "backend", "label": "Supervising", "sublabel": "attempt.failed", "tag": "Retry 経路", "pos": [110, 115], "size": [200, 80] },
+    { "id": "retry-scheduled", "type": "backend", "label": "Retry Scheduled", "sublabel": "attempt.retry_scheduled", "pos": [110, 222], "size": [200, 68] },
+    { "id": "running-retry", "type": "backend", "label": "Running", "sublabel": "same Operation / new Attempt", "pos": [110, 317], "size": [200, 68] },
+    { "id": "supervising-failed", "type": "backend", "label": "Supervising", "sublabel": "repeat state", "tag": "独立経路", "pos": [20, 412], "size": [170, 80] },
+    { "id": "failed-terminal", "type": "backend", "label": "Failed", "sublabel": "Terminal", "pos": [20, 519], "size": [170, 68] },
+    { "id": "supervising-dead", "type": "backend", "label": "Supervising", "sublabel": "repeat state", "tag": "独立経路", "pos": [230, 412], "size": [170, 80] },
+    { "id": "dead-letter", "type": "backend", "label": "Dead Letter", "sublabel": "Terminal · Deferred", "pos": [230, 519], "size": [170, 68] },
+    { "id": "finalizing", "type": "backend", "label": "Finalizing", "sublabel": "completion attempt", "tag": "独立経路", "pos": [110, 614], "size": [200, 80] },
+    { "id": "failed-finalization", "type": "backend", "label": "Failed", "sublabel": "Terminal", "pos": [110, 721], "size": [200, 68] }
+  ],
+  "connections": [
+    { "id": "running-to-supervising", "from": "running-initial", "to": "supervising-retry", "label": "attempt.failed", "fromSide": "bottom", "toSide": "top", "labelDy": 30 },
+    { "id": "supervising-to-retry", "from": "supervising-retry", "to": "retry-scheduled", "label": "attempt.retry_scheduled", "fromSide": "bottom", "toSide": "top", "labelDy": 30 },
+    { "id": "retry-to-running", "from": "retry-scheduled", "to": "running-retry", "label": "attempt.started", "fromSide": "bottom", "toSide": "top", "labelDy": 30 },
+    { "id": "supervising-to-failed", "from": "supervising-failed", "to": "failed-terminal", "label": "operation.failed", "fromSide": "bottom", "toSide": "top", "labelDy": 30 },
+    { "id": "supervising-to-dead-letter", "from": "supervising-dead", "to": "dead-letter", "label": "operation.dead_lettered", "fromSide": "bottom", "toSide": "top", "labelDy": 30 },
+    { "id": "finalizing-to-failed", "from": "finalizing", "to": "failed-finalization", "label": "operation.failed", "fromSide": "bottom", "toSide": "top", "labelDy": 30 }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "Retry の独立ブロック", "items": ["Running から attempt.failed、attempt.retry_scheduled を経て同じ Operation の新しい Attempt を開始する", "Retry 上限や Policy の判断はこの論理経路に含まれる"] },
+    { "dot": "amber", "title": "Terminal への分岐", "items": ["Supervising から operation.failed または Deferred の operation.dead_lettered で終了する", "繰り返した Supervising は同じ論理状態を示す独立ブロック"] },
+    { "dot": "violet", "title": "Finalizing の失敗", "items": ["Finalizing からも operation.failed で Terminal になり得る", "Completed 後に新しい Attempt が始まる経路はない"] }
+  ]
+}

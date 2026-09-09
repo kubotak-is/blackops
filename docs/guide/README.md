@@ -4,11 +4,35 @@ BlackOpsは、PHP 8.5向けのHeadless Operation Frameworkです。HTTPとWorker
 
 ## Start Here
 
-最初は[Install](installation.md)でProjectを作り、[Quickstart and Skeleton](mvp-sample.md)でHTTPの同期処理とWorkerの非同期処理を動かします。ここで、InlineはRequest内で完了する実行、Deferred Workerは受付後に同じOperation IDで続ける実行、JournalはそのLifecycle事実を順序付きで記録する仕組みだと確認できます。[First Operation](first-operation.md)では、自分のOperationを生成してHTTP 202、Status、Worker、Typed Outcomeまで確認します。
+まず[What's BlackOps](why-blackops.md)でFrameworkの考え方を確認し、[Install](installation.md)でProjectを作ります。[Quickstart and Skeleton](mvp-sample.md)ではHTTPの同期処理とWorkerの非同期処理を動かします。ここで、InlineはRequest内で完了する実行、Deferred Workerは受付後に同じOperation IDで続ける実行、JournalはそのLifecycle事実を順序付きで記録する仕組みだと確認できます。[First Operation](first-operation.md)では、自分のOperationを生成してHTTP 202、Status、Worker、Typed Outcomeまで確認します。
 
 ### [What's BlackOps](why-blackops.md)
 
 BlackOpsはHTTP、Console、Workerなどの入口から受け取った仕事をOperationへそろえ、同じOperation IDで受付・再試行・完了を確認できるHeadless Operation Frameworkです。固有語と実行境界は次のQuickstartと[What's BlackOps](why-blackops.md)で順に説明します。
+
+### 処理の進行とJournalイベント
+
+<div class="archify-figure">
+
+![HTTPの入力をOperationValueへ変換・検証し、Execution StrategyがInlineとDeferredを分ける。Inlineは同じプロセスでOperationを実行し、DeferredはValueとContextをDurable Transportへ保存してWorkerが取得・実行する。どちらも正常完了するとOutcomeを返す。](assets/diagrams/execution-overview.png)
+
+</div>
+
+HTTPの正常系では、入力をValueへ変換・検証し、Metadataから実行経路を選んだ後に`operation.received`を記録します。
+Inlineは同じHTTPプロセスで`attempt.started`を記録してOperationを実行し、正常完了すると`attempt.succeeded`、`operation.completed`の順に記録します。
+OutcomeはHTTP Responseへ変換して返し、Outcome Recordは保存しません。
+
+DeferredはValue・Contextと受付Journalを同じTransactionで保存し、`operation.received`と`operation.accepted`を伴う受付を確定します。
+HTTP 202は受付済みを示す応答で、処理の完了は待ちません。
+別プロセスのWorkerがClaimし、`attempt.started`を記録してOperationを実行します。
+最後にOutcomeの保存と`attempt.succeeded`、`operation.completed`を同じTransactionで確定します。
+
+トップページのアニメーションは、この二つの正常系を別々の実行例として繰り返します。
+表示するJournalは説明用です。実際の所要時間を表しておらず、受付確定後のHTTP応答とWorker実行は並行し得ます。
+拒否や再試行を含むイベントは[Lifecycle](operation-lifecycle.md)、記録の構造は[Journal](journal.md)で確認できます。
+
+共通する型と役割は[Core Concepts](core-concepts.md)で説明します。
+HTTPの実行経路は[Inline and Deferred](execution.md)、Operation用CLIは[ConsoleCommand](console-command.md)、定期実行は[Scheduled Operation](scheduled-operation.md)で説明します。
 
 ### 最短で試す
 

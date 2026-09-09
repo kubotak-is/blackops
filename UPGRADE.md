@@ -361,3 +361,22 @@ ConsumerでStable Tag `1.1.0`のApplicationへ公開済みFramework `1.2.0`を�
 ### 8. Rollbackと公開境界
 
 Upgrade検証に失敗した場合はProcessを停止し、同一Backup組からDatabase／Source／Generated Artifactを復元してから旧Frameworkを再解決します。`1.1.0` Tagと公開済み`1.2.0` Tagを移動、削除、上書きしないでください。`1.2.0`はLatest Experimental Stableとして公開済みですが、Production Readyを意味しません。Remote smokeではnormal／`--no-scripts` install、CLI、compile、12 migrations、HTTP、Worker retry→completed、redactionが成功しています。HTTP後のnon-root `operation:inspect`はroot-owned `var/log/journal.jsonl`のbind-mount ownership制約で`diagnostics.storage_failed`となる確認済み制約があるため、root比較でmasked dataを確認し、Remote smoke全体の失敗とは扱いません。
+
+## 1.2.0から1.2.1
+
+`1.2.1`はFrameworkの保守Patchです。Framework／Skeleton `1.2.1`のTagとPackagist公開が確認できるまでは、公開済みStable／Install案内に従って`1.2.0`を使用します。
+
+### 1. Frameworkを更新する
+
+公開後、既存Applicationの`^1.2` Constraintを維持したままFrameworkだけを更新します。
+
+```bash
+composer update blackops/framework --with-all-dependencies
+composer validate --strict
+```
+
+### 2. DatabaseとApplication Sourceを確認する
+
+このPatchではDatabase Schema／Migration、公開API、Dependency、Generated Application Sourceを変更しません。Database Migrationは不要です。既存ApplicationのDatabase／Configuration／Operationをそのまま確認し、FrameworkのPatch更新後に通常のApplication検証を実行します。
+
+`1.3.0`のAudit Trail、CLI、RuntimeはこのPatchに含まれません。計画の説明は[Current Status](docs/guide/mvp-status.md)で確認し、公開済み`1.2.0`のInstall手順はそのTagが指すDocumentationを使用してください。

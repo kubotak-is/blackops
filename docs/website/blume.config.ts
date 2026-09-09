@@ -32,22 +32,23 @@ export default defineConfig({
   },
   search: { provider: 'orama' },
   theme: {
-    accent: { light: '#0f766e', dark: '#5eead4' },
-    action: '#f97316',
+    accent: { light: '#4f6f16', dark: '#c9ed68' },
+    action: '#d8f47b',
+    background: { light: '#fafafa', dark: '#0b0b0b' },
     mode: 'system',
-    radius: 'sm',
+    radius: 'lg',
     fonts: {
       body: {
         name: 'Ubuntu Sans',
-        variants: [{ src: localFont('UbuntuSans.ttf'), weight: '400..700' }],
+        variants: [{ src: localFont('UbuntuSans.woff2'), weight: '400..700' }],
       },
       display: {
         name: 'Ubuntu Sans',
-        variants: [{ src: localFont('UbuntuSans.ttf'), weight: '400..700' }],
+        variants: [{ src: localFont('UbuntuSans.woff2'), weight: '400..700' }],
       },
       mono: {
         name: 'Ubuntu Mono',
-        variants: [{ src: localFont('UbuntuMono.ttf'), weight: '400..700' }],
+        variants: [{ src: localFont('UbuntuMono.woff2'), weight: '400..700' }],
       },
     },
   },
