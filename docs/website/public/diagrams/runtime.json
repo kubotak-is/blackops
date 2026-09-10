@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "BlackOps の共通実行モデル",
+    "animation": "none",
+    "quality_profile": "showcase",
+    "legend": { "mode": "hidden" },
+    "viewBox": [420, 700]
+  },
+  "components": [
+    { "id": "http", "type": "frontend", "label": "HTTP", "sublabel": "HTTP Route", "pos": [20, 40], "size": [120, 68] },
+    { "id": "operation-cli", "type": "frontend", "label": "Console", "sublabel": "Operation用", "pos": [150, 40], "size": [120, 68] },
+    { "id": "schedule", "type": "backend", "label": "Schedule", "sublabel": "定期実行", "pos": [280, 40], "size": [120, 68] },
+    { "id": "operation-value", "type": "backend", "label": "OperationValue", "sublabel": "型付き入力", "pos": [110, 170], "size": [200, 78] },
+    { "id": "execution-context", "type": "backend", "label": "ExecutionContext", "sublabel": "実行文脈", "pos": [20, 300], "size": [170, 78] },
+    { "id": "execution-strategy", "type": "backend", "label": "Execution Strategy", "sublabel": "Inline / Deferred", "pos": [230, 300], "size": [170, 78] },
+    { "id": "operation", "type": "backend", "label": "Operation", "sublabel": "共通の実行単位", "pos": [110, 430], "size": [200, 78] },
+    { "id": "outcome", "type": "backend", "label": "Outcome", "sublabel": "正常完了の結果", "pos": [20, 560], "size": [170, 78] },
+    { "id": "journal", "type": "database", "label": "Journal", "sublabel": "実行の記録", "pos": [230, 560], "size": [170, 78] }
+  ],
+  "connections": [
+    { "id": "http-to-operation-value", "from": "http", "to": "operation-value", "label": "型付け", "fromSide": "bottom", "toSide": "top" },
+    { "id": "cli-to-operation-value", "from": "operation-cli", "to": "operation-value", "label": "型付け", "fromSide": "bottom", "toSide": "top", "labelDy": 24 },
+    { "id": "schedule-to-operation-value", "from": "schedule", "to": "operation-value", "label": "既定 Value", "fromSide": "bottom", "toSide": "top" },
+    { "id": "operation-value-to-operation", "from": "operation-value", "to": "operation", "label": "第一引数", "fromSide": "bottom", "toSide": "top", "labelDy": 24 },
+    { "id": "execution-context-to-operation", "from": "execution-context", "to": "operation", "label": "第二引数（任意）", "fromSide": "bottom", "toSide": "top", "labelDx": -40 },
+    { "id": "execution-strategy-to-operation", "from": "execution-strategy", "to": "operation", "label": "実行方式", "fromSide": "bottom", "toSide": "top" },
+    { "id": "operation-to-outcome", "from": "operation", "to": "outcome", "label": "正常完了", "fromSide": "bottom", "toSide": "top" },
+    { "id": "operation-to-journal", "from": "operation", "to": "journal", "label": "Lifecycle", "fromSide": "bottom", "toSide": "top" },
+    { "id": "execution-strategy-to-journal", "from": "execution-strategy", "to": "journal", "label": "記録", "fromSide": "bottom", "toSide": "top", "labelAt": [370, 520] }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "入口", "items": ["HTTP Route と Operation 用 CLI は入力を型付けする", "Schedule は設定済み戦略で既定 Value と Context を用意する"] },
+    { "dot": "emerald", "title": "共通の責務", "items": ["OperationValue は Operation の第一引数になる", "ExecutionContext は任意の第二引数になる", "Execution Strategy は Inline / Deferred を選ぶ"] },
+    { "dot": "violet", "title": "結果と記録", "items": ["Operation は Outcome を返す", "Operation と Strategy は Lifecycle Journal に事実を残す"] }
+  ]
+}

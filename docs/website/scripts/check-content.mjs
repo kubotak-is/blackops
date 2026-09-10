@@ -129,7 +129,7 @@ export async function validateLinkLabels(root, { allowList = linkLabelAllowList 
     headingMaps.set(file, headings);
   }
   const used = new Set();
-  const linkPattern = /(?<!\!)\[([^\]]+)\]\(([^)]+)\)/g;
+  const linkPattern = /(?<!\!)\[((?:[^\]`]|`[^`]*`)*?)\]\(([^)]+)\)/g;
   for (const [source, content] of sources) {
     let match;
     while ((match = linkPattern.exec(content)) !== null) {

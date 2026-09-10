@@ -1,0 +1,233 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "HTTP 実行経路の概要",
+    "animation": "none",
+    "quality_profile": "showcase",
+    "legend": {
+      "mode": "hidden"
+    },
+    "viewBox": [
+      1000,
+      420
+    ]
+  },
+  "components": [
+    {
+      "id": "http-entry",
+      "type": "frontend",
+      "label": "HTTP",
+      "sublabel": "HTTP Route",
+      "pos": [
+        40,
+        64
+      ],
+      "size": [
+        140,
+        80
+      ]
+    },
+    {
+      "id": "value-binding",
+      "type": "backend",
+      "label": "OperationValue",
+      "sublabel": "bind / validate",
+      "pos": [
+        220,
+        64
+      ],
+      "size": [
+        160,
+        80
+      ]
+    },
+    {
+      "id": "strategy",
+      "type": "backend",
+      "label": "Execution Strategy",
+      "sublabel": "Inline / Deferred",
+      "pos": [
+        420,
+        64
+      ],
+      "size": [
+        170,
+        80
+      ]
+    },
+    {
+      "id": "durable-transport",
+      "type": "database",
+      "label": "Durable Transport",
+      "sublabel": "Value / Context 保存",
+      "pos": [
+        220,
+        240
+      ],
+      "size": [
+        170,
+        82
+      ]
+    },
+    {
+      "id": "worker",
+      "type": "backend",
+      "label": "Worker",
+      "sublabel": "Claim",
+      "pos": [
+        420,
+        240
+      ],
+      "size": [
+        170,
+        82
+      ]
+    },
+    {
+      "id": "operation",
+      "type": "backend",
+      "label": "Operation",
+      "sublabel": "handle",
+      "pos": [
+        640,
+        64
+      ],
+      "size": [
+        160,
+        80
+      ]
+    },
+    {
+      "id": "outcome",
+      "type": "backend",
+      "label": "Outcome",
+      "sublabel": "正常完了",
+      "pos": [
+        850,
+        64
+      ],
+      "size": [
+        110,
+        80
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "request-input",
+      "from": "http-entry",
+      "to": "value-binding",
+      "label": "入力",
+      "fromSide": "right",
+      "toSide": "left",
+      "route": "straight",
+      "labelAt": [
+        200,
+        40
+      ]
+    },
+    {
+      "id": "input-strategy",
+      "from": "value-binding",
+      "to": "strategy",
+      "label": "Strategy確認",
+      "fromSide": "right",
+      "toSide": "left",
+      "route": "straight",
+      "labelAt": [
+        400,
+        35
+      ]
+    },
+    {
+      "id": "inline-dispatch",
+      "from": "strategy",
+      "to": "operation",
+      "label": "Inline",
+      "fromSide": "right",
+      "toSide": "left",
+      "route": "straight",
+      "labelAt": [
+        615,
+        35
+      ]
+    },
+    {
+      "id": "deferred-accept",
+      "from": "strategy",
+      "to": "durable-transport",
+      "label": "Deferred受付",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelAt": [
+        405,
+        190
+      ]
+    },
+    {
+      "id": "worker-claim",
+      "from": "durable-transport",
+      "to": "worker",
+      "label": "Claim",
+      "fromSide": "right",
+      "toSide": "left",
+      "route": "straight",
+      "labelAt": [
+        405,
+        350
+      ]
+    },
+    {
+      "id": "worker-dispatch",
+      "from": "worker",
+      "to": "operation",
+      "label": "handle",
+      "fromSide": "right",
+      "toSide": "bottom",
+      "labelAt": [
+        615,
+        190
+      ]
+    },
+    {
+      "id": "operation-outcome",
+      "from": "operation",
+      "to": "outcome",
+      "label": "正常完了",
+      "fromSide": "right",
+      "toSide": "left",
+      "route": "straight",
+      "labelAt": [
+        825,
+        35
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "HTTP の受付",
+      "items": [
+        "HTTP は Value を bind / validate して Strategy を確認する",
+        "正常系は同じ Operation を受け取る"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "二つの実行経路",
+      "items": [
+        "Inline は受付元プロセスで Operation を実行する",
+        "Deferred は Value / Context を Durable Transport に保存し Worker が Claim する"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "結果",
+      "items": [
+        "Operation は Outcome を返す",
+        "Deferred の完了時に success / completed Journal を記録する"
+      ]
+    }
+  ]
+}

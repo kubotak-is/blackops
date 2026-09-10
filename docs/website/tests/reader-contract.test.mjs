@@ -1,20 +1,39 @@
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
-import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
+import { cp, mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
+import { JSDOM } from 'jsdom';
 import path from 'node:path';
 import test from 'node:test';
 import { pathToFileURL } from 'node:url';
 import { promisify } from 'node:util';
 import { contentMap } from '../content-map.mjs';
+import { generateContent } from '../scripts/content-pipeline.mjs';
 import {
   assertArtifactReaderText,
   assertArtifactReaderFile,
+  assertPlaceholderParity,
+  extractVisibleInlineCodeInventory,
   assertNoInternalEvidenceVoice,
   assertNoCurrentMainOnly,
   assertNoProtectedDecode,
   assertNoUnsafeLgtmDiagnostics,
   normalizeArtifactVisibleText,
+  contentPipelineTitle,
+  markdownFenceCloses,
+  markdownFenceLine,
+  markdownFenceRanges,
+  markdownHtmlBlockRanges,
+  nextMarkdownFenceState,
+  nextRawFenceState,
+  placeholderInventory,
+  renderReaderBody,
+  rewriteRelativeImageReferences,
+  sourcePhysicalLines,
+  assertSourceDerivedReferenceCoverage,
+  stableReferenceExclusionPaths,
+  stableReferenceExclusionsFor,
   validateArtifactReaderContract,
   validateLlmRouteInventory,
   validateArtifactPageRouteInventory,
@@ -22,10 +41,13 @@ import {
   validateReaderContract,
   validateSearchRouteInventory,
 } from '../scripts/reader-contract.mjs';
-import { repositoryRoot } from '../scripts/website-paths.mjs';
+import { loadDiagramManifest } from '../scripts/archify-diagrams.mjs';
+import { repositoryRoot, sourceRoot as canonicalSourceRoot } from '../scripts/website-paths.mjs';
 
 const execFileAsync = promisify(execFile);
 const blumeRequire = createRequire(import.meta.resolve('blume/package.json'));
+const blumePackageRoot = path.dirname(blumeRequire.resolve('blume/package.json'));
+const { fenceRanges, toPlainText } = await import(pathToFileURL(path.join(blumePackageRoot, 'src/search/plain-text.mjs')).href);
 const { codeToHtml } = await import(pathToFileURL(blumeRequire.resolve('shiki')).href);
 const { createSatteriMarkdownProcessor } = await import(pathToFileURL(blumeRequire.resolve('@astrojs/markdown-satteri')).href);
 const satteriMarkdownProcessor = await createSatteriMarkdownProcessor({ syntaxHighlight: false });
@@ -34,34 +56,86 @@ function escapeHtml(value) {
   return value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#39;');
 }
 
+async function createGeneratedContentFixture({ fixtureRoot, contentMap: map = contentMap }) {
+  const contentRoot = path.join(fixtureRoot, 'src', 'content', 'docs');
+  const manifestPath = path.join(fixtureRoot, '.generated', 'content-manifest.json');
+  const manifestText = await generateContent({
+    sourceRoot: canonicalSourceRoot,
+    contentRoot,
+    manifestPath,
+    repositoryRoot,
+    contentMap: map,
+  });
+  return { contentRoot, manifestPath, manifestText };
+}
+
 async function writeSyntheticCompleteReaderArtifact({ artifactDirectory, contentMap: map }) {
   const pages = Object.entries(map).filter(([source]) => source !== 'README.md');
   assert.equal(pages.length, 40, 'Synthetic reader artifact must contain exactly 40 non-Landing pages.');
-  const routes = pages.map(([, metadata]) => ({
+  const routes = pages.map(([source, metadata]) => ({
+    source,
     metadata,
     route: metadata.slug === 'index' ? '/' : `/${metadata.slug}`,
   }));
+  const fixtureRoot = path.dirname(artifactDirectory);
+  const fixture = await createGeneratedContentFixture({ fixtureRoot, contentMap: map });
+  const { contentRoot: fixtureContentRoot, manifestPath: fixtureManifestPath, manifestText: canonicalManifestText } = fixture;
+  const canonicalManifest = JSON.parse(canonicalManifestText);
+  const canonicalPages = new Map(canonicalManifest.pages
+    .filter(({ source }) => source !== 'README.md')
+    .map((page) => [page.source, page]));
+  const publicRawBySource = new Map();
+  const generatedBody = (raw, source) => {
+    const frontmatter = raw.match(/^---\n[\s\S]*?\n---\n/u)?.[0];
+    assert.ok(frontmatter, `Synthetic canonical Raw must contain frontmatter for ${source}.`);
+    return raw.slice(frontmatter.length);
+  };
+  const searchContentFor = (source) => {
+    const raw = publicRawBySource.get(source);
+    assert.ok(raw, `Synthetic public Raw must exist for ${source}.`);
+    return toPlainText(generatedBody(raw, source));
+  };
 
   await mkdir(artifactDirectory, { recursive: true });
-  for (const { metadata } of routes) {
-    const generated = path.join(artifactDirectory, ...metadata.slug.split('/'));
+  for (const { metadata, source: sourceName } of routes) {
+    const htmlGenerated = path.join(artifactDirectory, ...metadata.slug.split('/'));
     const outcome = metadata.reader.outcome;
-    await mkdir(generated, { recursive: true });
+    const manifestPage = canonicalPages.get(sourceName);
+    assert.ok(manifestPage, `Canonical content manifest is missing ${sourceName}.`);
+    const canonicalRawPath = path.join(fixtureContentRoot, ...manifestPage.generated.split('/'));
+    const canonicalRaw = await readFile(canonicalRawPath);
+    const generatedRawPath = path.join(artifactDirectory, ...manifestPage.generated.split('/'));
+    const fixtureRawPath = path.join(fixtureContentRoot, ...manifestPage.generated.split('/'));
+    await mkdir(path.dirname(generatedRawPath), { recursive: true });
+    const expectedRaw = await rewriteRelativeImageReferences({
+      source: canonicalRaw.toString('utf8'),
+      sourcePath: fixtureRawPath,
+      projectRoot: fixtureRoot,
+    });
+    publicRawBySource.set(sourceName, expectedRaw);
+    await writeFile(generatedRawPath, expectedRaw);
+    await writeFile(fixtureRawPath, canonicalRaw);
+    const renderedBody = await renderReaderBody(generatedBody(expectedRaw, sourceName));
+    const mermaidElements = renderedBody.mermaid
+      .map((diagram) => `<blume-mermaid data-source="${escapeHtml(diagram)}"></blume-mermaid>`)
+      .join('');
+    await mkdir(htmlGenerated, { recursive: true });
     await writeFile(
-      `${generated}.md`,
-      `---\ndescription: ${JSON.stringify(outcome)}\n---\n\n# ${metadata.slug}\n`,
-      'utf8',
-    );
-    await writeFile(
-      path.join(generated, 'index.html'),
-      `<!doctype html><html><head><meta charset="utf-8"><title>Reader page</title></head><body><main><p>${escapeHtml(outcome)}</p></main></body></html>\n`,
+      path.join(htmlGenerated, 'index.html'),
+      `<!doctype html><html><head><meta charset="utf-8"><title>Reader page</title></head><body><main><article class="prose"><h1>${escapeHtml(manifestPage.title)}</h1><p class="text-lg text-muted-foreground">${escapeHtml(outcome)}</p>${renderedBody.html}${mermaidElements}</article></main></body></html>\n`,
       'utf8',
     );
   }
 
   await writeFile(
     path.join(artifactDirectory, 'blume-search.json'),
-    `${JSON.stringify(routes.map(({ route, metadata }) => ({ route, title: metadata.slug, description: metadata.reader.outcome })), null, 2)}\n`,
+    `${JSON.stringify(routes.map(({ route, metadata, source: sourceName }) => ({
+      route,
+      url: route,
+      title: metadata.slug,
+      description: metadata.reader.outcome,
+      content: searchContentFor(sourceName),
+    })), null, 2)}\n`,
     'utf8',
   );
   await writeFile(
@@ -71,9 +145,16 @@ async function writeSyntheticCompleteReaderArtifact({ artifactDirectory, content
   );
   await writeFile(
     path.join(artifactDirectory, 'llms-full.txt'),
-    `${routes.map(({ route, metadata }) => `# ${metadata.slug}\nSource: https://docs.example.test${route}\n\n<!-- blackops-reader-outcome: ${metadata.reader.outcome} -->`).join('\n---\n\n')}\n`,
+    `${routes.map(({ route, source: sourceName }) => {
+      const manifestPage = canonicalPages.get(sourceName);
+      assert.ok(manifestPage, `Canonical content manifest is missing ${sourceName}.`);
+      const raw = publicRawBySource.get(sourceName);
+      assert.ok(raw, `Synthetic public Raw must exist for ${sourceName}.`);
+      return `# ${manifestPage.title}\nSource: https://docs.example.test${route}\n\n${generatedBody(raw, sourceName).trim()}`;
+    }).join('\n---\n\n')}\n`,
     'utf8',
   );
+  return { manifestPath: fixtureManifestPath, contentRoot: fixtureContentRoot };
 }
 
 test('canonical Content Map is the one 40-page reader inventory', () => {
@@ -81,6 +162,1850 @@ test('canonical Content Map is the one 40-page reader inventory', () => {
   assert.deepEqual(result.counts, { tutorial: 3, 'how-to': 18, concept: 10, reference: 8, troubleshooting: 1 });
   assert.equal(result.pages.length, 40);
   assert.equal(new Set(result.pages.map(({ outcome }) => outcome)).size, 40);
+});
+
+test('Stable Reference exclusions are exact and bound to the current release authority', async () => {
+  const authority = JSON.parse(await readFile(path.join(repositoryRoot, 'develop/spec/release-authority.json'), 'utf8'));
+  const exclusions = stableReferenceExclusionsFor(authority);
+  assert.equal(exclusions.size, 9);
+  assert.deepEqual([...exclusions], stableReferenceExclusionPaths);
+  for (const sourcePath of stableReferenceExclusionPaths) assert.equal(exclusions.has(sourcePath), true);
+  for (const sourcePath of [
+    'src/Audit/AuditOpaqueIdKeyProviderExtra.php',
+    'src/Internal/Console/DiagnosticsCheckCommands.php',
+    'src/Internal/Console/QueueStatusCommand.php.bak',
+    'src/Internal/Projection/Route/RouteProjectionListCommand.php.disabled',
+    'src/Internal/Application/ApplicationAuditConfigurationTest.php',
+  ]) assert.equal(exclusions.has(sourcePath), false);
+
+  const changedAuthority = JSON.parse(JSON.stringify(authority));
+  changedAuthority.currentStable.framework.peeledSource = '0000000000000000000000000000000000000000';
+  assert.throws(() => stableReferenceExclusionsFor(changedAuthority), /reevaluate the exact paths/);
+});
+
+test('Source-derived Reference coverage applies the exact Stable boundary to the extractor', async () => {
+  const temporary = await mkdtemp(path.join(repositoryRoot, 'docs/website/.reader-stable-reference-boundary-'));
+  try {
+    await cp(path.join(repositoryRoot, 'src'), path.join(temporary, 'src'), { recursive: true });
+    await mkdir(path.join(temporary, 'docs/guide'), { recursive: true });
+    for (const name of ['core-api.md', 'attributes.md', 'project-cli.md', 'configuration.md']) {
+      await cp(path.join(repositoryRoot, 'docs/guide', name), path.join(temporary, 'docs/guide', name));
+    }
+    await mkdir(path.join(temporary, 'develop/spec'), { recursive: true });
+    await cp(
+      path.join(repositoryRoot, 'develop/spec/release-authority.json'),
+      path.join(temporary, 'develop/spec/release-authority.json'),
+    );
+
+    const exactStableExcludedPath = path.join(temporary, 'src/Audit/AuditOpaqueIdKeyProvider.php');
+    await mkdir(path.dirname(exactStableExcludedPath), { recursive: true });
+    await writeFile(
+      exactStableExcludedPath,
+      '<?php\nnamespace BlackOps\\Audit;\n\n#[PublicApi]\ninterface AuditOpaqueIdKeyProvider {}\n',
+      'utf8',
+    );
+    await assert.doesNotReject(() => assertSourceDerivedReferenceCoverage(contentMap, temporary));
+    await writeFile(
+      path.join(temporary, 'src/Audit/AuditOpaqueIdKeyProviderExtra.php'),
+      '<?php\nnamespace BlackOps\\Audit;\n\n#[PublicApi]\ninterface AuditOpaqueIdKeyProviderExtra {}\n',
+      'utf8',
+    );
+    await assert.rejects(
+      assertSourceDerivedReferenceCoverage(contentMap, temporary),
+      /Source-derived PublicApi coverage expected 216 types; found 217/,
+    );
+  } finally {
+    await rm(temporary, { recursive: true, force: true });
+  }
+});
+
+test('source inline placeholder inventory is the current 50-occurrence contract', async () => {
+  const counts = new Map();
+  for (const source of Object.keys(contentMap).filter((name) => name !== 'README.md')) {
+    const inventory = placeholderInventory(await readFile(path.join(repositoryRoot, 'docs/guide', source), 'utf8'), { inlineCodeOnly: true });
+    for (const [token, count] of Object.entries(inventory.counts)) counts.set(token, (counts.get(token) ?? 0) + count);
+  }
+  const total = [...counts.values()].reduce((sum, count) => sum + count, 0);
+  assert.equal(total, 50);
+  assert.equal(counts.get('<command>'), 2);
+  assert.equal(counts.get('<operation-id>'), 8);
+  assert.equal(counts.get('<application-root>'), 1);
+});
+
+test('placeholder parity preserves inline literal tokens and rejects dangling variants', () => {
+  const source = [
+    'inline `<command>` and ``<operation-id>`` plus ````<application-root>````',
+    '<span><command></span> and <Component data-token="<operation-id>"> remain outside inline code.',
+    '```text\n`<command>`\n```',
+    '~~~text\n`<operation-id>`\n~~~',
+  ].join('\n');
+  const expected = placeholderInventory(source, { inlineCodeOnly: true });
+  assert.equal(expected.total, 3);
+  for (const token of ['<command>', '<operation-id>', '<application-root>']) assert.equal(expected.counts[token], 1);
+  assert.equal(placeholderInventory('<Component value={`<command>`} />', { inlineCodeOnly: true }).total, 0);
+  assert.equal(placeholderInventory('<span>prefix `<command>` suffix</span>', { inlineCodeOnly: true }).counts['<command>'], 1);
+  assert.doesNotThrow(() => assertPlaceholderParity(expected, source, {
+    actualInlineCodeOnly: true,
+    location: 'placeholder-source-direct',
+  }));
+  assert.doesNotThrow(() => assertPlaceholderParity(expected, '<command> <operation-id> <application-root>', {
+    location: 'placeholder-search-direct',
+  }));
+  assert.throws(() => assertPlaceholderParity(expected, '<command> command>', {
+    location: 'placeholder-extra-closing-direct',
+  }), /dangling/);
+  assert.doesNotThrow(() => assertPlaceholderParity(expected, normalizeArtifactVisibleText('<p>&lt;command&gt; &lt;operation-id&gt; &lt;application-root&gt;</p>'), {
+    location: 'placeholder-html-direct',
+  }));
+  assert.doesNotThrow(() => assertPlaceholderParity(expected, '<command> <operation-id> <application-root>', {
+    location: 'placeholder-llm-direct',
+  }));
+  assert.equal(placeholderInventory('```text\n<command>\n```', { inlineCodeOnly: true }).total, 0);
+
+  for (const token of ['<command>', '<operation-id>', '<application-root>']) {
+    const missingClosing = token.slice(0, -1);
+    assert.throws(() => assertPlaceholderParity(expected, `\`${missingClosing}\``, {
+      actualInlineCodeOnly: true,
+      location: `placeholder-missing-closing-${token}`,
+    }), /dangling/);
+    assert.throws(() => assertPlaceholderParity(expected, `\`${token.slice(1, -1)}>\``, {
+      actualInlineCodeOnly: true,
+      location: `placeholder-missing-opening-${token}`,
+    }), /dangling/);
+  }
+});
+
+test('Source fence grammar is shared by ranges, titles, and raw-image state', () => {
+  const backtick = markdownFenceLine('   ```text');
+  assert.deepEqual(backtick, { character: '`', length: 3, info: 'text', rawInfo: 'text' });
+  assert.equal(markdownFenceCloses('  ```` \t', backtick), true, 'A longer same-marker close with spaces/tabs is valid.');
+  assert.equal(markdownFenceCloses('  ``` trailing', backtick), false, 'A backtick close with trailing text stays inside the fence.');
+  assert.equal(markdownFenceCloses('  ~~~', backtick), false, 'A mixed-marker close stays inside the fence.');
+
+  const tilde = markdownFenceLine('~~~md');
+  assert.equal(markdownFenceCloses('~~~~\t', tilde), true, 'A longer tilde close with trailing tabs is valid.');
+  assert.equal(markdownFenceCloses('~~~ trailing', tilde), false, 'A tilde close with trailing text stays inside the fence.');
+  assert.deepEqual(nextMarkdownFenceState('~~~', backtick), backtick, 'A mixed marker preserves the open state.');
+  assert.equal(nextRawFenceState('````  ', backtick), null, 'Raw image rewriting sees the same valid longer close.');
+
+  const invalidClose = '```text\n# hidden title\n``` trailing\n# still hidden';
+  assert.deepEqual(markdownFenceRanges(invalidClose), [[0, invalidClose.length]]);
+  assert.throws(() => contentPipelineTitle(invalidClose), /title is missing/);
+
+  const validLongClose = '```text\n# hidden title\n````\n# visible title';
+  const validLongCloseEnd = validLongClose.lastIndexOf('````') + 4;
+  assert.deepEqual(markdownFenceRanges(validLongClose), [[0, validLongCloseEnd]]);
+  assert.equal(contentPipelineTitle(validLongClose), 'visible title');
+
+  const mixedClose = '~~~text\n# hidden title\n```\n# still hidden';
+  assert.deepEqual(markdownFenceRanges(mixedClose), [[0, mixedClose.length]]);
+});
+
+test('Source physical-line grammar preserves LF, CRLF, and lone-CR behavior', async () => {
+  const temporary = await mkdtemp(path.join(repositoryRoot, 'docs/website/.reader-contract-source-lines-'));
+  try {
+    const projectRoot = path.join(temporary, 'project');
+    const sourcePath = path.join(projectRoot, 'src', 'content', 'docs', 'source-lines.md');
+    const imagePath = path.join(projectRoot, 'src', 'content', 'docs', 'assets', 'diagram.png');
+    await mkdir(path.dirname(sourcePath), { recursive: true });
+    await mkdir(path.dirname(imagePath), { recursive: true });
+    await writeFile(imagePath, 'image fixture', 'utf8');
+    const logical = [
+      '# visible title',
+      '',
+      'Visible `<command>`.',
+      '```text',
+      'Fenced `<operation-id>`.',
+      '![fenced](assets/diagram.png)',
+      '```',
+      '![outside](assets/diagram.png)',
+    ].join('\n');
+    const malformedLogical = [
+      '```text',
+      '# hidden title',
+      'Hidden `<operation-id>`.',
+      '![still-fenced](assets/diagram.png)',
+      '``` trailing',
+      '# still fenced',
+    ].join('\n');
+    for (const terminator of ['\n', '\r\n', '\r']) {
+      const source = logical.replaceAll('\n', terminator);
+      const physical = [...sourcePhysicalLines(source)];
+      assert.equal(physical.map(({ line }) => line).join('\n'), logical);
+      assert.deepEqual(physical.map(({ terminator: actual }) => actual), [
+        ...Array(logical.split('\n').length - 1).fill(terminator),
+        '',
+      ]);
+      assert.equal(contentPipelineTitle(source), 'visible title');
+      const ranges = markdownFenceRanges(source);
+      assert.equal(ranges.length, 1);
+      assert.equal(source.slice(...ranges[0]).replace(/\r\n?|\n/gu, '\n'), [
+        '```text',
+        'Fenced `<operation-id>`.',
+        '![fenced](assets/diagram.png)',
+        '```',
+      ].join('\n'));
+      const inventory = placeholderInventory(source, { inlineCodeOnly: true });
+      assert.deepEqual(inventory, { total: 1, counts: { '<command>': 1 } });
+      const rewritten = await rewriteRelativeImageReferences({ source, sourcePath, projectRoot });
+      const expected = [
+        '# visible title',
+        '',
+        'Visible `<command>`.',
+        '```text',
+        'Fenced `<operation-id>`.',
+        '![fenced](assets/diagram.png)',
+        '```',
+        '![outside](/blume-assets/content/src/content/docs/assets/diagram.png)',
+      ].join(terminator);
+      assert.equal(rewritten, expected);
+
+      const malformed = malformedLogical.replaceAll('\n', terminator);
+      assert.deepEqual(markdownFenceRanges(malformed), [[0, malformed.length]]);
+      assert.throws(() => contentPipelineTitle(malformed), /title is missing/);
+      assert.equal(placeholderInventory(malformed, { inlineCodeOnly: true }).total, 0);
+      assert.equal(await rewriteRelativeImageReferences({ source: malformed, sourcePath, projectRoot }), malformed);
+    }
+  } finally {
+    await rm(temporary, { recursive: true, force: true });
+  }
+});
+
+test('Source container-aware fences share list/blockquote state across line endings', async () => {
+  const temporary = await mkdtemp(path.join(repositoryRoot, 'docs/website/.reader-contract-container-fences-'));
+  try {
+    const projectRoot = path.join(temporary, 'project');
+    const sourcePath = path.join(projectRoot, 'src', 'content', 'docs', 'testing', 'community-board.md');
+    const imagePath = path.join(projectRoot, 'src', 'content', 'docs', 'assets', 'community-board', 'blackops-board.png');
+    await mkdir(path.dirname(sourcePath), { recursive: true });
+    await mkdir(path.dirname(imagePath), { recursive: true });
+    await writeFile(imagePath, 'image fixture', 'utf8');
+    const imageTarget = '../assets/community-board/blackops-board.png';
+    const logical = [
+      '- ```md',
+      '  `<command>`',
+      `  ![shown](${imageTarget})`,
+      '  ```',
+      '# visible',
+      `![outside](${imageTarget})`,
+    ].join('\n');
+    const nestedLogical = [
+      '> - outer',
+      '>   - ```md',
+      '>     `<operation-id>`',
+      '>     ```',
+      '> after',
+      '# nested visible',
+    ].join('\n');
+    const malformedLogical = [
+      '- ```md',
+      '  `<command>`',
+      `  ![shown](${imageTarget})`,
+      '  ``` trailing',
+      '# malformed visible',
+      `![outside-after-malformed](${imageTarget})`,
+    ].join('\n');
+    const mixedLogical = [
+      '- ```md',
+      '  `<command>`',
+      '  ~~~',
+      '# mixed visible',
+    ].join('\n');
+    const longerLogical = [
+      '- ```md',
+      '  `<command>`',
+      '  ````',
+      '# long visible',
+    ].join('\n');
+    for (const terminator of ['\n', '\r\n', '\r']) {
+      const source = logical.replaceAll('\n', terminator);
+      const closeEnd = source.indexOf(`${terminator}# visible`);
+      assert.deepEqual(markdownFenceRanges(source), [[0, closeEnd]], `same-line list fence range drifted for ${JSON.stringify(terminator)}`);
+      assert.equal(contentPipelineTitle(source), 'visible');
+      assert.equal(placeholderInventory(source, { inlineCodeOnly: true }).total, 0);
+      const rewritten = await rewriteRelativeImageReferences({ source, sourcePath, projectRoot });
+      assert.equal(rewritten, [
+        '- ```md',
+        '  `<command>`',
+        `  ![shown](${imageTarget})`,
+        '  ```',
+        '# visible',
+        '![outside](/blume-assets/content/src/content/docs/assets/community-board/blackops-board.png)',
+      ].join(terminator));
+
+      const nested = nestedLogical.replaceAll('\n', terminator);
+      const nestedOpen = nested.indexOf('>   - ```md');
+      const nestedCloseEnd = nested.indexOf(`${terminator}> after`);
+      assert.deepEqual(markdownFenceRanges(nested), [[nestedOpen, nestedCloseEnd]], `nested blockquote/list fence drifted for ${JSON.stringify(terminator)}`);
+      assert.equal(contentPipelineTitle(nested), 'nested visible');
+      assert.equal(placeholderInventory(nested, { inlineCodeOnly: true }).total, 0);
+
+      const malformed = malformedLogical.replaceAll('\n', terminator);
+      const malformedCloseEnd = malformed.indexOf(`${terminator}# malformed visible`);
+      assert.deepEqual(markdownFenceRanges(malformed), [[0, malformedCloseEnd]]);
+      assert.equal(contentPipelineTitle(malformed), 'malformed visible');
+      assert.equal(placeholderInventory(malformed, { inlineCodeOnly: true }).total, 0);
+      assert.equal(await rewriteRelativeImageReferences({ source: malformed, sourcePath, projectRoot }), [
+        '- ```md',
+        '  `<command>`',
+        `  ![shown](${imageTarget})`,
+        '  ``` trailing',
+        '# malformed visible',
+        '![outside-after-malformed](/blume-assets/content/src/content/docs/assets/community-board/blackops-board.png)',
+      ].join(terminator));
+
+      const mixed = mixedLogical.replaceAll('\n', terminator);
+      const mixedCloseEnd = mixed.indexOf(`${terminator}# mixed visible`);
+      assert.deepEqual(markdownFenceRanges(mixed), [[0, mixedCloseEnd]]);
+      assert.equal(contentPipelineTitle(mixed), 'mixed visible');
+      assert.equal(placeholderInventory(mixed, { inlineCodeOnly: true }).total, 0);
+
+      const longer = longerLogical.replaceAll('\n', terminator);
+      const longerCloseEnd = longer.indexOf(`${terminator}# long visible`);
+      assert.deepEqual(markdownFenceRanges(longer), [[0, longerCloseEnd]]);
+      assert.equal(contentPipelineTitle(longer), 'long visible');
+      assert.equal(placeholderInventory(longer, { inlineCodeOnly: true }).total, 0);
+    }
+  } finally {
+    await rm(temporary, { recursive: true, force: true });
+  }
+});
+
+test('Raw expected image bytes mirror Blume relative-image rewrite boundaries', async () => {
+  const temporary = await mkdtemp(path.join(repositoryRoot, 'docs/website/.reader-contract-image-rewrite-'));
+  try {
+    const canonicalFixture = await createGeneratedContentFixture({ fixtureRoot: path.join(temporary, 'canonical') });
+    const communityRawPath = path.join(canonicalFixture.contentRoot, 'testing', 'community-board.md');
+    const communityRaw = await readFile(communityRawPath, 'utf8');
+    const communityRewritten = await rewriteRelativeImageReferences({
+      source: communityRaw,
+      sourcePath: communityRawPath,
+      projectRoot: path.join(temporary, 'canonical'),
+    });
+    assert.match(
+      communityRewritten,
+      /!\[BlackOps BoardのCredential-free Landing画面\]\(\/blume-assets\/content\/src\/content\/docs\/assets\/community-board\/blackops-board\.png\)/u,
+    );
+
+    const projectRoot = path.join(temporary, 'project');
+    const sourcePath = path.join(projectRoot, 'src', 'content', 'docs', 'guides', 'image-page.md');
+    const imagePath = path.join(projectRoot, 'src', 'content', 'docs', 'assets', 'space 名', 'diagram 名.PNG');
+    await mkdir(path.dirname(sourcePath), { recursive: true });
+    await mkdir(path.dirname(imagePath), { recursive: true });
+    await writeFile(imagePath, 'image fixture', 'utf8');
+    const source = [
+      '![real](../assets/space%20%E5%90%8D/diagram%20%E5%90%8D.PNG "title")',
+      '`![inline](../assets/space%20%E5%90%8D/diagram%20%E5%90%8D.PNG)`',
+      '~~~md',
+      '![fenced](../assets/space%20%E5%90%8D/diagram%20%E5%90%8D.PNG)',
+      '~~~',
+      '```md',
+      '![invalid-close](../assets/space%20%E5%90%8D/diagram%20%E5%90%8D.PNG)',
+      '``` trailing',
+      '![still-fenced](../assets/space%20%E5%90%8D/diagram%20%E5%90%8D.PNG)',
+      '````',
+      '![long-close](../assets/space%20%E5%90%8D/diagram%20%E5%90%8D.PNG)',
+      '~~~md',
+      '![mixed-fenced](../assets/space%20%E5%90%8D/diagram%20%E5%90%8D.PNG)',
+      '```',
+      '![mixed-still-fenced](../assets/space%20%E5%90%8D/diagram%20%E5%90%8D.PNG)',
+      '~~~',
+      '![missing](../assets/missing.png)',
+      '![remote](https://example.test/image.png)',
+      '![absolute](/image.png)',
+      '![hash](#image.png)',
+      '![non-image](../assets/space%20%E5%90%8D/manual.pdf)',
+    ].join('\n');
+    const rewritten = await rewriteRelativeImageReferences({ source, sourcePath, projectRoot });
+    assert.equal(rewritten, [
+      '![real](/blume-assets/content/src/content/docs/assets/space%20%E5%90%8D/diagram%20%E5%90%8D.PNG "title")',
+      '`![inline](../assets/space%20%E5%90%8D/diagram%20%E5%90%8D.PNG)`',
+      '~~~md',
+      '![fenced](../assets/space%20%E5%90%8D/diagram%20%E5%90%8D.PNG)',
+      '~~~',
+      '```md',
+      '![invalid-close](../assets/space%20%E5%90%8D/diagram%20%E5%90%8D.PNG)',
+      '``` trailing',
+      '![still-fenced](../assets/space%20%E5%90%8D/diagram%20%E5%90%8D.PNG)',
+      '````',
+      '![long-close](/blume-assets/content/src/content/docs/assets/space%20%E5%90%8D/diagram%20%E5%90%8D.PNG)',
+      '~~~md',
+      '![mixed-fenced](../assets/space%20%E5%90%8D/diagram%20%E5%90%8D.PNG)',
+      '```',
+      '![mixed-still-fenced](../assets/space%20%E5%90%8D/diagram%20%E5%90%8D.PNG)',
+      '~~~',
+      '![missing](../assets/missing.png)',
+      '![remote](https://example.test/image.png)',
+      '![absolute](/image.png)',
+      '![hash](#image.png)',
+      '![non-image](../assets/space%20%E5%90%8D/manual.pdf)',
+    ].join('\n'));
+    await assert.rejects(
+      () => rewriteRelativeImageReferences({
+        source: '![escape](../../../../../outside.png)',
+        sourcePath,
+        projectRoot,
+      }),
+      /escapes the website project root/,
+    );
+  } finally {
+    await rm(temporary, { recursive: true, force: true });
+  }
+});
+
+test('patched Blume plain-text extraction uses one production helper for fences, spans, JSX, and headings', async () => {
+  const documentsSource = await readFile(path.join(blumePackageRoot, 'src/search/documents.ts'), 'utf8');
+  const cliSource = await readFile(path.join(blumePackageRoot, 'dist/cli/index.js'), 'utf8');
+  assert.match(documentsSource, /import\s+\{\s*toPlainText\s*\}\s+from\s+["']\.\/plain-text\.mjs["']/u);
+  assert.match(cliSource, /import\s+\{\s*toPlainText\s*\}\s+from\s+["']\.\.\/\.\.\/src\/search\/plain-text\.mjs["']/u);
+
+  const fixtures = [
+    ['backtick fence', 'before\n```text\nFENCED_BODY\n```\nafter', 'before after'],
+    ['tilde fence', 'before\n~~~text\nTILDE_BODY\n~~~\nafter', 'before after'],
+    ['mixed marker prose', 'before\n~~``\nMIXED_BODY\n~~~~\nafter', 'before `` MIXED BODY'],
+    ['one-backtick span', 'prefix `one` suffix', 'prefix one suffix'],
+    ['two-backtick span', 'prefix ``two`` suffix', 'prefix two suffix'],
+    ['four-backtick span', 'prefix ````four```` suffix', 'prefix four suffix'],
+    ['arbitrary span content', 'prefix ````a ` b```` suffix', 'prefix a ` b suffix'],
+    ['JSX template attribute', '<Component value={`<command>`} />', ''],
+    ['HTML prose', '<p>visible prose</p>', 'visible prose'],
+    ['heading adjacency', '# real heading\nprefix `code`# not a heading', 'real heading prefix code# not a heading'],
+    ['Markdown punctuation', '![alt](x) [link](url) **bold** _em_ > quote', 'link bold em quote'],
+    ['backtick close trailing text', 'before\n```text\nFENCED_BODY\n``` trailing\nafter', 'before'],
+    ['tilde close trailing text', 'before\n~~~text\nFENCED_BODY\n~~~ trailing\nafter', 'before'],
+    ['valid longer backtick close', 'before\n```text\nFENCED_BODY\n````\nafter', 'before after'],
+    ['valid longer tilde close', 'before\n~~~text\nFENCED_BODY\n~~~~\nafter', 'before after'],
+    ['mixed marker close', 'before\n```text\nFENCED_BODY\n~~~\nafter', 'before'],
+    ['blockquote backtick fence', 'before\n> ```text\n> FENCED_BODY\n> ```\nafter', 'before after'],
+    ['blockquote tilde fence', 'before\n> ~~~text\n> FENCED_BODY\n> ~~~\nafter', 'before after'],
+    ['list continuation fence', 'before\n- item\n  ```text\n  FENCED_BODY\n  ```\nafter', 'before - item after'],
+    ['list explicit fence with continuation body', 'before\n- ```text\n  FENCED_BODY\n  ```\nafter', 'before after'],
+    ['list tilde fence with continuation body', 'before\n- ~~~text\n  FENCED_BODY\n  ~~~\nafter', 'before after'],
+    ['nested mixed-container fence', 'before\n> - - ```text\n>       FENCED_BODY\n>       ```\nafter', 'before after'],
+    ['implicit blockquote container exit and same-line reprocess', 'before\n> ```text\n> FENCED_BODY\n```text\nSECOND_BODY\n```\ntail', 'before tail'],
+    ['mismatched blockquote close cannot close', 'before\n> ```text\n> FENCED_BODY\n```\nafter', 'before'],
+    ['top-level fence indentation may differ by three spaces', 'before\n   ```text\nFENCED_BODY\n  ```\nafter', 'before after'],
+    ['list marker padding one through four', 'before\n-    ```text\n     FENCED_BODY\n     ```\nafter', 'before after'],
+    ['list marker padding five is not a fence', 'before\n-     ```text\n     BODY\n     ```\nafter', 'before - text BODY after'],
+    ['second list-item fence is reprocessed as a new opening', 'before\n- ```text\n  FIRST_BODY\n- ```\n  SECOND_BODY\n  ```\nafter', 'before after'],
+    ['cleared list context allows a later top-level unclosed fence', 'before\n- item\nafter\n  ```text\n  BODY\nlater', 'before - item after'],
+  ];
+  for (const [name, source, expected] of fixtures) {
+    assert.equal(toPlainText(source), expected, `Blume helper fixture failed: ${name}`);
+  }
+});
+
+test('patched Blume CommonMark ordered and nested fence boundaries use the renderer path', async () => {
+  const fixtures = [
+    {
+      name: 'ordered-one-interrupts-paragraph',
+      source: 'before\n1. ```bash\n   declare -p GRAFANA_PASSWORD\n   ```\nafter',
+      expected: 'before after',
+      hidden: 'declare -p GRAFANA_PASSWORD',
+    },
+    {
+      name: 'ordered-content-column-three-partial-tab-fence',
+      source: '1. outer\n\t```text\n\tHIDDEN_TAB_BODY\n\t```\nafter',
+      expected: '1. outer after',
+      hidden: 'HIDDEN_TAB_BODY',
+      visible: 'after',
+      outsideFence: 'after',
+    },
+    {
+      name: 'ordered-continuation-prose-then-partial-tab-fence',
+      source: '1. outer\n\tcontinued\n\t```text\n\tdeclare -p GRAFANA_PASSWORD\n\t```\nafter',
+      expected: '1. outer continued after',
+      hidden: 'declare -p GRAFANA_PASSWORD',
+      visible: 'continued',
+      outsideFence: 'after',
+    },
+    {
+      name: 'unordered-content-column-two-partial-tab-fence',
+      source: '- outer\n\t```text\n\tHIDDEN_UNORDERED_TAB\n\t```\nafter',
+      expected: '- outer after',
+      hidden: 'HIDDEN_UNORDERED_TAB',
+      visible: 'after',
+      outsideFence: 'after',
+    },
+    {
+      name: 'ordered-space-tab-partial-fence',
+      source: '1. outer\n \t```text\n \tHIDDEN_SPACE_TAB\n \t```\nafter',
+      expected: '1. outer after',
+      hidden: 'HIDDEN_SPACE_TAB',
+      visible: 'after',
+      outsideFence: 'after',
+    },
+    {
+      name: 'nested-blockquote-list-partial-tab-fence',
+      source: '> - outer\n>   1. ```text\n>    \tHIDDEN_MIXED_TAB\n>    \t```\n> after',
+      expected: '- outer after',
+      hidden: 'HIDDEN_MIXED_TAB',
+      visible: 'after',
+      outsideFence: 'after',
+    },
+    {
+      name: 'nested-ordered-space-tab-dedent-keeps-visible-token',
+      source: '- outer\n  1. ```text\n \tVISIBLE_SPACE_TAB\nafter',
+      expected: '- outer VISIBLE SPACE TAB after',
+      visible: 'VISIBLE_SPACE_TAB',
+      outsideFence: 'VISIBLE_SPACE_TAB',
+    },
+    {
+      name: 'nested-ordered-pure-tab-dedent-keeps-visible-token',
+      source: '- outer\n  1. ```text\n\tVISIBLE_PURE_TAB\nafter',
+      expected: '- outer VISIBLE PURE TAB after',
+      visible: 'VISIBLE_PURE_TAB',
+      outsideFence: 'VISIBLE_PURE_TAB',
+    },
+    {
+      name: 'nested-blockquote-list-tab-dedent-keeps-visible-token',
+      source: '> - outer\n>   1. ```text\n> \tVISIBLE_MIXED_TAB\n> after',
+      expected: '- outer VISIBLE MIXED TAB after',
+      visible: 'VISIBLE_MIXED_TAB',
+      outsideFence: 'VISIBLE_MIXED_TAB',
+    },
+    {
+      name: 'ordered-zero-does-not-interrupt-paragraph',
+      source: 'before\n0. ```text\nVISIBLE_ZERO declare -p GRAFANA_PASSWORD',
+      expected: 'before 0. ```text VISIBLE ZERO declare -p GRAFANA PASSWORD',
+      visible: 'declare -p GRAFANA_PASSWORD',
+    },
+    {
+      name: 'ordered-two-does-not-interrupt-paragraph',
+      source: 'before\n2. ```text\nVISIBLE_TWO printenv',
+      expected: 'before 2. ```text VISIBLE TWO printenv',
+      visible: 'printenv',
+    },
+    {
+      name: 'ordered-zero-is-valid-at-block-boundary',
+      source: 'before\n\n0. ```text\n   HIDDEN_ZERO\n   ```\nafter',
+      expected: 'before after',
+      hidden: 'HIDDEN_ZERO',
+    },
+    {
+      name: 'ordered-two-is-valid-at-block-boundary',
+      source: 'before\n\n2. ```text\n   HIDDEN_TWO\n   ```\nafter',
+      expected: 'before after',
+      hidden: 'HIDDEN_TWO',
+    },
+    {
+      name: 'ordered-two-after-heading-is-a-list-fence',
+      source: 'before\n# heading boundary\n2. ```text\n   HIDDEN_AFTER_HEADING\n   ```\nafter',
+      expected: 'before heading boundary after',
+      hidden: 'HIDDEN_AFTER_HEADING',
+    },
+    {
+      name: 'ordered-zero-after-thematic-break-is-a-list-fence',
+      source: 'before\n***\n0. ```text\n   HIDDEN_AFTER_THEMATIC\n   ```\nafter',
+      expected: 'before after',
+      hidden: 'HIDDEN_AFTER_THEMATIC',
+    },
+    {
+      name: 'ordered-two-after-complete-html-block-is-a-list-fence',
+      source: 'before\n<div>html boundary</div>\n\n2. ```text\n   HIDDEN_AFTER_HTML\n   ```\nafter',
+      expected: 'before html boundary after',
+      hidden: 'HIDDEN_AFTER_HTML',
+    },
+    {
+      name: 'ordered-two-after-multiline-complete-html-block-is-a-list-fence',
+      source: 'before\n<div>\nhtml boundary\n</div>\n\n2. ```text\n   HIDDEN_AFTER_MULTILINE_HTML\n   ```\nafter',
+      expected: 'before html boundary after',
+      hidden: 'HIDDEN_AFTER_MULTILINE_HTML',
+    },
+    {
+      name: 'ordered-two-after-fenced-block-is-a-list-fence',
+      source: 'before\n1. ```text\n   HIDDEN_FIRST_FENCE\n   ```\n2. ```text\n   HIDDEN_SECOND_FENCE\n   ```\nafter',
+      expected: 'before after',
+      hidden: 'HIDDEN_SECOND_FENCE',
+    },
+    {
+      name: 'ten-digit-ordered-marker-is-prose',
+      source: 'before\n1234567890. ```text\nVISIBLE_TEN declare -p GRAFANA_PASSWORD',
+      expected: 'before 1234567890. ```text VISIBLE TEN declare -p GRAFANA PASSWORD',
+      visible: 'declare -p GRAFANA_PASSWORD',
+    },
+    {
+      name: 'nested-list-dedent-reprocesses-sibling',
+      source: 'before\n- outer\n  - ```bash\n    declare -p GRAFANA_PASSWORD\n- sibling\nVISIBLE_SIBLING',
+      expected: 'before - outer - sibling VISIBLE SIBLING',
+      hidden: 'declare -p GRAFANA_PASSWORD',
+      visible: 'VISIBLE_SIBLING',
+    },
+    {
+      name: 'mixed-blockquote-list-dedent-reprocesses-prose',
+      source: '> - outer\n>   - ```bash\n>     printenv\nVISIBLE_AFTER',
+      expected: '- outer VISIBLE AFTER',
+      hidden: 'printenv',
+      visible: 'VISIBLE_AFTER',
+    },
+  ];
+  for (const fixture of fixtures) {
+    const rendered = (await satteriMarkdownProcessor.render(fixture.source)).code;
+    assert.equal(toPlainText(fixture.source), fixture.expected, `Blume helper fixture failed: ${fixture.name}`);
+    if (fixture.hidden !== undefined) {
+      assert.match(rendered, new RegExp(`<pre[^>]*>[\\s\\S]*${fixture.hidden}[\\s\\S]*</pre>`, 'u'));
+      assert.equal(toPlainText(fixture.source).includes(fixture.hidden), false);
+    }
+    if (fixture.visible !== undefined) assert.match(rendered, new RegExp(fixture.visible, 'u'));
+    if (fixture.outsideFence !== undefined) {
+      assert.doesNotMatch(rendered, new RegExp(`<pre[^>]*>[\\s\\S]*${fixture.outsideFence}[\\s\\S]*</pre>`, 'u'));
+    }
+  }
+});
+
+test('partial-tab continuation state preserves Search, Raw, reader, and renderer parity', async () => {
+  const temporary = await mkdtemp(path.join(repositoryRoot, 'docs/website/.reader-contract-partial-tab-'));
+  try {
+    const projectRoot = path.join(temporary, 'project');
+    const sourcePath = path.join(projectRoot, 'src', 'content', 'docs', 'testing', 'partial-tab.md');
+    const imagePath = path.join(projectRoot, 'src', 'content', 'docs', 'assets', 'partial-tab.png');
+    const imageTarget = '../assets/partial-tab.png';
+    await mkdir(path.dirname(sourcePath), { recursive: true });
+    await mkdir(path.dirname(imagePath), { recursive: true });
+    await writeFile(imagePath, 'image fixture', 'utf8');
+    const logical = [
+      '1. outer',
+      '\tcontinued',
+      '\t```md',
+      '\t`declare -p GRAFANA_PASSWORD`',
+      '\t<operation-id>',
+      `\t![fenced](${imageTarget})`,
+      '\t```',
+      'after',
+      `![outside](${imageTarget})`,
+    ].join('\n');
+    const outcome = contentMap['installation.md'].reader.outcome;
+    for (const terminator of ['\n', '\r\n', '\r']) {
+      const source = logical.replaceAll('\n', terminator);
+      const openStart = source.indexOf('\t```md');
+      const closeEnd = source.indexOf(`${terminator}after`);
+      assert.deepEqual(markdownFenceRanges(source), [[openStart, closeEnd]], `partial-tab fence range drifted for ${JSON.stringify(terminator)}`);
+      assert.equal(toPlainText(source), '1. outer continued after');
+      assert.equal(placeholderInventory(source, { inlineCodeOnly: true }).total, 0);
+      assert.doesNotThrow(() => assertNoUnsafeLgtmDiagnostics(source, `partial-tab-${JSON.stringify(terminator)}.md`));
+      assert.doesNotThrow(() => assertArtifactReaderText(`description: ${outcome}\n${source}`, {
+        outcome,
+        location: `partial-tab-${JSON.stringify(terminator)}.md`,
+      }));
+
+      const rewritten = await rewriteRelativeImageReferences({ source, sourcePath, projectRoot });
+      assert.equal(rewritten, [
+        '1. outer',
+        '\tcontinued',
+        '\t```md',
+        '\t`declare -p GRAFANA_PASSWORD`',
+        '\t<operation-id>',
+        `\t![fenced](${imageTarget})`,
+        '\t```',
+        'after',
+        '![outside](/blume-assets/content/src/content/docs/assets/partial-tab.png)',
+      ].join(terminator));
+
+      const rendererSource = source.replace(/\r\n?|\n/gu, '\n');
+      const rendered = (await satteriMarkdownProcessor.render(rendererSource)).code;
+      assert.match(rendered, /<pre[^>]*>[\s\S]*declare -p GRAFANA_PASSWORD[\s\S]*<\/pre>/u);
+      assert.doesNotMatch(rendered, /<pre[^>]*>[\s\S]*after[\s\S]*<\/pre>/u);
+    }
+  } finally {
+    await rm(temporary, { recursive: true, force: true });
+  }
+});
+
+test('multiline HTML block completion preserves Search, Raw, reader, and renderer parity', async () => {
+  const temporary = await mkdtemp(path.join(repositoryRoot, 'docs/website/.reader-contract-html-block-'));
+  try {
+    const projectRoot = path.join(temporary, 'project');
+    const sourcePath = path.join(projectRoot, 'src', 'content', 'docs', 'testing', 'html-block.md');
+    const imagePath = path.join(projectRoot, 'src', 'content', 'docs', 'assets', 'html-block.png');
+    const imageTarget = '../assets/html-block.png';
+    await mkdir(path.dirname(sourcePath), { recursive: true });
+    await mkdir(path.dirname(imagePath), { recursive: true });
+    await writeFile(imagePath, 'image fixture', 'utf8');
+    const logical = [
+      'before',
+      '<div>',
+      'html boundary',
+      '</div>',
+      '',
+      '2. ```md',
+      '   HIDDEN_HTML_BODY',
+      '   <operation-id>',
+      `   ![fenced](${imageTarget})`,
+      '   ```',
+      'after',
+      `![outside](${imageTarget})`,
+    ].join('\n');
+    const outcome = contentMap['installation.md'].reader.outcome;
+    for (const terminator of ['\n', '\r\n', '\r']) {
+      const source = logical.replaceAll('\n', terminator);
+      const openStart = source.indexOf('2. ```md');
+      const closeEnd = source.indexOf(`${terminator}after`);
+      assert.deepEqual(markdownFenceRanges(source), [[openStart, closeEnd]], `multiline HTML fence range drifted for ${JSON.stringify(terminator)}`);
+      assert.equal(toPlainText(source), 'before html boundary after');
+      assert.equal(placeholderInventory(source, { inlineCodeOnly: true }).total, 0);
+      assert.doesNotThrow(() => assertNoUnsafeLgtmDiagnostics(source, `html-block-${JSON.stringify(terminator)}.md`));
+      assert.doesNotThrow(() => assertArtifactReaderText(`description: ${outcome}\n${source}`, {
+        outcome,
+        location: `html-block-${JSON.stringify(terminator)}.md`,
+      }));
+
+      const rewritten = await rewriteRelativeImageReferences({ source, sourcePath, projectRoot });
+      assert.equal(rewritten, [
+        'before',
+        '<div>',
+        'html boundary',
+        '</div>',
+        '',
+        '2. ```md',
+        '   HIDDEN_HTML_BODY',
+        '   <operation-id>',
+        `   ![fenced](${imageTarget})`,
+        '   ```',
+        'after',
+        '![outside](/blume-assets/content/src/content/docs/assets/html-block.png)',
+      ].join(terminator));
+
+      const rendererSource = source.replace(/\r\n?|\n/gu, '\n');
+      const rendered = (await satteriMarkdownProcessor.render(rendererSource)).code;
+      assert.match(rendered, /<pre[^>]*>[\s\S]*HIDDEN_HTML_BODY[\s\S]*<\/pre>/u);
+      assert.doesNotMatch(rendered, /<pre[^>]*>[\s\S]*after[\s\S]*<\/pre>/u);
+    }
+  } finally {
+    await rm(temporary, { recursive: true, force: true });
+  }
+});
+
+test('patched Blume plain-text line semantics match Satteri for LF, CRLF, and lone CR', async () => {
+  const logical = [
+    '# visible title',
+    'Visible `<command>`.',
+    '```text',
+    '# hidden title',
+    'HIDDEN_CR_BODY',
+    '```',
+    '# after',
+  ].join('\n');
+  for (const terminator of ['\n', '\r\n', '\r']) {
+    const source = logical.replaceAll('\n', terminator);
+    const plain = toPlainText(source);
+    const rendererSource = source.replace(/\r\n?|\n/gu, '\n');
+    const rendered = (await satteriMarkdownProcessor.render(rendererSource)).code;
+    assert.match(plain, /visible title/u);
+    assert.match(plain, /after/u);
+    assert.doesNotMatch(plain, /#\s+(?:visible title|after)/u);
+    assert.doesNotMatch(plain, /HIDDEN_CR_BODY/u);
+    assert.match(rendered, /<pre[^>]*>[\s\S]*HIDDEN_CR_BODY[\s\S]*<\/pre>/u);
+    assert.doesNotMatch(rendered, /<pre[^>]*>[\s\S]*after[\s\S]*<\/pre>/u);
+  }
+});
+
+test('Search fence boundaries match Satteri and an independent reader scanner', async () => {
+  const fixtures = [
+    {
+      name: 'top-level thematic break',
+      logical: 'before\n* * *\n2. ```text\n   TOKEN123\n   ```\nafter',
+      expected: 'before after',
+    },
+    {
+      name: 'list thematic break',
+      logical: 'before\n- item\n  * * *\n  2. ```text\n     TOKEN123\n     ```\nafter',
+      expected: 'before - item after',
+    },
+    {
+      name: 'blockquote thematic break',
+      logical: 'before\n> * * *\n> 2. ```text\n>    TOKEN123\n>    ```\n> after',
+      expected: 'before after',
+    },
+    {
+      name: 'incomplete type-six slash prefix remains paragraph',
+      logical: '<div/x\n- ```text\n  TOKEN123\n  ```\nafter',
+      expected: '<div/x after',
+    },
+    {
+      name: 'incomplete type-six slash prefix in blockquote',
+      logical: '> <div/x\n> - ```text\n>   TOKEN123\n>   ```\n> after',
+      expected: '<div/x after',
+    },
+  ];
+  for (const terminator of ['\n', '\r\n', '\r']) {
+    for (const fixture of fixtures) {
+      const source = fixture.logical.replaceAll('\n', terminator);
+      const rendererSource = source.replace(/\r\n?|\n/gu, '\n');
+      const rendered = (await satteriMarkdownProcessor.render(rendererSource)).code;
+      assert.deepEqual(fenceRanges(source), markdownFenceRanges(source), `${fixture.name} scanner parity drifted for ${JSON.stringify(terminator)}`);
+      assert.equal(toPlainText(source), fixture.expected, `${fixture.name} Search text drifted for ${JSON.stringify(terminator)}`);
+      assert.match(rendered, /<pre[^>]*>[\s\S]*TOKEN123[\s\S]*<\/pre>/u, `${fixture.name} must render TOKEN123 as a code block`);
+      assert.doesNotMatch(toPlainText(source), /TOKEN123/u, `${fixture.name} leaked its fenced token into Search`);
+    }
+  }
+});
+
+test('Setext underlines close the paragraph before top-level, list, and blockquote fences', async () => {
+  const temporary = await mkdtemp(path.join(repositoryRoot, 'docs/website/.reader-contract-setext-boundary-'));
+  try {
+    const projectRoot = path.join(temporary, 'project');
+    const sourcePath = path.join(projectRoot, 'src', 'content', 'docs', 'setext.md');
+    const imagePath = path.join(projectRoot, 'src', 'content', 'docs', 'assets', 'setext.png');
+    await mkdir(path.dirname(sourcePath), { recursive: true });
+    await mkdir(path.dirname(imagePath), { recursive: true });
+    await writeFile(imagePath, 'image fixture', 'utf8');
+    const marker = '```';
+    const fixtures = [
+      {
+        name: 'top-level',
+        logical: [
+          'before',
+          'UNDERLINE',
+          `2. ${marker}text`,
+          '   HIDDEN_SETEXT',
+          '   ![fenced](assets/setext.png)',
+          `   ${marker}`,
+          'after',
+          '![outside](assets/setext.png)',
+        ].join('\n'),
+        expected: 'before after',
+        searchExpected: 'before after',
+      },
+      {
+        name: 'list',
+        logical: [
+          '- before',
+          '  UNDERLINE',
+          `  2. ${marker}text`,
+          '     HIDDEN_SETEXT',
+          '     ![fenced](assets/setext.png)',
+          `     ${marker}`,
+          'after',
+          '![outside](assets/setext.png)',
+        ].join('\n'),
+        expected: 'before after',
+        searchExpected: '- before after',
+      },
+      {
+        name: 'blockquote',
+        logical: [
+          '> before',
+          '> UNDERLINE',
+          `> 2. ${marker}text`,
+          '>    HIDDEN_SETEXT',
+          '>    ![fenced](assets/setext.png)',
+          `>    ${marker}`,
+          '> after',
+          '![outside](assets/setext.png)',
+        ].join('\n'),
+        expected: 'before after',
+        searchExpected: 'before after',
+      },
+    ];
+    for (const terminator of ['\n', '\r\n', '\r']) {
+      for (const fixture of fixtures) {
+        for (const underline of ['--', '==']) {
+          const source = fixture.logical.replaceAll('UNDERLINE', underline).replaceAll('\n', terminator);
+          const openLine = fixture.name === 'top-level'
+            ? `2. ${marker}text`
+            : fixture.name === 'list' ? `  2. ${marker}text` : `> 2. ${marker}text`;
+          const openStart = source.indexOf(openLine);
+          const closeLine = `${fixture.name === 'top-level' ? '   ' : fixture.name === 'list' ? '     ' : '>    '}${marker}`;
+          const closeEnd = source.indexOf(closeLine) + closeLine.length;
+          assert.deepEqual(fenceRanges(source), [[openStart, closeEnd]], `${fixture.name} production range drifted for ${JSON.stringify({ underline, terminator })}`);
+          assert.deepEqual(markdownFenceRanges(source), [[openStart, closeEnd]], `${fixture.name} reader range drifted for ${JSON.stringify({ underline, terminator })}`);
+          const expected = fixture.expected;
+          assert.equal(toPlainText(source), fixture.searchExpected, `${fixture.name} Search drifted for ${JSON.stringify({ underline, terminator })}`);
+
+          const rendered = (await satteriMarkdownProcessor.render(source.replace(/\r\n?|\n/gu, '\n'))).code;
+          const dom = new JSDOM(`<main>${rendered}</main>`);
+          try {
+            const root = dom.window.document.querySelector('main');
+            const walker = root.ownerDocument.createTreeWalker(root, dom.window.NodeFilter.SHOW_COMMENT);
+            const comments = [];
+            while (walker.nextNode()) comments.push(walker.currentNode);
+            for (const comment of comments) comment.remove();
+            for (const element of root.querySelectorAll('pre, script, style, template')) element.remove();
+            assert.equal((root.textContent ?? '').replace(/\s+/gu, ' ').trim(), expected, `${fixture.name} DOM reader text drifted for ${JSON.stringify({ underline, terminator })}`);
+          } finally {
+            dom.window.close();
+          }
+          const preBlocks = [...rendered.matchAll(/<pre[^>]*>[\s\S]*?<\/pre>/gu)].map(([block]) => block).join('\n');
+          assert.match(preBlocks, /HIDDEN_SETEXT/u, `${fixture.name} renderer did not retain the fenced body for ${JSON.stringify({ underline, terminator })}`);
+          assert.doesNotMatch(preBlocks, /(?:^|\n)after(?:\n|$)/u, `${fixture.name} renderer fence consumed following prose for ${JSON.stringify({ underline, terminator })}`);
+
+          const rewritten = await rewriteRelativeImageReferences({ source, sourcePath, projectRoot });
+          assert.match(rewritten, /!\[fenced\]\(assets\/setext\.png\)/u, `${fixture.name} rewrote a fenced image for ${JSON.stringify({ underline, terminator })}`);
+          assert.match(rewritten, /!\[outside\]\(\/blume-assets\/content\/src\/content\/docs\/assets\/setext\.png\)/u, `${fixture.name} did not rewrite the outside image for ${JSON.stringify({ underline, terminator })}`);
+        }
+      }
+
+      for (const [name, underline] of [['standalone-dash', '--'], ['standalone-equals', '==']]) {
+        const source = [
+          underline,
+          `2. ${marker}text`,
+          `HIDDEN_${name.toUpperCase()}`,
+          marker,
+          'after',
+        ].join(terminator);
+        const openStart = source.indexOf(`2. ${marker}text`);
+        assert.notEqual(fenceRanges(source)[0]?.[0], openStart, `${name} unexpectedly interrupted a paragraph in production Search`);
+        assert.notEqual(markdownFenceRanges(source)[0]?.[0], openStart, `${name} unexpectedly interrupted a paragraph in reader scanner`);
+        const visibleControl = `HIDDEN_${name.toUpperCase()}`.replace('_', ' ');
+        assert.match(toPlainText(source), new RegExp(visibleControl, 'u'), `${name} disappeared from Search`);
+      }
+    }
+  } finally {
+    await rm(temporary, { recursive: true, force: true });
+  }
+});
+
+test('Search normalizes list continuation before Setext and keeps empty markers block-visible', async () => {
+  const fixtures = [
+    {
+      name: 'list setext dedent remains prose',
+      logical: '- alpha\n--\n  2. ```text\nTOKEN_DEDENT\n```\nafter',
+      token: 'TOKEN_DEDENT',
+      fenced: false,
+    },
+    ...[0, 1, 2, 3].map((relative) => ({
+      name: `list setext relative ${relative}`,
+      logical: `- alpha\n${' '.repeat(2 + relative)}--\n  2. \`\`\`text\n     TOKEN_RELATIVE_${relative}\n     \`\`\`\nafter`,
+      token: `TOKEN_RELATIVE_${relative}`,
+      fenced: true,
+    })),
+    {
+      name: 'tab continuation setext',
+      logical: '- alpha\n\t--\n  2. ```text\n     TOKEN_TAB\n     ```\nafter',
+      token: 'TOKEN_TAB',
+      fenced: true,
+    },
+    {
+      name: 'blockquote relative continuation setext',
+      logical: '> - alpha\n>   --\n>   2. ```text\n>      TOKEN_BLOCKQUOTE\n>      ```\n> after',
+      token: 'TOKEN_BLOCKQUOTE',
+      fenced: true,
+    },
+    {
+      name: 'nested list fence remains masked',
+      logical: '- outer\n  1. inner\n    ```text\n    TOKEN_NESTED\n    ```\nafter',
+      token: 'TOKEN_NESTED',
+      fenced: true,
+    },
+  ];
+  const controls = '--\nVISIBLE_DASH\n==\nVISIBLE_EQUALS\nafter';
+  for (const terminator of ['\n', '\r\n', '\r']) {
+    assert.match(toPlainText(controls.replaceAll('\n', terminator)), /VISIBLE DASH[\s\S]*VISIBLE EQUALS/u);
+    for (const fixture of fixtures) {
+      const source = fixture.logical.replaceAll('\n', terminator);
+      const rendered = (await satteriMarkdownProcessor.render(source.replace(/\r\n?|\n/gu, '\n'))).code;
+      assert.deepEqual(fenceRanges(source), markdownFenceRanges(source), `${fixture.name} scanner parity drifted for ${JSON.stringify(terminator)}`);
+      const plain = toPlainText(source);
+      const tokenStart = source.indexOf(fixture.token);
+      const inRange = fenceRanges(source).some(([start, end]) => tokenStart >= start && tokenStart < end);
+      assert.equal(inRange, fixture.fenced, `${fixture.name} range visibility drifted for ${JSON.stringify(terminator)}`);
+      const searchableForms = [fixture.token, fixture.token.replaceAll('_', ' ')];
+      assert.equal(searchableForms.some((value) => plain.includes(value)), !fixture.fenced, `${fixture.name} Search visibility drifted for ${JSON.stringify(terminator)}`);
+      const preBlocks = [...rendered.matchAll(/<pre[^>]*>[\s\S]*?<\/pre>/gu)].map(([block]) => block).join('\n');
+      assert.equal(preBlocks.includes(fixture.token), fixture.fenced, `${fixture.name} Satteri fence visibility drifted for ${JSON.stringify(terminator)}`);
+    }
+    for (const marker of ['-', '+', '*', '1.']) {
+      const token = `TOKEN_EMPTY_${marker.replace('.', 'ORDER')}`;
+      const source = `# alpha\n${marker}\n2. \`\`\`text\n   ${token}\n   \`\`\`\nafter`.replaceAll('\n', terminator);
+      assert.deepEqual(fenceRanges(source), markdownFenceRanges(source), `empty ${marker} scanner parity drifted for ${JSON.stringify(terminator)}`);
+      const ranges = fenceRanges(source);
+      const tokenStart = source.indexOf(token);
+      assert.equal(ranges.some(([start, end]) => tokenStart >= start && tokenStart < end), true, `empty ${marker} did not mask its fence body`);
+      assert.doesNotMatch(toPlainText(source), new RegExp(token, 'u'), `empty ${marker} leaked its fence body`);
+    }
+  }
+});
+
+test('Search removes complete comments and non-reader HTML content against a DOM oracle', async () => {
+  const fixtures = [
+    ['complete comment with an early angle bracket', '<!-- hidden > TOKEN123 -->\nafter', 'after'],
+    ['multiline complete comment', '<!-- hidden\n> TOKEN123\n-->\nafter', 'after'],
+    ['script content', '<script>hidden > TOKEN123</script>after', 'after'],
+    ['style content', '<style>hidden > TOKEN123</style>after', 'after'],
+    ['template content', '<template>hidden > TOKEN123</template>after', 'after'],
+    ['ordinary HTML prose', '<p>visible prose</p>', 'visible prose'],
+  ];
+  const domVisibleText = (html) => {
+    const dom = new JSDOM(`<main>${html}</main>`);
+    try {
+      const root = dom.window.document.querySelector('main');
+      const walker = root.ownerDocument.createTreeWalker(root, dom.window.NodeFilter.SHOW_COMMENT);
+      const comments = [];
+      while (walker.nextNode()) comments.push(walker.currentNode);
+      for (const comment of comments) comment.remove();
+      for (const element of root.querySelectorAll('script, style, template')) element.remove();
+      return (root.textContent ?? '').replace(/\s+/gu, ' ').trim();
+    } finally {
+      dom.window.close();
+    }
+  };
+  for (const terminator of ['\n', '\r\n', '\r']) {
+    for (const [name, logical, expected] of fixtures) {
+      const source = logical.replaceAll('\n', terminator);
+      const rendered = (await satteriMarkdownProcessor.render(source.replace(/\r\n?|\n/gu, '\n'))).code;
+      assert.equal(toPlainText(source), expected, `${name} Search text drifted for ${JSON.stringify(terminator)}`);
+      assert.equal(domVisibleText(rendered), expected, `${name} DOM reader text drifted for ${JSON.stringify(terminator)}`);
+    }
+  }
+});
+
+test('Search excludes script and style raw bodies opened at physical line endings', async () => {
+  const domVisibleText = (html) => {
+    const dom = new JSDOM(`<main>${html}</main>`);
+    try {
+      const root = dom.window.document.querySelector('main');
+      const walker = root.ownerDocument.createTreeWalker(root, dom.window.NodeFilter.SHOW_COMMENT);
+      const comments = [];
+      while (walker.nextNode()) comments.push(walker.currentNode);
+      for (const comment of comments) comment.remove();
+      for (const element of root.querySelectorAll('script, style, template')) element.remove();
+      return (root.textContent ?? '').replace(/\s+/gu, ' ').trim();
+    } finally {
+      dom.window.close();
+    }
+  };
+  const fixtures = [
+    ['script-name-line-ending-without-attributes', '<script\n>HIDDEN_SCRIPT</script>\nafter', 'after'],
+    ['script-name-line-ending-with-attributes', '<script\n type="application/javascript">HIDDEN_SCRIPT</script>\nafter', 'after'],
+    ['style-name-line-ending-without-attributes', '<style\n>HIDDEN_STYLE</style>\nafter', 'after'],
+    ['style-name-line-ending-with-attributes', '<style\n media="screen">HIDDEN_STYLE</style>\nafter', 'after'],
+    ['script-name-line-ending-without-standalone-terminator', '<script\nTOKEN_SCRIPT\n</script>\nafter', ''],
+    ['script-name-line-ending-with-attributes-without-standalone-terminator', '<script\n type="application/javascript"\nTOKEN_SCRIPT_ATTRIBUTE\n</script>\nafter', ''],
+    ['style-name-line-ending-without-standalone-terminator', '<style\nTOKEN_STYLE\n</style>\nafter', ''],
+    ['style-name-line-ending-with-attributes-without-standalone-terminator', '<style\n media="screen"\nTOKEN_STYLE_ATTRIBUTE\n</style>\nafter', ''],
+    ['top-level-versus-blockquote-raw-opener-terminator', '> <script\n> >\n> HIDDEN_BLOCKQUOTE_SCRIPT\n> </script>\n> after', 'after'],
+    ['same-line-template-inert', '<template>HIDDEN_TEMPLATE</template>\nafter', 'after'],
+  ];
+  for (const terminator of ['\n', '\r\n', '\r']) {
+    for (const [name, logical, expected] of fixtures) {
+      const source = logical.replaceAll('\n', terminator);
+      const rendered = (await satteriMarkdownProcessor.render(source.replace(/\r\n?|\n/gu, '\n'))).code;
+      assert.equal(toPlainText(source), expected, `${name} Search drifted for ${JSON.stringify(terminator)}`);
+      assert.equal(domVisibleText(rendered), expected, `${name} DOM-visible reader text drifted for ${JSON.stringify(terminator)}`);
+    }
+
+    const multilineTemplate = '<template\n>VISIBLE_TEMPLATE</template>\nafter'.replaceAll('\n', terminator);
+    const multilineTemplateRendered = (await satteriMarkdownProcessor.render(multilineTemplate.replace(/\r\n?|\n/gu, '\n'))).code;
+    assert.equal(toPlainText(multilineTemplate), 'VISIBLE TEMPLATE after', `multiline template Search drifted for ${JSON.stringify(terminator)}`);
+    assert.match(domVisibleText(multilineTemplateRendered), /VISIBLE_TEMPLATE/u, `multiline template became inert for ${JSON.stringify(terminator)}`);
+    assert.match(domVisibleText(multilineTemplateRendered), /after/u, `multiline template lost following prose for ${JSON.stringify(terminator)}`);
+  }
+});
+
+test('Search masks incomplete CommonMark HTML blocks with an independent reader oracle', async () => {
+  const domVisibleText = (html) => {
+    const dom = new JSDOM(`<main>${html}</main>`);
+    try {
+      const root = dom.window.document.querySelector('main');
+      const walker = root.ownerDocument.createTreeWalker(root, dom.window.NodeFilter.SHOW_COMMENT);
+      const comments = [];
+      while (walker.nextNode()) comments.push(walker.currentNode);
+      for (const comment of comments) comment.remove();
+      for (const element of root.querySelectorAll('script, style, template')) element.remove();
+      return (root.textContent ?? '').replace(/\s+/gu, ' ').trim();
+    } finally {
+      dom.window.close();
+    }
+  };
+  const fixtures = [
+    ['script-no-attributes', '<script\n>\nTOKEN_SCRIPT\n</script>\nafter', 'after'],
+    ['script-with-attributes', '<script\n type="application/javascript">\nTOKEN_SCRIPT\n</script>\nafter', 'after'],
+    ['style-no-attributes', '<style\n>\nTOKEN_STYLE\n</style>\nafter', 'after'],
+    ['style-with-attributes', '<style\n media="screen">\nTOKEN_STYLE\n</style>\nafter', 'after'],
+    ['processing-incomplete', '<?pi\nTOKEN_PROCESSING\n?>\nafter', 'after'],
+    ['declaration-incomplete', '<!DOCTYPE\nTOKEN_DECLARATION\n>\nafter', 'after'],
+    ['cdata-incomplete', '<![CDATA[\nTOKEN_CDATA\n]]>\nafter', 'after'],
+    ['type-six-incomplete-with-blank', '<div\nTOKEN_DIV\n\n</div>\nafter', 'after'],
+    ['list-type-six-incomplete-with-blank', '- <div\n  TOKEN_DIV_LIST\n\n- after', '- after', 'after'],
+    ['blockquote-processing-incomplete', '> <?pi\n> TOKEN_PROCESSING_QUOTE\n> ?>\n> after', 'after'],
+  ];
+  for (const terminator of ['\n', '\r\n', '\r']) {
+    for (const [name, logical, expected, domExpected = expected] of fixtures) {
+      const source = logical.replaceAll('\n', terminator);
+      const rendererSource = source.replace(/\r\n?|\n/gu, '\n');
+      const rendered = (await satteriMarkdownProcessor.render(rendererSource)).code;
+      assert.equal(toPlainText(source), expected, `${name} Search visibility drifted for ${JSON.stringify(terminator)}`);
+      assert.equal(domVisibleText(rendered), domExpected, `${name} DOM visibility drifted for ${JSON.stringify(terminator)}`);
+      const range = markdownHtmlBlockRanges(source);
+      const token = logical.match(/TOKEN_[A-Z_]+/u)?.[0];
+      assert.ok(token !== undefined && range.some(([start, end]) => {
+        const tokenStart = source.indexOf(token);
+        return tokenStart >= start && tokenStart < end;
+      }), `${name} reader oracle did not mask its incomplete block`);
+    }
+  }
+  for (const [name, logical, expected, domPattern] of [
+    ['same-line-template', '<template>TOKEN_TEMPLATE</template>after', 'after', /^after$/u],
+    ['multiline-template-control', '<template\n>VISIBLE_TEMPLATE</template>\nafter', 'VISIBLE TEMPLATE after', /VISIBLE_TEMPLATE[\s\S]*after/u],
+    ['ordinary-html-control', '<div>VISIBLE_DIV</div>', 'VISIBLE DIV', /^VISIBLE_DIV$/u],
+    ['inline-code-control', '`<script\nTOKEN_INLINE</script>` after', '<script TOKEN_INLINE</script> after', /TOKEN_INLINE[\s\S]*after/u],
+  ]) {
+    const rendered = (await satteriMarkdownProcessor.render(logical)).code;
+    assert.equal(toPlainText(logical), expected, `${name} Search control drifted`);
+    assert.match(domVisibleText(rendered), domPattern, `${name} DOM control drifted`);
+  }
+});
+
+test('Search correction matrix follows Satteri and JSDOM reader visibility', async () => {
+  const domVisibleText = (html) => {
+    const dom = new JSDOM(`<main>${html}</main>`);
+    try {
+      const root = dom.window.document.querySelector('main');
+      const walker = root.ownerDocument.createTreeWalker(root, dom.window.NodeFilter.SHOW_COMMENT);
+      const comments = [];
+      while (walker.nextNode()) comments.push(walker.currentNode);
+      for (const comment of comments) comment.remove();
+      for (const element of root.querySelectorAll('script, style, template')) element.remove();
+      return (root.textContent ?? '').replace(/\s+/gu, ' ').trim();
+    } finally {
+      dom.window.close();
+    }
+  };
+  const fixtures = [
+    {
+      name: 'blockquote script quote-aware opener',
+      logical: '> <script\n> type="data > value">\n> HIDDEN_RAW_SCRIPT\n> </script>\n> after',
+      token: 'HIDDEN_RAW_SCRIPT',
+      searchIncludes: ['after'],
+      searchExcludes: ['HIDDEN RAW SCRIPT'],
+      domIncludes: ['after'],
+      domExcludes: ['HIDDEN_RAW_SCRIPT'],
+      htmlMasksToken: true,
+      preContainsToken: false,
+    },
+    {
+      name: 'blockquote style quote-aware opener',
+      logical: '> - <style\n>     media="screen > value">\n>     HIDDEN_RAW_STYLE\n>   </style>\n> after',
+      token: 'HIDDEN_RAW_STYLE',
+      searchIncludes: ['after'],
+      searchExcludes: ['HIDDEN RAW STYLE'],
+      domIncludes: ['after'],
+      domExcludes: ['HIDDEN_RAW_STYLE'],
+      htmlMasksToken: true,
+      preContainsToken: false,
+    },
+    {
+      name: 'nested blockquote script quote-aware opener',
+      logical: '> > <script\n> > data-x="NESTED > MARK">\n> > HIDDEN_NESTED_RAW\n> > </script>\n> after',
+      token: 'HIDDEN_NESTED_RAW',
+      searchIncludes: ['after'],
+      searchExcludes: ['HIDDEN NESTED RAW'],
+      domIncludes: ['after'],
+      domExcludes: ['HIDDEN_NESTED_RAW'],
+      htmlMasksToken: true,
+      preContainsToken: false,
+    },
+    {
+      name: 'top-level script quote-aware attribute with unfinished opener',
+      logical: '<script\n data-x="EARLY > MARK"\nHIDDEN_TOP_RAW\n</script>\nafter',
+      token: 'HIDDEN_TOP_RAW',
+      searchIncludes: [],
+      searchExcludes: ['HIDDEN TOP RAW', 'after'],
+      domIncludes: [],
+      domExcludes: ['HIDDEN_TOP_RAW', 'after'],
+      htmlMasksToken: true,
+      preContainsToken: false,
+    },
+    {
+      name: 'top-level quote-aware attribute spans physical lines',
+      logical: '<script\n data-x="EARLY\n > </script> STILL">\nHIDDEN_MULTILINE_QUOTE\n</script>\nafter',
+      token: 'HIDDEN_MULTILINE_QUOTE',
+      searchIncludes: ['after'],
+      searchExcludes: ['HIDDEN MULTILINE QUOTE'],
+      domIncludes: ['after'],
+      domExcludes: ['HIDDEN_MULTILINE_QUOTE'],
+      htmlMasksToken: true,
+      preContainsToken: false,
+    },
+    {
+      name: 'top-level starter quote spans physical lines',
+      logical: '<script data-x="EARLY\n > </script> STILL">\nHIDDEN_START_QUOTE\n</script>\nafter',
+      token: 'HIDDEN_START_QUOTE',
+      searchIncludes: ['after'],
+      searchExcludes: ['HIDDEN START QUOTE'],
+      domIncludes: ['after'],
+      domExcludes: ['HIDDEN_START_QUOTE'],
+      htmlMasksToken: true,
+      preContainsToken: false,
+    },
+    {
+      name: 'type-6 starter quote spans physical lines',
+      logical: '<div data-kind="EARLY\n > </div> STILL">\nVISIBLE_TYPE6_START\n</div>\nafter',
+      token: 'VISIBLE_TYPE6_START',
+      searchIncludes: ['VISIBLE TYPE6 START', 'after'],
+      searchExcludes: ['data kind'],
+      domIncludes: ['VISIBLE_TYPE6_START', 'after'],
+      domExcludes: ['data-kind'],
+      htmlMasksToken: false,
+      preContainsToken: false,
+    },
+    {
+      name: 'blockquote raw opener without an unquoted close angle',
+      logical: '> <script\n> HIDDEN_RAW_UNTERMINATED\n> </script>\n> after',
+      token: 'HIDDEN_RAW_UNTERMINATED',
+      searchIncludes: [],
+      searchExcludes: ['HIDDEN RAW UNTERMINATED', 'after'],
+      domIncludes: [],
+      domExcludes: ['HIDDEN_RAW_UNTERMINATED', 'after'],
+      htmlMasksToken: true,
+      preContainsToken: false,
+    },
+    {
+      name: 'multiline div body remains reader-visible',
+      logical: '<div\n data-kind="visible">\nVISIBLE_DIV_BODY\n</div>\nafter',
+      token: 'VISIBLE_DIV_BODY',
+      searchIncludes: ['VISIBLE DIV BODY', 'after'],
+      searchExcludes: ['data kind'],
+      domIncludes: ['VISIBLE_DIV_BODY', 'after'],
+      domExcludes: ['data-kind'],
+      htmlMasksToken: false,
+      preContainsToken: false,
+    },
+    {
+      name: 'type-6 completion line preserves visible tail',
+      logical: '<div\n data-kind="probe">VISIBLE_COMPLETION\nVISIBLE_NEXT\n\n</div>\nafter',
+      token: 'VISIBLE_COMPLETION',
+      searchIncludes: ['VISIBLE COMPLETION', 'VISIBLE NEXT', 'after'],
+      searchExcludes: ['data kind'],
+      domIncludes: ['VISIBLE_COMPLETION', 'VISIBLE_NEXT', 'after'],
+      domExcludes: ['data-kind'],
+      htmlMasksToken: false,
+      preContainsToken: false,
+    },
+    {
+      name: 'non-inert raw pre completion line preserves visible tail',
+      logical: '<pre\n data-kind="probe">VISIBLE_PRE_COMPLETION\nVISIBLE_PRE_NEXT\n</pre>\nafter',
+      token: 'VISIBLE_PRE_COMPLETION',
+      searchIncludes: ['VISIBLE PRE COMPLETION', 'VISIBLE PRE NEXT', 'after'],
+      searchExcludes: ['data kind'],
+      domIncludes: ['VISIBLE_PRE_COMPLETION', 'VISIBLE_PRE_NEXT', 'after'],
+      domExcludes: ['data-kind'],
+      htmlMasksToken: false,
+      preContainsToken: true,
+    },
+    {
+      name: 'multiline pre body remains reader-visible',
+      logical: '<pre\n data-kind="visible">\nVISIBLE_PRE_BODY\n</pre>\nafter',
+      token: 'VISIBLE_PRE_BODY',
+      searchIncludes: ['VISIBLE PRE BODY', 'after'],
+      searchExcludes: ['data kind'],
+      domIncludes: ['VISIBLE_PRE_BODY', 'after'],
+      domExcludes: ['data-kind'],
+      htmlMasksToken: false,
+      preContainsToken: true,
+    },
+    {
+      name: 'multiline textarea body remains reader-visible',
+      logical: '<textarea\n data-kind="visible">\nVISIBLE_TEXTAREA_BODY\n</textarea>\nafter',
+      token: 'VISIBLE_TEXTAREA_BODY',
+      searchIncludes: ['VISIBLE TEXTAREA BODY', 'after'],
+      searchExcludes: ['data kind'],
+      domIncludes: ['VISIBLE_TEXTAREA_BODY', 'after'],
+      domExcludes: ['data-kind'],
+      htmlMasksToken: false,
+      preContainsToken: false,
+    },
+    {
+      name: 'list-contained multiline textarea body remains reader-visible',
+      logical: '> - <textarea\n>     data-kind="visible">\n>     VISIBLE_NESTED_TEXTAREA\n>   </textarea>\n> after',
+      token: 'VISIBLE_NESTED_TEXTAREA',
+      searchIncludes: ['VISIBLE NESTED TEXTAREA', 'after'],
+      searchExcludes: ['data kind'],
+      domIncludes: ['VISIBLE_NESTED_TEXTAREA', 'after'],
+      domExcludes: ['data-kind'],
+      htmlMasksToken: false,
+      preContainsToken: false,
+    },
+    {
+      name: 'blockquote-list type-6 completion line preserves visible tail',
+      logical: '> - <div\n>     data-kind="probe">VISIBLE_NESTED_COMPLETION\n>     VISIBLE_NESTED_NEXT\n>   </div>\n> after',
+      token: 'VISIBLE_NESTED_COMPLETION',
+      searchIncludes: ['VISIBLE NESTED COMPLETION', 'VISIBLE NESTED NEXT', 'after'],
+      searchExcludes: ['data kind'],
+      domIncludes: ['VISIBLE_NESTED_COMPLETION', 'VISIBLE_NESTED_NEXT', 'after'],
+      domExcludes: ['data-kind'],
+      htmlMasksToken: false,
+      preContainsToken: false,
+    },
+    {
+      name: 'incomplete div control stays hidden',
+      logical: '<div\nHIDDEN_INCOMPLETE_DIV\n\n</div>\nafter',
+      token: 'HIDDEN_INCOMPLETE_DIV',
+      searchIncludes: ['after'],
+      searchExcludes: ['HIDDEN INCOMPLETE DIV'],
+      domIncludes: ['after'],
+      domExcludes: ['HIDDEN_INCOMPLETE_DIV'],
+      htmlMasksToken: true,
+      preContainsToken: false,
+    },
+    {
+      name: 'lazy blockquote continuation interrupts ordered fence',
+      logical: '> alpha\ntext\n2. ```text\nTOKEN_LAZY\n```\n> after',
+      token: 'TOKEN_LAZY',
+      searchIncludes: ['TOKEN LAZY'],
+      searchExcludes: [],
+      domIncludes: ['TOKEN_LAZY'],
+      domExcludes: [],
+      htmlMasksToken: false,
+      preContainsToken: false,
+      fenceOracle: true,
+    },
+    {
+      name: 'empty unordered marker interrupts ordered fence',
+      logical: '> alpha\n-\n2. ```text\nTOKEN_EMPTY\n```\n> after',
+      token: 'TOKEN_EMPTY',
+      searchIncludes: ['TOKEN EMPTY'],
+      searchExcludes: [],
+      domIncludes: ['TOKEN_EMPTY'],
+      domExcludes: [],
+      htmlMasksToken: false,
+      preContainsToken: false,
+      fenceOracle: true,
+    },
+    {
+      name: 'lazy blockquote ordered fence with CommonMark body indent',
+      logical: '> alpha\ntext\n2. ```text\n   TOKEN_LAZY_INDENTED\n   ```\n> after',
+      token: 'TOKEN_LAZY_INDENTED',
+      searchIncludes: ['alpha', 'text', 'after'],
+      searchExcludes: ['TOKEN LAZY INDENTED'],
+      domIncludes: ['alpha', 'text', 'after'],
+      domExcludes: ['TOKEN_LAZY_INDENTED'],
+      htmlMasksToken: false,
+      preContainsToken: true,
+      fenceOracle: true,
+    },
+    {
+      name: 'empty unordered marker ordered fence with CommonMark body indent',
+      logical: '> alpha\n-\n2. ```text\n   TOKEN_EMPTY_INDENTED\n   ```\n> after',
+      token: 'TOKEN_EMPTY_INDENTED',
+      searchIncludes: ['alpha', 'after'],
+      searchExcludes: ['TOKEN EMPTY INDENTED'],
+      domIncludes: ['alpha', 'after'],
+      domExcludes: ['TOKEN_EMPTY_INDENTED'],
+      htmlMasksToken: false,
+      preContainsToken: true,
+      fenceOracle: true,
+    },
+    {
+      name: 'blank line interrupts blockquote before ordered fence',
+      logical: '> alpha\n\n2. ```text\n   TOKEN_BLANK_LINE\n   ```\n> after',
+      token: 'TOKEN_BLANK_LINE',
+      searchIncludes: ['alpha', 'after'],
+      searchExcludes: ['TOKEN BLANK LINE'],
+      domIncludes: ['alpha', 'after'],
+      domExcludes: ['TOKEN_BLANK_LINE'],
+      htmlMasksToken: false,
+      preContainsToken: true,
+      fenceOracle: true,
+    },
+    {
+      name: 'nested list blockquote empty marker starts fence',
+      logical: '> - alpha\n>   -\n>   2. ```text\n>      TOKEN_NESTED_EMPTY\n>      ```\n> after',
+      token: 'TOKEN_NESTED_EMPTY',
+      searchIncludes: ['alpha', 'after'],
+      searchExcludes: ['TOKEN NESTED EMPTY'],
+      domIncludes: ['alpha', 'after'],
+      domExcludes: ['TOKEN_NESTED_EMPTY'],
+      htmlMasksToken: false,
+      preContainsToken: true,
+      fenceOracle: true,
+    },
+    {
+      name: 'tabbed list continuation remains visible after a lazy interruption',
+      logical: '> - alpha\n>\ttext\n>\t2. ```text\n>\tTOKEN_TAB_LAZY\n>\t```\n> after',
+      token: 'TOKEN_TAB_LAZY',
+      searchIncludes: ['TOKEN TAB LAZY'],
+      searchExcludes: [],
+      domIncludes: ['TOKEN_TAB_LAZY'],
+      domExcludes: [],
+      htmlMasksToken: false,
+      preContainsToken: false,
+      fenceOracle: true,
+    },
+  ];
+
+  for (const terminator of ['\n', '\r\n', '\r']) {
+    for (const fixture of fixtures) {
+      const source = fixture.logical.replaceAll('\n', terminator);
+      const rendererSource = source.replace(/\r\n?|\n/gu, '\n');
+      const rendered = (await satteriMarkdownProcessor.render(rendererSource)).code;
+      const domText = fixture.fenceOracle ? (() => {
+        const dom = new JSDOM(`<main>${rendered}</main>`);
+        try {
+          const root = dom.window.document.querySelector('main');
+          for (const element of root.querySelectorAll('pre')) element.remove();
+          return (root.textContent ?? '').replace(/\s+/gu, ' ').trim();
+        } finally {
+          dom.window.close();
+        }
+      })() : domVisibleText(rendered);
+      const plain = toPlainText(source);
+      for (const expected of fixture.searchIncludes) assert.match(plain, new RegExp(expected.replaceAll(' ', '[ _-]+'), 'u'), `${fixture.name} Search positive drifted for ${JSON.stringify(terminator)}`);
+      for (const unexpected of fixture.searchExcludes) assert.doesNotMatch(plain, new RegExp(unexpected.replaceAll(' ', '[ _-]+'), 'u'), `${fixture.name} Search negative drifted for ${JSON.stringify(terminator)}`);
+      for (const expected of fixture.domIncludes) assert.match(domText, new RegExp(expected.replaceAll(' ', '[ _-]+'), 'u'), `${fixture.name} DOM positive drifted for ${JSON.stringify(terminator)}`);
+      for (const unexpected of fixture.domExcludes) assert.doesNotMatch(domText, new RegExp(unexpected.replaceAll(' ', '[ _-]+'), 'u'), `${fixture.name} DOM negative drifted for ${JSON.stringify(terminator)}`);
+
+      const tokenStart = source.indexOf(fixture.token);
+      assert.notEqual(tokenStart, -1, `${fixture.name} fixture token is missing`);
+      const preContainsToken = [...rendered.matchAll(/<pre[^>]*>[\s\S]*?<\/pre>/gu)].some(([block]) => block.includes(fixture.token));
+      assert.equal(preContainsToken, fixture.preContainsToken, `${fixture.name} Satteri pre oracle drifted for ${JSON.stringify(terminator)}`);
+      if (fixture.fenceOracle) {
+        const readerMasksToken = markdownFenceRanges(source).some(([start, end]) => tokenStart >= start && tokenStart < end);
+        const productionMasksToken = fenceRanges(source).some(([start, end]) => tokenStart >= start && tokenStart < end);
+        assert.equal(readerMasksToken, preContainsToken, `${fixture.name} reader fence visibility drifted for ${JSON.stringify(terminator)}`);
+        assert.equal(productionMasksToken, preContainsToken, `${fixture.name} production fence visibility drifted for ${JSON.stringify(terminator)}`);
+      } else {
+        const readerMasksToken = markdownHtmlBlockRanges(source).some(([start, end]) => tokenStart >= start && tokenStart < end);
+        assert.equal(readerMasksToken, fixture.htmlMasksToken, `${fixture.name} reader HTML-flow visibility drifted for ${JSON.stringify(terminator)}`);
+      }
+    }
+  }
+});
+
+test('Search and reader fence scanners follow independent Satteri visibility for list and HTML edge cases', async () => {
+  const fixtures = [
+    {
+      name: 'partial-tab visual surplus stays inline-visible',
+      logical: '- outer\n\t  ```md\n\t  HIDDEN_TAB\n\t  ```\nafter',
+      visible: 'HIDDEN_TAB',
+      fenced: false,
+    },
+    {
+      name: 'nested ancestor dedent recognizes fenced code',
+      logical: '- outer\n  1. inner\n    ```md\n    HIDDEN_NEST\n    ```\nafter',
+      visible: 'HIDDEN_NEST',
+      fenced: true,
+    },
+    {
+      name: 'empty ordered marker keeps the paragraph open',
+      logical: 'before\n1.\n2. ```text\nHIDDEN_EMPTY\n```\nafter',
+      visible: 'HIDDEN_EMPTY',
+      fenced: false,
+    },
+    {
+      name: 'empty unordered star keeps the paragraph open',
+      logical: 'before\n*\n2. ```text\nHIDDEN_STAR\n```\nafter',
+      visible: 'HIDDEN_STAR',
+      fenced: false,
+    },
+    {
+      name: 'empty unordered plus keeps the paragraph open',
+      logical: 'before\n+\n2. ```text\nHIDDEN_PLUS\n```\nafter',
+      visible: 'HIDDEN_PLUS',
+      fenced: false,
+    },
+    {
+      name: 'type six div does not end before an ordered fence',
+      logical: 'before\n<div>html</div>\n2. ```text\nHIDDEN_DIV\n```\nafter',
+      visible: 'HIDDEN_DIV',
+      fenced: false,
+    },
+    {
+      name: 'type seven span does not interrupt the paragraph',
+      logical: 'before\n<span>inline</span>\n2. ```text\nHIDDEN_SPAN\n```\nafter',
+      visible: 'HIDDEN_SPAN',
+      fenced: false,
+    },
+    {
+      name: 'type one pre ignores nested-looking tags',
+      logical: '<pre>\n<div>nested-looking</div>\n</pre>\n2. ```text\nHIDDEN_PRE\n```\nafter',
+      visible: 'HIDDEN_PRE',
+      fenced: false,
+    },
+    {
+      name: 'type one textarea ignores nested-looking tags',
+      logical: '<textarea>\n<div>nested-looking</div>\n</textarea>\n2. ```text\nHIDDEN_TEXTAREA\n```\nafter',
+      visible: 'HIDDEN_TEXTAREA',
+      fenced: false,
+    },
+    {
+      name: 'type six xmp is not raw type one',
+      logical: '<xmp>\n<div>nested-looking</div>\n</xmp>\n2. ```text\nHIDDEN_XMP\n```\nafter',
+      visible: 'HIDDEN_XMP',
+      fenced: false,
+    },
+    {
+      name: 'type two comment closes on its delimiter',
+      logical: '<!-- comment -->\n2. ```text\nHIDDEN_COMMENT\n```\nafter',
+      visible: 'HIDDEN_COMMENT',
+      fenced: false,
+    },
+    {
+      name: 'type three processing instruction closes on its delimiter',
+      logical: '<?pi?>\n2. ```text\nHIDDEN_PROCESSING\n```\nafter',
+      visible: 'HIDDEN_PROCESSING',
+      fenced: false,
+    },
+    {
+      name: 'type four declaration closes on its delimiter',
+      logical: '<!DECL>\n2. ```text\nHIDDEN_DECLARATION\n```\nafter',
+      visible: 'HIDDEN_DECLARATION',
+      fenced: false,
+    },
+    {
+      name: 'type five cdata closes on its delimiter',
+      logical: '<![CDATA[x]]>\n2. ```text\nHIDDEN_CDATA\n```\nafter',
+      visible: 'HIDDEN_CDATA',
+      fenced: false,
+    },
+    ...['pre', 'script', 'style', 'textarea'].map((tag) => ({
+      name: `type one same-line ${tag} close ends the raw block`,
+      logical: `<${tag}>inline</${tag}>\n2. ${'```'}text\n   HIDDEN_SINGLE_${tag.toUpperCase()}\n   ${'```'}\nafter`,
+      visible: `HIDDEN_SINGLE_${tag.toUpperCase()}`,
+      fenced: true,
+    })),
+    ...['pre', 'script', 'style', 'textarea'].map((tag) => ({
+      name: `type one incomplete ${tag} opener starts raw block`,
+      logical: `<${tag}\nraw ${tag} body\n</${tag}>\n2. ${'```'}text\n   HIDDEN_AFTER_${tag.toUpperCase()}\n   ${'```'}\nafter`,
+      visible: `HIDDEN_AFTER_${tag.toUpperCase()}`,
+      fenced: true,
+    })),
+    {
+      name: 'multiple fenced pre blocks stay independently searchable',
+      logical: 'before\n```text\nHIDDEN_FIRST_BLOCK\n```\nmiddle\n```text\nHIDDEN_SECOND_BLOCK\n```\nafter',
+      visible: 'HIDDEN_SECOND_BLOCK',
+      fenced: true,
+    },
+  ];
+  for (const terminator of ['\n', '\r\n', '\r']) {
+    for (const fixture of fixtures) {
+      const source = fixture.logical.replaceAll('\n', terminator);
+      const rendererSource = source.replace(/\r\n?|\n/gu, '\n');
+      const rendered = (await satteriMarkdownProcessor.render(rendererSource)).code;
+      const readerRanges = markdownFenceRanges(source);
+      const searchRanges = fenceRanges(source);
+      assert.deepEqual(searchRanges, readerRanges, `${fixture.name} scanner drifted for ${JSON.stringify(terminator)}`);
+      const plain = toPlainText(source);
+      const searchableForms = [fixture.visible, fixture.visible.replaceAll('_', ' ')];
+      const renderedPreBlocks = [...rendered.matchAll(/<pre[^>]*>[\s\S]*?<\/pre>/gu)].map(([block]) => block);
+      const fencedBody = renderedPreBlocks.some((block) => block.includes(fixture.visible));
+      if (fixture.fenced) {
+        assert.equal(fencedBody, true, `${fixture.name} was not a renderer fence`);
+        assert.equal(searchableForms.some((value) => plain.includes(value)), false, `${fixture.name} leaked into Search`);
+      } else {
+        assert.equal(fencedBody, false, `${fixture.name} became an unexpected renderer fence`);
+        assert.equal(searchableForms.some((value) => plain.includes(value)), true, `${fixture.name} disappeared from Search`);
+      }
+    }
+  }
+});
+
+test('CommonMark HTML flow matrix keeps production Search, independent reader, and Satteri parity', async () => {
+  const fence = (marker) => [
+    `- ${marker}text`,
+    '  HIDDEN_HTML_MATRIX',
+    `  ${marker}`,
+    'after',
+  ].join('\n');
+  const htmlMatrix = [
+    ['type-2-comment', '<!-- complete -->'],
+    ['type-3-processing', '<?complete?>'],
+    ['type-4-declaration', '<!DECL>'],
+    ['type-5-cdata', '<![CDATA[complete]]>'],
+    ['type-6-div', '<div>'],
+    ['type-6-frame', '<frame>'],
+    ['type-6-search', '<search>'],
+    ['type-6-incomplete-open-div', '<div', false, false],
+    ['type-6-incomplete-close-div', '</div', false, false],
+    ['type-6-incomplete-attribute-div', '<div foo', false, false],
+    ['type-6-name-continuation', '<divider', true],
+    ['type-7-span', '<span>'],
+    ['type-7-name-colon', '<span:a>', true],
+    ['type-7-name-underscore', '<span_a>', true],
+  ];
+  const fixtures = [];
+  for (const [name, html, expectedFenced, expectedSearchVisible] of htmlMatrix) {
+    for (const indent of ['', ' ', '  ', '   ', '    ']) {
+      const type = name.slice(0, 6);
+      fixtures.push({
+        name: `${name}-${indent.length}-columns`,
+        logical: `${indent}${html}\n${indent.length === 4 ? '\n' : ''}${fence('```')}`,
+        visible: 'HIDDEN_HTML_MATRIX',
+        fenced: (expectedFenced ?? (type === 'type-2' || type === 'type-3' || type === 'type-4' || type === 'type-5'))
+          || indent.length === 4,
+        searchVisible: expectedSearchVisible,
+      });
+    }
+  }
+  for (const [name, html, fenced, searchVisible] of [
+    ['type-6-incomplete-open-div', '<div', false, false],
+    ['type-6-incomplete-close-div', '</div', false, false],
+    ['type-6-incomplete-attribute-div', '<div foo', false, false],
+    ['type-6-name-continuation', '<divider', true],
+    ['type-7-name-colon', '<span:a>', true],
+    ['type-7-name-underscore', '<span_a>', true],
+  ]) {
+    fixtures.push(
+      {
+        name: `${name}-list-container`,
+        logical: `${html}\n- ${'```'}text\n  HIDDEN_HTML_MATRIX\n  ${'```'}\nafter`,
+        visible: 'HIDDEN_HTML_MATRIX',
+        fenced,
+        searchVisible,
+      },
+      {
+        name: `${name}-blockquote-container`,
+        logical: `> ${html}\n> - ${'```'}text\n>   HIDDEN_HTML_MATRIX\n>   ${'```'}\n> after`,
+        visible: 'HIDDEN_HTML_MATRIX',
+        fenced,
+        searchVisible,
+      },
+    );
+  }
+  fixtures.push(
+    {
+      name: 'type-1-standard-same-line-close',
+      logical: '<pre>inline</pre>\n2. ```text\n   HIDDEN_HTML_MATRIX\n   ```\nafter',
+      visible: 'HIDDEN_HTML_MATRIX',
+      fenced: true,
+    },
+    {
+      name: 'type-1-opener-without-close-angle',
+      logical: '<pre\nraw body\n</pre>\n2. ```text\n   HIDDEN_HTML_MATRIX\n   ```\nafter',
+      visible: 'HIDDEN_HTML_MATRIX',
+      fenced: true,
+    },
+    {
+      name: 'type-1-incomplete-pre-prefix-parity',
+      logical: '<pre\n\n2. ```text\n   HIDDEN_HTML_MATRIX\n   ```\nafter',
+      visible: 'HIDDEN_HTML_MATRIX',
+      fenced: false,
+      searchVisible: false,
+    },
+    {
+      name: 'type-6-incomplete-close-pre-prefix-parity',
+      logical: '</pre\n\n2. ```text\n   HIDDEN_HTML_MATRIX\n   ```\nafter',
+      visible: 'HIDDEN_HTML_MATRIX',
+      fenced: true,
+    },
+    {
+      name: 'type-1-whitespace-close-is-not-a-close',
+      logical: '<pre>inline</pre   >\n2. ```text\nHIDDEN_HTML_MATRIX\n```\nafter',
+      visible: 'HIDDEN_HTML_MATRIX',
+      fenced: false,
+    },
+    {
+      name: 'type-7-complete-tag-remains-paragraph',
+      logical: 'before\n<span data-kind="complete">\n2. ```text\nHIDDEN_HTML_MATRIX\n```\nafter',
+      visible: 'HIDDEN_HTML_MATRIX',
+      fenced: false,
+    },
+    {
+      name: 'type-7-suffix-remains-paragraph',
+      logical: 'before\n<span>suffix\n2. ```text\nHIDDEN_HTML_MATRIX\n```\nafter',
+      visible: 'HIDDEN_HTML_MATRIX',
+      fenced: false,
+    },
+    ...[
+      ['type-7-invalid-missing-attribute-name', '<span =bad>', true],
+      ['type-7-invalid-missing-attribute-value', '<span a=>', true],
+      ['type-7-invalid-quoted-value-separator', '<span a="x"junk>', true],
+      ['type-7-invalid-self-closing-suffix', '<span / junk>', true],
+      ['type-7-invalid-unquoted-slash-path', '<span a=b/c>', true],
+      ['type-7-valid-attribute-punctuation', '<span :a_b.c-d=value>', false],
+      ['type-7-valid-quoted-attributes', '<span a="x" b=value>', false],
+      ['type-7-valid-unquoted-attribute', '<span a=value>', false],
+      ['type-7-valid-unquoted-equals-transition', '<span a=b=c>', false],
+      ['type-7-valid-self-closing', '<span/>', false],
+      ['type-7-valid-self-closing-whitespace', '<span   />', false],
+      ['type-7-valid-closing-whitespace', '</span   >', false],
+    ].map(([name, tag, fenced]) => ({
+      name: `${name}-list-fence`,
+      logical: `${tag}\n- ${'```'}text\n  HIDDEN_HTML_MATRIX\n  ${'```'}\nafter`,
+      visible: 'HIDDEN_HTML_MATRIX',
+      fenced,
+    })),
+    {
+      name: 'list-contained-type-6-suppresses-fence',
+      logical: '- <div>\n  2. ```text\n     HIDDEN_HTML_MATRIX\n     ```\n  after',
+      visible: 'HIDDEN_HTML_MATRIX',
+      fenced: false,
+    },
+    {
+      name: 'blockquote-contained-type-6-suppresses-fence',
+      logical: '> <div>\n> 2. ```text\n>    HIDDEN_HTML_MATRIX\n>    ```\n> after',
+      visible: 'HIDDEN_HTML_MATRIX',
+      fenced: false,
+    },
+    {
+      name: 'nested-container-type-6-suppresses-fence',
+      logical: '> - <div>\n>   2. ```text\n>      HIDDEN_HTML_MATRIX\n>      ```\n>   after',
+      visible: 'HIDDEN_HTML_MATRIX',
+      fenced: false,
+    },
+  );
+
+  for (const terminator of ['\n', '\r\n', '\r']) {
+    for (const fixture of fixtures) {
+      const source = fixture.logical.replaceAll('\n', terminator);
+      const rendererSource = source.replace(/\r\n?|\n/gu, '\n');
+      const rendered = (await satteriMarkdownProcessor.render(rendererSource)).code;
+      const readerRanges = markdownFenceRanges(source);
+      const searchRanges = fenceRanges(source);
+      assert.deepEqual(searchRanges, readerRanges, `${fixture.name} scanner drifted for ${JSON.stringify(terminator)}`);
+      const plain = toPlainText(source);
+      const renderedPreBlocks = [...rendered.matchAll(/<pre[^>]*>[\s\S]*?<\/pre>/gu)].map(([block]) => block);
+      const fencedBody = renderedPreBlocks.some((block) => block.includes(fixture.visible));
+      const searchableForms = [fixture.visible, fixture.visible.replaceAll('_', ' ')];
+      assert.equal(fencedBody, fixture.fenced, `${fixture.name} renderer fence state drifted for ${JSON.stringify(terminator)}`);
+      assert.equal(searchableForms.some((value) => plain.includes(value)), fixture.searchVisible ?? !fixture.fenced, `${fixture.name} Search visibility drifted for ${JSON.stringify(terminator)}`);
+    }
+  }
+});
+
+test('list-contained fence bodies preserve indentation until a true dedent', async () => {
+  const fixtures = [
+    {
+      name: 'non-shell list fence keeps indented inline env hidden',
+      logical: '- Example:\n    ```text\n        `env`\n    ```',
+      visible: 'env',
+      fenced: true,
+      unsafe: false,
+    },
+    {
+      name: 'shell list fence remains an executable diagnostic',
+      logical: '- Example:\n    ```bash\n        `env`\n    ```',
+      visible: 'env',
+      fenced: true,
+      unsafe: true,
+    },
+    {
+      name: 'true list fence dedent exposes following prose',
+      logical: '- Example:\n    ```text\n        HIDDEN_BODY\nVISIBLE_DEDENT',
+      visible: 'VISIBLE_DEDENT',
+      searchable: 'VISIBLE DEDENT',
+      fenced: false,
+      unsafe: false,
+    },
+  ];
+  for (const terminator of ['\n', '\r\n', '\r']) {
+    for (const fixture of fixtures) {
+      const source = fixture.logical.replaceAll('\n', terminator);
+      const rendererSource = source.replace(/\r\n?|\n/gu, '\n');
+      const rendered = (await satteriMarkdownProcessor.render(rendererSource)).code;
+      const readerRanges = markdownFenceRanges(source);
+      const searchRanges = fenceRanges(source);
+      assert.deepEqual(searchRanges, readerRanges, `${fixture.name} scanner drifted for ${JSON.stringify(terminator)}`);
+      const plain = toPlainText(source);
+      const renderedPreBlocks = [...rendered.matchAll(/<pre[^>]*>[\s\S]*?<\/pre>/gu)].map(([block]) => block);
+      const fencedBody = renderedPreBlocks.some((block) => block.includes(fixture.visible));
+      assert.equal(fencedBody, fixture.fenced, `${fixture.name} renderer visibility drifted for ${JSON.stringify(terminator)}`);
+      const searchable = fixture.searchable ?? fixture.visible;
+      assert.equal(plain.includes(searchable), !fixture.fenced, `${fixture.name} Search visibility drifted for ${JSON.stringify(terminator)}`);
+      if (fixture.fenced) {
+        assert.ok(readerRanges[0][1] > source.indexOf(fixture.visible), `${fixture.name} did not preserve its body`);
+      } else {
+        assert.ok(readerRanges[0][1] <= source.indexOf(fixture.visible), `${fixture.name} did not close at the dedent`);
+      }
+      if (fixture.unsafe) {
+        assert.throws(() => assertNoUnsafeLgtmDiagnostics(source, `${fixture.name}.md`), /LGTM diagnostics/u);
+      } else {
+        assert.doesNotThrow(() => assertNoUnsafeLgtmDiagnostics(source, `${fixture.name}.md`));
+      }
+    }
+  }
+});
+
+test('Search plain text removes only internal MDX reader-outcome comments', () => {
+  const marker = '{/* blackops-reader-outcome: internal boundary */}';
+  assert.equal(toPlainText(`before ${marker} after`), 'before after');
+  assert.match(toPlainText(`inline \`${marker}\` after`), /blackops-reader-outcome: internal boundary/u);
+  assert.equal(toPlainText('<Component data="{/* blackops-reader-outcome: attribute */}" />'), '');
+});
+
+test('all generated Search records contain no internal MDX reader-outcome marker', async () => {
+  const temporary = await mkdtemp(path.join(repositoryRoot, 'docs/website/.reader-contract-search-markers-'));
+  try {
+    const artifactDirectory = path.join(temporary, 'artifact');
+    await writeSyntheticCompleteReaderArtifact({ artifactDirectory, contentMap });
+    const records = JSON.parse(await readFile(path.join(artifactDirectory, 'blume-search.json'), 'utf8'));
+    assert.equal(records.length, 40);
+    for (const record of records) {
+      assert.doesNotMatch(JSON.stringify(record), /\{\/\*\s*blackops-reader-outcome:/u, `Search marker leaked for ${record.route}`);
+    }
+  } finally {
+    await rm(temporary, { recursive: true, force: true });
+  }
+});
+
+test('visible HTML inline-code inventory excludes non-reader boundaries exactly once', () => {
+  const html = [
+    '<main>',
+    '<code>&lt;command&gt;</code>',
+    '<code><code>&lt;operation-id&gt;</code></code>',
+    '<pre><code>&lt;application-root&gt;</code></pre>',
+    '<div hidden><code>&lt;command&gt;</code></div>',
+    '<div aria-hidden="true"><code>&lt;command&gt;</code></div>',
+    '<div inert><code>&lt;application-root&gt;</code></div>',
+    '<div hidden style="display:block"><code>&lt;operation-id&gt;</code></div>',
+    '<div style="visibility:hidden"><span style="visibility:visible"><code>&lt;application-root&gt;</code></span></div>',
+    '<div style="display:none"><span style="display:block"><code>&lt;command&gt;</code></span></div>',
+    '<div style="content-visibility:hidden"><code>&lt;operation-id&gt;</code></div>',
+    '<details><summary><code>&lt;operation-id&gt;</code></summary><p><code>&lt;application-root&gt;</code></p></details>',
+    '<details open><p><code>&lt;application-root&gt;</code></p></details>',
+    '<dialog><code>&lt;command&gt;</code></dialog><dialog open><code>&lt;operation-id&gt;</code></dialog><dialog style="display:block"><code>&lt;command&gt;</code></dialog>',
+    '<script type="application/ld+json">{"description":"&lt;command&gt;"}</script>',
+    '</main>',
+  ].join('');
+  assert.deepEqual(
+    extractVisibleInlineCodeInventory(html, 'visible-boundary-fixture'),
+    placeholderInventory('<command> <command> <command> <operation-id> <operation-id> <operation-id> <operation-id> <application-root> <application-root> <application-root>', { inlineCodeOnly: false }),
+  );
+  assert.equal(
+    extractVisibleInlineCodeInventory('<main><div hidden><code>command></code></div><script>command></script></main>', 'hidden-malformed-fixture').total,
+    0,
+  );
+  assert.throws(
+    () => extractVisibleInlineCodeInventory('<main><code>command></code></main>', 'visible-malformed-placeholder-fixture'),
+    /dangling/,
+  );
+  assert.throws(
+    () => extractVisibleInlineCodeInventory('<main><code>&lt;command&gt;</main>', 'malformed-html-fixture'),
+    /HTML (?:closing tag does not match|reader surface has an unclosed|start tag)/,
+  );
+  assert.doesNotThrow(
+    () => extractVisibleInlineCodeInventory('<main><code>&lt;command&gt;</code><p>command></p></main>', 'visible-prose-placeholder-fragment-fixture'),
+  );
+});
+
+test('CSS visibility follows CSSStyleDeclaration cascade while aria-hidden and inert stay reader-visible', () => {
+  const html = [
+    '<main>',
+    '<div style="display: none !important"><code>&lt;command&gt;</code></div>',
+    '<div style="display:none!important;display:block"><code>&lt;operation-id&gt;</code></div>',
+    '<div style="display:none;display:block !important"><code>&lt;application-root&gt;</code></div>',
+    '<div style="visibility: hidden !important"><code>&lt;command&gt;</code></div>',
+    '<div style="visibility: hidden !important"><span style="visibility: visible"><code>&lt;operation-id&gt;</code></span></div>',
+    '<div style="visibility:hidden!important;visibility:visible"><code>&lt;application-root&gt;</code></div>',
+    '<div style="visibility:hidden;visibility:visible !important"><code>&lt;command&gt;</code></div>',
+    '<div style="content-visibility: hidden !important"><code>&lt;operation-id&gt;</code></div>',
+    '<div style="content-visibility:hidden!important;content-visibility:visible"><code>&lt;application-root&gt;</code></div>',
+    '<div style="content-visibility:hidden;content-visibility:visible !important"><code>&lt;command&gt;</code></div>',
+    '<div aria-hidden="true"><code>&lt;operation-id&gt;</code></div>',
+    '<div inert><code>&lt;application-root&gt;</code></div>',
+    '<div hidden style="display:block"><code>&lt;command&gt;</code></div>',
+    '<details><summary><code>&lt;operation-id&gt;</code></summary><p><code>&lt;application-root&gt;</code></p></details>',
+    '<dialog><code>&lt;command&gt;</code></dialog><dialog open><code>&lt;operation-id&gt;</code></dialog><dialog style="display:block"><code>&lt;application-root&gt;</code></dialog>',
+    '</main>',
+  ].join('');
+  assert.deepEqual(
+    extractVisibleInlineCodeInventory(html, 'css-cascade-fixture'),
+    placeholderInventory('<application-root> <operation-id> <command> <operation-id> <command> <operation-id> <application-root> <command> <operation-id> <application-root>'),
+  );
+});
+
+test('reader visibility applies initial reset and only the first direct closed-details summary', () => {
+  const html = [
+    '<main>',
+    '<div style="visibility:hidden"><span style="visibility:initial"><code>&lt;command&gt;</code></span></div>',
+    '<div style="visibility:hidden"><span style="visibility:unset"><code>&lt;operation-id&gt;</code></span></div>',
+    '<details><summary><code>&lt;application-root&gt;</code></summary><summary><code>&lt;operation-id&gt;</code></summary><p><code>&lt;command&gt;</code></p></details>',
+    '</main>',
+  ].join('');
+  assert.deepEqual(
+    extractVisibleInlineCodeInventory(html, 'visibility-initial-and-summary-fixture'),
+    placeholderInventory('<command> <application-root>'),
+  );
 });
 
 test('reader contract rejects duplicate outcomes, missing roles, and broken next pages', () => {
@@ -909,6 +2834,54 @@ test('synthetic complete artifact validation applies HTML reader routing to gene
     };
     await assert.doesNotReject(() => validateArtifactReaderContract({ contentMap, artifactDirectory }));
 
+    const wrapCodeToken = (html, token, suffix = '') => {
+      const dom = new JSDOM(html);
+      try {
+        const code = [...dom.window.document.querySelectorAll('article.prose pre code')]
+          .find((element) => (element.textContent ?? '').includes(token));
+        assert.ok(code, `Shiki control fixture must contain a pre code token: ${token}.`);
+        const walker = dom.window.document.createTreeWalker(code, 4);
+        while (walker.nextNode()) {
+          const node = walker.currentNode;
+          const value = node.nodeValue ?? '';
+          const index = value.indexOf(token);
+          if (index < 0) continue;
+          const fragment = dom.window.document.createDocumentFragment();
+          fragment.append(value.slice(0, index));
+          const span = dom.window.document.createElement('span');
+          span.textContent = `${token}${suffix}`;
+          fragment.append(span, value.slice(index + token.length));
+          node.replaceWith(fragment);
+          return dom.serialize();
+        }
+        assert.fail(`Shiki control fixture could not locate a text node for: ${token}.`);
+      } finally {
+        dom.window.close();
+      }
+    };
+    const shikiControlBaseline = await readFile(htmlPath, 'utf8');
+    const shikiNestedSpans = wrapCodeToken(shikiControlBaseline, 'stat');
+    await writeFile(htmlPath, shikiNestedSpans, 'utf8');
+    try {
+      await assert.doesNotReject(
+        () => validateArtifactReaderContract({ contentMap, artifactDirectory }),
+        'Shiki-like nested spans must preserve visible text semantics.',
+      );
+    } finally {
+      await writeFile(htmlPath, shikiControlBaseline, 'utf8');
+    }
+    const shikiCharacterMutation = wrapCodeToken(shikiControlBaseline, 'stat', 'x');
+    await writeFile(htmlPath, shikiCharacterMutation, 'utf8');
+    try {
+      await assert.rejects(
+        validateArtifactReaderContract({ contentMap, artifactDirectory }),
+        /HTML semantic body drifted/,
+        'A character added inside a Shiki-like span must fail visible text semantics.',
+      );
+    } finally {
+      await writeFile(htmlPath, shikiControlBaseline, 'utf8');
+    }
+
     const cases = [
       ['comment-only', '<!-- Run `export -p`. -->', false],
       ['visible-code', '\n<pre><code>export -p</code></pre>', true],
@@ -936,7 +2909,7 @@ test('synthetic complete artifact validation applies HTML reader routing to gene
       ['template-mixed-case-nested-inert', '<TeMpLaTe><tEmPlAtE>Inner</tEmPlAtE><SCRIPT type=application/ld+json>{"description":"Run `export -p`."}</SCRIPT></TeMpLaTe>', false],
       ['template-script-literal-inert', '<template><script type="text/javascript">const marker = "</template>"; const jsonLdLike = {"description":"Run `export -p`."};</script></template>', false],
       ['template-style-literal-inert', '<template><style>/* "</template>" */ .diagnostic::before { content: "Run `export -p`."; }</style></template>', false],
-      ['template-missing-close-inert', '<template><script type=application/ld+json>{"description":"Run `export -p`."}</script>', false],
+      ['template-missing-close-inert', '<template><script type=application/ld+json>{"description":"Run `export -p`."}</script>', true, /HTML/],
       ['template-active-jsonld-after-close', '<template><template>Inner</template></template><script type=application/ld+json>{"description":"Run `export -p`."}</script>', true],
       ['template-unterminated-start', '<template data-x="><script type=application/ld+json>{"description":"Run `export -p`."}</script>', true, /Unterminated HTML start tag/],
       ['script-comment-literal-followed-visible', '<script>const marker="<!--";</script><pre><code>export -p</code></pre><!-- end -->', true],
@@ -958,6 +2931,575 @@ test('synthetic complete artifact validation applies HTML reader routing to gene
           `HTML ${name} must remain outside the Shell reader surface.`);
       }
     }
+  } finally {
+    await rm(temporary, { recursive: true, force: true });
+  }
+});
+
+test('full-path artifact validation requires source, raw, and Search placeholder parity', async () => {
+  const temporary = await mkdtemp(path.join(repositoryRoot, 'docs/website/.reader-contract-placeholders-'));
+  const artifactDirectory = path.join(temporary, 'synthetic-artifact');
+  const sourceDirectory = path.join(repositoryRoot, 'docs/guide');
+  try {
+    const fixturePipeline = await writeSyntheticCompleteReaderArtifact({ artifactDirectory, contentMap });
+    const validateFixture = (overrides = {}) => validateArtifactReaderContract({
+      contentMap,
+      artifactDirectory,
+      sourceDirectory,
+      manifestPath: fixturePipeline.manifestPath,
+      contentRoot: fixturePipeline.contentRoot,
+      ...overrides,
+    });
+    await assert.doesNotReject(() => validateFixture());
+    await assert.doesNotReject(() => validateFixture({ sourceDirectory: null }),
+      'Null sourceDirectory must use the real Source root instead of disabling parity.');
+
+    const htmlPathForRoute = (route) => path.join(artifactDirectory, ...route.slice(1).split('/'), 'index.html');
+    const mutateHtmlDocument = (html, callback) => {
+      const dom = new JSDOM(html);
+      try {
+        const article = dom.window.document.querySelector('article.prose');
+        assert.ok(article, 'HTML mutation fixture must contain article.prose.');
+        callback(article, dom.window.document);
+        return dom.serialize();
+      } finally {
+        dom.window.close();
+      }
+    };
+    const assertHtmlMutationRejects = async (route, mutate, message, pattern = /HTML semantic body drifted/) => {
+      const htmlPath = htmlPathForRoute(route);
+      const baseline = await readFile(htmlPath, 'utf8');
+      const mutated = await mutate(baseline);
+      assert.notEqual(mutated, baseline, `${message} must not be a no-op.`);
+      await writeFile(htmlPath, mutated, 'utf8');
+      try {
+        await assert.rejects(validateFixture(), pattern, message);
+      } finally {
+        await writeFile(htmlPath, baseline, 'utf8');
+      }
+    };
+    const assertHtmlMutationAccepts = async (route, mutate, message) => {
+      const htmlPath = htmlPathForRoute(route);
+      const baseline = await readFile(htmlPath, 'utf8');
+      const mutated = await mutate(baseline);
+      assert.notEqual(mutated, baseline, `${message} must not be a no-op.`);
+      await writeFile(htmlPath, mutated, 'utf8');
+      try {
+        await assert.doesNotReject(() => validateFixture(), message);
+      } finally {
+        await writeFile(htmlPath, baseline, 'utf8');
+      }
+    };
+    const findBodyTextNode = (article) => {
+      const walker = article.ownerDocument.createTreeWalker(article, 4);
+      while (walker.nextNode()) {
+        const node = walker.currentNode;
+        if (node.parentElement?.closest('h1, p.text-lg') !== null) continue;
+        if (/[A-Za-z\u3040-\u30ff]/u.test(node.nodeValue ?? '')) return node;
+      }
+      return null;
+    };
+    const mutateBodyTextCharacter = (html, mode) => mutateHtmlDocument(html, (article) => {
+      const node = findBodyTextNode(article);
+      assert.ok(node, 'HTML body mutation fixture must contain an ordinary visible text node.');
+      const value = node.nodeValue ?? '';
+      const index = value.search(/[A-Za-z\u3040-\u30ff]/u);
+      assert.ok(index >= 0, 'HTML body mutation fixture must contain an ordinary character.');
+      node.nodeValue = mode === 'delete'
+        ? `${value.slice(0, index)}${value.slice(index + 1)}`
+        : `${value.slice(0, index + 1)}x${value.slice(index + 1)}`;
+    });
+
+    const htmlSwapTargetRoute = '/concepts/why-blackops';
+    const htmlSwapDonorRoute = '/getting-started/installation';
+    const htmlSwapTargetPath = htmlPathForRoute(htmlSwapTargetRoute);
+    const htmlSwapDonorPath = htmlPathForRoute(htmlSwapDonorRoute);
+    const htmlSwapTargetBaseline = await readFile(htmlSwapTargetPath, 'utf8');
+    const htmlSwapDonorBaseline = await readFile(htmlSwapDonorPath, 'utf8');
+    const swappedHtml = (() => {
+      const targetDom = new JSDOM(htmlSwapTargetBaseline);
+      const donorDom = new JSDOM(htmlSwapDonorBaseline);
+      try {
+        const target = targetDom.window.document.querySelector('article.prose');
+        const donor = donorDom.window.document.querySelector('article.prose');
+        assert.ok(target && donor, 'HTML body swap fixtures must contain article.prose.');
+        const targetTitle = target.querySelector('h1');
+        const targetOutcome = target.querySelector('p.text-lg');
+        const donorTitle = donor.querySelector('h1');
+        const donorOutcome = donor.querySelector('p.text-lg');
+        assert.ok(targetTitle && targetOutcome && donorTitle && donorOutcome, 'HTML body swap fixtures must contain H1 and lead outcome.');
+        assert.notEqual(targetTitle.textContent, donorTitle.textContent, 'HTML body swap fixtures must have distinct titles.');
+        assert.notEqual(targetOutcome.textContent, donorOutcome.textContent, 'HTML body swap fixtures must have distinct outcomes.');
+        const donorBody = [...donor.children].filter((element) => element !== donorTitle && element !== donorOutcome);
+        target.replaceChildren(targetTitle, targetOutcome, ...donorBody.map((element) => element.cloneNode(true)));
+        return targetDom.serialize();
+      } finally {
+        targetDom.window.close();
+        donorDom.window.close();
+      }
+    })();
+    await writeFile(htmlSwapTargetPath, swappedHtml, 'utf8');
+    try {
+      await assert.rejects(validateFixture(), /HTML semantic body drifted/, 'A zero-placeholder HTML body swap must fail semantic Raw binding.');
+    } finally {
+      await writeFile(htmlSwapTargetPath, htmlSwapTargetBaseline, 'utf8');
+    }
+
+    await assertHtmlMutationRejects(htmlSwapTargetRoute, (html) => mutateBodyTextCharacter(html, 'add'), 'A visible one-character HTML addition must fail.');
+    await assertHtmlMutationRejects(htmlSwapTargetRoute, (html) => mutateBodyTextCharacter(html, 'delete'), 'A visible one-character HTML deletion must fail.');
+    await assertHtmlMutationRejects(htmlSwapTargetRoute, (html) => mutateHtmlDocument(html, (article, document) => {
+      const heading = article.querySelector('h2');
+      assert.ok(heading, 'Heading-level mutation fixture must contain an h2.');
+      const replacement = document.createElement('h3');
+      for (const attribute of heading.attributes) replacement.setAttribute(attribute.name, attribute.value);
+      replacement.innerHTML = heading.innerHTML;
+      heading.replaceWith(replacement);
+    }), 'A heading-level HTML mutation must fail.');
+    await assertHtmlMutationRejects(htmlSwapTargetRoute, (html) => mutateHtmlDocument(html, (article) => {
+      const heading = article.querySelector('h2');
+      assert.ok(heading, 'Heading-text mutation fixture must contain an h2.');
+      heading.append(' substituted');
+    }), 'A heading-text HTML mutation must fail.');
+    await assertHtmlMutationRejects(htmlSwapTargetRoute, (html) => mutateHtmlDocument(html, (article) => {
+      const link = [...article.querySelectorAll('a[href]')]
+        .find((element) => !element.classList.contains('blume-heading-anchor') && element.closest('h1, h2, h3, h4, h5, h6') === null);
+      assert.ok(link, 'Link-href mutation fixture must contain an ordinary link.');
+      link.setAttribute('href', `${link.getAttribute('href')}?mutated=1`);
+    }), 'A link-href HTML mutation must fail.');
+    await assertHtmlMutationRejects(htmlSwapTargetRoute, (html) => mutateHtmlDocument(html, (article) => {
+      const link = [...article.querySelectorAll('a[href]')]
+        .find((element) => !element.classList.contains('blume-heading-anchor') && element.closest('h1, h2, h3, h4, h5, h6') === null);
+      assert.ok(link, 'Link-text mutation fixture must contain an ordinary link.');
+      link.append(' substituted');
+    }), 'A link-text HTML mutation must fail.');
+
+    const preRoute = '/getting-started/installation';
+    await assertHtmlMutationRejects(preRoute, (html) => mutateHtmlDocument(html, (article) => {
+      const code = article.querySelector('pre code');
+      assert.ok(code, 'Pre character mutation fixture must contain a fenced code block.');
+      code.textContent = `${code.textContent}x`;
+    }), 'A fenced-code character mutation must fail.');
+    await assertHtmlMutationRejects(preRoute, (html) => mutateHtmlDocument(html, (article) => {
+      const code = article.querySelector('pre code');
+      assert.ok(code, 'Pre whitespace mutation fixture must contain a fenced code block.');
+      const value = code.textContent ?? '';
+      assert.match(value, / /u, 'Pre whitespace mutation fixture must contain a space.');
+      code.textContent = value.replace(' ', '  ');
+    }), 'A fenced-code whitespace mutation must fail.');
+    await assertHtmlMutationRejects(htmlSwapTargetRoute, (html) => mutateHtmlDocument(html, (article) => {
+      const code = [...article.querySelectorAll('code')].find((element) => element.closest('pre') === null);
+      assert.ok(code, 'Inline-code character mutation fixture must contain inline code.');
+      code.textContent = `${code.textContent}x`;
+    }), 'An inline-code character mutation must fail.');
+    await assertHtmlMutationRejects(htmlSwapTargetRoute, (html) => mutateHtmlDocument(html, (article) => {
+      const code = [...article.querySelectorAll('code')].find((element) => element.closest('pre') === null);
+      assert.ok(code, 'Inline-code whitespace mutation fixture must contain inline code.');
+      code.textContent = `${code.textContent} `;
+    }), 'An inline-code whitespace mutation must fail.');
+
+    const imageRoute = '/testing/community-board';
+    await assertHtmlMutationRejects(imageRoute, (html) => mutateHtmlDocument(html, (article) => {
+      const image = article.querySelector('img[alt]');
+      assert.ok(image, 'Image-alt mutation fixture must contain an image with alt text.');
+      image.setAttribute('alt', `${image.getAttribute('alt')} substituted`);
+    }), 'An image-alt HTML mutation must fail.');
+
+    const diagramRoute = '/concepts/core-concepts';
+    const diagramManifest = await loadDiagramManifest();
+    const runtimeDiagram = diagramManifest.diagrams.find((entry) => entry.id === 'runtime');
+    assert.ok(runtimeDiagram, 'Core Concepts mutation fixture must have the registered runtime diagram.');
+    const runtimeImageName = path.posix.basename(runtimeDiagram.pngPath);
+    await assertHtmlMutationRejects(diagramRoute, (html) => mutateHtmlDocument(html, (article) => {
+      const diagram = [...article.querySelectorAll('img[src]')].find((element) => {
+        const source = element.getAttribute('src') ?? '';
+        return source.endsWith(`/diagrams/${runtimeImageName}`);
+      });
+      assert.ok(diagram, `Core Concepts mutation fixture must contain the registered ${runtimeDiagram.pngPath} image.`);
+      diagram.setAttribute('alt', `${diagram.getAttribute('alt')}x`);
+    }), 'A registered Archify diagram image-alt mutation must fail.');
+
+    await assertHtmlMutationAccepts(htmlSwapTargetRoute, (html) => mutateHtmlDocument(html, (article, document) => {
+      const hidden = document.createElement('p');
+      hidden.hidden = true;
+      hidden.textContent = 'hidden mutation';
+      article.append(hidden);
+    }), 'A hidden HTML mutation must remain outside the reader body.');
+    await assertHtmlMutationAccepts(htmlSwapTargetRoute, (html) => mutateHtmlDocument(html, (article, document) => {
+      const hidden = document.createElement('p');
+      hidden.style.display = 'none';
+      hidden.textContent = 'display-none mutation';
+      article.append(hidden);
+    }), 'A display-none HTML mutation must remain outside the reader body.');
+    await assertHtmlMutationAccepts(htmlSwapTargetRoute, (html) => mutateHtmlDocument(html, (article, document) => {
+      const node = findBodyTextNode(article);
+      assert.ok(node, 'Visibility-initial fixture must contain an ordinary body text node.');
+      const parent = node.parentNode;
+      assert.ok(parent, 'Visibility-initial fixture text node must have a parent.');
+      const hidden = document.createElement('span');
+      hidden.style.visibility = 'hidden';
+      const reset = document.createElement('span');
+      reset.style.visibility = 'initial';
+      hidden.append(document.createTextNode('hidden visibility sibling'));
+      hidden.append(reset);
+      parent.insertBefore(hidden, node);
+      reset.append(node);
+      const details = document.createElement('details');
+      const first = document.createElement('summary');
+      const second = document.createElement('summary');
+      const closedBody = document.createElement('p');
+      first.textContent = '';
+      second.textContent = 'hidden second summary';
+      closedBody.textContent = 'hidden closed details body';
+      details.append(first, second, closedBody);
+      article.append(details);
+    }), 'Visibility initial and first direct closed-details summary controls must preserve the reader body.');
+    await assertHtmlMutationRejects(htmlSwapTargetRoute, (html) => mutateHtmlDocument(html, (article, document) => {
+      const node = findBodyTextNode(article);
+      assert.ok(node, 'Visibility-unset fixture must contain an ordinary body text node.');
+      const hidden = document.createElement('span');
+      hidden.style.visibility = 'hidden';
+      const reset = document.createElement('span');
+      reset.style.visibility = 'unset';
+      hidden.append(reset);
+      reset.append(node);
+      article.append(hidden);
+    }), 'Visibility unset must not reset a hidden ancestor.');
+    await assertHtmlMutationRejects(htmlSwapTargetRoute, (html) => mutateHtmlDocument(html, (article, document) => {
+      const visible = document.createElement('p');
+      visible.textContent = 'visible mutation';
+      article.append(visible);
+    }), 'A visible HTML mutation must fail.');
+
+    const scheduledRoute = '/operations/scheduled-operation';
+    const scheduledHtmlPath = htmlPathForRoute(scheduledRoute);
+    const scheduledBaseline = await readFile(scheduledHtmlPath, 'utf8');
+    const scheduledPhrase = '毎日0時00分だけを対象にするため';
+    assert.match(scheduledBaseline, new RegExp(scheduledPhrase, 'u'), 'Synthetic scheduled HTML must contain the corrected complete phrase.');
+    await assertHtmlMutationRejects(scheduledRoute, (html) => html.replace(
+      `${scheduledPhrase}、任意時刻に`,
+      '毎日0、任意時刻に',
+    ), 'The scheduled-operation old truncated phrase must fail semantic binding.');
+
+    const fixtureManifestPath = fixturePipeline.manifestPath;
+    const fixtureManifest = JSON.parse(await readFile(fixtureManifestPath, 'utf8'));
+    const fixtureManifestBaseline = JSON.stringify(fixtureManifest, null, 2) + '\n';
+    const firstNonLandingPage = fixtureManifest.pages.find((page) => page.source !== 'README.md');
+    assert.ok(firstNonLandingPage, 'The synthetic manifest must contain a non-Landing page.');
+    firstNonLandingPage.extra = 'unknown manifest member';
+    await writeFile(fixtureManifestPath, `${JSON.stringify(fixtureManifest, null, 2)}\n`, 'utf8');
+    await assert.rejects(
+      validateFixture(),
+      /closed .*schema|closed source\/generated\/slug\/title\/hash schema/,
+      'An unknown manifest member must fail the closed canonical manifest contract.',
+    );
+    delete firstNonLandingPage.extra;
+    await writeFile(fixtureManifestPath, fixtureManifestBaseline, 'utf8');
+
+    const originalManifestTitle = firstNonLandingPage.title;
+    firstNonLandingPage.title = `${originalManifestTitle} substituted`;
+    await writeFile(fixtureManifestPath, `${JSON.stringify(fixtureManifest, null, 2)}\n`, 'utf8');
+    await assert.rejects(
+      validateFixture(),
+      /title drifted from the Source H1/,
+      'A substituted manifest title must fail the Source-derived title binding.',
+    );
+    firstNonLandingPage.title = originalManifestTitle;
+    await writeFile(fixtureManifestPath, fixtureManifestBaseline, 'utf8');
+
+    const fencedCanonicalPage = fixtureManifest.pages.find((page) => page.source !== 'README.md'
+      && page.generated.endsWith('.md'));
+    assert.ok(fencedCanonicalPage, 'The synthetic manifest must contain a Markdown page for fenced-code mutation.');
+    const fencedCanonicalPath = path.join(fixturePipeline.contentRoot, ...fencedCanonicalPage.generated.split('/'));
+    const fencedCanonicalBaseline = await readFile(fencedCanonicalPath, 'utf8');
+    const fencedMatch = fencedCanonicalBaseline.match(/```[^\n]*\n([\s\S]*?)\n```/u);
+    assert.ok(fencedMatch, 'The synthetic canonical Markdown must contain a fenced code block.');
+    const fencedBodyStart = (fencedMatch.index ?? 0) + fencedMatch[0].indexOf(fencedMatch[1]);
+    const fencedBodyOffset = fencedCanonicalBaseline.slice(fencedBodyStart, fencedBodyStart + fencedMatch[1].length).search(/[A-Za-z0-9]/u);
+    assert.ok(fencedBodyOffset >= 0, 'The fenced canonical body must contain an ordinary byte.');
+    const fencedMutationOffset = fencedBodyStart + fencedBodyOffset;
+    const fencedOriginalByte = fencedCanonicalBaseline[fencedMutationOffset];
+    const fencedReplacementByte = fencedOriginalByte === 'x' ? 'y' : 'x';
+    const fencedCanonicalMutation = `${fencedCanonicalBaseline.slice(0, fencedMutationOffset)}${fencedReplacementByte}${fencedCanonicalBaseline.slice(fencedMutationOffset + 1)}`;
+    assert.equal(Buffer.byteLength(fencedCanonicalBaseline), Buffer.byteLength(fencedCanonicalMutation),
+      'The fenced-code mutation must preserve the canonical byte length.');
+    const fencedManifestHash = fencedCanonicalPage.hash;
+    const fencedSearchRoute = `/${fencedCanonicalPage.slug}`;
+    const fencedSearchPath = path.join(artifactDirectory, 'blume-search.json');
+    const fencedSearchBaseline = JSON.parse(await readFile(fencedSearchPath, 'utf8'))
+      .find((record) => record.route === fencedSearchRoute)?.content;
+    await writeFile(fencedCanonicalPath, fencedCanonicalMutation, 'utf8');
+    fencedCanonicalPage.hash = createHash('sha256').update(fencedCanonicalMutation).digest('hex');
+    await writeFile(fixtureManifestPath, `${JSON.stringify(fixtureManifest, null, 2)}\n`, 'utf8');
+    const fencedSearchAfterMutation = JSON.parse(await readFile(fencedSearchPath, 'utf8'))
+      .find((record) => record.route === fencedSearchRoute)?.content;
+    assert.equal(fencedSearchAfterMutation, fencedSearchBaseline,
+      'The fenced-code-only canonical mutation must be omitted by the Search fixture.');
+    await assert.rejects(
+      validateFixture(),
+      /source-derived/,
+      'A coherent canonical fenced-code body and manifest-hash mutation must fail Source binding.'
+    );
+    await writeFile(fencedCanonicalPath, fencedCanonicalBaseline, 'utf8');
+    fencedCanonicalPage.hash = fencedManifestHash;
+    await writeFile(fixtureManifestPath, fixtureManifestBaseline, 'utf8');
+
+    const searchPath = path.join(artifactDirectory, 'blume-search.json');
+    const search = JSON.parse(await readFile(searchPath, 'utf8'));
+    const zeroPlaceholderRoutes = ['/concepts/why-blackops', '/getting-started/installation'];
+    const zeroPlaceholderRecords = zeroPlaceholderRoutes.map((route) => search.find((record) => record.route === route));
+    assert.ok(zeroPlaceholderRecords.every((record) => record), 'The zero-placeholder Search fixtures must exist.');
+    assert.ok(zeroPlaceholderRecords.every((record) => placeholderInventory(record.content).total === 0), 'The zero-placeholder Search fixtures must remain placeholder-free.');
+    const zeroPlaceholderContent = zeroPlaceholderRecords.map((record) => record.content);
+    zeroPlaceholderRecords[0].content = zeroPlaceholderContent[1];
+    await writeFile(searchPath, `${JSON.stringify(search, null, 2)}\n`, 'utf8');
+    await assert.rejects(
+      validateArtifactReaderContract({ contentMap, artifactDirectory, sourceDirectory }),
+      /source-derived/,
+      'A zero-placeholder route body swap must fail the exact Source-derived Search binding.',
+    );
+    zeroPlaceholderRecords[0].content = zeroPlaceholderContent[0];
+
+    const sameMultisetBuckets = new Map();
+    for (const record of search) {
+      const key = JSON.stringify(placeholderInventory(record.content).counts);
+      const bucket = sameMultisetBuckets.get(key) ?? [];
+      bucket.push(record);
+      sameMultisetBuckets.set(key, bucket);
+    }
+    const sameMultisetEntry = [...sameMultisetBuckets.entries()]
+      .find(([key, bucket]) => Object.keys(JSON.parse(key)).length > 0 && bucket.length > 1 && bucket[0].content !== bucket[1].content);
+    const sameMultisetPair = sameMultisetEntry?.[1];
+    assert.ok(sameMultisetPair, 'A same-placeholder-multiset Search fixture must exist.');
+    const [sameMultisetFirst, sameMultisetSecond] = sameMultisetPair;
+    const sameMultisetContent = sameMultisetFirst.content;
+    sameMultisetFirst.content = sameMultisetSecond.content;
+    await writeFile(searchPath, `${JSON.stringify(search, null, 2)}\n`, 'utf8');
+    await assert.rejects(
+      validateArtifactReaderContract({ contentMap, artifactDirectory, sourceDirectory }),
+      /source-derived/,
+      'A same-placeholder-multiset route body swap must fail the exact Source-derived Search binding.',
+    );
+    sameMultisetFirst.content = sameMultisetContent;
+
+    const operation = search.find((record) => record.route === '/reference/project-cli');
+    assert.ok(operation, 'A representative Search record must exist.');
+    const originalContent = operation.content;
+    const originalTitle = operation.title;
+    const originalUrl = operation.url;
+    operation.content = operation.content.replace('<operation-id>', '');
+    operation.title = `${operation.title} <operation-id>`;
+    await writeFile(searchPath, `${JSON.stringify(search, null, 2)}\n`, 'utf8');
+    await assert.rejects(
+      validateArtifactReaderContract({ contentMap, artifactDirectory, sourceDirectory }),
+      /drifted/,
+      'A placeholder moved from Search content into title must fail content parity.',
+    );
+    operation.content = originalContent;
+    operation.title = originalTitle;
+    operation.url = '/swapped-route';
+    await writeFile(searchPath, `${JSON.stringify(search, null, 2)}\n`, 'utf8');
+    await assert.rejects(
+      validateArtifactReaderContract({ contentMap, artifactDirectory, sourceDirectory }),
+      /route\/url mismatch/,
+      'A Search route/url swap must fail closed.',
+    );
+    operation.url = originalUrl;
+    await writeFile(searchPath, `${JSON.stringify(search, null, 2)}\n`, 'utf8');
+    operation.content = originalContent.replace('<operation-id>', '<application-root>');
+    await writeFile(searchPath, `${JSON.stringify(search, null, 2)}\n`, 'utf8');
+    await assert.rejects(
+      validateArtifactReaderContract({ contentMap, artifactDirectory, sourceDirectory }),
+      /drifted/,
+      'A balanced placeholder replacement must fail exact multiset parity.',
+    );
+    operation.content = originalContent;
+    await writeFile(searchPath, `${JSON.stringify(search, null, 2)}\n`, 'utf8');
+    operation.content = operation.content.replace('<operation-id>', '<operation-id');
+    await writeFile(searchPath, `${JSON.stringify(search, null, 2)}\n`, 'utf8');
+    await assert.rejects(
+      validateArtifactReaderContract({ contentMap, artifactDirectory, sourceDirectory }),
+      /dangling/,
+      'A missing closing marker must fail the full source/raw/Search path.',
+    );
+    operation.content = originalContent;
+    operation.title = originalTitle;
+    await writeFile(searchPath, `${JSON.stringify(search, null, 2)}\n`, 'utf8');
+
+    operation.content = originalContent.slice(0, -1);
+    await writeFile(searchPath, `${JSON.stringify(search, null, 2)}\n`, 'utf8');
+    await assert.rejects(
+      validateArtifactReaderContract({ contentMap, artifactDirectory, sourceDirectory }),
+      /source-derived/,
+      'A one-character Search body deletion must fail the exact Source-derived binding.',
+    );
+    operation.content = originalContent;
+    await writeFile(searchPath, `${JSON.stringify(search, null, 2)}\n`, 'utf8');
+
+    operation.content = `${originalContent}x`;
+    await writeFile(searchPath, `${JSON.stringify(search, null, 2)}\n`, 'utf8');
+    await assert.rejects(
+      validateArtifactReaderContract({ contentMap, artifactDirectory, sourceDirectory }),
+      /source-derived/,
+      'A one-character Search body addition must fail the exact Source-derived binding.',
+    );
+    operation.content = originalContent;
+    await writeFile(searchPath, `${JSON.stringify(search, null, 2)}\n`, 'utf8');
+
+    const manifestPagesBySource = new Map(fixtureManifest.pages
+      .filter(({ source }) => source !== 'README.md')
+      .map((page) => [page.source, page]));
+    const rawPathForSource = (source) => {
+      const page = manifestPagesBySource.get(source);
+      assert.ok(page, `The synthetic manifest must map ${source}.`);
+      return path.join(artifactDirectory, ...page.generated.split('/'));
+    };
+    const splitRaw = (text) => {
+      const frontmatterMatch = text.match(/^---\n[\s\S]*?\n---\n/u);
+      assert.ok(frontmatterMatch, 'Canonical generated Raw must contain frontmatter.');
+      const markerMatch = text.match(/\n+(?:<!-- blackops-reader-outcome:[\s\S]*?-->|\{\/\* blackops-reader-outcome:[\s\S]*?\*\/\})\s*$/u);
+      return {
+        frontmatter: frontmatterMatch[0],
+        body: text.slice(frontmatterMatch[0].length, markerMatch?.index ?? text.length),
+        marker: markerMatch?.[0] ?? '',
+      };
+    };
+    const rebuildRaw = (parts, body) => `${parts.frontmatter}${body}${parts.marker}`;
+    const rawSwapTarget = 'why-blackops.md';
+    const rawSwapDonor = 'installation.md';
+    const rawSwapTargetPath = rawPathForSource(rawSwapTarget);
+    const rawSwapTargetText = await readFile(rawSwapTargetPath, 'utf8');
+    const rawSwapDonorText = await readFile(rawPathForSource(rawSwapDonor), 'utf8');
+    const rawSwapTargetParts = splitRaw(rawSwapTargetText);
+    const rawSwapDonorParts = splitRaw(rawSwapDonorText);
+    assert.equal(placeholderInventory(rawSwapTargetText, { inlineCodeOnly: true }).total, 0,
+      'Raw swap target must be a zero-placeholder page.');
+    assert.equal(placeholderInventory(rawSwapDonorText, { inlineCodeOnly: true }).total, 0,
+      'Raw swap donor must be a zero-placeholder page.');
+    assert.notEqual(rawSwapTargetParts.body, rawSwapDonorParts.body, 'Raw swap fixtures must have distinct bodies.');
+
+    await writeFile(rawSwapTargetPath, rebuildRaw(rawSwapTargetParts, rawSwapDonorParts.body), 'utf8');
+    await assert.rejects(
+      validateFixture(),
+      /Raw .*byte-exact source-derived/,
+      'A non-placeholder Raw body swap must fail the exact source-derived binding.',
+    );
+    await writeFile(rawSwapTargetPath, rawSwapTargetText, 'utf8');
+
+    const ordinaryBodyIndex = rawSwapTargetParts.body.search(/[A-Za-z\u3040-\u30ff]/u);
+    assert.ok(ordinaryBodyIndex >= 0, 'Raw swap target must contain an ordinary body character.');
+    const addedBody = `${rawSwapTargetParts.body.slice(0, ordinaryBodyIndex + 1)}x${rawSwapTargetParts.body.slice(ordinaryBodyIndex + 1)}`;
+    await writeFile(rawSwapTargetPath, rebuildRaw(rawSwapTargetParts, addedBody), 'utf8');
+    await assert.rejects(
+      validateFixture(),
+      /Raw .*byte-exact source-derived/,
+      'A one-character Raw body addition must fail the exact source-derived binding.',
+    );
+    await writeFile(rawSwapTargetPath, rawSwapTargetText, 'utf8');
+
+    const deletedBody = `${rawSwapTargetParts.body.slice(0, ordinaryBodyIndex)}${rawSwapTargetParts.body.slice(ordinaryBodyIndex + 1)}`;
+    await writeFile(rawSwapTargetPath, rebuildRaw(rawSwapTargetParts, deletedBody), 'utf8');
+    await assert.rejects(
+      validateFixture(),
+      /Raw .*byte-exact source-derived/,
+      'A one-character Raw body deletion must fail the exact source-derived binding.',
+    );
+    await writeFile(rawSwapTargetPath, rawSwapTargetText, 'utf8');
+
+    const llmsFullPath = path.join(artifactDirectory, 'llms-full.txt');
+    const llmsFullBaseline = await readFile(llmsFullPath, 'utf8');
+    const llmsRouteSegments = (text, route) => {
+      const segments = text.split('\n---\n\n');
+      const sourceLine = `\nSource: https://docs.example.test${route}\n\n`;
+      const index = segments.findIndex((segment) => segment.includes(sourceLine));
+      assert.ok(index >= 0, `Synthetic llms-full must contain ${route}.`);
+      const segment = segments[index];
+      const bodyStart = segment.indexOf(sourceLine) + sourceLine.length;
+      return { segments, index, segment, bodyStart, body: segment.slice(bodyStart) };
+    };
+    const updateLlmSegment = (text, route, update) => {
+      const selected = llmsRouteSegments(text, route);
+      selected.segments[selected.index] = update(selected.segment, selected.bodyStart, selected.body);
+      return selected.segments.join('\n---\n\n');
+    };
+    const assertLlmMutationRejects = async (mutated, pattern, message) => {
+      await writeFile(llmsFullPath, mutated, 'utf8');
+      try {
+        await assert.rejects(validateFixture(), pattern, message);
+      } finally {
+        await writeFile(llmsFullPath, llmsFullBaseline, 'utf8');
+      }
+    };
+    const llmsZeroPlaceholderTarget = '/concepts/why-blackops';
+    const llmsZeroPlaceholderDonor = '/getting-started/installation';
+    const llmsTargetBody = llmsRouteSegments(llmsFullBaseline, llmsZeroPlaceholderTarget).body;
+    const llmsDonorBody = llmsRouteSegments(llmsFullBaseline, llmsZeroPlaceholderDonor).body;
+    assert.equal(placeholderInventory(llmsTargetBody, { inlineCodeOnly: true }).total, 0,
+      'llms-full swap target must be a zero-placeholder page.');
+    assert.equal(placeholderInventory(llmsDonorBody, { inlineCodeOnly: true }).total, 0,
+      'llms-full swap donor must be a zero-placeholder page.');
+    assert.notEqual(llmsTargetBody, llmsDonorBody, 'llms-full swap fixtures must have distinct bodies.');
+    await assertLlmMutationRejects(
+      updateLlmSegment(llmsFullBaseline, llmsZeroPlaceholderTarget, (segment, bodyStart) => `${segment.slice(0, bodyStart)}${llmsDonorBody}`),
+      /body drifted from validated public Raw/,
+      'A zero-placeholder llms-full body swap must fail exact public Raw binding.',
+    );
+
+    const llmsOrdinaryIndex = llmsTargetBody.search(/[A-Za-z\u3040-\u30ff]/u);
+    assert.ok(llmsOrdinaryIndex >= 0, 'llms-full target must contain an ordinary body character.');
+    await assertLlmMutationRejects(
+      updateLlmSegment(llmsFullBaseline, llmsZeroPlaceholderTarget, (segment, bodyStart, body) => `${segment.slice(0, bodyStart)}${body.slice(0, llmsOrdinaryIndex + 1)}x${body.slice(llmsOrdinaryIndex + 1)}`),
+      /body drifted from validated public Raw/,
+      'A one-character llms-full body addition must fail exact public Raw binding.',
+    );
+    await assertLlmMutationRejects(
+      updateLlmSegment(llmsFullBaseline, llmsZeroPlaceholderTarget, (segment, bodyStart, body) => `${segment.slice(0, bodyStart)}${body.slice(0, llmsOrdinaryIndex)}${body.slice(llmsOrdinaryIndex + 1)}`),
+      /body drifted from validated public Raw/,
+      'A one-character llms-full body deletion must fail exact public Raw binding.',
+    );
+
+    await assertLlmMutationRejects(
+      updateLlmSegment(llmsFullBaseline, llmsZeroPlaceholderTarget, (segment) => segment.replace(/^# ([^\n]+)(\nSource:)/u, '# $1 substituted$2')),
+      /title drifted from the canonical manifest/,
+      'A substituted llms-full title must fail canonical manifest binding.',
+    );
+    await assertLlmMutationRejects(
+      updateLlmSegment(llmsFullBaseline, llmsZeroPlaceholderTarget, (segment) => segment.replace(
+        `Source: https://docs.example.test${llmsZeroPlaceholderTarget}`,
+        `Source: https://docs.example.test${llmsZeroPlaceholderDonor}`,
+      )),
+      /(?:duplicate route|Source URL route drifted|route inventory)/,
+      'A substituted llms-full Source route must fail canonical route binding.',
+    );
+
+    const rawPath = path.join(artifactDirectory, 'reference', 'project-cli.md');
+    const raw = await readFile(rawPath, 'utf8');
+    await writeFile(rawPath, raw.replace('<operation-id>', '<operation-id '), 'utf8');
+    await assert.rejects(
+      validateArtifactReaderContract({ contentMap, artifactDirectory, sourceDirectory }),
+      /(?:dangling|byte-exact source-derived)/,
+      'Malformed raw Markdown placeholder fragments must fail closed.',
+    );
+    await writeFile(rawPath, raw, 'utf8');
+
+    const htmlPath = path.join(artifactDirectory, ...contentMap['project-cli.md'].slug.split('/'), 'index.html');
+    const html = await readFile(htmlPath, 'utf8');
+    await writeFile(htmlPath, `${html}<p><operation-id</p>\n`, 'utf8');
+    await assert.rejects(
+      validateArtifactReaderContract({ contentMap, artifactDirectory, sourceDirectory }),
+      /(?:HTML (?:closing tag does not match|reader surface has an unclosed|(?:start )?tag)|Artifact contains dangling)/,
+      'Malformed HTML placeholder fragments must fail closed.',
+    );
+    await writeFile(htmlPath, html, 'utf8');
+
+    const llmsFull = await readFile(llmsFullPath, 'utf8');
+    const llmsMarker = '<!-- blackops-reader-outcome: OperationをCLIへ公開し、Help、Human／JSON結果、Exit Codeを確認する。 -->';
+    assert.ok(llmsFull.includes(llmsMarker));
+    await writeFile(llmsFullPath, llmsFull.replace(llmsMarker, `<operation-id\n${llmsMarker}`), 'utf8');
+    await assert.rejects(
+      validateArtifactReaderContract({ contentMap, artifactDirectory, sourceDirectory }),
+      /dangling <operation-id fragment/,
+      'Malformed llms-full placeholder fragments must fail closed.',
+    );
   } finally {
     await rm(temporary, { recursive: true, force: true });
   }
@@ -1517,6 +4059,66 @@ test('full artifact route inventory rejects unknown raw Markdown and HTML paths'
     await assert.rejects(validateArtifactPageRouteInventory({ artifactDirectory: temporary, expectedRoutes: expected }), /Raw Markdown artifact contains unknown route.*unknown/);
     await rm(path.join(temporary, 'unknown.md'));
     await assert.rejects(validateArtifactPageRouteInventory({ artifactDirectory: temporary, expectedRoutes: expected }), /HTML artifact contains unknown route.*unknown/);
+    await rm(path.join(temporary, 'unknown/index.html'));
+    await writeFile(path.join(temporary, '404.html'), 'not found', 'utf8');
+    await assert.doesNotReject(validateArtifactPageRouteInventory({ artifactDirectory: temporary, expectedRoutes: expected }));
+  } finally {
+    await rm(temporary, { recursive: true, force: true });
+  }
+});
+
+test('full artifact route inventory admits only manifest-registered supplemental viewers', async () => {
+  const temporary = await mkdtemp(path.join(repositoryRoot, 'docs/website/.reader-diagram-contract-'));
+  try {
+    await mkdir(path.join(temporary, 'getting-started/installation'), { recursive: true });
+    await mkdir(path.join(temporary, 'diagrams'), { recursive: true });
+    await writeFile(path.join(temporary, 'getting-started/installation.md'), 'raw', 'utf8');
+    await writeFile(path.join(temporary, 'getting-started/installation/index.html'), 'html', 'utf8');
+    await writeFile(path.join(temporary, 'diagrams/runtime.html'), '<!doctype html>viewer', 'utf8');
+    const manifestPath = path.join(temporary, 'manifest.json');
+    await writeFile(manifestPath, `${JSON.stringify(await loadDiagramManifest(), null, 2)}\n`, 'utf8');
+    const expected = new Set(['/getting-started/installation']);
+    await assert.doesNotReject(validateArtifactPageRouteInventory({
+      artifactDirectory: temporary,
+      expectedRoutes: expected,
+      diagramManifestPath: manifestPath,
+    }));
+    await writeFile(path.join(temporary, 'diagrams/unknown.html'), '<!doctype html>unknown', 'utf8');
+    await assert.rejects(
+      validateArtifactPageRouteInventory({ artifactDirectory: temporary, expectedRoutes: expected, diagramManifestPath: manifestPath }),
+      /unknown flat viewer path/,
+    );
+  } finally {
+    await rm(temporary, { recursive: true, force: true });
+  }
+});
+
+test('artifact reader claims scan registered viewer text without scanning viewer runtime scripts', async () => {
+  const temporary = await mkdtemp(path.join(repositoryRoot, 'docs/website/.reader-diagram-claims-'));
+  const artifactDirectory = path.join(temporary, 'synthetic-artifact');
+  try {
+    const fixturePipeline = await writeSyntheticCompleteReaderArtifact({ artifactDirectory, contentMap });
+    const diagramManifestPath = path.join(temporary, 'diagram-manifest.json');
+    await writeFile(diagramManifestPath, `${JSON.stringify(await loadDiagramManifest(), null, 2)}\n`, 'utf8');
+    const viewerPath = path.join(artifactDirectory, 'diagrams/runtime.html');
+    await mkdir(path.dirname(viewerPath), { recursive: true });
+    const viewer = '<!doctype html><html lang="en"><head><title>Runtime diagram</title><script>function focusDiagram(main) { bringNodeIntoWindow(main); }</script></head><body><main><figure><figcaption>Runtime relationships</figcaption><svg role="img"><text>Runtime</text></svg></figure></main></body></html>\n';
+    await writeFile(viewerPath, viewer, 'utf8');
+    const validateFixture = () => validateArtifactReaderContract({
+      contentMap,
+      artifactDirectory,
+      manifestPath: fixturePipeline.manifestPath,
+      contentRoot: fixturePipeline.contentRoot,
+      diagramManifestPath,
+    });
+    await assert.doesNotReject(validateFixture, 'Viewer runtime identifiers must not be treated as reader claims.');
+
+    await writeFile(viewerPath, viewer.replace('Runtime relationships', 'Stable 1.2.0 is main-only.'), 'utf8');
+    await assert.rejects(
+      validateFixture(),
+      /Current Stable main-only availability claim is forbidden in diagrams\/runtime\.html/,
+      'A visible viewer caption must remain subject to the current-release claim guard.',
+    );
   } finally {
     await rm(temporary, { recursive: true, force: true });
   }

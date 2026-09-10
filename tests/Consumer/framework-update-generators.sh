@@ -41,10 +41,10 @@ test "$(git -C "${framework_repository}" rev-parse 'refs/tags/1.1.0^{commit}')" 
     = "$(git -C "${repository_root}" rev-parse 'refs/tags/1.1.0^{commit}')"
 git -C "${framework_repository}" archive 1.1.0:examples/quickstart | tar -x -C "${consumer_root}"
 cp -a "${repository_root}/resources/stubs/." "${current_stubs}/"
-candidate_tag_ref='refs/tags/1.2.0'
+candidate_tag_ref='refs/tags/1.2.1'
 candidate_tag_type="$(git -C "${framework_repository}" cat-file -t "${candidate_tag_ref}" 2>/dev/null || true)"
 if test -z "${candidate_tag_type}"; then
-    git -C "${framework_repository}" tag 1.2.0 "${current_commit}"
+    git -C "${framework_repository}" tag 1.2.1 "${current_commit}"
     candidate_source_commit="${current_commit}"
 else
     test "${candidate_tag_type}" = 'tag'
@@ -53,7 +53,7 @@ else
     test "${published_candidate_commit}" = "${root_published_candidate_commit}"
     if ! git -C "${framework_repository}" diff --quiet "${published_candidate_commit}" "${current_commit}" -- \
         src composer.json examples/quickstart resources migrations; then
-        printf 'Published 1.2.0 release-runtime Source drifted from current HEAD.\n' >&2
+        printf 'Published 1.2.1 release-runtime Source drifted from current HEAD.\n' >&2
         exit 1
     fi
     candidate_source_commit="${published_candidate_commit}"
@@ -163,14 +163,14 @@ ksort($packages);
 file_put_contents("/smoke/dependencies.before.json", json_encode($packages, JSON_THROW_ON_ERROR));
 '
 
-run_composer require --no-update --no-interaction blackops/framework:1.2.0
+run_composer require --no-update --no-interaction blackops/framework:1.2.1
 run_composer update --no-interaction --prefer-dist blackops/framework \
     > "${temporary_root}/update.out"
 
 run_php -r '
 $lock = json_decode(file_get_contents("/smoke/consumer/composer.lock"), true, 512, JSON_THROW_ON_ERROR);
 $versions = array_column($lock["packages"] ?? [], "version", "name");
-if (($versions["blackops/framework"] ?? null) !== "1.2.0") {
+if (($versions["blackops/framework"] ?? null) !== "1.2.1") {
     exit(1);
 }
 $packages = [];

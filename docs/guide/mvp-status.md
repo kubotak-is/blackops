@@ -66,6 +66,25 @@ Stable Applicationを作る場合はVersionを明示します。
 composer create-project blackops/skeleton my-app 1.2.0
 ```
 
+## 1.3.0のAudit Trail計画
+
+BlackOps 1.3.0では、業務・セキュリティ・管理操作の監査ログを追加する計画です。まだ公開していないため、現在のStable `1.2.0`の機能として利用できません。
+
+たとえば「誰が、どの請求先情報を変更し、変更が成功したか」を後から確認できるようにする記録です。どの業務操作を記録するか、Actionと対象（Resource）をどう表すかはApplicationが明示します。FrameworkがHandlerの完了だけから業務操作や対象を自動推測する仕組みではありません。
+
+現在の記録とは役割が異なります。
+
+| 記録の種類 | 現行／計画上の役割 |
+| --- | --- |
+| Lifecycle Journal | Stable `1.2.0`で、Operationの受付・試行・再試行・完了など、処理の流れを順序付きで記録する |
+| Application Log | Applicationが診断や業務メッセージを記録する |
+| Observability | Structured Log、Metric、Sampled Traceで運用状態と相関を観測する |
+| Audit Trail | 将来計画。業務・セキュリティ・管理操作の監査ログを、Actor・Action・Resource・Resultと関連付けて扱う |
+
+RetentionのPurge Audit、Observer Replay、Storage Key Rotationに伴う限定的な運用記録は、それぞれの現行運用契約に属します。これらやLifecycle Journalを汎用Audit Trailの完成版として扱いません。
+
+1.3.0では、Operationとの相関、監査ログの閲覧範囲、記録の種類と保持方針を検討します。現行のLifecycle記録は[Journal](journal.md)、Sensitive Projectionと責任分界は[BlackOpsの`#[Sensitive]`とPHPの`#[SensitiveParameter]`](security.md#blackopsのsensitiveとphpのsensitiveparameter)で確認してください。
+
 ## Available Runtime Surface
 
 - PHP 8.5、PSR-7／15／17 HTTP Boundary、FrankenPHP Reference Runtime

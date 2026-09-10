@@ -1,10 +1,15 @@
 import { createHash } from 'node:crypto';
 import { execFile } from 'node:child_process';
-import { copyFile, lstat, readdir, readFile, realpath, rm, mkdir, writeFile } from 'node:fs/promises';
+import { access, copyFile, lstat, readdir, readFile, realpath, rm, mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { promisify } from 'node:util';
+import {
+  assertRegisteredDiagramLink,
+  loadDiagramManifest,
+  publicDiagramLinks,
+} from './archify-diagrams.mjs';
 
-const MARKDOWN_LINK = /(!?\[[^\]]*\])\(([^)]+)\)/g;
+const MARKDOWN_LINK = /(!?\[(?:[^\]`]|`[^`]*`)*\])\(([^)]+)\)/g;
 const EXTERNAL_TARGET = /^(?:[a-z][a-z0-9+.-]*:|\/\/)/i;
 const REPOSITORY_ABSOLUTE_PATH = /(?:^|[`\s(])(?:\/home\/|\/Users\/|[A-Za-z]:\\)/m;
 const FORBIDDEN_CONTENT = [
@@ -19,9 +24,14 @@ export async function generateContent({
   manifestPath,
   repositoryRoot,
   contentMap = null,
+  diagramManifestPath = null,
 }) {
   const sourceDirectory = await realpath(sourceRoot);
   const repositoryDirectory = repositoryRoot === undefined ? null : await realpath(repositoryRoot);
+  const diagramManifest = await readDiagramManifestIfPresent(
+    diagramManifestPath ?? (repositoryDirectory === null ? null : path.join(repositoryDirectory, 'docs/website/diagrams/manifest.json')),
+  );
+  const diagramLinks = diagramManifest === null ? new Set() : publicDiagramLinks(diagramManifest);
   const sourceFiles = await markdownFiles(sourceDirectory);
   if (sourceFiles.length === 0) {
     throw new Error('Documentation source contains no Markdown files.');
@@ -32,6 +42,7 @@ export async function generateContent({
     const absolute = path.join(sourceDirectory, ...source.split('/'));
     const markdown = normalizeNewlines(await readFile(absolute, 'utf8'));
     validatePublicContent(markdown, source, repositoryDirectory);
+    await validateDiagramLinks(markdown, diagramManifest, diagramLinks, repositoryDirectory);
     const { title, body } = extractTitle(markdown, source);
     const mdx = requiresMdx(markdown);
     const metadata = contentMap?.[source] ?? null;
@@ -62,7 +73,7 @@ export async function generateContent({
   const routes = new Set(records.map((record) => routeFor(record.slug)));
   const referencedAssets = new Set();
   const outputs = records.map((record) => {
-    const body = rewriteAndValidateLinks(record, bySource, routes, referencedAssets);
+    const body = rewriteAndValidateLinks(record, bySource, routes, referencedAssets, diagramLinks);
     const readerOutcome = record.metadata?.reader?.outcome;
     const readerMarker = readerOutcome === undefined
       ? ''
@@ -248,7 +259,7 @@ function assertUniqueSlugs(records) {
   }
 }
 
-function rewriteAndValidateLinks(record, bySource, routes, referencedAssets) {
+function rewriteAndValidateLinks(record, bySource, routes, referencedAssets, diagramLinks = new Set()) {
   return mapProseLines(record.body, (line) =>
     line.replace(MARKDOWN_LINK, (match, label, target) => {
       const image = label.startsWith('!');
@@ -265,6 +276,12 @@ function rewriteAndValidateLinks(record, bySource, routes, referencedAssets) {
       if (normalized.startsWith('/')) {
         if (image) {
           throw new Error(`Documentation image must use a relative docs/guide asset in ${record.source}: ${target}`);
+        }
+        if (normalized.startsWith('/diagrams/')) {
+          if (!diagramLinks.has(normalized)) {
+            throw new Error(`Public diagram link is not registered in ${record.source}: ${target}`);
+          }
+          return match;
         }
         const route = normalized.split(/[?#]/, 1)[0];
         if (!routes.has(route.endsWith('/') ? route : `${route}/`)) {
@@ -295,6 +312,35 @@ function rewriteAndValidateLinks(record, bySource, routes, referencedAssets) {
       return `${label}(${routeFor(linked.slug)}${suffix})`;
     }),
   );
+}
+
+async function readDiagramManifestIfPresent(manifestPath) {
+  if (manifestPath === null) return null;
+  try {
+    await access(manifestPath);
+  } catch (error) {
+    if (error?.code === 'ENOENT') return null;
+    throw error;
+  }
+  return loadDiagramManifest(manifestPath);
+}
+
+async function validateDiagramLinks(markdown, manifest, diagramLinks, repositoryDirectory) {
+  const targets = new Set();
+  mapProseLines(markdown, (line) => {
+    line.replace(MARKDOWN_LINK, (match, _label, target) => {
+      const normalized = normalizeLinkTarget(target);
+      if (normalized?.startsWith('/diagrams/')) targets.add(normalized);
+      return match;
+    });
+    return line;
+  });
+  for (const target of targets) {
+    if (manifest === null || repositoryDirectory === null || !diagramLinks.has(target)) {
+      throw new Error(`Public diagram link is not registered: ${target}`);
+    }
+    await assertRegisteredDiagramLink(target, { manifest, repositoryRoot: repositoryDirectory });
+  }
 }
 
 async function validateAssets(sources, sourceDirectory, repositoryDirectory) {

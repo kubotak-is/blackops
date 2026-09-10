@@ -94,9 +94,10 @@ final class OutboxRelayRuntimeTest extends TestCase
             3,
             2,
         );
+        $sender = new HeartbeatSignalingSender();
         $runtime = new OutboxRelayRuntime(
             $store,
-            new BlockingSender(2.2),
+            $sender,
             new OutboxRelayConfiguration('relay-runtime', leaseSeconds: 3, heartbeatSeconds: 1, graceSeconds: 2),
             new PostgreSqlSystemClock(),
             $heartbeatStore,
@@ -107,7 +108,13 @@ final class OutboxRelayRuntimeTest extends TestCase
         $heartbeatConnection->close();
 
         self::assertSame(1, $result->sent);
-        self::assertGreaterThanOrEqual(2, $heartbeats);
+        $armedAlarmSeconds = $sender->armedAlarmSeconds();
+        self::assertCount(2, $armedAlarmSeconds);
+        foreach ($armedAlarmSeconds as $seconds) {
+            self::assertGreaterThan(0, $seconds);
+            self::assertLessThanOrEqual(1, $seconds);
+        }
+        self::assertSame(2, $heartbeats);
         self::assertSame(
             'sent',
             $this->connection->fetchOne('SELECT state FROM "outbox_runtime_test"."outbox_records"'),
@@ -328,20 +335,29 @@ final class OutboxRelayRuntimeTest extends TestCase
     }
 }
 
-final class BlockingSender implements OperationSender
+final class HeartbeatSignalingSender implements OperationSender
 {
-    public function __construct(
-        private readonly float $seconds,
-    ) {}
+    /** @var list<int> */
+    private array $armedAlarmSeconds = [];
 
     public function enqueue(DeferredOperationMessage $message): DeferredAcknowledgement
     {
-        $until = microtime(true) + $this->seconds;
-        while (microtime(true) < $until) {
-            usleep(50_000);
+        for ($signal = 0; $signal < 2; ++$signal) {
+            $this->armedAlarmSeconds[] = pcntl_alarm(0);
+            $pid = getmypid();
+            if ($pid === false || !posix_kill($pid, SIGALRM)) {
+                throw new RuntimeException('SIGALRM could not be sent to the test process.');
+            }
+            pcntl_signal_dispatch();
         }
 
         return new DeferredAcknowledgement($message->operationId(), new DateTimeImmutable('now'));
+    }
+
+    /** @return list<int> */
+    public function armedAlarmSeconds(): array
+    {
+        return $this->armedAlarmSeconds;
     }
 }
 

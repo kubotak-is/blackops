@@ -2,40 +2,43 @@
 
 Operationの実行経路はDirectoryではなくMetadataで決まります。HTTP Routeを持つOperationはCompile済みHTTP Manifestへ登録され、Execution Strategyを指定しない場合はInline、`Deferred`を指定した場合はDurable受付になります。
 
-```mermaid
-sequenceDiagram
-    accTitle: InlineとDeferredの実行順序
-    accDescr: InlineはHTTP Request内でAttemptを開始してOutcomeを返す。DeferredはOperationをDurableにAcceptedとして202を返し、後でWorkerがClaimしてAttemptとOutcomeを完了する。
-    actor Client
-    participant HTTP as HTTP Adapter
-    participant Journal
-    participant Operation
-    participant Store as Durable Store
-    participant Worker
-    alt Inline
-        Client->>HTTP: Request
-        HTTP->>Journal: operation.received
-        HTTP->>Journal: attempt.started
-        HTTP->>Operation: handle(value, context)
-        Operation-->>HTTP: Outcome
-        HTTP->>Journal: attempt.succeeded / operation.completed
-        HTTP-->>Client: HTTP Response
-    else Deferred
-        Client->>HTTP: Request
-        HTTP->>Journal: operation.received
-        HTTP->>Store: Value / ContextをDurable保存
-        HTTP->>Journal: operation.accepted
-        HTTP-->>Client: 202 + Operation ID
-        Worker->>Store: Claim
-        Worker->>Journal: attempt.started
-        Worker->>Operation: handle(value, context)
-        Operation-->>Worker: Outcome
-        Worker->>Store: Outcome保存
-        Worker->>Journal: attempt.succeeded / operation.completed
-    end
-```
+HTTPの正常系では、RequestをValueへ変換・検証し、実行戦略を判定してからOperationの受付を記録します。
+受付元で完了まで進むInlineと、受付後にWorkerが引き継ぐDeferredを分けて確認します。
 
-InlineはHTTP Request内で`operation.received`から直接Attemptを開始し、OperationのOutcomeをHTTP Responseへ変換して返します。DeferredはValueとContextをDurable Storeへ保存し、`operation.accepted`の後にHTTP 202とOperation IDを返します。Workerは後から[Claim](glossary.md#claim)を取得し、Attempt、Outcome保存、完了Journalを実行します。
+### Inlineの正常完了
+
+<div class="archify-figure">
+
+![HTTP RequestのValue変換・検証とStrategy判定後、operation.received、attempt.startedを記録してOperationを実行する。Outcomeを返すとattempt.succeeded、operation.completedを順に記録し、HTTP Responseへ変換して返す。すべて同じHTTPプロセスで進み、Outcome Recordは作成しない。](assets/diagrams/execution-inline.png)
+
+</div>
+
+InlineはHTTPプロセス内でAttemptを開始し、Operationの正常完了を記録してからOutcomeをHTTP Responseへ変換します。
+`attempt.succeeded`、`operation.completed`の順にJournalへ記録し、Outcome Recordは作成しません。
+
+### Deferredの受付
+
+<div class="archify-figure">
+
+![HTTP RequestのValue変換・検証とStrategy判定後、ValueとContext、operation.receivedとoperation.acceptedを同じ受付Transactionへ保存して確定する。確定後にHTTP 202とOperation IDを返す。この段階は受付であり、Handlerの完了ではない。](assets/diagrams/execution-acceptance.png)
+
+</div>
+
+DeferredはValue・Contextと受付Journalを同じTransactionで保存し、受付の確定後にHTTP 202とOperation IDを返します。
+HTTP 202は受付済みを示し、処理の完了は待ちません。
+
+### Workerによる実行と完了
+
+<div class="archify-figure">
+
+![Workerが受け付け済みのValueとContextをClaimし、同じOperation IDでattempt.startedを記録してOperationを実行する。Outcomeが返ると、その保存とattempt.succeeded、operation.completedのJournalを同じTransactionで確定する。](assets/diagrams/execution-worker.png)
+
+</div>
+
+別プロセスのWorkerが[Claim](glossary.md#claim)してAttemptを開始し、同じOperationを実行します。
+正常完了時は、Outcomeの保存と`attempt.succeeded`、`operation.completed`を同じTransactionで確定します。
+Outcomeだけを先に確定する処理ではありません。
+受付の確定後はHTTP応答とWorker実行が並行し得るため、この三つの図は実際の所要時間や待機順を表していません。
 
 ## Transactional Outboxへの登録
 

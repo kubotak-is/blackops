@@ -5,8 +5,10 @@ import { contentMap } from '../content-map.mjs';
 import { blumeSidebar } from '../site-navigation.mjs';
 import { validateArtifactReaderContract } from './reader-contract.mjs';
 import { assertProductFramingArtifactContract, P22_005E_TASK_PATH } from './product-framing-contract.mjs';
+import { loadDiagramManifest } from './archify-diagrams.mjs';
 
 const searchIndex = JSON.parse(await readFile(path.join(distRoot, 'blume-search.json'), 'utf8'));
+const diagramManifest = await loadDiagramManifest();
 await validateArtifactReaderContract({ contentMap, artifactDirectory: distRoot });
 const releaseSearchRecord = searchIndex.find(({ route }) => route === '/releases/current-status');
 if (!releaseSearchRecord || releaseSearchRecord.section !== 'Releases' || JSON.stringify(releaseSearchRecord.breadcrumb) !== JSON.stringify(['Releases'])) {
@@ -65,6 +67,14 @@ if (!contentMapSource.includes("slug: 'releases/current-status'") || !contentMap
 }
 assertCanonicalLandingSections(landingGuideSource, 'Landing source');
 assertLandingOperationSource(landingPageSource);
+if (
+  !landingPageSource.includes('<ExecutionWalkthrough')
+  || !landingPageSource.includes('svgSrc="/diagrams/execution-overview.svg"')
+  || !landingPageSource.includes('desktopSvgSrc="/diagrams/execution-overview-desktop.svg"')
+  || !landingPageSource.includes('desktopDataSrc="/diagrams/execution-overview-desktop.json"')
+) {
+  throw new Error('Landing source must compose both responsive canonical execution walkthrough layouts.');
+}
 if (landingPageSource.includes('<main class="landing-shell">') || !landingPageSource.includes('<div class="landing-shell">')) {
   throw new Error('Landing source must use a non-landmark root inside PageLayout.');
 }
@@ -100,7 +110,26 @@ if (quickstartAnchorCount !== 1) {
 if (quickstart.includes('id="stable-120-quickstart"')) {
   throw new Error('Quickstart contains the retired stable-120-quickstart anchor.');
 }
-requireText(landing, '<h1 id="landing-title"><span class="landing-brand">BlackOps</span> <span class="landing-tagline">The PHP Framework</span></h1>', 'Landing product heading');
+requireText(landing, '<h1 id="landing-title"><span class="landing-brand" data-landing-neon-title>BlackOps</span> <span class="landing-tagline">The PHP Framework</span></h1>', 'Landing product heading');
+for (const [marker, label] of [
+  ['data-execution-walkthrough', 'Landing execution walkthrough'],
+  ['data-execution-svg-src="/diagrams/execution-overview.svg"', 'Landing execution SVG'],
+  ['data-execution-desktop-svg-src="/diagrams/execution-overview-desktop.svg"', 'Landing desktop execution SVG'],
+  ['data-execution-desktop-data-src="/diagrams/execution-overview-desktop.json"', 'Landing desktop execution layout'],
+  ['Journalイベント', 'Landing Journal heading'],
+  ['data-execution-graph-stage', 'Landing execution graph stage'],
+]) requireText(landing, marker, label);
+const executionLinkCount = (landing.match(/data-execution-link="[a-z0-9-]+"/g) ?? []).length;
+if (executionLinkCount !== 7) {
+  throw new Error(`Landing must expose seven geometry-derived execution guide links; found ${executionLinkCount}.`);
+}
+const executionInspectButtonCount = (landing.match(/data-execution-inspect(?:[=>\s])/g) ?? []).length;
+if (executionInspectButtonCount !== 7 || /<a\b[^>]*data-execution-region=/u.test(landing)) {
+  throw new Error('Landing execution guide links must be seven native inspection buttons without direct navigation overlays.');
+}
+for (const marker of ['data-execution-inspection-panel', 'data-execution-stage-badge', '詳しく見る', 'data-execution-journal-status']) {
+  requireText(landing, marker, `Landing execution inspection contract: ${marker}`);
+}
 const landingVisible = landing.replace(/<[^>]*>/g, '').replace(/&#123;/g, '{').replace(/&#125;/g, '}').replace(/&#39;/g, "'");
 const operationType = "#[OperationType('report.generate')]";
 if ((landingVisible.match(/#\[OperationType\('report\.generate'\)\]/g) ?? []).length !== 1) {
@@ -111,6 +140,11 @@ const operationTypeIndex = landingVisible.indexOf(operationType);
 const deferredIndex = landingVisible.indexOf('#[Deferred]');
 if (routeIndex < 0 || operationTypeIndex < 0 || deferredIndex < 0 || !(routeIndex < operationTypeIndex && operationTypeIndex < deferredIndex)) {
   throw new Error('Landing Artifact Operation metadata must be ordered Route, OperationType, Deferred.');
+}
+const whyActionIndex = landing.indexOf('data-landing-action="why"');
+const installActionIndex = landing.indexOf('data-landing-action="install"');
+if (whyActionIndex < 0 || installActionIndex < 0 || whyActionIndex >= installActionIndex) {
+  throw new Error('Landing Artifact hero actions must be ordered What\'s BlackOps, Install.');
 }
 const visibleMainCount = (landing.match(/<main\b/g) ?? []).length;
 const contentMainCount = (landing.match(/<main id="blume-content">/g) ?? []).length;
@@ -124,11 +158,7 @@ for (const [href, label] of [
   ['/getting-started/first-operation', 'Landing First Operation action'],
   ['/concepts/why-blackops', "Landing What's BlackOps action"],
   ['/concepts/journal', 'Landing Journal action'],
-  ['/concepts/lifecycle', 'Landing Async and Lifecycle action'],
-  ['/database/transactions', 'Landing Data and Security action'],
-  ['/reference/configuration', 'Landing Operate action'],
   ['/reference/project-cli', 'Landing Reference action'],
-  ['/releases/current-status', 'Landing Releases action'],
 ]) requireText(landing, `href="${href}"`, label);
 requireText(landing, 'return new ReportGenerated(', 'Landing PHP sample constructor');
 requireText(landing, '$value->reportName,', 'Landing PHP sample report name argument');
@@ -140,31 +170,52 @@ requireText(landing, 'composer create-project blackops/skeleton my-app 1.2.0', '
 const landingText = landing.replace(/<[^>]*>/g, '').replace(/&amp;/g, '&').replace(/\s+/g, ' ');
 for (const copy of [
   'HTTPとWorkerの処理を一つのOperationとして扱い、受付・再試行・完了までを同じIDで追跡できるPHP Frameworkです。',
-  'Stable 1.2.0 install',
+  'Stable 1.2.0',
   'Install',
   'Quickstart and Skeleton',
   'First Operation',
-  'Inline and Deferred',
-  'Lifecycle and Journal',
-  'Async and Lifecycle',
-  'Data and Security',
-  'Operate',
-  'Reference',
-  'Releases',
+  'HTTP',
+  'Console',
+  'Schedule',
+  'Inline',
+  'Deferred',
+  '同じID',
+  'BlackOpsを動かす',
+  '環境を用意し、サンプルで動きを確かめてから、自分のOperationを作ります。',
+  '環境を用意する',
+  'サンプルを動かす',
+  'Operationを作る',
+  '認証付きHTTPとDeferred Workerを順に確認する',
+  'CLIで生成し、HTTPとWorkerで完走する',
 ]) {
   requireText(landingText, copy, 'Landing exact text content');
 }
-if ((landing.match(/class="landing-eyebrow"/g) ?? []).length > 2) throw new Error('Landing uses too many eyebrow labels.');
-const allowedLifecycleEventLabel = 'attempt.succeeded — Handlerが成功した';
-if ((landing.match(/—/g) ?? []).length > 0 && ((landing.match(/—/g) ?? []).length !== 1 || !landing.includes(allowedLifecycleEventLabel))) {
-  throw new Error('Landing may use an em dash only for the attempt.succeeded event label.');
+if (!landing.includes('<h2 id="landing-resources-title">BlackOpsを動かす</h2>')
+  || !landing.includes('環境を用意し、サンプルで動きを確かめてから、自分のOperationを作ります。')) {
+  throw new Error('Landing must expose the ordered tutorial journey with a meaningful heading and lead.');
+}
+for (const marker of ['landing-authoring', 'landing-contract-list', 'landing-purpose-nav', '実際のPHPコードから始める', '必要な場所から読む']) {
+  if (landing.includes(marker)) throw new Error(`Landing must not retain the retired tutorial section marker: ${marker}`);
+}
+if (landing.includes('landing-lifecycle-panel') || landing.includes('landing-lifecycle-rail') || landingText.includes('Operation Lifecycle')) {
+  throw new Error('Landing must not contain the retired hand-built Lifecycle rail.');
 }
 for (const forbidden of ['BlackOpsの3つの特徴', 'BlackOpsは、PHP 8.5向けのHeadless Operation Frameworkです。同期HTTP実行とPostgreSQLを使ったDeferred実行を同じOperation Modelで扱い、Lifecycle Journal、Retry、Outcome、Retention、BlackOps CLIを提供します。', 'ONE MODEL / TWO PATHS', 'Operation ↔ Execution', 'Inline HTTP or durable Deferred', 'THE BLACKOPS SHAPE', 'Make the work explicit.', 'Nothing stays in the dark.', 'Bring your frontend.', 'landing-feature', 'landing-hero-glow', 'landing-panel-dot', 'linear-gradient', 'radial-gradient', 'overflow-x: hidden', 'overflow-x:hidden', '–']) {
   if (landingText.includes(forbidden) || landing.includes(forbidden)) throw new Error(`Landing contains forbidden copy or decoration: ${forbidden}`);
 }
 const journey = landing.match(/<ol class="landing-journey">([\s\S]*?)<\/ol>/)?.[1] ?? '';
-for (const href of ['/getting-started/installation', '/getting-started/quickstart', '/getting-started/first-operation']) {
+let journeyOffset = -1;
+for (const [href, label, description] of [
+  ['/getting-started/installation', '環境を用意する', 'PHPとComposerでProjectを作り、Local環境を準備する'],
+  ['/getting-started/quickstart', 'サンプルを動かす', '認証付きHTTPとDeferred Workerを順に確認する'],
+  ['/getting-started/first-operation', 'Operationを作る', 'CLIで生成し、HTTPとWorkerで完走する'],
+]) {
   if ((journey.match(new RegExp(`href="${href}"`, 'g')) ?? []).length !== 1) throw new Error(`Landing start journey must contain exactly one ${href} action.`);
+  const position = journey.indexOf(`href="${href}"`);
+  if (position <= journeyOffset) throw new Error(`Landing start journey must keep its sequential order: ${href}`);
+  journeyOffset = position;
+  requireText(journey, `>${label}</strong>`, `Landing journey label ${label}`);
+  requireText(journey, `<small>${description}</small>`, `Landing journey description ${label}`);
 }
 await validateLandingLinks(landing);
 const landingMarkdown = await readFile(path.join(distRoot, 'index.md'), 'utf8');
@@ -222,18 +273,22 @@ if (llmsLandingStart === -1 || llmsLandingEnd === -1) throw new Error('LLM artif
 assertCanonicalLandingSections(llmsFull.slice(llmsLandingStart, llmsLandingEnd), 'Landing llms-full segment');
 if (!styles.includes('prefers-reduced-motion')) throw new Error('Landing must ship reduced-motion CSS.');
 if (!landingStyles.includes('overflow-x:auto') && !landingStyles.includes('overflow-x: auto')) throw new Error('Landing code samples must contain horizontal scrolling locally.');
-if (landingStyles.includes('overflow-x:hidden') || landingStyles.includes('linear-gradient') || landingStyles.includes('radial-gradient')) throw new Error('Landing must not hide overflow or use decorative gradients.');
-if (!(styles.includes('--bo-focus:var(--bo-accent)') || styles.includes('--bo-focus: var(--bo-accent)'))) {
-  throw new Error('Emitted CSS must define the accessible Landing focus token.');
+if (landingStyles.includes('overflow-x:hidden') || landingStyles.includes('linear-gradient')) throw new Error('Landing must not hide overflow or use linear gradients.');
+if (landingStyles.includes('radial-gradient')
+  && !/\[data-theme=dark\]\s*\.landing-shell:before\{[^}]*radial-gradient/u.test(landingStyles)
+  && !/\.landing-backdrop__field\{[^}]*radial-gradient/u.test(landingStyles)) {
+  throw new Error('Landing ambient gradients must remain scoped to the landing shell or decorative backdrop field.');
 }
-if (!(styles.includes('outline:3px solid var(--bo-focus)') || styles.includes('outline: 3px solid var(--bo-focus)'))) {
-  throw new Error('Emitted CSS must apply the accessible Landing focus token.');
+for (const [value, theme] of [['#4f6f16', 'light'], ['#c9ed68', 'dark']]) {
+  if (!new RegExp(`--bo-focus\\s*:\\s*${value}(?:[;}])`, 'iu').test(styles)) {
+    throw new Error(`Emitted CSS must define the accessible ${theme} focus token.`);
+  }
 }
-if (!(styles.includes("[data-blume-nav-tree] a[aria-current='page']:focus-visible") || styles.includes('[data-blume-nav-tree] a[aria-current=page]:focus-visible'))) {
-  throw new Error('Emitted CSS must cover active Sidebar focus with the accessible token.');
+if (!/:where\(a,button,summary,input,select,textarea\):focus-visible\{[^}]*outline:3px solid var\(--bo-focus\)/u.test(styles)) {
+  throw new Error('Emitted CSS must apply the accessible focus token to keyboard controls.');
 }
-if (!styles.includes('data-blume-nav-tree] a[aria-current=page]') || !styles.includes('box-shadow:inset 3px 0 0')) {
-  throw new Error('Sidebar active state must include a visible accent marker.');
+if (!/\[data-blume-nav-drawer\]\s+\[data-blume-nav-tree\]\s+a\[aria-current=page\][^{]*\{[^}]*box-shadow:inset 3px 0 0 var\(--bo-accent\)/u.test(styles)) {
+  throw new Error('Sidebar active state must include a visible accent marker alongside the active navigation rule.');
 }
 
 for (const [route, html] of pages) {
@@ -312,20 +367,53 @@ for (const redirect of [
   '/reference/current-status/* /releases/current-status/:splat 301',
 ]) requireText(redirects, redirect, `Redirect ${redirect}`);
 
-const diagramPages = ['/concepts/core-concepts', '/concepts/lifecycle', '/execution/http-and-deferred', '/execution/context'];
-let diagramCount = 0;
-for (const route of diagramPages) {
-  const html = pages.get(route);
-  const count = (html.match(/<blume-mermaid(?:\s|>)/g) ?? []).length;
-  if (count !== 1) throw new Error(`${route} must contain one Mermaid source target; found ${count}.`);
-  if ((html.match(/data-language="mermaid"/g) ?? []).length !== 0) {
-    throw new Error(`${route} must not contain a Mermaid syntax-highlighted code block.`);
+for (const [route, html] of pages) {
+  const mermaidTargetCount = (html.match(/<blume-mermaid(?:\s|>)/g) ?? []).length;
+  const mermaidCodeBlockCount = (html.match(/data-language="mermaid"/g) ?? []).length;
+  if (mermaidTargetCount !== 0 || mermaidCodeBlockCount !== 0) {
+    throw new Error(`${route} must not contain Mermaid targets or syntax-highlighted code blocks; found targets=${mermaidTargetCount}, codeBlocks=${mermaidCodeBlockCount}.`);
   }
-  diagramCount += count;
-  requireText(html, 'accTitle:', `${route} diagram title`);
-  requireText(html, 'accDescr:', `${route} diagram description`);
 }
-if (diagramCount !== 4) throw new Error(`Static site must contain four Mermaid targets; found ${diagramCount}.`);
+
+const diagramEntriesByRoute = new Map();
+for (const entry of diagramManifest.diagrams) {
+  const route = entry.ownerRoute === '/' ? '/' : entry.ownerRoute.replace(/\/+$/u, '');
+  if (route === '/') continue;
+  const entries = diagramEntriesByRoute.get(route) ?? [];
+  entries.push(entry);
+  diagramEntriesByRoute.set(route, entries);
+}
+let renderedFigureCount = 0;
+for (const [route, entries] of diagramEntriesByRoute) {
+  const html = pages.get(route);
+  if (html === undefined) throw new Error(`${route} is missing from the generated site diagram inventory.`);
+  const figures = html.match(/<[^>]*\bclass="[^"]*\barchify-figure\b[^"]*"[^>]*>/g) ?? [];
+  if (figures.length !== entries.length) {
+    throw new Error(`${route} must render ${entries.length} registered Archify figures; found ${figures.length}.`);
+  }
+  const images = [...html.matchAll(/<img\b[^>]*>/gu)].map(([tag]) => tag);
+  if (images.length !== entries.length) {
+    throw new Error(`${route} must render one image for each registered Archify figure; expected ${entries.length}, found ${images.length}.`);
+  }
+  for (const entry of entries) {
+    const stem = path.posix.basename(entry.pngPath, '.png').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const imagePattern = new RegExp(`<img\\b[^>]*\\bsrc="[^"]*/${stem}\\.[^"]+\\.(?:avif|png|webp)(?:\\?[^" ]*)?"`, 'u');
+    if (!imagePattern.test(html)) throw new Error(`${route} is missing the rendered Archify image for ${entry.id}.`);
+  }
+  for (const tag of images) {
+    if (!/\balt="[^"\n]+\S[^"\n]*"/u.test(tag) || !/\bwidth="\d+"/u.test(tag) || !/\bheight="\d+"/u.test(tag)) {
+      throw new Error(`${route} Archify figures must render descriptive, dimensioned images.`);
+    }
+  }
+  renderedFigureCount += figures.length;
+}
+const expectedFigureCount = [...diagramEntriesByRoute.values()].reduce((count, entries) => count + entries.length, 0);
+if (renderedFigureCount !== expectedFigureCount) {
+  throw new Error(`Static site must render exactly ${expectedFigureCount} registered Archify figures; found ${renderedFigureCount}.`);
+}
+if ((landing.match(/data-execution-svg-src="\/diagrams\/execution-overview\.svg"/g) ?? []).length !== 1) {
+  throw new Error('Landing must reference the registered execution-overview canonical SVG exactly once.');
+}
 
 console.log(`Site navigation, accessibility markup, version notice, and search checks passed for ${routes.length} pages.`);
 

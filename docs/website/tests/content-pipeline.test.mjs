@@ -5,6 +5,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { promisify } from 'node:util';
+import { diagramContractsList } from '../scripts/archify-diagrams.mjs';
 import { generateContent } from '../scripts/content-pipeline.mjs';
 import { slugifyHeading, validateLinkLabels } from '../scripts/check-content.mjs';
 
@@ -179,6 +180,37 @@ test('rejects a broken internal link', async (context) => {
   await assert.rejects(() => generate(fixture), /Broken internal documentation link/);
 });
 
+test('rewrites internal links whose labels contain bracketed inline code', async (context) => {
+  const fixture = await fixtureRoot(context);
+  await sources(fixture.source, {
+    'README.md': '# Home\n\n[Securityの`#[Sensitive]`比較](guide.md)\n',
+    'guide.md': '# Guide\n',
+  });
+
+  const result = await generate(fixture);
+  assert.ok(result.index.includes('[Securityの`#[Sensitive]`比較](/guide/)'));
+});
+
+test('accepts only registered and tracked supplemental diagram links', async (context) => {
+  const fixture = await fixtureRoot(context);
+  await sources(fixture.source, { 'README.md': '# Home\n\n[Runtime diagram](/diagrams/runtime.html)\n' });
+  await sources(fixture.root, {
+    'docs/website/public/diagrams/runtime.html': '<!doctype html>runtime',
+    'docs/website/diagrams/manifest.json': JSON.stringify(diagramManifestFixture()),
+  });
+  await track(fixture.root, [
+    'docs/guide/README.md',
+    'docs/website/public/diagrams/runtime.html',
+    'docs/website/diagrams/manifest.json',
+  ]);
+
+  const result = await generate(fixture);
+  assert.match(result.index, /\[Runtime diagram\]\(\/diagrams\/runtime\.html\)/);
+
+  await sources(fixture.source, { 'README.md': '# Home\n\n[Unknown diagram](/diagrams/unknown.html)\n' });
+  await assert.rejects(() => generate(fixture), /Public diagram link is not registered/);
+});
+
 test('link labels resolve Japanese and duplicate heading fragments and reject drift', async (context) => {
   const fixture = await fixtureRoot(context);
   await sources(fixture.source, {
@@ -346,4 +378,40 @@ async function fileExists(file) {
   } catch {
     return false;
   }
+}
+
+function diagramManifestFixture() {
+  const entry = ({ id, type, ownerSource, ownerRoute, svgPath }) => ({
+    id,
+    type,
+    ownerSource,
+    ownerRoute,
+    sourcePath: `docs/website/public/diagrams/${id}.json`,
+    htmlPath: `docs/website/public/diagrams/${id}.html`,
+    pngPath: `docs/guide/assets/diagrams/${id}.png`,
+    source: { path: `docs/website/public/diagrams/${id}.json`, sha256: null },
+    html: { path: `docs/website/public/diagrams/${id}.html`, sha256: null },
+    png: { path: `docs/guide/assets/diagrams/${id}.png`, sha256: null },
+    ...(svgPath === undefined ? {} : {
+      svg: { path: svgPath, sha256: null },
+    }),
+    receipts: { validate: null, deliver: null, visualCheck: null },
+  });
+  return {
+    schemaVersion: 1,
+    upstream: {
+      repository: 'https://github.com/tt-a1i/archify',
+      revision: '2ead014aa8ec91f104cd052f1a6ca82de5e26c31',
+      version: '2.17.0-dev.1',
+      updateChecks: 'disabled',
+      templatePatch: {
+        path: 'docs/website/diagrams/offline-fonts.patch',
+        sha256: null,
+        originalTemplateSha256: null,
+        patchedTemplateSha256: null,
+      },
+    },
+    regeneration: { validate: 'validate', deliver: 'deliver', exportPng: 'export' },
+    diagrams: diagramContractsList().map(entry),
+  };
 }

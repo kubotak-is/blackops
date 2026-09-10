@@ -121,6 +121,7 @@
 | [102-phase-21-delivery-plan.md](102-phase-21-delivery-plan.md) | Phase 21 proxy replacement delivery order and removal gate |
 | [103-stable-1-2-release-plan.md](103-stable-1-2-release-plan.md) | Stable 1.1 preservation and main 1.2.0 Release Candidate baseline |
 | [104-documentation-release-lifecycle-and-information-architecture.md](104-documentation-release-lifecycle-and-information-architecture.md) | Release Authority、全公開Source／Artifact guard、目的別Information Architecture、Task／Review契約 |
+| [110-documentation-diagrams-and-presentation.md](110-documentation-diagrams-and-presentation.md) | Archify diagrams and accepted public documentation presentation |
 
 ## 決定の参照
 

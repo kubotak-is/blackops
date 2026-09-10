@@ -6,10 +6,17 @@ import path from 'node:path';
 import test from 'node:test';
 import { contentMap } from '../content-map.mjs';
 import { displayedMarkdown, findEditorialViolations, validateEditorial } from '../scripts/editorial-guard.mjs';
+import { loadDiagramManifest } from '../scripts/archify-diagrams.mjs';
+import { bootLandingMotion } from '../scripts/landing-motion.mjs';
+import { stableReferenceExclusionsFor } from '../scripts/reader-contract.mjs';
 import { repositoryRoot } from '../scripts/website-paths.mjs';
 
 const guide = (name) => readFile(path.join(repositoryRoot, 'docs/guide', name), 'utf8');
 const canonicalLandingSections = ['Start Here', 'Build', 'Async and Lifecycle', 'Data and Security', 'Operate', 'Reference', 'Releases'];
+
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
 
 function levelTwoHeadings(markdown) {
   return [...markdown.matchAll(/^##\s+(.+)$/gm)].map(([, heading]) => heading.trim());
@@ -59,12 +66,6 @@ function assertContrastAtLeast(first, second, minimum) {
   assert.ok(ratio >= minimum, `${first} against ${second} is ${ratio.toFixed(3)}:1; expected at least ${minimum}:1.`);
 }
 
-function cssVariable(css, selector, name) {
-  const escapedSelector = selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const block = css.match(new RegExp(`${escapedSelector}\\s*\\{([^}]*)\\}`))?.[1] ?? '';
-  return block.match(new RegExp(`${name}\\s*:\\s*(#[0-9a-f]{6})`, 'i'))?.[1] ?? '';
-}
-
 async function phpFiles(directory) {
   const entries = await readdir(directory, { withFileTypes: true });
   const nested = await Promise.all(entries.map((entry) => {
@@ -76,8 +77,12 @@ async function phpFiles(directory) {
 
 async function publicApiTypes() {
   const files = await phpFiles(path.join(repositoryRoot, 'src'));
+  const authority = JSON.parse(await readFile(path.join(repositoryRoot, 'develop/spec/release-authority.json'), 'utf8'));
+  const stableReferenceExclusions = stableReferenceExclusionsFor(authority);
   const types = [];
   for (const file of files) {
+    const relativePath = path.relative(repositoryRoot, file).split(path.sep).join('/');
+    if (stableReferenceExclusions.has(relativePath)) continue;
     const source = await readFile(file, 'utf8');
     if (!source.includes('#[PublicApi]')) continue;
     const namespace = source.match(/^namespace ([^;]+);$/m)?.[1];
@@ -155,7 +160,7 @@ test('landing product contract keeps the start links, current install, and exact
 
 test('landing H1 keeps one literal word boundary and fails closed on drift', async () => {
   const landing = await readFile(path.join(repositoryRoot, 'docs/website/pages/index.astro'), 'utf8');
-  const exact = '<h1 id="landing-title"><span class="landing-brand">BlackOps</span> <span class="landing-tagline">The PHP Framework</span></h1>';
+  const exact = '<h1 id="landing-title"><span class="landing-brand" data-landing-neon-title>BlackOps</span> <span class="landing-tagline">The PHP Framework</span></h1>';
   const assertH1 = (source) => {
     assert.ok(source.includes(exact), 'Landing H1 must keep the two existing words with one literal boundary.');
     assert.doesNotMatch(source, /BlackOpsThe PHP Framework/);
@@ -165,14 +170,108 @@ test('landing H1 keeps one literal word boundary and fails closed on drift', asy
   assertH1(landing);
   assert.throws(() => assertH1(landing.replace('BlackOps</span> <span', 'BlackOps</span><span')), /literal boundary/);
   assert.throws(() => assertH1(landing.replace('The PHP Framework</span>', 'The Framework</span>')), /literal boundary/);
-  assert.throws(() => assertH1(landing.replace('>BlackOps</span>', '>Black Ops</span>')), /literal boundary/);
+  assert.throws(() => assertH1(landing.replace('<span class="landing-brand" data-landing-neon-title>BlackOps</span>', '<span class="landing-brand" data-landing-neon-title>Black Ops</span>')), /literal boundary/);
+});
+
+test('landing title motion preserves the literal name and settles on offscreen cleanup', () => {
+  const createFixture = (reducedMotion = false) => {
+    const dom = new JSDOM(`<!doctype html><html><body>
+      <div class="landing-shell">
+        <div class="landing-hero__identity" data-landing-reveal="identity">
+          <h1 id="landing-title"><span class="landing-brand" data-landing-neon-title>BlackOps</span> <span class="landing-tagline">The PHP Framework</span></h1>
+        </div>
+      </div>
+    </body></html>`, { url: 'https://blackops.test/' });
+    Object.defineProperties(dom.window.document, {
+      hidden: { configurable: true, value: false },
+      visibilityState: { configurable: true, value: 'visible' },
+    });
+    const motionMedia = {
+      matches: reducedMotion,
+      listeners: new Set(),
+      addEventListener(type, listener) {
+        if (type === 'change') this.listeners.add(listener);
+      },
+      removeEventListener(type, listener) {
+        if (type === 'change') this.listeners.delete(listener);
+      },
+      setMatches(matches) {
+        this.matches = matches;
+        for (const listener of this.listeners) listener({ matches });
+      },
+    };
+    dom.window.matchMedia = () => motionMedia;
+    const observers = [];
+    class FixtureIntersectionObserver {
+      constructor(callback) {
+        this.callback = callback;
+        this.targets = [];
+        observers.push(this);
+      }
+
+      observe(target) {
+        this.targets.push(target);
+      }
+
+      unobserve(target) {
+        this.targets = this.targets.filter((observed) => observed !== target);
+      }
+
+      disconnect() {
+        this.targets = [];
+      }
+
+      trigger(target, isIntersecting) {
+        this.callback([{ target, isIntersecting }]);
+      }
+    }
+    dom.window.IntersectionObserver = FixtureIntersectionObserver;
+    return { dom, observers, motionMedia };
+  };
+
+  const fixture = createFixture();
+  const cleanup = bootLandingMotion(fixture.dom.window.document);
+  const title = fixture.dom.window.document.querySelector('[data-landing-neon-title]');
+  assert.ok(title);
+  assert.equal(title.textContent, 'BlackOps');
+  assert.equal(title.querySelectorAll('.landing-brand__letter').length, 8);
+  const titleObserver = fixture.observers.find((observer) => observer.targets.includes(title));
+  assert.ok(titleObserver);
+  titleObserver.trigger(title, true);
+  assert.ok(title.classList.contains('landing-neon-arrival'));
+  assert.equal(title.textContent, 'BlackOps');
+  titleObserver.trigger(title, false);
+  assert.ok(title.classList.contains('landing-neon-settled'));
+  cleanup();
+  assert.equal(title.textContent, 'BlackOps');
+  assert.equal(title.querySelectorAll('.landing-brand__letter').length, 0);
+  assert.doesNotMatch(title.className, /landing-neon-(?:arrival|settled)/);
+
+  const preferenceFixture = createFixture();
+  const preferenceCleanup = bootLandingMotion(preferenceFixture.dom.window.document);
+  const preferenceTitle = preferenceFixture.dom.window.document.querySelector('[data-landing-neon-title]');
+  const preferenceObserver = preferenceFixture.observers.find((observer) => observer.targets.includes(preferenceTitle));
+  preferenceObserver.trigger(preferenceTitle, true);
+  assert.ok(preferenceTitle.classList.contains('landing-neon-arrival'));
+  preferenceFixture.motionMedia.setMatches(true);
+  assert.ok(preferenceTitle.classList.contains('landing-neon-settled'));
+  preferenceCleanup();
+
+  const reducedFixture = createFixture(true);
+  const reducedCleanup = bootLandingMotion(reducedFixture.dom.window.document);
+  const reducedTitle = reducedFixture.dom.window.document.querySelector('[data-landing-neon-title]');
+  assert.equal(reducedTitle.textContent, 'BlackOps');
+  assert.equal(reducedTitle.querySelectorAll('.landing-brand__letter').length, 0);
+  reducedCleanup();
 });
 
 test('landing guards the canonical IA, operation metadata, and focus contrast with fail-closed fixtures', async () => {
-  const [landingSource, landingPage, theme] = await Promise.all([
+  const [landingSource, landingPage, theme, tokens, documentation] = await Promise.all([
     guide('README.md'),
     readFile(path.join(repositoryRoot, 'docs/website/pages/index.astro'), 'utf8'),
     readFile(path.join(repositoryRoot, 'docs/website/theme.css'), 'utf8'),
+    readFile(path.join(repositoryRoot, 'docs/website/design-tokens.css'), 'utf8'),
+    readFile(path.join(repositoryRoot, 'docs/website/documentation.css'), 'utf8'),
   ]);
 
   assertLandingSections(landingSource);
@@ -193,26 +292,22 @@ test('landing guards the canonical IA, operation metadata, and focus contrast wi
     /second main landmark/,
   );
 
-  const lightAccent = cssVariable(theme, ':root', '--bo-accent');
-  const lightPaper = cssVariable(theme, ':root', '--bo-paper');
-  const lightSurface = cssVariable(theme, ':root', '--bo-surface');
-  const darkAccent = cssVariable(theme, "[data-theme='dark']", '--bo-accent');
-  const darkPaper = cssVariable(theme, "[data-theme='dark']", '--bo-paper');
-  const darkSurface = cssVariable(theme, "[data-theme='dark']", '--bo-surface');
-  const lightAction = cssVariable(theme, ':root', '--bo-action');
-  assert.deepEqual({ lightAccent, lightPaper, darkAccent, darkPaper, lightAction }, {
-    lightAccent: '#0f766e', lightPaper: '#f3f6f3', darkAccent: '#5eead4', darkPaper: '#0b1514', lightAction: '#f97316',
-  });
+  const styles = `${tokens}\n${documentation}\n${theme}`;
+  for (const color of ['#171b21', '#59616e', '#fcfcf9', '#f1f2ed', '#d9ded3', '#385718', '#c9ed79', '#17210b', '#f4f5ef', '#a5a9b2', '#0c0e12', '#15181e', '#1c2028', '#303640', '#d4f77d', '#18200b']) {
+    assert.ok(styles.includes(color), color);
+  }
   const { assertAccessibilityStylesheetContract } = await import('../scripts/artifact-stylesheet-contract.mjs');
-  assert.doesNotThrow(() => assertAccessibilityStylesheetContract(theme, 'source theme', { requireLandingSurfaces: true }));
-  assertContrastAtLeast(lightAccent, lightPaper, 3);
-  assertContrastAtLeast(lightAccent, lightSurface, 3);
-  assertContrastAtLeast(darkAccent, darkPaper, 3);
-  assertContrastAtLeast(darkAccent, darkSurface, 3);
-  assert.throws(() => assertContrastAtLeast(lightAction, lightPaper, 3), /expected at least 3:1/);
-  assert.match(theme, /--bo-focus:\s*var\(--bo-accent\)/);
-  assert.match(theme, /\.landing-text-link:focus-visible[\s\S]*outline:\s*3px solid var\(--bo-focus\)/);
-  assert.match(theme, /\[data-blume-nav-tree\] a\[aria-current='page'\]:focus-visible[\s\S]*outline:\s*3px solid var\(--bo-focus\)/);
+  assert.doesNotThrow(() => assertAccessibilityStylesheetContract(styles, 'source theme', { requireLandingSurfaces: true }));
+  assertContrastAtLeast('#385718', '#fcfcf9', 3);
+  assertContrastAtLeast('#385718', '#f1f2ed', 3);
+  assertContrastAtLeast('#d4f77d', '#0c0e12', 3);
+  assertContrastAtLeast('#d4f77d', '#15181e', 3);
+  assertContrastAtLeast('#c9ed79', '#17210b', 4.5);
+  assert.match(tokens, /:root\s*\{[\s\S]*--bo-focus\s*:\s*[^;]+;/);
+  assert.match(tokens, /:root\[data-theme=['"]dark['"]\]\s*\{[\s\S]*--bo-focus\s*:\s*[^;]+;/);
+  assert.match(documentation, /:where\(a, button, summary, input, select, textarea\):focus-visible[\s\S]*outline:\s*3px solid var\(--bo-focus\)/);
+  assert.match(documentation, /\[data-blume-nav-drawer\]\s+\[data-blume-nav-tree\]\s+a\[aria-current=['"]page['"]\][\s\S]*box-shadow:\s*inset 3px 0 0 var\(--bo-accent\)/);
+  assert.match(theme, /\.landing-text-link:focus-visible[\s\S]*outline:\s*3px solid var\(--landing-focus\)/);
 });
 
 test('native code copy keeps focus and exposes Japanese success and failure status', async () => {
@@ -271,16 +366,22 @@ test('Blume visible chrome uses Japanese labels for copy, export, theme, navigat
   }
 });
 
-test('Journal guide is reachable from the landing model and explains its reader boundary', async () => {
-  const [landing, journal] = await Promise.all([
+test('Journal guide is reachable from the execution walkthrough and explains its reader boundary', async () => {
+  const [landing, walkthrough, journal] = await Promise.all([
     readFile(path.join(repositoryRoot, 'docs/website/pages/index.astro'), 'utf8'),
+    readFile(path.join(repositoryRoot, 'docs/website/components/ExecutionWalkthrough.astro'), 'utf8'),
     guide('journal.md'),
   ]);
 
-  const model = landing.match(/<section class="landing-model"[\s\S]*?<\/section>/)?.[0] ?? '';
-  assert.match(model, /Lifecycle and Journal/);
-  assert.match(model, /href="\/concepts\/journal"/);
-  assert.equal((model.match(/<a class="landing-text-link"/g) ?? []).length, 2, 'model links have distinct purposes');
+  assert.match(landing, /<ExecutionWalkthrough[\s\S]*svgSrc="\/diagrams\/execution-overview\.svg"[\s\S]*desktopSvgSrc="\/diagrams\/execution-overview-desktop\.svg"[\s\S]*desktopDataSrc="\/diagrams\/execution-overview-desktop\.json"/);
+  assert.match(walkthrough, /href="\/concepts\/journal"/);
+  assert.match(walkthrough, /Journalイベント/);
+  assert.doesNotMatch(walkthrough, /Journalイベントの例/);
+  assert.doesNotMatch(walkthrough, /<details[\s\S]*execution-walkthrough__transcript/);
+  assert.doesNotMatch(walkthrough, /追加なし/);
+  assert.match(walkthrough, /data-execution-inspection-panel/);
+  assert.match(walkthrough, /data-execution-inspect/);
+  assert.doesNotMatch(walkthrough, /<a\b[^>]*data-execution-region/);
   assert.match(journal, /^# Journal$/m);
   for (const phrase of [
     'Canonical Journal',
@@ -451,41 +552,58 @@ test('static redirects preserve all four moved public URLs', async () => {
   ].join('\n'));
 });
 
-test('four Mermaid diagrams include accessible source descriptions and prose alternatives', async () => {
+test('registered Archify diagrams have complete owner coverage and prose alternatives', async () => {
+  const manifest = await loadDiagramManifest();
+  assert.equal(manifest.diagrams.length, 10);
+  assert.deepEqual(
+    manifest.diagrams.map(({ id }) => id).sort(),
+    ['execution-acceptance', 'execution-context', 'execution-inline', 'execution-overview', 'execution-worker', 'lifecycle-failure', 'lifecycle-rejection', 'lifecycle-success', 'outbox', 'runtime'],
+  );
+  const svgEntries = manifest.diagrams.filter((entry) => entry.svg !== undefined);
+  assert.deepEqual(svgEntries.map(({ id }) => id), ['execution-overview']);
+
+  const owners = new Map();
+  for (const entry of manifest.diagrams) {
+    const source = owners.get(entry.ownerSource) ?? await readFile(path.join(repositoryRoot, entry.ownerSource), 'utf8');
+    owners.set(entry.ownerSource, source);
+    const imagePath = path.posix.relative(path.posix.dirname(entry.ownerSource), entry.pngPath);
+    assert.match(source, new RegExp(`!\\[[^\\]]+\\]\\(${escapeRegExp(imagePath)}\\)`, 'u'), `${entry.id} owner image`);
+    assert.doesNotMatch(source, /^\s*(?:`{3,}|~{3,})\s*mermaid(?:\s|$)/mu, `${entry.id} owner Mermaid fence`);
+  }
+  for (const [ownerSource, source] of owners) {
+    const expected = manifest.diagrams.filter((entry) => entry.ownerSource === ownerSource).length;
+    assert.equal((source.match(/<div class="archify-figure">/g) ?? []).length, expected, `${ownerSource} Archify figure count`);
+  }
+
   const sources = await Promise.all(
     ['core-concepts.md', 'execution.md', 'operation-lifecycle.md', 'execution-context.md'].map(guide),
   );
-  const diagrams = sources.flatMap((source) => [...source.matchAll(/```mermaid\n([\s\S]*?)\n```/g)]);
-
-  assert.equal(diagrams.length, 4);
-  for (const [, diagram] of diagrams) {
-    assert.match(diagram, /^\s*accTitle:\s*\S.+$/m);
-    assert.match(diagram, /^\s*accDescr:\s*\S.+$/m);
-  }
   for (const source of sources) assert.doesNotMatch(source, /図のテキスト代替/);
   assert.match(sources[0], /Operationは`OperationValue`を第一引数/);
-  assert.match(sources[1], /InlineはHTTP Request内/);
+  assert.match(sources[1], /InlineはHTTPプロセス内/);
   assert.match(sources[2], /\| Inline成功 \| Received → Running → Finalizing → Completed \|/);
   assert.match(sources[3], /\| Identifier \| 関係 \|/);
 });
 
-test('Mermaid artifact guards require native elements and reject syntax-highlighted fences', async () => {
-  const [artifact, site] = await Promise.all([
+test('Archify artifact guards require the registered inventory and reject Mermaid output', async () => {
+  const [artifact, site, stylesheetContract] = await Promise.all([
     readFile(path.join(repositoryRoot, 'docs/website/scripts/check-artifact.mjs'), 'utf8'),
     readFile(path.join(repositoryRoot, 'docs/website/scripts/check-site.mjs'), 'utf8'),
+    readFile(path.join(repositoryRoot, 'docs/website/scripts/artifact-stylesheet-contract.mjs'), 'utf8'),
   ]);
 
-  assert.match(artifact, /<blume-mermaid/);
+  assert.match(artifact, /assertDiagramArtifacts/);
+  assert.match(artifact, /expectedDiagramPngPaths/);
+  assert.match(artifact, /expectedDiagramPublicPaths/);
   assert.match(artifact, /mermaidCodeBlockCount/);
   assert.match(artifact, /mermaidCodeBlockCount !== 0/);
-  assert.match(artifact, /mermaidLegibilityStylesheetCount/);
-  assert.match(artifact, /max-width:700px/);
-  assert.match(artifact, /min-width:42rem/);
-  assert.match(artifact, /height:auto/);
-  assert.match(artifact, /width:100%/);
-  assert.match(site, /<blume-mermaid/);
-  assert.match(site, /data-language="mermaid"/);
-  assert.match(site, /must not contain a Mermaid syntax-highlighted code block/);
+  assert.doesNotMatch(artifact, /diagramCount|accessibleTitleCount|accessibleDescriptionCount|mermaidLegibilityStylesheetCount|mermaidRuntimeCount/);
+  assert.match(site, /loadDiagramManifest/);
+  assert.match(site, /archify-figure/);
+  assert.match(site, /data-execution-svg-src/);
+  assert.match(site, /must not contain Mermaid targets or syntax-highlighted code blocks/);
+  assert.match(stylesheetContract, /\.archify-figure/);
+  assert.doesNotMatch(stylesheetContract, /Mermaid legibility contract|mermaidLegibility/);
 });
 
 test('Website fonts use local licensed variants and reject remote providers in artifacts', async () => {
@@ -496,8 +614,8 @@ test('Website fonts use local licensed variants and reject remote providers in a
     readFile(path.join(repositoryRoot, 'docs/website/scripts/check-artifact.mjs'), 'utf8'),
   ]);
 
-  assert.match(config, /localFont\('UbuntuSans\.ttf'\)/);
-  assert.match(config, /localFont\('UbuntuMono\.ttf'\)/);
+  assert.match(config, /localFont\('UbuntuSans\.woff2'\)/);
+  assert.match(config, /localFont\('UbuntuMono\.woff2'\)/);
   assert.match(packageJson, /"blume": "1\.3\.0"/);
   assert.match(theme, /var\(--blume-font-body, ui-sans-serif\)/);
   assert.match(theme, /var\(--blume-font-mono, ui-monospace, monospace\)/);
@@ -506,8 +624,11 @@ test('Website fonts use local licensed variants and reject remote providers in a
   assert.match(artifact, /fontProviders.*A-Za-z0-9_.*\\s\*.*\(/);
   assert.match(artifact, /@font-face/);
   assert.match(artifact, /expectedAssets/);
+  assert.match(artifact, /staleLocalPath/);
   assert.match(artifact, /28c4c189a44803b1986fd16074187034dc6d94ad35f5e87de13dd0e786b70b73/);
+  assert.match(artifact, /b1de97dd36b02b2c5125d8df6b99c76053b6c43b871c9f2dfb923b3218623bc1/);
   assert.match(artifact, /fbf1e748836994f730e602f7dcf2525564d6d78aa336080cbb73af909d0e08ee/);
+  assert.match(artifact, /1417c472ce2c5449cc427f2ceb92dedbbd28eb1bcd44fd9b7efb6cb0978d0e80/);
   assert.match(artifact, /bca346a561b9668925ff55af1fcf0e10e65e07b1b40dd057bb4f3ded848ef8cf/);
   assert.match(artifact, /Ubuntu-Font-Licence-1\.0/);
   assert.match(artifact, /localFontReferences/);
@@ -515,8 +636,8 @@ test('Website fonts use local licensed variants and reject remote providers in a
   assert.match(artifact, /Ubuntu-Font-License-1\.0\.txt/);
 
   const generatedLocalConfig = [
-    'body: { provider: fontProviders.local(), src: UbuntuSans.ttf }',
-    'mono: { provider: fontProviders.local(), src: UbuntuMono.ttf }',
+    'body: { provider: fontProviders.local(), src: UbuntuSans.woff2 }',
+    'mono: { provider: fontProviders.local(), src: UbuntuMono.woff2 }',
   ].join('\n');
   const assertLocalProviderOnly = (source) => {
     const providers = [...source.matchAll(/fontProviders\.([A-Za-z0-9_]+)\s*\(/g)].map(([, provider]) => provider);
@@ -578,9 +699,10 @@ test('guided tutorial pairs runnable inputs with parseable JSON and masked JSONL
 
 test('retention guide preserves the idempotency default and successful plan contract', async () => {
   const retention = await guide('retention.md');
-  assert.match(retention, /`config\/retention\.php`の`idempotency_record_days`で管理し、省略した場合は4つの基本期間の最長値/);
-  assert.doesNotMatch(retention, /--idempotency-record-days/);
+  assert.match(retention, /`config\/retention\.php`の`idempotency_record_days`で管理し、省略した場合は4つの基本期間の最長値を使います/);
   assert.match(retention, /--transport-payload-days=7[\s\S]*--journal-days=30[\s\S]*--outcome-days=14[\s\S]*--dead-letter-days=90/);
+  assert.doesNotMatch(retention, /--idempotency-record-days/);
+  assert.match(retention, /Project Rootの公開Retention Commandは4つの期間Optionだけを受け付けます/);
   assert.match(retention, /Planは候補を読むだけで、DatabaseやJournalを変更しません/);
   assert.match(retention, /成功時の終了Codeは0です。次の形式を返します/);
   assert.match(retention, /Retention plan[\s\S]*idempotency_record: N/);
@@ -871,7 +993,10 @@ test('all guide sources are mapped once and Content Map owns reader classificati
 test('Blume runtime keeps diagrams local and the landing responsive', async () => {
   const packageJson = JSON.parse(await readFile(path.join(repositoryRoot, 'docs/website/package.json'), 'utf8'));
   const config = await readFile(path.join(repositoryRoot, 'docs/website/blume.config.ts'), 'utf8');
-  const theme = await readFile(path.join(repositoryRoot, 'docs/website/theme.css'), 'utf8');
+  const [theme, documentation] = await Promise.all([
+    readFile(path.join(repositoryRoot, 'docs/website/theme.css'), 'utf8'),
+    readFile(path.join(repositoryRoot, 'docs/website/documentation.css'), 'utf8'),
+  ]);
   const landing = await readFile(path.join(repositoryRoot, 'docs/website/pages/index.astro'), 'utf8');
   const layout = await readFile(path.join(repositoryRoot, 'docs/website/components/NoEditLayout.astro'), 'utf8');
 
@@ -879,7 +1004,7 @@ test('Blume runtime keeps diagrams local and the landing responsive', async () =
   assert.equal(packageJson.devDependencies.astro, '7.0.7');
   assert.equal(packageJson.devDependencies.jsdom, '29.1.1');
   assert.equal(packageJson.devDependencies.mermaid, '11.16.0');
-  assert.equal(packageJson.scripts['diagrams:check'], 'node scripts/check-diagrams.mjs');
+  assert.equal(packageJson.scripts['diagrams:check'], 'node scripts/check-diagrams.mjs && node scripts/archify-diagrams.mjs source');
   assert.match(packageJson.scripts.check, /diagrams:check/);
   assert.match(packageJson.scripts.build, /diagrams:check/);
   assert.match(config, /search: \{ provider: 'orama' \}/);
@@ -890,53 +1015,60 @@ test('Blume runtime keeps diagrams local and the landing responsive', async () =
   assert.match(theme, /\.landing-shell/);
   assert.match(theme, /contain: inline-size/);
   assert.match(theme, /prefers-reduced-motion/);
-  assert.match(theme, /blume-mermaid \{[\s\S]*display: block !important/);
-  assert.match(theme, /blume-mermaid > div \{[\s\S]*min-width: 42rem/);
-  assert.match(theme, /blume-mermaid svg \{[\s\S]*height: auto[\s\S]*width: 100%/);
-  for (const marker of ['#6d6d6d', '#707b87', '#d0d0d0', '#12201f', 'blackops-overflow-focus:focus-visible']) {
+  assert.match(documentation, /\.archify-figure \{[\s\S]*max-width: 100%[\s\S]*min-width: 0[\s\S]*width: 100%/);
+  assert.match(documentation, /\.archify-figure img \{[\s\S]*display: block[\s\S]*height: auto[\s\S]*max-width: 100%[\s\S]*width: 100%/);
+  for (const marker of ['blackops-overflow-focus:focus-visible']) {
     assert.ok(theme.includes(marker), marker);
   }
   assert.match(landing, /class="landing-command blackops-overflow-focus" tabindex="0"/);
   assert.match(landing, /class="blackops-overflow-focus" tabindex="0"><code>/);
-  assert.match(layout, /blume-mermaid[\s\S]*blackops-overflow-focus[\s\S]*tabIndex = 0/);
+  assert.match(layout, /\.landing-command, \.landing-code-panel > pre[\s\S]*blackops-overflow-focus[\s\S]*tabIndex = 0/);
   assert.match(theme, /\.landing-journey a:focus-visible/);
-  assert.match(theme, /\.landing-purpose-nav a:focus-visible/);
-  assert.match(theme, /\.landing-brand[\s\S]*clamp\(4rem, 9vw, 8rem\)/);
+  assert.match(theme, /\.landing-brand[\s\S]*clamp\(3\.5rem, 9vw, 7\.8rem\)/);
   assert.match(theme, /@media \(max-width: 959px\)[\s\S]*\.landing-hero/);
-  assert.match(theme, /@media \(max-width: 767px\)[\s\S]*\.landing-model-list[\s\S]*grid-template-columns: 1fr/);
+  assert.match(theme, /\.execution-walkthrough__layout[\s\S]*grid-template-columns: minmax\(0, 1fr\)/);
+  assert.match(theme, /\.execution-walkthrough__graph-header/);
   assert.match(theme, /overflow-x: auto/);
-  assert.doesNotMatch(theme, /linear-gradient|radial-gradient/);
+  assert.match(theme, /\[data-theme='dark'\] \.landing-shell[\s\S]*radial-gradient/);
+  assert.doesNotMatch(theme, /linear-gradient/);
   assert.doesNotMatch(theme, /overflow-x: hidden/);
-  assert.equal((landing.match(/class="landing-eyebrow"/g) ?? []).length, 1);
-  for (const label of ['aria-label="ドキュメントの操作"', 'aria-label="Operationのソース"', '>同じID<', 'aria-label="ドキュメントのセクション"']) {
+  assert.doesNotMatch(landing, /class="landing-kicker"/);
+  assert.doesNotMatch(landing, /アプリケーションの仕事を、受付から完了まで読める実行単位にします。/);
+  assert.doesNotMatch(landing, /全段階とJournalイベントを表示/);
+  assert.match(landing, /data-landing-reveal="hero"/);
+  for (const label of ['aria-label="ドキュメントの操作"', 'aria-label="Operationのソース"']) {
     assert.ok(landing.includes(label), label);
   }
   assert.doesNotMatch(landing, /aria-label="Documentation actions"|aria-label="Operation source context"|>same ID<|aria-label="Documentation sections"/);
-  assert.match(landing, /<strong>Finalizing<\/strong><small>attempt\.succeeded — Handlerが成功した<\/small>/);
+  assert.match(landing, /<ExecutionWalkthrough[\s\S]*svgSrc="\/diagrams\/execution-overview\.svg"/);
+  assert.match(landing, /executionDiagram[\s\S]*executionRegions/);
+  assert.match(landing, /data-landing-action="why"[\s\S]*href="\/concepts\/why-blackops"[\s\S]*data-landing-action="install"[\s\S]*href="\/getting-started\/installation"/);
+  assert.doesNotMatch(landing, /landing-lifecycle-panel|landing-lifecycle-rail|Operation Lifecycle/);
   assert.doesNotMatch(landing, /<strong>Succeeded<\/strong>/);
-  assert.doesNotMatch(landing, /landing-journey-number|>01<|>02<|>03</);
+  assert.doesNotMatch(landing, /landing-authoring|landing-contract-list|landing-purpose-nav/);
+  assert.doesNotMatch(landing, /実際のPHPコードから始める|必要な場所から読む/);
+  assert.equal((landing.match(/class="landing-journey-index"/g) ?? []).length, 3);
+  assert.doesNotMatch(landing, /landing-journey-number/);
   for (const copy of [
     'BlackOps</span> <span class="landing-tagline">The PHP Framework',
     'HTTPとWorkerの処理を一つのOperationとして扱い、受付・再試行・完了までを同じIDで追跡できるPHP Frameworkです。',
-    'landing-editor-chrome',
-    'landing-lifecycle-panel',
-    'Operation Lifecycle',
-    '同じOperation IDで、受付、Attempt、完了までの実行事実を追跡します。',
-    'Retryは同じIDの次のAttemptとして続きます。',
+    'landing-code-header',
+    'landing-demo',
+    'landing-resources',
+    'BlackOpsを動かす',
+    '環境を用意し、サンプルで動きを確かめてから、自分のOperationを作ります。',
+    '入口がHTTPでもConsoleでもScheduleでも',
+    '同じID',
     'composer create-project blackops/skeleton my-app 1.2.0',
-    'Stable 1.2.0 install',
+      'Stable 1.2.0',
     'Install',
-    'Quickstart and Skeleton',
-    'First Operation',
-    'Inline and Deferred',
-    'Lifecycle and Journal',
-    'Async and Lifecycle',
-    'Data and Security',
-    'Operate',
-    'Reference',
-    'Releases',
+    '環境を用意する',
+    'サンプルを動かす',
+    'Operationを作る',
+    '認証付きHTTPとDeferred Workerを順に確認する',
+    'CLIで生成し、HTTPとWorkerで完走する',
   ]) assert.ok(landing.includes(copy), copy);
-  for (const forbidden of ['BlackOpsの3つの特徴', 'BlackOpsは、PHP 8.5向けのHeadless Operation Frameworkです。同期HTTP実行とPostgreSQLを使ったDeferred実行を同じOperation Modelで扱い、Lifecycle Journal、Retry、Outcome、Retention、BlackOps CLIを提供します。', 'ONE MODEL / TWO PATHS', 'Operation ↔ Execution', 'Inline HTTP or durable Deferred', 'THE BLACKOPS SHAPE', 'Make the work explicit.', 'Nothing stays in the dark.', 'Bring your frontend.', 'landing-feature', 'landing-hero-glow', 'landing-panel-dot']) {
+  for (const forbidden of ['BlackOpsの3つの特徴', 'BlackOpsは、PHP 8.5向けのHeadless Operation Frameworkです。同期HTTP実行とPostgreSQLを使ったDeferred実行を同じOperation Modelで扱い、Lifecycle Journal、Retry、Outcome、Retention、BlackOps CLIを提供します。', 'ONE MODEL / TWO PATHS', 'Operation ↔ Execution', 'Inline HTTP or durable Deferred', 'THE BLACKOPS SHAPE', 'Make the work explicit.', 'Nothing stays in the dark.', 'Bring your frontend.', 'landing-feature', 'landing-hero-glow', 'landing-panel-dot', 'linear-gradient']) {
     assert.ok(!landing.includes(forbidden), forbidden);
   }
 });
@@ -954,7 +1086,7 @@ test('the detail layout owns the existing theme and linked CSS guards fail close
   for (const marker of ['extractStylesheetHrefs', 'assertLinkedStylesheetContract']) {
     assert.ok(artifactGuard.includes(marker), marker);
   }
-  for (const marker of ['overflow-wrap:anywhere', 'min-width:42rem', 'box-shadow:inset3px00']) {
+  for (const marker of ['overflow-wrap:break-word', 'min-width:0', 'box-shadow:inset3px00']) {
     assert.ok(stylesheetContract.includes(marker), marker);
   }
 
@@ -966,14 +1098,14 @@ test('the detail layout owns the existing theme and linked CSS guards fail close
     assertSearchFocusBoundarySourceContract,
     extractStylesheetHrefs,
   } = await import('../scripts/artifact-stylesheet-contract.mjs');
-  const activeCss = '[data-blume-nav-tree] a[aria-current=page]{box-shadow:inset 3px 0 0 var(--blume-accent)}';
-  const inlineCss = '.prose :not(pre)>code{overflow-wrap:anywhere;word-break:break-word}';
-  const mermaidCss = 'blume-mermaid{width:100%} blume-mermaid>div{min-width:42rem;width:100%} blume-mermaid svg{height:auto}';
-  const accessibilityCss = ":root{--bo-surface-deep:#e7eeea} [data-theme='light'] .not-prose[class~='bg-blue-500/10']>div>p:not(.text-foreground){color:#6d6d6d} [data-theme='light'] .landing-editor-language,[data-theme='light'] .landing-lifecycle-heading>span,[data-theme='light'] .landing-lifecycle-caption,[data-theme='light'] .landing-lifecycle-note,[data-theme='light'] .landing-lifecycle-rail small{color:#526966} [data-theme='dark'] .astro-code span[style*='--shiki-dark:#6A737D']{color:#707b87!important} [data-theme='dark'] blume-mermaid .edgeLabel p{color:#d0d0d0!important} [data-theme='dark'] body>a[href='#blume-content']{color:#12201f} .blackops-overflow-focus:focus-visible{outline:3px solid var(--bo-focus);outline-offset:3px}";
+  const activeCss = '[data-blume-nav-drawer] [data-blume-nav-tree] a[aria-current=page]{box-shadow:inset 3px 0 0 var(--blume-accent)}';
+  const inlineCss = '#blume-content>article.prose :where(:not(pre)>code){overflow-wrap:break-word}';
+  const figureCss = '.archify-figure{max-width:100%;min-width:0;width:100%} .archify-figure img{display:block;height:auto;max-width:100%;width:100%}';
+  const accessibilityCss = ":root{--bo-surface-deep:#e7eeea} [data-theme='light'] .not-prose[class~='bg-blue-500/10']>div>p:not(.text-foreground){color:#6d6d6d} [data-theme='light'] .landing-hero__statement,[data-theme='light'] .landing-install-label,[data-theme='light'] .landing-entry-points small,[data-theme='light'] .landing-cli-entry span{color:#59616e} [data-theme='dark'] .astro-code span[style*='--shiki-dark:#6A737D']{color:#707b87!important} [data-theme='dark'] body>a[href='#blume-content']{color:#12201f} .blackops-overflow-focus:focus-visible{outline:3px solid var(--bo-focus);outline-offset:3px}";
   const linkedCss = {
     'active.css': activeCss,
     'inline.css': inlineCss,
-    'mermaid.css': mermaidCss,
+    'figure.css': figureCss,
     'accessibility.css': accessibilityCss,
     'other.css': 'body{color:black}',
   };
@@ -986,74 +1118,56 @@ test('the detail layout owns the existing theme and linked CSS guards fail close
       requireLandingSurfaces: true,
     },
   );
-  await assert.doesNotReject(() => runFixture('<LINK href="/active.css" REL="stylesheet"><link rel="STYLESHEET" href="/inline.css"><link href="/mermaid.css" rel="stylesheet"><link href="/accessibility.css" rel="stylesheet">', 'linked fixture'));
+  await assert.doesNotReject(() => runFixture('<LINK href="/active.css" REL="stylesheet"><link rel="STYLESHEET" href="/inline.css"><link href="/figure.css" rel="stylesheet"><link href="/accessibility.css" rel="stylesheet">', 'linked fixture'));
   await assert.rejects(() => runFixture('<link rel="stylesheet" href="/other.css">', 'unlinked CSS fixture'), /active navigation/);
   await assert.rejects(() => runFixture('<link rel="stylesheet" href="/missing.css">', 'missing linked CSS fixture'), /missing linked stylesheet/);
   await assert.rejects(() => runFixture('<link rel="stylesheet" href="https://example.test/theme.css">', 'non-local linked CSS fixture'), /non-local stylesheet/);
   await assert.rejects(() => runFixture('<link rel="stylesheet" href="/../active.css">', 'traversal linked CSS fixture'), /unsafe stylesheet/);
   const wrongRuleCss = {
-    'bad-active.css': `[data-blume-nav-tree]a[aria-current=page]{color:red}body{box-shadow:inset 3px 0 0 black}${inlineCss}${mermaidCss}${accessibilityCss}`,
-    'bad-inline.css': `${activeCss}.prose:not(pre)>code{overflow-wrap:anywhere;word-break:break-word}${mermaidCss}${accessibilityCss}`,
-    'bad-mermaid.css': `${activeCss}${inlineCss}blume-mermaidsvg{height:auto}body{min-width:42rem;height:auto;width:100%}${accessibilityCss}`,
+    'bad-active.css': `[data-blume-nav-tree]a[aria-current=page]{color:red}body{box-shadow:inset 3px 0 0 black}${inlineCss}${figureCss}${accessibilityCss}`,
+    'bad-inline.css': `${activeCss}#blume-content>article.prose :where(:not(pre)>code){overflow-wrap:anywhere;word-break:break-word}${figureCss}${accessibilityCss}`,
+    'bad-figure.css': `${activeCss}${inlineCss}.archify-figure img{height:auto}${accessibilityCss}`,
   };
   await assert.rejects(() => runFixture('<link rel="stylesheet" href="/bad-active.css">', 'wrong active declaration fixture', wrongRuleCss), /active navigation/);
   await assert.rejects(() => runFixture('<link rel="stylesheet" href="/bad-inline.css">', 'wrong inline declaration fixture', wrongRuleCss), /inline code/);
-  await assert.rejects(() => runFixture('<link rel="stylesheet" href="/bad-mermaid.css">', 'wrong Mermaid declaration fixture', wrongRuleCss), /Mermaid/);
+  await assert.rejects(() => runFixture('<link rel="stylesheet" href="/bad-figure.css">', 'wrong Archify figure declaration fixture', wrongRuleCss), /Archify figure/);
 
   for (const [oldColor, label] of [
     ['#6f6f6f', 'old Light callout color'],
     ['#6a737d', 'old Dark Shiki comment color'],
-    ['#cccccc', 'old Dark Mermaid edge-label color'],
     ['#fff', 'old Dark skip-link color'],
   ]) {
     const oldCss = accessibilityCss.replace(
-      oldColor === '#6f6f6f' ? '#6d6d6d' : oldColor === '#6a737d' ? '#707b87' : oldColor === '#cccccc' ? '#d0d0d0' : '#12201f',
+      oldColor === '#6f6f6f' ? '#6d6d6d' : oldColor === '#6a737d' ? '#707b87' : '#12201f',
       oldColor,
     );
     assert.throws(
-      () => assertAccessibilityStylesheetContract(`${activeCss}${inlineCss}${mermaidCss}${oldCss}`, label, { requireLandingSurfaces: true }),
+      () => assertAccessibilityStylesheetContract(`${activeCss}${inlineCss}${figureCss}${oldCss}`, label, { requireLandingSurfaces: true }),
       /linked stylesheets must (own|not contain)/,
     );
   }
   const unscopedCalloutCss = `${accessibilityCss} .not-prose[class~='bg-blue-500/10']>div>p:not(.text-foreground){color:#6d6d6d}`;
   assert.throws(
-    () => assertAccessibilityStylesheetContract(`${activeCss}${inlineCss}${mermaidCss}${unscopedCalloutCss}`, 'unscoped Light callout', { requireLandingSurfaces: true }),
+    () => assertAccessibilityStylesheetContract(`${activeCss}${inlineCss}${figureCss}${unscopedCalloutCss}`, 'unscoped Light callout', { requireLandingSurfaces: true }),
     /linked stylesheets must (own|not contain)/,
   );
-  const lowContrastLandingCss = accessibilityCss.replaceAll('#526966', '#5d7471');
+  const lowContrastLandingCss = accessibilityCss.replaceAll('#59616e', '#5d7471');
   assert.throws(
-    () => assertAccessibilityStylesheetContract(`${activeCss}${inlineCss}${mermaidCss}${lowContrastLandingCss}`, 'low-contrast Light Landing surface', { requireLandingSurfaces: true }),
-    /Light Landing deep-surface muted/,
+    () => assertAccessibilityStylesheetContract(`${activeCss}${inlineCss}${figureCss}${lowContrastLandingCss}`, 'low-contrast Light Landing surface', { requireLandingSurfaces: true }),
+    /Light Landing muted/,
   );
-  const unscopedLandingCss = `${accessibilityCss} .landing-editor-language{color:#526966}`;
-  assert.throws(
-    () => assertAccessibilityStylesheetContract(`${activeCss}${inlineCss}${mermaidCss}${unscopedLandingCss}`, 'unscoped Light Landing surface', { requireLandingSurfaces: true }),
-    /unscoped Light Landing deep-surface muted/,
-  );
-
-  const validRuntime = "for (const element of document.querySelectorAll('.landing-command, .landing-code-panel > pre, blume-mermaid')) { element.classList.add('blackops-overflow-focus'); element.tabIndex = 0; }";
   assert.doesNotThrow(() => assertOverflowFocusContract(
-    '<pre class="landing-command blackops-overflow-focus" tabindex="0"></pre><div class="landing-code-panel"><pre class="blackops-overflow-focus" tabindex="0"></pre></div><blume-mermaid></blume-mermaid>',
+    '<pre class="landing-command blackops-overflow-focus" tabindex="0"></pre><div class="landing-code-panel"><pre class="blackops-overflow-focus" tabindex="0"></pre></div>',
     'focusable overflow fixture',
-    { runtimeSource: validRuntime, requireLandingSurfaces: true },
+    { requireLandingSurfaces: true },
   ));
   assert.throws(
-    () => assertOverflowFocusContract('<pre class="landing-command"></pre><div class="landing-code-panel"><pre></pre></div><blume-mermaid></blume-mermaid>', 'non-focusable overflow fixture', { requireLandingSurfaces: true }),
+    () => assertOverflowFocusContract('<pre class="landing-command"></pre><div class="landing-code-panel"><pre></pre></div>', 'non-focusable overflow fixture', { requireLandingSurfaces: true }),
     /must be keyboard focusable/,
   );
   assert.throws(
     () => assertOverflowFocusContract('<div class="landing-shell"></div>', 'missing Landing surfaces', { requireLandingSurfaces: true }),
     /Landing must contain a keyboard-focusable command overflow surface/,
-  );
-  assert.throws(
-    () => assertOverflowFocusContract('<blume-mermaid></blume-mermaid>', 'unrelated runtime fixture', { runtimeSource: 'otherElement.tabIndex = 0;' }),
-    /exact shared overflow selector/,
-  );
-  assert.throws(
-    () => assertOverflowFocusContract('<blume-mermaid></blume-mermaid>', 'separated runtime fixture', {
-      runtimeSource: "document.querySelectorAll('.landing-command, .landing-code-panel > pre, blume-mermaid'); element.classList.add('blackops-overflow-focus'); element.tabIndex = 0;",
-    }),
-    /exact shared overflow selector/,
   );
   assert.throws(
     () => assertOverflowFocusContract('<div class="landing-code-panel"><div><pre tabindex="0"></pre></div></div>', 'nested code overflow fixture'),
@@ -1147,9 +1261,9 @@ test('custom landing links have a permanent static-artifact guard', async () => 
   const checkSite = await readFile(path.join(repositoryRoot, 'docs/website/scripts/check-site.mjs'), 'utf8');
   assert.match(checkSite, /validateLandingLinks/);
   assert.match(checkSite, /Landing link does not resolve to a static artifact/);
+  assert.match(checkSite, new RegExp('getting-started/installation'));
+  assert.match(checkSite, new RegExp('getting-started/quickstart'));
   assert.match(checkSite, new RegExp('getting-started/first-operation'));
-  assert.match(checkSite, new RegExp('concepts/lifecycle'));
-  assert.match(checkSite, new RegExp('database/transactions'));
   assert.match(checkSite, new RegExp('reference/project-cli'));
   assert.ok(checkSite.includes('const githubAnchor'));
   assert.ok(checkSite.includes('github\\.com'));

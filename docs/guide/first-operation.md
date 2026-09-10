@@ -64,7 +64,7 @@ final readonly class CreateInvoiceValue implements OperationValue
 }
 ```
 
-PHP TypeはHTTP Bindingの型境界です。`NotBlank`、`Length`、`Email`、`Range`はBinding後のValueを検証します。`billingReference`は業務上のSensitive値であり、`Sensitive`はObserved JournalでMaskし、`SensitiveParameter`はStack Trace上の引数をRedactします。認証CredentialはこのValueへ追加せずHeader Authenticationへ任せます。
+PHP TypeはHTTP Bindingの型境界です。`NotBlank`、`Length`、`Email`、`Range`はBinding後のValueを検証します。`billingReference`は業務上のSensitive値であり、`Sensitive`はObserved JournalでMaskし、`SensitiveParameter`はStack Trace上の引数をRedactします。2つのAttributeの対象と限界は[BlackOpsの`#[Sensitive]`とPHPの`#[SensitiveParameter]`](security.md#blackopsのsensitiveとphpのsensitiveparameter)で確認してください。認証CredentialはこのValueへ追加せずHeader Authenticationへ任せます。
 
 ## 3. Outcomeを書く
 

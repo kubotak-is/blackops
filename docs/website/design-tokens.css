@@ -1,0 +1,84 @@
+/* BlackOps documentation palette and shared layout measurements. */
+@font-face {
+  font-family: "Noto Sans JP";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("/fonts/NotoSansJP.woff2") format("woff2");
+}
+
+:root {
+  --bo-ink: #1d1d1d;
+  --bo-muted: #626262;
+  --bo-page: #fafafa;
+  --bo-surface: #f1f1f1;
+  --bo-raised: #ffffff;
+  --bo-line: #d7d7d7;
+  --bo-accent: #4f6f16;
+  --bo-accent-text: var(--bo-accent);
+  --bo-action: #d8f47b;
+  --bo-action-foreground: #18210b;
+  --bo-action-fg: var(--bo-action-foreground);
+  --bo-accent-fg: var(--bo-action-foreground);
+  --bo-focus: #4f6f16;
+  --bo-code: #ededed;
+  --bo-font-japanese: "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
+  --bo-sidebar-width: 15.25rem;
+  --bo-article-width: 46.25rem;
+  --bo-toc-width: 14rem;
+  --bo-site-width: 96rem;
+  --bo-gutter: clamp(1rem, 2vw, 2rem);
+  --bo-header-height: 4rem;
+  --bo-surface-radius: 1.25rem;
+  --bo-control-radius: 0.625rem;
+  --bo-paper: var(--bo-page);
+  --bo-surface-deep: var(--bo-raised);
+  --bo-accent-soft: color-mix(in srgb, var(--bo-accent) 14%, transparent);
+
+  /* Keep Blume's generated utility vocabulary aligned with the site palette. */
+  --blume-background: var(--bo-page);
+  --blume-foreground: var(--bo-ink);
+  --blume-muted: var(--bo-surface);
+  --blume-muted-foreground: var(--bo-muted);
+  --blume-border: var(--bo-line);
+  --blume-accent: var(--bo-accent);
+  --blume-accent-foreground: var(--bo-action-foreground);
+  --blume-action: var(--bo-action);
+  --blume-action-foreground: var(--bo-action-foreground);
+  --blume-code-background: var(--bo-code);
+  --blume-radius: var(--bo-control-radius);
+  --blume-content-width: var(--bo-article-width);
+}
+
+:root[data-theme='dark'] {
+  --bo-ink: #f3f3f3;
+  --bo-muted: #a6a6a6;
+  --bo-page: #0b0b0b;
+  --bo-surface: #151515;
+  --bo-raised: #1d1d1d;
+  --bo-line: #303030;
+  --bo-accent: #c9ed68;
+  --bo-accent-text: var(--bo-accent);
+  --bo-action: #c9ed68;
+  --bo-action-foreground: #18200b;
+  --bo-action-fg: var(--bo-action-foreground);
+  --bo-accent-fg: var(--bo-action-foreground);
+  --bo-focus: #c9ed68;
+  --bo-code: #111111;
+  --bo-paper: var(--bo-page);
+  --bo-surface-deep: var(--bo-raised);
+  --bo-accent-soft: color-mix(in srgb, var(--bo-accent) 16%, transparent);
+
+  --blume-background: var(--bo-page);
+  --blume-foreground: var(--bo-ink);
+  --blume-muted: var(--bo-surface);
+  --blume-muted-foreground: var(--bo-muted);
+  --blume-border: var(--bo-line);
+  --blume-accent: var(--bo-accent);
+  --blume-accent-foreground: var(--bo-action-foreground);
+  --blume-action: var(--bo-action);
+  --blume-action-foreground: var(--bo-action-foreground);
+  --blume-code-background: var(--bo-code);
+  --blume-radius: var(--bo-control-radius);
+  --blume-content-width: var(--bo-article-width);
+}

@@ -1,7 +1,32 @@
-import { readFile, readdir } from 'node:fs/promises';
+import { mkdtemp, readFile, readdir, rm, stat } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
+import { createRequire } from 'node:module';
+import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { JSDOM, VirtualConsole } from 'jsdom';
-import { repositoryRoot as defaultRepositoryRoot, sourceRoot as defaultSourceRoot, distRoot as defaultDistRoot } from './website-paths.mjs';
+import { pathToFileURL } from 'node:url';
+import { generateContent } from './content-pipeline.mjs';
+import {
+  contentRoot as defaultContentRoot,
+  distRoot as defaultDistRoot,
+  manifestPath as defaultManifestPath,
+  repositoryRoot as defaultRepositoryRoot,
+  sourceRoot as defaultSourceRoot,
+} from './website-paths.mjs';
+import {
+  diagramManifestPath as defaultDiagramManifestPath,
+  loadDiagramManifest,
+  registeredViewerRelativePaths,
+} from './archify-diagrams.mjs';
+import { loadReleaseAuthority } from './release-claim-checker.mjs';
+
+const blumeRequire = createRequire(import.meta.resolve('blume/package.json'));
+const blumePackageRoot = path.dirname(blumeRequire.resolve('blume/package.json'));
+const { toPlainText: blumeToPlainText } = await import(pathToFileURL(path.join(blumePackageRoot, 'src/search/plain-text.mjs')).href);
+const { createSatteriMarkdownProcessor } = await import(pathToFileURL(blumeRequire.resolve('@astrojs/markdown-satteri')).href);
+const readerMarkdownProcessor = await createSatteriMarkdownProcessor({ syntaxHighlight: false });
+const sourceBoundContentCache = new Map();
+const readerBodyRenderCache = new Map();
 
 export const readerTypes = ['tutorial', 'how-to', 'concept', 'reference', 'troubleshooting'];
 
@@ -22,6 +47,54 @@ const referenceLookupFields = [
   ['typical-use', /(?:Typical\s+Use|典型(?:利用|的)|利用箇所|使う|呼ぶ|完全例)/iu],
 ];
 
+export const stableReferenceExclusionPaths = Object.freeze([
+  'src/Audit/AuditOpaqueIdKeyProvider.php',
+  'src/Audit/AuditProtectionKeyProvider.php',
+  'src/Internal/Console/AboutCommand.php',
+  'src/Internal/Console/DiagnosticsCheckCommand.php',
+  'src/Internal/Console/OutboxStatusCommand.php',
+  'src/Internal/Console/QueueStatusCommand.php',
+  'src/Internal/Projection/Route/RouteProjectionListCommand.php',
+  'src/Internal/Projection/Schedule/ScheduleProjectionListCommand.php',
+  'src/Internal/Application/ApplicationAuditConfiguration.php',
+]);
+
+const stableReferenceBoundary = Object.freeze({
+  stableVersion: '1.2.0',
+  stableReleaseState: 'experimental-stable',
+  frameworkTag: '1.2.0',
+  frameworkDirectRef: '00e8c5875047a3c47acbebfe57f75b0e581d18b9',
+  frameworkPeeledSource: '3332fd1dd0738fc7e79750facd93d49a59054ecf',
+  roadmapVersion: '1.3.0',
+  roadmapState: 'unreleased',
+});
+
+const stableReferenceMethodExclusion = Object.freeze({
+  path: 'src/Application/ApplicationBuilder.php',
+  fqcn: 'BlackOps\\Application\\ApplicationBuilder',
+  name: 'withOperationalHealthQuery',
+});
+
+function stableReferenceAuthorityTuple(authority) {
+  return {
+    stableVersion: authority?.currentStable?.version ?? null,
+    stableReleaseState: authority?.currentStable?.releaseState ?? null,
+    frameworkTag: authority?.currentStable?.framework?.tag ?? null,
+    frameworkDirectRef: authority?.currentStable?.framework?.directRef ?? null,
+    frameworkPeeledSource: authority?.currentStable?.framework?.peeledSource ?? null,
+    roadmapVersion: authority?.roadmap?.version ?? null,
+    roadmapState: authority?.roadmap?.state ?? null,
+  };
+}
+
+export function stableReferenceExclusionsFor(authority) {
+  const actual = stableReferenceAuthorityTuple(authority);
+  if (JSON.stringify(actual) !== JSON.stringify(stableReferenceBoundary)) {
+    throw new Error('Stable-reference exclusions are bound to the current Stable 1.2.0 framework tuple and unreleased roadmap 1.3.0; release authority changed, so reevaluate the exact paths.');
+  }
+  return new Set(stableReferenceExclusionPaths);
+}
+
 const roleRequirements = {
   tutorial: ['prerequisites', 'runnable', 'success', 'failure'],
   'how-to': ['prerequisites', 'runnable', 'success', 'failure'],
@@ -41,6 +114,1235 @@ const staleStableMainPattern = /^(?:#{1,6}\s+)?Stable(?:と\s*`?main`?|／\s*mai
 const internalEvidencePattern = /(?:Remote\s+(?:create-project\s+)?smoke|root比較|root\s+comparison|Consumer\s+E2E|Consumer\s+script|tests\/Consumer|Repository\s+Local\s+Consumer|Local\s+Consumer|Local\s*[／/]\s*CI\s+(?:only|だけ|で|validation|検証|確認|test|テスト)|Real\s+Browser\s+E2E|Local\s*[／/]\s*CI\s+Build|(?:ローカル|Local)\s*(?:[／/]\s*|と\s*)(?:CI|シーアイ)[^。\n]*(?:だけ|のみ|で|検証|確認|テスト|再現|validation)|Repository\s+CI[^。\n]*(?:検証|確認|evidence|validation|test))/iu;
 const historicalPreviewText = 'Repository main Preview';
 const historicalPreviewKey = 'repositorymainpreview';
+const placeholderTokenPattern = /<(?<name>[A-Za-z][A-Za-z0-9/-]*(?:[ .][A-Za-z][A-Za-z0-9/-]*)?)>/gu;
+const placeholderDanglingPattern = /<(?<name>[A-Za-z][A-Za-z0-9/-]*(?:[./][A-Za-z0-9/-]*)?)(?=$|[\s.,;:!?()[\]{}<>])/gu;
+const placeholderBareClosingPattern = /(?<![<A-Za-z0-9_./-])(?<name>[A-Za-z][A-Za-z0-9/-]*(?:[./][A-Za-z0-9/-]*)?)>/gu;
+const rawMarkdownImagePattern = /!\[[^\]]*\]\((?<target>(?:[^()\s]|\([^()\s]*\))+)(?<title>\s+"[^"]*")?\)/gu;
+const rawInlineCodePattern = /`[^`]*`/gu;
+const rawImageExtensions = new Set([
+  '.apng', '.avif', '.bmp', '.gif', '.ico', '.jpeg', '.jpg', '.png', '.svg', '.tiff', '.webp',
+]);
+
+function maskRanges(text, ranges) {
+  if (ranges.length === 0) return text;
+  const masked = text.split('');
+  for (const [start, end] of ranges) {
+    for (let index = start; index < end; index += 1) {
+      if (masked[index] !== '\r' && masked[index] !== '\n') masked[index] = ' ';
+    }
+  }
+  return masked.join('');
+}
+
+export function* sourcePhysicalLines(text) {
+  if (typeof text !== 'string') throw new Error('Source physical-line iteration requires text.');
+  let start = 0;
+  while (start < text.length) {
+    let end = start;
+    while (end < text.length && text[end] !== '\r' && text[end] !== '\n') end += 1;
+    let terminator = '';
+    if (end < text.length) {
+      terminator = text[end] === '\r' && text[end + 1] === '\n' ? '\r\n' : text[end];
+    }
+    const nextStart = end + terminator.length;
+    yield { line: text.slice(start, end), start, end, terminator, nextStart };
+    start = nextStart;
+  }
+}
+
+export function markdownFenceLine(line) {
+  const normalized = line.replace(/\r\n?$/u, '');
+  const match = normalized.match(/^ {0,3}(?<run>`{3,}|~{3,})(?<rawInfo>.*)$/u);
+  if (match === null) return null;
+  const run = match.groups.run;
+  const rawInfo = match.groups.rawInfo;
+  if (run[0] === '`' && rawInfo.includes('`')) return null;
+  return {
+    character: run[0],
+    length: run.length,
+    info: rawInfo.trim(),
+    rawInfo,
+  };
+}
+
+export function markdownFenceCloses(line, fence) {
+  const marker = markdownFenceLine(line);
+  return marker !== null
+    && marker.character === fence.character
+    && marker.length >= fence.length
+    && /^[ \t]*$/u.test(marker.rawInfo);
+}
+
+export function nextMarkdownFenceState(line, fence) {
+  const marker = markdownFenceLine(line);
+  if (fence === null) return marker;
+  return markdownFenceCloses(line, fence) ? null : fence;
+}
+
+const sourceNextTabColumn = (column) => column + (4 - (column % 4));
+
+const sourceAdvanceColumn = (column, character) => character === '\t'
+  ? sourceNextTabColumn(column)
+  : column + 1;
+
+const sourceBlockTag = /^<\/?(?:address|article|aside|base|basefont|blockquote|body|caption|center|col|colgroup|dd|details|dialog|dir|div|dl|dt|fieldset|figcaption|figure|footer|form|frame|frameset|h[1-6]|head|header|hr|html|iframe|legend|li|link|main|menu|menuitem|nav|noframes|ol|optgroup|option|p|param|pre|script|section|search|style|summary|table|tbody|td|textarea|tfoot|th|thead|title|tr|track|ul|xmp)(?:[ \t>]|\/>|$)/iu;
+
+const sourceBlockTagPrefix = /^<\/?(?<name>address|article|aside|base|basefont|blockquote|body|caption|center|col|colgroup|dd|details|dialog|dir|div|dl|dt|fieldset|figcaption|figure|footer|form|frame|frameset|h[1-6]|head|header|hr|html|iframe|legend|li|link|main|menu|menuitem|nav|noframes|ol|optgroup|option|p|param|pre|script|section|search|style|summary|table|tbody|td|textarea|tfoot|th|thead|title|tr|track|ul|xmp)(?=[ \t>]|\/>|$)/iu;
+
+const sourceBlockTagNames = new Set([
+  'address', 'article', 'aside', 'base', 'basefont', 'blockquote', 'body', 'caption', 'center',
+  'col', 'colgroup', 'dd', 'details', 'dialog', 'dir', 'div', 'dl', 'dt', 'fieldset',
+  'figcaption', 'figure', 'footer', 'form', 'frame', 'frameset', 'h1', 'h2', 'h3', 'h4',
+  'h5', 'h6', 'head', 'header', 'hr', 'html', 'iframe', 'legend', 'li', 'link', 'main',
+  'menu', 'menuitem', 'nav', 'noframes', 'ol', 'optgroup', 'option', 'p', 'param', 'pre',
+  'script', 'section', 'search', 'style', 'summary', 'table', 'tbody', 'td', 'textarea',
+  'tfoot', 'th', 'thead', 'title', 'tr', 'track', 'ul', 'xmp',
+]);
+
+const sourceCompleteHtmlTag = (value) => {
+  const isSpace = (character) => character === ' ' || character === '\t';
+  const isAlpha = (character) => /[A-Za-z]/u.test(character ?? '');
+  const isAlphanumeric = (character) => /[A-Za-z0-9]/u.test(character ?? '');
+  const isAttributeStart = (character) => isAlpha(character) || character === ':' || character === '_';
+  const isAttributeContinuation = (character) => isAlphanumeric(character)
+    || character === '-' || character === '.' || character === ':' || character === '_';
+  if (!value.startsWith('<')) return null;
+  let offset = 1;
+  const closing = value[offset] === '/';
+  if (closing) offset += 1;
+  const nameStart = offset;
+  if (!isAlpha(value[offset])) return null;
+  offset += 1;
+  while (isAlphanumeric(value[offset]) || value[offset] === '-') offset += 1;
+  const name = value.slice(nameStart, offset).toLocaleLowerCase('en-US');
+  if (closing) {
+    while (isSpace(value[offset])) offset += 1;
+    if (value[offset] !== '>') return null;
+    offset += 1;
+  } else {
+    let state = 'after-name';
+    let quote = null;
+    while (true) {
+      const character = value[offset];
+      if (state === 'after-name') {
+        if (isSpace(character)) {
+          offset += 1;
+          state = 'attribute-before';
+        } else if (character === '/') {
+          offset += 1;
+          state = 'end';
+        } else if (character === '>') {
+          offset += 1;
+          break;
+        } else {
+          return null;
+        }
+      } else if (state === 'attribute-before') {
+        if (character === '/') {
+          offset += 1;
+          state = 'end';
+        } else if (isAttributeStart(character)) {
+          offset += 1;
+          state = 'attribute';
+        } else if (isSpace(character)) {
+          offset += 1;
+        } else if (character === '>') {
+          offset += 1;
+          break;
+        } else {
+          return null;
+        }
+      } else if (state === 'attribute') {
+        if (isAttributeContinuation(character)) {
+          offset += 1;
+        } else {
+          state = 'attribute-after';
+        }
+      } else if (state === 'attribute-after') {
+        if (character === '=') {
+          offset += 1;
+          state = 'value-before';
+        } else if (isSpace(character)) {
+          offset += 1;
+        } else {
+          state = 'attribute-before';
+        }
+      } else if (state === 'value-before') {
+        if (character === '"' || character === "'") {
+          quote = character;
+          offset += 1;
+          state = 'quoted';
+        } else if (isSpace(character)) {
+          offset += 1;
+        } else if (character === undefined || character === '<' || character === '='
+          || character === '>' || character === '`') {
+          return null;
+        } else {
+          state = 'unquoted';
+        }
+      } else if (state === 'unquoted') {
+        if (character === undefined || character === '"' || character === "'"
+          || character === '/' || character === '<' || character === '='
+          || character === '>' || character === '`' || isSpace(character)) {
+          state = 'attribute-after';
+        } else {
+          offset += 1;
+        }
+      } else if (state === 'quoted') {
+        if (character === quote) {
+          offset += 1;
+          quote = null;
+          state = 'quoted-after';
+        } else if (character === undefined || character === '\r' || character === '\n') {
+          return null;
+        } else {
+          offset += 1;
+        }
+      } else if (state === 'quoted-after') {
+        if (character === '/' || character === '>' || isSpace(character)) {
+          state = 'attribute-before';
+        } else {
+          return null;
+        }
+      } else if (state === 'end') {
+        if (character !== '>') return null;
+        offset += 1;
+        break;
+      }
+    }
+  }
+  while (value[offset] === ' ' || value[offset] === '\t') offset += 1;
+  if (value[offset] !== undefined && value[offset] !== '\r' && value[offset] !== '\n') return null;
+  return { closing, name };
+};
+
+const sourceHtmlOpeningContinuation = (value, initialQuote = null, start = 0) => {
+  let quote = initialQuote;
+  for (let offset = start; offset < value.length; offset += 1) {
+    const character = value[offset];
+    if (quote !== null) {
+      if (character === quote) quote = null;
+      continue;
+    }
+    if (character === '"' || character === "'") {
+      quote = character;
+      continue;
+    }
+    if (character === '<') return { end: -1, quote };
+    if (character === '>') return { end: offset, quote: null };
+  }
+  return { end: -1, quote };
+};
+
+const sourceHtmlFlowContext = (value, inherited) => {
+  if (inherited?.container === undefined) {
+    return {
+      content: value.trim(),
+      offset: value.match(/^[ \t]*/u)?.[0].length ?? 0,
+    };
+  }
+  const context = sourceContainerContext(value, {
+    ...inherited.container,
+    htmlBlock: null,
+    htmlBlockMask: false,
+  }, false, inherited.container.blockquoteDepth ?? 0);
+  const leading = context.fenceContent.match(/^[ \t]*/u)?.[0].length ?? 0;
+  return {
+    content: context.fenceContent.trim(),
+    offset: context.fenceContentOffset + leading,
+  };
+};
+
+const sourceRawHtmlIsInert = (tag) => tag === 'script' || tag === 'style';
+
+const sourceHtmlBlockTransition = (value, inherited = null, paragraph = false, indent = 0, container = null) => {
+  const flow = sourceHtmlFlowContext(value, inherited);
+  const content = flow.content;
+  const contentOffset = flow.offset;
+  const canStart = indent <= 3;
+  if (inherited?.kind === 'comment') {
+    return {
+      active: true,
+      state: content.includes('-->') ? null : inherited,
+      mask: true,
+    };
+  }
+  if (inherited?.kind === 'processing') {
+    return { active: true, state: content.includes('?>') ? null : inherited, mask: true };
+  }
+  if (inherited?.kind === 'declaration') {
+    return { active: true, state: content.includes('>') ? null : inherited, mask: true };
+  }
+  if (inherited?.kind === 'cdata') {
+    return { active: true, state: content.includes(']]>') ? null : inherited, mask: true };
+  }
+  if (inherited?.kind === 'raw') {
+    if (!inherited.openingComplete) {
+      const opening = sourceHtmlOpeningContinuation(content, inherited.openingQuote ?? null);
+      if (opening.end < 0) return {
+        active: true,
+        state: { ...inherited, openingQuote: opening.quote },
+        mask: true,
+      };
+      const close = new RegExp(`</${inherited.tag}[ \\t]*>`, 'iu');
+      const inert = sourceRawHtmlIsInert(inherited.tag);
+      if (close.test(content.slice(opening.end + 1))) return { active: true, state: null, mask: inert };
+      return {
+        active: true,
+        state: { ...inherited, openingComplete: true, openingQuote: null },
+        mask: true,
+        ...(inert ? {} : { maskEnd: contentOffset + opening.end + 1 }),
+      };
+    }
+    const close = new RegExp(`</${inherited.tag}[ \\t]*>`, 'iu');
+    return {
+      active: true,
+      state: close.test(content) ? null : inherited,
+      mask: sourceRawHtmlIsInert(inherited.tag),
+    };
+  }
+  if (inherited?.kind === 'type-6') {
+    if (content === '') return { active: true, state: null, mask: inherited.invisible };
+    if (!inherited.openingComplete) {
+      const opening = sourceHtmlOpeningContinuation(content, inherited.openingQuote ?? null);
+      if (opening.end < 0) return {
+        active: true,
+        state: { ...inherited, openingQuote: opening.quote },
+        mask: true,
+      };
+      return {
+        active: true,
+        state: { ...inherited, openingComplete: true, openingQuote: null, invisible: false },
+        mask: true,
+        maskEnd: contentOffset + opening.end + 1,
+      };
+    }
+    return { active: true, state: inherited, mask: inherited.invisible };
+  }
+  if (inherited?.kind === 'blank-line') {
+    if (content === '') return { active: true, state: inherited, mask: false };
+    return { active: false, state: null, mask: false };
+  }
+  if (inherited?.kind === 'type-7') {
+    return content === ''
+      ? { active: true, state: null, mask: Boolean(inherited.invisible) }
+      : { active: true, state: inherited, mask: Boolean(inherited.invisible) };
+  }
+  if (content === '' || !canStart) return { active: false, state: null, mask: false };
+  if (content.startsWith('<!--')) {
+    return {
+      active: true,
+      state: content.includes('-->') ? null : { kind: 'comment', container },
+      mask: !content.includes('-->'),
+    };
+  }
+  if (content.startsWith('<?')) {
+    return {
+      active: true,
+      state: content.includes('?>') ? null : { kind: 'processing', container },
+      mask: !content.includes('?>'),
+    };
+  }
+  if (/^<!\[CDATA\[/u.test(content)) {
+    return {
+      active: true,
+      state: content.includes(']]>') ? null : { kind: 'cdata', container },
+      mask: !content.includes(']]>'),
+    };
+  }
+  if (/^<![A-Za-z]/u.test(content)) {
+    return {
+      active: true,
+      state: content.includes('>') ? null : { kind: 'declaration', container },
+      mask: !content.includes('>'),
+    };
+  }
+  const rawStarter = content.match(/^<(?<name>pre|script|style|textarea)(?=[ \t>]|\/>|$)/iu);
+  const complete = sourceCompleteHtmlTag(content);
+  const blockPrefix = content.match(sourceBlockTagPrefix);
+  const openingScan = complete === null
+    ? sourceHtmlOpeningContinuation(content, null, (rawStarter ?? blockPrefix)?.[0].length ?? 0)
+    : { end: 0, quote: null };
+  const opening = content.match(/^<(?<name>[A-Za-z][A-Za-z0-9-]*)(?<body>[^>]*)>/u);
+  if (complete === null && rawStarter === null && blockPrefix === null) return { active: false, state: null };
+  const name = (complete?.name ?? rawStarter?.groups.name ?? blockPrefix?.groups.name ?? opening?.groups.name).toLocaleLowerCase('en-US');
+  const closing = complete?.closing ?? content.startsWith('</');
+  if (['pre', 'script', 'style', 'textarea'].includes(name) && !closing) {
+    const close = new RegExp(`</${name}[ \\t]*>`, 'iu');
+    const closed = close.test(content);
+    const inert = sourceRawHtmlIsInert(name);
+    return {
+      active: true,
+      state: closed ? null : {
+        kind: 'raw',
+        tag: name,
+        openingComplete: complete !== null,
+        openingQuote: openingScan.quote,
+        container,
+      },
+      mask: closed ? false : (complete === null || inert),
+    };
+  }
+  if (blockPrefix !== null && complete === null && opening === null && rawStarter === null) {
+    return {
+      active: true,
+      state: { kind: 'type-6', invisible: true, openingComplete: false, openingQuote: openingScan.quote, container },
+      mask: true,
+    };
+  }
+  if (sourceBlockTagNames.has(name)) {
+    return {
+      active: true,
+      state: { kind: 'type-6', invisible: false, openingComplete: true, container },
+      mask: false,
+    };
+  }
+  if (paragraph) return { active: false, state: null, mask: false };
+  if (complete === null) return { active: false, state: null, mask: false };
+  return { active: true, state: { kind: 'type-7', invisible: false }, mask: false };
+};
+
+const sourceParagraphContent = (value, setextUnderline = false) => {
+  const content = value.trim();
+  if (content === '') return false;
+  if (/^#{1,6}(?:[ \t]+|$)/u.test(content)) return false;
+  if (/^(?:`{3,}|~{3,})/u.test(content)) return false;
+  if (/^(?:(?:\*[ \t]*){3,}|(?:-[ \t]*){3,}|(?:_[ \t]*){3,})$/u.test(content)) return false;
+  if (setextUnderline) return false;
+  if (/^(?:<!--|<\?|<![A-Za-z]|<!\[CDATA\[)/u.test(content)
+    || sourceBlockTag.test(content)) return false;
+  return true;
+};
+
+const sourceReadWhitespace = (value, offset, column, limit = Number.POSITIVE_INFINITY) => {
+  let end = offset;
+  let current = column;
+  while (end < value.length && (value[end] === ' ' || value[end] === '\t')) {
+    const next = sourceAdvanceColumn(current, value[end]);
+    if (next - column > limit) return { offset, column, width: 0, valid: false };
+    current = next;
+    end += 1;
+  }
+  return { offset: end, column: current, width: current - column, valid: true };
+};
+
+const sourceConsumeIndent = (value, width, column) => {
+  let offset = 0;
+  let current = column;
+  while (offset < value.length && (value[offset] === ' ' || value[offset] === '\t') && current - column < width) {
+    const next = sourceAdvanceColumn(current, value[offset]);
+    if (next - column > width) {
+      if (value[offset] !== '\t') return { offset: 0, column, width: 0, valid: false };
+      return {
+        offset: offset + 1,
+        column: next,
+        width,
+        surplus: next - column - width,
+        valid: true,
+      };
+    }
+    current = next;
+    offset += 1;
+  }
+  return current - column === width
+    ? { offset, column: current, width, surplus: 0, valid: true }
+    : { offset: 0, column, width: 0, valid: false };
+};
+
+const sourceListMarkerPattern = /^(?<token>[-+*]|\d{1,9}[.)])(?:(?<padding>[ \t]+)|(?=$))/u;
+const sourceThematicBreakPattern = /^(?:(?:\*[ \t]*){3,}|(?:-[ \t]*){3,}|(?:_[ \t]*){3,})$/u;
+const sourceIsThematicBreak = (value) => sourceThematicBreakPattern.test(value.trim());
+
+const sourceCopyListItems = (items) => items.map((item) => ({ ...item }));
+
+const sourceInheritedListDepth = (items, markerColumn) => {
+  let depth = 0;
+  for (const item of items) {
+    if (item.contentColumn > markerColumn) break;
+    depth += 1;
+  }
+  return depth;
+};
+
+const sourceContainerContext = (line, inherited = null, resolveHtml = true, maxBlockquoteDepth = Number.POSITIVE_INFINITY) => {
+  let offset = 0;
+  let column = 0;
+  let blockquoteDepth = 0;
+  const candidates = [];
+  let thematicBreak = null;
+  while (true) {
+    const leading = sourceReadWhitespace(line, offset, column, 3);
+    if (!leading.valid) break;
+    const candidateStart = leading.offset;
+    const candidateColumn = leading.column;
+    const candidate = line.slice(candidateStart);
+    if (candidate.startsWith('>') && blockquoteDepth < maxBlockquoteDepth) {
+      blockquoteDepth += 1;
+      offset = candidateStart + 1;
+      column = candidateColumn + 1;
+      if (line[offset] === ' ' || line[offset] === '\t') {
+        column = sourceAdvanceColumn(column, line[offset]);
+        offset += 1;
+      }
+      continue;
+    }
+    if (sourceIsThematicBreak(candidate)) {
+      thematicBreak = { start: candidateStart, column: candidateColumn };
+      offset = candidateStart;
+      column = candidateColumn;
+      break;
+    }
+    const marker = candidate.match(sourceListMarkerPattern);
+    if (marker === null) break;
+    const token = marker.groups.token;
+    const padding = marker.groups.padding ?? '';
+    const paddingStart = candidateStart + token.length;
+    const paddingColumn = candidateColumn + token.length;
+    const fullPadding = sourceReadWhitespace(line, paddingStart, paddingColumn);
+    const consumedPadding = fullPadding.width <= 4
+      ? fullPadding.offset - paddingStart
+      : padding.length > 0 ? 1 : 0;
+    const consumedPaddingColumn = fullPadding.width <= 4
+      ? fullPadding.width
+      : padding.length > 0 ? sourceAdvanceColumn(paddingColumn, line[paddingStart]) - paddingColumn : 0;
+    candidates.push({
+      start: candidateStart,
+      column: candidateColumn,
+      token,
+      padding,
+      consumedPadding,
+      consumedPaddingColumn,
+    });
+    offset = paddingStart + consumedPadding;
+    column = paddingColumn + consumedPaddingColumn;
+  }
+
+  const lazyBlockquote = inherited !== null
+    && inherited.blockquoteDepth > blockquoteDepth
+    && inherited.paragraph
+    && blockquoteDepth === 0
+    && candidates.length === 0
+    && thematicBreak === null
+    && line.slice(offset).trim() !== ''
+    && !/^(?:#{1,6}(?:[ \t]+|$)|(?:`{3,}|~{3,})|(?:<!--|<\?|<![A-Za-z]|<!\[CDATA\[)|<\/?(?:address|article|aside|base|basefont|blockquote|body|caption|center|col|colgroup|dd|details|dialog|dir|div|dl|dt|fieldset|figcaption|figure|footer|form|frame|frameset|h[1-6]|head|header|hr|html|iframe|legend|li|link|main|menu|menuitem|nav|noframes|ol|optgroup|option|p|param|pre|script|section|search|style|summary|table|tbody|td|textarea|tfoot|th|thead|title|tr|track|ul|xmp)(?:[ \t>]|\/>|$))/iu.test(line.slice(offset).trim());
+  if (lazyBlockquote) blockquoteDepth = inherited.blockquoteDepth;
+
+  const inheritedItems = inherited !== null && inherited.blockquoteDepth === blockquoteDepth
+    ? inherited.listItems
+    : [];
+  const baseDepth = sourceInheritedListDepth(inheritedItems, thematicBreak?.column ?? candidates[0]?.column ?? Number.POSITIVE_INFINITY);
+  let listItems = sourceCopyListItems(inheritedItems.slice(0, baseDepth));
+  let acceptedMarkers = 0;
+  let rejectedMarkerStart = null;
+  let rejectedMarkerColumn = null;
+  for (const [index, candidate] of candidates.entries()) {
+    const ordered = /^\d/u.test(candidate.token);
+    const parentParagraph = index === 0
+      ? inherited !== null
+        && inherited.blockquoteDepth === blockquoteDepth
+        && baseDepth === inheritedItems.length
+        && inherited.paragraph
+      : false;
+    if (ordered && parentParagraph && Number.parseInt(candidate.token, 10) !== 1) {
+      rejectedMarkerStart = candidate.start;
+      rejectedMarkerColumn = candidate.column;
+      break;
+    }
+    listItems.push({
+      kind: ordered ? 'ordered' : 'unordered',
+      marker: candidate.token,
+      contentColumn: candidate.column + candidate.token.length + candidate.consumedPaddingColumn,
+    });
+    acceptedMarkers += 1;
+  }
+
+  const trailingMarker = candidates.at(-1);
+  const trailingMarkerContent = trailingMarker === undefined
+    ? ''
+    : line.slice(trailingMarker.start + trailingMarker.token.length + trailingMarker.consumedPadding).trim();
+  let explicitList = acceptedMarkers > 0;
+  const inheritedSameContainerParagraph = inherited !== null
+    && inherited.blockquoteDepth === blockquoteDepth
+    && inherited.paragraph;
+  const nestedBlockStartMarker = inheritedSameContainerParagraph
+    && inheritedItems.length > 0
+    && trailingMarker !== undefined
+    && trailingMarker.column >= (inherited.listContinuationIndent ?? 0);
+  const emptyListItem = thematicBreak === null
+    && rejectedMarkerStart === null
+    && trailingMarker !== undefined
+    && trailingMarkerContent === ''
+    && (!inheritedSameContainerParagraph || nestedBlockStartMarker);
+  if (emptyListItem) {
+    // Keep a marker with no body as a real list item when no paragraph is
+    // active. This closes the preceding block before a following marker.
+  } else if (thematicBreak === null && rejectedMarkerStart === null && trailingMarker !== undefined && trailingMarkerContent === '') {
+    listItems = sourceCopyListItems(inheritedItems.slice(0, baseDepth + Math.max(0, acceptedMarkers - 1)));
+    acceptedMarkers = Math.max(0, acceptedMarkers - 1);
+    explicitList = acceptedMarkers > 0;
+    offset = trailingMarker.start;
+    column = trailingMarker.column;
+  }
+  if (rejectedMarkerStart !== null) {
+    offset = rejectedMarkerStart;
+    column = rejectedMarkerColumn;
+    listItems = sourceCopyListItems(inheritedItems.slice(0, baseDepth));
+  }
+  const content = line.slice(offset);
+  const contentColumn = column;
+  const inheritedContinuation = inherited !== null
+    && inherited.blockquoteDepth === blockquoteDepth
+    && listItems.length > 0;
+  let implicitList = false;
+  let fenceContent = content;
+  let fenceContentOffset = offset;
+  let fenceContentColumn = contentColumn;
+  const indent = sourceReadWhitespace(content, 0, contentColumn);
+  let fenceIndentWidth = indent.width;
+  let continuationSurplus = 0;
+  let setextUnderline = false;
+  const inheritedParagraph = inherited !== null
+    && inherited.blockquoteDepth === blockquoteDepth
+    && inherited.paragraph;
+  if (thematicBreak === null && !explicitList && inheritedContinuation) {
+    const requiredIndent = inherited.listContinuationIndent - contentColumn;
+    const continuationCandidates = requiredIndent > 0
+      ? [requiredIndent, ...inheritedItems
+        .map(({ contentColumn: ancestorColumn }) => ancestorColumn - contentColumn)
+        .filter((width) => width > 0)]
+      : [];
+    let continuation = content.trim() === ''
+      ? { offset: 0, column: contentColumn, width: 0, valid: true }
+      : { offset: 0, column: contentColumn, width: 0, valid: false };
+    for (const [candidateIndex, width] of continuationCandidates.entries()) {
+      const candidate = sourceConsumeIndent(content, width, contentColumn);
+      if (candidate.offset === 0) continue;
+      const remainingIndent = sourceReadWhitespace(
+        content.slice(candidate.offset),
+        0,
+        contentColumn + candidate.width + (candidate.surplus ?? 0),
+      ).width;
+      const remainingOffset = sourceReadWhitespace(content.slice(candidate.offset), 0, contentColumn).offset;
+      const remainingContent = content.slice(candidate.offset + remainingOffset).trim();
+      if (candidateIndex > 0 && remainingContent !== '' && remainingIndent === 0
+        && !/^(?:`{3,}|~{3,})/u.test(remainingContent)) continue;
+      const inheritedFenceBody = (inherited?.fenceContentColumn ?? 0) > 0
+        && (inherited?.allowFencedContinuation ?? false);
+      if (remainingIndent + (candidate.surplus ?? 0) <= 3 || inheritedFenceBody) {
+        continuation = candidate;
+        break;
+      }
+    }
+    if (content.trim() === '' || continuation.offset > 0) {
+      implicitList = true;
+      if (continuation.offset > 0) {
+        fenceContent = content.slice(continuation.offset);
+        fenceContentOffset = offset + continuation.offset;
+        fenceContentColumn = contentColumn + continuation.width + (continuation.surplus ?? 0);
+        continuationSurplus = continuation.surplus ?? 0;
+        fenceIndentWidth = sourceReadWhitespace(fenceContent, 0, fenceContentColumn).width
+          + continuationSurplus;
+      }
+    } else if (rejectedMarkerStart === null) {
+      listItems = [];
+    }
+  }
+  setextUnderline = inheritedParagraph
+    && (!inheritedContinuation || implicitList)
+    && sourceReadWhitespace(fenceContent, 0, fenceContentColumn).width <= 3
+    && /^[-=]+[ \t]*$/u.test(fenceContent.trim());
+  if (setextUnderline) {
+    listItems = sourceCopyListItems(inheritedItems.slice(0, baseDepth));
+    explicitList = false;
+  }
+
+  const listContinuationIndent = listItems.at(-1)?.contentColumn ?? 0;
+  const inheritedAllow = inherited?.allowFencedContinuation ?? true;
+  const inheritedHtmlBlock = inherited !== null
+    && inherited.blockquoteDepth === blockquoteDepth
+    ? inherited.htmlBlock ?? null
+    : null;
+  const htmlContainer = {
+    blockquoteDepth,
+    listItems: sourceCopyListItems(listItems),
+    listKinds: listItems.map(({ kind }) => kind),
+    listContinuationIndent,
+    paragraph: inherited?.paragraph ?? false,
+  };
+  const htmlBlock = resolveHtml
+    ? sourceHtmlBlockTransition(content, inheritedHtmlBlock, inherited?.paragraph ?? false, fenceIndentWidth, htmlContainer)
+    : { active: false, state: null, mask: false };
+  return {
+    content,
+    fenceContent,
+    fenceContentOffset,
+    fenceContentColumn,
+    continuationSurplus,
+    blockquoteDepth,
+    listItems,
+    listKinds: listItems.map(({ kind }) => kind),
+    listContinuationIndent,
+    explicitList,
+    implicitList,
+    indentWidth: indent.width,
+    fenceIndentWidth,
+    allowFencedContinuation: inheritedContinuation ? inheritedAllow : true,
+    htmlBlock: htmlBlock.state,
+    htmlBlockActive: htmlBlock.active,
+    htmlBlockMask: Boolean(htmlBlock.mask),
+    htmlBlockMaskEnd: htmlBlock.maskEnd === undefined ? null : offset + htmlBlock.maskEnd,
+    paragraph: !emptyListItem
+      && !htmlBlock.active && sourceParagraphContent(content, setextUnderline)
+      && (implicitList ? inherited?.paragraph ?? true : true),
+  };
+};
+
+const sourceFenceContainer = (context) => {
+  if (context.htmlBlockActive || context.htmlBlock !== null) return null;
+  if ((context.explicitList || context.implicitList) && !context.allowFencedContinuation) return null;
+  if (context.explicitList && context.indentWidth > 3) return null;
+  const indentation = context.fenceContent.match(/^[ \t]*/u)?.[0] ?? '';
+  const marker = context.fenceContent.slice(indentation.length)
+    .match(/^(?<run>`{3,}|~{3,})(?<rawInfo>.*)$/u);
+  if (marker === null || context.fenceIndentWidth > 3) return null;
+  const run = marker.groups.run;
+  const rawInfo = marker.groups.rawInfo;
+  if (run[0] === '`' && rawInfo.includes('`')) return null;
+  return {
+    character: run[0],
+    length: run.length,
+    info: rawInfo.trim(),
+    rawInfo,
+    container: {
+      blockquoteDepth: context.blockquoteDepth,
+      listItems: sourceCopyListItems(context.listItems),
+      listKinds: context.listKinds,
+      listContinuationIndent: context.listContinuationIndent,
+      explicitList: context.explicitList,
+      indentWidth: context.fenceIndentWidth,
+    },
+  };
+};
+
+const sourceSameListContainer = (left, right) => left.listKinds.length === right.listKinds.length
+  && left.listKinds.every((kind, index) => kind === right.listKinds[index])
+  && left.listItems.every((item, index) => item.contentColumn === right.listItems[index]?.contentColumn);
+
+const sourceSameFenceContainer = (left, right) => {
+  if (left.blockquoteDepth !== right.blockquoteDepth) return false;
+  if (left.listKinds.length === 0 && right.listKinds.length === 0) {
+    return left.indentWidth < 4 && right.indentWidth < 4;
+  }
+  if (left.listKinds.length === 0 || right.listKinds.length === 0) return false;
+  return sourceSameListContainer(left, right)
+    && left.listContinuationIndent === right.listContinuationIndent;
+};
+
+const sourceFenceCloses = (marker, open) => marker !== null
+  && marker.character === open.character
+  && marker.length >= open.length
+  && /^[ \t]*$/u.test(marker.rawInfo)
+  && !(open.container.listKinds.length > 0 && marker.container.explicitList)
+  && sourceSameFenceContainer(marker.container, open.container);
+
+const sourceFenceEnded = (open, context, fence) => {
+  if (context.blockquoteDepth < open.container.blockquoteDepth) return true;
+  if (context.blockquoteDepth > open.container.blockquoteDepth) return false;
+  if (open.container.listKinds.length === 0) return false;
+  if (context.listKinds.length < open.container.listKinds.length) {
+    return !context.implicitList || context.listContinuationIndent < open.container.listContinuationIndent;
+  }
+  if (context.listKinds.length > open.container.listKinds.length) return false;
+  if (!sourceSameListContainer(context, open.container)) return true;
+  return fence !== null && context.explicitList;
+};
+
+const sourceStateFromContext = (context, paragraph = context.paragraph) => ({
+  blockquoteDepth: context.blockquoteDepth,
+  listItems: sourceCopyListItems(context.listItems),
+  listKinds: [...context.listKinds],
+  listContinuationIndent: context.listContinuationIndent,
+  htmlBlock: context.htmlBlock,
+  htmlBlockMask: context.htmlBlockMask,
+  fenceContentColumn: context.fenceContentColumn,
+  fenceIndentWidth: context.fenceIndentWidth,
+  continuationSurplus: context.continuationSurplus,
+  allowFencedContinuation: context.allowFencedContinuation && context.fenceIndentWidth <= 3,
+  paragraph,
+});
+
+const sourceFenceRanges = (text) => {
+  const ranges = [];
+  let open = null;
+  let listContext = {
+    blockquoteDepth: 0,
+    listItems: [],
+    listKinds: [],
+    listContinuationIndent: 0,
+    htmlBlock: null,
+    htmlBlockMask: false,
+    fenceContentColumn: 0,
+    fenceIndentWidth: 0,
+    continuationSurplus: 0,
+    allowFencedContinuation: true,
+    paragraph: false,
+  };
+  let previousLineEnd = 0;
+  for (const physical of sourcePhysicalLines(text)) {
+    let processed = false;
+    while (!processed) {
+      const inherited = open === null ? listContext : open.state;
+      const context = sourceContainerContext(physical.line, inherited);
+      const fence = sourceFenceContainer(context);
+      if (open === null) {
+        if (fence !== null) {
+          open = {
+            ...fence,
+            start: physical.start,
+            state: sourceStateFromContext(context, false),
+            after: {
+              ...inherited,
+              listItems: sourceCopyListItems(inherited.listItems),
+              listKinds: [...inherited.listKinds],
+            },
+          };
+        } else {
+          listContext = sourceStateFromContext(context);
+        }
+        processed = true;
+        continue;
+      }
+      if (sourceFenceCloses(fence, open)) {
+        ranges.push([open.start, physical.end]);
+        listContext = { ...open.after, paragraph: false };
+        open = null;
+        processed = true;
+        continue;
+      }
+      if (sourceFenceEnded(open, context, fence)) {
+        ranges.push([open.start, previousLineEnd]);
+        listContext = { ...open.after, paragraph: false };
+        open = null;
+        continue;
+      }
+      processed = true;
+    }
+    previousLineEnd = physical.end;
+  }
+  if (open !== null) ranges.push([open.start, text.length]);
+  return ranges;
+};
+
+export function markdownFenceRanges(text) {
+  return sourceFenceRanges(text);
+}
+
+export function markdownHtmlBlockRanges(text) {
+  const ranges = [];
+  const fences = sourceFenceRanges(text);
+  let fenceIndex = 0;
+  let listContext = {
+    blockquoteDepth: 0,
+    listItems: [],
+    listKinds: [],
+    listContinuationIndent: 0,
+    htmlBlock: null,
+    htmlBlockMask: false,
+    fenceContentColumn: 0,
+    fenceIndentWidth: 0,
+    continuationSurplus: 0,
+    allowFencedContinuation: true,
+    paragraph: false,
+  };
+  let rangeStart = null;
+  let htmlState = null;
+  for (const physical of sourcePhysicalLines(text)) {
+    while (fenceIndex < fences.length && physical.start >= fences[fenceIndex][1]) fenceIndex += 1;
+    const fence = fences[fenceIndex];
+    if (fence !== undefined && physical.start >= fence[0] && physical.start < fence[1]) {
+      if (rangeStart !== null) {
+        ranges.push([rangeStart, physical.start]);
+        rangeStart = null;
+      }
+      continue;
+    }
+    const context = htmlState === null ? sourceContainerContext(physical.line, listContext) : null;
+    const transition = htmlState === null ? null : sourceHtmlBlockTransition(physical.line, htmlState);
+    const htmlMask = transition?.mask ?? context?.htmlBlockMask ?? false;
+    const htmlMaskEnd = transition?.maskEnd ?? context?.htmlBlockMaskEnd ?? null;
+    const htmlBlock = transition?.state ?? context?.htmlBlock ?? null;
+    if (htmlMask) {
+      if (rangeStart === null) rangeStart = physical.start;
+      if (htmlMaskEnd !== null) {
+        ranges.push([rangeStart, physical.start + htmlMaskEnd]);
+        rangeStart = null;
+      } else if (htmlBlock === null) {
+        ranges.push([rangeStart, physical.end]);
+        rangeStart = null;
+      }
+    } else if (rangeStart !== null) {
+      ranges.push([rangeStart, physical.start]);
+      rangeStart = null;
+    }
+    if (transition !== null) {
+      htmlState = transition.state;
+      listContext = { ...listContext, htmlBlock: htmlState, htmlBlockMask: Boolean(transition.mask) };
+    } else {
+      htmlState = context.htmlBlockMask ? context.htmlBlock : null;
+      listContext = sourceStateFromContext(context);
+    }
+  }
+  if (rangeStart !== null) ranges.push([rangeStart, text.length]);
+  return ranges;
+}
+
+export function contentPipelineTitle(markdown) {
+  const masked = maskRanges(markdown, markdownFenceRanges(markdown));
+  for (const { line } of sourcePhysicalLines(masked)) {
+    const heading = line.match(/^#\s+(.+?)\s*$/u);
+    if (heading !== null) {
+      const title = heading[1].replace(/\s+#+\s*$/u, '').trim();
+      if (title !== '') return title;
+    }
+  }
+  throw new Error('Source reader title is missing a non-empty level-one heading.');
+}
+
+const sourceFenceMarker = (line) => line.match(/(?:^|[ \t])(?<run>`{3,}|~{3,})(?<info>.*)$/u);
+
+const sourceFenceLineStates = (text) => {
+  const physicalLines = [...sourcePhysicalLines(text)];
+  const states = new Map();
+  for (const [start, end] of sourceFenceRanges(text)) {
+    const opener = physicalLines.find((physical) => physical.start === start);
+    const marker = opener === undefined ? null : sourceFenceMarker(opener.line);
+    if (marker === null) continue;
+    const run = marker.groups.run;
+    const info = marker.groups.info.trim().split(/\s+/u, 1)[0]?.toLocaleLowerCase('en-US') ?? '';
+    for (const physical of physicalLines) {
+      if (physical.start < start || physical.start >= end) continue;
+      const closing = physical.end === end ? sourceFenceMarker(physical.line) : null;
+      const isClosing = closing !== null
+        && closing.groups.run[0] === run[0]
+        && closing.groups.run.length >= run.length
+        && /^[ \t]*$/u.test(closing.groups.info);
+      states.set(physical.start, {
+        first: physical.start === start,
+        last: isClosing,
+        end: physical.end === end,
+        marker: run[0],
+        runLength: run.length,
+        executable: ['bash', 'sh', 'shell', 'zsh', 'console', 'shellsession'].includes(info),
+      });
+    }
+  }
+  return { physicalLines, states };
+};
+
+export function nextRawFenceState(line, fence) {
+  return nextMarkdownFenceState(line, fence);
+}
+
+function rawImageTargetOffset(matched, target, title) {
+  return matched.length - 1 - (title?.length ?? 0) - target.length;
+}
+
+function rawImageUrl({ projectRoot, sourceDir, target }) {
+  if (target.startsWith('/') || target.startsWith('#') || URL.canParse(target)) return null;
+  let decoded = target;
+  try {
+    decoded = decodeURI(target);
+  } catch {
+    // Keep the original target when its percent escapes are malformed.
+  }
+  if (!rawImageExtensions.has(path.extname(decoded).toLocaleLowerCase('en-US'))) return null;
+
+  const absolutePath = path.resolve(sourceDir, decoded);
+  const relativePath = path.relative(projectRoot, absolutePath);
+  if (relativePath === '..' || relativePath.startsWith(`..${path.sep}`) || path.isAbsolute(relativePath)) {
+    throw new Error(`Relative Raw image target escapes the website project root: ${target}.`);
+  }
+  return { absolutePath, relativePath };
+}
+
+async function existingRawImageUrl({ projectRoot, sourceDir, target }) {
+  const resolved = rawImageUrl({ projectRoot, sourceDir, target });
+  if (resolved === null) return null;
+  try {
+    if (!(await stat(resolved.absolutePath)).isFile()) return null;
+  } catch {
+    return null;
+  }
+  const encodedPath = resolved.relativePath
+    .split(path.sep)
+    .map((segment) => encodeURIComponent(segment))
+    .join('/');
+  return `/blume-assets/content/${encodedPath}`;
+}
+
+async function rewriteRawImageLine(line, { projectRoot, sourceDir }) {
+  const masked = line.replaceAll(rawInlineCodePattern, (span) => ' '.repeat(span.length));
+  let output = '';
+  let cursor = 0;
+  for (const match of masked.matchAll(rawMarkdownImagePattern)) {
+    const target = match.groups?.target ?? '';
+    const url = await existingRawImageUrl({ projectRoot, sourceDir, target });
+    if (url === null) continue;
+    const offset = (match.index ?? 0) + rawImageTargetOffset(match[0], target, match.groups?.title);
+    output += line.slice(cursor, offset) + url;
+    cursor = offset + target.length;
+  }
+  return output + line.slice(cursor);
+}
+
+export async function rewriteRelativeImageReferences({ source, sourcePath, projectRoot } = {}) {
+  const sourceDir = path.dirname(sourcePath);
+  const fences = markdownFenceRanges(source);
+  let output = '';
+  for (const physical of sourcePhysicalLines(source)) {
+    const inFence = fences.some(([start, end]) => physical.start >= start && physical.start < end);
+    const line = inFence
+      ? physical.line
+      : await rewriteRawImageLine(physical.line, { projectRoot, sourceDir });
+    output += line + physical.terminator;
+  }
+  return output;
+}
+
+function stripPlaceholderCodeFences(text) {
+  return maskRanges(text, markdownFenceRanges(text));
+}
+
+function htmlTagEnd(text, start) {
+  let quote = null;
+  let escaped = false;
+  let expressionDepth = 0;
+  let templateExpressionDepth = 0;
+  for (let index = start; index < text.length; index += 1) {
+    const character = text[index];
+    if (escaped) {
+      escaped = false;
+      continue;
+    }
+    if (quote !== null) {
+      if (character === '\\') {
+        escaped = true;
+      } else if (quote === '`' && character === '$' && text[index + 1] === '{') {
+        templateExpressionDepth += 1;
+        index += 1;
+      } else if (quote === '`' && character === '}' && templateExpressionDepth > 0) {
+        templateExpressionDepth -= 1;
+      } else if (character === quote && (quote !== '`' || templateExpressionDepth === 0)) {
+        quote = null;
+      }
+      continue;
+    }
+    if (character === '"' || character === "'" || character === '`') {
+      quote = character;
+      continue;
+    }
+    if (character === '{') {
+      expressionDepth += 1;
+      continue;
+    }
+    if (character === '}' && expressionDepth > 0) {
+      expressionDepth -= 1;
+      continue;
+    }
+    if (character === '<' && expressionDepth === 0) return -1;
+    if (character === '>' && expressionDepth === 0) return index;
+  }
+  return -1;
+}
+
+function htmlTagAt(text, start) {
+  if (text[start] !== '<') return null;
+  const tag = text.slice(start).match(/^<\/?(?<name>[A-Za-z][A-Za-z0-9:.-]*)/u);
+  if (tag === null) return null;
+  const end = htmlTagEnd(text, start + tag[0].length);
+  return { end, name: tag.groups.name.toLocaleLowerCase('en-US') };
+}
+
+function matchingInlineCodeEnd(text, start, runLength) {
+  for (let index = start + runLength; index < text.length; index += 1) {
+    if (text[index] !== '`') continue;
+    let end = index + 1;
+    while (text[end] === '`') end += 1;
+    if (end - index === runLength) return end - 1;
+    index = end - 1;
+  }
+  return -1;
+}
+
+function inlineCodeSections(text) {
+  const sections = [];
+  const visible = stripPlaceholderCodeFences(text);
+  for (let index = 0; index < visible.length;) {
+    const tag = htmlTagAt(visible, index);
+    if (tag !== null) {
+      index = tag.end < 0 ? (visible.indexOf('\n', index) + 1 || visible.length) : tag.end + 1;
+      continue;
+    }
+    if (visible[index] !== '`') {
+      index += 1;
+      continue;
+    }
+    let openingEnd = index + 1;
+    while (visible[openingEnd] === '`') openingEnd += 1;
+    const runLength = openingEnd - index;
+    const closingEnd = matchingInlineCodeEnd(visible, index, runLength);
+    if (closingEnd < 0) {
+      index = openingEnd;
+      continue;
+    }
+    sections.push(visible.slice(openingEnd, closingEnd - runLength + 1));
+    index = closingEnd + 1;
+  }
+  return sections;
+}
+
+function placeholderSections(text, inlineCodeOnly) {
+  if (!inlineCodeOnly) return [text];
+  return inlineCodeSections(text);
+}
+
+function placeholderCountMap(text, { inlineCodeOnly = false } = {}) {
+  const counts = new Map();
+  for (const section of placeholderSections(text, inlineCodeOnly)) {
+    const decoded = decodeArtifactEntities(section);
+    for (const match of decoded.matchAll(placeholderTokenPattern)) {
+      const name = match.groups?.name ?? '';
+      const normalizedName = name.toLocaleLowerCase('en-US');
+      if (name === '' || name.startsWith('/') || normalizedName === 'br' || normalizedName === 'br/') continue;
+      counts.set(`<${name}>`, (counts.get(`<${name}>`) ?? 0) + 1);
+    }
+  }
+  return counts;
+}
+
+function placeholderInventoryFromMap(counts) {
+  const entries = [...counts.entries()].sort(([left], [right]) => left.localeCompare(right, 'en-US'));
+  return {
+    total: entries.reduce((sum, [, count]) => sum + count, 0),
+    counts: Object.fromEntries(entries),
+  };
+}
+
+function mergePlaceholderInventories(inventories) {
+  const counts = new Map();
+  for (const inventory of inventories) {
+    for (const [token, count] of Object.entries(inventory.counts)) counts.set(token, (counts.get(token) ?? 0) + count);
+  }
+  return placeholderInventoryFromMap(counts);
+}
+
+function expectedPlaceholderInventory(value, options) {
+  return typeof value === 'string' ? placeholderInventory(value, options) : value;
+}
+
+function danglingPlaceholderFragments(text, { inlineCodeOnly = false } = {}) {
+  const fragments = [];
+  for (const section of placeholderSections(text, inlineCodeOnly)) {
+    const decoded = decodeArtifactEntities(section);
+    const masked = decoded.replaceAll(placeholderTokenPattern, (token) => ' '.repeat(token.length));
+    for (const match of masked.matchAll(placeholderDanglingPattern)) {
+      const index = match.index ?? 0;
+      const tagStart = decoded.lastIndexOf('<', index);
+      const tag = tagStart > decoded.lastIndexOf('>', index) ? htmlTagAt(decoded, tagStart) : null;
+      if (tag === null || tag.end < index || !knownMarkupNames.has(tag.name)) fragments.push(match[0]);
+    }
+    for (const match of masked.matchAll(placeholderBareClosingPattern)) {
+      const name = match.groups?.name ?? '';
+      if (!/[./-]$/u.test(name) && !knownMarkupNames.has(name.toLocaleLowerCase('en-US'))) fragments.push(match[0]);
+    }
+  }
+  return fragments;
+}
+
+const knownMarkupNames = new Set([
+  'a', 'article', 'aside', 'blume-mermaid', 'blume-search', 'blume-toc', 'blume-webmcp',
+  'body', 'br', 'button', 'circle', 'code', 'col', 'dd', 'details',
+  'dialog', 'div', 'dl', 'em', 'fieldset', 'figure', 'figcaption', 'footer', 'form',
+  'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'head', 'header', 'hr', 'html', 'img', 'input',
+  'label', 'li', 'link', 'main', 'meta', 'nav', 'ol', 'option', 'p', 'path', 'pre',
+  'g', 'kbd', 'rect', 'script', 'section', 'select', 'small', 'source', 'span', 'strong', 'style',
+  'summary', 'svg', 'table', 'tbody', 'td', 'template', 'textarea', 'tfoot', 'th',
+  'thead', 'title', 'track', 'tr', 'ul', 'wbr',
+]);
+const inertHtmlContentNames = ['head', 'script', 'style', 'template', 'title', 'pre'];
+
+function insideInertHtmlContent(text, index) {
+  for (const name of inertHtmlContentNames) {
+    const opening = text.lastIndexOf(`<${name}`, index);
+    const closing = text.lastIndexOf(`</${name}`, index);
+    if (opening <= closing) continue;
+    const tag = htmlTagAt(text, opening);
+    if (tag?.name === name && tag.end < index) return true;
+  }
+  return false;
+}
+
+function danglingArtifactPlaceholderFragments(text) {
+  const decoded = decodeArtifactEntities(stripPlaceholderCodeFences(text));
+  const masked = decoded
+    .replaceAll(placeholderTokenPattern, (token) => ' '.repeat(token.length));
+  const fragments = [...masked.matchAll(placeholderDanglingPattern)]
+    .filter((match) => {
+      const name = match.groups?.name ?? '';
+      const index = match.index ?? 0;
+      const tagStart = decoded.lastIndexOf('<', index);
+      const tag = tagStart > decoded.lastIndexOf('>', index) ? htmlTagAt(decoded, tagStart) : null;
+      return !insideInertHtmlContent(decoded, index)
+        && !knownMarkupNames.has(name.toLocaleLowerCase('en-US'))
+        && (tag === null || tag.end < index);
+    })
+    .map((match) => match.groups?.name ?? '')
+    .map((name) => `<${name}`);
+  for (const match of masked.matchAll(placeholderBareClosingPattern)) {
+    const name = match.groups?.name ?? '';
+    const index = match.index ?? 0;
+    const tagStart = decoded.lastIndexOf('<', index);
+    const tag = tagStart > decoded.lastIndexOf('>', index) ? htmlTagAt(decoded, tagStart) : null;
+    if (!/[./-]$/u.test(name)
+      && !insideInertHtmlContent(decoded, index)
+      && !(tag !== null && tag.end >= index)
+      && !knownMarkupNames.has(name.toLocaleLowerCase('en-US'))) fragments.push(`${name}>`);
+  }
+  return fragments;
+}
+
+function assertNoDanglingArtifactPlaceholderFragments(text, location) {
+  const fragments = danglingArtifactPlaceholderFragments(text);
+  if (fragments.length > 0) throw new Error(`Artifact contains dangling ${fragments[0]} fragment in ${location}.`);
+}
+
+export function placeholderInventory(text, { inlineCodeOnly = false } = {}) {
+  if (typeof text !== 'string') throw new Error('Placeholder inventory requires text.');
+  return placeholderInventoryFromMap(placeholderCountMap(text, { inlineCodeOnly }));
+}
+
+export function assertPlaceholderParity(expected, actual, {
+  expectedInlineCodeOnly = false,
+  actualInlineCodeOnly = false,
+  location = 'placeholder surface',
+} = {}) {
+  const expectedInventory = expectedPlaceholderInventory(expected, { inlineCodeOnly: expectedInlineCodeOnly });
+  const actualInventory = typeof actual === 'string'
+    ? expectedPlaceholderInventory(actual, { inlineCodeOnly: actualInlineCodeOnly })
+    : actual;
+  if (!expectedInventory || typeof expectedInventory !== 'object' || !expectedInventory.counts) {
+    throw new Error(`Placeholder parity requires an expected inventory for ${location}.`);
+  }
+  if (!actualInventory || typeof actualInventory !== 'object' || !actualInventory.counts) {
+    throw new Error(`Placeholder parity requires text for ${location}.`);
+  }
+  const dangling = typeof actual === 'string' ? danglingPlaceholderFragments(actual, { inlineCodeOnly: actualInlineCodeOnly }) : [];
+  if (dangling.length > 0) throw new Error(`Placeholder surface contains dangling ${dangling[0]} fragment in ${location}.`);
+  if (expectedInventory.total !== actualInventory.total || JSON.stringify(expectedInventory.counts) !== JSON.stringify(actualInventory.counts)) {
+    throw new Error(`Placeholder surface drifted for ${location}: expected ${expectedInventory.total} exact occurrence(s), found ${actualInventory.total}.`);
+  }
+  return actualInventory;
+}
 
 function historicalPreviewVisibleText(text) {
   return text.replace(/&nbsp;|&#160;|&#xA0;/giu, ' ').replace(/<[^>]+>/gu, '').trim();
@@ -118,6 +1420,10 @@ export async function validateSourceReaderContract({ contentMap, sourceDirectory
   const files = await markdownFiles(sourceDirectory);
   const sourceTexts = new Map();
   for (const source of files) sourceTexts.set(source, await readFile(path.join(sourceDirectory, ...source.split('/')), 'utf8'));
+  for (const [source, markdown] of sourceTexts) {
+    const dangling = danglingPlaceholderFragments(markdown, { inlineCodeOnly: true });
+    if (dangling.length > 0) throw new Error(`Source placeholder surface contains dangling ${dangling[0]} fragment in ${source}.`);
+  }
   const result = validateReaderContract(contentMap, { sourceTexts, sourceFiles: files });
   await assertSourceDerivedReferenceCoverage(contentMap, repositoryRoot);
   for (const [source, markdown] of sourceTexts) {
@@ -134,12 +1440,99 @@ export async function validateSourceReaderContract({ contentMap, sourceDirectory
   return result;
 }
 
-export async function validateArtifactReaderContract({ contentMap, artifactDirectory = defaultDistRoot } = {}) {
+function sourceBoundContentCacheKey({ sourceDirectory, repositoryRoot, sourceTexts, contentMap }) {
+  const digest = createHash('sha256');
+  digest.update(JSON.stringify({
+    sourceDirectory: path.resolve(sourceDirectory),
+    repositoryRoot: path.resolve(repositoryRoot),
+    contentMap,
+  }));
+  for (const [source, markdown] of [...sourceTexts.entries()].sort(([left], [right]) => left.localeCompare(right, 'en'))) {
+    digest.update(source);
+    digest.update('\0');
+    digest.update(markdown);
+    digest.update('\0');
+  }
+  return digest.digest('hex');
+}
+
+async function generateSourceBoundContent({ sourceDirectory, repositoryRoot, contentMap }) {
+  const temporary = await mkdtemp(path.join(tmpdir(), 'blackops-reader-source-bound-'));
+  const generatedContentRoot = path.join(temporary, 'src', 'content', 'docs');
+  const generatedManifestPath = path.join(temporary, '.generated', 'content-manifest.json');
+  try {
+    await generateContent({
+      sourceRoot: sourceDirectory,
+      contentRoot: generatedContentRoot,
+      manifestPath: generatedManifestPath,
+      repositoryRoot,
+      contentMap,
+    });
+    const manifestBytes = await readFile(generatedManifestPath);
+    const manifest = JSON.parse(manifestBytes.toString('utf8'));
+    if (!Array.isArray(manifest.pages)) throw new Error('Source-bound generated manifest is missing its pages array.');
+    const generatedByPath = new Map();
+    const pagesBySource = new Map();
+    for (const page of manifest.pages) {
+      const generatedPath = path.join(generatedContentRoot, ...page.generated.split('/'));
+      const bytes = await readFile(generatedPath);
+      const value = { page, bytes };
+      generatedByPath.set(page.generated, value);
+      pagesBySource.set(page.source, value);
+    }
+    return { manifestBytes, generatedByPath, pagesBySource };
+  } finally {
+    await rm(temporary, { recursive: true, force: true });
+  }
+}
+
+async function sourceBoundContent(options) {
+  const key = sourceBoundContentCacheKey(options);
+  let pending = sourceBoundContentCache.get(key);
+  if (pending === undefined) {
+    pending = generateSourceBoundContent(options).catch((error) => {
+      sourceBoundContentCache.delete(key);
+      throw error;
+    });
+    sourceBoundContentCache.set(key, pending);
+  }
+  return pending;
+}
+
+export async function validateArtifactReaderContract({
+  contentMap,
+  artifactDirectory = defaultDistRoot,
+  sourceDirectory = defaultSourceRoot,
+  manifestPath = null,
+  contentRoot = null,
+  diagramManifestPath = null,
+} = {}) {
   if (contentMap === undefined) throw new Error('Artifact reader validation requires a Content Map.');
-  validateReaderContract(contentMap);
+  const effectiveSourceDirectory = sourceDirectory ?? defaultSourceRoot;
+  const sourceFiles = await markdownFiles(effectiveSourceDirectory);
+  validateReaderContract(contentMap, { sourceFiles });
   const pages = Object.entries(contentMap).filter(([source]) => source !== 'README.md');
   const byRoute = new Map(pages.map(([source, metadata]) => [routeFor(metadata.slug), { source, metadata }]));
-  await validateArtifactPageRouteInventory({ artifactDirectory, expectedRoutes: new Set(byRoute.keys()) });
+  const sourceTexts = new Map();
+  for (const source of sourceFiles) sourceTexts.set(source, await readFile(path.join(effectiveSourceDirectory, ...source.split('/')), 'utf8'));
+  const sourcePlaceholderInventories = new Map([...sourceTexts.entries()].map(([source, markdown]) => [
+    source,
+    placeholderInventory(markdown, { inlineCodeOnly: true }),
+  ]));
+  for (const [source, markdown] of sourceTexts) {
+    const dangling = danglingPlaceholderFragments(markdown, { inlineCodeOnly: true });
+    if (dangling.length > 0) throw new Error(`Source placeholder surface contains dangling ${dangling[0]} fragment in ${source}.`);
+  }
+  const selectedDiagramManifestPath = diagramManifestPath
+    ?? (path.resolve(artifactDirectory) === path.resolve(defaultDistRoot) ? defaultDiagramManifestPath : null);
+  const registeredViewers = selectedDiagramManifestPath === null
+    ? new Set()
+    : registeredViewerRelativePaths(await loadDiagramManifest(selectedDiagramManifestPath));
+  await validateArtifactPageRouteInventory({
+    artifactDirectory,
+    expectedRoutes: new Set(byRoute.keys()),
+    diagramManifestPath: selectedDiagramManifestPath,
+  });
   const outcomes = pages.map(([, metadata]) => metadata.reader.outcome);
   const searchPath = path.join(artifactDirectory, 'blume-search.json');
   let search;
@@ -160,21 +1553,82 @@ export async function validateArtifactReaderContract({ contentMap, artifactDirec
   if (expectedRoutes.size !== actualRoutes.size || [...expectedRoutes].some((route) => !actualRoutes.has(route))) {
     throw new Error('Search artifact route inventory does not match the 40-page Content Map.');
   }
+  const searchDangling = danglingPlaceholderFragments(search.map((record) => collectStrings(record).join('\n')).join('\n'));
+  if (searchDangling.length > 0) throw new Error(`Search artifact contains dangling ${searchDangling[0]} fragment.`);
+  const canonical = await readCanonicalContentManifest({
+    artifactDirectory,
+    manifestPath,
+    contentRoot,
+    expectedPages: pages,
+    sourceTexts,
+    contentMap,
+    sourceDirectory: effectiveSourceDirectory,
+    repositoryRoot: defaultRepositoryRoot,
+  });
+  const canonicalPublicRawBySource = new Map();
   for (const [route, { source, metadata }] of byRoute) {
     const record = searchByRoute.get(route);
+    if (record.url !== undefined && record.url !== route) {
+      throw new Error(`Search ${route} has a route/url mismatch: ${record.url}.`);
+    }
+    const expectedPlaceholders = sourcePlaceholderInventories.get(source);
+    if (!expectedPlaceholders) throw new Error(`Source placeholder inventory is missing for ${source}.`);
+    if (typeof record.content !== 'string') throw new Error(`Search ${route} is missing its content field.`);
+    assertPlaceholderParity(expectedPlaceholders, record.content, { location: `Search content ${route}` });
+    const manifestPage = canonical.pagesBySource.get(source);
+    const canonicalRawPath = path.join(canonical.contentRoot, ...manifestPage.generated.split('/'));
+    const rawPath = path.join(artifactDirectory, ...manifestPage.generated.split('/'));
+    let canonicalRawBytes;
+    let rawBytes;
+    try {
+      canonicalRawBytes = await readFile(canonicalRawPath);
+      rawBytes = await readFile(rawPath);
+    } catch {
+      throw new Error(`Raw Markdown artifact is missing for ${source}: ${manifestPage.generated}.`);
+    }
+    const canonicalHash = createHash('sha256').update(canonicalRawBytes).digest('hex');
+    if (canonicalHash !== manifestPage.hash) {
+      throw new Error(`Canonical generated content hash drifted for ${source}: ${manifestPage.generated}.`);
+    }
+    const expectedRawBytes = Buffer.from(await rewriteRelativeImageReferences({
+      source: canonicalRawBytes.toString('utf8'),
+      sourcePath: canonicalRawPath,
+      projectRoot: path.resolve(canonical.contentRoot, '../../..'),
+    }), 'utf8');
+    if (!rawBytes.equals(expectedRawBytes)) {
+      throw new Error(`Raw ${route} is not byte-exact source-derived content for ${source}: ${manifestPage.generated}.`);
+    }
+    canonicalPublicRawBySource.set(source, expectedRawBytes);
+    const expectedSearchContent = blumeToPlainText(canonicalGeneratedBody(expectedRawBytes.toString('utf8'), source));
+    if (record.content !== expectedSearchContent) {
+      throw new Error(`Search content ${route} is not source-derived; expected the exact patched Blume plain-text body for ${source}.`);
+    }
     const strings = collectStrings(record);
     assertSingleOutcome(strings, metadata.reader.outcome, outcomes, `Search ${route}`);
-    const generated = path.join(artifactDirectory, ...metadata.slug.split('/'));
-    const rawPath = await firstExisting(generated, `${generated}.md`, `${generated}.mdx`);
-    if (rawPath === null) throw new Error(`Raw Markdown artifact is missing for ${source}: ${metadata.slug}.`);
-    const raw = await readFile(rawPath, 'utf8');
+    assertSearchRecordNonContentPlaceholderFree(record, `Search ${route}`);
+    const raw = rawBytes.toString('utf8');
+    const canonicalTitle = canonicalGeneratedFrontmatterTitle(canonicalRawBytes.toString('utf8'), source);
+    if (canonicalTitle !== manifestPage.title) {
+      throw new Error(`Canonical generated title drifted for ${source}: expected ${manifestPage.title}, found ${canonicalTitle}.`);
+    }
+    assertNoDanglingArtifactPlaceholderFragments(raw, `Raw ${route}`);
+    assertPlaceholderParity(expectedPlaceholders, raw, { actualInlineCodeOnly: true, location: `Raw ${route}` });
     if (!raw.includes(`description: ${JSON.stringify(metadata.reader.outcome)}`)) {
       throw new Error(`Raw Markdown artifact outcome drifted for ${source}.`);
     }
     const htmlPath = path.join(artifactDirectory, ...metadata.slug.split('/'), 'index.html');
     const html = await readFile(htmlPath, 'utf8').catch(() => '');
     if (html === '') throw new Error(`HTML artifact is missing for ${source}: ${metadata.slug}.`);
+    await assertHtmlReaderSemanticContract({
+      html,
+      expectedRaw: expectedRawBytes.toString('utf8'),
+      title: manifestPage.title,
+      outcome: metadata.reader.outcome,
+      route,
+      source,
+    });
     assertSingleOutcome([html], metadata.reader.outcome, outcomes, `HTML ${route}`);
+    assertPlaceholderParity(expectedPlaceholders, extractVisibleInlineCodeInventory(html, `HTML ${route}`), { location: `HTML inline code ${route}` });
   }
 
   const llmsPath = path.join(artifactDirectory, 'llms.txt');
@@ -191,42 +1645,329 @@ export async function validateArtifactReaderContract({ contentMap, artifactDirec
   const segments = llmsFull.split(/\n---\n\n(?=# )/u).filter(Boolean);
   const segmentByRoute = new Map();
   for (const segment of segments) {
-    const sourceMatch = segment.match(/^Source:\s*https?:\/\/[^/]+(\/[^\n]*)$/m);
-    if (sourceMatch) {
-      const route = sourceMatch[1] === '/' ? '/' : `/${sourceMatch[1].replace(/^\/+|\/+$/g, '')}`;
-      if (segmentByRoute.has(route)) throw new Error(`llms-full.txt contains a duplicate route: ${route}.`);
-      segmentByRoute.set(route, segment);
-    }
+    const sourceMatch = segment.match(/^# (?<title>[^\n]+)\nSource:\s*(?<url>https?:\/\/[^\s]+)$/mu);
+    if (!sourceMatch) throw new Error('llms-full.txt contains a malformed title/Source segment.');
+    const route = routeFromArtifactUrl(sourceMatch.groups.url);
+    const bodyStart = (sourceMatch.index ?? 0) + sourceMatch[0].length;
+    if (!segment.startsWith('\n\n', bodyStart)) throw new Error(`llms-full.txt is missing the body separator for ${route}.`);
+    if (segmentByRoute.has(route)) throw new Error(`llms-full.txt contains a duplicate route: ${route}.`);
+    segmentByRoute.set(route, {
+      segment,
+      title: sourceMatch.groups.title,
+      sourceUrl: sourceMatch.groups.url,
+      body: segment.slice(bodyStart + 2),
+    });
   }
   const llmsFullRoutes = new Set([...segmentByRoute.keys()].filter((route) => route !== '/'));
+  const unknownLlmFullRoutes = [...llmsFullRoutes].filter((route) => !expectedRoutes.has(route));
+  if (unknownLlmFullRoutes.length > 0) throw new Error(`llms-full.txt contains unknown route(s): ${unknownLlmFullRoutes.join(', ')}.`);
   if (llmsFullRoutes.size !== expectedRoutes.size || [...expectedRoutes].some((route) => !llmsFullRoutes.has(route))) {
     throw new Error('llms-full.txt route inventory does not match the 40-page Content Map.');
   }
   for (const [route, { source, metadata }] of byRoute) {
-    const segment = segmentByRoute.get(route);
-    if (!segment) throw new Error(`llms-full.txt is missing the segment for ${source}: ${route}.`);
+    const entry = segmentByRoute.get(route);
+    if (!entry) throw new Error(`llms-full.txt is missing the segment for ${source}: ${route}.`);
+    const expectedPlaceholders = sourcePlaceholderInventories.get(source);
+    if (!expectedPlaceholders) throw new Error(`Source placeholder inventory is missing for ${source}.`);
+    const manifestPage = canonical.pagesBySource.get(source);
+    const publicRaw = canonicalPublicRawBySource.get(source);
+    if (!manifestPage || publicRaw === undefined) throw new Error(`Canonical generated content is missing for ${source}.`);
+    if (entry.title !== manifestPage.title) {
+      throw new Error(`llms-full ${route} title drifted from the canonical manifest for ${source}.`);
+    }
+    if (routeFromArtifactUrl(entry.sourceUrl) !== route) {
+      throw new Error(`llms-full ${route} Source URL route drifted for ${source}.`);
+    }
+    const segment = entry.segment;
+    assertNoDanglingArtifactPlaceholderFragments(segment, `llms-full ${route}`);
+    const expectedBody = canonicalGeneratedBody(publicRaw.toString('utf8'), source).trim();
+    if (entry.body.trim() !== expectedBody) {
+      throw new Error(`llms-full ${route} body drifted from validated public Raw for ${source}.`);
+    }
     const markers = [
       `<!-- blackops-reader-outcome: ${metadata.reader.outcome} -->`,
       `{/* blackops-reader-outcome: ${metadata.reader.outcome} */}`,
     ];
     if (!markers.some((marker) => segment.includes(marker))) throw new Error(`llms-full ${route} is missing its generated reader outcome marker.`);
     assertSingleOutcome([segment], metadata.reader.outcome, outcomes, `llms-full ${route}`);
+    assertPlaceholderParity(expectedPlaceholders, segment, { actualInlineCodeOnly: true, location: `llms-full inline code ${route}` });
   }
 
   for (const file of await textFiles(artifactDirectory)) {
-    const location = path.relative(artifactDirectory, file);
+    const location = path.relative(artifactDirectory, file).split(path.sep).join('/');
     const content = await readFile(file, 'utf8');
     assertNoProtectedDecode(content, location);
-    assertNoCurrentMainOnly(content, location);
     assertNoInternalEvidenceVoice(content, location);
     const readerText = artifactReaderSurfaceText(content, location);
+    assertNoCurrentMainOnly(registeredViewers.has(location) ? readerText ?? '' : content, location);
     if (readerText !== null) assertNoUnsafeLgtmDiagnostics(readerText, location);
   }
   return { routes: expectedRoutes.size, searchRoutes: actualRoutes.size };
 }
 
-export async function validateArtifactPageRouteInventory({ artifactDirectory = defaultDistRoot, expectedRoutes = new Set() } = {}) {
+async function readCanonicalContentManifest({
+  artifactDirectory,
+  manifestPath,
+  contentRoot,
+  expectedPages,
+  sourceTexts,
+  contentMap,
+  sourceDirectory,
+  repositoryRoot,
+}) {
+  const fixtureRoot = path.dirname(artifactDirectory);
+  const selectedManifestPath = manifestPath
+    ?? await firstExisting(path.join(fixtureRoot, '.generated/content-manifest.json'), defaultManifestPath);
+  if (selectedManifestPath === null) throw new Error('Reader artifact contract requires the canonical content manifest.');
+  let manifest;
+  try {
+    manifest = JSON.parse(await readFile(selectedManifestPath, 'utf8'));
+  } catch {
+    throw new Error(`Canonical content manifest is unreadable: ${selectedManifestPath}.`);
+  }
+  if (manifest?.schemaVersion !== 1 || !Array.isArray(manifest.pages)) {
+    throw new Error('Canonical content manifest must use schemaVersion 1 with a pages array.');
+  }
+  const nonLandingPages = manifest.pages.filter((page) => page?.source !== 'README.md');
+  if (nonLandingPages.length !== expectedPages.length) {
+    throw new Error(`Canonical content manifest must contain exactly ${expectedPages.length} non-Landing records.`);
+  }
+  const pagesBySource = new Map();
+  const sources = new Set();
+  const generatedPaths = new Set();
+  const slugs = new Set();
+  for (const page of manifest.pages) {
+    if (page === null || typeof page !== 'object' || Array.isArray(page)
+      || typeof page.source !== 'string' || typeof page.generated !== 'string' || typeof page.slug !== 'string'
+      || typeof page.title !== 'string' || page.title.trim() === ''
+      || typeof page.hash !== 'string' || !/^[0-9a-f]{64}$/u.test(page.hash)) {
+      throw new Error('Canonical content manifest contains a malformed page record.');
+    }
+    const keys = Object.keys(page).sort();
+    const expectedKeys = ['generated', 'hash', 'slug', 'source', 'title'];
+    if (keys.length !== expectedKeys.length || keys.some((key, index) => key !== expectedKeys[index])) {
+      throw new Error('Canonical content manifest page records must use the closed source/generated/slug/title/hash schema.');
+    }
+    if (sources.has(page.source) || generatedPaths.has(page.generated) || slugs.has(page.slug)) {
+      throw new Error('Canonical content manifest contains a duplicate source, generated path, or slug.');
+    }
+    if (page.generated !== path.posix.normalize(page.generated)
+      || page.generated.startsWith('/') || page.generated.startsWith('../') || page.generated.includes('/../')
+      || !/\.mdx?$/u.test(page.generated)) {
+      throw new Error(`Canonical content manifest contains an unsafe generated path: ${page.generated}.`);
+    }
+    if (page.source !== 'README.md') pagesBySource.set(page.source, page);
+    sources.add(page.source);
+    generatedPaths.add(page.generated);
+    slugs.add(page.slug);
+  }
+  const expectedSources = new Set(expectedPages.map(([source]) => source));
+  if (pagesBySource.size !== expectedSources.size || [...expectedSources].some((source) => !pagesBySource.has(source))) {
+    throw new Error('Canonical content manifest sources must match the 40-page Content Map exactly.');
+  }
+  for (const [source, metadata] of expectedPages) {
+    const page = pagesBySource.get(source);
+    const extension = page.generated.endsWith('.mdx') ? '.mdx' : '.md';
+    if (page.slug !== metadata.slug || page.generated !== `${metadata.slug}${extension}`) {
+      throw new Error(`Canonical content manifest route mapping drifted for ${source}.`);
+    }
+    const sourceMarkdown = sourceTexts?.get(source);
+    if (typeof sourceMarkdown !== 'string' || page.title !== contentPipelineTitle(sourceMarkdown)) {
+      throw new Error(`Canonical content manifest title drifted from the Source H1 for ${source}.`);
+    }
+  }
+  const selectedContentRoot = contentRoot
+    ?? (await directoryExists(path.join(fixtureRoot, 'src/content/docs')) ? path.join(fixtureRoot, 'src/content/docs') : defaultContentRoot);
+  if (!(await directoryExists(selectedContentRoot))) throw new Error(`Canonical generated content root is missing: ${selectedContentRoot}.`);
+  const sourceBound = await sourceBoundContent({
+    sourceDirectory,
+    repositoryRoot,
+    sourceTexts,
+    contentMap,
+  });
+  const actualManifestBytes = await readFile(selectedManifestPath);
+  if (!actualManifestBytes.equals(sourceBound.manifestBytes)) {
+    throw new Error('Canonical generated manifest is not source-derived.');
+  }
+  const actualGeneratedFiles = await artifactFiles(selectedContentRoot, (name) => /\.mdx?$/u.test(name));
+  const actualGeneratedByPath = new Map(actualGeneratedFiles.map((file) => [
+    path.relative(selectedContentRoot, file).split(path.sep).join('/'),
+    file,
+  ]));
+  if (actualGeneratedByPath.size !== sourceBound.generatedByPath.size
+    || [...sourceBound.generatedByPath.keys()].some((generated) => !actualGeneratedByPath.has(generated))) {
+    throw new Error('Canonical generated content inventory is not source-derived.');
+  }
+  for (const [generated, expected] of sourceBound.generatedByPath) {
+    const actual = await readFile(actualGeneratedByPath.get(generated));
+    if (!actual.equals(expected.bytes)) {
+      throw new Error(`Canonical generated content is not source-derived for ${expected.page.source}: ${generated}.`);
+    }
+  }
+  return {
+    pagesBySource,
+    contentRoot: selectedContentRoot,
+    sourceBoundPagesBySource: sourceBound.pagesBySource,
+  };
+}
+
+function canonicalGeneratedBody(markdown, source) {
+  const frontmatter = markdown.match(/^---\n[\s\S]*?\n---\n/u)?.[0];
+  if (frontmatter === undefined) throw new Error(`Canonical generated content is missing frontmatter for ${source}.`);
+  return markdown.slice(frontmatter.length);
+}
+
+function stripGeneratedReaderOutcomeMarker(markdown) {
+  return markdown.replace(/\n+(?:<!-- blackops-reader-outcome:[\s\S]*?-->|\{\/\* blackops-reader-outcome:[\s\S]*?\*\/\})\s*$/u, '');
+}
+
+function canonicalGeneratedReaderBody(markdown, source) {
+  return stripGeneratedReaderOutcomeMarker(canonicalGeneratedBody(markdown, source));
+}
+
+function readerFenceMarker(line) {
+  return markdownFenceLine(line);
+}
+
+function readerFenceCloses(line, fence) {
+  return markdownFenceCloses(line, fence);
+}
+
+function readerMermaidBlock(markdown) {
+  const lines = markdown.replace(/\r\n?/gu, '\n').split('\n');
+  const output = [];
+  const mermaid = [];
+  let fence = null;
+  let blockStart = -1;
+  let blockBody = [];
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index];
+    if (fence === null) {
+      const marker = readerFenceMarker(line);
+      if (marker === null) {
+        output.push(line);
+        continue;
+      }
+      fence = marker;
+      blockStart = index;
+      blockBody = [];
+      continue;
+    }
+    if (readerFenceCloses(line, fence)) {
+      if (fence.info.split(/\s+/u)[0] === 'mermaid') mermaid.push(blockBody.join('\n'));
+      else output.push(...lines.slice(blockStart, index + 1));
+      fence = null;
+      blockStart = -1;
+      blockBody = [];
+      continue;
+    }
+    blockBody.push(line);
+  }
+  if (fence !== null) output.push(...lines.slice(blockStart));
+  return { markdown: output.join('\n'), mermaid };
+}
+
+const readerCalloutTypes = new Set(['danger', 'info', 'note', 'success', 'tip', 'warning', 'caution', 'error', 'important', 'warn']);
+
+function normalizeReaderCallouts(markdown) {
+  const lines = markdown.replace(/\r\n?/gu, '\n').split('\n');
+  const output = [];
+  let fence = null;
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index];
+    if (fence !== null) {
+      output.push(line);
+      if (readerFenceCloses(line, fence)) fence = null;
+      continue;
+    }
+    const marker = readerFenceMarker(line);
+    if (marker !== null) {
+      fence = marker;
+      output.push(line);
+      continue;
+    }
+    const opening = line.match(/^ {0,3}:::(?<type>[A-Za-z][\w-]*)(?:\[(?<title>[^\]]*)\])?\s*$/u);
+    if (opening === null || !readerCalloutTypes.has(opening.groups.type.toLocaleLowerCase('en-US'))) {
+      output.push(line);
+      continue;
+    }
+    let closeIndex = -1;
+    let bodyFence = null;
+    for (let candidate = index + 1; candidate < lines.length; candidate += 1) {
+      const candidateLine = lines[candidate];
+      if (bodyFence !== null) {
+        if (readerFenceCloses(candidateLine, bodyFence)) bodyFence = null;
+        continue;
+      }
+      const candidateMarker = readerFenceMarker(candidateLine);
+      if (candidateMarker !== null) {
+        bodyFence = candidateMarker;
+        continue;
+      }
+      if (/^ {0,3}:::\s*$/u.test(candidateLine)) {
+        closeIndex = candidate;
+        break;
+      }
+    }
+    if (closeIndex < 0) {
+      output.push(line);
+      continue;
+    }
+    const title = opening.groups.title?.trim() ?? '';
+    if (title !== '') output.push(`> **${title}**`, '>');
+    output.push(...lines.slice(index + 1, closeIndex).map((bodyLine) => bodyLine === '' ? '>' : `> ${bodyLine}`));
+    index = closeIndex;
+  }
+  return output.join('\n');
+}
+
+export async function renderReaderBody(markdown) {
+  if (typeof markdown !== 'string') throw new Error('Reader body rendering requires Markdown text.');
+  const body = stripGeneratedReaderOutcomeMarker(markdown.replace(/\r\n?/gu, '\n'));
+  const key = createHash('sha256').update(body).digest('hex');
+  let pending = readerBodyRenderCache.get(key);
+  if (pending === undefined) {
+    pending = (async () => {
+      const mermaidBlocks = readerMermaidBlock(body);
+      const normalized = normalizeReaderCallouts(mermaidBlocks.markdown);
+      const rendered = await readerMarkdownProcessor.render(normalized);
+      return { html: rendered.code, mermaid: mermaidBlocks.mermaid };
+    })().catch((error) => {
+      readerBodyRenderCache.delete(key);
+      throw error;
+    });
+    readerBodyRenderCache.set(key, pending);
+  }
+  return pending;
+}
+
+function canonicalGeneratedFrontmatterTitle(markdown, source) {
+  const frontmatter = markdown.match(/^---\n([\s\S]*?)\n---\n/u)?.[1];
+  const titleLine = frontmatter?.split('\n').find((line) => line.startsWith('title:'));
+  if (titleLine === undefined) throw new Error(`Canonical generated content is missing its title frontmatter for ${source}.`);
+  let title;
+  try {
+    title = JSON.parse(titleLine.slice('title:'.length).trim());
+  } catch {
+    throw new Error(`Canonical generated title frontmatter is malformed for ${source}.`);
+  }
+  if (typeof title !== 'string' || title.trim() === '') {
+    throw new Error(`Canonical generated title frontmatter is not a non-empty string for ${source}.`);
+  }
+  return title;
+}
+
+export async function validateArtifactPageRouteInventory({
+  artifactDirectory = defaultDistRoot,
+  expectedRoutes = new Set(),
+  diagramManifestPath = null,
+} = {}) {
   const expected = expectedRoutes instanceof Set ? expectedRoutes : new Set(expectedRoutes);
+  const selectedDiagramManifestPath = diagramManifestPath
+    ?? (path.resolve(artifactDirectory) === path.resolve(defaultDistRoot) ? defaultDiagramManifestPath : null);
+  const registeredViewers = selectedDiagramManifestPath === null
+    ? new Set()
+    : registeredViewerRelativePaths(await loadDiagramManifest(selectedDiagramManifestPath));
   const rawFiles = await artifactFiles(artifactDirectory, (name) => /\.mdx?$/u.test(name));
   const rawRoutes = new Map();
   for (const file of rawFiles) {
@@ -254,10 +1995,25 @@ export async function validateArtifactPageRouteInventory({ artifactDirectory = d
     }
   }
 
-  const htmlFiles = await artifactFiles(artifactDirectory, (name) => name === 'index.html');
-  const htmlRoutes = new Map();
+  const htmlFiles = await artifactFiles(artifactDirectory, (name) => name.endsWith('.html'));
+  const supplementalHtmlFiles = [];
+  const routeHtmlFiles = [];
   for (const file of htmlFiles) {
-    const route = routeFromArtifactFile(file, artifactDirectory);
+    const relative = path.relative(artifactDirectory, file).split(path.sep).join('/');
+    if (registeredViewers.has(relative)) supplementalHtmlFiles.push(file);
+    else if (relative === '404.html' || relative === 'index.html' || /\/index\.html$/u.test(relative)) routeHtmlFiles.push(file);
+    else throw new Error(`HTML artifact contains unknown flat viewer path: ${relative}.`);
+  }
+  for (const file of supplementalHtmlFiles) {
+    const relative = path.relative(artifactDirectory, file).split(path.sep).join('/');
+    if (!/^diagrams\/[a-z0-9-]+\.html$/u.test(relative)) {
+      throw new Error(`Registered diagram viewer has an unsafe artifact path: ${relative}.`);
+    }
+  }
+  const htmlRoutes = new Map();
+  for (const file of routeHtmlFiles) {
+    const relative = path.relative(artifactDirectory, file).split(path.sep).join('/');
+    const route = relative === '404.html' ? '/404' : routeFromArtifactFile(file, artifactDirectory);
     if (htmlRoutes.has(route)) throw new Error(`HTML artifact contains a duplicate route: ${route}.`);
     htmlRoutes.set(route, file);
   }
@@ -341,6 +2097,24 @@ const namedArtifactEntities = new Map([
   ['nbsp', '\u00a0'],
 ]);
 const artifactBlockTagPattern = /<\/?(?:address|article|aside|blockquote|caption|dd|details|div|dl|dt|fieldset|figcaption|figure|footer|form|h[1-6]|header|hr|li|main|nav|ol|p|pre|section|summary|table|tbody|td|tfoot|th|thead|tr|ul)\b[^>]*\/?>/giu;
+
+function decodeArtifactEntities(text) {
+  return text.replace(/&(#x[0-9a-f]+|#\d+|amp|lt|gt|quot|apos|nbsp);/giu, (entity, token) => {
+    if (token.toLocaleLowerCase('en-US').startsWith('#x')) {
+      const codePoint = Number.parseInt(token.slice(2), 16);
+      return Number.isInteger(codePoint) && codePoint >= 0 && codePoint <= 0x10ffff
+        ? String.fromCodePoint(codePoint)
+        : entity;
+    }
+    if (token.startsWith('#')) {
+      const codePoint = Number.parseInt(token.slice(1), 10);
+      return Number.isInteger(codePoint) && codePoint >= 0 && codePoint <= 0x10ffff
+        ? String.fromCodePoint(codePoint)
+        : entity;
+    }
+    return namedArtifactEntities.get(token.toLocaleLowerCase('en-US')) ?? entity;
+  });
+}
 
 export function normalizeArtifactVisibleText(text) {
   if (typeof text !== 'string') return '';
@@ -721,7 +2495,7 @@ function markdownContainerInfo(line) {
     blockquoteDepth += 1;
     content = content.slice(prefix[0].length);
   }
-  const listMarker = content.match(/^ {0,3}(?:[-+*]|\d+[.)])(?=$|[ \t])/u);
+  const listMarker = content.match(/^ {0,3}(?:[-+*]|\d{1,9}[.)])(?=$|[ \t])/u);
   if (listMarker === null) return { content, blockquoteDepth, listMarker: false, listIndent: null, listMarkerCode: false };
 
   const markerText = listMarker[0];
@@ -753,7 +2527,8 @@ function markdownContainerInfo(line) {
 function maskNonExecutableInlineBackticks(text, { markdownSource = false } = {}) {
   if (!markdownSource) return text;
 
-  const lines = text.split(/\r?\n/u);
+  const { physicalLines, states: sourceFenceStates } = sourceFenceLineStates(text);
+  const lines = physicalLines.map(({ line }) => line);
   const output = [];
   let fence = null;
   let listContext = false;
@@ -762,11 +2537,13 @@ function maskNonExecutableInlineBackticks(text, { markdownSource = false } = {})
   let previousBlock = 'blank';
   let chunkLines = [];
   let chunkMode = null;
+  let nonExecutableFenceChunk = false;
   let chunkContinuationDumps = false;
   const flushChunk = () => {
     if (chunkLines.length === 0) return;
     const chunk = chunkLines.join('\n');
     const maskInlineCode = (body, { prefix, suffix } = {}) => {
+      if (nonExecutableFenceChunk) return true;
       const continuationDump = chunkContinuationDumps && inlineCodeHasContinuationEnvironmentDump(body, { prefix, suffix });
       const includeEnvironmentCommands = chunkMode
         || inlineCodeHasProtectedEnvironmentCommand(body);
@@ -775,6 +2552,7 @@ function maskNonExecutableInlineBackticks(text, { markdownSource = false } = {})
     output.push(replaceInlineBackticks(chunk, maskInlineCode));
     chunkLines = [];
     chunkMode = null;
+    nonExecutableFenceChunk = false;
     chunkContinuationDumps = false;
   };
   const appendExecutableLine = (line) => {
@@ -782,7 +2560,30 @@ function maskNonExecutableInlineBackticks(text, { markdownSource = false } = {})
     output.push(line);
   };
 
-  for (const line of lines) {
+  for (const [lineIndex, line] of lines.entries()) {
+    const sourceFenceLine = sourceFenceStates.get(physicalLines[lineIndex]?.start);
+    if (sourceFenceLine !== undefined) {
+      if (sourceFenceLine.first || sourceFenceLine.last) {
+        flushChunk();
+        output.push(line);
+      } else if (sourceFenceLine.executable) {
+        appendExecutableLine(line);
+      } else {
+        if (!nonExecutableFenceChunk) flushChunk();
+        chunkMode = false;
+        nonExecutableFenceChunk = true;
+        chunkContinuationDumps = false;
+        chunkLines.push(line);
+      }
+      fence = sourceFenceLine.end ? null : {
+        marker: sourceFenceLine.marker,
+        runLength: sourceFenceLine.runLength,
+        blockquoteDepth: 0,
+        executable: sourceFenceLine.executable,
+      };
+      previousBlock = sourceFenceLine.end ? 'fence' : 'fence-content';
+      continue;
+    }
     const container = markdownContainerInfo(line);
     if (fence !== null && container.blockquoteDepth < fence.blockquoteDepth) {
       flushChunk();
@@ -819,8 +2620,9 @@ function maskNonExecutableInlineBackticks(text, { markdownSource = false } = {})
     if (fence !== null) {
       if (fence.executable) appendExecutableLine(line);
       else {
-        if (chunkMode !== false) flushChunk();
+        if (!nonExecutableFenceChunk) flushChunk();
         chunkMode = false;
+        nonExecutableFenceChunk = true;
         chunkContinuationDumps = false;
         chunkLines.push(line);
       }
@@ -830,7 +2632,7 @@ function maskNonExecutableInlineBackticks(text, { markdownSource = false } = {})
 
     const hasIndent = /^(?: {4}|\t)/u.test(container.content);
     const leadingWhitespace = container.content.match(/^[ \t]*/u)?.[0] ?? '';
-    const indentWidth = leadingWhitespace.replace(/\t/gu, '    ').length;
+    const indentWidth = sourceReadWhitespace(leadingWhitespace, 0, 0).width;
     const listCodeBlock = listContext && previousBlock === 'blank' && listContinuationIndent !== null && indentWidth >= listContinuationIndent + 4;
     const listIndentedContinuation = hasIndent && listContext && listContinuationIndent !== null && indentWidth >= listContinuationIndent;
     const paragraphContinuation = container.blockquoteDepth === 0 && ['paragraph', 'paragraph-continuation'].includes(previousBlock);
@@ -839,7 +2641,8 @@ function maskNonExecutableInlineBackticks(text, { markdownSource = false } = {})
     const startsBlock = content === ''
       || /^#{1,6}(?:[ \t]+|$)/u.test(content)
       || /^(?:`{3,}|~{3,})/u.test(content)
-      || /^(?:[-+*]|\d+[.)])(?:[ \t]+|$)/u.test(content);
+      || !sourceParagraphContent(content)
+      || /^(?:[-+*]|\d{1,9}[.)])(?:[ \t]+|$)/u.test(content);
     const lazyListContinuation = lazyContainer === 'list'
       && container.blockquoteDepth === 0
       && !container.listMarker
@@ -892,7 +2695,7 @@ function maskNonExecutableInlineBackticks(text, { markdownSource = false } = {})
       }
     } else if (continuationProse) {
       previousBlock = 'paragraph-continuation';
-    } else if (/^#{1,6}(?:[ \t]+|$)/u.test(content)) {
+    } else if (!sourceParagraphContent(content)) {
       previousBlock = 'block-boundary';
       listContext = false;
       listContinuationIndent = null;
@@ -1829,20 +3632,7 @@ function artifactReaderSurfaceText(text, location) {
 }
 
 function htmlStartTagEnd(text, start) {
-  let quote = null;
-  for (let index = start; index < text.length; index += 1) {
-    const character = text[index];
-    if (quote !== null) {
-      if (character === quote) quote = null;
-      continue;
-    }
-    if (character === '"' || character === "'") {
-      quote = character;
-      continue;
-    }
-    if (character === '>') return index;
-  }
-  return -1;
+  return htmlTagEnd(text, start);
 }
 
 function htmlClosingTag(text, name, start) {
@@ -1909,6 +3699,268 @@ function assertHtmlReaderMarkupStructure(html) {
   }
 }
 
+const htmlVoidElements = new Set([
+  'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta',
+  'param', 'source', 'track', 'wbr',
+]);
+
+function assertBalancedHtmlReaderMarkup(html, location) {
+  let cursor = 0;
+  const stack = [];
+  while (cursor < html.length) {
+    if (html.startsWith('<!--', cursor)) {
+      const commentEnd = html.indexOf('-->', cursor + 4);
+      if (commentEnd < 0) throw new Error(`Unterminated HTML comment in ${location}.`);
+      cursor = commentEnd + 3;
+      continue;
+    }
+    if (/^<!\[CDATA\[/iu.test(html.slice(cursor))) {
+      const cdataEnd = html.indexOf(']]>', cursor + 9);
+      if (cdataEnd < 0) throw new Error(`Unterminated HTML CDATA section in ${location}.`);
+      cursor = cdataEnd + 3;
+      continue;
+    }
+    if (html[cursor] !== '<') {
+      cursor += 1;
+      continue;
+    }
+    if (/^<!/u.test(html.slice(cursor)) || /^<\?/u.test(html.slice(cursor))) {
+      const declarationEnd = html.indexOf('>', cursor + 2);
+      if (declarationEnd < 0) throw new Error(`Unterminated HTML declaration in ${location}.`);
+      cursor = declarationEnd + 1;
+      continue;
+    }
+    const tag = htmlTagNameAt(html, cursor);
+    if (tag === null) {
+      cursor += 1;
+      continue;
+    }
+    const tagEnd = htmlStartTagEnd(html, tag.nameEnd);
+    if (tagEnd < 0) throw new Error(`Unterminated HTML start tag in ${location}.`);
+    if (!tag.closing && (tag.name === 'script' || tag.name === 'style')) {
+      const close = htmlClosingTag(html, tag.name, tagEnd + 1);
+      if (close === null) throw new Error(`Unterminated HTML ${tag.name} element in ${location}.`);
+      cursor = close.index + close[0].length;
+      continue;
+    }
+    const selfClosing = /\/\s*>$/u.test(html.slice(cursor, tagEnd + 1));
+    if (tag.closing) {
+      if (htmlVoidElements.has(tag.name) || stack.at(-1) !== tag.name) {
+        throw new Error(`HTML closing tag does not match its opening tag in ${location}: ${tag.name}.`);
+      }
+      stack.pop();
+    } else if (!selfClosing && !htmlVoidElements.has(tag.name)) {
+      stack.push(tag.name);
+    }
+    cursor = tagEnd + 1;
+  }
+  if (stack.length > 0) throw new Error(`HTML reader surface has an unclosed <${stack.at(-1)}> in ${location}.`);
+}
+
+function inlineStyleProperty(element, property) {
+  const normalizedProperty = property.trim().toLocaleLowerCase('en-US');
+  const value = element.style.getPropertyValue(normalizedProperty);
+  return value.trim() === '' ? null : value.trim().toLocaleLowerCase('en-US');
+}
+
+function firstDirectDetailsSummary(details) {
+  return [...details.children].find((child) => child.localName?.toLocaleLowerCase('en-US') === 'summary') ?? null;
+}
+
+function isDirectDetailsSummary(details, element) {
+  const summary = element.closest('summary');
+  return summary?.parentElement === details && firstDirectDetailsSummary(details) === summary;
+}
+
+function hiddenReaderAncestor(element) {
+  const ancestors = [];
+  for (let current = element; current instanceof element.ownerDocument.defaultView.Element; current = current.parentElement) {
+    ancestors.unshift(current);
+  }
+
+  let inheritedVisibilityHidden = false;
+  for (const current of ancestors) {
+    const name = current.localName?.toLocaleLowerCase('en-US');
+    if (['head', 'script', 'style', 'template', 'title'].includes(name)) return true;
+
+    const display = inlineStyleProperty(current, 'display');
+    if (display?.split(/\s+/u)[0] === 'none') return true;
+    if (inlineStyleProperty(current, 'content-visibility') === 'hidden') return true;
+
+    // `hidden` and a closed dialog are native display rules. An explicit inline
+    // display value is the product's documented escape hatch for either rule.
+    if (current.hasAttribute('hidden') && display === null) return true;
+    if (name === 'dialog' && !current.hasAttribute('open') && display === null) return true;
+    if (name === 'details' && !current.hasAttribute('open') && !isDirectDetailsSummary(current, element)) return true;
+
+    const visibility = inlineStyleProperty(current, 'visibility');
+    if (visibility === 'hidden' || visibility === 'collapse') inheritedVisibilityHidden = true;
+    else if (visibility === 'visible' || visibility === 'initial') inheritedVisibilityHidden = false;
+  }
+  return inheritedVisibilityHidden;
+}
+
+function readerWhitespace(text) {
+  return (text ?? '').replace(/\s+/gu, ' ').trim();
+}
+
+function readerCodeText(text) {
+  return (text ?? '').replace(/\r\n?/gu, '\n');
+}
+
+function readerPreText(text) {
+  return readerCodeText(text)
+    .replace(/[ \t]*\n+$/u, '')
+    .replace(/[ \t]+$/u, '');
+}
+
+function readerExcludedElement(element, excluded) {
+  for (let current = element; current !== null; current = current.parentElement) {
+    if (excluded.has(current)) return true;
+  }
+  return false;
+}
+
+function readerVisibleElement(element, excluded) {
+  return !readerExcludedElement(element, excluded) && !hiddenReaderAncestor(element);
+}
+
+function readerVisibleText(root, excluded) {
+  const blockElements = new Set([
+    'address', 'article', 'aside', 'blockquote', 'br', 'caption', 'dd', 'details', 'dialog', 'div',
+    'dl', 'dt', 'fieldset', 'figcaption', 'figure', 'footer', 'form', 'h1', 'h2', 'h3', 'h4', 'h5',
+    'h6', 'header', 'hr', 'li', 'main', 'nav', 'ol', 'p', 'pre', 'section', 'summary', 'table', 'tbody',
+    'td', 'tfoot', 'th', 'thead', 'tr', 'ul', 'blume-mermaid',
+  ]);
+  const parts = [];
+  const visit = (node) => {
+    if (node.nodeType === 3) {
+      if (node.parentElement !== null && readerVisibleElement(node.parentElement, excluded)) {
+        parts.push(node.nodeValue ?? '');
+      }
+      return;
+    }
+    if (node.nodeType !== 1) return;
+    const element = node;
+    const elementVisible = readerVisibleElement(element, excluded);
+    if (element.localName === 'br') {
+      if (elementVisible) parts.push('\n');
+      return;
+    }
+    if (elementVisible && blockElements.has(element.localName)) parts.push('\n');
+    for (const child of element.childNodes) visit(child);
+    if (elementVisible && blockElements.has(element.localName)) parts.push('\n');
+  };
+  for (const child of root.childNodes) visit(child);
+  return readerWhitespace(parts.join(''));
+}
+
+function readerSemanticInventory(root, excluded = new Set()) {
+  const visible = (element) => readerVisibleElement(element, excluded);
+  const headings = [...root.querySelectorAll('h1, h2, h3, h4, h5, h6')]
+    .filter(visible)
+    .map((element) => ({ level: Number(element.localName.slice(1)), text: readerWhitespace(element.textContent) }));
+  const links = [...root.querySelectorAll('a[href]')]
+    .filter(visible)
+    .filter((element) => !(element.classList.contains('blume-heading-anchor')
+      || (element.getAttribute('href')?.startsWith('#') && element.closest('h1, h2, h3, h4, h5, h6') !== null)))
+    .map((element) => ({ href: element.getAttribute('href'), text: readerWhitespace(element.textContent) }));
+  const pre = [...root.querySelectorAll('pre')]
+    .filter(visible)
+    .map((element) => readerPreText(element.textContent));
+  const inlineCode = [...root.querySelectorAll('code')]
+    .filter(visible)
+    .filter((element) => element.closest('pre') === null && element.parentElement?.closest('code') === null)
+    .map((element) => readerCodeText(element.textContent));
+  const images = [...root.querySelectorAll('img')]
+    .filter(visible)
+    .map((element) => element.getAttribute('alt') ?? '');
+  const mermaid = [...root.querySelectorAll('blume-mermaid')]
+    .filter(visible)
+    .map((element) => element.getAttribute('data-source') ?? '');
+  return {
+    text: readerVisibleText(root, excluded),
+    headings,
+    links,
+    pre,
+    inlineCode,
+    images,
+    mermaid,
+  };
+}
+
+function readerSemanticRoot(html, location) {
+  const virtualConsole = new VirtualConsole();
+  virtualConsole.on('jsdomError', () => {});
+  const dom = new JSDOM(`<div data-reader-contract-root>${html}</div>`, { virtualConsole });
+  const root = dom.window.document.querySelector('[data-reader-contract-root]');
+  if (root === null) {
+    dom.window.close();
+    throw new Error(`HTML semantic reader root is missing in ${location}.`);
+  }
+  return { dom, root };
+}
+
+async function assertHtmlReaderSemanticContract({ html, expectedRaw, title, outcome, route, source }) {
+  const location = `HTML ${route}`;
+  assertBalancedHtmlReaderMarkup(html, location);
+  const { dom, root } = readerSemanticRoot(html, location);
+  try {
+    const articles = [...root.querySelectorAll('article')];
+    if (articles.length !== 1 || !articles[0].classList.contains('prose')) {
+      throw new Error(`HTML ${route} must contain exactly one article.prose.`);
+    }
+    const article = articles[0];
+    const visibleChildren = [...article.children].filter((element) => !hiddenReaderAncestor(element));
+    const headings = [...article.querySelectorAll('h1')].filter((element) => !hiddenReaderAncestor(element));
+    if (headings.length !== 1 || readerWhitespace(headings[0].textContent) !== title) {
+      throw new Error(`HTML ${route} H1 drifted from the canonical manifest title.`);
+    }
+    const headingIndex = visibleChildren.indexOf(headings[0]);
+    const description = headingIndex >= 0 ? visibleChildren[headingIndex + 1] : null;
+    if (description?.localName !== 'p' || readerWhitespace(description.textContent) !== outcome) {
+      throw new Error(`HTML ${route} lead description drifted from the Content Map reader outcome.`);
+    }
+    const excluded = new Set([headings[0], description]);
+    const actual = readerSemanticInventory(article, excluded);
+    const expectedRendered = await renderReaderBody(canonicalGeneratedReaderBody(expectedRaw, source));
+    const expectedRootResult = readerSemanticRoot(expectedRendered.html, `${location} expected body`);
+    try {
+      const expected = readerSemanticInventory(expectedRootResult.root);
+      expected.mermaid = expectedRendered.mermaid;
+      for (const field of ['text', 'headings', 'links', 'pre', 'inlineCode', 'images', 'mermaid']) {
+        if (JSON.stringify(actual[field]) !== JSON.stringify(expected[field])) {
+          throw new Error(`HTML semantic body drifted for ${route} (${field}).`);
+        }
+      }
+    } finally {
+      expectedRootResult.dom.window.close();
+    }
+  } finally {
+    dom.window.close();
+  }
+}
+
+export function extractVisibleInlineCodeInventory(html, location = 'HTML artifact') {
+  if (typeof html !== 'string') throw new Error(`HTML reader surface requires text in ${location}.`);
+  assertBalancedHtmlReaderMarkup(html, location);
+  const virtualConsole = new VirtualConsole();
+  virtualConsole.on('jsdomError', () => {});
+  const dom = new JSDOM(html, { virtualConsole });
+  try {
+    const inventories = [];
+    for (const element of dom.window.document.querySelectorAll('code')) {
+      if (element.closest('pre') || element.parentElement?.closest('code') || hiddenReaderAncestor(element)) continue;
+      const codeText = element.textContent ?? '';
+      assertNoDanglingArtifactPlaceholderFragments(codeText, `${location} visible inline code`);
+      inventories.push(placeholderInventory(codeText));
+    }
+    return mergePlaceholderInventories(inventories);
+  } finally {
+    dom.window.close();
+  }
+}
+
 function htmlReaderSurfaceText(html) {
   const metadata = [];
   const jsonLd = [];
@@ -1950,11 +4002,15 @@ export async function assertSourceDerivedReferenceCoverage(contentMap, repositor
   const attributes = await readFile(path.join(repositoryRoot, 'docs/guide/attributes.md'), 'utf8');
   const cli = await readFile(path.join(repositoryRoot, 'docs/guide/project-cli.md'), 'utf8');
   const configuration = await readFile(path.join(repositoryRoot, 'docs/guide/configuration.md'), 'utf8');
+  const authority = await loadReleaseAuthority(path.join(repositoryRoot, 'develop/spec/release-authority.json'));
+  const stableReferenceExclusions = stableReferenceExclusionsFor(authority);
   const publicTypes = [];
   const publicAttributes = [];
   const publicCommands = new Set();
   const configurationKeys = new Set();
   for (const file of await phpFiles(path.join(repositoryRoot, 'src'))) {
+    const relativePath = path.relative(repositoryRoot, file).split(path.sep).join('/');
+    if (stableReferenceExclusions.has(relativePath)) continue;
     const source = await readFile(file, 'utf8');
     if (!source.includes('#[PublicApi]')) continue;
     const namespace = source.match(/^namespace\s+([^;]+);/m)?.[1];
@@ -1967,11 +4023,17 @@ export async function assertSourceDerivedReferenceCoverage(contentMap, repositor
       enumBacking: declaration[1] === 'enum' ? declaration[3] ?? null : null,
       enumCases: declaration[1] === 'enum' ? extractEnumCases(source) : [],
       constants: extractPublicConstants(source),
-      methods: extractPublicMethods(source),
+      methods: extractPublicMethods(source).filter((method) => !(
+        relativePath === stableReferenceMethodExclusion.path
+        && fqcn === stableReferenceMethodExclusion.fqcn
+        && method.name === stableReferenceMethodExclusion.name
+      )),
     });
     if (/\\(?:Attribute|Validation\\Attribute)$/.test(namespace) && declaration[2] !== 'SensitiveMode') publicAttributes.push(fqcn);
   }
   for (const file of await phpFiles(path.join(repositoryRoot, 'src'))) {
+    const relativePath = path.relative(repositoryRoot, file).split(path.sep).join('/');
+    if (stableReferenceExclusions.has(relativePath)) continue;
     const source = await readFile(file, 'utf8');
     for (const [, command] of source.matchAll(/public\s+const\s+NAME\s*=\s*'([^']+)'/gu)) {
       if (!command.startsWith('blackops:') && !['outbox-relay', 'retention'].includes(command)) publicCommands.add(command);
@@ -2218,6 +4280,28 @@ function assertSingleOutcome(strings, expected, outcomes, location) {
   if (!strings.some((value) => value.includes(expected))) throw new Error(`${location} is missing its mapped reader outcome.`);
   const other = outcomes.filter((outcome) => outcome !== expected && strings.some((value) => value.includes(outcome)));
   if (other.length > 0) throw new Error(`${location} contains an adjacent or foreign reader outcome: ${other[0]}.`);
+}
+
+function assertSearchRecordNonContentPlaceholderFree(record, location) {
+  const visit = (value, field) => {
+    if (typeof value === 'string') {
+      const dangling = danglingPlaceholderFragments(value);
+      if (dangling.length > 0) throw new Error(`Search ${location} contains dangling ${dangling[0]} fragment in ${field}.`);
+      const inventory = placeholderInventory(value);
+      if (inventory.total > 0) throw new Error(`Search ${location} contains a placeholder fragment outside record.content in ${field}.`);
+      return;
+    }
+    if (Array.isArray(value)) {
+      value.forEach((entry, index) => visit(entry, `${field}[${index}]`));
+      return;
+    }
+    if (value !== null && typeof value === 'object') {
+      Object.entries(value).forEach(([key, entry]) => visit(entry, `${field}.${key}`));
+    }
+  };
+  Object.entries(record).forEach(([key, value]) => {
+    if (key !== 'content') visit(value, key);
+  });
 }
 
 function collectStrings(value) {
@@ -2482,6 +4566,14 @@ async function firstExisting(...candidates) {
     }
   }
   return null;
+}
+
+async function directoryExists(candidate) {
+  try {
+    return (await stat(candidate)).isDirectory();
+  } catch {
+    return false;
+  }
 }
 
 async function markdownFiles(root) {

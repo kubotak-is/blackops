@@ -1,0 +1,1266 @@
+diff --git a/dist/cli/index.js b/dist/cli/index.js
+index 8af4b55b01874f94762e1e1e2d807c28c8e91e30..0f4f0b73fba2b7854551a1edee1ee9b66898f038 100755
+--- a/dist/cli/index.js
++++ b/dist/cli/index.js
+@@ -12228,16 +12228,14 @@
+     register?.(param, abs);
+     return `${prefix}/${encodedParam(param)}`;
+   };
+-  let fence = null;
+-  const lines = source.split(`
+-`).map((line) => {
+-    const next = nextFenceState(line, fence);
+-    const inFence = fence !== null || next !== null;
+-    fence = next;
+-    return inFence ? line : rewriteLine(line, toUrl2);
+-  });
+-  return lines.join(`
+-`);
++  const fences = fenceRanges(source);
++  let output = "";
++  for (const physical of sourcePhysicalLines(source)) {
++    const inFence = fences.some(([start, end]) => physical.start >= start && physical.start < end);
++    output += inFence ? physical.line : rewriteLine(physical.line, toUrl2);
++    output += physical.terminator;
++  }
++  return output;
+ };
+ var collectContentAssets = async (project) => {
+   const files = {};
+@@ -13249,26 +13248,8 @@ var buildSearchIndex = async (outDir) => {
+ };
+ 
+ // src/search/documents.ts
+-var CODE_FENCE3 = /```[\s\S]*?```/gu;
+-var INLINE_CODE3 = /`(?<code>[^`]+)`/gu;
+-var HTML_OR_JSX2 = /<\/?[a-zA-Z][^\n<>]*>|<\/?>/gu;
+-var IMAGE2 = /!\[[^\]]*\]\([^)]*\)/gu;
+-var LINK2 = /\[(?<text>[^\]]*)\]\([^)]*\)/gu;
+-var HEADING_MARK = /^#{1,6}\s+/gmu;
+-var MARKDOWN_PUNCT2 = /[*_~>]+/gu;
+-var WHITESPACE3 = /\s+/gu;
+-var toPlainText = (markdown) => {
+-  const withoutBlocks = markdown.replaceAll(CODE_FENCE3, " ").replaceAll(IMAGE2, " ").replaceAll(LINK2, "$<text>");
+-  const pieces = [];
+-  let cursor = 0;
+-  for (const match of withoutBlocks.matchAll(INLINE_CODE3)) {
+-    const start = match.index ?? 0;
+-    pieces.push(withoutBlocks.slice(cursor, start).replaceAll(HTML_OR_JSX2, " "), match.groups?.code ?? "");
+-    cursor = start + match[0].length;
+-  }
+-  pieces.push(withoutBlocks.slice(cursor).replaceAll(HTML_OR_JSX2, " "));
+-  return pieces.join("").replaceAll(HEADING_MARK, "").replaceAll(MARKDOWN_PUNCT2, " ").replaceAll(WHITESPACE3, " ").trim();
+-};
++import { fenceRanges, sourcePhysicalLines } from "../../src/search/plain-text.mjs";
++import { toPlainText } from "../../src/search/plain-text.mjs";
+ var buildCrumbIndex = (sidebar) => {
+   const index = new Map;
+   const groupRoutes = new Map;
+diff --git a/src/search/documents.ts b/src/search/documents.ts
+index 535e30faafaa3911b9325d2f4608c7b631211aa7..d0d3a3d70e9e0b344a28324a4f18bb785971a4f7 100644
+--- a/src/search/documents.ts
++++ b/src/search/documents.ts
+@@ -5,6 +5,7 @@ import { contentIndexable } from "../core/manifest.ts";
+ import type { BlumeProject } from "../core/project-graph.ts";
+ import { readEntryText } from "../core/sources/read.ts";
+ import type { NavNode } from "../core/types.ts";
++import { toPlainText } from "./plain-text.mjs";
+ 
+ /** A document indexed by the client-side search providers (Orama, FlexSearch). */
+ export interface SearchDocument {
+@@ -39,49 +40,6 @@ export interface SearchRecord {
+   tag?: string;
+ }
+ 
+-const CODE_FENCE = /```[\s\S]*?```/gu;
+-const INLINE_CODE = /`(?<code>[^`]+)`/gu;
+-// Tag-shaped only: a name (or closing slash/fragment) right after `<`, and no
+-// newline inside. A bare `<` in prose ("costs < 5 credits") must not swallow
+-// everything up to some later `>` — potentially whole paragraphs.
+-const HTML_OR_JSX = /<\/?[a-zA-Z][^\n<>]*>|<\/?>/gu;
+-const IMAGE = /!\[[^\]]*\]\([^)]*\)/gu;
+-const LINK = /\[(?<text>[^\]]*)\]\([^)]*\)/gu;
+-const HEADING_MARK = /^#{1,6}\s+/gmu;
+-const MARKDOWN_PUNCT = /[*_~>]+/gu;
+-const WHITESPACE = /\s+/gu;
+-
+-/** Reduce Markdown/MDX to plain, searchable text. */
+-const toPlainText = (markdown: string): string => {
+-  const withoutBlocks = markdown
+-    .replaceAll(CODE_FENCE, " ")
+-    .replaceAll(IMAGE, " ")
+-    .replaceAll(LINK, "$<text>");
+-
+-  // Strip HTML/JSX from the prose, but keep the contents of inline code — an
+-  // angle-bracket span like `<T>` inside `Array<T>` is a type parameter, not a
+-  // tag, and stripping it would drop those tokens from the search index. Split
+-  // on inline-code spans and only run the HTML strip on the text between them.
+-  const pieces: string[] = [];
+-  let cursor = 0;
+-  for (const match of withoutBlocks.matchAll(INLINE_CODE)) {
+-    const start = match.index ?? 0;
+-    pieces.push(
+-      withoutBlocks.slice(cursor, start).replaceAll(HTML_OR_JSX, " "),
+-      match.groups?.code ?? ""
+-    );
+-    cursor = start + match[0].length;
+-  }
+-  pieces.push(withoutBlocks.slice(cursor).replaceAll(HTML_OR_JSX, " "));
+-
+-  return pieces
+-    .join("")
+-    .replaceAll(HEADING_MARK, "")
+-    .replaceAll(MARKDOWN_PUNCT, " ")
+-    .replaceAll(WHITESPACE, " ")
+-    .trim();
+-};
+-
+ interface Crumbs {
+   breadcrumb: string[];
+   section: string;
+diff --git a/src/search/plain-text.mjs b/src/search/plain-text.mjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..dbb4d063458d50bbdbff4ac62b8af289d0856738
+--- /dev/null
++++ b/src/search/plain-text.mjs
+@@ -0,0 +1,1098 @@
++/**
++ * Convert Markdown/MDX into the text used by Blume's plain search index.
++ *
++ * This helper deliberately keeps the scanner small and stateful. Regex-only
++ * extraction cannot distinguish a long inline-code delimiter from a fence or
++ * a template literal embedded in an HTML/JSX attribute.
++ */
++
++const HEADING = /^ {0,3}#{1,6}(?=\s|$)/u;
++const PUNCTUATION = /[*_~>]+/gu;
++const WHITESPACE = /\s+/gu;
++
++const normalizeFenceLine = (line) => line.replace(/\r?\n$|\r$/u, "");
++
++const nextTabColumn = (column) => column + (4 - (column % 4));
++
++const advanceColumn = (column, character) => character === "\t" ? nextTabColumn(column) : column + 1;
++
++const blockContainerTag = /^<\/?(?:address|article|aside|base|basefont|blockquote|body|caption|center|col|colgroup|dd|details|dialog|dir|div|dl|dt|fieldset|figcaption|figure|footer|form|frame|frameset|h[1-6]|head|header|hr|html|iframe|legend|li|link|main|menu|menuitem|nav|noframes|ol|optgroup|option|p|param|pre|script|section|search|style|summary|table|tbody|td|textarea|tfoot|th|thead|title|tr|track|ul|xmp)(?:[ \t>]|\/>|$)/iu;
++const blockContainerTagPrefix = /^<\/?(?<name>address|article|aside|base|basefont|blockquote|body|caption|center|col|colgroup|dd|details|dialog|dir|div|dl|dt|fieldset|figcaption|figure|footer|form|frame|frameset|h[1-6]|head|header|hr|html|iframe|legend|li|link|main|menu|menuitem|nav|noframes|ol|optgroup|option|p|param|pre|script|section|search|style|summary|table|tbody|td|textarea|tfoot|th|thead|title|tr|track|ul|xmp)(?=[ \t>]|\/>|$)/iu;
++
++const blockContainerTagNames = new Set([
++  "address", "article", "aside", "base", "basefont", "blockquote", "body", "caption", "center",
++  "col", "colgroup", "dd", "details", "dialog", "dir", "div", "dl", "dt", "fieldset",
++  "figcaption", "figure", "footer", "form", "frame", "frameset", "h1", "h2", "h3", "h4",
++  "h5", "h6", "head", "header", "hr", "html", "iframe", "legend", "li", "link", "main",
++  "menu", "menuitem", "nav", "noframes", "ol", "optgroup", "option", "p", "param", "pre",
++  "script", "section", "search", "style", "summary", "table", "tbody", "td", "textarea",
++  "tfoot", "th", "thead", "title", "tr", "track", "ul", "xmp",
++]);
++const voidBlockTags = new Set(["base", "basefont", "col", "hr", "link", "track"]);
++const htmlTagPattern = /<(?<closing>\/)?(?<name>[A-Za-z][A-Za-z0-9-]*)(?<body>[^>]*)>/gu;
++const htmlOpeningTagPattern = /^<(?<name>[A-Za-z][A-Za-z0-9-]*)(?<body>[^>]*)>/u;
++
++const completeHtmlTag = (value) => {
++  const isSpace = (character) => character === " " || character === "\t";
++  const isAlpha = (character) => /[A-Za-z]/u.test(character ?? "");
++  const isAlphanumeric = (character) => /[A-Za-z0-9]/u.test(character ?? "");
++  const isAttributeStart = (character) => isAlpha(character) || character === ":" || character === "_";
++  const isAttributeContinuation = (character) => isAlphanumeric(character)
++    || character === "-" || character === "." || character === ":" || character === "_";
++  if (!value.startsWith("<")) return null;
++  let offset = 1;
++  const closing = value[offset] === "/";
++  if (closing) offset += 1;
++  const nameStart = offset;
++  if (!isAlpha(value[offset])) return null;
++  offset += 1;
++  while (isAlphanumeric(value[offset]) || value[offset] === "-") offset += 1;
++  const name = value.slice(nameStart, offset).toLocaleLowerCase("en-US");
++  if (closing) {
++    while (isSpace(value[offset])) offset += 1;
++    if (value[offset] !== ">") return null;
++    offset += 1;
++  } else {
++    let state = "after-name";
++    let quote = null;
++    while (true) {
++      const character = value[offset];
++      if (state === "after-name") {
++        if (isSpace(character)) {
++          offset += 1;
++          state = "attribute-before";
++        } else if (character === "/") {
++          offset += 1;
++          state = "end";
++        } else if (character === ">") {
++          offset += 1;
++          break;
++        } else {
++          return null;
++        }
++      } else if (state === "attribute-before") {
++        if (character === "/") {
++          offset += 1;
++          state = "end";
++        } else if (isAttributeStart(character)) {
++          offset += 1;
++          state = "attribute";
++        } else if (isSpace(character)) {
++          offset += 1;
++        } else if (character === ">") {
++          offset += 1;
++          break;
++        } else {
++          return null;
++        }
++      } else if (state === "attribute") {
++        if (isAttributeContinuation(character)) {
++          offset += 1;
++        } else {
++          state = "attribute-after";
++        }
++      } else if (state === "attribute-after") {
++        if (character === "=") {
++          offset += 1;
++          state = "value-before";
++        } else if (isSpace(character)) {
++          offset += 1;
++        } else {
++          state = "attribute-before";
++        }
++      } else if (state === "value-before") {
++        if (character === '"' || character === "'") {
++          quote = character;
++          offset += 1;
++          state = "quoted";
++        } else if (isSpace(character)) {
++          offset += 1;
++        } else if (character === undefined || character === "<" || character === "="
++          || character === ">" || character === "`") {
++          return null;
++        } else {
++          state = "unquoted";
++        }
++      } else if (state === "unquoted") {
++        if (character === undefined || character === '"' || character === "'"
++          || character === "/" || character === "<" || character === "="
++          || character === ">" || character === "`" || isSpace(character)) {
++          state = "attribute-after";
++        } else {
++          offset += 1;
++        }
++      } else if (state === "quoted") {
++        if (character === quote) {
++          offset += 1;
++          quote = null;
++          state = "quoted-after";
++        } else if (character === undefined || character === "\r" || character === "\n") {
++          return null;
++        } else {
++          offset += 1;
++        }
++      } else if (state === "quoted-after") {
++        if (character === "/" || character === ">" || isSpace(character)) {
++          state = "attribute-before";
++        } else {
++          return null;
++        }
++      } else if (state === "end") {
++        if (character !== ">") return null;
++        offset += 1;
++        break;
++      }
++    }
++  }
++  while (value[offset] === " " || value[offset] === "\t") offset += 1;
++  if (value[offset] !== undefined && value[offset] !== "\r" && value[offset] !== "\n") return null;
++  return { closing, name };
++};
++
++const htmlBlockTags = (content, inherited = []) => {
++  const tags = [...inherited];
++  for (const match of content.matchAll(htmlTagPattern)) {
++    const name = match.groups.name.toLocaleLowerCase("en-US");
++    if (!blockContainerTagNames.has(name)) continue;
++    if (match.groups.closing !== undefined) {
++      const index = tags.lastIndexOf(name);
++      if (index >= 0) tags.splice(index, 1);
++      continue;
++    }
++    if (voidBlockTags.has(name) || /\/[ \t]*$/u.test(match.groups.body)) continue;
++    tags.push(name);
++  }
++  return tags;
++};
++
++const htmlOpeningContinuation = (value, initialQuote = null, start = 0) => {
++  let quote = initialQuote;
++  for (let offset = start; offset < value.length; offset += 1) {
++    const character = value[offset];
++    if (quote !== null) {
++      if (character === quote) quote = null;
++      continue;
++    }
++    if (character === "\"" || character === "'") {
++      quote = character;
++      continue;
++    }
++    if (character === "<") return { end: -1, quote };
++    if (character === ">") return { end: offset, quote: null };
++  }
++  return { end: -1, quote };
++};
++
++const htmlFlowContext = (value, inherited) => {
++  if (inherited?.container === undefined) {
++    return {
++      content: value.trim(),
++      offset: value.match(/^[ \t]*/u)?.[0].length ?? 0,
++    };
++  }
++  const context = containerContext(value, {
++    ...inherited.container,
++    htmlBlock: null,
++    htmlBlockMask: false,
++  }, false, inherited.container.blockquoteDepth ?? 0);
++  const leading = context.fenceContent.match(/^[ \t]*/u)?.[0].length ?? 0;
++  return {
++    content: context.fenceContent.trim(),
++    offset: context.fenceContentOffset + leading,
++  };
++};
++
++const rawHtmlIsInert = (tag) => tag === "script" || tag === "style";
++
++const htmlBlockTransition = (value, inherited = null, paragraph = false, indent = 0, container = null) => {
++  const flow = htmlFlowContext(value, inherited);
++  const content = flow.content;
++  const contentOffset = flow.offset;
++  const canStart = indent <= 3;
++  if (inherited?.kind === "comment") {
++    return { active: true, state: content.includes("-->") ? null : inherited, mask: true };
++  }
++  if (inherited?.kind === "processing") {
++    return { active: true, state: content.includes("?>") ? null : inherited, mask: true };
++  }
++  if (inherited?.kind === "declaration") {
++    return { active: true, state: content.includes(">") ? null : inherited, mask: true };
++  }
++  if (inherited?.kind === "cdata") {
++    return { active: true, state: content.includes("]]>") ? null : inherited, mask: true };
++  }
++  if (inherited?.kind === "raw") {
++    if (!inherited.openingComplete) {
++      const opening = htmlOpeningContinuation(content, inherited.openingQuote ?? null);
++      if (opening.end < 0) return {
++        active: true,
++        state: { ...inherited, openingQuote: opening.quote },
++        mask: true,
++      };
++      const close = new RegExp(`</${inherited.tag}[ \\t]*>`, "iu");
++      const inert = rawHtmlIsInert(inherited.tag);
++      if (close.test(content.slice(opening.end + 1))) return { active: true, state: null, mask: inert };
++      return {
++        active: true,
++        state: { ...inherited, openingComplete: true, openingQuote: null },
++        mask: true,
++        ...(inert ? {} : { maskEnd: contentOffset + opening.end + 1 }),
++      };
++    }
++    const close = new RegExp(`</${inherited.tag}[ \\t]*>`, "iu");
++    return {
++      active: true,
++      state: close.test(content) ? null : inherited,
++      mask: rawHtmlIsInert(inherited.tag),
++    };
++  }
++  if (inherited?.kind === "type-6") {
++    if (content === "") return { active: true, state: null, mask: inherited.invisible };
++    if (!inherited.openingComplete) {
++      const opening = htmlOpeningContinuation(content, inherited.openingQuote ?? null);
++      if (opening.end < 0) return {
++        active: true,
++        state: { ...inherited, openingQuote: opening.quote },
++        mask: true,
++      };
++      return {
++        active: true,
++        state: { ...inherited, openingComplete: true, openingQuote: null, invisible: false },
++        mask: true,
++        maskEnd: contentOffset + opening.end + 1,
++      };
++    }
++    return { active: true, state: inherited, mask: inherited.invisible };
++  }
++  if (inherited?.kind === "type-7") {
++    return content === ""
++      ? { active: true, state: null, mask: Boolean(inherited.invisible) }
++      : { active: true, state: inherited, mask: Boolean(inherited.invisible) };
++  }
++  if (content === "" || !canStart) return { active: false, state: null, mask: false };
++  if (content.startsWith("<!--")) {
++    return { active: true, state: content.includes("-->") ? null : { kind: "comment", container }, mask: !content.includes("-->") };
++  }
++  if (content.startsWith("<?")) {
++    return { active: true, state: content.includes("?>") ? null : { kind: "processing", container }, mask: !content.includes("?>") };
++  }
++  if (/^<!\[CDATA\[/u.test(content)) {
++    return { active: true, state: content.includes("]]>") ? null : { kind: "cdata", container }, mask: !content.includes("]]>") };
++  }
++  if (/^<![A-Za-z]/u.test(content)) {
++    return { active: true, state: content.includes(">") ? null : { kind: "declaration", container }, mask: !content.includes(">") };
++  }
++  const rawStarter = content.match(/^<(?<name>pre|script|style|textarea)(?=[ \t>]|\/>|$)/iu);
++  const complete = completeHtmlTag(content);
++  const blockPrefix = content.match(blockContainerTagPrefix);
++  const openingScan = complete === null
++    ? htmlOpeningContinuation(content, null, (rawStarter ?? blockPrefix)?.[0].length ?? 0)
++    : { end: 0, quote: null };
++  const opening = content.match(htmlOpeningTagPattern);
++  if (complete === null && rawStarter === null && blockPrefix === null) return { active: false, state: null };
++  const name = (complete?.name ?? rawStarter?.groups.name ?? blockPrefix?.groups.name ?? opening?.groups.name).toLocaleLowerCase("en-US");
++  const closing = complete?.closing ?? content.startsWith("</");
++  if (["pre", "script", "style", "textarea"].includes(name) && !closing) {
++    const close = new RegExp(`</${name}[ \\t]*>`, "iu");
++    const closed = close.test(content);
++    const inert = rawHtmlIsInert(name);
++    return {
++      active: true,
++      state: closed ? null : {
++        kind: "raw",
++        tag: name,
++        openingComplete: complete !== null,
++        openingQuote: openingScan.quote,
++        container,
++      },
++      mask: closed ? false : (complete === null || inert),
++    };
++  }
++  if (blockPrefix !== null && complete === null && opening === null && rawStarter === null) {
++    return { active: true, state: { kind: "type-6", invisible: true, openingComplete: false, openingQuote: openingScan.quote, container }, mask: true };
++  }
++  if (blockContainerTagNames.has(name)) {
++    return { active: true, state: { kind: "type-6", invisible: false, openingComplete: true, container }, mask: false };
++  }
++  if (paragraph) return { active: false, state: null, mask: false };
++  if (complete === null) return { active: false, state: null, mask: false };
++  return { active: true, state: { kind: "type-7", invisible: false }, mask: false };
++};
++
++const paragraphContent = (value, setextUnderline = false) => {
++  const content = value.trim();
++  if (content === "") return false;
++  if (/^#{1,6}(?:[ \t]+|$)/u.test(content)) return false;
++  if (/^(?:`{3,}|~{3,})/u.test(content)) return false;
++  if (/^(?:(?:\*[ \t]*){3,}|(?:-[ \t]*){3,}|(?:_[ \t]*){3,})$/u.test(content)) return false;
++  if (setextUnderline) return false;
++  if (/^(?:<!--|<\?|<![A-Za-z]|<!\[CDATA\[)/u.test(content)
++    || blockContainerTag.test(content)) return false;
++  return true;
++};
++
++const readWhitespace = (value, offset, column, limit = Number.POSITIVE_INFINITY) => {
++  let end = offset;
++  let current = column;
++  while (end < value.length && (value[end] === " " || value[end] === "\t")) {
++    const next = advanceColumn(current, value[end]);
++    if (next - column > limit) return { offset, column, width: 0, valid: false };
++    current = next;
++    end += 1;
++  }
++  return { offset: end, column: current, width: current - column, valid: true };
++};
++
++const consumeIndent = (value, width, column) => {
++  let offset = 0;
++  let current = column;
++  while (offset < value.length && (value[offset] === " " || value[offset] === "\t") && current - column < width) {
++    const next = advanceColumn(current, value[offset]);
++    if (next - column > width) {
++      if (value[offset] !== "\t") return { offset: 0, column, width: 0, valid: false };
++      return {
++        offset: offset + 1,
++        column: next,
++        width,
++        surplus: next - column - width,
++        valid: true,
++      };
++    }
++    current = next;
++    offset += 1;
++  }
++  return current - column === width
++    ? { offset, column: current, width, surplus: 0, valid: true }
++    : { offset: 0, column, width: 0, valid: false };
++};
++
++const indentWidth = (value, column = 0) => readWhitespace(value, 0, column).width;
++
++const listMarkerPattern = /^(?<token>[-+*]|\d{1,9}[.)])(?:(?<padding>[ \t]+)|(?=$))/u;
++const thematicBreakPattern = /^(?:(?:\*[ \t]*){3,}|(?:-[ \t]*){3,}|(?:_[ \t]*){3,})$/u;
++const isThematicBreak = (value) => thematicBreakPattern.test(value.trim());
++
++const copyListItems = (items) => items.map((item) => ({ ...item }));
++
++const sameListPath = (left, right) => left.length === right.length
++  && left.every((item, index) => item.kind === right[index]?.kind
++    && item.contentColumn === right[index]?.contentColumn);
++
++const inheritedListPrefixDepth = (items, markerStart) => {
++  let depth = 0;
++  for (const item of items) {
++    if (item.contentColumn > markerStart) break;
++    depth += 1;
++  }
++  return depth;
++};
++
++const containerContext = (line, inheritedList = null, resolveHtml = true, maxBlockquoteDepth = Number.POSITIVE_INFINITY) => {
++  const value = normalizeFenceLine(line);
++  let offset = 0;
++  let column = 0;
++  let blockquoteDepth = 0;
++  const candidates = [];
++  let thematicBreak = null;
++  while (true) {
++    const leading = readWhitespace(value, offset, column, 3);
++    if (!leading.valid) break;
++    const candidateStart = leading.offset;
++    const candidateColumn = leading.column;
++    const candidate = value.slice(candidateStart);
++    if (candidate.startsWith(">") && blockquoteDepth < maxBlockquoteDepth) {
++      blockquoteDepth += 1;
++      offset = candidateStart + 1;
++      column = candidateColumn + 1;
++      if (value[offset] === " " || value[offset] === "\t") {
++        column = advanceColumn(column, value[offset]);
++        offset += 1;
++      }
++      continue;
++    }
++    if (isThematicBreak(candidate)) {
++      thematicBreak = { start: candidateStart, column: candidateColumn };
++      offset = candidateStart;
++      column = candidateColumn;
++      break;
++    }
++    const marker = candidate.match(listMarkerPattern);
++    if (marker === null) break;
++    const token = marker.groups.token;
++    const padding = marker.groups.padding ?? "";
++    const paddingStart = candidateStart + token.length;
++    const paddingColumn = candidateColumn + token.length;
++    const fullPadding = readWhitespace(value, paddingStart, paddingColumn);
++    const consumedPadding = fullPadding.width <= 4
++      ? fullPadding.offset - paddingStart
++      : padding.length > 0 ? 1 : 0;
++    const consumedPaddingColumn = fullPadding.width <= 4
++      ? fullPadding.width
++      : padding.length > 0 ? advanceColumn(paddingColumn, value[paddingStart]) - paddingColumn : 0;
++    candidates.push({
++      start: candidateStart,
++      column: candidateColumn,
++      token,
++      padding,
++      consumedPadding,
++      consumedPaddingColumn,
++    });
++    offset = paddingStart + consumedPadding;
++    column = paddingColumn + consumedPaddingColumn;
++  }
++
++  const lazyBlockquote = inheritedList !== null
++    && inheritedList.blockquoteDepth > blockquoteDepth
++    && inheritedList.paragraph
++    && blockquoteDepth === 0
++    && candidates.length === 0
++    && thematicBreak === null
++    && value.slice(offset).trim() !== ""
++    && !/^(?:#{1,6}(?:[ \t]+|$)|(?:`{3,}|~{3,})|(?:<!--|<\?|<![A-Za-z]|<!\[CDATA\[)|<\/?(?:address|article|aside|base|basefont|blockquote|body|caption|center|col|colgroup|dd|details|dialog|dir|div|dl|dt|fieldset|figcaption|figure|footer|form|frame|frameset|h[1-6]|head|header|hr|html|iframe|legend|li|link|main|menu|menuitem|nav|noframes|ol|optgroup|option|p|param|pre|script|section|search|style|summary|table|tbody|td|textarea|tfoot|th|thead|title|tr|track|ul|xmp)(?:[ \t>]|\/>|$))/iu.test(value.slice(offset).trim());
++  if (lazyBlockquote) blockquoteDepth = inheritedList.blockquoteDepth;
++
++  const inheritedItems = inheritedList !== null && inheritedList.blockquoteDepth === blockquoteDepth
++    ? inheritedList.listItems
++    : [];
++  const firstMarkerStart = thematicBreak?.column ?? candidates[0]?.column ?? Number.POSITIVE_INFINITY;
++  const baseDepth = inheritedListPrefixDepth(inheritedItems, firstMarkerStart);
++  let listItems = copyListItems(inheritedItems.slice(0, baseDepth));
++  let acceptedMarkers = 0;
++  let rejectedMarkerStart = null;
++  let rejectedMarkerColumn = null;
++  for (const [index, candidate] of candidates.entries()) {
++    const ordered = /^\d/u.test(candidate.token);
++    const parentParagraph = index === 0
++      ? inheritedList !== null
++        && inheritedList.blockquoteDepth === blockquoteDepth
++        && baseDepth === inheritedItems.length
++        && inheritedList.paragraph
++      : false;
++    if (ordered && parentParagraph && Number.parseInt(candidate.token, 10) !== 1) {
++      rejectedMarkerStart = candidate.start;
++      rejectedMarkerColumn = candidate.column;
++      break;
++    }
++    listItems.push({
++      kind: ordered ? "ordered" : "unordered",
++      marker: candidate.token,
++      contentColumn: candidate.column + candidate.token.length + candidate.consumedPaddingColumn,
++    });
++    acceptedMarkers += 1;
++  }
++
++  const trailingMarker = candidates.at(-1);
++  const trailingMarkerContent = trailingMarker === undefined
++    ? ""
++    : line.slice(trailingMarker.start + trailingMarker.token.length + trailingMarker.consumedPadding).trim();
++  let explicitList = acceptedMarkers > 0;
++  const inheritedSameContainerParagraph = inheritedList !== null
++    && inheritedList.blockquoteDepth === blockquoteDepth
++    && inheritedList.paragraph;
++  const nestedBlockStartMarker = inheritedSameContainerParagraph
++    && inheritedItems.length > 0
++    && trailingMarker !== undefined
++    && trailingMarker.column >= (inheritedList.listContinuationIndent ?? 0);
++  const emptyListItem = thematicBreak === null
++    && rejectedMarkerStart === null
++    && trailingMarker !== undefined
++    && trailingMarkerContent === ""
++    && (!inheritedSameContainerParagraph || nestedBlockStartMarker);
++  if (emptyListItem) {
++    // Keep an empty marker as a real list item when no paragraph is active.
++  } else if (thematicBreak === null && rejectedMarkerStart === null && trailingMarker !== undefined && trailingMarkerContent === "") {
++    listItems = copyListItems(inheritedItems.slice(0, baseDepth + Math.max(0, acceptedMarkers - 1)));
++    acceptedMarkers = Math.max(0, acceptedMarkers - 1);
++    explicitList = acceptedMarkers > 0;
++    offset = trailingMarker.start;
++    column = trailingMarker.column;
++  }
++  if (rejectedMarkerStart !== null) {
++    offset = rejectedMarkerStart;
++    column = rejectedMarkerColumn;
++    listItems = copyListItems(inheritedItems.slice(0, baseDepth));
++  }
++  const content = value.slice(offset);
++  const contentColumn = column;
++  const inheritedContinuation = inheritedList !== null
++    && inheritedList.blockquoteDepth === blockquoteDepth
++    && listItems.length > 0;
++  let implicitList = false;
++  let fenceContent = content;
++  let fenceContentOffset = offset;
++  let fenceContentColumn = contentColumn;
++  let fenceIndentWidth = indentWidth(content, fenceContentColumn);
++  let continuationSurplus = 0;
++  let setextUnderline = false;
++  const inheritedParagraph = inheritedList !== null
++    && inheritedList.blockquoteDepth === blockquoteDepth
++    && inheritedList.paragraph;
++  if (thematicBreak === null && !explicitList && inheritedContinuation) {
++    const requiredIndent = inheritedList.listContinuationIndent - contentColumn;
++    const continuationCandidates = requiredIndent > 0
++      ? [requiredIndent, ...inheritedItems
++        .map(({ contentColumn: ancestorColumn }) => ancestorColumn - contentColumn)
++        .filter((width) => width > 0)]
++      : [];
++    let continuation = content.trim() === ""
++      ? { offset: 0, column: contentColumn, width: 0, valid: true }
++      : { offset: 0, column: contentColumn, width: 0, valid: false };
++    for (const [candidateIndex, width] of continuationCandidates.entries()) {
++      const candidate = consumeIndent(content, width, contentColumn);
++      if (candidate.offset === 0) continue;
++      const remainingIndent = readWhitespace(
++        content.slice(candidate.offset),
++        0,
++        contentColumn + candidate.width + (candidate.surplus ?? 0),
++      ).width;
++      const remainingOffset = readWhitespace(content.slice(candidate.offset), 0, contentColumn).offset;
++      const remainingContent = content.slice(candidate.offset + remainingOffset).trim();
++      if (candidateIndex > 0 && remainingContent !== "" && remainingIndent === 0
++        && !/^(?:`{3,}|~{3,})/u.test(remainingContent)) continue;
++      const inheritedFenceBody = (inheritedList?.fenceContentColumn ?? 0) > 0
++        && (inheritedList?.allowFencedContinuation ?? false);
++      if (remainingIndent + (candidate.surplus ?? 0) <= 3 || inheritedFenceBody) {
++        continuation = candidate;
++        break;
++      }
++    }
++    if (content.trim() === "" || continuation.offset > 0) {
++      implicitList = true;
++      if (continuation.offset > 0) {
++        fenceContent = content.slice(continuation.offset);
++        fenceContentOffset = offset + continuation.offset;
++        fenceContentColumn = contentColumn + continuation.width + (continuation.surplus ?? 0);
++        continuationSurplus = continuation.surplus ?? 0;
++        fenceIndentWidth = indentWidth(fenceContent, fenceContentColumn) + continuationSurplus;
++      }
++    } else if (rejectedMarkerStart === null) {
++      listItems = [];
++    }
++  }
++  setextUnderline = inheritedParagraph
++    && (!inheritedContinuation || implicitList)
++    && indentWidth(fenceContent, fenceContentColumn) <= 3
++    && /^[-=]+[ \t]*$/u.test(fenceContent.trim());
++  if (setextUnderline) {
++    listItems = copyListItems(inheritedItems.slice(0, baseDepth));
++    explicitList = false;
++  }
++
++  const listContinuationIndent = listItems.at(-1)?.contentColumn ?? 0;
++  const inheritedAllow = inheritedList?.allowFencedContinuation ?? true;
++  const inheritedHtmlBlock = inheritedList !== null
++    && inheritedList.blockquoteDepth === blockquoteDepth
++    ? inheritedList.htmlBlock ?? null
++    : null;
++  const htmlContainer = {
++    blockquoteDepth,
++    listItems: copyListItems(listItems),
++    listKinds: listItems.map(({ kind }) => kind),
++    listContinuationIndent,
++    paragraph: inheritedList?.paragraph ?? false,
++  };
++  const htmlBlock = resolveHtml
++    ? htmlBlockTransition(content, inheritedHtmlBlock, inheritedList?.paragraph ?? false, fenceIndentWidth, htmlContainer)
++    : { active: false, state: null, mask: false };
++  return {
++    content,
++    fenceContent,
++    fenceContentOffset,
++    continuationSurplus,
++    blockquoteDepth,
++    listItems,
++    listKinds: listItems.map(({ kind }) => kind),
++    listContinuationIndent,
++    explicitList,
++    implicitList,
++    indentWidth: indentWidth(content, contentColumn),
++    fenceContentColumn,
++    fenceIndentWidth,
++    allowFencedContinuation: inheritedContinuation ? inheritedAllow : true,
++    htmlBlock: htmlBlock.state,
++    htmlBlockActive: htmlBlock.active,
++    htmlBlockMask: Boolean(htmlBlock.mask),
++    htmlBlockMaskEnd: htmlBlock.maskEnd === undefined ? null : offset + htmlBlock.maskEnd,
++    setextUnderline,
++    paragraph: !emptyListItem
++      && !htmlBlock.active && paragraphContent(content, setextUnderline)
++      && (implicitList ? inheritedList?.paragraph ?? true : true),
++  };
++};
++
++const fenceContainer = (line, inheritedList = null, suppliedContext = null) => {
++  const context = suppliedContext ?? containerContext(line, inheritedList);
++  if (context.htmlBlockActive || context.htmlBlock !== null) return null;
++  if ((context.explicitList || context.implicitList) && !context.allowFencedContinuation) return null;
++  if (context.explicitList && context.indentWidth > 3) return null;
++  const indentation = context.fenceContent.match(/^[ \t]*/u)?.[0] ?? "";
++  const marker = context.fenceContent.slice(indentation.length).match(/^(?<run>`{3,}|~{3,})(?<rawInfo>.*)$/u);
++  if (marker === null || context.fenceIndentWidth > 3) return null;
++  const run = marker.groups.run;
++  const rawInfo = marker.groups.rawInfo;
++  if (run[0] === "`" && rawInfo.includes("`")) return null;
++  return {
++    character: run[0],
++    length: run.length,
++    info: rawInfo.trim(),
++    rawInfo,
++    container: {
++      blockquoteDepth: context.blockquoteDepth,
++      listItems: copyListItems(context.listItems),
++      listKinds: context.listKinds,
++      listContinuationIndent: context.listContinuationIndent,
++      explicitList: context.explicitList,
++      indentWidth: context.fenceIndentWidth,
++    },
++  };
++};
++
++const sameListContainer = (left, right) => left.listKinds.length === right.listKinds.length
++  && left.listKinds.every((kind, index) => kind === right.listKinds[index])
++  && left.listItems.every((item, index) => item.contentColumn === right.listItems[index]?.contentColumn);
++
++const sameFenceContainer = (left, right) => {
++  if (left.blockquoteDepth !== right.blockquoteDepth) return false;
++  if (left.listKinds.length === 0 && right.listKinds.length === 0) {
++    return left.indentWidth < 4 && right.indentWidth < 4;
++  }
++  if (left.listKinds.length === 0 || right.listKinds.length === 0) return false;
++  return sameListContainer(left, right)
++    && left.listContinuationIndent === right.listContinuationIndent;
++};
++
++const isFenceClose = (marker, open) => marker !== null
++  && marker.character === open.character
++  && marker.length >= open.length
++  && /^[ \t]*$/u.test(marker.rawInfo)
++  && !(open.container.listKinds.length > 0 && marker.container.explicitList)
++  && sameFenceContainer(marker.container, open.container);
++
++const fenceContainerEnded = (open, context, fence) => {
++  if (context.blockquoteDepth < open.container.blockquoteDepth) return true;
++  if (context.blockquoteDepth > open.container.blockquoteDepth) return false;
++  if (open.container.listKinds.length === 0) return false;
++  if (context.listKinds.length < open.container.listKinds.length) {
++    return !context.implicitList || context.listContinuationIndent < open.container.listContinuationIndent;
++  }
++  if (context.listKinds.length > open.container.listKinds.length) return false;
++  if (!sameListContainer(context, open.container)) return true;
++  return fence !== null && context.explicitList;
++};
++
++const stateFromContext = (context, paragraph = context.paragraph) => ({
++  blockquoteDepth: context.blockquoteDepth,
++  listItems: copyListItems(context.listItems),
++  listKinds: [...context.listKinds],
++  listContinuationIndent: context.listContinuationIndent,
++  htmlBlock: context.htmlBlock,
++  htmlBlockMask: context.htmlBlockMask,
++  fenceContentColumn: context.fenceContentColumn,
++  fenceIndentWidth: context.fenceIndentWidth,
++  continuationSurplus: context.continuationSurplus,
++  allowFencedContinuation: context.allowFencedContinuation && context.fenceIndentWidth <= 3,
++  paragraph,
++});
++
++export const sourcePhysicalLines = function* (value) {
++  let start = 0;
++  while (start < value.length) {
++    let end = start;
++    while (end < value.length && value[end] !== "\r" && value[end] !== "\n") end += 1;
++    const terminator = end >= value.length
++      ? ""
++      : value[end] === "\r" && value[end + 1] === "\n" ? "\r\n" : value[end];
++    yield { line: value.slice(start, end), start, end, terminator };
++    start = end + terminator.length;
++  }
++};
++
++export const fenceRanges = (value) => {
++  const ranges = [];
++  let open = null;
++  let listContext = {
++    blockquoteDepth: 0,
++    listItems: [],
++    listKinds: [],
++    listContinuationIndent: 0,
++    htmlBlock: null,
++    htmlBlockMask: false,
++    fenceContentColumn: 0,
++    fenceIndentWidth: 0,
++    continuationSurplus: 0,
++    allowFencedContinuation: true,
++    paragraph: false,
++  };
++  let previousLineEnd = 0;
++  for (const physical of sourcePhysicalLines(value)) {
++    const { line, start, end } = physical;
++    let processed = false;
++    while (!processed) {
++      const inherited = open === null ? listContext : open.state;
++      const context = containerContext(line, inherited);
++      const fence = fenceContainer(line, inherited, context);
++      if (open === null) {
++        if (fence !== null) {
++          open = {
++            ...fence,
++            start,
++            state: stateFromContext(context, false),
++            after: {
++              ...inherited,
++              listItems: copyListItems(inherited.listItems),
++              listKinds: [...inherited.listKinds],
++            },
++          };
++        } else {
++          listContext = stateFromContext(context);
++        }
++        processed = true;
++        continue;
++      }
++      if (isFenceClose(fence, open)) {
++        ranges.push([open.start, end]);
++        listContext = { ...open.after, paragraph: false };
++        open = null;
++        processed = true;
++        continue;
++      }
++      if (fenceContainerEnded(open, context, fence)) {
++        ranges.push([open.start, previousLineEnd]);
++        listContext = { ...open.after, paragraph: false };
++        open = null;
++        continue;
++      }
++      processed = true;
++    }
++    previousLineEnd = end;
++  }
++  if (open !== null) ranges.push([open.start, value.length]);
++  return ranges;
++};
++
++const setextUnderlineRanges = (value, fences) => {
++  const ranges = [];
++  let listContext = {
++    blockquoteDepth: 0,
++    listItems: [],
++    listKinds: [],
++    listContinuationIndent: 0,
++    htmlBlock: null,
++    htmlBlockMask: false,
++    fenceContentColumn: 0,
++    fenceIndentWidth: 0,
++    continuationSurplus: 0,
++    allowFencedContinuation: true,
++    paragraph: false,
++  };
++  let fenceIndex = 0;
++  let fencedAfter = null;
++  for (const physical of sourcePhysicalLines(value)) {
++    while (fenceIndex < fences.length && physical.start >= fences[fenceIndex][1]) {
++      listContext = fencedAfter ?? { ...listContext, paragraph: false };
++      fencedAfter = null;
++      fenceIndex += 1;
++    }
++    const fence = fences[fenceIndex];
++    if (fence !== undefined && physical.start >= fence[0] && physical.start < fence[1]) {
++      if (fencedAfter === null) {
++        fencedAfter = {
++          ...listContext,
++          listItems: copyListItems(listContext.listItems),
++          listKinds: [...listContext.listKinds],
++        };
++      }
++      continue;
++    }
++    const context = containerContext(physical.line, listContext);
++    if (context.setextUnderline) ranges.push([physical.start, physical.end]);
++    listContext = stateFromContext(context);
++  }
++  return ranges;
++};
++
++const htmlBlockRanges = (value, fences = []) => {
++  const ranges = [];
++  let listContext = {
++    blockquoteDepth: 0,
++    listItems: [],
++    listKinds: [],
++    listContinuationIndent: 0,
++    htmlBlock: null,
++    htmlBlockMask: false,
++    fenceContentColumn: 0,
++    fenceIndentWidth: 0,
++    continuationSurplus: 0,
++    allowFencedContinuation: true,
++    paragraph: false,
++  };
++  let fenceIndex = 0;
++  let rangeStart = null;
++  let htmlState = null;
++  for (const physical of sourcePhysicalLines(value)) {
++    while (fenceIndex < fences.length && physical.start >= fences[fenceIndex][1]) fenceIndex += 1;
++    const fence = fences[fenceIndex];
++    if (fence !== undefined && physical.start >= fence[0] && physical.start < fence[1]) {
++      if (rangeStart !== null) {
++        ranges.push([rangeStart, physical.start]);
++        rangeStart = null;
++      }
++      continue;
++    }
++    const context = htmlState === null ? containerContext(physical.line, listContext) : null;
++    const transition = htmlState === null ? null : htmlBlockTransition(physical.line, htmlState);
++    const htmlMask = transition?.mask ?? context?.htmlBlockMask ?? false;
++    const htmlMaskEnd = transition?.maskEnd ?? context?.htmlBlockMaskEnd ?? null;
++    const htmlBlock = transition?.state ?? context?.htmlBlock ?? null;
++    if (htmlMask) {
++      if (rangeStart === null) rangeStart = physical.start;
++      if (htmlMaskEnd !== null) {
++        ranges.push([rangeStart, physical.start + htmlMaskEnd]);
++        rangeStart = null;
++      } else if (htmlBlock === null) {
++        ranges.push([rangeStart, physical.end]);
++        rangeStart = null;
++      }
++    } else if (rangeStart !== null) {
++      ranges.push([rangeStart, physical.start]);
++      rangeStart = null;
++    }
++    if (transition !== null) {
++      htmlState = transition.state;
++      listContext = { ...listContext, htmlBlock: htmlState, htmlBlockMask: Boolean(transition.mask) };
++    } else {
++      htmlState = context.htmlBlockMask ? context.htmlBlock : null;
++      listContext = stateFromContext(context);
++    }
++  }
++  if (rangeStart !== null) ranges.push([rangeStart, value.length]);
++  return ranges;
++};
++
++const codeSpanEnd = (value, start, delimiterLength) => {
++  let cursor = start;
++  while (cursor < value.length) {
++    const next = value.indexOf("`", cursor);
++    if (next === -1) return -1;
++    let end = next;
++    while (end < value.length && value[end] === "`") end += 1;
++    const runLength = end - next;
++    if (runLength === delimiterLength) return next;
++    cursor = end;
++  }
++  return -1;
++};
++
++const inlineCodeRanges = (value, excludedRanges) => {
++  const ranges = [];
++  let cursor = 0;
++  while (cursor < value.length) {
++    const excluded = excludedRanges.find(([start, end]) => cursor >= start && cursor < end);
++    if (excluded) {
++      cursor = excluded[1];
++      continue;
++    }
++    if (value[cursor] !== "`") {
++      cursor += 1;
++      continue;
++    }
++    let delimiterEnd = cursor;
++    while (delimiterEnd < value.length && value[delimiterEnd] === "`") delimiterEnd += 1;
++    const delimiterLength = delimiterEnd - cursor;
++    const close = codeSpanEnd(value, delimiterEnd, delimiterLength);
++    if (close === -1) {
++      cursor = delimiterEnd;
++      continue;
++    }
++    ranges.push([cursor, close + delimiterLength, delimiterLength]);
++    cursor = close + delimiterLength;
++  }
++  return ranges;
++};
++
++const tagEnd = (value, start) => {
++  let quote = null;
++  let braceDepth = 0;
++  for (let cursor = start + 1; cursor < value.length; cursor += 1) {
++    const character = value[cursor];
++    if (quote) {
++      if (character === "\\") {
++        cursor += 1;
++      } else if (character === quote) {
++        quote = null;
++      }
++      continue;
++    }
++    if (character === "\"" || character === "'") {
++      quote = character;
++      continue;
++    }
++    if (character === "`") {
++      quote = character;
++      continue;
++    }
++    if (character === "{") {
++      braceDepth += 1;
++      continue;
++    }
++    if (character === "}" && braceDepth > 0) {
++      braceDepth -= 1;
++      continue;
++    }
++    if (character === ">" && braceDepth === 0) return cursor;
++    if (character === "<" && braceDepth === 0) return -1;
++  }
++  return -1;
++};
++
++const htmlTagRanges = (value) => {
++  const ranges = [];
++  let cursor = 0;
++  while (cursor < value.length) {
++    const start = value.indexOf("<", cursor);
++    if (start === -1) break;
++    if (value.startsWith("<!--", start)) {
++      const close = value.indexOf("-->", start + 4);
++      if (close === -1) {
++        ranges.push([start, value.length]);
++        break;
++      }
++      ranges.push([start, close + 3]);
++      cursor = close + 3;
++      continue;
++    }
++    const next = value[start + 1];
++    if (!(next === ">" || /[A-Za-z/!?]/u.test(next ?? ""))) {
++      cursor = start + 1;
++      continue;
++    }
++    const end = tagEnd(value, start);
++    if (end === -1) {
++      cursor = start + 1;
++      continue;
++    }
++    const namePrefix = value.slice(start, end + 1).match(/^<\/?[A-Za-z][A-Za-z0-9-]*/u);
++    const nameEnd = namePrefix === null ? -1 : start + namePrefix[0].length;
++    if (nameEnd >= 0 && value[nameEnd] === "/" && value[nameEnd + 1] !== ">") {
++      cursor = start + 1;
++      continue;
++    }
++    const tagText = value.slice(start, end + 1);
++    const rawName = tagText.match(/^<(?<name>script|style)(?=[ \t\r\n]|\/?>)/iu)?.groups.name
++      ?? tagText.match(/^<(?<name>template)(?=[ \t]|\/?>)/iu)?.groups.name;
++    if (rawName !== undefined) {
++      const closePattern = new RegExp(`</${rawName}\\s*>`, "igu");
++      closePattern.lastIndex = end + 1;
++      const close = closePattern.exec(value);
++      if (close === null) {
++        ranges.push([start, value.length]);
++        break;
++      }
++      ranges.push([start, close.index + close[0].length]);
++      cursor = close.index + close[0].length;
++      continue;
++    }
++    ranges.push([start, end + 1]);
++    cursor = end + 1;
++  }
++  return ranges;
++};
++
++const replaceRanges = (value, ranges, replacement) => {
++  let output = "";
++  let cursor = 0;
++  for (const [start, end] of ranges) {
++    output += value.slice(cursor, start) + replacement;
++    cursor = end;
++  }
++  return output + value.slice(cursor);
++};
++
++const maskRanges = (value, ranges) => {
++  let output = "";
++  let cursor = 0;
++  for (const [start, end] of ranges) {
++    output += value.slice(cursor, start) + value.slice(start, end).replace(/[^\r\n]/gu, " ");
++    cursor = end;
++  }
++  return output + value.slice(cursor);
++};
++
++const stripMarkdownLinks = (value) => {
++  let output = "";
++  let cursor = 0;
++  while (cursor < value.length) {
++    const imageStart = value.indexOf("![", cursor);
++    const linkStart = value.indexOf("[", cursor);
++    const start = imageStart !== -1 && (linkStart === -1 || imageStart <= linkStart) ? imageStart : linkStart;
++    if (start === -1) return output + value.slice(cursor);
++    output += value.slice(cursor, start);
++    const textStart = start + (value.startsWith("![", start) ? 2 : 1);
++    const closeText = value.indexOf("](", textStart);
++    if (closeText === -1) {
++      output += value.slice(start);
++      return output;
++    }
++    const closeLink = value.indexOf(")", closeText + 2);
++    if (closeLink === -1) {
++      output += value.slice(start);
++      return output;
++    }
++    if (value.startsWith("![", start)) output += " ";
++    else output += value.slice(textStart, closeText);
++    cursor = closeLink + 1;
++  }
++  return output;
++};
++
++const stripPunctuation = (value, startsAtLineBoundary) => {
++  let firstLine = true;
++  let output = "";
++  for (const physical of sourcePhysicalLines(value)) {
++    const heading = (firstLine ? startsAtLineBoundary : true) && HEADING.test(physical.line);
++    output += (heading ? physical.line.replace(HEADING, "") : physical.line)
++      .replaceAll(PUNCTUATION, " ")
++      + physical.terminator;
++    firstLine = false;
++  }
++  return output;
++};
++
++const stripInternalReaderOutcomeComments = (value) => value
++  .replace(/\{\/\*\s*blackops-reader-outcome:[\s\S]*?\*\/\}/gu, " ");
++
++const isLineBoundary = (value, index) => index === 0
++  || value[index - 1] === "\r"
++  || value[index - 1] === "\n";
++
++/** Convert Markdown/MDX to Blume's plain search text. */
++export const toPlainText = (markdown) => {
++  const fences = fenceRanges(markdown);
++  const withoutFences = maskRanges(markdown, fences);
++  const withoutSetextUnderlines = maskRanges(withoutFences, setextUnderlineRanges(markdown, fences));
++  const withoutHtmlBlocks = maskRanges(
++    withoutSetextUnderlines,
++    htmlBlockRanges(withoutSetextUnderlines, fences),
++  );
++  const tags = htmlTagRanges(withoutHtmlBlocks);
++  const inline = inlineCodeRanges(withoutHtmlBlocks, tags);
++  let output = "";
++  let cursor = 0;
++  for (const [start, end, delimiterLength] of inline) {
++    const prose = withoutHtmlBlocks.slice(cursor, start);
++    output += stripPunctuation(
++      stripMarkdownLinks(replaceRanges(stripInternalReaderOutcomeComments(prose), htmlTagRanges(prose), " ")),
++      isLineBoundary(withoutHtmlBlocks, cursor)
++    );
++    output += withoutHtmlBlocks.slice(start + delimiterLength, end - delimiterLength);
++    cursor = end;
++  }
++  const prose = withoutHtmlBlocks.slice(cursor);
++  output += stripPunctuation(
++    stripMarkdownLinks(replaceRanges(stripInternalReaderOutcomeComments(prose), htmlTagRanges(prose), " ")),
++    isLineBoundary(withoutHtmlBlocks, cursor)
++  );
++  return output
++    .replaceAll(WHITESPACE, " ")
++    .trim();
++};
+diff --git a/src/core/content-assets.ts b/src/core/content-assets.ts
+index 1bfc9726d7a96f7d0c38e10ad6f743171c1a0c49..d7e737ff79791b71d22e28119d0334db80125532 100644
+--- a/src/core/content-assets.ts
++++ b/src/core/content-assets.ts
+@@ -5,13 +5,12 @@
+ 
+ import { normalizeBasePath } from "./base-path.ts";
+ import { hashText } from "./sources/cache.ts";
+-import type { FenceState } from "./sources/normalize.ts";
+ import {
+   INLINE_CODE,
+   MD_IMAGE,
+-  nextFenceState,
+   targetOffsetIn,
+ } from "./sources/normalize.ts";
++import { fenceRanges, sourcePhysicalLines } from "../search/plain-text.mjs";
+ 
+ /**
+  * Colocated content images — `![alt](./diagram.png)` next to the page that
+@@ -152,14 +151,14 @@
+     return `${prefix}/${encodedParam(param)}`;
+   };
+ 
+-  let fence: FenceState = null;
+-  const lines = source.split("\n").map((line) => {
+-    const next = nextFenceState(line, fence);
+-    const inFence = fence !== null || next !== null;
+-    fence = next;
+-    return inFence ? line : rewriteLine(line, toUrl);
+-  });
+-  return lines.join("\n");
++  const fences = fenceRanges(source);
++  let output = "";
++  for (const physical of sourcePhysicalLines(source)) {
++    const inFence = fences.some(([start, end]) => physical.start >= start && physical.start < end);
++    output += inFence ? physical.line : rewriteLine(physical.line, toUrl);
++    output += physical.terminator;
++  }
++  return output;
+ };
+ 
+ /**

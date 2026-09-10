@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Deferred Worker の完了順序",
+    "animation": "none",
+    "quality_profile": "showcase",
+    "legend": { "mode": "hidden" },
+    "viewBox": [420, 650]
+  },
+  "components": [
+    { "id": "worker-claim", "type": "backend", "label": "Worker Claim", "sublabel": "Value / Context", "tag": "same Operation ID", "pos": [110, 20], "size": [200, 82] },
+    { "id": "attempt-started", "type": "backend", "label": "attempt.started", "sublabel": "新しい Attempt", "pos": [110, 145], "size": [200, 72] },
+    { "id": "operation-handle", "type": "backend", "label": "Operation handle()", "sublabel": "value, context", "pos": [110, 265], "size": [200, 78] },
+    { "id": "outcome", "type": "backend", "label": "Outcome", "sublabel": "型付き結果", "pos": [110, 390], "size": [200, 72] },
+    { "id": "worker-finalization", "type": "backend", "label": "Finalization Transaction", "sublabel": "attempt.succeeded", "tag": "operation.completed", "pos": [60, 515], "size": [300, 88] }
+  ],
+  "connections": [
+    { "id": "claim-to-attempt", "from": "worker-claim", "to": "attempt-started", "label": "Claim後に開始", "fromSide": "bottom", "toSide": "top", "labelDy": 30 },
+    { "id": "attempt-to-operation", "from": "attempt-started", "to": "operation-handle", "label": "handle()", "fromSide": "bottom", "toSide": "top", "labelDy": 30 },
+    { "id": "operation-to-outcome", "from": "operation-handle", "to": "outcome", "label": "Outcome", "fromSide": "bottom", "toSide": "top", "labelDy": 30 },
+    { "id": "outcome-to-finalization", "from": "outcome", "to": "worker-finalization", "label": "成功確定", "fromSide": "bottom", "toSide": "top", "labelDy": 30 }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "同じ Operation", "items": ["Worker は Accepted 済みの Value / Context を同じ Operation ID で Claim する", "この Attempt で新しい operation.received は発生しない"] },
+    { "dot": "emerald", "title": "実行", "items": ["attempt.started の後に同じ Operation の handle() を呼び、Outcome を得る"] },
+    { "dot": "violet", "title": "成功の確定", "items": ["Outcome 保存と attempt.succeeded、operation.completed を同じ Transaction で確定する", "Outcome だけを先に Commit する段階はない"] }
+  ]
+}

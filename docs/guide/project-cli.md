@@ -7,7 +7,15 @@ php blackops list
 php blackops help <command>
 ```
 
-Global `list`とOperation Commandの`help`はManifest Metadataだけを使い、Handler、Database、Container、Actor Providerを解決しません。Framework／Application Commandの固有`help`はDefinition取得のためLazy Commandを解決する場合があります。旧`bin/blackops`や`blackops:*` Prefixは現行の互換入口ではありません。
+Global `list`は、現在のApplicationで利用できるCommandを目的別に確認する入口です。一覧で名前と概要を確認してから、必要なCommandの個別Helpへ進みます。
+
+Applicationが明示登録したCommandをクラス名（class-string）で登録すると、Console Kernelを構成するときにCommand実体が生成され、コンストラクタが実行されます。呼び出し側があらかじめ生成したCommand instanceを登録した場合は、その同じinstanceを再利用し、Kernel構成で追加の生成は行いません。どの一覧形式を選んでも、この生成・再利用の境界は変わりません。
+
+Command Manifestから発見したLazy Commandは、通常表示と`--raw`では、Command実体を作る処理（factory）を呼び出さずに一覧します。`--raw`は装飾を省いたテキスト一覧です。
+
+`--short`を付けない`--format=json|xml|md`では、引数とOptionの定義（Definition）やHelp取得でCommand実体を作る処理（factory）が呼び出されます。そのfactoryがBuild済みの依存関係を持つ仕組み（Container）からCommand実体を解決する場合があります。個別の`help`も同じようにLazy Commandを解決する場合があります。
+
+そのためGlobal `list`は、Applicationの初期化やContainerの解決から完全に切り離された診断Commandではありません。旧`bin/blackops`や`blackops:*` Prefixは現行の互換入口ではありません。
 
 ## コマンド実行一覧
 

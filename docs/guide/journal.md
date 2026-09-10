@@ -8,6 +8,8 @@ Canonical JournalはOperation Lifecycleの正本ですが、汎用Business／Sec
 
 JournalはApplication Log、Outcome、Execution Transport Payloadの代わりではありません。Application Logは診断メッセージ、Outcomeは正常完了時の型付き結果、Transport PayloadはWorkerへ配送する入力を扱い、JournalはLifecycleの事実を扱います。
 
+Journalは受付・試行・再試行・完了という処理の流れを記録します。Audit Trailは、業務操作や管理操作を誰が行ったかを後から確認するための計画上の監査ログです。詳しい計画は[1.3.0のAudit Trail計画](mvp-status.md#130のaudit-trail計画)へ進み、現行のSensitive Projectionは[BlackOpsの`#[Sensitive]`とPHPの`#[SensitiveParameter]`](security.md#blackopsのsensitiveとphpのsensitiveparameter)で確認してください。
+
 ## CanonicalとObservedを分ける
 
 Canonical JournalはFrameworkがTyped RecordとしてPostgreSQLへ保護して保存するOperation Lifecycleの正本です。受理されたOperationの復元に必要なLifecycle事実を保持しますが、汎用Business／Security Audit Trailを提供するものでも、公開Observerへそのまま渡す契約でもありません。Canonical PostgreSQLの内部RowやPayloadは、このページのJSON例が表すPublic Serializationではありません。

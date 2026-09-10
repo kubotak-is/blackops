@@ -3,6 +3,7 @@ import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
+import { diagramContractsList } from '../scripts/archify-diagrams.mjs';
 import {
   assertArtifactClaims,
   assertCurrentAuthorityClaims,
@@ -65,6 +66,80 @@ test('authority page mappings are shaped, lane-bound, and enforced through the f
     const mainOnly = structuredClone(fixtureAuthority);
     mainOnly.capabilities.find((capability) => capability.id === 'framework-core').surfaces = ['main-only'];
     assert.throws(() => validateAuthority(mainOnly), /invalid capability/);
+  } finally {
+    await rm(fixture, { recursive: true, force: true });
+  }
+});
+
+test('source release claims include registered diagram JSON, HTML, and responsive variants', async () => {
+  const fixture = await mkdtemp(path.join(repositoryRoot, 'docs/guide/.release-claim-diagrams-'));
+  const sourcePath = path.join(fixture, 'guide.md');
+  const relativeSourcePath = path.relative(repositoryRoot, sourcePath);
+  const authority = await loadReleaseAuthority(authorityPath);
+  authority.historicalReferences = [];
+  authority.pageCapabilities = {
+    [relativeSourcePath]: { lane: 'framework-package', capabilities: ['framework-core'] },
+  };
+  const fixtureAuthorityPath = path.join(fixture, 'authority.json');
+  const contentMapPath = path.join(fixture, 'content-map.mjs');
+  const manifestPath = path.join(fixture, 'docs/website/diagrams/manifest.json');
+  try {
+    await writeFile(sourcePath, '# Diagram owner\n\nLatest Experimental Stable 1.2.0 is documented here.\n\ncomposer create-project blackops/skeleton my-app 1.2.0\n', 'utf8');
+    await mkdir(path.join(fixture, 'docs/website/public/diagrams'), { recursive: true });
+    await mkdir(path.dirname(manifestPath), { recursive: true });
+    const manifest = diagramManifestFixture();
+    const overview = manifest.diagrams.find((entry) => entry.id === 'execution-overview');
+    const desktop = {
+      sourcePath: 'docs/website/public/diagrams/execution-overview-desktop.json',
+      htmlPath: 'docs/website/public/diagrams/execution-overview-desktop.html',
+      svgPath: 'docs/website/public/diagrams/execution-overview-desktop.svg',
+      source: { path: 'docs/website/public/diagrams/execution-overview-desktop.json', sha256: null },
+      html: { path: 'docs/website/public/diagrams/execution-overview-desktop.html', sha256: null },
+      svg: { path: 'docs/website/public/diagrams/execution-overview-desktop.svg', sha256: null },
+      receipts: { validate: null, deliver: null, visualCheck: null },
+    };
+    overview.desktop = desktop;
+    for (const contract of diagramContractsList()) {
+      await writeFile(
+        path.join(fixture, contract.sourcePath),
+        JSON.stringify({ schema_version: 1, diagram_type: contract.type }),
+        'utf8',
+      );
+      await writeFile(path.join(fixture, contract.htmlPath), `<title>${contract.id}</title>`, 'utf8');
+      if (contract.svgPath !== undefined) {
+        await writeFile(path.join(fixture, contract.svgPath), `<svg role="img"><title>${contract.id}</title></svg>`, 'utf8');
+      }
+    }
+    await writeFile(path.join(fixture, desktop.sourcePath), '{"schema_version":1,"diagram_type":"architecture"}', 'utf8');
+    await writeFile(path.join(fixture, desktop.htmlPath), '<title>execution-overview-desktop</title>', 'utf8');
+    await writeFile(path.join(fixture, desktop.svgPath), '<svg role="img"><title>execution-overview-desktop</title></svg>', 'utf8');
+    await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
+    await writeFile(contentMapPath, '', 'utf8');
+    await writeFile(fixtureAuthorityPath, JSON.stringify(authority), 'utf8');
+
+    await assert.doesNotReject(() => assertSourceClaims({
+      authorityPath: fixtureAuthorityPath,
+      sourceDirectory: fixture,
+      contentMapPath,
+      diagramManifestPath: manifestPath,
+      diagramRepositoryRoot: fixture,
+    }));
+    for (const relativePath of [desktop.sourcePath, desktop.htmlPath]) {
+      const artifactPath = path.join(fixture, relativePath);
+      const baseline = await readFile(artifactPath, 'utf8');
+      await writeFile(artifactPath, 'Stable 1.1.0 is the current release.', 'utf8');
+      try {
+        await assert.rejects(() => assertSourceClaims({
+          authorityPath: fixtureAuthorityPath,
+          sourceDirectory: fixture,
+          contentMapPath,
+          diagramManifestPath: manifestPath,
+          diagramRepositoryRoot: fixture,
+        }), /Unexpected Stable 1.1.0 claim/);
+      } finally {
+        await writeFile(artifactPath, baseline, 'utf8');
+      }
+    }
   } finally {
     await rm(fixture, { recursive: true, force: true });
   }
@@ -221,3 +296,37 @@ test('artifact claim guard separates minified search records before checking cur
     await rm(fixture, { recursive: true, force: true });
   }
 });
+
+function diagramManifestFixture() {
+  const entry = ({ id, type, ownerSource, ownerRoute, svgPath }) => ({
+    id,
+    type,
+    ownerSource,
+    ownerRoute,
+    sourcePath: `docs/website/public/diagrams/${id}.json`,
+    htmlPath: `docs/website/public/diagrams/${id}.html`,
+    pngPath: `docs/guide/assets/diagrams/${id}.png`,
+    source: { path: `docs/website/public/diagrams/${id}.json`, sha256: null },
+    html: { path: `docs/website/public/diagrams/${id}.html`, sha256: null },
+    png: { path: `docs/guide/assets/diagrams/${id}.png`, sha256: null },
+    ...(svgPath === undefined ? {} : { svg: { path: svgPath, sha256: null } }),
+    receipts: { validate: null, deliver: null, visualCheck: null },
+  });
+  return {
+    schemaVersion: 1,
+    upstream: {
+      repository: 'https://github.com/tt-a1i/archify',
+      revision: '2ead014aa8ec91f104cd052f1a6ca82de5e26c31',
+      version: '2.17.0-dev.1',
+      updateChecks: 'disabled',
+      templatePatch: {
+        path: 'docs/website/diagrams/offline-fonts.patch',
+        sha256: null,
+        originalTemplateSha256: null,
+        patchedTemplateSha256: null,
+      },
+    },
+    regeneration: { validate: 'validate', deliver: 'deliver', exportPng: 'export' },
+    diagrams: diagramContractsList().map(entry),
+  };
+}

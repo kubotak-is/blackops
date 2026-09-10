@@ -77,6 +77,8 @@ final readonly class InviteMemberValue implements OperationValue
 
 `Omit`はFieldを除外し、`Mask`は`[masked]`へ置換し、`Hash`は一方向Digestへ置換します。どのModeも認証、認可、暗号化、Access Control、Retentionを代替しません。
 
+`Sensitive`とPHPの`SensitiveParameter`を同じConstructor-promoted Property／Parameterへ付ける場合の対象と限界は、[BlackOpsの`#[Sensitive]`とPHPの`#[SensitiveParameter]`](security.md#blackopsのsensitiveとphpのsensitiveparameter)を参照してください。
+
 ## Transaction Attributes
 
 | Attribute | 用途 | 付与対象 | 最小例 |
