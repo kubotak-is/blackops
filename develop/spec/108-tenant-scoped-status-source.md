@@ -2,6 +2,16 @@
 
 Status: Authority reviewed Green — Product progress is recorded in the D2S1 Report/STATE; no activation.
 
+## Subsequent Adapter Boundary
+
+D2S1's source and final-SHA export are Accepted at70f9c473. The zero bound-view
+construction/nonactivation statements below describe that frozen source Task.
+[Specification107](107-operation-status-audit-adapter.md) now defines the sole
+subsequent exception: one per-call construction in the unactivated audited
+query's `findForTenant()`. Its Default Query annotation-only correction belongs
+to D2S. Existing scoped-source bodies, SQL, snapshots and all other source-call
+restrictions remain unchanged; D2S implementation status is in its Report.
+
 ## Scope
 
 P23-003D2S1 is the source prerequisite for the D2S Audit adapter. This is its

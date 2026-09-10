@@ -134,6 +134,12 @@ D2 adds no Production implementation. Each reader child must bind an exact
 trusted HTTP, Operation-scope, CLI, viewer, worker, or scheduler source. A
 missing scope cannot become a generic or invented execution identity.
 
+The subsequent Status child specializes this source contract in
+[Specification107](../spec/107-operation-status-audit-adapter.md) / [D156](156-operation-status-audit-adapter.md):
+its server-owned `operation_status_read` UUIDv7 identifies the new read itself,
+not a fallback for missing HTTP/Operation identity. D2 implementation, nonce,
+Clock and delivery contracts remain unchanged; reader activation is separate.
+
 Add final class
 `BlackOps\Internal\Audit\Read\OperationReadAuditSessionFactory` with exactly
 one private `SensitiveParameterValue $snapshot` and the following exact public

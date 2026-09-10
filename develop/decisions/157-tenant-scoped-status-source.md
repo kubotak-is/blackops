@@ -2,6 +2,15 @@
 
 Status: Authority reviewed Green — Product progress is recorded in the D2S1 Report/STATE; no activation.
 
+## Subsequent Reader Child
+
+The source prerequisite is Accepted, including final-SHA export at70f9c473.
+The revised [D156](156-operation-status-audit-adapter.md) / spec107 owns the
+next Status adapter and its single per-read bound-view construction site. This
+supersedes only the old no-adapter-caller checkpoint, not this Decision's SQL,
+snapshot, legacy-source behavior or unactivated composition boundary. The
+historical initial-candidate rationale below remains the reason for the split.
+
 ## Context
 
 The user approved a separate prerequisite after General and Transaction

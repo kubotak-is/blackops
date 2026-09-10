@@ -1,6 +1,6 @@
 # P23-013: Synchronize Published1.2.1 into Development
 
-Status: Source reviewed Green; merge/export delivery next
+Status: Accepted — clean final merge/export complete
 
 ## Goal and Authorization
 
@@ -125,15 +125,15 @@ reuse P23-012 against identical M inputs. This Task does not deploy the site.
 
 ## Acceptance Criteria
 
-- [ ] Prior dirty work and original index are recoverable; no accepted1.3 code lost.
-- [ ] Ordinary merge contains M and the development checkpoint as ancestors.
-- [ ] Current public source/authority matches1.2.1; unreleased1.3 remains separate.
-- [ ] Exact runtime delta remains the two version constants; focused checks pass.
-- [ ] Reconciled development/published guards retain their required boundaries.
-- [ ] Local integration review and clean final-SHA package export pass.
-- [ ] Report/STATE identify completed synchronization and the D2S restart point.
+- [x] Prior dirty work and original index are recoverable; no accepted1.3 code lost.
+- [x] Ordinary merge contains M and the development checkpoint as ancestors.
+- [x] Current public source/authority matches1.2.1; unreleased1.3 remains separate.
+- [x] Exact runtime delta remains the two version constants; focused checks pass.
+- [x] Reconciled development/published guards retain their required boundaries.
+- [x] Local integration review and clean final-SHA package export pass.
+- [x] Report/STATE identify completed synchronization and the D2S restart point.
 
 ## Next Action
 
-Root commits the reviewed resolved merge, verifies clean ancestry and final-SHA
-export, then closes synchronization and resumes revised D2S authority.
+Resume revised D2S authority. Synchronization is Accepted at clean merge
+7d90753485c8bf9e63578e8ce83cc1762234c083; exact-SHA export receipt is in the Report.

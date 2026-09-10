@@ -1,15 +1,92 @@
 # P23-003D2S: Operation Status Audit Adapter Report
 
-Status: Authority revision next — D2S1 Accepted; no adapter Product work.
+Status: Authority Accepted; Runtime and Architecture implementation slices next.
 
-Updated At: 2026-09-08T11:20:30+09:00
+Updated At: 2026-09-11T01:47:07+09:00
 
-## Current Handoff
+## Summary
 
-[D2S1](P23-003D2S1-tenant-scoped-status-source.md) is Accepted. Its scoped source
-resolves the prerequisite identified below; the initial adapter proposal still
-needs revision and independent review. No adapter was implemented or activated.
-The following research is the historical pre-D2S1 source analysis.
+P23-013 synchronized published1.2.1 into development at clean merge
+7d90753485c8bf9e63578e8ce83cc1762234c083 and passed same-SHA Git/Composer export.
+D2/D2S1 foundations are already Accepted. Revised spec107/D156/Task now use a
+fresh tenant-bound source per read, strict authorizer guard, server-owned Status
+read UUID and requested/read-only-snapshot/terminal three-root ordering.
+No adapter has been implemented or activated; focused independent authority
+re-review and Root General Review are Green. Published Stable remains1.2.1; this work is unreleased1.3.
+
+## Changed Files
+
+Root: spec107/D156 and this Task/Report; minimal D155/spec108/D157 forward
+references; spec index, current TODO and rotated STATE. No Product/Test changes.
+P23-013 completion receipts are administrative handoff, outside D2S Product scope.
+
+## Decisions and Assumptions
+
+- Scoped SQL is supplied by Accepted D2S1. The guard supplements SQL, and one
+  reused query binds its nullable tenant separately on every read.
+- Allocate trusted `operation_status_read` UUIDv7 independently of D2 nonce,
+  Clock and Store UUIDs. It is not a replacement for missing caller identity.
+- Keep three same-Connection roots; terminal failure overrides pending result
+  or safe exception, with no retry/fallback/foreign transaction repair.
+- Independent Transaction/Documentation review identified inherited exception
+  trace exposure. D2S now explicitly permits only14 SensitiveParameter additions
+  to Default Query and necessary formatting; algorithm and exception identity
+  remain unchanged. Do not narrow the guarantee to hide the inherited gap.
+- The sealed Default makes defensive unknown-result/catch-all rows unreachable
+  through normal fixtures. Actual AST/mutation controls cover these rows; no
+  mock delegate seam or impossible end-to-end unit gate is demanded.
+- Package inventory grows87 to90 with old35 controls plus4 new controls. Final
+  full PHPUnit subsumes matching focused iteration coverage per spec109.
+
+## Commands and Results
+
+Read-only source and authority investigation is complete. No D2S Product test
+or implementation command has run. Authority candidates/review context are
+under `/tmp/blackops-d2s-20260911/authority`.
+
+PHP8.5.7 preflight:
+`docker compose run --rm --no-deps -T --volume /tmp/blackops-d2s-20260911:/probe app php -d zend.exception_ignore_args=0 /probe/trace-probe.php`
+passed exit0 / tool0.911s. It intentionally confirms the baseline exposure using
+dummy values: Operation ID/actor/tenant visible=true; previousIsNull=true;
+queryCode=status_query.storage_failed. No DB, source mutation or real secrets.
+Receipt: `/tmp/blackops-d2s-20260911/trace-probe-result.json`. This is a confirmed
+preflight defect requiring the narrow annotation correction, not final safety
+proof. The worker must prove all four codes safe with argument capture enabled.
+
+## Reviews and Acceptance Criteria
+
+First Transaction lane: P1=0/P2=2/P3=0 (trace boundary; unreachable unit gate).
+First Documentation lane: P1=0/P2=1/P3=0 (same trace boundary).
+Root General agrees and revised those contracts before implementation. Focused
+Transaction and Documentation rechecks are Green with P1/P2/P3=0. Reviewed
+spec107 content hash before acceptance-only status wording:
+912cd4a9ef7e9a3c5990c1d3f71c554b01007619137348bdfce74585d2703125.
+Root General confirms exactly14 declared Default parameters, unchanged scoped
+source protocol and the actual-oracle coverage assignment. Authority Accepted.
+For independent implementation work, the13 paths are split into Runtime8 and
+Architecture/package5; PHP/DB ownership is explicit in the Task. No contract or
+required command coverage is reduced by this ownership split.
+Authority acceptance and Product acceptance are separate; neither is inferred
+from the accepted source prerequisite or the1.2.1 release.
+
+## Release Documentation Impact
+
+Current release tuple is exactly1.2.1 in release-authority.json. Internal
+capability audit.operation_status_adapter.v1 remains unreleased. Public source/
+route/API/config inventory empty; no old-version or historical allowlist change.
+Spec107 supplies implementer guidance; runnable usage docs await activation.
+No generated/Search/LLM/browser/CI/delivery/deployment claim in this Task.
+
+## Remaining Issues
+
+Luna implementation, required verification union, three implementation review lanes,
+Acceptance and clean final-SHA export. Other Audit adapters/API/signature/query/
+export/runtime/docs/release tasks remain outside this bounded adapter.
+
+## Suggested Next Action
+
+Root checkpoints accepted authority and records immutable inputs, then assigns
+Runtime8 and Architecture/package5 to the two configured Luna/max workers.
 
 ## Historical Summary
 

@@ -7,7 +7,7 @@
 - 開発運用: [仕様109](109-ai-development-workflow.md)、[Task/Reportと更新手順](../orchestration/README.md)
 - 公開Releaseとimmutable source refs: [Release Authority](release-authority.json)
 - 図解とLanding: [仕様110](110-documentation-diagrams-and-presentation.md)、[D159](../decisions/159-documentation-diagrams-and-presentation.md)、[P23-008 Task](../orchestration/tasks/P23-008-archify-documentation-diagrams.md)、[Report](../orchestration/reports/P23-008-archify-documentation-diagrams.md)
-- 継続中のStatus source: [D2S1 Task](../orchestration/tasks/P23-003D2S1-tenant-scoped-status-source.md)、[Report](../orchestration/reports/P23-003D2S1-tenant-scoped-status-source.md)
+- Accepted Status source: [D2S1 Task](../orchestration/tasks/P23-003D2S1-tenant-scoped-status-source.md)、[Report](../orchestration/reports/P23-003D2S1-tenant-scoped-status-source.md)
 
 ここでは文書への導線を管理する。Task途中の進捗、検証件数、Reviewの往復を追記せず、現在のSTATE/Reportを参照する。
 表にあるProposalや過去のAcceptedはRelease済みCapabilityを意味しない。Current Releaseは上記Authorityで確認する。
@@ -139,7 +139,7 @@
 | --- | --- | --- |
 | [105-blackops-1-3-capability-contract.md](105-blackops-1-3-capability-contract.md) | BlackOps `1.3` CLI、runtime、Audit TrailのCapability Contract | Proposal — P23-001 Accepted; Stable `1.2` current / BlackOps `1.3` unreleased proposal |
 | [106-phase-23-delivery-plan.md](106-phase-23-delivery-plan.md) | Phase 23のDAG、Migration、独立Gate、Release境界 | Proposal — P23-001 Accepted; Stable `1.2` current / BlackOps `1.3` unreleased proposal |
-| [107-operation-status-audit-adapter.md](107-operation-status-audit-adapter.md) | Initial Status Audit adapter candidate | D2S1 Accepted; adapter revision/review required; not implementation authority; Stable `1.2` current / `1.3` unreleased |
+| [107-operation-status-audit-adapter.md](107-operation-status-audit-adapter.md) | Per-read tenant-bound Status Audit adapter | Authority Green; D2S1 Accepted; adapter implementation pending; Stable `1.2` current / `1.3` unreleased |
 | [108-tenant-scoped-status-source.md](108-tenant-scoped-status-source.md) | Explicit tenant scope, SQL predicates, Status snapshot and before-decode boundary | D2S1 Authority Green; Product progress in Report/STATE; Stable `1.2` current / `1.3` unreleased |
 
 ## 決定の参照
@@ -306,7 +306,7 @@
 | [D153](../decisions/153-audit-outbox-relay-and-recovery-runtime-boundary.md) | Bounded Audit Outbox relay／recovery、three-root crash semantics、failure／FIFO／nonactivation boundary | Accepted P23-003C4／parent C; final `d5ab347...` same-SHA package export Green; Stable `1.2` current / BlackOps `1.3` unreleased |
 | [D154](../decisions/154-framework-operational-audit-catalog-and-adapter-split.md) | Exact14 Framework operational Catalog／trusted lookup lineage and bounded P23-003D adapter DAG | D1/D2/D2S1 Accepted; parent D incomplete; D-control waits for Accepted F; Stable `1.2` current / `1.3` unreleased |
 | [D155](../decisions/155-operation-read-audit-session-foundation.md) | Operation-read 16-byte nonce／opaque target／fixed draft／one-shot session／fail-closed terminal and Diagnostics authorization foundation | D2 Accepted at `0cd699e...`; parent D incomplete; Stable `1.2` current / `1.3` unreleased |
-| [D156](../decisions/156-operation-status-audit-adapter.md) | Initial Status Audit adapter-only proposal | D2S1 Accepted; adapter revision/review required; not implementation authority; Stable `1.2` current / `1.3` unreleased |
+| [D156](../decisions/156-operation-status-audit-adapter.md) | Status Audit adapter, trusted read identity and exception trace protection | Decided; adapter implementation pending; Stable `1.2` current / `1.3` unreleased |
 | [D157](../decisions/157-tenant-scoped-status-source.md) | Tenant-scoped Status-source prerequisite and legacy-preserving split | D2S1 Authority Green; Product progress in Report/STATE; Stable `1.2` current / `1.3` unreleased |
 
 ## 開発運用の更新
