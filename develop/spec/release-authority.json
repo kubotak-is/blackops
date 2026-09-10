@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
   "currentStable": {
-    "version": "1.2.0",
+    "version": "1.2.1",
     "releaseState": "experimental-stable",
     "framework": {
-      "tag": "1.2.0",
-      "directRef": "00e8c5875047a3c47acbebfe57f75b0e581d18b9",
-      "peeledSource": "3332fd1dd0738fc7e79750facd93d49a59054ecf"
+      "tag": "1.2.1",
+      "directRef": "1c72fced890c7f4cfc2cf88a4d2b08dbcfc85dd3",
+      "peeledSource": "4efee09f13bebedc1639333f79550a36a4e8ca91"
     },
     "skeleton": {
-      "tag": "1.2.0",
-      "directRef": "fedcfda5f39caf320ad67196e8ced459176cedb1",
-      "peeledSource": "fa5e8247fc8cf789cf73685e5be59cc498ffb4ce"
+      "tag": "1.2.1",
+      "directRef": "7a47e344ecba6193628119f0e95cb23dc5e0be83",
+      "peeledSource": "87a025380df8abcd0c514abf50e139dbbc1953c7"
     }
   },
   "capabilities": [
@@ -65,7 +65,7 @@
     {
       "path": "docs/guide/mvp-status.md",
       "heading": "## Stableとmain",
-      "normalizedSentence": "| Capability | Stable 1.1.0 historical | Stable 1.2.0 |",
+      "normalizedSentence": "| Capability | Stable 1.1.0 historical | Stable 1.2.0 historical | Stable 1.2.1 |",
       "category": "release-matrix",
       "reason": "Capability matrixの比較列を保持する歴史的基準"
     },

@@ -7,13 +7,13 @@
 
 BlackOpsは、PHP 8.5向けのHeadless Operation Frameworkです。同期HTTP実行とPostgreSQLを使ったDeferred実行を同じOperation Modelで扱い、Lifecycle Journal、Retry、Outcome、Retention、BlackOps CLIを提供します。
 
-Stable `1.2.0`ではNamed Doctrine DBAL Connection、Constructor Injection、`#[Transactional]`付きOperation／Service、Nested Required、`#[AfterCommit]`を利用できます。BlackOpsはExperimentalであり、1.x Minor間の互換性を保証しません。
+Stable `1.2.1`ではNamed Doctrine DBAL Connection、Constructor Injection、`#[Transactional]`付きOperation／Service、Nested Required、`#[AfterCommit]`を利用できます。BlackOpsはExperimentalであり、1.x Minor間の互換性を保証しません。
 
 ## Status
 
-Latest Experimental StableはFramework／Skeleton `1.2.0`です。BlackOpsはExperimentalであり、1.x Minor間のBackward CompatibilityとProduction Readinessを保証しません。破壊的変更と移行手順は[CHANGELOG](CHANGELOG.md)と[Upgrade Guide](UPGRADE.md)で確認してください。
+Latest Experimental StableはFramework／Skeleton `1.2.1`です。BlackOpsはExperimentalであり、1.x Minor間のBackward CompatibilityとProduction Readinessを保証しません。破壊的変更と移行手順は[CHANGELOG](CHANGELOG.md)と[Upgrade Guide](UPGRADE.md)で確認してください。
 
-Framework／Skeleton `1.2.0`はannotated Tag、GitHub Release、Packagistへ公開済みです。Experimental Releaseのため、Production Readyや1.x Minor間のBackward Compatibilityは保証しません。
+Framework／Skeleton `1.2.1`のannotated TagとPackagist Packageは公開済みです。FrameworkのGitHub Releaseも[公開済み](https://github.com/kubotak-is/blackops/releases/tag/1.2.1)ですが、SkeletonはPackagistの公開Packageとして提供します。Experimental Releaseのため、Production Readyや1.x Minor間のBackward Compatibilityは保証しません。
 
 Documentation Websiteは[Cloudflare Pages](https://blackops-php.pages.dev)へ公開済みで、Local／CI Buildと公開Artifact境界を検証しています。
 
@@ -24,7 +24,7 @@ Documentation Websiteは[Cloudflare Pages](https://blackops-php.pages.dev)へ公
 公開済みSkeletonからApplicationを作成します。
 
 ```bash
-composer create-project blackops/skeleton my-app 1.2.0
+composer create-project blackops/skeleton my-app 1.2.1
 cd my-app
 ```
 
@@ -32,11 +32,11 @@ cd my-app
 
 生成されたApplicationはFramework-owned `withEnvironmentFile()`と`BlackOps\Http\SapiRuntime`を利用するため、Dotenv／PSR-7／SAPI／UUIDv7 Runtime PackageをApplication Composerへ重複宣言しません。DBAL／MigrationsなどApplication Sourceが直接ImportするPackageだけを追加します。
 
-このCommandが作成するのは公開済みExperimental Stable `1.2.0`のApplicationです。1.2.0のHeader Authentication、Database／Transaction、Deferred Worker Journeyを確認できます。
+このCommandが作成するのは公開済みExperimental Stable `1.2.1`のApplicationです。1.2.1のHeader Authentication、Database／Transaction、Deferred Worker Journeyを確認できます。
 
-## Stable 1.2.0 Quickstart
+## Stable 1.2.1 Quickstart
 
-公開済みStable `1.2.0`で作成した`my-app`のQuickstartです。[利用者向けQuickstart](docs/guide/mvp-sample.md)で公開PackageのInstall、Docker Image、Artifact、Databaseを明示的に準備します。
+公開済みStable `1.2.1`で作成した`my-app`のQuickstartです。[利用者向けQuickstart](docs/guide/mvp-sample.md)で公開PackageのInstall、Docker Image、Artifact、Databaseを明示的に準備します。
 
 ```bash
 docker compose build app http
@@ -73,13 +73,13 @@ curl -X POST -H 'Content-Type: application/json' \
 
 Browserで`php blackops operation:viewer`を使うには、Application／PHP CLI／PostgreSQL／Browserが同じLocal Network Namespaceから到達可能なNative Runtimeが必要です。Non-loopback Bindへ緩めません。Application／Framework相関Logは`var/log/application.jsonl`で同じIDを使い、Sensitive ValueとActor IDをSafe Projectionします。
 
-Stable `1.2.0`の準備方法と利用可能なEndpointは[利用者向けQuickstart](docs/guide/mvp-sample.md)を参照してください。
+Stable `1.2.1`の準備方法と利用可能なEndpointは[利用者向けQuickstart](docs/guide/mvp-sample.md)を参照してください。
 
 ## Full-stack Reference Application
 
 [BlackOps Board](examples/community-board/README.md)は、Repository `main`だけで提供するLocal Full-stack Reference Applicationです。QuickstartがFrameworkの最短ContractをHTTPとWorkerで確認するのに対し、BlackOps BoardはApplication-owned Identity、Framework Session Core、Generated Ephemeral Auth Operation、SvelteKit Same-origin BFF、DBAL Domain Repository、Inline Post／Comment、Deferred Digest、Accessible Product UIまでを一つのBrowser Journeyで示します。
 
-[Community Board Guide](docs/guide/community-board.md)は、空のLocal StateからSetup、Seed、通常Login、Inline／Deferred Journeyを再現し、BrowserからPostgreSQL／Workerまでの責任境界を説明します。公開Demo CredentialはLocal／Test Fixtureであり、Stable `1.2.0` Skeletonには含まれません。Community Boardは外部Hostingしていません。
+[Community Board Guide](docs/guide/community-board.md)は、空のLocal StateからSetup、Seed、通常Login、Inline／Deferred Journeyを再現し、BrowserからPostgreSQL／Workerまでの責任境界を説明します。公開Demo CredentialはLocal／Test Fixtureであり、Stable `1.2.1` Skeletonには含まれません。Community Boardは外部Hostingしていません。
 
 [![BlackOps BoardのCredential-free Landing画面](docs/guide/assets/community-board/blackops-board.png)](docs/guide/community-board.md)
 

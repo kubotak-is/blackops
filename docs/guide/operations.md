@@ -156,7 +156,7 @@ Sourceを追加したら`php blackops build:compile`でSignatureとMetadataを�
 
 ## Scheduled Operation
 
-定期実行の入口は公開済みExperimental Stable `1.2.0`の[Scheduled Operation](scheduled-operation.md)です。`#[ScheduledBy]`はExecution Strategyを変えず、Inlineは既定、Deferredは`#[Deferred]`を明示します。手動の`#[ConsoleCommand]`とは別のRoot Operationとして扱います。
+定期実行の入口は公開済みExperimental Stable `1.2.1`の[Scheduled Operation](scheduled-operation.md)です。`#[ScheduledBy]`はExecution Strategyを変えず、Inlineは既定、Deferredは`#[Deferred]`を明示します。手動の`#[ConsoleCommand]`とは別のRoot Operationとして扱います。
 
 ## 次に入力を拒否する
 

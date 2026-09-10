@@ -381,7 +381,7 @@ test('Journal guide is reachable from the execution walkthrough and explains its
   assert.doesNotMatch(walkthrough, /追加なし/);
   assert.match(walkthrough, /data-execution-inspection-panel/);
   assert.match(walkthrough, /data-execution-inspect/);
-  assert.doesNotMatch(walkthrough, /<a[\s\S]*data-execution-region/);
+  assert.doesNotMatch(walkthrough, /<a\b[^>]*data-execution-region/);
   assert.match(journal, /^# Journal$/m);
   for (const phrase of [
     'Canonical Journal',
@@ -699,9 +699,10 @@ test('guided tutorial pairs runnable inputs with parseable JSON and masked JSONL
 
 test('retention guide preserves the idempotency default and successful plan contract', async () => {
   const retention = await guide('retention.md');
-  assert.match(retention, /`--idempotency-record-days`を省略した場合は、Application設定の`config\/retention\.php`にある`idempotency_record_days`を使い、設定で第5期間を持たない場合は4つの基本期間の最長値へフォールバックします/);
-  assert.match(retention, /--transport-payload-days=7[\s\S]*--journal-days=30[\s\S]*--outcome-days=14[\s\S]*--dead-letter-days=90[\s\S]*--idempotency-record-days=30/);
-  assert.doesNotMatch(retention, /Project Rootの公開Retention Commandは4つの期間Optionだけを受け付けます/);
+  assert.match(retention, /`config\/retention\.php`の`idempotency_record_days`で管理し、省略した場合は4つの基本期間の最長値を使います/);
+  assert.match(retention, /--transport-payload-days=7[\s\S]*--journal-days=30[\s\S]*--outcome-days=14[\s\S]*--dead-letter-days=90/);
+  assert.doesNotMatch(retention, /--idempotency-record-days/);
+  assert.match(retention, /Project Rootの公開Retention Commandは4つの期間Optionだけを受け付けます/);
   assert.match(retention, /Planは候補を読むだけで、DatabaseやJournalを変更しません/);
   assert.match(retention, /成功時の終了Codeは0です。次の形式を返します/);
   assert.match(retention, /Retention plan[\s\S]*idempotency_record: N/);
@@ -806,15 +807,15 @@ test('tenant protection guide completes the protected-storage reader journey', a
   const source = await guide('tenant-protection.md');
   const configuration = await guide('configuration.md');
   for (const phrase of [
-    'Experimental Stable `1.2.0`', 'TenantRef', 'AuthenticationResult::authenticated',
+    'Experimental Stable `1.2.1`', 'TenantRef', 'AuthenticationResult::authenticated',
     'ConsoleTenantProvider', 'ScheduledTenantProvider', 'StorageKeyProvider',
     'OperationDataReadAuthorizer', 'OperationOutcomeQuery', 'BOPD v1',
     'XChaCha20-Poly1305', 'OperationOutcomeUnavailable', 'database:migrate',
     'storage:protection:plan', 'storage:protection:rotate', '--confirm',
     '--checkpoint', '--actor', '--reason', 'remaining', 'Replica', 'Backup',
     'dead_letter_reason', 'idempotency_response', 'idempotency_result',
-    'Exit Codeは成功（`0`）', '旧Keyを削除しない', 'Experimental Stable 1.2.0',
-    '公開済みExperimental Stable `1.2.0`のFramework／Skeleton Surface', 'count(encoded_record)',
+    'Exit Codeは成功（`0`）', '旧Keyを削除しない', 'Experimental Stable 1.2.1',
+    '公開済みExperimental Stable `1.2.1`のFramework／Skeleton Surface', 'count(encoded_record)',
     'count(encoded_payload)', 'count(encoded_context)', 'count(encoded_reason)',
     'count(encoded_response)', 'count(encoded_result)',
     'all_non_null_rows_are_bopd', 'BOPD Envelope Header',
@@ -1058,8 +1059,8 @@ test('Blume runtime keeps diagrams local and the landing responsive', async () =
     '環境を用意し、サンプルで動きを確かめてから、自分のOperationを作ります。',
     '入口がHTTPでもConsoleでもScheduleでも',
     '同じID',
-    'composer create-project blackops/skeleton my-app 1.2.0',
-      'Stable 1.2.0',
+    'composer create-project blackops/skeleton my-app 1.2.1',
+      'Stable 1.2.1',
     'Install',
     '環境を用意する',
     'サンプルを動かす',

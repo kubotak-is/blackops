@@ -2,7 +2,7 @@
 
 BlackOpsはApplication Databaseへ初期値、Development Fixture、Demo Dataを投入するため、Framework所有の`database:seed` CommandとApplication所有のSeederを提供します。Seederは[Operation](glossary.md#operation)ではなく、HTTP LifecycleやJournalを通らない明示的な保守処理です。
 
-> **Release:** Database Seederは公開済みExperimental Stable `1.2.0`のSurfaceです。Frameworkの検出とDIを使い、ApplicationがDataと再実行方針を所有します。
+> **Release:** Database Seederは公開済みExperimental Stable `1.2.1`のSurfaceです。Frameworkの検出とDIを使い、ApplicationがDataと再実行方針を所有します。
 
 ## Root Seeder
 

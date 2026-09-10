@@ -16,9 +16,15 @@ Framework／Skeleton `1.2.0` are published at the accepted immutable fixed sourc
 
 ## Active source contract
 
-Docker Composer root version, Framework-owned Trace／Metric scope, `examples/quickstart` Composer metadata, Consumer path repository mappings, and public documentation use `1.2.0` or `^1.2`. Skeleton publication validation and the published package both require `^1.2`.
+The published source contract keeps the Docker Composer root version, Framework-owned Trace／Metric scope, `examples/quickstart` Composer metadata, Consumer path repository mappings, and public documentation at `1.2.0` or `^1.2`. Only the separate maintenance checkout uses the bounded `1.2.1` overrides described below; Skeleton publication validation and the published package continue to require `^1.2`.
 
 Historical `1.1.0` install commands and release evidence remain immutable. Public current install commands use published `1.2.0`; unrelated third-party versions and protocol literals are not release metadata and are not changed.
+
+## Unreleased Framework 1.2.1 preparation contract
+
+The separate maintenance checkout may identify an unpublished Framework patch candidate as `1.2.1`. Its bounded preparation surfaces are the Composer development root version (`1.2.1@dev`), the Framework-owned OpenTelemetry Trace／Metric scope version (`1.2.1`), current-source Consumer path mappings, and the Framework-only update Consumer candidate lane. The published `currentStable` Framework／Skeleton `1.2.0` tuple, public installation guidance, Skeleton `^1.2` constraint, Skeleton publication fixtures, and historical `1.1.0` evidence remain unchanged.
+
+This preparation does not create or validate a public `1.2.1` Tag, Packagist release, Remote Consumer result, new API, migration, dependency, or `1.3` implementation. Any publication requires a new release-boundary decision and the existing Framework／Skeleton same-version Tag and full release gates.
 
 ## Documentation contract
 

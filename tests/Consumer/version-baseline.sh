@@ -65,8 +65,8 @@ assert_information_architecture_contract() {
     contains docs/website/tests/site-navigation.test.mjs 'canonical seven-section order and public assignment'
     contains docs/website/tests/site-navigation.test.mjs 'wrong-section'
     contains docs/website/pages/index.astro 'landing-journey'
-    contains docs/website/pages/index.astro 'landing-purpose-nav'
-    contains docs/website/pages/index.astro 'Lifecycle and Journal'
+    contains docs/website/pages/index.astro 'landing-resources'
+    contains docs/website/pages/index.astro 'BlackOpsを動かす'
     contains docs/website/pages/index.astro "#[OperationType('report.generate')]"
     contains docs/website/pages/index.astro '<div class="landing-shell">'
     contains docs/website/scripts/check-site.mjs 'Landing start journey must contain exactly one'
@@ -74,7 +74,7 @@ assert_information_architecture_contract() {
     contains docs/website/scripts/check-site.mjs 'Landing Artifact must have one PageLayout main'
     contains docs/website/scripts/check-site.mjs 'Landing llms-full segment'
     contains docs/website/scripts/check-site.mjs 'Releases Artifact must be one direct operation target'
-    contains docs/website/scripts/check-site.mjs 'Landing must not hide overflow or use decorative gradients'
+    contains docs/website/scripts/check-site.mjs 'Landing ambient gradients must remain scoped to the landing shell or decorative backdrop field.'
     contains docs/website/site-navigation.mjs "items: ['releases/current-status']"
     contains docs/website/site-navigation.mjs 'Releases must be a direct singleton root'
     contains docs/website/site-navigation.mjs "display: /** @type {'flat'} */ ('flat')"
@@ -87,10 +87,10 @@ assert_information_architecture_contract() {
     contains docs/website/scripts/check-artifact.mjs "artifact-stylesheet-contract.mjs"
     contains docs/website/scripts/artifact-stylesheet-contract.mjs 'export function extractStylesheetHrefs'
     contains docs/website/scripts/artifact-stylesheet-contract.mjs 'export async function assertLinkedStylesheetContract'
-    contains docs/website/scripts/artifact-stylesheet-contract.mjs 'min-width:42rem'
+    contains docs/website/scripts/artifact-stylesheet-contract.mjs 'min-width:0'
     contains docs/website/tests/site-navigation.test.mjs 'same-name Releases parent and child fixture'
     contains docs/website/tests/reader-experience.test.mjs 'fail-closed fixtures'
-    contains docs/website/tests/reader-experience.test.mjs 'expected at least 3:1'
+    contains docs/website/tests/reader-experience.test.mjs "assertContrastAtLeast('#c9ed79', '#17210b', 4.5);"
 }
 
 assert_product_framing_contract() {
@@ -103,20 +103,15 @@ assert_product_framing_contract() {
     contains docs/website/scripts/check-content.mjs 'assertProductFramingSourceContract'
     contains docs/website/scripts/check-site.mjs 'assertProductFramingArtifactContract'
     contains docs/website/pages/index.astro 'HTTPとWorkerの処理を一つのOperationとして扱い、受付・再試行・完了までを同じIDで追跡できるPHP Frameworkです。'
-    contains docs/website/pages/index.astro 'PHP 8.5向けFramework'
+    contains docs/website/pages/index.astro 'ExecutionWalkthrough'
     contains docs/website/pages/index.astro 'locale="ja"'
     contains docs/website/pages/index.astro 'href="/reference/project-cli"'
-    contains docs/website/pages/index.astro 'landing-editor-chrome'
-    contains docs/website/pages/index.astro 'landing-lifecycle-panel'
+    contains docs/website/pages/index.astro 'landing-code-panel'
+    contains docs/website/pages/index.astro 'landing-resources'
+    contains docs/website/pages/index.astro 'BlackOpsを動かす'
     contains docs/website/pages/index.astro 'landing-value-note'
-    contains docs/website/pages/index.astro 'Received'
-    contains docs/website/pages/index.astro 'Finalizing'
-    contains docs/website/pages/index.astro 'attempt.succeeded — Handlerが成功した'
-    contains docs/website/pages/index.astro 'Completed'
-    contains docs/website/pages/index.astro 'Retryは同じIDの次のAttemptとして続きます。'
     contains docs/website/pages/index.astro 'aria-label="ドキュメントの操作"'
     contains docs/website/pages/index.astro 'aria-label="Operationのソース"'
-    contains docs/website/pages/index.astro 'aria-label="ドキュメントのセクション"'
     contains docs/guide/project-cli.md '# BlackOps CLI'
     contains docs/guide/project-cli.md 'php blackops list'
     contains docs/guide/project-cli.md 'Projectを作る・Buildする'
@@ -125,9 +120,12 @@ assert_product_framing_contract() {
     contains docs/guide/project-cli.md '診断・復旧する'
     contains docs/guide/project-cli.md '| 目的 | Command | 実行条件 | 出力／終了Code |'
     contains docs/guide/project-cli.md 'Helpが本文表の全Optionを必ず列挙するとは限りません。'
-    contains docs/guide/project-cli.md 'Project Rootの公開Retention Commandは5つの期間Optionを受け付けます。'
-    contains docs/guide/project-cli.md '`--idempotency-record-days`を省略した場合は、Application設定の`config/retention.php`にある`idempotency_record_days`を使い、設定で第5期間を持たない場合は4つの基本期間の最長値へフォールバックします。'
-    contains docs/guide/retention.md '--idempotency-record-days=30'
+    contains docs/guide/project-cli.md 'Project Rootの公開Retention Commandは4つの期間Optionだけを受け付けます。'
+    contains docs/guide/project-cli.md '`config/retention.php`の`idempotency_record_days`で管理し、省略時は4つの基本期間の最長値を使います。'
+    contains docs/guide/retention.md '`config/retention.php`の`idempotency_record_days`で管理し、省略した場合は4つの基本期間の最長値を使います。'
+    contains src/Internal/Application/ApplicationConsoleKernel.php "'idempotency-record-days'"
+    contains src/Internal/Console/RetentionPlanCommand.php "'idempotency-record-days'"
+    contains src/Internal/Console/RetentionPurgeCommand.php "'idempotency-record-days'"
     contains docs/guide/project-cli.md '[--tenant-type=<type> --tenant-id=<id>]'
     contains docs/guide/project-cli.md 'project-generators.md#seederを生成する'
     contains docs/guide/why-blackops.md 'Request／Jobの実行履歴 | Lifecycle Journal'
@@ -158,8 +156,9 @@ assert_product_framing_contract() {
     contains docs/website/tests/guide-code.test.mjs 'the three examples must show the encoder null-tenant shape'
     absent docs/guide/project-cli.md 'ApplicationConfigurationSnapshot'
     absent docs/guide/project-cli.md 'ApplicationOperationDiscovery'
-    absent docs/guide/project-cli.md 'Project Rootの公開Retention Commandは4つの期間Optionだけを受け付けます。'
-    absent docs/guide/retention.md 'Project Rootの公開Retention Commandは4つの期間Optionだけを受け付けます。'
+    absent docs/guide/project-cli.md 'Project Rootの公開Retention Commandは5つの期間Optionを受け付けます。'
+    absent docs/guide/project-cli.md '--idempotency-record-days'
+    absent docs/guide/retention.md '--idempotency-record-days'
     absent docs/guide/observability.md 'storage.rotation.completed'
     absent docs/guide/journal.md 'operation.schedule.scheduled_at'
     absent docs/guide/journal.md 'operation.schedule.timezone'
@@ -316,8 +315,8 @@ assert_installation_key_convergence() {
     local file='docs/guide/installation.md'
 
     awk '
-        index($0, "composer create-project blackops/skeleton my-app 1.2.0") && !normal_line { normal_line = NR }
-        index($0, "composer create-project --no-scripts blackops/skeleton my-app 1.2.0") { no_scripts_line = NR }
+        index($0, "composer create-project blackops/skeleton my-app 1.2.1") && !normal_line { normal_line = NR }
+        index($0, "composer create-project --no-scripts blackops/skeleton my-app 1.2.1") { no_scripts_line = NR }
         index($0, "php bin/setup") { setup_line = NR }
         index($0, "normal／`--no-scripts`のどちらも") { convergence_line = NR }
         index($0, "chmod 600 .env") { key_line = NR }
@@ -336,9 +335,9 @@ assert_mvp_key_convergence() {
     local file='docs/guide/mvp-sample.md'
 
     awk '
-        index($0, "composer create-project blackops/skeleton my-app 1.2.0") && !normal_create_line { normal_create_line = NR }
+        index($0, "composer create-project blackops/skeleton my-app 1.2.1") && !normal_create_line { normal_create_line = NR }
         index($0, "php bin/setup") && !normal_setup_line { normal_setup_line = NR }
-        index($0, "composer create-project --no-scripts blackops/skeleton my-app 1.2.0") { no_scripts_create_line = NR }
+        index($0, "composer create-project --no-scripts blackops/skeleton my-app 1.2.1") { no_scripts_create_line = NR }
         index($0, "php bin/setup") && normal_setup_line && NR > normal_setup_line && !no_scripts_setup_line { no_scripts_setup_line = NR }
         index($0, "normal／`--no-scripts`のどちらも、Setup直後に次の同じ必須Key Stepを実行します。") { convergence_line = NR }
         index($0, "chmod 600 .env") { chmod_line = NR }
@@ -495,7 +494,7 @@ assert_deptrac_no_rule Auth Internal
 assert_deptrac_no_rule Http Internal
 assert_deptrac_sccs
 
-contains Dockerfile 'COMPOSER_ROOT_VERSION=1.2.0@dev'
+contains Dockerfile 'COMPOSER_ROOT_VERSION=1.2.1@dev'
 contains composer.json '"carthage-software/mago": "1.42.0"'
 contains composer.json '"deptrac/deptrac": "4.7.1"'
 contains mago.toml 'baseline = "mago-lint-baseline.toml"'
@@ -506,8 +505,8 @@ contains .github/workflows/ci.yml 'mago lint --verify-baseline'
 test "$(grep -c '^variant = "strict"$' "${repository_root}/mago-lint-baseline.toml")" -eq 1 \
     || fail 'Mago baseline must use exactly one strict variant declaration'
 contains examples/quickstart/composer.json '"blackops/framework": "^1.2"'
-contains src/Internal/Telemetry/TelemetryTracer.php "public const VERSION = '1.2.0';"
-contains src/Internal/Telemetry/TelemetryMetrics.php "public const VERSION = '1.2.0';"
+contains src/Internal/Telemetry/TelemetryTracer.php "public const VERSION = '1.2.1';"
+contains src/Internal/Telemetry/TelemetryMetrics.php "public const VERSION = '1.2.1';"
 
 for consumer in \
     tests/Consumer/quickstart-e2e.sh \
@@ -515,7 +514,7 @@ for consumer in \
     tests/Consumer/scheduled-operation.sh \
     tests/Consumer/storage-protection-rotation.sh \
     tests/Consumer/frankenphp-worker-mode.sh; do
-    contains "${consumer}" 'blackops/framework":"1.2.0'
+    contains "${consumer}" 'blackops/framework":"1.2.1'
 done
 
 for consumer in \
@@ -530,8 +529,8 @@ for consumer in \
     assert_storage_key_contract "${consumer}"
 done
 
-contains tests/Consumer/skeleton-create-project.sh '"blackops/framework": "1.2.0"'
-contains tests/Consumer/skeleton-create-project.sh 'blackops/skeleton":"1.2.0"'
+contains tests/Consumer/skeleton-create-project.sh '"blackops/framework": "1.2.1"'
+contains tests/Consumer/skeleton-create-project.sh 'blackops/skeleton":"1.2.1"'
 contains tests/Consumer/skeleton-publication.sh 'version=1.2.0'
 contains tests/Consumer/skeleton-publication-workflow.sh 'run_publication "${new_remote}" 1.2.0 false'
 
@@ -683,8 +682,8 @@ assert_manual_recovery_harness
 
 assert_website_font_contract() {
     contains docs/website/package.json '"blume": "1.3.0"'
-    contains docs/website/blume.config.ts "localFont('UbuntuSans.ttf')"
-    contains docs/website/blume.config.ts "localFont('UbuntuMono.ttf')"
+    contains docs/website/blume.config.ts "localFont('UbuntuSans.woff2')"
+    contains docs/website/blume.config.ts "localFont('UbuntuMono.woff2')"
     absent docs/website/blume.config.ts 'fonts.googleapis.com'
     absent docs/website/blume.config.ts 'fonts.gstatic.com'
     contains docs/website/theme.css 'var(--blume-font-body, ui-sans-serif)'
@@ -702,7 +701,7 @@ assert_website_font_contract() {
     contains docs/website/scripts/check-artifact.mjs 'fontProviders.local()'
     contains docs/website/scripts/check-artifact.mjs 'localFontReferences'
     contains docs/website/scripts/check-artifact.mjs 'Ubuntu-Font-License-1.0.txt'
-    contains docs/website/tests/reader-experience.test.mjs "localFont\\('UbuntuSans\\.ttf'\\)"
+    contains docs/website/tests/reader-experience.test.mjs "localFont\\('UbuntuSans\\.woff2'\\)"
     contains docs/website/tests/reader-experience.test.mjs '"blume": "1\.3\.0"'
     contains docs/website/tests/reader-experience.test.mjs 'assertLocalProviderOnly'
     contains docs/website/tests/reader-experience.test.mjs "fontProviders.fontsource({ family: 'Inter' })"
@@ -710,6 +709,10 @@ assert_website_font_contract() {
         || fail 'Website Ubuntu Sans asset must be present and non-empty'
     test -s "${repository_root}/docs/website/public/fonts/UbuntuMono.ttf" \
         || fail 'Website Ubuntu Mono asset must be present and non-empty'
+    test -s "${repository_root}/docs/website/public/fonts/UbuntuSans.woff2" \
+        || fail 'Website compressed Ubuntu Sans asset must be present and non-empty'
+    test -s "${repository_root}/docs/website/public/fonts/UbuntuMono.woff2" \
+        || fail 'Website compressed Ubuntu Mono asset must be present and non-empty'
     test -s "${repository_root}/docs/website/public/licenses/Ubuntu-Font-License-1.0.txt" \
         || fail 'Website Ubuntu font license must be present and non-empty'
     test "$(sha256sum "${repository_root}/docs/website/public/fonts/UbuntuSans.ttf" | cut -d' ' -f1)" = \
@@ -718,6 +721,12 @@ assert_website_font_contract() {
     test "$(sha256sum "${repository_root}/docs/website/public/fonts/UbuntuMono.ttf" | cut -d' ' -f1)" = \
         'fbf1e748836994f730e602f7dcf2525564d6d78aa336080cbb73af909d0e08ee' \
         || fail 'Website Ubuntu Mono asset checksum changed'
+    test "$(sha256sum "${repository_root}/docs/website/public/fonts/UbuntuSans.woff2" | cut -d' ' -f1)" = \
+        'b1de97dd36b02b2c5125d8df6b99c76053b6c43b871c9f2dfb923b3218623bc1' \
+        || fail 'Website compressed Ubuntu Sans asset checksum changed'
+    test "$(sha256sum "${repository_root}/docs/website/public/fonts/UbuntuMono.woff2" | cut -d' ' -f1)" = \
+        '1417c472ce2c5449cc427f2ceb92dedbbd28eb1bcd44fd9b7efb6cb0978d0e80' \
+        || fail 'Website compressed Ubuntu Mono asset checksum changed'
     test "$(sha256sum "${repository_root}/docs/website/public/licenses/Ubuntu-Font-License-1.0.txt" | cut -d' ' -f1)" = \
         'bca346a561b9668925ff55af1fcf0e10e65e07b1b40dd057bb4f3ded848ef8cf' \
         || fail 'Website Ubuntu font license checksum changed'
@@ -974,10 +983,10 @@ assert_generator_resource_inventory
 assert_generator_tag_lifecycle() {
     local file='tests/Consumer/framework-update-generators.sh'
 
-    contains "${file}" "candidate_tag_ref='refs/tags/1.2.0'"
+    contains "${file}" "candidate_tag_ref='refs/tags/1.2.1'"
     contains "${file}" 'candidate_tag_type="$(git -C "${framework_repository}" cat-file -t "${candidate_tag_ref}" 2>/dev/null || true)"'
     contains "${file}" 'if test -z "${candidate_tag_type}"; then'
-    contains "${file}" 'git -C "${framework_repository}" tag 1.2.0 "${current_commit}"'
+    contains "${file}" 'git -C "${framework_repository}" tag 1.2.1 "${current_commit}"'
     contains "${file}" 'candidate_source_commit="${current_commit}"'
     contains "${file}" 'test "${candidate_tag_type}" = '\''tag'\'''
     contains "${file}" 'published_candidate_commit="$(git -C "${framework_repository}" rev-parse "${candidate_tag_ref}^{commit}")"'
@@ -988,10 +997,10 @@ assert_generator_tag_lifecycle() {
     contains "${file}" 'candidate_tag_ref}^{commit}")" = "${candidate_source_commit}"'
 
     awk '
-        index($0, "candidate_tag_ref='\''refs/tags/1.2.0'\''") { ref_line = NR }
+        index($0, "candidate_tag_ref='\''refs/tags/1.2.1'\''") { ref_line = NR }
         index($0, "candidate_tag_type=") { type_line = NR }
         index($0, "if test -z \"${candidate_tag_type}\"; then") { absent_line = NR }
-        index($0, "tag 1.2.0 \"${current_commit}\"") { create_line = NR }
+        index($0, "tag 1.2.1 \"${current_commit}\"") { create_line = NR }
         index($0, "candidate_source_commit=\"${current_commit}\"") { absent_source_line = NR }
         index($0, "test \"${candidate_tag_type}\" = '\''tag'\''") { annotated_line = NR }
         /^[[:space:]]+published_candidate_commit=/ { published_line = NR }
@@ -1020,29 +1029,34 @@ assert_generator_tag_lifecycle
 assert_information_architecture_contract
 assert_reader_contract
 
-# Stable onboarding and its published CTA remain pinned to the immutable 1.2.0 lane.
-contains README.md 'Latest Experimental StableはFramework／Skeleton `1.2.0`です。'
-contains README.md 'composer create-project blackops/skeleton my-app 1.2.0'
-contains README.md 'Framework／Skeleton `1.2.0`はannotated Tag、GitHub Release、Packagistへ公開済みです。'
-contains docs/website/pages/index.astro 'Stable 1.2.0 install'
-contains docs/website/pages/index.astro 'composer create-project blackops/skeleton my-app 1.2.0'
-contains docs/guide/installation.md 'Latest Experimental Stable 1.2.0'
-contains docs/guide/installation.md 'composer create-project --no-scripts blackops/skeleton my-app 1.2.0'
-contains docs/guide/mvp-status.md 'Latest Experimental StableはFramework／Skeleton `1.2.0`です。'
-contains docs/guide/mvp-status.md 'composer create-project blackops/skeleton my-app 1.2.0'
+# Stable onboarding and its published CTA remain pinned to the immutable 1.2.1 lane.
+contains README.md 'Latest Experimental StableはFramework／Skeleton `1.2.1`です。'
+contains README.md 'composer create-project blackops/skeleton my-app 1.2.1'
+contains README.md 'Framework／Skeleton `1.2.1`のannotated TagとPackagist Packageは公開済みです。FrameworkのGitHub Releaseも[公開済み](https://github.com/kubotak-is/blackops/releases/tag/1.2.1)ですが、SkeletonはPackagistの公開Packageとして提供します。'
+contains docs/website/pages/index.astro 'Stable 1.2.1'
+contains docs/website/pages/index.astro 'composer create-project blackops/skeleton my-app 1.2.1'
+contains docs/guide/installation.md 'Latest Experimental Stable 1.2.1'
+contains docs/guide/installation.md 'composer create-project --no-scripts blackops/skeleton my-app 1.2.1'
+contains docs/guide/mvp-status.md 'Latest Experimental StableはFramework／Skeleton `1.2.1`です。'
+contains docs/guide/mvp-status.md 'composer create-project blackops/skeleton my-app 1.2.1'
 contains docs/guide/mvp-status.md 'diagnostics.storage_failed'
-contains docs/guide/mvp-sample.md 'Experimental Stable 1.2.0'
-contains docs/guide/mvp-sample.md 'composer create-project blackops/skeleton my-app 1.2.0'
+contains docs/guide/mvp-sample.md 'Experimental Stable 1.2.1'
+contains docs/guide/mvp-sample.md 'composer create-project blackops/skeleton my-app 1.2.1'
 contains docs/guide/mvp-sample.md 'Journalのmasked dataだけを確認し、このownership limitationとして扱います。'
-contains docs/guide/observability.md 'Versionは公開済み`1.2.0`です。'
-contains examples/quickstart/README.md '公開済みExperimental Stable `1.2.0`'
-contains examples/quickstart/README.md 'composer create-project --no-scripts blackops/skeleton my-app 1.2.0'
-contains docs/internal/installed-application-status.md 'Framework／Skeleton `1.2.0`はGitHub、Packagist、GitHub Releaseへ公開済み'
+contains docs/guide/observability.md 'Versionは公開済み`1.2.1`です。'
+contains examples/quickstart/README.md '公開済みExperimental Stable `1.2.1`'
+contains examples/quickstart/README.md 'composer create-project --no-scripts blackops/skeleton my-app 1.2.1'
+contains docs/internal/installed-application-status.md '公開済みFramework／Skeleton `1.2.0`はGitHub、Packagist、GitHub Releaseへ公開済み'
 contains docs/internal/installed-application-status.md 'diagnostics.storage_failed'
 
 contains CHANGELOG.md '## [Unreleased]'
 test "$(grep -c '^## \[Unreleased\]$' "${repository_root}/CHANGELOG.md")" -eq 1 \
     || fail 'CHANGELOG.md must contain exactly one Unreleased section'
+contains CHANGELOG.md '## [1.2.1] - 2026-09-10'
+contains CHANGELOG.md 'Telemetry Trace／Metric version constantを`1.2.1`へ更新した。'
+contains CHANGELOG.md '公開API、Dependency、Database Schema／Migrationは変更しない。'
+contains CHANGELOG.md '未公開の`1.3.0`に計画しているAudit Trail、CLI、Runtime機能はこのReleaseに含まれない。'
+contains CHANGELOG.md '`1.2.0`からのDatabase Migrationは不要である。'
 contains CHANGELOG.md '## [1.2.0] - 2026-08-15'
 contains CHANGELOG.md '公開済みExperimental Release'
 contains CHANGELOG.md 'root-owned `var/log/journal.jsonl`のbind-mount制約'
@@ -1061,6 +1075,9 @@ for contract in \
 done
 contains UPGRADE.md '## 1.0.0から1.1.0'
 contains UPGRADE.md '## 1.1.0から1.2.0'
+contains UPGRADE.md '## 1.2.0から1.2.1'
+contains UPGRADE.md 'composer update blackops/framework:1.2.1'
+contains UPGRADE.md 'Database Migrationは不要です。'
 contains UPGRADE.md '公開済みPackageの`1.2.0`をApplication Rootで明示的に要求します。'
 for section in \
     '### 1. BackupとRollback境界を固定する' \
@@ -1132,26 +1149,26 @@ assert_installation_key_convergence
 assert_mvp_key_convergence
 assert_release_claim_guard
 assert_product_framing_contract
-contains docs/guide/first-operation.md '公開済みExperimental Stable `1.2.0`'
+contains docs/guide/first-operation.md '公開済みExperimental Stable `1.2.1`'
 contains docs/guide/first-operation.md '#[Authorize]'
 contains docs/guide/first-operation.md 'Sample Token Authentication'
 contains docs/guide/first-operation.md 'Status Resource'
 contains docs/guide/first-operation.md '#[Deferred]'
 absent docs/guide/first-operation.md 'Stable `1.1.0`'
 absent docs/guide/first-operation.md 'main Preview'
-contains examples/quickstart/README.md 'docs/guide/mvp-sample.md#stable-120-authentication-and-deferred-journey'
-absent examples/quickstart/README.md 'docs/guide/mvp-sample.md#stable-120-quickstart'
+contains examples/quickstart/README.md 'https://blackops-php.pages.dev/getting-started/quickstart/#stable-120-authentication-and-deferred-journey'
+absent examples/quickstart/README.md 'https://blackops-php.pages.dev/getting-started/quickstart/#stable-120-quickstart'
 contains docs/website/scripts/check-site.mjs 'id="stable-120-authentication-and-deferred-journey"'
 contains docs/website/scripts/check-site.mjs 'quickstartAnchorCount'
 contains docs/website/scripts/check-site.mjs 'id="stable-120-quickstart"'
 contains docs/website/tests/guide-code.test.mjs 'function assertQuickstartConvergence(source)'
-contains docs/website/tests/guide-code.test.mjs "const heading = '### Stable 1.2.0 Authentication and Deferred Journey'"
+contains docs/website/tests/guide-code.test.mjs "const heading = '### Stable 1.2.1 Authentication and Deferred Journey'"
 contains docs/website/tests/guide-code.test.mjs 'function moveNoScriptsBlockAfterKey(source)'
 contains docs/website/tests/guide-code.test.mjs 'assert.throws(() => assertQuickstartConvergence(moveNoScriptsBlockAfterKey(quickstart))'
 contains docs/website/tests/guide-code.test.mjs 'Quickstart convergence guard rejects a drifted current heading'
 contains docs/website/tests/guide-code.test.mjs 'assert.throws(() => assertQuickstartConvergence(driftedHeading)'
 contains docs/website/tests/guide-code.test.mjs 'assert.throws(() => assertQuickstartReadmeFragment(driftedTarget)'
-contains docs/guide/runtime-bootstrap.md '公開済みExperimental Stable `1.2.0`の`/welcome`は`#[Authorize]`付きInline Operation'
+contains docs/guide/runtime-bootstrap.md '公開済みExperimental Stable `1.2.1`の`/welcome`は`#[Authorize]`付きInline Operation'
 contains docs/guide/mvp-sample.md '`ShowWelcome`は`#[Authorize(SampleUserAuthorizationPolicy::class)]`で保護され'
 contains docs/guide/mvp-sample.md 'Header省略はAnonymousとして`401`、不正値はOperation受付前の`401`'
 contains docs/guide/mvp-sample.md '32-byte Base64のLocal Development Key'
@@ -1175,8 +1192,8 @@ for contract in \
     contains UPGRADE.md "${contract}"
 done
 contains tests/Consumer/framework-update-generators.sh "cat-file -t refs/tags/1.1.0"
-contains tests/Consumer/framework-update-generators.sh 'blackops/framework:1.2.0'
-contains tests/Consumer/framework-update-generators.sh 'tag 1.2.0'
+contains tests/Consumer/framework-update-generators.sh 'blackops/framework:1.2.1'
+contains tests/Consumer/framework-update-generators.sh 'tag 1.2.1'
 contains tests/Consumer/framework-update-generators.sh 'blackops build:compile'
 contains tests/Consumer/framework-update-generators.sh 'blackops operation:list'
 test -x "${repository_root}/tests/Consumer/framework-update-runtime.sh" \
@@ -1206,16 +1223,16 @@ contains tests/Consumer/framework-update-runtime.sh 'fail_stage()'
 contains tests/Consumer/framework-update-runtime.sh 'provider-missing-classic-http-readiness'
 contains tests/Consumer/framework-update-runtime.sh 'provider-missing-redaction'
 contains tests/Consumer/framework-update-runtime.sh 'provider-missing-services-removal'
-contains tests/Consumer/framework-update-runtime.sh "candidate_tag_ref='refs/tags/1.2.0'"
+contains tests/Consumer/framework-update-runtime.sh "candidate_tag_ref='refs/tags/1.2.1'"
 contains tests/Consumer/framework-update-runtime.sh 'candidate_tag_type="$(git -C "${framework_repository}" cat-file -t "${candidate_tag_ref}" 2>/dev/null || true)"'
-contains tests/Consumer/framework-update-runtime.sh "local runtime candidate' 1.2.0"
+contains tests/Consumer/framework-update-runtime.sh "local runtime candidate' 1.2.1"
 contains tests/Consumer/framework-update-runtime.sh 'test "${candidate_tag_type}" = tag'
 contains tests/Consumer/framework-update-runtime.sh 'published_candidate_commit="$(git -C "${framework_repository}" rev-parse "${candidate_tag_ref}^{commit}")"'
 contains tests/Consumer/framework-update-runtime.sh 'root_published_candidate_commit="$(git -C "${repository_root}" rev-parse "${candidate_tag_ref}^{commit}")"'
 contains tests/Consumer/framework-update-runtime.sh 'test "${published_candidate_commit}" = "${root_published_candidate_commit}"'
 contains tests/Consumer/framework-update-runtime.sh 'diff --quiet "${published_candidate_commit}" "${candidate_commit}" --'
 contains tests/Consumer/framework-update-runtime.sh "':(exclude)examples/quickstart/README.md'"
-contains tests/Consumer/framework-update-runtime.sh 'Published 1.2.0 release-runtime Source drifted from current HEAD.'
+contains tests/Consumer/framework-update-runtime.sh 'Published 1.2.1 release-runtime Source drifted from current HEAD.'
 contains tests/Consumer/framework-update-runtime.sh 'candidate_source_commit="${published_candidate_commit}"'
 contains tests/Consumer/framework-update-runtime.sh 'candidate_source_commit="${candidate_commit}"'
 contains tests/Consumer/framework-update-runtime.sh 'verify_runtime_bootstrap()'
@@ -1250,4 +1267,4 @@ absent UPGRADE.md 'Candidate SourceとComposerを準備する'
 absent UPGRADE.md 'Repository `main`の未公開`1.2.0` candidate'
 absent CHANGELOG.md '9つのCandidate PostgreSQL Migration'
 
-printf 'Version baseline guard passed: published=1.2.0 historical=1.1.0\n'
+printf 'Version baseline guard passed: published=1.2.1 historical=1.2.0,1.1.0\n'

@@ -1,6 +1,6 @@
 # ConsoleCommand
 
-Console CommandはTerminalからOperationを起動するApplication入口です。`#[ConsoleCommand]`は公開済みExperimental Stable `1.2.0`のFramework／Skeleton Adapterです。[Releases](mvp-status.md)を確認し、Applicationが選んだConsole Actor、Secret配布、Process Supervisorを準備してください。
+Console CommandはTerminalからOperationを起動するApplication入口です。`#[ConsoleCommand]`は公開済みExperimental Stable `1.2.1`のFramework／Skeleton Adapterです。[Releases](mvp-status.md)を確認し、Applicationが選んだConsole Actor、Secret配布、Process Supervisorを準備してください。
 
 ## 実行手順
 

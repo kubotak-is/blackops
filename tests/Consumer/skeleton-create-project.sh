@@ -135,7 +135,7 @@ cat > "${composer_home}/config.json" <<'JSON'
       "options": {
         "symlink": false,
         "versions": {
-          "blackops/framework": "1.2.0"
+          "blackops/framework": "1.2.1"
         }
       },
       "canonical": true,
@@ -145,10 +145,10 @@ cat > "${composer_home}/config.json" <<'JSON'
 }
 JSON
 
-skeleton_repository='{"type":"path","url":"/smoke/package","options":{"symlink":false,"versions":{"blackops/skeleton":"1.2.0"}},"canonical":true}'
+skeleton_repository='{"type":"path","url":"/smoke/package","options":{"symlink":false,"versions":{"blackops/skeleton":"1.2.1"}},"canonical":true}'
 
 run_composer --working-dir=/smoke/package validate --strict
-run_composer create-project blackops/skeleton /smoke/normal 1.2.0 --no-interaction --prefer-dist \
+run_composer create-project blackops/skeleton /smoke/normal 1.2.1 --no-interaction --prefer-dist \
     --repository="${skeleton_repository}" \
     > "${temporary_root}/normal-install.out"
 
@@ -205,7 +205,7 @@ if (isset($composer["repositories"]) || isset($composer["version"])) {
 }
 $lock = json_decode(file_get_contents("/smoke/normal/composer.lock"), true, 512, JSON_THROW_ON_ERROR);
 $versions = array_column($lock["packages"] ?? [], "version", "name");
-if (($versions["blackops/framework"] ?? null) !== "1.2.0") {
+if (($versions["blackops/framework"] ?? null) !== "1.2.1") {
     exit(1);
 }
 '
@@ -226,7 +226,7 @@ test -f "${normal_project}/var/build/commands.php"
 test ! -d "${package_root}/resources/stubs"
 test ! -d "${normal_project}/resources/stubs"
 
-run_composer create-project blackops/skeleton /smoke/no-scripts 1.2.0 --no-interaction --prefer-dist --no-scripts \
+run_composer create-project blackops/skeleton /smoke/no-scripts 1.2.1 --no-interaction --prefer-dist --no-scripts \
     --repository="${skeleton_repository}" \
     > "${temporary_root}/no-scripts-install.out"
 
@@ -273,7 +273,7 @@ if (isset($composer["repositories"]) || isset($composer["version"])) {
 }
 $lock = json_decode(file_get_contents("/smoke/no-scripts/composer.lock"), true, 512, JSON_THROW_ON_ERROR);
 $versions = array_column($lock["packages"] ?? [], "version", "name");
-if (($versions["blackops/framework"] ?? null) !== "1.2.0") {
+if (($versions["blackops/framework"] ?? null) !== "1.2.1") {
     exit(1);
 }
 '

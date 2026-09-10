@@ -1,9 +1,9 @@
 # Tenant and Storage Protection
 
-このページは、Tenant付きOperationとFramework-owned Protected Storageを安全に導入するための実装済みJourneyです。BlackOps 1.xはExperimentalで、旧Plaintext StorageとのRuntime互換はありません。公開済みExperimental Stable `1.2.0`を固定してから手順を実行してください。
+このページは、Tenant付きOperationとFramework-owned Protected Storageを安全に導入するための実装済みJourneyです。BlackOps 1.xはExperimentalで、旧Plaintext StorageとのRuntime互換はありません。公開済みExperimental Stable `1.2.1`を固定してから手順を実行してください。
 
-:::info[Experimental Stable 1.2.0]
-以下の手順は公開済みExperimental Stable `1.2.0`のFramework／Skeleton Surfaceです。`TenantRef`、`StorageKeyProvider`／BOPD Storage Protection、`storage:protection:plan`／`storage:protection:rotate`をApplication-owned Provider境界とともに確認してください。
+:::info[Experimental Stable 1.2.1]
+以下の手順は公開済みExperimental Stable `1.2.1`のFramework／Skeleton Surfaceです。`TenantRef`、`StorageKeyProvider`／BOPD Storage Protection、`storage:protection:plan`／`storage:protection:rotate`をApplication-owned Provider境界とともに確認してください。
 :::
 
 :::warning[Breaking boundary]

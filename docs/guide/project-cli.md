@@ -35,9 +35,9 @@ RuntimeはProject RootのHostまたはApplication Containerです。Containerで
 | Scheduled Operationを評価する | `operation:schedule:run [--json]` | PostgreSQL、Build Artifact、Schedule Metadataが必要。 | `evaluated`／`accepted`／`skipped_misfire`／`skipped_overlap`／`failed`、Exit `0`／`1`／`2` |
 | Operationを診断する | `operation:inspect <operation-id> [--json]` | PostgreSQL Diagnosticsを読む。 | Human／Versioned JSON、Exit `0`／`2` Invalid／`3` Unavailable／`4` Storage |
 | Local Viewerを起動する | `operation:viewer` | Local PCNTL、Loopback、Enable Gateが必要。 | Bootstrap URLを一度出力／`0`、安全なFailure／`1` |
-| Retention Planを作る | `retention:plan --transport-payload-days=7 --journal-days=30 --outcome-days=14 --dead-letter-days=90 --idempotency-record-days=30` | 5つの公開Retention期間を指定する。 | 対象件数とEligible時刻／`0` |
-| Retention PurgeをDry-runする | `retention:purge --dry-run --transport-payload-days=7 --journal-days=30 --outcome-days=14 --dead-letter-days=90 --idempotency-record-days=30` | `--dry-run`と5つの公開Retention期間を指定する。 | Plan件数／`0` |
-| Retention Purgeを実行する | `retention:purge --confirm --transport-payload-days=7 --journal-days=30 --outcome-days=14 --dead-letter-days=90 --idempotency-record-days=30 --policy-ref=production-retention-v1 --actor=system:retention` | `--confirm`、Policy、Actorと5つの公開Retention期間を指定する。 | Purge件数／`0` |
+| Retention Planを作る | `retention:plan --transport-payload-days=7 --journal-days=30 --outcome-days=14 --dead-letter-days=90` | 4つの公開Retention期間を指定する。Idempotency Recordの第5期間は設定から解決する。 | 対象件数とEligible時刻／`0` |
+| Retention PurgeをDry-runする | `retention:purge --dry-run --transport-payload-days=7 --journal-days=30 --outcome-days=14 --dead-letter-days=90` | `--dry-run`と4つの公開Retention期間を指定する。 | Plan件数／`0` |
+| Retention Purgeを実行する | `retention:purge --confirm --transport-payload-days=7 --journal-days=30 --outcome-days=14 --dead-letter-days=90 --policy-ref=production-retention-v1 --actor=system:retention` | `--confirm`、Policy、Actorと4つの公開Retention期間を指定する。 | Purge件数／`0` |
 | Maintenanceを実行する | `scheduler:run`／`scheduler:daemon [--interval] [--iterations]` | SchedulerとClockが必要。 | tasks／total_affected／`0` |
 | OutboxをRelayする | `outbox:relay:run [--batches]`／`--until-empty` | DatabaseとTransportが必要。 | claimed／sent／retried／dead-lettered／stale／`0` |
 | Outbox Relay Daemonを実行する | `outbox:relay:daemon [--interval-milliseconds] [--iterations]` | PCNTLとTransportが必要。 | Batch件数／`0` |
@@ -50,7 +50,7 @@ RuntimeはProject RootのHostまたはApplication Containerです。Containerで
 | Authentication Starterを生成する | `make:auth [--force]` | Application filesystemへSourceを追加／更新する。 | Created／Updated／`0` |
 | Seederを生成する | `make:seeder <Name>`（[Seederを生成する](project-generators.md#seederを生成する)） | Application filesystemへSeeder Sourceを追加する。 | Created／`0` |
 
-「変更なし」はCommand自体がDatabase／Artifact／Generated Treeを変更しない意味です。Commandのmutation（変更範囲）は実行条件と各詳細Guideで確認し、Operation実行、Migration、Seeder、Purge、Relay、Worker、GeneratorはApplication DataまたはSourceを変更します。Optionの全量と既定値は本文の表と各詳細Guideを参照します。実行前に、Helpへ公開されたOptionとその既定値は`php blackops help <command>`で再確認してください。Helpが本文表の全Optionを必ず列挙するとは限りません。Project Rootの公開Retention Commandは5つの期間Optionを受け付けます。`--idempotency-record-days`を省略した場合は、Application設定の`config/retention.php`にある`idempotency_record_days`を使い、設定で第5期間を持たない場合は4つの基本期間の最長値へフォールバックします。
+「変更なし」はCommand自体がDatabase／Artifact／Generated Treeを変更しない意味です。Commandのmutation（変更範囲）は実行条件と各詳細Guideで確認し、Operation実行、Migration、Seeder、Purge、Relay、Worker、GeneratorはApplication DataまたはSourceを変更します。Optionの全量と既定値は本文の表と各詳細Guideを参照します。実行前に、Helpへ公開されたOptionとその既定値は`php blackops help <command>`で再確認してください。Helpが本文表の全Optionを必ず列挙するとは限りません。Project Rootの公開Retention Commandは4つの期間Optionだけを受け付けます。Idempotency Recordの第5期間は`config/retention.php`の`idempotency_record_days`で管理し、省略時は4つの基本期間の最長値を使います。
 
 ### Projectを作る・Buildする
 
@@ -63,7 +63,7 @@ php blackops build:compile
 
 `build:compile`は`config/operations.php`のOperation、HTTP、Frontend、`config/app.php`のApplication Command Discoveryを同じBuild IDでCompileし、ManifestとSymfony DI Containerを書き出します。Build ArtifactがMissing／Invalid／ID不一致の場合、Operation実行RuntimeはSource ScanへFallbackしません。
 
-Stable `1.2.0`の`build:compile`はFramework-owned proxyを唯一のProfileとして、Build IDとContent Hashに結び付いた不変Framework Artifact Unitを発行します。RuntimeはUnitを事前検証してから生成コードを読み込み、同じBuild IDを上書きしません。Rollbackは以前の完全なContainer・各Manifest・一致するFramework Artifact Unitを同一Release組として戻します。
+Stable `1.2.1`の`build:compile`はFramework-owned proxyを唯一のProfileとして、Build IDとContent Hashに結び付いた不変Framework Artifact Unitを発行します。RuntimeはUnitを事前検証してから生成コードを読み込み、同じBuild IDを上書きしません。Rollbackは以前の完全なContainer・各Manifest・一致するFramework Artifact Unitを同一Release組として戻します。
 
 対象の`#[Transactional]`／`#[AfterCommit]`クラスはFramework Signature／Definition境界を満たすか監査し、Unsupported Diagnosticを修正して新しいBuild IDで再Compileします。生成ContainerをHTTP、CLI、Workerの各起動Smokeで検証し、Rollbackは以前の完全なContainer、Operation／HTTP／Frontend／Command Manifest、`proxy-profiles/<build-id>-<content-hash>`と参照Framework Unitを同一Release組として戻します。
 
@@ -131,9 +131,9 @@ Outboxは`outbox:relay:run --until-empty`またはDaemonでRelayし、別Process
 
 <a id="stablemain境界"></a>
 
-## Stable 1.2.0で利用できる範囲
+## Stable 1.2.1で利用できる範囲
 
-公開済みExperimental Stable `1.2.0`で案内できるのはProject Root `blackops`、`make:operation`／`make:migration`、Migration、Typed Operation、HTTP／Deferred、Worker、Journal、Outcome、Retention、Tenant／Protected Storage、Frontend Contract、Status／Diagnostics、Console Adapter、Outbox、`make:auth`／`make:seeder`、Observer Replay、Framework Proxy Profile Artifact Unitです。BlackOps BoardはRepository Exampleとして別管理します。Business／Security Audit Trail、署名付き履歴Export、未Releaseの追加CommandはStableの提供範囲ではありません。[Releases](mvp-status.md)の表を正本にします。
+公開済みExperimental Stable `1.2.1`で案内できるのはProject Root `blackops`、`make:operation`／`make:migration`、Migration、Typed Operation、HTTP／Deferred、Worker、Journal、Outcome、Retention、Tenant／Protected Storage、Frontend Contract、Status／Diagnostics、Console Adapter、Outbox、`make:auth`／`make:seeder`、Observer Replay、Framework Proxy Profile Artifact Unitです。BlackOps BoardはRepository Exampleとして別管理します。Business／Security Audit Trail、署名付き履歴Export、未Releaseの追加CommandはStableの提供範囲ではありません。[Releases](mvp-status.md)の表を正本にします。
 
 ## 次にBootstrapの署名を引く
 

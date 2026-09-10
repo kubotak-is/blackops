@@ -1,48 +1,50 @@
 # Quickstart and Skeleton
 
-このページは公開済みExperimental Stable `1.2.0` Applicationを準備し、Header Authentication、Inline HTTP、Database Transaction、After Commit、Deferred Workerを一続きで確認します。公開PackageのInstallは[Install](installation.md)で先に完了してください。ExperimentalなAuthentication／AuthorizationとDatabase／Transactionの制約は[Releases](mvp-status.md)で確認してください。
+このページは公開済みExperimental Stable `1.2.1` Applicationを準備し、Header Authentication、Inline HTTP、Database Transaction、After Commit、Deferred Workerを一続きで確認します。公開PackageのInstallは[Install](installation.md)で先に完了してください。ExperimentalなAuthentication／AuthorizationとDatabase／Transactionの制約は[Releases](mvp-status.md)で確認してください。
 
-:::warning[Experimental Stable 1.2.0]
-このページのStep 2以降はExperimental Stable `1.2.0`のSurfaceです。公開済みSkeletonのInstall後に実行し、提供範囲は[Releases](mvp-status.md)で確認してください。
+:::warning[Experimental Stable 1.2.1]
+このページのStep 2以降はExperimental Stable `1.2.1`のSurfaceです。公開済みSkeletonのInstall後に実行し、提供範囲は[Releases](mvp-status.md)で確認してください。
 :::
 
 ## 1. 実行Channelを選ぶ
 
-### Stable 1.2.0
+### Stable 1.2.1
 
 公開済みSkeletonだけを試す場合はVersionを固定し、[First Operation](first-operation.md)のStep 1〜3へ進みます。
 
 ```bash
-composer create-project blackops/skeleton my-app 1.2.0
+composer create-project blackops/skeleton my-app 1.2.1
 ```
 
-Stable `1.2.0`にはGlobal Middleware、Authentication、`#[Authorize]`、Frontend Operation Bridgeが含まれます。[First Operation](first-operation.md)のStep 1〜3（Generator、Value、Outcome）を実行し、Releaseの正確な提供範囲は[Releases](mvp-status.md)で確認してください。
+Stable `1.2.1`にはGlobal Middleware、Authentication、`#[Authorize]`、Frontend Operation Bridgeが含まれます。[First Operation](first-operation.md)のStep 1〜3（Generator、Value、Outcome）を実行し、Releaseの正確な提供範囲は[Releases](mvp-status.md)で確認してください。
 
-### Stable 1.2.0 Authentication and Deferred Journey
+<a id="stable-120-authentication-and-deferred-journey"></a>
 
-公開済み`1.2.0` Packageから作成したApplicationで認証付きJourneyを実行します。Local Path Repository、Framework Source mount、既存Composer Cacheは使用しません。
+### Stable 1.2.1 Authentication and Deferred Journey
+
+公開済み`1.2.1` Packageから作成したApplicationで認証付きJourneyを実行します。Local Path Repository、Framework Source mount、既存Composer Cacheは使用しません。
 
 ```bash
-composer create-project blackops/skeleton my-app 1.2.0
+composer create-project blackops/skeleton my-app 1.2.1
 cd my-app
 php bin/setup
 ```
 
 `SAMPLE_API_TOKEN=local-example`は`.env.example`からLocal Applicationへ入ります。未設定または空文字の場合、Sample Authenticatorは既知値へFallbackせずRuntime構成を失敗させます。以降は`my-app`をProject Rootとして実行します。
 
-### Stable 1.2.0 --no-scripts Authentication and Deferred Journey
+### Stable 1.2.1 --no-scripts Authentication and Deferred Journey
 
-Composer Scriptを実行しない場合も、公開済み`1.2.0` Packageを同じProject Rootへ作成し、Setupを明示実行してから共通Key Stepへ合流します。
+Composer Scriptを実行しない場合も、公開済み`1.2.1` Packageを同じProject Rootへ作成し、Setupを明示実行してから共通Key Stepへ合流します。
 
 ```bash
-composer create-project --no-scripts blackops/skeleton my-app 1.2.0
+composer create-project --no-scripts blackops/skeleton my-app 1.2.1
 cd my-app
 php bin/setup
 ```
 
 normal／`--no-scripts`のどちらも、Setup直後に次の同じ必須Key Stepを実行します。
 
-公開済み`1.2.0` Quickstart Runtimeには32-byte Base64のLocal Development Key／Local `StorageKeyProvider`が必要です。Key値は表示せず、Gitへ保存せず、ProductionではApplication-owned Secret Manager／KMS Providerへ置き換えます。
+公開済み`1.2.1` Quickstart Runtimeには32-byte Base64のLocal Development Key／Local `StorageKeyProvider`が必要です。Key値は表示せず、Gitへ保存せず、ProductionではApplication-owned Secret Manager／KMS Providerへ置き換えます。
 
 ```bash
 (
@@ -64,7 +66,7 @@ normal／`--no-scripts`のどちらも、Setup直後に次の同じ必須Key Ste
 
 ### Repository main Preview
 
-このAnchorは旧PreviewからのMigration Linkを壊さないために残しています。現在のInstallと認証付きJourneyは、上記の公開済みExperimental Stable `1.2.0` Packageを使用してください。未公開RoadmapやLocal Path Repositoryを現行手順として案内しません。
+このAnchorは旧PreviewからのMigration Linkを壊さないために残しています。現在のInstallと認証付きJourneyは、上記の公開済みExperimental Stable `1.2.1` Packageを使用してください。未公開RoadmapやLocal Path Repositoryを現行手順として案内しません。
 
 ## 2. Image、Artifact、Databaseを準備する
 
@@ -86,7 +88,7 @@ Migration、Build、Seed、Frontend生成はHTTP起動時に暗黙実行され�
 
 ## 3. PHP Operationを先に確認する
 
-Generated ClientはPHP OperationのContractを複製しません。公開済み`1.2.0` Quickstartに含まれる`examples/quickstart`の実装を先に確認します。`app/Feature/Welcome/ShowWelcome/ShowWelcome.php`は`GET /welcome`、Operation Type `welcome.show`を持つInline Operationです。`app/Feature/Welcome/ShowWelcome/WelcomeValue.php`は空のInput、`WelcomeShown.php`は`message` Outcomeを返します。
+Generated ClientはPHP OperationのContractを複製しません。公開済み`1.2.1` Quickstartに含まれる`examples/quickstart`の実装を先に確認します。`app/Feature/Welcome/ShowWelcome/ShowWelcome.php`は`GET /welcome`、Operation Type `welcome.show`を持つInline Operationです。`app/Feature/Welcome/ShowWelcome/WelcomeValue.php`は空のInput、`WelcomeShown.php`は`message` Outcomeを返します。
 
 ```php
 use App\Security\SampleUserAuthorizationPolicy;
@@ -104,10 +106,10 @@ final readonly class ShowWelcome implements Operation
 }
 ```
 
-これは公開済み`1.2.0`の`/welcome`です。`1.2.0`はSample Authentication／Authorizationと`#[Authorize]`を追加します。`ShowWelcome`は`#[Authorize(SampleUserAuthorizationPolicy::class)]`で保護され、`X-Sample-Token: local-example`が`quickstart-user` Actorとして認証されるとHTTP `200`を返します。Header省略はAnonymousとして`401`、不正値はOperation受付前の`401`です。
+これは公開済み`1.2.1`の`/welcome`です。`1.2.1`にはSample Authentication／Authorizationと`#[Authorize]`が含まれます。`ShowWelcome`は`#[Authorize(SampleUserAuthorizationPolicy::class)]`で保護され、`X-Sample-Token: local-example`が`quickstart-user` Actorとして認証されるとHTTP `200`を返します。Header省略はAnonymousとして`401`、不正値はOperation受付前の`401`です。
 
 ```php
-// 1.2.0のWelcomeValueはSample AuthenticationがHeaderを消費するため空です。
+// 1.2.1のWelcomeValueはSample AuthenticationがHeaderを消費するため空です。
 final readonly class WelcomeValue implements OperationValue {}
 
 final readonly class WelcomeShown implements Outcome
@@ -116,7 +118,7 @@ final readonly class WelcomeShown implements Outcome
 }
 ```
 
-公開済みStable Tag `1.2.0`ではAuthentication MiddlewareがHeaderを消費し、`WelcomeValue`は空のOperation Valueです。SensitiveなTokenはApplication Operation Value、Transport、Journalへ保存されません。
+公開済みStable Tag `1.2.1`ではAuthentication MiddlewareがHeaderを消費し、`WelcomeValue`は空のOperation Valueです。SensitiveなTokenはApplication Operation Value、Transport、Journalへ保存されません。
 
 `app/Feature/Report/GenerateReport/GenerateReport.php`は`POST /reports`、Operation Type `report.generate`を持つDeferred Operationです。`GenerateReportValue`の`reportName`とwrite-only `recipientEmail`から、`ReportGenerated`の`reportName`と`location`を返します。
 

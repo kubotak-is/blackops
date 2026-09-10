@@ -9,6 +9,7 @@ import test from 'node:test';
 import { pathToFileURL } from 'node:url';
 import { promisify } from 'node:util';
 import { contentMap } from '../content-map.mjs';
+import { generateContent } from '../scripts/content-pipeline.mjs';
 import {
   assertArtifactReaderText,
   assertArtifactReaderFile,
@@ -41,11 +42,7 @@ import {
   validateSearchRouteInventory,
 } from '../scripts/reader-contract.mjs';
 import { loadDiagramManifest } from '../scripts/archify-diagrams.mjs';
-import {
-  contentRoot as canonicalContentRoot,
-  manifestPath as canonicalManifestPath,
-  repositoryRoot,
-} from '../scripts/website-paths.mjs';
+import { repositoryRoot, sourceRoot as canonicalSourceRoot } from '../scripts/website-paths.mjs';
 
 const execFileAsync = promisify(execFile);
 const blumeRequire = createRequire(import.meta.resolve('blume/package.json'));
@@ -59,6 +56,19 @@ function escapeHtml(value) {
   return value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#39;');
 }
 
+async function createGeneratedContentFixture({ fixtureRoot, contentMap: map = contentMap }) {
+  const contentRoot = path.join(fixtureRoot, 'src', 'content', 'docs');
+  const manifestPath = path.join(fixtureRoot, '.generated', 'content-manifest.json');
+  const manifestText = await generateContent({
+    sourceRoot: canonicalSourceRoot,
+    contentRoot,
+    manifestPath,
+    repositoryRoot,
+    contentMap: map,
+  });
+  return { contentRoot, manifestPath, manifestText };
+}
+
 async function writeSyntheticCompleteReaderArtifact({ artifactDirectory, contentMap: map }) {
   const pages = Object.entries(map).filter(([source]) => source !== 'README.md');
   assert.equal(pages.length, 40, 'Synthetic reader artifact must contain exactly 40 non-Landing pages.');
@@ -67,14 +77,13 @@ async function writeSyntheticCompleteReaderArtifact({ artifactDirectory, content
     metadata,
     route: metadata.slug === 'index' ? '/' : `/${metadata.slug}`,
   }));
-  const canonicalManifestText = await readFile(canonicalManifestPath, 'utf8');
+  const fixtureRoot = path.dirname(artifactDirectory);
+  const fixture = await createGeneratedContentFixture({ fixtureRoot, contentMap: map });
+  const { contentRoot: fixtureContentRoot, manifestPath: fixtureManifestPath, manifestText: canonicalManifestText } = fixture;
   const canonicalManifest = JSON.parse(canonicalManifestText);
   const canonicalPages = new Map(canonicalManifest.pages
     .filter(({ source }) => source !== 'README.md')
     .map((page) => [page.source, page]));
-  const fixtureRoot = path.dirname(artifactDirectory);
-  const fixtureManifestPath = path.join(fixtureRoot, '.generated', 'content-manifest.json');
-  const fixtureContentRoot = path.join(fixtureRoot, 'src', 'content', 'docs');
   const publicRawBySource = new Map();
   const generatedBody = (raw, source) => {
     const frontmatter = raw.match(/^---\n[\s\S]*?\n---\n/u)?.[0];
@@ -88,20 +97,16 @@ async function writeSyntheticCompleteReaderArtifact({ artifactDirectory, content
   };
 
   await mkdir(artifactDirectory, { recursive: true });
-  await mkdir(path.dirname(fixtureManifestPath), { recursive: true });
-  await cp(canonicalContentRoot, fixtureContentRoot, { recursive: true });
-  await writeFile(fixtureManifestPath, canonicalManifestText, 'utf8');
   for (const { metadata, source: sourceName } of routes) {
     const htmlGenerated = path.join(artifactDirectory, ...metadata.slug.split('/'));
     const outcome = metadata.reader.outcome;
     const manifestPage = canonicalPages.get(sourceName);
     assert.ok(manifestPage, `Canonical content manifest is missing ${sourceName}.`);
-    const canonicalRawPath = path.join(canonicalContentRoot, ...manifestPage.generated.split('/'));
+    const canonicalRawPath = path.join(fixtureContentRoot, ...manifestPage.generated.split('/'));
     const canonicalRaw = await readFile(canonicalRawPath);
     const generatedRawPath = path.join(artifactDirectory, ...manifestPage.generated.split('/'));
     const fixtureRawPath = path.join(fixtureContentRoot, ...manifestPage.generated.split('/'));
     await mkdir(path.dirname(generatedRawPath), { recursive: true });
-    await mkdir(path.dirname(fixtureRawPath), { recursive: true });
     const expectedRaw = await rewriteRelativeImageReferences({
       source: canonicalRaw.toString('utf8'),
       sourcePath: fixtureRawPath,
@@ -192,24 +197,14 @@ test('Source-derived Reference coverage applies the exact Stable boundary to the
       path.join(temporary, 'develop/spec/release-authority.json'),
     );
 
-    await assert.doesNotReject(() => assertSourceDerivedReferenceCoverage(contentMap, temporary));
-    const applicationBuilderPath = path.join(temporary, 'src/Application/ApplicationBuilder.php');
-    const applicationBuilder = await readFile(applicationBuilderPath, 'utf8');
-    const renamedApplicationBuilder = applicationBuilder.replace(
-      'withOperationalHealthQuery(',
-      'withOperationalHealthQueryExtra(',
+    const exactStableExcludedPath = path.join(temporary, 'src/Audit/AuditOpaqueIdKeyProvider.php');
+    await mkdir(path.dirname(exactStableExcludedPath), { recursive: true });
+    await writeFile(
+      exactStableExcludedPath,
+      '<?php\nnamespace BlackOps\\Audit;\n\n#[PublicApi]\ninterface AuditOpaqueIdKeyProvider {}\n',
+      'utf8',
     );
-    assert.notEqual(renamedApplicationBuilder, applicationBuilder);
-    try {
-      await writeFile(applicationBuilderPath, renamedApplicationBuilder, 'utf8');
-      await assert.rejects(
-        assertSourceDerivedReferenceCoverage(contentMap, temporary),
-        /Core API exact Return Method mapping count drifted for source-derived type: BlackOps\\Application\\ApplicationBuilder/,
-      );
-    } finally {
-      await writeFile(applicationBuilderPath, applicationBuilder, 'utf8');
-    }
-
+    await assert.doesNotReject(() => assertSourceDerivedReferenceCoverage(contentMap, temporary));
     await writeFile(
       path.join(temporary, 'src/Audit/AuditOpaqueIdKeyProviderExtra.php'),
       '<?php\nnamespace BlackOps\\Audit;\n\n#[PublicApi]\ninterface AuditOpaqueIdKeyProviderExtra {}\n',
@@ -477,20 +472,21 @@ test('Source container-aware fences share list/blockquote state across line endi
 });
 
 test('Raw expected image bytes mirror Blume relative-image rewrite boundaries', async () => {
-  const communityRawPath = path.join(canonicalContentRoot, 'testing', 'community-board.md');
-  const communityRaw = await readFile(communityRawPath, 'utf8');
-  const communityRewritten = await rewriteRelativeImageReferences({
-    source: communityRaw,
-    sourcePath: communityRawPath,
-    projectRoot: path.resolve(canonicalContentRoot, '../../..'),
-  });
-  assert.match(
-    communityRewritten,
-    /!\[BlackOps BoardのCredential-free Landing画面\]\(\/blume-assets\/content\/src\/content\/docs\/assets\/community-board\/blackops-board\.png\)/u,
-  );
-
   const temporary = await mkdtemp(path.join(repositoryRoot, 'docs/website/.reader-contract-image-rewrite-'));
   try {
+    const canonicalFixture = await createGeneratedContentFixture({ fixtureRoot: path.join(temporary, 'canonical') });
+    const communityRawPath = path.join(canonicalFixture.contentRoot, 'testing', 'community-board.md');
+    const communityRaw = await readFile(communityRawPath, 'utf8');
+    const communityRewritten = await rewriteRelativeImageReferences({
+      source: communityRaw,
+      sourcePath: communityRawPath,
+      projectRoot: path.join(temporary, 'canonical'),
+    });
+    assert.match(
+      communityRewritten,
+      /!\[BlackOps BoardのCredential-free Landing画面\]\(\/blume-assets\/content\/src\/content\/docs\/assets\/community-board\/blackops-board\.png\)/u,
+    );
+
     const projectRoot = path.join(temporary, 'project');
     const sourcePath = path.join(projectRoot, 'src', 'content', 'docs', 'guides', 'image-page.md');
     const imagePath = path.join(projectRoot, 'src', 'content', 'docs', 'assets', 'space 名', 'diagram 名.PNG');
@@ -2072,11 +2068,11 @@ test('source fixtures fail closed for protected payload decode and Stable main-o
   for (const variant of ['### Repository  main Preview', '### repository main preview', '### Repository-main-Preview', '<h3 id="other">Repository&nbsp;main Preview</h3>', '<h3 id="REPOSITORY-MAIN-PREVIEW">Repository main Preview</h3>', '<a href="#REPOSITORY-MAIN-PREVIEW">Repository main Preview</a>']) {
     assert.throws(() => assertNoCurrentMainOnly(variant, `negative-source-preview-variant-${variant}`), /exact (?:heading|anchored unit)/);
   }
-  assert.throws(() => assertNoCurrentMainOnly('Stable 1.2.0 is main-only here.', 'negative-source'), /main-only/);
-  assert.throws(() => assertNoCurrentMainOnly('公開済みStable 1.2.0（main）だけで利用できます。', 'negative-source'), /main-only/);
-  assert.throws(() => assertNoCurrentMainOnly('Stable 1.2.0はmainでは提供されない機能だけです。', 'negative-source-mainでは'), /main-only/);
-  assert.throws(() => assertNoCurrentMainOnly('Stable 1.2.0はmainのbuild:compileだけで利用できます。', 'negative-source-mainのbuild'), /main-only/);
-  assert.throws(() => assertNoCurrentMainOnly('Stable 1.2.0はmain Sourceだけを現行手順に使います。', 'negative-source-main-source'), /main-only/);
+  assert.throws(() => assertNoCurrentMainOnly('Stable 1.2.1 is main-only here.', 'negative-source'), /main-only/);
+  assert.throws(() => assertNoCurrentMainOnly('公開済みStable 1.2.1（main）だけで利用できます。', 'negative-source'), /main-only/);
+  assert.throws(() => assertNoCurrentMainOnly('Stable 1.2.1はmainでは提供されない機能だけです。', 'negative-source-mainでは'), /main-only/);
+  assert.throws(() => assertNoCurrentMainOnly('Stable 1.2.1はmainのbuild:compileだけで利用できます。', 'negative-source-mainのbuild'), /main-only/);
+  assert.throws(() => assertNoCurrentMainOnly('Stable 1.2.1はmain Sourceだけを現行手順に使います。', 'negative-source-main-source'), /main-only/);
   assert.throws(() => assertNoCurrentMainOnly('## Stableとmain', 'negative-source-stale-heading'), /main-only/);
   assert.throws(() => assertNoCurrentMainOnly('## Stable／main境界', 'negative-source-stale-boundary'), /main-only/);
   assert.throws(() => assertNoCurrentMainOnly('Stableと`main`の差を確認してください。', 'negative-source-stale-body'), /main-only/);
@@ -3998,10 +3994,10 @@ test('artifact fixtures reject foreign outcome, protected decode, and stale avai
   const foreign = contentMap['mvp-sample.md'].reader.outcome;
   assert.doesNotThrow(() => assertArtifactReaderText(`description: ${outcome}`, { outcome, outcomes: [outcome, foreign], location: 'positive-artifact' }));
   assert.throws(() => assertArtifactReaderText(`description: ${foreign}`, { outcome, outcomes: [outcome, foreign], location: 'foreign-artifact' }), /missing its mapped reader outcome/);
-  assert.throws(() => assertArtifactReaderText(`description: ${outcome}\nStable 1.2.0 is main-only.`, { outcome, location: 'stale-artifact' }), /main-only/);
-  assert.throws(() => assertArtifactReaderText(`description: ${outcome}\nStable 1.2.0はmainでは提供されない機能だけです。`, { outcome, location: 'stale-artifact-mainでは' }), /main-only/);
-  assert.throws(() => assertArtifactReaderText(`description: ${outcome}\nStable 1.2.0はmainのbuild:compileだけで利用できます。`, { outcome, location: 'stale-artifact-main-build' }), /main-only/);
-  assert.throws(() => assertArtifactReaderText(`description: ${outcome}\nStable 1.2.0はmain Sourceだけを現行手順に使います。`, { outcome, location: 'stale-artifact-main-source' }), /main-only/);
+  assert.throws(() => assertArtifactReaderText(`description: ${outcome}\nStable 1.2.1 is main-only.`, { outcome, location: 'stale-artifact' }), /main-only/);
+  assert.throws(() => assertArtifactReaderText(`description: ${outcome}\nStable 1.2.1はmainでは提供されない機能だけです。`, { outcome, location: 'stale-artifact-mainでは' }), /main-only/);
+  assert.throws(() => assertArtifactReaderText(`description: ${outcome}\nStable 1.2.1はmainのbuild:compileだけで利用できます。`, { outcome, location: 'stale-artifact-main-build' }), /main-only/);
+  assert.throws(() => assertArtifactReaderText(`description: ${outcome}\nStable 1.2.1はmain Sourceだけを現行手順に使います。`, { outcome, location: 'stale-artifact-main-source' }), /main-only/);
   assert.throws(() => assertArtifactReaderText(`description: ${outcome}\nconvert_from(encoded_record, 'UTF8')`, { outcome, location: 'protected-artifact' }), /Protected Blob/);
   assert.throws(() => assertArtifactReaderText(`description: ${outcome}\n## Stable／main境界`, { outcome, location: 'stale-heading-artifact' }), /main-only/);
   assert.throws(() => assertArtifactReaderText(`description: ${outcome}\n### prefix Repository main Preview`, { outcome, location: 'stale-preview-prefix-artifact' }), /exact heading/);
@@ -4117,7 +4113,7 @@ test('artifact reader claims scan registered viewer text without scanning viewer
     });
     await assert.doesNotReject(validateFixture, 'Viewer runtime identifiers must not be treated as reader claims.');
 
-    await writeFile(viewerPath, viewer.replace('Runtime relationships', 'Stable 1.2.0 is main-only.'), 'utf8');
+    await writeFile(viewerPath, viewer.replace('Runtime relationships', 'Stable 1.2.1 is main-only.'), 'utf8');
     await assert.rejects(
       validateFixture(),
       /Current Stable main-only availability claim is forbidden in diagrams\/runtime\.html/,

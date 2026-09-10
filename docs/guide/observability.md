@@ -1,6 +1,6 @@
 # Observability
 
-このページでは、公開済みExperimental Stable `1.2.0`のOpenTelemetry API-only SurfaceをApplicationへ組み込み、Docker上のCollectorでTrace／Metricを確認し、Liveness／Readinessを明示RouteまたはCLIへ接続する方法を説明します。Production Readinessと1.x Minor間のBackward Compatibilityは保証しません。
+このページでは、公開済みExperimental Stable `1.2.1`のOpenTelemetry API-only SurfaceをApplicationへ組み込み、Docker上のCollectorでTrace／Metricを確認し、Liveness／Readinessを明示RouteまたはCLIへ接続する方法を説明します。Production Readinessと1.x Minor間のBackward Compatibilityは保証しません。
 
 ## Structured Record Version 1
 
@@ -37,7 +37,7 @@ KindごとのOptional Field境界は次のJSONLでも確認できます。`frame
 {"schemaVersion":1,"kind":"audit","occurredAt":"2026-07-12T03:04:05.123456Z","event":"retention.purge.completed","data":{"audit_id":"019f32ab-2be0-7b38-a0a7-1ab2f9689b01","operation_id":"019f32ab-2be0-7b38-a0a7-1ab2f9689b02","target":"journal","affected_count":2,"policy":"production-retention-v1","purged_at":"2026-07-12T03:04:05.123456Z","purged_by":{"id":"[masked]","type":"retention"},"tenant":null}}
 ```
 
-Stable `1.1.0`の既存Journal JSONLは`journal` Recordの範囲です。Stable `1.2.0`ではApplication／Framework／Journal／Observed operational eventを同じVersion 1 Envelopeへ正規化し、Monologの`datetime`、`level_name`、integer `level`、`extra`、Nested `context.schemaVersion`を公開Wireへ出しません。旧`operation.attemptId`やNested Monolog ShapeとのDual-write／Legacy Formatterはありません。既存Applicationは新しいTop-level FieldをParseし、`kind`ごとの追加Fieldだけを読み取ってください。
+Stable `1.1.0`の既存Journal JSONLは`journal` Recordの範囲です。Stable `1.2.1`ではApplication／Framework／Journal／Observed operational eventを同じVersion 1 Envelopeへ正規化し、Monologの`datetime`、`level_name`、integer `level`、`extra`、Nested `context.schemaVersion`を公開Wireへ出しません。旧`operation.attemptId`やNested Monolog ShapeとのDual-write／Legacy Formatterはありません。既存Applicationは新しいTop-level FieldをParseし、`kind`ごとの追加Fieldだけを読み取ってください。
 
 ## 何をFrameworkが提供するか
 
@@ -53,7 +53,7 @@ Observed JSONLはVersion 1の共通Recordとして、Telemetryから`traceId`、
 
 SDKとExporterはApplicationの直接Dependencyとして追加します。Framework PackageのDependencyへ移したり、CredentialをConfig、Manifest、Logへ保存したりしないでください。次の例ではOTLP HTTPのEndpointをApplicationのEnvironmentから解決します。下記の`--dev`指定はApplicationのLocal検証用です。Deployed RuntimeでExportするApplicationは、同じPackageを自身のRuntime Dependency（`require`）として宣言し、FrameworkのProduction Dependencyへ移しません。
 
-公開済み`1.2.0`でこのLocal検証を再現するApplicationは、Project Rootで次のDevelopment Dependencyを固定します。FrameworkのProduction Dependencyへ追加する手順ではありません。
+公開済み`1.2.1`でこのLocal検証を再現するApplicationは、Project Rootで次のDevelopment Dependencyを固定します。FrameworkのProduction Dependencyへ追加する手順ではありません。
 
 ```bash
 composer require --dev \
@@ -140,7 +140,7 @@ Retryは同じTrace IDでも別Span IDです。待機中のDeferred／Retry／Ou
 
 ## SpanとMetricの参照
 
-FrameworkのInstrumentation Scopeは`blackops.framework`、Versionは公開済み`1.2.0`です。公開済みStable `1.1.0`のScope契約は変更しません。ApplicationのSpan／DB Instrumentationを重複生成しません。Frameworkが受け付ける結果は`completed`、`rejected`、`failed`、`retry_scheduled`、`dead_lettered`、`interrupted`の有限値です。
+FrameworkのInstrumentation Scopeは`blackops.framework`、Versionは公開済み`1.2.1`です。公開済みStable `1.1.0`のScope契約は変更しません。ApplicationのSpan／DB Instrumentationを重複生成しません。Frameworkが受け付ける結果は`completed`、`rejected`、`failed`、`retry_scheduled`、`dead_lettered`、`interrupted`の有限値です。
 
 Metricは次の10個で、値は秒または固定単位を使います。Labelへ個別のOperation ID、Attempt ID、Trace／Span ID、Actor／Tenant ID、自由文を入れません。
 
@@ -395,4 +395,4 @@ Interactive laneの成功条件は、利用者がApplicationの実Emitterで送�
 
 ## Releaseと責務
 
-Stable `1.2.0`はStructured JSONL、Provider Composition、Trace／Metric Adapter、Operational Health Query、Local Collector連携を含むExperimental Surfaceです。1.x Minor間の互換性とProduction Readinessは保証されません。[Releases](mvp-status.md)で制約を確認し、ApplicationがSDK／Exporter／Route／CLI／Deployment／Credentialを所有することをレビューしてから導入してください。
+Stable `1.2.1`はStructured JSONL、Provider Composition、Trace／Metric Adapter、Operational Health Query、Local Collector連携を含むExperimental Surfaceです。1.x Minor間の互換性とProduction Readinessは保証されません。[Releases](mvp-status.md)で制約を確認し、ApplicationがSDK／Exporter／Route／CLI／Deployment／Credentialを所有することをレビューしてから導入してください。

@@ -1,6 +1,6 @@
 # Retention
 
-BlackOpsはTransport Payload、Canonical [Journal](glossary.md#journal)、[Outcome](glossary.md#outcome)、[Dead Letter](glossary.md#dead-letter)、Idempotency Recordの5つを独立した保持対象として管理します。Project Rootの公開Retention Commandは5つの期間Optionを受け付けます。`--idempotency-record-days`を省略した場合は、Application設定の`config/retention.php`にある`idempotency_record_days`を使い、設定で第5期間を持たない場合は4つの基本期間の最長値へフォールバックします。`config/retention.php`の期間、`policy_ref`、`actor`はPlan／PurgeとSchedulerで共有するAccepted Policyです。
+BlackOpsはTransport Payload、Canonical [Journal](glossary.md#journal)、[Outcome](glossary.md#outcome)、[Dead Letter](glossary.md#dead-letter)、Idempotency Recordの5つを独立した保持対象として管理します。Project Rootの公開Retention Commandは4つの期間Optionだけを受け付けます。Idempotency Recordの第5期間は`config/retention.php`の`idempotency_record_days`で管理し、省略した場合は4つの基本期間の最長値を使います。`config/retention.php`の期間、`policy_ref`、`actor`はPlan／PurgeとSchedulerで共有するAccepted Policyです。
 
 ## 1. Planを確認する
 
@@ -11,8 +11,7 @@ php blackops retention:plan \
   --transport-payload-days=7 \
   --journal-days=30 \
   --outcome-days=14 \
-  --dead-letter-days=90 \
-  --idempotency-record-days=30
+  --dead-letter-days=90
 ```
 
 Containerから実行する場合は、同じ引数を`app`へ渡します。
@@ -22,8 +21,7 @@ docker compose run --rm app php blackops retention:plan \
   --transport-payload-days=7 \
   --journal-days=30 \
   --outcome-days=14 \
-  --dead-letter-days=90 \
-  --idempotency-record-days=30
+  --dead-letter-days=90
 ```
 
 成功時の終了Codeは0です。次の形式を返します。`N`は候補件数で、候補がある場合は対象ごとのIDと期限も続きます。
@@ -48,8 +46,7 @@ php blackops retention:purge \
   --transport-payload-days=7 \
   --journal-days=30 \
   --outcome-days=14 \
-  --dead-letter-days=90 \
-  --idempotency-record-days=30
+  --dead-letter-days=90
 ```
 
 ```bash
@@ -58,8 +55,7 @@ docker compose run --rm app php blackops retention:purge \
   --transport-payload-days=7 \
   --journal-days=30 \
   --outcome-days=14 \
-  --dead-letter-days=90 \
-  --idempotency-record-days=30
+  --dead-letter-days=90
 ```
 
 成功時の終了Codeは0です。出力は次のとおりで、`--dry-run`ではPurge Auditも保存しません。
@@ -85,7 +81,6 @@ php blackops retention:purge \
   --journal-days=30 \
   --outcome-days=14 \
   --dead-letter-days=90 \
-  --idempotency-record-days=30 \
   --policy-ref=production-retention-v1 \
   --actor=system:retention
 ```
@@ -99,7 +94,6 @@ docker compose run --rm app php blackops retention:purge \
   --journal-days=30 \
   --outcome-days=14 \
   --dead-letter-days=90 \
-  --idempotency-record-days=30 \
   --policy-ref=production-retention-v1 \
   --actor=system:retention
 ```

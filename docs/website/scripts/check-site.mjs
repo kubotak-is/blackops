@@ -166,11 +166,11 @@ requireText(landing, "'/reports/generated/' . $value->reportName . '.json',", 'L
 if (landing.includes("return new ReportGenerated($value->reportName")) {
   throw new Error('Landing PHP sample constructor must remain multiline.');
 }
-requireText(landing, 'composer create-project blackops/skeleton my-app 1.2.0', 'Landing Stable install command');
+requireText(landing, 'composer create-project blackops/skeleton my-app 1.2.1', 'Landing Stable install command');
 const landingText = landing.replace(/<[^>]*>/g, '').replace(/&amp;/g, '&').replace(/\s+/g, ' ');
 for (const copy of [
   'HTTPとWorkerの処理を一つのOperationとして扱い、受付・再試行・完了までを同じIDで追跡できるPHP Frameworkです。',
-  'Stable 1.2.0',
+  'Stable 1.2.1',
   'Install',
   'Quickstart and Skeleton',
   'First Operation',

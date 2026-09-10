@@ -1,9 +1,9 @@
 # Outbox
 
-Transactional Outboxは、業務MutationとDeferred child Operationの発行を同じNamed ConnectionのTransactionへ記録する公開済みExperimental Stable `1.2.0`のSurfaceです。External BrokerやExactly Onceは提供しません。[Releases](mvp-status.md)を確認してから利用します。
+Transactional Outboxは、業務MutationとDeferred child Operationの発行を同じNamed ConnectionのTransactionへ記録する公開済みExperimental Stable `1.2.1`のSurfaceです。External BrokerやExactly Onceは提供しません。[Releases](mvp-status.md)を確認してから利用します。
 
 :::warning[Experimental capability]
-Outboxは公開済みExperimental Stable `1.2.0`のExperimental Surfaceです。External Broker、Exactly Once、child Handler完了の自動保証は提供しないため、Applicationで重複耐性を設計してください。
+Outboxは公開済みExperimental Stable `1.2.1`のExperimental Surfaceです。External Broker、Exactly Once、child Handler完了の自動保証は提供しないため、Applicationで重複耐性を設計してください。
 :::
 
 ## 登録から配送までの流れ

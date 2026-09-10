@@ -1,6 +1,6 @@
 # Orchestration State
 
-Updated At: 2026-09-11T00:00:22+09:00
+Updated At: 2026-09-11T01:21:30+09:00
 Status: P23-013 In Progress; synchronize1.2.1 before resuming Status Audit adapter
 Current Task: [P23-013](orchestration/tasks/P23-013-sync-stable-1-2-1.md)
 Current Report: [P23-013 Report](orchestration/reports/P23-013-sync-stable-1-2-1.md)
@@ -50,8 +50,10 @@ resolve the frozen merge scope. Read-only reviewer audits D2S authority in paral
 ## Preserved Workspace
 
 Primary /home/kubotak/projects/blackops stays on
-agent/p23-001-blackops-1-3-feasibility at70f9c4733bed8bb0960165cddf8c451b78b96184.
-All1781 protected source files and existing staged/untracked work are unchanged.
+agent/p23-001-blackops-1-3-feasibility at preservation checkpoint079dd2521d98aec7ff2092ace073759d7d173631.
+Published main M is being merged locally; Site Luna owns17 frozen conflict/guard paths.
+All prior staged/untracked work is preserved in that checkpoint and the external backup.
+Incoming PHP runtime changes are only the two1.2.1 Telemetry version constants.
 The unrelated D2S1 report retains SHA256
 dc5ed5b6415be054b4b265e0e97a08007f3bfe253e9163cee5941e5b0f2fc955.
 Primary source authority belongs to that preserved feature branch; consult
@@ -62,7 +64,7 @@ Final Task/Report/TODO/STATE records are in the primary workspace.
 
 ## Remaining Work
 
-P23-013: save prior work in a local checkpoint, merge published M, reconcile
+P23-013: finish the in-progress merge of published M, reconcile
 bounded guards, verify metadata/source/package and close integration. D2S1 is
 Accepted including final-SHA export. Next D2S needs revised tenant-bound
 construction, explicit read execution identity and three-root transaction
@@ -71,10 +73,10 @@ Later1.3 Audit adapters/API/verification/export, runtime and release remain.
 
 ## Next Action
 
-Root uses /tmp/blackops-p23-013/before (133 dirty paths and original Git index)
-to preserve prior work, checkpoints it, and merges M. Local commits are now
-necessary authorized synchronization; no1.3 tag, push or deployment is selected.
-Keep the localhost4321 published preview and all existing accepted work.
+Root reviews Site Luna's exact public-M conflict resolution and development guard
+compatibility, then runs focused PHP and final local export verification. The
+D2S authority revision proceeds after synchronization. No1.3 publication selected.
+Keep localhost4321 and the accepted D2S1 final delivery receipt.
 <!-- state-tool:history:start -->
-Previous STATE archive: [snapshot](orchestration/state-archive/2026-09/20260910T150022Z-884b60afd5f17fd9f19e28d583407788402b284b8a58d119d7e57726e20ad61e.md)
+Previous STATE archive: [snapshot](orchestration/state-archive/2026-09/20260910T162130Z-5cd50433b8a3164e811c4203f644dc1c8761dc1ec65df6c61d7b2fa039efd628.md)
 <!-- state-tool:history:end -->

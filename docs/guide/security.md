@@ -104,7 +104,7 @@ Actorも同じ責任分界に従います。Canonical JournalはOperation Lifecy
 
 ## Frontend Operation Contractの境界
 
-`#[Route]`を持つOperationは公開済みExperimental Stable `1.2.0`のFrontend Contractへ含まれます。SensitiveなOperationValue PropertyもRequest送信に必要なWrite-only Inputとして名前と型を生成しますが、Constructor Default、実値、Example、Fixture、Log HelperはFrontend Contract ManifestとGenerated Treeへ入れません。OperationValueを成功Outcomeへ混ぜず、通常OutcomeのSensitive PropertyはBuild Errorにします。
+`#[Route]`を持つOperationは公開済みExperimental Stable `1.2.1`のFrontend Contractへ含まれます。SensitiveなOperationValue PropertyもRequest送信に必要なWrite-only Inputとして名前と型を生成しますが、Constructor Default、実値、Example、Fixture、Log HelperはFrontend Contract ManifestとGenerated Treeへ入れません。OperationValueを成功Outcomeへ混ぜず、通常OutcomeのSensitive PropertyはBuild Errorにします。
 
 `EphemeralOutcome`だけはCredential Propertyへ`#[Sensitive]`を必須にし、直接`.fetch()`のResponse型へ名前と型を生成します。実値、Default、ExampleはArtifactへ含めません。Ephemeral Operationには`.status()`／`.wait()`を生成せず、HTTP Response後にFrameworkから再取得できる経路を作りません。Canonical JournalはReceivedとCompletedを空Dataで記録するため、Operation IDとLifecycleを保ちながら入力と出力を再現不能にします。
 

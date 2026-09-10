@@ -126,9 +126,11 @@ function productionBootstrapArtifactFixture(source) {
   return fixture;
 }
 
-const RETENTION_BOUNDARY = 'Project Rootの公開Retention Commandは5つの期間Optionを受け付けます。';
-const RETENTION_FALLBACK = '`--idempotency-record-days`を省略した場合は、Application設定の`config/retention.php`にある`idempotency_record_days`を使い、設定で第5期間を持たない場合は4つの基本期間の最長値へフォールバックします。';
+const RETENTION_BOUNDARY = 'Project Rootの公開Retention Commandは4つの期間Optionだけを受け付けます。';
+const RETENTION_FALLBACK_CLI = '`config/retention.php`の`idempotency_record_days`で管理し、省略時は4つの基本期間の最長値を使います。';
+const RETENTION_FALLBACK_GUIDE = '`config/retention.php`の`idempotency_record_days`で管理し、省略した場合は4つの基本期間の最長値を使います。';
 const RETENTION_OPTION = '--idempotency-record-days';
+const RETENTION_OPTION_DECLARATION = "                ->addOption('idempotency-record-days', null, InputOption::VALUE_REQUIRED);";
 const RETENTION_ROUTE = '/database/retention';
 const RETENTION_SOURCE = 'https://blackops-php.pages.dev/database/retention';
 
@@ -194,13 +196,49 @@ test('product framing source and artifact contracts accept the current bounded s
   assert.doesNotThrow(() => assertProductFramingArtifactContract(artifactFixture(source)));
 });
 
+test('development Retention runtime requires the exact five-option definition in source and artifact inputs', async () => {
+  const source = await sourceFixture();
+  const contractError = /exactly the five development options with required values/;
+  const mutateRuntime = (mutation) => mutation(source.retentionRuntimeSource);
+  const assertRuntimeRejected = (runtimeSource, description) => {
+    assert.throws(
+      () => assertProductFramingSourceContract({ ...source, contentMap, retentionRuntimeSource: runtimeSource }),
+      contractError,
+      `${description} must be rejected in source inputs`,
+    );
+    const artifact = artifactFixture(source);
+    artifact.retentionRuntimeSource = runtimeSource;
+    assert.throws(
+      () => assertProductFramingArtifactContract(artifact),
+      contractError,
+      `${description} must be rejected in artifact inputs`,
+    );
+  };
+
+  assert.doesNotThrow(() => assertProductFramingSourceContract({ ...source, contentMap, retentionRuntimeSource: source.retentionRuntimeSource }));
+  assert.doesNotThrow(() => assertProductFramingArtifactContract(artifactFixture(source)));
+  assertRuntimeRejected(
+    mutateRuntime((runtime) => runtime
+      .replace(RETENTION_OPTION_DECLARATION, '')
+      .replace("                ->addOption('dead-letter-days', null, InputOption::VALUE_REQUIRED)\n", "                ->addOption('dead-letter-days', null, InputOption::VALUE_REQUIRED);\n")),
+    'missing development Retention option',
+  );
+  assertRuntimeRejected(
+    mutateRuntime((runtime) => runtime.replace(RETENTION_OPTION_DECLARATION, "                ->addOption('idempotency-record-days', null, InputOption::VALUE_OPTIONAL);")),
+    'wrong development Retention option definition',
+  );
+  assertRuntimeRejected(
+    mutateRuntime((runtime) => runtime.replace(RETENTION_OPTION_DECLARATION, "                ->addOption('idempotency-record-days', null, InputOption::VALUE_REQUIRED)\n                ->addOption('unexpected-days', null, InputOption::VALUE_REQUIRED);")),
+    'extra development Retention option',
+  );
+});
+
 test('Retention current truth is required independently in every CLI and page surface', async () => {
   const source = await sourceFixture();
   for (const surface of ['html', 'raw', 'search', 'llm']) {
     for (const [marker, message] of [
-      [RETENTION_BOUNDARY, 'current five-option boundary'],
-      [RETENTION_FALLBACK, 'omission fallback'],
-      [RETENTION_OPTION, 'idempotency option'],
+      [RETENTION_BOUNDARY, 'current four-option boundary'],
+      [RETENTION_FALLBACK_CLI, 'CLI omission fallback'],
     ]) {
       const cliFixture = artifactFixture(source);
       const cliName = `cli-${surface}`;
@@ -211,10 +249,16 @@ test('Retention current truth is required independently in every CLI and page su
       cliFixture.surfaces.set(cliName, cliMutated);
       assert.throws(
         () => assertProductFramingArtifactContract(cliFixture),
-        /current five-option boundary|omission fallback|idempotency option/,
+        /current four-option boundary|omission fallback/,
         `CLI ${surface} must reject a missing Retention ${message}`,
       );
 
+    }
+
+    for (const [marker, message] of [
+      [RETENTION_BOUNDARY, 'current four-option boundary'],
+      [RETENTION_FALLBACK_GUIDE, 'guide omission fallback'],
+    ]) {
       const retentionFixture = artifactFixture(source);
       const retentionName = `retention-${surface}`;
       const retentionText = retentionArtifactSurface(source, surface);
@@ -224,10 +268,20 @@ test('Retention current truth is required independently in every CLI and page su
       retentionFixture.surfaces.set(retentionName, retentionMutated);
       assert.throws(
         () => assertProductFramingArtifactContract(retentionFixture),
-        /current five-option boundary|omission fallback|idempotency option/,
+        /current four-option boundary|omission fallback/,
         `Retention ${surface} must reject a missing Retention ${message}`,
       );
     }
+  }
+
+  for (const [name, surface] of [['cli-raw', 'CLI'], ['retention-raw', 'Retention guide']]) {
+    const unpublished = artifactFixture(source);
+    unpublished.surfaces.set(name, `${unpublished.surfaces.get(name)}\n${RETENTION_OPTION}`);
+    assert.throws(
+      () => assertProductFramingArtifactContract(unpublished),
+      /unpublished Retention option|publishes an inner-command-only retention option|exposes the unpublished idempotency option/,
+      `${surface} must reject the unpublished idempotency option`,
+    );
   }
 });
 
@@ -318,7 +372,7 @@ test('product framing source contract rejects old value, vague outcome, audit ma
 test('product framing source contract rejects roadmap CLI and visual/accessibility drift', async () => {
   const source = await sourceFixture();
   assert.throws(
-    () => assertProductFramingSourceContract({ ...source, contentMap, documents: { ...source.documents, 'project-cli.md': source.documents['project-cli.md'] + '\nStable 1.2.0 current: route:list\n' } }),
+    () => assertProductFramingSourceContract({ ...source, contentMap, documents: { ...source.documents, 'project-cli.md': source.documents['project-cli.md'] + '\nStable 1.2.1 current: route:list\n' } }),
     /roadmap command/,
   );
   assert.throws(
@@ -1049,12 +1103,12 @@ test('product framing source contract rejects audit, retention, tenant, README, 
     /retired Rotation event|storage\.rotation\.completed/,
   );
   assert.throws(
-    () => assertProductFramingSourceContract({ ...source, contentMap, documents: { ...source.documents, 'project-cli.md': source.documents['project-cli.md'] + '\nProject Rootの公開Retention Commandは4つの期間Optionだけを受け付けます。\n' } }),
-    /old four-option Retention boundary/,
+    () => assertProductFramingSourceContract({ ...source, contentMap, documents: { ...source.documents, 'project-cli.md': source.documents['project-cli.md'] + `\n${RETENTION_OPTION}\n` } }),
+    /unpublished Retention option|publishes an inner-command-only retention option/,
   );
   assert.throws(
-    () => assertProductFramingSourceContract({ ...source, contentMap, retentionRuntimeSource: source.retentionRuntimeSource.replace("                ->addOption('idempotency-record-days', null, InputOption::VALUE_REQUIRED);", '') }),
-    /outer Retention Definition must expose exactly the five public options/,
+    () => assertProductFramingSourceContract({ ...source, contentMap, retentionRuntimeSource: source.retentionRuntimeSource.replace("                ->addOption('dead-letter-days', null, InputOption::VALUE_REQUIRED)\n", '') }),
+    /outer Retention Definition must expose exactly the five development options with required values/,
   );
   assert.throws(
     () => assertProductFramingSourceContract({ ...source, contentMap, documents: { ...source.documents, 'project-cli.md': source.documents['project-cli.md'] + '\nstorage:protection:plan --tenant-type=account\n' } }),
@@ -1123,8 +1177,8 @@ test('product framing artifact contract rejects audit, retention, tenant, and ma
   assert.throws(() => assertProductFramingArtifactContract(staleAudit), /Default JSONL producer/);
 
   const staleRetention = artifactFixture(source);
-  staleRetention.surfaces.set('cli-raw', `${source.documents['project-cli.md']}\nProject Rootの公開Retention Commandは4つの期間Optionだけを受け付けます。`);
-  assert.throws(() => assertProductFramingArtifactContract(staleRetention), /old four-option Retention boundary/);
+  staleRetention.surfaces.set('cli-raw', `${source.documents['project-cli.md']}\n${RETENTION_OPTION}`);
+  assert.throws(() => assertProductFramingArtifactContract(staleRetention), /unpublished Retention option|publishes an inner-command-only retention option|exposes the unpublished idempotency option/);
 
   const oneSidedTenant = artifactFixture(source);
   oneSidedTenant.surfaces.set('cli-raw', `${source.documents['project-cli.md']}\nstorage:protection:plan --tenant-id=tenant-001`);

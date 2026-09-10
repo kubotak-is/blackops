@@ -1,6 +1,6 @@
 # Core API
 
-このReferenceは公開済みStable `1.2.0` Sourceで`#[PublicApi]`を持つ216型を一覧化しています。Application Authorはまず「Application構成」「Database」「Operation Authoring」「Validation」「Status／Outcome取得」の型を使い、Transport、Journal、Retention等のPortはAdapterを拡張するときだけ使ってください。
+このReferenceは公開済みStable `1.2.1` Sourceで`#[PublicApi]`を持つ216型を一覧化しています。Application Authorはまず「Application構成」「Database」「Operation Authoring」「Validation」「Status／Outcome取得」の型を使い、Transport、Journal、Retention等のPortはAdapterを拡張するときだけ使ってください。
 
 `BlackOps\Core\Attribute\PublicApi` marker自身は利用者向けAPIではないため一覧へ含めません。内部実装Namespaceと`#[PublicApi]`を持たない実装型にも依存しないでください。`CanonicalJournalReader`／`OutcomeReader`はPublicApi markerを持たないInfrastructure SPIとして内部Adapterへ再分類され、Applicationの読み取りはOperationData Queryを使います。Readerの型／Methodを含むPublicApi aggregate StoreのAdapter境界はJournal／Outcome節に記載します。Attributeの付与対象と標準形は[Attributes](attributes.md)を確認してください。
 
@@ -146,7 +146,7 @@ HTTPの`GET /operations/{operationId}`とGenerated `.status()`／`.wait()`はこ
 
 ### Source-derived lookup fields
 
-各行はStable `1.2.0` Sourceの`#[PublicApi]`宣言から照合したReference recordです。型を見つけたら、次の順でその型の契約を確認します。
+各行はStable `1.2.1` Sourceの`#[PublicApi]`宣言から照合したReference recordです。型を見つけたら、次の順でその型の契約を確認します。
 
 | Lookup field | 何を確認するか | 読み方 |
 | --- | --- | --- |
@@ -500,4 +500,4 @@ SourceにDefaultがないMethodは「Defaultなし」として扱い、任意値
 このNamespace群の正確な契約は、後段のCanonical namespace indexでSignature、Parameter、Return、Default、Error、Enum、Public constantの順に照合します。
 
 
-`ScheduledBy`は公開済みExperimental Stable `1.2.0`のSurfaceです。Value、CLI、Provider、Occurrenceの手順は[Scheduled Operation](scheduled-operation.md)を参照してください。
+`ScheduledBy`は公開済みExperimental Stable `1.2.1`のSurfaceです。Value、CLI、Provider、Occurrenceの手順は[Scheduled Operation](scheduled-operation.md)を参照してください。

@@ -180,6 +180,17 @@ test('rejects a broken internal link', async (context) => {
   await assert.rejects(() => generate(fixture), /Broken internal documentation link/);
 });
 
+test('rewrites internal links whose labels contain bracketed inline code', async (context) => {
+  const fixture = await fixtureRoot(context);
+  await sources(fixture.source, {
+    'README.md': '# Home\n\n[Securityの`#[Sensitive]`比較](guide.md)\n',
+    'guide.md': '# Guide\n',
+  });
+
+  const result = await generate(fixture);
+  assert.ok(result.index.includes('[Securityの`#[Sensitive]`比較](/guide/)'));
+});
+
 test('accepts only registered and tracked supplemental diagram links', async (context) => {
   const fixture = await fixtureRoot(context);
   await sources(fixture.source, { 'README.md': '# Home\n\n[Runtime diagram](/diagrams/runtime.html)\n' });

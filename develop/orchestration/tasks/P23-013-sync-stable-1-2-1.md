@@ -1,6 +1,6 @@
 # P23-013: Synchronize Published1.2.1 into Development
 
-Status: In Progress
+Status: Source reviewed Green; merge/export delivery next
 
 ## Goal and Authorization
 
@@ -45,6 +45,50 @@ TelemetryTracer::VERSION,1.2.0 to1.2.1. The associated two tests update their
 expected values. The incoming heartbeat test stabilization is already present
 in development and must not be duplicated. No API, SQL, schema, dependency,
 runtime activation or diagram geometry change belongs to this synchronization.
+
+## Frozen Worker Inventory
+
+The actual merge began after preservation checkpoint `079dd25`. Site Luna owns
+only the following paths; handoff goes to chat and `/tmp/blackops-p23-013/worker`
+(Root owns the Report). Resolve public reader inputs to the exact published M bytes.
+Integration exception: `product-framing-contract.mjs` and its dedicated test
+may reconcile their runtime-source oracle to the exact accepted development
+five-option Retention definition. Published docs/artifacts must still require
+exactly the four Stable options and reject publication of the fifth option.
+Do not accept arbitrary option sets, remove the runtime oracle, or infer release
+status from an optional/absent source. Add positive/negative boundary fixtures.
+The observed initial ten failures all stop at the stale four-option runtime
+oracle; retain these failed logs, re-run only the affected contract and callers.
+This deliberately preserves public Stable CLI/retention descriptions; development
+CLI/retention implementation remains in src/tests and the unreleased authority.
+Reconcile version-baseline assertions explicitly for both boundaries. Do not
+remove negative controls or change Product code. No Git, STATE, Docker, dist,
+package installation, diagram regeneration or public prose rewrite is assigned.
+
+```text
+docs/guide/attributes.md
+docs/guide/first-operation.md
+docs/guide/journal.md
+docs/guide/mvp-status.md
+docs/website/README.md
+docs/website/pages/index.astro
+docs/website/scripts/check-site.mjs
+docs/website/scripts/product-framing-contract.mjs
+docs/website/scripts/reader-contract.mjs
+docs/website/tests/content-pipeline.test.mjs
+docs/website/tests/product-framing-contract.test.mjs
+docs/website/tests/reader-contract.test.mjs
+docs/website/tests/reader-experience.test.mjs
+docs/website/tests/release-claim-checker.test.mjs
+docs/guide/project-cli.md
+docs/guide/retention.md
+tests/Consumer/version-baseline.sh
+```
+
+Run `bash -n tests/Consumer/version-baseline.sh`, the baseline itself, and the
+relevant website unit tests with `--test-isolation=none`. Runtime and full public
+artifact evidence are Root-owned. If the exact inventory is insufficient,
+return the missing file and reason before expanding it.
 
 ## Verification Plan
 
@@ -91,5 +135,5 @@ reuse P23-012 against identical M inputs. This Task does not deploy the site.
 
 ## Next Action
 
-Root saves the reviewed existing work, merges M without committing the merge,
-freezes conflict ownership, then delegates bounded corrections to Site Luna.
+Root commits the reviewed resolved merge, verifies clean ancestry and final-SHA
+export, then closes synchronization and resumes revised D2S authority.

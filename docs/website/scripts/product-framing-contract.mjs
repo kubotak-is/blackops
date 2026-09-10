@@ -23,12 +23,12 @@ const OLD_AUDIT_MAPPING = /Audit Log\s*\/\s*Process History\s*(?:\||->)\s*Journa
 const OLD_APPLICATION_AUDIT_BOUNDARY = 'Business／Securityの監査証跡や任意のApplication LogはApplicationが所有します。';
 const WRONG_OPERATIONAL_AUDIT_OWNER = /Retention／Replay／Rotationなどの個別運用EventはApplicationが所有/u;
 const OLD_README_DUPLICATE = 'HTTPやWorkerから受けた一つの処理を同じOperation IDで追跡し、受付・再試行・完了までの結果を確認できます。';
-const RETENTION_OPTION = '--idempotency-record-days';
-const OLD_RETENTION_CLI_BOUNDARY = 'Project Rootの公開Retention Commandは4つの期間Optionだけを受け付けます。';
-const PUBLIC_RETENTION_OPTIONS = ['transport-payload-days', 'journal-days', 'outcome-days', 'dead-letter-days', 'idempotency-record-days'];
-const RETENTION_CLI_BOUNDARY = 'Project Rootの公開Retention Commandは5つの期間Optionを受け付けます。';
-const RETENTION_FALLBACK_CLI = '`--idempotency-record-days`を省略した場合は、Application設定の`config/retention.php`にある`idempotency_record_days`を使い、設定で第5期間を持たない場合は4つの基本期間の最長値へフォールバックします。';
-const RETENTION_FALLBACK_GUIDE = '`--idempotency-record-days`を省略した場合は、Application設定の`config/retention.php`にある`idempotency_record_days`を使い、設定で第5期間を持たない場合は4つの基本期間の最長値へフォールバックします。';
+const UNPUBLISHED_RETENTION_OPTION = '--idempotency-record-days';
+const PUBLIC_RETENTION_OPTIONS = ['transport-payload-days', 'journal-days', 'outcome-days', 'dead-letter-days'];
+const DEVELOPMENT_RETENTION_OPTIONS = [...PUBLIC_RETENTION_OPTIONS, 'idempotency-record-days'];
+const RETENTION_CLI_BOUNDARY = 'Project Rootの公開Retention Commandは4つの期間Optionだけを受け付けます。';
+const RETENTION_FALLBACK_CLI = '`config/retention.php`の`idempotency_record_days`で管理し、省略時は4つの基本期間の最長値を使います。';
+const RETENTION_FALLBACK_GUIDE = '`config/retention.php`の`idempotency_record_days`で管理し、省略した場合は4つの基本期間の最長値を使います。';
 const RETENTION_ROUTE = '/database/retention';
 const RETENTION_SOURCE = 'https://blackops-php.pages.dev/database/retention';
 const README_OPERATION_DEFINITION = 'この処理単位をOperation、その識別子をOperation IDと呼びます。';
@@ -302,7 +302,7 @@ export function assertProductFramingArtifactContract({
     const cliText = artifactCliSection(name, artifacts.get(name));
     const cliSurface = classifyCliArtifactSurface(name);
     cliStableListContract(cliText, label + ' ' + name + ' Stable list boundary', { html: classifyCliArtifactSurface(name) === 'html' });
-    retentionSurfaceContract(cliText, label + ' ' + name + ' Retention contract', { html: cliSurface === 'html' });
+    retentionSurfaceContract(cliText, label + ' ' + name + ' Retention contract', { html: cliSurface === 'html', cli: true });
     for (const marker of ['Projectを作る・Buildする', 'Operationを実行する', 'Dataを管理する', '診断・復旧する']) requireText(artifacts.get(name), marker, label + ' ' + name + ' CLI boundary');
     if (/(?:raw|llm)/iu.test(name)) requireText(cliText, 'php blackops list', label + ' ' + name + ' CLI first command');
     if (/(?:raw|llm)/iu.test(name)) {
@@ -508,14 +508,15 @@ function retentionContract({ cli, retention, runtimeSource }, label) {
   requireText(retention, RETENTION_CLI_BOUNDARY, label + ' retention guide boundary');
   requireText(retention, RETENTION_FALLBACK_GUIDE, label + ' retention guide fallback');
   for (const [name, text] of [['CLI', cli], ['Retention guide', retention]]) {
-    if (text.includes(OLD_RETENTION_CLI_BOUNDARY)) throw new Error(label + ' ' + name + ' retains the old four-option Retention boundary.');
-    requireText(text, RETENTION_OPTION, label + ' ' + name + ' explicit idempotency Retention option');
+    if (text.includes(UNPUBLISHED_RETENTION_OPTION)) throw new Error(label + ' ' + name + ' publishes an inner-command-only retention option.');
   }
   const definition = runtimeSource.match(/\$retentionOptions\s*=\s*static function[\s\S]*?\n\s*\};/u)?.[0];
   if (definition === undefined) throw new Error(label + ' is missing the source-derived outer Retention Definition.');
-  const options = [...definition.matchAll(/->addOption\('([^']+)'/gu)].map(([, name]) => name);
-  if (JSON.stringify(options) !== JSON.stringify(PUBLIC_RETENTION_OPTIONS)) {
-    throw new Error(label + ' outer Retention Definition must expose exactly the five public options.');
+  const options = [...definition.matchAll(/->addOption\(\s*'([^']+)'\s*,\s*([^,]+?)\s*,\s*([^)]+?)\s*\)/gu)]
+    .map(([, name, shortcut, mode]) => [name, shortcut.trim(), mode.trim()]);
+  const expected = DEVELOPMENT_RETENTION_OPTIONS.map((name) => [name, 'null', 'InputOption::VALUE_REQUIRED']);
+  if (JSON.stringify(options) !== JSON.stringify(expected)) {
+    throw new Error(label + ' outer Retention Definition must expose exactly the five development options with required values.');
   }
 }
 
@@ -655,7 +656,7 @@ function noForbiddenBoundary(text, label) {
     [OLD_AUDIT_MAPPING, 'Audit Log / Process History mapping'],
     [OLD_APPLICATION_AUDIT_BOUNDARY, 'legacy application audit boundary'],
     [WRONG_OPERATIONAL_AUDIT_OWNER, 'operational audit ownership boundary'],
-    [OLD_RETENTION_CLI_BOUNDARY, 'old four-option Retention boundary'],
+    [UNPUBLISHED_RETENTION_OPTION, 'unpublished Retention option'],
     [APPLICATION_BOOTSTRAP_OLD_LIST_CLAIM, 'old Application Bootstrap list claim'],
     [APPLICATION_BOOTSTRAP_OLD_LIST_CLAIM_FLAT, 'old Application Bootstrap list claim'],
     ['storage.rotation.completed', 'retired Rotation event'],
@@ -731,11 +732,11 @@ function names(artifacts, pattern) {
 
 function retentionSurfaceContract(text, label, options = {}) {
   const visible = normalizeVisibleText(text, options);
-  requireText(visible, normalizeVisibleText(RETENTION_CLI_BOUNDARY), label + ' current five-option boundary');
-  requireText(visible, normalizeVisibleText(RETENTION_FALLBACK_GUIDE), label + ' omission fallback');
-  requireText(visible, RETENTION_OPTION, label + ' idempotency option');
-  if (visible.includes(OLD_RETENTION_CLI_BOUNDARY)) {
-    throw new Error(label + ' retains the old four-option Retention boundary.');
+  requireText(visible, normalizeVisibleText(RETENTION_CLI_BOUNDARY), label + ' current four-option boundary');
+  const fallback = options.cli ? RETENTION_FALLBACK_CLI : RETENTION_FALLBACK_GUIDE;
+  requireText(visible, normalizeVisibleText(fallback), label + ' omission fallback');
+  if (visible.includes(UNPUBLISHED_RETENTION_OPTION)) {
+    throw new Error(label + ' exposes the unpublished idempotency option.');
   }
 }
 

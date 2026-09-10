@@ -32,7 +32,7 @@ final class TelemetryTracerTest extends TestCase
 {
     public function testStartsAProducerSpanWithTheRemoteParentAndSafeAttributes(): void
     {
-        self::assertSame('1.2.0', TelemetryTracer::VERSION);
+        self::assertSame('1.2.1', TelemetryTracer::VERSION);
         $span = $this->createMock(SpanInterface::class);
         $scope = $this->createMock(\OpenTelemetry\Context\ScopeInterface::class);
         $span->expects(self::once())->method('activate')->willReturn($scope);
