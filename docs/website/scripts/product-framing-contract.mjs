@@ -301,7 +301,7 @@ export function assertProductFramingArtifactContract({
     const cliText = artifactCliSection(name, artifacts.get(name));
     const cliSurface = classifyCliArtifactSurface(name);
     cliStableListContract(cliText, label + ' ' + name + ' Stable list boundary', { html: classifyCliArtifactSurface(name) === 'html' });
-    retentionSurfaceContract(cliText, label + ' ' + name + ' Retention contract', { html: cliSurface === 'html' });
+    retentionSurfaceContract(cliText, label + ' ' + name + ' Retention contract', { html: cliSurface === 'html', cli: true });
     for (const marker of ['Projectを作る・Buildする', 'Operationを実行する', 'Dataを管理する', '診断・復旧する']) requireText(artifacts.get(name), marker, label + ' ' + name + ' CLI boundary');
     if (/(?:raw|llm)/iu.test(name)) requireText(cliText, 'php blackops list', label + ' ' + name + ' CLI first command');
     if (/(?:raw|llm)/iu.test(name)) {
