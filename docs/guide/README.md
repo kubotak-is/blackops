@@ -47,7 +47,7 @@ HTTPの実行経路は[Inline and Deferred](execution.md)、Operation用CLIは[C
 
 ### 読み進め方
 
-1. [Install](installation.md): Stable `1.2.0`の前提を確認してProjectを作る
+1. [Install](installation.md): Stable `1.2.1`の前提を確認してProjectを作る
 2. [Quickstart and Skeleton](mvp-sample.md): InstallからInline／Deferred／Workerまで動かす
 3. [First Operation](first-operation.md): Generatorから自分のOperationを実装する
 4. [Directory](directory-structure.md): Applicationが所有するディレクトリ構成をつかむ
@@ -57,7 +57,7 @@ HTTPの実行経路は[Inline and Deferred](execution.md)、Operation用CLIは[C
 
 設計から理解する場合は[What's BlackOps](why-blackops.md)、[Core Concepts](core-concepts.md)、[Lifecycle](operation-lifecycle.md)、[Journal](journal.md)の順に進みます。必要なページだけを探す場合は、左側のメニューまたは検索から[Authoring](operations.md)、[Inline and Deferred](execution.md)、[Testing](testing.md)、[Deployment](deployment.md)、[Troubleshooting](troubleshooting.md)へ進めます。
 
-Tenant付きOperation、Protected Storage、Breaking Upgrade、Key Rotationを導入する場合は、公開済みExperimental Stable `1.2.0`の[Tenant and Storage Protection](tenant-protection.md)をStep順に完走してください。Framework PackageのCapabilityとApplication-owned責務は[Releases](mvp-status.md)で確認してください。
+Tenant付きOperation、Protected Storage、Breaking Upgrade、Key Rotationを導入する場合は、公開済みExperimental Stable `1.2.1`の[Tenant and Storage Protection](tenant-protection.md)をStep順に完走してください。Framework PackageのCapabilityとApplication-owned責務は[Releases](mvp-status.md)で確認してください。
 
 ApplicationのAuthentication実装を薄くする場合は、Framework同梱のOpt-in Session Coreを[Session AuthenticationをOpt-in登録する](application-bootstrap.md#session-authenticationをopt-in登録する)で登録し、[HTTP Authenticationの境界](security.md#http-authenticationの境界)でToken LifecycleとApplication責務の分界を確認できます。
 
@@ -105,4 +105,4 @@ Canonical JournalとObserverへ渡すObserved Projectionを区別し、JSONLの�
 
 ### ドキュメントの公開範囲
 
-このWebsiteはRepository `main`の最新Sourceから生成します。公開済みExperimental Stableは`1.2.0`です。Frontend Operation ObjectはFramework／Skeletonの公開Surface、BlackOps BoardはRepository Exampleとして提供します。BlackOpsはExperimentalであり、1.x Minor間のBackward CompatibilityとProduction Readinessを保証しません。Production Readyは2.xから予定します。各ページ上部のVersion Noticeと[Releases](mvp-status.md)を確認してください。
+このWebsiteはRepository `main`の最新Sourceから生成します。公開済みExperimental Stableは`1.2.1`です。Frontend Operation ObjectはFramework／Skeletonの公開Surface、BlackOps BoardはRepository Exampleとして提供します。BlackOpsはExperimentalであり、1.x Minor間のBackward CompatibilityとProduction Readinessを保証しません。Production Readyは2.xから予定します。各ページ上部のVersion Noticeと[Releases](mvp-status.md)を確認してください。

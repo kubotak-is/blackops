@@ -105,6 +105,28 @@ Remote Tag監査では`refs/tags/<version>`のDirect Refと`refs/tags/<version>^
 
 唯一の例外として、Manual Dispatchによる公開済みSkeleton `1.0.0` Recoveryでは、Peeled RefがなくDirect Commitが期待Split Commitと一致する既存lightweight tagを成功扱いにできる。この例外はTag Push Trigger、別Version、異なるDirect Commitへ適用しない。
 
+## Published Release README Synchronization
+
+Package Publicationが成功し、Framework／Skeleton Tag、Packagist、Remote Installを
+確認した後、公開案内を更新するDocumentation CommitからDistribution Repositoryの
+`main`だけを同期できる。Release Tagから生成するPackage Publicationとは別の操作である。
+
+OrchestratorはTaskへ同期元Commitと対象Releaseを固定し、次の条件をすべて確認する。
+
+- 同期元はレビュー済みのFramework `main`であり、同一SHAのCIが成功している
+- `examples/quickstart/`のSplitを二回実行し、同じCommitになる
+- 公開済みSkeleton Splitが同期先Splitの祖先であり、差分は`README.md`だけである
+- Remote `main`から通常のFast-forward Pushができる
+- 操作前後で全TagのDirect Ref／Peeled Refが不変であり、更新後READMEが公開案内と一致する
+
+同期ではTagを作成、移動、削除しない。Tag Publication WorkflowをDocumentation
+Commit向けにDispatchしない。Remote `main`が公開済みSplitの先へ進んだ後、その古い
+TagのPublication再実行は既存のFast-forward検査で拒否される。既に完了したPublicationを
+再実行せず、新しいReleaseは通常のTag Pipelineへ進める。
+
+Immutable Release内のREADMEは公開時点のSnapshotであり、最新のInstall案内は
+Distribution Repositoryの`main`とDocumentation Websiteで提供する。
+
 ## Verification
 
 - Main Repository内のConsumer E2EがFrameworkとQuickstartをAtomicに検証する

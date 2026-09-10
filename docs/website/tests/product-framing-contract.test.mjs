@@ -334,7 +334,7 @@ test('product framing source contract rejects old value, vague outcome, audit ma
 test('product framing source contract rejects roadmap CLI and visual/accessibility drift', async () => {
   const source = await sourceFixture();
   assert.throws(
-    () => assertProductFramingSourceContract({ ...source, contentMap, documents: { ...source.documents, 'project-cli.md': source.documents['project-cli.md'] + '\nStable 1.2.0 current: route:list\n' } }),
+    () => assertProductFramingSourceContract({ ...source, contentMap, documents: { ...source.documents, 'project-cli.md': source.documents['project-cli.md'] + '\nStable 1.2.1 current: route:list\n' } }),
     /roadmap command/,
   );
   assert.throws(

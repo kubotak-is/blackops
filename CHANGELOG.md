@@ -6,7 +6,7 @@ BlackOpsはExperimentalです。1.xのMinor Release間でも破壊的変更を�
 
 ## [Unreleased]
 
-次回Releaseの変更はこのSectionへ追記します。公開済み`1.2.0`と歴史的な`1.1.0`の記録は変更しません。
+次回Releaseの変更はこのSectionへ追記します。現行の公開済み`1.2.1`と歴史的な`1.2.0`、`1.1.0`の記録は変更しません。
 
 ## [1.2.1] - 2026-09-10
 

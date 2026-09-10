@@ -60,11 +60,11 @@ export const stableReferenceExclusionPaths = Object.freeze([
 ]);
 
 const stableReferenceBoundary = Object.freeze({
-  stableVersion: '1.2.0',
+  stableVersion: '1.2.1',
   stableReleaseState: 'experimental-stable',
-  frameworkTag: '1.2.0',
-  frameworkDirectRef: '00e8c5875047a3c47acbebfe57f75b0e581d18b9',
-  frameworkPeeledSource: '3332fd1dd0738fc7e79750facd93d49a59054ecf',
+  frameworkTag: '1.2.1',
+  frameworkDirectRef: '1c72fced890c7f4cfc2cf88a4d2b08dbcfc85dd3',
+  frameworkPeeledSource: '4efee09f13bebedc1639333f79550a36a4e8ca91',
   roadmapVersion: '1.3.0',
   roadmapState: 'unreleased',
 });
@@ -90,7 +90,7 @@ function stableReferenceAuthorityTuple(authority) {
 export function stableReferenceExclusionsFor(authority) {
   const actual = stableReferenceAuthorityTuple(authority);
   if (JSON.stringify(actual) !== JSON.stringify(stableReferenceBoundary)) {
-    throw new Error('Stable-reference exclusions are bound to the current Stable 1.2.0 framework tuple and unreleased roadmap 1.3.0; release authority changed, so reevaluate the exact paths.');
+    throw new Error('Stable-reference exclusions are bound to the current Stable 1.2.1 framework tuple and unreleased roadmap 1.3.0; release authority changed, so reevaluate the exact paths.');
   }
   return new Set(stableReferenceExclusionPaths);
 }

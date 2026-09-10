@@ -25,9 +25,9 @@ Canonical Journal (保護された正本)
 
 Sensitive値がObservedから消えることは、Tenant IsolationやAuthorizationの代わりにはなりません。Canonical Storeの復元可能FieldはFrameworkのBOPD v1 Envelopeによる保存時暗号化で保護されます。`StorageKeyProvider`、Access Control、Retention、Key Rotationを別々の運用Policyとして設定してください。
 
-## Stable 1.2.0の非提供境界
+## Stable 1.2.1の非提供境界
 
-JournalはOperationとして受理された実行のLifecycleを扱います。次の情報はStable `1.2.0`のCanonical Journalが提供するものではなく、入力AdapterまたはApplicationが所有します。
+JournalはOperationとして受理された実行のLifecycleを扱います。次の情報はStable `1.2.1`のCanonical Journalが提供するものではなく、入力AdapterまたはApplicationが所有します。
 
 - Operation受理前のAuthentication／Protocol Error（壊れたJSON、Route不一致、必要Headerの欠落など）
 - Policy Versionと、その判断根拠となる証拠
@@ -189,7 +189,7 @@ Observer Replayは、完了済みOperationをもう一度Handlerへ実行するO
 
 ## OpenTelemetryとの関係
 
-公開済みExperimental Stable `1.2.0`には、`open-telemetry/api`だけをProduction Dependencyとする試験的なOpenTelemetry API-only Surfaceがあります。ApplicationがSDK、Exporter、Resource、Endpoint、Credentialを構成し、`ApplicationBuilder::withTracerProvider()`／`withMeterProvider()`へProviderを渡します。[Observability](observability.md)でDocker上のLocal CollectorとHTTP→Deferred→Retry→Outboxの確認手順を完了できます。
+公開済みExperimental Stable `1.2.1`には、`open-telemetry/api`だけをProduction Dependencyとする試験的なOpenTelemetry API-only Surfaceがあります。ApplicationがSDK、Exporter、Resource、Endpoint、Credentialを構成し、`ApplicationBuilder::withTracerProvider()`／`withMeterProvider()`へProviderを渡します。[Observability](observability.md)でDocker上のLocal CollectorとHTTP→Deferred→Retry→Outboxの確認手順を完了できます。
 
 Observed JSONLへ投影するTelemetryは`traceId`、`spanId`、`sampled`だけです。Raw `traceparent`／`tracestate`、Baggage、Exporter固有値、Payload、Outcome、Credential、Throwable Message／Stackは出力しません。ProviderまたはCollectorが停止してもPrimary Operation、Journal、Outcome、HTTP Response、Readinessは変わりません。
 

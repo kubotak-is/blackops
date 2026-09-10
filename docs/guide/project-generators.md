@@ -2,7 +2,7 @@
 
 Install済みApplicationでは、Project Rootの`blackops`からFrameworkが提供するGeneratorを実行できます。生成対象となる[Operation](glossary.md#operation)は、Applicationが実行したい一つの意図と処理単位です。
 
-> **Release:** `make:operation`、`make:migration`、`make:seeder`は公開済みExperimental Stable `1.2.0`で利用できます。生成済みSourceはApplication所有であり、Framework Updateでは変更されません。
+> **Release:** `make:operation`、`make:migration`、`make:seeder`は公開済みExperimental Stable `1.2.1`で利用できます。生成済みSourceはApplication所有であり、Framework Updateでは変更されません。
 
 ## Operationを生成する
 

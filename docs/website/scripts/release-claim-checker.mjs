@@ -20,7 +20,7 @@ export function normalizeSentence(value) {
     .replace(/[`*_]/g, '')
     .replace(/\|/g, ' | ')
     .replace(/\s+/gu, ' ')
-    .replace(/^Stable 1\.2\.0と過去StableのCapability\s+/u, '')
+    .replace(/^Stable \d+\.\d+\.\d+と過去StableのCapability\s+/u, '')
     .trim();
 }
 
@@ -175,7 +175,7 @@ export function assertCurrentAuthorityClaims(text, authority) {
 }
 
 export function assertNoStaleCurrentPhrase(text, relativePath, authority = null) {
-  const version = authority?.currentStable.version ?? '1.2.0';
+  const version = authority?.currentStable.version ?? '1.2.1';
   for (const line of text.split(/\r?\n/)) {
     if (candidatePattern(version).test(line)) throw new Error(`Stale candidate release claim found in ${relativePath}: ${line.trim()}`);
     if (currentPhrasePattern(version).test(line)) throw new Error(`Stale current main/candidate claim found in ${relativePath}: ${line.trim()}`);
@@ -237,7 +237,7 @@ function artifactSegments(content, relativePath, authority) {
   return [...visible.split(/\r?\n|(?<=。)/u), ...tableRows, ...attributes, ...jsonLd];
 }
 
-export function findOccurrences(content, relativePath, { currentVersion = '1.2.0' } = {}) {
+export function findOccurrences(content, relativePath, { currentVersion = '1.2.1' } = {}) {
   const results = [];
   const lines = content.replace(/\r\n/g, '\n').split('\n');
   let offset = 0;
@@ -246,7 +246,7 @@ export function findOccurrences(content, relativePath, { currentVersion = '1.2.0
   for (const line of lines) {
     if (/^<a\s+id="stableとmain"><\/a>$/u.test(line.trim())) historicalAnchor = true;
     if (/^#{1,6}\s+/.test(line)) {
-      heading = historicalAnchor && /^##\s+Stable 1\.2\.0と過去StableのCapability$/u.test(line.trim())
+      heading = historicalAnchor && /^##\s+Stable \d+\.\d+\.\d+と過去StableのCapability$/u.test(line.trim())
         ? '## Stableとmain'
         : line.trim();
       historicalAnchor = false;

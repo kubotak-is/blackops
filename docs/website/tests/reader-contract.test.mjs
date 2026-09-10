@@ -2068,11 +2068,11 @@ test('source fixtures fail closed for protected payload decode and Stable main-o
   for (const variant of ['### Repository  main Preview', '### repository main preview', '### Repository-main-Preview', '<h3 id="other">Repository&nbsp;main Preview</h3>', '<h3 id="REPOSITORY-MAIN-PREVIEW">Repository main Preview</h3>', '<a href="#REPOSITORY-MAIN-PREVIEW">Repository main Preview</a>']) {
     assert.throws(() => assertNoCurrentMainOnly(variant, `negative-source-preview-variant-${variant}`), /exact (?:heading|anchored unit)/);
   }
-  assert.throws(() => assertNoCurrentMainOnly('Stable 1.2.0 is main-only here.', 'negative-source'), /main-only/);
-  assert.throws(() => assertNoCurrentMainOnly('公開済みStable 1.2.0（main）だけで利用できます。', 'negative-source'), /main-only/);
-  assert.throws(() => assertNoCurrentMainOnly('Stable 1.2.0はmainでは提供されない機能だけです。', 'negative-source-mainでは'), /main-only/);
-  assert.throws(() => assertNoCurrentMainOnly('Stable 1.2.0はmainのbuild:compileだけで利用できます。', 'negative-source-mainのbuild'), /main-only/);
-  assert.throws(() => assertNoCurrentMainOnly('Stable 1.2.0はmain Sourceだけを現行手順に使います。', 'negative-source-main-source'), /main-only/);
+  assert.throws(() => assertNoCurrentMainOnly('Stable 1.2.1 is main-only here.', 'negative-source'), /main-only/);
+  assert.throws(() => assertNoCurrentMainOnly('公開済みStable 1.2.1（main）だけで利用できます。', 'negative-source'), /main-only/);
+  assert.throws(() => assertNoCurrentMainOnly('Stable 1.2.1はmainでは提供されない機能だけです。', 'negative-source-mainでは'), /main-only/);
+  assert.throws(() => assertNoCurrentMainOnly('Stable 1.2.1はmainのbuild:compileだけで利用できます。', 'negative-source-mainのbuild'), /main-only/);
+  assert.throws(() => assertNoCurrentMainOnly('Stable 1.2.1はmain Sourceだけを現行手順に使います。', 'negative-source-main-source'), /main-only/);
   assert.throws(() => assertNoCurrentMainOnly('## Stableとmain', 'negative-source-stale-heading'), /main-only/);
   assert.throws(() => assertNoCurrentMainOnly('## Stable／main境界', 'negative-source-stale-boundary'), /main-only/);
   assert.throws(() => assertNoCurrentMainOnly('Stableと`main`の差を確認してください。', 'negative-source-stale-body'), /main-only/);
@@ -3994,10 +3994,10 @@ test('artifact fixtures reject foreign outcome, protected decode, and stale avai
   const foreign = contentMap['mvp-sample.md'].reader.outcome;
   assert.doesNotThrow(() => assertArtifactReaderText(`description: ${outcome}`, { outcome, outcomes: [outcome, foreign], location: 'positive-artifact' }));
   assert.throws(() => assertArtifactReaderText(`description: ${foreign}`, { outcome, outcomes: [outcome, foreign], location: 'foreign-artifact' }), /missing its mapped reader outcome/);
-  assert.throws(() => assertArtifactReaderText(`description: ${outcome}\nStable 1.2.0 is main-only.`, { outcome, location: 'stale-artifact' }), /main-only/);
-  assert.throws(() => assertArtifactReaderText(`description: ${outcome}\nStable 1.2.0はmainでは提供されない機能だけです。`, { outcome, location: 'stale-artifact-mainでは' }), /main-only/);
-  assert.throws(() => assertArtifactReaderText(`description: ${outcome}\nStable 1.2.0はmainのbuild:compileだけで利用できます。`, { outcome, location: 'stale-artifact-main-build' }), /main-only/);
-  assert.throws(() => assertArtifactReaderText(`description: ${outcome}\nStable 1.2.0はmain Sourceだけを現行手順に使います。`, { outcome, location: 'stale-artifact-main-source' }), /main-only/);
+  assert.throws(() => assertArtifactReaderText(`description: ${outcome}\nStable 1.2.1 is main-only.`, { outcome, location: 'stale-artifact' }), /main-only/);
+  assert.throws(() => assertArtifactReaderText(`description: ${outcome}\nStable 1.2.1はmainでは提供されない機能だけです。`, { outcome, location: 'stale-artifact-mainでは' }), /main-only/);
+  assert.throws(() => assertArtifactReaderText(`description: ${outcome}\nStable 1.2.1はmainのbuild:compileだけで利用できます。`, { outcome, location: 'stale-artifact-main-build' }), /main-only/);
+  assert.throws(() => assertArtifactReaderText(`description: ${outcome}\nStable 1.2.1はmain Sourceだけを現行手順に使います。`, { outcome, location: 'stale-artifact-main-source' }), /main-only/);
   assert.throws(() => assertArtifactReaderText(`description: ${outcome}\nconvert_from(encoded_record, 'UTF8')`, { outcome, location: 'protected-artifact' }), /Protected Blob/);
   assert.throws(() => assertArtifactReaderText(`description: ${outcome}\n## Stable／main境界`, { outcome, location: 'stale-heading-artifact' }), /main-only/);
   assert.throws(() => assertArtifactReaderText(`description: ${outcome}\n### prefix Repository main Preview`, { outcome, location: 'stale-preview-prefix-artifact' }), /exact heading/);
@@ -4113,7 +4113,7 @@ test('artifact reader claims scan registered viewer text without scanning viewer
     });
     await assert.doesNotReject(validateFixture, 'Viewer runtime identifiers must not be treated as reader claims.');
 
-    await writeFile(viewerPath, viewer.replace('Runtime relationships', 'Stable 1.2.0 is main-only.'), 'utf8');
+    await writeFile(viewerPath, viewer.replace('Runtime relationships', 'Stable 1.2.1 is main-only.'), 'utf8');
     await assert.rejects(
       validateFixture(),
       /Current Stable main-only availability claim is forbidden in diagrams\/runtime\.html/,

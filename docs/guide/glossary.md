@@ -154,7 +154,7 @@ Credentialなどを現在のHTTP Responseへ一度だけ返すOutcomeです。HT
 
 ## Scheduled Application Operation
 
-公開済みExperimental Stable `1.2.0`の入口です。`#[ScheduledBy]`でCalendar Scheduleを宣言し、`operation:schedule:run`を一回実行してInline完了またはDeferred受理へ進めます。Framework Maintenance Schedulerとは別Capabilityです。
+公開済みExperimental Stable `1.2.1`の入口です。`#[ScheduledBy]`でCalendar Scheduleを宣言し、`operation:schedule:run`を一回実行してInline完了またはDeferred受理へ進めます。Framework Maintenance Schedulerとは別Capabilityです。
 
 ## Schedule Context
 
