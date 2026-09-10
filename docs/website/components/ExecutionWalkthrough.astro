@@ -1,0 +1,349 @@
+---
+import {
+  EXECUTION_MODE_DESCRIPTIONS,
+  EXECUTION_WALKTHROUGH_EVENT_HREFS,
+  EXECUTION_WALKTHROUGH_STEPS,
+  JOURNAL_DEFINITION,
+} from '../scripts/execution-walkthrough.mjs';
+
+export type ExecutionMode = 'inline' | 'deferred';
+
+export interface ExecutionWalkthroughStep {
+  id: string;
+  mode: ExecutionMode;
+  label: string;
+  description: string;
+  guideHref: string;
+  activeNodeIds: string[];
+  activeEdgeIds: string[];
+  journalEvents: string[];
+  newJournalEvents: string[];
+}
+
+export interface ExecutionWalkthroughGeometry {
+  width: number;
+  height: number;
+}
+
+export interface ExecutionWalkthroughLink {
+  id: string;
+  label: string;
+  href: string;
+  description: string;
+  detail: string;
+  ariaLabel?: string;
+}
+
+export interface ExecutionWalkthroughRegion {
+  id: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+interface Props {
+  id?: string;
+  title?: string;
+  svgSrc: string;
+  dataSrc?: string;
+  desktopSvgSrc?: string;
+  desktopDataSrc?: string;
+  svgAlt: string;
+  geometry?: ExecutionWalkthroughGeometry;
+  desktopGeometry?: ExecutionWalkthroughGeometry;
+  links?: ExecutionWalkthroughLink[];
+  regions?: ExecutionWalkthroughRegion[];
+  steps?: ExecutionWalkthroughStep[];
+}
+
+const {
+  id = 'execution-walkthrough',
+  title = 'HTTPの処理フロー',
+  svgSrc,
+  dataSrc,
+  desktopSvgSrc,
+  desktopDataSrc,
+  svgAlt,
+  geometry,
+  desktopGeometry,
+  links = [],
+  regions = [],
+  steps = EXECUTION_WALKTHROUGH_STEPS,
+} = Astro.props as Props;
+
+const isLocalPath = (value: string) => Boolean(value) && value.startsWith('/') && !value.startsWith('//');
+
+if (!isLocalPath(svgSrc) || !svgAlt || !title || !id || !Array.isArray(steps) || steps.length === 0) {
+  throw new Error('ExecutionWalkthrough requires a local canonical SVG, accessible title, and steps.');
+}
+
+if (geometry && (!Number.isFinite(geometry.width) || !Number.isFinite(geometry.height) || geometry.width <= 0 || geometry.height <= 0)) {
+  throw new Error('ExecutionWalkthrough geometry must use positive finite dimensions.');
+}
+
+if (dataSrc && !isLocalPath(dataSrc)) {
+  throw new Error('ExecutionWalkthrough data sources must be local JSON paths.');
+}
+
+if (desktopSvgSrc || desktopDataSrc || desktopGeometry) {
+  if (!desktopSvgSrc || !desktopDataSrc || !desktopGeometry || !isLocalPath(desktopSvgSrc) || !isLocalPath(desktopDataSrc)) {
+    throw new Error('ExecutionWalkthrough desktop variants require local SVG, JSON, and geometry.');
+  }
+  if (!Number.isFinite(desktopGeometry.width) || !Number.isFinite(desktopGeometry.height) || desktopGeometry.width <= 0 || desktopGeometry.height <= 0) {
+    throw new Error('ExecutionWalkthrough desktop geometry must use positive finite dimensions.');
+  }
+}
+
+if (regions.length > 0 && !geometry) {
+  throw new Error('ExecutionWalkthrough regions require positive source geometry.');
+}
+
+const linksById = new Map<string, ExecutionWalkthroughLink>();
+for (const link of links) {
+  if (!link.id || linksById.has(link.id) || !link.label || !link.description || !link.detail || !link.href || link.href.startsWith('//') || !link.href.startsWith('/')) {
+    throw new Error('ExecutionWalkthrough links must have unique ids, labels, local links, and role details.');
+  }
+  linksById.set(link.id, link);
+}
+
+const regionIds = new Set<string>();
+const regionStyle = (region: ExecutionWalkthroughRegion) => {
+  const values = [region.x, region.y, region.width, region.height];
+  if (values.some((value) => !Number.isFinite(value) || value < 0) || region.width <= 0 || region.height <= 0) {
+    throw new Error(`ExecutionWalkthrough region ${region.id} has invalid geometry.`);
+  }
+  if (region.x + region.width > geometry!.width || region.y + region.height > geometry!.height) {
+    throw new Error(`ExecutionWalkthrough region ${region.id} falls outside source geometry.`);
+  }
+  return `left:${(region.x / geometry!.width) * 100}%;top:${(region.y / geometry!.height) * 100}%;width:${(region.width / geometry!.width) * 100}%;height:${(region.height / geometry!.height) * 100}%;`;
+};
+for (const region of regions) {
+  if (!linksById.has(region.id) || regionIds.has(region.id)) {
+    throw new Error(`ExecutionWalkthrough region ${region.id} must match one link exactly once.`);
+  }
+  regionIds.add(region.id);
+}
+
+const stepIds = new Set<string>();
+const modes = new Set<ExecutionMode>();
+for (const step of steps) {
+  if (
+    !step.id
+    || stepIds.has(`${step.mode}:${step.id}`)
+    || (step.mode !== 'inline' && step.mode !== 'deferred')
+    || !step.label
+    || !step.description
+    || !isLocalPath(step.guideHref)
+    || !Array.isArray(step.activeNodeIds)
+    || !Array.isArray(step.activeEdgeIds)
+    || !Array.isArray(step.journalEvents)
+    || !Array.isArray(step.newJournalEvents)
+    || step.activeNodeIds.some((target: string) => typeof target !== 'string' || target.length === 0)
+    || step.activeEdgeIds.some((target: string) => typeof target !== 'string' || target.length === 0)
+    || step.journalEvents.some((event: string) => typeof event !== 'string' || event.length === 0)
+    || step.journalEvents.some((event: string) => !EXECUTION_WALKTHROUGH_EVENT_HREFS[event as keyof typeof EXECUTION_WALKTHROUGH_EVENT_HREFS])
+    || step.newJournalEvents.some((event: string) => typeof event !== 'string' || event.length === 0)
+    || step.newJournalEvents.some((event: string) => !EXECUTION_WALKTHROUGH_EVENT_HREFS[event as keyof typeof EXECUTION_WALKTHROUGH_EVENT_HREFS])
+  ) {
+    throw new Error('ExecutionWalkthrough steps must have unique ids, labels, targets, and exact Journal events.');
+  }
+  stepIds.add(`${step.mode}:${step.id}`);
+  modes.add(step.mode);
+}
+
+if (!modes.has('inline') || !modes.has('deferred')) {
+  throw new Error('ExecutionWalkthrough must describe both Inline and Deferred paths.');
+}
+
+const serializedData = JSON.stringify({ steps }).replace(/[<>&\u2028\u2029]/gu, (character) => ({
+  '<': '\\u003c',
+  '>': '\\u003e',
+  '&': '\\u0026',
+  '\u2028': '\\u2028',
+  '\u2029': '\\u2029',
+}[character] ?? character));
+const firstStepIndex = steps.findIndex((step) => step.mode === 'inline');
+const initialStepIndex = firstStepIndex >= 0 ? firstStepIndex : 0;
+const firstStep: ExecutionWalkthroughStep = steps[initialStepIndex];
+const initialModeSteps = steps.filter(({ mode }) => mode === firstStep.mode);
+const initialModePosition = steps.slice(0, initialStepIndex + 1).filter(({ mode }) => mode === firstStep.mode).length;
+const initialStageNumber = `${String(initialModePosition).padStart(2, '0')} / ${String(initialModeSteps.length).padStart(2, '0')}`;
+const frameStyle = [
+  geometry ? `--execution-portrait-ratio:${geometry.width} / ${geometry.height};` : '',
+  desktopGeometry ? `--execution-landscape-ratio:${desktopGeometry.width} / ${desktopGeometry.height};` : '',
+].join('') || undefined;
+const modeLabel = (mode: ExecutionMode) => mode === 'inline' ? 'Inline' : 'Deferred';
+const modesInOrder = (['inline', 'deferred'] as ExecutionMode[]).filter((mode) => modes.has(mode));
+const modePanelId = `${id}-mode-panel`;
+const modeTabId = (mode: ExecutionMode) => `${id}-tab-${mode}`;
+const eventHref = (event: string) => EXECUTION_WALKTHROUGH_EVENT_HREFS[event as keyof typeof EXECUTION_WALKTHROUGH_EVENT_HREFS];
+---
+
+<section
+  id={id}
+  class="execution-walkthrough"
+  data-execution-walkthrough
+  data-execution-svg-src={svgSrc}
+  data-execution-data-src={dataSrc}
+  data-execution-desktop-svg-src={desktopSvgSrc}
+  data-execution-desktop-data-src={desktopDataSrc}
+  data-execution-initial-step={initialStepIndex}
+  data-execution-stage-count={steps.length}
+  data-execution-stage-number={initialStageNumber}
+  data-execution-motion="pending"
+  aria-labelledby={`${id}-title`}
+>
+  <div class="execution-walkthrough__intro">
+    <div>
+      <h2 id={`${id}-title`}>{title}</h2>
+    </div>
+    <p class="execution-walkthrough__lead">HTTPからOperationを実行する流れと、各段階で記録されるJournalイベントを確認できます。</p>
+  </div>
+
+  <div class="execution-walkthrough__mode-switch">
+    <div class="execution-walkthrough__mode-tabs" role="tablist" aria-label="実行経路">
+      {modesInOrder.map((mode) => (
+        <button
+          type="button"
+          id={modeTabId(mode)}
+          role="tab"
+          data-execution-mode={mode}
+          aria-selected={mode === firstStep.mode ? 'true' : 'false'}
+          aria-controls={modePanelId}
+          tabindex={mode === firstStep.mode ? '0' : '-1'}
+          data-execution-enhance
+          disabled
+        >{modeLabel(mode)}</button>
+      ))}
+    </div>
+  </div>
+
+  <div class="execution-walkthrough__mode-panel" id={modePanelId} role="tabpanel" aria-labelledby={modeTabId(firstStep.mode)} data-execution-mode-panel>
+    <p class="execution-walkthrough__mode-description" data-execution-mode-description>{EXECUTION_MODE_DESCRIPTIONS[firstStep.mode]}</p>
+    <div class="execution-walkthrough__layout">
+      <div class="execution-walkthrough__visual-column">
+        <div class="execution-walkthrough__graph-header">
+          <span class="execution-walkthrough__control-label">現在の処理段階</span>
+          <strong data-execution-graph-stage>{modeLabel(firstStep.mode)} {initialStageNumber}</strong>
+          <span data-execution-selection-status hidden></span>
+        </div>
+        <div
+          class="execution-walkthrough__visual"
+          data-execution-svg-frame
+          data-execution-layout="portrait"
+          role="group"
+          aria-labelledby={`${id}-visual-description`}
+          style={frameStyle}
+        >
+          <p class="sr-only" id={`${id}-visual-description`}>{svgAlt}</p>
+          <div class="execution-walkthrough__svg-shadow" data-execution-svg-shadow aria-hidden="true">
+            <template shadowrootmode="open"></template>
+          </div>
+          <picture class="execution-walkthrough__fallback-picture">
+            {desktopSvgSrc && <source media="(min-width: 60rem)" srcset={desktopSvgSrc} />}
+            <img class="execution-walkthrough__fallback" data-execution-fallback src={svgSrc} alt="" loading="eager" decoding="async" />
+          </picture>
+          <p class="execution-walkthrough__svg-error" data-execution-svg-error hidden>図を読み込めません。下の説明と<a href="/execution/http-and-deferred">HTTPの処理ガイド</a>から流れを確認できます。</p>
+          <span class="execution-walkthrough__stage-badge" data-execution-stage-badge aria-hidden="true">{initialStageNumber.split(' / ')[0]}</span>
+          {regions.map((region) => {
+            const link = linksById.get(region.id);
+            if (!link) throw new Error(`ExecutionWalkthrough region ${region.id} has no matching link.`);
+            return (
+              <button
+                type="button"
+                class="execution-walkthrough__region"
+                data-execution-region={region.id}
+                data-execution-link={region.id}
+                data-execution-inspect
+                data-execution-detail-role={link.description}
+                data-execution-detail-label={link.label}
+                data-execution-detail-description={link.detail}
+                data-execution-detail-href={link.href}
+                aria-controls={`${id}-inspection`}
+                aria-pressed="false"
+                aria-label={link.ariaLabel ?? `${link.label}。${link.description}。要素を確認`}
+                data-execution-enhance
+                disabled
+                style={regionStyle(region)}
+              >
+                <span class="sr-only">{link.label}の要素を確認</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div class="execution-walkthrough__reading-column">
+        <aside
+          class="execution-walkthrough__inspection"
+          data-execution-inspection-panel
+          id={`${id}-inspection`}
+          aria-labelledby={`${id}-inspection-title`}
+          hidden
+        >
+          <div class="execution-walkthrough__inspection-meta">
+            <span class="execution-walkthrough__control-label">選択した要素</span>
+            <span class="execution-walkthrough__inspection-stage" data-execution-inspection-stage>現在の段階 {initialStageNumber}（停止中）</span>
+          </div>
+          <h3 id={`${id}-inspection-title`} data-execution-inspection-label>図の要素</h3>
+          <p class="execution-walkthrough__inspection-role"><span class="execution-walkthrough__control-label">役割</span> <span data-execution-inspection-role></span></p>
+          <p data-execution-inspection-description></p>
+          <a class="execution-walkthrough__inspection-link" data-execution-inspection-link href="#" hidden>詳しく見る</a>
+          <button type="button" class="execution-walkthrough__inspection-action" data-execution-inspection-resume data-execution-enhance disabled>フローに戻る</button>
+        </aside>
+
+        <div class="execution-walkthrough__phase-copy" data-execution-phase-copy>
+          <div class="execution-walkthrough__phase-meta">
+            <p class="execution-walkthrough__phase-mode" data-execution-phase-mode>{modeLabel(firstStep.mode)}</p>
+            <span class="execution-walkthrough__phase-number" data-execution-phase-number>{initialStageNumber}</span>
+          </div>
+          <h3 data-execution-phase-label>{firstStep.label}</h3>
+          <p data-execution-phase-description>{firstStep.description}</p>
+          <a class="execution-walkthrough__phase-link" data-execution-phase-link href={firstStep.guideHref} aria-label={`${firstStep.label}の詳しい説明を読む`}>詳しく見る</a>
+        </div>
+
+        <div class="execution-walkthrough__journal" data-execution-journal-panel aria-labelledby={`${id}-journal-title`}>
+          <div class="execution-walkthrough__journal-heading">
+            <h3 id={`${id}-journal-title`}><a href="/concepts/journal">Journalイベント</a></h3>
+          </div>
+          <p class="execution-walkthrough__journal-status" data-execution-journal-status>{JOURNAL_DEFINITION}</p>
+          <ol data-execution-journal>
+            {firstStep.journalEvents.map((event: string) => (
+              <li data-execution-journal-event data-execution-new={firstStep.newJournalEvents.includes(event) ? 'true' : 'false'}>
+                <a data-execution-journal-link href={eventHref(event)} aria-label={`${event}の説明をJournalガイドで読む`}>{event}</a>
+              </li>
+            ))}
+          </ol>
+        </div>
+
+        <p class="sr-only" data-execution-status role="status" aria-live="polite"></p>
+
+        <div class="execution-walkthrough__controls" aria-label="処理の再生操作">
+          <button type="button" data-execution-action="previous" data-execution-enhance disabled>前へ</button>
+          <button type="button" data-execution-action="toggle" data-execution-enhance aria-pressed="true" disabled>
+            <span class="execution-walkthrough__progress-ring" data-execution-progress aria-hidden="true"></span>
+            <span data-execution-toggle-label>一時停止</span>
+          </button>
+          <button type="button" data-execution-action="next" data-execution-enhance disabled>次へ</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="execution-walkthrough__notes">
+    <p class="execution-walkthrough__reader-note">※Deferredでは受付Commit後にHTTP 202の応答とWorkerの実行が重なることがあります。</p>
+  </div>
+
+  <noscript>
+    <p class="execution-walkthrough__noscript">JavaScriptを無効にしている場合も、図とこの説明で処理の流れを確認できます。詳しい処理境界は<a href="/execution/http-and-deferred">HTTPの処理ガイド</a>で確認できます。</p>
+  </noscript>
+
+  <script is:inline type="application/json" data-execution-walkthrough-data set:html={serializedData}></script>
+</section>
+
+<script>
+  import { bootExecutionWalkthroughs } from '../scripts/execution-walkthrough.mjs';
+
+  bootExecutionWalkthroughs();
+</script>

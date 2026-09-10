@@ -11,7 +11,7 @@
   "scripts": {
     "content:generate": "node scripts/generate-content.mjs",
     "content:check": "node scripts/check-content.mjs",
-    "diagrams:check": "node scripts/check-diagrams.mjs",
+    "diagrams:check": "node scripts/check-diagrams.mjs && node scripts/archify-diagrams.mjs source",
     "site:check": "node scripts/check-site.mjs",
     "release:check:source": "node scripts/release-claim-checker.mjs source",
     "release:check:artifact": "node scripts/release-claim-checker.mjs artifact",

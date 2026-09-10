@@ -28,14 +28,15 @@ export async function assertLinkedStylesheetContract(html, hrefs, label, options
     }
   }
   const rules = cssRules(css.join('\n'));
-  if (!hasRule(rules, '[data-blume-nav-tree] a[aria-current=page]', 'box-shadow:inset3px00')) {
+  if (!hasRule(rules, '[data-blume-nav-drawer] [data-blume-nav-tree] a[aria-current=page]', 'box-shadow:inset3px00')) {
     throw new Error(`${label} linked stylesheets must own the active navigation contract.`);
   }
-  if (!hasRule(rules, '.prose :not(pre)>code', 'overflow-wrap:anywhere', 'word-break:break-word')) {
+  if (!hasRule(rules, '#blume-content>article.prose :where(:not(pre)>code)', 'overflow-wrap:break-word')) {
     throw new Error(`${label} linked stylesheets must own the inline code wrapping contract.`);
   }
-  if (!hasRule(rules, 'blume-mermaid', 'width:100%') || !hasRule(rules, 'blume-mermaid>div', 'min-width:42rem', 'width:100%') || !hasRule(rules, 'blume-mermaid svg', 'height:auto')) {
-    throw new Error(`${label} linked stylesheets must own the Mermaid legibility contract.`);
+  if (!hasRule(rules, '.archify-figure', 'max-width:100%', 'min-width:0', 'width:100%')
+    || !hasRule(rules, '.archify-figure img', 'display:block', 'height:auto', 'max-width:100%', 'width:100%')) {
+    throw new Error(`${label} linked stylesheets must own the responsive Archify figure contract.`);
   }
   assertAccessibilityStylesheetContract(css.join('\n'), label, options);
 }
@@ -44,18 +45,16 @@ export function assertAccessibilityStylesheetContract(css, label, options = {}) 
   const rules = cssRules(css);
   const requireLandingSurfaces = options.requireLandingSurfaces === true || label === '/' || label === 'index.html';
   const lightLandingSurfaceSelectors = requireLandingSurfaces ? [
-      '[data-theme=light] .landing-editor-language',
-      '[data-theme=light] .landing-lifecycle-heading>span',
-      '[data-theme=light] .landing-lifecycle-caption',
-      '[data-theme=light] .landing-lifecycle-note',
-      '[data-theme=light] .landing-lifecycle-rail small',
+      '[data-theme=light] .landing-hero__statement',
+      '[data-theme=light] .landing-install-label',
+      '[data-theme=light] .landing-entry-points small',
+      '[data-theme=light] .landing-cli-entry span',
     ] : [];
   const required = [
     ['[data-theme=light] .not-prose[class~=bg-blue-500/10]>div>p:not(.text-foreground)', 'color:#6d6d6d', 'Light information callout contrast'],
     ['[data-theme=dark] .astro-code span[style*=--shiki-dark:#6A737D]', 'color:#707b87!important', 'Dark Shiki comment contrast'],
-    ['[data-theme=dark] blume-mermaid .edgeLabel p', 'color:#d0d0d0!important', 'Dark Mermaid edge-label contrast'],
     ['[data-theme=dark] body>a[href=#blume-content]', 'color:#12201f', 'Dark skip-link contrast'],
-    ...lightLandingSurfaceSelectors.map((selector) => [selector, 'color:#526966', 'Light Landing deep-surface muted contrast']),
+    ...lightLandingSurfaceSelectors.map((selector) => [selector, 'color:#59616e', 'Light Landing muted contrast']),
     ['.blackops-overflow-focus:focus-visible', 'outline:3pxsolidvar(--bo-focus)', 'Overflow focus indicator'],
   ];
   for (const [selector, declaration, contract] of required) {
@@ -70,9 +69,8 @@ export function assertAccessibilityStylesheetContract(css, label, options = {}) 
     ['.not-prose[class~=bg-blue-500/10]>div>p:not(.text-foreground)', 'color:#6f6f6f', 'old Light callout color'],
     ['.not-prose[class~=bg-blue-500/10]>div>p:not(.text-foreground)', 'color:#6d6d6d', 'unscoped Light callout color'],
     ['[data-theme=dark] .astro-code span[style*=--shiki-dark:#6A737D]', 'color:#6a737d', 'old Dark Shiki comment color'],
-    ['[data-theme=dark] blume-mermaid .edgeLabel p', 'color:#cccccc!important', 'old Dark Mermaid edge-label color'],
     ['[data-theme=dark] body>a[href=#blume-content]', 'color:#fff', 'old Dark skip-link color'],
-    ...(requireLandingSurfaces ? lightLandingSurfaceSelectors.map((selector) => [selector.replace('[data-theme=light] ', ''), 'color:#526966', 'unscoped Light Landing deep-surface muted color']) : []),
+    ...(requireLandingSurfaces ? lightLandingSurfaceSelectors.map((selector) => [selector.replace('[data-theme=light] ', ''), 'color:#59616e', 'unscoped Light Landing muted color']) : []),
   ];
   for (const [selector, declaration, contract] of forbidden) {
     if (hasRule(rules, selector, declaration)) {
@@ -99,18 +97,6 @@ export function assertOverflowFocusContract(html, label, options = {}) {
   }
   if (landingCodePanel && !directLandingCodePre) {
     throw new Error(`${label} landing code overflow must be keyboard focusable.`);
-  }
-  if (/<blume-mermaid\b/i.test(html)) {
-    const runtimeSource = options.runtimeSource ?? '';
-    const enhancement = [...runtimeSource.matchAll(/for\s*\(\s*const\s+element\s+of\s+document\.querySelectorAll\(\s*['"]([^'"]+)['"]\s*\)\s*\)\s*\{([\s\S]*?)\}/g)]
-      .find((match) => match[1] === '.landing-command, .landing-code-panel > pre, blume-mermaid');
-    if (!enhancement) {
-      throw new Error(`${label} Mermaid overflow must use the exact shared overflow selector.`);
-    }
-    const enhancementSource = enhancement[2];
-    if (!/element\.classList\.add\(\s*['"]blackops-overflow-focus['"]\s*\)/.test(enhancementSource) || !/element\.tabIndex\s*=\s*0\b/.test(enhancementSource)) {
-      throw new Error(`${label} Mermaid overflow must receive the shared focus class and tabIndex enhancement.`);
-    }
   }
 }
 
@@ -193,7 +179,7 @@ function hasRule(rules, selector, ...declarations) {
 }
 
 function assertLightLandingSurfaceContrast(rules, label, selectors) {
-  const surface = declarationValue(rules, ':root', '--bo-surface-deep');
+  const surface = declarationValue(rules, ':root', '--bo-surface') || declarationValue(rules, ':root', '--bo-surface-deep');
   const foreground = declarationValue(rules, selectors[0], 'color');
   if (!isHexColor(surface) || !isHexColor(foreground)) {
     throw new Error(`${label} linked stylesheets must expose measurable Light Landing deep-surface foreground and background colors.`);
@@ -205,10 +191,9 @@ function assertLightLandingSurfaceContrast(rules, label, selectors) {
 }
 
 function declarationValue(rules, selector, property) {
-  const rule = rules.find(({ selectors }) => selectors.includes(selector));
-  if (!rule) return '';
   const escapedProperty = property.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').toLowerCase();
-  return rule.body.match(new RegExp(`${escapedProperty}:([^;]+)`))?.[1] ?? '';
+  const declaration = new RegExp(`${escapedProperty}:([^;]+)`);
+  return rules.find(({ selectors, body }) => selectors.includes(selector) && declaration.test(body))?.body.match(declaration)?.[1] ?? '';
 }
 
 function isHexColor(value) {

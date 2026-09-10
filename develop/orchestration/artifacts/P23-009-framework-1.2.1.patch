@@ -1,0 +1,441 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index 7d0483b..4b117ca 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -8,6 +8,8 @@ BlackOpsはExperimentalです。1.xのMinor Release間でも破壊的変更を
+ 
+ 次回Releaseの変更はこのSectionへ追記します。公開済み`1.2.0`と歴史的な`1.1.0`の記録は変更しません。
+ 
++- 開発環境で扱うFrameworkのバージョンとTrace／Metricの計測元バージョンを`1.2.1`へ更新した。未公開の準備であり、公開済みExperimental Stable`1.2.0`には影響しない。
++
+ ## [1.2.0] - 2026-08-15
+ 
+ ### Added
+diff --git a/Dockerfile b/Dockerfile
+index 49725e3..83371b5 100644
+--- a/Dockerfile
++++ b/Dockerfile
+@@ -5,7 +5,7 @@ ARG GID=1000
+ 
+ ENV PATH=/app/vendor/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+ ENV COMPOSER_HOME=/home/app/.composer
+-ENV COMPOSER_ROOT_VERSION=1.2.0@dev
++ENV COMPOSER_ROOT_VERSION=1.2.1@dev
+ ENV HOME=/home/app
+ 
+ RUN apt-get update \
+diff --git a/develop/spec/103-stable-1-2-release-plan.md b/develop/spec/103-stable-1-2-release-plan.md
+index 2d63c35..12d9260 100644
+--- a/develop/spec/103-stable-1-2-release-plan.md
++++ b/develop/spec/103-stable-1-2-release-plan.md
+@@ -16,10 +16,16 @@ Framework／Skeleton `1.2.0` are published at the accepted immutable fixed sourc
+ 
+ ## Active source contract
+ 
+-Docker Composer root version, Framework-owned Trace／Metric scope, `examples/quickstart` Composer metadata, Consumer path repository mappings, and public documentation use `1.2.0` or `^1.2`. Skeleton publication validation and the published package both require `^1.2`.
++The published source contract keeps the Docker Composer root version, Framework-owned Trace／Metric scope, `examples/quickstart` Composer metadata, Consumer path repository mappings, and public documentation at `1.2.0` or `^1.2`. Only the separate maintenance checkout uses the bounded `1.2.1` overrides described below; Skeleton publication validation and the published package continue to require `^1.2`.
+ 
+ Historical `1.1.0` install commands and release evidence remain immutable. Public current install commands use published `1.2.0`; unrelated third-party versions and protocol literals are not release metadata and are not changed.
+ 
++## Unreleased Framework 1.2.1 preparation contract
++
++The separate maintenance checkout may identify an unpublished Framework patch candidate as `1.2.1`. Its bounded preparation surfaces are the Composer development root version (`1.2.1@dev`), the Framework-owned OpenTelemetry Trace／Metric scope version (`1.2.1`), current-source Consumer path mappings, and the Framework-only update Consumer candidate lane. The published `currentStable` Framework／Skeleton `1.2.0` tuple, public installation guidance, Skeleton `^1.2` constraint, Skeleton publication fixtures, and historical `1.1.0` evidence remain unchanged.
++
++This preparation does not create or validate a public `1.2.1` Tag, Packagist release, Remote Consumer result, new API, migration, dependency, or `1.3` implementation. Any publication requires a new release-boundary decision and the existing Framework／Skeleton same-version Tag and full release gates.
++
+ ## Documentation contract
+ 
+ README, Guides, Internal documentation, CHANGELOG, UPGRADE, and Website Source identify published Experimental Stable `1.2.0`, the GitHub Release／Packagist boundary, and the public normal／`--no-scripts` install path. The historical `1.1.0` onboarding remains immutable. The documented Remote smoke successes are separated from the confirmed root-owned journal bind-mount limitation where non-root `operation:inspect` returns `diagnostics.storage_failed` and root comparison returns masked data.
+diff --git a/docs/internal/installed-application-status.md b/docs/internal/installed-application-status.md
+index 240edb7..2f48f7e 100644
+--- a/docs/internal/installed-application-status.md
++++ b/docs/internal/installed-application-status.md
+@@ -18,12 +18,16 @@ Operation CommandはHTTPと共通のCompiled Container、Validation、Authorizat
+ 
+ 本実装はFramework／QuickstartのLocal Sourceだけを更新し、Community Board、Session Auth Package、Documentation Website、Packageを外部公開しない。Phase 18全体のCloseoutはP18-006／P18-007に残る。
+ 
+-`examples/quickstart/` はFeature-firstのInstalled Application Exampleと`blackops/skeleton`のSource of Truthである。Framework／Skeleton `1.2.0`はGitHub、Packagist、GitHub Releaseへ公開済みで、Remote `composer create-project`も検証済みである。Current SourceとRelease Documentationは公開済みExperimental `1.2.0`を対象とし、Project Root `blackops`、Generator、Application Migration、Validation、FrankenPHP Worker Modeを含む。MVP CompleteとStable Package公開もProduction Readyを意味しない。
++`examples/quickstart/` はFeature-firstのInstalled Application Exampleと`blackops/skeleton`のSource of Truthである。公開済みFramework／Skeleton `1.2.0`はGitHub、Packagist、GitHub Releaseへ公開済みで、Remote `composer create-project`も検証済みである。公開sourceとRelease DocumentationはExperimental Stable `1.2.0`を対象とし、Project Root `blackops`、Generator、Application Migration、Validation、FrankenPHP Worker Modeを含む。保守用checkoutの未公開Framework candidate `1.2.1`は別節で扱う。MVP CompleteとStable Package公開もProduction Readyを意味しない。
+ 
+ ## Stable 1.2.0 Remote Closeout Evidence
+ 
+ Remote package smokeは空のComposer Homeからnormal／`--no-scripts` create-projectを実行し、Skeleton／Framework `1.2.0` Lock、Project Root CLI、compile、12 migrations、HTTP、Worker retryからCompleted、Sensitive redactionを確認し、temporary resourcesをcleanupした。HTTP後のnon-root `operation:inspect`は、bind-mountされた`var/log/journal.jsonl`がHTTP Processでroot-ownedになる環境では`diagnostics.storage_failed`となる。root比較ではmasked Journal dataを確認済みであり、この確認済みownership limitationをRemote smoke全体の失敗として扱わない。Source修正や`1.2.1` publicationはこのEvidenceの範囲外である。
+ 
++## Framework 1.2.1 Maintenance Candidate
++
++保守用checkoutでは未公開Framework candidate `1.2.1`のComposer開発root、OpenTelemetry Trace／Metric scope、current-source Consumer mappingを準備する。これは公開済みStable `1.2.0`のauthority、public install、Skeleton package、またはpublication evidenceを変更せず、1.2.1のTag、Packagist、Remote smoke、release gateを実行したことも示さない。公開準備へ進む場合はFramework／Skeletonの同一Version Tag契約と新しいRelease Authority判断を満たす必要がある。
++
+ ## Phase 7 Acceptance Evidence
+ 
+ | Acceptance criterion | Status | Evidence |
+diff --git a/docs/internal/mvp-e2e.md b/docs/internal/mvp-e2e.md
+index 4d7fb29..205b615 100644
+--- a/docs/internal/mvp-e2e.md
++++ b/docs/internal/mvp-e2e.md
+@@ -2,7 +2,7 @@
+ 
+ MVP Sample E2EはProduction CodeへSample専用の近道を追加せず、既存のCompile、HTTP、PostgreSQL、Worker、Outcome、Projection境界を組み合わせる。
+ 
+-`tests/Consumer/quickstart-e2e.sh` はChecked-in Quickstartを一時DirectoryへCopyし、`symlink=false` とcandidate version `1.2.0` の一時Composer Path RepositoryからFrameworkをConsumer Vendorへmirror installする。RuntimeはConsumerのAutoloaderだけを使う。
++`tests/Consumer/quickstart-e2e.sh` はChecked-in Quickstartを一時DirectoryへCopyし、`symlink=false` と未公開Framework candidate version `1.2.1` の一時Composer Path RepositoryからFrameworkをConsumer Vendorへmirror installする。RuntimeはConsumerのAutoloaderだけを使う。
+ 
+ ScriptはBuild、明示Migration、FrankenPHP HTTP、Sensitive JSONL、Inline FailureのOperation ID相関、Human／JSON Inspect、Local Viewer、Deferred Retry／Completion、Encoded Outcome、Retention Plan／Dry Runを機械検証する。ViewerはPCNTLを持つnamed CLI Containerで明示起動し、同じNetwork NamespaceのLoopbackに対してTokenなし404、Bootstrap／Session、Canonical Path、GET／HEAD、POST 405を確認する。Trapは成功／失敗の両方でViewer、Compose Project、Container、Named Volume、Local Image、Tokenを含む一時Artifact、一時Consumerを削除する。
+ 
+@@ -10,7 +10,7 @@ ScriptはBuild、明示Migration、FrankenPHP HTTP、Sensitive JSONL、Inline Fa
+ 
+ `tests/Consumer/quickstart-setup.sh` はQuickstartを一時ProjectへCopyし、`bin/setup`の直接実行、Composer Script実行、Project Root外からの実行、再実行、Failureを検証する。直接実行ではPHPの外部Process関数を無効化し、Setup前後のFile差分が`.env`と生成Directoryだけであることを確認する。これにより表示された次手順が実行されず、Network／Docker／Database／Build Side EffectがないProcess Boundaryを検証する。
+ 
+-`tests/Consumer/skeleton-create-project.sh` はQuickstartのWorking Treeからdotfileを含むSourceを一時DirectoryへCopyし、`.env`、`composer.lock`、`vendor`、nested `node_modules`、Generated Frontend、Generated `var` filesを除外して`var/build/.gitignore`と`var/log/.gitignore`を復元する。SkeletonとFrameworkへ別々のLocal Path Repositoryとcandidate version `1.2.0`を一時Composer Homeで与え、両方を`symlink=false`で通常／`--no-scripts` Create-projectする。Package SourceへRepository設定やVersionを戻さず、Lock、Vendor、Autoload、Post-create／Manual Setup、Generated State不在、Docker Resource不変、Source不変、Temp Cleanupを機械検証する。
++`tests/Consumer/skeleton-create-project.sh` はQuickstartのWorking Treeからdotfileを含むSourceを一時DirectoryへCopyし、`.env`、`composer.lock`、`vendor`、nested `node_modules`、Generated Frontend、Generated `var` filesを除外して`var/build/.gitignore`と`var/log/.gitignore`を復元する。Skeletonには合成version `1.2.0`、Frameworkには保守用未公開candidate version `1.2.1`を別々のLocal Path Repositoryで与え、両方を`symlink=false`で通常／`--no-scripts` Create-projectする。このLocal Source fixtureは公開Packageの検証ではない。Package SourceへRepository設定やVersionを戻さず、Lock、Vendor、Autoload、Post-create／Manual Setup、Generated State不在、Docker Resource不変、Source不変、Temp Cleanupを機械検証する。
+ 
+ `tests/Consumer/skeleton-publication.sh` はFramework Source RefからQuickstartだけのSubtree Splitを決定的に生成し、Framework VersionとConstraint、Distribution Root Allowlist、Composer Metadata、Generated State不在、annotated Tag Object／Message／Peeled Commit、Working Tree／Docker／Temporary State不変を検証する。`tests/Consumer/skeleton-publication-workflow.sh`はWorkflowのPublication Run BlockをTemporary Bare Repositoryへ適用し、新規annotated tag、冪等再実行、不一致拒否、新規lightweight拒否、Legacy `1.0.0` Manual Recoveryを外部変更なしで検証する。公開RepositoryとPackagistの可用性はPublication Taskの外部検証が担当する。
+ 
+diff --git a/docs/internal/production-observability.md b/docs/internal/production-observability.md
+index 752436d..48cae30 100644
+--- a/docs/internal/production-observability.md
++++ b/docs/internal/production-observability.md
+@@ -47,7 +47,7 @@ ProductionでViewerは既定無効である。通常HTTP RuntimeやWorker Runtim
+ 
+ FrameworkのProduction Dependencyは`open-telemetry/api`だけである。`ApplicationBuilder::withTracerProvider()`と`withMeterProvider()`はApplicationが構成したProviderを受け取り、Framework-owned SDK、OTLP Exporter、Resource、Endpoint、Credential、CollectorをCompiled ContainerやManifestへ保存しない。Provider未登録時はNo-opで、Provider／Exporter／Flush FailureはPrimary Operation、Journal、Outcome、HTTP Response、Readinessを変更しない。
+ 
+-Framework-owned Spanは`blackops.framework`／candidate `1.2.0`で、HTTP／DB InstrumentationやDashboardはApplicationへ委ねる。HTTPのW3C `traceparent`／`tracestate`、Deferred／Outboxの暗号化Context、Worker RetryのAttempt Spanを境界ごとに扱う。Structured JSONLへ投影するのは`traceId`、`spanId`、`sampled`だけで、Actor／Tenantは`[masked]`とする。Metricは固定Name／Type／Unitと有限属性で、Identity／自由文をLabelへ入れない。
++Framework-owned Spanは`blackops.framework`／未公開candidate `1.2.1`で、HTTP／DB InstrumentationやDashboardはApplicationへ委ねる。HTTPのW3C `traceparent`／`tracestate`、Deferred／Outboxの暗号化Context、Worker RetryのAttempt Spanを境界ごとに扱う。Structured JSONLへ投影するのは`traceId`、`spanId`、`sampled`だけで、Actor／Tenantは`[masked]`とする。Metricは固定Name／Type／Unitと有限属性で、Identity／自由文をLabelへ入れない。
+ 
+ ## Health／Readiness Boundary
+ 
+diff --git a/src/Internal/Telemetry/TelemetryMetrics.php b/src/Internal/Telemetry/TelemetryMetrics.php
+index 37721dc..f325e35 100644
+--- a/src/Internal/Telemetry/TelemetryMetrics.php
++++ b/src/Internal/Telemetry/TelemetryMetrics.php
+@@ -20,7 +20,7 @@ use OpenTelemetry\API\Metrics\UpDownCounterInterface;
+ final class TelemetryMetrics
+ {
+     public const SCOPE = 'blackops.framework';
+-    public const VERSION = '1.2.0';
++    public const VERSION = '1.2.1';
+ 
+     /** @var list<string> */
+     public const RESULTS = ['completed', 'rejected', 'failed', 'retry_scheduled', 'dead_lettered', 'interrupted'];
+diff --git a/src/Internal/Telemetry/TelemetryTracer.php b/src/Internal/Telemetry/TelemetryTracer.php
+index 2363da3..4105fdd 100644
+--- a/src/Internal/Telemetry/TelemetryTracer.php
++++ b/src/Internal/Telemetry/TelemetryTracer.php
+@@ -22,7 +22,7 @@ use Throwable;
+ final readonly class TelemetryTracer
+ {
+     public const SCOPE = 'blackops.framework';
+-    public const VERSION = '1.2.0';
++    public const VERSION = '1.2.1';
+     public const KIND_INTERNAL = SpanKind::KIND_INTERNAL;
+     public const KIND_PRODUCER = SpanKind::KIND_PRODUCER;
+     public const KIND_CONSUMER = SpanKind::KIND_CONSUMER;
+diff --git a/tests/Consumer/auth-generator-fresh.sh b/tests/Consumer/auth-generator-fresh.sh
+index 0c43c68..2c476e6 100644
+--- a/tests/Consumer/auth-generator-fresh.sh
++++ b/tests/Consumer/auth-generator-fresh.sh
+@@ -59,7 +59,7 @@ INSTALL_COMPOSE=("${COMPOSE[@]}" -f "${OVERRIDE}")
+ 
+ docker run --rm -v "${CONSUMER}:/app" -v "${ROOT}:/framework:ro" -w /app composer:2 \
+     composer config repositories.framework \
+-    '{"type":"path","url":"/framework","options":{"symlink":false,"versions":{"blackops/framework":"1.2.0"}}}'
++    '{"type":"path","url":"/framework","options":{"symlink":false,"versions":{"blackops/framework":"1.2.1"}}}'
+ docker run --rm -v "${CONSUMER}:/app" -w /app composer:2 \
+     composer require --no-update --no-interaction doctrine/dbal:^4.4 doctrine/migrations:^3.9
+ 
+diff --git a/tests/Consumer/framework-update-generators.sh b/tests/Consumer/framework-update-generators.sh
+index 54d8d01..a3959c6 100644
+--- a/tests/Consumer/framework-update-generators.sh
++++ b/tests/Consumer/framework-update-generators.sh
+@@ -41,10 +41,10 @@ test "$(git -C "${framework_repository}" rev-parse 'refs/tags/1.1.0^{commit}')"
+     = "$(git -C "${repository_root}" rev-parse 'refs/tags/1.1.0^{commit}')"
+ git -C "${framework_repository}" archive 1.1.0:examples/quickstart | tar -x -C "${consumer_root}"
+ cp -a "${repository_root}/resources/stubs/." "${current_stubs}/"
+-candidate_tag_ref='refs/tags/1.2.0'
++candidate_tag_ref='refs/tags/1.2.1'
+ candidate_tag_type="$(git -C "${framework_repository}" cat-file -t "${candidate_tag_ref}" 2>/dev/null || true)"
+ if test -z "${candidate_tag_type}"; then
+-    git -C "${framework_repository}" tag 1.2.0 "${current_commit}"
++    git -C "${framework_repository}" tag 1.2.1 "${current_commit}"
+     candidate_source_commit="${current_commit}"
+ else
+     test "${candidate_tag_type}" = 'tag'
+@@ -53,7 +53,7 @@ else
+     test "${published_candidate_commit}" = "${root_published_candidate_commit}"
+     if ! git -C "${framework_repository}" diff --quiet "${published_candidate_commit}" "${current_commit}" -- \
+         src composer.json examples/quickstart resources migrations; then
+-        printf 'Published 1.2.0 release-runtime Source drifted from current HEAD.\n' >&2
++        printf 'Published 1.2.1 release-runtime Source drifted from current HEAD.\n' >&2
+         exit 1
+     fi
+     candidate_source_commit="${published_candidate_commit}"
+@@ -163,14 +163,14 @@ ksort($packages);
+ file_put_contents("/smoke/dependencies.before.json", json_encode($packages, JSON_THROW_ON_ERROR));
+ '
+ 
+-run_composer require --no-update --no-interaction blackops/framework:1.2.0
++run_composer require --no-update --no-interaction blackops/framework:1.2.1
+ run_composer update --no-interaction --prefer-dist blackops/framework \
+     > "${temporary_root}/update.out"
+ 
+ run_php -r '
+ $lock = json_decode(file_get_contents("/smoke/consumer/composer.lock"), true, 512, JSON_THROW_ON_ERROR);
+ $versions = array_column($lock["packages"] ?? [], "version", "name");
+-if (($versions["blackops/framework"] ?? null) !== "1.2.0") {
++if (($versions["blackops/framework"] ?? null) !== "1.2.1") {
+     exit(1);
+ }
+ $packages = [];
+diff --git a/tests/Consumer/framework-update-runtime.sh b/tests/Consumer/framework-update-runtime.sh
+index cbf52cd..0a319a5 100755
+--- a/tests/Consumer/framework-update-runtime.sh
++++ b/tests/Consumer/framework-update-runtime.sh
+@@ -201,7 +201,7 @@ test "$(psql 'SELECT count(*) FROM blackops.schema_migrations')" = 2
+ test "$(psql "SELECT count(*) FROM pg_tables WHERE schemaname = 'blackops' AND tablename IN ('operations', 'journal', 'outcomes', 'dead_letters', 'retention_holds', 'retention_purge_audits')")" = 6
+ test "$(psql "SELECT count(*) FROM pg_constraint c JOIN pg_class t ON t.oid = c.conrelid JOIN pg_namespace n ON n.oid = t.relnamespace WHERE n.nspname = 'blackops' AND c.conname IN ('operations_payload_tombstone_check', 'outcomes_operation_id_fkey')")" = 2
+ 
+-candidate_tag_ref='refs/tags/1.2.0'
++candidate_tag_ref='refs/tags/1.2.1'
+ candidate_tag_type="$(git -C "${framework_repository}" cat-file -t "${candidate_tag_ref}" 2>/dev/null || true)"
+ if test -z "${candidate_tag_type}"; then
+     git -C "${framework_repository}" checkout --quiet "${candidate_commit}"
+@@ -209,7 +209,7 @@ if test -z "${candidate_tag_type}"; then
+     test -z "$(git -C "${framework_repository}" status --short)"
+     git -C "${framework_repository}" config --local user.name 'BlackOps Runtime Consumer'
+     git -C "${framework_repository}" config --local user.email 'blackops-runtime@invalid.example'
+-    git -C "${framework_repository}" tag -a -m 'local runtime candidate' 1.2.0 "${candidate_commit}"
++    git -C "${framework_repository}" tag -a -m 'local runtime candidate' 1.2.1 "${candidate_commit}"
+     candidate_source_commit="${candidate_commit}"
+ else
+     test "${candidate_tag_type}" = tag
+@@ -219,7 +219,7 @@ else
+     if ! git -C "${framework_repository}" diff --quiet "${published_candidate_commit}" "${candidate_commit}" -- \
+         src composer.json examples/quickstart resources migrations \
+         ':(exclude)examples/quickstart/README.md'; then
+-        fail 'Published 1.2.0 release-runtime Source drifted from current HEAD.'
++        fail 'Published 1.2.1 release-runtime Source drifted from current HEAD.'
+     fi
+     candidate_source_commit="${published_candidate_commit}"
+ fi
+@@ -249,7 +249,7 @@ foreach ($lock["packages"] ?? [] as $package) {
+ }
+ exit(1);
+ ')"
+-test "${candidate_framework_version}" = 1.2.0
++test "${candidate_framework_version}" = 1.2.1
+ 
+ for runtime_path in bootstrap/app.php public/index.php public/worker.php; do
+     cp "${framework_repository}/examples/quickstart/${runtime_path}" "${consumer_root}/${runtime_path}"
+diff --git a/tests/Consumer/frankenphp-worker-mode.sh b/tests/Consumer/frankenphp-worker-mode.sh
+index 00e575b..e2025a1 100644
+--- a/tests/Consumer/frankenphp-worker-mode.sh
++++ b/tests/Consumer/frankenphp-worker-mode.sh
+@@ -70,7 +70,7 @@ compose=(docker compose --project-directory "${CONSUMER}" --project-name "${PROJ
+ install_compose=("${compose[@]}" -f "${INSTALL_OVERRIDE}")
+ 
+ docker run --rm -v "${CONSUMER}:/app" -v "${ROOT}:/framework:ro" -w /app composer:2 \
+-    composer config repositories.framework '{"type":"path","url":"/framework","options":{"symlink":false,"versions":{"blackops/framework":"1.2.0"}}}'
++    composer config repositories.framework '{"type":"path","url":"/framework","options":{"symlink":false,"versions":{"blackops/framework":"1.2.1"}}}'
+ 
+ test "$("${compose[@]}" config --services | sort)" = $'http\npostgres'
+ test "$("${compose[@]}" --profile classic-mode config --services | sort)" = $'http\nhttp-classic\npostgres'
+diff --git a/tests/Consumer/quickstart-e2e.sh b/tests/Consumer/quickstart-e2e.sh
+index cde764f..ccec01c 100644
+--- a/tests/Consumer/quickstart-e2e.sh
++++ b/tests/Consumer/quickstart-e2e.sh
+@@ -59,7 +59,7 @@ compose=(docker compose --project-directory "${CONSUMER}" --project-name "${PROJ
+ install_compose=("${compose[@]}" -f "${INSTALL_OVERRIDE}")
+ 
+ docker run --rm -v "${CONSUMER}:/app" -v "${ROOT}:/framework:ro" -w /app composer:2 \
+-    composer config repositories.framework '{"type":"path","url":"/framework","options":{"symlink":false,"versions":{"blackops/framework":"1.2.0"}}}'
++    composer config repositories.framework '{"type":"path","url":"/framework","options":{"symlink":false,"versions":{"blackops/framework":"1.2.1"}}}'
+ 
+ HTTP_PORT="${PORT}" "${compose[@]}" build app http
+ HTTP_PORT="${PORT}" "${compose[@]}" up -d postgres
+diff --git a/tests/Consumer/scheduled-operation.sh b/tests/Consumer/scheduled-operation.sh
+index cfb168c..968594c 100644
+--- a/tests/Consumer/scheduled-operation.sh
++++ b/tests/Consumer/scheduled-operation.sh
+@@ -64,7 +64,7 @@ compose=(docker compose --project-directory "${CONSUMER}" --project-name "${PROJ
+     -f "${CONSUMER}/compose.yaml" -f "${OVERRIDE}")
+ 
+ docker run --rm -v "${CONSUMER}:/app" -v "${ROOT}:/framework:ro" -w /app composer:2 \
+-    composer config repositories.framework '{"type":"path","url":"/framework","options":{"symlink":false,"versions":{"blackops/framework":"1.2.0"}}}'
++    composer config repositories.framework '{"type":"path","url":"/framework","options":{"symlink":false,"versions":{"blackops/framework":"1.2.1"}}}'
+ 
+ "${compose[@]}" build app >/dev/null
+ "${compose[@]}" up -d postgres >/dev/null
+diff --git a/tests/Consumer/skeleton-create-project.sh b/tests/Consumer/skeleton-create-project.sh
+index 6e8b4ef..6247474 100644
+--- a/tests/Consumer/skeleton-create-project.sh
++++ b/tests/Consumer/skeleton-create-project.sh
+@@ -135,7 +135,7 @@ cat > "${composer_home}/config.json" <<'JSON'
+       "options": {
+         "symlink": false,
+         "versions": {
+-          "blackops/framework": "1.2.0"
++          "blackops/framework": "1.2.1"
+         }
+       },
+       "canonical": true,
+@@ -205,7 +205,7 @@ if (isset($composer["repositories"]) || isset($composer["version"])) {
+ }
+ $lock = json_decode(file_get_contents("/smoke/normal/composer.lock"), true, 512, JSON_THROW_ON_ERROR);
+ $versions = array_column($lock["packages"] ?? [], "version", "name");
+-if (($versions["blackops/framework"] ?? null) !== "1.2.0") {
++if (($versions["blackops/framework"] ?? null) !== "1.2.1") {
+     exit(1);
+ }
+ '
+@@ -273,7 +273,7 @@ if (isset($composer["repositories"]) || isset($composer["version"])) {
+ }
+ $lock = json_decode(file_get_contents("/smoke/no-scripts/composer.lock"), true, 512, JSON_THROW_ON_ERROR);
+ $versions = array_column($lock["packages"] ?? [], "version", "name");
+-if (($versions["blackops/framework"] ?? null) !== "1.2.0") {
++if (($versions["blackops/framework"] ?? null) !== "1.2.1") {
+     exit(1);
+ }
+ '
+diff --git a/tests/Consumer/storage-protection-rotation.sh b/tests/Consumer/storage-protection-rotation.sh
+index 1240eb0..93a57e0 100644
+--- a/tests/Consumer/storage-protection-rotation.sh
++++ b/tests/Consumer/storage-protection-rotation.sh
+@@ -87,7 +87,7 @@ compose=(docker compose --project-directory "${CONSUMER}" --project-name "${PROJ
+     -f "${CONSUMER}/compose.yaml" -f "${OVERRIDE}")
+ 
+ docker run --rm -v "${CONSUMER}:/app" -v "${ROOT}:/framework:ro" -w /app composer:2 \
+-    composer config repositories.framework '{"type":"path","url":"/framework","options":{"symlink":false,"versions":{"blackops/framework":"1.2.0"}}}'
++    composer config repositories.framework '{"type":"path","url":"/framework","options":{"symlink":false,"versions":{"blackops/framework":"1.2.1"}}}'
+ 
+ "${compose[@]}" build app >/dev/null
+ "${compose[@]}" up -d postgres >/dev/null
+diff --git a/tests/Consumer/version-baseline.sh b/tests/Consumer/version-baseline.sh
+index fa4ac5f..e82f6f8 100644
+--- a/tests/Consumer/version-baseline.sh
++++ b/tests/Consumer/version-baseline.sh
+@@ -494,7 +494,7 @@ assert_deptrac_no_rule Auth Internal
+ assert_deptrac_no_rule Http Internal
+ assert_deptrac_sccs
+ 
+-contains Dockerfile 'COMPOSER_ROOT_VERSION=1.2.0@dev'
++contains Dockerfile 'COMPOSER_ROOT_VERSION=1.2.1@dev'
+ contains composer.json '"carthage-software/mago": "1.42.0"'
+ contains composer.json '"deptrac/deptrac": "4.7.1"'
+ contains mago.toml 'baseline = "mago-lint-baseline.toml"'
+@@ -505,8 +505,8 @@ contains .github/workflows/ci.yml 'mago lint --verify-baseline'
+ test "$(grep -c '^variant = "strict"$' "${repository_root}/mago-lint-baseline.toml")" -eq 1 \
+     || fail 'Mago baseline must use exactly one strict variant declaration'
+ contains examples/quickstart/composer.json '"blackops/framework": "^1.2"'
+-contains src/Internal/Telemetry/TelemetryTracer.php "public const VERSION = '1.2.0';"
+-contains src/Internal/Telemetry/TelemetryMetrics.php "public const VERSION = '1.2.0';"
++contains src/Internal/Telemetry/TelemetryTracer.php "public const VERSION = '1.2.1';"
++contains src/Internal/Telemetry/TelemetryMetrics.php "public const VERSION = '1.2.1';"
+ 
+ for consumer in \
+     tests/Consumer/quickstart-e2e.sh \
+@@ -514,7 +514,7 @@ for consumer in \
+     tests/Consumer/scheduled-operation.sh \
+     tests/Consumer/storage-protection-rotation.sh \
+     tests/Consumer/frankenphp-worker-mode.sh; do
+-    contains "${consumer}" 'blackops/framework":"1.2.0'
++    contains "${consumer}" 'blackops/framework":"1.2.1'
+ done
+ 
+ for consumer in \
+@@ -529,7 +529,7 @@ for consumer in \
+     assert_storage_key_contract "${consumer}"
+ done
+ 
+-contains tests/Consumer/skeleton-create-project.sh '"blackops/framework": "1.2.0"'
++contains tests/Consumer/skeleton-create-project.sh '"blackops/framework": "1.2.1"'
+ contains tests/Consumer/skeleton-create-project.sh 'blackops/skeleton":"1.2.0"'
+ contains tests/Consumer/skeleton-publication.sh 'version=1.2.0'
+ contains tests/Consumer/skeleton-publication-workflow.sh 'run_publication "${new_remote}" 1.2.0 false'
+@@ -973,10 +973,10 @@ assert_generator_resource_inventory
+ assert_generator_tag_lifecycle() {
+     local file='tests/Consumer/framework-update-generators.sh'
+ 
+-    contains "${file}" "candidate_tag_ref='refs/tags/1.2.0'"
++    contains "${file}" "candidate_tag_ref='refs/tags/1.2.1'"
+     contains "${file}" 'candidate_tag_type="$(git -C "${framework_repository}" cat-file -t "${candidate_tag_ref}" 2>/dev/null || true)"'
+     contains "${file}" 'if test -z "${candidate_tag_type}"; then'
+-    contains "${file}" 'git -C "${framework_repository}" tag 1.2.0 "${current_commit}"'
++    contains "${file}" 'git -C "${framework_repository}" tag 1.2.1 "${current_commit}"'
+     contains "${file}" 'candidate_source_commit="${current_commit}"'
+     contains "${file}" 'test "${candidate_tag_type}" = '\''tag'\'''
+     contains "${file}" 'published_candidate_commit="$(git -C "${framework_repository}" rev-parse "${candidate_tag_ref}^{commit}")"'
+@@ -987,10 +987,10 @@ assert_generator_tag_lifecycle() {
+     contains "${file}" 'candidate_tag_ref}^{commit}")" = "${candidate_source_commit}"'
+ 
+     awk '
+-        index($0, "candidate_tag_ref='\''refs/tags/1.2.0'\''") { ref_line = NR }
++        index($0, "candidate_tag_ref='\''refs/tags/1.2.1'\''") { ref_line = NR }
+         index($0, "candidate_tag_type=") { type_line = NR }
+         index($0, "if test -z \"${candidate_tag_type}\"; then") { absent_line = NR }
+-        index($0, "tag 1.2.0 \"${current_commit}\"") { create_line = NR }
++        index($0, "tag 1.2.1 \"${current_commit}\"") { create_line = NR }
+         index($0, "candidate_source_commit=\"${current_commit}\"") { absent_source_line = NR }
+         index($0, "test \"${candidate_tag_type}\" = '\''tag'\''") { annotated_line = NR }
+         /^[[:space:]]+published_candidate_commit=/ { published_line = NR }
+@@ -1174,8 +1174,8 @@ for contract in \
+     contains UPGRADE.md "${contract}"
+ done
+ contains tests/Consumer/framework-update-generators.sh "cat-file -t refs/tags/1.1.0"
+-contains tests/Consumer/framework-update-generators.sh 'blackops/framework:1.2.0'
+-contains tests/Consumer/framework-update-generators.sh 'tag 1.2.0'
++contains tests/Consumer/framework-update-generators.sh 'blackops/framework:1.2.1'
++contains tests/Consumer/framework-update-generators.sh 'tag 1.2.1'
+ contains tests/Consumer/framework-update-generators.sh 'blackops build:compile'
+ contains tests/Consumer/framework-update-generators.sh 'blackops operation:list'
+ test -x "${repository_root}/tests/Consumer/framework-update-runtime.sh" \
+@@ -1205,16 +1205,16 @@ contains tests/Consumer/framework-update-runtime.sh 'fail_stage()'
+ contains tests/Consumer/framework-update-runtime.sh 'provider-missing-classic-http-readiness'
+ contains tests/Consumer/framework-update-runtime.sh 'provider-missing-redaction'
+ contains tests/Consumer/framework-update-runtime.sh 'provider-missing-services-removal'
+-contains tests/Consumer/framework-update-runtime.sh "candidate_tag_ref='refs/tags/1.2.0'"
++contains tests/Consumer/framework-update-runtime.sh "candidate_tag_ref='refs/tags/1.2.1'"
+ contains tests/Consumer/framework-update-runtime.sh 'candidate_tag_type="$(git -C "${framework_repository}" cat-file -t "${candidate_tag_ref}" 2>/dev/null || true)"'
+-contains tests/Consumer/framework-update-runtime.sh "local runtime candidate' 1.2.0"
++contains tests/Consumer/framework-update-runtime.sh "local runtime candidate' 1.2.1"
+ contains tests/Consumer/framework-update-runtime.sh 'test "${candidate_tag_type}" = tag'
+ contains tests/Consumer/framework-update-runtime.sh 'published_candidate_commit="$(git -C "${framework_repository}" rev-parse "${candidate_tag_ref}^{commit}")"'
+ contains tests/Consumer/framework-update-runtime.sh 'root_published_candidate_commit="$(git -C "${repository_root}" rev-parse "${candidate_tag_ref}^{commit}")"'
+ contains tests/Consumer/framework-update-runtime.sh 'test "${published_candidate_commit}" = "${root_published_candidate_commit}"'
+ contains tests/Consumer/framework-update-runtime.sh 'diff --quiet "${published_candidate_commit}" "${candidate_commit}" --'
+ contains tests/Consumer/framework-update-runtime.sh "':(exclude)examples/quickstart/README.md'"
+-contains tests/Consumer/framework-update-runtime.sh 'Published 1.2.0 release-runtime Source drifted from current HEAD.'
++contains tests/Consumer/framework-update-runtime.sh 'Published 1.2.1 release-runtime Source drifted from current HEAD.'
+ contains tests/Consumer/framework-update-runtime.sh 'candidate_source_commit="${published_candidate_commit}"'
+ contains tests/Consumer/framework-update-runtime.sh 'candidate_source_commit="${candidate_commit}"'
+ contains tests/Consumer/framework-update-runtime.sh 'verify_runtime_bootstrap()'
+@@ -1249,4 +1249,4 @@ absent UPGRADE.md 'Candidate SourceとComposerを準備する'
+ absent UPGRADE.md 'Repository `main`の未公開`1.2.0` candidate'
+ absent CHANGELOG.md '9つのCandidate PostgreSQL Migration'
+ 
+-printf 'Version baseline guard passed: published=1.2.0 historical=1.1.0\n'
++printf 'Version baseline guard passed: published=1.2.0 candidate=1.2.1 historical=1.1.0\n'
+diff --git a/tests/Internal/Telemetry/TelemetryMetricsTest.php b/tests/Internal/Telemetry/TelemetryMetricsTest.php
+index 3f5e01e..de18c07 100644
+--- a/tests/Internal/Telemetry/TelemetryMetricsTest.php
++++ b/tests/Internal/Telemetry/TelemetryMetricsTest.php
+@@ -12,7 +12,7 @@ final class TelemetryMetricsTest extends TestCase
+ {
+     public function testCreatesStableInstrumentMatrixAndBalancesActiveCounter(): void
+     {
+-        self::assertSame('1.2.0', TelemetryMetrics::VERSION);
++        self::assertSame('1.2.1', TelemetryMetrics::VERSION);
+         $provider = new RecordingMeterProvider();
+         $metrics = new TelemetryMetrics($provider, ['order.create']);
+         self::assertSame(TelemetryMetrics::SCOPE, $provider->scopeName);
+diff --git a/tests/Internal/Telemetry/TelemetryTracerTest.php b/tests/Internal/Telemetry/TelemetryTracerTest.php
+index e1f9210..ea4b5f1 100644
+--- a/tests/Internal/Telemetry/TelemetryTracerTest.php
++++ b/tests/Internal/Telemetry/TelemetryTracerTest.php
+@@ -32,7 +32,7 @@ final class TelemetryTracerTest extends TestCase
+ {
+     public function testStartsAProducerSpanWithTheRemoteParentAndSafeAttributes(): void
+     {
+-        self::assertSame('1.2.0', TelemetryTracer::VERSION);
++        self::assertSame('1.2.1', TelemetryTracer::VERSION);
+         $span = $this->createMock(SpanInterface::class);
+         $scope = $this->createMock(\OpenTelemetry\Context\ScopeInterface::class);
+         $span->expects(self::once())->method('activate')->willReturn($scope);

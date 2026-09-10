@@ -1,50 +1,58 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
-import { JSDOM } from 'jsdom';
+import { loadDiagramManifest } from './archify-diagrams.mjs';
 import { repositoryRoot } from './website-paths.mjs';
 
-const diagramSources = [
-  'core-concepts.md',
-  'execution.md',
-  'operation-lifecycle.md',
-  'execution-context.md',
-];
+const manifest = await loadDiagramManifest();
+const entriesByOwner = new Map();
+for (const entry of manifest.diagrams) {
+  const entries = entriesByOwner.get(entry.ownerSource) ?? [];
+  entries.push(entry);
+  entriesByOwner.set(entry.ownerSource, entries);
+}
 
-const dom = new JSDOM('<!doctype html><html><body></body></html>');
-globalThis.window = dom.window;
-globalThis.document = dom.window.document;
-
-const { default: mermaid } = await import('mermaid');
-mermaid.initialize({
-  startOnLoad: false,
-  securityLevel: 'strict',
-});
-
-let diagramCount = 0;
-for (const sourceName of diagramSources) {
-  const sourcePath = path.join(repositoryRoot, 'docs/guide', sourceName);
-  const markdown = await readFile(sourcePath, 'utf8');
-  const diagrams = [...markdown.matchAll(/```mermaid\n([\s\S]*?)\n```/g)];
-
-  if (diagrams.length !== 1) {
-    throw new Error(`${sourceName} must contain exactly one Mermaid diagram; found ${diagrams.length}.`);
-  }
-
-  const diagram = diagrams[0][1];
-  if (!/^\s*accTitle:\s*\S.+$/m.test(diagram) || !/^\s*accDescr:\s*\S.+$/m.test(diagram)) {
-    throw new Error(`${sourceName} Mermaid diagram must define accTitle and accDescr.`);
-  }
-
+const mermaidFence = /^\s*(?:`{3,}|~{3,})\s*mermaid(?:\s|$)/imu;
+for (const [ownerSource, entries] of entriesByOwner) {
+  const ownerPath = path.join(repositoryRoot, ownerSource);
+  let markdown;
   try {
-    await mermaid.parse(diagram, { suppressErrors: false });
+    markdown = await readFile(ownerPath, 'utf8');
   } catch (error) {
-    throw new Error(`${sourceName} contains invalid Mermaid syntax.`, { cause: error });
+    throw new Error(`Registered diagram owner source is unreadable: ${ownerSource}`, { cause: error });
   }
-  diagramCount += 1;
+  if (markdown.trim() === '') {
+    throw new Error(`Registered diagram owner source must be non-empty: ${ownerSource}`);
+  }
+  if (mermaidFence.test(markdown)) {
+    throw new Error(`Registered diagram owner source must not contain a Mermaid explanatory fence: ${ownerSource}`);
+  }
+
+  for (const entry of entries) {
+    const expectedImage = path.posix.relative(path.posix.dirname(ownerSource), entry.pngPath);
+    if (!hasMarkdownImage(markdown, expectedImage)) {
+      throw new Error(`Registered diagram ${entry.id} is missing its owner image reference: ${ownerSource} -> ${expectedImage}`);
+    }
+    const sourceText = await readFile(path.join(repositoryRoot, entry.sourcePath), 'utf8');
+    if (sourceText.trim() === '') {
+      throw new Error(`Registered diagram source must be non-empty: ${entry.sourcePath}`);
+    }
+  }
 }
 
-if (diagramCount !== 4) {
-  throw new Error(`Documentation must contain exactly four validated Mermaid diagrams; found ${diagramCount}.`);
-}
+console.log(`Registered Archify source and owner coverage check passed for ${manifest.diagrams.length} diagrams.`);
 
-console.log('Mermaid syntax and accessibility metadata check passed.');
+function hasMarkdownImage(markdown, target) {
+  const escapedTarget = target.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const image = new RegExp(`!\\[[^\\]]*\\]\\(<?${escapedTarget}>?(?:\\s+[^)]*)?\\)`, 'u');
+  let fence = null;
+  for (const line of markdown.split(/\r?\n/u)) {
+    const fenceMatch = line.match(/^\s*(`{3,}|~{3,})/u);
+    if (fenceMatch !== null) {
+      const marker = fenceMatch[1][0];
+      fence = fence === null ? marker : fence === marker ? null : fence;
+      continue;
+    }
+    if (fence === null && image.test(line)) return true;
+  }
+  return false;
+}

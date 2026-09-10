@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Inline 実行の順序",
+    "animation": "none",
+    "quality_profile": "showcase",
+    "legend": { "mode": "hidden" },
+    "viewBox": [420, 980]
+  },
+  "components": [
+    { "id": "http-request", "type": "frontend", "label": "HTTP Request", "sublabel": "入力受付", "pos": [110, 20], "size": [200, 72] },
+    { "id": "operation-value", "type": "backend", "label": "OperationValue", "sublabel": "bind / validate", "pos": [110, 125], "size": [200, 78] },
+    { "id": "execution-strategy", "type": "backend", "label": "Execution Strategy", "sublabel": "Inline", "pos": [110, 235], "size": [200, 78] },
+    { "id": "operation-received", "type": "backend", "label": "operation.received", "sublabel": "Lifecycle event", "pos": [110, 345], "size": [200, 72] },
+    { "id": "attempt-started", "type": "backend", "label": "attempt.started", "sublabel": "Attempt 開始", "pos": [110, 450], "size": [200, 72] },
+    { "id": "operation-handle", "type": "backend", "label": "Operation handle()", "sublabel": "value, context", "pos": [110, 555], "size": [200, 78] },
+    { "id": "outcome", "type": "backend", "label": "Outcome", "sublabel": "型付き結果", "pos": [110, 665], "size": [200, 72] },
+    { "id": "inline-finalization", "type": "backend", "label": "attempt.succeeded", "sublabel": "operation.completed", "tag": "同じ HTTP Process", "pos": [110, 770], "size": [200, 72] },
+    { "id": "http-response", "type": "frontend", "label": "HTTP Response", "sublabel": "Outcome を返す", "pos": [110, 875], "size": [200, 72] }
+  ],
+  "connections": [
+    { "id": "request-to-value", "from": "http-request", "to": "operation-value", "label": "bind / validate", "fromSide": "bottom", "toSide": "top", "labelDy": 30 },
+    { "id": "value-to-strategy", "from": "operation-value", "to": "execution-strategy", "label": "Strategy選択", "fromSide": "bottom", "toSide": "top", "labelDy": 30 },
+    { "id": "strategy-to-received", "from": "execution-strategy", "to": "operation-received", "label": "受付", "fromSide": "bottom", "toSide": "top", "labelDy": 30 },
+    { "id": "received-to-attempt", "from": "operation-received", "to": "attempt-started", "label": "attempt.started", "fromSide": "bottom", "toSide": "top", "labelDy": 30 },
+    { "id": "attempt-to-operation", "from": "attempt-started", "to": "operation-handle", "label": "handle()", "fromSide": "bottom", "toSide": "top", "labelDy": 30 },
+    { "id": "operation-to-outcome", "from": "operation-handle", "to": "outcome", "label": "Outcome", "fromSide": "bottom", "toSide": "top", "labelDy": 30 },
+    { "id": "outcome-to-finalization", "from": "outcome", "to": "inline-finalization", "label": "成功確定", "fromSide": "bottom", "toSide": "top", "labelDy": 30 },
+    { "id": "finalization-to-response", "from": "inline-finalization", "to": "http-response", "label": "HTTP Response", "fromSide": "bottom", "toSide": "top", "labelDy": 30 }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "受付から実行へ", "items": ["HTTP Request は Value を bind / validate して Inline Strategy を選ぶ", "operation.received と attempt.started の後に Operation handle() を呼ぶ"] },
+    { "dot": "emerald", "title": "同じ HTTP Process", "items": ["正常系の Inline flow 全体が HTTP Process 内で進む", "Outcome Record は作成しない"] },
+    { "dot": "violet", "title": "完了", "items": ["Outcome の後に attempt.succeeded、operation.completed の順で確定する", "最後に Outcome を HTTP Response へ変換する"] }
+  ]
+}

@@ -1,0 +1,2667 @@
+{
+  "schemaVersion": 1,
+  "upstream": {
+    "repository": "https://github.com/tt-a1i/archify",
+    "revision": "2ead014aa8ec91f104cd052f1a6ca82de5e26c31",
+    "version": "2.17.0-dev.1",
+    "updateChecks": "disabled",
+    "templatePatch": {
+      "path": "docs/website/diagrams/offline-fonts.patch",
+      "sha256": "69dde0626b865a2db2ffddfb296da6fb2c6c058b473d7d689b0e69705bbebee3",
+      "originalTemplateSha256": "35b2210b120c56a6c58d953ffe0cf815c2e67d0a5ff3e8b9518c45b737dd3fc3",
+      "patchedTemplateSha256": "06dbd5bfa47885f5820d0699ee2c9cfa8cb0c25cf532f9284faa1c31ff4677ea",
+      "renderers": [
+        {
+          "path": "archify/renderers/dataflow/render-dataflow.mjs",
+          "beforeSha256": "5a5da505e5c68041990de92847f53a38215efb9212bc36fc911774e8829335c9",
+          "afterSha256": "e251b4442feb0f694278a789fab9268552c193db483cc0fb7c46a3c7329db531"
+        },
+        {
+          "path": "archify/renderers/architecture/render-architecture.mjs",
+          "beforeSha256": "f57077cb9fa64a8412ab0af705cb31e2e7a920114b31852882c04a76840365dc",
+          "afterSha256": "84d5dbdcac26130e2cf88593e11f2837875dc13d053a2b30f1d3821affff5522"
+        }
+      ]
+    },
+    "embeddedFont": {
+      "path": "docs/website/public/fonts/NotoSansJP.woff2",
+      "family": "Noto Sans JP",
+      "sha256": "f7ed72f468ec54f8fb3025f460018685c9f00102179fc91e4cbec5f3f5eda5eb"
+    }
+  },
+  "regeneration": {
+    "validate": "ARCHIFY_UPDATE_CHECK_DISABLED=1 node \"$ARCHIFY_ROOT/bin/archify.mjs\" validate <type> docs/website/public/diagrams/<name>.json --quality showcase --json",
+    "deliver": "ARCHIFY_UPDATE_CHECK_DISABLED=1 node \"$ARCHIFY_ROOT/bin/archify.mjs\" deliver <type> docs/website/public/diagrams/<name>.json \"$ARCHIFY_OUTPUT/<name>.html\" --quality showcase --json",
+    "exportPng": "Open delivered HTML and use Export -> Image -> PNG in the fixed viewer (choose Light for guide assets).",
+    "visualCheck": "ARCHIFY_CHROME=<chrome-path> node docs/website/scripts/archify-visual-check.mjs \"$ARCHIFY_ROOT\" \"$ARCHIFY_OUTPUT/<name>.html\" --json; keep sidecars outside public/diagrams",
+    "exportSvg": "Open delivered execution-overview HTML and use Export -> Image -> SVG in the fixed viewer. Keep the canonical SVG byte-exact; the website styles an isolated instance."
+  },
+  "diagrams": [
+    {
+      "id": "runtime",
+      "type": "architecture",
+      "ownerSource": "docs/guide/core-concepts.md",
+      "ownerRoute": "/concepts/core-concepts/",
+      "sourcePath": "docs/website/public/diagrams/runtime.json",
+      "source": {
+        "path": "docs/website/public/diagrams/runtime.json",
+        "sha256": "c586f5c720227b59b7431c3b25cbc6baa617cef915c46a10372b594bdb33af50"
+      },
+      "htmlPath": "docs/website/public/diagrams/runtime.html",
+      "html": {
+        "path": "docs/website/public/diagrams/runtime.html",
+        "sha256": "5a2f4613c6ccd8306c6423f37f7607b8b658a4a072e5b588a2076e4efbc548be"
+      },
+      "pngPath": "docs/guide/assets/diagrams/runtime.png",
+      "png": {
+        "path": "docs/guide/assets/diagrams/runtime.png",
+        "sha256": "c67f5bcb03656b56f557214c4887fe2181858062e89bb91d31b59ffff36dfd77"
+      },
+      "receipts": {
+        "validate": {
+          "schemaVersion": 1,
+          "ok": true,
+          "command": "validate",
+          "type": "architecture",
+          "input": "/tmp/blackops-archify/retake/generated/runtime.json",
+          "checks": [
+            {
+              "name": "single_svg",
+              "ok": true,
+              "details": [
+                "found 1 <svg> block(s)"
+              ]
+            },
+            {
+              "name": "finite_svg",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "orthogonal_arrows",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "label_route_clearance",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "relationship_crossings",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "relationship_corridors",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "container_border_runs",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "route_rhythm",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "legend_clearance",
+              "ok": true,
+              "details": []
+            }
+          ],
+          "composition": {
+            "schemaVersion": 1,
+            "profile": "showcase",
+            "status": "pass",
+            "summary": {
+              "errors": 0,
+              "warnings": 0
+            },
+            "metrics": {
+              "properCrossings": 0,
+              "ambiguousCorridors": 0,
+              "containerBorderRuns": 0,
+              "labelRouteClearanceIssues": 0,
+              "minLabelRouteClearance": 6.2,
+              "desktopReadabilityIssues": 0,
+              "minProjectedNodeTextPx": null,
+              "maxBends": 2,
+              "routesOverSuggestedBends": 0,
+              "maxStretch": 1,
+              "routesOverSuggestedStretch": 0,
+              "minSegmentPx": 26,
+              "minInteriorSegmentPx": 91,
+              "shortSegmentCount": 0,
+              "shortEndpointSegmentCount": 0,
+              "shortInteriorSegmentCount": 0,
+              "microSegmentCount": 0
+            },
+            "suggestedLimits": {
+              "bendsPerRelationship": 2,
+              "stretch": 1.35,
+              "segmentPx": 16,
+              "microSegmentPx": 8
+            },
+            "issues": []
+          }
+        },
+        "deliver": {
+          "schemaVersion": 1,
+          "ok": true,
+          "command": "deliver",
+          "type": "architecture",
+          "input": "/tmp/blackops-archify/retake/generated/runtime.json",
+          "output": "/tmp/blackops-archify/retake/generated/runtime.html",
+          "specification": {
+            "sha256": "c586f5c720227b59b7431c3b25cbc6baa617cef915c46a10372b594bdb33af50",
+            "bytes": 3593
+          },
+          "artifact": {
+            "sha256": "5a2f4613c6ccd8306c6423f37f7607b8b658a4a072e5b588a2076e4efbc548be",
+            "bytes": 1109853
+          },
+          "validation": {
+            "checksPassed": 9,
+            "checkCount": 9,
+            "compositionProfile": "showcase",
+            "compositionStatus": "pass",
+            "errors": 0,
+            "warnings": 0
+          }
+        },
+        "visualCheck": null,
+        "pngExport": {
+          "startedAt": "2026-09-09T05:29:05.157Z",
+          "finishedAt": "2026-09-09T05:29:05.929Z",
+          "command": "Archify viewer Export > Image > PNG",
+          "html": {
+            "path": "/tmp/blackops-archify/retake/generated/runtime.html",
+            "sha256": "5a2f4613c6ccd8306c6423f37f7607b8b658a4a072e5b588a2076e4efbc548be"
+          },
+          "png": {
+            "path": "/tmp/blackops-archify/retake/generated/runtime.png",
+            "sha256": "c67f5bcb03656b56f557214c4887fe2181858062e89bb91d31b59ffff36dfd77",
+            "bytes": 342137,
+            "width": 1680,
+            "height": 2800
+          },
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "theme": "light",
+          "canonicalZoomInvariant": true,
+          "errors": [],
+          "external": [],
+          "japaneseFonts": [
+            {
+              "index": 3,
+              "text": "Operation用",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 10
+                }
+              ]
+            },
+            {
+              "index": 5,
+              "text": "定期実行",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 4
+                }
+              ]
+            },
+            {
+              "index": 7,
+              "text": "型付き入力",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 5
+                }
+              ]
+            },
+            {
+              "index": 9,
+              "text": "実行文脈",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 4
+                }
+              ]
+            },
+            {
+              "index": 13,
+              "text": "共通の実行単位",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 7
+                }
+              ]
+            },
+            {
+              "index": 15,
+              "text": "正常完了の結果",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 7
+                }
+              ]
+            },
+            {
+              "index": 17,
+              "text": "実行の記録",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 5
+                }
+              ]
+            },
+            {
+              "index": 18,
+              "text": "型付け",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 3
+                }
+              ]
+            },
+            {
+              "index": 19,
+              "text": "型付け",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 3
+                }
+              ]
+            },
+            {
+              "index": 20,
+              "text": "既定 Value",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 8
+                }
+              ]
+            },
+            {
+              "index": 21,
+              "text": "第一引数",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 4
+                }
+              ]
+            },
+            {
+              "index": 22,
+              "text": "第二引数（任意）",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 8
+                }
+              ]
+            },
+            {
+              "index": 23,
+              "text": "実行方式",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 4
+                }
+              ]
+            },
+            {
+              "index": 24,
+              "text": "正常完了",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 4
+                }
+              ]
+            },
+            {
+              "index": 26,
+              "text": "記録",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 2
+                }
+              ]
+            }
+          ],
+          "status": "pass"
+        }
+      }
+    },
+    {
+      "id": "execution-overview",
+      "type": "architecture",
+      "ownerSource": "docs/guide/README.md",
+      "ownerRoute": "/",
+      "sourcePath": "docs/website/public/diagrams/execution-overview.json",
+      "source": {
+        "path": "docs/website/public/diagrams/execution-overview.json",
+        "sha256": "d9fd3584a6953b47b5ed7fac600bba88d0de993aeb555be1c53d26e2fb3d7535"
+      },
+      "htmlPath": "docs/website/public/diagrams/execution-overview.html",
+      "html": {
+        "path": "docs/website/public/diagrams/execution-overview.html",
+        "sha256": "a5e47855c6d1cda37987dea971a14609424c97658c972ad5ea4475da8dd20158"
+      },
+      "pngPath": "docs/guide/assets/diagrams/execution-overview.png",
+      "png": {
+        "path": "docs/guide/assets/diagrams/execution-overview.png",
+        "sha256": "9d9b181bd4b73f03858b9e157992f8b3b86626bc943bd001d178349f3d01df57"
+      },
+      "receipts": {
+        "validate": {
+          "schemaVersion": 1,
+          "ok": true,
+          "command": "validate",
+          "type": "architecture",
+          "input": "/tmp/blackops-archify/retake/generated/execution-overview.json",
+          "checks": [
+            {
+              "name": "single_svg",
+              "ok": true,
+              "details": [
+                "found 1 <svg> block(s)"
+              ]
+            },
+            {
+              "name": "finite_svg",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "orthogonal_arrows",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "label_route_clearance",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "relationship_crossings",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "relationship_corridors",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "container_border_runs",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "route_rhythm",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "legend_clearance",
+              "ok": true,
+              "details": []
+            }
+          ],
+          "composition": {
+            "schemaVersion": 1,
+            "profile": "showcase",
+            "status": "pass",
+            "summary": {
+              "errors": 0,
+              "warnings": 0
+            },
+            "metrics": {
+              "properCrossings": 0,
+              "ambiguousCorridors": 0,
+              "containerBorderRuns": 0,
+              "labelRouteClearanceIssues": 0,
+              "minLabelRouteClearance": 4.5,
+              "desktopReadabilityIssues": 0,
+              "minProjectedNodeTextPx": null,
+              "maxBends": 2,
+              "routesOverSuggestedBends": 0,
+              "maxStretch": 1,
+              "routesOverSuggestedStretch": 0,
+              "minSegmentPx": 39.5,
+              "minInteriorSegmentPx": 105,
+              "shortSegmentCount": 0,
+              "shortEndpointSegmentCount": 0,
+              "shortInteriorSegmentCount": 0,
+              "microSegmentCount": 0
+            },
+            "suggestedLimits": {
+              "bendsPerRelationship": 2,
+              "stretch": 1.35,
+              "segmentPx": 16,
+              "microSegmentPx": 8
+            },
+            "issues": []
+          }
+        },
+        "deliver": {
+          "schemaVersion": 1,
+          "ok": true,
+          "command": "deliver",
+          "type": "architecture",
+          "input": "/tmp/blackops-archify/retake/generated/execution-overview.json",
+          "output": "/tmp/blackops-archify/retake/generated/execution-overview.html",
+          "specification": {
+            "sha256": "d9fd3584a6953b47b5ed7fac600bba88d0de993aeb555be1c53d26e2fb3d7535",
+            "bytes": 2936
+          },
+          "artifact": {
+            "sha256": "a5e47855c6d1cda37987dea971a14609424c97658c972ad5ea4475da8dd20158",
+            "bytes": 1105441
+          },
+          "validation": {
+            "checksPassed": 9,
+            "checkCount": 9,
+            "compositionProfile": "showcase",
+            "compositionStatus": "pass",
+            "errors": 0,
+            "warnings": 0
+          }
+        },
+        "visualCheck": null,
+        "pngExport": {
+          "startedAt": "2026-09-09T05:29:06.305Z",
+          "finishedAt": "2026-09-09T05:29:06.842Z",
+          "command": "Archify viewer Export > Image > PNG",
+          "html": {
+            "path": "/tmp/blackops-archify/retake/generated/execution-overview.html",
+            "sha256": "a5e47855c6d1cda37987dea971a14609424c97658c972ad5ea4475da8dd20158"
+          },
+          "png": {
+            "path": "/tmp/blackops-archify/retake/generated/execution-overview.png",
+            "sha256": "9d9b181bd4b73f03858b9e157992f8b3b86626bc943bd001d178349f3d01df57",
+            "bytes": 254922,
+            "width": 1680,
+            "height": 2240
+          },
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "theme": "light",
+          "canonicalZoomInvariant": true,
+          "errors": [],
+          "external": [],
+          "japaneseFonts": [
+            {
+              "index": 7,
+              "text": "Value / Context 保存",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 18
+                }
+              ]
+            },
+            {
+              "index": 13,
+              "text": "正常完了",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 4
+                }
+              ]
+            },
+            {
+              "index": 14,
+              "text": "入力",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 2
+                }
+              ]
+            },
+            {
+              "index": 15,
+              "text": "Strategy確認",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 10
+                }
+              ]
+            },
+            {
+              "index": 17,
+              "text": "Deferred受付",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 10
+                }
+              ]
+            },
+            {
+              "index": 20,
+              "text": "正常完了",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 4
+                }
+              ]
+            }
+          ],
+          "status": "pass"
+        },
+        "svgExport": {
+          "startedAt": "2026-09-09T05:29:06.305Z",
+          "finishedAt": "2026-09-09T05:29:07.770Z",
+          "command": "Archify viewer Export > Image > SVG",
+          "html": {
+            "path": "/tmp/blackops-archify/retake/generated/execution-overview.html",
+            "sha256": "a5e47855c6d1cda37987dea971a14609424c97658c972ad5ea4475da8dd20158"
+          },
+          "svg": {
+            "path": "/tmp/blackops-archify/retake/generated/execution-overview.svg",
+            "sha256": "70fe2355a6edb7bc821db7926256d3a8e65c7993b9f2a2cae1c3fdd99e996100",
+            "bytes": 448285
+          },
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "theme": "light",
+          "canonicalZoomInvariant": true,
+          "errors": [],
+          "external": [],
+          "status": "pass"
+        }
+      },
+      "svgPath": "docs/website/public/diagrams/execution-overview.svg",
+      "svg": {
+        "path": "docs/website/public/diagrams/execution-overview.svg",
+        "sha256": "70fe2355a6edb7bc821db7926256d3a8e65c7993b9f2a2cae1c3fdd99e996100"
+      },
+      "desktop": {
+        "sourcePath": "docs/website/public/diagrams/execution-overview-desktop.json",
+        "source": {
+          "path": "docs/website/public/diagrams/execution-overview-desktop.json",
+          "sha256": "25ce082f7c36df0a676e96250b9047e01219883aa780036ba963b12443b9a9f4"
+        },
+        "htmlPath": "docs/website/public/diagrams/execution-overview-desktop.html",
+        "html": {
+          "path": "docs/website/public/diagrams/execution-overview-desktop.html",
+          "sha256": "246e16a62e71b6ae209aba27cc9ba7bf1ab27a114c0d89a2ff1f156b26e69450"
+        },
+        "svgPath": "docs/website/public/diagrams/execution-overview-desktop.svg",
+        "svg": {
+          "path": "docs/website/public/diagrams/execution-overview-desktop.svg",
+          "sha256": "ef2c875032f89c0a52e4ffe7c31b14e0c55adc626c139955517307edfc8e93cf"
+        },
+        "receipts": {
+          "validate": {
+            "schemaVersion": 1,
+            "ok": true,
+            "command": "validate",
+            "type": "architecture",
+            "input": "/tmp/blackops-archify/retake/overview-landscape.json",
+            "checks": [
+              {
+                "name": "single_svg",
+                "ok": true,
+                "details": [
+                  "found 1 <svg> block(s)"
+                ]
+              },
+              {
+                "name": "finite_svg",
+                "ok": true,
+                "details": []
+              },
+              {
+                "name": "orthogonal_arrows",
+                "ok": true,
+                "details": []
+              },
+              {
+                "name": "label_route_clearance",
+                "ok": true,
+                "details": []
+              },
+              {
+                "name": "relationship_crossings",
+                "ok": true,
+                "details": []
+              },
+              {
+                "name": "relationship_corridors",
+                "ok": true,
+                "details": []
+              },
+              {
+                "name": "container_border_runs",
+                "ok": true,
+                "details": []
+              },
+              {
+                "name": "route_rhythm",
+                "ok": true,
+                "details": []
+              },
+              {
+                "name": "legend_clearance",
+                "ok": true,
+                "details": []
+              }
+            ],
+            "composition": {
+              "schemaVersion": 1,
+              "profile": "showcase",
+              "status": "pass",
+              "summary": {
+                "errors": 0,
+                "warnings": 0
+              },
+              "metrics": {
+                "properCrossings": 0,
+                "ambiguousCorridors": 0,
+                "containerBorderRuns": 0,
+                "labelRouteClearanceIssues": 0,
+                "minLabelRouteClearance": 72,
+                "desktopReadabilityIssues": 0,
+                "minProjectedNodeTextPx": null,
+                "maxBends": 2,
+                "routesOverSuggestedBends": 0,
+                "maxStretch": 1,
+                "routesOverSuggestedStretch": 0,
+                "minSegmentPx": 30,
+                "minInteriorSegmentPx": 200,
+                "shortSegmentCount": 0,
+                "shortEndpointSegmentCount": 0,
+                "shortInteriorSegmentCount": 0,
+                "microSegmentCount": 0
+              },
+              "suggestedLimits": {
+                "bendsPerRelationship": 2,
+                "stretch": 1.35,
+                "segmentPx": 16,
+                "microSegmentPx": 8
+              },
+              "issues": []
+            }
+          },
+          "deliver": {
+            "schemaVersion": 1,
+            "ok": true,
+            "command": "deliver",
+            "type": "architecture",
+            "input": "/tmp/blackops-archify/retake/overview-landscape.json",
+            "output": "/tmp/blackops-archify/retake/overview-landscape.html",
+            "specification": {
+              "sha256": "25ce082f7c36df0a676e96250b9047e01219883aa780036ba963b12443b9a9f4",
+              "bytes": 4342
+            },
+            "artifact": {
+              "sha256": "246e16a62e71b6ae209aba27cc9ba7bf1ab27a114c0d89a2ff1f156b26e69450",
+              "bytes": 1105462
+            },
+            "validation": {
+              "checksPassed": 9,
+              "checkCount": 9,
+              "compositionProfile": "showcase",
+              "compositionStatus": "pass",
+              "errors": 0,
+              "warnings": 0
+            }
+          },
+          "visualCheck": null,
+          "svgExport": {
+            "startedAt": "2026-09-09T05:57:40.628Z",
+            "finishedAt": "2026-09-09T05:57:42.000Z",
+            "command": "Archify viewer Export > Image > SVG",
+            "html": {
+              "path": "/tmp/blackops-archify/retake/generated/execution-overview-desktop.html",
+              "sha256": "246e16a62e71b6ae209aba27cc9ba7bf1ab27a114c0d89a2ff1f156b26e69450"
+            },
+            "svg": {
+              "path": "/tmp/blackops-archify/retake/generated/execution-overview-desktop.svg",
+              "sha256": "ef2c875032f89c0a52e4ffe7c31b14e0c55adc626c139955517307edfc8e93cf",
+              "bytes": 448307
+            },
+            "viewport": {
+              "width": 1440,
+              "height": 900
+            },
+            "theme": "light",
+            "canonicalZoomInvariant": true,
+            "errors": [],
+            "external": [],
+            "status": "pass"
+          }
+        }
+      }
+    },
+    {
+      "id": "execution-inline",
+      "type": "architecture",
+      "ownerSource": "docs/guide/execution.md",
+      "ownerRoute": "/execution/http-and-deferred/",
+      "sourcePath": "docs/website/public/diagrams/execution-inline.json",
+      "source": {
+        "path": "docs/website/public/diagrams/execution-inline.json",
+        "sha256": "66ad047a19f181122acca4bfdcf9b29b42a541fc40875bfb0254b608e0b8a5cd"
+      },
+      "htmlPath": "docs/website/public/diagrams/execution-inline.html",
+      "html": {
+        "path": "docs/website/public/diagrams/execution-inline.html",
+        "sha256": "cff35d0f4435a57e3e58d7501b4131e18688a88e2bcbe07e9a85c1932e64e30d"
+      },
+      "pngPath": "docs/guide/assets/diagrams/execution-inline.png",
+      "png": {
+        "path": "docs/guide/assets/diagrams/execution-inline.png",
+        "sha256": "bd29fb4eb1d8cb4488f17ac6d2d72fdf061ccd8aaff6342566bf4521dd52a128"
+      },
+      "receipts": {
+        "validate": {
+          "schemaVersion": 1,
+          "ok": true,
+          "command": "validate",
+          "type": "architecture",
+          "input": "/tmp/blackops-archify/retake/generated/execution-inline.json",
+          "checks": [
+            {
+              "name": "single_svg",
+              "ok": true,
+              "details": [
+                "found 1 <svg> block(s)"
+              ]
+            },
+            {
+              "name": "finite_svg",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "orthogonal_arrows",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "label_route_clearance",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "relationship_crossings",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "relationship_corridors",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "container_border_runs",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "route_rhythm",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "legend_clearance",
+              "ok": true,
+              "details": []
+            }
+          ],
+          "composition": {
+            "schemaVersion": 1,
+            "profile": "showcase",
+            "status": "pass",
+            "summary": {
+              "errors": 0,
+              "warnings": 0
+            },
+            "metrics": {
+              "properCrossings": 0,
+              "ambiguousCorridors": 0,
+              "containerBorderRuns": 0,
+              "labelRouteClearanceIssues": 0,
+              "minLabelRouteClearance": 78,
+              "desktopReadabilityIssues": 0,
+              "minProjectedNodeTextPx": null,
+              "maxBends": 0,
+              "routesOverSuggestedBends": 0,
+              "maxStretch": 1,
+              "routesOverSuggestedStretch": 0,
+              "minSegmentPx": 32,
+              "minInteriorSegmentPx": null,
+              "shortSegmentCount": 0,
+              "shortEndpointSegmentCount": 0,
+              "shortInteriorSegmentCount": 0,
+              "microSegmentCount": 0
+            },
+            "suggestedLimits": {
+              "bendsPerRelationship": 2,
+              "stretch": 1.35,
+              "segmentPx": 16,
+              "microSegmentPx": 8
+            },
+            "issues": []
+          }
+        },
+        "deliver": {
+          "schemaVersion": 1,
+          "ok": true,
+          "command": "deliver",
+          "type": "architecture",
+          "input": "/tmp/blackops-archify/retake/generated/execution-inline.json",
+          "output": "/tmp/blackops-archify/retake/generated/execution-inline.html",
+          "specification": {
+            "sha256": "66ad047a19f181122acca4bfdcf9b29b42a541fc40875bfb0254b608e0b8a5cd",
+            "bytes": 3596
+          },
+          "artifact": {
+            "sha256": "cff35d0f4435a57e3e58d7501b4131e18688a88e2bcbe07e9a85c1932e64e30d",
+            "bytes": 1109021
+          },
+          "validation": {
+            "checksPassed": 9,
+            "checkCount": 9,
+            "compositionProfile": "showcase",
+            "compositionStatus": "pass",
+            "errors": 0,
+            "warnings": 0
+          }
+        },
+        "visualCheck": null,
+        "pngExport": {
+          "startedAt": "2026-09-09T05:29:08.089Z",
+          "finishedAt": "2026-09-09T05:29:08.850Z",
+          "command": "Archify viewer Export > Image > PNG",
+          "html": {
+            "path": "/tmp/blackops-archify/retake/generated/execution-inline.html",
+            "sha256": "cff35d0f4435a57e3e58d7501b4131e18688a88e2bcbe07e9a85c1932e64e30d"
+          },
+          "png": {
+            "path": "/tmp/blackops-archify/retake/generated/execution-inline.png",
+            "sha256": "bd29fb4eb1d8cb4488f17ac6d2d72fdf061ccd8aaff6342566bf4521dd52a128",
+            "bytes": 432001,
+            "width": 1680,
+            "height": 3920
+          },
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "theme": "light",
+          "canonicalZoomInvariant": true,
+          "errors": [],
+          "external": [],
+          "japaneseFonts": [
+            {
+              "index": 1,
+              "text": "入力受付",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 4
+                }
+              ]
+            },
+            {
+              "index": 9,
+              "text": "Attempt 開始",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 10
+                }
+              ]
+            },
+            {
+              "index": 13,
+              "text": "型付き結果",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 5
+                }
+              ]
+            },
+            {
+              "index": 16,
+              "text": "同じ HTTP Process",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 15
+                }
+              ]
+            },
+            {
+              "index": 18,
+              "text": "Outcome を返す",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 11
+                }
+              ]
+            },
+            {
+              "index": 20,
+              "text": "Strategy選択",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 10
+                }
+              ]
+            },
+            {
+              "index": 21,
+              "text": "受付",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 2
+                }
+              ]
+            },
+            {
+              "index": 25,
+              "text": "成功確定",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 4
+                }
+              ]
+            }
+          ],
+          "status": "pass"
+        }
+      }
+    },
+    {
+      "id": "execution-acceptance",
+      "type": "architecture",
+      "ownerSource": "docs/guide/execution.md",
+      "ownerRoute": "/execution/http-and-deferred/",
+      "sourcePath": "docs/website/public/diagrams/execution-acceptance.json",
+      "source": {
+        "path": "docs/website/public/diagrams/execution-acceptance.json",
+        "sha256": "cd091e021b01589d44dd946f0bb9c80d4c0b530b4d05fc07564d30db75db720d"
+      },
+      "htmlPath": "docs/website/public/diagrams/execution-acceptance.html",
+      "html": {
+        "path": "docs/website/public/diagrams/execution-acceptance.html",
+        "sha256": "a536b497348c2ede00738137b1932655fe972ec143b22a1003aafb7c86eaae56"
+      },
+      "pngPath": "docs/guide/assets/diagrams/execution-acceptance.png",
+      "png": {
+        "path": "docs/guide/assets/diagrams/execution-acceptance.png",
+        "sha256": "41017f16a3138228f57e7ec35ee8995b191182bcb061042ad6e581d923244e83"
+      },
+      "receipts": {
+        "validate": {
+          "schemaVersion": 1,
+          "ok": true,
+          "command": "validate",
+          "type": "architecture",
+          "input": "/tmp/blackops-archify/retake/generated/execution-acceptance.json",
+          "checks": [
+            {
+              "name": "single_svg",
+              "ok": true,
+              "details": [
+                "found 1 <svg> block(s)"
+              ]
+            },
+            {
+              "name": "finite_svg",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "orthogonal_arrows",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "label_route_clearance",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "relationship_crossings",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "relationship_corridors",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "container_border_runs",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "route_rhythm",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "legend_clearance",
+              "ok": true,
+              "details": []
+            }
+          ],
+          "composition": {
+            "schemaVersion": 1,
+            "profile": "showcase",
+            "status": "pass",
+            "summary": {
+              "errors": 0,
+              "warnings": 0
+            },
+            "metrics": {
+              "properCrossings": 0,
+              "ambiguousCorridors": 0,
+              "containerBorderRuns": 0,
+              "labelRouteClearanceIssues": 0,
+              "minLabelRouteClearance": 84,
+              "desktopReadabilityIssues": 0,
+              "minProjectedNodeTextPx": null,
+              "maxBends": 0,
+              "routesOverSuggestedBends": 0,
+              "maxStretch": 1,
+              "routesOverSuggestedStretch": 0,
+              "minSegmentPx": 47,
+              "minInteriorSegmentPx": null,
+              "shortSegmentCount": 0,
+              "shortEndpointSegmentCount": 0,
+              "shortInteriorSegmentCount": 0,
+              "microSegmentCount": 0
+            },
+            "suggestedLimits": {
+              "bendsPerRelationship": 2,
+              "stretch": 1.35,
+              "segmentPx": 16,
+              "microSegmentPx": 8
+            },
+            "issues": []
+          }
+        },
+        "deliver": {
+          "schemaVersion": 1,
+          "ok": true,
+          "command": "deliver",
+          "type": "architecture",
+          "input": "/tmp/blackops-archify/retake/generated/execution-acceptance.json",
+          "output": "/tmp/blackops-archify/retake/generated/execution-acceptance.html",
+          "specification": {
+            "sha256": "cd091e021b01589d44dd946f0bb9c80d4c0b530b4d05fc07564d30db75db720d",
+            "bytes": 2376
+          },
+          "artifact": {
+            "sha256": "a536b497348c2ede00738137b1932655fe972ec143b22a1003aafb7c86eaae56",
+            "bytes": 1102050
+          },
+          "validation": {
+            "checksPassed": 9,
+            "checkCount": 9,
+            "compositionProfile": "showcase",
+            "compositionStatus": "pass",
+            "errors": 0,
+            "warnings": 0
+          }
+        },
+        "visualCheck": null,
+        "pngExport": {
+          "startedAt": "2026-09-09T05:29:09.168Z",
+          "finishedAt": "2026-09-09T05:29:09.921Z",
+          "command": "Archify viewer Export > Image > PNG",
+          "html": {
+            "path": "/tmp/blackops-archify/retake/generated/execution-acceptance.html",
+            "sha256": "a536b497348c2ede00738137b1932655fe972ec143b22a1003aafb7c86eaae56"
+          },
+          "png": {
+            "path": "/tmp/blackops-archify/retake/generated/execution-acceptance.png",
+            "sha256": "41017f16a3138228f57e7ec35ee8995b191182bcb061042ad6e581d923244e83",
+            "bytes": 274674,
+            "width": 1680,
+            "height": 2600
+          },
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "theme": "light",
+          "canonicalZoomInvariant": true,
+          "errors": [],
+          "external": [],
+          "japaneseFonts": [
+            {
+              "index": 1,
+              "text": "入力受付",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 4
+                }
+              ]
+            },
+            {
+              "index": 10,
+              "text": "Durable 受付完了",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 12
+                }
+              ]
+            },
+            {
+              "index": 12,
+              "text": "Strategy選択",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 10
+                }
+              ]
+            },
+            {
+              "index": 13,
+              "text": "Deferred受付",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 10
+                }
+              ]
+            },
+            {
+              "index": 14,
+              "text": "commit後に返す",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 10
+                }
+              ]
+            }
+          ],
+          "status": "pass"
+        }
+      }
+    },
+    {
+      "id": "execution-worker",
+      "type": "architecture",
+      "ownerSource": "docs/guide/execution.md",
+      "ownerRoute": "/execution/http-and-deferred/",
+      "sourcePath": "docs/website/public/diagrams/execution-worker.json",
+      "source": {
+        "path": "docs/website/public/diagrams/execution-worker.json",
+        "sha256": "24249c238d4b4c71acff7cdd85f1859d50aad38c09fed709558710869db545bd"
+      },
+      "htmlPath": "docs/website/public/diagrams/execution-worker.html",
+      "html": {
+        "path": "docs/website/public/diagrams/execution-worker.html",
+        "sha256": "6ab717ac8f3aa43648af698e3a129e9b65e919ac8b2f662f45c462027824a37c"
+      },
+      "pngPath": "docs/guide/assets/diagrams/execution-worker.png",
+      "png": {
+        "path": "docs/guide/assets/diagrams/execution-worker.png",
+        "sha256": "e5d6336a55eb244d05d0892dae431f0a84d87de2a90a773e094e0daed6b1de4f"
+      },
+      "receipts": {
+        "validate": {
+          "schemaVersion": 1,
+          "ok": true,
+          "command": "validate",
+          "type": "architecture",
+          "input": "/tmp/blackops-archify/retake/generated/execution-worker.json",
+          "checks": [
+            {
+              "name": "single_svg",
+              "ok": true,
+              "details": [
+                "found 1 <svg> block(s)"
+              ]
+            },
+            {
+              "name": "finite_svg",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "orthogonal_arrows",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "label_route_clearance",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "relationship_crossings",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "relationship_corridors",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "container_border_runs",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "route_rhythm",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "legend_clearance",
+              "ok": true,
+              "details": []
+            }
+          ],
+          "composition": {
+            "schemaVersion": 1,
+            "profile": "showcase",
+            "status": "pass",
+            "summary": {
+              "errors": 0,
+              "warnings": 0
+            },
+            "metrics": {
+              "properCrossings": 0,
+              "ambiguousCorridors": 0,
+              "containerBorderRuns": 0,
+              "labelRouteClearanceIssues": 0,
+              "minLabelRouteClearance": 78,
+              "desktopReadabilityIssues": 0,
+              "minProjectedNodeTextPx": null,
+              "maxBends": 0,
+              "routesOverSuggestedBends": 0,
+              "maxStretch": 1,
+              "routesOverSuggestedStretch": 0,
+              "minSegmentPx": 43,
+              "minInteriorSegmentPx": null,
+              "shortSegmentCount": 0,
+              "shortEndpointSegmentCount": 0,
+              "shortInteriorSegmentCount": 0,
+              "microSegmentCount": 0
+            },
+            "suggestedLimits": {
+              "bendsPerRelationship": 2,
+              "stretch": 1.35,
+              "segmentPx": 16,
+              "microSegmentPx": 8
+            },
+            "issues": []
+          }
+        },
+        "deliver": {
+          "schemaVersion": 1,
+          "ok": true,
+          "command": "deliver",
+          "type": "architecture",
+          "input": "/tmp/blackops-archify/retake/generated/execution-worker.json",
+          "output": "/tmp/blackops-archify/retake/generated/execution-worker.html",
+          "specification": {
+            "sha256": "24249c238d4b4c71acff7cdd85f1859d50aad38c09fed709558710869db545bd",
+            "bytes": 2350
+          },
+          "artifact": {
+            "sha256": "6ab717ac8f3aa43648af698e3a129e9b65e919ac8b2f662f45c462027824a37c",
+            "bytes": 1101674
+          },
+          "validation": {
+            "checksPassed": 9,
+            "checkCount": 9,
+            "compositionProfile": "showcase",
+            "compositionStatus": "pass",
+            "errors": 0,
+            "warnings": 0
+          }
+        },
+        "visualCheck": null,
+        "pngExport": {
+          "startedAt": "2026-09-09T05:29:10.250Z",
+          "finishedAt": "2026-09-09T05:29:10.972Z",
+          "command": "Archify viewer Export > Image > PNG",
+          "html": {
+            "path": "/tmp/blackops-archify/retake/generated/execution-worker.html",
+            "sha256": "6ab717ac8f3aa43648af698e3a129e9b65e919ac8b2f662f45c462027824a37c"
+          },
+          "png": {
+            "path": "/tmp/blackops-archify/retake/generated/execution-worker.png",
+            "sha256": "e5d6336a55eb244d05d0892dae431f0a84d87de2a90a773e094e0daed6b1de4f",
+            "bytes": 277174,
+            "width": 1680,
+            "height": 2600
+          },
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "theme": "light",
+          "canonicalZoomInvariant": true,
+          "errors": [],
+          "external": [],
+          "japaneseFonts": [
+            {
+              "index": 4,
+              "text": "新しい Attempt",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 11
+                }
+              ]
+            },
+            {
+              "index": 8,
+              "text": "型付き結果",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 5
+                }
+              ]
+            },
+            {
+              "index": 12,
+              "text": "Claim後に開始",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 9
+                }
+              ]
+            },
+            {
+              "index": 15,
+              "text": "成功確定",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 4
+                }
+              ]
+            }
+          ],
+          "status": "pass"
+        }
+      }
+    },
+    {
+      "id": "execution-context",
+      "type": "architecture",
+      "ownerSource": "docs/guide/execution-context.md",
+      "ownerRoute": "/execution/context/",
+      "sourcePath": "docs/website/public/diagrams/execution-context.json",
+      "source": {
+        "path": "docs/website/public/diagrams/execution-context.json",
+        "sha256": "6afc01f562e6849494261cf31a9c86386fb490840609d18dc2810f72ae50afbf"
+      },
+      "htmlPath": "docs/website/public/diagrams/execution-context.html",
+      "html": {
+        "path": "docs/website/public/diagrams/execution-context.html",
+        "sha256": "364fd8338411c0855e6bffe28247e5921da46c1ec8b366c4f1e84a7563c017e3"
+      },
+      "pngPath": "docs/guide/assets/diagrams/execution-context.png",
+      "png": {
+        "path": "docs/guide/assets/diagrams/execution-context.png",
+        "sha256": "049e80f184e8767d57c5e7e7451a7b0451cc804fccfca95c88f4b78cd0f31233"
+      },
+      "receipts": {
+        "validate": {
+          "schemaVersion": 1,
+          "ok": true,
+          "command": "validate",
+          "type": "architecture",
+          "input": "/tmp/blackops-archify/retake/generated/execution-context.json",
+          "checks": [
+            {
+              "name": "single_svg",
+              "ok": true,
+              "details": [
+                "found 1 <svg> block(s)"
+              ]
+            },
+            {
+              "name": "finite_svg",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "orthogonal_arrows",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "label_route_clearance",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "relationship_crossings",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "relationship_corridors",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "container_border_runs",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "route_rhythm",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "legend_clearance",
+              "ok": true,
+              "details": []
+            }
+          ],
+          "composition": {
+            "schemaVersion": 1,
+            "profile": "showcase",
+            "status": "pass",
+            "summary": {
+              "errors": 0,
+              "warnings": 0
+            },
+            "metrics": {
+              "properCrossings": 0,
+              "ambiguousCorridors": 0,
+              "containerBorderRuns": 0,
+              "labelRouteClearanceIssues": 0,
+              "minLabelRouteClearance": 49.6,
+              "desktopReadabilityIssues": 0,
+              "minProjectedNodeTextPx": null,
+              "maxBends": 2,
+              "routesOverSuggestedBends": 0,
+              "maxStretch": 1.097,
+              "routesOverSuggestedStretch": 0,
+              "minSegmentPx": 10,
+              "minInteriorSegmentPx": 164,
+              "shortSegmentCount": 2,
+              "shortEndpointSegmentCount": 2,
+              "shortInteriorSegmentCount": 0,
+              "microSegmentCount": 0
+            },
+            "suggestedLimits": {
+              "bendsPerRelationship": 2,
+              "stretch": 1.35,
+              "segmentPx": 16,
+              "microSegmentPx": 8
+            },
+            "issues": []
+          }
+        },
+        "deliver": {
+          "schemaVersion": 1,
+          "ok": true,
+          "command": "deliver",
+          "type": "architecture",
+          "input": "/tmp/blackops-archify/retake/generated/execution-context.json",
+          "output": "/tmp/blackops-archify/retake/generated/execution-context.html",
+          "specification": {
+            "sha256": "6afc01f562e6849494261cf31a9c86386fb490840609d18dc2810f72ae50afbf",
+            "bytes": 2790
+          },
+          "artifact": {
+            "sha256": "364fd8338411c0855e6bffe28247e5921da46c1ec8b366c4f1e84a7563c017e3",
+            "bytes": 1101913
+          },
+          "validation": {
+            "checksPassed": 9,
+            "checkCount": 9,
+            "compositionProfile": "showcase",
+            "compositionStatus": "pass",
+            "errors": 0,
+            "warnings": 0
+          }
+        },
+        "visualCheck": null,
+        "pngExport": {
+          "startedAt": "2026-09-09T05:29:11.301Z",
+          "finishedAt": "2026-09-09T05:29:11.836Z",
+          "command": "Archify viewer Export > Image > PNG",
+          "html": {
+            "path": "/tmp/blackops-archify/retake/generated/execution-context.html",
+            "sha256": "364fd8338411c0855e6bffe28247e5921da46c1ec8b366c4f1e84a7563c017e3"
+          },
+          "png": {
+            "path": "/tmp/blackops-archify/retake/generated/execution-context.png",
+            "sha256": "049e80f184e8767d57c5e7e7451a7b0451cc804fccfca95c88f4b78cd0f31233",
+            "bytes": 303888,
+            "width": 1680,
+            "height": 3040
+          },
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "theme": "light",
+          "canonicalZoomInvariant": true,
+          "errors": [],
+          "external": [],
+          "japaneseFonts": [
+            {
+              "index": 5,
+              "text": "初回実行 / O1を維持",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 12
+                }
+              ]
+            },
+            {
+              "index": 8,
+              "text": "O1を維持",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 5
+                }
+              ]
+            },
+            {
+              "index": 14,
+              "text": "O2を実行",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 5
+                }
+              ]
+            },
+            {
+              "index": 15,
+              "text": "一回目の実行",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 6
+                }
+              ]
+            },
+            {
+              "index": 17,
+              "text": "新しい意図: O2",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 9
+                }
+              ]
+            },
+            {
+              "index": 18,
+              "text": "Childを実行",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 8
+                }
+              ]
+            }
+          ],
+          "status": "pass"
+        }
+      }
+    },
+    {
+      "id": "lifecycle-success",
+      "type": "architecture",
+      "ownerSource": "docs/guide/operation-lifecycle.md",
+      "ownerRoute": "/concepts/lifecycle/",
+      "sourcePath": "docs/website/public/diagrams/lifecycle-success.json",
+      "source": {
+        "path": "docs/website/public/diagrams/lifecycle-success.json",
+        "sha256": "f839787d4d4d6d025621fb5fb49cc3fafdba04a3db85923986145fc7f5d5a82f"
+      },
+      "htmlPath": "docs/website/public/diagrams/lifecycle-success.html",
+      "html": {
+        "path": "docs/website/public/diagrams/lifecycle-success.html",
+        "sha256": "90132acc1d058c05a149dc844e4f08ea2509d6a0f0d4e420047b126893c537e2"
+      },
+      "pngPath": "docs/guide/assets/diagrams/lifecycle-success.png",
+      "png": {
+        "path": "docs/guide/assets/diagrams/lifecycle-success.png",
+        "sha256": "8ced9eb779a8ded5201b8f1ffd94fb42ca7763c4605d8e35c54c1d6d1738ada4"
+      },
+      "receipts": {
+        "validate": {
+          "schemaVersion": 1,
+          "ok": true,
+          "command": "validate",
+          "type": "architecture",
+          "input": "/tmp/blackops-archify/retake/generated/lifecycle-success.json",
+          "checks": [
+            {
+              "name": "single_svg",
+              "ok": true,
+              "details": [
+                "found 1 <svg> block(s)"
+              ]
+            },
+            {
+              "name": "finite_svg",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "orthogonal_arrows",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "label_route_clearance",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "relationship_crossings",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "relationship_corridors",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "container_border_runs",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "route_rhythm",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "legend_clearance",
+              "ok": true,
+              "details": []
+            }
+          ],
+          "composition": {
+            "schemaVersion": 1,
+            "profile": "showcase",
+            "status": "pass",
+            "summary": {
+              "errors": 0,
+              "warnings": 0
+            },
+            "metrics": {
+              "properCrossings": 0,
+              "ambiguousCorridors": 0,
+              "containerBorderRuns": 0,
+              "labelRouteClearanceIssues": 0,
+              "minLabelRouteClearance": 7.5,
+              "desktopReadabilityIssues": 0,
+              "minProjectedNodeTextPx": null,
+              "maxBends": 2,
+              "routesOverSuggestedBends": 0,
+              "maxStretch": 1,
+              "routesOverSuggestedStretch": 0,
+              "minSegmentPx": 36.5,
+              "minInteriorSegmentPx": 98,
+              "shortSegmentCount": 0,
+              "shortEndpointSegmentCount": 0,
+              "shortInteriorSegmentCount": 0,
+              "microSegmentCount": 0
+            },
+            "suggestedLimits": {
+              "bendsPerRelationship": 2,
+              "stretch": 1.35,
+              "segmentPx": 16,
+              "microSegmentPx": 8
+            },
+            "issues": []
+          }
+        },
+        "deliver": {
+          "schemaVersion": 1,
+          "ok": true,
+          "command": "deliver",
+          "type": "architecture",
+          "input": "/tmp/blackops-archify/retake/generated/lifecycle-success.json",
+          "output": "/tmp/blackops-archify/retake/generated/lifecycle-success.html",
+          "specification": {
+            "sha256": "f839787d4d4d6d025621fb5fb49cc3fafdba04a3db85923986145fc7f5d5a82f",
+            "bytes": 2639
+          },
+          "artifact": {
+            "sha256": "90132acc1d058c05a149dc844e4f08ea2509d6a0f0d4e420047b126893c537e2",
+            "bytes": 1104072
+          },
+          "validation": {
+            "checksPassed": 9,
+            "checkCount": 9,
+            "compositionProfile": "showcase",
+            "compositionStatus": "pass",
+            "errors": 0,
+            "warnings": 0
+          }
+        },
+        "visualCheck": null,
+        "pngExport": {
+          "startedAt": "2026-09-09T05:29:12.154Z",
+          "finishedAt": "2026-09-09T05:29:12.896Z",
+          "command": "Archify viewer Export > Image > PNG",
+          "html": {
+            "path": "/tmp/blackops-archify/retake/generated/lifecycle-success.html",
+            "sha256": "90132acc1d058c05a149dc844e4f08ea2509d6a0f0d4e420047b126893c537e2"
+          },
+          "png": {
+            "path": "/tmp/blackops-archify/retake/generated/lifecycle-success.png",
+            "sha256": "8ced9eb779a8ded5201b8f1ffd94fb42ca7763c4605d8e35c54c1d6d1738ada4",
+            "bytes": 267187,
+            "width": 1680,
+            "height": 2520
+          },
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "theme": "light",
+          "canonicalZoomInvariant": true,
+          "errors": [],
+          "external": [],
+          "japaneseFonts": [
+            {
+              "index": 6,
+              "text": "Deferred のみ",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 11
+                }
+              ]
+            },
+            {
+              "index": 9,
+              "text": "共通",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 2
+                }
+              ]
+            }
+          ],
+          "status": "pass"
+        }
+      }
+    },
+    {
+      "id": "lifecycle-rejection",
+      "type": "architecture",
+      "ownerSource": "docs/guide/operation-lifecycle.md",
+      "ownerRoute": "/concepts/lifecycle/",
+      "sourcePath": "docs/website/public/diagrams/lifecycle-rejection.json",
+      "source": {
+        "path": "docs/website/public/diagrams/lifecycle-rejection.json",
+        "sha256": "faef35069d19ba19c08fda1548654ed261d1d3891ebc063e7c84abb015ba7b30"
+      },
+      "htmlPath": "docs/website/public/diagrams/lifecycle-rejection.html",
+      "html": {
+        "path": "docs/website/public/diagrams/lifecycle-rejection.html",
+        "sha256": "a57eee01ec205c7ea6a26ca2f701f9eaa6411d410769a1f118639a2120f108e7"
+      },
+      "pngPath": "docs/guide/assets/diagrams/lifecycle-rejection.png",
+      "png": {
+        "path": "docs/guide/assets/diagrams/lifecycle-rejection.png",
+        "sha256": "0de2814cf7e236b923e44c05a0651564112ddff46c22f73e4a746534d947ba38"
+      },
+      "receipts": {
+        "validate": {
+          "schemaVersion": 1,
+          "ok": true,
+          "command": "validate",
+          "type": "architecture",
+          "input": "/tmp/blackops-archify/retake/generated/lifecycle-rejection.json",
+          "checks": [
+            {
+              "name": "single_svg",
+              "ok": true,
+              "details": [
+                "found 1 <svg> block(s)"
+              ]
+            },
+            {
+              "name": "finite_svg",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "orthogonal_arrows",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "label_route_clearance",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "relationship_crossings",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "relationship_corridors",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "container_border_runs",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "route_rhythm",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "legend_clearance",
+              "ok": true,
+              "details": []
+            }
+          ],
+          "composition": {
+            "schemaVersion": 1,
+            "profile": "showcase",
+            "status": "pass",
+            "summary": {
+              "errors": 0,
+              "warnings": 0
+            },
+            "metrics": {
+              "properCrossings": 0,
+              "ambiguousCorridors": 0,
+              "containerBorderRuns": 0,
+              "labelRouteClearanceIssues": 0,
+              "minLabelRouteClearance": 129.4,
+              "desktopReadabilityIssues": 0,
+              "minProjectedNodeTextPx": null,
+              "maxBends": 0,
+              "routesOverSuggestedBends": 0,
+              "maxStretch": 1,
+              "routesOverSuggestedStretch": 0,
+              "minSegmentPx": 78,
+              "minInteriorSegmentPx": null,
+              "shortSegmentCount": 0,
+              "shortEndpointSegmentCount": 0,
+              "shortInteriorSegmentCount": 0,
+              "microSegmentCount": 0
+            },
+            "suggestedLimits": {
+              "bendsPerRelationship": 2,
+              "stretch": 1.35,
+              "segmentPx": 16,
+              "microSegmentPx": 8
+            },
+            "issues": []
+          }
+        },
+        "deliver": {
+          "schemaVersion": 1,
+          "ok": true,
+          "command": "deliver",
+          "type": "architecture",
+          "input": "/tmp/blackops-archify/retake/generated/lifecycle-rejection.json",
+          "output": "/tmp/blackops-archify/retake/generated/lifecycle-rejection.html",
+          "specification": {
+            "sha256": "faef35069d19ba19c08fda1548654ed261d1d3891ebc063e7c84abb015ba7b30",
+            "bytes": 1845
+          },
+          "artifact": {
+            "sha256": "a57eee01ec205c7ea6a26ca2f701f9eaa6411d410769a1f118639a2120f108e7",
+            "bytes": 1099133
+          },
+          "validation": {
+            "checksPassed": 9,
+            "checkCount": 9,
+            "compositionProfile": "showcase",
+            "compositionStatus": "pass",
+            "errors": 0,
+            "warnings": 0
+          }
+        },
+        "visualCheck": null,
+        "pngExport": {
+          "startedAt": "2026-09-09T05:29:13.216Z",
+          "finishedAt": "2026-09-09T05:29:13.948Z",
+          "command": "Archify viewer Export > Image > PNG",
+          "html": {
+            "path": "/tmp/blackops-archify/retake/generated/lifecycle-rejection.html",
+            "sha256": "a57eee01ec205c7ea6a26ca2f701f9eaa6411d410769a1f118639a2120f108e7"
+          },
+          "png": {
+            "path": "/tmp/blackops-archify/retake/generated/lifecycle-rejection.png",
+            "sha256": "0de2814cf7e236b923e44c05a0651564112ddff46c22f73e4a746534d947ba38",
+            "bytes": 111964,
+            "width": 1680,
+            "height": 1160
+          },
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "theme": "light",
+          "canonicalZoomInvariant": true,
+          "errors": [],
+          "external": [],
+          "japaneseFonts": [
+            {
+              "index": 1,
+              "text": "受付時",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 3
+                }
+              ]
+            },
+            {
+              "index": 4,
+              "text": "受付時の拒否",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 6
+                }
+              ]
+            },
+            {
+              "index": 6,
+              "text": "実行中",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 3
+                }
+              ]
+            },
+            {
+              "index": 9,
+              "text": "実行中の拒否",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 6
+                }
+              ]
+            }
+          ],
+          "status": "pass"
+        }
+      }
+    },
+    {
+      "id": "lifecycle-failure",
+      "type": "architecture",
+      "ownerSource": "docs/guide/operation-lifecycle.md",
+      "ownerRoute": "/concepts/lifecycle/",
+      "sourcePath": "docs/website/public/diagrams/lifecycle-failure.json",
+      "source": {
+        "path": "docs/website/public/diagrams/lifecycle-failure.json",
+        "sha256": "83ee76a949c68265d90565ea067b66afdd815d2b1b7b627bde5b4bbfb73f30a1"
+      },
+      "htmlPath": "docs/website/public/diagrams/lifecycle-failure.html",
+      "html": {
+        "path": "docs/website/public/diagrams/lifecycle-failure.html",
+        "sha256": "8f4b662a0420bb1d16105cb63a9984b50b69104796e585112febb8453cae4586"
+      },
+      "pngPath": "docs/guide/assets/diagrams/lifecycle-failure.png",
+      "png": {
+        "path": "docs/guide/assets/diagrams/lifecycle-failure.png",
+        "sha256": "c225ae4fcbc0d7aacd5dc8c4f23b0dac1a0ffaed8943dde5e7682ee391ae7fa5"
+      },
+      "receipts": {
+        "validate": {
+          "schemaVersion": 1,
+          "ok": true,
+          "command": "validate",
+          "type": "architecture",
+          "input": "/tmp/blackops-archify/retake/generated/lifecycle-failure.json",
+          "checks": [
+            {
+              "name": "single_svg",
+              "ok": true,
+              "details": [
+                "found 1 <svg> block(s)"
+              ]
+            },
+            {
+              "name": "finite_svg",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "orthogonal_arrows",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "label_route_clearance",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "relationship_crossings",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "relationship_corridors",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "container_border_runs",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "route_rhythm",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "legend_clearance",
+              "ok": true,
+              "details": []
+            }
+          ],
+          "composition": {
+            "schemaVersion": 1,
+            "profile": "showcase",
+            "status": "pass",
+            "summary": {
+              "errors": 0,
+              "warnings": 0
+            },
+            "metrics": {
+              "properCrossings": 0,
+              "ambiguousCorridors": 0,
+              "containerBorderRuns": 0,
+              "labelRouteClearanceIssues": 0,
+              "minLabelRouteClearance": 69,
+              "desktopReadabilityIssues": 0,
+              "minProjectedNodeTextPx": null,
+              "maxBends": 0,
+              "routesOverSuggestedBends": 0,
+              "maxStretch": 1,
+              "routesOverSuggestedStretch": 0,
+              "minSegmentPx": 27,
+              "minInteriorSegmentPx": null,
+              "shortSegmentCount": 0,
+              "shortEndpointSegmentCount": 0,
+              "shortInteriorSegmentCount": 0,
+              "microSegmentCount": 0
+            },
+            "suggestedLimits": {
+              "bendsPerRelationship": 2,
+              "stretch": 1.35,
+              "segmentPx": 16,
+              "microSegmentPx": 8
+            },
+            "issues": []
+          }
+        },
+        "deliver": {
+          "schemaVersion": 1,
+          "ok": true,
+          "command": "deliver",
+          "type": "architecture",
+          "input": "/tmp/blackops-archify/retake/generated/lifecycle-failure.json",
+          "output": "/tmp/blackops-archify/retake/generated/lifecycle-failure.html",
+          "specification": {
+            "sha256": "83ee76a949c68265d90565ea067b66afdd815d2b1b7b627bde5b4bbfb73f30a1",
+            "bytes": 3626
+          },
+          "artifact": {
+            "sha256": "8f4b662a0420bb1d16105cb63a9984b50b69104796e585112febb8453cae4586",
+            "bytes": 1109108
+          },
+          "validation": {
+            "checksPassed": 9,
+            "checkCount": 9,
+            "compositionProfile": "showcase",
+            "compositionStatus": "pass",
+            "errors": 0,
+            "warnings": 0
+          }
+        },
+        "visualCheck": null,
+        "pngExport": {
+          "startedAt": "2026-09-09T05:29:14.267Z",
+          "finishedAt": "2026-09-09T05:29:14.837Z",
+          "command": "Archify viewer Export > Image > PNG",
+          "html": {
+            "path": "/tmp/blackops-archify/retake/generated/lifecycle-failure.html",
+            "sha256": "8f4b662a0420bb1d16105cb63a9984b50b69104796e585112febb8453cae4586"
+          },
+          "png": {
+            "path": "/tmp/blackops-archify/retake/generated/lifecycle-failure.png",
+            "sha256": "c225ae4fcbc0d7aacd5dc8c4f23b0dac1a0ffaed8943dde5e7682ee391ae7fa5",
+            "bytes": 365569,
+            "width": 1680,
+            "height": 3264
+          },
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "theme": "light",
+          "canonicalZoomInvariant": true,
+          "errors": [],
+          "external": [],
+          "japaneseFonts": [
+            {
+              "index": 1,
+              "text": "同じ Operation",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 12
+                }
+              ]
+            },
+            {
+              "index": 4,
+              "text": "Retry 経路",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 8
+                }
+              ]
+            },
+            {
+              "index": 11,
+              "text": "独立経路",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 4
+                }
+              ]
+            },
+            {
+              "index": 16,
+              "text": "独立経路",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 4
+                }
+              ]
+            },
+            {
+              "index": 21,
+              "text": "独立経路",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 4
+                }
+              ]
+            }
+          ],
+          "status": "pass"
+        }
+      }
+    },
+    {
+      "id": "outbox",
+      "type": "architecture",
+      "ownerSource": "docs/guide/outbox.md",
+      "ownerRoute": "/execution/outbox/",
+      "sourcePath": "docs/website/public/diagrams/outbox.json",
+      "source": {
+        "path": "docs/website/public/diagrams/outbox.json",
+        "sha256": "e903d35ab2db05acc7398f8e4e9cf8d8f4eb5853473d440f0d13f15253023e5f"
+      },
+      "htmlPath": "docs/website/public/diagrams/outbox.html",
+      "html": {
+        "path": "docs/website/public/diagrams/outbox.html",
+        "sha256": "be38b825e1fb3d2c58166923414dd9568589aea2e7907dc9d60db710e97ca812"
+      },
+      "pngPath": "docs/guide/assets/diagrams/outbox.png",
+      "png": {
+        "path": "docs/guide/assets/diagrams/outbox.png",
+        "sha256": "af5c0cb899fc5c1ba0b4860752aa40494529b8b0d511f002de8f371df4e96b4c"
+      },
+      "receipts": {
+        "validate": {
+          "schemaVersion": 1,
+          "ok": true,
+          "command": "validate",
+          "type": "architecture",
+          "input": "/tmp/blackops-archify/retake/generated/outbox.json",
+          "checks": [
+            {
+              "name": "single_svg",
+              "ok": true,
+              "details": [
+                "found 1 <svg> block(s)"
+              ]
+            },
+            {
+              "name": "finite_svg",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "orthogonal_arrows",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "label_route_clearance",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "relationship_crossings",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "relationship_corridors",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "container_border_runs",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "route_rhythm",
+              "ok": true,
+              "details": []
+            },
+            {
+              "name": "legend_clearance",
+              "ok": true,
+              "details": []
+            }
+          ],
+          "composition": {
+            "schemaVersion": 1,
+            "profile": "showcase",
+            "status": "pass",
+            "summary": {
+              "errors": 0,
+              "warnings": 0
+            },
+            "metrics": {
+              "properCrossings": 0,
+              "ambiguousCorridors": 0,
+              "containerBorderRuns": 0,
+              "labelRouteClearanceIssues": 0,
+              "minLabelRouteClearance": 32.2,
+              "desktopReadabilityIssues": 0,
+              "minProjectedNodeTextPx": null,
+              "maxBends": 2,
+              "routesOverSuggestedBends": 0,
+              "maxStretch": 1,
+              "routesOverSuggestedStretch": 0,
+              "minSegmentPx": 32,
+              "minInteriorSegmentPx": 105,
+              "shortSegmentCount": 0,
+              "shortEndpointSegmentCount": 0,
+              "shortInteriorSegmentCount": 0,
+              "microSegmentCount": 0
+            },
+            "suggestedLimits": {
+              "bendsPerRelationship": 2,
+              "stretch": 1.35,
+              "segmentPx": 16,
+              "microSegmentPx": 8
+            },
+            "issues": []
+          }
+        },
+        "deliver": {
+          "schemaVersion": 1,
+          "ok": true,
+          "command": "deliver",
+          "type": "architecture",
+          "input": "/tmp/blackops-archify/retake/generated/outbox.json",
+          "output": "/tmp/blackops-archify/retake/generated/outbox.html",
+          "specification": {
+            "sha256": "e903d35ab2db05acc7398f8e4e9cf8d8f4eb5853473d440f0d13f15253023e5f",
+            "bytes": 3558
+          },
+          "artifact": {
+            "sha256": "be38b825e1fb3d2c58166923414dd9568589aea2e7907dc9d60db710e97ca812",
+            "bytes": 1105688
+          },
+          "validation": {
+            "checksPassed": 9,
+            "checkCount": 9,
+            "compositionProfile": "showcase",
+            "compositionStatus": "pass",
+            "errors": 0,
+            "warnings": 0
+          }
+        },
+        "visualCheck": null,
+        "pngExport": {
+          "startedAt": "2026-09-09T05:29:15.154Z",
+          "finishedAt": "2026-09-09T05:29:15.956Z",
+          "command": "Archify viewer Export > Image > PNG",
+          "html": {
+            "path": "/tmp/blackops-archify/retake/generated/outbox.html",
+            "sha256": "be38b825e1fb3d2c58166923414dd9568589aea2e7907dc9d60db710e97ca812"
+          },
+          "png": {
+            "path": "/tmp/blackops-archify/retake/generated/outbox.png",
+            "sha256": "af5c0cb899fc5c1ba0b4860752aa40494529b8b0d511f002de8f371df4e96b4c",
+            "bytes": 418175,
+            "width": 1680,
+            "height": 3920
+          },
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "theme": "light",
+          "canonicalZoomInvariant": true,
+          "errors": [],
+          "external": [],
+          "japaneseFonts": [
+            {
+              "index": 0,
+              "text": "業務Mutation",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 10
+                }
+              ]
+            },
+            {
+              "index": 8,
+              "text": "child未実行",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 8
+                }
+              ]
+            },
+            {
+              "index": 11,
+              "text": "Commit後",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 7
+                }
+              ]
+            },
+            {
+              "index": 14,
+              "text": "送信先",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 3
+                }
+              ]
+            },
+            {
+              "index": 20,
+              "text": "重複耐性はApplicationで設計",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 19
+                }
+              ]
+            },
+            {
+              "index": 21,
+              "text": "同じNamed Connection",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 18
+                }
+              ]
+            },
+            {
+              "index": 22,
+              "text": "同じTransaction",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 13
+                }
+              ]
+            },
+            {
+              "index": 23,
+              "text": "Commit後",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 7
+                }
+              ]
+            },
+            {
+              "index": 24,
+              "text": "Transportへ送信",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 12
+                }
+              ]
+            },
+            {
+              "index": 26,
+              "text": "child実行",
+              "fonts": [
+                {
+                  "familyName": "Noto Sans JP Thin",
+                  "postScriptName": "NotoSansJP-Thin",
+                  "isCustomFont": true,
+                  "glyphCount": 7
+                }
+              ]
+            }
+          ],
+          "status": "pass"
+        }
+      }
+    }
+  ]
+}

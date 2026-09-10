@@ -6,6 +6,7 @@
 - 未決事項と優先順位: [TODO](../TODO.md)
 - 開発運用: [仕様109](109-ai-development-workflow.md)、[Task/Reportと更新手順](../orchestration/README.md)
 - 公開Releaseとimmutable source refs: [Release Authority](release-authority.json)
+- 図解とLanding: [仕様110](110-documentation-diagrams-and-presentation.md)、[D159](../decisions/159-documentation-diagrams-and-presentation.md)、[P23-008 Task](../orchestration/tasks/P23-008-archify-documentation-diagrams.md)、[Report](../orchestration/reports/P23-008-archify-documentation-diagrams.md)
 - 継続中のStatus source: [D2S1 Task](../orchestration/tasks/P23-003D2S1-tenant-scoped-status-source.md)、[Report](../orchestration/reports/P23-003D2S1-tenant-scoped-status-source.md)
 
 ここでは文書への導線を管理する。Task途中の進捗、検証件数、Reviewの往復を追記せず、現在のSTATE/Reportを参照する。

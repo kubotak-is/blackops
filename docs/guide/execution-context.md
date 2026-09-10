@@ -48,20 +48,11 @@ RetryとLease Expired Recoveryも受付時のorigin／authorizationと現在のW
 
 ## Identifierの関係
 
-```mermaid
-flowchart TB
-    accTitle: Operationと追跡Identifierの関係
-    accDescr: Root OperationはOperation IDと同じUUID値で別型のCorrelation IDを開始する。RetryごとのAttemptは固有のAttempt IDを持つ。子OperationはCorrelation IDを引き継ぎ、親Operation IDと同じ値をCausation IDとして持つ。
-    Root["Root Operation<br/>Operation ID: O1<br/>Correlation ID: O1と同じ値"]
-    Attempt1["Attempt 1<br/>Attempt ID: A1"]
-    Attempt2["Attempt 2<br/>Attempt ID: A2"]
-    Child["Child Operation<br/>Operation ID: O2<br/>Correlation ID: O1と同じ値<br/>Causation ID: O1と同じ値"]
-    ChildAttempt["Attempt 1<br/>Attempt ID: A3"]
-    Root -->|一回目の実行| Attempt1
-    Root -->|Retry| Attempt2
-    Root -->|新しい意図を発生| Child
-    Child -->|子の実行| ChildAttempt
-```
+<div class="archify-figure">
+
+![Root OperationはOperation ID O1と同じUUID値を、別のPHP型のCorrelation IDに持つ。初回のAttempt A1とRetryのAttempt A2は同じOperation IDとCorrelation IDを維持する。子Operationは新しいOperation ID O2を持ち、Correlation IDとCausation IDはO1の値を引き継ぎ、子の実行には新しいAttempt ID A3を使う。](assets/diagrams/execution-context.png)
+
+</div>
 
 | Identifier | 関係 |
 | --- | --- |

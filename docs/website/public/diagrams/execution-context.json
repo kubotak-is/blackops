@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Operationと追跡Identifierの関係",
+    "output": "execution-context.architecture.html",
+    "quality_profile": "showcase",
+    "legend": { "mode": "hidden" },
+    "viewBox": [420, 760]
+  },
+  "components": [
+    {
+      "id": "root-operation",
+      "type": "backend",
+      "label": "Root Operation",
+      "sublabel": "Operation ID: O1",
+      "tag": "Correlation ID: O1",
+      "pos": [60, 36],
+      "size": [300, 94]
+    },
+    {
+      "id": "attempt-a1",
+      "type": "backend",
+      "label": "Attempt A1",
+      "sublabel": "Attempt ID: A1",
+      "tag": "初回実行 / O1を維持",
+      "pos": [18, 206],
+      "size": [174, 82]
+    },
+    {
+      "id": "attempt-a2",
+      "type": "backend",
+      "label": "Retry Attempt A2",
+      "sublabel": "Attempt ID: A2",
+      "tag": "O1を維持",
+      "pos": [228, 206],
+      "size": [174, 82]
+    },
+    {
+      "id": "child-operation",
+      "type": "backend",
+      "label": "Child Operation",
+      "sublabel": "Operation ID: O2",
+      "tag": "Correlation ID: O1 / Causation ID: O1",
+      "pos": [60, 382],
+      "size": [300, 102]
+    },
+    {
+      "id": "attempt-a3",
+      "type": "backend",
+      "label": "Child Attempt A3",
+      "sublabel": "Attempt ID: A3",
+      "tag": "O2を実行",
+      "pos": [60, 560],
+      "size": [300, 82]
+    }
+  ],
+  "connections": [
+    {
+      "id": "root-to-a1",
+      "from": "root-operation",
+      "to": "attempt-a1",
+      "label": "一回目の実行",
+      "fromSide": "left",
+      "toSide": "left",
+      "labelAt": [105, 150],
+      "via": [[8, 83], [8, 247]]
+    },
+    {
+      "id": "root-to-a2",
+      "from": "root-operation",
+      "to": "attempt-a2",
+      "label": "Retry",
+      "fromSide": "right",
+      "toSide": "right",
+      "labelAt": [315, 150],
+      "via": [[412, 83], [412, 247]]
+    },
+    {
+      "id": "root-to-child",
+      "from": "root-operation",
+      "to": "child-operation",
+      "label": "新しい意図: O2",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelAt": [210, 170]
+    },
+    {
+      "id": "child-to-a3",
+      "from": "child-operation",
+      "to": "attempt-a3",
+      "label": "Childを実行",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelAt": [210, 520]
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "維持される値",
+      "items": [
+        "RetryではOperation ID O1とCorrelation IDを維持する",
+        "変わるのはAttempt IDだけである"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "子Operation",
+      "items": [
+        "Childは新しいOperation ID O2を持つ",
+        "Correlation IDはO1、Causation IDもO1を示す"
+      ]
+    }
+  ]
+}

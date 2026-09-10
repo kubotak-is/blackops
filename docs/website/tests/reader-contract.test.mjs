@@ -30,6 +30,9 @@ import {
   renderReaderBody,
   rewriteRelativeImageReferences,
   sourcePhysicalLines,
+  assertSourceDerivedReferenceCoverage,
+  stableReferenceExclusionPaths,
+  stableReferenceExclusionsFor,
   validateArtifactReaderContract,
   validateLlmRouteInventory,
   validateArtifactPageRouteInventory,
@@ -37,6 +40,7 @@ import {
   validateReaderContract,
   validateSearchRouteInventory,
 } from '../scripts/reader-contract.mjs';
+import { loadDiagramManifest } from '../scripts/archify-diagrams.mjs';
 import {
   contentRoot as canonicalContentRoot,
   manifestPath as canonicalManifestPath,
@@ -153,6 +157,71 @@ test('canonical Content Map is the one 40-page reader inventory', () => {
   assert.deepEqual(result.counts, { tutorial: 3, 'how-to': 18, concept: 10, reference: 8, troubleshooting: 1 });
   assert.equal(result.pages.length, 40);
   assert.equal(new Set(result.pages.map(({ outcome }) => outcome)).size, 40);
+});
+
+test('Stable Reference exclusions are exact and bound to the current release authority', async () => {
+  const authority = JSON.parse(await readFile(path.join(repositoryRoot, 'develop/spec/release-authority.json'), 'utf8'));
+  const exclusions = stableReferenceExclusionsFor(authority);
+  assert.equal(exclusions.size, 9);
+  assert.deepEqual([...exclusions], stableReferenceExclusionPaths);
+  for (const sourcePath of stableReferenceExclusionPaths) assert.equal(exclusions.has(sourcePath), true);
+  for (const sourcePath of [
+    'src/Audit/AuditOpaqueIdKeyProviderExtra.php',
+    'src/Internal/Console/DiagnosticsCheckCommands.php',
+    'src/Internal/Console/QueueStatusCommand.php.bak',
+    'src/Internal/Projection/Route/RouteProjectionListCommand.php.disabled',
+    'src/Internal/Application/ApplicationAuditConfigurationTest.php',
+  ]) assert.equal(exclusions.has(sourcePath), false);
+
+  const changedAuthority = JSON.parse(JSON.stringify(authority));
+  changedAuthority.currentStable.framework.peeledSource = '0000000000000000000000000000000000000000';
+  assert.throws(() => stableReferenceExclusionsFor(changedAuthority), /reevaluate the exact paths/);
+});
+
+test('Source-derived Reference coverage applies the exact Stable boundary to the extractor', async () => {
+  const temporary = await mkdtemp(path.join(repositoryRoot, 'docs/website/.reader-stable-reference-boundary-'));
+  try {
+    await cp(path.join(repositoryRoot, 'src'), path.join(temporary, 'src'), { recursive: true });
+    await mkdir(path.join(temporary, 'docs/guide'), { recursive: true });
+    for (const name of ['core-api.md', 'attributes.md', 'project-cli.md', 'configuration.md']) {
+      await cp(path.join(repositoryRoot, 'docs/guide', name), path.join(temporary, 'docs/guide', name));
+    }
+    await mkdir(path.join(temporary, 'develop/spec'), { recursive: true });
+    await cp(
+      path.join(repositoryRoot, 'develop/spec/release-authority.json'),
+      path.join(temporary, 'develop/spec/release-authority.json'),
+    );
+
+    await assert.doesNotReject(() => assertSourceDerivedReferenceCoverage(contentMap, temporary));
+    const applicationBuilderPath = path.join(temporary, 'src/Application/ApplicationBuilder.php');
+    const applicationBuilder = await readFile(applicationBuilderPath, 'utf8');
+    const renamedApplicationBuilder = applicationBuilder.replace(
+      'withOperationalHealthQuery(',
+      'withOperationalHealthQueryExtra(',
+    );
+    assert.notEqual(renamedApplicationBuilder, applicationBuilder);
+    try {
+      await writeFile(applicationBuilderPath, renamedApplicationBuilder, 'utf8');
+      await assert.rejects(
+        assertSourceDerivedReferenceCoverage(contentMap, temporary),
+        /Core API exact Return Method mapping count drifted for source-derived type: BlackOps\\Application\\ApplicationBuilder/,
+      );
+    } finally {
+      await writeFile(applicationBuilderPath, applicationBuilder, 'utf8');
+    }
+
+    await writeFile(
+      path.join(temporary, 'src/Audit/AuditOpaqueIdKeyProviderExtra.php'),
+      '<?php\nnamespace BlackOps\\Audit;\n\n#[PublicApi]\ninterface AuditOpaqueIdKeyProviderExtra {}\n',
+      'utf8',
+    );
+    await assert.rejects(
+      assertSourceDerivedReferenceCoverage(contentMap, temporary),
+      /Source-derived PublicApi coverage expected 216 types; found 217/,
+    );
+  } finally {
+    await rm(temporary, { recursive: true, force: true });
+  }
 });
 
 test('source inline placeholder inventory is the current 50-occurrence contract', async () => {
@@ -3039,12 +3108,19 @@ test('full-path artifact validation requires source, raw, and Search placeholder
       image.setAttribute('alt', `${image.getAttribute('alt')} substituted`);
     }), 'An image-alt HTML mutation must fail.');
 
-    const mermaidRoute = '/concepts/core-concepts';
-    await assertHtmlMutationRejects(mermaidRoute, (html) => mutateHtmlDocument(html, (article) => {
-      const diagram = article.querySelector('blume-mermaid[data-source]');
-      assert.ok(diagram, 'Mermaid mutation fixture must contain a data-source diagram.');
-      diagram.setAttribute('data-source', `${diagram.getAttribute('data-source')}x`);
-    }), 'A Mermaid data-source mutation must fail.');
+    const diagramRoute = '/concepts/core-concepts';
+    const diagramManifest = await loadDiagramManifest();
+    const runtimeDiagram = diagramManifest.diagrams.find((entry) => entry.id === 'runtime');
+    assert.ok(runtimeDiagram, 'Core Concepts mutation fixture must have the registered runtime diagram.');
+    const runtimeImageName = path.posix.basename(runtimeDiagram.pngPath);
+    await assertHtmlMutationRejects(diagramRoute, (html) => mutateHtmlDocument(html, (article) => {
+      const diagram = [...article.querySelectorAll('img[src]')].find((element) => {
+        const source = element.getAttribute('src') ?? '';
+        return source.endsWith(`/diagrams/${runtimeImageName}`);
+      });
+      assert.ok(diagram, `Core Concepts mutation fixture must contain the registered ${runtimeDiagram.pngPath} image.`);
+      diagram.setAttribute('alt', `${diagram.getAttribute('alt')}x`);
+    }), 'A registered Archify diagram image-alt mutation must fail.');
 
     await assertHtmlMutationAccepts(htmlSwapTargetRoute, (html) => mutateHtmlDocument(html, (article, document) => {
       const hidden = document.createElement('p');
@@ -3987,6 +4063,66 @@ test('full artifact route inventory rejects unknown raw Markdown and HTML paths'
     await assert.rejects(validateArtifactPageRouteInventory({ artifactDirectory: temporary, expectedRoutes: expected }), /Raw Markdown artifact contains unknown route.*unknown/);
     await rm(path.join(temporary, 'unknown.md'));
     await assert.rejects(validateArtifactPageRouteInventory({ artifactDirectory: temporary, expectedRoutes: expected }), /HTML artifact contains unknown route.*unknown/);
+    await rm(path.join(temporary, 'unknown/index.html'));
+    await writeFile(path.join(temporary, '404.html'), 'not found', 'utf8');
+    await assert.doesNotReject(validateArtifactPageRouteInventory({ artifactDirectory: temporary, expectedRoutes: expected }));
+  } finally {
+    await rm(temporary, { recursive: true, force: true });
+  }
+});
+
+test('full artifact route inventory admits only manifest-registered supplemental viewers', async () => {
+  const temporary = await mkdtemp(path.join(repositoryRoot, 'docs/website/.reader-diagram-contract-'));
+  try {
+    await mkdir(path.join(temporary, 'getting-started/installation'), { recursive: true });
+    await mkdir(path.join(temporary, 'diagrams'), { recursive: true });
+    await writeFile(path.join(temporary, 'getting-started/installation.md'), 'raw', 'utf8');
+    await writeFile(path.join(temporary, 'getting-started/installation/index.html'), 'html', 'utf8');
+    await writeFile(path.join(temporary, 'diagrams/runtime.html'), '<!doctype html>viewer', 'utf8');
+    const manifestPath = path.join(temporary, 'manifest.json');
+    await writeFile(manifestPath, `${JSON.stringify(await loadDiagramManifest(), null, 2)}\n`, 'utf8');
+    const expected = new Set(['/getting-started/installation']);
+    await assert.doesNotReject(validateArtifactPageRouteInventory({
+      artifactDirectory: temporary,
+      expectedRoutes: expected,
+      diagramManifestPath: manifestPath,
+    }));
+    await writeFile(path.join(temporary, 'diagrams/unknown.html'), '<!doctype html>unknown', 'utf8');
+    await assert.rejects(
+      validateArtifactPageRouteInventory({ artifactDirectory: temporary, expectedRoutes: expected, diagramManifestPath: manifestPath }),
+      /unknown flat viewer path/,
+    );
+  } finally {
+    await rm(temporary, { recursive: true, force: true });
+  }
+});
+
+test('artifact reader claims scan registered viewer text without scanning viewer runtime scripts', async () => {
+  const temporary = await mkdtemp(path.join(repositoryRoot, 'docs/website/.reader-diagram-claims-'));
+  const artifactDirectory = path.join(temporary, 'synthetic-artifact');
+  try {
+    const fixturePipeline = await writeSyntheticCompleteReaderArtifact({ artifactDirectory, contentMap });
+    const diagramManifestPath = path.join(temporary, 'diagram-manifest.json');
+    await writeFile(diagramManifestPath, `${JSON.stringify(await loadDiagramManifest(), null, 2)}\n`, 'utf8');
+    const viewerPath = path.join(artifactDirectory, 'diagrams/runtime.html');
+    await mkdir(path.dirname(viewerPath), { recursive: true });
+    const viewer = '<!doctype html><html lang="en"><head><title>Runtime diagram</title><script>function focusDiagram(main) { bringNodeIntoWindow(main); }</script></head><body><main><figure><figcaption>Runtime relationships</figcaption><svg role="img"><text>Runtime</text></svg></figure></main></body></html>\n';
+    await writeFile(viewerPath, viewer, 'utf8');
+    const validateFixture = () => validateArtifactReaderContract({
+      contentMap,
+      artifactDirectory,
+      manifestPath: fixturePipeline.manifestPath,
+      contentRoot: fixturePipeline.contentRoot,
+      diagramManifestPath,
+    });
+    await assert.doesNotReject(validateFixture, 'Viewer runtime identifiers must not be treated as reader claims.');
+
+    await writeFile(viewerPath, viewer.replace('Runtime relationships', 'Stable 1.2.0 is main-only.'), 'utf8');
+    await assert.rejects(
+      validateFixture(),
+      /Current Stable main-only availability claim is forbidden in diagrams\/runtime\.html/,
+      'A visible viewer caption must remain subject to the current-release claim guard.',
+    );
   } finally {
     await rm(temporary, { recursive: true, force: true });
   }

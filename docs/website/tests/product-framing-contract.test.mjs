@@ -322,7 +322,7 @@ test('product framing source contract rejects roadmap CLI and visual/accessibili
     /roadmap command/,
   );
   assert.throws(
-    () => assertProductFramingSourceContract({ ...source, contentMap, landingSource: source.landingSource.replace('landing-lifecycle-panel', 'landing-removed') }),
+    () => assertProductFramingSourceContract({ ...source, contentMap, landingSource: source.landingSource.replace('landing-demo', 'retired-hero') }),
     /Landing visual marker/,
   );
   assert.throws(
@@ -330,7 +330,35 @@ test('product framing source contract rejects roadmap CLI and visual/accessibili
     /forbidden visual/,
   );
   assert.throws(
-    () => assertProductFramingSourceContract({ ...source, contentMap, landingSource: source.landingSource.replace('<strong>Finalizing</strong>', '<strong>Finalizing</strong><strong>Succeeded</strong>') }),
+    () => assertProductFramingSourceContract({ ...source, contentMap, themeSource: source.themeSource + '\n.retired-surface { background: radial-gradient(red, blue); }\n' }),
+    /ambient gradient/,
+  );
+  const generatedAmbient = '@supports (color:color-mix(in lab, red, red)){.landing-shell:before{background:radial-gradient(circle at 78% 9%,var(--landing-accent),transparent 34rem)}}';
+  const compiledAmbient = artifactFixture(source);
+  compiledAmbient.css += generatedAmbient;
+  assert.doesNotThrow(
+    () => assertProductFramingArtifactContract(compiledAmbient),
+    'the minified color-mix support wrapper around the landing ambient rule is permitted',
+  );
+  const generatedBackdropAmbient = [
+    '.landing-backdrop__ribbon{background-image:radial-gradient(ellipse 49% 22% at 50% 50%,color-mix(in srgb,var(--landing-accent) 66%,transparent) 0%,color-mix(in srgb,var(--landing-accent) 48%,transparent) 22%,color-mix(in srgb,var(--landing-accent) 26%,transparent) 48%,color-mix(in srgb,var(--landing-accent) 8%,transparent) 76%,transparent 100%),radial-gradient(ellipse 50% 50% at 50% 50%,color-mix(in srgb,var(--landing-accent) 28%,transparent) 0%,color-mix(in srgb,var(--landing-accent) 22%,transparent) 20%,color-mix(in srgb,var(--landing-accent) 13%,transparent) 46%,color-mix(in srgb,var(--landing-accent) 5%,transparent) 72%,transparent 94%)}',
+    '.landing-backdrop__ribbon--edge{background-image:radial-gradient(ellipse 50% 50% at 50% 50%,color-mix(in srgb,var(--landing-accent) 48%,transparent) 0%,color-mix(in srgb,var(--landing-accent) 30%,transparent) 28%,color-mix(in srgb,var(--landing-accent) 9%,transparent) 72%,transparent 94%)}',
+  ].join('');
+  const compiledBackdropAmbient = artifactFixture(source);
+  compiledBackdropAmbient.css += generatedBackdropAmbient;
+  assert.doesNotThrow(
+    () => assertProductFramingArtifactContract(compiledBackdropAmbient),
+    'the final backdrop ribbon gradients remain scoped to approved decorative selectors',
+  );
+  const compiledUnscopedAmbient = artifactFixture(source);
+  compiledUnscopedAmbient.css += generatedAmbient.replace('.landing-shell:before', '.retired-surface');
+  assert.throws(
+    () => assertProductFramingArtifactContract(compiledUnscopedAmbient),
+    /ambient gradient/,
+    'the same generated wrapper still rejects an unrelated ambient rule',
+  );
+  assert.throws(
+    () => assertProductFramingSourceContract({ ...source, contentMap, landingSource: source.landingSource.replace('<div class="landing-resource-group">', '<div class="landing-resource-group"><strong>Succeeded</strong>') }),
     /Succeeded as a Lifecycle state/,
   );
   assert.throws(
@@ -1068,7 +1096,7 @@ test('product framing artifact contract rejects stale injection, missing CLI, vi
   assert.throws(() => assertProductFramingArtifactContract(vagueOutcome), /vague reader outcome|actionable outcome/);
 
   const missingVisual = artifactFixture(source);
-  missingVisual.surfaces.set('landing-html', source.landingSource.replace('landing-lifecycle-panel', 'landing-lifecycle-removed'));
+  missingVisual.surfaces.set('landing-html', source.landingSource.replace('landing-demo', 'retired-hero'));
   assert.throws(() => assertProductFramingArtifactContract(missingVisual), /Landing visual marker/);
 
   const missingFocus = artifactFixture(source);

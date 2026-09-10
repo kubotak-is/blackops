@@ -1,0 +1,780 @@
+/*
+ * The documentation shell is intentionally plain CSS so Blume keeps owning
+ * the navigation, search, theme and export behavior. Selectors use the
+ * semantic data hooks emitted by the shell instead of generated utility names.
+ */
+
+html {
+  background: var(--bo-page);
+  color-scheme: light;
+  scroll-padding-top: calc(var(--bo-header-height) + 2rem);
+}
+
+html[data-theme='dark'] {
+  color-scheme: dark;
+}
+
+body {
+  background: var(--bo-page);
+  color: var(--bo-ink);
+  font-family: var(--blume-font-body), var(--bo-font-japanese), sans-serif;
+  line-height: 1.7;
+}
+
+html[lang='ja'] body,
+html[lang='ja'] button,
+html[lang='ja'] input,
+html[lang='ja'] select,
+html[lang='ja'] textarea {
+  font-family: var(--bo-font-japanese), var(--blume-font-body), sans-serif;
+}
+
+button,
+input,
+select,
+textarea {
+  color: inherit;
+}
+
+a {
+  color: var(--bo-accent);
+}
+
+:where(a, button, summary, input, select, textarea):focus-visible {
+  outline: 3px solid var(--bo-focus);
+  outline-offset: 3px;
+}
+
+body > a[href='#blume-content'] {
+  background: var(--bo-action);
+  color: var(--bo-action-foreground);
+  font-weight: 700;
+  padding: 0.65rem 1rem;
+}
+
+/* Shared release notice. Keep the release fact visible without turning the
+ * whole shell into an accent block. */
+[data-blume-banner] {
+  align-items: center;
+  background: var(--bo-surface);
+  border-block: 1px solid var(--bo-line);
+  box-shadow: inset 3px 0 0 var(--bo-accent);
+  color: var(--bo-muted);
+  display: flex;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  gap: 0.6rem 1rem;
+  justify-content: center;
+  line-height: 1.45;
+  min-height: 2.25rem;
+  padding: 0.55rem var(--bo-gutter);
+}
+
+[data-blume-banner] a,
+[data-blume-banner] button {
+  color: inherit;
+}
+
+[data-blume-banner] a {
+  color: var(--bo-ink);
+  font-weight: 800;
+  text-underline-offset: 0.2em;
+}
+
+[data-blume-banner] [data-blume-banner-dismiss] {
+  border-radius: var(--bo-control-radius);
+}
+
+/* Header */
+[data-blume-header] {
+  align-items: center;
+  background: color-mix(in srgb, var(--bo-page) 96%, transparent);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--bo-line);
+  box-sizing: border-box;
+  display: flex;
+  gap: 0.75rem;
+  height: var(--bo-header-height);
+  min-height: var(--bo-header-height);
+  padding: 0.5rem var(--bo-gutter);
+  z-index: 40;
+}
+
+[data-blume-header] > a {
+  color: var(--bo-ink);
+  flex: 0 0 auto;
+  font-family: var(--blume-font-display), var(--bo-font-japanese), sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  text-decoration: none;
+}
+
+[data-blume-header] > a:hover {
+  color: var(--bo-accent);
+}
+
+[data-blume-header] nav {
+  min-width: 0;
+}
+
+[data-blume-header] nav a {
+  border-radius: var(--bo-control-radius);
+  color: var(--bo-muted);
+  font-size: 0.875rem;
+  min-height: 2.35rem;
+  padding: 0.55rem 0.75rem;
+  text-decoration: none;
+}
+
+[data-blume-header] nav a:hover,
+[data-blume-header] nav a[aria-current='page'] {
+  color: var(--bo-ink);
+}
+
+[data-blume-header] nav a[aria-current='page'] {
+  background: var(--bo-surface);
+  box-shadow: inset 0 -2px 0 var(--bo-accent);
+  font-weight: 700;
+}
+
+[data-blume-header] [data-blume-nav-toggle],
+[data-blume-header] [data-blume-theme-toggle],
+[data-blume-header] a[aria-label*='GitHub'] {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--bo-control-radius);
+  color: var(--bo-muted);
+  min-height: 2.35rem;
+  min-width: 2.35rem;
+}
+
+[data-blume-header] [data-blume-nav-toggle]:hover,
+[data-blume-header] [data-blume-theme-toggle]:hover,
+[data-blume-header] a[aria-label*='GitHub']:hover {
+  background: var(--bo-surface);
+  border-color: var(--bo-line);
+  color: var(--bo-ink);
+}
+
+[data-blume-header] [data-blume-search-open] {
+  background: var(--bo-surface);
+  border: 1px solid var(--bo-line);
+  border-radius: var(--bo-control-radius);
+  color: var(--bo-muted);
+  min-height: 2.35rem;
+  padding-inline: 0.75rem;
+}
+
+[data-blume-header] [data-blume-search-open]:hover {
+  border-color: var(--bo-accent);
+  color: var(--bo-ink);
+}
+
+[data-blume-header] [data-blume-search-kbd],
+[data-blume-search-dialog] kbd {
+  background: var(--bo-raised);
+  border: 1px solid var(--bo-line);
+  border-radius: 0.3rem;
+  color: var(--bo-muted);
+  font-family: var(--blume-font-mono), ui-monospace, monospace;
+  font-size: 0.7rem;
+  padding: 0.1rem 0.35rem;
+}
+
+/* Search stays a real dialog; this only gives its existing controls the same
+ * surface, border and focus treatment as the rest of the shell. */
+[data-blume-search-dialog] {
+  background: color-mix(in srgb, var(--bo-page) 96%, transparent);
+  border-color: var(--bo-line);
+  border-radius: var(--bo-surface-radius);
+  color: var(--bo-ink);
+  max-height: min(34rem, 90dvh);
+  max-width: min(62.5rem, calc(100vw - 2rem));
+}
+
+[data-blume-search-dialog] [data-blume-search-input] {
+  background: transparent;
+  border: 0;
+  color: var(--bo-ink);
+  font-size: 1rem;
+  min-height: 2.25rem;
+}
+
+[data-blume-search-dialog] [data-blume-search-results],
+[data-blume-search-dialog] [data-blume-search-preview] {
+  scrollbar-color: var(--bo-line) transparent;
+  scrollbar-width: thin;
+}
+
+[data-blume-search-dialog] [data-blume-search-filters] button,
+[data-blume-search-dialog] [data-blume-search-results] button,
+[data-blume-search-dialog] [data-blume-search-results] a {
+  border-radius: var(--bo-control-radius);
+}
+
+[data-blume-search-dialog] [data-blume-search-results] mark {
+  background: color-mix(in srgb, var(--bo-action) 60%, transparent);
+  color: var(--bo-ink);
+}
+
+/* The navigation rail and article grid share one measured container. */
+[data-blume-doc-grid] {
+  column-gap: clamp(1.5rem, 4vw, 5rem);
+  justify-content: space-between;
+  max-width: var(--bo-site-width);
+  width: min(calc(100% - (2 * var(--bo-gutter))), var(--bo-site-width));
+}
+
+@media (min-width: 64rem) {
+  [data-blume-doc-grid] {
+    grid-template-columns: var(--bo-sidebar-width) minmax(0, 1fr);
+  }
+}
+
+@media (min-width: 90rem) {
+  [data-blume-doc-grid] {
+    grid-template-columns: var(--bo-sidebar-width) minmax(0, var(--bo-article-width)) var(--bo-toc-width);
+  }
+}
+
+/* Sidebar / mobile drawer */
+[data-blume-nav-drawer] {
+  background: var(--bo-raised);
+  border-inline-end: 1px solid var(--bo-line);
+  box-sizing: border-box;
+  min-width: 0;
+  padding: 2rem 1rem 4rem 0;
+}
+
+[data-blume-nav-drawer] nav {
+  min-width: 0;
+}
+
+[data-blume-nav-drawer] nav + nav,
+[data-blume-nav-drawer] [data-blume-nav-tree] {
+  margin-top: 0.75rem;
+}
+
+[data-blume-nav-drawer] nav[aria-label] > ul,
+[data-blume-nav-drawer] [data-blume-nav-tree] ul {
+  min-width: 0;
+}
+
+[data-blume-nav-drawer] a,
+[data-blume-nav-drawer] summary,
+[data-blume-nav-drawer] button {
+  border-radius: var(--bo-control-radius);
+  color: var(--bo-muted);
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+[data-blume-nav-drawer] a:hover,
+[data-blume-nav-drawer] summary:hover,
+[data-blume-nav-drawer] button:hover {
+  background: var(--bo-surface);
+  color: var(--bo-ink);
+}
+
+[data-blume-nav-drawer] [data-blume-nav-tree] a[aria-current='page'],
+[data-blume-nav-drawer] nav[aria-label] a[aria-current='page'] {
+  background: var(--bo-surface);
+  box-shadow: inset 3px 0 0 var(--bo-accent);
+  color: var(--bo-ink);
+  font-weight: 700;
+}
+
+[data-blume-nav-drawer] [data-blume-nav-tree] details > div {
+  border-inline-start-color: var(--bo-line);
+  margin-inline-start: 0.5rem;
+  padding-inline-start: 0.75rem;
+}
+
+[data-blume-nav-drawer] [data-blume-nav-tree] p {
+  color: var(--bo-ink);
+  font-size: 0.8rem;
+  letter-spacing: 0.02em;
+}
+
+@media (min-width: 64rem) {
+  [data-blume-nav-drawer] {
+    background: var(--bo-surface);
+    border: 1px solid var(--bo-line);
+    border-radius: var(--bo-surface-radius);
+    box-shadow: 0 1rem 2.5rem color-mix(in srgb, var(--bo-ink) 8%, transparent);
+    height: calc(100dvh - var(--bo-header-height) - 2rem);
+    overflow-y: auto;
+    position: sticky;
+    top: calc(var(--bo-header-height) + 1rem);
+    margin-block: 1rem 2rem;
+    padding: 1rem 0.8rem 1.35rem;
+  }
+}
+
+@media (max-width: 63.99rem) {
+  [data-blume-nav-drawer] {
+    border-inline-end: 1px solid var(--bo-line);
+    box-shadow: 1rem 0 2rem color-mix(in srgb, var(--bo-ink) 12%, transparent);
+    max-width: min(19rem, calc(100vw - 2rem));
+    padding: 1.25rem 1rem 2rem;
+  }
+}
+
+/* Article measure and reading rhythm */
+#blume-content {
+  min-width: 0;
+  padding: 3.5rem 0 6rem;
+}
+
+#blume-content > nav[aria-label] {
+  color: var(--bo-muted);
+  font-size: 0.875rem;
+  margin: 0 auto 1rem;
+  max-width: var(--bo-article-width);
+  width: 100%;
+}
+
+/* The generated breadcrumb currently contains only the active section. Keep
+ * it available to assistive technology while removing a redundant eyebrow
+ * from the visual reading column. */
+#blume-content > nav[aria-label='パンくずリスト'] {
+  border: 0;
+  clip-path: inset(50%);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
+
+#blume-content > nav[aria-label] a {
+  color: var(--bo-muted);
+  text-decoration: none;
+}
+
+#blume-content > nav[aria-label] a:hover {
+  color: var(--bo-accent);
+}
+
+#blume-content > article.prose {
+  color: var(--bo-ink);
+  font-size: 1rem;
+  line-height: 1.8;
+  margin-inline: auto;
+  max-width: var(--bo-article-width);
+  width: 100%;
+}
+
+/* OpenAPI operation pages own a wider request/response panel inside the
+ * article. Keep that Blume layout contract while ordinary docs stay at the
+ * measured reading width. */
+#blume-content > article.prose.max-w-none {
+  max-width: none;
+}
+
+#blume-content > article.prose :where(h1, h2, h3, h4, h5, h6) {
+  color: var(--bo-ink);
+  font-family: var(--blume-font-display), var(--bo-font-japanese), sans-serif;
+  letter-spacing: -0.018em;
+  scroll-margin-top: calc(var(--bo-header-height) + 2rem);
+}
+
+html[lang='ja'] #blume-content > article.prose :where(h1, h2, h3, h4, h5, h6) {
+  font-family: var(--bo-font-japanese), var(--blume-font-display), sans-serif;
+}
+
+#blume-content > article.prose :where(h1) {
+  font-size: clamp(2.4rem, 4vw, 3.15rem);
+  font-weight: 700;
+  line-height: 1.15;
+  margin: 0 0 1.25rem;
+}
+
+#blume-content > article.prose :where(h2) {
+  font-size: clamp(1.65rem, 3vw, 1.875rem);
+  font-weight: 700;
+  line-height: 1.25;
+  margin: 3.75rem 0 1rem;
+}
+
+#blume-content > article.prose :where(h3) {
+  font-size: 1.3rem;
+  font-weight: 700;
+  line-height: 1.35;
+  margin: 2.4rem 0 0.75rem;
+}
+
+#blume-content > article.prose :where(h4, h5, h6) {
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.45;
+  margin: 1.8rem 0 0.65rem;
+}
+
+#blume-content > article.prose :where(h1, h2, h3, h4, h5, h6) a {
+  color: inherit;
+}
+
+#blume-content > article.prose :where(h2, h3, h4, h5, h6) a.blume-heading-anchor::after {
+  color: var(--bo-muted);
+  margin-inline-start: 0.4em;
+}
+
+#blume-content > article.prose :where(p, ul, ol) {
+  margin: 1.15rem 0;
+}
+
+html[lang='ja'] #blume-content > article.prose {
+  line-height: 1.9;
+}
+
+#blume-content > article.prose :where(ul, ol) {
+  padding-inline-start: 1.4rem;
+}
+
+#blume-content > article.prose :where(li + li) {
+  margin-top: 0.45rem;
+}
+
+#blume-content > article.prose :where(strong) {
+  color: var(--bo-ink);
+  font-weight: 700;
+}
+
+#blume-content > article.prose :where(a) {
+  color: var(--bo-accent);
+  font-weight: 600;
+  text-decoration-color: color-mix(in srgb, var(--bo-accent) 60%, transparent);
+  text-underline-offset: 0.2em;
+}
+
+#blume-content > article.prose :where(a:hover) {
+  color: var(--bo-ink);
+  text-decoration-color: var(--bo-accent);
+}
+
+#blume-content > article.prose :where(hr) {
+  border-color: var(--bo-line);
+  margin: 3rem 0;
+}
+
+#blume-content > article.prose :where(blockquote) {
+  border-inline-start: 3px solid var(--bo-accent);
+  color: var(--bo-muted);
+  margin: 2rem 0;
+  padding-inline-start: 1.25rem;
+}
+
+#blume-content > article.prose :where(img, svg) {
+  max-width: 100%;
+}
+
+#blume-content > article.prose :where(figure) {
+  margin: 2rem 0;
+  max-width: 100%;
+}
+
+/* Published Archify exports are ordinary reader content. Keep the image
+ * responsive at the article measure without introducing a second scroller. */
+.archify-figure {
+  box-sizing: border-box;
+  max-width: 100%;
+  min-width: 0;
+  padding: 0.25rem 0;
+  width: 100%;
+}
+
+.archify-figure img {
+  display: block;
+  height: auto;
+  max-width: 100%;
+  width: 100%;
+}
+
+#blume-content > article.prose :where(figcaption) {
+  color: var(--bo-muted);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  margin-top: 0.75rem;
+}
+
+/* Code and exact identifiers */
+#blume-content > article.prose :where(pre) {
+  background: var(--bo-code) !important;
+  border: 1px solid var(--bo-line);
+  border-radius: var(--bo-surface-radius);
+  color: var(--bo-ink);
+  font-family: var(--blume-font-mono), ui-monospace, monospace;
+  font-size: 0.875rem;
+  line-height: 1.65;
+  margin: 1.75rem 0;
+}
+
+#blume-content > article.prose :where(pre[data-language])::before {
+  background: var(--bo-raised);
+  border-bottom-color: var(--bo-line);
+  color: var(--bo-muted);
+  font-family: var(--blume-font-mono), ui-monospace, monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+}
+
+#blume-content > article.prose :where(pre code) {
+  color: inherit;
+  font-family: var(--blume-font-mono), ui-monospace, monospace;
+  font-size: inherit;
+}
+
+#blume-content > article.prose :where(:not(pre) > code) {
+  background: var(--bo-code);
+  border: 1px solid color-mix(in srgb, var(--bo-line) 85%, transparent);
+  border-radius: 0.4rem;
+  color: var(--bo-ink);
+  font-family: var(--blume-font-mono), ui-monospace, monospace;
+  font-size: 0.9em;
+  overflow-wrap: break-word;
+  padding: 0.16em 0.4em;
+}
+
+/* Tables retain local scrolling when a real data table needs more width. */
+#blume-content > article.prose :where(table) {
+  color: var(--bo-ink);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  margin: 2rem 0;
+  width: 100%;
+}
+
+#blume-content > article.prose :where(th) {
+  background: var(--bo-surface);
+  color: var(--bo-ink);
+  font-weight: 700;
+  text-align: start;
+}
+
+#blume-content > article.prose :where(th, td) {
+  border-color: var(--bo-line);
+  padding: 0.75rem 0.9rem;
+  vertical-align: top;
+}
+
+#blume-content > article.prose .blume-table-scroll {
+  border-color: var(--bo-line);
+  border-radius: var(--bo-surface-radius);
+  margin: 2rem 0;
+}
+
+/* Callouts have one calm surface with a semantic accent edge. */
+#blume-content > article.prose aside.not-prose {
+  background: var(--bo-surface) !important;
+  border: 1px solid var(--bo-line);
+  border-inline-start: 3px solid var(--bo-accent);
+  border-radius: var(--bo-surface-radius);
+  color: var(--bo-muted);
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  margin: 2rem 0;
+  padding: 1rem 1.15rem;
+}
+
+#blume-content > article.prose aside.not-prose > span:first-child {
+  color: var(--bo-accent);
+}
+
+#blume-content > article.prose aside.not-prose :where(p, ul, ol) {
+  margin-block: 0.5rem;
+}
+
+#blume-content > article.prose aside.not-prose :where(a) {
+  color: var(--bo-accent);
+}
+
+/* TOC and page actions */
+[data-blume-toc] {
+  border-inline-start: 1px solid var(--bo-line);
+  color: var(--bo-muted);
+  min-width: 0;
+  padding: 2.75rem 0 3rem 1rem;
+}
+
+[data-blume-toc] > p {
+  color: var(--bo-ink);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  margin: 0 0 0.65rem;
+}
+
+[data-blume-toc] blume-toc a {
+  border-inline-start: 2px solid transparent;
+  color: var(--bo-muted);
+  display: block;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  padding: 0.4rem 0.65rem;
+  text-decoration: none;
+}
+
+[data-blume-toc] blume-toc a:hover,
+[data-blume-toc] blume-toc a[aria-current='location'] {
+  border-inline-start-color: var(--bo-accent);
+  color: var(--bo-ink);
+}
+
+[data-blume-page-actions] {
+  border-top-color: var(--bo-line);
+  margin-top: 2.5rem;
+  padding-top: 1.25rem;
+}
+
+[data-blume-page-actions] > a,
+[data-blume-page-actions] > button,
+[data-blume-page-actions] summary {
+  border-radius: var(--bo-control-radius);
+  color: var(--bo-muted);
+  min-height: 2.35rem;
+  padding-inline: 0.5rem;
+}
+
+[data-blume-page-actions] > a:hover,
+[data-blume-page-actions] > button:hover,
+[data-blume-page-actions] summary:hover {
+  background: var(--bo-surface);
+  color: var(--bo-ink);
+}
+
+[data-blume-page-actions] [data-blume-menu] {
+  background: var(--bo-raised);
+  border-color: var(--bo-line);
+  border-radius: var(--bo-surface-radius);
+  box-shadow: 0 1rem 2.5rem color-mix(in srgb, var(--bo-ink) 18%, transparent);
+}
+
+#blume-content > nav[aria-label*='ページ'],
+#blume-content > nav[aria-label*='Pagination'] {
+  border-top-color: var(--bo-line);
+}
+
+#blume-content > nav[aria-label*='ページ'] a,
+#blume-content > nav[aria-label*='Pagination'] a {
+  border-color: var(--bo-line);
+  border-radius: var(--bo-surface-radius);
+  color: var(--bo-ink);
+}
+
+#blume-content > nav[aria-label*='ページ'] a:hover,
+#blume-content > nav[aria-label*='Pagination'] a:hover {
+  border-color: var(--bo-accent);
+}
+
+#blume-content > nav[aria-label*='ページ'] a span span:first-child,
+#blume-content > nav[aria-label*='Pagination'] a span span:first-child {
+  color: var(--bo-muted);
+}
+
+/* Mobile TOC and reading measure. */
+#blume-content > details {
+  background: var(--bo-surface);
+  border: 1px solid var(--bo-line);
+  border-radius: var(--bo-surface-radius);
+  color: var(--bo-ink);
+  margin: 0 auto 1.5rem;
+  max-width: var(--bo-article-width);
+  width: 100%;
+}
+
+#blume-content > details summary {
+  color: var(--bo-ink);
+  min-height: 2.75rem;
+}
+
+#blume-content > details blume-toc {
+  border-top-color: var(--bo-line);
+}
+
+#blume-content > details blume-toc a {
+  color: var(--bo-muted);
+  text-decoration: none;
+}
+
+#blume-content > details blume-toc a:hover,
+#blume-content > details blume-toc a[aria-current='location'] {
+  color: var(--bo-ink);
+}
+
+@media (max-width: 89.99rem) {
+  [data-blume-toc] {
+    display: none;
+  }
+}
+
+@media (max-width: 63.99rem) {
+  [data-blume-header] {
+    gap: 0.5rem;
+    height: var(--bo-header-height);
+    min-height: var(--bo-header-height);
+    padding-inline: 1.25rem;
+  }
+
+  [data-blume-header] > a {
+    font-size: 1rem;
+  }
+
+  [data-blume-header] [data-blume-search-open] {
+    padding-inline: 0.55rem;
+  }
+
+  #blume-content {
+    padding: 2.25rem 1.25rem 4.5rem;
+  }
+
+  #blume-content > article.prose :where(h1) {
+    font-size: 2.25rem;
+  }
+
+  #blume-content > article.prose :where(h2) {
+    margin-top: 3rem;
+  }
+}
+
+@media (max-width: 30rem) {
+  [data-blume-banner] {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.15rem;
+    padding-block: 0.5rem;
+  }
+
+  #blume-content > article.prose {
+    font-size: 1rem;
+  }
+
+  #blume-content > article.prose :where(pre) {
+    border-radius: 0.75rem;
+    font-size: 0.8125rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media print {
+  html,
+  body {
+    background: #ffffff;
+    color: #1d1d1d;
+  }
+
+  #blume-content > article.prose {
+    max-width: none;
+  }
+}

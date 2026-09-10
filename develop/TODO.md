@@ -11,6 +11,16 @@
 
 ## 現在の作業への導線
 
+- 1.2.1 Release: [P23-012 Task](orchestration/tasks/P23-012-release-1-2-1.md)、[Report](orchestration/reports/P23-012-release-1-2-1.md)。2026-09-10 Accepted。Framework／Skeleton公開、Remote Install／Quickstart、同一main SHAのCI・本番サイト1.2.1配信、全公開本文検証、Skeleton README同期まで完了。1.3作業は保持。
+
+- 5秒の処理フロー・残り時間表示・曇りガラス: [P23-011 Task](orchestration/tasks/P23-011-walkthrough-progress-control.md)、[Report](orchestration/reports/P23-011-walkthrough-progress-control.md)。ローカル改修Accepted。5秒・進捗リング・停止/再開・曇りガラスをPC/スマートフォンと両テーマで確認。
+- 監査ログの予定とSensitive属性の使い分け: [P23-010 Task](orchestration/tasks/P23-010-audit-and-sensitive-documentation.md)、[Report](orchestration/reports/P23-010-audit-and-sensitive-documentation.md)。ローカル改修Accepted。未公開1.3の計画とSensitive比較を追加し、本文・検索・LLM・リンクを確認。
+- Frameworkパッチ版: [P23-009 Task](orchestration/tasks/P23-009-framework-patch-version.md)、[Report](orchestration/reports/P23-009-framework-patch-version.md)。`/tmp/blackops-framework-1.2.1`の1.2.1準備Accepted。差分を[patch](orchestration/artifacts/P23-009-framework-1.2.1.patch)へ保存。Release Gate・公開操作は未実行。
+
+- TOPの構成と読み進め操作: [P23-008A Task](orchestration/tasks/P23-008A-walkthrough-reading-controls.md)、[Report](orchestration/reports/P23-008A-walkthrough-reading-controls.md)。ローカル改修Accepted。Inline初期表示、経路タブ、Journalタグ、読み時間・詳細リンク、Tutorial導線、背景とタイトルの点灯演出を確認。15関連Test、PC/スマートフォン・両テーマの操作と表示がPASS。公開は未依頼。
+
+- ドキュメントサイト全体のリテイク: [仕様110](spec/110-documentation-diagrams-and-presentation.md)、[P23-008 Task](orchestration/tasks/P23-008-archify-documentation-diagrams.md)、[Report](orchestration/reports/P23-008-archify-documentation-diagrams.md)。ローカル改修Accepted。全10図とdesktop variantをArchifyで統一し、日本語フォント、単一のTOPループ、図と説明の上下配置、クリック中の番号、スクロール演出を確認。127関連Testと36表示条件がPASS。公開は未依頼。低速回線を模したローカル初期表示の計測限界と残課題はReportへ記録。
+
 - AIワークフロー改善: [P23-007 Task](orchestration/tasks/P23-007-ai-workflow-efficiency.md)、[Report](orchestration/reports/P23-007-ai-workflow-efficiency.md)。STATEローテーション、検証の重複削減、資料/チーム運用を扱う。
 - Tenant-scoped Status source: [D2S1 Task](orchestration/tasks/P23-003D2S1-tenant-scoped-status-source.md)、[Report](orchestration/reports/P23-003D2S1-tenant-scoped-status-source.md)。AcceptedとなったSourceの検証と次工程はReportを正本とする。
 - D2S adapter/reader children/親D統合とpost-F controlは既存の[Phase23計画](spec/106-phase-23-delivery-plan.md)へ接続する。

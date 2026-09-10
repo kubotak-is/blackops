@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Operation Lifecycle の正常完了",
+    "animation": "none",
+    "quality_profile": "showcase",
+    "legend": { "mode": "hidden" },
+    "viewBox": [420, 630]
+  },
+  "components": [
+    { "id": "start", "type": "backend", "label": "Start", "sublabel": "Lifecycle start", "pos": [110, 20], "size": [200, 70] },
+    { "id": "received", "type": "backend", "label": "Received", "sublabel": "operation.received", "pos": [110, 130], "size": [200, 72] },
+    { "id": "accepted", "type": "backend", "label": "Accepted", "sublabel": "operation.accepted", "tag": "Deferred のみ", "pos": [20, 275], "size": [170, 72] },
+    { "id": "running", "type": "backend", "label": "Running", "sublabel": "attempt.started", "tag": "共通", "pos": [230, 275], "size": [170, 72] },
+    { "id": "finalizing", "type": "backend", "label": "Finalizing", "sublabel": "attempt.succeeded", "pos": [110, 420], "size": [200, 72] },
+    { "id": "completed", "type": "backend", "label": "Completed", "sublabel": "Terminal", "pos": [110, 540], "size": [200, 72] }
+  ],
+  "connections": [
+    { "id": "start-to-received", "from": "start", "to": "received", "label": "operation.received", "fromSide": "bottom", "toSide": "top", "labelDy": 30 },
+    { "id": "received-to-accepted", "from": "received", "to": "accepted", "label": "Deferred", "fromSide": "bottom", "toSide": "top" },
+    { "id": "received-to-running", "from": "received", "to": "running", "label": "Inline", "fromSide": "bottom", "toSide": "top" },
+    { "id": "accepted-to-running", "from": "accepted", "to": "running", "label": "attempt.started", "fromSide": "right", "toSide": "left", "labelAt": [210, 260] },
+    { "id": "running-to-finalizing", "from": "running", "to": "finalizing", "label": "attempt.succeeded", "fromSide": "bottom", "toSide": "top" },
+    { "id": "finalizing-to-completed", "from": "finalizing", "to": "completed", "label": "operation.completed", "fromSide": "bottom", "toSide": "top", "labelDy": 30 }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "受付", "items": ["Start から operation.received へ進む", "Inline は Received から Running へ直接進む"] },
+    { "dot": "emerald", "title": "Deferred の分岐", "items": ["Deferred だけが operation.accepted を経由して Running へ進む", "両方とも同じ Operation ID の Lifecycle を追跡する"] },
+    { "dot": "violet", "title": "正常完了", "items": ["attempt.succeeded で Finalizing に入り、operation.completed で Terminal になる", "Completed から新しい Handler 実行へは進まない"] }
+  ]
+}

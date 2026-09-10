@@ -1,0 +1,255 @@
+<div class="landing-backdrop" data-landing-backdrop aria-hidden="true">
+  <span class="landing-backdrop__field"></span>
+  <span class="landing-backdrop__ribbon landing-backdrop__ribbon--north"></span>
+  <span class="landing-backdrop__ribbon landing-backdrop__ribbon--middle"></span>
+  <span class="landing-backdrop__ribbon landing-backdrop__ribbon--lower"></span>
+  <span class="landing-backdrop__ribbon landing-backdrop__ribbon--edge"></span>
+</div>
+
+<style is:global>
+  .landing-shell.landing-shell::before {
+    content: none;
+    display: none;
+  }
+
+  .landing-shell > .landing-backdrop {
+    contain: paint;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    position: absolute;
+    z-index: 0;
+  }
+
+  .landing-backdrop__field,
+  .landing-backdrop__ribbon {
+    display: block;
+    position: absolute;
+  }
+
+  .landing-backdrop__field {
+    background-image: radial-gradient(circle, color-mix(in srgb, var(--landing-accent) 22%, transparent) 0 1px, transparent 1.5px);
+    background-size: 1.65rem 1.65rem;
+    inset: 0;
+    opacity: .32;
+  }
+
+  .landing-backdrop__ribbon {
+    --landing-ribbon-low: .54;
+    --landing-ribbon-high: .78;
+    background-image:
+      radial-gradient(
+        ellipse 49% 22% at 50% 50%,
+        color-mix(in srgb, var(--landing-accent) 86%, transparent) 0%,
+        color-mix(in srgb, var(--landing-accent) 62%, transparent) 22%,
+        color-mix(in srgb, var(--landing-accent) 30%, transparent) 48%,
+        color-mix(in srgb, var(--landing-accent) 10%, transparent) 76%,
+        transparent 100%
+      ),
+      radial-gradient(
+        ellipse 50% 50% at 50% 50%,
+        color-mix(in srgb, var(--landing-accent) 40%, transparent) 0%,
+        color-mix(in srgb, var(--landing-accent) 30%, transparent) 20%,
+        color-mix(in srgb, var(--landing-accent) 18%, transparent) 46%,
+        color-mix(in srgb, var(--landing-accent) 7%, transparent) 72%,
+        transparent 92%
+      );
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    filter: blur(1.75rem);
+    height: clamp(13rem, 21vw, 22rem);
+    left: -12%;
+    opacity: var(--landing-ribbon-low);
+    transform-origin: center;
+    width: 124%;
+  }
+
+  .landing-backdrop__ribbon--north {
+    left: 10%;
+    top: 7%;
+    transform: translate3d(4%, -25%, 0) rotate(-18deg);
+  }
+
+  .landing-backdrop__ribbon--middle {
+    --landing-ribbon-low: .4;
+    --landing-ribbon-high: .66;
+    height: clamp(16rem, 28vw, 30rem);
+    left: -8%;
+    top: 29%;
+    transform: translate3d(0, 0, 0) rotate(-18deg);
+  }
+
+  .landing-backdrop__ribbon--lower {
+    --landing-ribbon-low: .44;
+    --landing-ribbon-high: .72;
+    height: clamp(17rem, 31vw, 34rem);
+    left: 6%;
+    top: 54%;
+    transform: translate3d(0, 0, 0) rotate(-18deg);
+  }
+
+  .landing-backdrop__ribbon--edge {
+    --landing-ribbon-low: .6;
+    --landing-ribbon-high: .82;
+    background-image:
+      radial-gradient(
+        ellipse 50% 50% at 50% 50%,
+        color-mix(in srgb, var(--landing-accent) 72%, transparent) 0%,
+        color-mix(in srgb, var(--landing-accent) 42%, transparent) 28%,
+        color-mix(in srgb, var(--landing-accent) 12%, transparent) 72%,
+        transparent 92%
+      );
+    filter: blur(.9rem);
+    height: clamp(3rem, 5vw, 5rem);
+    top: 78%;
+    transform: rotate(-18deg) scale(1.08);
+  }
+
+  [data-theme='light'] .landing-backdrop__field {
+    opacity: .2;
+  }
+
+  [data-theme='light'] .landing-backdrop__ribbon {
+    --landing-ribbon-low: .46;
+    --landing-ribbon-high: .7;
+  }
+
+  [data-theme='light'] .landing-backdrop__ribbon--middle,
+  [data-theme='light'] .landing-backdrop__ribbon--lower {
+    --landing-ribbon-low: .38;
+    --landing-ribbon-high: .6;
+  }
+
+  [data-theme='dark'] .landing-backdrop__field {
+    opacity: .34;
+  }
+
+  [data-theme='dark'] .landing-backdrop__ribbon {
+    --landing-ribbon-low: .68;
+    --landing-ribbon-high: .86;
+  }
+
+  [data-theme='dark'] .landing-backdrop__ribbon--middle {
+    --landing-ribbon-low: .52;
+    --landing-ribbon-high: .76;
+  }
+
+  [data-theme='dark'] .landing-backdrop__ribbon--lower {
+    --landing-ribbon-low: .6;
+    --landing-ribbon-high: .82;
+  }
+
+  [data-landing-backdrop-active='true'] .landing-backdrop__ribbon {
+    animation-duration: 22s;
+    animation-iteration-count: infinite;
+    animation-timing-function: ease-in-out;
+    will-change: opacity, transform;
+  }
+
+  [data-landing-backdrop-active='true'] .landing-backdrop__ribbon--north {
+    animation-name: landing-backdrop-drift-north;
+  }
+
+  [data-landing-backdrop-active='true'] .landing-backdrop__ribbon--middle {
+    animation-delay: -7s;
+    animation-duration: 28s;
+    animation-name: landing-backdrop-drift-middle;
+  }
+
+  [data-landing-backdrop-active='true'] .landing-backdrop__ribbon--lower {
+    animation-delay: -12s;
+    animation-duration: 25s;
+    animation-name: landing-backdrop-drift-lower;
+  }
+
+  [data-landing-backdrop-active='true'] .landing-backdrop__ribbon--edge {
+    animation-delay: -4s;
+    animation-duration: 18s;
+    animation-name: landing-backdrop-drift-edge;
+  }
+
+  @keyframes landing-backdrop-drift-north {
+    0%, 100% {
+      opacity: var(--landing-ribbon-low);
+      transform: translate3d(-8%, -25%, 0) rotate(-18deg) scale(1);
+    }
+    50% {
+      opacity: var(--landing-ribbon-high);
+      transform: translate3d(-3%, -18%, 0) rotate(-15deg) scale(1.05);
+    }
+  }
+
+  @keyframes landing-backdrop-drift-middle {
+    0%, 100% {
+      opacity: var(--landing-ribbon-low);
+      transform: translate3d(0, 0, 0) rotate(-18deg) scale(1);
+    }
+    50% {
+      opacity: var(--landing-ribbon-high);
+      transform: translate3d(4%, 3%, 0) rotate(-15deg) scale(1.06);
+    }
+  }
+
+  @keyframes landing-backdrop-drift-lower {
+    0%, 100% {
+      opacity: var(--landing-ribbon-low);
+      transform: translate3d(0, 0, 0) rotate(-18deg) scale(1);
+    }
+    50% {
+      opacity: var(--landing-ribbon-high);
+      transform: translate3d(-5%, -2%, 0) rotate(-21deg) scale(1.04);
+    }
+  }
+
+  @keyframes landing-backdrop-drift-edge {
+    0%, 100% {
+      opacity: var(--landing-ribbon-low);
+      transform: rotate(-18deg) translate3d(0, 0, 0);
+    }
+    50% {
+      opacity: var(--landing-ribbon-high);
+      transform: rotate(-15deg) translate3d(4%, 0, 0);
+    }
+  }
+
+  @media (max-width: 767px) {
+    .landing-backdrop__field {
+      background-size: 1.35rem 1.35rem;
+    }
+
+    .landing-backdrop__ribbon {
+      height: clamp(9rem, 28vw, 13rem);
+      left: -21%;
+      width: 142%;
+    }
+
+    .landing-backdrop__ribbon--north {
+      left: -5%;
+      top: 10%;
+    }
+
+    .landing-backdrop__ribbon--middle {
+      left: -18%;
+      top: 29%;
+    }
+
+    .landing-backdrop__ribbon--lower {
+      left: -8%;
+      top: 54%;
+    }
+
+    .landing-backdrop__ribbon--edge {
+      left: -21%;
+      top: 77%;
+      width: 142%;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-landing-backdrop-active='true'] .landing-backdrop__ribbon {
+      animation: none;
+      will-change: auto;
+    }
+  }
+</style>

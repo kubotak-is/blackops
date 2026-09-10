@@ -66,6 +66,11 @@ ReportにはCommandごとに以下を一度記録し、STATE/Indexは参照だ�
 - Passed / Failed / Running / Not Run / Reused と、再利用した元の結果
 - 最初の失敗箇所、未実行の残り、どの変更でどこから再開するか
 
+Node TestはRepositoryのpackage scriptを優先し、個別Fileを直接実行する場合も
+`node --test --test-isolation=none <対象File...>`を使う。
+この実行環境ではFile単位の1件だけが表示されることがあるため、exit 0やFileのPASSだけを個々のTest Caseの検証根拠にしない。
+Test名、期待するCase数、pass/fail件数をlogで照合し、Caseを確認できない結果は未確認として扱う。
+
 検証に影響する入力と管理記録は分ける。
 同じsourceでもconfig/lock/環境/Commandが違えば自動で再利用しない。
 管理記録のhashが変わっただけなら製品検証は有効だが、仕様の意味・Acceptance変更は依存するReviewと検証を再評価する。

@@ -1,39 +1,80 @@
 # Orchestration State
 
-Updated At: 2026-09-08T11:21:49+09:00
-Status: D2S1 Accepted — reviewed local checkpoint/export next; Archify documentation queued
-Current Task: [P23-003D2S1](orchestration/tasks/P23-003D2S1-tenant-scoped-status-source.md)
-Current Report: [P23-003D2S1 Report](orchestration/reports/P23-003D2S1-tenant-scoped-status-source.md)
+Updated At: 2026-09-11T00:00:22+09:00
+Status: P23-013 In Progress; synchronize1.2.1 before resuming Status Audit adapter
+Current Task: [P23-013](orchestration/tasks/P23-013-sync-stable-1-2-1.md)
+Current Report: [P23-013 Report](orchestration/reports/P23-013-sync-stable-1-2-1.md)
 
 ## Current Boundary
 
-P23-007のAIワークフロー改善とD2S1のSource実装はAccepted。
-D2S1全件PHPUnitの128MiBメモリ不足は、Architecture Testの重複ソース保持を減らして解消した。
-未実行だったFinal後半も完了。現在のProduct/Test候補への変更は終了している。
-新しいユーザー依頼は[Archify](https://github.com/tt-a1i/archify)による公開Documentationの図解。
-読取調査と/tmp内の候補作成だけを並行中。Repository内のDocumentation変更はまだない。
+Latest Experimental Stable is Framework/Skeleton1.2.1. Audit and other1.3 work
+remain unreleased. The package/site publication is complete. The user now authorizes development
+synchronization and continued D2S work. Root owns integration; Site Luna will
+resolve the frozen merge scope. Read-only reviewer audits D2S authority in parallel.
+
+- Framework1.2.1: direct1c72fced890c7f4cfc2cf88a4d2b08dbcfc85dd3,
+  source R4efee09f13bebedc1639333f79550a36a4e8ca91.
+- Skeleton1.2.1: direct7a47e344ecba6193628119f0e95cb23dc5e0be83,
+  split87a025380df8abcd0c514abf50e139dbbc1953c7.
+- Published documentation main M08e4751c62a2a83ba0401f5aee97164984a27f5c,
+  tree-identical to reviewed Dced514cda5b37afac0496998cd5a13a3840af853.
+- Skeleton main e811e219d5543f6da32c98bc02115342ccd9a6de adds only the current
+  README. All Framework/Skeleton tag direct/peeled refs are unchanged.
+- Release: https://github.com/kubotak-is/blackops/releases/tag/1.2.1
+- Site: https://blackops-php.pages.dev/
 
 ## Evidence
 
-- D2S1: 3244 tests /5582142 assertions、121MiB、128MiB制限のままexit0。
-- Architecture5/6627、40MiB。独立probe7+8+13、Mago/Deptrac、package87/35、6goldens、clean-install成功。
-- 非推奨1、PHPUnit非推奨2、通知13とconsumerの非失敗warningはReportに記録。
-- Generalの修正/証拠Review Green。未変更Product9/authority9を照合しTransaction/Documentationを継承。
-- Product10: `9b041a81cf4689a402348492fe9e7432285f38ed4dbd64de0b83f2a292619774`。
-- HEAD: `8f8674011f22a99f230431e47606a489f1c06abc`。staged0、commit/push/deploy未実施。
-- P23-007: Node8testsとSTATE実移行/履歴保全の証拠はそのReport。専用remote CIは未実行。
+- Frozen release gates pass: PHPUnit2317 tests/9450 assertions, Mago/Deptrac,
+  23 Consumers, frontend, exact package export and deterministic Skeleton split.
+- Both Packagist source/dist refs match. Published normal/no-scripts install and
+  HTTP-to-Worker Quickstart pass22 stages; cleanup0. Existing non-root inspect
+  ownership limitation and non-fatal diagnostics remain documented.
+- Same-M CI34463477611 and Documentation34463477626 succeed; website173 tests
+  pass. Actual production deployment completed at2026-09-10T10:04:51Z.
+- Independent48-source/41-route review and final CI artifact delta review have
+  P1/P2/P3=0. Runtime, diagram geometry, font bytes and public text are preserved.
+- Production158 document responses match the actual CI artifact:101 exact,
+  57 HTML with only observed Cloudflare Analytics insertion; four declared
+  historical redirects lead to correct canonical content. Search/LLM are1.2.1.
+- Canonical Chromium10 checks pass; PC/mobile TOP/Install/Quickstart and Audit
+  boundary confirmed, axe0. Accepted5-second controls/glass/arrow evidence reused.
+- Actual CI artifact413-file digest:
+  4d0b006a58dba511de81a09b221c967c78d10d97448e9905ca328637c50253b6.
+  Cross-directory builds vary in generated identifiers; bind delivery to this
+  artifact, not raw hash equality with another checkout's generated dist.
+- Evidence: /tmp/blackops-p23-012. Root-owned Docker resources are cleaned up.
+  http://localhost:4321/ serves the same published artifact; HTTP200/index match.
+  Keep preview PID24070 available. Old generated dist backups are retained.
+
+## Preserved Workspace
+
+Primary /home/kubotak/projects/blackops stays on
+agent/p23-001-blackops-1-3-feasibility at70f9c4733bed8bb0960165cddf8c451b78b96184.
+All1781 protected source files and existing staged/untracked work are unchanged.
+The unrelated D2S1 report retains SHA256
+dc5ed5b6415be054b4b265e0e97a08007f3bfe253e9163cee5941e5b0f2fc955.
+Primary source authority belongs to that preserved feature branch; consult
+published main M for current1.2.1 authority. No1.3 code was released.
+Release checkout: /tmp/blackops-framework-1.2.1 at D;
+qualification clone: /tmp/blackops-p23-012-checkout at M, both clean.
+Final Task/Report/TODO/STATE records are in the primary workspace.
 
 ## Remaining Work
 
-D2S1の完了管理差分Review、承認済みlocal commitsとclean final-SHA Git/Composer export。
-次にArchifyの2図をDocumentationへ導入し、生成物・Browser・Documentation Reviewを通す。
-D2S adapterはAccepted D2S1を使う新しいPacket/Reviewが必要。その他reader children、D3/D4/D5、
-親D統合、Accepted F後のD-controlも別工程。Stable1.2.0 /1.3 unreleasedの境界を維持する。
+P23-013: save prior work in a local checkpoint, merge published M, reconcile
+bounded guards, verify metadata/source/package and close integration. D2S1 is
+Accepted including final-SHA export. Next D2S needs revised tenant-bound
+construction, explicit read execution identity and three-root transaction
+contract before independent authority review and Luna implementation.
+Later1.3 Audit adapters/API/verification/export, runtime and release remain.
 
 ## Next Action
 
-Rootが完了管理差分のReview後にP23-007/D2S1をlocal commitし、clean same-SHA exportを確認する。
-その後、Archifyの公開図解Taskを作りLunaへ限定実装を依頼する。PHP全件を図解Taskへ再追加しない。
+Root uses /tmp/blackops-p23-013/before (133 dirty paths and original Git index)
+to preserve prior work, checkpoints it, and merges M. Local commits are now
+necessary authorized synchronization; no1.3 tag, push or deployment is selected.
+Keep the localhost4321 published preview and all existing accepted work.
 <!-- state-tool:history:start -->
-Previous STATE archive: [snapshot](orchestration/state-archive/2026-09/20260908T022149Z-6823a3f2346e717d9091a5cb010622730dd2ebded48c2ad82f5cb3b42408fb30.md)
+Previous STATE archive: [snapshot](orchestration/state-archive/2026-09/20260910T150022Z-884b60afd5f17fd9f19e28d583407788402b284b8a58d119d7e57726e20ad61e.md)
 <!-- state-tool:history:end -->

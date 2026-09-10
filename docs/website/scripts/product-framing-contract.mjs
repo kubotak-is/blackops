@@ -76,22 +76,39 @@ const OLD_LANDING_ACCESSIBLE_LABELS = [
   'aria-label="Documentation sections"',
 ];
 const LANDING_VISUAL_MARKERS = [
-  'landing-editor-chrome',
-  'landing-lifecycle-panel',
-  'landing-lifecycle-rail',
-  'Received',
-  'Accepted',
-  'Running',
-  'Finalizing',
-  'attempt.succeeded — Handlerが成功した',
-  'Completed',
-  LIFECYCLE_CAPTION,
-  LIFECYCLE_RETRY_NOTE,
+  'landing-demo',
+  'landing-code-header',
+  'landing-resources',
+  'landing-resource-layout',
+  'landing-journey',
 ];
 const LANDING_ACCESSIBLE_LABELS = [
   'aria-label="ドキュメントの操作"',
   'aria-label="Operationのソース"',
-  '>同じID<',
+];
+const LANDING_JOURNEY_STEPS = [
+  {
+    href: '/getting-started/installation',
+    label: '環境を用意する',
+    description: 'PHPとComposerでProjectを作り、Local環境を準備する',
+  },
+  {
+    href: '/getting-started/quickstart',
+    label: 'サンプルを動かす',
+    description: '認証付きHTTPとDeferred Workerを順に確認する',
+  },
+  {
+    href: '/getting-started/first-operation',
+    label: 'Operationを作る',
+    description: 'CLIで生成し、HTTPとWorkerで完走する',
+  },
+];
+const OLD_LANDING_SECTION_MARKERS = [
+  'landing-authoring',
+  'landing-contract-list',
+  'landing-purpose-nav',
+  '実際のPHPコードから始める',
+  '必要な場所から読む',
   'aria-label="ドキュメントのセクション"',
 ];
 
@@ -134,9 +151,13 @@ export function assertProductFramingSourceContract({
   for (const marker of [...LANDING_VISUAL_MARKERS, ...LANDING_ACCESSIBLE_LABELS]) {
     requireText(landing, marker, label + ' Landing visual marker');
   }
+  requireText(landing, 'BlackOpsを動かす', label + ' Landing journey heading');
+  requireText(landing, '環境を用意し、サンプルで動きを確かめてから、自分のOperationを作ります。', label + ' Landing journey lead');
+  assertLandingJourneyContract(landing, label + ' Landing');
+  for (const marker of OLD_LANDING_SECTION_MARKERS) if (landing.includes(marker)) throw new Error(label + ' Landing retains a retired section marker: ' + marker);
   if (WRONG_SUCCEEDED_STATE.test(landing)) throw new Error(label + ' Landing uses Succeeded as a Lifecycle state.');
   for (const marker of OLD_LANDING_ACCESSIBLE_LABELS) if (landing.includes(marker)) throw new Error(label + ' Landing retains an English accessible label.');
-  ordered(landing, [LANDING_VALUE_SENTENCE, 'Deferred', 'Journal'], label + ' Landing newcomer value order');
+  ordered(landing, [LANDING_VALUE_SENTENCE, 'Deferred', 'BlackOpsを動かす'], label + ' Landing newcomer value order');
 
   requireText(guide, LANDING_VALUE_SENTENCE, label + ' guide index value');
   requireText(guide, 'Operation ID', label + ' guide index Operation definition');
@@ -233,6 +254,10 @@ export function assertProductFramingArtifactContract({
   for (const name of landingVisualNames) {
     if (/<html\b/iu.test(artifacts.get(name))) requireText(artifacts.get(name), 'lang="ja"', label + ' ' + name + ' Japanese locale');
     for (const marker of [...LANDING_VISUAL_MARKERS, ...LANDING_ACCESSIBLE_LABELS]) requireText(artifacts.get(name), marker, label + ' ' + name + ' Landing visual marker');
+    requireText(artifacts.get(name), 'BlackOpsを動かす', label + ' ' + name + ' Landing journey heading');
+    requireText(artifacts.get(name), '環境を用意し、サンプルで動きを確かめてから、自分のOperationを作ります。', label + ' ' + name + ' Landing journey lead');
+    assertLandingJourneyContract(artifacts.get(name), label + ' ' + name);
+    for (const marker of OLD_LANDING_SECTION_MARKERS) if (artifacts.get(name).includes(marker)) throw new Error(label + ' ' + name + ' retains a retired section marker: ' + marker);
     if (WRONG_SUCCEEDED_STATE.test(artifacts.get(name))) throw new Error(label + ' ' + name + ' uses Succeeded as a Lifecycle state.');
   }
   if (whyNames.length === 0) throw new Error(label + ' is missing Why BlackOps artifact surfaces.');
@@ -607,6 +632,21 @@ function noLandingDrift(landing, label) {
   }
 }
 
+function assertLandingJourneyContract(landing, label) {
+  const journey = landing.match(/<ol\b[^>]*class="landing-journey"[^>]*>([\s\S]*?)<\/ol>/u)?.[1] ?? '';
+  if (!journey) throw new Error(label + ' is missing the Landing tutorial journey.');
+  let previous = -1;
+  for (const step of LANDING_JOURNEY_STEPS) {
+    const href = `href="${step.href}"`;
+    if (count(journey, href) !== 1) throw new Error(label + ' must contain exactly one journey link: ' + step.href);
+    const position = journey.indexOf(href);
+    if (position <= previous) throw new Error(label + ' journey links must remain sequential: ' + step.href);
+    previous = position;
+    requireText(journey, `>${step.label}</strong>`, label + ' journey label');
+    requireText(journey, `<small>${step.description}</small>`, label + ' journey description');
+  }
+}
+
 function noForbiddenBoundary(text, label) {
   for (const [pattern, description] of [
     [OLD_LANDING_VALUE, 'old Landing value'],
@@ -647,7 +687,42 @@ function themeContract(css, label) {
   if (!css.includes('.blackops-overflow-focus:focus-visible')) throw new Error(label + ' CSS is missing overflow focus.');
   if (!css.includes('prefers-reduced-motion')) throw new Error(label + ' CSS is missing reduced motion.');
   if (!/\.landing-command[\s\S]*overflow-x:\s*auto/u.test(css) || !/\.landing-code-panel pre[\s\S]*overflow-x:\s*auto/u.test(css)) throw new Error(label + ' CSS is missing local code scrollers.');
-  for (const forbidden of ['linear-gradient', 'radial-gradient', 'overflow-x: hidden', 'overflow-x:hidden']) if (css.includes(forbidden)) throw new Error(label + ' CSS contains forbidden visual/layout drift: ' + forbidden);
+  for (const forbidden of ['linear-gradient', 'overflow-x: hidden', 'overflow-x:hidden']) if (css.includes(forbidden)) throw new Error(label + ' CSS contains forbidden visual/layout drift: ' + forbidden);
+  const allowedAmbientSelectors = new Set([
+    '.landing-shell::before',
+    '.landing-shell:before',
+    "[data-theme='dark'] .landing-shell",
+    '[data-theme="dark"] .landing-shell',
+    '[data-theme=dark] .landing-shell',
+    "[data-theme='dark'] .landing-shell::before",
+    "[data-theme='dark'] .landing-shell:before",
+    '[data-theme="dark"] .landing-shell::before',
+    '[data-theme="dark"] .landing-shell:before',
+    '[data-theme=dark] .landing-shell::before',
+    '[data-theme=dark] .landing-shell:before',
+    '.landing-backdrop__field',
+    '.landing-backdrop__ribbon',
+    '.landing-backdrop__ribbon--edge',
+  ]);
+  const isAllowedAmbientBlock = (block) => {
+    const selectors = [];
+    let offset = 0;
+    while (true) {
+      const openingBrace = block.indexOf('{', offset);
+      if (openingBrace < 0) break;
+      selectors.push(block.slice(offset, openingBrace).trim());
+      offset = openingBrace + 1;
+    }
+    const selector = selectors.at(-1);
+    if (!allowedAmbientSelectors.has(selector)) return false;
+    return selectors.slice(0, -1).every((wrapper) => /^@supports\b[^{}]*$/u.test(wrapper));
+  };
+  for (const block of css.split('}')) {
+    if (!block.includes('radial-gradient')) continue;
+    if (!isAllowedAmbientBlock(block)) {
+      throw new Error(label + ' CSS contains an ambient gradient outside the landing shell hero.');
+    }
+  }
 }
 
 function names(artifacts, pattern) {

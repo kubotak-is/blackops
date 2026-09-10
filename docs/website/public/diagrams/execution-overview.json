@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "HTTP 実行経路の概要",
+    "animation": "none",
+    "quality_profile": "showcase",
+    "legend": { "mode": "hidden" },
+    "viewBox": [420, 560]
+  },
+  "components": [
+    { "id": "http-entry", "type": "frontend", "label": "HTTP", "sublabel": "HTTP Route", "pos": [20, 28], "size": [160, 64] },
+    { "id": "value-binding", "type": "backend", "label": "OperationValue", "sublabel": "bind / validate", "pos": [235, 20], "size": [160, 80] },
+    { "id": "strategy", "type": "backend", "label": "Execution Strategy", "sublabel": "Inline / Deferred", "pos": [230, 150], "size": [170, 80] },
+    { "id": "durable-transport", "type": "database", "label": "Durable Transport", "sublabel": "Value / Context 保存", "pos": [20, 149], "size": [170, 82] },
+    { "id": "worker", "type": "backend", "label": "Worker", "sublabel": "Claim", "pos": [20, 290], "size": [170, 82] },
+    { "id": "operation", "type": "backend", "label": "Operation", "sublabel": "handle", "pos": [230, 291], "size": [170, 80] },
+    { "id": "outcome", "type": "backend", "label": "Outcome", "sublabel": "正常完了", "pos": [125, 450], "size": [170, 80] }
+  ],
+  "connections": [
+    { "id": "request-input", "from": "http-entry", "to": "value-binding", "label": "入力", "fromSide": "right", "toSide": "left", "labelAt": [210, 60] },
+    { "id": "input-strategy", "from": "value-binding", "to": "strategy", "label": "Strategy確認", "fromSide": "bottom", "toSide": "top", "labelAt": [350, 125] },
+    { "id": "inline-dispatch", "from": "strategy", "to": "operation", "label": "Inline", "fromSide": "bottom", "toSide": "top", "labelAt": [350, 260] },
+    { "id": "deferred-accept", "from": "strategy", "to": "durable-transport", "label": "Deferred受付", "fromSide": "left", "toSide": "right", "labelAt": [210, 125] },
+    { "id": "worker-claim", "from": "durable-transport", "to": "worker", "label": "Claim", "fromSide": "bottom", "toSide": "top", "labelAt": [105, 260] },
+    { "id": "worker-dispatch", "from": "worker", "to": "operation", "label": "handle", "fromSide": "right", "toSide": "left", "labelAt": [210, 400] },
+    { "id": "operation-outcome", "from": "operation", "to": "outcome", "label": "正常完了", "fromSide": "bottom", "toSide": "top", "labelAt": [350, 410] }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "HTTP の受付", "items": ["HTTP は Value を bind / validate して Strategy を確認する", "正常系は同じ Operation を受け取る"] },
+    { "dot": "emerald", "title": "二つの実行経路", "items": ["Inline は受付元プロセスで Operation を実行する", "Deferred は Value / Context を Durable Transport に保存し Worker が Claim する"] },
+    { "dot": "violet", "title": "結果", "items": ["Operation は Outcome を返す", "Deferred の完了時に success / completed Journal を記録する"] }
+  ]
+}

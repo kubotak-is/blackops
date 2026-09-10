@@ -13,6 +13,12 @@ import {
   repositoryRoot as defaultRepositoryRoot,
   sourceRoot as defaultSourceRoot,
 } from './website-paths.mjs';
+import {
+  diagramManifestPath as defaultDiagramManifestPath,
+  loadDiagramManifest,
+  registeredViewerRelativePaths,
+} from './archify-diagrams.mjs';
+import { loadReleaseAuthority } from './release-claim-checker.mjs';
 
 const blumeRequire = createRequire(import.meta.resolve('blume/package.json'));
 const blumePackageRoot = path.dirname(blumeRequire.resolve('blume/package.json'));
@@ -40,6 +46,54 @@ const referenceLookupFields = [
   ['error', /(?:Error|エラー|失敗|拒否|Unavailable|Invalid)/iu],
   ['typical-use', /(?:Typical\s+Use|典型(?:利用|的)|利用箇所|使う|呼ぶ|完全例)/iu],
 ];
+
+export const stableReferenceExclusionPaths = Object.freeze([
+  'src/Audit/AuditOpaqueIdKeyProvider.php',
+  'src/Audit/AuditProtectionKeyProvider.php',
+  'src/Internal/Console/AboutCommand.php',
+  'src/Internal/Console/DiagnosticsCheckCommand.php',
+  'src/Internal/Console/OutboxStatusCommand.php',
+  'src/Internal/Console/QueueStatusCommand.php',
+  'src/Internal/Projection/Route/RouteProjectionListCommand.php',
+  'src/Internal/Projection/Schedule/ScheduleProjectionListCommand.php',
+  'src/Internal/Application/ApplicationAuditConfiguration.php',
+]);
+
+const stableReferenceBoundary = Object.freeze({
+  stableVersion: '1.2.0',
+  stableReleaseState: 'experimental-stable',
+  frameworkTag: '1.2.0',
+  frameworkDirectRef: '00e8c5875047a3c47acbebfe57f75b0e581d18b9',
+  frameworkPeeledSource: '3332fd1dd0738fc7e79750facd93d49a59054ecf',
+  roadmapVersion: '1.3.0',
+  roadmapState: 'unreleased',
+});
+
+const stableReferenceMethodExclusion = Object.freeze({
+  path: 'src/Application/ApplicationBuilder.php',
+  fqcn: 'BlackOps\\Application\\ApplicationBuilder',
+  name: 'withOperationalHealthQuery',
+});
+
+function stableReferenceAuthorityTuple(authority) {
+  return {
+    stableVersion: authority?.currentStable?.version ?? null,
+    stableReleaseState: authority?.currentStable?.releaseState ?? null,
+    frameworkTag: authority?.currentStable?.framework?.tag ?? null,
+    frameworkDirectRef: authority?.currentStable?.framework?.directRef ?? null,
+    frameworkPeeledSource: authority?.currentStable?.framework?.peeledSource ?? null,
+    roadmapVersion: authority?.roadmap?.version ?? null,
+    roadmapState: authority?.roadmap?.state ?? null,
+  };
+}
+
+export function stableReferenceExclusionsFor(authority) {
+  const actual = stableReferenceAuthorityTuple(authority);
+  if (JSON.stringify(actual) !== JSON.stringify(stableReferenceBoundary)) {
+    throw new Error('Stable-reference exclusions are bound to the current Stable 1.2.0 framework tuple and unreleased roadmap 1.3.0; release authority changed, so reevaluate the exact paths.');
+  }
+  return new Set(stableReferenceExclusionPaths);
+}
 
 const roleRequirements = {
   tutorial: ['prerequisites', 'runnable', 'success', 'failure'],
@@ -1451,6 +1505,7 @@ export async function validateArtifactReaderContract({
   sourceDirectory = defaultSourceRoot,
   manifestPath = null,
   contentRoot = null,
+  diagramManifestPath = null,
 } = {}) {
   if (contentMap === undefined) throw new Error('Artifact reader validation requires a Content Map.');
   const effectiveSourceDirectory = sourceDirectory ?? defaultSourceRoot;
@@ -1468,7 +1523,16 @@ export async function validateArtifactReaderContract({
     const dangling = danglingPlaceholderFragments(markdown, { inlineCodeOnly: true });
     if (dangling.length > 0) throw new Error(`Source placeholder surface contains dangling ${dangling[0]} fragment in ${source}.`);
   }
-  await validateArtifactPageRouteInventory({ artifactDirectory, expectedRoutes: new Set(byRoute.keys()) });
+  const selectedDiagramManifestPath = diagramManifestPath
+    ?? (path.resolve(artifactDirectory) === path.resolve(defaultDistRoot) ? defaultDiagramManifestPath : null);
+  const registeredViewers = selectedDiagramManifestPath === null
+    ? new Set()
+    : registeredViewerRelativePaths(await loadDiagramManifest(selectedDiagramManifestPath));
+  await validateArtifactPageRouteInventory({
+    artifactDirectory,
+    expectedRoutes: new Set(byRoute.keys()),
+    diagramManifestPath: selectedDiagramManifestPath,
+  });
   const outcomes = pages.map(([, metadata]) => metadata.reader.outcome);
   const searchPath = path.join(artifactDirectory, 'blume-search.json');
   let search;
@@ -1630,12 +1694,12 @@ export async function validateArtifactReaderContract({
   }
 
   for (const file of await textFiles(artifactDirectory)) {
-    const location = path.relative(artifactDirectory, file);
+    const location = path.relative(artifactDirectory, file).split(path.sep).join('/');
     const content = await readFile(file, 'utf8');
     assertNoProtectedDecode(content, location);
-    assertNoCurrentMainOnly(content, location);
     assertNoInternalEvidenceVoice(content, location);
     const readerText = artifactReaderSurfaceText(content, location);
+    assertNoCurrentMainOnly(registeredViewers.has(location) ? readerText ?? '' : content, location);
     if (readerText !== null) assertNoUnsafeLgtmDiagnostics(readerText, location);
   }
   return { routes: expectedRoutes.size, searchRoutes: actualRoutes.size };
@@ -1893,8 +1957,17 @@ function canonicalGeneratedFrontmatterTitle(markdown, source) {
   return title;
 }
 
-export async function validateArtifactPageRouteInventory({ artifactDirectory = defaultDistRoot, expectedRoutes = new Set() } = {}) {
+export async function validateArtifactPageRouteInventory({
+  artifactDirectory = defaultDistRoot,
+  expectedRoutes = new Set(),
+  diagramManifestPath = null,
+} = {}) {
   const expected = expectedRoutes instanceof Set ? expectedRoutes : new Set(expectedRoutes);
+  const selectedDiagramManifestPath = diagramManifestPath
+    ?? (path.resolve(artifactDirectory) === path.resolve(defaultDistRoot) ? defaultDiagramManifestPath : null);
+  const registeredViewers = selectedDiagramManifestPath === null
+    ? new Set()
+    : registeredViewerRelativePaths(await loadDiagramManifest(selectedDiagramManifestPath));
   const rawFiles = await artifactFiles(artifactDirectory, (name) => /\.mdx?$/u.test(name));
   const rawRoutes = new Map();
   for (const file of rawFiles) {
@@ -1922,10 +1995,25 @@ export async function validateArtifactPageRouteInventory({ artifactDirectory = d
     }
   }
 
-  const htmlFiles = await artifactFiles(artifactDirectory, (name) => name === 'index.html');
-  const htmlRoutes = new Map();
+  const htmlFiles = await artifactFiles(artifactDirectory, (name) => name.endsWith('.html'));
+  const supplementalHtmlFiles = [];
+  const routeHtmlFiles = [];
   for (const file of htmlFiles) {
-    const route = routeFromArtifactFile(file, artifactDirectory);
+    const relative = path.relative(artifactDirectory, file).split(path.sep).join('/');
+    if (registeredViewers.has(relative)) supplementalHtmlFiles.push(file);
+    else if (relative === '404.html' || relative === 'index.html' || /\/index\.html$/u.test(relative)) routeHtmlFiles.push(file);
+    else throw new Error(`HTML artifact contains unknown flat viewer path: ${relative}.`);
+  }
+  for (const file of supplementalHtmlFiles) {
+    const relative = path.relative(artifactDirectory, file).split(path.sep).join('/');
+    if (!/^diagrams\/[a-z0-9-]+\.html$/u.test(relative)) {
+      throw new Error(`Registered diagram viewer has an unsafe artifact path: ${relative}.`);
+    }
+  }
+  const htmlRoutes = new Map();
+  for (const file of routeHtmlFiles) {
+    const relative = path.relative(artifactDirectory, file).split(path.sep).join('/');
+    const route = relative === '404.html' ? '/404' : routeFromArtifactFile(file, artifactDirectory);
     if (htmlRoutes.has(route)) throw new Error(`HTML artifact contains a duplicate route: ${route}.`);
     htmlRoutes.set(route, file);
   }
@@ -3914,11 +4002,15 @@ export async function assertSourceDerivedReferenceCoverage(contentMap, repositor
   const attributes = await readFile(path.join(repositoryRoot, 'docs/guide/attributes.md'), 'utf8');
   const cli = await readFile(path.join(repositoryRoot, 'docs/guide/project-cli.md'), 'utf8');
   const configuration = await readFile(path.join(repositoryRoot, 'docs/guide/configuration.md'), 'utf8');
+  const authority = await loadReleaseAuthority(path.join(repositoryRoot, 'develop/spec/release-authority.json'));
+  const stableReferenceExclusions = stableReferenceExclusionsFor(authority);
   const publicTypes = [];
   const publicAttributes = [];
   const publicCommands = new Set();
   const configurationKeys = new Set();
   for (const file of await phpFiles(path.join(repositoryRoot, 'src'))) {
+    const relativePath = path.relative(repositoryRoot, file).split(path.sep).join('/');
+    if (stableReferenceExclusions.has(relativePath)) continue;
     const source = await readFile(file, 'utf8');
     if (!source.includes('#[PublicApi]')) continue;
     const namespace = source.match(/^namespace\s+([^;]+);/m)?.[1];
@@ -3931,11 +4023,17 @@ export async function assertSourceDerivedReferenceCoverage(contentMap, repositor
       enumBacking: declaration[1] === 'enum' ? declaration[3] ?? null : null,
       enumCases: declaration[1] === 'enum' ? extractEnumCases(source) : [],
       constants: extractPublicConstants(source),
-      methods: extractPublicMethods(source),
+      methods: extractPublicMethods(source).filter((method) => !(
+        relativePath === stableReferenceMethodExclusion.path
+        && fqcn === stableReferenceMethodExclusion.fqcn
+        && method.name === stableReferenceMethodExclusion.name
+      )),
     });
     if (/\\(?:Attribute|Validation\\Attribute)$/.test(namespace) && declaration[2] !== 'SensitiveMode') publicAttributes.push(fqcn);
   }
   for (const file of await phpFiles(path.join(repositoryRoot, 'src'))) {
+    const relativePath = path.relative(repositoryRoot, file).split(path.sep).join('/');
+    if (stableReferenceExclusions.has(relativePath)) continue;
     const source = await readFile(file, 'utf8');
     for (const [, command] of source.matchAll(/public\s+const\s+NAME\s*=\s*'([^']+)'/gu)) {
       if (!command.startsWith('blackops:') && !['outbox-relay', 'retention'].includes(command)) publicCommands.add(command);

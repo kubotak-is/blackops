@@ -1,36 +1,39 @@
 # Lifecycle
 
-BlackOpsはInlineとDeferredを同じLifecycle Modelで記録します。ApplicationはOperation IDを相関Keyとして受付からTerminal Stateまで追跡できます。Outcome RecordはDeferred完了時だけ保存し、Inline OutcomeはHTTP Responseだけへ返します。
+BlackOpsはInlineとDeferredを同じLifecycle Modelで記録します。ApplicationはOperation IDを相関Keyとして受付からTerminal Stateまで追跡できます。Outcome RecordはDeferred完了時だけ保存し、Inlineでは作成しません。
 
 ## 共通Lifecycle
 
 正常完了するOperationはReceived、Running、Finalizing、Completedの順に進みます。DeferredだけはDurable受付後にAcceptedを経由します。
 
-```mermaid
-stateDiagram-v2
-    accTitle: Operation Lifecycleの状態遷移
-    accDescr: OperationはReceivedからInlineならRunningへ、DeferredならAcceptedを経てRunningへ進む。成功はFinalizingからCompleted、業務拒否はRejected、失敗はSupervisingからRetry Scheduled、Failed、Dead Letterのいずれかへ進む。
-    state "Retry Scheduled" as RetryScheduled
-    state "Dead Letter" as DeadLettered
-    [*] --> Received: operation.received
-    Received --> Accepted: operation.accepted (Deferred)
-    Received --> Running: attempt.started (Inline)
-    Received --> Rejected: operation.rejected
-    Accepted --> Running: attempt.started
-    Running --> Finalizing: attempt.succeeded
-    Running --> Rejected: operation.rejected
-    Running --> Supervising: attempt.failed
-    Supervising --> RetryScheduled: attempt.retry_scheduled
-    Supervising --> Failed: operation.failed
-    Supervising --> DeadLettered: operation.dead_lettered
-    RetryScheduled --> Running: attempt.started
-    Finalizing --> Completed: operation.completed
-    Finalizing --> Failed: operation.failed
-    Completed --> [*]
-    Rejected --> [*]
-    Failed --> [*]
-    DeadLettered --> [*]
-```
+### 正常完了
+
+<div class="archify-figure">
+
+![operation.receivedでReceivedとなる。Inlineはattempt.startedでRunningへ進み、Deferredはoperation.acceptedによるAcceptedを経てRunningへ進む。attempt.succeededでFinalizing、operation.completedでTerminalのCompletedとなる。](assets/diagrams/lifecycle-success.png)
+
+</div>
+
+### 業務拒否
+
+<div class="archify-figure">
+
+![受付時のReceivedと実行中のRunningのどちらからも、operation.rejectedによってTerminalのRejectedへ進む。二つの経路を並べて示しており、通常のExceptionを業務拒否として扱う図ではない。](assets/diagrams/lifecycle-rejection.png)
+
+</div>
+
+### 失敗とRetry
+
+<div class="archify-figure">
+
+![Runningでattempt.failedが起きるとSupervisingへ進む。attempt.retry_scheduledはRetry Scheduledを経てattempt.startedでRunningへ戻る。operation.failedはFailedへ、Deferredのoperation.dead_letteredはDead Letterへ進む。Finalizingからoperation.failedでFailedとなる経路もある。FailedとDead LetterはTerminalで、Retryは同じOperation IDと新しいAttempt IDを使う。](assets/diagrams/lifecycle-failure.png)
+
+</div>
+
+失敗の図で再掲するSupervisingやFailedは同じ論理状態です。
+独立した経路同士を順番に実行する意味ではありません。
+FinalizingとSupervisingはLifecycleの処理段階であり、公開Status APIの値ではありません。
+
 
 | 経路 | 状態遷移 |
 | --- | --- |
@@ -41,7 +44,7 @@ stateDiagram-v2
 | 最終失敗 | Running → Supervising → Failed |
 | Deferred隔離 | Running → Supervising → Dead Letter |
 
-InlineはAcceptedを通らず、Request内で[Attempt](glossary.md#attempt)を開始します。DeferredだけがDurable受付後にAcceptedとなり、別ProcessのWorkerが[Claim](glossary.md#claim)してAttemptを開始します。Completed、Rejected、Failed、Dead LetterはTerminalであり、新しいLifecycle EventやHandler実行へ進みません。
+InlineはAcceptedを通らず、受付元のProcessで[Attempt](glossary.md#attempt)を開始します。DeferredだけがDurable受付後にAcceptedとなり、別ProcessのWorkerが[Claim](glossary.md#claim)してAttemptを開始します。Completed、Rejected、Failed、Dead LetterはTerminalであり、新しいLifecycle EventやHandler実行へ進みません。
 
 ## Rejected
 
@@ -55,7 +58,7 @@ Retryable ExceptionはSupervision Policyに従い`attempt.failed`と`attempt.ret
 
 ## Outcome
 
-DeferredのCompletedだけがTyped Outcomeを保存します。Inline completedはHTTP ResponseだけへOutcomeを返し、Outcome Recordを作成しません。Rejected、Failed、Retry Scheduled、Dead Letter、Claim LostはOutcome Recordを作成しません。詳細は[Outcome](outcome-retrieval.md)を参照してください。
+DeferredのCompletedだけがTyped Outcomeを保存します。InlineはOutcome Recordを作成せず、HTTPではResponseへ、Operation用CLIでは`--json`指定時の完了JSONへOutcomeを返します。Rejected、Failed、Retry Scheduled、Dead Letter、Claim LostはOutcome Recordを作成しません。詳細は[Outcome](outcome-retrieval.md)を参照してください。
 
 JournalとOutcomeは別々の保持期間を設定できます。Operation単位のHoldと安全なPurgeについては[Retention](retention.md)を参照してください。
 
