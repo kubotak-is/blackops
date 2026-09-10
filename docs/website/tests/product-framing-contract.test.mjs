@@ -5,6 +5,10 @@ import test from 'node:test';
 import {
   assertProductFramingArtifactContract,
   assertProductFramingSourceContract,
+  APPLICATION_BOOTSTRAP_LIST_BOUNDARY_MARKERS,
+  APPLICATION_BOOTSTRAP_OLD_LIST_CLAIM,
+  CLI_STABLE_LIST_BOUNDARY_MARKERS,
+  normalizeVisibleText,
   P22_005E_TASK_PATH,
   SPEC_83_PATH,
 } from '../scripts/product-framing-contract.mjs';
@@ -174,6 +178,17 @@ function encodeHtmlLiteral(html, literal, radix) {
   return html.replace(literal, encoded);
 }
 
+function removeStableListBoundary(surface, surfaceName, marker) {
+  if (surfaceName === 'html') return surface.replace(/そのためGlobal[\s\S]*?診断Commandではありません。/u, '');
+  return surface.replace(marker, '');
+}
+
+function splitAtExistingSpace(surface, surfaceName, value) {
+  if (!surface.includes(value)) throw new Error(`Fixture cannot locate split value: ${value}`);
+  const replacement = surfaceName === 'html' ? '</p><p>' : '\n';
+  return surface.replace(value, value.replace(' ', replacement));
+}
+
 test('product framing source and artifact contracts accept the current bounded surfaces', async () => {
   const source = await sourceFixture();
   assert.doesNotThrow(() => assertProductFramingSourceContract({ ...source, contentMap }));
@@ -199,6 +214,7 @@ test('Retention current truth is required independently in every CLI and page su
         /current four-option boundary|omission fallback/,
         `CLI ${surface} must reject a missing Retention ${message}`,
       );
+
     }
 
     for (const [marker, message] of [
@@ -225,7 +241,7 @@ test('Retention current truth is required independently in every CLI and page su
     unpublished.surfaces.set(name, `${unpublished.surfaces.get(name)}\n${RETENTION_OPTION}`);
     assert.throws(
       () => assertProductFramingArtifactContract(unpublished),
-      /unpublished Retention option|publishes an outer-command-only retention option|exposes the unpublished idempotency option/,
+      /unpublished Retention option|publishes an inner-command-only retention option|exposes the unpublished idempotency option/,
       `${surface} must reject the unpublished idempotency option`,
     );
   }
@@ -371,6 +387,673 @@ test('product framing source contract rejects roadmap CLI and visual/accessibili
   );
 });
 
+test('CLI list truth is required across normalized Source and Artifact surfaces', async () => {
+  const source = await sourceFixture();
+  const oldClaim = 'Global `list`とOperation Commandの`help`はManifest Metadataだけを使い、Handler、Database、Container、Actor Providerを解決しません。';
+  const missingBoundary = 'そのためGlobal `list`は、Applicationの初期化やContainerの解決から完全に切り離された診断Commandではありません。';
+
+  const oldSource = {
+    ...source,
+    documents: { ...source.documents, 'project-cli.md': source.documents['project-cli.md'] + '\n' + oldClaim },
+  };
+  assert.throws(
+    () => assertProductFramingSourceContract({ ...oldSource, contentMap }),
+    /old absolute side-effect-free claim/,
+  );
+
+  const missingSource = {
+    ...source,
+    documents: { ...source.documents, 'project-cli.md': source.documents['project-cli.md'].replace(missingBoundary, '') },
+  };
+  assert.throws(
+    () => assertProductFramingSourceContract({ ...missingSource, contentMap }),
+    /Stable list boundary/,
+  );
+
+  for (const surface of ['html', 'raw', 'search', 'llm']) {
+    const artifactSurfaceWithOldClaim = artifactFixture(source);
+    const currentSurface = surface === 'html' ? htmlSurface(source.documents['project-cli.md']) : source.documents['project-cli.md'];
+    artifactSurfaceWithOldClaim.surfaces.set(`cli-${surface}`, `${currentSurface}\n${surface === 'html' ? `<p>${oldClaim}</p>` : oldClaim}`);
+    assert.throws(
+      () => assertProductFramingArtifactContract(artifactSurfaceWithOldClaim),
+      /old absolute side-effect-free claim/,
+      `old claim must be rejected in ${surface}`,
+    );
+
+    const artifactSurfaceMissingBoundary = artifactFixture(source);
+    artifactSurfaceMissingBoundary.surfaces.set(`cli-${surface}`, removeStableListBoundary(currentSurface, surface, missingBoundary));
+    assert.throws(
+      () => assertProductFramingArtifactContract(artifactSurfaceMissingBoundary),
+      /Stable list boundary/,
+      `missing boundary must be rejected in ${surface}`,
+    );
+
+    const artifactMissingSurface = artifactFixture(source);
+    artifactMissingSurface.surfaces.delete(`cli-${surface}`);
+    assert.throws(
+      () => assertProductFramingArtifactContract(artifactMissingSurface),
+      new RegExp(`missing the CLI ${surface} artifact surface`),
+      `missing ${surface} surface must be rejected`,
+    );
+  }
+
+  const unknownCliSurface = artifactFixture(source);
+  unknownCliSurface.surfaces.set('cli-side-channel', source.documents['project-cli.md']);
+  assert.throws(
+    () => assertProductFramingArtifactContract(unknownCliSurface),
+    /Unknown CLI artifact surface kind/,
+    'unknown CLI surface keys must fail closed',
+  );
+
+  const currentHtml = htmlSurface(source.documents['project-cli.md']);
+  const sameHtmlHiddenOldClaim = artifactFixture(source);
+  const hiddenOldClaimHtml = `${currentHtml}<script>${oldClaim}</script>`;
+  sameHtmlHiddenOldClaim.surfaces.set('cli-html', hiddenOldClaimHtml);
+  sameHtmlHiddenOldClaim.surfaces.set('page:/reference/project-cli', hiddenOldClaimHtml);
+  assert.doesNotThrow(
+    () => assertProductFramingArtifactContract(sameHtmlHiddenOldClaim),
+    'the same HTML in primary and page alias accepts a hidden old claim',
+  );
+
+  const sameHtmlHiddenRequired = artifactFixture(source);
+  const hiddenRequiredHtml = '<script>' + source.documents['project-cli.md'] + '</script>';
+  sameHtmlHiddenRequired.surfaces.set('cli-html', hiddenRequiredHtml);
+  sameHtmlHiddenRequired.surfaces.set('page:/reference/project-cli', hiddenRequiredHtml);
+  assert.throws(
+    () => assertProductFramingArtifactContract(sameHtmlHiddenRequired),
+    /Stable list boundary/,
+    'the same hidden HTML in primary and page alias rejects required-only markers',
+  );
+
+  const sameHtmlVisibleOldClaim = artifactFixture(source);
+  const visibleOldClaimHtml = `${currentHtml}<p>${oldClaim}</p>`;
+  sameHtmlVisibleOldClaim.surfaces.set('cli-html', visibleOldClaimHtml);
+  sameHtmlVisibleOldClaim.surfaces.set('page:/reference/project-cli', visibleOldClaimHtml);
+  assert.throws(
+    () => assertProductFramingArtifactContract(sameHtmlVisibleOldClaim),
+    /old absolute side-effect-free claim/,
+    'the same visible old claim in primary and page alias is rejected',
+  );
+
+  const sameHtmlVisibleCurrent = artifactFixture(source);
+  sameHtmlVisibleCurrent.surfaces.set('cli-html', currentHtml);
+  sameHtmlVisibleCurrent.surfaces.set('page:/reference/project-cli', currentHtml);
+  assert.doesNotThrow(
+    () => assertProductFramingArtifactContract(sameHtmlVisibleCurrent),
+    'the same visible current HTML in primary and page alias is accepted',
+  );
+
+  const pairedPlainHiddenOldClaim = artifactFixture(source);
+  const plainHiddenOldClaimHtml = `${currentHtml}<div hidden>${oldClaim}</div>`;
+  pairedPlainHiddenOldClaim.surfaces.set('cli-html', plainHiddenOldClaimHtml);
+  pairedPlainHiddenOldClaim.surfaces.set('page:/reference/project-cli', plainHiddenOldClaimHtml);
+  assert.doesNotThrow(
+    () => assertProductFramingArtifactContract(pairedPlainHiddenOldClaim),
+    'plain hidden old claim is ignored in paired HTML surfaces',
+  );
+
+  for (const display of ['block', 'block!important']) {
+    const pairedOverrideOldClaim = artifactFixture(source);
+    const overrideOldClaimHtml = `${currentHtml}<div hidden style="display:${display}">${oldClaim}</div>`;
+    pairedOverrideOldClaim.surfaces.set('cli-html', overrideOldClaimHtml);
+    pairedOverrideOldClaim.surfaces.set('page:/reference/project-cli', overrideOldClaimHtml);
+    assert.throws(
+      () => assertProductFramingArtifactContract(pairedOverrideOldClaim),
+      /old absolute side-effect-free claim/,
+      `hidden ${display} override keeps old claim visible in paired HTML surfaces`,
+    );
+
+    const pairedOverrideRequired = artifactFixture(source);
+    const overrideRequiredHtml = `<div hidden style="display:${display}">${currentHtml}</div>`;
+    pairedOverrideRequired.surfaces.set('cli-html', overrideRequiredHtml);
+    pairedOverrideRequired.surfaces.set('page:/reference/project-cli', overrideRequiredHtml);
+    assert.doesNotThrow(
+      () => assertProductFramingArtifactContract(pairedOverrideRequired),
+      `hidden ${display} override preserves required markers in paired HTML surfaces`,
+    );
+  }
+
+  const headOnlyMarkers = artifactFixture(source);
+  const headOnlyHtml = `<!doctype html><html><head><title>${source.documents['project-cli.md']}</title></head><body></body></html>`;
+  headOnlyMarkers.surfaces.set('cli-html', headOnlyHtml);
+  headOnlyMarkers.surfaces.set('page:/reference/project-cli', headOnlyHtml);
+  assert.throws(
+    () => assertProductFramingArtifactContract(headOnlyMarkers),
+    /Stable list boundary/,
+    'required markers found only in head/title must be rejected in paired HTML surfaces',
+  );
+
+  const headOnlyOldClaim = artifactFixture(source);
+  const headOnlyOldClaimHtml = `<!doctype html><html><head><title>${oldClaim}</title></head><body>${currentHtml}</body></html>`;
+  headOnlyOldClaim.surfaces.set('cli-html', headOnlyOldClaimHtml);
+  headOnlyOldClaim.surfaces.set('page:/reference/project-cli', headOnlyOldClaimHtml);
+  assert.doesNotThrow(
+    () => assertProductFramingArtifactContract(headOnlyOldClaim),
+    'an old claim confined to head/title must not contaminate paired visible HTML',
+  );
+
+  const initialVisible = artifactFixture(source);
+  const initialVisibleHtml = `<div style="visibility:hidden"><span style="visibility:initial">${source.documents['project-cli.md']}</span></div>`;
+  initialVisible.surfaces.set('cli-html', initialVisibleHtml);
+  initialVisible.surfaces.set('page:/reference/project-cli', initialVisibleHtml);
+  assert.doesNotThrow(
+    () => assertProductFramingArtifactContract(initialVisible),
+    'visibility:initial restores the visible required-marker subtree',
+  );
+
+  const initialVisibleOldClaim = artifactFixture(source);
+  const initialVisibleOldClaimHtml = `<div style="visibility:hidden"><span style="visibility:initial">${oldClaim}</span></div>${currentHtml}`;
+  initialVisibleOldClaim.surfaces.set('cli-html', initialVisibleOldClaimHtml);
+  initialVisibleOldClaim.surfaces.set('page:/reference/project-cli', initialVisibleOldClaimHtml);
+  assert.throws(
+    () => assertProductFramingArtifactContract(initialVisibleOldClaim),
+    /old absolute side-effect-free claim/,
+    'visibility:initial old claim remains visible and is rejected in paired HTML surfaces',
+  );
+
+  const detailsCurrent = artifactFixture(source);
+  const detailsHtml = `${CLI_STABLE_LIST_BOUNDARY_MARKERS.map((marker) => `<details><summary>${marker}</summary></details>`).join('')}${currentHtml}`;
+  detailsCurrent.surfaces.set('cli-html', detailsHtml);
+  detailsCurrent.surfaces.set('page:/reference/project-cli', detailsHtml);
+  assert.doesNotThrow(
+    () => assertProductFramingArtifactContract(detailsCurrent),
+    'details/summary boundaries preserve each required marker in paired HTML surfaces',
+  );
+
+  const detailsSplit = artifactFixture(source);
+  const splitMarker = CLI_STABLE_LIST_BOUNDARY_MARKERS[0];
+  const splitAt = splitMarker.indexOf(' ');
+  const currentWithoutFirst = htmlSurface(source.documents['project-cli.md'].replace('Global `list`は、現在のApplicationで利用できるCommandを目的別に確認する入口です。一覧で名前と概要を確認してから、必要なCommandの個別Helpへ進みます。', ''));
+  const detailsRemainder = detailsHtml.slice(detailsHtml.indexOf('</details>') + '</details>'.length).replace(currentHtml, currentWithoutFirst);
+  const splitDetailsHtml = `<details><summary>${splitMarker.slice(0, splitAt)}</summary></details><details><summary>${splitMarker.slice(splitAt + 1)}</summary></details>${detailsRemainder}`;
+  detailsSplit.surfaces.set('cli-html', splitDetailsHtml);
+  detailsSplit.surfaces.set('page:/reference/project-cli', splitDetailsHtml);
+  assert.throws(
+    () => assertProductFramingArtifactContract(detailsSplit),
+    /Stable list boundary|ordered marker/,
+    'details/summary boundaries must not concatenate a split required marker',
+  );
+
+  const nativeDetailsCases = [
+    ['closed details', (value) => `<details><summary>Summary</summary><div>${value}</div></details>`],
+    ['open details', (value) => `<details open><summary>Summary</summary><div>${value}</div></details>`],
+  ];
+  for (const [caseName, wrapper] of nativeDetailsCases) {
+    const hiddenRequired = artifactFixture(source);
+    const hiddenRequiredHtml = wrapper(source.documents['project-cli.md']);
+    hiddenRequired.surfaces.set('cli-html', hiddenRequiredHtml);
+    hiddenRequired.surfaces.set('page:/reference/project-cli', hiddenRequiredHtml);
+    if (caseName === 'closed details') {
+      assert.throws(
+        () => assertProductFramingArtifactContract(hiddenRequired),
+        /Stable list boundary/,
+        `${caseName} body-only required markers must be rejected in paired HTML surfaces`,
+      );
+    } else {
+      assert.doesNotThrow(
+        () => assertProductFramingArtifactContract(hiddenRequired),
+        `${caseName} required markers must remain visible in paired HTML surfaces`,
+      );
+    }
+  }
+
+  const closedDetailsOldClaim = artifactFixture(source);
+  const closedDetailsOldClaimHtml = `${currentHtml}<details><summary>Summary</summary><div>${oldClaim}</div></details>`;
+  closedDetailsOldClaim.surfaces.set('cli-html', closedDetailsOldClaimHtml);
+  closedDetailsOldClaim.surfaces.set('page:/reference/project-cli', closedDetailsOldClaimHtml);
+  assert.doesNotThrow(
+    () => assertProductFramingArtifactContract(closedDetailsOldClaim),
+    'a closed details body old claim must not contaminate visible paired HTML',
+  );
+
+  const openDetailsOldClaim = artifactFixture(source);
+  const openDetailsOldClaimHtml = `${currentHtml}<details open><summary>Summary</summary><div>${oldClaim}</div></details>`;
+  openDetailsOldClaim.surfaces.set('cli-html', openDetailsOldClaimHtml);
+  openDetailsOldClaim.surfaces.set('page:/reference/project-cli', openDetailsOldClaimHtml);
+  assert.throws(
+    () => assertProductFramingArtifactContract(openDetailsOldClaim),
+    /old absolute side-effect-free claim/,
+    'an open details old claim must be rejected in paired HTML surfaces',
+  );
+
+  const detailsSummaryOldClaim = artifactFixture(source);
+  const detailsSummaryOldClaimHtml = `${currentHtml}<details><summary>${oldClaim}</summary><div>Body</div></details>`;
+  detailsSummaryOldClaim.surfaces.set('cli-html', detailsSummaryOldClaimHtml);
+  detailsSummaryOldClaim.surfaces.set('page:/reference/project-cli', detailsSummaryOldClaimHtml);
+  assert.throws(
+    () => assertProductFramingArtifactContract(detailsSummaryOldClaim),
+    /old absolute side-effect-free claim/,
+    'the first direct details summary old claim must be rejected in paired HTML surfaces',
+  );
+
+  const closedDetailsVisibilityOverride = artifactFixture(source);
+  const closedDetailsVisibilityOverrideHtml = `<details style="visibility:hidden"><summary style="visibility:visible">Summary</summary><div style="visibility:visible">${oldClaim}</div></details>${currentHtml}`;
+  closedDetailsVisibilityOverride.surfaces.set('cli-html', closedDetailsVisibilityOverrideHtml);
+  closedDetailsVisibilityOverride.surfaces.set('page:/reference/project-cli', closedDetailsVisibilityOverrideHtml);
+  assert.doesNotThrow(
+    () => assertProductFramingArtifactContract(closedDetailsVisibilityOverride),
+    'closed details body remains hidden even when its descendants override visibility',
+  );
+
+  const closedDetailsVisibleSummaryOldClaim = artifactFixture(source);
+  const closedDetailsVisibleSummaryOldClaimHtml = `<details style="visibility:hidden"><summary style="visibility:visible">${oldClaim}</summary><div style="visibility:visible">Body</div></details>${currentHtml}`;
+  closedDetailsVisibleSummaryOldClaim.surfaces.set('cli-html', closedDetailsVisibleSummaryOldClaimHtml);
+  closedDetailsVisibleSummaryOldClaim.surfaces.set('page:/reference/project-cli', closedDetailsVisibleSummaryOldClaimHtml);
+  assert.throws(
+    () => assertProductFramingArtifactContract(closedDetailsVisibleSummaryOldClaim),
+    /old absolute side-effect-free claim/,
+    'a visible first direct summary old claim must be rejected in paired HTML surfaces',
+  );
+
+  const closedDialogRequired = artifactFixture(source);
+  const closedDialogRequiredHtml = `<dialog>${source.documents['project-cli.md']}</dialog>`;
+  closedDialogRequired.surfaces.set('cli-html', closedDialogRequiredHtml);
+  closedDialogRequired.surfaces.set('page:/reference/project-cli', closedDialogRequiredHtml);
+  assert.throws(
+    () => assertProductFramingArtifactContract(closedDialogRequired),
+    /Stable list boundary/,
+    'a plain closed dialog must hide body-only required markers in paired HTML surfaces',
+  );
+
+  const openDialogOldClaim = artifactFixture(source);
+  const openDialogOldClaimHtml = `${currentHtml}<dialog open>${oldClaim}</dialog>`;
+  openDialogOldClaim.surfaces.set('cli-html', openDialogOldClaimHtml);
+  openDialogOldClaim.surfaces.set('page:/reference/project-cli', openDialogOldClaimHtml);
+  assert.throws(
+    () => assertProductFramingArtifactContract(openDialogOldClaim),
+    /old absolute side-effect-free claim/,
+    'an open dialog old claim must be rejected in paired HTML surfaces',
+  );
+
+  const closedDialogOverrideOldClaim = artifactFixture(source);
+  const closedDialogOverrideOldClaimHtml = `${currentHtml}<dialog style="display:block!important">${oldClaim}</dialog>`;
+  closedDialogOverrideOldClaim.surfaces.set('cli-html', closedDialogOverrideOldClaimHtml);
+  closedDialogOverrideOldClaim.surfaces.set('page:/reference/project-cli', closedDialogOverrideOldClaimHtml);
+  assert.throws(
+    () => assertProductFramingArtifactContract(closedDialogOverrideOldClaim),
+    /old absolute side-effect-free claim/,
+    'an inline non-none display override must expose a closed dialog old claim',
+  );
+
+  const closedDialogDisplayNoneOldClaim = artifactFixture(source);
+  const closedDialogDisplayNoneOldClaimHtml = `${currentHtml}<dialog style="display:none">${oldClaim}</dialog>`;
+  closedDialogDisplayNoneOldClaim.surfaces.set('cli-html', closedDialogDisplayNoneOldClaimHtml);
+  closedDialogDisplayNoneOldClaim.surfaces.set('page:/reference/project-cli', closedDialogDisplayNoneOldClaimHtml);
+  assert.doesNotThrow(
+    () => assertProductFramingArtifactContract(closedDialogDisplayNoneOldClaim),
+    'display:none keeps a closed dialog old claim hidden in paired HTML surfaces',
+  );
+
+  const sameRawLiteralOldClaim = artifactFixture(source);
+  const literalOldClaimRaw = `${source.documents['project-cli.md']}\n<script>${oldClaim}</script>`;
+  sameRawLiteralOldClaim.surfaces.set('cli-raw', literalOldClaimRaw);
+  sameRawLiteralOldClaim.surfaces.set('raw:reference/project-cli.md', literalOldClaimRaw);
+  assert.throws(
+    () => assertProductFramingArtifactContract(sameRawLiteralOldClaim),
+    /old absolute side-effect-free claim/,
+    'the same literal-tag raw content in primary and alias is rejected',
+  );
+
+  for (const unknownAlias of ['page:/reference/project-cli-copy', 'raw:reference/project-cli-copy.md']) {
+    const unknownAliasArtifact = artifactFixture(source);
+    unknownAliasArtifact.surfaces.set(unknownAlias, source.documents['project-cli.md']);
+    assert.throws(
+      () => assertProductFramingArtifactContract(unknownAliasArtifact),
+      /Unknown CLI artifact surface kind/,
+      `unknown alias ${unknownAlias} must fail closed`,
+    );
+  }
+
+  for (const radix of ['decimal', 'hex']) {
+    const numericRequiredMarkers = artifactFixture(source);
+    const numericHtml = htmlSurface(source.documents['project-cli.md']);
+    numericRequiredMarkers.surfaces.set('cli-html', encodeHtmlLiteral(encodeHtmlLiteral(numericHtml, '--raw', radix), 'Definition', radix));
+    assert.doesNotThrow(() => assertProductFramingArtifactContract(numericRequiredMarkers), `numeric ${radix} markers must preserve visible text`);
+  }
+
+  for (const manifest of ['M&#97;nifest', 'M&#x61;nifest']) {
+    const encodedOldClaim = oldClaim.replace('Manifest', manifest);
+    const numericOldClaim = artifactFixture(source);
+    numericOldClaim.surfaces.set('cli-html', `${htmlSurface(source.documents['project-cli.md'])}<p>${encodedOldClaim}</p>`);
+    assert.throws(
+      () => assertProductFramingArtifactContract(numericOldClaim),
+      /old absolute side-effect-free claim/,
+      `numeric old claim ${manifest} must be rejected in HTML Artifact`,
+    );
+  }
+
+  const namedEntityAndInlineSpan = artifactFixture(source);
+  namedEntityAndInlineSpan.surfaces.set(
+    'cli-html',
+    htmlSurface(source.documents['project-cli.md']).replace('Global <code>list</code>', 'Global&nbsp;<span>list</span>'),
+  );
+  assert.doesNotThrow(() => assertProductFramingArtifactContract(namedEntityAndInlineSpan));
+
+  for (const entity of ['&#0;', '&#xD800;', '&#x110000;', '&#xZZ;', '&#97']) {
+    const invalidNumericReference = artifactFixture(source);
+    invalidNumericReference.surfaces.set('cli-html', `${htmlSurface(source.documents['project-cli.md'])}<p>${entity}</p>`);
+    assert.throws(
+      () => assertProductFramingArtifactContract(invalidNumericReference),
+      /Invalid numeric character reference/,
+      `invalid numeric reference ${entity} must fail closed`,
+    );
+  }
+  assert.equal(normalizeVisibleText('M&#97;nifest'), 'Manifest');
+  assert.equal(normalizeVisibleText('M&#x61;nifest'), 'Manifest');
+
+  const defaultParagraph = 'Command Manifestから発見したLazy Commandは、通常表示と`--raw`では、Command実体を作る処理（factory）を呼び出さずに一覧します。`--raw`は装飾を省いたテキスト一覧です。';
+  const structuredParagraph = '`--short`を付けない`--format=json|xml|md`では、引数とOptionの定義（Definition）やHelp取得でCommand実体を作る処理（factory）が呼び出されます。そのfactoryがBuild済みの依存関係を持つ仕組み（Container）からCommand実体を解決する場合があります。個別の`help`も同じようにLazy Commandを解決する場合があります。';
+  const reordered = artifactFixture(source);
+  reordered.surfaces.set('cli-html', htmlSurface(source.documents['project-cli.md'].replace(`${defaultParagraph}\n\n${structuredParagraph}`, `${structuredParagraph}\n\n${defaultParagraph}`)));
+  assert.throws(() => assertProductFramingArtifactContract(reordered), /order|ordered marker/);
+
+  const blockSplit = artifactFixture(source);
+  blockSplit.surfaces.set('cli-html', htmlSurface(source.documents['project-cli.md'].replace('通常表示と`--raw`', '通常表示と<div>`--raw`')));
+  assert.throws(() => assertProductFramingArtifactContract(blockSplit), /Stable list boundary/);
+
+  for (const surface of ['html', 'raw', 'search', 'llm']) {
+    const currentSurface = surface === 'html' ? htmlSurface(source.documents['project-cli.md']) : source.documents['project-cli.md'];
+    const splitRequiredMarker = artifactFixture(source);
+    splitRequiredMarker.surfaces.set(`cli-${surface}`, splitAtExistingSpace(currentSurface, surface, 'Command Manifest'));
+    assert.throws(
+      () => assertProductFramingArtifactContract(splitRequiredMarker),
+      /Stable list boundary|ordered marker/,
+      `required marker split must be rejected in ${surface}`,
+    );
+
+    const splitOldClaim = artifactFixture(source);
+    const splitClaim = splitAtExistingSpace(oldClaim, surface, 'Manifest Metadata');
+    splitOldClaim.surfaces.set(
+      `cli-${surface}`,
+      `${currentSurface}${surface === 'html' ? `<p>${splitClaim}</p>` : `\n${splitClaim}`}`,
+    );
+    assert.throws(
+      () => assertProductFramingArtifactContract(splitOldClaim),
+      /old absolute side-effect-free claim/,
+      `old claim split across blocks must be rejected in ${surface}`,
+    );
+  }
+
+  const transformedHtml = artifactFixture(source);
+  transformedHtml.surfaces.set('cli-html', htmlSurface(source.documents['project-cli.md']));
+  assert.doesNotThrow(() => assertProductFramingArtifactContract(transformedHtml));
+
+  for (const [kind, wrapper] of [
+    ['comment', (value) => `<!--${value}-->`],
+    ['script', (value) => `<script>${value}</script>`],
+    ['style', (value) => `<style>${value}</style>`],
+    ['template', (value) => `<template>${value}</template>`],
+  ]) {
+    const hidden = artifactFixture(source);
+    hidden.surfaces.set('cli-html', wrapper(source.documents['project-cli.md']));
+    assert.throws(
+      () => assertProductFramingArtifactContract(hidden),
+      /Stable list boundary/,
+      `required markers only inside a non-visible ${kind} must be rejected`,
+    );
+  }
+
+  const hiddenOldClaim = artifactFixture(source);
+  hiddenOldClaim.surfaces.set(
+    'cli-html',
+    `${htmlSurface(source.documents['project-cli.md'])}<script>${oldClaim}</script><!-- ${oldClaim} -->`,
+  );
+  assert.doesNotThrow(() => assertProductFramingArtifactContract(hiddenOldClaim));
+
+  const hardHiddenMechanisms = [
+    ['hidden', (value) => `<div hidden>${value}</div>`],
+    ['display:none', (value) => `<div style="display: none">${value}</div>`],
+    ['display:none!important', (value) => `<div style="display: none !important">${value}</div>`],
+    ['content-visibility:hidden', (value) => `<div style="content-visibility: hidden">${value}</div>`],
+  ];
+  for (const [mechanism, wrapper] of hardHiddenMechanisms) {
+    const hiddenRequired = artifactFixture(source);
+    const hiddenRequiredHtml = wrapper(source.documents['project-cli.md']);
+    hiddenRequired.surfaces.set('cli-html', hiddenRequiredHtml);
+    hiddenRequired.surfaces.set('page:/reference/project-cli', hiddenRequiredHtml);
+    assert.throws(
+      () => assertProductFramingArtifactContract(hiddenRequired),
+      /Stable list boundary/,
+      `${mechanism} required markers only must be rejected in paired HTML surfaces`,
+    );
+
+    const hiddenOld = artifactFixture(source);
+    const hiddenOldHtml = `${currentHtml}${wrapper(oldClaim)}`;
+    hiddenOld.surfaces.set('cli-html', hiddenOldHtml);
+    hiddenOld.surfaces.set('page:/reference/project-cli', hiddenOldHtml);
+    assert.doesNotThrow(
+      () => assertProductFramingArtifactContract(hiddenOld),
+      `${mechanism} hidden old claim must not contaminate visible contract`,
+    );
+
+    const visibleSibling = artifactFixture(source);
+    const visibleSiblingHtml = `${wrapper(oldClaim)}${currentHtml}`;
+    visibleSibling.surfaces.set('cli-html', visibleSiblingHtml);
+    visibleSibling.surfaces.set('page:/reference/project-cli', visibleSiblingHtml);
+    assert.doesNotThrow(
+      () => assertProductFramingArtifactContract(visibleSibling),
+      `${mechanism} hidden old claim with visible current sibling must pass`,
+    );
+  }
+
+  for (const [mechanism, wrapper] of [
+    ['visibility:hidden', (value) => `<div style="visibility: hidden">${value}</div>`],
+    ['visibility:collapse', (value) => `<div style="visibility: collapse">${value}</div>`],
+  ]) {
+    const hiddenRequired = artifactFixture(source);
+    const hiddenRequiredHtml = wrapper(source.documents['project-cli.md']);
+    hiddenRequired.surfaces.set('cli-html', hiddenRequiredHtml);
+    hiddenRequired.surfaces.set('page:/reference/project-cli', hiddenRequiredHtml);
+    assert.throws(
+      () => assertProductFramingArtifactContract(hiddenRequired),
+      /Stable list boundary/,
+      `${mechanism} required markers only must be rejected in paired HTML surfaces`,
+    );
+
+    const hiddenOld = artifactFixture(source);
+    const hiddenOldHtml = `${currentHtml}${wrapper(oldClaim)}`;
+    hiddenOld.surfaces.set('cli-html', hiddenOldHtml);
+    hiddenOld.surfaces.set('page:/reference/project-cli', hiddenOldHtml);
+    assert.doesNotThrow(
+      () => assertProductFramingArtifactContract(hiddenOld),
+      `${mechanism} hidden old claim must not contaminate visible contract`,
+    );
+
+    const visibleChildOld = artifactFixture(source);
+    const visibleChildOldHtml = `<div style="visibility:hidden"><span style="visibility:visible">${oldClaim}</span></div>${currentHtml}`;
+    visibleChildOld.surfaces.set('cli-html', visibleChildOldHtml);
+    visibleChildOld.surfaces.set('page:/reference/project-cli', visibleChildOldHtml);
+    assert.throws(
+      () => assertProductFramingArtifactContract(visibleChildOld),
+      /old absolute side-effect-free claim/,
+      `${mechanism} visible child old claim must remain visible and be rejected`,
+    );
+  }
+
+  for (const [mechanism, wrapper] of [
+    ['aria-hidden', (value) => `<div aria-hidden=" TRUE ">${value}</div>`],
+    ['inert', (value) => `<div inert>${value}</div>`],
+  ]) {
+    const accessibleRequired = artifactFixture(source);
+    const accessibleRequiredHtml = wrapper(source.documents['project-cli.md']);
+    accessibleRequired.surfaces.set('cli-html', accessibleRequiredHtml);
+    accessibleRequired.surfaces.set('page:/reference/project-cli', accessibleRequiredHtml);
+    assert.doesNotThrow(
+      () => assertProductFramingArtifactContract(accessibleRequired),
+      `${mechanism} does not remove visually rendered required markers`,
+    );
+
+    const accessibleOld = artifactFixture(source);
+    const accessibleOldHtml = `${currentHtml}${wrapper(oldClaim)}`;
+    accessibleOld.surfaces.set('cli-html', accessibleOldHtml);
+    accessibleOld.surfaces.set('page:/reference/project-cli', accessibleOldHtml);
+    assert.throws(
+      () => assertProductFramingArtifactContract(accessibleOld),
+      /old absolute side-effect-free claim/,
+      `${mechanism} old claim remains visible and is rejected`,
+    );
+  }
+
+  for (const [mechanism, rootHtml] of [
+    ['body hidden', `<!doctype html><html><body hidden>${source.documents['project-cli.md']}</body></html>`],
+    ['body display:none!important', `<!doctype html><html><body style="display:none!important">${source.documents['project-cli.md']}</body></html>`],
+    ['html visibility:hidden', `<!doctype html><html style="visibility:hidden"><body>${source.documents['project-cli.md']}</body></html>`],
+  ]) {
+    const hiddenRoot = artifactFixture(source);
+    hiddenRoot.surfaces.set('cli-html', rootHtml);
+    hiddenRoot.surfaces.set('page:/reference/project-cli', rootHtml);
+    assert.throws(
+      () => assertProductFramingArtifactContract(hiddenRoot),
+      /Stable list boundary/,
+      `${mechanism} must hide the complete required-marker subtree`,
+    );
+  }
+
+  const rootAriaHidden = artifactFixture(source);
+  const rootAriaHiddenHtml = `<!doctype html><html aria-hidden="true"><body>${source.documents['project-cli.md']}</body></html>`;
+  rootAriaHidden.surfaces.set('cli-html', rootAriaHiddenHtml);
+  rootAriaHidden.surfaces.set('page:/reference/project-cli', rootAriaHiddenHtml);
+  assert.doesNotThrow(
+    () => assertProductFramingArtifactContract(rootAriaHidden),
+    'aria-hidden on html does not remove visually rendered text',
+  );
+
+  const visibleCascade = artifactFixture(source);
+  const visibleCascadeHtml = `<div style="display:none;display:block">${currentHtml}</div>`;
+  visibleCascade.surfaces.set('cli-html', visibleCascadeHtml);
+  visibleCascade.surfaces.set('page:/reference/project-cli', visibleCascadeHtml);
+  assert.doesNotThrow(
+    () => assertProductFramingArtifactContract(visibleCascade),
+    'the effective final visible inline declaration must be retained',
+  );
+
+  const hiddenImportantCascade = artifactFixture(source);
+  const hiddenImportantCascadeHtml = `<div style="display:none!important;display:block">${currentHtml}</div>`;
+  hiddenImportantCascade.surfaces.set('cli-html', hiddenImportantCascadeHtml);
+  hiddenImportantCascade.surfaces.set('page:/reference/project-cli', hiddenImportantCascadeHtml);
+  assert.throws(
+    () => assertProductFramingArtifactContract(hiddenImportantCascade),
+    /Stable list boundary/,
+    'an earlier important hidden declaration must dominate a later non-important declaration',
+  );
+
+  for (const surface of ['raw', 'search', 'llm']) {
+    const literalTagOldClaim = artifactFixture(source);
+    const currentSurface = source.documents['project-cli.md'];
+    literalTagOldClaim.surfaces.set(`cli-${surface}`, `${currentSurface}\n<script>${oldClaim}</script>`);
+    assert.throws(
+      () => assertProductFramingArtifactContract(literalTagOldClaim),
+      /old absolute side-effect-free claim/,
+      `literal script tags in reader-visible ${surface} must not hide the old claim`,
+    );
+  }
+
+  const literalTagOldClaimInRawAlias = artifactFixture(source);
+  literalTagOldClaimInRawAlias.surfaces.set(
+    'raw:reference/project-cli.md',
+    `${source.documents['project-cli.md']}\n<script>${oldClaim}</script>`,
+  );
+  assert.throws(
+    () => assertProductFramingArtifactContract(literalTagOldClaimInRawAlias),
+    /old absolute side-effect-free claim/,
+    'literal script tags in the reader-visible raw alias must not hide the old claim',
+  );
+
+  const visibleInlineBoundary = artifactFixture(source);
+  visibleInlineBoundary.surfaces.set(
+    'cli-html',
+    htmlSurface(source.documents['project-cli.md']).replace('Command Manifest', '<span>Command</span> Manifest'),
+  );
+  assert.doesNotThrow(() => assertProductFramingArtifactContract(visibleInlineBoundary));
+  assert.ok(CLI_STABLE_LIST_BOUNDARY_MARKERS.length >= 7);
+});
+
+test('Application Bootstrap list truth is required across public Source and Artifact surfaces', async () => {
+  const source = await sourceFixture();
+  const bootstrap = source.documents['application-bootstrap.md'];
+  const missingBoundary = APPLICATION_BOOTSTRAP_LIST_BOUNDARY_MARKERS.at(-1);
+
+  const oldSource = {
+    ...source,
+    documents: { ...source.documents, 'application-bootstrap.md': `${bootstrap}\n${APPLICATION_BOOTSTRAP_OLD_LIST_CLAIM}` },
+  };
+  assert.throws(
+    () => assertProductFramingSourceContract({ ...oldSource, contentMap }),
+    /old Application Bootstrap list claim/,
+  );
+
+  const missingSource = {
+    ...source,
+    documents: { ...source.documents, 'application-bootstrap.md': bootstrap.replace(missingBoundary.replace('Global list', 'Global `list`'), '') },
+  };
+  assert.throws(
+    () => assertProductFramingSourceContract({ ...missingSource, contentMap }),
+    /Application Bootstrap list boundary/,
+  );
+
+  const bootstrapSurfaceAlternatives = {
+    html: ['bootstrap-html', 'page:/reference/application-bootstrap'],
+    raw: ['bootstrap-raw', 'raw:reference/application-bootstrap.md'],
+    search: ['bootstrap-search', 'search-all'],
+    llm: ['bootstrap-llm', 'llm-full-all'],
+  };
+  for (const surface of ['html', 'raw', 'search', 'llm']) {
+    const artifactSurfaceWithOldClaim = artifactFixture(source);
+    const currentSurface = surface === 'html' ? htmlSurface(bootstrap) : bootstrap;
+    artifactSurfaceWithOldClaim.surfaces.set(`bootstrap-${surface}`, `${currentSurface}${surface === 'html' ? `<p>${APPLICATION_BOOTSTRAP_OLD_LIST_CLAIM}</p>` : `\n${APPLICATION_BOOTSTRAP_OLD_LIST_CLAIM}`}`);
+    assert.throws(
+      () => assertProductFramingArtifactContract(artifactSurfaceWithOldClaim),
+      /old Application Bootstrap list claim/,
+      `old claim must be rejected in Application Bootstrap ${surface}`,
+    );
+
+    const artifactSurfaceMissingBoundary = artifactFixture(source);
+    const withoutBoundary = bootstrap.replace(missingBoundary.replace('Global list', 'Global `list`'), '');
+    artifactSurfaceMissingBoundary.surfaces.set(`bootstrap-${surface}`, surface === 'html' ? htmlSurface(withoutBoundary) : currentSurface.replace(missingBoundary.replace('Global list', 'Global `list`'), ''));
+    assert.throws(
+      () => assertProductFramingArtifactContract(artifactSurfaceMissingBoundary),
+      /Application Bootstrap list boundary/,
+      `missing boundary must be rejected in Application Bootstrap ${surface}`,
+    );
+
+    const artifactMissingSurface = artifactFixture(source);
+    for (const alias of bootstrapSurfaceAlternatives[surface]) artifactMissingSurface.surfaces.delete(alias);
+    assert.throws(
+      () => assertProductFramingArtifactContract(artifactMissingSurface),
+      new RegExp(`missing the Application Bootstrap ${surface} artifact surface`),
+      `missing Application Bootstrap ${surface} surface must be rejected`,
+    );
+  }
+
+  for (const unknownAlias of ['page:/reference/application-bootstrap-copy', 'raw:reference/application-bootstrap-copy.md', 'bootstrap-side-channel', 'search-all-copy', 'llm-full-all-copy']) {
+    const unknownAliasArtifact = artifactFixture(source);
+    unknownAliasArtifact.surfaces.set(unknownAlias, bootstrap);
+    assert.throws(
+      () => assertProductFramingArtifactContract(unknownAliasArtifact),
+      /Unknown Application Bootstrap artifact surface kind/,
+      `unknown Application Bootstrap surface ${unknownAlias} must fail closed`,
+    );
+  }
+
+  const productionFixture = productionBootstrapArtifactFixture(source);
+  assert.doesNotThrow(() => assertProductFramingArtifactContract(productionFixture));
+  const productionAliases = {
+    html: 'page:/reference/application-bootstrap',
+    raw: 'raw:reference/application-bootstrap.md',
+    search: 'search-all',
+    llm: 'llm-full-all',
+  };
+  for (const [surface, alias] of Object.entries(productionAliases)) {
+    const missingProductionSurface = productionBootstrapArtifactFixture(source);
+    missingProductionSurface.surfaces.delete(alias);
+    assert.throws(
+      () => assertProductFramingArtifactContract(missingProductionSurface),
+      new RegExp(`missing the Application Bootstrap ${surface} artifact surface`),
+      `missing production Application Bootstrap ${surface} surface must be rejected`,
+    );
+  }
+});
+
 test('product framing source contract rejects audit, retention, tenant, README, and management drift', async () => {
   const source = await sourceFixture();
   assert.throws(
@@ -383,7 +1066,7 @@ test('product framing source contract rejects audit, retention, tenant, README, 
   );
   assert.throws(
     () => assertProductFramingSourceContract({ ...source, contentMap, documents: { ...source.documents, 'project-cli.md': source.documents['project-cli.md'] + `\n${RETENTION_OPTION}\n` } }),
-    /unpublished Retention option|publishes an outer-command-only retention option/,
+    /unpublished Retention option|publishes an inner-command-only retention option/,
   );
   assert.throws(
     () => assertProductFramingSourceContract({ ...source, contentMap, retentionRuntimeSource: source.retentionRuntimeSource.replace("                ->addOption('dead-letter-days', null, InputOption::VALUE_REQUIRED);", '') }),
@@ -457,7 +1140,7 @@ test('product framing artifact contract rejects audit, retention, tenant, and ma
 
   const staleRetention = artifactFixture(source);
   staleRetention.surfaces.set('cli-raw', `${source.documents['project-cli.md']}\n${RETENTION_OPTION}`);
-  assert.throws(() => assertProductFramingArtifactContract(staleRetention), /unpublished Retention option|publishes an outer-command-only retention option|exposes the unpublished idempotency option/);
+  assert.throws(() => assertProductFramingArtifactContract(staleRetention), /unpublished Retention option|publishes an inner-command-only retention option|exposes the unpublished idempotency option/);
 
   const oneSidedTenant = artifactFixture(source);
   oneSidedTenant.surfaces.set('cli-raw', `${source.documents['project-cli.md']}\nstorage:protection:plan --tenant-id=tenant-001`);

@@ -37,6 +37,31 @@ const ROADMAP_COMMANDS = /(?:^|[^a-z])(?:ls|route:list|route:ls|schedule:list|sc
 const CLI_INTERNAL_NAMES = /ApplicationConfigurationSnapshot|ApplicationOperationDiscovery/u;
 const CLI_TABLE_HEADER = '| 目的 | Command | 実行条件 | 出力／終了Code |';
 const CLI_HELP_BOUNDARY = 'Helpが本文表の全Optionを必ず列挙するとは限りません。';
+export const CLI_STABLE_LIST_BOUNDARY_MARKERS = [
+  'Global listは、現在のApplicationで利用できるCommandを目的別に確認する入口です。一覧で名前と概要を確認してから、必要なCommandの個別Helpへ進みます。',
+  'Applicationが明示登録したCommandをクラス名（class-string）で登録すると、Console Kernelを構成するときにCommand実体が生成され、コンストラクタが実行されます。',
+  '呼び出し側があらかじめ生成したCommand instanceを登録した場合は、その同じinstanceを再利用し、Kernel構成で追加の生成は行いません。',
+  'どの一覧形式を選んでも、この生成・再利用の境界は変わりません。',
+  'Command Manifestから発見したLazy Commandは、通常表示と--rawでは、Command実体を作る処理（factory）を呼び出さずに一覧します。',
+  '--rawは装飾を省いたテキスト一覧です。',
+  '--shortを付けない--format=json|xml|mdでは、引数とOptionの定義（Definition）やHelp取得でCommand実体を作る処理（factory）が呼び出されます。そのfactoryがBuild済みの依存関係を持つ仕組み（Container）からCommand実体を解決する場合があります。',
+  '個別のhelpも同じようにLazy Commandを解決する場合があります。',
+  'そのためGlobal listは、Applicationの初期化やContainerの解決から完全に切り離された診断Commandではありません。',
+];
+export const CLI_OLD_ABSOLUTE_SIDE_EFFECT_FREE_CLAIM = 'Manifest Metadataだけを使い、Handler、Database、Container、Actor Providerを解決しません。';
+export const APPLICATION_BOOTSTRAP_LIST_BOUNDARY_MARKERS = [
+  'Global listの実行境界は一覧形式で異なります。',
+  'Applicationが明示登録したCommandをクラス名（class-string）で登録すると、Console Kernelを構成するときにCommand実体が生成され、コンストラクタが実行されます。',
+  '呼び出し側があらかじめ生成したCommand instanceを登録した場合は、その同じinstanceを再利用し、Kernel構成で追加の生成は行いません。',
+  'どの一覧形式を選んでも、この生成・再利用の境界は変わりません。',
+  'Command Manifestから発見したLazy Commandは、通常表示と--rawでは、Command実体を作る処理（factory）を呼び出さずに一覧します。',
+  '--rawは装飾を省いたテキスト一覧です。',
+  '--shortを付けない--format=json|xml|mdでは、引数とOptionの定義（Definition）やHelp取得でCommand実体を作る処理（factory）が呼び出されます。そのfactoryがBuild済みの依存関係を持つ仕組み（Container）からCommand実体を解決する場合があります。',
+  '個別のhelpも同じようにLazy Commandを解決する場合があります。',
+  'そのためGlobal listは、Applicationの初期化やContainerの解決から完全に切り離された診断Commandではありません。',
+];
+export const APPLICATION_BOOTSTRAP_OLD_LIST_CLAIM = '`list`はCommand Manifestの名前／説明／Alias／Hiddenだけを読み、Command Constructor、Compiled Container、Database、PCNTL、Retention Serviceを構成しません。';
+const APPLICATION_BOOTSTRAP_OLD_LIST_CLAIM_FLAT = APPLICATION_BOOTSTRAP_OLD_LIST_CLAIM.replaceAll('`', '');
 const JOURNAL_CONCEPT_MARKERS = [
   'HTTPの受付からWorkerの再試行まで',
   'この処理単位をOperation、記録をJournalと呼びます。',
@@ -102,6 +127,7 @@ export function assertProductFramingSourceContract({
   const guide = document(sources, 'README.md', label);
   const why = document(sources, 'why-blackops.md', label);
   const cli = document(sources, 'project-cli.md', label);
+  const bootstrap = document(sources, 'application-bootstrap.md', label);
   const journal = document(sources, 'journal.md', label);
   const observability = document(sources, 'observability.md', label);
   const retention = document(sources, 'retention.md', label);
@@ -147,6 +173,8 @@ export function assertProductFramingSourceContract({
   requireText(cli, 'Optionの全量と既定値は本文の表と各詳細Guideを参照します。', label + ' CLI option reference boundary');
   requireText(cli, CLI_HELP_BOUNDARY, label + ' CLI Help limitation');
   requireText(cli, 'project-generators.md#seederを生成する', label + ' CLI Seeder link');
+  cliStableListContract(cli, label + ' CLI Stable list boundary');
+  applicationBootstrapContract(bootstrap, label + ' Application Bootstrap list boundary');
   if (CLI_INTERNAL_NAMES.test(cli)) throw new Error(label + ' CLI exposes an internal configuration class name.');
   const cliTable = cli.slice(cli.indexOf(CLI_TABLE_HEADER), cli.indexOf('「変更なし」'));
   if ((cliTable.match(/\| `build:compile`/g) ?? []).length !== 1) throw new Error(label + ' CLI table duplicates build:compile rows.');
@@ -190,6 +218,8 @@ export function assertProductFramingArtifactContract({
   const cliNames = names(artifacts, /cli|project-cli/iu).filter((name) => name !== 'raw:reference/project-cli.mdx');
   // The generated MDX companion is a source artifact, not the public raw page
   // surface validated by this contract.
+  const bootstrapNames = names(artifacts, /bootstrap|application-bootstrap|search-all|llm-full-all/iu)
+    .filter((name) => name !== 'raw:reference/application-bootstrap.mdx');
   const readmeNames = landingNames.filter((name) => /(?:landing-raw$|raw:index\.md$)/u.test(name));
   const cliSourceNames = cliNames.filter((name) => !/llm/iu.test(name));
   // The generated MDX companion is a source artifact, not the public raw page
@@ -202,6 +232,18 @@ export function assertProductFramingArtifactContract({
   if (landingVisualNames.length === 0) throw new Error(label + ' is missing a Landing visual artifact surface.');
   if (readmeNames.length === 0) throw new Error(label + ' is missing a Guide index raw artifact surface.');
   if (observabilityNames.length === 0) throw new Error(label + ' is missing an Observability artifact surface.');
+  const requiredBootstrapSurfaces = new Map([
+    ['html', ['bootstrap-html', 'page:/reference/application-bootstrap']],
+    ['raw', ['bootstrap-raw', 'raw:reference/application-bootstrap.md']],
+    ['search', ['bootstrap-search', 'search-all']],
+    ['llm', ['bootstrap-llm', 'llm-full-all']],
+  ]);
+  for (const [surface, alternatives] of requiredBootstrapSurfaces) {
+    if (!alternatives.some((name) => artifacts.has(name))) {
+      throw new Error(label + ' is missing the Application Bootstrap ' + surface + ' artifact surface.');
+    }
+  }
+  for (const name of bootstrapNames) applicationBootstrapContract(artifacts.get(name), label + ' ' + name + ' Application Bootstrap list boundary', { html: classifyApplicationBootstrapArtifactSurface(name) === 'html' });
   for (const name of readmeNames) readmeContract(artifacts.get(name), label + ' ' + name);
   for (const name of landingNames) {
     requireText(artifacts.get(name), 'BlackOps CLI', label + ' ' + name + ' CLI label');
@@ -258,7 +300,8 @@ export function assertProductFramingArtifactContract({
   for (const name of cliNames) {
     const cliText = artifactCliSection(name, artifacts.get(name));
     const cliSurface = classifyCliArtifactSurface(name);
-    retentionSurfaceContract(cliText, label + ' ' + name + ' Retention contract', { html: cliSurface === 'html', cli: true });
+    cliStableListContract(cliText, label + ' ' + name + ' Stable list boundary', { html: classifyCliArtifactSurface(name) === 'html' });
+    retentionSurfaceContract(cliText, label + ' ' + name + ' Retention contract', { html: cliSurface === 'html' });
     for (const marker of ['Projectを作る・Buildする', 'Operationを実行する', 'Dataを管理する', '診断・復旧する']) requireText(artifacts.get(name), marker, label + ' ' + name + ' CLI boundary');
     if (/(?:raw|llm)/iu.test(name)) requireText(cliText, 'php blackops list', label + ' ' + name + ' CLI first command');
     if (/(?:raw|llm)/iu.test(name)) {
@@ -302,6 +345,28 @@ function document(sources, name, label) {
 function required(value, label) {
   if (typeof value !== 'string' || value === '') throw new Error(label + ' must be a non-empty string.');
   return value;
+}
+
+function cliStableListContract(text, label, options = {}) {
+  const visible = normalizeVisibleText(text, options);
+  for (const marker of CLI_STABLE_LIST_BOUNDARY_MARKERS) requireText(visible, marker, label);
+  // A forbidden claim remains forbidden when an artifact splits it across
+  // block elements, but a required boundary marker must remain contiguous.
+  const flattened = visible.replace(/\s+/gu, ' ');
+  if (flattened.includes(CLI_OLD_ABSOLUTE_SIDE_EFFECT_FREE_CLAIM)) {
+    throw new Error(label + ' retains the old absolute side-effect-free claim.');
+  }
+  ordered(visible, CLI_STABLE_LIST_BOUNDARY_MARKERS, label + ' order');
+}
+
+function applicationBootstrapContract(text, label, options = {}) {
+  const visible = normalizeVisibleText(text, options);
+  for (const marker of APPLICATION_BOOTSTRAP_LIST_BOUNDARY_MARKERS) requireText(visible, marker, label);
+  const flattened = visible.replace(/\s+/gu, ' ');
+  if (flattened.includes(APPLICATION_BOOTSTRAP_OLD_LIST_CLAIM_FLAT)) {
+    throw new Error(label + ' retains the old Application Bootstrap list claim.');
+  }
+  ordered(visible, APPLICATION_BOOTSTRAP_LIST_BOUNDARY_MARKERS, label + ' order');
 }
 
 export function normalizeVisibleText(text, { html = false } = {}) {
@@ -442,7 +507,7 @@ function retentionContract({ cli, retention, runtimeSource }, label) {
   requireText(retention, RETENTION_CLI_BOUNDARY, label + ' retention guide boundary');
   requireText(retention, RETENTION_FALLBACK_GUIDE, label + ' retention guide fallback');
   for (const [name, text] of [['CLI', cli], ['Retention guide', retention]]) {
-    if (text.includes(UNPUBLISHED_RETENTION_OPTION)) throw new Error(label + ' ' + name + ' publishes an outer-command-only retention option.');
+    if (text.includes(UNPUBLISHED_RETENTION_OPTION)) throw new Error(label + ' ' + name + ' publishes an inner-command-only retention option.');
   }
   const definition = runtimeSource.match(/\$retentionOptions\s*=\s*static function[\s\S]*?\n\s*\};/u)?.[0];
   if (definition === undefined) throw new Error(label + ' is missing the source-derived outer Retention Definition.');
@@ -592,6 +657,8 @@ function noForbiddenBoundary(text, label) {
     [OLD_APPLICATION_AUDIT_BOUNDARY, 'legacy application audit boundary'],
     [WRONG_OPERATIONAL_AUDIT_OWNER, 'operational audit ownership boundary'],
     [UNPUBLISHED_RETENTION_OPTION, 'unpublished Retention option'],
+    [APPLICATION_BOOTSTRAP_OLD_LIST_CLAIM, 'old Application Bootstrap list claim'],
+    [APPLICATION_BOOTSTRAP_OLD_LIST_CLAIM_FLAT, 'old Application Bootstrap list claim'],
     ['storage.rotation.completed', 'retired Rotation event'],
     [/監査正本/u, 'unqualified audit authority'],
   ]) {
@@ -732,6 +799,22 @@ function classifyCliArtifactSurface(name) {
     ['cli-llm', 'llm'],
   ]).get(key);
   if (surface === undefined) throw new Error('Unknown CLI artifact surface kind: ' + key);
+  return surface;
+}
+
+function classifyApplicationBootstrapArtifactSurface(name) {
+  const key = String(name);
+  const surface = new Map([
+    ['bootstrap-html', 'html'],
+    ['page:/reference/application-bootstrap', 'html'],
+    ['bootstrap-raw', 'raw'],
+    ['raw:reference/application-bootstrap.md', 'raw'],
+    ['bootstrap-search', 'search'],
+    ['search-all', 'search'],
+    ['bootstrap-llm', 'llm'],
+    ['llm-full-all', 'llm'],
+  ]).get(key);
+  if (surface === undefined) throw new Error('Unknown Application Bootstrap artifact surface kind: ' + key);
   return surface;
 }
 

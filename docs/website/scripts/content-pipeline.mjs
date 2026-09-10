@@ -9,7 +9,7 @@ import {
   publicDiagramLinks,
 } from './archify-diagrams.mjs';
 
-const MARKDOWN_LINK = /(!?\[[^\]]*\])\(([^)]+)\)/g;
+const MARKDOWN_LINK = /(!?\[(?:[^\]`]|`[^`]*`)*\])\(([^)]+)\)/g;
 const EXTERNAL_TARGET = /^(?:[a-z][a-z0-9+.-]*:|\/\/)/i;
 const REPOSITORY_ABSOLUTE_PATH = /(?:^|[`\s(])(?:\/home\/|\/Users\/|[A-Za-z]:\\)/m;
 const FORBIDDEN_CONTENT = [

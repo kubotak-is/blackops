@@ -371,9 +371,11 @@ Upgrade検証に失敗した場合はProcessを停止し、同一Backup組から
 公開後、既存Applicationの`^1.2` Constraintを維持したままFrameworkだけを更新します。
 
 ```bash
-composer update blackops/framework --with-all-dependencies
+composer update blackops/framework:1.2.1
 composer validate --strict
 ```
+
+このCommandの`blackops/framework:1.2.1`は更新対象だけに付ける一時Constraintで、Applicationの`composer.json`にある`^1.2`は変更しません。
 
 ### 2. DatabaseとApplication Sourceを確認する
 
