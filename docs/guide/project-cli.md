@@ -63,7 +63,7 @@ php blackops build:compile
 
 `build:compile`は`config/operations.php`のOperation、HTTP、Frontend、`config/app.php`のApplication Command Discoveryを同じBuild IDでCompileし、ManifestとSymfony DI Containerを書き出します。Build ArtifactがMissing／Invalid／ID不一致の場合、Operation実行RuntimeはSource ScanへFallbackしません。
 
-Stable `1.2.0`の`build:compile`はFramework-owned proxyを唯一のProfileとして、Build IDとContent Hashに結び付いた不変Framework Artifact Unitを発行します。RuntimeはUnitを事前検証してから生成コードを読み込み、同じBuild IDを上書きしません。Rollbackは以前の完全なContainer・各Manifest・一致するFramework Artifact Unitを同一Release組として戻します。
+Stable `1.2.1`の`build:compile`はFramework-owned proxyを唯一のProfileとして、Build IDとContent Hashに結び付いた不変Framework Artifact Unitを発行します。RuntimeはUnitを事前検証してから生成コードを読み込み、同じBuild IDを上書きしません。Rollbackは以前の完全なContainer・各Manifest・一致するFramework Artifact Unitを同一Release組として戻します。
 
 対象の`#[Transactional]`／`#[AfterCommit]`クラスはFramework Signature／Definition境界を満たすか監査し、Unsupported Diagnosticを修正して新しいBuild IDで再Compileします。生成ContainerをHTTP、CLI、Workerの各起動Smokeで検証し、Rollbackは以前の完全なContainer、Operation／HTTP／Frontend／Command Manifest、`proxy-profiles/<build-id>-<content-hash>`と参照Framework Unitを同一Release組として戻します。
 
@@ -131,9 +131,9 @@ Outboxは`outbox:relay:run --until-empty`またはDaemonでRelayし、別Process
 
 <a id="stablemain境界"></a>
 
-## Stable 1.2.0で利用できる範囲
+## Stable 1.2.1で利用できる範囲
 
-公開済みExperimental Stable `1.2.0`で案内できるのはProject Root `blackops`、`make:operation`／`make:migration`、Migration、Typed Operation、HTTP／Deferred、Worker、Journal、Outcome、Retention、Tenant／Protected Storage、Frontend Contract、Status／Diagnostics、Console Adapter、Outbox、`make:auth`／`make:seeder`、Observer Replay、Framework Proxy Profile Artifact Unitです。BlackOps BoardはRepository Exampleとして別管理します。Business／Security Audit Trail、署名付き履歴Export、未Releaseの追加CommandはStableの提供範囲ではありません。[Releases](mvp-status.md)の表を正本にします。
+公開済みExperimental Stable `1.2.1`で案内できるのはProject Root `blackops`、`make:operation`／`make:migration`、Migration、Typed Operation、HTTP／Deferred、Worker、Journal、Outcome、Retention、Tenant／Protected Storage、Frontend Contract、Status／Diagnostics、Console Adapter、Outbox、`make:auth`／`make:seeder`、Observer Replay、Framework Proxy Profile Artifact Unitです。BlackOps BoardはRepository Exampleとして別管理します。Business／Security Audit Trail、署名付き履歴Export、未Releaseの追加CommandはStableの提供範囲ではありません。[Releases](mvp-status.md)の表を正本にします。
 
 ## 次にBootstrapの署名を引く
 

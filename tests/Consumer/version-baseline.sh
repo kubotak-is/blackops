@@ -310,8 +310,8 @@ assert_installation_key_convergence() {
     local file='docs/guide/installation.md'
 
     awk '
-        index($0, "composer create-project blackops/skeleton my-app 1.2.0") && !normal_line { normal_line = NR }
-        index($0, "composer create-project --no-scripts blackops/skeleton my-app 1.2.0") { no_scripts_line = NR }
+        index($0, "composer create-project blackops/skeleton my-app 1.2.1") && !normal_line { normal_line = NR }
+        index($0, "composer create-project --no-scripts blackops/skeleton my-app 1.2.1") { no_scripts_line = NR }
         index($0, "php bin/setup") { setup_line = NR }
         index($0, "normal／`--no-scripts`のどちらも") { convergence_line = NR }
         index($0, "chmod 600 .env") { key_line = NR }
@@ -330,9 +330,9 @@ assert_mvp_key_convergence() {
     local file='docs/guide/mvp-sample.md'
 
     awk '
-        index($0, "composer create-project blackops/skeleton my-app 1.2.0") && !normal_create_line { normal_create_line = NR }
+        index($0, "composer create-project blackops/skeleton my-app 1.2.1") && !normal_create_line { normal_create_line = NR }
         index($0, "php bin/setup") && !normal_setup_line { normal_setup_line = NR }
-        index($0, "composer create-project --no-scripts blackops/skeleton my-app 1.2.0") { no_scripts_create_line = NR }
+        index($0, "composer create-project --no-scripts blackops/skeleton my-app 1.2.1") { no_scripts_create_line = NR }
         index($0, "php bin/setup") && normal_setup_line && NR > normal_setup_line && !no_scripts_setup_line { no_scripts_setup_line = NR }
         index($0, "normal／`--no-scripts`のどちらも、Setup直後に次の同じ必須Key Stepを実行します。") { convergence_line = NR }
         index($0, "chmod 600 .env") { chmod_line = NR }
@@ -1024,24 +1024,24 @@ assert_generator_tag_lifecycle
 assert_information_architecture_contract
 assert_reader_contract
 
-# Stable onboarding and its published CTA remain pinned to the immutable 1.2.0 lane.
-contains README.md 'Latest Experimental StableはFramework／Skeleton `1.2.0`です。'
-contains README.md 'composer create-project blackops/skeleton my-app 1.2.0'
-contains README.md 'Framework／Skeleton `1.2.0`はannotated Tag、GitHub Release、Packagistへ公開済みです。'
-contains docs/website/pages/index.astro 'Stable 1.2.0'
-contains docs/website/pages/index.astro 'composer create-project blackops/skeleton my-app 1.2.0'
-contains docs/guide/installation.md 'Latest Experimental Stable 1.2.0'
-contains docs/guide/installation.md 'composer create-project --no-scripts blackops/skeleton my-app 1.2.0'
-contains docs/guide/mvp-status.md 'Latest Experimental StableはFramework／Skeleton `1.2.0`です。'
-contains docs/guide/mvp-status.md 'composer create-project blackops/skeleton my-app 1.2.0'
+# Stable onboarding and its published CTA remain pinned to the immutable 1.2.1 lane.
+contains README.md 'Latest Experimental StableはFramework／Skeleton `1.2.1`です。'
+contains README.md 'composer create-project blackops/skeleton my-app 1.2.1'
+contains README.md 'Framework／Skeleton `1.2.1`のannotated TagとPackagist Packageは公開済みです。FrameworkのGitHub Releaseも[公開済み](https://github.com/kubotak-is/blackops/releases/tag/1.2.1)ですが、SkeletonはPackagistの公開Packageとして提供します。'
+contains docs/website/pages/index.astro 'Stable 1.2.1'
+contains docs/website/pages/index.astro 'composer create-project blackops/skeleton my-app 1.2.1'
+contains docs/guide/installation.md 'Latest Experimental Stable 1.2.1'
+contains docs/guide/installation.md 'composer create-project --no-scripts blackops/skeleton my-app 1.2.1'
+contains docs/guide/mvp-status.md 'Latest Experimental StableはFramework／Skeleton `1.2.1`です。'
+contains docs/guide/mvp-status.md 'composer create-project blackops/skeleton my-app 1.2.1'
 contains docs/guide/mvp-status.md 'diagnostics.storage_failed'
-contains docs/guide/mvp-sample.md 'Experimental Stable 1.2.0'
-contains docs/guide/mvp-sample.md 'composer create-project blackops/skeleton my-app 1.2.0'
+contains docs/guide/mvp-sample.md 'Experimental Stable 1.2.1'
+contains docs/guide/mvp-sample.md 'composer create-project blackops/skeleton my-app 1.2.1'
 contains docs/guide/mvp-sample.md 'Journalのmasked dataだけを確認し、このownership limitationとして扱います。'
-contains docs/guide/observability.md 'Versionは公開済み`1.2.0`です。'
-contains examples/quickstart/README.md '公開済みExperimental Stable `1.2.0`'
-contains examples/quickstart/README.md 'composer create-project --no-scripts blackops/skeleton my-app 1.2.0'
-contains docs/internal/installed-application-status.md 'Framework／Skeleton `1.2.0`はGitHub、Packagist、GitHub Releaseへ公開済み'
+contains docs/guide/observability.md 'Versionは公開済み`1.2.1`です。'
+contains examples/quickstart/README.md '公開済みExperimental Stable `1.2.1`'
+contains examples/quickstart/README.md 'composer create-project --no-scripts blackops/skeleton my-app 1.2.1'
+contains docs/internal/installed-application-status.md '公開済みFramework／Skeleton `1.2.0`はGitHub、Packagist、GitHub Releaseへ公開済み'
 contains docs/internal/installed-application-status.md 'diagnostics.storage_failed'
 
 contains CHANGELOG.md '## [Unreleased]'
@@ -1144,26 +1144,26 @@ assert_installation_key_convergence
 assert_mvp_key_convergence
 assert_release_claim_guard
 assert_product_framing_contract
-contains docs/guide/first-operation.md '公開済みExperimental Stable `1.2.0`'
+contains docs/guide/first-operation.md '公開済みExperimental Stable `1.2.1`'
 contains docs/guide/first-operation.md '#[Authorize]'
 contains docs/guide/first-operation.md 'Sample Token Authentication'
 contains docs/guide/first-operation.md 'Status Resource'
 contains docs/guide/first-operation.md '#[Deferred]'
 absent docs/guide/first-operation.md 'Stable `1.1.0`'
 absent docs/guide/first-operation.md 'main Preview'
-contains examples/quickstart/README.md 'docs/guide/mvp-sample.md#stable-120-authentication-and-deferred-journey'
-absent examples/quickstart/README.md 'docs/guide/mvp-sample.md#stable-120-quickstart'
+contains examples/quickstart/README.md 'https://blackops-php.pages.dev/getting-started/quickstart/#stable-120-authentication-and-deferred-journey'
+absent examples/quickstart/README.md 'https://blackops-php.pages.dev/getting-started/quickstart/#stable-120-quickstart'
 contains docs/website/scripts/check-site.mjs 'id="stable-120-authentication-and-deferred-journey"'
 contains docs/website/scripts/check-site.mjs 'quickstartAnchorCount'
 contains docs/website/scripts/check-site.mjs 'id="stable-120-quickstart"'
 contains docs/website/tests/guide-code.test.mjs 'function assertQuickstartConvergence(source)'
-contains docs/website/tests/guide-code.test.mjs "const heading = '### Stable 1.2.0 Authentication and Deferred Journey'"
+contains docs/website/tests/guide-code.test.mjs "const heading = '### Stable 1.2.1 Authentication and Deferred Journey'"
 contains docs/website/tests/guide-code.test.mjs 'function moveNoScriptsBlockAfterKey(source)'
 contains docs/website/tests/guide-code.test.mjs 'assert.throws(() => assertQuickstartConvergence(moveNoScriptsBlockAfterKey(quickstart))'
 contains docs/website/tests/guide-code.test.mjs 'Quickstart convergence guard rejects a drifted current heading'
 contains docs/website/tests/guide-code.test.mjs 'assert.throws(() => assertQuickstartConvergence(driftedHeading)'
 contains docs/website/tests/guide-code.test.mjs 'assert.throws(() => assertQuickstartReadmeFragment(driftedTarget)'
-contains docs/guide/runtime-bootstrap.md '公開済みExperimental Stable `1.2.0`の`/welcome`は`#[Authorize]`付きInline Operation'
+contains docs/guide/runtime-bootstrap.md '公開済みExperimental Stable `1.2.1`の`/welcome`は`#[Authorize]`付きInline Operation'
 contains docs/guide/mvp-sample.md '`ShowWelcome`は`#[Authorize(SampleUserAuthorizationPolicy::class)]`で保護され'
 contains docs/guide/mvp-sample.md 'Header省略はAnonymousとして`401`、不正値はOperation受付前の`401`'
 contains docs/guide/mvp-sample.md '32-byte Base64のLocal Development Key'
@@ -1262,4 +1262,4 @@ absent UPGRADE.md 'Candidate SourceとComposerを準備する'
 absent UPGRADE.md 'Repository `main`の未公開`1.2.0` candidate'
 absent CHANGELOG.md '9つのCandidate PostgreSQL Migration'
 
-printf 'Version baseline guard passed: published=1.2.0 candidate=1.2.1 historical=1.1.0\n'
+printf 'Version baseline guard passed: published=1.2.1 historical=1.2.0,1.1.0\n'

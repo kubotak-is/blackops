@@ -4,7 +4,7 @@ Feature-firstのBlackOps Application Skeletonである。Inline `GET /welcome`�
 
 ## Distribution Status
 
-このDirectoryは公開済みExperimental Stable `1.2.0`のQuickstartであると同時に、Packagist Package `blackops/skeleton`のSource of Truthである。Release WorkflowがこのDirectoryだけを`kubotak-is/blackops-skeleton`へSplitし、Frameworkと同じVersionで公開する。`1.2.0`にはHeader Authentication、Phase 13のDatabase／Transaction Journey、`POST /orders`が含まれる。
+このDirectoryは公開済みExperimental Stable `1.2.1`のQuickstartであると同時に、Packagist Package `blackops/skeleton`のSource of Truthである。Release WorkflowがこのDirectoryだけを`kubotak-is/blackops-skeleton`へSplitし、Frameworkと同じVersionで公開する。`1.2.1`にはHeader Authentication、Phase 13のDatabase／Transaction Journey、`POST /orders`が含まれる。
 
 Local検証ではCommitted QuickstartだけをPackage Rootへ抽出し、SkeletonとFrameworkを`symlink=false`の別々のLocal Repositoryとして通常／`--no-scripts` Create-projectする。Remote検証は空のComposer HomeからPackagist Packageだけを取得する。
 
@@ -31,15 +31,15 @@ Composer `create-project`は`post-create-project-cmd`から同じ`bin/setup`を�
 Quickstartの`bootstrap/app.php`はFrameworkの`withEnvironmentFile()`でProcess Environmentを優先してOptional `.env`を一度だけSnapshotします。Classic／Workerの`public/index.php`／`public/worker.php`は`BlackOps\Http\SapiRuntime`へApplicationを渡すだけです。Environment、PSR-7、SAPI Emit、UUIDv7のRuntime実装はFrameworkが所有するため、Skeleton Composer MetadataへそのRuntime Packageを重複宣言しません。DBAL／MigrationsなどApplicationが実ImportするPackageだけをApplication Direct Dependencyとして追加します。
 
 ```bash
-composer create-project blackops/skeleton my-app 1.2.0
+composer create-project blackops/skeleton my-app 1.2.1
 ```
 
 ```bash
-composer create-project --no-scripts blackops/skeleton my-app 1.2.0
+composer create-project --no-scripts blackops/skeleton my-app 1.2.1
 php my-app/bin/setup
 ```
 
-公開Packageの`blackops/framework:^1.2`はPackagistから解決できます。認証付き`/welcome`／`/reports`とPhase 13の`/orders`を試す場合は、[利用者向けQuickstart](../../docs/guide/mvp-sample.md#stable-120-authentication-and-deferred-journey)の公開Package手順で`1.2.0`をInstallし、生成したDirectoryで`php bin/setup`を実行します。
+公開Packageの`blackops/framework:^1.2`はPackagistから解決できます。認証付き`/welcome`／`/reports`とPhase 13の`/orders`を試す場合は、[利用者向けQuickstart](https://blackops-php.pages.dev/getting-started/quickstart/#stable-120-authentication-and-deferred-journey)の公開Package手順で`1.2.1`をInstallし、生成したDirectoryで`php bin/setup`を実行します。
 
 Install、Build、MigrationはImage startupに含まれない。Default `docker compose up` はHealthyなPostgreSQLとWorker Mode HTTPだけを起動し、Deferred Worker、Scheduler、Migration、Retention Purgeは起動しない。HTTP Portは `.env` の `HTTP_PORT` で変更でき、既定は8080である。
 

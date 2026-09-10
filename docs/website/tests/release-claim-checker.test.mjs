@@ -24,15 +24,15 @@ test('release claim checker rejects current downgrade, candidate, and main-only 
     /Unexpected Stable 1.1.0 claim/,
   );
   assert.throws(
-    () => assertOccurrences([{ path: 'docs/guide/fixture.md', heading: '# Fixture', sentence: 'Stable 1.2.0 candidateです。' }], authority, { source: true }),
+    () => assertOccurrences([{ path: 'docs/guide/fixture.md', heading: '# Fixture', sentence: 'Stable 1.2.1 candidateです。' }], authority, { source: true }),
     /Stale current release claim/,
   );
   assert.throws(
-    () => assertNoStaleCurrentPhrase('Stable 1.2.0はRepository mainのExperimental Surfaceです。', 'fixture.md'),
+    () => assertNoStaleCurrentPhrase('Stable 1.2.1はRepository mainのExperimental Surfaceです。', 'fixture.md'),
     /Stale current main\/candidate claim/,
   );
   assert.throws(
-    () => assertNoStaleCurrentPhrase('未公開の1.2.0です。', 'fixture.md'),
+    () => assertNoStaleCurrentPhrase('未公開の1.2.1です。', 'fixture.md'),
     /Stale candidate release claim/,
   );
 });
@@ -48,7 +48,7 @@ test('authority page mappings are shaped, lane-bound, and enforced through the f
   };
   const fixtureAuthorityPath = path.join(fixture, 'authority.json');
   const contentMapPath = path.join(fixture, 'content-map.mjs');
-  const currentSource = '# Fixture\n\nLatest Experimental Stable 1.2.0 is documented here.\n\ncomposer create-project blackops/skeleton my-app 1.2.0\n\n### Repository main Preview\n\nこのAnchorは旧PreviewからのMigration Linkを壊さないために残しています。\n';
+  const currentSource = '# Fixture\n\nLatest Experimental Stable 1.2.1 is documented here.\n\ncomposer create-project blackops/skeleton my-app 1.2.1\n\n### Repository main Preview\n\nこのAnchorは旧PreviewからのMigration Linkを壊さないために残しています。\n';
   try {
     await writeFile(path.join(fixture, 'fixture.md'), currentSource);
     await writeFile(contentMapPath, '');
@@ -84,7 +84,7 @@ test('source release claims include registered diagram JSON, HTML, and responsiv
   const contentMapPath = path.join(fixture, 'content-map.mjs');
   const manifestPath = path.join(fixture, 'docs/website/diagrams/manifest.json');
   try {
-    await writeFile(sourcePath, '# Diagram owner\n\nLatest Experimental Stable 1.2.0 is documented here.\n\ncomposer create-project blackops/skeleton my-app 1.2.0\n', 'utf8');
+    await writeFile(sourcePath, '# Diagram owner\n\nLatest Experimental Stable 1.2.1 is documented here.\n\ncomposer create-project blackops/skeleton my-app 1.2.1\n', 'utf8');
     await mkdir(path.join(fixture, 'docs/website/public/diagrams'), { recursive: true });
     await mkdir(path.dirname(manifestPath), { recursive: true });
     const manifest = diagramManifestFixture();
@@ -169,7 +169,7 @@ test('release claim checker rejects artifact-only stale injection and authority-
   const authority = JSON.parse(await readFile(authorityPath, 'utf8'));
   const authorityBump = structuredClone(authority);
   authorityBump.currentStable.version = '1.3.0';
-  assert.throws(() => assertCurrentAuthorityClaims('Latest Experimental Stable 1.2.0\ncomposer create-project blackops/skeleton my-app 1.2.0', authorityBump), /do not match/);
+  assert.throws(() => assertCurrentAuthorityClaims('Latest Experimental Stable 1.2.1\ncomposer create-project blackops/skeleton my-app 1.2.1', authorityBump), /do not match/);
 
   const fixture = await mkdtemp(path.join(tmpdir(), 'blackops-release-claim-'));
   try {
@@ -190,7 +190,7 @@ test('release claim checker rejects roadmap-as-stable source/artifact and metada
   const sourceAuthorityPath = path.join(sourceFixture, 'authority.json');
   const contentMapPath = path.join(sourceFixture, 'content-map.mjs');
   try {
-    await writeFile(path.join(sourceFixture, 'fixture.md'), '# Fixture\n\nLatest Experimental Stable 1.2.0 is documented here.\ncomposer create-project blackops/skeleton my-app 1.2.0\nLatest Experimental Stable 1.3.0として公開済みです。\n');
+    await writeFile(path.join(sourceFixture, 'fixture.md'), '# Fixture\n\nLatest Experimental Stable 1.2.1 is documented here.\ncomposer create-project blackops/skeleton my-app 1.2.1\nLatest Experimental Stable 1.3.0として公開済みです。\n');
     await writeFile(contentMapPath, '');
     await writeFile(sourceAuthorityPath, JSON.stringify(sourceAuthority));
     await assert.rejects(() => assertSourceClaims({ authorityPath: sourceAuthorityPath, sourceDirectory: sourceFixture, contentMapPath }), /Roadmap release/);
@@ -238,11 +238,11 @@ test('full artifact checker preserves prefix/suffix boundaries across Search and
     await writeFile(path.join(fixture, 'search.json'), JSON.stringify([`${expected.slice(0, -1)} suffix。`]));
     await assert.rejects(() => assertArtifactClaims({ authorityPath, artifactDirectory: fixture }), /Unexpected Stable 1.1.0 claim/);
 
-    await writeFile(path.join(fixture, 'search.json'), JSON.stringify([`${expected}\nStable 1.2.0 candidateです。`]));
+    await writeFile(path.join(fixture, 'search.json'), JSON.stringify([`${expected}\nStable 1.2.1 candidateです。`]));
     await assert.rejects(() => assertArtifactClaims({ authorityPath, artifactDirectory: fixture }), /Stale candidate release claim/);
 
     await writeFile(path.join(fixture, 'search.json'), JSON.stringify([]));
-    await writeFile(path.join(fixture, 'llms-full.txt'), `<p>${expected}</p><p>Stable 1.2.0 candidateです。</p>`);
+    await writeFile(path.join(fixture, 'llms-full.txt'), `<p>${expected}</p><p>Stable 1.2.1 candidateです。</p>`);
     await assert.rejects(() => assertArtifactClaims({ authorityPath, artifactDirectory: fixture }), /Stale candidate release claim/);
   } finally {
     await rm(fixture, { recursive: true, force: true });
@@ -278,11 +278,11 @@ test('artifact claim guard separates minified search records before checking cur
       path.join(fixture, 'blume-search.json'),
       JSON.stringify([
         { title: 'Stable／main境界' },
-        { title: '公開済みExperimental Stable 1.2.0で案内します。' },
+        { title: '公開済みExperimental Stable 1.2.1で案内します。' },
       ]),
     );
     assert.doesNotThrow(() => assertNoStaleCurrentPhrase('Stable／main境界', 'fixture-search.json'));
-    assert.doesNotThrow(() => assertNoStaleCurrentPhrase('公開済みExperimental Stable 1.2.0で案内します。', 'fixture-search.json'));
+    assert.doesNotThrow(() => assertNoStaleCurrentPhrase('公開済みExperimental Stable 1.2.1で案内します。', 'fixture-search.json'));
     await assert.doesNotReject(() => assertArtifactClaims({ authorityPath, artifactDirectory: fixture }));
     await writeFile(
       path.join(fixture, 'blume-search.json'),

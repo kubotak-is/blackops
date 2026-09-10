@@ -1,9 +1,9 @@
 # Authentication
 
-この章は公開済みExperimental Stable `1.2.0`でSession Starterの生成とHTTP境界を確認する手順です。AuthenticationはFramework／Skeletonの公開Surfaceです。Application-owned IdentityとHTTP境界を確認し、問題は[Troubleshooting](troubleshooting.md)で確認します。
+この章は公開済みExperimental Stable `1.2.1`でSession Starterの生成とHTTP境界を確認する手順です。AuthenticationはFramework／Skeletonの公開Surfaceです。Application-owned IdentityとHTTP境界を確認し、問題は[Troubleshooting](troubleshooting.md)で確認します。
 
-:::info[Experimental Stable 1.2.0]
-Session StarterとAuthentication Middlewareは公開済みExperimental Stable `1.2.0`のSurfaceです。Application-owned Identity、Password、Session Transportをこの手順で構成してください。
+:::info[Experimental Stable 1.2.1]
+Session StarterとAuthentication Middlewareは公開済みExperimental Stable `1.2.1`のSurfaceです。Application-owned Identity、Password、Session Transportをこの手順で構成してください。
 :::
 
 ## Application-owned Starterを生成する

@@ -25,7 +25,7 @@ mise exec -- pnpm --dir docs/website run dev
 
 Reader Contractも`content-map.mjs`を単一正本とし、Landingを除く40 PageをTutorial 3、How-to 18、Concept 10、Reference 8、Troubleshooting 1へ分類します。各Pageのreader outcome、type別role、next導線は`reader-contract.mjs`がSourceと生成Artifact（HTML、Search、raw Markdown、`llms.txt`、`llms-full.txt`）で同じ形になるよう検証します。`content-pipeline.mjs`が生成するreader outcome markerはLLM full-text segmentの境界確認に使い、本文を手動Copyする用途ではありません。Protected BOPD Blobのdecode／JSON cast、誤ったRetry Event、現行Stableのmain-only claim、Source-derived Reference coverageも同じfail-closed guardへ集約しています。
 
-Source-derived Referenceの216 types／25 attributesは、Release AuthorityのExperimental Stable 1.2.0 Framework tupleとroadmap 1.3.0 unreleasedを境界にします。Stable sourceにまだない9つの未公開Pathと、`ApplicationBuilder`の未公開method 1件だけをPath／FQCN／method名の完全一致で除外し、Authority tupleが変わった場合は除外の再評価を要求します。類似名や新しいSourceはこの除外に含まれません。
+Source-derived Referenceの216 types／25 attributesは、Release AuthorityのExperimental Stable 1.2.1 Framework tupleとroadmap 1.3.0 unreleasedを境界にします。Stable sourceにまだない9つの未公開Pathと、`ApplicationBuilder`の未公開method 1件だけをPath／FQCN／method名の完全一致で除外し、Authority tupleが変わった場合は除外の再評価を要求します。類似名や新しいSourceはこの除外に含まれません。
 
 既存のPublic Slugと`public/_redirects`は維持します。Slugを変更するときはSource Link、Content Map、Sidebar、Redirect、Search／Artifact Testを同じ変更単位で更新してください。
 

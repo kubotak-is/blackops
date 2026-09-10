@@ -1,6 +1,6 @@
 # Testing
 
-このGuideは、Operationをどのリスク層で検証するかを決めるためのApplication向け検証計画です。公開済みExperimental Stable `1.2.0`ではOperation、HTTP、PostgreSQL Deferred、Journal、Outcome、Frontend Contract、Status／Outcome APIが利用できます。BlackOps Boardの手順はRepository Exampleとして別のApplication責務を含むため、[Releases](mvp-status.md)を先に確認してください。
+このGuideは、Operationをどのリスク層で検証するかを決めるためのApplication向け検証計画です。公開済みExperimental Stable `1.2.1`ではOperation、HTTP、PostgreSQL Deferred、Journal、Outcome、Frontend Contract、Status／Outcome APIが利用できます。BlackOps Boardの手順はRepository Exampleとして別のApplication責務を含むため、[Releases](mvp-status.md)を先に確認してください。
 
 ## 実行場所と準備
 
@@ -30,7 +30,7 @@ php blackops build:compile
 php blackops worker:run --iterations=1 --idle-sleep-milliseconds=1
 ```
 
-Frontend Contractを使う公開済みExperimental Stable `1.2.0`では、生成済みTreeを編集せず次を続けます。
+Frontend Contractを使う公開済みExperimental Stable `1.2.1`では、生成済みTreeを編集せず次を続けます。
 
 ```bash
 php blackops frontend:generate

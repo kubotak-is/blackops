@@ -1,6 +1,6 @@
 # Releases
 
-BlackOpsのLatest Experimental StableはFramework／Skeleton `1.2.0`です。Versionを固定したSkeletonをInstallし、ApplicationのHTTP入口とCLIの公開結果を確認できます。未Release Surfaceはこのドキュメントで明示します。Documentation WebsiteはCloudflare Pages（`https://blackops-php.pages.dev`）へ公開しています。
+BlackOpsのLatest Experimental StableはFramework／Skeleton `1.2.1`です。Versionを固定したSkeletonをInstallし、ApplicationのHTTP入口とCLIの公開結果を確認できます。未Release Surfaceはこのドキュメントで明示します。Documentation WebsiteはCloudflare Pages（`https://blackops-php.pages.dev`）へ公開しています。
 
 BlackOps固有のOperation、Claim、Journal、Outcome等は[Glossary](glossary.md)で確認できます。
 
@@ -12,63 +12,63 @@ Stable `1.1.0`から公開済み`1.2.0`へ移行する場合は、[CHANGELOG.md]
 
 <a id="stableとmain"></a>
 
-## Stable 1.2.0と過去StableのCapability
+## Stable 1.2.1と過去StableのCapability
 
-| Capability | Stable 1.1.0 historical | Stable 1.2.0 |
-| --- | --- | --- |
-| Typed Self-handled Operation／Native Outcome | 利用可 | 利用可 |
-| Inline HTTP／Deferred HTTP／Worker Retry | 利用可 | 利用可 |
-| Lifecycle Journal／Sensitive Projection | 利用可 | 利用可 |
-| Typed Outcome Retrieval／Retention | 利用可 | 利用可 |
-| Composer Skeleton | 利用可 | 利用可 |
-| BlackOps CLI Entrypoint | Project Root `blackops` | Project Root `blackops` |
-| `make:operation`／`make:migration` | 利用可 | 利用可 |
-| Application Migration Runtime | 利用可 | 利用可 |
-| 7 Value Validation Attribute／422 Lifecycle | 利用可 | 利用可 |
-| FrankenPHP Worker Mode | 既定Runtime | 既定Runtime |
-| Global PSR-15 Middleware Config | 未提供 | 利用可 |
-| Authentication／Durable ActorContext | 未提供 | 利用可 |
-| `#[Authorize]` Inline／Deferred再認可 | 未提供 | 利用可 |
-| Named DBAL Connection／Default Connection DI | 未提供 | 利用可 |
-| `#[Transactional]` Operation／Service | 未提供 | 利用可 |
-| Nested Required／`#[AfterCommit]` | 未提供 | 利用可 |
-| Long-running Connection Health Check／Reconnect | 未提供 | 利用可 |
-| OperationalHealthQuery／明示Health Route・CLI Adapter | 未提供 | 利用可（試験的、Application登録） |
-| Operation ID Diagnostics Human／JSON CLI | 未提供 | 利用可 |
-| Development Local Diagnostics Viewer | 未提供 | 利用可 |
-| Configurable Application／Framework JSONL Correlation | 未提供 | 利用可 |
-| OpenTelemetry API-only Trace／Metric Provider Composition | 未提供 | 利用可（試験的、Application SDK／Exporter） |
-| Frontend Contract Manifest／Operation Object生成 | 未提供 | 利用可（試験的） |
-| `.url()`／`.toRequest()`／Typed `.fetch()` | 未提供 | 利用可（試験的） |
-| `frontend:generate`／`frontend:check` | 未提供 | 利用可（試験的） |
-| Deferred Status Query／`GET /operations/{operationId}` | 未提供 | 利用可（試験的） |
-| Generated `.status()`／finite `.wait()` | 未提供 | 利用可（試験的） |
-| Typed `Environment`／Configuration Closure | 未提供 | 利用可（試験的） |
-| Generated Bound `createBlackOpsClient()` | 未提供 | 利用可（試験的） |
-| Application `#[AsCommand]` Discovery／DI | 未提供 | 利用可（試験的） |
-| Operation `#[ConsoleCommand]` Adapter | 未提供 | 利用可（試験的） |
-| Opt-in Session Core／`make:auth` | 未提供 | 利用可（試験的） |
-| Database Seeder／`database:seed`／`make:seeder` | 未提供 | 利用可（試験的） |
-| BlackOps Board Full-stack Reference Application | 未提供 | 利用可（試験的、公開Hostなし） |
-| Optional Idempotency Key／Duplicate Replay | 未提供 | 利用可（試験的、Actor-scoped） |
-| Transactional Outbox Relay／Retry／Fencing／Dead Letter | 未提供 | 利用可（試験的、at-least-once） |
-| Canonical Observer Replay／Checkpoint／Resume | 未提供 | 利用可（試験的、Canonical read-only） |
-| TenantRef／Entry Tenant Propagation | 未提供 | 利用可（試験的、HTTP／Console／Scheduled／Dispatch） |
-| Default-deny Journal／Outcome Data Query | 未提供 | 利用可（試験的、Tenant／Actor／Purpose必須） |
-| BOPD v1 Protected Storage／StorageKeyProvider | 未提供 | 利用可（試験的、XChaCha20-Poly1305） |
-| `storage:protection:plan`／`rotate`／Resume | 未提供 | 利用可（試験的、Bounded／CAS／Audit） |
-| Scheduled Application Operation／`ScheduledBy`／one-shot CLI | 未提供 | 利用可（試験的、`operation:schedule:run`） |
-| Framework Proxy Profile Artifact Unit（Build ID／Content Hash binding） | 未提供 | 利用可（試験的、`build:compile`） |
+| Capability | Stable 1.1.0 historical | Stable 1.2.0 historical | Stable 1.2.1 |
+| --- | --- | --- | --- |
+| Typed Self-handled Operation／Native Outcome | 利用可 | 利用可 | 利用可 |
+| Inline HTTP／Deferred HTTP／Worker Retry | 利用可 | 利用可 | 利用可 |
+| Lifecycle Journal／Sensitive Projection | 利用可 | 利用可 | 利用可 |
+| Typed Outcome Retrieval／Retention | 利用可 | 利用可 | 利用可 |
+| Composer Skeleton | 利用可 | 利用可 | 利用可 |
+| BlackOps CLI Entrypoint | Project Root `blackops` | Project Root `blackops` | Project Root `blackops` |
+| `make:operation`／`make:migration` | 利用可 | 利用可 | 利用可 |
+| Application Migration Runtime | 利用可 | 利用可 | 利用可 |
+| 7 Value Validation Attribute／422 Lifecycle | 利用可 | 利用可 | 利用可 |
+| FrankenPHP Worker Mode | 既定Runtime | 既定Runtime | 既定Runtime |
+| Global PSR-15 Middleware Config | 未提供 | 利用可 | 利用可 |
+| Authentication／Durable ActorContext | 未提供 | 利用可 | 利用可 |
+| `#[Authorize]` Inline／Deferred再認可 | 未提供 | 利用可 | 利用可 |
+| Named DBAL Connection／Default Connection DI | 未提供 | 利用可 | 利用可 |
+| `#[Transactional]` Operation／Service | 未提供 | 利用可 | 利用可 |
+| Nested Required／`#[AfterCommit]` | 未提供 | 利用可 | 利用可 |
+| Long-running Connection Health Check／Reconnect | 未提供 | 利用可 | 利用可 |
+| OperationalHealthQuery／明示Health Route・CLI Adapter | 未提供 | 利用可（試験的、Application登録） | 利用可（試験的、Application登録） |
+| Operation ID Diagnostics Human／JSON CLI | 未提供 | 利用可 | 利用可 |
+| Development Local Diagnostics Viewer | 未提供 | 利用可 | 利用可 |
+| Configurable Application／Framework JSONL Correlation | 未提供 | 利用可 | 利用可 |
+| OpenTelemetry API-only Trace／Metric Provider Composition | 未提供 | 利用可（試験的、Application SDK／Exporter） | 利用可（試験的、Application SDK／Exporter） |
+| Frontend Contract Manifest／Operation Object生成 | 未提供 | 利用可（試験的） | 利用可（試験的） |
+| `.url()`／`.toRequest()`／Typed `.fetch()` | 未提供 | 利用可（試験的） | 利用可（試験的） |
+| `frontend:generate`／`frontend:check` | 未提供 | 利用可（試験的） | 利用可（試験的） |
+| Deferred Status Query／`GET /operations/{operationId}` | 未提供 | 利用可（試験的） | 利用可（試験的） |
+| Generated `.status()`／finite `.wait()` | 未提供 | 利用可（試験的） | 利用可（試験的） |
+| Typed `Environment`／Configuration Closure | 未提供 | 利用可（試験的） | 利用可（試験的） |
+| Generated Bound `createBlackOpsClient()` | 未提供 | 利用可（試験的） | 利用可（試験的） |
+| Application `#[AsCommand]` Discovery／DI | 未提供 | 利用可（試験的） | 利用可（試験的） |
+| Operation `#[ConsoleCommand]` Adapter | 未提供 | 利用可（試験的） | 利用可（試験的） |
+| Opt-in Session Core／`make:auth` | 未提供 | 利用可（試験的） | 利用可（試験的） |
+| Database Seeder／`database:seed`／`make:seeder` | 未提供 | 利用可（試験的） | 利用可（試験的） |
+| BlackOps Board Full-stack Reference Application | 未提供 | 利用可（試験的、公開Hostなし） | 利用可（試験的、公開Hostなし） |
+| Optional Idempotency Key／Duplicate Replay | 未提供 | 利用可（試験的、Actor-scoped） | 利用可（試験的、Actor-scoped） |
+| Transactional Outbox Relay／Retry／Fencing／Dead Letter | 未提供 | 利用可（試験的、at-least-once） | 利用可（試験的、at-least-once） |
+| Canonical Observer Replay／Checkpoint／Resume | 未提供 | 利用可（試験的、Canonical read-only） | 利用可（試験的、Canonical read-only） |
+| TenantRef／Entry Tenant Propagation | 未提供 | 利用可（試験的、HTTP／Console／Scheduled／Dispatch） | 利用可（試験的、HTTP／Console／Scheduled／Dispatch） |
+| Default-deny Journal／Outcome Data Query | 未提供 | 利用可（試験的、Tenant／Actor／Purpose必須） | 利用可（試験的、Tenant／Actor／Purpose必須） |
+| BOPD v1 Protected Storage／StorageKeyProvider | 未提供 | 利用可（試験的、XChaCha20-Poly1305） | 利用可（試験的、XChaCha20-Poly1305） |
+| `storage:protection:plan`／`rotate`／Resume | 未提供 | 利用可（試験的、Bounded／CAS／Audit） | 利用可（試験的、Bounded／CAS／Audit） |
+| Scheduled Application Operation／`ScheduledBy`／one-shot CLI | 未提供 | 利用可（試験的、`operation:schedule:run`） | 利用可（試験的、`operation:schedule:run`） |
+| Framework Proxy Profile Artifact Unit（Build ID／Content Hash binding） | 未提供 | 利用可（試験的、`build:compile`） | 利用可（試験的、`build:compile`） |
 
 Stable Applicationを作る場合はVersionを明示します。
 
 ```bash
-composer create-project blackops/skeleton my-app 1.2.0
+composer create-project blackops/skeleton my-app 1.2.1
 ```
 
 ## 1.3.0のAudit Trail計画
 
-BlackOps 1.3.0では、業務・セキュリティ・管理操作の監査ログを追加する計画です。まだ公開していないため、現在のStable `1.2.0`の機能として利用できません。
+BlackOps 1.3.0では、業務・セキュリティ・管理操作の監査ログを追加する計画です。まだ公開していないため、現在のStable `1.2.1`の機能として利用できません。
 
 たとえば「誰が、どの請求先情報を変更し、変更が成功したか」を後から確認できるようにする記録です。どの業務操作を記録するか、Actionと対象（Resource）をどう表すかはApplicationが明示します。FrameworkがHandlerの完了だけから業務操作や対象を自動推測する仕組みではありません。
 
@@ -76,7 +76,7 @@ BlackOps 1.3.0では、業務・セキュリティ・管理操作の監査ログ
 
 | 記録の種類 | 現行／計画上の役割 |
 | --- | --- |
-| Lifecycle Journal | Stable `1.2.0`で、Operationの受付・試行・再試行・完了など、処理の流れを順序付きで記録する |
+| Lifecycle Journal | Stable `1.2.1`で、Operationの受付・試行・再試行・完了など、処理の流れを順序付きで記録する |
 | Application Log | Applicationが診断や業務メッセージを記録する |
 | Observability | Structured Log、Metric、Sampled Traceで運用状態と相関を観測する |
 | Audit Trail | 将来計画。業務・セキュリティ・管理操作の監査ログを、Actor・Action・Resource・Resultと関連付けて扱う |
@@ -121,7 +121,7 @@ BlackOps BoardはFramework／Skeleton Packageとは別のExample Applicationで�
 
 ## Known Constraints
 
-Stable `1.2.0`の公開Surfaceでは通常／`--no-scripts` Install、Project Root CLI、Compile、12 Migration、HTTP、Worker retryからCompleted、Sensitive redactionを確認できます。HTTP後のnon-root `operation:inspect`は、bind-mountされた`var/log/journal.jsonl`がHTTP Processでroot-ownedになる環境では`diagnostics.storage_failed`を返します。Journalのmasked dataだけを確認し、これは確認済みのownership limitationとして扱います。
+Stable `1.2.1`の公開Surfaceでは通常／`--no-scripts` Install、Project Root CLI、Compile、12 Migration、HTTP、Worker retryからCompleted、Sensitive redactionを確認できます。HTTP後のnon-root `operation:inspect`は、bind-mountされた`var/log/journal.jsonl`がHTTP Processでroot-ownedになる環境では`diagnostics.storage_failed`を返します。Journalのmasked dataだけを確認し、これは確認済みのownership limitationとして扱います。
 
 - Session Coreは提供するが、User／Password／Registration Policy、Cookie／CSRF、JWT／OAuth／API Key、Actor Repository、Permission StoreはApplication責務
 - Production Status Authorization Policy、Tenant Model、Role／Permission Repositoryは提供しない

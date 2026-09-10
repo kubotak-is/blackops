@@ -1,6 +1,6 @@
 # BlackOps Board Reference Application
 
-BlackOps Boardは、公開済みExperimental Stable `1.2.0`のFramework機能を実際のBrowser JourneyへまとめたRepository Exampleです。Application-owned Authentication、SvelteKit Same-origin BFF、PostgreSQL、Inline Post／Comment、Deferred Weekly Digestを一つの構成で確認できます。Framework／Skeleton Packageには含まれず、外部Hostingもしていません。
+BlackOps Boardは、公開済みExperimental Stable `1.2.1`のFramework機能を実際のBrowser JourneyへまとめたRepository Exampleです。Application-owned Authentication、SvelteKit Same-origin BFF、PostgreSQL、Inline Post／Comment、Deferred Weekly Digestを一つの構成で確認できます。Framework／Skeleton Packageには含まれず、外部Hostingもしていません。
 
 ![BlackOps BoardのCredential-free Landing画面](assets/community-board/blackops-board.png)
 

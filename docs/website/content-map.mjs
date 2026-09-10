@@ -29,9 +29,9 @@ export const contentMap = {
   'installation.md': {
     slug: 'getting-started/installation',
     section: 'Start Here',
-    ...page('how-to', 'Stable 1.2.0 Skeletonを作成し、認証付きHTTP 200まで確認する。', {
-      prerequisites: ['Stable 1.2.0を作成する'],
-      runnable: ['Stable 1.2.0を作成する'],
+    ...page('how-to', 'Stable 1.2.1 Skeletonを作成し、認証付きHTTP 200まで確認する。', {
+      prerequisites: ['Stable 1.2.1を作成する'],
+      runnable: ['Stable 1.2.1を作成する'],
       success: ['Release Policy'],
       failure: ['Composer Scriptを使わない場合'],
     }, ['mvp-sample.md']),
@@ -359,7 +359,7 @@ export const contentMap = {
     ...page('reference', 'BlackOps CLIのCommand、Option、mutation、output、exit、release laneを調べる。', {
       scope: ['コマンド実行一覧'],
       lookup: ['診断・復旧する'],
-      boundary: ['Stable 1.2.0で利用できる範囲'],
+      boundary: ['Stable 1.2.1で利用できる範囲'],
     }, ['application-bootstrap.md']),
   },
   'core-api.md': {

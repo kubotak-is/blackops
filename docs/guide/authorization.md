@@ -2,7 +2,7 @@
 
 Authorizationは、認証済みActorがOperationまたはResourceを実行できるかを判定するApplication Policyです。BlackOpsは`#[Authorize]`、Actor Context、Typed Request／Decision、Build-time DI登録の境界を提供します。Role、Permission、Tenant、Resource所有権の検索結果はApplicationが返します。
 
-この公開Authorization CapabilityはExperimental Stable `1.2.0`のSkeleton／Framework Packageで利用できます。
+この公開Authorization CapabilityはExperimental Stable `1.2.1`のSkeleton／Framework Packageで利用できます。
 
 ## InlineとDeferred
 
