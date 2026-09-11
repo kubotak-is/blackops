@@ -1,6 +1,6 @@
 # Operation Status Audit Adapter
 
-Status: Authority reviewed Green; Product implementation and verification pending.
+Status: Authority reviewed Green; Product acceptance and verification are tracked in the [D2S Report](../orchestration/reports/P23-003D2S-operation-status-audit-adapter.md).
 
 ## Scope and Precedence
 

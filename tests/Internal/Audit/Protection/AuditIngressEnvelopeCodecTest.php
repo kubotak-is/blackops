@@ -16,6 +16,8 @@ use BlackOps\Internal\Audit\Record\AuditPartitionIdDeriver;
 use BlackOps\Internal\Audit\Record\AuditRecordCodec;
 use BlackOps\Internal\Audit\Record\AuditRecordValidator;
 use BlackOps\Internal\Audit\Record\CanonicalAuditLogicalRecord;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 
 final class AuditIngressEnvelopeCodecTest extends TestCase
@@ -94,6 +96,9 @@ final class AuditIngressEnvelopeCodecTest extends TestCase
         }
     }
 
+    // Keep the byte-cap allocation isolated from the full-suite process.
+    #[RunInSeparateProcess]
+    #[PreserveGlobalState(false)]
     public function testIngressWireUsesInclusiveUtf8ByteCap(): void
     {
         $fixture = $this->fixture();

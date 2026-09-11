@@ -20,21 +20,29 @@ use Throwable;
 final readonly class DefaultOperationStatusQuery implements TenantAwareOperationStatusQuery
 {
     public function __construct(
+        #[\SensitiveParameter]
         private OperationStatusSource $source,
+        #[\SensitiveParameter]
         private OperationStatusAuthorizer $authorizer,
     ) {}
 
     public function find(
+        #[\SensitiveParameter]
         OperationId $operationId,
+        #[\SensitiveParameter]
         ?ActorRef $currentActor = null,
+        #[\SensitiveParameter]
         ?TenantRef $currentTenant = null,
     ): OperationStatusResult {
         return $this->findForTenant($operationId, $currentActor, $currentTenant);
     }
 
     public function findForTenant(
+        #[\SensitiveParameter]
         OperationId $operationId,
+        #[\SensitiveParameter]
         ?ActorRef $currentActor = null,
+        #[\SensitiveParameter]
         ?TenantRef $currentTenant = null,
     ): OperationStatusResult {
         $subject = $this->findSubject($operationId);
@@ -71,7 +79,7 @@ final readonly class DefaultOperationStatusQuery implements TenantAwareOperation
         return new OperationStatusFound($detail->status);
     }
 
-    private function findSubject(OperationId $operationId): ?OperationStatusSubject
+    private function findSubject(#[\SensitiveParameter] OperationId $operationId): ?OperationStatusSubject
     {
         try {
             return $this->source->findSubject($operationId);
@@ -83,8 +91,11 @@ final readonly class DefaultOperationStatusQuery implements TenantAwareOperation
     }
 
     private function isAllowed(
+        #[\SensitiveParameter]
         OperationStatusSubject $subject,
+        #[\SensitiveParameter]
         ?ActorRef $currentActor,
+        #[\SensitiveParameter]
         ?TenantRef $currentTenant,
     ): bool {
         try {
@@ -105,7 +116,7 @@ final readonly class DefaultOperationStatusQuery implements TenantAwareOperation
         }
     }
 
-    private function readDetail(OperationStatusSubject $subject): OperationStatusDetailResult
+    private function readDetail(#[\SensitiveParameter] OperationStatusSubject $subject): OperationStatusDetailResult
     {
         try {
             return $this->source->readDetail($subject);
@@ -116,8 +127,10 @@ final readonly class DefaultOperationStatusQuery implements TenantAwareOperation
         }
     }
 
-    private function sourceFailure(OperationStatusSourceException $exception): OperationStatusQueryException
-    {
+    private function sourceFailure(
+        #[\SensitiveParameter]
+        OperationStatusSourceException $exception,
+    ): OperationStatusQueryException {
         return match ($exception->failure) {
             OperationStatusSourceFailure::Storage => OperationStatusQueryException::storageFailed(),
             OperationStatusSourceFailure::Decode => OperationStatusQueryException::decodeFailed(),

@@ -27,6 +27,8 @@ use BlackOps\Internal\Audit\Record\CompleteAuditRecord;
 use BlackOps\Internal\StorageProtection\BopdBinaryEnvelopeCodec;
 use BlackOps\Internal\StorageProtection\NonceSource;
 use BlackOps\StorageProtection\StorageKey;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
@@ -180,6 +182,9 @@ final class AuditProtectedBodyCodecTest extends TestCase
         self::assertSame($beforeOutboxReads, $keys->readCalls);
     }
 
+    // Keep the oversized body allocation isolated from the full-suite process.
+    #[RunInSeparateProcess]
+    #[PreserveGlobalState(false)]
     public function testOversizedRecordBodyFailsBeforeActiveKeyLookup(): void
     {
         $fixture = $this->fixture();
@@ -213,6 +218,9 @@ final class AuditProtectedBodyCodecTest extends TestCase
         self::assertSame(0, $keys->activeCalls);
     }
 
+    // Keep the plaintext ceiling allocation isolated from the full-suite process.
+    #[RunInSeparateProcess]
+    #[PreserveGlobalState(false)]
     public function testOutboxBopdPlaintextCeilingIsInclusiveAndPreKey(): void
     {
         $fixture = $this->fixture();

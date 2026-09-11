@@ -1,6 +1,6 @@
 # D156: Operation Status Audit Adapter
 
-Status: Decided after independent authority review; Product implementation pending.
+Status: Decided after independent authority review; Product acceptance is tracked in the [D2S Report](../orchestration/reports/P23-003D2S-operation-status-audit-adapter.md).
 
 ## Context
 

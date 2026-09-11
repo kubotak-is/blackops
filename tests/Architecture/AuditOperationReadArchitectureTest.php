@@ -1206,6 +1206,18 @@ final class AuditOperationReadArchitectureTest extends TestCase
             );
         }
 
+        $d2sOutsidePath = 'src/External/D2SOutsideCaller.php';
+        $d2sOutsideSource = <<<'PHP'
+            <?php
+            new \BlackOps\Internal\Status\AuditedOperationStatusQuery($a, $b, $c, $d);
+            PHP;
+        $this->assertD2MutationSyntax([$d2sOutsidePath => $d2sOutsideSource], 'd2s-outside-caller');
+        $d2sOutsideViolations = $this->d2ArchitectureViolations($sources, [
+            ...$allSources,
+            $d2sOutsidePath => $d2sOutsideSource,
+        ]);
+        self::assertContains('outside-target-reference:' . $d2sOutsidePath, $d2sOutsideViolations);
+
         $extraSourcePath = 'src/Internal/Audit/Read/OperationReadAuditSessionExtra.php';
         $extraSource = <<<'PHP'
             <?php
@@ -1791,15 +1803,41 @@ final class AuditOperationReadArchitectureTest extends TestCase
             'BlackOps\\Internal\\Diagnostics\\OperationDiagnosticsAuthorizationRequest',
             'BlackOps\\Internal\\Diagnostics\\OperationDiagnosticsAuthorizer',
             'BlackOps\\Internal\\Diagnostics\\UnavailableOperationDiagnosticsAuthorizer',
+            'BlackOps\\Internal\\Status\\AuditedOperationStatusQuery',
+            'BlackOps\\Internal\\Status\\OperationStatusAuditTenantAuthorizer',
+            'BlackOps\\Internal\\Status\\OperationStatusReadExecutionSource',
         ];
         $allowedTargetFiles = array_keys($this->d2ExpectedDependencies());
+        $adapterTargetAllowances = [
+            'src/Internal/Status/AuditedOperationStatusQuery.php' => [
+                'BlackOps\\Internal\\Audit\\Read\\OperationReadAuditSession',
+                'BlackOps\\Internal\\Audit\\Read\\OperationReadAuditSessionFactory',
+                'BlackOps\\Internal\\Status\\AuditedOperationStatusQuery',
+                'BlackOps\\Internal\\Status\\OperationStatusAuditTenantAuthorizer',
+            ],
+            'src/Internal/Status/OperationStatusAuditTenantAuthorizer.php' => [
+                'BlackOps\\Internal\\Status\\OperationStatusAuditTenantAuthorizer',
+            ],
+            'src/Internal/Status/OperationStatusReadExecutionSource.php' => [
+                'BlackOps\\Internal\\Audit\\Read\\OperationReadExecutionSource',
+                'BlackOps\\Internal\\Status\\OperationStatusReadExecutionSource',
+            ],
+        ];
         foreach ($allSources as $path => $source) {
             $consumedTargetReferences = $this->d2ConsumedTargetReferences($source, $outsideTargets);
             $targetReferences = array_values(array_unique([
                 ...$this->d2TargetReferences($source, $outsideTargets, $symbols),
                 ...$consumedTargetReferences,
             ]));
-            if ($targetReferences !== [] && !in_array($path, $allowedTargetFiles, true)) {
+            if (
+                $targetReferences !== []
+                && !in_array($path, $allowedTargetFiles, true)
+                && (
+                    !array_key_exists($path, $adapterTargetAllowances)
+                    || array_diff($targetReferences, $adapterTargetAllowances[$path]) !== []
+                    || array_diff($adapterTargetAllowances[$path], $targetReferences) !== []
+                )
+            ) {
                 $violations[] = 'outside-target-reference:' . $path;
             }
             if ($consumedTargetReferences !== []) {

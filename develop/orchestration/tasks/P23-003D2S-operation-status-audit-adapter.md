@@ -1,6 +1,6 @@
 # P23-003D2S: Operation Status Audit Adapter
 
-Status: Authority Accepted; implementation in progress under the frozen scope.
+Status: Implementation Accepted; required local verification Green; final-SHA export pending.
 
 ## Goal and Authorization
 
@@ -31,20 +31,27 @@ Those links do not change the Accepted D2/D2S1 behavior or historical evidence.
 ## Team and Ownership
 
 Root owns integration, Git, Task/Report, STATE/archive, authority, TODO/index,
-shared PostgreSQL/Consumers and final verification. Two Luna/max workers split
+shared PostgreSQL/Consumers and final verification. Three Luna/max workers split
 the exact Product/Test scope below: Runtime worker owns the four Status source
-files, three new Internal/Status unit files and the new PostgreSQL test (8 paths).
+files and three new Internal/Status unit files (7 paths).
 Architecture worker owns the three architecture files and two package scripts
-(5 paths). No overlapping file ownership or shared Report writes. Worker returns chat handoff and command
+(5 paths). PostgreSQL fixture worker owns only the new PostgreSQL test (1 path).
+No overlapping file ownership or shared Report writes. Worker returns chat handoff and command
 receipts under `/tmp/blackops-d2s-20260911/worker`; no Git or STATE edits.
 Root performs General Review; independent Transaction and Documentation lanes
 review authority and resulting implementation. Reviewers are read-only.
 
-Runtime worker owns only the listed no-DB PHP iteration commands before
-handing back its stable source/tests. Architecture worker may edit independently
-and run the two shell commands, then coordinates with Root before any PHP
-format/test. Root runs no competing PHP process/cache during Runtime iteration.
+Runtime worker initially owned the listed no-DB PHP iteration commands. Its
+first attempt failed at Docker socket access before PHP started, so Root now
+owns these commands and returns failures to the Runtime worker for scoped fixes.
+Architecture worker may edit independently and run the two shell commands,
+then coordinates with Root before any PHP format/test. Root serializes every
+PHP process/cache user after this execution handoff.
 Root alone owns DB tests, architecture execution, goldens and shared consumers.
+The PostgreSQL worker writes its fixture independently, runs no PHP/DB process
+and hands it back for Root execution. The former Runtime8 ownership was split
+into Runtime7 and PostgreSQL1 during implementation; no Product scope or
+Acceptance coverage changed, and no PG file existed at the transfer checkpoint.
 Architecture work can prepare declarations/mutations from spec107 while source
 is written, but final oracle matching waits for the Runtime handoff. Frozen
 source/test changes invalidate only affected evidence; unchanged checks are
@@ -84,6 +91,13 @@ Root-owned management scope: this Task/Report, STATE/archive, spec107/108,
 D155/D156/D157, spec README and the current TODO pointer. Most-specific future
 caller/identity authority is referenced once; do not duplicate progress into
 historical specifications or rewrite completed source evidence.
+
+Acceptance management reconciliation also permits a current-handoff link
+correction in D154 and a short navigation notice in the P23-001 parent
+Task/Report. Root owns these administrative deltas. Their previous contracts,
+acceptance receipts and historical bodies remain exact; no Product/review gate
+changes. This makes spec106's exact5 entrypoints resolve to current STATE/Report
+without duplicating the adapter's progress across historical documents.
 
 ## Required Behavior and Fixtures
 
@@ -133,10 +147,10 @@ Record exact argv, timestamps, exit/counts, seconds, image/runtime, relevant
 source/test/config/lock hashes and logs; distinguish environment failures from
 failed assertions. Preserve failures when retrying changed input.
 
-Runtime worker iteration (no DB, hand back before Root starts PHP):
+Runtime slice iteration (no DB; Root executes after the environment handoff):
 
 ```bash
-docker compose run --rm --no-deps -T app mago format --check src/Internal/Status/DefaultOperationStatusQuery.php src/Internal/Status/AuditedOperationStatusQuery.php src/Internal/Status/OperationStatusAuditTenantAuthorizer.php src/Internal/Status/OperationStatusReadExecutionSource.php tests/Internal/Status/AuditedOperationStatusQueryTest.php tests/Internal/Status/OperationStatusAuditTenantAuthorizerTest.php tests/Internal/Status/OperationStatusReadExecutionSourceTest.php tests/Transport/PostgreSql/PostgreSqlAuditedOperationStatusQueryTest.php
+docker compose run --rm --no-deps -T app mago format --check src/Internal/Status/DefaultOperationStatusQuery.php src/Internal/Status/AuditedOperationStatusQuery.php src/Internal/Status/OperationStatusAuditTenantAuthorizer.php src/Internal/Status/OperationStatusReadExecutionSource.php tests/Internal/Status/AuditedOperationStatusQueryTest.php tests/Internal/Status/OperationStatusAuditTenantAuthorizerTest.php tests/Internal/Status/OperationStatusReadExecutionSourceTest.php
 docker compose run --rm --no-deps -T app php vendor/bin/phpunit tests/Internal/Status/AuditedOperationStatusQueryTest.php tests/Internal/Status/OperationStatusAuditTenantAuthorizerTest.php tests/Internal/Status/OperationStatusReadExecutionSourceTest.php
 ```
 
@@ -186,6 +200,74 @@ Bind both Git/Composer export to that final SHA. Receipt-only status edits do
 not require another Product test run, but a new candidate commit needs its own
 required SHA-specific export. Do not create a receipt-hash recursion.
 
+## Bounded Full-suite Memory Recovery
+
+The first Final full PHPUnit run stopped at128MiB after approximately1286
+of3289 tests, while the unchanged Audit ingress UTF-8 cap fixture encoded
+MAX_BYTES+1. This is failed Final evidence, not Acceptance. The same fixture
+passes alone at30MiB and after full discovery at82.5MiB; the failure depends
+on cumulative suite memory. Independent read-only inspection found no retained
+AST/token cache in the new adapter architecture tests.
+
+Root General and independent Transaction review approved this amendment
+with P1/P2/P3=0 before recovery dispatch. It adds exactly one existing Test-only path:
+
+```text
+tests/Internal/Audit/Protection/AuditIngressEnvelopeCodecTest.php
+```
+
+The assigned Luna worker may add the existing Repository's PHPUnit
+RunInSeparateProcess / PreserveGlobalState(false) attributes to only
+testIngressWireUsesInclusiveUtf8ByteCap, their imports and a short rationale.
+No fixture, assertion, helper, test selection, Product code, dependency,
+baseline, PHP memory limit or other test process model changes are permitted.
+The original13 Product/Test paths and their reviewed contracts remain frozen.
+This is a14th Test-only recovery path, not broader adapter scope. Root retains
+all PHP/cache/DB and management ownership. No worker PHP execution.
+
+Root verifies the exact attribute-only diff, unchanged method/helper bodies
+and child PHP memory_limit=128M inheritance, then runs all ingress-codec tests
+with full-suite discovery, including the affected case. One combined run
+provides both checks. Review/evidence closure is limited
+to this delta; unchanged Product/Transaction/Documentation reviews and static/
+golden/package/version/public checks remain reusable. Global PHP format and
+management-ID/diff checks cover the recovery path. Repeat full PHPUnit once
+after this concrete failure and correction; no assertion or control is waived.
+Community Board can run serially under Root while the worker edits this test,
+because its Product/config/lock inputs remain unchanged. Final clean-SHA
+Git/Composer export remains required after all checks and Acceptance.
+
+### Second Recovery Amendment
+
+The second full run passed the isolated ingress case, then stopped at128MiB
+in testOversizedRecordBodyFailsBeforeActiveKeyLookup. A diagnostic with120MiB
+of retained parent heap reproduced that failure and also identified
+testOutboxBopdPlaintextCeilingIsInclusiveAndPreKey. The remaining eight relevant
+large-fixture probes passed under that synthetic budget. These are diagnostic
+results, not a replacement for the original full-suite Acceptance command.
+
+Root General and independent Transaction approved this amendment with
+P1/P2/P3=0 before dispatch. The same Luna Runtime worker may change one
+additional existing Test-only path:
+
+```text
+tests/Internal/Audit/Protection/AuditProtectedBodyCodecTest.php
+```
+
+Only the two named methods may receive RunInSeparateProcess and
+PreserveGlobalState(false), their imports and a short memory-isolation rationale.
+Keep every method/helper body, fixture, assertion and original14 paths exact.
+Total Product/Test scope becomes15 paths. No Product/config/dependency/baseline
+or memory-limit change. Root owns all PHP/cache/DB and management execution.
+
+Root reviews the exact attribute-only delta, then runs both recovery classes
+with full-suite discovery and a logging-only bootstrap to prove unchanged128M
+parent/child limits. Recheck the two reproduced synthetic failures after
+isolation. Global format and management-ID/diff checks cover the new path.
+After those results and delta review are Green, retry the original full PHPUnit
+command. All unchanged successful static, golden, inventory, version, Community
+and public evidence remains reusable; clean final-SHA export is still required.
+
 ## Release Documentation Impact
 
 Authority currentStable Framework/Skeleton1.2.1, unchanged exact refs in
@@ -199,16 +281,18 @@ later activation Task. No source/search/LLM publication, CI or deployment claim.
 ## Acceptance Criteria
 
 - [x] Revised authority has separate General/Transaction/Documentation Green.
-- [ ] Exact per-read source/guard/UUID and result/transaction contracts pass.
-- [ ] All required real-PG and adversarial oracle controls pass without
+- [x] Exact per-read source/guard/UUID and result/transaction contracts pass.
+- [x] All required real-PG and adversarial oracle controls pass without
   weakening D2/D2S1 evidence or changing runtime activation.
-- [ ] Required verification union and three implementation review lanes Green.
+- [x] Required verification union and three implementation review lanes Green.
 - [ ] Package90/39 and clean final-SHA Git/Composer export Green.
-- [ ] Report/STATE distinguish adapter completion from parent D/1.3 release.
+- [x] Report/STATE distinguish adapter completion from parent D/1.3 release.
 
 ## Remaining Work and Next Action
 
-Authority is Accepted with all three lanes Green. Root records the clean
-authority checkpoint and immutable inputs, then dispatches the two bounded Luna slices. After this adapter, other reader and
-operational adapters, parent composition, signature verification, query/export,
-runtime/docs and 1.3 release qualification remain separately scoped work.
+Implementation and the required local verification union are Accepted. Root
+commits the reviewed candidate and confirms clean final-SHA Git/Composer export.
+The user's additional tenant documentation request becomes a separate packet
+next; D2J then continues the reader work. Other reader/operational adapters,
+parent composition, signatures, query/export, runtime/docs and1.3 release
+qualification remain separately scoped. No1.3 publication is selected.

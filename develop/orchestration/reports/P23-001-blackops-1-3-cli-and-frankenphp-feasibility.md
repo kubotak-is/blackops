@@ -2,6 +2,11 @@
 
 Status: P23-001 Accepted — Stable 1.2 current / BlackOps 1.3 unreleased proposal
 
+This Report preserves the accepted feasibility checkpoint below. Its suggested
+next action records that checkpoint's date. Current Phase23 delivery and
+remaining work are tracked in [STATE](../../STATE.md) and [TODO](../../TODO.md),
+which link to the active implementation Task and Report.
+
 Updated At: 2026-08-26T10:34:43+09:00
 
 Historical Round29 Local Gate Green Checkpoint At: 2026-08-24T18:48:37+09:00

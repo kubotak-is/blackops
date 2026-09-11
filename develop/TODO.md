@@ -11,7 +11,7 @@
 
 ## 現在の作業への導線
 
-- Status Audit adapter: [D2S Task](orchestration/tasks/P23-003D2S-operation-status-audit-adapter.md)、[Report](orchestration/reports/P23-003D2S-operation-status-audit-adapter.md)。仕様改訂は独立レビューを通過。テナントごとの取得、監査記録と結果返却の順序、既存例外トレースの保護を実装し、境界を検証する。
+- Status Audit adapter: [D2S Task](orchestration/tasks/P23-003D2S-operation-status-audit-adapter.md)、[Report](orchestration/reports/P23-003D2S-operation-status-audit-adapter.md)。実装と関連レビュー・全件検証が通過。完了条件と配布物検証はReportを正本とする。HTTPへの組込みは親D統合で行う。
 - 1.2.1開発ブランチ同期: [P23-013 Task](orchestration/tasks/P23-013-sync-stable-1-2-1.md)、[Report](orchestration/reports/P23-013-sync-stable-1-2-1.md)。Accepted。既存作業保存、main取込、公開仕様と開発中実装の検証分離、clean SHAのpackage exportまで完了。
 
 - 1.2.1 Release: [P23-012 Task](orchestration/tasks/P23-012-release-1-2-1.md)、[Report](orchestration/reports/P23-012-release-1-2-1.md)。2026-09-10 Accepted。Framework／Skeleton公開、Remote Install／Quickstart、同一main SHAのCI・本番サイト1.2.1配信、全公開本文検証、Skeleton README同期まで完了。1.3作業は保持。

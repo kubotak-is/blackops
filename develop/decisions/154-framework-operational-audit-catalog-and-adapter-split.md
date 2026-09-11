@@ -6,10 +6,11 @@ Updated At: 2026-09-08T11:20:30+09:00
 
 ## Current Handoff
 
-D1/D2 and the D2S1 source prerequisite are Accepted. The D2S adapter still
-requires a revised, independently reviewed packet before implementation.
-Current delivery evidence and next actions belong to [STATE](../STATE.md) and
-[D2S1 Report](../orchestration/reports/P23-003D2S1-tenant-scoped-status-source.md).
+D1/D2 and the D2S1 source prerequisite are Accepted. The Status adapter's
+reviewed scope and current acceptance evidence belong to the
+[D2S Task](../orchestration/tasks/P23-003D2S-operation-status-audit-adapter.md) and
+[D2S Report](../orchestration/reports/P23-003D2S-operation-status-audit-adapter.md).
+Current delivery order and next actions belong to [STATE](../STATE.md).
 Parent D, runtime activation and release remain incomplete.
 
 ## Historical Handoff — before D2 implementation

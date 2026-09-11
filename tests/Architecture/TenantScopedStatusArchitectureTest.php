@@ -2481,6 +2481,18 @@ final class TenantScopedStatusArchitectureTest extends TestCase
                 'method' => 'find',
                 'call' => '$this->findForTenant($operationId, $currentActor, $currentTenant)',
             ],
+            [
+                'path' => 'src/Internal/Status/AuditedOperationStatusQuery.php',
+                'class' => 'AuditedOperationStatusQuery',
+                'method' => 'find',
+                'call' => '$this->findForTenant($operationId, $currentActor, $currentTenant)',
+            ],
+            [
+                'path' => 'src/Internal/Status/AuditedOperationStatusQuery.php',
+                'class' => 'AuditedOperationStatusQuery',
+                'method' => 'findForTenant',
+                'call' => '$query->findForTenant($operationId, $currentActor, $currentTenant)',
+            ],
         ];
         $expectedClasses = [];
         foreach ($allowed as $edge) {
@@ -2511,7 +2523,7 @@ final class TenantScopedStatusArchitectureTest extends TestCase
             'outcomeExistsForTenant' => 1,
             'deadLetterExistsForTenant' => 1,
             'recordsForTenant' => 2,
-            'findForTenant' => 4,
+            'findForTenant' => 6,
         ] as $method => $expectedCount) {
             $actualCount = 0;
             foreach ($sources as $source) {
@@ -2524,7 +2536,22 @@ final class TenantScopedStatusArchitectureTest extends TestCase
             );
         }
         foreach ($sources as $path => $source) {
-            if ($this->newClassCount($source, 'BlackOps\Internal\Status\TenantBoundOperationStatusSource') > 0) {
+            $boundViewCount = $this->newClassCount(
+                $source,
+                'BlackOps\Internal\Status\TenantBoundOperationStatusSource',
+            );
+            if ($path === 'src/Internal/Status/AuditedOperationStatusQuery.php') {
+                $body = $this->methodBody($source, 'findForTenant');
+                if (
+                    $boundViewCount !== 1
+                    || !is_string($body)
+                    || $this->newClassCount($body, 'BlackOps\Internal\Status\TenantBoundOperationStatusSource') !== 1
+                ) {
+                    $violations[] = $path . '::new-bound-view';
+                }
+                continue;
+            }
+            if ($boundViewCount > 0) {
                 $violations[] = $path . '::new-bound-view';
             }
         }
@@ -2633,8 +2660,13 @@ final class TenantScopedStatusArchitectureTest extends TestCase
 
     private function newClassCount(string $source, string $targetFqcn): int
     {
+        $parseSource = str_starts_with(ltrim($source), '<?php')
+            ? $source
+            : "<?php\nnamespace BlackOps\\Internal\\Status;\nfinal class __TenantScopedStatusFragment {\n    public function __fragment(): void {\n"
+            . $source
+            . "\n    }\n}\n";
         $hasNewExpression = false;
-        foreach (token_get_all($source) as $token) {
+        foreach (token_get_all($parseSource) as $token) {
             if (is_array($token) && $token[0] === T_NEW) {
                 $hasNewExpression = true;
                 break;
@@ -2646,7 +2678,7 @@ final class TenantScopedStatusArchitectureTest extends TestCase
 
         try {
             $parser = new ParserFactory()->createForNewestSupportedVersion();
-            $statements = $parser->parse($source);
+            $statements = $parser->parse($parseSource);
             if ($statements === null) {
                 return 0;
             }

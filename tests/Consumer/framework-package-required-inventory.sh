@@ -7,7 +7,7 @@ EXPORT_SCRIPT="${SCRIPT_DIR}/framework-package-export.sh"
 TEMP_ROOT="$(mktemp -d)"
 trap 'rm -rf -- "${TEMP_ROOT}"' EXIT
 
-reviewed_export_sha='1a9062ec411956b4a96a90dc610eb2e54277c5bf439d94d06368c146949e3dd7'
+reviewed_export_sha='6cde33f566fb74e193b1c7a2ff60b4c0e76157805627cbc650b95624dab2b1b9'
 
 expected_inventory="${TEMP_ROOT}/expected-inventory"
 printf '%s\n' \
@@ -34,6 +34,9 @@ printf '%s\n' \
     src/Internal/Audit/Read/OperationReadExecutionSource.php \
     src/Internal/Audit/Read/OperationReadAuditSessionFactory.php \
     src/Internal/Audit/Read/OperationReadAuditSession.php \
+    src/Internal/Status/AuditedOperationStatusQuery.php \
+    src/Internal/Status/OperationStatusAuditTenantAuthorizer.php \
+    src/Internal/Status/OperationStatusReadExecutionSource.php \
     src/Internal/Audit/Relay/AuditRelayOutcome.php \
     src/Internal/Audit/Relay/AuditRelayFailure.php \
     src/Internal/Audit/Relay/AuditRelayException.php \
@@ -765,6 +768,36 @@ test_mutation_rejected() {
             ' "${candidate}" >"${candidate}.tmp"
             mv "${candidate}.tmp" "${candidate}"
             ;;
+        d2s2-query-omission)
+            run_bounded sed -i '\|src/Internal/Status/AuditedOperationStatusQuery.php|d' "${candidate}"
+            ;;
+        d2s2-authorizer-omission)
+            run_bounded sed -i '\|src/Internal/Status/OperationStatusAuditTenantAuthorizer.php|d' "${candidate}"
+            ;;
+        d2s2-execution-omission)
+            run_bounded sed -i '\|src/Internal/Status/OperationStatusReadExecutionSource.php|d' "${candidate}"
+            ;;
+        d2s2-order-swap)
+            run_bounded awk '
+                !swapped && $0 ~ /src\/Internal\/Status\/AuditedOperationStatusQuery\.php/ {
+                    first = $0
+                    if (getline second > 0 && second ~ /src\/Internal\/Status\/OperationStatusAuditTenantAuthorizer\.php/ &&
+                        getline third > 0 && third ~ /src\/Internal\/Status\/OperationStatusReadExecutionSource\.php/) {
+                        print third
+                        print second
+                        print first
+                        swapped = 1
+                        next
+                    }
+                    print first
+                    if (second != "") print second
+                    if (third != "") print third
+                    next
+                }
+                { print }
+            ' "${candidate}" >"${candidate}.tmp"
+            mv "${candidate}.tmp" "${candidate}"
+            ;;
         d2s1-duplicate-entry)
             run_bounded awk '
                 !inserted && $0 ~ /src\/Internal\/Status\/TenantBoundOperationStatusSource\.php/ {
@@ -1134,9 +1167,9 @@ test -f "${EXPORT_SCRIPT}"
 test "$(sha256sum "${EXPORT_SCRIPT}" | cut -d' ' -f1)" = "${reviewed_export_sha}"
 runtime_case_count=0
 assert_inventory "${EXPORT_SCRIPT}"
-test "$(wc -l < "${expected_inventory}")" -eq 87
-test "$(sort -u "${expected_inventory}" | wc -l)" -eq 87
-printf 'required inventory: PASS (87 ordered paths, 87 unique)\n'
+test "$(wc -l < "${expected_inventory}")" -eq 90
+test "$(sort -u "${expected_inventory}" | wc -l)" -eq 90
+printf 'required inventory: PASS (90 ordered paths, 90 unique)\n'
 
 test_mutation_rejected comment-only comment
 test_mutation_rejected existing-entry-removal existing-removal
@@ -1149,6 +1182,10 @@ test_mutation_rejected d2s1-interface-entry-omission d2s1-interface-omission
 test_mutation_rejected d2s1-view-entry-omission d2s1-view-omission
 test_mutation_rejected d2s1-reverse-new-block d2s1-order-swap
 test_mutation_rejected d2s1-duplicate-new-entry d2s1-duplicate-entry
+test_mutation_rejected d2s2-query-entry-omission d2s2-query-omission
+test_mutation_rejected d2s2-authorizer-entry-omission d2s2-authorizer-omission
+test_mutation_rejected d2s2-execution-entry-omission d2s2-execution-omission
+test_mutation_rejected d2s2-reverse-new-block d2s2-order-swap
 test_mutation_rejected order-swap order-swap
 test_mutation_rejected duplicate-loop duplicate-loop
 test_mutation_rejected heredoc-decoy heredoc-decoy
@@ -1174,4 +1211,4 @@ test_call_contract_mutation_rejected pipeline-composer-continuation pipeline-com
 test_call_contract_mutation_rejected command-substitution-git-continuation command-substitution-git-continuation
 test_call_contract_mutation_rejected resolution-override resolution-override
 printf 'required inventory call-contract mutations: PASS (14 rejected before runtime/SHA)\n'
-printf 'required inventory mutations: PASS (35 rejected: 21 inventory, 14 call-contract)\n'
+printf 'required inventory mutations: PASS (39 rejected: 25 inventory, 14 call-contract)\n'
