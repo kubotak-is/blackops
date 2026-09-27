@@ -1,11 +1,11 @@
 # P23-018 Report
 
-Status: Accepted (local) — isolated commit and production delivery pending
+Status: Accepted (local) — Pages seek correction; follow-up delivery pending
 
 ## Summary
 
 The owner's Landing Hero Reel handoff is isolated on
-`agent/p23-018-landing-hero-reel`, based on published main
+`agent/p23-018-landing-hero-reel` (merged through PR14), based on published main
 `08e4751c62a2a83ba0401f5aee97164984a27f5c`, in
 `/tmp/blackops-reel-20260927/candidate`. D5P and earlier documentation remain in
 the original worktree and index. No PHP source or Release Authority is changed.
@@ -15,6 +15,12 @@ Stable installation command and Operation example immediately below. Both the
 Reel and Execution Walkthrough autoplay under reduced motion as explicitly
 selected by the owner. Effective pause, lifecycle suspension and accessible
 fallbacks remain ordinary Acceptance requirements.
+
+The first same-SHA production delivery succeeded at3f38dd85, but actual Pages
+chapter seeking failed because its media responses do not support HTTP Range.
+The correction is locally Accepted on the isolated follow-up branch
+`agent/p23-018-pages-seek`. The correction is lazy and uses the selected media
+format only after an explicit chapter request; ordinary autoplay is unchanged.
 
 ## Changed Files
 
@@ -73,7 +79,7 @@ They are attributed and are not adopted as current candidate/same-SHA evidence.
 | Final whole-website tests | PASS175/175, 273.681656s; run-20260928T003822352827-test; log SHA256 ba6602108d2e1422ab3368c6ec0ffe0de9d2098c83dfa7ad558b035c2d4e177f |
 | Final check / artifact / diff | PASS13.757723s /2.018565s /0.120673s; run-20260928T004305225798-check /004319015574-artifact /004321065868-diff |
 | Independent final review | Green, no open P1/P2/P3; documentation-final-review.md; SHA256 0aaf94a991ec897020aa0f161de2de9626218d940bde109cd705227c52562080 |
-| Same-SHA CI/documentation production delivery | Pending; no delivery claim yet |
+| First same-SHA CI/documentation production delivery | PASS at3f38dd85; live seeking failed, correction pending; see post-delivery evidence |
 
 Failed attempts are retained: sandbox dependency-cache/network failure; two
 focused expectation/test-order corrections; CLI footer/Typed card bounds and
@@ -91,14 +97,14 @@ browser success is not used as final page Acceptance. Range response is now
 206 with exact100-byte body for bytes100-199. Earlier long page screenshots
 are not accepted as first-viewport visual proof.
 
-Final media handling covers source-error aggregation, a terminal video error,
+The first locally accepted media handling covers source-error aggregation, a terminal video error,
 pending play promise rejection, and an error arriving before enhancement. One
 failed WebM source still permits MP4; complete failure pauses pending playback
 and preserves the media-specific message. Final full browser evidence confirms
 both fault paths and autoplay rejection. Normal cases have no JavaScript errors;
 intentional404 fixtures retain their expected network errors.
 
-The final matrix covers1440x900,1920x1080 and390x844 in both themes, keyboard focus,
+The first locally accepted matrix covers1440x900,1920x1080 and390x844 in both themes, keyboard focus,
 CTA/heading visibility, no horizontal overflow, unobstructed native controls,
 36-second natural end/no-loop, explicit replay/chapter seek, no-JS native controls,
 reduced-motion autoplay and effective pause for both players, offscreen and
@@ -187,7 +193,7 @@ remains the existing full workflow and must pass on the delivered SHA.
 
 `documentation-source-review.md` records the initial P1/P2 findings;
 `documentation-correction-source-review.md` records their source closure and the
-final P3 visual overlap closure. `documentation-final-review.md` independently clears the final source, encoded media, browser evidence and all final gates. Root accepts the seven local criteria with the stated visibility/accessibility/performance evidence limits; production delivery is still a separate gate.
+final P3 visual overlap closure. `documentation-final-review.md` independently clears the final source, encoded media, browser evidence and all final gates. The first seven local criteria were accepted with the stated visibility/accessibility/performance evidence limits. Actual production seeking reopened the affected player/browser criteria; the unchanged movie, source and scope evidence remains valid.
 `scope-preservation-final.json` reconfirms at2026-09-28T00:40:17+09:00 all sixteen original
 handoff files and the original staged patch are unchanged, the older theme prefix
 is preserved, the isolated candidate contains its base CSS prefix and no PHP delta.
@@ -195,19 +201,159 @@ D5P local Acceptance is complete independently; no D5P commit/tag/release is mad
 
 ## Acceptance Criteria
 
-The seven local criteria are Accepted. Independent Review is Green with no open P1/P2/P3. The isolated clean commit and same-SHA CI/production proof remain open; local Acceptance does not assert delivery. Known evidence limitations above are retained.
+The first isolated same-SHA delivery exposed a real Pages seeking failure.
+The bounded correction now passes all assigned local gates and independent
+review on frozen inputs. Source, render, browser, player and local verification
+criteria are Accepted. Follow-up commit isolation and actual same-SHA production
+delivery remain open until the resulting SHA and canonical origin are verified.
 
 ## Remaining Issues
 
-The isolated commit and existing PR/main CI/documentation production delivery remain, followed by public artifact/browser/performance confirmation.
-The main Ruleset requires a PR; no bypass or force push is selected.
+No local corrective finding remains. Same-SHA CI/delivery and production proof
+are pending. Native no-JS play/pause remains usable; its server-limited seeking
+is not claimed to be corrected. Browser, visibility and accessibility evidence
+has the limits recorded below; no whole-site WCAG certification is claimed.
 
 ## Suggested Next Action
 
-Commit/push the frozen isolated candidate and deliver through the existing PR
-workflow. Record the delivered SHA, CI/deployment URLs and external
-artifact/interaction/performance evidence before completion.
-残り工程: Isolated commit, same-SHA CI, production Documentation delivery and
-live verification. D5P stays Accepted locally and uncommitted; the1.3 parent is
-not completed or released by this documentation delivery.
-Next Action: Root commits the authorized candidate and opens its delivery PR.
+Root commits and publishes the isolated correction, then records final CI,
+production artifact and actual browser/performance evidence.
+残り工程: Follow-up commit/PR, same-SHA CI and Documentation delivery,
+canonical-origin verification and management closeout.
+D5P stays Accepted locally and uncommitted; the1.3 parent remains unreleased.
+Next Action: Publish the locally accepted correction through the existing PR workflow.
+
+## Post-delivery finding (2026-09-28)
+
+Isolated commit301acc1 (32 paths) was merged through PR14 into
+3f38dd85c0a4bc369f849565f306d9d7b58e0c0b, with identical Git trees.
+CI36335317880 (all six jobs) and Documentation36335318003 passed on that main
+push/actual checkout. Production deployaa20f00c completed; downloaded417-file
+Artifact exactly matches the PR artifact. The PR run head301acc1 is distinct from
+its synthetic checkout5f71f624b83588ae082e8cc00d289f89782bfd68. Local/PR differences
+are only seven enumerated generated identifiers; both font payloads and all
+normalized417 files match. Independent remote-artifact-review.md confirms this.
+
+Live browser run021043616894 fails overall: natural36s playback/end and no-JS
+pass; chapter/currentTime seek resets to zero. Range GET returns200/full bytes.
+[Pages serving behavior](https://developers.cloudflare.com/pages/configuration/serving-pages/)
+explicitly documents200 for Range requests (checked2026-09-28). The earlier local
+206 server failed to model this condition. A bounded player/test correction is
+required; this result is not Accepted or relabeled PASS. Lighthouse live was not
+run because the serial browser gate failed.
+
+Python's default User-Agent receives Cloudflare403/error1010; ordinary browser
+User-Agent and curl receive200. The failed requests are retained separately.
+The live HTML also has a Cloudflare Pages Analytics footer absent from the uploaded
+Artifact, so raw HTML equality is false. `cloudflare-analytics-classification.json` pins the exact214-byte injected suffix.
+`live-http-classified.json` passes49 HTTP comparisons after removing that exact
+suffix only; media/Search/raw/LLM match without normalization. Both Range probes
+return200/full identical media, accurately recorded as full-response behavior,
+not partial-range support. No Cloudflare access/security setting is changed.
+
+The direct canonical-origin probe (`probe-seek.json`) confirms that both fully
+buffered formats have seekable[0,0]; native28.2s seeking returns0. Fetching the
+selected bytes as a Blob gives seekable[0,36] and successful28.2s seeking for
+WebM and MP4. No media rerender is needed. A local4330 server now models200/full
+responses instead of206. New browser cases delay fallback fetches and check latest
+chapter, manual pause, payload reuse, cleanup/abort/revoke and failure guidance.
+
+The first corrective focused run022923549640 failed1/6 in1.643638s: latest chapter
+expected12.5 but remained0. Root also found that a paused loading video exposed a
+play action, so pending autoplay could not be paused through the custom control.
+The worker is correcting both before final gates. This failed receipt is retained.
+
+The second focused run023331902044 failed at the same latest-chapter assertion
+in1.26112s. Source review additionally found that the pending toggle's play label
+did not match its pause action. Root reassigns the focused unit command alone to
+Luna for a verified correction; Root retains serial build/browser/final ownership.
+
+Worker's exact focused command subsequently passed6/6 in1.333819693s
+(`worker-seek-focused-pass4-output.log`, Node duration938.120616ms). The fixed
+observable async wait replaced an insufficient fixed microtask count; pending
+control labels/actions and native-autoplay races also received actual corrections.
+Root build024049160763 passed in28.811262s with unchanged inputs. Actual no-Range
+run024119478077 passed5/6 in17.793381s: delayed latest target/manual pause/reuse,
+pending resume, fetch abort, MP4 selected format and503 guidance/native playback.
+The end-frame lifecycle case failed: re-init restored the native source with
+load(), resetting36s/ended to0s/not ended. Although playback stayed paused, this
+did not preserve the ending frame. Worker corrects the unnecessary reload before
+final Acceptance. The failed receipt and screenshot remain evidence.
+
+Removing that reload also removed the unnecessary shadow-ended state. Focused
+6/6 passed in1.322180843s (`worker-seek-ended-pass-output.log`), build024333884866
+passed in27.300368s, targeted no-Range6/6 passed in15.802996s, full no-Range12/12
+passed in71.287127s, and normal206 affected4/4 passed in19.883023s. Those automated
+results covered their stated assertions; they did not prove that every visible
+status was correct. Root's actual mobile screenshot review and independent
+`seek-source-review.md` identified three remaining reader-facing findings:
+
+- SEEK-01 (P2): successful paused/hidden chapter loading leaves the loading status.
+- SEEK-02 (P3): pending pause action retains a play icon; mobile hides the text.
+- SEEK-03 (P2): an intentionally interrupted play promise can show an autoplay
+  error, and immediate post-chapter pause intent needs explicit real-state proof.
+
+Root assigns these together before the final whole-website gate. Browser
+assertions now include settled pause/no obsolete status, and mobile captures of
+pending pause/resume icons plus completed paused media. No successful automation
+is relabeled as full visual Acceptance while these findings remain open.
+
+## Final corrective local Acceptance (2026-09-28)
+
+The final player uses a native seekable range when available; otherwise an
+explicit chapter request shares one selected-format Blob fetch and waits for
+its actual seekable range. The latest target and reader pause/resume intent
+survive pending loading. Native keyboard controls, successful/aborted status
+cleanup and mobile action icons agree with actual playback. Stale or deliberately
+interrupted play promises cannot overwrite current status with an autoplay error.
+Cleanup aborts/revokes resources without reloading the selected media, preserving
+the real ended frame across reinitialization; explicit replay still works.
+
+SEEK-01/P2, SEEK-02/P3 and SEEK-03/P2 are closed by actual screenshots and browser
+assertions, not only unit expectations. The final targeted suite also catches
+pending abort/re-init, native keyboard resume and ended/replay after URL revoke.
+A separate smooth-scroll harness race was traced in `trace-pause.json`: offscreen
+suspension had already changed the action to play before the test clicked it.
+The harness now establishes the viewport/pause action before clicking. No product
+workaround was added for this test condition; earlier failed logs remain retained.
+
+Final Product source SHA256:
+
+- Player: `d97b05d66a6c4df5c2e6aa3c70ec58dd9cc3bf5745440eacc9624be2437ee28b`.
+- Test: `b82c7f048887b0435aefa404eba379c9799060ae6f32938d26515630f1e17816`.
+- All final Root receipts use unchanged before/after inputs
+  `46b5faaa4d8bc745896454f9eaf061c1175ff4901527e7b22b064779fa0b3592`.
+
+Luna's focused6/6 pass (`worker-seek-cleanup-pass-output.log`,1.330341169s,
+Node917.660539ms) is reused; Root does not repeat it after the full test gate.
+`seek-final-gates.json` indexes the following receipts; each directory contains
+argv/environment, exact inputs, elapsed time, output log and its SHA256.
+
+| Final Root receipt | Result | Seconds | Output log SHA256 |
+| --- | --- | ---: | --- |
+| `run-20260928T025656700204-build` | PASS | 27.553523 | `89b0afe5588651e9507c2bb053be8eda67c0d28a4424d1d6aaa383c52378624c` |
+| `run-20260928T025725610021-seek-no-range` | 9/9 PASS | 15.855401 | `74634f44f761bbc7ee607389c6d4eb9344121ac6f80ea150ff2085a26a6fca03` |
+| `run-20260928T025741498088-browser-no-range` | 12/12 PASS | 69.851751 | `94ecbe12fcdde777e1bf6feacc1c32ce63d92a6b1fcd78bfc01717fd83eba4c8` |
+| `run-20260928T025854262243-browser-range` | 4/4 PASS | 24.277898 | `073cd69f673bb85ce33d20420a1ab1a0055de2f9b3133db1b6232cacff24e988` |
+| `run-20260928T025920195121-test` | 175/175 PASS | 267.661438 | `9463cd04241a2c4d01a27ab366a2c950e63a2844d56bc1759e0aba8b09a9ceec` |
+| `run-20260928T030400129315-check` | 0 errors, 0 warnings, 4 hints | 13.441213 | `57d4d478631e4a24cceb1d9611f5b1bef39c0df1c7f788b650b4487740a2cb6d` |
+| `run-20260928T030413601119-artifact` | PASS | 1.983032 | `6c0c7bbe52c324e0f72f466825554ad40950301dad44818ffa369a0b8b48aa60` |
+| `run-20260928T030415615741-diff` | PASS | 0.036335 | `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` |
+
+The unchanged64 public inputs/Release Authority retain their successful Source
+guard (`seek-public-source-preservation.json`); no new source claim or historical
+allowlist change is introduced. No PHP file changed, so no local PHP gate is
+selected. Remote same-SHA CI remains required.
+
+The frozen final Artifact has417 files/39,863,386 bytes; its manifest SHA256 is
+`ad3875e18de2f53c3d12f694b5b5dc1b15c3ccf403d6fa112511ee997b29f240`.
+`seek-artifact-post-tests-proof.json` proves dist remains exactly equal after all
+gates. Compared with the first accepted Artifact,415 files are byte-identical;
+only the Reel script and its index.html reference change, a net3,447-byte increase.
+Media, guides, Search, raw/LLM and public routes remain unchanged. No rerender.
+
+Independent `seek-final-review.md` SHA256 `38ec5d2c958a252661f8c4927ba9e3b05efae01afdf7f30f57a6b15c6c3ac130`
+confirms Green local readiness with no unresolved P1/P2/P3. The reviewer reused
+receipts and inspected actual screenshots; it did not repeat gates or edit source.
+The range-ignoring server now matches Pages'200/full behavior; this remains local
+evidence until the follow-up deployment passes actual canonical-origin checks.

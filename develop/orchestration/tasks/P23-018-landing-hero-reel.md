@@ -1,6 +1,6 @@
 # P23-018: Landing Hero Reel
 
-Status: Accepted (local) — isolated commit and production delivery pending
+Status: Accepted (local) — Pages seek correction; same-SHA delivery pending
 
 ## Goal and authority
 
@@ -58,6 +58,40 @@ must not alter those inputs or share its generated outputs. Do not advance HEAD
 until D5P's frozen-input checks are complete. Use an isolated documentation
 candidate for commit/delivery if the main worktree has unrelated changes.
 
+## Post-delivery corrective assignment (2026-09-28)
+
+PR14 merged at3f38dd85c0a4bc369f849565f306d9d7b58e0c0b. Both main CI and
+Documentation delivery pass on that exact SHA; committed media and remote
+Artifact match. Actual canonical-origin Chromium playback/end work, but chapter
+and native currentTime seeking reset to zero. Pages returns200 for Range requests
+as its documented serving behavior. The earlier range-capable local server did
+not cover this production condition, so playback/browser Acceptance is reopened.
+Evidence: run-20260928T021043616894-browser-live; live-http.json.
+
+Luna owns a bounded player/test correction on agent/p23-018-pages-seek in the
+same isolated candidate. Use existing media and browser APIs, preserve ordinary
+muted once-only playback, explicit pause/end/cleanup, partial-format fallback and
+no-JS controls. Do not add a hosting service, Pages Functions, paid resource,
+service worker, or change account/security settings. Prefer a carefully bounded
+in-memory media fallback only if actual no-Range browser proof supports it; avoid
+unconditional duplicate full-video transfers. Account for abort, stale async
+completion, cleanup, loading/error guidance and fallback failure. Root owns the
+production/no-Range probe, frozen verification and output directories. Worker
+must not run commands that share outputs, commit, or edit STATE; return changes,
+unit-test intent, exact hashes and remaining concerns to Root.
+
+After two failed corrective focused runs, Root reassigns only the focused Node
+unit command to Luna, with unique worker-seek logs and before/after input hashes.
+Root runs no concurrent verification. Luna must validate pending control labels
+and pause/resume intent, and wait for observable async completion rather than
+an arbitrary microtask count. Build/browser/final gates and STATE remain Root-owned.
+
+Root will recheck affected units, final whole website gate and actual no-Range
+browser behavior; unchanged encoded media/source reviews remain valid. Follow-up
+commit/PR must keep the same isolation, same-SHA CI/delivery and live proof.
+HTML live byte differences from the injected Cloudflare Pages Analytics footer
+must be classified explicitly, not treated as source drift or broadly stripped.
+
 ## Decisions to close
 
 1. Keep What's BlackOps/Install and the Reel in the first desktop viewport; allow
@@ -111,5 +145,7 @@ actual delivery base before publishing; dirty-worktree build success is insuffic
 User has authorized the isolated commit and delivery. No unrelated framework
 release, tag or D5P commit is selected.
 
-残り工程: Isolated commit, same-SHA CI, production delivery and live verification.
-Next Action: Root commits the frozen reviewed candidate and opens its delivery PR.
+残り工程: Isolated follow-up commit, same-SHA CI/delivery, canonical-origin proof
+and management closeout. Unchanged1.3 parent work remains separate.
+Next Action: Root commits the locally accepted correction and publishes its PR.
+Then verify the actual delivered SHA/artifact and canonical-origin chapter seeking.

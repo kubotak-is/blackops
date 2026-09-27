@@ -1,6 +1,6 @@
 # D167: Landing Hero Reel and Motion Controls
 
-Status: Decided — owner handoff2026-09-27; implementation and local review Accepted2026-09-28
+Status: Decided — Pages seek correction Accepted locally; delivery pending
 
 ## Context
 
@@ -56,6 +56,17 @@ that change; D5P and earlier uncommitted documentation remain separate.
    artifact through the existing workflow; final external checks prove delivery.
    This does not authorize a Framework release/tag or an unrelated D5P commit.
 
+8. Actual Pages delivery returns200/full content for Range requests. Both reviewed
+   video formats play through but Chromium reports a zero-length seekable range,
+   even when fully buffered. On an explicit chapter request that needs seeking,
+   the enhanced player may retrieve its selected media format into a Blob URL.
+   This fallback must be lazy, reuse one in-memory payload, preserve the latest
+   chapter and reader pause intent, and abort/release resources on cleanup. Normal
+   autoplay must not trigger an unconditional second full download. Failure must
+   retain usable playback/guide access and a clear status. SSR/no-JS keeps native
+   play/pause; the server's native seek limitation is not claimed to be fixed for
+   unenhanced browsers. No additional hosting service or account setting is needed.
+
 ## Accessibility and delivery evidence
 
 The owner accepts automatic motion under reduced-motion preferences for these
@@ -73,10 +84,19 @@ controls without claiming a whole-site or higher-level certification.
 checked2026-09-27, set25MiB per asset. Verify each actual media file and the delivered
 Content-Type/response, and measure browser transfer separately from this platform
 limit. The combined size of alternative MP4/WebM files is not normally the chosen
-format's single-browser transfer; confirm requests in browser evidence.
+format's single-browser transfer; confirm requests in browser evidence. Explicit
+chapter fallback can retrieve the selected file again when the browser cannot
+reuse its media cache; measure this separately from ordinary autoplay.
+
+[Pages serving behavior](https://developers.cloudflare.com/pages/configuration/serving-pages/),
+checked2026-09-28, documents200 responses to Range requests. Actual canonical-origin
+probes confirm this for both media formats, and confirm that a local Blob URL
+restores the36-second seekable range without changing encoded bytes.
 
 ## Remaining work
 
-P23-018 local source/browser/media review and verification are Accepted.
-Isolated commit, same-SHA CI, delivery and external verification remain.
+P23-018 first isolated delivery exposed the Pages chapter-seek failure. The
+bounded client fallback now passes all local gates and independent affected
+review. Follow-up same-SHA CI/delivery and canonical-origin verification remain
+required before final Acceptance. Unchanged movie/source evidence is retained.
 The D5P Task and the unreleased1.3 parent remain independently managed.

@@ -39,6 +39,15 @@ export function initLandingReel(root) {
   let cleanedUp = false;
   let observer = null;
   let mediaFailure = false;
+  let seekFailure = false;
+  let seekLoading = false;
+  let seekFallbackController = null;
+  let seekFallbackPromise = null;
+  let seekFallbackSource = null;
+  let seekFallbackObjectUrl = null;
+  let seekRequest = 0;
+  let seekCompletionPending = false;
+  let playAttempt = 0;
 
   root.dataset[INITIALIZED] = 'true';
   toggle.hidden = false;
@@ -75,10 +84,152 @@ export function initLandingReel(root) {
       failure.hidden = false;
     }
   };
+  const clearSeekLoading = () => {
+    if (!seekLoading) return;
+    seekLoading = false;
+    if (!seekFailure && !mediaFailure && !video.error && !hasNoSource() && failure instanceof HTMLElement) {
+      failure.hidden = true;
+      failure.textContent = '';
+    }
+  };
 
   const allSourcesFailed = () => sourceElements.length === 0 || failedSources.size === sourceElements.length;
   const hasNoSource = () => video.networkState === 3 && video.readyState === 0;
+  const abortError = () => {
+    const error = new Error('The seek fallback was cancelled.');
+    error.name = 'AbortError';
+    return error;
+  };
+  const hasUsableSeekableRange = () => {
+    try {
+      const ranges = video.seekable;
+      for (let index = 0; index < ranges.length; index += 1) {
+        const start = ranges.start(index);
+        const end = ranges.end(index);
+        if (Number.isFinite(start) && Number.isFinite(end) && end > start) return true;
+      }
+    } catch {
+      return false;
+    }
+    return false;
+  };
+  const hasSeekableTarget = (target) => {
+    try {
+      const ranges = video.seekable;
+      for (let index = 0; index < ranges.length; index += 1) {
+        const start = ranges.start(index);
+        const end = ranges.end(index);
+        if (Number.isFinite(start) && Number.isFinite(end) && target >= start && target <= end) return true;
+      }
+    } catch {
+      return false;
+    }
+    return false;
+  };
+  const selectedSource = () => {
+    const currentSrc = typeof video.currentSrc === 'string' ? video.currentSrc.trim() : '';
+    const source = sourceElements.find((candidate) => {
+      const sourceUrl = candidate.getAttribute('src')?.trim() || '';
+      return sourceUrl && currentSrc && (candidate.src === currentSrc || sourceUrl === currentSrc);
+    }) || sourceElements.find((candidate) => candidate.getAttribute('src')?.trim());
+    return {
+      url: currentSrc || source?.src || source?.getAttribute('src')?.trim() || '',
+      type: source?.getAttribute('type')?.trim() || '',
+    };
+  };
+  const removeSeekFallback = (reloadOriginal = false) => {
+    const hadFallback = Boolean(seekFallbackSource || seekFallbackObjectUrl);
+    seekFallbackSource?.remove();
+    seekFallbackSource = null;
+    if (seekFallbackObjectUrl && typeof globalThis.URL?.revokeObjectURL === 'function') {
+      globalThis.URL.revokeObjectURL(seekFallbackObjectUrl);
+    }
+    seekFallbackObjectUrl = null;
+    if (reloadOriginal && hadFallback && typeof video.load === 'function') {
+      video.autoplay = false;
+      try {
+        video.load();
+      } catch {
+        // The native source remains available through the original <source> elements.
+      }
+    }
+    return hadFallback;
+  };
+  const seekFallbackPending = () => Boolean(seekFallbackPromise || seekCompletionPending);
+  const showSeekFailure = () => {
+    seekLoading = false;
+    seekFailure = true;
+    setFailure('チャプターを読み込めません。チャプターの説明とガイドを利用できます。');
+    sync();
+  };
+  const waitForSeekFallback = (fallbackController, fallbackSource) => new Promise((resolve, reject) => {
+    let settled = false;
+    const events = ['loadedmetadata', 'durationchange', 'canplay', 'progress', 'error'];
+    const finish = (error) => {
+      if (settled) return;
+      settled = true;
+      for (const name of events) video.removeEventListener(name, inspect);
+      fallbackSource.removeEventListener('error', onSourceError);
+      fallbackController.signal.removeEventListener('abort', onAbort);
+      if (error) reject(error);
+      else resolve();
+    };
+    const inspect = () => {
+      if (cleanedUp || fallbackController.signal.aborted) {
+        finish(abortError());
+        return;
+      }
+      if (video.error) {
+        finish(new Error('The media fallback failed.'));
+        return;
+      }
+      if (hasUsableSeekableRange()) finish();
+    };
+    const onSourceError = () => finish(new Error('The media fallback source failed.'));
+    const onAbort = () => finish(abortError());
+    for (const name of events) video.addEventListener(name, inspect);
+    fallbackSource.addEventListener('error', onSourceError, { once: true });
+    fallbackController.signal.addEventListener('abort', onAbort, { once: true });
+  });
+  const ensureSeekFallback = () => {
+    if (seekFallbackPromise) return seekFallbackPromise;
+    if (seekFallbackObjectUrl) return Promise.resolve();
+    const source = selectedSource();
+    if (!source.url || typeof fetch !== 'function' || typeof globalThis.URL?.createObjectURL !== 'function') {
+      return Promise.reject(new Error('The media fallback is unavailable.'));
+    }
+    const fallbackController = new AbortController();
+    seekFallbackController = fallbackController;
+    let promise;
+    promise = fetch(source.url, { signal: fallbackController.signal })
+      .then((response) => {
+        if (!response.ok || typeof response.blob !== 'function') throw new Error('The media fallback request failed.');
+        return response.blob();
+      })
+      .then((blob) => {
+        if (cleanedUp || fallbackController.signal.aborted) throw abortError();
+        seekFallbackObjectUrl = globalThis.URL.createObjectURL(blob);
+        if (cleanedUp || fallbackController.signal.aborted) throw abortError();
+        seekFallbackSource = video.ownerDocument.createElement('source');
+        seekFallbackSource.setAttribute('src', seekFallbackObjectUrl);
+        if (source.type) seekFallbackSource.setAttribute('type', source.type);
+        video.insertBefore(seekFallbackSource, video.firstChild);
+        const ready = waitForSeekFallback(fallbackController, seekFallbackSource);
+        video.autoplay = false;
+        if (typeof video.load === 'function') video.load();
+        return ready;
+      })
+      .finally(() => {
+        if (seekFallbackPromise === promise) {
+          seekFallbackPromise = null;
+          seekFallbackController = null;
+        }
+      });
+    seekFallbackPromise = promise;
+    return promise;
+  };
   const markTerminalMediaFailure = () => {
+    seekLoading = false;
     mediaFailure = true;
     setFailure('映像を読み込めません。チャプターの説明とガイドを利用できます。');
   };
@@ -96,19 +247,25 @@ export function initLandingReel(root) {
   };
 
   const sync = () => {
+    const fallbackPending = seekFallbackPending();
     const noSource = hasNoSource();
-    if (!mediaFailure && (video.error || noSource)) markTerminalMediaFailure();
-    const mediaUnavailable = mediaFailure || video.error || noSource;
-    if (mediaUnavailable && !video.paused) pauseForLifecycle();
-    const playing = !mediaUnavailable && !video.paused && !video.ended;
-    const state = mediaUnavailable
+    if (!fallbackPending && !mediaFailure && (video.error || noSource)) markTerminalMediaFailure();
+    const mediaUnavailable = !fallbackPending && (mediaFailure || video.error || noSource);
+    if ((fallbackPending || mediaUnavailable) && !video.paused) pauseForLifecycle();
+    const playing = !fallbackPending && !mediaUnavailable && !video.paused && !video.ended;
+    const state = fallbackPending || mediaUnavailable
       ? 'failed'
       : playing ? 'playing' : video.ended ? 'ended' : 'paused';
     root.dataset.landingReelState = state;
-    toggle.dataset.state = state;
-    toggleLabel.textContent = playing ? '一時停止' : video.ended ? 'もう一度再生' : '再生';
-    toggle.setAttribute('aria-label', playing ? '映像を一時停止' : video.ended ? '映像をもう一度再生' : '映像を再生');
-    if (playing && failure instanceof HTMLElement) failure.hidden = true;
+    toggle.dataset.state = fallbackPending ? pausedByReader ? 'paused' : 'playing' : state;
+    const actionLabel = fallbackPending
+      ? pausedByReader ? '再生' : '一時停止'
+      : playing ? '一時停止' : video.ended ? 'もう一度再生' : '再生';
+    toggleLabel.textContent = actionLabel;
+    toggle.setAttribute('aria-label', fallbackPending && pausedByReader
+      ? 'チャプター読込後に映像を再生'
+      : actionLabel === '一時停止' ? '映像を一時停止' : actionLabel === 'もう一度再生' ? '映像をもう一度再生' : '映像を再生');
+    if (playing && !seekFailure && failure instanceof HTMLElement) failure.hidden = true;
     if (playing) schedulePaint();
     else if (frame !== null) {
       cancelFrame(frame);
@@ -118,11 +275,12 @@ export function initLandingReel(root) {
   };
 
   const checkMediaAvailability = () => {
-    if (cleanedUp || mediaFailure) return;
+    if (cleanedUp || mediaFailure || seekFallbackPending()) return;
     if (video.error || hasNoSource()) showTerminalMediaFailure();
   };
 
   const pauseForLifecycle = () => {
+    playAttempt += 1;
     if (video.paused) return;
     programmaticPause = true;
     video.pause();
@@ -130,10 +288,13 @@ export function initLandingReel(root) {
 
   const play = () => {
     if (cleanedUp || video.ended) return;
+    const attempt = ++playAttempt;
     const promise = video.play();
     if (promise && typeof promise.catch === 'function') {
-      promise.catch(() => {
+      promise.catch((error) => {
         if (!cleanedUp) {
+          if (attempt !== playAttempt || (error?.name === 'AbortError' && video.paused)) return;
+          if (seekFallbackPending()) return;
           if (mediaFailure || video.error || hasNoSource()) {
             showTerminalMediaFailure();
             update();
@@ -149,6 +310,11 @@ export function initLandingReel(root) {
 
   const update = () => {
     checkMediaAvailability();
+    if (seekFallbackPending()) {
+      pauseForLifecycle();
+      sync();
+      return;
+    }
     if (mediaFailure || video.error || hasNoSource()) {
       pauseForLifecycle();
       sync();
@@ -156,6 +322,49 @@ export function initLandingReel(root) {
     }
     if (onScreen && !pausedByReader && !video.ended && document.visibilityState === 'visible') play();
     else pauseForLifecycle();
+  };
+
+  const applyChapterSeek = (start) => {
+    if (cleanedUp || mediaFailure || video.error || hasNoSource()) return false;
+    playAttempt += 1;
+    try {
+      video.currentTime = start;
+    } catch {
+      showSeekFailure();
+      return false;
+    }
+    clearSeekLoading();
+    if (onScreen && document.visibilityState === 'visible' && !pausedByReader && !video.ended) play();
+    else update();
+    return true;
+  };
+  const seekToChapter = (start) => {
+    const request = ++seekRequest;
+    pausedByReader = false;
+    root.dataset.landingReelReaderPaused = 'false';
+    seekFailure = false;
+    const fallbackPending = seekFallbackPending();
+    if (!fallbackPending && hasSeekableTarget(start)) {
+      seekCompletionPending = false;
+      applyChapterSeek(start);
+      return;
+    }
+    if (!fallbackPending) seekCompletionPending = true;
+    seekLoading = true;
+    pauseForLifecycle();
+    setFailure('チャプターを読み込んでいます…');
+    ensureSeekFallback()
+      .then(() => {
+        if (cleanedUp || request !== seekRequest) return;
+        seekCompletionPending = false;
+        applyChapterSeek(start);
+      })
+      .catch((error) => {
+        if (cleanedUp || request !== seekRequest || error?.name === 'AbortError') return;
+        seekCompletionPending = false;
+        removeSeekFallback(true);
+        showSeekFailure();
+      });
   };
 
   const onPause = () => {
@@ -169,18 +378,42 @@ export function initLandingReel(root) {
   };
 
   const onPlaying = () => {
+    if (seekFallbackPending()) {
+      pauseForLifecycle();
+      sync();
+      return;
+    }
+    if (pausedByReader && video.paused) {
+      pauseForLifecycle();
+      sync();
+      return;
+    }
     pausedByReader = false;
     root.dataset.landingReelReaderPaused = 'false';
     delete root.dataset.landingReelAutoplay;
+    seekFailure = false;
     root.dataset.landingReelState = 'playing';
     if (!mediaFailure && !video.error && !hasNoSource() && failure instanceof HTMLElement) failure.hidden = true;
     sync();
   };
 
   toggle.addEventListener('click', () => {
+    if (seekFallbackPending()) {
+      if (pausedByReader) {
+        pausedByReader = false;
+        root.dataset.landingReelReaderPaused = 'false';
+      } else {
+        pausedByReader = true;
+        root.dataset.landingReelReaderPaused = 'true';
+        pauseForLifecycle();
+      }
+      sync();
+      return;
+    }
     if (!video.paused && !video.ended) {
       pausedByReader = true;
       root.dataset.landingReelReaderPaused = 'true';
+      playAttempt += 1;
       video.pause();
       return;
     }
@@ -195,10 +428,7 @@ export function initLandingReel(root) {
     button.addEventListener('click', () => {
       const start = Number(button.dataset.landingReelSeek);
       if (!Number.isFinite(start)) return;
-      video.currentTime = start;
-      pausedByReader = false;
-      root.dataset.landingReelReaderPaused = 'false';
-      play();
+      seekToChapter(start);
     }, { signal: controller.signal });
   }
 
@@ -207,6 +437,7 @@ export function initLandingReel(root) {
     video.addEventListener(name, name === 'pause' ? onPause : name === 'playing' ? onPlaying : sync, { signal: controller.signal });
   }
   video.addEventListener('error', () => {
+    if (seekFallbackPending()) return;
     showTerminalMediaFailure();
     update();
   }, { signal: controller.signal });
@@ -234,13 +465,20 @@ export function initLandingReel(root) {
   const cleanup = () => {
     if (cleanedUp) return;
     cleanedUp = true;
+    clearSeekLoading();
+    controller.abort();
+    seekRequest += 1;
+    seekCompletionPending = false;
+    seekFallbackController?.abort();
+    seekFallbackController = null;
+    seekFallbackPromise = null;
+    removeSeekFallback();
     onScreen = false;
     pausedByReader = true;
     pauseForLifecycle();
     if (frame !== null) cancelFrame(frame);
     frame = null;
     observer?.disconnect();
-    controller.abort();
     root.dataset[INITIALIZED] = 'stopped';
   };
   document.addEventListener('astro:before-swap', cleanup, { once: true, signal: controller.signal });
