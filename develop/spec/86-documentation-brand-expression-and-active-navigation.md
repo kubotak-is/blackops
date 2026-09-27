@@ -33,7 +33,7 @@ Link Labelは`Frontendを接続する`、Targetは`/frontend`とする。
 - Visible Wordmarkは`BlackOps`
 - Browser TitleとMetadataは`BlackOps - The PHP Framework`
 - Existing Banner、Search、Theme Toggleを維持する
-- GitHub導線はLanding Heroに常時表示する
+- GitHub導線はHeaderに常時表示する（D167でHero内への重複配置を不要とする）
 - HeaderにはBlume native GitHub icon linkを表示し、全PageでRepository URL `https://github.com/kubotak-is/blackops`、Accessible Label、`target="_blank"`、`rel="noreferrer"`を満たす
 
 ### Hero
@@ -41,12 +41,8 @@ Link Labelは`Frontendを接続する`、Targetは`/frontend`とする。
 - Deep developer-tool canvasと中央集約した構図を使う
 - H1内で`BlackOps`を主文字、`The PHP Framework`を小さい補助文字にする
 - 長い説明文と新しいMarketing Claimを追加しない
-- Install、GitHub、Stable Install Commandを最初のViewportへ置く
-- Stable Install Commandは次とする
-
-```text
-composer create-project blackops/skeleton my-app 1.1.0
-```
+- D167により、最初のViewportはH1、価値文、What's BlackOps／Install CTAとHero Reelを優先する。コピー可能なStable Install CommandとOperation Codeは直後の「Operationを書く」Sectionへ置ける。HeaderのGitHub導線を維持する
+- Stable Install CommandのVersionは`release-authority.json`のcurrentStable Skeleton tupleへ一致させる。動画のVersion非表示は公開CommandのVersion省略を許可しない
 
 - Hero直下に実物のOperation Modelを示す。少なくとも実在する`#[Route]`、`#[Deferred]`、Typed Operation SignatureとInline／DeferredまたはLifecycleの表現を含める
 - Syntax Fragmentは実装済みPublic APIだけを使い、架空APIを追加しない
@@ -65,12 +61,12 @@ composer create-project blackops/skeleton my-app 1.1.0
 - `DESIGN_VARIANCE: 8`
 - `MOTION_INTENSITY: 5`
 - `VISUAL_DENSITY: 5`
-- 1440 pxではHero、CTA、Command、Product Visualの主要部分が最初のViewportで理解できる
+- 1440×900ではH1、価値文、What's BlackOps／Install CTA、Hero Reelの主要部分が最初のViewportで理解できる。完全なInstall Commandは直後のSectionに表示し、HeroからInstall Guideへ直接進める（D167）
 - 390 pxではHorizontal Overflow、Tagline三行化、CTA切断、CodeによるViewport破壊を起こさない
 - Light／DarkでForeground Contrastを維持する
 - Radius、Surface、Accent、Code Syntax、Focus Ringを一貫したTokenで表現する
 - Animationは背景の奥行きまたはLifecycle Sequenceの理解へ寄与するものだけに限定する
-- `prefers-reduced-motion: reduce`ではAnimationと不要なTransitionを停止する
+- `prefers-reduced-motion: reduce`ではAnimationと不要なTransitionを停止する。例外として、Landing Hero ReelとExecution Walkthroughは製品説明の主要表示として自動再生を続け、一時停止操作を常に提供する（2026-09-27 Owner判断、[D167](../decisions/167-landing-hero-reel-and-motion-controls.md)）。明示した一時停止は矢印を含む各Playerの動きを止め、再開操作まで維持する。JavaScript無効時の動画停止操作も残す
 - Hand-drawn SVG、Fake Dashboard、Testimonial、利用企業Logo、未指定Marketing Copyを追加しない
 
 ## Active Navigation

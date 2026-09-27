@@ -1,0 +1,313 @@
+---
+interface ReelChapter {
+  start: number;
+  end: number;
+  index: string;
+  title: string;
+  text: string;
+  href: string;
+}
+
+// Chapter boundaries follow the scene timeline in docs/website/reel/reel.html.
+const chapters: ReelChapter[] = [
+  { start: 3.6, end: 8.6, index: '01', title: 'One Operation', text: 'HTTP・Console・Scheduleの仕事を、一つのOperationで実行します。', href: '/concepts/core-concepts' },
+  { start: 8.6, end: 14.2, index: '02', title: 'Inline or Deferred', text: 'Deferred属性でHTTP 202を返し、Workerが同じOperationを実行します。', href: '/execution/http-and-deferred' },
+  { start: 14.2, end: 20.2, index: '03', title: 'Lifecycle Journal', text: '受付・Retry・完了の事実を、同じOperation IDで追跡します。', href: '/concepts/journal' },
+  { start: 20.2, end: 24.8, index: '04', title: 'Typed Boundaries', text: '型付きのValueとOutcome、Validation・Sensitive・Transactionを宣言します。', href: '/operations/validation' },
+  { start: 24.8, end: 28.2, index: '05', title: 'Headless', text: 'Typed Clientを生成し、Next.js・Nuxt・SvelteKitなどから呼び出します。', href: '/frontend' },
+  { start: 28.2, end: 34, index: '06', title: 'BlackOps CLI', text: 'Operationの生成からBuild・Worker・Inspectまで、blackopsコマンドで実行します。', href: '/reference/project-cli' },
+];
+---
+
+<section class="landing-reel" aria-label="BlackOpsを短い映像で見る" data-landing-reveal="reel" data-landing-reel>
+  <div class="landing-reel__stage">
+    <figure class="landing-reel__media">
+      <video
+        class="landing-reel__video"
+        autoplay
+        muted
+        playsinline
+        controls
+        preload="auto"
+        poster="/assets/reel/blackops-reel-poster.jpg"
+        width="1920"
+        height="1080"
+        aria-label="BlackOpsの説明映像"
+        aria-describedby="landing-reel-chapters landing-reel-note"
+        data-landing-reel-video
+      >
+        <source src="/assets/reel/blackops-reel.webm" type="video/webm" />
+        <source src="/assets/reel/blackops-reel.mp4" type="video/mp4" />
+      </video>
+      <p class="landing-reel__failure" data-landing-reel-failure hidden role="status"></p>
+      <button class="landing-reel__toggle" type="button" data-landing-reel-toggle hidden>
+        <span class="landing-reel__toggle-icon" aria-hidden="true"></span>
+        <span data-landing-reel-toggle-label>再生</span>
+      </button>
+    </figure>
+
+    <ol class="landing-reel__chapters" id="landing-reel-chapters" aria-label="映像のチャプター">
+      {chapters.map((chapter) => (
+        <li class="landing-reel__chapter" data-landing-reel-chapter={chapter.start} data-landing-reel-chapter-end={chapter.end}>
+          <span class="landing-reel__meter" aria-hidden="true"><span></span></span>
+          <button type="button" class="landing-reel__seek" data-landing-reel-seek={chapter.start} disabled>
+            <span class="landing-reel__index">{chapter.index}</span>
+            <strong>{chapter.title}</strong>
+            <small>{chapter.text}</small>
+          </button>
+          <a class="landing-reel__guide" href={chapter.href} aria-label={`${chapter.title}のガイドを読む`}>ガイド<span aria-hidden="true">→</span></a>
+        </li>
+      ))}
+    </ol>
+    <p class="landing-reel__note" id="landing-reel-note">説明用の映像です。Journal・Operation ID・件数・時間は概念例で、実行結果ではありません。</p>
+  </div>
+</section>
+
+<script>
+  import { bootLandingReels } from '../scripts/landing-reel.mjs';
+
+  bootLandingReels();
+</script>
+
+<style is:global>
+  .landing-reel {
+    margin-inline: auto;
+    max-width: 120rem;
+    min-width: 0;
+    padding: .5rem clamp(1.25rem, 4vw, 4rem) 0;
+  }
+
+  /* The hosting hero may constrain the reel to the space left in the first viewport. */
+  .landing-reel__stage {
+    margin-inline: auto;
+    width: min(100%, var(--landing-reel-width, 100%));
+  }
+
+  .landing-reel__media {
+    background: #0b0b0b;
+    border: 1px solid var(--landing-line);
+    border-radius: clamp(12px, 1.4vw, 22px);
+    box-shadow: 0 1.5rem 4rem color-mix(in srgb, #000 28%, transparent);
+    margin: 0;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .landing-reel__video {
+    aspect-ratio: 16 / 9;
+    display: block;
+    height: auto;
+    width: 100%;
+  }
+
+  .landing-reel__failure {
+    background: color-mix(in srgb, #0b0b0b 86%, transparent);
+    bottom: 0;
+    color: #f3f3f3;
+    left: 0;
+    margin: 0;
+    padding: .5rem .75rem;
+    position: absolute;
+    right: 0;
+    text-align: center;
+  }
+
+  .landing-reel__toggle {
+    align-items: center;
+    background: color-mix(in srgb, #0b0b0b 78%, transparent);
+    border: 1px solid #3a3a3a;
+    border-radius: 999px;
+    top: clamp(.5rem, 1.2vw, 1.25rem);
+    color: #f3f3f3;
+    cursor: pointer;
+    display: inline-flex;
+    font: 600 .8125rem/1 var(--bo-font-japanese);
+    gap: .5rem;
+    min-height: 2.75rem;
+    padding: 0 1rem 0 .875rem;
+    position: absolute;
+    right: clamp(.5rem, 1.2vw, 1.25rem);
+  }
+
+  .landing-reel__toggle[hidden] {
+    display: none;
+  }
+
+  .landing-reel__seek:disabled {
+    cursor: default;
+    opacity: .72;
+  }
+
+  .landing-reel__note {
+    color: var(--landing-muted);
+    font-size: .8125rem;
+    line-height: 1.6;
+    margin: .75rem 0 0;
+  }
+
+  .landing-reel__toggle:focus-visible,
+  .landing-reel__seek:focus-visible,
+  .landing-reel__guide:focus-visible {
+    outline: 2px solid var(--landing-focus);
+    outline-offset: 2px;
+  }
+
+  .landing-reel__toggle-icon {
+    border-color: transparent transparent transparent #c9ed68;
+    border-style: solid;
+    border-width: .375rem 0 .375rem .625rem;
+    height: 0;
+    width: 0;
+  }
+
+  .landing-reel__toggle[data-state='playing'] .landing-reel__toggle-icon {
+    border-color: #c9ed68;
+    border-width: 0 .1875rem;
+    height: .75rem;
+    width: .625rem;
+  }
+
+  .landing-reel__chapters {
+    display: grid;
+    gap: clamp(.75rem, 1.5vw, 1.5rem);
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    list-style: none;
+    margin: 1rem 0 0;
+    padding: 0;
+  }
+
+  .landing-reel__chapter {
+    display: grid;
+    gap: .375rem;
+    grid-template-rows: auto 1fr auto;
+    min-width: 0;
+  }
+
+  .landing-reel__meter {
+    background: var(--landing-line);
+    border-radius: 2px;
+    display: block;
+    height: 3px;
+    overflow: hidden;
+  }
+
+  .landing-reel__meter span {
+    background: var(--landing-accent);
+    display: block;
+    height: 100%;
+    transform: scaleX(var(--reel-progress, 0));
+    transform-origin: left;
+  }
+
+  .landing-reel__seek {
+    align-content: start;
+    background: none;
+    border: 0;
+    color: var(--landing-ink);
+    cursor: pointer;
+    display: grid;
+    font: inherit;
+    gap: .125rem .5rem;
+    grid-template-columns: auto minmax(0, 1fr);
+    padding: .375rem 0 0;
+    text-align: left;
+  }
+
+  .landing-reel__index {
+    color: var(--landing-muted);
+    font: 600 .75rem/1.9 var(--blume-font-mono, ui-monospace), monospace;
+  }
+
+  .landing-reel__seek strong {
+    font-size: .9375rem;
+    line-height: 1.5;
+  }
+
+  .landing-reel__seek small {
+    color: var(--landing-muted);
+    font-size: .8125rem;
+    grid-column: 1 / -1;
+    line-height: 1.65;
+  }
+
+  .landing-reel__chapter[aria-current] .landing-reel__index,
+  .landing-reel__chapter[aria-current] strong,
+  .landing-reel__seek:hover strong {
+    color: var(--landing-accent);
+  }
+
+  .landing-reel__guide {
+    color: var(--landing-muted);
+    font-size: .8125rem;
+    justify-self: start;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .landing-reel__guide:hover {
+    color: var(--landing-accent);
+  }
+
+  .landing-reel__guide span {
+    margin-left: .25rem;
+  }
+
+  @media (max-width: 64rem) {
+    .landing-reel__stage {
+      width: 100%;
+    }
+
+    .landing-reel__chapters {
+      gap: .5rem;
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .landing-reel__chapter {
+      column-gap: .75rem;
+      grid-template-columns: minmax(0, 1fr) auto;
+      grid-template-rows: auto auto;
+      padding-bottom: .75rem;
+    }
+
+    .landing-reel__meter {
+      grid-column: 1 / -1;
+    }
+
+    .landing-reel__guide {
+      align-self: start;
+      padding-top: .5rem;
+    }
+  }
+
+  @media (max-width: 40rem) {
+    .landing-reel {
+      padding-inline: 0;
+      padding-top: 0;
+    }
+
+    .landing-reel__media {
+      border-inline: 0;
+      border-radius: 0;
+      border-top: 0;
+    }
+
+    .landing-reel__chapters {
+      padding-inline: 1.25rem;
+    }
+
+    .landing-reel__toggle {
+      justify-content: center;
+      padding: 0;
+      width: 2.75rem;
+    }
+
+    .landing-reel__toggle [data-landing-reel-toggle-label] {
+      clip-path: inset(50%);
+      height: 1px;
+      overflow: hidden;
+      position: absolute;
+      white-space: nowrap;
+      width: 1px;
+    }
+  }
+</style>

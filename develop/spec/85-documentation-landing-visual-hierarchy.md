@@ -1,6 +1,6 @@
 # Documentation Landing Visual Hierarchy
 
-Landing PresentationはD119／Specification 86が置き換える。指定本文、CTA Target、Landing Link Integrityは維持する。
+Landing PresentationはD119／Specification 86が置き換える。Hero Reel、Command配置、二つの説明PlayerのReduced Motion例外と完全停止は[D167](../decisions/167-landing-hero-reel-and-motion-controls.md)で更新する。以下の過去のHero配置条件より現在のSpecification 86を優先し、Framework名の階層、現在のCTA Target、Landing Link Integrityは維持する。
 
 ## Scope
 

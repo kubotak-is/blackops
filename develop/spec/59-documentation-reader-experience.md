@@ -100,7 +100,7 @@ OverviewはWhy BlackOps、Core Concepts、Operation Lifecycleを説明する。O
 
 ReferenceはCore API、Attributes、Configuration、BlackOps CLI、Application Bootstrap、Glossaryだけを置く。移動する旧URLはStatic Redirectで新URLへ接続する。
 
-LandingはStarlight標準のSidebar、Search、Mobile Navigation、Theme、Accessibilityを維持し、Custom CSS中心でProduct Pageとして視覚調整する。Desktop／Mobile、Dark／Light、Keyboard Focus、Reduced Motionを検証する。
+LandingはStarlight標準のSidebar、Search、Mobile Navigation、Theme、Accessibilityを維持し、Custom CSS中心でProduct Pageとして視覚調整する。Desktop／Mobile、Dark／Light、Keyboard Focus、Reduced Motionを検証する。Landing Hero ReelとExecution Walkthroughだけは[D167](../decisions/167-landing-hero-reel-and-motion-controls.md)のOwner判断によりReduced Motionでも自動再生する。各Playerの完全停止、停止状態の保持、no-JSの可読性と動画停止操作を検証し、他のMotion抑制要件は維持する。
 
 ## Validation Guide
 

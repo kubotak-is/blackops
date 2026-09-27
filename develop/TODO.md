@@ -277,6 +277,8 @@ MVP後に残す主要項目:
 
 ### Deferred: Documentation Website Publication
 
+- [ ] [P23-018](orchestration/tasks/P23-018-landing-hero-reel.md): Landing Hero ReelをD167の配置・自動再生・停止契約で検証し、独立Review、分離Commit、same-SHA CI、Documentation deliveryと公開URL確認を完了する。D5Pと既存の未コミットDocumentationは別作業として保持する。
+
 - [x] Userが公開再開を明示し、Cloudflare Project／GitHub Environmentを設定する
 - [x] `blackops-php`へRepository設定を同期し、Preview／Production DeployとLive Verificationを実行する（P20-009F／P20-009G）。Production Deploy、Top／Installation／Blume Search IndexのHTTP 200、Desktop Keyboard／Mobile Button Searchを確認済み。
 
