@@ -1,45 +1,45 @@
 # Orchestration State
 
-Updated At: 2026-09-10T13:10:05+09:00
-Status: P23-012 packages published; documentation1.2.1 closeout in progress
-Current Task: [P23-012](orchestration/tasks/P23-012-release-1-2-1.md)
-Current Report: [P23-012 Report](orchestration/reports/P23-012-release-1-2-1.md)
+Updated At: 2026-09-28T00:47:04+09:00
+Status: P23-018 Accepted (local); isolated commit and delivery pending
+Current Task: [P23-018](orchestration/tasks/P23-018-landing-hero-reel.md)
+Current Report: [P23-018 Report](orchestration/reports/P23-018-landing-hero-reel.md)
 
 ## Current Boundary
 
-The user authorizes the complete1.2.1 release. Framework and Skeleton annotated
-tags, both Packagist packages and the Framework GitHub Release are public.
-Framework direct1c72fced890c7f4cfc2cf88a4d2b08dbcfc85dd3 peels to
-4efee09f13bebedc1639333f79550a36a4e8ca91; Skeleton direct
-7a47e344ecba6193628119f0e95cb23dc5e0be83 peels to
-87a025380df8abcd0c514abf50e139dbbc1953c7. Existing tags remain immutable.
+This documentation candidate starts at origin/main08e4751 and includes only the
+owner-authorized Reel handoff, bounded corrections and related management.
+The primary workspace preserves D5P and older uncommitted documentation, index
+and the pre-Reel theme prefix. No Framework tag or D5P commit is authorized.
+Experimental Stable1.2.1 is unchanged;1.3.0 remains unreleased.
 
-D updates current documentation to verified Experimental Stable1.2.1. Capability
-introduction versions remain historical; roadmap1.3.0 is still unreleased. No1.3
-PHP is included. The primary workspace preserves separate1.3 development and
-prior accepted UI/documentation evidence.
+D167 keeps the large hero and both CTAs, moves the complete installation command
+to the next section, and scopes reduced-motion autoplay to Reel and Walkthrough.
+Manual pause stops all player motion and persists until intentional resume.
 
 ## Evidence
 
-PHPUnit2317 tests/9450 assertions, full quality, all23 Consumers, frontend and
-website qualification pass. Final candidate8150cc6 and mainR4efee09 have identical
-trees. Main CI34431222429/docs34431222446 and exact-R package export pass.
-Skeleton publication34431943605 succeeds at the deterministic expected split.
-The independent review covers all48 public sources and41 routes in all formats.
-Initial diagnostic failures and scoped successful reruns remain in the Report.
+Root accepts the seven local criteria. Independent Documentation Review is Green
+with no open P1/P2/P3. Final Website175/175, check/build, Release Source/Artifact,
+12 browser cases and the reviewed36-second1080p media pass. Final417-file
+Artifact and all final commands retain the frozen19ecdb3d input manifest.
+
+Local Lighthouse mobile63/100/100/100 and LCP10.29s are documented loading limits;
+production measurement remains pending. Visibility handler proof uses explicit
+Page Visibility emulation; native tab switching/BFCache and full accessibility
+conformance are not claimed. All evidence lives under /tmp/blackops-reel-20260927.
+D5P is separately Accepted (local), preserved and uncommitted in the primary tree.
 
 ## Remaining Work
 
-Remote normal/no-scripts install and Quickstart, D final source/artifact review,
-same-SHA CI, canonical1.2.1 website delivery and bounded README-only Skeleton main
-synchronization. Root owns integration, STATE and publication; two Luna workers
-own documentation corrections and isolated remote installation respectively.
+Isolated clean commit, PR/main same-SHA CI, production documentation delivery and
+external HTML/media/browser/performance proof. The unreleased1.3 parent remains
+independently managed; this task does not complete that release.
 
 ## Next Action
 
-Freeze reviewed D, run local build/typecheck/source/artifact guards and its
-required full website CI. After successful delivery, verify actual canonical
-content and local preview, then close the release checkpoint.
+Root commits the frozen candidate, opens the required PR and completes the
+existing CI/delivery route without bypassing the main Ruleset.
 <!-- state-tool:history:start -->
-Previous STATE archive: [snapshot](orchestration/state-archive/2026-09/20260910T041005Z-a5483814c8c80a1c6b5acc4c5ca9c11056bd2cd65b50a4c1d8724d5a7d5ef590.md)
+Previous STATE archive: [snapshot](orchestration/state-archive/2026-09/20260927T154711Z-91e24ae54024d5c9e0172b2e5e91ce31adeb282d114508658b696340cc7e01e1.md)
 <!-- state-tool:history:end -->

@@ -121,7 +121,7 @@
 | [102-phase-21-delivery-plan.md](102-phase-21-delivery-plan.md) | Phase 21 proxy replacement delivery order and removal gate |
 | [103-stable-1-2-release-plan.md](103-stable-1-2-release-plan.md) | Stable 1.1 preservation and main 1.2.0 Release Candidate baseline |
 | [104-documentation-release-lifecycle-and-information-architecture.md](104-documentation-release-lifecycle-and-information-architecture.md) | Release Authority、全公開Source／Artifact guard、目的別Information Architecture、Task／Review契約 |
-| [110-documentation-diagrams-and-presentation.md](110-documentation-diagrams-and-presentation.md) | Archify diagrams and accepted public documentation presentation |
+| [110-documentation-diagrams-and-presentation.md](110-documentation-diagrams-and-presentation.md) | Archify diagrams, Landing Hero Reel and scoped motion controls under D167 |
 
 ## 決定の参照
 
@@ -271,3 +271,4 @@
 | [D142](../decisions/142-public-facade-and-internal-implementation-cycles.md) | Public Facade and Internal Implementation Cycles | Decided |
 | [D143](../decisions/143-documentation-release-truth-and-information-architecture.md) | Documentation Release Truth and Information Architecture | Decided |
 | [D144](../decisions/144-agent-reasoning-profile-upgrade.md) | Agent Reasoning Profile Upgrade | Decided |
+| [D167](../decisions/167-landing-hero-reel-and-motion-controls.md) | Landing Hero Reel, first-viewport hierarchy and two-player motion exception | Decided; P23-018 locally Accepted, delivery pending |

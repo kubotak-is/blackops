@@ -4,6 +4,7 @@ import data from 'blume:data';
 import ExecutionWalkthrough from '../components/ExecutionWalkthrough.astro';
 import LandingBackdrop from '../components/LandingBackdrop.astro';
 import LandingMotion from '../components/LandingMotion.astro';
+import LandingReel from '../components/LandingReel.astro';
 import type { ExecutionWalkthroughRegion, ExecutionWalkthroughLink } from '../components/ExecutionWalkthrough.astro';
 import SearchFocusBoundary from '../components/SearchFocusBoundary.astro';
 import executionDiagram from '../public/diagrams/execution-overview.json';
@@ -65,11 +66,10 @@ const executionRegions: ExecutionWalkthroughRegion[] = executionLinks.map((link)
   <LandingMotion />
   <div class="landing-shell">
     <LandingBackdrop />
-    <header class="landing-hero" aria-labelledby="landing-title" data-landing-reveal="hero">
+    <header class="landing-hero landing-hero--reel" aria-labelledby="landing-title" data-landing-reveal="hero">
       <div class="landing-hero__identity" data-landing-reveal="identity">
         <h1 id="landing-title"><span class="landing-brand" data-landing-neon-title>BlackOps</span> <span class="landing-tagline">The PHP Framework</span></h1>
         <p class="landing-value">HTTPとWorkerの処理を一つのOperationとして扱い、受付・再試行・完了までを同じIDで追跡できるPHP Frameworkです。</p>
-        <p class="landing-value-note">入口がHTTPでもConsoleでもScheduleでも、ValueとContextをOperationへ渡し、InlineまたはDeferredの実行経路を選べます。</p>
       </div>
 
       <div class="landing-hero__actions" data-landing-reveal="actions">
@@ -77,10 +77,27 @@ const executionRegions: ExecutionWalkthroughRegion[] = executionLinks.map((link)
           <a class="landing-button landing-button-primary" data-landing-action="why" href="/concepts/why-blackops">What's BlackOps</a>
           <a class="landing-button landing-button-secondary" data-landing-action="install" href="/getting-started/installation">Install</a>
         </div>
+      </div>
+
+      <LandingReel />
+    </header>
+
+    <section class="landing-source" aria-labelledby="landing-source-title" data-landing-reveal="source">
+      <div class="landing-source__copy">
+        <div class="landing-section-heading">
+          <h2 id="landing-source-title">Operationを書く</h2>
+          <p>属性でRouteと実行経路を宣言し、handle()に業務処理だけを書きます。</p>
+        </div>
         <div class="landing-install">
           <p class="landing-install-label">Stable 1.2.1</p>
           <pre class="landing-command blackops-overflow-focus" tabindex="0"><code>composer create-project blackops/skeleton my-app 1.2.1</code></pre>
         </div>
+        <p class="landing-value-note">入口がHTTPでもConsoleでもScheduleでも、ValueとContextをOperationへ渡し、InlineまたはDeferredの実行経路を選べます。</p>
+        <nav class="landing-entry-points" aria-label="Operationの入口" data-landing-reveal="entry-points">
+          <a href="/execution/http-and-deferred#inline-http"><span>HTTP</span><small>Request</small></a>
+          <a href="/execution/console-command"><span>Console</span><small>Operation CLI</small></a>
+          <a href="/operations/scheduled-operation"><span>Schedule</span><small>定期実行</small></a>
+        </nav>
         <a class="landing-cli-entry" href="/reference/project-cli"><strong>BlackOps CLI</strong><span>Command、Runtime、Output、Exitを調べる</span><span aria-hidden="true">→</span></a>
       </div>
 
@@ -105,13 +122,7 @@ const executionRegions: ExecutionWalkthroughRegion[] = executionLinks.map((link)
 &#125;</code></pre>
         </div>
       </div>
-
-      <nav class="landing-entry-points" aria-label="Operationの入口" data-landing-reveal="entry-points">
-        <a href="/execution/http-and-deferred#inline-http"><span>HTTP</span><small>Request</small></a>
-        <a href="/execution/console-command"><span>Console</span><small>Operation CLI</small></a>
-        <a href="/operations/scheduled-operation"><span>Schedule</span><small>定期実行</small></a>
-      </nav>
-    </header>
+    </section>
 
     <div class="landing-demo" data-landing-reveal="demo">
       <ExecutionWalkthrough

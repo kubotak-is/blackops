@@ -537,7 +537,6 @@ const loadCanonicalSvg = async (root, controller, svgSrc, onReady, isCurrent = (
       @keyframes execution-walkthrough-trace-flow { to { stroke-dashoffset: -30; } }
       @media (prefers-reduced-motion: reduce) {
         svg [data-node-id], svg path[data-edge-id], svg [data-edge-id]:not(path), svg path[data-execution-trace] { transition: none; }
-        svg path[data-execution-trace][data-execution-active="true"] { animation: none; }
       }
     `;
     shadow.replaceChildren(instance, style);
@@ -562,16 +561,14 @@ export function initExecutionWalkthrough(root) {
 
   const steps = data.steps;
   const controller = new AbortController();
-  const reducedMotionQuery = typeof window.matchMedia === 'function'
-    ? window.matchMedia('(prefers-reduced-motion: reduce)')
-    : { matches: false, addEventListener() {}, removeEventListener() {} };
   const initialIndex = Number(root.getAttribute('data-execution-initial-step'));
   let currentIndex = Number.isInteger(initialIndex) && initialIndex >= 0 && initialIndex < steps.length ? initialIndex : 0;
   let timer = null;
   let phaseElapsedMs = 0;
   let phaseStartedAt = null;
-  let autoRequested = !reducedMotionQuery.matches;
-  let reducedMotion = reducedMotionQuery.matches;
+  // The landing walkthrough is the product demonstration, so it plays even when
+  // the reader prefers reduced motion; readers can still pause it at any time.
+  let autoRequested = root.dataset.executionReaderPaused !== 'true';
   let inViewport = true;
   let readingHold = false;
   let cleanedUp = false;
@@ -638,7 +635,7 @@ export function initExecutionWalkthrough(root) {
     setProgress();
   };
 
-  const traceBlocked = () => cleanedUp || document.hidden || !inViewport || reducedMotion;
+  const traceBlocked = () => cleanedUp || document.hidden || !inViewport;
   const phaseBlocked = () => traceBlocked() || readingHold;
 
   const setInspectionVisibility = (inspecting) => {
@@ -665,7 +662,7 @@ export function initExecutionWalkthrough(root) {
 
   const setSvgPlaybackState = () => {
     const phasePlaying = autoRequested && !phaseBlocked();
-    const tracePlaying = !traceBlocked();
+    const tracePlaying = autoRequested && !traceBlocked();
     root.dataset.executionPlayback = phasePlaying ? 'playing' : 'paused';
     root.dataset.executionTraceState = tracePlaying ? 'playing' : 'paused';
     const svg = root.querySelector('[data-execution-svg-shadow]')?.shadowRoot?.querySelector('svg');
@@ -683,14 +680,12 @@ export function initExecutionWalkthrough(root) {
     }
     const toggle = root.querySelector('[data-execution-action="toggle"]');
     if (!(toggle instanceof HTMLButtonElement)) return;
-    toggle.disabled = reducedMotion;
-    toggle.setAttribute('aria-pressed', autoRequested && !reducedMotion ? 'true' : 'false');
-    toggle.setAttribute('aria-label', reducedMotion
-      ? '自動再生は停止中です。手動操作は利用できます。'
-      : root.dataset.executionInspecting === 'true'
-        ? '自動再生を開始して要素確認を終了'
+    toggle.disabled = false;
+    toggle.setAttribute('aria-pressed', autoRequested ? 'true' : 'false');
+    toggle.setAttribute('aria-label', root.dataset.executionInspecting === 'true'
+      ? '自動再生を開始して要素確認を終了'
       : autoRequested ? '自動再生を一時停止' : '自動再生を開始');
-    const label = reducedMotion ? '停止中' : autoRequested ? '一時停止' : '再生';
+    const label = autoRequested ? '一時停止' : '再生';
     const labelElement = toggle.querySelector('[data-execution-toggle-label]');
     if (labelElement) labelElement.textContent = label;
     else toggle.textContent = label;
@@ -885,10 +880,10 @@ export function initExecutionWalkthrough(root) {
     moveWithinMode(1, true);
   });
   on('[data-execution-action="toggle"]', 'click', () => {
-    if (reducedMotion) return;
     clearInspection();
     if (autoRequested) freezePhaseClock();
     autoRequested = !autoRequested;
+    root.dataset.executionReaderPaused = autoRequested ? 'false' : 'true';
     setPlaybackLabel();
     schedule();
   });
@@ -982,18 +977,6 @@ export function initExecutionWalkthrough(root) {
     observer.observe(root.querySelector('[data-execution-svg-frame]') ?? root);
   }
 
-  const motionChanged = (event) => {
-    reducedMotion = Boolean(event.matches);
-    if (reducedMotion) {
-      autoRequested = false;
-      clearTimer();
-    }
-    root.dataset.executionMotion = reducedMotion ? 'reduced' : 'full';
-    setPlaybackLabel();
-    schedule();
-  };
-  reducedMotionQuery.addEventListener?.('change', motionChanged, { signal: controller.signal });
-
   const cleanup = () => {
     layoutGeneration += 1;
     freezePhaseClock();
@@ -1016,7 +999,6 @@ export function initExecutionWalkthrough(root) {
   };
   layoutMedia?.addEventListener?.('change', layoutChanged, { signal: controller.signal });
 
-  root.dataset.executionMotion = reducedMotion ? 'reduced' : 'full';
   selectStep(currentIndex);
   setPlaybackLabel();
   void loadVariant(Boolean(layoutMedia?.matches));
