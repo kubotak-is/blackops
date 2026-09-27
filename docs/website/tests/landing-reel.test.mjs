@@ -13,6 +13,13 @@ const readableHtml = (html) => html
   .replace(/&quot;/g, '"')
   .replace(/&#39;/g, "'")
   .replace(/&amp;/g, '&');
+const waitFor = async (condition, message) => {
+  for (let attempt = 0; attempt < 20; attempt += 1) {
+    if (condition()) return;
+    await new Promise((resolve) => setImmediate(resolve));
+  }
+  assert.fail(message);
+};
 
 const fixture = () => `
   <section data-landing-reel>
@@ -27,8 +34,8 @@ const fixture = () => `
       </button>
     </figure>
     <ol>
-      <li data-landing-reel-chapter="0" data-landing-reel-chapter-end="3">
-        <button type="button" data-landing-reel-seek="0" disabled>One</button>
+      <li data-landing-reel-chapter="28.2" data-landing-reel-chapter-end="31">
+        <button type="button" data-landing-reel-seek="28.2" disabled>One</button>
       </li>
     </ol>
   </section>`;
@@ -102,6 +109,11 @@ test('landing reel pause persists and cleanup stops its observers and frame work
   let rejectPendingPlay;
   let observerCallback;
   let disconnected = false;
+  let seekableRanges = [];
+  let loadCalls = 0;
+  let fallbackFetch = async () => { throw new Error('unexpected fallback fetch'); };
+  let objectUrlCount = 0;
+  const revokedUrls = [];
   const globals = {
     window: dom.window,
     document: dom.window.document,
@@ -131,10 +143,36 @@ test('landing reel pause persists and cleanup stops its observers and frame work
   Object.defineProperty(video, 'ended', { configurable: true, get: () => ended });
   Object.defineProperty(video, 'networkState', { configurable: true, get: () => networkState });
   Object.defineProperty(video, 'readyState', { configurable: true, get: () => readyState });
+  Object.defineProperty(video, 'seekable', {
+    configurable: true,
+    get: () => ({
+      length: seekableRanges.length,
+      start: (index) => seekableRanges[index][0],
+      end: (index) => seekableRanges[index][1],
+    }),
+  });
+  Object.defineProperty(video, 'currentSrc', {
+    configurable: true,
+    get: () => 'https://blackops.test/assets/reel/blackops-reel.webm',
+  });
+  Object.defineProperty(video, 'load', {
+    configurable: true,
+    value: () => {
+      loadCalls += 1;
+      networkState = 1;
+      readyState = 1;
+      currentTime = 0;
+      seekableRanges = [[0, 36]];
+      video.dispatchEvent(new dom.window.Event('loadedmetadata'));
+    },
+  });
   Object.defineProperty(video, 'currentTime', {
     configurable: true,
     get: () => currentTime,
-    set: (value) => { currentTime = value; },
+    set: (value) => {
+      currentTime = value;
+      if (value < 36) ended = false;
+    },
   });
   Object.defineProperty(video, 'play', {
     configurable: true,
@@ -157,6 +195,13 @@ test('landing reel pause persists and cleanup stops its observers and frame work
   });
   dom.window.requestAnimationFrame = () => 1;
   dom.window.cancelAnimationFrame = () => {};
+  originals.set('fetch', { exists: Object.hasOwn(globalThis, 'fetch'), value: globalThis.fetch });
+  originals.set('URL', { exists: Object.hasOwn(globalThis, 'URL'), value: globalThis.URL });
+  globalThis.fetch = (...args) => fallbackFetch(...args);
+  globalThis.URL = {
+    createObjectURL: () => `blob:https://blackops.test/${++objectUrlCount}`,
+    revokeObjectURL: (url) => revokedUrls.push(url),
+  };
 
   let cleanup;
   try {
@@ -237,6 +282,122 @@ test('landing reel pause persists and cleanup stops its observers and frame work
     await Promise.resolve();
     assert.match(failure.textContent, /映像を読み込めません/);
     assert.doesNotMatch(failure.textContent, /自動再生を開始できません/);
+
+    cleanup();
+    failure.hidden = true;
+    networkState = 1;
+    readyState = 1;
+    playing = true;
+    seekableRanges = [];
+    let resolveFallback;
+    const fetchCalls = [];
+    fallbackFetch = (url, options) => {
+      fetchCalls.push({ url, options });
+      return new Promise((resolve) => {
+        resolveFallback = resolve;
+      });
+    };
+    cleanup = initLandingReel(root);
+    observerCallback([{ isIntersecting: true }]);
+    assert.equal(fetchCalls.length, 0, 'ordinary autoplay does not prefetch a seek payload');
+    seek.dataset.landingReelSeek = '28.2';
+    seek.click();
+    seekableRanges = [[0, 36]];
+    seek.dataset.landingReelSeek = '12.5';
+    seek.click();
+    assert.equal(currentTime, 0, 'a usable native range cannot bypass an earlier fallback request');
+    assert.equal(toggle.textContent.trim(), '一時停止', 'pending autoplay exposes a pause action');
+    assert.equal(toggle.dataset.state, 'playing', 'pending autoplay keeps the pause icon');
+    toggle.click();
+    assert.equal(root.dataset.landingReelReaderPaused, 'true', 'manual pause during loading is retained');
+    assert.equal(toggle.textContent.trim(), '再生', 'pending manual pause exposes a resume intent');
+    assert.equal(toggle.dataset.state, 'paused', 'pending manual pause switches to the play icon');
+    playing = false;
+    video.dispatchEvent(new dom.window.Event('playing'));
+    assert.equal(root.dataset.landingReelReaderPaused, 'true', 'a stale playing event cannot clear manual pause');
+    assert.equal(toggle.textContent.trim(), '再生');
+    assert.equal(toggle.dataset.state, 'paused');
+    assert.equal(fetchCalls.length, 1, 'chapter requests coalesce while the selected format is fetched');
+    assert.equal(fetchCalls[0].url, 'https://blackops.test/assets/reel/blackops-reel.webm', 'the selected source format is reused');
+    resolveFallback({ ok: true, blob: async () => new dom.window.Blob(['video']) });
+    await waitFor(() => currentTime === 12.5, 'the fallback should apply the latest chapter');
+    assert.equal(currentTime, 12.5, 'the latest chapter wins after the no-Range fallback loads');
+    assert.equal(playing, false, 'the latest chapter is applied without resuming a manual pause');
+    assert.equal(failure.hidden, true, 'successful paused seek clears loading guidance');
+    assert.equal(objectUrlCount, 1, 'one in-memory payload is reused by the player');
+    assert.equal(loadCalls > 0, true);
+    rejectNextPlay = true;
+    seek.dataset.landingReelSeek = '3.6';
+    seek.click();
+    assert.equal(currentTime, 3.6, 'a later chapter reuses the loaded Blob payload');
+    assert.equal(typeof rejectPendingPlay, 'function');
+    toggle.click();
+    assert.equal(playing, false, 'an immediate reader pause holds the resumed media');
+    video.dispatchEvent(new dom.window.Event('playing'));
+    assert.equal(root.dataset.landingReelReaderPaused, 'true', 'a late playing event cannot undo an immediate pause');
+    const interruptedPlay = new Error('play interrupted by reader pause');
+    interruptedPlay.name = 'AbortError';
+    rejectPendingPlay(interruptedPlay);
+    await Promise.resolve();
+    await Promise.resolve();
+    assert.equal(failure.hidden, true, 'an interrupted play does not show autoplay guidance');
+    playing = true;
+    video.dispatchEvent(new dom.window.Event('playing'));
+    assert.equal(root.dataset.landingReelReaderPaused, 'false', 'a genuine native resume clears reader pause');
+    seek.click();
+    assert.equal(playing, true, 'an explicit later chapter can resume playback');
+    ended = true;
+    playing = false;
+    video.dispatchEvent(new dom.window.Event('ended'));
+    assert.equal(root.dataset.landingReelState, 'ended', 'native end state is visible before lifecycle cleanup');
+    cleanup();
+    assert.deepEqual(revokedUrls, ['blob:https://blackops.test/1'], 'cleanup revokes the fallback payload');
+
+    failure.hidden = true;
+    networkState = 1;
+    readyState = 1;
+    seekableRanges = [[0, 36]];
+    cleanup = initLandingReel(root);
+    observerCallback([{ isIntersecting: true }]);
+    assert.equal(video.ended, true, 'the loaded media retains its native end state across re-init');
+    assert.equal(root.dataset.landingReelState, 'ended', 'native end state survives Blob cleanup and re-init');
+    assert.equal(toggle.textContent.trim(), 'もう一度再生');
+    assert.equal(playing, false);
+    toggle.click();
+    assert.equal(playing, true, 'explicit replay clears persisted end intent');
+
+    failure.hidden = true;
+    seekableRanges = [];
+    networkState = 1;
+    readyState = 1;
+    playing = false;
+    let aborted = false;
+    fallbackFetch = (url, options) => new Promise((resolve, reject) => {
+      options.signal.addEventListener('abort', () => {
+        aborted = true;
+        const error = new Error('cancelled');
+        error.name = 'AbortError';
+        reject(error);
+      }, { once: true });
+    });
+    cleanup();
+    cleanup = initLandingReel(root);
+    seek.click();
+    cleanup();
+    assert.equal(aborted, true, 'cleanup aborts an in-flight fallback request');
+    assert.equal(failure.hidden, true, 'cleanup clears loading status after abort');
+    assert.equal(failure.textContent, '', 'cleanup removes stale loading text');
+
+    seekableRanges = [];
+    networkState = 1;
+    readyState = 1;
+    fallbackFetch = async () => ({ ok: false, blob: async () => new dom.window.Blob(['unused']) });
+    cleanup = initLandingReel(root);
+    assert.equal(failure.hidden, true, 're-init does not expose stale loading status');
+    seek.click();
+    await waitFor(() => failure.textContent.includes('チャプターを読み込めません'), 'the fallback failure should be observable');
+    assert.equal(failure.hidden, false, 'a fallback request failure leaves finite chapter guidance visible');
+    assert.match(failure.textContent, /チャプターを読み込めません/);
   } finally {
     cleanup?.();
     for (const [name, original] of originals) {
