@@ -1,6 +1,6 @@
 # P23-018: Landing Hero Reel
 
-Status: Accepted (local) — Pages seek correction; same-SHA delivery pending
+Status: Accepted — same-SHA production delivery and canonical-origin proof complete
 
 ## Goal and authority
 
@@ -131,9 +131,9 @@ must be classified explicitly, not treated as source drift or broadly stripped.
   inventory and positive/negative boundary fixtures are explicitly accounted for.
   Inherited Claude results are attributed and not silently adopted without hashes.
 - [x] Independent Documentation Reviewer Green, including actual browser evidence.
-- [ ] Isolated commit contains only this Task's approved deltas and metadata;
+- [x] Isolated commit contains only this Task's approved deltas and metadata;
   preexisting theme prefix, other docs, staged content and D5P remain preserved.
-- [ ] Same-SHA CI and Documentation delivery succeed; external production HTML,
+- [x] Same-SHA CI and Documentation delivery succeed; external production HTML,
   Reel assets and browser behavior are verified against the delivered artifact.
 
 ## Verification and completion
@@ -145,7 +145,5 @@ actual delivery base before publishing; dirty-worktree build success is insuffic
 User has authorized the isolated commit and delivery. No unrelated framework
 release, tag or D5P commit is selected.
 
-残り工程: Isolated follow-up commit, same-SHA CI/delivery, canonical-origin proof
-and management closeout. Unchanged1.3 parent work remains separate.
-Next Action: Root commits the locally accepted correction and publishes its PR.
-Then verify the actual delivered SHA/artifact and canonical-origin chapter seeking.
+残り工程: P23-018 はなし。上位1.3の統合・hardening・documentation/local user review・release は別Taskとして残る。
+Next Action: 元の1.3作業を再開するときに、公開済みReelのmain履歴と保存したhandoff差分を照合する。D5Pは未コミットのまま保持し、古いReelのhandoffをそのままstageしない。

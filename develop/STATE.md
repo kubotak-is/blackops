@@ -1,46 +1,50 @@
 # Orchestration State
 
-Updated At: 2026-09-28T03:11:24+09:00
-Status: P23-018 Accepted (local); Pages seek follow-up delivery pending
+Updated At: 2026-09-28T15:10:26+09:00
+Status: P23-018 Accepted; same-SHA production delivery and live proof complete
 Current Task: [P23-018](orchestration/tasks/P23-018-landing-hero-reel.md)
 Current Report: [P23-018 Report](orchestration/reports/P23-018-landing-hero-reel.md)
 
 ## Current Boundary
 
-The owner's Reel handoff was delivered through PR14 at3f38dd85. Its actual Pages
-chapter seeking failed on200/full Range responses. A bounded player/test correction
-is now locally Accepted on agent/p23-018-pages-seek in the isolated candidate.
-D167 preserves the large hero, both CTAs, source-section installation command,
-reduced-motion autoplay for both explanatory players and effective manual pause.
-No hosting/account change, Framework API/release/tag or D5P commit is selected.
-Experimental Stable1.2.1 remains unchanged;1.3.0 is unreleased.
+Landing Hero Reel is Accepted and delivered through isolated PR14/15. D167 keeps
+the large hero and both CTAs, the full installation command in the next section,
+and the owner's reduced-motion autoplay exception for Reel and Walkthrough.
+Effective manual pause, no-loop/end/replay, six chapters and fallback controls pass.
+Pages200/full Range responses require a lazy selected-format Blob for enhanced
+chapter seeking; the actual public origin now passes. Native no-JS seek remains
+subject to the server limitation; native play/pause remains usable.
+Experimental Stable1.2.1 is unchanged;1.3.0 remains unreleased.
 
 ## Evidence
 
-First main CI36335317880 and Documentation36335318003 passed at3f38dd85;
-417 delivered files match the PR artifact. The real seek failure is retained.
-The correction lazily fetches only the selected media on explicit chapter seek,
-preserves pause/latest selection/end state and aborts/revokes resources on cleanup.
-Final frozen inputs46b5faaa: build,175/175 tests,check,artifact,diff all PASS.
-Actual browser9/9 targeted,12/12 no-Range and4/4 Range cases PASS. Ordinary autoplay
-makes zero Blob fetches.64 public source inputs and all encoded media are unchanged.
-Final Artifact417 files/39,863,386 bytes has415 unchanged files; only player bundle
-and its index reference differ. Dist remains equal after final gates.
-Independent review38ec5d2c is Green; no unresolved P1/P2/P3.
-Exact receipts/hashes, actual screenshot review and evidence limits are in Report.
-Main workspace HEAD8106c355, original16 handoff paths/index/pre-Reel CSS prefix
-and D5P remain preserved. D5P is independently Accepted locally and uncommitted.
+- Corrective commit ef063834 and main dc74bbf95c84576dad5dc9ef82084e67e84a934d
+  have identical trees. CI36340317799 all6 jobs and Documentation36340317763
+  actual production step pass on that main SHA; canonical blackops-php.pages.dev.
+- Frozen local175 tests/build/check/Source/Artifact gates pass; browser9 targeted,
+  12 no-Range and4 Range cases pass. Final417-file Artifact has415 unchanged files
+  versus the first Reel delivery. PR/production bytes match; only seven reviewed
+  generated identifiers differ from local.64 public sources and media stay exact.
+- Live50 HTTP comparisons plus2 Range probes pass; actual browser5/5 passes with
+  muted autoplay,36-second natural end, chapter seek, pause/replay and reduced motion.
+  Primary webfonts load. Initial native spinner clears while pause stays effective.
+- Independent local review38ec5d2c and delivery review2dfa0f3b are Green; no open
+  P1/P2/P3. Mobile Lighthouse78/100/100/100, LCP6.180s, CLS0, TBT11ms. Report
+  retains performance, cache, Chromium, visibility/BFCache and accessibility limits.
+- Primary HEAD8106c355, D5P11 candidate/1,699 runtime files, original16 handoff
+  paths/index and pre-Reel CSS prefix remain preserved. No D5P commit is selected.
+  Root verification servers are stopped; shared database/other services untouched.
 
 ## Remaining Work
 
-Isolated follow-up commit/PR, same-SHA CI and Documentation delivery, canonical
-origin seek/playback/performance proof and final management closeout.
-The1.3 parent remains independent and unreleased.
+P23-018: none. The1.3 parent remains independent and unreleased; its integration,
+hardening, documentation/local user review and release are separate work.
 
 ## Next Action
 
-Root publishes the locally accepted correction through the existing PR workflow,
-then verifies the actual production SHA/artifact and canonical-origin behavior.
+When resuming the1.3 worktree, reconcile the delivered Reel main history with its
+preserved original handoff. Do not stage the stale handoff wholesale. D5P remains
+Accepted locally and uncommitted; further implementation uses its own Task Packet.
 <!-- state-tool:history:start -->
-Previous STATE archive: [snapshot](orchestration/state-archive/2026-09/20260927T181124Z-18397a56064bfc76648cf00dce3d56ef2b089c1591f5f1c9d505c00149433b9e.md)
+Previous STATE archive: [snapshot](orchestration/state-archive/2026-09/20260928T061045Z-3882be4f7f6b3df04d907b9a2dd7fd44817be755b1a2fd02ef2298ca8b772b32.md)
 <!-- state-tool:history:end -->

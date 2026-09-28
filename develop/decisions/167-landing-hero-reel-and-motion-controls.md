@@ -1,6 +1,6 @@
 # D167: Landing Hero Reel and Motion Controls
 
-Status: Decided — Pages seek correction Accepted locally; delivery pending
+Status: Decided — P23-018 Accepted and delivered
 
 ## Context
 
@@ -95,8 +95,8 @@ restores the36-second seekable range without changing encoded bytes.
 
 ## Remaining work
 
-P23-018 first isolated delivery exposed the Pages chapter-seek failure. The
-bounded client fallback now passes all local gates and independent affected
-review. Follow-up same-SHA CI/delivery and canonical-origin verification remain
-required before final Acceptance. Unchanged movie/source evidence is retained.
-The D5P Task and the unreleased1.3 parent remain independently managed.
+P23-018 has none. The corrected player is Accepted and delivered at
+`dc74bbf95c84576dad5dc9ef82084e67e84a934d` with same-SHA CI/Documentation delivery,
+canonical-origin seek/end/pause/replay proof and independent delivery review Green.
+The Report retains the original failure, fix evidence and performance/browser/
+accessibility limits. D5P and the unreleased1.3 parent remain independently managed.

@@ -271,4 +271,4 @@
 | [D142](../decisions/142-public-facade-and-internal-implementation-cycles.md) | Public Facade and Internal Implementation Cycles | Decided |
 | [D143](../decisions/143-documentation-release-truth-and-information-architecture.md) | Documentation Release Truth and Information Architecture | Decided |
 | [D144](../decisions/144-agent-reasoning-profile-upgrade.md) | Agent Reasoning Profile Upgrade | Decided |
-| [D167](../decisions/167-landing-hero-reel-and-motion-controls.md) | Landing Hero Reel, first-viewport hierarchy and two-player motion exception | Decided; P23-018 locally Accepted, delivery pending |
+| [D167](../decisions/167-landing-hero-reel-and-motion-controls.md) | Landing Hero Reel, first-viewport hierarchy and two-player motion exception | Decided; P23-018 Accepted and delivered |
