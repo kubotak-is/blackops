@@ -1,6 +1,6 @@
 # P23-018 Report
 
-Status: Accepted (local) — Pages seek correction; follow-up delivery pending
+Status: Accepted — isolated delivery and canonical-origin proof complete
 
 ## Summary
 
@@ -18,9 +18,10 @@ fallbacks remain ordinary Acceptance requirements.
 
 The first same-SHA production delivery succeeded at3f38dd85, but actual Pages
 chapter seeking failed because its media responses do not support HTTP Range.
-The correction is locally Accepted on the isolated follow-up branch
-`agent/p23-018-pages-seek`. The correction is lazy and uses the selected media
-format only after an explicit chapter request; ordinary autoplay is unchanged.
+The correction was delivered through PR15 at `dc74bbf95c84576dad5dc9ef82084e67e84a934d`.
+It lazily uses the selected format only after an explicit chapter request; ordinary
+autoplay is unchanged. Same-SHA CI, production delivery, canonical-origin proof
+and independent delivery review are complete.
 
 ## Changed Files
 
@@ -79,7 +80,7 @@ They are attributed and are not adopted as current candidate/same-SHA evidence.
 | Final whole-website tests | PASS175/175, 273.681656s; run-20260928T003822352827-test; log SHA256 ba6602108d2e1422ab3368c6ec0ffe0de9d2098c83dfa7ad558b035c2d4e177f |
 | Final check / artifact / diff | PASS13.757723s /2.018565s /0.120673s; run-20260928T004305225798-check /004319015574-artifact /004321065868-diff |
 | Independent final review | Green, no open P1/P2/P3; documentation-final-review.md; SHA256 0aaf94a991ec897020aa0f161de2de9626218d940bde109cd705227c52562080 |
-| First same-SHA CI/documentation production delivery | PASS at3f38dd85; live seeking failed, correction pending; see post-delivery evidence |
+| First same-SHA CI/documentation production delivery | PASS at3f38dd85; live seeking failed and was corrected through PR15; see post-delivery evidence |
 
 Failed attempts are retained: sandbox dependency-cache/network failure; two
 focused expectation/test-order corrections; CLI footer/Typed card bounds and
@@ -185,15 +186,21 @@ we do not claim automated release coverage that the scanner does not provide.
 
 Final full tests cover positive/negative Release Authority fixtures, current/stale
 claims, mapping lanes, historical misuse, diagram drift and HTML/Search/raw/LLM
-boundaries. The initial complete generated Artifact passes all checks and contains417 files, including41 raw Markdown and41 MDX files, Search/LLM outputs and registered diagrams. Public-boundary scans are clean; encoded media hashes match. The final replacement `artifact-final-manifest.json` pins417 files/39,859,939 bytes; SHA256 `f786a4abb7bb9163b61b9ab65b278560bb0d65e3a55bef76bdb41bf8126b1962`. Its Build, Browser and Lighthouse receipts share unchanged input manifest `19ecdb3d70572bb850d456dc9d739e28a5f1abebeb6a173dbce61db62a1f7751`. The earlier manifest is retained separately.
-PHP verification is not needed for this documentation-only delta; repository CI
-remains the existing full workflow and must pass on the delivered SHA.
+boundaries. The final local `seek-artifact-manifest.json` pins417 files/39,863,386
+bytes, including41 raw Markdown and41 MDX files, Search/LLM outputs and registered
+diagrams; manifest SHA256 is `ad3875e18de2f53c3d12f694b5b5dc1b15c3ccf403d6fa112511ee997b29f240`.
+The original pre-seek `artifact-final-manifest.json` remains historical evidence;
+only the player bundle and its HTML reference changed after it. Source/media and
+415 other generated files remain exact. Clean PR/production artifacts and actual
+public HTTP responses are bound below to the reviewed payloads. Local PHP gates
+are not needed for this documentation-only delta; the existing full remote CI
+workflow passed all six jobs on the delivered main SHA.
 
 ## Review and scope evidence
 
 `documentation-source-review.md` records the initial P1/P2 findings;
 `documentation-correction-source-review.md` records their source closure and the
-final P3 visual overlap closure. `documentation-final-review.md` independently clears the final source, encoded media, browser evidence and all final gates. The first seven local criteria were accepted with the stated visibility/accessibility/performance evidence limits. Actual production seeking reopened the affected player/browser criteria; the unchanged movie, source and scope evidence remains valid.
+final P3 visual overlap closure. `documentation-final-review.md` independently clears the final source, encoded media, browser evidence and all final gates. The first seven local criteria were accepted with the stated visibility/accessibility/performance evidence limits. Actual production seeking reopened the affected player/browser criteria; the corrected source, browser and delivery reviews now close them. Unchanged movie/source evidence remains valid.
 `scope-preservation-final.json` reconfirms at2026-09-28T00:40:17+09:00 all sixteen original
 handoff files and the original staged patch are unchanged, the older theme prefix
 is preserved, the isolated candidate contains its base CSS prefix and no PHP delta.
@@ -201,29 +208,26 @@ D5P local Acceptance is complete independently; no D5P commit/tag/release is mad
 
 ## Acceptance Criteria
 
-The first isolated same-SHA delivery exposed a real Pages seeking failure.
-The bounded correction now passes all assigned local gates and independent
-review on frozen inputs. Source, render, browser, player and local verification
-criteria are Accepted. Follow-up commit isolation and actual same-SHA production
-delivery remain open until the resulting SHA and canonical origin are verified.
+All nine Packet criteria are Accepted. The isolated correction and resulting main
+merge have identical trees. Frozen local gates, independent source/browser/media
+review, same-SHA CI/production delivery, exact Artifact binding and actual canonical
+origin chapter/end/pause/replay behavior support the completed result. The earlier
+production seek failure remains recorded as a failure that was corrected.
 
 ## Remaining Issues
 
-No local corrective finding remains. Same-SHA CI/delivery and production proof
-are pending. Native no-JS play/pause remains usable; its server-limited seeking
-is not claimed to be corrected. Browser, visibility and accessibility evidence
-has the limits recorded below; no whole-site WCAG certification is claimed.
+No unresolved P1/P2/P3 or required P23-018 gate remains. Measured mobile Lighthouse
+Performance78/LCP6.180s leaves performance improvement room; no numeric budget was
+specified or relaxed. Native no-JS play/pause remains usable, while native seeking
+still has the Pages limitation. Chromium-only, physical-tab/BFCache and accessibility
+sampling limits remain explicit. No whole-site WCAG conformance is claimed.
 
 ## Suggested Next Action
 
-Root commits and publishes the isolated correction, then records final CI,
-production artifact and actual browser/performance evidence.
-残り工程: Follow-up commit/PR, same-SHA CI and Documentation delivery,
-canonical-origin verification and management closeout.
-D5P stays Accepted locally and uncommitted; the1.3 parent remains unreleased.
-Next Action: Publish the locally accepted correction through the existing PR workflow.
+残り工程: P23-018 はなし。上位1.3では D5 rotation/replay/generic Outbox、通常構成への統合、E/F/G、Accepted F 後の D-control、hardening、documentation/local user review、release が残る。
+Next Action: 元の1.3作業を再開するときに公開済みReelのmain履歴と保存したhandoffを照合する。D5Pは未コミットのまま保持し、古いReelのhandoffをそのままstageしない。次の実装は別Task Packetで扱う。
 
-## Post-delivery finding (2026-09-28)
+## Post-delivery finding and correction history (2026-09-28)
 
 Isolated commit301acc1 (32 paths) was merged through PR14 into
 3f38dd85c0a4bc369f849565f306d9d7b58e0c0b, with identical Git trees.
@@ -357,3 +361,107 @@ confirms Green local readiness with no unresolved P1/P2/P3. The reviewer reused
 receipts and inspected actual screenshots; it did not repeat gates or edit source.
 The range-ignoring server now matches Pages'200/full behavior; this remains local
 evidence until the follow-up deployment passes actual canonical-origin checks.
+
+## Corrective same-SHA delivery (2026-09-28)
+
+The isolated correction commit `ef0638340afc651668fcb68334cf982fa06fd3c6`
+contains exactly8 approved paths: player/test, Task/Report/D167/STATE and two
+STATE archives. The candidate was clean before push. PR15 merged it into
+`dc74bbf95c84576dad5dc9ef82084e67e84a934d`; both Git trees are
+`3e8c522cba5eca112ad00663b6e79abd36253a1f`.
+
+| Phase | CI | Documentation delivery | Actual documentation checkout |
+| --- | --- | --- | --- |
+| [PR15](https://github.com/kubotak-is/blackops/pull/15), head `ef063834` | [36339794713](https://github.com/kubotak-is/blackops/actions/runs/36339794713), all6 success | [36339794715](https://github.com/kubotak-is/blackops/actions/runs/36339794715), preview step success | `28fe1ba7632d8d23fac66b53ebc1bc58e1c87c84` (synthetic PR merge) |
+| Main push `dc74bbf9` | [36340317799](https://github.com/kubotak-is/blackops/actions/runs/36340317799), all6 success | [36340317763](https://github.com/kubotak-is/blackops/actions/runs/36340317763), production step success | `dc74bbf95c84576dad5dc9ef82084e67e84a934d` |
+
+GitHub metadata, step conclusions and actual checkout/deploy logs are pinned in
+`seek-pr-remote-provenance.json`, `seek-production-remote-provenance.json` and
+`github-run-<id>.{json,log}`. The exact gh argv, environment/cwd and elapsed
+metadata retrieval times are in the corresponding receipt; job start/end times
+record CI/deployment durations. Production deployment is `d7813b52`; the verified
+public canonical URL is <https://blackops-php.pages.dev>.
+
+The417-file PR and production Artifacts are byte-identical. Comparison to the
+frozen local Artifact passes after only the same seven previously reviewed
+checkout-dependent font/CSS/scope identifiers are mapped. Font/video payloads
+and the corrected Reel bundle are exact. No new normalization is allowed.
+Proofs: `seek-pr-artifact-proof.json`, `seek-production-pr-proof.json` and
+`seek-production-local-proof.json` (comparison command wall times0.04s/0.01s/0.04s).
+
+`verify-live.py <production-artifact> dc74bbf9 36340317763 seek-live-http.json`
+passes50 HTTP comparisons: all41 public HTML routes, Search/LLM/raw sources,
+all three Reel media assets and the actual bound player JavaScript. HTML differs
+only by the previously pinned214-byte Pages Analytics footer. Both media Range
+probes still return200/full exact bytes. The public host needs no access-setting
+change. Browser behavior and Lighthouse are recorded separately below.
+
+`d5p-preservation-after-reel.json` compares the original primary worktree to the
+D5P frozen full input map: all11 candidate and1,699 runtime files remain exact,
+and HEAD stays8106c355. `scope-preservation-seek-commit.json` also preserves all16
+original handoff paths, original index and pre-Reel theme prefix. None of those
+original primary-worktree Product bytes is replaced or staged by this delivery.
+
+## Corrected canonical-origin proof (2026-09-28)
+
+`run-20260928T032956147832-browser-live` passes5/5 in53.323532s;
+log SHA256 `2e3656792352d0936723b1c7631399a5508886b3d9561cfab535d00e49d8ae7f`.
+This uses default Chromium policy, actual HTTPS origin/media and1440x900 Light,
+390x844 Dark, natural36-second end, reduced-motion controls and no-JS cases.
+There are no page errors or failed requests in these normal cases. The first
+chapter actually reaches3.6s on the loaded Blob; CLI seeking, manual pause,
+end/replay, guide links and both players' reduced-motion behavior pass their
+assertions. The ordinary unseeked movie reaches36s/ended/paused with loop=false.
+Root inspected actual desktop/mobile screenshots and the effective controls.
+Primary Ubuntu Sans/Mono and Noto Sans JP webfonts load from the delivered URLs.
+Unavailable local fallback aliases in Linux are not mislabeled missing webfonts.
+
+The selected WebM body is2,808,763 bytes. In both recorded layout cases, native
+playback transfers2,809,063 bytes including response overhead; the explicit seek
+fetch reports only300 transferred bytes with the same encoded body size, consistent
+with cache reuse in this session. This is not a guarantee that every browser can
+reuse the media cache. Unselected MP4 is not downloaded in those normal cases.
+Both encoded alternatives plus poster total7,203,785 bytes in the Artifact; each
+file remains below the verified25MiB Pages limit. HTTP verification took1.814225s
+and its exact responses, comparison hashes and footer classification are retained.
+
+The first paused mobile screenshot catches a native video spinner soon after
+seeking. A focused actual-origin probe (`live-paused-probe.mjs/.json`) records
+200ms, another2s and another5s: video remains2.6s/paused, seeking=false,
+readyState4, networkState1, no error throughout. Root inspected all three images;
+the spinner is gone by the second capture and remains absent. No persistent media
+loading failure or Product correction is inferred from this transient native UI.
+The probe interval is8.676s; its script/output/screenshots are retained separately.
+
+`run-20260928T033052294361-lighthouse-live` passes execution in12.370325s;
+log SHA256 `88d5d8338ab1cb19d5e8b57cb7505f14d353268fa6973e0dcbb084ace483eb81`.
+Lighthouse13.5.0 against the actual canonical origin, mobile simulated throttling:
+Performance78, Accessibility100, Best Practices100, SEO100. FCP1.230s, LCP6.180s,
+CLS0 and TBT11ms; no runtime error or run warning. `lighthouse-live.json/.html`
+and its summary retain the result. Performance still has improvement room; no
+numeric budget was added or relaxed. This is one measured run, not a performance
+or whole-site accessibility certification. Browser/physical-tab/BFCache/axe limits
+from the local review remain explicit; successful delivery does not erase them.
+
+Both browser/performance receipts retain identical before/after snapshot
+`813f2efbfd33f67f725330f1095cd3d657d64586ab53238afdd31de83d418b9f` on the actual
+main merge. The Product inputs are unchanged from local Acceptance; only HEAD
+and management records advanced. The complete live HTTP comparison passed before
+these serial browser/performance commands. No PHP/Framework release was performed.
+
+## Orchestrator Acceptance and closeout
+
+Accepted by Root at2026-09-28T15:10:26+09:00. Independent delivery review
+`seek-delivery-review.md`, SHA256 `2dfa0f3b8708cb4aa2eabca6b4f6c124a277e0a2fbdf52677dae89eccc283374`,
+is Green with no unresolved P1/P2/P3. It verifies the same-SHA chain, actual live
+behavior, artifact/HTTP normalization, measured transfer and performance limits.
+The two Root-owned verification HTTP servers have been stopped after matching
+PID and exact script identity (`cleanup-owned-servers.json`); shared database and
+unrelated services are untouched.
+
+Task/Report/D167/TODO/spec index and STATE are synchronized. This administrative
+closeout changes no Product, test, public source, media or build input. It reuses
+the completed Product gates under spec109. Its separate commit records the accepted
+production state above; final commit/delivery metadata remains observable in the
+repository CI and documentation workflow without embedding a self-referential SHA.
+No Framework tag/release, D5P commit or unrelated staged content is included.
