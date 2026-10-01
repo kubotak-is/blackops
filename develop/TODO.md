@@ -565,6 +565,8 @@ an observed JSONL projection only, and no current Stable claim is changed.
 
 ### Deferred: Documentation Website Publication
 
+- [x] [P23-018](orchestration/tasks/P23-018-landing-hero-reel.md): Landing Hero ReelはD167の配置・自動再生・停止契約でAccepted。PR14/15で分離Commit、same-SHA CI・Documentation delivery・公開URL確認を完了。Pagesの章移動も修正済み。D5Pと既存の未コミットDocumentationは保持する。
+
 - [x] Userが公開再開を明示し、Cloudflare Project／GitHub Environmentを設定する
 - [x] `blackops-php`へRepository設定を同期し、Preview／Production DeployとLive Verificationを実行する（P20-009F／P20-009G）。Production Deploy、Top／Installation／Blume Search IndexのHTTP 200、Desktop Keyboard／Mobile Button Searchを確認済み。
 

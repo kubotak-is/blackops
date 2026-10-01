@@ -30,7 +30,8 @@ thin panel boundaries, deliberate spacing and responsive interaction as visual
 direction. The user asks for a more dynamic visual treatment and scroll
 animation. Use visible lime ambient light behind the hero and staged reveals
 for its content and the primary TOP sections. Preserve readable content,
-keyboard access, no-JS visibility and reduced-motion support; no forced scroll
+keyboard access, no-JS visibility and reduced-motion support with only the two
+explanatory-player exceptions in [D167](../decisions/167-landing-hero-reel-and-motion-controls.md); no forced scroll
 or replacement of the existing timed execution loop. Ambient light/gradient in
 the hero is permitted by this
 explicit reference; previous blanket decorative-gradient prohibitions are
@@ -79,8 +80,10 @@ Deferred commits acceptance, returns202 with Operation ID, and a separate Worker
 continues execution. Inline is the initial selected mode, including SSR/no-JS.
 Use one consistent tab design, without mixing outlined buttons and an attached
 underline. One shared graph/panel reflects the selected tab with keyboard tab
-navigation and a selected-state relationship. Reduced
-motion shows a complete static/manual explanation; background/offscreen work
+navigation and a selected-state relationship. By owner decision
+(2026-09-27, D167) the walkthrough keeps automatic progression and the arrow trace
+under `prefers-reduced-motion: reduce`, with the pause control enabled; no-JS
+still shows a complete static explanation, and background/offscreen work
 pauses. Do not announce every automatic frame to assistive technology.
 The animated visual uses the canonical Archify SVG export and its exact node
 and relationship geometry. Website playback may style that generated SVG and
@@ -118,9 +121,10 @@ a static figure, useful explanation and guide navigation. Remove the redundant
 Keep the current phase number visible during node inspection: the phase badge
 stays with the actual current phase, while selection has its own highlight.
 Show the same paused mode/number with the selected element explanation. Arrowheads retain a restrained size when an edge is
-active or focused. Manual pause freezes the execution phase and Journal while
-the active arrow trace keeps moving. Reduced motion, an offscreen figure, a
-hidden page and player cleanup stop the trace. Responsive replacement preserves
+active or focused. D167 replaces the earlier trace-continuation-on-pause rule:
+manual pause freezes the execution phase, Journal and arrow trace until explicit
+resume. An offscreen figure, a hidden page and player cleanup also stop the trace;
+reduced motion alone does not prevent automatic playback. Responsive replacement preserves
 the separate phase and trace states. Inspection retains its selected-node view.
 
 Automatic progression uses exactly5000ms of active playback per phase. A progress

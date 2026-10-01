@@ -65,11 +65,11 @@ LandingはCode-firstなProduct表現、Guideは可読性と探索性を優先す
 
 ## Landing Boundary
 
-- HeroのBlackOps、`The PHP Framework`、Install／What's BlackOps CTA、Stable Commandを維持する
+- HeroのBlackOps、`The PHP Framework`、Install／What's BlackOps CTAを維持する。D167のHero Reel構成ではStable Commandを直後のSource Sectionへ置ける
 - Operation／Journal／Headlessの指定Copy、Link、同格Desktop三列／Mobile一列を維持する
 - Decorative `01`／`02`だけを削除する
-- Landingへ新しいFeature、Image、Version Footer、Scroll Cue、Section Number、Marketing Copyを追加しない
-- Light／Dark、Reduced Motion、Keyboard Focus、No Page Overflowを維持する
+- D167が許可するHero Reel、章操作とGuideリンクを除き、Landingへ新しいFeature、Image、Version Footer、Scroll Cue、Section Number、Marketing Copyを追加しない
+- Light／Dark、Keyboard Focus、No Page Overflowを維持する。Reduced Motionは[D167](../decisions/167-landing-hero-reel-and-motion-controls.md)の二つのPlayerの自動再生例外だけを適用し、完全停止と停止保持を検証する
 
 ## Information Architecture Boundary
 

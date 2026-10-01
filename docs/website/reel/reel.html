@@ -1,0 +1,676 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>BlackOps Reel</title>
+<style>
+  @font-face { font-family: "Ubuntu Sans"; src: url("fonts/UbuntuSans.woff2") format("woff2"); font-weight: 100 900; }
+  @font-face { font-family: "Ubuntu Mono"; src: url("fonts/UbuntuMono.woff2") format("woff2"); font-weight: 100 900; }
+  @font-face { font-family: "Noto Sans JP"; src: url("fonts/NotoSansJP.ttf") format("truetype"); font-weight: 100 900; }
+
+  :root {
+    --page: #0b0b0b;
+    --ink: #f3f3f3;
+    --muted: #ababab;
+    --line: #2c2c2c;
+    --raised: #151515;
+    --accent: #c9ed68;
+    --accent-ink: #18200b;
+    --warn: #ffb45e;
+    --fail: #ff7a6b;
+    --sans: "Ubuntu Sans", "Noto Sans JP", sans-serif;
+    --jp: "Ubuntu Sans", "Noto Sans JP", sans-serif;
+    --mono: "Ubuntu Mono", "Noto Sans JP", monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--page); }
+  body { color: var(--ink); font-family: var(--jp); -webkit-font-smoothing: antialiased; }
+
+  #stage { position: absolute; inset: 0; overflow: hidden; background: var(--page); }
+  .abs { position: absolute; }
+  .scene { position: absolute; inset: 0; opacity: 0; }
+
+  /* Ambient backdrop */
+  .dots { position: absolute; inset: -40px; opacity: .22;
+    background-image: radial-gradient(circle, rgba(201,237,104,.55) 0 1.4px, transparent 2px);
+    background-size: 36px 36px; }
+  .ribbon { position: absolute; border-radius: 50%; filter: blur(70px); opacity: .5;
+    background: radial-gradient(ellipse at center, rgba(201,237,104,.55), rgba(201,237,104,.12) 55%, transparent 72%); }
+  .vignette { position: absolute; inset: 0;
+    background: radial-gradient(ellipse 75% 70% at 50% 45%, transparent 55%, rgba(0,0,0,.72) 100%); }
+  .grain { position: absolute; inset: 0; opacity: .05; mix-blend-mode: screen;
+    background-image: repeating-linear-gradient(0deg, rgba(255,255,255,.6) 0 1px, transparent 1px 3px); }
+
+  /* Shared caption system */
+  .kicker { position: absolute; left: 120px; top: 96px; display: flex; gap: 22px; align-items: baseline;
+    font-family: var(--mono); font-size: 30px; letter-spacing: .14em; color: var(--muted); text-transform: uppercase; }
+  .kicker b { color: var(--accent); font-weight: 700; }
+  .kicker i { font-style: normal; display: inline-block; width: 64px; height: 2px; background: var(--accent); transform-origin: left; align-self: center; }
+  .caption { position: absolute; left: 120px; top: 792px; width: 1680px; }
+  .headline { font-size: 72px; font-weight: 800; letter-spacing: -.01em; line-height: 1.18; }
+  .headline em { font-style: normal; color: var(--accent); }
+  .sub { margin-top: 18px; font-size: 34px; font-weight: 500; color: var(--muted); }
+  .sub code, .headline code { font-family: var(--mono); color: var(--ink); }
+  .mask { display: block; overflow: hidden; padding-bottom: 6px; }
+  .mask > span { display: inline-block; }
+
+  /* Title */
+  .brand { font-family: var(--sans); font-weight: 800; font-size: 250px; letter-spacing: -.035em; line-height: 1; white-space: nowrap; }
+  .brand span { display: inline-block; }
+  .tagline { font-family: var(--sans); font-weight: 400; font-size: 64px; color: var(--muted); letter-spacing: .01em; }
+  .pill { display: inline-flex; align-items: center; gap: 16px; border: 2px solid var(--line); border-radius: 999px;
+    padding: 14px 30px; font-family: var(--mono); font-size: 30px; color: var(--ink); background: rgba(21,21,21,.8); }
+  .pill .dot { width: 14px; height: 14px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 14px var(--accent); }
+
+  /* Nodes */
+  .node { position: absolute; border: 2px solid var(--line); background: rgba(21,21,21,.92); border-radius: 22px;
+    display: flex; flex-direction: column; justify-content: center; padding: 0 34px; }
+  .node .t { font-family: var(--sans); font-weight: 700; font-size: 44px; }
+  .node .s { font-family: var(--mono); font-size: 26px; white-space: nowrap; color: var(--muted); margin-top: 6px; }
+  .node.hot { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 0 60px rgba(201,237,104,.25); }
+  .op-core .t { font-size: 64px; color: var(--accent); }
+
+  svg.wires { position: absolute; inset: 0; overflow: visible; }
+  svg.wires path { fill: none; stroke: #3a3a3a; stroke-width: 3; }
+  svg.wires path.lit { stroke: var(--accent); }
+  .spark { position: absolute; width: 18px; height: 18px; margin: -9px 0 0 -9px; border-radius: 50%;
+    background: var(--accent); box-shadow: 0 0 18px 4px rgba(201,237,104,.7); opacity: 0; }
+
+  /* Code card */
+  .card { position: absolute; border: 2px solid var(--line); border-radius: 24px; background: rgba(17,17,17,.94); overflow: hidden; }
+  .card-head { display: flex; justify-content: space-between; padding: 20px 30px; border-bottom: 2px solid var(--line);
+    font-family: var(--mono); font-size: 24px; color: var(--muted); }
+  .code { padding: 24px 30px; font-family: var(--mono); font-size: 30px; line-height: 1.4; white-space: pre; color: #d9d9d9; }
+  .code .k { color: var(--accent); }
+  .code .s { color: #f0d890; }
+  .code .c { color: #6f6f6f; }
+  .code .ln { display: block; overflow: hidden; }
+  .code .ins { background: rgba(201,237,104,.12); box-shadow: inset 5px 0 0 var(--accent); margin: 0 -30px; padding: 0 30px; }
+
+  .lane-label { position: absolute; font-family: var(--mono); font-size: 26px; letter-spacing: .12em; text-transform: uppercase; }
+  .chip { position: absolute; height: 84px; border-radius: 16px; border: 2px solid var(--line); background: rgba(21,21,21,.92);
+    display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 28px; color: var(--ink); white-space: nowrap; padding: 0 22px; }
+  .chip.hot { border-color: var(--accent); color: var(--accent); }
+  .chip.solid { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 700; }
+
+  /* Journal */
+  .jrow { position: absolute; left: 1010px; width: 790px; height: 62px; display: flex; align-items: center; gap: 22px;
+    font-family: var(--mono); font-size: 31px; color: var(--ink); }
+  .jrow .n { width: 52px; color: #5e5e5e; text-align: right; }
+  .jrow .b { width: 18px; height: 18px; border-radius: 50%; background: var(--accent); flex: none; }
+  .jrow .x { color: var(--muted); font-size: 26px; margin-left: auto; }
+  .jrow.fail .b { background: var(--fail); } .jrow.fail .e { color: var(--fail); }
+  .jrow.retry .b { background: var(--warn); } .jrow.retry .e { color: var(--warn); }
+  .jrow.done .e { color: var(--accent); font-weight: 700; }
+  .rail { position: absolute; left: 1092px; width: 2px; background: #333; transform-origin: top; }
+
+  .status-word { font-family: var(--sans); font-weight: 800; font-size: 120px; letter-spacing: -.02em; line-height: 1; }
+  .label { font-family: var(--mono); font-size: 26px; letter-spacing: .14em; color: var(--muted); text-transform: uppercase; }
+  .annotation { position: absolute; font-family: var(--mono); font-size: 22px; letter-spacing: .08em; color: var(--warn); text-transform: uppercase; }
+
+  /* Typed */
+  .tcard { position: absolute; top: 230px; width: 500px; height: 500px; border: 2px solid var(--line); border-radius: 26px;
+    background: rgba(17,17,17,.94); padding: 34px 36px; }
+  .tcard h3 { font-family: var(--mono); font-size: 26px; letter-spacing: .12em; color: var(--muted); text-transform: uppercase; font-weight: 400; }
+  .tcard h4 { font-family: var(--sans); font-size: 42px; font-weight: 700; margin-top: 10px; }
+  .field { margin-top: 26px; font-family: var(--mono); font-size: 27px; color: var(--muted); }
+  .field b { display: block; color: var(--ink); font-weight: 400; font-size: 30px; margin-top: 4px; }
+  .badge { display: inline-block; font-family: var(--mono); font-size: 24px; border: 2px solid var(--accent); color: var(--accent);
+    border-radius: 999px; padding: 6px 16px; margin: 14px 10px 0 0; }
+  .badge.fill { background: var(--accent); color: var(--accent-ink); }
+
+  /* Headless */
+  .fw { position: absolute; height: 110px; width: 360px; border-radius: 22px; border: 2px solid var(--line); background: rgba(21,21,21,.92);
+    display: flex; align-items: center; justify-content: center; font-family: var(--sans); font-size: 46px; font-weight: 700; }
+
+  /* CLI */
+  .term { position: absolute; left: 120px; top: 190px; width: 1080px; height: 540px; }
+  .term .code { font-size: 28px; line-height: 1.38; }
+  .term .p { color: var(--accent); }
+  .term .o { color: var(--muted); }
+  .term .caret { display: inline-block; width: 14px; height: 30px; margin-left: 4px; vertical-align: -5px; background: var(--accent); }
+  .cmd-group { position: absolute; left: 1290px; width: 510px; }
+  .cmd-group h5 { font-family: var(--sans); font-size: 38px; font-weight: 800; color: var(--muted); }
+  .cmd-group h5 small { font-family: var(--mono); font-size: 24px; font-weight: 400; letter-spacing: .12em; margin-left: 14px; text-transform: uppercase; }
+  .cmd-group .chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+  .cmd-group .chips span { font-family: var(--mono); font-size: 25px; color: var(--muted); border: 2px solid var(--line); border-radius: 12px; padding: 6px 14px; background: rgba(21,21,21,.92); }
+  .cmd-group.hot h5 { color: var(--ink); }
+  .cmd-group .chips span.hot { color: var(--accent-ink); background: var(--accent); border-color: var(--accent); }
+
+  /* Progress */
+  .progress { position: absolute; left: 120px; right: 120px; bottom: 52px; display: flex; gap: 14px; }
+  .progress div { flex: 1; height: 4px; background: #262626; border-radius: 2px; overflow: hidden; }
+  .progress div span { display: block; height: 100%; width: 100%; background: var(--accent); transform-origin: left; transform: scaleX(0); }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="dots" id="dots"></div>
+  <div class="ribbon" id="rib1" style="width:1500px;height:560px;left:-260px;top:-160px"></div>
+  <div class="ribbon" id="rib2" style="width:1300px;height:520px;left:900px;top:640px"></div>
+
+  <!-- 0 Title -->
+  <section class="scene" id="s-title">
+    <div class="abs" style="left:0;right:0;top:300px;text-align:center">
+      <div class="brand" id="brand1"></div>
+      <div class="tagline" id="tag1" style="margin-top:18px">The PHP Framework</div>
+      <div id="pill1" style="margin-top:56px"><span class="pill"><span class="dot"></span>Headless Operation Framework for PHP 8.5</span></div>
+    </div>
+  </section>
+
+  <!-- 1 One Operation -->
+  <section class="scene" id="s-one">
+    <div class="kicker"><b>01</b><i></i><span>One Operation</span></div>
+    <svg class="wires" viewBox="0 0 1920 1080" width="1920" height="1080">
+      <path id="w1a" d="M540 272 C 760 272, 800 450, 1010 450"/>
+      <path id="w1b" d="M540 450 L 1010 450"/>
+      <path id="w1c" d="M540 628 C 760 628, 800 450, 1010 450"/>
+      <path id="w1d" d="M1530 450 L 1660 450"/>
+    </svg>
+    <div class="node" id="n1a" style="left:120px;top:212px;width:420px;height:120px"><div class="t">HTTP</div><div class="s">#[Route] Request</div></div>
+    <div class="node" id="n1b" style="left:120px;top:390px;width:420px;height:120px"><div class="t">Console</div><div class="s">Operation CLI</div></div>
+    <div class="node" id="n1c" style="left:120px;top:568px;width:420px;height:120px"><div class="t">Schedule</div><div class="s">定期実行</div></div>
+    <div class="node op-core" id="n1core" style="left:1010px;top:340px;width:520px;height:220px"><div class="t">Operation</div><div class="s" style="font-size:25px">handle(Value, Context): Outcome</div></div>
+    <div class="node" id="n1out" style="left:1660px;top:390px;width:180px;height:120px;align-items:center;padding:0"><div class="t" style="font-size:34px">Outcome</div></div>
+    <div class="spark" id="sp1a"></div><div class="spark" id="sp1b"></div><div class="spark" id="sp1c"></div><div class="spark" id="sp1d"></div>
+    <div class="caption">
+      <div class="headline"><span class="mask"><span>入口が違っても、仕事は<em>ひとつのOperation</em>へ。</span></span></div>
+      <div class="sub"><span class="mask"><span>HTTP・Console・Scheduleから、型付きのValueとContextで同じ処理を実行</span></span></div>
+    </div>
+  </section>
+
+  <!-- 2 Inline / Deferred -->
+  <section class="scene" id="s-strat">
+    <div class="kicker"><b>02</b><i></i><span>Inline or Deferred</span></div>
+    <div class="card" id="code2" style="left:120px;top:190px;width:800px;height:540px">
+      <div class="card-head"><span>GenerateReport.php</span><span>PHP</span></div>
+      <div class="code"><span class="ln"><span class="k">#[Route(</span>method: <span class="s">'POST'</span>, path: <span class="s">'/reports'</span><span class="k">)]</span></span><span class="ln"><span class="k">#[OperationType(</span><span class="s">'report.generate'</span><span class="k">)]</span></span><span class="ln ins" id="ins2"><span class="k" id="typed2"></span></span><span class="ln"><span class="k">final readonly class</span> GenerateReport</span><span class="ln">    <span class="k">implements</span> Operation</span><span class="ln">{</span><span class="ln">    <span class="k">public function</span> handle(</span><span class="ln">        GenerateReportValue $value,</span><span class="ln">    ): ReportGenerated { <span class="c">/* … */</span> }</span><span class="ln">}</span></div>
+    </div>
+
+    <div class="lane-label" id="ll-in" style="left:1010px;top:214px">Inline</div>
+    <div class="lane-label" id="ll-de" style="left:1010px;top:444px">Deferred</div>
+    <svg class="wires" viewBox="0 0 1920 1080" width="1920" height="1080">
+      <path id="w2i" d="M1150 312 L 1700 312"/>
+      <path id="w2d" d="M1150 542 L 1330 542 L 1330 650 L 1700 650"/>
+    </svg>
+    <div class="chip" id="c2i1" style="left:1010px;top:270px;width:150px">POST</div>
+    <div class="chip" id="c2i2" style="left:1300px;top:270px;width:190px">handle()</div>
+    <div class="chip" id="c2i3" style="left:1600px;top:270px;width:200px">200 OK</div>
+
+    <div class="chip" id="c2d1" style="left:1010px;top:500px;width:150px">POST</div>
+    <div class="chip" id="c2d2" style="left:1250px;top:500px;width:550px">202 Accepted + Operation ID</div>
+    <div class="chip" id="c2d3" style="left:1250px;top:608px;width:180px">Worker</div>
+    <div class="chip" id="c2d4" style="left:1470px;top:608px;width:330px">handle() → Outcome</div>
+    <div class="spark" id="sp2"></div>
+
+    <div class="caption">
+      <div class="headline"><span class="mask"><span>属性ひとつで、<em>同期</em>も<em>非同期</em>も。</span></span></div>
+      <div class="sub"><span class="mask"><span><code>#[Deferred]</code>でWorker実行へ。Value・Operation・Outcomeの型はそのまま</span></span></div>
+    </div>
+  </section>
+
+  <!-- 3 Journal -->
+  <section class="scene" id="s-journal">
+    <div class="kicker"><b>03</b><i></i><span>Lifecycle Journal</span></div>
+    <div class="annotation" style="left:120px;top:150px">Illustrative example · not live output</div>
+    <div class="abs" id="idblk" style="left:120px;top:210px">
+      <div class="label">Example Operation ID</div>
+      <div class="pill" style="margin-top:18px;font-size:32px"><span class="dot"></span>0199a3f2-6c1e-7b4a-9d20-5f8e1c2b7a90</div>
+    </div>
+    <div class="abs" id="stblk" style="left:120px;top:420px">
+      <div class="label">Illustrative Lifecycle State</div>
+      <div class="abs" style="top:52px;left:0;width:820px;height:130px">
+        <div class="status-word abs" data-st>Received</div>
+        <div class="status-word abs" data-st>Accepted</div>
+        <div class="status-word abs" data-st>Running</div>
+        <div class="status-word abs" data-st style="color:var(--warn)">Supervising</div>
+        <div class="status-word abs" data-st style="color:var(--warn);font-size:90px;white-space:nowrap">Retry scheduled</div>
+        <div class="status-word abs" data-st>Finalizing</div>
+        <div class="status-word abs" data-st style="color:var(--accent)">Completed</div>
+      </div>
+      <div class="label abs" id="att" style="top:210px;white-space:nowrap">Attempt <span id="attn" style="color:var(--ink)">1</span></div>
+    </div>
+    <div class="rail" id="rail3" style="top:196px;height:480px"></div>
+    <div id="jrows"></div>
+    <div class="caption">
+      <div class="headline"><span class="mask"><span>受付・再試行・完了を、<em>同じID</em>で追跡。</span></span></div>
+      <div class="sub"><span class="mask"><span>Lifecycleの事実を順序付きで記録し、<code>operation:inspect &lt;id&gt;</code>で確認</span></span></div>
+    </div>
+  </section>
+
+  <!-- 4 Typed -->
+  <section class="scene" id="s-typed">
+    <div class="kicker"><b>04</b><i></i><span>Typed Boundaries</span></div>
+    <svg class="wires" viewBox="0 0 1920 1080" width="1920" height="1080">
+      <path id="w4a" d="M620 440 L 710 440"/>
+      <path id="w4b" d="M1210 440 L 1300 440"/>
+    </svg>
+    <div class="tcard" id="t4a" style="left:120px">
+      <h3>Canonical Input</h3><h4>OperationValue</h4>
+      <div class="field">reportName<b>"weekly"</b></div>
+      <div class="field">recipientEmail <span style="color:var(--accent)">#[Sensitive]</span><b id="sens">"reports@example.com"</b></div>
+      <div class="field">Observed Journal <b id="sens-observed">field omitted (default)</b></div>
+      <span class="badge" id="b4v">Validation ✓</span>
+    </div>
+    <div class="tcard" id="t4b" style="left:710px">
+      <h3>Operation</h3><h4>handle()</h4>
+      <div class="field">業務処理だけを書く</div>
+      <div style="margin-top:22px">
+        <span class="badge" id="b4t">#[Transactional]</span><span class="badge" id="b4c">#[AfterCommit]</span><span class="badge" id="b4o">Outbox</span>
+      </div>
+    </div>
+    <div class="tcard" id="t4c" style="left:1300px">
+      <h3>Output</h3><h4>Outcome</h4>
+      <div class="field">ReportGenerated<b>reportName: "weekly"</b></div>
+      <div class="field">path<b>"/reports/generated/…"</b></div>
+      <span class="badge fill" id="b4d">Typed ✓</span>
+    </div>
+    <div class="spark" id="sp4"></div>
+    <div class="caption">
+      <div class="headline"><span class="mask"><span>型付きの<em>Input</em>から<em>Outcome</em>まで、宣言的に。</span></span></div>
+      <div class="sub"><span class="mask"><span>CanonicalとObservedを分離。Sensitiveは既定Omit、Mask指定時は<code>[masked]</code></span></span></div>
+    </div>
+  </section>
+
+  <!-- 5 Headless -->
+  <section class="scene" id="s-headless">
+    <div class="kicker"><b>05</b><i></i><span>Headless</span></div>
+    <div class="card" id="term5" style="left:120px;top:190px;width:1000px;height:540px">
+      <div class="card-head"><span>server.ts</span><span>TypeScript</span></div>
+      <div class="code" style="font-size:22px;line-height:1.15"><span class="ln"><span class="c">$ php blackops frontend:generate</span></span><span class="ln"><span class="k">const</span> blackops = createBlackOpsClient({ … });</span><span class="ln"><span class="k">const</span> accepted = <span class="k">await</span> blackops.GenerateReport.fetch(</span><span class="ln">  { reportName: <span class="s">'weekly'</span>,</span><span class="ln">    recipientEmail: <span class="s">'reports@example.com'</span> }</span><span class="ln">);</span><span class="ln"><span class="k">if</span> (!accepted.ok || accepted.kind !==</span><span class="ln">  <span class="s">'accepted'</span>) <span class="k">throw new</span> Error(<span class="s">'not accepted'</span>);</span><span class="ln"> </span><span class="ln"><span class="k">const</span> controller = <span class="k">new</span> AbortController();</span><span class="ln"><span class="k">const</span> result = <span class="k">await</span> blackops.GenerateReport.wait(</span><span class="ln">  accepted.data.operationId, {</span><span class="ln">    signal: controller.signal,</span><span class="ln">    maxWaitMilliseconds: 15_000,</span><span class="ln">  },</span><span class="ln">);</span></div>
+    </div>
+    <svg class="wires" viewBox="0 0 1920 1080" width="1920" height="1080">
+      <path id="w5a" d="M1120 460 C 1260 460, 1280 300, 1440 300"/>
+      <path id="w5b" d="M1120 460 L 1440 460"/>
+      <path id="w5c" d="M1120 460 C 1260 460, 1280 620, 1440 620"/>
+    </svg>
+    <div class="fw" id="f5a" style="left:1440px;top:245px">Next.js</div>
+    <div class="fw" id="f5b" style="left:1440px;top:405px">Nuxt</div>
+    <div class="fw" id="f5c" style="left:1440px;top:565px">SvelteKit</div>
+    <div class="caption">
+      <div class="headline"><span class="mask"><span>UIは持たない。<em>好きなFrontend</em>とつなぐ。</span></span></div>
+      <div class="sub"><span class="mask"><span>OperationのHTTP ContractからTyped Clientを生成</span></span></div>
+    </div>
+  </section>
+
+  <!-- 6 CLI -->
+  <section class="scene" id="s-cli">
+    <div class="kicker"><b>06</b><i></i><span>BlackOps CLI</span></div>
+    <div class="annotation" style="left:120px;top:150px">Illustrative CLI example · not a live terminal</div>
+    <div class="card term" id="term6">
+      <div class="card-head"><span>Project Root · example</span><span>Illustrative output</span></div>
+      <div class="code" id="cli-lines"></div>
+    </div>
+    <div class="cmd-group" id="g6a" style="top:200px"><h5>作る<small>make</small></h5><div class="chips"><span data-cmd="make:operation">make:operation</span><span data-cmd="make:migration">make:migration</span><span>make:seeder</span></div></div>
+    <div class="cmd-group" id="g6b" style="top:380px"><h5>動かす<small>run</small></h5><div class="chips"><span data-cmd="database:migrate">database:migrate</span><span data-cmd="build:compile">build:compile</span><span data-cmd="worker:run">worker:run</span></div></div>
+    <div class="cmd-group" id="g6c" style="top:560px"><h5>調べる<small>inspect</small></h5><div class="chips"><span>operation:list</span><span data-cmd="operation:inspect">operation:inspect</span></div></div>
+    <div class="caption">
+      <div class="headline"><span class="mask"><span>作る・動かす・調べるを、<em>blackops</em>コマンドで。</span></span></div>
+      <div class="sub"><span class="mask"><span>Project Rootの<code>blackops</code>から、Generator・Build・Worker・Inspectを実行</span></span></div>
+    </div>
+  </section>
+
+  <!-- 7 Outro -->
+  <section class="scene" id="s-outro">
+    <div class="abs" style="left:0;right:0;top:300px;text-align:center">
+      <div class="brand" id="brand2"></div>
+      <div class="tagline" id="tag2" style="margin-top:18px">The PHP Framework</div>
+      <div id="pill2" style="margin-top:56px"><span class="pill" style="font-size:34px"><span style="color:var(--muted)">$</span>composer create-project blackops/skeleton my-app</span></div>
+    </div>
+  </section>
+
+  <div class="progress" id="progress"><div><span></span></div><div><span></span></div><div><span></span></div><div><span></span></div><div><span></span></div><div><span></span></div></div>
+  <div class="vignette"></div>
+  <div class="grain"></div>
+</div>
+
+<script>
+const DURATION = 36;
+const T = {
+  title: [0, 3.6], one: [3.6, 8.6], strat: [8.6, 14.2], journal: [14.2, 20.2],
+  typed: [20.2, 24.8], headless: [24.8, 28.2], cli: [28.2, 34], outro: [34, 36],
+};
+
+const clamp = (x) => Math.max(0, Math.min(1, x));
+const easeOut = (x) => 1 - Math.pow(1 - x, 3);
+const easeInOut = (x) => (x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+const expoOut = (x) => (x >= 1 ? 1 : 1 - Math.pow(2, -10 * x));
+const p = (t, a, d, e = easeOut) => e(clamp((t - a) / d));
+const lerp = (a, b, k) => a + (b - a) * k;
+const $ = (id) => document.getElementById(id);
+
+// Deterministic pseudo random so every render of a frame is identical.
+const rnd = (i) => { const x = Math.sin(i * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); };
+
+function buildBrand(el) {
+  el.innerHTML = 'BlackOps'.split('').map((c) => `<span>${c}</span>`).join('');
+  return [...el.children];
+}
+const brand1 = buildBrand($('brand1'));
+const brand2 = buildBrand($('brand2'));
+
+function neon(letters, t, start) {
+  letters.forEach((s, i) => {
+    const local = t - start - i * 0.07 - rnd(i) * 0.25;
+    let o = 0, glow = 0;
+    if (local > 0) {
+      // A few hard flickers, then settle to full brightness with a fading glow.
+      const f = local * 22;
+      const flick = local < 0.55 ? (Math.sin(f + i) > (0.2 - local) ? 1 : 0.25) : 1;
+      o = Math.min(1, local * 4) * flick;
+      glow = Math.max(0, 1 - Math.max(0, local - 0.4) / 1.4) * flick;
+    }
+    s.style.opacity = o;
+    s.style.color = i >= 5 ? '#c9ed68' : '#f3f3f3';
+    s.style.textShadow = glow > 0.01
+      ? `0 0 ${0.08 * 250}px rgba(201,237,104,${0.9 * glow}), 0 0 ${0.3 * 250}px rgba(201,237,104,${0.45 * glow})`
+      : 'none';
+  });
+}
+
+function sceneAlpha(t, [a, b], fin = 0.45, fout = 0.45) {
+  return p(t, a, fin) * (1 - p(t, b - fout, fout, easeInOut));
+}
+
+function kicker(scene, t, a) {
+  const k = scene.querySelector('.kicker');
+  const e = p(t, a + 0.1, 0.6);
+  k.style.opacity = e;
+  k.style.transform = `translateX(${lerp(-30, 0, e)}px)`;
+  k.querySelector('i').style.transform = `scaleX(${p(t, a + 0.25, 0.7, expoOut)})`;
+}
+
+function caption(scene, t, a) {
+  scene.querySelectorAll('.caption .mask > span').forEach((s, i) => {
+    const e = p(t, a + 0.35 + i * 0.18, 0.8, expoOut);
+    s.style.transform = `translateY(${lerp(110, 0, e)}%)`;
+    s.style.opacity = e;
+  });
+}
+
+function sceneExit(el, t, [, b]) {
+  // Gentle push-back while the scene fades out.
+  const e = p(t, b - 0.45, 0.45, easeInOut);
+  el.style.transform = `scale(${lerp(1, 0.975, e)})`;
+  el.style.filter = e > 0 ? `blur(${e * 6}px)` : 'none';
+}
+
+function place(el, path, k) {
+  const len = path.getTotalLength();
+  const pt = path.getPointAtLength(len * clamp(k));
+  el.style.left = pt.x + 'px';
+  el.style.top = pt.y + 'px';
+}
+
+function draw(path, k) {
+  const len = path.getTotalLength();
+  path.style.strokeDasharray = len;
+  path.style.strokeDashoffset = len * (1 - clamp(k));
+}
+
+function pop(el, t, a, d = 0.55, y = 26) {
+  const e = p(t, a, d, expoOut);
+  el.style.opacity = e;
+  el.style.transform = `translateY(${lerp(y, 0, e)}px) scale(${lerp(0.96, 1, e)})`;
+  return e;
+}
+
+function pulse(el, path, t, start, dur, fade = 0.12) {
+  const k = (t - start) / dur;
+  if (k < 0 || k > 1) { el.style.opacity = 0; return; }
+  el.style.opacity = Math.min(1, k / fade, (1 - k) / fade);
+  place(el, path, easeInOut(k));
+}
+
+// Journal rows.
+// Commands typed in the CLI scene; outputs are the documented command results.
+const CLI = [
+  [0.5, 'cmd', 'php blackops make:operation Billing/CreateInvoice \\', 'make:operation'],
+  [0.5, 'cont', '    --type=billing.invoice.create', 'make:operation'],
+  [1.25, 'out', 'Created: app/Feature/Billing/CreateInvoice/CreateInvoice.php'],
+  [1.35, 'out', 'Created: …/CreateInvoice/CreateInvoiceValue.php'],
+  [1.45, 'out', 'Created: …/CreateInvoice/CreateInvoiceOutcome.php'],
+  [1.8, 'cmd', 'php blackops database:migrate', 'database:migrate'],
+  [2.35, 'cmd', 'php blackops build:compile', 'build:compile'],
+  [2.9, 'cmd', 'php blackops worker:run --iterations=1', 'worker:run'],
+  [3.45, 'out', 'Worker stopped. Processed claims: 1'],
+  [3.8, 'cmd', 'php blackops operation:inspect 0199a3f2-…', 'operation:inspect'],
+  [4.65, 'out', '# Status・Journal・Outcomeを確認'],
+];
+const TYPE_SECONDS = 0.4;
+$('cli-lines').innerHTML = CLI.map(() => '<span class="ln"></span>').join('');
+const cliLines = [...$('cli-lines').children];
+const escapeHtml = (text) => text.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+
+const JOURNAL = [
+  ['operation.received', '', ''],
+  ['operation.accepted', '', 'HTTP 202'],
+  ['attempt.started', '', '#1'],
+  ['attempt.failed', 'fail', '#1'],
+  ['attempt.retry_scheduled', 'retry', ''],
+  ['attempt.started', '', '#2'],
+  ['attempt.succeeded', '', '#2'],
+  ['operation.completed', 'done', 'Outcome'],
+];
+$('jrows').innerHTML = JOURNAL.map(([e, cls, x], i) =>
+  `<div class="jrow ${cls}" style="top:${196 + i * 62 - 31 + 31}px"><span class="n">${String(i + 1).padStart(2, '0')}</span><span class="b"></span><span class="e">${e}</span><span class="x">${x}</span></div>`).join('');
+const jrows = [...document.querySelectorAll('.jrow')];
+const stWords = [...document.querySelectorAll('[data-st]')];
+// Lifecycle state index shown after each journal event.
+const ROW_STATUS = [0, 1, 2, 3, 4, 2, 5, 6];
+
+function render(t) {
+  t = ((t % DURATION) + DURATION) % DURATION;
+
+  // Ambient drift, periodic over the full loop so the end meets the start.
+  const w = (2 * Math.PI * t) / DURATION;
+  $('rib1').style.transform = `translate(${Math.sin(w) * 120}px, ${Math.cos(w) * 50}px) rotate(${-8 + Math.sin(w) * 4}deg)`;
+  $('rib2').style.transform = `translate(${Math.cos(w) * -140}px, ${Math.sin(w) * 60}px) rotate(${10 + Math.cos(w) * 5}deg)`;
+  $('dots').style.transform = `translate(${(t / DURATION) * 36}px, ${(t / DURATION) * 36}px)`;
+  const ribGlow = 0.42 + 0.12 * Math.sin(w * 3);
+  $('rib1').style.opacity = ribGlow; $('rib2').style.opacity = ribGlow * 0.85;
+
+  // Progress markers cover the five feature scenes.
+  const feat = [T.one, T.strat, T.journal, T.typed, T.headless, T.cli];
+  const bars = [...document.querySelectorAll('.progress span')];
+  const progVisible = p(t, T.one[0], 0.5) * (1 - p(t, T.cli[1] - 0.4, 0.4));
+  $('progress').style.opacity = progVisible;
+  feat.forEach(([a, b], i) => { bars[i].style.transform = `scaleX(${clamp((t - a) / (b - a))})`; });
+
+  // Title
+  {
+    const el = $('s-title');
+    el.style.opacity = sceneAlpha(t, T.title, 0.01, 0.5);
+    sceneExit(el, t, T.title);
+    neon(brand1, t, 0.25);
+    pop($('tag1'), t, 1.25, 0.8);
+    pop($('pill1'), t, 1.6, 0.8);
+  }
+
+  // One Operation
+  {
+    const [a] = T.one, el = $('s-one');
+    el.style.opacity = sceneAlpha(t, T.one); sceneExit(el, t, T.one);
+    kicker(el, t, a); caption(el, t, a + 0.3);
+    ['n1a', 'n1b', 'n1c'].forEach((id, i) => {
+      const e = p(t, a + 0.2 + i * 0.15, 0.7, expoOut);
+      $(id).style.opacity = e; $(id).style.transform = `translateX(${lerp(-80, 0, e)}px)`;
+    });
+    ['w1a', 'w1b', 'w1c'].forEach((id, i) => { draw($(id), p(t, a + 0.7 + i * 0.12, 0.9, easeInOut)); $(id).classList.toggle('lit', t > a + 1.6); });
+    const core = pop($('n1core'), t, a + 1.1, 0.7, 0);
+    $('n1core').classList.toggle('hot', core > 0.5);
+    $('n1core').style.transform = `scale(${lerp(0.9, 1, core) + 0.012 * Math.max(0, Math.sin((t - a - 2) * 3))})`;
+    draw($('w1d'), p(t, a + 2.6, 0.5)); $('w1d').classList.toggle('lit', true);
+    pop($('n1out'), t, a + 2.9, 0.5, 0);
+    ['sp1a', 'sp1b', 'sp1c'].forEach((id, i) => pulse($(id), $(['w1a', 'w1b', 'w1c'][i]), t, a + 1.8 + i * 0.35, 0.9));
+    pulse($('sp1d'), $('w1d'), t, a + 3.2, 0.5);
+  }
+
+  // Inline / Deferred
+  {
+    const [a] = T.strat, el = $('s-strat');
+    el.style.opacity = sceneAlpha(t, T.strat); sceneExit(el, t, T.strat);
+    kicker(el, t, a); caption(el, t, a + 0.25);
+    pop($('code2'), t, a + 0.15, 0.8, 40);
+
+    // Type the attribute in, character by character.
+    const attr = '#[Deferred]';
+    const typeStart = a + 2.2;
+    const n = Math.floor(clamp((t - typeStart) / 0.6) * attr.length);
+    $('typed2').textContent = attr.slice(0, n) + (t > typeStart - 0.3 && t < typeStart + 1.2 && Math.floor(t * 4) % 2 === 0 ? '▍' : '');
+    const openK = p(t, typeStart - 0.35, 0.35, easeInOut);
+    $('ins2').style.height = `${openK * 42}px`;
+    $('ins2').style.opacity = openK;
+
+    const deferred = t > typeStart + 0.6;
+    const inA = p(t, a + 0.6, 0.5);
+    const inDim = deferred ? lerp(1, 0.35, p(t, typeStart + 0.6, 0.4)) : 1;
+    ['c2i1', 'c2i2', 'c2i3'].forEach((id, i) => {
+      const e = p(t, a + 0.5 + i * 0.12, 0.5, expoOut);
+      $(id).style.opacity = e * inDim; $(id).style.transform = `translateY(${lerp(20, 0, e)}px)`;
+      $(id).classList.toggle('hot', !deferred && i === 2);
+    });
+    $('ll-in').style.opacity = inA * inDim; $('ll-in').style.color = deferred ? 'var(--muted)' : 'var(--accent)';
+    draw($('w2i'), p(t, a + 0.7, 0.6)); $('w2i').style.opacity = inDim; $('w2i').classList.toggle('lit', !deferred);
+
+    const deA = deferred ? 1 : 0.3;
+    const deIn = p(t, a + 0.8, 0.5);
+    $('ll-de').style.opacity = deIn * deA; $('ll-de').style.color = deferred ? 'var(--accent)' : 'var(--muted)';
+    draw($('w2d'), deferred ? p(t, typeStart + 0.6, 1.3, easeInOut) : 0);
+    $('w2d').classList.toggle('lit', deferred);
+    [['c2d1', 0], ['c2d2', 0.2], ['c2d3', 0.75], ['c2d4', 1.05]].forEach(([id, d]) => {
+      const e = deferred ? p(t, typeStart + 0.6 + d, 0.5, expoOut) : 0;
+      $(id).style.opacity = deIn * lerp(0.3, 1, e);
+      $(id).style.transform = `translateY(${lerp(10, 0, e)}px)`;
+    });
+    $('c2d2').classList.toggle('solid', deferred && t > typeStart + 0.9);
+    $('c2d4').classList.toggle('hot', deferred && t > typeStart + 2);
+    if (deferred) pulse($('sp2'), $('w2d'), t, typeStart + 0.8, 1.4); else pulse($('sp2'), $('w2i'), t, a + 1.1, 0.8);
+  }
+
+  // Journal
+  {
+    const [a] = T.journal, el = $('s-journal');
+    el.style.opacity = sceneAlpha(t, T.journal); sceneExit(el, t, T.journal);
+    kicker(el, t, a); caption(el, t, a + 0.3);
+    pop($('idblk'), t, a + 0.15, 0.7);
+    pop($('stblk'), t, a + 0.35, 0.7);
+    $('rail3').style.transform = `scaleY(${p(t, a + 0.5, 3.5, easeInOut)})`;
+    $('rail3').style.opacity = 0.9;
+    const step = 0.52, rowStart = a + 0.7;
+    let current = -1;
+    jrows.forEach((r, i) => {
+      const at = rowStart + i * step;
+      const e = p(t, at, 0.45, expoOut);
+      r.style.opacity = e;
+      r.style.transform = `translateX(${lerp(40, 0, e)}px)`;
+      if (t >= at + 0.15) current = i;
+    });
+    jrows.forEach((r, i) => {
+      const b = r.querySelector('.b');
+      const isHead = i === current;
+      b.style.boxShadow = isHead ? '0 0 0 8px rgba(201,237,104,.14), 0 0 20px rgba(201,237,104,.8)' : 'none';
+      b.style.transform = `scale(${isHead ? 1.25 : 1})`;
+    });
+    const st = current < 0 ? 0 : ROW_STATUS[current];
+    stWords.forEach((w, i) => {
+      const on = i === st;
+      w.style.opacity = on ? 1 : 0;
+      w.style.transform = `translateY(${on ? 0 : 20}px)`;
+    });
+    $('attn').textContent = current >= 5 ? '2' : '1';
+  }
+
+  // Typed
+  {
+    const [a] = T.typed, el = $('s-typed');
+    el.style.opacity = sceneAlpha(t, T.typed); sceneExit(el, t, T.typed);
+    kicker(el, t, a); caption(el, t, a + 0.25);
+    ['t4a', 't4b', 't4c'].forEach((id, i) => pop($(id), t, a + 0.15 + i * 0.25, 0.7, 40));
+    draw($('w4a'), p(t, a + 0.9, 0.4)); draw($('w4b'), p(t, a + 1.2, 0.4));
+    $('w4a').classList.add('lit'); $('w4b').classList.add('lit');
+    const masked = t > a + 1.6;
+    $('sens').textContent = '"reports@example.com"';
+    $('sens').style.color = 'var(--ink)';
+    $('sens-observed').textContent = masked ? 'Mask指定時: [masked]' : 'field omitted (default)';
+    $('sens-observed').style.color = masked ? 'var(--accent)' : 'var(--ink)';
+    pop($('b4v'), t, a + 1.0, 0.4, 10);
+    pop($('b4t'), t, a + 1.7, 0.4, 10);
+    pop($('b4c'), t, a + 1.9, 0.4, 10);
+    pop($('b4o'), t, a + 2.1, 0.4, 10);
+    pop($('b4d'), t, a + 2.6, 0.4, 10);
+    const sp = $('sp4');
+    const k = (t - (a + 1.3)) / 1.3;
+    if (k < 0 || k > 1) sp.style.opacity = 0;
+    else {
+      sp.style.opacity = Math.min(1, k / 0.1, (1 - k) / 0.1);
+      sp.style.top = '440px'; sp.style.left = `${lerp(620, 1300, easeInOut(k))}px`;
+    }
+  }
+
+  // Headless
+  {
+    const [a] = T.headless, el = $('s-headless');
+    el.style.opacity = sceneAlpha(t, T.headless); sceneExit(el, t, T.headless);
+    kicker(el, t, a); caption(el, t, a + 0.25);
+    pop($('term5'), t, a + 0.1, 0.7, 40);
+    [...$('term5').querySelectorAll('.ln')].forEach((ln, i) => {
+      const e = p(t, a + 0.35 + i * 0.09, 0.35);
+      ln.style.opacity = e; ln.style.transform = `translateX(${lerp(-14, 0, e)}px)`;
+    });
+    ['w5a', 'w5b', 'w5c'].forEach((id, i) => { draw($(id), p(t, a + 1.2 + i * 0.1, 0.6, easeInOut)); $(id).classList.add('lit'); });
+    ['f5a', 'f5b', 'f5c'].forEach((id, i) => {
+      pop($(id), t, a + 1.5 + i * 0.15, 0.55, 0);
+      const hot = t > a + 1.9 + i * 0.15;
+      $(id).style.borderColor = hot ? 'var(--accent)' : 'var(--line)';
+    });
+  }
+
+  // BlackOps CLI
+  {
+    const [a] = T.cli, el = $('s-cli');
+    el.style.opacity = sceneAlpha(t, T.cli); sceneExit(el, t, T.cli);
+    kicker(el, t, a); caption(el, t, a + 0.25);
+    pop($('term6'), t, a + 0.1, 0.7, 40);
+    ['g6a', 'g6b', 'g6c'].forEach((id, i) => pop($(id), t, a + 0.3 + i * 0.12, 0.6, 20));
+    let activeCmd = null;
+    let caretLine = -1;
+    CLI.forEach(([offset, kind, text, cmd], i) => {
+      const start = a + offset;
+      const line = cliLines[i];
+      if (t < start) { line.innerHTML = '&nbsp;'; line.style.opacity = 0; return; }
+      line.style.opacity = 1;
+      if (kind === 'out') { line.innerHTML = `<span class="o">${escapeHtml(text)}</span>`; return; }
+      const shown = kind === 'cont' ? text : text.slice(0, Math.ceil(clamp((t - start) / TYPE_SECONDS) * text.length));
+      line.innerHTML = (kind === 'cmd' ? '<span class="p">$ </span>' : '') + escapeHtml(shown);
+      activeCmd = cmd;
+      caretLine = i;
+    });
+    if (caretLine >= 0 && Math.floor(t * 3) % 2 === 0) cliLines[caretLine].insertAdjacentHTML('beforeend', '<span class="caret"></span>');
+    el.querySelectorAll('[data-cmd]').forEach((chip) => chip.classList.toggle('hot', chip.dataset.cmd === activeCmd));
+    ['g6a', 'g6b', 'g6c'].forEach((id) => $(id).classList.toggle('hot', !!$(id).querySelector('.hot')));
+  }
+
+  // Outro
+  {
+    const [a] = T.outro, el = $('s-outro');
+    // The page plays the reel once, so the outro holds as the final frame.
+    el.style.opacity = p(t, a, 0.3);
+    neon(brand2, t, a + 0.05);
+    pop($('tag2'), t, a + 0.45, 0.6);
+    pop($('pill2'), t, a + 0.6, 0.6);
+  }
+}
+
+window.renderAt = render;
+window.reelDuration = DURATION;
+if (!navigator.webdriver) {
+  const t0 = performance.now();
+  const tick = () => { render((performance.now() - t0) / 1000); requestAnimationFrame(tick); };
+  document.fonts.ready.then(tick);
+} else {
+  render(0);
+}
+</script>
+</body>
+</html>

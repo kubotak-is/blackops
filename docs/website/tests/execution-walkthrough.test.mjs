@@ -317,7 +317,7 @@ test('execution walkthrough uses native controls and isolates the canonical SVG 
     assert.equal(root.querySelector('[data-execution-journal-status]').hidden, false);
     assert.equal(root.querySelector('[data-execution-journal-status]').textContent, JOURNAL_DEFINITION);
     assert.equal(root.querySelector('[data-execution-graph-stage]').textContent, 'Inline 01 / 07');
-    assert.equal(root.querySelector('[data-execution-action="toggle"]').disabled, true);
+    assert.equal(root.querySelector('[data-execution-action="toggle"]').disabled, false);
 
     root.querySelector('[data-execution-mode="deferred"]').click();
     assert.equal(root.dataset.executionMode, 'deferred');
@@ -448,7 +448,7 @@ test('execution walkthrough uses native controls and isolates the canonical SVG 
   }
 });
 
-test('execution walkthrough keeps a paused phase while its active trace continues and loops one mode', async () => {
+test('execution walkthrough pauses its phase and active trace and loops one mode', async () => {
   const harness = createControlledHarness();
   let cleanup;
   try {
@@ -472,6 +472,13 @@ test('execution walkthrough keeps a paused phase while its active trace continue
     assert.equal(Number(root.dataset.executionPhaseRemaining), EXECUTION_PHASE_DURATION_MS);
     assert.equal(Number(root.dataset.executionPhaseProgress), 0);
 
+    harness.dom.window.dispatchEvent(new harness.dom.window.Event('pagehide'));
+    assert.equal(root.dataset.executionWalkthroughInitialized, 'stopped');
+    cleanup = initExecutionWalkthrough(root);
+    await harness.flush();
+    assert.equal(root.dataset.executionPlayback, 'playing', 'lifecycle cleanup alone does not persist a reader pause');
+    assert.equal(root.dataset.executionTraceState, 'playing');
+
     harness.advanceTime(EXECUTION_PHASE_DURATION_MS / 2);
     harness.runNextTimer(0);
     assert.equal(root.dataset.executionPhase, 'request', 'half a phase does not advance the step');
@@ -483,9 +490,12 @@ test('execution walkthrough keeps a paused phase while its active trace continue
     toggle.click();
     const pausedElapsed = Number(root.dataset.executionPhaseElapsed);
     assert.equal(root.dataset.executionPlayback, 'paused');
+    assert.equal(root.dataset.executionTraceState, 'paused');
+    assert.equal(svgMount.shadowRoot.querySelector('svg').getAttribute('data-execution-playing'), 'false');
     assert.equal(harness.activeTimers().length, 0);
     harness.advanceTime(EXECUTION_PHASE_DURATION_MS);
     assert.equal(Number(root.dataset.executionPhaseElapsed), pausedElapsed, 'manual pause freezes the monotonic phase clock');
+
     toggle.click();
     harness.advanceTime(EXECUTION_PHASE_DURATION_MS / 2 - 1);
     harness.runNextTimer(0);
@@ -495,6 +505,20 @@ test('execution walkthrough keeps a paused phase while its active trace continue
     assert.equal(root.dataset.executionPhase, 'bind', 'resume consumes only the remaining active time');
     assert.equal(Number(root.dataset.executionPhaseElapsed), 0, 'a phase transition resets the progress ring');
     assert.equal(root.querySelector('[data-execution-progress]').style.getPropertyValue('--execution-progress'), '0%');
+
+    toggle.click();
+    assert.equal(root.dataset.executionPlayback, 'paused');
+    assert.equal(root.dataset.executionTraceState, 'paused');
+    harness.dom.window.dispatchEvent(new harness.dom.window.Event('pagehide'));
+    assert.equal(root.dataset.executionWalkthroughInitialized, 'stopped');
+    cleanup = initExecutionWalkthrough(root);
+    await harness.flush();
+    assert.equal(root.dataset.executionPlayback, 'paused');
+    assert.equal(root.dataset.executionTraceState, 'paused');
+    assert.equal(root.querySelector('[data-execution-svg-shadow]').shadowRoot.querySelector('svg').getAttribute('data-execution-playing'), 'false');
+    toggle.click();
+    assert.equal(root.dataset.executionPlayback, 'playing');
+    assert.equal(root.dataset.executionTraceState, 'playing');
 
     root.querySelector('[data-execution-mode="deferred"]').click();
     assert.equal(root.dataset.executionMode, 'deferred');
@@ -509,8 +533,8 @@ test('execution walkthrough keeps a paused phase while its active trace continue
     const pausedJournal = root.querySelector('[data-execution-journal]').textContent;
     toggle.click();
     assert.equal(root.dataset.executionPlayback, 'paused');
-    assert.equal(root.dataset.executionTraceState, 'playing');
-    assert.equal(svg.getAttribute('data-execution-playing'), 'true');
+    assert.equal(root.dataset.executionTraceState, 'paused');
+    assert.equal(svg.getAttribute('data-execution-playing'), 'false');
     assert.equal(harness.activeTimers().length, 0);
     assert.equal(root.dataset.executionPhase, pausedPhase);
     assert.equal(root.querySelector('[data-execution-journal]').textContent, pausedJournal);
@@ -625,9 +649,9 @@ test('execution walkthrough holds reading without stopping the trace and provide
     harness.setViewport(true);
     assert.equal(root.dataset.executionTraceState, 'playing');
     harness.setReducedMotion(true);
-    assert.equal(root.dataset.executionPlayback, 'paused');
-    assert.equal(root.dataset.executionTraceState, 'paused');
-    assert.equal(root.querySelector('[data-execution-action="toggle"]').disabled, true);
+    assert.equal(root.dataset.executionPlayback, 'playing');
+    assert.equal(root.dataset.executionTraceState, 'playing');
+    assert.equal(root.querySelector('[data-execution-action="toggle"]').disabled, false);
   } finally {
     harness.dispose(cleanup);
   }

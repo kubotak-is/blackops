@@ -19,6 +19,8 @@ mise exec -- pnpm --dir docs/website run dev
 
 `blume.config.ts`はBlume標準のHeader、Sidebar、Search、Table of Contents、Theme、Skip Link、Mobile Navigationを有効にし、SidebarをStart Here、Build、Async and Lifecycle、Data and Security、Operate、Reference、Releasesの順へ固定します。Landingは`pages/index.astro`のCustom Pageで、What's BlackOpsとInstallを最初の導線にします。HTTP／Console／Scheduleの入口、実際のOperation code、目的別のSection navigationを掲載します。単一のArchifyアニメーションではHTTPのInline／DeferredとJournalイベントを段階番号とともに表示します。図の要素を選ぶと再生を停止して説明パネルを切り替え、パネルの「詳しく見る」からGuideへ進めます。PCでは横方向、Mobileでは縦方向のCanonical Layoutを使います。自動再生の停止・手動操作・Reduced Motionに対応し、Core Conceptsの図はGuideへ掲載します。
 
+LandingのHero Reelは説明用の36秒映像です。Journal、Operation ID、件数、時間、CLI出力は`Illustrative example`として表示し、実行結果や取得済みのOperationを示しません。再生成手順とPinned Browser／ffmpeg前提は[Reel README](reel/README.md)に記録し、通常のWebsite buildでは既存Assetを使います。
+
 ## Content and URL boundary
 
 `content-map.mjs`はSource Relative Pathから公開Slug／Page Metadata／canonical Sectionへ決定的にMappingし、未登録Source、欠落Source、重複Slug、wrong-section、壊れたLinkはBuild前に拒否します。`docs/internal/`、`develop/`、Task／Reportは公開Page、Navigation、Search、Artifactへ含めません。

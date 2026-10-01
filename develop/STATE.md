@@ -1,66 +1,53 @@
 # Orchestration State
 
-Updated At: 2026-09-12T00:31:30+09:00
-Status: P23-013 Accepted; D2S implementation Accepted; clean final-SHA export pending
-Current Task: [P23-003D2S](orchestration/tasks/P23-003D2S-operation-status-audit-adapter.md)
-Current Report: [D2S Report](orchestration/reports/P23-003D2S-operation-status-audit-adapter.md)
+Updated At: 2026-10-01T18:43:56+09:00
+Status: P23-006C isolated integration active; published Reel merge under review
+Current Task: [P23-006C](orchestration/tasks/P23-006C-accepted-audit-integration.md)
+Current Report: [Integration Report](orchestration/reports/P23-006C-accepted-audit-integration.md)
 
 ## Current Boundary
 
-The user authorized1.3 development, beginning with Stable1.2.1 synchronization
-and the Status Audit adapter. The user now additionally requests a detailed
-tenant explanation for the documentation website. Finish D2S clean-SHA export,
-then create that separate documentation packet. Read-only tenant research is
-already assigned to the configured Documentation Reviewer.
+This is the isolated through-O1 integration checkout. Primary branch
+agent/p23-001-blackops-1-3-feasibility and its mixed work remain preserved.
+The Owner authorized completing1.3 under parent006; final local Documentation
+Owner confirmation still precedes publication. Experimental Stable1.2.1 remains
+current and1.3 unreleased. Root owns Git, current STATE and Acceptance.
 
-Root owns integration, acceptance, Git and STATE. Luna/max implements scoped
-changes; Astra/max reviews. Root owns all PHP/cache/DB execution. No1.3 push,
-tag, release or deployment is selected. Current published Framework/Skeleton
-and site remain1.2.1, with immutable refs in [release authority](spec/release-authority.json).
-The1.2.1 release and site delivery are Accepted; P23-012/P23-013 Reports hold evidence.
+Base8106c355 preserves accepted1.3 foundations through D2S. Published Reel
+maina419f375 is being merged from immutable Git objects. Only STATE and the
+specification index conflicted; Root retains both authorities and a current
+summary. The stale primary player/assets are not copied. No Audit unit is yet
+imported. No release, CI, export, push or new deployment has occurred here.
 
 ## Evidence
 
-- Stable sync Accepted at7d90753485c8bf9e63578e8ce83cc1762234c083 after
-  preserving the original133 dirty paths at079dd252. Clean-SHA Git/Composer
-  export passed. Published main08e4751 is preserved; docs preview remains4321.
-- D2 source0cd699e and scoped-source prerequisite D2S1 at70f9c473 are
-  Accepted. D2S authority checkpoint106b0da and its1905 input hashes are in
-  /tmp/blackops-d2s-20260911/freeze.json. Do not redo accepted prerequisites.
-- D2S implements per-read tenant binding, mandatory guard, server-owned UUID,
-  requested/read/terminal transaction ordering and14 sensitive Default
-  parameters. It is Internal and unactivated; HTTP/Application wiring remains
-  parent D-integration. General/Transaction/Documentation reviews are Green.
-- Two reviewed Test-only recovery amendments isolate exactly3 MiB-scale
-  methods in2 existing files. Bodies/fixtures/assertions stay exact. Total
-  candidate15 paths (7 changed/8 new); original13 unchanged after final review.
-  Scope/public194/profile proofs:recovery-2-final-inputs.json and related receipts.
-- Original full PHPUnit command completed:3289 tests/5,681,826 assertions,
-  zero failures/errors/skips,127MiB peak under128M. Existing1 deprecation,
-  2 PHPUnit deprecations/13 notices remain. All45 new adapter tests and3
-  isolated methods appear in complete JUnit. Log:run-20260912T001042/full.log;
-  exit0,981.582s. Earlier2 OOM failures are preserved in the Report.
-- Mago/Deptrac/Composer/global format, six goldens, package90/39, version,
-  Community clean-install and public checks pass or are hash-bound reused.
-  Both parent and3 isolated children use128M. No test/baseline/limit relaxation.
-- Parent feasibility notices and D154 handoff now lead to current STATE/Report.
-  Historical/contract bodies remain exact; this administrative reconciliation
-  does not invalidate Product/source/docs evidence.
+- P23-018 is already Accepted and delivered. Its imported Report preserves
+  independent local/browser/live proof and reduced-motion Owner decision D167.
+- Exact Product manifest e323e929 contains94 endpoints over81 destinations in
+  six reviewed units: D2J+D2X, D3+D4A+D4B+D5H, D5P, R1, R2 and O1.
+-006A recovers two D5H guards against historical hashes.006B provides reviewed
+  new97/48 package construction, with no historical-byte claim. Their Reports
+  and parent006 preserve the adopted granularity and source attribution.
+- Input81b5a6d3 preserves40 child and six shared management inputs. O1's accepted
+  full3668/7694025 is prior source evidence, not this checkout's same-SHA result.
+- Primary O2/F1 proof corrections and later1.3 work remain in their own checkout
+  and are not imported by this Task. Twelve unrelated pre-existing mode-only
+  residuals likewise remain primary-only.
 
 ## Remaining Work
 
-D2S requires the accepted candidate's local commit and clean-SHA Git/Composer
-export. Tenant concept documentation is the user's next requested task.
-Broader1.3 still needs other Audit adapters, parent runtime composition,
-application authoring, signatures, query/export, runtime hardening, docs and
-release qualification. No Audit feature has been published by this task.
+Complete this merge, import/review/commit all six exact units, reconcile scoped
+management, run final isolated package controls and verify final byte/mode and
+primary preservation. Independent convergence Review is required. Parent1.3
+still needs O2/F1 and ordinary adapters/composition, application authoring,
+verification/anchors/query/export, Worker Mode hardening, all-public
+Documentation/Owner preview and final local/same-SHA release/delivery gates.
 
 ## Next Action
 
-Root commits only the reviewed candidate and management/archive paths, confirms
-clean HEAD, then runs framework-package-export.sh once on that SHA. Record the
-receipt without commit-hash recursion. Then prepare the tenant documentation
-Task using Stable1.2.1 evidence. D2J reader preparation follows that addition.
+Root reviews and commits the published Reel merge plus current integration
+management, then imports the frozen six Product units in order. Keep D5P
+separate from every public Documentation change. No immutable tag is replaced.
 <!-- state-tool:history:start -->
-Previous STATE archive: [snapshot](orchestration/state-archive/2026-09/20260911T153130Z-9fb187c7d62ac64bd95115c3c3194f3a16240fedb54209e3e9e14047ac138bd0.md)
+Previous STATE archive: [snapshot](orchestration/state-archive/2026-10/20261001T095158Z-6493a1bb93034e45ff059cec6c0c34d34efa685bf52ce67638eb5ac4b2e96182.md)
 <!-- state-tool:history:end -->
