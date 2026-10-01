@@ -7,7 +7,7 @@ EXPORT_SCRIPT="${SCRIPT_DIR}/framework-package-export.sh"
 TEMP_ROOT="$(mktemp -d)"
 trap 'rm -rf -- "${TEMP_ROOT}"' EXIT
 
-reviewed_export_sha='6cde33f566fb74e193b1c7a2ff60b4c0e76157805627cbc650b95624dab2b1b9'
+reviewed_export_sha='341e118875c981225f2f922f713392c9234eadc39e4a849f8a05f76068e83b19'
 
 expected_inventory="${TEMP_ROOT}/expected-inventory"
 printf '%s\n' \
@@ -37,6 +37,13 @@ printf '%s\n' \
     src/Internal/Status/AuditedOperationStatusQuery.php \
     src/Internal/Status/OperationStatusAuditTenantAuthorizer.php \
     src/Internal/Status/OperationStatusReadExecutionSource.php \
+    src/Internal/OperationData/AuditedOperationJournalQuery.php \
+    src/Internal/OperationData/AuditedOperationOutcomeQuery.php \
+    src/Internal/OperationData/OperationDataAuditTenantAuthorizer.php \
+    src/Internal/OperationData/OperationJournalReadExecutionSource.php \
+    src/Internal/OperationData/OperationOutcomeReadExecutionSource.php \
+    src/Internal/Diagnostics/AuditedOperationDiagnosticsQuery.php \
+    src/Internal/Diagnostics/OperationDiagnosticsReadExecutionSource.php \
     src/Internal/Audit/Relay/AuditRelayOutcome.php \
     src/Internal/Audit/Relay/AuditRelayFailure.php \
     src/Internal/Audit/Relay/AuditRelayException.php \
@@ -798,6 +805,78 @@ test_mutation_rejected() {
             ' "${candidate}" >"${candidate}.tmp"
             mv "${candidate}.tmp" "${candidate}"
             ;;
+        d2j-query-omission)
+            run_bounded sed -i '\|src/Internal/OperationData/AuditedOperationJournalQuery.php|d' "${candidate}"
+            ;;
+        d2j-outcome-omission)
+            run_bounded sed -i '\|src/Internal/OperationData/AuditedOperationOutcomeQuery.php|d' "${candidate}"
+            ;;
+        d2j-authorizer-omission)
+            run_bounded sed -i '\|src/Internal/OperationData/OperationDataAuditTenantAuthorizer.php|d' "${candidate}"
+            ;;
+        d2j-journal-execution-omission)
+            run_bounded sed -i '\|src/Internal/OperationData/OperationJournalReadExecutionSource.php|d' "${candidate}"
+            ;;
+        d2j-outcome-execution-omission)
+            run_bounded sed -i '\|src/Internal/OperationData/OperationOutcomeReadExecutionSource.php|d' "${candidate}"
+            ;;
+        d2j-order-swap)
+            run_bounded awk '
+                !swapped && $0 ~ /src\/Internal\/OperationData\/AuditedOperationJournalQuery\.php/ {
+                    first = $0
+                    if (getline second > 0 && second ~ /src\/Internal\/OperationData\/AuditedOperationOutcomeQuery\.php/ &&
+                        getline third > 0 && third ~ /src\/Internal\/OperationData\/OperationDataAuditTenantAuthorizer\.php/ &&
+                        getline fourth > 0 && fourth ~ /src\/Internal\/OperationData\/OperationJournalReadExecutionSource\.php/ &&
+                        getline fifth > 0 && fifth ~ /src\/Internal\/OperationData\/OperationOutcomeReadExecutionSource\.php/) {
+                        print fifth
+                        print fourth
+                        print third
+                        print second
+                        print first
+                        swapped = 1
+                        next
+                    }
+                    print first
+                    if (second != "") print second
+                    if (third != "") print third
+                    if (fourth != "") print fourth
+                    if (fifth != "") print fifth
+                    next
+                }
+                { print }
+                END {
+                    if (!swapped) exit 2
+                }
+            ' "${candidate}" >"${candidate}.tmp"
+            mv "${candidate}.tmp" "${candidate}"
+            ;;
+        d2x-query-omission)
+            run_bounded sed -i '\|src/Internal/Diagnostics/AuditedOperationDiagnosticsQuery.php|d' "${candidate}"
+            ;;
+        d2x-execution-omission)
+            run_bounded sed -i '\|src/Internal/Diagnostics/OperationDiagnosticsReadExecutionSource.php|d' "${candidate}"
+            ;;
+        d2x-order-swap)
+            run_bounded awk '
+                !swapped && $0 ~ /src\/Internal\/Diagnostics\/AuditedOperationDiagnosticsQuery\.php/ {
+                    first = $0
+                    if (getline second > 0 && second ~ /src\/Internal\/Diagnostics\/OperationDiagnosticsReadExecutionSource\.php/) {
+                        print second
+                        print first
+                        swapped = 1
+                        next
+                    }
+                    print first
+                    if (second != "") print second
+                    next
+                }
+                { print }
+                END {
+                    if (!swapped) exit 2
+                }
+            ' "${candidate}" >"${candidate}.tmp"
+            mv "${candidate}.tmp" "${candidate}"
+            ;;
         d2s1-duplicate-entry)
             run_bounded awk '
                 !inserted && $0 ~ /src\/Internal\/Status\/TenantBoundOperationStatusSource\.php/ {
@@ -1167,9 +1246,9 @@ test -f "${EXPORT_SCRIPT}"
 test "$(sha256sum "${EXPORT_SCRIPT}" | cut -d' ' -f1)" = "${reviewed_export_sha}"
 runtime_case_count=0
 assert_inventory "${EXPORT_SCRIPT}"
-test "$(wc -l < "${expected_inventory}")" -eq 90
-test "$(sort -u "${expected_inventory}" | wc -l)" -eq 90
-printf 'required inventory: PASS (90 ordered paths, 90 unique)\n'
+test "$(wc -l < "${expected_inventory}")" -eq 97
+test "$(sort -u "${expected_inventory}" | wc -l)" -eq 97
+printf 'required inventory: PASS (97 ordered paths, 97 unique)\n'
 
 test_mutation_rejected comment-only comment
 test_mutation_rejected existing-entry-removal existing-removal
@@ -1186,6 +1265,15 @@ test_mutation_rejected d2s2-query-entry-omission d2s2-query-omission
 test_mutation_rejected d2s2-authorizer-entry-omission d2s2-authorizer-omission
 test_mutation_rejected d2s2-execution-entry-omission d2s2-execution-omission
 test_mutation_rejected d2s2-reverse-new-block d2s2-order-swap
+test_mutation_rejected d2j-query-entry-omission d2j-query-omission
+test_mutation_rejected d2j-outcome-entry-omission d2j-outcome-omission
+test_mutation_rejected d2j-authorizer-entry-omission d2j-authorizer-omission
+test_mutation_rejected d2j-journal-execution-entry-omission d2j-journal-execution-omission
+test_mutation_rejected d2j-outcome-execution-entry-omission d2j-outcome-execution-omission
+test_mutation_rejected d2j-reverse-new-block d2j-order-swap
+test_mutation_rejected d2x-query-entry-omission d2x-query-omission
+test_mutation_rejected d2x-execution-entry-omission d2x-execution-omission
+test_mutation_rejected d2x-reverse-new-block d2x-order-swap
 test_mutation_rejected order-swap order-swap
 test_mutation_rejected duplicate-loop duplicate-loop
 test_mutation_rejected heredoc-decoy heredoc-decoy
@@ -1211,4 +1299,4 @@ test_call_contract_mutation_rejected pipeline-composer-continuation pipeline-com
 test_call_contract_mutation_rejected command-substitution-git-continuation command-substitution-git-continuation
 test_call_contract_mutation_rejected resolution-override resolution-override
 printf 'required inventory call-contract mutations: PASS (14 rejected before runtime/SHA)\n'
-printf 'required inventory mutations: PASS (39 rejected: 25 inventory, 14 call-contract)\n'
+printf 'required inventory mutations: PASS (48 rejected: 34 inventory, 14 call-contract)\n'

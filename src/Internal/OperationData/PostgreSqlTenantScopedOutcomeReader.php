@@ -22,9 +22,13 @@ use Throwable;
 final readonly class PostgreSqlTenantScopedOutcomeReader implements TenantScopedOutcomeReader
 {
     public function __construct(
+        #[\SensitiveParameter]
         private Connection $connection,
+        #[\SensitiveParameter]
         private BopdEnvelopeCodec $protection,
+        #[\SensitiveParameter]
         string $schema = 'blackops',
+        #[\SensitiveParameter]
         ?PostgreSqlOutcomeCodec $codec = null,
     ) {
         $this->schema = new PostgreSqlOutcomeSchema($schema);
@@ -34,8 +38,12 @@ final readonly class PostgreSqlTenantScopedOutcomeReader implements TenantScoped
     private PostgreSqlOutcomeSchema $schema;
     private PostgreSqlOutcomeCodec $codec;
 
-    public function findForTenant(OperationId $operationId, ?TenantRef $tenant): ?OutcomeRecord
-    {
+    public function findForTenant(
+        #[\SensitiveParameter]
+        OperationId $operationId,
+        #[\SensitiveParameter]
+        ?TenantRef $tenant,
+    ): ?OutcomeRecord {
         try {
             $row = $this->connection->fetchAssociative(
                 "SELECT outcome.outcome_type, outcome.schema_version,
@@ -106,7 +114,7 @@ final readonly class PostgreSqlTenantScopedOutcomeReader implements TenantScoped
     }
 
     /** @param array<string, mixed> $row */
-    private function string(array $row, string $key): string
+    private function string(#[\SensitiveParameter] array $row, #[\SensitiveParameter] string $key): string
     {
         if (!array_key_exists($key, $row) || !is_string($row[$key]) || $row[$key] === '') {
             throw new \InvalidArgumentException('Invalid PostgreSQL outcome field.');
@@ -116,7 +124,7 @@ final readonly class PostgreSqlTenantScopedOutcomeReader implements TenantScoped
     }
 
     /** @param array<string, mixed> $row */
-    private function integer(array $row, string $key): int
+    private function integer(#[\SensitiveParameter] array $row, #[\SensitiveParameter] string $key): int
     {
         if (!array_key_exists($key, $row) || !is_int($row[$key])) {
             throw new \InvalidArgumentException('Invalid PostgreSQL outcome integer field.');
@@ -126,7 +134,7 @@ final readonly class PostgreSqlTenantScopedOutcomeReader implements TenantScoped
     }
 
     /** @param array<string, mixed> $row */
-    private function tenant(array $row): ?TenantRef
+    private function tenant(#[\SensitiveParameter] array $row): ?TenantRef
     {
         $type = $row['outcome_tenant_type'] ?? null;
         $id = $row['outcome_tenant_id'] ?? null;

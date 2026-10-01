@@ -21,9 +21,13 @@ use Throwable;
 final readonly class PostgreSqlTenantScopedCanonicalJournalReader implements TenantScopedCanonicalJournalReader
 {
     public function __construct(
+        #[\SensitiveParameter]
         private Connection $connection,
+        #[\SensitiveParameter]
         private BopdEnvelopeCodec $protection,
+        #[\SensitiveParameter]
         string $schema = 'blackops',
+        #[\SensitiveParameter]
         ?PostgreSqlJournalRecordCodec $codec = null,
     ) {
         $this->schema = new PostgreSqlJournalSchema($schema);
@@ -34,8 +38,12 @@ final readonly class PostgreSqlTenantScopedCanonicalJournalReader implements Ten
     private PostgreSqlJournalRecordCodec $codec;
 
     /** @return iterable<JournalRecord> */
-    public function recordsForTenant(OperationId $operationId, ?TenantRef $tenant): iterable
-    {
+    public function recordsForTenant(
+        #[\SensitiveParameter]
+        OperationId $operationId,
+        #[\SensitiveParameter]
+        ?TenantRef $tenant,
+    ): iterable {
         try {
             $rows = $this->connection->iterateAssociative(
                 "SELECT record_id::text AS record_id, operation_id::text AS operation_id,
@@ -100,7 +108,7 @@ final readonly class PostgreSqlTenantScopedCanonicalJournalReader implements Ten
     }
 
     /** @param array<string, mixed> $row */
-    private function tenant(array $row): ?TenantRef
+    private function tenant(#[\SensitiveParameter] array $row): ?TenantRef
     {
         $type = $row['tenant_type'] ?? null;
         $id = $row['tenant_id'] ?? null;

@@ -1218,6 +1218,60 @@ final class AuditOperationReadArchitectureTest extends TestCase
         ]);
         self::assertContains('outside-target-reference:' . $d2sOutsidePath, $d2sOutsideViolations);
 
+        $d2jOutsideCallers = [
+            'journal-query' => [
+                'BlackOps\\Internal\\OperationData\\AuditedOperationJournalQuery',
+                'new \\BlackOps\\Internal\\OperationData\\AuditedOperationJournalQuery($a, $b, $c, $d, $e);',
+            ],
+            'outcome-query' => [
+                'BlackOps\\Internal\\OperationData\\AuditedOperationOutcomeQuery',
+                'new \\BlackOps\\Internal\\OperationData\\AuditedOperationOutcomeQuery($a, $b, $c, $d, $e);',
+            ],
+            'tenant-authorizer' => [
+                'BlackOps\\Internal\\OperationData\\OperationDataAuditTenantAuthorizer',
+                'new \\BlackOps\\Internal\\OperationData\\OperationDataAuditTenantAuthorizer($a);',
+            ],
+            'journal-execution' => [
+                'BlackOps\\Internal\\OperationData\\OperationJournalReadExecutionSource',
+                'new \\BlackOps\\Internal\\OperationData\\OperationJournalReadExecutionSource($a);',
+            ],
+            'outcome-execution' => [
+                'BlackOps\\Internal\\OperationData\\OperationOutcomeReadExecutionSource',
+                'new \\BlackOps\\Internal\\OperationData\\OperationOutcomeReadExecutionSource($a);',
+            ],
+        ];
+        foreach ($d2jOutsideCallers as $name => [$target, $expression]) {
+            $path = 'src/External/D2J' . str_replace('-', '', ucwords($name, '-')) . 'OutsideCaller.php';
+            $source = "<?php\n\nfinal class D2JOutsideCaller\n{\n    public function call(): void\n    {\n        {$expression}\n    }\n}\n";
+            $this->assertD2MutationSyntax([$path => $source], 'd2j-outside-' . $name);
+            $violations = $this->d2ArchitectureViolations($sources, [
+                ...$allSources,
+                $path => $source,
+            ]);
+            self::assertContains('outside-target-reference:' . $path, $violations, $target);
+        }
+
+        $d2xOutsideCallers = [
+            'diagnostics-query' => [
+                'BlackOps\\Internal\\Diagnostics\\AuditedOperationDiagnosticsQuery',
+                'new \\BlackOps\\Internal\\Diagnostics\\AuditedOperationDiagnosticsQuery($a, $b, $c, $d, $e, $f);',
+            ],
+            'diagnostics-execution' => [
+                'BlackOps\\Internal\\Diagnostics\\OperationDiagnosticsReadExecutionSource',
+                'new \\BlackOps\\Internal\\Diagnostics\\OperationDiagnosticsReadExecutionSource($a);',
+            ],
+        ];
+        foreach ($d2xOutsideCallers as $name => [$target, $expression]) {
+            $path = 'src/External/D2X' . str_replace('-', '', ucwords($name, '-')) . 'OutsideCaller.php';
+            $source = "<?php\n\nfinal class D2XOutsideCaller\n{\n    public function call(): void\n    {\n        {$expression}\n    }\n}\n";
+            $this->assertD2MutationSyntax([$path => $source], 'd2x-outside-' . $name);
+            $violations = $this->d2ArchitectureViolations($sources, [
+                ...$allSources,
+                $path => $source,
+            ]);
+            self::assertContains('outside-target-reference:' . $path, $violations, $target);
+        }
+
         $extraSourcePath = 'src/Internal/Audit/Read/OperationReadAuditSessionExtra.php';
         $extraSource = <<<'PHP'
             <?php
@@ -1806,6 +1860,13 @@ final class AuditOperationReadArchitectureTest extends TestCase
             'BlackOps\\Internal\\Status\\AuditedOperationStatusQuery',
             'BlackOps\\Internal\\Status\\OperationStatusAuditTenantAuthorizer',
             'BlackOps\\Internal\\Status\\OperationStatusReadExecutionSource',
+            'BlackOps\\Internal\\OperationData\\AuditedOperationJournalQuery',
+            'BlackOps\\Internal\\OperationData\\AuditedOperationOutcomeQuery',
+            'BlackOps\\Internal\\OperationData\\OperationDataAuditTenantAuthorizer',
+            'BlackOps\\Internal\\OperationData\\OperationJournalReadExecutionSource',
+            'BlackOps\\Internal\\OperationData\\OperationOutcomeReadExecutionSource',
+            'BlackOps\\Internal\\Diagnostics\\AuditedOperationDiagnosticsQuery',
+            'BlackOps\\Internal\\Diagnostics\\OperationDiagnosticsReadExecutionSource',
         ];
         $allowedTargetFiles = array_keys($this->d2ExpectedDependencies());
         $adapterTargetAllowances = [
@@ -1821,6 +1882,40 @@ final class AuditOperationReadArchitectureTest extends TestCase
             'src/Internal/Status/OperationStatusReadExecutionSource.php' => [
                 'BlackOps\\Internal\\Audit\\Read\\OperationReadExecutionSource',
                 'BlackOps\\Internal\\Status\\OperationStatusReadExecutionSource',
+            ],
+            'src/Internal/OperationData/AuditedOperationJournalQuery.php' => [
+                'BlackOps\\Internal\\Audit\\Read\\OperationReadAuditSession',
+                'BlackOps\\Internal\\Audit\\Read\\OperationReadAuditSessionFactory',
+                'BlackOps\\Internal\\OperationData\\AuditedOperationJournalQuery',
+                'BlackOps\\Internal\\OperationData\\OperationDataAuditTenantAuthorizer',
+            ],
+            'src/Internal/OperationData/AuditedOperationOutcomeQuery.php' => [
+                'BlackOps\\Internal\\Audit\\Read\\OperationReadAuditSession',
+                'BlackOps\\Internal\\Audit\\Read\\OperationReadAuditSessionFactory',
+                'BlackOps\\Internal\\OperationData\\AuditedOperationOutcomeQuery',
+                'BlackOps\\Internal\\OperationData\\OperationDataAuditTenantAuthorizer',
+            ],
+            'src/Internal/OperationData/OperationDataAuditTenantAuthorizer.php' => [
+                'BlackOps\\Internal\\OperationData\\OperationDataAuditTenantAuthorizer',
+            ],
+            'src/Internal/OperationData/OperationJournalReadExecutionSource.php' => [
+                'BlackOps\\Internal\\Audit\\Read\\OperationReadExecutionSource',
+                'BlackOps\\Internal\\OperationData\\OperationJournalReadExecutionSource',
+            ],
+            'src/Internal/OperationData/OperationOutcomeReadExecutionSource.php' => [
+                'BlackOps\\Internal\\Audit\\Read\\OperationReadExecutionSource',
+                'BlackOps\\Internal\\OperationData\\OperationOutcomeReadExecutionSource',
+            ],
+            'src/Internal/Diagnostics/AuditedOperationDiagnosticsQuery.php' => [
+                'BlackOps\\Internal\\Audit\\Read\\OperationReadAuditSession',
+                'BlackOps\\Internal\\Audit\\Read\\OperationReadAuditSessionFactory',
+                'BlackOps\\Internal\\Diagnostics\\AuditedOperationDiagnosticsQuery',
+                'BlackOps\\Internal\\Diagnostics\\OperationDiagnosticsAuthorizationRequest',
+                'BlackOps\\Internal\\Diagnostics\\OperationDiagnosticsAuthorizer',
+            ],
+            'src/Internal/Diagnostics/OperationDiagnosticsReadExecutionSource.php' => [
+                'BlackOps\\Internal\\Audit\\Read\\OperationReadExecutionSource',
+                'BlackOps\\Internal\\Diagnostics\\OperationDiagnosticsReadExecutionSource',
             ],
         ];
         foreach ($allSources as $path => $source) {

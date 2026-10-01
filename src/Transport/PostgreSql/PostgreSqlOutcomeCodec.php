@@ -35,8 +35,14 @@ final readonly class PostgreSqlOutcomeCodec
         }
     }
 
-    public function decode(string $type, int $schemaVersion, string $payload): Outcome
-    {
+    public function decode(
+        #[\SensitiveParameter]
+        string $type,
+        #[\SensitiveParameter]
+        int $schemaVersion,
+        #[\SensitiveParameter]
+        string $payload,
+    ): Outcome {
         if ($schemaVersion !== self::SCHEMA_VERSION) {
             throw new OutcomeStoreException('PostgreSQL outcome schema version is unsupported.');
         }

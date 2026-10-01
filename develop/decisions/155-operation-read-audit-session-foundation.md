@@ -140,6 +140,14 @@ its server-owned `operation_status_read` UUIDv7 identifies the new read itself,
 not a fallback for missing HTTP/Operation identity. D2 implementation, nonce,
 Clock and delivery contracts remain unchanged; reader activation is separate.
 
+The Journal/Outcome child makes the corresponding specialization in
+[Specification111](../spec/111-operation-data-read-audit-adapters.md) /
+[D160](160-operation-data-read-audit-adapters.md): server-owned
+`operation_journal_read` and `operation_outcome_read` UUIDv7 values identify
+their newly started reads. They do not replace missing ambient identities or
+change the accepted D2 factory/session protocol. Product progress and activation
+remain in the child and parent delivery records.
+
 Add final class
 `BlackOps\Internal\Audit\Read\OperationReadAuditSessionFactory` with exactly
 one private `SensitiveParameterValue $snapshot` and the following exact public
@@ -637,6 +645,11 @@ Documentation, Search, raw Markdown, LLM artifacts, and browser behavior are
 Not Verified when not generated or exercised.
 
 ## Reader-child contract reserved by this Decision
+
+Diagnostics specializes this contract in [D161](161-operation-diagnostics-audit-adapter.md)
+and [spec112](../spec/112-operation-diagnostics-audit-adapter.md): its global
+infrastructure scope and fresh same-code exception release are explicit; the
+Status/Journal/Outcome contracts below remain unchanged.
 
 Each D2 reader child must preserve its existing public interface, response
 value, exception code, and tenant indistinguishability while changing the

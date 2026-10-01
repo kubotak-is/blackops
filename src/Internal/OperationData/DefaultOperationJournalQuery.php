@@ -23,15 +23,22 @@ use Throwable;
 final readonly class DefaultOperationJournalQuery implements OperationJournalQuery
 {
     public function __construct(
+        #[\SensitiveParameter]
         private OperationDataSubjectReader $subjects,
+        #[\SensitiveParameter]
         private OperationDataReadAuthorizer $authorizer,
+        #[\SensitiveParameter]
         private TenantScopedCanonicalJournalReader $reader,
     ) {}
 
     public function records(
+        #[\SensitiveParameter]
         OperationId $operationId,
+        #[\SensitiveParameter]
         ?ActorRef $currentActor,
+        #[\SensitiveParameter]
         ?TenantRef $currentTenant,
+        #[\SensitiveParameter]
         OperationDataPurpose $purpose,
     ): OperationJournalReadResult {
         $subject = $this->subject($operationId, $currentTenant);
@@ -70,18 +77,22 @@ final readonly class DefaultOperationJournalQuery implements OperationJournalQue
         return new OperationJournalFound($records);
     }
 
-    private function sameTenant(?TenantRef $left, ?TenantRef $right): bool
+    private function sameTenant(#[\SensitiveParameter] ?TenantRef $left, #[\SensitiveParameter] ?TenantRef $right): bool
     {
         return $left?->type() === $right?->type() && $left?->id() === $right?->id();
     }
 
-    private function sameActor(?ActorRef $left, ?ActorRef $right): bool
+    private function sameActor(#[\SensitiveParameter] ?ActorRef $left, #[\SensitiveParameter] ?ActorRef $right): bool
     {
         return $left?->type() === $right?->type() && $left?->id() === $right?->id();
     }
 
-    private function subject(OperationId $operationId, ?TenantRef $tenant): ?OperationDataSubject
-    {
+    private function subject(
+        #[\SensitiveParameter]
+        OperationId $operationId,
+        #[\SensitiveParameter]
+        ?TenantRef $tenant,
+    ): ?OperationDataSubject {
         try {
             return $this->subjects->findSubject($operationId, $tenant);
         } catch (OperationDataSubjectReadFailure $exception) {
@@ -94,10 +105,15 @@ final readonly class DefaultOperationJournalQuery implements OperationJournalQue
     }
 
     private function authorize(
+        #[\SensitiveParameter]
         OperationDataSubject $subject,
+        #[\SensitiveParameter]
         OperationId $operationId,
+        #[\SensitiveParameter]
         ?ActorRef $currentActor,
+        #[\SensitiveParameter]
         ?TenantRef $currentTenant,
+        #[\SensitiveParameter]
         OperationDataPurpose $purpose,
     ): OperationDataReadAuthorizationDecision {
         try {

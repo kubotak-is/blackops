@@ -96,6 +96,13 @@ validate_package() {
         src/Internal/Status/AuditedOperationStatusQuery.php \
         src/Internal/Status/OperationStatusAuditTenantAuthorizer.php \
         src/Internal/Status/OperationStatusReadExecutionSource.php \
+        src/Internal/OperationData/AuditedOperationJournalQuery.php \
+        src/Internal/OperationData/AuditedOperationOutcomeQuery.php \
+        src/Internal/OperationData/OperationDataAuditTenantAuthorizer.php \
+        src/Internal/OperationData/OperationJournalReadExecutionSource.php \
+        src/Internal/OperationData/OperationOutcomeReadExecutionSource.php \
+        src/Internal/Diagnostics/AuditedOperationDiagnosticsQuery.php \
+        src/Internal/Diagnostics/OperationDiagnosticsReadExecutionSource.php \
         src/Internal/Audit/Relay/AuditRelayOutcome.php \
         src/Internal/Audit/Relay/AuditRelayFailure.php \
         src/Internal/Audit/Relay/AuditRelayException.php \
@@ -184,8 +191,8 @@ validate_package() {
             }
         ' "${BASH_SOURCE[0]}" | sort -u | wc -l
     })"
-    test "${required_inventory_count}" -eq 90
-    test "${required_inventory_unique}" -eq 90
+    test "${required_inventory_count}" -eq 97
+    test "${required_inventory_unique}" -eq 97
 
     test -d "${package_root}/src" || fail "${package_name} archive is missing src/"
     test -n "$(find "${package_root}/src" -type f -name '*.php' -print -quit)" \

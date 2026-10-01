@@ -21,15 +21,22 @@ use Throwable;
 final readonly class DefaultOperationOutcomeQuery implements OperationOutcomeQuery
 {
     public function __construct(
+        #[\SensitiveParameter]
         private OperationDataSubjectReader $subjects,
+        #[\SensitiveParameter]
         private OperationDataReadAuthorizer $authorizer,
+        #[\SensitiveParameter]
         private TenantScopedOutcomeReader $reader,
     ) {}
 
     public function find(
+        #[\SensitiveParameter]
         OperationId $operationId,
+        #[\SensitiveParameter]
         ?ActorRef $currentActor,
+        #[\SensitiveParameter]
         ?TenantRef $currentTenant,
+        #[\SensitiveParameter]
         OperationDataPurpose $purpose,
     ): OperationOutcomeReadResult {
         try {
