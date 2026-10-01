@@ -627,6 +627,28 @@ final class RetentionHoldAuditArchitectureTest extends TestCase
         self::assertContains('declaration-inventory', $this->sourceViolations([$path => $extra]));
     }
 
+    public function testPurgeAuditBoundaryDoesNotEnterTheHoldAdapterGraph(): void
+    {
+        $production = $this->adapterProductionSources();
+        $holdGraph = array_intersect_key(
+            $production,
+            array_flip([
+                'src/Internal/Audit/Retention/RetentionHoldAuditWriter.php',
+                'src/Internal/Retention/AuditedRetentionHoldPort.php',
+            ]),
+        );
+        self::assertSame(2, count($holdGraph));
+        foreach ($holdGraph as $path => $source) {
+            self::assertStringNotContainsString('RetentionPurgeAuditWriter', $source, $path);
+            self::assertStringNotContainsString('AuditedRetentionPurgeAuditPort', $source, $path);
+            self::assertStringNotContainsString('AuditedRetentionPurgeService', $source, $path);
+        }
+        $purgeWriter = file_get_contents(__DIR__ . '/../../src/Internal/Audit/Retention/RetentionPurgeAuditWriter.php');
+        self::assertIsString($purgeWriter);
+        self::assertStringNotContainsString('RetentionHoldAuditWriter', $purgeWriter);
+        self::assertStringNotContainsString('RetentionHoldId', $purgeWriter);
+    }
+
     /** @param array<string,string> $sources @return list<string> */
     private function sourceViolations(array $sources): array
     {

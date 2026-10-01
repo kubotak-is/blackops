@@ -21,6 +21,7 @@ use BlackOps\Internal\Audit\Orchestration\AuditDeliverySelector;
 use BlackOps\Internal\Audit\Orchestration\AuditMutationTransactionCoordinator;
 use BlackOps\Internal\Audit\Orchestration\AuditProtectedReadGate;
 use BlackOps\Internal\Audit\Retention\RetentionHoldAuditWriter;
+use BlackOps\Internal\Audit\Retention\RetentionPurgeAuditWriter;
 use BlackOps\Internal\Execution\DeferredAcceptanceOrchestrator;
 use BlackOps\Internal\Execution\DeferredWorkerRuntime;
 use BlackOps\Internal\Execution\InlineDispatcher;
@@ -604,6 +605,7 @@ final class AuditDeliveryArchitectureTest extends TestCase
                     'src/Internal/Audit/Authorization/AuthorizationAuditAttempt.php' => 2,
                     'src/Internal/Audit/Orchestration/AuditMutationTransactionCoordinator.php' => 1,
                     'src/Internal/Audit/Retention/RetentionHoldAuditWriter.php' => 1,
+                    'src/Internal/Audit/Retention/RetentionPurgeAuditWriter.php' => 1,
                 ],
                 'deliverInMutationTransaction' => [
                     'src/Internal/Execution/DeferredWorkerRuntime.php' => 1,
@@ -1102,6 +1104,7 @@ final class AuditDeliveryArchitectureTest extends TestCase
             'src/Internal/Application/ApplicationAuditRuntime.php',
             'src/Internal/Application/ApplicationAuditRuntimeComposer.php',
             'src/Internal/Audit/Retention/RetentionHoldAuditWriter.php',
+            'src/Internal/Audit/Retention/RetentionPurgeAuditWriter.php',
         ];
     }
 
@@ -1136,6 +1139,7 @@ final class AuditDeliveryArchitectureTest extends TestCase
                 || str_starts_with($path, 'src/Internal/Audit/Orchestration/')
                 || $path === 'src/Internal/Audit/Key/ApplicationAuditProtectionKeySource.php'
                 || $path === 'src/Internal/Audit/Retention/RetentionHoldAuditWriter.php'
+                || $path === 'src/Internal/Audit/Retention/RetentionPurgeAuditWriter.php'
                 || preg_match('#^src/Internal/Application/ApplicationAudit[^/]*\.php$#', $path) === 1
             ) {
                 $paths[] = $path;
@@ -1338,6 +1342,26 @@ final class AuditDeliveryArchitectureTest extends TestCase
                 'method:failure',
                 'method:remap',
             ],
+            'src/Internal/Audit/Retention/RetentionPurgeAuditWriter.php' => [
+                'property:$snapshot',
+                'method:__construct',
+                'method:assertConnection',
+                'method:committed',
+                'method:__debugInfo',
+                'method:__serialize',
+                'method:__unserialize',
+                'method:write',
+                'method:catalog',
+                'method:definition',
+                'method:occurredAt',
+                'method:opaqueId',
+                'method:draft',
+                'method:selector',
+                'method:reference',
+                'method:value',
+                'method:failure',
+                'method:remap',
+            ],
         ];
         $declarations = [
             'src/Audit/AuditOpaqueIdKeyProvider.php' => 'interface AuditOpaqueIdKeyProvider',
@@ -1355,6 +1379,7 @@ final class AuditDeliveryArchitectureTest extends TestCase
             'src/Internal/Application/ApplicationAuditRuntime.php' => 'final readonly class ApplicationAuditRuntime',
             'src/Internal/Application/ApplicationAuditRuntimeComposer.php' => 'final readonly class ApplicationAuditRuntimeComposer',
             'src/Internal/Audit/Retention/RetentionHoldAuditWriter.php' => 'final class RetentionHoldAuditWriter',
+            'src/Internal/Audit/Retention/RetentionPurgeAuditWriter.php' => 'final class RetentionPurgeAuditWriter',
         ];
         $expected = [];
         foreach ($this->c3ExpectedPaths() as $path) {
@@ -1640,6 +1665,16 @@ final class AuditDeliveryArchitectureTest extends TestCase
                     'sensitive' => 0,
                 ],
             ],
+            RetentionPurgeAuditWriter::class => [
+                'snapshot' => [
+                    'visibility' => 'private',
+                    'readonly' => false,
+                    'promoted' => false,
+                    'type' => 'SensitiveParameterValue',
+                    'nullable' => false,
+                    'sensitive' => 0,
+                ],
+            ],
         ];
     }
 
@@ -1690,6 +1725,7 @@ final class AuditDeliveryArchitectureTest extends TestCase
             'src/Internal/Application/ApplicationAuditRuntime.php' => 'BlackOps\\Internal\\Application',
             'src/Internal/Application/ApplicationAuditRuntimeComposer.php' => 'BlackOps\\Internal\\Application',
             'src/Internal/Audit/Retention/RetentionHoldAuditWriter.php' => 'BlackOps\\Internal\\Audit\\Retention',
+            'src/Internal/Audit/Retention/RetentionPurgeAuditWriter.php' => 'BlackOps\\Internal\\Audit\\Retention',
         ];
         $expectedFullyQualifiedNames = [
             'src/Audit/AuditOpaqueIdKeyProvider.php' => [],
@@ -1744,6 +1780,12 @@ final class AuditDeliveryArchitectureTest extends TestCase
                 '\\RuntimeException',
             ],
             'src/Internal/Audit/Retention/RetentionHoldAuditWriter.php' => [
+                '\\DateTimeZone',
+                '\\LogicException',
+                '\\SensitiveParameter',
+                '\\SensitiveParameterValue',
+            ],
+            'src/Internal/Audit/Retention/RetentionPurgeAuditWriter.php' => [
                 '\\DateTimeZone',
                 '\\LogicException',
                 '\\SensitiveParameter',
@@ -1912,6 +1954,47 @@ final class AuditDeliveryArchitectureTest extends TestCase
                 'use Psr\\Clock\\ClockInterface;',
                 'use Throwable;',
             ],
+            'src/Internal/Audit/Retention/RetentionPurgeAuditWriter.php' => [
+                'use BlackOps\\Core\\ActorContext;',
+                'use BlackOps\\Core\\ActorRef;',
+                'use BlackOps\\Core\\Audit\\AuditActionPhase;',
+                'use BlackOps\\Core\\Audit\\AuditDelivery;',
+                'use BlackOps\\Core\\Audit\\AuditEventCatalog;',
+                'use BlackOps\\Core\\Audit\\AuditEventCategory;',
+                'use BlackOps\\Core\\Audit\\AuditEventDefinition;',
+                'use BlackOps\\Core\\Audit\\AuditOpaqueIdPurpose;',
+                'use BlackOps\\Core\\Audit\\AuditOutcomeStatus;',
+                'use BlackOps\\Core\\Audit\\AuditPolicyDecision;',
+                'use BlackOps\\Core\\Audit\\AuditRecordAction;',
+                'use BlackOps\\Core\\Audit\\AuditRecordActor;',
+                'use BlackOps\\Core\\Audit\\AuditRecordCorrelation;',
+                'use BlackOps\\Core\\Audit\\AuditRecordDraft;',
+                'use BlackOps\\Core\\Audit\\AuditRecordEvent;',
+                'use BlackOps\\Core\\Audit\\AuditRecordEvidence;',
+                'use BlackOps\\Core\\Audit\\AuditRecordOutcome;',
+                'use BlackOps\\Core\\Audit\\AuditRecordPolicy;',
+                'use BlackOps\\Core\\Audit\\AuditRecordResource;',
+                'use BlackOps\\Core\\Audit\\AuditRecordSource;',
+                'use BlackOps\\Core\\Audit\\AuditSemanticTuple;',
+                'use BlackOps\\Core\\Audit\\AuditSourceOwner;',
+                'use BlackOps\\Core\\Audit\\AuditSourceRuntime;',
+                'use BlackOps\\Core\\Audit\\AuditTypedReference;',
+                'use BlackOps\\Core\\Audit\\AuditValidationException;',
+                'use BlackOps\\Core\\Identifier\\OperationId;',
+                'use BlackOps\\Core\\Identifier\\RetentionPurgeAuditId;',
+                'use BlackOps\\Core\\Retention\\RetentionPurgeTarget;',
+                'use BlackOps\\Core\\TenantRef;',
+                'use BlackOps\\Internal\\Audit\\Catalog\\FrameworkOperationalAuditEventCatalog;',
+                'use BlackOps\\Internal\\Audit\\HmacAuditOpaqueIdDeriver;',
+                'use BlackOps\\Internal\\Audit\\Orchestration\\AuditDeliveryCoordinator;',
+                'use BlackOps\\Internal\\Audit\\Orchestration\\AuditDeliveryException;',
+                'use BlackOps\\Internal\\Audit\\Orchestration\\AuditDeliveryFailure;',
+                'use BlackOps\\Internal\\Audit\\Orchestration\\AuditDeliveryRequest;',
+                'use BlackOps\\Internal\\Audit\\Orchestration\\AuditDeliverySelector;',
+                'use Doctrine\\DBAL\\Connection;',
+                'use Psr\\Clock\\ClockInterface;',
+                'use Throwable;',
+            ],
         ];
         $violations = [];
         foreach ($this->c3ExpectedTargetReferenceMatrix() as $path => $expectedTargets) {
@@ -2067,6 +2150,15 @@ final class AuditDeliveryArchitectureTest extends TestCase
                 'BlackOps\\Internal\\Audit\\Orchestration\\AuditDeliveryRequest',
                 'BlackOps\\Internal\\Audit\\Orchestration\\AuditDeliverySelector',
                 'BlackOps\\Internal\\Audit\\Retention\\RetentionHoldAuditWriter',
+            ],
+            'src/Internal/Audit/Retention/RetentionPurgeAuditWriter.php' => [
+                'BlackOps\\Internal\\Audit\\HmacAuditOpaqueIdDeriver',
+                'BlackOps\\Internal\\Audit\\Orchestration\\AuditDeliveryCoordinator',
+                'BlackOps\\Internal\\Audit\\Orchestration\\AuditDeliveryException',
+                'BlackOps\\Internal\\Audit\\Orchestration\\AuditDeliveryFailure',
+                'BlackOps\\Internal\\Audit\\Orchestration\\AuditDeliveryRequest',
+                'BlackOps\\Internal\\Audit\\Orchestration\\AuditDeliverySelector',
+                'BlackOps\\Internal\\Audit\\Retention\\RetentionPurgeAuditWriter',
             ],
         ];
     }
@@ -2337,6 +2429,7 @@ final class AuditDeliveryArchitectureTest extends TestCase
                 [
                     'BlackOps\\Internal\\Audit\\HmacAuditOpaqueIdDeriver',
                     'BlackOps\\Internal\\Audit\\Retention\\RetentionHoldAuditWriter',
+                    'BlackOps\\Internal\\Audit\\Retention\\RetentionPurgeAuditWriter',
                 ],
                 true,
             ),
@@ -2609,6 +2702,26 @@ final class AuditDeliveryArchitectureTest extends TestCase
                 'privatestaticfunctionfailure(AuditDeliveryFailure$failure):AuditDeliveryException',
                 'privatestaticfunctionremap(#[\SensitiveParameter]AuditDeliveryException$failure):AuditDeliveryException',
             ],
+            'src/Internal/Audit/Retention/RetentionPurgeAuditWriter.php' => [
+                'private\SensitiveParameterValue$snapshot;',
+                'publicfunction__construct(#[\SensitiveParameter]HmacAuditOpaqueIdDeriver$opaqueIds,#[\SensitiveParameter]AuditDeliverySelector$selector,#[\SensitiveParameter]AuditDeliveryCoordinator$delivery,#[\SensitiveParameter]ClockInterface$clock,#[\SensitiveParameter]ActorContext$actor,#[\SensitiveParameter]AuditRecordCorrelation$correlation,AuditSourceRuntime$runtime,#[\SensitiveParameter]string$buildId)',
+                'publicfunctionassertConnection(#[\SensitiveParameter]Connection$connection):void',
+                'publicfunctioncommitted(#[\SensitiveParameter]RetentionPurgeAuditId$auditId,#[\SensitiveParameter]OperationId$operationId,#[\SensitiveParameter]RetentionPurgeTarget$target,#[\SensitiveParameter]?TenantRef$tenant):void',
+                'publicfunction__debugInfo():array',
+                'publicfunction__serialize():array',
+                'publicfunction__unserialize(#[\SensitiveParameter]array$data):void',
+                'privatefunctionwrite(#[\SensitiveParameter]RetentionPurgeAuditId$auditId,#[\SensitiveParameter]OperationId$operationId,#[\SensitiveParameter]RetentionPurgeTarget$target,#[\SensitiveParameter]?TenantRef$tenant):void',
+                'privatefunctioncatalog():AuditEventCatalog',
+                'privatefunctiondefinition(#[\SensitiveParameter]AuditEventCatalog$catalog):AuditEventDefinition',
+                'privatefunctionoccurredAt():string',
+                'privatefunctionopaqueId(AuditOpaqueIdPurpose$purpose,#[\SensitiveParameter]string$context):string',
+                'privatefunctiondraft(#[\SensitiveParameter]AuditEventDefinition$definition,#[\SensitiveParameter]string$actionId,#[\SensitiveParameter]string$resourceId,#[\SensitiveParameter]string$occurredAt,#[\SensitiveParameter]?AuditTypedReference$tenant):AuditRecordDraft',
+                'privatefunctionselector():AuditDeliverySelector',
+                'privatefunctionreference(?ActorRef$reference):?AuditTypedReference',
+                'privatefunctionvalue(#[\SensitiveParameter]string$key):mixed',
+                'privatestaticfunctionfailure(AuditDeliveryFailure$failure):AuditDeliveryException',
+                'privatestaticfunctionremap(#[\SensitiveParameter]AuditDeliveryException$failure):AuditDeliveryException',
+            ],
         ];
         $violations = [];
         foreach ($expected[$path] ?? [] as $fragment) {
@@ -2830,6 +2943,7 @@ final class AuditDeliveryArchitectureTest extends TestCase
                 'src/Internal/Audit/Authorization/AuthorizationAuditAttempt.php' => 2,
                 'src/Internal/Audit/Orchestration/AuditMutationTransactionCoordinator.php' => 1,
                 'src/Internal/Audit/Retention/RetentionHoldAuditWriter.php' => 1,
+                'src/Internal/Audit/Retention/RetentionPurgeAuditWriter.php' => 1,
             ],
             'deliverInMutationTransaction' => [
                 'src/Internal/Execution/DeferredWorkerRuntime.php' => 1,
@@ -2857,6 +2971,9 @@ final class AuditDeliveryArchitectureTest extends TestCase
                 '$this->delivery',
             ],
             'deliverInCurrentTransaction|src/Internal/Audit/Retention/RetentionHoldAuditWriter.php' => [
+                '$delivery',
+            ],
+            'deliverInCurrentTransaction|src/Internal/Audit/Retention/RetentionPurgeAuditWriter.php' => [
                 '$delivery',
             ],
             'deliverInMutationTransaction|src/Internal/Execution/DeferredWorkerRuntime.php' => [
@@ -2914,6 +3031,7 @@ final class AuditDeliveryArchitectureTest extends TestCase
                 'src/Internal/Audit/Authorization/AuthorizationAuditEventFactory.php' => 1,
                 'src/Internal/Audit/Orchestration/AuditProtectedReadGate.php' => 2,
                 'src/Internal/Audit/Retention/RetentionHoldAuditWriter.php' => 1,
+                'src/Internal/Audit/Retention/RetentionPurgeAuditWriter.php' => 1,
             ],
             'BlackOps\\Internal\\Application\\ApplicationOperationRuntimeComposition' => [
                 'src/Internal/Application/ApplicationOperationRuntimeComposer.php' => 1,
@@ -3691,6 +3809,7 @@ final class AuditDeliveryArchitectureTest extends TestCase
             'BlackOps\\Internal\\Audit\\Authentication\\DurableAuthenticationAuditEventWriter',
             'BlackOps\\Internal\\Audit\\Authentication\\AuditedHttpAuthenticator',
             'BlackOps\\Internal\\Audit\\Retention\\RetentionHoldAuditWriter',
+            'BlackOps\\Internal\\Audit\\Retention\\RetentionPurgeAuditWriter',
         ];
     }
 

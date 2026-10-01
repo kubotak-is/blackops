@@ -998,6 +998,36 @@ final class AuditRecordArchitectureTest extends TestCase
             ),
             'a retention sibling must not inherit the exact writer allowance',
         );
+
+        $purgeWriterPath = $sourceRoot . '/Internal/Audit/Retention/RetentionPurgeAuditWriter.php';
+        $purgeWriterSource = file_get_contents($purgeWriterPath);
+        self::assertIsString($purgeWriterSource);
+        self::assertSame(
+            [],
+            $this->a2DeliveryViolations($purgeWriterPath, $purgeWriterSource, $deliveryDirectory, $productTypes),
+            'the purge writer may use only its explicitly allowed A2 record types',
+        );
+        self::assertSame(
+            ['AuditRecordFinalizer'],
+            $this->a2DeliveryViolations(
+                $purgeWriterPath,
+                $purgeWriterSource . "\nnew \\BlackOps\\Internal\\Audit\\Record\\AuditRecordFinalizer();\n",
+                $deliveryDirectory,
+                $productTypes,
+            ),
+            'the purge writer allowance must reject an unrelated A2 dependency',
+        );
+        $purgeWriterSiblingPath = $sourceRoot . '/Internal/Audit/Retention/PurgeWriterSibling.php';
+        self::assertSame(
+            ['AuditRecordPolicy'],
+            $this->a2DeliveryViolations(
+                $purgeWriterSiblingPath,
+                "<?php\nnamespace BlackOps\\Internal\\Audit\\Retention;\nnew \\BlackOps\\Core\\Audit\\AuditRecordPolicy();\n",
+                $deliveryDirectory,
+                $productTypes,
+            ),
+            'a purge retention sibling must not inherit the exact writer allowance',
+        );
     }
 
     public function testA2DeliveryTimestampExceptionIsNarrowAndMutationResistant(): void
@@ -1571,6 +1601,7 @@ final class AuditRecordArchitectureTest extends TestCase
             [
                 'Internal/Audit/Catalog/ImmutableAuditEventCatalogLookup.php' => 1,
                 'Internal/Audit/Retention/RetentionHoldAuditWriter.php' => 1,
+                'Internal/Audit/Retention/RetentionPurgeAuditWriter.php' => 1,
             ],
             $this->operationalProviderCallsites($sources),
         );
@@ -1586,6 +1617,13 @@ final class AuditRecordArchitectureTest extends TestCase
                 ],
                 [
                     'path' => 'Internal/Audit/Retention/RetentionHoldAuditWriter.php',
+                    'target' => FrameworkOperationalAuditEventCatalog::class,
+                    'receiver' => 'FrameworkOperationalAuditEventCatalog',
+                    'method' => 'catalog',
+                    'kind' => 'alias',
+                ],
+                [
+                    'path' => 'Internal/Audit/Retention/RetentionPurgeAuditWriter.php',
                     'target' => FrameworkOperationalAuditEventCatalog::class,
                     'receiver' => 'FrameworkOperationalAuditEventCatalog',
                     'method' => 'catalog',
@@ -1621,6 +1659,7 @@ final class AuditRecordArchitectureTest extends TestCase
                 $path === $providerPath
                 || $path === $lookupPath
                 || $path === 'Internal/Audit/Retention/RetentionHoldAuditWriter.php'
+                || $path === 'Internal/Audit/Retention/RetentionPurgeAuditWriter.php'
             )
                 continue;
             self::assertStringNotContainsString(
@@ -1731,6 +1770,7 @@ final class AuditRecordArchitectureTest extends TestCase
                 'External/OperationalCatalogCaller.php' => 1,
                 'Internal/Audit/Catalog/ImmutableAuditEventCatalogLookup.php' => 1,
                 'Internal/Audit/Retention/RetentionHoldAuditWriter.php' => 1,
+                'Internal/Audit/Retention/RetentionPurgeAuditWriter.php' => 1,
             ],
             $this->operationalProviderCallsites($extraCaller),
         );
@@ -1752,6 +1792,13 @@ final class AuditRecordArchitectureTest extends TestCase
                 ],
                 [
                     'path' => 'Internal/Audit/Retention/RetentionHoldAuditWriter.php',
+                    'target' => FrameworkOperationalAuditEventCatalog::class,
+                    'receiver' => 'FrameworkOperationalAuditEventCatalog',
+                    'method' => 'catalog',
+                    'kind' => 'alias',
+                ],
+                [
+                    'path' => 'Internal/Audit/Retention/RetentionPurgeAuditWriter.php',
                     'target' => FrameworkOperationalAuditEventCatalog::class,
                     'receiver' => 'FrameworkOperationalAuditEventCatalog',
                     'method' => 'catalog',
@@ -1947,6 +1994,7 @@ final class AuditRecordArchitectureTest extends TestCase
                 'Internal/Audit/Catalog/FrameworkOperationalAuditEventCatalog.php' => 1,
                 'Internal/Audit/Catalog/ImmutableAuditEventCatalogLookup.php' => 1,
                 'Internal/Audit/Retention/RetentionHoldAuditWriter.php' => 1,
+                'Internal/Audit/Retention/RetentionPurgeAuditWriter.php' => 1,
             ],
             $this->operationalProviderCallsites($wholePathCaller),
             'the provider path is scanned as a normal source and cannot be exempted wholesale',
@@ -1969,6 +2017,13 @@ final class AuditRecordArchitectureTest extends TestCase
                 ],
                 [
                     'path' => 'Internal/Audit/Retention/RetentionHoldAuditWriter.php',
+                    'target' => FrameworkOperationalAuditEventCatalog::class,
+                    'receiver' => 'FrameworkOperationalAuditEventCatalog',
+                    'method' => 'catalog',
+                    'kind' => 'alias',
+                ],
+                [
+                    'path' => 'Internal/Audit/Retention/RetentionPurgeAuditWriter.php',
                     'target' => FrameworkOperationalAuditEventCatalog::class,
                     'receiver' => 'FrameworkOperationalAuditEventCatalog',
                     'method' => 'catalog',
@@ -3593,6 +3648,19 @@ final class AuditRecordArchitectureTest extends TestCase
                 'AuditSourceRuntime',
             ],
             'Internal/Audit/Retention/RetentionHoldAuditWriter.php' => [
+                'AuditRecordAction',
+                'AuditRecordActor',
+                'AuditRecordCorrelation',
+                'AuditRecordDraft',
+                'AuditRecordEvent',
+                'AuditRecordEvidence',
+                'AuditRecordOutcome',
+                'AuditRecordPolicy',
+                'AuditRecordResource',
+                'AuditRecordSource',
+                'AuditSourceRuntime',
+            ],
+            'Internal/Audit/Retention/RetentionPurgeAuditWriter.php' => [
                 'AuditRecordAction',
                 'AuditRecordActor',
                 'AuditRecordCorrelation',
