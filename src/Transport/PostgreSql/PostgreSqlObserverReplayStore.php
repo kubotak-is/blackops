@@ -125,6 +125,9 @@ final readonly class PostgreSqlObserverReplayStore
 
     public function begin(PostgreSqlObserverReplayBeginRequest $request): PostgreSqlObserverReplayBinding
     {
+        if (!$this->connection->isAutoCommit() || $this->connection->getTransactionNestingLevel() !== 0) {
+            throw new RuntimeException('Replay mutation requires an idle auto-commit connection.');
+        }
         PostgreSqlObserverReplayIdentity::assertCheckpoint($request->checkpoint);
         $now = $request->now ?? new DateTimeImmutable('now');
         $selectorHash = hash('sha256', PostgreSqlObserverReplayIdentity::selectorKey($request->selector));
@@ -139,8 +142,8 @@ final readonly class PostgreSqlObserverReplayStore
         if ($locked !== true && $locked !== 't' && $locked !== 1 && $locked !== '1') {
             throw new InvalidArgumentException('Replay checkpoint is already running.');
         }
-        $this->connection->beginTransaction();
         try {
+            $this->connection->beginTransaction();
             $row = $this->checkpointWriter->row($table, $request->checkpoint);
             if ($row !== false && ($row['selector_hash'] !== $selectorHash || $row['target_hash'] !== $targetHash)) {
                 throw new InvalidArgumentException('Replay checkpoint is bound to a different selector or target set.');
@@ -159,10 +162,15 @@ final readonly class PostgreSqlObserverReplayStore
                 $auditId,
             );
         } catch (Throwable $exception) {
-            try {
-                $this->connection->rollBack();
-            } catch (Throwable $rollbackException) {
-                $exception = new RuntimeException('Replay transaction rollback failed.', previous: $rollbackException);
+            if ($this->connection->isTransactionActive()) {
+                try {
+                    $this->connection->rollBack();
+                } catch (Throwable $rollbackException) {
+                    $exception = new RuntimeException(
+                        'Replay transaction rollback failed.',
+                        previous: $rollbackException,
+                    );
+                }
             }
             try {
                 $this->unlock($request->checkpoint);
@@ -189,14 +197,17 @@ final readonly class PostgreSqlObserverReplayStore
         ?DateTimeImmutable $now = null,
         ?string $auditId = null,
     ): void {
+        if (!$this->connection->isAutoCommit() || $this->connection->getTransactionNestingLevel() !== 0) {
+            throw new RuntimeException('Replay mutation requires an idle auto-commit connection.');
+        }
         if ($auditId === null) {
             throw new InvalidArgumentException('Replay completion audit ID is required.');
         }
         $now ??= new DateTimeImmutable('now');
         $table = $this->schema->observerReplayCheckpointTable();
         $audit = $this->schema->observerReplayAuditTable();
-        $this->connection->beginTransaction();
         try {
+            $this->connection->beginTransaction();
             $affected = $this->connection->executeStatement(
                 "UPDATE {$table} SET state=:state, updated_at=:at WHERE checkpoint_id=:id AND state='running'",
                 [
@@ -217,10 +228,15 @@ final readonly class PostgreSqlObserverReplayStore
             }
             $this->connection->commit();
         } catch (Throwable $exception) {
-            try {
-                $this->connection->rollBack();
-            } catch (Throwable $rollbackException) {
-                $exception = new RuntimeException('Replay completion rollback failed.', previous: $rollbackException);
+            if ($this->connection->isTransactionActive()) {
+                try {
+                    $this->connection->rollBack();
+                } catch (Throwable $rollbackException) {
+                    $exception = new RuntimeException(
+                        'Replay completion rollback failed.',
+                        previous: $rollbackException,
+                    );
+                }
             }
             throw $exception;
         }
@@ -263,11 +279,14 @@ final readonly class PostgreSqlObserverReplayStore
         string $auditId,
         ?DateTimeImmutable $now = null,
     ): void {
+        if (!$this->connection->isAutoCommit() || $this->connection->getTransactionNestingLevel() !== 0) {
+            throw new RuntimeException('Replay mutation requires an idle auto-commit connection.');
+        }
         $now ??= new DateTimeImmutable('now');
         $table = $this->schema->observerReplayCheckpointTable();
         $recordId = PostgreSqlObserverReplayIdentity::recordIdFromCursor($cursor);
-        $this->connection->beginTransaction();
         try {
+            $this->connection->beginTransaction();
             $affected = $this->connection->executeStatement(
                 "UPDATE {$table} SET cursor_record_id=:cursor, selected_count=selected_count+:count, delivered_count=delivered_count+:count, first_record_id=COALESCE(first_record_id, :record_id), last_record_id=:record_id, state=:state, updated_at=:at WHERE checkpoint_id=:id AND state='running'",
                 [
@@ -291,10 +310,12 @@ final readonly class PostgreSqlObserverReplayStore
             }
             $this->connection->commit();
         } catch (Throwable $exception) {
-            try {
-                $this->connection->rollBack();
-            } catch (Throwable $rollbackException) {
-                $exception = new RuntimeException('Replay advance rollback failed.', previous: $rollbackException);
+            if ($this->connection->isTransactionActive()) {
+                try {
+                    $this->connection->rollBack();
+                } catch (Throwable $rollbackException) {
+                    $exception = new RuntimeException('Replay advance rollback failed.', previous: $rollbackException);
+                }
             }
             throw $exception;
         }
@@ -318,6 +339,9 @@ final readonly class PostgreSqlObserverReplayStore
         ?DateTimeImmutable $now = null,
         ?string $auditId = null,
     ): void {
+        if (!$this->connection->isAutoCommit() || $this->connection->getTransactionNestingLevel() !== 0) {
+            throw new RuntimeException('Replay mutation requires an idle auto-commit connection.');
+        }
         if ($auditId === null) {
             throw new InvalidArgumentException('Replay failure audit ID is required.');
         }
@@ -325,8 +349,8 @@ final readonly class PostgreSqlObserverReplayStore
         $table = $this->schema->observerReplayCheckpointTable();
         $audit = $this->schema->observerReplayAuditTable();
         $fingerprint = 'v1:' . hash('sha256', "blackops.observer.replay.failure.v1\0" . $exception::class);
-        $this->connection->beginTransaction();
         try {
+            $this->connection->beginTransaction();
             $checkpointAffected = $this->connection->executeStatement(
                 "UPDATE {$table} SET state='failed', failure_fingerprint=:fingerprint, updated_at=:at WHERE checkpoint_id=:id AND state='running'",
                 ['fingerprint' => $fingerprint, 'at' => $now->format('Y-m-d H:i:s.uP'), 'id' => $checkpoint],
@@ -348,13 +372,15 @@ final readonly class PostgreSqlObserverReplayStore
             }
             $this->connection->commit();
         } catch (Throwable $transactionException) {
-            try {
-                $this->connection->rollBack();
-            } catch (Throwable $rollbackException) {
-                $transactionException = new RuntimeException(
-                    'Replay failure rollback failed.',
-                    previous: $rollbackException,
-                );
+            if ($this->connection->isTransactionActive()) {
+                try {
+                    $this->connection->rollBack();
+                } catch (Throwable $rollbackException) {
+                    $transactionException = new RuntimeException(
+                        'Replay failure rollback failed.',
+                        previous: $rollbackException,
+                    );
+                }
             }
             throw $transactionException;
         }

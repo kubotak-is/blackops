@@ -24,6 +24,8 @@ use Throwable;
  */
 final readonly class ObserverReplayRuntime
 {
+    private const CURSOR_PERSISTENCE_FAILURE = 'Observer replay cursor persistence failed.';
+
     public function __construct(
         private PostgreSqlObserverReplayStore $store,
         private ObserverReplayTargetRegistry $targets,
@@ -73,13 +75,7 @@ final readonly class ObserverReplayRuntime
                     $request->now,
                 ),
             );
-            $result = null;
-            $failure = null;
-            try {
-                $result = $this->deliver($request, $targets, $binding);
-            } catch (Throwable $exception) {
-                $failure = $this->recordFailure($request->checkpoint, $exception, $request->now, $binding->auditId);
-            }
+            ['result' => $result, 'failure' => $failure] = $this->deliver($request, $targets, $binding);
             if ($failure === null && $result === null) {
                 $failure = new JournalObservationFailed('Observer replay did not produce a result.');
             }
@@ -129,33 +125,73 @@ final readonly class ObserverReplayRuntime
         );
     }
 
-    /** @param list<JournalObserverBinding> $targets */
+    /**
+     * @param list<JournalObserverBinding> $targets
+     * @return array{result: ?ObserverReplayResult, failure: ?Throwable}
+     */
     private function deliver(
         ObserverReplayRequest $request,
         array $targets,
         PostgreSqlObserverReplayBinding $binding,
-    ): ObserverReplayResult {
-        $cursor = $binding->cursor;
-        $batch = $this->store->select($request->selector, $request->batchSize ?? $this->batchSize, $cursor);
+    ): array {
+        try {
+            $batch = $this->store->select(
+                $request->selector,
+                $request->batchSize ?? $this->batchSize,
+                $binding->cursor,
+            );
+        } catch (Throwable $exception) {
+            return [
+                'result' => null,
+                'failure' => $this->recordFailure($request->checkpoint, $exception, $request->now, $binding->auditId),
+            ];
+        }
+
         $ids = [];
         foreach ($batch['records'] as $record) {
-            $observed = $this->projector->project($record);
-            foreach ($targets as $target) {
-                $this->targets->observe($target, $observed);
+            try {
+                $observed = $this->projector->project($record);
+                foreach ($targets as $target) {
+                    $this->targets->observe($target, $observed);
+                }
+                foreach ($targets as $target) {
+                    $this->targets->flush($target);
+                }
+            } catch (Throwable $exception) {
+                return [
+                    'result' => null,
+                    'failure' => $this->recordFailure(
+                        $request->checkpoint,
+                        $exception,
+                        $request->now,
+                        $binding->auditId,
+                    ),
+                ];
             }
-            foreach ($targets as $target) {
-                $this->targets->flush($target);
+
+            try {
+                $cursor = $this->store->cursorFor($request->selector, $record);
+                $this->store->advance($request->checkpoint, $cursor, 1, $binding->auditId, $request->now);
+            } catch (Throwable) {
+                return [
+                    'result' => null,
+                    'failure' => new JournalObservationFailed(self::CURSOR_PERSISTENCE_FAILURE),
+                ];
             }
             $ids[] = $record->recordId->toString();
-            $this->store->advance(
-                $request->checkpoint,
-                $this->store->cursorFor($request->selector, $record),
-                1,
-                $binding->auditId,
-                $request->now,
-            );
         }
-        return new ObserverReplayResult(count($ids), count($ids), 0, $batch['hasMore'], !$batch['hasMore'], $ids);
+
+        return [
+            'result' => new ObserverReplayResult(
+                count($ids),
+                count($ids),
+                0,
+                $batch['hasMore'],
+                !$batch['hasMore'],
+                $ids,
+            ),
+            'failure' => null,
+        ];
     }
 
     private function validateRequest(ObserverReplayRequest $request): void
