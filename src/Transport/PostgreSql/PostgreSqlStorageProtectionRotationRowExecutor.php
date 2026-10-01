@@ -12,20 +12,29 @@ final readonly class PostgreSqlStorageProtectionRotationRowExecutor
     private PostgreSqlStorageProtectionRotationRowTransaction $transaction;
 
     public function __construct(
+        #[\SensitiveParameter]
         Connection $connection,
+        #[\SensitiveParameter]
         BopdEnvelopeCodec $codec,
+        #[\SensitiveParameter]
         PostgreSqlStorageProtectionRotationQuery $query,
+        #[\SensitiveParameter]
         PostgreSqlStorageProtectionRotationAudit $audit,
+        #[\SensitiveParameter]
+        ?PostgreSqlStorageProtectionRotationPhaseHook $phaseHook = null,
     ) {
         $this->transaction = new PostgreSqlStorageProtectionRotationRowTransaction(
             $connection,
             $audit,
             new PostgreSqlStorageProtectionRotationColumnExecutor($connection, $codec, $query),
+            $phaseHook,
         );
     }
 
-    public function execute(PostgreSqlStorageProtectionRotationRowRequest $request): PostgreSqlStorageProtectionRotationRowResult
-    {
+    public function execute(
+        #[\SensitiveParameter]
+        PostgreSqlStorageProtectionRotationRowRequest $request,
+    ): PostgreSqlStorageProtectionRotationRowResult {
         return $this->transaction->execute($request);
     }
 }

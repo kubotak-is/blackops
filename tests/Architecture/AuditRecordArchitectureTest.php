@@ -1028,6 +1028,36 @@ final class AuditRecordArchitectureTest extends TestCase
             ),
             'a purge retention sibling must not inherit the exact writer allowance',
         );
+
+        $rotationWriterPath = $sourceRoot . '/Internal/Audit/Rotation/StorageRotationAuditWriter.php';
+        $rotationWriterSource = file_get_contents($rotationWriterPath);
+        self::assertIsString($rotationWriterSource);
+        self::assertSame(
+            [],
+            $this->a2DeliveryViolations($rotationWriterPath, $rotationWriterSource, $deliveryDirectory, $productTypes),
+            'the rotation writer may use only its explicitly allowed A2 record types',
+        );
+        self::assertSame(
+            ['AuditRecordFinalizer'],
+            $this->a2DeliveryViolations(
+                $rotationWriterPath,
+                $rotationWriterSource . "\nnew \\BlackOps\\Internal\\Audit\\Record\\AuditRecordFinalizer();\n",
+                $deliveryDirectory,
+                $productTypes,
+            ),
+            'the rotation writer allowance must reject an unrelated A2 dependency',
+        );
+        $rotationWriterSiblingPath = $sourceRoot . '/Internal/Audit/Rotation/WriterSibling.php';
+        self::assertSame(
+            ['AuditRecordPolicy'],
+            $this->a2DeliveryViolations(
+                $rotationWriterSiblingPath,
+                "<?php\nnamespace BlackOps\\Internal\\Audit\\Rotation;\nnew \\BlackOps\\Core\\Audit\\AuditRecordPolicy();\n",
+                $deliveryDirectory,
+                $productTypes,
+            ),
+            'a rotation sibling must not inherit the exact rotation writer allowance',
+        );
     }
 
     public function testA2DeliveryTimestampExceptionIsNarrowAndMutationResistant(): void
@@ -1602,6 +1632,7 @@ final class AuditRecordArchitectureTest extends TestCase
                 'Internal/Audit/Catalog/ImmutableAuditEventCatalogLookup.php' => 1,
                 'Internal/Audit/Retention/RetentionHoldAuditWriter.php' => 1,
                 'Internal/Audit/Retention/RetentionPurgeAuditWriter.php' => 1,
+                'Internal/Audit/Rotation/StorageRotationAuditWriter.php' => 1,
             ],
             $this->operationalProviderCallsites($sources),
         );
@@ -1624,6 +1655,13 @@ final class AuditRecordArchitectureTest extends TestCase
                 ],
                 [
                     'path' => 'Internal/Audit/Retention/RetentionPurgeAuditWriter.php',
+                    'target' => FrameworkOperationalAuditEventCatalog::class,
+                    'receiver' => 'FrameworkOperationalAuditEventCatalog',
+                    'method' => 'catalog',
+                    'kind' => 'alias',
+                ],
+                [
+                    'path' => 'Internal/Audit/Rotation/StorageRotationAuditWriter.php',
                     'target' => FrameworkOperationalAuditEventCatalog::class,
                     'receiver' => 'FrameworkOperationalAuditEventCatalog',
                     'method' => 'catalog',
@@ -1660,6 +1698,7 @@ final class AuditRecordArchitectureTest extends TestCase
                 || $path === $lookupPath
                 || $path === 'Internal/Audit/Retention/RetentionHoldAuditWriter.php'
                 || $path === 'Internal/Audit/Retention/RetentionPurgeAuditWriter.php'
+                || $path === 'Internal/Audit/Rotation/StorageRotationAuditWriter.php'
             )
                 continue;
             self::assertStringNotContainsString(
@@ -1771,6 +1810,7 @@ final class AuditRecordArchitectureTest extends TestCase
                 'Internal/Audit/Catalog/ImmutableAuditEventCatalogLookup.php' => 1,
                 'Internal/Audit/Retention/RetentionHoldAuditWriter.php' => 1,
                 'Internal/Audit/Retention/RetentionPurgeAuditWriter.php' => 1,
+                'Internal/Audit/Rotation/StorageRotationAuditWriter.php' => 1,
             ],
             $this->operationalProviderCallsites($extraCaller),
         );
@@ -1799,6 +1839,13 @@ final class AuditRecordArchitectureTest extends TestCase
                 ],
                 [
                     'path' => 'Internal/Audit/Retention/RetentionPurgeAuditWriter.php',
+                    'target' => FrameworkOperationalAuditEventCatalog::class,
+                    'receiver' => 'FrameworkOperationalAuditEventCatalog',
+                    'method' => 'catalog',
+                    'kind' => 'alias',
+                ],
+                [
+                    'path' => 'Internal/Audit/Rotation/StorageRotationAuditWriter.php',
                     'target' => FrameworkOperationalAuditEventCatalog::class,
                     'receiver' => 'FrameworkOperationalAuditEventCatalog',
                     'method' => 'catalog',
@@ -1995,6 +2042,7 @@ final class AuditRecordArchitectureTest extends TestCase
                 'Internal/Audit/Catalog/ImmutableAuditEventCatalogLookup.php' => 1,
                 'Internal/Audit/Retention/RetentionHoldAuditWriter.php' => 1,
                 'Internal/Audit/Retention/RetentionPurgeAuditWriter.php' => 1,
+                'Internal/Audit/Rotation/StorageRotationAuditWriter.php' => 1,
             ],
             $this->operationalProviderCallsites($wholePathCaller),
             'the provider path is scanned as a normal source and cannot be exempted wholesale',
@@ -2024,6 +2072,13 @@ final class AuditRecordArchitectureTest extends TestCase
                 ],
                 [
                     'path' => 'Internal/Audit/Retention/RetentionPurgeAuditWriter.php',
+                    'target' => FrameworkOperationalAuditEventCatalog::class,
+                    'receiver' => 'FrameworkOperationalAuditEventCatalog',
+                    'method' => 'catalog',
+                    'kind' => 'alias',
+                ],
+                [
+                    'path' => 'Internal/Audit/Rotation/StorageRotationAuditWriter.php',
                     'target' => FrameworkOperationalAuditEventCatalog::class,
                     'receiver' => 'FrameworkOperationalAuditEventCatalog',
                     'method' => 'catalog',
@@ -3661,6 +3716,19 @@ final class AuditRecordArchitectureTest extends TestCase
                 'AuditSourceRuntime',
             ],
             'Internal/Audit/Retention/RetentionPurgeAuditWriter.php' => [
+                'AuditRecordAction',
+                'AuditRecordActor',
+                'AuditRecordCorrelation',
+                'AuditRecordDraft',
+                'AuditRecordEvent',
+                'AuditRecordEvidence',
+                'AuditRecordOutcome',
+                'AuditRecordPolicy',
+                'AuditRecordResource',
+                'AuditRecordSource',
+                'AuditSourceRuntime',
+            ],
+            'Internal/Audit/Rotation/StorageRotationAuditWriter.php' => [
                 'AuditRecordAction',
                 'AuditRecordActor',
                 'AuditRecordCorrelation',

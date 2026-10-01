@@ -13,18 +13,28 @@ final readonly class PostgreSqlStorageProtectionRotation
 {
     private PostgreSqlStorageProtectionRotationEngine $engine;
 
-    public function __construct(Connection $connection, BopdEnvelopeCodec $codec, string $schema = 'blackops')
-    {
-        $this->engine = new PostgreSqlStorageProtectionRotationEngine($connection, $codec, $schema);
+    public function __construct(
+        #[\SensitiveParameter]
+        Connection $connection,
+        #[\SensitiveParameter]
+        BopdEnvelopeCodec $codec,
+        #[\SensitiveParameter]
+        string $schema = 'blackops',
+        #[\SensitiveParameter]
+        ?PostgreSqlStorageProtectionRotationPhaseHook $phaseHook = null,
+    ) {
+        $this->engine = new PostgreSqlStorageProtectionRotationEngine($connection, $codec, $schema, $phaseHook);
     }
 
-    public function plan(StorageProtectionRotationScope $scope): StorageProtectionRotationResult
+    public function plan(#[\SensitiveParameter] StorageProtectionRotationScope $scope): StorageProtectionRotationResult
     {
         return $this->engine->plan($scope);
     }
 
-    public function rotate(StorageProtectionRotationScope $scope): StorageProtectionRotationResult
-    {
+    public function rotate(
+        #[\SensitiveParameter]
+        StorageProtectionRotationScope $scope,
+    ): StorageProtectionRotationResult {
         return $this->engine->rotate($scope);
     }
 }

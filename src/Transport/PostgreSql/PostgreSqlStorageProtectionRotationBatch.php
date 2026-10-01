@@ -18,16 +18,30 @@ final readonly class PostgreSqlStorageProtectionRotationBatch
     private PostgreSqlStorageProtectionRotationRowExecutor $executor;
 
     public function __construct(
+        #[\SensitiveParameter]
         Connection $connection,
+        #[\SensitiveParameter]
         BopdEnvelopeCodec $codec,
+        #[\SensitiveParameter]
         private PostgreSqlStorageProtectionRotationQuery $query,
+        #[\SensitiveParameter]
         private PostgreSqlStorageProtectionRotationAudit $audit,
+        #[\SensitiveParameter]
         private string $schema = 'blackops',
+        #[\SensitiveParameter]
+        ?PostgreSqlStorageProtectionRotationPhaseHook $phaseHook = null,
     ) {
-        $this->executor = new PostgreSqlStorageProtectionRotationRowExecutor($connection, $codec, $query, $audit);
+        $this->executor = new PostgreSqlStorageProtectionRotationRowExecutor(
+            $connection,
+            $codec,
+            $query,
+            $audit,
+            $phaseHook,
+        );
     }
 
     public function run(
+        #[\SensitiveParameter]
         StorageProtectionRotationScope $scope,
         StorageProtectionRotationMode $mode,
     ): StorageProtectionRotationResult {
@@ -76,7 +90,9 @@ final readonly class PostgreSqlStorageProtectionRotationBatch
     }
 
     private function cursor(
+        #[\SensitiveParameter]
         string $checkpoint,
+        #[\SensitiveParameter]
         StorageProtectionRotationScope $scope,
         StorageProtectionRotationMode $mode,
     ): ?string {
@@ -87,7 +103,9 @@ final readonly class PostgreSqlStorageProtectionRotationBatch
     }
 
     private function beginAudit(
+        #[\SensitiveParameter]
         PostgreSqlStorageProtectionRotationBatchTables $tables,
+        #[\SensitiveParameter]
         StorageProtectionRotationScope $scope,
         StorageProtectionRotationMode $mode,
     ): ?string {
@@ -98,7 +116,9 @@ final readonly class PostgreSqlStorageProtectionRotationBatch
     }
 
     private function add(
+        #[\SensitiveParameter]
         StorageProtectionRotationCounts $counts,
+        #[\SensitiveParameter]
         PostgreSqlStorageProtectionRotationRowResult $result,
     ): StorageProtectionRotationCounts {
         return new StorageProtectionRotationCounts(
@@ -110,8 +130,11 @@ final readonly class PostgreSqlStorageProtectionRotationBatch
     }
 
     private function complete(
+        #[\SensitiveParameter]
         StorageProtectionRotationScope $scope,
+        #[\SensitiveParameter]
         PostgreSqlStorageProtectionRotationBatchTables $tables,
+        #[\SensitiveParameter]
         PostgreSqlStorageProtectionRotationBatchExecution $execution,
     ): StorageProtectionRotationResult {
         try {
@@ -146,8 +169,12 @@ final readonly class PostgreSqlStorageProtectionRotationBatch
         );
     }
 
-    private function state(StorageProtectionRotationCounts $counts, int $rows, int $batchSize): string
-    {
+    private function state(
+        #[\SensitiveParameter]
+        StorageProtectionRotationCounts $counts,
+        int $rows,
+        int $batchSize,
+    ): string {
         if ($counts->failed > 0) {
             return 'failed';
         }
@@ -157,7 +184,7 @@ final readonly class PostgreSqlStorageProtectionRotationBatch
         return 'running';
     }
 
-    private function fingerprint(StorageProtectionRotationScope $scope, int $failed): ?string
+    private function fingerprint(#[\SensitiveParameter] StorageProtectionRotationScope $scope, int $failed): ?string
     {
         if ($failed === 0) {
             return null;
@@ -166,8 +193,11 @@ final readonly class PostgreSqlStorageProtectionRotationBatch
     }
 
     private function finishFailure(
+        #[\SensitiveParameter]
         StorageProtectionRotationScope $scope,
+        #[\SensitiveParameter]
         PostgreSqlStorageProtectionRotationBatchTables $tables,
+        #[\SensitiveParameter]
         PostgreSqlStorageProtectionRotationBatchExecution $execution,
     ): void {
         if (!$execution->mode->writes() || $execution->auditId === null) {

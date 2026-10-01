@@ -11,15 +11,30 @@ use Throwable;
 final readonly class PostgreSqlStorageProtectionRotationRowTransaction
 {
     public function __construct(
+        #[\SensitiveParameter]
         private Connection $connection,
+        #[\SensitiveParameter]
         private PostgreSqlStorageProtectionRotationAudit $audit,
+        #[\SensitiveParameter]
         private PostgreSqlStorageProtectionRotationColumnExecutor $columns,
+        #[\SensitiveParameter]
+        private ?PostgreSqlStorageProtectionRotationPhaseHook $phaseHook = null,
     ) {}
 
-    public function execute(PostgreSqlStorageProtectionRotationRowRequest $request): PostgreSqlStorageProtectionRotationRowResult
-    {
+    public function execute(
+        #[\SensitiveParameter]
+        PostgreSqlStorageProtectionRotationRowRequest $request,
+    ): PostgreSqlStorageProtectionRotationRowResult {
         if ($request->mode->writes()) {
             $this->connection->beginTransaction();
+            if ($this->phaseHook !== null) {
+                try {
+                    $this->phaseHook->assertRow($this->connection, $request);
+                } catch (Throwable $exception) {
+                    $this->rollBack();
+                    throw $exception;
+                }
+            }
         }
         $result = $this->columns($request);
         if (!$request->mode->writes()) {
@@ -29,7 +44,9 @@ final readonly class PostgreSqlStorageProtectionRotationRowTransaction
     }
 
     private function transaction(
+        #[\SensitiveParameter]
         PostgreSqlStorageProtectionRotationRowRequest $request,
+        #[\SensitiveParameter]
         PostgreSqlStorageProtectionRotationRowResult $result,
     ): PostgreSqlStorageProtectionRotationRowResult {
         if ($result->failedRow) {
@@ -42,8 +59,9 @@ final readonly class PostgreSqlStorageProtectionRotationRowTransaction
                 true,
             );
         }
+        $cursor = null;
         try {
-            $this->advance($request, $result);
+            $cursor = $this->advance($request, $result);
         } catch (Throwable) {
             $this->rollBack();
             return new PostgreSqlStorageProtectionRotationRowResult(
@@ -54,6 +72,14 @@ final readonly class PostgreSqlStorageProtectionRotationRowTransaction
                 true,
             );
         }
+        if ($this->phaseHook !== null) {
+            try {
+                $this->phaseHook->progressed($this->connection, $request, $cursor);
+            } catch (Throwable $exception) {
+                $this->rollBack();
+                throw $exception;
+            }
+        }
         try {
             $this->connection->commit();
         } catch (Throwable $exception) {
@@ -63,8 +89,10 @@ final readonly class PostgreSqlStorageProtectionRotationRowTransaction
         return $result;
     }
 
-    private function columns(PostgreSqlStorageProtectionRotationRowRequest $request): PostgreSqlStorageProtectionRotationRowResult
-    {
+    private function columns(
+        #[\SensitiveParameter]
+        PostgreSqlStorageProtectionRotationRowRequest $request,
+    ): PostgreSqlStorageProtectionRotationRowResult {
         $selected = 0;
         $rotated = 0;
         $skipped = 0;
@@ -84,10 +112,13 @@ final readonly class PostgreSqlStorageProtectionRotationRowTransaction
     }
 
     private function advance(
+        #[\SensitiveParameter]
         PostgreSqlStorageProtectionRotationRowRequest $request,
+        #[\SensitiveParameter]
         PostgreSqlStorageProtectionRotationRowResult $result,
-    ): void {
-        $this->audit->advance($request->audit->checkpoint, $request->scope, $this->cursor($request));
+    ): string {
+        $cursor = $this->cursor($request);
+        $this->audit->advance($request->audit->checkpoint, $request->scope, $cursor);
         if ($request->audit->auditId !== null) {
             $this->audit->progress(
                 $request->audit->audit,
@@ -100,9 +131,11 @@ final readonly class PostgreSqlStorageProtectionRotationRowTransaction
                 ),
             );
         }
+
+        return $cursor;
     }
 
-    private function cursor(PostgreSqlStorageProtectionRotationRowRequest $request): string
+    private function cursor(#[\SensitiveParameter] PostgreSqlStorageProtectionRotationRowRequest $request): string
     {
         $target = $request->storage->target;
         if ($target->hasCompositeIdentity()) {

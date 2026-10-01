@@ -115,6 +115,8 @@ validate_package() {
         src/Internal/Audit/Authorization/AuthorizationAuditAttempt.php \
         src/Internal/Audit/Retention/RetentionHoldAuditWriter.php \
         src/Internal/Audit/Retention/RetentionPurgeAuditWriter.php \
+        src/Internal/Audit/Rotation/StorageRotationAuditHook.php \
+        src/Internal/Audit/Rotation/StorageRotationAuditWriter.php \
         src/Internal/Audit/Relay/AuditRelayOutcome.php \
         src/Internal/Audit/Relay/AuditRelayFailure.php \
         src/Internal/Audit/Relay/AuditRelayException.php \
@@ -134,6 +136,7 @@ validate_package() {
         src/Internal/Retention/AuditedRetentionHoldPort.php \
         src/Internal/Retention/AuditedRetentionPurgeAuditPort.php \
         src/Internal/Retention/AuditedRetentionPurgeService.php \
+        src/Transport/PostgreSql/PostgreSqlStorageProtectionRotationPhaseHook.php \
         src/Internal/Audit/Storage/AuditStoreFailure.php \
         src/Internal/Audit/Storage/AuditStoreException.php \
         src/Internal/Audit/Storage/AuditAppendResult.php \
@@ -206,8 +209,8 @@ validate_package() {
             }
         ' "${BASH_SOURCE[0]}" | sort -u | wc -l
     })"
-    test "${required_inventory_count}" -eq 112
-    test "${required_inventory_unique}" -eq 112
+    test "${required_inventory_count}" -eq 115
+    test "${required_inventory_unique}" -eq 115
 
     test -d "${package_root}/src" || fail "${package_name} archive is missing src/"
     test -n "$(find "${package_root}/src" -type f -name '*.php' -print -quit)" \

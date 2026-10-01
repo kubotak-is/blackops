@@ -7,7 +7,7 @@ EXPORT_SCRIPT="${SCRIPT_DIR}/framework-package-export.sh"
 TEMP_ROOT="$(mktemp -d)"
 trap 'rm -rf -- "${TEMP_ROOT}"' EXIT
 
-reviewed_export_sha='2a0ad34085e2afbcd7de136ea7ed62dd4bb645e9d6192a511f72b64728ba33f7'
+reviewed_export_sha='8cb04c3e0fcdeb9f039cb283d28daea5b9f3ebc247812aaa983bef260a6992f4'
 
 expected_inventory="${TEMP_ROOT}/expected-inventory"
 printf '%s\n' \
@@ -56,6 +56,8 @@ printf '%s\n' \
     src/Internal/Audit/Authorization/AuthorizationAuditAttempt.php \
     src/Internal/Audit/Retention/RetentionHoldAuditWriter.php \
     src/Internal/Audit/Retention/RetentionPurgeAuditWriter.php \
+    src/Internal/Audit/Rotation/StorageRotationAuditHook.php \
+    src/Internal/Audit/Rotation/StorageRotationAuditWriter.php \
     src/Internal/Audit/Relay/AuditRelayOutcome.php \
     src/Internal/Audit/Relay/AuditRelayFailure.php \
     src/Internal/Audit/Relay/AuditRelayException.php \
@@ -75,6 +77,7 @@ printf '%s\n' \
     src/Internal/Retention/AuditedRetentionHoldPort.php \
     src/Internal/Retention/AuditedRetentionPurgeAuditPort.php \
     src/Internal/Retention/AuditedRetentionPurgeService.php \
+    src/Transport/PostgreSql/PostgreSqlStorageProtectionRotationPhaseHook.php \
     src/Internal/Audit/Storage/AuditStoreFailure.php \
     src/Internal/Audit/Storage/AuditStoreException.php \
     src/Internal/Audit/Storage/AuditAppendResult.php \
@@ -937,6 +940,15 @@ test_mutation_rejected() {
         d5p-service-omission)
             run_bounded sed -i '\|src/Internal/Retention/AuditedRetentionPurgeService.php|d' "${candidate}"
             ;;
+        d5r2-hook-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Rotation/StorageRotationAuditHook.php|d' "${candidate}"
+            ;;
+        d5r2-writer-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Rotation/StorageRotationAuditWriter.php|d' "${candidate}"
+            ;;
+        d5r2-interface-omission)
+            run_bounded sed -i '\|src/Transport/PostgreSql/PostgreSqlStorageProtectionRotationPhaseHook.php|d' "${candidate}"
+            ;;
         d2s1-duplicate-entry)
             run_bounded awk '
                 !inserted && $0 ~ /src\/Internal\/Status\/TenantBoundOperationStatusSource\.php/ {
@@ -1306,9 +1318,9 @@ test -f "${EXPORT_SCRIPT}"
 test "$(sha256sum "${EXPORT_SCRIPT}" | cut -d' ' -f1)" = "${reviewed_export_sha}"
 runtime_case_count=0
 assert_inventory "${EXPORT_SCRIPT}"
-test "$(wc -l < "${expected_inventory}")" -eq 112
-test "$(sort -u "${expected_inventory}" | wc -l)" -eq 112
-printf 'required inventory: PASS (112 ordered paths, 112 unique)\n'
+test "$(wc -l < "${expected_inventory}")" -eq 115
+test "$(sort -u "${expected_inventory}" | wc -l)" -eq 115
+printf 'required inventory: PASS (115 ordered paths, 115 unique)\n'
 
 test_mutation_rejected comment-only comment
 test_mutation_rejected existing-entry-removal existing-removal
@@ -1349,6 +1361,9 @@ test_mutation_rejected d5h-port-entry-omission d5h-port-omission
 test_mutation_rejected d5p-writer-entry-omission d5p-writer-omission
 test_mutation_rejected d5p-port-entry-omission d5p-port-omission
 test_mutation_rejected d5p-service-entry-omission d5p-service-omission
+test_mutation_rejected d5r2-hook-entry-omission d5r2-hook-omission
+test_mutation_rejected d5r2-writer-entry-omission d5r2-writer-omission
+test_mutation_rejected d5r2-interface-entry-omission d5r2-interface-omission
 test_mutation_rejected order-swap order-swap
 test_mutation_rejected duplicate-loop duplicate-loop
 test_mutation_rejected heredoc-decoy heredoc-decoy
@@ -1374,4 +1389,4 @@ test_call_contract_mutation_rejected pipeline-composer-continuation pipeline-com
 test_call_contract_mutation_rejected command-substitution-git-continuation command-substitution-git-continuation
 test_call_contract_mutation_rejected resolution-override resolution-override
 printf 'required inventory call-contract mutations: PASS (14 rejected before runtime/SHA)\n'
-printf 'required inventory mutations: PASS (63 rejected: 49 inventory, 14 call-contract)\n'
+printf 'required inventory mutations: PASS (66 rejected: 52 inventory, 14 call-contract)\n'
